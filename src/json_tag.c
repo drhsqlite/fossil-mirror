@@ -115,8 +115,9 @@ static cson_value * json_tag_add(){
   cson_object_set(pay, "raw", cson_value_new_bool(fRaw));
   {
     Blob uu = empty_blob;
+    int rc;
     blob_append(&uu, zName, -1);
-    int const rc = name_to_uuid(&uu, 9, "*");
+    rc = name_to_uuid(&uu, 9, "*");
     if(0!=rc){
       json_set_err(FSL_JSON_E_UNKNOWN,"Could not convert name back to UUID!");
       blob_reset(&uu);
@@ -278,7 +279,7 @@ static cson_value * json_tag_find(){
       "   blob.rid AS rid,"
 #endif
       "   uuid AS uuid,"
-      "   cast(strftime('%s',event.mtime) as int) AS mtime,"
+      "   cast(strftime('%s',event.mtime) as int) AS timestamp,"
       "   coalesce(ecomment,comment) AS comment,"
       "   coalesce(euser,user) AS user,"
       "   CASE event.type"
@@ -286,7 +287,7 @@ static cson_value * json_tag_find(){
       "     WHEN 'w' THEN 'wiki'"
       "     WHEN 'e' THEN 'event'"
       "     WHEN 't' THEN 'ticket'"
-      "     ELSE 'WTF?'"
+      "     ELSE 'unknown'"
       "   END"
       "   AS eventType"
       " FROM event, blob"

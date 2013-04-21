@@ -2,18 +2,12 @@
 ** Copyright (c) 2009 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
-** modify it under the terms of the GNU General Public
-** License version 2 as published by the Free Software Foundation.
+** modify it under the terms of the Simplified BSD License (also
+** known as the "2-Clause License" or "FreeBSD License".)
 **
 ** This program is distributed in the hope that it will be useful,
-** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** General Public License for more details.
-** 
-** You should have received a copy of the GNU General Public
-** License along with this library; if not, write to the
-** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-** Boston, MA  02111-1307, USA.
+** but without any warranty; without even the implied warranty of
+** merchantability or fitness for a particular purpose.
 **
 ** Author contact information:
 **   drh@hwaci.com
@@ -184,7 +178,7 @@ void ssl_close(void){
 
 /*
 ** Open an SSL connection.  The identify of the server is determined
-** by global varibles that are set using url_parse():
+** by global variables that are set using url_parse():
 **
 **    g.urlName       Name of the server.  Ex: www.fossil-scm.org
 **    g.urlPort       TCP/IP port to use.  Ex: 80
@@ -255,6 +249,7 @@ int ssl_open(void){
     char *desc, *prompt;
     char *warning = "";
     Blob ans;
+    char cReply;
     BIO *mem;
     unsigned char md[32];
     unsigned int mdLength = 31;
@@ -286,30 +281,31 @@ int ssl_open(void){
         "   certificates list\n\n"
         "If you are not expecting this message, answer no and "
         "contact your server\nadministrator.\n\n"
-        "Accept certificate for host %s [a=always/y/N]? ",
+        "Accept certificate for host %s (a=always/y/N)? ",
         X509_verify_cert_error_string(e), desc, warning,
         g.urlName);
     BIO_free(mem);
 
     prompt_user(prompt, &ans);
     free(prompt);
-    if( blob_str(&ans)[0]!='y' && blob_str(&ans)[0]!='a' ) {
+    cReply = blob_str(&ans)[0];
+    blob_reset(&ans);
+    if( cReply!='y' && cReply!='Y' && cReply!='a' && cReply!='A') {
       X509_free(cert);
       ssl_set_errmsg("SSL certificate declined");
       ssl_close();
       return 1;
     }
-    if( blob_str(&ans)[0]=='a' ) {
+    if( cReply=='a' || cReply=='A') {
       if ( trusted==0 ){
-        Blob ans2;
-        prompt_user("\nSave this certificate as fully trusted [a=always/N]? ",
-                    &ans2);
-        trusted = (blob_str(&ans2)[0]=='a');
-        blob_reset(&ans2);
+        prompt_user("\nSave this certificate as fully trusted (a=always/N)? ",
+                    &ans);
+        cReply = blob_str(&ans)[0];
+        trusted = ( cReply=='a' || cReply=='A' );
+        blob_reset(&ans);
       }
       ssl_save_certificate(cert, trusted);
     }
-    blob_reset(&ans);
   }
 
   /* Set the Global.zIpAddr variable to the server we are talking to.

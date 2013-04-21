@@ -51,6 +51,7 @@ int Th_Expr(Th_Interp *interp, const char *, int);
 ** Access TH variables in the current stack frame. If the variable name
 ** begins with "::", the lookup is in the top level (global) frame. 
 */
+int Th_ExistsVar(Th_Interp *, const char *, int);
 int Th_GetVar(Th_Interp *, const char *, int);
 int Th_SetVar(Th_Interp *, const char *, int, const char *, int);
 int Th_LinkVar(Th_Interp *, const char *, int, int, const char *, int);

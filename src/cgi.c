@@ -23,11 +23,8 @@
 */
 #include "config.h"
 #ifdef _WIN32
-# include <windows.h>           /* for Sleep once server works again */
-#  if defined(__MINGW32__)
-#    define sleep Sleep            /* windows does not have sleep, but Sleep */
-#    include <ws2tcpip.h>          
-#  endif
+# include <winsock2.h>
+# include <ws2tcpip.h>
 #else
 # include <sys/socket.h>
 # include <netinet/in.h>
@@ -97,6 +94,14 @@ void cgi_destination(int dest){
       cgi_panic("bad destination");
     }
   }
+}
+
+/*
+** Check to see if the header contains the zNeedle string.  Return true
+** if it does and false if it does not.
+*/
+int cgi_header_contains(const char *zNeedle){
+  return strstr(blob_str(&cgiContent[0]), zNeedle)!=0;
 }
 
 /*
@@ -368,8 +373,10 @@ NORETURN void cgi_redirect(const char *zURL){
   if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 ){
     zLocation = mprintf("Location: %s\r\n", zURL);
   }else if( *zURL=='/' ){
-    zLocation = mprintf("Location: %.*s%s\r\n",
-         strlen(g.zBaseURL)-strlen(g.zTop), g.zBaseURL, zURL);
+    int n1 = (int)strlen(g.zBaseURL);
+    int n2 = (int)strlen(g.zTop);
+    if( g.zBaseURL[n1-1]=='/' ) zURL++;
+    zLocation = mprintf("Location: %.*s%s\r\n", n1-n2, g.zBaseURL, zURL);
   }else{
     zLocation = mprintf("Location: %s/%s\r\n", g.zBaseURL, zURL);
   }
@@ -741,12 +748,15 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   cson_value * jv = NULL;
   int rc;
   CgiPostReadState state;
+  cson_parse_opt popt = cson_parse_opt_empty;
+  cson_parse_info pinfo = cson_parse_info_empty;
+  popt.maxDepth = 15;
   state.fh = zIn;
   state.len = contentLen;
   state.pos = 0;
   rc = cson_parse( &jv,
                    contentLen ? cson_data_source_FILE_n : cson_data_source_FILE,
-                   contentLen ? (void *)&state : (void *)zIn, NULL, NULL );
+                   contentLen ? (void *)&state : (void *)zIn, &popt, &pinfo );
   if(rc){
     goto invalidRequest;
   }else{
@@ -760,10 +770,50 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   return;
   invalidRequest:
   cgi_set_content_type(json_guess_content_type());
-  json_err( FSL_JSON_E_INVALID_REQUEST, NULL, 1 );
+  if(0 != pinfo.errorCode){ /* fancy error message */
+      char * msg = mprintf("JSON parse error at line %u, column %u, "
+                           "byte offset %u: %s",
+                           pinfo.line, pinfo.col, pinfo.length,
+                           cson_rc_string(pinfo.errorCode));
+      json_err( FSL_JSON_E_INVALID_REQUEST, msg, 1 );
+      free(msg);
+  }else if(jv && !g.json.post.o){
+      json_err( FSL_JSON_E_INVALID_REQUEST,
+                "Request envelope must be a JSON Object (not array).", 1 );
+  }else{ /* generic error message */
+      json_err( FSL_JSON_E_INVALID_REQUEST, NULL, 1 );
+  }
   fossil_exit( g.isHTTP ? 0 : 1);
 }
 #endif /* FOSSIL_ENABLE_JSON */
+
+/*
+** Log HTTP traffic to a file.  Begin the log on first use.  Close the log
+** when the argument is NULL.
+*/
+void cgi_trace(const char *z){
+  static FILE *pLog = 0;
+  if( g.fHttpTrace==0 ) return;
+  if( z==0 ){
+    if( pLog ) fclose(pLog);
+    pLog = 0;
+    return;
+  }
+  if( pLog==0 ){
+    char zFile[50];
+    unsigned r;
+    sqlite3_randomness(sizeof(r), &r);
+    sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%08x.txt", r);
+    pLog = fossil_fopen(zFile, "wb");
+    if( pLog ){
+      fprintf(stderr, "# open log on %s\n", zFile);
+    }else{
+      fprintf(stderr, "# failed to open %s\n", zFile);
+      return;
+    }
+  }
+  fputs(z, pLog);
+}
 
 
 /*
@@ -807,6 +857,7 @@ void cgi_init(void){
       z = fossil_malloc( len+1 );
       len = fread(z, 1, len, g.httpIn);
       z[len] = 0;
+      cgi_trace(z);
       if( zType[0]=='a' ){
         add_param_list(z, '&');
       }else{
@@ -947,7 +998,7 @@ char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
 
 /*
 ** Return the name of the i-th CGI parameter.  Return NULL if there
-** are fewer than i registered CGI parmaeters.
+** are fewer than i registered CGI parameters.
 */
 const char *cgi_parameter_name(int i){
   if( i>=0 && i<nUsedQP ){
@@ -1109,10 +1160,11 @@ static char *extract_token(char *zInput, char **zLeftOver){
 
 /*
 ** This routine handles a single HTTP request which is coming in on
-** standard input and which replies on standard output.
+** g.httpIn and which replies on g.httpOut
 **
-** The HTTP request is read from standard input and is used to initialize
-** environment variables as per CGI.  The cgi_init() routine to complete
+** The HTTP request is read from g.httpIn and is used to initialize
+** entries in the cgi_parameter() hash, as if those entries were
+** environment variables.  A call to cgi_init() completes
 ** the setup.  Once all the setup is finished, this procedure returns
 ** and subsequent code handles the actual generation of the webpage.
 */
@@ -1126,6 +1178,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request();
   }
+  cgi_trace(zLine);
   zToken = extract_token(zLine, &z);
   if( zToken==0 ){
     malformed_request();
@@ -1152,6 +1205,7 @@ void cgi_handle_http_request(const char *zIpAddr){
     char *zFieldName;
     char *zVal;
 
+    cgi_trace(zLine);
     zFieldName = extract_token(zLine,&zVal);
     if( zFieldName==0 || *zFieldName==0 ) break;
     while( fossil_isspace(*zVal) ){ zVal++; }
@@ -1194,7 +1248,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   }
 
   if( zIpAddr==0 &&
-      getsockname(fileno(g.httpIn), (struct sockaddr*)&remoteName, 
+      getpeername(fileno(g.httpIn), (struct sockaddr*)&remoteName, 
                                 &size)>=0
   ){
     sa_family_t family;
@@ -1220,6 +1274,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   }
 
   cgi_init();
+  cgi_trace(0);
 }
 
 #if INTERFACE
@@ -1246,7 +1301,12 @@ void cgi_handle_http_request(const char *zIpAddr){
 ** Return 0 to each child as it runs.  If unable to establish a
 ** listening socket, return non-zero.
 */
-int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
+int cgi_http_server(
+  int mnPort, int mxPort,   /* Range of TCP ports to try */
+  const char *zBrowser,     /* Run this browser, if not NULL */
+  const char *zIpAddr,      /* Bind to this IP address, if not null */
+  int flags                 /* HTTP_SERVER_* flags */
+){
 #if defined(_WIN32)
   /* Use win32_http_server() instead */
   fossil_exit(1);
@@ -1265,13 +1325,13 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   struct sockaddr_storage inaddr;   /* The socket address */
   char* sPort;
   int iRet;
-#else
+#else // HAVE_GETADDRINFO
 #ifdef WITH_IPV6
-  struct sockaddr_in6 inaddr;   /* The socket address */
-#else
+  struct sockaddr_storage inaddr;   /* The socket address */
+#else  // WITH_IPV6
   struct sockaddr_in inaddr;   /* The socket address */
-#endif
-#endif
+#endif // WITH_IPV6
+#endif // HAVE_GETADDRINFO
   int opt = 1;                 /* setsockopt flag */
   int iPort = mnPort;
 
@@ -1280,9 +1340,9 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
     memset(&hints, 0, sizeof(struct addrinfo));
 #ifdef WITH_IPV6
     hints.ai_family = PF_UNSPEC;
-#else
+#else  // WITH_IPV6
     hints.ai_family = PF_INET;
-#endif
+#endif // WITH_IPV6
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
     if(!(flags & HTTP_SERVER_LOCALHOST)) hints.ai_flags |= AI_PASSIVE;
@@ -1318,34 +1378,51 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
       iPort++;
       continue;
     }
-#else
+#else // HAVE_GETADDRINFO
     memset(&inaddr, 0, sizeof(inaddr));
 
+    if( zIpAddr ){
 #ifdef WITH_IPV6
-    inaddr.sin6_family = AF_INET6;
-#else
-    inaddr.sin_family = AF_INET;
-#endif
-    if( flags & HTTP_SERVER_LOCALHOST ){
+      ((struct sockaddr_in6*)&inaddr)->sin6_family = AF_INET6;
+      if( inet_pton(AF_INET6, argv[1], &((struct sockaddr_in6*)&inaddr)->sin6_addr) < 1 ){
+        ((struct sockaddr_in*)&inaddr)->sin_family = AF_INET;
+      	((struct sockaddr_in*)&inaddr)->sin_addr.s_addr = inet_addr(zIpAddr);
+        if( ((struct sockaddr_in*)&inaddr)->sin_addr.s_addr  == (-1) )
+#else // WITH_IPV6
+      inaddr.sin_family = AF_INET;
+      inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
+      if( inaddr.sin_addr.s_addr == (-1) )
+#endif // WITH_IPV6
+      {
+        fossil_fatal("not a valid IP address: %s", zIpAddr);
+      }
 #ifdef WITH_IPV6
-      memcpy(&inaddr.sin6_addr, &in6addr_loopback, sizeof(inaddr.sin6_addr));
-#else
+    }
+#endif // WITH_IPV6
+    }else if( flags & HTTP_SERVER_LOCALHOST ){
+#ifdef WITH_IPV6
+      memcpy(&((struct sockaddr_in6*)&inaddr)->sin6_addr, &in6addr_loopback, sizeof(inaddr.sin6_addr));
+#else  // WITH_IPV6
       inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-#endif
+#endif // WITH_IPV6
     }else{
 #ifdef WITH_IPV6
-      memcpy(&inaddr.sin6_addr, &in6addr_any, sizeof(inaddr.sin6_addr));
-#else
+      memcpy(&((struct sockaddr_in6*)&inaddr)->sin6_addr, &in6addr_any, sizeof(inaddr.sin6_addr));
+#else  // WITH_IPV6
       inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-#endif
+#endif // WITH_IPV6
     }
 #ifdef WITH_IPV6
-    inaddr.sin6_port = htons(iPort);
-    listener = socket(AF_INET6, SOCK_STREAM, 0);
-#else
+    if( inaddr.ss_family == AF_INET6 ){
+      ((struct sockaddr_in6*)&inaddr)->sin6_port = htons(iPort);
+    }else{
+      ((struct sockaddr_in*)&inaddr)->sin_port = htons(iPort);
+    }
+    listener = socket(inaddr.ss_family, SOCK_STREAM, 0);
+#else // WITH_IPV6
     inaddr.sin_port = htons(iPort);
     listener = socket(AF_INET, SOCK_STREAM, 0);
-#endif
+#endif // WITH_IPV6
     if( listener<0 ){
       fossil_fatal("Unable to create socket");
     }
@@ -1356,14 +1433,17 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
 #ifdef WITH_IPV6
     opt=0;
     setsockopt(listener, IPPROTO_IPV6, IPV6_V6ONLY, &opt, sizeof(opt));
-#endif
 
-    if( bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr))<0 ){
+    if( bind(listener, (struct sockaddr*)&inaddr, inaddr.ss_family == AF_INET6 ? sizeof(struct sockaddr_in6):sizeof(struct sockaddr_in)) < 0 )
+#else // WITH_IPV6
+    if( bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr)) < 0 )
+#endif // WITH_IPV6
+	{
       close(listener);
       iPort++;
       continue;
     }
-#endif
+#endif // HAVE_GETADDRINFO
     break;
   }
   if( iPort>mxPort ){
@@ -1430,7 +1510,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   }
   /* NOT REACHED */  
   fossil_exit(1);
-#endif
+#endif // WIN32
   /* NOT REACHED */
   return 0;
 }
@@ -1439,9 +1519,9 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
 /*
 ** Name of days and months.
 */
-static const char *azDays[] =
+static const char *const azDays[] =
     {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", 0};
-static const char *azMonths[] =
+static const char *const azMonths[] =
     {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", 0};
 

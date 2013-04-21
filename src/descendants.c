@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** This file contains code used to find decendants of a version
+** This file contains code used to find descendants of a version
 ** or leaves of a version tree.
 */
 #include "config.h"
@@ -26,7 +26,7 @@
 /*
 ** Create a temporary table named "leaves" if it does not
 ** already exist.  Load this table with the RID of all
-** check-ins that are leaves which are decended from
+** check-ins that are leaves which are descended from
 ** check-in iBase.
 **
 ** A "leaf" is a check-in that has no children in the same branch.
@@ -73,7 +73,7 @@ void compute_leaves(int iBase, int closeMode){
 
     /* This query returns all non-branch-merge children of check-in :rid.
     **
-    ** If a a child is a merge of a fork within the same branch, it is 
+    ** If a child is a merge of a fork within the same branch, it is 
     ** returned.  Only merge children in different branches are excluded.
     */
     db_prepare(&q1,
@@ -158,21 +158,22 @@ void compute_leaves(int iBase, int closeMode){
 ** Load the record ID rid and up to N-1 closest ancestors into
 ** the "ok" table.
 */
-void compute_ancestors(int rid, int N){
+void compute_ancestors(int rid, int N, int directOnly){
   Bag seen;
   PQueue queue;
   Stmt ins;
   Stmt q;
   bag_init(&seen);
-  pqueue_init(&queue);
+  pqueuex_init(&queue);
   bag_insert(&seen, rid);
-  pqueue_insert(&queue, rid, 0.0, 0);
+  pqueuex_insert(&queue, rid, 0.0, 0);
   db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
   db_prepare(&q,
     "SELECT a.pid, b.mtime FROM plink a LEFT JOIN plink b ON b.cid=a.pid"
-    " WHERE a.cid=:rid"
+    " WHERE a.cid=:rid %s",
+    directOnly ? " AND a.isprim" : ""
   );
-  while( (N--)>0 && (rid = pqueue_extract(&queue, 0))!=0 ){
+  while( (N--)>0 && (rid = pqueuex_extract(&queue, 0))!=0 ){
     db_bind_int(&ins, ":rid", rid);
     db_step(&ins);
     db_reset(&ins);
@@ -181,13 +182,13 @@ void compute_ancestors(int rid, int N){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
       if( bag_insert(&seen, pid) ){
-        pqueue_insert(&queue, pid, -mtime, 0);
+        pqueuex_insert(&queue, pid, -mtime, 0);
       }
     }
     db_reset(&q);
   }
   bag_clear(&seen);
-  pqueue_clear(&queue);
+  pqueuex_clear(&queue);
   db_finalize(&ins);
   db_finalize(&q);
 }
@@ -204,7 +205,8 @@ void compute_direct_ancestors(int rid, int N){
   Stmt q;
   int gen = 0;
   db_multi_exec(
-    "CREATE TEMP TABLE IF NOT EXISTS ancestor(rid INTEGER, generation INTEGER PRIMARY KEY);"
+    "CREATE TEMP TABLE IF NOT EXISTS ancestor(rid INTEGER,"
+                                            " generation INTEGER PRIMARY KEY);"
     "DELETE FROM ancestor;"
     "INSERT INTO ancestor VALUES(%d, 0);", rid
   );
@@ -229,6 +231,40 @@ void compute_direct_ancestors(int rid, int N){
 }
 
 /*
+** Compute the "mtime" of the file given whose blob.rid is "fid" that
+** is part of check-in "vid".  The mtime will be the mtime on vid or
+** some ancestor of vid where fid first appears.
+*/
+int mtime_of_manifest_file(
+  int vid,       /* The check-in that contains fid */
+  int fid,       /* The id of the file whose check-in time is sought */
+  i64 *pMTime    /* Write result here */
+){
+  static int prevVid = -1;
+  static Stmt q;
+
+  if( prevVid!=vid ){
+    prevVid = vid;
+    db_multi_exec("DROP TABLE IF EXISTS temp.ok;"
+                  "CREATE TEMP TABLE ok(x INTEGER PRIMARY KEY);");
+    compute_ancestors(vid, 100000000, 1);
+  }
+  db_static_prepare(&q,
+    "SELECT (max(event.mtime)-2440587.5)*86400 FROM mlink, event"
+    " WHERE mlink.mid=event.objid"
+    "   AND +mlink.mid IN ok"
+    "   AND mlink.fid=:fid");
+  db_bind_int(&q, ":fid", fid);
+  if( db_step(&q)!=SQLITE_ROW ){
+    db_reset(&q);
+    return 1;
+  }
+  *pMTime = db_column_int64(&q, 0);
+  db_reset(&q);
+  return 0;
+}
+
+/*
 ** Load the record ID rid and up to N-1 closest descendants into
 ** the "ok" table.
 */
@@ -239,12 +275,12 @@ void compute_descendants(int rid, int N){
   Stmt q;
 
   bag_init(&seen);
-  pqueue_init(&queue);
+  pqueuex_init(&queue);
   bag_insert(&seen, rid);
-  pqueue_insert(&queue, rid, 0.0, 0);
+  pqueuex_insert(&queue, rid, 0.0, 0);
   db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
   db_prepare(&q, "SELECT cid, mtime FROM plink WHERE pid=:rid");
-  while( (N--)>0 && (rid = pqueue_extract(&queue, 0))!=0 ){
+  while( (N--)>0 && (rid = pqueuex_extract(&queue, 0))!=0 ){
     db_bind_int(&ins, ":rid", rid);
     db_step(&ins);
     db_reset(&ins);
@@ -253,13 +289,13 @@ void compute_descendants(int rid, int N){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
       if( bag_insert(&seen, pid) ){
-        pqueue_insert(&queue, pid, mtime, 0);
+        pqueuex_insert(&queue, pid, mtime, 0);
       }
     }
     db_reset(&q);
   }
   bag_clear(&seen);
-  pqueue_clear(&queue);
+  pqueuex_clear(&queue);
   db_finalize(&ins);
   db_finalize(&q);
 }
@@ -314,6 +350,7 @@ void descendants_cmd(void){
 ** Options:
 **   --all        show ALL leaves
 **   --closed     show only closed leaves
+**   --bybranch   order output by branch name
 **   --recompute  recompute the "leaf" table in the repository DB
 **
 ** See also: descendants, finfo, info, branch
@@ -324,6 +361,10 @@ void leaves_cmd(void){
   int showAll = find_option("all", 0, 0)!=0;
   int showClosed = find_option("closed", 0, 0)!=0;
   int recomputeFlag = find_option("recompute",0,0)!=0;
+  int byBranch = find_option("bybranch",0,0)!=0;
+  char *zLastBr = 0;
+  int n;
+  char zLineNo[10];
 
   db_find_and_open_repository(0,0);
   if( recomputeFlag ) leaf_rebuild();
@@ -335,9 +376,35 @@ void leaves_cmd(void){
   }else if( !showAll ){
     blob_appendf(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
   }
-  db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
+  if( byBranch ){
+    db_prepare(&q, "%s ORDER BY nullif(branch,'trunk') COLLATE nocase,"
+                   " event.mtime DESC",
+                   blob_str(&sql));
+  }else{
+    db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
+  }
   blob_reset(&sql);
-  print_timeline(&q, 2000, 0);
+  n = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zId = db_column_text(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    const char *zCom = db_column_text(&q, 3);
+    const char *zBr = db_column_text(&q, 7);
+    char *z;
+
+    if( byBranch && fossil_strcmp(zBr, zLastBr)!=0 ){
+      fossil_print("*** %s ***\n", zBr);
+      fossil_free(zLastBr);
+      zLastBr = fossil_strdup(zBr);
+    }
+    n++;
+    sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
+    fossil_print("%6s ", zLineNo);
+    z = mprintf("%s [%.10s] %s", zDate, zId, zCom);
+    comment_print(z, 7, 79);
+    fossil_free(z);
+  }
+  fossil_free(zLastBr);
   db_finalize(&q);
 }
 
@@ -406,4 +473,69 @@ void leaves_page(void){
   @ }
   @ </script>
   style_footer();
+}
+
+#if INTERFACE
+/* Flag parameters to compute_uses_file() */
+#define USESFILE_DELETE   0x01  /* Include the check-ins where file deleted */
+
+#endif
+
+
+/*
+** Add to table zTab the record ID (rid) of every check-in that contains
+** the file fid.
+*/
+void compute_uses_file(const char *zTab, int fid, int usesFlags){
+  Bag seen;
+  Bag pending;
+  Stmt ins;
+  Stmt q;
+  int rid;
+
+  bag_init(&seen);
+  bag_init(&pending);
+  db_prepare(&ins, "INSERT OR IGNORE INTO \"%s\" VALUES(:rid)", zTab);
+  db_prepare(&q, "SELECT mid FROM mlink WHERE fid=%d", fid);
+  while( db_step(&q)==SQLITE_ROW ){
+    int mid = db_column_int(&q, 0);
+    bag_insert(&pending, mid);
+    bag_insert(&seen, mid);
+    db_bind_int(&ins, ":rid", mid);
+    db_step(&ins);
+    db_reset(&ins);
+  }
+  db_finalize(&q);
+  
+  db_prepare(&q, "SELECT mid FROM mlink WHERE pid=%d", fid);
+  while( db_step(&q)==SQLITE_ROW ){
+    int mid = db_column_int(&q, 0);
+    bag_insert(&seen, mid);
+    if( usesFlags & USESFILE_DELETE ){
+      db_bind_int(&ins, ":rid", mid);
+      db_step(&ins);
+      db_reset(&ins);
+    }
+  }
+  db_finalize(&q);
+  db_prepare(&q, "SELECT cid FROM plink WHERE pid=:rid");
+
+  while( (rid = bag_first(&pending))!=0 ){
+    bag_remove(&pending, rid);
+    db_bind_int(&q, ":rid", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      int mid = db_column_int(&q, 0);
+      if( bag_find(&seen, mid) ) continue;
+      bag_insert(&seen, mid);
+      bag_insert(&pending, mid);
+      db_bind_int(&ins, ":rid", mid);
+      db_step(&ins);
+      db_reset(&ins);
+    }
+    db_reset(&q);
+  }
+  db_finalize(&q);
+  db_finalize(&ins);
+  bag_clear(&seen);
+  bag_clear(&pending);
 }

@@ -13,9 +13,11 @@
 int main(int argc, char *argv[]){
     FILE *m,*u,*v;
     char *z;
-    int i, x;
+    int i, x, d;
     char b[1000];
     char vx[1000];
+    memset(b,0,sizeof(b));
+    memset(vx,0,sizeof(vx));
     u = fopen(argv[1],"r");
     fgets(b, sizeof(b)-1,u);
     fclose(u);
@@ -53,5 +55,21 @@ int main(int argc, char *argv[]){
     }
     for(z=vx; z[0]=='0'; z++){}
     printf("#define RELEASE_VERSION_NUMBER %s\n", z);
+    memset(vx,0,sizeof(vx));
+    strcpy(vx,b);
+    d = 0;
+    for(z=vx; z[0]; z++){
+      if( z[0]!='.' ) continue;
+      if ( d<3 ){
+        z[0] = ',';
+        d++;
+      }else{
+        z[0] = '\0';
+        break;
+      }
+    }
+    printf("#define RELEASE_RESOURCE_VERSION %s", vx);
+    while( d<3 ){ printf(",0"); d++; }
+    printf("\n");
     return 0;
 }

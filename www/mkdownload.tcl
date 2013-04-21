@@ -5,27 +5,42 @@
 #
 #
 set out [open download.html w]
+fconfigure $out -encoding utf-8 -translation lf
 puts $out \
-{<html>
+{<!DOCTYPE html><html>
 <head>
-<title>Fossil: Downloads</title>
+<base href="http://www.fossil-scm.org/" />
+<title>Fossil: Timeline</title>
 <link rel="stylesheet" href="/fossil/style.css" type="text/css"
       media="screen">
 </head>
 <body>
 <div class="header">
   <div class="logo">
-    <img src="/fossil/doc/tip/www/fossil_logo_small.gif" alt="logo">
+    <img src="/fossil/logo" alt="logo">
+    <br /><nobr>Fossil</nobr>
   </div>
+
   <div class="title">Fossil Downloads</div>
 </div>
-<div class="mainmenu"><a href='/fossil/doc/tip/www/index.wiki'>Home</a><a href='/fossil/timeline'>Timeline</a><a href='/fossil/brlist'>Branches</a><a href='/fossil/taglist'>Tags</a><a href='/fossil/reportlist'>Tickets</a><a href='/fossil/wiki'>Wiki</a><a href='/fossil/login'>Login</a></div>
+<div class="mainmenu">
+<a href='/fossil/doc/trunk/www/index.wiki'>Home</a>
+<a href='/fossil/timeline?y=ci'>Timeline</a>
+<a href='/download.html'>Download</a>
+<a href='/fossil/dir?ci=trunk'>Code</a>
+<a href='/fossil/doc/trunk/www/permutedindex.wiki'>Documentation</a>
+<a href='/fossil/brlist'>Branches</a>
+<a href='/fossil/taglist'>Tags</a>
+<a href='/fossil/reportlist'>Tickets</a>
+</div>
 <div class="content">
 <p>
 
-<center><font size=4>
-<b>To install Fossil &rarr;</b> download the stand-alone executable
-and put it on your $PATH.
+<center><font size=4>}
+puts $out \
+"<b>To install Fossil \u2192</b> download the stand-alone executable"
+puts $out \
+{and put it on your $PATH.
 </font><p><small>
 RPMs available
 <a href="http://download.opensuse.org/repositories/home:/rmax:/fossil/">
@@ -55,11 +70,12 @@ foreach datetime [lsort -decr [array names adate]] {
   append dt "[string range $datetime 8 9]:[string range $datetime 10 11]:"
   append dt "[string range $datetime 12 13]"
   set link [string map {{ } +} $dt]
-  set hr http://www.fossil-scm.org/fossil/timeline?c=$link&y=ci
+  set hr http://www.fossil-scm.org/fossil/timeline?c=$link&amp;y=ci
   puts $out "<tr><td colspan=6 align=left><hr>"
   puts $out "<center><b><a href=\"$hr\">$dt</a></b></center>"
   puts $out "</td></tr>"
-  
+  puts $out "<tr>"
+
   foreach {prefix suffix img desc} {
     fossil-linux-x86 zip linux.gif {Linux x86}
     fossil-macosx-x86 zip mac.gif {Mac 10.5 x86}
@@ -89,6 +105,7 @@ foreach datetime [lsort -decr [array names adate]] {
   if {[file exists download/releasenotes-$datetime.html]} {
     puts $out "<tr><td colspan=6 align=left>"
     set rn [open download/releasenotes-$datetime.html]
+    fconfigure $rn -encoding utf-8
     puts $out "[read $rn]"
     close $rn
     puts $out "</td></tr>"
@@ -106,12 +123,13 @@ close $out
 # Generate the checksum page
 #
 set out [open fossil_download_checksums.html w]
+fconfigure $out -encoding utf-8 -translation lf
 puts $out {<html>
 <title>Fossil Download Checksums</title>
 <body>
 <h1 align="center">Checksums For Fossil Downloads</h1>
 <p>The following table shows the SHA1 checksums for the precompiled
-binaries available on the 
+binaries available on the
 <a href="http://www.fossil-scm.org/download.html">Fossil website</a>.</p>
 <pre>}
 
@@ -119,5 +137,5 @@ foreach file [lsort [glob -nocomplain download/fossil-*.zip]] {
   set sha1sum [lindex [exec sha1sum $file] 0]
   puts $out "$sha1sum   [file tail $file]"
 }
-puts $out {</pre></body></html}
+puts $out {</pre></body></html>}
 close $out

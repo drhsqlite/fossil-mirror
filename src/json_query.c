@@ -67,6 +67,13 @@ cson_value * json_page_query(){
   zFmt = json_find_option_cstr2("format",NULL,"f",3);
   if(!zFmt) zFmt = "o";
   db_prepare(&q,"%s", zSql);
+  if( 0 == sqlite3_column_count( q.pStmt ) ){
+      json_set_err(FSL_JSON_E_USAGE,
+                   "Input query has no result columns. "
+                   "Only SELECT-like queries are supported.");
+      db_finalize(&q);
+      return NULL;
+  }
   switch(*zFmt){
     case 'a':
       check = cson_sqlite3_stmt_to_json(q.pStmt, &payV, 0);

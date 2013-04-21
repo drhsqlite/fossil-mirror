@@ -749,7 +749,7 @@ static int WriteFile(const char *zFilename, const char *zOutput){
 #define TT_EOF             8   /* End of file */
 #define TT_Error           9   /* An error condition */
 #define TT_BlockComment    10  /* A C-Style comment at the left margin that
-                                * spans multple lines */
+                                * spans multiple lines */
 #define TT_Other           0   /* None of the above */
 
 /*
@@ -1488,7 +1488,7 @@ static int ProcessTypeDecl(Token *pList, int flags, int *pReset){
   */
 
   /*
-  ** If the braces are followed immedately by a semicolon, then we are
+  ** If the braces are followed immediately by a semicolon, then we are
   ** dealing a type declaration only.  There is not variable definition
   ** following the type declaration.  So reset...
   */
@@ -1884,7 +1884,7 @@ static int ProcessInlineProc(Token *pFirst, int flags, int *pReset){
 ** a '='.  If it is '=', then assume we have a variable definition.
 **
 ** If pEnd is ';', then the determination is more difficult.  We have
-** to search for an occurance of an ID followed immediately by '('.
+** to search for an occurrence of an ID followed immediately by '('.
 ** If found, we have a prototype.  Otherwise we are dealing with a
 ** variable definition.
 */
@@ -2638,7 +2638,7 @@ static void DeclareObject(
   }
 
   /*
-  ** Call ScanText() recusively (this routine is called from ScanText())
+  ** Call ScanText() recursively (this routine is called from ScanText())
   ** to include declarations required to come before these declarations.
   */
   for(p=pDecl; p; p=p->pSameName){
@@ -2762,7 +2762,7 @@ static void ScanText(
 
 /*
 ** Provide a full declaration to any object which so far has had only
-** a foward declaration.
+** a forward declaration.
 */
 static void CompleteForwardDeclarations(GenState *pState){
   Decl *pDecl;

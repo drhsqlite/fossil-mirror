@@ -545,6 +545,11 @@ void tarball_cmd(void){
     usage("VERSION OUTPUTFILE");
   }
   rid = name_to_typed_rid(g.argv[2], "ci");
+  if( rid==0 ){
+    fossil_fatal("Checkin not found: %s", g.argv[2]);
+    return;
+  }
+
   if( zName==0 ){
     zName = db_text("default-name",
        "SELECT replace(%Q,' ','_') "
@@ -578,7 +583,7 @@ void tarball_page(void){
   if( !g.perm.Zip ){ login_needed(); return; }
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
-  zRid = mprintf("%s", PD("uuid",""));
+  zRid = mprintf("%s", PD("uuid","trunk"));
   nRid = strlen(zRid);
   if( nName>7 && fossil_strcmp(&zName[nName-7], ".tar.gz")==0 ){
     /* Special case:  Remove the ".tar.gz" suffix.  */
@@ -594,7 +599,7 @@ void tarball_page(void){
       }
     }
   }
-  rid = name_to_rid(nRid?zRid:zName);
+  rid = name_to_typed_rid(nRid?zRid:zName, "ci");
   if( rid==0 ){
     @ Not found
     return;

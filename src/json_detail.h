@@ -22,11 +22,16 @@
 
 /**
    FOSSIL_JSON_API_VERSION holds the date (YYYYMMDD) of the latest
-   "significant" change to the JSON API (a change in an interface
-   or new functionality). It is sent as part of the /json/version
-   request. We could arguably add it to each response.
+   "significant" change to the JSON API (a change in an interface or
+   new functionality). It is sent as part of the /json/version
+   request. We could arguably add it to each response or even add a
+   version number to each response type, allowing very fine (too
+   fine?) granularity in compatibility change notification. The
+   version number could be included in part of the command dispatching
+   framework, allowing the top-level dispatching code to deal with it
+   (for the most part).
 */
-#define FOSSIL_JSON_API_VERSION "20120409"
+#define FOSSIL_JSON_API_VERSION "20120713"
 
 /*
 ** Impl details for the JSON API which need to be shared
@@ -100,8 +105,14 @@ FSL_JSON_E_DB_LOCKED /*+4*/,
 
 FSL_JSON_E_DB_NEEDS_REBUILD = FSL_JSON_E_DB + 101,
 FSL_JSON_E_DB_NOT_FOUND = FSL_JSON_E_DB + 102,
-FSL_JSON_E_DB_NOT_VALID = FSL_JSON_E_DB + 103
-
+FSL_JSON_E_DB_NOT_VALID = FSL_JSON_E_DB + 103,
+/*
+** Maintenance reminder: FSL_JSON_E_DB_NOT_FOUND gets triggered in the
+** bootstrapping process before we know whether we need to check for
+** FSL_JSON_E_DB_NEEDS_CHECKOUT. Thus the former error trumps the
+** latter.
+*/
+FSL_JSON_E_DB_NEEDS_CHECKOUT = FSL_JSON_E_DB + 104
 };
 
 
@@ -114,7 +125,7 @@ FSL_JSON_E_DB_NOT_VALID = FSL_JSON_E_DB + 103
 ** json_cmd_top() (CLI mode) will have set up the JSON-related
 ** environment. Implementations may generate a "result payload" of any
 ** JSON type by returning its value from this function (ownership is
-** tranferred to the caller). On error they should set
+** transferred to the caller). On error they should set
 ** g.json.resultCode to one of the FossilJsonCodes values and return
 ** either their payload object or NULL. Note that NULL is a legal
 ** success value - it simply means the response will contain no
@@ -130,12 +141,12 @@ FSL_JSON_E_DB_NOT_VALID = FSL_JSON_E_DB + 103
 ** b) generating a response payload (if applicable)
 ** c) Setting g.json's error state (if applicable). See json_set_err().
 **
-** It is imperitive that NO callback functions EVER output ANYTHING to
+** It is imperative that NO callback functions EVER output ANYTHING to
 ** stdout, as that will effectively corrupt any JSON output, and
 ** almost certainly will corrupt any HTTP response headers. Output
 ** sent to stderr ends up in my apache log, so that might be useful
-** for debuggering in some cases, but no such code should be left
-** enabled for non-debuggering builds.
+** for debugging in some cases, but no such code should be left
+** enabled for non-debugging builds.
 */
 typedef cson_value * (*fossil_json_f)();
 
@@ -172,7 +183,7 @@ typedef struct JsonPageDef{
   ** <0 = CLI only, >0 = HTTP only, 0==both
   **
   ** Now that we can simulate POST in CLI mode, the distinction
-  ** between them has disappeared in most (or all) cases, so 0 is the
+  ** between them has disappeared in most (or all) cases, so 0 is
   ** the standard value.
   */
   char runMode;
@@ -193,7 +204,7 @@ typedef struct FossilJsonKeys_{
   char const * resultText;
   char const * timestamp;
 } FossilJsonKeys_;
-const FossilJsonKeys_ FossilJsonKeys;
+extern const FossilJsonKeys_ FossilJsonKeys;
 
 /*
 ** A page/command dispatch helper for fossil_json_f() implementations.
@@ -202,7 +213,7 @@ const FossilJsonKeys_ FossilJsonKeys;
 ** element.
 **
 ** This function takes the command specified in
-** json_comand_arg(1+g.json.dispatchDepth) and searches pages for a
+** json_command_arg(1+g.json.dispatchDepth) and searches pages for a
 ** matching name. If found then that page's func() is called to fetch
 ** the payload, which is returned to the caller.
 **
@@ -213,22 +224,6 @@ const FossilJsonKeys_ FossilJsonKeys;
 ** the dispatch chain).
 */
 cson_value * json_page_dispatch_helper(JsonPageDef const * pages);
-
-/*
-** Implements the /json/wiki family of pages/commands.
-**
-*/
-cson_value * json_page_wiki();
-
-/*
-** Implements /json/timeline/wiki and /json/wiki/timeline.
-*/
-cson_value * json_timeline_wiki();
-
-/*
-** Implements /json/timeline family of functions.
-*/
-cson_value * json_page_timeline();
 
 /*
 ** Convenience wrapper around cson_value_new_string().
@@ -261,11 +256,14 @@ cson_value * json_new_string_f( char const * fmt, ... );
 ** in.
 **
 ** Whether or not we need to take args from CLI or POST data makes a
-** difference in argument/parameter handling in many JSON rountines,
+** difference in argument/parameter handling in many JSON routines,
 ** and thus this distinction.
 */
 char fossil_has_json();
 
+enum json_get_changed_files_flags {
+    json_get_changed_files_ELIDE_PARENT = 1 << 0
+};
 
 #endif/*FOSSIL_JSON_DETAIL_H_INCLUDED*/
 #endif /* FOSSIL_ENABLE_JSON */

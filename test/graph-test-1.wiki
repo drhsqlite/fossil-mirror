@@ -31,9 +31,9 @@ the correct operation of the graph drawing logic.
   *  <a href="../../../timeline?y=ci&a=2010-12-20&n=9" target="testwindow">
      multiple branch risers, n=9.</a>
   *  <a href="../../../timeline?r=experimental" target="testwindow">
-     Experimental branch using and related check-ins.</a>
+     Experimental branch with related check-ins.</a>
   *  <a href="../../../timeline?r=experimental&mionly" target="testwindow">
-     Experimental branch using and merge-ins only.</a>
+     Experimental branch with merge-ins only.</a>
   *  <a href="../../../timeline?t=experimental" target="testwindow">
      Experimental branch check-ins only.</a>
   *  <a href="../../../timeline?r=experimental&n=1000" target="testwindow">

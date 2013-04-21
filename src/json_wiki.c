@@ -1,6 +1,6 @@
 #ifdef FOSSIL_ENABLE_JSON
 /*
-** Copyright (c) 2011 D. Richard Hipp
+** Copyright (c) 2011-12 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -26,6 +26,7 @@
 static cson_value * json_wiki_create();
 static cson_value * json_wiki_get();
 static cson_value * json_wiki_list();
+static cson_value * json_wiki_preview();
 static cson_value * json_wiki_save();
 static cson_value * json_wiki_diff();
 /*
@@ -36,6 +37,7 @@ static const JsonPageDef JsonPageDefs_Wiki[] = {
 {"diff", json_wiki_diff, 0},
 {"get", json_wiki_get, 0},
 {"list", json_wiki_list, 0},
+{"preview", json_wiki_preview, 0},
 {"save", json_wiki_save, 0},
 {"timeline", json_timeline_wiki,0},
 /* Last entry MUST have a NULL name. */
@@ -48,9 +50,14 @@ static const JsonPageDef JsonPageDefs_Wiki[] = {
 **
 */
 cson_value * json_page_wiki(){
-  return json_page_dispatch_helper(&JsonPageDefs_Wiki[0]);
+  return json_page_dispatch_helper(JsonPageDefs_Wiki);
 }
 
+/*
+** Returns the UUID for the given wiki blob RID, or NULL if not
+** found. The returned string is allocated via db_text() and must be
+** free()d by the caller.
+*/
 char * json_wiki_get_uuid_for_rid( int rid )
 {
   return db_text(NULL,
@@ -83,7 +90,6 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
                   rid );
     return NULL;
   }else{
-    /*char const * zFormat = NULL;*/
     unsigned int len = 0;
     cson_object * pay = cson_new_object();
     char const * zBody = pWiki->zWiki;
@@ -99,23 +105,23 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
            (except for the initial version, which has no parents). */;
     }
     /*cson_object_set(pay,"rid",json_new_int((cson_int_t)rid));*/
-    cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
+    cson_object_set(pay,"user",json_new_string(pWiki->zUser));
     cson_object_set(pay,FossilJsonKeys.timestamp,
                     json_julian_to_timestamp(pWiki->rDate));
     if(0 == contentFormat){
-      cson_object_set(pay,"contentLength",
+      cson_object_set(pay,"size",
                       json_new_int((cson_int_t)(zBody?strlen(zBody):0)));
     }else{
       if( contentFormat>0 ){/*HTML-ize it*/
-        zFormat = "html";
         Blob content = empty_blob;
         Blob raw = empty_blob;
+        zFormat = "html";
         if(zBody && *zBody){
           blob_append(&raw,zBody,-1);
           wiki_convert(&raw,&content,0);
           len = (unsigned int)blob_size(&content);
         }
-        cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
+        cson_object_set(pay,"size",json_new_int((cson_int_t)len));
         cson_object_set(pay,"content",
                         cson_value_new_string(blob_buffer(&content),len));
         blob_reset(&content);
@@ -123,7 +129,7 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
       }else{/*raw format*/
         zFormat = "raw";
         len = zBody ? strlen(zBody) : 0;
-        cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
+        cson_object_set(pay,"size",json_new_int((cson_int_t)len));
         cson_object_set(pay,"content",cson_value_new_string(zBody,len));
       }
       cson_object_set(pay,"contentFormat",json_new_string(zFormat));
@@ -190,12 +196,40 @@ char json_wiki_get_content_format_flag( char defaultValue ){
 }
 
 /*
+** Helper for /json/wiki/get and /json/wiki/preview. At least one of
+** zPageName (wiki page name) or zSymname must be set to a
+** non-empty/non-NULL value. zSymname takes precedence.  On success
+** the result of one of json_get_wiki_page_by_rid() or
+** json_get_wiki_page_by_name() will be returned (owned by the
+** caller). On error g.json's error state is set and NULL is returned.
+*/
+static cson_value * json_wiki_get_by_name_or_symname(char const * zPageName,
+                                                     char const * zSymname,
+                                                     char contentFormat ){
+  if(!zSymname || !*zSymname){
+    return json_get_wiki_page_by_name(zPageName, contentFormat);
+  }else{
+    int rid = symbolic_name_to_rid( zSymname ? zSymname : zPageName, "w" );
+    if(rid<0){
+      json_set_err(FSL_JSON_E_AMBIGUOUS_UUID,
+                   "UUID [%s] is ambiguous.", zSymname);
+      return NULL;
+    }else if(rid==0){
+      json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
+                   "UUID [%s] does not resolve to a wiki page.", zSymname);
+      return NULL;
+    }else{
+      return json_get_wiki_page_by_rid(rid, contentFormat);
+    }
+  }
+}
+
+/*
 ** Implementation of /json/wiki/get.
 **
 */
 static cson_value * json_wiki_get(){
   char const * zPageName;
-  char const * zFormat = NULL;
   char const * zSymName = NULL;
   char contentFormat = -1;
   if( !g.perm.RdWiki && !g.perm.Read ){
@@ -203,21 +237,7 @@ static cson_value * json_wiki_get(){
                  "Requires 'o' or 'j' access.");
     return NULL;
   }
-  zPageName = json_find_option_cstr("name",NULL,"n")
-      /* Damn... fossil automatically sets name to the PATH
-         part after /json, so we need a workaround down here....
-      */
-      ;
-  if( zPageName && (NULL != strstr(zPageName, "/"))){
-      /* Assume that we picked up a path remnant. */
-      zPageName = NULL;
-  }
-  if( !zPageName && cson_value_is_string(g.json.reqPayload.v) ){
-      zPageName = cson_string_cstr(cson_value_get_string(g.json.reqPayload.v));
-  }
-  if(!zPageName){
-    zPageName = json_command_arg(g.json.dispatchDepth+1);
-  }
+  zPageName = json_find_option_cstr2("name",NULL,"n",g.json.dispatchDepth+1);
 
   zSymName = json_find_option_cstr("uuid",NULL,"u");
   
@@ -232,23 +252,37 @@ static cson_value * json_wiki_get(){
   */
   
   contentFormat = json_wiki_get_content_format_flag(contentFormat);
-  if(!zSymName || !*zSymName){
-    return json_get_wiki_page_by_name(zPageName, contentFormat);
-  }else{
-    int rid = symbolic_name_to_rid( zSymName ? zSymName : zPageName, "w" );
-    if(rid<0){
-      json_set_err(FSL_JSON_E_AMBIGUOUS_UUID,
-                   "UUID [%s] is ambiguious.", zSymName);
-      return NULL;
-    }else if(rid==0){
-      json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
-                   "UUID [%s] does not resolve to a wiki page.", zSymName);
-      return NULL;
-    }else{
-      return json_get_wiki_page_by_rid(rid, contentFormat);
-    }
-  }
+  return json_wiki_get_by_name_or_symname( zPageName, zSymName, contentFormat );
 }
+
+/*
+** Implementation of /json/wiki/preview.
+**
+*/
+static cson_value * json_wiki_preview(){
+  char const * zContent = NULL;
+  cson_value * pay = NULL;
+  Blob contentOrig = empty_blob;
+  Blob contentHtml = empty_blob;
+  if( !g.perm.WrWiki ){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'k' access.");
+    return NULL;
+  }
+  zContent = cson_string_cstr(cson_value_get_string(g.json.reqPayload.v));
+  if(!zContent) {
+    json_set_err(FSL_JSON_E_MISSING_ARGS,
+                 "The 'payload' property must be a string containing the wiki code to preview.");
+    return NULL;
+  }
+  blob_append( &contentOrig, zContent, (int)cson_string_length_bytes(cson_value_get_string(g.json.reqPayload.v)) );
+  wiki_convert( &contentOrig, &contentHtml, 0 );
+  blob_reset( &contentOrig );
+  pay = cson_value_new_string( blob_str(&contentHtml), (unsigned int)blob_size(&contentHtml));
+  blob_reset( &contentHtml );
+  return pay;
+}
+
 
 /*
 ** Internal impl of /wiki/save and /wiki/create. If createMode is 0
@@ -292,6 +326,11 @@ static cson_value * json_wiki_create_or_save(char createMode,
     return NULL;
   }
   zPageName = cson_string_cstr(cson_value_get_string(nameV));
+  if(!zPageName || !*zPageName){
+    json_set_err(FSL_JSON_E_INVALID_ARGS,
+                 "'name' parameter must be a non-empty string.");
+    return NULL;
+  }
   rid = db_int(0,
      "SELECT x.rid FROM tag t, tagxref x"
      " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
@@ -326,7 +365,7 @@ static cson_value * json_wiki_create_or_save(char createMode,
   if( !cson_value_is_string(nameV)
       || !cson_value_is_string(contentV)){
     json_set_err(FSL_JSON_E_INVALID_ARGS,
-                 "'name' and 'content' parameters must be strings.");
+                 "'content' parameter must be a string.");
     goto error;
   }
   jstr = cson_value_get_string(contentV);
@@ -386,18 +425,36 @@ static cson_value * json_wiki_save(){
 static cson_value * json_wiki_list(){
   cson_value * listV = NULL;
   cson_array * list = NULL;
-  Stmt q;
+  char const * zGlob = NULL;
+  Stmt q = empty_Stmt;
+  Blob sql = empty_blob;
   char const verbose = json_find_option_bool("verbose",NULL,"v",0);
+  char fInvert = json_find_option_bool("invert",NULL,"i",0);;
 
   if( !g.perm.RdWiki && !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'j' or 'o' permissions.");
     return NULL;
   }
-  db_prepare(&q,"SELECT"
-             " substr(tagname,6) as name"
-             " FROM tag WHERE tagname GLOB 'wiki-*'"
-             " ORDER BY lower(name)");
+  blob_append(&sql,"SELECT"
+              " substr(tagname,6) as name"
+              " FROM tag WHERE tagname GLOB 'wiki-*'",
+              -1);
+  zGlob = json_find_option_cstr("glob",NULL,"g");
+  if(zGlob && *zGlob){
+    blob_appendf(&sql," AND name %s GLOB %Q",
+                 fInvert ? "NOT" : "", zGlob);
+  }else{
+    zGlob = json_find_option_cstr("like",NULL,"l");
+    if(zGlob && *zGlob){
+      blob_appendf(&sql," AND name %s LIKE %Q",
+                   fInvert ? "NOT" : "",
+                   zGlob);
+    }
+  }
+  blob_append(&sql," ORDER BY lower(name)", -1);
+  db_prepare(&q,"%s", blob_str(&sql));
+  blob_reset(&sql);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   while( SQLITE_ROW == db_step(&q) ){
@@ -433,16 +490,15 @@ static cson_value * json_wiki_list(){
 static cson_value * json_wiki_diff(){
   char const * zV1 = NULL;
   char const * zV2 = NULL;
-  char const * zContent = NULL;
   cson_object * pay = NULL;
   int argPos = g.json.dispatchDepth;
   int r1 = 0, r2 = 0;
   Manifest * pW1 = NULL, *pW2 = NULL;
   Blob w1 = empty_blob, w2 = empty_blob, d = empty_blob;
   char const * zErrTag = NULL;
-  int diffFlags;
+  u64 diffFlags;
   char * zUuid = NULL;
-  if( !g.perm.History ){
+  if( !g.perm.Hyperlink ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'h' permissions.");
     return NULL;
@@ -489,7 +545,7 @@ static cson_value * json_wiki_diff(){
   blob_init(&w2, pW2->zWiki, -1);
   blob_zero(&d);
   diffFlags = DIFF_IGNORE_EOLWS | DIFF_INLINE;
-  text_diff(&w2, &w1, &d, diffFlags);
+  text_diff(&w2, &w1, &d, 0, diffFlags);
   blob_reset(&w1);
   blob_reset(&w2);
 

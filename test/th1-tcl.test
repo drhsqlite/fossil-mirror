@@ -22,6 +22,14 @@ set dir [file dirname [info script]]
 
 ###############################################################################
 
+fossil test-th-eval "hasfeature tcl"
+
+if {$::RESULT ne "1"} then {
+  puts "Fossil was not compiled with Tcl support."; return
+}
+
+###############################################################################
+
 set env(TH1_ENABLE_TCL) 1; # Tcl integration must be enabled for this test.
 
 ###############################################################################
@@ -100,3 +108,9 @@ Cannot invoke Tcl command: tailcall</p>} || $RESULT eq {<hr><p\
 class="thmainError">ERROR: tailcall can only be called from a proc or\
 lambda</p>}}
 
+###############################################################################
+
+fossil test-th-render [file nativename [file join $dir th1-tcl9.txt]]
+
+test th1-tcl-9 {[string trim $RESULT] eq [list [file tail $fossilexe] 2 \
+[list test-th-render [file nativename [file join $dir th1-tcl9.txt]]]]}

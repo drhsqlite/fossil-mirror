@@ -47,6 +47,23 @@ static char *quoteFilename(const char *zFilename){
   }
 }
 
+/*
+** Build a string that contains all of the command-line options
+** specified as arguments.  If the option name begins with "+" then
+** it takes an argument.  Without the "+" it does not.
+*/
+static void collect_argument(Blob *pExtra, const char *zArg){
+  if( find_option(zArg, 0, 0)!=0 ){
+    blob_appendf(pExtra, " --%s", zArg);
+  }
+}
+static void collect_argument_value(Blob *pExtra, const char *zArg){
+  const char *zValue = find_option(zArg, 0, 1);
+  if( zValue ){
+    blob_appendf(pExtra, " --%s %s", zArg, zValue);
+  }
+}
+
 
 /*
 ** COMMAND: all
@@ -65,7 +82,11 @@ static char *quoteFilename(const char *zFilename){
 **    ignore     Arguments are repositories that should be ignored
 **               by subsequent list, pull, push, rebuild, and sync.
 **
-**    list | ls  Display the location of all repositories
+**    list | ls  Display the location of all repositories.
+**               The --ckout option causes all local checkouts to be
+**               list instead.
+**
+**    changes    Shows all local checkouts that have uncommitted changes
 **
 **    pull       Run a "pull" operation on all repositories
 **
@@ -75,7 +96,7 @@ static char *quoteFilename(const char *zFilename){
 **
 **    sync       Run a "sync" on all repositories
 **
-** Respositories are automatically added to the set of known repositories
+** Repositories are automatically added to the set of known repositories
 ** when one of the following commands are run against the repository: clone,
 ** info, pull, push, or sync.  Even previously ignored repositories are
 ** added back to the list of repositories by these commands.
@@ -87,97 +108,150 @@ void all_cmd(void){
   char *zSyscmd;
   char *zFossil;
   char *zQFilename;
-  int nMissing;
+  Blob extra;
+  int useCheckouts = 0;
+  int quiet = 0;
+  int testRun = 0;
   int stopOnError = find_option("dontstop",0,0)==0;
   int rc;
+  Bag outOfDate;
   
+  /* The undocumented --test option causes no changes to occur to any
+  ** repository, but instead show what would have happened.  Intended for
+  ** test and debugging use.
+  */
+  testRun = find_option("test",0,0)!=0;
+
   if( g.argc<3 ){
-    usage("list|ls|pull|push|rebuild|sync");
+    usage("changes|list|ls|pull|push|rebuild|sync");
   }
   n = strlen(g.argv[2]);
   db_open_config(1);
+  blob_zero(&extra);
   zCmd = g.argv[2];
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
+    useCheckouts = find_option("ckout","c",0)!=0;
   }else if( strncmp(zCmd, "push", n)==0 ){
     zCmd = "push -autourl -R";
+    collect_argument(&extra, "verbose");
   }else if( strncmp(zCmd, "pull", n)==0 ){
     zCmd = "pull -autourl -R";
+    collect_argument(&extra, "verbose");
   }else if( strncmp(zCmd, "rebuild", n)==0 ){
     zCmd = "rebuild";
+    collect_argument(&extra, "cluster");
+    collect_argument(&extra, "compress");
+    collect_argument(&extra, "noverify");
+    collect_argument_value(&extra, "pagesize");
+    collect_argument(&extra, "vacuum");
+    collect_argument(&extra, "deanalyze");
+    collect_argument(&extra, "analyze");
+    collect_argument(&extra, "wal");
+    collect_argument(&extra, "stat");
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
+    collect_argument(&extra, "verbose");
   }else if( strncmp(zCmd, "test-integrity", n)==0 ){
     zCmd = "test-integrity";
+  }else if( strncmp(zCmd, "test-orphans", n)==0 ){
+    zCmd = "test-orphans -R";
+  }else if( strncmp(zCmd, "test-missing", n)==0 ){
+    zCmd = "test-missing -q -R";
+    collect_argument(&extra, "notshunned");
+  }else if( strncmp(zCmd, "changes", n)==0 ){
+    zCmd = "changes --quiet --header --chdir";
+    useCheckouts = 1;
+    stopOnError = 0;
+    quiet = 1;
   }else if( strncmp(zCmd, "ignore", n)==0 ){
     int j;
+    verify_all_options();
     db_begin_transaction();
     for(j=3; j<g.argc; j++){
-      db_multi_exec("DELETE FROM global_config WHERE name GLOB 'repo:%q'",
-         g.argv[j]);
+      char *zSql = mprintf("DELETE FROM global_config"
+                           " WHERE name GLOB 'repo:%q'", g.argv[j]);
+      if( testRun ){
+        fossil_print("%s\n", zSql);
+      }else{
+        db_multi_exec("%s", zSql);
+      }
+      fossil_free(zSql);
     }
     db_end_transaction(0);
     return;
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "ignore list ls push pull rebuild sync");
+                 "changes ignore list ls push pull rebuild sync");
   }
-  zFossil = quoteFilename(fossil_nameofexe());
-  nMissing = 0;
-  db_prepare(&q,
-     "SELECT DISTINCT substr(name, 6) COLLATE nocase"
-     "  FROM global_config"
-     " WHERE substr(name, 1, 5)=='repo:' ORDER BY 1"
-  );
+  verify_all_options();
+  zFossil = quoteFilename(g.nameOfExe);
+  if( useCheckouts ){
+    db_prepare(&q,
+       "SELECT substr(name, 7) COLLATE nocase, max(rowid)"
+       "  FROM global_config"
+       " WHERE substr(name, 1, 6)=='ckout:'"
+       " GROUP BY 1 ORDER BY 1"
+    );
+  }else{
+    db_prepare(&q,
+       "SELECT substr(name, 6) COLLATE nocase, max(rowid)"
+       "  FROM global_config"
+       " WHERE substr(name, 1, 5)=='repo:'"
+       " GROUP BY 1 ORDER BY 1"
+    );
+  }
+  bag_init(&outOfDate);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
-    if( file_access(zFilename, 0) ){
-      nMissing++;
+    int rowid = db_column_int(&q, 1);
+    if( file_access(zFilename, 0) || !file_is_canonical(zFilename) ){
+      bag_insert(&outOfDate, rowid);
       continue;
     }
-    if( !file_is_canonical(zFilename) ) nMissing++;
+    if( useCheckouts && file_isdir(zFilename)!=1 ){
+      bag_insert(&outOfDate, rowid);
+      continue;
+    }
     if( zCmd[0]=='l' ){
       fossil_print("%s\n", zFilename);
       continue;
     }
     zQFilename = quoteFilename(zFilename);
-    zSyscmd = mprintf("%s %s %s", zFossil, zCmd, zQFilename);
-    fossil_print("%s\n", zSyscmd);
-    fflush(stdout);
-    rc = fossil_system(zSyscmd);
+    zSyscmd = mprintf("%s %s %s%s",
+                      zFossil, zCmd, zQFilename, blob_str(&extra));
+    if( !quiet || testRun ){
+      fossil_print("%s\n", zSyscmd);
+      fflush(stdout);
+    }
+    rc = testRun ? 0 : fossil_system(zSyscmd);
     free(zSyscmd);
     free(zQFilename);
     if( stopOnError && rc ){
-      nMissing = 0;
       break;
     }
   }
+  db_finalize(&q);
   
   /* If any repositories whose names appear in the ~/.fossil file could not
   ** be found, remove those names from the ~/.fossil file.
   */
-  if( nMissing ){
-    db_begin_transaction();
-    db_reset(&q);
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zFilename = db_column_text(&q, 0);
-      if( file_access(zFilename, 0) ){
-        char *zRepo = mprintf("repo:%s", zFilename);
-        db_unset(zRepo, 1);
-        free(zRepo);
-      }else if( !file_is_canonical(zFilename) ){
-        Blob cname;
-        char *zRepo = mprintf("repo:%s", zFilename);
-        db_unset(zRepo, 1);
-        free(zRepo);
-        file_canonical_name(zFilename, &cname);
-        zRepo = mprintf("repo:%s", blob_str(&cname));
-        db_set(zRepo, "1", 1);
-        free(zRepo);
-      }
+  if( bag_count(&outOfDate)>0 ){
+    Blob sql;
+    char *zSep = "(";
+    int rowid;
+    blob_zero(&sql);
+    blob_appendf(&sql, "DELETE FROM global_config WHERE rowid IN ");
+    for(rowid=bag_first(&outOfDate); rowid>0; rowid=bag_next(&outOfDate,rowid)){
+      blob_appendf(&sql, "%s%d", zSep, rowid);
+      zSep = ",";
     }
-    db_reset(&q);
-    db_end_transaction(0);
+    blob_appendf(&sql, ")");
+    if( testRun ){
+      fossil_print("%s\n", blob_str(&sql));
+    }else{
+      db_multi_exec(blob_str(&sql));
+    }
+    blob_reset(&sql);
   }
-  db_finalize(&q);
 }

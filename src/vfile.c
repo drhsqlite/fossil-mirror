@@ -21,11 +21,6 @@
 #include "vfile.h"
 #include <assert.h>
 #include <sys/types.h>
-#if defined(__DMC__)
-#include "dirent.h"
-#else
-#include <dirent.h>
-#endif
 
 /*
 ** The input is guaranteed to be a 40-character well-formed UUID.
@@ -125,15 +120,26 @@ void load_vfile_from_rid(int vid){
   db_end_transaction(0);
 }
 
+#if INTERFACE
 /*
-** Look at every VFILE entry with the given vid and  set update
-** VFILE.CHNGED field on every file according to whether or not
-** the file has changes.  0 means no change.  1 means edited.  2 means
+** The cksigFlags parameter to vfile_check_signature() is an OR-ed
+** combination of the following bits:
+*/
+#define CKSIG_ENOTFILE  0x001   /* non-file FS objects throw an error */
+#define CKSIG_SHA1      0x002   /* Verify file content using sha1sum */
+#define CKSIG_SETMTIME  0x004   /* Set mtime to last check-out time */
+
+#endif /* INTERFACE */
+
+/*
+** Look at every VFILE entry with the given vid and update
+** VFILE.CHNGED field according to whether or not
+** the file has changed.  0 means no change.  1 means edited.  2 means
 ** the file has changed due to a merge.  3 means the file was added
 ** by a merge.
 **
-** If VFILE.DELETED is true or if VFILE.RID is zero, then the file was
-** either removed from managemented via "fossil rm" or added via
+** If VFILE.DELETED is true or if VFILE.RID is zero, then the file was either
+** removed from configuration management via "fossil rm" or added via
 ** "fossil add", respectively, and in both cases we always know that 
 ** the file has changed without having the check the size, mtime,
 ** or on-disk content.
@@ -151,11 +157,12 @@ void load_vfile_from_rid(int vid){
 ** If the mtime of a file has changed, we still examine the on-disk content
 ** to see whether or not the edit was a null-edit.
 */
-void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
+void vfile_check_signature(int vid, unsigned int cksigFlags){
   int nErr = 0;
   Stmt q;
   Blob fileCksum, origCksum;
-  int useMtime = useSha1sum==0 && db_get_boolean("mtime-changes", 1);
+  int useMtime = (cksigFlags & CKSIG_SHA1)==0
+                    && db_get_boolean("mtime-changes", 1);
 
   db_begin_transaction();
   db_prepare(&q, "SELECT id, %Q || pathname,"
@@ -185,7 +192,7 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
       /* "fossil rm" or "fossil add" always change the file */
       chnged = 1;
     }else if( !file_wd_isfile_or_link(0) && currentSize>=0 ){
-      if( notFileIsFatal ){
+      if( cksigFlags & CKSIG_ENOTFILE ){
         fossil_warning("not an ordinary file: %s", zName);
         nErr++;
       }
@@ -208,10 +215,12 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
       if( blob_compare(&fileCksum, &origCksum)==0 ) chnged = 0;
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
-    }else if( chnged==0 && (useMtime==0 || currentMtime!=oldMtime) ){
-      /* For files that were formerly believed to be unchanged, if their
-      ** mtime changes, or unconditionally if --sha1sum is used, check
-      ** to see if they have been edited by looking at their SHA1 sum */
+    }else if( (chnged==0 || chnged==2)
+           && (useMtime==0 || currentMtime!=oldMtime) ){
+      /* For files that were formerly believed to be unchanged or that were
+      ** changed by merging, if their mtime changes, or unconditionally
+      ** if --sha1sum is used, check to see if they have been edited by
+      ** looking at their SHA1 sum */
       assert( origSize==currentSize );
       db_ephemeral_blob(&q, 5, &origCksum);
       if( sha1sum_file(zName, &fileCksum) ){
@@ -222,6 +231,15 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
       }
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
+    }
+    if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2) ){
+      i64 desiredMtime;
+      if( mtime_of_manifest_file(vid,rid,&desiredMtime)==0 ){
+        if( currentMtime!=desiredMtime ){
+          file_set_mtime(zName, desiredMtime);
+          currentMtime = file_wd_mtime(zName);
+        }
+      }
     }
     if( currentMtime!=oldMtime || chnged!=oldChnged ){
       db_multi_exec("UPDATE vfile SET mtime=%lld, chnged=%d WHERE id=%d",
@@ -288,9 +306,7 @@ void vfile_to_disk(
       blob_reset(&ans);
       if( cReply=='a' || cReply=='A' ){
         promptFlag = 0;
-        cReply = 'y';
-      }
-      if( cReply=='n' || cReply=='N' ){
+      } else if( cReply!='y' && cReply!='Y' ){
         blob_reset(&content);
         continue;
       }
@@ -365,6 +381,44 @@ int vfile_top_of_checkout(const char *zPath){
   return fileFound;
 }
 
+/*
+** Return TRUE if zFile is a temporary file.  Return FALSE if not.
+*/
+static int is_temporary_file(const char *zName){
+  static const char *const azTemp[] = {
+     "baseline",
+     "merge",
+     "original",
+     "output",
+  };
+  int i, j, n;
+  
+  if( strglob("ci-comment-????????????.txt", zName) ) return 1;
+  for(; zName[0]!=0; zName++){
+    if( zName[0]=='/' && strglob("/ci-comment-????????????.txt", zName) ){
+      return 1;
+    }
+    if( zName[0]!='-' ) continue;
+    for(i=0; i<sizeof(azTemp)/sizeof(azTemp[0]); i++){
+      n = (int)strlen(azTemp[i]);
+      if( memcmp(azTemp[i], zName+1, n) ) continue;
+      if( zName[n+1]==0 ) return 1;
+      if( zName[n+1]=='-' ){
+        for(j=n+2; zName[j] && fossil_isdigit(zName[j]); j++){}
+        if( zName[j]==0 ) return 1;
+      }
+    }      
+  }
+  return 0;
+}
+
+#if INTERFACE
+/*
+** Values for the scanFlags parameter to vfile_scan().
+*/
+#define SCAN_ALL    0x001    /* Includes files that begin with "." */
+#define SCAN_TEMP   0x002    /* Only Fossil-generated files like *-baseline */
+#endif /* INTERFACE */
 
 /*
 ** Load into table SFILE the name of every ordinary file in
@@ -380,7 +434,7 @@ int vfile_top_of_checkout(const char *zPath){
 ** excluded from the scan.  Name matching occurs after the first
 ** nPrefix characters are elided from the filename.
 */
-void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
+void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
   DIR *d;
   int origSize;
   const char *zDir;
@@ -388,7 +442,7 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
   int skipAll = 0;
   static Stmt ins;
   static int depth = 0;
-  char *zMbcs;
+  void *zNative;
 
   origSize = blob_size(pPath);
   if( pIgnore ){
@@ -401,43 +455,46 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
   if( depth==0 ){
     db_prepare(&ins,
        "INSERT OR IGNORE INTO sfile(x) SELECT :file"
-       "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE pathname=:file)"
+       "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
+       " pathname=:file %s)", filename_collation()
     );
   }
   depth++;
 
   zDir = blob_str(pPath);
-  zMbcs = fossil_utf8_to_mbcs(zDir);
-  d = opendir(zMbcs);
+  zNative = fossil_utf8_to_filename(zDir);
+  d = opendir(zNative);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
       char *zPath;
       char *zUtf8;
       if( pEntry->d_name[0]=='.' ){
-        if( !allFlag ) continue;
+        if( (scanFlags & SCAN_ALL)==0 ) continue;
         if( pEntry->d_name[1]==0 ) continue;
         if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
       }
-      zUtf8 = fossil_mbcs_to_utf8(pEntry->d_name);
+      zUtf8 = fossil_filename_to_utf8(pEntry->d_name);
       blob_appendf(pPath, "/%s", zUtf8);
-      fossil_mbcs_free(zUtf8);
       zPath = blob_str(pPath);
       if( glob_match(pIgnore, &zPath[nPrefix+1]) ){
         /* do nothing */
       }else if( file_wd_isdir(zPath)==1 ){
         if( !vfile_top_of_checkout(zPath) ){
-          vfile_scan(pPath, nPrefix, allFlag, pIgnore);
+          vfile_scan(pPath, nPrefix, scanFlags, pIgnore);
         }
       }else if( file_wd_isfile_or_link(zPath) ){
-        db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
-        db_step(&ins);
-        db_reset(&ins);
+        if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(zUtf8) ){
+          db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
+          db_step(&ins);
+          db_reset(&ins);
+        }
       }
+      fossil_filename_free(zUtf8);
       blob_resize(pPath, origSize);
     }
     closedir(d);
   }
-  fossil_mbcs_free(zMbcs);
+  fossil_filename_free(zNative);
 
   depth--;
   if( depth==0 ){
@@ -473,10 +530,10 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 
   db_must_be_within_tree();
   db_prepare(&q, 
-      "SELECT %Q || pathname, pathname, origname, file_is_selected(id), rid"
+      "SELECT %Q || pathname, pathname, origname, is_selected(id), rid"
       "  FROM vfile"
-      " WHERE (NOT deleted OR NOT file_is_selected(id)) AND vid=%d"
-      " ORDER BY pathname /*scan*/",
+      " WHERE (NOT deleted OR NOT is_selected(id)) AND vid=%d"
+      " ORDER BY if_selected(id, pathname, origname) /*scan*/",
       g.zLocalRoot, vid
   );
   md5sum_init();
@@ -538,6 +595,21 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 }
 
 /*
+** Write a BLOB into a random filename.  Return the name of the file.
+*/
+char *write_blob_to_temp_file(Blob *pBlob){
+  sqlite3_uint64 r;
+  char *zOut = 0;
+  do{
+    sqlite3_free(zOut);
+    sqlite3_randomness(8, &r);
+    zOut = sqlite3_mprintf("file-%08llx", r);
+  }while( file_size(zOut)>=0 );
+  blob_write_to_file(pBlob, zOut);
+  return zOut;
+}
+
+/*
 ** Do a file-by-file comparison of the content of the repository and
 ** the working check-out on disk.  Report any errors.
 */
@@ -545,11 +617,13 @@ void vfile_compare_repository_to_disk(int vid){
   int rc;
   Stmt q;
   Blob disk, repo;
+  char *zOut;
   
   db_must_be_within_tree();
   db_prepare(&q, 
       "SELECT %Q || pathname, pathname, rid FROM vfile"
-      " WHERE NOT deleted AND vid=%d AND file_is_selected(id)",
+      " WHERE NOT deleted AND vid=%d AND is_selected(id)"
+      " ORDER BY if_selected(id, pathname, origname) /*scan*/",
       g.zLocalRoot, vid
   );
   md5sum_init();
@@ -574,6 +648,10 @@ void vfile_compare_repository_to_disk(int vid){
     if( blob_size(&repo)!=blob_size(&disk) ){
       fossil_print("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
              zName, blob_size(&disk), blob_size(&repo));
+      zOut = write_blob_to_temp_file(&repo);
+      fossil_print("NOTICE: Repository version of [%s] stored in [%s]\n",
+                   zName, zOut);
+      sqlite3_free(zOut);
       blob_reset(&disk);
       blob_reset(&repo);
       continue;
@@ -582,6 +660,10 @@ void vfile_compare_repository_to_disk(int vid){
       fossil_print(
           "ERROR: [%s] is different on disk compared to the repository\n",
           zName);
+      zOut = write_blob_to_temp_file(&repo);
+      fossil_print("NOTICE: Repository version of [%s] stored in [%s]\n",
+          zName, zOut);
+      sqlite3_free(zOut);
     }
     blob_reset(&disk);
     blob_reset(&repo);
@@ -603,11 +685,11 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 
   db_must_be_within_tree();
  
-  db_prepare(&q, "SELECT pathname, origname, rid, file_is_selected(id)"
+  db_prepare(&q, "SELECT pathname, origname, rid, is_selected(id)"
                  " FROM vfile"
-                 " WHERE (NOT deleted OR NOT file_is_selected(id))"
+                 " WHERE (NOT deleted OR NOT is_selected(id))"
                  "   AND rid>0 AND vid=%d"
-                 " ORDER BY pathname /*scan*/",
+                 " ORDER BY if_selected(id,pathname,origname) /*scan*/",
                  vid);
   blob_zero(&file);
   md5sum_init();

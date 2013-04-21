@@ -15,6 +15,8 @@
 **
 *******************************************************************************
 **
+** SYNOPSIS: 
+**
 ** Input lines that begin with the "@" character are translated into
 ** either cgi_printf() statements or string literals and the
 ** translated code is written on standard output.
@@ -30,6 +32,7 @@
 ** the middle of a C program.  This program then translates the text
 ** into standard C by inserting all necessary backslashes and other
 ** punctuation.
+** 
 */
 #include <stdio.h>
 #include <ctype.h>
@@ -121,11 +124,13 @@ static void trans(FILE *in, FILE *out){
     }else{
       /* Otherwise (if the last non-whitespace was not '=') then generate
       ** a cgi_printf() statement whose format is the text following the '@'.
-      ** Substrings of the form "%C(...)" where C is any character will
-      ** puts "%C" in the format and add the "..." as an argument to the
-      ** cgi_printf call.
+      ** Substrings of the form "%C(...)" (where C is any sequence of 
+      ** characters other than \000 and '(') will put "%C" in the
+      ** format and add the "(...)" as an argument to the cgi_printf call.
       */
       int indent;
+      int nC;
+      char c;
       i++;
       if( isspace(zLine[i]) ){ i++; }
       indent = i;
@@ -133,20 +138,20 @@ static void trans(FILE *in, FILE *out){
         if( zLine[i]=='"' || zLine[i]=='\\' ){ zOut[j++] = '\\'; }
         zOut[j++] = zLine[i];
         if( zLine[i]!='%' || zLine[i+1]=='%' || zLine[i+1]==0 ) continue;
-        if( zLine[i+2]!='(' ) continue;
-        i++;
-        zOut[j++] = zLine[i];
+        for(nC=1; zLine[i+nC] && zLine[i+nC]!='('; nC++){}
+        if( zLine[i+nC]!='(' || !isalpha(zLine[i+nC-1]) ) continue;
+        while( --nC ) zOut[j++] = zLine[++i];
         zArg[nArg++] = ',';
-        i += 2;
-        k = 1;
-        while( zLine[i] ){
-          if( zLine[i]==')' ){
+        k = 0; i++;
+        while( (c = zLine[i])!=0 ){
+          zArg[nArg++] = c;
+          if( c==')' ){
             k--;
             if( k==0 ) break;
-          }else if( zLine[i]=='(' ){
+          }else if( c=='(' ){
             k++;
           }
-          zArg[nArg++] = zLine[i++];
+          i++;
         }
       }
       zOut[j] = 0;

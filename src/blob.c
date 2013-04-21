@@ -92,6 +92,9 @@ int fossil_isdigit(char c){ return c>='0' && c<='9'; }
 int fossil_tolower(char c){
   return fossil_isupper(c) ? c - 'A' + 'a' : c;
 }
+int fossil_toupper(char c){
+  return fossil_islower(c) ? c - 'a' + 'A' : c;
+}
 int fossil_isalpha(char c){
   return (c>='a' && c<='z') || (c>='A' && c<='Z');
 }
@@ -129,7 +132,7 @@ static void blob_panic(void){
 /*
 ** A reallocation function that assumes that aData came from malloc().
 ** This function attempts to resize the buffer of the blob to hold
-** newSize bytes.  
+** newSize bytes.
 **
 ** No attempt is made to recover from an out-of-memory error.
 ** If an OOM error occurs, an error message is printed on stderr
@@ -367,7 +370,7 @@ int blob_eq_str(Blob *pBlob, const char *z, int n){
 
 
 /*
-** Attempt to resize a blob so that its internal buffer is 
+** Attempt to resize a blob so that its internal buffer is
 ** nByte in size.  The blob is truncated if necessary.
 */
 void blob_resize(Blob *pBlob, unsigned int newSize){
@@ -378,7 +381,7 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
 
 /*
 ** Make sure a blob is nul-terminated and is not a pointer to unmanaged
-** space.  Return a pointer to the
+** space.  Return a pointer to the data.
 */
 char *blob_materialize(Blob *pBlob){
   blob_resize(pBlob, pBlob->nUsed);
@@ -438,9 +441,6 @@ int blob_seek(Blob *p, int offset, int whence){
   }else if( whence==BLOB_SEEK_END ){
     p->iCursor = p->nUsed + offset - 1;
   }
-  if( p->iCursor<0 ){
-    p->iCursor = 0;
-  }
   if( p->iCursor>p->nUsed ){
     p->iCursor = p->nUsed;
   }
@@ -455,7 +455,7 @@ int blob_tell(Blob *p){
 }
 
 /*
-** Extract a single line of text from pFrom beginning at the current 
+** Extract a single line of text from pFrom beginning at the current
 ** cursor location and use that line of text to initialize pTo.
 ** pTo will include the terminating \n.  Return the number of bytes
 ** in the line including the \n at the end.  0 is returned at
@@ -661,17 +661,19 @@ int blob_tokenize(Blob *pIn, Blob *aToken, int nToken){
 ** Do printf-style string rendering and append the results to a blob.
 */
 void blob_appendf(Blob *pBlob, const char *zFormat, ...){
-  va_list ap;
-  va_start(ap, zFormat);
-  vxprintf(pBlob, zFormat, ap);
-  va_end(ap);
+  if( pBlob ){
+    va_list ap;
+    va_start(ap, zFormat);
+    vxprintf(pBlob, zFormat, ap);
+    va_end(ap);
+  }
 }
 void blob_vappendf(Blob *pBlob, const char *zFormat, va_list ap){
-  vxprintf(pBlob, zFormat, ap);
+  if( pBlob ) vxprintf(pBlob, zFormat, ap);
 }
 
 /*
-** Initalize a blob to the data on an input channel.  Return 
+** Initialize a blob to the data on an input channel.  Return
 ** the number of bytes read into the blob.  Any prior content
 ** of the blob is discarded, not freed.
 */
@@ -700,7 +702,8 @@ int blob_read_from_channel(Blob *pBlob, FILE *in, int nToRead){
 **
 ** Any prior content of the blob is discarded, not freed.
 **
-** Return the number of bytes read.  Return -1 for an error.
+** Return the number of bytes read. Calls fossil_panic() error (i.e.
+** it exit()s and does not return).
 */
 int blob_read_from_file(Blob *pBlob, const char *zFilename){
   int size, got;
@@ -768,18 +771,12 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
   int wrote;
 
   if( zFilename[0]==0 || (zFilename[0]=='-' && zFilename[1]==0) ){
-    int n;
+    int n = blob_size(pBlob);
 #if defined(_WIN32)
-    if( _isatty(fileno(stdout)) ){
-      char *z;
-      z = fossil_utf8_to_console(blob_str(pBlob));
-      n = strlen(z);
-      fwrite(z, 1, n, stdout);
-      free(z);
+    if( fossil_utf8_to_console(blob_buffer(pBlob), n, 0) >= 0 ){
       return n;
     }
 #endif
-    n = blob_size(pBlob);
     fwrite(blob_buffer(pBlob), 1, n, stdout);
     return n;
   }else{
@@ -793,11 +790,11 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
       zName = zBuf;
       memcpy(zName, zFilename, nName+1);
     }
-    nName = file_simplify_name(zName, nName);
+    nName = file_simplify_name(zName, nName, 0);
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
         /*
         ** On Windows, local path looks like: C:/develop/project/file.txt
         ** The if stops us from trying to create a directory of a drive letter
@@ -805,11 +802,11 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
         */
         if( !(i==2 && zName[1]==':') ){
 #endif
-          if( file_mkdir(zName, 1) ){
+          if( file_mkdir(zName, 1) && file_isdir(zName)!=1 ){
             fossil_fatal_recursive("unable to create directory %s", zName);
             return 0;
           }
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
         }
 #endif
         zName[i] = '/';
@@ -834,8 +831,8 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
 
 /*
 ** Compress a blob pIn.  Store the result in pOut.  It is ok for pIn and
-** pOut to be the same blob. 
-** 
+** pOut to be the same blob.
+**
 ** pOut must either be the same as pIn or else uninitialized.
 */
 void blob_compress(Blob *pIn, Blob *pOut){
@@ -872,9 +869,9 @@ void compress_cmd(void){
 }
 
 /*
-** Compress the concatenation of a blobs pIn1 and pIn2.  Store the result 
-** in pOut. 
-** 
+** Compress the concatenation of a blobs pIn1 and pIn2.  Store the result
+** in pOut.
+**
 ** pOut must be either uninitialized or must be the same as either pIn1 or
 ** pIn2.
 */
@@ -945,7 +942,7 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
   blob_zero(&temp);
   blob_resize(&temp, nOut+1);
   nOut2 = (long int)nOut;
-  rc = uncompress((unsigned char*)blob_buffer(&temp), &nOut2, 
+  rc = uncompress((unsigned char*)blob_buffer(&temp), &nOut2,
                   &inBuf[4], nIn - 4);
   if( rc!=Z_OK ){
     blob_reset(&temp);
@@ -1019,15 +1016,15 @@ void blob_add_cr(Blob *p){
 #endif
 
 /*
-** Remove every \r character from the given blob.
+** Remove every \r character from the given blob, replacing each one with
+** a \n character if it was not already part of a \r\n pair.
 */
-void blob_remove_cr(Blob *p){
+void blob_to_lf_only(Blob *p){
   int i, j;
-  char *z;
-  blob_materialize(p);
-  z = p->aData;
+  char *z = blob_materialize(p);
   for(i=j=0; z[i]; i++){
     if( z[i]!='\r' ) z[j++] = z[i];
+    else if( z[i+1]!='\n' ) z[j++] = '\n';
   }
   z[j] = 0;
   p->nUsed = j;
@@ -1063,7 +1060,7 @@ void shell_escape(Blob *pBlob, const char *zIn){
 ** nLen (if end-of-blob is encountered).
 **
 ** Updates pIn's cursor.
-** 
+**
 ** Returns 0 if pIn contains no data.
 */
 unsigned int blob_read(Blob *pIn, void * pDest, unsigned int nLen ){
@@ -1079,4 +1076,63 @@ unsigned int blob_read(Blob *pIn, void * pDest, unsigned int nLen ){
     pIn->iCursor += nLen;
   }
   return nLen;
+}
+
+/*
+** Swaps the contents of the given blobs. Results
+** are unspecified if either value is NULL or both
+** point to the same blob.
+*/
+void blob_swap( Blob *pLeft, Blob *pRight ){
+  Blob swap = *pLeft;
+  *pLeft = *pRight;
+  *pRight = swap;
+}
+
+/*
+** Strip a possible byte-order-mark (BOM) from the blob. On Windows, if there
+** is either no BOM at all or an (le/be) UTF-16 BOM, a conversion to UTF-8 is
+** done.  If useMbcs is false and there is no BOM, the input string is assumed
+** to be UTF-8 already, so no conversion is done.
+*/
+void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
+  char *zUtf8;
+  int bomSize = 0;
+  int bomReverse = 0;
+  if( starts_with_utf8_bom(pBlob, &bomSize) ){
+    struct Blob temp;
+    zUtf8 = blob_str(pBlob) + bomSize;
+    blob_zero(&temp);
+    blob_append(&temp, zUtf8, -1);
+    blob_swap(pBlob, &temp);
+    blob_reset(&temp);
+#if defined(_WIN32) || defined(__CYGWIN__)
+  }else if( starts_with_utf16_bom(pBlob, &bomSize, &bomReverse) ){
+    zUtf8 = blob_buffer(pBlob);
+    if( bomReverse ){
+      /* Found BOM, but with reversed bytes */
+      unsigned int i = blob_size(pBlob);
+      while( i>0 ){
+        /* swap bytes of unicode representation */
+        char zTemp = zUtf8[--i];
+        zUtf8[i] = zUtf8[i-1];
+        zUtf8[--i] = zTemp;
+      }
+    }
+    /* Make sure the blob contains two terminating 0-bytes */
+    blob_append(pBlob, "", 1);
+    zUtf8 = blob_str(pBlob) + bomSize;
+    zUtf8 = fossil_unicode_to_utf8(zUtf8);
+    blob_zero(pBlob);
+    blob_append(pBlob, zUtf8, -1);
+    fossil_unicode_free(zUtf8);
+#endif /* _WIN32 ||  __CYGWIN__ */
+#if defined(_WIN32)
+  }else if( useMbcs ){
+    zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
+    blob_reset(pBlob);
+    blob_append(pBlob, zUtf8, -1);
+    fossil_mbcs_free(zUtf8);
+#endif /* _WIN32 */
+  }
 }

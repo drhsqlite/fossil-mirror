@@ -13,11 +13,11 @@ Figure 1
 Each circle represents a check-in.  For the sake of clarity, the check-ins
 are given small consecutive numbers.  In a real system, of course, the
 check-in numbers would be 40-character SHA1 hashes since it is not possible
-to allocate collision-free sequential numbers is a distributed system.
-But sequential numbers are easier to read, so we will substitute them for
+to allocate collision-free sequential numbers in a distributed system.
+But as sequential numbers are easier to read, we will substitute them for
 the 40-character SHA1 hashes in this document.
 
-The arrows in figure 1 show evolution of the project.  The initial
+The arrows in figure 1 show the evolution of a project.  The initial
 check-in is 1.  Check-in 2 is derived from 1.  In other words, check-in 2
 was created by making edits to check-in 1 and then committing those edits.
 We say that 2 is a <i>child</i> of 1
@@ -31,16 +31,14 @@ and 2 are both <i>ancestors</i> of 3.
 
 The graph of check-ins is a 
 [http://en.wikipedia.org/wiki/Directed_acyclic_graph | directed acyclic graph]
-and so we will
-henceforth call it a <i>DAG</i>.  Check-in 1 is the <i>root</i> of the DAG
+commonly shortened to <i>DAG</i>.  Check-in 1 is the <i>root</i> of the DAG
 since it has no ancestors.  Check-in 4 is a <i>leaf</i> of the DAG since
-it has no descendants.  (We will give a more precise in the definition of
-"leaf" later.)
+it has no descendants.  (We will give a more precise definition later of
+"leaf.")
 
 Alas, reality often interferes with the simple linear development of a
 project.  Suppose two programmers make independent modifications to check-in 2.
-After both changes are checked in, we have a check-in graph that looks 
-like figure 2:
+After both changes are committed, the check-in graph looks like figure 2:
 
 <center><table border=1 cellpadding=10 hspace=10 vspace=10>
 <tr><td align="center">
@@ -49,26 +47,26 @@ Figure 2
 </td></tr></table></center>
 
 The graph in figure 2 has two leaves: check-ins 3 and 4.  Check-in 2 has
-two children, check-ins 3 and 4.  We call this stituation a <i>fork</i>.
+two children, check-ins 3 and 4.  We call this state a <i>fork</i>.
 
-Fossil tries to prevent forks.  Suppose the two programmers who were
-editing check-in 2 are named Alice and Bob.  Suppose Alice finished her
-edits first and did a commit, resulting in check-in 3.  Later, when Bob
-tried to commit his changes, fossil would try to verify that check-in 2
-was still a leaf.  Fossil would see that check-in 3 had occurred and would
-abort Bob's commit attempt with a message "would fork".  This allows Bob
-to do a "fossil update" which would pull in Alice's changes and merge them
-together with his own changes.  After merging, Bob could then commit
-check-in 4 as a child of check-in 3 and the result would be a linear graph
-as shown in figure 1.  This is how CVS works.  This is also how fossil
-works in [concepts.wiki#workflow | "autosync"] mode.
+Fossil tries to prevent forks. Suppose two programmers named Alice and 
+Bob are each editing check-in 2 separately. Alice finishes her edits 
+first and commits her changes, resulting in check-in 3. Later, when Bob 
+attempts to commit his changes, fossil verifies that check-in 2 is still 
+a leaf. Fossil sees that check-in 3 has occurred and aborts Bob's commit 
+attempt with a message "would fork." This allows Bob to do a "fossil 
+update" which pulls in Alice's changes, merging them into his own 
+changes. After merging, Bob commits check-in 4 as a child of check-in 3. 
+The result is a linear graph as shown in figure 1. This is how CVS 
+works. This is also how fossil works in [concepts.wiki#workflow | 
+"autosync"] mode. 
 
-But it might be that Bob is off-network when he does his commit, so he
+But perhaps Bob is off-network when he does his commit, so he
 has no way of knowing that Alice has already committed her changes.
 Or, it could be that Bob has turned off "autosync" mode in Fossil.  Or,
 maybe Bob just doesn't want to merge in Alice's changes before he has
 saved his own, so he forces the commit to occur using the "--force" option
-to the fossil <b>commit</b> command.  For whatever reason, two commits against
+to the fossil <b>commit</b> command.  For any of these reasons, two commits against
 check-in 2 have occurred and now the DAG has two leaves.
 
 So which version of the project is the "latest" in the sense of having
@@ -103,10 +101,10 @@ Hold your hand over the check-in 4 circle of figure 3 and then figure
 3 looks exactly like figure 1 (except that the leaf has a different check-in
 number, but that is just a notational difference - the two check-ins have
 exactly the same content).  In other words, figure 3 is really a superset
-of figure 1.  The check-in 4 of figure 3 captures addition state which
+of figure 1.  The check-in 4 of figure 3 captures additional state which
 is omitted from figure 1.  Check-in 4 of figure 3 holds a copy
 of Bob's local checkout before he merged in Alice's changes.  That snapshot
-of Bob's changes independent of Alice's changes is omitted from figure 1.
+of Bob's changes, which is independent of Alice's changes, is omitted from figure 1.
 Some people say that the approach taken in figure 3 is better because it
 preserves this extra intermediate state.  Others say that the approach
 taken in figure 1 is better because it is much easier to visualize a
@@ -116,14 +114,14 @@ debate.  We will simply point out that fossil enables you to do it either way.
 
 <h2>Forking Versus Branching</h2>
 
-Having more than one leaf in the check-in DAG is usually
-considered undesirable, and so forks are usually either avoided entirely,
+Having more than one leaf in the check-in DAG is called a "fork." This 
+is usually undesirable and either avoided entirely,
 as in figure 1, or else quickly resolved as shown in figure 3.
 But sometimes, one does want to have multiple leaves.  For example, a project
 might have one leaf that is the latest version of the project under
 development and another leaf that is the latest version that has been
 tested.
-When multiple leaves are desirable, we call the phenomenon <i>branching</i>
+When multiple leaves are desirable, we call this <i>branching</i>
 instead of <i>forking</i>.
 Figure 4 shows an example of a project where there are two branches, one
 for development work and another for testing.
@@ -152,7 +150,7 @@ shown by the dashed merge arrows between check-ins 6 and 7 and between
 check-ins 9 and 10.
 
 In both figures 2 and 4, check-in 2 has two children.  In figure 2,
-we called this a "fork".  In diagram 4, we call it a "branch".  What is
+we call this a "fork."  In diagram 4, we call it a "branch."  What is
 the difference?  As far as the internal fossil data structures are
 concerned, there is no difference.  The distinction is in the intent.
 In figure 2, the fact that check-in 2 has multiple children is an
@@ -195,17 +193,17 @@ Every repository is created with a single empty check-in that has two
 propagating tags.  In figure 5, that initial empty check-in is check-in 1.
 The <b>branch</b> tag tells (by its value) 
 what branch the check-in is a member of.
-The default branch is called "trunk".  All tags that begin with "<b>sym-</b>"
+The default branch is called "trunk."  All tags that begin with "<b>sym-</b>"
 are symbolic name tags.  When a symbolic name tag is attached to a
 check-in, that allows you to refer to that check-in by its symbolic
 name rather than by its 40-character SHA1 hash name.  When a symbolic name
 tag propagates (as does the <b>sym-trunk</b> tag) then referring to that
 name is the same as referring to the most recent check-in with that name.
-Thus the two tags on check-in one cause all descendants to be in the
-"trunk" branch and to have the symbolic name "trunk".
+Thus the two tags on check-in 1 cause all descendants to be in the
+"trunk" branch and to have the symbolic name "trunk."
 
 Check-in 4 has a <b>branch</b> tag which changes the name of the branch
-to "test".  The branch tag on check-in 4 propagates to check-ins 6 and 9.
+to "test."  The branch tag on check-in 4 propagates to check-ins 6 and 9.
 But because tag propagation does not follow merge links, the <b>branch=test</b>
 tag does not propagate to check-ins 7, 8, or 10.  Note also that the
 <b>branch</b> tag on check-in 4 blocks the propagation of <b>branch=trunk</b>
@@ -215,12 +213,12 @@ so that it cannot reach check-ins 6 or 9.  This causes check-ins 4, 6, and
 Check-in 4 also has a <b>sym-test</b> tag, which gives the symbolic name
 "test" to check-ins 4, 6, and 9.  Because tags do not propagate across
 merges, check-ins 7, 8, and 10 do not inherit the <b>sym-test</b> tag and
-are hence not known by the name "test".
+are hence not known by the name "test."
 To prevent the <b>sym-trunk</b> tag from propagating from check-in 1 
 into check-ins 4, 6, and 9, there is a cancellation tag for 
-<b>sym-trunk</b> on check-in 4.  The net effect of all of this is that
+<b>sym-trunk</b> on check-in 4.  The net effect is that
 check-ins on the trunk go by the symbolic name of "trunk" and check-ins
-that are on the test branch go by the symbolic name "test".
+on the test branch go by the symbolic name "test."
 
 The <b>bgcolor=blue</b> tag on check-in 4 causes the background color
 of timelines to be blue for check-in 4 and its direct descendants.
@@ -228,50 +226,47 @@ of timelines to be blue for check-in 4 and its direct descendants.
 Figure 5 also shows two one-time tags on check-in 9.  (The diagram does
 not make a graphical distinction between one-time and propagating tags.)
 The <b>sym-release-1.0</b> tag means that check-in 9 can be referred to
-using the more meaningful name "release-1.0".  The <b>closed</b> tag means
-that check-in 9 is a "closed leaf".  A closed leaf is a leaf that intended
-to never have any direct children.
+using the more meaningful name "release-1.0."  The <b>closed</b> tag means
+that check-in 9 is a "closed leaf."  A closed leaf is a leaf that should 
+never have direct children.
 
 <h2>Review Of Terminology</h2>
 
-Here is a list of definitions of key terms:
-
-
 <blockquote><dl>
 <dt><b>Branch</b></dt>
-<dd><p>A branch is a set of check-ins that have the same value for their
+<dd><p>A branch is a set of check-ins with the same value for their
 "branch" property.</p></dd>
 <dt><b>Leaf</b></dt>
-<dd><p>A leaf is a check-in that has no children in the same branch.</p></dd>
+<dd><p>A leaf is a check-in with no children in the same branch.</p></dd>
 <dt><b>Closed Leaf</b></dt>
-<dd><p>A closed leaf is leaf that has the <b>closed</b> tag.  Such leaves
-are intented to never be extended with descendants and hence are omitted
+<dd><p>A closed leaf is any leaf with the <b>closed</b> tag.  These leaves
+are intended to never be extended with descendants and hence are omitted
 from lists of leaves in the command-line and web interface.</p></dd>
 <dt><b>Open Leaf</b></dt>
 <dd><p>A open leaf is a leaf that is not closed.</p></dd>
 <dt><b>Fork</b></dt>
-<dd><p>A fork occurs when a check-in has two or more direct (non-merge)
+<dd><p>A fork is when a check-in has two or more direct (non-merge)
 children in the same branch.</p></dd>
 <dt><b>Branch Point</b></dt>
 <dd><p>A branch point occurs when a check-in has two or more direct (non-merge)
-children in the different branches.  A branch point is similar to a fork,
+children in different branches.  A branch point is similar to a fork,
 except that the children are in different branches.</p></dd>
 </dl></blockquote>
 
 Check-in 4 of figure 3 is not a leaf because it has a child (check-in 5)
 in the same branch.  Check-in 9 of figure 5 also has a child (check-in 10)
 but that child is in a different branch, so check-in 9 is a leaf.  Because
-of the <b>closed</b> tag check-in 9, it is a closed leaf.
+of the <b>closed</b> tag on check-in 9, it is a closed leaf.
 
 Check-in 2 of figure 3 is considered a "fork"
 because it has two children in the same branch.  Check-in 2 of figure 5
 also has two children, but each child is in a different branch, hence in
-figure 5, check-in 2 is considered a "branch point".
+figure 5, check-in 2 is considered a "branch point."
 
 <h2>Differences With Other DVCSes</h2>
 
 Fossil keeps all check-ins on a single DAG.  Branches are identified with
 tags.  This means that check-ins can be freely moved between branches
-simply by altering the tags.
+simply by altering their tags.
 
 Most other DVCSes maintain a separate DAG for each branch.

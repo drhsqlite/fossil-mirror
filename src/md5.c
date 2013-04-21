@@ -260,13 +260,12 @@ static void MD5Final(unsigned char digest[16], MD5Context *pCtx){
         byteReverse(ctx->in, 14);
 
         /* Append length in bits and transform */
-        ((uint32 *)ctx->in)[ 14 ] = ctx->bits[0];
-        ((uint32 *)ctx->in)[ 15 ] = ctx->bits[1];
+        memcpy(&ctx->in[14*sizeof(uint32)], ctx->bits, 2*sizeof(uint32));
 
         MD5Transform(ctx->buf, (uint32 *)ctx->in);
         byteReverse((unsigned char *)ctx->buf, 4);
         memcpy(digest, ctx->buf, 16);
-        memset(ctx, 0, sizeof(ctx));    /* In case it's sensitive */
+        memset(ctx, 0, sizeof(*ctx));    /* In case it's sensitive */
 }
 
 /*
@@ -368,7 +367,7 @@ char *md5sum_finish(Blob *pOut){
 
 /*
 ** Compute the MD5 checksum of a file on disk.  Store the resulting
-** checksum in the blob pCksum.  pCksum is assumed to be ininitialized.
+** checksum in the blob pCksum.  pCksum is assumed to be initialized.
 **
 ** Return the number of errors.
 */
@@ -435,6 +434,7 @@ void md5sum_test(void){
   Blob cksum;
   
   for(i=2; i<g.argc; i++){
+    blob_init(&cksum, "********** not found ***********", -1);
     if( g.argv[i][0]=='-' && g.argv[i][1]==0 ){
       blob_read_from_channel(&in, stdin, -1);
       md5sum_blob(&in, &cksum);

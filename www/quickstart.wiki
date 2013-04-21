@@ -9,7 +9,7 @@ and painlessly.</p>
     <p>Fossil is a single self-contained C program.  You need to
     either download a 
     <a href="http://www.fossil-scm.org/download.html">precompiled binary</a>
-    or <a href="build.wiki">build it yourself</a> from sources.
+    or <a href="build.wiki">compile it yourself</a> from sources.
     Install fossil by putting the fossil binary
     someplace on your $PATH.</p>
     
@@ -72,13 +72,13 @@ and painlessly.</p>
     is not required.</p>
 
     <p>Note: If you are behind a restrictive firewall, you might need
-    to <a href="#proxy">specify an HTTP proxy</a> to use.</p>
+    to <a href="#proxy">specify an HTTP proxy</a>.</p>
 
     <p>A Fossil repository is a single disk file.  Instead of cloning,
     you can just make a copy of the repository file (for example, using
     "scp").  Note, however, that the repository file contains auxiliary
     information above and beyond the versioned files, including some
-    sensitive information such as passwords and email addresses.  If you
+    sensitive information such as password hashs and email addresses.  If you
     want to share Fossil repositories directly, consider running the
     [/help/scrub|fossil scrub] command to remove sensitive information
     before transmitting the file.
@@ -116,6 +116,11 @@ and painlessly.</p>
     <b>[/help/ls | fossil ls]</b><br>
     <b>[/help/branch | fossil branch]</b><br>
     </blockquote>
+
+    <p>Note that Fossil allows you to make multiple check-outs in
+    separate directories from the same repository.  This enables you,
+    for example, to do builds from multiple branches or versions at 
+    the same time without having to generate extra clones.</p>
 
 <h2>Configuring Your Local Repository</h2>
     
@@ -211,8 +216,14 @@ and painlessly.</p>
 
 <h2>Branching And Merging</h2>
 
-    <p>You can create branches by doing multiple commits off of the
-    same base version.  To merge two branches back together, first
+    <p>Use the --branch option to the [/help/commit | commit] command
+    to start a new branch.  Note that in Fossil, branches are normally
+    created when you commit, not before you start editing.  You can
+    use the [/help/branch | branch new] command to create a new branch
+    before you start editing, if you want, but most people just wait
+    until they are ready to commit.
+
+    To merge two branches back together, first
     [/help/update | update] to the leaf of one branch.  Then do a
     [/help/merge | merge] of the leaf of the other branch:</p>
 
@@ -234,6 +245,11 @@ and painlessly.</p>
 
     <p>The merge command has options to cherrypick individual
     changes, or to back out individual changes.</p>
+
+    <p>Note that the merge command changes only your local check-out.
+    The merge command does <em>not</em> modify the repository in any way.
+    You must do a separate [/help/commit | commit] after the merge in order
+    to put the merged code back into the repository.</p>
 
     <p>If a merge or update doesn't work out (perhaps something breaks or
     there are many merge conflicts) then you back up using:</p>

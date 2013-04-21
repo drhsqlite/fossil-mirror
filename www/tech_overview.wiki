@@ -293,7 +293,7 @@ to ".fslckout" if desired.  (Future versions of Fossil might make
 ".fslckout" the default name.)  The checkout database records information
 such as the following:
 
-  *  The full pathname of the repository database file.
+  *  The name of the repository database file.
   *  The version that is currently checked out.
   *  Files that have been [/help/add | added],
      [/help/rm | removed], or [/help/mv | renamed] but not

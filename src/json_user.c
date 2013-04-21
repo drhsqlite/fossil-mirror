@@ -26,16 +26,11 @@
 static cson_value * json_user_get();
 static cson_value * json_user_list();
 static cson_value * json_user_save();
-#if 0
-static cson_value * json_user_create();
-
-#endif
 
 /*
 ** Mapping of /json/user/XXX commands/paths to callbacks.
 */
 static const JsonPageDef JsonPageDefs_User[] = {
-{"create", json_page_nyi, 0},
 {"save", json_user_save, 0},
 {"get", json_user_get, 0},
 {"list", json_user_list, 0},
@@ -54,20 +49,21 @@ cson_value * json_page_user(){
 
 
 /*
-** Impl of /json/user/list. Requires admin rights.
+** Impl of /json/user/list. Requires admin/setup rights.
 */
 static cson_value * json_user_list(){
   cson_value * payV = NULL;
   Stmt q;
-  if(!g.perm.Admin){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+  if(!g.perm.Admin && !g.perm.Setup){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'a' or 's' privileges.");
     return NULL;
   }
   db_prepare(&q,"SELECT uid AS uid,"
              " login AS name,"
              " cap AS capabilities,"
              " info AS info,"
-             " mtime AS mtime"
+             " mtime AS timestamp"
              " FROM user ORDER BY login");
   payV = json_stmt_to_array_of_obj(&q, NULL);
   db_finalize(&q);
@@ -91,7 +87,7 @@ static cson_value * json_load_user_by_name(char const * zName){
              " login AS name,"
              " cap AS capabilities,"
              " info AS info,"
-             " mtime AS mtime"
+             " mtime AS timestamp"
              " FROM user"
              " WHERE login=%Q",
              zName);
@@ -103,7 +99,7 @@ static cson_value * json_load_user_by_name(char const * zName){
 }
 
 /*
-** Identical to _load_user_by_name(), but expects a user ID.  Returns
+** Identical to json_load_user_by_name(), but expects a user ID.  Returns
 ** NULL if no user found with that ID.
 */
 static cson_value * json_load_user_by_id(int uid){
@@ -113,7 +109,7 @@ static cson_value * json_load_user_by_id(int uid){
              " login AS name,"
              " cap AS capabilities,"
              " info AS info,"
-             " mtime AS mtime"
+             " mtime AS timestamp"
              " FROM user"
              " WHERE uid=%d",
              uid);
@@ -126,24 +122,17 @@ static cson_value * json_load_user_by_id(int uid){
 
 
 /*
-** Impl of /json/user/get. Requires admin rights.
+** Impl of /json/user/get. Requires admin or setup rights.
 */
 static cson_value * json_user_get(){
   cson_value * payV = NULL;
   char const * pUser = NULL;
-  if(!g.perm.Admin){
+  if(!g.perm.Admin && !g.perm.Setup){
     json_set_err(FSL_JSON_E_DENIED,
-                 "Requires 'a' privileges.");
+                 "Requires 'a' or 's' privileges.");
     return NULL;
   }
-  pUser = json_command_arg(g.json.dispatchDepth+1);
-  if( g.isHTTP && (!pUser || !*pUser) ){
-    pUser = json_getenv_cstr("name")
-      /* ACHTUNG: fossil apparently internally sets name=user/get/XYZ
-         if we pass the name as part of the path, which is why we check
-         with json_command_path() before trying to get("name").
-      */;
-  }
+  pUser = json_find_option_cstr2("name", NULL, NULL, g.json.dispatchDepth+1);
   if(!pUser || !*pUser){
     json_set_err(FSL_JSON_E_MISSING_ARGS,"Missing 'name' property.");
     return NULL;
@@ -166,12 +155,12 @@ static cson_value * json_user_get(){
 ** If uid is specified then name may refer to a _new_ name
 ** for a user, otherwise the name must refer to an existing user.
 ** If uid=-1 then the name must be specified and a new user is
-** created (failes if one already exists).
+** created (fails if one already exists).
 **
 ** If uid is not set, this function might modify pUser to contain the
 ** db-found (or inserted) user ID.
 **
-** On error g.json's error state is set one of the FSL_JSON_E_xxx
+** On error g.json's error state is set and one of the FSL_JSON_E_xxx
 ** values from FossilJsonCodes is returned.
 **
 ** On success the db record for the given user is updated.
@@ -199,12 +188,13 @@ int json_user_update_from_json( cson_object * pUser ){
   Blob sql = empty_blob;
   Stmt q = empty_Stmt;
 
+#if 0
   if(!g.perm.Admin && !g.perm.Setup && !g.perm.Password){
     return json_set_err( FSL_JSON_E_DENIED,
                          "Password change requires 'a', 's', "
                          "or 'p' permissions.");
   }
-  
+#endif
   if(uid<=0 && (!zName||!*zName)){
     return json_set_err(FSL_JSON_E_MISSING_ARGS,
                         "One of 'uid' or 'name' is required.");
@@ -218,14 +208,17 @@ int json_user_update_from_json( cson_object * pUser ){
   }else if(-1==uid){
     /* try to create a new user */
     if(!g.perm.Admin && !g.perm.Setup){
-      return json_set_err(FSL_JSON_E_DENIED,
-                          "Requires 'a' or 's' privileges.");
+      json_set_err(FSL_JSON_E_DENIED,
+                   "Requires 'a' or 's' privileges.");
+      goto error;
     }else if(!zName || !*zName){
-      return json_set_err(FSL_JSON_E_MISSING_ARGS,
-                          "No name specified for new user.");
+      json_set_err(FSL_JSON_E_MISSING_ARGS,
+                   "No name specified for new user.");
+      goto error;
     }else if( db_exists("SELECT 1 FROM user WHERE login=%Q", zName) ){
-      return json_set_err(FSL_JSON_E_RESOURCE_ALREADY_EXISTS,
-                          "User %s already exists.", zName);
+      json_set_err(FSL_JSON_E_RESOURCE_ALREADY_EXISTS,
+                   "User %s already exists.", zName);
+      goto error;
     }else{
       Stmt ins = empty_Stmt;
       db_prepare(&ins, "INSERT INTO user (login) VALUES(%Q)",zName);
@@ -239,8 +232,9 @@ int json_user_update_from_json( cson_object * pUser ){
   }else{
     uid = db_int(0,"SELECT uid FROM user WHERE login=%Q", zName);
     if(uid<=0){
-      return json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
-                          "No login found for user [%s].", zName);
+      json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
+                   "No login found for user [%s].", zName);
+      goto error;
     }
     cson_object_set( pUser, "uid", cson_value_new_integer(uid) );
   }
@@ -254,6 +248,7 @@ int json_user_update_from_json( cson_object * pUser ){
       json_set_err(FSL_JSON_E_DENIED,
                    "Changing another user's data requires "
                    "'a' or 's' privileges.");
+      goto error;
     }
   }
   /* check if the target uid currently has setup rights. */
@@ -265,9 +260,10 @@ int json_user_update_from_json( cson_object * pUser ){
       Do not allow a non-setup user to set or remove setup
       privileges. setup.c uses similar logic.
     */
-    return json_set_err(FSL_JSON_E_DENIED,
-                        "Modifying 's' users/privileges requires "
-                        "'s' privileges.");
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Modifying 's' users/privileges requires "
+                 "'s' privileges.");
+    goto error;
   }
   /*
     Potential todo: do not allow a setup user to remove 's' from
@@ -279,42 +275,57 @@ int json_user_update_from_json( cson_object * pUser ){
 
   if((uid>0) && zNameNew){
     /* Check for name change... */
-    if( (!g.perm.Admin && !g.perm.Setup)
-        && zNameNew && (zName != zNameNew)
-        && (0!=strcmp(zNameNew,zName))){
-      json_set_err( FSL_JSON_E_DENIED,
-                    "Modifying user names requires 'a' or 's' privileges.");
-      goto error;
-    }
-    forceLogout = cson_value_true()
+    if(0!=strcmp(zName,zNameNew)){
+      if( (!g.perm.Admin && !g.perm.Setup)
+          && (zName != zNameNew)){
+        json_set_err( FSL_JSON_E_DENIED,
+                      "Modifying user names requires 'a' or 's' privileges.");
+        goto error;
+      }
+      forceLogout = cson_value_true()
         /* reminders: 1) does not allocate.
-         2) we do this because changing a name
-         invalidates any login token because the old name
-         is part of the token hash.
+           2) we do this because changing a name
+           invalidates any login token because the old name
+           is part of the token hash.
         */;
-    blob_appendf(&sql, ", login=%Q", zNameNew);
-    ++gotFields;
+      blob_appendf(&sql, ", login=%Q", zNameNew);
+      ++gotFields;
+    }
   }
 
-  if( zCap ){
+  if( zCap && *zCap ){
+    if(!g.perm.Admin || !g.perm.Setup){
+      /* we "could" arguably silently ignore cap in this case. */
+      json_set_err(FSL_JSON_E_DENIED,
+                   "Changing capabilities requires 'a' or 's' privileges.");
+      goto error;
+    }
     blob_appendf(&sql, ", cap=%Q", zCap);
     ++gotFields;
   }
+
+  if( zPW && *zPW ){
+    if(!g.perm.Admin && !g.perm.Setup && !g.perm.Password){
+      json_set_err( FSL_JSON_E_DENIED,
+                    "Password change requires 'a', 's', "
+                    "or 'p' permissions.");
+      goto error;
+    }else{
 #define TRY_LOGIN_GROUP 0 /* login group support is not yet implemented. */
-  if( zPW ){
 #if !TRY_LOGIN_GROUP
-    char * zPWHash = NULL;
-    ++gotFields;
-    zPWHash = sha1_shared_secret(zPW, zNameNew ? zNameNew : zName, NULL);
-    blob_appendf(&sql, ", pw=%Q", zPWHash);
-    free(zPWHash);
+      char * zPWHash = NULL;
+      ++gotFields;
+      zPWHash = sha1_shared_secret(zPW, zNameNew ? zNameNew : zName, NULL);
+      blob_appendf(&sql, ", pw=%Q", zPWHash);
+      free(zPWHash);
 #else
-    ++gotFields;
-    blob_appendf(&sql, ", pw=coalesce(shared_secret(%Q,%Q,"
-                 "(SELECT value FROM config WHERE name='project-code')))",
-                 zPW, zNameNew ? zNameNew : zName);
-    /* shared_secret() func is undefined? */
+      ++gotFields;
+      blob_appendf(&sql, ", pw=coalesce(shared_secret(%Q,%Q,"
+                   "(SELECT value FROM config WHERE name='project-code')))",
+                   zPW, zNameNew ? zNameNew : zName);
+      /* shared_secret() func is undefined? */
 #endif
+    }
   }
 
   if( zInfo ){
@@ -347,7 +358,7 @@ int json_user_update_from_json( cson_object * pUser ){
   db_exec(&q);
   db_finalize(&q);
 #if TRY_LOGIN_GROUP
-  if( zPW || forceLogout ){
+  if( zPW || cson_value_get_bool(forceLogout) ){
     Blob groupSql = empty_blob;
     char * zErr = NULL;
     blob_appendf(&groupSql,
@@ -394,20 +405,21 @@ static cson_value * json_user_save(){
   int i = -1;
   int uid = -1;
   cson_value * payload = NULL;
-#define PROP(LK) str = json_find_option_cstr(LK,NULL,NULL);             \
+  /* String properties... */
+#define PROP(LK,SK) str = json_find_option_cstr(LK,NULL,SK);     \
   if(str){ cson_object_set(u, LK, json_new_string(str)); } (void)0
-  PROP("name");
-  PROP("password");
-  PROP("info");
-  PROP("capabilities");
+  PROP("name","n");
+  PROP("password","p");
+  PROP("info","i");
+  PROP("capabilities","c");
 #undef PROP
-  
+  /* Boolean properties... */
 #define PROP(LK,DFLT) b = json_find_option_bool(LK,NULL,NULL,DFLT);     \
   if(DFLT!=b){ cson_object_set(u, LK, cson_value_new_bool(b)); } (void)0
   PROP("forceLogout",-1);
 #undef PROP
 
-#define PROP(LK,DFLT) i = json_find_option_int(LK,NULL,NULL,DFLT);      \
+#define PROP(LK,DFLT) i = json_find_option_int(LK,NULL,NULL,DFLT);   \
   if(DFLT != i){ cson_object_set(u, LK, cson_value_new_integer(i)); } (void)0
   PROP("uid",-99);
 #undef PROP

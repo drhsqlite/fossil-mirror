@@ -1,4 +1,7 @@
 #ifdef FOSSIL_ENABLE_JSON
+#ifndef CSON_FOSSIL_MODE
+#define CSON_FOSSIL_MODE
+#endif
 /* auto-generated! Do not edit! */
 /* begin file include/wh/cson/cson.h */
 #if !defined(WANDERINGHORSE_NET_CSON_H_INCLUDED)
@@ -134,6 +137,55 @@ scanf()-compatible format token for cson_double_t.
 printf()-compatible format token for cson_double_t.
 */
 
+/**
+    Type IDs corresponding to JavaScript/JSON types.
+
+    These are only in the public API to allow O(1) client-side
+    dispatching based on cson_value types.
+*/
+enum cson_type_id {
+  /**
+    The special "undefined" value constant.
+
+    Its value must be 0 for internal reasons.
+ */
+ CSON_TYPE_UNDEF = 0,
+ /**
+    The special "null" value constant.
+ */
+ CSON_TYPE_NULL = 1,
+ /**
+    The bool value type.
+ */
+ CSON_TYPE_BOOL = 2,
+ /**
+    The integer value type, represented in this library
+    by cson_int_t.
+ */
+ CSON_TYPE_INTEGER = 3,
+ /**
+    The double value type, represented in this library
+    by cson_double_t.
+ */
+ CSON_TYPE_DOUBLE = 4,
+ /** The immutable string type. This library stores strings
+    as immutable UTF8.
+ */
+ CSON_TYPE_STRING = 5,
+ /** The "Array" type. */
+ CSON_TYPE_ARRAY = 6,
+ /** The "Object" type. */
+ CSON_TYPE_OBJECT = 7
+};
+/**
+   Convenience typedef.
+*/
+typedef enum cson_type_id cson_type_id;
+
+
+/**
+   Convenience typedef.
+*/
 typedef struct cson_value cson_value;
 
 /** @struct cson_value
@@ -213,6 +265,7 @@ typedef struct cson_value cson_value;
    @see cson_value_false()
    @see cson_value_null()
    @see cson_value_free()
+   @see cson_value_type_id()
 */
 
 /** @var cson_rc
@@ -743,6 +796,12 @@ int cson_output_FILE( cson_value const * src, FILE * dest, cson_output_opt const
 */
 int cson_output_filename( cson_value const * src, char const * dest, cson_output_opt const * fmt );
 
+/**
+   Returns the virtual type of v, or CSON_TYPE_UNDEF if !v.
+*/
+cson_type_id cson_value_type_id( cson_value const * v );
+
+
 /** Returns true if v is null, v->api is NULL, or v holds the special undefined value. */
 char cson_value_is_undef( cson_value const * v );
 /** Returns true if v contains a null value. */
@@ -1182,7 +1241,10 @@ int cson_array_append( cson_array * ar, cson_value * v );
    ownership to the container. See the cson_value class documentation
    for more details.
 
-   Returns NULL on allocation error.
+   Semantically speaking this function Returns NULL on allocation
+   error, but the implementation never actually allocates for this
+   case. Nonetheless, it must be treated as if it were an allocated
+   value.
 */
 cson_value * cson_value_new_bool( char v );
 
@@ -1873,7 +1935,8 @@ int cson_parse_buffer( cson_value ** tgt, cson_buffer const * buf,
    buf->mem is owned by buf and must eventually be freed by passing an
    n value of 0 to this function.
 
-   buf->used is never modified by this function.
+   buf->used is never modified by this function unless n is 0, in which case
+   it is reset.
 */
 int cson_buffer_reserve( cson_buffer * buf, cson_size_t n );
 
@@ -2496,6 +2559,25 @@ int cson_sqlite3_stmt_to_json( sqlite3_stmt * st, cson_value ** tgt, char fat );
 */
 int cson_sqlite3_sql_to_json( sqlite3 * db, cson_value ** tgt, char const * sql, char fat );
 
+/**
+   Binds a JSON value to a 1-based parameter index in a prepared SQL
+   statement. v must be NULL or one of one of the types (null, string,
+   integer, double, boolean, array). Booleans are bound as integer 0
+   or 1. NULL or null are bound as SQL NULL. Integers are bound as
+   64-bit ints. Strings are bound using sqlite3_bind_text() (as
+   opposed to text16), but we could/should arguably bind them as
+   blobs.
+
+   If v is an Array then ndx is is used as a starting position
+   (1-based) and each item in the array is bound to the next parameter
+   position (starting and ndx, though the array uses 0-based offsets).
+
+   TODO: add Object support for named parameters.
+
+   Returns 0 on success, non-0 on error.
+ */
+int cson_sqlite3_bind_value( sqlite3_stmt * st, int ndx, cson_value const * v );
+    
 #if defined(__cplusplus)
 } /*extern "C"*/
 #endif

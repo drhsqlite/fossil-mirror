@@ -24,7 +24,8 @@ cellpadding="2">
 <li> [./faq.wiki | FAQ]
 <li> [./contribute.wiki | Contributing]
 <li> [./changes.wiki | Change Log]
-<li> [./permutedindex.wiki | Doc Index]
+<li> [./permutedindex.wiki#pindex | Doc Index]
+<li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
 <li> Mailing list
      <ul>
      <li> [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | sign-up]
@@ -116,7 +117,7 @@ internet these days. What makes Fossil worthy of attention?
   *  The [./concepts.wiki | concepts] behind fossil
   *  [./quickstart.wiki | Quick Start] guide to using fossil
   *  [./qandc.wiki | Questions &amp; Criticisms] directed at fossil.
-  *  [./build.wiki | Building And Installing]
+  *  [./build.wiki | Compiling and Installing]
   *  Fossil supports [./embeddeddoc.wiki | embedded documentation]
      that is versioned along with project source code.
   *  Fossil uses an [./fileformat.wiki | enduring file format] that is 
@@ -132,25 +133,26 @@ internet these days. What makes Fossil worthy of attention?
   *  [./settings.wiki | Settings] control the behaviour of fossil.
   *  [./ssl.wiki | Use SSL] to encrypt communication with the server.
   *  There is a
-    [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list] (with publicly readable
+     [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list]
+    (with publicly readable
      [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
      available for discussing fossil issues.
   *  [./stats.wiki | Performance statistics] taken from real-world projects
      hosted on fossil.
   *  How to [./shunning.wiki | delete content] from a fossil repository.
   *  How Fossil does [./password.wiki | password management].
-  *  Some (unfinished but expanding) extended
-      [./reference.wiki | reference documentation] for the fossil command line.
+  *  On-line [/help | help].
   *  Documentation on the
      [http://www.sqliteconcepts.org/THManual.pdf | TH1 Script Language] used
      to configure the ticketing subsystem.
-  *  A free hosting server for Fossil repositories is available at
-     [http://chiselapp.com/].
   *  How to [./server.wiki | set up a server] for your repository.
   *  Customizing the [./custom_ticket.wiki | ticket system].
   *  Methods to [./checkin_names.wiki | identify a specific check-in].
   *  [./inout.wiki | Import and export] from and to Git.
   *  [./fossil-v-git.wiki | Fossil versus Git].
+  *  [./fiveminutes.wiki | Up and running in 5 minutes as a single user]
+     (contributed by Gilles Ganault on 2013-01-08).
+  *  [./antibot.wiki | How Fossil defends against abuse by spiders and bots].
 
 <h3>Links For Fossil Developer:</h3>
 

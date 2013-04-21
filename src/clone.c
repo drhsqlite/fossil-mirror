@@ -72,8 +72,9 @@ void delete_private_content(void){
   fix_private_blob_dependencies(1);
   db_multi_exec(
     "DELETE FROM blob WHERE rid IN private;"
-    "DELETE FROM delta wHERE rid IN private;"
+    "DELETE FROM delta WHERE rid IN private;"
     "DELETE FROM private;"
+    "DROP TABLE IF EXISTS modreq;"
   );
 }
 
@@ -100,11 +101,10 @@ void delete_private_content(void){
 void clone_cmd(void){
   char *zPassword;
   const char *zDefaultUser;   /* Optional name of the default user */
-  const char *zPw;     /* The user clone password */
   int nErr = 0;
-  int bPrivate;               /* Also clone private branches */
+  int bPrivate = 0;           /* Also clone private branches */
 
-  bPrivate = find_option("private",0,0)!=0;
+  if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
   url_proxy_options();
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
@@ -116,19 +116,13 @@ void clone_cmd(void){
 
   zDefaultUser = find_option("admin-user","A",1);
 
-  url_parse(g.argv[2]);
+  url_parse(g.argv[2], URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
   if( g.urlIsFile ){
     file_copy(g.urlName, g.argv[3]);
     db_close(1);
     db_open_repository(g.argv[3]);
     db_record_repository_filename(g.argv[3]);
-    db_multi_exec(
-      "REPLACE INTO config(name,value,mtime)"
-      " VALUES('server-code', lower(hex(randomblob(20))),now());"
-      "REPLACE INTO config(name,value,mtime)"
-      " VALUES('last-sync-url', '%q',now());",
-      g.urlCanonical
-    );
+    url_remember();
     if( !bPrivate ) delete_private_content();
     shun_artifacts();
     db_create_default_users(1, zDefaultUser);
@@ -143,16 +137,16 @@ void clone_cmd(void){
     db_open_repository(g.argv[3]);
     db_begin_transaction();
     db_record_repository_filename(g.argv[3]);
-    db_initial_setup(0, zDefaultUser, 0);
+    db_initial_setup(0, 0, zDefaultUser, 0);
     user_select();
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA, 0);
-    db_set("last-sync-url", g.argv[2], 0);
+    url_remember();
     if( g.zSSLIdentity!=0 ){
       /* If the --ssl-identity option was specified, store it as a setting */
       Blob fn;
       blob_zero(&fn);
-      file_canonical_name(g.zSSLIdentity, &fn);
+      file_canonical_name(g.zSSLIdentity, &fn, 0);
       db_set("ssl-identity", blob_str(&fn), 0);
       blob_reset(&fn);
     }
@@ -163,7 +157,7 @@ void clone_cmd(void){
     url_enable_proxy(0);
     url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
-    nErr = client_sync(0,0,1,bPrivate,CONFIGSET_ALL,0);
+    nErr = client_sync(SYNC_CLONE | bPrivate,CONFIGSET_ALL,0);
     g.xlinkClusterOnly = 0;
     verify_cancel();
     db_end_transaction(0);
@@ -178,10 +172,7 @@ void clone_cmd(void){
   fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(0, 1, 0);
   fossil_print("project-id: %s\n", db_get("project-code", 0));
-  fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
-  zPw = g.urlPasswd;
-  if( !g.dontKeepUrl && zPw) db_set("last-sync-pw", obscure(zPw), 0);
   db_end_transaction(0);
 }

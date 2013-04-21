@@ -58,22 +58,25 @@ void view_list(void){
     if( zTitle[0] == '_' ){
       blob_appendf(&ril, "%s", zTitle);
     } else {
-      blob_appendf(&ril, "<a href=\"rptview?rn=%d\" rel=\"nofollow\">%h</a>", rn, zTitle);
+      blob_appendf(&ril, "%z%h</a>", href("%R/rptview?rn=%d", rn), zTitle);
     }
     blob_appendf(&ril, "&nbsp;&nbsp;&nbsp;");
     if( g.perm.Write && zOwner && zOwner[0] ){
-      blob_appendf(&ril, "(by <i>%h</i></i>) ", zOwner);
+      blob_appendf(&ril, "(by <i>%h</i>) ", zOwner);
     }
     if( g.perm.TktFmt ){
-      blob_appendf(&ril, "[<a href=\"rptedit?rn=%d&amp;copy=1\" rel=\"nofollow\">copy</a>] ", rn);
+      blob_appendf(&ril, "[%zcopy</a>] ",
+                   href("%R/rptedit?rn=%d&copy=1", rn));
     }
     if( g.perm.Admin 
      || (g.perm.WrTkt && zOwner && fossil_strcmp(g.zLogin,zOwner)==0)
     ){
-      blob_appendf(&ril, "[<a href=\"rptedit?rn=%d\" rel=\"nofollow\">edit</a>] ", rn);
+      blob_appendf(&ril, "[%zedit</a>]", 
+                         href("%R/rptedit?rn=%d", rn));
     }
     if( g.perm.TktFmt ){
-      blob_appendf(&ril, "[<a href=\"rptsql?rn=%d\" rel=\"nofollow\">sql</a>] ", rn);
+      blob_appendf(&ril, "[%zsql</a>]",
+                         href("%R/rptsql?rn=%d", rn));
     }
     blob_appendf(&ril, "</li>\n");
   }
@@ -117,7 +120,7 @@ char *extract_integer(const char *zOrig){
 
 /*
 ** Remove blank lines from the beginning of a string and
-** all whitespace from the end. Removes whitespace preceeding a NL,
+** all whitespace from the end. Removes whitespace preceding a NL,
 ** which also converts any CRNL sequence into a single NL.
 */
 char *remove_blank_lines(const char *zOrig){
@@ -169,8 +172,9 @@ int report_query_authorizer(
       break;
     }
     case SQLITE_READ: {
-      static const char *azAllowed[] = {
+      static const char *const azAllowed[] = {
          "ticket",
+         "ticketchng",
          "blob",
          "filename",
          "mlink",
@@ -418,7 +422,7 @@ void view_edit(void){
   if( zOwner==0 ) zOwner = g.zLogin;
   style_submenu_element("Cancel", "Cancel", "reportlist");
   if( rn>0 ){
-    style_submenu_element("Delete", "Delete", "rptedit?rn=%d&amp;del1=1", rn);
+    style_submenu_element("Delete", "Delete", "rptedit?rn=%d&del1=1", rn);
   }
   style_header(rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
@@ -488,9 +492,16 @@ static void report_format_hints(void){
   @ <li><p>If a column of the result set is named "bgcolor" then the content
   @ of that column determines the background color of the row.</p></li>
   @
+  @ <li><p>The text of all columns prior to the first column whose name begins
+  @ with underscore ("_") is shown character-for-character as it appears in
+  @ the database.  In other words, it is assumed to have a mimetype of
+  @ text/plain.
+  @
   @ <li><p>The first column whose name begins with underscore ("_") and all
-  @ subsequent columns are shown on their own rows in the table.  This might
-  @ be useful for displaying the description of tickets.
+  @ subsequent columns are shown on their own rows in the table and with
+  @ wiki formatting.  In other words, such rows are shown with a mimetype
+  @ of text/x-fossil-wiki.  This is recommended for the "description" field
+  @ of tickets.
   @ </p></li>
   @
   @ <li><p>The query can join other tables in the database besides TICKET.
@@ -588,8 +599,8 @@ static void report_format_hints(void){
   @    severity AS 'Svr',
   @    priority AS 'Pri',
   @    title AS 'Title',
-  @    description AS '_Description',   -- When the column name begins with '_'
-  @    remarks AS '_Remarks'            -- the data is shown on a separate row.
+  @    description AS '_Description',  -- When the column name begins with '_'
+  @    remarks AS '_Remarks'           -- content is rendered as wiki
   @  FROM ticket
   @ </pre></blockquote>
   @
@@ -618,6 +629,9 @@ struct GenerateHTML {
   int isMultirow;  /* True if multiple table rows per query result row */
   int iNewRow;     /* Index of first column that goes on separate row */
   int iBg;         /* Index of column that defines background color */
+  int wikiFlags;   /* Flags passed into wiki_convert() */
+  const char *zWikiStart;    /* HTML before display of multi-line wiki */
+  const char *zWikiEnd;      /* HTML after display of multi-line wiki */
 };
 
 /*
@@ -662,6 +676,19 @@ static int generate_html(
         if( azName[i][0]=='_' ){
           pState->isMultirow = 1;
           pState->iNewRow = i;
+          pState->wikiFlags = WIKI_NOBADLINKS;
+          pState->zWikiStart = "";
+          pState->zWikiEnd = "";
+          if( P("plaintext") ){
+            pState->wikiFlags |= WIKI_LINKSONLY;
+            pState->zWikiStart = "<pre class='verbatim'>";
+            pState->zWikiEnd = "</pre>";
+            style_submenu_element("Formatted", "Formatted",
+                                  "%R/rptview?rn=%d", pState->rn);
+          }else{
+            style_submenu_element("Plaintext", "Plaintext",
+                                  "%R/rptview?rn=%d&plaintext", pState->rn);
+          }
         }else{
           pState->nCol++;
         }
@@ -670,7 +697,7 @@ static int generate_html(
 
     /* The first time this routine is called, output a table header
     */
-    @ <tr>
+    @ <thead><tr>
     zTid = 0;
     for(i=0; i<nArg; i++){
       char *zName = azName[i];
@@ -692,7 +719,7 @@ static int generate_html(
     if( g.perm.Write && zTid ){
       @ <th>&nbsp;</th>
     }
-    @ </tr>
+    @ </tr></thead><tbody>
   }
   if( azArg==0 ){
     @ <tr><td colspan="%d(pState->nCol)">
@@ -722,23 +749,22 @@ static int generate_html(
     if( zData==0 ) zData = "";
     if( pState->iNewRow>=0 && i>=pState->iNewRow ){
       if( zTid && g.perm.Write ){
-        @ <td valign="top"><a href="tktedit/%h(zTid)">edit</a></td>
+        @ <td valign="top">%z(href("%R/tktedit/%h",zTid))edit</a></td>
         zTid = 0;
       }
       if( zData[0] ){
         Blob content;
-        @ </tr><tr style="background-color:%h(zBg)"><td colspan=%d(pState->nCol)>
+        @ </tr>
+        @ <tr style="background-color:%h(zBg)"><td colspan=%d(pState->nCol)>
+        @ %s(pState->zWikiStart)
         blob_init(&content, zData, -1);
-        wiki_convert(&content, 0, 0);
+        wiki_convert(&content, 0, pState->wikiFlags);
         blob_reset(&content);
+        @ %s(pState->zWikiEnd)
       }
     }else if( azName[i][0]=='#' ){
       zTid = zData;
-      if( g.perm.History ){
-        @ <td valign="top"><a href="tktview?name=%h(zData)">%h(zData)</a></td>
-      }else{
-        @ <td valign="top">%h(zData)</td>
-      }
+      @ <td valign="top">%z(href("%R/tktview?name=%h",zData))%h(zData)</a></td>
     }else if( zData[0]==0 ){
       @ <td valign="top">&nbsp;</td>
     }else{
@@ -748,7 +774,7 @@ static int generate_html(
     }
   }
   if( zTid && g.perm.Write ){
-    @ <td valign="top"><a href="tktedit/%h(zTid)">edit</a></td>
+    @ <td valign="top">%z(href("%R/tktedit/%h",zTid))edit</a></td>
   }
   @ </tr>
   return 0;
@@ -867,6 +893,9 @@ int sqlite3_exec_readonly(
     return SQLITE_ERROR;
   }
 
+  i = sqlite3_bind_parameter_index(pStmt, "$login");
+  if( i ) sqlite3_bind_text(pStmt, i, g.zLogin, -1, SQLITE_TRANSIENT);
+
   nCol = sqlite3_column_count(pStmt);
   azVals = fossil_malloc(2*nCol*sizeof(const char*) + 1);
   while( (rc = sqlite3_step(pStmt))==SQLITE_ROW ){
@@ -886,6 +915,67 @@ int sqlite3_exec_readonly(
   rc = sqlite3_finalize(pStmt);
   fossil_free(azVals);
   return rc;
+}
+
+/*
+** Output Javascript code that will enables sorting of the table with
+** the id zTableId by clicking.
+**
+** The javascript is derived from:
+**
+**     http://www.webtoolkit.info/sortable-html-table.html
+**
+*/
+static void output_table_sorting_javascript(const char *zTableId){
+  @ <script>
+  @ function SortableTable(tableEl){
+  @   this.tbody = tableEl.getElementsByTagName('tbody');
+  @   this.sort = function (cell) {
+  @     var column = cell.cellIndex;
+  @     this.sortIndex = column;
+  @     var newRows = new Array();
+  @     for (j = 0; j < this.tbody[0].rows.length; j++) {
+  @        newRows[j] = this.tbody[0].rows[j];
+  @     }
+  @     newRows.sort(this.sortText);
+  @     if (cell.getAttribute("sortdir") == 'down') {
+  @        newRows.reverse();
+  @        cell.setAttribute('sortdir','up');
+  @     } else {
+  @        cell.setAttribute('sortdir','down');
+  @     }
+  @     for (i=0;i<newRows.length;i++) {
+  @       this.tbody[0].appendChild(newRows[i]);
+  @     }
+  @   }
+  @   this.sortText = function(a,b) {
+  @     var i = thisObject.sortIndex;
+  @     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
+  @     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
+  @     if(aa==bb) return 0;
+  @     if(aa<bb) return -1;
+  @     return 1;
+  @   }
+  @   var thisObject = this;
+  @   var x = tableEl.getElementsByTagName('thead');
+  @   if(!(this.tbody && this.tbody[0].rows && this.tbody[0].rows.length>0)){
+  @     return;
+  @   }
+  @   if(x && x[0].rows && x[0].rows.length > 0) {
+  @     var sortRow = x[0].rows[0];
+  @   } else {
+  @     return;
+  @   }
+  @   for (var i=0; i<sortRow.cells.length; i++) {
+  @     sortRow.cells[i].sTable = this;
+  @     sortRow.cells[i].onclick = function () {
+  @       this.sTable.sort(this);
+  @       return false;
+  @     }
+  @   }
+  @ }
+  @ var t = new SortableTable(gebi("%s(zTableId)"));
+  @ </script>
 }
 
 
@@ -951,7 +1041,7 @@ void rptview_page(void){
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_submenu_element("Raw", "Raw", 
-      "rptview?tablist=1&amp;%h", PD("QUERY_STRING",""));
+      "rptview?tablist=1&%h", PD("QUERY_STRING",""));
     if( g.perm.Admin 
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "Edit", "rptedit?rn=%d", rn);
@@ -966,18 +1056,20 @@ void rptview_page(void){
     style_header(zTitle);
     output_color_key(zClrKey, 1, 
         "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
-    @ <table border="1" cellpadding="2" cellspacing="0" class="report">
+    @ <table border="1" cellpadding="2" cellspacing="0" class="report"
+    @  id="reportTable">
     sState.rn = rn;
     sState.nCount = 0;
     report_restrict_sql(&zErr1);
     sqlite3_exec_readonly(g.db, zSql, generate_html, &sState, &zErr2);
     report_unrestrict_sql();
-    @ </table>
+    @ </tbody></table>
     if( zErr1 ){
       @ <p class="reportError">Error: %h(zErr1)</p>
     }else if( zErr2 ){
       @ <p class="reportError">Error: %h(zErr2)</p>
     }
+    output_table_sorting_javascript("reportTable");
     style_footer();
   }else{
     report_restrict_sql(&zErr1);
@@ -1092,7 +1184,7 @@ int output_separated_file(
 
 /*
 ** Generate a report.  The rn query parameter is the report number.
-** The output is written to stdout as flat file. The zFilter paramater
+** The output is written to stdout as flat file. The zFilter parameter
 ** is a full WHERE-condition.
 */
 void rptshow( 

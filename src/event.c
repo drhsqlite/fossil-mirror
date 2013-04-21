@@ -33,16 +33,9 @@
 */
 void hyperlink_to_event_tagid(int tagid){
   char *zEventId;
-  char zShort[12];
-
   zEventId = db_text(0, "SELECT substr(tagname, 7) FROM tag WHERE tagid=%d",
                      tagid);
-  sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zEventId);
-  if( g.perm.History ){
-    @ [<a href="%s(g.zTop)/event?name=%s(zEventId)">%s(zShort)</a>]
-  }else{
-    @ [%s(zShort)]
-  }
+  @ [%z(href("%R/event/%s",zEventId))%S(zEventId)</a>]
   free(zEventId);
 }
 
@@ -132,15 +125,15 @@ void event_page(void){
   zETime = db_text(0, "SELECT datetime(%.17g)", pEvent->rEventDate);
   style_submenu_element("Context", "Context", "%s/timeline?c=%T",
                         g.zTop, zETime);
-  if( g.perm.History ){
+  if( g.perm.Hyperlink ){
     if( showDetail ){
-      style_submenu_element("Plain", "Plain", "%s/event?name=%s&amp;aid=%s",
+      style_submenu_element("Plain", "Plain", "%s/event?name=%s&aid=%s",
                             g.zTop, zEventId, zUuid);
       if( nextRid ){
         char *zNext;
         zNext = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nextRid);
         style_submenu_element("Next", "Next",
-                              "%s/event?name=%s&amp;aid=%s&amp;detail=1",
+                              "%s/event?name=%s&aid=%s&detail=1",
                               g.zTop, zEventId, zNext);
         free(zNext);
       }
@@ -148,27 +141,27 @@ void event_page(void){
         char *zPrev;
         zPrev = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", prevRid);
         style_submenu_element("Prev", "Prev",
-                              "%s/event?name=%s&amp;aid=%s&amp;detail=1",
+                              "%s/event?name=%s&aid=%s&detail=1",
                               g.zTop, zEventId, zPrev);
         free(zPrev);
       }
     }else{
       style_submenu_element("Detail", "Detail",
-                            "%s/event?name=%s&amp;aid=%s&amp;detail=1",
+                            "%s/event?name=%s&aid=%s&detail=1",
                             g.zTop, zEventId, zUuid);
     }
   }
 
-  if( showDetail && g.perm.History ){
+  if( showDetail && g.perm.Hyperlink ){
     int i;
     const char *zClr = 0;
     Blob comment;
 
     zATime = db_text(0, "SELECT datetime(%.17g)", pEvent->rDate);
-    @ <p>Event [<a href="%s(g.zTop)/artifact/%s(zUuid)">%S(zUuid)</a>] at
-    @ [<a href="%s(g.zTop)/timeline?c=%T(zETime)">%s(zETime)</a>]
+    @ <p>Event [%z(href("%R/artifact/%s",zUuid))%S(zUuid)</a>] at
+    @ [%z(href("%R/timeline?c=%T",zETime))%s(zETime)</a>]
     @ entered by user <b>%h(pEvent->zUser)</b> on
-    @ [<a href="%s(g.zTop)/timeline?c=%T(zATime)">%s(zATime)</a>]:</p>
+    @ [%z(href("%R/timeline?c=%T",zATime))%s(zATime)</a>]:</p>
     @ <blockquote>
     for(i=0; i<pEvent->nTag; i++){
       if( fossil_strcmp(pEvent->aTag[i].zName,"+bgcolor")==0 ){
@@ -374,7 +367,7 @@ void eventedit_page(void){
     }
     blob_zero(&com);
     blob_append(&com, zComment, -1);
-    wiki_convert(&com, 0, WIKI_INLINE);
+    wiki_convert(&com, 0, WIKI_INLINE|WIKI_NOBADLINKS);
     @ </td></tr></table>
     @ </blockquote>
     @ <p><b>Page content preview:</b><p>

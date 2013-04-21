@@ -1,31 +1,116 @@
-#include <windows.h>
+/*
+** Copyright (c) 2012 D. Richard Hipp
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the Simplified BSD License (also
+** known as the "2-Clause License" or "FreeBSD License".)
+
+** This program is distributed in the hope that it will be useful,
+** but without any warranty; without even the implied warranty of
+** merchantability or fitness for a particular purpose.
+**
+** Author contact information:
+**   drh@hwaci.com
+**   http://www.hwaci.com/drh/
+**
+*******************************************************************************
+**
+** This file contains resource information for the executable on Windows.
+*/
+
+#if !defined(_WIN32_WCE)
+#include "winresrc.h"
+#else
+#include "windows.h"
+#endif
+
 #include "VERSION.h"
 #define _RC_COMPILE_
 #include "config.h"
+#include "sqlite3.h"
+#include "zlib.h"
 
-LANGUAGE LANG_ENGLISH,SUBLANG_ENGLISH_US
+#ifdef FOSSIL_ENABLE_SSL
+#include "openssl/opensslv.h"
+#endif
+
+#ifdef FOSSIL_ENABLE_TCL
+#include "tcl.h"
+#endif
+
+#ifdef FOSSIL_ENABLE_JSON
+#include "json_detail.h"
+#endif
+
+/*
+ * English (U.S.) resources
+ */
+
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif /* _WIN32 */
+
+/*
+ * Icon
+ */
+
+#define IDI_FOSSIL 8001
+
+IDI_FOSSIL ICON "fossil.ico"
+
+/*
+ * Version
+ */
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 1,0,0,0
-PRODUCTVERSION 1,0,0,0
-FILEFLAGSMASK 0x3F
-FILEFLAGS 0x0
-FILEOS VOS__WINDOWS32
-FILETYPE VFT_APP
-FILESUBTYPE VFT2_UNKNOWN
+  FILEVERSION RELEASE_RESOURCE_VERSION
+  PRODUCTVERSION RELEASE_RESOURCE_VERSION
+  FILEFLAGSMASK 0x3F
+#if defined(_DEBUG)
+  FILEFLAGS 0x1L
+#else
+  FILEFLAGS 0x0L
+#endif
+  FILEOS VOS__WINDOWS32
+  FILETYPE VFT_APP
+  FILESUBTYPE VFT2_UNKNOWN
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
     BLOCK "040904B0"
     BEGIN
-      VALUE "FileDescription", "distributed source code control system with integrated wiki and ticket-system\0"
-      VALUE "Comments", "compiler: "COMPILER_NAME"\0"
-      VALUE "FileVersion", MANIFEST_UUID"("COMPILER_NAME"\0"
+      VALUE "CompanyName", "Fossil Development Team\0"
+      VALUE "FileDescription", "Simple, high-reliability, distributed software configuration management system.\0"
+      VALUE "ProductName", "Fossil\0"
+      VALUE "ProductVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
+      VALUE "FileVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
       VALUE "InternalName", "fossil\0"
-      VALUE "LegalCopyright", "Copyright (c) "MANIFEST_YEAR" D. Richard Hipp\0"
+      VALUE "LegalCopyright", "Copyright © " MANIFEST_YEAR " by D. Richard Hipp.  All rights reserved.\0"
       VALUE "OriginalFilename", "fossil.exe\0"
-      VALUE "ProductName", "fossil\0"
-      VALUE "ProductVersion", MANIFEST_VERSION" "MANIFEST_DATE" UTC\0"
+      VALUE "CompilerName", COMPILER_NAME "\0"
+      VALUE "SQLiteVersion", "SQLite " SQLITE_VERSION " " SQLITE_SOURCE_ID "\0"
+      VALUE "ZlibVersion", "zlib " ZLIB_VERSION "\0"
+#ifdef BROKEN_MINGW_CMDLINE
+      VALUE "CommandLineIsUnicode", "No\0"
+#else
+      VALUE "CommandLineIsUnicode", "Yes\0"
+#endif
+#ifdef FOSSIL_ENABLE_SSL
+      VALUE "SslEnabled", "Yes, " OPENSSL_VERSION_TEXT "\0"
+#endif
+#ifdef FOSSIL_ENABLE_TCL
+      VALUE "TclEnabled", "Yes, Tcl " TCL_PATCH_LEVEL "\0"
+#ifdef FOSSIL_ENABLE_TCL_STUBS
+      VALUE "TclStubsEnabled", "Yes\0"
+#else
+      VALUE "TclStubsEnabled", "No\0"
+#endif
+#endif
+#ifdef FOSSIL_ENABLE_JSON
+      VALUE "JsonEnabled", "Yes, cson " FOSSIL_JSON_API_VERSION "\0"
+#endif
+      VALUE "MarkdownEnabled", "Yes\0"
     END
   END
   BLOCK "VarFileInfo"
@@ -33,6 +118,3 @@ BEGIN
     VALUE "Translation", 0x409, 0x4B0
   END
 END
-
-8001 ICON "fossil.ico"
-

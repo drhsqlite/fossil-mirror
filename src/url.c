@@ -20,6 +20,19 @@
 #include "config.h"
 #include "url.h"
 
+#if INTERFACE
+/*
+** Flags for url_parse()
+*/
+#define URL_PROMPT_PW        0x001  /* Prompt for password if needed */
+#define URL_REMEMBER         0x002  /* Remember the url for later reuse */
+#define URL_ASK_REMEMBER_PW  0x004  /* Ask whether to remember prompted pw */
+#define URL_REMEMBER_PW      0x008  /* Should remember pw */
+#define URL_PROMPTED         0x010  /* Prompted for PW already */
+
+#endif /* INTERFACE */
+
+
 /*
 ** Convert a string to lower-case.
 */
@@ -31,7 +44,8 @@ static void url_tolower(char *z){
 }
 
 /*
-** Parse the given URL.  Populate variables in the global "g" structure.
+** Parse the given URL, which describes a sync server.  Populate variables 
+** in the global "g" structure as follows:
 **
 **      g.urlIsFile      True if FILE:
 **      g.urlIsHttps     True if HTTPS: 
@@ -46,7 +60,7 @@ static void url_tolower(char *z){
 **      g.urlHostname    HOST:PORT or just HOST if port is the default.
 **      g.urlCanonical   The URL in canonical form, omitting the password
 **
-** HTTP url format is:
+** HTTP url format as follows (HTTPS is the same with a different scheme):
 **
 **     http://userid:password@host:port/path
 **
@@ -55,9 +69,19 @@ static void url_tolower(char *z){
 **     ssh://userid:password@host:port/path?fossil=path/to/fossil.exe
 **
 */
-void url_parse(const char *zUrl){
+void url_parse(const char *zUrl, unsigned int urlFlags){
   int i, j, c;
   char *zFile = 0;
+  int bPrompted = 0;
+  int bSetUrl = 1;
+ 
+  if( zUrl==0 ){
+    zUrl = db_get("last-sync-url", 0);
+    if( zUrl==0 ) return;
+    g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
+    bSetUrl = 0;
+  }
+
   if( strncmp(zUrl, "http://", 7)==0
    || strncmp(zUrl, "https://", 8)==0
    || strncmp(zUrl, "ssh://", 6)==0
@@ -65,6 +89,7 @@ void url_parse(const char *zUrl){
     int iStart;
     char *zLogin;
     char *zExe;
+    char cQuerySep = '?';
 
     g.urlIsFile = 0;
     if( zUrl[4]=='s' ){
@@ -77,6 +102,7 @@ void url_parse(const char *zUrl){
       g.urlProtocol = "ssh";
       g.urlDfltPort = 22;
       g.urlFossil = "fossil";
+      g.urlShell = 0;
       iStart = 6;
     }else{
       g.urlIsHttps = 0;
@@ -146,7 +172,14 @@ void url_parse(const char *zUrl){
       if( fossil_strcmp(zName,"fossil")==0 ){
         g.urlFossil = zValue;
         dehttpize(g.urlFossil);
-        zExe = mprintf("?fossil=%T", g.urlFossil);
+        zExe = mprintf("%cfossil=%T", cQuerySep, g.urlFossil);
+        cQuerySep = '&';
+      }
+      if( fossil_strcmp(zName,"shell")==0 ){
+        g.urlShell = zValue;
+        dehttpize(g.urlShell);
+        zExe = mprintf("%cshell=%T", cQuerySep, g.urlFossil);
+        cQuerySep = '&';
       }
     }
 
@@ -181,34 +214,57 @@ void url_parse(const char *zUrl){
       g.urlIsFile = 1;
     }else{
       free(zFile);
-      fossil_panic("unknown repository: %s", zUrl);
+      fossil_fatal("unknown repository: %s", zUrl);
     }
   }else{
-    fossil_panic("unknown repository: %s", zUrl);
+    fossil_fatal("unknown repository: %s", zUrl);
   }
+  g.urlFlags = urlFlags;
   if( g.urlIsFile ){
     Blob cfile;
     dehttpize(zFile);  
-    file_canonical_name(zFile, &cfile);
+    file_canonical_name(zFile, &cfile, 0);
     free(zFile);
     g.urlProtocol = "file";
     g.urlPath = "";
     g.urlName = mprintf("%b", &cfile);
     g.urlCanonical = mprintf("file://%T", g.urlName);
     blob_reset(&cfile);
+  }else if( g.urlUser!=0 && g.urlPasswd==0 && (urlFlags & URL_PROMPT_PW) ){
+    url_prompt_for_password();
+    bPrompted = 1;
+  }
+  if( urlFlags & URL_REMEMBER ){
+    if( bSetUrl ){
+      db_set("last-sync-url", g.urlCanonical, 0);
+    }
+    if( !bPrompted && g.urlPasswd && g.urlUser ){
+      db_set("last-sync-pw", obscure(g.urlPasswd), 0);
+    }
   }
 }
 
 /*
 ** COMMAND: test-urlparser
+**
+** Usage: %fossil test-urlparser URL ?options?
+**
+**    --remember      Store results in last-sync-url
+**    --prompt-pw     Prompt for password if missing
 */
 void cmd_test_urlparser(void){
   int i;
+  unsigned fg = 0;
   url_proxy_options();
+  if( find_option("remember",0,0) ){
+    db_must_be_within_tree();
+    fg |= URL_REMEMBER;
+  }
+  if( find_option("prompt-pw",0,0) ) fg |= URL_PROMPT_PW;
   if( g.argc!=3 && g.argc!=4 ){
     usage("URL");
   }
-  url_parse(g.argv[2]);
+  url_parse(g.argv[2], fg);
   for(i=0; i<2; i++){
     fossil_print("g.urlIsFile    = %d\n", g.urlIsFile);
     fossil_print("g.urlIsHttps   = %d\n", g.urlIsHttps);
@@ -223,6 +279,7 @@ void cmd_test_urlparser(void){
     fossil_print("g.urlPasswd    = %s\n", g.urlPasswd);
     fossil_print("g.urlCanonical = %s\n", g.urlCanonical);
     fossil_print("g.urlFossil    = %s\n", g.urlFossil);
+    fossil_print("g.urlFlags     = 0x%02x\n", g.urlFlags);
     if( g.urlIsFile || g.urlIsSsh ) break;
     if( i==0 ){
       fossil_print("********\n");
@@ -270,14 +327,16 @@ void url_enable_proxy(const char *zMsg){
       zProxy = fossil_getenv("http_proxy");
     }
   }
-  if( zProxy && zProxy[0] && !is_false(zProxy) ){
+  if( zProxy && zProxy[0] && !is_false(zProxy)
+      && !g.urlIsSsh && !g.urlIsFile ){
     char *zOriginalUrl = g.urlCanonical;
     char *zOriginalHost = g.urlHostname;
     char *zOriginalUser = g.urlUser;
     char *zOriginalPasswd = g.urlPasswd;
+    unsigned uOriginalFlags = g.urlFlags;
     g.urlUser = 0;
     g.urlPasswd = "";
-    url_parse(zProxy);
+    url_parse(zProxy, 0);
     if( zMsg ) fossil_print("%s%s\n", zMsg, g.urlCanonical);
     g.urlPath = zOriginalUrl;
     g.urlHostname = zOriginalHost;
@@ -289,6 +348,7 @@ void url_enable_proxy(const char *zMsg){
     }
     g.urlUser = zOriginalUser;
     g.urlPasswd = zOriginalPasswd;
+    g.urlFlags = uOriginalFlags;
   }
 }
 
@@ -354,7 +414,7 @@ char *url_render(
     }
     blob_appendf(&p->url, "%s%s", zSep, p->azName[i]);
     if( z && z[0] ) blob_appendf(&p->url, "=%T", z);
-    zSep = "&amp;";
+    zSep = "&";
   }
   if( zName1 && zValue1 ){
     blob_appendf(&p->url, "%s%s", zSep, zName1);
@@ -372,17 +432,48 @@ char *url_render(
 ** in g.urlPasswd.
 */
 void url_prompt_for_password(void){
-  if( isatty(fileno(stdin)) ){
+  if( g.urlIsSsh || g.urlIsFile ) return;
+  if( isatty(fileno(stdin))
+   && (g.urlFlags & URL_PROMPT_PW)!=0
+   && (g.urlFlags & URL_PROMPTED)==0
+  ){
     char *zPrompt = mprintf("\rpassword for %s: ", g.urlUser);
     Blob x;
+    fossil_force_newline();
     prompt_for_password(zPrompt, &x, 0);
     free(zPrompt);
     g.urlPasswd = mprintf("%b", &x);
     blob_reset(&x);
+    g.urlFlags |= URL_PROMPTED;
+    if( g.urlPasswd[0]
+     && (g.urlFlags & (URL_REMEMBER|URL_ASK_REMEMBER_PW))!=0
+    ){
+      char c;
+      prompt_user("remember password (Y/n)? ", &x);
+      c = blob_str(&x)[0];
+      blob_reset(&x);
+      if( c!='n' && c!='N' ){
+        g.urlFlags |= URL_REMEMBER_PW;
+        if( g.urlFlags & URL_REMEMBER ){
+          db_set("last-sync-pw", obscure(g.urlPasswd), 0);
+        }
+      }
+    }
   }else{
     fossil_fatal("missing or incorrect password for user \"%s\"",
                  g.urlUser);
   }
+}
+
+/*
+** Remember the URL if requested.
+*/
+void url_remember(void){
+  db_set("last-sync-url", g.urlCanonical, 0);
+  if( g.urlFlags & URL_REMEMBER_PW ){
+    db_set("last-sync-pw", obscure(g.urlPasswd), 0);
+  }
+  g.urlFlags |= URL_REMEMBER;
 }
 
 /* Preemptively prompt for a password if a username is given in the
@@ -392,6 +483,7 @@ void url_get_password_if_needed(void){
   if( (g.urlUser && g.urlUser[0])
    && (g.urlPasswd==0 || g.urlPasswd[0]==0)
    && isatty(fileno(stdin)) 
+   && g.urlIsSsh==0
   ){
     url_prompt_for_password();
   }

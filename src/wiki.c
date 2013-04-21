@@ -29,7 +29,7 @@
 ** Well-formed wiki page names do not begin or end with whitespace,
 ** and do not contain tabs or other control characters and do not
 ** contain more than a single space character in a row.  Well-formed
-** names must be between 3 and 100 chracters in length, inclusive.
+** names must be between 3 and 100 characters in length, inclusive.
 */
 int wiki_name_is_wellformed(const unsigned char *z){
   int i;
@@ -106,7 +106,7 @@ void home_page(void){
   style_header("Home");
   @ <p>This is a stub home-page for the project.
   @ To fill in this page, first go to
-  @ <a href="%s(g.zTop)/setup_config">setup/config</a>
+  @ %z(href("%R/setup_config"))setup/config</a>
   @ and establish a "Project Name".  Then create a
   @ wiki page with that name.  The content of that wiki page
   @ will be displayed in place of this message.</p>
@@ -129,12 +129,11 @@ void wiki_page(void){
   char *zTag;
   int rid = 0;
   int isSandbox;
+  char *zUuid;
   Blob wiki;
   Manifest *pWiki = 0;
   const char *zPageName;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
-  Stmt q;
-  int cnt = 0;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(); return; }
@@ -144,26 +143,28 @@ void wiki_page(void){
     @ <ul>
     { char *zHomePageName = db_get("project-name",0);
       if( zHomePageName ){
-        @ <li> <a href="%s(g.zTop)/wiki?name=%t(zHomePageName)">
+        @ <li> %z(href("%R/wiki?name=%t",zHomePageName))
         @      %h(zHomePageName)</a> wiki home page.</li>
       }
     }
-    @ <li> <a href="%s(g.zTop)/timeline?y=w">Recent changes</a> to wiki
-    @      pages. </li>
-    @ <li> <a href="%s(g.zTop)/wiki_rules">Formatting rules</a> for 
-    @      wiki.</li>
-    @ <li> Use the <a href="%s(g.zTop)/wiki?name=Sandbox">Sandbox</a>
+    @ <li> %z(href("%R/timeline?y=w"))Recent changes</a> to wiki pages.</li>
+    @ <li> %z(href("%R/wiki_rules"))Formatting rules</a> for wiki.</li>
+    @ <li> Use the %z(href("%R/wiki?name=Sandbox"))Sandbox</a>
     @      to experiment.</li>
     if( g.perm.NewWiki ){
-      @ <li>  Create a <a href="%s(g.zTop)/wikinew">new wiki page</a>.</li>
+      @ <li>  Create a %z(href("%R/wikinew"))new wiki page</a>.</li>
       if( g.perm.Write ){
-        @ <li>   Create a <a href="%s(g.zTop)/eventedit">new event</a>.</li>
+        @ <li>   Create a %z(href("%R/eventedit"))new event</a>.</li>
       }
     }
-    @ <li> <a href="%s(g.zTop)/wcontent">List of All Wiki Pages</a>
+    @ <li> %z(href("%R/wcontent"))List of All Wiki Pages</a>
     @      available on this server.</li>
-    @ <li> <form method="get" action="%s(g.zTop)/wfind"><div>
-    @     Search wiki titles: <input type="text" name="title"/>
+    if( g.perm.ModWiki ){
+      @ <li> %z(href("%R/modreq"))Tend to pending moderation requests</a></li>
+    }
+    @ <li>
+    form_begin(0, "%R/wfind");
+    @  <div>Search wiki titles: <input type="text" name="title"/>
     @  &nbsp; <input type="submit" /></div></form>
     @ </li>
     @ </ul>
@@ -174,6 +175,7 @@ void wiki_page(void){
   isSandbox = is_sandbox(zPageName);
   if( isSandbox ){
     zBody = db_get("sandbox",zBody);
+    rid = 0;
   }else{
     zTag = mprintf("wiki-%s", zPageName);
     rid = db_int(0, 
@@ -188,65 +190,64 @@ void wiki_page(void){
     }
   }
   if( !g.isHome ){
+    if( rid ){
+      style_submenu_element("Diff", "Last change",
+                 "%R/wdiff?name=%T&a=%d", zPageName, rid);
+      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      style_submenu_element("Details", "Details",
+                   "%R/info/%S", zUuid);
+    }
     if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
-      style_submenu_element("Edit", "Edit Wiki Page", "%s/wikiedit?name=%T",
-           g.zTop, zPageName);
+      if( db_get_boolean("wysiwyg-wiki", 0) ){
+        style_submenu_element("Edit", "Edit Wiki Page",
+             "%s/wikiedit?name=%T&wysiwyg=1",
+             g.zTop, zPageName);
+      }else{
+        style_submenu_element("Edit", "Edit Wiki Page",
+             "%s/wikiedit?name=%T",
+             g.zTop, zPageName);
+      }
     }
     if( rid && g.perm.ApndWiki && g.perm.Attach ){
       style_submenu_element("Attach", "Add An Attachment",
-           "%s/attachadd?page=%T&amp;from=%s/wiki%%3fname=%T",
+           "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
            g.zTop, zPageName, g.zTop, zPageName);
     }
     if( rid && g.perm.ApndWiki ){
       style_submenu_element("Append", "Add A Comment", "%s/wikiappend?name=%T",
            g.zTop, zPageName);
     }
-    if( g.perm.History ){
+    if( g.perm.Hyperlink ){
       style_submenu_element("History", "History", "%s/whistory?name=%T",
            g.zTop, zPageName);
     }
   }
+  style_set_current_page("%s?name=%T", g.zPath, zPageName);
   style_header(zPageName);
   blob_init(&wiki, zBody, -1);
   wiki_convert(&wiki, 0, 0);
   blob_reset(&wiki);
-
-  db_prepare(&q,
-     "SELECT datetime(mtime,'localtime'), filename, user"
-     "  FROM attachment"
-     " WHERE isLatest AND src!='' AND target=%Q"
-     " ORDER BY mtime DESC",
-     zPageName);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zDate = db_column_text(&q, 0);
-    const char *zFile = db_column_text(&q, 1);
-    const char *zUser = db_column_text(&q, 2);
-    if( cnt==0 ){
-      @ <hr /><h2>Attachments:</h2>
-      @ <ul>
-    }
-    cnt++;
-    @ <li>
-    if( g.perm.History && g.perm.Read ){
-      @ <a href="%s(g.zTop)/attachview?page=%s(zPageName)&amp;file=%t(zFile)">
-      @ %h(zFile)</a>
-    }else{
-      @ %h(zFile)
-    }
-    @ added by %h(zUser) on
-    hyperlink_to_date(zDate, ".");
-    if( g.perm.WrWiki && g.perm.Attach ){
-      @ [<a href="%s(g.zTop)/attachdelete?page=%s(zPageName)&amp;file=%t(zFile)&amp;from=%s(g.zTop)/wiki%%3fname=%s(zPageName)">delete</a>]
-    }
-    @ </li>
-  }
-  if( cnt ){
-    @ </ul>
-  }
-  db_finalize(&q);
- 
+  attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
   manifest_destroy(pWiki);
   style_footer();
+}
+
+/*
+** Write a wiki artifact into the repository
+*/
+static void wiki_put(Blob *pWiki, int parent){
+  int nrid;
+  if( g.perm.ModWiki || db_get_boolean("modreq-wiki",0)==0 ){
+    nrid = content_put_ex(pWiki, 0, 0, 0, 0);
+    if( parent) content_deltify(parent, nrid, 0);
+  }else{
+    nrid = content_put_ex(pWiki, 0, 0, 0, 1);
+    moderation_table_create();
+    db_multi_exec("INSERT INTO modreq(objid) VALUES(%d)", nrid);
+  }
+  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+  db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", nrid);
+  manifest_crosslink(nrid, pWiki);
 }
 
 /*
@@ -260,13 +261,23 @@ void wikiedit_page(void){
   Blob wiki;
   Manifest *pWiki = 0;
   const char *zPageName;
-  char *zHtmlPageName;
   int n;
   const char *z;
   char *zBody = (char*)P("w");
+  int isWysiwyg = P("wysiwyg")!=0;
+  int goodCaptcha = 1;
 
+  if( P("edit-wysiwyg")!=0 ){ isWysiwyg = 1; zBody = 0; }
+  if( P("edit-markup")!=0 ){ isWysiwyg = 0; zBody = 0; }
   if( zBody ){
-    zBody = mprintf("%s", zBody);
+    if( isWysiwyg ){
+      Blob body;
+      blob_zero(&body);
+      htmlTidy(zBody, &body);
+      zBody = blob_str(&body);
+    }else{
+      zBody = mprintf("%s", zBody);
+    }
   }
   login_check_credentials();
   zPageName = PD("name","");
@@ -296,10 +307,11 @@ void wikiedit_page(void){
       zBody = pWiki->zWiki;
     }
   }
-  if( P("submit")!=0 && zBody!=0 ){
+  if( P("submit")!=0 && zBody!=0
+   && (goodCaptcha = captcha_is_correct())
+  ){
     char *zDate;
     Blob cksum;
-    int nrid;
     blob_zero(&wiki);
     db_begin_transaction();
     if( isSandbox ){
@@ -322,11 +334,7 @@ void wikiedit_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      nrid = content_put(&wiki);
-      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-      manifest_crosslink(nrid, &wiki);
-      assert( blob_is_reset(&wiki) );
-      content_deltify(rid, nrid, 0);
+      wiki_put(&wiki, 0);
     }
     db_end_transaction(0);
     cgi_redirectf("wiki?name=%T", zPageName);
@@ -338,11 +346,14 @@ void wikiedit_page(void){
   if( zBody==0 ){
     zBody = mprintf("<i>Empty Page</i>");
   }
-  zHtmlPageName = mprintf("Edit: %s", zPageName);
-  style_header(zHtmlPageName);
+  style_set_current_page("%s?name=%T", g.zPath, zPageName);
+  style_header("Edit: %s", zPageName);
+  if( !goodCaptcha ){
+    @ <p class="generalError">Error:  Incorrect security code.</p>
+  }
+  blob_zero(&wiki);
+  blob_append(&wiki, zBody, -1);
   if( P("preview")!=0 ){
-    blob_zero(&wiki);
-    blob_append(&wiki, zBody, -1);
     @ Preview:<hr />
     wiki_convert(&wiki, 0, 0);
     @ <hr />
@@ -352,18 +363,46 @@ void wikiedit_page(void){
     if( z[0]=='\n' ) n++;
   }
   if( n<20 ) n = 20;
-  if( n>40 ) n = 40;
-  @ <form method="post" action="%s(g.zTop)/wikiedit"><div>
+  if( n>30 ) n = 30;
+  if( !isWysiwyg ){
+    /* Traditional markup-only editing */
+    form_begin(0, "%R/wikiedit");
+    @ <div>
+    @ <textarea name="w" class="wikiedit" cols="80" 
+    @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
+    @ <br />
+    if( db_get_boolean("wysiwyg-wiki", 0) ){
+      @ <input type="submit" name="edit-wysiwyg" value="Wysiwyg Editor"
+      @  onclick='return confirm("Switching to WYSIWYG-mode\nwill erase your markup\nedits. Continue?")' />
+    }
+    @ <input type="submit" name="preview" value="Preview Your Changes" />
+  }else{
+    /* Wysiwyg editing */
+    Blob html, temp;
+    form_begin("onsubmit='wysiwygSubmit()'", "%R/wikiedit");
+    @ <div>
+    @ <input type="hidden" name="wysiwyg" value="1" />
+    blob_zero(&temp);
+    wiki_convert(&wiki, &temp, 0);
+    blob_zero(&html);
+    htmlTidy(blob_str(&temp), &html);
+    blob_reset(&temp);
+    wysiwygEditor("w", blob_str(&html), 60, n);
+    blob_reset(&html);
+    @ <br />
+    @ <input type="submit" name="edit-markup" value="Markup Editor"
+    @  onclick='return confirm("Switching to markup-mode\nwill erase your WYSIWYG\nedits. Continue?")' />
+  }
   login_insert_csrf_secret();
-  @ <input type="hidden" name="name" value="%h(zPageName)" />
-  @ <textarea name="w" class="wikiedit" cols="80" 
-  @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
-  @ <br />
-  @ <input type="submit" name="preview" value="Preview Your Changes" />
   @ <input type="submit" name="submit" value="Apply These Changes" />
-  @ <input type="submit" name="cancel" value="Cancel" />
-  @ </div></form>
+  @ <input type="hidden" name="name" value="%h(zPageName)" />
+  @ <input type="submit" name="cancel" value="Cancel"
+  @  onclick='confirm("Abandon your changes?")' />
+  @ </div>
+  captcha_generate();
+  @ </form>
   manifest_destroy(pWiki);
+  blob_reset(&wiki);
   style_footer();
 }
 
@@ -383,12 +422,16 @@ void wikinew_page(void){
   }  
   zName = PD("name","");
   if( zName[0] && wiki_name_is_wellformed((const unsigned char *)zName) ){
-    cgi_redirectf("wikiedit?name=%T", zName);
+    if( db_get_boolean("wysiwyg-wiki", 0) ){
+      cgi_redirectf("wikiedit?name=%T&wysiwyg=1", zName);
+    }else{
+      cgi_redirectf("wikiedit?name=%T", zName);
+    }
   }
   style_header("Create A New Wiki Page");
   @ <p>Rules for wiki page names:</p>
   well_formed_wiki_name_rules();
-  @ <form method="post" action="%s(g.zTop)/wikinew">
+  form_begin(0, "%R/wikinew");
   @ <p>Name of new wiki page:
   @ <input style="width: 35;" type="text" name="name" value="%h(zName)" />
   @ <input type="submit" value="Create" />
@@ -432,8 +475,8 @@ void wikiappend_page(void){
   int rid = 0;
   int isSandbox;
   const char *zPageName;
-  char *zHtmlPageName;
   const char *zUser;
+  int goodCaptcha = 1;
 
   login_check_credentials();
   zPageName = PD("name","");
@@ -456,10 +499,11 @@ void wikiappend_page(void){
     login_needed();
     return;
   }
-  if( P("submit")!=0 && P("r")!=0 && P("u")!=0 ){
+  if( P("submit")!=0 && P("r")!=0 && P("u")!=0
+   && (goodCaptcha = captcha_is_correct())
+  ){
     char *zDate;
     Blob cksum;
-    int nrid;
     Blob body;
     Blob wiki;
     Manifest *pWiki = 0;
@@ -494,11 +538,7 @@ void wikiappend_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      nrid = content_put(&wiki);
-      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-      manifest_crosslink(nrid, &wiki);
-      assert( blob_is_reset(&wiki) );
-      content_deltify(rid, nrid, 0);
+      wiki_put(&wiki, rid);
       db_end_transaction(0);
     }
     cgi_redirectf("wiki?name=%T", zPageName);
@@ -507,8 +547,11 @@ void wikiappend_page(void){
     cgi_redirectf("wiki?name=%T", zPageName);
     return;
   }
-  zHtmlPageName = mprintf("Append Comment To: %s", zPageName);
-  style_header(zHtmlPageName);
+  style_set_current_page("%s?name=%T", g.zPath, zPageName);
+  style_header("Append Comment To: %s", zPageName);
+  if( !goodCaptcha ){
+    @ <p class="generalError">Error: Incorrect security code.</p>
+  }
   if( P("preview")!=0 ){
     Blob preview;
     blob_zero(&preview);
@@ -519,7 +562,7 @@ void wikiappend_page(void){
     blob_reset(&preview);
   }
   zUser = PD("u", g.zLogin);
-  @ <form method="post" action="%s(g.zTop)/wikiappend">
+  form_begin(0, "%R/wikiappend");
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ Your Name:
@@ -531,6 +574,7 @@ void wikiappend_page(void){
   @ <input type="submit" name="preview" value="Preview Your Comment" />
   @ <input type="submit" name="submit" value="Append Your Changes" />
   @ <input type="submit" name="cancel" value="Cancel" />
+  captcha_generate();
   @ </form>
   style_footer();
 }
@@ -546,7 +590,7 @@ static const char *zWikiPageName;
 */
 static void wiki_history_extra(int rid){
   if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d", rid) ){
-    @ <a href="%s(g.zTop)/wdiff?name=%t(zWikiPageName)&amp;a=%d(rid)">[diff]</a>
+    @ %z(href("%R/wdiff?name=%t&a=%d",zWikiPageName,rid))[diff]</a>
   }
 }
 
@@ -562,7 +606,7 @@ void whistory_page(void){
   char *zSQL;
   const char *zPageName;
   login_check_credentials();
-  if( !g.perm.History ){ login_needed(); return; }
+  if( !g.perm.Hyperlink ){ login_needed(); return; }
   zPageName = PD("name","");
   zTitle = mprintf("History Of %s", zPageName);
   style_header(zTitle);
@@ -595,11 +639,11 @@ void wdiff_page(void){
   const char *zPageName;
   Manifest *pW1, *pW2 = 0;
   Blob w1, w2, d;
-  int diffFlags;
+  u64 diffFlags;
 
   login_check_credentials();
   rid1 = atoi(PD("a","0"));
-  if( !g.perm.History ){ login_needed(); return; }
+  if( !g.perm.Hyperlink ){ login_needed(); return; }
   if( rid1==0 ) fossil_redirect_home();
   rid2 = atoi(PD("b","0"));
   zPageName = PD("name","");
@@ -625,7 +669,7 @@ void wdiff_page(void){
   }
   blob_zero(&d);
   diffFlags = construct_diff_flags(1,0);
-  text_diff(&w2, &w1, &d, diffFlags | DIFF_HTML | DIFF_LINENO);
+  text_diff(&w2, &w1, &d, 0, diffFlags | DIFF_HTML | DIFF_LINENO);
   @ <div class="udiff">
   @ %s(blob_str(&d))
   @ </div>
@@ -676,9 +720,9 @@ void wcontent_page(void){
     const char *zName = db_column_text(&q, 0);
     int size = db_column_int(&q, 1);
     if( size>0 ){
-      @ <li><a href="%s(g.zTop)/wiki?name=%T(zName)">%h(zName)</a></li>
+      @ <li>%z(href("%R/wiki?name=%T",zName))%h(zName)</a></li>
     }else if( showAll ){
-      @ <li><a href="%s(g.zTop)/wiki?name=%T(zName)"><s>%h(zName)</s></a></li>
+      @ <li>%z(href("%R/wiki?name=%T",zName))<s>%h(zName)</s></a></li>
     }
   }
   db_finalize(&q);
@@ -706,7 +750,7 @@ void wfind_page(void){
 	zTitle);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    @ <li><a href="%s(g.zTop)/wiki?name=%T(zName)">%h(zName)</a></li>
+    @ <li>%z(href("%R/wiki?name=%T",zName))%h(zName)</a></li>
   }
   db_finalize(&q);
   @ </ul>
@@ -783,7 +827,7 @@ void wikirules_page(void){
 }
 
 /*
-** Add a new wiki page to the respository.  The page name is
+** Add a new wiki page to the repository.  The page name is
 ** given by the zPageName parameter.  isNew must be true to create
 ** a new page.  If no previous page with the name zPageName exists
 ** and isNew is false, then this routine throws an error.
@@ -794,7 +838,6 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   Blob wiki;              /* Wiki page content */
   Blob cksum;             /* wiki checksum */
   int rid;                /* artifact ID of parent page */
-  int nrid;               /* artifact ID of new wiki page */
   char *zDate;            /* timestamp */
   char *zUuid;            /* uuid for rid */
 
@@ -837,11 +880,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   blob_appendf(&wiki, "Z %b\n", &cksum);
   blob_reset(&cksum);
   db_begin_transaction();
-  nrid = content_put( &wiki);
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-  manifest_crosslink(nrid,&wiki);
-  assert( blob_is_reset(&wiki) );
-  content_deltify(rid,nrid,0);
+  wiki_put(&wiki, 0);
   db_end_transaction(0);
   return 1;
 }
@@ -871,28 +910,8 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **     %fossil wiki list
 **
 **        Lists all wiki entries, one per line, ordered
-**        case-insentively by name.
+**        case-insensitively by name.
 **
-** TODOs:
-**
-**     %fossil wiki export ?-u ARTIFACT? WikiName ?FILE?
-**
-**        Outputs the selected version of WikiName.
-**
-**     %fossil wiki delete ?-m MESSAGE? WikiName
-**
-**        The same as deleting a file entry, but i don't know if fossil
-**        supports a commit message for Wiki entries.
-**
-**     %fossil wiki ?-u? ?-d? ?-s=[|]? list
-**
-**        Lists the artifact ID and/or Date of last change along with
-**        each entry name, delimited by the -s char.
-**
-**     %fossil wiki diff ?ARTIFACT? ?-f infile[=stdin]? EntryName
-**
-**        Diffs the local copy of a page with a given version (defaulting
-**        to the head version).
 */
 void wiki_cmd(void){
   int n;

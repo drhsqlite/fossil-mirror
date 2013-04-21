@@ -20,6 +20,7 @@
 */
 #include "config.h"
 #include "th_main.h"
+#include "sqlite3.h"
 
 /*
 ** Global variable counting the number of outstanding calls to malloc()
@@ -74,15 +75,39 @@ static int enableOutputCmd(
   const char **argv, 
   int *argl
 ){
-  if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "enable_output BOOLEAN");
+  int rc;
+  if( argc<2 || argc>3 ){
+    return Th_WrongNumArgs(interp, "enable_output [LABEL] BOOLEAN");
   }
-  return Th_ToInt(interp, argv[1], argl[1], &enableOutput);
+  rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &enableOutput);
+  if( g.thTrace ){
+    Th_Trace("enable_output {%.*s} -> %d<br>\n", argl[1],argv[1],enableOutput);
+  }
+  return rc;
+}
+
+/*
+** Return a name for a TH1 return code.
+*/
+const char *Th_ReturnCodeName(int rc, int nullIfOk){
+  static char zRc[32];
+  switch( rc ){
+    case TH_OK:       return nullIfOk ? 0 : "TH_OK";
+    case TH_ERROR:    return "TH_ERROR";
+    case TH_BREAK:    return "TH_BREAK";
+    case TH_RETURN:   return "TH_RETURN";
+    case TH_CONTINUE: return "TH_CONTINUE";
+    default: {
+      sqlite3_snprintf(sizeof(zRc),zRc,"return code %d",rc);
+    }
+  }
+  return zRc;
 }
 
 /*
 ** Send text to the appropriate output:  Either to the console
-** or to the CGI reply buffer.
+** or to the CGI reply buffer.  Escape all characters with special
+** meaning to HTML if the encode parameter is true.
 */
 static void sendText(const char *z, int n, int encode){
   if( enableOutput && n ){
@@ -101,11 +126,23 @@ static void sendText(const char *z, int n, int encode){
   }
 }
 
+static void sendError(const char *z, int n, int forceCgi){
+  int savedEnable = enableOutput;
+  enableOutput = 1;
+  if( forceCgi || g.cgiOutput ){
+    sendText("<hr><p class=\"thmainError\">", -1, 0);
+  }
+  sendText("ERROR: ", -1, 0);
+  sendText((char*)z, n, 1);
+  sendText(forceCgi || g.cgiOutput ? "</p>" : "\n", -1, 0);
+  enableOutput = savedEnable;
+}
+
 /*
 ** TH command:     puts STRING
 ** TH command:     html STRING
 **
-** Output STRING as HTML (html) or unchanged (puts).  
+** Output STRING escaped for HTML (html) or unchanged (puts).  
 */
 static int putsCmd(
   Th_Interp *interp, 
@@ -117,7 +154,7 @@ static int putsCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "puts STRING");
   }
-  sendText((char*)argv[1], argl[1], pConvert!=0);
+  sendText((char*)argv[1], argl[1], *(unsigned int*)pConvert);
   return TH_OK;
 }
 
@@ -133,13 +170,14 @@ static int wikiCmd(
   const char **argv, 
   int *argl
 ){
+  int flags = WIKI_INLINE | WIKI_NOBADLINKS | *(unsigned int*)p;
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "wiki STRING");
   }
   if( enableOutput ){
     Blob src;
     blob_init(&src, (char*)argv[1], argl[1]);
-    wiki_convert(&src, 0, WIKI_INLINE);
+    wiki_convert(&src, 0, flags);
     blob_reset(&src);
   }
   return TH_OK;
@@ -194,7 +232,7 @@ static int dateCmd(
 }
 
 /*
-** TH command:     hascap STRING
+** TH command:     hascap STRING...
 **
 ** Return true if the user has all of the capabilities listed in STRING.
 */
@@ -205,17 +243,79 @@ static int hascapCmd(
   const char **argv, 
   int *argl
 ){
-  int rc;
-  if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "hascap STRING");
+  int rc = 0, i;
+  if( argc<2 ){
+    return Th_WrongNumArgs(interp, "hascap STRING ...");
   }
-  rc = login_has_capability((char*)argv[1],argl[1]);
+  for(i=1; i<argc && rc==0; i++){
+    rc = login_has_capability((char*)argv[i],argl[i]);
+  }
   if( g.thTrace ){
     Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
 }
+
+/*
+** TH command:     hasfeature STRING
+**
+** Return true if the fossil binary has the given compile-time feature
+** enabled. The set of features includes:
+**
+** "ssl"      = FOSSIL_ENABLE_SSL
+** "tcl"      = FOSSIL_ENABLE_TCL
+** "tclStubs" = FOSSIL_ENABLE_TCL_STUBS
+** "json"     = FOSSIL_ENABLE_JSON
+** "markdown" = FOSSIL_ENABLE_MARKDOWN
+**
+*/
+static int hasfeatureCmd(
+  Th_Interp *interp, 
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  int rc = 0;
+  char const * zArg;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "hasfeature STRING");
+  }
+  zArg = (char const*)argv[1];
+  if(NULL==zArg){
+    /* placeholder for following ifdefs... */
+  }
+#if defined(FOSSIL_ENABLE_SSL)
+  else if( 0 == fossil_strnicmp( zArg, "ssl", 3 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_TCL)
+  else if( 0 == fossil_strnicmp( zArg, "tcl", 3 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_TCL_STUBS)
+  else if( 0 == fossil_strnicmp( zArg, "tclStubs", 8 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_JSON)
+  else if( 0 == fossil_strnicmp( zArg, "json", 4 ) ){
+    rc = 1;
+  }
+#endif
+  else if( 0 == fossil_strnicmp( zArg, "markdown", 8 ) ){
+    rc = 1;
+  }
+  if( g.thTrace ){
+    Th_Trace("[hasfeature %#h] => %d<br />\n", argl[1], zArg, rc);
+  }
+  Th_SetResultInt(interp, rc);
+  return TH_OK;
+}
+
 
 /*
 ** TH command:     anycap STRING
@@ -367,13 +467,255 @@ static int repositoryCmd(
   return TH_OK;
 }
 
+#ifdef _WIN32
+# include <windows.h>
+#else
+# include <sys/time.h>
+# include <sys/resource.h>
+#endif
+
+/*
+** Get user and kernel times in microseconds.
+*/
+static void getCpuTimes(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
+#ifdef _WIN32
+  FILETIME not_used;
+  FILETIME kernel_time;
+  FILETIME user_time;
+  GetProcessTimes(GetCurrentProcess(), &not_used, &not_used,
+                  &kernel_time, &user_time);
+  if( piUser ){
+     *piUser = ((((sqlite3_uint64)user_time.dwHighDateTime)<<32) +
+                         (sqlite3_uint64)user_time.dwLowDateTime + 5)/10;
+  }
+  if( piKernel ){
+     *piKernel = ((((sqlite3_uint64)kernel_time.dwHighDateTime)<<32) +
+                         (sqlite3_uint64)kernel_time.dwLowDateTime + 5)/10;
+  }
+#else
+  struct rusage s;
+  getrusage(RUSAGE_SELF, &s);
+  if( piUser ){
+    *piUser = ((sqlite3_uint64)s.ru_utime.tv_sec)*1000000 + s.ru_utime.tv_usec;
+  }
+  if( piKernel ){
+    *piKernel = 
+              ((sqlite3_uint64)s.ru_stime.tv_sec)*1000000 + s.ru_stime.tv_usec;
+  }
+#endif
+}
+
+/*
+** TH1 command:     utime
+**
+** Return the number of microseconds of CPU time consumed by the current
+** process in user space.
+*/
+static int utimeCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_uint64 x;
+  char zUTime[50];
+  getCpuTimes(&x, 0);
+  sqlite3_snprintf(sizeof(zUTime), zUTime, "%llu", x);
+  Th_SetResult(interp, zUTime, -1);
+  return TH_OK;
+}
+
+/*
+** TH1 command:     stime
+**
+** Return the number of microseconds of CPU time consumed by the current
+** process in system space.
+*/
+static int stimeCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_uint64 x;
+  char zUTime[50];
+  getCpuTimes(0, &x);
+  sqlite3_snprintf(sizeof(zUTime), zUTime, "%llu", x);
+  Th_SetResult(interp, zUTime, -1);
+  return TH_OK;
+}
+
+
+/*
+** TH1 command:     randhex  N
+**
+** Return N*2 random hexadecimal digits with N<50.  If N is omitted, 
+** use a value of 10.
+*/
+static int randhexCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  int n;
+  unsigned char aRand[50];
+  unsigned char zOut[100];
+  if( argc!=1 && argc!=2 ){
+    return Th_WrongNumArgs(interp, "repository ?BOOLEAN?");
+  }
+  if( argc==2 ){
+    if( Th_ToInt(interp, argv[1], argl[1], &n) ){
+      return TH_ERROR;
+    }
+    if( n<1 ) n = 1;
+    if( n>sizeof(aRand) ) n = sizeof(aRand);
+  }else{
+    n = 10;
+  }
+  sqlite3_randomness(n, aRand);
+  encode16(aRand, zOut, n);
+  Th_SetResult(interp, (const char *)zOut, -1);
+  return TH_OK;
+}
+
+/*
+** TH1 command:     query SQL CODE
+**
+** Run the SQL query given by the SQL argument.  For each row in the result
+** set, run CODE.
+**
+** In SQL, parameters such as $var are filled in using the value of variable
+** "var".  Result values are stored in variables with the column name prior
+** to each invocation of CODE.
+*/
+static int queryCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt *pStmt;
+  int rc;
+  const char *zSql;
+  int nSql;
+  const char *zTail;
+  int n, i;
+  int res = TH_OK;
+  int nVar;
+  char *zErr = 0;
+
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "query SQL CODE");
+  }
+  if( g.db==0 ){
+    Th_ErrorMessage(interp, "database is not open", 0, 0);
+    return TH_ERROR;
+  }
+  zSql = argv[1];
+  nSql = argl[1];
+  while( res==TH_OK && nSql>0 ){
+    zErr = 0;
+    sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr);
+    rc = sqlite3_prepare_v2(g.db, argv[1], argl[1], &pStmt, &zTail);
+    sqlite3_set_authorizer(g.db, 0, 0);
+    if( rc!=0 || zErr!=0 ){
+      Th_ErrorMessage(interp, "SQL error: ",
+                      zErr ? zErr : sqlite3_errmsg(g.db), -1);
+      return TH_ERROR;
+    }
+    n = (int)(zTail - zSql);
+    zSql += n;
+    nSql -= n;
+    if( pStmt==0 ) continue;
+    nVar = sqlite3_bind_parameter_count(pStmt);
+    for(i=1; i<=nVar; i++){
+      const char *zVar = sqlite3_bind_parameter_name(pStmt, i);
+      int szVar = zVar ? th_strlen(zVar) : 0;
+      if( szVar>1 && zVar[0]=='$'
+       && Th_GetVar(interp, zVar+1, szVar-1)==TH_OK ){
+        int nVal;
+        const char *zVal = Th_GetResult(interp, &nVal);
+        sqlite3_bind_text(pStmt, i, zVal, nVal, SQLITE_TRANSIENT);
+      }
+    }
+    while( res==TH_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+      int nCol = sqlite3_column_count(pStmt);
+      for(i=0; i<nCol; i++){
+        const char *zCol = sqlite3_column_name(pStmt, i);
+        int szCol = th_strlen(zCol);
+        const char *zVal = (const char*)sqlite3_column_text(pStmt, i);
+        int szVal = sqlite3_column_bytes(pStmt, i);
+        Th_SetVar(interp, zCol, szCol, zVal, szVal);
+      }
+      res = Th_Eval(interp, 0, argv[2], argl[2]);
+      if( res==TH_BREAK || res==TH_CONTINUE ) res = TH_OK;
+    }
+    rc = sqlite3_finalize(pStmt);
+    if( rc!=SQLITE_OK ){
+      Th_ErrorMessage(interp, "SQL error: ", sqlite3_errmsg(g.db), -1);
+      return TH_ERROR;
+    }
+  } 
+  return res;
+}
+
+/*
+** TH1 command:     regexp ?-nocase? ?--? exp string
+**
+** Checks the string against the specified regular expression and returns
+** non-zero if it matches.  If the regular expression is invalid or cannot
+** be compiled, an error will be generated.
+*/
+#define REGEXP_WRONGNUMARGS "regexp ?-nocase? ?--? exp string"
+static int regexpCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  int noCase = 0;
+  int nArg = 1;
+  ReCompiled *pRe = 0;
+  const char *zErr;
+  if( argc<3 || argc>5 ){
+    return Th_WrongNumArgs(interp, REGEXP_WRONGNUMARGS);
+  }
+  if( fossil_strcmp(argv[nArg], "-nocase")==0 ){
+    noCase = 1; nArg++;
+  }
+  if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
+  if( nArg+2!=argc ){
+    return Th_WrongNumArgs(interp, REGEXP_WRONGNUMARGS);
+  }
+  zErr = re_compile(&pRe, argv[nArg], noCase);
+  if( !zErr ){
+    Th_SetResultInt(interp, re_match(pRe,
+        (const unsigned char *)argv[nArg+1], argl[nArg+1]));
+    rc = TH_OK;
+  }else{
+    Th_SetResult(interp, zErr, -1);
+    rc = TH_ERROR;
+  }
+  re_free(pRe);
+  return rc;
+}
+
 /*
 ** Make sure the interpreter has been initialized.  Initialize it if
 ** it has not been already.
 **
 ** The interpreter is stored in the g.interp global variable.
 */
-void Th_FossilInit(void){
+void Th_FossilInit(int needConfig, int forceSetup){
+  int wasInit = 0;
+  static unsigned int aFlags[] = { 0, 1, WIKI_LINKSONLY };
   static struct _Command {
     const char *zName;
     Th_CommandProc xProc;
@@ -381,23 +723,43 @@ void Th_FossilInit(void){
   } aCommand[] = {
     {"anycap",        anycapCmd,            0},
     {"combobox",      comboboxCmd,          0},
-    {"enable_output", enableOutputCmd,      0},
-    {"linecount",     linecntCmd,           0},
-    {"hascap",        hascapCmd,            0},
-    {"htmlize",       htmlizeCmd,           0},
     {"date",          dateCmd,              0},
-    {"html",          putsCmd,              0},
-    {"puts",          putsCmd,       (void*)1},
-    {"wiki",          wikiCmd,              0},
+    {"decorate",      wikiCmd,              (void*)&aFlags[2]},
+    {"enable_output", enableOutputCmd,      0},
+    {"hascap",        hascapCmd,            0},
+    {"hasfeature",    hasfeatureCmd,        0},
+    {"html",          putsCmd,              (void*)&aFlags[0]},
+    {"htmlize",       htmlizeCmd,           0},
+    {"linecount",     linecntCmd,           0},
+    {"puts",          putsCmd,              (void*)&aFlags[1]},
+    {"query",         queryCmd,             0},
+    {"randhex",       randhexCmd,           0},
+    {"regexp",        regexpCmd,            0},
     {"repository",    repositoryCmd,        0},
+    {"stime",         stimeCmd,             0},
+    {"utime",         utimeCmd,             0},
+    {"wiki",          wikiCmd,              (void*)&aFlags[0]},
     {0, 0, 0}
   };
+  if( needConfig ){
+    /*
+    ** This function uses several settings which may be defined in the
+    ** repository and/or the global configuration.  Since the caller
+    ** passed a non-zero value for the needConfig parameter, make sure
+    ** the necessary database connections are open prior to continuing.
+    */
+    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
+    db_open_config(0);
+  }
   if( g.interp==0 ){
     int i;
     g.interp = Th_CreateInterp(&vtab);
     th_register_language(g.interp);       /* Basic scripting commands. */
 #ifdef FOSSIL_ENABLE_TCL
     if( getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
+      if( !g.tcl.setup ){
+        g.tcl.setup = db_get("tcl-setup", 0); /* Grab Tcl setup script. */
+      }
       th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif
@@ -406,6 +768,26 @@ void Th_FossilInit(void){
       Th_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc,
                        aCommand[i].pContext, 0);
     }
+  }else{
+    wasInit = 1;
+  }
+  if( forceSetup || !wasInit ){
+    int rc = TH_OK;
+    if( !g.th1Setup ){
+      g.th1Setup = db_get("th1-setup", 0); /* Grab TH1 setup script. */
+    }
+    if( g.th1Setup ){
+      rc = Th_Eval(g.interp, 0, g.th1Setup, -1);
+      if( rc==TH_ERROR ){
+        int nResult = 0;
+        char *zResult = (char*)Th_GetResult(g.interp, &nResult);
+        sendError(zResult, nResult, 0);
+      }
+    }
+    if( g.thTrace ){
+      Th_Trace("th1-setup {%h} => %h<br />\n", g.th1Setup,
+               Th_ReturnCodeName(rc, 0));
+    }
   }
 }
 
@@ -413,13 +795,30 @@ void Th_FossilInit(void){
 ** Store a string value in a variable in the interpreter.
 */
 void Th_Store(const char *zName, const char *zValue){
-  Th_FossilInit();
+  Th_FossilInit(0, 0);
   if( zValue ){
     if( g.thTrace ){
       Th_Trace("set %h {%h}<br />\n", zName, zValue);
     }
     Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
   }
+}
+
+/*
+** Store an integer value in a variable in the interpreter.
+*/
+void Th_StoreInt(const char *zName, int iValue){
+  Blob value;
+  char *zValue;
+  Th_FossilInit(0, 0);
+  blob_zero(&value);
+  blob_appendf(&value, "%d", iValue);
+  zValue = blob_str(&value);
+  if( g.thTrace ){
+    Th_Trace("set %h {%h}<br />\n", zName, zValue);
+  }
+  Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
+  blob_reset(&value);
 }
 
 /*
@@ -437,7 +836,7 @@ void Th_Unstore(const char *zName){
 */
 char *Th_Fetch(const char *zName, int *pSize){
   int rc;
-  Th_FossilInit();
+  Th_FossilInit(0, 0);
   rc = Th_GetVar(g.interp, (char*)zName, -1);
   if( rc==TH_OK ){
     return (char*)Th_GetResult(g.interp, pSize);
@@ -517,7 +916,7 @@ int Th_Render(const char *z){
   int n;
   int rc = TH_OK;
   char *zResult;
-  Th_FossilInit();
+  Th_FossilInit(0, 0);
   while( z[i] ){
     if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
@@ -543,6 +942,9 @@ int Th_Render(const char *z){
       sendText(z, i, 0);
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
+      if( g.thTrace ){
+        Th_Trace("eval {<pre>%#h</pre>}<br>", i, z);
+      }
       rc = Th_Eval(g.interp, 0, (const char*)z, i);
       if( rc!=TH_OK ) break;
       z += i;
@@ -553,10 +955,8 @@ int Th_Render(const char *z){
     }
   }
   if( rc==TH_ERROR ){
-    sendText("<hr><p class=\"thmainError\">ERROR: ", -1, 0);
     zResult = (char*)Th_GetResult(g.interp, &n);
-    sendText((char*)zResult, n, 1);
-    sendText("</p>", -1, 0);
+    sendError(zResult, n, 1);
   }else{
     sendText(z, i, 0);
   }
@@ -575,4 +975,20 @@ void test_th_render(void){
   blob_zero(&in);
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));
+}
+
+/*
+** COMMAND: test-th-eval
+*/
+void test_th_eval(void){
+  int rc;
+  const char *zRc;
+  if( g.argc!=3 ){
+    usage("script");
+  }
+  Th_FossilInit(0, 0);
+  rc = Th_Eval(g.interp, 0, g.argv[2], -1);
+  zRc = Th_ReturnCodeName(rc, 1);
+  fossil_print("%s%s%s\n", zRc, zRc ? ": " : "",
+      Th_GetResult(g.interp, 0));
 }

@@ -31,7 +31,7 @@
 ** have the final say-so about whether or not the date/time string is
 ** well-formed.
 */
-static int is_date(const char *z){
+int fossil_isdate(const char *z){
   if( !fossil_isdigit(z[0]) ) return 0;
   if( !fossil_isdigit(z[1]) ) return 0;
   if( !fossil_isdigit(z[2]) ) return 0;
@@ -64,7 +64,7 @@ static int is_date(const char *z){
 **   *  "next"
 **
 ** Return the RID of the matching artifact.  Or return 0 if the name does not
-** match any known object.  Or return -1 if the name is ambiguious.
+** match any known object.  Or return -1 if the name is ambiguous.
 **
 ** The zType parameter specifies the type of artifact: ci, t, w, e, g. 
 ** If zType is NULL or "" or "*" then any type of artifact will serve.
@@ -109,15 +109,15 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( memcmp(zTag, "date:", 5)==0 ){
     rid = db_int(0, 
       "SELECT objid FROM event"
-      " WHERE mtime<=julianday(%Q) AND type GLOB '%q'"
+      " WHERE mtime<=julianday(%Q,'utc') AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
       &zTag[5], zType);
     return rid;
   }
-  if( is_date(zTag) ){
+  if( fossil_isdate(zTag) ){
     rid = db_int(0, 
       "SELECT objid FROM event"
-      " WHERE mtime<=julianday(%Q) AND type GLOB '%q'"
+      " WHERE mtime<=julianday(%Q,'utc') AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
       zTag, zType);
     if( rid) return rid;
@@ -145,22 +145,51 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   /* "tag:" + symbolic-name */
   if( memcmp(zTag, "tag:", 4)==0 ){
     rid = db_int(0,
-       "SELECT event.objid"
+       "SELECT event.objid, max(event.mtime)"
        "  FROM tag, tagxref, event"
        " WHERE tag.tagname='sym-%q' "
        "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
        "   AND event.objid=tagxref.rid "
-       "   AND event.type GLOB '%q'"
-       " ORDER BY event.mtime DESC /*sort*/",
+       "   AND event.type GLOB '%q'",
        &zTag[4], zType
     );
+    return rid;
+  }
+  
+  /* root:TAG -> The origin of the branch */
+  if( memcmp(zTag, "root:", 5)==0 ){
+    Stmt q;
+    int rc;
+    char *zBr;
+    rid = symbolic_name_to_rid(zTag+5, zType);
+    zBr = db_text("trunk","SELECT value FROM tagxref"
+                          " WHERE rid=%d AND tagid=%d"
+                          " AND tagtype>0",
+                          rid, TAG_BRANCH);
+    db_prepare(&q,
+      "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
+                         " WHERE tagid=%d AND tagtype>0"
+                         "   AND value=%Q AND rid=plink.pid)"
+      "  FROM plink"
+      " WHERE cid=:cid AND isprim",
+      TAG_BRANCH, zBr
+    );
+    fossil_free(zBr);
+    do{
+      db_reset(&q);
+      db_bind_int(&q, ":cid", rid);
+      rc = db_step(&q);
+      if( rc!=SQLITE_ROW ) break;
+      rid = db_column_int(&q, 0);
+    }while( db_column_int(&q, 1)==1 && rid>0 );
+    db_finalize(&q);
     return rid;
   }
 
   /* symbolic-name ":" date-time */
   nTag = strlen(zTag);
   for(i=0; i<nTag-10 && zTag[i]!=':'; i++){}
-  if( zTag[i]==':' && is_date(&zTag[i+1]) ){
+  if( zTag[i]==':' && fossil_isdate(&zTag[i+1]) ){
     char *zDate = mprintf("%s", &zTag[i+1]);
     char *zTagBase = mprintf("%.*s", i, zTag);
     int nDate = strlen(zDate);
@@ -169,14 +198,13 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
       zDate[nDate-2] = 0;
     }
     rid = db_int(0,
-      "SELECT event.objid"
+      "SELECT event.objid, max(event.mtime)"
       "  FROM tag, tagxref, event"
       " WHERE tag.tagname='sym-%q' "
       "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
       "   AND event.objid=tagxref.rid "
       "   AND event.mtime<=julianday(%Q)"
-      "   AND event.type GLOB '%q'"
-      " ORDER BY event.mtime DESC /*sort*/ ",
+      "   AND event.type GLOB '%q'",
       zTagBase, zDate, zType
     );
     return rid;
@@ -211,13 +239,12 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 
   /* Symbolic name */
   rid = db_int(0,
-    "SELECT event.objid"
+    "SELECT event.objid, max(event.mtime)"
     "  FROM tag, tagxref, event"
     " WHERE tag.tagname='sym-%q' "
     "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
     "   AND event.objid=tagxref.rid "
-    "   AND event.type GLOB '%q'"
-    " ORDER BY event.mtime DESC /*sort*/ ",
+    "   AND event.type GLOB '%q'",
     zTag, zType
   );
   if( rid>0 ) return rid;
@@ -225,11 +252,15 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   /* Undocumented:  numeric tags get translated directly into the RID */
   for(i=0; fossil_isdigit(zTag[i]); i++){}
   if( zTag[i]==0 ){
-    rid = db_int(0, 
-      "SELECT event.objid"
-      "  FROM event"
-      " WHERE event.objid=%s"
-      "   AND event.type GLOB '%q'", zTag, zType);
+    if( strcmp(zType,"*")==0 ){
+      rid = atoi(zTag);
+    }else{
+      rid = db_int(0, 
+        "SELECT event.objid"
+        "  FROM event"
+        " WHERE event.objid=%s"
+        "   AND event.type GLOB '%q'", zTag, zType);
+    }
   }
   return rid;
 }
@@ -267,6 +298,26 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
     return 0;
   }
 }
+
+/*
+** This routine is similar to name_to_uuid() except in the form it
+** takes its parameters and returns its value, and in that it does not
+** treat errors as fatal. zName must be a UUID, as described for
+** name_to_uuid(). zType is also as described for that function. If
+** zName does not resolve, 0 is returned. If it is ambiguous, a
+** negative value is returned. On success the rid is returned and
+** pUuid (if it is not NULL) is set to the a newly-allocated string,
+** the full UUID, which must eventually be free()d by the caller.
+*/
+int name_to_uuid2(char const *zName, const char *zType, char **pUuid){
+  int rid = symbolic_name_to_rid(zName, zType);
+  if((rid>0) && pUuid){
+    *pUuid = db_text(NULL, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  }
+  return rid;
+}
+
+
 
 /*
 ** COMMAND:  test-name-to-id
@@ -328,7 +379,7 @@ int name_to_rid(const char *zName){
 ** WEBPAGE: ambiguous
 ** URL: /ambiguous?name=UUID&src=WEBPAGE
 ** 
-** The UUID given by the name paramager is ambiguous.  Display a page
+** The UUID given by the name parameter is ambiguous.  Display a page
 ** that shows all possible choices and let the user select between them.
 */
 void ambiguous_page(void){

@@ -31,16 +31,20 @@
 ** object. On error it sets g.json's error state and returns NULL.
 **
 ** If fSbs is true (non-0) them side-by-side diffs are used.
+**
+** If fHtml is true then HTML markup is added to the diff.
 */
 cson_value * json_generate_diff(const char *zFrom, const char *zTo,
-                                int nContext, char fSbs){
+                                int nContext, char fSbs,
+                                char fHtml){
   int fromid;
   int toid;
   int outLen;
   Blob from = empty_blob, to = empty_blob, out = empty_blob;
   cson_value * rc = NULL;
   int flags = (DIFF_CONTEXT_MASK & nContext)
-      | (fSbs ? DIFF_SIDEBYSIDE : 0);
+    | (fSbs ? DIFF_SIDEBYSIDE : 0)
+    | (fHtml ? DIFF_HTML : 0);
   fromid = name_to_typed_rid(zFrom, "*");
   if(fromid<=0){
       json_set_err(FSL_JSON_E_UNRESOLVED_UUID,
@@ -56,7 +60,7 @@ cson_value * json_generate_diff(const char *zFrom, const char *zTo,
   content_get(fromid, &from);
   content_get(toid, &to);
   blob_zero(&out);
-  text_diff(&from, &to, &out, flags);
+  text_diff(&from, &to, &out, 0, flags);
   blob_reset(&from);
   blob_reset(&to);
   outLen = blob_size(&out);
@@ -87,6 +91,7 @@ cson_value * json_page_diff(){
   char const * zTo;
   int nContext = 0;
   char doSBS;
+  char doHtml;
   if(!g.perm.Read){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' permissions.");
@@ -112,7 +117,8 @@ cson_value * json_page_diff(){
   }
   nContext = json_find_option_int("context",NULL,"c",5);
   doSBS = json_find_option_bool("sbs",NULL,"y",0);
-  v = json_generate_diff(zFrom, zTo, nContext, doSBS);
+  doHtml = json_find_option_bool("html",NULL,"h",0);
+  v = json_generate_diff(zFrom, zTo, nContext, doSBS, doHtml);
   if(!v){
     if(!g.json.resultCode){
       json_set_err(FSL_JSON_E_UNKNOWN,

@@ -28,6 +28,7 @@ struct PathNode {
   int rid;                 /* ID for this node */
   u8 fromIsParent;         /* True if pFrom is the parent of rid */
   u8 isPrim;               /* True if primary side of common ancestor */
+  u8 isHidden;             /* Abbreviate output in "fossil bisect ls" */
   PathNode *pFrom;         /* Node we came from */
   union {
     PathNode *pPeer;       /* List of nodes of the same generation */
@@ -91,7 +92,7 @@ void path_reset(void){
     fossil_free(p);
   }
   bag_clear(&path.seen);
-  memset(&path, 0, sizeof(&path));
+  memset(&path, 0, sizeof(path));
 }
 
 /*
