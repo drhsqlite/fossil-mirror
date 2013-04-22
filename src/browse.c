@@ -290,19 +290,41 @@ void page_dir(void){
     zFN = db_column_text(&q, 0);
     if( zFN[0]=='/' ){
       zFN++;
-      @ <li>%z(href("%s%T",zSubdirLink,zFN))%h(zFN)</a></li>
-    }else if( zCI ){
-      const char *zUuid = db_column_text(&q, 1);
-      @ <li>%z(href("%R/artifact/%s",zUuid))%h(zFN)</a></li>
+      @ <li class="dir">%z(href("%s%T",zSubdirLink,zFN))%h(zFN)</a></li>
     }else{
-      @ <li>%z(href("%R/finfo?name=%T%T",zPrefix,zFN))%h(zFN)
-      @     </a></li>
+      const char *zLink;
+      if( zCI ){
+        const char *zUuid = db_column_text(&q, 1);
+        zLink = href("%R/artifact/%s",zUuid);
+      }else{
+        zLink = href("%R/finfo?name=%T%T",zPrefix,zFN);
+      }
+      @ <li class="%z(fileext_class(zFN))">%z(zLink)%h(zFN)</a></li>
     }
   }
   db_finalize(&q);
   manifest_destroy(pM);
   @ </ul></td></tr></table>
   style_footer();
+}
+
+/*
+** Return a CSS class name based on the given filename's extension.
+** Result must be freed by the caller.
+**/
+const char *fileext_class(const char *zFilename){
+  char *zClass;
+  const char *zExt = strrchr(zFilename, '.');
+  int isExt = zExt && zExt!=zFilename && zExt[1];
+  int i;
+  for( i=1; isExt && zExt[i]; i++ ) isExt &= fossil_isalnum(zExt[i]);
+  if( isExt ){
+    zClass = mprintf("file-%s", zExt+1);
+    for ( i=5; zClass[i]; i++ ) zClass[i] = fossil_tolower(zClass[i]);
+  }else{
+    zClass = mprintf("file");
+  }
+  return zClass;
 }
 
 /*
