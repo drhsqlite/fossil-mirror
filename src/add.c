@@ -403,9 +403,11 @@ int filenames_are_case_sensitive(void){
       caseSensitive = db_get_boolean("case-sensitive",caseSensitive);
     }
     if( !caseSensitive ){
+      db_must_be_within_tree();
       db_multi_exec(
-         "CREATE INDEX IF NOT EXISTS vfile_nocase "
-         "  ON vfile(pathname COLLATE nocase)"
+         "CREATE INDEX IF NOT EXISTS %s.vfile_nocase "
+         "  ON vfile(pathname COLLATE nocase)",
+         db_name("localdb")
       );
     }
   }
@@ -455,10 +457,10 @@ const char *filename_collation(void){
 ** 
 ** Options: 
 **   --case-sensitive <BOOL> override case-sensitive setting
-**   --dotfiles              include files beginning with a dot (".")   
-**   --ignore <CSG>          ignore files matching patterns from the 
+**   --dotfiles              include files beginning with a dot (".")
+**   --ignore <CSG>          ignore files matching patterns from the
 **                           comma separated list of glob patterns.
-**   --test                  If given, display instead of run actions
+**   -n|--dry-run            If given, display instead of run actions
 **
 ** See also: add, rm
 */
@@ -466,7 +468,7 @@ void addremove_cmd(void){
   Blob path;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
-  int isTest = find_option("test",0,0)!=0;
+  int dryRunFlag = find_option("dry-run","n",0)!=0;
   int n;
   Stmt q;
   int vid;
@@ -474,6 +476,9 @@ void addremove_cmd(void){
   int nDelete = 0;
   Glob *pIgnore;
 
+  if( !dryRunFlag ){
+    dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
+  }
   capture_case_sensitive_option();
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
@@ -514,7 +519,7 @@ void addremove_cmd(void){
     zFile = db_column_text(&q, 0);
     zPath = db_column_text(&q, 1);
     if( !file_wd_isfile_or_link(zPath) ){
-      if( !isTest ){
+      if( !dryRunFlag ){
         db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zFile);
       }
       fossil_print("DELETED  %s\n", zFile);
@@ -525,7 +530,7 @@ void addremove_cmd(void){
   /* show command summary */
   fossil_print("added %d files, deleted %d files\n", nAdd, nDelete);
 
-  db_end_transaction(isTest);
+  db_end_transaction(dryRunFlag);
 }
 
 

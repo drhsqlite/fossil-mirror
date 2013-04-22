@@ -1,5 +1,5 @@
-C Merge\swith\strunk\n\s-\sRemove\sreverse-proxying\ssupport\swhich\sis\salready\sprovided\sby\n\s\s\s--baseurl\soption.
-D 2013-04-21T08:08:08.513
+C Merge\swith\strunk,\sand\sfix\sa\sbug\scrept\sin\sthe\sprevious\scommit
+D 2013-04-22T12:29:43.397
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -290,17 +290,17 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 90ebd9e477ff499b7e091b5cb20716bffeb49fa2
-F src/allrepo.c de8fed4fe46c27a0a5f968fad56ab527c742b1d4
+F src/add.c 1948ab28d0dfa95f0aa365499ab0333882ee6460
+F src/allrepo.c 20abf42351c564d42821f33a399393c8713f0285
 F src/attach.c 008bdd9bf717497f3a50cf0930105c81548d8a81
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 639666952af95c3113252f1c1068420202ddd2da
 F src/blob.c 8ba8a0156a79cd41840f5e0363522a0d96c2e444
 F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
-F src/browse.c 274fe290975588128a5162a3627341db40b311bf
+F src/browse.c a0e9fb81967f27dfac58a3edda68d2bb926456b8
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c c1b4bb91aa3a213d13770fab5f8a8a28147cb4cb
-F src/checkin.c 67fa1349056fd5ae3b700d9242e8c45cade2dbe0
+F src/checkin.c 18957e81e06217b3bb53023661b9f4ae888017b8
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -349,7 +349,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c a7a4e41d39f772a90091313ac8f41cbd7e2f12c8
-F src/main.c 2b5cac4fef180c55303ac42a7f6b7450487fcde5
+F src/main.c 532b9531dda9bc0ccaad7d80550b8682245ddab7
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -358,7 +358,7 @@ F src/manifest.c 18f07ec33d8fe75a42ff3823a27e375d591b5d99
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c e1c6fb412ad1556e5a189786be40585e8c9ffcee
-F src/merge.c b5be7e5f34cf3dc12ceca89ecb377d04dfeb88be
+F src/merge.c 4cb17a9e041b8f13fb3d6ff972f7c7c910866538
 F src/merge3.c 33796c5a85ecc1af33f53e9c7c89cbce53d761fc
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
 F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
@@ -400,7 +400,7 @@ F src/tktsetup.c e736285953cc223d6f30a5c540627913aa75f884
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
 F src/unicode.c 02092a24d2a0704eeb5a548ce6c070d4392175f9
-F src/update.c 62efa1b452526ee413b98ea1c335beeecd3e70b4
+F src/update.c eb67722184f9454d975901e239343450adedf142
 F src/url.c baacb800ac0dd6ca6c5b809a0d6b4130d613cd4d
 F src/user.c f2f1863ca13c39d35997247b95990a8fda235fd6
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7124f09f0770f64948f18d1866b37aa52e8048dd 91aa222d7f2a874663dcff6fe33d46d3326f7cbf
-R 18339edad806bc64799beee5eab92568
+P 940b0b33c92f06cdb4648df14867da916e73fe3a d38f204d3b02815ad648988d28d56cfa1958bfe1
+R ff3b4af4a09fa5105e93497c1e9c0980
 U ashish
-Z 6c896e97a017dd1c83d7bb80658ece17
+Z 476faaac0798cdf214f01f50f73da362

@@ -397,9 +397,10 @@ void extra_cmd(void){
 ** Options:
 **    --case-sensitive <BOOL> override case-sensitive setting
 **    --dotfiles       include files beginning with a dot (".")
-**    --force          Remove files without prompting
+**    -f|--force       Remove files without prompting
 **    --ignore <CSG>   ignore files matching patterns from the
 **                     comma separated list of glob patterns.
+**    -n|--dry-run     If given, display instead of run actions
 **    --temp           Remove only Fossil-generated temporary files
 **
 ** See also: addremove, extra, status
@@ -412,13 +413,16 @@ void clean_cmd(void){
   Stmt q;
   int n;
   Glob *pIgnore;
-  int testFlag = 0;
+  int dryRunFlag = 0;
 
   allFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   zIgnoreFlag = find_option("ignore",0,1);
-  testFlag = find_option("test",0,0)!=0;
+  dryRunFlag = find_option("dry-run","n",0)!=0;
+  if( !dryRunFlag ){
+    dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
+  }
   capture_case_sensitive_option();
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
@@ -442,7 +446,7 @@ void clean_cmd(void){
   }
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
-    if( testFlag ){
+    if( dryRunFlag ){
       fossil_print("%s\n", db_column_text(&q,0));
       continue;
     }else if( !allFlag ){
@@ -1127,6 +1131,7 @@ static int tagCmp(const void *a, const void *b){
 **    --delta                    use a delta manifest in the commit process
 **    --message-file|-M FILE     read the commit comment from given file
 **    --mimetype MIMETYPE        mimetype of check-in comment
+**    -n|--dry-run               If given, display instead of run actions
 **    --no-warnings              omit all warnings about file contents
 **    --nosign                   do not attempt to sign this commit with gpg
 **    --private                  do not sync changes and their descendants
@@ -1156,7 +1161,7 @@ void commit_cmd(void){
   char *zManifestFile;   /* Name of the manifest file */
   int useCksum;          /* True if checksums should be computed and verified */
   int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
-  int testRun;           /* True for a test run.  Debugging only */
+  int dryRunFlag;        /* True for a test run.  Debugging only */
   CheckinInfo sCiInfo;   /* Information about this check-in */
   const char *zComFile;  /* Read commit message from this file */
   int nTag = 0;          /* Number of --tag arguments */
@@ -1180,7 +1185,10 @@ void commit_cmd(void){
   if( forceDelta && forceBaseline ){
     fossil_fatal("cannot use --delta and --baseline together");
   }
-  testRun = find_option("test",0,0)!=0;
+  dryRunFlag = find_option("dry-run","n",0)!=0;
+  if( !dryRunFlag ){
+    dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
+  }
   zComment = find_option("comment","m",1);
   forceFlag = find_option("force", "f", 0)!=0;
   allowConflict = find_option("allow-conflict",0,0)!=0;
@@ -1524,7 +1532,7 @@ void commit_cmd(void){
   /* If the --test option is specified, output the manifest file
   ** and rollback the transaction.
   */
-  if( testRun ){
+  if( dryRunFlag ){
     blob_write_to_file(&manifest, "");
   }
 
@@ -1603,7 +1611,7 @@ void commit_cmd(void){
 
   /* Commit */
   db_multi_exec("DELETE FROM vvar WHERE name='ci-comment'");
-  if( testRun ){
+  if( dryRunFlag ){
     db_end_transaction(1);
     exit(1);
   }

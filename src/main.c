@@ -1040,10 +1040,10 @@ static void set_base_url(const char *zAltBase){
     i = strlen(zCur);
     while( i>0 && zCur[i-1]=='/' ) i--;
     if( fossil_stricmp(zMode,"on")==0 ){
-      g.zBaseURL = mprintf("https://%s%s%.*s", zHost, i, zCur);
+      g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
       g.zTop = &g.zBaseURL[8+strlen(zHost)];
     }else{
-      g.zBaseURL = mprintf("http://%s%s%.*s", zHost, i, zCur);
+      g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
       g.zTop = &g.zBaseURL[7+strlen(zHost)];
     }
   }

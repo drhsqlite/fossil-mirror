@@ -93,10 +93,9 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 **
 **   --detail                Show additional details of the merge
 **
-**   --force | -f            Force the merge even if it would be a no-op.
+**   -f|--force              Force the merge even if it would be a no-op.
 **
-**   --nochange | -n         Dryrun:  do not actually make any changes; just
-**                           show what would have happened.
+**   -n|--dry-run            If given, display instead of run actions
 */
 void merge_cmd(void){
   int vid;              /* Current version "V" */
@@ -105,7 +104,7 @@ void merge_cmd(void){
   int detailFlag;       /* True if the --detail option is present */
   int pickFlag;         /* True if the --cherrypick option is present */
   int backoutFlag;      /* True if the --backout option is present */
-  int nochangeFlag;     /* True if the --nochange or -n option is present */
+  int dryRunFlag;       /* True if the --dry-run or -n option is present */
   int forceFlag;        /* True if the --force or -f option is present */
   const char *zBinGlob; /* The value of --binary */
   const char *zPivot;   /* The value of --baseline */
@@ -131,7 +130,10 @@ void merge_cmd(void){
   backoutFlag = find_option("backout",0,0)!=0;
   debugFlag = find_option("debug",0,0)!=0;
   zBinGlob = find_option("binary",0,1);
-  nochangeFlag = find_option("nochange","n",0)!=0;
+  dryRunFlag = find_option("dry-run","n",0)!=0;
+  if( !dryRunFlag ){
+    dryRunFlag = find_option("nochange",0,0)!=0; /* deprecated */
+  }
   forceFlag = find_option("force","f",0)!=0;
   zPivot = find_option("baseline",0,1);
   capture_case_sensitive_option();
@@ -254,7 +256,7 @@ void merge_cmd(void){
   }
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   db_begin_transaction();
-  if( !nochangeFlag ) undo_begin();
+  if( !dryRunFlag ) undo_begin();
   load_vfile_from_rid(mid);
   load_vfile_from_rid(pid);
   if( debugFlag ){
@@ -445,7 +447,7 @@ void merge_cmd(void){
       fossil_print("ADDED %s\n", zName);
     }
     fossil_free(zFullName);
-    if( !nochangeFlag ){
+    if( !dryRunFlag ){
       undo_save(zName);
       vfile_to_disk(0, idm, 0, 0);
     }
@@ -468,7 +470,7 @@ void merge_cmd(void){
     int islinkm = db_column_int(&q, 3);
     /* Copy content from idm over into idv.  Overwrite idv. */
     fossil_print("UPDATE %s\n", zName);
-    if( !nochangeFlag ){
+    if( !dryRunFlag ){
       undo_save(zName);
       db_multi_exec(
         "UPDATE vfile SET mtime=0, mrid=%d, chnged=2, islink=%d "
@@ -520,11 +522,11 @@ void merge_cmd(void){
         rc = -1;
         blob_zero(&r);
       }else{
-        unsigned mergeFlags = nochangeFlag ? MERGE_DRYRUN : 0;
+        unsigned mergeFlags = dryRunFlag ? MERGE_DRYRUN : 0;
         rc = merge_3way(&p, zFullPath, &m, &r, mergeFlags);
       }
       if( rc>=0 ){
-        if( !nochangeFlag ){
+        if( !dryRunFlag ){
           blob_write_to_file(&r, zFullPath);
           file_wd_setexe(zFullPath, isExe);
         }
@@ -567,7 +569,7 @@ void merge_cmd(void){
     db_multi_exec(
       "UPDATE vfile SET deleted=1 WHERE id=%d", idv
     );
-    if( !nochangeFlag ){
+    if( !dryRunFlag ){
       char *zFullPath = mprintf("%s%s", g.zLocalRoot, zName);
       file_delete(zFullPath);
       free(zFullPath);
@@ -595,7 +597,7 @@ void merge_cmd(void){
       "UPDATE vfile SET pathname=%Q, origname=coalesce(origname,pathname)"
       " WHERE id=%d AND vid=%d", zNewName, idv, vid
     );
-    if( !nochangeFlag ){
+    if( !dryRunFlag ){
       char *zFullOldPath = mprintf("%s%s", g.zLocalRoot, zOldName);
       char *zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
       if( file_wd_islink(zFullOldPath) ){
@@ -620,7 +622,7 @@ void merge_cmd(void){
     fossil_warning("WARNING: %d unmanaged files were overwritten",
                    nOverwrite);
   }
-  if( nochangeFlag ){
+  if( dryRunFlag ){
     fossil_warning("REMINDER: this was a dry run -"
                    " no file were actually changed.");
   }
@@ -645,5 +647,5 @@ void merge_cmd(void){
     db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
   }
   undo_finish();
-  db_end_transaction(nochangeFlag);
+  db_end_transaction(dryRunFlag);
 }
