@@ -2461,9 +2461,9 @@ void annotation_page(void){
 ** the file was last modified.
 **
 ** Options:
-**   --limit N       Only look backwards in time by N versions
-**   --log           List all versions analyzed
 **   --filevers      Show file version numbers rather than check-in versions
+**   -l|--log        List all versions analyzed
+**   -n|--limit N    Only look backwards in time by N versions
 **
 ** See also: info, finfo, timeline
 */
@@ -2476,16 +2476,16 @@ void annotate_cmd(void){
   char *zFilename;  /* Canonical filename */
   Annotator ann;    /* The annotation of the file */
   int i;            /* Loop counter */
-  const char *zLimit; /* The value to the --limit option */
+  const char *zLimit; /* The value to the -n|--limit option */
   int iLimit;       /* How far back in time to look */
   int showLog;      /* True to show the log */
   int fileVers;     /* Show file version instead of check-in versions */
   int annFlags = 0; /* Flags to control annotation properties */
 
-  zLimit = find_option("limit",0,1);
+  zLimit = find_option("limit","n",1);
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
-  showLog = find_option("log",0,0)!=0;
+  showLog = find_option("log","l",0)!=0;
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
   if( g.argc<3 ) {

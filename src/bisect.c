@@ -204,7 +204,7 @@ static void bisect_append_log(int rid){
 **     Reinitialize a bisect session.  This cancels prior bisect history
 **     and allows a bisect session to start over from the beginning.
 **
-**   fossil bisect vlist|ls|status ?--all?
+**   fossil bisect vlist|ls|status ?-a|--all?
 **
 **     List the versions in between "bad" and "good".
 **
@@ -298,7 +298,7 @@ void bisect_cmd(void){
       n = 4;
     }
   }
-  /* No else here so that the above commands can morph themselves into 
+  /* No else here so that the above commands can morph themselves into
   ** a "next" command */
   if( memcmp(zCmd, "next", n)==0 ){
     PathNode *pMid;
@@ -371,10 +371,10 @@ void bisect_cmd(void){
       " ('bisect-good', 'bisect-bad', 'bisect-log')"
     );
   }else if( memcmp(zCmd, "vlist", n)==0
-         || memcmp(zCmd, "ls", n)==0 
+         || memcmp(zCmd, "ls", n)==0
          || memcmp(zCmd, "status", n)==0
   ){
-    int fAll = find_option("all", 0, 0)!=0;
+    int fAll = find_option("all", "a", 0)!=0;
     bisect_list(!fAll);
   }else if( !foundCmd ){
     usage("bad|good|log|next|options|reset|status|undo");

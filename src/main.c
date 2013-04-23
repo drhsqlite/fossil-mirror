@@ -799,10 +799,10 @@ void version_cmd(void){
 ** available commands one of:
 **
 **    %fossil help              Show common commands
-**    %fossil help --all        Show both common and auxiliary commands
-**    %fossil help --test       Show test commands only
-**    %fossil help --aux        Show auxiliary commands only
-**    %fossil help --www        Show list of WWW pages
+**    %fossil help --a|-all     Show both common and auxiliary commands
+**    %fossil help --t|-test    Show test commands only
+**    %fossil help --x|-aux     Show auxiliary commands only
+**    %fossil help --w|-www     Show list of WWW pages
 */
 void help_cmd(void){
   int rc, idx, isPage = 0;
@@ -819,19 +819,19 @@ void help_cmd(void){
     version_cmd();
     return;
   }
-  if( find_option("all",0,0) ){
+  if( find_option("all","a",0) ){
     command_list(0, CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER);
     return;
   }
-  else if( find_option("www",0,0) ){
+  else if( find_option("www","w",0) ){
     command_list(0, CMDFLAG_WEBPAGE);
     return;
   }
-  else if( find_option("aux",0,0) ){
+  else if( find_option("aux","x",0) ){
     command_list(0, CMDFLAG_2ND_TIER);
     return;
   }
-  else if( find_option("test",0,0) ){
+  else if( find_option("test","t",0) ){
     command_list(0, CMDFLAG_TEST);
     return;
   }
