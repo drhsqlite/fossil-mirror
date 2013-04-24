@@ -1,5 +1,5 @@
-C Add\s--limit\sas\salias\sto\s--count\sin\s"fossil\stimeline"\sfor\sconsistancy\swith\sother\scommands.\nAdd\smany\sshort\soptions,\slike\s"-a"\sfor\s"--all"\sand\s"-c"\sfor\s"--closed"\s(The\sJSON\spart\salready\shad\sthose)
-D 2013-04-23T08:40:45.213
+C Add\ssubmenu\slinks\sto\strunk/tip\swhen\sbrowsing\sfiles\sof\sa\snon-trunk/tip\scheck-in.
+D 2013-04-24T02:34:14.370
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -297,7 +297,7 @@ F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 8d58794b6411ae78aebe6ddd094764544d228713
 F src/blob.c 8ba8a0156a79cd41840f5e0363522a0d96c2e444
 F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
-F src/browse.c a0e9fb81967f27dfac58a3edda68d2bb926456b8
+F src/browse.c 5df70df3d2acc56710edd26bd6bcf094de2cc1bc
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
 F src/checkin.c 18957e81e06217b3bb53023661b9f4ae888017b8
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d38f204d3b02815ad648988d28d56cfa1958bfe1
-R 89068527930f36e031e0cb9d1fa22c35
-U jan.nijtmans
-Z f9c145f2a526183fc6816ea348bdd5e0
+P 8b17c2360a5bc767a40b950bfdfa72db74eba6da
+R b601cea6b40f61d50e07470f00acdf2a
+U joel
+Z 2af5e0b38ab51ea7230643ad59d08a63
