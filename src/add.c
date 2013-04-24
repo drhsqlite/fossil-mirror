@@ -403,11 +403,9 @@ int filenames_are_case_sensitive(void){
       caseSensitive = db_get_boolean("case-sensitive",caseSensitive);
     }
     if( !caseSensitive ){
-      db_must_be_within_tree();
       db_multi_exec(
-         "CREATE INDEX IF NOT EXISTS %s.vfile_nocase "
-         "  ON vfile(pathname COLLATE nocase)",
-         db_name("localdb")
+         "CREATE INDEX IF NOT EXISTS vfile_nocase "
+         "  ON vfile(pathname COLLATE nocase)"
       );
     }
   }
