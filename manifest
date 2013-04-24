@@ -1,5 +1,5 @@
-C Revert\s[681b17ce0e],\sbecause\sChiselapp\sfound\sa\snew\shome.
-D 2013-04-24T06:54:17.690
+C The\sdefault\sfor\sthe\s"case-sensitive"\ssetting\sshould\sbe\s"off"\son\sCygwin/Mac/Windows,\sas\sdocumented.
+D 2013-04-24T07:56:09.552
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -310,7 +310,7 @@ F src/configure.c 8b7010c57e0b33b0bf0493e764fffa8c835ea7c8
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 5cb9365b7d6c5aba118776662123b69cbaac7959
 F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
-F src/db.c ad785bdf21569056f623ef3cd5ca99ca2fd9a1e5
+F src/db.c 65d1d3b7bdc6471857f3e77d584d8cb523d7dea4
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b5b0f1b3fc8c623f783e49c8bd905359a8a6c683
-R 65a62e6fcdbc83dd326f56ed70e5c963
+P 59e4742a60e510219d0a4a2fcbb0ad49b48dab06
+R 771f5227638dfb359a70a4ed7f36fa93
 U jan.nijtmans
-Z 37f8b9f9ddb32cb8844139c7608cbc41
+Z 77a71c98ddbabdfe74ad84f53827be6c

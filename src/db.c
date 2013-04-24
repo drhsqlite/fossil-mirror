@@ -2089,7 +2089,11 @@ struct stControlSettings const ctrlSettings[] = {
   { "autosync",      0,                0, 0, "on"                  },
   { "binary-glob",   0,               40, 1, ""                    },
   { "clearsign",     0,                0, 0, "off"                 },
+#if defined(_WIN32) || defined(__CYGWIN__) || defined(__DARWIN__) || defined(__APPLE__)
+  { "case-sensitive",0,                0, 0, "off"                 },
+#else
   { "case-sensitive",0,                0, 0, "on"                  },
+#endif
   { "crnl-glob",     0,               40, 1, ""                    },
   { "default-perms", 0,               16, 0, "u"                   },
   { "diff-binary",   0,                0, 0, "on"                  },
