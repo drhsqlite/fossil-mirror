@@ -1,5 +1,5 @@
-C Add\ssubmenu\slinks\sto\strunk/tip\swhen\sbrowsing\sfiles\sof\sa\snon-trunk/tip\scheck-in.
-D 2013-04-24T02:34:14.370
+C Revert\s[681b17ce0e],\sbecause\sChiselapp\sfound\sa\snew\shome.
+D 2013-04-24T06:54:17.690
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -581,7 +581,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
-F www/index.wiki ae8abb3fe16d5efe740a6ef869a441a2af9b5cfc
+F www/index.wiki 341ec44b4beecdaf92c06e747722974e8d0a52f9
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 96942c40714a113c04eb513430cf751df334a138
 F www/mkdownload.tcl aee0dd47312f829882863e0bec1c60d689224d94
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8b17c2360a5bc767a40b950bfdfa72db74eba6da
-R b601cea6b40f61d50e07470f00acdf2a
-U joel
-Z 2af5e0b38ab51ea7230643ad59d08a63
+P b5b0f1b3fc8c623f783e49c8bd905359a8a6c683
+R 65a62e6fcdbc83dd326f56ed70e5c963
+U jan.nijtmans
+Z 37f8b9f9ddb32cb8844139c7608cbc41

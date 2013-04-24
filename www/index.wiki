@@ -145,6 +145,8 @@ internet these days. What makes Fossil worthy of attention?
   *  Documentation on the
      [http://www.sqliteconcepts.org/THManual.pdf | TH1 Script Language] used
      to configure the ticketing subsystem.
+  *  A free hosting server for Fossil repositories is available at
+     [http://chiselapp.com/].
   *  How to [./server.wiki | set up a server] for your repository.
   *  Customizing the [./custom_ticket.wiki | ticket system].
   *  Methods to [./checkin_names.wiki | identify a specific check-in].
