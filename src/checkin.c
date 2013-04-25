@@ -151,7 +151,7 @@ static int determine_cwd_relative_option()
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
 **    --header          Identify the repository if there are changes
-**    -v                Say "no changes" if there are none
+**    -v                Say "(none)" if there are no changes
 **
 ** See also: extra, ls, status
 */
