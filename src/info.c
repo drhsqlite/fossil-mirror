@@ -1894,16 +1894,16 @@ void render_color_chooser(
   int stdClrFound = 0;
   int i;
 
-  @ <table border="0" cellpadding="0" cellspacing="1">
   if( zIdPropagate ){
-    @ <tr><td colspan="6" align="left"><label>
+    @ <div><label>
     if( fPropagate ){
       @ <input type="checkbox" name="%s(zIdPropagate)" checked="checked" />
     }else{
       @ <input type="checkbox" name="%s(zIdPropagate)" />
     }
-    @ Propagate color to descendants</label></td></tr>
+    @ Propagate color to descendants</label></div>
   }
+  @ <table border="0" cellpadding="0" cellspacing="1" class="colorpicker">
   @ <tr>
   for(i=0; i<nColor; i++){
     const char *zClr = aColor[i].zColor;
@@ -1913,6 +1913,7 @@ void render_color_chooser(
     }else{
       @ <td>
     }
+    @ <label>
     if( fossil_strcmp(zDefaultColor, zClr)==0 ){
       @ <input type="radio" name="%s(zId)" value="%h(zClr)"
       @  checked="checked" />
@@ -1920,24 +1921,26 @@ void render_color_chooser(
     }else{
       @ <input type="radio" name="%s(zId)" value="%h(zClr)" />
     }
-    @ %h(aColor[i].zCName)</td>
+    @ %h(aColor[i].zCName)</label></td>
     if( (i%8)==7 && i+1<nColor ){
       @ </tr><tr>
     }
   }
   @ </tr><tr>
   if( stdClrFound ){
-    @ <td colspan="6">
-    @ <input type="radio" name="%s(zId)" value="%h(aColor[nColor].zColor)" />
-  }else{
-    @ <td style="background-color: %h(zDefaultColor);" colspan="6">
+    @ <td colspan="6"><label>
     @ <input type="radio" name="%s(zId)" value="%h(aColor[nColor].zColor)"
-    @  checked="checked" />
+    @  onclick="gebi('%s(zIdCustom)').select();" />
+  }else{
+    @ <td style="background-color: %h(zDefaultColor);" colspan="6"><label>
+    @ <input type="radio" name="%s(zId)" value="%h(aColor[nColor].zColor)"
+    @  checked="checked" onclick="gebi('%s(zIdCustom)').select();" />
   }
-  @ %h(aColor[i].zCName)&nbsp;
+  @ %h(aColor[i].zCName)</label>&nbsp;
   @ <input type="text" name="%s(zIdCustom)"
   @  id="%s(zIdCustom)" class="checkinUserColor"
-  @  value="%h(stdClrFound?"":zDefaultColor)" />
+  @  value="%h(stdClrFound?"":zDefaultColor)"
+  @  onfocus="this.form.elements['%s(zId)'][%d(nColor)].checked = true;" />
   @ </td>
   @ </tr>
   @ </table>

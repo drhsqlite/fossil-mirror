@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sfrom\supstream.
-D 2013-04-25T18:10:32.506
+C Add\sstyling\shook\sand\susability\simprovements\sto\sbackground\scolor\spicker.
+D 2013-04-25T21:23:19.326
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -330,7 +330,7 @@ F src/http_socket.c 168bdbca66811d5cb92dd8a02caf6a5133ee2375
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 111c393f1bb93a3585078d5ee23e0b3ecc1408fe
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
-F src/info.c 8bf181c8c79102c3dc860b46a60070360a97ff59
+F src/info.c 506f8599dff3d26a1868db4a8c90020f40f257e0
 F src/json.c e4b806d8503d4e1dd7f6ab8e840e442b5e3ba61c
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e864b8ee0e086a4583cde7c75e6f481c4f20489b
-R 83e2e3f50f98eadf498c0a3b2949d2f0
-U drh
-Z 5efc2aa6118f57712a600621c95f6cad
+P 7d1d9953171d14468ea475e1e1f3987bf715cef5
+R 9da6f1952b56adf057b127fceb6dbe1e
+U joel
+Z 47451fcf3c5e0c0cc3b9e81814e7cee2
