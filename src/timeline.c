@@ -377,7 +377,7 @@ void www_print_timeline(
       @ (user: %h(zDispUser)%s(zTagList?",":"\051")
     }
 
-    /* Generate a "detail" link for tags. */
+    /* Generate a "details" link for tags. */
     if( (zType[0]=='g' || zType[0]=='w' || zType[0]=='t') && g.perm.Hyperlink ){
       @ [%z(href("%R/info/%S",zUuid))details</a>]
     }
@@ -958,7 +958,7 @@ char *names_of_file(const char *zUuid){
 **    s=TEXT         string search (comment and brief)
 **    ng             Suppress the graph if present
 **    nd             Suppress "divider" lines
-**    fc             Show details of files changed
+**    v              Show details of files changed
 **    f=UUID         Show family (immediate parents and children) of UUID
 **    from=UUID      Path from...
 **    to=UUID          ... to this
@@ -1073,9 +1073,9 @@ void page_timeline(void){
   blob_zero(&desc);
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
-  if( P("fc")!=0 || P("detail")!=0 ){
+  if( P("v")!=0 || P("verbose")!=0 ){
     tmFlags |= TIMELINE_FCHANGES;
-    url_add_parameter(&url, "fc", 0);
+    url_add_parameter(&url, "v", 0);
   }
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
@@ -1384,9 +1384,9 @@ void page_timeline(void){
       }
       if( zType[0]=='a' || zType[0]=='c' ){
         if( tmFlags & TIMELINE_FCHANGES ){
-          timeline_submenu(&url, "Hide Files", "fc", 0, 0);
+          timeline_submenu(&url, "Hide Files", "v", 0, 0);
         }else{
-          timeline_submenu(&url, "Show Files", "fc", "", 0);
+          timeline_submenu(&url, "Show Files", "v", "", 0);
         }
       }
     }
@@ -1420,7 +1420,7 @@ void page_timeline(void){
 **    6.  mtime
 **    7.  branch
 */
-void print_timeline(Stmt *q, int mxLine, int showfiles){
+void print_timeline(Stmt *q, int mxLine, int verboseFlag){
   int nLine = 0;
   char zPrevDate[20];
   const char *zCurrentUuid=0;
@@ -1476,7 +1476,7 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
     nLine += comment_print(zFree, 9, 79);
     sqlite3_free(zFree);
 
-    if(showfiles){
+    if(verboseFlag){
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery,
            "SELECT (pid==0) AS isnew,"
@@ -1575,7 +1575,7 @@ static int isIsoDate(const char *z){
 ** for the current version or "now" for the current time.
 **
 ** Options:
-**   -f|--showfiles       print the list of files changed in a checkin after
+**   -v|--verbose         print the list of files changed in a checkin after
 **                        the checkin comment.
 **   -n|--limit N         display the first N changes (default 20)
 **   -t|--type TYPE       only display items from the give types, such as:
@@ -1595,8 +1595,11 @@ void timeline_cmd(void){
   int objid = 0;
   Blob uuid;
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
-  int showfilesFlag = 0 ;
-  showfilesFlag = find_option("showfiles","f", 0)!=0;
+  int verboseFlag = 0 ;
+  verboseFlag = find_option("verbose","v", 0)!=0;
+  if( !verboseFlag){
+    verboseFlag = find_option("showfiles","f", 0)!=0; /* deprecated */
+  }
   db_find_and_open_repository(0, 0);
   zLimit = find_option("limit","n",1);
   zType = find_option("type","t",1);
@@ -1685,7 +1688,7 @@ void timeline_cmd(void){
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, n, showfilesFlag);
+  print_timeline(&q, n, verboseFlag);
   db_finalize(&q);
 }
 
@@ -1719,18 +1722,21 @@ struct tm *fossil_localtime(const time_t *clock){
 /*
 ** COMMAND: test-timewarp-list
 **
-** Usage: %fossil test-timewarp-list ?--detail?
+** Usage: %fossil test-timewarp-list ?-v|--verbose?
 **
 ** Display all instances of child checkins that appear earlier in time
-** than their parent.  If the --detail option is provided, both the
+** than their parent.  If the --verbose option is provided, both the
 ** parent and child checking and their times are shown.
 */
 void test_timewarp_cmd(void){
   Stmt q;
-  int showDetail;
+  int verboseFlag;
 
   db_find_and_open_repository(0, 0);
-  showDetail = find_option("detail", 0, 0)!=0;
+  verboseFlag = find_option("verbose", "v", 0)!=0;
+  if( !verboseFlag ){
+    verboseFlag = find_option("detail", 0, 0)!=0; /* deprecated */
+  }
   db_prepare(&q,
      "SELECT (SELECT uuid FROM blob WHERE rid=p.cid),"
      "       (SELECT uuid FROM blob WHERE rid=c.cid),"
@@ -1739,7 +1745,7 @@ void test_timewarp_cmd(void){
      " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
   );
   while( db_step(&q)==SQLITE_ROW ){
-    if( !showDetail ){
+    if( !verboseFlag ){
       fossil_print("%s\n", db_column_text(&q, 1));
     }else{
       fossil_print("%.14s -> %.14s   %s -> %s\n",

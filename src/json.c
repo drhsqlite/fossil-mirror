@@ -2013,7 +2013,7 @@ cson_value * json_page_cap(){
 cson_value * json_page_stat(){
   i64 t, fsize;
   int n, m;
-  int full;
+  int verboseFlag;
   const char *zDb;
   enum { BufLen = 1000 };
   char zBuf[BufLen];
@@ -2027,7 +2027,10 @@ cson_value * json_page_stat(){
                  "Requires 'o' permissions.");
     return NULL;
   }
-  full = json_find_option_bool("full",NULL,"f",0);
+  verboseFlag = json_find_option_bool("verbose",NULL,"v",0);
+  if( !verboseFlag){
+    verboseFlag = json_find_option_bool("full",NULL,"f",0); /* deprecated */
+  }
 #define SETBUF(O,K) cson_object_set(O, K, cson_value_new_string(zBuf, strlen(zBuf)));
 
   jv = cson_value_new_object();
@@ -2043,7 +2046,7 @@ cson_value * json_page_stat(){
   fsize = file_size(g.zRepositoryName);
   cson_object_set(jo, "repositorySize", cson_value_new_integer((cson_int_t)fsize));
 
-  if(full){
+  if(verboseFlag){
     n = db_int(0, "SELECT count(*) FROM blob");
     m = db_int(0, "SELECT count(*) FROM delta");
     cson_object_set(jo, "blobCount", cson_value_new_integer((cson_int_t)n));
@@ -2082,7 +2085,7 @@ cson_value * json_page_stat(){
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                " WHERE +tagname GLOB 'tkt-*'");
     cson_object_set(jo, "ticketCount", cson_value_new_integer((cson_int_t)n));
-  }/*full*/
+  }/*verboseFlag*/
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
   cson_object_set(jo, "ageDays", cson_value_new_integer((cson_int_t)n));

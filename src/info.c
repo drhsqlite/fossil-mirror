@@ -173,13 +173,16 @@ static void extraRepoInfo(void){
 ** Options:
 **
 **    -R|--repository FILE       Extract info from repository FILE
-**    -l|--detail                Show extra information
+**    -v|--verbose               Show extra information
 **
 ** See also: annotate, artifact, finfo, timeline
 */
 void info_cmd(void){
   i64 fsize;
-  int bDetail = find_option("detail","l",0)!=0;
+  int verboseFlag = find_option("verbose","v",0)!=0;
+  if ( !verboseFlag ){
+    verboseFlag = find_option("detail","l",0)!=0; /* deprecated */
+  }
   if( g.argc==3 && (fsize = file_size(g.argv[2]))>0 && (fsize&0x1ff)==0 ){
     db_open_config(0);
     db_record_repository_filename(g.argv[2]);
@@ -199,7 +202,7 @@ void info_cmd(void){
       fossil_print("repository:   %s\n", db_repository_filename());
       fossil_print("local-root:   %s\n", g.zLocalRoot);
     }
-    if( bDetail ) extraRepoInfo();
+    if( verboseFlag ) extraRepoInfo();
     if( g.zConfigDbName ){
       fossil_print("config-db:    %s\n", g.zConfigDbName);
     }
@@ -399,9 +402,9 @@ static void append_file_change_line(
 ** Construct an appropriate diffFlag for text_diff() based on query
 ** parameters and the to boolean arguments.
 */
-u64 construct_diff_flags(int showDiff, int sideBySide){
+u64 construct_diff_flags(int verboseFlag, int sideBySide){
   u64 diffFlags;
-  if( showDiff==0 ){
+  if( verboseFlag==0 ){
     diffFlags = 0;  /* Zero means do not show any diff */
   }else{
     int x;
@@ -447,7 +450,7 @@ void ci_page(void){
   Stmt q;
   int rid;
   int isLeaf;
-  int showDiff;        /* True to show diffs */
+  int verboseFlag;     /* True to show diffs */
   int sideBySide;      /* True for side-by-side diffs */
   u64 diffFlags;       /* Flag parameter for text_diff() */
   const char *zName;   /* Name of the checkin to be displayed */
@@ -608,10 +611,10 @@ void ci_page(void){
   if( zParent ){
     @ <div class="section">Changes</div>
     @ <div class="sectionmenu">
-    showDiff = g.zPath[0]!='c';
+    verboseFlag = g.zPath[0]!='c';
     if( db_get_boolean("show-version-diffs", 0)==0 ){
-      showDiff = !showDiff;
-      if( showDiff ){
+      verboseFlag = !verboseFlag;
+      if( verboseFlag ){
         @ %z(xhref("class='button'","%R/vinfo/%T",zName))
         @ hide&nbsp;diffs</a>
         if( sideBySide ){
@@ -628,7 +631,7 @@ void ci_page(void){
         @ show&nbsp;side-by-side&nbsp;diffs</a>
       }
     }else{
-      if( showDiff ){
+      if( verboseFlag ){
         @ %z(xhref("class='button'","%R/ci/%T",zName))hide&nbsp;diffs</a>
         if( sideBySide ){
           @ %z(xhref("class='button'","%R/info/%T?sbs=0",zName))
@@ -663,7 +666,7 @@ void ci_page(void){
        " ORDER BY name /*sort*/",
        rid, rid
     );
-    diffFlags = construct_diff_flags(showDiff, sideBySide);
+    diffFlags = construct_diff_flags(verboseFlag, sideBySide);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q,0);
       int mperm = db_column_int(&q, 1);
@@ -877,7 +880,7 @@ static void checkin_description(int rid){
 **   from=TAG
 **   to=TAG
 **   branch=TAG
-**   detail=BOOLEAN
+**   v=BOOLEAN
 **   sbs=BOOLEAN
 **
 **
@@ -885,7 +888,7 @@ static void checkin_description(int rid){
 */
 void vdiff_page(void){
   int ridFrom, ridTo;
-  int showDetail = 0;
+  int verboseFlag = 0;
   int sideBySide = 0;
   u64 diffFlags = 0;
   Manifest *pFrom, *pTo;
@@ -912,22 +915,22 @@ void vdiff_page(void){
   pFrom = vdiff_parse_manifest("from", &ridFrom);
   if( pFrom==0 ) return;
   sideBySide = atoi(PD("sbs","1"));
-  showDetail = atoi(PD("detail","0"));
-  if( !showDetail && sideBySide ) showDetail = 1;
+  verboseFlag = atoi(PD("v","0"));
+  if( !verboseFlag && sideBySide ) verboseFlag = 1;
   zFrom = P("from");
   zTo = P("to");
   if( !sideBySide ){
     style_submenu_element("Side-by-side Diff", "sbsdiff",
-                          "%R/vdiff?from=%T&to=%T&detail=%d&sbs=1",
-                          zFrom, zTo, showDetail);
+                          "%R/vdiff?from=%T&to=%T&v=%d&sbs=1",
+                          zFrom, zTo, verboseFlag);
   }else{
     style_submenu_element("Unified Diff", "udiff",
-                          "%R/vdiff?from=%T&to=%T&detail=%d&sbs=0",
-                          zFrom, zTo, showDetail);
+                          "%R/vdiff?from=%T&to=%T&v=%d&sbs=0",
+                          zFrom, zTo, verboseFlag);
   }
   style_submenu_element("Invert", "invert",
-                        "%R/vdiff?from=%T&to=%T&detail=%d&sbs=%d",
-                        zTo, zFrom, showDetail, sideBySide);
+                        "%R/vdiff?from=%T&to=%T&v=%d&sbs=%d",
+                        zTo, zFrom, verboseFlag, sideBySide);
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
   checkin_description(ridFrom);
@@ -944,7 +947,7 @@ void vdiff_page(void){
   pFileFrom = manifest_file_next(pFrom, 0);
   manifest_file_rewind(pTo);
   pFileTo = manifest_file_next(pTo, 0);
-  diffFlags = construct_diff_flags(showDetail, sideBySide);
+  diffFlags = construct_diff_flags(verboseFlag, sideBySide);
   while( pFileFrom || pFileTo ){
     int cmp;
     if( pFileFrom==0 ){
