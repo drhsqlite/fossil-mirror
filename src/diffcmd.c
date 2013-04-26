@@ -745,7 +745,7 @@ const char *diff_get_binary_glob(void){
 **   --diff-binary BOOL  Include binary files when using external commands
 **   --from|-r VERSION   select VERSION as source for the diff
 **   --internal|-i       use internal diff logic
-**   --new-file|-N       output complete text of added or deleted files
+**   --verbose|-v     output complete text of added or deleted files
 **   --side-by-side|-y   side-by-side diff
 **   --tk                Launch a Tcl/Tk GUI for display
 **   --to VERSION        select VERSION as target for the diff
@@ -755,7 +755,7 @@ const char *diff_get_binary_glob(void){
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
   int isInternDiff;          /* True for internal diff */
-  int hasNFlag;              /* True if -N or --new-file flag is used */
+  int verboseFlag;           /* True if -v or --verbose flag is used */
   const char *zFrom;         /* Source version number */
   const char *zTo;           /* Target version number */
   const char *zBranch;       /* Branch to diff */
@@ -775,8 +775,11 @@ void diff_cmd(void){
   zTo = find_option("to", 0, 1);
   zBranch = find_option("branch", 0, 1);
   diffFlags = diff_options();
-  hasNFlag = find_option("new-file","N",0)!=0;
-  if( hasNFlag ) diffFlags |= DIFF_NEWFILE;
+  verboseFlag = find_option("verbose","v",0)!=0;
+  if( !verboseFlag ){
+    verboseFlag = find_option("new-file","N",0)!=0;
+  }
+  if( verboseFlag ) diffFlags |= DIFF_NEWFILE;
 
   if( zBranch ){
     if( zTo || zFrom ){

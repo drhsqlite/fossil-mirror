@@ -1,5 +1,5 @@
-C Rename\s--detail,\s--showfiles,\s--files\sto\s-v|--verbose\s(but\skeep\soriginal\sas\sdeprecated)
-D 2013-04-26T08:28:45.060
+C One\smore:\s--new-file\smakes\sthe\sdiff\scommand\smuch\smore\sverbose.\s\nFix\s/event?v=
+D 2013-04-26T09:29:59.419
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -315,10 +315,10 @@ F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
 F src/diff.c c672e40bf05d07df902c35ea278868735d4f33ff
-F src/diffcmd.c 18f0957e6fb05b47fab116c3e4c1a10f91ca6121
+F src/diffcmd.c 2dae314d5a78a4bc65b70a4b9e032e1cd3bbfae3
 F src/doc.c 41fa32991941d8de3f4a486e3625d1bb893860eb
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
-F src/event.c 0865ebc7c1dabdd6ce1b9529ac318cae80757d5e
+F src/event.c 23d5463937ca7a4a035ea0b0d291c9f9ae3a1f33
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
 F src/file.c c6ad62e5a9e835418ad34304d42e78faea4da1e9
 F src/finfo.c cc3b65dec7905acfdf2f626e15003ddeb367aa93
@@ -610,10 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 14779a31ec6e05a7f74d7fbc874d08d02d84577d
-R 76bb65209953112f4b8b3c583e1d27fd
-T *branch * verbose
-T *sym-verbose *
-T -sym-trunk *
+P 34ed0afc8ac538d802db2a60413d5618ba73460a
+R 77b068454d1959da586728ca1174be19
 U jan.nijtmans
-Z f8f050707b52711cc12300627daea1ab
+Z 1175e2e7b8a789159385f6dcdc76a5c7

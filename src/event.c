@@ -103,7 +103,7 @@ void event_page(void){
     return;
   }
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  verboseFlag = atoi(PD("verbose","0"));
+  verboseFlag = atoi(PD("v","0"));
 
   /* Extract the event content.
   */
