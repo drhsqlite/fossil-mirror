@@ -81,9 +81,11 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 **
 **    ignore     Arguments are repositories that should be ignored
 **               by subsequent list, pull, push, rebuild, and sync.
+**               The -c|--ckout option causes the listed local checkouts
+**               to be ignored instead.
 **
 **    list | ls  Display the location of all repositories.
-**               The --ckout option causes all local checkouts to be
+**               The -c|--ckout option causes all local checkouts to be
 **               list instead.
 **
 **    changes    Shows all local checkouts that have uncommitted changes
@@ -165,11 +167,13 @@ void all_cmd(void){
     quiet = 1;
   }else if( strncmp(zCmd, "ignore", n)==0 ){
     int j;
+    useCheckouts = find_option("ckout","c",0)!=0;
     verify_all_options();
     db_begin_transaction();
     for(j=3; j<g.argc; j++){
       char *zSql = mprintf("DELETE FROM global_config"
-                           " WHERE name GLOB 'repo:%q'", g.argv[j]);
+                           " WHERE name GLOB '%s:%q'",
+                           useCheckouts?"ckout":"repo", g.argv[j]);
       if( dryRunFlag ){
         fossil_print("%s\n", zSql);
       }else{

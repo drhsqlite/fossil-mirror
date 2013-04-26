@@ -1,5 +1,5 @@
-C Add\sstyling\shook\sand\susability\simprovements\sto\sbackground\scolor\spicker.
-D 2013-04-25T21:23:19.326
+C New\soption\s-c|--ckout\sto\s"fossil\sall\signore"
+D 2013-04-26T07:11:58.959
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -291,7 +291,7 @@ F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 1948ab28d0dfa95f0aa365499ab0333882ee6460
-F src/allrepo.c 20abf42351c564d42821f33a399393c8713f0285
+F src/allrepo.c 7f9a744e2a6d5f6ee8db38d57c567e4ba3c67a82
 F src/attach.c 008bdd9bf717497f3a50cf0930105c81548d8a81
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 8d58794b6411ae78aebe6ddd094764544d228713
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7d1d9953171d14468ea475e1e1f3987bf715cef5
-R 9da6f1952b56adf057b127fceb6dbe1e
-U joel
-Z 47451fcf3c5e0c0cc3b9e81814e7cee2
+P 1159585bdba82d81da38cdcc9561e67d09d0d617
+R b40a6d42fab3618bc594e51027d9ad8b
+U jan.nijtmans
+Z e1dc0f2f58780f34a4cdb29add2dffae
