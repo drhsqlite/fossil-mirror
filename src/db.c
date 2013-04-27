@@ -1251,6 +1251,9 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
     zUser = fossil_getenv("USERNAME");
 #else
     zUser = fossil_getenv("USER");
+    if( zUser==0 ){
+      zUser = fossil_getenv("LOGNAME");
+    }
 #endif
   }
   if( zUser==0 ){

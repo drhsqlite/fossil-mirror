@@ -313,9 +313,11 @@ static int attempt_user(const char *zLogin){
 **
 **   (5)  Try the USER environment variable.
 **
-**   (6)  Try the USERNAME environment variable.
+**   (6)  Try the LOGNAME environment variable.
 **
-**   (7)  Check if the user can be extracted from the remote URL.
+**   (7)  Try the USERNAME environment variable.
+**
+**   (8)  Check if the user can be extracted from the remote URL.
 **
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
@@ -336,6 +338,8 @@ void user_select(void){
   if( attempt_user(fossil_getenv("FOSSIL_USER")) ) return;
 
   if( attempt_user(fossil_getenv("USER")) ) return;
+
+  if( attempt_user(fossil_getenv("LOGNAME")) ) return;
 
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
 

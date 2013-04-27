@@ -1,5 +1,5 @@
-C New\soption\s-c|--ckout\sto\s"fossil\sall\signore"
-D 2013-04-26T07:11:58.959
+C Added\s$LOGNAME\sto\sthe\slist\sof\senvironment\svariables\scheckes\sfor\sthe\suser\sname,\sper\sreport\sfrom\sWill\sParsons.
+D 2013-04-27T01:12:11.591
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -310,7 +310,7 @@ F src/configure.c 8b7010c57e0b33b0bf0493e764fffa8c835ea7c8
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 5cb9365b7d6c5aba118776662123b69cbaac7959
 F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
-F src/db.c 65d1d3b7bdc6471857f3e77d584d8cb523d7dea4
+F src/db.c 2787062be8f9ac765617af7b17622433353fe7d3
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
@@ -402,7 +402,7 @@ F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
 F src/unicode.c 02092a24d2a0704eeb5a548ce6c070d4392175f9
 F src/update.c eb67722184f9454d975901e239343450adedf142
 F src/url.c baacb800ac0dd6ca6c5b809a0d6b4130d613cd4d
-F src/user.c f2f1863ca13c39d35997247b95990a8fda235fd6
+F src/user.c 5e42a17139d5578c3d23bb77d440466d2325d567
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
 F src/util.c 40229a2f2528cc4dd9a51676f60d1dd6eaef8f0a
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1159585bdba82d81da38cdcc9561e67d09d0d617
-R b40a6d42fab3618bc594e51027d9ad8b
-U jan.nijtmans
-Z e1dc0f2f58780f34a4cdb29add2dffae
+P 14779a31ec6e05a7f74d7fbc874d08d02d84577d
+R 31bb41d964a28978b3d2545cc6869fac
+U stephan
+Z 12b6734a005a9a4f2ad389e212e2792a
