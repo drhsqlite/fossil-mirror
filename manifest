@@ -1,5 +1,5 @@
-C Added\s$LOGNAME\sto\sthe\slist\sof\senvironment\svariables\scheckes\sfor\sthe\suser\sname,\sper\sreport\sfrom\sWill\sParsons.
-D 2013-04-27T01:12:11.591
+C Added\s--verbose|-v\sas\salias\sfor\s--full|-f\soption\sto\s/json/stat,\sper\sML\sdiscussion.\sRemoved\sa\sstray\s's'\scharacter,\sprobably\sa\sresult\sof\sa\smis-pressed\sCtrl-S.
+D 2013-04-27T01:28:14.021
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -331,7 +331,7 @@ F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 111c393f1bb93a3585078d5ee23e0b3ecc1408fe
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
 F src/info.c 506f8599dff3d26a1868db4a8c90020f40f257e0
-F src/json.c e4b806d8503d4e1dd7f6ab8e840e442b5e3ba61c
+F src/json.c 8cf587d779ebdc9f9afed6dde518091cec768c47
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 14779a31ec6e05a7f74d7fbc874d08d02d84577d
-R 31bb41d964a28978b3d2545cc6869fac
+P 5741754ed28f881b7fe2fd6a68c96efbe8d78e7c
+R 417fba5c11b03d63302ae607858e2193
 U stephan
-Z 12b6734a005a9a4f2ad389e212e2792a
+Z 0e7877f4fe927cfe9ddc80829bd7d249
