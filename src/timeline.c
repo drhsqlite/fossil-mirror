@@ -455,7 +455,7 @@ void www_print_timeline(
             @ <li> %h(zOldName) &rarr; %h(zFilename)
           }
           continue;
-        }          
+        }
         if( isNew ){
           @ <li> %h(zFilename) (new file) &nbsp;
           @ %z(xhref("target='diffwindow'","%R/artifact/%S",zNew))
@@ -1535,7 +1535,7 @@ const char *timeline_query_for_tty(void){
     @ FROM tag CROSS JOIN event CROSS JOIN blob
     @ LEFT JOIN tagxref ON tagxref.tagid=tag.tagid
     @   AND tagxref.tagtype>0
-    @   AND tagxref.rid=blob.rid 
+    @   AND tagxref.rid=blob.rid
     @ WHERE blob.rid=event.objid
     @   AND tag.tagname='branch'
   ;
@@ -1557,13 +1557,12 @@ static int isIsoDate(const char *z){
 /*
 ** COMMAND: timeline
 **
-** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?-n|--count N? ?-t|--type TYPE? ?-showfiles?
+** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?OPTIONS?
 **
 ** Print a summary of activity going backwards in date and time
 ** specified or from the current date and time if no arguments
-** are given.  Show as many as N (default 20) check-ins.  The
-** WHEN argument can be any unique abbreviation of one of these
-** keywords:
+** are given.  The WHEN argument can be any unique abbreviation
+** of one of these keywords:
 **
 **     before
 **     after
@@ -1575,21 +1574,20 @@ static int isIsoDate(const char *z){
 ** examples: "2007-08-18 07:21:21".  You can also say "current"
 ** for the current version or "now" for the current time.
 **
-** The optional TYPE argument may any types supported by the /timeline
-** page. For example:
-**
-**     w  = wiki commits only
-**     ci = file commits only
-**     t  = tickets only
-**
-** The optional showfiles argument, if specified, prints the list of
-** files changed in a checkin after the checkin comment.
-**
+** Options:
+**   -f|--showfiles       print the list of files changed in a checkin after
+**                        the checkin comment.
+**   -n|--limit N         display the first N changes (default 20)
+**   -t|--type TYPE       only display items from the give types, such as:
+**                            ci = file commits only
+**                            e  = events only
+**                            t  = tickets only
+**                            w  = wiki commits only
 */
 void timeline_cmd(void){
   Stmt q;
   int n, k;
-  const char *zCount;
+  const char *zLimit;
   const char *zType;
   char *zOrigin;
   char *zDate;
@@ -1600,10 +1598,13 @@ void timeline_cmd(void){
   int showfilesFlag = 0 ;
   showfilesFlag = find_option("showfiles","f", 0)!=0;
   db_find_and_open_repository(0, 0);
-  zCount = find_option("count","n",1);
+  zLimit = find_option("limit","n",1);
   zType = find_option("type","t",1);
-  if( zCount ){
-    n = atoi(zCount);
+  if ( !zLimit ){
+    zLimit = find_option("count",0,1);
+  }
+  if( zLimit ){
+    n = atoi(zLimit);
   }else{
     n = 20;
   }
@@ -1621,8 +1622,8 @@ void timeline_cmd(void){
       mode = 4;
     }else if( strncmp(g.argv[2],"parents",k)==0 ){
       mode = 4;
-    }else if(!zType && !zCount){
-      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--count N? ?-t|--type TYPE?");
+    }else if(!zType && !zLimit){
+      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit N? ?-t|--type TYPE?");
     }
     if( '-' != *g.argv[3] ){
       zOrigin = g.argv[3];

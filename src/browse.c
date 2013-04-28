@@ -120,6 +120,7 @@ void page_dir(void){
   Blob dirname;
   Manifest *pM = 0;
   const char *zSubdirLink;
+  int linkTrunk = 1, linkTip = 1;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -138,12 +139,14 @@ void page_dir(void){
   if( zCI ){
     pM = manifest_get_by_name(zCI, &rid);
     if( pM ){
+      int trunkRid = symbolic_name_to_rid("tag:trunk", "ci");
+      linkTrunk = trunkRid && rid != trunkRid;
+      linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     }else{
       zCI = 0;
     }
   }
-
 
   /* Compute the title of the page */  
   blob_zero(&dirname);
@@ -151,9 +154,22 @@ void page_dir(void){
     blob_append(&dirname, "in directory ", -1);
     hyperlinked_path(zD, &dirname, zCI);
     zPrefix = mprintf("%s/", zD);
+    if( linkTrunk ){
+      style_submenu_element("Trunk", "Trunk", "%R/dir?name=%t&ci=trunk",
+                             zD);
+    }
+    if ( linkTip ){
+      style_submenu_element("Tip", "Tip", "%R/dir?name=%t&ci=tip", zD);
+    }
   }else{
     blob_append(&dirname, "in the top-level directory", -1);
     zPrefix = "";
+    if( linkTrunk ){
+      style_submenu_element("Trunk", "Trunk", "%R/dir?ci=trunk");
+    }
+    if ( linkTip ){
+      style_submenu_element("Tip", "Tip", "%R/dir?ci=tip");
+    }
   }
   if( zCI ){
     char zShort[20];
@@ -171,26 +187,9 @@ void page_dir(void){
                             zUuid);
     }
   }else{
-    int hasTrunk;
     @ <h2>The union of all files from all check-ins
     @ %s(blob_str(&dirname))</h2>
-    hasTrunk = db_exists(
-                  "SELECT 1 FROM tagxref WHERE tagid=%d AND value='trunk'",
-                  TAG_BRANCH);
     zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
-    if( zD ){
-      style_submenu_element("Top", "Top", "%R/dir");
-      style_submenu_element("Tip", "Tip", "%R/dir?name=%t&ci=tip", zD);
-      if( hasTrunk ){
-        style_submenu_element("Trunk", "Trunk", "%R/dir?name=%t&ci=trunk",
-                               zD);
-      }
-    }else{
-      style_submenu_element("Tip", "Tip", "%R/dir?ci=tip");
-      if( hasTrunk ){
-        style_submenu_element("Trunk", "Trunk", "%R/dir?ci=trunk");
-      }
-    }
   }
 
   /* Compute the temporary table "localfiles" containing the names

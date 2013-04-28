@@ -552,7 +552,7 @@ char const * json_getenv_cstr( char const * zKey ){
 ** GET/POST/CLI argument.
 **
 ** zKey must be the GET/POST parameter key. zCLILong must be the "long
-s** form" CLI flag (NULL means to use zKey). zCLIShort may be NULL or
+** form" CLI flag (NULL means to use zKey). zCLIShort may be NULL or
 ** the "short form" CLI flag (if NULL, no short form is used).
 **
 ** If argPos is >=0 and no other match is found,
@@ -2027,7 +2027,8 @@ cson_value * json_page_stat(){
                  "Requires 'o' permissions.");
     return NULL;
   }
-  full = json_find_option_bool("full",NULL,"f",0);
+  full = json_find_option_bool("full",NULL,"f",
+              json_find_option_bool("verbose",NULL,"v",0));
 #define SETBUF(O,K) cson_object_set(O, K, cson_value_new_string(zBuf, strlen(zBuf)));
 
   jv = cson_value_new_object();

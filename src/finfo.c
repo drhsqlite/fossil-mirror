@@ -29,7 +29,7 @@
 ** in time.  The default mode is -l.
 **
 ** For the -l|--log mode: If "-b|--brief" is specified one line per revision
-** is printed, otherwise the full comment is printed.  The "--limit N"
+** is printed, otherwise the full comment is printed.  The "-n|--limit N"
 ** and "--offset P" options limits the output to the first N changes
 ** after skipping P changes.
 **
@@ -41,16 +41,16 @@
 ** to stdout.  The -p mode is another form of the "cat" command.
 **
 ** Options:
-**   --brief|-b           display a brief (one line / revision) summary
+**   -b|--brief           display a brief (one line / revision) summary
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
 **                        boolean: "yes", "no", "true", "false", etc.
-**   --limit N            display the first N changes
-**   --log|-l             select log mode (the default)
+**   -l|--log             select log mode (the default)
+**   -n|--limit N         display the first N changes
 **   --offset P           skip P changes
-**   --print|-p           select print mode
-**   --revision|-r R      print the given revision (or ckout, if none is given)
+**   -p|--print           select print mode
+**   -r|--revision R      print the given revision (or ckout, if none is given)
 **                        to stdout (only in print mode)
-**   --status|-s          select status mode (print a status indicator for FILE)
+**   -s|--status          select status mode (print a status indicator for FILE)
 **
 ** See also: artifact, cat, descendants, info, leaves
 */
@@ -142,7 +142,7 @@ void finfo_cmd(void){
     if( find_option("log","l",0) ){
       /* this is the default, no-op */
     }
-    zLimit = find_option("limit",0,1);
+    zLimit = find_option("limit","n",1);
     iLimit = zLimit ? atoi(zLimit) : -1;
     zOffset = find_option("offset",0,1);
     iOffset = zOffset ? atoi(zOffset) : 0;
