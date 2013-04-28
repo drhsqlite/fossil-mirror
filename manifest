@@ -1,5 +1,5 @@
-C Do\snot\sattempt\sto\saccess\sthe\scheck-out\sdatabase\sfrom\sthe\sserver.
-D 2013-04-28T16:02:23.370
+C Make\sno\sattempt\sto\soutput\sclosing\sP\stags\swhen\srendering\swiki\sas\sthis\scan\nsometimes\sresult\sin\smis-rendered\swiki\stext.
+D 2013-04-28T18:26:14.342
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -408,7 +408,7 @@ F src/util.c 40229a2f2528cc4dd9a51676f60d1dd6eaef8f0a
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
 F src/vfile.c d64ed2ed6fe15bcab131b823e5f0e9e0a9a92e89
 F src/wiki.c 2fb45814f335dc9ae34543b2a7755cf3e7342512
-F src/wikiformat.c 4639b20aa755d60dd7a1f6d94cd3601147df151d
+F src/wikiformat.c f0d71d387b33931ce3cca528c24ad5b5f5916ee0
 F src/winhttp.c b8342e4cfe308d53b1dfc6d9d2080f28a70da54b
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
 F src/xfer.c 1aba6fb0ec8d02c05a3aad9e6dd9ba0e6fe397f4
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e07e1f662e06384749aa56eb593f34f158227e4d
-R d2d62f2906b2b393443eb074ee2c222a
+P 30da8e8b087d0ede6601791c5a919cf1f9a7871c
+R 5917650484d96e58e9e986c0aa96059d
 U drh
-Z 887080416c490d62f4487785b6b9ddad
+Z 5ae030352e3fa8fda02604483e48b2df
