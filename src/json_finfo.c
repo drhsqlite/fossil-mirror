@@ -77,12 +77,12 @@ cson_value * json_page_finfo(){
 /*9*/   " (mlink.pid==0) AS isNew,"
 /*10*/  " (mlink.fid==0) AS isDel"
 	"  FROM mlink, blob b, event, blob ci, filename"
-        " WHERE filename.name=%Q %s"
+        " WHERE filename.name=%Q"
         "   AND mlink.fnid=filename.fnid"
         "   AND b.rid=mlink.fid"
         "   AND event.objid=mlink.mid"
         "   AND event.objid=ci.rid",
-        zFilename, filename_collation()
+        zFilename
                );
 
   if( zCheckin && *zCheckin ){

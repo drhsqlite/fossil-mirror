@@ -82,11 +82,11 @@ void hyperlinked_path(const char *zPath, Blob *pOut, const char *zCI){
     if( zPath[j] && g.perm.Hyperlink ){
       if( zCI ){
         char *zLink = href("%R/dir?ci=%S&name=%#T", zCI, j, zPath);
-        blob_appendf(pOut, "%s%z%#h</a>", 
+        blob_appendf(pOut, "%s%z%#h</a>",
                      zSep, zLink, j-i, &zPath[i]);
       }else{
         char *zLink = href("%R/dir?name=%#T", j, zPath);
-        blob_appendf(pOut, "%s%z%#h</a>", 
+        blob_appendf(pOut, "%s%z%#h</a>",
                      zSep, zLink, j-i, &zPath[i]);
       }
     }else{
@@ -148,7 +148,7 @@ void page_dir(void){
     }
   }
 
-  /* Compute the title of the page */  
+  /* Compute the title of the page */
   blob_zero(&dirname);
   if( zD ){
     blob_append(&dirname, "in directory ", -1);
@@ -193,15 +193,14 @@ void page_dir(void){
   }
 
   /* Compute the temporary table "localfiles" containing the names
-  ** of all files and subdirectories in the zD[] directory.  
+  ** of all files and subdirectories in the zD[] directory.
   **
   ** Subdirectory names begin with "/".  This causes them to sort
   ** first and it also gives us an easy way to distinguish files
   ** from directories in the loop that follows.
   */
   db_multi_exec(
-     "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL %s, u);",
-     filename_collation()
+     "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL, u);"
   );
   if( zCI ){
     Stmt ins;
@@ -209,27 +208,20 @@ void page_dir(void){
     ManifestFile *pPrev = 0;
     int nPrev = 0;
     int c;
-    int (*xCmp)(const char*,const char*,int);
-
-    if( filenames_are_case_sensitive() ){
-      xCmp = fossil_strncmp;
-    }else{
-      xCmp = fossil_strnicmp;
-    }
 
     db_prepare(&ins,
        "INSERT OR IGNORE INTO localfiles VALUES(pathelement(:x,0), :u)"
     );
     manifest_file_rewind(pM);
     while( (pFile = manifest_file_next(pM,0))!=0 ){
-      if( nD>0 
-       && (xCmp(pFile->zName, zD, nD-1)!=0
+      if( nD>0
+       && (fossil_strncmp(pFile->zName, zD, nD-1)!=0
            || pFile->zName[nD-1]!='/')
       ){
         continue;
       }
       if( pPrev
-       && xCmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0
+       && fossil_strncmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0
        && (pFile->zName[nD+nPrev]==0 || pFile->zName[nD+nPrev]=='/')
       ){
         continue;
@@ -244,21 +236,12 @@ void page_dir(void){
     }
     db_finalize(&ins);
   }else if( zD ){
-    if( filenames_are_case_sensitive() ){
-      db_multi_exec(
-        "INSERT OR IGNORE INTO localfiles"
-        " SELECT pathelement(name,%d), NULL FROM filename"
-        "  WHERE name GLOB '%q/*'",
-        nD, zD
-      );
-    }else{
-      db_multi_exec(
-        "INSERT OR IGNORE INTO localfiles"
-        " SELECT pathelement(name,%d), NULL FROM filename"
-        "  WHERE name LIKE '%q/%%'",
-        nD, zD
-      );
-    }
+    db_multi_exec(
+      "INSERT OR IGNORE INTO localfiles"
+      " SELECT pathelement(name,%d), NULL FROM filename"
+      "  WHERE name GLOB '%q/*'",
+      nD, zD
+    );
   }else{
     db_multi_exec(
       "INSERT OR IGNORE INTO localfiles"
@@ -353,7 +336,7 @@ int compute_fileage(int vid){
   pManifest = manifest_get(vid, CFTYPE_MANIFEST);
   if( pManifest==0 ) return 1;
   manifest_file_rewind(pManifest);
-  db_prepare(&ins, 
+  db_prepare(&ins,
      "INSERT INTO temp.fileage(fid, pathname)"
      "  SELECT rid, :path FROM blob WHERE uuid=:uuid"
   );
@@ -430,9 +413,9 @@ void fileage_page(void){
   @ <h2>File Ages For Check-in
   @ %z(href("%R/info?name=%T",zName))%h(zName)</a></h2>
   @
-  @ <p>The times given are relative 
+  @ <p>The times given are relative
   @ %z(href("%R/timeline?c=%T",zBaseTime))%s(zBaseTime)</a>, which is the
-  @ check-in time for 
+  @ check-in time for
   @ %z(href("%R/info?name=%T",zName))%h(zName)</a></p>
   @
   @ <table border=0 cellspacing=0 cellpadding=0>
@@ -473,5 +456,5 @@ void fileage_page(void){
   @ <tr><td colspan=3><hr></tr>
   @ </table>
   db_finalize(&q);
-  style_footer();  
+  style_footer();
 }

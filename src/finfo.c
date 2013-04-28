@@ -312,9 +312,9 @@ void finfo_page(void){
   }
   blob_appendf(&sql,
     "  FROM mlink, event"
-    " WHERE mlink.fnid IN (SELECT fnid FROM filename WHERE name=%Q %s)"
+    " WHERE mlink.fnid IN (SELECT fnid FROM filename WHERE name=%Q)"
     "   AND event.objid=mlink.mid",
-    zFilename, filename_collation()
+    zFilename
   );
   if( (zA = P("a"))!=0 ){
     blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zA);
@@ -409,8 +409,8 @@ void finfo_page(void){
         "SELECT name FROM filename WHERE fnid = "
         "   (SELECT fnid FROM mlink"
         "     WHERE mid=%d"
-        "       AND pfnid IN (SELECT fnid FROM filename WHERE name=%Q %s))",
-        fmid, zFilename, filename_collation());
+        "       AND pfnid IN (SELECT fnid FROM filename WHERE name=%Q))",
+        fmid, zFilename);
       if( zNewName ){
         @ <b>Renamed</b> to
         @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a> by check-in

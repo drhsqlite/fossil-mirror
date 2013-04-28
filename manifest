@@ -1,5 +1,5 @@
-C Updates\sto\sthe\s"concepts"\sdocument.
-D 2013-04-28T18:36:37.747
+C All\sui\spages\s(and\stheir\sJSON\sequivalent)\sshould\shandle\sfilenames\scase-sensitive\sbecause\sthey\sdon't\saccess\sthe\sfile\ssystem
+D 2013-04-28T20:19:49.413
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -290,14 +290,14 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 17885b90c8c69e717b57d12908efda2701d3aca3
+F src/add.c 05b6b1d66ebbe63b2418b8fb5b7927a4d41acf57
 F src/allrepo.c 7f9a744e2a6d5f6ee8db38d57c567e4ba3c67a82
 F src/attach.c 008bdd9bf717497f3a50cf0930105c81548d8a81
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 8d58794b6411ae78aebe6ddd094764544d228713
 F src/blob.c 8ba8a0156a79cd41840f5e0363522a0d96c2e444
 F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
-F src/browse.c 5df70df3d2acc56710edd26bd6bcf094de2cc1bc
+F src/browse.c 5a4e3c8582af1d03ac51f9e1982025a02ffefe97
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
 F src/checkin.c 42af68aad230a63706d9844acf6415c0dde72ddf
@@ -321,7 +321,7 @@ F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
 F src/event.c 479cd7832e3c0dad48ed67e54d5c24b5fe6c4a79
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
 F src/file.c c6ad62e5a9e835418ad34304d42e78faea4da1e9
-F src/finfo.c cc3b65dec7905acfdf2f626e15003ddeb367aa93
+F src/finfo.c 08dab14ede59293d5f0d75921b26cf45d71c7d9b
 F src/glob.c 66cd71e83a07fe617fb862d6237d283430d91d14
 F src/graph.c d2f9ba3faa6cc3b9cbf085b1faa8bc942cc75cf0
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
@@ -337,8 +337,8 @@ F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
 F src/json_detail.h a5ef58bb4838f64de4fb3d95a7a561d89a92e127
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
-F src/json_dir.c 333e845a99528efd60788325e628bbcec3b43153
-F src/json_finfo.c f96cb3c19176b1667ea3956e48099ed5af8803d4
+F src/json_dir.c a76008c3fbf13ff3edcfa07edaf8fa7e60a678c0
+F src/json_finfo.c aa6af8d857e7350cdb9ab783390522ee6f2c48b2
 F src/json_login.c d8daafbf01d285a7c64b9ef08c1e5875f8efa65f
 F src/json_query.c 017ab69953ee208381dc210ee01716585f1bac15
 F src/json_report.c 1bce5178ec70545ec16becdbaac22d785d1880ba
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e6cada82199eb79d0bf3cad55139e43683ab2e46
-R 45f57863c3bd0b1ff461732b2a338f4e
-U drh
-Z 4b7415e1c68ad0976650de4aefb66edc
+P 9177ad87ba902e3767b2c6af698746abe323fc1d c967b6619f60a6cc0637106c09a0b7d0b27a7066
+R e53cc3c8a0e43607b83158ceff86fd61
+U jan.nijtmans
+Z e6f924d4c479a24a7abb48003eb32f85
