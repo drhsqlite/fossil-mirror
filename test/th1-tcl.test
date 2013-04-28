@@ -36,7 +36,9 @@ set env(TH1_ENABLE_TCL) 1; # Tcl integration must be enabled for this test.
 
 fossil test-th-render [file nativename [file join $dir th1-tcl1.txt]]
 
-test th1-tcl-1 {[regexp -- {^\d+
+test th1-tcl-1 {[regexp -- {^tclReady\(before\) = 0
+tclReady\(after\) = 1
+\d+
 \d+
 \d+
 via Tcl invoke
@@ -104,7 +106,7 @@ syntax error in expression: &quot;2**0&quot;</p>}}
 fossil test-th-render [file nativename [file join $dir th1-tcl8.txt]]
 
 test th1-tcl-8 {$RESULT eq {<hr><p class="thmainError">ERROR:\
-Cannot invoke Tcl command: tailcall</p>} || $RESULT eq {<hr><p\
+cannot invoke Tcl command: tailcall</p>} || $RESULT eq {<hr><p\
 class="thmainError">ERROR: tailcall can only be called from a proc or\
 lambda</p>}}
 

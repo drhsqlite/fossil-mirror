@@ -318,6 +318,37 @@ static int hasfeatureCmd(
 
 
 /*
+** TH command:     tclReady
+**
+** Return true if the fossil binary has the Tcl integration feature
+** enabled and it is currently available for use by TH1 scripts.
+**
+*/
+static int tclReadyCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc = 0;
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "tclReady");
+  }
+#if defined(FOSSIL_ENABLE_TCL)
+  if( g.tcl.interp ){
+    rc = 1;
+  }
+#endif
+  if( g.thTrace ){
+    Th_Trace("[tclReady] => %d<br />\n", rc);
+  }
+  Th_SetResultInt(interp, rc);
+  return TH_OK;
+}
+
+
+/*
 ** TH command:     anycap STRING
 **
 ** Return true if the user has any one of the capabilities listed in STRING.
@@ -736,6 +767,7 @@ void Th_FossilInit(int needConfig, int forceSetup){
     {"randhex",       randhexCmd,           0},
     {"regexp",        regexpCmd,            0},
     {"repository",    repositoryCmd,        0},
+    {"tclReady",      tclReadyCmd,          0},
     {"stime",         stimeCmd,             0},
     {"utime",         utimeCmd,             0},
     {"wiki",          wikiCmd,              (void*)&aFlags[0]},
