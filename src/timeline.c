@@ -173,6 +173,44 @@ void test_hash_color(void){
 }
 
 /*
+** WEBPAGE:  hash-color-test
+**
+** Print out the color names associated with each tag.  Used for
+** testing the hash_color() function.
+*/
+void test_hash_color_page(void){
+  const char *zBr;
+  char zNm[10];
+  int i, cnt;
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(); return; }
+
+  style_header("Hash Color Test");
+  for(i=cnt=0; i<10; i++){
+    sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
+    zBr = P(zNm);
+    if( zBr && zBr[0] ){
+      @ <p style='border:1px solid;background-color:%s(hash_color(zBr));'>
+      @ %h(zBr) - Omnes nos quasi oves erravimus unusquisque in viam
+      @ suam declinavit.</p>
+      cnt++;
+    }
+  }
+  if( cnt ){
+    @ <hr>
+  }
+  @ <form method="post" action="%s(g.zTop)/hash-color-test">
+  @ <p>Enter candidate branch names below and see them displayed in their
+  @ default background colors above.</p>
+  for(i=0; i<10; i++){
+    @ <input type="text" size="30" name="b%d(i)"><br />
+  }
+  @ <input type="submit">
+  @ </form>
+  style_footer();
+}
+
+/*
 ** Output a timeline in the web format given a query.  The query
 ** should return these columns:
 **
