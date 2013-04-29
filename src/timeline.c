@@ -191,7 +191,8 @@ void test_hash_color_page(void){
     zBr = P(zNm);
     if( zBr && zBr[0] ){
       @ <p style='border:1px solid;background-color:%s(hash_color(zBr));'>
-      @ %h(zBr) - Omnes nos quasi oves erravimus unusquisque in viam
+      @ %h(zBr) - %s(hash_color(zBr)) -
+      @ Omnes nos quasi oves erravimus unusquisque in viam
       @ suam declinavit.</p>
       cnt++;
     }

@@ -1,5 +1,5 @@
-C Add\sthe\shash-color-test\swebpage.
-D 2013-04-29T18:21:12.930
+C Show\sthe\scolor\snames\son\sthe\shash-color-test\swebpage.
+D 2013-04-29T23:29:44.407
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -394,7 +394,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c 6d19a8a13f5a7563c2cfb6035687612418bfb6b5
 F src/th_main.c 6cfc95f77d6f207b4bd28c76409cc51b91ffa31b
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
-F src/timeline.c 103e4da1ace6edd26d213526f25a986bcb5b6dd4
+F src/timeline.c 32c2661708c82e875c5ad0e114ec9f96ca40492c
 F src/tkt.c 41f2bd5a1c57301bc8d2a4a48cc1551875fd635e
 F src/tktsetup.c e736285953cc223d6f30a5c540627913aa75f884
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a87eaae301b95749c63a26c65248b6333ff31f34
-R 21a8efa7ba088da7053420b8147febc4
+P 748f975345d75f064502d8e20a91c9e7ba2355af
+R ed679a8c88c4403bd5f2d61f53a0c421
 U drh
-Z 396b81e0d8be8b731ef9f484d582f25d
+Z d3832ba5744a93694ef4111167d0ac9d
