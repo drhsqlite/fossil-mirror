@@ -1,5 +1,5 @@
-C Fix\sx64\scompilation\son\sWindows\susing\sthe\sMSVC\stoolset\sincluded\swith\sVS\s2012.
-D 2013-04-29T23:44:07.693
+C Omit\sCFLAGS\swhen\spassing\scompiler\soptions\sto\sthe\sMSVC\sresource\scompiler.
+D 2013-04-30T00:03:15.537
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -353,7 +353,7 @@ F src/main.c f9f92f5af6cdedf2192c061cb2b631b088baac7f
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 15716d3d94ebc5173c0369dc99ff980d34aa4f34
+F src/makemake.tcl a88a79aaab4397107e948560d5fb2a125448a3c1
 F src/manifest.c 18f07ec33d8fe75a42ff3823a27e375d591b5d99
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
@@ -508,7 +508,7 @@ F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 18768de6524ee0c7b714891d9319602fc257036e
 F win/Makefile.mingw 180888b62fa9512c616f40feb14021f7df6c078f
 F win/Makefile.mingw.mistachkin 959a257fa73b000c0e9704c4d7c98d2027b49b70
-F win/Makefile.msc 8936760d555c4c3701932112d7cb91918e900aa0
+F win/Makefile.msc 891f3d49b011cd4d4ed7cb98fb4b1ddc602b0015
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 97e249d74193a71520e4f83d0f74dd87439899c2
 F win/include/dirent.h 217dedc5cb9f060d88876706273e39f88ab68a8f
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3eea7413accdd63724a5554cf53f455c2fc5225f
-R cea902007fd9e3cc9dea23a413316f59
+P ed544f3d9c2c734826def031bf8d281b69018581
+R 52d7ace923c610323c8e2a39da4ff76d
 U mistachkin
-Z 622fc23c0095f0610b7f9a90ea2de439
+Z 9196018eb85e1f57e0b3bbf249887e94
