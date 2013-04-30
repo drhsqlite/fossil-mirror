@@ -155,6 +155,18 @@ const char zRepositorySchema1[] =
 @ --
 @ CREATE TABLE private(rid INTEGER PRIMARY KEY);
 @
+@ -- An entry in this table describes a database query that generates a
+@ -- table of tickets.
+@ --
+@ CREATE TABLE reportfmt(
+@    rn INTEGER PRIMARY KEY,  -- Report number
+@    owner TEXT,              -- Owner of this report format (not used)
+@    title TEXT UNIQUE,       -- Title of this report
+@    mtime DATE,              -- Last modified.  seconds since 1970
+@    cols TEXT,               -- A color-key specification
+@    sqlcode TEXT             -- An SQL SELECT statement for this report
+@ );
+@
 @ -- Some ticket content (such as the originators email address or contact
 @ -- information) needs to be obscured to protect privacy.  This is achieved
 @ -- by storing an SHA1 hash of the content.  For display, the hash is
@@ -171,21 +183,10 @@ const char zRepositorySchema1[] =
 ;
 
 /*
-** The reportfmt parts of the schema. This is in an extra script so
-** that (configure reset) can install the default report.
+** The default reportfmt entry for the schema. This is in an extra
+** script so that (configure reset) can install the default report.
 */
-const char zRepositorySchemaReports[] =
-@ -- An entry in this table describes a database query that generates a
-@ -- table of tickets.
-@ --
-@ CREATE TABLE reportfmt(
-@    rn INTEGER PRIMARY KEY,  -- Report number
-@    owner TEXT,              -- Owner of this report format (not used)
-@    title TEXT UNIQUE,       -- Title of this report
-@    mtime DATE,              -- Last modified.  seconds since 1970
-@    cols TEXT,               -- A color-key specification
-@    sqlcode TEXT             -- An SQL SELECT statement for this report
-@ );
+const char zRepositorySchemaDefaultReports[] =
 @ INSERT INTO reportfmt(title,mtime,cols,sqlcode) 
 @ VALUES('All Tickets',julianday('1970-01-01'),'#ffffff Key:
 @ #f2dcdc Active

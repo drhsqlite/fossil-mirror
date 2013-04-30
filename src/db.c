@@ -1229,7 +1229,7 @@ void db_create_repository(const char *zFilename){
   db_init_database(
      zFilename,
      zRepositorySchema1,
-     zRepositorySchemaReports,
+     zRepositorySchemaDefaultReports,
      zRepositorySchema2,
      (char*)0
   );
