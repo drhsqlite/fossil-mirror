@@ -933,6 +933,7 @@ void configuration_cmd(void){
         db_multi_exec("DELETE FROM shun");
       }else if( fossil_strcmp(zName,"@reportfmt")==0 ){
         db_multi_exec("DELETE FROM reportfmt");
+        db_multi_exec(zRepositorySchemaReports);
       }
     }
     db_end_transaction(0);

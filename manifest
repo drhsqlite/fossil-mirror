@@ -1,5 +1,5 @@
-C Restore\sworkaround\sto\sthe\sMSVC\sresource\scompilation\sthat\sallows\sit\sto\sintegrate\swith\sexternal\sheaders\sproperly.
-D 2013-04-30T00:09:53.942
+C (config\sreset)\snow\sre-adds\sthe\sdefault\sticket\sreport\sformat.\sProblem\sreported\svia\smailing\slist.
+D 2013-04-30T18:14:55.212
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -306,11 +306,11 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
-F src/configure.c 8b7010c57e0b33b0bf0493e764fffa8c835ea7c8
+F src/configure.c 2db732c7de8a4845feeeacdf425ec9072a66b611
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 5cb9365b7d6c5aba118776662123b69cbaac7959
 F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
-F src/db.c 2787062be8f9ac765617af7b17622433353fe7d3
+F src/db.c 835288d8d31fa817f7c3e6ed7ddc5ea4ff5f5f9a
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
@@ -373,7 +373,7 @@ F src/rebuild.c 01cd0cd7b2baee0ec438968994da3dfeead6c8a0
 F src/regexp.c 056d7e54c5a85247ee9d003ede339b07ae049a5f
 F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
-F src/schema.c fba2109f21f12c2626ff9e56ecbec522a96472a9
+F src/schema.c a6a3bc1557b8486125698f92bed15004f73d6231
 F src/search.c fe3c94ac8caed5d0e7ffe4e39240f7be00d97d0d
 F src/setup.c 92a0497d219bec5755c95fb9fc6e1ee96ba83360
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f151da213548584f9981955a7a3aacf4c958103d
-R 300de73775d9ae12afbc6d9a2f9430ef
-U mistachkin
-Z e016fbab6a10f46093c8e2f18e8238c5
+P 5f86c0efa45cbc30a693a45c7d6fe10805631c89
+R 7a1217eaf45336358efe453e5b9df396
+U stephan
+Z 989c66f213613e1ed2ead8c4b5ad4ae6

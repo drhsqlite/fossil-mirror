@@ -155,6 +155,26 @@ const char zRepositorySchema1[] =
 @ --
 @ CREATE TABLE private(rid INTEGER PRIMARY KEY);
 @
+@ -- Some ticket content (such as the originators email address or contact
+@ -- information) needs to be obscured to protect privacy.  This is achieved
+@ -- by storing an SHA1 hash of the content.  For display, the hash is
+@ -- mapped back into the original text using this table.  
+@ --
+@ -- This table contains sensitive information and should not be shared
+@ -- with unauthorized users.
+@ --
+@ CREATE TABLE concealed(
+@   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
+@   mtime DATE,               -- Time created.  Seconds since 1970
+@   content TEXT              -- Content intended to be concealed
+@ );
+;
+
+/*
+** The reportfmt parts of the schema. This is in an extra script so
+** that (configure reset) can install the default report.
+*/
+const char zRepositorySchemaReports[] =
 @ -- An entry in this table describes a database query that generates a
 @ -- table of tickets.
 @ --
@@ -187,20 +207,6 @@ const char zRepositorySchema1[] =
 @   subsystem,
 @   title
 @ FROM ticket');
-@
-@ -- Some ticket content (such as the originators email address or contact
-@ -- information) needs to be obscured to protect privacy.  This is achieved
-@ -- by storing an SHA1 hash of the content.  For display, the hash is
-@ -- mapped back into the original text using this table.  
-@ --
-@ -- This table contains sensitive information and should not be shared
-@ -- with unauthorized users.
-@ --
-@ CREATE TABLE concealed(
-@   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
-@   mtime DATE,               -- Time created.  Seconds since 1970
-@   content TEXT              -- Content intended to be concealed
-@ );
 ;
 
 const char zRepositorySchema2[] =
