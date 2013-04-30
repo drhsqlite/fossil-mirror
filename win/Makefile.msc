@@ -40,7 +40,7 @@ INCL   = $(INCL) -I$(SSLINCDIR)
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(INCL)
-RCC    = rc $(MSCDEF) $(INCL)
+RCC    = rc -D_WIN32 -D_MSC_VER $(MSCDEF) $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib advapi32.lib
 LIBDIR = -LIBPATH:$(ZLIBDIR)
 
