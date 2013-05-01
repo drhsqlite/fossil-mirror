@@ -180,6 +180,10 @@ const char zRepositorySchema1[] =
 @   mtime DATE,               -- Time created.  Seconds since 1970
 @   content TEXT              -- Content intended to be concealed
 @ );
+@
+@ -- The application ID helps the unix "file" command to identify the
+@ -- database as a fossil repository.
+@ PRAGMA application_id=1598444364; -- Equivalent to '_FSL'
 ;
 
 /*
