@@ -929,16 +929,17 @@ void vdiff_page(void){
   zTo = P("to");
   if( !sideBySide ){
     style_submenu_element("Side-by-side Diff", "sbsdiff",
-                          "%R/vdiff?from=%T&to=%T%s&sbs=1",
-                          zFrom, zTo, verboseFlag?"&v=1":"");
-  }else{
+                          "%R/vdiff?from=%T&to=%T&sbs=1",
+                          zFrom, zTo);
+  }
+  if( sideBySide || !verboseFlag ) {
     style_submenu_element("Unified Diff", "udiff",
-                          "%R/vdiff?from=%T&to=%T%s&sbs=0",
-                          zFrom, zTo, verboseFlag?"&v=1":"");
+                          "%R/vdiff?from=%T&to=%T%s&sbs=0&v=1",
+                          zFrom, zTo);
   }
   style_submenu_element("Invert", "invert",
-                        "%R/vdiff?from=%T&to=%T%s&sbs=%d",
-                        zTo, zFrom, verboseFlag?"&v=1":"", sideBySide);
+                        "%R/vdiff?from=%T&to=%T&sbs=%d%s", zTo, zFrom,
+                        sideBySide, (verboseFlag && !sideBySide)?"&v=1":"");
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
   checkin_description(ridFrom);
