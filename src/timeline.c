@@ -997,7 +997,7 @@ char *names_of_file(const char *zUuid){
 **    s=TEXT         string search (comment and brief)
 **    ng             Suppress the graph if present
 **    nd             Suppress "divider" lines
-**    fc             Show details of files changed
+**    v              Show details of files changed
 **    f=UUID         Show family (immediate parents and children) of UUID
 **    from=UUID      Path from...
 **    to=UUID          ... to this
@@ -1112,9 +1112,9 @@ void page_timeline(void){
   blob_zero(&desc);
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
-  if( P("fc")!=0 || P("detail")!=0 ){
+  if( P("fc")!=0 || P("v")!=0 || P("detail")!=0 ){
     tmFlags |= TIMELINE_FCHANGES;
-    url_add_parameter(&url, "fc", 0);
+    url_add_parameter(&url, "v", 0);
   }
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
@@ -1423,9 +1423,9 @@ void page_timeline(void){
       }
       if( zType[0]=='a' || zType[0]=='c' ){
         if( tmFlags & TIMELINE_FCHANGES ){
-          timeline_submenu(&url, "Hide Files", "fc", 0, 0);
+          timeline_submenu(&url, "Hide Files", "v", 0, 0);
         }else{
-          timeline_submenu(&url, "Show Files", "fc", "", 0);
+          timeline_submenu(&url, "Show Files", "v", "", 0);
         }
       }
     }
@@ -1758,18 +1758,21 @@ struct tm *fossil_localtime(const time_t *clock){
 /*
 ** COMMAND: test-timewarp-list
 **
-** Usage: %fossil test-timewarp-list ?--detail?
+** Usage: %fossil test-timewarp-list ?-v|---verbose?
 **
 ** Display all instances of child checkins that appear earlier in time
-** than their parent.  If the --detail option is provided, both the
+** than their parent.  If the -v|--verbose option is provided, both the
 ** parent and child checking and their times are shown.
 */
 void test_timewarp_cmd(void){
   Stmt q;
-  int showDetail;
+  int verboseFlag;
 
   db_find_and_open_repository(0, 0);
-  showDetail = find_option("detail", 0, 0)!=0;
+  verboseFlag = find_option("verbose", "v", 0)!=0;
+  if( !verboseFlag ){
+    verboseFlag = find_option("detail", 0, 0)!=0; /* deprecated */
+  }
   db_prepare(&q,
      "SELECT (SELECT uuid FROM blob WHERE rid=p.cid),"
      "       (SELECT uuid FROM blob WHERE rid=c.cid),"
@@ -1778,7 +1781,7 @@ void test_timewarp_cmd(void){
      " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
   );
   while( db_step(&q)==SQLITE_ROW ){
-    if( !showDetail ){
+    if( !verboseFlag ){
       fossil_print("%s\n", db_column_text(&q, 1));
     }else{
       fossil_print("%.14s -> %.14s   %s -> %s\n",

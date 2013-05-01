@@ -151,7 +151,7 @@ static int determine_cwd_relative_option()
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
 **    --header          Identify the repository if there are changes
-**    -v                Say "(none)" if there are no changes
+**    -v|--verbose      Say "(none)" if there are no changes
 **
 ** See also: extra, ls, status
 */
@@ -160,7 +160,7 @@ void changes_cmd(void){
   int vid;
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
   int showHdr = find_option("header",0,0)!=0;
-  int verbose = find_option("verbose","v",0)!=0;
+  int verboseFlag = find_option("verbose","v",0)!=0;
   int cwdRelative = 0;
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
@@ -168,7 +168,7 @@ void changes_cmd(void){
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, useSha1sum ? CKSIG_SHA1 : 0);
   status_report(&report, "", 0, cwdRelative);
-  if( verbose && blob_size(&report)==0 ){
+  if( verboseFlag && blob_size(&report)==0 ){
     blob_append(&report, "  (none)\n", -1);
   }
   if( showHdr && blob_size(&report)>0 ){
@@ -1127,9 +1127,9 @@ static int tagCmp(const void *a, const void *b){
 **    --bgcolor COLOR            apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   check in to this new branch
 **    --branchcolor COLOR        apply given COLOR to the branch
-**    --comment|-m COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    --delta                    use a delta manifest in the commit process
-**    --message-file|-M FILE     read the commit comment from given file
+**    -m|--comment COMMENT-TEXT  use COMMENT-TEXT as commit comment
+**    -M|--message-file FILE     read the commit comment from given file
 **    --mimetype MIMETYPE        mimetype of check-in comment
 **    -n|--dry-run               If given, display instead of run actions
 **    --no-warnings              omit all warnings about file contents

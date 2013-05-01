@@ -813,7 +813,7 @@ void help_cmd(void){
     z = g.argv[0];
     fossil_print(
       "Usage: %s help COMMAND\n"
-      "Common COMMANDs:  (use \"%s help --all\" for a complete list)\n",
+      "Common COMMANDs:  (use \"%s help -a|--all\" for a complete list)\n",
       z, z);
     command_list(0, CMDFLAG_1ST_TIER);
     version_cmd();

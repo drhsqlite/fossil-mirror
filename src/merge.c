@@ -91,17 +91,17 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 **                           files whose names differ only in case are taken
 **                           to be the same file.
 **
-**   --detail                Show additional details of the merge
-**
 **   -f|--force              Force the merge even if it would be a no-op.
 **
 **   -n|--dry-run            If given, display instead of run actions
+**
+**   -v|--verbose            Show additional details of the merge
 */
 void merge_cmd(void){
   int vid;              /* Current version "V" */
   int mid;              /* Version we are merging from "M" */
   int pid;              /* The pivot version - most recent common ancestor P */
-  int detailFlag;       /* True if the --detail option is present */
+  int verboseFlag;      /* True if the -v|--verbose option is present */
   int pickFlag;         /* True if the --cherrypick option is present */
   int backoutFlag;      /* True if the --backout option is present */
   int dryRunFlag;       /* True if the --dry-run or -n option is present */
@@ -125,7 +125,10 @@ void merge_cmd(void){
   */
 
   undo_capture_command_line();
-  detailFlag = find_option("detail",0,0)!=0;
+  verboseFlag = find_option("verbose","v",0)!=0;
+  if( !verboseFlag ){
+    verboseFlag = find_option("detail",0,0)!=0; /* deprecated */
+  }
   pickFlag = find_option("cherrypick",0,0)!=0;
   backoutFlag = find_option("backout",0,0)!=0;
   debugFlag = find_option("debug",0,0)!=0;
@@ -250,7 +253,7 @@ void merge_cmd(void){
                  " Use --force to override.\n");
     return;
   }
-  if( detailFlag ){
+  if( verboseFlag ){
     print_checkin_description(mid, 12, "merge-from:");
     print_checkin_description(pid, 12, "baseline:");
   }
@@ -504,7 +507,7 @@ void merge_cmd(void){
     char *zFullPath;
     Blob m, p, r;
     /* Do a 3-way merge of idp->idm into idp->idv.  The results go into idv. */
-    if( detailFlag ){
+    if( verboseFlag ){
       fossil_print("MERGE %s  (pivot=%d v1=%d v2=%d)\n", 
                    zName, ridp, ridm, ridv);
     }else{
