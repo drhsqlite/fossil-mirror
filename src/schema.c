@@ -31,6 +31,10 @@ const char zConfigSchema[] =
 @   name TEXT PRIMARY KEY,
 @   value TEXT
 @ );
+@
+@ -- Identifier for this file type.
+@ -- The integer is the same as 'FSLG'.
+@ PRAGMA application_id=252006675;
 ;
 
 #if INTERFACE
@@ -183,7 +187,7 @@ const char zRepositorySchema1[] =
 @
 @ -- The application ID helps the unix "file" command to identify the
 @ -- database as a fossil repository.
-@ PRAGMA application_id=1598444364; -- Equivalent to '_FSL'
+@ PRAGMA application_id=252006673;
 ;
 
 /*
@@ -508,5 +512,8 @@ const char zLocalSchema[] =
 @   merge INTEGER,                    -- Merged with this record
 @   UNIQUE(id, merge)
 @ );
-@   
+@
+@ -- Identifier for this file type.
+@ -- The integer is the same as 'FSLC'.
+@ PRAGMA application_id=252006674;
 ;
