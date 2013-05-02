@@ -561,7 +561,7 @@ int main(int argc, char **argv)
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
     if( find_option("utc",0,0) ) g.fTimeFormat = 1;
     if( find_option("localtime",0,0) ) g.fTimeFormat = 2;
-    if( zChdir && chdir(zChdir) ){
+    if( zChdir && file_chdir(zChdir, 0) ){
       fossil_fatal("unable to change directories to %s", zChdir);
     }
     if( find_option("help",0,0)!=0 ){
@@ -1088,7 +1088,7 @@ static char *enter_chroot_jail(char *zRepo){
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
     if( file_isdir(zDir)==1 ){
-      if( chdir(zDir) || chroot(zDir) || chdir("/") ){
+      if( file_chdir(zDir, 1) ){
         fossil_fatal("unable to chroot into %s", zDir);
       }
       zRepo = "/";
@@ -1097,7 +1097,7 @@ static char *enter_chroot_jail(char *zRepo){
       if( zDir[i]!='/' ) fossil_panic("bad repository name: %s", zRepo);
       if( i>0 ){
         zDir[i] = 0;
-        if( chdir(zDir) || chroot(zDir) || chdir("/") ){
+        if( file_chdir(zDir, 1) ){
           fossil_fatal("unable to chroot into %s", zDir);
         }
         zDir[i] = '/';

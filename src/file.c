@@ -317,6 +317,27 @@ int file_access(const char *zFilename, int flags){
 }
 
 /*
+** Wrapper around the chdir() system call.
+** If bChroot=1, do a chroot to this dir as well
+** (UNIX only)
+*/
+int file_chdir(const char *zChDir, int bChroot){
+#ifdef _WIN32
+  wchar_t *zPath = fossil_utf8_to_filename(zChDir);
+  int rc = _wchdir(zPath);
+#else
+  char *zPath = fossil_utf8_to_filename(zChDir);
+  int rc = chdir(zPath);
+  if( !rc && bChroot ){
+    rc = chroot(zPath);
+    if( !rc ) rc = chdir("/");
+  }
+#endif
+  fossil_filename_free(zPath);
+  return rc;
+}
+
+/*
 ** Find an unused filename similar to zBase with zSuffix appended.
 **
 ** Make the name relative to the working directory if relFlag is true.
