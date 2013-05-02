@@ -486,7 +486,7 @@ void ci_page(void){
      "   AND event.objid=%d",
      rid, rid
   );
-  sideBySide = atoi(PD("sbs","1"));
+  sideBySide = !is_false(PD("sbs","1"));
   if( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     char *zTitle = mprintf("Check-in [%.10s]", zUuid);
@@ -915,7 +915,7 @@ void vdiff_page(void){
   if( pTo==0 ) return;
   pFrom = vdiff_parse_manifest("from", &ridFrom);
   if( pFrom==0 ) return;
-  sideBySide = atoi(PD("sbs","1"));
+  sideBySide = !is_false(PD("sbs","1"));
   zVerbose = P("v");
   if( !zVerbose ){
     zVerbose = P("verbose");
@@ -1258,7 +1258,7 @@ void diff_page(void){
   v1 = name_to_rid_www("v1");
   v2 = name_to_rid_www("v2");
   if( v1==0 || v2==0 ) fossil_redirect_home();
-  sideBySide = atoi(PD("sbs","1"));
+  sideBySide = !is_false(PD("sbs","1"));
   zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
   zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
   isPatch = P("patch")!=0;
