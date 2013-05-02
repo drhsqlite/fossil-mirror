@@ -1,0 +1,71 @@
+#
+# OpenBSD on 64 bit SPARC has what appears to be a complier bug involving
+# the "long double" type.  This has been observed on OpenBSD 5.1 and 5.2
+# using the bundled gcc compiler (gcc (GCC) 4.2.1 20070719).
+#
+# The following progam demonstrates the problem:
+#
+#     #include <stdio.h>
+#
+#     int
+#     main (int argc, char *argv[])
+#     {
+#             volatile long long n;
+#             volatile long double ld;
+#
+#             n = 2147483648L;
+#             ld = n;
+#             printf (" n = %lld\n", n);
+#             printf ("ld = %0.17Lg\n", ld);
+#
+#             return 0;
+#     }
+#
+# Example output, on an x86 system without the bug:
+#      n = 2147483648
+#     ld = 2147483648
+#
+# Example output, on an OpenBSD/sparc64 system with the bug:
+#      n = 2147483648
+#     ld = -2147483648
+#
+# The bug manifests itself in Fossil by way of a long double in
+# SQLite's internal sqlite3AtoF() function.
+#
+# An example demonstrating the bug using Fossil:
+#
+#     $ ./fossil new x.fossil
+#     $ ./fossil sqlite3 -R x.fossil
+#     sqlite> select 2456247.35094206;
+#     -2456247.35094206
+#     sqlite> .quit
+#
+# See also:
+# 
+# [fossil-users] System problem leads to Fossil problem on OpenBSD/sparc64
+# http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg11144.html
+#
+
+# Fossil will write data on $HOME, running 'fossil new' here.
+# We need not to clutter the $HOME of the test caller.
+set env(HOME) [pwd]
+
+fossil new rep.fossil
+
+proc long-double {testname args} {
+  set i 1
+  foreach {sql result} $args {
+    set out [open test.sql w]
+    puts $out $sql
+    close $out
+    fossil sqlite3 -R rep.fossil < test.sql
+    test long-double-$testname.$i {$::RESULT eq $result}
+    incr i
+  }
+}
+
+# Returns "-2456247.35094206" on systems with the long double compiler bug.
+long-double 100 "select 2456247.35094206;" "2456247.35094206"
+
+file delete rep.fossil
+file delete test.sql

@@ -1,6 +1,6 @@
 # System autoconfiguration. Try: ./configure --help
 
-use cc cc-lib
+use cc cc-lib cc-run
 
 options {
     with-openssl:path|auto|none
@@ -234,6 +234,32 @@ if {![cc-check-functions getpassphrase]} {
     cc-check-function-in-lib getpass bsd
 }
 cc-check-function-in-lib dlopen dl
+
+# Check for long double bug
+# See test/long-double.test for more information.
+set code {
+    volatile long long n; volatile long double ld;
+    n = 2147483648L; ld = n;
+    if (ld < 0) return 1;
+}
+switch -glob -- [get-define host] {
+    sparc64-*-openbsd* {
+        msg-checking "Checking for long double bug..."
+        # If we're cross compiling we won't be able to run
+        # binaries at all, so first check and see if a trivial
+        # program runs okay.
+        if {[cc-run -code {return 0;}]} {
+            if {[cc-run -code $code]} {
+                msg-result "not found"
+            } else {
+                msg-result "found"
+                define-append EXTRA_CFLAGS -DLONGDOUBLE_TYPE=double
+            }
+        } else {
+            msg-result "Unable to test, assuming bug not present"
+        }
+    }
+}
 
 make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}
