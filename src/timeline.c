@@ -204,7 +204,9 @@ void test_hash_color_page(void){
   @ <p>Enter candidate branch names below and see them displayed in their
   @ default background colors above.</p>
   for(i=0; i<10; i++){
-    @ <input type="text" size="30" name="b%d(i)"><br />
+    sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
+    zBr = P(zNm);
+    @ <input type="text" size="30" name='%s(zNm)' value='%h(PD(zNm,""))'><br />
   }
   @ <input type="submit">
   @ </form>
