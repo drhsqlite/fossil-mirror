@@ -141,7 +141,7 @@ void event_page(void){
         char *zNext;
         zNext = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nextRid);
         style_submenu_element("Next", "Next",
-                              "%s/event?name=%s&aid=%s&v=1",
+                              "%s/event?name=%s&aid=%s&v",
                               g.zTop, zEventId, zNext);
         free(zNext);
       }
@@ -149,13 +149,13 @@ void event_page(void){
         char *zPrev;
         zPrev = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", prevRid);
         style_submenu_element("Prev", "Prev",
-                              "%s/event?name=%s&aid=%s&v=1",
+                              "%s/event?name=%s&aid=%s&v",
                               g.zTop, zEventId, zPrev);
         free(zPrev);
       }
     }else{
       style_submenu_element("Detail", "Detail",
-                            "%s/event?name=%s&aid=%s&v=1",
+                            "%s/event?name=%s&aid=%s&v",
                             g.zTop, zEventId, zUuid);
     }
   }
@@ -187,7 +187,7 @@ void event_page(void){
     blob_reset(&comment);
     @ </div>
     @ </blockquote><hr />
-  }  
+  }
 
   wiki_convert(&tail, 0, 0);
   style_footer();
@@ -229,7 +229,7 @@ void eventedit_page(void){
     }
   }
   zTag = mprintf("event-%s", zEventId);
-  rid = db_int(0, 
+  rid = db_int(0,
     "SELECT rid FROM tagxref"
     " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
     " ORDER BY mtime DESC", zTag
@@ -309,7 +309,7 @@ void eventedit_page(void){
 
       /* Load the tags string into a blob */
       blob_zero(&tags);
-      blob_append(&tags, zTags, -1); 
+      blob_append(&tags, zTags, -1);
 
       /* Collapse all sequences of whitespace and "," characters into
       ** a single space character */
@@ -338,7 +338,7 @@ void eventedit_page(void){
         blob_appendf(&event, "T +sym-%F *\n", db_column_text(&q, 0));
       }
       db_finalize(&q);
-    }        
+    }
     if( g.zLogin ){
       blob_appendf(&event, "U %F\n", g.zLogin);
     }
@@ -408,7 +408,7 @@ void eventedit_page(void){
 
   @ <tr><td align="right" valign="top"><b>Timeline&nbsp;Comment:</b></td>
   @ <td valign="top">
-  @ <textarea name="c" class="eventedit" cols="80" 
+  @ <textarea name="c" class="eventedit" cols="80"
   @  rows="3" wrap="virtual">%h(zComment)</textarea>
   @ </td></tr>
 
@@ -416,15 +416,15 @@ void eventedit_page(void){
   @ <td valign="top">
   render_color_chooser(0, zClr, 0, "clr", "cclr");
   @ </td></tr>
-  
+
   @ <tr><td align="right" valign="top"><b>Tags:</b></td>
   @ <td valign="top">
   @   <input type="text" name="g" size="40" value="%h(zTags)" />
   @ </td></tr>
-  
+
   @ <tr><td align="right" valign="top"><b>Page&nbsp;Content:</b></td>
   @ <td valign="top">
-  @ <textarea name="w" class="eventedit" cols="80" 
+  @ <textarea name="w" class="eventedit" cols="80"
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
   @ </td></tr>
 

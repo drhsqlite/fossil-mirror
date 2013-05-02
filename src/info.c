@@ -392,7 +392,7 @@ static void append_file_change_line(
       @ </pre>
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
-      @ %z(href("%R/fdiff?v1=%S&v2=%S",zOld,zNew))[diff]</a>
+      @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zOld,zNew))[diff]</a>
     }
     @ </p>
   }
@@ -457,6 +457,7 @@ void ci_page(void){
   const char *zUuid;   /* UUID of zName */
   const char *zParent; /* UUID of the parent checkin (if any) */
   const char *zRe;     /* regex parameter */
+  const char *zSbs;
   ReCompiled *pRe = 0; /* regex */
 
   login_check_credentials();
@@ -486,7 +487,8 @@ void ci_page(void){
      "   AND event.objid=%d",
      rid, rid
   );
-  sideBySide = atoi(PD("sbs","1"));
+  zSbs = P("sbs"); /* Note that "sbs=1" is the default value */
+  sideBySide = (zSbs==0) || ((*zSbs!=0) && !is_false(zSbs));
   if( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     char *zTitle = mprintf("Check-in [%.10s]", zUuid);
@@ -898,6 +900,7 @@ void vdiff_page(void){
   const char *zTo;
   const char *zRe;
   const char *zVerbose;
+  const char *zSbs;
   ReCompiled *pRe = 0;
 
   login_check_credentials();
@@ -915,7 +918,8 @@ void vdiff_page(void){
   if( pTo==0 ) return;
   pFrom = vdiff_parse_manifest("from", &ridFrom);
   if( pFrom==0 ) return;
-  sideBySide = atoi(PD("sbs","1"));
+  zSbs = P("sbs"); /* Note that "sbs=1" is the default value */
+  sideBySide = (zSbs==0) || ((*zSbs!=0) && !is_false(zSbs));
   zVerbose = P("v");
   if( !zVerbose ){
     zVerbose = P("verbose");
@@ -934,12 +938,12 @@ void vdiff_page(void){
   }
   if( sideBySide || !verboseFlag ) {
     style_submenu_element("Unified Diff", "udiff",
-                          "%R/vdiff?from=%T&to=%T%s&sbs=0&v=1",
+                          "%R/vdiff?from=%T&to=%T%s&sbs=0&v",
                           zFrom, zTo);
   }
   style_submenu_element("Invert", "invert",
                         "%R/vdiff?from=%T&to=%T&sbs=%d%s", zTo, zFrom,
-                        sideBySide, (verboseFlag && !sideBySide)?"&v=1":"");
+                        sideBySide, (verboseFlag && !sideBySide)?"&v":"");
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
   checkin_description(ridFrom);
@@ -1248,7 +1252,7 @@ void diff_page(void){
   Blob c1, c2, diff, *pOut;
   char *zV1;
   char *zV2;
-  const char *zRe;
+  const char *zRe, *zSbs;
   ReCompiled *pRe = 0;
   u64 diffFlags;
   const char *zStyle = "sbsdiff";
@@ -1258,7 +1262,8 @@ void diff_page(void){
   v1 = name_to_rid_www("v1");
   v2 = name_to_rid_www("v2");
   if( v1==0 || v2==0 ) fossil_redirect_home();
-  sideBySide = atoi(PD("sbs","1"));
+  zSbs = P("sbs"); /* Note that "sbs=1" is the default value */
+  sideBySide = (zSbs==0) || ((*zSbs!=0) && !is_false(zSbs));
   zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
   zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
   isPatch = P("patch")!=0;
