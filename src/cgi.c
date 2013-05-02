@@ -260,7 +260,7 @@ static int check_cache_control(void){
       if(zTok) return 1;
     }
   }
-  
+
   return 0;
 }
 #endif
@@ -467,7 +467,7 @@ void cgi_replace_parameter(const char *zName, const char *zValue){
 void cgi_setenv(const char *zName, const char *zValue){
   cgi_set_parameter_nocopy(zName, mprintf("%s",zValue));
 }
- 
+
 
 /*
 ** Add a list of query parameters or cookies to the parameter set.
@@ -500,20 +500,21 @@ static void add_param_list(char *z, int terminator){
     char *zValue;
     while( fossil_isspace(*z) ){ z++; }
     zName = z;
-    while( *z && *z!='=' && *z!=terminator ){ z++; }
-    if( *z=='=' ){
-      *z = 0;
-      z++;
-      zValue = z;
-      while( *z && *z!=terminator ){ z++; }
-      if( *z ){
-        *z = 0;
-        z++;
+    zValue = 0;
+    while( *z ){
+      if( *z==terminator ){
+        *z++ = 0; break;
       }
+      if( !zValue && (*z=='=') ){
+        *z = 0;
+        zValue = z+1;
+      }
+      z++;
+    }
+    if( zValue ){
       dehttpize(zValue);
     }else{
-      if( *z ){ *z++ = 0; }
-      zValue = "";
+      zValue = zName;
     }
     if( fossil_islower(zName[0]) ){
       cgi_set_parameter_nocopy(zName, zValue);
@@ -584,7 +585,7 @@ static char *get_bounded_content(
   }
   *pz = &z[i];
   get_line_from_string(pz, pLen);
-  return z;      
+  return z;
 }
 
 /*
@@ -691,7 +692,7 @@ static void process_multipart_form_data(char *z, int len){
         }
       }
     }
-  }        
+  }
 }
 
 
@@ -835,7 +836,7 @@ void cgi_init(void){
     z = mprintf("%s",z);
     add_param_list(z, ';');
   }
-  
+
   z = (char*)P("QUERY_STRING");
   if( z ){
     z = mprintf("%s",z);
@@ -851,7 +852,7 @@ void cgi_init(void){
   g.zContentType = zType = P("CONTENT_TYPE");
   if( len>0 && zType ){
     blob_zero(&g.cgiIn);
-    if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0 
+    if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0
          || strncmp(zType,"multipart/form-data",19)==0 ){
       z = fossil_malloc( len+1 );
       len = fread(z, 1, len, g.httpIn);
@@ -881,7 +882,7 @@ void cgi_init(void){
       - See if fossil really needs g.cgiIn to be set for this purpose
       (i don't think it does). If it does then fill g.cgiIn and
       refactor to parse the JSON from there.
-      
+
       - After parsing POST JSON, copy the "first layer" of keys/values
       to cgi_setenv(), honoring the upper-case distinction used
       in add_param_list(). However...
@@ -1198,16 +1199,16 @@ void cgi_handle_http_request(const char *zIpAddr){
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
   if( zIpAddr==0 &&
-        getpeername(fileno(g.httpIn), (struct sockaddr*)&remoteName, 
+        getpeername(fileno(g.httpIn), (struct sockaddr*)&remoteName,
                                 &size)>=0
   ){
     zIpAddr = inet_ntoa(remoteName.sin_addr);
   }
-  if( zIpAddr ){   
+  if( zIpAddr ){
     cgi_setenv("REMOTE_ADDR", zIpAddr);
     g.zIpAddr = mprintf("%s", zIpAddr);
   }
- 
+
   /* Get all the optional fields that follow the first line.
   */
   while( fgets(zLine,sizeof(zLine),g.httpIn) ){
@@ -1251,7 +1252,7 @@ void cgi_handle_http_request(const char *zIpAddr){
 }
 
 #if INTERFACE
-/* 
+/*
 ** Bitmap values for the flags parameter to cgi_http_server().
 */
 #define HTTP_SERVER_LOCALHOST      0x0001     /* Bind to 127.0.0.1 only */
@@ -1387,7 +1388,7 @@ int cgi_http_server(
       nchildren--;
     }
   }
-  /* NOT REACHED */  
+  /* NOT REACHED */
   fossil_exit(1);
 #endif
   /* NOT REACHED */
@@ -1475,7 +1476,7 @@ time_t mkgmtime(struct tm *p){
   isLeapYr = p->tm_year%4==0 && (p->tm_year%100!=0 || (p->tm_year+300)%400==0);
   p->tm_yday = priorDays[p->tm_mon] + p->tm_mday - 1;
   if( isLeapYr && p->tm_mon>1 ) p->tm_yday++;
-  nDay = (p->tm_year-70)*365 + (p->tm_year-69)/4 -p->tm_year/100 + 
+  nDay = (p->tm_year-70)*365 + (p->tm_year-69)/4 -p->tm_year/100 +
          (p->tm_year+300)/400 + p->tm_yday;
   t = ((nDay*24 + p->tm_hour)*60 + p->tm_min)*60 + p->tm_sec;
   return t;

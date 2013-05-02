@@ -1,5 +1,5 @@
-C Allow\sboolean\sparameters\ssbs=\sand\sv=\sto\staken\svalues\slike\s"on",\s"off",\s"yes",\nand\s"no".\s\sAssign\smeaningful\sdefaults\seven\sif\sthe\sargument\sis\somitted.
-D 2013-05-02T13:28:13.070
+C rebase
+D 2013-05-02T13:52:38.382
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -299,7 +299,7 @@ F src/blob.c 8ba8a0156a79cd41840f5e0363522a0d96c2e444
 F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 5a4e3c8582af1d03ac51f9e1982025a02ffefe97
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
-F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
+F src/cgi.c d826e0a1683c4eef5f3aecf406c2cf91a682a76a
 F src/checkin.c 7aca9d7f200de84a80a860c4bc4d662e7095f0e6
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -318,7 +318,7 @@ F src/diff.c c672e40bf05d07df902c35ea278868735d4f33ff
 F src/diffcmd.c 18f0957e6fb05b47fab116c3e4c1a10f91ca6121
 F src/doc.c 44c05bffa28ec381af2ba5e4d99696e868b311b4
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
-F src/event.c 20e26d45b3688da9779ed4c79d51b1eed2a1eaef
+F src/event.c a7cf63cb87463581a3cbde3ddf47a7c7057da198
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
 F src/file.c c6ad62e5a9e835418ad34304d42e78faea4da1e9
 F src/finfo.c 08dab14ede59293d5f0d75921b26cf45d71c7d9b
@@ -330,7 +330,7 @@ F src/http_socket.c 168bdbca66811d5cb92dd8a02caf6a5133ee2375
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 111c393f1bb93a3585078d5ee23e0b3ecc1408fe
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
-F src/info.c 1bce605187121cad57fc9210410147b780a6bdfd
+F src/info.c cb32675825358119cdaa94668f9506c5030686ed
 F src/json.c 8cf587d779ebdc9f9afed6dde518091cec768c47
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
@@ -610,7 +610,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8d3ff5a7109a51c371a00b152182d8f0c483bc29
-R 8ca3493815bfed2e57b8f1060de511b0
-U drh
-Z 7b98ef5c6eb4adb17fa4af56db8bd3a9
+P e09d84f297f30188232a03b4ebcf46f4007f317d 71d48d346cfd641eb7099a00ac71a5d6203f2228
+R 59e41b379b60082e45cbf5a06d4b5373
+T *branch * short-cgi-params
+T *sym-short-cgi-params *
+T -sym-trunk *
+U jan.nijtmans
+Z f7a4f252feaf955a0ea724d44acd0781
