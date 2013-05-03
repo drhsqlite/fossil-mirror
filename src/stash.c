@@ -217,7 +217,7 @@ static void stash_apply(int stashid, int nConflict){
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
     char *zNPath = mprintf("%s%s", g.zLocalRoot, zNew);
     Blob delta;
-    undo_save(zNew);
+    undo_save(zNew, -1);
     blob_zero(&delta);
     if( rid==0 ){
       db_ephemeral_blob(&q, 6, &delta);
@@ -274,7 +274,7 @@ static void stash_apply(int stashid, int nConflict){
     }
     blob_reset(&delta);
     if( fossil_strcmp(zOrig,zNew)!=0 ){
-      undo_save(zOrig);
+      undo_save(zOrig, -1);
       file_delete(zOPath);
     }
   }

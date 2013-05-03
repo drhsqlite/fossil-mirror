@@ -261,40 +261,49 @@ static int undoNeedRollback = 0;
 /*
 ** Save the current content of the file zPathname so that it
 ** will be undoable.  The name is relative to the root of the
-** tree.
+** tree. Any file bigger than "limit" will not be stored in
+** the undo table, and cause this function to return 1.
 */
-void undo_save(const char *zPathname){
+int undo_save(const char *zPathname, i64 limit){
   char *zFullname;
   Blob content;
   int existsFlag;
   int isLink;
   Stmt q;
+  int result = 0;
+  i64 size;
 
-  if( !undoActive ) return;
+  if( !undoActive ) return 0;
   zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
-  existsFlag = file_wd_size(zFullname)>=0;
+  size = file_wd_size(zFullname);
+  existsFlag = size>=0;
   isLink = file_wd_islink(zFullname);
-  db_prepare(&q,
-    "INSERT OR IGNORE INTO"
-    "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
-    " VALUES(%Q,0,%d,%d,%d,:c)",
-    zPathname, existsFlag, file_wd_isexe(zFullname), isLink
-  );
-  if( existsFlag ){
-    if( isLink ){
-      blob_read_link(&content, zFullname); 
-    }else{
-      blob_read_from_file(&content, zFullname);
+  if( limit>=0 && size>limit ){
+    result = 1;
+  }else{
+    db_prepare(&q,
+      "INSERT OR IGNORE INTO"
+      "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
+      " VALUES(%Q,0,%d,%d,%d,:c)",
+      zPathname, size>=0, file_wd_isexe(zFullname), isLink
+    );
+    if( existsFlag ){
+      if( isLink ){
+        blob_read_link(&content, zFullname);
+      }else{
+        blob_read_from_file(&content, zFullname);
+      }
+      db_bind_blob(&q, ":c", &content);
     }
-    db_bind_blob(&q, ":c", &content);
+    db_step(&q);
+    db_finalize(&q);
+    if( existsFlag ){
+      blob_reset(&content);
+    }
   }
   free(zFullname);
-  db_step(&q);
-  db_finalize(&q);
-  if( existsFlag ){
-    blob_reset(&content);
-  }
   undoNeedRollback = 1;
+  return result;
 }
 
 /*

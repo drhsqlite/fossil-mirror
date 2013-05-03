@@ -451,7 +451,7 @@ void merge_cmd(void){
     }
     fossil_free(zFullName);
     if( !dryRunFlag ){
-      undo_save(zName);
+      undo_save(zName, -1);
       vfile_to_disk(0, idm, 0, 0);
     }
   }
@@ -474,7 +474,7 @@ void merge_cmd(void){
     /* Copy content from idm over into idv.  Overwrite idv. */
     fossil_print("UPDATE %s\n", zName);
     if( !dryRunFlag ){
-      undo_save(zName);
+      undo_save(zName, -1);
       db_multi_exec(
         "UPDATE vfile SET mtime=0, mrid=%d, chnged=2, islink=%d "
         " WHERE id=%d", ridm, islinkm, idv
@@ -517,7 +517,7 @@ void merge_cmd(void){
       fossil_print("***** Cannot merge symlink %s\n", zName);
       nConflict++;        
     }else{
-      undo_save(zName);
+      undo_save(zName, -1);
       zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
       content_get(ridp, &p);
       content_get(ridm, &m);
@@ -568,7 +568,7 @@ void merge_cmd(void){
       fossil_warning("WARNING: local edits lost for %s\n", zName);
       nConflict++;
     }
-    undo_save(zName);
+    undo_save(zName, -1);
     db_multi_exec(
       "UPDATE vfile SET deleted=1 WHERE id=%d", idv
     );
@@ -594,8 +594,8 @@ void merge_cmd(void){
     const char *zOldName = db_column_text(&q, 1);
     const char *zNewName = db_column_text(&q, 2);
     fossil_print("RENAME %s -> %s\n", zOldName, zNewName);
-    undo_save(zOldName);
-    undo_save(zNewName);
+    undo_save(zOldName, -1);
+    undo_save(zNewName, -1);
     db_multi_exec(
       "UPDATE vfile SET pathname=%Q, origname=coalesce(origname,pathname)"
       " WHERE id=%d AND vid=%d", zNewName, idv, vid

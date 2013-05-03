@@ -419,6 +419,9 @@ void clean_cmd(void){
   Glob *pIgnore;
   int dryRunFlag;
   int forceFlag;
+  char cReply;
+  Blob ans;
+  char *prompt;
 
   allFlag = forceFlag = find_option("force","f",0)!=0;
   dryRunFlag = find_option("dry-run","n",0)!=0;
@@ -460,9 +463,7 @@ void clean_cmd(void){
       fossil_print("%s\n", zName+n);
       continue;
     }else if( !allFlag ){
-      Blob ans;
-      char cReply;
-      char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
+      prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
                               zName+n);
       blob_zero(&ans);
       prompt_user(prompt, &ans);
@@ -473,7 +474,16 @@ void clean_cmd(void){
         continue;
       }
     }
-    undo_save(zName+n);
+    if( undo_save(zName+n, 10*1024*1024) ){
+      prompt = mprintf("file \"%s\" too big.  Deletion will not be "
+                       "undo-able.  Continue (y/N)? ", zName+n);
+      blob_zero(&ans);
+      prompt_user(prompt, &ans);
+      cReply = blob_str(&ans)[0];
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_fatal("Clean aborted");
+      }
+    }
     file_delete(zName);
   }
   undo_finish();
