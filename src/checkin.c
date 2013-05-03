@@ -390,6 +390,9 @@ void extra_cmd(void){
 ** normally ignored.  They are included if the "--dotfiles" option
 ** is used.
 **
+** If a source tree is cleaned accidently, it can be restored using
+** the "fossil undo" command, except when the -f|--force flag is used.
+**
 ** The GLOBPATTERN is a comma-separated list of GLOB expressions for
 ** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
 ** is used if the --ignore option is omitted.
@@ -397,7 +400,8 @@ void extra_cmd(void){
 ** Options:
 **    --case-sensitive <BOOL> override case-sensitive setting
 **    --dotfiles       include files beginning with a dot (".")
-**    -f|--force       Remove files without prompting
+**    -f|--force       Remove files without prompting. The clean
+**                     will be faster but not undo-able any more.
 **    --ignore <CSG>   ignore files matching patterns from the
 **                     comma separated list of glob patterns.
 **    -n|--dry-run     If given, display instead of run actions
@@ -413,16 +417,20 @@ void clean_cmd(void){
   Stmt q;
   int n;
   Glob *pIgnore;
-  int dryRunFlag = 0;
+  int dryRunFlag;
+  int forceFlag;
 
-  allFlag = find_option("force","f",0)!=0;
-  if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
-  if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
-  zIgnoreFlag = find_option("ignore",0,1);
+  allFlag = forceFlag = find_option("force","f",0)!=0;
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
+  if( !forceFlag && !dryRunFlag ){
+    undo_capture_command_line();
+  }
+  if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
+  if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
+  zIgnoreFlag = find_option("ignore",0,1);
   capture_case_sensitive_option();
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
@@ -435,6 +443,7 @@ void clean_cmd(void){
   pIgnore = glob_create(zIgnoreFlag);
   vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
   glob_free(pIgnore);
+  if( !forceFlag && !dryRunFlag ) undo_begin();
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
@@ -446,14 +455,15 @@ void clean_cmd(void){
   }
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
     if( dryRunFlag ){
-      fossil_print("%s\n", db_column_text(&q,0));
+      fossil_print("%s\n", zName+n);
       continue;
     }else if( !allFlag ){
       Blob ans;
       char cReply;
       char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
-                              db_column_text(&q, 0));
+                              zName+n);
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
@@ -463,8 +473,10 @@ void clean_cmd(void){
         continue;
       }
     }
-    file_delete(db_column_text(&q, 0));
+    undo_save(zName+n);
+    file_delete(zName);
   }
+  undo_finish();
   db_finalize(&q);
 }
 

@@ -360,10 +360,10 @@ void undo_rollback(void){
 ** Undo the changes to the working checkout caused by the most recent
 ** of the following operations:
 **
-**    (1) fossil update             (5) fossil stash apply
+**    (1) fossil clean              (5) fossil stash apply
 **    (2) fossil merge              (6) fossil stash drop
 **    (3) fossil revert             (7) fossil stash goto
-**    (4) fossil stash pop
+**    (4) fossil update             (8) fossil stash pop
 **
 ** If FILENAME is specified then restore the content of the named
 ** file(s) but otherwise leave the update or merge or revert in effect. 
