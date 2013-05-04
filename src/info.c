@@ -1631,10 +1631,11 @@ void artifact_page(void){
   if( renderAsWiki ){
     wiki_convert(&content, 0, 0);
   }else if( renderAsHtml ){
-    @ <div>
-    blob_to_utf8_no_bom(&content, 0);
-    cgi_append_content(blob_buffer(&content), blob_size(&content));
-    @ </div>
+    @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
+    @   width="100%%" frameborder="0" marginwidth="0" marginheight="0" 
+    @   sandbox="allow-same-origin" 
+    @   onload="this.height = this.contentDocument.documentElement.scrollHeight;">
+    @ </iframe>
   }else{
     style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
     zMime = mimetype_from_content(&content);
