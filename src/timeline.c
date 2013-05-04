@@ -1352,7 +1352,9 @@ void page_timeline(void){
     db_multi_exec("%s", blob_str(&sql));
 
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
-    if( zAfter==0 && zBefore==0 && zCirca==0 ){
+    if( zYearMonth ){
+      blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
+    }else if( zAfter==0 && zBefore==0 && zCirca==0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
       blob_appendf(&desc, "%d %ss", n, zEType);
@@ -1835,18 +1837,15 @@ void test_timewarp_page(void){
 void activity_page(){
   Stmt query = empty_Stmt;
   int const nPixelsPerCommit = 2;
-  int const nTimelineCount = 200;
   int nRowNumber = 0;
   int nCommitCount = 0;
   style_header("Repository Activity");
-
   db_prepare(&query,
               "SELECT substr(date(mtime),1,7) AS Month, "
               "count(*) AS Commits FROM event "
               "WHERE type='ci' "
               "GROUP BY Month "
               "ORDER BY Month DESC", -1);
-
   @ <h1>Commits by Month</h1>
   @ <table class='activity-table-commits-by-month' border='0' cellpadding='2' cellspacing='0'>
   @ <thead>
@@ -1858,13 +1857,12 @@ void activity_page(){
     char const * zMonth = db_column_text(&query, 0);
     int const nCount = db_column_int(&query, 1);
     int const nSize = nPixelsPerCommit * nCount;
-    char rowClass = ++nRowNumber % 2;
+    char const rowClass = ++nRowNumber % 2;
+    int const nTimelineCount =
+      db_int(200, "SELECT COUNT(*) FROM event WHERE "
+             "substr(date(mtime),1,7)=%Q",
+             zMonth);
     nCommitCount += nCount;
-    /**
-     * Potential improvement: set nCount to exactly the number of
-     * events for the month. Keep in mind that this query only counts
-     * 'ci' events but we link to the timeline for all event types.
-     */
     @<tr class='row%d(rowClass)'>
     @ <td>
     @ <a href="%s(g.zTop)/timeline?ym=%s(zMonth)&n=%d(nTimelineCount)" target="_new">%s(zMonth)</a>
@@ -1876,5 +1874,6 @@ void activity_page(){
   }
   @ </tbody></table>
   @ Total commits: %d(nCommitCount)
+  db_finalize(&query);
   style_footer();
 }
