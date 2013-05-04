@@ -1858,8 +1858,13 @@ void activity_page(){
     char const * zMonth = db_column_text(&query, 0);
     int const nCount = db_column_int(&query, 1);
     int const nSize = nPixelsPerCommit * nCount;
-    nCommitCount += nCount;
     char rowClass = ++nRowNumber % 2;
+    nCommitCount += nCount;
+    /**
+     * Potential improvement: set nCount to exactly the number of
+     * events for the month. Keep in mind that this query only counts
+     * 'ci' events but we link to the timeline for all event types.
+     */
     @<tr class='row%d(rowClass)'>
     @ <td>
     @ <a href="%s(g.zTop)/timeline?ym=%s(zMonth)&n=%d(nTimelineCount)" target="_new">%s(zMonth)</a>
