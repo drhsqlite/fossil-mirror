@@ -1008,6 +1008,7 @@ char *names_of_file(const char *zUuid){
 **    brbg           Background color from branch name
 **    ubg            Background color from user
 **    namechng       Show only checkins that filename changes
+**    ym=YYYY-MM     Shown only events for the given year/month.
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -1034,6 +1035,7 @@ void page_timeline(void){
   const char *zBrName = P("r");      /* Show events related to this tag */
   const char *zSearch = P("s");      /* Search string */
   const char *zUses = P("uf");       /* Only show checkins hold this file */
+  const char *zYearMonth = P("ym");  /* Show checkins for the given YYYY-MM */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only checkins that rename files */
   int tagid;                         /* Tag ID */
@@ -1215,6 +1217,10 @@ void page_timeline(void){
     }
     if( renameOnly ){
       blob_appendf(&sql, " AND event.objid IN rnfile ");
+    }
+    if( zYearMonth ){
+      blob_appendf(&sql, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
+                   zYearMonth);
     }
     if( tagid>0 ){
       blob_appendf(&sql,
