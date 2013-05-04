@@ -1826,3 +1826,50 @@ void test_timewarp_page(void){
   db_finalize(&q);
   style_footer();
 }
+
+/*
+** WEBPAGE: activity
+**
+** Shows an activity report for the repository.
+*/
+void activity_page(){
+  Stmt query = empty_Stmt;
+  int const nPixelsPerCommit = 2;
+  int const nTimelineCount = 200;
+  int nRowNumber = 0;
+  int nCommitCount = 0;
+  style_header("Repository Activity");
+
+  db_prepare(&query,
+              "SELECT substr(date(mtime),1,7) AS Month, "
+              "count(*) AS Commits FROM event "
+              "WHERE type='ci' "
+              "GROUP BY Month "
+              "ORDER BY Month DESC", -1);
+
+  @ <h1>Commits by Month</h1>
+  @ <table class='activity-table-commits-by-month' border='0' cellpadding='2' cellspacing='0'>
+  @ <thead>
+  @ <th>Year/Month</th>
+  @ <th>Commits</th>
+  @ <th><!-- relative commits graph --></th>
+  @ </thead><tbody>
+  while( SQLITE_ROW == db_step(&query) ){
+    char const * zMonth = db_column_text(&query, 0);
+    int const nCount = db_column_int(&query, 1);
+    int const nSize = nPixelsPerCommit * nCount;
+    nCommitCount += nCount;
+    char rowClass = ++nRowNumber % 2;
+    @<tr class='row%d(rowClass)'>
+    @ <td>
+    @ <a href="%s(g.zTop)/timeline?ym=%s(zMonth)&n=%d(nTimelineCount)" target="_new">%s(zMonth)</a>
+    @ </td><td>%d(nCount)</td>
+    @ <td>
+    @ <div class='activity-graph-line' style='height:16px; width:%d(nSize)px;'>
+    @ </div></td>
+    @</tr>
+  }
+  @ </tbody></table>
+  @ Total commits: %d(nCommitCount)
+  style_footer();
+}

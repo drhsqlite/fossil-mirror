@@ -1,5 +1,5 @@
-C Added\sym=YYYY-MM\sparameter\sfor\sthe\s/timeline\spage\sto\srestrict\sthe\slist\sto\sthe\sgiven\syear\sand\smonth.\sThis\sis\sin\spreparation\sfor\sa\s'repo\sactivity\ssummary'\sview/report\swhich\sincludes\slinks\sback\sto\sspecific\syears/months.
-D 2013-05-04T19:40:07.486
+C Added\sinitial\sversion\sof\s/activity\spage,\sintended\sto\sshow\s"activity\sreports."\sCurrently\sshows\scommit\scount\sby\smonth.
+D 2013-05-04T20:39:31.087
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -385,7 +385,7 @@ F src/sqlite3.c 22f48c0dbe6f3ea0a22d7f124f3021148db0c8da
 F src/sqlite3.h 99796761f464fed9fbf1431844d6a6af9b83e85b
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 9bb2418c3fe03786a62f747a993fb575a5e20f42
-F src/style.c 04f142dc7d20eb2d9383e7be0359c4c01df81334
+F src/style.c 297f4126d6bc1888268a253807a862c148687546
 F src/sync.c f8b3aad3185b0ad034b60fc33523b54f327bb86d
 F src/tag.c b0359c168de125f622f0d523b2215f1d85efecf6
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -394,7 +394,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c 6d19a8a13f5a7563c2cfb6035687612418bfb6b5
 F src/th_main.c 6cfc95f77d6f207b4bd28c76409cc51b91ffa31b
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
-F src/timeline.c 44cb38ac0e728beb72f285add489f19dcc485a4d
+F src/timeline.c 88d0555299baf416989cea8203cddc583dde511b
 F src/tkt.c 41f2bd5a1c57301bc8d2a4a48cc1551875fd635e
 F src/tktsetup.c e736285953cc223d6f30a5c540627913aa75f884
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 63443f920b06653a6f0ae9ad97d419d52187a5d3
-R 6d085d7c99b2f4db1f972341a6f70c00
+P c5ea75133aa6f26928146b9645a71db3db91842b
+R 88861f17a7025508b6355fd1400758c3
 U stephan
-Z e2d88cf18217f2f32cebd573c1888234
+Z f50b1fd4f2841500de389c8465bc418c

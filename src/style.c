@@ -614,6 +614,24 @@ const char zDefaultCSS[] =
 @   text-align: right;
 @   padding: 0.2ex 2ex;
 @ }
+@
+@ /* .activity-* are for the /activity views */
+@ .activity-graph-line {
+@   background-color: #446979;
+@ }
+@ .activity-table-commits-by-month th {
+@   padding: 0 1em 0 1em;
+@ }
+@ .activity-table-commits-by-month td {
+@   padding: 0.1em 1em 0.1em 1em;
+@ }
+@ /* row0 and row1 are for alternating table row colors */
+@ tr.row0 {
+@  background: #fff;
+@ }
+@ tr.row1 {
+@   background-color: #dadada;
+@ }
 ;
 
 
