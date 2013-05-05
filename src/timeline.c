@@ -1838,8 +1838,8 @@ void test_timewarp_page(void){
 ** then the report is restricted to events created by the named user
 ** account.
 */
-static void stats_report_bymonthyear(char includeMonth,
-                                     char const * zUserName){
+static void stats_report_by_month_year(char includeMonth,
+                                       char const * zUserName){
   Stmt query = empty_Stmt;
   int const nPixelsPerEvent = 1;     /* for sizing the "graph" part */
   int nRowNumber = 0;                /* current TR number */
@@ -1944,6 +1944,58 @@ static void stats_report_bymonthyear(char includeMonth,
   db_finalize(&query);
 }
 
+void stats_report_by_user(){
+  Stmt query = empty_Stmt;
+  int const nPixelsPerEvent = 1;     /* for sizing the "graph" part */
+  int nRowNumber = 0;                /* current TR number */
+  int nEventTotal = 0;               /* Total event count */
+  int rowClass = 0;                  /* counter for alternating
+                                        row colors */
+  Blob sql = empty_blob;             /* SQL */
+  blob_append(&sql,
+               "SELECT user, "
+               "COUNT(*) AS eventCount "
+               "FROM event "
+               "GROUP BY user ORDER BY user",
+              -1);
+  db_prepare(&query, blob_str(&sql));
+  blob_reset(&sql);
+  @ <h1>Timeline Events by User</h1>
+  @ <table class='statistics-report-table-events' border='0' cellpadding='2' cellspacing='0'>
+  @ <thead>
+  @ <th>User</th>
+  @ <th>Events</th>
+  @ <th><!-- relative commits graph --></th>
+  @ </thead><tbody>
+  while( SQLITE_ROW == db_step(&query) ){
+    char const * zUser = db_column_text(&query, 0);
+    int const nCount = db_column_int(&query, 1);
+    int const nSize = 1+((nPixelsPerEvent * nCount) / 10);
+    if(!nCount) continue;
+    rowClass = ++nRowNumber % 2;
+    nEventTotal += nCount;
+    @<tr class='row%d(rowClass)'>
+    @ <td>
+    @ <a href="?view=byyear&user=%h(zUser)" target="_new">%s(zUser)</a>
+    @ </td><td>%d(nCount)</td>
+    @ <td>
+    @ <div class='statistics-report-graph-line' style='height:16px; width:%d(nSize)px;'>
+    @ </div></td>
+    @</tr>
+    /*
+      Potential improvement: calculate the min/max event counts and
+      use percent-based graph bars.
+    */
+  }
+
+  rowClass = ++nRowNumber % 2;
+  @ <tr class='row%d(rowClass)'>
+  @   <td colspan='3'>Total events: %d(nEventTotal)</td>
+  @ </tr>
+  @ </tbody></table>
+  db_finalize(&query);
+}
+
 /*
 ** WEBPAGE: stats_report
 **
@@ -1951,27 +2003,38 @@ static void stats_report_bymonthyear(char includeMonth,
 **
 ** Query Parameters:
 **
-**   view=REPORT_NAME  Valid values: bymonth, byyear
+**   view=REPORT_NAME  Valid values: bymonth, byyear, byuser
 **   user=NAME         Restricts statistics to the given user
 */
 void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
   char const * zView = PD("view","bymonth"); /* Which view/report to show. */
   char const *zUserName = P("user");
+  int whichReport = 0;
   url_initialize(&url, "stats_report");
+  /* We have to figure out which report to run before continuing so
+     that we can add (or not) the user= param to the buttons in a sane
+     manner.
+  */
   if(zUserName && *zUserName){
     url_add_parameter(&url,"user", zUserName);
   }
   timeline_submenu(&url, "By Year", "view", "byyear", 0);
   timeline_submenu(&url, "By Month", "view", "bymonth", 0);
+  timeline_submenu(&url, "By User", "view", "byuser", "user");
   url_reset(&url);
   style_header("Activity Reports");
-  if(0==fossil_strcmp(zView,"bymonth")){
-    stats_report_bymonthyear(1, zUserName);
-  }else if(0==fossil_strcmp(zView,"byyear")){
-    stats_report_bymonthyear(0, zUserName);
+  if(0==fossil_strcmp(zView,"byyear")){
+    stats_report_by_month_year(0, zUserName);
+  }else if(0==fossil_strcmp(zView,"bymonth")){
+    stats_report_by_month_year(1, zUserName);
   }else if(0==fossil_strcmp(zView,"byweek")){
     @ TODO: by-week report.
+  }else if(0==fossil_strcmp(zView,"byuser")){
+    stats_report_by_user();
+  }else{
+    @ TODO: show report select list.
   }
+
   style_footer();
 }
