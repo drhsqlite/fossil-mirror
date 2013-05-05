@@ -607,34 +607,6 @@ const char zDefaultCSS[] =
 @   padding: 0.5em;
 @   white-space: pre-wrap;
 @}
-@
-@ /* The label/value pairs on (for example) the ci page */
-@ table.label-value th {
-@   vertical-align: top;
-@   text-align: right;
-@   padding: 0.2ex 2ex;
-@ }
-@
-@ /* .statistics-report-* are for the /stats_report views */
-@ .statistics-report-graph-line {
-@   background-color: #446979;
-@ }
-@ .statistics-report-table-events th {
-@   padding: 0 1em 0 1em;
-@ }
-@ .statistics-report-table-events td {
-@   padding: 0.1em 1em 0.1em 1em;
-@ }
-@ .statistics-report-row-year {
-@   text-align: left;
-@ }
-@ /* row0 and row1 are for alternating table row colors */
-@ tr.row0 {
-@  background: #fff;
-@ }
-@ tr.row1 {
-@   background-color: #dadada;
-@ }
 ;
 
 
@@ -1041,6 +1013,36 @@ const struct strctCssDefaults {
     @   white-space: pre-wrap;
     @   word-wrap: break-word;
     @   color: red;
+  },
+  { "table.tale-value th",
+    "The label/value pairs on (for example) the ci page",
+    @   vertical-align: top;
+    @   text-align: right;
+    @   padding: 0.2ex 2ex;
+  },
+  { ".statistics-report-graph-line",
+    "for the /stats_report views",
+    @   background-color: #446979;
+  },
+  { ".statistics-report-table-events th"
+    "",
+    @   padding: 0 1em 0 1em;
+  },
+  { ".statistics-report-table-events td",
+    "",
+    @   padding: 0.1em 1em 0.1em 1em;
+  },
+  { ".statistics-report-row-year",
+    "",
+    @   text-align: left;
+  },
+  { "tr.row0",
+    "even table row color",
+    @ /* use default */
+  },
+  { "tr.row1",
+    "odd table row color",
+    @ /* Use default */
   },
   { 0,
     0,
