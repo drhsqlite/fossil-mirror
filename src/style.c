@@ -615,15 +615,18 @@ const char zDefaultCSS[] =
 @   padding: 0.2ex 2ex;
 @ }
 @
-@ /* .activity-* are for the /activity views */
-@ .activity-graph-line {
+@ /* .statistics-report-* are for the /stats_report views */
+@ .statistics-report-graph-line {
 @   background-color: #446979;
 @ }
-@ .activity-table-commits-by-month th {
+@ .statistics-report-table-events th {
 @   padding: 0 1em 0 1em;
 @ }
-@ .activity-table-commits-by-month td {
+@ .statistics-report-table-events td {
 @   padding: 0.1em 1em 0.1em 1em;
+@ }
+@ .statistics-report-row-year {
+@   text-align: left;
 @ }
 @ /* row0 and row1 are for alternating table row colors */
 @ tr.row0 {

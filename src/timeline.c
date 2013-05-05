@@ -1829,50 +1829,149 @@ void test_timewarp_page(void){
   style_footer();
 }
 
+
+
 /*
-** WEBPAGE: activity
-**
-** Shows an activity report for the repository.
+** Implements the "byyear" and "bymonth" reports for /stats_report.
+** If includeMonth is true then it generates the "bymonth" report,
+** else the "byyear" report. If zUserName is not NULL and not empty
+** then the report is restricted to events created by the named user
+** account.
 */
-void activity_page(){
+static void stats_report_bymonthyear(char includeMonth,
+                                     char const * zUserName){
   Stmt query = empty_Stmt;
-  int const nPixelsPerEvent = 1;
-  int nRowNumber = 0;
-  int nCommitCount = 0;
-  int rowClass = 0;
-  style_header("Repository Activity");
-  db_prepare(&query,
-              "SELECT substr(date(mtime),1,7) AS Month, "
-              "count(*) AS Commits FROM event "
-              "GROUP BY Month "
-              "ORDER BY Month DESC", -1);
-  @ <h1>Timeline Events by Month</h1>
-  @ <table class='activity-table-commits-by-month' border='0' cellpadding='2' cellspacing='0'>
+  int const nPixelsPerEvent = 1;     /* for sizing the "graph" part */
+  int nRowNumber = 0;                /* current TR number */
+  int nEventTotal = 0;               /* Total event count */
+  int rowClass = 0;                  /* counter for alternating
+                                        row colors */
+  Blob sql = empty_blob;             /* SQL */
+  char const * zTimeLabel = includeMonth ? "Year/Month" : "Year";
+  char zPrevYear[5] = {0};           /* For keeping track of when
+                                        we change years while looping */
+  int nEventsPerYear = 0;            /* Total even count for the
+                                        current year */
+  char showYearTotal = 0;            /* Flag telling us when to show
+                                        the per-year event totals */
+  Blob header = empty_blob;          /* Page header text */
+  blob_appendf(&header, "Timeline Events by %s", zTimeLabel);
+  blob_appendf(&sql,
+               "SELECT substr(date(mtime),1,%d) AS timeframe, "
+               "count(*) AS eventCount "
+               "FROM event ",
+               includeMonth ? 7 : 4);
+  if(zUserName&&*zUserName){
+    blob_appendf(&sql, " WHERE user=%Q ", zUserName);
+    blob_appendf(&header," for user %q", zUserName);
+  }
+  blob_append(&sql,
+              " GROUP BY timeframe"
+              " ORDER BY timeframe DESC",
+              -1);
+  db_prepare(&query, blob_str(&sql));
+  blob_reset(&sql);
+  @ <h1>%b(&header)</h1>
+  @ <table class='statistics-report-table-events' border='0' cellpadding='2' cellspacing='0'>
   @ <thead>
-  @ <th>Year/Month</th>
+  @ <th>%s(zTimeLabel)</th>
   @ <th>Events</th>
   @ <th><!-- relative commits graph --></th>
   @ </thead><tbody>
+  blob_reset(&header);
   while( SQLITE_ROW == db_step(&query) ){
-    char const * zMonth = db_column_text(&query, 0);
+    char const * zTimeframe = db_column_text(&query, 0);
     int const nCount = db_column_int(&query, 1);
-    int const nSize = nPixelsPerEvent * nCount;
+    int const nSize = 1 + ((nPixelsPerEvent * nCount)
+                           / (includeMonth ? 1 : 10));
+    showYearTotal = 0;
+    if(includeMonth){
+      /* For Month/year view, add a separator for each distinct year. */
+      if(!*zPrevYear ||
+         (0!=fossil_strncmp(zPrevYear,zTimeframe,4))){
+        showYearTotal = *zPrevYear;
+        if(showYearTotal){
+          rowClass = ++nRowNumber % 2;
+          @ <tr class='row%d(rowClass)'>
+          @ <td></td>
+          @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
+          @</tr>    
+        }
+        nEventsPerYear = 0;
+        memcpy(zPrevYear,zTimeframe,4);
+        rowClass = ++nRowNumber % 2;
+        @ <tr class='row%d(rowClass)'>
+        @ <th colspan='3' class='statistics-report-row-year'>%s(zPrevYear)</th>
+        @ </tr>
+      }
+    }
     rowClass = ++nRowNumber % 2;
-    nCommitCount += nCount;
+    nEventTotal += nCount;
+    nEventsPerYear += nCount;
     @<tr class='row%d(rowClass)'>
     @ <td>
-    @ <a href="%s(g.zTop)/timeline?ym=%s(zMonth)&n=%d(nCount)" target="_new">%s(zMonth)</a>
+    if(includeMonth){
+      @ <a href="%s(g.zTop)/timeline?ym=%s(zTimeframe)&n=%d(nCount)" target="_new">%s(zTimeframe)</a>
+    }else {
+      @ %s(zTimeframe)
+    }
     @ </td><td>%d(nCount)</td>
     @ <td>
-    @ <div class='activity-graph-line' style='height:16px; width:%d(nSize)px;'>
+    @ <div class='statistics-report-graph-line' style='height:16px; width:%d(nSize)px;'>
     @ </div></td>
     @</tr>
+
+    /*
+      Potential improvement: calculate the min/max event counts and
+      use percent-based graph bars.
+    */
   }
+
+  if(includeMonth && !showYearTotal && *zPrevYear){
+    /* Add final year total separator. */
+    rowClass = ++nRowNumber % 2;
+    @ <tr class='row%d(rowClass)'>
+    @ <td></td>
+    @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
+    @</tr>    
+  }
+
   rowClass = ++nRowNumber % 2;
   @ <tr class='row%d(rowClass)'>
-  @   <td colspan='3'>Total events: %d(nCommitCount)</td>
+  @   <td colspan='3'>Total events: %d(nEventTotal)</td>
   @ </tr>
   @ </tbody></table>
   db_finalize(&query);
+}
+
+/*
+** WEBPAGE: stats_report
+**
+** Shows activity reports for the repository.
+**
+** Query Parameters:
+**
+**   view=REPORT_NAME  Valid values: bymonth, byyear
+**   user=NAME         Restricts statistics to the given user
+*/
+void stats_report_page(){
+  HQuery url;                        /* URL for various branch links */
+  char const * zView = PD("view","bymonth"); /* Which view/report to show. */
+  char const *zUserName = P("user");
+  url_initialize(&url, "stats_report");
+  if(zUserName && *zUserName){
+    url_add_parameter(&url,"user", zUserName);
+  }
+  timeline_submenu(&url, "By Year", "view", "byyear", 0);
+  timeline_submenu(&url, "By Month", "view", "bymonth", 0);
+  url_reset(&url);
+  style_header("Activity Reports");
+  if(0==fossil_strcmp(zView,"bymonth")){
+    stats_report_bymonthyear(1, zUserName);
+  }else if(0==fossil_strcmp(zView,"byyear")){
+    stats_report_bymonthyear(0, zUserName);
+  }else if(0==fossil_strcmp(zView,"byweek")){
+    @ TODO: by-week report.
+  }
   style_footer();
 }
