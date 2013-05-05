@@ -1939,12 +1939,17 @@ static void stats_report_by_month_year(char includeMonth,
     @</tr>    
   }
 
+#if 0
   rowClass = ++nRowNumber % 2;
   @ <tr class='row%d(rowClass)'>
   @   <td colspan='3'>Total events: %d(nEventTotal)</td>
   @ </tr>
+#endif
   @ </tbody></table>
   db_finalize(&query);
+  if( !includeMonth ){
+    output_table_sorting_javascript("statsTable","tnx");
+  }
 }
 
 void stats_report_by_user(){
@@ -1959,7 +1964,7 @@ void stats_report_by_user(){
                "SELECT user, "
                "COUNT(*) AS eventCount "
                "FROM event "
-               "GROUP BY user ORDER BY user",
+               "GROUP BY user ORDER BY user COLLATE nocase",
               -1);
   db_prepare(&query, blob_str(&sql));
   blob_reset(&sql);
@@ -1992,14 +1997,9 @@ void stats_report_by_user(){
       use percent-based graph bars.
     */
   }
-
-  rowClass = ++nRowNumber % 2;
-  @ <tr class='row%d(rowClass)'>
-  @   <td colspan='3'>Total events: %d(nEventTotal)</td>
-  @ </tr>
   @ </tbody></table>
   db_finalize(&query);
-  output_table_sorting_javascript("statsTable");
+  output_table_sorting_javascript("statsTable","tnx");
 }
 
 /*
