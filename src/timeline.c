@@ -1964,7 +1964,7 @@ void stats_report_by_user(){
                "SELECT user, "
                "COUNT(*) AS eventCount "
                "FROM event "
-               "GROUP BY user ORDER BY user COLLATE nocase",
+               "GROUP BY user ORDER BY eventCount DESC",
               -1);
   db_prepare(&query, blob_str(&sql));
   blob_reset(&sql);
