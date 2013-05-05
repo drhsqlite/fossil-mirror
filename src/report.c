@@ -926,7 +926,7 @@ int sqlite3_exec_readonly(
 **     http://www.webtoolkit.info/sortable-html-table.html
 **
 */
-static void output_table_sorting_javascript(const char *zTableId){
+void output_table_sorting_javascript(const char *zTableId){
   @ <script>
   @ function SortableTable(tableEl){
   @   this.tbody = tableEl.getElementsByTagName('tbody');

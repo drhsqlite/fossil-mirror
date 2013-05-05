@@ -1872,7 +1872,8 @@ static void stats_report_by_month_year(char includeMonth,
   db_prepare(&query, blob_str(&sql));
   blob_reset(&sql);
   @ <h1>%b(&header)</h1>
-  @ <table class='statistics-report-table-events' border='0' cellpadding='2' cellspacing='0'>
+  @ <table class='statistics-report-table-events' border='0' cellpadding='2'
+  @  cellspacing='0' id='statsTable'>
   @ <thead>
   @ <th>%s(zTimeLabel)</th>
   @ <th>Events</th>
@@ -1911,13 +1912,15 @@ static void stats_report_by_month_year(char includeMonth,
     @<tr class='row%d(rowClass)'>
     @ <td>
     if(includeMonth){
-      @ <a href="%s(g.zTop)/timeline?ym=%s(zTimeframe)&n=%d(nCount)" target="_new">%s(zTimeframe)</a>
+      @ <a href="%s(g.zTop)/timeline?ym=%s(zTimeframe)&n=%d(nCount)"
+      @  target="_new">%s(zTimeframe)</a>
     }else {
       @ %s(zTimeframe)
     }
     @ </td><td>%d(nCount)</td>
     @ <td>
-    @ <div class='statistics-report-graph-line' style='height:16px; width:%d(nSize)px;'>
+    @ <div class='statistics-report-graph-line'
+    @  style='height:16px;width:%d(nSize)px;'>
     @ </div></td>
     @</tr>
 
@@ -1961,12 +1964,13 @@ void stats_report_by_user(){
   db_prepare(&query, blob_str(&sql));
   blob_reset(&sql);
   @ <h1>Timeline Events by User</h1>
-  @ <table class='statistics-report-table-events' border='0' cellpadding='2' cellspacing='0'>
-  @ <thead>
+  @ <table class='statistics-report-table-events' border='0'
+  @ cellpadding='2' cellspacing='0' id='statsTable'>
+  @ <thead><tr>
   @ <th>User</th>
   @ <th>Events</th>
   @ <th><!-- relative commits graph --></th>
-  @ </thead><tbody>
+  @ </tr></thead><tbody>
   while( SQLITE_ROW == db_step(&query) ){
     char const * zUser = db_column_text(&query, 0);
     int const nCount = db_column_int(&query, 1);
@@ -1979,7 +1983,8 @@ void stats_report_by_user(){
     @ <a href="?view=byyear&user=%h(zUser)" target="_new">%s(zUser)</a>
     @ </td><td>%d(nCount)</td>
     @ <td>
-    @ <div class='statistics-report-graph-line' style='height:16px; width:%d(nSize)px;'>
+    @ <div class='statistics-report-graph-line'
+    @  style='height:16px;width:%d(nSize)px;'>
     @ </div></td>
     @</tr>
     /*
@@ -1994,6 +1999,7 @@ void stats_report_by_user(){
   @ </tr>
   @ </tbody></table>
   db_finalize(&query);
+  output_table_sorting_javascript("statsTable");
 }
 
 /*

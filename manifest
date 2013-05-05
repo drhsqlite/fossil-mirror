@@ -1,5 +1,5 @@
-C Make\sthe\snew\sCSS\sfor\sthe\sstats_report\sappear\sat\sthe\send\sof\slegacy\sCSS\sthat\ndoes\snot\sdefine\sthe\ssame\selements.
-D 2013-05-05T19:42:13.079
+C Attempt\sto\smake\sthe\sstats_report?type=byuser\stabls\ssortable\sby\sclicking\s\non\sthe\scolumn\slabels.\s\sOnly\sworks\sfor\sthe\s"User"\scolumn.\s\sFurther\sdebugging\nneeded.
+D 2013-05-05T20:05:48.861
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -371,7 +371,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c dfb60656855b282ac3e99ce494ef124ca05dd9cd
 F src/rebuild.c 01cd0cd7b2baee0ec438968994da3dfeead6c8a0
 F src/regexp.c 056d7e54c5a85247ee9d003ede339b07ae049a5f
-F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
+F src/report.c 6f07c0662cb8de4ec5948bc6e8d1ed6fdb582fcb
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c 0dd4e1b210e27b73997f653225ac095182ddfb38
 F src/search.c fe3c94ac8caed5d0e7ffe4e39240f7be00d97d0d
@@ -394,7 +394,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c 6d19a8a13f5a7563c2cfb6035687612418bfb6b5
 F src/th_main.c 6cfc95f77d6f207b4bd28c76409cc51b91ffa31b
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
-F src/timeline.c 49c365e7a359cb6f4fc92945e4b659148aa502c7
+F src/timeline.c 6fac9bdd7e06384f1833ae05342a48b16ed69e40
 F src/tkt.c 41f2bd5a1c57301bc8d2a4a48cc1551875fd635e
 F src/tktsetup.c e736285953cc223d6f30a5c540627913aa75f884
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0bdc61b4df86957e61518fd2e1df7512b8550582
-R c1980e34fbdbaa678d778de4b6068336
+P 21454dda94ea795113d8f5551742b2f07e0d60d3
+R 9af30e44cf75d364868d39f461281fb5
 U drh
-Z 7649d8b4c60debf03a4366a06a1819c1
+Z ae29977966214b9b819b3cd451abf2ad
