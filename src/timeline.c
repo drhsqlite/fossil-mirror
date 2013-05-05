@@ -2008,9 +2008,8 @@ void stats_report_by_user(){
 */
 void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
-  char const * zView = PD("view","bymonth"); /* Which view/report to show. */
+  char const * zView = P("view");    /* Which view/report to show. */
   char const *zUserName = P("user");
-  int whichReport = 0;
   url_initialize(&url, "stats_report");
   /* We have to figure out which report to run before continuing so
      that we can add (or not) the user= param to the buttons in a sane
@@ -2033,7 +2032,12 @@ void stats_report_page(){
   }else if(0==fossil_strcmp(zView,"byuser")){
     stats_report_by_user();
   }else{
-    @ TODO: show report select list.
+    @ <h1>Select a report to show:</h1>
+    @ <ul>
+    @ <li><a href='?view=byyear'>Events by year</a></li>
+    @ <li><a href='?view=bymonth'>Events by month</a></li>
+    @ <li><a href='?view=byuser'>Events by user</a></li>
+    @ </ul>
   }
 
   style_footer();
