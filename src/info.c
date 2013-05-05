@@ -934,7 +934,7 @@ void vdiff_page(void){
   }
   if( sideBySide || !verboseFlag ) {
     style_submenu_element("Unified Diff", "udiff",
-                          "%R/vdiff?from=%T&to=%T%s&sbs=0&v=1",
+                          "%R/vdiff?from=%T&to=%T&sbs=0&v=1",
                           zFrom, zTo);
   }
   style_submenu_element("Invert", "invert",
