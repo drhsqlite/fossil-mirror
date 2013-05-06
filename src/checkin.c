@@ -454,14 +454,15 @@ void clean_cmd(void){
   }
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
     if( dryRunFlag ){
       fossil_print("%s\n", db_column_text(&q,0));
       continue;
-    }else if( !allFlag && !glob_match(pIgnore, db_column_text(&q, 0)+n) ){
+    }else if( !allFlag && !glob_match(pIgnore, zName+n) ){
       Blob ans;
       char cReply;
       char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
-                              db_column_text(&q, 0));
+                              zName+n);
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
@@ -471,8 +472,8 @@ void clean_cmd(void){
         continue;
       }
     }
-    fossil_print("removed unmanaged file \"%s\"\n", db_column_text(&q,0));
-    file_delete(db_column_text(&q, 0));
+    fossil_print("removed unmanaged file \"%s\"\n", zName+n);
+    file_delete(zName);
   }
   glob_free(pIgnore);
   db_finalize(&q);
