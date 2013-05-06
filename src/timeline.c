@@ -2019,7 +2019,6 @@ void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
   char const * zView = P("view");    /* Which view/report to show. */
   char const *zUserName = P("user");
-  char const * zRemoveUser = 0;
   url_initialize(&url, "stats_report");
 
   if(zUserName && *zUserName){
