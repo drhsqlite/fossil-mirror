@@ -392,7 +392,7 @@ static void append_file_change_line(
       @ </pre>
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
-      @ %z(href("%R/fdiff?v1=%S&v2=%S",zOld,zNew))[diff]</a>
+      @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zOld,zNew))[diff]</a>
     }
     @ </p>
   }
@@ -923,7 +923,7 @@ void vdiff_page(void){
   if( !zVerbose ){
     zVerbose = P("detail"); /* deprecated */
   }
-  verboseFlag = (zVerbose!=0) && (*zVerbose!=0) && !is_false(zVerbose);
+  verboseFlag = (zVerbose!=0) && !is_false(zVerbose);
   if( !verboseFlag && sideBySide ) verboseFlag = 1;
   zFrom = P("from");
   zTo = P("to");
@@ -934,12 +934,12 @@ void vdiff_page(void){
   }
   if( sideBySide || !verboseFlag ) {
     style_submenu_element("Unified Diff", "udiff",
-                          "%R/vdiff?from=%T&to=%T&sbs=0&v=1",
+                          "%R/vdiff?from=%T&to=%T&sbs=0&v",
                           zFrom, zTo);
   }
   style_submenu_element("Invert", "invert",
                         "%R/vdiff?from=%T&to=%T&sbs=%d%s", zTo, zFrom,
-                        sideBySide, (verboseFlag && !sideBySide)?"&v=1":"");
+                        sideBySide, (verboseFlag && !sideBySide)?"&v":"");
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
   checkin_description(ridFrom);

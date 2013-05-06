@@ -513,7 +513,7 @@ void www_print_timeline(
           }else{
             @ <li> %h(zFilename) &nbsp;
           }
-          @ %z(xhref("target='diffwindow'","%R/fdiff?v1=%S&v2=%S",zOld,zNew))
+          @ %z(xhref("target='diffwindow'","%R/fdiff?v1=%S&v2=%S&sbs=1",zOld,zNew))
           @ [diff]</a></li>
         }
       }
@@ -817,9 +817,9 @@ void timeline_output_graph_javascript(
     @     selRow = null;
     @   }else{
     if( fileDiff ){
-      @     location.href="%R/fdiff?v1="+selRow.h+"&v2="+p.h;
+      @     location.href="%R/fdiff?v1="+selRow.h+"&v2="+p.h+"&sbs=1";
     }else{
-      @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h;
+      @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=1";
     }
     @   }
     @ }
