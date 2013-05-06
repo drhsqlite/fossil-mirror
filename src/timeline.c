@@ -2016,13 +2016,12 @@ void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
   char const * zView = P("view");    /* Which view/report to show. */
   char const *zUserName = P("user");
+  char const * zRemoveUser = 0;
   url_initialize(&url, "stats_report");
-  /* We have to figure out which report to run before continuing so
-     that we can add (or not) the user= param to the buttons in a sane
-     manner.
-  */
+
   if(zUserName && *zUserName){
     url_add_parameter(&url,"user", zUserName);
+    timeline_submenu(&url, "(Remove User Flag)", "view", zView, "user");
   }
   timeline_submenu(&url, "By Year", "view", "byyear", 0);
   timeline_submenu(&url, "By Month", "view", "bymonth", 0);
