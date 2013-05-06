@@ -382,24 +382,27 @@ void extra_cmd(void){
 ** files that are not officially part of the checkout. This operation
 ** cannot be undone.
 **
-** You will be prompted before removing each file. If you are
-** sure you wish to remove all "extra" files you can specify the
-** optional --force flag and no prompts will be issued.
+** You will be prompted before removing each file, except for files
+** matching the patterns specified with --ignore and --keep.  The GLOBPATTERN
+** specified by the "ignore-glob" setting is used if the --ignore
+** option is omitted, the same with "keep-glob" and --keep.  If you are
+** sure you wish to remove all "extra" files except the ones specified
+** with --keep, you can specify the optional -f|--force flag and no prompts
+** will be issued. If any file matches both --keep and --ignore, --keep
+** takes precedence.
 **
 ** Files and subdirectories whose names begin with "." are
-** normally ignored.  They are included if the "--dotfiles" option
+** normally kept.  They are handled if the "--dotfiles" option
 ** is used.
-**
-** The GLOBPATTERN is a comma-separated list of GLOB expressions for
-** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
-** is used if the --ignore option is omitted.
 **
 ** Options:
 **    --case-sensitive <BOOL> override case-sensitive setting
 **    --dotfiles       include files beginning with a dot (".")
 **    -f|--force       Remove files without prompting
-**    --ignore <CSG>   ignore files matching patterns from the
+**    --ignore <CSG>   don't prompt for files matching this
 **                     comma separated list of glob patterns.
+**    --keep <CSG>     keep files matching this comma separated
+**                     list of glob patterns.
 **    -n|--dry-run     If given, display instead of run actions
 **    --temp           Remove only Fossil-generated temporary files
 **
@@ -408,11 +411,11 @@ void extra_cmd(void){
 void clean_cmd(void){
   int allFlag;
   unsigned scanFlags = 0;
-  const char *zIgnoreFlag;
+  const char *zIgnoreFlag, *zKeepFlag;
   Blob path, repo;
   Stmt q;
   int n;
-  Glob *pIgnore;
+  Glob *pIgnore, *pKeep;
   int dryRunFlag = 0;
 
   allFlag = find_option("force","f",0)!=0;
@@ -423,18 +426,23 @@ void clean_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
+  zKeepFlag = find_option("keep",0,1);
   capture_case_sensitive_option();
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
+  }
+  if( zKeepFlag==0 ){
+    zKeepFlag = db_get("keep-glob", 0);
   }
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
-  glob_free(pIgnore);
+  pKeep = glob_create(zKeepFlag);
+  vfile_scan(&path, blob_size(&path), scanFlags, pKeep);
+  glob_free(pKeep);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
@@ -449,7 +457,7 @@ void clean_cmd(void){
     if( dryRunFlag ){
       fossil_print("%s\n", db_column_text(&q,0));
       continue;
-    }else if( !allFlag ){
+    }else if( !allFlag && !glob_match(pIgnore, db_column_text(&q, 0)+n) ){
       Blob ans;
       char cReply;
       char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
@@ -463,8 +471,10 @@ void clean_cmd(void){
         continue;
       }
     }
+    fossil_print("removed unmanaged file \"%s\"\n", db_column_text(&q,0));
     file_delete(db_column_text(&q, 0));
   }
+  glob_free(pIgnore);
   db_finalize(&q);
 }
 
