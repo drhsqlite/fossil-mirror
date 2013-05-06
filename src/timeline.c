@@ -1952,7 +1952,10 @@ static void stats_report_by_month_year(char includeMonth,
   }
 }
 
-void stats_report_by_user(){
+/*
+** Implements the "byuser" view for /stats_report.
+*/
+static void stats_report_by_user(){
   Stmt query = empty_Stmt;
   int const nPixelsPerEvent = 1;     /* for sizing the "graph" part */
   int nRowNumber = 0;                /* current TR number */
@@ -1980,12 +1983,12 @@ void stats_report_by_user(){
     char const * zUser = db_column_text(&query, 0);
     int const nCount = db_column_int(&query, 1);
     int const nSize = 1+((nPixelsPerEvent * nCount) / 10);
-    if(!nCount) continue;
+    if(!nCount) continue /* arguable! */;
     rowClass = ++nRowNumber % 2;
     nEventTotal += nCount;
     @<tr class='row%d(rowClass)'>
     @ <td>
-    @ <a href="?view=byyear&user=%h(zUser)" target="_new">%s(zUser)</a>
+    @ <a href="?view=byyear&user=%h(zUser)" target="_new">%h(zUser)</a>
     @ </td><td>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
