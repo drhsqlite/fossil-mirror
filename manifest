@@ -1,5 +1,5 @@
-C removed\san\sunused\svariable.
-D 2013-05-06T20:51:00.660
+C Move\scheck\sfor\sg.localOpen\sinside\sdb_get_do_versionable(),\sbecause\sall\scallers\swill\sneed\sthis.\s\nAdd\s"disabled"\sparameter\sto\sonoff_attribute(),\sentry_attribute()\sand\stextarea_attribute().
+D 2013-05-07T07:52:01.792
 F .fossil-settings/ignore-glob 0725829b6760fba0092763557c70bee27763538b
 F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -312,7 +312,7 @@ F src/configure.c 1dd742314cdef5d91e168301066cfdc6694732a5
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 5cb9365b7d6c5aba118776662123b69cbaac7959
 F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
-F src/db.c 5d97942304859d59074e7bbee11667f9d44c1fba
+F src/db.c d3b482f34b09ad4b6c9487087d19333498133690
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
@@ -377,7 +377,7 @@ F src/report.c 23c9e4a0828b013d723724613de1c8b76333f030
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c 0dd4e1b210e27b73997f653225ac095182ddfb38
 F src/search.c fe3c94ac8caed5d0e7ffe4e39240f7be00d97d0d
-F src/setup.c 92a0497d219bec5755c95fb9fc6e1ee96ba83360
+F src/setup.c 7a187b1c9570d1683ad1619fb401aad7a3840dc9
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
 F src/shell.c ad153be32a0fa9e63f20b6d00f4597c4d8b1cd2b
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
@@ -398,7 +398,7 @@ F src/th_main.c 6cfc95f77d6f207b4bd28c76409cc51b91ffa31b
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
 F src/timeline.c 96402f0746b5d7b45b38b8ef0341174307b6a4c4
 F src/tkt.c 41f2bd5a1c57301bc8d2a4a48cc1551875fd635e
-F src/tktsetup.c e736285953cc223d6f30a5c540627913aa75f884
+F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 02092a24d2a0704eeb5a548ce6c070d4392175f9
@@ -612,7 +612,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 71d37569777b526a2c4567d279484fe5f0971061
-R 885875acb792e5a01503c50a54928f49
-U stephan
-Z eddd6536dcc4dd38d19f65583c14ef1e
+P cfe346f7293ec50305e60e6d284514d51bfa3967
+R 72650156c27fe2e28d35ff1ae4641745
+U jan.nijtmans
+Z 6df1a790a90472e498f3051278f93567

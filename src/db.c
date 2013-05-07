@@ -1692,6 +1692,7 @@ static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting
   } *cacheEntry = 0;
   static struct _cacheEntry *cache = 0;
 
+  if( !g.localOpen) return zNonVersionedSetting;
   /* Look up name in cache */
   cacheEntry = cache;
   while( cacheEntry!=0 ){
@@ -1777,7 +1778,7 @@ char *db_get(const char *zName, char *zDefault){
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
   }
-  if( ctrlSetting!=0 && ctrlSetting->versionable && g.localOpen ){
+  if( ctrlSetting!=0 && ctrlSetting->versionable ){
     /* This is a versionable setting, try and get the info from a
     ** checked out file */
     z = db_get_do_versionable(zName, z);
