@@ -1211,8 +1211,9 @@ void setup_settings(void){
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
     if( pSet->width==0 ){
+      int hasVersionableValue = pSet->versionable &&
+          (db_get_do_versionable(pSet->name, NULL)!=0);
       onoff_attribute(pSet->name, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       is_truth(pSet->def), hasVersionableValue);
