@@ -382,14 +382,15 @@ void extra_cmd(void){
 ** files that are not officially part of the checkout. This operation
 ** cannot be undone.
 **
-** You will be prompted before removing each file, except for files
-** matching the patterns specified with --ignore and --keep.  The GLOBPATTERN
-** specified by the "ignore-glob" setting is used if the --ignore
-** option is omitted, the same with "keep-glob" and --keep.  If you are
-** sure you wish to remove all "extra" files except the ones specified
-** with --keep, you can specify the optional -f|--force flag and no prompts
-** will be issued. If any file matches both --keep and --ignore, --keep
-** takes precedence.
+** You will be prompted before removing each eligible file unless the
+** --force flag is in use or it matches the --clean option.  The
+** GLOBPATTERN specified by the "ignore-glob" setting is used if the
+** --ignore option is omitted, the same with "clean-glob" and --clean
+** as well as "keep-glob" and --keep.  If you are sure you wish to
+** remove all "extra" files except the ones specified with --ignore
+** and --keep, you can specify the optional -f|--force flag and no
+** prompts will be issued.  If a file matches both --keep and --clean,
+** --keep takes precedence.
 **
 ** Files and subdirectories whose names begin with "." are
 ** normally kept.  They are handled if the "--dotfiles" option
@@ -399,7 +400,9 @@ void extra_cmd(void){
 **    --case-sensitive <BOOL> override case-sensitive setting
 **    --dotfiles       include files beginning with a dot (".")
 **    -f|--force       Remove files without prompting
-**    --ignore <CSG>   don't prompt for files matching this
+**    --clean <CSG>    never prompt for files matching this
+**                     comma separated list of glob patterns.
+**    --ignore <CSG>   ignore files matching patterns from the
 **                     comma separated list of glob patterns.
 **    --keep <CSG>     keep files matching this comma separated
 **                     list of glob patterns.
@@ -411,11 +414,11 @@ void extra_cmd(void){
 void clean_cmd(void){
   int allFlag;
   unsigned scanFlags = 0;
-  const char *zIgnoreFlag, *zKeepFlag;
+  const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Blob path, repo;
   Stmt q;
   int n;
-  Glob *pIgnore, *pKeep;
+  Glob *pIgnore, *pKeep, *pClean;
   int dryRunFlag = 0;
 
   allFlag = find_option("force","f",0)!=0;
@@ -427,6 +430,7 @@ void clean_cmd(void){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
   zKeepFlag = find_option("keep",0,1);
+  zCleanFlag = find_option("clean",0,1);
   capture_case_sensitive_option();
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
@@ -435,12 +439,16 @@ void clean_cmd(void){
   if( zKeepFlag==0 ){
     zKeepFlag = db_get("keep-glob", 0);
   }
+  if( zCleanFlag==0 ){
+    zCleanFlag = db_get("clean-glob", 0);
+  }
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
+  pClean = glob_create(zCleanFlag);
   vfile_scan(&path, blob_size(&path), scanFlags, pKeep);
   glob_free(pKeep);
   db_prepare(&q,
@@ -455,14 +463,12 @@ void clean_cmd(void){
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    if( dryRunFlag ){
-      fossil_print("%s\n", db_column_text(&q,0));
-      continue;
-    }else if( !allFlag && !glob_match(pIgnore, zName+n) ){
+    if( glob_match(pIgnore, zName+n) ) continue;
+    if( !allFlag && !glob_match(pClean, zName+n) ){
       Blob ans;
       char cReply;
       char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
-                              zName+n);
+                             zName+n);
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
@@ -473,8 +479,11 @@ void clean_cmd(void){
       }
     }
     fossil_print("removed unmanaged file \"%s\"\n", zName+n);
-    file_delete(zName);
+    if( !dryRunFlag ){
+      file_delete(zName);
+    }
   }
+  glob_free(pClean);
   glob_free(pIgnore);
   db_finalize(&q);
 }

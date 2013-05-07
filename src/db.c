@@ -2099,6 +2099,7 @@ struct stControlSettings const ctrlSettings[] = {
 #else
   { "case-sensitive",0,                0, 0, "on"                  },
 #endif
+  { "clean-glob",    0,               40, 1, ""                    },
   { "crnl-glob",     0,               40, 1, ""                    },
   { "default-perms", 0,               16, 0, "u"                   },
   { "diff-binary",   0,                0, 0, "on"                  },
@@ -2190,6 +2191,11 @@ struct stControlSettings const ctrlSettings[] = {
 **                     differ only in case are the same file.  Defaults to
 **                     TRUE for unix and FALSE for Cygwin, Mac and Windows.
 **
+**    clean-glob       The VALUE is a comma or newline-separated list of GLOB
+**     (versionable)   patterns specifying files that the "clean" command will
+**                     delete without prompting even when the -force flag has
+**                     not been used.  Example:  *.a *.lib *.o
+**
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
 **                     be unsigned.  Default: off
@@ -2241,8 +2247,8 @@ struct stControlSettings const ctrlSettings[] = {
 **                     even if the login page request came via HTTP.
 **
 **    ignore-glob      The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "extra" command will
-**                     ignore.  Example:  *.o,*.obj,*.exe
+**     (versionable)   patterns specifying files that the "clean" and "extra"
+**                     commands will ignore.  Example:  *.o,*.obj,*.exe
 **
 **    keep-glob        The VALUE is a comma or newline-separated list of GLOB
 **     (versionable)   patterns specifying files that the "clean" command will
