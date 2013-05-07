@@ -1683,7 +1683,7 @@ void db_swap_connections(void){
 ** Returns the non-versioned value without modification if there is no
 ** versioned value.
 */
-static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
+char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
   char *zVersionedSetting = 0;
   int noWarn = 0;
   struct _cacheEntry {

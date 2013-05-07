@@ -775,7 +775,7 @@ static void onoff_attribute(
 ){
   const char *zQ = P(zQParm);
   int iVal = db_get_boolean(zVar, dfltVal);
-  if( zQ==0 && P("submit") ){
+  if( zQ==0 && !disabled && P("submit") ){
     zQ = "off";
   }
   if( zQ ){
@@ -835,7 +835,7 @@ static void textarea_attribute(
 ){
   const char *z = db_get(zVar, (char*)zDflt);
   const char *zQ = P(zQP);
-  if( zQ && fossil_strcmp(zQ,z)!=0 ){
+  if( zQ && !disabled && fossil_strcmp(zQ,z)!=0){
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
     z = zQ;
@@ -1211,10 +1211,11 @@ void setup_settings(void){
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
+    int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
     if( pSet->width==0 ){
       onoff_attribute(pSet->name, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
-                      is_truth(pSet->def), 0);
+                      is_truth(pSet->def), hasVersionableValue);
       if( pSet->versionable ){
         @  (v)<br />
       } else {
@@ -1233,11 +1234,12 @@ void setup_settings(void){
   }
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
+    int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
     if( pSet->width!=0 && pSet->versionable){
       @<b>%s(pSet->name)</b> (v)<br />
       textarea_attribute("", /*rows*/ 3, /*cols*/ 20, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
-                      (char*)pSet->def, 0);
+                      (char*)pSet->def, hasVersionableValue);
       @<br />
     }
   }
@@ -1245,8 +1247,9 @@ void setup_settings(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   @ <p>Settings marked with (v) are 'versionable' and will be overridden
-  @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.</p>
-  @ <hr /><p>
+  @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.
+  @ If such a file is present, the corresponding field above is not
+  @ editable.</p><hr /><p>
   @ These settings work in the same way, as the <kbd>set</kbd>
   @ commandline:<br />
   @ </p><pre>%s(zHelp_setting_cmd)</pre>
