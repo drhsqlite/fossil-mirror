@@ -2247,8 +2247,9 @@ struct stControlSettings const ctrlSettings[] = {
 **                     even if the login page request came via HTTP.
 **
 **    ignore-glob      The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "clean" and "extra"
-**                     commands will ignore.  Example:  *.o,*.obj,*.exe
+**     (versionable)   patterns specifying files that the "add", "addremove",
+**                     "clean", and "extra" commands will ignore.
+**                     Example:  customCode.c notes.txt
 **
 **    keep-glob        The VALUE is a comma or newline-separated list of GLOB
 **     (versionable)   patterns specifying files that the "clean" command will
