@@ -1913,6 +1913,9 @@ static void stats_report_by_month_year(char includeMonth,
     @ <td>
     if(includeMonth){
       @ <a href="%s(g.zTop)/timeline?ym=%s(zTimeframe)&n=%d(nCount)"
+      /* Reminder: n=nCount is not actually correct for bymonth unless
+         that was the only user who caused events.
+      */
       @  target="_new">%s(zTimeframe)</a>
     }else {
       @ %s(zTimeframe)
