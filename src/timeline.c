@@ -1855,7 +1855,9 @@ static void stats_report_by_month_year(char includeMonth,
   char showYearTotal = 0;            /* Flag telling us when to show
                                         the per-year event totals */
   Blob header = empty_blob;          /* Page header text */
-  blob_appendf(&header, "Timeline Events by %s", zTimeLabel);
+
+  blob_appendf(&header, "Timeline Events by year%s",
+               (includeMonth ? "/month" : ""));
   blob_appendf(&sql,
                "SELECT substr(date(mtime),1,%d) AS timeframe, "
                "count(*) AS eventCount "
@@ -1912,11 +1914,16 @@ static void stats_report_by_month_year(char includeMonth,
     @<tr class='row%d(rowClass)'>
     @ <td>
     if(includeMonth){
-      @ <a href="%s(g.zTop)/timeline?ym=%s(zTimeframe)&n=%d(nCount)"
+      cgi_printf("<a href='%s/timeline?"
+                 "ym=%t&n=%d",
+                 g.zTop, zTimeframe, nCount );
       /* Reminder: n=nCount is not actually correct for bymonth unless
          that was the only user who caused events.
       */
-      @  target="_new">%s(zTimeframe)</a>
+      if( zUserName && *zUserName ){
+        cgi_printf("&u=%t", zUserName);
+      }
+      cgi_printf("' target='_new'>%s</a>",zTimeframe);
     }else {
       @ %s(zTimeframe)
     }
@@ -1941,7 +1948,6 @@ static void stats_report_by_month_year(char includeMonth,
     @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
     @</tr>    
   }
-
 #if 0
   rowClass = ++nRowNumber % 2;
   @ <tr class='row%d(rowClass)'>
@@ -1991,7 +1997,7 @@ static void stats_report_by_user(){
     nEventTotal += nCount;
     @<tr class='row%d(rowClass)'>
     @ <td>
-    @ <a href="?view=byyear&user=%h(zUser)" target="_new">%h(zUser)</a>
+    @ <a href="?view=bymonth&user=%h(zUser)" target="_new">%h(zUser)</a>
     @ </td><td>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
