@@ -899,7 +899,7 @@ int Th_CallSubCommand(
     }
   }
   if(argc<2){
-    Th_ErrorMessage(interp, "Expected sub-command", 0, 0);
+    Th_ErrorMessage(interp, "Expected sub-command for", argv[0], argl[0]);
   }else{
     Th_ErrorMessage(interp, "Expected sub-command, got:", argv[1], argl[1]);
   }
