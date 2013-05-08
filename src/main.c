@@ -1674,10 +1674,7 @@ void cmd_http(void){
 ** Works like the http command but gives setup permission to all users.
 */
 void cmd_test_http(void){
-  g.thTrace = find_option("th-trace", 0, 0)!=0;
-  if( g.thTrace ){
-    blob_zero(&g.thLog);
-  }
+  Th_InitTraceLog();
   login_set_capabilities("sx", 0);
   g.useLocalauth = 1;
   cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
@@ -1783,11 +1780,8 @@ void cmd_webserver(void){
 #endif
 
   zFileGlob = find_option("files", 0, 1);
-  g.thTrace = find_option("th-trace", 0, 0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
-  if( g.thTrace ){
-    blob_zero(&g.thLog);
-  }
+  Th_InitTraceLog();
   zPort = find_option("port", "P", 1);
   zNotFound = find_option("notfound", 0, 1);
   zAltBase = find_option("baseurl", 0, 1);

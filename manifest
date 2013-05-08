@@ -1,5 +1,5 @@
-C Update\shelp\stext\sfor\sthe\signore-glob\ssetting.
-D 2013-05-07T23:33:32.911
+C Add\ssetting\sTH1\scommand,\swith\stests.\s\sImprove\shandling\sof\sthe\sTH1\strace\slog.
+D 2013-05-08T04:12:07.970
 F .fossil-settings/clean-glob 86b699ceacb9238bd7ad6a399b8b6ea37c50782e
 F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -351,7 +351,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 1e932b06a9ed604b53c4b5c3a16327d1ae649192
-F src/main.c a13323b7757b60e99d4803fcceff1d652a507026
+F src/main.c 89434b3b1d53009a3a53a7a89d97946aa99cd2fe
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -394,7 +394,7 @@ F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c a561c58c237b3eb43eaf55e6f9cc6a9b8a26e5d1
 F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c 6d19a8a13f5a7563c2cfb6035687612418bfb6b5
-F src/th_main.c 6cfc95f77d6f207b4bd28c76409cc51b91ffa31b
+F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
 F src/timeline.c 96402f0746b5d7b45b38b8ef0341174307b6a4c4
 F src/tkt.c 41f2bd5a1c57301bc8d2a4a48cc1551875fd635e
@@ -436,7 +436,7 @@ F test/merge_renames.test 5e04c75d53fdb4c89eeccb9fa1acf0ee741ad51e
 F test/release-checklist.wiki f05433096a91b7d12739d1429744e57ca3d9240a
 F test/revert.test 7c20e28f641dbb3ab991fa85f20abed0ff7e20d4
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
-F test/th1-tcl.test b39677db19209a1378b224a699b3913bb12b5542
+F test/th1-tcl.test ac226c74c0ec13914d771b15c933fb509cd549ad
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
 F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
@@ -446,6 +446,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
+F test/th1.test 98f3ead82d0b3e68106228d446d63ec23a94be8e
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 4ab7763cdb223c7801d1713922524a92f67ed412
@@ -612,7 +613,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 155acff4812e65c16085345233b7aa106c9fb001
-R a4ea4000aa653be2be8c778c75bf0f51
+P dcb5df51d9c1d45cacd2ab6abe5fefb9c0acab11
+R bf74fd022097a6889d1e749ce925f313
 U mistachkin
-Z df50127f5945cb131bf70ec061c3ac04
+Z 64cf6071c97192b240a766d362a2f226
