@@ -695,9 +695,11 @@ cson_value * json_req_payload_get(char const *pKey){
 */
 void json_main_bootstrap(){
   cson_value * v;
-  g.json.timerId = fossil_timer_start();
-  assert( (NULL == g.json.gc.v) && "cgi_json_bootstrap() was called twice!" );
+  assert( (NULL == g.json.gc.v) &&
+          "json_main_bootstrap() was called twice!" );
 
+  g.json.timerId = fossil_timer_start();
+  
   /* g.json.gc is our "garbage collector" - where we put JSON values
      which need a long lifetime but don't have a logical parent to put
      them in.

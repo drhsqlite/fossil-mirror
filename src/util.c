@@ -185,7 +185,7 @@ void fossil_cpu_times(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
 static struct FossilTimer {
   sqlite3_uint64 u; /* "User" CPU times */
   sqlite3_uint64 s; /* "System" CPU times */
-  char used; /* 1 if timer is allocated, else 0. */
+  int id; /* positive if allocated, else 0. */
 } fossilTimer = { 0U, 0U, 0 };
 enum FossilTimerEnum {
   FOSSIL_TIMER_COUNT = 10 /* Number of timers we can stack. */
@@ -203,8 +203,8 @@ static struct FossilTimer fossilTimerList[FOSSIL_TIMER_COUNT] = {{0,0,0}};
 ** fossil_timer_stop() Adjust FOSSIL_TIMER_COUNT to set the number of
 ** available timers.
 **
-** Returns -1 on error (no more timers available), with 0 or greater
-** being valid timer IDs.
+** Returns 0 on error (no more timers available), with 1+ being valid
+** timer IDs.
 */
 int fossil_timer_start(){
   int i;
@@ -215,12 +215,12 @@ int fossil_timer_start(){
   }
   for( i = 0; i < FOSSIL_TIMER_COUNT; ++i ){
     struct FossilTimer * ft = &fossilTimerList[i];
-    if(ft->used) continue;
-    ft->used = 1;
+    if(ft->id) continue;
+    ft->id = i+1;
     fossil_cpu_times( &ft->u, &ft->s );
     break;
   }
-  return (i<FOSSIL_TIMER_COUNT) ? i : -1;
+  return (i<FOSSIL_TIMER_COUNT) ? i+1 : 0;
 }
 
 /*
@@ -229,12 +229,12 @@ int fossil_timer_start(){
 ** since it was last reset). Returns 0 if timerId is out of range.
 */
 sqlite3_uint64 fossil_timer_fetch(int timerId){
-  if(timerId<0 || timerId>=FOSSIL_TIMER_COUNT){
+  if(timerId<1 || timerId>FOSSIL_TIMER_COUNT){
     return 0;
   }else{
-    struct FossilTimer * start = &fossilTimerList[timerId];
-    if( ! start->used ){
-      fossil_fatal("Invalid call to reset a non-allocated "
+    struct FossilTimer * start = &fossilTimerList[timerId-1];
+    if( !start->id ){
+      fossil_fatal("Invalid call to fetch a non-allocated "
                    "timer (#%d)", timerId);
       /*NOTREACHED*/
     }else{
@@ -250,11 +250,11 @@ sqlite3_uint64 fossil_timer_fetch(int timerId){
 ** fossil_timer_start(), to the current CPU time values.
 */
 sqlite3_uint64 fossil_timer_reset(int timerId){
-  if(timerId<0 || timerId>=FOSSIL_TIMER_COUNT){
+  if(timerId<1 || timerId>FOSSIL_TIMER_COUNT){
     return 0;
   }else{
-    struct FossilTimer * start = &fossilTimerList[timerId];
-    if( ! start->used ){
+    struct FossilTimer * start = &fossilTimerList[timerId-1];
+    if( !start->id ){
       fossil_fatal("Invalid call to reset a non-allocated "
                    "timer (#%d)", timerId);
       /*NOTREACHED*/
@@ -269,18 +269,20 @@ sqlite3_uint64 fossil_timer_reset(int timerId){
 /**
    "Deallocates" the fossil timer identified by the given timer ID.
    returns the difference (in uSec) between the last time that timer
-   was started or reset. Returns 0 if timerId is out of range.  It is
-   not legal to re-use the passed-in timerId after calling this
-   until/unless it is re-initialized using fossil_timer_start() (NOT
+   was started or reset. Returns 0 if timerId is out of range (but
+   note that, due to system-level precision restrictions, this
+   function might return 0 on success, too!). It is not legal to
+   re-use the passed-in timerId after calling this until/unless it is
+   re-initialized using fossil_timer_start() (NOT
    fossil_timer_reset()).
 */
 sqlite3_uint64 fossil_timer_stop(int timerId){
-  if(timerId<0 || timerId>=FOSSIL_TIMER_COUNT){
+  if(timerId<1 || timerId>FOSSIL_TIMER_COUNT){
     return 0;
   }else{
     sqlite3_uint64 const rc = fossil_timer_fetch(timerId);
-    struct FossilTimer * t = &fossilTimerList[timerId];
-    t->used = 0;
+    struct FossilTimer * t = &fossilTimerList[timerId-1];
+    t->id = 0;
     t->u = t->s = 0U;
     return rc;
   }
@@ -291,9 +293,11 @@ sqlite3_uint64 fossil_timer_stop(int timerId){
 ** fossil_timer_start() is currently active.
 */
 int fossil_timer_is_active( int timerId ){
-  if(timerId<0 || timerId>=FOSSIL_TIMER_COUNT){
+  if(timerId<1 || timerId>FOSSIL_TIMER_COUNT){
     return 0;
   }else{
-    return fossilTimerList[timerId].used;
+    int const rc = fossilTimerList[timerId-1].id;
+    assert(!rc || (rc == timerId));
+    return fossilTimerList[timerId-1].id;
   }
 }
