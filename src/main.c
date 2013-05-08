@@ -220,6 +220,7 @@ struct Global {
 
   int allowSymlinks;             /* Cached "allow-symlinks" option */
 
+  int mainTimerId;               /* Set to fossil_timer_start() */
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
     int isJsonMode;            /* True if running in JSON mode, else
@@ -268,6 +269,7 @@ struct Global {
       cson_object * o;
     } reqPayload;              /* request payload object (if any) */
     cson_array * warnings;     /* response warnings */
+    int timerId;               /* fetched from fossil_timer_start() */
   } json;
 #endif /* FOSSIL_ENABLE_JSON */
 };
@@ -513,7 +515,7 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
-
+  int timerId;
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);
@@ -536,6 +538,9 @@ int main(int argc, char **argv)
   g.tcl.argc = g.argc;
   g.tcl.argv = copy_args(g.argc, g.argv); /* save full arguments */
 #endif
+
+  g.mainTimerId = fossil_timer_start();
+  
   if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
     g.isHTTP = 1;

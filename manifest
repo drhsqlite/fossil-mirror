@@ -1,5 +1,5 @@
-C Update\sSQLite\sto\sthe\slatest\s3.7.17\spreview\sfrom\supstream,\sfor\sthe\spurpose\nof\stesting\sSQLite.
-D 2013-05-08T18:34:19.286
+C Added\sfossil_timer_xxx()\sfamily\sof\sfunctions\sand\sg.mainTimerId.
+D 2013-05-08T19:45:33.718
 F .fossil-settings/clean-glob 86b699ceacb9238bd7ad6a399b8b6ea37c50782e
 F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -333,7 +333,7 @@ F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 111c393f1bb93a3585078d5ee23e0b3ecc1408fe
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
 F src/info.c e3ff27bc1721a5aafddeb1eec50ef905f26812fe
-F src/json.c 8cf587d779ebdc9f9afed6dde518091cec768c47
+F src/json.c fd270b117115e304df163d93912ad1086b30d838
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
 F src/json_config.c 61a843f7fcf5f8ca0087f88be21cfc2584b1cdab
@@ -351,7 +351,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 1e932b06a9ed604b53c4b5c3a16327d1ae649192
-F src/main.c 89434b3b1d53009a3a53a7a89d97946aa99cd2fe
+F src/main.c 8dd4c41ba7cb0838babeaeee5dbea3d897572033
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -406,7 +406,7 @@ F src/update.c eb67722184f9454d975901e239343450adedf142
 F src/url.c 3cfb983699aa08d605c47ad368d5796c09f6143d
 F src/user.c 5e42a17139d5578c3d23bb77d440466d2325d567
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
-F src/util.c 40229a2f2528cc4dd9a51676f60d1dd6eaef8f0a
+F src/util.c 68ce23613aeff30759fd96b2e554baf4a16ed652
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
 F src/vfile.c 65cb8ed63c399291458a71ba5aa2dd19a92f129d
 F src/wiki.c 2fb45814f335dc9ae34543b2a7755cf3e7342512
@@ -613,7 +613,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 60e9622313890ca4acc29a726762e1410c8cb220
-R 3fb2ce312da31531d535a8f818b07abc
-U drh
-Z 8a4e516539a17011ebbb993d453353ec
+P 21a6a8bc0031b565bd65956143c89c12448ec091
+R 45cf9ee7cc9f7ac430a563f8904d1460
+U stephan
+Z c9581967744c2010aa1dc627f1ab9092
