@@ -1426,19 +1426,22 @@ static cson_value * json_create_response( int resultCode,
     }
   }
 
-  if(fossil_has_timer()){
+  if(fossil_timer_is_active(g.json.timerId)){
     /* This is, philosophically speaking, not quite the right place
        for ending the timer, but this is the one function which all of
        the JSON exit paths use (and they call it after processing,
        just before they end).
     */
-    sqlite3_uint64 span = fossil_timer_fetch(g.json.timerId);
+    sqlite3_uint64 span = fossil_timer_stop(g.json.timerId);
     /* I'm actually seeing sub-uSec runtimes in some tests, but a time of
        0 is "just kinda wrong".
     */
     cson_object_set(o,"procTimeUs", cson_value_new_integer((cson_int_t)span));
     span /= 1000/*for milliseconds */;
     cson_object_set(o,"procTimeMs", cson_value_new_integer((cson_int_t)span));
+    assert(!fossil_timer_is_active(g.json.timerId));
+    g.json.timerId = -1;
+
   }
   if(g.json.warnings){
     tmp = cson_array_value(g.json.warnings);

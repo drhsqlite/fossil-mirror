@@ -287,8 +287,13 @@ sqlite3_uint64 fossil_timer_stop(int timerId){
 }
 
 /*
-** Returns 1 if fossil has timer capabilities.
+** Returns true (non-0) if the given timer ID (as returned from
+** fossil_timer_start() is currently active.
 */
-int fossil_has_timer(){
-  return 1;
+int fossil_timer_is_active( int timerId ){
+  if(timerId<0 || timerId>=FOSSIL_TIMER_COUNT){
+    return 0;
+  }else{
+    return fossilTimerList[timerId].used;
+  }
 }
