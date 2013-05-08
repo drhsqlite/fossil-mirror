@@ -188,7 +188,7 @@ static struct FossilTimer {
   int id; /* positive if allocated, else 0. */
 } fossilTimer = { 0U, 0U, 0 };
 enum FossilTimerEnum {
-  FOSSIL_TIMER_COUNT = 10 /* Number of timers we can stack. */
+  FOSSIL_TIMER_COUNT = 10 /* Number of timers we can track. */
 };
 static struct FossilTimer fossilTimerList[FOSSIL_TIMER_COUNT] = {{0,0,0}};
 
@@ -210,6 +210,7 @@ int fossil_timer_start(){
   int i;
   static char once = 0;
   if(!once){
+    once = 1;
     memset(&fossilTimerList, 0,
            sizeof(fossilTimerList)/sizeof(fossilTimerList[0]));
   }
