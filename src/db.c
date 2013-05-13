@@ -2113,7 +2113,6 @@ struct stControlSettings const ctrlSettings[] = {
   { "http-port",     0,               16, 0, "8080"                },
   { "https-login",   0,                0, 0, "off"                 },
   { "ignore-glob",   0,               40, 1, ""                    },
-  { "keep-glob",     0,               40, 1, ""                    },
   { "localauth",     0,                0, 0, "off"                 },
   { "main-branch",   0,               40, 0, "trunk"               },
   { "manifest",      0,                0, 1, "off"                 },
@@ -2249,11 +2248,7 @@ struct stControlSettings const ctrlSettings[] = {
 **    ignore-glob      The VALUE is a comma or newline-separated list of GLOB
 **     (versionable)   patterns specifying files that the "add", "addremove",
 **                     "clean", and "extra" commands will ignore.
-**                     Example:  customCode.c notes.txt
-**
-**    keep-glob        The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "clean" command will
-**                     keep.  Example:  *.log
+**                     Example:  *.log customCode.c notes.txt
 **
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If
