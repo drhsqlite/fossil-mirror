@@ -245,7 +245,10 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 
   if( n==0 ) return flags;  /* Empty file -> text */
   c = *z;
-  if( c==0 ){
+  j = (c!='\n');
+  if( !j ){
+    flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
+  }else if( c==0 ){
     flags |= LOOK_NUL;  /* NUL character in a file -> binary */
   }else if( c=='\r' ){
     flags |= LOOK_CR;
@@ -253,14 +256,10 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
       flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
     }
   }
-  j = (c!='\n');
-  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
   while( !(flags&stopFlags) && --n>0 ){
     int c2 = c;
     c = *++z; ++j;
-    if( c==0 ){
-      flags |= LOOK_NUL;  /* NUL character in a file -> binary */
-    }else if( c=='\n' ){
+    if( c=='\n' ){
       flags |= LOOK_LF;
       if( c2=='\r' ){
         flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
@@ -271,6 +270,8 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
         flags |= LOOK_LONG;  /* Very long line -> binary */
       }
       j = 0;
+    }else if( c==0 ){
+      flags |= LOOK_NUL;  /* NUL character in a file -> binary */
     }else if( c=='\r' ){
       flags |= LOOK_CR;
       if( n<=1 || z[1]!='\n' ){
@@ -359,7 +360,10 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   if( bReverse ){
     c = UTF16_SWAP(c);
   }
-  if( c==0 ){
+  j = (c!='\n');
+  if( !j ){
+    flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
+  }else if( c==0 ){
     flags |= LOOK_NUL;  /* NUL character in a file -> binary */
   }else if( c=='\r' ){
     flags |= LOOK_CR;
@@ -367,8 +371,6 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
       flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
     }
   }
-  j = (c!='\n');
-  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
   while( 1 ){
     int c2 = c;
     n -= sizeof(WCHAR_T);
@@ -378,9 +380,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
       c = UTF16_SWAP(c);
     }
     ++j;
-    if( c==0 ){
-      flags |= LOOK_NUL;  /* NUL character in a file -> binary */
-    }else if( c=='\n' ){
+    if( c=='\n' ){
       flags |= LOOK_LF;
       if( c2=='\r' ){
         flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
@@ -391,9 +391,11 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
         flags |= LOOK_LONG;  /* Very long line -> binary */
       }
       j = 0;
+    }else if( c==0 ){
+      flags |= LOOK_NUL;  /* NUL character in a file -> binary */
     }else if( c=='\r' ){
       flags |= LOOK_CR;
-      if( n<=sizeof(WCHAR_T) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
+      if( n<2*sizeof(WCHAR_T) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
         flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
       }
     }
@@ -438,7 +440,11 @@ int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
 ** byte-order-mark (BOM), either in the endianness of the machine
 ** or in reversed byte order. The UTF-32 BOM is ruled out by checking
 ** if the UTF-16 BOM is not immediately followed by (utf16) 0.
-** pnByte and pbReverse are only set when the function returns 1.
+** pnByte is only set when the function returns 1.
+**
+** pbReverse is always set, even when no BOM is found. Without BOM,
+** it is set to 1 on little-endian and 0 on big-endian platforms. See
+** clause D98 of conformance (section 3.10) of the Unicode standard.
 */
 int starts_with_utf16_bom(
   const Blob *pContent, /* IN: Blob content to perform BOM detection on. */
@@ -448,14 +454,17 @@ int starts_with_utf16_bom(
   const unsigned short *z = (unsigned short *)blob_buffer(pContent);
   int bomSize = sizeof(unsigned short);
   int size = blob_size(pContent);
+  static const int one = 1;
 
-  if( size<bomSize ) return 0;  /* No: cannot read BOM. */
-  if( size>=(2*bomSize) && z[1]==0 ) return 0;  /* No: possible UTF-32. */
-  if( z[0]==0xfffe ){
-    if( pbReverse ) *pbReverse = 1;
-  }else if( z[0]==0xfeff ){
+  if( size<bomSize ) goto noBom;  /* No: cannot read BOM. */
+  if( size>=(2*bomSize) && z[1]==0 ) goto noBom;  /* No: possible UTF-32. */
+  if( z[0]==0xfeff ){
     if( pbReverse ) *pbReverse = 0;
+  }else if( z[0]==0xfffe ){
+    if( pbReverse ) *pbReverse = 1;
   }else{
+  noBom:
+    if( pbReverse ) *pbReverse = *(char *) &one;
     return 0; /* No: UTF-16 byte-order-mark not found. */
   }
   if( pnByte ) *pnByte = bomSize;
