@@ -173,7 +173,7 @@ void fossil_cpu_times(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
     *piUser = ((sqlite3_uint64)s.ru_utime.tv_sec)*1000000 + s.ru_utime.tv_usec;
   }
   if( piKernel ){
-    *piKernel = 
+    *piKernel =
               ((sqlite3_uint64)s.ru_stime.tv_sec)*1000000 + s.ru_stime.tv_usec;
   }
 #endif
@@ -182,15 +182,14 @@ void fossil_cpu_times(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
 /*
 ** Internal helper type for fossil_timer_xxx().
  */
+enum FossilTimerEnum {
+  FOSSIL_TIMER_COUNT = 10 /* Number of timers we can track. */
+};
 static struct FossilTimer {
   sqlite3_uint64 u; /* "User" CPU times */
   sqlite3_uint64 s; /* "System" CPU times */
   int id; /* positive if allocated, else 0. */
-} fossilTimer = { 0U, 0U, 0 };
-enum FossilTimerEnum {
-  FOSSIL_TIMER_COUNT = 10 /* Number of timers we can track. */
-};
-static struct FossilTimer fossilTimerList[FOSSIL_TIMER_COUNT] = {{0,0,0}};
+} fossilTimerList[FOSSIL_TIMER_COUNT] = {{0,0,0}};
 
 /*
 ** Stores the current CPU times into the shared timer list
@@ -212,7 +211,7 @@ int fossil_timer_start(){
   if(!once){
     once = 1;
     memset(&fossilTimerList, 0,
-           sizeof(fossilTimerList)/sizeof(fossilTimerList[0]));
+           count(fossilTimerList));
   }
   for( i = 0; i < FOSSIL_TIMER_COUNT; ++i ){
     struct FossilTimer * ft = &fossilTimerList[i];
