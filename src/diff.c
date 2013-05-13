@@ -367,7 +367,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
     flags |= LOOK_NUL;  /* NUL character in a file -> binary */
   }else if( c=='\r' ){
     flags |= LOOK_CR;
-    if( n<=sizeof(WCHAR_T) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
+    if( n<2*sizeof(WCHAR_T) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
       flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
     }
   }
