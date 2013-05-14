@@ -363,7 +363,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
     flags |= LOOK_NUL;  /* NUL character in a file -> binary */
   }else if( c=='\r' ){
     flags |= LOOK_CR;
-    if( n<2*sizeof(WCHAR_T) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
+    if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
       flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
     }
   }
@@ -2602,15 +2602,16 @@ void looks_like_utf_test_cmd(void){
   int lookFlags; /* output flags from looks_like_utf8/utf16() */
   int bRevUtf16 = 0; /* non-zero -> UTF-16 byte order reversed */
   int bRevUnicode = 0; /* non-zero -> UTF-16 byte order reversed */
+  int fForceUtf8 = find_option("utf8",0,0)!=0;
+  int fForceUtf16 = find_option("utf16",0,0)!=0;
   if( g.argc!=3 ) usage("FILENAME");
   blob_read_from_file(&blob, g.argv[2]);
   fUtf8 = starts_with_utf8_bom(&blob, 0);
   fUtf16 = starts_with_utf16_bom(&blob, 0, &bRevUtf16);
-  fUnicode = could_be_utf16(&blob, &bRevUnicode);
-  if( find_option("utf8",0,0)!=0 ){
+  if( fForceUtf8 ){
     fUnicode = 0;
-  }else if( find_option("utf16",0,0)!=0 ){
-    fUnicode = 1;
+  }else{
+    fUnicode = could_be_utf16(&blob, &bRevUnicode) || fForceUtf16;
   }
   lookFlags = fUnicode ? looks_like_utf16(&blob, bRevUnicode, 0) :
                          looks_like_utf8(&blob, 0);
