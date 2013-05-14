@@ -943,6 +943,7 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
   Blob full;
   int nFull;
   char *zFull;
+  int (*xCmp)(const char*,const char*,int);
 
   blob_zero(pOut);
   db_must_be_within_tree();
@@ -953,16 +954,21 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
   file_canonical_name(zOrigName, &full, 0);
   nFull = blob_size(&full);
   zFull = blob_buffer(&full);
+  if( filenames_are_case_sensitive() ){
+    xCmp = fossil_strncmp;
+  }else{
+    xCmp = fossil_strnicmp;
+  }
 
   /* Special case.  zOrigName refers to g.zLocalRoot directory. */
-  if( nFull==nLocalRoot-1 && memcmp(zLocalRoot, zFull, nFull)==0 ){
+  if( nFull==nLocalRoot-1 && xCmp(zLocalRoot, zFull, nFull)==0 ){
     blob_append(pOut, ".", 1);
     blob_reset(&localRoot);
     blob_reset(&full);
     return 1;
   }
 
-  if( nFull<=nLocalRoot || memcmp(zLocalRoot, zFull, nLocalRoot) ){
+  if( nFull<=nLocalRoot || xCmp(zLocalRoot, zFull, nLocalRoot) ){
     blob_reset(&localRoot);
     blob_reset(&full);
     if( errFatal ){
@@ -980,11 +986,16 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
 ** COMMAND:  test-tree-name
 **
 ** Test the operation of the tree name generator.
+**
+** Options:
+**   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
+**                        a boolean: "yes", "no", "true", "false", etc.
 */
 void cmd_test_tree_name(void){
   int i;
   Blob x;
   blob_zero(&x);
+  capture_case_sensitive_option();
   for(i=2; i<g.argc; i++){
     if( file_tree_name(g.argv[i], &x, 1) ){
       fossil_print("%s\n", blob_buffer(&x));
