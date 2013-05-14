@@ -460,7 +460,7 @@ const char *filename_collation(void){
 ** --clean option with the "clean-glob" setting. See the documentation
 ** on the "settings" command for further information.
 **
-** The --test option shows what would happen without actually doing anything.
+** The -n|--dry-run option shows what would happen without actually doing anything.
 **
 ** This command can be used to track third party software.
 ** 

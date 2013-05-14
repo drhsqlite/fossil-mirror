@@ -1548,7 +1548,7 @@ void commit_cmd(void){
     }
   }
 
-  /* If the --test option is specified, output the manifest file
+  /* If the -n|--dry-run option is specified, output the manifest file
   ** and rollback the transaction.
   */
   if( dryRunFlag ){
