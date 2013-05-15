@@ -1,5 +1,5 @@
-C Doc\supdate:\signore-glob\ssetting\sshould\sbe\sused\sto\sprevent\s*.log\sfiles\sfrom\sbeing\sadded.
-D 2013-05-15T07:02:22.376
+C Some\smore\s-v|--verbose\sadditions.\sOld\soptions\snames\sare\sdeprecated,\sbut\sstill\swork.
+D 2013-05-15T08:13:49.574
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -327,8 +327,8 @@ F src/db.c 5918dc6458ca73c07e6b8cf7f70bb29b7f5d0bf5
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
-F src/diff.c 38a5bcbe74dcd573cb6254b9627dc172c1ace4d8
-F src/diffcmd.c 18f0957e6fb05b47fab116c3e4c1a10f91ca6121
+F src/diff.c 6b3c8bdec00e06aa3aef40167844139d394910d8
+F src/diffcmd.c 9c14d774f59f4607b11258ebe2b3318dd264c2f0
 F src/doc.c 44c05bffa28ec381af2ba5e4d99696e868b311b4
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
 F src/event.c 20e26d45b3688da9779ed4c79d51b1eed2a1eaef
@@ -357,7 +357,7 @@ F src/json_query.c 017ab69953ee208381dc210ee01716585f1bac15
 F src/json_report.c 1bce5178ec70545ec16becdbaac22d785d1880ba
 F src/json_status.c e95054838372a514918169a2c81811f530b88516
 F src/json_tag.c 70261471bbfe05f47af230561053a4fcbbeba5a9
-F src/json_timeline.c 53d8af60d170add430d83f990da945d3c1d1b939
+F src/json_timeline.c ac4cf2a24eb5c2810cf92252621f1825e8e4be69
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
@@ -371,7 +371,7 @@ F src/manifest.c 18f07ec33d8fe75a42ff3823a27e375d591b5d99
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c e1c6fb412ad1556e5a189786be40585e8c9ffcee
-F src/merge.c 6bc19c4f52bb0b8327d108b927df7a005721de79
+F src/merge.c 3fba91738d6daebab4bd5abb5028f0505c26da2b
 F src/merge3.c 33796c5a85ecc1af33f53e9c7c89cbce53d761fc
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
 F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
@@ -407,7 +407,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
-F src/timeline.c 58d70ba240779fc6a7ac860b9acc1b498dcca539
+F src/timeline.c ca94ba0d049351944cc5e3117cf89cad75eddaae
 F src/tkt.c 41f2bd5a1c57301bc8d2a4a48cc1551875fd635e
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -624,7 +624,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0df0ce8025c6b883050783d00a164495fcb0ebbf
-R c4d0ba775d3f065f4e9a134dd89800ca
+P 1162df8e4125f7ad76f43a4a111b2ed42ef956ce 0a5abbee920b75202c3866f38ef5f894eac3bd98
+R 6768fac6196eb7360aab2f92bda5d843
 U jan.nijtmans
-Z 5457dd241109c72e95416839d5a6883f
+Z 4a42403069cd6b135e6809dfe8457be7

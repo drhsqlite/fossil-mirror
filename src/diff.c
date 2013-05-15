@@ -32,7 +32,7 @@
 #define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
 #define DIFF_IGNORE_EOLWS ((u64)0x01000000) /* Ignore end-of-line whitespace */
 #define DIFF_SIDEBYSIDE   ((u64)0x02000000) /* Generate a side-by-side diff */
-#define DIFF_NEWFILE      ((u64)0x04000000) /* Missing shown as empty files */
+#define DIFF_VERBOSE      ((u64)0x04000000) /* Missing shown as empty files */
 #define DIFF_BRIEF        ((u64)0x08000000) /* Show filenames only */
 #define DIFF_INLINE       ((u64)0x00000000) /* Inline (not side-by-side) diff */
 #define DIFF_HTML         ((u64)0x10000000) /* Render for HTML */

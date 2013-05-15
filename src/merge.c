@@ -91,6 +91,8 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 **                           files whose names differ only in case are taken
 **                           to be the same file.
 **
+**   -v|--verbose            Show additional details of the merge
+**
 **   -f|--force              Force the merge even if it would be a no-op.
 **
 **   -n|--dry-run            If given, display instead of run actions

@@ -1469,7 +1469,7 @@ void page_timeline(void){
 **    6.  mtime
 **    7.  branch
 */
-void print_timeline(Stmt *q, int mxLine, int showfiles){
+void print_timeline(Stmt *q, int mxLine, int verboseFlag){
   int nLine = 0;
   char zPrevDate[20];
   const char *zCurrentUuid=0;
@@ -1525,7 +1525,7 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
     nLine += comment_print(zFree, 9, 79);
     sqlite3_free(zFree);
 
-    if(showfiles){
+    if(verboseFlag){
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery,
            "SELECT (pid==0) AS isnew,"
@@ -1624,14 +1624,14 @@ static int isIsoDate(const char *z){
 ** for the current version or "now" for the current time.
 **
 ** Options:
-**   -f|--showfiles       print the list of files changed in a checkin after
-**                        the checkin comment.
 **   -n|--limit N         display the first N changes (default 20)
 **   -t|--type TYPE       only display items from the give types, such as:
 **                            ci = file commits only
 **                            e  = events only
 **                            t  = tickets only
 **                            w  = wiki commits only
+**   -v|--verbose         print the list of files changed in a checkin after
+**                        the checkin comment.
 */
 void timeline_cmd(void){
   Stmt q;
@@ -1644,8 +1644,11 @@ void timeline_cmd(void){
   int objid = 0;
   Blob uuid;
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
-  int showfilesFlag = 0 ;
-  showfilesFlag = find_option("showfiles","f", 0)!=0;
+  int verboseFlag = 0 ;
+  verboseFlag = find_option("verbose","v", 0)!=0;
+  if( !verboseFlag){
+    verboseFlag = find_option("showfiles","f", 0)!=0; /* deprecated */
+  }
   db_find_and_open_repository(0, 0);
   zLimit = find_option("limit","n",1);
   zType = find_option("type","t",1);
@@ -1734,7 +1737,7 @@ void timeline_cmd(void){
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, n, showfilesFlag);
+  print_timeline(&q, n, verboseFlag);
   db_finalize(&q);
 }
 

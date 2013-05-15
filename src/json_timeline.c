@@ -428,7 +428,7 @@ static cson_value * json_timeline_ci(){
   cson_value * listV = NULL;
   cson_array * list = NULL;
   int check = 0;
-  char showFiles = -1/*magic number*/;
+  char verboseFlag;
   Stmt q = empty_Stmt;
   char warnRowToJsonFailed = 0;
   Blob sql = empty_blob;
@@ -439,7 +439,10 @@ static cson_value * json_timeline_ci(){
     json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'h' access." );
     return NULL;
   }
-  showFiles = json_find_option_bool("files",NULL,"f",0);
+  verboseFlag = json_find_option_bool("verbose",NULL,"v",0);
+  if( !verboseFlag ){
+    verboseFlag = json_find_option_bool("files",NULL,"f",0);
+  }
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
   check = json_timeline_setup_sql( "ci", &sql, pay );
@@ -472,7 +475,7 @@ static cson_value * json_timeline_ci(){
   while( (SQLITE_ROW == db_step(&q) )){
     /* convert each row into a JSON object...*/
     int const rid = db_column_int(&q,0);
-    cson_value * rowV = json_artifact_for_ci(rid, showFiles);
+    cson_value * rowV = json_artifact_for_ci(rid, verboseFlag);
     cson_object * row = cson_value_get_object(rowV);
     if(!row){
       if( !warnRowToJsonFailed ){
