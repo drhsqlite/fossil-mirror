@@ -68,7 +68,7 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 /*
 ** COMMAND: all
 **
-** Usage: %fossil all (list|ls|pull|push|rebuild|sync)
+** Usage: %fossil all (changes|ignore|list|ls|pull|push|rebuild|sync)
 **
 ** The ~/.fossil file records the location of all repositories for a
 ** user.  This command performs certain operations on all repositories
@@ -79,6 +79,8 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 **
 ** Available operations are:
 **
+**    changes    Shows all local checkouts that have uncommitted changes
+**
 **    ignore     Arguments are repositories that should be ignored
 **               by subsequent list, pull, push, rebuild, and sync.
 **               The -c|--ckout option causes the listed local checkouts
@@ -87,8 +89,6 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 **    list | ls  Display the location of all repositories.
 **               The -c|--ckout option causes all local checkouts to be
 **               list instead.
-**
-**    changes    Shows all local checkouts that have uncommitted changes
 **
 **    pull       Run a "pull" operation on all repositories
 **
@@ -130,6 +130,7 @@ void all_cmd(void){
   db_open_config(1);
   blob_zero(&extra);
   zCmd = g.argv[2];
+  if( g.zLogin ) blob_appendf(&extra, " -U %s", g.zLogin);
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;
