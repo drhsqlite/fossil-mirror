@@ -52,8 +52,8 @@ static char *quoteFilename(const char *zFilename){
 ** specified as arguments.  If the option name begins with "+" then
 ** it takes an argument.  Without the "+" it does not.
 */
-static void collect_argument(Blob *pExtra, const char *zArg){
-  if( find_option(zArg, 0, 0)!=0 ){
+static void collect_argument(Blob *pExtra, const char *zArg, const char *zShort){
+  if( find_option(zArg, zShort, 0)!=0 ){
     blob_appendf(pExtra, " --%s", zArg);
   }
 }
@@ -124,7 +124,7 @@ void all_cmd(void){
   }
 
   if( g.argc<3 ){
-    usage("changes|list|ls|pull|push|rebuild|sync");
+    usage("changes|ignore|list|ls|pull|push|rebuild|sync");
   }
   n = strlen(g.argv[2]);
   db_open_config(1);
@@ -135,31 +135,31 @@ void all_cmd(void){
     useCheckouts = find_option("ckout","c",0)!=0;
   }else if( strncmp(zCmd, "push", n)==0 ){
     zCmd = "push -autourl -R";
-    collect_argument(&extra, "verbose");
+    collect_argument(&extra, "verbose","v");
   }else if( strncmp(zCmd, "pull", n)==0 ){
     zCmd = "pull -autourl -R";
-    collect_argument(&extra, "verbose");
+    collect_argument(&extra, "verbose","v");
   }else if( strncmp(zCmd, "rebuild", n)==0 ){
     zCmd = "rebuild";
-    collect_argument(&extra, "cluster");
-    collect_argument(&extra, "compress");
-    collect_argument(&extra, "noverify");
+    collect_argument(&extra, "cluster",0);
+    collect_argument(&extra, "compress",0);
+    collect_argument(&extra, "noverify",0);
     collect_argument_value(&extra, "pagesize");
-    collect_argument(&extra, "vacuum");
-    collect_argument(&extra, "deanalyze");
-    collect_argument(&extra, "analyze");
-    collect_argument(&extra, "wal");
-    collect_argument(&extra, "stat");
+    collect_argument(&extra, "vacuum",0);
+    collect_argument(&extra, "deanalyze",0);
+    collect_argument(&extra, "analyze",0);
+    collect_argument(&extra, "wal",0);
+    collect_argument(&extra, "stats",0);
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
-    collect_argument(&extra, "verbose");
+    collect_argument(&extra, "verbose","v");
   }else if( strncmp(zCmd, "test-integrity", n)==0 ){
     zCmd = "test-integrity";
   }else if( strncmp(zCmd, "test-orphans", n)==0 ){
     zCmd = "test-orphans -R";
   }else if( strncmp(zCmd, "test-missing", n)==0 ){
     zCmd = "test-missing -q -R";
-    collect_argument(&extra, "notshunned");
+    collect_argument(&extra, "notshunned",0);
   }else if( strncmp(zCmd, "changes", n)==0 ){
     zCmd = "changes --quiet --header --chdir";
     useCheckouts = 1;
