@@ -2249,11 +2249,11 @@ struct stControlSettings const ctrlSettings[] = {
 **    ignore-glob      The VALUE is a comma or newline-separated list of GLOB
 **     (versionable)   patterns specifying files that the "add", "addremove",
 **                     "clean", and "extra" commands will ignore.
-**                     Example:  customCode.c notes.txt
+**                     Example:  *.log customCode.c notes.txt
 **
 **    keep-glob        The VALUE is a comma or newline-separated list of GLOB
 **     (versionable)   patterns specifying files that the "clean" command will
-**                     keep.  Example:  *.log
+**                     keep.
 **
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If

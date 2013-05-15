@@ -1,5 +1,5 @@
-C Function\sfile_tree_name()\sshould\srespect\scase-sensitive\ssetting.\s\nAdd\s--case-sensitive\soption\sto\stest-tree-name.
-D 2013-05-14T14:15:22.139
+C Doc\supdate:\signore-glob\ssetting\sshould\sbe\sused\sto\sprevent\s*.log\sfiles\sfrom\sbeing\sadded.
+D 2013-05-15T07:02:22.376
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -323,7 +323,7 @@ F src/configure.c d9192353fbb8d656ef1a927a5c0b75beaa4f9e8a
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 5cb9365b7d6c5aba118776662123b69cbaac7959
 F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
-F src/db.c 39a6d774022d080609cba34de5760673e442e79a
+F src/db.c 5918dc6458ca73c07e6b8cf7f70bb29b7f5d0bf5
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
@@ -624,7 +624,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a38fa0b80bad23b3675cfe921f5d52761e002aee
-R fcc5557f5af425ccba7ea0549f91e25c
+P 0df0ce8025c6b883050783d00a164495fcb0ebbf
+R c4d0ba775d3f065f4e9a134dd89800ca
 U jan.nijtmans
-Z 7cd8530293a7a94b1727da8c7d538d0f
+Z 5457dd241109c72e95416839d5a6883f
