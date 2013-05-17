@@ -408,6 +408,7 @@ void extra_cmd(void){
 **                     list of glob patterns.
 **    -n|--dry-run     If given, display instead of run actions
 **    --temp           Remove only Fossil-generated temporary files
+**    -v|--verbose     Show all files as they are removed
 **
 ** See also: addremove, extra, status
 */
@@ -420,11 +421,13 @@ void clean_cmd(void){
   int n;
   Glob *pIgnore, *pKeep, *pClean;
   int dryRunFlag = 0;
+  int verboseFlag;
 
   allFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   zIgnoreFlag = find_option("ignore",0,1);
+  verboseFlag = find_option("verbose","v",0)!=0;
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
@@ -442,6 +445,7 @@ void clean_cmd(void){
   if( zCleanFlag==0 ){
     zCleanFlag = db_get("clean-glob", 0);
   }
+  verify_all_options();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
   n = strlen(g.zLocalRoot);
@@ -464,7 +468,7 @@ void clean_cmd(void){
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    if( !allFlag && !glob_match(pClean, zName+n) ){
+    if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+n) ){
       Blob ans;
       char cReply;
       char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
@@ -478,7 +482,9 @@ void clean_cmd(void){
         continue;
       }
     }
-    fossil_print("removed unmanaged file \"%s\"\n", zName+n);
+    if( dryRunFlag || verboseFlag ){
+      fossil_print("removed unmanaged file: %s\n", zName+n);
+    }
     if( !dryRunFlag ){
       file_delete(zName);
     }
