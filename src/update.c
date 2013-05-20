@@ -79,7 +79,7 @@ int update_to(int vid){
 ** a directory name for one of the FILES arguments is the same as
 ** using every subdirectory and file beneath that directory.
 **
-** The -n or --nochange option causes this command to do a "dry run".  It
+** The -n or --dry-run option causes this command to do a "dry run".  It
 ** prints out what would have happened but does not actually make any
 ** changes to the current checkout or the repository.
 **
@@ -534,7 +534,7 @@ void update_cmd(void){
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.
   */
   if( dryRunFlag ){
-    db_end_transaction(1);  /* With --nochange, rollback changes */
+    db_end_transaction(1);  /* With --dry-run, rollback changes */
   }else{
     ensure_empty_dirs_created();
     if( g.argc<=3 ){
