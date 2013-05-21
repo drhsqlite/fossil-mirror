@@ -221,23 +221,26 @@ void status_cmd(void){
 **
 ** Usage: %fossil ls ?OPTIONS? ?VERSION?
 **
-** Show the names of all files in the current checkout.  The -l provides
+** Show the names of all files in the current checkout.  The -v provides
 ** extra information about each file.
 **
 ** Options:
-**   -l              Provide extra information about each file.
 **   --age           Show when each file was committed
+**   -v|--verbose    Provide extra information about each file.
 **
 ** See also: changes, extra, status
 */
 void ls_cmd(void){
   int vid;
   Stmt q;
-  int isBrief;
+  int verboseFlag;
   int showAge;
   char *zOrderBy = "pathname";
 
-  isBrief = find_option("l","l", 0)==0;
+  verboseFlag = find_option("verbose","v", 0)!=0;
+  if(!verboseFlag){
+    verboseFlag = find_option("l","l", 0)!=0; /* deprecated */
+  }
   showAge = find_option("age",0,0)!=0;
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
@@ -273,7 +276,7 @@ void ls_cmd(void){
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     if( showAge ){
       fossil_print("%s  %s\n", db_column_text(&q, 5), zPathname);
-    }else if( isBrief ){
+    }else if( !verboseFlag ){
       fossil_print("%s\n", zPathname);
     }else if( isNew ){
       fossil_print("ADDED      %s\n", zPathname);

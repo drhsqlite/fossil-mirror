@@ -1,5 +1,5 @@
-C doc\sfix
-D 2013-05-20T10:58:45.933
+C Add\soption\s-v|--verbose\sto\s"fossil\sls"\sas\sreplacement\sfor\s(deprecated)\s-l.
+D 2013-05-21T13:56:56.739
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -313,7 +313,7 @@ F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 5a4e3c8582af1d03ac51f9e1982025a02ffefe97
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c a48a7d05b1fd00add3574820dd49dc517ce5dba5
+F src/checkin.c 40b8759c83811ffa9b115bea26cd7fc62eb32aee
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -624,7 +624,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 273ec22f25699c150fbdde995780b504cb77d4a8
-R 82da0e36ee9aef4b51013afe5313cc5e
+P 122b631c31f46da462d4b1e82cf78f983207d44a
+R 3e17e533137d6258a15001c2543af7f4
 U jan.nijtmans
-Z ba8d8c1c586e43097feec598b8352749
+Z 3b3439f91536c96fd6c10244da13601c
