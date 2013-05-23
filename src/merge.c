@@ -280,7 +280,7 @@ void merge_cmd(void){
   db_multi_exec(
     "DROP TABLE IF EXISTS fv;"
     "CREATE TEMP TABLE fv("
-    "  fn TEXT PRIMARY KEY %s,"  /* The filename */
+    "  fn TEXT PRIMARY KEY %s,"   /* The filename */
     "  idv INTEGER,"              /* VFILE entry for current version */
     "  idp INTEGER,"              /* VFILE entry for the pivot */
     "  idm INTEGER,"              /* VFILE entry for version merging in */
@@ -289,12 +289,12 @@ void merge_cmd(void){
     "  ridp INTEGER,"             /* Record ID for pivot */
     "  ridm INTEGER,"             /* Record ID for merge */
     "  isexe BOOLEAN,"            /* Execute permission enabled */
-    "  fnp TEXT,"                 /* The filename in the pivot */
-    "  fnm TEXT,"                 /* the filename in the merged version */
+    "  fnp TEXT %s,"              /* The filename in the pivot */
+    "  fnm TEXT %s,"              /* the filename in the merged version */
     "  islinkv BOOLEAN,"          /* True if current version is a symlink */
     "  islinkm BOOLEAN"           /* True if merged version in is a symlink */
     ");",
-    filename_collation()
+    filename_collation(), filename_collation(), filename_collation()
   );
 
   /* Add files found in V
@@ -333,8 +333,8 @@ void merge_cmd(void){
     " INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,isexe,chnged)"
     " SELECT pathname, pathname, pathname, 0, 0, 0, 0, 0, 0, isexe, 0 "
     "   FROM vfile"
-    "  WHERE vid=%d AND pathname NOT IN (SELECT fnp FROM fv)",
-    pid
+    "  WHERE vid=%d AND pathname %s NOT IN (SELECT fnp FROM fv)",
+    pid, filename_collation()
   );
 
   /*
@@ -361,8 +361,8 @@ void merge_cmd(void){
     " SELECT pathname, pathname, pathname, 0, 0, 0, 0, 0, 0, isexe, 0 "
     "   FROM vfile"
     "  WHERE vid=%d"
-    "    AND pathname NOT IN (SELECT fnp FROM fv UNION SELECT fnm FROM fv)",
-    mid
+    "    AND pathname %s NOT IN (SELECT fnp FROM fv UNION SELECT fnm FROM fv)",
+    mid, filename_collation()
   );
 
   /*
@@ -370,14 +370,14 @@ void merge_cmd(void){
   */
   db_multi_exec(
     "UPDATE fv SET"
-    " idp=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fnp),0),"
-    " ridp=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnp),0),"
-    " idm=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fnm),0),"
-    " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnm),0),"
+    " idp=coalesce((SELECT id FROM vfile WHERE vid=%d AND fnp=pathname),0),"
+    " ridp=coalesce((SELECT rid FROM vfile WHERE vid=%d AND fnp=pathname),0),"
+    " idm=coalesce((SELECT id FROM vfile WHERE vid=%d AND fnm=pathname),0),"
+    " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND fnm=pathname),0),"
     " islinkv=coalesce((SELECT islink FROM vfile"
-                    " WHERE vid=%d AND pathname=fnm),0),"
+                    " WHERE vid=%d AND fnm=pathname),0),"
     " islinkm=coalesce((SELECT islink FROM vfile"
-                    " WHERE vid=%d AND pathname=fnm),0)",
+                    " WHERE vid=%d AND fnm=pathname),0)",
     pid, pid, mid, mid, vid, mid
   );
 

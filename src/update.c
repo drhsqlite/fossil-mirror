@@ -215,7 +215,7 @@ void update_cmd(void){
   db_multi_exec(
     "DROP TABLE IF EXISTS fv;"
     "CREATE TEMP TABLE fv("
-    "  fn TEXT PRIMARY KEY,"      /* The filename relative to root */
+    "  fn TEXT %s PRIMARY KEY,"   /* The filename relative to root */
     "  idv INTEGER,"              /* VFILE entry for current version */
     "  idt INTEGER,"              /* VFILE entry for target version */
     "  chnged BOOLEAN,"           /* True if current version has been edited */
@@ -225,8 +225,9 @@ void update_cmd(void){
     "  ridt INTEGER,"             /* Record ID for target */
     "  isexe BOOLEAN,"            /* Does target have execute permission? */
     "  deleted BOOLEAN DEFAULT 0,"/* File marke by "rm" to become unmanaged */
-    "  fnt TEXT"                  /* Filename of same file on target version */
-    ");"
+    "  fnt TEXT %s"               /* Filename of same file on target version */
+    ");",
+    filename_collation(), filename_collation()
   );
 
   /* Add files found in the current version
@@ -261,8 +262,8 @@ void update_cmd(void){
     "INSERT OR IGNORE INTO fv(fn,fnt,idv,idt,ridv,ridt,isexe,chnged)"
     " SELECT pathname, pathname, 0, 0, 0, 0, isexe, 0 FROM vfile"
     "  WHERE vid=%d"
-    "    AND pathname NOT IN (SELECT fnt FROM fv)",
-    tid
+    "    AND pathname %s NOT IN (SELECT fnt FROM fv)",
+    tid, filename_collation()
   );
 
   /*
@@ -270,8 +271,8 @@ void update_cmd(void){
   */
   db_multi_exec(
     "UPDATE fv SET"
-    " idt=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fnt),0),"
-    " ridt=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnt),0)",
+    " idt=coalesce((SELECT id FROM vfile WHERE vid=%d AND fnt=pathname),0),"
+    " ridt=coalesce((SELECT rid FROM vfile WHERE vid=%d AND fnt=pathname),0)",
     tid, tid
   );
 
@@ -281,9 +282,9 @@ void update_cmd(void){
   db_multi_exec(
     "UPDATE fv SET"
     " islinkv=coalesce((SELECT islink FROM vfile"
-                       " WHERE vid=%d AND pathname=fnt),0),"
+                       " WHERE vid=%d AND fnt=pathname),0),"
     " islinkt=coalesce((SELECT islink FROM vfile"
-                       " WHERE vid=%d AND pathname=fnt),0)",
+                       " WHERE vid=%d AND fnt=pathname),0)",
     vid, tid
   );
 
