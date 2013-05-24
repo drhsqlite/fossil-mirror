@@ -2425,8 +2425,8 @@ void annotation_page(void){
   Annotator ann;
   HQuery url;
 
-  showLn = P("ln")!=0;
-  showLog = P("log")!=0;
+  showLn = atoi(PD("ln","1"));
+  showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
@@ -2445,18 +2445,18 @@ void annotation_page(void){
   if( iLimit!=20 ){
     url_add_parameter(&url, "limit", sqlite3_mprintf("%d", iLimit));
   }
-  if( showLog ) url_add_parameter(&url, "log", "1");
-  if( showLn ) url_add_parameter(&url, "ln", "1");
+  url_add_parameter(&url, "log", showLog ? "1" : "0");
+  url_add_parameter(&url, "ln", showLn ? "1" : "0");
   if( showLog ){
     style_submenu_element("Hide Log", "Hide Log",
-       url_render(&url, "log", 0, 0, 0));
+       url_render(&url, "log", "0", 0, 0));
   }else{
     style_submenu_element("Show Log", "Show Log",
        url_render(&url, "log", "1", 0, 0));
   }
   if( showLn ){
     style_submenu_element("Hide Line Numbers", "Hide Line Numbers",
-       url_render(&url, "ln", 0, 0, 0));
+       url_render(&url, "ln", "0", 0, 0));
   }else{
     style_submenu_element("Show Line Numbers", "Show Line Numbers",
        url_render(&url, "ln", "1", 0, 0));
