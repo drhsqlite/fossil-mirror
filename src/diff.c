@@ -2481,7 +2481,6 @@ void annotation_page(void){
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
       @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
       @ check-in %z(href("%R/info/%S",p->zMUuid))%.10s(p->zMUuid)</a>
-      @ by %h(p->zUser)
       @ artifact %z(href("%R/artifact/%S",p->zFUuid))%.10s(p->zFUuid)</a>
       @ </span></li>
     }
@@ -2514,11 +2513,11 @@ void annotation_page(void){
       char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
       sqlite3_snprintf(sizeof(zPrefix), zPrefix,
            "<span style='background-color:%s'>"
-           "%s%.10s</a> %s %13.13s</span> %4d:",
-           p->zBgColor, zLink, p->zMUuid, p->zDate, p->zUser, i+1);
+           "%s%.10s</a> %s</span> %4d:",
+           p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
       fossil_free(zLink);
     }else{
-      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s%4d: ", "", i+1);
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d: ", "", i+1);
     }
     @ %s(zPrefix) %h(z)
 
@@ -2594,8 +2593,8 @@ void annotate_cmd(void){
   if( showLog ){
     struct AnnVers *p;
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
-      fossil_print("version %3d: %s %.10s by %-13s file %.10s\n",
-                   i+1, p->zDate, p->zMUuid, p->zUser, p->zFUuid);
+      fossil_print("version %3d: %s %.10s file %.10s\n",
+                   i+1, p->zDate, p->zMUuid, p->zFUuid);
     }
     fossil_print("---------------------------------------------------\n");
   }
@@ -2609,12 +2608,12 @@ void annotate_cmd(void){
     if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
     if( iVers>=0 ){
       struct AnnVers *p = ann.aVers+iVers;
-      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%.10s %s %13.13s",
-           fileVers ? p->zFUuid : p->zMUuid, p->zDate, p->zUser);
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%.10s %s",
+           fileVers ? p->zFUuid : p->zMUuid, p->zDate);
     }else{
       zPrefix[0] = 0;
     }
-    fossil_print("%35s %4d: %.*s\n", zPrefix, i+1, n, z);
+    fossil_print("%21s %4d: %.*s\n", zPrefix, i+1, n, z);
   }
 }
 
