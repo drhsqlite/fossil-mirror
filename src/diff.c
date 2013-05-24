@@ -2193,12 +2193,20 @@ struct Annotator {
     const char *z;       /* The text of the line */
     short int n;         /* Number of bytes (omitting trailing space and \n) */
     short int iLevel;    /* Level at which tag was set */
-    const char *zSrc;    /* Tag showing origin of this line */
+    int iVers;           /* aVers[] entry responsible for this line */
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
   int nNoSrc;       /* Number of entries where aOrig[].zSrc==NULL */
   int iLevel;       /* Current level */
   int nVers;        /* Number of versions analyzed */
+  struct AnnVers {
+    const char *zFUuid;   /* File being analyzed */
+    const char *zMUuid;   /* Check-in containing the file */
+    const char *zUser;    /* User who did the check-in */
+    const char *zDate;    /* Date of the check-in */
+    const char *zBgColor; /* Suggested background color */
+    unsigned cnt;         /* Number of lines contributed by this check-in */
+  } *aVers;         /* For each check-in analyzed */
   char **azVers;    /* Names of versions analyzed */
 };
 
@@ -2219,7 +2227,7 @@ static int annotation_start(Annotator *p, Blob *pInput){
   for(i=0; i<p->c.nTo; i++){
     p->aOrig[i].z = p->c.aTo[i].z;
     p->aOrig[i].n = p->c.aTo[i].h & LENGTH_MASK;
-    p->aOrig[i].zSrc = 0;
+    p->aOrig[i].iVers = -1;
   }
   p->nOrig = p->c.nTo;
   return 0;
@@ -2232,11 +2240,9 @@ static int annotation_start(Annotator *p, Blob *pInput){
 ** on each line of the file being annotated that was contributed by
 ** pParent.  Memory to hold zPName is leaked.
 */
-static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
+static int annotation_step(Annotator *p, Blob *pParent, int iVers){
   int i, j;
   int lnTo;
-  int iPrevLevel;
-  int iThisLevel;
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
@@ -2250,20 +2256,18 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   diff_all(&p->c);
 
   /* Where new lines are inserted on this difference, record the
-  ** zPName as the source of the new line.
+  ** iVers as the source of the new line.
   */
-  iPrevLevel = p->iLevel;
   p->iLevel++;
-  iThisLevel = p->iLevel;
   for(i=lnTo=0; i<p->c.nEdit; i+=3){
-    struct AnnLine *x = &p->aOrig[lnTo];
-    for(j=0; j<p->c.aEdit[i]; j++, lnTo++, x++){
-      if( x->zSrc==0 || x->iLevel==iPrevLevel ){
-         x->zSrc = zPName;
-         x->iLevel = iThisLevel;
+    int nCopy = p->c.aEdit[i];
+    int nIns = p->c.aEdit[i+2];
+    lnTo += nCopy;
+    for(j=0; j<nIns; j++, lnTo++){
+      if( p->aOrig[lnTo].iVers<0 ){
+        p->aOrig[lnTo].iVers = iVers;
       }
     }
-    lnTo += p->c.aEdit[i+2];
   }
 
   /* Clear out the diff results */
@@ -2280,35 +2284,6 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
 }
 
 
-/*
-** COMMAND: test-annotate-step
-*/
-void test_annotate_step_cmd(void){
-  Blob orig, b;
-  Annotator x;
-  int i;
-
-  if( g.argc<4 ) usage("RID1 RID2 ...");
-  db_must_be_within_tree();
-  blob_zero(&b);
-  content_get(name_to_rid(g.argv[2]), &orig);
-  if( annotation_start(&x, &orig) ){
-    fossil_fatal("binary file");
-  }
-  for(i=3; i<g.argc; i++){
-    blob_zero(&b);
-    content_get(name_to_rid(g.argv[i]), &b);
-    if( annotation_step(&x, &b, g.argv[i-1]) ){
-      fossil_fatal("binary file");
-    }
-  }
-  for(i=0; i<x.nOrig; i++){
-    const char *zSrc = x.aOrig[i].zSrc;
-    if( zSrc==0 ) zSrc = g.argv[g.argc-1];
-    fossil_print("%10s: %.*s\n", zSrc, x.aOrig[i].n, x.aOrig[i].z);
-  }
-}
-
 /* Annotation flags */
 #define ANN_FILE_VERS    0x01   /* Show file vers rather than commit vers */
 #define ANN_FILE_ANCEST  0x02   /* Prefer check-ins in the ANCESTOR table */
@@ -2322,7 +2297,6 @@ static void annotate_file(
   Annotator *p,        /* The annotator */
   int fnid,            /* The name of the file to be annotated */
   int mid,             /* Use the version of the file in this check-in */
-  int webLabel,        /* Use web-style annotations if true */
   int iLimit,          /* Limit the number of levels if greater than zero */
   int annFlags         /* Flags to alter the annotation */
 ){
@@ -2352,7 +2326,8 @@ static void annotate_file(
 
   db_prepare(&ins, "INSERT OR IGNORE INTO vseen(rid) VALUES(:rid)");
   db_prepare(&q,
-    "SELECT (SELECT uuid FROM blob WHERE rid=mlink.%s),"
+    "SELECT (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.mid),"
     "       date(event.mtime),"
     "       coalesce(event.euser,event.user),"
     "       mlink.pid"
@@ -2361,7 +2336,6 @@ static void annotate_file(
     "   AND event.objid=mlink.mid"
     "   AND mlink.pid NOT IN vseen"
     " ORDER BY %s event.mtime",
-    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid",
     (annFlags & ANN_FILE_ANCEST)!=0 ?
          "(mlink.mid IN (SELECT rid FROM ancestor)) DESC,":""
   );
@@ -2369,27 +2343,21 @@ static void annotate_file(
   db_bind_int(&q, ":rid", rid);
   if( iLimit==0 ) iLimit = 1000000000;
   while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    const char *zDate = db_column_text(&q, 1);
-    const char *zUser = db_column_text(&q, 2);
-    int prevId = db_column_int(&q, 3);
-    if( webLabel ){
-      zLabel = mprintf(
-          "<a href='%R/info/%s' target='infowindow'>%.10s</a> %s %13.13s",
-          zUuid, zUuid, zDate, zUser
-      );
-    }else{
-      zLabel = mprintf("%.10s %s %13.13s", zUuid, zDate, zUser);
+    int prevId = db_column_int(&q, 4);
+    p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
+    p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
+    p->aVers[p->nVers].zMUuid = fossil_strdup(db_column_text(&q, 1));
+    p->aVers[p->nVers].zDate = fossil_strdup(db_column_text(&q, 2));
+    p->aVers[p->nVers].zUser = fossil_strdup(db_column_text(&q, 3));
+    if( p->nVers ){
+      content_get(rid, &step);
+      annotation_step(p, &step, p->nVers-1);
+      blob_reset(&step);
     }
     p->nVers++;
-    p->azVers = fossil_realloc(p->azVers, p->nVers*sizeof(p->azVers[0]) );
-    p->azVers[p->nVers-1] = zLabel;
-    content_get(rid, &step);
-    annotation_step(p, &step, cnt==iLimit-1 ? "" : zLabel);
     db_bind_int(&ins, ":rid", rid);
     db_step(&ins);
     db_reset(&ins);
-    blob_reset(&step);
     db_reset(&q);
     rid = prevId;
     db_bind_int(&q, ":rid", prevId);
@@ -2398,6 +2366,24 @@ static void annotate_file(
   db_finalize(&q);
   db_finalize(&ins);
   db_end_transaction(0);
+}
+
+/*
+** Return a color from a gradient.
+*/
+unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
+  unsigned c;   /* Result color */
+  unsigned x1, x2;
+  x1 = (c1>>16)&0xff;
+  x2 = (c2>>16)&0xff;
+  c = (x1*i + x2*(n-i))/n<<16 & 0xff0000;
+  x1 = (c1>>8)&0xff;
+  x2 = (c2>>8)&0xff;
+  c |= (x1*i + x2*(n-i))/n<<8 & 0xff00;
+  x1 = c1&0xff;
+  x2 = c2&0xff;
+  c |= (x1*i + x2*(n-i))/n & 0xff;
+  return c;
 }
 
 /*
@@ -2424,6 +2410,8 @@ void annotation_page(void){
   char zFormat[10];      /* Format string for line numbers */
   Annotator ann;
   HQuery url;
+  struct AnnVers *p;
+  unsigned clr1, clr2, clr;
 
   showLn = atoi(PD("ln","1"));
   showLog = atoi(PD("log","1"));
@@ -2473,39 +2461,67 @@ void annotation_page(void){
     style_submenu_element("20 Ancestors", "20 Ancestors",
        url_render(&url, "limit", "20", 0, 0));
   }
-  annotate_file(&ann, fnid, mid, g.perm.Hyperlink, iLimit, annFlags);
+  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  if( db_get_boolean("white-foreground", 0) ){
+    clr1 = 0x000000;
+    clr2 = 0x0078ff;
+  }else{
+    clr1 = 0x007fff;
+    clr2 = 0xf0f7ff;
+  }
+  for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+    clr = gradient_color(clr1, clr2, ann.nVers-1, i);
+    ann.aVers[i].zBgColor = mprintf("#%06x", clr);
+    ann.aVers[i].zUser = mprintf("%h", ann.aVers[i].zUser);
+  }  
+
   if( showLog ){
-    int i;
     @ <h2>Versions analyzed:</h2>
     @ <ol>
-    for(i=0; i<ann.nVers; i++){
-      @ <li><tt>%s(ann.azVers[i])</tt></li>
+    for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+      @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
+      @ check-in %z(href("%R/info/%S",p->zMUuid))%.10s(p->zMUuid)</a>
+      @ by %h(p->zUser)
+      @ artifact %z(href("%R/artifact/%S",p->zFUuid))%.10s(p->zFUuid)</a>
+      @ </span></li>
     }
     @ </ol>
     @ <hr>
   }
   if( iLimit<0 ){
     @ <h2>Annotation:</h2>
+    iLimit = ann.nVers+10;
   }else{
     @ <h2>Annotation of %d(iLimit) most recent ancestors:</h2>
   }
   if( showLn ){
     sqlite3_snprintf(sizeof(zLn), zLn, "%d", ann.nOrig+1);
-    sqlite3_snprintf(sizeof(zFormat), zFormat, "%%%dd: ", strlen(zLn));
+    sqlite3_snprintf(sizeof(zFormat), zFormat, "%%%dd:", strlen(zLn));
   }else{
     zLn[0] = 0;
   }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
-    const char *zSrc = ann.aOrig[i].zSrc;
-    const char *zSep = ":";
-    if( zSrc[0]==0 ){
-      zSrc = "                                   ";
-      zSep = " ";
+    struct AnnVers *p;
+    int iVers = ann.aOrig[i].iVers;
+    char *z = (char*)ann.aOrig[i].z;
+    int n = ann.aOrig[i].n;
+    char zPrefix[300];
+    z[n] = 0;
+    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
+    if( iVers>=0 ){
+      struct AnnVers *p = ann.aVers+iVers;
+      char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix,
+           "<span style='background-color:%s'>"
+           "%s%.10s</a> %s %13.13s</span> %4d:",
+           p->zBgColor, zLink, p->zMUuid, p->zDate, p->zUser, i+1);
+      fossil_free(zLink);
+    }else{
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s%4d: ", "", i+1);
     }
-    ((char*)ann.aOrig[i].z)[ann.aOrig[i].n] = 0;
-    if( showLn ) sqlite3_snprintf(sizeof(zLn), zLn, zFormat, i+1);
-    @ %s(zSrc)%s(zSep)%s(zLn) %h(ann.aOrig[i].z)
+    @ %s(zPrefix) %h(z)
+
   }
   @ </pre>
   style_footer();
@@ -2573,24 +2589,32 @@ void annotate_cmd(void){
   if( mid==0 ){
     fossil_panic("unable to find manifest");
   }
-  if( fileVers ) annFlags |= ANN_FILE_VERS;
   annFlags |= ANN_FILE_ANCEST;
-  annotate_file(&ann, fnid, mid, 0, iLimit, annFlags);
+  annotate_file(&ann, fnid, mid, iLimit, annFlags);
   if( showLog ){
-    for(i=0; i<ann.nVers; i++){
-      printf("version %3d: %s\n", i+1, ann.azVers[i]);
+    struct AnnVers *p;
+    for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+      fossil_print("version %3d: %s %.10s by %-13s file %.10s\n",
+                   i+1, p->zDate, p->zMUuid, p->zUser, p->zFUuid);
     }
-    printf("---------------------------------------------------\n");
+    fossil_print("---------------------------------------------------\n");
   }
   for(i=0; i<ann.nOrig; i++){
-    const char *zSrc = ann.aOrig[i].zSrc;
-    const char *zSep = ":";
-    if( zSrc[0]==0 ){
-      zSrc = "";
-      zSep = " ";
+    struct AnnVers *p;
+    int iVers = ann.aOrig[i].iVers;
+    char *z = (char*)ann.aOrig[i].z;
+    int n = ann.aOrig[i].n;
+    char zPrefix[200];
+    z[n] = 0;
+    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
+    if( iVers>=0 ){
+      struct AnnVers *p = ann.aVers+iVers;
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%.10s %s %13.13s",
+           fileVers ? p->zFUuid : p->zMUuid, p->zDate, p->zUser);
+    }else{
+      zPrefix[0] = 0;
     }
-    fossil_print("%36s%s%.*s\n",
-                 zSrc, zSep, ann.aOrig[i].n, ann.aOrig[i].z);
+    fossil_print("%35s %4d: %.*s\n", zPrefix, i+1, n, z);
   }
 }
 
