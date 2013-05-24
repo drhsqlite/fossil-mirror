@@ -13,6 +13,7 @@
 <h2>Permuted Index:</h2>
 <ul>
 <li><a href="fiveminutes.wiki">5 Minutes as a Single User &mdash; Update and Running in</a></li>
+<li><a href="fossil-from-msvc.wiki">2010 IDE &mdash; Integrating Fossil in the Microsoft Express</a></li>
 <li><a href="tech_overview.wiki">A Technical Overview Of The Design And Implementation Of Fossil</a></li>
 <li><a href="antibot.wiki">against Spiders and Bots &mdash; Defense</a></li>
 <li><a href="copyright-release.html">Agreement &mdash; Contributor License</a></li>
@@ -61,6 +62,7 @@
 <li><a href="delta_encoder_algorithm.wiki">Encoding Algorithm &mdash; Fossil Delta</a></li>
 <li><a href="event.wiki">Events</a></li>
 <li><a href="inout.wiki">Export To And From Git &mdash; Import And</a></li>
+<li><a href="fossil-from-msvc.wiki">Express 2010 IDE &mdash; Integrating Fossil in the Microsoft</a></li>
 <li><a href="fileformat.wiki">File Format &mdash; Fossil</a></li>
 <li><a href="branching.wiki">Forking, Merging, and Tagging &mdash; Branching,</a></li>
 <li><a href="delta_format.wiki">Format &mdash; Fossil Delta</a></li>
@@ -89,14 +91,17 @@
 <li><a href="selfhost.wiki">Hosting Repositories &mdash; Fossil Self</a></li>
 <li><a href="server.wiki">How To Configure A Fossil Server</a></li>
 <li><a href="newrepo.wiki">How To Create A New Fossil Repository</a></li>
+<li><a href="fossil-from-msvc.wiki">IDE &mdash; Integrating Fossil in the Microsoft Express 2010</a></li>
 <li><a href="tech_overview.wiki">Implementation Of Fossil &mdash; A Technical Overview Of The Design And</a></li>
 <li><a href="inout.wiki">Import And Export To And From Git</a></li>
 <li><a href="build.wiki">Installing Fossil &mdash; Compiling and</a></li>
+<li><a href="fossil-from-msvc.wiki">Integrating Fossil in the Microsoft Express 2010 IDE</a></li>
 <li><a href="selfcheck.wiki">Integrity Self Checks &mdash; Fossil Repository</a></li>
 <li><a href="webui.wiki">Interface &mdash; The Fossil Web</a></li>
 <li><a href="copyright-release.html">License Agreement &mdash; Contributor</a></li>
 <li><a href="password.wiki">Management And Authentication &mdash; Password</a></li>
 <li><a href="branching.wiki">Merging, and Tagging &mdash; Branching, Forking,</a></li>
+<li><a href="fossil-from-msvc.wiki">Microsoft Express 2010 IDE &mdash; Integrating Fossil in the</a></li>
 <li><a href="fiveminutes.wiki">Minutes as a Single User &mdash; Update and Running in 5</a></li>
 <li><a href="checkin_names.wiki">Names &mdash; Checkin And Version</a></li>
 <li><a href="newrepo.wiki">New Fossil Repository &mdash; How To Create A</a></li>
