@@ -2456,7 +2456,7 @@ void annotation_page(void){
   }
   if( showLn ){
     style_submenu_element("Hide Line Numbers", "Hide Line Numbers",
-       url_render(&url, "log", 0, 0, 0));
+       url_render(&url, "ln", 0, 0, 0));
   }else{
     style_submenu_element("Show Line Numbers", "Show Line Numbers",
        url_render(&url, "ln", "1", 0, 0));
