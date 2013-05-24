@@ -2385,7 +2385,7 @@ static void annotate_file(
     p->azVers = fossil_realloc(p->azVers, p->nVers*sizeof(p->azVers[0]) );
     p->azVers[p->nVers-1] = zLabel;
     content_get(rid, &step);
-    annotation_step(p, &step, zLabel);
+    annotation_step(p, &step, cnt==iLimit-1 ? "" : zLabel);
     db_bind_int(&ins, ":rid", rid);
     db_step(&ins);
     db_reset(&ins);
@@ -2491,15 +2491,21 @@ void annotation_page(void){
   }
   if( showLn ){
     sqlite3_snprintf(sizeof(zLn), zLn, "%d", ann.nOrig+1);
-    sqlite3_snprintf(sizeof(zFormat), zFormat, "%%%dd:", strlen(zLn));
+    sqlite3_snprintf(sizeof(zFormat), zFormat, "%%%dd: ", strlen(zLn));
   }else{
     zLn[0] = 0;
   }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
+    const char *zSrc = ann.aOrig[i].zSrc;
+    const char *zSep = ":";
+    if( zSrc[0]==0 ){
+      zSrc = "                                   ";
+      zSep = " ";
+    }
     ((char*)ann.aOrig[i].z)[ann.aOrig[i].n] = 0;
     if( showLn ) sqlite3_snprintf(sizeof(zLn), zLn, zFormat, i+1);
-    @ %s(ann.aOrig[i].zSrc):%s(zLn) %h(ann.aOrig[i].z)
+    @ %s(zSrc)%s(zSep)%s(zLn) %h(ann.aOrig[i].z)
   }
   @ </pre>
   style_footer();
@@ -2559,7 +2565,7 @@ void annotate_cmd(void){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(cid, iLimit);
+  compute_direct_ancestors(cid, 1000000);
   mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
           " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
           " ORDER BY ancestor.generation ASC LIMIT 1",
@@ -2577,8 +2583,14 @@ void annotate_cmd(void){
     printf("---------------------------------------------------\n");
   }
   for(i=0; i<ann.nOrig; i++){
-    fossil_print("%s: %.*s\n",
-                 ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
+    const char *zSrc = ann.aOrig[i].zSrc;
+    const char *zSep = ":";
+    if( zSrc[0]==0 ){
+      zSrc = "";
+      zSep = " ";
+    }
+    fossil_print("%36s%s%.*s\n",
+                 zSrc, zSep, ann.aOrig[i].n, ann.aOrig[i].z);
   }
 }
 
