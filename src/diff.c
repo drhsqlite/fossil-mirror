@@ -2482,7 +2482,19 @@ void annotation_page(void){
       @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
       @ check-in %z(href("%R/info/%S",p->zMUuid))%.10s(p->zMUuid)</a>
       @ artifact %z(href("%R/artifact/%S",p->zFUuid))%.10s(p->zFUuid)</a>
-      @ </span></li>
+      @ </span>
+      if( i>0 ){
+        char *zLink = xhref("target='infowindow'",
+                            "%R/fdiff?v1=%S&v2=%S&sbs=1",
+                            p->zFUuid,ann.aVers[0].zFUuid);
+        @ %z(zLink)[diff-to-top]</a>
+        if( i>1 ){
+           zLink = xhref("target='infowindow'",
+                         "%R/fdiff?v1=%S&v2=%S&sbs=1",
+                         p->zFUuid,p[-1].zFUuid);
+           @ %z(zLink)[diff-to-previous]</a>
+        }
+      }
     }
     @ </ol>
     @ <hr>
