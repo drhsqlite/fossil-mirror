@@ -2529,7 +2529,7 @@ void annotation_page(void){
            p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
       fossil_free(zLink);
     }else{
-      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d: ", "", i+1);
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
     }
     @ %s(zPrefix) %h(z)
 

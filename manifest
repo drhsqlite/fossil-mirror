@@ -1,5 +1,5 @@
-C Add\slinks\sto\sdiff\spages\son\sthe\sannotation\slog\sin\sthe\sweb\sinterface.
-D 2013-05-24T21:39:51.654
+C Fix\sa\sminor\sformatting\serror\sin\sthe\sweb\sannotation\spage.
+D 2013-05-24T21:54:18.153
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -327,7 +327,7 @@ F src/db.c 5918dc6458ca73c07e6b8cf7f70bb29b7f5d0bf5
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
-F src/diff.c 1c18d6a20127ea0939cadacba5218bcc1ebf788f
+F src/diff.c 04bc7fbb5a599f482aad1f00fa86d2877c3124de
 F src/diffcmd.c 9c14d774f59f4607b11258ebe2b3318dd264c2f0
 F src/doc.c 44c05bffa28ec381af2ba5e4d99696e868b311b4
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -625,7 +625,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8fee580ded080e4ae9a282f1670837a2db378db7
-R edd60341ed494e2ea682075691a6b5b9
+P 7799ff3a00a257aed07c8bc81ead46a4c8925947
+R 5ee8d4513797e67549932d2960bc4ead
 U drh
-Z b5b78b426a62426477a8aa121c274aa5
+Z a2e904fae1081a48ba32475d9aa4cd9e
