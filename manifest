@@ -1,5 +1,5 @@
-C Fix\sproblems\swith\supdate\sand\smerge\swhen\scase-sensitive\sis\soff\sand\stwo\ndifferent\scheckouts\seach\sadd\sfiles\sthat\sdiffer\sonly\sin\scase.
-D 2013-05-23T22:36:34.878
+C "fossil\supdate"\soperates\son\sthe\slocal\sfilesystem,\sso\sit\sshould\shave\sthe\s--case-sensitive\soption.
+D 2013-05-24T07:01:20.778
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -413,7 +413,7 @@ F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 02092a24d2a0704eeb5a548ce6c070d4392175f9
-F src/update.c 2be9f80718f7728968b22be752995f85f6726bc4
+F src/update.c cb54091f53b854d3649c4ac7f1f6dc5010e1f7d9
 F src/url.c 3cfb983699aa08d605c47ad368d5796c09f6143d
 F src/user.c 84e080180fec94f8e62aa9eba7868beeefb87780
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
@@ -624,7 +624,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 97040d643693f4825ab634a62e7c93603babfb1b
-R 4669f7d18a988ebf2b3e7758d86c2b5e
-U drh
-Z 7562b83ecfeb496469ca44674cfe7fb6
+P a5a8d0477ad69aaebf14e8c2f6bb8e04bdf774b7
+R 4e7f851042b91a01ace31f00d3dcdce1
+U jan.nijtmans
+Z 0fc5bc92aba054dcdc2ce3c0fb88a852

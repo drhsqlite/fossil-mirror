@@ -87,6 +87,7 @@ int update_to(int vid){
 ** files in addition to those file that actually do change.
 **
 ** Options:
+**   --case-sensitive <BOOL> override case-sensitive setting
 **   --debug          print debug information on stdout
 **   --latest         acceptable in place of VERSION, update to latest version
 **   -n|--dry-run     If given, display instead of run actions
@@ -123,6 +124,7 @@ void update_cmd(void){
   verboseFlag = find_option("verbose","v",0)!=0;
   debugFlag = find_option("debug",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
+  capture_case_sensitive_option();
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
