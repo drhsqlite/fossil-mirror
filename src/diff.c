@@ -1655,19 +1655,22 @@ static void longestCommonSequence(
   int *piSX, int *piEX,      /* Write p->aFrom[] common segment here */
   int *piSY, int *piEY       /* Write p->aTo[] common segment here */
 ){
-  double bestScore = -1e30;  /* Best score seen so far */
   int i, j, k;               /* Loop counters */
   int n;                     /* Loop limit */
   DLine *pA, *pB;            /* Pointers to lines */
   int iSX, iSY, iEX, iEY;    /* Current match */
-  double score;              /* Current score */
-  int skew;                  /* How lopsided is the match */
-  int dist;                  /* Distance of match from center */
+  int skew = 0;              /* How lopsided is the match */
+  int dist = 0;              /* Distance of match from center */
   int mid;                   /* Center of the span */
   int iSXb, iSYb, iEXb, iEYb;   /* Best match so far */
   int iSXp, iSYp, iEXp, iEYp;   /* Previous match */
+  sqlite3_int64 bestScore;      /* Best score so far */
+  sqlite3_int64 score;          /* Score for current candidate LCS */
+  int span;                     /* combined width of the input sequences */
 
-
+  span = (iE1 - iS1) + (iE2 - iS2);
+  bestScore = -10000;
+  score = 0;
   iSXb = iSXp = iS1;
   iEXb = iEXp = iS1;
   iSYb = iSYp = iS2;
@@ -1709,7 +1712,7 @@ static void longestCommonSequence(
     if( skew<0 ) skew = -skew;
     dist = (iSX+iEX)/2 - mid;
     if( dist<0 ) dist = -dist;
-    score = (iEX - iSX) - 0.05*skew - 0.05*dist;
+    score = (iEX - iSX)*(sqlite3_int64)span - (skew + dist);
     if( score>bestScore ){
       bestScore = score;
       iSXb = iSX;
@@ -1733,8 +1736,6 @@ static void longestCommonSequence(
     *piEX = iEXb;
     *piEY = iEYb;
   }
-  /* printf("LCS(%d..%d/%d..%d) = %d..%d/%d..%d\n",
-     iS1, iE1, iS2, iE2, *piSX, *piEX, *piSY, *piEY);  */
 }
 
 /*
