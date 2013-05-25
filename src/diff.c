@@ -2377,13 +2377,13 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
   unsigned x1, x2;
   x1 = (c1>>16)&0xff;
   x2 = (c2>>16)&0xff;
-  c = (x1*i + x2*(n-i))/n<<16 & 0xff0000;
+  c = (x1*(n-i) + x2*i)/n<<16 & 0xff0000;
   x1 = (c1>>8)&0xff;
   x2 = (c2>>8)&0xff;
-  c |= (x1*i + x2*(n-i))/n<<8 & 0xff00;
+  c |= (x1*(n-i) + x2*i)/n<<8 & 0xff00;
   x1 = c1&0xff;
   x2 = c2&0xff;
-  c |= (x1*i + x2*(n-i))/n & 0xff;
+  c |= (x1*(n-i) + x2*i)/n & 0xff;
   return c;
 }
 
@@ -2464,11 +2464,11 @@ void annotation_page(void){
   }
   annotate_file(&ann, fnid, mid, iLimit, annFlags);
   if( db_get_boolean("white-foreground", 0) ){
-    clr1 = 0x000000;
-    clr2 = 0x0078ff;
+    clr1 = 0xa04040;
+    clr2 = 0x4059a0;
   }else{
-    clr1 = 0x007fff;
-    clr2 = 0xf0f7ff;
+    clr1 = 0xffb5b5;  /* Recent changes: red (hot) */
+    clr2 = 0xb5e0ff;  /* Older changes: blue (cold) */
   }
   for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
     clr = gradient_color(clr1, clr2, ann.nVers-1, i);
@@ -2484,6 +2484,7 @@ void annotation_page(void){
       @ check-in %z(href("%R/info/%S",p->zMUuid))%.10s(p->zMUuid)</a>
       @ artifact %z(href("%R/artifact/%S",p->zFUuid))%.10s(p->zFUuid)</a>
       @ </span>
+#if 0
       if( i>0 ){
         char *zLink = xhref("target='infowindow'",
                             "%R/fdiff?v1=%S&v2=%S&sbs=1",
@@ -2496,6 +2497,7 @@ void annotation_page(void){
            @ %z(zLink)[diff-to-previous]</a>
         }
       }
+#endif
     }
     @ </ol>
     @ <hr>
