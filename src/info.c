@@ -1092,6 +1092,7 @@ int object_description(
     if( g.perm.Hyperlink ){
       @ %z(href("%R/annotate?checkin=%S&filename=%T",zVers,zName))
       @ [annotate]</a>
+      @ %z(href("%R/finfo?name=%T&ci=%S",zName,zVers))[ancestry]</a>
     }
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){

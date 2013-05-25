@@ -286,8 +286,9 @@ void finfo_page(void){
   url_initialize(&url, "finfo");
   if( brBg ) url_add_parameter(&url, "brbg", 0);
   if( uBg ) url_add_parameter(&url, "ubg", 0);
-  if( firstChngOnly ) url_add_parameter(&url, "fco", "0");
   baseCheckin = name_to_rid_www("ci");
+  if( baseCheckin ) firstChngOnly = 1;
+  if( firstChngOnly ) url_add_parameter(&url, "fco", "0");
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
@@ -298,7 +299,7 @@ void finfo_page(void){
     " datetime(event.mtime,'localtime'),"            /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
     " coalesce(event.euser, event.user),"            /* User who made chng */
-    " mlink.pid,"                                    /* Parent rid */
+    " mlink.pid,"                                    /* Parent file rid */
     " mlink.fid,"                                    /* File rid */
     " (SELECT uuid FROM blob WHERE rid=mlink.pid),"  /* Parent file uuid */
     " (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* Current file uuid */
@@ -311,7 +312,16 @@ void finfo_page(void){
     TAG_BRANCH
   );
   if( firstChngOnly ){
+#if 0
     blob_appendf(&sql, ", min(event.mtime)");
+#else
+    blob_appendf(&sql, 
+        ", min(CASE (SELECT value FROM tagxref"
+                    " WHERE tagtype>0 AND tagid=%d"
+                    "   AND tagxref.rid=mlink.mid)"
+             " WHEN 'trunk' THEN event.mtime-10000 ELSE event.mtime END)",
+    TAG_BRANCH);
+#endif
   }
   blob_appendf(&sql,
     "  FROM mlink, event"
@@ -339,14 +349,20 @@ void finfo_page(void){
     blob_appendf(&sql, " LIMIT %d", n);
     url_add_parameter(&url, "n", P("n"));
   }
-  if( firstChngOnly ){
-    style_submenu_element("Full", "Show all changes","%s",
-                          url_render(&url, "fco", "0", 0, 0));
-  }else{
-    style_submenu_element("Simplified", "Show only first use of a change","%s",
-                          url_render(&url, "fco", "1", 0, 0));
+  if( baseCheckin==0 ){
+    if( firstChngOnly ){
+      style_submenu_element("Full", "Show all changes","%s",
+                            url_render(&url, "fco", "0", 0, 0));
+    }else{
+      style_submenu_element("Simplified",
+                            "Show only first use of a change","%s",
+                            url_render(&url, "fco", "1", 0, 0));
+    }
   }
   db_prepare(&q, blob_str(&sql));
+  if( P("showsql")!=0 ){
+    @ <p>SQL: %h(blob_str(&sql))</p>
+  }
   blob_reset(&sql);
   blob_zero(&title);
   if( baseCheckin ){
