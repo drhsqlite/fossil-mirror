@@ -1,5 +1,5 @@
-C Improvements\sto\sannotate.\s\sFaster.\s\sMore\scorrect.\s\sAdded\sgradient\sbackground\ncolors\sto\sthe\sweb\sview.\s\sDefault\sto\sshowing\sline\snumbers.\s\sDo\snot\sshow\sthe\ncheck-in\suser.\s\sFix\sfor\sticket\s[58ce2f221ae2e64ed].
-D 2013-05-25T01:52:13.708
+C Remove\sunused\svariables\sin\sthe\sannotation\sengine.
+D 2013-05-25T01:57:33.020
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -327,7 +327,7 @@ F src/db.c 5918dc6458ca73c07e6b8cf7f70bb29b7f5d0bf5
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
-F src/diff.c aff9f769fda33961d812a2dc2463499cd74518fe
+F src/diff.c d4712a4e688f8485d8faefdd49dfc158c54c56d8
 F src/diffcmd.c 9c14d774f59f4607b11258ebe2b3318dd264c2f0
 F src/doc.c 44c05bffa28ec381af2ba5e4d99696e868b311b4
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -625,7 +625,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 434be79b43e2b2a765be7e6fae316cbc3542ca16 8987a6bbbf6b8d380c8f7069f23952a8c017208a
-R a43a2de8fcf948d51dfa3ef96f7737c5
+P 89bf6f13f9c407c448b6a20b79fe9f0a4192f4e6
+R 7f980fbaf83d14292e0f3c9b0ff29111
 U drh
-Z d6f9d8cbcd121892490de19f104333c9
+Z 9f8b9d074f469d5da5592cb8a7800910

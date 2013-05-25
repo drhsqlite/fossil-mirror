@@ -2193,17 +2193,13 @@ struct Annotator {
   struct AnnLine {  /* Lines of the original files... */
     const char *z;       /* The text of the line */
     short int n;         /* Number of bytes (omitting trailing space and \n) */
-    short int iLevel;    /* Level at which tag was set */
-    int iVers;           /* aVers[] entry responsible for this line */
+    short int iVers;     /* Level at which tag was set */
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
-  int nNoSrc;       /* Number of entries where aOrig[].zSrc==NULL */
-  int iLevel;       /* Current level */
   int nVers;        /* Number of versions analyzed */
   struct AnnVers {
     const char *zFUuid;   /* File being analyzed */
     const char *zMUuid;   /* Check-in containing the file */
-    const char *zUser;    /* User who did the check-in */
     const char *zDate;    /* Date of the check-in */
     const char *zBgColor; /* Suggested background color */
     unsigned cnt;         /* Number of lines contributed by this check-in */
@@ -2259,7 +2255,6 @@ static int annotation_step(Annotator *p, Blob *pParent, int iVers){
   /* Where new lines are inserted on this difference, record the
   ** iVers as the source of the new line.
   */
-  p->iLevel++;
   for(i=lnTo=0; i<p->c.nEdit; i+=3){
     int nCopy = p->c.aEdit[i];
     int nIns = p->c.aEdit[i+2];
@@ -2304,7 +2299,6 @@ static void annotate_file(
   Blob toAnnotate;     /* Text of the final (mid) version of the file */
   Blob step;           /* Text of previous revision */
   int rid;             /* Artifact ID of the file being annotated */
-  char *zLabel;        /* Label to apply to a line */
   Stmt q;              /* Query returning all ancestor versions */
   Stmt ins;            /* Inserts into the temporary VSEEN table */
   int cnt = 0;         /* Number of versions examined */
@@ -2330,7 +2324,6 @@ static void annotate_file(
     "SELECT (SELECT uuid FROM blob WHERE rid=mlink.fid),"
     "       (SELECT uuid FROM blob WHERE rid=mlink.mid),"
     "       date(event.mtime),"
-    "       coalesce(event.euser,event.user),"
     "       mlink.pid"
     "  FROM mlink, event"
     " WHERE mlink.fid=:rid"
@@ -2344,12 +2337,11 @@ static void annotate_file(
   db_bind_int(&q, ":rid", rid);
   if( iLimit==0 ) iLimit = 1000000000;
   while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
-    int prevId = db_column_int(&q, 4);
+    int prevId = db_column_int(&q, 3);
     p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
     p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
     p->aVers[p->nVers].zMUuid = fossil_strdup(db_column_text(&q, 1));
     p->aVers[p->nVers].zDate = fossil_strdup(db_column_text(&q, 2));
-    p->aVers[p->nVers].zUser = fossil_strdup(db_column_text(&q, 3));
     if( p->nVers ){
       content_get(rid, &step);
       annotation_step(p, &step, p->nVers-1);
@@ -2473,7 +2465,6 @@ void annotation_page(void){
   for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
     clr = gradient_color(clr1, clr2, ann.nVers-1, i);
     ann.aVers[i].zBgColor = mprintf("#%06x", clr);
-    ann.aVers[i].zUser = mprintf("%h", ann.aVers[i].zUser);
   }  
 
   if( showLog ){
@@ -2516,7 +2507,6 @@ void annotation_page(void){
   }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
-    struct AnnVers *p;
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
     int n = ann.aOrig[i].n;
@@ -2614,7 +2604,6 @@ void annotate_cmd(void){
     fossil_print("---------------------------------------------------\n");
   }
   for(i=0; i<ann.nOrig; i++){
-    struct AnnVers *p;
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
     int n = ann.aOrig[i].n;
