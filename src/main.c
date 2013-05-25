@@ -422,13 +422,20 @@ static void expand_args_option(int argc, void *argv){
 
   blob_rewind(&file);
   while( (n = blob_line(&file, &line))>0 ){
-    if( n<=1 ) continue;
+    if( n<1 ) continue
+      /**
+       ** Reminder: corner-case: a line with 1 byte and no newline.
+       */;
     z = blob_buffer(&line);
-    z[n-1] = 0;
+    if('\n'==z[n-1]){
+      z[n-1] = 0;
+    }
+
     if((n>1) && ('\r'==z[n-2])){
       if(n==2) continue /*empty line*/;
       z[n-2] = 0;
     }
+    if(!z[0]) continue;
     newArgv[j++] = z;
     if( z[0]=='-' ){
       for(k=1; z[k] && !fossil_isspace(z[k]); k++){}
