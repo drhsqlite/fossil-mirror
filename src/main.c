@@ -547,6 +547,17 @@ int main(int argc, char **argv)
        "   or: %s help           -- for a list of common commands\n"
        "   or: %s help COMMMAND  -- for help with the named command\n",
        g.argv[0], g.argv[0], g.argv[0]);
+    fossil_print(
+      "\nCommands and filenames may be passed on to fossil from a file\n"
+      "by using:\n"
+      "\n    %s --args FILENAME ...\n",
+      g.argv[0]
+    );
+    fossil_print(
+      "\nEach line of the file is assumed to be a filename unles it starts\n"
+      "with '-' and contains a space, in which case it is assumed to be\n"
+      "another flag and is treated as such. --args FILENAME may be used\n"
+      "in conjunction with any other flags.\n");
     fossil_exit(1);
   }else{
     const char *zChdir = find_option("chdir",0,1);
