@@ -258,6 +258,7 @@ void cat_cmd(void){
 **    n=NUM      Show the first NUM changes only
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
+**    ci=UUID    Ancestors of a particular check-in
 **    fco=BOOL   Show only first occurrence of each version if true (default)
 */
 void finfo_page(void){
@@ -267,6 +268,7 @@ void finfo_page(void){
   const char *zA;
   const char *zB;
   int n;
+  int baseCheckin;
 
   Blob title;
   Blob sql;
@@ -285,6 +287,7 @@ void finfo_page(void){
   if( brBg ) url_add_parameter(&url, "brbg", 0);
   if( uBg ) url_add_parameter(&url, "ubg", 0);
   if( firstChngOnly ) url_add_parameter(&url, "fco", "0");
+  baseCheckin = name_to_rid_www("ci");
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
@@ -316,6 +319,10 @@ void finfo_page(void){
     "   AND event.objid=mlink.mid",
     zFilename
   );
+  if( baseCheckin ){
+    compute_direct_ancestors(baseCheckin, 10000000);
+    blob_appendf(&sql,"  AND mlink.mid IN (SELECT rid FROM ancestor)");
+  }
   if( (zA = P("a"))!=0 ){
     blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zA);
     url_add_parameter(&url, "a", zA);
@@ -342,8 +349,17 @@ void finfo_page(void){
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
   blob_zero(&title);
-  blob_appendf(&title, "History of ");
-  hyperlinked_path(zFilename, &title, 0);
+  if( baseCheckin ){
+    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
+    char *zLink = href("%R/info/%S", zUuid);
+    blob_appendf(&title, "Ancestry of ");
+    hyperlinked_path(zFilename, &title, 0);
+    blob_appendf(&title, " from check-in %z%.10s</a>", zLink, zUuid);
+    fossil_free(zUuid);
+  }else{
+    blob_appendf(&title, "History of ");
+    hyperlinked_path(zFilename, &title, 0);
+  }
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
