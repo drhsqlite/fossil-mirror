@@ -1,5 +1,5 @@
-C Added\snotes\sabout\s--args\sFILENAME\sto\sdefault\shelp\smessage,\sper\sML\srequest.
-D 2013-05-25T14:30:24.714
+C minor\stypo\sfix\sin\shelp\stext.
+D 2013-05-25T14:34:29.719
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -362,7 +362,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 1e932b06a9ed604b53c4b5c3a16327d1ae649192
-F src/main.c 8a96964db594a99d390618d2d3bf05b61fea4afe
+F src/main.c f892afb42fc074e343d49a6bfba640764bcb454f
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -625,7 +625,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 305e3951cc08685443915d5887a973bf31df75e5
-R 85e7780d50576dcdd1c623a5cc6c325a
+P 0e5bbade2c403dadcf50375f94a485ccf7efc85e
+R 8bbbfe4ac23d75bcc13045dbaab25f78
 U stephan
-Z f9823fa4b403d813f4f4d99becd25374
+Z 262331dc99b6e7d618ebaea2d669fc9d

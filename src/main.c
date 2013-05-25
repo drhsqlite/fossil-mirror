@@ -554,7 +554,7 @@ int main(int argc, char **argv)
       g.argv[0]
     );
     fossil_print(
-      "\nEach line of the file is assumed to be a filename unles it starts\n"
+      "\nEach line of the file is assumed to be a filename unless it starts\n"
       "with '-' and contains a space, in which case it is assumed to be\n"
       "another flag and is treated as such. --args FILENAME may be used\n"
       "in conjunction with any other flags.\n");
