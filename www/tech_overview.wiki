@@ -7,7 +7,8 @@ A Technical Overview<br>Of The Design And Implementation<br>Of Fossil
 
 At its lowest level, a Fossil repository consists of an unordered set
 of immutable "artifacts".  You might think of these artifacts as "files",
-since in many cases the artifacts exactly that.  But other "control artifacts" 
+since in many cases the artifacts are exactly that.  
+But other "control artifacts" 
 are also included in the mix.  These control artifacts define the relationships
 between artifacts - which files go together to form a particular
 version of the project, who checked in that version and when, what was

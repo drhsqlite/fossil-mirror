@@ -1,5 +1,5 @@
-C Remove\san\sunused\svariable\sfrom\sthe\sannotation\slogic\sin\sdiff.c.
-D 2013-05-27T02:25:30.871
+C Minor\sdocumentation\supdates.
+D 2013-05-27T03:10:52.036
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -567,7 +567,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki 9686168c940fc6e88065a845918e9b7e77e881c8
 F www/delta_format.wiki 20dd8049e46a7ae1d0b86269ee22e157f6095e5c
-F www/embeddeddoc.wiki 90ff3cae1f811a7b57647c438ebe7cf25bdcdcc7
+F www/embeddeddoc.wiki b61fd520c87121e597a57dfd8bed1dd37f3a0662
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -609,7 +609,7 @@ F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
 F www/quickstart.wiki 70ea6e6d986c5fb7e13049717fd2c103ad7a7dc1
 F www/quotes.wiki 6d0079e2cfc8b55d71f36210670f409f6ad4de52
-F www/reviews.wiki dde09a2cd7d4ba78b1ae8b8ddca57fa39cfb6c66
+F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
 F www/selfhost.wiki d9bcd969d75abca0c0d25d2f38327399a48075a1
 F www/server.wiki d74d0c320c455abd2cf4dd1490d78e0bd8839dd9
@@ -619,13 +619,13 @@ F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
 F www/style.wiki 92ede836b02fb8958e948b9df51f196e9ec95d68
 F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
-F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
+F www/tech_overview.wiki ee507e1cf99186948c2d7207ed36a6838c8575d2
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ef26e7624e1e81ed16ebb9c1d40ff6e11a7f3de9
-R 1dbefb3c9dcad708484e9c2490f74f0e
+P 770fd05fe8595a287aafbfd937dfaed41dbcca99
+R f3095f7b880dc88590a2e6797a6d6c57
 U drh
-Z 7e5e6dede777ea99dbe6f964570afc33
+Z 928729beebed9a37fe5b28d8a59bd7fa
