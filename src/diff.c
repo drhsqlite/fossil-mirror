@@ -2401,7 +2401,6 @@ void annotation_page(void){
   int showLog = 0;       /* True to display the log */
   const char *zFilename; /* Name of file to annotate */
   const char *zCI;       /* The check-in containing zFilename */
-  char zFormat[10];      /* Format string for line numbers */
   Annotator ann;
   HQuery url;
   struct AnnVers *p;
