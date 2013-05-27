@@ -1,5 +1,5 @@
-C Do\snot\sredirect\s"diff"\slinks\son\sthe\s"Show\sFiles"\soption\sof\sthe\stimeline\sto\na\sdifferent\swindow.\s\sIf\sthe\suser\swants\sto\sshow\sthe\sdiff\sin\sa\sdifferent\swindow,\nlet\sthem\sclick\swhile\sholding\sdown\sthe\sShift\skey.
-D 2013-05-27T02:00:21.740
+C Further\simprovements\sto\sthe\sweb\sdisplay\sof\sannotations\sand\sfile\shistory.
+D 2013-05-27T02:18:06.699
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -327,14 +327,14 @@ F src/db.c 5918dc6458ca73c07e6b8cf7f70bb29b7f5d0bf5
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
-F src/diff.c 2b7f9fad92def0c46c0be6f9f618b4c0c51ef3b5
+F src/diff.c 2ab07e6f80cfac9f46b8edeb1c09ac8313650085
 F src/diffcmd.c 9c14d774f59f4607b11258ebe2b3318dd264c2f0
 F src/doc.c 44c05bffa28ec381af2ba5e4d99696e868b311b4
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
 F src/event.c 20e26d45b3688da9779ed4c79d51b1eed2a1eaef
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
 F src/file.c c4cac5912807aab61fe6edc2e650e66e66fc346e
-F src/finfo.c fb09e909d60806713f3bc3fbbe242a8265b995e0
+F src/finfo.c e66fb54b0595c17a8a2400caae382011df2636e7
 F src/glob.c 66cd71e83a07fe617fb862d6237d283430d91d14
 F src/graph.c d2f9ba3faa6cc3b9cbf085b1faa8bc942cc75cf0
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
@@ -625,7 +625,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 59d70140f69e98041a8a59871f46ea3483732d7a
-R daed4fe8265869442e682224d8681c0d
+P 71a916ee9507d6fbdcaf84a38176b46db19ef723
+R 4680dbe89f0c72c6eb5b8f1a7c4fa40e
 U drh
-Z 17474b7685c0b66125cac98ebce1c1e0
+Z 2eacbe04c56c621c279513e9fdded68e

@@ -2400,6 +2400,7 @@ void annotation_page(void){
   int annFlags = ANN_FILE_ANCEST;  
   int showLog = 0;       /* True to display the log */
   const char *zFilename; /* Name of file to annotate */
+  const char *zCI;       /* The check-in containing zFilename */
   char zFormat[10];      /* Format string for line numbers */
   Annotator ann;
   HQuery url;
@@ -2423,6 +2424,7 @@ void annotation_page(void){
   /* compute the annotation */
   compute_direct_ancestors(mid, 10000000);
   annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  zCI = ann.aVers[0].zMUuid;
 
   /* generate the web page */
   style_header("Annotation For %h", zFilename);
@@ -2465,7 +2467,8 @@ void annotation_page(void){
   }  
 
   if( showLog ){
-    @ <h2>Ancestors of %h(zFilename) analyzed:</h2>
+    char *zLink = href("%R/finfo?name=%t&ci=%S",zFilename,zCI);
+    @ <h2>Ancestors of %z(zLink)%h(zFilename)</a> analyzed:</h2>
     @ <ol>
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
       @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
@@ -2491,11 +2494,14 @@ void annotation_page(void){
     @ <hr>
   }
   if( !ann.bLimit ){
-    @ <h2>Origin for each line in %h(zFilename):</h2>
+    @ <h2>Origin for each line in 
+    @ %z(href("%R/finfo?name=%h&ci=%S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%S",zCI))%S(zCI)</a>:</h2>
     iLimit = ann.nVers+10;
   }else{
-    @ <h2>Lines added by the %d(iLimit) most recent
-    @ ancestors of %h(zFilename):</h2>
+    @ <h2>Lines added by the %d(iLimit) most recent ancestors of
+    @ %z(href("%R/finfo?name=%h&ci=%S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%S",zCI))%S(zCI)</a>:</h2>
   }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
