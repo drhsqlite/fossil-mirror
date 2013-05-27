@@ -238,7 +238,7 @@ void ls_cmd(void){
   char *zOrderBy = "pathname";
 
   verboseFlag = find_option("verbose","v", 0)!=0;
-  if(!verboseFlag){
+  if( !verboseFlag ){
     verboseFlag = find_option("l","l", 0)!=0; /* deprecated */
   }
   showAge = find_option("age",0,0)!=0;
@@ -383,7 +383,9 @@ void extra_cmd(void){
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout. This operation
-** cannot be undone.
+** cannot be undone. Normally, only files unknown to fossil are
+** removed, but if the -x option is specified, ignored files are
+** removed as well.
 **
 ** You will be prompted before removing each eligible file unless the
 ** --force flag is in use or it matches the --clean option.  The
@@ -412,6 +414,9 @@ void extra_cmd(void){
 **    -n|--dry-run     If given, display instead of run actions
 **    --temp           Remove only Fossil-generated temporary files
 **    -v|--verbose     Show all files as they are removed
+**    -x               Remove everything unkown to fossil,
+**                     including files matching --ignore.
+**                     Compatibile with "git clean -x".
 **
 ** See also: addremove, extra, status
 */
@@ -423,7 +428,7 @@ void clean_cmd(void){
   Stmt q;
   int n;
   Glob *pIgnore, *pKeep, *pClean;
-  int dryRunFlag = 0;
+  int xFlag, dryRunFlag;
   int verboseFlag;
 
   allFlag = find_option("force","f",0)!=0;
@@ -432,6 +437,7 @@ void clean_cmd(void){
   zIgnoreFlag = find_option("ignore",0,1);
   verboseFlag = find_option("verbose","v",0)!=0;
   dryRunFlag = find_option("dry-run","n",0)!=0;
+  xFlag = find_option("x","x",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
@@ -456,9 +462,8 @@ void clean_cmd(void){
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
-  vfile_scan2(&path, blob_size(&path), scanFlags, pIgnore, pKeep);
+  vfile_scan2(&path, blob_size(&path), scanFlags, xFlag?0:pIgnore, pKeep);
   glob_free(pKeep);
-  glob_free(pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
@@ -471,7 +476,8 @@ void clean_cmd(void){
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+n) ){
+    if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+n)
+        && (!xFlag || !glob_match(pIgnore, zName+n))){
       Blob ans;
       char cReply;
       char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
@@ -492,6 +498,7 @@ void clean_cmd(void){
       file_delete(zName);
     }
   }
+  glob_free(pIgnore);
   glob_free(pClean);
   db_finalize(&q);
 }
