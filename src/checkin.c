@@ -416,25 +416,23 @@ void extra_cmd(void){
 ** See also: addremove, extra, status
 */
 void clean_cmd(void){
-  int allFlag;
+  int allFlag, dryRunFlag, verboseFlag;
   unsigned scanFlags = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Blob path, repo;
   Stmt q;
   int n;
   Glob *pIgnore, *pKeep, *pClean;
-  int dryRunFlag = 0;
-  int verboseFlag;
 
-  allFlag = find_option("force","f",0)!=0;
-  if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
-  if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
-  zIgnoreFlag = find_option("ignore",0,1);
-  verboseFlag = find_option("verbose","v",0)!=0;
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
+  allFlag = find_option("force","f",0)!=0 || dryRunFlag;
+  if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
+  if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
+  zIgnoreFlag = find_option("ignore",0,1);
+  verboseFlag = find_option("verbose","v",0)!=0 || dryRunFlag;
   zKeepFlag = find_option("keep",0,1);
   zCleanFlag = find_option("clean",0,1);
   capture_case_sensitive_option();
@@ -471,7 +469,7 @@ void clean_cmd(void){
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+n) ){
+    if( !allFlag && !glob_match(pClean, zName+n) ){
       Blob ans;
       char cReply;
       char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
@@ -485,7 +483,7 @@ void clean_cmd(void){
         continue;
       }
     }
-    if( dryRunFlag || verboseFlag ){
+    if( verboseFlag ){
       fossil_print("removed unmanaged file: %s\n", zName+n);
     }
     if( !dryRunFlag ){
