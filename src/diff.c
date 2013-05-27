@@ -2197,6 +2197,7 @@ struct Annotator {
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
   int nVers;        /* Number of versions analyzed */
+  int bLimit;       /* True if the iLimit was reached */
   struct AnnVers {
     const char *zFUuid;   /* File being analyzed */
     const char *zMUuid;   /* Check-in containing the file */
@@ -2356,6 +2357,7 @@ static void annotate_file(
     db_bind_int(&q, ":rid", prevId);
     cnt++;
   }
+  p->bLimit = iLimit==cnt;
   db_finalize(&q);
   db_finalize(&ins);
   db_end_transaction(0);
@@ -2387,8 +2389,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **    checkin=ID          The manifest ID at which to start the annotation
 **    filename=FILENAME   The filename.
 **    filevers            Show file versions rather than check-in versions
-**    log                 Show a log of versions analyzed
-**    ln                  Show line numbers on the output
+**    log=BOOLEAN         Show a log of versions analyzed
 **    limit=N             Limit the search depth to N ancestors
 */
 void annotation_page(void){
@@ -2397,37 +2398,41 @@ void annotation_page(void){
   int i;
   int iLimit;            /* Depth limit */
   int annFlags = ANN_FILE_ANCEST;  
-  int showLn = 0;        /* True if line numbers should be shown */
   int showLog = 0;       /* True to display the log */
-  char zLn[10];          /* Line number buffer */
+  const char *zFilename; /* Name of file to annotate */
   char zFormat[10];      /* Format string for line numbers */
   Annotator ann;
   HQuery url;
   struct AnnVers *p;
   unsigned clr1, clr2, clr;
 
-  showLn = atoi(PD("ln","1"));
+  /* Gather query parameters */
   showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", P("filename"));
+  zFilename = P("filename");
+  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
   iLimit = atoi(PD("limit","20"));
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
   }
+
+  /* compute the annotation */
   compute_direct_ancestors(mid, 10000000);
-  style_header("File Annotation");
+  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+
+  /* generate the web page */
+  style_header("Annotation For %h", zFilename);
   url_initialize(&url, "annotate");
   url_add_parameter(&url, "checkin", P("checkin"));
-  url_add_parameter(&url, "filename", P("filename"));
+  url_add_parameter(&url, "filename", zFilename);
   if( iLimit!=20 ){
     url_add_parameter(&url, "limit", sqlite3_mprintf("%d", iLimit));
   }
   url_add_parameter(&url, "log", showLog ? "1" : "0");
-  url_add_parameter(&url, "ln", showLn ? "1" : "0");
   if( showLog ){
     style_submenu_element("Hide Log", "Hide Log",
        url_render(&url, "log", "0", 0, 0));
@@ -2435,14 +2440,7 @@ void annotation_page(void){
     style_submenu_element("Show Log", "Show Log",
        url_render(&url, "log", "1", 0, 0));
   }
-  if( showLn ){
-    style_submenu_element("Hide Line Numbers", "Hide Line Numbers",
-       url_render(&url, "ln", "0", 0, 0));
-  }else{
-    style_submenu_element("Show Line Numbers", "Show Line Numbers",
-       url_render(&url, "ln", "1", 0, 0));
-  }
-  if( iLimit>0 ){
+  if( ann.bLimit ){
     char *z1, *z2;
     style_submenu_element("All Ancestors", "All Ancestors",
        url_render(&url, "limit", "-1", 0, 0));
@@ -2450,11 +2448,10 @@ void annotation_page(void){
     z2 = sqlite3_mprintf("%d", iLimit+20);
     style_submenu_element(z1, z1, url_render(&url, "limit", z2, 0, 0));
   }
-  if( iLimit!=20 ){
+  if( iLimit>20 ){
     style_submenu_element("20 Ancestors", "20 Ancestors",
        url_render(&url, "limit", "20", 0, 0));
   }
-  annotate_file(&ann, fnid, mid, iLimit, annFlags);
   if( db_get_boolean("white-foreground", 0) ){
     clr1 = 0xa04040;
     clr2 = 0x4059a0;
@@ -2468,7 +2465,7 @@ void annotation_page(void){
   }  
 
   if( showLog ){
-    @ <h2>Versions analyzed:</h2>
+    @ <h2>Ancestors of %h(zFilename) analyzed:</h2>
     @ <ol>
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
       @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
@@ -2493,17 +2490,12 @@ void annotation_page(void){
     @ </ol>
     @ <hr>
   }
-  if( iLimit<0 ){
-    @ <h2>Annotation:</h2>
+  if( !ann.bLimit ){
+    @ <h2>Origin for each line in %h(zFilename):</h2>
     iLimit = ann.nVers+10;
   }else{
-    @ <h2>Annotation of %d(iLimit) most recent ancestors:</h2>
-  }
-  if( showLn ){
-    sqlite3_snprintf(sizeof(zLn), zLn, "%d", ann.nOrig+1);
-    sqlite3_snprintf(sizeof(zFormat), zFormat, "%%%dd:", strlen(zLn));
-  }else{
-    zLn[0] = 0;
+    @ <h2>Lines added by the %d(iLimit) most recent
+    @ ancestors of %h(zFilename):</h2>
   }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){

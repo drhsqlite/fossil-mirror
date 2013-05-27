@@ -1,5 +1,5 @@
-C Improvements\sto\sfile\shistory\sdisplay\sin\sthe\sweb\sinterface.
-D 2013-05-25T20:41:18.561
+C Improvements\sto\sthe\sweb\sdisplay\sof\sfile\sannotations.
+D 2013-05-27T01:56:18.721
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -327,7 +327,7 @@ F src/db.c 5918dc6458ca73c07e6b8cf7f70bb29b7f5d0bf5
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
-F src/diff.c d4712a4e688f8485d8faefdd49dfc158c54c56d8
+F src/diff.c 2b7f9fad92def0c46c0be6f9f618b4c0c51ef3b5
 F src/diffcmd.c 9c14d774f59f4607b11258ebe2b3318dd264c2f0
 F src/doc.c 44c05bffa28ec381af2ba5e4d99696e868b311b4
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -625,7 +625,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ee990ebb99ecfabe54125288da6bc2f28d62d37c
-R 2cfb1c11018845dd8215ac69fe6af34e
+P 601c15421a4a5ca53e86158fe5cbcd54ce92fc54
+R 193e3ca8d26276be29883455aad9a0ff
 U drh
-Z 5acd254ddb3633d7386f9ad94f29bd93
+Z f0bb187e1cf5d4246adcc8d87001cd58
