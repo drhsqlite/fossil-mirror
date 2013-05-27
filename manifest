@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sweb\sdisplay\sof\sfile\sannotations.
-D 2013-05-27T01:56:18.721
+C Do\snot\sredirect\s"diff"\slinks\son\sthe\s"Show\sFiles"\soption\sof\sthe\stimeline\sto\na\sdifferent\swindow.\s\sIf\sthe\suser\swants\sto\sshow\sthe\sdiff\sin\sa\sdifferent\swindow,\nlet\sthem\sclick\swhile\sholding\sdown\sthe\sShift\skey.
+D 2013-05-27T02:00:21.740
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -407,7 +407,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
-F src/timeline.c ca94ba0d049351944cc5e3117cf89cad75eddaae
+F src/timeline.c 0d6afd5ab617c134937b4e532de8ab37f7c408b3
 F src/tkt.c 41f2bd5a1c57301bc8d2a4a48cc1551875fd635e
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -625,7 +625,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 601c15421a4a5ca53e86158fe5cbcd54ce92fc54
-R 193e3ca8d26276be29883455aad9a0ff
+P 59d70140f69e98041a8a59871f46ea3483732d7a
+R daed4fe8265869442e682224d8681c0d
 U drh
-Z f0bb187e1cf5d4246adcc8d87001cd58
+Z 17474b7685c0b66125cac98ebce1c1e0

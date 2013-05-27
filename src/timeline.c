@@ -499,22 +499,19 @@ void www_print_timeline(
         }
         if( isNew ){
           @ <li> %h(zFilename) (new file) &nbsp;
-          @ %z(xhref("target='diffwindow'","%R/artifact/%S",zNew))
-          @ [view]</a></li>
+          @ %z(href("%R/artifact/%S",zNew))[view]</a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
           @ <li> %h(zOldName) &rarr; %h(zFilename)
-          @ %z(xhref("target='diffwindow'","%R/artifact/%S",zNew))
-          @ [view]</a></li>
+          @ %z(href("%R/artifact/%S",zNew))[view]</a></li>
         }else{
           if( zOldName!=0 ){
             @ <li> %h(zOldName) &rarr; %h(zFilename)
           }else{
             @ <li> %h(zFilename) &nbsp;
           }
-          @ %z(xhref("target='diffwindow'","%R/fdiff?v1=%S&v2=%S&sbs=1",zOld,zNew))
-          @ [diff]</a></li>
+          @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zOld,zNew))[diff]</a></li>
         }
       }
       db_reset(&fchngQuery);
