@@ -425,15 +425,13 @@ void extra_cmd(void){
 ** See also: addremove, extra, status
 */
 void clean_cmd(void){
-  int allFlag, dryRunFlag, verboseFlag, xFlag;
+  int allFlag, dryRunFlag, verboseFlag, extremeFlag;
   unsigned scanFlags = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Blob path, repo;
   Stmt q;
   int n;
   Glob *pIgnore, *pKeep, *pClean;
-  int extremeFlag, dryRunFlag;
-  int verboseFlag;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
   extremeFlag = find_option("extreme","x",0)!=0;
@@ -469,6 +467,7 @@ void clean_cmd(void){
   vfile_scan2(&path, blob_size(&path), scanFlags,
               extremeFlag ? 0 : pIgnore, pKeep);
   glob_free(pKeep);
+  glob_free(pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
@@ -502,7 +501,6 @@ void clean_cmd(void){
       file_delete(zName);
     }
   }
-  glob_free(pIgnore);
   glob_free(pClean);
   db_finalize(&q);
 }
