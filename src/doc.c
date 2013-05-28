@@ -273,7 +273,7 @@ const char *mimetype_from_name(const char *zName){
     { "vrml",       4, "model/vrml"                        },
     { "wav",        3, "audio/x-wav"                       },
     { "wax",        3, "audio/x-ms-wax"                    },
-    { "wiki",       4, "application/x-fossil-wiki"         },
+    { "wiki",       4, "text/x-fossil-wiki"                },
     { "wma",        3, "audio/x-ms-wma"                    },
     { "wmv",        3, "video/x-ms-wmv"                    },
     { "wmx",        3, "video/x-ms-wmx"                    },
@@ -497,7 +497,7 @@ void doc_page(void){
                                      "  FROM blob WHERE rid=%d", vid));
   Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
                                   " WHERE objid=%d AND type='ci'", vid));
-  if( fossil_strcmp(zMime, "application/x-fossil-wiki")==0 ){
+  if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
     Blob title, tail;
     if( wiki_find_title(&filebody, &title, &tail) ){
       style_header(blob_str(&title));
