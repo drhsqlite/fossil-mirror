@@ -436,10 +436,10 @@ void clean_cmd(void){
   Glob *pIgnore, *pKeep, *pClean;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
-  extremeFlag = find_option("extreme","x",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
+  extremeFlag = find_option("extreme","x",0)!=0;
   allFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
@@ -459,6 +459,26 @@ void clean_cmd(void){
     zCleanFlag = db_get("clean-glob", 0);
   }
   verify_all_options();
+  if( extremeFlag ){
+    Blob extremeAnswer;
+    char *extremePrompt =
+      "\n\nWARNING: The --extreme option is enabled and all untracked files\n"
+      "that would otherwise be left alone will be deleted (i.e. those\n"
+      "matching the \"ignore-glob\" and \"keep-glob\" settings and their\n"
+      "associated command line options).  As a precaution, in order to\n"
+      "proceed with this clean operation, the string \"YES\" must be\n"
+      "entered in all upper case; any other response will cancel the\n"
+      "clean operation.\n\nDo you still wish to proceed with the clean "
+      "operation? ";
+    blob_zero(&extremeAnswer);
+    prompt_user(extremePrompt, &extremeAnswer);
+    if( fossil_strcmp(blob_str(&extremeAnswer), "YES")!=0 ){
+      fossil_print("Extreme clean operation canceled.\n");
+      blob_reset(&extremeAnswer);
+      return;
+    }
+    blob_reset(&extremeAnswer);
+  }
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
   n = strlen(g.zLocalRoot);
@@ -495,8 +515,10 @@ void clean_cmd(void){
       if( cReply=='a' || cReply=='A' ){
         allFlag = 1;
       }else if( cReply!='y' && cReply!='Y' ){
+        blob_reset(&ans);
         continue;
       }
+      blob_reset(&ans);
     }
     if( verboseFlag || dryRunFlag ){
       fossil_print("Removed unmanaged file: %s\n", zName+n);
