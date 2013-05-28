@@ -76,6 +76,7 @@
 <li><a href="selfcheck.wiki">Fossil Repository Integrity Self Checks</a></li>
 <li><a href="selfhost.wiki">Fossil Self Hosting Repositories</a></li>
 <li><a href="settings.wiki">Fossil Settings</a></li>
+<li><a href="hints.wiki">Fossil Tips And Usage Hints</a></li>
 <li><a href="fossil-v-git.wiki">Fossil Versus Git</a></li>
 <li><a href="quotes.wiki">Fossil, Git, and DVCSes in General &mdash; Quotes: What People Are Saying About</a></li>
 <li><a href="faq.wiki">Frequently Asked Questions</a></li>
@@ -87,6 +88,7 @@
 <li><a href="quotes.wiki">Git, and DVCSes in General &mdash; Quotes: What People Are Saying About Fossil,</a></li>
 <li><a href="quickstart.wiki">Guide &mdash; Fossil Quick Start</a></li>
 <li><a href="style.wiki">Guidelines &mdash; Source Code Style</a></li>
+<li><a href="hints.wiki">Hints &mdash; Fossil Tips And Usage</a></li>
 <li><a href="index.wiki">Home Page</a></li>
 <li><a href="selfhost.wiki">Hosting Repositories &mdash; Fossil Self</a></li>
 <li><a href="server.wiki">How To Configure A Fossil Server</a></li>
@@ -158,8 +160,10 @@
 <li><a href="theory1.wiki">Thoughts On The Design Of The Fossil DVCS</a></li>
 <li><a href="custom_ticket.wiki">Ticket System &mdash; Customizing The</a></li>
 <li><a href="tickets.wiki">Ticket System &mdash; The Fossil</a></li>
+<li><a href="hints.wiki">Tips And Usage Hints &mdash; Fossil</a></li>
 <li><a href="bugtheory.wiki">Tracking In Fossil &mdash; Bug</a></li>
 <li><a href="fiveminutes.wiki">Update and Running in 5 Minutes as a Single User</a></li>
+<li><a href="hints.wiki">Usage Hints &mdash; Fossil Tips And</a></li>
 <li><a href="fiveminutes.wiki">User &mdash; Update and Running in 5 Minutes as a Single</a></li>
 <li><a href="ssl.wiki">Using SSL with Fossil</a></li>
 <li><a href="checkin_names.wiki">Version Names &mdash; Checkin And</a></li>

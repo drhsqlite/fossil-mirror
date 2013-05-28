@@ -24,7 +24,8 @@ cellpadding="2">
 <li> [./faq.wiki | FAQ]
 <li> [./contribute.wiki | Contributing]
 <li> [./changes.wiki | Change Log]
-<li> [./permutedindex.wiki#pindex | Doc Index]
+<li> [./hints.wiki | Tip &amp; Hints]
+<li> [./permutedindex.wiki#pindex | Documentation Index]
 <li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
 <li> Mailing list
      <ul>
