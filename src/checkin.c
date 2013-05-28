@@ -386,9 +386,10 @@ void extra_cmd(void){
 ** cannot be undone.
 **
 ** WARNING:  Normally, only the files unknown to Fossil are removed;
-** however, if the -x option is specified, all files that are not part
-** of the current checkout will be removed as well, without regard for
-** the "ignore-glob" and "keep-glob" settings.
+** however, if the --extreme option is specified, all files that are
+** not part of the current checkout will be removed as well, without
+** regard for the "ignore-glob" and "keep-glob" settings and their
+** associated command line options.
 **
 ** You will be prompted before removing each eligible file unless the
 ** --force flag is in use or it matches the --clean option.  The
@@ -419,7 +420,8 @@ void extra_cmd(void){
 **    -v|--verbose     Show all files as they are removed.
 **    -x|--extreme     Remove all files not part of the current
 **                     checkout, without taking into consideration
-**                     the "ignore-glob" and "keep-glob" settings.
+**                     the "ignore-glob" and "keep-glob" settings
+**                     and their associated command line options.
 **                     Compatibile with "git clean -x".
 **
 ** See also: addremove, extra, status
@@ -438,11 +440,11 @@ void clean_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
-  allFlag = find_option("force","f",0)!=0 || dryRunFlag;
+  allFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   zIgnoreFlag = find_option("ignore",0,1);
-  verboseFlag = find_option("verbose","v",0)!=0 || dryRunFlag;
+  verboseFlag = find_option("verbose","v",0)!=0;
   zKeepFlag = find_option("keep",0,1);
   zCleanFlag = find_option("clean",0,1);
   capture_case_sensitive_option();
@@ -465,9 +467,7 @@ void clean_cmd(void){
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
   vfile_scan2(&path, blob_size(&path), scanFlags,
-              extremeFlag ? 0 : pIgnore, pKeep);
-  glob_free(pKeep);
-  glob_free(pIgnore);
+              extremeFlag ? 0 : pIgnore, extremeFlag ? 0 : pKeep);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
@@ -480,11 +480,15 @@ void clean_cmd(void){
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+n) ){
+    if( !allFlag && !glob_match(pClean, zName+n) ){
       Blob ans;
       char cReply;
-      char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
-                             zName+n);
+      int matchIgnore = glob_match(pIgnore, zName+n);
+      int matchKeep = glob_match(pKeep, zName+n);
+      char *prompt = mprintf("%sRemove %s file \"%s\" (a=all/y/N)? ",
+                             (matchIgnore || matchKeep) ? "WARNING: " : "",
+                             matchKeep ? "\"KEPT\"" : (matchIgnore ?
+                             "\"IGNORED\"" : "unmanaged"), zName+n);
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
@@ -494,14 +498,16 @@ void clean_cmd(void){
         continue;
       }
     }
-    if( verboseFlag ){
-      fossil_print("removed unmanaged file: %s\n", zName+n);
+    if( verboseFlag || dryRunFlag ){
+      fossil_print("Removed unmanaged file: %s\n", zName+n);
     }
     if( !dryRunFlag ){
       file_delete(zName);
     }
   }
   glob_free(pClean);
+  glob_free(pKeep);
+  glob_free(pIgnore);
   db_finalize(&q);
 }
 
