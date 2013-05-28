@@ -171,7 +171,7 @@ void wiki_page(void){
   Blob wiki;
   Manifest *pWiki = 0;
   const char *zPageName;
-  const char *zMimetype;
+  const char *zMimetype = 0;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
 
   login_check_credentials();
