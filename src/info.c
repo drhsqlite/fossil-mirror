@@ -1613,7 +1613,7 @@ void artifact_page(void){
         style_submenu_element("Text", "Text",
                               "%s/artifact/%s?txt=1", g.zTop, zUuid);
       }
-    }else if( fossil_strcmp(zMime, "application/x-fossil-wiki")==0 ){
+    }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
       if( asText ){
         style_submenu_element("Wiki", "Wiki",
                               "%s/artifact/%s", g.zTop, zUuid);

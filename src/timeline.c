@@ -656,6 +656,7 @@ void timeline_output_graph_javascript(
     @   n.style.width = w+"px";
     @   n.style.height = h+"px";
     @   n.style.backgroundColor = color;
+    @   n.style.cursor = "pointer";
     @   canvasDiv.appendChild(n);
     @   return n;
     @ }

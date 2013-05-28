@@ -28,6 +28,7 @@ set doclist {
   foss-cklist.wiki {Checklist For Successful Open-Source Projects}
   fossil-from-msvc.wiki {Integrating Fossil in the Microsoft Express 2010 IDE}
   fossil-v-git.wiki {Fossil Versus Git}
+  hints.wiki {Fossil Tips And Usage Hints}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
   makefile.wiki {The Fossil Build Process}

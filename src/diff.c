@@ -2369,6 +2369,7 @@ static void annotate_file(
 unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
   unsigned c;   /* Result color */
   unsigned x1, x2;
+  if( i==0 || n==0 ) return c1;
   x1 = (c1>>16)&0xff;
   x2 = (c2>>16)&0xff;
   c = (x1*(n-i) + x2*i)/n<<16 & 0xff0000;
