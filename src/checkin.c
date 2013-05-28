@@ -383,9 +383,12 @@ void extra_cmd(void){
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout. This operation
-** cannot be undone. Normally, only files unknown to fossil are
-** removed, but if the -x option is specified, ignored files are
-** removed as well.
+** cannot be undone.
+**
+** WARNING:  Normally, only the files unknown to Fossil are removed;
+** however, if the -x option is specified, all files that are not part
+** of the current checkout will be removed as well, without regard for
+** the "ignore-glob" and "keep-glob" settings.
 **
 ** You will be prompted before removing each eligible file unless the
 ** --force flag is in use or it matches the --clean option.  The
@@ -403,19 +406,20 @@ void extra_cmd(void){
 **
 ** Options:
 **    --case-sensitive <BOOL> override case-sensitive setting
-**    --dotfiles       include files beginning with a dot (".")
-**    -f|--force       Remove files without prompting
-**    --clean <CSG>    never prompt for files matching this
+**    --dotfiles       Include files beginning with a dot (".").
+**    -f|--force       Remove files without prompting.
+**    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
-**    --ignore <CSG>   ignore files matching patterns from the
+**    --ignore <CSG>   Ignore files matching patterns from the
 **                     comma separated list of glob patterns.
-**    --keep <CSG>     keep files matching this comma separated
+**    --keep <CSG>     Keep files matching this comma separated
 **                     list of glob patterns.
-**    -n|--dry-run     If given, display instead of run actions
-**    --temp           Remove only Fossil-generated temporary files
-**    -v|--verbose     Show all files as they are removed
-**    -x               Remove everything unkown to fossil,
-**                     including files matching --ignore.
+**    -n|--dry-run     If given, display instead of run actions.
+**    --temp           Remove only Fossil-generated temporary files.
+**    -v|--verbose     Show all files as they are removed.
+**    -x|--extreme     Remove all files not part of the current
+**                     checkout, without taking into consideration
+**                     the "ignore-glob" and "keep-glob" settings.
 **                     Compatibile with "git clean -x".
 **
 ** See also: addremove, extra, status
@@ -428,9 +432,11 @@ void clean_cmd(void){
   Stmt q;
   int n;
   Glob *pIgnore, *pKeep, *pClean;
+  int extremeFlag, dryRunFlag;
+  int verboseFlag;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
-  xFlag = find_option("x","x",0)!=0;
+  extremeFlag = find_option("extreme","x",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
@@ -460,7 +466,8 @@ void clean_cmd(void){
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
-  vfile_scan2(&path, blob_size(&path), scanFlags, xFlag?0:pIgnore, pKeep);
+  vfile_scan2(&path, blob_size(&path), scanFlags,
+              extremeFlag ? 0 : pIgnore, pKeep);
   glob_free(pKeep);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
@@ -474,8 +481,7 @@ void clean_cmd(void){
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    if( !allFlag && !glob_match(pClean, zName+n)
-        && (!xFlag || !glob_match(pIgnore, zName+n))){
+    if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+n) ){
       Blob ans;
       char cReply;
       char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
