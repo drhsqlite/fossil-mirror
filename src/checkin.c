@@ -459,17 +459,16 @@ void clean_cmd(void){
     zCleanFlag = db_get("clean-glob", 0);
   }
   verify_all_options();
-  if( extremeFlag ){
+  if( extremeFlag && !dryRunFlag){
     Blob extremeAnswer;
     char *extremePrompt =
       "\n\nWARNING: The --extreme option is enabled and all untracked files\n"
       "that would otherwise be left alone will be deleted (i.e. those\n"
-      "matching the \"ignore-glob\" and \"keep-glob\" settings and their\n"
-      "associated command line options).  As a precaution, in order to\n"
-      "proceed with this clean operation, the string \"YES\" must be\n"
-      "entered in all upper case; any other response will cancel the\n"
-      "clean operation.\n\nDo you still wish to proceed with the clean "
-      "operation? ";
+      "matching the \"ignore-glob\" settings and the --ignore command\n"
+      "line option).  As a precaution, in order to proceed with this\n"
+      "clean operation, the string \"YES\" must be entered in all upper\n"
+      "case; any other response will cancel the clean operation.\n\n"
+      "Do you still wish to proceed with the clean operation? ";
     blob_zero(&extremeAnswer);
     prompt_user(extremePrompt, &extremeAnswer);
     if( fossil_strcmp(blob_str(&extremeAnswer), "YES")!=0 ){
