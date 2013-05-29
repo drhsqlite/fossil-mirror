@@ -503,13 +503,11 @@ void clean_cmd(void){
       fossil_print("WARNING: KEPT file \"%s\" not removed\n");
       continue;
     }
-    if( !allFlag && !glob_match(pClean, zName+n) ){
+    if( !allFlag && !glob_match(pClean, zName+n) &&
+        (!extremeFlag || !glob_match(pIgnore, zName+n)) ){
       Blob ans;
       char cReply;
-      int matchIgnore = glob_match(pIgnore, zName+n);
-      char *prompt = mprintf("%sRemove %s file \"%s\" (a=all/y/N)? ",
-                             matchIgnore ? "WARNING: " : "",
-                             matchIgnore ? "\"IGNORED\"" : "unmanaged",
+      char *prompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
 		                     zName+n);
       blob_zero(&ans);
       prompt_user(prompt, &ans);
