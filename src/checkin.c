@@ -388,8 +388,8 @@ void extra_cmd(void){
 ** WARNING:  Normally, only the files unknown to Fossil are removed;
 ** however, if the --extreme option is specified, all files that are
 ** not part of the current checkout will be removed as well, without
-** regard for the "ignore-glob" and "keep-glob" settings and their
-** associated command line options.
+** regard for the "ignore-glob" setting and the --ignore command
+** line option.
 **
 ** You will be prompted before removing each eligible file unless the
 ** --force flag is in use or it matches the --clean option.  The
@@ -420,8 +420,8 @@ void extra_cmd(void){
 **    -v|--verbose     Show all files as they are removed.
 **    -x|--extreme     Remove all files not part of the current
 **                     checkout, without taking into consideration
-**                     the "ignore-glob" and "keep-glob" settings
-**                     and their associated command line options.
+**                     the "ignore-glob" setting and the --ignore
+**                     command line option.
 **                     Compatibile with "git clean -x".
 **
 ** See also: addremove, extra, status
@@ -486,8 +486,8 @@ void clean_cmd(void){
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
-  vfile_scan2(&path, blob_size(&path), scanFlags,
-              extremeFlag ? 0 : pIgnore, extremeFlag ? 0 : pKeep);
+  vfile_scan(&path, blob_size(&path), scanFlags,
+              extremeFlag ? 0 : pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
@@ -500,15 +500,18 @@ void clean_cmd(void){
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
+    if( glob_match(pKeep, zName+n) ){
+      fossil_print("WARNING: KEPT file \"%s\" not removed\n");
+      continue;
+    }
     if( !allFlag && !glob_match(pClean, zName+n) ){
       Blob ans;
       char cReply;
       int matchIgnore = glob_match(pIgnore, zName+n);
-      int matchKeep = glob_match(pKeep, zName+n);
       char *prompt = mprintf("%sRemove %s file \"%s\" (a=all/y/N)? ",
-                             (matchIgnore || matchKeep) ? "WARNING: " : "",
-                             matchKeep ? "\"KEPT\"" : (matchIgnore ?
-                             "\"IGNORED\"" : "unmanaged"), zName+n);
+                             matchIgnore ? "WARNING: " : "",
+                             matchIgnore ? "\"IGNORED\"" : "unmanaged",
+		                     zName+n);
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
