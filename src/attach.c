@@ -486,7 +486,6 @@ void ainfo_page(void){
   }
   @ <tr><th>Date:</th><td>
   hyperlink_to_date(zDate, "</td></tr>");
-  free(zDate);
   @ <tr><th>User:</th><td>
   hyperlink_to_user(pAttach->zUser, zDate, "</td></tr>");
   @ <tr><th>Artifact&nbsp;Attached:</th>

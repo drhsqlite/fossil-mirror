@@ -194,11 +194,10 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
         zName[i] = '/';
       }
     }
-    if( zName!=zBuf ) free(zName);
-
     if( symlink(zTargetFile, zName)!=0 ){
       fossil_fatal_recursive("unable to create symlink \"%s\"", zName);
     }
+    if( zName!=zBuf ) free(zName);
   }else
 #endif
   {
