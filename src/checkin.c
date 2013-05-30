@@ -238,7 +238,7 @@ void ls_cmd(void){
   char *zOrderBy = "pathname";
 
   verboseFlag = find_option("verbose","v", 0)!=0;
-  if(!verboseFlag){
+  if( !verboseFlag ){
     verboseFlag = find_option("l","l", 0)!=0; /* deprecated */
   }
   showAge = find_option("age",0,0)!=0;
@@ -401,40 +401,38 @@ void extra_cmd(void){
 **
 ** Options:
 **    --case-sensitive <BOOL> override case-sensitive setting
-**    --dotfiles       include files beginning with a dot (".")
-**    -f|--force       Remove files without prompting
-**    --clean <CSG>    never prompt for files matching this
+**    --dotfiles       Include files beginning with a dot (".").
+**    -f|--force       Remove files without prompting.
+**    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
-**    --ignore <CSG>   ignore files matching patterns from the
+**    --ignore <CSG>   Ignore files matching patterns from the
 **                     comma separated list of glob patterns.
-**    --keep <CSG>     keep files matching this comma separated
+**    --keep <CSG>     Keep files matching this comma separated
 **                     list of glob patterns.
-**    -n|--dry-run     If given, display instead of run actions
-**    --temp           Remove only Fossil-generated temporary files
-**    -v|--verbose     Show all files as they are removed
+**    -n|--dry-run     If given, display instead of run actions.
+**    --temp           Remove only Fossil-generated temporary files.
+**    -v|--verbose     Show all files as they are removed.
 **
 ** See also: addremove, extra, status
 */
 void clean_cmd(void){
-  int allFlag;
+  int allFlag, dryRunFlag, verboseFlag;
   unsigned scanFlags = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Blob path, repo;
   Stmt q;
   int n;
   Glob *pIgnore, *pKeep, *pClean;
-  int dryRunFlag = 0;
-  int verboseFlag;
 
+  dryRunFlag = find_option("dry-run","n",0)!=0;
+  if( !dryRunFlag ){
+    dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
+  }
   allFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   zIgnoreFlag = find_option("ignore",0,1);
   verboseFlag = find_option("verbose","v",0)!=0;
-  dryRunFlag = find_option("dry-run","n",0)!=0;
-  if( !dryRunFlag ){
-    dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
-  }
   zKeepFlag = find_option("keep",0,1);
   zCleanFlag = find_option("clean",0,1);
   capture_case_sensitive_option();
@@ -456,8 +454,7 @@ void clean_cmd(void){
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
-  vfile_scan2(&path, blob_size(&path), scanFlags, pIgnore, pKeep);
-  glob_free(pKeep);
+  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
   glob_free(pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
@@ -471,10 +468,14 @@ void clean_cmd(void){
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
+    if( glob_match(pKeep, zName+n) ){
+      fossil_print("WARNING: KEPT file \"%s\" not removed\n");
+      continue;
+    }
     if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+n) ){
       Blob ans;
       char cReply;
-      char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
+      char *prompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
                              zName+n);
       blob_zero(&ans);
       prompt_user(prompt, &ans);
@@ -482,17 +483,20 @@ void clean_cmd(void){
       if( cReply=='a' || cReply=='A' ){
         allFlag = 1;
       }else if( cReply!='y' && cReply!='Y' ){
+        blob_reset(&ans);
         continue;
       }
+      blob_reset(&ans);
     }
-    if( dryRunFlag || verboseFlag ){
-      fossil_print("removed unmanaged file: %s\n", zName+n);
+    if( verboseFlag || dryRunFlag ){
+      fossil_print("Removed unmanaged file: %s\n", zName+n);
     }
     if( !dryRunFlag ){
       file_delete(zName);
     }
   }
   glob_free(pClean);
+  glob_free(pKeep);
   db_finalize(&q);
 }
 
