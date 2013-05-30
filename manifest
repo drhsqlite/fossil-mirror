@@ -1,5 +1,5 @@
-C Additional\sprotection\sfor\sfossil\sexecutables\sbeing\sremoved\sby\s"fossil\sclean",\seven\swhen\susing\s--ignore\s"".\s\nAdd\sa\swarning\swhen\skept\sfiles\sare\srefused\sto\sbe\sremoved,\sdon't\skeep\sthis\ssituation\ssilent\sany\smore.\s\nBackport\svarious\simprovements\sfrom\scleanX\sbranch:\sUse\sof\scapitals\sin\smessages,\smissing\sblob_reset()\scalls.
-D 2013-05-30T07:28:25.437
+C Implement\s[967cedbf20]\sfor\s"fossil\sclean"\sand\s"fossil\sextra"
+D 2013-05-30T13:25:20.681
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
@@ -314,7 +314,7 @@ F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 5a4e3c8582af1d03ac51f9e1982025a02ffefe97
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 84aca6f788136ca337d29c8a435e469ef164d808
+F src/checkin.c 89234b8a14d5b18ffa958431b3bca45753a3f97f
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -627,7 +627,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5040705dfa6cb5c8fbffd9798a17c3163fe54c8f
-R e0ed5192b00280da15f08c1398aad30a
+P 67c9cd12ad2ab631909d7d4e468ab1903f08021c
+R a157a6767c6665bbde99314f958c5b19
+T *branch * ticket-967cedbf20
+T *sym-ticket-967cedbf20 *
+T -sym-trunk *
 U jan.nijtmans
-Z 344883cf49e6b325fab83978dbe1b8f9
+Z 178eb8532b69689de53d5f260323fe88

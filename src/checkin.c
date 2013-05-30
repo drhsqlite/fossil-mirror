@@ -302,10 +302,11 @@ void ls_cmd(void){
 
 /*
 ** COMMAND: extras
-** Usage: %fossil extras ?OPTIONS?
+** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
 ** Print a list of all files in the source tree that are not part of
-** the current checkout.  See also the "clean" command.
+** the current checkout.  See also the "clean" command. If paths are
+** specified, only files in the given directories will be listed.
 **
 ** Files and subdirectories whose names begin with "." are normally
 ** ignored but can be included by adding the --dotfiles option.
@@ -330,7 +331,7 @@ void ls_cmd(void){
 void extra_cmd(void){
   Blob path;
   Stmt q;
-  int n;
+  int n, i;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
   int cwdRelative = 0;
@@ -350,7 +351,33 @@ void extra_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+
+  /* Load the names of all files that are candidates to be listed into sfile temp table */
+  if( g.argc < 3 ){
+    vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+  }
+  for( i=2; i<g.argc; i++ ){
+    char *zName;
+    int isDir;
+    Blob fullName;
+
+    file_canonical_name(g.argv[i], &fullName, 0);
+    zName = blob_str(&fullName);
+    isDir = file_wd_isdir(zName);
+    if( isDir==1 ){
+      vfile_scan(&fullName, n-1, scanFlags, pIgnore);
+    }else if( isDir==0 ){
+      fossil_warning("not found: %s", zName);
+    }else if( file_access(zName, R_OK) ){
+      fossil_fatal("cannot open %s", zName);
+    }else{
+      db_multi_exec(
+         "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
+         &zName[n]
+      );
+    }
+    blob_reset(&fullName);
+  }
   glob_free(pIgnore);
   db_prepare(&q,
       "SELECT x FROM sfile"
@@ -379,11 +406,12 @@ void extra_cmd(void){
 
 /*
 ** COMMAND: clean
-** Usage: %fossil clean ?OPTIONS?
+** Usage: %fossil clean ?OPTIONS? ?PATH1 ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout. This operation
-** cannot be undone.
+** cannot be undone. If paths are specified, only the directories or
+** files specified will be considered for cleaning.
 **
 ** You will be prompted before removing each eligible file unless the
 ** --force flag is in use or it matches the --clean option.  The
@@ -421,7 +449,7 @@ void clean_cmd(void){
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Blob path, repo;
   Stmt q;
-  int n;
+  int n, i;
   Glob *pIgnore, *pKeep, *pClean;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
@@ -454,7 +482,33 @@ void clean_cmd(void){
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+
+  /* Load the names of all files that are candidates to be cleaned into sfile temp table */
+  if( g.argc < 3 ){
+    vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+  }
+  for( i=2; i<g.argc; i++ ){
+    char *zName;
+    int isDir;
+    Blob fullName;
+
+    file_canonical_name(g.argv[i], &fullName, 0);
+    zName = blob_str(&fullName);
+    isDir = file_wd_isdir(zName);
+    if( isDir==1 ){
+      vfile_scan(&fullName, n-1, scanFlags, pIgnore);
+    }else if( isDir==0 ){
+      fossil_warning("not found: %s", zName);
+    }else if( file_access(zName, R_OK) ){
+      fossil_fatal("cannot open %s", zName);
+    }else{
+      db_multi_exec(
+         "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
+         &zName[n]
+      );
+    }
+    blob_reset(&fullName);
+  }
   glob_free(pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
