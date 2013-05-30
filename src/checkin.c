@@ -454,7 +454,8 @@ void clean_cmd(void){
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+  vfile_scan2(&path, blob_size(&path), scanFlags, pIgnore, pKeep);
+  glob_free(pKeep);
   glob_free(pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
@@ -468,10 +469,6 @@ void clean_cmd(void){
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    if( glob_match(pKeep, zName+n) ){
-      fossil_print("WARNING: KEPT file \"%s\" not removed\n");
-      continue;
-    }
     if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+n) ){
       Blob ans;
       char cReply;
@@ -496,7 +493,6 @@ void clean_cmd(void){
     }
   }
   glob_free(pClean);
-  glob_free(pKeep);
   db_finalize(&q);
 }
 
