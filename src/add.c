@@ -564,7 +564,8 @@ void addremove_cmd(void){
 ** The original name of the file is zOrig.  The new filename is zNew.
 */
 static void mv_one_file(int vid, const char *zOrig, const char *zNew){
-  int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q", zNew);
+  int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q %s",
+		         zNew, filename_collation());
   if( x>=0 ){
     if( x==0 ){
       fossil_fatal("cannot rename '%s' to '%s' since another file named '%s'"
@@ -576,8 +577,8 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
   }
   fossil_print("RENAME %s %s\n", zOrig, zNew);
   db_multi_exec(
-    "UPDATE vfile SET pathname='%q' WHERE pathname='%q' AND vid=%d",
-    zNew, zOrig, vid
+    "UPDATE vfile SET pathname='%q' WHERE pathname='%q' %s AND vid=%d",
+    zNew, zOrig, filename_collation(), vid
   );
 }
 
@@ -595,6 +596,9 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 ** records the fact that filenames have changed so that appropriate notations
 ** can be made at the next commit/checkin.
 **
+** Options:
+**   --case-sensitive <BOOL> override case-sensitive setting
+**
 ** See also: changes, status
 */
 void mv_cmd(void){
@@ -604,6 +608,7 @@ void mv_cmd(void){
   Blob dest;
   Stmt q;
 
+  capture_case_sensitive_option();
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
@@ -646,9 +651,9 @@ void mv_cmd(void){
       db_prepare(&q,
          "SELECT pathname FROM vfile"
          " WHERE vid=%d"
-         "   AND (pathname='%q' OR (pathname>'%q/' AND pathname<'%q0'))"
+         "   AND (pathname='%q' %s OR (pathname>'%q/' AND pathname<'%q0'))"
          " ORDER BY 1",
-         vid, zOrig, zOrig, zOrig
+         vid, zOrig, filename_collation(), zOrig, zOrig
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zPath = db_column_text(&q, 0);
