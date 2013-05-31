@@ -269,7 +269,8 @@ void add_cmd(void){
     fossil_panic("no checkout to add to");
   }
   db_begin_transaction();
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
   pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
   nRoot = strlen(g.zLocalRoot);
@@ -318,6 +319,9 @@ void add_cmd(void){
 ** files as no longer being part of the project.  In other words, future
 ** changes to the named files will not be versioned.
 **
+** Options:
+**   --case-sensitive <BOOL> override case-sensitive setting
+**
 ** See also: addremove, add
 */
 void delete_cmd(void){
@@ -325,13 +329,15 @@ void delete_cmd(void){
   int vid;
   Stmt loop;
 
+  capture_case_sensitive_option();
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     fossil_panic("no checkout to remove from");
   }
   db_begin_transaction();
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
   for(i=2; i<g.argc; i++){
     Blob treeName;
     char *zTreeName;
@@ -341,10 +347,10 @@ void delete_cmd(void){
     db_multi_exec(
        "INSERT OR IGNORE INTO sfile"
        " SELECT pathname FROM vfile"
-       "  WHERE (pathname=%Q"
+       "  WHERE (pathname=%Q %s"
        "     OR (pathname>'%q/' AND pathname<'%q0'))"
        "    AND NOT deleted",
-       zTreeName, zTreeName, zTreeName
+       zTreeName, filename_collation(), zTreeName, zTreeName
     );
     blob_reset(&treeName);
   }
@@ -511,7 +517,8 @@ void addremove_cmd(void){
   ** --ignore or ignore-glob patterns and dot-files.  Then add all of
   ** the files in the sfile temp table to the set of managed files.
   */
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   /* now we read the complete file structure into a temp table */
