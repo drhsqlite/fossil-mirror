@@ -1,5 +1,5 @@
-C Make\s"fossil\smv\ssrc/FOO.c\ssrc/bar.c"\swork\sas\sexpected\son\scase-insensitive\sfilesystems.\s\nAdd\s--case-sensitive\soption\sto\s"fossil\smv".
-D 2013-05-31T12:50:17.674
+C Avoid\sSQL\serrors\swhen\sthe\s"fossil\sticket"\scommand\sis\smisused\sto\stry\sto\sappend\nicomment\stext.
+D 2013-05-31T17:41:25.295
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
@@ -409,7 +409,7 @@ F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
 F src/timeline.c 7a148665327a61f96e45bac741cea3327003fe88
-F src/tkt.c 41f2bd5a1c57301bc8d2a4a48cc1551875fd635e
+F src/tkt.c 4b40ead90c3daa4c83da756fcbee709b10f8934e
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7ae19e56ba36cd30480ecf30a46e20726e662f3b
-R 929f2e886ae6628503c7f85ced786b13
-U jan.nijtmans
-Z 3686345984163e9cc9c3ddfabfde04df
+P 93f370a80c5f4cc98d23140fee290cfe3432511e
+R a661185a12a4879cb5046ec4d7b51d7d
+U drh
+Z 1f6c52160297539352a64433fbba9230
