@@ -2087,6 +2087,7 @@ struct stControlSettings {
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
   { "access-log",    0,                0, 0, "off"                 },
+  { "allow-clean-x", 0,                0, 0, "off"                 },
   { "allow-symlinks",0,                0, 1, "off"                 },
   { "auto-captcha",  "autocaptcha",    0, 0, "on"                  },
   { "auto-hyperlink",0,                0, 0, "on",                 },
@@ -2099,7 +2100,6 @@ struct stControlSettings const ctrlSettings[] = {
 #else
   { "case-sensitive",0,                0, 0, "on"                  },
 #endif
-  { "clean-glob",    0,               40, 1, ""                    },
   { "crnl-glob",     0,               40, 1, ""                    },
   { "default-perms", 0,               16, 0, "u"                   },
   { "diff-binary",   0,                0, 0, "on"                  },
@@ -2164,6 +2164,10 @@ struct stControlSettings const ctrlSettings[] = {
 **                     plain-text files with link destination path inside).
 **                     Default: off
 **
+**    allow-clean-x    If enabled, allow the --extreme option to be used in
+**                     the clean command.
+**                     Default: off
+**
 **    auto-captcha     If enabled, the Login page provides a button to
 **                     fill in the captcha password.  Default: on
 **
@@ -2190,11 +2194,6 @@ struct stControlSettings const ctrlSettings[] = {
 **                     care considered distinct.  If FALSE files whose names
 **                     differ only in case are the same file.  Defaults to
 **                     TRUE for unix and FALSE for Cygwin, Mac and Windows.
-**
-**    clean-glob       The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "clean" command will
-**                     delete without prompting even when the -force flag has
-**                     not been used.  Example:  *.a *.lib *.o
 **
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
@@ -2249,11 +2248,11 @@ struct stControlSettings const ctrlSettings[] = {
 **    ignore-glob      The VALUE is a comma or newline-separated list of GLOB
 **     (versionable)   patterns specifying files that the "add", "addremove",
 **                     "clean", and "extra" commands will ignore.
-**                     Example:  *.log customCode.c notes.txt
+**                     Example:  *.log *.a *.lib *.o
 **
 **    keep-glob        The VALUE is a comma or newline-separated list of GLOB
 **     (versionable)   patterns specifying files that the "clean" command will
-**                     keep.
+**                     keep.  Example:  *.log customCode.c notes.txt
 **
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If
