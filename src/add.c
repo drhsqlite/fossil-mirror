@@ -470,7 +470,6 @@ const char *filename_collation(void){
 */
 void addremove_cmd(void){
   Blob path;
-  const char *zCleanFlag = find_option("clean",0,1);
   const char *zIgnoreFlag = find_option("ignore",0,1);
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
   int dryRunFlag = find_option("dry-run","n",0)!=0;
@@ -479,7 +478,7 @@ void addremove_cmd(void){
   int vid;
   int nAdd = 0;
   int nDelete = 0;
-  Glob *pIgnore, *pClean;
+  Glob *pIgnore;
 
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
