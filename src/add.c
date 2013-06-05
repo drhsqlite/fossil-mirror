@@ -348,9 +348,10 @@ void delete_cmd(void){
        "INSERT OR IGNORE INTO sfile"
        " SELECT pathname FROM vfile"
        "  WHERE (pathname=%Q %s"
-       "     OR (pathname>'%q/' AND pathname<'%q0'))"
+       "     OR (pathname>'%q/' %s AND pathname<'%q0' %s))"
        "    AND NOT deleted",
-       zTreeName, filename_collation(), zTreeName, zTreeName
+       zTreeName, filename_collation(), zTreeName,
+       filename_collation(), zTreeName, filename_collation()
     );
     blob_reset(&treeName);
   }
@@ -651,9 +652,10 @@ void mv_cmd(void){
       db_prepare(&q,
          "SELECT pathname FROM vfile"
          " WHERE vid=%d"
-         "   AND (pathname='%q' %s OR (pathname>'%q/' AND pathname<'%q0'))"
+         "   AND (pathname='%q' %s OR (pathname>'%q/' %s AND pathname<'%q0' %s))"
          " ORDER BY 1",
-         vid, zOrig, filename_collation(), zOrig, zOrig
+         vid, zOrig, filename_collation(), zOrig, filename_collation(),
+         zOrig, filename_collation()
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zPath = db_column_text(&q, 0);
