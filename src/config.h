@@ -79,6 +79,8 @@
 #    define COMPILER_NAME "win32"
 #  elif defined(__GNUC__)
 #    define COMPILER_NAME "gcc-" __VERSION__
+#  elif defined(__SUNPRO_C)
+#    define COMPILER_NAME "Sun C"
 #  else
 #    define COMPILER_NAME "unknown"
 #  endif
