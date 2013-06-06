@@ -491,7 +491,7 @@ void clean_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     if( glob_match(pKeep, zName+n) ){
-      fossil_print("WARNING: KEPT file \"%s\" not removed\n");
+      fossil_print("WARNING: KEPT file \"%s\" not removed\n", zName+n);
       continue;
     }
     if( !allFlag && (!extremeFlag || !glob_match(pIgnore, zName+n)) ){
