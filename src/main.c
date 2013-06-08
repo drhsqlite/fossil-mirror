@@ -220,6 +220,7 @@ struct Global {
 
   int allowSymlinks;             /* Cached "allow-symlinks" option */
 
+  int mainTimerId;               /* Set to fossil_timer_start() */
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
     int isJsonMode;            /* True if running in JSON mode, else
@@ -268,6 +269,7 @@ struct Global {
       cson_object * o;
     } reqPayload;              /* request payload object (if any) */
     cson_array * warnings;     /* response warnings */
+    int timerId;               /* fetched from fossil_timer_start() */
   } json;
 #endif /* FOSSIL_ENABLE_JSON */
 };
@@ -420,13 +422,20 @@ static void expand_args_option(int argc, void *argv){
 
   blob_rewind(&file);
   while( (n = blob_line(&file, &line))>0 ){
-    if( n<=1 ) continue;
+    if( n<1 ) continue
+      /**
+       ** Reminder: corner-case: a line with 1 byte and no newline.
+       */;
     z = blob_buffer(&line);
-    z[n-1] = 0;
+    if('\n'==z[n-1]){
+      z[n-1] = 0;
+    }
+
     if((n>1) && ('\r'==z[n-2])){
       if(n==2) continue /*empty line*/;
       z[n-2] = 0;
     }
+    if(!z[0]) continue;
     newArgv[j++] = z;
     if( z[0]=='-' ){
       for(k=1; z[k] && !fossil_isspace(z[k]); k++){}
@@ -513,7 +522,6 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
-
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);
@@ -536,6 +544,7 @@ int main(int argc, char **argv)
   g.tcl.argc = g.argc;
   g.tcl.argv = copy_args(g.argc, g.argv); /* save full arguments */
 #endif
+  g.mainTimerId = fossil_timer_start();
   if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
     g.isHTTP = 1;
@@ -545,6 +554,17 @@ int main(int argc, char **argv)
        "   or: %s help           -- for a list of common commands\n"
        "   or: %s help COMMMAND  -- for help with the named command\n",
        g.argv[0], g.argv[0], g.argv[0]);
+    fossil_print(
+      "\nCommands and filenames may be passed on to fossil from a file\n"
+      "by using:\n"
+      "\n    %s --args FILENAME ...\n",
+      g.argv[0]
+    );
+    fossil_print(
+      "\nEach line of the file is assumed to be a filename unless it starts\n"
+      "with '-' and contains a space, in which case it is assumed to be\n"
+      "another flag and is treated as such. --args FILENAME may be used\n"
+      "in conjunction with any other flags.\n");
     fossil_exit(1);
   }else{
     const char *zChdir = find_option("chdir",0,1);
@@ -561,7 +581,7 @@ int main(int argc, char **argv)
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
     if( find_option("utc",0,0) ) g.fTimeFormat = 1;
     if( find_option("localtime",0,0) ) g.fTimeFormat = 2;
-    if( zChdir && chdir(zChdir) ){
+    if( zChdir && file_chdir(zChdir, 0) ){
       fossil_fatal("unable to change directories to %s", zChdir);
     }
     if( find_option("help",0,0)!=0 ){
@@ -1088,7 +1108,7 @@ static char *enter_chroot_jail(char *zRepo){
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
     if( file_isdir(zDir)==1 ){
-      if( chdir(zDir) || chroot(zDir) || chdir("/") ){
+      if( file_chdir(zDir, 1) ){
         fossil_fatal("unable to chroot into %s", zDir);
       }
       zRepo = "/";
@@ -1097,7 +1117,7 @@ static char *enter_chroot_jail(char *zRepo){
       if( zDir[i]!='/' ) fossil_panic("bad repository name: %s", zRepo);
       if( i>0 ){
         zDir[i] = 0;
-        if( chdir(zDir) || chroot(zDir) || chdir("/") ){
+        if( file_chdir(zDir, 1) ){
           fossil_fatal("unable to chroot into %s", zDir);
         }
         zDir[i] = '/';
@@ -1674,10 +1694,7 @@ void cmd_http(void){
 ** Works like the http command but gives setup permission to all users.
 */
 void cmd_test_http(void){
-  g.thTrace = find_option("th-trace", 0, 0)!=0;
-  if( g.thTrace ){
-    blob_zero(&g.thLog);
-  }
+  Th_InitTraceLog();
   login_set_capabilities("sx", 0);
   g.useLocalauth = 1;
   cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
@@ -1783,11 +1800,8 @@ void cmd_webserver(void){
 #endif
 
   zFileGlob = find_option("files", 0, 1);
-  g.thTrace = find_option("th-trace", 0, 0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
-  if( g.thTrace ){
-    blob_zero(&g.thLog);
-  }
+  Th_InitTraceLog();
   zPort = find_option("port", "P", 1);
   zNotFound = find_option("notfound", 0, 1);
   zAltBase = find_option("baseurl", 0, 1);

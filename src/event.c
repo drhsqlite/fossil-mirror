@@ -111,7 +111,7 @@ void event_page(void){
   if( !zVerbose ){
     zVerbose = P("detail"); /* deprecated */
   }
-  verboseFlag = (zVerbose!=0) && (*zVerbose!=0) && !is_false(zVerbose);
+  verboseFlag = (zVerbose!=0) && !is_false(zVerbose);
 
   /* Extract the event content.
   */
@@ -141,7 +141,7 @@ void event_page(void){
         char *zNext;
         zNext = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nextRid);
         style_submenu_element("Next", "Next",
-                              "%s/event?name=%s&aid=%s&v=1",
+                              "%s/event?name=%s&aid=%s&v",
                               g.zTop, zEventId, zNext);
         free(zNext);
       }
@@ -149,13 +149,13 @@ void event_page(void){
         char *zPrev;
         zPrev = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", prevRid);
         style_submenu_element("Prev", "Prev",
-                              "%s/event?name=%s&aid=%s&v=1",
+                              "%s/event?name=%s&aid=%s&v",
                               g.zTop, zEventId, zPrev);
         free(zPrev);
       }
     }else{
       style_submenu_element("Detail", "Detail",
-                            "%s/event?name=%s&aid=%s&v=1",
+                            "%s/event?name=%s&aid=%s&v",
                             g.zTop, zEventId, zUuid);
     }
   }

@@ -258,6 +258,7 @@ void cat_cmd(void){
 **    n=NUM      Show the first NUM changes only
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
+**    ci=UUID    Ancestors of a particular check-in
 **    fco=BOOL   Show only first occurrence of each version if true (default)
 */
 void finfo_page(void){
@@ -267,6 +268,7 @@ void finfo_page(void){
   const char *zA;
   const char *zB;
   int n;
+  int baseCheckin;
 
   Blob title;
   Blob sql;
@@ -284,6 +286,8 @@ void finfo_page(void){
   url_initialize(&url, "finfo");
   if( brBg ) url_add_parameter(&url, "brbg", 0);
   if( uBg ) url_add_parameter(&url, "ubg", 0);
+  baseCheckin = name_to_rid_www("ci");
+  if( baseCheckin ) firstChngOnly = 1;
   if( firstChngOnly ) url_add_parameter(&url, "fco", "0");
 
   zPrevDate[0] = 0;
@@ -295,7 +299,7 @@ void finfo_page(void){
     " datetime(event.mtime,'localtime'),"            /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
     " coalesce(event.euser, event.user),"            /* User who made chng */
-    " mlink.pid,"                                    /* Parent rid */
+    " mlink.pid,"                                    /* Parent file rid */
     " mlink.fid,"                                    /* File rid */
     " (SELECT uuid FROM blob WHERE rid=mlink.pid),"  /* Parent file uuid */
     " (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* Current file uuid */
@@ -308,7 +312,16 @@ void finfo_page(void){
     TAG_BRANCH
   );
   if( firstChngOnly ){
+#if 0
     blob_appendf(&sql, ", min(event.mtime)");
+#else
+    blob_appendf(&sql, 
+        ", min(CASE (SELECT value FROM tagxref"
+                    " WHERE tagtype>0 AND tagid=%d"
+                    "   AND tagxref.rid=mlink.mid)"
+             " WHEN 'trunk' THEN event.mtime-10000 ELSE event.mtime END)",
+    TAG_BRANCH);
+#endif
   }
   blob_appendf(&sql,
     "  FROM mlink, event"
@@ -316,6 +329,10 @@ void finfo_page(void){
     "   AND event.objid=mlink.mid",
     zFilename
   );
+  if( baseCheckin ){
+    compute_direct_ancestors(baseCheckin, 10000000);
+    blob_appendf(&sql,"  AND mlink.mid IN (SELECT rid FROM ancestor)");
+  }
   if( (zA = P("a"))!=0 ){
     blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zA);
     url_add_parameter(&url, "a", zA);
@@ -332,18 +349,33 @@ void finfo_page(void){
     blob_appendf(&sql, " LIMIT %d", n);
     url_add_parameter(&url, "n", P("n"));
   }
-  if( firstChngOnly ){
-    style_submenu_element("Full", "Show all changes","%s",
-                          url_render(&url, "fco", "0", 0, 0));
-  }else{
-    style_submenu_element("Simplified", "Show only first use of a change","%s",
-                          url_render(&url, "fco", "1", 0, 0));
+  if( baseCheckin==0 ){
+    if( firstChngOnly ){
+      style_submenu_element("Full", "Show all changes","%s",
+                            url_render(&url, "fco", "0", 0, 0));
+    }else{
+      style_submenu_element("Simplified",
+                            "Show only first use of a change","%s",
+                            url_render(&url, "fco", "1", 0, 0));
+    }
   }
   db_prepare(&q, blob_str(&sql));
+  if( P("showsql")!=0 ){
+    @ <p>SQL: %h(blob_str(&sql))</p>
+  }
   blob_reset(&sql);
   blob_zero(&title);
-  blob_appendf(&title, "History of ");
-  hyperlinked_path(zFilename, &title, 0);
+  if( baseCheckin ){
+    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
+    char *zLink = href("%R/info/%S", zUuid);
+    blob_appendf(&title, "Ancestors of file ");
+    hyperlinked_path(zFilename, &title, zUuid);
+    blob_appendf(&title, " from check-in %z%.10s</a>", zLink, zUuid);
+    fossil_free(zUuid);
+  }else{
+    blob_appendf(&title, "History of files named ");
+    hyperlinked_path(zFilename, &title, 0);
+  }
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
@@ -426,7 +458,7 @@ void finfo_page(void){
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
       if( fpid ){
-        @ %z(href("%R/fdiff?v1=%S&v2=%S",zPUuid,zUuid))[diff]</a>
+        @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zPUuid,zUuid))[diff]</a>
       }
       @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
       @ [annotate]</a>

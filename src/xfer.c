@@ -1381,7 +1381,7 @@ int client_sync(
   }else if( syncFlags & SYNC_PULL ){
     blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
     nCardSent++;
-    zOpType = "Pull";
+    zOpType = (syncFlags & SYNC_PUSH)?"Sync":"Pull";
   }
   if( syncFlags & SYNC_PUSH ){
     blob_appendf(&send, "push %s %s\n", zSCode, zPCode);

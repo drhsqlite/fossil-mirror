@@ -889,15 +889,20 @@ int Th_CallSubCommand(
   int *argl,
   Th_SubCommand *aSub
 ){
-  int i;
-  for(i=0; aSub[i].zName; i++){
-    char *zName = (char *)aSub[i].zName;
-    if( th_strlen(zName)==argl[1] && 0==memcmp(zName, argv[1], argl[1]) ){
-      return aSub[i].xProc(interp, ctx, argc, argv, argl);
+  if( argc>1 ){
+    int i;
+    for(i=0; aSub[i].zName; i++){
+      char *zName = (char *)aSub[i].zName;
+      if( th_strlen(zName)==argl[1] && 0==memcmp(zName, argv[1], argl[1]) ){
+        return aSub[i].xProc(interp, ctx, argc, argv, argl);
+      }
     }
   }
-
-  Th_ErrorMessage(interp, "Expected sub-command, got:", argv[1], argl[1]);
+  if(argc<2){
+    Th_ErrorMessage(interp, "Expected sub-command for", argv[0], argl[0]);
+  }else{
+    Th_ErrorMessage(interp, "Expected sub-command, got:", argv[1], argl[1]);
+  }
   return TH_ERROR;
 }
 

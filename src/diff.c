@@ -32,7 +32,7 @@
 #define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
 #define DIFF_IGNORE_EOLWS ((u64)0x01000000) /* Ignore end-of-line whitespace */
 #define DIFF_SIDEBYSIDE   ((u64)0x02000000) /* Generate a side-by-side diff */
-#define DIFF_NEWFILE      ((u64)0x04000000) /* Missing shown as empty files */
+#define DIFF_VERBOSE      ((u64)0x04000000) /* Missing shown as empty files */
 #define DIFF_BRIEF        ((u64)0x08000000) /* Show filenames only */
 #define DIFF_INLINE       ((u64)0x00000000) /* Inline (not side-by-side) diff */
 #define DIFF_HTML         ((u64)0x10000000) /* Render for HTML */
@@ -279,7 +279,7 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
     }
   }
   if( n ){
-    flags |= LOOK_SHORT;  /* Not the whole blob is examined */
+    flags |= LOOK_SHORT;  /* The whole blob was not examined */
   }
   if( j>LENGTH_MASK ){
     flags |= LOOK_LONG;  /* Very long line -> binary */
@@ -363,7 +363,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
     flags |= LOOK_NUL;  /* NUL character in a file -> binary */
   }else if( c=='\r' ){
     flags |= LOOK_CR;
-    if( n<=sizeof(WCHAR_T) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
+    if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
       flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
     }
   }
@@ -371,8 +371,9 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
   while( 1 ){
     int c2 = c;
+    if( flags&stopFlags ) break;
     n -= sizeof(WCHAR_T);
-    if( (flags&stopFlags) || n<sizeof(WCHAR_T) ) break;
+    if( n<sizeof(WCHAR_T) ) break;
     c = *++z;
     if( bReverse ){
       c = UTF16_SWAP(c);
@@ -393,13 +394,13 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
       j = 0;
     }else if( c=='\r' ){
       flags |= LOOK_CR;
-      if( n<=sizeof(WCHAR_T) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
+      if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
         flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
       }
     }
   }
   if( n ){
-    flags |= LOOK_SHORT;  /* Not the whole blob is examined */
+    flags |= LOOK_SHORT;  /* The whole blob was not examined */
   }
   if( j>UTF16_LENGTH_MASK ){
     flags |= LOOK_LONG;  /* Very long line -> binary */
@@ -438,7 +439,11 @@ int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
 ** byte-order-mark (BOM), either in the endianness of the machine
 ** or in reversed byte order. The UTF-32 BOM is ruled out by checking
 ** if the UTF-16 BOM is not immediately followed by (utf16) 0.
-** pnByte and pbReverse are only set when the function returns 1.
+** pnByte is only set when the function returns 1.
+**
+** pbReverse is always set, even when no BOM is found. Without a BOM,
+** it is set to 1 on little-endian and 0 on big-endian platforms. See
+** clause D98 of conformance (section 3.10) of the Unicode standard.
 */
 int starts_with_utf16_bom(
   const Blob *pContent, /* IN: Blob content to perform BOM detection on. */
@@ -449,13 +454,16 @@ int starts_with_utf16_bom(
   int bomSize = sizeof(unsigned short);
   int size = blob_size(pContent);
 
-  if( size<bomSize ) return 0;  /* No: cannot read BOM. */
-  if( size>=(2*bomSize) && z[1]==0 ) return 0;  /* No: possible UTF-32. */
-  if( z[0]==0xfffe ){
-    if( pbReverse ) *pbReverse = 1;
-  }else if( z[0]==0xfeff ){
+  if( size<bomSize ) goto noBom;  /* No: cannot read BOM. */
+  if( size>=(2*bomSize) && z[1]==0 ) goto noBom;  /* No: possible UTF-32. */
+  if( z[0]==0xfeff ){
     if( pbReverse ) *pbReverse = 0;
+  }else if( z[0]==0xfffe ){
+    if( pbReverse ) *pbReverse = 1;
   }else{
+    static const int one = 1;
+  noBom:
+    if( pbReverse ) *pbReverse = *(char *) &one;
     return 0; /* No: UTF-16 byte-order-mark not found. */
   }
   if( pnByte ) *pnByte = bomSize;
@@ -1647,19 +1655,22 @@ static void longestCommonSequence(
   int *piSX, int *piEX,      /* Write p->aFrom[] common segment here */
   int *piSY, int *piEY       /* Write p->aTo[] common segment here */
 ){
-  double bestScore = -1e30;  /* Best score seen so far */
   int i, j, k;               /* Loop counters */
   int n;                     /* Loop limit */
   DLine *pA, *pB;            /* Pointers to lines */
   int iSX, iSY, iEX, iEY;    /* Current match */
-  double score;              /* Current score */
-  int skew;                  /* How lopsided is the match */
-  int dist;                  /* Distance of match from center */
+  int skew = 0;              /* How lopsided is the match */
+  int dist = 0;              /* Distance of match from center */
   int mid;                   /* Center of the span */
   int iSXb, iSYb, iEXb, iEYb;   /* Best match so far */
   int iSXp, iSYp, iEXp, iEYp;   /* Previous match */
+  sqlite3_int64 bestScore;      /* Best score so far */
+  sqlite3_int64 score;          /* Score for current candidate LCS */
+  int span;                     /* combined width of the input sequences */
 
-
+  span = (iE1 - iS1) + (iE2 - iS2);
+  bestScore = -10000;
+  score = 0;
   iSXb = iSXp = iS1;
   iEXb = iEXp = iS1;
   iSYb = iSYp = iS2;
@@ -1701,7 +1712,7 @@ static void longestCommonSequence(
     if( skew<0 ) skew = -skew;
     dist = (iSX+iEX)/2 - mid;
     if( dist<0 ) dist = -dist;
-    score = (iEX - iSX) - 0.05*skew - 0.05*dist;
+    score = (iEX - iSX)*(sqlite3_int64)span - (skew + dist);
     if( score>bestScore ){
       bestScore = score;
       iSXb = iSX;
@@ -1725,8 +1736,6 @@ static void longestCommonSequence(
     *piEX = iEXb;
     *piEY = iEYb;
   }
-  /* printf("LCS(%d..%d/%d..%d) = %d..%d/%d..%d\n",
-     iS1, iE1, iS2, iE2, *piSX, *piEX, *piSY, *piEY);  */
 }
 
 /*
@@ -2184,13 +2193,18 @@ struct Annotator {
   struct AnnLine {  /* Lines of the original files... */
     const char *z;       /* The text of the line */
     short int n;         /* Number of bytes (omitting trailing space and \n) */
-    short int iLevel;    /* Level at which tag was set */
-    const char *zSrc;    /* Tag showing origin of this line */
+    short int iVers;     /* Level at which tag was set */
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
-  int nNoSrc;       /* Number of entries where aOrig[].zSrc==NULL */
-  int iLevel;       /* Current level */
   int nVers;        /* Number of versions analyzed */
+  int bLimit;       /* True if the iLimit was reached */
+  struct AnnVers {
+    const char *zFUuid;   /* File being analyzed */
+    const char *zMUuid;   /* Check-in containing the file */
+    const char *zDate;    /* Date of the check-in */
+    const char *zBgColor; /* Suggested background color */
+    unsigned cnt;         /* Number of lines contributed by this check-in */
+  } *aVers;         /* For each check-in analyzed */
   char **azVers;    /* Names of versions analyzed */
 };
 
@@ -2211,7 +2225,7 @@ static int annotation_start(Annotator *p, Blob *pInput){
   for(i=0; i<p->c.nTo; i++){
     p->aOrig[i].z = p->c.aTo[i].z;
     p->aOrig[i].n = p->c.aTo[i].h & LENGTH_MASK;
-    p->aOrig[i].zSrc = 0;
+    p->aOrig[i].iVers = -1;
   }
   p->nOrig = p->c.nTo;
   return 0;
@@ -2224,11 +2238,9 @@ static int annotation_start(Annotator *p, Blob *pInput){
 ** on each line of the file being annotated that was contributed by
 ** pParent.  Memory to hold zPName is leaked.
 */
-static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
+static int annotation_step(Annotator *p, Blob *pParent, int iVers){
   int i, j;
   int lnTo;
-  int iPrevLevel;
-  int iThisLevel;
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
@@ -2242,20 +2254,17 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   diff_all(&p->c);
 
   /* Where new lines are inserted on this difference, record the
-  ** zPName as the source of the new line.
+  ** iVers as the source of the new line.
   */
-  iPrevLevel = p->iLevel;
-  p->iLevel++;
-  iThisLevel = p->iLevel;
   for(i=lnTo=0; i<p->c.nEdit; i+=3){
-    struct AnnLine *x = &p->aOrig[lnTo];
-    for(j=0; j<p->c.aEdit[i]; j++, lnTo++, x++){
-      if( x->zSrc==0 || x->iLevel==iPrevLevel ){
-         x->zSrc = zPName;
-         x->iLevel = iThisLevel;
+    int nCopy = p->c.aEdit[i];
+    int nIns = p->c.aEdit[i+2];
+    lnTo += nCopy;
+    for(j=0; j<nIns; j++, lnTo++){
+      if( p->aOrig[lnTo].iVers<0 ){
+        p->aOrig[lnTo].iVers = iVers;
       }
     }
-    lnTo += p->c.aEdit[i+2];
   }
 
   /* Clear out the diff results */
@@ -2272,35 +2281,6 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
 }
 
 
-/*
-** COMMAND: test-annotate-step
-*/
-void test_annotate_step_cmd(void){
-  Blob orig, b;
-  Annotator x;
-  int i;
-
-  if( g.argc<4 ) usage("RID1 RID2 ...");
-  db_must_be_within_tree();
-  blob_zero(&b);
-  content_get(name_to_rid(g.argv[2]), &orig);
-  if( annotation_start(&x, &orig) ){
-    fossil_fatal("binary file");
-  }
-  for(i=3; i<g.argc; i++){
-    blob_zero(&b);
-    content_get(name_to_rid(g.argv[i]), &b);
-    if( annotation_step(&x, &b, g.argv[i-1]) ){
-      fossil_fatal("binary file");
-    }
-  }
-  for(i=0; i<x.nOrig; i++){
-    const char *zSrc = x.aOrig[i].zSrc;
-    if( zSrc==0 ) zSrc = g.argv[g.argc-1];
-    fossil_print("%10s: %.*s\n", zSrc, x.aOrig[i].n, x.aOrig[i].z);
-  }
-}
-
 /* Annotation flags */
 #define ANN_FILE_VERS    0x01   /* Show file vers rather than commit vers */
 #define ANN_FILE_ANCEST  0x02   /* Prefer check-ins in the ANCESTOR table */
@@ -2314,14 +2294,12 @@ static void annotate_file(
   Annotator *p,        /* The annotator */
   int fnid,            /* The name of the file to be annotated */
   int mid,             /* Use the version of the file in this check-in */
-  int webLabel,        /* Use web-style annotations if true */
   int iLimit,          /* Limit the number of levels if greater than zero */
   int annFlags         /* Flags to alter the annotation */
 ){
   Blob toAnnotate;     /* Text of the final (mid) version of the file */
   Blob step;           /* Text of previous revision */
   int rid;             /* Artifact ID of the file being annotated */
-  char *zLabel;        /* Label to apply to a line */
   Stmt q;              /* Query returning all ancestor versions */
   Stmt ins;            /* Inserts into the temporary VSEEN table */
   int cnt = 0;         /* Number of versions examined */
@@ -2344,16 +2322,15 @@ static void annotate_file(
 
   db_prepare(&ins, "INSERT OR IGNORE INTO vseen(rid) VALUES(:rid)");
   db_prepare(&q,
-    "SELECT (SELECT uuid FROM blob WHERE rid=mlink.%s),"
+    "SELECT (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.mid),"
     "       date(event.mtime),"
-    "       coalesce(event.euser,event.user),"
     "       mlink.pid"
     "  FROM mlink, event"
     " WHERE mlink.fid=:rid"
     "   AND event.objid=mlink.mid"
     "   AND mlink.pid NOT IN vseen"
     " ORDER BY %s event.mtime",
-    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid",
     (annFlags & ANN_FILE_ANCEST)!=0 ?
          "(mlink.mid IN (SELECT rid FROM ancestor)) DESC,":""
   );
@@ -2361,35 +2338,48 @@ static void annotate_file(
   db_bind_int(&q, ":rid", rid);
   if( iLimit==0 ) iLimit = 1000000000;
   while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    const char *zDate = db_column_text(&q, 1);
-    const char *zUser = db_column_text(&q, 2);
     int prevId = db_column_int(&q, 3);
-    if( webLabel ){
-      zLabel = mprintf(
-          "<a href='%R/info/%s' target='infowindow'>%.10s</a> %s %13.13s",
-          zUuid, zUuid, zDate, zUser
-      );
-    }else{
-      zLabel = mprintf("%.10s %s %13.13s", zUuid, zDate, zUser);
+    p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
+    p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
+    p->aVers[p->nVers].zMUuid = fossil_strdup(db_column_text(&q, 1));
+    p->aVers[p->nVers].zDate = fossil_strdup(db_column_text(&q, 2));
+    if( p->nVers ){
+      content_get(rid, &step);
+      annotation_step(p, &step, p->nVers-1);
+      blob_reset(&step);
     }
     p->nVers++;
-    p->azVers = fossil_realloc(p->azVers, p->nVers*sizeof(p->azVers[0]) );
-    p->azVers[p->nVers-1] = zLabel;
-    content_get(rid, &step);
-    annotation_step(p, &step, zLabel);
     db_bind_int(&ins, ":rid", rid);
     db_step(&ins);
     db_reset(&ins);
-    blob_reset(&step);
     db_reset(&q);
     rid = prevId;
     db_bind_int(&q, ":rid", prevId);
     cnt++;
   }
+  p->bLimit = iLimit==cnt;
   db_finalize(&q);
   db_finalize(&ins);
   db_end_transaction(0);
+}
+
+/*
+** Return a color from a gradient.
+*/
+unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
+  unsigned c;   /* Result color */
+  unsigned x1, x2;
+  if( i==0 || n==0 ) return c1;
+  x1 = (c1>>16)&0xff;
+  x2 = (c2>>16)&0xff;
+  c = (x1*(n-i) + x2*i)/n<<16 & 0xff0000;
+  x1 = (c1>>8)&0xff;
+  x2 = (c2>>8)&0xff;
+  c |= (x1*(n-i) + x2*i)/n<<8 & 0xff00;
+  x1 = c1&0xff;
+  x2 = c2&0xff;
+  c |= (x1*(n-i) + x2*i)/n & 0xff;
+  return c;
 }
 
 /*
@@ -2399,54 +2389,141 @@ static void annotate_file(
 **
 **    checkin=ID          The manifest ID at which to start the annotation
 **    filename=FILENAME   The filename.
+**    filevers            Show file versions rather than check-in versions
+**    log=BOOLEAN         Show a log of versions analyzed
+**    limit=N             Limit the search depth to N ancestors
 */
 void annotation_page(void){
   int mid;
   int fnid;
   int i;
-  int iLimit;
-  int annFlags = ANN_FILE_ANCEST;
-  int showLn = 0;        /* True if line numbers should be shown */
-  char zLn[10];          /* Line number buffer */
-  char zFormat[10];      /* Format string for line numbers */
+  int iLimit;            /* Depth limit */
+  int annFlags = ANN_FILE_ANCEST;  
+  int showLog = 0;       /* True to display the log */
+  const char *zFilename; /* Name of file to annotate */
+  const char *zCI;       /* The check-in containing zFilename */
   Annotator ann;
+  HQuery url;
+  struct AnnVers *p;
+  unsigned clr1, clr2, clr;
 
-  showLn = P("ln")!=0;
+  /* Gather query parameters */
+  showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", P("filename"));
+  zFilename = P("filename");
+  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
-  iLimit = atoi(PD("limit","-1"));
+  iLimit = atoi(PD("limit","20"));
+  if( P("filevers") ) annFlags |= ANN_FILE_VERS;
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
   }
+
+  /* compute the annotation */
   compute_direct_ancestors(mid, 10000000);
-  style_header("File Annotation");
-  if( P("filevers") ) annFlags |= ANN_FILE_VERS;
-  annotate_file(&ann, fnid, mid, g.perm.Hyperlink, iLimit, annFlags);
-  if( P("log") ){
-    int i;
-    @ <h2>Versions analyzed:</h2>
+  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  zCI = ann.aVers[0].zMUuid;
+
+  /* generate the web page */
+  style_header("Annotation For %h", zFilename);
+  url_initialize(&url, "annotate");
+  url_add_parameter(&url, "checkin", P("checkin"));
+  url_add_parameter(&url, "filename", zFilename);
+  if( iLimit!=20 ){
+    url_add_parameter(&url, "limit", sqlite3_mprintf("%d", iLimit));
+  }
+  url_add_parameter(&url, "log", showLog ? "1" : "0");
+  if( showLog ){
+    style_submenu_element("Hide Log", "Hide Log",
+       url_render(&url, "log", "0", 0, 0));
+  }else{
+    style_submenu_element("Show Log", "Show Log",
+       url_render(&url, "log", "1", 0, 0));
+  }
+  if( ann.bLimit ){
+    char *z1, *z2;
+    style_submenu_element("All Ancestors", "All Ancestors",
+       url_render(&url, "limit", "-1", 0, 0));
+    z1 = sqlite3_mprintf("%d Ancestors", iLimit+20);
+    z2 = sqlite3_mprintf("%d", iLimit+20);
+    style_submenu_element(z1, z1, url_render(&url, "limit", z2, 0, 0));
+  }
+  if( iLimit>20 ){
+    style_submenu_element("20 Ancestors", "20 Ancestors",
+       url_render(&url, "limit", "20", 0, 0));
+  }
+  if( db_get_boolean("white-foreground", 0) ){
+    clr1 = 0xa04040;
+    clr2 = 0x4059a0;
+  }else{
+    clr1 = 0xffb5b5;  /* Recent changes: red (hot) */
+    clr2 = 0xb5e0ff;  /* Older changes: blue (cold) */
+  }
+  for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+    clr = gradient_color(clr1, clr2, ann.nVers-1, i);
+    ann.aVers[i].zBgColor = mprintf("#%06x", clr);
+  }  
+
+  if( showLog ){
+    char *zLink = href("%R/finfo?name=%t&ci=%S",zFilename,zCI);
+    @ <h2>Ancestors of %z(zLink)%h(zFilename)</a> analyzed:</h2>
     @ <ol>
-    for(i=0; i<ann.nVers; i++){
-      @ <li><tt>%s(ann.azVers[i])</tt></li>
+    for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+      @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
+      @ check-in %z(href("%R/info/%S",p->zMUuid))%.10s(p->zMUuid)</a>
+      @ artifact %z(href("%R/artifact/%S",p->zFUuid))%.10s(p->zFUuid)</a>
+      @ </span>
+#if 0
+      if( i>0 ){
+        char *zLink = xhref("target='infowindow'",
+                            "%R/fdiff?v1=%S&v2=%S&sbs=1",
+                            p->zFUuid,ann.aVers[0].zFUuid);
+        @ %z(zLink)[diff-to-top]</a>
+        if( i>1 ){
+           zLink = xhref("target='infowindow'",
+                         "%R/fdiff?v1=%S&v2=%S&sbs=1",
+                         p->zFUuid,p[-1].zFUuid);
+           @ %z(zLink)[diff-to-previous]</a>
+        }
+      }
+#endif
     }
     @ </ol>
     @ <hr>
-    @ <h2>Annotation:</h2>
   }
-  if( showLn ){
-    sqlite3_snprintf(sizeof(zLn), zLn, "%d", ann.nOrig+1);
-    sqlite3_snprintf(sizeof(zFormat), zFormat, "%%%dd:", strlen(zLn));
+  if( !ann.bLimit ){
+    @ <h2>Origin for each line in 
+    @ %z(href("%R/finfo?name=%h&ci=%S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%S",zCI))%S(zCI)</a>:</h2>
+    iLimit = ann.nVers+10;
   }else{
-    zLn[0] = 0;
+    @ <h2>Lines added by the %d(iLimit) most recent ancestors of
+    @ %z(href("%R/finfo?name=%h&ci=%S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%S",zCI))%S(zCI)</a>:</h2>
   }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
-    ((char*)ann.aOrig[i].z)[ann.aOrig[i].n] = 0;
-    if( showLn ) sqlite3_snprintf(sizeof(zLn), zLn, zFormat, i+1);
-    @ %s(ann.aOrig[i].zSrc):%s(zLn) %h(ann.aOrig[i].z)
+    int iVers = ann.aOrig[i].iVers;
+    char *z = (char*)ann.aOrig[i].z;
+    int n = ann.aOrig[i].n;
+    char zPrefix[300];
+    z[n] = 0;
+    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
+    if( iVers>=0 ){
+      struct AnnVers *p = ann.aVers+iVers;
+      char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix,
+           "<span style='background-color:%s'>"
+           "%s%.10s</a> %s</span> %4d:",
+           p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
+      fossil_free(zLink);
+    }else{
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
+    }
+    @ %s(zPrefix) %h(z)
+
   }
   @ </pre>
   style_footer();
@@ -2506,7 +2583,7 @@ void annotate_cmd(void){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(cid, iLimit);
+  compute_direct_ancestors(cid, 1000000);
   mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
           " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
           " ORDER BY ancestor.generation ASC LIMIT 1",
@@ -2514,18 +2591,31 @@ void annotate_cmd(void){
   if( mid==0 ){
     fossil_panic("unable to find manifest");
   }
-  if( fileVers ) annFlags |= ANN_FILE_VERS;
   annFlags |= ANN_FILE_ANCEST;
-  annotate_file(&ann, fnid, mid, 0, iLimit, annFlags);
+  annotate_file(&ann, fnid, mid, iLimit, annFlags);
   if( showLog ){
-    for(i=0; i<ann.nVers; i++){
-      printf("version %3d: %s\n", i+1, ann.azVers[i]);
+    struct AnnVers *p;
+    for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+      fossil_print("version %3d: %s %.10s file %.10s\n",
+                   i+1, p->zDate, p->zMUuid, p->zFUuid);
     }
-    printf("---------------------------------------------------\n");
+    fossil_print("---------------------------------------------------\n");
   }
   for(i=0; i<ann.nOrig; i++){
-    fossil_print("%s: %.*s\n",
-                 ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
+    int iVers = ann.aOrig[i].iVers;
+    char *z = (char*)ann.aOrig[i].z;
+    int n = ann.aOrig[i].n;
+    char zPrefix[200];
+    z[n] = 0;
+    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
+    if( iVers>=0 ){
+      struct AnnVers *p = ann.aVers+iVers;
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%.10s %s",
+           fileVers ? p->zFUuid : p->zMUuid, p->zDate);
+    }else{
+      zPrefix[0] = 0;
+    }
+    fossil_print("%21s %4d: %.*s\n", zPrefix, i+1, n, z);
   }
 }
 
@@ -2533,6 +2623,10 @@ void annotate_cmd(void){
 ** COMMAND: test-looks-like-utf
 **
 ** Usage:  %fossil test-looks-like-utf FILENAME
+**
+** Options:
+**    --utf8           Ignoring BOM and file size, force UTF-8 checking
+**    --utf16          Ignoring BOM and file size, force UTF-16 checking
 **
 ** FILENAME is the name of a file to check for textual content in the UTF-8
 ** and/or UTF-16 encodings.
@@ -2545,11 +2639,17 @@ void looks_like_utf_test_cmd(void){
   int lookFlags; /* output flags from looks_like_utf8/utf16() */
   int bRevUtf16 = 0; /* non-zero -> UTF-16 byte order reversed */
   int bRevUnicode = 0; /* non-zero -> UTF-16 byte order reversed */
+  int fForceUtf8 = find_option("utf8",0,0)!=0;
+  int fForceUtf16 = find_option("utf16",0,0)!=0;
   if( g.argc!=3 ) usage("FILENAME");
   blob_read_from_file(&blob, g.argv[2]);
   fUtf8 = starts_with_utf8_bom(&blob, 0);
   fUtf16 = starts_with_utf16_bom(&blob, 0, &bRevUtf16);
-  fUnicode = could_be_utf16(&blob, &bRevUnicode);
+  if( fForceUtf8 ){
+    fUnicode = 0;
+  }else{
+    fUnicode = could_be_utf16(&blob, &bRevUnicode) || fForceUtf16;
+  }
   lookFlags = fUnicode ? looks_like_utf16(&blob, bRevUnicode, 0) :
                          looks_like_utf8(&blob, 0);
   fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));

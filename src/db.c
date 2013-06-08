@@ -1683,7 +1683,7 @@ void db_swap_connections(void){
 ** Returns the non-versioned value without modification if there is no
 ** versioned value.
 */
-static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
+char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
   char *zVersionedSetting = 0;
   int noWarn = 0;
   struct _cacheEntry {
@@ -1692,6 +1692,7 @@ static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting
   } *cacheEntry = 0;
   static struct _cacheEntry *cache = 0;
 
+  if( !g.localOpen) return zNonVersionedSetting;
   /* Look up name in cache */
   cacheEntry = cache;
   while( cacheEntry!=0 ){
@@ -1777,7 +1778,7 @@ char *db_get(const char *zName, char *zDefault){
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
   }
-  if( ctrlSetting!=0 && ctrlSetting->versionable && g.localOpen ){
+  if( ctrlSetting!=0 && ctrlSetting->versionable ){
     /* This is a versionable setting, try and get the info from a
     ** checked out file */
     z = db_get_do_versionable(zName, z);
@@ -2098,6 +2099,7 @@ struct stControlSettings const ctrlSettings[] = {
 #else
   { "case-sensitive",0,                0, 0, "on"                  },
 #endif
+  { "clean-glob",    0,               40, 1, ""                    },
   { "crnl-glob",     0,               40, 1, ""                    },
   { "default-perms", 0,               16, 0, "u"                   },
   { "diff-binary",   0,                0, 0, "on"                  },
@@ -2111,6 +2113,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "http-port",     0,               16, 0, "8080"                },
   { "https-login",   0,                0, 0, "off"                 },
   { "ignore-glob",   0,               40, 1, ""                    },
+  { "keep-glob",     0,               40, 1, ""                    },
   { "localauth",     0,                0, 0, "off"                 },
   { "main-branch",   0,               40, 0, "trunk"               },
   { "manifest",      0,                0, 1, "off"                 },
@@ -2188,6 +2191,11 @@ struct stControlSettings const ctrlSettings[] = {
 **                     differ only in case are the same file.  Defaults to
 **                     TRUE for unix and FALSE for Cygwin, Mac and Windows.
 **
+**    clean-glob       The VALUE is a comma or newline-separated list of GLOB
+**     (versionable)   patterns specifying files that the "clean" command will
+**                     delete without prompting even when the -force flag has
+**                     not been used.  Example:  *.a *.lib *.o
+**
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
 **                     be unsigned.  Default: off
@@ -2239,8 +2247,13 @@ struct stControlSettings const ctrlSettings[] = {
 **                     even if the login page request came via HTTP.
 **
 **    ignore-glob      The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "extra" command will
-**                     ignore.  Example:  *.o,*.obj,*.exe
+**     (versionable)   patterns specifying files that the "add", "addremove",
+**                     "clean", and "extra" commands will ignore.
+**                     Example:  *.log customCode.c notes.txt
+**
+**    keep-glob        The VALUE is a comma or newline-separated list of GLOB
+**     (versionable)   patterns specifying files that the "clean" command will
+**                     keep.
 **
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If

@@ -223,10 +223,11 @@ static int add_files_in_sfile(int vid){
 ** with "." are excluded by default.  To include such files, add
 ** the "--dotfiles" option to the command-line.
 **
-** The --ignore option is a comma-separate list of glob patterns for files
-** to be excluded.  Example:  '*.o,*.obj,*.exe'  If the --ignore option
-** does not appear on the command line then the "ignore-glob" setting is
-** used.
+** The --ignore and --clean options are comma-separate lists of glob patterns
+** for files to be excluded.  Example:  '*.o,*.obj,*.exe'  If the --ignore
+** option does not appear on the command line then the "ignore-glob" setting
+** is used.  If the --clean option does not appear on the command line then
+** the "clean-glob" setting is used.
 **
 ** The --case-sensitive option determines whether or not filenames should
 ** be treated case sensitive or not. If the option is not given, the default
@@ -238,6 +239,8 @@ static int add_files_in_sfile(int vid){
 **    --dotfiles              include files beginning with a dot (".")   
 **    --ignore <CSG>          ignore files matching patterns from the 
 **                            comma separated list of glob patterns.
+**    --clean <CSG>           also ignore files matching patterns from
+**                            the comma separated list of glob patterns.
 ** 
 ** See also: addremove, rm
 */
@@ -245,14 +248,19 @@ void add_cmd(void){
   int i;                     /* Loop counter */
   int vid;                   /* Currently checked out version */
   int nRoot;                 /* Full path characters in g.zLocalRoot */
+  const char *zCleanFlag;    /* The --clean option or clean-glob setting */
   const char *zIgnoreFlag;   /* The --ignore option or ignore-glob setting */
-  Glob *pIgnore;             /* Ignore everything matching this glob pattern */
+  Glob *pIgnore, *pClean;    /* Ignore everything matching the glob patterns */
   unsigned scanFlags = 0;    /* Flags passed to vfile_scan() */
 
+  zCleanFlag = find_option("clean",0,1);
   zIgnoreFlag = find_option("ignore",0,1);
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   capture_case_sensitive_option();
   db_must_be_within_tree();
+  if( zCleanFlag==0 ){
+    zCleanFlag = db_get("clean-glob", 0);
+  }
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
@@ -261,7 +269,9 @@ void add_cmd(void){
     fossil_panic("no checkout to add to");
   }
   db_begin_transaction();
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
+  pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
   nRoot = strlen(g.zLocalRoot);
   
@@ -275,7 +285,7 @@ void add_cmd(void){
     zName = blob_str(&fullName);
     isDir = file_wd_isdir(zName);
     if( isDir==1 ){
-      vfile_scan(&fullName, nRoot-1, scanFlags, pIgnore);
+      vfile_scan2(&fullName, nRoot-1, scanFlags, pClean, pIgnore);
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
     }else if( file_access(zName, R_OK) ){
@@ -290,6 +300,7 @@ void add_cmd(void){
     blob_reset(&fullName);
   }
   glob_free(pIgnore);
+  glob_free(pClean);
 
   add_files_in_sfile(vid);
   db_end_transaction(0);
@@ -308,6 +319,9 @@ void add_cmd(void){
 ** files as no longer being part of the project.  In other words, future
 ** changes to the named files will not be versioned.
 **
+** Options:
+**   --case-sensitive <BOOL> override case-sensitive setting
+**
 ** See also: addremove, add
 */
 void delete_cmd(void){
@@ -315,13 +329,15 @@ void delete_cmd(void){
   int vid;
   Stmt loop;
 
+  capture_case_sensitive_option();
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     fossil_panic("no checkout to remove from");
   }
   db_begin_transaction();
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
   for(i=2; i<g.argc; i++){
     Blob treeName;
     char *zTreeName;
@@ -331,10 +347,11 @@ void delete_cmd(void){
     db_multi_exec(
        "INSERT OR IGNORE INTO sfile"
        " SELECT pathname FROM vfile"
-       "  WHERE (pathname=%Q"
-       "     OR (pathname>'%q/' AND pathname<'%q0'))"
+       "  WHERE (pathname=%Q %s"
+       "     OR (pathname>'%q/' %s AND pathname<'%q0' %s))"
        "    AND NOT deleted",
-       zTreeName, zTreeName, zTreeName
+       zTreeName, filename_collation(), zTreeName,
+       filename_collation(), zTreeName, filename_collation()
     );
     blob_reset(&treeName);
   }
@@ -445,11 +462,12 @@ const char *filename_collation(void){
 ** Files and directories whose names begin with "." are ignored unless
 ** the --dotfiles option is used.
 **
-** The --ignore option overrides the "ignore-glob" setting, as does the
-** --case-sensitive option with the "case-sensitive" setting. See the
-** documentation on the "settings" command for further information.
+** The --ignore option overrides the "ignore-glob" setting, as do the
+** --case-sensitive option with the "case-sensitive" setting and the
+** --clean option with the "clean-glob" setting. See the documentation
+** on the "settings" command for further information.
 **
-** The --test option shows what would happen without actually doing anything.
+** The -n|--dry-run option shows what would happen without actually doing anything.
 **
 ** This command can be used to track third party software.
 ** 
@@ -458,12 +476,15 @@ const char *filename_collation(void){
 **   --dotfiles              include files beginning with a dot (".")
 **   --ignore <CSG>          ignore files matching patterns from the
 **                           comma separated list of glob patterns.
+**   --clean <CSG>           also ignore files matching patterns from
+**                           the comma separated list of glob patterns.
 **   -n|--dry-run            If given, display instead of run actions
 **
 ** See also: add, rm
 */
 void addremove_cmd(void){
   Blob path;
+  const char *zCleanFlag = find_option("clean",0,1);
   const char *zIgnoreFlag = find_option("ignore",0,1);
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
   int dryRunFlag = find_option("dry-run","n",0)!=0;
@@ -472,13 +493,16 @@ void addremove_cmd(void){
   int vid;
   int nAdd = 0;
   int nDelete = 0;
-  Glob *pIgnore;
+  Glob *pIgnore, *pClean;
 
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
   capture_case_sensitive_option();
   db_must_be_within_tree();
+  if( zCleanFlag==0 ){
+    zCleanFlag = db_get("clean-glob", 0);
+  }
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
@@ -494,13 +518,16 @@ void addremove_cmd(void){
   ** --ignore or ignore-glob patterns and dot-files.  Then add all of
   ** the files in the sfile temp table to the set of managed files.
   */
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   /* now we read the complete file structure into a temp table */
+  pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+  vfile_scan2(&path, blob_size(&path), scanFlags, pClean, pIgnore);
   glob_free(pIgnore);
+  glob_free(pClean);
   nAdd = add_files_in_sfile(vid);
 
   /* step 2: search for missing files */
@@ -538,7 +565,8 @@ void addremove_cmd(void){
 ** The original name of the file is zOrig.  The new filename is zNew.
 */
 static void mv_one_file(int vid, const char *zOrig, const char *zNew){
-  int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q", zNew);
+  int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q %s",
+		         zNew, filename_collation());
   if( x>=0 ){
     if( x==0 ){
       fossil_fatal("cannot rename '%s' to '%s' since another file named '%s'"
@@ -550,8 +578,8 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
   }
   fossil_print("RENAME %s %s\n", zOrig, zNew);
   db_multi_exec(
-    "UPDATE vfile SET pathname='%q' WHERE pathname='%q' AND vid=%d",
-    zNew, zOrig, vid
+    "UPDATE vfile SET pathname='%q' WHERE pathname='%q' %s AND vid=%d",
+    zNew, zOrig, filename_collation(), vid
   );
 }
 
@@ -569,6 +597,9 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 ** records the fact that filenames have changed so that appropriate notations
 ** can be made at the next commit/checkin.
 **
+** Options:
+**   --case-sensitive <BOOL> override case-sensitive setting
+**
 ** See also: changes, status
 */
 void mv_cmd(void){
@@ -578,6 +609,7 @@ void mv_cmd(void){
   Blob dest;
   Stmt q;
 
+  capture_case_sensitive_option();
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
@@ -620,9 +652,10 @@ void mv_cmd(void){
       db_prepare(&q,
          "SELECT pathname FROM vfile"
          " WHERE vid=%d"
-         "   AND (pathname='%q' OR (pathname>'%q/' AND pathname<'%q0'))"
+         "   AND (pathname='%q' %s OR (pathname>'%q/' %s AND pathname<'%q0' %s))"
          " ORDER BY 1",
-         vid, zOrig, zOrig, zOrig
+         vid, zOrig, filename_collation(), zOrig, filename_collation(),
+         zOrig, filename_collation()
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zPath = db_column_text(&q, 0);

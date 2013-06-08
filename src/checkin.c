@@ -221,23 +221,26 @@ void status_cmd(void){
 **
 ** Usage: %fossil ls ?OPTIONS? ?VERSION?
 **
-** Show the names of all files in the current checkout.  The -l provides
+** Show the names of all files in the current checkout.  The -v provides
 ** extra information about each file.
 **
 ** Options:
-**   -l              Provide extra information about each file.
 **   --age           Show when each file was committed
+**   -v|--verbose    Provide extra information about each file.
 **
 ** See also: changes, extra, status
 */
 void ls_cmd(void){
   int vid;
   Stmt q;
-  int isBrief;
+  int verboseFlag;
   int showAge;
   char *zOrderBy = "pathname";
 
-  isBrief = find_option("l","l", 0)==0;
+  verboseFlag = find_option("verbose","v", 0)!=0;
+  if( !verboseFlag ){
+    verboseFlag = find_option("l","l", 0)!=0; /* deprecated */
+  }
   showAge = find_option("age",0,0)!=0;
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
@@ -273,7 +276,7 @@ void ls_cmd(void){
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     if( showAge ){
       fossil_print("%s  %s\n", db_column_text(&q, 5), zPathname);
-    }else if( isBrief ){
+    }else if( !verboseFlag ){
       fossil_print("%s\n", zPathname);
     }else if( isNew ){
       fossil_print("ADDED      %s\n", zPathname);
@@ -382,58 +385,77 @@ void extra_cmd(void){
 ** files that are not officially part of the checkout. This operation
 ** cannot be undone.
 **
-** You will be prompted before removing each file. If you are
-** sure you wish to remove all "extra" files you can specify the
-** optional --force flag and no prompts will be issued.
+** You will be prompted before removing each eligible file unless the
+** --force flag is in use or it matches the --clean option.  The
+** GLOBPATTERN specified by the "ignore-glob" setting is used if the
+** --ignore option is omitted, the same with "clean-glob" and --clean
+** as well as "keep-glob" and --keep.  If you are sure you wish to
+** remove all "extra" files except the ones specified with --ignore
+** and --keep, you can specify the optional -f|--force flag and no
+** prompts will be issued.  If a file matches both --keep and --clean,
+** --keep takes precedence.
 **
 ** Files and subdirectories whose names begin with "." are
-** normally ignored.  They are included if the "--dotfiles" option
+** normally kept.  They are handled if the "--dotfiles" option
 ** is used.
-**
-** The GLOBPATTERN is a comma-separated list of GLOB expressions for
-** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
-** is used if the --ignore option is omitted.
 **
 ** Options:
 **    --case-sensitive <BOOL> override case-sensitive setting
-**    --dotfiles       include files beginning with a dot (".")
-**    -f|--force       Remove files without prompting
-**    --ignore <CSG>   ignore files matching patterns from the
+**    --dotfiles       Include files beginning with a dot (".").
+**    -f|--force       Remove files without prompting.
+**    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
-**    -n|--dry-run     If given, display instead of run actions
-**    --temp           Remove only Fossil-generated temporary files
+**    --ignore <CSG>   Ignore files matching patterns from the
+**                     comma separated list of glob patterns.
+**    --keep <CSG>     Keep files matching this comma separated
+**                     list of glob patterns.
+**    -n|--dry-run     If given, display instead of run actions.
+**    --temp           Remove only Fossil-generated temporary files.
+**    -v|--verbose     Show all files as they are removed.
 **
 ** See also: addremove, extra, status
 */
 void clean_cmd(void){
-  int allFlag;
+  int allFlag, dryRunFlag, verboseFlag;
   unsigned scanFlags = 0;
-  const char *zIgnoreFlag;
+  const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Blob path, repo;
   Stmt q;
   int n;
-  Glob *pIgnore;
-  int dryRunFlag = 0;
+  Glob *pIgnore, *pKeep, *pClean;
 
-  allFlag = find_option("force","f",0)!=0;
-  if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
-  if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
-  zIgnoreFlag = find_option("ignore",0,1);
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
+  allFlag = find_option("force","f",0)!=0;
+  if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
+  if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
+  zIgnoreFlag = find_option("ignore",0,1);
+  verboseFlag = find_option("verbose","v",0)!=0;
+  zKeepFlag = find_option("keep",0,1);
+  zCleanFlag = find_option("clean",0,1);
   capture_case_sensitive_option();
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
+  if( zKeepFlag==0 ){
+    zKeepFlag = db_get("keep-glob", 0);
+  }
+  if( zCleanFlag==0 ){
+    zCleanFlag = db_get("clean-glob", 0);
+  }
+  verify_all_options();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+  pKeep = glob_create(zKeepFlag);
+  pClean = glob_create(zCleanFlag);
+  vfile_scan2(&path, blob_size(&path), scanFlags, pIgnore, pKeep);
+  glob_free(pKeep);
   glob_free(pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
@@ -446,25 +468,31 @@ void clean_cmd(void){
   }
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
-    if( dryRunFlag ){
-      fossil_print("%s\n", db_column_text(&q,0));
-      continue;
-    }else if( !allFlag ){
+    const char *zName = db_column_text(&q, 0);
+    if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+n) ){
       Blob ans;
       char cReply;
-      char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
-                              db_column_text(&q, 0));
+      char *prompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
+                             zName+n);
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
       if( cReply=='a' || cReply=='A' ){
         allFlag = 1;
       }else if( cReply!='y' && cReply!='Y' ){
+        blob_reset(&ans);
         continue;
       }
+      blob_reset(&ans);
     }
-    file_delete(db_column_text(&q, 0));
+    if( verboseFlag || dryRunFlag ){
+      fossil_print("Removed unmanaged file: %s\n", zName+n);
+    }
+    if( !dryRunFlag ){
+      file_delete(zName);
+    }
   }
+  glob_free(pClean);
   db_finalize(&q);
 }
 
@@ -1529,7 +1557,7 @@ void commit_cmd(void){
     }
   }
 
-  /* If the --test option is specified, output the manifest file
+  /* If the -n|--dry-run option is specified, output the manifest file
   ** and rollback the transaction.
   */
   if( dryRunFlag ){
@@ -1611,6 +1639,8 @@ void commit_cmd(void){
 
   /* Commit */
   db_multi_exec("DELETE FROM vvar WHERE name='ci-comment'");
+  db_multi_exec("PRAGMA %s.application_id=252006673;", db_name("repository"));
+  db_multi_exec("PRAGMA %s.application_id=252006674;", db_name("localdb"));
   if( dryRunFlag ){
     db_end_transaction(1);
     exit(1);

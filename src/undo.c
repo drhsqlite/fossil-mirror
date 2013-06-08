@@ -369,28 +369,32 @@ void undo_rollback(void){
 ** file(s) but otherwise leave the update or merge or revert in effect. 
 ** The redo command undoes the effect of the most recent undo.
 **
-** If the --explain option is present, no changes are made and instead
+** If the -n|--dry-run option is present, no changes are made and instead
 ** the undo or redo command explains what actions the undo or redo would
-** have done had the --explain been omitted.
+** have done had the -n|--dry-run been omitted.
 **
 ** A single level of undo/redo is supported.  The undo/redo stack
 ** is cleared by the commit and checkout commands.
 **
 ** Options:
-**   --explain    do not make changes but show what would be done
+**   -n|--dry-run   do not make changes but show what would be done
 **
 ** See also: commit, status
 */
 void undo_cmd(void){
   int isRedo = g.argv[1][0]=='r';
   int undo_available;
-  int explainFlag = find_option("explain", 0, 0)!=0;
+  int dryRunFlag = find_option("dry-run", "n", 0)!=0;
   const char *zCmd = isRedo ? "redo" : "undo";
+
+  if( !dryRunFlag ){
+    dryRunFlag = find_option("explain", 0, 0)!=0;
+  }
   db_must_be_within_tree();
   verify_all_options();
   db_begin_transaction();
   undo_available = db_lget_int("undo_available", 0);
-  if( explainFlag ){
+  if( dryRunFlag ){
     if( undo_available==0 ){
       fossil_print("No undo or redo is available\n");
     }else{

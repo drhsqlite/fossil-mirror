@@ -143,6 +143,8 @@ void prompt_user(const char *zPrompt, Blob *pIn){
   fflush(stdout);
   z = fgets(zLine, sizeof(zLine), stdin);
   if( z ){
+    int n = (int)strlen(z);
+    if( n>0 && z[n-1]=='\n' ) fossil_new_line_started();
     strip_string(pIn, z);
   }
 }

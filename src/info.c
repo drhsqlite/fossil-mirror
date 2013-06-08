@@ -392,7 +392,7 @@ static void append_file_change_line(
       @ </pre>
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
-      @ %z(href("%R/fdiff?v1=%S&v2=%S",zOld,zNew))[diff]</a>
+      @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zOld,zNew))[diff]</a>
     }
     @ </p>
   }
@@ -486,7 +486,7 @@ void ci_page(void){
      "   AND event.objid=%d",
      rid, rid
   );
-  sideBySide = atoi(PD("sbs","1"));
+  sideBySide = !is_false(PD("sbs","1"));
   if( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     char *zTitle = mprintf("Check-in [%.10s]", zUuid);
@@ -915,7 +915,7 @@ void vdiff_page(void){
   if( pTo==0 ) return;
   pFrom = vdiff_parse_manifest("from", &ridFrom);
   if( pFrom==0 ) return;
-  sideBySide = atoi(PD("sbs","1"));
+  sideBySide = !is_false(PD("sbs","1"));
   zVerbose = P("v");
   if( !zVerbose ){
     zVerbose = P("verbose");
@@ -923,7 +923,7 @@ void vdiff_page(void){
   if( !zVerbose ){
     zVerbose = P("detail"); /* deprecated */
   }
-  verboseFlag = (zVerbose!=0) && (*zVerbose!=0) && !is_false(zVerbose);
+  verboseFlag = (zVerbose!=0) && !is_false(zVerbose);
   if( !verboseFlag && sideBySide ) verboseFlag = 1;
   zFrom = P("from");
   zTo = P("to");
@@ -934,12 +934,12 @@ void vdiff_page(void){
   }
   if( sideBySide || !verboseFlag ) {
     style_submenu_element("Unified Diff", "udiff",
-                          "%R/vdiff?from=%T&to=%T%s&sbs=0&v=1",
+                          "%R/vdiff?from=%T&to=%T&sbs=0&v",
                           zFrom, zTo);
   }
   style_submenu_element("Invert", "invert",
                         "%R/vdiff?from=%T&to=%T&sbs=%d%s", zTo, zFrom,
-                        sideBySide, (verboseFlag && !sideBySide)?"&v=1":"");
+                        sideBySide, (verboseFlag && !sideBySide)?"&v":"");
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
   checkin_description(ridFrom);
@@ -1092,6 +1092,7 @@ int object_description(
     if( g.perm.Hyperlink ){
       @ %z(href("%R/annotate?checkin=%S&filename=%T",zVers,zName))
       @ [annotate]</a>
+      @ %z(href("%R/finfo?name=%T&ci=%S",zName,zVers))[ancestry]</a>
     }
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
@@ -1258,7 +1259,7 @@ void diff_page(void){
   v1 = name_to_rid_www("v1");
   v2 = name_to_rid_www("v2");
   if( v1==0 || v2==0 ) fossil_redirect_home();
-  sideBySide = atoi(PD("sbs","1"));
+  sideBySide = !is_false(PD("sbs","1"));
   zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
   zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
   isPatch = P("patch")!=0;
@@ -1612,7 +1613,7 @@ void artifact_page(void){
         style_submenu_element("Text", "Text",
                               "%s/artifact/%s?txt=1", g.zTop, zUuid);
       }
-    }else if( fossil_strcmp(zMime, "application/x-fossil-wiki")==0 ){
+    }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
       if( asText ){
         style_submenu_element("Wiki", "Wiki",
                               "%s/artifact/%s", g.zTop, zUuid);
@@ -1631,10 +1632,11 @@ void artifact_page(void){
   if( renderAsWiki ){
     wiki_convert(&content, 0, 0);
   }else if( renderAsHtml ){
-    @ <div>
-    blob_to_utf8_no_bom(&content, 0);
-    cgi_append_content(blob_buffer(&content), blob_size(&content));
-    @ </div>
+    @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
+    @   width="100%%" frameborder="0" marginwidth="0" marginheight="0" 
+    @   sandbox="allow-same-origin" 
+    @   onload="this.height = this.contentDocument.documentElement.scrollHeight;">
+    @ </iframe>
   }else{
     style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
     zMime = mimetype_from_content(&content);

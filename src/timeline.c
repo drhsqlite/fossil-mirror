@@ -499,22 +499,19 @@ void www_print_timeline(
         }
         if( isNew ){
           @ <li> %h(zFilename) (new file) &nbsp;
-          @ %z(xhref("target='diffwindow'","%R/artifact/%S",zNew))
-          @ [view]</a></li>
+          @ %z(href("%R/artifact/%S",zNew))[view]</a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
           @ <li> %h(zOldName) &rarr; %h(zFilename)
-          @ %z(xhref("target='diffwindow'","%R/artifact/%S",zNew))
-          @ [view]</a></li>
+          @ %z(href("%R/artifact/%S",zNew))[view]</a></li>
         }else{
           if( zOldName!=0 ){
             @ <li> %h(zOldName) &rarr; %h(zFilename)
           }else{
             @ <li> %h(zFilename) &nbsp;
           }
-          @ %z(xhref("target='diffwindow'","%R/fdiff?v1=%S&v2=%S",zOld,zNew))
-          @ [diff]</a></li>
+          @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zOld,zNew))[diff]</a></li>
         }
       }
       db_reset(&fchngQuery);
@@ -659,6 +656,7 @@ void timeline_output_graph_javascript(
     @   n.style.width = w+"px";
     @   n.style.height = h+"px";
     @   n.style.backgroundColor = color;
+    @   n.style.cursor = "pointer";
     @   canvasDiv.appendChild(n);
     @   return n;
     @ }
@@ -817,9 +815,9 @@ void timeline_output_graph_javascript(
     @     selRow = null;
     @   }else{
     if( fileDiff ){
-      @     location.href="%R/fdiff?v1="+selRow.h+"&v2="+p.h;
+      @     location.href="%R/fdiff?v1="+selRow.h+"&v2="+p.h+"&sbs=1";
     }else{
-      @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h;
+      @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=1";
     }
     @   }
     @ }
@@ -1008,6 +1006,7 @@ char *names_of_file(const char *zUuid){
 **    brbg           Background color from branch name
 **    ubg            Background color from user
 **    namechng       Show only checkins that filename changes
+**    ym=YYYY-MM     Shown only events for the given year/month.
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -1034,6 +1033,7 @@ void page_timeline(void){
   const char *zBrName = P("r");      /* Show events related to this tag */
   const char *zSearch = P("s");      /* Search string */
   const char *zUses = P("uf");       /* Only show checkins hold this file */
+  const char *zYearMonth = P("ym");  /* Show checkins for the given YYYY-MM */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only checkins that rename files */
   int tagid;                         /* Tag ID */
@@ -1216,6 +1216,10 @@ void page_timeline(void){
     if( renameOnly ){
       blob_appendf(&sql, " AND event.objid IN rnfile ");
     }
+    if( zYearMonth ){
+      blob_appendf(&sql, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
+                   zYearMonth);
+    }
     if( tagid>0 ){
       blob_appendf(&sql,
         "AND (EXISTS(SELECT 1 FROM tagxref"
@@ -1346,7 +1350,9 @@ void page_timeline(void){
     db_multi_exec("%s", blob_str(&sql));
 
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
-    if( zAfter==0 && zBefore==0 && zCirca==0 ){
+    if( zYearMonth ){
+      blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
+    }else if( zAfter==0 && zBefore==0 && zCirca==0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
       blob_appendf(&desc, "%d %ss", n, zEType);
@@ -1461,7 +1467,7 @@ void page_timeline(void){
 **    6.  mtime
 **    7.  branch
 */
-void print_timeline(Stmt *q, int mxLine, int showfiles){
+void print_timeline(Stmt *q, int mxLine, int verboseFlag){
   int nLine = 0;
   char zPrevDate[20];
   const char *zCurrentUuid=0;
@@ -1517,7 +1523,7 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
     nLine += comment_print(zFree, 9, 79);
     sqlite3_free(zFree);
 
-    if(showfiles){
+    if(verboseFlag){
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery,
            "SELECT (pid==0) AS isnew,"
@@ -1616,14 +1622,14 @@ static int isIsoDate(const char *z){
 ** for the current version or "now" for the current time.
 **
 ** Options:
-**   -f|--showfiles       print the list of files changed in a checkin after
-**                        the checkin comment.
 **   -n|--limit N         display the first N changes (default 20)
 **   -t|--type TYPE       only display items from the give types, such as:
 **                            ci = file commits only
 **                            e  = events only
 **                            t  = tickets only
 **                            w  = wiki commits only
+**   -v|--verbose         print the list of files changed in a checkin after
+**                        the checkin comment.
 */
 void timeline_cmd(void){
   Stmt q;
@@ -1636,8 +1642,11 @@ void timeline_cmd(void){
   int objid = 0;
   Blob uuid;
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
-  int showfilesFlag = 0 ;
-  showfilesFlag = find_option("showfiles","f", 0)!=0;
+  int verboseFlag = 0 ;
+  verboseFlag = find_option("verbose","v", 0)!=0;
+  if( !verboseFlag){
+    verboseFlag = find_option("showfiles","f", 0)!=0; /* deprecated */
+  }
   db_find_and_open_repository(0, 0);
   zLimit = find_option("limit","n",1);
   zType = find_option("type","t",1);
@@ -1726,7 +1735,7 @@ void timeline_cmd(void){
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, n, showfilesFlag);
+  print_timeline(&q, n, verboseFlag);
   db_finalize(&q);
 }
 
@@ -1818,5 +1827,235 @@ void test_timewarp_page(void){
     @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&amp;d=%S(zUuid)">%S(zUuid)</a>
   }
   db_finalize(&q);
+  style_footer();
+}
+
+
+
+/*
+** Implements the "byyear" and "bymonth" reports for /stats_report.
+** If includeMonth is true then it generates the "bymonth" report,
+** else the "byyear" report. If zUserName is not NULL and not empty
+** then the report is restricted to events created by the named user
+** account.
+*/
+static void stats_report_by_month_year(char includeMonth,
+                                       char const * zUserName){
+  Stmt query = empty_Stmt;
+  int const nPixelsPerEvent = 1;     /* for sizing the "graph" part */
+  int nRowNumber = 0;                /* current TR number */
+  int nEventTotal = 0;               /* Total event count */
+  int rowClass = 0;                  /* counter for alternating
+                                        row colors */
+  Blob sql = empty_blob;             /* SQL */
+  char const * zTimeLabel = includeMonth ? "Year/Month" : "Year";
+  char zPrevYear[5] = {0};           /* For keeping track of when
+                                        we change years while looping */
+  int nEventsPerYear = 0;            /* Total even count for the
+                                        current year */
+  char showYearTotal = 0;            /* Flag telling us when to show
+                                        the per-year event totals */
+  Blob header = empty_blob;          /* Page header text */
+
+  blob_appendf(&header, "Timeline Events by year%s",
+               (includeMonth ? "/month" : ""));
+  blob_appendf(&sql,
+               "SELECT substr(date(mtime),1,%d) AS timeframe, "
+               "count(*) AS eventCount "
+               "FROM event ",
+               includeMonth ? 7 : 4);
+  if(zUserName&&*zUserName){
+    blob_appendf(&sql, " WHERE user=%Q ", zUserName);
+    blob_appendf(&header," for user %q", zUserName);
+  }
+  blob_append(&sql,
+              " GROUP BY timeframe"
+              " ORDER BY timeframe DESC",
+              -1);
+  db_prepare(&query, blob_str(&sql));
+  blob_reset(&sql);
+  @ <h1>%b(&header)</h1>
+  @ <table class='statistics-report-table-events' border='0' cellpadding='2'
+  @  cellspacing='0' id='statsTable'>
+  @ <thead>
+  @ <th>%s(zTimeLabel)</th>
+  @ <th>Events</th>
+  @ <th><!-- relative commits graph --></th>
+  @ </thead><tbody>
+  blob_reset(&header);
+  while( SQLITE_ROW == db_step(&query) ){
+    char const * zTimeframe = db_column_text(&query, 0);
+    int const nCount = db_column_int(&query, 1);
+    int const nSize = 1 + ((nPixelsPerEvent * nCount)
+                           / (includeMonth ? 1 : 10));
+    showYearTotal = 0;
+    if(includeMonth){
+      /* For Month/year view, add a separator for each distinct year. */
+      if(!*zPrevYear ||
+         (0!=fossil_strncmp(zPrevYear,zTimeframe,4))){
+        showYearTotal = *zPrevYear;
+        if(showYearTotal){
+          rowClass = ++nRowNumber % 2;
+          @ <tr class='row%d(rowClass)'>
+          @ <td></td>
+          @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
+          @</tr>    
+        }
+        nEventsPerYear = 0;
+        memcpy(zPrevYear,zTimeframe,4);
+        rowClass = ++nRowNumber % 2;
+        @ <tr class='row%d(rowClass)'>
+        @ <th colspan='3' class='statistics-report-row-year'>%s(zPrevYear)</th>
+        @ </tr>
+      }
+    }
+    rowClass = ++nRowNumber % 2;
+    nEventTotal += nCount;
+    nEventsPerYear += nCount;
+    @<tr class='row%d(rowClass)'>
+    @ <td>
+    if(includeMonth){
+      cgi_printf("<a href='%s/timeline?"
+                 "ym=%t&n=%d",
+                 g.zTop, zTimeframe, nCount );
+      /* Reminder: n=nCount is not actually correct for bymonth unless
+         that was the only user who caused events.
+      */
+      if( zUserName && *zUserName ){
+        cgi_printf("&u=%t", zUserName);
+      }
+      cgi_printf("' target='_new'>%s</a>",zTimeframe);
+    }else {
+      @ %s(zTimeframe)
+    }
+    @ </td><td>%d(nCount)</td>
+    @ <td>
+    @ <div class='statistics-report-graph-line'
+    @  style='height:16px;width:%d(nSize)px;'>
+    @ </div></td>
+    @</tr>
+
+    /*
+      Potential improvement: calculate the min/max event counts and
+      use percent-based graph bars.
+    */
+  }
+
+  if(includeMonth && !showYearTotal && *zPrevYear){
+    /* Add final year total separator. */
+    rowClass = ++nRowNumber % 2;
+    @ <tr class='row%d(rowClass)'>
+    @ <td></td>
+    @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
+    @</tr>    
+  }
+#if 0
+  rowClass = ++nRowNumber % 2;
+  @ <tr class='row%d(rowClass)'>
+  @   <td colspan='3'>Total events: %d(nEventTotal)</td>
+  @ </tr>
+#endif
+  @ </tbody></table>
+  db_finalize(&query);
+  if( !includeMonth ){
+    output_table_sorting_javascript("statsTable","tnx");
+  }
+}
+
+/*
+** Implements the "byuser" view for /stats_report.
+*/
+static void stats_report_by_user(){
+  Stmt query = empty_Stmt;
+  int const nPixelsPerEvent = 1;     /* for sizing the "graph" part */
+  int nRowNumber = 0;                /* current TR number */
+  int nEventTotal = 0;               /* Total event count */
+  int rowClass = 0;                  /* counter for alternating
+                                        row colors */
+  Blob sql = empty_blob;             /* SQL */
+  blob_append(&sql,
+               "SELECT user, "
+               "COUNT(*) AS eventCount "
+               "FROM event "
+               "GROUP BY user ORDER BY eventCount DESC",
+              -1);
+  db_prepare(&query, blob_str(&sql));
+  blob_reset(&sql);
+  @ <h1>Timeline Events by User</h1>
+  @ <table class='statistics-report-table-events' border='0'
+  @ cellpadding='2' cellspacing='0' id='statsTable'>
+  @ <thead><tr>
+  @ <th>User</th>
+  @ <th>Events</th>
+  @ <th><!-- relative commits graph --></th>
+  @ </tr></thead><tbody>
+  while( SQLITE_ROW == db_step(&query) ){
+    char const * zUser = db_column_text(&query, 0);
+    int const nCount = db_column_int(&query, 1);
+    int const nSize = 1+((nPixelsPerEvent * nCount) / 10);
+    if(!nCount) continue /* arguable! */;
+    rowClass = ++nRowNumber % 2;
+    nEventTotal += nCount;
+    @<tr class='row%d(rowClass)'>
+    @ <td>
+    @ <a href="?view=bymonth&user=%h(zUser)" target="_new">%h(zUser)</a>
+    @ </td><td>%d(nCount)</td>
+    @ <td>
+    @ <div class='statistics-report-graph-line'
+    @  style='height:16px;width:%d(nSize)px;'>
+    @ </div></td>
+    @</tr>
+    /*
+      Potential improvement: calculate the min/max event counts and
+      use percent-based graph bars.
+    */
+  }
+  @ </tbody></table>
+  db_finalize(&query);
+  output_table_sorting_javascript("statsTable","tnx");
+}
+
+/*
+** WEBPAGE: stats_report
+**
+** Shows activity reports for the repository.
+**
+** Query Parameters:
+**
+**   view=REPORT_NAME  Valid values: bymonth, byyear, byuser
+**   user=NAME         Restricts statistics to the given user
+*/
+void stats_report_page(){
+  HQuery url;                        /* URL for various branch links */
+  char const * zView = P("view");    /* Which view/report to show. */
+  char const *zUserName = P("user");
+  url_initialize(&url, "stats_report");
+
+  if(zUserName && *zUserName){
+    url_add_parameter(&url,"user", zUserName);
+    timeline_submenu(&url, "(Remove User Flag)", "view", zView, "user");
+  }
+  timeline_submenu(&url, "By Year", "view", "byyear", 0);
+  timeline_submenu(&url, "By Month", "view", "bymonth", 0);
+  timeline_submenu(&url, "By User", "view", "byuser", "user");
+  url_reset(&url);
+  style_header("Activity Reports");
+  if(0==fossil_strcmp(zView,"byyear")){
+    stats_report_by_month_year(0, zUserName);
+  }else if(0==fossil_strcmp(zView,"bymonth")){
+    stats_report_by_month_year(1, zUserName);
+  }else if(0==fossil_strcmp(zView,"byweek")){
+    @ TODO: by-week report.
+  }else if(0==fossil_strcmp(zView,"byuser")){
+    stats_report_by_user();
+  }else{
+    @ <h1>Select a report to show:</h1>
+    @ <ul>
+    @ <li><a href='?view=byyear'>Events by year</a></li>
+    @ <li><a href='?view=bymonth'>Events by month</a></li>
+    @ <li><a href='?view=byuser'>Events by user</a></li>
+    @ </ul>
+  }
+
   style_footer();
 }

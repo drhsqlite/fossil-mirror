@@ -868,6 +868,14 @@ void fossil_force_newline(void){
 }
 
 /*
+** Indicate that the cursor has moved to the start of a line by means
+** other than writing to standard output.
+*/
+void fossil_new_line_started(void){
+  stdoutAtBOL = 1;
+}
+
+/*
 ** Write output for user consumption.  If g.cgiOutput is enabled, then
 ** send the output as part of the CGI reply.  If g.cgiOutput is false,
 ** then write on standard output.

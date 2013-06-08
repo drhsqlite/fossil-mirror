@@ -249,9 +249,11 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
       if( aUsed[i]==0
        && (aField[i].mUsed & USEDBY_BOTH)==USEDBY_BOTH
       ){
+        const char *z = aField[i].zName;
+        if( z[0]=='+' ) z++;
         fromTkt = 1;
-        blob_appendf(&sql2, ",%s", aField[i].zName);
-        blob_appendf(&sql3, ",%s", aField[i].zName);
+        blob_appendf(&sql2, ",%s", z);
+        blob_appendf(&sql3, ",%s", z);
       }
     }
     if( fromTkt ){

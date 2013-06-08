@@ -57,6 +57,28 @@ void Th_Trace(const char *zFormat, ...){
   va_end(ap);
 }
 
+/*
+** Checks if the TH1 trace log needs to be enabled.  If so, prepares
+** it for use.
+*/
+void Th_InitTraceLog(){
+  g.thTrace = find_option("th-trace", 0, 0)!=0;
+  if( g.thTrace ){
+    blob_zero(&g.thLog);
+  }
+}
+
+/*
+** Prints the entire contents of the TH1 trace log to the standard
+** output channel.
+*/
+void Th_PrintTraceLog(){
+  if( g.thTrace ){
+    fossil_print("\n------------------ BEGIN TRACE LOG ------------------\n");
+    fossil_print("%s", blob_str(&g.thLog));
+    fossil_print("\n------------------- END TRACE LOG -------------------\n");
+  }
+}
 
 /*
 ** True if output is enabled.  False if disabled.
@@ -696,6 +718,51 @@ static int queryCmd(
 }
 
 /*
+** TH1 command:     setting name
+**
+** Gets and returns the value of the specified Fossil setting.
+*/
+#define SETTING_WRONGNUMARGS "setting ?-strict? ?--? name"
+static int settingCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  int strict = 0;
+  int nArg = 1;
+  char *zValue;
+  if( argc<2 || argc>4 ){
+    return Th_WrongNumArgs(interp, SETTING_WRONGNUMARGS);
+  }
+  if( fossil_strcmp(argv[nArg], "-strict")==0 ){
+    strict = 1; nArg++;
+  }
+  if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
+  if( nArg+1!=argc ){
+    return Th_WrongNumArgs(interp, SETTING_WRONGNUMARGS);
+  }
+  zValue = db_get(argv[nArg], 0);
+  if( zValue!=0 ){
+    Th_SetResult(interp, zValue, -1);
+    rc = TH_OK;
+  }else if( strict ){
+    Th_ErrorMessage(interp, "no value for setting \"", argv[nArg], -1);
+    rc = TH_ERROR;
+  }else{
+    Th_SetResult(interp, 0, 0);
+    rc = TH_OK;
+  }
+  if( g.thTrace ){
+    Th_Trace("[setting %s%#h] => %d<br />\n", strict ? "strict " : "",
+             argl[nArg], argv[nArg], rc);
+  }
+  return rc;
+}
+
+/*
 ** TH1 command:     regexp ?-nocase? ?--? exp string
 **
 ** Checks the string against the specified regular expression and returns
@@ -767,6 +834,7 @@ void Th_FossilInit(int needConfig, int forceSetup){
     {"randhex",       randhexCmd,           0},
     {"regexp",        regexpCmd,            0},
     {"repository",    repositoryCmd,        0},
+    {"setting",       settingCmd,           0},
     {"tclReady",      tclReadyCmd,          0},
     {"stime",         stimeCmd,             0},
     {"utime",         utimeCmd,             0},
@@ -1000,13 +1068,18 @@ int Th_Render(const char *z){
 */
 void test_th_render(void){
   Blob in;
+  Th_InitTraceLog();
+  if( find_option("th-open-config", 0, 0)!=0 ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
+    db_open_config(0);
+  }
   if( g.argc<3 ){
     usage("FILE");
   }
-  db_open_config(0); /* Needed for global "tcl" setting. */
   blob_zero(&in);
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));
+  Th_PrintTraceLog();
 }
 
 /*
@@ -1015,12 +1088,17 @@ void test_th_render(void){
 void test_th_eval(void){
   int rc;
   const char *zRc;
+  Th_InitTraceLog();
+  if( find_option("th-open-config", 0, 0)!=0 ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
+    db_open_config(0);
+  }
   if( g.argc!=3 ){
     usage("script");
   }
   Th_FossilInit(0, 0);
   rc = Th_Eval(g.interp, 0, g.argv[2], -1);
   zRc = Th_ReturnCodeName(rc, 1);
-  fossil_print("%s%s%s\n", zRc, zRc ? ": " : "",
-      Th_GetResult(g.interp, 0));
+  fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
+  Th_PrintTraceLog();
 }
