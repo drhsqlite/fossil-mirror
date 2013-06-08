@@ -162,10 +162,12 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
 */
 void style_resolve_href(void){
   int i;
+  int nDelay = db_get_int("auto-hyperlink-delay",10);
   if( !g.perm.Hyperlink ) return;
   if( nHref==0 && nFormAction==0 ) return;
   @ <script type="text/JavaScript">
   @ /* <![CDATA[ */
+  @ function setAllHrefs(){
   if( g.javascriptHyperlink ){
     for(i=0; i<nHref; i++){
       @ gebi("a%d(i+1)").href="%s(aHref[i])";
@@ -173,6 +175,17 @@ void style_resolve_href(void){
   }
   for(i=0; i<nFormAction; i++){
     @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
+  }
+  @ }
+  if( db_get_boolean("auto-hyperlink-mouseover",0) ){
+    /* Require mouse movement prior to activating hyperlinks */
+    @ document.getElementsByTagName("body")[0].onmousemove=function(){
+    @   setTimeout("setAllHrefs();",%d(nDelay));
+    @   this.onmousemove = null;
+    @ }
+  }else{
+    /* Active hyperlinks right away */
+    @ setTimeout("setAllHrefs();",%d(nDelay));
   }
   @ /* ]]> */
   @ </script>
@@ -594,13 +607,6 @@ const char zDefaultCSS[] =
 @   padding: 0.5em;
 @   white-space: pre-wrap;
 @}
-@
-@ /* The label/value pairs on (for example) the ci page */
-@ table.label-value th {
-@   vertical-align: top;
-@   text-align: right;
-@   padding: 0.2ex 2ex;
-@ }
 ;
 
 
@@ -908,7 +914,7 @@ const struct strctCssDefaults {
     @ ** to a standard jscolor definition with java script in the footer. */
   },
   { "div.endContent",
-    "format for end of content area, to be used to clear page flow(sidebox on branch,..",
+    "format for end of content area, to be used to clear page flow.",
     @   clear: both;
   },
   { "p.generalError",
@@ -1007,6 +1013,36 @@ const struct strctCssDefaults {
     @   white-space: pre-wrap;
     @   word-wrap: break-word;
     @   color: red;
+  },
+  { "table.tale-value th",
+    "The label/value pairs on (for example) the ci page",
+    @   vertical-align: top;
+    @   text-align: right;
+    @   padding: 0.2ex 2ex;
+  },
+  { ".statistics-report-graph-line",
+    "for the /stats_report views",
+    @   background-color: #446979;
+  },
+  { ".statistics-report-table-events th"
+    "",
+    @   padding: 0 1em 0 1em;
+  },
+  { ".statistics-report-table-events td",
+    "",
+    @   padding: 0.1em 1em 0.1em 1em;
+  },
+  { ".statistics-report-row-year",
+    "",
+    @   text-align: left;
+  },
+  { "tr.row0",
+    "even table row color",
+    @ /* use default */
+  },
+  { "tr.row1",
+    "odd table row color",
+    @ /* Use default */
   },
   { 0,
     0,

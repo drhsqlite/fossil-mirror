@@ -240,11 +240,12 @@ void branch_prepare_list_query(Stmt *pQuery, int which ){
 **        --date-override DATE  DATE to use instead of 'now'
 **        --user-override USER  USER to use instead of the current default
 **
-**    %fossil branch list ?--all | --closed?
-**    %fossil branch ls ?--all | --closed?
+**    %fossil branch list ?-a|--all|-c|--closed?
+**    %fossil branch ls ?-a|--all|-c|--closed?
 **
-**        List all branches.  Use --all or --closed to list all branches
-**        or closed branches.  The default is to show only open branches.
+**        List all branches.  Use -a or --all to list all branches and
+**        -c or --closed to list all closed branches.  The default is to
+**        show only open branches.
 **
 ** Options:
 **    -R|--repository FILE       Run commands on repository FILE
@@ -264,8 +265,8 @@ void branch_cmd(void){
     Stmt q;
     int vid;
     char *zCurrent = 0;
-    int showAll = find_option("all",0,0)!=0;
-    int showClosed = find_option("closed",0,0)!=0;
+    int showAll = find_option("all","a",0)!=0;
+    int showClosed = find_option("closed","c",0)!=0;
 
     if( g.localOpen ){
       vid = db_lget_int("checkout", 0);

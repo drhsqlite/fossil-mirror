@@ -141,7 +141,7 @@ void setup_ulist(void){
   @ <span class="note">Users:</span>
   @ <table class="usetupUserList">
   prevLevel = 0;
-  db_prepare(&s, 
+  db_prepare(&s,
      "SELECT uid, login, cap, info, 1 FROM user"
      " WHERE login IN ('anonymous','nobody','developer','reader') "
      " UNION ALL "
@@ -252,7 +252,7 @@ void setup_ulist(void){
      @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
      @ <tr><td valign="top"><b>z</b></td>
      @   <td><i>Zip download:</i> Download a baseline via the
-     @   <tt>/zip</tt> URL even without 
+     @   <tt>/zip</tt> URL even without
      @    check<span class="capability">o</span>ut
      @    and <span class="capability">h</span>istory permissions</td></tr>
   @ </table>
@@ -359,7 +359,7 @@ void user_edit(void){
       @
       @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
       style_footer();
-      return;      
+      return;
     }
     if( isValidPwString(zPw) ){
       zPw = sha1_shared_secret(zPw, zLogin, 0);
@@ -396,7 +396,7 @@ void user_edit(void){
         );
         zOldLogin = zLogin;
       }
-      blob_appendf(&sql, 
+      blob_appendf(&sql,
         "UPDATE user SET login=%Q,"
         "  pw=coalesce(shared_secret(%Q,%Q,"
                 "(SELECT value FROM config WHERE name='project-code')),pw),"
@@ -645,7 +645,7 @@ void user_edit(void){
   @ <li><p>
   @ The <span class="capability">Delete</span> privilege give the user the
   @ ability to erase wiki, tickets, and attachments that have been added
-  @ by anonymous users.  This capability is intended for deletion of spam. 
+  @ by anonymous users.  This capability is intended for deletion of spam.
   @ The delete capability is only in effect for 24 hours after the item
   @ is first posted.  The <span class="usertype">Setup</span> user can
   @ delete anything at any time.
@@ -702,7 +702,7 @@ void user_edit(void){
   @ <li><p>
   @ The <span class="capability">EMail</span> privilege allows the display of
   @ sensitive information such as the email address of users and contact
-  @ information on tickets. Recommended OFF for 
+  @ information on tickets. Recommended OFF for
   @ <span class="usertype">anonymous</span> and for
   @ <span class="usertype">nobody</span> but ON for
   @ <span class="usertype">developer</span>.
@@ -726,7 +726,7 @@ void user_edit(void){
   @ No login is required for user <span class="usertype">nobody</span>. The
   @ capabilities of the <span class="usertype">nobody</span> user are
   @ inherited by all users, regardless of whether or not they are logged in.
-  @ To disable universal access to the repository, make sure no user named 
+  @ To disable universal access to the repository, make sure no user named
   @ <span class="usertype">nobody</span> exists or that the
   @ <span class="usertype">nobody</span> user has no capabilities
   @ enabled. The password for <span class="usertype">nobody</span> is ignore.
@@ -751,9 +751,9 @@ void user_edit(void){
   @ The <span class="usertype">developer</span> user is intended as a template
   @ for trusted users with check-in privileges. When adding new trusted users,
   @ simply select the <span class="capability">developer</span> privilege to
-  @ cause the new user to inherit all privileges of the 
+  @ cause the new user to inherit all privileges of the
   @ <span class="usertype">developer</span>
-  @ user.  Similarly, the <span class="usertype">reader</span> user is a 
+  @ user.  Similarly, the <span class="usertype">reader</span> user is a
   @ template for users who are allowed more access than
   @ <span class="usertype">anonymous</span>,
   @ but less than a <span class="usertype">developer</span>.
@@ -770,11 +770,12 @@ static void onoff_attribute(
   const char *zLabel,   /* The text label on the checkbox */
   const char *zVar,     /* The corresponding row in the VAR table */
   const char *zQParm,   /* The query parameter */
-  int dfltVal           /* Default value if VAR table entry does not exist */
+  int dfltVal,          /* Default value if VAR table entry does not exist */
+  int disabled          /* 1 if disabled */
 ){
   const char *zQ = P(zQParm);
   int iVal = db_get_boolean(zVar, dfltVal);
-  if( zQ==0 && P("submit") ){
+  if( zQ==0 && !disabled && P("submit") ){
     zQ = "off";
   }
   if( zQ ){
@@ -785,12 +786,14 @@ static void onoff_attribute(
       iVal = iQ;
     }
   }
+  @ <input type="checkbox" name="%s(zQParm)"
   if( iVal ){
-    @ <input type="checkbox" name="%s(zQParm)" checked="checked" />
-    @ <b>%s(zLabel)</b>
-  }else{
-    @ <input type="checkbox" name="%s(zQParm)" /> <b>%s(zLabel)</b>
+    @ checked="checked"
   }
+  if( disabled ){
+    @ disabled="disabled"
+  }
+  @ /> <b>%s(zLabel)</b>
 }
 
 /*
@@ -801,7 +804,8 @@ void entry_attribute(
   int width,            /* Width of the entry box */
   const char *zVar,     /* The corresponding row in the VAR table */
   const char *zQParm,   /* The query parameter */
-  char *zDflt     /* Default value if VAR table entry does not exist */
+  char *zDflt,          /* Default value if VAR table entry does not exist */
+  int disabled          /* 1 if disabled */
 ){
   const char *zVal = db_get(zVar, zDflt);
   const char *zQ = P(zQParm);
@@ -810,8 +814,11 @@ void entry_attribute(
     db_set(zVar, zQ, 0);
     zVal = zQ;
   }
-  @ <input type="text" name="%s(zQParm)" value="%h(zVal)" size="%d(width)" />
-  @ <b>%s(zLabel)</b>
+  @ <input type="text" name="%s(zQParm)" value="%h(zVal)" size="%d(width)"
+  if( disabled ){
+    @ disabled="disabled"
+  }
+  @ /> <b>%s(zLabel)</b>
 }
 
 /*
@@ -823,19 +830,23 @@ static void textarea_attribute(
   int cols,             /* Columns in the textarea */
   const char *zVar,     /* The corresponding row in the VAR table */
   const char *zQP,      /* The query parameter */
-  const char *zDflt     /* Default value if VAR table entry does not exist */
+  const char *zDflt,    /* Default value if VAR table entry does not exist */
+  int disabled          /* 1 if the textarea should  not be editable */
 ){
   const char *z = db_get(zVar, (char*)zDflt);
   const char *zQ = P(zQP);
-  if( zQ && fossil_strcmp(zQ,z)!=0 ){
+  if( zQ && !disabled && fossil_strcmp(zQ,z)!=0){
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
     z = zQ;
   }
   if( rows>0 && cols>0 ){
     @ <textarea id="id%s(zQP)" name="%s(zQP)" rows="%d(rows)"
+    if( disabled ){
+      @ disabled="disabled"
+    }
     @ cols="%d(cols)">%h(z)</textarea>
-    if (zLabel && *zLabel){
+    if( zLabel && *zLabel ){
       @ <span class="textareaLabel">%s(zLabel)</span>
     }
   }
@@ -857,7 +868,7 @@ void setup_access(void){
   login_insert_csrf_secret();
   @ <hr />
   onoff_attribute("Require password for local access",
-     "localauth", "localauth", 0);
+     "localauth", "localauth", 0, 0);
   @ <p>When enabled, the password sign-in is always required for
   @ web access.  When disabled, unrestricted web access from 127.0.0.1
   @ is allowed for the <a href="%s(g.zTop)/help/ui">fossil ui</a> command or
@@ -882,7 +893,7 @@ void setup_access(void){
   @
   @ <hr />
   onoff_attribute("Enable /test_env",
-     "test_env_enable", "test_env_enable", 0);
+     "test_env_enable", "test_env_enable", 0, 0);
   @ <p>When enabled, the %h(g.zBaseURL)/test_env URL is available to all
   @ users.  When disabled (the default) only users Admin and Setup can visit
   @ the /test_env page.
@@ -890,29 +901,30 @@ void setup_access(void){
   @
   @ <hr />
   onoff_attribute("Allow REMOTE_USER authentication",
-     "remote_user_ok", "remote_user_ok", 0);
+     "remote_user_ok", "remote_user_ok", 0, 0);
   @ <p>When enabled, if the REMOTE_USER environment variable is set to the
   @ login name of a valid user and no other login credentials are available,
   @ then the REMOTE_USER is accepted as an authenticated user.
   @ </p>
   @
   @ <hr />
-  entry_attribute("IP address terms used in login cookie", 3, 
-                  "ip-prefix-terms", "ipt", "2");
+  entry_attribute("IP address terms used in login cookie", 3,
+                  "ip-prefix-terms", "ipt", "2", 0);
   @ <p>The number of octets of of the IP address used in the login cookie.
   @ Set to zero to omit the IP address from the login cookie.  A value of
   @ 2 is recommended.
   @ </p>
   @
   @ <hr />
-  entry_attribute("Login expiration time", 6, "cookie-expire", "cex", "8766");
+  entry_attribute("Login expiration time", 6, "cookie-expire", "cex",
+                  "8766", 0);
   @ <p>The number of hours for which a login is valid.  This must be a
   @ positive number.  The default is 8766 hours which is approximately equal
   @ to a year.</p>
 
   @ <hr />
   entry_attribute("Download packet limit", 10, "max-download", "mxdwn",
-                  "5000000");
+                  "5000000", 0);
   @ <p>Fossil tries to limit out-bound sync, clone, and pull packets
   @ to this many bytes, uncompressed.  If the client requires more data
   @ than this, then the client will issue multiple HTTP requests.
@@ -921,7 +933,7 @@ void setup_access(void){
 
   @ <hr />
   entry_attribute("Download time limit", 11, "max-download-time", "mxdwnt",
-                  "30");
+                  "30", 0);
 
   @ <p>Fossil tries to spend less than this many seconds gathering
   @ the out-bound data of sync, clone, and pull packets.
@@ -931,53 +943,66 @@ void setup_access(void){
   @ <hr />
   onoff_attribute(
       "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
-      "auto-hyperlink", "autohyperlink", 1);
+      "auto-hyperlink", "autohyperlink", 1, 0);
   @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users
   @ including user "nobody", as long as (1) the User-Agent string in the
   @ HTTP header indicates that the request is coming from an actual human
   @ being and not a a robot or spider and (2) the user agent is able to
   @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
-  @ and spiders can specify whatever User-Agent string they that want and
-  @ they can run javascript just like browsers.  But most bots don't go to
-  @ that much trouble so this is normally an effective defense.</p>
+  @ and spiders can forge a User-Agent string that makes them seem to be a
+  @ normal browser and they can run javascript just like browsers.  But most 
+  @ bots do not go to that much trouble so this is normally an effective defense.</p>
   @
   @ <p>You do not normally want a bot to walk your entire repository because
   @ if it does, your server will end up computing diffs and annotations for
   @ every historical version of every file and creating ZIPs and tarballs of
   @ every historical check-in, which can use a lot of CPU and bandwidth
   @ even for relatively small projects.</p>
+  @ 
+  @ <p>Additional parameters that control this behavior:</p>
+  @ <blockquote>
+  onoff_attribute("Require mouse movement before enabling hyperlinks",
+                  "auto-hyperlink-mouseover", "ahmo", 0, 0);
+  @ <br>
+  entry_attribute("Delay before enabling hyperlinks (milliseconds)", 5,
+                  "auto-hyperlink-delay", "ah-delay", "10", 0);
+  @ </blockquote>
+  @ <p>Hyperlinks for user "nobody" are normally enabled as soon as the page
+  @ finishes loading.  But the first check-box below can be set to require mouse
+  @ movement before enabling the links. One can also set a delay prior to enabling
+  @ links by enter a positive number of milliseconds in the entry box above.</p>
 
   @ <hr />
   onoff_attribute("Require a CAPTCHA if not logged in",
-                  "require-captcha", "reqcapt", 1);
+                  "require-captcha", "reqcapt", 1, 0);
   @ <p>Require a CAPTCHA for edit operations (appending, creating, or
   @ editing wiki or tickets or adding attachments to wiki or tickets)
   @ for users who are not logged in.</p>
 
   @ <hr />
   entry_attribute("Public pages", 30, "public-pages",
-                  "pubpage", "");
+                  "pubpage", "", 0);
   @ <p>A comma-separated list of glob patterns for pages that are accessible
   @ without needing a login and using the privileges given by the
   @ "Default privileges" setting below.  Example use case: Set this field
-  @ to "/doc/trunk/www/*" to give anonymous users read-only permission to the 
+  @ to "/doc/trunk/www/*" to give anonymous users read-only permission to the
   @ latest version of the embedded documentation in the www/ folder without
   @ allowing them to see the rest of the source code.
   @ </p>
 
   @ <hr />
   onoff_attribute("Allow users to register themselves",
-                  "self-register", "selfregister", 0);
-  @ <p>Allow users to register themselves through the HTTP UI. 
-  @ The registration form always requires filling in a CAPTCHA 
+                  "self-register", "selfregister", 0, 0);
+  @ <p>Allow users to register themselves through the HTTP UI.
+  @ The registration form always requires filling in a CAPTCHA
   @ (<em>auto-captcha</em> setting is ignored). Still, bear in mind that anyone
   @ can register under any user name. This option is useful for public projects
-  @ where you do not want everyone in any ticket discussion to be named 
+  @ where you do not want everyone in any ticket discussion to be named
   @ "Anonymous".</p>
 
   @ <hr />
   entry_attribute("Default privileges", 10, "default-perms",
-                  "defaultperms", "u");
+                  "defaultperms", "u", 0);
   @ <p>Permissions given to users that... <ul><li>register themselves using
   @ the self-registration procedure (if enabled), or <li>access "public"
   @ pages identified by the public-pages glob pattern above, or <li>
@@ -986,7 +1011,7 @@ void setup_access(void){
 
   @ <hr />
   onoff_attribute("Show javascript button to fill in CAPTCHA",
-                  "auto-captcha", "autocaptcha", 0);
+                  "auto-captcha", "autocaptcha", 0, 0);
   @ <p>When enabled, a button appears on the login screen for user
   @ "anonymous" that will automatically fill in the CAPTCHA password.
   @ This is less secure than forcing the user to do it manually, but is
@@ -1113,24 +1138,24 @@ void setup_timeline(void){
 
   @ <hr />
   onoff_attribute("Allow block-markup in timeline",
-                  "timeline-block-markup", "tbm", 0);
+                  "timeline-block-markup", "tbm", 0, 0);
   @ <p>In timeline displays, check-in comments can be displayed with or
   @ without block markup (paragraphs, tables, etc.)</p>
 
   @ <hr />
   onoff_attribute("Plaintext comments on timelines",
-                  "timeline-plaintext", "tpt", 0);
+                  "timeline-plaintext", "tpt", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed literally,
   @ without any wiki or HTML interpretation.</p>
 
   @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",
-                  "timeline-utc", "utc", 1);
+                  "timeline-utc", "utc", 1, 0);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
   @ Zulu) instead of in local time.  On this server, local time is currently
   g.fTimeFormat = 2;
   tmDiff = db_double(0.0, "SELECT julianday('now')");
-  tmDiff = db_double(0.0, 
+  tmDiff = db_double(0.0,
         "SELECT (julianday(%.17g,'localtime')-julianday(%.17g))*24.0",
         tmDiff, tmDiff);
   sqlite3_snprintf(sizeof(zTmDiff), zTmDiff, "%.1f", tmDiff);
@@ -1146,7 +1171,7 @@ void setup_timeline(void){
 
   @ <hr />
   onoff_attribute("Show version differences by default",
-                  "show-version-diffs", "vdiff", 0);
+                  "show-version-diffs", "vdiff", 0, 0);
   @ <p>On the version-information pages linked from the timeline can either
   @ show complete diffs of all file changes, or can just list the names of
   @ the files that have changed.  Users can get to either page by
@@ -1154,7 +1179,7 @@ void setup_timeline(void){
 
   @ <hr />
   entry_attribute("Max timeline comment length", 6,
-                  "timeline-max-comment", "tmc", "0");
+                  "timeline-max-comment", "tmc", "0", 0);
   @ <p>The maximum length of a comment to be displayed in a timeline.
   @ "0" there is no length limit.</p>
 
@@ -1177,7 +1202,7 @@ void setup_settings(void){
   }
 
   style_header("Settings");
-  db_open_local();
+  db_open_local(0);
   db_begin_transaction();
   @ <p>This page provides a simple interface to the "fossil setting" command.
   @ See the "fossil help setting" output below for further information on
@@ -1187,9 +1212,11 @@ void setup_settings(void){
   login_insert_csrf_secret();
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
     if( pSet->width==0 ){
+      int hasVersionableValue = pSet->versionable &&
+          (db_get_do_versionable(pSet->name, NULL)!=0);
       onoff_attribute(pSet->name, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
-                      is_truth(pSet->def));
+                      is_truth(pSet->def), hasVersionableValue);
       if( pSet->versionable ){
         @  (v)<br />
       } else {
@@ -1199,23 +1226,31 @@ void setup_settings(void){
   }
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    if( pSet->width!=0 ){
-      entry_attribute(pSet->name, /*pSet->width*/ 40, pSet->name,
+    if( pSet->width!=0 && !pSet->versionable){
+      entry_attribute(pSet->name, /*pSet->width*/ 25, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
-                      (char*)pSet->def);
-      if( pSet->versionable ){
-        @  (v)<br />
-      } else {
-        @ <br />
-      }
+                      (char*)pSet->def, 0);
+      @ <br />
+    }
+  }
+  @ </td><td style="width:50px;"></td><td valign="top">
+  for(pSet=ctrlSettings; pSet->name!=0; pSet++){
+    int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
+    if( pSet->width!=0 && pSet->versionable){
+      @<b>%s(pSet->name)</b> (v)<br />
+      textarea_attribute("", /*rows*/ 3, /*cols*/ 20, pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name,
+                      (char*)pSet->def, hasVersionableValue);
+      @<br />
     }
   }
   @ </td></tr></table>
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   @ <p>Settings marked with (v) are 'versionable' and will be overridden
-  @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.</p>
-  @ <hr /><p>
+  @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.
+  @ If such a file is present, the corresponding field above is not
+  @ editable.</p><hr /><p>
   @ These settings work in the same way, as the <kbd>set</kbd>
   @ commandline:<br />
   @ </p><pre>%s(zHelp_setting_cmd)</pre>
@@ -1237,22 +1272,22 @@ void setup_config(void){
   @ <form action="%s(g.zTop)/setup_config" method="post"><div>
   login_insert_csrf_secret();
   @ <hr />
-  entry_attribute("Project Name", 60, "project-name", "pn", "");
+  entry_attribute("Project Name", 60, "project-name", "pn", "", 0);
   @ <p>Give your project a name so visitors know what this site is about.
   @ The project name will also be used as the RSS feed title.</p>
   @ <hr />
   textarea_attribute("Project Description", 3, 80,
-                     "project-description", "pd", "");
+                     "project-description", "pd", "", 0);
   @ <p>Describe your project. This will be used in page headers for search
   @ engines as well as a short RSS description.</p>
   @ <hr />
   onoff_attribute("Enable WYSIWYG Wiki Editing",
-                  "wysiwyg-wiki", "wysiwyg-wiki", 0);
+                  "wysiwyg-wiki", "wysiwyg-wiki", 0, 0);
   @ <p>Enable what-you-see-is-what-you-get (WYSIWYG) editing of wiki pages.
   @ The WYSIWYG editor generates HTML instead of markup, which makes
   @ subsequent manual editing more difficult.</p>
   @ <hr />
-  entry_attribute("Index Page", 60, "index-page", "idxpg", "/home");
+  entry_attribute("Index Page", 60, "index-page", "idxpg", "/home", 0);
   @ <p>Enter the pathname of the page to display when the "Home" menu
   @ option is selected and when no pathname is
   @ specified in the URL.  For example, if you visit the url:</p>
@@ -1274,7 +1309,7 @@ void setup_config(void){
   @ leading "/".</p>
   @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
-    "wiki-use-html", "wiki-use-html", 0);
+    "wiki-use-html", "wiki-use-html", 0, 0);
   @ <p>Use HTML as the wiki markup language. Wiki links will still be parsed
   @ but all other wiki formatting will be ignored. This option is helpful
   @ if you have chosen to use a rich HTML editor for wiki markup such as
@@ -1309,7 +1344,7 @@ void setup_editcss(void){
     cgi_redirect("setup_editcss");
   }
   if( P("submit")!=0 ){
-    textarea_attribute(0, 0, 0, "css", "css", zDefaultCSS);
+    textarea_attribute(0, 0, 0, "css", "css", zDefaultCSS, 0);
     db_end_transaction(0);
     cgi_redirect("setup_editcss");
   }
@@ -1317,7 +1352,7 @@ void setup_editcss(void){
   @ <form action="%s(g.zTop)/setup_editcss" method="post"><div>
   login_insert_csrf_secret();
   @ Edit the CSS below:<br />
-  textarea_attribute("", 35, 80, "css", "css", zDefaultCSS);
+  textarea_attribute("", 35, 80, "css", "css", zDefaultCSS, 0);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -1349,7 +1384,7 @@ void setup_header(void){
     db_multi_exec("DELETE FROM config WHERE name='header'");
     cgi_replace_parameter("header", zDefaultHeader);
   }else if( P("submit")!=0 ){
-    textarea_attribute(0, 0, 0, "header", "header", zDefaultHeader);
+    textarea_attribute(0, 0, 0, "header", "header", zDefaultHeader, 0);
   }else if( P("fixbase")!=0 ){
     const char *z = db_get("header", (char*)zDefaultHeader);
     char *zHead = strstr(z, "<head>");
@@ -1380,7 +1415,7 @@ void setup_header(void){
   @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the beginning of every page through start of the main
   @ menu.</p>
-  textarea_attribute("", 35, 80, "header", "header", zDefaultHeader);
+  textarea_attribute("", 35, 80, "header", "header", zDefaultHeader, 0);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -1416,7 +1451,7 @@ void setup_footer(void){
   login_insert_csrf_secret();
   @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the end of every page.</p>
-  textarea_attribute("", 20, 80, "footer", "footer", zDefaultFooter);
+  textarea_attribute("", 20, 80, "footer", "footer", zDefaultFooter, 0);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -1448,27 +1483,27 @@ void setup_modreq(void){
   login_insert_csrf_secret();
   @ <hr />
   onoff_attribute("Moderate ticket changes",
-     "modreq-tkt", "modreq-tkt", 0);
+     "modreq-tkt", "modreq-tkt", 0, 0);
   @ <p>When enabled, any change to tickets is subject to the approval
   @ a ticket moderator - a user with the "q" or Mod-Tkt privilege.
   @ Ticket changes enter the system and are shown locally, but are not
-  @ synced until they are approved.  The moderator has the option to 
+  @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Ticket changes made by
   @ a user who hwas the Mod-Tkt privilege are never subject to
   @ moderation.
   @
   @ <hr />
   onoff_attribute("Moderate wiki changes",
-     "modreq-wiki", "modreq-wiki", 0);
+     "modreq-wiki", "modreq-wiki", 0, 0);
   @ <p>When enabled, any change to wiki is subject to the approval
   @ a ticket moderator - a user with the "l" or Mod-Wiki privilege.
   @ Wiki changes enter the system and are shown locally, but are not
-  @ synced until they are approved.  The moderator has the option to 
+  @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Wiki changes made by
   @ a user who has the Mod-Wiki privilege are never subject to
   @ moderation.
   @ </p>
- 
+
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
@@ -1496,13 +1531,13 @@ void setup_adunit(void){
   login_insert_csrf_secret();
   @ <p>Edit HTML text for an ad unit that will be inserted after the
   @ menu bar and above the content of every page.</p>
-  textarea_attribute("", 20, 80, "adunit", "adunit", "");
+  textarea_attribute("", 20, 80, "adunit", "adunit", "", 0);
   @ <br />
   onoff_attribute("Omit ads to administrator",
-     "adunit-omit-if-admin", "oia", 0);
+     "adunit-omit-if-admin", "oia", 0, 0);
   @ <br />
   onoff_attribute("Omit ads to logged-in users",
-     "adunit-omit-if-user", "oiu", 0);
+     "adunit-omit-if-user", "oiu", 0, 0);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Delete Ad-Unit" />
@@ -1680,7 +1715,7 @@ void sql_page(void){
   @ Any subsequent statements will be silently ignored.</p>
   @
   @ <p>Database names:<ul><li>repository &rarr; %s(db_name("repository"))
-  if( g.configOpen ){
+  if( g.zConfigDbName ){
     @ <li>config &rarr; %s(db_name("configdb"))
   }
   if( g.localOpen ){

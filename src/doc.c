@@ -171,6 +171,7 @@ const char *mimetype_from_name(const char *zName){
     { "m3u",        3, "audio/x-mpegurl"                   },
     { "man",        3, "application/x-troff-man"           },
     { "markdown",   8, "text/x-markdown"                   },
+    { "md",         2, "text/x-markdown"                   },
     { "me",         2, "application/x-troff-me"            },
     { "mesh",       4, "model/mesh"                        },
     { "mid",        3, "audio/midi"                        },
@@ -272,7 +273,7 @@ const char *mimetype_from_name(const char *zName){
     { "vrml",       4, "model/vrml"                        },
     { "wav",        3, "audio/x-wav"                       },
     { "wax",        3, "audio/x-ms-wax"                    },
-    { "wiki",       4, "application/x-fossil-wiki"         },
+    { "wiki",       4, "text/x-fossil-wiki"                },
     { "wma",        3, "audio/x-ms-wma"                    },
     { "wmv",        3, "video/x-ms-wmv"                    },
     { "wmx",        3, "video/x-ms-wmx"                    },
@@ -316,7 +317,7 @@ const char *mimetype_from_name(const char *zName){
     sqlite3_snprintf(sizeof(zSuffix), zSuffix, "%s", z);
     for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     first = 0;
-    last = sizeof(aMime)/sizeof(aMime[0]);
+    last = sizeof(aMime)/sizeof(aMime[0]) - 1;
     while( first<=last ){
       int c;
       i = (first+last)/2;
@@ -397,7 +398,7 @@ void doc_page(void){
       goto doc_not_found;
     }
   }
-  if( fossil_strcmp(zBaseline,"ckout")==0 && db_open_local()==0 ){
+  if( fossil_strcmp(zBaseline,"ckout")==0 && db_open_local(0)==0 ){
     sqlite3_snprintf(sizeof(zBaseline), zBaseline, "tip");
   }
   if( fossil_strcmp(zBaseline,"ckout")==0 ){
@@ -496,7 +497,7 @@ void doc_page(void){
                                      "  FROM blob WHERE rid=%d", vid));
   Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
                                   " WHERE objid=%d AND type='ci'", vid));
-  if( fossil_strcmp(zMime, "application/x-fossil-wiki")==0 ){
+  if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
     Blob title, tail;
     if( wiki_find_title(&filebody, &title, &tail) ){
       style_header(blob_str(&title));
@@ -506,9 +507,7 @@ void doc_page(void){
       wiki_convert(&filebody, 0, WIKI_BUTTONS);
     }
     style_footer();
-#ifdef FOSSIL_ENABLE_MARKDOWN
-  }else if( fossil_strcmp(zMime, "text/x-markdown")==0
-         && db_get_boolean("markdown", 0) ){
+  }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
     Blob title = BLOB_INITIALIZER;
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(&filebody, &title, &tail);
@@ -519,7 +518,6 @@ void doc_page(void){
     }
     blob_append(cgi_output_blob(), blob_buffer(&tail), blob_size(&tail));
     style_footer();
-#endif
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("Documentation");
     @ <blockquote><pre>

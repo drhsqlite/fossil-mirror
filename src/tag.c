@@ -350,7 +350,7 @@ void tag_add_artifact(
 **         Remove the tag TAGNAME from CHECK-IN, and also remove
 **         the propagation of the tag to any descendants.
 **
-**     %fossil tag find ?--raw? ?--type TYPE? TAGNAME
+**     %fossil tag find ?--raw? ?-t|--type TYPE? TAGNAME
 **
 **         List all objects that use TAGNAME.  TYPE can be "ci" for
 **         checkins or "e" for events.
@@ -432,7 +432,7 @@ void tag_cmd(void){
     const char *zType = find_option("type","t",1);
     if( zType==0 || zType[0]==0 ) zType = "*";
     if( g.argc!=4 ){
-      usage("find ?--raw? TAGNAME");
+      usage("find ?--raw? ?-t|--type TYPE? TAGNAME");
     }
     if( fRaw ){
       db_prepare(&q,

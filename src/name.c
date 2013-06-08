@@ -444,9 +444,9 @@ int name_to_rid_www(const char *zParamName){
 void whatis_cmd(void){
   int rid;
   const char *zName;
-  int fExtra;
+  int verboseFlag;
   db_find_and_open_repository(0,0);
-  fExtra = find_option("verbose","v",0)!=0;
+  verboseFlag = find_option("verbose","v",0)!=0;
   if( g.argc!=3 ) usage("whatis NAME");
   zName = g.argv[2];
   rid = symbolic_name_to_rid(zName, 0);
@@ -467,7 +467,7 @@ void whatis_cmd(void){
        rid);
     if( db_step(&q)==SQLITE_ROW ){
       const char *zTagList = db_column_text(&q, 4);
-      if( fExtra ){
+      if( verboseFlag ){
         fossil_print("artifact: %s (%d)\n", db_column_text(&q,0), rid);
         fossil_print("size:     %d bytes\n", db_column_int(&q,1));
         fossil_print("received: %s from %s\n",

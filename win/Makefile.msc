@@ -14,40 +14,46 @@ OX     = .
 O      = .obj
 E      = .exe
 
-# Uncomment below for SSL support
-SSL =
-SSLLIB =
-# SSL = -DFOSSIL_ENABLE_SSL=1
-# SSLLIB  = ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
+# Uncomment to enable JSON API
+# FOSSIL_ENABLE_JSON = 1
+
+# Uncomment to enable SSL support
+# FOSSIL_ENABLE_SSL = 1
+
+!ifdef FOSSIL_ENABLE_SSL
+SSLINCDIR = $(B)\compat\openssl-1.0.1e\include
+SSLLIBDIR = $(B)\compat\openssl-1.0.1e\out32
+SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
+!endif
 
 # zlib options
 ZINCDIR = $(B)\compat\zlib
 ZLIBDIR = $(B)\compat\zlib
 ZLIB    = zlib.lib
 
-# Uncomment to enable JSON API
-# FOSSIL_ENABLE_JSON = 1
-
-# Uncomment to enable markdown support
-# FOSSIL_ENABLE_MARKDOWN = 1
-
 INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
+
+!ifdef FOSSIL_ENABLE_SSL
+INCL   = $(INCL) -I$(SSLINCDIR)
+!endif
 
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
-TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
-RCC    = rc -D_WIN32 -D_MSC_VER $(INCL)
-LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
+TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(INCL)
+RCC    = rc -D_WIN32 -D_MSC_VER $(MSCDEF) $(INCL)
+LIBS   = $(ZLIB) ws2_32.lib advapi32.lib
 LIBDIR = -LIBPATH:$(ZLIBDIR)
 
 !ifdef FOSSIL_ENABLE_JSON
-TCC = $(TCC) -DFOSSIL_ENABLE_JSON
-RCC = $(RCC) -DFOSSIL_ENABLE_JSON
+TCC = $(TCC) -DFOSSIL_ENABLE_JSON=1
+RCC = $(RCC) -DFOSSIL_ENABLE_JSON=1
 !endif
 
-!ifdef FOSSIL_ENABLE_MARKDOWN
-TCC = $(TCC) -DFOSSIL_ENABLE_MARKDOWN
-RCC = $(RCC) -DFOSSIL_ENABLE_MARKDOWN
+!ifdef FOSSIL_ENABLE_SSL
+TCC    = $(TCC) -DFOSSIL_ENABLE_SSL=1
+RCC    = $(RCC) -DFOSSIL_ENABLE_SSL=1
+LIBS   = $(LIBS) $(SSLLIB)
+LIBDIR = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
 !endif
 
 SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 \
@@ -105,6 +111,7 @@ SRC   = add_.c \
         json_login_.c \
         json_query_.c \
         json_report_.c \
+        json_status_.c \
         json_tag_.c \
         json_timeline_.c \
         json_user_.c \
@@ -152,6 +159,7 @@ SRC   = add_.c \
         url_.c \
         user_.c \
         utf8_.c \
+        util_.c \
         verify_.c \
         vfile_.c \
         wiki_.c \
@@ -211,6 +219,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\json_login$O \
         $(OX)\json_query$O \
         $(OX)\json_report$O \
+        $(OX)\json_status$O \
         $(OX)\json_tag$O \
         $(OX)\json_timeline$O \
         $(OX)\json_user$O \
@@ -262,6 +271,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\url$O \
         $(OX)\user$O \
         $(OX)\utf8$O \
+        $(OX)\util$O \
         $(OX)\verify$O \
         $(OX)\vfile$O \
         $(OX)\wiki$O \
@@ -335,6 +345,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\json_login.obj >> $@
 	echo $(OX)\json_query.obj >> $@
 	echo $(OX)\json_report.obj >> $@
+	echo $(OX)\json_status.obj >> $@
 	echo $(OX)\json_tag.obj >> $@
 	echo $(OX)\json_timeline.obj >> $@
 	echo $(OX)\json_user.obj >> $@
@@ -386,6 +397,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\url.obj >> $@
 	echo $(OX)\user.obj >> $@
 	echo $(OX)\utf8.obj >> $@
+	echo $(OX)\util.obj >> $@
 	echo $(OX)\verify.obj >> $@
 	echo $(OX)\vfile.obj >> $@
 	echo $(OX)\wiki.obj >> $@
@@ -463,6 +475,7 @@ $(OBJDIR)\json_finfo$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_login$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_query$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_report$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_status$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_tag$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h
@@ -757,6 +770,12 @@ $(OX)\json_report$O : json_report_.c json_report.h
 json_report_.c : $(SRCDIR)\json_report.c
 	translate$E $** > $@
 
+$(OX)\json_status$O : json_status_.c json_status.h
+	$(TCC) /Fo$@ -c json_status_.c
+
+json_status_.c : $(SRCDIR)\json_status.c
+	translate$E $** > $@
+
 $(OX)\json_tag$O : json_tag_.c json_tag.h
 	$(TCC) /Fo$@ -c json_tag_.c
 
@@ -1039,6 +1058,12 @@ $(OX)\utf8$O : utf8_.c utf8.h
 utf8_.c : $(SRCDIR)\utf8.c
 	translate$E $** > $@
 
+$(OX)\util$O : util_.c util.h
+	$(TCC) /Fo$@ -c util_.c
+
+util_.c : $(SRCDIR)\util.c
+	translate$E $** > $@
+
 $(OX)\verify$O : verify_.c verify.h
 	$(TCC) /Fo$@ -c verify_.c
 
@@ -1144,6 +1169,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			json_login_.c:json_login.h \
 			json_query_.c:json_query.h \
 			json_report_.c:json_report.h \
+			json_status_.c:json_status.h \
 			json_tag_.c:json_tag.h \
 			json_timeline_.c:json_timeline.h \
 			json_user_.c:json_user.h \
@@ -1191,6 +1217,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			url_.c:url.h \
 			user_.c:user.h \
 			utf8_.c:utf8.h \
+			util_.c:util.h \
 			verify_.c:verify.h \
 			vfile_.c:vfile.h \
 			wiki_.c:wiki.h \

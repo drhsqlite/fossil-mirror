@@ -38,6 +38,10 @@
 #include "tcl.h"
 #endif
 
+#ifdef FOSSIL_ENABLE_JSON
+#include "json_detail.h"
+#endif
+
 /*
  * English (U.S.) resources
  */
@@ -104,11 +108,9 @@ BEGIN
 #endif
 #endif
 #ifdef FOSSIL_ENABLE_JSON
-      VALUE "JsonEnabled", "Yes, cson\0"
+      VALUE "JsonEnabled", "Yes, cson " FOSSIL_JSON_API_VERSION "\0"
 #endif
-#ifdef FOSSIL_ENABLE_MARKDOWN
       VALUE "MarkdownEnabled", "Yes\0"
-#endif
     END
   END
   BLOCK "VarFileInfo"

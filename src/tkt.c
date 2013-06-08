@@ -212,7 +212,9 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   memset(aUsed, 0, nField);
   for(i=0; i<p->nField; i++){
     const char *zName = p->aField[i].zName;
-    if( (j = fieldId(zName))<0 ) continue;
+    const char *zBaseName = zName[0]=='+' ? zName+1 : zName;
+    j = fieldId(zBaseName);
+    if( j<0 ) continue;
     aUsed[j] = 1;
     if( aField[j].mUsed & USEDBY_TICKET ){
       if( zName[0]=='+' ){
@@ -247,9 +249,11 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
       if( aUsed[i]==0
        && (aField[i].mUsed & USEDBY_BOTH)==USEDBY_BOTH
       ){
+        const char *z = aField[i].zName;
+        if( z[0]=='+' ) z++;
         fromTkt = 1;
-        blob_appendf(&sql2, ",%s", aField[i].zName);
-        blob_appendf(&sql3, ",%s", aField[i].zName);
+        blob_appendf(&sql2, ",%s", z);
+        blob_appendf(&sql3, ",%s", z);
       }
     }
     if( fromTkt ){
@@ -934,7 +938,7 @@ void tkthistory_page(void){
       }else{
         @ 
         @ <li><p>Add attachment
-        @ "%z(href("%R/artifact/%S",zSrc))%h(zFile)</a>"
+        @ "%z(href("%R/artifact/%S",zSrc))%s(zFile)</a>"
       }
       @ [%z(href("%R/artifact/%T",zChngUuid))%s(zShort)</a>]
       @ (rid %d(rid)) by

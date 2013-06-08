@@ -57,6 +57,28 @@ void Th_Trace(const char *zFormat, ...){
   va_end(ap);
 }
 
+/*
+** Checks if the TH1 trace log needs to be enabled.  If so, prepares
+** it for use.
+*/
+void Th_InitTraceLog(){
+  g.thTrace = find_option("th-trace", 0, 0)!=0;
+  if( g.thTrace ){
+    blob_zero(&g.thLog);
+  }
+}
+
+/*
+** Prints the entire contents of the TH1 trace log to the standard
+** output channel.
+*/
+void Th_PrintTraceLog(){
+  if( g.thTrace ){
+    fossil_print("\n------------------ BEGIN TRACE LOG ------------------\n");
+    fossil_print("%s", blob_str(&g.thLog));
+    fossil_print("\n------------------- END TRACE LOG -------------------\n");
+  }
+}
 
 /*
 ** True if output is enabled.  False if disabled.
@@ -89,10 +111,10 @@ static int enableOutputCmd(
 /*
 ** Return a name for a TH1 return code.
 */
-const char *Th_ReturnCodeName(int rc){
+const char *Th_ReturnCodeName(int rc, int nullIfOk){
   static char zRc[32];
   switch( rc ){
-    case TH_OK:       return "TH_OK";
+    case TH_OK:       return nullIfOk ? 0 : "TH_OK";
     case TH_ERROR:    return "TH_ERROR";
     case TH_BREAK:    return "TH_BREAK";
     case TH_RETURN:   return "TH_RETURN";
@@ -263,10 +285,10 @@ static int hascapCmd(
 ** Return true if the fossil binary has the given compile-time feature
 ** enabled. The set of features includes:
 **
-** "json"     = FOSSIL_ENABLE_JSON
 ** "ssl"      = FOSSIL_ENABLE_SSL
 ** "tcl"      = FOSSIL_ENABLE_TCL
 ** "tclStubs" = FOSSIL_ENABLE_TCL_STUBS
+** "json"     = FOSSIL_ENABLE_JSON
 ** "markdown" = FOSSIL_ENABLE_MARKDOWN
 **
 */
@@ -286,11 +308,6 @@ static int hasfeatureCmd(
   if(NULL==zArg){
     /* placeholder for following ifdefs... */
   }
-#if defined(FOSSIL_ENABLE_JSON)
-  else if( 0 == fossil_strnicmp( zArg, "json", 4 ) ){
-    rc = 1;
-  }
-#endif
 #if defined(FOSSIL_ENABLE_SSL)
   else if( 0 == fossil_strnicmp( zArg, "ssl", 3 ) ){
     rc = 1;
@@ -306,13 +323,47 @@ static int hasfeatureCmd(
     rc = 1;
   }
 #endif
-#if defined(FOSSIL_ENABLE_MARKDOWN)
+#if defined(FOSSIL_ENABLE_JSON)
+  else if( 0 == fossil_strnicmp( zArg, "json", 4 ) ){
+    rc = 1;
+  }
+#endif
   else if( 0 == fossil_strnicmp( zArg, "markdown", 8 ) ){
+    rc = 1;
+  }
+  if( g.thTrace ){
+    Th_Trace("[hasfeature %#h] => %d<br />\n", argl[1], zArg, rc);
+  }
+  Th_SetResultInt(interp, rc);
+  return TH_OK;
+}
+
+
+/*
+** TH command:     tclReady
+**
+** Return true if the fossil binary has the Tcl integration feature
+** enabled and it is currently available for use by TH1 scripts.
+**
+*/
+static int tclReadyCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc = 0;
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "tclReady");
+  }
+#if defined(FOSSIL_ENABLE_TCL)
+  if( g.tcl.interp ){
     rc = 1;
   }
 #endif
   if( g.thTrace ){
-    Th_Trace("[hasfeature %#h] => %d<br />\n", argl[1], zArg, rc);
+    Th_Trace("[tclReady] => %d<br />\n", rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -667,6 +718,94 @@ static int queryCmd(
 }
 
 /*
+** TH1 command:     setting name
+**
+** Gets and returns the value of the specified Fossil setting.
+*/
+#define SETTING_WRONGNUMARGS "setting ?-strict? ?--? name"
+static int settingCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  int strict = 0;
+  int nArg = 1;
+  char *zValue;
+  if( argc<2 || argc>4 ){
+    return Th_WrongNumArgs(interp, SETTING_WRONGNUMARGS);
+  }
+  if( fossil_strcmp(argv[nArg], "-strict")==0 ){
+    strict = 1; nArg++;
+  }
+  if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
+  if( nArg+1!=argc ){
+    return Th_WrongNumArgs(interp, SETTING_WRONGNUMARGS);
+  }
+  zValue = db_get(argv[nArg], 0);
+  if( zValue!=0 ){
+    Th_SetResult(interp, zValue, -1);
+    rc = TH_OK;
+  }else if( strict ){
+    Th_ErrorMessage(interp, "no value for setting \"", argv[nArg], -1);
+    rc = TH_ERROR;
+  }else{
+    Th_SetResult(interp, 0, 0);
+    rc = TH_OK;
+  }
+  if( g.thTrace ){
+    Th_Trace("[setting %s%#h] => %d<br />\n", strict ? "strict " : "",
+             argl[nArg], argv[nArg], rc);
+  }
+  return rc;
+}
+
+/*
+** TH1 command:     regexp ?-nocase? ?--? exp string
+**
+** Checks the string against the specified regular expression and returns
+** non-zero if it matches.  If the regular expression is invalid or cannot
+** be compiled, an error will be generated.
+*/
+#define REGEXP_WRONGNUMARGS "regexp ?-nocase? ?--? exp string"
+static int regexpCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  int noCase = 0;
+  int nArg = 1;
+  ReCompiled *pRe = 0;
+  const char *zErr;
+  if( argc<3 || argc>5 ){
+    return Th_WrongNumArgs(interp, REGEXP_WRONGNUMARGS);
+  }
+  if( fossil_strcmp(argv[nArg], "-nocase")==0 ){
+    noCase = 1; nArg++;
+  }
+  if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
+  if( nArg+2!=argc ){
+    return Th_WrongNumArgs(interp, REGEXP_WRONGNUMARGS);
+  }
+  zErr = re_compile(&pRe, argv[nArg], noCase);
+  if( !zErr ){
+    Th_SetResultInt(interp, re_match(pRe,
+        (const unsigned char *)argv[nArg+1], argl[nArg+1]));
+    rc = TH_OK;
+  }else{
+    Th_SetResult(interp, zErr, -1);
+    rc = TH_ERROR;
+  }
+  re_free(pRe);
+  return rc;
+}
+
+/*
 ** Make sure the interpreter has been initialized.  Initialize it if
 ** it has not been already.
 **
@@ -693,7 +832,10 @@ void Th_FossilInit(int needConfig, int forceSetup){
     {"puts",          putsCmd,              (void*)&aFlags[1]},
     {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
+    {"regexp",        regexpCmd,            0},
     {"repository",    repositoryCmd,        0},
+    {"setting",       settingCmd,           0},
+    {"tclReady",      tclReadyCmd,          0},
     {"stime",         stimeCmd,             0},
     {"utime",         utimeCmd,             0},
     {"wiki",          wikiCmd,              (void*)&aFlags[0]},
@@ -744,7 +886,7 @@ void Th_FossilInit(int needConfig, int forceSetup){
     }
     if( g.thTrace ){
       Th_Trace("th1-setup {%h} => %h<br />\n", g.th1Setup,
-               Th_ReturnCodeName(rc));
+               Th_ReturnCodeName(rc, 0));
     }
   }
 }
@@ -926,11 +1068,37 @@ int Th_Render(const char *z){
 */
 void test_th_render(void){
   Blob in;
+  Th_InitTraceLog();
+  if( find_option("th-open-config", 0, 0)!=0 ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
+    db_open_config(0);
+  }
   if( g.argc<3 ){
     usage("FILE");
   }
-  db_open_config(0); /* Needed for global "tcl" setting. */
   blob_zero(&in);
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));
+  Th_PrintTraceLog();
+}
+
+/*
+** COMMAND: test-th-eval
+*/
+void test_th_eval(void){
+  int rc;
+  const char *zRc;
+  Th_InitTraceLog();
+  if( find_option("th-open-config", 0, 0)!=0 ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
+    db_open_config(0);
+  }
+  if( g.argc!=3 ){
+    usage("script");
+  }
+  Th_FossilInit(0, 0);
+  rc = Th_Eval(g.interp, 0, g.argv[2], -1);
+  zRc = Th_ReturnCodeName(rc, 1);
+  fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
+  Th_PrintTraceLog();
 }

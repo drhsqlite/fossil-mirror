@@ -787,6 +787,8 @@ void scrub_cmd(void){
   int privateOnly = find_option("private",0,0)!=0;
   int bNeedRebuild = 0;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
+  db_close(1);
+  db_open_repository(g.zRepositoryName);
   if( !bForce ){
     Blob ans;
     char cReply;
@@ -843,7 +845,7 @@ void recon_read_dir(char *zPath){
   void *zUnicodePath;
   char *zUtf8Name;
 
-  zUnicodePath = fossil_utf8_to_unicode(zPath);
+  zUnicodePath = fossil_utf8_to_filename(zPath);
   d = opendir(zUnicodePath);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
@@ -877,7 +879,7 @@ void recon_read_dir(char *zPath){
     fossil_panic("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
   }
-  fossil_unicode_free(zUnicodePath);
+  fossil_filename_free(zUnicodePath);
 }
 
 /*

@@ -381,7 +381,7 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
 
 /*
 ** Make sure a blob is nul-terminated and is not a pointer to unmanaged
-** space.  Return a pointer to the
+** space.  Return a pointer to the data.
 */
 char *blob_materialize(Blob *pBlob){
   blob_resize(pBlob, pBlob->nUsed);
@@ -794,7 +794,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
         /*
         ** On Windows, local path looks like: C:/develop/project/file.txt
         ** The if stops us from trying to create a directory of a drive letter
@@ -806,7 +806,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
             fossil_fatal_recursive("unable to create directory %s", zName);
             return 0;
           }
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
         }
 #endif
         zName[i] = '/';
@@ -1016,15 +1016,15 @@ void blob_add_cr(Blob *p){
 #endif
 
 /*
-** Remove every \r character from the given blob.
+** Remove every \r character from the given blob, replacing each one with
+** a \n character if it was not already part of a \r\n pair.
 */
-void blob_remove_cr(Blob *p){
+void blob_to_lf_only(Blob *p){
   int i, j;
-  char *z;
-  blob_materialize(p);
-  z = p->aData;
+  char *z = blob_materialize(p);
   for(i=j=0; z[i]; i++){
     if( z[i]!='\r' ) z[j++] = z[i];
+    else if( z[i+1]!='\n' ) z[j++] = '\n';
   }
   z[j] = 0;
   p->nUsed = j;
@@ -1098,6 +1098,7 @@ void blob_swap( Blob *pLeft, Blob *pRight ){
 void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
   char *zUtf8;
   int bomSize = 0;
+  int bomReverse = 0;
   if( starts_with_utf8_bom(pBlob, &bomSize) ){
     struct Blob temp;
     zUtf8 = blob_str(pBlob) + bomSize;
@@ -1105,23 +1106,18 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     blob_append(&temp, zUtf8, -1);
     blob_swap(pBlob, &temp);
     blob_reset(&temp);
-#ifdef _WIN32
-  }else if( starts_with_utf16le_bom(pBlob, &bomSize) ){
-    /* Make sure the blob contains two terminating 0-bytes */
-    blob_append(pBlob, "", 1);
-    zUtf8 = blob_str(pBlob) + bomSize;
-    zUtf8 = fossil_unicode_to_utf8(zUtf8);
-    blob_zero(pBlob);
-    blob_append(pBlob, zUtf8, -1);
-    fossil_unicode_free(zUtf8);
-  }else if( starts_with_utf16be_bom(pBlob, &bomSize) ){
-    unsigned int i = blob_size(pBlob);
+#if defined(_WIN32) || defined(__CYGWIN__)
+  }else if( starts_with_utf16_bom(pBlob, &bomSize, &bomReverse) ){
     zUtf8 = blob_buffer(pBlob);
-    while( i > 0 ){
-      /* swap bytes of unicode representation */
-      char zTemp = zUtf8[--i];
-      zUtf8[i] = zUtf8[i-1];
-      zUtf8[--i] = zTemp;
+    if( bomReverse ){
+      /* Found BOM, but with reversed bytes */
+      unsigned int i = blob_size(pBlob);
+      while( i>0 ){
+        /* swap bytes of unicode representation */
+        char zTemp = zUtf8[--i];
+        zUtf8[i] = zUtf8[i-1];
+        zUtf8[--i] = zTemp;
+      }
     }
     /* Make sure the blob contains two terminating 0-bytes */
     blob_append(pBlob, "", 1);
@@ -1130,6 +1126,8 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     blob_zero(pBlob);
     blob_append(pBlob, zUtf8, -1);
     fossil_unicode_free(zUtf8);
+#endif /* _WIN32 ||  __CYGWIN__ */
+#if defined(_WIN32)
   }else if( useMbcs ){
     zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
     blob_reset(pBlob);

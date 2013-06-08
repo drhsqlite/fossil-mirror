@@ -218,8 +218,8 @@ int login_search_uid(char const *zUsername, char const *zPasswd){
              " WHERE login=%Q"
              "   AND length(cap)>0 AND length(pw)>0"
              "   AND login NOT IN ('anonymous','nobody','developer','reader')"
-             "   AND (pw=%Q OR pw=%Q)",
-             zUsername, zPasswd, zSha1Pw
+             "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))",
+             zUsername, zSha1Pw, zPasswd
              );
   free(zSha1Pw);
   return uid;
@@ -913,9 +913,17 @@ void login_check_credentials(void){
   /* Set the capabilities */
   login_replace_capabilities(zCap, 0);
   login_set_anon_nobody_capabilities();
+
+  /* The auto-hyperlink setting allows hyperlinks to be displayed for users
+  ** who do not have the "h" permission as long as their UserAgent string
+  ** makes it appear that they are human.  Check to see if auto-hyperlink is
+  ** enabled for this repository and make appropriate adjustments to the
+  ** permission flags if it is.
+  */
   if( zCap[0] && !g.perm.Hyperlink
    && db_get_boolean("auto-hyperlink",1)
-      && isHuman(P("HTTP_USER_AGENT")) ){
+   && isHuman(P("HTTP_USER_AGENT"))
+  ){
     g.perm.Hyperlink = 1;
     g.javascriptHyperlink = 1;
   }

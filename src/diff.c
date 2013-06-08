@@ -32,7 +32,7 @@
 #define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
 #define DIFF_IGNORE_EOLWS ((u64)0x01000000) /* Ignore end-of-line whitespace */
 #define DIFF_SIDEBYSIDE   ((u64)0x02000000) /* Generate a side-by-side diff */
-#define DIFF_NEWFILE      ((u64)0x04000000) /* Missing shown as empty files */
+#define DIFF_VERBOSE      ((u64)0x04000000) /* Missing shown as empty files */
 #define DIFF_BRIEF        ((u64)0x08000000) /* Show filenames only */
 #define DIFF_INLINE       ((u64)0x00000000) /* Inline (not side-by-side) diff */
 #define DIFF_HTML         ((u64)0x10000000) /* Render for HTML */
@@ -41,6 +41,7 @@
 #define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
+#define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -52,7 +53,36 @@
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
 
-#define looks_like_binary(blob) (looks_like_utf8((blob)) == 0)
+#define DIFF_TOO_MANY_CHANGES_TXT \
+    "more than 10,000 changes\n"
+
+#define DIFF_TOO_MANY_CHANGES_HTML \
+    "<p class='generalError'>More than 10,000 changes</p>\n"
+
+/*
+** This macro is designed to return non-zero if the specified blob contains
+** data that MAY be binary in nature; otherwise, zero will be returned.
+*/
+#define looks_like_binary(blob) \
+    ((looks_like_utf8((blob), LOOK_BINARY) & LOOK_BINARY) != LOOK_NONE)
+
+/*
+** Output flags for the looks_like_utf8() and looks_like_utf16() routines used
+** to convey status information about the blob content.
+*/
+#define LOOK_NONE    ((int)0x00000000) /* Nothing special was found. */
+#define LOOK_NUL     ((int)0x00000001) /* One or more NUL chars were found. */
+#define LOOK_CR      ((int)0x00000002) /* One or more CR chars were found. */
+#define LOOK_LONE_CR ((int)0x00000004) /* An unpaired CR char was found. */
+#define LOOK_LF      ((int)0x00000008) /* One or more LF chars were found. */
+#define LOOK_LONE_LF ((int)0x00000010) /* An unpaired LF char was found. */
+#define LOOK_CRLF    ((int)0x00000020) /* One or more CR/LF pairs were found. */
+#define LOOK_LONG    ((int)0x00000040) /* An over length line was found. */
+#define LOOK_ODD     ((int)0x00000080) /* An odd number of bytes was found. */
+#define LOOK_SHORT   ((int)0x00000100) /* Unable to perform full check. */
+#define LOOK_INVALID ((int)0x00000200) /* Invalid sequence was found. */
+#define LOOK_BINARY  (LOOK_NUL | LOOK_LONG | LOOK_SHORT) /* May be binary. */
+#define LOOK_EOL     (LOOK_LONE_CR | LOOK_LONE_LF | LOOK_CRLF) /* Line seps. */
 #endif /* INTERFACE */
 
 /*
@@ -178,21 +208,20 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 
 /*
 ** This function attempts to scan each logical line within the blob to
-** determine the type of content it appears to contain.  Possible return
-** values are:
+** determine the type of content it appears to contain.  The return value
+** is a combination of one or more of the LOOK_XXX flags (see above):
 **
-**  (1) -- The content appears to consist entirely of text, with lines
-**         delimited by line-feed characters; however, the encoding may
-**         not be UTF-8.
+** !LOOK_BINARY -- The content appears to consist entirely of text; however,
+**                 the encoding may not be UTF-8.
 **
-**  (0) -- The content appears to be binary because it contains embedded
-**         NUL characters or an extremely long line.  Since this function
-**         does not understand UTF-16, it may falsely consider UTF-16 text
-**         to be binary.
+** LOOK_BINARY -- The content appears to be binary because it contains one
+**                or more embedded NUL characters or an extremely long line.
+**                Since this function does not understand UTF-16, it may
+**                falsely consider UTF-16 text to be binary.
 **
-** (-1) -- The content appears to consist entirely of text, with lines
-**         delimited by carriage-return, line-feed pairs; however, the
-**         encoding may not be UTF-8.
+** Additional flags (i.e. those other than the ones included in LOOK_BINARY)
+** may be present in the result as well; however, they should not impact the
+** determination of text versus binary content.
 **
 ************************************ WARNING **********************************
 **
@@ -204,38 +233,58 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 ** The only code points that this function cares about are the NUL character,
 ** carriage-return, and line-feed.
 **
+** This function examines the contents of the blob until one of the flags
+** specified in "stopFlags" is set.
+**
 ************************************ WARNING **********************************
 */
-int looks_like_utf8(const Blob *pContent){
+int looks_like_utf8(const Blob *pContent, int stopFlags){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j, c;
-  int result = 1;  /* Assume UTF-8 text with no CR/NL */
+  int j, c, flags = LOOK_NONE;  /* Assume UTF-8 text, prove otherwise */
 
-  /* Check individual lines.
-  */
-  if( n==0 ) return result;  /* Empty file -> text */
+  if( n==0 ) return flags;  /* Empty file -> text */
   c = *z;
-  if( c==0 ) return 0;  /* Zero byte in a file -> binary */
-  j = (c!='\n');
-  while( --n>0 ){
-    c = *++z; ++j;
-    if( c==0 ) return 0;  /* Zero byte in a file -> binary */
-    if( c=='\n' ){
-      int c2 = z[-1];
-      if( c2=='\r' ){
-        result = -1;  /* Contains CR/NL, continue */
-      }
-      if( j>LENGTH_MASK ){
-        return 0;  /* Very long line -> binary */
-      }
-      j = 0;
+  if( c==0 ){
+    flags |= LOOK_NUL;  /* NUL character in a file -> binary */
+  }else if( c=='\r' ){
+    flags |= LOOK_CR;
+    if( n<=1 || z[1]!='\n' ){
+      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
     }
   }
-  if( j>LENGTH_MASK ){
-    return 0;  /* Very long line -> binary */
+  j = (c!='\n');
+  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
+  while( !(flags&stopFlags) && --n>0 ){
+    int c2 = c;
+    c = *++z; ++j;
+    if( c==0 ){
+      flags |= LOOK_NUL;  /* NUL character in a file -> binary */
+    }else if( c=='\n' ){
+      flags |= LOOK_LF;
+      if( c2=='\r' ){
+        flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
+      }else{
+        flags |= LOOK_LONE_LF;
+      }
+      if( j>LENGTH_MASK ){
+        flags |= LOOK_LONG;  /* Very long line -> binary */
+      }
+      j = 0;
+    }else if( c=='\r' ){
+      flags |= LOOK_CR;
+      if( n<=1 || z[1]!='\n' ){
+        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+      }
+    }
   }
-  return result;  /* No problems seen -> not binary */
+  if( n ){
+    flags |= LOOK_SHORT;  /* The whole blob was not examined */
+  }
+  if( j>LENGTH_MASK ){
+    flags |= LOOK_LONG;  /* Very long line -> binary */
+  }
+  return flags;
 }
 
 /*
@@ -254,35 +303,32 @@ int looks_like_utf8(const Blob *pContent){
 ** The number of bytes represented by this value cannot exceed LENGTH_MASK
 ** bytes, because that is the line buffer size used by the diff engine.
 */
-#define UTF16_LENGTH_MASK_SZ  (LENGTH_MASK_SZ-(sizeof(WCHAR_T)-sizeof(char)))
-#define UTF16_LENGTH_MASK     ((1<<UTF16_LENGTH_MASK_SZ)-1)
+#define UTF16_LENGTH_MASK_SZ   (LENGTH_MASK_SZ-(sizeof(WCHAR_T)-sizeof(char)))
+#define UTF16_LENGTH_MASK      ((1<<UTF16_LENGTH_MASK_SZ)-1)
 
 /*
-** The carriage-return / line-feed characters in the UTF-16be and UTF-16le
-** encodings.
+** This macro is used to swap the byte order of a UTF-16 character in the
+** looks_like_utf16() function.
 */
-#define UTF16BE_CR  ((WCHAR_T)'\r')
-#define UTF16BE_LF  ((WCHAR_T)'\n')
-#define UTF16LE_CR  (((WCHAR_T)'\r')<<(sizeof(char)<<3))
-#define UTF16LE_LF  (((WCHAR_T)'\n')<<(sizeof(char)<<3))
+#define UTF16_SWAP(ch)         ((((ch) << 8) & 0xFF00) | (((ch) >> 8) & 0xFF))
+#define UTF16_SWAP_IF(expr,ch) ((expr) ? UTF16_SWAP((ch)) : (ch))
 
 /*
 ** This function attempts to scan each logical line within the blob to
-** determine the type of content it appears to contain.  Possible return
-** values are:
+** determine the type of content it appears to contain.  The return value
+** is a combination of one or more of the LOOK_XXX flags (see above):
 **
-**  (1) -- The content appears to consist entirely of text, with lines
-**         delimited by line-feed characters; however, the encoding may
-**         not be UTF-16.
+** !LOOK_BINARY -- The content appears to consist entirely of text; however,
+**                 the encoding may not be UTF-16.
 **
-**  (0) -- The content appears to be binary because it contains embedded
-**         NUL characters or an extremely long line.  Since this function
-**         does not understand UTF-8, it may falsely consider UTF-8 text
-**         to be binary.
+** LOOK_BINARY -- The content appears to be binary because it contains one
+**                or more embedded NUL characters or an extremely long line.
+**                Since this function does not understand UTF-8, it may
+**                falsely consider UTF-8 text to be binary.
 **
-** (-1) -- The content appears to consist entirely of text, with lines
-**         delimited by carriage-return, line-feed pairs; however, the
-**         encoding may not be UTF-16.
+** Additional flags (i.e. those other than the ones included in LOOK_BINARY)
+** may be present in the result as well; however, they should not impact the
+** determination of text versus binary content.
 **
 ************************************ WARNING **********************************
 **
@@ -294,39 +340,72 @@ int looks_like_utf8(const Blob *pContent){
 ** The only code points that this function cares about are the NUL character,
 ** carriage-return, and line-feed.
 **
+** This function examines the contents of the blob until one of the flags
+** specified in "stopFlags" is set.
+**
 ************************************ WARNING **********************************
 */
-int looks_like_utf16(const Blob *pContent){
+int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j, c;
-  int result = 1;  /* Assume UTF-16 text with no CR/NL */
+  int j, c, flags = LOOK_NONE;  /* Assume UTF-16 text, prove otherwise */
 
-  /* Check individual lines.
-  */
-  if( n==0 ) return result;  /* Empty file -> text */
-  if( n%2 ) return 0;  /* Odd number of bytes -> binary (or UTF-8) */
+  if( n==0 ) return flags;  /* Empty file -> text */
+  if( n%sizeof(WCHAR_T) ){
+    flags |= LOOK_ODD;  /* Odd number of bytes -> binary (UTF-8?) */
+    if( n<sizeof(WCHAR_T) ) return flags;  /* One byte -> binary (UTF-8?) */
+  }
   c = *z;
-  if( c==0 ) return 0;  /* NUL character in a file -> binary */
-  j = ((c!=UTF16BE_LF) && (c!=UTF16LE_LF));
-  while( (n-=2)>0 ){
-    c = *++z; ++j;
-    if( c==0 ) return 0;  /* NUL character in a file -> binary */
-    if( c==UTF16BE_LF || c==UTF16LE_LF ){
-      int c2 = z[-1];
-      if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
-        result = -1;  /* Contains CR/NL, continue */
-      }
-      if( j>UTF16_LENGTH_MASK ){
-        return 0;  /* Very long line -> binary */
-      }
-      j = 0;
+  if( bReverse ){
+    c = UTF16_SWAP(c);
+  }
+  if( c==0 ){
+    flags |= LOOK_NUL;  /* NUL character in a file -> binary */
+  }else if( c=='\r' ){
+    flags |= LOOK_CR;
+    if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
+      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
     }
   }
-  if( j>UTF16_LENGTH_MASK ){
-    return 0;  /* Very long line -> binary */
+  j = (c!='\n');
+  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
+  while( 1 ){
+    int c2 = c;
+    if( flags&stopFlags ) break;
+    n -= sizeof(WCHAR_T);
+    if( n<sizeof(WCHAR_T) ) break;
+    c = *++z;
+    if( bReverse ){
+      c = UTF16_SWAP(c);
+    }
+    ++j;
+    if( c==0 ){
+      flags |= LOOK_NUL;  /* NUL character in a file -> binary */
+    }else if( c=='\n' ){
+      flags |= LOOK_LF;
+      if( c2=='\r' ){
+        flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
+      }else{
+        flags |= LOOK_LONE_LF;
+      }
+      if( j>UTF16_LENGTH_MASK ){
+        flags |= LOOK_LONG;  /* Very long line -> binary */
+      }
+      j = 0;
+    }else if( c=='\r' ){
+      flags |= LOOK_CR;
+      if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
+        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+      }
+    }
   }
-  return result;  /* No problems seen -> not binary */
+  if( n ){
+    flags |= LOOK_SHORT;  /* The whole blob was not examined */
+  }
+  if( j>UTF16_LENGTH_MASK ){
+    flags |= LOOK_LONG;  /* Very long line -> binary */
+  }
+  return flags;
 }
 
 /*
@@ -356,56 +435,47 @@ int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
 }
 
 /*
-** This function returns non-zero if the blob starts with a UTF-16le or
-** UTF-16be byte-order-mark (BOM).
+** This function returns non-zero if the blob starts with a UTF-16
+** byte-order-mark (BOM), either in the endianness of the machine
+** or in reversed byte order. The UTF-32 BOM is ruled out by checking
+** if the UTF-16 BOM is not immediately followed by (utf16) 0.
+** pnByte is only set when the function returns 1.
+**
+** pbReverse is always set, even when no BOM is found. Without a BOM,
+** it is set to 1 on little-endian and 0 on big-endian platforms. See
+** clause D98 of conformance (section 3.10) of the Unicode standard.
 */
-int starts_with_utf16_bom(const Blob *pContent, int *pnByte){
-  const char *z = blob_buffer(pContent);
-  int c1, c2;
+int starts_with_utf16_bom(
+  const Blob *pContent, /* IN: Blob content to perform BOM detection on. */
+  int *pnByte,          /* OUT: The number of bytes used for the BOM. */
+  int *pbReverse        /* OUT: Non-zero for BOM in reverse byte-order. */
+){
+  const unsigned short *z = (unsigned short *)blob_buffer(pContent);
+  int bomSize = sizeof(unsigned short);
+  int size = blob_size(pContent);
 
-  if( pnByte ) *pnByte = 2;
-  if( blob_size(pContent)<2 ) return 0;
-  c1 = z[0]; c2 = z[1];
-  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
-    return 1;
-  }else if( (c1==(char)0xfe) && (c2==(char)0xff) ){
-    return 1;
+  if( size<bomSize ) goto noBom;  /* No: cannot read BOM. */
+  if( size>=(2*bomSize) && z[1]==0 ) goto noBom;  /* No: possible UTF-32. */
+  if( z[0]==0xfeff ){
+    if( pbReverse ) *pbReverse = 0;
+  }else if( z[0]==0xfffe ){
+    if( pbReverse ) *pbReverse = 1;
+  }else{
+    static const int one = 1;
+  noBom:
+    if( pbReverse ) *pbReverse = *(char *) &one;
+    return 0; /* No: UTF-16 byte-order-mark not found. */
   }
-  return 0;
+  if( pnByte ) *pnByte = bomSize;
+  return 1; /* Yes. */
 }
 
 /*
-** This function returns non-zero if the blob starts with a UTF-16le
-** byte-order-mark (BOM).
+** Returns non-zero if the specified content could be valid UTF-16.
 */
-int starts_with_utf16le_bom(const Blob *pContent, int *pnByte){
-  const char *z = blob_buffer(pContent);
-  int c1, c2;
-
-  if( pnByte ) *pnByte = 2;
-  if( blob_size(pContent)<2 ) return 0;
-  c1 = z[0]; c2 = z[1];
-  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
-    return 1;
-  }
-  return 0;
-}
-
-/*
-** This function returns non-zero if the blob starts with a UTF-16be
-** byte-order-mark (BOM).
-*/
-int starts_with_utf16be_bom(const Blob *pContent, int *pnByte){
-  const char *z = blob_buffer(pContent);
-  int c1, c2;
-
-  if( pnByte ) *pnByte = 2;
-  if( blob_size(pContent)<2 ) return 0;
-  c1 = z[0]; c2 = z[1];
-  if( (c1==(char)0xfe) && (c2==(char)0xff) ){
-    return 1;
-  }
-  return 0;
+int could_be_utf16(const Blob *pContent, int *pbReverse){
+  return (blob_size(pContent) % sizeof(WCHAR_T) == 0) ?
+      starts_with_utf16_bom(pContent, 0, pbReverse) : 0;
 }
 
 /*
@@ -551,7 +621,7 @@ static void contextDiff(
         continue;
       }
     }
-    
+
     /* For the current block comprising nr triples, figure out
     ** how many lines of A and B are to be displayed
     */
@@ -875,9 +945,16 @@ static void sbsShiftLeft(SbsLine *p, const char *z){
 **
 **    *  If iStart is a null-change then move iStart2 into iStart
 **    *  Make sure any null-changes are in canonoical form.
+**    *  Make sure all changes are at character boundaries for
+**       multi-byte characters.
 */
-static void sbsSimplifyLine(SbsLine *p){
-  if( p->iStart2==p->iEnd2 ) p->iStart2 = p->iEnd2 = 0;
+static void sbsSimplifyLine(SbsLine *p, const char *z){
+  if( p->iStart2==p->iEnd2 ){
+    p->iStart2 = p->iEnd2 = 0;
+  }else if( p->iStart2 ){
+    while( p->iStart2>0 && (z[p->iStart2]&0xc0)==0x80 ) p->iStart2--;
+    while( (z[p->iEnd2]&0xc0)==0x80 ) p->iEnd2++;
+  }
   if( p->iStart==p->iEnd ){
     p->iStart = p->iStart2;
     p->iEnd = p->iEnd2;
@@ -885,7 +962,12 @@ static void sbsSimplifyLine(SbsLine *p){
     p->iStart2 = 0;
     p->iEnd2 = 0;
   }
-  if( p->iStart==p->iEnd ) p->iStart = p->iEnd = -1;
+  if( p->iStart==p->iEnd ){
+    p->iStart = p->iEnd = -1;
+  }else if( p->iStart>0 ){
+    while( p->iStart>0 && (z[p->iStart]&0xc0)==0x80 ) p->iStart--;
+    while( (z[p->iEnd]&0xc0)==0x80 ) p->iEnd++;
+  }
 }
 
 /*
@@ -901,6 +983,7 @@ static void sbsWriteLineChange(
 ){
   int nLeft;           /* Length of left line in bytes */
   int nRight;          /* Length of right line in bytes */
+  int nShort;          /* Shortest of left and right */
   int nPrefix;         /* Length of common prefix */
   int nSuffix;         /* Length of common suffix */
   const char *zLeft;   /* Text of the left line */
@@ -916,21 +999,27 @@ static void sbsWriteLineChange(
   zLeft = pLeft->z;
   nRight = pRight->h & LENGTH_MASK;
   zRight = pRight->z;
+  nShort = nLeft<nRight ? nLeft : nRight;
 
   nPrefix = 0;
-  while( nPrefix<nLeft && nPrefix<nRight && zLeft[nPrefix]==zRight[nPrefix] ){
+  while( nPrefix<nShort && zLeft[nPrefix]==zRight[nPrefix] ){
     nPrefix++;
   }
+  if( nPrefix<nShort ){
+    while( nPrefix>0 && (zLeft[nPrefix]&0xc0)==0x80 ) nPrefix--;
+  }
   nSuffix = 0;
-  if( nPrefix<nLeft && nPrefix<nRight ){
-    while( nSuffix<nLeft && nSuffix<nRight
-           && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
+  if( nPrefix<nShort ){
+    while( nSuffix<nShort && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
       nSuffix++;
+    }
+    if( nSuffix<nShort ){
+      while( nSuffix>0 && (zLeft[nLeft-nSuffix]&0xc0)==0x80 ) nSuffix--;
     }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
-  if( nPrefix+nSuffix > nLeft ) nSuffix = nLeft - nPrefix;
-  if( nPrefix+nSuffix > nRight ) nSuffix = nRight - nPrefix;
+  if( nPrefix+nSuffix > nShort ) nPrefix = nShort - nSuffix;
+
 
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
@@ -990,7 +1079,7 @@ static void sbsWriteLineChange(
     p->iStart2 = nPrefix + aLCS[1];
     p->iEnd2 = nLeft - nSuffix;
     p->zStart2 = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
-    sbsSimplifyLine(p);
+    sbsSimplifyLine(p, zLeft+nPrefix);
     sbsWriteText(p, pLeft, SBS_PAD);
     sbsWrite(p, " | ", 3);
     sbsWriteLineno(p, lnRight);
@@ -1005,7 +1094,7 @@ static void sbsWriteLineChange(
     p->iStart2 = nPrefix + aLCS[3];
     p->iEnd2 = nRight - nSuffix;
     p->zStart2 = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
-    sbsSimplifyLine(p);
+    sbsSimplifyLine(p, zRight+nPrefix);
     sbsWriteText(p, pRight, SBS_NEWLINE);
     return;
   }
@@ -1224,7 +1313,7 @@ static unsigned char *sbsAlignment(
   ** by all of the left side deleted.
   **
   ** The coefficients for conditions (1) and (2) above are determined by
-  ** experimentation.  
+  ** experimentation.
   */
   mxLen = nLeft>nRight ? nLeft : nRight;
   if( i*4>mxLen*5 && (nMatch==0 || iMatch/nMatch>15) ){
@@ -1402,7 +1491,7 @@ static void sbsDiff(
           sbsWriteLineno(&s, a);
           s.iStart = 0;
           s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&A[a]);
           sbsWriteText(&s, &A[a], SBS_PAD);
           if( s.escHtml ){
             sbsWrite(&s, " &lt;\n", 6);
@@ -1435,7 +1524,7 @@ static void sbsDiff(
           sbsWriteLineno(&s, b);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&B[b]);
           sbsWriteText(&s, &B[b], SBS_NEWLINE);
           blob_append(pOut, s.zLine, s.n);
           assert( mb>0 );
@@ -1447,13 +1536,13 @@ static void sbsDiff(
           sbsWriteLineno(&s, a);
           s.iStart = 0;
           s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&A[a]);
           sbsWriteText(&s, &A[a], SBS_PAD);
           sbsWrite(&s, " | ", 3);
           sbsWriteLineno(&s, b);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&B[b]);
           sbsWriteText(&s, &B[b], SBS_NEWLINE);
           blob_append(pOut, s.zLine, s.n);
           ma--;
@@ -1461,7 +1550,7 @@ static void sbsDiff(
           a++;
           b++;
         }
-          
+
       }
       fossil_free(alignment);
       if( i<nr-1 ){
@@ -1566,19 +1655,22 @@ static void longestCommonSequence(
   int *piSX, int *piEX,      /* Write p->aFrom[] common segment here */
   int *piSY, int *piEY       /* Write p->aTo[] common segment here */
 ){
-  double bestScore = -1e30;  /* Best score seen so far */
   int i, j, k;               /* Loop counters */
   int n;                     /* Loop limit */
   DLine *pA, *pB;            /* Pointers to lines */
   int iSX, iSY, iEX, iEY;    /* Current match */
-  double score;              /* Current score */
-  int skew;                  /* How lopsided is the match */
-  int dist;                  /* Distance of match from center */
+  int skew = 0;              /* How lopsided is the match */
+  int dist = 0;              /* Distance of match from center */
   int mid;                   /* Center of the span */
   int iSXb, iSYb, iEXb, iEYb;   /* Best match so far */
   int iSXp, iSYp, iEXp, iEYp;   /* Previous match */
+  sqlite3_int64 bestScore;      /* Best score so far */
+  sqlite3_int64 score;          /* Score for current candidate LCS */
+  int span;                     /* combined width of the input sequences */
 
-
+  span = (iE1 - iS1) + (iE2 - iS2);
+  bestScore = -10000;
+  score = 0;
   iSXb = iSXp = iS1;
   iEXb = iEXp = iS1;
   iSYb = iSYp = iS2;
@@ -1620,7 +1712,7 @@ static void longestCommonSequence(
     if( skew<0 ) skew = -skew;
     dist = (iSX+iEX)/2 - mid;
     if( dist<0 ) dist = -dist;
-    score = (iEX - iSX) - 0.05*skew - 0.05*dist;
+    score = (iEX - iSX)*(sqlite3_int64)span - (skew + dist);
     if( score>bestScore ){
       bestScore = score;
       iSXb = iSX;
@@ -1644,8 +1736,6 @@ static void longestCommonSequence(
     *piEX = iEXb;
     *piEY = iEYb;
   }
-  /* printf("LCS(%d..%d/%d..%d) = %d..%d/%d..%d\n",
-     iS1, iE1, iS2, iE2, *piSX, *piEX, *piSY, *piEY);  */
 }
 
 /*
@@ -1951,7 +2041,26 @@ int *text_diff(
 
   /* Compute the difference */
   diff_all(&c);
-  if( (diffFlags & DIFF_NOOPT)==0 ) diff_optimize(&c);
+  if( (diffFlags & DIFF_NOTTOOBIG)!=0 ){
+    int i, m, n;
+    int *a = c.aEdit;
+    int mx = c.nEdit;
+    for(i=m=n=0; i<mx; i+=3){ m += a[i]; n += a[i+1]+a[i+2]; }
+    if( n>10000 ){
+      fossil_free(c.aFrom);
+      fossil_free(c.aTo);
+      fossil_free(c.aEdit);
+      if( diffFlags & DIFF_HTML ){
+        blob_append(pOut, DIFF_TOO_MANY_CHANGES_HTML, -1);
+      }else{
+        blob_append(pOut, DIFF_TOO_MANY_CHANGES_TXT, -1);
+      }
+      return 0;
+    }
+  }
+  if( (diffFlags & DIFF_NOOPT)==0 ){
+    diff_optimize(&c);
+  }
 
   if( pOut ){
     /* Compute a context or side-by-side diff into pOut */
@@ -2084,13 +2193,18 @@ struct Annotator {
   struct AnnLine {  /* Lines of the original files... */
     const char *z;       /* The text of the line */
     short int n;         /* Number of bytes (omitting trailing space and \n) */
-    short int iLevel;    /* Level at which tag was set */
-    const char *zSrc;    /* Tag showing origin of this line */
+    short int iVers;     /* Level at which tag was set */
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
-  int nNoSrc;       /* Number of entries where aOrig[].zSrc==NULL */
-  int iLevel;       /* Current level */
   int nVers;        /* Number of versions analyzed */
+  int bLimit;       /* True if the iLimit was reached */
+  struct AnnVers {
+    const char *zFUuid;   /* File being analyzed */
+    const char *zMUuid;   /* Check-in containing the file */
+    const char *zDate;    /* Date of the check-in */
+    const char *zBgColor; /* Suggested background color */
+    unsigned cnt;         /* Number of lines contributed by this check-in */
+  } *aVers;         /* For each check-in analyzed */
   char **azVers;    /* Names of versions analyzed */
 };
 
@@ -2111,7 +2225,7 @@ static int annotation_start(Annotator *p, Blob *pInput){
   for(i=0; i<p->c.nTo; i++){
     p->aOrig[i].z = p->c.aTo[i].z;
     p->aOrig[i].n = p->c.aTo[i].h & LENGTH_MASK;
-    p->aOrig[i].zSrc = 0;
+    p->aOrig[i].iVers = -1;
   }
   p->nOrig = p->c.nTo;
   return 0;
@@ -2124,11 +2238,9 @@ static int annotation_start(Annotator *p, Blob *pInput){
 ** on each line of the file being annotated that was contributed by
 ** pParent.  Memory to hold zPName is leaked.
 */
-static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
+static int annotation_step(Annotator *p, Blob *pParent, int iVers){
   int i, j;
   int lnTo;
-  int iPrevLevel;
-  int iThisLevel;
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
@@ -2142,20 +2254,17 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   diff_all(&p->c);
 
   /* Where new lines are inserted on this difference, record the
-  ** zPName as the source of the new line.
+  ** iVers as the source of the new line.
   */
-  iPrevLevel = p->iLevel;
-  p->iLevel++;
-  iThisLevel = p->iLevel;
   for(i=lnTo=0; i<p->c.nEdit; i+=3){
-    struct AnnLine *x = &p->aOrig[lnTo];
-    for(j=0; j<p->c.aEdit[i]; j++, lnTo++, x++){
-      if( x->zSrc==0 || x->iLevel==iPrevLevel ){
-         x->zSrc = zPName;
-         x->iLevel = iThisLevel;
+    int nCopy = p->c.aEdit[i];
+    int nIns = p->c.aEdit[i+2];
+    lnTo += nCopy;
+    for(j=0; j<nIns; j++, lnTo++){
+      if( p->aOrig[lnTo].iVers<0 ){
+        p->aOrig[lnTo].iVers = iVers;
       }
     }
-    lnTo += p->c.aEdit[i+2];
   }
 
   /* Clear out the diff results */
@@ -2172,37 +2281,9 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
 }
 
 
-/*
-** COMMAND: test-annotate-step
-*/
-void test_annotate_step_cmd(void){
-  Blob orig, b;
-  Annotator x;
-  int i;
-
-  if( g.argc<4 ) usage("RID1 RID2 ...");
-  db_must_be_within_tree();
-  blob_zero(&b);
-  content_get(name_to_rid(g.argv[2]), &orig);
-  if( annotation_start(&x, &orig) ){
-    fossil_fatal("binary file");
-  }
-  for(i=3; i<g.argc; i++){
-    blob_zero(&b);
-    content_get(name_to_rid(g.argv[i]), &b);
-    if( annotation_step(&x, &b, g.argv[i-1]) ){
-      fossil_fatal("binary file");
-    }
-  }
-  for(i=0; i<x.nOrig; i++){
-    const char *zSrc = x.aOrig[i].zSrc;
-    if( zSrc==0 ) zSrc = g.argv[g.argc-1];
-    fossil_print("%10s: %.*s\n", zSrc, x.aOrig[i].n, x.aOrig[i].z);
-  }
-}
-
 /* Annotation flags */
-#define ANN_FILE_VERS  0x001  /* Show file version rather than commit version */
+#define ANN_FILE_VERS    0x01   /* Show file vers rather than commit vers */
+#define ANN_FILE_ANCEST  0x02   /* Prefer check-ins in the ANCESTOR table */
 
 /*
 ** Compute a complete annotation on a file.  The file is identified
@@ -2213,15 +2294,14 @@ static void annotate_file(
   Annotator *p,        /* The annotator */
   int fnid,            /* The name of the file to be annotated */
   int mid,             /* Use the version of the file in this check-in */
-  int webLabel,        /* Use web-style annotations if true */
   int iLimit,          /* Limit the number of levels if greater than zero */
   int annFlags         /* Flags to alter the annotation */
 ){
   Blob toAnnotate;     /* Text of the final (mid) version of the file */
   Blob step;           /* Text of previous revision */
   int rid;             /* Artifact ID of the file being annotated */
-  char *zLabel;        /* Label to apply to a line */
   Stmt q;              /* Query returning all ancestor versions */
+  Stmt ins;            /* Inserts into the temporary VSEEN table */
   int cnt = 0;         /* Number of versions examined */
 
   /* Initialize the annotation */
@@ -2234,46 +2314,72 @@ static void annotate_file(
   }
   if( iLimit<=0 ) iLimit = 1000000000;
   annotation_start(p, &toAnnotate);
-  
+  db_begin_transaction();
+  db_multi_exec(
+     "CREATE TEMP TABLE IF NOT EXISTS vseen(rid INTEGER PRIMARY KEY);"
+     "DELETE FROM vseen;"
+  );
+
+  db_prepare(&ins, "INSERT OR IGNORE INTO vseen(rid) VALUES(:rid)");
   db_prepare(&q,
-    "SELECT (SELECT uuid FROM blob WHERE rid=mlink.%s),"
+    "SELECT (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.mid),"
     "       date(event.mtime),"
-    "       coalesce(event.euser,event.user),"
     "       mlink.pid"
     "  FROM mlink, event"
     " WHERE mlink.fid=:rid"
     "   AND event.objid=mlink.mid"
-    " ORDER BY event.mtime",
-    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid"
+    "   AND mlink.pid NOT IN vseen"
+    " ORDER BY %s event.mtime",
+    (annFlags & ANN_FILE_ANCEST)!=0 ?
+         "(mlink.mid IN (SELECT rid FROM ancestor)) DESC,":""
   );
-  
+
   db_bind_int(&q, ":rid", rid);
   if( iLimit==0 ) iLimit = 1000000000;
   while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    const char *zDate = db_column_text(&q, 1);
-    const char *zUser = db_column_text(&q, 2);
     int prevId = db_column_int(&q, 3);
-    if( webLabel ){
-      zLabel = mprintf(
-          "<a href='%R/info/%s' target='infowindow'>%.10s</a> %s %13.13s",
-          zUuid, zUuid, zDate, zUser
-      );
-    }else{
-      zLabel = mprintf("%.10s %s %13.13s", zUuid, zDate, zUser);
+    p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
+    p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
+    p->aVers[p->nVers].zMUuid = fossil_strdup(db_column_text(&q, 1));
+    p->aVers[p->nVers].zDate = fossil_strdup(db_column_text(&q, 2));
+    if( p->nVers ){
+      content_get(rid, &step);
+      annotation_step(p, &step, p->nVers-1);
+      blob_reset(&step);
     }
     p->nVers++;
-    p->azVers = fossil_realloc(p->azVers, p->nVers*sizeof(p->azVers[0]) );
-    p->azVers[p->nVers-1] = zLabel;
-    content_get(rid, &step);
-    annotation_step(p, &step, zLabel);
-    blob_reset(&step);
+    db_bind_int(&ins, ":rid", rid);
+    db_step(&ins);
+    db_reset(&ins);
     db_reset(&q);
     rid = prevId;
     db_bind_int(&q, ":rid", prevId);
     cnt++;
   }
+  p->bLimit = iLimit==cnt;
   db_finalize(&q);
+  db_finalize(&ins);
+  db_end_transaction(0);
+}
+
+/*
+** Return a color from a gradient.
+*/
+unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
+  unsigned c;   /* Result color */
+  unsigned x1, x2;
+  if( i==0 || n==0 ) return c1;
+  x1 = (c1>>16)&0xff;
+  x2 = (c2>>16)&0xff;
+  c = (x1*(n-i) + x2*i)/n<<16 & 0xff0000;
+  x1 = (c1>>8)&0xff;
+  x2 = (c2>>8)&0xff;
+  c |= (x1*(n-i) + x2*i)/n<<8 & 0xff00;
+  x1 = c1&0xff;
+  x2 = c2&0xff;
+  c |= (x1*(n-i) + x2*i)/n & 0xff;
+  return c;
 }
 
 /*
@@ -2283,53 +2389,141 @@ static void annotate_file(
 **
 **    checkin=ID          The manifest ID at which to start the annotation
 **    filename=FILENAME   The filename.
+**    filevers            Show file versions rather than check-in versions
+**    log=BOOLEAN         Show a log of versions analyzed
+**    limit=N             Limit the search depth to N ancestors
 */
 void annotation_page(void){
   int mid;
   int fnid;
   int i;
-  int iLimit;
-  int annFlags = 0;
-  int showLn = 0;        /* True if line numbers should be shown */
-  char zLn[10];          /* Line number buffer */
-  char zFormat[10];      /* Format string for line numbers */
+  int iLimit;            /* Depth limit */
+  int annFlags = ANN_FILE_ANCEST;  
+  int showLog = 0;       /* True to display the log */
+  const char *zFilename; /* Name of file to annotate */
+  const char *zCI;       /* The check-in containing zFilename */
   Annotator ann;
+  HQuery url;
+  struct AnnVers *p;
+  unsigned clr1, clr2, clr;
 
-  showLn = P("ln")!=0;
+  /* Gather query parameters */
+  showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", P("filename"));
+  zFilename = P("filename");
+  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
-  iLimit = atoi(PD("limit","-1"));
+  iLimit = atoi(PD("limit","20"));
+  if( P("filevers") ) annFlags |= ANN_FILE_VERS;
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
   }
-  style_header("File Annotation");
-  if( P("filevers") ) annFlags |= ANN_FILE_VERS;
-  annotate_file(&ann, fnid, mid, g.perm.Hyperlink, iLimit, annFlags);
-  if( P("log") ){
-    int i;
-    @ <h2>Versions analyzed:</h2>
+
+  /* compute the annotation */
+  compute_direct_ancestors(mid, 10000000);
+  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  zCI = ann.aVers[0].zMUuid;
+
+  /* generate the web page */
+  style_header("Annotation For %h", zFilename);
+  url_initialize(&url, "annotate");
+  url_add_parameter(&url, "checkin", P("checkin"));
+  url_add_parameter(&url, "filename", zFilename);
+  if( iLimit!=20 ){
+    url_add_parameter(&url, "limit", sqlite3_mprintf("%d", iLimit));
+  }
+  url_add_parameter(&url, "log", showLog ? "1" : "0");
+  if( showLog ){
+    style_submenu_element("Hide Log", "Hide Log",
+       url_render(&url, "log", "0", 0, 0));
+  }else{
+    style_submenu_element("Show Log", "Show Log",
+       url_render(&url, "log", "1", 0, 0));
+  }
+  if( ann.bLimit ){
+    char *z1, *z2;
+    style_submenu_element("All Ancestors", "All Ancestors",
+       url_render(&url, "limit", "-1", 0, 0));
+    z1 = sqlite3_mprintf("%d Ancestors", iLimit+20);
+    z2 = sqlite3_mprintf("%d", iLimit+20);
+    style_submenu_element(z1, z1, url_render(&url, "limit", z2, 0, 0));
+  }
+  if( iLimit>20 ){
+    style_submenu_element("20 Ancestors", "20 Ancestors",
+       url_render(&url, "limit", "20", 0, 0));
+  }
+  if( db_get_boolean("white-foreground", 0) ){
+    clr1 = 0xa04040;
+    clr2 = 0x4059a0;
+  }else{
+    clr1 = 0xffb5b5;  /* Recent changes: red (hot) */
+    clr2 = 0xb5e0ff;  /* Older changes: blue (cold) */
+  }
+  for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+    clr = gradient_color(clr1, clr2, ann.nVers-1, i);
+    ann.aVers[i].zBgColor = mprintf("#%06x", clr);
+  }  
+
+  if( showLog ){
+    char *zLink = href("%R/finfo?name=%t&ci=%S",zFilename,zCI);
+    @ <h2>Ancestors of %z(zLink)%h(zFilename)</a> analyzed:</h2>
     @ <ol>
-    for(i=0; i<ann.nVers; i++){
-      @ <li><tt>%s(ann.azVers[i])</tt></li>
+    for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+      @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
+      @ check-in %z(href("%R/info/%S",p->zMUuid))%.10s(p->zMUuid)</a>
+      @ artifact %z(href("%R/artifact/%S",p->zFUuid))%.10s(p->zFUuid)</a>
+      @ </span>
+#if 0
+      if( i>0 ){
+        char *zLink = xhref("target='infowindow'",
+                            "%R/fdiff?v1=%S&v2=%S&sbs=1",
+                            p->zFUuid,ann.aVers[0].zFUuid);
+        @ %z(zLink)[diff-to-top]</a>
+        if( i>1 ){
+           zLink = xhref("target='infowindow'",
+                         "%R/fdiff?v1=%S&v2=%S&sbs=1",
+                         p->zFUuid,p[-1].zFUuid);
+           @ %z(zLink)[diff-to-previous]</a>
+        }
+      }
+#endif
     }
     @ </ol>
     @ <hr>
-    @ <h2>Annotation:</h2>
   }
-  if( showLn ){
-    sqlite3_snprintf(sizeof(zLn), zLn, "%d", ann.nOrig+1);
-    sqlite3_snprintf(sizeof(zFormat), zFormat, "%%%dd:", strlen(zLn));
+  if( !ann.bLimit ){
+    @ <h2>Origin for each line in 
+    @ %z(href("%R/finfo?name=%h&ci=%S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%S",zCI))%S(zCI)</a>:</h2>
+    iLimit = ann.nVers+10;
   }else{
-    zLn[0] = 0;
+    @ <h2>Lines added by the %d(iLimit) most recent ancestors of
+    @ %z(href("%R/finfo?name=%h&ci=%S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%S",zCI))%S(zCI)</a>:</h2>
   }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
-    ((char*)ann.aOrig[i].z)[ann.aOrig[i].n] = 0;
-    if( showLn ) sqlite3_snprintf(sizeof(zLn), zLn, zFormat, i+1);
-    @ %s(ann.aOrig[i].zSrc):%s(zLn) %h(ann.aOrig[i].z)
+    int iVers = ann.aOrig[i].iVers;
+    char *z = (char*)ann.aOrig[i].z;
+    int n = ann.aOrig[i].n;
+    char zPrefix[300];
+    z[n] = 0;
+    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
+    if( iVers>=0 ){
+      struct AnnVers *p = ann.aVers+iVers;
+      char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix,
+           "<span style='background-color:%s'>"
+           "%s%.10s</a> %s</span> %4d:",
+           p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
+      fossil_free(zLink);
+    }else{
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
+    }
+    @ %s(zPrefix) %h(z)
+
   }
   @ </pre>
   style_footer();
@@ -2344,9 +2538,9 @@ void annotation_page(void){
 ** the file was last modified.
 **
 ** Options:
-**   --limit N       Only look backwards in time by N versions
-**   --log           List all versions analyzed
 **   --filevers      Show file version numbers rather than check-in versions
+**   -l|--log        List all versions analyzed
+**   -n|--limit N    Only look backwards in time by N versions
 **
 ** See also: info, finfo, timeline
 */
@@ -2359,19 +2553,19 @@ void annotate_cmd(void){
   char *zFilename;  /* Canonical filename */
   Annotator ann;    /* The annotation of the file */
   int i;            /* Loop counter */
-  const char *zLimit; /* The value to the --limit option */
+  const char *zLimit; /* The value to the -n|--limit option */
   int iLimit;       /* How far back in time to look */
   int showLog;      /* True to show the log */
   int fileVers;     /* Show file version instead of check-in versions */
   int annFlags = 0; /* Flags to control annotation properties */
 
-  zLimit = find_option("limit",0,1);
+  zLimit = find_option("limit","n",1);
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
-  showLog = find_option("log",0,0)!=0;
+  showLog = find_option("log","l",0)!=0;
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
-  if (g.argc<3) {
+  if( g.argc<3 ) {
     usage("FILENAME");
   }
   file_tree_name(g.argv[2], &treename, 1);
@@ -2385,11 +2579,11 @@ void annotate_cmd(void){
     fossil_fatal("not part of current checkout: %s", zFilename);
   }
   cid = db_lget_int("checkout", 0);
-  if (cid == 0){
+  if( cid == 0 ){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(cid, iLimit);
+  compute_direct_ancestors(cid, 1000000);
   mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
           " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
           " ORDER BY ancestor.generation ASC LIMIT 1",
@@ -2397,16 +2591,85 @@ void annotate_cmd(void){
   if( mid==0 ){
     fossil_panic("unable to find manifest");
   }
-  if( fileVers ) annFlags |= ANN_FILE_VERS;
-  annotate_file(&ann, fnid, mid, 0, iLimit, annFlags);
+  annFlags |= ANN_FILE_ANCEST;
+  annotate_file(&ann, fnid, mid, iLimit, annFlags);
   if( showLog ){
-    for(i=0; i<ann.nVers; i++){
-      printf("version %3d: %s\n", i+1, ann.azVers[i]);
+    struct AnnVers *p;
+    for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+      fossil_print("version %3d: %s %.10s file %.10s\n",
+                   i+1, p->zDate, p->zMUuid, p->zFUuid);
     }
-    printf("---------------------------------------------------\n");
+    fossil_print("---------------------------------------------------\n");
   }
   for(i=0; i<ann.nOrig; i++){
-    fossil_print("%s: %.*s\n",
-                 ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
+    int iVers = ann.aOrig[i].iVers;
+    char *z = (char*)ann.aOrig[i].z;
+    int n = ann.aOrig[i].n;
+    char zPrefix[200];
+    z[n] = 0;
+    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
+    if( iVers>=0 ){
+      struct AnnVers *p = ann.aVers+iVers;
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%.10s %s",
+           fileVers ? p->zFUuid : p->zMUuid, p->zDate);
+    }else{
+      zPrefix[0] = 0;
+    }
+    fossil_print("%21s %4d: %.*s\n", zPrefix, i+1, n, z);
   }
+}
+
+/*
+** COMMAND: test-looks-like-utf
+**
+** Usage:  %fossil test-looks-like-utf FILENAME
+**
+** Options:
+**    --utf8           Ignoring BOM and file size, force UTF-8 checking
+**    --utf16          Ignoring BOM and file size, force UTF-16 checking
+**
+** FILENAME is the name of a file to check for textual content in the UTF-8
+** and/or UTF-16 encodings.
+*/
+void looks_like_utf_test_cmd(void){
+  Blob blob;     /* the contents of the specified file */
+  int fUtf8;     /* return value of starts_with_utf8_bom() */
+  int fUtf16;    /* return value of starts_with_utf16_bom() */
+  int fUnicode;  /* return value of could_be_utf16() */
+  int lookFlags; /* output flags from looks_like_utf8/utf16() */
+  int bRevUtf16 = 0; /* non-zero -> UTF-16 byte order reversed */
+  int bRevUnicode = 0; /* non-zero -> UTF-16 byte order reversed */
+  int fForceUtf8 = find_option("utf8",0,0)!=0;
+  int fForceUtf16 = find_option("utf16",0,0)!=0;
+  if( g.argc!=3 ) usage("FILENAME");
+  blob_read_from_file(&blob, g.argv[2]);
+  fUtf8 = starts_with_utf8_bom(&blob, 0);
+  fUtf16 = starts_with_utf16_bom(&blob, 0, &bRevUtf16);
+  if( fForceUtf8 ){
+    fUnicode = 0;
+  }else{
+    fUnicode = could_be_utf16(&blob, &bRevUnicode) || fForceUtf16;
+  }
+  lookFlags = fUnicode ? looks_like_utf16(&blob, bRevUnicode, 0) :
+                         looks_like_utf8(&blob, 0);
+  fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
+  fossil_print("Starts with UTF-8 BOM: %s\n",fUtf8?"yes":"no");
+  fossil_print("Starts with UTF-16 BOM: %s\n",
+               fUtf16?(bRevUtf16?"reversed":"yes"):"no");
+  fossil_print("Looks like UTF-%s: %s\n",fUnicode?"16":"8",
+               (lookFlags&LOOK_BINARY)?"no":"yes");
+  fossil_print("Has flag LOOK_NUL: %s\n",(lookFlags&LOOK_NUL)?"yes":"no");
+  fossil_print("Has flag LOOK_CR: %s\n",(lookFlags&LOOK_CR)?"yes":"no");
+  fossil_print("Has flag LOOK_LONE_CR: %s\n",
+               (lookFlags&LOOK_LONE_CR)?"yes":"no");
+  fossil_print("Has flag LOOK_LF: %s\n",(lookFlags&LOOK_LF)?"yes":"no");
+  fossil_print("Has flag LOOK_LONE_LF: %s\n",
+               (lookFlags&LOOK_LONE_LF)?"yes":"no");
+  fossil_print("Has flag LOOK_CRLF: %s\n",(lookFlags&LOOK_CRLF)?"yes":"no");
+  fossil_print("Has flag LOOK_LONG: %s\n",(lookFlags&LOOK_LONG)?"yes":"no");
+  fossil_print("Has flag LOOK_INVALID: %s\n",
+               (lookFlags&LOOK_INVALID)?"yes":"no");
+  fossil_print("Has flag LOOK_ODD: %s\n",(lookFlags&LOOK_ODD)?"yes":"no");
+  fossil_print("Has flag LOOK_SHORT: %s\n",(lookFlags&LOOK_SHORT)?"yes":"no");
+  blob_reset(&blob);
 }

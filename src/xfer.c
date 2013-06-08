@@ -23,6 +23,12 @@
 #include <time.h>
 
 /*
+** Maximum number of HTTP redirects that any http_exchange() call will
+** follow before throwing a fatal error. Most browsers use a limit of 20.
+*/
+#define MAX_REDIRECTS 20
+
+/*
 ** This structure holds information about the current state of either
 ** a client or a server that is participating in xfer.
 */
@@ -1375,7 +1381,7 @@ int client_sync(
   }else if( syncFlags & SYNC_PULL ){
     blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
     nCardSent++;
-    zOpType = "Pull";
+    zOpType = (syncFlags & SYNC_PUSH)?"Sync":"Pull";
   }
   if( syncFlags & SYNC_PUSH ){
     blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
@@ -1482,7 +1488,8 @@ int client_sync(
       fossil_print("waiting for server...");
     }
     fflush(stdout);
-    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0) ){
+    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0,
+        MAX_REDIRECTS) ){
       nErr++;
       break;
     }
@@ -1703,8 +1710,10 @@ int client_sync(
           syncFlags &= ~SYNC_PUSH;
           zMsg = 0;
         }
-        fossil_force_newline();
-        fossil_print("Server says: %s\n", zMsg);
+        if( zMsg && zMsg[0] ){
+          fossil_force_newline();
+          fossil_print("Server says: %s\n", zMsg);
+        }
       }else
 
       /*    pragma NAME VALUE...
@@ -1731,16 +1740,18 @@ int client_sync(
         if( (syncFlags & SYNC_CLONE)==0 || nCycle>0 ){
           char *zMsg = blob_terminate(&xfer.aToken[1]);
           defossilize(zMsg);
+          fossil_force_newline();
+          fossil_print("Error: %s\n", zMsg);
           if( fossil_strcmp(zMsg, "login failed")==0 ){
             if( nCycle<2 ){
-              if( !g.dontKeepUrl ) db_unset("last-sync-pw", 0);
+              g.urlPasswd = 0;
               go = 1;
+              if( g.cgiOutput==0 ) url_prompt_for_password();
             }
           }else{
-            blob_appendf(&xfer.err, "\rserver says: %s", zMsg);
+            blob_appendf(&xfer.err, "server says: %s\n", zMsg);
+            nErr++;
           }
-          fossil_warning("\rError: %s", zMsg);
-          nErr++;
           break;
         }
       }else
@@ -1755,10 +1766,11 @@ int client_sync(
           nErr++;
           break;
         }
-        blob_appendf(&xfer.err, "unknown command: [%b]", &xfer.aToken[0]);
+        blob_appendf(&xfer.err, "unknown command: [%b]\n", &xfer.aToken[0]);
       }
 
       if( blob_size(&xfer.err) ){
+        fossil_force_newline();
         fossil_warning("%b", &xfer.err);
         nErr++;
         break;

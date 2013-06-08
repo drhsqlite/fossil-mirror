@@ -56,7 +56,7 @@ complete source code and download it to your browser.
 <h2>2.0 Compiling</h2>
 
 <ol>
-<li value="6">
+<li value="5">
 <p>Unpack the ZIP or tarball you downloaded then
 <b>cd</b> into the directory created.</p></li>
 
@@ -103,7 +103,7 @@ change to the "win/" subdirectory ("<b>cd win</b>") then run
 <h2>3.0 Installing</h2>
 
 <ol>
-<li value="9">
+<li value="8">
 <p>The finished binary is named "fossil" (or "fossil.exe" on windows).  
 Put this binary in a 
 directory that is somewhere on your PATH environment variable.

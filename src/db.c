@@ -223,7 +223,7 @@ void db_force_rollback(void){
 */
 void db_commit_hook(int (*x)(void), int sequence){
   int i;
-  assert( db.nCommitHook < sizeof(db.aHook)/sizeof(db.aHook[1]) );
+  assert( db.nCommitHook < count(db.aHook) );
   for(i=0; i<db.nCommitHook; i++){
     assert( x!=db.aHook[i].xHook );
     if( db.aHook[i].sequence>sequence ){
@@ -771,11 +771,11 @@ void db_open_or_attach(
     assert( g.zMainDbType==0 );
     g.db = db_open(zDbName);
     g.zMainDbType = zLabel;
-    if ( pWasAttached ) *pWasAttached = 0;
+    if( pWasAttached ) *pWasAttached = 0;
   }else{
     assert( g.zMainDbType!=0 );
     db_attach(zDbName, zLabel);
-    if ( pWasAttached ) *pWasAttached = 1;
+    if( pWasAttached ) *pWasAttached = 1;
   }
 }
 
@@ -793,9 +793,9 @@ void db_open_or_attach(
 */
 void db_open_config(int useAttach){
   char *zDbName;
-  const char *zHome;
-  if( g.configOpen ) return;
-#if defined(_WIN32)
+  char *zHome;
+  if( g.zConfigDbName ) return;
+#if defined(_WIN32) || defined(__CYGWIN__)
   zHome = fossil_getenv("LOCALAPPDATA");
   if( zHome==0 ){
     zHome = fossil_getenv("APPDATA");
@@ -820,21 +820,23 @@ void db_open_config(int useAttach){
   if( file_isdir(zHome)!=1 ){
     fossil_fatal("invalid home directory: %s", zHome);
   }
-#ifndef _WIN32
-  if( access(zHome, W_OK) ){
-    fossil_fatal("home directory %s must be writeable", zHome);
-  }
-#endif
-  g.zHome = mprintf("%/", zHome);
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
 #else
+  if( file_access(zHome, W_OK) ){
+    fossil_fatal("home directory %s must be writeable", zHome);
+  }
   zDbName = mprintf("%s/.fossil", zHome);
 #endif
   if( file_size(zDbName)<1024*3 ){
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if( file_access(zDbName, W_OK) ){
+    fossil_fatal("configuration file %s must be writeable", zDbName);
+  }
+#endif
   if( useAttach ){
     db_open_or_attach(zDbName, "configdb", &g.useAttach);
     g.dbConfig = 0;
@@ -844,8 +846,7 @@ void db_open_config(int useAttach){
     g.dbConfig = db_open(zDbName);
     g.zConfigDbType = "configdb";
   }
-  g.configOpen = 1;
-  free(zDbName);
+  g.zConfigDbName = zDbName;
 }
 
 
@@ -884,6 +885,7 @@ static int isValidLocalDb(const char *zDbName){
   db_open_or_attach(zDbName, "localdb", 0);
   zVFileDef = db_text(0, "SELECT sql FROM %s.sqlite_master"
                          " WHERE name=='vfile'", db_name("localdb"));
+  if( zVFileDef==0 ) return 0;
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have
@@ -920,28 +922,27 @@ static int isValidLocalDb(const char *zDbName){
 ** For legacy, also look for ".fos".  The use of ".fos" is deprecated
 ** since "fos" has negative connotations in Hungarian, we are told.
 **
-** If no valid _FOSSIL_ or .fos file is found, we move up one level and
+** If no valid _FOSSIL_ or .fslckout file is found, we move up one level and
 ** try again. Once the file is found, the g.zLocalRoot variable is set
 ** to the root of the repository tree and this routine returns 1.  If
 ** no database is found, then this routine return 0.
 **
 ** This routine always opens the user database regardless of whether or
-** not the repository database is found.  If the _FOSSIL_ or .fos file
+** not the repository database is found.  If the _FOSSIL_ or .fslckout file
 ** is found, it is attached to the open database connection too.
 */
-int db_open_local(void){
+int db_open_local(const char *zDbName){
   int i, n;
   char zPwd[2000];
-  static const char *const aDbName[] = { "/_FOSSIL_", "/.fslckout", "/.fos" };
+  static const char aDbName[][10] = { "_FOSSIL_", ".fslckout", ".fos" };
 
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
   if( n==1 && zPwd[0]=='/' ) zPwd[0] = '.';
   while( n>0 ){
-    if( file_access(zPwd, W_OK) ) break;
-    for(i=0; i<sizeof(aDbName)/sizeof(aDbName[0]); i++){
-      sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "%s", aDbName[i]);
+    for(i=0; i<count(aDbName); i++){
+      sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
         zPwd[n] = 0;
@@ -952,7 +953,7 @@ int db_open_local(void){
         g.zLocalRoot = mprintf("%s/", zPwd);
         g.localOpen = 1;
         db_open_config(0);
-        db_open_repository(0);
+        db_open_repository(zDbName);
         return 1;
       }
     }
@@ -1045,7 +1046,7 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
     zRep = g.argv[nArgUsed];
   }
   if( zRep==0 ){
-    if( db_open_local()==0 ){
+    if( db_open_local(0)==0 ){
       goto rep_not_found;
     }
     zRep = db_repository_filename();
@@ -1131,14 +1132,14 @@ void move_repo_cmd(void){
   if( g.argc!=3 ){
     usage("PATHNAME");
   }
-  if( db_open_local()==0 ){
-    fossil_fatal("not in a local checkout");
-    return;
-  }
   file_canonical_name(g.argv[2], &repo, 0);
   zRepo = blob_str(&repo);
   if( file_access(zRepo, 0) ){
     fossil_fatal("no such file: %s", zRepo);
+  }
+  if( db_open_local(zRepo)==0 ){
+    fossil_fatal("not in a local checkout");
+    return;
   }
   db_open_or_attach(zRepo, "test_repo", 0);
   db_lset("repository", blob_str(&repo));
@@ -1150,7 +1151,7 @@ void move_repo_cmd(void){
 ** Open the local database.  If unable, exit with an error.
 */
 void db_must_be_within_tree(void){
-  if( db_open_local()==0 ){
+  if( db_open_local(0)==0 ){
     fossil_fatal("current directory is not within an open checkout");
   }
   db_open_repository(0);
@@ -1204,7 +1205,7 @@ void db_close(int reportErrors){
   }
   g.repositoryOpen = 0;
   g.localOpen = 0;
-  g.configOpen = 0;
+  g.zConfigDbName = NULL;
   sqlite3_wal_checkpoint(g.db, 0);
   sqlite3_close(g.db);
   g.db = 0;
@@ -1228,6 +1229,7 @@ void db_create_repository(const char *zFilename){
   db_init_database(
      zFilename,
      zRepositorySchema1,
+     zRepositorySchemaDefaultReports,
      zRepositorySchema2,
      (char*)0
   );
@@ -1250,6 +1252,9 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
     zUser = fossil_getenv("USERNAME");
 #else
     zUser = fossil_getenv("USER");
+    if( zUser==0 ){
+      zUser = fossil_getenv("LOGNAME");
+    }
 #endif
   }
   if( zUser==0 ){
@@ -1264,13 +1269,13 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   );
   if( !setupUserOnly ){
     db_multi_exec(
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('anonymous',hex(randomblob(8)),'hmncz','Anon');"
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('nobody','','gjor','Nobody');"
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('developer','','dei','Dev');"
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('reader','','kptw','Reader');"
     );
   }
@@ -1628,7 +1633,7 @@ char *db_reveal(const char *zKey){
 int is_truth(const char *zVal){
   static const char *const azOn[] = { "on", "yes", "true", "1" };
   int i;
-  for(i=0; i<sizeof(azOn)/sizeof(azOn[0]); i++){
+  for(i=0; i<count(azOn); i++){
     if( fossil_stricmp(zVal,azOn[i])==0 ) return 1;
   }
   return 0;
@@ -1636,7 +1641,7 @@ int is_truth(const char *zVal){
 int is_false(const char *zVal){
   static const char *const azOff[] = { "off", "no", "false", "0" };
   int i;
-  for(i=0; i<sizeof(azOff)/sizeof(azOff[0]); i++){
+  for(i=0; i<count(azOff); i++){
     if( fossil_stricmp(zVal,azOff[i])==0 ) return 1;
   }
   return 0;
@@ -1678,7 +1683,7 @@ void db_swap_connections(void){
 ** Returns the non-versioned value without modification if there is no
 ** versioned value.
 */
-static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
+char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
   char *zVersionedSetting = 0;
   int noWarn = 0;
   struct _cacheEntry {
@@ -1687,6 +1692,7 @@ static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting
   } *cacheEntry = 0;
   static struct _cacheEntry *cache = 0;
 
+  if( !g.localOpen) return zNonVersionedSetting;
   /* Look up name in cache */
   cacheEntry = cache;
   while( cacheEntry!=0 ){
@@ -1767,13 +1773,14 @@ char *db_get(const char *zName, char *zDefault){
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
   }
-  if( z==0 && g.configOpen ){
+  if( z==0 && g.zConfigDbName ){
     db_swap_connections();
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
   }
-  if( ctrlSetting!=0 && ctrlSetting->versionable && g.localOpen ){
-    /* This is a versionable setting, try and get the info from a checked out file */
+  if( ctrlSetting!=0 && ctrlSetting->versionable ){
+    /* This is a versionable setting, try and get the info from a
+    ** checked out file */
     z = db_get_do_versionable(zName, z);
   }
   if( z==0 ){
@@ -1813,7 +1820,7 @@ void db_unset(const char *zName, int globalFlag){
 }
 int db_is_global(const char *zName){
   int rc = 0;
-  if( g.configOpen ){
+  if( g.zConfigDbName ){
     db_swap_connections();
     rc = db_exists("SELECT 1 FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
@@ -1834,7 +1841,7 @@ int db_get_int(const char *zName, int dflt){
   }else{
     rc = SQLITE_DONE;
   }
-  if( rc==SQLITE_DONE && g.configOpen ){
+  if( rc==SQLITE_DONE && g.zConfigDbName ){
     db_swap_connections();
     v = db_int(dflt, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
@@ -1873,6 +1880,27 @@ int db_lget_int(const char *zName, int dflt){
 }
 void db_lset_int(const char *zName, int value){
   db_multi_exec("REPLACE INTO vvar(name,value) VALUES(%Q,%d)", zName, value);
+}
+
+/*
+** Returns non-0 if the database (which must be open) table identified
+** by zTableName has a column named zColName (case-sensitive), else
+** returns 0.
+*/
+int db_table_has_column( char const *zTableName, char const *zColName ){
+  Stmt q = empty_Stmt;
+  int rc = 0;
+  db_prepare( &q, "PRAGMA table_info(%Q)", zTableName );
+  while(SQLITE_ROW == db_step(&q)){
+    /* Columns: (cid, name, type, notnull, dflt_value, pk) */
+    char const * zCol = db_column_text(&q, 1);
+    if(0==fossil_strcmp(zColName, zCol)){
+      rc = 1;
+      break;
+    }
+  }
+  db_finalize(&q);
+  return rc;
 }
 
 /*
@@ -1943,7 +1971,6 @@ void db_record_repository_filename(const char *zName){
 ** See also: close
 */
 void cmd_open(void){
-  Blob path;
   int vid;
   int keepFlag;
   int allowNested;
@@ -1955,21 +1982,24 @@ void cmd_open(void){
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
-  if( !allowNested && db_open_local() ){
+  if( !allowNested && db_open_local(0) ){
     fossil_panic("already within an open tree rooted at %s", g.zLocalRoot);
   }
-  file_canonical_name(g.argv[2], &path, 0);
-  db_open_repository(blob_str(&path));
-#if defined(_WIN32)
+  db_open_repository(g.argv[2]);
+#if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
 #else
 # define LOCALDB_NAME "./.fslckout"
 #endif
-  db_init_database(LOCALDB_NAME, zLocalSchema, (char*)0);
+  db_init_database(LOCALDB_NAME, zLocalSchema,
+#ifdef FOSSIL_LOCAL_WAL
+                   "COMMIT; PRAGMA journal_mode=WAL; BEGIN;",
+#endif
+                   (char*)0);
   db_delete_on_failure(LOCALDB_NAME);
-  db_open_local();
+  db_open_local(0);
   db_lset("repository", g.argv[2]);
-  db_record_repository_filename(blob_str(&path));
+  db_record_repository_filename(g.argv[2]);
   vid = db_int(0, "SELECT pid FROM plink y"
                   " WHERE NOT EXISTS(SELECT 1 FROM plink x WHERE x.cid=y.pid)");
   if( vid==0 ){
@@ -1998,7 +2028,10 @@ void cmd_open(void){
 /*
 ** Print the value of a setting named zName
 */
-static void print_setting(const struct stControlSettings *ctrlSetting, int localOpen){
+static void print_setting(
+  const struct stControlSettings *ctrlSetting,
+  int localOpen
+){
   Stmt q;
   if( g.repositoryOpen ){
     db_prepare(&q,
@@ -2023,9 +2056,11 @@ static void print_setting(const struct stControlSettings *ctrlSetting, int local
     /* Check to see if this is overridden by a versionable settings file */
     Blob versionedPathname;
     blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s", g.zLocalRoot, ctrlSetting->name);
+    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s",
+                 g.zLocalRoot, ctrlSetting->name);
     if( file_size(blob_str(&versionedPathname))>=0 ){
-      fossil_print("  (overridden by contents of file .fossil-settings/%s)\n", ctrlSetting->name);
+      fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
+                   ctrlSetting->name);
     }
   }
   db_finalize(&q);
@@ -2059,25 +2094,29 @@ struct stControlSettings const ctrlSettings[] = {
   { "autosync",      0,                0, 0, "on"                  },
   { "binary-glob",   0,               40, 1, ""                    },
   { "clearsign",     0,                0, 0, "off"                 },
+#if defined(_WIN32) || defined(__CYGWIN__) || defined(__DARWIN__) || defined(__APPLE__)
+  { "case-sensitive",0,                0, 0, "off"                 },
+#else
   { "case-sensitive",0,                0, 0, "on"                  },
+#endif
+  { "clean-glob",    0,               40, 1, ""                    },
   { "crnl-glob",     0,               40, 1, ""                    },
   { "default-perms", 0,               16, 0, "u"                   },
   { "diff-binary",   0,                0, 0, "on"                  },
   { "diff-command",  0,               40, 0, ""                    },
   { "dont-push",     0,                0, 0, "off"                 },
   { "editor",        0,               32, 0, ""                    },
+  { "empty-dirs",    0,               40, 1, ""                    },
+  { "encoding-glob",  0,              40, 1, ""                    },
   { "gdiff-command", 0,               40, 0, "gdiff"               },
   { "gmerge-command",0,               40, 0, ""                    },
+  { "http-port",     0,               16, 0, "8080"                },
   { "https-login",   0,                0, 0, "off"                 },
   { "ignore-glob",   0,               40, 1, ""                    },
-  { "empty-dirs",    0,               40, 1, ""                    },
-  { "http-port",     0,               16, 0, "8080"                },
+  { "keep-glob",     0,               40, 1, ""                    },
   { "localauth",     0,                0, 0, "off"                 },
   { "main-branch",   0,               40, 0, "trunk"               },
   { "manifest",      0,                0, 1, "off"                 },
-#ifdef FOSSIL_ENABLE_MARKDOWN
-  { "markdown",      0,                0, 0, "off"                 },
-#endif
   { "max-upload",    0,               25, 0, "250000"              },
   { "mtime-changes", 0,                0, 0, "on"                  },
   { "pgp-command",   0,               40, 0, "gpg --clearsign -o " },
@@ -2085,15 +2124,14 @@ struct stControlSettings const ctrlSettings[] = {
   { "relative-paths",0,                0, 0, "on"                  },
   { "repo-cksum",    0,                0, 0, "on"                  },
   { "self-register", 0,                0, 0, "off"                 },
+  { "ssh-command",   0,               40, 0, ""                    },
   { "ssl-ca-location",0,              40, 0, ""                    },
   { "ssl-identity",  0,               40, 0, ""                    },
-  { "ssh-command",   0,               40, 0, ""                    },
-  { "th1-setup",     0,               40, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",           0,                0, 0, "off"                 },
   { "tcl-setup",     0,               40, 0, ""                    },
 #endif
-  { "unicode-glob",  0,               40, 1, ""                    },
+  { "th1-setup",     0,               40, 0, ""                    },
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
   { 0,0,0,0,0 }
@@ -2151,15 +2189,20 @@ struct stControlSettings const ctrlSettings[] = {
 **    case-sensitive   If TRUE, the files whose names differ only in case
 **                     care considered distinct.  If FALSE files whose names
 **                     differ only in case are the same file.  Defaults to
-**                     TRUE for unix and FALSE for windows and mac.
+**                     TRUE for unix and FALSE for Cygwin, Mac and Windows.
+**
+**    clean-glob       The VALUE is a comma or newline-separated list of GLOB
+**     (versionable)   patterns specifying files that the "clean" command will
+**                     delete without prompting even when the -force flag has
+**                     not been used.  Example:  *.a *.lib *.o
 **
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
 **                     be unsigned.  Default: off
 **
 **    crnl-glob        A comma or newline-separated list of GLOB patterns for
-**     (versionable)   text files in which it is ok to have CR+NL line endings.
-**                     Set to "*" to disable CR+NL checking.
+**     (versionable)   text files in which it is ok to have CR, CR+NL or mixed
+**                     line endings. Set to "*" to disable CR+NL checking.
 **
 **    default-perms    Permissions given automatically to new users.  For more
 **                     information on permissions see Users page in Server
@@ -2182,6 +2225,12 @@ struct stControlSettings const ctrlSettings[] = {
 **                     exists with that name, an empty directory will be
 **                     created.
 **
+**    encoding-glob    The VALUE is a comma or newline-separated list of GLOB
+**     (versionable)   patterns specifying files that the "commit" command will
+**                     ignore when issuing warnings about text files that may
+**                     use another encoding than ASCII or UTF-8. Set to "*"
+**                     to disable encoding checking.
+**
 **    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
 **
@@ -2198,8 +2247,13 @@ struct stControlSettings const ctrlSettings[] = {
 **                     even if the login page request came via HTTP.
 **
 **    ignore-glob      The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "extra" command will
-**                     ignore.  Example:  *.o,*.obj,*.exe
+**     (versionable)   patterns specifying files that the "add", "addremove",
+**                     "clean", and "extra" commands will ignore.
+**                     Example:  *.log customCode.c notes.txt
+**
+**    keep-glob        The VALUE is a comma or newline-separated list of GLOB
+**     (versionable)   patterns specifying files that the "clean" command will
+**                     keep.
 **
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If
@@ -2211,11 +2265,6 @@ struct stControlSettings const ctrlSettings[] = {
 **    manifest         If enabled, automatically create files "manifest" and
 **     (versionable)   "manifest.uuid" in every checkout.  The SQLite and
 **                     Fossil repositories both require this.  Default: off.
-**
-**    markdown         If enabled (and Fossil was compiled with markdown
-**                     support), the markdown engine will be used to render
-**                     embedded documentation conforming to the appropriate
-**                     content types (e.g. "text/x-markdown"). Default: off.
 **
 **    max-upload       A limit on the size of uplink HTTP requests.  The
 **                     default is 250000 bytes.
@@ -2280,11 +2329,6 @@ struct stControlSettings const ctrlSettings[] = {
 **                     and initializing the TH1 interpreter.  By default, this
 **                     is empty and no extra setup is performed.
 **
-**    unicode-glob     The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "commit" command will
-**                     ignore when issuing warnings about text files that may
-**                     contain Unicode. Set to "*" to disable Unicode checking.
-**
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.
 **                     Defaults to "start" on windows, "open" on Mac,
@@ -2311,7 +2355,7 @@ void setting_cmd(void){
     usage("PROPERTY ?-global?");
   }
   if( g.argc==2 ){
-    int openLocal = db_open_local();
+    int openLocal = db_open_local(0);
     for(i=0; ctrlSettings[i].name; i++){
       print_setting(&ctrlSettings[i], openLocal);
     }
@@ -2335,7 +2379,7 @@ void setting_cmd(void){
       db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
     }else{
       isManifest = 0;
-      print_setting(&ctrlSettings[i], db_open_local());
+      print_setting(&ctrlSettings[i], db_open_local(0));
     }
     if( isManifest && g.localOpen ){
       manifest_to_disk(db_lget_int("checkout", 0));

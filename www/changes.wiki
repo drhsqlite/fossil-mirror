@@ -1,6 +1,22 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.25 (2012-12-19)</h2>
+<h2>Changes For Version 1.26 (as yet unreleased)</h2>
+  *  Win32: Fossil now understands Cygwin paths containing one or more of
+     the characters <nowiki>"*:<>?|</nowiki>. Those are normally forbidden in
+     win32. This means that the win32 fossil.exe is better usable in a Cygwin
+     environment. See
+     [http://cygwin.com/cygwin-ug-net/using-specialnames.html#pathnames-specialchars].
+  *  Cygwin: Fossil now understands win32 absolute paths starting with a drive
+     letter everywhere. The default value of the "case-sensitive" setting is
+     now FALSE, except when case-sensitivity is enabled in the Windows kernel.
+     See
+     [http://cygwin.com/cygwin-ug-net/using-specialnames.html#pathnames-casesensitive]
+  *  Enhancements to /timeline.rss, adding more flags for filtering
+     results, including the ability to subscribe to changes made
+     to individual tickets. For example: [/timeline.rss?y=t&tkt=12fceeec82].
+  *  JSON API: added the 'status' command to report local checkout status.
+
+<h2>Changes For Version 1.25 (2013-02-16)</h2>
   *  Enhancements to ticket processing. There are now two tables: TICKET and
      TICKETCHNG. There is one row in TICKETCHNG for each ticket artifact.
      Fields from ticket artifacts go into either or both of TICKET and
@@ -83,6 +99,12 @@
   *  Prompt the user with the option to convert non-UTF8 files into UTF8
      when committing.
   *  Allow the characters <nowiki>*[]?</nowiki> in filenames.
+  *  Allow the --context option on diff commands to have a value of 0.
+  *  Added the "dbstat" command.
+  *  Enhanced "fossil merge" so that if the VERSION argument is omitted, Fossil
+     tries to merge any forks of the current branch.
+  *  Improved detection of forks in a commit race.
+  *  Added the --analyze option to "fossil rebuild".
 
 <h2>Changes For Version 1.24 (2012-10-22)</h2>
   *  Added support for WYSIWYG editing of wiki pages. WYSIWYG is turned off

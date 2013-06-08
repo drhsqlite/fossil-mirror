@@ -1015,7 +1015,6 @@ static void startAutoParagraph(Renderer *p){
   if( p->state & WIKI_LINKSONLY ) return;
   if( p->wikiList==MARKUP_OL || p->wikiList==MARKUP_UL ) return;
   blob_appendf(p->pOut, "<p>", -1);
-  pushStack(p, MARKUP_P);
   p->wantAutoParagraph = 0;
   p->inAutoParagraph = 1;
 }
@@ -1025,7 +1024,6 @@ static void startAutoParagraph(Renderer *p){
 */
 static void endAutoParagraph(Renderer *p){
   if( p->inAutoParagraph ){
-    popStackToTag(p, MARKUP_P);
     p->inAutoParagraph = 0;
   }
 }

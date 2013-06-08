@@ -65,6 +65,7 @@ set src {
   json_login
   json_query
   json_report
+  json_status
   json_tag
   json_timeline
   json_user
@@ -112,6 +113,7 @@ set src {
   url
   user
   utf8
+  util
   verify
   vfile
   wiki
@@ -270,7 +272,7 @@ writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(
 writeln "\t\$(OBJDIR)/makeheaders $mhargs"
 writeln "\ttouch \$(OBJDIR)/headers"
 writeln "\$(OBJDIR)/headers: Makefile"
-writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/json_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h"
+writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/json_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h"
 writeln "Makefile:"
 set extra_h(main) \$(OBJDIR)/page_index.h
 
@@ -380,10 +382,6 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_JSON = 1
 
-#### Enable markdown support
-#
-# FOSSIL_ENABLE_MARKDOWN = 1
-
 #### Enable HTTPS support via OpenSSL (links to libssl and libcrypto)
 #
 # FOSSIL_ENABLE_SSL = 1
@@ -420,8 +418,8 @@ ZLIBDIR = $(SRCDIR)/../compat/zlib
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../openssl-1.0.1c/include
-OPENSSLLIBDIR = $(SRCDIR)/../openssl-1.0.1c
+OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1e/include
+OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1e
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -523,12 +521,6 @@ endif
 ifdef FOSSIL_ENABLE_JSON
 TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
-endif
-
-# With markdown support
-ifdef FOSSIL_ENABLE_MARKDOWN
-TCC += -DFOSSIL_ENABLE_MARKDOWN=1
-RCC += -DFOSSIL_ENABLE_MARKDOWN=1
 endif
 
 #### We add the -static option here so that we can build a static
@@ -754,7 +746,7 @@ writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 set opt {}
 writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
-writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
+writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 set opt {-Dmain=sqlite3_shell}
@@ -902,6 +894,7 @@ $(OBJDIR)\json_finfo$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_login$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_query$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_report$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_status$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_tag$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h
@@ -951,40 +944,46 @@ OX     = .
 O      = .obj
 E      = .exe
 
-# Uncomment below for SSL support
-SSL =
-SSLLIB =
-# SSL = -DFOSSIL_ENABLE_SSL=1
-# SSLLIB  = ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
+# Uncomment to enable JSON API
+# FOSSIL_ENABLE_JSON = 1
+
+# Uncomment to enable SSL support
+# FOSSIL_ENABLE_SSL = 1
+
+!ifdef FOSSIL_ENABLE_SSL
+SSLINCDIR = $(B)\compat\openssl-1.0.1e\include
+SSLLIBDIR = $(B)\compat\openssl-1.0.1e\out32
+SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
+!endif
 
 # zlib options
 ZINCDIR = $(B)\compat\zlib
 ZLIBDIR = $(B)\compat\zlib
 ZLIB    = zlib.lib
 
-# Uncomment to enable JSON API
-# FOSSIL_ENABLE_JSON = 1
-
-# Uncomment to enable markdown support
-# FOSSIL_ENABLE_MARKDOWN = 1
-
 INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
+
+!ifdef FOSSIL_ENABLE_SSL
+INCL   = $(INCL) -I$(SSLINCDIR)
+!endif
 
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
-TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
-RCC    = rc -D_WIN32 -D_MSC_VER $(INCL)
-LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
+TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(INCL)
+RCC    = rc -D_WIN32 -D_MSC_VER $(MSCDEF) $(INCL)
+LIBS   = $(ZLIB) ws2_32.lib advapi32.lib
 LIBDIR = -LIBPATH:$(ZLIBDIR)
 
 !ifdef FOSSIL_ENABLE_JSON
-TCC = $(TCC) -DFOSSIL_ENABLE_JSON
-RCC = $(RCC) -DFOSSIL_ENABLE_JSON
+TCC = $(TCC) -DFOSSIL_ENABLE_JSON=1
+RCC = $(RCC) -DFOSSIL_ENABLE_JSON=1
 !endif
 
-!ifdef FOSSIL_ENABLE_MARKDOWN
-TCC = $(TCC) -DFOSSIL_ENABLE_MARKDOWN
-RCC = $(RCC) -DFOSSIL_ENABLE_MARKDOWN
+!ifdef FOSSIL_ENABLE_SSL
+TCC    = $(TCC) -DFOSSIL_ENABLE_SSL=1
+RCC    = $(RCC) -DFOSSIL_ENABLE_SSL=1
+LIBS   = $(LIBS) $(SSLLIB)
+LIBDIR = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
 !endif
 }
 regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS
@@ -1098,6 +1097,7 @@ $(OBJDIR)\json_finfo$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_login$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_query$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_report$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_status$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_tag$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h

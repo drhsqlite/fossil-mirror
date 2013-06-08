@@ -105,8 +105,14 @@ FSL_JSON_E_DB_LOCKED /*+4*/,
 
 FSL_JSON_E_DB_NEEDS_REBUILD = FSL_JSON_E_DB + 101,
 FSL_JSON_E_DB_NOT_FOUND = FSL_JSON_E_DB + 102,
-FSL_JSON_E_DB_NOT_VALID = FSL_JSON_E_DB + 103
-
+FSL_JSON_E_DB_NOT_VALID = FSL_JSON_E_DB + 103,
+/*
+** Maintenance reminder: FSL_JSON_E_DB_NOT_FOUND gets triggered in the
+** bootstrapping process before we know whether we need to check for
+** FSL_JSON_E_DB_NEEDS_CHECKOUT. Thus the former error trumps the
+** latter.
+*/
+FSL_JSON_E_DB_NEEDS_CHECKOUT = FSL_JSON_E_DB + 104
 };
 
 
@@ -179,9 +185,6 @@ typedef struct JsonPageDef{
   ** Now that we can simulate POST in CLI mode, the distinction
   ** between them has disappeared in most (or all) cases, so 0 is
   ** the standard value.
-  **
-  ** 201207: this is not needed any more. We can get rid of it. Or
-  ** keep it around in case it becomes useful again at some point.
   */
   char runMode;
 } JsonPageDef;
@@ -201,7 +204,7 @@ typedef struct FossilJsonKeys_{
   char const * resultText;
   char const * timestamp;
 } FossilJsonKeys_;
-const FossilJsonKeys_ FossilJsonKeys;
+extern const FossilJsonKeys_ FossilJsonKeys;
 
 /*
 ** A page/command dispatch helper for fossil_json_f() implementations.
