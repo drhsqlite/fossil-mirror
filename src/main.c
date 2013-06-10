@@ -552,7 +552,7 @@ int main(int argc, char **argv)
     fossil_print(
        "Usage: %s COMMAND ...\n"
        "   or: %s help           -- for a list of common commands\n"
-       "   or: %s help COMMMAND  -- for help with the named command\n",
+       "   or: %s help COMMAND   -- for help with the named command\n",
        g.argv[0], g.argv[0], g.argv[0]);
     fossil_print(
       "\nCommands and filenames may be passed on to fossil from a file\n"
