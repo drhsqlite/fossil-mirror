@@ -1,4 +1,7 @@
 #ifdef FOSSIL_ENABLE_JSON
+#ifndef CSON_FOSSIL_MODE
+#define CSON_FOSSIL_MODE
+#endif
 /* auto-generated! Do not edit! */
 /* begin file include/wh/cson/cson.h */
 #if !defined(WANDERINGHORSE_NET_CSON_H_INCLUDED)
@@ -1238,7 +1241,10 @@ int cson_array_append( cson_array * ar, cson_value * v );
    ownership to the container. See the cson_value class documentation
    for more details.
 
-   Returns NULL on allocation error.
+   Semantically speaking this function Returns NULL on allocation
+   error, but the implementation never actually allocates for this
+   case. Nonetheless, it must be treated as if it were an allocated
+   value.
 */
 cson_value * cson_value_new_bool( char v );
 
@@ -1929,7 +1935,8 @@ int cson_parse_buffer( cson_value ** tgt, cson_buffer const * buf,
    buf->mem is owned by buf and must eventually be freed by passing an
    n value of 0 to this function.
 
-   buf->used is never modified by this function.
+   buf->used is never modified by this function unless n is 0, in which case
+   it is reset.
 */
 int cson_buffer_reserve( cson_buffer * buf, cson_size_t n );
 

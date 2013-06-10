@@ -70,6 +70,7 @@ struct Manifest {
   char *zRepoCksum;     /* MD5 checksum of the baseline content.  R card. */
   char *zWiki;          /* Text of the wiki page.  W card. */
   char *zWikiTitle;     /* Name of the wiki page. L card. */
+  char *zMimetype;      /* Mime type of wiki or comment text.  N card.  */
   double rEventDate;    /* Date of an event.  E card. */
   char *zEventId;       /* UUID for an event.  E card. */
   char *zTicketUuid;    /* UUID for a ticket. K card. */
@@ -310,21 +311,28 @@ static char next_card(ManifestText *p){
 }
 
 /*
+** Shorthand for a control-artifact parsing error
+*/
+#define SYNTAX(T)  {zErr=(T); goto manifest_syntax_error;}
+
+/*
 ** Parse a blob into a Manifest object.  The Manifest object
 ** takes over the input blob and will free it when the
 ** Manifest object is freed.  Zeros are inserted into the blob
 ** as string terminators so that blob should not be used again.
 **
-** Return TRUE if the content really is a control file of some
-** kind.  Return FALSE if there are syntax errors.
+** Return a pointer to an allocated Manifest object if the content
+** really is a control file of some kind.  This object needs to be
+** freed by a subsequent call to manifest_destroy().  Return NULL
+** if there are syntax errors.
 **
 ** This routine is strict about the format of a control file.
 ** The format must match exactly or else it is rejected.  This
 ** rule minimizes the risk that a content file will be mistaken
 ** for a control file simply because they look the same.
 **
-** The pContent is reset.  If TRUE is returned, then pContent will
-** be reset when the Manifest object is cleared.  If FALSE is
+** The pContent is reset.  If a pointer is returned, then pContent will
+** be reset when the Manifest object is cleared.  If NULL is
 ** returned then the Manifest object is cleared automatically
 ** and pContent is reset before the return.
 **
@@ -336,7 +344,7 @@ static char next_card(ManifestText *p){
 ** The card type determines the other parameters to the card.
 ** Cards must occur in lexicographical order.
 */
-Manifest *manifest_parse(Blob *pContent, int rid){
+Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   Manifest *p;
   int seenZ = 0;
   int i, lineNo=0;
@@ -349,6 +357,7 @@ Manifest *manifest_parse(Blob *pContent, int rid){
   int sz = 0;
   int isRepeat;
   static Bag seen;
+  const char *zErr = 0;
 
   if( rid==0 ){
     isRepeat = 1;
@@ -367,6 +376,7 @@ Manifest *manifest_parse(Blob *pContent, int rid){
   n = blob_size(pContent);
   if( n<=0 || z[n-1]!='\n' ){
     blob_reset(pContent);
+    blob_appendf(pErr, n ? "not terminated with \\n" : "zero-length");
     return 0;
   }
 
@@ -374,8 +384,9 @@ Manifest *manifest_parse(Blob *pContent, int rid){
   ** Z-card.
   */
   remove_pgp_signature(&z, &n);
-  if( verify_z_card(z, n)==0 ){
+  if( verify_z_card(z, n)==2 ){
     blob_reset(pContent);
+    blob_appendf(pErr, "incorrect Z-card cksum");
     return 0;
   }
 
@@ -384,6 +395,7 @@ Manifest *manifest_parse(Blob *pContent, int rid){
   */
   if( n<10 || z[0]<'A' || z[0]>'Z' || z[1]!=' ' ){
     blob_reset(pContent);
+    blob_appendf(pErr, "line 1 not recognized");
     return 0;
   }
 
@@ -421,16 +433,16 @@ Manifest *manifest_parse(Blob *pContent, int rid){
         if( zName==0 || zTarget==0 ) goto manifest_syntax_error;      
         if( p->zAttachName!=0 ) goto manifest_syntax_error;
         defossilize(zName);
-        if( !file_is_simple_pathname(zName) ){
-          goto manifest_syntax_error;
+        if( !file_is_simple_pathname(zName, 0) ){
+          SYNTAX("invalid filename on A-card");
         }
         defossilize(zTarget);
         if( (nTarget!=UUID_SIZE || !validate16(zTarget, UUID_SIZE))
            && !wiki_name_is_wellformed((const unsigned char *)zTarget) ){
-          goto manifest_syntax_error;
+          SYNTAX("invalid target on A-card");
         }
         if( zSrc && (nSrc!=UUID_SIZE || !validate16(zSrc, UUID_SIZE)) ){
-          goto manifest_syntax_error;
+          SYNTAX("invalid source on A-card");
         }
         p->zAttachName = (char*)file_tail(zName);
         p->zAttachSrc = zSrc;
@@ -441,14 +453,15 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       /*
       **    B <uuid>
       **
-      ** A B-line gives the UUID for the baselinen of a delta-manifest.
+      ** A B-line gives the UUID for the baseline of a delta-manifest.
       */
       case 'B': {
-        if( p->zBaseline ) goto manifest_syntax_error;
+        if( p->zBaseline ) SYNTAX("more than one B-card");
         p->zBaseline = next_token(&x, &sz);
-        if( p->zBaseline==0 ) goto manifest_syntax_error;
-        if( sz!=UUID_SIZE ) goto manifest_syntax_error;
-        if( !validate16(p->zBaseline, UUID_SIZE) ) goto manifest_syntax_error;
+        if( p->zBaseline==0 ) SYNTAX("missing UUID on B-card");
+        if( sz!=UUID_SIZE || !validate16(p->zBaseline, UUID_SIZE) ){
+          SYNTAX("invalid UUID on B-card");
+        }
         break;
       }
 
@@ -461,9 +474,9 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       ** disallowed on all other control files.
       */
       case 'C': {
-        if( p->zComment!=0 ) goto manifest_syntax_error;
+        if( p->zComment!=0 ) SYNTAX("more than one C-card");
         p->zComment = next_token(&x, 0);
-        if( p->zComment==0 ) goto manifest_syntax_error;
+        if( p->zComment==0 ) SYNTAX("missing comment text on C-card");
         defossilize(p->zComment);
         break;
       }
@@ -476,9 +489,9 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       ** for all control files except for clusters.
       */
       case 'D': {
-        if( p->rDate>0.0 ) goto manifest_syntax_error;
+        if( p->rDate>0.0 ) SYNTAX("more than one D-card");
         p->rDate = db_double(0.0, "SELECT julianday(%Q)", next_token(&x,0));
-        if( p->rDate<=0.0 ) goto manifest_syntax_error;
+        if( p->rDate<=0.0 ) SYNTAX("cannot parse date on D-card");
         break;
       }
 
@@ -492,12 +505,13 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       ** is when the specific event is said to occur.
       */
       case 'E': {
-        if( p->rEventDate>0.0 ) goto manifest_syntax_error;
+        if( p->rEventDate>0.0 ) SYNTAX("more than one E-card");
         p->rEventDate = db_double(0.0,"SELECT julianday(%Q)", next_token(&x,0));
-        if( p->rEventDate<=0.0 ) goto manifest_syntax_error;
+        if( p->rEventDate<=0.0 ) SYNTAX("malformed date on E-card");
         p->zEventId = next_token(&x, &sz);
-        if( sz!=UUID_SIZE ) goto manifest_syntax_error;
-        if( !validate16(p->zEventId, UUID_SIZE) ) goto manifest_syntax_error;
+        if( sz!=UUID_SIZE || !validate16(p->zEventId, UUID_SIZE) ){
+          SYNTAX("malformed UUID on E-card");
+        }
         break;
       }
 
@@ -511,22 +525,22 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       case 'F': {
         char *zName, *zPerm, *zPriorName;
         zName = next_token(&x,0);
-        if( zName==0 ) goto manifest_syntax_error;
+        if( zName==0 ) SYNTAX("missing filename on F-card");
         defossilize(zName);
-        if( !file_is_simple_pathname(zName) ){
-          goto manifest_syntax_error;
+        if( !file_is_simple_pathname(zName, 0) ){
+          SYNTAX("F-card filename is not a simple path");
         }
         zUuid = next_token(&x, &sz);
         if( p->zBaseline==0 || zUuid!=0 ){
-          if( sz!=UUID_SIZE ) goto manifest_syntax_error;
-          if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+          if( sz!=UUID_SIZE ) SYNTAX("F-card UUID is the wrong size");
+          if( !validate16(zUuid, UUID_SIZE) ) SYNTAX("F-card UUID invalid");
         }
         zPerm = next_token(&x,0);
         zPriorName = next_token(&x,0);
         if( zPriorName ){
           defossilize(zPriorName);
-          if( !file_is_simple_pathname(zPriorName) ){
-            goto manifest_syntax_error;
+          if( !file_is_simple_pathname(zPriorName, 0) ){
+            SYNTAX("F-card old filename is not a simple path");
           }
         }
         if( p->nFile>=p->nFileAlloc ){
@@ -540,7 +554,7 @@ Manifest *manifest_parse(Blob *pContent, int rid){
         p->aFile[i].zPerm = zPerm;
         p->aFile[i].zPrior = zPriorName;
         if( i>0 && fossil_strcmp(p->aFile[i-1].zName, zName)>=0 ){
-          goto manifest_syntax_error;
+          SYNTAX("incorrect F-card sort order");
         }
         break;
       }
@@ -557,7 +571,7 @@ Manifest *manifest_parse(Blob *pContent, int rid){
         char *zName, *zValue;
         zName = next_token(&x,0);
         zValue = next_token(&x,0);
-        if( zName==0 ) goto manifest_syntax_error;
+        if( zName==0 ) SYNTAX("name missing from J-card");
         if( zValue==0 ) zValue = "";
         defossilize(zValue);
         if( p->nField>=p->nFieldAlloc ){
@@ -569,7 +583,7 @@ Manifest *manifest_parse(Blob *pContent, int rid){
         p->aField[i].zName = zName;
         p->aField[i].zValue = zValue;
         if( i>0 && fossil_strcmp(p->aField[i-1].zName, zName)>=0 ){
-          goto manifest_syntax_error;
+          SYNTAX("incorrect J-card sort order");
         }
         break;
       }
@@ -582,10 +596,12 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       ** is amending.
       */
       case 'K': {
-        if( p->zTicketUuid!=0 ) goto manifest_syntax_error;
+        if( p->zTicketUuid!=0 ) SYNTAX("more than one K-card");
         p->zTicketUuid = next_token(&x, &sz);
-        if( sz!=UUID_SIZE ) goto manifest_syntax_error;
-        if( !validate16(p->zTicketUuid, UUID_SIZE) ) goto manifest_syntax_error;
+        if( sz!=UUID_SIZE ) SYNTAX("K-card UUID is the wrong size");
+        if( !validate16(p->zTicketUuid, UUID_SIZE) ){
+          SYNTAX("invalid K-card UUID");
+        }
         break;
       }
 
@@ -596,12 +612,12 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       ** one L line.
       */
       case 'L': {
-        if( p->zWikiTitle!=0 ) goto manifest_syntax_error;
+        if( p->zWikiTitle!=0 ) SYNTAX("more than one L-card");
         p->zWikiTitle = next_token(&x,0);
-        if( p->zWikiTitle==0 ) goto manifest_syntax_error;
+        if( p->zWikiTitle==0 ) SYNTAX("missing title on L-card");
         defossilize(p->zWikiTitle);
         if( !wiki_name_is_wellformed((const unsigned char *)p->zWikiTitle) ){
-          goto manifest_syntax_error;
+          SYNTAX("L-card has malformed wiki name");
         }
         break;
       }
@@ -614,9 +630,9 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       */
       case 'M': {
         zUuid = next_token(&x, &sz);
-        if( zUuid==0 ) goto manifest_syntax_error;
-        if( sz!=UUID_SIZE ) goto manifest_syntax_error;
-        if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+        if( zUuid==0 ) SYNTAX("missing UUID on M-card");
+        if( sz!=UUID_SIZE ) SYNTAX("wrong size for UUID on M-card");
+        if( !validate16(zUuid, UUID_SIZE) ) SYNTAX("UUID invalid on M-card");
         if( p->nCChild>=p->nCChildAlloc ){
           p->nCChildAlloc = p->nCChildAlloc*2 + 10;
           p->azCChild = fossil_realloc(p->azCChild
@@ -625,8 +641,21 @@ Manifest *manifest_parse(Blob *pContent, int rid){
         i = p->nCChild++;
         p->azCChild[i] = zUuid;
         if( i>0 && fossil_strcmp(p->azCChild[i-1], zUuid)>=0 ){
-          goto manifest_syntax_error;
+          SYNTAX("M-card in the wrong order");
         }
+        break;
+      }
+
+      /*
+      **    N <uuid>
+      **
+      ** An N-line identifies the mimetype of wiki or comment text.
+      */
+      case 'N': {
+        if( p->zMimetype!=0 ) SYNTAX("more than one N-card");
+        p->zMimetype = next_token(&x,0);
+        if( p->zMimetype==0 ) SYNTAX("missing mimetype on N-card");
+        defossilize(p->zMimetype);
         break;
       }
 
@@ -639,8 +668,8 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       */
       case 'P': {
         while( (zUuid = next_token(&x, &sz))!=0 ){
-          if( sz!=UUID_SIZE ) goto manifest_syntax_error;
-          if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+          if( sz!=UUID_SIZE ) SYNTAX("wrong size UUID on P-card");
+          if( !validate16(zUuid, UUID_SIZE) )SYNTAX("invalid UUID on P-card");
           if( p->nParent>=p->nParentAlloc ){
             p->nParentAlloc = p->nParentAlloc*2 + 5;
             p->azParent = fossil_realloc(p->azParent,
@@ -659,10 +688,14 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       ** this checkin ("+") or backed out of this checkin ("-").
       */
       case 'Q': {
-        if( (zUuid = next_token(&x, &sz))==0 ) goto manifest_syntax_error;
-        if( sz!=UUID_SIZE+1 ) goto manifest_syntax_error;
-        if( zUuid[0]!='+' && zUuid[0]!='-' ) goto manifest_syntax_error;
-        if( !validate16(&zUuid[1], UUID_SIZE) ) goto manifest_syntax_error;
+        if( (zUuid=next_token(&x, &sz))==0 ) SYNTAX("missing UUID on Q-card");
+        if( sz!=UUID_SIZE+1 ) SYNTAX("wrong size UUID on Q-card");
+        if( zUuid[0]!='+' && zUuid[0]!='-' ){
+          SYNTAX("Q-card does not begin with '+' or '-'");
+        }
+        if( !validate16(&zUuid[1], UUID_SIZE) ){
+          SYNTAX("invalid UUID on Q-card");
+        }
         n = p->nCherrypick;
         p->nCherrypick++;
         p->aCherrypick = fossil_realloc(p->aCherrypick,
@@ -670,8 +703,10 @@ Manifest *manifest_parse(Blob *pContent, int rid){
         p->aCherrypick[n].zCPTarget = zUuid;
         p->aCherrypick[n].zCPBase = zUuid = next_token(&x, &sz);
         if( zUuid ){
-          if( sz!=UUID_SIZE ) goto manifest_syntax_error;
-          if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+          if( sz!=UUID_SIZE ) SYNTAX("wrong size second UUID in Q-card");
+          if( !validate16(zUuid, UUID_SIZE) ){
+            SYNTAX("invalid second UUID on Q-card");
+          }
         }
         break;
       }
@@ -683,10 +718,10 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       ** in the manifest.
       */
       case 'R': {
-        if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
+        if( p->zRepoCksum!=0 ) SYNTAX("more than on R-card");
         p->zRepoCksum = next_token(&x, &sz);
-        if( sz!=32 ) goto manifest_syntax_error;
-        if( !validate16(p->zRepoCksum, 32) ) goto manifest_syntax_error;
+        if( sz!=32 ) SYNTAX("wrong size cksum on R-card");
+        if( !validate16(p->zRepoCksum, 32) ) SYNTAX("malformed R-card cksum");
         break;
       }
 
@@ -708,9 +743,9 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       case 'T': {
         char *zName, *zValue;
         zName = next_token(&x, 0);
-        if( zName==0 ) goto manifest_syntax_error;
+        if( zName==0 ) SYNTAX("missing name on T-card");
         zUuid = next_token(&x, &sz);
-        if( zUuid==0 ) goto manifest_syntax_error;
+        if( zUuid==0 ) SYNTAX("missing UUID on T-card");
         zValue = next_token(&x, 0);
         if( zValue ) defossilize(zValue);
         if( sz==UUID_SIZE && validate16(zUuid, UUID_SIZE) ){
@@ -718,15 +753,15 @@ Manifest *manifest_parse(Blob *pContent, int rid){
         }else if( sz==1 && zUuid[0]=='*' ){
           zUuid = 0;
         }else{
-          goto manifest_syntax_error;
+          SYNTAX("malformed UUID on T-card");
         }
         defossilize(zName);
         if( zName[0]!='-' && zName[0]!='+' && zName[0]!='*' ){
-          goto manifest_syntax_error;
+          SYNTAX("T-card name does not begin with '-', '+', or '*'");
         }
         if( validate16(&zName[1], strlen(&zName[1])) ){
           /* Do not allow tags whose names look like UUIDs */
-          goto manifest_syntax_error;
+          SYNTAX("T-card name looks like a UUID");
         }
         if( p->nTag>=p->nTagAlloc ){
           p->nTagAlloc = p->nTagAlloc*2 + 10;
@@ -737,7 +772,7 @@ Manifest *manifest_parse(Blob *pContent, int rid){
         p->aTag[i].zUuid = zUuid;
         p->aTag[i].zValue = zValue;
         if( i>0 && fossil_strcmp(p->aTag[i-1].zName, zName)>=0 ){
-          goto manifest_syntax_error;
+          SYNTAX("T-card in the wrong order");
         }
         break;
       }
@@ -750,7 +785,7 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       ** If the user name is omitted, take that to be "anonymous".
       */
       case 'U': {
-        if( p->zUser!=0 ) goto manifest_syntax_error;
+        if( p->zUser!=0 ) SYNTAX("more than on U-card");
         p->zUser = next_token(&x, 0);
         if( p->zUser==0 ){
           p->zUser = "anonymous";
@@ -769,21 +804,22 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       */
       case 'W': {
         char *zSize;
-        int size, c;
+        unsigned size, oldsize, c;
         Blob wiki;
         zSize = next_token(&x, 0);
-        if( zSize==0 ) goto manifest_syntax_error;
-        if( x.atEol==0 ) goto manifest_syntax_error;
-        for(size=0; (c = zSize[0])>='0' && c<='9'; zSize++){
-           size = size*10 + c - '0';
+        if( zSize==0 ) SYNTAX("missing size on W-card");
+        if( x.atEol==0 ) SYNTAX("no content after W-card");
+        for(oldsize=size=0; (c = zSize[0])>='0' && c<='9'; zSize++){
+           size = oldsize*10 + c - '0';
+           if( size<oldsize ) SYNTAX("size overflow on W-card");
+           oldsize = size;
         }
-        if( size<0 ) goto manifest_syntax_error;
-        if( p->zWiki!=0 ) goto manifest_syntax_error;
+        if( p->zWiki!=0 ) SYNTAX("more than one W-card");
         blob_zero(&wiki);
-        if( (&x.z[size+1])>=x.zEnd ) goto manifest_syntax_error;
+        if( (&x.z[size+1])>=x.zEnd )SYNTAX("not enough content after W-card");
         p->zWiki = x.z;
         x.z += size;
-        if( x.z[0]!='\n' ) goto manifest_syntax_error;
+        if( x.z[0]!='\n' ) SYNTAX("W-card content no \\n terminated");
         x.z[0] = 0;
         x.z++;
         break;
@@ -803,99 +839,104 @@ Manifest *manifest_parse(Blob *pContent, int rid){
       */
       case 'Z': {
         zUuid = next_token(&x, &sz);
-        if( sz!=32 ) goto manifest_syntax_error;
-        if( !validate16(zUuid, 32) ) goto manifest_syntax_error;
+        if( sz!=32 ) SYNTAX("wrong size for Z-card cksum");
+        if( !validate16(zUuid, 32) ) SYNTAX("malformed Z-card cksum");
         seenZ = 1;
         break;
       }
       default: {
-        goto manifest_syntax_error;
+        SYNTAX("unrecognized card");
       }
     }
   }
-  if( x.z<x.zEnd ) goto manifest_syntax_error;
+  if( x.z<x.zEnd ) SYNTAX("extra characters at end of card");
 
   if( p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
-    if( p->nCChild>0 ) goto manifest_syntax_error;
-    if( p->rDate<=0.0 ) goto manifest_syntax_error;
-    if( p->nField>0 ) goto manifest_syntax_error;
-    if( p->zTicketUuid ) goto manifest_syntax_error;
-    if( p->zWiki ) goto manifest_syntax_error;
-    if( p->zWikiTitle ) goto manifest_syntax_error;
-    if( p->zEventId ) goto manifest_syntax_error;
-    if( p->zTicketUuid ) goto manifest_syntax_error;
-    if( p->zAttachName ) goto manifest_syntax_error;
+    if( p->nCChild>0 ) SYNTAX("M-card in check-in");
+    if( p->rDate<=0.0 ) SYNTAX("missing date for check-in");
+    if( p->nField>0 ) SYNTAX("J-card in check-in");
+    if( p->zTicketUuid ) SYNTAX("K-card in check-in");
+    if( p->zWiki ) SYNTAX("W-card in check-in");
+    if( p->zWikiTitle ) SYNTAX("L-card in check-in");
+    if( p->zEventId ) SYNTAX("E-card in check-in");
+    if( p->zTicketUuid ) SYNTAX("K-card in check-in");
+    if( p->zAttachName ) SYNTAX("A-card in check-in");
     p->type = CFTYPE_MANIFEST;
   }else if( p->nCChild>0 ){
-    if( p->rDate>0.0 ) goto manifest_syntax_error;
-    if( p->zComment!=0 ) goto manifest_syntax_error;
-    if( p->zUser!=0 ) goto manifest_syntax_error;
-    if( p->nTag>0 ) goto manifest_syntax_error;
-    if( p->nParent>0 ) goto manifest_syntax_error;
-    if( p->nField>0 ) goto manifest_syntax_error;
-    if( p->zTicketUuid ) goto manifest_syntax_error;
-    if( p->zWiki ) goto manifest_syntax_error;
-    if( p->zWikiTitle ) goto manifest_syntax_error;
-    if( p->zEventId ) goto manifest_syntax_error;
-    if( p->zAttachName ) goto manifest_syntax_error;
-    if( !seenZ ) goto manifest_syntax_error;
+    if( p->rDate>0.0
+     || p->zComment!=0
+     || p->zUser!=0
+     || p->nTag>0
+     || p->nParent>0
+     || p->nField>0
+     || p->zTicketUuid
+     || p->zWiki
+     || p->zWikiTitle
+     || p->zEventId
+     || p->zAttachName
+     || p->zMimetype
+    ){
+      SYNTAX("cluster contains a card other than M- or Z-");
+    }
+    if( !seenZ ) SYNTAX("missing Z-card on cluster");
     p->type = CFTYPE_CLUSTER;
   }else if( p->nField>0 ){
-    if( p->rDate<=0.0 ) goto manifest_syntax_error;
-    if( p->zWiki ) goto manifest_syntax_error;
-    if( p->zWikiTitle ) goto manifest_syntax_error;
-    if( p->zEventId ) goto manifest_syntax_error;
-    if( p->nCChild>0 ) goto manifest_syntax_error;
-    if( p->nTag>0 ) goto manifest_syntax_error;
-    if( p->zTicketUuid==0 ) goto manifest_syntax_error;
-    if( p->zUser==0 ) goto manifest_syntax_error;
-    if( p->zAttachName ) goto manifest_syntax_error;
-    if( !seenZ ) goto manifest_syntax_error;
+    if( p->rDate<=0.0 ) SYNTAX("missing date for ticket");
+    if( p->zWiki ) SYNTAX("W-card in ticket");
+    if( p->zWikiTitle ) SYNTAX("L-card in ticket");
+    if( p->zEventId ) SYNTAX("E-card in ticket");
+    if( p->nCChild>0 ) SYNTAX("M-card in ticket");
+    if( p->nTag>0 ) SYNTAX("T-card in ticket");
+    if( p->zTicketUuid==0 ) SYNTAX("missing K-card in ticket");
+    if( p->zUser==0 ) SYNTAX("missing U-card in ticket");
+    if( p->zAttachName ) SYNTAX("A-card in ticket");
+    if( p->zMimetype) SYNTAX("N-card in ticket");
+    if( !seenZ ) SYNTAX("missing Z-card in ticket");
     p->type = CFTYPE_TICKET;
   }else if( p->zEventId ){
-    if( p->rDate<=0.0 ) goto manifest_syntax_error;
-    if( p->nCChild>0 ) goto manifest_syntax_error;
-    if( p->zTicketUuid!=0 ) goto manifest_syntax_error;
-    if( p->zWikiTitle!=0 ) goto manifest_syntax_error;
-    if( p->zWiki==0 ) goto manifest_syntax_error;
-    if( p->zAttachName ) goto manifest_syntax_error;
+    if( p->rDate<=0.0 ) SYNTAX("missing date for event");
+    if( p->nCChild>0 ) SYNTAX("M-card in event");
+    if( p->zTicketUuid!=0 ) SYNTAX("K-card in event");
+    if( p->zWikiTitle!=0 ) SYNTAX("L-card in event");
+    if( p->zWiki==0 ) SYNTAX("W-card in event");
+    if( p->zAttachName ) SYNTAX("A-card in event");
     for(i=0; i<p->nTag; i++){
-      if( p->aTag[i].zName[0]!='+' ) goto manifest_syntax_error;
-      if( p->aTag[i].zUuid!=0 ) goto manifest_syntax_error;
+      if( p->aTag[i].zName[0]!='+' ) SYNTAX("propagating tag in event");
+      if( p->aTag[i].zUuid!=0 ) SYNTAX("non-self-referential tag in event");
     }
-    if( !seenZ ) goto manifest_syntax_error;
+    if( !seenZ ) SYNTAX("Z-card missing in event");
     p->type = CFTYPE_EVENT;
   }else if( p->zWiki!=0 ){
-    if( p->rDate<=0.0 ) goto manifest_syntax_error;
-    if( p->nCChild>0 ) goto manifest_syntax_error;
-    if( p->nTag>0 ) goto manifest_syntax_error;
-    if( p->zTicketUuid!=0 ) goto manifest_syntax_error;
-    if( p->zWikiTitle==0 ) goto manifest_syntax_error;
-    if( p->zAttachName ) goto manifest_syntax_error;
-    if( !seenZ ) goto manifest_syntax_error;
+    if( p->rDate<=0.0 ) SYNTAX("date missing on wiki");
+    if( p->nCChild>0 ) SYNTAX("M-card in wiki");
+    if( p->nTag>0 ) SYNTAX("T-card in wiki");
+    if( p->zTicketUuid!=0 ) SYNTAX("K-card in wiki");
+    if( p->zWikiTitle==0 ) SYNTAX("L-card in wiki");
+    if( p->zAttachName ) SYNTAX("A-card in wiki");
+    if( !seenZ ) SYNTAX("missing Z-card on wiki");
     p->type = CFTYPE_WIKI;
   }else if( p->nTag>0 ){
-    if( p->rDate<=0.0 ) goto manifest_syntax_error;
-    if( p->nParent>0 ) goto manifest_syntax_error;
-    if( p->zWikiTitle ) goto manifest_syntax_error;
-    if( p->zTicketUuid ) goto manifest_syntax_error;
-    if( p->zAttachName ) goto manifest_syntax_error;
-    if( !seenZ ) goto manifest_syntax_error;
+    if( p->rDate<=0.0 ) SYNTAX("date missing on tag");
+    if( p->nParent>0 ) SYNTAX("P-card on tag");
+    if( p->zWikiTitle ) SYNTAX("L-card on tag");
+    if( p->zTicketUuid ) SYNTAX("K-card in tag");
+    if( p->zAttachName ) SYNTAX("A-card in tag");
+    if( p->zMimetype ) SYNTAX("N-card in tag");
+    if( !seenZ ) SYNTAX("missing Z-card on tag");
     p->type = CFTYPE_CONTROL;
   }else if( p->zAttachName ){
-    if( p->nCChild>0 ) goto manifest_syntax_error;
-    if( p->rDate<=0.0 ) goto manifest_syntax_error;
-    if( p->zTicketUuid ) goto manifest_syntax_error;
-    if( p->zWikiTitle ) goto manifest_syntax_error;
-    if( !seenZ ) goto manifest_syntax_error;
+    if( p->nCChild>0 ) SYNTAX("M-card in attachment");
+    if( p->rDate<=0.0 ) SYNTAX("missing date in attachment");
+    if( p->zTicketUuid ) SYNTAX("K-card in attachment");
+    if( p->zWikiTitle ) SYNTAX("L-card in attachment");
+    if( !seenZ ) SYNTAX("missing Z-card on attachment");
     p->type = CFTYPE_ATTACHMENT;
   }else{
-    if( p->nCChild>0 ) goto manifest_syntax_error;
-    if( p->rDate<=0.0 ) goto manifest_syntax_error;
-    if( p->nField>0 ) goto manifest_syntax_error;
-    if( p->zTicketUuid ) goto manifest_syntax_error;
-    if( p->zWikiTitle ) goto manifest_syntax_error;
-    if( p->zTicketUuid ) goto manifest_syntax_error;
+    if( p->nCChild>0 ) SYNTAX("M-card in check-in");
+    if( p->rDate<=0.0 ) SYNTAX("missing date in check-in");
+    if( p->nField>0 ) SYNTAX("J-card in check-in");
+    if( p->zTicketUuid ) SYNTAX("K-card in check-in");
+    if( p->zWikiTitle ) SYNTAX("L-card in check-in");
     p->type = CFTYPE_MANIFEST;
   }
   md5sum_init();
@@ -903,7 +944,11 @@ Manifest *manifest_parse(Blob *pContent, int rid){
   return p;
 
 manifest_syntax_error:
-  /*fprintf(stderr, "Manifest error on line %i\n", lineNo);fflush(stderr);*/
+  if( zErr ){
+    blob_appendf(pErr, "line %d: %s", lineNo, zErr);
+  }else{
+    blob_appendf(pErr, "unknown error on line %d", lineNo);
+  }
   md5sum_init();
   manifest_destroy(p);
   return 0;
@@ -926,7 +971,7 @@ Manifest *manifest_get(int rid, int cfType){
     return p;
   }
   content_get(rid, &content);
-  p = manifest_parse(&content, rid);
+  p = manifest_parse(&content, rid, 0);
   if( p && cfType!=CFTYPE_ANY && cfType!=p->type ){
     manifest_destroy(p);
     p = 0;
@@ -974,9 +1019,12 @@ void manifest_test_parse_cmd(void){
   if( g.argc>3 ) n = atoi(g.argv[3]);
   for(i=0; i<n; i++){
     Blob b2;
+    Blob err;
     blob_copy(&b2, &b);
-    p = manifest_parse(&b2, 0);
-    if( p==0 ) fossil_print("FAILED!\n");
+    blob_zero(&err);
+    p = manifest_parse(&b2, 0, &err);
+    if( p==0 ) fossil_print("ERROR: %s\n", blob_str(&err));
+    blob_reset(&err);
     manifest_destroy(p);
   }
 }
@@ -1125,7 +1173,7 @@ int manifest_file_mperm(ManifestFile *pFile){
 static void add_one_mlink(
   int mid,                  /* The record ID of the manifest */
   const char *zFromUuid,    /* UUID for the mlink.pid. "" to add file */
-  const char *zToUuid,      /* UUID for the mlink.fid. "" to delele */
+  const char *zToUuid,      /* UUID for the mlink.fid. "" to delete */
   const char *zFilename,    /* Filename */
   const char *zPrior,       /* Previous filename. NULL if unchanged */
   int isPublic,             /* True if mid is not a private manifest */
@@ -1301,7 +1349,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   if( (*ppOther = manifest_cache_find(otherRid))==0 ){
     content_get(otherRid, &otherContent);
     if( blob_size(&otherContent)==0 ) return;
-    *ppOther = manifest_parse(&otherContent, otherRid);
+    *ppOther = manifest_parse(&otherContent, otherRid, 0);
     if( *ppOther==0 ) return;
   }
   if( fetch_baseline(pParent, 0) || fetch_baseline(pChild, 0) ){
@@ -1312,7 +1360,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
 
   /* Try to make the parent manifest a delta from the child, if that
   ** is an appropriate thing to do.  For a new baseline, make the 
-  ** previoius baseline a delta from the current baseline.
+  ** previous baseline a delta from the current baseline.
   */
   if( (pParent->zBaseline==0)==(pChild->zBaseline==0) ){
     content_deltify(pid, cid, 0); 
@@ -1523,7 +1571,7 @@ void manifest_ticket_event(
       }
     }
     if( zNewStatus ){
-      blob_appendf(&comment, "%h ticket [%.10s]: <i>%s</i>",
+      blob_appendf(&comment, "%h ticket [%.10s]: <i>%h</i>",
          zNewStatus, pManifest->zTicketUuid, zTitle
       );
       if( pManifest->nField>1 ){
@@ -1537,7 +1585,7 @@ void manifest_ticket_event(
          "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
          zStatusColumn, pManifest->zTicketUuid
       );
-      blob_appendf(&comment, "Ticket [%.10s] <i>%s</i> status still %h with "
+      blob_appendf(&comment, "Ticket [%.10s] <i>%h</i> status still %h with "
            "%d other change%s",
            pManifest->zTicketUuid, zTitle, zNewStatus, pManifest->nField,
            pManifest->nField==1 ? "" : "s"
@@ -1599,7 +1647,7 @@ int manifest_crosslink(int rid, Blob *pContent){
 
   if( (p = manifest_cache_find(rid))!=0 ){
     blob_reset(pContent);
-  }else if( (p = manifest_parse(pContent, rid))==0 ){
+  }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
     assert( blob_is_reset(pContent) || pContent==0 );
     return 0;
   }
@@ -1705,7 +1753,7 @@ int manifest_crosslink(int rid, Blob *pContent){
       }
       if( tid ){
         switch( p->aTag[i].zName[0] ){
-          case '-':  type = 0;  break;  /* Cancel prior occurances */
+          case '-':  type = 0;  break;  /* Cancel prior occurrences */
           case '+':  type = 1;  break;  /* Apply to target only */
           case '*':  type = 2;  break;  /* Propagate to descendants */
           default:
@@ -1839,8 +1887,9 @@ int manifest_crosslink(int rid, Blob *pContent){
     ){
       char *zComment;
       if( p->zAttachSrc && p->zAttachSrc[0] ){
-        zComment = mprintf("Add attachment \"%h\" to wiki page [%h]",
-             p->zAttachName, p->zAttachTarget);
+        zComment = mprintf(
+             "Add attachment [%R/artifact/%S|%h] to wiki page [%h]",
+             p->zAttachSrc, p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
              p->zAttachName, p->zAttachTarget);
@@ -1854,8 +1903,9 @@ int manifest_crosslink(int rid, Blob *pContent){
     }else{
       char *zComment;
       if( p->zAttachSrc && p->zAttachSrc[0] ){
-        zComment = mprintf("Add attachment \"%h\" to ticket [%.10s]",
-             p->zAttachName, p->zAttachTarget);
+        zComment = mprintf(
+             "Add attachment [%R/artifact/%S|%h] to ticket [%S]",
+             p->zAttachSrc, p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from ticket [%.10s]",
              p->zAttachName, p->zAttachTarget);
@@ -1881,8 +1931,8 @@ int manifest_crosslink(int rid, Blob *pContent){
       if( i==0 || fossil_strcmp(zUuid, p->aTag[i-1].zUuid)!=0 ){
         if( i>0 ) blob_append(&comment, " ", 1);
         blob_appendf(&comment,
-           "Edit &#91;[/info/%S | %S]&#93;:",
-           zUuid, zUuid);
+           "Edit [%S]:",
+           zUuid);
         branchMove = 0;
       }
       zName = p->aTag[i].zName;
@@ -1951,4 +2001,22 @@ int manifest_crosslink(int rid, Blob *pContent){
   }
   assert( blob_is_reset(pContent) );
   return 1;
+}
+
+/*
+** COMMAND: test-crosslink
+**
+** Usage:  %fossil test-crosslink RECORDID
+**
+** Run the manifest_crosslink() routine on the artifact with the given
+** record ID.  This is typically done in the debugger.
+*/
+void test_crosslink_cmd(void){
+  int rid;
+  Blob content;
+  db_find_and_open_repository(0, 0);
+  if( g.argc!=3 ) usage("RECORDID");
+  rid = name_to_rid(g.argv[2]);
+  content_get(rid, &content);
+  manifest_crosslink(rid, &content);
 }

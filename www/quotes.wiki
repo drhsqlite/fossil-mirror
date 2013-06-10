@@ -42,12 +42,30 @@ for making git bearable.
 <i>maro at [http://news.ycombinator.com/item?id=1433387]</i>
 </blockquote>
 
+<li>I've been experimenting a lot with git at work.  
+Damn, it's complicated.
+It has things to trip you up with that sane people just wouldn't ever both with
+including the ability to allow you to commit stuff in such a way that you can't find
+it again afterwards (!!!)
+Demented workflow complexity on acid?
+<p>* dkf really wishes he could use fossil instead</p>
+<blockquote>
+<i>by Donal K. Fellow (dkf) on the Tcl/Tk chatroom, 2013-04-09.</i>
+</blockquote>
+
+<li>Klingon Code Warriors embrace Git; we enjoy arbitrary conflicts. Git is not for the weak and feeble. TODAY IS A GOOD DAY TO CODE.
+
+<blockquote>
+<i>teastain at [http://www.reddit.com/r/programming/comments/xpitj/10_things_i_hate_about_git/c5oj4fk]
+</blockquote>
+
+
 </ol>
 
 <h2>On The Usability Of Fossil:</h2>
 
 <ol>
-<li value=4>
+<li value=7>
 Fossil mesmerizes me with simplicity especially after I struggled to
 get a bug-tracking system to work with mercurial.
 
@@ -69,7 +87,7 @@ such simplicity and flexibility!!!
 <h2>On Git Versus Fossil</h2>
 
 <ol>
-<li value=6>
+<li value=9>
 Just want to say thanks for fossil making my life easier.... 
 Also <nowiki>[for]</nowiki> not having a misanthropic command line interface.
 

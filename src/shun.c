@@ -79,7 +79,7 @@ void shun_page(void){
       @ be shunned.  But it does not exist in the repository.  It
       @ may be necessary to rebuild the repository using the
       @ <b>fossil rebuild</b> command-line before the artifact content
-      @ can pulled in from other respositories.</p>
+      @ can pulled in from other repositories.</p>
     }
   }
   if( zUuid && P("add") ){
@@ -91,7 +91,7 @@ void shun_page(void){
     @ <p class="shunned">Artifact
     @ <a href="%s(g.zTop)/artifact/%s(zUuid)">%s(zUuid)</a> has been
     @ shunned.  It will no longer be pushed.
-    @ It will be removed from the repository the next time the respository
+    @ It will be removed from the repository the next time the repository
     @ is rebuilt using the <b>fossil rebuild</b> command-line</p>
     db_multi_exec("DELETE FROM attachment WHERE src=%Q", zUuid);
     rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zUuid);
@@ -149,7 +149,7 @@ void shun_page(void){
   @ </div></form>
   @ </blockquote>
   @
-  @ <p>Press the Rebuild button below to rebuild the respository.  The
+  @ <p>Press the Rebuild button below to rebuild the repository.  The
   @ content of newly shunned artifacts is not purged until the repository
   @ is rebuilt.  On larger repositories, the rebuild may take minute or
   @ two, so be patient after pressing the button.</p>

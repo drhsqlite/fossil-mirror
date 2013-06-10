@@ -31,6 +31,10 @@ const char zConfigSchema[] =
 @   name TEXT PRIMARY KEY,
 @   value TEXT
 @ );
+@
+@ -- Identifier for this file type.
+@ -- The integer is the same as 'FSLG'.
+@ PRAGMA application_id=252006675;
 ;
 
 #if INTERFACE
@@ -166,6 +170,31 @@ const char zRepositorySchema1[] =
 @    cols TEXT,               -- A color-key specification
 @    sqlcode TEXT             -- An SQL SELECT statement for this report
 @ );
+@
+@ -- Some ticket content (such as the originators email address or contact
+@ -- information) needs to be obscured to protect privacy.  This is achieved
+@ -- by storing an SHA1 hash of the content.  For display, the hash is
+@ -- mapped back into the original text using this table.  
+@ --
+@ -- This table contains sensitive information and should not be shared
+@ -- with unauthorized users.
+@ --
+@ CREATE TABLE concealed(
+@   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
+@   mtime DATE,               -- Time created.  Seconds since 1970
+@   content TEXT              -- Content intended to be concealed
+@ );
+@
+@ -- The application ID helps the unix "file" command to identify the
+@ -- database as a fossil repository.
+@ PRAGMA application_id=252006673;
+;
+
+/*
+** The default reportfmt entry for the schema. This is in an extra
+** script so that (configure reset) can install the default report.
+*/
+const char zRepositorySchemaDefaultReports[] =
 @ INSERT INTO reportfmt(title,mtime,cols,sqlcode) 
 @ VALUES('All Tickets',julianday('1970-01-01'),'#ffffff Key:
 @ #f2dcdc Active
@@ -187,20 +216,6 @@ const char zRepositorySchema1[] =
 @   subsystem,
 @   title
 @ FROM ticket');
-@
-@ -- Some ticket content (such as the originators email address or contact
-@ -- information) needs to be obscured to protect privacy.  This is achieved
-@ -- by storing an SHA1 hash of the content.  For display, the hash is
-@ -- mapped back into the original text using this table.  
-@ --
-@ -- This table contains sensitive information and should not be shared
-@ -- with unauthorized users.
-@ --
-@ CREATE TABLE concealed(
-@   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
-@   mtime DATE,               -- Time created.  Seconds since 1970
-@   content TEXT              -- Content intended to be concealed
-@ );
 ;
 
 const char zRepositorySchema2[] =
@@ -387,6 +402,7 @@ const char zRepositorySchema2[] =
 @   tkt_id INTEGER PRIMARY KEY,
 @   tkt_uuid TEXT UNIQUE,
 @   tkt_mtime DATE,
+@   tkt_ctime DATE,
 @   -- Add as many field as required below this line
 @   type TEXT,
 @   status TEXT,
@@ -399,6 +415,18 @@ const char zRepositorySchema2[] =
 @   title TEXT,
 @   comment TEXT
 @ );
+@ CREATE TABLE ticketchng(
+@   -- Do not change any column that begins with tkt_
+@   tkt_id INTEGER REFERENCES ticket,
+@   tkt_rid INTEGER REFERENCES blob,
+@   tkt_mtime DATE,
+@   -- Add as many fields as required below this line
+@   login TEXT,
+@   username TEXT,
+@   mimetype TEXT,
+@   icomment TEXT
+@ );
+@ CREATE INDEX ticketchng_idx1 ON ticketchng(tkt_id, tkt_mtime);
 ;
 
 /*
@@ -484,5 +512,8 @@ const char zLocalSchema[] =
 @   merge INTEGER,                    -- Merged with this record
 @   UNIQUE(id, merge)
 @ );
-@   
+@
+@ -- Identifier for this file type.
+@ -- The integer is the same as 'FSLC'.
+@ PRAGMA application_id=252006674;
 ;

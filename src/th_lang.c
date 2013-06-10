@@ -360,6 +360,9 @@ static int proc_call2(Th_Interp *interp, void *pContext1, void *pContext2){
       Th_ListAppend(interp, &zArgs, &nArgs, pArgs->argv[i], pArgs->argl[i]);
     }
     Th_SetVar(interp, (const char *)"args", -1, zArgs, nArgs);
+    if(zArgs){
+      Th_Free(interp, zArgs);
+    }
   }
 
   Th_SetResult(interp, 0, 0);
@@ -817,6 +820,34 @@ static int string_repeat_command(
 /*
 ** TH Syntax:
 **
+**   string trim STRING
+**   string trimleft STRING
+**   string trimright STRING
+*/
+static int string_trim_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  int n;
+  const char *z;
+
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "string trim string");
+  }
+  z = argv[2];
+  n = argl[2];
+  if( argl[1]<5 || argv[1][4]=='l' ){
+    while( n && th_isspace(z[0]) ){ z++; n--; }
+  }
+  if( argl[1]<5 || argv[1][4]=='r' ){
+    while( n && th_isspace(z[n-1]) ){ n--; }
+  }
+  Th_SetResult(interp, z, n);
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
 **   info exists VAR
 */
 static int info_exists_command(
@@ -827,8 +858,8 @@ static int info_exists_command(
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "info exists var");
   }
-  rc = Th_GetVar(interp, argv[2], argl[2]);
-  Th_SetResultInt(interp, rc?0:1);
+  rc = Th_ExistsVar(interp, argv[2], argl[2]);
+  Th_SetResultInt(interp, rc);
   return TH_OK;
 }
 
@@ -858,15 +889,20 @@ int Th_CallSubCommand(
   int *argl,
   Th_SubCommand *aSub
 ){
-  int i;
-  for(i=0; aSub[i].zName; i++){
-    char *zName = (char *)aSub[i].zName;
-    if( th_strlen(zName)==argl[1] && 0==memcmp(zName, argv[1], argl[1]) ){
-      return aSub[i].xProc(interp, ctx, argc, argv, argl);
+  if( argc>1 ){
+    int i;
+    for(i=0; aSub[i].zName; i++){
+      char *zName = (char *)aSub[i].zName;
+      if( th_strlen(zName)==argl[1] && 0==memcmp(zName, argv[1], argl[1]) ){
+        return aSub[i].xProc(interp, ctx, argc, argv, argl);
+      }
     }
   }
-
-  Th_ErrorMessage(interp, "Expected sub-command, got:", argv[1], argl[1]);
+  if(argc<2){
+    Th_ErrorMessage(interp, "Expected sub-command for", argv[0], argl[0]);
+  }else{
+    Th_ErrorMessage(interp, "Expected sub-command, got:", argv[1], argl[1]);
+  }
   return TH_ERROR;
 }
 
@@ -896,6 +932,9 @@ static int string_command(
     { "length",  string_length_command },
     { "range",   string_range_command },
     { "repeat",  string_repeat_command },
+    { "trim",      string_trim_command },
+    { "trimleft",  string_trim_command },
+    { "trimright", string_trim_command },
     { 0, 0 }
   };
   return Th_CallSubCommand(interp, ctx, argc, argv, argl, aSub);

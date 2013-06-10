@@ -22,11 +22,11 @@
 #include <assert.h>
 
 /*
-** The artifact retrival cache
+** The artifact retrieval cache
 */
 static struct {
   i64 szTotal;         /* Total size of all entries in the cache */
-  int n;               /* Current number of eache entries */
+  int n;               /* Current number of cache entries */
   int nAlloc;          /* Number of slots allocated in a[] */
   int nextAge;         /* Age counter for implementing LRU */
   int skipCnt;         /* Used to limit entries expelled from cache */
@@ -44,7 +44,7 @@ static struct {
   ** either because they are phantoms or because they are a delta that
   ** depends on a phantom.  Artifacts whose content we are certain is
   ** available are in availableCache.  If an artifact is in neither cache
-  ** then its current availablity is unknown.
+  ** then its current availability is unknown.
   */
   Bag missing;         /* Cache of artifacts that are incomplete */
   Bag available;       /* Cache of artifacts that are complete */
@@ -271,6 +271,9 @@ int content_get(int rid, Blob *pBlob){
         && (nextRid = findSrcid(nextRid))>0 ){
       n++;
       if( n>=nAlloc ){
+        if( n>db_int(0, "SELECT max(rid) FROM blob") ){
+          fossil_panic("infinite loop in DELTA table");
+        }
         nAlloc = nAlloc*2 + 10;
         a = fossil_realloc(a, nAlloc*sizeof(a[0]));
       }
@@ -470,7 +473,7 @@ void content_enable_dephantomize(int onoff){
 **
 ** The original content of pBlob is not disturbed.  The caller continues
 ** to be responsible for pBlob.  This routine does *not* take over
-** responsiblity for freeing pBlob.
+** responsibility for freeing pBlob.
 */
 int content_put_ex(
   Blob *pBlob,              /* Content to add to the repository */
@@ -666,7 +669,10 @@ int content_new(const char *zUuid, int isPrivate){
 /*
 ** COMMAND:  test-content-put
 **
-** Extract a blob from a file and write it into the database
+** Usage: %fossil test-content-put FILE
+**
+** Read the content of FILE and add it to the Blob table as a new
+** artifact using a direct call to content_put().
 */
 void test_content_put_cmd(void){
   int rid;
@@ -892,4 +898,174 @@ void test_integrity(void){
   db_finalize(&q);
   fossil_print("%d non-phantom blobs (out of %d total) checked:  %d errors\n",
                n2, n1, nErr);
+}
+
+/*
+** COMMAND: test-orphans
+**
+** Search the repository for orphaned artifacts
+*/
+void test_orphans(void){
+  Stmt q;
+  int cnt = 0;
+
+  db_find_and_open_repository(0, 0);
+  db_multi_exec(
+    "CREATE TEMP TABLE used(id INTEGER PRIMARY KEY ON CONFLICT IGNORE);"
+    "INSERT INTO used SELECT mid FROM mlink;"  /* Manifests */
+    "INSERT INTO used SELECT fid FROM mlink;"  /* Files */
+    "INSERT INTO used SELECT srcid FROM tagxref WHERE srcid>0;" /* Tags */
+    "INSERT INTO used SELECT rid FROM tagxref;" /* Wiki & tickets */
+    "INSERT INTO used SELECT rid FROM attachment JOIN blob ON src=uuid;"
+    "INSERT INTO used SELECT attachid FROM attachment;"
+    "INSERT INTO used SELECT objid FROM event;"
+  );
+  db_prepare(&q, "SELECT rid, uuid, size FROM blob WHERE rid NOT IN used");
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("%7d %s size: %d\n",
+      db_column_int(&q, 0),
+      db_column_text(&q, 1),
+      db_column_int(&q,2));
+    cnt++;
+  }
+  db_finalize(&q);
+  fossil_print("%d orphans\n", cnt);
+}
+
+/* Allowed flags for check_exists */
+#define MISSING_SHUNNED   0x0001    /* Do not report shunned artifacts */
+
+/* This is a helper routine for test-artifacts.
+**
+** Check to see that artifact zUuid exists in the repository.  If it does,
+** return 0.  If it does not, generate an error message and return 1.
+*/
+static int check_exists(
+  const char *zUuid,     /* The artifact we are checking for */
+  unsigned flags,        /* Flags */
+  Manifest *p,           /* The control artifact that references zUuid */
+  const char *zRole,     /* Role of zUuid in p */
+  const char *zDetail    /* Additional information, such as a filename */
+){
+  static Stmt q;
+  int rc = 0;
+
+  db_static_prepare(&q, "SELECT size FROM blob WHERE uuid=:uuid");
+  if( zUuid==0 || zUuid[0]==0 ) return 0;
+  db_bind_text(&q, ":uuid", zUuid);
+  if( db_step(&q)==SQLITE_ROW ){
+    int size = db_column_int(&q, 0);
+    if( size<0 ) rc = 2;
+  }else{
+    rc = 1;
+  }
+  db_reset(&q);
+  if( rc ){
+    const char *zCFType = "control artifact";
+    char *zSrc;
+    char *zDate;
+    char *zErrType = "MISSING";
+    if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
+      if( flags & MISSING_SHUNNED ) return 0;
+      zErrType = "SHUNNED";
+    }
+    switch( p->type ){
+      case CFTYPE_MANIFEST:   zCFType = "check-in";    break;
+      case CFTYPE_CLUSTER:    zCFType = "cluster";     break;
+      case CFTYPE_CONTROL:    zCFType = "tag";         break;
+      case CFTYPE_WIKI:       zCFType = "wiki";        break;
+      case CFTYPE_TICKET:     zCFType = "ticket";      break;
+      case CFTYPE_ATTACHMENT: zCFType = "attachment";  break;
+      case CFTYPE_EVENT:      zCFType = "event";       break;
+    }
+    zSrc = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", p->rid);
+    if( p->rDate>0.0 ){
+      zDate = db_text(0, "SELECT datetime(%.17g)", p->rDate);
+    }else{
+      zDate = db_text(0,
+         "SELECT datetime(rcvfrom.mtime)"
+         "  FROM blob, rcvfrom"
+         " WHERE blob.rcvid=rcvfrom.rcvid"
+         "   AND blob.rid=%d", p->rid);
+    }
+    fossil_print("%s: %s\n         %s %s %S (%d) %s\n",
+                  zErrType, zUuid, zRole, zCFType, zSrc, p->rid, zDate);
+    if( zDetail && zDetail[0] ){
+      fossil_print("         %s\n", zDetail);
+    }
+    fossil_free(zSrc);
+    fossil_free(zDate);
+    rc = 1; 
+  }
+  return rc;
+}
+
+/*
+** COMMAND: test-missing
+**
+** Usage: %fossil test-missing
+**
+** Look at every artifact in the repository and verify that
+** all references are satisfied.  Report any referenced artifacts
+** that are missing or shunned.
+**
+** Options:
+**
+**    --notshunned          Do not report shunned artifacts
+**    --quiet               Only show output if there are errors
+*/
+void test_missing(void){
+  Stmt q;
+  Blob content;
+  int nErr = 0;
+  int nArtifact = 0;
+  int i;
+  Manifest *p;
+  unsigned flags = 0;
+  int quietFlag;
+
+  if( find_option("notshunned", 0, 0)!=0 ) flags |= MISSING_SHUNNED;
+  quietFlag = find_option("quiet","q",0)!=0;
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  db_prepare(&q,
+     "SELECT mid FROM mlink UNION "
+     "SELECT srcid FROM tagxref WHERE srcid>0 UNION "
+     "SELECT rid FROM tagxref UNION "
+     "SELECT rid FROM attachment JOIN blob ON src=uuid UNION "
+     "SELECT objid FROM event");
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    content_get(rid, &content);
+    p = manifest_parse(&content, rid, 0);
+    if( p ){
+      nArtifact++;
+      nErr += check_exists(p->zBaseline, flags, p, "baseline of", 0);
+      nErr += check_exists(p->zAttachSrc, flags, p, "file of", 0);
+      for(i=0; i<p->nFile; i++){
+        nErr += check_exists(p->aFile[i].zUuid, flags, p, "file of", 
+                             p->aFile[i].zName);
+      }
+      for(i=0; i<p->nParent; i++){
+        nErr += check_exists(p->azParent[i], flags, p, "parent of", 0);
+      }
+      for(i=0; i<p->nCherrypick; i++){
+        nErr +=  check_exists(p->aCherrypick[i].zCPTarget+1, flags, p,
+                              "cherry-pick target of", 0);
+        nErr +=  check_exists(p->aCherrypick[i].zCPBase, flags, p,
+                              "cherry-pick baseline of", 0);
+      }
+      for(i=0; i<p->nCChild; i++){
+        nErr += check_exists(p->azCChild[i], flags, p, "in", 0);
+      }
+      for(i=0; i<p->nTag; i++){
+        nErr += check_exists(p->aTag[i].zUuid, flags, p, "target of", 0);
+      }
+      manifest_destroy(p);      
+    }
+  }
+  db_finalize(&q);
+  if( nErr>0 || quietFlag==0 ){
+    fossil_print("%d missing or shunned references in %d control artifacts\n",
+                 nErr, nArtifact);
+  }
 }

@@ -92,7 +92,7 @@ static void json_timeline_temp_table(void){
 ** Return a pointer to a constant string that forms the basis
 ** for a timeline query for the JSON interface.
 */
-const char const * json_timeline_query(void){
+char const * json_timeline_query(void){
   /* Field order MUST match that from json_timeline_temp_table()!!! */
   static const char zBaseSql[] =
     @ SELECT
@@ -283,12 +283,16 @@ static int json_timeline_setup_sql( char const * zEventType,
   return 0;
 }
 
+
 /*
 ** If any files are associated with the given rid, a JSON array
 ** containing information about them is returned (and is owned by the
 ** caller). If no files are associated with it then NULL is returned.
+**
+** flags may optionally be a bitmask of json_get_changed_files flags,
+** or 0 for defaults.
 */
-cson_value * json_get_changed_files(int rid){
+cson_value * json_get_changed_files(int rid, int flags){
   cson_value * rowsV = NULL;
   cson_array * rows = NULL;
   Stmt q = empty_Stmt;
@@ -318,7 +322,7 @@ cson_value * json_get_changed_files(int rid){
     cson_array_append( rows, rowV );
     cson_object_set(row, "name", json_new_string(db_column_text(&q,2)));
     cson_object_set(row, "uuid", json_new_string(db_column_text(&q,3)));
-    if(!isNew){
+    if(!isNew && (flags & json_get_changed_files_ELIDE_PARENT)){
       cson_object_set(row, "parent", json_new_string(db_column_text(&q,4)));
     }
     cson_object_set(row, "size", json_new_int(db_column_int(&q,5)));
@@ -424,7 +428,7 @@ static cson_value * json_timeline_ci(){
   cson_value * listV = NULL;
   cson_array * list = NULL;
   int check = 0;
-  char showFiles = -1/*magic number*/;
+  char verboseFlag;
   Stmt q = empty_Stmt;
   char warnRowToJsonFailed = 0;
   Blob sql = empty_blob;
@@ -435,7 +439,10 @@ static cson_value * json_timeline_ci(){
     json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'h' access." );
     return NULL;
   }
-  showFiles = json_find_option_bool("files",NULL,"f",0);
+  verboseFlag = json_find_option_bool("verbose",NULL,"v",0);
+  if( !verboseFlag ){
+    verboseFlag = json_find_option_bool("files",NULL,"f",0);
+  }
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
   check = json_timeline_setup_sql( "ci", &sql, pay );
@@ -468,7 +475,7 @@ static cson_value * json_timeline_ci(){
   while( (SQLITE_ROW == db_step(&q) )){
     /* convert each row into a JSON object...*/
     int const rid = db_column_int(&q,0);
-    cson_value * rowV = json_artifact_for_ci(rid, showFiles);
+    cson_value * rowV = json_artifact_for_ci(rid, verboseFlag);
     cson_object * row = cson_value_get_object(rowV);
     if(!row){
       if( !warnRowToJsonFailed ){
@@ -627,7 +634,7 @@ static cson_value * json_timeline_ticket(){
     /*printf("rid=%d\n",rid);*/
     pMan = manifest_get(rid, CFTYPE_TICKET);
     if(!pMan){
-      /* this might be an attachment? i'm seeing this with
+      /* this might be an attachment? I'm seeing this with
          rid 15380, uuid [1292fef05f2472108].
 
          /json/artifact/1292fef05f2472108 returns not-found,

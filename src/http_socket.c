@@ -29,11 +29,8 @@
 #include "config.h"
 #include "http_socket.h"
 #if defined(_WIN32)
-#  include <windows.h>           /* for Sleep once server works again */
-#  define sleep Sleep            /* windows does not have sleep, but Sleep */
-#  if defined(__MINGW32__)
-#    include <ws2tcpip.h>          
-#  endif
+#  include <winsock2.h>
+#  include <ws2tcpip.h>
 #else
 #  include <netinet/in.h>
 #  include <arpa/inet.h>
@@ -130,7 +127,7 @@ void socket_close(void){
 
 /*
 ** Open a socket connection.  The identify of the server is determined
-** by global varibles that are set using url_parse():
+** by global variables that are set using url_parse():
 **
 **    g.urlName       Name of the server.  Ex: www.fossil-scm.org
 **    g.urlPort       TCP/IP port to use.  Ex: 80

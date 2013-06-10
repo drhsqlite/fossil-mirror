@@ -92,7 +92,7 @@ private branches of the source tree into which they make their own changes.
 They then encourage first-tier integrators to pull those changes.  The
 first-tier integrators merge together changes from multiple contributors
 then try to get second-tier integrators to pull their branches.  The
-changes merge up the the hierarchy until (hopefully) they are pulled into 
+changes merge up the hierarchy until (hopefully) they are pulled into 
 "Linus's branch", at which time they become part of the "official" Linux.
 
 In Git, each branch is "owned" by the person who creates it and works

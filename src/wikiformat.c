@@ -25,10 +25,12 @@
 /*
 ** Allowed wiki transformation operations
 */
-#define WIKI_NOFOLLOW       0x001
-#define WIKI_HTML           0x002
-#define WIKI_INLINE         0x004  /* Do not surround with <p>..</p> */
-#define WIKI_NOBLOCK        0x008  /* No block markup of any kind */
+#define WIKI_HTMLONLY       0x001  /* HTML markup only.  No wiki */
+#define WIKI_INLINE         0x002  /* Do not surround with <p>..</p> */
+#define WIKI_NOBLOCK        0x004  /* No block markup of any kind */
+#define WIKI_BUTTONS        0x008  /* Allow sub-menu buttons */
+#define WIKI_NOBADLINKS     0x010  /* Ignore broken hyperlinks */
+#define WIKI_LINKSONLY      0x020  /* No markup.  Only decorate links */
 #endif
 
 
@@ -51,44 +53,48 @@
 #define ATTR_HREF               14
 #define ATTR_HSPACE             15
 #define ATTR_ID                 16
-#define ATTR_NAME               17
-#define ATTR_ROWSPAN            18
-#define ATTR_SIZE               19
-#define ATTR_SRC                20
-#define ATTR_START              21
-#define ATTR_TARGET             22
-#define ATTR_TYPE               23
-#define ATTR_VALIGN             24
-#define ATTR_VALUE              25
-#define ATTR_VSPACE             26
-#define ATTR_WIDTH              27
-#define AMSK_ALIGN              0x0000001
-#define AMSK_ALT                0x0000002
-#define AMSK_BGCOLOR            0x0000004
-#define AMSK_BORDER             0x0000008
-#define AMSK_CELLPADDING        0x0000010
-#define AMSK_CELLSPACING        0x0000020
-#define AMSK_CLEAR              0x0000040
-#define AMSK_COLOR              0x0000080
-#define AMSK_COLSPAN            0x0000100
-#define AMSK_COMPACT            0x0000200
-#define AMSK_FACE               0x0000400
-#define AMSK_HEIGHT             0x0000800
-#define AMSK_HREF               0x0001000
-#define AMSK_HSPACE             0x0002000
-#define AMSK_ID                 0x0004000
-#define AMSK_NAME               0x0008000
-#define AMSK_ROWSPAN            0x0010000
-#define AMSK_SIZE               0x0020000
-#define AMSK_SRC                0x0040000
-#define AMSK_START              0x0080000
-#define AMSK_TYPE               0x0100000
-#define AMSK_VALIGN             0x0200000
-#define AMSK_VALUE              0x0400000
-#define AMSK_VSPACE             0x0800000
-#define AMSK_WIDTH              0x1000000
-#define AMSK_CLASS              0x2000000
-#define AMSK_TARGET             0x4000000
+#define ATTR_LINKS              17
+#define ATTR_NAME               18
+#define ATTR_ROWSPAN            19
+#define ATTR_SIZE               20
+#define ATTR_SRC                21
+#define ATTR_START              22
+#define ATTR_STYLE              23
+#define ATTR_TARGET             24
+#define ATTR_TYPE               25
+#define ATTR_VALIGN             26
+#define ATTR_VALUE              27
+#define ATTR_VSPACE             28
+#define ATTR_WIDTH              29
+#define AMSK_ALIGN              0x00000001
+#define AMSK_ALT                0x00000002
+#define AMSK_BGCOLOR            0x00000004
+#define AMSK_BORDER             0x00000008
+#define AMSK_CELLPADDING        0x00000010
+#define AMSK_CELLSPACING        0x00000020
+#define AMSK_CLASS              0x00000040
+#define AMSK_CLEAR              0x00000080
+#define AMSK_COLOR              0x00000100
+#define AMSK_COLSPAN            0x00000200
+#define AMSK_COMPACT            0x00000400
+#define AMSK_FACE               0x00000800
+#define AMSK_HEIGHT             0x00001000
+#define AMSK_HREF               0x00002000
+#define AMSK_HSPACE             0x00004000
+#define AMSK_ID                 0x00008000
+#define AMSK_LINKS              0x00010000
+#define AMSK_NAME               0x00020000
+#define AMSK_ROWSPAN            0x00040000
+#define AMSK_SIZE               0x00080000
+#define AMSK_SRC                0x00100000
+#define AMSK_START              0x00200000
+#define AMSK_STYLE              0x00400000
+#define AMSK_TARGET             0x00800000
+#define AMSK_TYPE               0x01000000
+#define AMSK_VALIGN             0x02000000
+#define AMSK_VALUE              0x04000000
+#define AMSK_VSPACE             0x08000000
+#define AMSK_WIDTH              0x10000000
 
 static const struct AllowedAttribute {
   const char *zName;
@@ -111,11 +117,13 @@ static const struct AllowedAttribute {
   { "href",          AMSK_HREF,           },
   { "hspace",        AMSK_HSPACE,         },
   { "id",            AMSK_ID,             },
+  { "links",         AMSK_LINKS,          },
   { "name",          AMSK_NAME,           },
   { "rowspan",       AMSK_ROWSPAN,        },
   { "size",          AMSK_SIZE,           },
   { "src",           AMSK_SRC,            },
   { "start",         AMSK_START,          },
+  { "style",         AMSK_STYLE,          },
   { "target",        AMSK_TARGET,         },
   { "type",          AMSK_TYPE,           },
   { "valign",        AMSK_VALIGN,         },
@@ -243,76 +251,92 @@ static const struct AllowedMarkup {
 } aMarkup[] = {
  { 0,               MARKUP_INVALID,      0,                    0  },
  { "a",             MARKUP_A,            MUTYPE_HYPERLINK,
-                    AMSK_HREF|AMSK_NAME|AMSK_CLASS|AMSK_TARGET },
- { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         0  },
- { "b",             MARKUP_B,            MUTYPE_FONT,          0  },
- { "big",           MARKUP_BIG,          MUTYPE_FONT,          0  },
- { "blockquote",    MARKUP_BLOCKQUOTE,   MUTYPE_BLOCK,         0  },
- { "br",            MARKUP_BR,           MUTYPE_SINGLE,        AMSK_CLEAR  },
- { "center",        MARKUP_CENTER,       MUTYPE_BLOCK,         0  },
- { "cite",          MARKUP_CITE,         MUTYPE_FONT,          0  },
- { "code",          MARKUP_CODE,         MUTYPE_FONT,          0  },
+                    AMSK_HREF|AMSK_NAME|AMSK_CLASS|AMSK_TARGET|AMSK_STYLE },
+ { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         AMSK_STYLE },
+ { "b",             MARKUP_B,            MUTYPE_FONT,          AMSK_STYLE },
+ { "big",           MARKUP_BIG,          MUTYPE_FONT,          AMSK_STYLE },
+ { "blockquote",    MARKUP_BLOCKQUOTE,   MUTYPE_BLOCK,         AMSK_STYLE },
+ { "br",            MARKUP_BR,           MUTYPE_SINGLE,        AMSK_CLEAR },
+ { "center",        MARKUP_CENTER,       MUTYPE_BLOCK,         AMSK_STYLE },
+ { "cite",          MARKUP_CITE,         MUTYPE_FONT,          AMSK_STYLE },
+ { "code",          MARKUP_CODE,         MUTYPE_FONT,          AMSK_STYLE },
  { "col",           MARKUP_COL,          MUTYPE_SINGLE,
-                    AMSK_ALIGN|AMSK_CLASS|AMSK_COLSPAN|AMSK_WIDTH  },
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_COLSPAN|AMSK_WIDTH|AMSK_STYLE },
  { "colgroup",      MARKUP_COLGROUP,     MUTYPE_BLOCK,
-                    AMSK_ALIGN|AMSK_CLASS|AMSK_COLSPAN|AMSK_WIDTH},
- { "dd",            MARKUP_DD,           MUTYPE_LI,            0  },
- { "dfn",           MARKUP_DFN,          MUTYPE_FONT,          0  },
- { "div",           MARKUP_DIV,          MUTYPE_BLOCK,         AMSK_ID|AMSK_CLASS      },
- { "dl",            MARKUP_DL,           MUTYPE_LIST,          AMSK_COMPACT },
- { "dt",            MARKUP_DT,           MUTYPE_LI,            0  },
- { "em",            MARKUP_EM,           MUTYPE_FONT,          0  },
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_COLSPAN|AMSK_WIDTH|AMSK_STYLE},
+ { "dd",            MARKUP_DD,           MUTYPE_LI,            AMSK_STYLE },
+ { "dfn",           MARKUP_DFN,          MUTYPE_FONT,          AMSK_STYLE },
+ { "div",           MARKUP_DIV,          MUTYPE_BLOCK,
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
+ { "dl",            MARKUP_DL,           MUTYPE_LIST,
+                    AMSK_COMPACT|AMSK_STYLE },
+ { "dt",            MARKUP_DT,           MUTYPE_LI,            AMSK_STYLE },
+ { "em",            MARKUP_EM,           MUTYPE_FONT,          AMSK_STYLE },
  { "font",          MARKUP_FONT,         MUTYPE_FONT,
-                    AMSK_COLOR|AMSK_FACE|AMSK_SIZE   },
- { "h1",            MARKUP_H1,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "h2",            MARKUP_H2,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "h3",            MARKUP_H3,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "h4",            MARKUP_H4,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "h5",            MARKUP_H5,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "h6",            MARKUP_H6,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
+                    AMSK_COLOR|AMSK_FACE|AMSK_SIZE|AMSK_STYLE },
+ { "h1",            MARKUP_H1,           MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "h2",            MARKUP_H2,           MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "h3",            MARKUP_H3,           MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "h4",            MARKUP_H4,           MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "h5",            MARKUP_H5,           MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "h6",            MARKUP_H6,           MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "hr",            MARKUP_HR,           MUTYPE_SINGLE,
-                    AMSK_ALIGN|AMSK_COLOR|AMSK_SIZE|AMSK_WIDTH|AMSK_CLASS  },
- { "i",             MARKUP_I,            MUTYPE_FONT,          0  },
+                    AMSK_ALIGN|AMSK_COLOR|AMSK_SIZE|AMSK_WIDTH|
+                    AMSK_STYLE|AMSK_CLASS  },
+ { "i",             MARKUP_I,            MUTYPE_FONT,          AMSK_STYLE },
  { "img",           MARKUP_IMG,          MUTYPE_SINGLE,
                     AMSK_ALIGN|AMSK_ALT|AMSK_BORDER|AMSK_HEIGHT|
-                    AMSK_HSPACE|AMSK_SRC|AMSK_VSPACE|AMSK_WIDTH  },
- { "kbd",           MARKUP_KBD,          MUTYPE_FONT,          0  },
+                    AMSK_HSPACE|AMSK_SRC|AMSK_VSPACE|AMSK_WIDTH|AMSK_STYLE  },
+ { "kbd",           MARKUP_KBD,          MUTYPE_FONT,          AMSK_STYLE },
  { "li",            MARKUP_LI,           MUTYPE_LI,
-                    AMSK_TYPE|AMSK_VALUE  },
+                    AMSK_TYPE|AMSK_VALUE|AMSK_STYLE  },
  { "nobr",          MARKUP_NOBR,         MUTYPE_FONT,          0  },
  { "nowiki",        MARKUP_NOWIKI,       MUTYPE_SPECIAL,       0  },
  { "ol",            MARKUP_OL,           MUTYPE_LIST,
-                    AMSK_START|AMSK_TYPE|AMSK_COMPACT  },
- { "p",             MARKUP_P,            MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "pre",           MARKUP_PRE,          MUTYPE_BLOCK,         0  },
- { "s",             MARKUP_S,            MUTYPE_FONT,          0  },
- { "samp",          MARKUP_SAMP,         MUTYPE_FONT,          0  },
- { "small",         MARKUP_SMALL,        MUTYPE_FONT,          0  },
- { "span",          MARKUP_SPAN,         MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "strike",        MARKUP_STRIKE,       MUTYPE_FONT,          0  },
- { "strong",        MARKUP_STRONG,       MUTYPE_FONT,          0  },
- { "sub",           MARKUP_SUB,          MUTYPE_FONT,          0  },
- { "sup",           MARKUP_SUP,          MUTYPE_FONT,          0  },
+                    AMSK_START|AMSK_TYPE|AMSK_COMPACT|AMSK_STYLE  },
+ { "p",             MARKUP_P,            MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "pre",           MARKUP_PRE,          MUTYPE_BLOCK,         AMSK_STYLE },
+ { "s",             MARKUP_S,            MUTYPE_FONT,          AMSK_STYLE },
+ { "samp",          MARKUP_SAMP,         MUTYPE_FONT,          AMSK_STYLE },
+ { "small",         MARKUP_SMALL,        MUTYPE_FONT,          AMSK_STYLE },
+ { "span",          MARKUP_SPAN,         MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "strike",        MARKUP_STRIKE,       MUTYPE_FONT,          AMSK_STYLE },
+ { "strong",        MARKUP_STRONG,       MUTYPE_FONT,          AMSK_STYLE },
+ { "sub",           MARKUP_SUB,          MUTYPE_FONT,          AMSK_STYLE },
+ { "sup",           MARKUP_SUP,          MUTYPE_FONT,          AMSK_STYLE },
  { "table",         MARKUP_TABLE,        MUTYPE_TABLE,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_BORDER|AMSK_CELLPADDING|
-                    AMSK_CELLSPACING|AMSK_HSPACE|AMSK_VSPACE|AMSK_CLASS  },
- { "tbody",         MARKUP_TBODY,        MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
+                    AMSK_CELLSPACING|AMSK_HSPACE|AMSK_VSPACE|AMSK_CLASS|
+                    AMSK_STYLE  },
+ { "tbody",         MARKUP_TBODY,        MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "td",            MARKUP_TD,           MUTYPE_TD,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
-                    AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS  },
- { "tfoot",         MARKUP_TFOOT,        MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
+                    AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "tfoot",         MARKUP_TFOOT,        MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "th",            MARKUP_TH,           MUTYPE_TD,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
-                    AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS  },
- { "thead",         MARKUP_THEAD,        MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
+                    AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "thead",         MARKUP_THEAD,        MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "tr",            MARKUP_TR,           MUTYPE_TR,
-                    AMSK_ALIGN|AMSK_BGCOLOR|AMSK_VALIGN|AMSK_CLASS  },
- { "tt",            MARKUP_TT,           MUTYPE_FONT,          0  },
- { "u",             MARKUP_U,            MUTYPE_FONT,          0  },
+                    AMSK_ALIGN|AMSK_BGCOLOR|AMSK_VALIGN|AMSK_CLASS|AMSK_STYLE },
+ { "tt",            MARKUP_TT,           MUTYPE_FONT,          AMSK_STYLE },
+ { "u",             MARKUP_U,            MUTYPE_FONT,          AMSK_STYLE },
  { "ul",            MARKUP_UL,           MUTYPE_LIST,
-                    AMSK_TYPE|AMSK_COMPACT  },
- { "var",           MARKUP_VAR,          MUTYPE_FONT,          0  },
- { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,       AMSK_ID|AMSK_TYPE },
+                    AMSK_TYPE|AMSK_COMPACT|AMSK_STYLE  },
+ { "var",           MARKUP_VAR,          MUTYPE_FONT,          AMSK_STYLE },
+ { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,
+                    AMSK_ID|AMSK_TYPE },
 };
 
 void show_allowed_wiki_markup( void ){
@@ -361,15 +385,15 @@ static int findTag(const char *z){
 #define TOKEN_TEXT          11 /* None of the above */
 
 /*
-** State flags
+** State flags.  Save the lower 16 bits for the WIKI_* flags.
 */
-#define AT_NEWLINE          0x001  /* At start of a line */
-#define AT_PARAGRAPH        0x002  /* At start of a paragraph */
-#define ALLOW_WIKI          0x004  /* Allow wiki markup */
-#define FONT_MARKUP_ONLY    0x008  /* Only allow MUTYPE_FONT markup */
-#define INLINE_MARKUP_ONLY  0x010  /* Allow only "inline" markup */
-#define IN_LIST             0x020  /* Within wiki <ul> or <ol> */
-#define WIKI_USE_HTML       0x040  /* wiki-use-html option = on */
+#define AT_NEWLINE          0x0010000  /* At start of a line */
+#define AT_PARAGRAPH        0x0020000  /* At start of a paragraph */
+#define ALLOW_WIKI          0x0040000  /* Allow wiki markup */
+#define ALLOW_LINKS         0x0080000  /* Allow [...] hyperlinks */
+#define FONT_MARKUP_ONLY    0x0100000  /* Only allow MUTYPE_FONT markup */
+#define INLINE_MARKUP_ONLY  0x0200000  /* Allow only "inline" markup */
+#define IN_LIST             0x0400000  /* Within wiki <ul> or <ol> */
 
 /*
 ** Current state of the rendering engine
@@ -378,6 +402,7 @@ typedef struct Renderer Renderer;
 struct Renderer {
   Blob *pOut;                 /* Output appended to this blob */
   int state;                  /* Flag that govern rendering */
+  unsigned renderFlags;       /* Flags from the client */
   int wikiList;               /* Current wiki list type */
   int inVerbatim;             /* True in <verbatim> mode */
   int preVerbState;           /* Value of state prior to verbatim */
@@ -418,7 +443,7 @@ static int markupLength(const char *z){
   int c;
   if( z[n]=='/' ){ n++; }
   if( !fossil_isalpha(z[n]) ) return 0;
-  while( fossil_isalnum(z[n]) ){ n++; }
+  while( fossil_isalnum(z[n]) || z[n]=='-' ){ n++; }
   c = z[n];
   if( c=='/' && z[n+1]=='>' ){ return n+2; }
   if( c!='>' && !fossil_isspace(c) ) return 0;
@@ -466,14 +491,23 @@ static int paragraphBreakLength(const char *z){
 **      \n
 **      [
 **
-** The "[" and "\n" are only considered interesting if the "useWiki"
-** flag is set.
+** The "[" is only considered if flags contain ALLOW_LINKS or ALLOW_WIKI.
+** The "\n" is only considered interesting if the flags constains ALLOW_WIKI.
 */
-static int textLength(const char *z, int useWiki){
+static int textLength(const char *z, int flags){
   int n = 0;
-  int c;
-  while( (c = z[0])!=0 && c!='<' && c!='&' &&
-               (useWiki==0 || (c!='[' && c!='\n')) ){
+  int c, x1, x2;
+
+  if( flags & ALLOW_WIKI ){
+    x1 = '[';
+    x2 = '\n';
+  }else if( flags & ALLOW_LINKS ){
+    x1 = '[';
+    x2 = 0;
+  }else{
+    x1 = x2 = 0;
+  }
+  while( (c = z[0])!=0 && c!='<' && c!='&' && c!=x1 && c!=x2 ){
     n++;
     z++;
   }
@@ -650,9 +684,12 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
       *pTokenType = TOKEN_LINK;
       return n;
     }
+  }else if( (p->state & ALLOW_LINKS)!=0 && z[0]=='[' && (n = linkLength(z))>0 ){
+    *pTokenType = TOKEN_LINK;
+    return n;
   }
   *pTokenType = TOKEN_TEXT;
-  return 1 + textLength(z+1, p->state & ALLOW_WIKI);
+  return 1 + textLength(z+1, p->state);
 }
 
 /*
@@ -718,8 +755,19 @@ static void parseMarkup(ParsedMarkup *p, char *z){
   p->iCode = findTag(zTag);
   p->iType = aMarkup[p->iCode].iType;
   p->nAttr = 0;
+  c = 0;
+  if( z[i]=='-' ){
+    p->aAttr[0].iACode = iACode = ATTR_ID;
+    i++;
+    p->aAttr[0].zValue = &z[i];
+    while( fossil_isalnum(z[i]) ){ i++; }
+    p->aAttr[0].cTerm = c = z[i];
+    z[i++] = 0;
+    p->nAttr = 1;
+    if( c=='>' ) return;
+  }
   while( fossil_isspace(z[i]) ){ i++; }
-  while( p->nAttr<8 && fossil_isalpha(z[i]) ){
+  while( c!='>' && p->nAttr<8 && fossil_isalpha(z[i]) ){
     int attrOk;    /* True to preserver attribute.  False to ignore it */
     j = 0;
     while( fossil_isalnum(z[i]) ){
@@ -808,17 +856,67 @@ static void unparseMarkup(ParsedMarkup *p){
 }
 
 /*
-** Return the ID attribute for markup.  Return NULL if there is no
+** Return the value of attribute attrId.  Return NULL if there is no
 ** ID attribute.
 */
-static const char *markupId(ParsedMarkup *p){
+static const char *attributeValue(ParsedMarkup *p, int attrId){
   int i;
   for(i=0; i<p->nAttr; i++){
-    if( p->aAttr[i].iACode==ATTR_ID ){
+    if( p->aAttr[i].iACode==attrId ){
       return p->aAttr[i].zValue;
     }
   }
   return 0;
+}
+
+/*
+** Return the ID attribute for markup.  Return NULL if there is no
+** ID attribute.
+*/
+static const char *markupId(ParsedMarkup *p){
+  return attributeValue(p, ATTR_ID);
+}
+
+/*
+** Check markup pMarkup to see if it is a hyperlink with class "button"
+** that is follows by simple text and an </a> only.  Example:
+**
+**     <a class="button" href="../index.wiki">Index</a>
+**
+** If the markup matches this pattern, and if the WIKI_BUTTONS flag was
+** passed to wiki_convert(), then transform this link into a submenu
+** button, skip the text, and set *pN equal to the total length of the
+** text through the end of </a> and return true.  If the markup does
+** not match or if WIKI_BUTTONS is not set, then make no changes to *pN
+** and return false.
+*/
+static int isButtonHyperlink(
+  Renderer *p,              /* Renderer state */
+  ParsedMarkup *pMarkup,    /* Potential button markup */
+  const char *z,            /* Complete text of Wiki */
+  int *pN                   /* Characters of z[] consumed */
+){
+  const char *zClass;
+  const char *zHref;
+  char *zTag;
+  int i, j;
+  if( (p->state & WIKI_BUTTONS)==0 ) return 0;
+  zClass = attributeValue(pMarkup, ATTR_CLASS);
+  if( zClass==0 ) return 0;
+  if( fossil_strcmp(zClass, "button")!=0 ) return 0;
+  zHref = attributeValue(pMarkup, ATTR_HREF);
+  if( zHref==0 ) return 0;
+  i = *pN;
+  while( z[i] && z[i]!='<' ){ i++; }
+  if( fossil_strnicmp(&z[i], "</a>",4)!=0 ) return 0;
+  for(j=*pN; fossil_isspace(z[j]); j++){}
+  zTag = mprintf("%.*s", i-j, &z[j]);
+  j = (int)strlen(zTag);
+  while( j>0 && fossil_isspace(zTag[j-1]) ){ j--; }
+  if( j==0 ) return 0;
+  style_submenu_element(zTag, zTag, "%s", zHref);
+  *pN = i+4;
+  return 1;
 }
 
 /*
@@ -914,9 +1012,9 @@ static int backupToType(Renderer *p, int iMask){
 */
 static void startAutoParagraph(Renderer *p){
   if( p->wantAutoParagraph==0 ) return;
+  if( p->state & WIKI_LINKSONLY ) return;
   if( p->wikiList==MARKUP_OL || p->wikiList==MARKUP_UL ) return;
   blob_appendf(p->pOut, "<p>", -1);
-  pushStack(p, MARKUP_P);
   p->wantAutoParagraph = 0;
   p->inAutoParagraph = 1;
 }
@@ -926,7 +1024,6 @@ static void startAutoParagraph(Renderer *p){
 */
 static void endAutoParagraph(Renderer *p){
   if( p->inAutoParagraph ){
-    popStackToTag(p, MARKUP_P);
     p->inAutoParagraph = 0;
   }
 }
@@ -949,10 +1046,18 @@ static int is_valid_uuid(const char *z){
 static int in_this_repo(const char *zUuid){
   static Stmt q;
   int rc;
-  db_static_prepare(&q, 
-     "SELECT 1 FROM blob WHERE uuid>=:u AND +uuid GLOB (:u || '*')"
+  int n;
+  char zU2[UUID_SIZE+1];
+  db_static_prepare(&q,
+     "SELECT 1 FROM blob WHERE uuid>=:u AND uuid<:u2"
   );
   db_bind_text(&q, ":u", zUuid);
+  n = (int)strlen(zUuid);
+  if( n>=sizeof(zU2) ) n = sizeof(zU2)-1;
+  memcpy(zU2, zUuid, n);
+  zU2[n-1]++;
+  zU2[n] = 0;
+  db_bind_text(&q, ":u2", zU2);
   rc = db_step(&q);
   db_reset(&q);
   return rc==SQLITE_ROW;
@@ -1001,10 +1106,33 @@ static int is_ticket(
 }
 
 /*
+** Return a pointer to the name part of zTarget (skipping the "wiki:" prefix
+** if there is one) if zTarget is a valid wiki page name.  Return NULL if
+** zTarget names a page that does not exist.
+*/
+static const char *validWikiPageName(Renderer *p, const char *zTarget){
+  if( strncmp(zTarget, "wiki:", 5)==0
+      && wiki_name_is_wellformed((const unsigned char*)zTarget) ){
+    return zTarget+5;
+  }
+  if( strcmp(zTarget, "Sandbox")==0 ) return zTarget;
+  if( wiki_name_is_wellformed((const unsigned char *)zTarget)
+   && ((p->state & WIKI_NOBADLINKS)==0 ||
+        db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'wiki-%q'", zTarget))
+  ){
+    return zTarget;
+  }
+  return 0;
+}
+
+/*
 ** Resolve a hyperlink.  The zTarget argument is the content of the [...]
-** in the wiki.  Append to the output string whatever text is approprate
+** in the wiki.  Append to the output string whatever text is appropriate
 ** for opening the hyperlink.  Write into zClose[0...nClose-1] text that will
 ** close the markup.
+**
+** If this routine determines that no hyperlink should be generated, then
+** set zClose[0] to 0.
 **
 ** Actually, this routine might or might not append the hyperlink, depending
 ** on current rendering rules: specifically does the current user have
@@ -1030,28 +1158,29 @@ static int is_ticket(
 */
 static void openHyperlink(
   Renderer *p,            /* Rendering context */
-  const char *zTarget,    /* Hyperlink traget; text within [...] */
+  const char *zTarget,    /* Hyperlink target; text within [...] */
   char *zClose,           /* Write hyperlink closing text here */
-  int nClose              /* Bytes available in zClose[] */
+  int nClose,             /* Bytes available in zClose[] */
+  const char *zOrig       /* Complete document text */
 ){
   const char *zTerm = "</a>";
-  assert( nClose>=20 );
+  const char *z;
 
+  assert( nClose>=20 );
   if( strncmp(zTarget, "http:", 5)==0
    || strncmp(zTarget, "https:", 6)==0
    || strncmp(zTarget, "ftp:", 4)==0
    || strncmp(zTarget, "mailto:", 7)==0
   ){
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
-    /* zTerm = "&#x27FE;</a>"; // doesn't work on windows */
   }else if( zTarget[0]=='/' ){
     blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zTop, zTarget);
-  }else if( zTarget[0]=='.' || zTarget[0]=='#' ){
-    if( 1 ){
-      blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
-    }else{
-      zTerm = "";
-    }
+  }else if( zTarget[0]=='.'
+         && (zTarget[1]=='/' || (zTarget[1]=='.' && zTarget[2]=='/'))
+         && (p->state & WIKI_LINKSONLY)==0 ){
+    blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
+  }else if( zTarget[0]=='#' ){
+    blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
   }else if( is_valid_uuid(zTarget) ){
     int isClosed = 0;
     if( is_ticket(zTarget, &isClosed) ){
@@ -1079,24 +1208,29 @@ static void openHyperlink(
         }
       }
     }else if( !in_this_repo(zTarget) ){
-      blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
-      zTerm = "]</span>";
+      if( (p->state & (WIKI_LINKSONLY|WIKI_NOBADLINKS))!=0 ){
+        zTerm = "";
+      }else{
+        blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
+        zTerm = "]</span>";
+      }
     }else if( g.perm.Hyperlink ){
       blob_appendf(p->pOut, "%z[",href("%R/info/%s", zTarget));
       zTerm = "]</a>";
     }
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"%s/timeline?c=%T\">", g.zTop, zTarget);
-  }else if( strncmp(zTarget, "wiki:", 5)==0 
-        && wiki_name_is_wellformed((const unsigned char*)zTarget) ){
-    zTarget += 5;
-    blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zTop, zTarget);
-  }else if( wiki_name_is_wellformed((const unsigned char *)zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zTop, zTarget);
-  }else{
-    blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]</span>", zTarget);
+    blob_appendf(p->pOut, "<a href=\"%R/timeline?c=%T\">", zTarget);
+  }else if( (z = validWikiPageName(p, zTarget))!=0 ){
+    blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", z);
+  }else if( zTarget>=&zOrig[2] && !fossil_isspace(zTarget[-2]) ){
+    /* Probably an array subscript in code */
     zTerm = "";
+  }else if( (p->state & (WIKI_NOBADLINKS|WIKI_LINKSONLY))!=0 ){
+    zTerm = "";
+  }else{
+    blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]", zTarget);
+    zTerm = "</span>";
   }
   assert( strlen(zTerm)<nClose );
   sqlite3_snprintf(nClose, zClose, "%s", zTerm);
@@ -1136,14 +1270,16 @@ static void wiki_render(Renderer *p, char *z){
   ParsedMarkup markup;
   int n;
   int inlineOnly = (p->state & INLINE_MARKUP_ONLY)!=0;
-  int wikiUseHtml = (p->state & WIKI_USE_HTML)!=0;
+  int wikiHtmlOnly = (p->state & (WIKI_HTMLONLY | WIKI_LINKSONLY))!=0;
+  int linksOnly = (p->state & WIKI_LINKSONLY)!=0;
+  char *zOrig = z;
 
   /* Make sure the attribute constants and names still align
   ** following changes in the attribute list. */
   assert( fossil_strcmp(aAttribute[ATTR_WIDTH].zName, "width")==0 );
 
   while( z[0] ){
-    if( wikiUseHtml ){
+    if( wikiHtmlOnly ){
       n = nextRawToken(z, p, &tokenType);
     }else{
       n = nextWikiToken(z, p, &tokenType);
@@ -1256,14 +1392,18 @@ static void wiki_render(Renderer *p, char *z){
         int i, j;
         int savedState;
         char zClose[20];
+        char cS1 = 0;
+        int iS1 = 0;
 
         startAutoParagraph(p);
         zTarget = &z[1];
         for(i=1; z[i] && z[i]!=']'; i++){
           if( z[i]=='|' && zDisplay==0 ){
             zDisplay = &z[i+1];
-            z[i] = 0;
-            for(j=i-1; j>0 && fossil_isspace(z[j]); j--){ z[j] = 0; }
+            for(j=i; j>0 && fossil_isspace(z[j-1]); j--){}
+            iS1 = j;
+            cS1 = z[j];
+            z[j] = 0;
           }
         }
         z[i] = 0;
@@ -1272,13 +1412,22 @@ static void wiki_render(Renderer *p, char *z){
         }else{
           while( fossil_isspace(*zDisplay) ) zDisplay++;
         }
-        openHyperlink(p, zTarget, zClose, sizeof(zClose));
-        savedState = p->state;
-        p->state &= ~ALLOW_WIKI;
-        p->state |= FONT_MARKUP_ONLY;
-        wiki_render(p, zDisplay);
-        p->state = savedState;
-        blob_append(p->pOut, zClose, -1);
+        openHyperlink(p, zTarget, zClose, sizeof(zClose), zOrig);
+        if( linksOnly || zClose[0]==0 || p->inVerbatim ){
+          if( cS1 ) z[iS1] = cS1;
+          if( zClose[0]!=']' ){
+            blob_appendf(p->pOut, "[%h]%s", zTarget, zClose);
+          }else{
+            blob_appendf(p->pOut, "%h%s", zTarget, zClose);
+          }
+        }else{
+          savedState = p->state;
+          p->state &= ~ALLOW_WIKI;
+          p->state |= FONT_MARKUP_ONLY;
+          wiki_render(p, zDisplay);
+          p->state = savedState;
+          blob_append(p->pOut, zClose, -1);
+        }
         break;
       }
       case TOKEN_TEXT: {
@@ -1289,7 +1438,11 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_RAW: {
-        blob_append(p->pOut, z, n);
+        if( linksOnly ){
+          htmlize_to_blob(p->pOut, z, n);
+        }else{
+          blob_append(p->pOut, z, n);
+        }
         break;
       }
       case TOKEN_MARKUP: {
@@ -1298,9 +1451,8 @@ static void wiki_render(Renderer *p, char *z){
         parseMarkup(&markup, z);
 
         /* Markup of the form </div id=ID> where there is a matching
-        ** ID somewhere on the stack.  Exit the verbatim if were are in
-        ** it.  Pop the stack up to the matching <div>.  Discard the
-        ** </div>
+        ** ID somewhere on the stack.  Exit any contained verbatim.
+        ** Pop the stack up to the matching <div>.  Discard the </div>
         */
         if( markup.iCode==MARKUP_DIV && markup.endTag &&
              (zId = markupId(&markup))!=0 &&
@@ -1384,18 +1536,21 @@ static void wiki_render(Renderer *p, char *z){
         ** ignored.
         */
         if( markup.iCode==MARKUP_VERBATIM ){
-          int vAttrIdx, vAttrDidAppend=0;
+          int ii, vAttrDidAppend=0;
           p->zVerbatimId = 0;
           p->inVerbatim = 1;
           p->preVerbState = p->state;
           p->state &= ~ALLOW_WIKI;
-          for (vAttrIdx = 0; vAttrIdx < markup.nAttr; vAttrIdx++){
-            if( markup.aAttr[vAttrIdx].iACode == ATTR_ID ){
-              p->zVerbatimId = markup.aAttr[0].zValue;
-            }else if( markup.aAttr[vAttrIdx].iACode == ATTR_TYPE ){
+          for(ii=0; ii<markup.nAttr; ii++){
+            if( markup.aAttr[ii].iACode == ATTR_ID ){
+              p->zVerbatimId = markup.aAttr[ii].zValue;
+            }else if( markup.aAttr[ii].iACode==ATTR_TYPE ){
               blob_appendf(p->pOut, "<pre name='code' class='%s'>",
-                markup.aAttr[vAttrIdx].zValue);
+                markup.aAttr[ii].zValue);
               vAttrDidAppend=1;
+            }else if( markup.aAttr[ii].iACode==ATTR_LINKS
+                   && !is_false(markup.aAttr[ii].zValue) ){
+              p->state |= ALLOW_LINKS;
             }
           }
           if( !vAttrDidAppend ) {
@@ -1430,10 +1585,12 @@ static void wiki_render(Renderer *p, char *z){
           }
         }else
         if( markup.iType==MUTYPE_HYPERLINK ){
-          popStackToTag(p, markup.iCode);
-          startAutoParagraph(p);
-          renderMarkup(p->pOut, &markup);
-          pushStack(p, markup.iCode);
+          if( !isButtonHyperlink(p, &markup, z, &n) ){
+            popStackToTag(p, markup.iCode);
+            startAutoParagraph(p);
+            renderMarkup(p->pOut, &markup);
+            pushStack(p, markup.iCode);
+          }
         }else
         {
           if( markup.iType==MUTYPE_FONT ){
@@ -1464,16 +1621,6 @@ static void wiki_render(Renderer *p, char *z){
 }
 
 /*
-** Skip over the UTF-8 Byte-Order-Mark that some broken Windows
-** tools add to the beginning of text files.
-*/
-char *skip_bom(char *z){
-  static const char bom[] = { 0xEF, 0xBB, 0xBF };
-  if( z && memcmp(z, bom, 3)==0 ) z += 3;
-  return z;
-}
-
-/*
 ** Transform the text in the pIn blob.  Write the results
 ** into the pOut blob.  The pOut blob should already be
 ** initialized.  The output is merely appended to pOut.
@@ -1481,11 +1628,11 @@ char *skip_bom(char *z){
 ** reply.
 */
 void wiki_convert(Blob *pIn, Blob *pOut, int flags){
-  char *z;
   Renderer renderer;
 
   memset(&renderer, 0, sizeof(renderer));
-  renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH;
+  renderer.renderFlags = flags;
+  renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH|flags;
   if( flags & WIKI_NOBLOCK ){
     renderer.state |= INLINE_MARKUP_ONLY;
   }
@@ -1495,7 +1642,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
     renderer.wantAutoParagraph = 1;
   }
   if( wikiUsesHtml() ){
-    renderer.state |= WIKI_USE_HTML;
+    renderer.state |= WIKI_HTMLONLY;
   }
   if( pOut ){
     renderer.pOut = pOut;
@@ -1503,8 +1650,8 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
     renderer.pOut = cgi_output_blob();
   }
 
-  z = skip_bom(blob_str(pIn));
-  wiki_render(&renderer, z);
+  blob_to_utf8_no_bom(pIn, 0);
+  wiki_render(&renderer, blob_str(pIn));
   endAutoParagraph(&renderer);
   while( renderer.nStack ){
     popStack(&renderer);
@@ -1514,14 +1661,43 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 }
 
 /*
+** Send a string as wiki to CGI output.
+*/
+void wiki_write(const char *zIn, int flags){
+  Blob in;
+  blob_init(&in, zIn, -1);
+  wiki_convert(&in, 0, flags);
+  blob_reset(&in);
+}
+
+/*
 ** COMMAND: test-wiki-render
+**
+** %fossil test-wiki-render FILE [OPTIONS]
+**
+** Options:
+**    --buttons        Set the WIKI_BUTTONS flag
+**    --htmlonly       Set the WIKI_HTMLONLY flag
+**    --linksonly      Set the WIKI_LINKSONLY flag
+**    --nobadlinks     Set the WIKI_NOBADLINKS flag
+**    --inline         Set the WIKI_INLINE flag
+**    --noblock        Set the WIKI_NOBLOCK flag
 */
 void test_wiki_render(void){
   Blob in, out;
+  int flags = 0;
+  if( find_option("buttons",0,0)!=0 ) flags |= WIKI_BUTTONS;
+  if( find_option("htmlonly",0,0)!=0 ) flags |= WIKI_HTMLONLY;
+  if( find_option("linksonly",0,0)!=0 ) flags |= WIKI_LINKSONLY;
+  if( find_option("nobadlinks",0,0)!=0 ) flags |= WIKI_NOBADLINKS;
+  if( find_option("inline",0,0)!=0 ) flags |= WIKI_INLINE;
+  if( find_option("noblock",0,0)!=0 ) flags |= WIKI_NOBLOCK;
+  db_find_and_open_repository(0,0);
+  verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);
   blob_read_from_file(&in, g.argv[2]);
-  wiki_convert(&in, &out, 0);
+  wiki_convert(&in, &out, flags);
   blob_write_to_file(&out, "-");
 }
 
@@ -1538,7 +1714,8 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
   char *z;
   int i;
   int iStart;
-  z = skip_bom(blob_str(pIn));
+  blob_to_utf8_no_bom(pIn, 0);
+  z = blob_str(pIn);
   for(i=0; fossil_isspace(z[i]); i++){}
   if( z[i]!='<' ) return 0;
   i++;
@@ -1574,7 +1751,7 @@ void wiki_extract_links(
   ParsedMarkup markup;
   int n;
   int inlineOnly;
-  int wikiUseHtml = 0;
+  int wikiHtmlOnly = 0;
 
   memset(&renderer, 0, sizeof(renderer));
   renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH;
@@ -1582,8 +1759,8 @@ void wiki_extract_links(
     renderer.state |= INLINE_MARKUP_ONLY;
   }
   if( wikiUsesHtml() ){
-    renderer.state |= WIKI_USE_HTML;
-    wikiUseHtml = 1;
+    renderer.state |= WIKI_HTMLONLY;
+    wikiHtmlOnly = 1;
   }
   inlineOnly = (renderer.state & INLINE_MARKUP_ONLY)!=0;
   if( replaceFlag ){
@@ -1592,7 +1769,7 @@ void wiki_extract_links(
   }
 
   while( z[0] ){
-    if( wikiUseHtml ){
+    if( wikiHtmlOnly ){
       n = nextRawToken(z, &renderer, &tokenType);
     }else{
       n = nextWikiToken(z, &renderer, &tokenType);
@@ -1729,4 +1906,144 @@ void wiki_extract_links(
     z += n;
   }
   free(renderer.aStack);
+}
+
+/*
+** Get the next HTML token.
+**
+** z points to the start of a token.  Return the number of
+** characters in that token.
+*/
+static int nextHtmlToken(const char *z){
+  int n;
+  if( z[0]=='<' ){
+    n = markupLength(z);
+    if( n<=0 ) n = 1;
+  }else if( fossil_isspace(z[0]) ){
+    for(n=1; z[n] && fossil_isspace(z[n]); n++){}
+  }else{
+    for(n=1; z[n] && z[n]!='<' && !fossil_isspace(z[n]); n++){}
+  }
+  return n;
+}
+
+/*
+** Attempt to reformat messy HTML to be easily readable by humans.
+**
+**    *  Try to keep lines less than 80 characters in length
+**    *  Collapse white space into a single space
+**    *  Put a blank line before:
+**          <blockquote><center><code><hN><p><pre><table>
+**    *  Put a newline after <br> and <hr>
+**    *  Start each of the following elements on a new line:
+**          <address><cite><dd><div><dl><dt><li><ol><samp>
+**          <tbody><td><tfoot><th><thead><tr><ul>
+**
+** Except, do not do any reformatting inside of <pre>...</pre>
+*/
+void htmlTidy(const char *zIn, Blob *pOut){
+  int n;
+  int nPre = 0;
+  int iCur = 0;
+  int wantSpace = 0;
+  int omitSpace = 1;
+  while( zIn[0] ){
+    n = nextHtmlToken(zIn);
+    if( zIn[0]=='<' && n>1 ){
+      int i, j;
+      int isCloseTag;
+      int eTag;
+      int eType;
+      char zTag[32];
+      isCloseTag = zIn[1]=='/';
+      for(i=0, j=1+isCloseTag; i<30 && fossil_isalnum(zIn[j]); i++, j++){
+         zTag[i] = fossil_tolower(zIn[j]);
+      }
+      zTag[i] = 0;
+      eTag = findTag(zTag);
+      eType = aMarkup[eTag].iType;
+      if( eTag==MARKUP_PRE ){
+        if( isCloseTag ){
+          nPre--;
+          blob_append(pOut, zIn, n);
+          zIn += n;
+          if( nPre==0 ){ blob_append(pOut, "\n", 1); iCur = 0; }
+          continue;
+        }else{
+          if( iCur && nPre==0 ){ blob_append(pOut, "\n", 1); iCur = 0; }
+          nPre++;
+        }
+      }else if( eType & (MUTYPE_BLOCK|MUTYPE_TABLE) ){
+        if( !isCloseTag && nPre==0 && blob_size(pOut)>0 ){
+          blob_append(pOut, "\n\n", 1 + (iCur>0));
+          iCur = 0;
+        }
+        wantSpace = 0;
+        omitSpace = 1;
+      }else if( (eType & (MUTYPE_LIST|MUTYPE_LI|MUTYPE_TR|MUTYPE_TD))!=0
+             || eTag==MARKUP_HR
+      ){
+        if( nPre==0 && (!isCloseTag || (eType&MUTYPE_LIST)!=0) && iCur>0 ){
+          blob_append(pOut, "\n", 1);
+          iCur = 0;
+        }
+        wantSpace = 0;
+        omitSpace = 1;
+      }
+      if( wantSpace && nPre==0 ){
+        if( iCur+n+1>=80 ){
+          blob_append(pOut, "\n", 1);
+          iCur = 0;
+        }else{
+          blob_append(pOut, " ", 1);
+          iCur++;
+        }
+      }
+      blob_append(pOut, zIn, n);
+      iCur += n;
+      wantSpace = 0;
+      if( eTag==MARKUP_BR || eTag==MARKUP_HR ){
+        blob_append(pOut, "\n", 1);
+        iCur = 0;
+      }
+    }else if( fossil_isspace(zIn[0]) ){
+      if( nPre ){
+        blob_append(pOut, zIn, n);
+      }else{
+        wantSpace = !omitSpace;
+      }
+    }else{
+      if( wantSpace && nPre==0 ){
+        if( iCur+n+1>=80 ){
+          blob_append(pOut, "\n", 1);
+          iCur = 0;
+        }else{
+          blob_append(pOut, " ", 1);
+          iCur++;
+        }
+      }
+      blob_append(pOut, zIn, n);
+      iCur += n;
+      wantSpace = omitSpace = 0;
+    }
+    zIn += n;
+  }
+  if( iCur ) blob_append(pOut, "\n", 1);
+}
+
+/*
+** COMMAND: test-html-tidy
+*/
+void test_html_tidy(void){
+  Blob in, out;
+  int i;
+
+  for(i=2; i<g.argc; i++){
+    blob_read_from_file(&in, g.argv[i]);
+    blob_zero(&out);
+    htmlTidy(blob_str(&in), &out);
+    blob_reset(&in);
+    fossil_puts(blob_str(&out), 0);
+    blob_reset(&out);
+  }
 }

@@ -43,7 +43,9 @@ void attachlist_page(void){
   login_check_credentials();
   blob_zero(&sql);
   blob_append(&sql,
-     "SELECT datetime(mtime,'localtime'), src, target, filename, comment, user"
+     "SELECT datetime(mtime,'localtime'), src, target, filename,"
+     "       comment, user,"
+     "       (SELECT uuid FROM blob WHERE rid=attachid), attachid"
      "  FROM attachment",
      -1
   );
@@ -61,6 +63,7 @@ void attachlist_page(void){
   }
   blob_appendf(&sql, " ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_str(&sql));
+  @ <ol>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zSrc = db_column_text(&q, 1);
@@ -68,6 +71,9 @@ void attachlist_page(void){
     const char *zFilename = db_column_text(&q, 3);
     const char *zComment = db_column_text(&q, 4);
     const char *zUser = db_column_text(&q, 5);
+    const char *zUuid = db_column_text(&q, 6);
+    int attachid = db_column_int(&q, 7);
+    const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     int i;
     char *zUrlTail;
     for(i=0; zFilename[i]; i++){
@@ -81,12 +87,16 @@ void attachlist_page(void){
     }else{
       zUrlTail = mprintf("page=%t&file=%t", zTarget, zFilename);
     }
-    @
-    @ <p><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
+    @ <li><p>
+    @ Attachment %z(href("%R/ainfo/%s",zUuid))%S(zUuid)</a>
+    if( moderation_pending(attachid) ){
+      @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
+    }
+    @ <br><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
     @ [<a href="/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
-      @ %w(zComment)<br />
+      @ %!w(zComment)<br />
     }
     if( zPage==0 && zTkt==0 ){
       if( zSrc==0 || zSrc[0]==0 ){
@@ -108,11 +118,12 @@ void attachlist_page(void){
         @ Added
       }
     }
-    @ by %h(zUser) on
+    @ by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
     free(zUrlTail);
   }
   db_finalize(&q);
+  @ </ol>
   style_footer();
   return;
 }
@@ -184,6 +195,30 @@ void attachview_page(void){
   }
 }
 
+/*
+** Save an attachment control artifact into the repository
+*/
+static void attach_put(
+  Blob *pAttach,     /* Text of the Attachment record */
+  int attachRid,     /* RID for the file that is being attached */
+  int needMod        /* True if the attachment is subject to moderation */
+){
+  int rid;
+  if( needMod ){
+    rid = content_put_ex(pAttach, 0, 0, 0, 1);
+    moderation_table_create();
+    db_multi_exec(
+      "INSERT INTO modreq(objid,attachRid) VALUES(%d,%d);",
+      rid, attachRid
+    );
+  }else{
+    rid = content_put(pAttach);
+    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
+    db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
+  }
+  manifest_crosslink(rid, pAttach);
+}
+
 
 /*
 ** WEBPAGE: attachadd
@@ -203,6 +238,7 @@ void attachadd_page(void){
   const char *zTarget;
   const char *zTargetType;
   int szContent = atoi(PD("f:bytes","0"));
+  int goodCaptcha = 1;
 
   if( P("cancel") ) cgi_redirect(zFrom);
   if( zPage && zTkt ) fossil_redirect_home();
@@ -231,7 +267,7 @@ void attachadd_page(void){
   if( P("cancel") ){
     cgi_redirect(zFrom);
   }
-  if( P("ok") && szContent>0 ){
+  if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct()) ){
     Blob content;
     Blob manifest;
     Blob cksum;
@@ -242,17 +278,21 @@ void attachadd_page(void){
     int i, n;
     int addCompress = 0;
     Manifest *pManifest;
+    int needModerator;
 
     db_begin_transaction();
     blob_init(&content, aContent, szContent);
-    pManifest = manifest_parse(&content, 0);
+    pManifest = manifest_parse(&content, 0, 0);
     manifest_destroy(pManifest);
     blob_init(&content, aContent, szContent);
     if( pManifest ){
       blob_compress(&content, &content);
       addCompress = 1;
     }
-    rid = content_put(&content);
+    needModerator =
+         (zTkt!=0 && g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1) ||
+         (zPage!=0 && g.perm.ModWiki==0 && db_get_boolean("modreq-wiki",0)==1);
+    rid = content_put_ex(&content, 0, 0, 0, needModerator);
     zUUID = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     blob_zero(&manifest);
     for(i=n=0; zName[i]; i++){
@@ -274,16 +314,18 @@ void attachadd_page(void){
     blob_appendf(&manifest, "U %F\n", g.zLogin ? g.zLogin : "nobody");
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
-    rid = content_put(&manifest);
-    manifest_crosslink(rid, &manifest);
+    attach_put(&manifest, rid, needModerator);
     assert( blob_is_reset(&manifest) );
     db_end_transaction(0);
     cgi_redirect(zFrom);
   }
   style_header("Add Attachment");
+  if( !goodCaptcha ){
+    @ <p class="generalError">Error: Incorrect security code.</p>
+  }
   @ <h2>Add Attachment To %s(zTargetType)</h2>
-  @ <form action="%s(g.zTop)/attachadd" method="post"
-  @  enctype="multipart/form-data"><div>
+  form_begin("enctype='multipart/form-data'", "%R/attachadd");
+  @ <div>
   @ File to Attach:
   @ <input type="file" name="f" size="60" /><br />
   @ Description:<br />
@@ -296,50 +338,86 @@ void attachadd_page(void){
   @ <input type="hidden" name="from" value="%h(zFrom)" />
   @ <input type="submit" name="ok" value="Add Attachment" />
   @ <input type="submit" name="cancel" value="Cancel" />
-  @ </div></form>
+  @ </div>
+  captcha_generate();
+  @ </form>
   style_footer();
 }
 
-
 /*
-** WEBPAGE: attachdelete
+** WEBPAGE: ainfo
+** URL: /ainfo?name=ARTIFACTID
 **
-**    tkt=TICKETUUID
-**    page=WIKIPAGE
-**    file=FILENAME
-**
-** "Delete" an attachment.  Because objects in Fossil are immutable
-** the attachment isn't really deleted.  Instead, we change the content
-** of the attachment to NULL, which the system understands as being
-** deleted.  Historical values of the attachment are preserved.
+** Show the details of an attachment artifact.
 */
-void attachdel_page(void){
-  const char *zPage = P("page");
-  const char *zTkt = P("tkt");
-  const char *zFile = P("file");
-  const char *zFrom = P("from");
-  const char *zTarget;
+void ainfo_page(void){
+  int rid;                       /* RID for the control artifact */
+  int ridSrc;                    /* RID for the attached file */
+  char *zDate;                   /* Date attached */
+  const char *zUuid;             /* UUID of the control artifact */
+  Manifest *pAttach;             /* Parse of the control artifact */
+  const char *zTarget;           /* Wiki or ticket attached to */
+  const char *zSrc;              /* UUID of the attached file */
+  const char *zName;             /* Name of the attached file */
+  const char *zDesc;             /* Description of the attached file */
+  const char *zWikiName = 0;     /* Wiki page name when attached to Wiki */
+  const char *zTktUuid = 0;      /* Ticket ID when attached to a ticket */
+  int modPending;                /* True if awaiting moderation */
+  const char *zModAction;        /* Moderation action or NULL */
+  int isModerator;               /* TRUE if user is the moderator */
+  const char *zMime;             /* MIME Type */
+  Blob attach;                   /* Content of the attachment */
 
-  if( zPage && zTkt ) fossil_redirect_home();
-  if( zPage==0 && zTkt==0 ) fossil_redirect_home();
-  if( zFile==0 ) fossil_redirect_home();
   login_check_credentials();
-  if( zPage ){
-    if( g.perm.WrWiki==0 || g.perm.Attach==0 ) login_needed();
-    zTarget = zPage;
-  }else{
-    if( g.perm.WrTkt==0 || g.perm.Attach==0 ) login_needed();
-    zTarget = zTkt;
+  if( !g.perm.RdTkt && !g.perm.RdWiki ){ login_needed(); return; }
+  rid = name_to_rid_www("name");
+  if( rid==0 ){ fossil_redirect_home(); }
+  zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
+#if 0
+  /* Shunning here needs to get both the attachment control artifact and
+  ** the object that is attached. */
+  if( g.perm.Admin ){
+    if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
+      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
+            g.zTop, zUuid);
+    }else{
+      style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
+            g.zTop, zUuid);
+    }
   }
-  if( zFrom==0 ) zFrom = mprintf("%s/home", g.zTop);
-  if( P("cancel") ){
-    cgi_redirect(zFrom);
+#endif
+  pAttach = manifest_get(rid, CFTYPE_ATTACHMENT);
+  if( pAttach==0 ) fossil_redirect_home();
+  zTarget = pAttach->zAttachTarget;
+  zSrc = pAttach->zAttachSrc;
+  ridSrc = db_int(0,"SELECT rid FROM blob WHERE uuid='%s'", zSrc);
+  zName = pAttach->zAttachName;
+  zDesc = pAttach->zComment;
+  if( validate16(zTarget, strlen(zTarget))
+   && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid='%s'", zTarget)
+  ){
+    zTktUuid = zTarget;
+    if( !g.perm.RdTkt ){ login_needed(); return; }
+    if( g.perm.WrTkt ){
+      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
+    }
+  }else if( db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",zTarget) ){
+    zWikiName = zTarget;
+    if( !g.perm.RdWiki ){ login_needed(); return; }
+    if( g.perm.WrWiki ){
+      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
+    }
   }
-  if( P("confirm") ){
+  zDate = db_text(0, "SELECT datetime(%.12f)", pAttach->rDate);
+
+  if( P("confirm")
+   && ((zTktUuid && g.perm.WrTkt) || (zWikiName && g.perm.WrWiki))
+  ){
     int i, n, rid;
     char *zDate;
     Blob manifest;
     Blob cksum;
+    const char *zFile = zName;
 
     db_begin_transaction();
     blob_zero(&manifest);
@@ -357,22 +435,152 @@ void attachdel_page(void){
     rid = content_put(&manifest);
     manifest_crosslink(rid, &manifest);
     db_end_transaction(0);
-    cgi_redirect(zFrom);
-  }    
-  style_header("Delete Attachment");
-  @ <form action="%s(g.zTop)/attachdelete" method="post"><div>
-  @ <p>Confirm that you want to delete the attachment named
-  @ "%h(zFile)" on %s(zTkt?"ticket":"wiki page") %h(zTarget):<br /></p>
-  if( zTkt ){
-    @ <input type="hidden" name="tkt" value="%h(zTkt)" />
-  }else{
-    @ <input type="hidden" name="page" value="%h(zPage)" />
+    @ <p>The attachment below has been deleted.</p>
   }
-  @ <input type="hidden" name="file" value="%h(zFile)" />
-  @ <input type="hidden" name="from" value="%h(zFrom)" />
-  @ <input type="submit" name="confirm" value="Delete" />
-  @ <input type="submit" name="cancel" value="Cancel" />
-  @ </div></form>
-  style_footer();
 
+  if( P("del")
+   && ((zTktUuid && g.perm.WrTkt) || (zWikiName && g.perm.WrWiki))
+  ){
+    form_begin(0, "%R/ainfo/%s", zUuid);
+    @ <p>Confirm you want to delete the attachment shown below.
+    @ <input type="submit" name="confirm" value="Confirm">
+    @ </form>
+  }
+
+  isModerator = (zTktUuid && g.perm.ModTkt) || (zWikiName && g.perm.ModWiki);
+  if( isModerator && (zModAction = P("modaction"))!=0 ){
+    if( strcmp(zModAction,"delete")==0 ){
+      moderation_disapprove(rid);
+      if( zTktUuid ){
+        cgi_redirectf("%R/tktview/%s", zTktUuid);
+      }else{
+        cgi_redirectf("%R/wiki?name=%t", zWikiName);
+      }
+      return;
+    }
+    if( strcmp(zModAction,"approve")==0 ){
+      moderation_approve(rid);
+    }
+  }
+  style_header("Attachment Details");
+  style_submenu_element("Raw", "Raw", "%R/artifact/%S", zUuid);
+
+  @ <div class="section">Overview</div>
+  @ <p><table class="label-value">
+  @ <tr><th>Artifact&nbsp;ID:</th>
+  @ <td>%z(href("%R/artifact/%s",zUuid))%s(zUuid)</a>
+  if( g.perm.Setup ){
+    @ (%d(rid))
+  }
+  modPending = moderation_pending(rid);
+  if( modPending ){
+    @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
+  }
+  if( zTktUuid ){
+    @ <tr><th>Ticket:</th>
+    @ <td>%z(href("%R/tktview/%s",zTktUuid))%s(zTktUuid)</a></td></tr>
+  }
+  if( zWikiName ){
+    @ <tr><th>Wiki&nbsp;Page:</th>
+    @ <td>%z(href("%R/wiki?name=%t",zWikiName))%h(zWikiName)</a></td></tr>
+  }
+  @ <tr><th>Date:</th><td>
+  hyperlink_to_date(zDate, "</td></tr>");
+  @ <tr><th>User:</th><td>
+  hyperlink_to_user(pAttach->zUser, zDate, "</td></tr>");
+  @ <tr><th>Artifact&nbsp;Attached:</th>
+  @ <td>%z(href("%R/artifact/%s",zSrc))%s(zSrc)</a>
+  if( g.perm.Setup ){
+    @ (%d(ridSrc))
+  }
+  @ <tr><th>Filename:</th><td>%h(zName)</td></tr>
+  zMime = mimetype_from_name(zName);
+  if( g.perm.Setup ){
+    @ <tr><th>MIME-Type:</th><td>%h(zMime)</td></tr>
+  }
+  @ <tr><th valign="top">Description:</th><td valign="top">%h(zDesc)</td></tr>
+  @ </table>
+  
+  if( isModerator && modPending ){
+    @ <div class="section">Moderation</div>
+    @ <blockquote>
+    form_begin(0, "%R/ainfo/%s", zUuid);
+    @ <label><input type="radio" name="modaction" value="delete">
+    @ Delete this change</label><br />
+    @ <label><input type="radio" name="modaction" value="approve">
+    @ Approve this change</label><br />
+    @ <input type="submit" value="Submit">
+    @ </form>
+    @ </blockquote>
+  }
+
+  @ <div class="section">Content Appended</div>
+  @ <blockquote>
+  blob_zero(&attach);
+  if( zMime==0 || strncmp(zMime,"text/", 5)==0 ){
+    const char *z;
+    const char *zLn = P("ln");
+    content_get(ridSrc, &attach);
+    blob_to_utf8_no_bom(&attach, 0);
+    z = blob_str(&attach);
+    if( zLn ){
+      output_text_with_line_numbers(z, zLn);
+    }else{
+      @ <pre>
+      @ %h(z)
+      @ </pre>
+    }
+  }else if( strncmp(zMime, "image/", 6)==0 ){
+    @ <img src="%R/raw/%S(zSrc)?m=%s(zMime)"></img>
+    style_submenu_element("Image", "Image", "%R/raw/%S?m=%s", zSrc, zMime);
+  }else{
+    int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
+    @ <i>(file is %d(sz) bytes of binary data)</i>
+  }
+  @ </blockquote>
+  manifest_destroy(pAttach);
+  blob_reset(&attach);
+  style_footer();
+}
+
+/*
+** Output HTML to show a list of attachments.
+*/
+void attachment_list(
+  const char *zTarget,   /* Object that things are attached to */
+  const char *zHeader    /* Header to display with attachments */
+){
+  int cnt = 0;
+  Stmt q;
+  db_prepare(&q,
+     "SELECT datetime(mtime,'localtime'), filename, user,"
+     "       (SELECT uuid FROM blob WHERE rid=attachid), src"
+     "  FROM attachment"
+     " WHERE isLatest AND src!='' AND target=%Q"
+     " ORDER BY mtime DESC", 
+     zTarget
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zDate = db_column_text(&q, 0);
+    const char *zFile = db_column_text(&q, 1);
+    const char *zUser = db_column_text(&q, 2);
+    const char *zUuid = db_column_text(&q, 3);
+    const char *zSrc = db_column_text(&q, 4);
+    const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
+    if( cnt==0 ){
+      @ %s(zHeader)
+    }
+    cnt++;
+    @ <li>
+    @ %z(href("%R/artifact/%s",zSrc))%h(zFile)</a>
+    @ added by %h(zDispUser) on
+    hyperlink_to_date(zDate, ".");
+    @ [%z(href("%R/ainfo/%s",zUuid))details</a>]
+    @ </li>
+  }
+  if( cnt ){
+    @ </ul>
+  }
+  db_finalize(&q);
+  
 }

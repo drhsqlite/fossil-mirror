@@ -47,11 +47,28 @@ static char *quoteFilename(const char *zFilename){
   }
 }
 
+/*
+** Build a string that contains all of the command-line options
+** specified as arguments.  If the option name begins with "+" then
+** it takes an argument.  Without the "+" it does not.
+*/
+static void collect_argument(Blob *pExtra, const char *zArg, const char *zShort){
+  if( find_option(zArg, zShort, 0)!=0 ){
+    blob_appendf(pExtra, " --%s", zArg);
+  }
+}
+static void collect_argument_value(Blob *pExtra, const char *zArg){
+  const char *zValue = find_option(zArg, 0, 1);
+  if( zValue ){
+    blob_appendf(pExtra, " --%s %s", zArg, zValue);
+  }
+}
+
 
 /*
 ** COMMAND: all
 **
-** Usage: %fossil all (list|ls|pull|push|rebuild|sync)
+** Usage: %fossil all (changes|ignore|list|ls|pull|push|rebuild|sync)
 **
 ** The ~/.fossil file records the location of all repositories for a
 ** user.  This command performs certain operations on all repositories
@@ -62,14 +79,16 @@ static char *quoteFilename(const char *zFilename){
 **
 ** Available operations are:
 **
+**    changes    Shows all local checkouts that have uncommitted changes
+**
 **    ignore     Arguments are repositories that should be ignored
 **               by subsequent list, pull, push, rebuild, and sync.
+**               The -c|--ckout option causes the listed local checkouts
+**               to be ignored instead.
 **
 **    list | ls  Display the location of all repositories.
-**               The --ckout option causes all local checkouts to be
+**               The -c|--ckout option causes all local checkouts to be
 **               list instead.
-**
-**    changes    Shows all local checkouts that have uncommitted changes
 **
 **    pull       Run a "pull" operation on all repositories
 **
@@ -79,7 +98,7 @@ static char *quoteFilename(const char *zFilename){
 **
 **    sync       Run a "sync" on all repositories
 **
-** Respositories are automatically added to the set of known repositories
+** Repositories are automatically added to the set of known repositories
 ** when one of the following commands are run against the repository: clone,
 ** info, pull, push, or sync.  Even previously ignored repositories are
 ** added back to the list of repositories by these commands.
@@ -91,38 +110,57 @@ void all_cmd(void){
   char *zSyscmd;
   char *zFossil;
   char *zQFilename;
+  Blob extra;
   int useCheckouts = 0;
   int quiet = 0;
-  int testRun = 0;
+  int dryRunFlag = 0;
   int stopOnError = find_option("dontstop",0,0)==0;
   int rc;
   Bag outOfDate;
   
-  /* The undocumented --test option causes no changes to occur to any
-  ** repository, but instead show what would have happened.  Intended for
-  ** test and debugging use.
-  */
-  testRun = find_option("test",0,0)!=0;
+  dryRunFlag = find_option("dry-run","n",0)!=0;
+  if( !dryRunFlag ){
+    dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
+  }
 
   if( g.argc<3 ){
-    usage("changes|list|ls|pull|push|rebuild|sync");
+    usage("changes|ignore|list|ls|pull|push|rebuild|sync");
   }
   n = strlen(g.argv[2]);
   db_open_config(1);
+  blob_zero(&extra);
   zCmd = g.argv[2];
+  if( g.zLogin ) blob_appendf(&extra, " -U %s", g.zLogin);
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;
   }else if( strncmp(zCmd, "push", n)==0 ){
     zCmd = "push -autourl -R";
+    collect_argument(&extra, "verbose","v");
   }else if( strncmp(zCmd, "pull", n)==0 ){
     zCmd = "pull -autourl -R";
+    collect_argument(&extra, "verbose","v");
   }else if( strncmp(zCmd, "rebuild", n)==0 ){
     zCmd = "rebuild";
+    collect_argument(&extra, "cluster",0);
+    collect_argument(&extra, "compress",0);
+    collect_argument(&extra, "noverify",0);
+    collect_argument_value(&extra, "pagesize");
+    collect_argument(&extra, "vacuum",0);
+    collect_argument(&extra, "deanalyze",0);
+    collect_argument(&extra, "analyze",0);
+    collect_argument(&extra, "wal",0);
+    collect_argument(&extra, "stats",0);
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
+    collect_argument(&extra, "verbose","v");
   }else if( strncmp(zCmd, "test-integrity", n)==0 ){
     zCmd = "test-integrity";
+  }else if( strncmp(zCmd, "test-orphans", n)==0 ){
+    zCmd = "test-orphans -R";
+  }else if( strncmp(zCmd, "test-missing", n)==0 ){
+    zCmd = "test-missing -q -R";
+    collect_argument(&extra, "notshunned",0);
   }else if( strncmp(zCmd, "changes", n)==0 ){
     zCmd = "changes --quiet --header --chdir";
     useCheckouts = 1;
@@ -130,12 +168,14 @@ void all_cmd(void){
     quiet = 1;
   }else if( strncmp(zCmd, "ignore", n)==0 ){
     int j;
+    useCheckouts = find_option("ckout","c",0)!=0;
     verify_all_options();
     db_begin_transaction();
     for(j=3; j<g.argc; j++){
       char *zSql = mprintf("DELETE FROM global_config"
-                           " WHERE name GLOB 'repo:%q'", g.argv[j]);
-      if( testRun ){
+                           " WHERE name GLOB '%s:%q'",
+                           useCheckouts?"ckout":"repo", g.argv[j]);
+      if( dryRunFlag ){
         fossil_print("%s\n", zSql);
       }else{
         db_multi_exec("%s", zSql);
@@ -149,7 +189,7 @@ void all_cmd(void){
                  "changes ignore list ls push pull rebuild sync");
   }
   verify_all_options();
-  zFossil = quoteFilename(fossil_nameofexe());
+  zFossil = quoteFilename(g.nameOfExe);
   if( useCheckouts ){
     db_prepare(&q,
        "SELECT substr(name, 7) COLLATE nocase, max(rowid)"
@@ -182,12 +222,13 @@ void all_cmd(void){
       continue;
     }
     zQFilename = quoteFilename(zFilename);
-    zSyscmd = mprintf("%s %s %s", zFossil, zCmd, zQFilename);
-    if( !quiet || testRun ){
+    zSyscmd = mprintf("%s %s %s%s",
+                      zFossil, zCmd, zQFilename, blob_str(&extra));
+    if( !quiet || dryRunFlag ){
       fossil_print("%s\n", zSyscmd);
       fflush(stdout);
     }
-    rc = testRun ? 0 : fossil_system(zSyscmd);
+    rc = dryRunFlag ? 0 : fossil_system(zSyscmd);
     free(zSyscmd);
     free(zQFilename);
     if( stopOnError && rc ){
@@ -210,7 +251,7 @@ void all_cmd(void){
       zSep = ",";
     }
     blob_appendf(&sql, ")");
-    if( testRun ){
+    if( dryRunFlag ){
       fossil_print("%s\n", blob_str(&sql));
     }else{
       db_multi_exec(blob_str(&sql));

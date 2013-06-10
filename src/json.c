@@ -15,7 +15,7 @@
 **   http://www.hwaci.com/drh/
 **
 *******************************************************************************
-**  
+**
 ** Code for the JSON API.
 **
 ** For notes regarding the public JSON interface, please see:
@@ -55,127 +55,6 @@ const FossilJsonKeys_ FossilJsonKeys = {
 };
 
 
-/* Timer code taken from sqlite3's shell.c, modified slightly.
-   FIXME: move the timer into the fossil core API so that we can
-   start the timer early on in the app init phase. Right now we're
-   just timing the json ops themselves.
-*/
-#if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__) && !defined(__RTP__) && !defined(_WRS_KERNEL)
-#include <sys/time.h>
-#include <sys/resource.h>
-
-/* Saved resource information for the beginning of an operation */
-static struct rusage sBegin;
-
-/*
-** Begin timing an operation
-*/
-static void beginTimer(void){
-  getrusage(RUSAGE_SELF, &sBegin);
-}
-
-/* Return the difference of two time_structs in milliseconds */
-static double timeDiff(struct timeval *pStart, struct timeval *pEnd){
-  return ((pEnd->tv_usec - pStart->tv_usec)*0.001 + 
-          (double)((pEnd->tv_sec - pStart->tv_sec)*1000.0));
-}
-
-/*
-** Print the timing results.
-*/
-static double endTimer(void){
-  struct rusage sEnd;
-  getrusage(RUSAGE_SELF, &sEnd);
-#if 0
-  printf("CPU Time: user %f sys %f\n",
-         timeDiff(&sBegin.ru_utime, &sEnd.ru_utime),
-         timeDiff(&sBegin.ru_stime, &sEnd.ru_stime));
-#endif
-  return timeDiff(&sBegin.ru_utime, &sEnd.ru_utime)
-    + timeDiff(&sBegin.ru_stime, &sEnd.ru_stime);
-}
-
-#define BEGIN_TIMER beginTimer()
-#define END_TIMER endTimer()
-#define HAS_TIMER 1
-
-#elif (defined(_WIN32) || defined(WIN32))
-
-#include <windows.h>
-
-/* Saved resource information for the beginning of an operation */
-static HANDLE hProcess;
-static FILETIME ftKernelBegin;
-static FILETIME ftUserBegin;
-typedef BOOL (WINAPI *GETPROCTIMES)(HANDLE, LPFILETIME, LPFILETIME, LPFILETIME, LPFILETIME);
-static GETPROCTIMES getProcessTimesAddr = NULL;
-
-/*
-** Check to see if we have timer support.  Return 1 if necessary
-** support found (or found previously).
-*/
-static int hasTimer(void){
-  if( getProcessTimesAddr ){
-    return 1;
-  } else {
-    /* GetProcessTimes() isn't supported in WIN95 and some other Windows versions.
-    ** See if the version we are running on has it, and if it does, save off
-    ** a pointer to it and the current process handle.
-    */
-    hProcess = GetCurrentProcess();
-    if( hProcess ){
-      HINSTANCE hinstLib = LoadLibrary(TEXT("Kernel32.dll"));
-      if( NULL != hinstLib ){
-        getProcessTimesAddr = (GETPROCTIMES) GetProcAddress(hinstLib, "GetProcessTimes");
-        if( NULL != getProcessTimesAddr ){
-          return 1;
-        }
-        FreeLibrary(hinstLib); 
-      }
-    }
-  }
-  return 0;
-}
-
-/*
-** Begin timing an operation
-*/
-static void beginTimer(void){
-  if( getProcessTimesAddr ){
-    FILETIME ftCreation, ftExit;
-    getProcessTimesAddr(hProcess, &ftCreation, &ftExit, &ftKernelBegin, &ftUserBegin);
-  }
-}
-
-/* Return the difference of two FILETIME structs in milliseconds */
-static double timeDiff(FILETIME *pStart, FILETIME *pEnd){
-  sqlite_int64 i64Start = *((sqlite_int64 *) pStart);
-  sqlite_int64 i64End = *((sqlite_int64 *) pEnd);
-  return (double) ((i64End - i64Start) / 10000.0);
-}
-
-/*
-** Print the timing results.
-*/
-static double endTimer(void){
-  if(getProcessTimesAddr){
-    FILETIME ftCreation, ftExit, ftKernelEnd, ftUserEnd;
-    getProcessTimesAddr(hProcess, &ftCreation, &ftExit, &ftKernelEnd, &ftUserEnd);
-    return timeDiff(&ftUserBegin, &ftUserEnd) +
-      timeDiff(&ftKernelBegin, &ftKernelEnd);
-  }
-  return 0.0;
-}
-
-#define BEGIN_TIMER beginTimer()
-#define END_TIMER endTimer()
-#define HAS_TIMER hasTimer()
-
-#else
-#define BEGIN_TIMER 
-#define END_TIMER 0.0
-#define HAS_TIMER 0
-#endif
 
 /*
 ** Returns true (non-0) if fossil appears to be running in JSON mode.
@@ -214,7 +93,7 @@ static char const * json_err_cstr( int errCode ){
     C(PANIC,"x");
     C(MANIFEST_READ_FAILED,"Reading artifact manifest failed");
     C(FILE_OPEN_FAILED,"Opening file failed");
-    
+
     C(AUTH,"Authentication error");
     C(MISSING_AUTH,"Authentication info missing from request");
     C(DENIED,"Access denied");
@@ -241,6 +120,7 @@ static char const * json_err_cstr( int errCode ){
     C(DB_NEEDS_REBUILD,"Fossil repository needs to be rebuilt");
     C(DB_NOT_FOUND,"Fossil repository db file could not be found.");
     C(DB_NOT_VALID, "Fossil repository db file is not valid.");
+    C(DB_NEEDS_CHECKOUT, "Command requires a local checkout.");
 #undef C
     default:
       return "Unknown Error";
@@ -324,7 +204,7 @@ char const * json_rc_cstr( int code ){
 }
 
 /*
-** Adds v to the API-internal cleanup mechanism. key is ingored
+** Adds v to the API-internal cleanup mechanism. key is ignored
 ** (legacy) but might be re-introduced and "should" be a unique
 ** (app-wide) value.  Failure to insert an item may be caused by any
 ** of the following:
@@ -350,7 +230,7 @@ void json_gc_add( char const * key, cson_value * v ){
   }
   assert( (0==rc) && "Adding item to GC failed." );
   if(0!=rc){
-    fprintf(stderr,"%s: FATAL: alloc error.\n", fossil_nameofexe())
+    fprintf(stderr,"%s: FATAL: alloc error.\n", g.argv[0])
         /* reminder: allocation error is the only reasonable cause of
            error here, provided g.json.gc.a and v are not NULL.
         */
@@ -386,7 +266,7 @@ cson_value * json_new_string_f( char const * fmt, ... ){
   va_end(vargs);
   v = cson_value_new_string(zStr, strlen(zStr));
   free(zStr);
-  return v;  
+  return v;
 }
 
 cson_value * json_new_int( int v ){
@@ -551,7 +431,7 @@ char const * json_getenv_cstr( char const * zKey ){
 ** GET/POST/CLI argument.
 **
 ** zKey must be the GET/POST parameter key. zCLILong must be the "long
-s** form" CLI flag (NULL means to use zKey). zCLIShort may be NULL or
+** form" CLI flag (NULL means to use zKey). zCLIShort may be NULL or
 ** the "short form" CLI flag (if NULL, no short form is used).
 **
 ** If argPos is >=0 and no other match is found,
@@ -675,7 +555,7 @@ char const * json_guess_content_type(){
   }else{
     /*
       Content-type
-      
+
       If the browser does not sent an ACCEPT for application/json
       then we fall back to text/plain.
     */
@@ -815,8 +695,11 @@ cson_value * json_req_payload_get(char const *pKey){
 */
 void json_main_bootstrap(){
   cson_value * v;
-  assert( (NULL == g.json.gc.v) && "cgi_json_bootstrap() was called twice!" );
+  assert( (NULL == g.json.gc.v) &&
+          "json_main_bootstrap() was called twice!" );
 
+  g.json.timerId = fossil_timer_start();
+  
   /* g.json.gc is our "garbage collector" - where we put JSON values
      which need a long lifetime but don't have a logical parent to put
      them in.
@@ -826,7 +709,7 @@ void json_main_bootstrap(){
   g.json.gc.a = cson_value_get_array(v);
   cson_value_add_reference(v)
     /* Needed to allow us to include this value in other JSON
-       containers without transfering ownership to those containers.
+       containers without transferring ownership to those containers.
        All other persistent g.json.XXX.v values get appended to
        g.json.gc.a, and therefore already have a live reference
        for this purpose.
@@ -1119,7 +1002,7 @@ static void json_mode_bootstrap(){
     }
     break;
   }
-  
+
   /* g.json.reqPayload exists only to simplify some of our access to
      the request payload. We currently only use this in the context of
      Object payloads, not Arrays, strings, etc.
@@ -1148,7 +1031,7 @@ static void json_mode_bootstrap(){
     }
   }
 
-  
+
   if(!g.json.jsonp){
     g.json.jsonp = json_find_option_cstr("jsonp",NULL,NULL);
   }
@@ -1373,7 +1256,7 @@ cson_value * json_g_to_json(){
   INT(g, argc);
   INT(g, isConst);
   INT(g, useAttach);
-  INT(g, configOpen);
+  CSTR(g, zConfigDbName);
   INT(g, repositoryOpen);
   INT(g, localOpen);
   INT(g, minPrefix);
@@ -1399,7 +1282,6 @@ cson_value * json_g_to_json(){
   INT(g, urlIsSsh);
   INT(g, urlPort);
   INT(g, urlDfltPort);
-  INT(g, dontKeepUrl);
   INT(g, useLocalauth);
   INT(g, noPswd);
   INT(g, userUid);
@@ -1411,7 +1293,7 @@ cson_value * json_g_to_json(){
   INT(g, allowSymlinks);
 
   CSTR(g, zMainDbType);
-  CSTR(g, zHome);
+  CSTR(g, zConfigDbType);
   CSTR(g, zLocalRoot);
   CSTR(g, zPath);
   CSTR(g, zExtra);
@@ -1449,7 +1331,7 @@ cson_value * json_g_to_json(){
   VAL(warnings, cson_array_value(g.json.warnings));
   /*cson_output_opt outOpt;*/
 
-  
+
 #undef INT
 #undef CSTR
 #undef VAL
@@ -1468,7 +1350,7 @@ cson_value * json_g_to_json(){
 ** it defaults to g.json.resultCode. If resultCode is (or defaults to)
 ** non-zero and payload is not NULL then this function calls
 ** cson_value_free(payload) and does not insert the payload into the
-** response. In either case, onwership of payload is transfered to (or
+** response. In either case, ownership of payload is transfered to (or
 ** shared with, if the caller holds a reference) this function.
 **
 ** pMsg is an optional message string property (resultText) of the
@@ -1497,7 +1379,7 @@ static cson_value * json_create_response( int resultCode,
     goto cleanup; \
   }while(0)
 
-  
+
   tmp = json_new_string(MANIFEST_UUID);
   SET("fossil");
 
@@ -1526,7 +1408,7 @@ static cson_value * json_create_response( int resultCode,
     tmp = json_response_command_path();
   }
   SET("command");
-  
+
   tmp = json_getenv(FossilJsonKeys.requestId);
   if( tmp ) cson_object_set( o, FossilJsonKeys.requestId, tmp );
 
@@ -1539,31 +1421,35 @@ static cson_value * json_create_response( int resultCode,
       tmp = g.json.param.v;
       SET("$params");
     }
-    if(0){/*Only for debuggering, add some info to the response.*/
+    if(0){/*Only for debugging, add some info to the response.*/
       tmp = cson_value_new_integer( g.json.cmd.offset );
       cson_object_set( o, "cmd.offset", tmp );
       cson_object_set( o, "isCGI", cson_value_new_bool( g.isHTTP ) );
     }
   }
 
-  if(HAS_TIMER){
+  if(fossil_timer_is_active(g.json.timerId)){
     /* This is, philosophically speaking, not quite the right place
        for ending the timer, but this is the one function which all of
        the JSON exit paths use (and they call it after processing,
        just before they end).
     */
-    double span;
-    span = END_TIMER;
-    /* i'm actually seeing sub-ms runtimes in some tests, but a time of
-       0 is "just wrong", so we'll bump that up to 1ms.
+    sqlite3_uint64 span = fossil_timer_stop(g.json.timerId);
+    /* I'm actually seeing sub-uSec runtimes in some tests, but a time of
+       0 is "just kinda wrong".
     */
-    cson_object_set(o,"procTimeMs", cson_value_new_integer((cson_int_t)((span>1.0)?span:1)));
+    cson_object_set(o,"procTimeUs", cson_value_new_integer((cson_int_t)span));
+    span /= 1000/*for milliseconds */;
+    cson_object_set(o,"procTimeMs", cson_value_new_integer((cson_int_t)span));
+    assert(!fossil_timer_is_active(g.json.timerId));
+    g.json.timerId = -1;
+
   }
   if(g.json.warnings){
     tmp = cson_array_value(g.json.warnings);
     SET("warnings");
   }
-  
+
   /* Only add the payload to SUCCESS responses. Else delete it. */
   if( NULL != payload ){
     if( resultCode ){
@@ -1580,7 +1466,7 @@ static cson_value * json_create_response( int resultCode,
     tmp = json_g_to_json();
     SET("g");
   }
-  
+
 #undef SET
   goto ok;
   cleanup:
@@ -1630,7 +1516,7 @@ void json_err( int code, char const * msg, char alsoOutput ){
        call fossil_panic() here because that calls this function.
     */
     fprintf(stderr, "%s: Fatal error: could not allocate "
-            "response object.\n", fossil_nameofexe());
+            "response object.\n", g.argv[0]);
     fossil_exit(1);
   }
   if( g.isHTTP ){
@@ -1700,10 +1586,10 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
     if(!colNames){
       colNamesV = cson_sqlite3_column_names(pStmt->pStmt);
       assert(NULL != colNamesV);
-      cson_value_add_reference(colNamesV)/*avoids an ownership problem*/;
+      /*Why? cson_value_add_reference(colNamesV) avoids an ownership problem*/;
       colNames = cson_value_get_array(colNamesV);
       assert(NULL != colNames);
-    }      
+    }
     row = cson_sqlite3_row_to_object2(pStmt->pStmt, colNames);
     if(!row && !warnMsg){
       warnMsg = "Could not convert at least one result row to JSON.";
@@ -1711,10 +1597,10 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
     }
     if( 0 != cson_array_append(a, row) ){
       cson_value_free(row);
-      assert( 0 && "Alloc error.");
       if(pTgt != a) {
         cson_free_array(a);
       }
+      assert( 0 && "Alloc error.");
       return NULL;
     }
   }
@@ -1722,7 +1608,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
   if(warnMsg){
     json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED, warnMsg );
   }
-  return cson_array_value(a);  
+  return cson_array_value(a);
 }
 
 /*
@@ -1811,7 +1697,7 @@ cson_value * json_tags_for_checkin_rid(int rid, char propagatingOnly){
     }
     free(tags);
   }
-  return v;  
+  return v;
 }
 
 /*
@@ -1861,7 +1747,7 @@ cson_value * json_page_resultCodes(){
     C(PANIC);
     C(MANIFEST_READ_FAILED);
     C(FILE_OPEN_FAILED);
-    
+
     C(AUTH);
     C(MISSING_AUTH);
     C(DENIED);
@@ -1991,10 +1877,12 @@ cson_value * json_page_cap(){
   ADD(NewWiki,"createWiki");
   ADD(ApndWiki,"appendWiki");
   ADD(WrWiki,"editWiki");
+  ADD(ModWiki,"moderateWiki");
   ADD(RdTkt,"readTicket");
   ADD(NewTkt,"createTicket");
   ADD(ApndTkt,"appendTicket");
   ADD(WrTkt,"editTicket");
+  ADD(ModTkt,"moderateTicket");
   ADD(Attach,"attachFile");
   ADD(TktFmt,"createTicketReport");
   ADD(RdAddr,"readPrivate");
@@ -2025,7 +1913,8 @@ cson_value * json_page_stat(){
                  "Requires 'o' permissions.");
     return NULL;
   }
-  full = json_find_option_bool("full",NULL,"f",0);
+  full = json_find_option_bool("full",NULL,"f",
+              json_find_option_bool("verbose",NULL,"v",0));
 #define SETBUF(O,K) cson_object_set(O, K, cson_value_new_string(zBuf, strlen(zBuf)));
 
   jv = cson_value_new_object();
@@ -2084,11 +1973,9 @@ cson_value * json_page_stat(){
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
   cson_object_set(jo, "ageDays", cson_value_new_integer((cson_int_t)n));
-  cson_object_set(jo, "ageYears", cson_value_new_double(n/365.24));
+  cson_object_set(jo, "ageYears", cson_value_new_double(n/365.2425));
   sqlite3_snprintf(BufLen, zBuf, db_get("project-code",""));
   SETBUF(jo, "projectCode");
-  sqlite3_snprintf(BufLen, zBuf, db_get("server-code",""));
-  SETBUF(jo, "serverCode");
   cson_object_set(jo, "compiler", cson_value_new_string(COMPILER_NAME, strlen(COMPILER_NAME)));
 
   jv2 = cson_value_new_object();
@@ -2119,14 +2006,18 @@ cson_value * json_page_stat(){
 ** are undefined.
 **
 ** The list is appended to pOut. The number of items (not bytes)
-** appended are returned.
+** appended are returned. If filterByMode is non-0 then the result
+** list will contain only commands which are able to run in the the
+** current run mode (CLI vs. HTTP).
 */
 static int json_pagedefs_to_string(JsonPageDef const * zPages,
-                                   Blob * pOut){
+                                   Blob * pOut, int filterByMode){
   int i = 0;
   for( ; zPages->name; ++zPages, ++i ){
-    if(g.isHTTP && zPages->runMode < 0) continue;
-    else if(zPages->runMode > 0) continue;
+    if(filterByMode){
+      if(g.isHTTP && zPages->runMode < 0) continue;
+      else if(zPages->runMode > 0) continue;
+    }
     blob_appendf(pOut, zPages->name, -1);
     if((zPages+1)->name){
       blob_append(pOut, ", ",2);
@@ -2154,7 +2045,7 @@ void json_dispatch_missing_args_err( JsonPageDef const * pCommands,
     zErrPrefix = "Try one of: ";
   }
   blob_append( &cmdNames, zErrPrefix, strlen(zErrPrefix) );
-  json_pagedefs_to_string(pCommands, &cmdNames);
+  json_pagedefs_to_string(pCommands, &cmdNames, 1);
   json_set_err(FSL_JSON_E_MISSING_ARGS, "%s",
                blob_str(&cmdNames));
   blob_reset(&cmdNames);
@@ -2184,7 +2075,7 @@ cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
 
 
 /*
-** Impl of /json/rebuild. Requires admin previleges.
+** Impl of /json/rebuild. Requires admin privileges.
 */
 static cson_value * json_page_rebuild(){
   if( !g.perm.Admin ){
@@ -2247,6 +2138,8 @@ cson_value * json_page_user();
 cson_value * json_page_config();
 /* Impl in json_finfo.c. */
 cson_value * json_page_finfo();
+/* Impl in json_status.c. */
+cson_value * json_page_status();
 
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
@@ -2271,6 +2164,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"report", json_page_report, 0},
 {"resultCodes", json_page_resultCodes,0},
 {"stat",json_page_stat,0},
+{"status", json_page_status, 0},
 {"tag", json_page_tag,0},
 /*{"ticket", json_page_nyi,0},*/
 {"timeline", json_page_timeline,0},
@@ -2328,7 +2222,6 @@ static int json_dispatch_root_command( char const * zCommand ){
 */
 void json_page_top(void){
   char const * zCommand;
-  BEGIN_TIMER;
   json_mode_bootstrap();
   zCommand = json_command_arg(1);
   if(!zCommand || !*zCommand){
@@ -2357,11 +2250,13 @@ void json_page_top(void){
 **
 ** The commands include:
 **
-**   anonymousPassord
+**   anonymousPassword
 **   artifact
 **   branch
 **   cap
+**   config
 **   diff
+**   dir
 **   g
 **   login
 **   logout
@@ -2378,15 +2273,12 @@ void json_page_top(void){
 **   wiki
 **
 ** Run '%fossil json' without any subcommand to see the full list (but be
-** aware that some listed might not yet be implemented).
-**
-** PS: the notable TODO-commands include: config, dir, finfo, ticket
+** aware that some listed might not yet be fully implemented).
 **
 */
 void json_cmd_top(void){
   char const * cmd = NULL;
   int rc = 0;
-  BEGIN_TIMER;
   memset( &g.perm, 0xff, sizeof(g.perm) )
     /* In CLI mode fossil does not use permissions
        and they all default to false. We enable them

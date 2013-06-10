@@ -45,8 +45,8 @@ void hyperlink_to_event_tagid(int tagid){
 ** PARAMETERS:
 **
 **  name=EVENTID      // Identify the event to display EVENTID must be complete
-**  detail=BOOLEAN    // Show details if TRUE.  Default is FALSE.  Optional.
 **  aid=ARTIFACTID    // Which specific version of the event.  Optional.
+**  v=BOOLEAN         // Show details if TRUE.  Default is FALSE.  Optional.
 **
 ** Display an existing event identified by EVENTID
 */
@@ -54,6 +54,7 @@ void event_page(void){
   int rid = 0;             /* rid of the event artifact */
   char *zUuid;             /* UUID corresponding to rid */
   const char *zEventId;    /* Event identifier */
+  const char *zVerbose;    /* Value of verbose option */
   char *zETime;            /* Time of the event */
   char *zATime;            /* Time the artifact was created */
   int specRid;             /* rid specified by aid= parameter */
@@ -63,7 +64,7 @@ void event_page(void){
   Blob title;              /* Title extracted from the event body */
   Blob tail;               /* Event body that comes after the title */
   Stmt q1;                 /* Query to search for the event */
-  int showDetail;          /* True to show details */
+  int verboseFlag;         /* True to show details */
 
 
   /* wiki-read privilege is needed in order to read events.
@@ -103,7 +104,14 @@ void event_page(void){
     return;
   }
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  showDetail = atoi(PD("detail","0"));
+  zVerbose = P("v");
+  if( !zVerbose ){
+    zVerbose = P("verbose");
+  }
+  if( !zVerbose ){
+    zVerbose = P("detail"); /* deprecated */
+  }
+  verboseFlag = (zVerbose!=0) && !is_false(zVerbose);
 
   /* Extract the event content.
   */
@@ -126,14 +134,14 @@ void event_page(void){
   style_submenu_element("Context", "Context", "%s/timeline?c=%T",
                         g.zTop, zETime);
   if( g.perm.Hyperlink ){
-    if( showDetail ){
+    if( verboseFlag ){
       style_submenu_element("Plain", "Plain", "%s/event?name=%s&aid=%s",
                             g.zTop, zEventId, zUuid);
       if( nextRid ){
         char *zNext;
         zNext = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nextRid);
         style_submenu_element("Next", "Next",
-                              "%s/event?name=%s&aid=%s&detail=1",
+                              "%s/event?name=%s&aid=%s&v",
                               g.zTop, zEventId, zNext);
         free(zNext);
       }
@@ -141,18 +149,18 @@ void event_page(void){
         char *zPrev;
         zPrev = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", prevRid);
         style_submenu_element("Prev", "Prev",
-                              "%s/event?name=%s&aid=%s&detail=1",
+                              "%s/event?name=%s&aid=%s&v",
                               g.zTop, zEventId, zPrev);
         free(zPrev);
       }
     }else{
       style_submenu_element("Detail", "Detail",
-                            "%s/event?name=%s&aid=%s&detail=1",
+                            "%s/event?name=%s&aid=%s&v",
                             g.zTop, zEventId, zUuid);
     }
   }
 
-  if( showDetail && g.perm.Hyperlink ){
+  if( verboseFlag && g.perm.Hyperlink ){
     int i;
     const char *zClr = 0;
     Blob comment;
@@ -367,7 +375,7 @@ void eventedit_page(void){
     }
     blob_zero(&com);
     blob_append(&com, zComment, -1);
-    wiki_convert(&com, 0, WIKI_INLINE);
+    wiki_convert(&com, 0, WIKI_INLINE|WIKI_NOBADLINKS);
     @ </td></tr></table>
     @ </blockquote>
     @ <p><b>Page content preview:</b><p>

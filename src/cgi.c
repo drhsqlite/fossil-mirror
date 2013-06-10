@@ -23,11 +23,8 @@
 */
 #include "config.h"
 #ifdef _WIN32
-# include <windows.h>           /* for Sleep once server works again */
-#  if defined(__MINGW32__)
-#    define sleep Sleep            /* windows does not have sleep, but Sleep */
-#    include <ws2tcpip.h>          
-#  endif
+# include <winsock2.h>
+# include <ws2tcpip.h>
 #else
 # include <sys/socket.h>
 # include <netinet/in.h>
@@ -97,6 +94,14 @@ void cgi_destination(int dest){
       cgi_panic("bad destination");
     }
   }
+}
+
+/*
+** Check to see if the header contains the zNeedle string.  Return true
+** if it does and false if it does not.
+*/
+int cgi_header_contains(const char *zNeedle){
+  return strstr(blob_str(&cgiContent[0]), zNeedle)!=0;
 }
 
 /*
@@ -368,8 +373,10 @@ NORETURN void cgi_redirect(const char *zURL){
   if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 ){
     zLocation = mprintf("Location: %s\r\n", zURL);
   }else if( *zURL=='/' ){
-    zLocation = mprintf("Location: %.*s%s\r\n",
-         strlen(g.zBaseURL)-strlen(g.zTop), g.zBaseURL, zURL);
+    int n1 = (int)strlen(g.zBaseURL);
+    int n2 = (int)strlen(g.zTop);
+    if( g.zBaseURL[n1-1]=='/' ) zURL++;
+    zLocation = mprintf("Location: %.*s%s\r\n", n1-n2, g.zBaseURL, zURL);
   }else{
     zLocation = mprintf("Location: %s/%s\r\n", g.zBaseURL, zURL);
   }
@@ -780,6 +787,34 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
 }
 #endif /* FOSSIL_ENABLE_JSON */
 
+/*
+** Log HTTP traffic to a file.  Begin the log on first use.  Close the log
+** when the argument is NULL.
+*/
+void cgi_trace(const char *z){
+  static FILE *pLog = 0;
+  if( g.fHttpTrace==0 ) return;
+  if( z==0 ){
+    if( pLog ) fclose(pLog);
+    pLog = 0;
+    return;
+  }
+  if( pLog==0 ){
+    char zFile[50];
+    unsigned r;
+    sqlite3_randomness(sizeof(r), &r);
+    sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%08x.txt", r);
+    pLog = fossil_fopen(zFile, "wb");
+    if( pLog ){
+      fprintf(stderr, "# open log on %s\n", zFile);
+    }else{
+      fprintf(stderr, "# failed to open %s\n", zFile);
+      return;
+    }
+  }
+  fputs(z, pLog);
+}
+
 
 /*
 ** Initialize the query parameter database.  Information is pulled from
@@ -822,6 +857,7 @@ void cgi_init(void){
       z = fossil_malloc( len+1 );
       len = fread(z, 1, len, g.httpIn);
       z[len] = 0;
+      cgi_trace(z);
       if( zType[0]=='a' ){
         add_param_list(z, '&');
       }else{
@@ -962,7 +998,7 @@ char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
 
 /*
 ** Return the name of the i-th CGI parameter.  Return NULL if there
-** are fewer than i registered CGI parmaeters.
+** are fewer than i registered CGI parameters.
 */
 const char *cgi_parameter_name(int i){
   if( i>=0 && i<nUsedQP ){
@@ -1135,10 +1171,11 @@ typedef union {
 
 /*
 ** This routine handles a single HTTP request which is coming in on
-** standard input and which replies on standard output.
+** g.httpIn and which replies on g.httpOut
 **
-** The HTTP request is read from standard input and is used to initialize
-** environment variables as per CGI.  The cgi_init() routine to complete
+** The HTTP request is read from g.httpIn and is used to initialize
+** entries in the cgi_parameter() hash, as if those entries were
+** environment variables.  A call to cgi_init() completes
 ** the setup.  Once all the setup is finished, this procedure returns
 ** and subsequent code handles the actual generation of the webpage.
 */
@@ -1152,6 +1189,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request();
   }
+  cgi_trace(zLine);
   zToken = extract_token(zLine, &z);
   if( zToken==0 ){
     malformed_request();
@@ -1192,6 +1230,7 @@ void cgi_handle_http_request(const char *zIpAddr){
     char *zFieldName;
     char *zVal;
 
+    cgi_trace(zLine);
     zFieldName = extract_token(zLine,&zVal);
     if( zFieldName==0 || *zFieldName==0 ) break;
     while( fossil_isspace(*zVal) ){ zVal++; }
@@ -1223,8 +1262,8 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_USER_AGENT", zVal);
     }
   }
-
   cgi_init();
+  cgi_trace(0);
 }
 
 #if INTERFACE
@@ -1251,7 +1290,12 @@ void cgi_handle_http_request(const char *zIpAddr){
 ** Return 0 to each child as it runs.  If unable to establish a
 ** listening socket, return non-zero.
 */
-int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
+int cgi_http_server(
+  int mnPort, int mxPort,   /* Range of TCP ports to try */
+  const char *zBrowser,     /* Run this browser, if not NULL */
+  const char *zIpAddr,      /* Bind to this IP address, if not null */
+  int flags                 /* HTTP_SERVER_* flags */
+){
 #if defined(_WIN32)
   /* Use win32_http_server() instead */
   fossil_exit(1);
@@ -1270,7 +1314,12 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   while( iPort<=mxPort ){
     memset(&inaddr, 0, sizeof(inaddr));
     inaddr.sin_family = AF_INET;
-    if( flags & HTTP_SERVER_LOCALHOST ){
+    if( zIpAddr ){
+      inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
+      if( inaddr.sin_addr.s_addr == (-1) ){
+        fossil_fatal("not a valid IP address: %s", zIpAddr);
+      }
+    }else if( flags & HTTP_SERVER_LOCALHOST ){
       inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     }else{
       inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -1365,9 +1414,9 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
 /*
 ** Name of days and months.
 */
-static const char *azDays[] =
+static const char *const azDays[] =
     {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", 0};
-static const char *azMonths[] =
+static const char *const azMonths[] =
     {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", 0};
 

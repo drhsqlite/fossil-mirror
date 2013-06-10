@@ -65,6 +65,7 @@ set src {
   json_login
   json_query
   json_report
+  json_status
   json_tag
   json_timeline
   json_user
@@ -73,9 +74,12 @@ set src {
   login
   main
   manifest
+  markdown
+  markdown_html
   md5
   merge
   merge3
+  moderate
   name
   path
   pivot
@@ -83,6 +87,7 @@ set src {
   pqueue
   printf
   rebuild
+  regexp
   report
   rss
   schema
@@ -103,14 +108,18 @@ set src {
   tkt
   tktsetup
   undo
+  unicode
   update
   url
   user
+  utf8
+  util
   verify
   vfile
   wiki
   wikiformat
   winhttp
+  wysiwyg
   xfer
   xfersetup
   zip
@@ -182,6 +191,7 @@ writeln {
 all:	$(OBJDIR) $(APPNAME)
 
 install:	$(APPNAME)
+	mkdir -p $(INSTALLDIR)
 	mv $(APPNAME) $(INSTALLDIR)
 
 $(OBJDIR):
@@ -262,7 +272,7 @@ writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(
 writeln "\t\$(OBJDIR)/makeheaders $mhargs"
 writeln "\ttouch \$(OBJDIR)/headers"
 writeln "\$(OBJDIR)/headers: Makefile"
-writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/json_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h"
+writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/json_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h"
 writeln "Makefile:"
 set extra_h(main) \$(OBJDIR)/page_index.h
 
@@ -302,7 +312,14 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
 set opt {}
 writeln {
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
-	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
+	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
+
+#
+# The list of all the targets that do not correspond to real files. This stops
+# 'make' from getting confused when someone makes an error in a rule.
+#
+
+.PHONY: all install test clean
 }
 
 close $output_file
@@ -311,7 +328,7 @@ close $output_file
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.mingw
+# Begin win/Makefile.mingw output
 #
 puts "building ../win/Makefile.mingw"
 set output_file [open ../win/Makefile.mingw w]
@@ -327,8 +344,19 @@ writeln {#!/usr/bin/make
 # file, edit "makemake.tcl" then run "tclsh makemake.tcl"
 # to regenerate this file.
 #
-# This is a makefile for us on windows using MinGW.
+# This is a makefile for use on Cygwin/Darwin/FreeBSD/Linux/Windows using
+# MinGW or MinGW-w64.
 #
+
+#### Select one of MinGW, MinGW-w64 (32-bit) or MinGW-w64 (64-bit) compilers.
+#    By default, this is an empty string (i.e. use the native compiler).
+#
+PREFIX =
+# PREFIX = mingw32-
+# PREFIX = i686-pc-mingw32-
+# PREFIX = i686-w64-mingw32-
+# PREFIX = x86_64-w64-mingw32-
+
 #### The toplevel directory of the source tree.  Fossil can be built
 #    in a directory that is separate from the source tree.  Just change
 #    the following to point from the build directory to the src/ folder.
@@ -346,6 +374,10 @@ OBJDIR = wbld
 #
 BCC = gcc
 
+#### Enable compiling with debug symbols (much larger binary)
+#
+# FOSSIL_ENABLE_SYMBOLS = 1
+
 #### Enable JSON (http://www.json.org) support using "cson"
 #
 # FOSSIL_ENABLE_JSON = 1
@@ -358,26 +390,36 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_TCL = 1
 
+#### Load Tcl using the stubs mechanism
+#
+# FOSSIL_ENABLE_TCL_STUBS = 1
+
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
 #
 FOSSIL_TCL_SOURCE = 1
 
-#### The directories where the zlib include and library files are located.
-#    The recommended usage here is to use the Sysinternals junction tool
-#    to create a hard link between an "zlib-1.x.y" sub-directory of the
-#    Fossil source code directory and the target zlib source directory.
+#### Check if the workaround for the MinGW command line handling needs to
+#    be enabled by default.
 #
-ZINCDIR = $(SRCDIR)/../zlib-1.2.7
-ZLIBDIR = $(SRCDIR)/../zlib-1.2.7
+ifndef BROKEN_MINGW_CMDLINE
+ifeq (,$(findstring w64-mingw32,$(PREFIX)))
+BROKEN_MINGW_CMDLINE = 1
+endif
+endif
+
+#### The directories where the zlib include and library files are located.
+#
+ZINCDIR = $(SRCDIR)/../compat/zlib
+ZLIBDIR = $(SRCDIR)/../compat/zlib
 
 #### The directories where the OpenSSL include and library files are located.
 #    The recommended usage here is to use the Sysinternals junction tool
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../openssl-1.0.1a/include
-OPENSSLLIBDIR = $(SRCDIR)/../openssl-1.0.1a
+OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1e/include
+OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1e
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -406,7 +448,11 @@ TCLLIBDIR = $(TCLDIR)/lib
 
 #### Tcl: Which Tcl library do we want to use (8.4, 8.5, 8.6, etc)?
 #
+ifdef FOSSIL_ENABLE_TCL_STUBS
+LIBTCL = -ltclstub86
+else
 LIBTCL = -ltcl86
+endif
 
 #### C Compile and options for use in building executables that
 #    will run on the target platform.  This is usually the same
@@ -414,61 +460,104 @@ LIBTCL = -ltcl86
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
+TCC = $(PREFIX)gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
+
+#### Add the necessary command line options to build with debugging
+#    symbols, if enabled.
+#
+ifdef FOSSIL_ENABLE_SYMBOLS
+TCC += -g
+endif
+
+#### Compile resources for use in building executables that will run
+#    on the target platform.
+#
+RCC = $(PREFIX)windres -I$(SRCDIR) -I$(ZINCDIR)
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
 TCC += -L$(OPENSSLLIBDIR) -I$(OPENSSLINCDIR)
+RCC += -I$(OPENSSLINCDIR)
 endif
 
 # With Tcl support
 ifdef FOSSIL_ENABLE_TCL
 ifdef FOSSIL_TCL_SOURCE
 TCC += -L$(TCLSRCDIR)/win -I$(TCLSRCDIR)/generic -I$(TCLSRCDIR)/win
+RCC += -I$(TCLSRCDIR)/generic -I$(TCLSRCDIR)/win
 else
 TCC += -L$(TCLLIBDIR) -I$(TCLINCDIR)
+RCC += -I$(TCLINCDIR)
 endif
+endif
+
+# With MinGW command line handling workaround
+ifdef BROKEN_MINGW_CMDLINE
+TCC += -DBROKEN_MINGW_CMDLINE=1
+RCC += -DBROKEN_MINGW_CMDLINE=1
 endif
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
+RCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
-# With Tcl support (statically linked)
+# With Tcl support
 ifdef FOSSIL_ENABLE_TCL
-TCC += -DFOSSIL_ENABLE_TCL=1 -DSTATIC_BUILD
+TCC += -DFOSSIL_ENABLE_TCL=1
+RCC += -DFOSSIL_ENABLE_TCL=1
+# Either statically linked or via stubs
+ifdef FOSSIL_ENABLE_TCL_STUBS
+TCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
+RCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
+else
+TCC += -DSTATIC_BUILD
+RCC += -DSTATIC_BUILD
+endif
 endif
 
 # With JSON support
 ifdef FOSSIL_ENABLE_JSON
 TCC += -DFOSSIL_ENABLE_JSON=1
+RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
-#### Extra arguments for linking the finished binary.  Fossil needs
-#    to link against the Z-Lib compression library.  There are no
-#    other mandatory dependencies.  We add the -static option here
-#    so that we can build a static executable that will run in a
-#    chroot jail.
+#### We add the -static option here so that we can build a static
+#    executable that will run in a chroot jail.
 #
 LIB = -static
-LIB += -lmingwex -lz
 
-# OpenSSL: Add the necessary libaries required, if enabled.
+# MinGW: If available, use the Unicode capable runtime startup code.
+ifndef BROKEN_MINGW_CMDLINE
+LIB += -municode
+endif
+
+# OpenSSL: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
 endif
 
-# Tcl: Add the necessary libaries required, if enabled.
+# Tcl: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_TCL
 LIB += $(LIBTCL)
 endif
+
+#### Extra arguments for linking the finished binary.  Fossil needs
+#    to link against the Z-Lib compression library.  There are no
+#    other mandatory dependencies.
+#
+LIB += -lmingwex -lz
 
 #### These libraries MUST appear in the same order as they do for Tcl
 #    or linking with it will not work (exact reason unknown).
 #
 ifdef FOSSIL_ENABLE_TCL
+ifdef FOSSIL_ENABLE_TCL_STUBS
+LIB += -lkernel32 -lws2_32
+else
 LIB += -lnetapi32 -lkernel32 -luser32 -ladvapi32 -lws2_32
+endif
 else
 LIB += -lkernel32 -lws2_32
 endif
@@ -507,24 +596,64 @@ foreach s [lsort $src] {
 }
 writeln "\n"
 writeln "APPNAME = ${name}.exe"
-writeln {TRANSLATE   = $(subst /,\\,$(OBJDIR)/translate.exe)
-MAKEHEADERS = $(subst /,\\,$(OBJDIR)/makeheaders.exe)
-MKINDEX     = $(subst /,\\,$(OBJDIR)/mkindex.exe)
-VERSION     = $(subst /,\\,$(OBJDIR)/version.exe)
-}
+writeln {
+#### If the USE_WINDOWS variable exists, it is assumed that we are building
+#    inside of a Windows-style shell; otherwise, it is assumed that we are
+#    building inside of a Unix-style shell.  Note that the "move" command is
+#    broken when attempting to use it from the Windows shell via MinGW make
+#    because the SHELL variable is only used for certain commands that are
+#    recognized internally by make.
+#
+ifdef USE_WINDOWS
+TRANSLATE   = $(subst /,\,$(OBJDIR)/translate)
+MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders)
+MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
+VERSION     = $(subst /,\,$(OBJDIR)/version)
+CP          = copy
+MV          = copy
+RM          = del /Q
+MKDIR       = -mkdir
+RMDIR       = rmdir /S /Q
+else
+TRANSLATE   = $(OBJDIR)/translate
+MAKEHEADERS = $(OBJDIR)/makeheaders
+MKINDEX     = $(OBJDIR)/mkindex
+VERSION     = $(OBJDIR)/version
+CP          = cp
+MV          = mv
+RM          = rm -f
+MKDIR       = -mkdir -p
+RMDIR       = rm -rf
+endif}
 
 writeln {
 all:	$(OBJDIR) $(APPNAME)
 
-$(OBJDIR)/icon.o:	$(SRCDIR)/../win/icon.rc
-	cp $(SRCDIR)/../win/icon.rc $(OBJDIR)
-	windres $(OBJDIR)/icon.rc -o $(OBJDIR)/icon.o
+$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
+ifdef USE_WINDOWS
+	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
+	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.ico) $(subst /,\,$(OBJDIR))
+else
+	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
+	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
+endif
+	$(RCC) $(OBJDIR)/fossil.rc -o $(OBJDIR)/fossil.o
 
-install:	$(APPNAME)
-	mv $(APPNAME) $(INSTALLDIR)
+install:	$(OBJDIR) $(APPNAME)
+ifdef USE_WINDOWS
+	$(MKDIR) $(subst /,\,$(INSTALLDIR))
+	$(MV) $(subst /,\,$(APPNAME)) $(subst /,\,$(INSTALLDIR))
+else
+	$(MKDIR) $(INSTALLDIR)
+	$(MV) $(APPNAME) $(INSTALLDIR)
+endif
 
 $(OBJDIR):
-	mkdir $(OBJDIR)
+ifdef USE_WINDOWS
+	$(MKDIR) $(subst /,\,$(OBJDIR))
+else
+	$(MKDIR) $(OBJDIR)
+endif
 
 $(OBJDIR)/translate:	$(SRCDIR)/translate.c
 	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
@@ -558,8 +687,11 @@ ifdef FOSSIL_ENABLE_TCL
 EXTRAOBJ +=  $(OBJDIR)/th_tcl.o
 endif
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/icon.o
-	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/icon.o
+zlib:
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
+
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
+	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -567,34 +699,35 @@ $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/icon.o
 $(SRCDIR)/../manifest:
 	# noop
 
-# Requires MSYS to be installed in addition to the MinGW, for the "rm"
-# command.  "del" will not work here because it is not a separate command
-# but a MSDOS-shell builtin.
-#
 clean:
-	rm -rf $(OBJDIR) $(APPNAME)
+ifdef USE_WINDOWS
+	$(RM) $(subst /,\,$(APPNAME))
+	$(RMDIR) $(subst /,\,$(OBJDIR))
+else
+	$(RM) $(APPNAME)
+	$(RMDIR) $(OBJDIR)
+endif
 
 setup: $(OBJDIR) $(APPNAME)
 	$(MAKENSIS) ./fossil.nsi
-
 }
 
 set mhargs {}
 foreach s [lsort $src] {
-  append mhargs " \$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
+  if {[string length $mhargs] > 0} {append mhargs " \\\n\t\t"}
+  append mhargs "\$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
   set extra_h($s) {}
 }
-append mhargs " \$(SRCDIR)/sqlite3.h"
-append mhargs " \$(SRCDIR)/th.h"
-append mhargs " \$(OBJDIR)/VERSION.h"
+append mhargs " \\\n\t\t\$(SRCDIR)/sqlite3.h"
+append mhargs " \\\n\t\t\$(SRCDIR)/th.h"
+append mhargs " \\\n\t\t\$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
-writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@"
+writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@\n"
 writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
 writeln "\t\$(MAKEHEADERS) $mhargs"
-writeln "\techo Done >\$(OBJDIR)/headers"
-writeln ""
-writeln "\$(OBJDIR)/headers: Makefile"
-writeln "Makefile:"
+writeln "\techo Done >\$(OBJDIR)/headers\n"
+writeln "\$(OBJDIR)/headers: Makefile\n"
+writeln "Makefile:\n"
 set extra_h(main) \$(OBJDIR)/page_index.h
 
 foreach s [lsort $src] {
@@ -602,7 +735,7 @@ foreach s [lsort $src] {
   writeln "\t\$(TRANSLATE) \$(SRCDIR)/$s.c >\$(OBJDIR)/${s}_.c\n"
   writeln "\$(OBJDIR)/$s.o:\t\$(OBJDIR)/${s}_.c \$(OBJDIR)/$s.h $extra_h($s) \$(SRCDIR)/config.h"
   writeln "\t\$(XTCC) -o \$(OBJDIR)/$s.o -c \$(OBJDIR)/${s}_.c\n"
-  writeln "$s.h:\t\$(OBJDIR)/headers"
+  writeln "\$(OBJDIR)/${s}.h:\t\$(OBJDIR)/headers\n"
 }
 
 
@@ -612,8 +745,8 @@ writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 set opt {}
 writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE\n"
-writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
+writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
+writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 set opt {-Dmain=sqlite3_shell}
@@ -629,16 +762,15 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 writeln {ifdef FOSSIL_ENABLE_TCL
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
-endif
-}
+endif}
 
 close $output_file
 #
-# End of the main.mk output
+# End of the win/Makefile.mingw output
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.dmc
+# Begin win/Makefile.dmc output
 #
 puts "building ../win/Makefile.dmc"
 set output_file [open ../win/Makefile.dmc w]
@@ -762,6 +894,7 @@ $(OBJDIR)\json_finfo$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_login$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_query$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_report$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_status$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_tag$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h
@@ -789,7 +922,7 @@ close $output_file
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.msc
+# Begin win/Makefile.msc output
 #
 puts "building ../win/Makefile.msc"
 set output_file [open ../win/Makefile.msc w]
@@ -811,57 +944,89 @@ OX     = .
 O      = .obj
 E      = .exe
 
-# Maybe MSCDIR, SSL, ZLIB, or INCL needs adjustment
-MSCDIR = c:\msc
+# Uncomment to enable JSON API
+# FOSSIL_ENABLE_JSON = 1
 
-# Uncomment below for SSL support
-SSL =
-SSLLIB =
-#SSL = -DFOSSIL_ENABLE_SSL=1
-#SSLLIB  = ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
+# Uncomment to enable SSL support
+# FOSSIL_ENABLE_SSL = 1
+
+!ifdef FOSSIL_ENABLE_SSL
+SSLINCDIR = $(B)\compat\openssl-1.0.1e\include
+SSLLIBDIR = $(B)\compat\openssl-1.0.1e\out32
+SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
+!endif
 
 # zlib options
-# When using precompiled from http://zlib.net/zlib125-dll.zip
-#ZINCDIR = C:\zlib125-dll\include
-#ZLIBDIR = C:\zlib125-dll\lib
-#ZLIB    = zdll.lib
-ZINCDIR = $(MSCDIR)\extra\include
-ZLIBDIR = $(MSCDIR)\extra\lib
+ZINCDIR = $(B)\compat\zlib
+ZLIBDIR = $(B)\compat\zlib
 ZLIB    = zlib.lib
 
-INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
+INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
+
+!ifdef FOSSIL_ENABLE_SSL
+INCL   = $(INCL) -I$(SSLINCDIR)
+!endif
 
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
-TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
-LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
-LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
+TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(INCL)
+RCC    = rc -D_WIN32 -D_MSC_VER $(MSCDEF) $(INCL)
+LIBS   = $(ZLIB) ws2_32.lib advapi32.lib
+LIBDIR = -LIBPATH:$(ZLIBDIR)
+
+!ifdef FOSSIL_ENABLE_JSON
+TCC = $(TCC) -DFOSSIL_ENABLE_JSON=1
+RCC = $(RCC) -DFOSSIL_ENABLE_JSON=1
+!endif
+
+!ifdef FOSSIL_ENABLE_SSL
+TCC    = $(TCC) -DFOSSIL_ENABLE_SSL=1
+RCC    = $(RCC) -DFOSSIL_ENABLE_SSL=1
+LIBS   = $(LIBS) $(SSLLIB)
+LIBDIR = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
+!endif
 }
 regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS
-writeln "SQLITE_OPTIONS = $MSC_SQLITE_OPTIONS\n"
+set j " \\\n                 "
+writeln "SQLITE_OPTIONS = [join $MSC_SQLITE_OPTIONS $j]\n"
 writeln -nonewline "SRC   = "
+set i 0
 foreach s [lsort $src] {
-  writeln -nonewline "${s}_.c "
+  if {$i > 0} {
+    writeln " \\"
+    writeln -nonewline "        "
+  }
+  writeln -nonewline "${s}_.c"; incr i
 }
 writeln "\n"
+set AdditionalObj [list shell sqlite3 th th_lang cson_amalgamation]
 writeln -nonewline "OBJ   = "
-foreach s [lsort $src] {
-  writeln -nonewline "\$(OX)\\$s\$O "
+set i 0
+foreach s [lsort [concat $src $AdditionalObj]] {
+  if {$i > 0} {
+    writeln " \\"
+    writeln -nonewline "        "
+  }
+  writeln -nonewline "\$(OX)\\$s\$O"; incr i
 }
-writeln "\$(OX)\\shell\$O \$(OX)\\sqlite3\$O \$(OX)\\th\$O \$(OX)\\th_lang\$O "
+writeln " \\"
+writeln -nonewline "        \$(OX)\\fossil.res\n"
 writeln {
-
 APPNAME = $(OX)\fossil$(E)
 
 all: $(OX) $(APPNAME)
 
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
+zlib:
+	@echo Building zlib from "$(ZLIBDIR)"...
+	@pushd "$(ZLIBDIR)" && nmake /f win32\Makefile.msc $(ZLIB) && popd
+
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
 	cd $(OX) 
-	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) @linkopts
+	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
 set redir {>}
-foreach s [lsort [concat $src {shell sqlite3 th th_lang}]] {
+foreach s [lsort [concat $src $AdditionalObj]] {
   writeln "\techo \$(OX)\\$s.obj $redir \$@"
   set redir {>>}
 }
@@ -898,19 +1063,29 @@ $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
-$(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
-	cp $(SRCDIR)\cson_amalgamation.h $@
+$(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
+	$(TCC) /Fo$@ -c $**
 
 page_index.h: mkindex$E $(SRC) 
 	$** > $@
 
 clean:
 	-del $(OX)\*.obj
-	-del *.obj *_.c *.h *.map
-	-del headers linkopts
+	-del *.obj
+	-del *_.c
+	-del *.h
+	-del *.map
+	-del *.manifest
+	-del headers
+	-del linkopts
+	-del *.res
 
-realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
+realclean: clean
+	-del $(APPNAME)
+	-del translate$E
+	-del mkindex$E
+	-del makeheaders$E
+	-del mkversion$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -922,6 +1097,7 @@ $(OBJDIR)\json_finfo$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_login$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_query$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_report$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_status$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_tag$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h
@@ -935,11 +1111,23 @@ foreach s [lsort $src] {
   writeln "\ttranslate\$E \$** > \$@\n"
 }
 
-writeln -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\tmakeheaders\$E "
+writeln "fossil.res : \$B\\win\\fossil.rc"
+writeln "\t\$(RCC)  -fo \$@ \$**"
+
+writeln "headers: makeheaders\$E page_index.h VERSION.h"
+writeln -nonewline "\tmakeheaders\$E "
+set i 0
 foreach s [lsort $src] {
-  writeln -nonewline "${s}_.c:$s.h "
+  if {$i > 0} {
+    writeln " \\"
+    writeln -nonewline "\t\t\t"
+  }
+  writeln -nonewline "${s}_.c:$s.h"; incr i
 }
-writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
+writeln " \\\n\t\t\t\$(SRCDIR)\\sqlite3.h \\"
+writeln "\t\t\t\$(SRCDIR)\\th.h \\"
+writeln "\t\t\tVERSION.h \\"
+writeln "\t\t\t\$(SRCDIR)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 
@@ -949,7 +1137,7 @@ close $output_file
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.PellesCGMake
+# Begin win/Makefile.PellesCGMake output
 #
 puts "building ../win/Makefile.PellesCGMake"
 set output_file [open ../win/Makefile.PellesCGMake w]

@@ -41,12 +41,12 @@ static void strip_string(Blob *pBlob, char *z){
   blob_append(pBlob, z, -1);
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__BIONIC__)
 #ifdef __MINGW32__
 #include <conio.h>
 #endif
 /*
-** getpass for Windows
+** getpass for Windows and Android
 */
 static char *getpass(const char *prompt){
   static char pwd[64];
@@ -55,7 +55,11 @@ static char *getpass(const char *prompt){
   fputs(prompt,stderr);
   fflush(stderr);
   for(i=0; i<sizeof(pwd)-1; ++i){
+#if defined(_WIN32)
     pwd[i] = _getch();
+#else
+    pwd[i] = getc(stdin);
+#endif
     if(pwd[i]=='\r' || pwd[i]=='\n'){
       break;
     }
@@ -134,10 +138,13 @@ void prompt_user(const char *zPrompt, Blob *pIn){
   char *z;
   char zLine[1000];
   blob_zero(pIn);
+  fossil_force_newline();
   fossil_print("%s", zPrompt);
   fflush(stdout);
   z = fgets(zLine, sizeof(zLine), stdin);
   if( z ){
+    int n = (int)strlen(z);
+    if( n>0 && z[n-1]=='\n' ) fossil_new_line_started();
     strip_string(pIn, z);
   }
 }
@@ -304,15 +311,19 @@ static int attempt_user(const char *zLogin){
 **
 **   (3)  Check the default user in the repository
 **
-**   (4)  Try the USER environment variable.
+**   (4)  Try the FOSSIL_USER environment variable.
 **
-**   (5)  Use the first user in the USER table.
+**   (5)  Try the USER environment variable.
+**
+**   (6)  Try the LOGNAME environment variable.
+**
+**   (7)  Try the USERNAME environment variable.
+**
+**   (8)  Check if the user can be extracted from the remote URL.
 **
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
 void user_select(void){
-  Stmt s;
-
   if( g.userUid ) return;
   if( g.zLogin ){
     if( attempt_user(g.zLogin)==0 ){
@@ -326,35 +337,23 @@ void user_select(void){
 
   if( attempt_user(db_get("default-user", 0)) ) return;
 
+  if( attempt_user(fossil_getenv("FOSSIL_USER")) ) return;
+
   if( attempt_user(fossil_getenv("USER")) ) return;
 
-  db_prepare(&s,
-    "SELECT uid, login FROM user"
-    " WHERE login NOT IN ('anonymous','nobody','reader','developer')"
+  if( attempt_user(fossil_getenv("LOGNAME")) ) return;
+
+  if( attempt_user(fossil_getenv("USERNAME")) ) return;
+
+  url_parse(0, 0);
+  if( g.urlUser && attempt_user(g.urlUser) ) return;
+
+  fossil_print(
+    "Cannot figure out who you are!  Consider using the --user\n"
+    "command line option, setting your USER environment variable,\n"
+    "or setting a default user with \"fossil user default USER\".\n"
   );
-  if( db_step(&s)==SQLITE_ROW ){
-    g.userUid = db_column_int(&s, 0);
-    g.zLogin = mprintf("%s", db_column_text(&s, 1));
-  }
-  db_finalize(&s);
-
-  if( g.userUid==0 ){
-    db_prepare(&s, "SELECT uid, login FROM user");
-    if( db_step(&s)==SQLITE_ROW ){
-      g.userUid = db_column_int(&s, 0);
-      g.zLogin = mprintf("%s", db_column_text(&s, 1));
-    }
-    db_finalize(&s);
-  }
-
-  if( g.userUid==0 ){
-    db_multi_exec(
-      "INSERT INTO user(login, pw, cap, info, mtime)"
-      "VALUES('anonymous', '', 'cfghjkmnoqw', '', now())"
-    );
-    g.userUid = db_last_insert_rowid();
-    g.zLogin = "anonymous";
-  }
+  fossil_fatal("cannot determine user");
 }
 
 
@@ -467,23 +466,23 @@ void access_log_page(void){
   db_finalize(&q);
   @ <hr>
   @ <form method="post" action="%s(g.zTop)/access_log">
-  @ <input type="checkbox" name="delold">
-  @ Delete all but the most recent 200 entries</input>
+  @ <label><input type="checkbox" name="delold">
+  @ Delete all but the most recent 200 entries</input></label>
   @ <input type="submit" name="deloldbtn" value="Delete"></input>
   @ </form>
   @ <form method="post" action="%s(g.zTop)/access_log">
-  @ <input type="checkbox" name="delanon">
-  @ Delete all entries for user "anonymous"</input>
+  @ <label><input type="checkbox" name="delanon">
+  @ Delete all entries for user "anonymous"</input></label>
   @ <input type="submit" name="delanonbtn" value="Delete"></input>
   @ </form>
   @ <form method="post" action="%s(g.zTop)/access_log">
-  @ <input type="checkbox" name="delfail">
-  @ Delete all failed login attempts</input>
+  @ <label><input type="checkbox" name="delfail">
+  @ Delete all failed login attempts</input></label>
   @ <input type="submit" name="delfailbtn" value="Delete"></input>
   @ </form>
   @ <form method="post" action="%s(g.zTop)/access_log">
-  @ <input type="checkbox" name="delall">
-  @ Delete all entries</input>
+  @ <label><input type="checkbox" name="delall">
+  @ Delete all entries</input></label>
   @ <input type="submit" name="delallbtn" value="Delete"></input>
   @ </form>
   style_footer();

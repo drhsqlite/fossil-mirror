@@ -10,13 +10,13 @@ names:
 <li> Tag or branchname
 <li> Timestamp:  <i>YYYY-MM-DD HH:MM:SS</i>
 <li> <i>tag-name</i> <big><b>:</b></big> <i>timestamp</i>
+<li> <b>root :</b> <i>branchname</i>
 <li> Special names:
 <ul>
 <li> <b>tip</b>
 <li> <b>current</b>
 <li> <b>next</b>
-<li> <b>previous</b>
-<li> <b>ckout</b>
+<li> <b>previous</b> or <b>prev</b>
 </ul>
 </ul>
 </td></tr>
@@ -125,10 +125,14 @@ check-in that occurs no later than the timestamp given:
   *   <i>YYYY-MM-DD</i>
   *   <i>YYYY-MM-DD HH:MM</i>
   *   <i>YYYY-MM-DD HH:MM:SS</i>
+  *   <i>YYYY-MM-DD HH:MM:SS.SSS</i>
 
 The space between the day and the year can optionally be 
 replaced by an uppercase <b>T</b> and the entire timestamp can
-optionally be followed by "<b>z</b>" or "<b>Z</b>".
+optionally be followed by "<b>z</b>" or "<b>Z</b>".  In the fourth
+form with fractional seconds, any number of digits may follow the
+decimal point, though due to precision limits only the first three
+digits will be significant.
 
 In its default configuration, Fossil interprets and displays all dates
 in Universal Coordinated Time (UTC).  This tends to work the best for
@@ -170,6 +174,19 @@ Would cause Fossil to update the working check-out to be the most recent
 check-in on the trunk that is not more recent that 14:30 (UTC) on 
 July 1, 2010.
 
+<h2>Root Of A Branch</h2>
+
+A branch name that begins with the "<tt>root:</tt>" prefix refers to the
+last check-in in the parent branch prior to the beginning of the branch.
+Such a label is useful, for example, in computing all diffs for a single
+branch.  The following example will show all changes in the hypothetical
+branch "xyzzy":
+
+<blockquote>
+fossil diff --from root:xyzzy --to xyzzy
+</blockquote>
+
+
 <h2>Special Tags</h2>
 
 The tag "tip" means the most recent check-in.  The "tip" tag is roughly
@@ -178,8 +195,8 @@ equivalent to the timestamp tag "5000-01-01".
 If the command is being run from a working check-out (not against a bare
 repository) then a few extra tags apply.  The "current" tag means the
 current check-out.  The "next" tag means the youngest child of the
-current check-out.  And the "previous" tag means the primary (non-merge)
-parent of the current check-out.
+current check-out.  And the "previous" or "prev" tag means the primary
+(non-merge) parent of the current check-out.
 
 <h2>Additional Examples</h2>
 

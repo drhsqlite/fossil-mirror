@@ -25,24 +25,68 @@
 
 #if INTERFACE
 /*
-** Allowed flag parameters to the text_diff() and html_sbsdiff() funtions:
+** Flag parameters to the text_diff() routine used to control the formatting
+** of the diff output.
 */
-#define DIFF_CONTEXT_MASK  0x0000ffff  /* Lines of context.  Default if 0 */
-#define DIFF_WIDTH_MASK    0x00ff0000  /* side-by-side column width */
-#define DIFF_IGNORE_EOLWS  0x01000000  /* Ignore end-of-line whitespace */
-#define DIFF_SIDEBYSIDE    0x02000000  /* Generate a side-by-side diff */
-#define DIFF_NEWFILE       0x04000000  /* Missing files are as empty files */
-#define DIFF_BRIEF         0x08000000  /* Show filenames only */
-#define DIFF_INLINE        0x00000000  /* Inline (not side-by-side) diff */
-#define DIFF_HTML          0x10000000  /* Render for HTML */
-#define DIFF_LINENO        0x20000000  /* Show line numbers in context diff */
-#define DIFF_NOOPT         0x40000000  /* Suppress optimizations for debug */
-#define DIFF_INVERT        0x80000000  /* Invert the diff for debug */
+#define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
+#define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
+#define DIFF_IGNORE_EOLWS ((u64)0x01000000) /* Ignore end-of-line whitespace */
+#define DIFF_SIDEBYSIDE   ((u64)0x02000000) /* Generate a side-by-side diff */
+#define DIFF_VERBOSE      ((u64)0x04000000) /* Missing shown as empty files */
+#define DIFF_BRIEF        ((u64)0x08000000) /* Show filenames only */
+#define DIFF_INLINE       ((u64)0x00000000) /* Inline (not side-by-side) diff */
+#define DIFF_HTML         ((u64)0x10000000) /* Render for HTML */
+#define DIFF_LINENO       ((u64)0x20000000) /* Show line numbers */
+#define DIFF_WS_WARNING   ((u64)0x40000000) /* Warn about whitespace */
+#define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
+#define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
+#define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
+#define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 
+/*
+** These error messages are shared in multiple locations.  They are defined
+** here for consistency.
+*/
+#define DIFF_CANNOT_COMPUTE_BINARY \
+    "cannot compute difference between binary files\n"
+
+#define DIFF_CANNOT_COMPUTE_SYMLINK \
+    "cannot compute difference between symlink and regular file\n"
+
+#define DIFF_TOO_MANY_CHANGES_TXT \
+    "more than 10,000 changes\n"
+
+#define DIFF_TOO_MANY_CHANGES_HTML \
+    "<p class='generalError'>More than 10,000 changes</p>\n"
+
+/*
+** This macro is designed to return non-zero if the specified blob contains
+** data that MAY be binary in nature; otherwise, zero will be returned.
+*/
+#define looks_like_binary(blob) \
+    ((looks_like_utf8((blob), LOOK_BINARY) & LOOK_BINARY) != LOOK_NONE)
+
+/*
+** Output flags for the looks_like_utf8() and looks_like_utf16() routines used
+** to convey status information about the blob content.
+*/
+#define LOOK_NONE    ((int)0x00000000) /* Nothing special was found. */
+#define LOOK_NUL     ((int)0x00000001) /* One or more NUL chars were found. */
+#define LOOK_CR      ((int)0x00000002) /* One or more CR chars were found. */
+#define LOOK_LONE_CR ((int)0x00000004) /* An unpaired CR char was found. */
+#define LOOK_LF      ((int)0x00000008) /* One or more LF chars were found. */
+#define LOOK_LONE_LF ((int)0x00000010) /* An unpaired LF char was found. */
+#define LOOK_CRLF    ((int)0x00000020) /* One or more CR/LF pairs were found. */
+#define LOOK_LONG    ((int)0x00000040) /* An over length line was found. */
+#define LOOK_ODD     ((int)0x00000080) /* An odd number of bytes was found. */
+#define LOOK_SHORT   ((int)0x00000100) /* Unable to perform full check. */
+#define LOOK_INVALID ((int)0x00000200) /* Invalid sequence was found. */
+#define LOOK_BINARY  (LOOK_NUL | LOOK_LONG | LOOK_SHORT) /* May be binary. */
+#define LOOK_EOL     (LOOK_LONE_CR | LOOK_LONE_LF | LOOK_CRLF) /* Line seps. */
 #endif /* INTERFACE */
 
 /*
-** Maximum length of a line in a text file.  (8192)
+** Maximum length of a line in a text file, in bytes.  (2**13 = 8192 bytes)
 */
 #define LENGTH_MASK_SZ  13
 #define LENGTH_MASK     ((1<<LENGTH_MASK_SZ)-1)
@@ -60,7 +104,7 @@ struct DLine {
   unsigned int h;       /* Hash of the line */
   unsigned int iNext;   /* 1+(Index of next line with same the same hash) */
 
-  /* an array of DLine elements services two purposes.  The fields
+  /* an array of DLine elements serves two purposes.  The fields
   ** above are one per line of input text.  But each entry is also
   ** a bucket in a hash table, as follows: */
   unsigned int iHash;   /* 1+(first entry in the hash chain) */
@@ -97,7 +141,7 @@ struct DContext {
 
 /*
 ** Return an array of DLine objects containing a pointer to the
-** start of each line and a hash of that line.  The lower 
+** start of each line and a hash of that line.  The lower
 ** bits of the hash store the length of each line.
 **
 ** Trailing whitespace is removed from each line.  2010-08-20:  Not any
@@ -106,6 +150,9 @@ struct DContext {
 **
 ** Return 0 if the file is binary or contains a line that is
 ** too long.
+**
+** Profiling show that in most cases this routine consumes the bulk of
+** the CPU time on a diff.
 */
 static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
   int nLine, i, j, k, x;
@@ -144,7 +191,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
     for(j=0; z[j] && z[j]!='\n'; j++){}
     k = j;
     while( ignoreWS && k>0 && fossil_isspace(z[k-1]) ){ k--; }
-    for(h=0, x=0; x<k; x++){
+    for(h=0, x=0; x<=k; x++){
       h = h ^ (h<<2) ^ z[x];
     }
     a[i].h = h = (h<<LENGTH_MASK_SZ) | k;;
@@ -160,10 +207,300 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 }
 
 /*
+** This function attempts to scan each logical line within the blob to
+** determine the type of content it appears to contain.  The return value
+** is a combination of one or more of the LOOK_XXX flags (see above):
+**
+** !LOOK_BINARY -- The content appears to consist entirely of text; however,
+**                 the encoding may not be UTF-8.
+**
+** LOOK_BINARY -- The content appears to be binary because it contains one
+**                or more embedded NUL characters or an extremely long line.
+**                Since this function does not understand UTF-16, it may
+**                falsely consider UTF-16 text to be binary.
+**
+** Additional flags (i.e. those other than the ones included in LOOK_BINARY)
+** may be present in the result as well; however, they should not impact the
+** determination of text versus binary content.
+**
+************************************ WARNING **********************************
+**
+** This function does not validate that the blob content is properly formed
+** UTF-8.  It assumes that all code points are the same size.  It does not
+** validate any code points.  It makes no attempt to detect if any [invalid]
+** switches between UTF-8 and other encodings occur.
+**
+** The only code points that this function cares about are the NUL character,
+** carriage-return, and line-feed.
+**
+** This function examines the contents of the blob until one of the flags
+** specified in "stopFlags" is set.
+**
+************************************ WARNING **********************************
+*/
+int looks_like_utf8(const Blob *pContent, int stopFlags){
+  const char *z = blob_buffer(pContent);
+  unsigned int n = blob_size(pContent);
+  int j, c, flags = LOOK_NONE;  /* Assume UTF-8 text, prove otherwise */
+
+  if( n==0 ) return flags;  /* Empty file -> text */
+  c = *z;
+  if( c==0 ){
+    flags |= LOOK_NUL;  /* NUL character in a file -> binary */
+  }else if( c=='\r' ){
+    flags |= LOOK_CR;
+    if( n<=1 || z[1]!='\n' ){
+      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+    }
+  }
+  j = (c!='\n');
+  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
+  while( !(flags&stopFlags) && --n>0 ){
+    int c2 = c;
+    c = *++z; ++j;
+    if( c==0 ){
+      flags |= LOOK_NUL;  /* NUL character in a file -> binary */
+    }else if( c=='\n' ){
+      flags |= LOOK_LF;
+      if( c2=='\r' ){
+        flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
+      }else{
+        flags |= LOOK_LONE_LF;
+      }
+      if( j>LENGTH_MASK ){
+        flags |= LOOK_LONG;  /* Very long line -> binary */
+      }
+      j = 0;
+    }else if( c=='\r' ){
+      flags |= LOOK_CR;
+      if( n<=1 || z[1]!='\n' ){
+        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+      }
+    }
+  }
+  if( n ){
+    flags |= LOOK_SHORT;  /* The whole blob was not examined */
+  }
+  if( j>LENGTH_MASK ){
+    flags |= LOOK_LONG;  /* Very long line -> binary */
+  }
+  return flags;
+}
+
+/*
+** Define the type needed to represent a Unicode (UTF-16) character.
+*/
+#ifndef WCHAR_T
+#  ifdef _WIN32
+#    define WCHAR_T wchar_t
+#  else
+#    define WCHAR_T unsigned short
+#  endif
+#endif
+
+/*
+** Maximum length of a line in a text file, in UTF-16 characters.  (4096)
+** The number of bytes represented by this value cannot exceed LENGTH_MASK
+** bytes, because that is the line buffer size used by the diff engine.
+*/
+#define UTF16_LENGTH_MASK_SZ   (LENGTH_MASK_SZ-(sizeof(WCHAR_T)-sizeof(char)))
+#define UTF16_LENGTH_MASK      ((1<<UTF16_LENGTH_MASK_SZ)-1)
+
+/*
+** This macro is used to swap the byte order of a UTF-16 character in the
+** looks_like_utf16() function.
+*/
+#define UTF16_SWAP(ch)         ((((ch) << 8) & 0xFF00) | (((ch) >> 8) & 0xFF))
+#define UTF16_SWAP_IF(expr,ch) ((expr) ? UTF16_SWAP((ch)) : (ch))
+
+/*
+** This function attempts to scan each logical line within the blob to
+** determine the type of content it appears to contain.  The return value
+** is a combination of one or more of the LOOK_XXX flags (see above):
+**
+** !LOOK_BINARY -- The content appears to consist entirely of text; however,
+**                 the encoding may not be UTF-16.
+**
+** LOOK_BINARY -- The content appears to be binary because it contains one
+**                or more embedded NUL characters or an extremely long line.
+**                Since this function does not understand UTF-8, it may
+**                falsely consider UTF-8 text to be binary.
+**
+** Additional flags (i.e. those other than the ones included in LOOK_BINARY)
+** may be present in the result as well; however, they should not impact the
+** determination of text versus binary content.
+**
+************************************ WARNING **********************************
+**
+** This function does not validate that the blob content is properly formed
+** UTF-16.  It assumes that all code points are the same size.  It does not
+** validate any code points.  It makes no attempt to detect if any [invalid]
+** switches between the UTF-16be and UTF-16le encodings occur.
+**
+** The only code points that this function cares about are the NUL character,
+** carriage-return, and line-feed.
+**
+** This function examines the contents of the blob until one of the flags
+** specified in "stopFlags" is set.
+**
+************************************ WARNING **********************************
+*/
+int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
+  const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
+  unsigned int n = blob_size(pContent);
+  int j, c, flags = LOOK_NONE;  /* Assume UTF-16 text, prove otherwise */
+
+  if( n==0 ) return flags;  /* Empty file -> text */
+  if( n%sizeof(WCHAR_T) ){
+    flags |= LOOK_ODD;  /* Odd number of bytes -> binary (UTF-8?) */
+    if( n<sizeof(WCHAR_T) ) return flags;  /* One byte -> binary (UTF-8?) */
+  }
+  c = *z;
+  if( bReverse ){
+    c = UTF16_SWAP(c);
+  }
+  if( c==0 ){
+    flags |= LOOK_NUL;  /* NUL character in a file -> binary */
+  }else if( c=='\r' ){
+    flags |= LOOK_CR;
+    if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
+      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+    }
+  }
+  j = (c!='\n');
+  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
+  while( 1 ){
+    int c2 = c;
+    if( flags&stopFlags ) break;
+    n -= sizeof(WCHAR_T);
+    if( n<sizeof(WCHAR_T) ) break;
+    c = *++z;
+    if( bReverse ){
+      c = UTF16_SWAP(c);
+    }
+    ++j;
+    if( c==0 ){
+      flags |= LOOK_NUL;  /* NUL character in a file -> binary */
+    }else if( c=='\n' ){
+      flags |= LOOK_LF;
+      if( c2=='\r' ){
+        flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
+      }else{
+        flags |= LOOK_LONE_LF;
+      }
+      if( j>UTF16_LENGTH_MASK ){
+        flags |= LOOK_LONG;  /* Very long line -> binary */
+      }
+      j = 0;
+    }else if( c=='\r' ){
+      flags |= LOOK_CR;
+      if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
+        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+      }
+    }
+  }
+  if( n ){
+    flags |= LOOK_SHORT;  /* The whole blob was not examined */
+  }
+  if( j>UTF16_LENGTH_MASK ){
+    flags |= LOOK_LONG;  /* Very long line -> binary */
+  }
+  return flags;
+}
+
+/*
+** This function returns an array of bytes representing the byte-order-mark
+** for UTF-8.
+*/
+const unsigned char *get_utf8_bom(int *pnByte){
+  static const unsigned char bom[] = {
+    0xEF, 0xBB, 0xBF, 0x00, 0x00, 0x00
+  };
+  if( pnByte ) *pnByte = 3;
+  return bom;
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-8
+** byte-order-mark (BOM).
+*/
+int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
+  const char *z = blob_buffer(pContent);
+  int bomSize = 0;
+  const unsigned char *bom = get_utf8_bom(&bomSize);
+
+  if( pnByte ) *pnByte = bomSize;
+  if( blob_size(pContent)<bomSize ) return 0;
+  return memcmp(z, bom, bomSize)==0;
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-16
+** byte-order-mark (BOM), either in the endianness of the machine
+** or in reversed byte order. The UTF-32 BOM is ruled out by checking
+** if the UTF-16 BOM is not immediately followed by (utf16) 0.
+** pnByte is only set when the function returns 1.
+**
+** pbReverse is always set, even when no BOM is found. Without a BOM,
+** it is set to 1 on little-endian and 0 on big-endian platforms. See
+** clause D98 of conformance (section 3.10) of the Unicode standard.
+*/
+int starts_with_utf16_bom(
+  const Blob *pContent, /* IN: Blob content to perform BOM detection on. */
+  int *pnByte,          /* OUT: The number of bytes used for the BOM. */
+  int *pbReverse        /* OUT: Non-zero for BOM in reverse byte-order. */
+){
+  const unsigned short *z = (unsigned short *)blob_buffer(pContent);
+  int bomSize = sizeof(unsigned short);
+  int size = blob_size(pContent);
+
+  if( size<bomSize ) goto noBom;  /* No: cannot read BOM. */
+  if( size>=(2*bomSize) && z[1]==0 ) goto noBom;  /* No: possible UTF-32. */
+  if( z[0]==0xfeff ){
+    if( pbReverse ) *pbReverse = 0;
+  }else if( z[0]==0xfffe ){
+    if( pbReverse ) *pbReverse = 1;
+  }else{
+    static const int one = 1;
+  noBom:
+    if( pbReverse ) *pbReverse = *(char *) &one;
+    return 0; /* No: UTF-16 byte-order-mark not found. */
+  }
+  if( pnByte ) *pnByte = bomSize;
+  return 1; /* Yes. */
+}
+
+/*
+** Returns non-zero if the specified content could be valid UTF-16.
+*/
+int could_be_utf16(const Blob *pContent, int *pbReverse){
+  return (blob_size(pContent) % sizeof(WCHAR_T) == 0) ?
+      starts_with_utf16_bom(pContent, 0, pbReverse) : 0;
+}
+
+/*
 ** Return true if two DLine elements are identical.
 */
 static int same_dline(DLine *pA, DLine *pB){
   return pA->h==pB->h && memcmp(pA->z,pB->z,pA->h & LENGTH_MASK)==0;
+}
+
+/*
+** Return true if the regular expression *pRe matches any of the
+** N dlines
+*/
+static int re_dline_match(
+  ReCompiled *pRe,    /* The regular expression to be matched */
+  DLine *aDLine,      /* First of N DLines to compare against */
+  int N               /* Number of DLines to check */
+){
+  while( N-- ){
+    if( re_match(pRe, (const unsigned char *)aDLine->z, LENGTH(aDLine)) ){
+      return 1;
+    }
+    aDLine++;
+  }
+  return 0;
 }
 
 /*
@@ -173,12 +510,15 @@ static void appendDiffLine(
   Blob *pOut,         /* Where to write the line of output */
   char cPrefix,       /* One of " ", "+",  or "-" */
   DLine *pLine,       /* The line to be output */
-  int html            /* True if generating HTML.  False for plain text */
+  int html,           /* True if generating HTML.  False for plain text */
+  ReCompiled *pRe     /* Colorize only if line matches this Regex */
 ){
   blob_append(pOut, &cPrefix, 1);
   if( html ){
     char *zHtml;
-    if( cPrefix=='+' ){
+    if( pRe && re_dline_match(pRe, pLine, 1)==0 ){
+      cPrefix = ' ';
+    }else if( cPrefix=='+' ){
       blob_append(pOut, "<span class=\"diffadd\">", -1);
     }else if( cPrefix=='-' ){
       blob_append(pOut, "<span class=\"diffrm\">", -1);
@@ -197,9 +537,9 @@ static void appendDiffLine(
 
 /*
 ** Add two line numbers to the beginning of an output line for a context
-** diff.  One or of the other of the two numbers might be zero, which means
+** diff.  One or the other of the two numbers might be zero, which means
 ** to leave that number field blank.  The "html" parameter means to format
-** the output for HTML.  
+** the output for HTML.
 */
 static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
   if( html ) blob_append(pOut, "<span class=\"diffln\">", -1);
@@ -216,20 +556,18 @@ static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
   if( html ) blob_append(pOut, "</span>", -1);
 }
 
-
 /*
-** Given a diff context in which the aEdit[] array has been filled
+** Given a raw diff p[] in which the p->aEdit[] array has been filled
 ** in, compute a context diff into pOut.
 */
 static void contextDiff(
   DContext *p,      /* The difference */
   Blob *pOut,       /* Output a context diff to here */
-  int nContext,     /* Number of lines of context */
-  int showLn,       /* Show line numbers */
-  int html          /* Render as HTML */
+  ReCompiled *pRe,  /* Only show changes that match this regex */
+  u64 diffFlags     /* Flags controlling the diff format */
 ){
   DLine *A;     /* Left side of the diff */
-  DLine *B;     /* Right side of the diff */  
+  DLine *B;     /* Right side of the diff */
   int a = 0;    /* Index of next line in A[] */
   int b = 0;    /* Index of next line in B[] */
   int *R;       /* Array of COPY/DELETE/INSERT triples */
@@ -241,7 +579,14 @@ static void contextDiff(
   int m;        /* Number of lines to output */
   int skip;     /* Number of lines to skip */
   int nChunk = 0;  /* Number of diff chunks seen so far */
+  int nContext;    /* Number of lines of context */
+  int showLn;      /* Show line numbers */
+  int html;        /* Render as HTML */
+  int showDivider = 0;  /* True to show the divider between diff blocks */
 
+  nContext = diff_context_lines(diffFlags);
+  showLn = (diffFlags & DIFF_LINENO)!=0;
+  html = (diffFlags & DIFF_HTML)!=0;
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -251,6 +596,31 @@ static void contextDiff(
     /* Figure out how many triples to show in a single block */
     for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
     /* printf("r=%d nr=%d\n", r, nr); */
+
+    /* If there is a regex, skip this block (generate no diff output)
+    ** if the regex matches or does not match both insert and delete.
+    ** Only display the block if one side matches but the other side does
+    ** not.
+    */
+    if( pRe ){
+      int hideBlock = 1;
+      int xa = a, xb = b;
+      for(i=0; hideBlock && i<nr; i++){
+        int c1, c2;
+        xa += R[r+i*3];
+        xb += R[r+i*3];
+        c1 = re_dline_match(pRe, &A[xa], R[r+i*3+1]);
+        c2 = re_dline_match(pRe, &B[xb], R[r+i*3+2]);
+        hideBlock = c1==c2;
+        xa += R[r+i*3+1];
+        xb += R[r+i*3+2];
+      }
+      if( hideBlock ){
+        a = xa;
+        b = xb;
+        continue;
+      }
+    }
 
     /* For the current block comprising nr triples, figure out
     ** how many lines of A and B are to be displayed
@@ -279,13 +649,14 @@ static void contextDiff(
     }
 
     /* Show the header for this block, or if we are doing a modified
-    ** context diff that contains line numbers, show the separate from
+    ** context diff that contains line numbers, show the separator from
     ** the previous block.
     */
     nChunk++;
     if( showLn ){
-      if( r==0 ){
+      if( !showDivider ){
         /* Do not show a top divider */
+        showDivider = 1;
       }else if( html ){
         blob_appendf(pOut, "<span class=\"diffhr\">%.80c</span>\n", '.');
         blob_appendf(pOut, "<a name=\"chunk%d\"></a>\n", nChunk);
@@ -312,7 +683,7 @@ static void contextDiff(
     m = R[r] - skip;
     for(j=0; j<m; j++){
       if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-      appendDiffLine(pOut, ' ', &A[a+j], html);
+      appendDiffLine(pOut, ' ', &A[a+j], html, 0);
     }
     a += m;
     b += m;
@@ -322,20 +693,20 @@ static void contextDiff(
       m = R[r+i*3+1];
       for(j=0; j<m; j++){
         if( showLn ) appendDiffLineno(pOut, a+j+1, 0, html);
-        appendDiffLine(pOut, '-', &A[a+j], html);
+        appendDiffLine(pOut, '-', &A[a+j], html, pRe);
       }
       a += m;
       m = R[r+i*3+2];
       for(j=0; j<m; j++){
         if( showLn ) appendDiffLineno(pOut, 0, b+j+1, html);
-        appendDiffLine(pOut, '+', &B[b+j], html);
+        appendDiffLine(pOut, '+', &B[b+j], html, pRe);
       }
       b += m;
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
           if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-          appendDiffLine(pOut, ' ', &B[b+j], html);
+          appendDiffLine(pOut, ' ', &B[b+j], html, 0);
         }
         b += m;
         a += m;
@@ -348,7 +719,7 @@ static void contextDiff(
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
       if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-      appendDiffLine(pOut, ' ', &B[b+j], html);
+      appendDiffLine(pOut, ' ', &B[b+j], html, 0);
     }
   }
 }
@@ -368,6 +739,7 @@ struct SbsLine {
   int iStart2;             /* Write zStart2 prior to character iStart2 */
   const char *zStart2;     /* A <span> tag */
   int iEnd2;               /* Write </span> prior to character iEnd2 */
+  ReCompiled *pRe;         /* Only colorize matching lines, if not NULL */
 };
 
 /*
@@ -393,9 +765,13 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
   const char *zIn = pLine->z;
   char *z = &p->zLine[p->n];
   int w = p->width;
+  int colorize = p->escHtml;
+  if( colorize && p->pRe && re_dline_match(p->pRe, pLine, 1)==0 ){
+    colorize = 0;
+  }
   for(i=j=k=0; k<w && i<n; i++, k++){
     char c = zIn[i];
-    if( p->escHtml ){
+    if( colorize ){
       if( i==p->iStart ){
         int x = strlen(p->zStart);
         memcpy(z+j, p->zStart, x);
@@ -430,6 +806,9 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
     }else if( c=='>' && p->escHtml ){
       memcpy(&z[j], "&gt;", 4);
       j += 4;
+    }else if( c=='"' && p->escHtml ){
+      memcpy(&z[j], "&quot;", 6);
+      j += 6;
     }else{
       z[j++] = c;
       if( (c&0xc0)==0x80 ) k--;
@@ -449,7 +828,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
 }
 
 /*
-** Append a string to an SbSLine with coding, interpretation, or padding.
+** Append a string to an SbSLine without coding, interpretation, or padding.
 */
 static void sbsWrite(SbsLine *p, const char *zIn, int nIn){
   memcpy(p->zLine+p->n, zIn, nIn);
@@ -482,7 +861,7 @@ static void sbsWriteLineno(SbsLine *p, int ln){
 }
 
 /*
-** The two text segments zLeft and zRight are known to be different on 
+** The two text segments zLeft and zRight are known to be different on
 ** both ends, but they might have  a common segment in the middle.  If
 ** they do not have a common segment, return 0.  If they do have a large
 ** common segment, return 1 and before doing so set:
@@ -549,6 +928,49 @@ static int textLCS(
 }
 
 /*
+** Try to shift iStart as far as possible to the left.
+*/
+static void sbsShiftLeft(SbsLine *p, const char *z){
+  int i, j;
+  while( (i=p->iStart)>0 && z[i-1]==z[i] ){
+    for(j=i+1; j<p->iEnd && z[j-1]==z[j]; j++){}
+    if( j<p->iEnd ) break;
+    p->iStart--;
+    p->iEnd--;
+  }
+}
+
+/*
+** Simplify iStart and iStart2:
+**
+**    *  If iStart is a null-change then move iStart2 into iStart
+**    *  Make sure any null-changes are in canonoical form.
+**    *  Make sure all changes are at character boundaries for
+**       multi-byte characters.
+*/
+static void sbsSimplifyLine(SbsLine *p, const char *z){
+  if( p->iStart2==p->iEnd2 ){
+    p->iStart2 = p->iEnd2 = 0;
+  }else if( p->iStart2 ){
+    while( p->iStart2>0 && (z[p->iStart2]&0xc0)==0x80 ) p->iStart2--;
+    while( (z[p->iEnd2]&0xc0)==0x80 ) p->iEnd2++;
+  }
+  if( p->iStart==p->iEnd ){
+    p->iStart = p->iStart2;
+    p->iEnd = p->iEnd2;
+    p->zStart = p->zStart2;
+    p->iStart2 = 0;
+    p->iEnd2 = 0;
+  }
+  if( p->iStart==p->iEnd ){
+    p->iStart = p->iEnd = -1;
+  }else if( p->iStart>0 ){
+    while( p->iStart>0 && (z[p->iStart]&0xc0)==0x80 ) p->iStart--;
+    while( (z[p->iEnd]&0xc0)==0x80 ) p->iEnd++;
+  }
+}
+
+/*
 ** Write out lines that have been edited.  Adjust the highlight to cover
 ** only those parts of the line that actually changed.
 */
@@ -561,6 +983,7 @@ static void sbsWriteLineChange(
 ){
   int nLeft;           /* Length of left line in bytes */
   int nRight;          /* Length of right line in bytes */
+  int nShort;          /* Shortest of left and right */
   int nPrefix;         /* Length of common prefix */
   int nSuffix;         /* Length of common suffix */
   const char *zLeft;   /* Text of the left line */
@@ -576,21 +999,27 @@ static void sbsWriteLineChange(
   zLeft = pLeft->z;
   nRight = pRight->h & LENGTH_MASK;
   zRight = pRight->z;
+  nShort = nLeft<nRight ? nLeft : nRight;
 
   nPrefix = 0;
-  while( nPrefix<nLeft && nPrefix<nRight && zLeft[nPrefix]==zRight[nPrefix] ){
+  while( nPrefix<nShort && zLeft[nPrefix]==zRight[nPrefix] ){
     nPrefix++;
   }
+  if( nPrefix<nShort ){
+    while( nPrefix>0 && (zLeft[nPrefix]&0xc0)==0x80 ) nPrefix--;
+  }
   nSuffix = 0;
-  if( nPrefix<nLeft && nPrefix<nRight ){
-    while( nSuffix<nLeft && nSuffix<nRight
-           && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
+  if( nPrefix<nShort ){
+    while( nSuffix<nShort && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
       nSuffix++;
+    }
+    if( nSuffix<nShort ){
+      while( nSuffix>0 && (zLeft[nLeft-nSuffix]&0xc0)==0x80 ) nSuffix--;
     }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
-  if( nPrefix+nSuffix > nLeft ) nSuffix = nLeft - nPrefix;
-  if( nPrefix+nSuffix > nRight ) nSuffix = nRight - nPrefix;
+  if( nPrefix+nSuffix > nShort ) nPrefix = nShort - nSuffix;
+
 
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
@@ -598,7 +1027,11 @@ static void sbsWriteLineChange(
     p->iStart2 = p->iEnd2 = 0;
     p->iStart = p->iEnd = -1;
     sbsWriteText(p, pLeft, SBS_PAD);
-    sbsWrite(p, " | ", 3);
+    if( nLeft==nRight && zLeft[nLeft]==zRight[nRight] ){
+      sbsWrite(p, "   ", 3);
+    }else{
+      sbsWrite(p, " | ", 3);
+    }
     sbsWriteLineno(p, lnRight);
     p->iStart = nPrefix;
     p->iEnd = nRight - nSuffix;
@@ -637,37 +1070,31 @@ static void sbsWriteLineChange(
     sbsWriteLineno(p, lnLeft);
     p->iStart = nPrefix;
     p->iEnd = nPrefix + aLCS[0];
-    p->zStart = aLCS[2]==0 ? zClassRm : zClassChng;
+    if( aLCS[2]==0 ){
+      sbsShiftLeft(p, pLeft->z);
+      p->zStart = zClassRm;
+    }else{
+      p->zStart = zClassChng;
+    }
     p->iStart2 = nPrefix + aLCS[1];
     p->iEnd2 = nLeft - nSuffix;
     p->zStart2 = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
-    if( p->iStart2==p->iEnd2 ) p->iStart2 = p->iEnd2 = 0;
-    if( p->iStart==p->iEnd ){
-      p->iStart = p->iStart2;
-      p->iEnd = p->iEnd2;
-      p->zStart = p->zStart2;
-      p->iStart2 = 0;
-      p->iEnd2 = 0;
-    }
-    if( p->iStart==p->iEnd ) p->iStart = p->iEnd = -1;
+    sbsSimplifyLine(p, zLeft+nPrefix);
     sbsWriteText(p, pLeft, SBS_PAD);
     sbsWrite(p, " | ", 3);
     sbsWriteLineno(p, lnRight);
     p->iStart = nPrefix;
     p->iEnd = nPrefix + aLCS[2];
-    p->zStart = aLCS[0]==0 ? zClassAdd : zClassChng;
+    if( aLCS[0]==0 ){
+      sbsShiftLeft(p, pRight->z);
+      p->zStart = zClassAdd;
+    }else{
+      p->zStart = zClassChng;
+    }
     p->iStart2 = nPrefix + aLCS[3];
     p->iEnd2 = nRight - nSuffix;
     p->zStart2 = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
-    if( p->iStart2==p->iEnd2 ) p->iStart2 = p->iEnd2 = 0;
-    if( p->iStart==p->iEnd ){
-      p->iStart = p->iStart2;
-      p->iEnd = p->iEnd2;
-      p->zStart = p->zStart2;
-      p->iStart2 = 0;
-      p->iEnd2 = 0;
-    }
-    if( p->iStart==p->iEnd ) p->iStart = p->iEnd = -1; 
+    sbsSimplifyLine(p, zRight+nPrefix);
     sbsWriteText(p, pRight, SBS_NEWLINE);
     return;
   }
@@ -764,9 +1191,12 @@ static int match_dline(DLine *pA, DLine *pB){
 ** fossil_malloc().  (The caller needs to free the return value using
 ** fossil_free().)  Entries in the returned array have values as follows:
 **
-**    1.   Delete the next line of pLeft.
-**    2.   The next line of pLeft changes into the next line of pRight.
-**    3.   Insert the next line of pRight.
+**    1.  Delete the next line of pLeft.
+**    2.  Insert the next line of pRight.
+**    3.  The next line of pLeft changes into the next line of pRight.
+**    4.  Delete one line from pLeft and add one line to pRight.
+**
+** Values larger than three indicate better matches.
 **
 ** The length of the returned array will be just large enough to cause
 ** all elements of pLeft and pRight to be consumed.
@@ -785,17 +1215,31 @@ static unsigned char *sbsAlignment(
   int *a;                      /* One row of the Wagner matrix */
   int *pToFree;                /* Space that needs to be freed */
   unsigned char *aM;           /* Wagner result matrix */
+  int nMatch, iMatch;          /* Number of matching lines and match score */
+  int mnLen;                   /* MIN(nLeft, nRight) */
+  int mxLen;                   /* MAX(nLeft, nRight) */
   int aBuf[100];               /* Stack space for a[] if nRight not to big */
 
   aM = fossil_malloc( (nLeft+1)*(nRight+1) );
   if( nLeft==0 ){
-    memset(aM, 3, nRight);
+    memset(aM, 2, nRight);
     return aM;
   }
   if( nRight==0 ){
     memset(aM, 1, nLeft);
     return aM;
   }
+
+  /* This algorithm is O(N**2).  So if N is too big, bail out with a
+  ** simple (but stupid and ugly) result that doesn't take too long. */
+  mnLen = nLeft<nRight ? nLeft : nRight;
+  if( nLeft*nRight>100000 ){
+    memset(aM, 4, mnLen);
+    if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
+    if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
+    return aM;
+  }
+
   if( nRight < (sizeof(aBuf)/sizeof(aBuf[0]))-1 ){
     pToFree = 0;
     a = aBuf;
@@ -805,7 +1249,7 @@ static unsigned char *sbsAlignment(
 
   /* Compute the best alignment */
   for(i=0; i<=nRight; i++){
-    aM[i] = 3;
+    aM[i] = 2;
     a[i] = i*50;
   }
   aM[0] = 0;
@@ -815,16 +1259,16 @@ static unsigned char *sbsAlignment(
     aM[j*(nRight+1)] = 1;
     for(i=1; i<=nRight; i++){
       int m = a[i-1]+50;
-      int d = 3;
+      int d = 2;
       if( m>a[i]+50 ){
         m = a[i]+50;
         d = 1;
       }
       if( m>p ){
         int score = match_dline(&aLeft[j-1], &aRight[i-1]);
-        if( (score<66 || (i<j+1 && i>j-1)) && m>p+score ){
+        if( (score<=63 || (i<j+1 && i>j-1)) && m>p+score ){
           m = p+score;
-          d = 2;
+          d = 3 | score*4;
         }
       }
       p = a[i];
@@ -837,28 +1281,60 @@ static unsigned char *sbsAlignment(
   i = nRight;
   j = nLeft;
   k = (nRight+1)*(nLeft+1)-1;
+  nMatch = iMatch = 0;
   while( i+j>0 ){
-    unsigned char c = aM[k--];
-    if( c==2 ){
+    unsigned char c = aM[k];
+    if( c>=3 ){
       assert( i>0 && j>0 );
       i--;
       j--;
-    }else if( c==3 ){
+      nMatch++;
+      iMatch += (c>>2);
+      aM[k] = 3;
+    }else if( c==2 ){
       assert( i>0 );
       i--;
     }else{
       assert( j>0 );
       j--;
     }
+    k--;
     aM[k] = aM[j*(nRight+1)+i];
   }
   k++;
   i = (nRight+1)*(nLeft+1) - k;
   memmove(aM, &aM[k], i);
 
+  /* If:
+  **   (1) the alignment is more than 25% longer than the longest side, and
+  **   (2) the average match cost exceeds 15
+  ** Then this is probably an alignment that will be difficult for humans
+  ** to read.  So instead, just show all of the right side inserted followed
+  ** by all of the left side deleted.
+  **
+  ** The coefficients for conditions (1) and (2) above are determined by
+  ** experimentation.
+  */
+  mxLen = nLeft>nRight ? nLeft : nRight;
+  if( i*4>mxLen*5 && (nMatch==0 || iMatch/nMatch>15) ){
+    memset(aM, 4, mnLen);
+    if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
+    if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
+  }
+
   /* Return the result */
   fossil_free(pToFree);
   return aM;
+}
+
+/*
+** R[] is an array of six integer, two COPY/DELETE/INSERT triples for a
+** pair of adjacent differences.  Return true if the gap between these
+** two differences is so small that they should be rendered as a single
+** edit.
+*/
+static int smallGap(int *R){
+  return R[3]<=2 || R[3]<=(R[1]+R[2]+R[4]+R[5])/8;
 }
 
 /*
@@ -868,12 +1344,11 @@ static unsigned char *sbsAlignment(
 static void sbsDiff(
   DContext *p,       /* The computed diff */
   Blob *pOut,        /* Write the results here */
-  int nContext,      /* Number of lines of context around each change */
-  int width,         /* Width of each column of output */
-  int escHtml        /* True to generate HTML output */
+  ReCompiled *pRe,   /* Only show changes that match this regex */
+  u64 diffFlags      /* Flags controlling the diff */
 ){
   DLine *A;     /* Left side of the diff */
-  DLine *B;     /* Right side of the diff */  
+  DLine *B;     /* Right side of the diff */
   int a = 0;    /* Index of next line in A[] */
   int b = 0;    /* Index of next line in B[] */
   int *R;       /* Array of COPY/DELETE/INSERT triples */
@@ -886,12 +1361,16 @@ static void sbsDiff(
   int skip;     /* Number of lines to skip */
   int nChunk = 0; /* Number of chunks of diff output seen so far */
   SbsLine s;    /* Output line buffer */
+  int nContext; /* Lines of context above and below each change */
+  int showDivider = 0;  /* True to show the divider */
 
   memset(&s, 0, sizeof(s));
-  s.zLine = fossil_malloc( 15*width + 200 );
+  s.width = diff_width(diffFlags);
+  s.zLine = fossil_malloc( 15*s.width + 200 );
   if( s.zLine==0 ) return;
-  s.width = width;
-  s.escHtml = escHtml;
+  nContext = diff_context_lines(diffFlags);
+  s.escHtml = (diffFlags & DIFF_HTML)!=0;
+  s.pRe = pRe;
   s.iStart = -1;
   s.iStart2 = 0;
   s.iEnd = -1;
@@ -904,6 +1383,31 @@ static void sbsDiff(
     /* Figure out how many triples to show in a single block */
     for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
     /* printf("r=%d nr=%d\n", r, nr); */
+
+    /* If there is a regex, skip this block (generate no diff output)
+    ** if the regex matches or does not match both insert and delete.
+    ** Only display the block if one side matches but the other side does
+    ** not.
+    */
+    if( pRe ){
+      int hideBlock = 1;
+      int xa = a, xb = b;
+      for(i=0; hideBlock && i<nr; i++){
+        int c1, c2;
+        xa += R[r+i*3];
+        xb += R[r+i*3];
+        c1 = re_dline_match(pRe, &A[xa], R[r+i*3+1]);
+        c2 = re_dline_match(pRe, &B[xb], R[r+i*3+2]);
+        hideBlock = c1==c2;
+        xa += R[r+i*3+1];
+        xb += R[r+i*3+2];
+      }
+      if( hideBlock ){
+        a = xa;
+        b = xb;
+        continue;
+      }
+    }
 
     /* For the current block comprising nr triples, figure out
     ** how many lines of A and B are to be displayed
@@ -932,16 +1436,17 @@ static void sbsDiff(
     }
 
     /* Draw the separator between blocks */
-    if( r>0 ){
-      if( escHtml ){
+    if( showDivider ){
+      if( s.escHtml ){
         blob_appendf(pOut, "<span class=\"diffhr\">%.*c</span>\n",
-                           width*2+16, '.');
+                           s.width*2+16, '.');
       }else{
-        blob_appendf(pOut, "%.*c\n", width*2+16, '.');
+        blob_appendf(pOut, "%.*c\n", s.width*2+16, '.');
       }
     }
+    showDivider = 1;
     nChunk++;
-    if( escHtml ){
+    if( s.escHtml ){
       blob_appendf(pOut, "<a name=\"chunk%d\"></a>\n", nChunk);
     }
 
@@ -967,21 +1472,38 @@ static void sbsDiff(
       unsigned char *alignment;
       ma = R[r+i*3+1];   /* Lines on left but not on right */
       mb = R[r+i*3+2];   /* Lines on right but not on left */
+
+      /* If the gap between the current diff and then next diff within the
+      ** same block is not too great, then render them as if they are a
+      ** single diff. */
+      while( i<nr-1 && smallGap(&R[r+i*3]) ){
+        i++;
+        m = R[r+i*3];
+        ma += R[r+i*3+1] + m;
+        mb += R[r+i*3+2] + m;
+      }
+
       alignment = sbsAlignment(&A[a], ma, &B[b], mb);
       for(j=0; ma+mb>0; j++){
         if( alignment[j]==1 ){
+          /* Delete one line from the left */
           s.n = 0;
           sbsWriteLineno(&s, a);
           s.iStart = 0;
           s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&A[a]);
           sbsWriteText(&s, &A[a], SBS_PAD);
-          sbsWrite(&s, " <\n", 3);
+          if( s.escHtml ){
+            sbsWrite(&s, " &lt;\n", 6);
+          }else{
+            sbsWrite(&s, " <\n", 3);
+          }
           blob_append(pOut, s.zLine, s.n);
           assert( ma>0 );
           ma--;
           a++;
-        }else if( alignment[j]==2 ){
+        }else if( alignment[j]==3 ){
+          /* The left line is changed into the right line */
           s.n = 0;
           sbsWriteLineChange(&s, &A[a], a, &B[b], b);
           blob_append(pOut, s.zLine, s.n);
@@ -990,20 +1512,45 @@ static void sbsDiff(
           mb--;
           a++;
           b++;
-        }else{
+        }else if( alignment[j]==2 ){
+          /* Insert one line on the right */
           s.n = 0;
-          sbsWriteSpace(&s, width + 7);
-          sbsWrite(&s, " > ", 3);
+          sbsWriteSpace(&s, s.width + 7);
+          if( s.escHtml ){
+            sbsWrite(&s, " &gt; ", 6);
+          }else{
+            sbsWrite(&s, " > ", 3);
+          }
           sbsWriteLineno(&s, b);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&B[b]);
           sbsWriteText(&s, &B[b], SBS_NEWLINE);
           blob_append(pOut, s.zLine, s.n);
           assert( mb>0 );
           mb--;
           b++;
+        }else{
+          /* Delete from the left and insert on the right */
+          s.n = 0;
+          sbsWriteLineno(&s, a);
+          s.iStart = 0;
+          s.zStart = "<span class=\"diffrm\">";
+          s.iEnd = LENGTH(&A[a]);
+          sbsWriteText(&s, &A[a], SBS_PAD);
+          sbsWrite(&s, " | ", 3);
+          sbsWriteLineno(&s, b);
+          s.iStart = 0;
+          s.zStart = "<span class=\"diffadd\">";
+          s.iEnd = LENGTH(&B[b]);
+          sbsWriteText(&s, &B[b], SBS_NEWLINE);
+          blob_append(pOut, s.zLine, s.n);
+          ma--;
+          mb--;
+          a++;
+          b++;
         }
+
       }
       fossil_free(alignment);
       if( i<nr-1 ){
@@ -1096,7 +1643,7 @@ static void optimalLCS(
 ** Ideally, the common sequence should be the longest possible common
 ** sequence.  However, an exact computation of LCS is O(N*N) which is
 ** way too slow for larger files.  So this routine uses an O(N)
-** heuristic approximation based on hashing that usually works about 
+** heuristic approximation based on hashing that usually works about
 ** as well.  But if the O(N) algorithm doesn't get a good solution
 ** and N is not too large, we fall back to an exact solution by
 ** calling optimalLCS().
@@ -1108,19 +1655,22 @@ static void longestCommonSequence(
   int *piSX, int *piEX,      /* Write p->aFrom[] common segment here */
   int *piSY, int *piEY       /* Write p->aTo[] common segment here */
 ){
-  double bestScore = -1e30;  /* Best score seen so far */
   int i, j, k;               /* Loop counters */
   int n;                     /* Loop limit */
   DLine *pA, *pB;            /* Pointers to lines */
   int iSX, iSY, iEX, iEY;    /* Current match */
-  double score;              /* Current score */
-  int skew;                  /* How lopsided is the match */
-  int dist;                  /* Distance of match from center */
+  int skew = 0;              /* How lopsided is the match */
+  int dist = 0;              /* Distance of match from center */
   int mid;                   /* Center of the span */
   int iSXb, iSYb, iEXb, iEYb;   /* Best match so far */
   int iSXp, iSYp, iEXp, iEYp;   /* Previous match */
+  sqlite3_int64 bestScore;      /* Best score so far */
+  sqlite3_int64 score;          /* Score for current candidate LCS */
+  int span;                     /* combined width of the input sequences */
 
-
+  span = (iE1 - iS1) + (iE2 - iS2);
+  bestScore = -10000;
+  score = 0;
   iSXb = iSXp = iS1;
   iEXb = iEXp = iS1;
   iSYb = iSYp = iS2;
@@ -1129,7 +1679,7 @@ static void longestCommonSequence(
   for(i=iS1; i<iE1; i++){
     int limit = 0;
     j = p->aTo[p->aFrom[i].h % p->nTo].iHash;
-    while( j>0 
+    while( j>0
       && (j-1<iS2 || j>=iE2 || !same_dline(&p->aFrom[i], &p->aTo[j-1]))
     ){
       if( limit++ > 10 ){
@@ -1162,7 +1712,7 @@ static void longestCommonSequence(
     if( skew<0 ) skew = -skew;
     dist = (iSX+iEX)/2 - mid;
     if( dist<0 ) dist = -dist;
-    score = (iEX - iSX) - 0.05*skew - 0.05*dist;
+    score = (iEX - iSX)*(sqlite3_int64)span - (skew + dist);
     if( score>bestScore ){
       bestScore = score;
       iSXb = iSX;
@@ -1186,8 +1736,6 @@ static void longestCommonSequence(
     *piEX = iEXb;
     *piEY = iEYb;
   }
-  /* printf("LCS(%d..%d/%d..%d) = %d..%d/%d..%d\n", 
-     iS1, iE1, iS2, iE2, *piSX, *piEX, *piSY, *piEY);  */
 }
 
 /*
@@ -1221,7 +1769,7 @@ static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
       p->aEdit[p->nEdit-1] += nIns;
       return;
     }
-  }  
+  }
   if( p->nEdit+3>p->nEditAlloc ){
     expandEdit(p, p->nEdit*2 + 15);
     if( p->aEdit==0 ) return;
@@ -1429,9 +1977,9 @@ static void diff_optimize(DContext *p){
 ** Extract the number of lines of context from diffFlags.  Supply an
 ** appropriate default if no context width is specified.
 */
-int diff_context_lines(int diffFlags){
+int diff_context_lines(u64 diffFlags){
   int n = diffFlags & DIFF_CONTEXT_MASK;
-  if( n==0 ) n = 5;
+  if( n==0 && (diffFlags & DIFF_CONTEXT_EX)==0 ) n = 5;
   return n;
 }
 
@@ -1439,7 +1987,7 @@ int diff_context_lines(int diffFlags){
 ** Extract the width of columns for side-by-side diff.  Supply an
 ** appropriate default if no width is given.
 */
-int diff_width(int diffFlags){
+int diff_width(u64 diffFlags){
   int w = (diffFlags & DIFF_WIDTH_MASK)/(DIFF_CONTEXT_MASK+1);
   if( w==0 ) w = 80;
   return w;
@@ -1449,7 +1997,7 @@ int diff_width(int diffFlags){
 ** Generate a report of the differences between files pA and pB.
 ** If pOut is not NULL then a unified diff is appended there.  It
 ** is assumed that pOut has already been initialized.  If pOut is
-** NULL, then a pointer to an array of integers is returned.  
+** NULL, then a pointer to an array of integers is returned.
 ** The integers come in triples.  For each triple,
 ** the elements are the number of lines copied, the number of
 ** lines deleted, and the number of lines inserted.  The vector
@@ -1463,10 +2011,10 @@ int *text_diff(
   Blob *pA_Blob,   /* FROM file */
   Blob *pB_Blob,   /* TO file */
   Blob *pOut,      /* Write diff here if not NULL */
-  int diffFlags    /* DIFF_* flags defined above */
+  ReCompiled *pRe, /* Only output changes where this Regexp matches */
+  u64 diffFlags    /* DIFF_* flags defined above */
 ){
   int ignoreEolWs; /* Ignore whitespace at the end of lines */
-  int nContext;    /* Amount of context to display */	
   DContext c;
 
   if( diffFlags & DIFF_INVERT ){
@@ -1474,7 +2022,6 @@ int *text_diff(
     pA_Blob = pB_Blob;
     pB_Blob = pTemp;
   }
-  nContext = diff_context_lines(diffFlags);
   ignoreEolWs = (diffFlags & DIFF_IGNORE_EOLWS)!=0;
 
   /* Prepare the input files */
@@ -1484,31 +2031,47 @@ int *text_diff(
   c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
                            &c.nTo, ignoreEolWs);
   if( c.aFrom==0 || c.aTo==0 ){
-    free(c.aFrom);
-    free(c.aTo);
+    fossil_free(c.aFrom);
+    fossil_free(c.aTo);
     if( pOut ){
-      blob_appendf(pOut, "cannot compute difference between binary files\n");
+      blob_appendf(pOut, DIFF_CANNOT_COMPUTE_BINARY);
     }
     return 0;
   }
 
   /* Compute the difference */
   diff_all(&c);
-  if( (diffFlags & DIFF_NOOPT)==0 ) diff_optimize(&c);
+  if( (diffFlags & DIFF_NOTTOOBIG)!=0 ){
+    int i, m, n;
+    int *a = c.aEdit;
+    int mx = c.nEdit;
+    for(i=m=n=0; i<mx; i+=3){ m += a[i]; n += a[i+1]+a[i+2]; }
+    if( n>10000 ){
+      fossil_free(c.aFrom);
+      fossil_free(c.aTo);
+      fossil_free(c.aEdit);
+      if( diffFlags & DIFF_HTML ){
+        blob_append(pOut, DIFF_TOO_MANY_CHANGES_HTML, -1);
+      }else{
+        blob_append(pOut, DIFF_TOO_MANY_CHANGES_TXT, -1);
+      }
+      return 0;
+    }
+  }
+  if( (diffFlags & DIFF_NOOPT)==0 ){
+    diff_optimize(&c);
+  }
 
   if( pOut ){
     /* Compute a context or side-by-side diff into pOut */
-    int escHtml = (diffFlags & DIFF_HTML)!=0;
     if( diffFlags & DIFF_SIDEBYSIDE ){
-      int width = diff_width(diffFlags);
-      sbsDiff(&c, pOut, nContext, width, escHtml);
+      sbsDiff(&c, pOut, pRe, diffFlags);
     }else{
-      int showLn = (diffFlags & DIFF_LINENO)!=0;
-      contextDiff(&c, pOut, nContext, showLn, escHtml);
+      contextDiff(&c, pOut, pRe, diffFlags);
     }
-    free(c.aFrom);
-    free(c.aTo);
-    free(c.aEdit);
+    fossil_free(c.aFrom);
+    fossil_free(c.aTo);
+    fossil_free(c.aEdit);
     return 0;
   }else{
     /* If a context diff is not requested, then return the
@@ -1522,7 +2085,7 @@ int *text_diff(
 
 /*
 ** Process diff-related command-line options and return an appropriate
-** "diffFlags" integer.  
+** "diffFlags" integer.
 **
 **   --brief                Show filenames only    DIFF_BRIEF
 **   --context|-c N         N lines of context.    DIFF_CONTEXT_MASK
@@ -1531,16 +2094,18 @@ int *text_diff(
 **   --linenum|-n           Show line numbers      DIFF_LINENO
 **   --noopt                Disable optimization   DIFF_NOOPT
 **   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
+**   --unified              Unified diff.          ~DIFF_SIDEBYSIDE
 **   --width|-W N           N character lines.     DIFF_WIDTH_MASK
 */
-int diff_options(void){
-  int diffFlags = 0;
+u64 diff_options(void){
+  u64 diffFlags = 0;
   const char *z;
   int f;
   if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
-  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>0 ){
+  if( find_option("unified",0,0)!=0 ) diffFlags &= ~DIFF_SIDEBYSIDE;
+  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>=0 ){
     if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
-    diffFlags |= f;
+    diffFlags |= f + DIFF_CONTEXT_EX;
   }
   if( (z = find_option("width","W",1))!=0 && (f = atoi(z))>0 ){
     f *= DIFF_CONTEXT_MASK+1;
@@ -1563,13 +2128,13 @@ void test_rawdiff_cmd(void){
   int r;
   int i;
   int *R;
-  int diffFlags = diff_options();
+  u64 diffFlags = diff_options();
   if( g.argc<4 ) usage("FILE1 FILE2 ...");
   blob_read_from_file(&a, g.argv[2]);
   for(i=3; i<g.argc; i++){
     if( i>3 ) fossil_print("-------------------------------\n");
     blob_read_from_file(&b, g.argv[i]);
-    R = text_diff(&a, &b, 0, diffFlags);
+    R = text_diff(&a, &b, 0, 0, diffFlags);
     for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
       fossil_print(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
     }
@@ -1579,20 +2144,38 @@ void test_rawdiff_cmd(void){
 }
 
 /*
-** COMMAND: test-udiff
+** COMMAND: test-diff
+**
+** Usage: %fossil [options] FILE1 FILE2
 **
 ** Print the difference between two files.  The usual diff options apply.
 */
-void test_udiff_cmd(void){
+void test_diff_cmd(void){
   Blob a, b, out;
-  int diffFlag = diff_options();
+  u64 diffFlag;
+  const char *zRe;           /* Regex filter for diff output */
+  ReCompiled *pRe = 0;       /* Regex filter for diff output */
 
+  if( find_option("tk",0,0)!=0 ){
+    diff_tk("test-diff", 2);
+    return;
+  }
+  find_option("i",0,0);
+  zRe = find_option("regexp","e",1);
+  if( zRe ){
+    const char *zErr = re_compile(&pRe, zRe, 0);
+    if( zErr ) fossil_fatal("regex error: %s", zErr);
+  }
+  diffFlag = diff_options();
+  verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
+  diff_print_filenames(g.argv[2], g.argv[3], diffFlag);
   blob_read_from_file(&a, g.argv[2]);
   blob_read_from_file(&b, g.argv[3]);
   blob_zero(&out);
-  text_diff(&a, &b, &out, diffFlag);
+  text_diff(&a, &b, &out, pRe, diffFlag);
   blob_write_to_file(&out, "-");
+  re_free(pRe);
 }
 
 /**************************************************************************
@@ -1610,13 +2193,18 @@ struct Annotator {
   struct AnnLine {  /* Lines of the original files... */
     const char *z;       /* The text of the line */
     short int n;         /* Number of bytes (omitting trailing space and \n) */
-    short int iLevel;    /* Level at which tag was set */
-    const char *zSrc;    /* Tag showing origin of this line */
+    short int iVers;     /* Level at which tag was set */
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
-  int nNoSrc;       /* Number of entries where aOrig[].zSrc==NULL */
-  int iLevel;       /* Current level */
   int nVers;        /* Number of versions analyzed */
+  int bLimit;       /* True if the iLimit was reached */
+  struct AnnVers {
+    const char *zFUuid;   /* File being analyzed */
+    const char *zMUuid;   /* Check-in containing the file */
+    const char *zDate;    /* Date of the check-in */
+    const char *zBgColor; /* Suggested background color */
+    unsigned cnt;         /* Number of lines contributed by this check-in */
+  } *aVers;         /* For each check-in analyzed */
   char **azVers;    /* Names of versions analyzed */
 };
 
@@ -1637,7 +2225,7 @@ static int annotation_start(Annotator *p, Blob *pInput){
   for(i=0; i<p->c.nTo; i++){
     p->aOrig[i].z = p->c.aTo[i].z;
     p->aOrig[i].n = p->c.aTo[i].h & LENGTH_MASK;
-    p->aOrig[i].zSrc = 0;
+    p->aOrig[i].iVers = -1;
   }
   p->nOrig = p->c.nTo;
   return 0;
@@ -1650,11 +2238,9 @@ static int annotation_start(Annotator *p, Blob *pInput){
 ** on each line of the file being annotated that was contributed by
 ** pParent.  Memory to hold zPName is leaked.
 */
-static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
+static int annotation_step(Annotator *p, Blob *pParent, int iVers){
   int i, j;
   int lnTo;
-  int iPrevLevel;
-  int iThisLevel;
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
@@ -1668,67 +2254,36 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   diff_all(&p->c);
 
   /* Where new lines are inserted on this difference, record the
-  ** zPName as the source of the new line.
+  ** iVers as the source of the new line.
   */
-  iPrevLevel = p->iLevel;
-  p->iLevel++;
-  iThisLevel = p->iLevel;
   for(i=lnTo=0; i<p->c.nEdit; i+=3){
-    struct AnnLine *x = &p->aOrig[lnTo];
-    for(j=0; j<p->c.aEdit[i]; j++, lnTo++, x++){
-      if( x->zSrc==0 || x->iLevel==iPrevLevel ){
-         x->zSrc = zPName;
-         x->iLevel = iThisLevel;
+    int nCopy = p->c.aEdit[i];
+    int nIns = p->c.aEdit[i+2];
+    lnTo += nCopy;
+    for(j=0; j<nIns; j++, lnTo++){
+      if( p->aOrig[lnTo].iVers<0 ){
+        p->aOrig[lnTo].iVers = iVers;
       }
     }
-    lnTo += p->c.aEdit[i+2];
   }
 
   /* Clear out the diff results */
-  free(p->c.aEdit);
+  fossil_free(p->c.aEdit);
   p->c.aEdit = 0;
   p->c.nEdit = 0;
   p->c.nEditAlloc = 0;
 
   /* Clear out the from file */
-  free(p->c.aFrom);    
+  free(p->c.aFrom);
 
   /* Return no errors */
   return 0;
 }
 
 
-/*
-** COMMAND: test-annotate-step
-*/
-void test_annotate_step_cmd(void){
-  Blob orig, b;
-  Annotator x;
-  int i;
-
-  if( g.argc<4 ) usage("RID1 RID2 ...");
-  db_must_be_within_tree();
-  blob_zero(&b);
-  content_get(name_to_rid(g.argv[2]), &orig);
-  if( annotation_start(&x, &orig) ){
-    fossil_fatal("binary file");
-  }
-  for(i=3; i<g.argc; i++){
-    blob_zero(&b);
-    content_get(name_to_rid(g.argv[i]), &b);
-    if( annotation_step(&x, &b, g.argv[i-1]) ){
-      fossil_fatal("binary file");
-    }
-  }
-  for(i=0; i<x.nOrig; i++){
-    const char *zSrc = x.aOrig[i].zSrc;
-    if( zSrc==0 ) zSrc = g.argv[g.argc-1];
-    fossil_print("%10s: %.*s\n", zSrc, x.aOrig[i].n, x.aOrig[i].z);
-  }
-}
-
 /* Annotation flags */
-#define ANN_FILE_VERS  0x001  /* Show file version rather than commit version */
+#define ANN_FILE_VERS    0x01   /* Show file vers rather than commit vers */
+#define ANN_FILE_ANCEST  0x02   /* Prefer check-ins in the ANCESTOR table */
 
 /*
 ** Compute a complete annotation on a file.  The file is identified
@@ -1739,15 +2294,15 @@ static void annotate_file(
   Annotator *p,        /* The annotator */
   int fnid,            /* The name of the file to be annotated */
   int mid,             /* Use the version of the file in this check-in */
-  int webLabel,        /* Use web-style annotations if true */
   int iLimit,          /* Limit the number of levels if greater than zero */
   int annFlags         /* Flags to alter the annotation */
 ){
   Blob toAnnotate;     /* Text of the final (mid) version of the file */
   Blob step;           /* Text of previous revision */
   int rid;             /* Artifact ID of the file being annotated */
-  char *zLabel;        /* Label to apply to a line */
   Stmt q;              /* Query returning all ancestor versions */
+  Stmt ins;            /* Inserts into the temporary VSEEN table */
+  int cnt = 0;         /* Number of versions examined */
 
   /* Initialize the annotation */
   rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
@@ -1757,47 +2312,74 @@ static void annotate_file(
   if( !content_get(rid, &toAnnotate) ){
     fossil_panic("unable to retrieve content of artifact #%d", rid);
   }
-  db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
   if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(mid, iLimit);
   annotation_start(p, &toAnnotate);
-
-  db_prepare(&q, 
-    "SELECT mlink.fid,"
-    "       (SELECT uuid FROM blob WHERE rid=mlink.%s),"
-    "       date(event.mtime), "
-    "       coalesce(event.euser,event.user) "
-    "  FROM ancestor, mlink, event"
-    " WHERE mlink.fnid=%d"
-    "   AND mlink.mid=ancestor.rid"
-    "   AND event.objid=ancestor.rid"
-    " ORDER BY ancestor.generation ASC"
-    " LIMIT %d",
-    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid",
-    fnid,
-    iLimit>0 ? iLimit : 10000000
+  db_begin_transaction();
+  db_multi_exec(
+     "CREATE TEMP TABLE IF NOT EXISTS vseen(rid INTEGER PRIMARY KEY);"
+     "DELETE FROM vseen;"
   );
-  while( db_step(&q)==SQLITE_ROW ){
-    int pid = db_column_int(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
-    const char *zUser = db_column_text(&q, 3);
-    if( webLabel ){
-      zLabel = mprintf(
-          "<a href='%R/info/%s' target='infowindow'>%.10s</a> %s %13.13s", 
-          zUuid, zUuid, zDate, zUser
-      );
-    }else{
-      zLabel = mprintf("%.10s %s %13.13s", zUuid, zDate, zUser);
+
+  db_prepare(&ins, "INSERT OR IGNORE INTO vseen(rid) VALUES(:rid)");
+  db_prepare(&q,
+    "SELECT (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.mid),"
+    "       date(event.mtime),"
+    "       mlink.pid"
+    "  FROM mlink, event"
+    " WHERE mlink.fid=:rid"
+    "   AND event.objid=mlink.mid"
+    "   AND mlink.pid NOT IN vseen"
+    " ORDER BY %s event.mtime",
+    (annFlags & ANN_FILE_ANCEST)!=0 ?
+         "(mlink.mid IN (SELECT rid FROM ancestor)) DESC,":""
+  );
+
+  db_bind_int(&q, ":rid", rid);
+  if( iLimit==0 ) iLimit = 1000000000;
+  while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
+    int prevId = db_column_int(&q, 3);
+    p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
+    p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
+    p->aVers[p->nVers].zMUuid = fossil_strdup(db_column_text(&q, 1));
+    p->aVers[p->nVers].zDate = fossil_strdup(db_column_text(&q, 2));
+    if( p->nVers ){
+      content_get(rid, &step);
+      annotation_step(p, &step, p->nVers-1);
+      blob_reset(&step);
     }
     p->nVers++;
-    p->azVers = fossil_realloc(p->azVers, p->nVers*sizeof(p->azVers[0]) );
-    p->azVers[p->nVers-1] = zLabel;
-    content_get(pid, &step);
-    annotation_step(p, &step, zLabel);
-    blob_reset(&step);
+    db_bind_int(&ins, ":rid", rid);
+    db_step(&ins);
+    db_reset(&ins);
+    db_reset(&q);
+    rid = prevId;
+    db_bind_int(&q, ":rid", prevId);
+    cnt++;
   }
+  p->bLimit = iLimit==cnt;
   db_finalize(&q);
+  db_finalize(&ins);
+  db_end_transaction(0);
+}
+
+/*
+** Return a color from a gradient.
+*/
+unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
+  unsigned c;   /* Result color */
+  unsigned x1, x2;
+  if( i==0 || n==0 ) return c1;
+  x1 = (c1>>16)&0xff;
+  x2 = (c2>>16)&0xff;
+  c = (x1*(n-i) + x2*i)/n<<16 & 0xff0000;
+  x1 = (c1>>8)&0xff;
+  x2 = (c2>>8)&0xff;
+  c |= (x1*(n-i) + x2*i)/n<<8 & 0xff00;
+  x1 = c1&0xff;
+  x2 = c2&0xff;
+  c |= (x1*(n-i) + x2*i)/n & 0xff;
+  return c;
 }
 
 /*
@@ -1807,42 +2389,141 @@ static void annotate_file(
 **
 **    checkin=ID          The manifest ID at which to start the annotation
 **    filename=FILENAME   The filename.
+**    filevers            Show file versions rather than check-in versions
+**    log=BOOLEAN         Show a log of versions analyzed
+**    limit=N             Limit the search depth to N ancestors
 */
 void annotation_page(void){
   int mid;
   int fnid;
   int i;
-  int iLimit;
-  int annFlags = 0;
+  int iLimit;            /* Depth limit */
+  int annFlags = ANN_FILE_ANCEST;  
+  int showLog = 0;       /* True to display the log */
+  const char *zFilename; /* Name of file to annotate */
+  const char *zCI;       /* The check-in containing zFilename */
   Annotator ann;
+  HQuery url;
+  struct AnnVers *p;
+  unsigned clr1, clr2, clr;
 
+  /* Gather query parameters */
+  showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", P("filename"));
+  zFilename = P("filename");
+  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
-  iLimit = atoi(PD("limit","-1"));
+  iLimit = atoi(PD("limit","20"));
+  if( P("filevers") ) annFlags |= ANN_FILE_VERS;
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
   }
-  style_header("File Annotation");
-  if( P("filevers") ) annFlags |= ANN_FILE_VERS;
-  annotate_file(&ann, fnid, mid, g.perm.Hyperlink, iLimit, annFlags);
-  if( P("log") ){
-    int i;
-    @ <h2>Versions analyzed:</h2>
+
+  /* compute the annotation */
+  compute_direct_ancestors(mid, 10000000);
+  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  zCI = ann.aVers[0].zMUuid;
+
+  /* generate the web page */
+  style_header("Annotation For %h", zFilename);
+  url_initialize(&url, "annotate");
+  url_add_parameter(&url, "checkin", P("checkin"));
+  url_add_parameter(&url, "filename", zFilename);
+  if( iLimit!=20 ){
+    url_add_parameter(&url, "limit", sqlite3_mprintf("%d", iLimit));
+  }
+  url_add_parameter(&url, "log", showLog ? "1" : "0");
+  if( showLog ){
+    style_submenu_element("Hide Log", "Hide Log",
+       url_render(&url, "log", "0", 0, 0));
+  }else{
+    style_submenu_element("Show Log", "Show Log",
+       url_render(&url, "log", "1", 0, 0));
+  }
+  if( ann.bLimit ){
+    char *z1, *z2;
+    style_submenu_element("All Ancestors", "All Ancestors",
+       url_render(&url, "limit", "-1", 0, 0));
+    z1 = sqlite3_mprintf("%d Ancestors", iLimit+20);
+    z2 = sqlite3_mprintf("%d", iLimit+20);
+    style_submenu_element(z1, z1, url_render(&url, "limit", z2, 0, 0));
+  }
+  if( iLimit>20 ){
+    style_submenu_element("20 Ancestors", "20 Ancestors",
+       url_render(&url, "limit", "20", 0, 0));
+  }
+  if( db_get_boolean("white-foreground", 0) ){
+    clr1 = 0xa04040;
+    clr2 = 0x4059a0;
+  }else{
+    clr1 = 0xffb5b5;  /* Recent changes: red (hot) */
+    clr2 = 0xb5e0ff;  /* Older changes: blue (cold) */
+  }
+  for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+    clr = gradient_color(clr1, clr2, ann.nVers-1, i);
+    ann.aVers[i].zBgColor = mprintf("#%06x", clr);
+  }  
+
+  if( showLog ){
+    char *zLink = href("%R/finfo?name=%t&ci=%S",zFilename,zCI);
+    @ <h2>Ancestors of %z(zLink)%h(zFilename)</a> analyzed:</h2>
     @ <ol>
-    for(i=0; i<ann.nVers; i++){
-      @ <li><tt>%s(ann.azVers[i])</tt></li>
+    for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+      @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
+      @ check-in %z(href("%R/info/%S",p->zMUuid))%.10s(p->zMUuid)</a>
+      @ artifact %z(href("%R/artifact/%S",p->zFUuid))%.10s(p->zFUuid)</a>
+      @ </span>
+#if 0
+      if( i>0 ){
+        char *zLink = xhref("target='infowindow'",
+                            "%R/fdiff?v1=%S&v2=%S&sbs=1",
+                            p->zFUuid,ann.aVers[0].zFUuid);
+        @ %z(zLink)[diff-to-top]</a>
+        if( i>1 ){
+           zLink = xhref("target='infowindow'",
+                         "%R/fdiff?v1=%S&v2=%S&sbs=1",
+                         p->zFUuid,p[-1].zFUuid);
+           @ %z(zLink)[diff-to-previous]</a>
+        }
+      }
+#endif
     }
     @ </ol>
     @ <hr>
-    @ <h2>Annotation:</h2>
+  }
+  if( !ann.bLimit ){
+    @ <h2>Origin for each line in 
+    @ %z(href("%R/finfo?name=%h&ci=%S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%S",zCI))%S(zCI)</a>:</h2>
+    iLimit = ann.nVers+10;
+  }else{
+    @ <h2>Lines added by the %d(iLimit) most recent ancestors of
+    @ %z(href("%R/finfo?name=%h&ci=%S", zFilename, zCI))%h(zFilename)</a>
+    @ from check-in %z(href("%R/info/%S",zCI))%S(zCI)</a>:</h2>
   }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
-    ((char*)ann.aOrig[i].z)[ann.aOrig[i].n] = 0;
-    @ %s(ann.aOrig[i].zSrc): %h(ann.aOrig[i].z)
+    int iVers = ann.aOrig[i].iVers;
+    char *z = (char*)ann.aOrig[i].z;
+    int n = ann.aOrig[i].n;
+    char zPrefix[300];
+    z[n] = 0;
+    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
+    if( iVers>=0 ){
+      struct AnnVers *p = ann.aVers+iVers;
+      char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix,
+           "<span style='background-color:%s'>"
+           "%s%.10s</a> %s</span> %4d:",
+           p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
+      fossil_free(zLink);
+    }else{
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
+    }
+    @ %s(zPrefix) %h(z)
+
   }
   @ </pre>
   style_footer();
@@ -1857,9 +2538,9 @@ void annotation_page(void){
 ** the file was last modified.
 **
 ** Options:
-**   --limit N       Only look backwards in time by N versions
-**   --log           List all versions analyzed
 **   --filevers      Show file version numbers rather than check-in versions
+**   -l|--log        List all versions analyzed
+**   -n|--limit N    Only look backwards in time by N versions
 **
 ** See also: info, finfo, timeline
 */
@@ -1869,22 +2550,22 @@ void annotate_cmd(void){
   int mid;          /* Manifest where file was checked in */
   int cid;          /* Checkout ID */
   Blob treename;    /* FILENAME translated to canonical form */
-  char *zFilename;  /* Cannonical filename */
+  char *zFilename;  /* Canonical filename */
   Annotator ann;    /* The annotation of the file */
   int i;            /* Loop counter */
-  const char *zLimit; /* The value to the --limit option */
+  const char *zLimit; /* The value to the -n|--limit option */
   int iLimit;       /* How far back in time to look */
   int showLog;      /* True to show the log */
   int fileVers;     /* Show file version instead of check-in versions */
   int annFlags = 0; /* Flags to control annotation properties */
 
-  zLimit = find_option("limit",0,1);
+  zLimit = find_option("limit","n",1);
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
-  showLog = find_option("log",0,0)!=0;
+  showLog = find_option("log","l",0)!=0;
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
-  if (g.argc<3) {
+  if( g.argc<3 ) {
     usage("FILENAME");
   }
   file_tree_name(g.argv[2], &treename, 1);
@@ -1898,11 +2579,11 @@ void annotate_cmd(void){
     fossil_fatal("not part of current checkout: %s", zFilename);
   }
   cid = db_lget_int("checkout", 0);
-  if (cid == 0){
+  if( cid == 0 ){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(cid, iLimit);
+  compute_direct_ancestors(cid, 1000000);
   mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
           " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
           " ORDER BY ancestor.generation ASC LIMIT 1",
@@ -1910,16 +2591,85 @@ void annotate_cmd(void){
   if( mid==0 ){
     fossil_panic("unable to find manifest");
   }
-  if( fileVers ) annFlags |= ANN_FILE_VERS;
-  annotate_file(&ann, fnid, mid, 0, iLimit, annFlags);
+  annFlags |= ANN_FILE_ANCEST;
+  annotate_file(&ann, fnid, mid, iLimit, annFlags);
   if( showLog ){
-    for(i=0; i<ann.nVers; i++){
-      printf("version %3d: %s\n", i+1, ann.azVers[i]);
+    struct AnnVers *p;
+    for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
+      fossil_print("version %3d: %s %.10s file %.10s\n",
+                   i+1, p->zDate, p->zMUuid, p->zFUuid);
     }
-    printf("---------------------------------------------------\n");
+    fossil_print("---------------------------------------------------\n");
   }
   for(i=0; i<ann.nOrig; i++){
-    fossil_print("%s: %.*s\n", 
-                 ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
+    int iVers = ann.aOrig[i].iVers;
+    char *z = (char*)ann.aOrig[i].z;
+    int n = ann.aOrig[i].n;
+    char zPrefix[200];
+    z[n] = 0;
+    if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
+    if( iVers>=0 ){
+      struct AnnVers *p = ann.aVers+iVers;
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%.10s %s",
+           fileVers ? p->zFUuid : p->zMUuid, p->zDate);
+    }else{
+      zPrefix[0] = 0;
+    }
+    fossil_print("%21s %4d: %.*s\n", zPrefix, i+1, n, z);
   }
+}
+
+/*
+** COMMAND: test-looks-like-utf
+**
+** Usage:  %fossil test-looks-like-utf FILENAME
+**
+** Options:
+**    --utf8           Ignoring BOM and file size, force UTF-8 checking
+**    --utf16          Ignoring BOM and file size, force UTF-16 checking
+**
+** FILENAME is the name of a file to check for textual content in the UTF-8
+** and/or UTF-16 encodings.
+*/
+void looks_like_utf_test_cmd(void){
+  Blob blob;     /* the contents of the specified file */
+  int fUtf8;     /* return value of starts_with_utf8_bom() */
+  int fUtf16;    /* return value of starts_with_utf16_bom() */
+  int fUnicode;  /* return value of could_be_utf16() */
+  int lookFlags; /* output flags from looks_like_utf8/utf16() */
+  int bRevUtf16 = 0; /* non-zero -> UTF-16 byte order reversed */
+  int bRevUnicode = 0; /* non-zero -> UTF-16 byte order reversed */
+  int fForceUtf8 = find_option("utf8",0,0)!=0;
+  int fForceUtf16 = find_option("utf16",0,0)!=0;
+  if( g.argc!=3 ) usage("FILENAME");
+  blob_read_from_file(&blob, g.argv[2]);
+  fUtf8 = starts_with_utf8_bom(&blob, 0);
+  fUtf16 = starts_with_utf16_bom(&blob, 0, &bRevUtf16);
+  if( fForceUtf8 ){
+    fUnicode = 0;
+  }else{
+    fUnicode = could_be_utf16(&blob, &bRevUnicode) || fForceUtf16;
+  }
+  lookFlags = fUnicode ? looks_like_utf16(&blob, bRevUnicode, 0) :
+                         looks_like_utf8(&blob, 0);
+  fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
+  fossil_print("Starts with UTF-8 BOM: %s\n",fUtf8?"yes":"no");
+  fossil_print("Starts with UTF-16 BOM: %s\n",
+               fUtf16?(bRevUtf16?"reversed":"yes"):"no");
+  fossil_print("Looks like UTF-%s: %s\n",fUnicode?"16":"8",
+               (lookFlags&LOOK_BINARY)?"no":"yes");
+  fossil_print("Has flag LOOK_NUL: %s\n",(lookFlags&LOOK_NUL)?"yes":"no");
+  fossil_print("Has flag LOOK_CR: %s\n",(lookFlags&LOOK_CR)?"yes":"no");
+  fossil_print("Has flag LOOK_LONE_CR: %s\n",
+               (lookFlags&LOOK_LONE_CR)?"yes":"no");
+  fossil_print("Has flag LOOK_LF: %s\n",(lookFlags&LOOK_LF)?"yes":"no");
+  fossil_print("Has flag LOOK_LONE_LF: %s\n",
+               (lookFlags&LOOK_LONE_LF)?"yes":"no");
+  fossil_print("Has flag LOOK_CRLF: %s\n",(lookFlags&LOOK_CRLF)?"yes":"no");
+  fossil_print("Has flag LOOK_LONG: %s\n",(lookFlags&LOOK_LONG)?"yes":"no");
+  fossil_print("Has flag LOOK_INVALID: %s\n",
+               (lookFlags&LOOK_INVALID)?"yes":"no");
+  fossil_print("Has flag LOOK_ODD: %s\n",(lookFlags&LOOK_ODD)?"yes":"no");
+  fossil_print("Has flag LOOK_SHORT: %s\n",(lookFlags&LOOK_SHORT)?"yes":"no");
+  blob_reset(&blob);
 }

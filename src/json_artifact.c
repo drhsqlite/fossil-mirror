@@ -31,8 +31,12 @@
 ** Implementations may assert() that rid refers to requested artifact
 ** type, since mismatches in the artifact types come from
 ** json_page_artifact() as opposed to client data.
+**
+** The pParent parameter points to the response payload object.  It
+** _may_ be used to populate "top-level" information in the response
+** payload, but normally this is neither necessary nor desired.
 */
-typedef cson_value * (*artifact_f)( int rid );
+typedef cson_value * (*artifact_f)( cson_object * pParent, int rid );
 
 /*
 ** Internal per-artifact-type dispatching helper.
@@ -162,7 +166,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     }
 
     if( showFiles ){
-      tmpV = json_get_changed_files(rid);
+      tmpV = json_get_changed_files(rid, 1);
       if(tmpV){
         SET("files",tmpV);
       }
@@ -177,7 +181,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
 /*
 ** Very incomplete/incorrect impl of /json/artifact/TICKET_ID.
 */
-cson_value * json_artifact_ticket( int rid ){
+cson_value * json_artifact_ticket( cson_object * zParent, int rid ){
   cson_object * pay = NULL;
   Manifest *pTktChng = NULL;
   static cson_value * eventTypeLabel = NULL;
@@ -207,12 +211,18 @@ cson_value * json_artifact_ticket( int rid ){
 /*
 ** Sub-impl of /json/artifact for checkins.
 */
-static cson_value * json_artifact_ci( int rid ){
+static cson_value * json_artifact_ci( cson_object * zParent, int rid ){
   if(!g.perm.Read){
     json_set_err( FSL_JSON_E_DENIED, "Viewing checkins requires 'o' privileges." );
     return NULL;
   }else{
-    return json_artifact_for_ci(rid, 1);
+    cson_value * artV = json_artifact_for_ci(rid, 1);
+    cson_object * art = cson_value_get_object(artV);
+    if(art){
+      cson_object_merge( zParent, art, CSON_MERGE_REPLACE );
+      cson_free_object(art);
+    }
+    return cson_object_value(zParent);
   }
 }
 
@@ -230,23 +240,32 @@ static ArtifactDispatchEntry ArtifactDispatchList[] = {
 };
 
 /*
-** Internal helper which returns true (non-0) if the includeContent
-** (HTTP) or -content|-c flags (CLI) are set. 
+** Internal helper which returns:
+**
+** If the "format" (CLI: -f) flag is set function returns the same as
+** json_wiki_get_content_format_flag(), else it returns true (non-0)
+** if either the includeContent (HTTP) or -content|-c boolean flags
+** (CLI) are set.
 */ 
-static char json_artifact_include_content_flag(){
-  return json_find_option_bool("includeContent","content","c",0);
+static char json_artifact_get_content_format_flag(){
+  enum { MagicValue = -9 };
+  char contentFormat = json_wiki_get_content_format_flag(MagicValue);
+  if(MagicValue == contentFormat){
+    contentFormat = json_find_option_bool("includeContent","content","c",0) /* deprecated */ ? -1 : 0;
+  }
+  return contentFormat;
 }
 
-cson_value * json_artifact_wiki(int rid){
+extern char json_wiki_get_content_format_flag( char defaultValue ) /* json_wiki.c */;
+
+cson_value * json_artifact_wiki(cson_object * zParent, int rid){
   if( ! g.perm.RdWiki ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'j' privileges.");
     return NULL;
   }else{
-    char contentFormat = json_wiki_get_content_format_flag(-9);
-    if(-9 == contentFormat){
-      contentFormat = json_artifact_include_content_flag() ? -1 : 0;
-    }
+    enum { MagicValue = -9 };
+    char const contentFormat = json_artifact_get_content_format_flag();
     return json_get_wiki_page_by_rid(rid, contentFormat);
   }
 }
@@ -268,35 +287,68 @@ char const * json_artifact_status_to_string( char isNew, char isDel ){
        : "modified");
 }
 
-cson_value * json_artifact_file(int rid){
+cson_value * json_artifact_file(cson_object * zParent, int rid){
   cson_object * pay = NULL;
   Stmt q = empty_Stmt;
   cson_array * checkin_arr = NULL;
-
+  char contentFormat;
+  i64 contentSize = -1;
+  char * parentUuid;
   if( ! g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' privileges.");
     return NULL;
   }
   
-  pay = cson_new_object();
+  pay = zParent;
 
-  if( json_artifact_include_content_flag() ){
+  contentFormat = json_artifact_get_content_format_flag();
+  if( 0 != contentFormat ){
     Blob content = empty_blob;
     const char *zMime;
+    char const * zFormat = (contentFormat<1) ? "raw" : "html";
     content_get(rid, &content);
     zMime = mimetype_from_content(&content);
-    cson_object_set(pay, "contentType",
+    cson_object_set(zParent, "contentType",
                     json_new_string(zMime ? zMime : "text/plain"));
-    cson_object_set(pay, "size", json_new_int( blob_size(&content)) );
-    if(!zMime){
-      cson_object_set(pay, "content",
+    if(!zMime){/* text/plain */
+      if(0 < blob_size(&content)){
+        if( 0 < contentFormat ){/*HTML-size it*/
+          Blob html = empty_blob;
+          wiki_convert(&content, &html, 0);
+          assert( blob_size(&content) < blob_size(&html) );
+          blob_swap( &html, &content );
+          assert( blob_size(&content) > blob_size(&html) );
+          blob_reset( &html );
+        }/*else as-is*/
+      }
+      cson_object_set(zParent, "content",
                       cson_value_new_string(blob_str(&content),
                                             (unsigned int)blob_size(&content)));
-    }
+    }/*else binary: ignore*/
+    contentSize = blob_size(&content);
+    cson_object_set(zParent, "contentSize", json_new_int(contentSize) );
+    cson_object_set(zParent, "contentFormat", json_new_string(zFormat) );
     blob_reset(&content);
   }
+  contentSize = db_int64(-1, "SELECT size FROM blob WHERE rid=%d", rid);
+  assert( -1 < contentSize );
+  cson_object_set(zParent, "size", json_new_int(contentSize) );
 
+  parentUuid = db_text(NULL,
+                       "SELECT DISTINCT p.uuid "
+                       "FROM blob p, blob f, mlink m "
+                       "WHERE m.pid=p.rid "
+                       "AND m.fid=f.rid "
+                       "AND f.rid=%d",
+                       rid
+                       );
+  if(parentUuid){
+    cson_object_set( zParent, "parent", json_new_string(parentUuid) );
+    fossil_free(parentUuid);
+  }
+  
+  /* Find checkins associated with this file... */
   db_prepare(&q,
       "SELECT filename.name AS name, "
       "  (mlink.pid==0) AS isNew,"
@@ -304,8 +356,10 @@ cson_value * json_artifact_file(int rid){
       "  cast(strftime('%%s',event.mtime) as int) AS timestamp,"
       "  coalesce(event.ecomment,event.comment) as comment,"
       "  coalesce(event.euser,event.user) as user,"
-      "  a.size AS size,"
-      "  b.uuid as uuid, "
+#if 0
+      "  a.size AS size," /* same for all checkins. */
+#endif
+      "  b.uuid as checkin, "
 #if 0
       "  mlink.mperm as mperm,"
 #endif
@@ -328,6 +382,7 @@ cson_value * json_artifact_file(int rid){
   cson_object_set(pay, "checkins", cson_array_value(checkin_arr));
   while( (SQLITE_ROW==db_step(&q) ) ){
     cson_object * row = cson_value_get_object(cson_sqlite3_row_to_object(q.pStmt));
+    /* FIXME: move this isNew/isDel stuff into an SQL CASE statement. */
     char const isNew = cson_value_get_bool(cson_object_get(row,"isNew"));
     char const isDel = cson_value_get_bool(cson_object_get(row,"isDel"));
     cson_object_set(row, "isNew", NULL);
@@ -373,6 +428,7 @@ cson_value * json_page_artifact(){
   }
   blob_set(&uuid,zName);
   rc = name_to_uuid(&uuid,-1,"*");
+  /* FIXME: check for a filename if all else fails. */
   if(1==rc){
     g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
     goto error;
@@ -413,29 +469,33 @@ cson_value * json_page_artifact(){
   goto veryend;
 
   handle_entry:
+  pay = cson_new_object();
   assert( (NULL != zType) && "Internal dispatching error." );
   for( ; dispatcher->name; ++dispatcher ){
     if(0!=strcmp(dispatcher->name, zType)){
       continue;
     }else{
-      entry = (*dispatcher->func)(rid);
+      entry = (*dispatcher->func)(pay, rid);
       break;
     }
   }
   if(!g.json.resultCode){
     assert( NULL != entry );
     assert( NULL != zType );
-    pay = cson_new_object();
     cson_object_set( pay, "type", json_new_string(zType) );
-    /*cson_object_set( pay, "uuid", json_new_string(zUuid) );*/
-    cson_object_set( pay, "name", json_new_string(zName ? zName : zUuid) );
+    cson_object_set( pay, "uuid", json_new_string(zUuid) );
+    /*cson_object_set( pay, "name", json_new_string(zName ? zName : zUuid) );*/
     /*cson_object_set( pay, "rid", cson_value_new_integer(rid) );*/
-    if(entry){
+    if(cson_value_is_object(entry) && (cson_value_get_object(entry) != pay)){
       cson_object_set(pay, "artifact", entry);
     }
   }
   veryend:
   blob_reset(&uuid);
+  if(g.json.resultCode && pay){
+    cson_free_object(pay);
+    pay = NULL;
+  }
   return cson_object_value(pay);
 }
 

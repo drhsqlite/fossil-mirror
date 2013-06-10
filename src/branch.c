@@ -42,7 +42,7 @@ void branch_new(void){
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
   int isPrivate = 0;     /* True if the branch should be private */
- 
+
   noSign = find_option("nosign","",0)!=0;
   zColor = find_option("bgcolor","c",1);
   isPrivate = find_option("private",0,0)!=0;
@@ -52,9 +52,9 @@ void branch_new(void){
   if( g.argc<5 ){
     usage("new BRANCH-NAME BASIS ?OPTIONS?");
   }
-  db_find_and_open_repository(0, 0);  
+  db_find_and_open_repository(0, 0);
   noSign = db_get_int("omitsign", 0)|noSign;
-  
+
   /* fossil branch new name */
   zBranch = g.argv[3];
   if( zBranch==0 || zBranch[0]==0 ){
@@ -63,7 +63,7 @@ void branch_new(void){
   if( db_exists(
         "SELECT 1 FROM tagxref"
         " WHERE tagtype>0"
-        "   AND tagid=(SELECT tagid FROM tag WHERE tagname='sym-%s')",
+        "   AND tagid=(SELECT tagid FROM tag WHERE tagname='sym-%q')",
         zBranch)!=0 ){
     fossil_fatal("branch \"%s\" already exists", zBranch);
   }
@@ -134,15 +134,17 @@ void branch_new(void){
     blob_appendf(&branch, "T -%F *\n", zTag);
   }
   db_finalize(&q);
-  
+
   blob_appendf(&branch, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
   md5sum_blob(&branch, &mcksum);
   blob_appendf(&branch, "Z %b\n", &mcksum);
   if( !noSign && clearsign(&branch, &branch) ){
     Blob ans;
+    char cReply;
     blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
-    if( blob_str(&ans)[0]!='y' ){
+    cReply = blob_str(&ans)[0];
+    if( cReply!='y' && cReply!='Y'){
       db_end_transaction(1);
       fossil_exit(1);
     }
@@ -167,16 +169,16 @@ void branch_new(void){
       "      branch.  To begin working on the new branch, do this:\n"
       "\n"
       "      %s update %s\n",
-      fossil_nameofexe(), zBranch
+      g.argv[0], zBranch
     );
   }
 
 
   /* Commit */
   db_end_transaction(0);
-  
+
   /* Do an autosync push, if requested */
-  if( !isPrivate ) autosync(AUTOSYNC_PUSH);
+  if( !isPrivate ) autosync(SYNC_PUSH);
 }
 
 /*
@@ -238,11 +240,12 @@ void branch_prepare_list_query(Stmt *pQuery, int which ){
 **        --date-override DATE  DATE to use instead of 'now'
 **        --user-override USER  USER to use instead of the current default
 **
-**    %fossil branch list ?--all | --closed?
-**    %fossil branch ls ?--all | --closed?
+**    %fossil branch list ?-a|--all|-c|--closed?
+**    %fossil branch ls ?-a|--all|-c|--closed?
 **
-**        List all branches.  Use --all or --closed to list all branches
-**        or closed branches.  The default is to show only open branches.
+**        List all branches.  Use -a or --all to list all branches and
+**        -c or --closed to list all closed branches.  The default is to
+**        show only open branches.
 **
 ** Options:
 **    -R|--repository FILE       Run commands on repository FILE
@@ -262,8 +265,8 @@ void branch_cmd(void){
     Stmt q;
     int vid;
     char *zCurrent = 0;
-    int showAll = find_option("all",0,0)!=0;
-    int showClosed = find_option("closed",0,0)!=0;
+    int showAll = find_option("all","a",0)!=0;
+    int showClosed = find_option("closed","c",0)!=0;
 
     if( g.localOpen ){
       vid = db_lget_int("checkout", 0);
@@ -383,7 +386,7 @@ void brlist_page(void){
 static void brtimeline_extra(int rid){
   Stmt q;
   if( !g.perm.Hyperlink ) return;
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT substr(tagname,5) FROM tagxref, tag"
     " WHERE tagxref.rid=%d"
     "   AND tagxref.tagid=tag.tagid"

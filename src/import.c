@@ -14,7 +14,7 @@
 **
 *******************************************************************************
 **
-** This file contains code used to import the content of a Git 
+** This file contains code used to import the content of a Git
 ** repository in the git-fast-import format as a new Fossil
 ** repository.
 */
@@ -26,7 +26,7 @@
 /*
 ** A single file change record.
 */
-struct ImportFile { 
+struct ImportFile {
   char *zName;           /* Name of a file */
   char *zUuid;           /* UUID of the file */
   char *zPrior;          /* Prior name if the name was changed */
@@ -82,7 +82,7 @@ char *fossil_strdup(const char *zOrig){
 ** A no-op "xFinish" method
 */
 static void finish_noop(void){}
-   
+
 /*
 ** Deallocate the state information.
 **
@@ -154,12 +154,12 @@ static int fast_insert_content(Blob *pContent, const char *zMark, int saveUuid){
   if( zMark ){
     db_multi_exec(
         "INSERT OR IGNORE INTO xmark(tname, trid, tuuid)"
-        "VALUES(%Q,%d,%B)", 
+        "VALUES(%Q,%d,%B)",
         zMark, rid, &hash
     );
     db_multi_exec(
         "INSERT OR IGNORE INTO xmark(tname, trid, tuuid)"
-        "VALUES(%B,%d,%B)", 
+        "VALUES(%B,%d,%B)",
         &hash, rid, &hash
     );
   }
@@ -184,7 +184,7 @@ static void finish_blob(void){
 }
 
 /*
-** Use data accumulated in gg from a "tag" record to add a new 
+** Use data accumulated in gg from a "tag" record to add a new
 ** control artifact to the BLOB table.
 */
 static void finish_tag(void){
@@ -225,7 +225,7 @@ static int string_cmp(const void *pLeft, const void *pRight){
 static void import_prior_files(void);
 
 /*
-** Use data accumulated in gg from a "commit" record to add a new 
+** Use data accumulated in gg from a "commit" record to add a new
 ** manifest artifact to the BLOB table.
 */
 static void finish_commit(void){
@@ -412,7 +412,7 @@ static void import_prior_files(void){
   ImportFile *pNew;
   if( gg.fromLoaded ) return;
   gg.fromLoaded = 1;
-  if( gg.zFrom==0 && gg.zPrevCheckin!=0 
+  if( gg.zFrom==0 && gg.zPrevCheckin!=0
    && fossil_strcmp(gg.zBranch, gg.zPrevBranch)==0
   ){
      gg.zFrom = gg.zPrevCheckin;
@@ -452,6 +452,23 @@ static ImportFile *import_find_file(const char *zName, int *pI, int mx){
     i++;
   }
   return 0;
+}
+
+/*
+** Dequote a fast-export filename.  Filenames are normally unquoted.  But
+** if the contain some obscure special characters, quotes might be added.
+*/
+static void dequote_git_filename(char *zName){
+  int n, i, j;
+  if( zName==0 || zName[0]!='"' ) return;
+  n = (int)strlen(zName);
+  if( zName[n-1]!='"' ) return;
+  for(i=0, j=1; j<n-1; j++){
+    char c = zName[j];
+    if( c=='\\' ) c = zName[++j];
+    zName[i++] = c;
+  }
+  zName[i] = 0;
 }
 
 
@@ -598,6 +615,7 @@ static void git_fast_import(FILE *pIn){
       zPerm = next_token(&z);
       zUuid = next_token(&z);
       zName = rest_of_line(&z);
+      dequote_git_filename(zName);
       i = 0;
       pFile = import_find_file(zName, &i, gg.nFile);
       if( pFile==0 ){
@@ -605,7 +623,7 @@ static void git_fast_import(FILE *pIn){
         pFile->zName = fossil_strdup(zName);
       }
       pFile->isExe = (fossil_strcmp(zPerm, "100755")==0);
-      pFile->isLink = (fossil_strcmp(zPerm, "120000")==0);      
+      pFile->isLink = (fossil_strcmp(zPerm, "120000")==0);
       fossil_free(pFile->zUuid);
       pFile->zUuid = resolve_committish(zUuid);
       pFile->isFrom = 0;
@@ -614,6 +632,7 @@ static void git_fast_import(FILE *pIn){
       import_prior_files();
       z = &zLine[2];
       zName = rest_of_line(&z);
+      dequote_git_filename(zName);
       i = 0;
       while( (pFile = import_find_file(zName, &i, gg.nFile))!=0 ){
         if( pFile->isFrom==0 ) continue;
@@ -734,7 +753,7 @@ void git_import_cmd(void){
     usage("REPOSITORY-NAME");
   }
   if( g.argc==4 ){
-    pIn = fopen(g.argv[3], "rb");
+    pIn = fossil_fopen(g.argv[3], "rb");
   }else{
     pIn = stdin;
     fossil_binary_mode(pIn);
@@ -750,7 +769,7 @@ void git_import_cmd(void){
   ** the import.
   **
   ** The XMARK table provides a mapping from fast-import "marks" and symbols
-  ** into artifact ids (UUIDs - the 40-byte hex SHA1 hash of artifacts). 
+  ** into artifact ids (UUIDs - the 40-byte hex SHA1 hash of artifacts).
   ** Given any valid fast-import symbol, the corresponding fossil rid and
   ** uuid can found by searching against the xmark.tname field.
   **
@@ -773,7 +792,7 @@ void git_import_cmd(void){
 
 
   db_begin_transaction();
-  if( !incrFlag ) db_initial_setup(0, 0, 1);
+  if( !incrFlag ) db_initial_setup(0, 0, 0, 1);
   git_fast_import(pIn);
   db_prepare(&q, "SELECT tcontent FROM xtag");
   while( db_step(&q)==SQLITE_ROW ){

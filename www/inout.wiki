@@ -6,7 +6,7 @@ systems will also import/export from Git, that means that you can
 import/export a Fossil repository to most version control systems using
 Git as an intermediary.
 
-<h2>Git &rarr; Fossil</h2>
+<h2>Git → Fossil</h2>
 
 To import a Git repository into Fossil, run commands like this:
 
@@ -26,7 +26,7 @@ future versions of Fossil might be enhanced to understand other VCS
 interchange formats, and so for compatibility, use of the
 --git option is recommended.
 
-<h2>Fossil &rarr; Git</h2>
+<h2>Fossil → Git</h2>
 
 To convert a Fossil repository into a Git repository, run commands like
 this:

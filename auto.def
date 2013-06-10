@@ -7,11 +7,12 @@ options {
                          => {Look for openssl in the given path, or auto or none}
     with-zlib:path       => {Look for zlib in the given path}
     with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
+    with-tcl-stubs=0     => {Enable Tcl integration via stubs mechanism}
     internal-sqlite=1    => {Don't use the internal sqlite, use the system one}
     static=0             => {Link a static executable}
     lineedit=1           => {Disable line editing}
     fossil-debug=0       => {Build with fossil debugging enabled}
-    json=0        => {Build with fossil JSON API enabled}
+    json=0               => {Build with fossil JSON API enabled}
 }
 
 # sqlite wants these types if possible
@@ -34,7 +35,7 @@ if {![opt-bool internal-sqlite]} {
 
     # On some systems (slackware), libsqlite3 requires -ldl to link. So
     # search for the system SQLite once with -ldl, and once without. If
-    # the library can only be found with $extralibs set to -ldl, then 
+    # the library can only be found with $extralibs set to -ldl, then
     # the code below will append -ldl to LIBS.
     #
     foreach extralibs {{} {-ldl}} {
@@ -67,14 +68,22 @@ if {[opt-bool fossil-debug]} {
 }
 
 if {[opt-bool json]} {
+    # Reminder/FIXME (stephan): FOSSIL_ENABLE_JSON
+    # is required in the CFLAGS because json*.c
+    # have #ifdef guards around the whole file without
+    # reading config.h first.
     define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_JSON
+    define FOSSIL_ENABLE_JSON
 }
+
+#if {[opt-bool markdown]} {
+#    # no-op.  Markdown is now enabled by default.
+#}
 
 if {[opt-bool static]} {
     # XXX: This will not work on all systems.
     define-append EXTRA_LDFLAGS -static
 }
-
 
 # Check for zlib, using the given location if specified
 set zlibpath [opt-val with-zlib]
@@ -89,31 +98,44 @@ if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
 
 set tclpath [opt-val with-tcl]
 if {$tclpath ne ""} {
-	# Note parse-tclconfig-sh is in autosetup/local.tcl
+    # Note parse-tclconfig-sh is in autosetup/local.tcl
     if {$tclpath eq "1"} {
         # Use the system Tcl. Look in some likely places.
-        array set tclconfig [parse-tclconfig-sh /usr /usr/local /usr/share /opt/local]
-		set msg "on your system"
-	} else {
+        array set tclconfig [parse-tclconfig-sh \
+            /usr /usr/local /usr/share /opt/local]
+        set msg "on your system"
+    } else {
         array set tclconfig [parse-tclconfig-sh $tclpath]
-		set msg "at $tclpath"
-	}
-	if {![info exists tclconfig(TCL_INCLUDE_SPEC)]} {
-		user-error "Cannot find Tcl $msg"
-	}
-	set cflags $tclconfig(TCL_INCLUDE_SPEC)
-	set libs "$tclconfig(TCL_LIB_SPEC) $tclconfig(TCL_LIBS)"
-	cc-with [list -cflags $cflags -libs $libs] {
-		if {![cc-check-functions Tcl_CreateInterp]} {
-			user-error "Cannot find a usable Tcl $msg"
-		}
-	}
-	set version $tclconfig(TCL_VERSION)$tclconfig(TCL_PATCH_LEVEL)
-	msg-result "Found Tcl $version at $tclconfig(TCL_PREFIX)"
-	define-append LIBS $libs
-	define-append EXTRA_CFLAGS $cflags
-	define-append EXTRA_LDFLAGS $tclconfig(TCL_LD_FLAGS)
-
+        set msg "at $tclpath"
+    }
+    if {![info exists tclconfig(TCL_INCLUDE_SPEC)]} {
+        user-error "Cannot find Tcl $msg"
+    }
+    set tclstubs [opt-bool with-tcl-stubs]
+    if {$tclstubs && $tclconfig(TCL_SUPPORTS_STUBS)} {
+        set libs "$tclconfig(TCL_STUB_LIB_SPEC)"
+        define FOSSIL_ENABLE_TCL_STUBS
+        define USE_TCL_STUBS
+    } else {
+        set libs "$tclconfig(TCL_LIB_SPEC) $tclconfig(TCL_LIBS)"
+    }
+    set cflags $tclconfig(TCL_INCLUDE_SPEC)
+    cc-with [list -cflags $cflags -libs $libs] {
+        if {$tclstubs} {
+            if {![cc-check-functions Tcl_InitStubs]} {
+                user-error "Cannot find a usable Tcl stubs library $msg"
+            }
+        } else {
+            if {![cc-check-functions Tcl_CreateInterp]} {
+                user-error "Cannot find a usable Tcl library $msg"
+            }
+        }
+    }
+    set version $tclconfig(TCL_VERSION)$tclconfig(TCL_PATCH_LEVEL)
+    msg-result "Found Tcl $version at $tclconfig(TCL_PREFIX)"
+    define-append LIBS $libs
+    define-append EXTRA_CFLAGS $cflags
+    define-append EXTRA_LDFLAGS $tclconfig(TCL_LD_FLAGS)
     define FOSSIL_ENABLE_TCL
 }
 
@@ -171,7 +193,7 @@ if {$ssldirs ne "none"} {
         define-append EXTRA_CFLAGS $cflags
         define-append EXTRA_LDFLAGS $ldflags
         define-append LIBS -lssl -lcrypto
-        msg-result "HTTP support enabled"
+        msg-result "HTTPS support enabled"
 
         # Silence OpenSSL deprecation warnings on Mac OS X 10.7.
         if {[string match *-darwin* [get-define host]]} {
@@ -204,12 +226,14 @@ if {![cc-check-function-in-lib socket {socket network}]} {
         define-append LIBS -lwsock32
     }
 }
+cc-check-function-in-lib iconv iconv
 
 # Check for getpassphrase() for Solaris 10 where getpass() truncates to 10 chars
 if {![cc-check-functions getpassphrase]} {
     # Haiku needs this
     cc-check-function-in-lib getpass bsd
 }
+cc-check-function-in-lib dlopen dl
 
 make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}

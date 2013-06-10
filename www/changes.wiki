@@ -1,5 +1,219 @@
 <title>Change Log</title>
 
+<h2>Changes For Version 1.26 (as yet unreleased)</h2>
+  *  Win32: Fossil now understands Cygwin paths containing one or more of
+     the characters <nowiki>"*:<>?|</nowiki>. Those are normally forbidden in
+     win32. This means that the win32 fossil.exe is better usable in a Cygwin
+     environment. See
+     [http://cygwin.com/cygwin-ug-net/using-specialnames.html#pathnames-specialchars].
+  *  Cygwin: Fossil now understands win32 absolute paths starting with a drive
+     letter everywhere. The default value of the "case-sensitive" setting is
+     now FALSE, except when case-sensitivity is enabled in the Windows kernel.
+     See
+     [http://cygwin.com/cygwin-ug-net/using-specialnames.html#pathnames-casesensitive]
+  *  Enhancements to /timeline.rss, adding more flags for filtering
+     results, including the ability to subscribe to changes made
+     to individual tickets. For example: [/timeline.rss?y=t&tkt=12fceeec82].
+  *  JSON API: added the 'status' command to report local checkout status.
+
+<h2>Changes For Version 1.25 (2013-02-16)</h2>
+  *  Enhancements to ticket processing. There are now two tables: TICKET and
+     TICKETCHNG. There is one row in TICKETCHNG for each ticket artifact.
+     Fields from ticket artifacts go into either or both of TICKET and
+     TICKETCHNG, whichever contain matching column names. Default ticket 
+     edit and viewing scripts are updated to use TICKETCHNG. The TH1
+     scripting language is enhanced to support this, including the new
+     "query" command for doing SQL queries against the repository database.
+     All changes should be backwards compatible. 
+  *  Add the ability to moderate ticket and wiki changes.  Unmoderated changes
+     do not sync and may be deleted by the moderator if found to contain spam
+     or other objectionable content.
+  *  Add javascript so that clicking on a node of the timeline graph selects
+     that node.  Then clicking on a second node shows a diff between the
+     two nodes.  Clicking on the selected node unselects it.
+  *  Warn of unresolved merge conflicts in "fossil status" and disallow
+     commits of unresolved conflicts unless the --allow-conflict option
+     is used.
+  *  Add javascript so that clicking on column headers in a ticket report
+     sorts by the indicated column.
+  *  Add the "fossil cat" command which is basically an alias for
+     "fossil finfo -p".
+  *  Hyperlinks with the class "button" are rendered as submenu buttons
+     on embedded documentation.
+  *  The check-in comment editor on windows now defaults to NotePad.exe.
+  *  Correctly deal with BOMs in check-in comments.  Also attempt to convert 
+     check-in comments to UTF8 from other encodings.
+  *  Allow the deletion of multiple stash entries using multiple arguments
+     to the "fossil stash rm" command.
+  *  Enhance the "fossil server DIRECTORY" command to serve static content
+     files contained in DIRECTORY.  For security, only files with a 
+     recognized suffix (such as *.html, *.jpg, *.txt, etc) will be delivered
+     as static content, and *.fossil files are not on the list of recognized
+     suffixes.  There are additional restrictions on the names of the files.
+  *  Allow the "fossil ui" command to specify a directory as long as the
+     the --notfound option is used.
+  *  Add a configuration option that causes timeline messages to be rendered
+     as text/x-fossil-plain (which is the same as text/plain except that
+     hyperlinks inside of <nowiki>[...]</nowiki> are decorated.)
+  *  Only decorate <nowiki>[...]</nowiki> in check-in comments and tickets
+     if the contented text really is a valid hyperlink target.
+  *  Improvements to the side-by-side diff algorithm, for a more
+     human-friendly display in some complex cases.
+  *  Added <nowiki>[utime] and [stime]</nowiki> commands to TH1.  These
+     commands can be used for things such as displaying the page rendering
+     time in the footer.
+  *  Add the ability to pass command-line options of "fossil rebuild" to
+     "fossil all rebuild".
+  *  Add the --deanalyze option to "fossil rebuild" (and "fossil all rebuild")
+  *  Do not run the graphical merging tool nor leave merge-droppings after a
+     dry-run merge.  Display an improved merge-summary message at the end of
+     the merge.
+  *  Add options to "fossil commit" to override the various sanity checks.
+     Options added: --allow-empty, --allow-fork, --allow-older, and
+     --allow-conflict.
+  *  Optionally require a CAPTCHA (controlled by a setting on the
+     Admin/Access webpage) when a user who is not logged in tries to
+     edit wiki, or a ticket, or an attachment. 
+  *  Improvements to the "ssh://" sync protocol, to help it move past
+     noisey motd comments.
+  *  Add the uf=FILE-SHA1-HASH query parameter to the timeline, causing the
+     timeline to show only check-ins that contain the specific file identified
+     by FILE-SHA1-HASH.  ("uf" stands for "uses file".)
+  *  Enhance the file change annotator so that it follows the file across
+     name changes.
+  *  Fix the server-side of the sync protocol so that it will not generate
+     a delta loop when a file changes from its original state, through two
+     or more intermediate states, and back to the original state, all within
+     a single sync.
+  *  Show much less output during a sync operation, unless the --verbose
+     option is used.
+  *  Set the action= attribute of &lt;form&gt; elements using javascript,
+     as an addition defense against spam-bots.
+  *  Disallow invalid UTF8 characters (such as characters in the surrogate
+     pair range) in filenames.
+  *  Judge the UserAgent strings issued by the NetSurf webbrowser to be
+     coming from a human, not from a bot.
+  *  Add the zlib sources to the Fossil source tree (under compat/zlib) and
+     use those sources when compiling on (windows) systems that do not have
+     a zlib library installed by default.
+  *  Prompt the user with the option to convert non-UTF8 files into UTF8
+     when committing.
+  *  Allow the characters <nowiki>*[]?</nowiki> in filenames.
+  *  Allow the --context option on diff commands to have a value of 0.
+  *  Added the "dbstat" command.
+  *  Enhanced "fossil merge" so that if the VERSION argument is omitted, Fossil
+     tries to merge any forks of the current branch.
+  *  Improved detection of forks in a commit race.
+  *  Added the --analyze option to "fossil rebuild".
+
+<h2>Changes For Version 1.24 (2012-10-22)</h2>
+  *  Added support for WYSIWYG editing of wiki pages. WYSIWYG is turned off
+     by default and can be turned on by setting a configuration option.
+  *  Allow style= attribute to occur in HTML markup on wiki pages.
+  *  Added the --tk option to the "fossi diff" and "fossil stash diff"
+     commands, causing color-coded diff output to be displayed in a Tcl/Tk
+     GUI window.  This option only works if Tcl/Tk is installed on the
+     host.
+  *  On windows, make the "gdiff" command default to use WinDiff.exe.
+  *  Update the "fossil stash" command so that it always prompts for a
+     comment if the -m option is omitted.
+  *  Enhance the timeline webpages so that a=, b=, c=, d=, p=, and dp=
+     query parameters (and others) can all accept any valid checkin name
+     (such as branch names or labels) instead of just SHA1 hashes.
+  *  Added the "fossil stash show" command.
+  *  Added the "fileage" webpage with links to this page from the check-in
+     information page and from the file browser.
+  *  Added --age and -t options to the "fossil ls" command.
+  *  Added the --setmtime option to "fossil update".  When used, the mtime
+     of all mananged files is set to the time when the most recent version of
+     the file was checked in.
+  *  Changed the "vdiff" webpage to show the complete text of files that
+     were added or removed (the equivelent of using the -N or --newfile
+     options with the "fossil diff" command-line.)
+  *  Added the --temp option to "fossil clean" and "fossil extra", causing
+     those commands to only look at temporary files generated by Fossil,
+     such as merge-conflict reports or aborted check-in messages.
+  *  Enhance the raw page download so that it can guess the mimetype of
+     attachments based on the filename.
+  *  Change the behavior of the from= and to= query parameters on the
+     timeline page so that by default the path between the two specified
+     check-ins avoids merges.
+  *  Add the --baseurl option to "fossil server" and "fossil http" commands,
+     so that those commands can be used with reverse proxies.
+  *  If unable to determine the command-line user, do not guess.  Instead
+     issue an error message.  This helps prevent check-ins from accidentally
+     occurring under the wrong username.
+  *  Include branch information in the output of file change listings
+     (the "finfo" webpage).
+  *  Make the simplified view of file history, rather than the full view,
+     the default.
+  *  In the "fossil configuration" command, allow the "css" option for
+     synchronizing, importing, or exporting just the CSS file.  This makes
+     it easier to share CSS files across repositories by exporting from
+     one and importing to another.
+  *  Add the (unsupported) "fossil test-orphans" command.
+  *  Add the --template option to the "fossil init" command, to facilitate
+     creating new repositories based on a template repository.
+  *  Add the diff-binary setting, which if enabled causes binary files to
+     be passed to the "gdiff" command for it to deal with, rather than simply
+     printing a "cannot diff binary files" error.
+  *  Add the --unified option to the "fossil diff" command to force a unified
+     diff even if the --tk option (which normally implies a side-by-side diff)
+     is used.
+  *  Present a choice of nearby branches and versions to diff against on the
+     check-in information page.
+  *  Add the --force option to the "fossil merge" command that will force the
+     merge to occur even if it would be a no-op.  This is sometimes useful for
+     documentation purposes.
+  *  Add another built-in skin:  "Enhanced Default".  Other minor tweaks to
+     the existing skins.
+  *  Add the "urllist" webpage, showing a list of URLs by which a server
+     instance of Fossil has been accessed.  Requires "Administrator" privileges.
+     A link is on the "Setup" main page.
+  *  Enable dynamic loading of the Tcl runtime for installations that want
+     to use Tcl as part of their configuration.  This reduces the size of
+     the Fossil binary and allows any version of Tcl 8.4 or later to be used.
+  *  Merge the latest SQLite changes from upstream.
+  *  Lots of minor bug fixes.
+
+<h2>Changes For Version 1.23 (2012-08-08)</h2>
+  *  The default checkout database name is now ".fslckout" instead of
+     "_FOSSIL_" on unix.  Both names continue to work.
+  *  Added the "fossil all changes" command
+  *  Added the --ckout option to the "fossil all list" command
+  *  Added the "public-pages" glob pattern that can be configured to allow
+     anonymous users to see embedded documentation on sites where source
+     code should not be accessible to anonymous users.
+  *  Allow multiple --tag options on the same "fossil commit" command.
+  *  Change the meaning of the --bgcolor option for "fossil commit" to only
+     change the color for that one commit.  The new --branchcolor option 
+     is available to set a persistent background color.
+  *  Add the branch= query parameter to the vdiff page and the --branch option
+     to the "fossil diff" command.
+  *  Check-in names of the form "root:BRANCH" now refer to the origin of
+     the branch.  Hence to see all changes in a branch, use 
+     "fossil diff --from root:BRANCH --to BRANCH".  The --branch option on
+     the diff command is an alias for the same.
+  *  Add the ability to configure ad-units to be displayed between the menu
+     bar and the content.
+  *  Add the ability to set a background image as part of server configuration.
+  *  Allow partial commits of cherrypick merges.
+  *  Updates against an uncommitted merge are now a warning, not a fatal error.
+  *  Prompt the user to continue if a check-in comment is unedited.
+  *  Fixes to case sensitivity settings with the /dir webpage.
+  *  Repositories now try to remember the locations of all checkouts and
+     web-access URLs and display this information with the 
+     "fossil info $REPO" command.
+  *  Improved defense against spiders:  The src= attribute of
+     &lt;a&gt; elements is set using javascript after the page loads.
+  *  Enhanced formatting of the user list page.
+  *  If a file named in "fossil add" is missing, that is now a warning instead
+     of a fatal error.
+  *  Fix side-by-side diff so that it displays correctly with 
+     multi-byte UTF8 characters.
+  *  Performance improvements in the diff logic.
+  *  Other performance tweaks and documentation updates.
+
 <h2>Changes For Version 1.22 (2012-03-17)</h2>
   *  Greatly improved "diff" processing including the new --brief option,
      partial line matching, colorized in-line diffs, and better performance.

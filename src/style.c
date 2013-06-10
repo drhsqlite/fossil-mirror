@@ -49,12 +49,14 @@ static int sideboxUsed = 0;
 
 
 /*
-** List of hyperlinks that need to be resolved by javascript in
+** List of hyperlinks and forms that need to be resolved by javascript in
 ** the footer.
 */
 char **aHref = 0;
 int nHref = 0;
 int nHrefAlloc = 0;
+char **aFormAction = 0;
+int nFormAction = 0;
 
 /*
 ** Generate and return a anchor tag like this:
@@ -66,10 +68,16 @@ int nHrefAlloc = 0;
 ** variable.  The href="URL" form is used if g.javascriptHyperlink is false.
 ** If g.javascriptHyperlink is true then the
 ** id="ID" form is used and javascript is generated in the footer to cause
-** href values to be inserted after the page has loaded.  If 
+** href values to be inserted after the page has loaded.  If
 ** g.perm.History is false, then the <a id="ID"> form is still
 ** generated but the javascript is not generated so the links never
-** activate.
+** activate. 
+**
+** If the user lacks the Hyperlink (h) property and the "auto-hyperlink"
+** setting is true, then g.perm.Hyperlink is changed from 0 to 1 and
+** g.javascriptHyperlink is set to 1.  The g.javascriptHyperlink defaults
+** to 0 and only changes to one if the user lacks the Hyperlink (h) property
+** and the "auto-hyperlink" setting is enabled.
 **
 ** Filling in the href="URL" using javascript is a defense against bots.
 **
@@ -84,6 +92,11 @@ int nHrefAlloc = 0;
 **
 ** There are two versions of this routine: href() does a plain hyperlink
 ** and xhref() adds extra attribute text.
+**
+** g.perm.Hyperlink is true if the user has the Hyperlink (h) property.
+** Most logged in users should have this property, since we can assume
+** that a logged in user is not a bot.  Only "nobody" lacks g.perm.Hyperlink,
+** typically.
 */
 char *xhref(const char *zExtra, const char *zFormat, ...){
   char *zUrl;
@@ -92,14 +105,16 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    return mprintf("<a %s href=\"%z\">", zExtra, zUrl);
+    char *zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
+    fossil_free(zUrl);
+    return zHUrl;
   }
   if( nHref>=nHrefAlloc ){
     nHrefAlloc = nHrefAlloc*2 + 10;
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a %s id=%d>", zExtra, nHref);
+  return mprintf("<a %s id='a%d'>", zExtra, nHref);
 }
 char *href(const char *zFormat, ...){
   char *zUrl;
@@ -108,14 +123,38 @@ char *href(const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    return mprintf("<a href=\"%z\">", zUrl);
+    char *zHUrl = mprintf("<a href=\"%h\">", zUrl);
+    fossil_free(zUrl);
+    return zHUrl;
   }
   if( nHref>=nHrefAlloc ){
     nHrefAlloc = nHrefAlloc*2 + 10;
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a id=%d>", nHref);
+  return mprintf("<a id='a%d'>", nHref);
+}
+
+/*
+** Generate <form method="post" action=ARG>.  The ARG value is inserted
+** by javascript.
+*/
+void form_begin(const char *zOtherArgs, const char *zAction, ...){
+  char *zLink;
+  va_list ap;
+  if( zOtherArgs==0 ) zOtherArgs = "";
+  va_start(ap, zAction);
+  zLink = vmprintf(zAction, ap);
+  va_end(ap);
+  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+    @ <form method="POST" action="%z(zLink)" %s(zOtherArgs)>
+  }else{
+    int n;
+    aFormAction = fossil_realloc(aFormAction, (nFormAction+1)*sizeof(char*));
+    aFormAction[nFormAction++] = zLink;
+    n = nFormAction;
+    @ <form id="form%d(n)" method="POST" action='%R/login' %s(zOtherArgs)>
+  }
 }
 
 /*
@@ -123,12 +162,30 @@ char *href(const char *zFormat, ...){
 */
 void style_resolve_href(void){
   int i;
-  if( !g.perm.Hyperlink || !g.javascriptHyperlink || nHref==0 ) return;
+  int nDelay = db_get_int("auto-hyperlink-delay",10);
+  if( !g.perm.Hyperlink ) return;
+  if( nHref==0 && nFormAction==0 ) return;
   @ <script type="text/JavaScript">
   @ /* <![CDATA[ */
-  @ function u(i,h){ document.getElementById(i).href=h; }
-  for(i=0; i<nHref; i++){
-    @ u(%d(i+1),"%s(aHref[i])");
+  @ function setAllHrefs(){
+  if( g.javascriptHyperlink ){
+    for(i=0; i<nHref; i++){
+      @ gebi("a%d(i+1)").href="%s(aHref[i])";
+    }
+  }
+  for(i=0; i<nFormAction; i++){
+    @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
+  }
+  @ }
+  if( db_get_boolean("auto-hyperlink-mouseover",0) ){
+    /* Require mouse movement prior to activating hyperlinks */
+    @ document.getElementsByTagName("body")[0].onmousemove=function(){
+    @   setTimeout("setAllHrefs();",%d(nDelay));
+    @   this.onmousemove = null;
+    @ }
+  }else{
+    /* Active hyperlinks right away */
+    @ setTimeout("setAllHrefs();",%d(nDelay));
   }
   @ /* ]]> */
   @ </script>
@@ -162,22 +219,43 @@ static int submenuCompare(const void *a, const void *b){
   return fossil_strcmp(A->zLabel, B->zLabel);
 }
 
+/* Use this for the $current_page variable if it is not NULL.  If it is
+** NULL then use g.zPath.
+*/
+static char *local_zCurrentPage = 0;
+
+/*
+** Set the desired $current_page to something other than g.zPath
+*/
+void style_set_current_page(const char *zFormat, ...){
+  fossil_free(local_zCurrentPage);
+  if( zFormat==0 ){
+    local_zCurrentPage = 0;
+  }else{
+    va_list ap;
+    va_start(ap, zFormat);
+    local_zCurrentPage = vmprintf(zFormat, ap);
+    va_end(ap);
+  }
+}
+
 /*
 ** Draw the header.
 */
 void style_header(const char *zTitleFormat, ...){
   va_list ap;
   char *zTitle;
-  const char *zHeader = db_get("header", (char*)zDefaultHeader);  
+  const char *zHeader = db_get("header", (char*)zDefaultHeader);
   login_check_credentials();
 
   va_start(ap, zTitleFormat);
   zTitle = vmprintf(zTitleFormat, ap);
   va_end(ap);
-  
+
   cgi_destination(CGI_HEADER);
-  cgi_printf("%s","<!DOCTYPE html>");
-  
+
+  @ <!DOCTYPE html>
+
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
   /* Generate the header up through the main menu */
@@ -186,7 +264,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
-  Th_Store("current_page", g.zPath);
+  Th_Store("current_page", local_zCurrentPage ? local_zCurrentPage : g.zPath);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
@@ -202,6 +280,23 @@ void style_header(const char *zTitleFormat, ...){
   g.cgiOutput = 1;
   headerHasBeenGenerated = 1;
   sideboxUsed = 0;
+
+  /* Make the gebi(x) function available as an almost-alias for
+  ** document.getElementById(x) (except that it throws an error
+  ** if the element is not found).
+  **
+  ** Maintenance note: this function must of course be available
+  ** before it is called. It "should" go in the HEAD so that client
+  ** HEAD code can make use of it, but because the client can replace
+  ** the HEAD, and some fossil pages rely on gebi(), we put it here.
+  */
+  @ <script>
+  @ function gebi(x){
+  @ if(/^#/.test(x)) x = x.substr(1);
+  @ var e = document.getElementById(x);
+  @ if(!e) throw new Error("Expecting element with ID "+x);
+  @ else return e;}
+  @ </script>
 }
 
 /*
@@ -227,7 +322,7 @@ void style_footer(void){
   const char *zFooter;
 
   if( !headerHasBeenGenerated ) return;
-  
+
   /* Go back and put the submenu at the top of the page.  We delay the
   ** creation of the submenu until the end so that we can add elements
   ** to the submenu while generating page text.
@@ -242,7 +337,7 @@ void style_footer(void){
       if( p->zLink==0 ){
         @ <span class="label">%h(p->zLabel)</span>
       }else{
-        @ <a class="label" href="%s(p->zLink)">%h(p->zLabel)</a>
+        @ <a class="label" href="%h(p->zLink)">%h(p->zLabel)</a>
       }
     }
     @ </div>
@@ -268,7 +363,7 @@ void style_footer(void){
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
   if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
-  
+
   /* Render trace log if TH1 tracing is enabled. */
   if( g.thTrace ){
     cgi_append_content("<span class=\"thTrace\"><hr />\n", -1);
@@ -298,9 +393,10 @@ void style_sidebox_end(void){
 /*
 ** The default page header.
 */
-const char zDefaultHeader[] = 
+const char zDefaultHeader[] =
 @ <html>
 @ <head>
+@ <base href="$baseurl/$current_page" />
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss" />
@@ -356,9 +452,11 @@ const char zDefaultHeader[] =
 /*
 ** The default page footer
 */
-const char zDefaultFooter[] = 
+const char zDefaultFooter[] =
 @ <div class="footer">
-@ Fossil version $release_version $manifest_version $manifest_date
+@ This page was generated in about
+@ <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s by
+@ Fossil version $manifest_version $manifest_date
 @ </div>
 @ </body></html>
 ;
@@ -370,7 +468,7 @@ const char zDefaultFooter[] =
 ** The style sheet, send to the client only contains the ones,
 ** not defined in the user defined css.
 */
-const char zDefaultCSS[] = 
+const char zDefaultCSS[] =
 @ /* General settings for the entire page */
 @ body {
 @   margin: 0ex 1ex;
@@ -387,6 +485,7 @@ const char zDefaultCSS[] =
 @   font-weight: bold;
 @   color: #558195;
 @   min-width: 200px;
+@   white-space: nowrap;
 @ }
 @
 @ /* The page title centered at the top of each page */
@@ -398,7 +497,7 @@ const char zDefaultCSS[] =
 @   padding: 0 0 0 1em;
 @   color: #558195;
 @   vertical-align: bottom;
-@   width: 100% ;
+@   width: 100%;
 @ }
 @
 @ /* The login status message in the top right-hand corner */
@@ -416,7 +515,7 @@ const char zDefaultCSS[] =
 @ /* The header across the top of the page */
 @ div.header {
 @   display: table;
-@   width: 100% ;
+@   width: 100%;
 @ }
 @
 @ /* The main menu bar that appears at the top of the page beneath
@@ -428,6 +527,8 @@ const char zDefaultCSS[] =
 @   text-align: center;
 @   letter-spacing: 1px;
 @   background-color: #558195;
+@   border-top-left-radius: 8px;
+@   border-top-right-radius: 8px;
 @   color: white;
 @ }
 @
@@ -453,7 +554,9 @@ const char zDefaultCSS[] =
 @ /* All page content from the bottom of the menu or submenu down to
 @ ** the footer */
 @ div.content {
-@   padding: 0ex 1ex 0ex 2ex;
+@   padding: 0ex 1ex 1ex 1ex;
+@   border: solid #aaa;
+@   border-width: 1px;
 @ }
 @
 @ /* Some pages have section dividers */
@@ -484,10 +587,11 @@ const char zDefaultCSS[] =
 @ div.footer {
 @   clear: both;
 @   font-size: 0.8em;
-@   margin-top: 12px;
 @   padding: 5px 10px 5px 10px;
 @   text-align: right;
 @   background-color: #558195;
+@   border-bottom-left-radius: 8px;
+@   border-bottom-right-radius: 8px;
 @   color: white;
 @ }
 @
@@ -496,19 +600,13 @@ const char zDefaultCSS[] =
 @ div.footer a:link { color: white; }
 @ div.footer a:visited { color: white; }
 @ div.footer a:hover { background-color: white; color: #558195; }
-@ 
+@
 @ /* verbatim blocks */
 @ pre.verbatim {
-@    background-color: #f5f5f5;
-@    padding: 0.5em;
+@   background-color: #f5f5f5;
+@   padding: 0.5em;
+@   white-space: pre-wrap;
 @}
-@
-@ /* The label/value pairs on (for example) the ci page */
-@ table.label-value th {
-@   vertical-align: top;
-@   text-align: right;
-@   padding: 0.2ex 2ex;
-@ }
 ;
 
 
@@ -531,7 +629,7 @@ const struct strctCssDefaults {
     @   background-color: white;
     @   border-width: medium;
     @   border-style: double;
-    @   margin: 10;
+    @   margin: 10px;
   },
   { "div.sideboxTitle",
     "The nomenclature title in sideboxes for branches,..",
@@ -554,14 +652,12 @@ const struct strctCssDefaults {
   },
   { "table.timelineTable",
     "the format for the timeline data table",
-    @   cellspacing: 0;
     @   border: 0;
-    @   cellpadding: 0
   },
   { "td.timelineTableCell",
     "the format for the timeline data cells",
-    @   valign: top;
-    @   align: left;
+    @   vertical-align: top;
+    @   text-align: left;
   },
   { "span.timelineLeaf",
     "the format for the timeline leaf marks",
@@ -615,18 +711,19 @@ const struct strctCssDefaults {
   { "table.browser",
     "format for the file display table",
     @ /* the format for wiki errors */
-    @   width: 100% ;
+    @   width: 100%;
     @   border: 0;
   },
   { "td.browser",
     "format for cells in the file browser",
-    @   width: 24% ;
+    @   width: 24%;
     @   vertical-align: top;
   },
   { "ul.browser",
     "format for the list in the file browser",
     @   margin-left: 0.5em;
     @   padding-left: 0.5em;
+    @   white-space: nowrap;
   },
   { "table.login_out",
     "table format for login/out label/input table",
@@ -638,6 +735,7 @@ const struct strctCssDefaults {
   { "div.captcha",
     "captcha display options",
     @   text-align: center;
+    @   padding: 1ex;
   },
   { "table.captcha",
     "format for the layout table, used for the captcha display",
@@ -660,7 +758,7 @@ const struct strctCssDefaults {
     @   font-weight: bold;
   },
   { "span.textareaLabel",
-    "format for textare labels",
+    "format for textarea labels",
     @   font-weight: bold;
   },
   { "table.usetupLayoutTable",
@@ -760,7 +858,7 @@ const struct strctCssDefaults {
     @   border: 1px blue solid;
   },
   { "p.missingPriv",
-    "format for missing priviliges note on user setup page",
+    "format for missing privileges note on user setup page",
     @  color: blue;
   },
   { "span.wikiruleHead",
@@ -792,6 +890,13 @@ const struct strctCssDefaults {
     @   border-collapse: collapse;
     @   border-spacing: 0;
   },
+  { "table.report",
+    "Ticket report table formatting",
+    @   border-collapse:collapse;
+    @   border: 1px solid #999;
+    @   margin: 1em 0 1em 0;
+    @   cursor: pointer;
+  },
   { "td.rpteditex",
     "format for example table cells on the report edit page",
     @   border-width: thin;
@@ -809,7 +914,7 @@ const struct strctCssDefaults {
     @ ** to a standard jscolor definition with java script in the footer. */
   },
   { "div.endContent",
-    "format for end of content area, to be used to clear page flow(sidebox on branch,..",
+    "format for end of content area, to be used to clear page flow.",
     @   clear: both;
   },
   { "p.generalError",
@@ -865,7 +970,7 @@ const struct strctCssDefaults {
   { "div.sbsdiff",
     "side-by-side diff display",
     @   font-family: monospace;
-    @   font-size: smaller;
+    @   font-size: xx-small;
     @   white-space: pre;
   },
   { "div.udiff",
@@ -890,8 +995,54 @@ const struct strctCssDefaults {
     @   color: #0000ff;
   },
   { "span.diffln",
-    "line nubmers in a diff",
+    "line numbers in a diff",
     @   color: #a0a0a0;
+  },
+  { "span.modpending",
+    "Moderation Pending message on timeline",
+    @   color: #b03800;
+    @   font-style: italic;
+  },
+  { "pre.th1result",
+    "format for th1 script results",
+    @   white-space: pre-wrap;
+    @   word-wrap: break-word;
+  },
+  { "pre.th1error",
+    "format for th1 script errors",
+    @   white-space: pre-wrap;
+    @   word-wrap: break-word;
+    @   color: red;
+  },
+  { "table.tale-value th",
+    "The label/value pairs on (for example) the ci page",
+    @   vertical-align: top;
+    @   text-align: right;
+    @   padding: 0.2ex 2ex;
+  },
+  { ".statistics-report-graph-line",
+    "for the /stats_report views",
+    @   background-color: #446979;
+  },
+  { ".statistics-report-table-events th"
+    "",
+    @   padding: 0 1em 0 1em;
+  },
+  { ".statistics-report-table-events td",
+    "",
+    @   padding: 0.1em 1em 0.1em 1em;
+  },
+  { ".statistics-report-row-year",
+    "",
+    @   text-align: left;
+  },
+  { "tr.row0",
+    "even table row color",
+    @ /* use default */
+  },
+  { "tr.row1",
+    "odd table row color",
+    @ /* Use default */
   },
   { 0,
     0,

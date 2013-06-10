@@ -1424,7 +1424,6 @@ extern "C" {
 
 
     
-
 /**
    This type holds the "vtbl" for type-specific operations when
    working with cson_value objects.
@@ -1526,9 +1525,7 @@ struct cson_value
 /**
    Empty-initialized cson_value object.
 */
-extern const cson_value cson_value_empty;
-
-const cson_value cson_value_empty = cson_value_empty_m;
+static const cson_value cson_value_empty = cson_value_empty_m;
 const cson_parse_opt cson_parse_opt_empty = cson_parse_opt_empty_m;
 const cson_output_opt cson_output_opt_empty = cson_output_opt_empty_m;
 const cson_object_iterator cson_object_iterator_empty = cson_object_iterator_empty_m;
@@ -1663,7 +1660,7 @@ static char cson_value_is_builtin( void const * m )
         && ( m < (void const *)(&CSON_EMPTY_HOLDER+1)))
         return 1;
     else return
-        ((m > (void const *)&CSON_SPECIAL_VALUES[0])
+        ((m >= (void const *)&CSON_SPECIAL_VALUES[0])
         && ( m < (void const *)&CSON_SPECIAL_VALUES[CSON_INTERNAL_VALUES_LENGTH]) )
         ? 1
         : 0;
@@ -1713,9 +1710,9 @@ char const * cson_rc_string(int rc)
    get the declarations.
  */
 #if defined(CSON_FOSSIL_MODE)
-void *fossil_malloc(size_t n);
-void fossil_free(void *p);
-void *fossil_realloc(void *p, size_t n);
+extern void *fossil_malloc(size_t n);
+extern void fossil_free(void *p);
+extern void *fossil_realloc(void *p, size_t n);
 #  define CSON_MALLOC_IMPL fossil_malloc
 #  define CSON_FREE_IMPL fossil_free
 #  define CSON_REALLOC_IMPL fossil_realloc
@@ -4354,7 +4351,7 @@ int cson_buffer_reserve( cson_buffer * buf, cson_size_t n )
     }
     else
     {
-        unsigned char * x = (unsigned char *)realloc( buf->mem, n );
+        unsigned char * x = (unsigned char *)cson_realloc( buf->mem, n, "cson_buffer::mem" );
         if( ! x ) return cson_rc.AllocError;
         memset( x + buf->used, 0, n - buf->used );
         buf->mem = x;
@@ -4382,7 +4379,7 @@ cson_size_t cson_buffer_fill( cson_buffer * buf, char c )
 */
 static int cson_data_dest_cson_buffer( void * arg, void const * data_, unsigned int n )
 {
-    if( ! arg || (n<0) ) return cson_rc.ArgError;
+    if( !arg ) return cson_rc.ArgError;
     else if( ! n ) return 0;
     else
     {
@@ -4502,7 +4499,6 @@ int cson_object_fetch_sub( cson_object const * obj, cson_value ** tgt, char cons
         enum { BufSize = 128 };
         char buf[BufSize];
         memset( buf, 0, BufSize );
-        rc = cson_rc.RangeError;
 
         while( cson_next_token( &beg, sep, &end ) )
         {

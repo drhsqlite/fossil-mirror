@@ -95,7 +95,7 @@ static const char isBoundary[] = {
 **
 ** Scoring:
 **   *  All terms must match at least once or the score is zero
-**   *  10 bonus points if the first occurrance is an exact match
+**   *  10 bonus points if the first occurrence is an exact match
 **   *  1 additional point for each subsequent match of the same word
 **   *  Extra points of two consecutive words of the pattern are consecutive
 **      in the document

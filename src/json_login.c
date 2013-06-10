@@ -171,7 +171,7 @@ cson_value * json_page_login(){
        user.cexpire db field after calling login_set_user_cookie(),
        but for anonymous we need to get the time when the cookie is
        set because anon does not get a db entry like normal users
-       do. Anonyous cookies currently have a hard-coded lifetime in
+       do. Anonymous cookies currently have a hard-coded lifetime in
        login_set_anon_cookie() (currently 6 hours), which we "should
        arguably" change to use the time configured for non-anonymous
        users (see login_set_user_cookie() for details).
@@ -188,13 +188,13 @@ cson_value * json_page_logout(){
   cson_value const *token = g.json.authToken;
     /* Remember that json_mode_bootstrap() replaces the login cookie
        with the JSON auth token if the request contains it. If the
-       reqest is missing the auth token then this will fetch fossil's
+       request is missing the auth token then this will fetch fossil's
        original cookie. Either way, it's what we want :).
 
        We require the auth token to avoid someone maliciously
        trying to log someone else out (not 100% sure if that
        would be possible, given fossil's hardened cookie, but
-       i'll assume it would be for the time being).
+       I'll assume it would be for the time being).
     */
     ;
   if(!token){

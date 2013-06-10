@@ -287,7 +287,7 @@ static cson_value * json_tag_find(){
       "     WHEN 'w' THEN 'wiki'"
       "     WHEN 'e' THEN 'event'"
       "     WHEN 't' THEN 'ticket'"
-      "     ELSE 'WTF?'"
+      "     ELSE 'unknown'"
       "   END"
       "   AS eventType"
       " FROM event, blob"

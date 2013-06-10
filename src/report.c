@@ -62,7 +62,7 @@ void view_list(void){
     }
     blob_appendf(&ril, "&nbsp;&nbsp;&nbsp;");
     if( g.perm.Write && zOwner && zOwner[0] ){
-      blob_appendf(&ril, "(by <i>%h</i></i>) ", zOwner);
+      blob_appendf(&ril, "(by <i>%h</i>) ", zOwner);
     }
     if( g.perm.TktFmt ){
       blob_appendf(&ril, "[%zcopy</a>] ",
@@ -120,7 +120,7 @@ char *extract_integer(const char *zOrig){
 
 /*
 ** Remove blank lines from the beginning of a string and
-** all whitespace from the end. Removes whitespace preceeding a NL,
+** all whitespace from the end. Removes whitespace preceding a NL,
 ** which also converts any CRNL sequence into a single NL.
 */
 char *remove_blank_lines(const char *zOrig){
@@ -172,8 +172,9 @@ int report_query_authorizer(
       break;
     }
     case SQLITE_READ: {
-      static const char *azAllowed[] = {
+      static const char *const azAllowed[] = {
          "ticket",
+         "ticketchng",
          "blob",
          "filename",
          "mlink",
@@ -491,9 +492,16 @@ static void report_format_hints(void){
   @ <li><p>If a column of the result set is named "bgcolor" then the content
   @ of that column determines the background color of the row.</p></li>
   @
+  @ <li><p>The text of all columns prior to the first column whose name begins
+  @ with underscore ("_") is shown character-for-character as it appears in
+  @ the database.  In other words, it is assumed to have a mimetype of
+  @ text/plain.
+  @
   @ <li><p>The first column whose name begins with underscore ("_") and all
-  @ subsequent columns are shown on their own rows in the table.  This might
-  @ be useful for displaying the description of tickets.
+  @ subsequent columns are shown on their own rows in the table and with
+  @ wiki formatting.  In other words, such rows are shown with a mimetype
+  @ of text/x-fossil-wiki.  This is recommended for the "description" field
+  @ of tickets.
   @ </p></li>
   @
   @ <li><p>The query can join other tables in the database besides TICKET.
@@ -591,8 +599,8 @@ static void report_format_hints(void){
   @    severity AS 'Svr',
   @    priority AS 'Pri',
   @    title AS 'Title',
-  @    description AS '_Description',   -- When the column name begins with '_'
-  @    remarks AS '_Remarks'            -- the data is shown on a separate row.
+  @    description AS '_Description',  -- When the column name begins with '_'
+  @    remarks AS '_Remarks'           -- content is rendered as wiki
   @  FROM ticket
   @ </pre></blockquote>
   @
@@ -621,6 +629,9 @@ struct GenerateHTML {
   int isMultirow;  /* True if multiple table rows per query result row */
   int iNewRow;     /* Index of first column that goes on separate row */
   int iBg;         /* Index of column that defines background color */
+  int wikiFlags;   /* Flags passed into wiki_convert() */
+  const char *zWikiStart;    /* HTML before display of multi-line wiki */
+  const char *zWikiEnd;      /* HTML after display of multi-line wiki */
 };
 
 /*
@@ -665,6 +676,19 @@ static int generate_html(
         if( azName[i][0]=='_' ){
           pState->isMultirow = 1;
           pState->iNewRow = i;
+          pState->wikiFlags = WIKI_NOBADLINKS;
+          pState->zWikiStart = "";
+          pState->zWikiEnd = "";
+          if( P("plaintext") ){
+            pState->wikiFlags |= WIKI_LINKSONLY;
+            pState->zWikiStart = "<pre class='verbatim'>";
+            pState->zWikiEnd = "</pre>";
+            style_submenu_element("Formatted", "Formatted",
+                                  "%R/rptview?rn=%d", pState->rn);
+          }else{
+            style_submenu_element("Plaintext", "Plaintext",
+                                  "%R/rptview?rn=%d&plaintext", pState->rn);
+          }
         }else{
           pState->nCol++;
         }
@@ -673,7 +697,7 @@ static int generate_html(
 
     /* The first time this routine is called, output a table header
     */
-    @ <tr>
+    @ <thead><tr>
     zTid = 0;
     for(i=0; i<nArg; i++){
       char *zName = azName[i];
@@ -695,7 +719,7 @@ static int generate_html(
     if( g.perm.Write && zTid ){
       @ <th>&nbsp;</th>
     }
-    @ </tr>
+    @ </tr></thead><tbody>
   }
   if( azArg==0 ){
     @ <tr><td colspan="%d(pState->nCol)">
@@ -730,10 +754,13 @@ static int generate_html(
       }
       if( zData[0] ){
         Blob content;
-        @ </tr><tr style="background-color:%h(zBg)"><td colspan=%d(pState->nCol)>
+        @ </tr>
+        @ <tr style="background-color:%h(zBg)"><td colspan=%d(pState->nCol)>
+        @ %s(pState->zWikiStart)
         blob_init(&content, zData, -1);
-        wiki_convert(&content, 0, 0);
+        wiki_convert(&content, 0, pState->wikiFlags);
         blob_reset(&content);
+        @ %s(pState->zWikiEnd)
       }
     }else if( azName[i][0]=='#' ){
       zTid = zData;
@@ -866,6 +893,9 @@ int sqlite3_exec_readonly(
     return SQLITE_ERROR;
   }
 
+  i = sqlite3_bind_parameter_index(pStmt, "$login");
+  if( i ) sqlite3_bind_text(pStmt, i, g.zLogin, -1, SQLITE_TRANSIENT);
+
   nCol = sqlite3_column_count(pStmt);
   azVals = fossil_malloc(2*nCol*sizeof(const char*) + 1);
   while( (rc = sqlite3_step(pStmt))==SQLITE_ROW ){
@@ -885,6 +915,82 @@ int sqlite3_exec_readonly(
   rc = sqlite3_finalize(pStmt);
   fossil_free(azVals);
   return rc;
+}
+
+/*
+** Output Javascript code that will enables sorting of the table with
+** the id zTableId by clicking.
+**
+** The javascript is derived from:
+**
+**     http://www.webtoolkit.info/sortable-html-table.html
+**
+** This variation allows column types to be expressed using the second
+** argument.  Each character of the second argument represent a column.
+** "t" means sort as text.  "n" means sort numerically.  "x" means do not
+** sort on this column.  If there are fewer characters in zColumnTypes[] than
+** their are columns, the all extra columns assume type "t" (text).
+*/
+void output_table_sorting_javascript(const char *zTableId, const char *zColumnTypes){
+  @ <script>
+  @ function SortableTable(tableEl,columnTypes){
+  @   this.tbody = tableEl.getElementsByTagName('tbody');
+  @   this.sort = function (cell) {
+  @     var column = cell.cellIndex;
+  @     var sortFn = cell.sortType=="n" ? this.sortNumeric : this.sortText;
+  @     this.sortIndex = column;
+  @     var newRows = new Array();
+  @     for (j = 0; j < this.tbody[0].rows.length; j++) {
+  @        newRows[j] = this.tbody[0].rows[j];
+  @     }
+  @     newRows.sort(sortFn);
+  @     if (cell.getAttribute("sortdir") == 'down') {
+  @        newRows.reverse();
+  @        cell.setAttribute('sortdir','up');
+  @     } else {
+  @        cell.setAttribute('sortdir','down');
+  @     }
+  @     for (i=0;i<newRows.length;i++) {
+  @       this.tbody[0].appendChild(newRows[i]);
+  @     }
+  @   }
+  @   this.sortText = function(a,b) {
+  @     var i = thisObject.sortIndex;
+  @     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
+  @     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
+  @     if(aa==bb) return 0;
+  @     if(aa<bb) return -1;
+  @     return 1;
+  @   }
+  @   this.sortNumeric = function(a,b) {
+  @     var i = thisObject.sortIndex;
+  @     aa = parseFloat(a.cells[i].textContent);
+  @     if (isNaN(aa)) aa = 0;
+  @     bb = parseFloat(b.cells[i].textContent);
+  @     if (isNaN(bb)) bb = 0;
+  @     return aa-bb;
+  @   }
+  @   var thisObject = this;
+  @   var x = tableEl.getElementsByTagName('thead');
+  @   if(!(this.tbody && this.tbody[0].rows && this.tbody[0].rows.length>0)){
+  @     return;
+  @   }
+  @   if(x && x[0].rows && x[0].rows.length > 0) {
+  @     var sortRow = x[0].rows[0];
+  @   } else {
+  @     return;
+  @   }
+  @   for (var i=0; i<sortRow.cells.length; i++) {
+  @     sortRow.cells[i].sTable = this;
+  @     sortRow.cells[i].sortType = columnTypes[i] || 't';
+  @     sortRow.cells[i].onclick = function () {
+  @       this.sTable.sort(this);
+  @       return false;
+  @     }
+  @   }
+  @ }
+  @ var t = new SortableTable(gebi("%s(zTableId)"),"%s(zColumnTypes)");
+  @ </script>
 }
 
 
@@ -965,18 +1071,20 @@ void rptview_page(void){
     style_header(zTitle);
     output_color_key(zClrKey, 1, 
         "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
-    @ <table border="1" cellpadding="2" cellspacing="0" class="report">
+    @ <table border="1" cellpadding="2" cellspacing="0" class="report"
+    @  id="reportTable">
     sState.rn = rn;
     sState.nCount = 0;
     report_restrict_sql(&zErr1);
     sqlite3_exec_readonly(g.db, zSql, generate_html, &sState, &zErr2);
     report_unrestrict_sql();
-    @ </table>
+    @ </tbody></table>
     if( zErr1 ){
       @ <p class="reportError">Error: %h(zErr1)</p>
     }else if( zErr2 ){
       @ <p class="reportError">Error: %h(zErr2)</p>
     }
+    output_table_sorting_javascript("reportTable","");
     style_footer();
   }else{
     report_restrict_sql(&zErr1);
@@ -1091,7 +1199,7 @@ int output_separated_file(
 
 /*
 ** Generate a report.  The rn query parameter is the report number.
-** The output is written to stdout as flat file. The zFilter paramater
+** The output is written to stdout as flat file. The zFilter parameter
 ** is a full WHERE-condition.
 */
 void rptshow( 

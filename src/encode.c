@@ -86,6 +86,40 @@ char *htmlize(const char *zIn, int n){
   return zOut;
 }
 
+/*
+** Append HTML-escaped text to a Blob.
+*/
+void htmlize_to_blob(Blob *p, const char *zIn, int n){
+  int c, i, j;
+  if( n<0 ) n = strlen(zIn);
+  for(i=j=0; i<n; i++){
+    c = zIn[i];
+    switch( c ){
+      case '<':
+        if( j<i ) blob_append(p, zIn+j, i-j);
+        blob_append(p, "&lt;", 4);
+        j = i+1;
+        break;
+      case '>':
+        if( j<i ) blob_append(p, zIn+j, i-j);
+        blob_append(p, "&gt;", 4);
+        j = i+1;
+        break;
+      case '&':
+        if( j<i ) blob_append(p, zIn+j, i-j);
+        blob_append(p, "&amp;", 5);
+        j = i+1;
+        break;
+      case '"':
+        if( j<i ) blob_append(p, zIn+j, i-j);
+        blob_append(p, "&quot;", 6);
+        j = i+1;
+        break;
+    }
+  }
+  if( j<i ) blob_append(p, zIn+j, i-j);
+}
+
 
 /*
 ** Encode a string for HTTP.  This means converting lots of
@@ -99,14 +133,13 @@ static char *EncodeHttp(const char *zIn, int n, int encodeSlash){
   int i = 0;
   int count = 0;
   char *zOut;
-  int other;
 # define IsSafeChar(X)  \
      (fossil_isalnum(X) || (X)=='.' || (X)=='$' \
-      || (X)=='~' || (X)=='-' || (X)=='_' || (X)==other)
+      || (X)=='~' || (X)=='-' || (X)=='_' \
+      || (!encodeSlash && ((X)=='/' || (X)==':')))
 
   if( zIn==0 ) return 0;
   if( n<0 ) n = strlen(zIn);
-  other = encodeSlash ? 'a' : '/';
   while( i<n && (c = zIn[i])!=0 ){
     if( IsSafeChar(c) || c==' ' ){
       count++;
@@ -136,7 +169,7 @@ static char *EncodeHttp(const char *zIn, int n, int encodeSlash){
 /*
 ** Convert the input string into a form that is suitable for use as
 ** a token in the HTTP protocol.  Spaces are encoded as '+' and special
-** characters are encoded as "%HH" where HH is a two-digit hexidecimal
+** characters are encoded as "%HH" where HH is a two-digit hexadecimal
 ** representation of the character.  The "/" character is encoded
 ** as "%2F".
 */

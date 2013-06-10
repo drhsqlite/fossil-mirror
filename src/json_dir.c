@@ -68,8 +68,8 @@ static cson_value * json_page_dir_list(){
   Manifest * pM = NULL;
   Stmt q = empty_Stmt;
   int rid = 0;
-  if( !g.perm.Hyperlink ){
-    json_set_err(FSL_JSON_E_DENIED, "Requires 'h' permissions.");
+  if( !g.perm.Read ){
+    json_set_err(FSL_JSON_E_DENIED, "Requires 'o' permissions.");
     return NULL;
   }
   zCI = json_find_option_cstr("checkin",NULL,"ci" );
@@ -106,7 +106,7 @@ static cson_value * json_page_dir_list(){
                           pathelementFunc, 0, 0);
 
   /* Compute the temporary table "localfiles" containing the names
-  ** of all files and subdirectories in the zD[] directory.  
+  ** of all files and subdirectories in the zD[] directory.
   **
   ** Subdirectory names begin with "/".  This causes them to sort
   ** first and it also gives us an easy way to distinguish files
@@ -122,15 +122,14 @@ static cson_value * json_page_dir_list(){
 
     db_multi_exec(
                   "CREATE TEMP TABLE json_dir_files("
-                  "  n UNIQUE NOT NULL %s," /* file name */
-                  "  fn UNIQUE NOT NULL %s," /* full file name */
+                  "  n UNIQUE NOT NULL," /* file name */
+                  "  fn UNIQUE NOT NULL," /* full file name */
                   "  u DEFAULT NULL," /* file uuid */
                   "  sz DEFAULT -1," /* file size */
                   "  mtime DEFAULT NULL" /* file mtime in unix epoch format */
-                  ");",
-                  filename_collation(), filename_collation()
+                  ");"
                   );
-    
+
     db_prepare(&ins,
                "INSERT OR IGNORE INTO json_dir_files (n,fn,u,sz,mtime) "
                "SELECT"
@@ -153,7 +152,7 @@ static cson_value * json_page_dir_list(){
                );
     manifest_file_rewind(pM);
     while( (pFile = manifest_file_next(pM,0))!=0 ){
-      if( nD>0 
+      if( nD>0
         && ((pFile->zName[nD-1]!='/') || (0!=memcmp(pFile->zName, zD, nD-1)))
       ){
         continue;
@@ -176,29 +175,16 @@ static cson_value * json_page_dir_list(){
     }
     db_finalize(&ins);
   }else if( zD && *zD ){
-    if( filenames_are_case_sensitive() ){
-      db_multi_exec(
-        "CREATE TEMP VIEW json_dir_files AS"
-        " SELECT DISTINCT(pathelement(name,%d)) AS n,"
-        " %Q||'/'||name AS fn,"
-        " NULL AS u, NULL AS sz, NULL AS mtime"
-        " FROM filename"
-        "  WHERE name GLOB '%q/*'"
-        " GROUP BY n",
-        nD, zD, zD
-      );
-    }else{
-      db_multi_exec(
-        "CREATE TEMP VIEW json_dir_files AS"
-        " SELECT DISTINCT(pathelement(name,%d)) AS n, "
-        " %Q||'/'||name AS fn,"
-        " NULL AS u, NULL AS sz, NULL AS mtime"
-        " FROM filename"
-        "  WHERE name LIKE '%q/%%'"
-        " GROUP BY n",
-        nD, zD, zD
-      );
-    }
+    db_multi_exec(
+      "CREATE TEMP VIEW json_dir_files AS"
+      " SELECT DISTINCT(pathelement(name,%d)) AS n,"
+      " %Q||'/'||name AS fn,"
+      " NULL AS u, NULL AS sz, NULL AS mtime"
+      " FROM filename"
+      "  WHERE name GLOB '%q/*'"
+      " GROUP BY n",
+      nD, zD, zD
+    );
   }else{
     db_multi_exec(
       "CREATE TEMP VIEW json_dir_files"
@@ -285,7 +271,7 @@ static cson_value * json_page_dir_list(){
     manifest_destroy(pM);
   }
   cson_free_array( keyStore );
-  
+
   free( zUuid );
   free( zD );
   return cson_object_value(zPayload);

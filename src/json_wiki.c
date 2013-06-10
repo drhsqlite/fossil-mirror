@@ -1,6 +1,6 @@
 #ifdef FOSSIL_ENABLE_JSON
 /*
-** Copyright (c) 2011 D. Richard Hipp
+** Copyright (c) 2011-12 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -50,9 +50,14 @@ static const JsonPageDef JsonPageDefs_Wiki[] = {
 **
 */
 cson_value * json_page_wiki(){
-  return json_page_dispatch_helper(&JsonPageDefs_Wiki[0]);
+  return json_page_dispatch_helper(JsonPageDefs_Wiki);
 }
 
+/*
+** Returns the UUID for the given wiki blob RID, or NULL if not
+** found. The returned string is allocated via db_text() and must be
+** free()d by the caller.
+*/
 char * json_wiki_get_uuid_for_rid( int rid )
 {
   return db_text(NULL,
@@ -85,7 +90,6 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
                   rid );
     return NULL;
   }else{
-    /*char const * zFormat = NULL;*/
     unsigned int len = 0;
     cson_object * pay = cson_new_object();
     char const * zBody = pWiki->zWiki;
@@ -208,7 +212,7 @@ static cson_value * json_wiki_get_by_name_or_symname(char const * zPageName,
     int rid = symbolic_name_to_rid( zSymname ? zSymname : zPageName, "w" );
     if(rid<0){
       json_set_err(FSL_JSON_E_AMBIGUOUS_UUID,
-                   "UUID [%s] is ambiguious.", zSymname);
+                   "UUID [%s] is ambiguous.", zSymname);
       return NULL;
     }else if(rid==0){
       json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
@@ -492,7 +496,7 @@ static cson_value * json_wiki_diff(){
   Manifest * pW1 = NULL, *pW2 = NULL;
   Blob w1 = empty_blob, w2 = empty_blob, d = empty_blob;
   char const * zErrTag = NULL;
-  int diffFlags;
+  u64 diffFlags;
   char * zUuid = NULL;
   if( !g.perm.Hyperlink ){
     json_set_err(FSL_JSON_E_DENIED,
@@ -541,7 +545,7 @@ static cson_value * json_wiki_diff(){
   blob_init(&w2, pW2->zWiki, -1);
   blob_zero(&d);
   diffFlags = DIFF_IGNORE_EOLWS | DIFF_INLINE;
-  text_diff(&w2, &w1, &d, diffFlags);
+  text_diff(&w2, &w1, &d, 0, diffFlags);
   blob_reset(&w1);
   blob_reset(&w2);
 
