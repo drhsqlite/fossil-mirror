@@ -1,5 +1,5 @@
-C A\stypo\sin\shelp\sscreen\s(reported\sby\sSergei\sGavrikov)
-D 2013-06-10T07:07:15.227
+C Disable\sthe\sdatabase\sfile\salias\swarnings\son\sMac\sdue\sto\sTime-Machine\sissues.
+D 2013-06-10T21:07:59.069
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
@@ -363,7 +363,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 1e932b06a9ed604b53c4b5c3a16327d1ae649192
-F src/main.c 35ef3e47d60072f8ce588fef966c3d3dcce8e924
+F src/main.c 569695be96816be6f81b78bf8d3b6861fce4ec4a
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fa6311a5078112d1fcb92f93859f54b2dddd9e11
-R a579b026ed8971a09fa304bec7ec2196
-U jan.nijtmans
-Z 60cb0f6237145d3713dce0436ae0c6c8
+P b894afad3dd18cd20ef4b535ef1828d168ff50f2
+R 5c4309ea267ded194540344e331a4af5
+U drh
+Z 586bdab6036f79711bb261ad0ced7382

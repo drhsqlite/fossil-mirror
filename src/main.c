@@ -497,6 +497,7 @@ static const char *sqlite_error_code_name(int iCode){
     case SQLITE_FORMAT:     return "SQLITE_FORMAT";
     case SQLITE_RANGE:      return "SQLITE_RANGE";
     case SQLITE_NOTADB:     return "SQLITE_NOTADB";
+    case SQLITE_WARNING:    return "SQLITE_WARNING";
     default: {
       sqlite3_snprintf(sizeof(zCode),zCode,"error code %d",iCode);
     }
@@ -506,6 +507,11 @@ static const char *sqlite_error_code_name(int iCode){
 
 /* Error logs from SQLite */
 static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
+#ifdef __APPLE__
+  /* Disable the file alias warning on apple products because Time Machine
+  ** creates lots of aliases and the warning alarms people. */
+  if( iCode==SQLITE_WARNING ) return;
+#endif
   fossil_warning("%s: %s", sqlite_error_code_name(iCode), zErrmsg);
 }
 
