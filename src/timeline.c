@@ -1630,6 +1630,9 @@ static int isIsoDate(const char *z){
 **                            w  = wiki commits only
 **   -v|--verbose         print the list of files changed in a checkin after
 **                        the checkin comment.
+**   -f|--showfiles       Outputs the list of files changed by each commit
+**                        and the type of each change (edited, deleted,
+**                        etc.).
 */
 void timeline_cmd(void){
   Stmt q;
