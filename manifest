@@ -1,5 +1,5 @@
-C Combine\scomment\slines\sfor\s--verbose\sand\s(deprecated)\s--showfiles.
-D 2013-06-14T07:19:58.652
+C Incorporate\sthe\sNGQP\s(Next-Generation\sQuery\sPlanner)\sbranch\sof\sSQLite\sfor\nthe\spurpose\sof\stesting\sSQLite.
+D 2013-06-14T12:09:07.867
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
@@ -395,8 +395,8 @@ F src/shell.c 1e6e527fae466671af56cca62ccb77ab9f9017c5
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
 F src/skins.c 850cb3518094003a6780e61fb0611b2598fe2cfb
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c 26d2129ce1e46c03ad6823d066cc076492436f73
-F src/sqlite3.h addb0340c6cc75da44f7419878ee9b0e4feb6ee8
+F src/sqlite3.c 19c555c85abb5cf968dcfe1c6f502eeaa56f4e54
+F src/sqlite3.h 449aeb5375261f99047833fd5d8b7a6d128e6d1d
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 9bb2418c3fe03786a62f747a993fb575a5e20f42
 F src/style.c d7a6acee5f43379c35a509e87a06bba09217bc7d
@@ -627,7 +627,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6ed9ad246fbfa3e94706e46ee4cc471a2da6b65d
-R 45c344edc191afeff18cf1ee1aceb1ed
-U jan.nijtmans
-Z aea14d733835ed4a08ab21a6df8725f2
+P a6dad6508c0e95bd0aceb28fec1a269114917ac5
+R 111d00786003b3710300f9c581b1519a
+T *branch * sqlite-NGQP
+T *sym-sqlite-NGQP *
+T -sym-trunk *
+U drh
+Z c9cc08df7fde8743dcedeab3764a433f
