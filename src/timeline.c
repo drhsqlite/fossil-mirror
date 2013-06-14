@@ -1622,17 +1622,15 @@ static int isIsoDate(const char *z){
 ** for the current version or "now" for the current time.
 **
 ** Options:
-**   -n|--limit N         display the first N changes (default 20)
-**   -t|--type TYPE       only display items from the give types, such as:
+**   -n|--limit N         Output the first N changes (default 20)
+**   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
 **                            e  = events only
 **                            t  = tickets only
 **                            w  = wiki commits only
-**   -v|--verbose         print the list of files changed in a checkin after
-**                        the checkin comment.
-**   -f|--showfiles       Outputs the list of files changed by each commit
+**   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
-**                        etc.).
+**                        etc.) after the checkin comment.
 */
 void timeline_cmd(void){
   Stmt q;
