@@ -109,6 +109,7 @@ static void import_reset(int freeAll){
     fossil_free(gg.aFile[i].zName);
     fossil_free(gg.aFile[i].zUuid);
     fossil_free(gg.aFile[i].zPrior);
+    gg.aFile[i].zPrior = 0;
   }
   memset(gg.aFile, 0, gg.nFile*sizeof(gg.aFile[0]));
   gg.nFile = 0;
@@ -245,13 +246,18 @@ static void finish_commit(void){
     if( zUuid==0 ) continue;
     blob_appendf(&record, "F %F %s", gg.aFile[i].zName, zUuid);
     if( gg.aFile[i].isExe ){
-      blob_append(&record, " x\n", 3);
+      blob_append(&record, " x", 2);
     }else if( gg.aFile[i].isLink ){
-      blob_append(&record, " l\n", 3);
+      blob_append(&record, " l", 2);
       gg.hasLinks = 1;
-    }else{
-      blob_append(&record, "\n", 1);
     }
+    if( gg.aFile[i].zPrior ){
+      if( !gg.aFile[i].isExe && !gg.aFile[i].isLink ){
+        blob_append(&record, " w", 2);
+      }
+      blob_appendf(&record, " %F", gg.aFile[i].zPrior);
+    }
+    blob_append(&record, "\n", 1);
   }
   if( gg.zFrom ){
     blob_appendf(&record, "P %s", gg.zFrom);
@@ -638,6 +644,7 @@ static void git_fast_import(FILE *pIn){
         if( pFile->isFrom==0 ) continue;
         fossil_free(pFile->zName);
         fossil_free(pFile->zPrior);
+        pFile->zPrior = 0;
         fossil_free(pFile->zUuid);
         *pFile = gg.aFile[--gg.nFile];
         i--;
@@ -653,13 +660,12 @@ static void git_fast_import(FILE *pIn){
       mx = gg.nFile;
       nFrom = strlen(zFrom);
       while( (pFile = import_find_file(zFrom, &i, mx))!=0 ){
-        if( pFile->isFrom==0 ) continue;
         pNew = import_add_file();
         pFile = &gg.aFile[i-1];
         if( strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
         }else{
-          pNew->zName = fossil_strdup(pFile->zName);
+          pNew->zName = fossil_strdup(zTo);
         }
         pNew->isExe = pFile->isExe;
         pNew->isLink = pFile->isLink;
@@ -668,32 +674,18 @@ static void git_fast_import(FILE *pIn){
       }
     }else
     if( memcmp(zLine, "R ", 2)==0 ){
-      int nFrom;
       import_prior_files();
       z = &zLine[2];
       zFrom = next_token(&z);
       zTo = rest_of_line(&z);
       i = 0;
-      nFrom = strlen(zFrom);
       while( (pFile = import_find_file(zFrom, &i, gg.nFile))!=0 ){
         if( pFile->isFrom==0 ) continue;
-        pNew = import_add_file();
         pFile = &gg.aFile[i-1];
-        if( strlen(pFile->zName)>nFrom ){
-          pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
-        }else{
-          pNew->zName = fossil_strdup(pFile->zName);
-        }
-        pNew->zPrior = pFile->zName;
-        pNew->isExe = pFile->isExe;
-        pNew->isLink = pFile->isLink;
-        pNew->zUuid = pFile->zUuid;
-        pNew->isFrom = 0;
-        gg.nFile--;
-        *pFile = *pNew;
-        memset(pNew, 0, sizeof(*pNew));
+        pFile->zPrior = pFile->zName;
+        pFile->zName = fossil_strdup(zTo);
+        pFile->isFrom = 0;
       }
-      fossil_fatal("cannot handle R records, use --full-tree");
     }else
     if( memcmp(zLine, "deleteall", 9)==0 ){
       gg.fromLoaded = 1;
