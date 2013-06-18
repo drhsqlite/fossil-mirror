@@ -1,5 +1,5 @@
-C Combine\scomment\slines\sfor\s--verbose\sand\s(deprecated)\s--showfiles.
-D 2013-06-14T07:19:58.652
+C Added\ssome\sentries\sto\sthe\s1.26\schangelog.
+D 2013-06-18T14:16:42.648
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
@@ -549,7 +549,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki f25efdbadf42d42c9254a4d9905941976079bd7f
-F www/changes.wiki f7c24acc00e81b7c5e51b86bc834131c79b94442
+F www/changes.wiki 3dd3ae6ab437432a4d552d0a28c9d5a53f3dcfc0
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6ed9ad246fbfa3e94706e46ee4cc471a2da6b65d
-R 45c344edc191afeff18cf1ee1aceb1ed
-U jan.nijtmans
-Z aea14d733835ed4a08ab21a6df8725f2
+P a6dad6508c0e95bd0aceb28fec1a269114917ac5
+R b0cfbb7889e526731705f3ddcd117de3
+U stephan
+Z 8a14350bc4a0b2d5d581f9e7d8f4d3b4
