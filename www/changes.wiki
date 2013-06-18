@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.26 (2013-06-19)</h2>
+<h2>Changes For Version 1.26 (2013-06-18)</h2>
   *  The argument to the --port option for the [/help?cmd=ui | fossil ui] and
      [/help?cmd=server | fossil server] commands can take an IP address in addition
      to the port number, causing Fossil to bind to just that one IP address.
@@ -15,7 +15,7 @@
   *  Add subcommands "fossil bisect log" and "fossil bisect status" to the
      [/help?cmd=bisect | fossil bisect] command, as well as other bisect enhancements.
   *  Enhanced defenses that prevent spiders from using excessive CPU and bandwidth.
-  *  Consistent us of the -n or --dry-run command line options.
+  *  Consistent use of the -n or --dry-run command line options.
   *  Win32: Fossil now understands Cygwin paths containing one or more of
      the characters <nowiki>"*:<>?|</nowiki>. Those are normally forbidden in
      win32. This means that the win32 fossil.exe is better usable in a Cygwin
