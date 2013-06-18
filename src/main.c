@@ -787,25 +787,20 @@ void version_cmd(void){
   if(!find_option("verbose","v",0)){
     return;
   }else{
-    int count = 0;
     fossil_print("Compiled on %s %s using %s (%d-bit)\n",
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
-    fossil_print("SQLite %s [%s],\n", SQLITE_VERSION, SQLITE_SOURCE_ID);
+    fossil_print("SQLite %s %.30s\n", SQLITE_VERSION, SQLITE_SOURCE_ID);
     fossil_print("zlib %s\n", ZLIB_VERSION);
 #if defined(FOSSIL_ENABLE_SSL)
-    ++count;
     fossil_print("SSL (%s)\n", OPENSSL_VERSION_TEXT);
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
-    ++count;
     fossil_print("TCL (Tcl %s)\n", TCL_PATCH_LEVEL);
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
-    ++count;
     fossil_print("TCL_STUBS\n");
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
-    ++count;
     fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
 #endif
   }
