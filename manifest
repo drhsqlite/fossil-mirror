@@ -1,5 +1,5 @@
-C Added\ssome\sentries\sto\sthe\s1.26\schangelog.
-D 2013-06-18T14:16:42.648
+C Update\sthe\sversion\snumber\sto\s1.26\sin\spreparation\sfor\sthe\snext\srelease.
+D 2013-06-18T14:23:51.506
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
@@ -10,7 +10,7 @@ F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F Makefile.in ed20ed61a1d9a7c221b3c916bdda056f031dcd8e
-F VERSION 1be1d4e6740bc562e8911948b24289c61472f669
+F VERSION e8235232d414c4f60347d15432459dcc200f4ce0
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a6dad6508c0e95bd0aceb28fec1a269114917ac5
-R b0cfbb7889e526731705f3ddcd117de3
-U stephan
-Z 8a14350bc4a0b2d5d581f9e7d8f4d3b4
+P 00d516809dfa6e991f3cd6e7b7a5ef53150d9a56
+R f1dbd1fb60cfaed7dac0212b749b23bf
+U drh
+Z a5b8322a21ef7df241b3a97f3b1bffc0
