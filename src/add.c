@@ -229,6 +229,10 @@ static int add_files_in_sfile(int vid){
 ** is used.  If the --clean option does not appear on the command line then
 ** the "clean-glob" setting is used.
 **
+** If files are attempted to be added explicitly on the command line which
+** match either --ignore or --clean, a confirmation is asked first. This
+** can be prevented using -f|--force.
+**
 ** The --case-sensitive option determines whether or not filenames should
 ** be treated case sensitive or not. If the option is not given, the default
 ** depends on the global setting, or the operating system default, if not set.
@@ -237,6 +241,7 @@ static int add_files_in_sfile(int vid){
 **
 **    --case-sensitive <BOOL> override case-sensitive setting
 **    --dotfiles              include files beginning with a dot (".")   
+**    -f|--force              Add files without prompting
 **    --ignore <CSG>          ignore files matching patterns from the 
 **                            comma separated list of glob patterns.
 **    --clean <CSG>           also ignore files matching patterns from
@@ -252,9 +257,11 @@ void add_cmd(void){
   const char *zIgnoreFlag;   /* The --ignore option or ignore-glob setting */
   Glob *pIgnore, *pClean;    /* Ignore everything matching the glob patterns */
   unsigned scanFlags = 0;    /* Flags passed to vfile_scan() */
+  int forceFlag;
 
   zCleanFlag = find_option("clean",0,1);
   zIgnoreFlag = find_option("ignore",0,1);
+  forceFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   capture_case_sensitive_option();
   db_must_be_within_tree();
@@ -292,6 +299,24 @@ void add_cmd(void){
       fossil_fatal("cannot open %s", zName);
     }else{
       char *zTreeName = &zName[nRoot];
+      if( !forceFlag ){
+        if( glob_match(pIgnore, zTreeName)||glob_match(pClean, zTreeName) ){
+          Blob ans;
+          char cReply;
+          char *prompt = mprintf("file \"%s\" should be ignored.  "
+                                 "Add it (a=all/y/N)? ", zTreeName);
+          blob_zero(&ans);
+          prompt_user(prompt, &ans);
+          cReply = blob_str(&ans)[0];
+          blob_reset(&ans);
+          if( cReply=='a' || cReply=='A' ){
+            forceFlag = 1;
+          }else if( cReply!='y' && cReply!='Y' ){
+            blob_reset(&fullName);
+            continue;
+          }
+        }
+      }
       db_multi_exec(
          "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
          zTreeName
