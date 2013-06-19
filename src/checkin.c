@@ -385,15 +385,19 @@ void extra_cmd(void){
 ** files that are not officially part of the checkout. This operation
 ** cannot be undone.
 **
+** WARNING:  Normally, only the files unknown to Fossil are removed;
+** however, if the --extreme option is specified, all files that are
+** not part of the current checkout will be removed as well, without
+** regard for the files which are normally ignored.
+**
 ** You will be prompted before removing each eligible file unless the
-** --force flag is in use or it matches the --clean option.  The
+** --force flag is in use or it matches the --ignore option.  The
 ** GLOBPATTERN specified by the "ignore-glob" setting is used if the
-** --ignore option is omitted, the same with "clean-glob" and --clean
-** as well as "keep-glob" and --keep.  If you are sure you wish to
-** remove all "extra" files except the ones specified with --ignore
-** and --keep, you can specify the optional -f|--force flag and no
-** prompts will be issued.  If a file matches both --keep and --clean,
-** --keep takes precedence.
+** --ignore option is omitted, the same with "keep-glob" and --keep.
+** If you are sure you wish to remove all "extra" files except the
+** ones specified with --ignore and --keep, you can specify the
+** optional -f|--force flag and no prompts will be issued.  If a
+** file matches both --keep and --ignore, --keep takes precedence.
 **
 ** Files and subdirectories whose names begin with "." are
 ** normally kept.  They are handled if the "--dotfiles" option
@@ -403,8 +407,6 @@ void extra_cmd(void){
 **    --case-sensitive <BOOL> override case-sensitive setting
 **    --dotfiles       Include files beginning with a dot (".").
 **    -f|--force       Remove files without prompting.
-**    --clean <CSG>    Never prompt for files matching this
-**                     comma separated list of glob patterns.
 **    --ignore <CSG>   Ignore files matching patterns from the
 **                     comma separated list of glob patterns.
 **    --keep <CSG>     Keep files matching this comma separated
@@ -412,29 +414,34 @@ void extra_cmd(void){
 **    -n|--dry-run     If given, display instead of run actions.
 **    --temp           Remove only Fossil-generated temporary files.
 **    -v|--verbose     Show all files as they are removed.
+**    -x|--extreme     Remove all files not part of the current
+**                     checkout, without taking into consideration
+**                     the "ignore-glob" setting and the --ignore
+**                     command line option.
+**                     Compatibile with "git clean -x".
 **
 ** See also: addremove, extra, status
 */
 void clean_cmd(void){
-  int allFlag, dryRunFlag, verboseFlag;
+  int allFlag, dryRunFlag, verboseFlag, extremeFlag;
   unsigned scanFlags = 0;
-  const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
+  const char *zIgnoreFlag, *zKeepFlag;
   Blob path, repo;
   Stmt q;
   int n;
-  Glob *pIgnore, *pKeep, *pClean;
+  Glob *pIgnore, *pKeep;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
+  extremeFlag = find_option("extreme","x",0)!=0;
   allFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   zIgnoreFlag = find_option("ignore",0,1);
   verboseFlag = find_option("verbose","v",0)!=0;
   zKeepFlag = find_option("keep",0,1);
-  zCleanFlag = find_option("clean",0,1);
   capture_case_sensitive_option();
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
@@ -443,20 +450,34 @@ void clean_cmd(void){
   if( zKeepFlag==0 ){
     zKeepFlag = db_get("keep-glob", 0);
   }
-  if( zCleanFlag==0 ){
-    zCleanFlag = db_get("clean-glob", 0);
-  }
   verify_all_options();
+  if( extremeFlag && !dryRunFlag && db_get_boolean("allow-clean-x", 0)==0){
+    Blob extremeAnswer;
+    char *extremePrompt =
+      "\n\nWARNING: The --extreme option is enabled and all untracked files\n"
+      "that would otherwise be left alone will be deleted (i.e. those\n"
+      "matching the \"ignore-glob\" settings and the --ignore command\n"
+      "line option).  As a precaution, in order to proceed with this\n"
+      "clean operation, the string \"YES\" must be entered in all upper\n"
+      "case; any other response will cancel the clean operation.\n\n"
+      "Do you still wish to proceed with the clean operation? ";
+    blob_zero(&extremeAnswer);
+    prompt_user(extremePrompt, &extremeAnswer);
+    if( fossil_strcmp(blob_str(&extremeAnswer), "YES")!=0 ){
+      fossil_print("Extreme clean operation canceled.\n");
+      blob_reset(&extremeAnswer);
+      return;
+    }
+    blob_reset(&extremeAnswer);
+  }
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
-  pClean = glob_create(zCleanFlag);
-  vfile_scan2(&path, blob_size(&path), scanFlags, pIgnore, pKeep);
-  glob_free(pKeep);
-  glob_free(pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags,
+              extremeFlag ? 0 : pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
@@ -469,7 +490,11 @@ void clean_cmd(void){
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+n) ){
+    if( glob_match(pKeep, zName+n) ){
+      fossil_print("WARNING: KEPT file \"%s\" not removed\n", zName+n);
+      continue;
+    }
+    if( !allFlag && (!extremeFlag || !glob_match(pIgnore, zName+n)) ){
       Blob ans;
       char cReply;
       char *prompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
@@ -492,7 +517,8 @@ void clean_cmd(void){
       file_delete(zName);
     }
   }
-  glob_free(pClean);
+  glob_free(pKeep);
+  glob_free(pIgnore);
   db_finalize(&q);
 }
 
