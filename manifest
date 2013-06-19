@@ -1,5 +1,5 @@
-C Somewhat\sstronger\sprotection\sof\sdirectories\scompat/openssl*\sand\scompat/tcl*,\seven\swhen\sthe\sversion\snumber\schanges,\sand\seven\swhen\susing\s[fossil\sclean\s--ignore\s""].
-D 2013-06-19T13:44:11.658
+C Update\sthe\sscript\sthat\sgenerates\sthe\sdownload\spage\son\sthe\swebsite\sso\sthat\nit\sdisplays\sthe\scorrect\stitle.\s\sTicket\s[377c1b29be9e2f35]
+D 2013-06-19T22:48:20.576
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -601,7 +601,7 @@ F www/hints.wiki 5af4ff5893751f711ccaf543dcc557148144e5a7
 F www/index.wiki 6182288fead3bdfbd71cafb53a3502d1af2ecc20
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 96942c40714a113c04eb513430cf751df334a138
-F www/mkdownload.tcl aee0dd47312f829882863e0bec1c60d689224d94
+F www/mkdownload.tcl 0646c58126b8aaec22d4e32de7d16e9f1938a673
 F www/mkindex.tcl 4f85d630248cc95710e19b4b3301761c92151f9d
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c107d5059640b0eebf0c0bcd9944aaffe7426291
-R 6d93d79d69e5f5a62ee9440145850db5
-U jan.nijtmans
-Z 6398197f93299e884b7e03df96fdea3c
+P 7b52ab05fe275ce1737d65540084e7b332618970
+R d340e356b01456b0d464eb69ed06f34a
+U drh
+Z d7cc69aa0ea98d3bc11d2f80f1a3c713
