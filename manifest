@@ -1,5 +1,5 @@
-C Move\sthe\slocation\sof\sthe\sexternal\sTcl\s8.6\sdirectory\sinto\scompat.
-D 2013-06-19T02:57:04.253
+C rebase
+D 2013-06-19T07:20:46.180
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 65d2ddaebad8c5f241bf2d3e26c8487938dbacd9
 F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
@@ -314,7 +314,7 @@ F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 5a4e3c8582af1d03ac51f9e1982025a02ffefe97
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c e4f8455d3c0be026f67e6cbe0cc83069fc2771f1
+F src/checkin.c 0ef583948f255bd7b17672c43a3b0ecd0b3ebb3a
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -627,7 +627,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5ef811b7263150ae624a0154367cf7bb1fd3320c
-R 8e1bc270a5b96b8bc793678884f2eb19
-U mistachkin
-Z 3f1ee27073d80fb28c3ede46d09a30ac
+P c107d5059640b0eebf0c0bcd9944aaffe7426291 32c69db154ad01976f6b7f0c0bd9596e8edeb81c
+R b640cf61af7fcfda3c3abe3f694ecb48
+T *branch * ticket-967cedbf20
+T *sym-ticket-967cedbf20 *
+T -sym-trunk *
+U jan.nijtmans
+Z f2efb7c80f371e9553f38d8533db1951
