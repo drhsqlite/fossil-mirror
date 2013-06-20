@@ -434,16 +434,12 @@ static int is_temporary_file(const char *zName){
 ** excluded from the scan.  Name matching occurs after the first
 ** nPrefix characters are elided from the filename.
 */
-void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
-  vfile_scan2(pPath, nPrefix, scanFlags, pIgnore, 0);
-}
-
-void vfile_scan2(
-  Blob *pPath,
-  int nPrefix,
-  unsigned scanFlags,
-  Glob *pIgnore1,
-  Glob *pIgnore2
+void vfile_scan(
+  Blob *pPath,           /* Directory to be scanned */
+  int nPrefix,           /* Number of bytes in directory name */
+  unsigned scanFlags,    /* Zero or more SCAN_xxx flags */
+  Glob *pIgnore1,        /* Do not add files that match this GLOB */
+  Glob *pIgnore2         /* Omit files matching this GLOB too */
 ){
   DIR *d;
   int origSize;
@@ -492,7 +488,7 @@ void vfile_scan2(
         /* do nothing */
       }else if( file_wd_isdir(zPath)==1 ){
         if( !vfile_top_of_checkout(zPath) ){
-          vfile_scan2(pPath, nPrefix, scanFlags, pIgnore1, pIgnore2);
+          vfile_scan(pPath, nPrefix, scanFlags, pIgnore1, pIgnore2);
         }
       }else if( file_wd_isfile_or_link(zPath) ){
         if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(zUtf8) ){

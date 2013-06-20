@@ -285,7 +285,7 @@ void add_cmd(void){
     zName = blob_str(&fullName);
     isDir = file_wd_isdir(zName);
     if( isDir==1 ){
-      vfile_scan2(&fullName, nRoot-1, scanFlags, pClean, pIgnore);
+      vfile_scan(&fullName, nRoot-1, scanFlags, pClean, pIgnore);
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
     }else if( file_access(zName, R_OK) ){
@@ -525,7 +525,7 @@ void addremove_cmd(void){
   /* now we read the complete file structure into a temp table */
   pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan2(&path, blob_size(&path), scanFlags, pClean, pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, pClean, pIgnore);
   glob_free(pIgnore);
   glob_free(pClean);
   nAdd = add_files_in_sfile(vid);
