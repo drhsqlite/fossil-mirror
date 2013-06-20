@@ -1,5 +1,5 @@
-C Allow\s64-bit\sintegers\sto\sbe\sused\sin\sJSON\son\swin32/win64.
-D 2013-06-20T13:34:51.621
+C Update\sthe\sbuilt-in\sSQLite\sto\sa\sversion\sthat\snever\suses\sposix_fallocate().
+D 2013-06-20T14:18:57.540
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -395,8 +395,8 @@ F src/shell.c c14200dbf35ef864e6959625a2881ccafdf7e5c7
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
 F src/skins.c 850cb3518094003a6780e61fb0611b2598fe2cfb
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c 129fb7e1523e35dc731bac1670bdce8cce901192
-F src/sqlite3.h 0f3c5760601da7fdff8660678e4072c6e29aa589
+F src/sqlite3.c a9c727233282b2a6bf497fb0a454492b7d39f54e
+F src/sqlite3.h c31723f694c4b4035edfe46e9d52272481115f87
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 9bb2418c3fe03786a62f747a993fb575a5e20f42
 F src/style.c d7a6acee5f43379c35a509e87a06bba09217bc7d
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fded1d055f57430120e87df96e021c39d80a15ce 50e8847df7e6731fab96d7d23d5f40df04e10a3c
-R 25856c473d610455ebe3d9f76dbdd738
-U jan.nijtmans
-Z 94f742f4813c73cd7d2cc8e9dc947422
+P 928b26ab6af2b14e7821091631229a9927f828da
+R 3f937cdadb74bd6fe54673a58df07be5
+U drh
+Z a36a6c6f74310a4d838e45cd592c827e
