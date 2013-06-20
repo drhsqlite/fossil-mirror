@@ -219,10 +219,11 @@ void status_cmd(void){
 /*
 ** COMMAND: ls
 **
-** Usage: %fossil ls ?OPTIONS? ?VERSION?
+** Usage: %fossil ls ?OPTIONS? ?VERSION? ?FILENAMES?
 **
 ** Show the names of all files in the current checkout.  The -v provides
-** extra information about each file.
+** extra information about each file.  If FILENAMES are included, the only
+** the files listed (or their children if they are directories) are shown.
 **
 ** Options:
 **   --age           Show when each file was committed
@@ -236,6 +237,9 @@ void ls_cmd(void){
   int verboseFlag;
   int showAge;
   char *zOrderBy = "pathname";
+  Blob where;
+  int i;
+  int nRoot;
 
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag ){
@@ -252,21 +256,45 @@ void ls_cmd(void){
     }
   }
   verify_all_options();
+  blob_zero(&where);
+  nRoot = (int)strlen(g.zLocalRoot);
+  for(i=2; i<g.argc; i++){
+    Blob fname;
+    file_canonical_name(g.argv[i], &fname, 0);
+    if( blob_size(&where)>0 ){
+      blob_append(&where, " OR ", -1);
+    }else{
+      blob_append(&where, " WHERE ", -1);
+    }
+    if( file_wd_isdir(blob_str(&fname))==1 ){
+      const char *zFormat;
+      if( filenames_are_case_sensitive() ){
+        zFormat = "(pathname GLOB '%q/*')";
+      }else{
+        zFormat = "(pathname LIKE '%q/%%')";
+      }
+      blob_appendf(&where, zFormat, blob_str(&fname)+nRoot);
+    }else{
+      blob_appendf(&where, "(pathname=%Q %s)",
+                   blob_str(&fname)+nRoot, filename_collation());
+    }
+  }
   vfile_check_signature(vid, 0);
   if( showAge ){
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
        "       datetime(checkin_mtime(%d,rid),'unixepoch','localtime')"
-       "  FROM vfile"
-       " ORDER BY %s", vid, zOrderBy
+       "  FROM vfile %s"
+       " ORDER BY %s", vid, blob_str(&where), zOrderBy
     );
   }else{
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
-       "  FROM vfile"
-       " ORDER BY %s", zOrderBy
+       "  FROM vfile %s"
+       " ORDER BY %s", blob_str(&where), zOrderBy
     );
   }
+  blob_reset(&where);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
     int isDeleted = db_column_int(&q, 1);
