@@ -269,7 +269,7 @@ cson_value * json_new_string_f( char const * fmt, ... ){
   return v;
 }
 
-cson_value * json_new_int( int v ){
+cson_value * json_new_int( i64 v ){
   return cson_value_new_integer((cson_int_t)v);
 }
 
@@ -1249,7 +1249,7 @@ cson_value * json_g_to_json(){
   cson_object * pay = NULL;
   pay = o = cson_new_object();
 
-#define INT(OBJ,K) cson_object_set(o, #K, json_new_int(OBJ.K))
+#define INT(OBJ,K) cson_object_set(o, #K, json_new_int((i64)OBJ.K))
 #define CSTR(OBJ,K) cson_object_set(o, #K, OBJ.K ? json_new_string(OBJ.K) : cson_value_null())
 #define VAL(K,V) cson_object_set(o, #K, (V) ? (V) : cson_value_null())
   VAL(capabilities, json_cap_value());

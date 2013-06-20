@@ -149,7 +149,7 @@ static int fast_insert_content(Blob *pContent, const char *zMark, int saveUuid){
     db_step(&ins);
     db_reset(&ins);
     blob_reset(&cmpr);
-    rid = db_last_insert_rowid();
+    rid = (int) db_last_insert_rowid();
   }
   if( zMark ){
     db_multi_exec(

@@ -187,7 +187,7 @@ struct Global {
   int userUid;            /* Integer user id */
 
   /* Information used to populate the RCVFROM table */
-  int rcvid;              /* The rcvid.  0 if not yet defined. */
+  size_t rcvid;           /* The rcvid.  0 if not yet defined. */
   char *zIpAddr;          /* The remote IP address */
   char *zNonce;           /* The nonce used for login */
 

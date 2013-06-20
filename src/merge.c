@@ -439,7 +439,7 @@ void merge_cmd(void){
       "  SELECT %d,3,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
       vid, idm
     );
-    idv = db_last_insert_rowid();
+    idv = (int) db_last_insert_rowid();
     db_multi_exec("UPDATE fv SET idv=%d WHERE rowid=%d", idv, rowid);
     zName = db_column_text(&q, 2);
     zFullName = mprintf("%s%s", g.zLocalRoot, zName);

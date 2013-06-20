@@ -1146,7 +1146,7 @@ static int filename_to_fnid(const char *zFilename){
     db_static_prepare(&s1, "INSERT INTO filename(name) VALUES(:fn)");
     db_bind_text(&s1, ":fn", zFilename);
     db_exec(&s1);
-    fnid = db_last_insert_rowid();
+    fnid = (int) db_last_insert_rowid();
   }
   return fnid;
 }

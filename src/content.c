@@ -549,7 +549,7 @@ int content_put_ex(
     /* We are just adding data to a phantom */
     db_prepare(&s1,
       "UPDATE blob SET rcvid=%d, size=%d, content=:data WHERE rid=%d",
-       g.rcvid, size, rid
+       (int) g.rcvid, size, rid
     );
     db_bind_blob(&s1, ":data", &cmpr);
     db_exec(&s1);
@@ -563,11 +563,11 @@ int content_put_ex(
     db_prepare(&s1,
       "INSERT INTO blob(rcvid,size,uuid,content)"
       "VALUES(%d,%d,'%b',:data)",
-       g.rcvid, size, &hash
+       (int) g.rcvid, size, &hash
     );
     db_bind_blob(&s1, ":data", &cmpr);
     db_exec(&s1);
-    rid = db_last_insert_rowid();
+    rid = (int) db_last_insert_rowid();
     if( !pBlob ){
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
     }
@@ -645,7 +645,7 @@ int content_new(const char *zUuid, int isPrivate){
   );
   db_bind_text(&s1, ":uuid", zUuid);
   db_exec(&s1);
-  rid = db_last_insert_rowid();
+  rid = (int) db_last_insert_rowid();
   db_static_prepare(&s2,
     "INSERT INTO phantom VALUES(:rid)"
   );

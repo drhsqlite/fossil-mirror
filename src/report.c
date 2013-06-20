@@ -393,7 +393,7 @@ void view_edit(void){
         db_multi_exec("INSERT INTO reportfmt(title,sqlcode,owner,cols,mtime) "
            "VALUES(%Q,%Q,%Q,%Q,now())",
            zTitle, zSQL, zOwner, zClrKey);
-        rn = db_last_insert_rowid();
+        rn = (int) db_last_insert_rowid();
       }
       cgi_redirect(mprintf("rptview?rn=%d", rn));
       return;

@@ -143,7 +143,7 @@ int tag_findid(const char *zTag, int createFlag){
   id = db_int(0, "SELECT tagid FROM tag WHERE tagname=%Q", zTag);
   if( id==0 && createFlag ){
     db_multi_exec("INSERT INTO tag(tagname) VALUES(%Q)", zTag);
-    id = db_last_insert_rowid();
+    id = (int) db_last_insert_rowid();
   }
   return id;
 }

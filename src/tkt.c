@@ -199,7 +199,7 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   if( tktid==0 ){
     db_multi_exec("INSERT INTO ticket(tkt_uuid, tkt_mtime) "
                   "VALUES(%Q, 0)", p->zTicketUuid);
-    tktid = db_last_insert_rowid();
+    tktid = (int) db_last_insert_rowid();
   }
   blob_zero(&sql1);
   blob_zero(&sql2);

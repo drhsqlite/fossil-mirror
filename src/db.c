@@ -401,8 +401,8 @@ int db_finalize(Stmt *pStmt){
 /*
 ** Return the rowid of the most recent insert
 */
-i64 db_last_insert_rowid(void){
-  return sqlite3_last_insert_rowid(g.db);
+size_t db_last_insert_rowid(void){
+  return (size_t) sqlite3_last_insert_rowid(g.db);
 }
 
 /*
