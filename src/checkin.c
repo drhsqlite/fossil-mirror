@@ -301,6 +301,54 @@ void ls_cmd(void){
 }
 
 /*
+** Create a TEMP table named SFILE and add all unmanaged files named on the command-line 
+** to that table.  If directories are named, then add all unmanged files contained
+** underneath those directories.  If there are no files or directories named on the
+** command-line, then add all unmanaged files anywhere in the checkout.
+*/
+static void locate_unmanaged_files(
+  int argc,              /* Number of command-line arguments to examine */
+  char **argv,           /* values of command-line arguments */
+  unsigned scanFlags,    /* Zero or more SCAN_xxx flags */
+  Glob *pIgnore1,        /* Do not add files that match this GLOB */
+  Glob *pIgnore2         /* Omit files matching this GLOB too */
+){
+  Blob name;      /* Name of a candidate file or directory */
+  char *zName;    /* Name of a candidate file or directory */
+  int isDir;      /* 1 for a directory, 0 if doesn't exist, 2 for anything else */
+  int i;          /* Loop counter */
+  int nRoot;      /* length of g.zLocalRoot */
+
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
+  nRoot = (int)strlen(g.zLocalRoot);
+  if( argc==0 ){
+    blob_init(&name, g.zLocalRoot, nRoot - 1);
+    vfile_scan(&name, blob_size(&name), scanFlags, pIgnore1, pIgnore2);
+    blob_reset(&name);
+  }else{
+    for(i=0; i<argc; i++){
+      file_canonical_name(argv[i], &name, 0);
+      zName = blob_str(&name);
+      isDir = file_wd_isdir(zName);
+      if( isDir==1 ){
+        vfile_scan(&name, nRoot-1, scanFlags, pIgnore1, pIgnore2);
+      }else if( isDir==0 ){
+        fossil_warning("not found: %s", zName);
+      }else if( file_access(zName, R_OK) ){
+        fossil_fatal("cannot open %s", zName);
+      }else{
+        db_multi_exec(
+           "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
+           &zName[nRoot]
+        );
+      }
+      blob_reset(&name);
+    }
+  }
+}
+
+/*
 ** COMMAND: extras
 ** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
@@ -329,9 +377,7 @@ void ls_cmd(void){
 ** See also: changes, clean, status
 */
 void extra_cmd(void){
-  Blob path;
   Stmt q;
-  int n, i;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
   int cwdRelative = 0;
@@ -343,41 +389,11 @@ void extra_cmd(void){
   capture_case_sensitive_option();
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
-                filename_collation());
-  n = strlen(g.zLocalRoot);
-  blob_init(&path, g.zLocalRoot, n-1);
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   pIgnore = glob_create(zIgnoreFlag);
-
-  /* Load the names of all files that are candidates to be listed into sfile temp table */
-  if( g.argc < 3 ){
-    vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
-  }
-  for( i=2; i<g.argc; i++ ){
-    char *zName;
-    int isDir;
-    Blob fullName;
-
-    file_canonical_name(g.argv[i], &fullName, 0);
-    zName = blob_str(&fullName);
-    isDir = file_wd_isdir(zName);
-    if( isDir==1 ){
-      vfile_scan(&fullName, n-1, scanFlags, pIgnore);
-    }else if( isDir==0 ){
-      fossil_warning("not found: %s", zName);
-    }else if( file_access(zName, R_OK) ){
-      fossil_fatal("cannot open %s", zName);
-    }else{
-      db_multi_exec(
-         "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
-         &zName[n]
-      );
-    }
-    blob_reset(&fullName);
-  }
+  locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, 0);
   glob_free(pIgnore);
   db_prepare(&q,
       "SELECT x FROM sfile"
@@ -447,10 +463,10 @@ void clean_cmd(void){
   int allFlag, dryRunFlag, verboseFlag;
   unsigned scanFlags = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
-  Blob path, repo;
+  Blob repo;
   Stmt q;
-  int n, i;
   Glob *pIgnore, *pKeep, *pClean;
+  int nRoot;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
@@ -475,40 +491,10 @@ void clean_cmd(void){
     zCleanFlag = db_get("clean-glob", 0);
   }
   verify_all_options();
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
-                filename_collation());
-  n = strlen(g.zLocalRoot);
-  blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
-
-  /* Load the names of all files that are candidates to be cleaned into sfile temp table */
-  if( g.argc < 3 ){
-    vfile_scan2(&path, blob_size(&path), scanFlags, pIgnore, pKeep);
-  }
-  for( i=2; i<g.argc; i++ ){
-    char *zName;
-    int isDir;
-    Blob fullName;
-
-    file_canonical_name(g.argv[i], &fullName, 0);
-    zName = blob_str(&fullName);
-    isDir = file_wd_isdir(zName);
-    if( isDir==1 ){
-      vfile_scan2(&fullName, n-1, scanFlags, pIgnore, pKeep);
-    }else if( isDir==0 ){
-      fossil_warning("not found: %s", zName);
-    }else if( file_access(zName, R_OK) ){
-      fossil_fatal("cannot open %s", zName);
-    }else{
-      db_multi_exec(
-         "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
-         &zName[n]
-      );
-    }
-    blob_reset(&fullName);
-  }
+  locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, pKeep);
   glob_free(pKeep);
   glob_free(pIgnore);
   db_prepare(&q,
@@ -521,13 +507,14 @@ void clean_cmd(void){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
+  nRoot = (int)strlen(g.zLocalRoot);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+n) ){
+    if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
       Blob ans;
       char cReply;
       char *prompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
-                             zName+n);
+                             zName+nRoot);
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
@@ -540,7 +527,7 @@ void clean_cmd(void){
       blob_reset(&ans);
     }
     if( verboseFlag || dryRunFlag ){
-      fossil_print("Removed unmanaged file: %s\n", zName+n);
+      fossil_print("Removed unmanaged file: %s\n", zName+nRoot);
     }
     if( !dryRunFlag ){
       file_delete(zName);

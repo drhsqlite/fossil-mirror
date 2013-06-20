@@ -1,5 +1,5 @@
-C Pull\sin\sall\sthe\slatest\strunk\schanges.
-D 2013-06-20T11:02:17.025
+C Factor\sout\scommon\sparts\sof\s"fossil\sextra"\sand\s"fossil\sclean"\sinto\sa\ssubroutine.\nCombine\svfile_scan2()\sinto\svfile_scan().
+D 2013-06-20T11:44:32.302
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -304,7 +304,7 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 1bbaef2842740ec96b42ea209b29319e8383776c
+F src/add.c 58a552c876769f6e54e53a65d6409a7d002193ca
 F src/allrepo.c 8841f618c11353b93258acaf8c2d6c7296bd3af5
 F src/attach.c 657e139a0654fb2019274cce00ac7e50993e06fb
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -314,7 +314,7 @@ F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 5a4e3c8582af1d03ac51f9e1982025a02ffefe97
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 0ef583948f255bd7b17672c43a3b0ecd0b3ebb3a
+F src/checkin.c 042ed4f04fb1994661054d8ba47935dfeaf06538
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -420,7 +420,7 @@ F src/user.c 84e080180fec94f8e62aa9eba7868beeefb87780
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
 F src/util.c d31f9b92152fade029a8177de4e5a996a071e170
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
-F src/vfile.c 65cb8ed63c399291458a71ba5aa2dd19a92f129d
+F src/vfile.c f39929edad7b7e2f56d620cac42f1cf8c3ac679b
 F src/wiki.c d162efe66b5ef5e9fc178d471bff22cf0e2b2a8f
 F src/wikiformat.c f0d71d387b33931ce3cca528c24ad5b5f5916ee0
 F src/winhttp.c b8342e4cfe308d53b1dfc6d9d2080f28a70da54b
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4279e6465abb571e9159d042924d2a0645766155 85d960e205288ef8fb0fb9649b580e38bee37f93
-R 7b27f6d430e9deb1ae302bbf0e898857
+P 6ec8818ff19e194b106daf8c74722f81d4fb4310
+R 7d43849c3fd1d6b9bab1d4e8d3d05504
 U drh
-Z fa84cbfb47b4e2eeb18a24883c2a4aca
+Z d3bb2c35d8e6d6cec984c2f1853b36c9
