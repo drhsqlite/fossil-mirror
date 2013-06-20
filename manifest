@@ -1,5 +1,5 @@
-C Enhance\sthe\s"fossil\sextra"\sand\s"fossil\sclean"\scommands\sto\srestrict\soutput\nto\sfiles\sand\sdirectories\snamed\son\sthe\scommand-line.\nEnhancement\srequest\sticket\s[967cedbf200f7].
-D 2013-06-20T11:46:56.577
+C Fixed\smodule/divide\sby\s0\sin\sTH1,\sper\sbug\sreport\sfrom\sEduardo\sMorras.
+D 2013-06-20T13:18:55.080
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -403,7 +403,7 @@ F src/style.c d7a6acee5f43379c35a509e87a06bba09217bc7d
 F src/sync.c f8b3aad3185b0ad034b60fc33523b54f327bb86d
 F src/tag.c b0359c168de125f622f0d523b2215f1d85efecf6
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
-F src/th.c a561c58c237b3eb43eaf55e6f9cc6a9b8a26e5d1
+F src/th.c 327c2faf6aeb66d146d7a95251ef3c2da26a048a
 F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 85d960e205288ef8fb0fb9649b580e38bee37f93 69327d278aabd89874fc4d5e0f9c38db230c5d4b
-R 7d43849c3fd1d6b9bab1d4e8d3d05504
-U drh
-Z fb4c41bcaa7a36ec9cf32427e4ca7bb6
+P 39feb8926e6c6172ce1db717530dd96d6479f49b
+R fda6c0c765012e8efd155b12061fd3af
+U stephan
+Z bd0709b29b1be8479c12c55211cf7c00
