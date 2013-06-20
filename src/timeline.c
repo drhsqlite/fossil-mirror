@@ -1234,13 +1234,13 @@ void page_timeline(void){
         ** branch that is infrequently merged with a much more activate branch.
         */
         blob_appendf(&sql,
-          " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
+          " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=cid"
                      " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
            tagid
         );
         if( P("mionly")==0 ){
           blob_appendf(&sql,
-            " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+            " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=pid"
                        " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
             tagid
           );

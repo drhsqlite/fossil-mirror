@@ -10,7 +10,7 @@ puts $out \
 {<!DOCTYPE html><html>
 <head>
 <base href="http://www.fossil-scm.org/" />
-<title>Fossil: Timeline</title>
+<title>Fossil: Downloads</title>
 <link rel="stylesheet" href="/fossil/style.css" type="text/css"
       media="screen">
 </head>
