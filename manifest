@@ -1,7 +1,6 @@
-C Fix\soperation\sof\s[/help?cmd=ls\s|\sfossil\sls]\swhen\slocal\sfiles/directories\sare\smissing.
-D 2013-06-21T08:31:12.606
-F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
-F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
+C rebase
+D 2013-06-21T09:27:19.806
+F .fossil-settings/ignore-glob b9e78565582cf9063ffded20e16eb3cfd74a3817
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
@@ -304,7 +303,7 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 58a552c876769f6e54e53a65d6409a7d002193ca
+F src/add.c 78e31405754882679701557e7261df9a941c421f
 F src/allrepo.c 8841f618c11353b93258acaf8c2d6c7296bd3af5
 F src/attach.c 657e139a0654fb2019274cce00ac7e50993e06fb
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -314,17 +313,17 @@ F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 5a4e3c8582af1d03ac51f9e1982025a02ffefe97
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 087b5170348e04c975696ad6b935ae7db477472b
+F src/checkin.c ee7986f5a110566e756bc8ef35e0e10b1d80543f
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
-F src/configure.c d9192353fbb8d656ef1a927a5c0b75beaa4f9e8a
+F src/configure.c 1dd742314cdef5d91e168301066cfdc6694732a5
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 010f2b38513f5971336149937e9363caba429a11
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
-F src/db.c 105603ecbb0fd64b5aa3ef3b95725f8fe0c0cc29
+F src/db.c f90ab9a78a265f5690f8f27af24d14c4c229ae98
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
@@ -348,7 +347,7 @@ F src/info.c bd3b32e569b2cd73a44658e7f58619d48934efde
 F src/json.c dffc6aee419cf4abe125bf8c06bff53876b40c7c
 F src/json_artifact.c 09284d77e664f67051b40f20185bd381ac3aff12
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
-F src/json_config.c 61a843f7fcf5f8ca0087f88be21cfc2584b1cdab
+F src/json_config.c a39e52d70ec1f66c67085ce302a0954e0d278d89
 F src/json_detail.h a5ef58bb4838f64de4fb3d95a7a561d89a92e127
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
 F src/json_dir.c a76008c3fbf13ff3edcfa07edaf8fa7e60a678c0
@@ -420,7 +419,7 @@ F src/user.c 84e080180fec94f8e62aa9eba7868beeefb87780
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
 F src/util.c d31f9b92152fade029a8177de4e5a996a071e170
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
-F src/vfile.c f39929edad7b7e2f56d620cac42f1cf8c3ac679b
+F src/vfile.c e49cf25a5637b0e5c83ce0d3fa720c991e45bb2d
 F src/wiki.c d162efe66b5ef5e9fc178d471bff22cf0e2b2a8f
 F src/wikiformat.c f0d71d387b33931ce3cca528c24ad5b5f5916ee0
 F src/winhttp.c b8342e4cfe308d53b1dfc6d9d2080f28a70da54b
@@ -627,7 +626,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f89a32d7820a13b5b82245d583b29e028b1efcf2
-R 0a671c073bc01f403fbad9abfc4c9476
+P c0b98195f9c7dcb22e2a1a23c4c67050bc985df4 cbf9660369975e7819d3e6d8783513e645de0d7b
+R 480f2da70985129a0b826e4d22d1b2e8
+T *branch * cleanX
+T *sym-cleanX *
+T -sym-trunk *
 U jan.nijtmans
-Z 3e286d70c1fc480477f34dcc884a4ab0
+Z 5d590f24b3dfde0b72eae6c280153a84

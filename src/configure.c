@@ -103,7 +103,6 @@ static struct {
   { "project-description",    CONFIGSET_PROJ },
   { "manifest",               CONFIGSET_PROJ },
   { "binary-glob",            CONFIGSET_PROJ },
-  { "clean-glob",             CONFIGSET_PROJ },
   { "ignore-glob",            CONFIGSET_PROJ },
   { "keep-glob",              CONFIGSET_PROJ },
   { "crnl-glob",              CONFIGSET_PROJ },
