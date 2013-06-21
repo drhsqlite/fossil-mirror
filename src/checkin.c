@@ -260,24 +260,14 @@ void ls_cmd(void){
   nRoot = (int)strlen(g.zLocalRoot);
   for(i=2; i<g.argc; i++){
     Blob fname;
+    const char *zTreeName;
     file_canonical_name(g.argv[i], &fname, 0);
-    if( blob_size(&where)>0 ){
-      blob_append(&where, " OR ", -1);
-    }else{
-      blob_append(&where, " WHERE ", -1);
-    }
-    if( file_wd_isdir(blob_str(&fname))==1 ){
-      const char *zFormat;
-      if( filenames_are_case_sensitive() ){
-        zFormat = "(pathname GLOB '%q/*')";
-      }else{
-        zFormat = "(pathname LIKE '%q/%%')";
-      }
-      blob_appendf(&where, zFormat, blob_str(&fname)+nRoot);
-    }else{
-      blob_appendf(&where, "(pathname=%Q %s)",
-                   blob_str(&fname)+nRoot, filename_collation());
-    }
+    zTreeName = blob_str(&fname)+nRoot;
+    blob_appendf(&where, " %s (pathname=%Q %s) "
+                 "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+                 (blob_size(&where)>0) ? "OR" : "WHERE", zTreeName,
+                 filename_collation(), zTreeName, filename_collation(),
+                 zTreeName, filename_collation());
   }
   vfile_check_signature(vid, 0);
   if( showAge ){
