@@ -47,6 +47,7 @@ static void status_report(
 
   blob_zero(&where);
   nRoot = (int)strlen(g.zLocalRoot);
+  blob_zero(&where);
   for(i=2; i<g.argc; i++) {
     Blob fname;
     file_canonical_name(g.argv[i], &fname, 0);
@@ -114,6 +115,8 @@ static void status_report(
       }
     }else if( isRenamed ){
       blob_appendf(report, "RENAMED    %s\n", zDisplayName);
+    }else{
+      report->nUsed -= nPrefix;
     }
     free(zFullName);
   }
@@ -736,26 +739,56 @@ static void prepare_commit_comment(
 */
 int select_commit_files(void){
   int result = 0;
+  assert( g.aCommitFile==0 );
   if( g.argc>2 ){
     int ii, jj=0;
-    Blob b;
-    blob_zero(&b);
-    g.aCommitFile = fossil_malloc(sizeof(int)*(g.argc-1));
+    Blob fname;
+    int isDir;
+    Stmt q;
+    const char *zCollate;
+    Bag toCommit;
 
+    zCollate = filename_collation();
+    blob_zero(&fname);
+    bag_init(&toCommit);
     for(ii=2; ii<g.argc; ii++){
-      int iId;
-      file_tree_name(g.argv[ii], &b, 1);
-      iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q %s",
-                   blob_str(&b), filename_collation() );
-      if( iId<0 ){
+      int cnt = 0;
+      file_tree_name(g.argv[ii], &fname, 1);
+      if( fossil_strcmp(blob_str(&fname),".")==0 ){
+        bag_clear(&toCommit);
+        return result;
+      }
+      isDir = file_isdir(g.argv[ii]);
+      if( isDir==1 ){
+        db_prepare(&q,
+          "SELECT id FROM vfile WHERE pathname>'%q/' %s AND pathname<'%q0'",
+          blob_str(&fname), zCollate, blob_str(&fname), zCollate);
+      }else if( isDir==2 ){
+        db_prepare(&q,
+          "SELECT id FROM vfile WHERE pathname=%Q",
+          blob_str(&fname), zCollate);
+      }else{
+        fossil_warning("not found: %s", g.argv[ii]);
+        result = 1;
+        continue;
+      }
+      while( db_step(&q)==SQLITE_ROW ){
+        cnt++;
+        bag_insert(&toCommit, db_column_int(&q, 0));
+      }
+      db_finalize(&q);
+      if( cnt==0 ){
         fossil_warning("fossil knows nothing about: %s", g.argv[ii]);
         result = 1;
-      }else{
-        g.aCommitFile[jj++] = iId;
       }
-      blob_reset(&b);
+      blob_reset(&fname);
+    }
+    g.aCommitFile = fossil_malloc( (bag_count(&toCommit)+1) * sizeof(g.aCommitFile[0]) );
+    for(ii=bag_first(&toCommit); ii>0; ii=bag_next(&toCommit, ii)){
+      g.aCommitFile[jj++] = ii;
     }
     g.aCommitFile[jj] = 0;
+    bag_clear(&toCommit);
   }
   return result;
 }
