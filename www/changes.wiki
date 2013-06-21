@@ -1,9 +1,10 @@
 <title>Change Log</title>
 
 <h2>Changes For Version 1.27 (as yet unreleased)</h2>
-  *  Enhance the [/help?cmd=clean | fossil clean],
-     [/help?cmd=extras | fossil extras] and [/help?cmd=ls | fossil ls] commands to
-     restrict operation to files and directories named on the command-line.
+  *  Enhance the [/help?cmd=changes | fossil changes],
+     [/help?cmd=clean | fossil clean], [/help?cmd=extras | fossil extras],
+     [/help?cmd=ls | fossil ls] and [/help?cmd=status | fossil status] commands
+     to restrict operation to files and directories named on the command-line.
 
 <h2>Changes For Version 1.26 (2013-06-18)</h2>
   *  The argument to the --port option for the [/help?cmd=ui | fossil ui] and

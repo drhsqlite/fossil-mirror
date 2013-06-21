@@ -41,11 +41,28 @@ static void status_report(
   int nPrefix = strlen(zPrefix);
   int nErr = 0;
   Blob rewrittenPathname;
+  Blob where;
+  const char *zTreeName;
+  int i, nRoot;
+
+  nRoot = (int)strlen(g.zLocalRoot);
+  for(i=2; i<g.argc; i++) {
+    Blob fname;
+    file_canonical_name(g.argv[i], &fname, 0);
+    zTreeName = blob_str(&fname)+nRoot;
+    blob_appendf(&where, " %s (pathname=%Q %s) "
+                 "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+                 (blob_size(&where)>0) ? "OR" : "AND", zTreeName,
+                 filename_collation(), zTreeName, filename_collation(),
+                 zTreeName, filename_collation());
+  }
+
   db_prepare(&q,
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
-    " WHERE is_selected(id)"
-    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1"
+    " WHERE is_selected(id) %s"
+    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1",
+    blob_str(&where)
   );
   blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
@@ -727,7 +744,8 @@ int select_commit_files(void){
     for(ii=2; ii<g.argc; ii++){
       int iId;
       file_tree_name(g.argv[ii], &b, 1);
-      iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q", blob_str(&b));
+      iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q %s",
+                   blob_str(&b), filename_collation() );
       if( iId<0 ){
         fossil_warning("fossil knows nothing about: %s", g.argv[ii]);
         result = 1;
