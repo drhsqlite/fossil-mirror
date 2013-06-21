@@ -269,7 +269,7 @@ cson_value * json_new_string_f( char const * fmt, ... ){
   return v;
 }
 
-cson_value * json_new_int( int v ){
+cson_value * json_new_int( i64 v ){
   return cson_value_new_integer((cson_int_t)v);
 }
 
