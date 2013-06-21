@@ -45,6 +45,7 @@ static void status_report(
   const char *zTreeName;
   int i, nRoot;
 
+  blob_zero(&where);
   nRoot = (int)strlen(g.zLocalRoot);
   for(i=2; i<g.argc; i++) {
     Blob fname;
