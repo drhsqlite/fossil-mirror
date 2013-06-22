@@ -1,5 +1,5 @@
-C Refuse\sto\sclose\sa\scheck-out\sif\sthe\sstash\sis\snon-empty\sand\sthe\s-f\sflag\nis\somitted.
-D 2013-06-22T20:25:59.867
+C Press\s"q"\sto\sexit\sthe\s--tk\sdiff\swindow.
+D 2013-06-22T21:45:06.276
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -329,7 +329,7 @@ F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
 F src/diff.c 1aa8d0a48c9fc7f1ab839dd2dc1f55361f681681
-F src/diffcmd.c 9c14d774f59f4607b11258ebe2b3318dd264c2f0
+F src/diffcmd.c c8fbbadd9995d81036273de7b683015561fe6aa3
 F src/doc.c 768527b613d800c88f6848c814194c70cb2214cf
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
 F src/event.c 20e26d45b3688da9779ed4c79d51b1eed2a1eaef
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f94f3e3a79992d2a1228db1f4f4a0936a5fdc9c5
-R 96a61d5b43211b57f7ead6943e2bacf9
+P c6aedbd0bd48ad7b5df07da49895e5fb47e4707b
+R 9fe39edc4c9b96947174fe2e095ef549
 U drh
-Z d823cef61979b01fbba9043fc1756ef9
+Z 566904d8f716442b7fc22088bd3d973f
