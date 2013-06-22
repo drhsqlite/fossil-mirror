@@ -202,7 +202,8 @@ size_t socket_receive(void *NotUsed, void *pContent, size_t N){
   ssize_t got;
   size_t total = 0;
   while( N>0 ){
-    got = recv(iSocket, pContent, N, 0);
+    /* WinXP fails for large values of N.  So limit it to 64KiB. */
+    got = recv(iSocket, pContent, N>65536 ? 65536 : N, 0);
     if( got<=0 ) break;
     total += (size_t)got;
     N -= (size_t)got;
