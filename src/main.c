@@ -1806,13 +1806,14 @@ void cmd_webserver(void){
   if( zAltBase ){
     set_base_url(zAltBase);
   }
+  if ( find_option("localhost", 0, 0)!=0 ){
+    flags |= HTTP_SERVER_LOCALHOST;
+  }
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
     flags |= HTTP_SERVER_LOCALHOST;
     g.useLocalauth = 1;
-  }else if ( find_option("localhost", 0, 0)!=0 ){
-    flags |= HTTP_SERVER_LOCALHOST;
   }
   find_server_repository(isUiCmd && zNotFound==0);
   if( zPort ){
