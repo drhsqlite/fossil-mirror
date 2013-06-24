@@ -42,21 +42,23 @@ static void status_report(
   int nErr = 0;
   Blob rewrittenPathname;
   Blob where;
-  const char *zTreeName;
-  int i, nRoot;
+  const char *zName;
+  int i;
 
-  blob_zero(&where);
-  nRoot = (int)strlen(g.zLocalRoot);
   blob_zero(&where);
   for(i=2; i<g.argc; i++) {
     Blob fname;
-    file_canonical_name(g.argv[i], &fname, 0);
-    zTreeName = blob_str(&fname)+nRoot;
+    file_tree_name(g.argv[i], &fname, 1);
+    zName = blob_str(&fname);
+    if( fossil_strcmp(zName, ".")==0 ) {
+      blob_reset(&where);
+      break;
+    }
     blob_appendf(&where, " %s (pathname=%Q %s) "
                  "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
-                 (blob_size(&where)>0) ? "OR" : "AND", zTreeName,
-                 filename_collation(), zTreeName, filename_collation(),
-                 zTreeName, filename_collation());
+                 (blob_size(&where)>0) ? "OR" : "AND", zName,
+                 filename_collation(), zName, filename_collation(),
+                 zName, filename_collation());
   }
 
   db_prepare(&q,
@@ -260,7 +262,7 @@ void ls_cmd(void){
   char *zOrderBy = "pathname";
   Blob where;
   int i;
-  int nRoot;
+  const char *zName;
 
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag ){
@@ -278,17 +280,19 @@ void ls_cmd(void){
   }
   verify_all_options();
   blob_zero(&where);
-  nRoot = (int)strlen(g.zLocalRoot);
   for(i=2; i<g.argc; i++){
     Blob fname;
-    const char *zTreeName;
-    file_canonical_name(g.argv[i], &fname, 0);
-    zTreeName = blob_str(&fname)+nRoot;
+    file_tree_name(g.argv[i], &fname, 1);
+    zName = blob_str(&fname);
+    if( fossil_strcmp(zName, ".")==0 ) {
+      blob_reset(&where);
+      break;
+    }
     blob_appendf(&where, " %s (pathname=%Q %s) "
                  "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
-                 (blob_size(&where)>0) ? "OR" : "WHERE", zTreeName,
-                 filename_collation(), zTreeName, filename_collation(),
-                 zTreeName, filename_collation());
+                 (blob_size(&where)>0) ? "OR" : "WHERE", zName,
+                 filename_collation(), zName, filename_collation(),
+                 zName, filename_collation());
   }
   vfile_check_signature(vid, 0);
   if( showAge ){
@@ -340,8 +344,8 @@ void ls_cmd(void){
 }
 
 /*
-** Create a TEMP table named SFILE and add all unmanaged files named on the command-line 
-** to that table.  If directories are named, then add all unmanged files contained
+** Create a TEMP table named SFILE and add all unmanaged files named on the command-line
+** to that table.  If directories are named, then add all unmanaged files contained
 ** underneath those directories.  If there are no files or directories named on the
 ** command-line, then add all unmanaged files anywhere in the checkout.
 */
@@ -373,9 +377,9 @@ static void locate_unmanaged_files(
       if( isDir==1 ){
         vfile_scan(&name, nRoot-1, scanFlags, pIgnore1, pIgnore2);
       }else if( isDir==0 ){
-        fossil_warning("not found: %s", zName);
+        fossil_warning("not found: %s", &zName[nRoot]);
       }else if( file_access(zName, R_OK) ){
-        fossil_fatal("cannot open %s", zName);
+        fossil_fatal("cannot open %s", &zName[nRoot]);
       }else{
         db_multi_exec(
            "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
