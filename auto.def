@@ -63,6 +63,10 @@ if {![opt-bool internal-sqlite]} {
   find_internal_sqlite
 }
 
+if {[string match *-solaris* [get-define host]]} {
+    define-append EXTRA_CFLAGS -D_XOPEN_SOURCE=500
+}
+
 if {[opt-bool fossil-debug]} {
     define-append EXTRA_CFLAGS -DFOSSIL_DEBUG
 }

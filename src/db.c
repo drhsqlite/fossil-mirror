@@ -401,8 +401,12 @@ int db_finalize(Stmt *pStmt){
 /*
 ** Return the rowid of the most recent insert
 */
-i64 db_last_insert_rowid(void){
-  return sqlite3_last_insert_rowid(g.db);
+int db_last_insert_rowid(void){
+  i64 x = sqlite3_last_insert_rowid(g.db);
+  if( x<0 || x>(i64)2147483647 ){
+    fossil_fatal("rowid out of range (0..2147483647)");
+  }
+  return (int)x;
 }
 
 /*

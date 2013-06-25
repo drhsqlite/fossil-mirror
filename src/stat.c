@@ -254,7 +254,7 @@ void urllist_page(void){
   @ <div class="section">URLs</div>
   @ <table border="0" width='100%%'>
   db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch')"
-                 "  FROM config WHERE name GLOB 'baseurl:*' ORDER BY 2");
+                 "  FROM config WHERE name GLOB 'baseurl:*' ORDER BY 2 DESC");
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     @ <tr><td width='100%%'>%h(db_column_text(&q,0))</td>
@@ -269,7 +269,7 @@ void urllist_page(void){
   @ <div class="section">Checkouts</div>
   @ <table border="0" width='100%%'>
   db_prepare(&q, "SELECT substr(name,7), datetime(mtime,'unixepoch')"
-                 "  FROM config WHERE name GLOB 'ckout:*' ORDER BY 2");
+                 "  FROM config WHERE name GLOB 'ckout:*' ORDER BY 2 DESC");
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     @ <tr><td width='100%%'>%h(db_column_text(&q,0))</td>

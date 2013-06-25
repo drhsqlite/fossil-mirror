@@ -604,6 +604,7 @@ static const char zDiffScript[] =
 @ wm withdraw .
 @ wm title . {Fossil Diff}
 @ wm iconname . {Fossil Diff}
+@ bind . <q> exit
 @ set body {}
 @ set mx 80          ;# Length of the longest line of text
 @ set nLine 0        ;# Number of lines of text

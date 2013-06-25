@@ -41,11 +41,32 @@ static void status_report(
   int nPrefix = strlen(zPrefix);
   int nErr = 0;
   Blob rewrittenPathname;
+  Blob where;
+  const char *zName;
+  int i;
+
+  blob_zero(&where);
+  for(i=2; i<g.argc; i++) {
+    Blob fname;
+    file_tree_name(g.argv[i], &fname, 1);
+    zName = blob_str(&fname);
+    if( fossil_strcmp(zName, ".")==0 ) {
+      blob_reset(&where);
+      break;
+    }
+    blob_appendf(&where, " %s (pathname=%Q %s) "
+                 "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+                 (blob_size(&where)>0) ? "OR" : "AND", zName,
+                 filename_collation(), zName, filename_collation(),
+                 zName, filename_collation());
+  }
+
   db_prepare(&q,
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
-    " WHERE is_selected(id)"
-    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1"
+    " WHERE is_selected(id) %s"
+    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1",
+    blob_str(&where)
   );
   blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
@@ -96,6 +117,8 @@ static void status_report(
       }
     }else if( isRenamed ){
       blob_appendf(report, "RENAMED    %s\n", zDisplayName);
+    }else{
+      report->nUsed -= nPrefix;
     }
     free(zFullName);
   }
@@ -219,10 +242,11 @@ void status_cmd(void){
 /*
 ** COMMAND: ls
 **
-** Usage: %fossil ls ?OPTIONS? ?VERSION?
+** Usage: %fossil ls ?OPTIONS? ?VERSION? ?FILENAMES?
 **
 ** Show the names of all files in the current checkout.  The -v provides
-** extra information about each file.
+** extra information about each file.  If FILENAMES are included, the only
+** the files listed (or their children if they are directories) are shown.
 **
 ** Options:
 **   --age           Show when each file was committed
@@ -236,6 +260,9 @@ void ls_cmd(void){
   int verboseFlag;
   int showAge;
   char *zOrderBy = "pathname";
+  Blob where;
+  int i;
+  const char *zName;
 
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag ){
@@ -252,21 +279,37 @@ void ls_cmd(void){
     }
   }
   verify_all_options();
+  blob_zero(&where);
+  for(i=2; i<g.argc; i++){
+    Blob fname;
+    file_tree_name(g.argv[i], &fname, 1);
+    zName = blob_str(&fname);
+    if( fossil_strcmp(zName, ".")==0 ) {
+      blob_reset(&where);
+      break;
+    }
+    blob_appendf(&where, " %s (pathname=%Q %s) "
+                 "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+                 (blob_size(&where)>0) ? "OR" : "WHERE", zName,
+                 filename_collation(), zName, filename_collation(),
+                 zName, filename_collation());
+  }
   vfile_check_signature(vid, 0);
   if( showAge ){
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
        "       datetime(checkin_mtime(%d,rid),'unixepoch','localtime')"
-       "  FROM vfile"
-       " ORDER BY %s", vid, zOrderBy
+       "  FROM vfile %s"
+       " ORDER BY %s", vid, blob_str(&where), zOrderBy
     );
   }else{
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
-       "  FROM vfile"
-       " ORDER BY %s", zOrderBy
+       "  FROM vfile %s"
+       " ORDER BY %s", blob_str(&where), zOrderBy
     );
   }
+  blob_reset(&where);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
     int isDeleted = db_column_int(&q, 1);
@@ -301,11 +344,60 @@ void ls_cmd(void){
 }
 
 /*
+** Create a TEMP table named SFILE and add all unmanaged files named on the command-line
+** to that table.  If directories are named, then add all unmanaged files contained
+** underneath those directories.  If there are no files or directories named on the
+** command-line, then add all unmanaged files anywhere in the checkout.
+*/
+static void locate_unmanaged_files(
+  int argc,              /* Number of command-line arguments to examine */
+  char **argv,           /* values of command-line arguments */
+  unsigned scanFlags,    /* Zero or more SCAN_xxx flags */
+  Glob *pIgnore1,        /* Do not add files that match this GLOB */
+  Glob *pIgnore2         /* Omit files matching this GLOB too */
+){
+  Blob name;      /* Name of a candidate file or directory */
+  char *zName;    /* Name of a candidate file or directory */
+  int isDir;      /* 1 for a directory, 0 if doesn't exist, 2 for anything else */
+  int i;          /* Loop counter */
+  int nRoot;      /* length of g.zLocalRoot */
+
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
+  nRoot = (int)strlen(g.zLocalRoot);
+  if( argc==0 ){
+    blob_init(&name, g.zLocalRoot, nRoot - 1);
+    vfile_scan(&name, blob_size(&name), scanFlags, pIgnore1, pIgnore2);
+    blob_reset(&name);
+  }else{
+    for(i=0; i<argc; i++){
+      file_canonical_name(argv[i], &name, 0);
+      zName = blob_str(&name);
+      isDir = file_wd_isdir(zName);
+      if( isDir==1 ){
+        vfile_scan(&name, nRoot-1, scanFlags, pIgnore1, pIgnore2);
+      }else if( isDir==0 ){
+        fossil_warning("not found: %s", &zName[nRoot]);
+      }else if( file_access(zName, R_OK) ){
+        fossil_fatal("cannot open %s", &zName[nRoot]);
+      }else{
+        db_multi_exec(
+           "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
+           &zName[nRoot]
+        );
+      }
+      blob_reset(&name);
+    }
+  }
+}
+
+/*
 ** COMMAND: extras
-** Usage: %fossil extras ?OPTIONS?
+** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
 ** Print a list of all files in the source tree that are not part of
-** the current checkout.  See also the "clean" command.
+** the current checkout.  See also the "clean" command. If paths are
+** specified, only files in the given directories will be listed.
 **
 ** Files and subdirectories whose names begin with "." are normally
 ** ignored but can be included by adding the --dotfiles option.
@@ -328,9 +420,7 @@ void ls_cmd(void){
 ** See also: changes, clean, status
 */
 void extra_cmd(void){
-  Blob path;
   Stmt q;
-  int n;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
   int cwdRelative = 0;
@@ -342,15 +432,11 @@ void extra_cmd(void){
   capture_case_sensitive_option();
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
-                filename_collation());
-  n = strlen(g.zLocalRoot);
-  blob_init(&path, g.zLocalRoot, n-1);
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+  locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, 0);
   glob_free(pIgnore);
   db_prepare(&q,
       "SELECT x FROM sfile"
@@ -379,11 +465,12 @@ void extra_cmd(void){
 
 /*
 ** COMMAND: clean
-** Usage: %fossil clean ?OPTIONS?
+** Usage: %fossil clean ?OPTIONS? ?PATH1 ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout. This operation
-** cannot be undone.
+** cannot be undone. If paths are specified, only the directories or
+** files specified will be considered for cleaning.
 **
 ** You will be prompted before removing each eligible file unless the
 ** --force flag is in use or it matches the --clean option.  The
@@ -419,10 +506,10 @@ void clean_cmd(void){
   int allFlag, dryRunFlag, verboseFlag;
   unsigned scanFlags = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
-  Blob path, repo;
+  Blob repo;
   Stmt q;
-  int n;
   Glob *pIgnore, *pKeep, *pClean;
+  int nRoot;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
@@ -447,14 +534,10 @@ void clean_cmd(void){
     zCleanFlag = db_get("clean-glob", 0);
   }
   verify_all_options();
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
-                filename_collation());
-  n = strlen(g.zLocalRoot);
-  blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
-  vfile_scan2(&path, blob_size(&path), scanFlags, pIgnore, pKeep);
+  locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, pKeep);
   glob_free(pKeep);
   glob_free(pIgnore);
   db_prepare(&q,
@@ -467,13 +550,14 @@ void clean_cmd(void){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
+  nRoot = (int)strlen(g.zLocalRoot);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+n) ){
+    if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
       Blob ans;
       char cReply;
       char *prompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
-                             zName+n);
+                             zName+nRoot);
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
@@ -486,7 +570,7 @@ void clean_cmd(void){
       blob_reset(&ans);
     }
     if( verboseFlag || dryRunFlag ){
-      fossil_print("Removed unmanaged file: %s\n", zName+n);
+      fossil_print("Removed unmanaged file: %s\n", zName+nRoot);
     }
     if( !dryRunFlag ){
       file_delete(zName);
@@ -659,25 +743,56 @@ static void prepare_commit_comment(
 */
 int select_commit_files(void){
   int result = 0;
+  assert( g.aCommitFile==0 );
   if( g.argc>2 ){
     int ii, jj=0;
-    Blob b;
-    blob_zero(&b);
-    g.aCommitFile = fossil_malloc(sizeof(int)*(g.argc-1));
+    Blob fname;
+    int isDir;
+    Stmt q;
+    const char *zCollate;
+    Bag toCommit;
 
+    zCollate = filename_collation();
+    blob_zero(&fname);
+    bag_init(&toCommit);
     for(ii=2; ii<g.argc; ii++){
-      int iId;
-      file_tree_name(g.argv[ii], &b, 1);
-      iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q", blob_str(&b));
-      if( iId<0 ){
+      int cnt = 0;
+      file_tree_name(g.argv[ii], &fname, 1);
+      if( fossil_strcmp(blob_str(&fname),".")==0 ){
+        bag_clear(&toCommit);
+        return result;
+      }
+      isDir = file_isdir(g.argv[ii]);
+      if( isDir==1 ){
+        db_prepare(&q,
+          "SELECT id FROM vfile WHERE pathname>'%q/' %s AND pathname<'%q0'",
+          blob_str(&fname), zCollate, blob_str(&fname), zCollate);
+      }else if( isDir==2 ){
+        db_prepare(&q,
+          "SELECT id FROM vfile WHERE pathname=%Q",
+          blob_str(&fname), zCollate);
+      }else{
+        fossil_warning("not found: %s", g.argv[ii]);
+        result = 1;
+        continue;
+      }
+      while( db_step(&q)==SQLITE_ROW ){
+        cnt++;
+        bag_insert(&toCommit, db_column_int(&q, 0));
+      }
+      db_finalize(&q);
+      if( cnt==0 ){
         fossil_warning("fossil knows nothing about: %s", g.argv[ii]);
         result = 1;
-      }else{
-        g.aCommitFile[jj++] = iId;
       }
-      blob_reset(&b);
+      blob_reset(&fname);
+    }
+    g.aCommitFile = fossil_malloc( (bag_count(&toCommit)+1) * sizeof(g.aCommitFile[0]) );
+    for(ii=bag_first(&toCommit); ii>0; ii=bag_next(&toCommit, ii)){
+      g.aCommitFile[jj++] = ii;
     }
     g.aCommitFile[jj] = 0;
+    bag_clear(&toCommit);
   }
   return result;
 }

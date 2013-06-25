@@ -787,30 +787,22 @@ void version_cmd(void){
   if(!find_option("verbose","v",0)){
     return;
   }else{
-    int count = 0;
-    fossil_print("\nCompiled using \"%s\" with\nSQLite %s [%s],\nzlib %s, "
-                 "and the following optional features enabled:\n\n",
-                 COMPILER_NAME, SQLITE_VERSION, SQLITE_SOURCE_ID,
-                 ZLIB_VERSION);
+    fossil_print("Compiled on %s %s using %s (%d-bit)\n",
+                 __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
+    fossil_print("SQLite %s %.30s\n", SQLITE_VERSION, SQLITE_SOURCE_ID);
+    fossil_print("zlib %s\n", ZLIB_VERSION);
 #if defined(FOSSIL_ENABLE_SSL)
-    ++count;
-    fossil_print("\tSSL (%s)\n", OPENSSL_VERSION_TEXT);
+    fossil_print("SSL (%s)\n", OPENSSL_VERSION_TEXT);
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
-    ++count;
-    fossil_print("\tTCL (Tcl %s)\n", TCL_PATCH_LEVEL);
+    fossil_print("TCL (Tcl %s)\n", TCL_PATCH_LEVEL);
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
-    ++count;
-    fossil_print("\tTCL_STUBS\n");
+    fossil_print("TCL_STUBS\n");
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
-    ++count;
-    fossil_print("\tJSON (API %s)\n", FOSSIL_JSON_API_VERSION);
+    fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
 #endif
-    if( !count ){
-      fossil_print("\tNo optional features were enabled.\n");
-    }
   }
 }
 
@@ -1814,13 +1806,14 @@ void cmd_webserver(void){
   if( zAltBase ){
     set_base_url(zAltBase);
   }
+  if ( find_option("localhost", 0, 0)!=0 ){
+    flags |= HTTP_SERVER_LOCALHOST;
+  }
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
     flags |= HTTP_SERVER_LOCALHOST;
     g.useLocalauth = 1;
-  }else if ( find_option("localhost", 0, 0)!=0 ){
-    flags |= HTTP_SERVER_LOCALHOST;
   }
   find_server_repository(isUiCmd && zNotFound==0);
   if( zPort ){

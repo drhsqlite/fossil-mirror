@@ -432,7 +432,7 @@ OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1e
 #    directory and the target Tcl directory.  This removes the need to
 #    hard-code the necessary paths in this Makefile.
 #
-TCLDIR = $(SRCDIR)/../tcl-8.6
+TCLDIR = $(SRCDIR)/../compat/tcl-8.6
 
 #### The Tcl source code directory.  This defaults to the same value as
 #    TCLDIR macro (above), which may not be correct.  This value will

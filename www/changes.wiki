@@ -1,6 +1,27 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.26 (as yet unreleased)</h2>
+<h2>Changes For Version 1.27 (as yet unreleased)</h2>
+  *  Enhance the [/help?cmd=changes | fossil changes],
+     [/help?cmd=clean | fossil clean], [/help?cmd=extras | fossil extras],
+     [/help?cmd=ls | fossil ls] and [/help?cmd=status | fossil status] commands
+     to restrict operation to files and directories named on the command-line.
+
+<h2>Changes For Version 1.26 (2013-06-18)</h2>
+  *  The argument to the --port option for the [/help?cmd=ui | fossil ui] and
+     [/help?cmd=server | fossil server] commands can take an IP address in addition
+     to the port number, causing Fossil to bind to just that one IP address.
+  *  After prompting for a password, also ask if that password should be
+     remembered.
+  *  Performance improvements to the diff engine.
+  *  Fix the side-by-side diff engine to work better with multi-byte unicode text.
+  *  Color-coding in the web-based annotation (blame) display.  Fix the annotation
+     engine so that it is no longer confused by time-warps.
+  *  The markdown formatter is now available by default and can be used for
+     tickets, wiki, and embedded documentation.
+  *  Add subcommands "fossil bisect log" and "fossil bisect status" to the
+     [/help?cmd=bisect | fossil bisect] command, as well as other bisect enhancements.
+  *  Enhanced defenses that prevent spiders from using excessive CPU and bandwidth.
+  *  Consistent use of the -n or --dry-run command line options.
   *  Win32: Fossil now understands Cygwin paths containing one or more of
      the characters <nowiki>"*:<>?|</nowiki>. Those are normally forbidden in
      win32. This means that the win32 fossil.exe is better usable in a Cygwin
@@ -14,7 +35,19 @@
   *  Enhancements to /timeline.rss, adding more flags for filtering
      results, including the ability to subscribe to changes made
      to individual tickets. For example: [/timeline.rss?y=t&tkt=12fceeec82].
+  *  Improved handling of the differences between case-sensitive and 
+     case-insensitive filesystems.
   *  JSON API: added the 'status' command to report local checkout status.
+  *  Fixes to the <tt>--args</tt> support and documented this feature in the help.
+  *  Added [/stats_report] page.
+  *  Added <tt>ym=YYYY-MM</tt> filter to the [/timeline?ym=2013-06].
+  *  Fixed: <tt>config reset</tt> now re-installs default ticket report format.
+  *  <tt>ssh://</tt> and <tt>file://</tt> protocols now ignore proxy settings.
+  *  Added [/hash-color-test] web page.
+  *  Cherry-pick merges are recorded internally (though no yet displayed on the
+     timeline graph.)
+  *  Bring in the latest versions of SQLite, zlib, and autosetup from upstream.
+
 
 <h2>Changes For Version 1.25 (2013-02-16)</h2>
   *  Enhancements to ticket processing. There are now two tables: TICKET and
