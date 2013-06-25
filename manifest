@@ -1,5 +1,5 @@
-C Changes\sfrom\sIsaac\sJurado\sthat\srecord\srenames\son\san\simport\sfrom\sgit.
-D 2013-06-17T21:44:24.357
+C Mention\sthe\s--force\soption\sin\simport's\shelp.
+D 2013-06-25T17:40:55.526
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
@@ -343,7 +343,7 @@ F src/http.c e9f82fa14d0e894ed987a12d7d5a1477ada6115e
 F src/http_socket.c 168bdbca66811d5cb92dd8a02caf6a5133ee2375
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 111c393f1bb93a3585078d5ee23e0b3ecc1408fe
-F src/import.c 2f61fcbfb48e9951024a11c90b65f3b61c59432a
+F src/import.c 24c9dcef5012f00cd6c9f6ba38af87b0cf91c93f
 F src/info.c bd3b32e569b2cd73a44658e7f58619d48934efde
 F src/json.c c376d899a53849815e251e785ccdcea24adf5e6c
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
@@ -627,10 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a6dad6508c0e95bd0aceb28fec1a269114917ac5
-R 922cd917824b96f87e76c9aa3591c08c
-T *branch * git-import-with-rename
-T *sym-git-import-with-rename *
-T -sym-trunk *
-U drh
-Z 54d0d24a442a4c23e4827b805587669e
+P 97d8a08ac95366182d9ff4244a714529b4c908be
+R 7356534313f77d6ee285bd5fca0a50b0
+U isaac.jurado
+Z 787fdaf14e2717cd34594ff0b8473e30

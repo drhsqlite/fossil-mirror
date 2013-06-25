@@ -725,10 +725,12 @@ malformed_line:
 ** in the future.
 **
 ** The --incremental option allows an existing repository to be extended
-** with new content.
+** with new content.  Otherwise, if a file with the same name as NEW-REPOSITORY
+** is found, the command fails unless the --force option is used.
 **
 ** Options:
 **   --incremental  allow importing into an existing repository
+**   --force        remove existing file
 **
 ** See also: export
 */
