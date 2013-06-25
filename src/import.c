@@ -729,8 +729,8 @@ malformed_line:
 ** is found, the command fails unless the --force option is used.
 **
 ** Options:
-**   --incremental  allow importing into an existing repository
-**   --force        remove existing file
+**   -f|--force        remove existing file
+**   -i|--incremental  allow importing into an existing repository
 **
 ** See also: export
 */
