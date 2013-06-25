@@ -30,7 +30,6 @@ struct ImportFile {
   char *zName;           /* Name of a file */
   char *zUuid;           /* UUID of the file */
   char *zPrior;          /* Prior name if the name was changed */
-  char isFrom;           /* True if obtained from the parent */
   char isExe;            /* True if executable */
   char isLink;           /* True if symlink */
 };
@@ -436,7 +435,6 @@ static void import_prior_files(void){
     pNew->isExe = pOld->zPerm && strstr(pOld->zPerm, "x")!=0;
     pNew->isLink = pOld->zPerm && strstr(pOld->zPerm, "l")!=0;
     pNew->zUuid = fossil_strdup(pOld->zUuid);
-    pNew->isFrom = 1;
   }
   manifest_destroy(p);
 }
@@ -632,7 +630,6 @@ static void git_fast_import(FILE *pIn){
       pFile->isLink = (fossil_strcmp(zPerm, "120000")==0);
       fossil_free(pFile->zUuid);
       pFile->zUuid = resolve_committish(zUuid);
-      pFile->isFrom = 0;
     }else
     if( memcmp(zLine, "D ", 2)==0 ){
       import_prior_files();
@@ -640,14 +637,13 @@ static void git_fast_import(FILE *pIn){
       zName = rest_of_line(&z);
       dequote_git_filename(zName);
       i = 0;
-      while( (pFile = import_find_file(zName, &i, gg.nFile))!=0 ){
-        if( pFile->isFrom==0 ) continue;
+      pFile = import_find_file(zName, &i, gg.nFile);
+      if( pFile!=0 ){
         fossil_free(pFile->zName);
         fossil_free(pFile->zPrior);
         pFile->zPrior = 0;
         fossil_free(pFile->zUuid);
         *pFile = gg.aFile[--gg.nFile];
-        i--;
       }
     }else
     if( memcmp(zLine, "C ", 2)==0 ){
@@ -657,11 +653,10 @@ static void git_fast_import(FILE *pIn){
       zFrom = next_token(&z);
       zTo = rest_of_line(&z);
       i = 0;
-      mx = gg.nFile;
       nFrom = strlen(zFrom);
-      while( (pFile = import_find_file(zFrom, &i, mx))!=0 ){
+      pFile = import_find_file(zFrom, &i, gg.nFile);
+      if( pFile!=0 ){
         pNew = import_add_file();
-        pFile = &gg.aFile[i-1];
         if( strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
         }else{
@@ -670,7 +665,6 @@ static void git_fast_import(FILE *pIn){
         pNew->isExe = pFile->isExe;
         pNew->isLink = pFile->isLink;
         pNew->zUuid = fossil_strdup(pFile->zUuid);
-        pNew->isFrom = 0;
       }
     }else
     if( memcmp(zLine, "R ", 2)==0 ){
@@ -679,12 +673,10 @@ static void git_fast_import(FILE *pIn){
       zFrom = next_token(&z);
       zTo = rest_of_line(&z);
       i = 0;
-      while( (pFile = import_find_file(zFrom, &i, gg.nFile))!=0 ){
-        if( pFile->isFrom==0 ) continue;
-        pFile = &gg.aFile[i-1];
+      pFile = import_find_file(zFrom, &i, gg.nFile);
+      if( pFile!=0 ){
         pFile->zPrior = pFile->zName;
         pFile->zName = fossil_strdup(zTo);
-        pFile->isFrom = 0;
       }
     }else
     if( memcmp(zLine, "deleteall", 9)==0 ){
