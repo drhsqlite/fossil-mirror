@@ -1492,6 +1492,7 @@ static void open_db(struct callback_data *p){
 **    \t    -> tab
 **    \n    -> newline
 **    \r    -> carriage return
+**    \"    -> "
 **    \NNN  -> ascii character NNN in octal
 **    \\    -> backslash
 */
@@ -1507,6 +1508,8 @@ static void resolve_backslashes(char *z){
         c = '\t';
       }else if( c=='r' ){
         c = '\r';
+      }else if( c=='\\' ){
+        c = '\\';
       }else if( c>='0' && c<='7' ){
         c -= '0';
         if( z[i+1]>='0' && z[i+1]<='7' ){
@@ -1772,7 +1775,10 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     if( zLine[i]=='\'' || zLine[i]=='"' ){
       int delim = zLine[i++];
       azArg[nArg++] = &zLine[i];
-      while( zLine[i] && zLine[i]!=delim ){ i++; }
+      while( zLine[i] && zLine[i]!=delim ){ 
+        if( zLine[i]=='\\' && delim=='"' && zLine[i+1]!=0 ) i++;
+        i++; 
+      }
       if( zLine[i]==delim ){
         zLine[i++] = 0;
       }
@@ -1989,6 +1995,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
 
   if( c=='i' && strncmp(azArg[0], "import", n)==0 && nArg==3 ){
     char *zTable = azArg[2];    /* Insert data into this table */
+    char *zFile = azArg[1];     /* Name of file to extra content from */
     sqlite3_stmt *pStmt = NULL; /* A statement */
     int nCol;                   /* Number of columns in the table */
     int nByte;                  /* Number of bytes in an SQL string */
@@ -1996,11 +2003,10 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     int nSep;                   /* Number of bytes in p->separator[] */
     char *zSql;                 /* An SQL statement */
     CSVReader sCsv;             /* Reader context */
+    int (*xCloser)(FILE*);      /* Procedure to close th3 connection */
 
     seenInterrupt = 0;
     memset(&sCsv, 0, sizeof(sCsv));
-    sCsv.zFile = azArg[1];
-    sCsv.nLine = 1;
     open_db(p);
     nSep = strlen30(p->separator);
     if( nSep==0 ){
@@ -2012,16 +2018,25 @@ static int do_meta_command(char *zLine, struct callback_data *p){
                       " for import\n");
       return 1;
     }
-    sCsv.in = fopen(sCsv.zFile, "rb");
+    sCsv.zFile = zFile;
+    sCsv.nLine = 1;
+    if( sCsv.zFile[0]=='|' ){
+      sCsv.in = popen(sCsv.zFile+1, "r");
+      sCsv.zFile = "<pipe>";
+      xCloser = pclose;
+    }else{
+      sCsv.in = fopen(sCsv.zFile, "rb");
+      xCloser = fclose;
+    }
     if( sCsv.in==0 ){
-      fprintf(stderr, "Error: cannot open \"%s\"\n", sCsv.zFile);
+      fprintf(stderr, "Error: cannot open \"%s\"\n", zFile);
       return 1;
     }
     sCsv.cSeparator = p->separator[0];
     zSql = sqlite3_mprintf("SELECT * FROM %s", zTable);
     if( zSql==0 ){
       fprintf(stderr, "Error: out of memory\n");
-      fclose(sCsv.in);
+      xCloser(sCsv.in);
       return 1;
     }
     nByte = strlen30(zSql);
@@ -2034,6 +2049,13 @@ static int do_meta_command(char *zLine, struct callback_data *p){
         cSep = ',';
         if( sCsv.cTerm!=sCsv.cSeparator ) break;
       }
+      if( cSep=='(' ){
+        sqlite3_free(zCreate);
+        sqlite3_free(sCsv.z);
+        xCloser(sCsv.in);
+        fprintf(stderr,"%s: empty file\n", sCsv.zFile);
+        return 1;
+      }
       zCreate = sqlite3_mprintf("%z\n)", zCreate);
       rc = sqlite3_exec(p->db, zCreate, 0, 0, 0);
       sqlite3_free(zCreate);
@@ -2041,7 +2063,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
         fprintf(stderr, "CREATE TABLE %s(...) failed: %s\n", zTable,
                 sqlite3_errmsg(db));
         sqlite3_free(sCsv.z);
-        fclose(sCsv.in);
+        xCloser(sCsv.in);
         return 1;
       }
       rc = sqlite3_prepare(p->db, zSql, -1, &pStmt, 0);
@@ -2050,7 +2072,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     if( rc ){
       if (pStmt) sqlite3_finalize(pStmt);
       fprintf(stderr,"Error: %s\n", sqlite3_errmsg(db));
-      fclose(sCsv.in);
+      xCloser(sCsv.in);
       return 1;
     }
     nCol = sqlite3_column_count(pStmt);
@@ -2060,7 +2082,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     zSql = sqlite3_malloc( nByte*2 + 20 + nCol*2 );
     if( zSql==0 ){
       fprintf(stderr, "Error: out of memory\n");
-      fclose(sCsv.in);
+      xCloser(sCsv.in);
       return 1;
     }
     sqlite3_snprintf(nByte+20, zSql, "INSERT INTO \"%w\" VALUES(?", zTable);
@@ -2076,7 +2098,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     if( rc ){
       fprintf(stderr, "Error: %s\n", sqlite3_errmsg(db));
       if (pStmt) sqlite3_finalize(pStmt);
-      fclose(sCsv.in);
+      xCloser(sCsv.in);
       return 1;
     }
     do{
@@ -2112,7 +2134,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       }
     }while( sCsv.cTerm!=EOF );
 
-    fclose(sCsv.in);
+    xCloser(sCsv.in);
     sqlite3_free(sCsv.z);
     sqlite3_finalize(pStmt);
     sqlite3_exec(p->db, "COMMIT", 0, 0, 0);
@@ -2437,6 +2459,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     }
   }else
 
+#ifdef SQLITE_DEBUG
   /* Undocumented commands for internal testing.  Subject to change
   ** without notice. */
   if( c=='s' && n>=10 && strncmp(azArg[0], "selftest-", 9)==0 ){
@@ -2450,11 +2473,14 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     if( strncmp(azArg[0]+9, "integer", n-9)==0 ){
       int i; sqlite3_int64 v;
       for(i=1; i<nArg; i++){
+        char zBuf[200];
         v = integerValue(azArg[i]);
-        fprintf(p->out, "%s: %lld 0x%llx\n", azArg[i], v, v);
+        sqlite3_snprintf(sizeof(zBuf), zBuf, "%s: %lld 0x%llx\n", azArg[i], v, v);
+        fprintf(p->out, "%s", zBuf);
       }
     }
   }else
+#endif
 
   if( c=='s' && strncmp(azArg[0], "separator", n)==0 && nArg==2 ){
     sqlite3_snprintf(sizeof(p->separator), p->separator,
