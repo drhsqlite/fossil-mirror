@@ -769,11 +769,11 @@ int select_commit_files(void){
       isDir = file_isdir(g.argv[ii]);
       if( isDir==1 ){
         db_prepare(&q,
-          "SELECT id FROM vfile WHERE pathname>'%q/' %s AND pathname<'%q0'",
+          "SELECT id FROM vfile WHERE pathname>'%q/' %s AND pathname<'%q0' %s",
           blob_str(&fname), zCollate, blob_str(&fname), zCollate);
       }else if( isDir==2 ){
         db_prepare(&q,
-          "SELECT id FROM vfile WHERE pathname=%Q",
+          "SELECT id FROM vfile WHERE pathname=%Q %s",
           blob_str(&fname), zCollate);
       }else{
         fossil_warning("not found: %s", g.argv[ii]);
