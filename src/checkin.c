@@ -317,26 +317,30 @@ void ls_cmd(void){
     int chnged = db_column_int(&q,3);
     int renamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-    if( showAge ){
-      fossil_print("%s  %s\n", db_column_text(&q, 5), zPathname);
-    }else if( !verboseFlag ){
-      fossil_print("%s\n", zPathname);
-    }else if( isNew ){
-      fossil_print("ADDED      %s\n", zPathname);
-    }else if( isDeleted ){
-      fossil_print("DELETED    %s\n", zPathname);
-    }else if( !file_wd_isfile_or_link(zFullName) ){
-      if( file_access(zFullName, 0)==0 ){
-        fossil_print("NOT_A_FILE %s\n", zPathname);
+    const char *type = "";
+    if( verboseFlag ){
+      if( isNew ){
+        type = "ADDED      ";
+      }else if( isDeleted ){
+        type = "DELETED    ";
+      }else if( !file_wd_isfile_or_link(zFullName) ){
+        if( file_access(zFullName, 0)==0 ){
+          type = "NOT_A_FILE ";
+        }else{
+          type = "MISSING    ";
+        }
+      }else if( chnged ){
+        type = "EDITED     ";
+      }else if( renamed ){
+        type = "RENAMED    ";
       }else{
-        fossil_print("MISSING    %s\n", zPathname);
+        type = "UNCHANGED  ";
       }
-    }else if( chnged ){
-      fossil_print("EDITED     %s\n", zPathname);
-    }else if( renamed ){
-      fossil_print("RENAMED    %s\n", zPathname);
+    }
+    if( showAge ){
+      fossil_print("%s%s  %s\n", type, db_column_text(&q, 5), zPathname);
     }else{
-      fossil_print("UNCHANGED  %s\n", zPathname);
+      fossil_print("%s%s\n", type, zPathname);
     }
     free(zFullName);
   }
