@@ -53,11 +53,8 @@
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
 
-#define DIFF_TOO_MANY_CHANGES_TXT \
+#define DIFF_TOO_MANY_CHANGES \
     "more than 10,000 changes\n"
-
-#define DIFF_TOO_MANY_CHANGES_HTML \
-    "<p class='generalError'>More than 10,000 changes</p>\n"
 
 /*
 ** This macro is designed to return non-zero if the specified blob contains
@@ -578,7 +575,7 @@ static void contextDiff(
   int i, j;     /* Loop counters */
   int m;        /* Number of lines to output */
   int skip;     /* Number of lines to skip */
-  int nChunk = 0;  /* Number of diff chunks seen so far */
+  static int nChunk = 0;  /* Number of diff chunks seen so far */
   int nContext;    /* Number of lines of context */
   int showLn;      /* Show line numbers */
   int html;        /* Render as HTML */
@@ -659,10 +656,10 @@ static void contextDiff(
         showDivider = 1;
       }else if( html ){
         blob_appendf(pOut, "<span class=\"diffhr\">%.80c</span>\n", '.');
-        blob_appendf(pOut, "<a name=\"chunk%d\"></a>\n", nChunk);
       }else{
         blob_appendf(pOut, "%.80c\n", '.');
       }
+      if( html ) blob_appendf(pOut, "<span id=\"chunk%d\"></span>", nChunk);
     }else{
       if( html ) blob_appendf(pOut, "<span class=\"diffln\">");
       /*
@@ -729,8 +726,7 @@ static void contextDiff(
 */
 typedef struct SbsLine SbsLine;
 struct SbsLine {
-  char *zLine;             /* The output line under construction */
-  int n;                   /* Index of next unused slot in the zLine[] */
+  Blob *apCols[5];         /* Array of pointers to output columns */
   int width;               /* Maximum width of a column in the output */
   unsigned char escHtml;   /* True to escape html characters */
   int iStart;              /* Write zStart prior to character iStart */
@@ -743,39 +739,59 @@ struct SbsLine {
 };
 
 /*
-** Flags for sbsWriteText()
+** Column indices
 */
-#define SBS_NEWLINE      0x0001   /* End with \n\000 */
-#define SBS_PAD          0x0002   /* Pad output to width spaces */
+#define SBS_LNA  0
+#define SBS_TXTA 1
+#define SBS_MKR  2
+#define SBS_LNB  3
+#define SBS_TXTB 4
 
 /*
-** Write up to width characters of pLine into p->zLine[].  Translate tabs into
-** spaces.  Add a newline if SBS_NEWLINE is set.  Translate HTML characters
-** if SBS_HTML is set.  Pad the rendering out width bytes if SBS_PAD is set.
+** Append newlines to all columns.
+*/
+static void sbsWriteNewlines(SbsLine *p){
+  int i;
+  for( i=p->escHtml ? SBS_LNA : SBS_TXTB; i<=SBS_TXTB; i++ ){
+    blob_append(p->apCols[i], "\n", 1);
+  }
+}
+
+/*
+** Append n spaces to the column.
+*/
+static void sbsWriteSpace(SbsLine *p, int n, int col){
+  blob_appendf(p->apCols[col], "%*s", n, "");
+}
+
+/*
+** Write pLine to the column. If outputting HTML, write the full line.
+** Otherwise, only write up to width characters.  Translate tabs into
+** spaces. Add newlines if col is SBS_TXTB.  Translate HTML characters
+** if escHtml is true.  Pad the rendering out width bytes if col is
+** SBS_TXTA and escHtml is false.
 **
 ** This comment contains multibyte unicode characters (ü, Æ, ð) in order
 ** to test the ability of the diff code to handle such characters.
 */
-static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
+static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
+  Blob *pCol = p->apCols[col];
   int n = pLine->h & LENGTH_MASK;
   int i;   /* Number of input characters consumed */
-  int j;   /* Number of output characters generated */
   int k;   /* Cursor position */
   int needEndSpan = 0;
   const char *zIn = pLine->z;
-  char *z = &p->zLine[p->n];
   int w = p->width;
   int colorize = p->escHtml;
   if( colorize && p->pRe && re_dline_match(p->pRe, pLine, 1)==0 ){
     colorize = 0;
   }
-  for(i=j=k=0; k<w && i<n; i++, k++){
+  for(i=k=0; (p->escHtml || k<w) && i<n; i++, k++){
     char c = zIn[i];
     if( colorize ){
       if( i==p->iStart ){
         int x = strlen(p->zStart);
-        memcpy(z+j, p->zStart, x);
-        j += x;
+        blob_append(pCol, p->zStart, x);
         needEndSpan = 1;
         if( p->iStart2 ){
           p->iStart = p->iStart2;
@@ -783,8 +799,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
           p->iStart2 = 0;
         }
       }else if( i==p->iEnd ){
-        memcpy(z+j, "</span>", 7);
-        j += 7;
+        blob_append(pCol, "</span>", 7);
         needEndSpan = 0;
         if( p->iEnd2 ){
           p->iEnd = p->iEnd2;
@@ -793,71 +808,81 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
       }
     }
     if( c=='\t' ){
-      z[j++] = ' ';
-      while( (k&7)!=7 && k<w ){ z[j++] = ' '; k++; }
+      blob_append(pCol, " ", 1);
+      while( (k&7)!=7 && (p->escHtml || k<w) ){
+        blob_append(pCol, " ", 1);
+        k++;
+      }
     }else if( c=='\r' || c=='\f' ){
-      z[j++] = ' ';
+      blob_append(pCol, " ", 1);
     }else if( c=='<' && p->escHtml ){
-      memcpy(&z[j], "&lt;", 4);
-      j += 4;
+      blob_append(pCol, "&lt;", 4);
     }else if( c=='&' && p->escHtml ){
-      memcpy(&z[j], "&amp;", 5);
-      j += 5;
+      blob_append(pCol, "&amp;", 5);
     }else if( c=='>' && p->escHtml ){
-      memcpy(&z[j], "&gt;", 4);
-      j += 4;
+      blob_append(pCol, "&gt;", 4);
     }else if( c=='"' && p->escHtml ){
-      memcpy(&z[j], "&quot;", 6);
-      j += 6;
+      blob_append(pCol, "&quot;", 6);
     }else{
-      z[j++] = c;
+      blob_append(pCol, &zIn[i], 1);
       if( (c&0xc0)==0x80 ) k--;
     }
   }
   if( needEndSpan ){
-    memcpy(&z[j], "</span>", 7);
-    j += 7;
+    blob_append(pCol, "</span>", 7);
   }
-  if( (flags & SBS_PAD)!=0 ){
-    while( k<w ){ k++;  z[j++] = ' '; }
+  if( col==SBS_TXTB ){
+    sbsWriteNewlines(p);
+  }else if( !p->escHtml ){
+    sbsWriteSpace(p, w-k, SBS_TXTA);
   }
-  if( flags & SBS_NEWLINE ){
-    z[j++] = '\n';
+}
+
+/*
+** Append a column to the final output blob.
+*/
+static void sbsWriteColumn(Blob *pOut, Blob *pCol, int col){
+  blob_appendf(pOut,
+    "<td><div class=\"diff%scol\">\n"
+    "<pre>\n"
+    "%s"
+    "</pre>\n"
+    "</div></td>\n",
+    col % 3 ? (col == SBS_MKR ? "mkr" : "txt") : "ln",
+    blob_str(pCol)
+  );
+}
+
+/*
+** Append separator to the column.
+*/
+static void sbsWriteSep(SbsLine *p, int len, int col){
+  char ch = '.';
+  if( len<1 ){
+    len = 1;
+    ch = ' ';
   }
-  p->n += j;
+  blob_appendf(p->apCols[col], "<span class=\"diffhr\">%.*c</span>\n", len, ch);
 }
 
 /*
-** Append a string to an SbSLine without coding, interpretation, or padding.
+** Append the appropriate marker.
 */
-static void sbsWrite(SbsLine *p, const char *zIn, int nIn){
-  memcpy(p->zLine+p->n, zIn, nIn);
-  p->n += nIn;
+static void sbsWriteMarker(SbsLine *p, const char *zTxt, const char *zHtml){
+  blob_append(p->apCols[SBS_MKR], p->escHtml ? zHtml : zTxt, -1);
 }
 
 /*
-** Append n spaces to the string.
+** Append a line number to the column.
 */
-static void sbsWriteSpace(SbsLine *p, int n){
-  while( n-- ) p->zLine[p->n++] = ' ';
-}
-
-/*
-** Append a string to the output only if we are rendering HTML.
-*/
-static void sbsWriteHtml(SbsLine *p, const char *zIn){
-  if( p->escHtml ) sbsWrite(p, zIn, strlen(zIn));
-}
-
-/*
-** Write a 6-digit line number followed by a single space onto the line.
-*/
-static void sbsWriteLineno(SbsLine *p, int ln){
-  sbsWriteHtml(p, "<span class=\"diffln\">");
-  sqlite3_snprintf(7, &p->zLine[p->n], "%5d ", ln+1);
-  p->n += 6;
-  sbsWriteHtml(p, "</span>");
-  p->zLine[p->n++] = ' ';
+static void sbsWriteLineno(SbsLine *p, int ln, int col){
+  if( p->escHtml ){
+    blob_appendf(p->apCols[col], "%d", ln+1);
+  }else{
+    char zLn[7];
+    sqlite3_snprintf(7, zLn, "%5d ", ln+1);
+    blob_appendf(p->apCols[col], "%s ", zLn);
+  }
 }
 
 /*
@@ -1020,39 +1045,38 @@ static void sbsWriteLineChange(
   }
   if( nPrefix+nSuffix > nShort ) nPrefix = nShort - nSuffix;
 
-
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
-    sbsWriteLineno(p, lnLeft);
+    sbsWriteLineno(p, lnLeft, SBS_LNA);
     p->iStart2 = p->iEnd2 = 0;
     p->iStart = p->iEnd = -1;
-    sbsWriteText(p, pLeft, SBS_PAD);
+    sbsWriteText(p, pLeft, SBS_TXTA);
     if( nLeft==nRight && zLeft[nLeft]==zRight[nRight] ){
-      sbsWrite(p, "   ", 3);
+      sbsWriteMarker(p, "   ", "");
     }else{
-      sbsWrite(p, " | ", 3);
+      sbsWriteMarker(p, " | ", "|");
     }
-    sbsWriteLineno(p, lnRight);
+    sbsWriteLineno(p, lnRight, SBS_LNB);
     p->iStart = nPrefix;
     p->iEnd = nRight - nSuffix;
     p->zStart = zClassAdd;
-    sbsWriteText(p, pRight, SBS_NEWLINE);
+    sbsWriteText(p, pRight, SBS_TXTB);
     return;
   }
 
   /* A single chunk of text deleted from the left */
   if( nPrefix+nSuffix==nRight ){
     /* Text deleted from the left */
-    sbsWriteLineno(p, lnLeft);
+    sbsWriteLineno(p, lnLeft, SBS_LNA);
     p->iStart2 = p->iEnd2 = 0;
     p->iStart = nPrefix;
     p->iEnd = nLeft - nSuffix;
     p->zStart = zClassRm;
-    sbsWriteText(p, pLeft, SBS_PAD);
-    sbsWrite(p, " | ", 3);
-    sbsWriteLineno(p, lnRight);
+    sbsWriteText(p, pLeft, SBS_TXTA);
+    sbsWriteMarker(p, " | ", "|");
+    sbsWriteLineno(p, lnRight, SBS_LNB);
     p->iStart = p->iEnd = -1;
-    sbsWriteText(p, pRight, SBS_NEWLINE);
+    sbsWriteText(p, pRight, SBS_TXTB);
     return;
   }
 
@@ -1067,7 +1091,7 @@ static void sbsWriteLineChange(
    && nRightDiff >= 6
    && textLCS(&zLeft[nPrefix], nLeftDiff, &zRight[nPrefix], nRightDiff, aLCS)
   ){
-    sbsWriteLineno(p, lnLeft);
+    sbsWriteLineno(p, lnLeft, SBS_LNA);
     p->iStart = nPrefix;
     p->iEnd = nPrefix + aLCS[0];
     if( aLCS[2]==0 ){
@@ -1080,9 +1104,9 @@ static void sbsWriteLineChange(
     p->iEnd2 = nLeft - nSuffix;
     p->zStart2 = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
     sbsSimplifyLine(p, zLeft+nPrefix);
-    sbsWriteText(p, pLeft, SBS_PAD);
-    sbsWrite(p, " | ", 3);
-    sbsWriteLineno(p, lnRight);
+    sbsWriteText(p, pLeft, SBS_TXTA);
+    sbsWriteMarker(p, " | ", "|");
+    sbsWriteLineno(p, lnRight, SBS_LNB);
     p->iStart = nPrefix;
     p->iEnd = nPrefix + aLCS[2];
     if( aLCS[0]==0 ){
@@ -1095,21 +1119,21 @@ static void sbsWriteLineChange(
     p->iEnd2 = nRight - nSuffix;
     p->zStart2 = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
     sbsSimplifyLine(p, zRight+nPrefix);
-    sbsWriteText(p, pRight, SBS_NEWLINE);
+    sbsWriteText(p, pRight, SBS_TXTB);
     return;
   }
 
   /* If all else fails, show a single big change between left and right */
-  sbsWriteLineno(p, lnLeft);
+  sbsWriteLineno(p, lnLeft, SBS_LNA);
   p->iStart2 = p->iEnd2 = 0;
   p->iStart = nPrefix;
   p->iEnd = nLeft - nSuffix;
   p->zStart = zClassChng;
-  sbsWriteText(p, pLeft, SBS_PAD);
-  sbsWrite(p, " | ", 3);
-  sbsWriteLineno(p, lnRight);
+  sbsWriteText(p, pLeft, SBS_TXTA);
+  sbsWriteMarker(p, " | ", "|");
+  sbsWriteLineno(p, lnRight, SBS_LNB);
   p->iEnd = nRight - nSuffix;
-  sbsWriteText(p, pRight, SBS_NEWLINE);
+  sbsWriteText(p, pRight, SBS_TXTB);
 }
 
 /*
@@ -1359,17 +1383,26 @@ static void sbsDiff(
   int i, j;     /* Loop counters */
   int m, ma, mb;/* Number of lines to output */
   int skip;     /* Number of lines to skip */
-  int nChunk = 0; /* Number of chunks of diff output seen so far */
+  static int nChunk = 0; /* Number of chunks of diff output seen so far */
   SbsLine s;    /* Output line buffer */
   int nContext; /* Lines of context above and below each change */
   int showDivider = 0;  /* True to show the divider */
+  Blob aCols[5]; /* Array of column blobs */
 
   memset(&s, 0, sizeof(s));
   s.width = diff_width(diffFlags);
-  s.zLine = fossil_malloc( 15*s.width + 200 );
-  if( s.zLine==0 ) return;
   nContext = diff_context_lines(diffFlags);
   s.escHtml = (diffFlags & DIFF_HTML)!=0;
+  if( s.escHtml ){
+    for(i=SBS_LNA; i<=SBS_TXTB; i++){
+      blob_zero(&aCols[i]);
+      s.apCols[i] = &aCols[i];
+    }
+  }else{
+    for(i=SBS_LNA; i<=SBS_TXTB; i++){
+      s.apCols[i] = pOut;
+    }
+  }
   s.pRe = pRe;
   s.iStart = -1;
   s.iStart2 = 0;
@@ -1379,6 +1412,7 @@ static void sbsDiff(
   R = p->aEdit;
   mxr = p->nEdit;
   while( mxr>2 && R[mxr-1]==0 && R[mxr-2]==0 ){ mxr -= 3; }
+
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
     for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
@@ -1438,8 +1472,14 @@ static void sbsDiff(
     /* Draw the separator between blocks */
     if( showDivider ){
       if( s.escHtml ){
-        blob_appendf(pOut, "<span class=\"diffhr\">%.*c</span>\n",
-                           s.width*2+16, '.');
+        char zLn[10];
+        sqlite3_snprintf(sizeof(zLn), zLn, "%d", a+skip+1);
+        sbsWriteSep(&s, strlen(zLn), SBS_LNA);
+        sbsWriteSep(&s, s.width, SBS_TXTA);
+        sbsWriteSep(&s, 0, SBS_MKR);
+        sqlite3_snprintf(sizeof(zLn), zLn, "%d", b+skip+1);
+        sbsWriteSep(&s, strlen(zLn), SBS_LNB);
+        sbsWriteSep(&s, s.width, SBS_TXTB);
       }else{
         blob_appendf(pOut, "%.*c\n", s.width*2+16, '.');
       }
@@ -1447,7 +1487,7 @@ static void sbsDiff(
     showDivider = 1;
     nChunk++;
     if( s.escHtml ){
-      blob_appendf(pOut, "<a name=\"chunk%d\"></a>\n", nChunk);
+      blob_appendf(s.apCols[SBS_LNA], "<span id=\"chunk%d\"></span>", nChunk);
     }
 
     /* Show the initial common area */
@@ -1455,14 +1495,12 @@ static void sbsDiff(
     b += skip;
     m = R[r] - skip;
     for(j=0; j<m; j++){
-      s.n = 0;
-      sbsWriteLineno(&s, a+j);
+      sbsWriteLineno(&s, a+j, SBS_LNA);
       s.iStart = s.iEnd = -1;
-      sbsWriteText(&s, &A[a+j], SBS_PAD);
-      sbsWrite(&s, "   ", 3);
-      sbsWriteLineno(&s, b+j);
-      sbsWriteText(&s, &B[b+j], SBS_NEWLINE);
-      blob_append(pOut, s.zLine, s.n);
+      sbsWriteText(&s, &A[a+j], SBS_TXTA);
+      sbsWriteMarker(&s, "   ", "");
+      sbsWriteLineno(&s, b+j, SBS_LNB);
+      sbsWriteText(&s, &B[b+j], SBS_TXTB);
     }
     a += m;
     b += m;
@@ -1487,26 +1525,19 @@ static void sbsDiff(
       for(j=0; ma+mb>0; j++){
         if( alignment[j]==1 ){
           /* Delete one line from the left */
-          s.n = 0;
-          sbsWriteLineno(&s, a);
+          sbsWriteLineno(&s, a, SBS_LNA);
           s.iStart = 0;
           s.zStart = "<span class=\"diffrm\">";
           s.iEnd = LENGTH(&A[a]);
-          sbsWriteText(&s, &A[a], SBS_PAD);
-          if( s.escHtml ){
-            sbsWrite(&s, " &lt;\n", 6);
-          }else{
-            sbsWrite(&s, " <\n", 3);
-          }
-          blob_append(pOut, s.zLine, s.n);
+          sbsWriteText(&s, &A[a], SBS_TXTA);
+          sbsWriteMarker(&s, " <", "&lt;");
+          sbsWriteNewlines(&s);
           assert( ma>0 );
           ma--;
           a++;
         }else if( alignment[j]==3 ){
           /* The left line is changed into the right line */
-          s.n = 0;
           sbsWriteLineChange(&s, &A[a], a, &B[b], b);
-          blob_append(pOut, s.zLine, s.n);
           assert( ma>0 && mb>0 );
           ma--;
           mb--;
@@ -1514,56 +1545,47 @@ static void sbsDiff(
           b++;
         }else if( alignment[j]==2 ){
           /* Insert one line on the right */
-          s.n = 0;
-          sbsWriteSpace(&s, s.width + 7);
-          if( s.escHtml ){
-            sbsWrite(&s, " &gt; ", 6);
-          }else{
-            sbsWrite(&s, " > ", 3);
+          if( !s.escHtml ){
+            sbsWriteSpace(&s, s.width + 7, SBS_TXTA);
           }
-          sbsWriteLineno(&s, b);
+          sbsWriteMarker(&s, " > ", "&gt;");
+          sbsWriteLineno(&s, b, SBS_LNB);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
           s.iEnd = LENGTH(&B[b]);
-          sbsWriteText(&s, &B[b], SBS_NEWLINE);
-          blob_append(pOut, s.zLine, s.n);
+          sbsWriteText(&s, &B[b], SBS_TXTB);
           assert( mb>0 );
           mb--;
           b++;
         }else{
           /* Delete from the left and insert on the right */
-          s.n = 0;
-          sbsWriteLineno(&s, a);
+          sbsWriteLineno(&s, a, SBS_LNA);
           s.iStart = 0;
           s.zStart = "<span class=\"diffrm\">";
           s.iEnd = LENGTH(&A[a]);
-          sbsWriteText(&s, &A[a], SBS_PAD);
-          sbsWrite(&s, " | ", 3);
-          sbsWriteLineno(&s, b);
+          sbsWriteText(&s, &A[a], SBS_TXTA);
+          sbsWriteMarker(&s, " | ", "|");
+          sbsWriteLineno(&s, b, SBS_LNB);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
           s.iEnd = LENGTH(&B[b]);
-          sbsWriteText(&s, &B[b], SBS_NEWLINE);
-          blob_append(pOut, s.zLine, s.n);
+          sbsWriteText(&s, &B[b], SBS_TXTB);
           ma--;
           mb--;
           a++;
           b++;
         }
-
       }
       fossil_free(alignment);
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
-          s.n = 0;
-          sbsWriteLineno(&s, a+j);
+          sbsWriteLineno(&s, a+j, SBS_LNA);
           s.iStart = s.iEnd = -1;
-          sbsWriteText(&s, &A[a+j], SBS_PAD);
-          sbsWrite(&s, "   ", 3);
-          sbsWriteLineno(&s, b+j);
-          sbsWriteText(&s, &B[b+j], SBS_NEWLINE);
-          blob_append(pOut, s.zLine, s.n);
+          sbsWriteText(&s, &A[a+j], SBS_TXTA);
+          sbsWriteMarker(&s, "   ", "");
+          sbsWriteLineno(&s, b+j, SBS_LNB);
+          sbsWriteText(&s, &B[b+j], SBS_TXTB);
         }
         b += m;
         a += m;
@@ -1575,17 +1597,23 @@ static void sbsDiff(
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
-      s.n = 0;
-      sbsWriteLineno(&s, a+j);
+      sbsWriteLineno(&s, a+j, SBS_LNA);
       s.iStart = s.iEnd = -1;
-      sbsWriteText(&s, &A[a+j], SBS_PAD);
-      sbsWrite(&s, "   ", 3);
-      sbsWriteLineno(&s, b+j);
-      sbsWriteText(&s, &B[b+j], SBS_NEWLINE);
-      blob_append(pOut, s.zLine, s.n);
+      sbsWriteText(&s, &A[a+j], SBS_TXTA);
+      sbsWriteMarker(&s, "   ", "");
+      sbsWriteLineno(&s, b+j, SBS_LNB);
+      sbsWriteText(&s, &B[b+j], SBS_TXTB);
     }
   }
-  free(s.zLine);
+  
+  if( s.escHtml && blob_size(s.apCols[SBS_LNA])>0 ){
+    blob_append(pOut, "<table class=\"sbsdiffcols\"><tr>\n", -1);
+    for(i=SBS_LNA; i<=SBS_TXTB; i++){
+      sbsWriteColumn(pOut, s.apCols[i], i);
+      blob_reset(s.apCols[i]);
+    }
+    blob_append(pOut, "</tr></table>\n", -1);
+  }
 }
 
 /*
@@ -1994,6 +2022,17 @@ int diff_width(u64 diffFlags){
 }
 
 /*
+** Append the error message to pOut.
+*/
+void diff_errmsg(Blob *pOut, const char *msg, int diffFlags){
+  if( diffFlags & DIFF_HTML ){
+    blob_appendf(pOut, "<p class=\"generalError\">%s</p>", msg);
+  }else{
+    blob_append(pOut, msg, -1);
+  }
+}
+
+/*
 ** Generate a report of the differences between files pA and pB.
 ** If pOut is not NULL then a unified diff is appended there.  It
 ** is assumed that pOut has already been initialized.  If pOut is
@@ -2034,7 +2073,7 @@ int *text_diff(
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
     if( pOut ){
-      blob_appendf(pOut, DIFF_CANNOT_COMPUTE_BINARY);
+      diff_errmsg(pOut, DIFF_CANNOT_COMPUTE_BINARY, diffFlags);
     }
     return 0;
   }
@@ -2050,11 +2089,7 @@ int *text_diff(
       fossil_free(c.aFrom);
       fossil_free(c.aTo);
       fossil_free(c.aEdit);
-      if( diffFlags & DIFF_HTML ){
-        blob_append(pOut, DIFF_TOO_MANY_CHANGES_HTML, -1);
-      }else{
-        blob_append(pOut, DIFF_TOO_MANY_CHANGES_TXT, -1);
-      }
+      diff_errmsg(pOut, DIFF_TOO_MANY_CHANGES, diffFlags);
       return 0;
     }
   }
@@ -2161,6 +2196,7 @@ void test_diff_cmd(void){
     return;
   }
   find_option("i",0,0);
+  find_option("v",0,0);
   zRe = find_option("regexp","e",1);
   if( zRe ){
     const char *zErr = re_compile(&pRe, zRe, 0);

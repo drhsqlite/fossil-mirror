@@ -599,48 +599,245 @@ const char *diff_command_external(int guiDiff){
 
 /* A Tcl/Tk script used to render diff output.
 */
-static const char zDiffScript[] = 
+static const char zDiffScript[] =
 @ package require Tk
-@ wm withdraw .
-@ wm title . {Fossil Diff}
-@ wm iconname . {Fossil Diff}
-@ bind . <q> exit
-@ set body {}
-@ set mx 80          ;# Length of the longest line of text
-@ set nLine 0        ;# Number of lines of text
-@ text .t -width 180 -yscroll {.sb set}
-@ if {$tcl_platform(platform)=="windows"} {.t config -font {courier 9}}
-@ .t tag config ln -foreground gray
-@ .t tag config chng -background {#d0d0ff}
-@ .t tag config add -background {#c0ffc0}
-@ .t tag config rm -background {#ffc0c0}
+@ 
+@ array set CFG {
+@   TITLE      {Fossil Diff}
+@   LN_COL_BG  #dddddd
+@   LN_COL_FG  #444444
+@   TXT_COL_BG #ffffff
+@   TXT_COL_FG #000000
+@   MKR_COL_BG #444444
+@   MKR_COL_FG #dddddd
+@   CHNG_BG    #d0d0ff
+@   ADD_BG     #c0ffc0
+@   RM_BG      #ffc0c0
+@   HR_FG      #888888
+@   HR_PAD_TOP 4
+@   HR_PAD_BTM 8
+@   FONTS      {{DejaVu Sans Mono} Consolas Monaco fixed}
+@   FONT_SIZE  9
+@   PADX       5
+@   WIDTH      80
+@   HEIGHT     45
+@ }
+@ 
+@ if {![namespace exists ttk]} {
+@   interp alias {} ::ttk::scrollbar {} ::scrollbar
+@   interp alias {} ::ttk::menubutton {} ::menubutton
+@ }
+@ 
 @ proc dehtml {x} {
+@   set x [regsub -all {<[^>]*>} $x {}]
 @   return [string map {&amp; & &lt; < &gt; > &#39; ' &quot; \"} $x]
 @ }
-@ # puts $cmd
-@ set in [open $cmd r]
-@ while {![eof $in]} {
-@   set line [gets $in]
-@   if {[regexp {^<a name="chunk.*"></a>} $line]} continue
-@   if {[regexp {^===} $line]} {
-@     set n [string length $line]
-@     if {$n>$mx} {set mx $n}
-@   }
-@   incr nLine
-@   while {[regexp {^(.*?)<span class="diff([a-z]+)">(.*?)</span>(.*)$} $line \
-@             all pre class mid tail]} {
-@     .t insert end [dehtml $pre] {} [dehtml $mid] $class
-@     set line $tail
-@   }
-@   .t insert end [dehtml $line]\n {}
+@ 
+@ proc cols {} {
+@   return [list .lnA .txtA .mkr .lnB .txtB]
 @ }
-@ close $in
-@ if {$mx>250} {set mx 250}      ;# Limit window width to 200 characters
-@ if {$nLine>55} {set nLine 55}  ;# Limit window height to 55 lines
-@ .t config -height $nLine -width $mx
-@ pack .t -side left -fill both -expand 1
-@ scrollbar .sb -command {.t yview} -orient vertical
-@ pack .sb -side left -fill y
+@ 
+@ proc colType {c} {
+@   regexp {[a-z]+} $c type
+@   return $type
+@ }
+@ 
+@ proc readDiffs {cmd} {
+@   global gDiffs
+@   set in [open $cmd r]
+@   set idx -1
+@   while {[gets $in line] != -1} {
+@     if {![regexp {^=+\s+(.*?)\s+=+$} $line all fn]} {
+@       continue
+@     }
+@     
+@     if {[string compare -length 6 [gets $in] "<table"]} {
+@       continue
+@     }
+@     
+@     incr idx
+@     .files.menu add radiobutton -variable gIdx -value $idx -label $fn \
+@       -command "viewDiff $idx"
+@     array set widths {txt 0 ln 0 mkr 0}
+@     
+@     foreach c [cols] {
+@       while {[gets $in] ne "<pre>"} continue
+@       set type [colType $c]
+@       set str {}
+@       while {[set line [gets $in]] ne "</pre>"} {
+@         set len [string length [dehtml $line]]
+@         if {$len > $widths($type)} {
+@           set widths($type) $len
+@         }
+@         append str $line\n
+@       }
+@       
+@       set str [string range $str 0 end-1]
+@       set colData {}
+@       set re {<span class="diff([a-z]+)">([^<]*)</span>}
+@       # Use \r as separator since it can't appear in the diff output (it gets
+@       # converted to a space).
+@       set str [regsub -all $re $str "\r\\1\r\\2\r"]
+@       foreach {pre class mid} [split $str \r] {
+@         if {$class ne ""} {
+@           lappend colData [dehtml $pre] - [dehtml $mid] [list $class -]
+@         } else {
+@           lappend colData [dehtml $pre] -
+@         }
+@       }
+@       set gDiffs($idx,$c) $colData
+@     }
+@     
+@     foreach {type width} [array get widths] {
+@       set gDiffs($idx,$type-width) $width
+@     }
+@   }
+@   close $in
+@ }
+@ 
+@ proc viewDiff {idx} {
+@   global gDiffs
+@   .files config -text [.files.menu entrycget $idx -label]
+@   
+@   foreach c [cols] {
+@     $c config -state normal
+@     $c delete 1.0 end
+@     foreach {content tag} $gDiffs($idx,$c) {
+@       $c insert end $content $tag
+@     }
+@   }
+@   
+@   foreach c {.lnA .lnB .mkr} {
+@     $c config -width $gDiffs($idx,[colType $c]-width)
+@   }
+@   
+@   # Add whitespace to equalize line lengths.
+@   regexp {\d+} [.txtA index {end -1c}] numLines
+@   set width $gDiffs($idx,txt-width)
+@   foreach c {.txtA .txtB} {
+@     for {set ln 1} {$ln <= $numLines} {incr ln} {
+@       regexp {\d+$} [$c index $ln.end] len
+@       $c insert $ln.end [string repeat " " [expr {$width-$len}]] ws
+@     }
+@   }
+@   
+@   foreach c [cols] {
+@     $c config -state disabled
+@   }
+@ }
+@ 
+@ proc cycleDiffs {{inc 1}} {
+@   global gIdx
+@   .files.menu invoke [expr {($gIdx+$inc) % ([.files.menu index last]+1)}]
+@ }
+@ 
+@ proc scrollSync {axis sbs first last} {
+@   foreach c [cols] {
+@     $c ${axis}view moveto $first
+@   }
+@   foreach sb $sbs {
+@     if {$first <= 0 && $last >= 1} {
+@       grid remove $sb
+@     } else {
+@       grid $sb
+@       $sb set $first $last
+@     }
+@   }
+@ }
+@ 
+@ proc copyText {c} {
+@   set txt ""
+@   # Copy selection without excess trailing whitespace
+@   $c tag config ws -elide 1
+@   catch {
+@     $c tag add sel sel.first sel.last
+@     set txt [selection get]
+@   }
+@   $c tag config ws -elide 0
+@   clipboard clear
+@   clipboard append $txt
+@ }
+@ 
+@ wm withdraw .
+@ wm title . $CFG(TITLE)
+@ wm iconname . $CFG(TITLE)
+@ bind . <q> exit
+@ bind . <Tab> {cycleDiffs; break}
+@ bind . <<PrevWindow>> {cycleDiffs -1; break}
+@ bind . <Return> {
+@   event generate .files <1>
+@   event generate .files <ButtonRelease-1>
+@   break
+@ }
+@ foreach {key axis args} {
+@   Up    y {scroll -5 units}
+@   Down  y {scroll 5 units}
+@   Left  x {scroll -5 units}
+@   Right x {scroll 5 units}
+@   Prior y {scroll -1 page}
+@   Next  y {scroll 1 page}
+@   Home  y {moveto 0}
+@   End   y {moveto 1}
+@ } {
+@   bind . <$key> ".txtA ${axis}view $args; break"
+@   bind . <Shift-$key> continue
+@ }
+@ 
+@ ::ttk::menubutton .files -menu .files.menu
+@ menu .files.menu -tearoff 0
+@ readDiffs $cmd
+@ if {[.files.menu index 0] eq "none"} {
+@   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
+@   exit
+@ }
+@ 
+@ foreach side {A B} {
+@   set ln .ln$side
+@   text $ln
+@   $ln tag config - -justify right
+@   
+@   set txt .txt$side
+@   text $txt -width $CFG(WIDTH) -height $CFG(HEIGHT) -wrap none \
+@     -xscroll {scrollSync x {.sbxA .sbxB}}
+@   foreach tag {add rm chng} {
+@     $txt tag config $tag -background $CFG([string toupper $tag]_BG)
+@     $txt tag lower $tag
+@   }
+@   bind $txt <<Copy>> {copyText %W; break}
+@   bind $txt <<Cut>> {copyText %W; break}
+@ }
+@ text .mkr
+@ 
+@ font create mono -family courier -size $CFG(FONT_SIZE)
+@ foreach font $CFG(FONTS) {
+@   if {[lsearch -exact [font families] $font] != -1} {
+@      font config mono -family $font
+@      break
+@   }
+@ }
+@ foreach c [cols] {
+@   set keyPrefix [string toupper [colType $c]]_COL_
+@   $c config -bg $CFG(${keyPrefix}BG) -fg $CFG(${keyPrefix}FG) -borderwidth 0 \
+@     -font mono -padx $CFG(PADX) -insertontime 0 -yscroll {scrollSync y .sby}
+@   $c tag config hr -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
+@      -foreground $CFG(HR_FG)
+@   bindtags $c ". $c Text all"
+@   bind $c <1> {focus %W}
+@ }
+@ 
+@ ::ttk::scrollbar .sby -command {.txtA yview} -orient vertical
+@ ::ttk::scrollbar .sbxA -command {.txtA xview} -orient horizontal
+@ ::ttk::scrollbar .sbxB -command {.txtA xview} -orient horizontal
+@ 
+@ grid rowconfigure . 1 -weight 1
+@ grid columnconfigure . 1 -weight 1
+@ grid columnconfigure . 4 -weight 1
+@ grid .files -columnspan 6
+@ eval grid [cols] .sby -sticky nsew
+@ grid .sbxA -row 2 -column 0 -columnspan 2 -sticky ew
+@ grid .sbxB -row 2 -column 3 -columnspan 2 -sticky ew
+@ 
+@ .files.menu invoke 0
 @ wm deiconify .
 ;
 
@@ -659,7 +856,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
   char *zTempFile;
   char *zCmd;
   blob_zero(&script);
-  blob_appendf(&script, "set cmd {| \"%/\" %s --html -y -i",
+  blob_appendf(&script, "set cmd {| \"%/\" %s --html -y -i -v",
                g.nameOfExe, zSubCmd);
   for(i=firstArg; i<g.argc; i++){
     const char *z = g.argv[i];
