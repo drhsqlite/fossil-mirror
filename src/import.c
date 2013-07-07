@@ -32,6 +32,7 @@ struct ImportFile {
   char *zPrior;          /* Prior name if the name was changed */
   char isExe;            /* True if executable */
   char isLink;           /* True if symlink */
+  char hasChanged;       /* True when different than baseline */
 };
 #endif
 
@@ -42,6 +43,7 @@ struct ImportFile {
 static struct {
   void (*xFinish)(void);      /* Function to finish a prior record */
   int nData;                  /* Bytes of data */
+  char *zBaseline;            /* Baseline manifest.  The B card. */
   char *zTag;                 /* Name of a tag */
   char *zBranch;              /* Name of a branch for a commit */
   char *zPrevBranch;          /* The branch of the previous check-in */
@@ -58,10 +60,13 @@ static struct {
   char **azMerge;             /* Merge values */
   int nFile;                  /* Number of aFile values */
   int nFileAlloc;             /* Number of slots in aFile[] */
+  int nFileEffective;         /* Number of aFile items with zUuid != 0 */
+  int nChanged;               /* Number of aFile that differ from baseline */
   ImportFile *aFile;          /* Information about files in a commit */
   int fromLoaded;             /* True zFrom content loaded into aFile[] */
   int hasLinks;               /* True if git repository contains symlinks */
   int tagCommit;              /* True if the commit adds a tag */
+  int tryDelta;               /* Attempt to generate delta manifests */
 } gg;
 
 /*
@@ -91,6 +96,7 @@ static void finish_noop(void){}
 static void import_reset(int freeAll){
   int i;
   gg.xFinish = 0;
+  fossil_free(gg.zBaseline); gg.zBaseline = 0;
   fossil_free(gg.zTag); gg.zTag = 0;
   fossil_free(gg.zBranch); gg.zBranch = 0;
   fossil_free(gg.aData); gg.aData = 0;
@@ -111,6 +117,8 @@ static void import_reset(int freeAll){
     gg.aFile[i].zPrior = 0;
   }
   memset(gg.aFile, 0, gg.nFile*sizeof(gg.aFile[0]));
+  gg.nChanged = 0;
+  gg.nFileEffective = 0;
   gg.nFile = 0;
   if( freeAll ){
     fossil_free(gg.zPrevBranch);
@@ -230,6 +238,7 @@ static void import_prior_files(void);
 */
 static void finish_commit(void){
   int i;
+  int delta;
   char *zFromBranch;
   char *aTCard[4];                /* Array of T cards for manifest */
   int nTCard = 0;                 /* Entries used in aTCard[] */
@@ -237,24 +246,36 @@ static void finish_commit(void){
 
   import_prior_files();
   qsort(gg.aFile, gg.nFile, sizeof(gg.aFile[0]), mfile_cmp);
+  /*
+  ** This is the same mechanism used by the commit command to decide whether to
+  ** generate a delta manifest or not.  It is evaluated and saved for later
+  ** uses.
+  */
+  delta = gg.tryDelta && (gg.zBaseline!=0 || gg.zFrom!=0) &&
+                         (gg.nChanged*gg.nChanged)<(gg.nFileEffective*3-9);
   blob_zero(&record);
+  if( delta ){
+    blob_appendf(&record, "B %s\n", gg.zBaseline!=0 ? gg.zBaseline : gg.zFrom);
+  }
   blob_appendf(&record, "C %F\n", gg.zComment);
   blob_appendf(&record, "D %s\n", gg.zDate);
   for(i=0; i<gg.nFile; i++){
-    const char *zUuid = gg.aFile[i].zUuid;
-    if( zUuid==0 ) continue;
-    blob_appendf(&record, "F %F %s", gg.aFile[i].zName, zUuid);
-    if( gg.aFile[i].isExe ){
-      blob_append(&record, " x", 2);
-    }else if( gg.aFile[i].isLink ){
-      blob_append(&record, " l", 2);
-      gg.hasLinks = 1;
-    }
-    if( gg.aFile[i].zPrior ){
-      if( !gg.aFile[i].isExe && !gg.aFile[i].isLink ){
-        blob_append(&record, " w", 2);
+    const struct ImportFile *pFile = &gg.aFile[i];
+    if( (!delta && pFile->zUuid==0) || (delta && !pFile->hasChanged) ) continue;
+    blob_appendf(&record, "F %F", pFile->zName);
+    if( pFile->zUuid!=0 ) {
+      blob_appendf(&record, " %s", pFile->zUuid);
+      if( pFile->isExe ){
+        blob_append(&record, " x", 2);
+      }else if( pFile->isLink ){
+        blob_append(&record, " l", 2);
       }
-      blob_appendf(&record, " %F", gg.aFile[i].zPrior);
+      if( pFile->zPrior!=0 ){
+        if( !pFile->isExe && !pFile->isLink ){
+          blob_append(&record, " w", 2);
+        }
+        blob_appendf(&record, " %F", pFile->zPrior);
+      }
     }
     blob_append(&record, "\n", 1);
   }
@@ -429,12 +450,51 @@ static void import_prior_files(void){
   p = manifest_get(rid, CFTYPE_MANIFEST);
   if( p==0 ) return;
   manifest_file_rewind(p);
-  while( (pOld = manifest_file_next(p, 0))!=0 ){
-    pNew = import_add_file();
-    pNew->zName = fossil_strdup(pOld->zName);
-    pNew->isExe = pOld->zPerm && strstr(pOld->zPerm, "x")!=0;
-    pNew->isLink = pOld->zPerm && strstr(pOld->zPerm, "l")!=0;
-    pNew->zUuid = fossil_strdup(pOld->zUuid);
+  if( gg.tryDelta && p->pBaseline ){
+    /*
+    ** The manifest_file_next() iterator skips deletion "F" cards in delta
+    ** manifests.  But, in order to build more delta manifests, this information
+    ** is necessary because it propagates.  Therefore, in this case, the
+    ** manifest has to be traversed "manually".
+    */
+    Manifest *pB = p->pBaseline;
+    gg.zBaseline = fossil_strdup(p->zBaseline);
+    while( p->iFile<p->nFile || pB->iFile<pB->nFile ){
+      pNew = import_add_file();
+      if( p->iFile>=p->nFile ){
+        /* No more "F" cards in delta manifest, finish the baseline */
+        pOld = &pB->aFile[pB->iFile++];
+      }else if( pB->iFile>=pB->nFile ){
+        /* No more "F" cards in baseline, finish the delta manifest */
+        pOld = &p->aFile[p->iFile++];
+        pNew->hasChanged = 1;
+      }else{
+        int cmp = fossil_strcmp(pB->aFile[pB->iFile].zName,
+                                p->aFile[p->iFile].zName);
+        if( cmp < 0 ){
+          pOld = &pB->aFile[pB->iFile++];
+        }else if( cmp >= 0 ){
+          pOld = &p->aFile[p->iFile++];
+          pNew->hasChanged = 1;
+          if( cmp==0 ) pB->iFile++;
+        }
+      }
+      pNew->zName = fossil_strdup(pOld->zName);
+      pNew->isExe = pOld->zPerm && strstr(pOld->zPerm, "x")!=0;
+      pNew->isLink = pOld->zPerm && strstr(pOld->zPerm, "l")!=0;
+      pNew->zUuid = fossil_strdup(pOld->zUuid);
+      gg.nChanged += pNew->hasChanged;
+      if( pNew->zUuid!=0 ) gg.nFileEffective++;
+    }
+  }else{
+    while( (pOld = manifest_file_next(p, 0))!=0 ){
+      pNew = import_add_file();
+      pNew->zName = fossil_strdup(pOld->zName);
+      pNew->isExe = pOld->zPerm && strstr(pOld->zPerm, "x")!=0;
+      pNew->isLink = pOld->zPerm && strstr(pOld->zPerm, "l")!=0;
+      pNew->zUuid = fossil_strdup(pOld->zUuid);
+      if( pNew->zUuid!=0 ) gg.nFileEffective++;
+    }
   }
   manifest_destroy(p);
 }
@@ -482,7 +542,7 @@ static void dequote_git_filename(char *zName){
 */
 static void git_fast_import(FILE *pIn){
   ImportFile *pFile, *pNew;
-  int i, mx;
+  int i;
   char *z;
   char *zUuid;
   char *zName;
@@ -625,11 +685,19 @@ static void git_fast_import(FILE *pIn){
       if( pFile==0 ){
         pFile = import_add_file();
         pFile->zName = fossil_strdup(zName);
+        gg.nFileEffective++;
       }
       pFile->isExe = (fossil_strcmp(zPerm, "100755")==0);
       pFile->isLink = (fossil_strcmp(zPerm, "120000")==0);
       fossil_free(pFile->zUuid);
       pFile->zUuid = resolve_committish(zUuid);
+      /*
+      ** This trick avoids counting multiple changes on the same filename as
+      ** changes to multiple filenames.  When an entry in gg.aFile is already
+      ** different from its baseline, it is not counted again.
+      */
+      gg.nChanged += 1 - pFile->hasChanged;
+      pFile->hasChanged = 1;
     }else
     if( memcmp(zLine, "D ", 2)==0 ){
       import_prior_files();
@@ -639,32 +707,37 @@ static void git_fast_import(FILE *pIn){
       i = 0;
       pFile = import_find_file(zName, &i, gg.nFile);
       if( pFile!=0 ){
-        fossil_free(pFile->zName);
-        fossil_free(pFile->zPrior);
-        pFile->zPrior = 0;
+        /* Do not remove the item from gg.aFile, just mark as deleted */
         fossil_free(pFile->zUuid);
-        *pFile = gg.aFile[--gg.nFile];
+        pFile->zUuid = 0;
+        gg.nChanged += 1 - pFile->hasChanged;
+        pFile->hasChanged = 1;
+        gg.nFileEffective--;
       }
     }else
     if( memcmp(zLine, "C ", 2)==0 ){
-      int nFrom;
       import_prior_files();
       z = &zLine[2];
       zFrom = next_token(&z);
       zTo = rest_of_line(&z);
       i = 0;
-      nFrom = strlen(zFrom);
       pFile = import_find_file(zFrom, &i, gg.nFile);
       if( pFile!=0 ){
-        pNew = import_add_file();
-        if( strlen(pFile->zName)>nFrom ){
-          pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
-        }else{
+        int j = 0;
+        pNew = import_find_file(zTo, &j, gg.nFile);
+        if( pNew==0 ){
+          pNew = import_add_file();
+          pFile = &gg.aFile[i-1];  /* gg.aFile may have been realloc()-ed */
           pNew->zName = fossil_strdup(zTo);
+          gg.nFileEffective++;
+        }else{
+          fossil_free(pNew->zUuid);
         }
         pNew->isExe = pFile->isExe;
         pNew->isLink = pFile->isLink;
         pNew->zUuid = fossil_strdup(pFile->zUuid);
+        gg.nChanged += 1 - pNew->hasChanged;
+        pNew->hasChanged = 1;
       }
     }else
     if( memcmp(zLine, "R ", 2)==0 ){
@@ -675,8 +748,31 @@ static void git_fast_import(FILE *pIn){
       i = 0;
       pFile = import_find_file(zFrom, &i, gg.nFile);
       if( pFile!=0 ){
-        pFile->zPrior = pFile->zName;
-        pFile->zName = fossil_strdup(zTo);
+        /*
+        ** File renames in delta manifests require two "F" cards: one to
+        ** delete the old file (without UUID) and another with the rename
+        ** (with prior name equals to the name in the other card).
+        **
+        ** This forces us to also lookup by the destination name, as it may
+        ** already exist in the form of a delta manifest deletion "F" card.
+        */
+        int j = 0;
+        pNew = import_find_file(zTo, &j, gg.nFile);
+        if( pNew==0 ){
+          pNew = import_add_file();
+          pFile = &gg.aFile[i-1];
+          pNew->zName = fossil_strdup(zTo);
+        }else{
+          fossil_free(pNew->zUuid);  /* Just in case */
+        }
+        pNew->isExe = pFile->isExe;
+        pNew->isLink = pFile->isLink;
+        pNew->zPrior = fossil_strdup(zFrom);
+        pNew->zUuid = pFile->zUuid;
+        pFile->zUuid = 0;
+        gg.nChanged += 2 - (pNew->hasChanged + pFile->hasChanged);
+        pNew->hasChanged = 1;
+        pFile->hasChanged = 1;
       }
     }else
     if( memcmp(zLine, "deleteall", 9)==0 ){
@@ -721,7 +817,14 @@ malformed_line:
 ** with new content.  Otherwise, if a file with the same name as NEW-REPOSITORY
 ** is found, the command fails unless the --force option is used.
 **
+** When the --delta option is used, delta manifests will be generated when they
+** are smaller than the equivalent baseline manifest.  Please beware that delta
+** manifests are not understood by older versions of Fossil.  Therefore, only
+** use this option when it can be assured that only newer clients will pull or
+** read from it.
+**
 ** Options:
+**   -d|--delta        enable delta manifest generation
 **   -f|--force        remove existing file
 **   -i|--incremental  allow importing into an existing repository
 **
@@ -735,6 +838,7 @@ void git_import_cmd(void){
   int incrFlag = find_option("incremental", "i", 0)!=0;
 
   find_option("git",0,0);  /* Skip the --git option for now */
+  gg.tryDelta = find_option("delta", "d", 0)!=0;
   verify_all_options();
   if( g.argc!=3  && g.argc!=4 ){
     usage("REPOSITORY-NAME");
