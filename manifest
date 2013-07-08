@@ -1,5 +1,5 @@
-C some\sfirst\ssecurity\srestrictions
-D 2013-07-08T18:28:11.404
+C limit\shook\shttp\srequests\sto\slocalhost,\sunless\ssetting\s"http-outside"\sis\sset.
+D 2013-07-08T20:07:00.776
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -324,7 +324,7 @@ F src/configure.c d9192353fbb8d656ef1a927a5c0b75beaa4f9e8a
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 010f2b38513f5971336149937e9363caba429a11
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
-F src/db.c 607cf8933d1636fecb5ff165d288dac15d99c55a
+F src/db.c 7910014a53ee3bfcf38bb49446809da93db47f85
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
@@ -406,7 +406,7 @@ F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c 327c2faf6aeb66d146d7a95251ef3c2da26a048a
 F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
-F src/th_main.c fd95c35686574066dc792a0d3bfb59bb34535302
+F src/th_main.c 69c12c62daf2c01bb9d3c3999bb963ac769d4bee
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
 F src/timeline.c 2a35f6ffed42e0243b20ec19cfb98fa7ccd60cfc
 F src/tkt.c 79bdb28cf078d3a4897ceec84b9d8142db5805ed
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4467415eda3e9226c5af9c4e95e1bf7e30fff557
-R 12c66509c273a6df87096f8f6f262195
+P 6949032cfe24648233756844d4279d109f9c3252
+R 381b02f794d6866773698fb804040dda
 U jan.nijtmans
-Z 3e967639745c05c6fdf511e2842e5a95
+Z 06ad100beb3dc1953b0af0a9a3f40ba7

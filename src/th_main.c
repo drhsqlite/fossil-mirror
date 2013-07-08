@@ -260,6 +260,12 @@ int httpCmd(
     Th_ErrorMessage(interp, "url must be http:// or https://", 0, 0);
     return TH_ERROR;
   }
+  if( db_get_boolean("http-outside", 0)==0 ){
+    if( strcmp(g.urlName, "localhost") && strcmp(g.urlName, "127.0.0.1") ){
+      Th_ErrorMessage(interp, "hostname must be \"localhost\" or \"127.0.0.1\"", 0, 0);
+      return TH_ERROR;
+    }
+  }
   if( transport_open() ){
     Th_ErrorMessage(interp, transport_errmsg(), 0, 0);
     return TH_ERROR;
