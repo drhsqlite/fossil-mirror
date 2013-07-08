@@ -326,6 +326,7 @@ void ticket_init(void){
 int ticket_change(const char *zUuid){
   const char *zConfig;
   Th_FossilInit(0, 0);
+  Th_CreateCommand(g.interp, "http", httpCmd, 0, 0);
   Th_SetVar(g.interp, "tkt", -1, zUuid, strlen(zUuid));
   zConfig = ticket_change_code();
   return Th_Eval(g.interp, 0, zConfig, -1);

@@ -234,7 +234,7 @@ static int htmlizeCmd(
 ** Do a HTTP request to specified URL. If PAYLOAD is present
 ** it will be POST'ed as text/plain, otherwise it's a GET
 */
-static int httpCmd(
+int httpCmd(
   Th_Interp *interp,
   void *p,
   int argc,
@@ -256,6 +256,10 @@ static int httpCmd(
     type = "GET";
   }
   url_parse(argv[1], 0);
+  if( g.urlIsSsh || g.urlIsFile ){
+    Th_ErrorMessage(interp, "url must be http:// or https://", 0, 0);
+    return TH_ERROR;
+  }
   if( transport_open() ){
     Th_ErrorMessage(interp, transport_errmsg(), 0, 0);
     return TH_ERROR;
@@ -891,7 +895,6 @@ void Th_FossilInit(int needConfig, int forceSetup){
     {"hasfeature",    hasfeatureCmd,        0},
     {"html",          putsCmd,              (void*)&aFlags[0]},
     {"htmlize",       htmlizeCmd,           0},
-    {"http",          httpCmd,              0},
     {"linecount",     linecntCmd,           0},
     {"puts",          putsCmd,              (void*)&aFlags[1]},
     {"query",         queryCmd,             0},
