@@ -711,7 +711,12 @@ static const char zDiffScript[] =
 @     $c config -width $gDiffs($idx,[colType $c]-width)
 @   }
 @   
-@   # Add whitespace to equalize line lengths.
+@   # Add whitespace to equalize line lengths.  This is done in order to:
+@   #  (a) scroll to the same horizontal position on both sides and
+@   #  (b) keep the horizontal scrollbars from changing position/size as
+@   #      you scroll vertically.
+@   # To test, try "fossil diff --tk --from d7afa8f153 --to abe1030ca8"
+@   # as well as its inverse.
 @   regexp {\d+} [.txtA index {end -1c}] numLines
 @   set width $gDiffs($idx,txt-width)
 @   foreach c {.txtA .txtB} {
