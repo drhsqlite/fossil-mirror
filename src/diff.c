@@ -739,13 +739,13 @@ struct SbsLine {
 };
 
 /*
-** Column indices
+** Column indices for SbsLine.apCols[]
 */
-#define SBS_LNA  0
-#define SBS_TXTA 1
-#define SBS_MKR  2
-#define SBS_LNB  3
-#define SBS_TXTB 4
+#define SBS_LNA  0     /* Left line number */
+#define SBS_TXTA 1     /* Left text */
+#define SBS_MKR  2     /* Middle separator column */
+#define SBS_LNB  3     /* Right line number */
+#define SBS_TXTB 4     /* Right text */
 
 /*
 ** Append newlines to all columns.
@@ -765,11 +765,12 @@ static void sbsWriteSpace(SbsLine *p, int n, int col){
 }
 
 /*
-** Write pLine to the column. If outputting HTML, write the full line.
-** Otherwise, only write up to width characters.  Translate tabs into
-** spaces. Add newlines if col is SBS_TXTB.  Translate HTML characters
-** if escHtml is true.  Pad the rendering out width bytes if col is
-** SBS_TXTA and escHtml is false.
+** Write the text of pLine into column iCol of p.
+**
+** If outputting HTML, write the full line.  Otherwise, only write the
+** width characters.  Translate tabs into spaces.  Add newlines if col
+** is SBS_TXTB.  Translate HTML characters if escHtml is true.  Pad the
+** rendering to width bytes if col is SBS_TXTA and escHtml is false.
 **
 ** This comment contains multibyte unicode characters (ü, Æ, ð) in order
 ** to test the ability of the diff code to handle such characters.
@@ -854,7 +855,7 @@ static void sbsWriteColumn(Blob *pOut, Blob *pCol, int col){
 }
 
 /*
-** Append separator to the column.
+** Append a separator line to column iCol
 */
 static void sbsWriteSep(SbsLine *p, int len, int col){
   char ch = '.';
@@ -866,7 +867,7 @@ static void sbsWriteSep(SbsLine *p, int len, int col){
 }
 
 /*
-** Append the appropriate marker.
+** Append the appropriate marker into the center column of the diff.
 */
 static void sbsWriteMarker(SbsLine *p, const char *zTxt, const char *zHtml){
   blob_append(p->apCols[SBS_MKR], p->escHtml ? zHtml : zTxt, -1);
