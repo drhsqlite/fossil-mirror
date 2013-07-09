@@ -751,7 +751,6 @@ int select_commit_files(void){
   if( g.argc>2 ){
     int ii, jj=0;
     Blob fname;
-    int isDir;
     Stmt q;
     const char *zCollate;
     Bag toCommit;
@@ -766,20 +765,11 @@ int select_commit_files(void){
         bag_clear(&toCommit);
         return result;
       }
-      isDir = file_isdir(g.argv[ii]);
-      if( isDir==1 ){
-        db_prepare(&q,
-          "SELECT id FROM vfile WHERE pathname>'%q/' %s AND pathname<'%q0' %s",
-          blob_str(&fname), zCollate, blob_str(&fname), zCollate);
-      }else if( isDir==2 ){
-        db_prepare(&q,
-          "SELECT id FROM vfile WHERE pathname=%Q %s",
-          blob_str(&fname), zCollate);
-      }else{
-        fossil_warning("not found: %s", g.argv[ii]);
-        result = 1;
-        continue;
-      }
+      db_prepare(&q,
+        "SELECT id FROM vfile WHERE pathname=%Q %s"
+        " OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+        blob_str(&fname), zCollate, blob_str(&fname),
+        zCollate, blob_str(&fname), zCollate);
       while( db_step(&q)==SQLITE_ROW ){
         cnt++;
         bag_insert(&toCommit, db_column_int(&q, 0));
