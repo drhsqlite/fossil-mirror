@@ -242,13 +242,20 @@ int httpCmd(
   int *argl
 ){
   int i;
-  const char *zSep, *type;
+  const char *zSep, *type, *regexp;
   Blob hdr, payload;
+  ReCompiled *pRe = 0;
 
+  if( (argc>1) && strcmp(argv[1],"-async") ){
+    Th_ErrorMessage(interp, "synchronous http requests not yet implemented", 0, 0);
+    return TH_ERROR;
+  }
+  ++argv;
+  --argc;
   blob_zero(&payload);
   if( argc!=2 ){
     if( argc != 3 ){
-      return Th_WrongNumArgs(interp, "http url ?payload?");
+      return Th_WrongNumArgs(interp, "http -async url ?payload?");
     }
     blob_append(&payload, argv[2], -1);
     type = "POST";
@@ -260,12 +267,19 @@ int httpCmd(
     Th_ErrorMessage(interp, "url must be http:// or https://", 0, 0);
     return TH_ERROR;
   }
-  if( db_get_boolean("http-outside", 0)==0 ){
-    if( strcmp(g.urlName, "localhost") && strcmp(g.urlName, "127.0.0.1") ){
-      Th_ErrorMessage(interp, "hostname must be \"localhost\" or \"127.0.0.1\"", 0, 0);
+  regexp = db_get("http-allow-regexp", 0);
+  if( regexp && regexp[0] ){
+    const char * zErr = re_compile(&pRe, regexp, 0);
+    if( zErr ){
+      Th_SetResult(interp, zErr, -1);
       return TH_ERROR;
     }
   }
+  if (!pRe || !re_match(pRe, (const unsigned char *)argv[1], -1) ){
+    Th_SetResult(interp, "url not allowed", -1);
+    return TH_ERROR;
+  }
+  re_free(pRe);
   if( transport_open() ){
     Th_ErrorMessage(interp, transport_errmsg(), 0, 0);
     return TH_ERROR;

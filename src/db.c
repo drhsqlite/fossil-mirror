@@ -2114,7 +2114,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "encoding-glob",  0,              40, 1, ""                    },
   { "gdiff-command", 0,               40, 0, "gdiff"               },
   { "gmerge-command",0,               40, 0, ""                    },
-  { "http-outside",  0,                0, 0, "off"                 },
+  { "http-allow-regexp",0,            40, 0, ""                    },
   { "http-port",     0,               16, 0, "8080"                },
   { "https-login",   0,                0, 0, "off"                 },
   { "ignore-glob",   0,               40, 1, ""                    },
@@ -2245,8 +2245,9 @@ struct stControlSettings const ctrlSettings[] = {
 **                     Ex: xxdiff "%original" "%baseline" "%merge" -M "%output"
 **                     Ex: meld "%baseline" "%original" "%merge" "%output"
 **
-**    http-outside     Allow http requests for commit and ticket hooks to reach
-**                     outside the local machine. Default: off.
+**    http-allow-regexp Specify which URL's are allowed in http requests for
+**                     commit and ticket hooks. If empty, no http requests
+**                     are allowed whatsoever. Default: "".
 **
 **    http-port        The TCP/IP port number to use by the "server"
 **                     and "ui" commands.  Default: 8080
