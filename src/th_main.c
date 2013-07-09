@@ -287,12 +287,12 @@ int httpCmd(
   }
   blob_zero(&hdr);
   i = strlen(g.urlPath);
-  if( i>0 && g.urlPath[i-1]=='/' ){
+  if( (i>0) && (params!=argv[1]) ){
     zSep = "";
   }else{
     zSep = "/";
   }
-  blob_appendf(&hdr, "%s %s%s HTTP/1.0\r\n", type, g.urlPath, zSep);
+  blob_appendf(&hdr, "%s %s%s%s HTTP/1.0\r\n", type, zSep, g.urlPath, params?params:"");
   if( g.urlProxyAuth ){
     blob_appendf(&hdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
   }
@@ -303,7 +303,7 @@ int httpCmd(
     fossil_free(zEncoded);
     fossil_free(zCredentials);
   }
-  blob_appendf(&hdr, "Host: %s%s\r\n", g.urlHostname, params?params:"");
+  blob_appendf(&hdr, "Host: %s\r\n", g.urlHostname);
   blob_appendf(&hdr, "User-Agent: Fossil/" RELEASE_VERSION
                      " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
   blob_appendf(&hdr, "Content-Type: text/plain\r\n");
