@@ -711,16 +711,6 @@ static const char zDiffScript[] =
 @     $c config -width $gDiffs($idx,[colType $c]-width)
 @   }
 @   
-@   # Add whitespace to equalize line lengths.
-@   regexp {\d+} [.txtA index {end -1c}] numLines
-@   set width $gDiffs($idx,txt-width)
-@   foreach c {.txtA .txtB} {
-@     for {set ln 1} {$ln <= $numLines} {incr ln} {
-@       regexp {\d+$} [$c index $ln.end] len
-@       $c insert $ln.end [string repeat " " [expr {$width-$len}]] ws
-@     }
-@   }
-@   
 @   foreach c [cols] {
 @     $c config -state disabled
 @   }
@@ -743,19 +733,6 @@ static const char zDiffScript[] =
 @       $sb set $first $last
 @     }
 @   }
-@ }
-@ 
-@ proc copyText {c} {
-@   set txt ""
-@   # Copy selection without excess trailing whitespace
-@   $c tag config ws -elide 1
-@   catch {
-@     $c tag add sel sel.first sel.last
-@     set txt [selection get]
-@   }
-@   $c tag config ws -elide 0
-@   clipboard clear
-@   clipboard append $txt
 @ }
 @ 
 @ wm withdraw .
@@ -803,8 +780,6 @@ static const char zDiffScript[] =
 @     $txt tag config $tag -background $CFG([string toupper $tag]_BG)
 @     $txt tag lower $tag
 @   }
-@   bind $txt <<Copy>> {copyText %W; break}
-@   bind $txt <<Cut>> {copyText %W; break}
 @ }
 @ text .mkr
 @ 
