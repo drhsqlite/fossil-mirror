@@ -242,7 +242,7 @@ int httpCmd(
   int *argl
 ){
   int i;
-  const char *zSep, *type, *regexp;
+  const char *zSep, *type, *regexp, *params;
   Blob hdr, payload;
   ReCompiled *pRe = 0;
 
@@ -262,6 +262,7 @@ int httpCmd(
   }else{
     type = "GET";
   }
+  params = strrchr(argv[1], '?');
   url_parse(argv[1], 0);
   if( g.urlIsSsh || g.urlIsFile ){
     Th_ErrorMessage(interp, "url must be http:// or https://", 0, 0);
@@ -302,7 +303,7 @@ int httpCmd(
     fossil_free(zEncoded);
     fossil_free(zCredentials);
   }
-  blob_appendf(&hdr, "Host: %s\r\n", g.urlHostname);
+  blob_appendf(&hdr, "Host: %s%s\r\n", g.urlHostname, params?params:"");
   blob_appendf(&hdr, "User-Agent: Fossil/" RELEASE_VERSION
                      " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
   blob_appendf(&hdr, "Content-Type: text/plain\r\n");
