@@ -711,11 +711,13 @@ static const char zDiffScript[] =
 @   }
 @   close $in
 @   
-@   foreach c {.lnA .mkr .lnB} {
-@     $c config -width $widths([colType $c])
-@   }
-@   foreach c {.txtA .txtB} {
-@     $c config -tabs [expr {[font measure mono 0]*($widths(txt)+1)}]
+@   foreach c [cols] {
+@     if {[colType $c] eq "txt"} {
+@       $c config -tabs [expr {[font measure mono 0]*($widths(txt)+1)}]
+@     } else {
+@       $c config -width $widths([colType $c])
+@     }
+@     $c config -state disabled
 @   }
 @ }
 @ 
