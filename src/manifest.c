@@ -2007,7 +2007,7 @@ int manifest_crosslink(int rid, Blob *pContent){
       if( zUuid ){
         Th_SetVar(g.interp, "uuid", -1, zUuid, strlen(zUuid));
       }
-      return Th_Eval(g.interp, 0, zScript, -1) == TH_OK;
+      Th_Eval(g.interp, 0, zScript, -1);
     }
   }
   if( p->type==CFTYPE_MANIFEST ){

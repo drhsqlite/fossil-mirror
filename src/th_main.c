@@ -312,6 +312,7 @@ static int httpCmd(
   transport_send(&hdr);
   transport_send(&payload);
   transport_close();
+  g.urlProtocol=0; /* Make sure the url is not re-used. */
   Th_SetResult(interp, "", -1);
   return TH_OK;
 }

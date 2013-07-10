@@ -1,5 +1,5 @@
-C Bug-fixes:\s\n-\sticket\schange\sresulted\sin\sticket\shook\sfiring\stwice.\s\n-\suuid\sfor\scommits\swas\sdetermined\swrong.
-D 2013-07-10T13:00:15.092
+C Final\sbug-fixes\s(I\shope)
+D 2013-07-10T14:05:11.432
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -314,7 +314,7 @@ F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 5a4e3c8582af1d03ac51f9e1982025a02ffefe97
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c c9a23cb2c03beb650f599e514d2c5ce58b30833b
+F src/checkin.c 54a798dddcf08fb2a20d62c1c3bd4df28a09c6b4
 F src/checkout.c f55c4fcce7c79370b9413b99644c50e056fb7c79
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -368,7 +368,7 @@ F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 031682ec6332694f79fc27f98041c6de236e4a58
-F src/manifest.c f1641784e1e7320a9c1d8b70b40a43f4d4181afc
+F src/manifest.c 39b7bc50ac0175c63930793207614d205776c317
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c e1c6fb412ad1556e5a189786be40585e8c9ffcee
@@ -406,10 +406,10 @@ F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c 327c2faf6aeb66d146d7a95251ef3c2da26a048a
 F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
-F src/th_main.c 69b45e43ec828a6dc4d316a53f251b0c7bd5e26b
+F src/th_main.c 0f54ed5c5b847e365498c931d7a879e70be73b58
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
 F src/timeline.c 2a35f6ffed42e0243b20ec19cfb98fa7ccd60cfc
-F src/tkt.c a18f2eb3f967b2ff082a87e6f6d60851143a774b
+F src/tkt.c c5a3803b8fa01469345fe258afe49a78572faabf
 F src/tktsetup.c 389d153eab7a2d50dc425caa5419e1f22bb9fe40
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 266aca1c42b445c03e0b473d12f70ec360a40ad7
-R d8cb404f155bf3cd7346ee1140c88f09
+P 078c67e0c4006ba9056b90197b4dc59765bfb943
+R 50b640f1e8276e9b781d78cccbac34d4
 U jan.nijtmans
-Z d6c0d4e119dd58249ed00406681530f2
+Z d341eac3e40970b2e36e46593ec607dc

@@ -524,6 +524,7 @@ static void ticket_put(
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
+  run_common_script();
   manifest_crosslink_begin();
   manifest_crosslink(rid, pTicket);
   assert( blob_is_reset(pTicket) );
