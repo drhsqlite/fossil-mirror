@@ -149,6 +149,7 @@ void pull_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PULL;
   process_sync_args(&configFlags, &syncFlags);
+  sync_ssh_options();
   client_sync(syncFlags, configFlags, 0);
 }
 
@@ -178,6 +179,7 @@ void push_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH;
   process_sync_args(&configFlags, &syncFlags);
+  sync_ssh_options();
   if( db_get_boolean("dont-push",0) ){
     fossil_fatal("pushing is prohibited: the 'dont-push' option is set");
   }
@@ -216,7 +218,9 @@ void sync_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH|SYNC_PULL;
   process_sync_args(&configFlags, &syncFlags);
+  sync_ssh_options();
   if( db_get_boolean("dont-push",0) ) syncFlags &= ~SYNC_PUSH;
+  sync_ssh_db_options();
   client_sync(syncFlags, configFlags, 0);
   if( (syncFlags & SYNC_PUSH)==0 ){
     fossil_warning("pull only: the 'dont-push' option is set");
@@ -257,5 +261,43 @@ void remote_url_cmd(void){
   }else{
     url_parse(zUrl, 0);
     fossil_print("%s\n", g.urlCanonical);
+  }
+}
+
+void sync_ssh_options(void){
+  const char *zSshFossilCmd;  /* Path to remote fossil command for SSH */
+  const char *zSshHttpCmd;    /* Name of remote HTTP command for SSH */
+  const char *zSshCmd;        /* Name of remote HTTP command for SSH */
+
+  zSshFossilCmd = find_option("sshfossilcmd","f",1);
+  if( zSshFossilCmd && zSshFossilCmd[0] ){
+    g.fSshFossilCmd = mprintf("%s", zSshFossilCmd);
+  }
+  zSshHttpCmd = find_option("sshhttpcmd","h",1);
+  if( zSshHttpCmd && zSshHttpCmd[0] ){
+    g.fSshHttpCmd = mprintf("%s", zSshHttpCmd);
+    if( zSshFossilCmd==0 ){
+      g.fSshFossilCmd = "fossil";
+    }
+  }
+  zSshCmd = find_option("sshcmd","s",1);
+  if( zSshCmd && zSshCmd[0] ){
+    g.fSshCmd = mprintf("%s", zSshCmd);
+  }
+}
+
+void sync_ssh_db_options(void){
+  if( g.fSshFossilCmd && g.fSshFossilCmd[0] ){
+    db_set("last-ssh-fossil-cmd", g.fSshFossilCmd, 0);
+  }else{
+    g.fSshFossilCmd = db_get("last-ssh-fossil-cmd", 0);
+  }
+  if( g.fSshHttpCmd && g.fSshHttpCmd[0] ){
+    db_set("last-ssh-http-cmd", g.fSshHttpCmd, 0);
+  }else{
+    g.fSshHttpCmd = db_get("last-ssh-http-cmd", "test-http");
+  }
+  if( g.fSshCmd && g.fSshCmd[0] ){
+    db_set("ssh-command", g.fSshCmd, 0);
   }
 }

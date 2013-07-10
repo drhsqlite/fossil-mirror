@@ -275,8 +275,10 @@ void www_print_timeline(
     const char *zType = db_column_text(pQuery, 7);
     const char *zUser = db_column_text(pQuery, 4);
     const char *zTagList = db_column_text(pQuery, 8);
+    const char *zLogin = db_column_text(pQuery, 12);
     int tagid = db_column_int(pQuery, 9);
     const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
+    const char *zDispLogin;
     const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
@@ -410,12 +412,22 @@ void www_print_timeline(
     /* Generate the "user: USERNAME" at the end of the comment, together
     ** with a hyperlink to another timeline for that user.
     */
+    zDispLogin = "";
+    if( g.perm.Admin ){
+      if( zLogin && zLogin[0] ){
+	if( fossil_strcmp(zLogin, zUser)!=0 ){
+	  zDispLogin = mprintf(" [%s]", zLogin);
+	}
+      }else{
+	zDispLogin = " [unknown]";
+      }
+    }
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
     if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
       char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd", zDispUser, zDate);
-      @ (user: %z(href("%z",zLink))%h(zDispUser)</a>%s(zTagList?",":"\051")
+      @ (user: %z(href("%z",zLink))%h(zDispUser)%h(zDispLogin)</a>%s(zTagList?",":"\051")
     }else{
-      @ (user: %h(zDispUser)%s(zTagList?",":"\051")
+      @ (user: %h(zDispUser)%h(zDispLogin)%s(zTagList?",":"\051")
     }
 
     /* Generate a "detail" link for tags. */
@@ -854,7 +866,8 @@ static void timeline_temp_table(void){
     @   taglist TEXT,
     @   tagid INTEGER,
     @   short TEXT,
-    @   sortby REAL
+    @   sortby REAL,
+    @   login TEXT
     @ )
   ;
   db_multi_exec(zSql);
@@ -881,9 +894,13 @@ const char *timeline_query_for_www(void){
     @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0) AS tags,
     @   tagid AS tagid,
     @   brief AS brief,
-    @   event.mtime AS mtime
+    @   event.mtime AS mtime,
+    @   login AS login
     @  FROM event CROSS JOIN blob
+    @  CROSS JOIN rcvfrom CROSS JOIN user
     @ WHERE blob.rid=event.objid
+    @ AND blob.rcvid = rcvfrom.rcvid
+    @ AND rcvfrom.uid = user.uid
   ;
   if( zBase==0 ){
     zBase = mprintf(zBaseSql, TAG_BRANCH, TAG_BRANCH);

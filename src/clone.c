@@ -105,6 +105,7 @@ void clone_cmd(void){
   int bPrivate = 0;           /* Also clone private branches */
 
   if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
+  sync_ssh_options();
   url_proxy_options();
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
@@ -154,6 +155,7 @@ void clone_cmd(void){
       "REPLACE INTO config(name,value,mtime)"
       " VALUES('server-code', lower(hex(randomblob(20))), now());"
     );
+    sync_ssh_db_options();
     url_enable_proxy(0);
     url_get_password_if_needed();
     g.xlinkClusterOnly = 1;

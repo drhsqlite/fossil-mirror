@@ -1,5 +1,5 @@
-C Version\s1.26
-D 2013-06-18T21:09:23.758
+C another\spatch\sversion\sfor\sssh\simprovement\sfrom\sAndy\sBradford.
+D 2013-07-10T21:33:24.772
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
@@ -313,11 +313,11 @@ F src/blob.c 8ba8a0156a79cd41840f5e0363522a0d96c2e444
 F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 5a4e3c8582af1d03ac51f9e1982025a02ffefe97
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
-F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
+F src/cgi.c 005796c0dd84551a454a51816ae3e591d79c1e1d
 F src/checkin.c e4f8455d3c0be026f67e6cbe0cc83069fc2771f1
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
+F src/clone.c 0ba74ad65a873d7848dbb1bd37894811b0ff8d53
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c d9192353fbb8d656ef1a927a5c0b75beaa4f9e8a
@@ -339,10 +339,10 @@ F src/finfo.c e66fb54b0595c17a8a2400caae382011df2636e7
 F src/glob.c 66cd71e83a07fe617fb862d6237d283430d91d14
 F src/graph.c d2f9ba3faa6cc3b9cbf085b1faa8bc942cc75cf0
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
-F src/http.c e9f82fa14d0e894ed987a12d7d5a1477ada6115e
+F src/http.c 52d54a52543c2ebf99bdee1981aa315147df194f
 F src/http_socket.c 168bdbca66811d5cb92dd8a02caf6a5133ee2375
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
-F src/http_transport.c 111c393f1bb93a3585078d5ee23e0b3ecc1408fe
+F src/http_transport.c 5896e7d1f48f55071f9995f3584ac059199246c3
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
 F src/info.c bd3b32e569b2cd73a44658e7f58619d48934efde
 F src/json.c c376d899a53849815e251e785ccdcea24adf5e6c
@@ -363,7 +363,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 1e932b06a9ed604b53c4b5c3a16327d1ae649192
-F src/main.c 569695be96816be6f81b78bf8d3b6861fce4ec4a
+F src/main.c bc3624175cf07a36e82861c4a8e446a27448597e
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -400,7 +400,7 @@ F src/sqlite3.h addb0340c6cc75da44f7419878ee9b0e4feb6ee8
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 9bb2418c3fe03786a62f747a993fb575a5e20f42
 F src/style.c d7a6acee5f43379c35a509e87a06bba09217bc7d
-F src/sync.c f8b3aad3185b0ad034b60fc33523b54f327bb86d
+F src/sync.c 13d601ab02ccd0fe4391886fb6bb9cb61bdf177c
 F src/tag.c b0359c168de125f622f0d523b2215f1d85efecf6
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c a561c58c237b3eb43eaf55e6f9cc6a9b8a26e5d1
@@ -408,14 +408,14 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
-F src/timeline.c c498d980579e18f809a15bdc7f89b2ed151a0b14
+F src/timeline.c a3a0c47c3ec084f45e6dc2ca8a0b1f25c4c73e2f
 F src/tkt.c 4b40ead90c3daa4c83da756fcbee709b10f8934e
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 02092a24d2a0704eeb5a548ce6c070d4392175f9
 F src/update.c cb54091f53b854d3649c4ac7f1f6dc5010e1f7d9
-F src/url.c 3cfb983699aa08d605c47ad368d5796c09f6143d
+F src/url.c d0c55a7d207d00ea0acb04d78bf0d08659e3c038
 F src/user.c 84e080180fec94f8e62aa9eba7868beeefb87780
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
 F src/util.c d31f9b92152fade029a8177de4e5a996a071e170
@@ -425,7 +425,7 @@ F src/wiki.c d162efe66b5ef5e9fc178d471bff22cf0e2b2a8f
 F src/wikiformat.c f0d71d387b33931ce3cca528c24ad5b5f5916ee0
 F src/winhttp.c b8342e4cfe308d53b1dfc6d9d2080f28a70da54b
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
-F src/xfer.c 467058c65a0f4220137f0eb2ff26ba2d660119bb
+F src/xfer.c d938beb8a026a8eeb7688d3a98f8abd05c53cba3
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c 05668eb0320200978083c0fd30796db686b428bf
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -627,10 +627,9 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1294f9b22db300efb0a5b0f2743eaeb80e2d42b9
-R c6cd889112e6b9ee3a707c260e276eeb
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-1.26 *
-U drh
-Z e7924235472880b76137c3abb38c6901
+P c9cb6e72932fefbec9a8c025ea0727565ee54086
+T *branch * andy_bradford_ssh_imporvement_patch_2
+T *sym-andy_bradford_ssh_imporvement_patch_2 *
+T -sym-trunk *
+U mgagnon
+Z 5b5875e8f20f59db45ee968ec9298af9

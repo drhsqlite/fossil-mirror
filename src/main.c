@@ -136,6 +136,9 @@ struct Global {
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
+  char *fSshFossilCmd;    /* Path to remoe fossil command for SSH */
+  char *fSshHttpCmd;      /* Which http command to use for SSH */
+  char *fSshCmd;          /* SSH command string */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
@@ -580,6 +583,9 @@ int main(int argc, char **argv)
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
     g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;
     g.fSshTrace = find_option("sshtrace", 0, 0)!=0;
+    g.fSshFossilCmd = 0;
+    g.fSshHttpCmd = 0;
+    g.fSshCmd = 0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
@@ -625,6 +631,7 @@ int main(int argc, char **argv)
                  g.argv[0], zCmdName, g.argv[0], blob_str(&couldbe), g.argv[0]);
     fossil_exit(1);
   }
+  signal(SIGPIPE,SIG_IGN);
   atexit( fossil_atexit );
   aCommand[idx].xFunc();
   fossil_exit(0);
@@ -1687,6 +1694,9 @@ void cmd_http(void){
     g.httpOut = stdout;
     zIpAddr = 0;
   }
+  if( zIpAddr==0 ){
+    zIpAddr = cgi_ssh_remote_addr(0);
+  }
   find_server_repository(0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   cgi_handle_http_request(zIpAddr);
@@ -1703,13 +1713,12 @@ void cmd_test_http(void){
   Th_InitTraceLog();
   login_set_capabilities("sx", 0);
   g.useLocalauth = 1;
-  cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
   g.httpIn = stdin;
   g.httpOut = stdout;
   find_server_repository(0);
   g.cgiOutput = 1;
   g.fullHttpReply = 1;
-  cgi_handle_http_request(0);
+  cgi_handle_http_request(cgi_ssh_remote_addr("127.0.0.1"));
   process_one_web_page(0, 0);
 }
 

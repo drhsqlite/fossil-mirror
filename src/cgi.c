@@ -1495,3 +1495,21 @@ void cgi_modified_since(time_t objectTime){
   cgi_reply();
   fossil_exit(0);
 }
+
+/*
+** Check to see if the remote client is SSH and return
+** its IP or return default
+*/
+const char *cgi_ssh_remote_addr(const char *zDefault){
+  char *zIndex;
+  const char *zSshConn = fossil_getenv("SSH_CONNECTION");
+
+  if( zSshConn && zSshConn[0] ){
+    char *zSshClient = mprintf("%s",zSshConn);
+    if( zIndex = strchr(zSshClient,' ') ){
+      zSshClient[zIndex-zSshClient] = '\0';
+      return zSshClient;
+    }
+  }
+  return zDefault;
+}
