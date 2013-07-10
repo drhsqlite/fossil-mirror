@@ -229,12 +229,12 @@ static int htmlizeCmd(
 }
 
 /*
-** TH command:      http URL ?PAYLOAD?
+** TH command:      http -async URL ?PAYLOAD?
 **
 ** Do a HTTP request to specified URL. If PAYLOAD is present
 ** it will be POST'ed as text/plain, otherwise it's a GET
 */
-int httpCmd(
+static int httpCmd(
   Th_Interp *interp,
   void *p,
   int argc,
@@ -899,8 +899,9 @@ static int regexpCmd(
 **
 ** The interpreter is stored in the g.interp global variable.
 */
-void Th_FossilInit(int needConfig, int forceSetup){
+void Th_FossilInit(int needConfig, int forceSetup, int allowHttp){
   int wasInit = 0;
+  static int hasHttpCmd = 0;
   static unsigned int aFlags[] = { 0, 1, WIKI_LINKSONLY };
   static struct _Command {
     const char *zName;
@@ -977,13 +978,17 @@ void Th_FossilInit(int needConfig, int forceSetup){
                Th_ReturnCodeName(rc, 0));
     }
   }
+  if( allowHttp && !hasHttpCmd ){
+    Th_CreateCommand(g.interp, "http", httpCmd, 0, 0);
+    hasHttpCmd = 1;
+  }
 }
 
 /*
 ** Store a string value in a variable in the interpreter.
 */
 void Th_Store(const char *zName, const char *zValue){
-  Th_FossilInit(0, 0);
+  Th_FossilInit(0, 0, 0);
   if( zValue ){
     if( g.thTrace ){
       Th_Trace("set %h {%h}<br />\n", zName, zValue);
@@ -998,7 +1003,7 @@ void Th_Store(const char *zName, const char *zValue){
 void Th_StoreInt(const char *zName, int iValue){
   Blob value;
   char *zValue;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(0, 0, 0);
   blob_zero(&value);
   blob_appendf(&value, "%d", iValue);
   zValue = blob_str(&value);
@@ -1024,7 +1029,7 @@ void Th_Unstore(const char *zName){
 */
 char *Th_Fetch(const char *zName, int *pSize){
   int rc;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(0, 0, 0);
   rc = Th_GetVar(g.interp, (char*)zName, -1);
   if( rc==TH_OK ){
     return (char*)Th_GetResult(g.interp, pSize);
@@ -1104,7 +1109,7 @@ int Th_Render(const char *z){
   int n;
   int rc = TH_OK;
   char *zResult;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(0, 0, 0);
   while( z[i] ){
     if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
@@ -1184,7 +1189,7 @@ void test_th_eval(void){
   if( g.argc!=3 ){
     usage("script");
   }
-  Th_FossilInit(0, 0);
+  Th_FossilInit(0, 0, 0);
   rc = Th_Eval(g.interp, 0, g.argv[2], -1);
   zRc = Th_ReturnCodeName(rc, 1);
   fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));

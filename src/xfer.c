@@ -514,7 +514,7 @@ static void send_compressed_file(Xfer *pXfer, int rid){
 ** Except: do not request shunned artifacts.  And do not request
 ** private artifacts if we are not doing a private transfer.
 */
-static void request_phantoms(Xfer *pXfer, int maxReq, Blob *payload){
+static void request_phantoms(Xfer *pXfer, int maxReq){
   Stmt q;
   db_prepare(&q, 
     "SELECT uuid FROM phantom JOIN blob USING(rid)"
@@ -526,12 +526,6 @@ static void request_phantoms(Xfer *pXfer, int maxReq, Blob *payload){
     const char *zUuid = db_column_text(&q, 0);
     blob_appendf(pXfer->pOut, "gimme %s\n", zUuid);
     pXfer->nGimmeSent++;
-    if( payload ){
-      if( blob_size(payload) ){
-        blob_append(payload, "\r\n", -1);
-      }
-      blob_append(payload, zUuid, -1);
-    }
   }
   db_finalize(&q);
 }
@@ -814,15 +808,11 @@ static void server_private_xfer_not_authorized(void){
 ** Run the specified TH1 script, if any, and returns the return code or TH_OK
 ** when there is no script.
 */
-static int run_script(const char *zScript, Blob *payload){
+static int run_script(const char *zScript){
   if( !zScript ){
     return TH_OK; /* No script, return success. */
   }
-  Th_FossilInit(0, 0); /* Make sure TH1 is ready. */
-  if( payload ){
-    Th_SetVar(g.interp, "payload", -1, blob_str(payload), blob_size(payload));
-  }
-  Th_CreateCommand(g.interp, "http", httpCmd, 0, 0);
+  Th_FossilInit(0, 1, 1); /* Make sure TH1 is ready. */
   return Th_Eval(g.interp, 0, zScript, -1);
 }
 
@@ -830,14 +820,14 @@ static int run_script(const char *zScript, Blob *payload){
 ** Run the pre-transfer TH1 script, if any, and returns the return code.
 */
 static int run_common_script(void){
-  return run_script(db_get("xfer-common-script", 0), 0);
+  return run_script(db_get("xfer-common-script", 0));
 }
 
 /*
 ** Run the post-push TH1 script, if any, and returns the return code.
 */
-static int run_push_script(Blob *payload){
-  return run_script(db_get("xfer-push-script", 0), payload);
+static int run_push_script(void){
+  return run_script(db_get("xfer-push-script", 0));
 }
 
 /*
@@ -1218,13 +1208,12 @@ void page_xfer(void){
     blobarray_reset(xfer.aToken, xfer.nToken);
   }
   if( isPush ){
-    Blob payload;
-    request_phantoms(&xfer, 500, &payload);
-    if( run_push_script(&payload)==TH_ERROR ){
+    if( run_push_script()==TH_ERROR ){
       cgi_reset_content();
       @ error push\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
       nErr++;
     }
+    request_phantoms(&xfer, 500);
   }
   if( isClone && nGimme==0 ){
     /* The initial "clone" message from client to server contains no
@@ -1423,7 +1412,7 @@ int client_sync(
     if( (syncFlags & SYNC_PULL)!=0
      || ((syncFlags & SYNC_CLONE)!=0 && cloneSeqno==1)
     ){
-      request_phantoms(&xfer, mxPhantomReq, 0);
+      request_phantoms(&xfer, mxPhantomReq);
     }
     if( syncFlags & SYNC_PUSH ){
       send_unsent(&xfer);

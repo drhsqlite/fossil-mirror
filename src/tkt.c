@@ -315,7 +315,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
 */
 void ticket_init(void){
   const char *zConfig;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(0, 0, 0); /* Make sure TH1 is ready. */
   zConfig = ticket_common_code();
   Th_Eval(g.interp, 0, zConfig, -1);
 }
@@ -325,9 +325,8 @@ void ticket_init(void){
 */
 int ticket_change(const char *zUuid){
   const char *zConfig;
-  Th_FossilInit(0, 0);
-  Th_CreateCommand(g.interp, "http", httpCmd, 0, 0);
-  Th_SetVar(g.interp, "tkt", -1, zUuid, strlen(zUuid));
+  Th_FossilInit(0, 1, 1); /* Make sure TH1 is ready. */
+  Th_SetVar(g.interp, "uuid", -1, zUuid, strlen(zUuid));
   zConfig = ticket_change_code();
   return Th_Eval(g.interp, 0, zConfig, -1);
 }
