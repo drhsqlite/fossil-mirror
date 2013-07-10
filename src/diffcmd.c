@@ -619,7 +619,7 @@ static const char zDiffScript[] =
 @   FONTS      {{DejaVu Sans Mono} Consolas Monaco fixed}
 @   FONT_SIZE  9
 @   PADX       5
-@   WIDTH      80
+@   WIDTH      81
 @   HEIGHT     45
 @ }
 @ 
@@ -663,13 +663,22 @@ static const char zDiffScript[] =
 @     foreach c [cols] {
 @       while {[gets $in] ne "<pre>"} continue
 @       set type [colType $c]
+@       # A tab character is appended to each line in a txt column.  This,
+@       # along with the -tabs text widget option, allows us to equalize line
+@       # lengths in order to:
+@       #  (a) scroll to the same horizontal position on both sides and
+@       #  (b) keep the horizontal scrollbars from changing position/size as
+@       #      you scroll vertically.
+@       # To test, try "fossil diff --tk --from d7afa8f153 --to abe1030ca8"
+@       # as well as its inverse.
+@       set tab [expr {$type eq "txt" ? "\t" : ""}]
 @       set str {}
 @       while {[set line [gets $in]] ne "</pre>"} {
 @         set len [string length [dehtml $line]]
 @         if {$len > $widths($type)} {
 @           set widths($type) $len
 @         }
-@         append str $line\n
+@         append str $line$tab\n
 @       }
 @       
 @       set str [string range $str 0 end-1]
@@ -705,29 +714,16 @@ static const char zDiffScript[] =
 @     foreach {content tag} $gDiffs($idx,$c) {
 @       $c insert end $content $tag
 @     }
+@     $c config -state disabled
 @   }
 @   
 @   foreach c {.lnA .lnB .mkr} {
 @     $c config -width $gDiffs($idx,[colType $c]-width)
 @   }
 @   
-@   # Add whitespace to equalize line lengths.  This is done in order to:
-@   #  (a) scroll to the same horizontal position on both sides and
-@   #  (b) keep the horizontal scrollbars from changing position/size as
-@   #      you scroll vertically.
-@   # To test, try "fossil diff --tk --from d7afa8f153 --to abe1030ca8"
-@   # as well as its inverse.
-@   regexp {\d+} [.txtA index {end -1c}] numLines
 @   set width $gDiffs($idx,txt-width)
 @   foreach c {.txtA .txtB} {
-@     for {set ln 1} {$ln <= $numLines} {incr ln} {
-@       regexp {\d+$} [$c index $ln.end] len
-@       $c insert $ln.end [string repeat " " [expr {$width-$len}]] ws
-@     }
-@   }
-@   
-@   foreach c [cols] {
-@     $c config -state disabled
+@     $c config -tabs [expr {[font measure mono 0]*($width+1)}]
 @   }
 @ }
 @ 
@@ -752,13 +748,7 @@ static const char zDiffScript[] =
 @ 
 @ proc copyText {c} {
 @   set txt ""
-@   # Copy selection without excess trailing whitespace
-@   $c tag config ws -elide 1
-@   catch {
-@     $c tag add sel sel.first sel.last
-@     set txt [selection get]
-@   }
-@   $c tag config ws -elide 0
+@   catch {set txt [string map {\t\n \n} [selection get]]}
 @   clipboard clear
 @   clipboard append $txt
 @ }
