@@ -819,7 +819,7 @@ static int run_script(const char *zScript){
 /*
 ** Run the pre-transfer TH1 script, if any, and returns the return code.
 */
-static int run_common_script(void){
+int run_common_script(void){
   return run_script(db_get("xfer-common-script", 0));
 }
 

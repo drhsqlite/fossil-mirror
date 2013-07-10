@@ -327,6 +327,7 @@ int ticket_change(const char *zUuid){
   const char *zConfig;
   Th_FossilInit(0, 1, 1); /* Make sure TH1 is ready. */
   Th_SetVar(g.interp, "uuid", -1, zUuid, strlen(zUuid));
+  if( run_common_script() == TH_ERROR ) return TH_ERROR;
   zConfig = ticket_change_code();
   return Th_Eval(g.interp, 0, zConfig, -1);
 }
