@@ -185,9 +185,20 @@ void transport_global_startup(void){
     const char *zSsh;  /* The base SSH command */
     Blob zCmd;         /* The SSH command */
     char *zHost;       /* The host name to contact */
+    char *zPath;       /* The path to the remote file for SSH */
+    char *zfCmd;       /* The path to remote fossil for SSH */
     int n;             /* Size of prefix string */
 
     zSsh = db_get("ssh-command", zDefaultSshCmd);
+    if( g.fSshRemoteCmd && g.fSshRemoteCmd[0] ){
+      zfCmd = g.fSshRemoteCmd;
+      db_set("last-ssh-remote-cmd", zfCmd, 0);
+    }else{
+      zfCmd = db_get("last-ssh-remote-cmd", 0);
+      if( zfCmd==0 ){
+	zfCmd = "fossil";
+      }
+    }
     blob_init(&zCmd, zSsh, -1);
     if( g.urlPort!=g.urlDfltPort ){
 #ifdef __MINGW32__
@@ -225,21 +236,12 @@ void transport_global_startup(void){
     n = blob_size(&zCmd);
     blob_append(&zCmd, " ", 1);
     shell_escape(&zCmd, zHost);
-    if( g.urlShell ){
-      blob_appendf(&zCmd, " %s", g.urlShell);
-    }else{
-#if defined(FOSSIL_ENABLE_SSH_FAR_SIDE)
-      /* The following works.  But only if the fossil on the remote side
-      ** is recent enough to support the test-ssh-far-side command.  That
-      ** command was added on 2013-02-06.  We will leave this turned off
-      ** until most fossil servers have upgraded to that version or a later
-      ** version.  The sync will still work as long as the shell on the far
-      ** side is bash and not tcsh.  And if the default far side shell is
-      ** tcsh, then the shell=/bin/bash query parameter can be used as a
-      ** work-around.  Enable this code after about a year...
-      */
-      blob_appendf(&zCmd, " exec %s test-ssh-far-side", g.urlFossil);
-#endif
+    blob_append(&zCmd, " ", 1);
+    shell_escape(&zCmd, zfCmd);
+    blob_append(&zCmd, " http ", 6);
+    if( g.urlPath && g.urlPath[0] ){
+      zPath = mprintf("%s", g.urlPath);
+      shell_escape(&zCmd, zPath);
     }
     fossil_print("%s\n", blob_str(&zCmd)+n);  /* Show tail of SSH command */
     free(zHost);
@@ -248,7 +250,6 @@ void transport_global_startup(void){
       fossil_fatal("cannot start ssh tunnel using [%b]", &zCmd);
     }
     blob_reset(&zCmd);
-    transport_ssh_startup();
   }
 }
 
@@ -290,15 +291,7 @@ int transport_open(void){
   int rc = 0;
   if( transport.isOpen==0 ){
     if( g.urlIsSsh ){
-      Blob cmd;
-      blob_zero(&cmd);
-      shell_escape(&cmd, g.urlFossil);
-      blob_append(&cmd, " test-http ", -1);
-      shell_escape(&cmd, g.urlPath);
-      fprintf(sshOut, "%s || true\n", blob_str(&cmd));
-      fflush(sshOut);
-      if( g.fSshTrace ) printf("Sent: [%s]\n", blob_str(&cmd));
-      blob_reset(&cmd);
+      /* no-op now */
     }else if( g.urlIsHttps ){
       #ifdef FOSSIL_ENABLE_SSL
       rc = ssl_open();
@@ -584,17 +577,21 @@ char *transport_receive_line(void){
 }
 
 void transport_global_shutdown(void){
-  if( g.urlIsSsh && sshPid ){
-    /*printf("Closing SSH tunnel: ");*/
-    fflush(stdout);
-    pclose2(sshIn, sshOut, sshPid);
-    sshPid = 0;
-  }
+  transport_global_ssh_shutdown();
   if( g.urlIsHttps ){
     #ifdef FOSSIL_ENABLE_SSL
     ssl_global_shutdown();
     #endif
   }else{
     socket_global_shutdown();
+  }
+}
+
+void transport_global_ssh_shutdown(void){
+  if( g.urlIsSsh && sshPid ){
+    /*printf("Closing SSH tunnel: ");*/
+    fflush(stdout);
+    pclose2(sshIn, sshOut, sshPid);
+    sshPid = 0;
   }
 }

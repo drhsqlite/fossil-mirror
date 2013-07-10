@@ -1389,12 +1389,12 @@ int client_sync(
     if( (syncFlags & SYNC_PULL)==0 ) zOpType = "Push";
   }
   manifest_crosslink_begin();
-  transport_global_startup();
   if( syncFlags & SYNC_VERBOSE ){
     fossil_print(zLabelFormat, "", "Bytes", "Cards", "Artifacts", "Deltas");
   }
 
   while( go ){
+    transport_global_startup();
     int newPhantom = 0;
     char *zRandomness;
 
@@ -1485,7 +1485,7 @@ int client_sync(
     xfer.nGimmeSent = 0;
     xfer.nIGotSent = 0;
     if( syncFlags & SYNC_VERBOSE ){
-      fossil_print("waiting for server...");
+      fossil_print("waiting for server...\n");
     }
     fflush(stdout);
     if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0,
@@ -1826,6 +1826,7 @@ int client_sync(
     ** information which is only sent on the second round.
     */
     if( cloneSeqno<=0 && nCycle>1 ) go = 0;   
+    transport_global_ssh_shutdown();
   };
   transport_stats(&nSent, &nRcvd, 1);
   fossil_force_newline();

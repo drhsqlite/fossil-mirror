@@ -96,6 +96,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   if( find_option("verbose","v",0)!=0 ){
     *pSyncFlags |= SYNC_VERBOSE;
   }
+  clone_ssh_options();
   url_proxy_options();
   db_find_and_open_repository(0, 0);
   db_open_config(0);

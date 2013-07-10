@@ -105,6 +105,7 @@ void clone_cmd(void){
   int bPrivate = 0;           /* Also clone private branches */
 
   if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
+  clone_ssh_options();
   url_proxy_options();
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
@@ -175,4 +176,13 @@ void clone_cmd(void){
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
   db_end_transaction(0);
+}
+
+void clone_ssh_options(void){
+  const char *zSshRemoteCmd;  /* Path to remote fossil command for SSH */
+
+  zSshRemoteCmd = find_option("sshremotecmd","s",1);
+  if( zSshRemoteCmd && zSshRemoteCmd[0] ){
+    g.fSshRemoteCmd = mprintf("%s", zSshRemoteCmd);
+  }
 }
