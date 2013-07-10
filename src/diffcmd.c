@@ -616,6 +616,9 @@ static const char zDiffScript[] =
 @   HR_FG      #888888
 @   HR_PAD_TOP 4
 @   HR_PAD_BTM 8
+@   FN_BG      #444444
+@   FN_FG      #ffffff
+@   FN_PAD     5
 @   FONTS      {{DejaVu Sans Mono} Consolas Monaco fixed}
 @   FONT_SIZE  9
 @   PADX       5
@@ -643,9 +646,9 @@ static const char zDiffScript[] =
 @ }
 @ 
 @ proc readDiffs {cmd} {
-@   global gDiffs
 @   set in [open $cmd r]
 @   set idx -1
+@   array set widths {txt 0 ln 0 mkr 0}
 @   while {[gets $in line] != -1} {
 @     if {![regexp {^=+\s+(.*?)\s+=+$} $line all fn]} {
 @       continue
@@ -658,10 +661,22 @@ static const char zDiffScript[] =
 @     incr idx
 @     .files.menu add radiobutton -variable gIdx -value $idx -label $fn \
 @       -command "viewDiff $idx"
-@     array set widths {txt 0 ln 0 mkr 0}
 @     
 @     foreach c [cols] {
 @       while {[gets $in] ne "<pre>"} continue
+@       
+@       if {$idx > 0} {
+@         $c insert end \n -
+@       }
+@       $c mark set diff$idx {end -1c}
+@       $c mark gravity diff$idx left
+@       if {[colType $c] eq "txt"} {
+@         $c insert end $fn\n fn
+@       } else {
+@         $c insert end \n fn
+@       }
+@       $c insert end \n -
+@        
 @       set type [colType $c]
 @       # A tab character is appended to each line in a txt column.  This,
 @       # along with the -tabs text widget option, allows us to equalize line
@@ -681,50 +696,32 @@ static const char zDiffScript[] =
 @         append str $line$tab\n
 @       }
 @       
-@       set str [string range $str 0 end-1]
-@       set colData {}
 @       set re {<span class="diff([a-z]+)">([^<]*)</span>}
 @       # Use \r as separator since it can't appear in the diff output (it gets
 @       # converted to a space).
 @       set str [regsub -all $re $str "\r\\1\r\\2\r"]
 @       foreach {pre class mid} [split $str \r] {
 @         if {$class ne ""} {
-@           lappend colData [dehtml $pre] - [dehtml $mid] [list $class -]
+@           $c insert end [dehtml $pre] - [dehtml $mid] [list $class -]
 @         } else {
-@           lappend colData [dehtml $pre] -
+@           $c insert end [dehtml $pre] -
 @         }
 @       }
-@       set gDiffs($idx,$c) $colData
-@     }
-@     
-@     foreach {type width} [array get widths] {
-@       set gDiffs($idx,$type-width) $width
 @     }
 @   }
 @   close $in
+@   
+@   foreach c {.lnA .mkr .lnB} {
+@     $c config -width $widths([colType $c])
+@   }
+@   foreach c {.txtA .txtB} {
+@     $c config -tabs [expr {[font measure mono 0]*($widths(txt)+1)}]
+@   }
 @ }
 @ 
 @ proc viewDiff {idx} {
-@   global gDiffs
 @   .files config -text [.files.menu entrycget $idx -label]
-@   
-@   foreach c [cols] {
-@     $c config -state normal
-@     $c delete 1.0 end
-@     foreach {content tag} $gDiffs($idx,$c) {
-@       $c insert end $content $tag
-@     }
-@     $c config -state disabled
-@   }
-@   
-@   foreach c {.lnA .lnB .mkr} {
-@     $c config -width $gDiffs($idx,[colType $c]-width)
-@   }
-@   
-@   set width $gDiffs($idx,txt-width)
-@   foreach c {.txtA .txtB} {
-@     $c config -tabs [expr {[font measure mono 0]*($width+1)}]
-@   }
+@   .txtA yview diff$idx
 @ }
 @ 
 @ proc cycleDiffs {{inc 1}} {
@@ -780,11 +777,6 @@ static const char zDiffScript[] =
 @ 
 @ ::ttk::menubutton .files -menu .files.menu
 @ menu .files.menu -tearoff 0
-@ readDiffs $cmd
-@ if {[.files.menu index 0] eq "none"} {
-@   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
-@   exit
-@ }
 @ 
 @ foreach side {A B} {
 @   set ln .ln$side
@@ -798,6 +790,8 @@ static const char zDiffScript[] =
 @     $txt tag config $tag -background $CFG([string toupper $tag]_BG)
 @     $txt tag lower $tag
 @   }
+@   $txt tag config fn -background $CFG(FN_BG) -foreground $CFG(FN_FG) \
+@     -justify center
 @   bind $txt <<Copy>> {copyText %W; break}
 @   bind $txt <<Cut>> {copyText %W; break}
 @ }
@@ -816,6 +810,7 @@ static const char zDiffScript[] =
 @     -font mono -padx $CFG(PADX) -insertontime 0 -yscroll {scrollSync y .sby}
 @   $c tag config hr -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
 @      -foreground $CFG(HR_FG)
+@   $c tag config fn -spacing1 $CFG(FN_PAD) -spacing3 $CFG(FN_PAD)
 @   bindtags $c ". $c Text all"
 @   bind $c <1> {focus %W}
 @ }
@@ -823,6 +818,12 @@ static const char zDiffScript[] =
 @ ::ttk::scrollbar .sby -command {.txtA yview} -orient vertical
 @ ::ttk::scrollbar .sbxA -command {.txtA xview} -orient horizontal
 @ ::ttk::scrollbar .sbxB -command {.txtA xview} -orient horizontal
+@ 
+@ readDiffs $cmd
+@ if {[.files.menu index 0] eq "none"} {
+@   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
+@   exit
+@ }
 @ 
 @ grid rowconfigure . 1 -weight 1
 @ grid columnconfigure . 1 -weight 1
