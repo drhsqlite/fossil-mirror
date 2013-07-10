@@ -321,18 +321,6 @@ void ticket_init(void){
 }
 
 /*
-** Create the TH1 interpreter and load the "change" code.
-*/
-int ticket_change(const char *zUuid){
-  const char *zConfig;
-  Th_FossilInit(0, 1, 1); /* Make sure TH1 is ready. */
-  Th_SetVar(g.interp, "uuid", -1, zUuid, strlen(zUuid));
-  if( run_common_script() == TH_ERROR ) return TH_ERROR;
-  zConfig = ticket_change_code();
-  return Th_Eval(g.interp, 0, zConfig, -1);
-}
-
-/*
 ** Recreate the TICKET and TICKETCHNG tables.
 */
 void ticket_create_table(int separateConnection){
@@ -618,6 +606,7 @@ static int submitTicketCmd(
     blob_reset(&tktchng);
     return TH_OK;
   }
+  i = run_common_script();
   if( g.zPath[0]=='d' ){
     /* If called from /debug_tktnew or /debug_tktedit... */
     @ <font color="blue">
@@ -633,7 +622,7 @@ static int submitTicketCmd(
     ticket_put(&tktchng, zUuid,
                (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
   }
-  return ticket_change(zUuid);
+  return i;
 }
 
 
@@ -1347,6 +1336,7 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
+      run_common_script();
       ticket_put(&tktchng, zTktUuid, 0);
       printf("ticket %s succeeded for %s\n",
              (eCmd==set?"set":"add"),zTktUuid);

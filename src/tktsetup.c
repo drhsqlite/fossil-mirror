@@ -258,13 +258,6 @@ void tktsetup_com_page(void){
   );
 }
 
-/*
-** Return the ticket change code.
-*/
-const char *ticket_change_code(void){
-  return db_get("ticket-change", "");
-}
-
 static const char zDefaultNew[] =
 @ <th1>
 @   if {![info exists mutype]} {set mutype {[links only]}}

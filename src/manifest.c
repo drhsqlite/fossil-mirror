@@ -1666,6 +1666,7 @@ int manifest_crosslink(int rid, Blob *pContent){
   db_begin_transaction();
   if( p->type==CFTYPE_MANIFEST ){
     hook = "xfer-commit-script";
+    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
       for(i=0; i<p->nParent; i++){
@@ -1750,7 +1751,6 @@ int manifest_crosslink(int rid, Blob *pContent){
       int tid;
       int type;
       if( p->aTag[i].zUuid ){
-        zUuid = p->aTag[i].zUuid;
         tid = uuid_to_rid(p->aTag[i].zUuid, 1);
       }else{
         tid = rid;
