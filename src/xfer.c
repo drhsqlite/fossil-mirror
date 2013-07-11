@@ -904,7 +904,7 @@ int run_script(const char *zScript, const char *zUuid){
   if( !commonScriptRan || !(zScript = db_get(zScript, 0))){
     return TH_OK; /* No script or common script didn't run, return success. */
   }
-  if( zUuid && (zUuid != (const char *)-1) ){
+  if( zUuid ){
     Th_SetVar(g.interp, "uuid", -1, zUuid, strlen(zUuid));
   }
   return Th_Eval(g.interp, 0, zScript, -1);
@@ -918,18 +918,11 @@ int run_common_script(void){
   int result = TH_OK;
   if( !commonScriptRan ){
     Th_FossilInit(0, 0); /* Make sure TH1 is ready. */
-    commonScriptRan = 1; /* assure run_script does something */
+    commonScriptRan = 1; /* enable run_script to do something */
     result = run_script("xfer-common-script", 0);
     Th_CreateCommand(g.interp, "http", httpCmd, 0, 0);
   }
   return result;
-}
-
-/*
-** Run the post-push TH1 script, if any, and returns the return code.
-*/
-static int run_push_script(void){
-  return run_script(db_get("xfer-push-script", 0), 0);
 }
 
 /*
@@ -1310,7 +1303,7 @@ void page_xfer(void){
     blobarray_reset(xfer.aToken, xfer.nToken);
   }
   if( isPush ){
-    if( run_push_script()==TH_ERROR ){
+    if( run_script("xfer-push-script", 0)==TH_ERROR ){
       cgi_reset_content();
       @ error push\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
       nErr++;

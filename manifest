@@ -1,5 +1,5 @@
-C Don't\sallow\s"tktnew"\sand\s"tktedit"\spages\sor\sthe\s"Common"\shook\sto\suse\sthe\s"http"\scommand\sany\smore.\s\nDon't\slet\s"fossil\srebuild"\srun\sany\shooks.
-D 2013-07-11T10:46:34.165
+C Code\scleanup.\sRevert\smanifest_crosslink()\sto\sits\soriginal\ssignature.
+D 2013-07-11T11:03:31.443
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -368,7 +368,7 @@ F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 031682ec6332694f79fc27f98041c6de236e4a58
-F src/manifest.c 59b7f1844816d45f7a866b24ade3d8ec37be7e2d
+F src/manifest.c 224d8cbccc34a62949af6e3d5396f2b20c96034c
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c e1c6fb412ad1556e5a189786be40585e8c9ffcee
@@ -409,7 +409,7 @@ F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
 F src/timeline.c 2a35f6ffed42e0243b20ec19cfb98fa7ccd60cfc
-F src/tkt.c 4c3022db3d91c52da87a3f0660d937c90394ae1f
+F src/tkt.c 33ea0b203567679edaab0bb6b1a156a82ad16c90
 F src/tktsetup.c 389d153eab7a2d50dc425caa5419e1f22bb9fe40
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
@@ -425,7 +425,7 @@ F src/wiki.c 01d4cba080967370c4cf5714bf656fcf6d7c5f32
 F src/wikiformat.c f0d71d387b33931ce3cca528c24ad5b5f5916ee0
 F src/winhttp.c b8342e4cfe308d53b1dfc6d9d2080f28a70da54b
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
-F src/xfer.c 3a30ddebaee32a0f782377658ffee0ece14fef14
+F src/xfer.c 61a0a6bb2718c65cb00f713cf4064971ac3247ec
 F src/xfersetup.c 70e1cbfeba551b79eaaa74dae9bfba2c290bada0
 F src/zip.c 05668eb0320200978083c0fd30796db686b428bf
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a27df4962939072647cc27ae4a7f83307a1856ea
-R e41e796abc252bbf786f9250cfea0c51
+P 57d1d2811badf46c124e012ba8d0758b8878ead3
+R 10f9c49640619bcb931d10971f4b516d
 U jan.nijtmans
-Z 5c3330f83829387722a0c4dfa729230e
+Z 25395bf6a86e21b4e77ad67167813b43

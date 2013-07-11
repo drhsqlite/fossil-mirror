@@ -315,7 +315,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
 */
 void ticket_init(void){
   const char *zConfig;
-  Th_FossilInit(0, 0); /* Make sure TH1 is ready. */
+  Th_FossilInit(0, 0);
   zConfig = ticket_common_code();
   Th_Eval(g.interp, 0, zConfig, -1);
 }
