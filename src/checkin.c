@@ -1700,11 +1700,36 @@ void commit_cmd(void){
     blob_reset(&muuid);
   }
 
-  db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
+  db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
                  " WHERE id=-3");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zIntegrateUuid = db_column_text(&q, 0);
-    fossil_warning("Cannot close %s because it is not implemented yet\n", zIntegrateUuid);
+    int rid = db_column_int(&q, 1);
+    if( !is_a_leaf(rid) ){
+      fossil_warning("Cannot close %s because it is not a leaf\n", zIntegrateUuid);
+    }else if (!db_exists("SELECT 1 FROM tagxref "
+                   " WHERE tagid=%d AND rid=%d AND tagtype>0",
+                   TAG_CLOSED, rid)
+    ){
+      Blob ctrl;
+      Blob cksum;
+      char *zNow;
+      int nrid;
+
+      blob_zero(&ctrl);
+      zNow = date_in_standard_format("now");
+      blob_appendf(&ctrl, "D %s\n", zNow);
+      blob_appendf(&ctrl, "T +closed %s\n", zIntegrateUuid);
+      blob_appendf(&ctrl, "U %F\n", g.zLogin);
+      md5sum_blob(&ctrl, &cksum);
+      blob_appendf(&ctrl, "Z %b\n", &cksum);
+      nrid = content_put(&ctrl);
+      manifest_crosslink(nrid, &ctrl);
+      assert( blob_is_reset(&ctrl) );
+      fossil_print("Branch %s is now closed\n", zIntegrateUuid);
+    }else{
+      fossil_warning("Cannot close %s because it is already closed\n", zIntegrateUuid);
+    }
   }
   db_finalize(&q);
 
