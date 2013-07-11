@@ -72,6 +72,7 @@ set src {
   json_wiki
   leaf
   login
+  lookslike
   main
   manifest
   markdown
