@@ -155,6 +155,7 @@ void branch_new(void){
     fossil_panic("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
+  run_common_script();
   if( manifest_crosslink(brid, &branch)==0 ){
     fossil_panic("unable to install new manifest");
   }

@@ -1638,14 +1638,17 @@ void manifest_ticket_event(
 ** Processing for other control artifacts was added later.  The name
 ** of the routine, "manifest_crosslink", and the name of this source
 ** file, is a legacy of its original use.
+**
+** Returns 0 on error. On success, the uuid is returned when available,
+** (char *)-1 otherwise.
 */
-int manifest_crosslink(int rid, Blob *pContent){
+const char *manifest_crosslink(int rid, Blob *pContent){
   int i;
   Manifest *p;
   Stmt q;
   int parentid = 0;
   const char *hook = 0;
-  char *zUuid = 0;
+  const char *zUuid = (const char *)-1;
 
   if( (p = manifest_cache_find(rid))!=0 ){
     blob_reset(pContent);
@@ -2000,23 +2003,14 @@ int manifest_crosslink(int rid, Blob *pContent){
     blob_reset(&comment);
   }
   db_end_transaction(0);
-  if( hook ){
-    const char *zScript = db_get(hook, 0);
-    if( zScript && *zScript ){
-      Th_FossilInit(0, 1, 1); /* Make sure TH1 is ready. */
-      if( zUuid ){
-        Th_SetVar(g.interp, "uuid", -1, zUuid, strlen(zUuid));
-      }
-      Th_Eval(g.interp, 0, zScript, -1);
-    }
-  }
+  run_script(hook, zUuid);
   if( p->type==CFTYPE_MANIFEST ){
     manifest_cache_insert(p);
   }else{
     manifest_destroy(p);
   }
   assert( blob_is_reset(pContent) );
-  return 1;
+  return zUuid;
 }
 
 /*

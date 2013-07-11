@@ -229,95 +229,6 @@ static int htmlizeCmd(
 }
 
 /*
-** TH command:      http -async URL ?PAYLOAD?
-**
-** Do a HTTP request to specified URL. If PAYLOAD is present
-** it will be POST'ed as text/plain, otherwise it's a GET
-*/
-static int httpCmd(
-  Th_Interp *interp,
-  void *p,
-  int argc,
-  const char **argv,
-  int *argl
-){
-  int i;
-  const char *zSep, *type, *regexp, *params;
-  Blob hdr, payload;
-  ReCompiled *pRe = 0;
-
-  if( (argc>1) && strcmp(argv[1],"-async") ){
-    Th_ErrorMessage(interp, "synchronous http requests not yet implemented", 0, 0);
-    return TH_ERROR;
-  }
-  ++argv;
-  --argc;
-  blob_zero(&payload);
-  if( argc!=2 ){
-    if( argc != 3 ){
-      return Th_WrongNumArgs(interp, "http -async url ?payload?");
-    }
-    blob_append(&payload, argv[2], -1);
-    type = "POST";
-  }else{
-    type = "GET";
-  }
-  params = strrchr(argv[1], '?');
-  url_parse(argv[1], 0);
-  if( g.urlIsSsh || g.urlIsFile ){
-    Th_ErrorMessage(interp, "url must be http:// or https://", 0, 0);
-    return TH_ERROR;
-  }
-  regexp = db_get("http-allow-regexp", 0);
-  if( regexp && regexp[0] ){
-    const char * zErr = re_compile(&pRe, regexp, 0);
-    if( zErr ){
-      Th_SetResult(interp, zErr, -1);
-      return TH_ERROR;
-    }
-  }
-  if (!pRe || !re_match(pRe, (const unsigned char *)argv[1], -1) ){
-    Th_SetResult(interp, "url not allowed", -1);
-    return TH_ERROR;
-  }
-  re_free(pRe);
-  if( transport_open() ){
-    Th_ErrorMessage(interp, transport_errmsg(), 0, 0);
-    return TH_ERROR;
-  }
-  blob_zero(&hdr);
-  i = strlen(g.urlPath);
-  if( (i>0) && (params!=argv[1]) ){
-    zSep = "";
-  }else{
-    zSep = "/";
-  }
-  blob_appendf(&hdr, "%s %s%s%s HTTP/1.0\r\n", type, zSep, g.urlPath, params?params:"");
-  if( g.urlProxyAuth ){
-    blob_appendf(&hdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
-  }
-  if( g.urlPasswd && g.urlUser && g.urlPasswd[0]=='#' ){
-    char *zCredentials = mprintf("%s:%s", g.urlUser, &g.urlPasswd[1]);
-    char *zEncoded = encode64(zCredentials, -1);
-    blob_appendf(&hdr, "Authorization: Basic %s\r\n", zEncoded);
-    fossil_free(zEncoded);
-    fossil_free(zCredentials);
-  }
-  blob_appendf(&hdr, "Host: %s\r\n", g.urlHostname);
-  blob_appendf(&hdr, "User-Agent: Fossil/" RELEASE_VERSION
-                     " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
-  blob_appendf(&hdr, "Content-Type: text/plain\r\n");
-  blob_appendf(&hdr, "Content-Length: %d\r\n\r\n", blob_size(&payload));
-
-  transport_send(&hdr);
-  transport_send(&payload);
-  transport_close();
-  g.urlProtocol=0; /* Make sure the url is not re-used. */
-  Th_SetResult(interp, "", -1);
-  return TH_OK;
-}
-
-/*
 ** TH command:      date
 **
 ** Return a string which is the current time and date.  If the
@@ -900,9 +811,8 @@ static int regexpCmd(
 **
 ** The interpreter is stored in the g.interp global variable.
 */
-void Th_FossilInit(int needConfig, int forceSetup, int allowHttp){
+void Th_FossilInit(int needConfig, int forceSetup){
   int wasInit = 0;
-  static int hasHttpCmd = 0;
   static unsigned int aFlags[] = { 0, 1, WIKI_LINKSONLY };
   static struct _Command {
     const char *zName;
@@ -979,17 +889,13 @@ void Th_FossilInit(int needConfig, int forceSetup, int allowHttp){
                Th_ReturnCodeName(rc, 0));
     }
   }
-  if( allowHttp && !hasHttpCmd ){
-    Th_CreateCommand(g.interp, "http", httpCmd, 0, 0);
-    hasHttpCmd = 1;
-  }
 }
 
 /*
 ** Store a string value in a variable in the interpreter.
 */
 void Th_Store(const char *zName, const char *zValue){
-  Th_FossilInit(0, 0, 0);
+  Th_FossilInit(0, 0);
   if( zValue ){
     if( g.thTrace ){
       Th_Trace("set %h {%h}<br />\n", zName, zValue);
@@ -1004,7 +910,7 @@ void Th_Store(const char *zName, const char *zValue){
 void Th_StoreInt(const char *zName, int iValue){
   Blob value;
   char *zValue;
-  Th_FossilInit(0, 0, 0);
+  Th_FossilInit(0, 0);
   blob_zero(&value);
   blob_appendf(&value, "%d", iValue);
   zValue = blob_str(&value);
@@ -1030,7 +936,7 @@ void Th_Unstore(const char *zName){
 */
 char *Th_Fetch(const char *zName, int *pSize){
   int rc;
-  Th_FossilInit(0, 0, 0);
+  Th_FossilInit(0, 0);
   rc = Th_GetVar(g.interp, (char*)zName, -1);
   if( rc==TH_OK ){
     return (char*)Th_GetResult(g.interp, pSize);
@@ -1110,7 +1016,7 @@ int Th_Render(const char *z){
   int n;
   int rc = TH_OK;
   char *zResult;
-  Th_FossilInit(0, 0, 0);
+  Th_FossilInit(0, 0);
   while( z[i] ){
     if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
@@ -1190,7 +1096,7 @@ void test_th_eval(void){
   if( g.argc!=3 ){
     usage("script");
   }
-  Th_FossilInit(0, 0, 0);
+  Th_FossilInit(0, 0);
   rc = Th_Eval(g.interp, 0, g.argv[2], -1);
   zRc = Th_ReturnCodeName(rc, 1);
   fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));

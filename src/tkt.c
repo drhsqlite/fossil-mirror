@@ -315,7 +315,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
 */
 void ticket_init(void){
   const char *zConfig;
-  Th_FossilInit(0, 0, 0); /* Make sure TH1 is ready. */
+  Th_FossilInit(0, 0); /* Make sure TH1 is ready. */
   zConfig = ticket_common_code();
   Th_Eval(g.interp, 0, zConfig, -1);
 }
@@ -524,7 +524,6 @@ static void ticket_put(
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
-  run_common_script();
   manifest_crosslink_begin();
   manifest_crosslink(rid, pTicket);
   assert( blob_is_reset(pTicket) );
@@ -607,7 +606,6 @@ static int submitTicketCmd(
     blob_reset(&tktchng);
     return TH_OK;
   }
-  i = run_common_script();
   if( g.zPath[0]=='d' ){
     /* If called from /debug_tktnew or /debug_tktedit... */
     @ <font color="blue">
@@ -623,7 +621,7 @@ static int submitTicketCmd(
     ticket_put(&tktchng, zUuid,
                (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
   }
-  return i;
+  return TH_OK;
 }
 
 
@@ -674,6 +672,8 @@ void tktnew_page(void){
   @ </form>
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
   style_footer();
+  run_common_script();
+  run_script("ticket-change", zNewUuid);
 }
 
 /*
@@ -742,6 +742,8 @@ void tktedit_page(void){
   @ </form>
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
   style_footer();
+  run_common_script();
+  run_script("ticket-change", zName);
 }
 
 /*
