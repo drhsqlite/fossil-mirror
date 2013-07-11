@@ -647,29 +647,25 @@ static const char zDiffScript[] =
 @ 
 @ proc readDiffs {cmd} {
 @   set in [open $cmd r]
-@   set idx -1
+@   set nDiffs 0
 @   array set widths {txt 0 ln 0 mkr 0}
 @   while {[gets $in line] != -1} {
 @     if {![regexp {^=+\s+(.*?)\s+=+$} $line all fn]} {
 @       continue
 @     }
-@     
 @     if {[string compare -length 6 [gets $in] "<table"]} {
 @       continue
 @     }
-@     
-@     incr idx
-@     .files.menu add radiobutton -variable gIdx -value $idx -label $fn \
-@       -command "viewDiff $idx"
+@     incr nDiffs
+@     set idx [expr {$nDiffs > 1 ? [.txtA index end] : "1.0"}]
+@     .files.menu add command -label $fn -command "viewDiff $idx"
 @     
 @     foreach c [cols] {
 @       while {[gets $in] ne "<pre>"} continue
 @       
-@       if {$idx > 0} {
+@       if {$nDiffs > 1} {
 @         $c insert end \n -
 @       }
-@       $c mark set diff$idx {end -1c}
-@       $c mark gravity diff$idx left
 @       if {[colType $c] eq "txt"} {
 @         $c insert end $fn\n fn
 @       } else {
@@ -713,22 +709,36 @@ static const char zDiffScript[] =
 @   
 @   foreach c [cols] {
 @     if {[colType $c] eq "txt"} {
-@       $c config -tabs [expr {[font measure mono 0]*($widths(txt)+1)}]
+@       $c config -tabs [expr {[font measure mono 0]*($widths(txt)+1)}] 
 @     } else {
 @       $c config -width $widths([colType $c])
 @     }
 @     $c config -state disabled
 @   }
+@   return $nDiffs
 @ }
 @ 
 @ proc viewDiff {idx} {
-@   .files config -text [.files.menu entrycget $idx -label]
-@   .txtA yview diff$idx
+@   .txtA yview $idx
+@   .txtA xview moveto 0
 @ }
 @ 
-@ proc cycleDiffs {{inc 1}} {
-@   global gIdx
-@   .files.menu invoke [expr {($gIdx+$inc) % ([.files.menu index last]+1)}]
+@ proc cycleDiffs {{reverse 0}} {
+@   if {$reverse} {
+@     set range [.txtA tag prevrange fn @0,0 1.0]
+@     if {$range eq ""} {
+@       viewDiff {fn.last -1c}
+@     } else {
+@       viewDiff [lindex $range 0]
+@     }
+@   } else {
+@     set range [.txtA tag nextrange fn {@0,0 +1c} end]
+@     if {$range eq "" || [lindex [.txtA yview] 1] == 1} {
+@       viewDiff fn.first
+@     } else {
+@       viewDiff [lindex $range 0]
+@     }
+@   }
 @ }
 @ 
 @ proc scrollSync {axis sbs first last} {
@@ -757,7 +767,7 @@ static const char zDiffScript[] =
 @ wm iconname . $CFG(TITLE)
 @ bind . <q> exit
 @ bind . <Tab> {cycleDiffs; break}
-@ bind . <<PrevWindow>> {cycleDiffs -1; break}
+@ bind . <<PrevWindow>> {cycleDiffs 1; break}
 @ bind . <Return> {
 @   event generate .files <1>
 @   event generate .files <ButtonRelease-1>
@@ -777,7 +787,7 @@ static const char zDiffScript[] =
 @   bind . <Shift-$key> continue
 @ }
 @ 
-@ ::ttk::menubutton .files -menu .files.menu
+@ ::ttk::menubutton .files -menu .files.menu -text "Files"
 @ menu .files.menu -tearoff 0
 @ 
 @ foreach side {A B} {
@@ -821,8 +831,8 @@ static const char zDiffScript[] =
 @ ::ttk::scrollbar .sbxA -command {.txtA xview} -orient horizontal
 @ ::ttk::scrollbar .sbxB -command {.txtA xview} -orient horizontal
 @ 
-@ readDiffs $cmd
-@ if {[.files.menu index 0] eq "none"} {
+@ 
+@ if {[readDiffs $cmd] == 0} {
 @   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
 @   exit
 @ }
@@ -835,7 +845,6 @@ static const char zDiffScript[] =
 @ grid .sbxA -row 2 -column 0 -columnspan 2 -sticky ew
 @ grid .sbxB -row 2 -column 3 -columnspan 2 -sticky ew
 @ 
-@ .files.menu invoke 0
 @ wm deiconify .
 ;
 
