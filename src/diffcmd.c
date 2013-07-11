@@ -674,22 +674,13 @@ static const char zDiffScript[] =
 @       $c insert end \n -
 @        
 @       set type [colType $c]
-@       # A tab character is appended to each line in a txt column.  This,
-@       # along with the -tabs text widget option, allows us to equalize line
-@       # lengths in order to:
-@       #  (a) scroll to the same horizontal position on both sides and
-@       #  (b) keep the horizontal scrollbars from changing position/size as
-@       #      you scroll vertically.
-@       # To test, try "fossil diff --tk --from d7afa8f153 --to abe1030ca8"
-@       # as well as its inverse.
-@       set tab [expr {$type eq "txt" ? "\t" : ""}]
 @       set str {}
 @       while {[set line [gets $in]] ne "</pre>"} {
 @         set len [string length [dehtml $line]]
 @         if {$len > $widths($type)} {
 @           set widths($type) $len
 @         }
-@         append str $line$tab\n
+@         append str $line\n
 @       }
 @       
 @       set re {<span class="diff([a-z]+)">([^<]*)</span>}
@@ -755,13 +746,6 @@ static const char zDiffScript[] =
 @   }
 @ }
 @ 
-@ proc copyText {c} {
-@   set txt ""
-@   catch {set txt [string map {\t\n \n} [selection get]]}
-@   clipboard clear
-@   clipboard append $txt
-@ }
-@ 
 @ wm withdraw .
 @ wm title . $CFG(TITLE)
 @ wm iconname . $CFG(TITLE)
@@ -804,8 +788,6 @@ static const char zDiffScript[] =
 @   }
 @   $txt tag config fn -background $CFG(FN_BG) -foreground $CFG(FN_FG) \
 @     -justify center
-@   bind $txt <<Copy>> {copyText %W; break}
-@   bind $txt <<Cut>> {copyText %W; break}
 @ }
 @ text .mkr
 @ 
