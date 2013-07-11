@@ -898,10 +898,10 @@ static int commonScriptRan = 0;
 /*
 ** Run the specified TH1 script, if any, and returns the return code or TH_OK
 ** when there is no script. If run_common_script() was not ran before, this
-** function will return TH_OK as well without doing anything.
+** function will return TH_OK without doing anything.
 */
 int run_script(const char *zScript, const char *zUuid){
-  if( !commonScriptRan || !(zScript = db_get(zScript, 0))){
+  if( !commonScriptRan || !zScript || !(zScript = db_get(zScript, 0))){
     return TH_OK; /* No script or common script didn't run, return success. */
   }
   if( zUuid ){

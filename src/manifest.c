@@ -2000,14 +2000,14 @@ int manifest_crosslink(int rid, Blob *pContent){
     blob_reset(&comment);
   }
   db_end_transaction(0);
-  run_script(hook, zUuid);
+  i = run_script(hook, zUuid);
   if( p->type==CFTYPE_MANIFEST ){
     manifest_cache_insert(p);
   }else{
     manifest_destroy(p);
   }
   assert( blob_is_reset(pContent) );
-  return 1;
+  return (i == TH_OK);
 }
 
 /*
