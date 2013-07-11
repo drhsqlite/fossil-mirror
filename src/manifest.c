@@ -2007,7 +2007,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     manifest_destroy(p);
   }
   assert( blob_is_reset(pContent) );
-  return 0;
+  return 1;
 }
 
 /*

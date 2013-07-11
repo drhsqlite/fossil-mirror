@@ -1,5 +1,5 @@
-C Code\scleanup.\sRevert\smanifest_crosslink()\sto\sits\soriginal\ssignature.
-D 2013-07-11T11:03:31.443
+C wrong\sdefault\sreturn\svalue.
+D 2013-07-11T11:28:08.641
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -368,7 +368,7 @@ F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 031682ec6332694f79fc27f98041c6de236e4a58
-F src/manifest.c 224d8cbccc34a62949af6e3d5396f2b20c96034c
+F src/manifest.c 5d3f82dd3ac7b2e21b973d750251851fade0505d
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c e1c6fb412ad1556e5a189786be40585e8c9ffcee
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 57d1d2811badf46c124e012ba8d0758b8878ead3
-R 10f9c49640619bcb931d10971f4b516d
+P b63458304d95ddd92a43f838cf8e46e3bd4c08fe
+R da4fcbc016118bc25042fc9bee06dbf6
 U jan.nijtmans
-Z 25395bf6a86e21b4e77ad67167813b43
+Z 365ffd654857db7a021a47949797b259
