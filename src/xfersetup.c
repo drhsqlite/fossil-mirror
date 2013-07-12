@@ -38,6 +38,10 @@ void xfersetup_page(void){
     "Common TH1 code run before all transfer request processing.");
   setup_menu_entry("Push", "xfersetup_push",
     "Specific TH1 code to run after \"push\" transfer requests.");
+  setup_menu_entry("Commit", "xfersetup_commit",
+    "The TH1 code run after a commit.");
+  setup_menu_entry("Ticket", "xfersetup_ticket",
+    "The TH1 code run after a ticket change.");
   @ </table>
   style_footer();
 }
@@ -140,6 +144,46 @@ void xfersetup_push_page(void){
     "Transfer Push Script",
     "xfer-push-script",
     zDefaultXferPush,
+    zDesc,
+    0,
+    0,
+    30
+  );
+}
+
+static const char *zDefaultXferCommit = 0;
+
+/*
+** WEBPAGE: xfersetup_commit
+*/
+void xfersetup_commit_page(void){
+  static const char zDesc[] =
+  @ Enter TH1 script that runs for each "commit" in a transfer requests.
+  ;
+  xfersetup_generic(
+    "Transfer Commit Script",
+    "xfer-commit-script",
+    zDefaultXferCommit,
+    zDesc,
+    0,
+    0,
+    30
+  );
+}
+
+static const char *zDefaultXferTicket = 0;
+
+/*
+** WEBPAGE: xfersetup_ticket
+*/
+void xfersetup_ticket_page(void){
+  static const char zDesc[] =
+  @ Enter TH1 script that runs for each "ticket" change in a transfer requests.
+  ;
+  xfersetup_generic(
+    "Transfer Ticket Script",
+    "ticket-change",
+    zDefaultXferTicket,
     zDesc,
     0,
     0,

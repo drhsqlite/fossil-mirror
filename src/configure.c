@@ -113,7 +113,6 @@ static struct {
 
   { "ticket-table",           CONFIGSET_TKT  },
   { "ticket-common",          CONFIGSET_TKT  },
-  { "ticket-change",          CONFIGSET_TKT  },
   { "ticket-newpage",         CONFIGSET_TKT  },
   { "ticket-viewpage",        CONFIGSET_TKT  },
   { "ticket-editpage",        CONFIGSET_TKT  },
@@ -132,6 +131,8 @@ static struct {
 
   { "xfer-common-script",     CONFIGSET_XFER },
   { "xfer-push-script",       CONFIGSET_XFER },
+  { "xfer-commit-script",     CONFIGSET_XFER },
+  { "ticket-change",          CONFIGSET_XFER },
 
 };
 static int iConfig = 0;

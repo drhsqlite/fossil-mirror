@@ -805,29 +805,124 @@ static void server_private_xfer_not_authorized(void){
 }
 
 /*
-** Run the specified TH1 script, if any, and returns the return code or TH_OK
-** when there is no script.
+** TH command:      http -async URL ?PAYLOAD?
+**
+** Do a HTTP request to specified URL. If PAYLOAD is present
+** it will be POST'ed as text/plain, otherwise it's a GET
 */
-static int run_script(const char *zScript){
-  if( !zScript ){
-    return TH_OK; /* No script, return success. */
+static int httpCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int i;
+  const char *zSep, *type, *regexp, *params;
+  Blob hdr, payload;
+  ReCompiled *pRe = 0;
+
+  if( (argc>1) && strcmp(argv[1],"-async") ){
+    Th_ErrorMessage(interp, "synchronous http requests not yet implemented", 0, 0);
+    return TH_ERROR;
   }
-  Th_FossilInit(0, 0); /* Make sure TH1 is ready. */
+  ++argv;
+  --argc;
+  blob_zero(&payload);
+  if( argc!=2 ){
+    if( argc != 3 ){
+      return Th_WrongNumArgs(interp, "http -async url ?payload?");
+    }
+    blob_append(&payload, argv[2], -1);
+    type = "POST";
+  }else{
+    type = "GET";
+  }
+  params = strrchr(argv[1], '?');
+  url_parse(argv[1], 0);
+  if( g.urlIsSsh || g.urlIsFile ){
+    Th_ErrorMessage(interp, "url must be http:// or https://", 0, 0);
+    return TH_ERROR;
+  }
+  regexp = db_get("http-allow-regexp", 0);
+  if( regexp && regexp[0] ){
+    const char * zErr = re_compile(&pRe, regexp, 0);
+    if( zErr ){
+      Th_SetResult(interp, zErr, -1);
+      return TH_ERROR;
+    }
+  }
+  if (!pRe || !re_match(pRe, (const unsigned char *)argv[1], -1) ){
+    Th_SetResult(interp, "url not allowed", -1);
+    return TH_ERROR;
+  }
+  re_free(pRe);
+  if( transport_open() ){
+    Th_ErrorMessage(interp, transport_errmsg(), 0, 0);
+    return TH_ERROR;
+  }
+  blob_zero(&hdr);
+  i = strlen(g.urlPath);
+  if( (i>0) && (params!=argv[1]) ){
+    zSep = "";
+  }else{
+    zSep = "/";
+  }
+  blob_appendf(&hdr, "%s %s%s%s HTTP/1.0\r\n", type, zSep, g.urlPath, params?params:"");
+  if( g.urlProxyAuth ){
+    blob_appendf(&hdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
+  }
+  if( g.urlPasswd && g.urlUser && g.urlPasswd[0]=='#' ){
+    char *zCredentials = mprintf("%s:%s", g.urlUser, &g.urlPasswd[1]);
+    char *zEncoded = encode64(zCredentials, -1);
+    blob_appendf(&hdr, "Authorization: Basic %s\r\n", zEncoded);
+    fossil_free(zEncoded);
+    fossil_free(zCredentials);
+  }
+  blob_appendf(&hdr, "Host: %s\r\n", g.urlHostname);
+  blob_appendf(&hdr, "User-Agent: Fossil/" RELEASE_VERSION
+                     " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
+  blob_appendf(&hdr, "Content-Type: text/plain\r\n");
+  blob_appendf(&hdr, "Content-Length: %d\r\n\r\n", blob_size(&payload));
+
+  transport_send(&hdr);
+  transport_send(&payload);
+  transport_close();
+  g.urlProtocol=0; /* Make sure the url is not re-used. */
+  Th_SetResult(interp, "", -1);
+  return TH_OK;
+}
+
+static int commonScriptRan = 0;
+
+/*
+** Run the specified TH1 script, if any, and returns the return code or TH_OK
+** when there is no script. If run_common_script() was not ran before, this
+** function will return TH_OK without doing anything.
+*/
+int run_script(const char *zScript, const char *zUuid){
+  if( !commonScriptRan || !zScript || !(zScript = db_get(zScript, 0))){
+    return TH_OK; /* No script or common script didn't run, return success. */
+  }
+  if( zUuid ){
+    Th_SetVar(g.interp, "uuid", -1, zUuid, strlen(zUuid));
+  }
   return Th_Eval(g.interp, 0, zScript, -1);
 }
 
 /*
 ** Run the pre-transfer TH1 script, if any, and returns the return code.
+** Prepare the "http" command for use in other hook scripts.
 */
-static int run_common_script(void){
-  return run_script(db_get("xfer-common-script", 0));
-}
-
-/*
-** Run the post-push TH1 script, if any, and returns the return code.
-*/
-static int run_push_script(void){
-  return run_script(db_get("xfer-push-script", 0));
+int run_common_script(void){
+  int result = TH_OK;
+  if( !commonScriptRan ){
+    Th_FossilInit(0, 0); /* Make sure TH1 is ready. */
+    commonScriptRan = 1; /* enable run_script to do something */
+    result = run_script("xfer-common-script", 0);
+    Th_CreateCommand(g.interp, "http", httpCmd, 0, 0);
+  }
+  return result;
 }
 
 /*
@@ -1208,7 +1303,7 @@ void page_xfer(void){
     blobarray_reset(xfer.aToken, xfer.nToken);
   }
   if( isPush ){
-    if( run_push_script()==TH_ERROR ){
+    if( run_script("xfer-push-script", 0)==TH_ERROR ){
       cgi_reset_content();
       @ error push\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
       nErr++;

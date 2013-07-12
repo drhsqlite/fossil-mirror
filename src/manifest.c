@@ -1644,6 +1644,8 @@ int manifest_crosslink(int rid, Blob *pContent){
   Manifest *p;
   Stmt q;
   int parentid = 0;
+  const char *hook = 0;
+  const char *zUuid = 0;
 
   if( (p = manifest_cache_find(rid))!=0 ){
     blob_reset(pContent);
@@ -1663,6 +1665,8 @@ int manifest_crosslink(int rid, Blob *pContent){
   }
   db_begin_transaction();
   if( p->type==CFTYPE_MANIFEST ){
+    hook = "xfer-commit-script";
+    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
       for(i=0; i<p->nParent; i++){
@@ -1859,6 +1863,8 @@ int manifest_crosslink(int rid, Blob *pContent){
   if( p->type==CFTYPE_TICKET ){
     char *zTag;
 
+    hook = "ticket-change";
+    zUuid = p->zTicketUuid;
     assert( manifest_crosslink_busy==1 );
     zTag = mprintf("tkt-%s", p->zTicketUuid);
     tag_insert(zTag, 1, 0, rid, p->rDate, rid);
@@ -1994,13 +2000,14 @@ int manifest_crosslink(int rid, Blob *pContent){
     blob_reset(&comment);
   }
   db_end_transaction(0);
+  i = run_script(hook, zUuid);
   if( p->type==CFTYPE_MANIFEST ){
     manifest_cache_insert(p);
   }else{
     manifest_destroy(p);
   }
   assert( blob_is_reset(pContent) );
-  return 1;
+  return (i == TH_OK);
 }
 
 /*

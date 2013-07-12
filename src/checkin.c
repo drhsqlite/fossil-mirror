@@ -1685,7 +1685,11 @@ void commit_cmd(void){
     fossil_panic("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
-  manifest_crosslink(nvid, &manifest);
+  if( !dryRunFlag ){
+    if( run_common_script()!=TH_OK || manifest_crosslink(nvid, &manifest)==0 ){
+      fossil_panic("%s\n", Th_GetResult(g.interp, 0));
+    }
+  }
   assert( blob_is_reset(&manifest) );
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);

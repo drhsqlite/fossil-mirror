@@ -321,16 +321,6 @@ void ticket_init(void){
 }
 
 /*
-** Create the TH1 interpreter and load the "change" code.
-*/
-int ticket_change(void){
-  const char *zConfig;
-  Th_FossilInit(0, 0);
-  zConfig = ticket_change_code();
-  return Th_Eval(g.interp, 0, zConfig, -1);
-}
-
-/*
 ** Recreate the TICKET and TICKETCHNG tables.
 */
 void ticket_create_table(int separateConnection){
@@ -515,11 +505,12 @@ static int appendRemarkCmd(
 /*
 ** Write a ticket into the repository.
 */
-static void ticket_put(
+static int ticket_put(
   Blob *pTicket,           /* The text of the ticket change record */
   const char *zTktId,      /* The ticket to which this change is applied */
   int needMod              /* True if moderation is needed */
 ){
+  int result;
   int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
   if( rid==0 ){
     fossil_panic("trouble committing ticket: %s", g.zErrMsg);
@@ -535,9 +526,10 @@ static void ticket_put(
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   manifest_crosslink_begin();
-  manifest_crosslink(rid, pTicket);
+  result = manifest_crosslink(rid, pTicket);
   assert( blob_is_reset(pTicket) );
   manifest_crosslink_end();
+  return result;
 }
 
 /*
@@ -627,11 +619,11 @@ static int submitTicketCmd(
     Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
              "}<br />\n",
        blob_str(&tktchng));
-  }else{
-    ticket_put(&tktchng, zUuid,
-               (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
+  }else if( !ticket_put(&tktchng, zUuid,
+      (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1))) {
+    return TH_ERROR;
   }
-  return ticket_change();
+  return TH_OK;
 }
 
 
@@ -682,6 +674,8 @@ void tktnew_page(void){
   @ </form>
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
   style_footer();
+  run_common_script();
+  run_script("ticket-change", zNewUuid);
 }
 
 /*
@@ -750,6 +744,8 @@ void tktedit_page(void){
   @ </form>
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
   style_footer();
+  run_common_script();
+  run_script("ticket-change", zName);
 }
 
 /*
@@ -1345,9 +1341,12 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      ticket_put(&tktchng, zTktUuid, 0);
-      printf("ticket %s succeeded for %s\n",
+      if( run_common_script()!=TH_OK || ticket_put(&tktchng, zTktUuid, 0)){
+        fossil_panic("%s\n", Th_GetResult(g.interp, 0));
+      }else{
+        fossil_print("ticket %s succeeded for %s\n",
              (eCmd==set?"set":"add"),zTktUuid);
+      }
     }
   }
 }
