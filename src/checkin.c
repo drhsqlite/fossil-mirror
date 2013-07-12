@@ -991,7 +991,7 @@ static void create_manifest(
   blob_appendf(pOut, "P %s", zParentUuid);
   if( p->verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
   free(zParentUuid);
-  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=0");
+  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=0 OR id<-2");
   while( db_step(&q2)==SQLITE_ROW ){
     char *zMergeUuid;
     int mid = db_column_int(&q2, 0);
@@ -1010,7 +1010,7 @@ static void create_manifest(
   db_prepare(&q2,
     "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid"
     "  FROM vmerge, blob"
-    " WHERE vmerge.id<0"
+    " WHERE (vmerge.id=-1 OR vmerge.id=-2)"
     "   AND blob.rid=vmerge.merge"
     " ORDER BY 1");
   while( db_step(&q2)==SQLITE_ROW ){
@@ -1425,7 +1425,7 @@ void commit_cmd(void){
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
   }
-  isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0");
+  isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0 OR id<-2");
   if( g.aCommitFile && isAMerge ){
     fossil_fatal("cannot do a partial commit of a merge");
   }
