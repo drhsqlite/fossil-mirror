@@ -260,8 +260,12 @@ void merge_cmd(void){
                  " Use --force to override.\n");
     return;
   }
+  if( integrateFlag && !is_a_leaf(mid) ){
+    fossil_warning("ignoring --integrate: %s is not a leaf", g.argv[2]);
+    integrateFlag = 0;
+  }
   if( verboseFlag ){
-    print_checkin_description(mid, 12, "merge-from:");
+    print_checkin_description(mid, 12, integrateFlag?"integrate:":"merge-from:");
     print_checkin_description(pid, 12, "baseline:");
   }
   vfile_check_signature(vid, CKSIG_ENOTFILE);
