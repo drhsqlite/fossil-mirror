@@ -227,7 +227,7 @@ void merge_cmd(void){
     }
   }else if( pickFlag || backoutFlag ){
     if( integrateFlag ){
-      fossil_fatal("incompatible options: --integrate & --cherrypick or --baseline");
+      fossil_fatal("incompatible options: --integrate & --cherrypick or --backout");
     }
     pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
     if( pid<=0 ){
