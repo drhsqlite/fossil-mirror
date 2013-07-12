@@ -1667,6 +1667,13 @@ void commit_cmd(void){
     }
   }
 
+  /* If the -n|--dry-run option is specified, output the manifest file
+  ** and rollback the transaction.
+  */
+  if( dryRunFlag ){
+    blob_write_to_file(&manifest, "");
+  }
+
   db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
                  " WHERE id=-3");
   while( db_step(&q)==SQLITE_ROW ){
@@ -1699,13 +1706,6 @@ void commit_cmd(void){
     }
   }
   db_finalize(&q);
-
-  /* If the -n|--dry-run option is specified, output the manifest file
-  ** and rollback the transaction.
-  */
-  if( dryRunFlag ){
-    blob_write_to_file(&manifest, "");
-  }
 
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest", g.zLocalRoot);
