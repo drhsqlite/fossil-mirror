@@ -131,6 +131,7 @@ static void status_report(
     switch( db_column_int(&q, 1) ){
       case -1:  zLabel = "CHERRYPICK";  break;
       case -2:  zLabel = "BACKOUT   ";  break;
+      case -3:  zLabel = "INTEGRATE ";  break;
     }
     blob_append(report, zPrefix, nPrefix);
     blob_appendf(report, "%s %s\n", zLabel, db_column_text(&q, 0));
@@ -1672,6 +1673,39 @@ void commit_cmd(void){
   if( dryRunFlag ){
     blob_write_to_file(&manifest, "");
   }
+
+  db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
+                 " WHERE id=-3");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zIntegrateUuid = db_column_text(&q, 0);
+    int rid = db_column_int(&q, 1);
+    if( !is_a_leaf(rid) ){
+      fossil_print("Not_Closed: %s (not a leaf any more)\n", zIntegrateUuid);
+    }else{
+      if (!db_exists("SELECT 1 FROM tagxref "
+                   " WHERE tagid=%d AND rid=%d AND tagtype>0",
+                   TAG_CLOSED, rid)
+      ){
+        Blob ctrl;
+        Blob cksum;
+        char *zNow;
+        int nrid;
+
+        blob_zero(&ctrl);
+        zNow = date_in_standard_format("now");
+        blob_appendf(&ctrl, "D %s\n", zNow);
+        blob_appendf(&ctrl, "T +closed %s\n", zIntegrateUuid);
+        blob_appendf(&ctrl, "U %F\n", g.zLogin);
+        md5sum_blob(&ctrl, &cksum);
+        blob_appendf(&ctrl, "Z %b\n", &cksum);
+        nrid = content_put(&ctrl);
+        manifest_crosslink(nrid, &ctrl);
+        assert( blob_is_reset(&ctrl) );
+      }
+      fossil_print("Closed: %s\n", zIntegrateUuid);
+    }
+  }
+  db_finalize(&q);
 
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest", g.zLocalRoot);
