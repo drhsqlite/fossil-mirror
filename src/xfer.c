@@ -896,18 +896,19 @@ static int httpCmd(
 static int commonScriptRan = 0;
 
 /*
-** Run the specified TH1 script, if any, and returns the return code or TH_OK
-** when there is no script. If run_common_script() was not ran before, this
-** function will return TH_OK without doing anything.
+** Run the specified TH1 script, if any, and returns 1 on error.
 */
 int run_script(const char *zScript, const char *zUuid){
+  int result = 0;
   if( !commonScriptRan || !zScript || !(zScript = db_get(zScript, 0))){
-    return TH_OK; /* No script or common script didn't run, return success. */
+    return 0; /* No script or common script didn't run, return success. */
   }
   if( zUuid ){
     Th_SetVar(g.interp, "uuid", -1, zUuid, strlen(zUuid));
   }
-  return Th_Eval(g.interp, 0, zScript, -1);
+  result = Th_Eval(g.interp, 0, zScript, -1) != TH_OK;
+  if (result) fossil_error(1, "%s", Th_GetResult(g.interp, 0));
+  return result;
 }
 
 /*
@@ -915,7 +916,7 @@ int run_script(const char *zScript, const char *zUuid){
 ** Prepare the "http" command for use in other hook scripts.
 */
 int run_common_script(void){
-  int result = TH_OK;
+  int result = 0;
   if( !commonScriptRan ){
     Th_FossilInit(0, 0); /* Make sure TH1 is ready. */
     commonScriptRan = 1; /* enable run_script to do something */
@@ -984,7 +985,7 @@ void page_xfer(void){
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
   manifest_crosslink_begin();
-  if( run_common_script()==TH_ERROR ){
+  if( run_common_script() ){
     cgi_reset_content();
     @ error common\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
     nErr++;
@@ -1303,9 +1304,9 @@ void page_xfer(void){
     blobarray_reset(xfer.aToken, xfer.nToken);
   }
   if( isPush ){
-    if( run_script("xfer-push-script", 0)==TH_ERROR ){
+    if( run_script("xfer-push-script", 0) ){
       cgi_reset_content();
-      @ error push\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
+      @ error push\sscript\sfailed:\s%F(g.zErrMsg)
       nErr++;
     }
     request_phantoms(&xfer, 500);

@@ -1686,8 +1686,8 @@ void commit_cmd(void){
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
   if( !dryRunFlag ){
-    if( run_common_script()!=TH_OK || manifest_crosslink(nvid, &manifest)==0 ){
-      fossil_panic("%s\n", Th_GetResult(g.interp, 0));
+    if( run_common_script() || manifest_crosslink(nvid, &manifest) ){
+      fossil_panic("%s\n", g.zErrMsg);
     }
   }
   assert( blob_is_reset(&manifest) );

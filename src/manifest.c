@@ -1651,17 +1651,20 @@ int manifest_crosslink(int rid, Blob *pContent){
     blob_reset(pContent);
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
     assert( blob_is_reset(pContent) || pContent==0 );
-    return 0;
+    fossil_error(1, "syntax error in manifest");
+    return 1;
   }
   if( g.xlinkClusterOnly && p->type!=CFTYPE_CLUSTER ){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
-    return 0;
+    fossil_error(1, "no manifest");
+    return 1;
   }
   if( p->type==CFTYPE_MANIFEST && fetch_baseline(p, 0) ){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
-    return 0;
+    fossil_error(1, "cannot fetch baseline manifest");
+    return 1;
   }
   db_begin_transaction();
   if( p->type==CFTYPE_MANIFEST ){
@@ -1761,8 +1764,8 @@ int manifest_crosslink(int rid, Blob *pContent){
           case '+':  type = 1;  break;  /* Apply to target only */
           case '*':  type = 2;  break;  /* Propagate to descendants */
           default:
-            fossil_fatal("unknown tag type in manifest: %s", p->aTag);
-            return 0;
+            fossil_error(1, "unknown tag type in manifest: %s", p->aTag);
+            return 1;
         }
         tag_insert(&p->aTag[i].zName[1], type, p->aTag[i].zValue, 
                    rid, p->rDate, tid);
@@ -2007,7 +2010,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     manifest_destroy(p);
   }
   assert( blob_is_reset(pContent) );
-  return (i == TH_OK);
+  return i;
 }
 
 /*

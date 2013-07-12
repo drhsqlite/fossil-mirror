@@ -619,7 +619,7 @@ static int submitTicketCmd(
     Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
              "}<br />\n",
        blob_str(&tktchng));
-  }else if( !ticket_put(&tktchng, zUuid,
+  }else if( ticket_put(&tktchng, zUuid,
       (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1))) {
     return TH_ERROR;
   }
@@ -1341,8 +1341,8 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      if( run_common_script()!=TH_OK || ticket_put(&tktchng, zTktUuid, 0)){
-        fossil_panic("%s\n", Th_GetResult(g.interp, 0));
+      if( run_common_script() || ticket_put(&tktchng, zTktUuid, 0)){
+        fossil_panic("%s\n", g.zErrMsg);
       }else{
         fossil_print("ticket %s succeeded for %s\n",
              (eCmd==set?"set":"add"),zTktUuid);
