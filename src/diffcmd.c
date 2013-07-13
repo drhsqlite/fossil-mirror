@@ -622,7 +622,7 @@ static const char zDiffScript[] =
 @   FONTS      {{DejaVu Sans Mono} Consolas Monaco fixed}
 @   FONT_SIZE  9
 @   PADX       5
-@   WIDTH      81
+@   WIDTH      80
 @   HEIGHT     45
 @ }
 @ 
@@ -699,10 +699,9 @@ static const char zDiffScript[] =
 @   close $in
 @   
 @   foreach c [cols] {
-@     if {[colType $c] eq "txt"} {
-@       $c config -tabs [expr {[font measure mono 0]*($widths(txt)+1)}] 
-@     } else {
-@       $c config -width $widths([colType $c])
+@     set type [colType $c]
+@     if {$type ne "txt"} {
+@       $c config -width $widths($type)
 @     }
 @     $c config -state disabled
 @   }
@@ -732,18 +731,59 @@ static const char zDiffScript[] =
 @   }
 @ }
 @ 
-@ proc scrollSync {axis sbs first last} {
-@   foreach c [cols] {
-@     $c ${axis}view moveto $first
-@   }
-@   foreach sb $sbs {
-@     if {$first <= 0 && $last >= 1} {
-@       grid remove $sb
-@     } else {
+@ proc xvis {col} {
+@   set view [$col xview]
+@   return [expr {[lindex $view 1]-[lindex $view 0]}]
+@ }
+@ 
+@ proc scroll-x {args} {
+@   set c .txt[expr {[xvis .txtA] < [xvis .txtB] ? "A" : "B"}]
+@   eval $c xview $args
+@ }
+@ 
+@ interp alias {} scroll-y {} .txtA yview
+@ 
+@ proc noop {args} {}
+@ 
+@ proc enableSync {axis} {
+@   update idletasks
+@   interp alias {} sync-$axis {}
+@   rename _sync-$axis sync-$axis
+@ }
+@ 
+@ proc disableSync {axis} {
+@   rename sync-$axis _sync-$axis
+@   interp alias {} sync-$axis {} noop
+@ }
+@ 
+@ proc sync-x {col first last} {
+@   disableSync x
+@   $col xview moveto [expr {$first*[xvis $col]/($last-$first)}]
+@   foreach side {A B} {
+@     set sb .sbx$side
+@     set xview [.txt$side xview]
+@     if {$xview ne "0.0 1.0"} {
 @       grid $sb
-@       $sb set $first $last
+@       eval $sb set $xview
+@     } else {
+@       grid remove $sb
 @     }
 @   }
+@   enableSync x
+@ }
+@ 
+@ proc sync-y {first last} {
+@   disableSync y
+@   foreach c [cols] {
+@     $c yview moveto $first
+@   }
+@   if {$first > 0 || $last < 1} {
+@     grid .sby
+@     .sby set $first $last
+@   } else {
+@     grid remove .sby
+@   }
+@   enableSync y
 @ }
 @ 
 @ wm withdraw .
@@ -767,21 +807,21 @@ static const char zDiffScript[] =
 @   Home  y {moveto 0}
 @   End   y {moveto 1}
 @ } {
-@   bind . <$key> ".txtA ${axis}view $args; break"
+@   bind . <$key> "scroll-$axis $args; break"
 @   bind . <Shift-$key> continue
 @ }
 @ 
 @ ::ttk::menubutton .files -menu .files.menu -text "Files"
 @ menu .files.menu -tearoff 0
 @ 
-@ foreach side {A B} {
+@ foreach {side syncCol} {A .txtB B .txtA} {
 @   set ln .ln$side
 @   text $ln
 @   $ln tag config - -justify right
 @   
 @   set txt .txt$side
 @   text $txt -width $CFG(WIDTH) -height $CFG(HEIGHT) -wrap none \
-@     -xscroll {scrollSync x {.sbxA .sbxB}}
+@     -xscroll "sync-x $syncCol"
 @   foreach tag {add rm chng} {
 @     $txt tag config $tag -background $CFG([string toupper $tag]_BG)
 @     $txt tag lower $tag
@@ -801,7 +841,7 @@ static const char zDiffScript[] =
 @ foreach c [cols] {
 @   set keyPrefix [string toupper [colType $c]]_COL_
 @   $c config -bg $CFG(${keyPrefix}BG) -fg $CFG(${keyPrefix}FG) -borderwidth 0 \
-@     -font mono -padx $CFG(PADX) -insertontime 0 -yscroll {scrollSync y .sby}
+@     -font mono -padx $CFG(PADX) -yscroll sync-y
 @   $c tag config hr -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
 @      -foreground $CFG(HR_FG)
 @   $c tag config fn -spacing1 $CFG(FN_PAD) -spacing3 $CFG(FN_PAD)
@@ -811,8 +851,8 @@ static const char zDiffScript[] =
 @ 
 @ ::ttk::scrollbar .sby -command {.txtA yview} -orient vertical
 @ ::ttk::scrollbar .sbxA -command {.txtA xview} -orient horizontal
-@ ::ttk::scrollbar .sbxB -command {.txtA xview} -orient horizontal
-@ 
+@ ::ttk::scrollbar .sbxB -command {.txtB xview} -orient horizontal
+@ frame .spacer
 @ 
 @ if {[readDiffs $cmd] == 0} {
 @   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
@@ -825,9 +865,12 @@ static const char zDiffScript[] =
 @ grid .files -columnspan 6
 @ eval grid [cols] .sby -sticky nsew
 @ grid .sbxA -row 2 -column 0 -columnspan 2 -sticky ew
+@ grid .spacer -row 2 -column 2
 @ grid .sbxB -row 2 -column 3 -columnspan 2 -sticky ew
 @ 
 @ wm deiconify .
+@ update idletasks
+@ .spacer config -height [winfo height .sbxA]
 ;
 
 /*
