@@ -368,34 +368,50 @@ static void trim_newline(char *z){
 */
 static char *next_token(char **pzIn){
   char *z = *pzIn;
-  int i;
+  int i, j;
   if( z[0]==0 ) return z;
-  for(i=0; z[i] && z[i]!=' ' && z[i]!='\n'; i++){}
+  if( z[0]=='"' ){
+    /* Quoted path name */
+    z++;
+    for(i=0, j=0; z[i] && z[i]!='"' && z[i]!='\n'; i++, j++){
+      if( z[i]=='\\' && z[i+1] ){
+        char v, c = z[++i];
+        switch( c ){
+          case 0:
+          case '"':  c = '"';  break;
+          case '\\': c = '\\'; break;
+          case 'a':  c = '\a'; break;
+          case 'b':  c = '\b'; break;
+          case 'f':  c = '\f'; break;
+          case 'n':  c = '\n'; break;
+          case 'r':  c = '\r'; break;
+          case 't':  c = '\t'; break;
+          case 'v':  c = '\v'; break;
+          case '0': case '1': case '2': case '3':
+            v = (c - '0') << 6;
+            c = z[++i];
+            if( c < '0' || c > '7' )
+              fossil_fatal("Invalid octal digit '%c' in sequence", c);
+            v |= (c - '0') << 3;
+            c = z[++i];
+            if( c < '0' || c > '7' )
+              fossil_fatal("Invalid octal digit '%c' in sequence", c);
+            v |= (c - '0');
+            c = v;
+            break;
+          default:
+            fossil_fatal("Unrecognized escape sequence \"\\%c\"", c);
+        }
+        z[j] = c;
+      }
+    }
+    if( z[i]=='"' ) z[i++] = 0;
+  }else{
+    /* Unquoted path name or generic token */
+    for(i=0; z[i] && z[i]!=' ' && z[i]!='\n'; i++){}
+  }
   if( z[i] ){
     z[i] = 0;
-    *pzIn = &z[i+1];
-  }else{
-    *pzIn = &z[i];
-  }
-  return z;
-}
-
-/*
-** Return a token that is all text up to (but omitting) the next \n
-** or \r\n.
-*/
-static char *rest_of_line(char **pzIn){
-  char *z = *pzIn;
-  int i;
-  if( z[0]==0 ) return z;
-  for(i=0; z[i] && z[i]!='\r' && z[i]!='\n'; i++){}
-  if( z[i] ){
-    if( z[i]=='\r' && z[i+1]=='\n' ){
-      z[i] = 0;
-      i++;
-    }else{
-      z[i] = 0;
-    }
     *pzIn = &z[i+1];
   }else{
     *pzIn = &z[i];
@@ -516,23 +532,6 @@ static ImportFile *import_find_file(const char *zName, int *pI, int mx){
     i++;
   }
   return 0;
-}
-
-/*
-** Dequote a fast-export filename.  Filenames are normally unquoted.  But
-** if the contain some obscure special characters, quotes might be added.
-*/
-static void dequote_git_filename(char *zName){
-  int n, i, j;
-  if( zName==0 || zName[0]!='"' ) return;
-  n = (int)strlen(zName);
-  if( zName[n-1]!='"' ) return;
-  for(i=0, j=1; j<n-1; j++){
-    char c = zName[j];
-    if( c=='\\' ) c = zName[++j];
-    zName[i++] = c;
-  }
-  zName[i] = 0;
 }
 
 
@@ -678,8 +677,7 @@ static void git_fast_import(FILE *pIn){
       z = &zLine[2];
       zPerm = next_token(&z);
       zUuid = next_token(&z);
-      zName = rest_of_line(&z);
-      dequote_git_filename(zName);
+      zName = next_token(&z);
       i = 0;
       pFile = import_find_file(zName, &i, gg.nFile);
       if( pFile==0 ){
@@ -702,8 +700,7 @@ static void git_fast_import(FILE *pIn){
     if( memcmp(zLine, "D ", 2)==0 ){
       import_prior_files();
       z = &zLine[2];
-      zName = rest_of_line(&z);
-      dequote_git_filename(zName);
+      zName = next_token(&z);
       i = 0;
       pFile = import_find_file(zName, &i, gg.nFile);
       if( pFile!=0 ){
@@ -719,7 +716,7 @@ static void git_fast_import(FILE *pIn){
       import_prior_files();
       z = &zLine[2];
       zFrom = next_token(&z);
-      zTo = rest_of_line(&z);
+      zTo = next_token(&z);
       i = 0;
       pFile = import_find_file(zFrom, &i, gg.nFile);
       if( pFile!=0 ){
@@ -744,7 +741,7 @@ static void git_fast_import(FILE *pIn){
       import_prior_files();
       z = &zLine[2];
       zFrom = next_token(&z);
-      zTo = rest_of_line(&z);
+      zTo = next_token(&z);
       i = 0;
       pFile = import_find_file(zFrom, &i, gg.nFile);
       if( pFile!=0 ){

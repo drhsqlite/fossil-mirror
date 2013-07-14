@@ -1,5 +1,5 @@
-C Implement\sthe\sability\sto\sgenerate\sdelta\smanifests\son\simport.
-D 2013-07-07T19:23:45.340
+C Improve\sthe\squoted\spath\sparsing\sand\ssupport\smore\sescape\ssequences.
+D 2013-07-14T22:21:04.143
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -343,7 +343,7 @@ F src/http.c e9f82fa14d0e894ed987a12d7d5a1477ada6115e
 F src/http_socket.c f4b1e573915c33aa02f85b9ee33748efac91f894
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 111c393f1bb93a3585078d5ee23e0b3ecc1408fe
-F src/import.c fc54d7cdae8598321446967d19c14acdb4831876
+F src/import.c 9e7f15d053417cb24933fbca985ef06f063ce6d4
 F src/info.c bd3b32e569b2cd73a44658e7f58619d48934efde
 F src/json.c dffc6aee419cf4abe125bf8c06bff53876b40c7c
 F src/json_artifact.c 09284d77e664f67051b40f20185bd381ac3aff12
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 995ed75f9aca1a6a5bcee246d51fe0e0d1ea5f43
-R b9af5b175f28329dbced34c2fd4cc840
+P 2844434ef548a1374a3904f953ac4ad3ea5163b9
+R 49957cd85e278af94b8efc4c3ca8b335
 U isaac.jurado
-Z fe686a508c300a15f600f2367fb315db
+Z 06ece201c28959e3ef1563ba0d160c09
