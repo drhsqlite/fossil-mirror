@@ -317,26 +317,30 @@ void ls_cmd(void){
     int chnged = db_column_int(&q,3);
     int renamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-    if( showAge ){
-      fossil_print("%s  %s\n", db_column_text(&q, 5), zPathname);
-    }else if( !verboseFlag ){
-      fossil_print("%s\n", zPathname);
-    }else if( isNew ){
-      fossil_print("ADDED      %s\n", zPathname);
-    }else if( isDeleted ){
-      fossil_print("DELETED    %s\n", zPathname);
-    }else if( !file_wd_isfile_or_link(zFullName) ){
-      if( file_access(zFullName, 0)==0 ){
-        fossil_print("NOT_A_FILE %s\n", zPathname);
+    const char *type = "";
+    if( verboseFlag ){
+      if( isNew ){
+        type = "ADDED      ";
+      }else if( isDeleted ){
+        type = "DELETED    ";
+      }else if( !file_wd_isfile_or_link(zFullName) ){
+        if( file_access(zFullName, 0)==0 ){
+          type = "NOT_A_FILE ";
+        }else{
+          type = "MISSING    ";
+        }
+      }else if( chnged ){
+        type = "EDITED     ";
+      }else if( renamed ){
+        type = "RENAMED    ";
       }else{
-        fossil_print("MISSING    %s\n", zPathname);
+        type = "UNCHANGED  ";
       }
-    }else if( chnged ){
-      fossil_print("EDITED     %s\n", zPathname);
-    }else if( renamed ){
-      fossil_print("RENAMED    %s\n", zPathname);
+    }
+    if( showAge ){
+      fossil_print("%s%s  %s\n", type, db_column_text(&q, 5), zPathname);
     }else{
-      fossil_print("UNCHANGED  %s\n", zPathname);
+      fossil_print("%s%s\n", type, zPathname);
     }
     free(zFullName);
   }
@@ -747,7 +751,6 @@ int select_commit_files(void){
   if( g.argc>2 ){
     int ii, jj=0;
     Blob fname;
-    int isDir;
     Stmt q;
     const char *zCollate;
     Bag toCommit;
@@ -762,20 +765,11 @@ int select_commit_files(void){
         bag_clear(&toCommit);
         return result;
       }
-      isDir = file_isdir(g.argv[ii]);
-      if( isDir==1 ){
-        db_prepare(&q,
-          "SELECT id FROM vfile WHERE pathname>'%q/' %s AND pathname<'%q0'",
-          blob_str(&fname), zCollate, blob_str(&fname), zCollate);
-      }else if( isDir==2 ){
-        db_prepare(&q,
-          "SELECT id FROM vfile WHERE pathname=%Q",
-          blob_str(&fname), zCollate);
-      }else{
-        fossil_warning("not found: %s", g.argv[ii]);
-        result = 1;
-        continue;
-      }
+      db_prepare(&q,
+        "SELECT id FROM vfile WHERE pathname=%Q %s"
+        " OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+        blob_str(&fname), zCollate, blob_str(&fname),
+        zCollate, blob_str(&fname), zCollate);
       while( db_step(&q)==SQLITE_ROW ){
         cnt++;
         bag_insert(&toCommit, db_column_int(&q, 0));
@@ -997,7 +991,7 @@ static void create_manifest(
   blob_appendf(pOut, "P %s", zParentUuid);
   if( p->verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
   free(zParentUuid);
-  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=0");
+  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=0 OR id<-2");
   while( db_step(&q2)==SQLITE_ROW ){
     char *zMergeUuid;
     int mid = db_column_int(&q2, 0);
@@ -1016,7 +1010,7 @@ static void create_manifest(
   db_prepare(&q2,
     "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid"
     "  FROM vmerge, blob"
-    " WHERE vmerge.id<0"
+    " WHERE (vmerge.id=-1 OR vmerge.id=-2)"
     "   AND blob.rid=vmerge.merge"
     " ORDER BY 1");
   while( db_step(&q2)==SQLITE_ROW ){
@@ -1431,7 +1425,7 @@ void commit_cmd(void){
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
   }
-  isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0");
+  isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0 OR id<-2");
   if( g.aCommitFile && isAMerge ){
     fossil_fatal("cannot do a partial commit of a merge");
   }

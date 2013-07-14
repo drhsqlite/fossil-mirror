@@ -465,7 +465,12 @@ void finfo_page(void){
       @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
-      @ fid=%d(frid), pid=%d(fpid), mid=%d(fmid)
+      int srcid = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", frid);
+      int sz = db_int(0, "SELECT length(content) FROM blob WHERE rid=%d", frid);
+      @ <br>fid=%d(frid) pid=%d(fpid) mid=%d(fmid) sz=%d(sz)
+      if( srcid ){
+        @ srcid=%d(srcid)
+      }
     }
     @ </td></tr>
   }

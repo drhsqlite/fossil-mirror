@@ -2389,7 +2389,7 @@ void setting_cmd(void){
       manifest_to_disk(db_lget_int("checkout", 0));
     }
   }else{
-    usage("?PROPERTY? ?VALUE?");
+    usage("?PROPERTY? ?VALUE? ?-global?");
   }
 }
 

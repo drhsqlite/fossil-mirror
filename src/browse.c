@@ -413,7 +413,7 @@ void fileage_page(void){
   @ <h2>File Ages For Check-in
   @ %z(href("%R/info?name=%T",zName))%h(zName)</a></h2>
   @
-  @ <p>The times given are relative
+  @ <p>The times given are relative to
   @ %z(href("%R/timeline?c=%T",zBaseTime))%s(zBaseTime)</a>, which is the
   @ check-in time for
   @ %z(href("%R/info?name=%T",zName))%h(zName)</a></p>
