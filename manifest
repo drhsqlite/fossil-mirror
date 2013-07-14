@@ -1,5 +1,5 @@
-C Rebase.\nUse\s-4\sas\sINTEGRATE\stag,\snot\s-3
-D 2013-07-14T14:56:07.761
+C Documentation
+D 2013-07-14T15:52:58.805
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -387,7 +387,7 @@ F src/rebuild.c 01cd0cd7b2baee0ec438968994da3dfeead6c8a0
 F src/regexp.c 056d7e54c5a85247ee9d003ede339b07ae049a5f
 F src/report.c 23c9e4a0828b013d723724613de1c8b76333f030
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
-F src/schema.c 0dd4e1b210e27b73997f653225ac095182ddfb38
+F src/schema.c b52434ec99e1811e8228637e53f83de52aa13216
 F src/search.c fe3c94ac8caed5d0e7ffe4e39240f7be00d97d0d
 F src/setup.c efb1a013de45af5c2a5c051d8dcd66cdc5802bcb
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
@@ -549,7 +549,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki f25efdbadf42d42c9254a4d9905941976079bd7f
-F www/changes.wiki 454880da726de19f5a13b9796dae06d16eb72a30
+F www/changes.wiki 4a61edae26b248e1dc07b59cd667994544abd003
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -627,10 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3a4f9ba6527671a71cf0b6baac88fc149bcfab02 011a4ad1eb3992dcc939b52bab6f69f941a95f48
-R 97fcdd0f67b69e5faa45942f80bb4870
-T *branch * merge-integrate
-T *sym-merge-integrate *
-T -sym-trunk *
+P 967ef5f7c5c7369dab0130eb7756ae7955b49fd4
+R 157ba5dbcf8866eaa9d1ba48f6d46643
 U jan.nijtmans
-Z 22b31b3ad31698b3a99dac5a734003d4
+Z 29f99a3a858fffe48edf1cf158112fc9

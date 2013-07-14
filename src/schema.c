@@ -504,8 +504,9 @@ const char zLocalSchema[] =
 @ -- file tree.  If a VFILE entry with id has merged with another
 @ -- record, there is an entry in this table with (id,merge) where
 @ -- merge is the RECORD table entry that the file merged against.
-@ -- An id of 0 here means the version record itself.  When id==(-1)
-@ -- that is a cherrypick merge and id==(-2) is a backout merge.
+@ -- An id of 0 or <-3 here means the version record itself.  When
+@ -- id==(-1) that is a cherrypick merge, id==(-2) that is a
+@ -- backout merge and id==(-4) is a integrate merge.
 @
 @ CREATE TABLE vmerge(
 @   id INTEGER REFERENCES vfile,      -- VFILE entry that has been merged
