@@ -1832,7 +1832,25 @@ void test_timewarp_page(void){
 }
 
 
+static void stats_report_output_week_links( char const * zTimeframe){
+  Blob sqlWeek = empty_blob;
+  Stmt stWeek = empty_Stmt;
+  db_prepare(&stWeek,
+             "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
+             "count(*) AS n, "
+             "substr(date(mtime),1,%d) AS ym "
+             "FROM event "
+             "WHERE ym=%Q AND mtime < current_timestamp "
+             "GROUP BY wk ORDER BY wk",
+             strlen(zTimeframe),
+             zTimeframe);
+      while( SQLITE_ROW == db_step(&stWeek) ){
+        zTimeframe = db_column_text(&stWeek,0);
+        @ %s(zTimeframe)
+      }
+      db_finalize(&stWeek);
 
+}
 /*
 ** Implements the "byyear" and "bymonth" reports for /stats_report.
 ** If includeMonth is true then it generates the "bymonth" report,
@@ -1937,26 +1955,10 @@ static void stats_report_by_month_year(char includeMonth,
     @  style='height:16px;width:%d(nSize)px;'>
     @ </div></td>
     @</tr>
-    if(!includeMonth){
-      Blob sqlWeek = empty_blob;
-      Stmt stWeek = empty_Stmt;
-      db_prepare(&stWeek,
-                 "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
-                 "count(*) AS n, "
-                 "substr(date(mtime),1,4) AS ym "
-                 "FROM event "
-                 "WHERE ym=%Q AND mtime < current_timestamp "
-                 "GROUP BY wk ORDER BY wk",
-                 zTimeframe);
-      @ <tr><td colspan='2' valign='right'>Week #:</td>
-      @ <td class='statistics-report-week-of-year-list'>
-      while( SQLITE_ROW == db_step(&stWeek) ){
-        zTimeframe = db_column_text(&stWeek,0);
-        @ %s(zTimeframe)
-      }
-      @ </td></tr>
-      db_finalize(&stWeek);
-    }
+    @ <tr><td colspan='2' class='statistics-report-week-number-label'>Week #:</td>
+    @ <td class='statistics-report-week-of-year-list'>
+    stats_report_output_week_links(zTimeframe);
+    @ </td></tr>
 
     /*
       Potential improvement: calculate the min/max event counts and
