@@ -1,5 +1,5 @@
-C More\swork\son\sthe\sby-week\sreport,\sbut\sit\sis\s(A)\sway\stoo\sslow\sfor\sthe\sby\syear/month\sview\s(4.5\ssec\son\smy\smachine)\sand\s(B)\sbed\stime\sagain.
-D 2013-07-15T22:41:58.654
+C added\ssome\sdocs,\sremoved\san\sunused\svar,\sfixed\sformatting\ssnafu\scaused\sby\sxemacs'\sconfusion\sregarding\sthe\s@\sbits.
+D 2013-07-15T22:45:19.180
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -408,7 +408,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
-F src/timeline.c f757f37fb3f84ec607123ead5ccca370ef39da61
+F src/timeline.c e3ab82b5b07b3b4ae8e13dfb083f76e58807fcf5
 F src/tkt.c c0002b066046bd287b7e05b25e7c08ee0b08f766
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cced11153bfe0875f6fb4a9b2bdf0d7900c1643c
-R 84517537f1f27f08f394e5d20f036120
+P 37c4fb2249997c10d0ee884a249a7f11bc93fb10
+R e16b25e0b2268dbdb5a64b3426c01329
 U stephan
-Z ec20d3668047e8ae77d28d3b8bed5344
+Z 564209855c51691bb3a75fb7dd31e218

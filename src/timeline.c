@@ -1831,9 +1831,12 @@ void test_timewarp_page(void){
   style_footer();
 }
 
-
+/*
+** Helper for stats_report_by_month_year(), which generates a list of
+** week numbers. zTimeframe should be either a timeframe in the form YYYY
+** or YYYY-MM.
+*/
 static void stats_report_output_week_links( char const * zTimeframe){
-  Blob sqlWeek = empty_blob;
   Stmt stWeek = empty_Stmt;
   db_prepare(&stWeek,
              "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
@@ -1844,13 +1847,14 @@ static void stats_report_output_week_links( char const * zTimeframe){
              "GROUP BY wk ORDER BY wk",
              strlen(zTimeframe),
              zTimeframe);
-      while( SQLITE_ROW == db_step(&stWeek) ){
-        zTimeframe = db_column_text(&stWeek,0);
-        @ %s(zTimeframe)
-      }
-      db_finalize(&stWeek);
-
+  while( SQLITE_ROW == db_step(&stWeek) ){
+    zTimeframe = db_column_text(&stWeek,0);
+    /* TODO: link to... what? Maybe add /timeline?yw=YYYY-WW (week #)? */
+    @ %s(zTimeframe)
+  }
+  db_finalize(&stWeek);
 }
+
 /*
 ** Implements the "byyear" and "bymonth" reports for /stats_report.
 ** If includeMonth is true then it generates the "bymonth" report,
