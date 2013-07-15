@@ -624,6 +624,7 @@ static const char zDiffScript[] =
 @   PADX       5
 @   WIDTH      80
 @   HEIGHT     45
+@   LB_HEIGHT  25
 @ }
 @ 
 @ if {![namespace exists ttk]} {
@@ -658,7 +659,7 @@ static const char zDiffScript[] =
 @     }
 @     incr nDiffs
 @     set idx [expr {$nDiffs > 1 ? [.txtA index end] : "1.0"}]
-@     .files.menu add command -label $fn -command "viewDiff $idx"
+@     .wfiles.lb insert end $fn
 @     
 @     foreach c [cols] {
 @       while {[gets $in] ne "<pre>"} continue
@@ -705,6 +706,11 @@ static const char zDiffScript[] =
 @     }
 @     $c config -state disabled
 @   }
+@   if {$nDiffs <= [.wfiles.lb cget -height]} {
+@     .wfiles.lb config -height $nDiffs
+@     grid remove .wfiles.sb
+@   }
+@   
 @   return $nDiffs
 @ }
 @ 
@@ -811,8 +817,39 @@ static const char zDiffScript[] =
 @   bind . <Shift-$key> continue
 @ }
 @ 
-@ ::ttk::menubutton .files -menu .files.menu -text "Files"
-@ menu .files.menu -tearoff 0
+@ ::ttk::menubutton .files -text "Files"
+@ toplevel .wfiles
+@ wm withdraw .wfiles
+@ update idletasks
+@ wm transient .wfiles .
+@ wm overrideredirect .wfiles 1
+@ listbox .wfiles.lb -width 0 -height $CFG(LB_HEIGHT) -activestyle none \
+@   -yscroll {.wfiles.sb set}
+@ ::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
+@ grid .wfiles.lb .wfiles.sb -sticky ns
+@ bind .files <1> {
+@   set x [winfo rootx %W]
+@   set y [expr {[winfo rooty %W]+[winfo height %W]}]
+@   wm geometry .wfiles +$x+$y
+@   wm deiconify .wfiles
+@   focus .wfiles.lb
+@ }
+@ bind .wfiles <FocusOut> {wm withdraw .wfiles}
+@ bind .wfiles <Escape> {focus .}
+@ foreach evt {1 Return} {
+@   bind .wfiles.lb <$evt> {
+@     catch {
+@       set idx [lindex [.txtA tag ranges fn] [expr {[%W curselection]*2}]]
+@       viewDiff $idx
+@     }
+@     focus .
+@     break
+@   }
+@ }
+@ bind .wfiles.lb <Motion> {
+@   %W selection clear 0 end
+@   %W selection set @%x,%y
+@ }
 @ 
 @ foreach {side syncCol} {A .txtB B .txtA} {
 @   set ln .ln$side
