@@ -1908,13 +1908,15 @@ static void stats_report_by_month_year(char includeMonth,
         @ <tr class='row%d(rowClass)'>
         @ <th colspan='3' class='statistics-report-row-year'>%s(zPrevYear)</th>
         @ </tr>
-      }
-    }
-    rowClass = ++nRowNumber % 2;
-    nEventTotal += nCount;
-    nEventsPerYear += nCount;
-    @<tr class='row%d(rowClass)'>
-    @ <td>
+        @ <tr><td colspan='3' class='statistics-report-row-year'>
+        @ </td></tr>
+     }
+   }
+   rowClass = ++nRowNumber % 2;
+   nEventTotal += nCount;
+   nEventsPerYear += nCount;
+   @<tr class='row%d(rowClass)'>
+   @ <td>
     if(includeMonth){
       cgi_printf("<a href='%s/timeline?"
                  "ym=%t&n=%d",
@@ -1935,6 +1937,26 @@ static void stats_report_by_month_year(char includeMonth,
     @  style='height:16px;width:%d(nSize)px;'>
     @ </div></td>
     @</tr>
+    if(!includeMonth){
+      Blob sqlWeek = empty_blob;
+      Stmt stWeek = empty_Stmt;
+      db_prepare(&stWeek,
+                 "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
+                 "count(*) AS n, "
+                 "substr(date(mtime),1,4) AS ym "
+                 "FROM event "
+                 "WHERE ym=%Q AND mtime < current_timestamp "
+                 "GROUP BY wk ORDER BY wk",
+                 zTimeframe);
+      @ <tr><td colspan='2' valign='right'>Week #:</td>
+      @ <td class='statistics-report-week-of-year-list'>
+      while( SQLITE_ROW == db_step(&stWeek) ){
+        zTimeframe = db_column_text(&stWeek,0);
+        @ %s(zTimeframe)
+      }
+      @ </td></tr>
+      db_finalize(&stWeek);
+    }
 
     /*
       Potential improvement: calculate the min/max event counts and
