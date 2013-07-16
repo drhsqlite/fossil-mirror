@@ -2070,10 +2070,12 @@ static void stats_report_year_weeks(){
   int i = 0;
   Stmt qYears = empty_Stmt;
   char * zDefaultYear = NULL;
+  char const * zUserName = P("user");
   cgi_printf("Select year: ");
   db_prepare(&qYears,
              "SELECT DISTINCT substr(date(mtime),1,4) AS y "
              "FROM event GROUP BY y ORDER BY y");
+
   while( SQLITE_ROW == db_step(&qYears) ){
     char const * zT = db_column_text(&qYears, 0);
     if( i++ ){
@@ -2093,8 +2095,24 @@ static void stats_report_year_weeks(){
     int const nPixelsPerEvent = 3;     /* for sizing the "graph" part */
     Stmt stWeek = empty_Stmt;
     int rowCount = 0;
-    cgi_printf("<h1>Timeline events for the calendar weeks of %h.</h1>",
-               zYear);
+    Blob sql = empty_blob;
+    Blob header = empty_blob;
+    blob_appendf(&header, "Timeline events for the calendar weeks "
+                 "of %h", zYear);
+    blob_appendf(&sql,
+                 "SELECT DISTINCT strftime('%%%%W',mtime) AS wk, "
+                 "count(*) AS n "
+                 "FROM event "
+                 "WHERE %Q=substr(date(mtime),1,4) "
+                 "AND mtime < current_timestamp ",
+                 zYear);
+    if(zUserName&&*zUserName){
+      blob_appendf(&sql, " AND user=%Q ", zUserName);
+      blob_appendf(&header," for user %h", zUserName);
+    }
+    blob_appendf(&sql, "GROUP BY wk ORDER BY wk DESC");
+    cgi_printf("<h1>%h</h1>", blob_str(&header));
+    blob_reset(&header);
     cgi_printf("<table class='statistics-report-table-events' "
                "border='0' cellpadding='2' "
                "cellspacing='0' id='statsTable'>");
@@ -2104,14 +2122,8 @@ static void stats_report_year_weeks(){
                "<th><!-- relative commits graph --></th>"
                "</tr></thead>"
                "<tbody>");
-    db_prepare(&stWeek,
-               "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
-               "count(*) AS n "
-               "FROM event "
-               "WHERE %Q=substr(date(mtime),1,4) "
-               "AND mtime < current_timestamp "
-               "GROUP BY wk ORDER BY wk DESC",
-               zYear);
+    db_prepare(&stWeek, blob_str(&sql));
+    blob_reset(&sql);
     while( SQLITE_ROW == db_step(&stWeek) ){
       char const * zWeek = db_column_text(&stWeek,0);
       int nCount = db_column_int(&stWeek,1);
