@@ -1959,7 +1959,7 @@ static void stats_report_by_month_year(char includeMonth,
       }
       cgi_printf("' target='_new'>%s</a>",zTimeframe);
     }else {
-      @ %s(zTimeframe)
+      @ <a href='?view=byweek&y=%s(zTimeframe)'>%s(zTimeframe)</a>
     }
     @ </td><td>%d(nCount)</td>
     @ <td>
