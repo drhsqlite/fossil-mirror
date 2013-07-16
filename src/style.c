@@ -1036,6 +1036,19 @@ const struct strctCssDefaults {
     "",
     @   text-align: left;
   },
+  { ".statistics-report-graph-line",
+    "for the /stats_report views",
+    @   background-color: #446979;
+  },
+  { ".statistics-report-week-number-label",
+    "for the /stats_report views",
+    @ text-align: right;
+    @ font-size: 0.8em;
+  },
+  { ".statistics-report-week-of-year-list",
+    "for the /stats_report views",
+    @ font-size: 0.8em;
+  },
   { "tr.row0",
     "even table row color",
     @ /* use default */

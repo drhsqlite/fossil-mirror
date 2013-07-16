@@ -1034,6 +1034,7 @@ void page_timeline(void){
   const char *zSearch = P("s");      /* Search string */
   const char *zUses = P("uf");       /* Only show checkins hold this file */
   const char *zYearMonth = P("ym");  /* Show checkins for the given YYYY-MM */
+  const char *zYearWeek = P("yw");   /* Show checkins for the given YYYY-WW (weak-of-year) */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only checkins that rename files */
   int tagid;                         /* Tag ID */
@@ -1220,6 +1221,10 @@ void page_timeline(void){
       blob_appendf(&sql, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
                    zYearMonth);
     }
+    else if( zYearWeek ){
+      blob_appendf(&sql, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
+                   zYearWeek);
+    }
     if( tagid>0 ){
       blob_appendf(&sql,
         "AND (EXISTS(SELECT 1 FROM tagxref"
@@ -1352,6 +1357,8 @@ void page_timeline(void){
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
     if( zYearMonth ){
       blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
+    }if( zYearWeek ){
+      blob_appendf(&desc, "%s events for year/week %h", zEType, zYearWeek);
     }else if( zAfter==0 && zBefore==0 && zCirca==0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
@@ -1838,6 +1845,8 @@ void test_timewarp_page(void){
 */
 static void stats_report_output_week_links( char const * zTimeframe){
   Stmt stWeek = empty_Stmt;
+  char yearPart[5] = {0,0,0,0,0};
+  memcpy(yearPart, zTimeframe, 4);
   db_prepare(&stWeek,
              "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
              "count(*) AS n, "
@@ -1848,9 +1857,9 @@ static void stats_report_output_week_links( char const * zTimeframe){
              strlen(zTimeframe),
              zTimeframe);
   while( SQLITE_ROW == db_step(&stWeek) ){
-    zTimeframe = db_column_text(&stWeek,0);
-    /* TODO: link to... what? Maybe add /timeline?yw=YYYY-WW (week #)? */
-    @ %s(zTimeframe)
+    char const * zWeek = db_column_text(&stWeek,0);
+    @ <a href='%s(g.zTop)/timeline?yw=%t(yearPart)-%t(zWeek)'>
+    @ %s(zWeek)</a>
   }
   db_finalize(&stWeek);
 }
@@ -1959,10 +1968,15 @@ static void stats_report_by_month_year(char includeMonth,
     @  style='height:16px;width:%d(nSize)px;'>
     @ </div></td>
     @</tr>
-    @ <tr><td colspan='2' class='statistics-report-week-number-label'>Week #:</td>
-    @ <td class='statistics-report-week-of-year-list'>
-    stats_report_output_week_links(zTimeframe);
-    @ </td></tr>
+    if(!includeMonth){
+      /* This part works fine for months but it terribly slow (4.5s on my PC),
+         so it's only shown for by-year for now. Suggestions/patches for
+         a better/faster layout are welcomed. */
+      @ <tr><td colspan='2' class='statistics-report-week-number-label'>Week #:</td>
+      @ <td class='statistics-report-week-of-year-list'>
+      stats_report_output_week_links(zTimeframe);
+      @ </td></tr>
+    }
 
     /*
       Potential improvement: calculate the min/max event counts and

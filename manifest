@@ -1,5 +1,5 @@
-C added\ssome\sdocs,\sremoved\san\sunused\svar,\sfixed\sformatting\ssnafu\scaused\sby\sxemacs'\sconfusion\sregarding\sthe\s@\sbits.
-D 2013-07-15T22:45:19.180
+C Added\s/timeline?yw=YYYY-WW\s(year/week-of-year).\sAdded\slinks\sto\s/stats_report.\sDisabled\syear/week\slinks\sfor\sthe\syear/month\sview\sbecause\sthe\scurrent\sapproach\sis\sway\stoo\sslow.
+D 2013-07-16T15:49:16.148
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -399,7 +399,7 @@ F src/sqlite3.c 4dfe16239bf6d8e026ac826c664b7f579a77ff3c
 F src/sqlite3.h 32f662e3abd08c90f4b52ccf16974ab60a2c206e
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 0cd57adbb99c53b894b3751c429b0f814222acf1
-F src/style.c d7a6acee5f43379c35a509e87a06bba09217bc7d
+F src/style.c d4bc2f3b97e7189147f4f78db2a778cc7fa778f2
 F src/sync.c f8b3aad3185b0ad034b60fc33523b54f327bb86d
 F src/tag.c b0359c168de125f622f0d523b2215f1d85efecf6
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -408,7 +408,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
-F src/timeline.c e3ab82b5b07b3b4ae8e13dfb083f76e58807fcf5
+F src/timeline.c 016b2e31f8c427087b29ed2c2927978eb4fd9e12
 F src/tkt.c c0002b066046bd287b7e05b25e7c08ee0b08f766
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 37c4fb2249997c10d0ee884a249a7f11bc93fb10
-R e16b25e0b2268dbdb5a64b3426c01329
+P c43c3a7fd272ab9b6a8fb3003f2f3a867591022b
+R 9df22e55e4425bec832441fd19fe110a
 U stephan
-Z 564209855c51691bb3a75fb7dd31e218
+Z 3341cff98752075a5674589834814512
