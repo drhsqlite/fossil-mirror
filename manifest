@@ -1,5 +1,5 @@
-C Added\s/stats_report?view=byweek.
-D 2013-07-16T20:27:31.665
+C Removed\sthe\sweek\slist\sfrom\sthe\sbyyear\sreport\s(now\sobsolete?),\srefactored\show\sit\sis\sdisplayed\sso\sit\scan\sbe\sturned\son\slater.\sMinor\stext\stouch-ups.
+D 2013-07-16T20:43:52.901
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -408,7 +408,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
-F src/timeline.c c0b3a63c4337d2896634f2cf1acacce9d55d1e7b
+F src/timeline.c dc52079b25845b401562f90cfd42da5e806119cd
 F src/tkt.c c0002b066046bd287b7e05b25e7c08ee0b08f766
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 887150679ce615a596c7e083558687cfd6c011aa
-R 187f55a16de7906549f08d36b19cb6f4
+P 747bca14c02a9fb49a577e58c5737c488f62f793
+R 8280a223c7cf4bedf7b25f7a0ece91c5
 U stephan
-Z dbcf35260de077e0bdd7327f3632b62b
+Z 3465c41b77c2fc6609c724bd314530de

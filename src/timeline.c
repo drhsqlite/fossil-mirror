@@ -1872,6 +1872,7 @@ static void stats_report_output_week_links( char const * zTimeframe){
 ** account.
 */
 static void stats_report_by_month_year(char includeMonth,
+                                       char includeWeeks,
                                        char const * zUserName){
   Stmt query = empty_Stmt;
   int const nPixelsPerEvent = 1;     /* for sizing the "graph" part */
@@ -1966,7 +1967,7 @@ static void stats_report_by_month_year(char includeMonth,
     @  style='height:16px;width:%d(nSize)px;'>
     @ </div></td>
     @</tr>
-    if(!includeMonth){
+    if(includeWeeks){
       /* This part works fine for months but it terribly slow (4.5s on my PC),
          so it's only shown for by-year for now. Suggestions/patches for
          a better/faster layout are welcomed. */
@@ -2069,7 +2070,7 @@ static void stats_report_year_weeks(){
   int i = 0;
   Stmt qYears = empty_Stmt;
   char * zDefaultYear = NULL;
-  cgi_printf("Select a year: ");
+  cgi_printf("Select year: ");
   db_prepare(&qYears,
              "SELECT DISTINCT substr(date(mtime),1,4) AS y "
              "FROM event GROUP BY y ORDER BY y");
@@ -2098,7 +2099,7 @@ static void stats_report_year_weeks(){
                "border='0' cellpadding='2' "
                "cellspacing='0' id='statsTable'>");
     cgi_printf("<thead><tr>"
-               "<th>Week #</th>"
+               "<th>Week</th>"
                "<th>Events</th>"
                "<th><!-- relative commits graph --></th>"
                "</tr></thead>"
@@ -2128,9 +2129,9 @@ static void stats_report_year_weeks(){
       cgi_printf("</td></tr>");
     }
     db_finalize(&stWeek);
+    free(zDefaultYear);
     cgi_printf("</tbody></table>");
     output_table_sorting_javascript("statsTable","tnx");
-    free(zDefaultYear);
   }
 }
 
@@ -2161,9 +2162,9 @@ void stats_report_page(){
   url_reset(&url);
   style_header("Activity Reports");
   if(0==fossil_strcmp(zView,"byyear")){
-    stats_report_by_month_year(0, zUserName);
+    stats_report_by_month_year(0, 0, zUserName);
   }else if(0==fossil_strcmp(zView,"bymonth")){
-    stats_report_by_month_year(1, zUserName);
+    stats_report_by_month_year(1, 0, zUserName);
   }else if(0==fossil_strcmp(zView,"byweek")){
     stats_report_year_weeks();
   }else if(0==fossil_strcmp(zView,"byuser")){
