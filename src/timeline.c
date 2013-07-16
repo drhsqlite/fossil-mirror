@@ -1939,8 +1939,6 @@ static void stats_report_by_month_year(char includeMonth,
         @ <tr class='row%d(rowClass)'>
         @ <th colspan='3' class='statistics-report-row-year'>%s(zPrevYear)</th>
         @ </tr>
-        @ <tr><td colspan='3' class='statistics-report-row-year'>
-        @ </td></tr>
      }
    }
    rowClass = ++nRowNumber % 2;

@@ -1,5 +1,5 @@
-C Added\s/timeline?yw=YYYY-WW\s(year/week-of-year).\sAdded\slinks\sto\s/stats_report.\sDisabled\syear/week\slinks\sfor\sthe\syear/month\sview\sbecause\sthe\scurrent\sapproach\sis\sway\stoo\sslow.
-D 2013-07-16T15:49:16.148
+C Removed\sa\scopy-paste-induced\sextra\stable\srow.
+D 2013-07-16T16:00:17.667
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -408,7 +408,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
-F src/timeline.c 016b2e31f8c427087b29ed2c2927978eb4fd9e12
+F src/timeline.c 26b44336143850f761e2b6f32d57992cb2f79d78
 F src/tkt.c c0002b066046bd287b7e05b25e7c08ee0b08f766
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c43c3a7fd272ab9b6a8fb3003f2f3a867591022b
-R 9df22e55e4425bec832441fd19fe110a
+P 0019550a0300880e08ab311c9741746f42eb999b
+R a06567105b1fd63fccd76fd7a80b85e1
 U stephan
-Z 3341cff98752075a5674589834814512
+Z 43adb40b327f36351cd3fbedefd6f038
