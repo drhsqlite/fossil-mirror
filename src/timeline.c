@@ -2071,18 +2071,29 @@ static void stats_report_year_weeks(){
   Stmt qYears = empty_Stmt;
   char * zDefaultYear = NULL;
   char const * zUserName = P("user");
+  Blob sql = empty_blob;
+  if(!zUserName) zUserName = P("u");
   cgi_printf("Select year: ");
-  db_prepare(&qYears,
-             "SELECT DISTINCT substr(date(mtime),1,4) AS y "
-             "FROM event GROUP BY y ORDER BY y");
 
+  blob_append(&sql,
+              "SELECT DISTINCT substr(date(mtime),1,4) AS y "
+              "FROM event WHERE 1 ", -1);
+  if(zUserName&&*zUserName){
+    blob_appendf(&sql,"AND user=%Q ", zUserName);
+  }
+  blob_append(&sql,"GROUP BY y ORDER BY y", -1);
+  db_prepare(&qYears, blob_str(&sql));
+  blob_reset(&sql);
   while( SQLITE_ROW == db_step(&qYears) ){
     char const * zT = db_column_text(&qYears, 0);
     if( i++ ){
       cgi_printf(" ");
     }
-    cgi_printf("<a href='?view=byweek&y=%s'>%s</a>",
-               zT, zT);
+    cgi_printf("<a href='?view=byweek&y=%s", zT);
+    if(zUserName && *zUserName){
+      cgi_printf("&user=%t",zUserName);
+    }
+    cgi_printf("'>%s</a>",zT);
   }
   db_finalize(&qYears);
   cgi_printf("<br/>");
@@ -2095,7 +2106,7 @@ static void stats_report_year_weeks(){
     int const nPixelsPerEvent = 3;     /* for sizing the "graph" part */
     Stmt stWeek = empty_Stmt;
     int rowCount = 0;
-    Blob sql = empty_blob;
+    int total = 0;
     Blob header = empty_blob;
     blob_appendf(&header, "Timeline events for the calendar weeks "
                  "of %h", zYear);
@@ -2128,9 +2139,15 @@ static void stats_report_year_weeks(){
       char const * zWeek = db_column_text(&stWeek,0);
       int nCount = db_column_int(&stWeek,1);
       int const graphSize = nPixelsPerEvent * nCount;
+      total += nCount;
       cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
-      cgi_printf("<td><a href='%s/timeline?yw=%t-%s'>%s</a></td>",
-                 g.zTop, zYear, zWeek, zWeek);
+      cgi_printf("<td><a href='%s/timeline?yw=%t-%s",
+                 g.zTop, zYear, zWeek);
+      if(zUserName && *zUserName){
+        cgi_printf("&u=%t",zUserName);
+      }
+      cgi_printf("'>%s</a></td>",zWeek);
+
       cgi_printf("<td>%d</td>",nCount);
       cgi_printf("<td>");
       if(nCount){
@@ -2142,6 +2159,12 @@ static void stats_report_year_weeks(){
     }
     db_finalize(&stWeek);
     free(zDefaultYear);
+    if(total){
+      cgi_printf("<tr class='row%d'>", ++rowCount%2);
+      cgi_printf("<td colspan='2'>Total events:</td><td>%d</td>",
+                 total);
+      cgi_printf("</tr>");
+    }
     cgi_printf("</tbody></table>");
     output_table_sorting_javascript("statsTable","tnx");
   }
@@ -2161,6 +2184,7 @@ void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
   char const * zView = P("view");    /* Which view/report to show. */
   char const *zUserName = P("user");
+  if(!zUserName) zUserName = P("u");
   url_initialize(&url, "stats_report");
 
   if(zUserName && *zUserName){
