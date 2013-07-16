@@ -1357,7 +1357,7 @@ void page_timeline(void){
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
     if( zYearMonth ){
       blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
-    }if( zYearWeek ){
+    }else if( zYearWeek ){
       blob_appendf(&desc, "%s events for year/week %h", zEType, zYearWeek);
     }else if( zAfter==0 && zBefore==0 && zCirca==0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
@@ -1843,7 +1843,7 @@ void test_timewarp_page(void){
 ** week numbers. zTimeframe should be either a timeframe in the form YYYY
 ** or YYYY-MM.
 */
-static void stats_report_output_week_links( char const * zTimeframe){
+static void stats_report_output_week_links(char const * zTimeframe){
   Stmt stWeek = empty_Stmt;
   char yearPart[5] = {0,0,0,0,0};
   memcpy(yearPart, zTimeframe, 4);
@@ -1858,8 +1858,11 @@ static void stats_report_output_week_links( char const * zTimeframe){
              zTimeframe);
   while( SQLITE_ROW == db_step(&stWeek) ){
     char const * zWeek = db_column_text(&stWeek,0);
-    @ <a href='%s(g.zTop)/timeline?yw=%t(yearPart)-%t(zWeek)'>
-    @ %s(zWeek)</a>
+    int const nCount = db_column_int(&stWeek,1);
+    cgi_printf("<a href='%s/timeline?"
+               "yw=%t-%t&n=%d'>%s</a>",
+               g.zTop, yearPart, zWeek,
+               nCount, zWeek);
   }
   db_finalize(&stWeek);
 }
@@ -2064,15 +2067,13 @@ static void stats_report_by_user(){
 ** week numbers. zTimeframe should be either a timeframe in the form YYYY
 ** or YYYY-MM.
 */
-static void stats_report_year_weeks(){
+static void stats_report_year_weeks(char const * zUserName){
   char const * zYear = P("y");
   int nYear = zYear ? strlen(zYear) : 0;
   int i = 0;
   Stmt qYears = empty_Stmt;
   char * zDefaultYear = NULL;
-  char const * zUserName = P("user");
   Blob sql = empty_blob;
-  if(!zUserName) zUserName = P("u");
   cgi_printf("Select year: ");
 
   blob_append(&sql,
@@ -2137,12 +2138,12 @@ static void stats_report_year_weeks(){
     blob_reset(&sql);
     while( SQLITE_ROW == db_step(&stWeek) ){
       char const * zWeek = db_column_text(&stWeek,0);
-      int nCount = db_column_int(&stWeek,1);
+      int const nCount = db_column_int(&stWeek,1);
       int const graphSize = nPixelsPerEvent * nCount;
       total += nCount;
       cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
-      cgi_printf("<td><a href='%s/timeline?yw=%t-%s",
-                 g.zTop, zYear, zWeek);
+      cgi_printf("<td><a href='%s/timeline?yw=%t-%s&n=%d",
+                 g.zTop, zYear, zWeek, nCount);
       if(zUserName && *zUserName){
         cgi_printf("&u=%t",zUserName);
       }
@@ -2202,7 +2203,7 @@ void stats_report_page(){
   }else if(0==fossil_strcmp(zView,"bymonth")){
     stats_report_by_month_year(1, 0, zUserName);
   }else if(0==fossil_strcmp(zView,"byweek")){
-    stats_report_year_weeks();
+    stats_report_year_weeks(zUserName);
   }else if(0==fossil_strcmp(zView,"byuser")){
     stats_report_by_user();
   }else{
