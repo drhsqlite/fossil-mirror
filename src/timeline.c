@@ -1970,7 +1970,8 @@ static void stats_report_by_month_year(char includeMonth,
       /* This part works fine for months but it terribly slow (4.5s on my PC),
          so it's only shown for by-year for now. Suggestions/patches for
          a better/faster layout are welcomed. */
-      @ <tr><td colspan='2' class='statistics-report-week-number-label'>Week #:</td>
+      @ <tr class='row%d(rowClass)'>
+      @ <td colspan='2' class='statistics-report-week-number-label'>Week #:</td>
       @ <td class='statistics-report-week-of-year-list'>
       stats_report_output_week_links(zTimeframe);
       @ </td></tr>
