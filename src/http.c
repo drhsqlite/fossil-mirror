@@ -44,9 +44,6 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   if( g.urlUser==0 || fossil_strcmp(g.urlUser, "anonymous")==0 ){
      return;  /* If no login card for users "nobody" and "anonymous" */
   }
-  if( g.urlIsSsh ){
-     return;  /* If no login card for SSH: */
-  }
   blob_zero(&nonce);
   blob_zero(&pw);
   sha1sum_blob(pPayload, &nonce);

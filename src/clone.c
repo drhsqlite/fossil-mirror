@@ -95,6 +95,8 @@ void delete_private_content(void){
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
 **    --private                  Also clone private branches 
 **    --ssl-identity=filename    Use the SSL identity if requested by the server
+**    --ssh-fossil|-f /fossil    Use this path as remote fossil command
+**    --ssh-command|-c 'command' Use this SSH command
 **
 ** See also: init
 */
@@ -105,6 +107,7 @@ void clone_cmd(void){
   int bPrivate = 0;           /* Also clone private branches */
 
   if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
+  clone_ssh_options();
   url_proxy_options();
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
@@ -175,4 +178,29 @@ void clone_cmd(void){
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
   db_end_transaction(0);
+}
+
+void clone_ssh_options(void){
+  const char *zSshFossilCmd;  /* Path to remote fossil command for SSH */
+  const char *zSshCmd;        /* SSH command string */
+
+  zSshFossilCmd = find_option("ssh-fossil","f",1);
+  if( zSshFossilCmd && zSshFossilCmd[0] ){
+    g.fSshFossilCmd = mprintf("%s", zSshFossilCmd);
+  }
+  zSshCmd = find_option("ssh-command","c",1);
+  if( zSshCmd && zSshCmd[0] ){
+    g.fSshCmd = mprintf("%s", zSshCmd);
+  }
+}
+
+void clone_ssh_db_options(void){
+  if( g.fSshFossilCmd && g.fSshFossilCmd[0] ){
+    db_set("ssh-fossil", g.fSshFossilCmd, 0);
+  }else{
+    g.fSshFossilCmd = db_get("ssh-fossil","fossil");
+  }
+  if( g.fSshCmd && g.fSshCmd[0] ){
+    db_set("ssh-command", g.fSshCmd, 0);
+  }
 }

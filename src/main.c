@@ -136,6 +136,8 @@ struct Global {
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
+  char *fSshFossilCmd;    /* Path to remoe fossil command for SSH */
+  char *fSshCmd;          /* SSH command string */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
@@ -175,8 +177,6 @@ struct Global {
   char *urlPasswd;        /* Password for http: */
   char *urlCanonical;     /* Canonical representation of the URL */
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
-  char *urlFossil;        /* The fossil query parameter on ssh: */
-  char *urlShell;         /* The shell query parameter on ssh: */
   unsigned urlFlags;      /* Boolean flags controlling URL processing */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
@@ -580,6 +580,8 @@ int main(int argc, char **argv)
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
     g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;
     g.fSshTrace = find_option("sshtrace", 0, 0)!=0;
+    g.fSshFossilCmd = 0;
+    g.fSshCmd = 0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
@@ -625,6 +627,7 @@ int main(int argc, char **argv)
                  g.argv[0], zCmdName, g.argv[0], blob_str(&couldbe), g.argv[0]);
     fossil_exit(1);
   }
+  signal(SIGPIPE,SIG_IGN);
   atexit( fossil_atexit );
   aCommand[idx].xFunc();
   fossil_exit(0);
@@ -1678,6 +1681,9 @@ void cmd_http(void){
     g.httpIn = stdin;
     g.httpOut = stdout;
     zIpAddr = 0;
+  }
+  if( zIpAddr==0 ){
+    zIpAddr = cgi_ssh_remote_addr(0);
   }
   find_server_repository(0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);

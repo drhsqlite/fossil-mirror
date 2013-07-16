@@ -2129,6 +2129,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "repo-cksum",    0,                0, 0, "on"                  },
   { "self-register", 0,                0, 0, "off"                 },
   { "ssh-command",   0,               40, 0, ""                    },
+  { "ssh-fossil",    0,               40, 0, ""                    },
   { "ssl-ca-location",0,              40, 0, ""                    },
   { "ssl-identity",  0,               40, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
@@ -2299,6 +2300,8 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    ssh-command      Command used to talk to a remote machine with
 **                     the "ssh://" protocol.
+**
+**    ssh-fossil       Remote fossil command to run with the "ssh://" protocol.
 **
 **    ssl-ca-location  The full pathname to a file containing PEM encoded
 **                     CA root certificates, or a directory of certificates
