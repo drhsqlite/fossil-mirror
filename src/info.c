@@ -399,9 +399,10 @@ void append_diff_javascript(int sideBySide){
   @ var SCROLL_LEN = 25;
   @ function initSbsDiff(diff){
   @   var txtCols = diff.querySelectorAll('.difftxtcol');
-  @   var width = Math.max(txtCols[0].scrollWidth, txtCols[1].scrollWidth);
+  @   var txtPres = diff.querySelectorAll('.difftxtcol pre');
+  @   var width = Math.max(txtPres[0].scrollWidth, txtPres[1].scrollWidth);
   @   for(var i=0; i<2; i++){
-  @     txtCols[i].children[0].style.width = width + 'px';
+  @     txtPres[i].style.width = width + 'px';
   @     txtCols[i].onscroll = function(e){
   @       txtCols[0].scrollLeft = txtCols[1].scrollLeft = this.scrollLeft;
   @     };
