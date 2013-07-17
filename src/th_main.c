@@ -600,6 +600,27 @@ static int stimeCmd(
   return TH_OK;
 }
 
+/*
+** TH1 command:     runtime
+**
+** Return the number of microseconds of CPU time consumed by the current
+** process in both user and kernel space.
+*/
+static int runtimeCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  char zUTime[50];
+  sqlite3_uint64 x = fossil_timer_fetch(g.mainTimerId);
+  sqlite3_snprintf(sizeof(zUTime), zUTime, "%llu", x);
+  Th_SetResult(interp, zUTime, -1);
+  return TH_OK;
+}
+
+
 
 /*
 ** TH1 command:     randhex  N
@@ -834,6 +855,7 @@ void Th_FossilInit(int needConfig, int forceSetup){
     {"randhex",       randhexCmd,           0},
     {"regexp",        regexpCmd,            0},
     {"repository",    repositoryCmd,        0},
+    {"runtime",       runtimeCmd,           0},
     {"setting",       settingCmd,           0},
     {"tclReady",      tclReadyCmd,          0},
     {"stime",         stimeCmd,             0},
