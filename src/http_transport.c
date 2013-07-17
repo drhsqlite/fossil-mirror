@@ -114,7 +114,7 @@ int transport_ssh_open(void){
 
   zSsh = db_get("ssh-command", zDefaultSshCmd);
   blob_init(&zCmd, zSsh, -1);
-  if( g.urlPort!=g.urlDfltPort ){
+  if( g.urlPort!=g.urlDfltPort && g.urlPort ){
 #ifdef __MINGW32__
     blob_appendf(&zCmd, " -P %d", g.urlPort);
 #else

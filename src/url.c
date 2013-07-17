@@ -164,7 +164,7 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
         g.urlProtocol, zLogin, g.urlName, g.urlPort, g.urlPath
       );
     }
-    if( g.urlIsSsh && g.urlPath[1] ) g.urlPath++;
+    if( g.urlIsSsh && g.urlPath[1] && g.urlPort ) g.urlPath++;
     free(zLogin);
   }else if( strncmp(zUrl, "file:", 5)==0 ){
     g.urlIsFile = 1;
