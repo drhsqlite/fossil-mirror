@@ -318,21 +318,18 @@ static void append_diff(
   blob_zero(&out);
   if( diffFlags & DIFF_SIDEBYSIDE ){
     text_diff(&from, &to, &out, pRe, diffFlags | DIFF_HTML | DIFF_NOTTOOBIG);
-    @ <div class="sbsdiff">
     @ %s(blob_str(&out))
-    @ </div>
   }else{
     text_diff(&from, &to, &out, pRe,
            diffFlags | DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG);
-    @ <div class="udiff">
+    @ <pre class="udiff">
     @ %s(blob_str(&out))
-    @ </div>
+    @ </pre>
   }
   blob_reset(&from);
   blob_reset(&to);
   blob_reset(&out);
 }
-
 
 /*
 ** Write a line of web-page output that shows changes that have occurred
@@ -361,9 +358,7 @@ static void append_file_change_line(
       @ <p>Changes to %h(zName)</p>
     }
     if( diffFlags ){
-      @ <pre style="white-space:pre;">
       append_diff(zOld, zNew, diffFlags, pRe);
-      @ </pre>
     }
   }else{
     if( zOld && zNew ){
@@ -387,15 +382,46 @@ static void append_file_change_line(
       @ version %z(href("%R/artifact/%s",zNew))[%S(zNew)]</a>
     }
     if( diffFlags ){
-      @ <pre style="white-space:pre;">
       append_diff(zOld, zNew, diffFlags, pRe);
-      @ </pre>
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
       @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zOld,zNew))[diff]</a>
     }
-    @ </p>
   }
+}
+
+/*
+** Generate javascript to enhance HTML diffs.
+*/
+void append_diff_javascript(int sideBySide){
+  if( !sideBySide ) return;
+  @ <script>(function(){
+  @ var SCROLL_LEN = 25;
+  @ function initSbsDiff(diff){
+  @   var txtCols = diff.querySelectorAll('.difftxtcol');
+  @   var txtPres = diff.querySelectorAll('.difftxtcol pre');
+  @   var width = Math.max(txtPres[0].scrollWidth, txtPres[1].scrollWidth);
+  @   for(var i=0; i<2; i++){
+  @     txtPres[i].style.width = width + 'px';
+  @     txtCols[i].onscroll = function(e){
+  @       txtCols[0].scrollLeft = txtCols[1].scrollLeft = this.scrollLeft;
+  @     };
+  @   }
+  @   diff.tabIndex = 0;
+  @   diff.onkeydown = function(e){
+  @     e = e || event;
+  @     var len = {37: -SCROLL_LEN, 39: SCROLL_LEN}[e.keyCode];
+  @     if( !len ) return;
+  @     txtCols[0].scrollLeft += len;
+  @     return false;
+  @   };
+  @ }
+  @
+  @ var diffs = document.querySelectorAll('.sbsdiffcols');
+  @ for(var i=0; i<diffs.length; i++){
+  @   initSbsDiff(diffs[i]);
+  @ }
+  @ }())</script>
 }
 
 /*
@@ -677,6 +703,7 @@ void ci_page(void){
     }
     db_finalize(&q);
   }
+  append_diff_javascript(sideBySide);
   style_footer();
 }
 
@@ -990,7 +1017,7 @@ void vdiff_page(void){
   }
   manifest_destroy(pFrom);
   manifest_destroy(pTo);
-
+  append_diff_javascript(sideBySide);
   style_footer();
 }
 
@@ -1246,81 +1273,70 @@ void diff_page(void){
   int v1, v2;
   int isPatch;
   int sideBySide;
-  Blob c1, c2, diff, *pOut;
   char *zV1;
   char *zV2;
   const char *zRe;
   ReCompiled *pRe = 0;
   u64 diffFlags;
-  const char *zStyle = "sbsdiff";
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   v1 = name_to_rid_www("v1");
   v2 = name_to_rid_www("v2");
   if( v1==0 || v2==0 ) fossil_redirect_home();
-  sideBySide = !is_false(PD("sbs","1"));
-  zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
-  zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
+  zRe = P("regex");
+  if( zRe ) re_compile(&pRe, zRe, 0);
   isPatch = P("patch")!=0;
   if( isPatch ){
+    Blob c1, c2, *pOut;
     pOut = cgi_output_blob();
     cgi_set_content_type("text/plain");
     diffFlags = 4;
-  }else{
-    blob_zero(&diff);
-    pOut = &diff;
-    diffFlags = construct_diff_flags(1, sideBySide) | DIFF_HTML;
-    if( sideBySide ){
-      zStyle = "sbsdiff";
-    }else{
-      diffFlags |= DIFF_LINENO;
-      zStyle = "udiff";
-    }
+    content_get(v1, &c1);
+    content_get(v2, &c2);
+    text_diff(&c1, &c2, pOut, pRe, diffFlags);
+    blob_reset(&c1);
+    blob_reset(&c2);
+    return;
   }
-  zRe = P("regex");
-  if( zRe ) re_compile(&pRe, zRe, 0);
-  content_get(v1, &c1);
-  content_get(v2, &c2);
-  text_diff(&c1, &c2, pOut, pRe, diffFlags);
-  blob_reset(&c1);
-  blob_reset(&c2);
-  if( !isPatch ){
-    style_header("Diff");
-    style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
-                          g.zTop, P("v1"), P("v2"));
-    if( !sideBySide ){
-      style_submenu_element("Side-by-side Diff", "sbsdiff",
-                            "%s/fdiff?v1=%T&v2=%T&sbs=1",
-                            g.zTop, P("v1"), P("v2"));
-    }else{
-      style_submenu_element("Unified Diff", "udiff",
-                            "%s/fdiff?v1=%T&v2=%T&sbs=0",
-                            g.zTop, P("v1"), P("v2"));
-    }
+  
+  sideBySide = !is_false(PD("sbs","1"));
+  zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
+  zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
+  diffFlags = construct_diff_flags(1, sideBySide) | DIFF_HTML;
 
-    if( P("smhdr")!=0 ){
-      @ <h2>Differences From Artifact
-      @ %z(href("%R/artifact/%S",zV1))[%S(zV1)]</a> To
-      @ %z(href("%R/artifact/%S",zV2))[%S(zV2)]</a>.</h2>
-    }else{
-      @ <h2>Differences From
-      @ Artifact %z(href("%R/artifact/%S",zV1))[%S(zV1)]</a>:</h2>
-      object_description(v1, 0, 0);
-      @ <h2>To Artifact %z(href("%R/artifact/%S",zV2))[%S(zV2)]</a>:</h2>
-      object_description(v2, 0, 0);
-    }
-    if( pRe ){
-      @ <b>Only differences that match regular expression "%h(zRe)"
-      @ are shown.</b>
-    }
-    @ <hr />
-    @ <div class="%s(zStyle)">
-    @ %s(blob_str(&diff))
-    @ </div>
-    blob_reset(&diff);
-    style_footer();
+  style_header("Diff");
+  style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
+                        g.zTop, P("v1"), P("v2"));
+  if( !sideBySide ){
+    style_submenu_element("Side-by-side Diff", "sbsdiff",
+                          "%s/fdiff?v1=%T&v2=%T&sbs=1",
+                          g.zTop, P("v1"), P("v2"));
+  }else{
+    style_submenu_element("Unified Diff", "udiff",
+                          "%s/fdiff?v1=%T&v2=%T&sbs=0",
+                          g.zTop, P("v1"), P("v2"));
   }
+
+  if( P("smhdr")!=0 ){
+    @ <h2>Differences From Artifact
+    @ %z(href("%R/artifact/%S",zV1))[%S(zV1)]</a> To
+    @ %z(href("%R/artifact/%S",zV2))[%S(zV2)]</a>.</h2>
+  }else{
+    @ <h2>Differences From
+    @ Artifact %z(href("%R/artifact/%S",zV1))[%S(zV1)]</a>:</h2>
+    object_description(v1, 0, 0);
+    @ <h2>To Artifact %z(href("%R/artifact/%S",zV2))[%S(zV2)]</a>:</h2>
+    object_description(v2, 0, 0);
+  }
+  if( pRe ){
+    @ <b>Only differences that match regular expression "%h(zRe)"
+    @ are shown.</b>
+  }
+  @ <hr />
+  append_diff(zV1, zV2, diffFlags, pRe);
+  append_diff_javascript(sideBySide);
+  style_footer();
 }
 
 /*

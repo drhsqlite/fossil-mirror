@@ -300,6 +300,7 @@ SRC = \
   $(SRCDIR)/json_wiki.c \
   $(SRCDIR)/leaf.c \
   $(SRCDIR)/login.c \
+  $(SRCDIR)/lookslike.c \
   $(SRCDIR)/main.c \
   $(SRCDIR)/manifest.c \
   $(SRCDIR)/markdown.c \
@@ -408,6 +409,7 @@ TRANS_SRC = \
   $(OBJDIR)/json_wiki_.c \
   $(OBJDIR)/leaf_.c \
   $(OBJDIR)/login_.c \
+  $(OBJDIR)/lookslike_.c \
   $(OBJDIR)/main_.c \
   $(OBJDIR)/manifest_.c \
   $(OBJDIR)/markdown_.c \
@@ -516,6 +518,7 @@ OBJ = \
  $(OBJDIR)/json_wiki.o \
  $(OBJDIR)/leaf.o \
  $(OBJDIR)/login.o \
+ $(OBJDIR)/lookslike.o \
  $(OBJDIR)/main.o \
  $(OBJDIR)/manifest.o \
  $(OBJDIR)/markdown.o \
@@ -737,6 +740,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/json_wiki_.c:$(OBJDIR)/json_wiki.h \
 		$(OBJDIR)/leaf_.c:$(OBJDIR)/leaf.h \
 		$(OBJDIR)/login_.c:$(OBJDIR)/login.h \
+		$(OBJDIR)/lookslike_.c:$(OBJDIR)/lookslike.h \
 		$(OBJDIR)/main_.c:$(OBJDIR)/main.h \
 		$(OBJDIR)/manifest_.c:$(OBJDIR)/manifest.h \
 		$(OBJDIR)/markdown_.c:$(OBJDIR)/markdown.h \
@@ -1236,6 +1240,14 @@ $(OBJDIR)/login.o:	$(OBJDIR)/login_.c $(OBJDIR)/login.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/login.o -c $(OBJDIR)/login_.c
 
 $(OBJDIR)/login.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/lookslike_.c:	$(SRCDIR)/lookslike.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/lookslike.c >$(OBJDIR)/lookslike_.c
+
+$(OBJDIR)/lookslike.o:	$(OBJDIR)/lookslike_.c $(OBJDIR)/lookslike.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/lookslike.o -c $(OBJDIR)/lookslike_.c
+
+$(OBJDIR)/lookslike.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/main_.c:	$(SRCDIR)/main.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/main.c >$(OBJDIR)/main_.c
