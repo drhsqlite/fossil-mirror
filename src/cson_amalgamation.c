@@ -28,7 +28,11 @@
 #endif
 
 /* Determine the integer type use to parse non-floating point numbers */
-#if __STDC_VERSION__ >= 199901L || HAVE_LONG_LONG == 1
+#ifdef _WIN32
+typedef __int64 JSON_int_t;
+#define JSON_PARSER_INTEGER_SSCANF_TOKEN "%I64d"
+#define JSON_PARSER_INTEGER_SPRINTF_TOKEN "%I64d"
+#elif (__STDC_VERSION__ >= 199901L) || (HAVE_LONG_LONG == 1)
 typedef long long JSON_int_t;
 #define JSON_PARSER_INTEGER_SSCANF_TOKEN "%lld"
 #define JSON_PARSER_INTEGER_SPRINTF_TOKEN "%lld"

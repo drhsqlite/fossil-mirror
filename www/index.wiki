@@ -24,7 +24,8 @@ cellpadding="2">
 <li> [./faq.wiki | FAQ]
 <li> [./contribute.wiki | Contributing]
 <li> [./changes.wiki | Change Log]
-<li> [./permutedindex.wiki#pindex | Doc Index]
+<li> [./hints.wiki | Tip &amp; Hints]
+<li> [./permutedindex.wiki#pindex | Documentation Index]
 <li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
 <li> Mailing list
      <ul>
@@ -145,6 +146,8 @@ internet these days. What makes Fossil worthy of attention?
   *  Documentation on the
      [http://www.sqliteconcepts.org/THManual.pdf | TH1 Script Language] used
      to configure the ticketing subsystem.
+  *  A free hosting server for Fossil repositories is available at
+     [http://chiselapp.com/].
   *  How to [./server.wiki | set up a server] for your repository.
   *  Customizing the [./custom_ticket.wiki | ticket system].
   *  Methods to [./checkin_names.wiki | identify a specific check-in].

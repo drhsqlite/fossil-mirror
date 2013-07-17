@@ -67,6 +67,8 @@ static const struct {
                              "\"bisect good\" or \"bisect bad\"" },
   { "direct-only",  "on",    "Follow only primary parent-child links, not "
                              "merges\n" },
+  { "display",    "chart",   "Command to run after \"next\".  \"chart\", "
+                             "\"log\", \"status\", or \"none\"" },
 };
 
 /*
@@ -169,6 +171,57 @@ static void bisect_append_log(int rid){
 }
 
 /*
+** Show a chart of bisect "good" and "bad" versions.  The chart can be
+** sorted either chronologically by bisect time, or by check-in time.
+*/
+static void bisect_chart(int sortByCkinTime){
+  char *zLog = db_lget("bisect-log","");
+  Blob log, id;
+  Stmt q;
+  int cnt = 0;
+  blob_init(&log, zLog, -1);
+  db_multi_exec(
+     "CREATE TEMP TABLE bilog("
+     "  seq INTEGER PRIMARY KEY,"  /* Sequence of events */
+     "  stat TEXT,"                /* Type of occurrence */
+     "  rid INTEGER"               /* Check-in number */
+     ");"
+  );
+  db_prepare(&q, "INSERT OR IGNORE INTO bilog(seq,stat,rid)"
+                 " VALUES(:seq,:stat,:rid)");
+  while( blob_token(&log, &id) ){
+    int rid = atoi(blob_str(&id));
+    db_bind_int(&q, ":seq", ++cnt);
+    db_bind_text(&q, ":stat", rid>0 ? "GOOD" : "BAD");
+    db_bind_int(&q, ":rid", rid>=0 ? rid : -rid);
+    db_step(&q);
+    db_reset(&q);
+  }
+  db_bind_int(&q, ":seq", ++cnt);
+  db_bind_text(&q, ":stat", "CURRENT");
+  db_bind_int(&q, ":rid", db_lget_int("checkout", 0));
+  db_step(&q);
+  db_finalize(&q);
+  db_prepare(&q,
+    "SELECT bilog.seq, bilog.stat,"
+    "       substr(blob.uuid,1,16), datetime(event.mtime)"
+    "  FROM bilog, blob, event"
+    " WHERE blob.rid=bilog.rid AND event.objid=bilog.rid"
+    "   AND event.type='ci'"
+    " ORDER BY %s",
+    (sortByCkinTime ? "event.mtime DESC" : "bilog.rowid ASC")
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("%3d %-7s %s %s\n",
+        db_column_int(&q, 0),
+        db_column_text(&q, 1),
+        db_column_text(&q, 3),
+        db_column_text(&q, 2));
+  }
+  db_finalize(&q);
+}
+
+/*
 ** COMMAND: bisect
 **
 ** Usage: %fossil bisect SUBCOMMAND ...
@@ -186,8 +239,11 @@ static void bisect_append_log(int rid){
 **     the current checkout is marked as working.
 **
 **   fossil bisect log
+**   fossil bisect chart
 **
-**     Show a log of "good" and "bad" versions
+**     Show a log of "good" and "bad" versions.  "bisect log" shows the
+**     events in the order that they were tested.  "bisect chart" shows
+**     them in order of check-in.
 **
 **   fossil bisect next
 **
@@ -204,7 +260,7 @@ static void bisect_append_log(int rid){
 **     Reinitialize a bisect session.  This cancels prior bisect history
 **     and allows a bisect session to start over from the beginning.
 **
-**   fossil bisect vlist|ls|status ?--all?
+**   fossil bisect vlist|ls|status ?-a|--all?
 **
 **     List the versions in between "bad" and "good".
 **
@@ -217,6 +273,7 @@ static void bisect_append_log(int rid){
 **   fossil bisect bad ?VERSION?
 **   fossil bisect good ?VERSION?
 **   fossil bisect log
+**   fossil bisect chart
 **   fossil bisect next
 **   fossil bisect options
 **   fossil bisect reset
@@ -234,7 +291,7 @@ void bisect_cmd(void){
   zCmd = g.argv[2];
   n = strlen(zCmd);
   if( n==0 ) zCmd = "-";
-  if( memcmp(zCmd, "bad", n)==0 ){
+  if( strncmp(zCmd, "bad", n)==0 ){
     int ridBad;
     foundCmd = 1;
     if( g.argc==3 ){
@@ -249,7 +306,7 @@ void bisect_cmd(void){
         n = 4;
       }
     }
-  }else if( memcmp(zCmd, "good", n)==0 ){
+  }else if( strncmp(zCmd, "good", n)==0 ){
     int ridGood;
     foundCmd = 1;
     if( g.argc==3 ){
@@ -264,7 +321,7 @@ void bisect_cmd(void){
         n = 4;
       }
     }
-  }else if( memcmp(zCmd, "undo", n)==0 ){
+  }else if( strncmp(zCmd, "undo", n)==0 ){
     char *zLog;
     Blob log, id;
     int ridBad = 0;
@@ -298,10 +355,12 @@ void bisect_cmd(void){
       n = 4;
     }
   }
-  /* No else here so that the above commands can morph themselves into 
+  /* No else here so that the above commands can morph themselves into
   ** a "next" command */
-  if( memcmp(zCmd, "next", n)==0 ){
+  if( strncmp(zCmd, "next", n)==0 ){
     PathNode *pMid;
+    char *zDisplay = db_lget("bisect-display","chart");
+    int m = (int)strlen(zDisplay);
     bisect_path();
     pMid = path_midpoint();
     if( pMid==0 ){
@@ -313,29 +372,19 @@ void bisect_cmd(void){
       g.fNoSync = 1;
       update_cmd();
     }
-    bisect_list(1);
-  }else if( memcmp(zCmd, "log", n)==0 ){
-    char *zLog = db_lget("bisect-log","");
-    Blob log, id;
-    Stmt q;
-    int cnt = 0;
-    blob_init(&log, zLog, -1);
-    db_prepare(&q, "SELECT substr(blob.uuid,1,16), datetime(event.mtime)"
-                   "  FROM blob, event"
-                   " WHERE blob.rid=:rid AND event.objid=:rid"
-                   "   AND event.type='ci'");
-    while( blob_token(&log, &id) ){
-      int rid = atoi(blob_str(&id));
-      db_bind_int(&q, ":rid", rid<0 ? -rid : rid);
-      if( db_step(&q)==SQLITE_ROW ){
-        cnt++;
-        fossil_print("%3d %-4s %s %s\n", cnt, rid<0 ? "BAD" : "GOOD",
-                     db_column_text(&q, 1), db_column_text(&q, 0));
-      }
-      db_reset(&q);
+   
+    if( strncmp(zDisplay,"chart",m)==0 ){
+      bisect_chart(1);
+    }else if( strncmp(zDisplay, "log", m)==0 ){
+      bisect_chart(0);
+    }else if( strncmp(zDisplay, "status", m)==0 ){
+      bisect_list(1);
     }
-    db_finalize(&q);
-  }else if( memcmp(zCmd, "options", n)==0 ){
+  }else if( strncmp(zCmd, "log", n)==0 ){
+    bisect_chart(0);
+  }else if( strncmp(zCmd, "chart", n)==0 ){
+    bisect_chart(1);
+  }else if( strncmp(zCmd, "options", n)==0 ){
     if( g.argc==3 ){
       unsigned int i;
       for(i=0; i<sizeof(aBisectOption)/sizeof(aBisectOption[0]); i++){
@@ -365,16 +414,16 @@ void bisect_cmd(void){
     }else{
       usage("bisect option ?NAME? ?VALUE?");
     }
-  }else if( memcmp(zCmd, "reset", n)==0 ){
+  }else if( strncmp(zCmd, "reset", n)==0 ){
     db_multi_exec(
       "DELETE FROM vvar WHERE name IN "
       " ('bisect-good', 'bisect-bad', 'bisect-log')"
     );
-  }else if( memcmp(zCmd, "vlist", n)==0
-         || memcmp(zCmd, "ls", n)==0 
-         || memcmp(zCmd, "status", n)==0
+  }else if( strncmp(zCmd, "vlist", n)==0
+         || strncmp(zCmd, "ls", n)==0
+         || strncmp(zCmd, "status", n)==0
   ){
-    int fAll = find_option("all", 0, 0)!=0;
+    int fAll = find_option("all", "a", 0)!=0;
     bisect_list(!fAll);
   }else if( !foundCmd ){
     usage("bad|good|log|next|options|reset|status|undo");

@@ -424,8 +424,8 @@ static int stash_get_id(const char *zStashId){
 ** Usage: %fossil stash SUBCOMMAND ARGS...
 **
 **  fossil stash
-**  fossil stash save ?-m COMMENT? ?FILES...?
-**  fossil stash snapshot ?-m COMMENT? ?FILES...?
+**  fossil stash save ?-m|--comment COMMENT? ?FILES...?
+**  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
 **
 **     Save the current changes in the working tree as a new stash.
 **     Then revert the changes back to the last check-in.  If FILES
@@ -434,11 +434,11 @@ static int stash_get_id(const char *zStashId){
 **     arguments.  The "snapshot" verb works the same as "save" but
 **     omits the revert, keeping the check-out unchanged.
 **
-**  fossil stash list ?--detail?
-**  fossil stash ls ?-l?
+**  fossil stash list ?-v|--verbose?
+**  fossil stash ls ?-v|--verbose?
 **
 **     List all changes sets currently stashed.  Show information about
-**     individual files in each changeset if --detail or -l is used.
+**     individual files in each changeset if -v or --verbose is used.
 **
 **  fossil stash show ?STASHID? ?DIFF-FLAGS?
 **
@@ -458,11 +458,12 @@ static int stash_get_id(const char *zStashId){
 **     changes of STASHID.  Keep STASHID so that it can be reused
 **     This command is undoable.
 **
-**  fossil stash drop ?STASHID? ?--all?
-**  fossil stash rm   ?STASHID? ?--all?
+**  fossil stash drop ?STASHID? ?-a|--all?
+**  fossil stash rm   ?STASHID? ?-a|--all?
 **
 **     Forget everything about STASHID.  Forget the whole stash if the
-**     --all flag is used.  Individual drops are undoable but --all is not.
+**     -a|--all flag is used.  Individual drops are undoable but -a|--all
+**     is not.
 **
 **  fossil stash diff ?STASHID?
 **  fossil stash gdiff ?STASHID?
@@ -472,14 +473,14 @@ static int stash_get_id(const char *zStashId){
 **
 ** SUMMARY:
 **  fossil stash
-**  fossil stash save ?-m COMMENT? ?FILES...?
-**  fossil stash snapshot ?-m COMMENT? ?FILES...?
-**  fossil stash list|ls  ?-l? ?--detail?
+**  fossil stash save ?-m|--comment COMMENT? ?FILES...?
+**  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
+**  fossil stash list|ls  ?-v|--verbose?
 **  fossil stash show ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash pop
 **  fossil stash apply ?STASHID?
 **  fossil stash goto ?STASHID?
-**  fossil stash rm|drop ?STASHID? ?--all?
+**  fossil stash rm|drop ?STASHID? ?-a|--all?
 **  fossil stash [g]diff ?STASHID? ?DIFF-OPTIONS?
 */
 void stash_cmd(void){
@@ -528,14 +529,17 @@ void stash_cmd(void){
   if( memcmp(zCmd, "list", nCmd)==0 || memcmp(zCmd, "ls", nCmd)==0 ){
     Stmt q, q2;
     int n = 0;
-    int fDetail = find_option("detail","l",0)!=0;
+    int verboseFlag = find_option("verbose","v",0)!=0;
+    if( !verboseFlag ){
+      verboseFlag = find_option("detail","l",0)!=0; /* deprecated */
+    }
     verify_all_options();
     db_prepare(&q,
        "SELECT stashid, (SELECT uuid FROM blob WHERE rid=vid),"
        "       comment, datetime(ctime) FROM stash"
        " ORDER BY ctime DESC"
     );
-    if( fDetail ){
+    if( verboseFlag ){
       db_prepare(&q2, "SELECT isAdded, isRemoved, origname, newname"
                       "  FROM stashfile WHERE stashid=$id");
     }
@@ -553,7 +557,7 @@ void stash_cmd(void){
         fossil_print("       ");
         comment_print(zCom, 7, 79);
       }
-      if( fDetail ){
+      if( verboseFlag ){
         db_bind_int(&q2, "$id", stashid);
         while( db_step(&q2)==SQLITE_ROW ){
           int isAdded = db_column_int(&q2, 0);
@@ -574,11 +578,11 @@ void stash_cmd(void){
       }
     }
     db_finalize(&q);
-    if( fDetail ) db_finalize(&q2);
+    if( verboseFlag ) db_finalize(&q2);
     if( n==0 ) fossil_print("empty stash\n");
   }else
   if( memcmp(zCmd, "drop", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 ){
-    int allFlag = find_option("all", 0, 0)!=0;
+    int allFlag = find_option("all", "a", 0)!=0;
     if( allFlag ){
       Blob ans;
       char cReply;

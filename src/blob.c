@@ -1154,8 +1154,9 @@ void blob_swap( Blob *pLeft, Blob *pRight ){
 void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
   char *zUtf8;
   int bomSize = 0;
+#if defined(_WIN32) || defined(__CYGWIN__)
   int bomReverse = 0;
-
+#endif
   if( starts_with_utf8_bom(pBlob, &bomSize) ){
     struct Blob temp;
     zUtf8 = blob_str(pBlob) + bomSize;

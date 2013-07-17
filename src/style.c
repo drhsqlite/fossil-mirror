@@ -464,7 +464,7 @@ const char zDefaultFooter[] =
 /*
 ** The default Cascading Style Sheet.
 ** It's assembled by different strings for each class.
-** The default css conatains all definitions.
+** The default css contains all definitions.
 ** The style sheet, send to the client only contains the ones,
 ** not defined in the user defined css.
 */
@@ -607,13 +607,6 @@ const char zDefaultCSS[] =
 @   padding: 0.5em;
 @   white-space: pre-wrap;
 @}
-@
-@ /* The label/value pairs on (for example) the ci page */
-@ table.label-value th {
-@   vertical-align: top;
-@   text-align: right;
-@   padding: 0.2ex 2ex;
-@ }
 ;
 
 
@@ -974,16 +967,39 @@ const struct strctCssDefaults {
     @   margin-top: 3px;
     @   line-height: 100%;
   },
-  { "div.sbsdiff",
-    "side-by-side diff display",
-    @   font-family: monospace;
+  { "table.sbsdiffcols",
+    "side-by-side diff display (column-based)",
+    @   border-spacing: 0;
     @   font-size: xx-small;
-    @   white-space: pre;
   },
-  { "div.udiff",
-    "context diff display",
-    @   font-family: monospace;
-    @   white-space: pre;
+  { "table.sbsdiffcols td",
+    "sbs diff table cell",
+    @   padding: 0;
+    @   vertical-align: top;
+  },
+  { "table.sbsdiffcols pre",
+    "sbs diff pre block",
+    @   margin: 0;
+    @   padding: 0;
+    @   border: 0;
+    @   font-size: inherit;
+    @   background: inherit;
+    @   color: inherit;
+  },
+  { "div.difflncol",
+    "diff line number column",
+    @   padding-right: 1em;
+    @   text-align: right;
+    @   color: #a0a0a0;
+  },
+  { "div.difftxtcol",
+    "diff text column",
+    @   width: 45em;
+    @   overflow-x: auto;
+  },
+  { "div.diffmkrcol",
+    "diff marker column",
+    @   padding: 0 1em;
   },
   { "span.diffchng",
     "changes in a diff",
@@ -999,6 +1015,8 @@ const struct strctCssDefaults {
   },
   { "span.diffhr",
     "suppressed lines in a diff",
+    @   display: inline-block;
+    @   margin: .5em 0 1em;
     @   color: #0000ff;
   },
   { "span.diffln",
@@ -1020,6 +1038,36 @@ const struct strctCssDefaults {
     @   white-space: pre-wrap;
     @   word-wrap: break-word;
     @   color: red;
+  },
+  { "table.tale-value th",
+    "The label/value pairs on (for example) the ci page",
+    @   vertical-align: top;
+    @   text-align: right;
+    @   padding: 0.2ex 2ex;
+  },
+  { ".statistics-report-graph-line",
+    "for the /stats_report views",
+    @   background-color: #446979;
+  },
+  { ".statistics-report-table-events th"
+    "",
+    @   padding: 0 1em 0 1em;
+  },
+  { ".statistics-report-table-events td",
+    "",
+    @   padding: 0.1em 1em 0.1em 1em;
+  },
+  { ".statistics-report-row-year",
+    "",
+    @   text-align: left;
+  },
+  { "tr.row0",
+    "even table row color",
+    @ /* use default */
+  },
+  { "tr.row1",
+    "odd table row color",
+    @ /* Use default */
   },
   { 0,
     0,

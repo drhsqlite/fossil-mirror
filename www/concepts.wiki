@@ -48,7 +48,8 @@ single repository can be associated with many source trees, but
 each source tree is associated with only one repository.
 
 Fossil source trees may not overlap.  A fossil source tree is identified
-by a file named "_FOSSIL_" in the root directory of the source tree.  Every
+by a file named "_FOSSIL_" (or ".fslckout", but this article will always
+use the name "_FOSSIL_") in the root directory of the source tree.  Every
 file that is a sibling of _FOSSIL_ and every file in every subfolder is
 considered potentially a part of the source tree.  The _FOSSIL_ file
 contains (among other things) the pathname of the repository with which
@@ -124,7 +125,7 @@ a software project.
 
 <h3>2.2 Manifests</h3>
 
-At the root of a source tree is a special file called the
+Associated with every check-in is a special file called the
 "manifest".  The manifest is a listing of all other files in
 that source tree.  The manifest contains the (complete) artifact ID 
 of the file and the name of the file as it appears on disk,
@@ -133,6 +134,14 @@ of the manifest is the identifier for the entire check-in.  When
 you look at a "timeline" of changes in fossil, the ID associated
 with each check-in or commit is really just the artifact ID of the
 manifest for that check-in.
+
+<p>The manifest file is not normally a real file on disk.  Instead,
+the manifest is computed in memory by Fossil whenever it needs it.
+However, the "fossil setting manifest on" command will cause the
+manifest file to be materialized to disk, if desired.  Both Fossil
+itself, and SQLite cause the manifest file to be materialized to disk
+so that the makefiles for these project can read the manifest and
+embed version information in generated binaries.
 
 <p>Fossil automatically generates a manifest whenever you "commit" 
 a new check-in.  So this is not something that you, the developer,

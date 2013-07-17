@@ -1717,8 +1717,8 @@ int manifest_crosslink(int rid, Blob *pContent){
       ** new delta manifests.
       */
       if( p->zBaseline!=0 ){
-        static int once = 0;
-        if( !once ){
+        static int once = 1;
+        if( once ){
           db_set_int("seen-delta-manifest", 1, 0);
           once = 0;
         }

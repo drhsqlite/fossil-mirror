@@ -72,6 +72,7 @@ set src {
   json_wiki
   leaf
   login
+  lookslike
   main
   manifest
   markdown
@@ -432,7 +433,7 @@ OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1e
 #    directory and the target Tcl directory.  This removes the need to
 #    hard-code the necessary paths in this Makefile.
 #
-TCLDIR = $(SRCDIR)/../tcl-8.6
+TCLDIR = $(SRCDIR)/../compat/tcl-8.6
 
 #### The Tcl source code directory.  This defaults to the same value as
 #    TCLDIR macro (above), which may not be correct.  This value will
@@ -970,7 +971,7 @@ INCL   = $(INCL) -I$(SSLINCDIR)
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(INCL)
-RCC    = rc -D_WIN32 -D_MSC_VER $(INCL)
+RCC    = rc -D_WIN32 -D_MSC_VER $(MSCDEF) $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib advapi32.lib
 LIBDIR = -LIBPATH:$(ZLIBDIR)
 

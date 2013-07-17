@@ -220,6 +220,7 @@ struct Global {
 
   int allowSymlinks;             /* Cached "allow-symlinks" option */
 
+  int mainTimerId;               /* Set to fossil_timer_start() */
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
     int isJsonMode;            /* True if running in JSON mode, else
@@ -268,6 +269,7 @@ struct Global {
       cson_object * o;
     } reqPayload;              /* request payload object (if any) */
     cson_array * warnings;     /* response warnings */
+    int timerId;               /* fetched from fossil_timer_start() */
   } json;
 #endif /* FOSSIL_ENABLE_JSON */
 };
@@ -420,13 +422,20 @@ static void expand_args_option(int argc, void *argv){
 
   blob_rewind(&file);
   while( (n = blob_line(&file, &line))>0 ){
-    if( n<=1 ) continue;
+    if( n<1 ) continue
+      /**
+       ** Reminder: corner-case: a line with 1 byte and no newline.
+       */;
     z = blob_buffer(&line);
-    z[n-1] = 0;
+    if('\n'==z[n-1]){
+      z[n-1] = 0;
+    }
+
     if((n>1) && ('\r'==z[n-2])){
       if(n==2) continue /*empty line*/;
       z[n-2] = 0;
     }
+    if(!z[0]) continue;
     newArgv[j++] = z;
     if( z[0]=='-' ){
       for(k=1; z[k] && !fossil_isspace(z[k]); k++){}
@@ -488,6 +497,7 @@ static const char *sqlite_error_code_name(int iCode){
     case SQLITE_FORMAT:     return "SQLITE_FORMAT";
     case SQLITE_RANGE:      return "SQLITE_RANGE";
     case SQLITE_NOTADB:     return "SQLITE_NOTADB";
+    case SQLITE_WARNING:    return "SQLITE_WARNING";
     default: {
       sqlite3_snprintf(sizeof(zCode),zCode,"error code %d",iCode);
     }
@@ -497,6 +507,11 @@ static const char *sqlite_error_code_name(int iCode){
 
 /* Error logs from SQLite */
 static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
+#ifdef __APPLE__
+  /* Disable the file alias warning on apple products because Time Machine
+  ** creates lots of aliases and the warning alarms people. */
+  if( iCode==SQLITE_WARNING ) return;
+#endif
   fossil_warning("%s: %s", sqlite_error_code_name(iCode), zErrmsg);
 }
 
@@ -513,7 +528,6 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
-
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);
@@ -536,6 +550,7 @@ int main(int argc, char **argv)
   g.tcl.argc = g.argc;
   g.tcl.argv = copy_args(g.argc, g.argv); /* save full arguments */
 #endif
+  g.mainTimerId = fossil_timer_start();
   if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
     g.isHTTP = 1;
@@ -543,8 +558,19 @@ int main(int argc, char **argv)
     fossil_print(
        "Usage: %s COMMAND ...\n"
        "   or: %s help           -- for a list of common commands\n"
-       "   or: %s help COMMMAND  -- for help with the named command\n",
+       "   or: %s help COMMAND   -- for help with the named command\n",
        g.argv[0], g.argv[0], g.argv[0]);
+    fossil_print(
+      "\nCommands and filenames may be passed on to fossil from a file\n"
+      "by using:\n"
+      "\n    %s --args FILENAME ...\n",
+      g.argv[0]
+    );
+    fossil_print(
+      "\nEach line of the file is assumed to be a filename unless it starts\n"
+      "with '-' and contains a space, in which case it is assumed to be\n"
+      "another flag and is treated as such. --args FILENAME may be used\n"
+      "in conjunction with any other flags.\n");
     fossil_exit(1);
   }else{
     const char *zChdir = find_option("chdir",0,1);
@@ -561,7 +587,7 @@ int main(int argc, char **argv)
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
     if( find_option("utc",0,0) ) g.fTimeFormat = 1;
     if( find_option("localtime",0,0) ) g.fTimeFormat = 2;
-    if( zChdir && chdir(zChdir) ){
+    if( zChdir && file_chdir(zChdir, 0) ){
       fossil_fatal("unable to change directories to %s", zChdir);
     }
     if( find_option("help",0,0)!=0 ){
@@ -761,30 +787,22 @@ void version_cmd(void){
   if(!find_option("verbose","v",0)){
     return;
   }else{
-    int count = 0;
-    fossil_print("\nCompiled using \"%s\" with\nSQLite %s [%s],\nzlib %s, "
-                 "and the following optional features enabled:\n\n",
-                 COMPILER_NAME, SQLITE_VERSION, SQLITE_SOURCE_ID,
-                 ZLIB_VERSION);
+    fossil_print("Compiled on %s %s using %s (%d-bit)\n",
+                 __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
+    fossil_print("SQLite %s %.30s\n", SQLITE_VERSION, SQLITE_SOURCE_ID);
+    fossil_print("zlib %s\n", ZLIB_VERSION);
 #if defined(FOSSIL_ENABLE_SSL)
-    ++count;
-    fossil_print("\tSSL (%s)\n", OPENSSL_VERSION_TEXT);
+    fossil_print("SSL (%s)\n", OPENSSL_VERSION_TEXT);
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
-    ++count;
-    fossil_print("\tTCL (Tcl %s)\n", TCL_PATCH_LEVEL);
+    fossil_print("TCL (Tcl %s)\n", TCL_PATCH_LEVEL);
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
-    ++count;
-    fossil_print("\tTCL_STUBS\n");
+    fossil_print("TCL_STUBS\n");
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
-    ++count;
-    fossil_print("\tJSON (API %s)\n", FOSSIL_JSON_API_VERSION);
+    fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
 #endif
-    if( !count ){
-      fossil_print("\tNo optional features were enabled.\n");
-    }
   }
 }
 
@@ -799,10 +817,10 @@ void version_cmd(void){
 ** available commands one of:
 **
 **    %fossil help              Show common commands
-**    %fossil help --all        Show both common and auxiliary commands
-**    %fossil help --test       Show test commands only
-**    %fossil help --aux        Show auxiliary commands only
-**    %fossil help --www        Show list of WWW pages
+**    %fossil help --a|-all     Show both common and auxiliary commands
+**    %fossil help --t|-test    Show test commands only
+**    %fossil help --x|-aux     Show auxiliary commands only
+**    %fossil help --w|-www     Show list of WWW pages
 */
 void help_cmd(void){
   int rc, idx, isPage = 0;
@@ -813,25 +831,25 @@ void help_cmd(void){
     z = g.argv[0];
     fossil_print(
       "Usage: %s help COMMAND\n"
-      "Common COMMANDs:  (use \"%s help --all\" for a complete list)\n",
+      "Common COMMANDs:  (use \"%s help -a|--all\" for a complete list)\n",
       z, z);
     command_list(0, CMDFLAG_1ST_TIER);
     version_cmd();
     return;
   }
-  if( find_option("all",0,0) ){
+  if( find_option("all","a",0) ){
     command_list(0, CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER);
     return;
   }
-  else if( find_option("www",0,0) ){
+  else if( find_option("www","w",0) ){
     command_list(0, CMDFLAG_WEBPAGE);
     return;
   }
-  else if( find_option("aux",0,0) ){
+  else if( find_option("aux","x",0) ){
     command_list(0, CMDFLAG_2ND_TIER);
     return;
   }
-  else if( find_option("test",0,0) ){
+  else if( find_option("test","t",0) ){
     command_list(0, CMDFLAG_TEST);
     return;
   }
@@ -1088,7 +1106,7 @@ static char *enter_chroot_jail(char *zRepo){
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
     if( file_isdir(zDir)==1 ){
-      if( chdir(zDir) || chroot(zDir) || chdir("/") ){
+      if( file_chdir(zDir, 1) ){
         fossil_fatal("unable to chroot into %s", zDir);
       }
       zRepo = "/";
@@ -1097,7 +1115,7 @@ static char *enter_chroot_jail(char *zRepo){
       if( zDir[i]!='/' ) fossil_panic("bad repository name: %s", zRepo);
       if( i>0 ){
         zDir[i] = 0;
-        if( chdir(zDir) || chroot(zDir) || chdir("/") ){
+        if( file_chdir(zDir, 1) ){
           fossil_fatal("unable to chroot into %s", zDir);
         }
         zDir[i] = '/';
@@ -1674,10 +1692,7 @@ void cmd_http(void){
 ** Works like the http command but gives setup permission to all users.
 */
 void cmd_test_http(void){
-  g.thTrace = find_option("th-trace", 0, 0)!=0;
-  if( g.thTrace ){
-    blob_zero(&g.thLog);
-  }
+  Th_InitTraceLog();
   login_set_capabilities("sx", 0);
   g.useLocalauth = 1;
   cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
@@ -1783,24 +1798,22 @@ void cmd_webserver(void){
 #endif
 
   zFileGlob = find_option("files", 0, 1);
-  g.thTrace = find_option("th-trace", 0, 0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
-  if( g.thTrace ){
-    blob_zero(&g.thLog);
-  }
+  Th_InitTraceLog();
   zPort = find_option("port", "P", 1);
   zNotFound = find_option("notfound", 0, 1);
   zAltBase = find_option("baseurl", 0, 1);
   if( zAltBase ){
     set_base_url(zAltBase);
   }
+  if ( find_option("localhost", 0, 0)!=0 ){
+    flags |= HTTP_SERVER_LOCALHOST;
+  }
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
     flags |= HTTP_SERVER_LOCALHOST;
     g.useLocalauth = 1;
-  }else if ( find_option("localhost", 0, 0)!=0 ){
-    flags |= HTTP_SERVER_LOCALHOST;
   }
   find_server_repository(isUiCmd && zNotFound==0);
   if( zPort ){

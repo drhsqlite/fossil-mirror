@@ -375,6 +375,15 @@ void url_initialize(HQuery *p, const char *zBase){
 }
 
 /*
+** Resets the given URL object, deallocating any memory
+** it uses.
+*/
+void url_reset(HQuery *p){
+  blob_reset(&p->url);
+  url_initialize(p, p->zBase);
+}
+
+/*
 ** Add a fixed parameter to an HQuery.
 */
 void url_add_parameter(HQuery *p, const char *zName, const char *zValue){

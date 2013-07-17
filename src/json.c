@@ -55,127 +55,6 @@ const FossilJsonKeys_ FossilJsonKeys = {
 };
 
 
-/* Timer code taken from sqlite3's shell.c, modified slightly.
-   FIXME: move the timer into the fossil core API so that we can
-   start the timer early on in the app init phase. Right now we're
-   just timing the json ops themselves.
-*/
-#if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__) && !defined(__RTP__) && !defined(_WRS_KERNEL)
-#include <sys/time.h>
-#include <sys/resource.h>
-
-/* Saved resource information for the beginning of an operation */
-static struct rusage sBegin;
-
-/*
-** Begin timing an operation
-*/
-static void beginTimer(void){
-  getrusage(RUSAGE_SELF, &sBegin);
-}
-
-/* Return the difference of two time_structs in milliseconds */
-static double timeDiff(struct timeval *pStart, struct timeval *pEnd){
-  return ((pEnd->tv_usec - pStart->tv_usec)*0.001 +
-          (double)((pEnd->tv_sec - pStart->tv_sec)*1000.0));
-}
-
-/*
-** Print the timing results.
-*/
-static double endTimer(void){
-  struct rusage sEnd;
-  getrusage(RUSAGE_SELF, &sEnd);
-#if 0
-  printf("CPU Time: user %f sys %f\n",
-         timeDiff(&sBegin.ru_utime, &sEnd.ru_utime),
-         timeDiff(&sBegin.ru_stime, &sEnd.ru_stime));
-#endif
-  return timeDiff(&sBegin.ru_utime, &sEnd.ru_utime)
-    + timeDiff(&sBegin.ru_stime, &sEnd.ru_stime);
-}
-
-#define BEGIN_TIMER beginTimer()
-#define END_TIMER endTimer()
-#define HAS_TIMER 1
-
-#elif (defined(_WIN32) || defined(WIN32))
-
-#include <windows.h>
-
-/* Saved resource information for the beginning of an operation */
-static HANDLE hProcess;
-static FILETIME ftKernelBegin;
-static FILETIME ftUserBegin;
-typedef BOOL (WINAPI *GETPROCTIMES)(HANDLE, LPFILETIME, LPFILETIME, LPFILETIME, LPFILETIME);
-static GETPROCTIMES getProcessTimesAddr = NULL;
-
-/*
-** Check to see if we have timer support.  Return 1 if necessary
-** support found (or found previously).
-*/
-static int hasTimer(void){
-  if( getProcessTimesAddr ){
-    return 1;
-  } else {
-    /* GetProcessTimes() isn't supported in WIN95 and some other Windows versions.
-    ** See if the version we are running on has it, and if it does, save off
-    ** a pointer to it and the current process handle.
-    */
-    hProcess = GetCurrentProcess();
-    if( hProcess ){
-      HINSTANCE hinstLib = LoadLibrary(TEXT("Kernel32.dll"));
-      if( NULL != hinstLib ){
-        getProcessTimesAddr = (GETPROCTIMES) GetProcAddress(hinstLib, "GetProcessTimes");
-        if( NULL != getProcessTimesAddr ){
-          return 1;
-        }
-        FreeLibrary(hinstLib);
-      }
-    }
-  }
-  return 0;
-}
-
-/*
-** Begin timing an operation
-*/
-static void beginTimer(void){
-  if( getProcessTimesAddr ){
-    FILETIME ftCreation, ftExit;
-    getProcessTimesAddr(hProcess, &ftCreation, &ftExit, &ftKernelBegin, &ftUserBegin);
-  }
-}
-
-/* Return the difference of two FILETIME structs in milliseconds */
-static double timeDiff(FILETIME *pStart, FILETIME *pEnd){
-  sqlite_int64 i64Start = *((sqlite_int64 *) pStart);
-  sqlite_int64 i64End = *((sqlite_int64 *) pEnd);
-  return (double) ((i64End - i64Start) / 10000.0);
-}
-
-/*
-** Print the timing results.
-*/
-static double endTimer(void){
-  if(getProcessTimesAddr){
-    FILETIME ftCreation, ftExit, ftKernelEnd, ftUserEnd;
-    getProcessTimesAddr(hProcess, &ftCreation, &ftExit, &ftKernelEnd, &ftUserEnd);
-    return timeDiff(&ftUserBegin, &ftUserEnd) +
-      timeDiff(&ftKernelBegin, &ftKernelEnd);
-  }
-  return 0.0;
-}
-
-#define BEGIN_TIMER beginTimer()
-#define END_TIMER endTimer()
-#define HAS_TIMER hasTimer()
-
-#else
-#define BEGIN_TIMER
-#define END_TIMER 0.0
-#define HAS_TIMER 0
-#endif
 
 /*
 ** Returns true (non-0) if fossil appears to be running in JSON mode.
@@ -390,7 +269,7 @@ cson_value * json_new_string_f( char const * fmt, ... ){
   return v;
 }
 
-cson_value * json_new_int( int v ){
+cson_value * json_new_int( i64 v ){
   return cson_value_new_integer((cson_int_t)v);
 }
 
@@ -552,7 +431,7 @@ char const * json_getenv_cstr( char const * zKey ){
 ** GET/POST/CLI argument.
 **
 ** zKey must be the GET/POST parameter key. zCLILong must be the "long
-s** form" CLI flag (NULL means to use zKey). zCLIShort may be NULL or
+** form" CLI flag (NULL means to use zKey). zCLIShort may be NULL or
 ** the "short form" CLI flag (if NULL, no short form is used).
 **
 ** If argPos is >=0 and no other match is found,
@@ -816,8 +695,11 @@ cson_value * json_req_payload_get(char const *pKey){
 */
 void json_main_bootstrap(){
   cson_value * v;
-  assert( (NULL == g.json.gc.v) && "cgi_json_bootstrap() was called twice!" );
+  assert( (NULL == g.json.gc.v) &&
+          "json_main_bootstrap() was called twice!" );
 
+  g.json.timerId = fossil_timer_start();
+  
   /* g.json.gc is our "garbage collector" - where we put JSON values
      which need a long lifetime but don't have a logical parent to put
      them in.
@@ -1546,18 +1428,22 @@ static cson_value * json_create_response( int resultCode,
     }
   }
 
-  if(HAS_TIMER){
+  if(fossil_timer_is_active(g.json.timerId)){
     /* This is, philosophically speaking, not quite the right place
        for ending the timer, but this is the one function which all of
        the JSON exit paths use (and they call it after processing,
        just before they end).
     */
-    double span;
-    span = END_TIMER;
-    /* I'm actually seeing sub-ms runtimes in some tests, but a time of
-       0 is "just wrong", so we'll bump that up to 1ms.
+    sqlite3_uint64 span = fossil_timer_stop(g.json.timerId);
+    /* I'm actually seeing sub-uSec runtimes in some tests, but a time of
+       0 is "just kinda wrong".
     */
-    cson_object_set(o,"procTimeMs", cson_value_new_integer((cson_int_t)((span>1.0)?span:1)));
+    cson_object_set(o,"procTimeUs", cson_value_new_integer((cson_int_t)span));
+    span /= 1000/*for milliseconds */;
+    cson_object_set(o,"procTimeMs", cson_value_new_integer((cson_int_t)span));
+    assert(!fossil_timer_is_active(g.json.timerId));
+    g.json.timerId = -1;
+
   }
   if(g.json.warnings){
     tmp = cson_array_value(g.json.warnings);
@@ -2027,7 +1913,8 @@ cson_value * json_page_stat(){
                  "Requires 'o' permissions.");
     return NULL;
   }
-  full = json_find_option_bool("full",NULL,"f",0);
+  full = json_find_option_bool("full",NULL,"f",
+              json_find_option_bool("verbose",NULL,"v",0));
 #define SETBUF(O,K) cson_object_set(O, K, cson_value_new_string(zBuf, strlen(zBuf)));
 
   jv = cson_value_new_object();
@@ -2335,7 +2222,6 @@ static int json_dispatch_root_command( char const * zCommand ){
 */
 void json_page_top(void){
   char const * zCommand;
-  BEGIN_TIMER;
   json_mode_bootstrap();
   zCommand = json_command_arg(1);
   if(!zCommand || !*zCommand){
@@ -2393,7 +2279,6 @@ void json_page_top(void){
 void json_cmd_top(void){
   char const * cmd = NULL;
   int rc = 0;
-  BEGIN_TIMER;
   memset( &g.perm, 0xff, sizeof(g.perm) )
     /* In CLI mode fossil does not use permissions
        and they all default to false. We enable them

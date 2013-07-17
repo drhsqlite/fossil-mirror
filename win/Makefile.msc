@@ -40,7 +40,7 @@ INCL   = $(INCL) -I$(SSLINCDIR)
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(INCL)
-RCC    = rc -D_WIN32 -D_MSC_VER $(INCL)
+RCC    = rc -D_WIN32 -D_MSC_VER $(MSCDEF) $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib advapi32.lib
 LIBDIR = -LIBPATH:$(ZLIBDIR)
 
@@ -118,6 +118,7 @@ SRC   = add_.c \
         json_wiki_.c \
         leaf_.c \
         login_.c \
+        lookslike_.c \
         main_.c \
         manifest_.c \
         markdown_.c \
@@ -226,6 +227,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\json_wiki$O \
         $(OX)\leaf$O \
         $(OX)\login$O \
+        $(OX)\lookslike$O \
         $(OX)\main$O \
         $(OX)\manifest$O \
         $(OX)\markdown$O \
@@ -352,6 +354,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\json_wiki.obj >> $@
 	echo $(OX)\leaf.obj >> $@
 	echo $(OX)\login.obj >> $@
+	echo $(OX)\lookslike.obj >> $@
 	echo $(OX)\main.obj >> $@
 	echo $(OX)\manifest.obj >> $@
 	echo $(OX)\markdown.obj >> $@
@@ -812,6 +815,12 @@ $(OX)\login$O : login_.c login.h
 login_.c : $(SRCDIR)\login.c
 	translate$E $** > $@
 
+$(OX)\lookslike$O : lookslike_.c lookslike.h
+	$(TCC) /Fo$@ -c lookslike_.c
+
+lookslike_.c : $(SRCDIR)\lookslike.c
+	translate$E $** > $@
+
 $(OX)\main$O : main_.c main.h
 	$(TCC) /Fo$@ -c main_.c
 
@@ -1176,6 +1185,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			json_wiki_.c:json_wiki.h \
 			leaf_.c:leaf.h \
 			login_.c:login.h \
+			lookslike_.c:lookslike.h \
 			main_.c:main.h \
 			manifest_.c:manifest.h \
 			markdown_.c:markdown.h \

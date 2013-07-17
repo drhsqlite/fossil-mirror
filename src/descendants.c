@@ -73,7 +73,7 @@ void compute_leaves(int iBase, int closeMode){
 
     /* This query returns all non-branch-merge children of check-in :rid.
     **
-    ** If a child is a merge of a fork within the same branch, it is 
+    ** If a child is a merge of a fork within the same branch, it is
     ** returned.  Only merge children in different branches are excluded.
     */
     db_prepare(&q1,
@@ -86,21 +86,21 @@ void compute_leaves(int iBase, int closeMode){
                         "   WHERE tagid=%d AND rid=plink.cid), 'trunk'))",
       TAG_BRANCH, TAG_BRANCH
     );
-  
+
     /* This query returns a single row if check-in :rid is the first
     ** check-in of a new branch.
     */
-    db_prepare(&isBr, 
+    db_prepare(&isBr,
        "SELECT 1 FROM tagxref"
        " WHERE rid=:rid AND tagid=%d AND tagtype=2"
        "   AND srcid>0",
        TAG_BRANCH
     );
-  
+
     /* This statement inserts check-in :rid into the LEAVES table.
     */
     db_prepare(&ins, "INSERT OR IGNORE INTO leaves VALUES(:rid)");
-  
+
     while( bag_count(&pending) ){
       int rid = bag_first(&pending);
       int cnt = 0;
@@ -211,7 +211,7 @@ void compute_direct_ancestors(int rid, int N){
     "INSERT INTO ancestor VALUES(%d, 0);", rid
   );
   db_prepare(&ins, "INSERT INTO ancestor VALUES(:rid, :gen)");
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT pid FROM plink"
     " WHERE cid=:rid AND isprim"
   );
@@ -341,15 +341,15 @@ void descendants_cmd(void){
 ** Usage: %fossil leaves ?OPTIONS?
 **
 ** Find leaves of all branches.  By default show only open leaves.
-** The --all flag causes all leaves (closed and open) to be shown.
-** The --closed flag shows only closed leaves.
+** The -a|--all flag causes all leaves (closed and open) to be shown.
+** The -c|--closed flag shows only closed leaves.
 **
 ** The --recompute flag causes the content of the "leaf" table in the
 ** repository database to be recomputed.
 **
 ** Options:
-**   --all        show ALL leaves
-**   --closed     show only closed leaves
+**   -a|--all     show ALL leaves
+**   -c|--closed  show only closed leaves
 **   --bybranch   order output by branch name
 **   --recompute  recompute the "leaf" table in the repository DB
 **
@@ -358,8 +358,8 @@ void descendants_cmd(void){
 void leaves_cmd(void){
   Stmt q;
   Blob sql;
-  int showAll = find_option("all", 0, 0)!=0;
-  int showClosed = find_option("closed", 0, 0)!=0;
+  int showAll = find_option("all", "a", 0)!=0;
+  int showClosed = find_option("closed", "c", 0)!=0;
   int recomputeFlag = find_option("recompute",0,0)!=0;
   int byBranch = find_option("bybranch",0,0)!=0;
   char *zLastBr = 0;
@@ -506,7 +506,7 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
     db_reset(&ins);
   }
   db_finalize(&q);
-  
+
   db_prepare(&q, "SELECT mid FROM mlink WHERE pid=%d", fid);
   while( db_step(&q)==SQLITE_ROW ){
     int mid = db_column_int(&q, 0);

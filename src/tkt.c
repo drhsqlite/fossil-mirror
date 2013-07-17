@@ -249,9 +249,11 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
       if( aUsed[i]==0
        && (aField[i].mUsed & USEDBY_BOTH)==USEDBY_BOTH
       ){
+        const char *z = aField[i].zName;
+        if( z[0]=='+' ) z++;
         fromTkt = 1;
-        blob_appendf(&sql2, ",%s", aField[i].zName);
-        blob_appendf(&sql3, ",%s", aField[i].zName);
+        blob_appendf(&sql2, ",%s", z);
+        blob_appendf(&sql3, ",%s", z);
       }
     }
     if( fromTkt ){
@@ -1028,7 +1030,7 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
 **
 **     Run the ticket report, identified by the report format title
 **     used in the gui. The data is written as flat file on stdout,
-**     using "," as separator. The separator "," can be changed using
+**     using TAB as separator. The separator can be changed using
 **     the -l or --limit option.
 **
 **     If TICKETFILTER is given on the commandline, the query is
@@ -1111,12 +1113,12 @@ void ticket_cmd(void){
   }
 
   if( g.argc<3 ){
-    usage("add|fieldlist|set|show|history");
+    usage("add|change|list|set|show|history");
   }
   n = strlen(g.argv[2]);
   if( n==1 && g.argv[2][0]=='s' ){
     /* set/show cannot be distinguished, so show the usage */
-    usage("add|fieldlist|set|show|history");
+    usage("add|change|list|set|show|history");
   }
   if( strncmp(g.argv[2],"list",n)==0 ){
     if( g.argc==3 ){
