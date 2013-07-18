@@ -1,5 +1,5 @@
-C Merge\sthe\sweekly\sstatus\sreporting\senhancements\sinto\strunk.
-D 2013-07-17T12:56:17.778
+C Update\scustom\sMinGW\smakefile.
+D 2013-07-18T06:48:38.851
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -523,7 +523,7 @@ F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc cdde01ca8ccde455a555dc89ff88e883315c16db
 F win/Makefile.mingw c12206aa50197bf459d2dc97b5187203bac26693
-F win/Makefile.mingw.mistachkin 64a4dea7ee45c7abe9abfb507594235183fbf0f8
+F win/Makefile.mingw.mistachkin c07e271f41196b699d8947ffb3e6992e9a2d31e7
 F win/Makefile.msc f7248847effd098c560b6f60fadb4e38ea6b143a
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 97e249d74193a71520e4f83d0f74dd87439899c2
@@ -628,7 +628,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P df46aa659c132784f2fa08c60b36565d5fa5c6e9 38e386a653f0a04ddbbafcc245adda1ae470ac77
-R 3986d0c252f0d2f7cce087a4f36987e8
-U drh
-Z 25bb7eb72fa17f230c780305367a96bc
+P 5d74ce03da97e5c2e72e975429698e50ca848f3e
+R df153f6377f8e373a937f9f818ba14de
+U mistachkin
+Z 68866c36543f5d03a69e6ae572a573b0
