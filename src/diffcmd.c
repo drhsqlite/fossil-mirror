@@ -619,7 +619,7 @@ static const char zDiffScript[] =
 @   FN_BG      #444444
 @   FN_FG      #ffffff
 @   FN_PAD     5
-@   FONTS      {{DejaVu Sans Mono} Consolas Monaco fixed}
+@   FONTS      {{DejaVu Sans Mono} Consolas Monaco}
 @   FONT_SIZE  9
 @   PADX       5
 @   WIDTH      80
@@ -648,6 +648,7 @@ static const char zDiffScript[] =
 @ 
 @ proc readDiffs {cmd} {
 @   set in [open $cmd r]
+@   fconfigure $in -encoding utf-8
 @   set nDiffs 0
 @   array set widths {txt 0 ln 0 mkr 0}
 @   while {[gets $in line] != -1} {
