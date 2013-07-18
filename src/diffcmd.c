@@ -768,7 +768,7 @@ static const char zDiffScript[] =
 @   foreach side {A B} {
 @     set sb .sbx$side
 @     set xview [.txt$side xview]
-@     if {$xview ne "0.0 1.0"} {
+@     if {[lindex $xview 0] > 0 || [lindex $xview 1] < 1} {
 @       grid $sb
 @       eval $sb set $xview
 @     } else {
@@ -895,19 +895,20 @@ static const char zDiffScript[] =
 @   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
 @   exit
 @ }
+@ update idletasks
 @ 
 @ grid rowconfigure . 1 -weight 1
 @ grid columnconfigure . 1 -weight 1
 @ grid columnconfigure . 4 -weight 1
-@ grid .files -columnspan 6
-@ eval grid [cols] .sby -sticky nsew
-@ grid .sbxA -row 2 -column 0 -columnspan 2 -sticky ew
+@ grid .files -row 0 -columnspan 6
+@ eval grid [cols] -row 1 -sticky nsew
+@ grid .sby -row 1 -column 5 -sticky ns
+@ grid .sbxA -row 2 -columnspan 2 -sticky ew
 @ grid .spacer -row 2 -column 2
 @ grid .sbxB -row 2 -column 3 -columnspan 2 -sticky ew
-@ 
-@ wm deiconify .
-@ update idletasks
+@
 @ .spacer config -height [winfo height .sbxA]
+@ wm deiconify .
 ;
 
 /*
