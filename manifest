@@ -1,5 +1,5 @@
-C Perhaps\sa\sbit\spremature\sat\sthis\spoint.\s\sNeed\sadditional\sfeedback.
-D 2013-07-18T05:45:35.822
+C Needed\scoding\sstyle\sclean\sup\sthat\swas\smissed.
+D 2013-07-18T07:28:40.639
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -317,7 +317,7 @@ F src/cgi.c 005796c0dd84551a454a51816ae3e591d79c1e1d
 F src/checkin.c eacfb4f970f0c997f804203a9e6b159fcc0dfc74
 F src/checkout.c f55c4fcce7c79370b9413b99644c50e056fb7c79
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c b900af6f93f0200ecf850d03f99cc6499442e201
+F src/clone.c 9d0c4ed2b859ed3dc965791fc5a2ff90a1491941
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c d9192353fbb8d656ef1a927a5c0b75beaa4f9e8a
@@ -342,7 +342,7 @@ F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c 2e873af38b474978f8b271c371e1cca0ef0e0455
 F src/http_socket.c f4b1e573915c33aa02f85b9ee33748efac91f894
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
-F src/http_transport.c 86d1edfe7d67f0b0857943875dac9e0c418e6405
+F src/http_transport.c 81e5a67dc2ec4a9296e98fa718d077160e66b930
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
 F src/info.c bd3b32e569b2cd73a44658e7f58619d48934efde
 F src/json.c c1205a3d3007872aca50492384e107715953c616
@@ -363,7 +363,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 1e932b06a9ed604b53c4b5c3a16327d1ae649192
-F src/main.c cb8d197d75593b105bef045970cecdb59f0908e8
+F src/main.c da68d27b08cdfae5c807afedca3ccb34c49d554d
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3760ac92ba43e59b0548753393aea440770b5237
-R 5d7bce7496cd7397d90f77591c62540c
+P 059f50864be54618a54d7826ef089927d077c372
+R 0a210900fadc1b7276b4e05585057a44
 U amb
-Z e97e3eedb4725ad0b5c2010437f337c2
+Z 5d54180cea2c056b0dd78e88b8b30107

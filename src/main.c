@@ -136,8 +136,8 @@ struct Global {
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
-  char *fSshFossilCmd;    /* Path to remoe fossil command for SSH */
-  char *fSshCmd;          /* SSH command string */
+  char *zSshFossilCmd;    /* Path to remoe fossil command for SSH */
+  char *zSshCmd;          /* SSH command string */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
@@ -580,8 +580,8 @@ int main(int argc, char **argv)
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
     g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;
     g.fSshTrace = find_option("sshtrace", 0, 0)!=0;
-    g.fSshFossilCmd = 0;
-    g.fSshCmd = 0;
+    g.zSshFossilCmd = 0;
+    g.zSshCmd = 0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;

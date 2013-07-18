@@ -180,27 +180,34 @@ void clone_cmd(void){
   db_end_transaction(0);
 }
 
+/*
+** Look for SSH clone command line options and setup in globals.
+*/
 void clone_ssh_options(void){
   const char *zSshFossilCmd;  /* Path to remote fossil command for SSH */
   const char *zSshCmd;        /* SSH command string */
 
   zSshFossilCmd = find_option("ssh-fossil","f",1);
   if( zSshFossilCmd && zSshFossilCmd[0] ){
-    g.fSshFossilCmd = mprintf("%s", zSshFossilCmd);
+    g.zSshFossilCmd = mprintf("%s", zSshFossilCmd);
   }
   zSshCmd = find_option("ssh-command","c",1);
   if( zSshCmd && zSshCmd[0] ){
-    g.fSshCmd = mprintf("%s", zSshCmd);
+    g.zSshCmd = mprintf("%s", zSshCmd);
   }
 }
 
+/*
+** Set SSH options discovered in global variables (set from command line 
+** options).  If not found, attempt to retrieve from database if present.
+*/
 void clone_ssh_db_options(void){
-  if( g.fSshFossilCmd && g.fSshFossilCmd[0] ){
-    db_set("ssh-fossil", g.fSshFossilCmd, 0);
+  if( g.zSshFossilCmd && g.zSshFossilCmd[0] ){
+    db_set("ssh-fossil", g.zSshFossilCmd, 0);
   }else{
-    g.fSshFossilCmd = db_get("ssh-fossil","fossil");
+    g.zSshFossilCmd = db_get("ssh-fossil","fossil");
   }
-  if( g.fSshCmd && g.fSshCmd[0] ){
-    db_set("ssh-command", g.fSshCmd, 0);
+  if( g.zSshCmd && g.zSshCmd[0] ){
+    db_set("ssh-command", g.zSshCmd, 0);
   }
 }

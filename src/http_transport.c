@@ -131,12 +131,12 @@ int transport_ssh_open(void){
       Blob pw;
       blob_zero(&pw);
       if( g.urlPasswd[0]=='*' ){
-	char *zPrompt;
-	zPrompt = mprintf("Password for [%s]: ", zHost);
-	prompt_for_password(zPrompt, &pw, 0);
-	free(zPrompt);
+        char *zPrompt;
+        zPrompt = mprintf("Password for [%s]: ", zHost);
+        prompt_for_password(zPrompt, &pw, 0);
+        free(zPrompt);
       }else{
-	blob_init(&pw, g.urlPasswd, -1);
+        blob_init(&pw, g.urlPasswd, -1);
       }
       blob_append(&zCmd, " -pw ", -1);
       shell_escape(&zCmd, blob_str(&pw));
@@ -150,9 +150,9 @@ int transport_ssh_open(void){
   n = blob_size(&zCmd);
   blob_append(&zCmd, " ", 1);
   shell_escape(&zCmd, zHost);
-  if( g.fSshFossilCmd && g.fSshFossilCmd[0] ){
+  if( g.zSshFossilCmd && g.zSshFossilCmd[0] ){
     blob_append(&zCmd, " ", 1);
-    shell_escape(&zCmd, mprintf("%s", g.fSshFossilCmd));
+    shell_escape(&zCmd, mprintf("%s", g.zSshFossilCmd));
   }else{
     blob_append(&zCmd, " fossil", 7);
   }
@@ -469,8 +469,13 @@ char *transport_receive_line(void){
   return &transport.pBuf[iStart];
 }
 
+/*
+** Global transport shutdown
+*/
 void transport_global_shutdown(void){
-  transport_ssh_close();
+  if( g.urlIsSsh ){
+    transport_ssh_close();
+  }
   if( g.urlIsHttps ){
     #ifdef FOSSIL_ENABLE_SSL
     ssl_global_shutdown();
@@ -480,8 +485,11 @@ void transport_global_shutdown(void){
   }
 }
 
+/*
+** Close SSH transport.
+*/
 void transport_ssh_close(void){
-  if( g.urlIsSsh && sshPid ){
+  if( sshPid ){
     /*printf("Closing SSH tunnel: ");*/
     fflush(stdout);
     pclose2(sshIn, sshOut, sshPid);
