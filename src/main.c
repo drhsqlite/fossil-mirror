@@ -627,7 +627,6 @@ int main(int argc, char **argv)
                  g.argv[0], zCmdName, g.argv[0], blob_str(&couldbe), g.argv[0]);
     fossil_exit(1);
   }
-  signal(SIGPIPE,SIG_IGN);
   atexit( fossil_atexit );
   aCommand[idx].xFunc();
   fossil_exit(0);

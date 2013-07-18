@@ -19,6 +19,7 @@
 */
 #include "config.h"
 #include "popen.h"
+#include <signal.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -173,6 +174,7 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
     *pChildPid = 0;
     return 1;
   }
+  signal(SIGPIPE,SIG_IGN);
   if( *pChildPid==0 ){
     int fd;
     int nErr = 0;
