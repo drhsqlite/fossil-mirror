@@ -1,5 +1,5 @@
-C Tk\sdiff:\sFix\sa\scouple\sscrollbar\sissues.
-D 2013-07-18T20:21:14.208
+C Retain\stab\scharacters\sin\sHTML\sside-by-side\sdiffs.\sDisplay\sshould\sbe\sunchanged\s(still\smod-8\sindentation).
+D 2013-07-18T21:11:52.805
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -328,8 +328,8 @@ F src/db.c 607cf8933d1636fecb5ff165d288dac15d99c55a
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
-F src/diff.c 7a1c2df4c540142bceb0f54e5a8a5fb83dd388ce
-F src/diffcmd.c 0c48825591ca153990ed480b3ffb35d6bdc59bee
+F src/diff.c 9cb8813108714275be0f60debf0c4088f4ef788c
+F src/diffcmd.c 0be4d549fe6b34086ee593a6b44bf14dbbad220e
 F src/doc.c 768527b613d800c88f6848c814194c70cb2214cf
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
 F src/event.c 20e26d45b3688da9779ed4c79d51b1eed2a1eaef
@@ -628,7 +628,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 01196ad38c480884ea80fafc8916d5284278f353
-R 4bcf61271f74912d6ac2a1dde895ef74
+P a6c96aea6b61f61a1d2bdebdb91e72cec8254681
+R 287cc19d45d3e3b510852acd53eedcf6
 U joel
-Z 2921204071dcd7d62c841f0e601e2466
+Z 8226119eec872fc9c6004ff1dd2a746a

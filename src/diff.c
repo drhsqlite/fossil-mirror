@@ -512,7 +512,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
         }
       }
     }
-    if( c=='\t' ){
+    if( c=='\t' && !p->escHtml ){
       blob_append(pCol, " ", 1);
       while( (k&7)!=7 && (p->escHtml || k<w) ){
         blob_append(pCol, " ", 1);

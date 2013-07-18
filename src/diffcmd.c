@@ -859,6 +859,7 @@ static const char zDiffScript[] =
 @   set txt .txt$side
 @   text $txt -width $CFG(WIDTH) -height $CFG(HEIGHT) -wrap none \
 @     -xscroll "sync-x $syncCol"
+@   catch {$txt config -tabstyle wordprocessor} ;# Required for Tk>=8.5
 @   foreach tag {add rm chng} {
 @     $txt tag config $tag -background $CFG([string toupper $tag]_BG)
 @     $txt tag lower $tag
