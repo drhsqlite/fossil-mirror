@@ -175,9 +175,17 @@ and painlessly.</p>
     <p>You will be prompted for check-in comments using whatever editor
     is specified by your VISUAL or EDITOR environment variable.</p>
 
+    In the default configuration, the [/help/commit|commit]
+    command will also automatically [/help/push|push] your changes, but that
+    feature can be disabled.  (More information about 
+    [./concepts.wiki#workflow|autosync] and how to disable it.)
+    Remember that your coworkers can not see your changes until you 
+    commit and push them.</p>
+
 <h2>Sharing Changes</h2>
 
-    <p>The changes you [/help/commit | commit] are only
+    <p>When [./concepts.wiki#workflow|autosync] is turned off, 
+    the changes you [/help/commit | commit] are only
     on your local repository.
     To share those changes with other repositories, do:</p>
 
@@ -214,6 +222,13 @@ and painlessly.</p>
     the <i>VERSION</i>, then fossil moves you to the
     latest version of the branch your are currently on.</p>
 
+    <p>The default behaviors is for [./concepts.wiki#workflow|autosync] to
+    be turned on.  That means that a [/help/pull|pull] automatically occurs
+    when you run [/help/update|update] and a [/help/push|push] happens 
+    automatically after you [/help/commit|commit].  So in normal practice,
+    the push, pull, and sync commands are rarely used.  But it is important
+    to know about them, all the same.</p>
+
 <h2>Branching And Merging</h2>
 
     <p>Use the --branch option to the [/help/commit | commit] command
@@ -224,32 +239,39 @@ and painlessly.</p>
     until they are ready to commit.
 
     To merge two branches back together, first
-    [/help/update | update] to the leaf of one branch.  Then do a
-    [/help/merge | merge] of the leaf of the other branch:</p>
+    [/help/update | update] to the branch you want to merge into.
+    Then do a [/help/merge|merge] another branch that you want to incorporate
+    the changes from.  For example, to merge "featureX" changes into "trunk"
+    do this:</p>
 
     <blockquote>
-    <b>[/help/merge | fossil merge]</b> <i>VERSION</i>
+    <b>fossil [/help/update|update] trunk</b><br>
+    <b>fossil [/help/merge|merge] featureX</b><br>
+    <i># make sure the merge didn't break anything...</i><br>
+    <b>fossil [/help/commit|commit]
     </blockquote>
 
-    <p>The <i>VERSION</i> can be any of the forms allowed for 
-    [/help/update | update].
-    After performing the merge, you will normally want to test it to
-    make sure it does not break anything, then
-    [/help/commit | commit] your changes.
-    In the default configuration, the [/help/commit|commit]
-    command will also automatically [/help/push|push] your changes, but that
-    feature can be disabled.  (More information about 
-    [./concepts.wiki#workflow|autosync] and how to disable it.)
-    Remember that your coworkers can not see your changes until you 
-    commit and push them.</p>
+    <p>The argument to the [/help/merge|merge] command can be any of the
+    version identifier forms that work for [/help/update|update].
+    ([./checkin_names.wiki|more info].)
+    The merge command has options to cherrypick individual
+    changes, or to back out individual changes, if you don't want to
+    do a full merge.</p>
 
-    <p>The merge command has options to cherrypick individual
-    changes, or to back out individual changes.</p>
+    The merge command puts all changes in your working check-out.
+    No changes are made to the repository.
+    You must run [/help/commit|commit] separately
+    to add the merge changes into your repository to make them persistent
+    and so that your coworkers can see them.
+    But before you do that, you will normally want to run a few tests
+    to verify that the merge didn't cause logic breaks in your code.
 
-    <p>Note that the merge command changes only your local check-out.
-    The merge command does <em>not</em> modify the repository in any way.
-    You must do a separate [/help/commit | commit] after the merge in order
-    to put the merged code back into the repository.</p>
+    The same branch can be merged multiple times without trouble. Fossil
+    automatically keeps up with things and avoids conflicts when doing
+    multiple merges.  So even if you have merged the featureX branch
+    into trunk previously, you can do so again and Fossil will automatically
+    know to pull in only those changes that have occurred since the previous
+    merge.
 
     <p>If a merge or update doesn't work out (perhaps something breaks or
     there are many merge conflicts) then you back up using:</p>
@@ -371,6 +393,9 @@ and painlessly.</p>
 
 <h2>More Hints</h2>
 
-    <p>A [/help | complete list of commands] is available.
+    <p>A [/help | complete list of commands] is available, as is the
+    [./hints.wiki|helpful hints] document.  See the
+    [./permutedindex.wiki#pindex|permuted index] for additional
+    documentation.
 
     <p>Explore and have fun!</p>

@@ -1,5 +1,5 @@
-C Fix\stypos\sin\sthe\squick-start\sguide.
-D 2013-07-19T18:18:40.703
+C More\sdocumentation\stweaks\sand\srefinements.
+D 2013-07-19T19:40:08.175
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -549,7 +549,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki f25efdbadf42d42c9254a4d9905941976079bd7f
+F www/build.wiki 99d99c3b86f2ba7249070ff0e427a8183b06c692
 F www/changes.wiki 454880da726de19f5a13b9796dae06d16eb72a30
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
@@ -581,8 +581,8 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
-F www/faq.tcl d8f6f65fdd348b664496f5edd956545b71ff0e6a
-F www/faq.wiki f4c4247ef0889e554685f27177e6123fcc7aaeb4
+F www/faq.tcl b9e03410240fcc3907848877a452f2883cda7e86
+F www/faq.wiki 281b387c178fd439a4d2f47856434dd2e54f566f
 F www/fileformat.wiki 552b13ef010bd38bfd061199542eed1d5df5bf15
 F www/fiveminutes.wiki f83379e169ba6f17066f2988ad3a4bbf27984748
 F www/foss-cklist.wiki 881f1c5f69f1880c756152cff7a6f9c78ce72d4f
@@ -598,7 +598,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
-F www/hints.wiki 5af4ff5893751f711ccaf543dcc557148144e5a7
+F www/hints.wiki 2ed95a101dd4639232b40360dbf5d131d98b098c
 F www/index.wiki 6182288fead3bdfbd71cafb53a3502d1af2ecc20
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 96942c40714a113c04eb513430cf751df334a138
@@ -610,12 +610,12 @@ F www/permutedindex.wiki c62e8f5e091968adf72f089dc2076a82bdb21490
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
-F www/quickstart.wiki 903d8403f2bf7fb2710015f5304e9de6a698e3d0
+F www/quickstart.wiki a5605585340483e1f9a7d700ec2c54ba55b9a0c7
 F www/quotes.wiki 6d0079e2cfc8b55d71f36210670f409f6ad4de52
 F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
 F www/selfhost.wiki d9bcd969d75abca0c0d25d2f38327399a48075a1
-F www/server.wiki d74d0c320c455abd2cf4dd1490d78e0bd8839dd9
+F www/server.wiki 69bd12ffa761a0f5b4758dff1182b3effdc305f7
 F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
 F www/shunning.wiki 716aa915e219fb4b881ba095c9dcd9e33b4016ab
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -628,7 +628,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b37ee0d9531ee9b22c1f55ffeb0b5cf52645a7a9
-R 5ba52bf47627e0b5c4d549291e8a01ae
+P 47dd7f36f704f2ceff9ff091663bed2f4361feca
+R 8e7fc4474c55375a565b83aa612c65b3
 U drh
-Z dc1103898fd13e9d9d06796f87face0b
+Z c2b52d9051e28d4fe497d273a05e1d37

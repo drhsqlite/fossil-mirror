@@ -39,9 +39,7 @@ faq {
 
   When you are checking in a new change using the <b>[/help/commit|commit]</b>
   command, you can add the option  "--branch <i>BRANCH-NAME</i>" to
-  make the new check-in be the first check-in for a new branch.  You can
-  also add the "--bgcolor <i>COLOR</i>" option to give the branch a
-  specific background color on timelines.
+  make the new check-in be the first check-in for a new branch.
 
   If you want to create a new branch whose initial content is the
   same as an existing check-in, use this command:
@@ -72,7 +70,9 @@ faq {
 
   When you are checking in a new change using the <b>[/help/commit|commit]</b>
   command, you can add a tag to that check-in using the
-  "--tag <i>TAGNAME</i>" command-line option.
+  "--tag <i>TAGNAME</i>" command-line option.  You can repeat the --tag
+  option to give a check-in multiple tags.  Tags need not be unique.  So,
+  for example, it is common to give every released version a "release" tag.
 
   If you want add a tag to an existing check-in, you can use the
   <b>[/help/tag|tag]</b> command.  For example:
