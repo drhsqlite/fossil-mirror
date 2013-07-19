@@ -282,7 +282,7 @@ and painlessly.</p>
 
     <p>The <b>ui</b> command is intended for accessing the web interface
     from a local desktop.  The <b>ui</b> command binds to the loopback IP
-    address only (and is thus makes the web interface visible only on the
+    address only (and thus makes the web interface visible only on the
     local machine) and it automatically start your web browser pointing at the
     server.  For cross-machine collaboration, use the <b>server</b> command,
     which binds on all IP addresses and does not try to start a web browser.
@@ -323,7 +323,7 @@ and painlessly.</p>
     unprivileged user.  But it is more secure to run fossil as root.
     When you do run fossil as root, it automatically puts itself in a
     chroot jail in the same directory as the repository, then drops
-    root privileges prior to reading any information from the request.</p>
+    root privileges prior to reading any information from the socket.</p>
 
 <a name="proxy"></a>
 <h2>HTTP Proxies</h2>
