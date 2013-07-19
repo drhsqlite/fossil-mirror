@@ -37,7 +37,7 @@ used both Fossil and Git for other opinions.
 Git provides file versioning services only, whereas Fossil adds an
 integrated [./wikitheory.wiki | wiki],
 [./bugtheory.wiki | ticketing &amp; bug tracking],
-[./embedddeddoc.wiki | embedded documentation], and
+[./embeddeddoc.wiki | embedded documentation], and
 [./event.wiki | News/Blog features].
 These additional capabilities are available for Git as 3rd-party
 user-installed add-ons, but with Fossil they are integrated into
@@ -76,7 +76,7 @@ until they reach the master branch.
 Fossil is designed for smaller and non-hierarchical teams where all
 developers are operating directly on the master branch, or at most
 a small number of well defined branches.  
-The [concepts.wiki#workflow | autosync] mode of Fossil makes it easy
+The [./concepts.wiki#workflow | autosync] mode of Fossil makes it easy
 for multiple developers to work on a single branch and maintain
 linear development on that branch and avoid needless forking
 and merging.
