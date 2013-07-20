@@ -1867,6 +1867,15 @@ static void stats_report_output_week_links(char const * zTimeframe){
   db_finalize(&stWeek);
 }
 
+/**
+   Pixel width for the longest bar in
+   the /stats_report graphs. This is considered
+   the 100% value and all lengths are calculated
+   as a percentage of this value.
+ */
+static int const nStatReportLineWidth = 500;
+
+
 /*
 ** Implements the "byyear" and "bymonth" reports for /stats_report.
 ** If includeMonth is true then it generates the "bymonth" report,
@@ -1892,6 +1901,7 @@ static void stats_report_by_month_year(char includeMonth,
   char showYearTotal = 0;            /* Flag telling us when to show
                                         the per-year event totals */
   Blob header = empty_blob;          /* Page header text */
+  int nMaxEvents  = 1;            /* for calculating length of graph bars. */
 
   blob_appendf(&header, "Timeline Events by year%s",
                (includeMonth ? "/month" : ""));
@@ -1919,11 +1929,24 @@ static void stats_report_by_month_year(char includeMonth,
   @ <th><!-- relative commits graph --></th>
   @ </thead><tbody>
   blob_reset(&header);
+  /*
+     Run the query twice. The first time we calculate the maximum
+     number of events for a given row. Maybe someone with better SQL
+     Fu can re-implement this with a single query.
+  */
+  while( SQLITE_ROW == db_step(&query) ){
+    int const nCount = db_column_int(&query, 1);
+    if(nCount>nMaxEvents){
+      nMaxEvents = nCount;
+    }
+  }
+  db_reset(&query);
   while( SQLITE_ROW == db_step(&query) ){
     char const * zTimeframe = db_column_text(&query, 0);
     int const nCount = db_column_int(&query, 1);
-    int const nSize = 1 + ((nPixelsPerEvent * nCount)
-                           / (includeMonth ? 1 : 10));
+    int const nSize = nCount
+      ? (int)(1.0 * nCount / nMaxEvents * nStatReportLineWidth)
+      : 1;
     showYearTotal = 0;
     if(includeMonth){
       /* For Month/year view, add a separator for each distinct year. */
@@ -2023,6 +2046,8 @@ static void stats_report_by_user(){
   int rowClass = 0;                  /* counter for alternating
                                         row colors */
   Blob sql = empty_blob;             /* SQL */
+  int nMaxEvents = 1;                /* max number of events for
+                                        all rows. */
   blob_append(&sql,
                "SELECT user, "
                "COUNT(*) AS eventCount "
@@ -2040,10 +2065,19 @@ static void stats_report_by_user(){
   @ <th><!-- relative commits graph --></th>
   @ </tr></thead><tbody>
   while( SQLITE_ROW == db_step(&query) ){
+    int const nCount = db_column_int(&query, 1);
+    if(nCount>nMaxEvents){
+      nMaxEvents = nCount;
+    }
+  }
+  db_reset(&query);
+  while( SQLITE_ROW == db_step(&query) ){
     char const * zUser = db_column_text(&query, 0);
     int const nCount = db_column_int(&query, 1);
-    int const nSize = 1+((nPixelsPerEvent * nCount) / 10);
-    if(!nCount) continue /* arguable! */;
+    int const nSize = nCount
+      ? (int)(1.0 * nCount / nMaxEvents * nStatReportLineWidth)
+      : 0;
+    if(!nCount) continue /* arguable! Possible? */;
     rowClass = ++nRowNumber % 2;
     nEventTotal += nCount;
     @<tr class='row%d(rowClass)'>
@@ -2078,8 +2112,10 @@ static void stats_report_year_weeks(char const * zUserName){
   Stmt qYears = empty_Stmt;
   char * zDefaultYear = NULL;
   Blob sql = empty_blob;
-  cgi_printf("Select year: ");
+  int nMaxEvents = 1;                /* max number of events for
+                                        all rows. */
 
+  cgi_printf("Select year: ");
   blob_append(&sql,
               "SELECT DISTINCT substr(date(mtime),1,4) AS y "
               "FROM event WHERE 1 ", -1);
@@ -2141,9 +2177,18 @@ static void stats_report_year_weeks(char const * zUserName){
     db_prepare(&stWeek, blob_str(&sql));
     blob_reset(&sql);
     while( SQLITE_ROW == db_step(&stWeek) ){
+      int const nCount = db_column_int(&stWeek, 1);
+      if(nCount>nMaxEvents){
+        nMaxEvents = nCount;
+      }
+    }
+    db_reset(&stWeek);
+    while( SQLITE_ROW == db_step(&stWeek) ){
       char const * zWeek = db_column_text(&stWeek,0);
       int const nCount = db_column_int(&stWeek,1);
-      int const graphSize = nPixelsPerEvent * nCount;
+      int const nSize = nCount
+        ? (int)(1.0 * nCount / nMaxEvents * nStatReportLineWidth)
+        : 0;
       total += nCount;
       cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
       cgi_printf("<td><a href='%s/timeline?yw=%t-%s&n=%d",
@@ -2158,7 +2203,7 @@ static void stats_report_year_weeks(char const * zUserName){
       if(nCount){
         cgi_printf("<div class='statistics-report-graph-line'"
                    "style='height:16px;width:%dpx;'></div>",
-                   graphSize);
+                   nSize);
       }
       cgi_printf("</td></tr>");
     }
