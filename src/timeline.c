@@ -1867,15 +1867,6 @@ static void stats_report_output_week_links(char const * zTimeframe){
   db_finalize(&stWeek);
 }
 
-/**
-   Pixel width for the longest bar in
-   the /stats_report graphs. This is considered
-   the 100% value and all lengths are calculated
-   as a percentage of this value.
- */
-static int const nStatReportLineWidth = 500;
-
-
 /*
 ** Implements the "byyear" and "bymonth" reports for /stats_report.
 ** If includeMonth is true then it generates the "bymonth" report,
@@ -1926,7 +1917,7 @@ static void stats_report_by_month_year(char includeMonth,
   @ <thead>
   @ <th>%s(zTimeLabel)</th>
   @ <th>Events</th>
-  @ <th><!-- relative commits graph --></th>
+  @ <th width='90%%'><!-- relative commits graph --></th>
   @ </thead><tbody>
   blob_reset(&header);
   /*
@@ -1945,7 +1936,7 @@ static void stats_report_by_month_year(char includeMonth,
     char const * zTimeframe = db_column_text(&query, 0);
     int const nCount = db_column_int(&query, 1);
     int const nSize = nCount
-      ? (int)(1.0 * nCount / nMaxEvents * nStatReportLineWidth)
+      ? (int)(1.0 * nCount / nMaxEvents * 100)
       : 1;
     showYearTotal = 0;
     if(includeMonth){
@@ -1994,7 +1985,7 @@ static void stats_report_by_month_year(char includeMonth,
     @ </td><td>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
-    @  style='height:16px;width:%d(nSize)px;'>
+    @  style='height:16px;width:%d(nSize)%%;'>
     @ </div></td>
     @</tr>
     if(includeWeeks){
@@ -2062,7 +2053,7 @@ static void stats_report_by_user(){
   @ <thead><tr>
   @ <th>User</th>
   @ <th>Events</th>
-  @ <th><!-- relative commits graph --></th>
+  @ <th width='90%%'><!-- relative commits graph --></th>
   @ </tr></thead><tbody>
   while( SQLITE_ROW == db_step(&query) ){
     int const nCount = db_column_int(&query, 1);
@@ -2075,7 +2066,7 @@ static void stats_report_by_user(){
     char const * zUser = db_column_text(&query, 0);
     int const nCount = db_column_int(&query, 1);
     int const nSize = nCount
-      ? (int)(1.0 * nCount / nMaxEvents * nStatReportLineWidth)
+      ? (int)(1.0 * nCount / nMaxEvents * 100)
       : 0;
     if(!nCount) continue /* arguable! Possible? */;
     rowClass = ++nRowNumber % 2;
@@ -2086,7 +2077,7 @@ static void stats_report_by_user(){
     @ </td><td>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
-    @  style='height:16px;width:%d(nSize)px;'>
+    @  style='height:16px;width:%d(nSize)%%;'>
     @ </div></td>
     @</tr>
     /*
@@ -2166,12 +2157,12 @@ static void stats_report_year_weeks(char const * zUserName){
     cgi_printf("<h1>%h</h1>", blob_str(&header));
     blob_reset(&header);
     cgi_printf("<table class='statistics-report-table-events' "
-               "border='0' cellpadding='2' "
+               "border='0' cellpadding='2' width='100%%' "
                "cellspacing='0' id='statsTable'>");
     cgi_printf("<thead><tr>"
                "<th>Week</th>"
                "<th>Events</th>"
-               "<th><!-- relative commits graph --></th>"
+               "<th width='90%%'><!-- relative commits graph --></th>"
                "</tr></thead>"
                "<tbody>");
     db_prepare(&stWeek, blob_str(&sql));
@@ -2187,7 +2178,7 @@ static void stats_report_year_weeks(char const * zUserName){
       char const * zWeek = db_column_text(&stWeek,0);
       int const nCount = db_column_int(&stWeek,1);
       int const nSize = nCount
-        ? (int)(1.0 * nCount / nMaxEvents * nStatReportLineWidth)
+        ? (int)(1.0 * nCount / nMaxEvents * 100)
         : 0;
       total += nCount;
       cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
@@ -2202,7 +2193,7 @@ static void stats_report_year_weeks(char const * zUserName){
       cgi_printf("<td>");
       if(nCount){
         cgi_printf("<div class='statistics-report-graph-line'"
-                   "style='height:16px;width:%dpx;'></div>",
+                   "style='height:16px;width:%d%%;'></div>",
                    nSize);
       }
       cgi_printf("</td></tr>");
