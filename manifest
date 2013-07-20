@@ -1,5 +1,5 @@
-C Perhaps\savoid\sconfusion\swith\sother\ssimilarly\snamed\sshort\soptions.
-D 2013-07-20T08:48:00.822
+C Print\sthe\sFossil\suser\sif\sdifferent\sfrom\sURL\suser.
+D 2013-07-20T09:38:45.267
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -400,7 +400,7 @@ F src/sqlite3.h 32f662e3abd08c90f4b52ccf16974ab60a2c206e
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 0cd57adbb99c53b894b3751c429b0f814222acf1
 F src/style.c d7a6acee5f43379c35a509e87a06bba09217bc7d
-F src/sync.c 46d2b904f50c48d9389a770b1ad25096f9a03abf
+F src/sync.c 1237affd4cf5d378770bcc517958ca00340d8fa0
 F src/tag.c b0359c168de125f622f0d523b2215f1d85efecf6
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c 327c2faf6aeb66d146d7a95251ef3c2da26a048a
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e3510cef2310bbfc9e759f20cf0f5bea06e93ccc
-R 155da5b5c162dc0330c09fa645337def
+P 9dd4a935e81da0f3009bd8f962dcfd744811d1a0
+R da95a6355af6a683bda8551cad87c7be
 U amb
-Z 1693a7da5db4a98a22d642dfb2a0cf52
+Z 2d95e6429eff9a6c59033e46d8033486
