@@ -97,7 +97,7 @@ void delete_private_content(void){
 **    --ssl-identity=filename    Use the SSL identity if requested by the server
 **    --ssh-fossil|-f /fossil    Use this path as remote fossil command
 **    --ssh-command|-c 'command' Use this SSH command
-**    --ssh-fossil-user|-u user  Fossil user to use for SSH if different.
+**    --ssh-fossil-user|-l user  Fossil user to use for SSH if different.
 **
 ** See also: init
 */
@@ -198,7 +198,7 @@ void clone_ssh_options(void){
   if( zSshCmd && zSshCmd[0] ){
     g.zSshCmd = mprintf("%s", zSshCmd);
   }
-  zFossilUser = find_option("ssh-fossil-user","u",1);
+  zFossilUser = find_option("ssh-fossil-user","l",1);
   if( zFossilUser && zFossilUser[0] ){
     g.zFossilUser = mprintf("%s", zFossilUser);
   }
