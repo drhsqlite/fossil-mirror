@@ -116,16 +116,16 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   if( g.argc==2 ){
     if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
       ( g.zFossilUser && g.zFossilUser[0] ) ? 
-	fossil_print("Sync with (%s) %s\n", g.zFossilUser, g.urlCanonical) :
-	fossil_print("Sync with %s\n", g.urlCanonical);
+        fossil_print("Sync with (%s) %s\n", g.zFossilUser, g.urlCanonical) :
+        fossil_print("Sync with %s\n", g.urlCanonical);
     }else if( (*pSyncFlags) & SYNC_PUSH ){
       ( g.zFossilUser && g.zFossilUser[0] ) ? 
-	fossil_print("Push to (%s) %s\n", g.zFossilUser, g.urlCanonical) :
-	fossil_print("Push to %s\n", g.urlCanonical);
+        fossil_print("Push to (%s) %s\n", g.zFossilUser, g.urlCanonical) :
+        fossil_print("Push to %s\n", g.urlCanonical);
     }else if( (*pSyncFlags) & SYNC_PULL ){
       ( g.zFossilUser && g.zFossilUser[0] ) ? 
-	fossil_print("Pull from (%s) %s\n", g.zFossilUser, g.urlCanonical) :
-	fossil_print("Pull from %s\n", g.urlCanonical);
+        fossil_print("Pull from (%s) %s\n", g.zFossilUser, g.urlCanonical) :
+        fossil_print("Pull from %s\n", g.urlCanonical);
     }
   }
   url_enable_proxy("via proxy: ");
