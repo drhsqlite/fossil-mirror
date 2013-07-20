@@ -97,6 +97,7 @@ void delete_private_content(void){
 **    --ssl-identity=filename    Use the SSL identity if requested by the server
 **    --ssh-fossil|-f /fossil    Use this path as remote fossil command
 **    --ssh-command|-c 'command' Use this SSH command
+**    --ssh-fossil-user|-u user  Fossil user to use for SSH if different.
 **
 ** See also: init
 */
@@ -159,6 +160,7 @@ void clone_cmd(void){
     );
     url_enable_proxy(0);
     url_get_password_if_needed();
+    clone_ssh_db_options();
     g.xlinkClusterOnly = 1;
     nErr = client_sync(SYNC_CLONE | bPrivate,CONFIGSET_ALL,0);
     g.xlinkClusterOnly = 0;
@@ -186,6 +188,7 @@ void clone_cmd(void){
 void clone_ssh_options(void){
   const char *zSshFossilCmd;  /* Path to remote fossil command for SSH */
   const char *zSshCmd;        /* SSH command string */
+  const char *zFossilUser;    /* Fossil user if login specified for SSH */
 
   zSshFossilCmd = find_option("ssh-fossil","f",1);
   if( zSshFossilCmd && zSshFossilCmd[0] ){
@@ -194,6 +197,10 @@ void clone_ssh_options(void){
   zSshCmd = find_option("ssh-command","c",1);
   if( zSshCmd && zSshCmd[0] ){
     g.zSshCmd = mprintf("%s", zSshCmd);
+  }
+  zFossilUser = find_option("ssh-fossil-user","u",1);
+  if( zFossilUser && zFossilUser[0] ){
+    g.zFossilUser = mprintf("%s", zFossilUser);
   }
 }
 
@@ -205,9 +212,14 @@ void clone_ssh_db_options(void){
   if( g.zSshFossilCmd && g.zSshFossilCmd[0] ){
     db_set("ssh-fossil", g.zSshFossilCmd, 0);
   }else{
-    g.zSshFossilCmd = db_get("ssh-fossil","fossil");
+    g.zSshFossilCmd = db_get("ssh-fossil", "fossil");
   }
   if( g.zSshCmd && g.zSshCmd[0] ){
     db_set("ssh-command", g.zSshCmd, 0);
+  }
+  if( g.zFossilUser && g.zFossilUser[0] ){
+    db_set("ssh-fossil-user", g.zFossilUser, 0);
+  }else{
+    g.zFossilUser = db_get("ssh-fossil-user", 0);
   }
 }

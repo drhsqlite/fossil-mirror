@@ -138,6 +138,7 @@ struct Global {
   int fSshTrace;          /* Trace the SSH setup traffic */
   char *zSshFossilCmd;    /* Path to remoe fossil command for SSH */
   char *zSshCmd;          /* SSH command string */
+  char *zFossilUser;      /* Fossil user if different from URL user */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
@@ -582,6 +583,7 @@ int main(int argc, char **argv)
     g.fSshTrace = find_option("sshtrace", 0, 0)!=0;
     g.zSshFossilCmd = 0;
     g.zSshCmd = 0;
+    g.zFossilUser = 0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;

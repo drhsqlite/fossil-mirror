@@ -1338,7 +1338,6 @@ int client_sync(
   if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE))==0 
      && configRcvMask==0 && configSendMask==0 ) return 0;
 
-  clone_ssh_db_options();
   transport_stats(0, 0, 1);
   socket_global_init();
   memset(&xfer, 0, sizeof(xfer));

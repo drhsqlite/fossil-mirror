@@ -125,25 +125,6 @@ int transport_ssh_open(void){
   fossil_print("%s", blob_str(&zCmd));  /* Show the base of the SSH command */
   if( g.urlUser && g.urlUser[0] ){
     zHost = mprintf("%s@%s", g.urlUser, g.urlName);
-#ifdef __MINGW32__
-    /* Only win32 (and specifically PLINK.EXE) support the -pw option */
-    if( g.urlPasswd && g.urlPasswd[0] ){
-      Blob pw;
-      blob_zero(&pw);
-      if( g.urlPasswd[0]=='*' ){
-        char *zPrompt;
-        zPrompt = mprintf("Password for [%s]: ", zHost);
-        prompt_for_password(zPrompt, &pw, 0);
-        free(zPrompt);
-      }else{
-        blob_init(&pw, g.urlPasswd, -1);
-      }
-      blob_append(&zCmd, " -pw ", -1);
-      shell_escape(&zCmd, blob_str(&pw));
-      blob_reset(&pw);
-      fossil_print(" -pw ********");  /* Do not show the password text */
-    }
-#endif
   }else{
     zHost = mprintf("%s", g.urlName);
   }

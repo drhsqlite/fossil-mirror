@@ -2130,6 +2130,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "self-register", 0,                0, 0, "off"                 },
   { "ssh-command",   0,               40, 0, ""                    },
   { "ssh-fossil",    0,               40, 0, ""                    },
+  { "ssh-fossil-user",  0,            40, 0, ""                    },
   { "ssl-ca-location",0,              40, 0, ""                    },
   { "ssl-identity",  0,               40, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
@@ -2302,6 +2303,8 @@ struct stControlSettings const ctrlSettings[] = {
 **                     the "ssh://" protocol.
 **
 **    ssh-fossil       Remote fossil command to run with the "ssh://" protocol.
+**
+**    ssh-fossil-user  Fossil user to use instead of the URL user.
 **
 **    ssl-ca-location  The full pathname to a file containing PEM encoded
 **                     CA root certificates, or a directory of certificates

@@ -41,14 +41,15 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   Blob sig;            /* The signature field */
 
   blob_zero(pLogin);
-  if( g.urlUser==0 || fossil_strcmp(g.urlUser, "anonymous")==0 ){
-     return;  /* If no login card for users "nobody" and "anonymous" */
+  if( g.urlUser==0 && g.zFossilUser==0 || 
+      fossil_strcmp(g.urlUser, "anonymous")==0 ){
+    return;  /* If no login card for users "nobody" and "anonymous" */
   }
   blob_zero(&nonce);
   blob_zero(&pw);
   sha1sum_blob(pPayload, &nonce);
   blob_copy(&pw, &nonce);
-  zLogin = g.urlUser;
+  zLogin = url_or_fossil_user();
   if( g.urlPasswd ){
     zPw = g.urlPasswd;
   }else if( g.cgiOutput ){
@@ -89,7 +90,9 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 static void http_build_header(Blob *pPayload, Blob *pHdr){
   int i;
   const char *zSep;
+  const char *zLogin;
 
+  zLogin = url_or_fossil_user();
   blob_zero(pHdr);
   i = strlen(g.urlPath);
   if( i>0 && g.urlPath[i-1]=='/' ){
@@ -101,8 +104,8 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   if( g.urlProxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
   }
-  if( g.urlPasswd && g.urlUser && g.urlPasswd[0]=='#' ){
-    char *zCredentials = mprintf("%s:%s", g.urlUser, &g.urlPasswd[1]);
+  if( g.urlPasswd && zLogin && g.urlPasswd[0]=='#' ){
+    char *zCredentials = mprintf("%s:%s", zLogin, &g.urlPasswd[1]);
     char *zEncoded = encode64(zCredentials, -1);
     blob_appendf(pHdr, "Authorization: Basic %s\r\n", zEncoded);
     fossil_free(zEncoded);

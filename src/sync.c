@@ -51,7 +51,7 @@ int autosync(int flags){
   }
   url_parse(0, URL_REMEMBER);
   if( g.urlProtocol==0 ) return 0;  
-  if( g.urlUser!=0 && g.urlPasswd==0 ){
+  if( ( g.urlUser!=0 || g.zFossilUser!=0 ) && g.urlPasswd==0 ){
     g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
   }
 #if 0 /* Disabled for now */
@@ -104,6 +104,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
   }
+  clone_ssh_db_options();
   url_parse(zUrl, urlFlags);
   if( g.urlProtocol==0 ){
     if( urlOptional ) fossil_exit(0);

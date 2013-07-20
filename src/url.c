@@ -199,7 +199,8 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
     g.urlName = mprintf("%b", &cfile);
     g.urlCanonical = mprintf("file://%T", g.urlName);
     blob_reset(&cfile);
-  }else if( g.urlUser!=0 && g.urlPasswd==0 && (urlFlags & URL_PROMPT_PW) ){
+  }else if( ( g.urlUser!=0 || g.zFossilUser!=0 )
+            && g.urlPasswd==0 && (urlFlags & URL_PROMPT_PW) ){
     url_prompt_for_password();
     bPrompted = 1;
   }
@@ -207,7 +208,7 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
     if( bSetUrl ){
       db_set("last-sync-url", g.urlCanonical, 0);
     }
-    if( !bPrompted && g.urlPasswd && g.urlUser ){
+    if( !bPrompted && g.urlPasswd && ( g.urlUser || g.zFossilUser ) ){
       db_set("last-sync-pw", obscure(g.urlPasswd), 0);
     }
   }
@@ -414,22 +415,12 @@ void url_prompt_for_password(void){
    && (g.urlFlags & URL_PROMPT_PW)!=0
    && (g.urlFlags & URL_PROMPTED)==0
   ){
-    char *zPrompt = mprintf("\rpassword for %s: ", g.urlUser);
-    Blob x;
-    fossil_force_newline();
-    prompt_for_password(zPrompt, &x, 0);
-    free(zPrompt);
-    g.urlPasswd = mprintf("%b", &x);
-    blob_reset(&x);
     g.urlFlags |= URL_PROMPTED;
+    g.urlPasswd = prompt_for_user_password(url_or_fossil_user());
     if( g.urlPasswd[0]
      && (g.urlFlags & (URL_REMEMBER|URL_ASK_REMEMBER_PW))!=0
     ){
-      char c;
-      prompt_user("remember password (Y/n)? ", &x);
-      c = blob_str(&x)[0];
-      blob_reset(&x);
-      if( c!='n' && c!='N' ){
+      if( save_password_prompt() ){
         g.urlFlags |= URL_REMEMBER_PW;
         if( g.urlFlags & URL_REMEMBER ){
           db_set("last-sync-pw", obscure(g.urlPasswd), 0);
@@ -438,7 +429,7 @@ void url_prompt_for_password(void){
     }
   }else{
     fossil_fatal("missing or incorrect password for user \"%s\"",
-                 g.urlUser);
+                 url_or_fossil_user() );
   }
 }
 
