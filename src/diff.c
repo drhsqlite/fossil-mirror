@@ -1312,7 +1312,7 @@ static void sbsDiff(
   }
   
   if( s.escHtml && blob_size(s.apCols[SBS_LNA])>0 ){
-    blob_append(pOut, "<table class=\"sbsdiffcols\"><tr>\n", -1);
+    blob_append(pOut, "<table class=\"sbsdiffcols\" width=\"90%\"><tr>\n", -1);
     for(i=SBS_LNA; i<=SBS_TXTB; i++){
       sbsWriteColumn(pOut, s.apCols[i], i);
       blob_reset(s.apCols[i]);
