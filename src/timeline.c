@@ -1887,7 +1887,7 @@ static void stats_report_by_month_year(char includeMonth,
   char const * zTimeLabel = includeMonth ? "Year/Month" : "Year";
   char zPrevYear[5] = {0};           /* For keeping track of when
                                         we change years while looping */
-  int nEventsPerYear = 0;            /* Total even count for the
+  int nEventsPerYear = 0;            /* Total event count for the
                                         current year */
   char showYearTotal = 0;            /* Flag telling us when to show
                                         the per-year event totals */
@@ -1936,7 +1936,7 @@ static void stats_report_by_month_year(char includeMonth,
     char const * zTimeframe = db_column_text(&query, 0);
     int const nCount = db_column_int(&query, 1);
     int const nSize = nCount
-      ? (int)(1.0 * nCount / nMaxEvents * 100)
+      ? (int)(100 * nCount / nMaxEvents)
       : 1;
     showYearTotal = 0;
     if(includeMonth){
@@ -2004,7 +2004,7 @@ static void stats_report_by_month_year(char includeMonth,
       use percent-based graph bars.
     */
   }
-
+  db_finalize(&query);
   if(includeMonth && !showYearTotal && *zPrevYear){
     /* Add final year total separator. */
     rowClass = ++nRowNumber % 2;
@@ -2013,14 +2013,10 @@ static void stats_report_by_month_year(char includeMonth,
     @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
     @</tr>    
   }
-#if 0
-  rowClass = ++nRowNumber % 2;
-  @ <tr class='row%d(rowClass)'>
-  @   <td colspan='3'>Total events: %d(nEventTotal)</td>
-  @ </tr>
-#endif
   @ </tbody></table>
-  db_finalize(&query);
+  if(nEventTotal){
+    @ <br><div>Total events: %d(nEventTotal)</div>
+  }
   if( !includeMonth ){
     output_table_sorting_javascript("statsTable","tnx");
   }
@@ -2066,7 +2062,7 @@ static void stats_report_by_user(){
     char const * zUser = db_column_text(&query, 0);
     int const nCount = db_column_int(&query, 1);
     int const nSize = nCount
-      ? (int)(1.0 * nCount / nMaxEvents * 100)
+      ? (int)(100 * nCount / nMaxEvents)
       : 0;
     if(!nCount) continue /* arguable! Possible? */;
     rowClass = ++nRowNumber % 2;
@@ -2178,7 +2174,7 @@ static void stats_report_year_weeks(char const * zUserName){
       char const * zWeek = db_column_text(&stWeek,0);
       int const nCount = db_column_int(&stWeek,1);
       int const nSize = nCount
-        ? (int)(1.0 * nCount / nMaxEvents * 100)
+        ? (int)(100 * nCount / nMaxEvents)
         : 0;
       total += nCount;
       cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
@@ -2200,13 +2196,11 @@ static void stats_report_year_weeks(char const * zUserName){
     }
     db_finalize(&stWeek);
     free(zDefaultYear);
-    if(total){
-      cgi_printf("<tr class='row%d'>", ++rowCount%2);
-      cgi_printf("<td colspan='2'>Total events:</td><td>%d</td>",
-                 total);
-      cgi_printf("</tr>");
-    }
     cgi_printf("</tbody></table>");
+    if(total){
+      cgi_printf("<br><div>Total events: %d</div>",
+                 total);
+    }
     output_table_sorting_javascript("statsTable","tnx");
   }
 }
