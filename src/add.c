@@ -223,11 +223,10 @@ static int add_files_in_sfile(int vid){
 ** with "." are excluded by default.  To include such files, add
 ** the "--dotfiles" option to the command-line.
 **
-** The --ignore and --clean options are comma-separate lists of glob patterns
+** The --ignore option is a comma-separate lists of glob patterns
 ** for files to be excluded.  Example:  '*.o,*.obj,*.exe'  If the --ignore
 ** option does not appear on the command line then the "ignore-glob" setting
-** is used.  If the --clean option does not appear on the command line then
-** the "clean-glob" setting is used.
+** is used.
 **
 ** The --case-sensitive option determines whether or not filenames should
 ** be treated case sensitive or not. If the option is not given, the default
@@ -239,8 +238,6 @@ static int add_files_in_sfile(int vid){
 **    --dotfiles              include files beginning with a dot (".")   
 **    --ignore <CSG>          ignore files matching patterns from the 
 **                            comma separated list of glob patterns.
-**    --clean <CSG>           also ignore files matching patterns from
-**                            the comma separated list of glob patterns.
 ** 
 ** See also: addremove, rm
 */
@@ -248,19 +245,14 @@ void add_cmd(void){
   int i;                     /* Loop counter */
   int vid;                   /* Currently checked out version */
   int nRoot;                 /* Full path characters in g.zLocalRoot */
-  const char *zCleanFlag;    /* The --clean option or clean-glob setting */
   const char *zIgnoreFlag;   /* The --ignore option or ignore-glob setting */
-  Glob *pIgnore, *pClean;    /* Ignore everything matching the glob patterns */
+  Glob *pIgnore;             /* Ignore everything matching the glob patterns */
   unsigned scanFlags = 0;    /* Flags passed to vfile_scan() */
 
-  zCleanFlag = find_option("clean",0,1);
   zIgnoreFlag = find_option("ignore",0,1);
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   capture_case_sensitive_option();
   db_must_be_within_tree();
-  if( zCleanFlag==0 ){
-    zCleanFlag = db_get("clean-glob", 0);
-  }
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
@@ -271,7 +263,6 @@ void add_cmd(void){
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
-  pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
   nRoot = strlen(g.zLocalRoot);
   
@@ -285,7 +276,7 @@ void add_cmd(void){
     zName = blob_str(&fullName);
     isDir = file_wd_isdir(zName);
     if( isDir==1 ){
-      vfile_scan(&fullName, nRoot-1, scanFlags, pClean, pIgnore);
+      vfile_scan(&fullName, nRoot-1, scanFlags, pIgnore);
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
     }else if( file_access(zName, R_OK) ){
@@ -300,7 +291,6 @@ void add_cmd(void){
     blob_reset(&fullName);
   }
   glob_free(pIgnore);
-  glob_free(pClean);
 
   add_files_in_sfile(vid);
   db_end_transaction(0);
@@ -463,9 +453,8 @@ const char *filename_collation(void){
 ** the --dotfiles option is used.
 **
 ** The --ignore option overrides the "ignore-glob" setting, as do the
-** --case-sensitive option with the "case-sensitive" setting and the
-** --clean option with the "clean-glob" setting. See the documentation
-** on the "settings" command for further information.
+** --case-sensitive option with the "case-sensitive" setting. See the
+** documentation on the "settings" command for further information.
 **
 ** The -n|--dry-run option shows what would happen without actually doing anything.
 **
@@ -476,15 +465,12 @@ const char *filename_collation(void){
 **   --dotfiles              include files beginning with a dot (".")
 **   --ignore <CSG>          ignore files matching patterns from the
 **                           comma separated list of glob patterns.
-**   --clean <CSG>           also ignore files matching patterns from
-**                           the comma separated list of glob patterns.
 **   -n|--dry-run            If given, display instead of run actions
 **
 ** See also: add, rm
 */
 void addremove_cmd(void){
   Blob path;
-  const char *zCleanFlag = find_option("clean",0,1);
   const char *zIgnoreFlag = find_option("ignore",0,1);
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
   int dryRunFlag = find_option("dry-run","n",0)!=0;
@@ -493,16 +479,13 @@ void addremove_cmd(void){
   int vid;
   int nAdd = 0;
   int nDelete = 0;
-  Glob *pIgnore, *pClean;
+  Glob *pIgnore;
 
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
   capture_case_sensitive_option();
   db_must_be_within_tree();
-  if( zCleanFlag==0 ){
-    zCleanFlag = db_get("clean-glob", 0);
-  }
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
@@ -523,11 +506,9 @@ void addremove_cmd(void){
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   /* now we read the complete file structure into a temp table */
-  pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pClean, pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
   glob_free(pIgnore);
-  glob_free(pClean);
   nAdd = add_files_in_sfile(vid);
 
   /* step 2: search for missing files */
