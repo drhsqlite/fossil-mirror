@@ -447,8 +447,8 @@ void merge_cmd(void){
     char *zFullName;
     db_multi_exec(
       "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
-      "  SELECT %d,3,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
-      vid, idm
+      "  SELECT %d,%d,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
+      vid, integrateFlag?5:3, idm
     );
     idv = db_last_insert_rowid();
     db_multi_exec("UPDATE fv SET idv=%d WHERE rowid=%d", idv, rowid);
@@ -487,8 +487,8 @@ void merge_cmd(void){
     if( !dryRunFlag ){
       undo_save(zName);
       db_multi_exec(
-        "UPDATE vfile SET mtime=0, mrid=%d, chnged=2, islink=%d "
-        " WHERE id=%d", ridm, islinkm, idv
+        "UPDATE vfile SET mtime=0, mrid=%d, chnged=%d, islink=%d "
+        " WHERE id=%d", ridm, islinkm, integrateFlag?4:2, idv
       );
       vfile_to_disk(0, idv, 0, 0);
     }

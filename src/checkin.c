@@ -105,12 +105,16 @@ static void status_report(
       blob_appendf(report, "ADDED      %s\n", zDisplayName);
     }else if( isDeleted ){
       blob_appendf(report, "DELETED    %s\n", zDisplayName);
-    }else if( isChnged==2 ){
-      blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
-    }else if( isChnged==3 ){
-      blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
-    }else if( isChnged==1 ){
-      if( file_contains_merge_marker(zFullName) ){
+    }else if( isChnged!=0 ){
+      if( isChnged==2 ){
+        blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
+      }else if( isChnged==3 ){
+        blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
+      }else if( isChnged==4 ){
+        blob_appendf(report, "UPDATED_BY_INTEGRATE %s\n", zDisplayName);
+      }else if( isChnged==5 ){
+        blob_appendf(report, "ADDED_BY_INTEGRATE %s\n", zDisplayName);
+      }else if( file_contains_merge_marker(zFullName) ){
         blob_appendf(report, "CONFLICT   %s\n", zDisplayName);
       }else{
         blob_appendf(report, "EDITED     %s\n", zDisplayName);
