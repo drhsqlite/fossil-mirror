@@ -86,37 +86,37 @@ static void status_report(
     }
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zDisplayName);
+      blob_appendf(report, "DELETED       %s\n", zDisplayName);
     }else if( !file_wd_isfile_or_link(zFullName) ){
       if( file_access(zFullName, 0)==0 ){
-        blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
+        blob_appendf(report, "NOT_A_FILE    %s\n", zDisplayName);
         if( missingIsFatal ){
           fossil_warning("not a file: %s", zDisplayName);
           nErr++;
         }
       }else{
-        blob_appendf(report, "MISSING    %s\n", zDisplayName);
+        blob_appendf(report, "MISSING       %s\n", zDisplayName);
         if( missingIsFatal ){
           fossil_warning("missing file: %s", zDisplayName);
           nErr++;
         }
       }
     }else if( isNew ){
-      blob_appendf(report, "ADDED      %s\n", zDisplayName);
+      blob_appendf(report, "ADDED         %s\n", zDisplayName);
     }else if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zDisplayName);
-    }else if( isChnged==2 ){
-      blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
-    }else if( isChnged==3 ){
-      blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
-    }else if( isChnged==1 ){
-      if( file_contains_merge_marker(zFullName) ){
-        blob_appendf(report, "CONFLICT   %s\n", zDisplayName);
+      blob_appendf(report, "DELETED       %s\n", zDisplayName);
+    }else if( isChnged ){
+      if( isChnged==2 ){
+        blob_appendf(report, "UPD_BY_MERGE  %s\n", zDisplayName);
+      }else if( isChnged==3 ){
+        blob_appendf(report, "ADD_BY_MERGE  %s\n", zDisplayName);
+      }else if( file_contains_merge_marker(zFullName) ){
+        blob_appendf(report, "CONFLICT      %s\n", zDisplayName);
       }else{
-        blob_appendf(report, "EDITED     %s\n", zDisplayName);
+        blob_appendf(report, "EDITED        %s\n", zDisplayName);
       }
     }else if( isRenamed ){
-      blob_appendf(report, "RENAMED    %s\n", zDisplayName);
+      blob_appendf(report, "RENAMED       %s\n", zDisplayName);
     }else{
       report->nUsed -= nPrefix;
     }
@@ -129,8 +129,8 @@ static void status_report(
   while( db_step(&q)==SQLITE_ROW ){
     const char *zLabel = "MERGED_WITH";
     switch( db_column_int(&q, 1) ){
-      case -1:  zLabel = "CHERRYPICK";  break;
-      case -2:  zLabel = "BACKOUT   ";  break;
+      case -1:  zLabel = "CHERRYPICK ";  break;
+      case -2:  zLabel = "BACKOUT    ";  break;
     }
     blob_append(report, zPrefix, nPrefix);
     blob_appendf(report, "%s %s\n", zLabel, db_column_text(&q, 0));
@@ -320,21 +320,29 @@ void ls_cmd(void){
     const char *type = "";
     if( verboseFlag ){
       if( isNew ){
-        type = "ADDED      ";
+        type = "ADDED         ";
       }else if( isDeleted ){
-        type = "DELETED    ";
+        type = "DELETED       ";
       }else if( !file_wd_isfile_or_link(zFullName) ){
         if( file_access(zFullName, 0)==0 ){
-          type = "NOT_A_FILE ";
+          type = "NOT_A_FILE    ";
         }else{
-          type = "MISSING    ";
+          type = "MISSING       ";
         }
       }else if( chnged ){
-        type = "EDITED     ";
+        if( chnged==2 ){
+          type = "UPD_BY_MERGE  ";
+        }else if( chnged==3 ){
+          type = "ADD_BY_MERGE  ";
+        }else if( file_contains_merge_marker(zFullName) ){
+          type = "CONFLICT      ";
+        }else{
+          type = "EDITED        ";
+        }
       }else if( renamed ){
-        type = "RENAMED    ";
+        type = "RENAMED       ";
       }else{
-        type = "UNCHANGED  ";
+        type = "UNCHANGED     ";
       }
     }
     if( showAge ){
