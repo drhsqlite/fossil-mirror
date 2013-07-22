@@ -488,7 +488,7 @@ void merge_cmd(void){
       undo_save(zName);
       db_multi_exec(
         "UPDATE vfile SET mtime=0, mrid=%d, chnged=%d, islink=%d "
-        " WHERE id=%d", ridm, islinkm, integrateFlag?4:2, idv
+        " WHERE id=%d", ridm, integrateFlag?4:2, islinkm, idv
       );
       vfile_to_disk(0, idv, 0, 0);
     }
