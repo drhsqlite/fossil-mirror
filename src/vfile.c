@@ -215,7 +215,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       if( blob_compare(&fileCksum, &origCksum)==0 ) chnged = 0;
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
-    }else if( (chnged==0 || chnged==2)
+    }else if( (chnged==0 || chnged==2 || chnged==4)
            && (useMtime==0 || currentMtime!=oldMtime) ){
       /* For files that were formerly believed to be unchanged or that were
       ** changed by merging, if their mtime changes, or unconditionally
@@ -232,7 +232,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
     }
-    if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2) ){
+    if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2 || chnged==4) ){
       i64 desiredMtime;
       if( mtime_of_manifest_file(vid,rid,&desiredMtime)==0 ){
         if( currentMtime!=desiredMtime ){

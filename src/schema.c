@@ -480,7 +480,9 @@ const char zLocalSchema[] =
 @ -- been edited or which have been subjected to a 3-way merge.  
 @ -- Vfile.chnged is 2 if the file has been replaced from a different
 @ -- version by the merge and 3 if the file has been added by a merge.
-@ -- The difference between vfile.chnged==2 and a regular add is that
+@ -- Vfile.chnged is 4 if the file has been replaced from a different
+@ -- version by the integrate and 5 if the file has been added by a integrate.
+@ -- The difference between vfile.chnged==2/4 and a regular add is that
 @ -- with vfile.chnged==2 we know that the current version of the file
 @ -- is already in the repository.
 @ -- 
@@ -488,7 +490,7 @@ const char zLocalSchema[] =
 @ CREATE TABLE vfile(
 @   id INTEGER PRIMARY KEY,           -- ID of the checked out file
 @   vid INTEGER REFERENCES blob,      -- The baseline this file is part of.
-@   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add
+@   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add 4:i-chng 5:i-add
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted 
 @   isexe BOOLEAN,                    -- True if file should be executable
 @   islink BOOLEAN,                    -- True if file should be symlink
@@ -504,8 +506,9 @@ const char zLocalSchema[] =
 @ -- file tree.  If a VFILE entry with id has merged with another
 @ -- record, there is an entry in this table with (id,merge) where
 @ -- merge is the RECORD table entry that the file merged against.
-@ -- An id of 0 here means the version record itself.  When id==(-1)
-@ -- that is a cherrypick merge and id==(-2) is a backout merge.
+@ -- An id of 0 or <-3 here means the version record itself.  When
+@ -- id==(-1) that is a cherrypick merge, id==(-2) that is a
+@ -- backout merge and id==(-4) is a integrate merge.
 @
 @ CREATE TABLE vmerge(
 @   id INTEGER REFERENCES vfile,      -- VFILE entry that has been merged
