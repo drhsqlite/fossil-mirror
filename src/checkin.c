@@ -105,7 +105,7 @@ static void status_report(
       blob_appendf(report, "ADDED      %s\n", zDisplayName);
     }else if( isDeleted ){
       blob_appendf(report, "DELETED    %s\n", zDisplayName);
-    }else if( isChnged!=0 ){
+    }else if( isChnged>0 ){
       if( isChnged==2 ){
         blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
       }else if( isChnged==3 ){
