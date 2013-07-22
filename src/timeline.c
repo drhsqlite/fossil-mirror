@@ -1843,7 +1843,7 @@ void test_timewarp_page(void){
 ** week numbers. zTimeframe should be either a timeframe in the form YYYY
 ** or YYYY-MM.
 */
-static void stats_report_output_week_links(char const * zTimeframe){
+static void stats_report_output_week_links(const char * zTimeframe){
   Stmt stWeek = empty_Stmt;
   char yearPart[5] = {0,0,0,0,0};
   memcpy(yearPart, zTimeframe, 4);
@@ -1857,8 +1857,8 @@ static void stats_report_output_week_links(char const * zTimeframe){
              strlen(zTimeframe),
              zTimeframe);
   while( SQLITE_ROW == db_step(&stWeek) ){
-    char const * zWeek = db_column_text(&stWeek,0);
-    int const nCount = db_column_int(&stWeek,1);
+    const char * zWeek = db_column_text(&stWeek,0);
+    const int nCount = db_column_int(&stWeek,1);
     cgi_printf("<a href='%s/timeline?"
                "yw=%t-%t&n=%d'>%s</a>",
                g.zTop, yearPart, zWeek,
@@ -1876,15 +1876,14 @@ static void stats_report_output_week_links(char const * zTimeframe){
 */
 static void stats_report_by_month_year(char includeMonth,
                                        char includeWeeks,
-                                       char const * zUserName){
+                                       const char * zUserName){
   Stmt query = empty_Stmt;
-  int const nPixelsPerEvent = 1;     /* for sizing the "graph" part */
   int nRowNumber = 0;                /* current TR number */
   int nEventTotal = 0;               /* Total event count */
   int rowClass = 0;                  /* counter for alternating
                                         row colors */
   Blob sql = empty_blob;             /* SQL */
-  char const * zTimeLabel = includeMonth ? "Year/Month" : "Year";
+  const char * zTimeLabel = includeMonth ? "Year/Month" : "Year";
   char zPrevYear[5] = {0};           /* For keeping track of when
                                         we change years while looping */
   int nEventsPerYear = 0;            /* Total event count for the
@@ -1926,16 +1925,16 @@ static void stats_report_by_month_year(char includeMonth,
      Fu can re-implement this with a single query.
   */
   while( SQLITE_ROW == db_step(&query) ){
-    int const nCount = db_column_int(&query, 1);
+    const int nCount = db_column_int(&query, 1);
     if(nCount>nMaxEvents){
       nMaxEvents = nCount;
     }
   }
   db_reset(&query);
   while( SQLITE_ROW == db_step(&query) ){
-    char const * zTimeframe = db_column_text(&query, 0);
-    int const nCount = db_column_int(&query, 1);
-    int const nSize = nCount
+    const char * zTimeframe = db_column_text(&query, 0);
+    const int nCount = db_column_int(&query, 1);
+    const int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
       : 1;
     showYearTotal = 0;
@@ -2027,7 +2026,6 @@ static void stats_report_by_month_year(char includeMonth,
 */
 static void stats_report_by_user(){
   Stmt query = empty_Stmt;
-  int const nPixelsPerEvent = 1;     /* for sizing the "graph" part */
   int nRowNumber = 0;                /* current TR number */
   int nEventTotal = 0;               /* Total event count */
   int rowClass = 0;                  /* counter for alternating
@@ -2052,16 +2050,16 @@ static void stats_report_by_user(){
   @ <th width='90%%'><!-- relative commits graph --></th>
   @ </tr></thead><tbody>
   while( SQLITE_ROW == db_step(&query) ){
-    int const nCount = db_column_int(&query, 1);
+    const int nCount = db_column_int(&query, 1);
     if(nCount>nMaxEvents){
       nMaxEvents = nCount;
     }
   }
   db_reset(&query);
   while( SQLITE_ROW == db_step(&query) ){
-    char const * zUser = db_column_text(&query, 0);
-    int const nCount = db_column_int(&query, 1);
-    int const nSize = nCount
+    const char * zUser = db_column_text(&query, 0);
+    const int nCount = db_column_int(&query, 1);
+    const int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
       : 0;
     if(!nCount) continue /* arguable! Possible? */;
@@ -2092,8 +2090,8 @@ static void stats_report_by_user(){
 ** week numbers. zTimeframe should be either a timeframe in the form YYYY
 ** or YYYY-MM.
 */
-static void stats_report_year_weeks(char const * zUserName){
-  char const * zYear = P("y");
+static void stats_report_year_weeks(const char * zUserName){
+  const char * zYear = P("y");
   int nYear = zYear ? strlen(zYear) : 0;
   int i = 0;
   Stmt qYears = empty_Stmt;
@@ -2113,7 +2111,7 @@ static void stats_report_year_weeks(char const * zUserName){
   db_prepare(&qYears, blob_str(&sql));
   blob_reset(&sql);
   while( SQLITE_ROW == db_step(&qYears) ){
-    char const * zT = db_column_text(&qYears, 0);
+    const char * zT = db_column_text(&qYears, 0);
     if( i++ ){
       cgi_printf(" ");
     }
@@ -2131,7 +2129,6 @@ static void stats_report_year_weeks(char const * zUserName){
     nYear = 4;
   }
   if(4 == nYear){
-    int const nPixelsPerEvent = 3;     /* for sizing the "graph" part */
     Stmt stWeek = empty_Stmt;
     int rowCount = 0;
     int total = 0;
@@ -2164,16 +2161,16 @@ static void stats_report_year_weeks(char const * zUserName){
     db_prepare(&stWeek, blob_str(&sql));
     blob_reset(&sql);
     while( SQLITE_ROW == db_step(&stWeek) ){
-      int const nCount = db_column_int(&stWeek, 1);
+      const int nCount = db_column_int(&stWeek, 1);
       if(nCount>nMaxEvents){
         nMaxEvents = nCount;
       }
     }
     db_reset(&stWeek);
     while( SQLITE_ROW == db_step(&stWeek) ){
-      char const * zWeek = db_column_text(&stWeek,0);
-      int const nCount = db_column_int(&stWeek,1);
-      int const nSize = nCount
+      const char * zWeek = db_column_text(&stWeek,0);
+      const int nCount = db_column_int(&stWeek,1);
+      const int nSize = nCount
         ? (int)(100 * nCount / nMaxEvents)
         : 0;
       total += nCount;
@@ -2217,8 +2214,8 @@ static void stats_report_year_weeks(char const * zUserName){
 */
 void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
-  char const * zView = P("view");    /* Which view/report to show. */
-  char const *zUserName = P("user");
+  const char * zView = P("view");    /* Which view/report to show. */
+  const char *zUserName = P("user");
   if(!zUserName) zUserName = P("u");
   url_initialize(&url, "stats_report");
 
