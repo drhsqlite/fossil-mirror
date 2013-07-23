@@ -1745,7 +1745,12 @@ int client_sync(
             if( nCycle<2 ){
               g.urlPasswd = 0;
               go = 1;
-              if( g.cgiOutput==0 ) url_prompt_for_password();
+              if( g.cgiOutput==0 ){
+                if( g.urlIsSsh ){
+                  g.urlFlags |= URL_PROMPT_PW;
+                }
+                url_prompt_for_password();
+              }
             }
           }else{
             blob_appendf(&xfer.err, "server says: %s\n", zMsg);
