@@ -1338,7 +1338,9 @@ int client_sync(
   if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE))==0 
      && configRcvMask==0 && configSendMask==0 ) return 0;
 
-  clone_ssh_db_options();
+  if( g.urlIsSsh ){
+    clone_ssh_db_options();
+  }
   transport_stats(0, 0, 1);
   socket_global_init();
   memset(&xfer, 0, sizeof(xfer));
@@ -1746,7 +1748,12 @@ int client_sync(
             if( nCycle<2 ){
               g.urlPasswd = 0;
               go = 1;
-              if( g.cgiOutput==0 ) url_prompt_for_password();
+              if( g.cgiOutput==0 ){
+                if( g.urlIsSsh ){
+                  g.urlFlags |= URL_PROMPT_PW;
+                }
+                url_prompt_for_password();
+              }
             }
           }else{
             blob_appendf(&xfer.err, "server says: %s\n", zMsg);
