@@ -328,6 +328,7 @@ void tag_add_artifact(
   md5sum_blob(&ctrl, &cksum);
   blob_appendf(&ctrl, "Z %b\n", &cksum);
   nrid = content_put(&ctrl);
+  run_common_script();
   manifest_crosslink(nrid, &ctrl);
   assert( blob_is_reset(&ctrl) );
 }

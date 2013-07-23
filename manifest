@@ -1,5 +1,5 @@
-C Eliminate\ssome\sunused\svariables.\n"int\sconst"\s->\s"const\sint"\sand\s"char\sconst"\s->\s"const\schar"
-D 2013-07-22T09:37:33.966
+C rebase
+D 2013-07-23T10:25:21.982
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -310,21 +310,21 @@ F src/attach.c 657e139a0654fb2019274cce00ac7e50993e06fb
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 9eef1e8551df42bdee81aef68359e65985c6c8b9
 F src/blob.c b648d6a6793c08c507634cf0145b8915806ee56f
-F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
+F src/branch.c 9bd7a36b2c5990e4feb4410b97c91fe54fc37653
 F src/browse.c 4f11469038984f7e0e886fbae8e44f72b294f6b4
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c ac3b98023ee8ec18f4ed1f5732fb3c75dba1004d
+F src/checkin.c b0247bf66551dcbded3c782204c74c341c7d3522
 F src/checkout.c f55c4fcce7c79370b9413b99644c50e056fb7c79
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
-F src/configure.c d9192353fbb8d656ef1a927a5c0b75beaa4f9e8a
+F src/configure.c 993f6b98637e8a7c21564af08320aabca4b85b7a
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 010f2b38513f5971336149937e9363caba429a11
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
-F src/db.c 607cf8933d1636fecb5ff165d288dac15d99c55a
+F src/db.c 821e39584d9314865f1b7513704d2d86a52563c5
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
@@ -344,11 +344,11 @@ F src/http_socket.c f4b1e573915c33aa02f85b9ee33748efac91f894
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 111c393f1bb93a3585078d5ee23e0b3ecc1408fe
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
-F src/info.c 0e1203cf0a56036bbfc9485f9f9692b76144c109
+F src/info.c 13374146b81feaf89be4e414af83381adf48cf4f
 F src/json.c dffc6aee419cf4abe125bf8c06bff53876b40c7c
 F src/json_artifact.c 09284d77e664f67051b40f20185bd381ac3aff12
-F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
-F src/json_config.c 61a843f7fcf5f8ca0087f88be21cfc2584b1cdab
+F src/json_branch.c 798b991ffb881283fdd4bbab3c7360100e141275
+F src/json_config.c 1dbb39752bd26757e59757bad9cd086dc8bdbe7d
 F src/json_detail.h a5ef58bb4838f64de4fb3d95a7a561d89a92e127
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
 F src/json_dir.c a76008c3fbf13ff3edcfa07edaf8fa7e60a678c0
@@ -369,7 +369,7 @@ F src/main.mk dd0282e1d2e07628a7266bd0dc8580b98afb2754
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl cc5c726382a0f993b812a40609b7a29a3539e31e
-F src/manifest.c e9939a9ed852e62a1692151d9729dd6c84741700
+F src/manifest.c 7cfefafbd83b8135d00f3a1f68b71b65ef312398
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c e1c6fb412ad1556e5a189786be40585e8c9ffcee
@@ -402,7 +402,7 @@ F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 0cd57adbb99c53b894b3751c429b0f814222acf1
 F src/style.c 5cb7407581c46f9c5c8650f508c63264800cdd8c
 F src/sync.c f8b3aad3185b0ad034b60fc33523b54f327bb86d
-F src/tag.c b0359c168de125f622f0d523b2215f1d85efecf6
+F src/tag.c 11426ef3305e323acc863e4ab8e0bdbe080e5344
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c 327c2faf6aeb66d146d7a95251ef3c2da26a048a
 F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
@@ -410,8 +410,8 @@ F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
 F src/timeline.c eed5c6aab8f57c43ba9267b2bc6026765a911cc3
-F src/tkt.c c0002b066046bd287b7e05b25e7c08ee0b08f766
-F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
+F src/tkt.c 50e09321db699ba91843fb24eaad1485162e60e9
+F src/tktsetup.c 389d153eab7a2d50dc425caa5419e1f22bb9fe40
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 02092a24d2a0704eeb5a548ce6c070d4392175f9
@@ -422,12 +422,12 @@ F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
 F src/util.c d31f9b92152fade029a8177de4e5a996a071e170
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
 F src/vfile.c f39929edad7b7e2f56d620cac42f1cf8c3ac679b
-F src/wiki.c 57066dbbe765411e3a96f80038fb1022a98d0d81
+F src/wiki.c 6f323447399c42dd5087b734e79e218857b247bb
 F src/wikiformat.c f0d71d387b33931ce3cca528c24ad5b5f5916ee0
 F src/winhttp.c b8342e4cfe308d53b1dfc6d9d2080f28a70da54b
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
-F src/xfer.c 467058c65a0f4220137f0eb2ff26ba2d660119bb
-F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
+F src/xfer.c dadd0d88f9dc82b28d8c5a8341883bb14fbd31d8
+F src/xfersetup.c 70e1cbfeba551b79eaaa74dae9bfba2c290bada0
 F src/zip.c 05668eb0320200978083c0fd30796db686b428bf
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
@@ -629,7 +629,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c41d70dccd14b619ebbe5a6069b8e4f37aec0987
-R 04b0258f1e564cc7192328edd2ab6266
+P b2640f61d7849fdbfa0f6df92714628bab36b20d ebfd7020aafedae452803b313d006b5bf8c9515b
+R d70ab6f7e0f0d5a9f1e50072c7f6e993
+T *branch * tkt-change-hook
+T *sym-tkt-change-hook *
+T -sym-trunk *
 U jan.nijtmans
-Z bf4b2252890b0d4d30d7c4e1c019dcdd
+Z adacf3892c60900ee83c95884f56af47

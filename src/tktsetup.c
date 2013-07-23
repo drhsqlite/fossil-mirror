@@ -40,8 +40,6 @@ void tktsetup_page(void){
     "How to display ticket status in the timeline");
   setup_menu_entry("Common", "tktsetup_com",
     "Common TH1 code run before all ticket processing.");
-  setup_menu_entry("Change", "tktsetup_change",
-    "The TH1 code run after a ticket is edited or created.");
   setup_menu_entry("New Ticket Page", "tktsetup_newpage",
     "HTML with embedded TH1 code for the \"new ticket\" webpage.");
   setup_menu_entry("View Ticket Page", "tktsetup_viewpage",
@@ -253,36 +251,6 @@ void tktsetup_com_page(void){
     "Ticket Common Script",
     "ticket-common",
     zDefaultTicketCommon,
-    zDesc,
-    0,
-    0,
-    30
-  );
-}
-
-static const char zDefaultTicketChange[] =
-@ return
-;
-
-/*
-** Return the ticket change code.
-*/
-const char *ticket_change_code(void){
-  return db_get("ticket-change", (char*)zDefaultTicketChange);
-}
-
-/*
-** WEBPAGE: tktsetup_change
-*/
-void tktsetup_change_page(void){
-  static const char zDesc[] =
-  @ Enter TH1 script that runs after processing the ticket editing
-  @ and creation pages.
-  ;
-  tktsetup_generic(
-    "Ticket Change Script",
-    "ticket-change",
-    zDefaultTicketChange,
     zDesc,
     0,
     0,
