@@ -717,7 +717,8 @@ LOCAL sqlite3 *db_open(const char *zDbName){
 #if defined(__CYGWIN__)
   if( (fossil_isalpha(zDbName[0]) && zDbName[1]==':'
           && (zDbName[2]=='\\' || zDbName[2]=='/')) ) {
-    zDbName = mprintf("/cygdrive/%c/%s", zDbName[0], zDbName+3);
+    zDbName = mprintf("/cygdrive/%c/%s",
+        fossil_tolower(zDbName[0]), zDbName+3);
   }
 #endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
@@ -1031,7 +1032,8 @@ void db_open_repository(const char *zDbName){
 #if defined(__CYGWIN__)
   if( (fossil_isalpha(zDbName[0]) && zDbName[1]==':'
           && (zDbName[2]=='\\' || zDbName[2]=='/')) ) {
-    g.zRepositoryName = mprintf("/cygdrive/%c/%s", zDbName[0], zDbName+3);
+    g.zRepositoryName = mprintf("/cygdrive/%c/%s",
+        fossil_tolower(zDbName[0]), zDbName+3);
   } else
 #endif
   g.zRepositoryName = mprintf("%s", zDbName);

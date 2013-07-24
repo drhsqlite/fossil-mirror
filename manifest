@@ -1,5 +1,5 @@
-C Fix\soperations\sby\sCygwin\sfossil\son\sa\scheckout\sdone\searlier\sby\sWin32\sfossil.
-D 2013-07-24T08:14:42.686
+C Always\suse\slowercase\sdrive-letter\sin\s/cygdrive\spaths
+D 2013-07-24T08:48:47.202
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -324,7 +324,7 @@ F src/configure.c d9192353fbb8d656ef1a927a5c0b75beaa4f9e8a
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 010f2b38513f5971336149937e9363caba429a11
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
-F src/db.c 7e40545f15265a6e6d248c748635e03ce4961a3a
+F src/db.c b3bf6c72a40e114ec835ac4fdcc15c6bc435d290
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e1eb7aa88dfc54255f856d0d7436da072a75430e
-R 8459375b9441d9c315612c4860042224
+P 340cee03ee310a3b8ff604f742a9734404dbd5e1
+R e7eef796e9293d9fc4930923893baad7
 U jan.nijtmans
-Z 70fd1619e1c45e473304bfe3f32030d1
+Z 2f59173f50659064552af2224b51944e
