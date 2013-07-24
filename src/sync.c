@@ -50,9 +50,6 @@ int autosync(int flags){
     /* Autosync defaults on.  To make it default off, "return" here. */
   }
   url_parse(0, URL_REMEMBER);
-  if( g.urlIsSsh ){
-    clone_ssh_db_options();
-  }
   if( g.urlProtocol==0 ) return 0;  
   if( ( g.urlUser!=0 || g.zFossilUser!=0 ) && g.urlPasswd==0 ){
     g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
@@ -106,6 +103,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
     *pSyncFlags |= SYNC_VERBOSE;
   }
   url_proxy_options();
+  clone_ssh_find_options();
   db_find_and_open_repository(0, 0);
   db_open_config(0);
   if( g.argc==2 ){
@@ -113,7 +111,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
   }
-  clone_ssh_db_options();
+  clone_ssh_db_set_options();
   url_parse(zUrl, urlFlags);
   if( g.urlProtocol==0 ){
     if( urlOptional ) fossil_exit(0);

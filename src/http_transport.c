@@ -107,12 +107,15 @@ int transport_ssh_open(void){
   /* For SSH we need to create and run SSH fossil http 
   ** to talk to the remote machine.
   */
+  static int fPrintSshCmd = 1;  /* Print SSH command only once */
+  const char *zSshFossilCmd;    /* Path to fossil on remote host */
   const char *zSsh;  /* The base SSH command */
   Blob zCmd;         /* The SSH command */
   char *zHost;       /* The host name to contact */
   int n;             /* Size of prefix string */
 
   zSsh = db_get("ssh-command", zDefaultSshCmd);
+  zSshFossilCmd = db_get("ssh-fossil", "fossil");
   blob_init(&zCmd, zSsh, -1);
   if( g.urlPort!=g.urlDfltPort && g.urlPort ){
 #ifdef __MINGW32__
@@ -121,8 +124,10 @@ int transport_ssh_open(void){
     blob_appendf(&zCmd, " -p %d", g.urlPort);
 #endif
   }
-  fossil_force_newline();
-  fossil_print("%s", blob_str(&zCmd));  /* Show the base of the SSH command */
+  if( fPrintSshCmd ){
+    fossil_force_newline();
+    fossil_print("%s", blob_str(&zCmd));  /* Show the base of the SSH command */
+  }
   if( g.urlUser && g.urlUser[0] ){
     zHost = mprintf("%s@%s", g.urlUser, g.urlName);
   }else{
@@ -131,18 +136,17 @@ int transport_ssh_open(void){
   n = blob_size(&zCmd);
   blob_append(&zCmd, " ", 1);
   shell_escape(&zCmd, zHost);
-  if( g.zSshFossilCmd && g.zSshFossilCmd[0] ){
-    blob_append(&zCmd, " ", 1);
-    shell_escape(&zCmd, mprintf("%s", g.zSshFossilCmd));
-  }else{
-    blob_append(&zCmd, " fossil", 7);
-  }
+  blob_append(&zCmd, " ", 1);
+  shell_escape(&zCmd, mprintf("%s", zSshFossilCmd));
   blob_append(&zCmd, " http", 5);
   if( g.urlPath && g.urlPath[0] ){
     blob_append(&zCmd, " ", 1);
     shell_escape(&zCmd, mprintf("%s", g.urlPath));
   }
-  fossil_print("%s\n", blob_str(&zCmd)+n);  /* Show tail of SSH command */
+  if( fPrintSshCmd ){
+    fossil_print("%s\n", blob_str(&zCmd)+n);  /* Show tail of SSH command */
+    fPrintSshCmd = 0;
+  }
   free(zHost);
   popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid);
   if( sshPid==0 ){

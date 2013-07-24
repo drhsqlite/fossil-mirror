@@ -1354,7 +1354,6 @@ void commit_cmd(void){
   sCiInfo.zDateOvrd = find_option("date-override",0,1);
   sCiInfo.zUserOvrd = find_option("user-override",0,1);
   db_must_be_within_tree();
-  clone_ssh_db_options();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
   useCksum = db_get_boolean("repo-cksum", 1);

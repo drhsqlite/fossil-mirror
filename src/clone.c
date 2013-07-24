@@ -108,7 +108,7 @@ void clone_cmd(void){
   int bPrivate = 0;           /* Also clone private branches */
 
   if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
-  clone_ssh_options();
+  clone_ssh_find_options();
   url_proxy_options();
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
@@ -160,7 +160,7 @@ void clone_cmd(void){
     );
     url_enable_proxy(0);
     url_get_password_if_needed();
-    clone_ssh_db_options();
+    clone_ssh_db_set_options();
     g.xlinkClusterOnly = 1;
     nErr = client_sync(SYNC_CLONE | bPrivate,CONFIGSET_ALL,0);
     g.xlinkClusterOnly = 0;
@@ -185,7 +185,7 @@ void clone_cmd(void){
 /*
 ** Look for SSH clone command line options and setup in globals.
 */
-void clone_ssh_options(void){
+void clone_ssh_find_options(void){
   const char *zSshFossilCmd;  /* Path to remote fossil command for SSH */
   const char *zSshCmd;        /* SSH command string */
   const char *zFossilUser;    /* Fossil user if login specified for SSH */
@@ -208,18 +208,14 @@ void clone_ssh_options(void){
 ** Set SSH options discovered in global variables (set from command line 
 ** options).  If not found, attempt to retrieve from database if present.
 */
-void clone_ssh_db_options(void){
+void clone_ssh_db_set_options(void){
   if( g.zSshFossilCmd && g.zSshFossilCmd[0] ){
     db_set("ssh-fossil", g.zSshFossilCmd, 0);
-  }else{
-    g.zSshFossilCmd = db_get("ssh-fossil", "fossil");
   }
   if( g.zSshCmd && g.zSshCmd[0] ){
     db_set("ssh-command", g.zSshCmd, 0);
   }
   if( g.zFossilUser && g.zFossilUser[0] ){
     db_set("ssh-fossil-user", g.zFossilUser, 0);
-  }else{
-    g.zFossilUser = db_get("ssh-fossil-user", 0);
   }
 }
