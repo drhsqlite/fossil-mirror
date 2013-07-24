@@ -110,6 +110,10 @@ static void status_report(
         blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
       }else if( isChnged==3 ){
         blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
+      }else if( isChnged==4 ){
+        blob_appendf(report, "UPDATED_BY_INTEGR %s\n", zDisplayName);
+      }else if( isChnged==5 ){
+        blob_appendf(report, "ADDED_BY_INTEGR %s\n", zDisplayName);
       }else if( file_contains_merge_marker(zFullName) ){
         blob_appendf(report, "CONFLICT   %s\n", zDisplayName);
       }else{
@@ -131,6 +135,7 @@ static void status_report(
     switch( db_column_int(&q, 1) ){
       case -1:  zLabel = "CHERRYPICK ";  break;
       case -2:  zLabel = "BACKOUT    ";  break;
+      case -4:  zLabel = "INTEGRATE ";  break;
     }
     blob_append(report, zPrefix, nPrefix);
     blob_appendf(report, "%s %s\n", zLabel, db_column_text(&q, 0));
@@ -334,6 +339,10 @@ void ls_cmd(void){
           type = "UPDATED_BY_MERGE ";
         }else if( chnged==3 ){
           type = "ADDED_BY_MERGE ";
+        }else if( chnged==4 ){
+          type = "UPDATED_BY_INTEGR ";
+        }else if( chnged==5 ){
+          type = "ADDED_BY_INTEGR ";
         }else if( file_contains_merge_marker(zFullName) ){
           type = "CONFLICT   ";
         }else{
@@ -1680,6 +1689,39 @@ void commit_cmd(void){
   if( dryRunFlag ){
     blob_write_to_file(&manifest, "");
   }
+
+  db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
+                 " WHERE id=-4");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zIntegrateUuid = db_column_text(&q, 0);
+    int rid = db_column_int(&q, 1);
+    if( !is_a_leaf(rid) ){
+      fossil_print("Not_Closed: %s (not a leaf any more)\n", zIntegrateUuid);
+    }else{
+      if (!db_exists("SELECT 1 FROM tagxref "
+                   " WHERE tagid=%d AND rid=%d AND tagtype>0",
+                   TAG_CLOSED, rid)
+      ){
+        Blob ctrl;
+        Blob cksum;
+        char *zNow;
+        int nrid;
+
+        blob_zero(&ctrl);
+        zNow = date_in_standard_format("now");
+        blob_appendf(&ctrl, "D %s\n", zNow);
+        blob_appendf(&ctrl, "T +closed %s\n", zIntegrateUuid);
+        blob_appendf(&ctrl, "U %F\n", g.zLogin);
+        md5sum_blob(&ctrl, &cksum);
+        blob_appendf(&ctrl, "Z %b\n", &cksum);
+        nrid = content_put(&ctrl);
+        manifest_crosslink(nrid, &ctrl);
+        assert( blob_is_reset(&ctrl) );
+      }
+      fossil_print("Closed: %s\n", zIntegrateUuid);
+    }
+  }
+  db_finalize(&q);
 
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest", g.zLocalRoot);

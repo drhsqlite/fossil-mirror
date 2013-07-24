@@ -159,6 +159,7 @@ cson_value * json_page_status(){
     switch( db_column_int(&q, 1) ){
       case -1:  zLabel = "CHERRYPICK ";  break;
       case -2:  zLabel = "BACKOUT    ";  break;
+      case -4:  zLabel = "INTEGRATE  ";  break;
     }
     blob_append(report, zPrefix, nPrefix);
     blob_appendf(report, "%s %s\n", zLabel, db_column_text(&q, 0));
