@@ -190,7 +190,7 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
     fossil_fatal("unknown repository: %s", zUrl);
   }
   g.urlFlags = urlFlags;
-  if( g.urlIsSsh ){
+  if( g.urlIsSsh && g.zFossilUser==0 ){
     g.zFossilUser = db_get("ssh-fossil-user", 0);
   }
   if( g.urlIsFile ){
