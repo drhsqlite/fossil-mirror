@@ -53,10 +53,10 @@ int autosync(int flags){
   if( g.urlProtocol==0 ) return 0;  
   if( ( g.urlUser!=0 || g.zFossilUser!=0 ) && g.urlPasswd==0 ){
     g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
-  }
-  if( g.urlIsSsh && g.urlPasswd==0 ){
-    g.urlFlags |= URL_PROMPT_PW;
-    url_prompt_for_password();
+    if( g.urlIsSsh && g.urlPasswd==0 ){
+      g.urlFlags |= URL_PROMPT_PW;
+      url_prompt_for_password();
+    }
   }
 #if 0 /* Disabled for now */
   if( (flags & AUTOSYNC_PULL)!=0 && db_get_boolean("auto-shun",1) ){

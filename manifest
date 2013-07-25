@@ -1,5 +1,5 @@
-C There\smay\sbe\sa\scommand-line\soption\sthat\swas\sset,\sso\sdon't\signore\sit.
-D 2013-07-25T01:41:39.987
+C Don't\sprompt\sfor\spassword\sif\suser\sis\snot\sset.
+D 2013-07-25T07:16:36.788
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -400,7 +400,7 @@ F src/sqlite3.h 32f662e3abd08c90f4b52ccf16974ab60a2c206e
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 0cd57adbb99c53b894b3751c429b0f814222acf1
 F src/style.c d7a6acee5f43379c35a509e87a06bba09217bc7d
-F src/sync.c b0dae9138029741199edf1f11bdc6b079f302b23
+F src/sync.c 72d0919a02bc42de117ef236ce98444da734ffb6
 F src/tag.c b0359c168de125f622f0d523b2215f1d85efecf6
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c 327c2faf6aeb66d146d7a95251ef3c2da26a048a
@@ -627,7 +627,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 955b39ee9f36f4a7212dc00c5656da8946717473
-R 6a077b1ae6d844d5e1328c4195c32669
+P 90ee2ee528941db6e2cf367f7cb8ab593d3380b9
+R 8b9aa30484e88be3b99d129c85de2ec8
 U amb
-Z 86796953aa48fdbcaac685d3f6d47506
+Z 4249f1e08a3316b75ec57910f676ab14
