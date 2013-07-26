@@ -111,7 +111,9 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
   }
-  clone_ssh_db_set_options();
+  if( urlFlags & URL_REMEMBER ){
+    clone_ssh_db_set_options();
+  }
   url_parse(zUrl, urlFlags);
   if( g.urlProtocol==0 ){
     if( urlOptional ) fossil_exit(0);
