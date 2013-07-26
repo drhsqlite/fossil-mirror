@@ -40,16 +40,15 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   Blob pw;             /* The nonce with user password appended */
   Blob sig;            /* The signature field */
 
+  zLogin = url_or_fossil_user();
   blob_zero(pLogin);
-  if( g.urlUser==0 && g.zFossilUser==0 || 
-      fossil_strcmp(g.urlUser, "anonymous")==0 ){
+  if( zLogin==0 || fossil_strcmp(g.urlUser, "anonymous")==0 ){
     return;  /* If no login card for users "nobody" and "anonymous" */
   }
   blob_zero(&nonce);
   blob_zero(&pw);
   sha1sum_blob(pPayload, &nonce);
   blob_copy(&pw, &nonce);
-  zLogin = url_or_fossil_user();
   if( g.urlPasswd ){
     zPw = g.urlPasswd;
   }else if( g.cgiOutput ){

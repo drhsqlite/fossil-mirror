@@ -203,8 +203,8 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
     g.urlName = mprintf("%b", &cfile);
     g.urlCanonical = mprintf("file://%T", g.urlName);
     blob_reset(&cfile);
-  }else if( ( g.urlUser!=0 || g.zFossilUser!=0 )
-            && g.urlPasswd==0 && (urlFlags & URL_PROMPT_PW) ){
+  }else if( url_or_fossil_user()!=0 &&
+            g.urlPasswd==0 && (urlFlags & URL_PROMPT_PW) ){
     url_prompt_for_password();
     bPrompted = 1;
   }
@@ -212,7 +212,7 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
     if( bSetUrl ){
       db_set("last-sync-url", g.urlCanonical, 0);
     }
-    if( !bPrompted && g.urlPasswd && ( g.urlUser || g.zFossilUser ) ){
+    if( !bPrompted && g.urlPasswd && url_or_fossil_user() ){
       db_set("last-sync-pw", obscure(g.urlPasswd), 0);
     }
   }

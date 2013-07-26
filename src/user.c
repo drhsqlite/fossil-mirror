@@ -159,10 +159,17 @@ char *prompt_for_user_password(const char *zUser){
 }
 
 /*
-** Return Fossil user if defined or URL user
+** Return Fossil user if allocated and URL is SSH or URL user
 */
 const char *url_or_fossil_user(void){
-  return ( g.zFossilUser && g.zFossilUser[0] ) ? g.zFossilUser : g.urlUser;
+  return is_fossil_user() ? g.zFossilUser : g.urlUser;
+}
+
+/*
+** Return true if URL is SSH and Fossil user is allocated
+*/
+int is_fossil_user(void) {
+  return g.urlIsSsh && g.zFossilUser && g.zFossilUser[0];
 }
 
 /*

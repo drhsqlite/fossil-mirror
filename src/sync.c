@@ -51,7 +51,7 @@ int autosync(int flags){
   }
   url_parse(0, URL_REMEMBER);
   if( g.urlProtocol==0 ) return 0;  
-  if( ( g.urlUser!=0 || g.zFossilUser!=0 ) && g.urlPasswd==0 ){
+  if( ( url_or_fossil_user()!=0 ) && g.urlPasswd==0 ){
     g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
     if( g.urlIsSsh && g.urlPasswd==0 ){
       g.urlFlags |= URL_PROMPT_PW;
@@ -71,7 +71,7 @@ int autosync(int flags){
   }
 #endif
   if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
-  ( g.zFossilUser && g.zFossilUser[0] ) ?
+  is_fossil_user() ?
     fossil_print("Autosync: (%s) %s\n", g.zFossilUser, g.urlCanonical) :
     fossil_print("Autosync:  %s\n", g.urlCanonical);
   url_enable_proxy("via proxy: ");
@@ -122,15 +122,15 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   user_select();
   if( g.argc==2 ){
     if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
-      ( g.zFossilUser && g.zFossilUser[0] ) ? 
+      is_fossil_user() ? 
         fossil_print("Sync with (%s) %s\n", g.zFossilUser, g.urlCanonical) :
         fossil_print("Sync with %s\n", g.urlCanonical);
     }else if( (*pSyncFlags) & SYNC_PUSH ){
-      ( g.zFossilUser && g.zFossilUser[0] ) ? 
+      is_fossil_user() ? 
         fossil_print("Push to (%s) %s\n", g.zFossilUser, g.urlCanonical) :
         fossil_print("Push to %s\n", g.urlCanonical);
     }else if( (*pSyncFlags) & SYNC_PULL ){
-      ( g.zFossilUser && g.zFossilUser[0] ) ? 
+      is_fossil_user() ? 
         fossil_print("Pull from (%s) %s\n", g.zFossilUser, g.urlCanonical) :
         fossil_print("Pull from %s\n", g.urlCanonical);
     }
