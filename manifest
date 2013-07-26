@@ -1,5 +1,5 @@
-C Fix\ssome\stest-cases,\sdue\sto\sname-change\s"test-3-way-merge"\s->\s"3-way-merge"
-D 2013-07-24T12:27:59.308
+C Fix\shardcoded\s"/cygdrive"\sfor\sCygwin.\sThanks\sto\sWarren\sYoung!
+D 2013-07-26T07:06:48.306
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -324,7 +324,7 @@ F src/configure.c d9192353fbb8d656ef1a927a5c0b75beaa4f9e8a
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 010f2b38513f5971336149937e9363caba429a11
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
-F src/db.c b3bf6c72a40e114ec835ac4fdcc15c6bc435d290
+F src/db.c 0adc1aa79c24d8bc88b32e2ef7a8f29d32619d79
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 59c22194bce3a30bdf241e084b0e76050a330fd1
-R 5a9fbade08de016516c406cad1eb398e
+P 8b47f2d27086b4a88c83383df381e551d2d8f6c0
+R 7de20435fc183ec2287245c84df1e67a
 U jan.nijtmans
-Z 1143836145e7512bdbe4613b69c575f9
+Z 3fc69bf69bed18f79d625deb4087c8f5

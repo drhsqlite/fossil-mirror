@@ -715,11 +715,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   sqlite3 *db;
 
 #if defined(__CYGWIN__)
-  if( (fossil_isalpha(zDbName[0]) && zDbName[1]==':'
-          && (zDbName[2]=='\\' || zDbName[2]=='/')) ) {
-    zDbName = mprintf("/cygdrive/%c/%s",
-        fossil_tolower(zDbName[0]), zDbName+3);
-  }
+  zDbName = fossil_utf8_to_filename(zDbName);
 #endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   zVfs = fossil_getenv("FOSSIL_VFS");
@@ -1030,13 +1026,10 @@ void db_open_repository(const char *zDbName){
     }
   }
 #if defined(__CYGWIN__)
-  if( (fossil_isalpha(zDbName[0]) && zDbName[1]==':'
-          && (zDbName[2]=='\\' || zDbName[2]=='/')) ) {
-    g.zRepositoryName = mprintf("/cygdrive/%c/%s",
-        fossil_tolower(zDbName[0]), zDbName+3);
-  } else
-#endif
+  g.zRepositoryName = fossil_utf8_to_filename(zDbName);
+#else
   g.zRepositoryName = mprintf("%s", zDbName);
+#endif
   db_open_or_attach(g.zRepositoryName, "repository", 0);
   g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
