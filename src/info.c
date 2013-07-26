@@ -2223,34 +2223,34 @@ void ci_edit_page(void){
   @ <div><input type="hidden" name="r" value="%S(zUuid)" />
   @ <table border="0" cellspacing="10">
 
-  @ <tr><td align="right" valign="top"><b>User:</b></td>
+  @ <tr><th align="right" valign="top">User:</th>
   @ <td valign="top">
   @   <input type="text" name="u" size="20" value="%h(zNewUser)" />
   @ </td></tr>
 
-  @ <tr><td align="right" valign="top"><b>Comment:</b></td>
+  @ <tr><th align="right" valign="top">Comment:</th>
   @ <td valign="top">
   @ <textarea name="c" rows="10" cols="80">%h(zNewComment)</textarea>
   @ </td></tr>
 
-  @ <tr><td align="right" valign="top"><b>Check-in Time:</b></td>
+  @ <tr><th align="right" valign="top">Check-in Time:</th>
   @ <td valign="top">
   @   <input type="text" name="dt" size="20" value="%h(zNewDate)" />
   @ </td></tr>
 
   if( zChngTime ){
-    @ <tr><td align="right" valign="top"><b>Timestamp of this change:</b></td>
+    @ <tr><th align="right" valign="top">Timestamp of this change:</th>
     @ <td valign="top">
     @   <input type="text" name="chngtime" size="20" value="%h(zChngTime)" />
     @ </td></tr>
   }
 
-  @ <tr><td align="right" valign="top"><b>Background Color:</b></td>
+  @ <tr><th align="right" valign="top">Background Color:</th>
   @ <td valign="top">
   render_color_chooser(fNewPropagateColor, zNewColor, "pclr", "clr", "clrcust");
   @ </td></tr>
 
-  @ <tr><td align="right" valign="top"><b>Tags:</b></td>
+  @ <tr><th align="right" valign="top">Tags:</th>
   @ <td valign="top">
   @ <label><input type="checkbox" id="newtag" name="newtag"%s(zNewTagFlag) />
   @ Add the following new tag name to this check-in:</label>
@@ -2283,7 +2283,7 @@ void ci_edit_page(void){
   db_finalize(&q);
   @ </td></tr>
 
-  @ <tr><td align="right" valign="top"><b>Branching:</b></td>
+  @ <tr><th align="right" valign="top">Branching:</th>
   @ <td valign="top">
   @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag) />
   @ Make this check-in the start of a new branch named:</label>
@@ -2296,7 +2296,7 @@ void ci_edit_page(void){
                  " WHERE tagid=%d AND rid=%d AND tagtype>0",
                  TAG_CLOSED, rid)
   ){
-    @ <tr><td align="right" valign="top"><b>Leaf Closure:</b></td>
+    @ <tr><th align="right" valign="top">Leaf Closure:</th>
     @ <td valign="top">
     @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
     @ Mark this leaf as "closed" so that it no longer appears on the
