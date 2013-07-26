@@ -134,7 +134,7 @@ If you add an asterisk to the end of the command name, like this:
 Then the command will only show up if you add the "--all" option to
 [/help/help|fossil help].  Or, if the command name starts with
 "test" then the command will be considered experimental and will only
-show up when the --help option is used with [/help/help|fossil help].
+show up when the --test option is used with [/help/help|fossil help].
 
 The example above is a fully functioning Fossil command.  You can add
 the text shown to an existing Fossil source file, recompiling then test
