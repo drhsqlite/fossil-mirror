@@ -295,24 +295,24 @@ void rcvfrom_page(void){
     rcvid
   );
   @ <table cellspacing="15" cellpadding="0" border="0">
-  @ <tr><td valign="top" align="right"><b>rcvid:</b></td>
+  @ <tr><th valign="top" align="right">rcvid:</th>
   @ <td valign="top">%d(rcvid)</td></tr>
   if( db_step(&q)==SQLITE_ROW ){
     const char *zUser = db_column_text(&q, 0);
     const char *zDate = db_column_text(&q, 1);
     const char *zIpAddr = db_column_text(&q, 2);
-    @ <tr><td valign="top" align="right"><b>User:</b></td>
+    @ <tr><th valign="top" align="right">User:</th>
     @ <td valign="top">%s(zUser)</td></tr>
-    @ <tr><td valign="top" align="right"><b>Date:</b></td>
+    @ <tr><th valign="top" align="right">Date:</th>
     @ <td valign="top">%s(zDate)</td></tr>
-    @ <tr><td valign="top" align="right"><b>IP&nbsp;Address:</b></td>
+    @ <tr><th valign="top" align="right">IP&nbsp;Address:</th>
     @ <td valign="top">%s(zIpAddr)</td></tr>
   }
   db_finalize(&q);
   db_prepare(&q,
     "SELECT rid, uuid, size FROM blob WHERE rcvid=%d", rcvid
   );
-  @ <tr><td valign="top" align="right"><b>Artifacts:</b></td>
+  @ <tr><th valign="top" align="right">Artifacts:</th>
   @ <td valign="top">
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);

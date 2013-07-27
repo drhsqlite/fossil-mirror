@@ -401,28 +401,28 @@ void eventedit_page(void){
   @ <input type="hidden" name="name" value="%h(zEventId)" />
   @ <table border="0" cellspacing="10">
 
-  @ <tr><td align="right" valign="top"><b>Event&nbsp;Time:</b></td>
+  @ <tr><th align="right" valign="top">Event&nbsp;Time:</th>
   @ <td valign="top">
   @   <input type="text" name="t" size="25" value="%h(zETime)" />
   @ </td></tr>
 
-  @ <tr><td align="right" valign="top"><b>Timeline&nbsp;Comment:</b></td>
+  @ <tr><th align="right" valign="top">Timeline&nbsp;Comment:</th>
   @ <td valign="top">
   @ <textarea name="c" class="eventedit" cols="80" 
   @  rows="3" wrap="virtual">%h(zComment)</textarea>
   @ </td></tr>
 
-  @ <tr><td align="right" valign="top"><b>Background&nbsp;Color:</b></td>
+  @ <tr><th align="right" valign="top">Background&nbsp;Color:</th>
   @ <td valign="top">
   render_color_chooser(0, zClr, 0, "clr", "cclr");
   @ </td></tr>
   
-  @ <tr><td align="right" valign="top"><b>Tags:</b></td>
+  @ <tr><th align="right" valign="top">Tags:</th>
   @ <td valign="top">
   @   <input type="text" name="g" size="40" value="%h(zTags)" />
   @ </td></tr>
   
-  @ <tr><td align="right" valign="top"><b>Page&nbsp;Content:</b></td>
+  @ <tr><th align="right" valign="top">Page&nbsp;Content:</th>
   @ <td valign="top">
   @ <textarea name="w" class="eventedit" cols="80" 
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>

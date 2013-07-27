@@ -105,12 +105,12 @@ static void status_report(
       blob_appendf(report, "ADDED      %s\n", zDisplayName);
     }else if( isDeleted ){
       blob_appendf(report, "DELETED    %s\n", zDisplayName);
-    }else if( isChnged==2 ){
-      blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
-    }else if( isChnged==3 ){
-      blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
-    }else if( isChnged==1 ){
-      if( file_contains_merge_marker(zFullName) ){
+    }else if( isChnged ){
+      if( isChnged==2 ){
+        blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
+      }else if( isChnged==3 ){
+        blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
+      }else if( file_contains_merge_marker(zFullName) ){
         blob_appendf(report, "CONFLICT   %s\n", zDisplayName);
       }else{
         blob_appendf(report, "EDITED     %s\n", zDisplayName);
@@ -129,8 +129,8 @@ static void status_report(
   while( db_step(&q)==SQLITE_ROW ){
     const char *zLabel = "MERGED_WITH";
     switch( db_column_int(&q, 1) ){
-      case -1:  zLabel = "CHERRYPICK";  break;
-      case -2:  zLabel = "BACKOUT   ";  break;
+      case -1:  zLabel = "CHERRYPICK ";  break;
+      case -2:  zLabel = "BACKOUT    ";  break;
     }
     blob_append(report, zPrefix, nPrefix);
     blob_appendf(report, "%s %s\n", zLabel, db_column_text(&q, 0));
@@ -330,7 +330,15 @@ void ls_cmd(void){
           type = "MISSING    ";
         }
       }else if( chnged ){
-        type = "EDITED     ";
+        if( chnged==2 ){
+          type = "UPDATED_BY_MERGE ";
+        }else if( chnged==3 ){
+          type = "ADDED_BY_MERGE ";
+        }else if( file_contains_merge_marker(zFullName) ){
+          type = "CONFLICT   ";
+        }else{
+          type = "EDITED     ";
+        }
       }else if( renamed ){
         type = "RENAMED    ";
       }else{

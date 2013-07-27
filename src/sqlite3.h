@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.0"
 #define SQLITE_VERSION_NUMBER 3008000
-#define SQLITE_SOURCE_ID      "2013-07-09 03:04:32 52a49cbc1621094b2fe2b021209b768d29e0426b"
+#define SQLITE_SOURCE_ID      "2013-07-18 14:50:56 5dcffa671f592ae9355628afa439ae9a2d26f0cd"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2559,7 +2559,7 @@ SQLITE_API SQLITE_EXPERIMENTAL void *sqlite3_profile(sqlite3*,
 ** interface is to keep a GUI updated during a large query.
 **
 ** ^The parameter P is passed through as the only parameter to the 
-** callback function X.  ^The parameter N is the number of 
+** callback function X.  ^The parameter N is the approximate number of 
 ** [virtual machine instructions] that are evaluated between successive
 ** invocations of the callback X.
 **
@@ -4184,8 +4184,8 @@ SQLITE_API sqlite3 *sqlite3_context_db_handle(sqlite3_context*);
 ** The following two functions may be used by scalar SQL functions to
 ** associate metadata with argument values. If the same value is passed to
 ** multiple invocations of the same SQL function during query execution, under
-** some circumstances the associated metadata may be preserved. This may
-** be used, for example, to add a regular-expression matching scalar
+** some circumstances the associated metadata may be preserved. This might
+** be used, for example, in a regular-expression matching
 ** function. The compiled version of the regular expression is stored as
 ** metadata associated with the SQL value passed as the regular expression
 ** pattern.  The compiled regular expression can be reused on multiple
@@ -4199,23 +4199,32 @@ SQLITE_API sqlite3 *sqlite3_context_db_handle(sqlite3_context*);
 ** function parameter has changed since the meta-data was set,
 ** then sqlite3_get_auxdata() returns a NULL pointer.
 **
-** ^The sqlite3_set_auxdata() interface saves the metadata
-** pointed to by its 3rd parameter as the metadata for the N-th
-** argument of the application-defined function.  Subsequent
-** calls to sqlite3_get_auxdata() might return this data, if it has
-** not been destroyed.
-** ^If it is not NULL, SQLite will invoke the destructor
-** function given by the 4th parameter to sqlite3_set_auxdata() on
-** the metadata when the corresponding function parameter changes
-** or when the SQL statement completes, whichever comes first.
+** ^The sqlite3_set_auxdata(C,N,P,X) interface saves P as metadata for the N-th
+** argument of the application-defined function.  ^Subsequent
+** calls to sqlite3_get_auxdata(C,N) return P from the most recent
+** sqlite3_set_auxdata(C,N,P,X) call if the data has not been dropped, or
+** NULL if the data has been dropped.
+** ^(If it is not NULL, SQLite will invoke the destructor
+** function X passed to sqlite3_set_auxdata(C,N,P,X) when <ul>
+** <li> the corresponding function parameter changes,
+** <li> [sqlite3_reset()] or [sqlite3_finalize()] is called for the
+**      SQL statement,
+** <li> sqlite3_set_auxdata() is invoked again on the same parameter, or
+** <li> a memory allocation error occurs. </ul>)^
 **
 ** SQLite is free to call the destructor and drop metadata on any
 ** parameter of any function at any time.  ^The only guarantee is that
-** the destructor will be called before the metadata is dropped.
+** the destructor will be called when the [prepared statement] is destroyed.
+** Note in particular that the destructor X in the call to
+** sqlite3_set_auxdata(C,N,P,X) might be called immediately, before
+** the sqlite3_set_auxdata() call even returns.  Hence sqlite3_set_auxdata()
+** should be called near the end of the function implementation and the
+** implementation should not make any use of P after sqlite3_set_auxdata()
+** has been called.
 **
 ** ^(In practice, metadata is preserved between function calls for
-** expressions that are constant at compile time. This includes literal
-** values and [parameters].)^
+** function parameters that are compile-time constants, including literal
+** values and [parameters] and expressions composed from the same.)^
 **
 ** These routines must be called from the same thread in which
 ** the SQL function is running.
@@ -5128,9 +5137,22 @@ SQLITE_API int sqlite3_enable_load_extension(sqlite3 *db, int onoff);
 ** on the list of automatic extensions is a harmless no-op. ^No entry point
 ** will be called more than once for each database connection that is opened.
 **
-** See also: [sqlite3_reset_auto_extension()].
+** See also: [sqlite3_reset_auto_extension()]
+** and [sqlite3_cancel_auto_extension()]
 */
 SQLITE_API int sqlite3_auto_extension(void (*xEntryPoint)(void));
+
+/*
+** CAPI3REF: Cancel Automatic Extension Loading
+**
+** ^The [sqlite3_cancel_auto_extension(X)] interface unregisters the
+** initialization routine X that was registered using a prior call to
+** [sqlite3_auto_extension(X)].  ^The [sqlite3_cancel_auto_extension(X)]
+** routine returns 1 if initialization routine X was successfully 
+** unregistered and it returns 0 if X was not on the list of initialization
+** routines.
+*/
+SQLITE_API int sqlite3_cancel_auto_extension(void (*xEntryPoint)(void));
 
 /*
 ** CAPI3REF: Reset Automatic Extension Loading
@@ -6244,6 +6266,12 @@ SQLITE_API int sqlite3_db_status(sqlite3*, int op, int *pCur, int *pHiwtr, int r
 ** on subsequent SQLITE_DBSTATUS_CACHE_WRITE requests is undefined.)^ ^The
 ** highwater mark associated with SQLITE_DBSTATUS_CACHE_WRITE is always 0.
 ** </dd>
+**
+** [[SQLITE_DBSTATUS_DEFERRED_FKS]] ^(<dt>SQLITE_DBSTATUS_DEFERRED_FKS</dt>
+** <dd>This parameter returns the zero for the current value if and only if
+** there all foreign key constraints (deferred or immediate) have been
+** resolved.  The highwater mark is always 0.
+** </dd>
 ** </dl>
 */
 #define SQLITE_DBSTATUS_LOOKASIDE_USED       0
@@ -6256,7 +6284,8 @@ SQLITE_API int sqlite3_db_status(sqlite3*, int op, int *pCur, int *pHiwtr, int r
 #define SQLITE_DBSTATUS_CACHE_HIT            7
 #define SQLITE_DBSTATUS_CACHE_MISS           8
 #define SQLITE_DBSTATUS_CACHE_WRITE          9
-#define SQLITE_DBSTATUS_MAX                  9   /* Largest defined DBSTATUS */
+#define SQLITE_DBSTATUS_DEFERRED_FKS        10
+#define SQLITE_DBSTATUS_MAX                 10   /* Largest defined DBSTATUS */
 
 
 /*

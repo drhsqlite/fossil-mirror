@@ -1,6 +1,6 @@
 <title>Fossil Tips And Usage Hints</title>
 
-  1.  Click on nodes of any timeline graph to see diffs between two
+  1.  Click on nodes of any timeline graph to see diffs between the two
       selected versions.
 
   2.  Add the "--tk" option to "[/help?cmd=diff | fossil diff]" commands 
@@ -16,9 +16,11 @@
   
   4.  Use "[/help?cmd=all | fossil all changes]" to look for any uncommitted 
       edits in any of your Fossil projects.  Use 
-      "[/help?cmd=all | fossil all sync]" on your laptop
+      "[/help?cmd=all | fossil all pull]" on your laptop
       prior to going off network (for example, on a long plane ride)
-      to make sure you have all of content local.
+      to make sure you have all the latest content locally.  Then run
+      "[/help/all|fossil all push]" when you get back online to upload
+      your changes.
   
   5.  Sub-menu options on Timelines lets you select either 20 or 200
       records.  But you can manual edit the "n=" query parameter in the

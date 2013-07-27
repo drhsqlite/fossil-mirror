@@ -1034,6 +1034,7 @@ void page_timeline(void){
   const char *zSearch = P("s");      /* Search string */
   const char *zUses = P("uf");       /* Only show checkins hold this file */
   const char *zYearMonth = P("ym");  /* Show checkins for the given YYYY-MM */
+  const char *zYearWeek = P("yw");   /* Show checkins for the given YYYY-WW (weak-of-year) */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only checkins that rename files */
   int tagid;                         /* Tag ID */
@@ -1220,6 +1221,10 @@ void page_timeline(void){
       blob_appendf(&sql, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
                    zYearMonth);
     }
+    else if( zYearWeek ){
+      blob_appendf(&sql, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
+                   zYearWeek);
+    }
     if( tagid>0 ){
       blob_appendf(&sql,
         "AND (EXISTS(SELECT 1 FROM tagxref"
@@ -1352,6 +1357,8 @@ void page_timeline(void){
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
     if( zYearMonth ){
       blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
+    }else if( zYearWeek ){
+      blob_appendf(&desc, "%s events for year/week %h", zEType, zYearWeek);
     }else if( zAfter==0 && zBefore==0 && zCirca==0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
@@ -1831,7 +1838,34 @@ void test_timewarp_page(void){
   style_footer();
 }
 
-
+/*
+** Helper for stats_report_by_month_year(), which generates a list of
+** week numbers. zTimeframe should be either a timeframe in the form YYYY
+** or YYYY-MM.
+*/
+static void stats_report_output_week_links(const char * zTimeframe){
+  Stmt stWeek = empty_Stmt;
+  char yearPart[5] = {0,0,0,0,0};
+  memcpy(yearPart, zTimeframe, 4);
+  db_prepare(&stWeek,
+             "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
+             "count(*) AS n, "
+             "substr(date(mtime),1,%d) AS ym "
+             "FROM event "
+             "WHERE ym=%Q AND mtime < current_timestamp "
+             "GROUP BY wk ORDER BY wk",
+             strlen(zTimeframe),
+             zTimeframe);
+  while( SQLITE_ROW == db_step(&stWeek) ){
+    const char * zWeek = db_column_text(&stWeek,0);
+    const int nCount = db_column_int(&stWeek,1);
+    cgi_printf("<a href='%s/timeline?"
+               "yw=%t-%t&n=%d'>%s</a>",
+               g.zTop, yearPart, zWeek,
+               nCount, zWeek);
+  }
+  db_finalize(&stWeek);
+}
 
 /*
 ** Implements the "byyear" and "bymonth" reports for /stats_report.
@@ -1841,22 +1875,23 @@ void test_timewarp_page(void){
 ** account.
 */
 static void stats_report_by_month_year(char includeMonth,
-                                       char const * zUserName){
+                                       char includeWeeks,
+                                       const char * zUserName){
   Stmt query = empty_Stmt;
-  int const nPixelsPerEvent = 1;     /* for sizing the "graph" part */
   int nRowNumber = 0;                /* current TR number */
   int nEventTotal = 0;               /* Total event count */
   int rowClass = 0;                  /* counter for alternating
                                         row colors */
   Blob sql = empty_blob;             /* SQL */
-  char const * zTimeLabel = includeMonth ? "Year/Month" : "Year";
+  const char * zTimeLabel = includeMonth ? "Year/Month" : "Year";
   char zPrevYear[5] = {0};           /* For keeping track of when
                                         we change years while looping */
-  int nEventsPerYear = 0;            /* Total even count for the
+  int nEventsPerYear = 0;            /* Total event count for the
                                         current year */
   char showYearTotal = 0;            /* Flag telling us when to show
                                         the per-year event totals */
   Blob header = empty_blob;          /* Page header text */
+  int nMaxEvents  = 1;            /* for calculating length of graph bars. */
 
   blob_appendf(&header, "Timeline Events by year%s",
                (includeMonth ? "/month" : ""));
@@ -1881,14 +1916,27 @@ static void stats_report_by_month_year(char includeMonth,
   @ <thead>
   @ <th>%s(zTimeLabel)</th>
   @ <th>Events</th>
-  @ <th><!-- relative commits graph --></th>
+  @ <th width='90%%'><!-- relative commits graph --></th>
   @ </thead><tbody>
   blob_reset(&header);
+  /*
+     Run the query twice. The first time we calculate the maximum
+     number of events for a given row. Maybe someone with better SQL
+     Fu can re-implement this with a single query.
+  */
   while( SQLITE_ROW == db_step(&query) ){
-    char const * zTimeframe = db_column_text(&query, 0);
-    int const nCount = db_column_int(&query, 1);
-    int const nSize = 1 + ((nPixelsPerEvent * nCount)
-                           / (includeMonth ? 1 : 10));
+    const int nCount = db_column_int(&query, 1);
+    if(nCount>nMaxEvents){
+      nMaxEvents = nCount;
+    }
+  }
+  db_reset(&query);
+  while( SQLITE_ROW == db_step(&query) ){
+    const char * zTimeframe = db_column_text(&query, 0);
+    const int nCount = db_column_int(&query, 1);
+    const int nSize = nCount
+      ? (int)(100 * nCount / nMaxEvents)
+      : 1;
     showYearTotal = 0;
     if(includeMonth){
       /* For Month/year view, add a separator for each distinct year. */
@@ -1908,13 +1956,13 @@ static void stats_report_by_month_year(char includeMonth,
         @ <tr class='row%d(rowClass)'>
         @ <th colspan='3' class='statistics-report-row-year'>%s(zPrevYear)</th>
         @ </tr>
-      }
-    }
-    rowClass = ++nRowNumber % 2;
-    nEventTotal += nCount;
-    nEventsPerYear += nCount;
-    @<tr class='row%d(rowClass)'>
-    @ <td>
+     }
+   }
+   rowClass = ++nRowNumber % 2;
+   nEventTotal += nCount;
+   nEventsPerYear += nCount;
+   @<tr class='row%d(rowClass)'>
+   @ <td>
     if(includeMonth){
       cgi_printf("<a href='%s/timeline?"
                  "ym=%t&n=%d",
@@ -1927,21 +1975,35 @@ static void stats_report_by_month_year(char includeMonth,
       }
       cgi_printf("' target='_new'>%s</a>",zTimeframe);
     }else {
-      @ %s(zTimeframe)
+      cgi_printf("<a href='?view=byweek&y=%s", zTimeframe);
+      if(zUserName && *zUserName){
+        cgi_printf("&u=%t", zUserName);
+      }
+      cgi_printf("'>%s</a>", zTimeframe);
     }
     @ </td><td>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
-    @  style='height:16px;width:%d(nSize)px;'>
+    @  style='height:16px;width:%d(nSize)%%;'>
     @ </div></td>
     @</tr>
+    if(includeWeeks){
+      /* This part works fine for months but it terribly slow (4.5s on my PC),
+         so it's only shown for by-year for now. Suggestions/patches for
+         a better/faster layout are welcomed. */
+      @ <tr class='row%d(rowClass)'>
+      @ <td colspan='2' class='statistics-report-week-number-label'>Week #:</td>
+      @ <td class='statistics-report-week-of-year-list'>
+      stats_report_output_week_links(zTimeframe);
+      @ </td></tr>
+    }
 
     /*
       Potential improvement: calculate the min/max event counts and
       use percent-based graph bars.
     */
   }
-
+  db_finalize(&query);
   if(includeMonth && !showYearTotal && *zPrevYear){
     /* Add final year total separator. */
     rowClass = ++nRowNumber % 2;
@@ -1950,14 +2012,10 @@ static void stats_report_by_month_year(char includeMonth,
     @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
     @</tr>    
   }
-#if 0
-  rowClass = ++nRowNumber % 2;
-  @ <tr class='row%d(rowClass)'>
-  @   <td colspan='3'>Total events: %d(nEventTotal)</td>
-  @ </tr>
-#endif
   @ </tbody></table>
-  db_finalize(&query);
+  if(nEventTotal){
+    @ <br><div>Total events: %d(nEventTotal)</div>
+  }
   if( !includeMonth ){
     output_table_sorting_javascript("statsTable","tnx");
   }
@@ -1968,12 +2026,13 @@ static void stats_report_by_month_year(char includeMonth,
 */
 static void stats_report_by_user(){
   Stmt query = empty_Stmt;
-  int const nPixelsPerEvent = 1;     /* for sizing the "graph" part */
   int nRowNumber = 0;                /* current TR number */
   int nEventTotal = 0;               /* Total event count */
   int rowClass = 0;                  /* counter for alternating
                                         row colors */
   Blob sql = empty_blob;             /* SQL */
+  int nMaxEvents = 1;                /* max number of events for
+                                        all rows. */
   blob_append(&sql,
                "SELECT user, "
                "COUNT(*) AS eventCount "
@@ -1988,13 +2047,22 @@ static void stats_report_by_user(){
   @ <thead><tr>
   @ <th>User</th>
   @ <th>Events</th>
-  @ <th><!-- relative commits graph --></th>
+  @ <th width='90%%'><!-- relative commits graph --></th>
   @ </tr></thead><tbody>
   while( SQLITE_ROW == db_step(&query) ){
-    char const * zUser = db_column_text(&query, 0);
-    int const nCount = db_column_int(&query, 1);
-    int const nSize = 1+((nPixelsPerEvent * nCount) / 10);
-    if(!nCount) continue /* arguable! */;
+    const int nCount = db_column_int(&query, 1);
+    if(nCount>nMaxEvents){
+      nMaxEvents = nCount;
+    }
+  }
+  db_reset(&query);
+  while( SQLITE_ROW == db_step(&query) ){
+    const char * zUser = db_column_text(&query, 0);
+    const int nCount = db_column_int(&query, 1);
+    const int nSize = nCount
+      ? (int)(100 * nCount / nMaxEvents)
+      : 0;
+    if(!nCount) continue /* arguable! Possible? */;
     rowClass = ++nRowNumber % 2;
     nEventTotal += nCount;
     @<tr class='row%d(rowClass)'>
@@ -2003,7 +2071,7 @@ static void stats_report_by_user(){
     @ </td><td>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
-    @  style='height:16px;width:%d(nSize)px;'>
+    @  style='height:16px;width:%d(nSize)%%;'>
     @ </div></td>
     @</tr>
     /*
@@ -2014,6 +2082,124 @@ static void stats_report_by_user(){
   @ </tbody></table>
   db_finalize(&query);
   output_table_sorting_javascript("statsTable","tnx");
+}
+
+
+/*
+** Helper for stats_report_by_month_year(), which generates a list of
+** week numbers. zTimeframe should be either a timeframe in the form YYYY
+** or YYYY-MM.
+*/
+static void stats_report_year_weeks(const char * zUserName){
+  const char * zYear = P("y");
+  int nYear = zYear ? strlen(zYear) : 0;
+  int i = 0;
+  Stmt qYears = empty_Stmt;
+  char * zDefaultYear = NULL;
+  Blob sql = empty_blob;
+  int nMaxEvents = 1;                /* max number of events for
+                                        all rows. */
+
+  cgi_printf("Select year: ");
+  blob_append(&sql,
+              "SELECT DISTINCT substr(date(mtime),1,4) AS y "
+              "FROM event WHERE 1 ", -1);
+  if(zUserName&&*zUserName){
+    blob_appendf(&sql,"AND user=%Q ", zUserName);
+  }
+  blob_append(&sql,"GROUP BY y ORDER BY y", -1);
+  db_prepare(&qYears, blob_str(&sql));
+  blob_reset(&sql);
+  while( SQLITE_ROW == db_step(&qYears) ){
+    const char * zT = db_column_text(&qYears, 0);
+    if( i++ ){
+      cgi_printf(" ");
+    }
+    cgi_printf("<a href='?view=byweek&y=%s", zT);
+    if(zUserName && *zUserName){
+      cgi_printf("&user=%t",zUserName);
+    }
+    cgi_printf("'>%s</a>",zT);
+  }
+  db_finalize(&qYears);
+  cgi_printf("<br/>");
+  if(!zYear || !*zYear){
+    zDefaultYear = db_text("????", "SELECT strftime('%%Y')");
+    zYear = zDefaultYear;
+    nYear = 4;
+  }
+  if(4 == nYear){
+    Stmt stWeek = empty_Stmt;
+    int rowCount = 0;
+    int total = 0;
+    Blob header = empty_blob;
+    blob_appendf(&header, "Timeline events for the calendar weeks "
+                 "of %h", zYear);
+    blob_appendf(&sql,
+                 "SELECT DISTINCT strftime('%%%%W',mtime) AS wk, "
+                 "count(*) AS n "
+                 "FROM event "
+                 "WHERE %Q=substr(date(mtime),1,4) "
+                 "AND mtime < current_timestamp ",
+                 zYear);
+    if(zUserName&&*zUserName){
+      blob_appendf(&sql, " AND user=%Q ", zUserName);
+      blob_appendf(&header," for user %h", zUserName);
+    }
+    blob_appendf(&sql, "GROUP BY wk ORDER BY wk DESC");
+    cgi_printf("<h1>%h</h1>", blob_str(&header));
+    blob_reset(&header);
+    cgi_printf("<table class='statistics-report-table-events' "
+               "border='0' cellpadding='2' width='100%%' "
+               "cellspacing='0' id='statsTable'>");
+    cgi_printf("<thead><tr>"
+               "<th>Week</th>"
+               "<th>Events</th>"
+               "<th width='90%%'><!-- relative commits graph --></th>"
+               "</tr></thead>"
+               "<tbody>");
+    db_prepare(&stWeek, blob_str(&sql));
+    blob_reset(&sql);
+    while( SQLITE_ROW == db_step(&stWeek) ){
+      const int nCount = db_column_int(&stWeek, 1);
+      if(nCount>nMaxEvents){
+        nMaxEvents = nCount;
+      }
+    }
+    db_reset(&stWeek);
+    while( SQLITE_ROW == db_step(&stWeek) ){
+      const char * zWeek = db_column_text(&stWeek,0);
+      const int nCount = db_column_int(&stWeek,1);
+      const int nSize = nCount
+        ? (int)(100 * nCount / nMaxEvents)
+        : 0;
+      total += nCount;
+      cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
+      cgi_printf("<td><a href='%s/timeline?yw=%t-%s&n=%d",
+                 g.zTop, zYear, zWeek, nCount);
+      if(zUserName && *zUserName){
+        cgi_printf("&u=%t",zUserName);
+      }
+      cgi_printf("'>%s</a></td>",zWeek);
+
+      cgi_printf("<td>%d</td>",nCount);
+      cgi_printf("<td>");
+      if(nCount){
+        cgi_printf("<div class='statistics-report-graph-line'"
+                   "style='height:16px;width:%d%%;'></div>",
+                   nSize);
+      }
+      cgi_printf("</td></tr>");
+    }
+    db_finalize(&stWeek);
+    free(zDefaultYear);
+    cgi_printf("</tbody></table>");
+    if(total){
+      cgi_printf("<br><div>Total events: %d</div>",
+                 total);
+    }
+    output_table_sorting_javascript("statsTable","tnx");
+  }
 }
 
 /*
@@ -2028,8 +2214,9 @@ static void stats_report_by_user(){
 */
 void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
-  char const * zView = P("view");    /* Which view/report to show. */
-  char const *zUserName = P("user");
+  const char * zView = P("view");    /* Which view/report to show. */
+  const char *zUserName = P("user");
+  if(!zUserName) zUserName = P("u");
   url_initialize(&url, "stats_report");
 
   if(zUserName && *zUserName){
@@ -2038,15 +2225,16 @@ void stats_report_page(){
   }
   timeline_submenu(&url, "By Year", "view", "byyear", 0);
   timeline_submenu(&url, "By Month", "view", "bymonth", 0);
+  timeline_submenu(&url, "By Week", "view", "byweek", 0);
   timeline_submenu(&url, "By User", "view", "byuser", "user");
   url_reset(&url);
   style_header("Activity Reports");
   if(0==fossil_strcmp(zView,"byyear")){
-    stats_report_by_month_year(0, zUserName);
+    stats_report_by_month_year(0, 0, zUserName);
   }else if(0==fossil_strcmp(zView,"bymonth")){
-    stats_report_by_month_year(1, zUserName);
+    stats_report_by_month_year(1, 0, zUserName);
   }else if(0==fossil_strcmp(zView,"byweek")){
-    @ TODO: by-week report.
+    stats_report_year_weeks(zUserName);
   }else if(0==fossil_strcmp(zView,"byuser")){
     stats_report_by_user();
   }else{
@@ -2054,6 +2242,7 @@ void stats_report_page(){
     @ <ul>
     @ <li><a href='?view=byyear'>Events by year</a></li>
     @ <li><a href='?view=bymonth'>Events by month</a></li>
+    @ <li><a href='?view=byweek'>Events by calendar week</a></li>
     @ <li><a href='?view=byuser'>Events by user</a></li>
     @ </ul>
   }

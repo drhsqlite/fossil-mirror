@@ -788,9 +788,9 @@ void wdiff_page(void){
   blob_zero(&d);
   diffFlags = construct_diff_flags(1,0);
   text_diff(&w2, &w1, &d, 0, diffFlags | DIFF_HTML | DIFF_LINENO);
-  @ <div class="udiff">
+  @ <pre class="udiff">
   @ %s(blob_str(&d))
-  @ </div>
+  @ <pre>
   manifest_destroy(pW1);
   manifest_destroy(pW2);
   style_footer();
