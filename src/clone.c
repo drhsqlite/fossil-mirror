@@ -206,7 +206,7 @@ void clone_ssh_find_options(void){
 
 /*
 ** Set SSH options discovered in global variables (set from command line 
-** options).  If not found, attempt to retrieve from database if present.
+** options).
 */
 void clone_ssh_db_set_options(void){
   if( g.zSshFossilCmd && g.zSshFossilCmd[0] ){
