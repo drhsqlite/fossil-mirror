@@ -1,5 +1,5 @@
-C Do\snot\scheck\sfor\sx-site\sscripting\sattacks\son\sunshun.
-D 2013-07-29T15:46:47.384
+C typo
+D 2013-07-30T11:46:58.035
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -533,7 +533,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/adding_code.wiki 729376097315f3432b39d39474413385a2f8dc27
+F www/adding_code.wiki 872804d61546094d20da9c3976b12edabfecc45b
 F www/antibot.wiki 544a983a29e19f0330fc9b16d78795789b2d566f
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a60b008f1a01a383fb80bd677c451ed0624118c2
-R a9fdd837401ad4af0e6904410794ac61
-U drh
-Z fd31be78228c541875210a2accb23486
+P 0b51238612ba69797fbb94c3d0d17929d7206599
+R ae31ce86ccb891f9e5bc7f6e8556efe2
+U jan.nijtmans
+Z 28b6c688297b2e477990e3434f7ecc6e
