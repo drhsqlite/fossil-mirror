@@ -180,10 +180,16 @@ void wiki_page(void){
   if( zPageName==0 ){
     style_header("Wiki");
     @ <ul>
+    { char *zWikiHomePageName = db_get("index-page",0);
+      if( zWikiHomePageName ){
+        @ <li> %z(href("%R%s",zWikiHomePageName))
+        @      %h(zWikiHomePageName)</a> wiki home page.</li>
+      }
+    }
     { char *zHomePageName = db_get("project-name",0);
       if( zHomePageName ){
         @ <li> %z(href("%R/wiki?name=%t",zHomePageName))
-        @      %h(zHomePageName)</a> wiki home page.</li>
+        @      %h(zHomePageName)</a> project home page.</li>
       }
     }
     @ <li> %z(href("%R/timeline?y=w"))Recent changes</a> to wiki pages.</li>
