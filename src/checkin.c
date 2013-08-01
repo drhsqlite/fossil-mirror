@@ -1704,14 +1704,14 @@ void commit_cmd(void){
       ){
         Blob ctrl;
         Blob cksum;
-        char *zNow;
+        char *zDate;
         int nrid;
 
         blob_zero(&ctrl);
-        zNow = date_in_standard_format("now");
-        blob_appendf(&ctrl, "D %s\n", zNow);
+        zDate = date_in_standard_format(sCiInfo.zDateOvrd ? sCiInfo.zDateOvrd : "now");
+        blob_appendf(&ctrl, "D %s\n", zDate);
         blob_appendf(&ctrl, "T +closed %s\n", zIntegrateUuid);
-        blob_appendf(&ctrl, "U %F\n", g.zLogin);
+        blob_appendf(&ctrl, "U %F\n", sCiInfo.zUserOvrd ? sCiInfo.zUserOvrd : g.zLogin);
         md5sum_blob(&ctrl, &cksum);
         blob_appendf(&ctrl, "Z %b\n", &cksum);
         nrid = content_put(&ctrl);

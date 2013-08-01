@@ -1,5 +1,5 @@
-C New\s--integrate\soption\sto\s"fossil\s[/help?cmd=merge|merge]",\swhich\sautomatically\scloses\sthe\smerged\sbranch\swhen\scommitting.
-D 2013-08-01T07:51:07.460
+C Make\snew\s"merge\s--integrate"\srespect\sthe\s(undocumented)\s--date-override\sand\s--user-override\soptions.\s\nRevert\saccidental\scommit\sof\swin/Makefile.mingw
+D 2013-08-01T08:25:56.736
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -314,7 +314,7 @@ F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 4f11469038984f7e0e886fbae8e44f72b294f6b4
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 2b96e6eeec13323dc2e20f864520d6330ce2cf06
+F src/checkin.c 14988f38642b60db27059d346ce40d78fc0bf57b
 F src/checkout.c f55c4fcce7c79370b9413b99644c50e056fb7c79
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -522,7 +522,7 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc cdde01ca8ccde455a555dc89ff88e883315c16db
-F win/Makefile.mingw be20df1b08ebcb4bc06a2b75cb53ed0fcc8982bb
+F win/Makefile.mingw c12206aa50197bf459d2dc97b5187203bac26693
 F win/Makefile.mingw.mistachkin c07e271f41196b699d8947ffb3e6992e9a2d31e7
 F win/Makefile.msc f7248847effd098c560b6f60fadb4e38ea6b143a
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3947457b62aa1781c6aba56a22a8669e5807cf77 2015bbd55d6ef6166fd5ae6e12a8ec81953e6bf8
-R 28b5c689e3de26ec3b01cfd287ff19aa
+P 69dd259eb27d207c00d5909388e15e6e96a340c7
+R cc72ef4a661d2a800cb574bb9dc3b876
 U jan.nijtmans
-Z f05e11e31c65623937733153d039da41
+Z 0baafc71366bf3a0654c9f04a57b4d4c
