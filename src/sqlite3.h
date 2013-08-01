@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.0"
 #define SQLITE_VERSION_NUMBER 3008000
-#define SQLITE_SOURCE_ID      "2013-07-25 17:07:03 8bcbb33fd0a970e16a920e1d35571836dbb9ba50"
+#define SQLITE_SOURCE_ID      "2013-07-31 23:28:36 136fc2931b156f91cdd76a7a009298cdf09d826a"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -478,6 +478,7 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_IOERR_SEEK              (SQLITE_IOERR | (22<<8))
 #define SQLITE_IOERR_DELETE_NOENT      (SQLITE_IOERR | (23<<8))
 #define SQLITE_IOERR_MMAP              (SQLITE_IOERR | (24<<8))
+#define SQLITE_IOERR_GETTEMPPATH       (SQLITE_IOERR | (25<<8))
 #define SQLITE_LOCKED_SHAREDCACHE      (SQLITE_LOCKED |  (1<<8))
 #define SQLITE_BUSY_RECOVERY           (SQLITE_BUSY   |  (1<<8))
 #define SQLITE_BUSY_SNAPSHOT           (SQLITE_BUSY   |  (2<<8))

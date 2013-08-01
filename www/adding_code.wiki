@@ -155,7 +155,7 @@ it has extra logic to insert \r characters at the right times on
 windows systems.
 
 Once you have the command running, you can then start adding code to
-make it do useful things.  There are logs of utility functions in
+make it do useful things.  There are lots of utility functions in
 Fossil for parsing command-line options and for
 opening and accessing and manipulating the repository and
 the working check-out.  Study at the implementations of existing commands

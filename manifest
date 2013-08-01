@@ -1,5 +1,5 @@
-C trivial\sdoc\sfix
-D 2013-07-26T12:54:23.624
+C merge\strunk.\s\nUpgrade\sto\slatest\sSQLite,\swith\sexperimental\sCygwin\sfixes.
+D 2013-08-01T13:28:28.519
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -314,7 +314,7 @@ F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 4f11469038984f7e0e886fbae8e44f72b294f6b4
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 00b525f86ab19639beca0a9bc282ee75c402dd9b
+F src/checkin.c 14988f38642b60db27059d346ce40d78fc0bf57b
 F src/checkout.c f55c4fcce7c79370b9413b99644c50e056fb7c79
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -332,7 +332,7 @@ F src/diff.c cf56784a53e028fd8c98ef89caeeab3089c5f5b1
 F src/diffcmd.c 05606b2eeb44de9a39a7f34e1f908cdec82bed73
 F src/doc.c 768527b613d800c88f6848c814194c70cb2214cf
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
-F src/event.c 20e26d45b3688da9779ed4c79d51b1eed2a1eaef
+F src/event.c db3ce586deac1c91fe99a334eb0dddc5f512d999
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
 F src/file.c 252d00117d3042556c78243cd7e8525b99f4c57f
 F src/finfo.c 58ec249430dd60eba33470f91a45d7cf1a409684
@@ -344,7 +344,7 @@ F src/http_socket.c f4b1e573915c33aa02f85b9ee33748efac91f894
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 111c393f1bb93a3585078d5ee23e0b3ecc1408fe
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
-F src/info.c 0e1203cf0a56036bbfc9485f9f9692b76144c109
+F src/info.c 55bc2aa05309610d8883628f72bb23903555df9a
 F src/json.c dffc6aee419cf4abe125bf8c06bff53876b40c7c
 F src/json_artifact.c 09284d77e664f67051b40f20185bd381ac3aff12
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
@@ -356,7 +356,7 @@ F src/json_finfo.c 2ac4e4a70b53f10e84b5759754a85190f3412342
 F src/json_login.c d8daafbf01d285a7c64b9ef08c1e5875f8efa65f
 F src/json_query.c 017ab69953ee208381dc210ee01716585f1bac15
 F src/json_report.c 1bce5178ec70545ec16becdbaac22d785d1880ba
-F src/json_status.c e95054838372a514918169a2c81811f530b88516
+F src/json_status.c c5fdb35c6447d6c6b5af2b17870b9f68db8a2cad
 F src/json_tag.c 70261471bbfe05f47af230561053a4fcbbeba5a9
 F src/json_timeline.c ac4cf2a24eb5c2810cf92252621f1825e8e4be69
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
@@ -373,7 +373,7 @@ F src/manifest.c e9939a9ed852e62a1692151d9729dd6c84741700
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c e1c6fb412ad1556e5a189786be40585e8c9ffcee
-F src/merge.c 09e32154cdca30c5441ecbe55268957ee634d7b9
+F src/merge.c 0fa3d3b9477d137c2bd1bec4cc24f9582fadb632
 F src/merge3.c 3107d0e4b213dd130cd9046184d86712e35c13eb
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
 F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
@@ -388,16 +388,16 @@ F src/rebuild.c 01cd0cd7b2baee0ec438968994da3dfeead6c8a0
 F src/regexp.c 056d7e54c5a85247ee9d003ede339b07ae049a5f
 F src/report.c 23c9e4a0828b013d723724613de1c8b76333f030
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
-F src/schema.c 0dd4e1b210e27b73997f653225ac095182ddfb38
+F src/schema.c 571fe8e1ef8e00accae77710a50d10517f41741a
 F src/search.c b11073e3b3546f8986d87c5d0cd456eb0478067e
-F src/setup.c efb1a013de45af5c2a5c051d8dcd66cdc5802bcb
+F src/setup.c ad90b1f40e7efbbc32517387876bf47aa19cbcdf
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
 F src/shell.c 290988590d1c6507b8292494d46d069116a75526
-F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
+F src/shun.c fde00f65391378affca94399580e829deeb97e91
 F src/skins.c 850cb3518094003a6780e61fb0611b2598fe2cfb
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c 5bc741de76c06fca19cff6abd35dd65dd7c0c260
-F src/sqlite3.h 51249c5a30f0593970dcfea1b9c708200f62e791
+F src/sqlite3.c 73d9dda604d2a1c10a47b9cca3f847246b0a4961
+F src/sqlite3.h 3f88749a226bb8c39f8c6803ec650e913a4576f6
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 0cd57adbb99c53b894b3751c429b0f814222acf1
 F src/style.c 5cb7407581c46f9c5c8650f508c63264800cdd8c
@@ -409,7 +409,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
-F src/timeline.c eed5c6aab8f57c43ba9267b2bc6026765a911cc3
+F src/timeline.c 45ac1fc598bebb433bdeb2539e286a9539649a2c
 F src/tkt.c c0002b066046bd287b7e05b25e7c08ee0b08f766
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
@@ -421,7 +421,7 @@ F src/user.c 84e080180fec94f8e62aa9eba7868beeefb87780
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
 F src/util.c d31f9b92152fade029a8177de4e5a996a071e170
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
-F src/vfile.c f39929edad7b7e2f56d620cac42f1cf8c3ac679b
+F src/vfile.c 662553ad434017687484d6e6c48b96d47855a16c
 F src/wiki.c 57066dbbe765411e3a96f80038fb1022a98d0d81
 F src/wikiformat.c f0d71d387b33931ce3cca528c24ad5b5f5916ee0
 F src/winhttp.c b8342e4cfe308d53b1dfc6d9d2080f28a70da54b
@@ -533,7 +533,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/adding_code.wiki 729376097315f3432b39d39474413385a2f8dc27
+F www/adding_code.wiki 872804d61546094d20da9c3976b12edabfecc45b
 F www/antibot.wiki 544a983a29e19f0330fc9b16d78795789b2d566f
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -551,7 +551,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 99d99c3b86f2ba7249070ff0e427a8183b06c692
-F www/changes.wiki 454880da726de19f5a13b9796dae06d16eb72a30
+F www/changes.wiki 0a810be487156a6870a288c672bcdd40bd58fd79
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3719ad9579a7b96add38be695950c306f01f484f
-R a358a397851acf17f392bcad3d1d037a
+P 498e4d3bccb1bb80a8e7b0c3286ce4729e5a7d55 34fc301f36185b379a0eee579f5e8a0dd679ec0f
+R fb9839ccd11e565efd148e5c5cff5a8b
 U jan.nijtmans
-Z 3aa156223809a266e1556a435609f5fd
+Z ff4bf7429f578054671c94f1d0da7129

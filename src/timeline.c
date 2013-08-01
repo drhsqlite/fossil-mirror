@@ -2204,6 +2204,7 @@ static void stats_report_year_weeks(const char * zUserName){
 
 /*
 ** WEBPAGE: stats_report
+** WEBPAGE: reports
 **
 ** Shows activity reports for the repository.
 **
