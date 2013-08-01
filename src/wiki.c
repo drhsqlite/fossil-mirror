@@ -182,7 +182,7 @@ void wiki_page(void){
     @ <ul>
     { char *zWikiHomePageName = db_get("index-page",0);
       if( zWikiHomePageName ){
-        @ <li> %z(href("%R/%t",zWikiHomePageName))
+        @ <li> %z(href("%R%s",zWikiHomePageName))
         @      %h(zWikiHomePageName)</a> wiki home page.</li>
       }
     }
