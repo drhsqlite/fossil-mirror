@@ -1,5 +1,5 @@
-C Merged\sin\sJiri's\s/wiki\spage\slink\saddition.\sAnd\strying\sout\smerge\s--integrate.
-D 2013-08-01T20:56:43.611
+C minor\schangelog\saddition.
+D 2013-08-01T21:00:42.831
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -551,7 +551,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 99d99c3b86f2ba7249070ff0e427a8183b06c692
-F www/changes.wiki 0a810be487156a6870a288c672bcdd40bd58fd79
+F www/changes.wiki d0ac0786c756e5edc37b2cac3d3a85dc9a7452b4
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 34fc301f36185b379a0eee579f5e8a0dd679ec0f 53ce8d2863f51501b1e1321e91172d311a82ef86
-R bcfc2b42789f8ac02e4f4f57c9d1c648
+P 366f1ae6da39e11024c7910e5697aa423ed25f3c
+R bab32612a89a47083c75be713cbdf2a8
 U stephan
-Z 337bfed37bd69383f7b0c55b3833247d
+Z 8bfb0ca451222c210e36a59b319d1419
