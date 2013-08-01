@@ -100,7 +100,7 @@ char const * json_timeline_query(void){
     @   blob.rid,
     @   uuid,
     @   CAST(strftime('%%s',event.mtime) AS INTEGER),
-    @   datetime(event.mtime,'utc'),
+    @   datetime(event.mtime),
     @   coalesce(ecomment, comment),
     @   coalesce(euser, user),
     @   blob.rid IN leaf,
