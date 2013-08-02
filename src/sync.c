@@ -96,6 +96,9 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   if( find_option("verbose","v",0)!=0 ){
     *pSyncFlags |= SYNC_VERBOSE;
   }
+  if( find_option("heavy",0,0)!=0 ){
+    *pSyncFlags |= SYNC_RESYNC;
+  }
   url_proxy_options();
   db_find_and_open_repository(0, 0);
   db_open_config(0);
