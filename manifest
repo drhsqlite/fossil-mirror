@@ -1,5 +1,5 @@
-C Removed\san\sextraneous\s"utc"\sfrom\sa\sdatetime()\scall\sin\s/json/timeline.
-D 2013-08-01T21:30:36.732
+C Bug-fix,\sdiscovered\sby\sStephan\sBeal\sand\sAndy\sBradford,\sin\shandling\sthe\s--integrate\stag\son\sa\sfork\smerge:\sthe\s"closed"\stag\sshould\snot\sbe\sadded\sin\sthis\scase.
+D 2013-08-02T08:58:03.455
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -314,7 +314,7 @@ F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 4f11469038984f7e0e886fbae8e44f72b294f6b4
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 14988f38642b60db27059d346ce40d78fc0bf57b
+F src/checkin.c 3708cd32b62b6f055a587220f587e54cadb5a66c
 F src/checkout.c f55c4fcce7c79370b9413b99644c50e056fb7c79
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9c4f91d85d2455962fe6655710356decdbd9b2d4
-R 26a23c66d5cc32cb61bd4b1be5d7d99f
-U stephan
-Z 2d1efe25a8dca73801c3331a4be4aad8
+P 340da668ae9183d94d0efb5dd20c748788d87bfa
+R b3fb1922836d818f4eb84880aca8bc99
+U jan.nijtmans
+Z 5a7262fed6ddae97f37157cf23656fe5
