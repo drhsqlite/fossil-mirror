@@ -96,7 +96,10 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   if( find_option("verbose","v",0)!=0 ){
     *pSyncFlags |= SYNC_VERBOSE;
   }
-  if( find_option("heavy",0,0)!=0 ){
+  /* The --verily option to sync, push, and pull forces extra igot cards
+  ** to be exchanged.  This can overcome malfunctions in the sync protocol.
+  */
+  if( find_option("verily",0,0)!=0 ){
     *pSyncFlags |= SYNC_RESYNC;
   }
   url_proxy_options();

@@ -1,5 +1,5 @@
-C Add\sthe\sundocumented\s--heavy\soption\sto\sthe\ssync,\spush,\sand\spull\scommands.\nThe\s--heavy\soption\scauses\sall\sknown\sartifacts\sto\sbe\sreported\susing\s"igot"\ncards\sand\scan\sbe\sused\sto\sovercome\sa\ssync-stall.
-D 2013-08-02T18:53:42.063
+C Change\sthe\sundocumented\s--heavy\soption\sof\ssync/push/pull\sto\s"--verily".
+D 2013-08-02T18:57:59.193
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -401,7 +401,7 @@ F src/sqlite3.h 3362ffb604a4828d36b166ffcc1822cd1369cd91
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 0cd57adbb99c53b894b3751c429b0f814222acf1
 F src/style.c ea59296f4e52f319559407fd60afde39d12374d2
-F src/sync.c 3b24778218787c6acb38e379fae6279a5bda4e92
+F src/sync.c 2afef7f828cdc0cec2075969585bec457699afc3
 F src/tag.c b0359c168de125f622f0d523b2215f1d85efecf6
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c 327c2faf6aeb66d146d7a95251ef3c2da26a048a
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 81f9791c017cab63c28538251240b35788067ce6
-R b8f99a1a934038b851f9f5bcde489bd0
+P 05ba15e448d7676d88c332cc5cd47298aa57f060
+R 1f2d8bf4203bac2094f8cfa5584cb305
 U drh
-Z b1f8f2fcbc35fa73ea1d9ff800533bc0
+Z 4bc7dc23a2393d8f53a2649c8d3df3a9
