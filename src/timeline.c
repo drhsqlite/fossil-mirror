@@ -247,7 +247,11 @@ void www_print_timeline(
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
-
+  int vid = 0;                /* Current checkout version */
+  
+  if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
+    vid = db_lget_int("checkout", 0);
+  }
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   if( tmFlags & TIMELINE_GRAPH ){
@@ -320,7 +324,11 @@ void www_print_timeline(
     }
     memcpy(zTime, &zDate[11], 5);
     zTime[5] = 0;
-    @ <tr>
+    if( rid == vid ){
+      @ <tr class="timelineCurrent">
+    }else {
+      @ <tr>
+    }
     @ <td class="timelineTime">%s(zTime)</td>
     @ <td class="timelineGraph">
     if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;

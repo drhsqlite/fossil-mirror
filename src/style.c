@@ -659,6 +659,11 @@ const struct strctCssDefaults {
     @   vertical-align: top;
     @   text-align: left;
   },
+  { "tr.timelineCurrent td.timelineTableCell",
+    "the format for the timeline data cell of the current checkout",
+    @   padding: .1em .2em;
+    @   border: 1px dashed #446979;
+  },
   { "span.timelineLeaf",
     "the format for the timeline leaf marks",
     @   font-weight: bold;
