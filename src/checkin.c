@@ -1689,6 +1689,20 @@ void commit_cmd(void){
   if( dryRunFlag ){
     blob_write_to_file(&manifest, "");
   }
+  if( outputManifest ){
+    zManifestFile = mprintf("%smanifest", g.zLocalRoot);
+    blob_write_to_file(&manifest, zManifestFile);
+    blob_reset(&manifest);
+    blob_read_from_file(&manifest, zManifestFile);
+    free(zManifestFile);
+  }
+
+  nvid = content_put(&manifest);
+  if( nvid==0 ){
+    fossil_panic("trouble committing manifest: %s", g.zErrMsg);
+  }
+  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
+  manifest_crosslink(nvid, &manifest);
 
   db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
                  " WHERE id=-4");
@@ -1723,19 +1737,6 @@ void commit_cmd(void){
   }
   db_finalize(&q);
 
-  if( outputManifest ){
-    zManifestFile = mprintf("%smanifest", g.zLocalRoot);
-    blob_write_to_file(&manifest, zManifestFile);
-    blob_reset(&manifest);
-    blob_read_from_file(&manifest, zManifestFile);
-    free(zManifestFile);
-  }
-  nvid = content_put(&manifest);
-  if( nvid==0 ){
-    fossil_panic("trouble committing manifest: %s", g.zErrMsg);
-  }
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
-  manifest_crosslink(nvid, &manifest);
   assert( blob_is_reset(&manifest) );
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);

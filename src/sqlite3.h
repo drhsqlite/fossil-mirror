@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.0"
 #define SQLITE_VERSION_NUMBER 3008000
-#define SQLITE_SOURCE_ID      "2013-07-31 23:28:36 136fc2931b156f91cdd76a7a009298cdf09d826a"
+#define SQLITE_SOURCE_ID      "2013-07-18 14:50:56 5dcffa671f592ae9355628afa439ae9a2d26f0cd"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -478,7 +478,6 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_IOERR_SEEK              (SQLITE_IOERR | (22<<8))
 #define SQLITE_IOERR_DELETE_NOENT      (SQLITE_IOERR | (23<<8))
 #define SQLITE_IOERR_MMAP              (SQLITE_IOERR | (24<<8))
-#define SQLITE_IOERR_GETTEMPPATH       (SQLITE_IOERR | (25<<8))
 #define SQLITE_LOCKED_SHAREDCACHE      (SQLITE_LOCKED |  (1<<8))
 #define SQLITE_BUSY_RECOVERY           (SQLITE_BUSY   |  (1<<8))
 #define SQLITE_BUSY_SNAPSHOT           (SQLITE_BUSY   |  (2<<8))
@@ -2562,8 +2561,7 @@ SQLITE_API SQLITE_EXPERIMENTAL void *sqlite3_profile(sqlite3*,
 ** ^The parameter P is passed through as the only parameter to the 
 ** callback function X.  ^The parameter N is the approximate number of 
 ** [virtual machine instructions] that are evaluated between successive
-** invocations of the callback X.  ^If N is less than one then the progress
-** handler is disabled.
+** invocations of the callback X.
 **
 ** ^Only a single progress handler may be defined at one time per
 ** [database connection]; setting a new progress handler cancels the
@@ -4183,45 +4181,46 @@ SQLITE_API sqlite3 *sqlite3_context_db_handle(sqlite3_context*);
 /*
 ** CAPI3REF: Function Auxiliary Data
 **
-** These functions may be used by (non-aggregate) SQL functions to
+** The following two functions may be used by scalar SQL functions to
 ** associate metadata with argument values. If the same value is passed to
 ** multiple invocations of the same SQL function during query execution, under
-** some circumstances the associated metadata may be preserved.  An example
-** of where this might be useful is in a regular-expression matching
-** function. The compiled version of the regular expression can be stored as
-** metadata associated with the pattern string.  
-** Then as long as the pattern string remains the same,
-** the compiled regular expression can be reused on multiple
-** invocations of the same function.
+** some circumstances the associated metadata may be preserved. This might
+** be used, for example, in a regular-expression matching
+** function. The compiled version of the regular expression is stored as
+** metadata associated with the SQL value passed as the regular expression
+** pattern.  The compiled regular expression can be reused on multiple
+** invocations of the same function so that the original pattern string
+** does not need to be recompiled on each invocation.
 **
 ** ^The sqlite3_get_auxdata() interface returns a pointer to the metadata
 ** associated by the sqlite3_set_auxdata() function with the Nth argument
-** value to the application-defined function. ^If there is no metadata
-** associated with the function argument, this sqlite3_get_auxdata() interface
-** returns a NULL pointer.
+** value to the application-defined function. ^If no metadata has been ever
+** been set for the Nth argument of the function, or if the corresponding
+** function parameter has changed since the meta-data was set,
+** then sqlite3_get_auxdata() returns a NULL pointer.
 **
 ** ^The sqlite3_set_auxdata(C,N,P,X) interface saves P as metadata for the N-th
 ** argument of the application-defined function.  ^Subsequent
 ** calls to sqlite3_get_auxdata(C,N) return P from the most recent
-** sqlite3_set_auxdata(C,N,P,X) call if the metadata is still valid or
-** NULL if the metadata has been discarded.
-** ^After each call to sqlite3_set_auxdata(C,N,P,X) where X is not NULL,
-** SQLite will invoke the destructor function X with parameter P exactly
-** once, when the metadata is discarded.
-** SQLite is free to discard the metadata at any time, including: <ul>
-** <li> when the corresponding function parameter changes, or
-** <li> when [sqlite3_reset()] or [sqlite3_finalize()] is called for the
-**      SQL statement, or
-** <li> when sqlite3_set_auxdata() is invoked again on the same parameter, or
-** <li> during the original sqlite3_set_auxdata() call when a memory 
-**      allocation error occurs. </ul>)^
+** sqlite3_set_auxdata(C,N,P,X) call if the data has not been dropped, or
+** NULL if the data has been dropped.
+** ^(If it is not NULL, SQLite will invoke the destructor
+** function X passed to sqlite3_set_auxdata(C,N,P,X) when <ul>
+** <li> the corresponding function parameter changes,
+** <li> [sqlite3_reset()] or [sqlite3_finalize()] is called for the
+**      SQL statement,
+** <li> sqlite3_set_auxdata() is invoked again on the same parameter, or
+** <li> a memory allocation error occurs. </ul>)^
 **
-** Note the last bullet in particular.  The destructor X in 
-** sqlite3_set_auxdata(C,N,P,X) might be called immediately, before the
-** sqlite3_set_auxdata() interface even returns.  Hence sqlite3_set_auxdata()
+** SQLite is free to call the destructor and drop metadata on any
+** parameter of any function at any time.  ^The only guarantee is that
+** the destructor will be called when the [prepared statement] is destroyed.
+** Note in particular that the destructor X in the call to
+** sqlite3_set_auxdata(C,N,P,X) might be called immediately, before
+** the sqlite3_set_auxdata() call even returns.  Hence sqlite3_set_auxdata()
 ** should be called near the end of the function implementation and the
-** function implementation should not make any use of P after
-** sqlite3_set_auxdata() has been called.
+** implementation should not make any use of P after sqlite3_set_auxdata()
+** has been called.
 **
 ** ^(In practice, metadata is preserved between function calls for
 ** function parameters that are compile-time constants, including literal
