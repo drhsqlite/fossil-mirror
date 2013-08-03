@@ -1181,7 +1181,13 @@ void page_test_env(void){
   @ capabilities = %s(zCap)<br />
   @ <hr>
   P("HTTP_USER_AGENT");
-  cgi_print_all(atoi(PD("showall","0")));
+  cgi_print_all(showAll);
+  if( showAll ){
+    @ <hr>
+    @ <pre>
+    @ %h(blob_str(&g.httpHeader))
+    @ </pre>
+  }
   if( g.perm.Setup ){
     const char *zRedir = P("redirect");
     if( zRedir ) cgi_redirect(zRedir);

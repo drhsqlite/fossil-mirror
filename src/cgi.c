@@ -1187,6 +1187,8 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request();
   }
+  blob_zero(&g.httpHeader);
+  blob_append(&g.httpHeader, zLine, -1);
   cgi_trace(zLine);
   zToken = extract_token(zLine, &z);
   if( zToken==0 ){
@@ -1225,6 +1227,7 @@ void cgi_handle_http_request(const char *zIpAddr){
     char *zVal;
 
     cgi_trace(zLine);
+    blob_append(&g.httpHeader, zLine, -1);
     zFieldName = extract_token(zLine,&zVal);
     if( zFieldName==0 || *zFieldName==0 ) break;
     while( fossil_isspace(*zVal) ){ zVal++; }

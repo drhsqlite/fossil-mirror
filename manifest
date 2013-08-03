@@ -1,5 +1,5 @@
-C Accept\sthe\sX-Forwarded-For\sHTTP\sheader\sargument\sif\sinput\sis\scoming\sfrom\na\ssocket\swith\sa\sremote\saddress\sof\s"127.0.0.1".
-D 2013-08-03T22:42:02.232
+C Enhance\sthe\stest_env\swebpage\sso\sthat\sit\sshows\sthe\soriginal\sHTTP\sheader\stext\nin\sshowall=1\smode.
+D 2013-08-03T23:19:10.446
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -313,7 +313,7 @@ F src/blob.c b648d6a6793c08c507634cf0145b8915806ee56f
 F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 4f11469038984f7e0e886fbae8e44f72b294f6b4
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
-F src/cgi.c b79d037a9a8501958a9cada12eed519fbbb287fe
+F src/cgi.c 2648c50a12c4761304294035ae124dfea6f31ddc
 F src/checkin.c 770bdc0bc0647650f1c9b59d229964082c4d61f1
 F src/checkout.c f55c4fcce7c79370b9413b99644c50e056fb7c79
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -364,7 +364,7 @@ F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 1e932b06a9ed604b53c4b5c3a16327d1ae649192
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c f131dbeaa6aa853757ff6b1920c7f09cc4a8364a
+F src/main.c 9c23e46bf283dfee661f226dca5bf23882965bbb
 F src/main.mk 02a81e04ae23ef5f72a010b219ad3f1b4bd3ea7a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -400,7 +400,7 @@ F src/sqlite3.c ffcebfe4833c33ebf01792a564ff564244e3b1af
 F src/sqlite3.h 3362ffb604a4828d36b166ffcc1822cd1369cd91
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 0cd57adbb99c53b894b3751c429b0f814222acf1
-F src/style.c ea59296f4e52f319559407fd60afde39d12374d2
+F src/style.c a90974e94f0c993e6eb26c7d9a41899d3c7a5a35
 F src/sync.c 2afef7f828cdc0cec2075969585bec457699afc3
 F src/tag.c e559f8284f91556a28035efab1caa20b2864c8f6
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cac2d69546c5dd17ba37662faad931818813c5c6
-R 50c0639019554ab9ea7417bee6bf6dcb
+P 29b558a1c10f6c627548f30bac8becd5ebfff331
+R b04410187747a54e6a6fe5cf347c3ee2
 U drh
-Z b029fc63d5c5f7c497b715cb829615b4
+Z cf974145e4023f14babe43a9f65576e0

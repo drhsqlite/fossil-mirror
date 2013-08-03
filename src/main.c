@@ -161,6 +161,7 @@ struct Global {
   int wikiFlags;          /* Wiki conversion flags applied to %w and %W */
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
+  Blob httpHeader;        /* Complete text of the HTTP request header */
 
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */
