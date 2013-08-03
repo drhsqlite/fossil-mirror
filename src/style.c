@@ -1182,7 +1182,7 @@ void page_test_env(void){
   @ <hr>
   P("HTTP_USER_AGENT");
   cgi_print_all(showAll);
-  if( showAll ){
+  if( showAll && blob_size(&g.httpHeader)>0 ){
     @ <hr>
     @ <pre>
     @ %h(blob_str(&g.httpHeader))

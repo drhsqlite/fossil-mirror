@@ -532,6 +532,7 @@ int main(int argc, char **argv)
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);
+  g.httpHeader = empty_blob;
 #ifdef FOSSIL_ENABLE_JSON
 #if defined(NDEBUG)
   g.json.errorDetailParanoia = 2 /* FIXME: make configurable
