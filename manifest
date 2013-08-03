@@ -1,5 +1,5 @@
-C Added\s?#-n|--limit\s#?\soption\sto\s(fossil\stag\sfind).
-D 2013-08-03T16:22:54.045
+C Added\smissing\sU\scard\sfrom\sthe\sinitial\sdescription\sof\sControl\sArtifact\srequirements.
+D 2013-08-03T17:11:54.422
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -584,7 +584,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
 F www/faq.tcl b9e03410240fcc3907848877a452f2883cda7e86
 F www/faq.wiki 281b387c178fd439a4d2f47856434dd2e54f566f
-F www/fileformat.wiki 552b13ef010bd38bfd061199542eed1d5df5bf15
+F www/fileformat.wiki 5153d93a756e92f32004ff6418676fe70d26114e
 F www/fiveminutes.wiki f83379e169ba6f17066f2988ad3a4bbf27984748
 F www/foss-cklist.wiki 881f1c5f69f1880c756152cff7a6f9c78ce72d4f
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f25bdf6e84498da6743024a18e1ab4ed0fcc4205
-R 9e4400ff874d3d451181fb2e53e2b4a6
+P 73135ec22aa14325ac66815567c5540799258dc5
+R 3c35dccbab98f2c1a0bdc50dfe68291f
 U stephan
-Z 2a91f9d0c55c4d030b5cae5e0bd9a607
+Z 70ad5f868b05f79d7c7aad8e0f836e51
