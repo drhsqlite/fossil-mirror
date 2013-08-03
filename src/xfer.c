@@ -1467,7 +1467,18 @@ int client_sync(
     blob_appendf(&send, "# %s\n", zRandomness);
     free(zRandomness);
 
+    if( syncFlags & SYNC_VERBOSE ){
+      fossil_print("waiting for server...");
+    }
+    fflush(stdout);
     /* Exchange messages with the server */
+    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0,
+        MAX_REDIRECTS) ){
+      nErr++;
+      break;
+    }
+
+    /* Output current stats */
     if( syncFlags & SYNC_VERBOSE ){
       fossil_print(zValueFormat, "Sent:",
                    blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
@@ -1483,15 +1494,7 @@ int client_sync(
     xfer.nDeltaSent = 0;
     xfer.nGimmeSent = 0;
     xfer.nIGotSent = 0;
-    if( syncFlags & SYNC_VERBOSE ){
-      fossil_print("waiting for server...");
-    }
-    fflush(stdout);
-    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0,
-        MAX_REDIRECTS) ){
-      nErr++;
-      break;
-    }
+
     lastPctDone = -1;
     blob_reset(&send);
     rArrivalTime = db_double(0.0, "SELECT julianday('now')");
