@@ -1134,6 +1134,16 @@ NORETURN void cgi_panic(const char *zFormat, ...){
   }
 }
 
+/* z[] is the value of an X-FORWARDED-FOR: line in an HTTP header.
+** Return true if we should accept this value as a real IP address.
+** Return false to stick with the IP address previously computed and
+** loaded into g.zIpAddr.
+*/
+static int cgi_accept_forwarded_for(const char *z){
+  if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 ) return 1;
+  return 0;
+}
+
 /*
 ** Remove the first space-delimited token from a string and return
 ** a pointer to it.  Add a NULL to the string to terminate the token.
@@ -1244,6 +1254,11 @@ void cgi_handle_http_request(const char *zIpAddr){
 #endif
     }else if( fossil_strcmp(zFieldName,"user-agent:")==0 ){
       cgi_setenv("HTTP_USER_AGENT", zVal);
+    }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
+      if( cgi_accept_forwarded_for(zVal) ){
+        g.zIpAddr = mprintf("%s", zVal);
+        cgi_replace_parameter("REMOTE_ADDR", g.zIpAddr);
+      }
     }
   }
   cgi_init();
