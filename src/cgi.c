@@ -1187,7 +1187,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request();
   }
-  blob_zero(&g.httpHeader);
+  g.httpHeader = empty_blob;
   blob_append(&g.httpHeader, zLine, -1);
   cgi_trace(zLine);
   zToken = extract_token(zLine, &z);

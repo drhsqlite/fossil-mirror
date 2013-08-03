@@ -1,5 +1,5 @@
-C Enhance\sthe\stest_env\swebpage\sso\sthat\sit\sshows\sthe\soriginal\sHTTP\sheader\stext\nin\sshowall=1\smode.
-D 2013-08-03T23:19:10.446
+C Fix\san\sinitialization\serror\sin\sthe\sHTTP\srequest\sheader\sgathering\slogic.
+D 2013-08-03T23:27:52.355
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -313,7 +313,7 @@ F src/blob.c b648d6a6793c08c507634cf0145b8915806ee56f
 F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 4f11469038984f7e0e886fbae8e44f72b294f6b4
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
-F src/cgi.c 2648c50a12c4761304294035ae124dfea6f31ddc
+F src/cgi.c 0f509dec4a06d39ee70c2fe6cdd4ed66bd011e39
 F src/checkin.c 770bdc0bc0647650f1c9b59d229964082c4d61f1
 F src/checkout.c f55c4fcce7c79370b9413b99644c50e056fb7c79
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 29b558a1c10f6c627548f30bac8becd5ebfff331
-R b04410187747a54e6a6fe5cf347c3ee2
+P 03f07b5a664bcba4e76a1d06411d76e129413242
+R 98f168f9c047d28c1ae3bbf58725c029
 U drh
-Z cf974145e4023f14babe43a9f65576e0
+Z 08dc2fa8702780a818c3237781f7d59d
