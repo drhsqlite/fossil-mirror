@@ -1876,7 +1876,7 @@ static void stats_report_output_week_links(const char * zTimeframe){
 }
 
 /*
-** Implements the "byyear" and "bymonth" reports for /stats_report.
+** Implements the "byyear" and "bymonth" reports for /reports.
 ** If includeMonth is true then it generates the "bymonth" report,
 ** else the "byyear" report. If zUserName is not NULL and not empty
 ** then the report is restricted to events created by the named user
@@ -2030,7 +2030,7 @@ static void stats_report_by_month_year(char includeMonth,
 }
 
 /*
-** Implements the "byuser" view for /stats_report.
+** Implements the "byuser" view for /reports.
 */
 static void stats_report_by_user(){
   Stmt query = empty_Stmt;
@@ -2211,7 +2211,6 @@ static void stats_report_year_weeks(const char * zUserName){
 }
 
 /*
-** WEBPAGE: stats_report
 ** WEBPAGE: reports
 **
 ** Shows activity reports for the repository.
