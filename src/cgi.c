@@ -1135,13 +1135,17 @@ NORETURN void cgi_panic(const char *zFormat, ...){
 }
 
 /* z[] is the value of an X-FORWARDED-FOR: line in an HTTP header.
-** Return true if we should accept this value as a real IP address.
-** Return false to stick with the IP address previously computed and
+** Return a pointer to a string containing the real IP address, or a
+** NULL pointer to stick with the IP address previously computed and
 ** loaded into g.zIpAddr.
 */
-static int cgi_accept_forwarded_for(const char *z){
-  if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 ) return 1;
-  return 0;
+static const char *cgi_accept_forwarded_for(const char *z){
+  int i;
+  if( fossil_strcmp(g.zIpAddr, "127.0.0.1")!=0 ) return 0;
+  
+  i = strlen(z)-1;
+  while( i>=0 && z[i]!=',' && !fossil_isspace(z[i]) ) i--;
+  return &z[++i];
 }
 
 /*
@@ -1257,8 +1261,9 @@ void cgi_handle_http_request(const char *zIpAddr){
     }else if( fossil_strcmp(zFieldName,"user-agent:")==0 ){
       cgi_setenv("HTTP_USER_AGENT", zVal);
     }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
-      if( cgi_accept_forwarded_for(zVal) ){
-        g.zIpAddr = mprintf("%s", zVal);
+      const char *zIpAddr = cgi_accept_forwarded_for(zVal);
+      if( zIpAddr!=0 ){
+        g.zIpAddr = mprintf("%s", zIpAddr);
         cgi_replace_parameter("REMOTE_ADDR", g.zIpAddr);
       }
     }
