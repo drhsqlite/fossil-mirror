@@ -134,6 +134,7 @@ void shun_page(void){
   @ </div></form>
   @ </blockquote>
   @
+  @ <a name="delshun"></a>
   @ <p>Enter the UUID of a previous shunned artifact to cause it to be
   @ accepted again in the repository.  The artifact content is not
   @ restored because the content is unknown.  The only change is that
@@ -142,7 +143,8 @@ void shun_page(void){
   @
   @ <blockquote>
   @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
-  @ <input type="text" name="uuid" size="50" />
+  login_insert_csrf_secret();
+  @ <input type="text" name="uuid" value="%h(PD("accept", ""))" size="50" />
   @ <input type="submit" name="sub" value="Accept" />
   @ </div></form>
   @ </blockquote>
