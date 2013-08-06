@@ -147,7 +147,7 @@ int save_password_prompt(){
 ** Prompt for Fossil user password
 */
 char *prompt_for_user_password(const char *zUser){
-  char *zPrompt = mprintf("\rpassword for %s: ", zUser);
+  char *zPrompt = mprintf("\rPassword for Fossil user %s: ", zUser);
   char *zPw;
   Blob x;
   fossil_force_newline();
