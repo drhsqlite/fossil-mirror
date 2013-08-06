@@ -68,6 +68,7 @@ void shun_page(void){
   }
   style_header("Shunned Artifacts");
   if( zUuid && P("sub") ){
+    login_verify_csrf_secret();
     db_multi_exec("DELETE FROM shun WHERE uuid='%s'", zUuid);
     if( db_exists("SELECT 1 FROM blob WHERE uuid='%s'", zUuid) ){
       @ <p class="noMoreShun">Artifact 
