@@ -1,5 +1,5 @@
-C Add\sin\sa\smissing\sline\sfrom\sthe\sUnshun\sx-site\sfix\sof\s[cc9b04baaf].\n(Previously\schecked\sinto\sthe\swrong\sbranch.)
-D 2013-08-06T08:01:39.667
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.0\sbeta\sfrom\supstream.
+D 2013-08-06T08:11:42.674
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -396,8 +396,8 @@ F src/shell.c 51705eaccbd16c76cc4ec28ab2c2cb9ddef67c25
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
 F src/skins.c 850cb3518094003a6780e61fb0611b2598fe2cfb
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c 5bb42e697e9f7d0f1240487e9a42f1bc3ab0b631
-F src/sqlite3.h fa49881c7425a64e36a4754ae792159a38896f1d
+F src/sqlite3.c 438b01ac7c8d6e67bde312a8ac4dc2f123829487
+F src/sqlite3.h b74e0582e14cb43ad4d95aeeabcb70a716439ed5
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 0cd57adbb99c53b894b3751c429b0f814222acf1
 F src/style.c 540110bf4c9de3f6a14f87589a4fad35cd5fbd3c
@@ -629,8 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 605db929573dc714d15b55097f3d3f4718c0363b
-Q +1b5f9ac250ee81e62dd1e1bb744f889d3ac480d6
-R 2ca4558d1b0f31cacdbc1a67440ed8bd
+P 6ddbe2dfd8829fbf5e2bf627fe4a76e73fa76487
+R f357f4ac88d0089a12b4ca85f6232e22
 U drh
-Z b4868bc0666715cd4f6396bd1b441014
+Z 4563708099294916e17ef51b0e738a1d
