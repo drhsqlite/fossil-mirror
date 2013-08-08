@@ -199,58 +199,58 @@ void setup_ulist(void){
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
   @ <table>
-     @ <tr><td valign="top"><b>a</b></td>
+     @ <tr><th valign="top">a</th>
      @   <td><i>Admin:</i> Create and delete users</td></tr>
-     @ <tr><td valign="top"><b>b</b></td>
+     @ <tr><th valign="top">b</th>
      @   <td><i>Attach:</i> Add attachments to wiki or tickets</td></tr>
-     @ <tr><td valign="top"><b>c</b></td>
+     @ <tr><th valign="top">c</th>
      @   <td><i>Append-Tkt:</i> Append to tickets</td></tr>
-     @ <tr><td valign="top"><b>d</b></td>
+     @ <tr><th valign="top">d</th>
      @   <td><i>Delete:</i> Delete wiki and tickets</td></tr>
-     @ <tr><td valign="top"><b>e</b></td>
+     @ <tr><th valign="top">e</th>
      @   <td><i>Email:</i> View sensitive data such as EMail addresses</td></tr>
-     @ <tr><td valign="top"><b>f</b></td>
+     @ <tr><th valign="top">f</th>
      @   <td><i>New-Wiki:</i> Create new wiki pages</td></tr>
-     @ <tr><td valign="top"><b>g</b></td>
+     @ <tr><th valign="top">g</th>
      @   <td><i>Clone:</i> Clone the repository</td></tr>
-     @ <tr><td valign="top"><b>h</b></td>
+     @ <tr><th valign="top">h</th>
      @   <td><i>Hyperlinks:</i> Show hyperlinks to detailed
      @   repository history</td></tr>
-     @ <tr><td valign="top"><b>i</b></td>
+     @ <tr><th valign="top">i</th>
      @   <td><i>Check-In:</i> Commit new versions in the repository</td></tr>
-     @ <tr><td valign="top"><b>j</b></td>
+     @ <tr><th valign="top">j</th>
      @   <td><i>Read-Wiki:</i> View wiki pages</td></tr>
-     @ <tr><td valign="top"><b>k</b></td>
+     @ <tr><th valign="top">k</th>
      @   <td><i>Write-Wiki:</i> Edit wiki pages</td></tr>
-     @ <tr><td valign="top"><b>l</b></td>
+     @ <tr><th valign="top">l</th>
      @   <td><i>Mod-Wiki:</i> Moderator for wiki pages</td></tr>
-     @ <tr><td valign="top"><b>m</b></td>
+     @ <tr><th valign="top">m</th>
      @   <td><i>Append-Wiki:</i> Append to wiki pages</td></tr>
-     @ <tr><td valign="top"><b>n</b></td>
+     @ <tr><th valign="top">n</th>
      @   <td><i>New-Tkt:</i> Create new tickets</td></tr>
-     @ <tr><td valign="top"><b>o</b></td>
+     @ <tr><th valign="top">o</th>
      @   <td><i>Check-Out:</i> Check out versions</td></tr>
-     @ <tr><td valign="top"><b>p</b></td>
+     @ <tr><th valign="top">p</th>
      @   <td><i>Password:</i> Change your own password</td></tr>
-     @ <tr><td valign="top"><b>q</b></td>
+     @ <tr><th valign="top">q</th>
      @   <td><i>Mod-Tkt:</i> Moderator for tickets</td></tr>
-     @ <tr><td valign="top"><b>r</b></td>
+     @ <tr><th valign="top">r</th>
      @   <td><i>Read-Tkt:</i> View tickets</td></tr>
-     @ <tr><td valign="top"><b>s</b></td>
+     @ <tr><th valign="top">s</th>
      @   <td><i>Setup/Super-user:</i> Setup and configure this website</td></tr>
-     @ <tr><td valign="top"><b>t</b></td>
+     @ <tr><th valign="top">t</th>
      @   <td><i>Tkt-Report:</i> Create new bug summary reports</td></tr>
-     @ <tr><td valign="top"><b>u</b></td>
+     @ <tr><th valign="top">u</th>
      @   <td><i>Reader:</i> Inherit privileges of
      @   user <tt>reader</tt></td></tr>
-     @ <tr><td valign="top"><b>v</b></td>
+     @ <tr><th valign="top">v</th>
      @   <td><i>Developer:</i> Inherit privileges of
      @   user <tt>developer</tt></td></tr>
-     @ <tr><td valign="top"><b>w</b></td>
+     @ <tr><th valign="top">w</th>
      @   <td><i>Write-Tkt:</i> Edit tickets</td></tr>
-     @ <tr><td valign="top"><b>x</b></td>
+     @ <tr><th valign="top">x</th>
      @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
-     @ <tr><td valign="top"><b>z</b></td>
+     @ <tr><th valign="top">z</th>
      @   <td><i>Zip download:</i> Download a baseline via the
      @   <tt>/zip</tt> URL even without
      @    check<span class="capability">o</span>ut
@@ -1064,19 +1064,19 @@ void setup_login_group(void){
     login_insert_csrf_secret();
     @ <blockquote><table border="0">
     @
-    @ <tr><td align="right"><b>Repository filename in group to join:</b></td>
+    @ <tr><th align="right">Repository filename in group to join:</th>
     @ <td width="5"></td><td>
     @ <input type="text" size="50" value="%h(zRepo)" name="repo"></td></tr>
     @
-    @ <tr><td align="right"><b>Login on the above repo:</b></td>
+    @ <tr><th align="right">Login on the above repo:</th>
     @ <td width="5"></td><td>
     @ <input type="text" size="20" value="%h(zLogin)" name="login"></td></tr>
     @
-    @ <tr><td align="right"><b>Password:</b></td>
+    @ <tr><th align="right">Password:</th>
     @ <td width="5"></td><td>
     @ <input type="password" size="20" name="pw"></td></tr>
     @
-    @ <tr><td align="right"><b>Name of login-group:</b></td>
+    @ <tr><th align="right">Name of login-group:</th>
     @ <td width="5"></td><td>
     @ <input type="text" size="30" value="%h(zNewName)" name="newname">
     @ (only used if creating a new login-group).</td></tr>

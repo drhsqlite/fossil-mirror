@@ -714,6 +714,9 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   const char *zVfs;
   sqlite3 *db;
 
+#if defined(__CYGWIN__)
+  zDbName = fossil_utf8_to_filename(zDbName);
+#endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   zVfs = fossil_getenv("FOSSIL_VFS");
   rc = sqlite3_open_v2(
@@ -1022,9 +1025,13 @@ void db_open_repository(const char *zDbName){
       fossil_panic("not a valid repository: %s", zDbName);
     }
   }
-  db_open_or_attach(zDbName, "repository", 0);
-  g.repositoryOpen = 1;
+#if defined(__CYGWIN__)
+  g.zRepositoryName = fossil_utf8_to_filename(zDbName);
+#else
   g.zRepositoryName = mprintf("%s", zDbName);
+#endif
+  db_open_or_attach(g.zRepositoryName, "repository", 0);
+  g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
   g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
 }

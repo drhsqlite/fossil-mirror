@@ -334,3 +334,9 @@ Note that the stash, the undo stack, and the state of the bisect command
 are all contained within the checkout database.  That means that the
 fossil close command will delete all stash content, the undo stack, and
 the bisect state.  The close command is not undoable.  Use it with care.
+
+<h2>3.0 See Also</h2>
+
+  *  [./makefile.wiki | The Fossil Build Process]
+  *  [./contribute.wiki | How To Contribute Code To Fossil]
+  *  [./adding_code.wiki | Adding New Features To Fossil]
