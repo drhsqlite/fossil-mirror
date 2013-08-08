@@ -298,7 +298,7 @@ Allowed cards in a control artifact are as follows:
 <b>Z</b> <i>checksum</i><br />
 </blockquote>
 
-A control artifact must have one D card and one Z card and
+A control artifact must have one D card, one U card, one Z card and
 one or more T cards.  No other cards or other text is
 allowed in a control artifact.  Control artifacts might be PGP
 clearsigned.

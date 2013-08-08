@@ -659,6 +659,11 @@ const struct strctCssDefaults {
     @   vertical-align: top;
     @   text-align: left;
   },
+  { "tr.timelineCurrent td.timelineTableCell",
+    "the format for the timeline data cell of the current checkout",
+    @   padding: .1em .2em;
+    @   border: 1px dashed #446979;
+  },
   { "span.timelineLeaf",
     "the format for the timeline leaf marks",
     @   font-weight: bold;
@@ -1176,7 +1181,13 @@ void page_test_env(void){
   @ capabilities = %s(zCap)<br />
   @ <hr>
   P("HTTP_USER_AGENT");
-  cgi_print_all(atoi(PD("showall","0")));
+  cgi_print_all(showAll);
+  if( showAll && blob_size(&g.httpHeader)>0 ){
+    @ <hr>
+    @ <pre>
+    @ %h(blob_str(&g.httpHeader))
+    @ </pre>
+  }
   if( g.perm.Setup ){
     const char *zRedir = P("redirect");
     if( zRedir ) cgi_redirect(zRedir);

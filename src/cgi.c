@@ -1134,6 +1134,20 @@ NORETURN void cgi_panic(const char *zFormat, ...){
   }
 }
 
+/* z[] is the value of an X-FORWARDED-FOR: line in an HTTP header.
+** Return a pointer to a string containing the real IP address, or a
+** NULL pointer to stick with the IP address previously computed and
+** loaded into g.zIpAddr.
+*/
+static const char *cgi_accept_forwarded_for(const char *z){
+  int i;
+  if( fossil_strcmp(g.zIpAddr, "127.0.0.1")!=0 ) return 0;
+  
+  i = strlen(z)-1;
+  while( i>=0 && z[i]!=',' && !fossil_isspace(z[i]) ) i--;
+  return &z[++i];
+}
+
 /*
 ** Remove the first space-delimited token from a string and return
 ** a pointer to it.  Add a NULL to the string to terminate the token.
@@ -1177,6 +1191,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request();
   }
+  blob_append(&g.httpHeader, zLine, -1);
   cgi_trace(zLine);
   zToken = extract_token(zLine, &z);
   if( zToken==0 ){
@@ -1215,6 +1230,7 @@ void cgi_handle_http_request(const char *zIpAddr){
     char *zVal;
 
     cgi_trace(zLine);
+    blob_append(&g.httpHeader, zLine, -1);
     zFieldName = extract_token(zLine,&zVal);
     if( zFieldName==0 || *zFieldName==0 ) break;
     while( fossil_isspace(*zVal) ){ zVal++; }
@@ -1244,6 +1260,12 @@ void cgi_handle_http_request(const char *zIpAddr){
 #endif
     }else if( fossil_strcmp(zFieldName,"user-agent:")==0 ){
       cgi_setenv("HTTP_USER_AGENT", zVal);
+    }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
+      const char *zIpAddr = cgi_accept_forwarded_for(zVal);
+      if( zIpAddr!=0 ){
+        g.zIpAddr = mprintf("%s", zIpAddr);
+        cgi_replace_parameter("REMOTE_ADDR", g.zIpAddr);
+      }
     }
   }
   cgi_init();

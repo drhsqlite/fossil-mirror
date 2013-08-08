@@ -247,7 +247,11 @@ void www_print_timeline(
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
-
+  int vid = 0;                /* Current checkout version */
+  
+  if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
+    vid = db_lget_int("checkout", 0);
+  }
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   if( tmFlags & TIMELINE_GRAPH ){
@@ -320,7 +324,11 @@ void www_print_timeline(
     }
     memcpy(zTime, &zDate[11], 5);
     zTime[5] = 0;
-    @ <tr>
+    if( rid == vid ){
+      @ <tr class="timelineCurrent">
+    }else {
+      @ <tr>
+    }
     @ <td class="timelineTime">%s(zTime)</td>
     @ <td class="timelineGraph">
     if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
@@ -1868,7 +1876,7 @@ static void stats_report_output_week_links(const char * zTimeframe){
 }
 
 /*
-** Implements the "byyear" and "bymonth" reports for /stats_report.
+** Implements the "byyear" and "bymonth" reports for /reports.
 ** If includeMonth is true then it generates the "bymonth" report,
 ** else the "byyear" report. If zUserName is not NULL and not empty
 ** then the report is restricted to events created by the named user
@@ -2022,7 +2030,7 @@ static void stats_report_by_month_year(char includeMonth,
 }
 
 /*
-** Implements the "byuser" view for /stats_report.
+** Implements the "byuser" view for /reports.
 */
 static void stats_report_by_user(){
   Stmt query = empty_Stmt;
@@ -2067,7 +2075,7 @@ static void stats_report_by_user(){
     nEventTotal += nCount;
     @<tr class='row%d(rowClass)'>
     @ <td>
-    @ <a href="?view=bymonth&user=%h(zUser)" target="_new">%h(zUser)</a>
+    @ <a href="?view=bymonth&user=%h(zUser)">%h(zUser)</a>
     @ </td><td>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
@@ -2203,7 +2211,6 @@ static void stats_report_year_weeks(const char * zUserName){
 }
 
 /*
-** WEBPAGE: stats_report
 ** WEBPAGE: reports
 **
 ** Shows activity reports for the repository.
@@ -2218,7 +2225,7 @@ void stats_report_page(){
   const char * zView = P("view");    /* Which view/report to show. */
   const char *zUserName = P("user");
   if(!zUserName) zUserName = P("u");
-  url_initialize(&url, "stats_report");
+  url_initialize(&url, "reports");
 
   if(zUserName && *zUserName){
     url_add_parameter(&url,"user", zUserName);
