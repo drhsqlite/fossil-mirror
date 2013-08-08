@@ -1,5 +1,5 @@
-C Renamed\s/stats_report\sto\s/reports.
-D 2013-08-04T07:54:58.520
+C Fixed\s/reports\smenu\sbuttons\sbroken\sby\srenaming\sof\sthe\slink.\sRemoved\sa\starget=...\sfrom\sone\sof\sthe\s/reports\shrefs,\sfor\sconsistency.
+D 2013-08-08T08:42:04.531
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -409,7 +409,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 99f18a9aa48afd45edd12e9766d69a6da8ccdb83
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
-F src/timeline.c 31b2a0b284bcba36e747a823969ec326c3c08998
+F src/timeline.c 85cb80bc2cb1ffca3e768ae6d96e82d8208e4149
 F src/tkt.c c0002b066046bd287b7e05b25e7c08ee0b08f766
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 59f790bc52e3d9480029fef6467badd663ab3d26
-R 12b81600fe582203d06479a6aabd3fbb
+P 3bb44041f0d54ccc05be4c1eaecfd1e204fef6a8
+R 808fd507be1d80d14c65ca6170bdebe0
 U stephan
-Z 98806ffcb51ee6fe5ad8a34b8314d869
+Z 5aeb117a77e603287dfd7b650f0b1945
