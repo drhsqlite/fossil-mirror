@@ -20,6 +20,7 @@
 #include "config.h"
 #include "popen.h"
 #include <signal.h>
+#include <sys/wait.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -215,5 +216,6 @@ void pclose2(int fdIn, FILE *pOut, int childPid){
   close(fdIn);
   fclose(pOut);
   kill(childPid, SIGINT);
+  while( waitpid(0, 0, WNOHANG)>0 ) {}
 #endif
 }
