@@ -2075,7 +2075,7 @@ static void stats_report_by_user(){
     nEventTotal += nCount;
     @<tr class='row%d(rowClass)'>
     @ <td>
-    @ <a href="?view=bymonth&user=%h(zUser)" target="_new">%h(zUser)</a>
+    @ <a href="?view=bymonth&user=%h(zUser)">%h(zUser)</a>
     @ </td><td>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
@@ -2225,7 +2225,7 @@ void stats_report_page(){
   const char * zView = P("view");    /* Which view/report to show. */
   const char *zUserName = P("user");
   if(!zUserName) zUserName = P("u");
-  url_initialize(&url, "stats_report");
+  url_initialize(&url, "reports");
 
   if(zUserName && *zUserName){
     url_add_parameter(&url,"user", zUserName);
