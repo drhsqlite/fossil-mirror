@@ -29,7 +29,6 @@ static struct {
   int n;               /* Current number of cache entries */
   int nAlloc;          /* Number of slots allocated in a[] */
   int nextAge;         /* Age counter for implementing LRU */
-  int skipCnt;         /* Used to limit entries expelled from cache */
   struct cacheLine {   /* One instance of this for each cache entry */
     int rid;                  /* Artifact id */
     int age;                  /* Age.  Newer is larger */
