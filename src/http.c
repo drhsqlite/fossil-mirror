@@ -42,7 +42,8 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 
   zLogin = url_or_fossil_user();
   blob_zero(pLogin);
-  if( zLogin==0 || fossil_strcmp(g.urlUser, "anonymous")==0 ){
+  if( zLogin==0 || fossil_strcmp(g.urlUser, "anonymous")==0 ||
+      url_ssh_use_http()==0 ){
     return;  /* If no login card for users "nobody" and "anonymous" */
   }
   blob_zero(&nonce);

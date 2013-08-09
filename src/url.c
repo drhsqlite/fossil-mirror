@@ -414,7 +414,7 @@ char *url_render(
 ** in g.urlPasswd.
 */
 void url_prompt_for_password(void){
-  if( g.urlIsFile ) return;
+  if( g.urlIsFile || url_ssh_use_http()==0 ) return;
   if( isatty(fileno(stdin))
    && (g.urlFlags & URL_PROMPT_PW)!=0
    && (g.urlFlags & URL_PROMPTED)==0
@@ -435,6 +435,13 @@ void url_prompt_for_password(void){
     fossil_fatal("missing or incorrect password for user \"%s\"",
                  url_or_fossil_user() );
   }
+}
+
+/*
+** Return true if http mode is in use for "ssh://" URL.
+*/
+int url_ssh_use_http(void){
+  return g.urlIsSsh && ( db_get_boolean("ssh-use-http", 0) || g.fSshUseHttp );
 }
 
 /*

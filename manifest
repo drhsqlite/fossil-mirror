@@ -1,5 +1,5 @@
-C Avoid\szombies\son\sclient\sside\sby\swaiting\sfor\schildren.\s\sThis\scan\shappen\swhen\nthere\sare\sa\slarge\snumber\sof\schanges\sto\stransmit.
-D 2013-08-09T07:23:09.568
+C Reimplement\sthe\sdefault\stest-http\sbehavior\swhile\sretaining\sthe\sability\sto\suse\s\nhttp\sto\stake\sadvantage\sof\sFossil\scapabilities\swith\sSSH\sURLs.
+D 2013-08-09T07:29:19.625
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -317,14 +317,14 @@ F src/cgi.c f757f1dc5a4403f294c1ce7284d7e0252d3d1fcc
 F src/checkin.c 770bdc0bc0647650f1c9b59d229964082c4d61f1
 F src/checkout.c f55c4fcce7c79370b9413b99644c50e056fb7c79
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c f40f21a19d211ee827a3cc4efe76c51dfbb4c80c
+F src/clone.c 3095db5841c87b60a90c54a9146bbb8f446098d1
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c d9192353fbb8d656ef1a927a5c0b75beaa4f9e8a
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 010f2b38513f5971336149937e9363caba429a11
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
-F src/db.c f245faeb23942c6065b348a262d9a0684cdc9d52
+F src/db.c 757b83731223f0544fa1172437ac00fc7b7bb5fb
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
@@ -339,10 +339,10 @@ F src/finfo.c 58ec249430dd60eba33470f91a45d7cf1a409684
 F src/glob.c 66cd71e83a07fe617fb862d6237d283430d91d14
 F src/graph.c d2f9ba3faa6cc3b9cbf085b1faa8bc942cc75cf0
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
-F src/http.c d662fa40ad8eeae7ea837d0c9928f1c39b6464f9
+F src/http.c 1bfee819513d0f787afc715e8066977ecf0e0c25
 F src/http_socket.c f4b1e573915c33aa02f85b9ee33748efac91f894
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
-F src/http_transport.c 6945f12ae41564bda799a39ac04da74d5ce34e26
+F src/http_transport.c 6945c4883fc5880f2c449cf99ccd2ac3867837a0
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
 F src/info.c bacf28dfbd9774bb1051ed160780bc17fb99cfc6
 F src/json.c c1205a3d3007872aca50492384e107715953c616
@@ -364,7 +364,7 @@ F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 3655fc9aee22c9af15b07d0bfd9c7380e15825ab
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c a52533a19e1e90ccab5147d82961b51b7e5c631d
+F src/main.c 3afe82df039397fc7215b2e41b564e47bdc83943
 F src/main.mk 02a81e04ae23ef5f72a010b219ad3f1b4bd3ea7a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -416,7 +416,7 @@ F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 02092a24d2a0704eeb5a548ce6c070d4392175f9
 F src/update.c cb54091f53b854d3649c4ac7f1f6dc5010e1f7d9
-F src/url.c 7ced704cfa2dc5af854600681851d4181134c0ee
+F src/url.c 638ac83c2dc46bf401d10d1aede453232e8ddd23
 F src/user.c 782801401fa1f419382bd70efec5a8451bef0ce3
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
 F src/util.c d31f9b92152fade029a8177de4e5a996a071e170
@@ -629,7 +629,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ebafd0c335da492d64e7e4a7088b8d3166849d4a
-R 037c27fb20f32bd4becc80a93bb2bb73
+P 308f52a63acf8e1eb74887f0b301d638cb608a2d
+R 6e7785f5b98fff13405d045cd6c8e69e
+T *branch * ssh-test-http
+T *sym-ssh-test-http *
+T -sym-ssh-shared-account *
 U andybradford
-Z 352f3795d540fe5b5656b05afa7a3a42
+Z acb8281c0d55cdf8eaed9c6be56686cb
