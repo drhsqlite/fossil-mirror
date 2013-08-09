@@ -1,5 +1,5 @@
-C Merge\sthe\sfork\sin\strunk.
-D 2013-08-08T14:00:07.032
+C Fix\sincorrect\swrapping\sof\sbrief\sfinfo\soutput\sby\ssimply\sreducing\sthe\ssize\sof\sthe\sbuffer\spassed\sto\scomment_print().
+D 2013-08-09T01:09:07.736
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -335,7 +335,7 @@ F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
 F src/event.c db3ce586deac1c91fe99a334eb0dddc5f512d999
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
 F src/file.c 252d00117d3042556c78243cd7e8525b99f4c57f
-F src/finfo.c 58ec249430dd60eba33470f91a45d7cf1a409684
+F src/finfo.c 22d9035d4650c64937d42377c6af4ca1ce8dcba1
 F src/glob.c 66cd71e83a07fe617fb862d6237d283430d91d14
 F src/graph.c d2f9ba3faa6cc3b9cbf085b1faa8bc942cc75cf0
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
@@ -629,7 +629,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b1ffbfa4bc626d90bf78d8893dee0f45c5b87226 00630581c42a6fce4229f13148c6f416f8074ec3
-R e2c0d2324f5b4198bd1164a271bec46e
-U drh
-Z 812eecfd0e26c72d72d2a3f202bb1a4e
+P 0e822db7f125e1ec35353346263a5606976c863f
+R 6ee9984fcedc656137c501e43c120d8c
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U andybradford
+Z f245bb46ef4624d9c73ff46a0e63d177

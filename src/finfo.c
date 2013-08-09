@@ -198,7 +198,7 @@ void finfo_cmd(void){
         blob_appendf(&line, "%.10s ", zDate);
         blob_appendf(&line, "%8.8s ", zUser);
         blob_appendf(&line, "%8.8s ", zBr);
-        blob_appendf(&line,"%-40.40s\n", zCom );
+        blob_appendf(&line,"%-39.39s", zCom );
         comment_print(blob_str(&line), 0, 79);
       }
     }
