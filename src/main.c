@@ -136,7 +136,7 @@ struct Global {
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
-  int fSshUseHttp;        /* Use http or test-http mode for SSH */
+  char *zSshUseHttp;      /* Use http or test-http mode for SSH */
   char *zSshFossilCmd;    /* Path to remoe fossil command for SSH */
   char *zSshCmd;          /* SSH command string */
   char *zFossilUser;      /* Fossil user if different from URL user */
@@ -584,7 +584,7 @@ int main(int argc, char **argv)
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
     g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;
     g.fSshTrace = find_option("sshtrace", 0, 0)!=0;
-    g.fSshUseHttp = 0;
+    g.zSshUseHttp = 0;
     g.zSshFossilCmd = 0;
     g.zSshCmd = 0;
     g.zFossilUser = 0;

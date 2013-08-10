@@ -98,7 +98,7 @@ void delete_private_content(void){
 **    --ssh-fossil|-f /fossil    Use this path as remote fossil command
 **    --ssh-command|-c 'command' Use this SSH command
 **    --ssh-fossil-user|-l user  Fossil user to use for SSH if different.
-**    --ssh-use-http|-h          Enable http instead of test-http
+**    --ssh-use-http|-h on/off   Enable http instead of test-http. Default: off
 **
 ** See also: init
 */
@@ -190,6 +190,7 @@ void clone_ssh_find_options(void){
   const char *zSshFossilCmd;  /* Path to remote fossil command for SSH */
   const char *zSshCmd;        /* SSH command string */
   const char *zFossilUser;    /* Fossil user if login specified for SSH */
+  const char *zSshUseHttp;    /* Use http or test-http mode for SSH */
 
   zSshFossilCmd = find_option("ssh-fossil","f",1);
   if( zSshFossilCmd && zSshFossilCmd[0] ){
@@ -203,7 +204,10 @@ void clone_ssh_find_options(void){
   if( zFossilUser && zFossilUser[0] ){
     g.zFossilUser = mprintf("%s", zFossilUser);
   }
-  g.fSshUseHttp = find_option("ssh-use-http","h",0)!=0;
+  zSshUseHttp = find_option("ssh-use-http","h",1);
+  if( zSshUseHttp && zSshUseHttp[0] ){
+    g.zSshUseHttp = mprintf("%s", zSshUseHttp);
+  }
 }
 
 /*
@@ -220,7 +224,7 @@ void clone_ssh_db_set_options(void){
   if( g.zFossilUser && g.zFossilUser[0] ){
     db_set("ssh-fossil-user", g.zFossilUser, 0);
   }
-  if( g.fSshUseHttp ){
-    db_set_int("ssh-use-http", 1, 0);
+  if( g.zSshUseHttp && g.zSshUseHttp[0] ){
+    db_set_int("ssh-use-http", is_truth(g.zSshUseHttp), 0);
   }
 }

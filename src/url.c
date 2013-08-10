@@ -414,7 +414,7 @@ char *url_render(
 ** in g.urlPasswd.
 */
 void url_prompt_for_password(void){
-  if( g.urlIsFile || ( g.urlIsSsh && url_ssh_use_http()==0 ) ) return;
+  if( g.urlIsFile || ( g.urlIsSsh && ! url_ssh_use_http() ) ) return;
   if( isatty(fileno(stdin))
    && (g.urlFlags & URL_PROMPT_PW)!=0
    && (g.urlFlags & URL_PROMPTED)==0
@@ -441,7 +441,8 @@ void url_prompt_for_password(void){
 ** Return true if http mode is in use for "ssh://" URL.
 */
 int url_ssh_use_http(void){
-  return db_get_boolean("ssh-use-http", 0) || g.fSshUseHttp;
+  return ( g.zSshUseHttp && g.zSshUseHttp[0] ) ? is_truth(g.zSshUseHttp) :
+    db_get_boolean("ssh-use-http", 0);
 }
 
 /*
@@ -459,7 +460,8 @@ void url_remember(void){
 ** URL but no password.
 */
 void url_get_password_if_needed(void){
-  if( (g.urlUser && g.urlUser[0])
+  const char *zFossilUser = url_or_fossil_user();
+  if( ( zFossilUser && zFossilUser[0] )
    && (g.urlPasswd==0 || g.urlPasswd[0]==0)
    && isatty(fileno(stdin)) 
   ){
