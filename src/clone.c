@@ -160,8 +160,8 @@ void clone_cmd(void){
       " VALUES('server-code', lower(hex(randomblob(20))), now());"
     );
     url_enable_proxy(0);
-    url_get_password_if_needed();
     clone_ssh_db_set_options();
+    url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
     nErr = client_sync(SYNC_CLONE | bPrivate,CONFIGSET_ALL,0);
     g.xlinkClusterOnly = 0;
@@ -215,16 +215,18 @@ void clone_ssh_find_options(void){
 ** options).
 */
 void clone_ssh_db_set_options(void){
-  if( g.zSshFossilCmd && g.zSshFossilCmd[0] ){
-    db_set("ssh-fossil", g.zSshFossilCmd, 0);
-  }
-  if( g.zSshCmd && g.zSshCmd[0] ){
-    db_set("ssh-command", g.zSshCmd, 0);
-  }
-  if( g.zFossilUser && g.zFossilUser[0] ){
-    db_set("ssh-fossil-user", g.zFossilUser, 0);
-  }
-  if( g.zSshUseHttp && g.zSshUseHttp[0] ){
-    db_set_int("ssh-use-http", is_truth(g.zSshUseHttp), 0);
+  if( g.urlIsSsh ){
+    if( g.zSshFossilCmd && g.zSshFossilCmd[0] ){
+      db_set("ssh-fossil", g.zSshFossilCmd, 0);
+    }
+    if( g.zSshCmd && g.zSshCmd[0] ){
+      db_set("ssh-command", g.zSshCmd, 0);
+    }
+    if( g.zFossilUser && g.zFossilUser[0] ){
+      db_set("ssh-fossil-user", g.zFossilUser, 0);
+    }
+    if( g.zSshUseHttp && g.zSshUseHttp[0] ){
+      db_set_int("ssh-use-http", is_truth(g.zSshUseHttp), 0);
+    }
   }
 }

@@ -162,14 +162,24 @@ char *prompt_for_user_password(const char *zUser){
 ** Return Fossil user if allocated and URL is SSH or URL user
 */
 const char *url_or_fossil_user(void){
-  return is_fossil_user() ? g.zFossilUser : g.urlUser;
+  return is_fossil_user() ? get_fossil_user() : g.urlUser;
+}
+
+/*
+** Return the Fossil user from global variable (set from command line
+** or ssh-fossil-user database setting.
+*/
+const char *get_fossil_user(void){
+  return ( g.zFossilUser && g.zFossilUser[0] ) ? g.zFossilUser :
+    db_get("ssh-fossil-user", 0);
 }
 
 /*
 ** Return true if URL is SSH and Fossil user is allocated
 */
 int is_fossil_user(void) {
-  return g.urlIsSsh && g.zFossilUser && g.zFossilUser[0];
+  return g.urlIsSsh && ( g.zFossilUser && g.zFossilUser[0] ||
+   db_get("ssh-fossil-user", 0)!=0 );
 }
 
 /*

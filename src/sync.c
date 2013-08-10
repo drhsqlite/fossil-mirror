@@ -72,7 +72,7 @@ int autosync(int flags){
 #endif
   if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
   is_fossil_user() && url_ssh_use_http() ?
-    fossil_print("Autosync: (%s) %s\n", g.zFossilUser, g.urlCanonical) :
+    fossil_print("Autosync: (%s) %s\n", get_fossil_user(), g.urlCanonical) :
     fossil_print("Autosync:  %s\n", g.urlCanonical);
   url_enable_proxy("via proxy: ");
   rc = client_sync(flags, configSync, 0);
@@ -129,15 +129,15 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   if( g.argc==2 ){
     if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
       is_fossil_user() && url_ssh_use_http() ? 
-        fossil_print("Sync with (%s) %s\n", g.zFossilUser, g.urlCanonical) :
+        fossil_print("Sync with (%s) %s\n",get_fossil_user(),g.urlCanonical):
         fossil_print("Sync with %s\n", g.urlCanonical);
     }else if( (*pSyncFlags) & SYNC_PUSH ){
       is_fossil_user() && url_ssh_use_http() ? 
-        fossil_print("Push to (%s) %s\n", g.zFossilUser, g.urlCanonical) :
+        fossil_print("Push to (%s) %s\n", get_fossil_user(), g.urlCanonical):
         fossil_print("Push to %s\n", g.urlCanonical);
     }else if( (*pSyncFlags) & SYNC_PULL ){
       is_fossil_user() && url_ssh_use_http() ? 
-        fossil_print("Pull from (%s) %s\n", g.zFossilUser, g.urlCanonical) :
+        fossil_print("Pull from (%s) %s\n",get_fossil_user(),g.urlCanonical):
         fossil_print("Pull from %s\n", g.urlCanonical);
     }
   }

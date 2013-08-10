@@ -79,7 +79,6 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
     zUrl = db_get("last-sync-url", 0);
     if( zUrl==0 ) return;
     g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
-    g.zFossilUser = db_get("ssh-fossil-user", 0);
     bSetUrl = 0;
   }
 
@@ -190,9 +189,6 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
     fossil_fatal("unknown repository: %s", zUrl);
   }
   g.urlFlags = urlFlags;
-  if( g.urlIsSsh && g.zFossilUser==0 ){
-    g.zFossilUser = db_get("ssh-fossil-user", 0);
-  }
   if( g.urlIsFile ){
     Blob cfile;
     dehttpize(zFile);  
