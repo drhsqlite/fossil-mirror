@@ -618,7 +618,7 @@ means the card is not legal for that artifact type.
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<td align=center><b>R?</b></td>
+<td align=center><b>R</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 </tr>
