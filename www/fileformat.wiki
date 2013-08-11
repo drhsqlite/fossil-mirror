@@ -704,7 +704,7 @@ means the card is not legal for that artifact type.
 </tr>
 <tr>
 <td><b>U</b> <i>username</i></td>
-<td align=center><b>R?</b></td>
+<td align=center><b>R</b></td>
 <td align=center>&nbsp;</td>
 <td align=center><b>R</b></td>
 <td align=center><b>R</b></td>

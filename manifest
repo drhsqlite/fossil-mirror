@@ -1,5 +1,5 @@
-C Expanded\sthe\scontrol\sartifact/card\ssummary\stable\sto\sdistinguish\sbetween\soptional\sand\srequired\scards.
-D 2013-08-11T13:53:00.930
+C Fixed\sthe\srequired\sdesignation\son\sthe\sU\scard\sin\sManifests.
+D 2013-08-11T13:55:59.083
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -584,7 +584,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
 F www/faq.tcl b9e03410240fcc3907848877a452f2883cda7e86
 F www/faq.wiki 281b387c178fd439a4d2f47856434dd2e54f566f
-F www/fileformat.wiki df9004897e84653a64fc420e936f950409bb3f32
+F www/fileformat.wiki 6226819166b803c3db94676085a0bb7a132c3f7e
 F www/fiveminutes.wiki f83379e169ba6f17066f2988ad3a4bbf27984748
 F www/foss-cklist.wiki 881f1c5f69f1880c756152cff7a6f9c78ce72d4f
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 30f44eb2e466ffbae6bd913a81ad15bc33ec5402
-R 9c4be3f83f07de92745ab1816272a5bf
+P e946977e0ea596c2a7950df1072e74c8ca81b7c8
+R 130607087b036a8bdc487d5e315ab1bc
 U stephan
-Z 8daddfcd55b098dca3356467993b007f
+Z 6e224312934c981f742abf486e40fc22
