@@ -1,5 +1,5 @@
-C Removed\san\sunused\sstruct\smember\scontentCache::skipCnt.
-D 2013-08-09T18:35:47.520
+C Removed\sa\sduplicated\sassert().
+D 2013-08-11T13:52:10.688
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -321,7 +321,7 @@ F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c d9192353fbb8d656ef1a927a5c0b75beaa4f9e8a
-F src/content.c 971b89eff548d6efcd57b6291626de252537c1fd
+F src/content.c ee6dc35f547ed1f392b7f13fa45312cd763479c8
 F src/cson_amalgamation.c 010f2b38513f5971336149937e9363caba429a11
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/db.c 0adc1aa79c24d8bc88b32e2ef7a8f29d32619d79
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0e822db7f125e1ec35353346263a5606976c863f
-R cbee9618cf1d081db098b1622da9c550
+P 65f49c99d0cd492fdfaffdda23b6f4536315f645
+R 8984799d402036199440db95b9d563bb
 U stephan
-Z 9d735af096b995eb3505aa71ced4f5e0
+Z 1a6ebe8bd0e1f8b7a7295a9735f04b0f

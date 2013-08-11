@@ -493,7 +493,6 @@ int content_put_ex(
   assert( pBlob!=0 );
   assert( srcId==0 || zUuid!=0 );
   if( zUuid==0 ){
-    assert( pBlob!=0 );
     assert( nBlob==0 );
     sha1sum_blob(pBlob, &hash);
   }else{
