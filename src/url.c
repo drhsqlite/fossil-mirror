@@ -79,6 +79,14 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
     zUrl = db_get("last-sync-url", 0);
     if( zUrl==0 ) return;
     g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
+    if( g.zFossilUser==0 ){
+      g.zFossilUser = db_get("ssh-fossil-user", 0);
+    }else{
+      if( g.urlPasswd ) {
+        free(g.urlPasswd);
+        g.urlPasswd = 0;
+      }
+    }
     bSetUrl = 0;
   }
 
@@ -437,8 +445,7 @@ void url_prompt_for_password(void){
 ** Return true if http mode is in use for "ssh://" URL.
 */
 int url_ssh_use_http(void){
-  return ( g.zSshUseHttp && g.zSshUseHttp[0] ) ? is_truth(g.zSshUseHttp) :
-    db_get_boolean("ssh-use-http", 0);
+  return get_fossil_user()!=0;
 }
 
 /*

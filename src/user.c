@@ -166,7 +166,7 @@ const char *url_or_fossil_user(void){
 }
 
 /*
-** Return the Fossil user from global variable (set from command line
+** Return the Fossil user from global variable (set from command line)
 ** or ssh-fossil-user database setting.
 */
 const char *get_fossil_user(void){

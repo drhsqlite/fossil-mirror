@@ -138,7 +138,7 @@ int transport_ssh_open(void){
   shell_escape(&zCmd, zHost);
   blob_append(&zCmd, " ", 1);
   shell_escape(&zCmd, mprintf("%s", zSshFossilCmd));
-  if( db_get_boolean("ssh-use-http", 0) ){
+  if( url_ssh_use_http() ){
     blob_append(&zCmd, " http", 5);
   }else{
     blob_append(&zCmd, " test-http", 10);

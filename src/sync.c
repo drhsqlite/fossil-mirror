@@ -71,7 +71,7 @@ int autosync(int flags){
   }
 #endif
   if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
-  is_fossil_user() && url_ssh_use_http() ?
+  is_fossil_user() ?
     fossil_print("Autosync: (%s) %s\n", get_fossil_user(), g.urlCanonical) :
     fossil_print("Autosync:  %s\n", g.urlCanonical);
   url_enable_proxy("via proxy: ");
@@ -116,6 +116,9 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
     if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
+    if( urlFlags & URL_REMEMBER ){
+      db_unset("ssh-fossil-user", 0);
+    }
   }
   if( urlFlags & URL_REMEMBER ){
     clone_ssh_db_set_options();
@@ -128,15 +131,15 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   user_select();
   if( g.argc==2 ){
     if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
-      is_fossil_user() && url_ssh_use_http() ? 
+      is_fossil_user() ? 
         fossil_print("Sync with (%s) %s\n",get_fossil_user(),g.urlCanonical):
         fossil_print("Sync with %s\n", g.urlCanonical);
     }else if( (*pSyncFlags) & SYNC_PUSH ){
-      is_fossil_user() && url_ssh_use_http() ? 
+      is_fossil_user() ? 
         fossil_print("Push to (%s) %s\n", get_fossil_user(), g.urlCanonical):
         fossil_print("Push to %s\n", g.urlCanonical);
     }else if( (*pSyncFlags) & SYNC_PULL ){
-      is_fossil_user() && url_ssh_use_http() ? 
+      is_fossil_user() ? 
         fossil_print("Pull from (%s) %s\n",get_fossil_user(),g.urlCanonical):
         fossil_print("Pull from %s\n", g.urlCanonical);
     }
@@ -269,6 +272,7 @@ void remote_url_cmd(void){
   if( g.argc==3 ){
     db_unset("last-sync-url", 0);
     db_unset("last-sync-pw", 0);
+    db_unset("ssh-fossil-user", 0);
     if( is_false(g.argv[2]) ) return;
     url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW);
   }
@@ -278,6 +282,8 @@ void remote_url_cmd(void){
     return;
   }else{
     url_parse(zUrl, 0);
-    fossil_print("%s\n", g.urlCanonical);
+    is_fossil_user() ?
+      fossil_print("(%s) %s\n", get_fossil_user(), g.urlCanonical) :
+      fossil_print("%s\n", g.urlCanonical);
   }
 }
