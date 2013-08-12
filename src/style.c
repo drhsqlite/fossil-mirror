@@ -1178,6 +1178,7 @@ void page_test_env(void){
   zCap[i] = 0;
   @ g.userUid = %d(g.userUid)<br />
   @ g.zLogin = %h(g.zLogin)<br />
+  @ g.isHuman = %d(g.isHuman)<br />
   @ capabilities = %s(zCap)<br />
   @ <hr>
   P("HTTP_USER_AGENT");

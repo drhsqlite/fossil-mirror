@@ -186,6 +186,7 @@ struct Global {
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
+  int isHuman;            /* True if access by a human, not a spider or bot */
 
   /* Information used to populate the RCVFROM table */
   int rcvid;              /* The rcvid.  0 if not yet defined. */
