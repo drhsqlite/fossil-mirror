@@ -93,10 +93,10 @@ internet these days. What makes Fossil worthy of attention?
       [./stats.wiki | bandwidth efficient] to the point that Fossil can be
       used comfortably over a dial-up internet connection.
 
-  6.  <b>CGI and SCGI Enabled</b> -
+  6.  <b>CGI/SCGI Enabled</b> -
       No server is required to use fossil.  But a
       server does make collaboration easier.  Fossil supports four different
-      yet simple [./quickstart.wiki#serversetup | server configurations].
+      yet simple [./server.wiki | server configurations].
       The most popular is a 2-line CGI script.  This is the approach
       used by the [./selfhost.wiki | self-hosting fossil repositories].
 
