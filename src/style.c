@@ -974,6 +974,7 @@ const struct strctCssDefaults {
   },
   { "table.sbsdiffcols",
     "side-by-side diff display (column-based)",
+    @   width: 90%;
     @   border-spacing: 0;
     @   font-size: xx-small;
   },

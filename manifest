@@ -1,5 +1,5 @@
-C Javascript-enabled\shyperlinks\snow\sinitially\spoint\sto\sa\shoneypot,\srather\sthan\nto\snothing.
-D 2013-08-12T12:50:42.251
+C Move\stable.sbsdiffcols\swidth\sattribute\sto\sCSS
+D 2013-08-13T02:23:15.637
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -328,7 +328,7 @@ F src/db.c 0adc1aa79c24d8bc88b32e2ef7a8f29d32619d79
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
-F src/diff.c cf56784a53e028fd8c98ef89caeeab3089c5f5b1
+F src/diff.c 9cb8813108714275be0f60debf0c4088f4ef788c
 F src/diffcmd.c 05606b2eeb44de9a39a7f34e1f908cdec82bed73
 F src/doc.c 768527b613d800c88f6848c814194c70cb2214cf
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -400,7 +400,7 @@ F src/sqlite3.c 438b01ac7c8d6e67bde312a8ac4dc2f123829487
 F src/sqlite3.h b74e0582e14cb43ad4d95aeeabcb70a716439ed5
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 0cd57adbb99c53b894b3751c429b0f814222acf1
-F src/style.c bcb0dc791e942cd952fd370248bb428bd94df0b4
+F src/style.c 9dbeede373d1c3780fcd04175c67ca0df7260e26
 F src/sync.c 2afef7f828cdc0cec2075969585bec457699afc3
 F src/tag.c e559f8284f91556a28035efab1caa20b2864c8f6
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e065d5b7f193b8804f24cbbd53aefb24e9ffd8a3
-R e1366572e37ad912fca4886b7c725ebd
-U drh
-Z a346a090623596a59118b316289152da
+P 2d14b6c4dc19ac774d0cae8722ee05e56e94f22d
+R b2cea652a189aaf2abe4878f224aa2e2
+U joel
+Z 59378d125375b459f53c377a675cb679
