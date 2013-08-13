@@ -48,7 +48,7 @@ meaning to fossil.  Fossil recognizes:
 <li> [#event | Events] </li>
 </ul>
 
-These seven artifact types are described in the sequel.
+These seven artifact types are described in the the following sections.
 
 In the current implementation (as of 2009-01-25) the artifacts that
 make up a fossil repository are stored in in as delta- and zlib-compressed
@@ -735,7 +735,8 @@ means the card is not legal for that artifact type.
 </table>
 
 
-<h2>Addenda</h2>
+<a name="addenda"></a>
+<h2>9.0 Addenda</h2>
 
 This section contains additional information which may be useful when
 implementing algorithms described above.
@@ -745,7 +746,9 @@ implementing algorithms described above.
 Given a manifest file named <tt>MF</tt> the following Bash shell code
 demonstrates how to compute the value of the R card in that manifest.
 This example uses manifest [28987096ac]. Lines starting with <tt>#</tt> are
-shell input, and other lines are output.
+shell input and other lines are output. This demonstration assumes that the
+file versions represented by the input manifest are checked out
+under the current directory.
 
 <nowiki><pre>
 # head MF
