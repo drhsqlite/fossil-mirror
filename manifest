@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sSCGI\svia\sthe\s--scgi\scommand-line\soption\sto\sthe\s"server"\sand\n"ui"\sand\s"http"\scommands.
-D 2013-08-13T18:15:36.362
+C Updated\sserver\sdocumentation\sto\sdiscuss\sSCGI.
+D 2013-08-13T18:53:05.211
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -617,7 +617,7 @@ F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 23fd916be2143ac1026fcbea2fbea1373bf68876
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
 F www/selfhost.wiki d9bcd969d75abca0c0d25d2f38327399a48075a1
-F www/server.wiki 69bd12ffa761a0f5b4758dff1182b3effdc305f7
+F www/server.wiki be160e8c31035e9c86f1f357debf6607b8089abe
 F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
 F www/shunning.wiki 716aa915e219fb4b881ba095c9dcd9e33b4016ab
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -628,9 +628,9 @@ F www/tech_overview.wiki 47bd3f7fa192bb99ff6b2063d7e4cac62786f96d
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
-F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
+F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0b75e2e615297842a60709cf12d67ae816f4f94d
-R 00bc1dedf7dcfee9c4930529fc541f1b
+P a2e7472d0fa04132edf6b425252cb76366334a7a
+R ba3311bbf2edca86d22c226fe8ab27da
 U drh
-Z 33922699cba1fba316abe850964d1a51
+Z 7bb6efb5743a656f480111e7411b8b40

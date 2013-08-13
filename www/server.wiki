@@ -8,8 +8,8 @@ The easiest way to set up a Fossil server is to use the <tt>server</tt> or
 in the file "<tt>repo.fossil</tt>", you can use either of these commands to
 start Fossil as a server:
 <ul>
-<li><tt>fossil server repo.fossil</tt>
-<li><tt>fossil ui repo.fossil</tt>
+<li><b>fossil server repo.fossil</b>
+<li><b>fossil ui repo.fossil</b>
 </ul>
 
 <p>
@@ -17,87 +17,187 @@ Both of these commands start a Fossil server on port 8080 on the local machine,
 which can be accessed with the URL: <tt>http://localhost:8080/</tt> using any
 handy web browser.  The difference between the two commands is that "ui", in
 addition to starting the Fossil server, also starts a web browser and points it
-to the URL mentioned above.  On the other hand, the "ui" command binds to
+to the URL mentioned above, and the "ui" command binds to
 the loopback IP address only (127.0.0.1) so that the "ui" command cannot be
 used to serve content to a different machine.
 </p>
+
 <p>
-NOTES:
+If one of the commands above is run from within an option checkout,
+then the repository name can be omitted and the checkout is used as
+the repository.
+</p>
+
+<p>
+Instead of a single repository, the commands above can specify a
+directory that contains multiple Fossil repositories named with the
+".fossil" suffix.  In this case, the request URL should begin with
+the base name of the particular repository that is desired.
+</p>
+
+<p>
+Additional notes:
 <ol>
-<li>The option "--port NNN" will start the server on port "NNN" instead of 8080.  
+<li>The option "--port NNN" will start the server on port
+"NNN" instead of 8080.
 <li>If port 8080 is already being used (perhaps by another Fossil server), then
 Fossil will use the next available port number.
-<li>Starting either command from within an "open" Fossil checkout will start a
-server using the repository corresponding to the checkout.
-<li>This is an excellent option for quickly sharing with coworkers on a small network.
-<li>A huge advantage to this deployment scenario is that no special "root" or "administrator" access is required in order to share the repository.
+<li>The "server" and "ui" commands are an excellent options
+for quickly sharing with coworkers on a small network.
+<li>This deployment scenario does not require special "root" or
+"administrator" access in order to share the repository.
 </ol>
 </p>
 </blockquote>
 
 <h2>Fossil as an ''inetd'' service</h2><blockquote>
 <p>
-Modify your <tt>/etc/inetd.conf</tt> (on Linux, modify as appropriate for your platform) so it contains a line like this:
+Modify your <tt>/etc/inetd.conf</tt> (on Linux, modify as appropriate for
+your platform) so it contains a line like this:
 <blockquote>
-<tt>
+<pre>
 12345 stream tcp nowait.1000 root /path-to/fossil /path-to/fossil http /other-path-to/repository
-</tt>
+</pre>
 </blockquote>
-In this example, you are telling "inetd" that when an incoming connection on port "12345" happens, it should launch the binary "/path-to/fossil".  Obviously you will need to modify the "path-to" parts as appropriate for your particular setup.
+In this example, you are telling "inetd" that when an incoming connection
+on port "12345" happens, it should launch the binary "/path-to/fossil".
+Obviously you will
+need to modify the "path-to" parts as appropriate for your particular setup.
 </p>
 <p>
-This is a more complex setup than the "standalone" server, but it has the advantage of only using system resources when an actual connection is attempted.  If no-one ever connects to that port, a Fossil server will not (automatically) run.  It has the disadvantage of requiring "root" access and therefore may not normally be available to lower-priced "shared" servers on the internet.
+If you system is running xinetd, then a typical configuration will be 
+held an a separate file (often named "/etc/xinetd.d/http-alt") that might
+look something like this:</p>
+<blockquote>
+<pre>
+service http-alt
+{
+  port = 591
+  socket_type = stream
+  wait = no
+  user = root
+  server = /usr/bin/fossil
+  server_args = http /home/fossil/repos/
+}
+</pre>
+</blockquote>
+<p>
+The xinetd example above has Fossil configured to serve multiple
+repositories, contained under the "/home/fossil/repos/" directory.
+All repositories should be named with a ".fossil" suffix.
+In such a setup, the first element of the request URI should be the
+name of the repository relative to the /home/fossil/repos/ directory
+and without the ".fossil" suffix.
+</p>
+<p>
+Using inetd or xinetd is a more complex setup 
+than the "standalone" server, but it has the
+advantage of only using system resources when an actual connection is
+attempted.  If no-one ever connects to that port, a Fossil server will
+not (automatically) run. It has the disadvantage of requiring "root" access
+and therefore may not normally be available to lower-priced "shared" servers
+on the internet.
 </p>
 </blockquote>
 
-<h2>Fossil as a ''CGI script''</h2><blockquote>
+<h2>Fossil as CGI</h2><blockquote>
 <p>
-This is the most flexible and most likely to be widely usable of these deployment scenarios.  In order for it to work, you must have the ability to install "CGI scripts" on the server you are interested in using. 
+This is the most flexible and most likely to be widely usable of these
+deployment scenarios.  In order for it to work, you must have the
+ability to install "CGI scripts" on the server you are interested in using. 
 </p>
 </blockquote>
 
 <h3>One script per repository</h3><blockquote>
 <p>
-Create a script (let's call it 'repo') in your CGI directory which has content like this:
-<blockquote><tt>
-#!/path-to/fossil<br>
+Create a script (let's call it 'repo') in your CGI directory which has content
+like this:
+<blockquote><pre>
+#!/path-to/fossil
 repository: /path-to-repo/repository
-</tt></blockquote>
+</pre></blockquote>
 </p>
 <p>
-It may be necessary to set permissions properly, or to modify an ".htaccess" file or other server-specific things like that.  Consult with your server provider if you need that sort of assistance.
+It may be necessary to set permissions properly, or to modify an ".htaccess"
+file or other server-specific things like that.  Consult with your server
+provider if you need that sort of assistance.
 </p>
 <p>
-Once the script is set up correctly, and assuming your server is also set correctly, you should be able to access your repository with a URL like: <tt>http://mydomain.org/cgi-bin/repo</tt> (assuming the "repo" script is accessible under "cgi-bin", which would be a typical deployment on Apache for instance).
+Once the script is set up correctly, and assuming your server is also set
+correctly, you should be able to access your repository with a URL like:
+<tt>http://mydomain.org/cgi-bin/repo</tt> (assuming the "repo" script is
+accessible under "cgi-bin", which would be a typical deployment on Apache
+for instance).
 </p>
 </blockquote>
 
 <h3>Serving multiple repositories with one script</h3><blockquote>
 <p>
-This scenario is almost identical to the previous one.  However, here we will assume you have multiple repositories, in one directory.
+This scenario is almost identical to the previous one.  However, here we
+will assume you have multiple repositories, in one directory.
 (Call the directory 'fossils').  All repositories served, in this case, must
 use the ".fossil" filename suffix.
 As before, create a script (again, 'repo'):
-<blockquote><tt>
-#!/path-to/fossil<br>
-directory: /path-to-repo/fossils<br>
+<blockquote><pre>
+#!/path-to/fossil
+directory: /path-to-repo/fossils
 notfound: http://url-to-go-to-if-repo-not-found/
-</tt></blockquote>
+</pre></blockquote>
 </p>
 <p>
-Once deployed, a URL like: <tt>http://mydomain.org/cgi-bin/repo/XYZ</tt> will serve up the repository "fossils/XYX.fossil" (if it exists).  This makes serving multiple projects on one server pretty painless.
+Once deployed, a URL like: <tt>http://mydomain.org/cgi-bin/repo/XYZ</tt>
+will serve up the repository "fossils/XYX.fossil" (if it exists).  This
+makes serving multiple projects on one server pretty painless.
+</p>
+</blockquote>
+
+<h2>Fossil as SCGI</h2><blockquote>
+
+<p>
+The [/help/server|fossil server] command, described above as a way of 
+starting a stand-alone web server, can be used for SCGI.  Simply add
+the --scgi command-line option and the stand-alone server will interpret
+and respond to the SimpleCGI or SCGI protocol rather than raw HTTP.  This can
+be used in combination with a webserver (such as Nginx) that does not
+support CGI.  A typical Nginx configuration to support SCGI with Fossil
+would look something like this:
+<blockquote><pre>
+location ~ ^/demo_project/ {
+    include scgi_params;
+    scgi_pass localhost:9000;
+    scgi_param SCRIPT_NAME "/demo_project";
+}
+</pre></blockquote>
+<p>
+Note that Fossil requires either the PATH_INFO or the SCRIPT_NAME variable
+in order to function properly, but Nginx provides neither by default. 
+So it is necessary to provide the SCRIPT_NAME parameter in the configuration.
+Failure to do this will cause Fossil to return an error.
+</p>
+<p>
+All of the features of the stand-alone server mode described above,
+such as the ability to server a directory full of Fossil repositories
+rather than just a single repository, work the same way in SCGI mode.
 </p>
 </blockquote>
 
 <h2>Securing a repository with SSL</h2><blockquote>
 <p>
-Using either of the CGI script approaches, it is trivial to use SSL to secure the server.  Simply set up the Fossil CGI scripts etc. as above, but modify the Apache (or IIS, etc.) server to require SSL (that is, a URL with "https://") in order to access the CGI script directory.  This may also be accomplished (on Apache, at least) using appropriate ".htaccess" rules.
+Using either CGI or SCGI, it is trivial to use SSL to
+secure the server.  Simply set up the Fossil CGI scripts etc. as above,
+but modify the Apache (or IIS, etc.) server to require SSL (that is, a
+URL with "https://") in order to access the CGI script directory.  This
+may also be accomplished (on Apache, at least) using appropriate
+".htaccess" rules.
 </p>
 <p>
-If you are using "inetd" to serve your repository, then you simply need to add "/usr/bin/stunnel" (perhaps on a different path, depending on your setup) before the command line to launch Fossil.
+If you are using "inetd" to serve your repository, then you simply need
+to add "/usr/bin/stunnel" (perhaps on a different path, depending on your
+setup) before the command line to launch Fossil.
 </p>
 <p>
-At this stage, the standalone server (e.g. "fossil server") does not support SSL.
+At this stage, the standalone server (e.g. "fossil server") does not
+support SSL.
 </p>
 <p>
 For more information, see <a href="./ssl.wiki">Using SSL with Fossil</a>.
@@ -106,17 +206,32 @@ For more information, see <a href="./ssl.wiki">Using SSL with Fossil</a>.
 
 <h2>Various security concerns with hosted repositories</h2><blockquote>
 <p>
-There are two main concerns relating to usage of Fossil for sharing sensitive information (source or any other data):
+There are two main concerns relating to usage of Fossil for sharing
+sensitive information (source or any other data):
 <ul>
-<li>Interception of the Fossil synchronization stream, thereby capturing data, and
+<li>Interception of the Fossil synchronization stream, thereby capturing
+data, and 
 <li>Direct access to the Fossil repository on the server
 </ul>
 </p>
 <p>
-Regarding the first, it is adequate to secure the server using SSL, and disallowing any non-SSL access.  The data stream will be encrypted by the HTTPS protocol, rendering the data reasonably secure.  The truly paranoid may wish to deploy <i>ssh</i> encrypted tunnels, but that is quite a bit more difficult and cumbersome to set up (particularly for a larger number of users).
+Regarding the first, it is adequate to secure the server using SSL, and
+disallowing any non-SSL access.  The data stream will be encrypted by
+the HTTPS protocol, rendering the data reasonably secure.  The truly
+paranoid may wish to deploy <i>ssh</i> encrypted tunnels, but that is
+quite a bit more difficult and cumbersome to set up (particularly for
+a larger number of users).
 </p>
 <p>
-As far as direct access to the repository, the same steps must be taken as for any other internet-facing data-store.  Access passwords to any disk-accessing accounts should be strong (and preferably changed from time to time).  However, the data in the repository itself are <i>not</i> encrypted (unless you save encrypted data yourself), and so the system administrators of your server will be able to access your data (as with any hosting service setup).  The only workaround in this case is to host the server yourself, in which case you will need to allocate resources to deal with administration issues.
+As far as direct access to the repository, the same steps must be taken
+as for any other internet-facing data-store.  Access passwords to any
+disk-accessing accounts should be strong (and preferably changed from
+time to time).  However, the data in the repository itself are <i>not</i>
+encrypted (unless you save encrypted data yourself), and so the system
+administrators of your server will be able to access your data (as with
+any hosting service setup).  The only workaround in this case is to
+host the server yourself, in which case you will need to allocate
+resources to deal with administration issues.
 </p>
 
 </blockquote>
