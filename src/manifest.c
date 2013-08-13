@@ -785,7 +785,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** If the user name is omitted, take that to be "anonymous".
       */
       case 'U': {
-        if( p->zUser!=0 ) SYNTAX("more than on U-card");
+        if( p->zUser!=0 ) SYNTAX("more than one U-card");
         p->zUser = next_token(&x, 0);
         if( p->zUser==0 ){
           p->zUser = "anonymous";
@@ -1967,9 +1967,17 @@ int manifest_crosslink(int rid, Blob *pContent){
       }else if( memcmp(zName, "-sym-",5)==0 ){
         blob_appendf(&comment, " Cancel tag \"%h\".", &zName[5]);
       }else if( strcmp(zName, "+closed")==0 ){
-        blob_appendf(&comment, " Marked \"Closed\".");
+        blob_append(&comment, " Marked \"Closed\"", -1);
+        if( zValue && *zValue ){
+          blob_appendf(&comment, " with note \"%h\"", zValue);
+        }
+        blob_append(&comment, ".", 1);
       }else if( strcmp(zName, "-closed")==0 ){
-        blob_appendf(&comment, " Removed the \"Closed\" mark.");
+        blob_append(&comment, " Removed the \"Closed\" mark", -1);
+        if( zValue && *zValue ){
+          blob_appendf(&comment, " with note \"%h\"", zValue);
+        }
+        blob_append(&comment, ".", 1);
       }else {
         if( zName[0]=='-' ){
           blob_appendf(&comment, " Cancel \"%h\"", &zName[1]);
