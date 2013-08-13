@@ -321,6 +321,7 @@ SRC = \
   $(SRCDIR)/rss.c \
   $(SRCDIR)/schema.c \
   $(SRCDIR)/search.c \
+  $(SRCDIR)/server.c \
   $(SRCDIR)/setup.c \
   $(SRCDIR)/sha1.c \
   $(SRCDIR)/shun.c \
@@ -430,6 +431,7 @@ TRANS_SRC = \
   $(OBJDIR)/rss_.c \
   $(OBJDIR)/schema_.c \
   $(OBJDIR)/search_.c \
+  $(OBJDIR)/server_.c \
   $(OBJDIR)/setup_.c \
   $(OBJDIR)/sha1_.c \
   $(OBJDIR)/shun_.c \
@@ -539,6 +541,7 @@ OBJ = \
  $(OBJDIR)/rss.o \
  $(OBJDIR)/schema.o \
  $(OBJDIR)/search.o \
+ $(OBJDIR)/server.o \
  $(OBJDIR)/setup.o \
  $(OBJDIR)/sha1.o \
  $(OBJDIR)/shun.o \
@@ -761,6 +764,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/rss_.c:$(OBJDIR)/rss.h \
 		$(OBJDIR)/schema_.c:$(OBJDIR)/schema.h \
 		$(OBJDIR)/search_.c:$(OBJDIR)/search.h \
+		$(OBJDIR)/server_.c:$(OBJDIR)/server.h \
 		$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
 		$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
 		$(OBJDIR)/shun_.c:$(OBJDIR)/shun.h \
@@ -1408,6 +1412,14 @@ $(OBJDIR)/search.o:	$(OBJDIR)/search_.c $(OBJDIR)/search.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/search.o -c $(OBJDIR)/search_.c
 
 $(OBJDIR)/search.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/server_.c:	$(SRCDIR)/server.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/server.c >$(OBJDIR)/server_.c
+
+$(OBJDIR)/server.o:	$(OBJDIR)/server_.c $(OBJDIR)/server.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/server.o -c $(OBJDIR)/server_.c
+
+$(OBJDIR)/server.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/setup_.c:	$(SRCDIR)/setup.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/setup.c >$(OBJDIR)/setup_.c

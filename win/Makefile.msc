@@ -139,6 +139,7 @@ SRC   = add_.c \
         rss_.c \
         schema_.c \
         search_.c \
+        server_.c \
         setup_.c \
         sha1_.c \
         shun_.c \
@@ -248,6 +249,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\rss$O \
         $(OX)\schema$O \
         $(OX)\search$O \
+        $(OX)\server$O \
         $(OX)\setup$O \
         $(OX)\sha1$O \
         $(OX)\shell$O \
@@ -375,6 +377,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\rss.obj >> $@
 	echo $(OX)\schema.obj >> $@
 	echo $(OX)\search.obj >> $@
+	echo $(OX)\server.obj >> $@
 	echo $(OX)\setup.obj >> $@
 	echo $(OX)\sha1.obj >> $@
 	echo $(OX)\shell.obj >> $@
@@ -941,6 +944,12 @@ $(OX)\search$O : search_.c search.h
 search_.c : $(SRCDIR)\search.c
 	translate$E $** > $@
 
+$(OX)\server$O : server_.c server.h
+	$(TCC) /Fo$@ -c server_.c
+
+server_.c : $(SRCDIR)\server.c
+	translate$E $** > $@
+
 $(OX)\setup$O : setup_.c setup.h
 	$(TCC) /Fo$@ -c setup_.c
 
@@ -1206,6 +1215,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			rss_.c:rss.h \
 			schema_.c:schema.h \
 			search_.c:search.h \
+			server_.c:server.h \
 			setup_.c:setup.h \
 			sha1_.c:sha1.h \
 			shun_.c:shun.h \

@@ -1,5 +1,5 @@
-C commit\snot\slonger\srequires\sa\scomment\s(it\suses\sa\splaceholder)\swhen\sin\sdry-run\smode,\sper\sML\srequest.
-D 2013-08-13T09:14:14.430
+C Split\sthe\svarious\sserver\simplementations\sout\sof\s"main.c"\sand\sinto\sa\snew\nsource\sfile\s"server.c".\s\sThis\sis\sgroundwork\sfor\sadding\sSCGI\sand\sFastCGI.
+D 2013-08-13T12:51:58.529
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -364,11 +364,11 @@ F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c aca022222edf7892f642dd99cf239db80d853e7e
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c 4b22ed64fe3569b45f7151931b5066c97ae78bb0
-F src/main.mk 02a81e04ae23ef5f72a010b219ad3f1b4bd3ea7a
+F src/main.c bb27a65bc4d40686bf2cf634c21e4367b721ac48
+F src/main.mk d8bc8d6b2df14374aa24027b0b90c7d51cdad9d6
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 85ab303476524dec4c1b353f6845f2cb8de556c2
+F src/makemake.tcl 06f599fe70d1e786d829f5b9a4b7d4eaada7df93
 F src/manifest.c e9939a9ed852e62a1692151d9729dd6c84741700
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
@@ -390,6 +390,7 @@ F src/report.c 23c9e4a0828b013d723724613de1c8b76333f030
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c 571fe8e1ef8e00accae77710a50d10517f41741a
 F src/search.c b11073e3b3546f8986d87c5d0cd456eb0478067e
+F src/server.c d04de07a154f1efe7ba4d7df462957aaf4ea7aed
 F src/setup.c ad90b1f40e7efbbc32517387876bf47aa19cbcdf
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
 F src/shell.c 51705eaccbd16c76cc4ec28ab2c2cb9ddef67c25
@@ -521,10 +522,10 @@ F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
-F win/Makefile.dmc cdde01ca8ccde455a555dc89ff88e883315c16db
-F win/Makefile.mingw c12206aa50197bf459d2dc97b5187203bac26693
+F win/Makefile.dmc 65c96e171161bd67a4e46ade6ae64b87a892ff9a
+F win/Makefile.mingw b1d72b5a2a0d0f7a579083047e013ca2cb9cb225
 F win/Makefile.mingw.mistachkin c07e271f41196b699d8947ffb3e6992e9a2d31e7
-F win/Makefile.msc f7248847effd098c560b6f60fadb4e38ea6b143a
+F win/Makefile.msc ff41800b7ac0bf35a2360a50d16fbb74b25533e7
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 97e249d74193a71520e4f83d0f74dd87439899c2
 F win/include/dirent.h 217dedc5cb9f060d88876706273e39f88ab68a8f
@@ -629,7 +630,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4aaf5dc5ecdd0a30cd45b5afd5b0361ded7b4488
-R 788e549d559d95b3a3820105ec1fd65b
-U stephan
-Z 14ae96aff4c461201da16ea30f79328e
+P 75e042503bfe90144f7d6914aac9b6b3156cfa1a
+R 98371cb8c6b0533e1e07e1f4333d1430
+T *branch * scgi
+T *sym-scgi *
+T -sym-trunk *
+U drh
+Z 7ee1639bedb831b322a7d378b567f2ef

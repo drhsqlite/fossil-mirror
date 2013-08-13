@@ -93,6 +93,7 @@ set src {
   rss
   schema
   search
+  server
   setup
   sha1
   shun
