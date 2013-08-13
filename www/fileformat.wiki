@@ -48,7 +48,7 @@ meaning to fossil.  Fossil recognizes:
 <li> [#event | Events] </li>
 </ul>
 
-These seven artifact types are described in the the following sections.
+These seven artifact types are described in the following sections.
 
 In the current implementation (as of 2009-01-25) the artifacts that
 make up a fossil repository are stored in in as delta- and zlib-compressed
