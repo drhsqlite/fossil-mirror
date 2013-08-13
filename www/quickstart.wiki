@@ -312,6 +312,9 @@ and painlessly.</p>
     a checked-out local tree.  The <b>server</b> uses port 8080 by default
     but you can specify a different port using the <b>-port</b> option.</p>
 
+    <p>The same commands can be used with the --scgi option to run 
+    [./scgi.wiki | SCGI] from Nginx, if desired.</p>
+
     <p>Command-line servers like this are useful when two people want
     to share a repository on temporary or ad-hoc basis.  For a more
     permanent installation, you should use either the CGI server or the
