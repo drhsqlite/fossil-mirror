@@ -733,3 +733,37 @@ means the card is not legal for that artifact type.
 <td align=center><b>R</b></td>
 </tr>
 </table>
+
+
+<h2>Addenda</h2>
+
+This section contains additional information which may be useful when
+implementing algorithms described above.
+
+<h3>R Card Hash Calculation</h3>
+
+Given a manifest file named <tt>MF</tt> the following Bash shell code
+demonstrates how to compute the value of the R card in that manifest.
+This example uses manifest [28987096ac]. Lines starting with <tt>#</tt> are
+shell input, and other lines are output.
+
+<nowiki><pre>
+# head MF
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Make\sthe\s"clearsign"\sPGP\ssigning\sdefault\sto\soff.
+D 2010-02-23T15:33:14
+F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
+F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
+...
+
+# grep '^R ' MF
+R c0788982781981c96a0d81465fec7192
+
+# for i in $(awk '/^F /{print $2}' MF); do \
+  echo $i $(stat -c '%s' $i); \
+  cat $i; \
+done | md5sum
+c0788982781981c96a0d81465fec7192  -
+</pre></nowik>

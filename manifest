@@ -1,5 +1,5 @@
-C commit\snot\slonger\srequires\sa\scomment\s(it\suses\sa\splaceholder)\swhen\sin\sdry-run\smode,\sper\sML\srequest.
-D 2013-08-13T09:14:14.430
+C Added\san\s"Addenda"\ssection\sas\sa\splace\sfor\sdescribing\sthe\sfile\sformat\salgorithms\sin\smore\sdetail\s(hints\sfor\simplementors).
+D 2013-08-13T12:39:25.328
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -584,7 +584,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
 F www/faq.tcl b9e03410240fcc3907848877a452f2883cda7e86
 F www/faq.wiki 281b387c178fd439a4d2f47856434dd2e54f566f
-F www/fileformat.wiki 8ca6c2608afe447e1450755b0f8064727b2841b6
+F www/fileformat.wiki d42b1629865466787305c62d2e70ae6dbc2ff93e
 F www/fiveminutes.wiki f83379e169ba6f17066f2988ad3a4bbf27984748
 F www/foss-cklist.wiki 881f1c5f69f1880c756152cff7a6f9c78ce72d4f
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
@@ -629,7 +629,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4aaf5dc5ecdd0a30cd45b5afd5b0361ded7b4488
-R 788e549d559d95b3a3820105ec1fd65b
+P 75e042503bfe90144f7d6914aac9b6b3156cfa1a
+R 914d43f40fac5f189669d5935ee21c8c
 U stephan
-Z 14ae96aff4c461201da16ea30f79328e
+Z 01fb8d78ebbb5669860093fbac03500d
