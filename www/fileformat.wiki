@@ -743,7 +743,7 @@ implementing algorithms described above.
 
 <h3>R Card Hash Calculation</h3>
 
-Given a manifest file named <tt>MF</tt> the following Bash shell code
+Given a manifest file named <tt>MF</tt>, the following Bash shell code
 demonstrates how to compute the value of the R card in that manifest.
 This example uses manifest [28987096ac]. Lines starting with <tt>#</tt> are
 shell input and other lines are output. This demonstration assumes that the
@@ -769,4 +769,4 @@ R c0788982781981c96a0d81465fec7192
   cat $i; \
 done | md5sum
 c0788982781981c96a0d81465fec7192  -
-</pre></nowik>
+</pre></nowiki>
