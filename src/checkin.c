@@ -1528,6 +1528,11 @@ void commit_cmd(void){
     blob_zero(&comment);
     blob_read_from_file(&comment, zComFile);
     blob_to_utf8_no_bom(&comment, 1);
+  }else if(dryRunFlag){
+    blob_zero(&comment);
+    blob_append(&comment, "Dry-run mode - no comment provided.", -1)
+      /* Comment needed to avoid downstream assertion. */
+      ;
   }else{
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, &sCiInfo, vid);
