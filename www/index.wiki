@@ -22,7 +22,7 @@ cellpadding="2">
 <li> [../COPYRIGHT-BSD2.txt | License]
 <li> [/timeline | Recent changes]
 <li> [./faq.wiki | FAQ]
-<li> [./contribute.wiki | Contributing]
+<li> [./hacker-howto.wiki | Hacker How-To]
 <li> [./changes.wiki | Change Log]
 <li> [./hints.wiki | Tip &amp; Hints]
 <li> [./permutedindex.wiki#pindex | Documentation Index]
@@ -83,7 +83,7 @@ internet these days. What makes Fossil worthy of attention?
       for Linux, Mac, or Windows and put it on your $PATH.
       [./build.wiki | Easy-to-compile source code] is available for
       users on other platforms.  Fossil sources are also mostly self-contained,
-      requiring only the "zlib" library and the standard C library to build.
+      requiring only the standard C library to build.
 
   5.  <b>Simple Networking</b> -
       Fossil uses plain old HTTP (with
@@ -105,7 +105,7 @@ internet these days. What makes Fossil worthy of attention?
       in an SQLite database so that transactions are
       atomic even if interrupted by a power loss or system crash.  Furthermore,
       automatic [./selfcheck.wiki | self-checks] verify that all aspects of
-      the repository are consistent prior to each commit.  In over three years
+      the repository are consistent prior to each commit.  In over six years
       of operation, no work has ever been lost after having been committed to
       a Fossil repository.
 

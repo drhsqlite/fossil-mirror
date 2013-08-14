@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sserver\sdocumentation.\s\sNo\scode\schanges.
-D 2013-08-13T23:05:27.158
+C Added\sthe\sHacker\sHow-To\spage\swith\sa\slink\son\sthe\shome\spage.\s\sOther\sdocumentation\nenhancements\sand\stypo\sfixes.
+D 2013-08-14T14:30:16.292
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -533,7 +533,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/adding_code.wiki 872804d61546094d20da9c3976b12edabfecc45b
+F www/adding_code.wiki 6fd9ec2485605875a6e90d77b745df4075a4ecbf
 F www/antibot.wiki 544a983a29e19f0330fc9b16d78795789b2d566f
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -599,15 +599,16 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
+F www/hacker-howto.wiki 1b0b1fa68606bbad790b4100f1da62738d9c65e2
 F www/hints.wiki 2ed95a101dd4639232b40360dbf5d131d98b098c
-F www/index.wiki 6f16fca9897550ba8ae7217b627e05455fd10de5
+F www/index.wiki bdcd0e8e63606bf0467ac409b91b6760f2faae18
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 453c4e23e85444caf844aa8ea36baa72000433ad
 F www/mkdownload.tcl 0646c58126b8aaec22d4e32de7d16e9f1938a673
-F www/mkindex.tcl c2a2e2d63f5a31cb010377c8bf4f1369b0cbcbc0
+F www/mkindex.tcl c766a73aa93987f678c525c497e761704724903d
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
-F www/permutedindex.wiki 48a6531e2ec924529839f8886780cee7d91864f8
+F www/permutedindex.wiki f7e2aec1e6efcc090591252b3a68c7f1772da8bf
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
@@ -616,8 +617,8 @@ F www/quotes.wiki 6d0079e2cfc8b55d71f36210670f409f6ad4de52
 F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 23fd916be2143ac1026fcbea2fbea1373bf68876
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
-F www/selfhost.wiki d9bcd969d75abca0c0d25d2f38327399a48075a1
-F www/server.wiki 820b57d80437eae0591fdc93aeebdc7b5e2037ef
+F www/selfhost.wiki e2337278c120d12963291f189b9a51257645cf6f
+F www/server.wiki 1517b1d7342688a5bc38330374c938b05d6c646b
 F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
 F www/shunning.wiki 716aa915e219fb4b881ba095c9dcd9e33b4016ab
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -630,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 902135f747ecc6db5cd0df7b152eb308ee1fa607
-R 1cc8d095a785567e4cfc46e3919a1c27
+P b91754ab851581f0286a43b53f6e1975a41f2630
+R b36be2daa84782537d0cf826d58053b1
 U drh
-Z 88c6907e5875f80034aed718f84e38c2
+Z 641b6ae5f08a17260728b09c42cd4313
