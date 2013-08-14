@@ -115,6 +115,7 @@ and therefore may not normally be available to lower-priced "shared" servers
 on the internet.
 </p>
 </blockquote>
+<a name="cgi"></a>
 <h2>Fossil as CGI</h2><blockquote>
 <p>
 A Fossil server can also be run from an ordinary web server as a CGI program.
@@ -160,6 +161,7 @@ will serve up the repository "/home/fossil/repos/XYX.fossil" (if it exists).
 </p>
 </blockquote>
 
+<a name="scgi"></a>
 <h2>Fossil as SCGI</h2><blockquote>
 
 <p>
