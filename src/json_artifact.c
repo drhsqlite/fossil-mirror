@@ -112,7 +112,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     const char *zUser;
     const char *zComment;
     char * zEUser, * zEComment;
-    int mtime, omtime;
+    i64 mtime, omtime;
     v = cson_value_new_object();
     o = cson_value_get_object(v);
 #define SET(K,V) cson_object_set(o,(K), (V))
@@ -120,9 +120,9 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     SET("uuid",json_new_string(zUuid));
     SET("isLeaf", cson_value_new_bool(is_a_leaf(rid)));
 
-    mtime = db_column_int(&q,1);
+    mtime = db_column_int64(&q,1);
     SET("timestamp",json_new_int(mtime));
-    omtime = db_column_int(&q,2);
+    omtime = db_column_int64(&q,2);
     if(omtime && (omtime!=mtime)){
       SET("originTime",json_new_int(omtime));
     }

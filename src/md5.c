@@ -260,8 +260,7 @@ static void MD5Final(unsigned char digest[16], MD5Context *pCtx){
         byteReverse(ctx->in, 14);
 
         /* Append length in bits and transform */
-        ((uint32 *)ctx->in)[ 14 ] = ctx->bits[0];
-        ((uint32 *)ctx->in)[ 15 ] = ctx->bits[1];
+        memcpy(&ctx->in[14*sizeof(uint32)], ctx->bits, 2*sizeof(uint32));
 
         MD5Transform(ctx->buf, (uint32 *)ctx->in);
         byteReverse((unsigned char *)ctx->buf, 4);

@@ -158,7 +158,7 @@ void dbstat_cmd(void){
   const char *zDb;
   int brief;
   char zBuf[100];
-  const int colWidth = -20 /* printf alignment/width for left column */;
+  const int colWidth = -19 /* printf alignment/width for left column */;
   brief = find_option("brief", "b",0)!=0;
   db_find_and_open_repository(0,0);
   fsize = file_size(g.zRepositoryName);
@@ -181,8 +181,8 @@ void dbstat_cmd(void){
       szMax = db_column_int(&q, 2);
       db_finalize(&q);
       bigSizeName(sizeof(zBuf), zBuf, t);
-      fossil_print( "%*s%d bytes average, "
-                    "%d bytes max, %s total\n",
+      fossil_print( "%*s%d average, "
+                    "%d max, %s total\n",
                     colWidth, "artifact-sizes:",
                     szAvg, szMax, zBuf);
       if( t/fsize < 5 ){
@@ -216,16 +216,16 @@ void dbstat_cmd(void){
   fossil_print("%*s%d days or approximately %.2f years.\n",
                colWidth, "project-age:", n, n/365.2425);
   fossil_print("%*s%s\n", colWidth, "project-id:", db_get("project-code",""));
-  fossil_print("%*s%s %s %s (%s)\n",
+  fossil_print("%*s%s %s [%s] (%s)\n",
                colWidth, "fossil-version:",
-               RELEASE_VERSION, MANIFEST_DATE, MANIFEST_VERSION,
+               MANIFEST_DATE, MANIFEST_VERSION, RELEASE_VERSION,
                COMPILER_NAME);
   fossil_print("%*s%.19s [%.10s] (%s)\n",
                colWidth, "sqlite-version:",
                SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20],
                SQLITE_VERSION);
   zDb = db_name("repository");
-  fossil_print("%*s%d pages, %d bytes/page, %d free pages, "
+  fossil_print("%*s%d pages, %d bytes/pg, %d free pages, "
                "%s, %s mode\n",
                colWidth, "database-stats:",
                db_int(0, "PRAGMA %s.page_count", zDb),
@@ -254,7 +254,7 @@ void urllist_page(void){
   @ <div class="section">URLs</div>
   @ <table border="0" width='100%%'>
   db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch')"
-                 "  FROM config WHERE name GLOB 'baseurl:*' ORDER BY 2");
+                 "  FROM config WHERE name GLOB 'baseurl:*' ORDER BY 2 DESC");
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     @ <tr><td width='100%%'>%h(db_column_text(&q,0))</td>
@@ -269,7 +269,7 @@ void urllist_page(void){
   @ <div class="section">Checkouts</div>
   @ <table border="0" width='100%%'>
   db_prepare(&q, "SELECT substr(name,7), datetime(mtime,'unixepoch')"
-                 "  FROM config WHERE name GLOB 'ckout:*' ORDER BY 2");
+                 "  FROM config WHERE name GLOB 'ckout:*' ORDER BY 2 DESC");
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     @ <tr><td width='100%%'>%h(db_column_text(&q,0))</td>

@@ -70,6 +70,7 @@ struct Manifest {
   char *zRepoCksum;     /* MD5 checksum of the baseline content.  R card. */
   char *zWiki;          /* Text of the wiki page.  W card. */
   char *zWikiTitle;     /* Name of the wiki page. L card. */
+  char *zMimetype;      /* Mime type of wiki or comment text.  N card.  */
   double rEventDate;    /* Date of an event.  E card. */
   char *zEventId;       /* UUID for an event.  E card. */
   char *zTicketUuid;    /* UUID for a ticket. K card. */
@@ -646,9 +647,22 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       }
 
       /*
+      **    N <uuid>
+      **
+      ** An N-line identifies the mimetype of wiki or comment text.
+      */
+      case 'N': {
+        if( p->zMimetype!=0 ) SYNTAX("more than one N-card");
+        p->zMimetype = next_token(&x,0);
+        if( p->zMimetype==0 ) SYNTAX("missing mimetype on N-card");
+        defossilize(p->zMimetype);
+        break;
+      }
+
+      /*
       **     P <uuid> ...
       **
-      ** Specify one or more other artifacts where are the parents of
+      ** Specify one or more other artifacts which are the parents of
       ** this artifact.  The first parent is the primary parent.  All
       ** others are parents by merge.
       */
@@ -771,7 +785,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** If the user name is omitted, take that to be "anonymous".
       */
       case 'U': {
-        if( p->zUser!=0 ) SYNTAX("more than on U-card");
+        if( p->zUser!=0 ) SYNTAX("more than one U-card");
         p->zUser = next_token(&x, 0);
         if( p->zUser==0 ){
           p->zUser = "anonymous";
@@ -860,6 +874,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
      || p->zWikiTitle
      || p->zEventId
      || p->zAttachName
+     || p->zMimetype
     ){
       SYNTAX("cluster contains a card other than M- or Z-");
     }
@@ -875,6 +890,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     if( p->zTicketUuid==0 ) SYNTAX("missing K-card in ticket");
     if( p->zUser==0 ) SYNTAX("missing U-card in ticket");
     if( p->zAttachName ) SYNTAX("A-card in ticket");
+    if( p->zMimetype) SYNTAX("N-card in ticket");
     if( !seenZ ) SYNTAX("missing Z-card in ticket");
     p->type = CFTYPE_TICKET;
   }else if( p->zEventId ){
@@ -905,6 +921,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     if( p->zWikiTitle ) SYNTAX("L-card on tag");
     if( p->zTicketUuid ) SYNTAX("K-card in tag");
     if( p->zAttachName ) SYNTAX("A-card in tag");
+    if( p->zMimetype ) SYNTAX("N-card in tag");
     if( !seenZ ) SYNTAX("missing Z-card on tag");
     p->type = CFTYPE_CONTROL;
   }else if( p->zAttachName ){
@@ -1700,8 +1717,8 @@ int manifest_crosslink(int rid, Blob *pContent){
       ** new delta manifests.
       */
       if( p->zBaseline!=0 ){
-        static int once = 0;
-        if( !once ){
+        static int once = 1;
+        if( once ){
           db_set_int("seen-delta-manifest", 1, 0);
           once = 0;
         }
@@ -1950,9 +1967,17 @@ int manifest_crosslink(int rid, Blob *pContent){
       }else if( memcmp(zName, "-sym-",5)==0 ){
         blob_appendf(&comment, " Cancel tag \"%h\".", &zName[5]);
       }else if( strcmp(zName, "+closed")==0 ){
-        blob_appendf(&comment, " Marked \"Closed\".");
+        blob_append(&comment, " Marked \"Closed\"", -1);
+        if( zValue && *zValue ){
+          blob_appendf(&comment, " with note \"%h\"", zValue);
+        }
+        blob_append(&comment, ".", 1);
       }else if( strcmp(zName, "-closed")==0 ){
-        blob_appendf(&comment, " Removed the \"Closed\" mark.");
+        blob_append(&comment, " Removed the \"Closed\" mark", -1);
+        if( zValue && *zValue ){
+          blob_appendf(&comment, " with note \"%h\"", zValue);
+        }
+        blob_append(&comment, ".", 1);
       }else {
         if( zName[0]=='-' ){
           blob_appendf(&comment, " Cancel \"%h\"", &zName[1]);

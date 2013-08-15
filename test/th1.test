@@ -1,0 +1,69 @@
+#
+# Copyright (c) 2011 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# TH1 Commands
+#
+
+fossil test-th-eval --th-open-config "setting abc"
+test th1-setting-1 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -- abc"
+test th1-setting-2 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -strict abc"
+test th1-setting-3 {$RESULT eq {TH_ERROR: no value for setting "abc"}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -strict -- abc"
+test th1-setting-4 {$RESULT eq {TH_ERROR: no value for setting "abc"}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting autosync"
+test th1-setting-5 {$RESULT eq 1}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -strict autosync"
+test th1-setting-6 {$RESULT eq 1}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting --"
+test th1-setting-7 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "setting ?-strict? ?--? name"}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -strict --"
+test th1-setting-8 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "setting ?-strict? ?--? name"}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -- --"
+test th1-setting-9 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -strict -- --"
+test th1-setting-10 {$RESULT eq {TH_ERROR: no value for setting "--"}}

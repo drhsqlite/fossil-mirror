@@ -48,6 +48,7 @@ struct Xfer {
   int nDeltaRcvd;     /* Number of deltas received */
   int nDanglingFile;  /* Number of dangling deltas received */
   int mxSend;         /* Stop sending "file" with pOut reaches this size */
+  int resync;         /* Send igot cards for all holdings */
   u8 syncPrivate;     /* True to enable syncing private content */
   u8 nextIsPrivate;   /* If true, next "file" received is a private */
   time_t maxTime;     /* Time when this transfer should be finished */
@@ -738,17 +739,33 @@ static int send_private(Xfer *pXfer){
 static int send_unclustered(Xfer *pXfer){
   Stmt q;
   int cnt = 0;
-  db_prepare(&q, 
-    "SELECT uuid FROM unclustered JOIN blob USING(rid)"
-    " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
-    "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
-    "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
-  );
+  if( pXfer->resync ){
+    db_prepare(&q, 
+      "SELECT uuid, rid FROM blob"
+      " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
+      "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
+      "   AND blob.rid<=%d"
+      " ORDER BY blob.rid DESC",
+      pXfer->resync
+    );
+  }else{
+    db_prepare(&q, 
+      "SELECT uuid FROM unclustered JOIN blob USING(rid)"
+      " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
+      "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
+    );
+  }
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
     cnt++;
+    if( pXfer->resync && pXfer->mxSend<blob_size(pXfer->pOut) ){
+      pXfer->resync = db_column_int(&q, 1)-1;
+    }
   }
   db_finalize(&q);
+  if( cnt==0 ) pXfer->resync = 0;
   return cnt;
 }
 
@@ -1197,6 +1214,13 @@ void page_xfer(void){
           xfer.syncPrivate = 1;
         }
       }
+      /*   pragma send-catalog
+      **
+      ** Send igot cards for all known artifacts.
+      */
+      if( blob_eq(&xfer.aToken[1], "send-catalog") ){
+        xfer.resync = 0x7fffffff;
+      }
     }else
 
     /* Unknown message
@@ -1294,6 +1318,7 @@ static const char zBriefFormat[] =
 #define SYNC_CLONE     0x0004
 #define SYNC_PRIVATE   0x0008
 #define SYNC_VERBOSE   0x0010
+#define SYNC_RESYNC    0x0020
 #endif
 
 /*
@@ -1381,12 +1406,17 @@ int client_sync(
   }else if( syncFlags & SYNC_PULL ){
     blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
     nCardSent++;
-    zOpType = "Pull";
+    zOpType = (syncFlags & SYNC_PUSH)?"Sync":"Pull";
+    if( (syncFlags & SYNC_RESYNC)!=0 && nCycle<2 ){
+      blob_appendf(&send, "pragma send-catalog\n");
+      nCardSent++;
+    }
   }
   if( syncFlags & SYNC_PUSH ){
     blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
     nCardSent++;
     if( (syncFlags & SYNC_PULL)==0 ) zOpType = "Push";
+    if( (syncFlags & SYNC_RESYNC)!=0 ) xfer.resync = 0x7fffffff;
   }
   manifest_crosslink_begin();
   transport_global_startup();
@@ -1710,8 +1740,10 @@ int client_sync(
           syncFlags &= ~SYNC_PUSH;
           zMsg = 0;
         }
-        fossil_force_newline();
-        fossil_print("Server says: %s\n", zMsg);
+        if( zMsg && zMsg[0] ){
+          fossil_force_newline();
+          fossil_print("Server says: %s\n", zMsg);
+        }
       }else
 
       /*    pragma NAME VALUE...
@@ -1738,16 +1770,18 @@ int client_sync(
         if( (syncFlags & SYNC_CLONE)==0 || nCycle>0 ){
           char *zMsg = blob_terminate(&xfer.aToken[1]);
           defossilize(zMsg);
+          fossil_force_newline();
+          fossil_print("Error: %s\n", zMsg);
           if( fossil_strcmp(zMsg, "login failed")==0 ){
             if( nCycle<2 ){
-              if( !g.dontKeepUrl ) db_unset("last-sync-pw", 0);
+              g.urlPasswd = 0;
               go = 1;
+              if( g.cgiOutput==0 ) url_prompt_for_password();
             }
           }else{
-            blob_appendf(&xfer.err, "\rserver says: %s", zMsg);
+            blob_appendf(&xfer.err, "server says: %s\n", zMsg);
+            nErr++;
           }
-          fossil_warning("\rError: %s", zMsg);
-          nErr++;
           break;
         }
       }else
@@ -1762,10 +1796,11 @@ int client_sync(
           nErr++;
           break;
         }
-        blob_appendf(&xfer.err, "unknown command: [%b]", &xfer.aToken[0]);
+        blob_appendf(&xfer.err, "unknown command: [%b]\n", &xfer.aToken[0]);
       }
 
       if( blob_size(&xfer.err) ){
+        fossil_force_newline();
         fossil_warning("%b", &xfer.err);
         nErr++;
         break;

@@ -392,7 +392,7 @@ static int tclInvoke_command(
   objPtr = Tcl_NewStringObj(argv[1], argl[1]);
   Tcl_IncrRefCount(objPtr);
   command = Tcl_GetCommandFromObj(tclInterp, objPtr);
-  if( !command || Tcl_GetCommandInfoFromToken(command,&cmdInfo)==0 ){
+  if( !command || Tcl_GetCommandInfoFromToken(command, &cmdInfo)==0 ){
     Th_ErrorMessage(interp, "Tcl command not found:", argv[1], argl[1]);
     Tcl_DecrRefCount(objPtr);
     Tcl_Release((ClientData)tclInterp);

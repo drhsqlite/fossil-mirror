@@ -814,6 +814,8 @@ void cgi_trace(const char *z){
   fputs(z, pLog);
 }
 
+/* Forward declaration */
+static NORETURN void malformed_request(const char *zMsg);
 
 /*
 ** Initialize the query parameter database.  Information is pulled from
@@ -824,11 +826,22 @@ void cgi_init(void){
   char *z;
   const char *zType;
   int len;
+  const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
+  const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
+
 #ifdef FOSSIL_ENABLE_JSON
   json_main_bootstrap();
 #endif
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
+  if( zRequestUri==0 ) malformed_request("missing REQUEST_URI");
+  if( zScriptName==0 ) malformed_request("missing SCRIPT_NAME");
+  if( cgi_parameter("PATH_INFO",0)==0 ){
+    int i, j;
+    for(i=0; zRequestUri[i]==zScriptName[i] && zRequestUri[i]; i++){}
+    for(j=i; zRequestUri[j] && zRequestUri[j]!='?'; j++){}
+    cgi_set_parameter("PATH_INFO", mprintf("%.*s", j-i, zRequestUri+i));
+  }
 
   z = (char*)P("HTTP_COOKIE");
   if( z ){
@@ -1094,10 +1107,10 @@ void cgi_vprintf(const char *zFormat, va_list ap){
 /*
 ** Send a reply indicating that the HTTP request was malformed
 */
-static NORETURN void malformed_request(void){
+static NORETURN void malformed_request(const char *zMsg){
   cgi_set_status(501, "Not Implemented");
   cgi_printf(
-    "<html><body>Unrecognized HTTP Request</body></html>\n"
+    "<html><body><p>Bad Request: %s</p></body></html>\n", zMsg
   );
   cgi_reply();
   fossil_exit(0);
@@ -1132,6 +1145,20 @@ NORETURN void cgi_panic(const char *zFormat, ...){
     cgi_reply();
     fossil_exit(1);
   }
+}
+
+/* z[] is the value of an X-FORWARDED-FOR: line in an HTTP header.
+** Return a pointer to a string containing the real IP address, or a
+** NULL pointer to stick with the IP address previously computed and
+** loaded into g.zIpAddr.
+*/
+static const char *cgi_accept_forwarded_for(const char *z){
+  int i;
+  if( fossil_strcmp(g.zIpAddr, "127.0.0.1")!=0 ) return 0;
+  
+  i = strlen(z)-1;
+  while( i>=0 && z[i]!=',' && !fossil_isspace(z[i]) ) i--;
+  return &z[++i];
 }
 
 /*
@@ -1175,24 +1202,26 @@ void cgi_handle_http_request(const char *zIpAddr){
   char zLine[2000];     /* A single line of input. */
   g.fullHttpReply = 1;
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
-    malformed_request();
+    malformed_request("missing HTTP header");
   }
+  blob_append(&g.httpHeader, zLine, -1);
   cgi_trace(zLine);
   zToken = extract_token(zLine, &z);
   if( zToken==0 ){
-    malformed_request();
+    malformed_request("malformed HTTP header");
   }
   if( fossil_strcmp(zToken,"GET")!=0 && fossil_strcmp(zToken,"POST")!=0
       && fossil_strcmp(zToken,"HEAD")!=0 ){
-    malformed_request();
+    malformed_request("unsupported HTTP method");
   }
   cgi_setenv("GATEWAY_INTERFACE","CGI/1.0");
   cgi_setenv("REQUEST_METHOD",zToken);
   zToken = extract_token(z, &z);
   if( zToken==0 ){
-    malformed_request();
+    malformed_request("malformed URL in HTTP header");
   }
   cgi_setenv("REQUEST_URI", zToken);
+  cgi_setenv("SCRIPT_NAME", "");
   for(i=0; zToken[i] && zToken[i]!='?'; i++){}
   if( zToken[i] ) zToken[i++] = 0;
   cgi_setenv("PATH_INFO", zToken);
@@ -1215,6 +1244,7 @@ void cgi_handle_http_request(const char *zIpAddr){
     char *zVal;
 
     cgi_trace(zLine);
+    blob_append(&g.httpHeader, zLine, -1);
     zFieldName = extract_token(zLine,&zVal);
     if( zFieldName==0 || *zFieldName==0 ) break;
     while( fossil_isspace(*zVal) ){ zVal++; }
@@ -1244,17 +1274,64 @@ void cgi_handle_http_request(const char *zIpAddr){
 #endif
     }else if( fossil_strcmp(zFieldName,"user-agent:")==0 ){
       cgi_setenv("HTTP_USER_AGENT", zVal);
+    }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
+      const char *zIpAddr = cgi_accept_forwarded_for(zVal);
+      if( zIpAddr!=0 ){
+        g.zIpAddr = mprintf("%s", zIpAddr);
+        cgi_replace_parameter("REMOTE_ADDR", g.zIpAddr);
+      }
     }
   }
   cgi_init();
   cgi_trace(0);
 }
 
+/*
+** This routine handles a single SCGI request which is coming in on
+** g.httpIn and which replies on g.httpOut
+**
+** The SCGI request is read from g.httpIn and is used to initialize
+** entries in the cgi_parameter() hash, as if those entries were
+** environment variables.  A call to cgi_init() completes
+** the setup.  Once all the setup is finished, this procedure returns
+** and subsequent code handles the actual generation of the webpage.
+*/
+void cgi_handle_scgi_request(void){
+  char *zHdr;
+  char *zToFree;
+  int nHdr = 0;
+  int nRead;
+  int n, m;
+  char c;
+
+  while( (c = fgetc(g.httpIn))!=EOF && fossil_isdigit(c) ){
+    nHdr = nHdr*10 + c - '0';
+  }
+  if( nHdr<16 ) malformed_request("SCGI header too short");
+  zToFree = zHdr = fossil_malloc(nHdr);
+  nRead = (int)fread(zHdr, 1, nHdr, g.httpIn);
+  if( nRead<nHdr ) malformed_request("cannot read entire SCGI header");
+  nHdr = nRead;
+  while( nHdr ){
+    for(n=0; n<nHdr && zHdr[n]; n++){}
+    for(m=n+1; m<nHdr && zHdr[m]; m++){}
+    if( m>=nHdr ) malformed_request("SCGI header formatting error");
+    cgi_set_parameter(zHdr, zHdr+n+1);
+    zHdr += m+1;
+    nHdr -= m+1;
+  }
+  fossil_free(zToFree);
+  fgetc(g.httpIn);  /* Read past the "," separating header from content */
+  cgi_init();
+}
+
+
 #if INTERFACE
 /* 
 ** Bitmap values for the flags parameter to cgi_http_server().
 */
 #define HTTP_SERVER_LOCALHOST      0x0001     /* Bind to 127.0.0.1 only */
+#define HTTP_SERVER_SCGI           0x0002     /* SCGI instead of HTTP */
 
 #endif /* INTERFACE */
 
@@ -1274,7 +1351,12 @@ void cgi_handle_http_request(const char *zIpAddr){
 ** Return 0 to each child as it runs.  If unable to establish a
 ** listening socket, return non-zero.
 */
-int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
+int cgi_http_server(
+  int mnPort, int mxPort,   /* Range of TCP ports to try */
+  const char *zBrowser,     /* Run this browser, if not NULL */
+  const char *zIpAddr,      /* Bind to this IP address, if not null */
+  int flags                 /* HTTP_SERVER_* flags */
+){
 #if defined(_WIN32)
   /* Use win32_http_server() instead */
   fossil_exit(1);
@@ -1293,7 +1375,12 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   while( iPort<=mxPort ){
     memset(&inaddr, 0, sizeof(inaddr));
     inaddr.sin_family = AF_INET;
-    if( flags & HTTP_SERVER_LOCALHOST ){
+    if( zIpAddr ){
+      inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
+      if( inaddr.sin_addr.s_addr == (-1) ){
+        fossil_fatal("not a valid IP address: %s", zIpAddr);
+      }
+    }else if( flags & HTTP_SERVER_LOCALHOST ){
       inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     }else{
       inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -1326,7 +1413,8 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   if( iPort>mxPort ) return 1;
   listen(listener,10);
   if( iPort>mnPort ){
-    fossil_print("Listening for HTTP requests on TCP port %d\n", iPort);
+    fossil_print("Listening for %s requests on TCP port %d\n",
+       (flags & HTTP_SERVER_SCGI)!=0?"SCGI":"HTTP",  iPort);
     fflush(stdout);
   }
   if( zBrowser ){

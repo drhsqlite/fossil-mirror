@@ -1876,8 +1876,20 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
       int iRes = 0;
       switch( pExpr->pOp->eOp ) {
         case OP_MULTIPLY:     iRes = iLeft*iRight;  break;
-        case OP_DIVIDE:       iRes = iLeft/iRight;  break;
-        case OP_MODULUS:      iRes = iLeft%iRight;  break;
+        case OP_DIVIDE:
+          if(!iRight){
+            Th_ErrorMessage(interp, "Divide by 0:", zLeft, nLeft);
+            return TH_ERROR;
+          }
+          iRes = iLeft/iRight;
+          break;
+        case OP_MODULUS:
+          if(!iRight){
+            Th_ErrorMessage(interp, "Modulo by 0:", zLeft, nLeft);
+            return TH_ERROR;
+          }
+          iRes = iLeft%iRight;
+          break;
         case OP_ADD:          iRes = iLeft+iRight;  break;
         case OP_SUBTRACT:     iRes = iLeft-iRight;  break;
         case OP_LEFTSHIFT:    iRes = iLeft<<iRight; break;

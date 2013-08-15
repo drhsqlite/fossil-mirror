@@ -857,18 +857,20 @@ void tktsetup_timeline_page(void){
   login_insert_csrf_secret();
 
   @ <hr />
-  entry_attribute("Ticket Title", 40, "ticket-title-expr", "t", "title");
+  entry_attribute("Ticket Title", 40, "ticket-title-expr", "t",
+                  "title", 0);
   @ <p>An SQL expression in a query against the TICKET table that will
   @ return the title of the ticket for display purposes.</p>
 
   @ <hr />
-  entry_attribute("Ticket Status", 40, "ticket-status-column", "s", "status");
+  entry_attribute("Ticket Status", 40, "ticket-status-column", "s",
+                  "status", 0);
   @ <p>The name of the column in the TICKET table that contains the ticket
   @ status in human-readable form.  Case sensitive.</p>
 
   @ <hr />
   entry_attribute("Ticket Closed", 40, "ticket-closed-expr", "c",
-                  "status='Closed'");
+                  "status='Closed'", 0);
   @ <p>An SQL expression that evaluates to true in a TICKET table query if
   @ the ticket is closed.</p>
 

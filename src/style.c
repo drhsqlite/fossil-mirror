@@ -114,7 +114,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a %s id='a%d'>", zExtra, nHref);
+  return mprintf("<a %s id='a%d' href='%R/honeypot'>", zExtra, nHref);
 }
 char *href(const char *zFormat, ...){
   char *zUrl;
@@ -132,7 +132,7 @@ char *href(const char *zFormat, ...){
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a id='a%d'>", nHref);
+  return mprintf("<a id='a%d' href='%R/honeypot'>", nHref);
 }
 
 /*
@@ -162,10 +162,12 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
 */
 void style_resolve_href(void){
   int i;
+  int nDelay = db_get_int("auto-hyperlink-delay",10);
   if( !g.perm.Hyperlink ) return;
   if( nHref==0 && nFormAction==0 ) return;
   @ <script type="text/JavaScript">
   @ /* <![CDATA[ */
+  @ function setAllHrefs(){
   if( g.javascriptHyperlink ){
     for(i=0; i<nHref; i++){
       @ gebi("a%d(i+1)").href="%s(aHref[i])";
@@ -173,6 +175,17 @@ void style_resolve_href(void){
   }
   for(i=0; i<nFormAction; i++){
     @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
+  }
+  @ }
+  if( db_get_boolean("auto-hyperlink-mouseover",0) ){
+    /* Require mouse movement prior to activating hyperlinks */
+    @ document.getElementsByTagName("body")[0].onmousemove=function(){
+    @   setTimeout("setAllHrefs();",%d(nDelay));
+    @   this.onmousemove = null;
+    @ }
+  }else{
+    /* Active hyperlinks right away */
+    @ setTimeout("setAllHrefs();",%d(nDelay));
   }
   @ /* ]]> */
   @ </script>
@@ -451,7 +464,7 @@ const char zDefaultFooter[] =
 /*
 ** The default Cascading Style Sheet.
 ** It's assembled by different strings for each class.
-** The default css conatains all definitions.
+** The default css contains all definitions.
 ** The style sheet, send to the client only contains the ones,
 ** not defined in the user defined css.
 */
@@ -594,13 +607,6 @@ const char zDefaultCSS[] =
 @   padding: 0.5em;
 @   white-space: pre-wrap;
 @}
-@
-@ /* The label/value pairs on (for example) the ci page */
-@ table.label-value th {
-@   vertical-align: top;
-@   text-align: right;
-@   padding: 0.2ex 2ex;
-@ }
 ;
 
 
@@ -652,6 +658,11 @@ const struct strctCssDefaults {
     "the format for the timeline data cells",
     @   vertical-align: top;
     @   text-align: left;
+  },
+  { "tr.timelineCurrent td.timelineTableCell",
+    "the format for the timeline data cell of the current checkout",
+    @   padding: .1em .2em;
+    @   border: 1px dashed #446979;
   },
   { "span.timelineLeaf",
     "the format for the timeline leaf marks",
@@ -908,7 +919,7 @@ const struct strctCssDefaults {
     @ ** to a standard jscolor definition with java script in the footer. */
   },
   { "div.endContent",
-    "format for end of content area, to be used to clear page flow(sidebox on branch,..",
+    "format for end of content area, to be used to clear page flow.",
     @   clear: both;
   },
   { "p.generalError",
@@ -961,16 +972,40 @@ const struct strctCssDefaults {
     @   margin-top: 3px;
     @   line-height: 100%;
   },
-  { "div.sbsdiff",
-    "side-by-side diff display",
-    @   font-family: monospace;
+  { "table.sbsdiffcols",
+    "side-by-side diff display (column-based)",
+    @   width: 90%;
+    @   border-spacing: 0;
     @   font-size: xx-small;
-    @   white-space: pre;
   },
-  { "div.udiff",
-    "context diff display",
-    @   font-family: monospace;
-    @   white-space: pre;
+  { "table.sbsdiffcols td",
+    "sbs diff table cell",
+    @   padding: 0;
+    @   vertical-align: top;
+  },
+  { "table.sbsdiffcols pre",
+    "sbs diff pre block",
+    @   margin: 0;
+    @   padding: 0;
+    @   border: 0;
+    @   font-size: inherit;
+    @   background: inherit;
+    @   color: inherit;
+  },
+  { "div.difflncol",
+    "diff line number column",
+    @   padding-right: 1em;
+    @   text-align: right;
+    @   color: #a0a0a0;
+  },
+  { "div.difftxtcol",
+    "diff text column",
+    @   width: 45em;
+    @   overflow-x: auto;
+  },
+  { "div.diffmkrcol",
+    "diff marker column",
+    @   padding: 0 1em;
   },
   { "span.diffchng",
     "changes in a diff",
@@ -986,6 +1021,8 @@ const struct strctCssDefaults {
   },
   { "span.diffhr",
     "suppressed lines in a diff",
+    @   display: inline-block;
+    @   margin: .5em 0 1em;
     @   color: #0000ff;
   },
   { "span.diffln",
@@ -1007,6 +1044,49 @@ const struct strctCssDefaults {
     @   white-space: pre-wrap;
     @   word-wrap: break-word;
     @   color: red;
+  },
+  { "table.tale-value th",
+    "The label/value pairs on (for example) the ci page",
+    @   vertical-align: top;
+    @   text-align: right;
+    @   padding: 0.2ex 2ex;
+  },
+  { ".statistics-report-graph-line",
+    "for the /stats_report views",
+    @   background-color: #446979;
+  },
+  { ".statistics-report-table-events th"
+    "",
+    @   padding: 0 1em 0 1em;
+  },
+  { ".statistics-report-table-events td",
+    "",
+    @   padding: 0.1em 1em 0.1em 1em;
+  },
+  { ".statistics-report-row-year",
+    "",
+    @   text-align: left;
+  },
+  { ".statistics-report-graph-line",
+    "for the /stats_report views",
+    @   background-color: #446979;
+  },
+  { ".statistics-report-week-number-label",
+    "for the /stats_report views",
+    @ text-align: right;
+    @ font-size: 0.8em;
+  },
+  { ".statistics-report-week-of-year-list",
+    "for the /stats_report views",
+    @ font-size: 0.8em;
+  },
+  { "tr.row0",
+    "even table row color",
+    @ /* use default */
+  },
+  { "tr.row1",
+    "odd table row color",
+    @ /* Use default */
   },
   { 0,
     0,
@@ -1099,13 +1179,30 @@ void page_test_env(void){
   zCap[i] = 0;
   @ g.userUid = %d(g.userUid)<br />
   @ g.zLogin = %h(g.zLogin)<br />
+  @ g.isHuman = %d(g.isHuman)<br />
   @ capabilities = %s(zCap)<br />
   @ <hr>
   P("HTTP_USER_AGENT");
-  cgi_print_all(atoi(PD("showall","0")));
+  cgi_print_all(showAll);
+  if( showAll && blob_size(&g.httpHeader)>0 ){
+    @ <hr>
+    @ <pre>
+    @ %h(blob_str(&g.httpHeader))
+    @ </pre>
+  }
   if( g.perm.Setup ){
     const char *zRedir = P("redirect");
     if( zRedir ) cgi_redirect(zRedir);
   }
   style_footer();
+}
+
+/*
+** This page is a honeypot for spiders and bots. 
+**
+** WEBPAGE: honeypot
+*/
+void honeypot_page(void){
+  cgi_set_status(403, "Forbidden");
+  @ <p>Access by spiders and robots is forbidden</p>
 }

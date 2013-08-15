@@ -14,6 +14,7 @@ build complexities of Fossil.  But hard-core developers who desire
 a deep understanding of how Fossil is put together can benefit
 from reviewing this article.
 
+<a name="srctour"></a>
 <h1>2.0 Source Code Tour</h1>
 
 The source code for Fossil is found in the 
@@ -119,6 +120,7 @@ VERSION files
 in the root of the source tree are the three arguments and
 the generated VERSION.h file appears on standard output.
 
+<a name="preprocessing"></a>
 <h1>4.0 Preprocessing</h1>
 
 There are three preprocessors for the Fossil sources.  The mkindex
@@ -238,3 +240,8 @@ the HTTPS option is enabled, then it will also need to link against
 the appropriate SSL implementation.  And, of course, Fossil needs to
 link against the standard C library.  No other libraries or external
 dependences are used.
+
+<h1>7.0 See Also</h1>
+
+  *  [./tech_overview.wiki | A Technical Overview Of Fossil]
+  *  [./adding_code.wiki | How To Add Features To Fossil]

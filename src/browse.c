@@ -82,11 +82,11 @@ void hyperlinked_path(const char *zPath, Blob *pOut, const char *zCI){
     if( zPath[j] && g.perm.Hyperlink ){
       if( zCI ){
         char *zLink = href("%R/dir?ci=%S&name=%#T", zCI, j, zPath);
-        blob_appendf(pOut, "%s%z%#h</a>", 
+        blob_appendf(pOut, "%s%z%#h</a>",
                      zSep, zLink, j-i, &zPath[i]);
       }else{
         char *zLink = href("%R/dir?name=%#T", j, zPath);
-        blob_appendf(pOut, "%s%z%#h</a>", 
+        blob_appendf(pOut, "%s%z%#h</a>",
                      zSep, zLink, j-i, &zPath[i]);
       }
     }else{
@@ -120,6 +120,7 @@ void page_dir(void){
   Blob dirname;
   Manifest *pM = 0;
   const char *zSubdirLink;
+  int linkTrunk = 1, linkTip = 1;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -138,22 +139,37 @@ void page_dir(void){
   if( zCI ){
     pM = manifest_get_by_name(zCI, &rid);
     if( pM ){
+      int trunkRid = symbolic_name_to_rid("tag:trunk", "ci");
+      linkTrunk = trunkRid && rid != trunkRid;
+      linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     }else{
       zCI = 0;
     }
   }
 
-
-  /* Compute the title of the page */  
+  /* Compute the title of the page */
   blob_zero(&dirname);
   if( zD ){
     blob_append(&dirname, "in directory ", -1);
     hyperlinked_path(zD, &dirname, zCI);
     zPrefix = mprintf("%s/", zD);
+    if( linkTrunk ){
+      style_submenu_element("Trunk", "Trunk", "%R/dir?name=%t&ci=trunk",
+                             zD);
+    }
+    if ( linkTip ){
+      style_submenu_element("Tip", "Tip", "%R/dir?name=%t&ci=tip", zD);
+    }
   }else{
     blob_append(&dirname, "in the top-level directory", -1);
     zPrefix = "";
+    if( linkTrunk ){
+      style_submenu_element("Trunk", "Trunk", "%R/dir?ci=trunk");
+    }
+    if ( linkTip ){
+      style_submenu_element("Tip", "Tip", "%R/dir?ci=tip");
+    }
   }
   if( zCI ){
     char zShort[20];
@@ -171,38 +187,20 @@ void page_dir(void){
                             zUuid);
     }
   }else{
-    int hasTrunk;
     @ <h2>The union of all files from all check-ins
     @ %s(blob_str(&dirname))</h2>
-    hasTrunk = db_exists(
-                  "SELECT 1 FROM tagxref WHERE tagid=%d AND value='trunk'",
-                  TAG_BRANCH);
     zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
-    if( zD ){
-      style_submenu_element("Top", "Top", "%R/dir");
-      style_submenu_element("Tip", "Tip", "%R/dir?name=%t&ci=tip", zD);
-      if( hasTrunk ){
-        style_submenu_element("Trunk", "Trunk", "%R/dir?name=%t&ci=trunk",
-                               zD);
-      }
-    }else{
-      style_submenu_element("Tip", "Tip", "%R/dir?ci=tip");
-      if( hasTrunk ){
-        style_submenu_element("Trunk", "Trunk", "%R/dir?ci=trunk");
-      }
-    }
   }
 
   /* Compute the temporary table "localfiles" containing the names
-  ** of all files and subdirectories in the zD[] directory.  
+  ** of all files and subdirectories in the zD[] directory.
   **
   ** Subdirectory names begin with "/".  This causes them to sort
   ** first and it also gives us an easy way to distinguish files
   ** from directories in the loop that follows.
   */
   db_multi_exec(
-     "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL %s, u);",
-     filename_collation()
+     "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL, u);"
   );
   if( zCI ){
     Stmt ins;
@@ -216,14 +214,14 @@ void page_dir(void){
     );
     manifest_file_rewind(pM);
     while( (pFile = manifest_file_next(pM,0))!=0 ){
-      if( nD>0 
-       && (filenames_strncmp(pFile->zName, zD, nD-1)!=0
+      if( nD>0
+       && (fossil_strncmp(pFile->zName, zD, nD-1)!=0
            || pFile->zName[nD-1]!='/')
       ){
         continue;
       }
       if( pPrev
-       && filenames_strncmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0
+       && fossil_strncmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0
        && (pFile->zName[nD+nPrev]==0 || pFile->zName[nD+nPrev]=='/')
       ){
         continue;
@@ -238,21 +236,12 @@ void page_dir(void){
     }
     db_finalize(&ins);
   }else if( zD ){
-    if( filenames_are_case_sensitive() ){
-      db_multi_exec(
-        "INSERT OR IGNORE INTO localfiles"
-        " SELECT pathelement(name,%d), NULL FROM filename"
-        "  WHERE name GLOB '%q/*'",
-        nD, zD
-      );
-    }else{
-      db_multi_exec(
-        "INSERT OR IGNORE INTO localfiles"
-        " SELECT pathelement(name,%d), NULL FROM filename"
-        "  WHERE name LIKE '%q/%%'",
-        nD, zD
-      );
-    }
+    db_multi_exec(
+      "INSERT OR IGNORE INTO localfiles"
+      " SELECT pathelement(name,%d), NULL FROM filename"
+      "  WHERE name GLOB '%q/*'",
+      nD, zD
+    );
   }else{
     db_multi_exec(
       "INSERT OR IGNORE INTO localfiles"
@@ -283,19 +272,41 @@ void page_dir(void){
     zFN = db_column_text(&q, 0);
     if( zFN[0]=='/' ){
       zFN++;
-      @ <li>%z(href("%s%T",zSubdirLink,zFN))%h(zFN)</a></li>
-    }else if( zCI ){
-      const char *zUuid = db_column_text(&q, 1);
-      @ <li>%z(href("%R/artifact/%s",zUuid))%h(zFN)</a></li>
+      @ <li class="dir">%z(href("%s%T",zSubdirLink,zFN))%h(zFN)</a></li>
     }else{
-      @ <li>%z(href("%R/finfo?name=%T%T",zPrefix,zFN))%h(zFN)
-      @     </a></li>
+      const char *zLink;
+      if( zCI ){
+        const char *zUuid = db_column_text(&q, 1);
+        zLink = href("%R/artifact/%s",zUuid);
+      }else{
+        zLink = href("%R/finfo?name=%T%T",zPrefix,zFN);
+      }
+      @ <li class="%z(fileext_class(zFN))">%z(zLink)%h(zFN)</a></li>
     }
   }
   db_finalize(&q);
   manifest_destroy(pM);
   @ </ul></td></tr></table>
   style_footer();
+}
+
+/*
+** Return a CSS class name based on the given filename's extension.
+** Result must be freed by the caller.
+**/
+const char *fileext_class(const char *zFilename){
+  char *zClass;
+  const char *zExt = strrchr(zFilename, '.');
+  int isExt = zExt && zExt!=zFilename && zExt[1];
+  int i;
+  for( i=1; isExt && zExt[i]; i++ ) isExt &= fossil_isalnum(zExt[i]);
+  if( isExt ){
+    zClass = mprintf("file-%s", zExt+1);
+    for ( i=5; zClass[i]; i++ ) zClass[i] = fossil_tolower(zClass[i]);
+  }else{
+    zClass = mprintf("file");
+  }
+  return zClass;
 }
 
 /*
@@ -325,7 +336,7 @@ int compute_fileage(int vid){
   pManifest = manifest_get(vid, CFTYPE_MANIFEST);
   if( pManifest==0 ) return 1;
   manifest_file_rewind(pManifest);
-  db_prepare(&ins, 
+  db_prepare(&ins,
      "INSERT INTO temp.fileage(fid, pathname)"
      "  SELECT rid, :path FROM blob WHERE uuid=:uuid"
   );
@@ -402,9 +413,9 @@ void fileage_page(void){
   @ <h2>File Ages For Check-in
   @ %z(href("%R/info?name=%T",zName))%h(zName)</a></h2>
   @
-  @ <p>The times given are relative 
+  @ <p>The times given are relative to
   @ %z(href("%R/timeline?c=%T",zBaseTime))%s(zBaseTime)</a>, which is the
-  @ check-in time for 
+  @ check-in time for
   @ %z(href("%R/info?name=%T",zName))%h(zName)</a></p>
   @
   @ <table border=0 cellspacing=0 cellpadding=0>
@@ -445,5 +456,5 @@ void fileage_page(void){
   @ <tr><td colspan=3><hr></tr>
   @ </table>
   db_finalize(&q);
-  style_footer();  
+  style_footer();
 }

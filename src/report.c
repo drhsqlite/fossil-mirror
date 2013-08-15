@@ -925,19 +925,25 @@ int sqlite3_exec_readonly(
 **
 **     http://www.webtoolkit.info/sortable-html-table.html
 **
+** This variation allows column types to be expressed using the second
+** argument.  Each character of the second argument represent a column.
+** "t" means sort as text.  "n" means sort numerically.  "x" means do not
+** sort on this column.  If there are fewer characters in zColumnTypes[] than
+** their are columns, the all extra columns assume type "t" (text).
 */
-static void output_table_sorting_javascript(const char *zTableId){
+void output_table_sorting_javascript(const char *zTableId, const char *zColumnTypes){
   @ <script>
-  @ function SortableTable(tableEl){
+  @ function SortableTable(tableEl,columnTypes){
   @   this.tbody = tableEl.getElementsByTagName('tbody');
   @   this.sort = function (cell) {
   @     var column = cell.cellIndex;
+  @     var sortFn = cell.sortType=="n" ? this.sortNumeric : this.sortText;
   @     this.sortIndex = column;
   @     var newRows = new Array();
   @     for (j = 0; j < this.tbody[0].rows.length; j++) {
   @        newRows[j] = this.tbody[0].rows[j];
   @     }
-  @     newRows.sort(this.sortText);
+  @     newRows.sort(sortFn);
   @     if (cell.getAttribute("sortdir") == 'down') {
   @        newRows.reverse();
   @        cell.setAttribute('sortdir','up');
@@ -956,6 +962,14 @@ static void output_table_sorting_javascript(const char *zTableId){
   @     if(aa<bb) return -1;
   @     return 1;
   @   }
+  @   this.sortNumeric = function(a,b) {
+  @     var i = thisObject.sortIndex;
+  @     aa = parseFloat(a.cells[i].textContent);
+  @     if (isNaN(aa)) aa = 0;
+  @     bb = parseFloat(b.cells[i].textContent);
+  @     if (isNaN(bb)) bb = 0;
+  @     return aa-bb;
+  @   }
   @   var thisObject = this;
   @   var x = tableEl.getElementsByTagName('thead');
   @   if(!(this.tbody && this.tbody[0].rows && this.tbody[0].rows.length>0)){
@@ -968,13 +982,14 @@ static void output_table_sorting_javascript(const char *zTableId){
   @   }
   @   for (var i=0; i<sortRow.cells.length; i++) {
   @     sortRow.cells[i].sTable = this;
+  @     sortRow.cells[i].sortType = columnTypes[i] || 't';
   @     sortRow.cells[i].onclick = function () {
   @       this.sTable.sort(this);
   @       return false;
   @     }
   @   }
   @ }
-  @ var t = new SortableTable(gebi("%s(zTableId)"));
+  @ var t = new SortableTable(gebi("%s(zTableId)"),"%s(zColumnTypes)");
   @ </script>
 }
 
@@ -1069,7 +1084,7 @@ void rptview_page(void){
     }else if( zErr2 ){
       @ <p class="reportError">Error: %h(zErr2)</p>
     }
-    output_table_sorting_javascript("reportTable");
+    output_table_sorting_javascript("reportTable","");
     style_footer();
   }else{
     report_restrict_sql(&zErr1);

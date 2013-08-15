@@ -168,16 +168,31 @@ void search_sql_setup(Search *p){
 ** Testing the search function.
 **
 ** COMMAND: search*
-** %fossil search pattern...
+** %fossil search [-all|-a] [-limit|-n #] pattern...
 **
-** Search for timeline entries matching the pattern.
+** Search for timeline entries matching all words
+** provided on the command line. Whole-word matches
+** scope more highly than partial matches.
+**
+** Outputs, by default, some top-N fraction of the
+** results. The -all option can be used to output
+** all matches, regardless of their search score.
+** -limit can be used to limit the number of entries
+** returned.
 */
 void search_cmd(void){
   Search *p;
   Blob pattern;
   int i;
+  Blob sql = empty_blob;
   Stmt q;
   int iBest;
+  char fAll = NULL != find_option("all", "a", 0); /* If set, do not lop
+                                                     off the end of the
+                                                     results. */
+  char const * zLimit = find_option("limit","n",1);
+  int const nLimit = zLimit ? atoi(zLimit) : -1; /* Max number of entries
+                                                    to list */
 
   db_must_be_within_tree();
   if( g.argc<2 ) return;
@@ -200,11 +215,18 @@ void search_cmd(void){
      "    WHERE blob.rid=event.objid AND y>0;"
   );
   iBest = db_int(0, "SELECT max(x) FROM srch");
-  db_prepare(&q, 
-    "SELECT rid, uuid, date, comment, 0, 0 FROM srch"
-    " WHERE x>%d ORDER BY x DESC, date DESC",
-    iBest/3
-  );
+  blob_append(&sql,
+              "SELECT rid, uuid, date, comment, 0, 0 FROM srch "
+              "WHERE 1 ", -1);
+  if(!fAll){
+    blob_appendf(&sql,"AND x>%d ", iBest/3);
+  }
+  blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
+  if(nLimit>0){
+    blob_appendf(&sql, "LIMIT %d", nLimit);
+  }
+  db_prepare(&q, blob_str(&sql));
+  blob_reset(&sql);
   print_timeline(&q, 1000, 0);
   db_finalize(&q);
 }

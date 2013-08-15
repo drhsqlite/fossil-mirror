@@ -218,8 +218,8 @@ int login_search_uid(char const *zUsername, char const *zPasswd){
              " WHERE login=%Q"
              "   AND length(cap)>0 AND length(pw)>0"
              "   AND login NOT IN ('anonymous','nobody','developer','reader')"
-             "   AND (pw=%Q OR pw=%Q)",
-             zUsername, zPasswd, zSha1Pw
+             "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))",
+             zUsername, zSha1Pw, zPasswd
              );
   free(zSha1Pw);
   return uid;
@@ -393,9 +393,9 @@ static int isHuman(const char *zAgent){
     if( prefix_match("spider", zAgent+i) ) return 0;
     if( prefix_match("crawl", zAgent+i) ) return 0;
     /* If a URI appears in the User-Agent, it is probably a bot */
-    if( memcmp("http", zAgent+i,4)==0 ) return 0;
+    if( strncmp("http", zAgent+i,4)==0 ) return 0;
   }
-  if( memcmp(zAgent, "Mozilla/", 8)==0 ){
+  if( strncmp(zAgent, "Mozilla/", 8)==0 ){
     if( atoi(&zAgent[8])<4 ) return 0;  /* Many bots advertise as Mozilla/3 */
     if( strglob("*Firefox/[1-9]*", zAgent) ) return 1;
     if( strglob("*Chrome/[1-9]*", zAgent) ) return 1;
@@ -403,10 +403,10 @@ static int isHuman(const char *zAgent){
     if( strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent) ) return 1;
     return 0;
   }
-  if( memcmp(zAgent, "Opera/", 6)==0 ) return 1;
-  if( memcmp(zAgent, "Safari/", 7)==0 ) return 1;
-  if( memcmp(zAgent, "Lynx/", 5)==0 ) return 1;
-  if( memcmp(zAgent, "NetSurf/", 8)==0 ) return 1;
+  if( strncmp(zAgent, "Opera/", 6)==0 ) return 1;
+  if( strncmp(zAgent, "Safari/", 7)==0 ) return 1;
+  if( strncmp(zAgent, "Lynx/", 5)==0 ) return 1;
+  if( strncmp(zAgent, "NetSurf/", 8)==0 ) return 1;
   return 0;
 }
 
@@ -600,7 +600,7 @@ void login_page(void){
   @   gebi('u').focus()
   @   function chngAction(form){
   if( g.sslNotAvailable==0
-   && memcmp(g.zBaseURL,"https:",6)!=0
+   && strncmp(g.zBaseURL,"https:",6)!=0
    && db_get_boolean("https-login",0)
   ){
      char *zSSL = mprintf("https:%s", &g.zBaseURL[5]);
@@ -765,10 +765,13 @@ static int login_find_user(
 /*
 ** This routine examines the login cookie to see if it exists and
 ** is valid.  If the login cookie checks out, it then sets global
-** variables appropriately.  Global variables set include g.userUid
-** and g.zLogin and the g.perm family of permission booleans.
+** variables appropriately.
 **
-** If the 
+**    g.userUid      Database USER.UID value.  Might be -1 for "nobody"
+**    g.zLogin       Database USER.LOGIN value.  NULL for user "nobody"
+**    g.perm         Permissions granted to this user
+**    g.isHuman      True if the user is human, not a spider or robot
+**
 */
 void login_check_credentials(void){
   int uid = 0;                  /* User id */
@@ -801,6 +804,7 @@ void login_check_credentials(void){
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
     zCap = "sx";
     g.noPswd = 1;
+    g.isHuman = 1;
     sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "localhost");
   }
 
@@ -909,13 +913,23 @@ void login_check_credentials(void){
   if( fossil_strcmp(g.zLogin,"nobody")==0 ){
     g.zLogin = 0;
   }
+  g.isHuman = g.zLogin==0 ? isHuman(P("HTTP_USER_AGENT")) : 1;
 
   /* Set the capabilities */
   login_replace_capabilities(zCap, 0);
   login_set_anon_nobody_capabilities();
-  if( zCap[0] && !g.perm.Hyperlink
+
+  /* The auto-hyperlink setting allows hyperlinks to be displayed for users
+  ** who do not have the "h" permission as long as their UserAgent string
+  ** makes it appear that they are human.  Check to see if auto-hyperlink is
+  ** enabled for this repository and make appropriate adjustments to the
+  ** permission flags if it is.
+  */
+  if( zCap[0]
+   && !g.perm.Hyperlink
+   && g.isHuman
    && db_get_boolean("auto-hyperlink",1)
-      && isHuman(P("HTTP_USER_AGENT")) ){
+  ){
     g.perm.Hyperlink = 1;
     g.javascriptHyperlink = 1;
   }
@@ -1040,6 +1054,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
 void login_replace_capabilities(const char *zCap, unsigned flags){
   memset(&g.perm, 0, sizeof(g.perm));
   login_set_capabilities(zCap, flags);
+  login_anon_once = 1;
 }
 
 /*
