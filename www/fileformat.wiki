@@ -606,7 +606,7 @@ or more such cards are required.
 <td align=center><b>1</b></td>
 </tr>
 <tr>
-<td><b>F</b> <i>filename uuid permissions oldname</i></td>
+<td><b>F</b> <i>filename uuid ?permissions ?oldname??</i></td>
 <td align=center><b>0+</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
@@ -696,7 +696,7 @@ or more such cards are required.
 <td align=center>&nbsp;</td>
 <tr><td>&nbsp;</td><td colspan='7'>* = Required when using F cards</td></tr>
 <tr>
-<td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname uuid value</i></td>
+<td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname uuid ?value?</i></td>
 <td align=center><b>0+</b></td>
 <td align=center>&nbsp;</td>
 <td align=center><b>1+</b></td>
