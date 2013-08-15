@@ -662,7 +662,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       /*
       **     P <uuid> ...
       **
-      ** Specify one or more other artifacts where are the parents of
+      ** Specify one or more other artifacts which are the parents of
       ** this artifact.  The first parent is the primary parent.  All
       ** others are parents by merge.
       */
