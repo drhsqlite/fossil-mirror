@@ -100,12 +100,12 @@ Allowed cards in the manifest are as follows:
 <b>B</b> <i>baseline-manifest</i><br>
 <b>C</b> <i>checkin-comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br>
-<b>F</b> <i>filename</i> <i>SHA1-hash</i> <i>permissions</i> <i>old-name</i><br>
+<b>F</b> <i>filename</i> ?<i>SHA1-hash</i>? ?<i>permissions</i>? ?<i>old-name</i>?<br>
 <b>N</b> <i>mimetype</i><br>
 <b>P</b> <i>SHA1-hash</i>+<br>
-<b>Q</b> (<b>+</b>|<b>-</b>)<i>SHA1-hash ?SHA1-hash?</i><br>
+<b>Q</b> (<b>+</b>|<b>-</b>)<i>SHA1-hash</i> ?<i>SHA1-hash</i>?<br>
 <b>R</b> <i>repository-checksum</i><br>
-<b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name  <b>*</b> ?value?</i><br>
+<b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name</i> <b>*</b> ?<i>value</i>?<br>
 <b>U</b> <i>user-login</i><br>
 <b>Z</b> <i>manifest-checksum</i>
 </blockquote>
@@ -293,7 +293,7 @@ Allowed cards in a control artifact are as follows:
 
 <blockquote>
 <b>D</b> <i>time-and-date-stamp</i><br />
-<b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name  artifact-id  ?value?</i><br />
+<b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name</i> <i>artifact-id</i> ?<i>value</i>?<br />
 <b>U</b> <i>user-name</i><br />
 <b>Z</b> <i>checksum</i><br />
 </blockquote>
@@ -477,7 +477,7 @@ The following cards are allowed on an event artifact:
 <b>E</b> <i>event-time</i> <i>event-id</i><br />
 <b>N</b> <i>mimetype</i><br />
 <b>P</b> <i>parent-artifact-id</i>+<br />
-<b>T</b> <b>+</b><i>tag-name</i> <b>*</b> <i>value</i><br />
+<b>T</b> <b>+</b><i>tag-name</i> <b>*</b> ?<i>value</i>?<br />
 <b>U</b> <i>user-name</i><br />
 <b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
 <b>Z</b> <i>checksum</i>
@@ -555,7 +555,7 @@ or more such cards are required.
 <th>Event</th>
 </tr>
 <tr>
-<td><b>A</b> <i>filename target source</i></td>
+<td><b>A</b> <i>filename</i> <i>target</i> ?<i>source</i>?</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -606,7 +606,7 @@ or more such cards are required.
 <td align=center><b>1</b></td>
 </tr>
 <tr>
-<td><b>F</b> <i>filename uuid ?permissions ?oldname??</i></td>
+<td><b>F</b> <i>filename</i> ?<i>uuid</i>? ?<i>permissions</i>? ?<i>oldname</i>?</td>
 <td align=center><b>0+</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
@@ -616,7 +616,7 @@ or more such cards are required.
 <td align=center>&nbsp;</td>
 </tr>
 <tr>
-<td><b>J</b> <i>name value</i></td>
+<td><b>J</b> <i>name</i> ?<i>value</i>?</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
@@ -676,7 +676,7 @@ or more such cards are required.
 <td align=center><b>0-1</b></td>
 </tr>
 <tr>
-<td><b>Q</b> (<b>+</b>|<b>-</b>)<i>uuid uuid</i></td>
+<td><b>Q</b> (<b>+</b>|<b>-</b>)<i>uuid</i> ?<i>uuid</i>?</td>
 <td align=center><b>0+</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
@@ -696,7 +696,7 @@ or more such cards are required.
 <td align=center>&nbsp;</td>
 <tr><td>&nbsp;</td><td colspan='7'>* = Required when using F cards</td></tr>
 <tr>
-<td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname uuid ?value?</i></td>
+<td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname</i> <i>uuid</i> ?<i>value</i>?</td>
 <td align=center><b>0+</b></td>
 <td align=center>&nbsp;</td>
 <td align=center><b>1+</b></td>
