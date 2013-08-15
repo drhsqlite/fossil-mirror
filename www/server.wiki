@@ -102,7 +102,7 @@ off of the wire.
 [http://www.stunnel.org/ | Stunnel version 4] is an inetd-like process that
 accepts and decodes SSL-encrypted connections.  Fossil can be run directly from
 stunnel in a mannar similar to inetd and xinetd.  This can be used to provide
-a secure link to a Fossil project.  The configure needed to get stunnel4
+a secure link to a Fossil project.  The configuration needed to get stunnel4
 to invoke Fossil is very similar to the inetd and xinetd examples shown above.
 See the stunnel4 documentation for details.
 <p>
