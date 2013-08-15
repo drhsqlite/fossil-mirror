@@ -533,7 +533,7 @@ The Z card is the required checksum over the rest of the artifact.
 <a name="summary"></a>
 <h2>8.0 Card Summary</h2>
 
-The following table summaries the various kinds of cards that appear
+The following table summarizes the various kinds of cards that appear
 on Fossil artifacts. A blank entry means that combination of card and
 artifact is not legal. A number or range of numbers indicates the number
 of times a card may (or must) appear in the corresponding artifact type.
