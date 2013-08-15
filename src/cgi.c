@@ -839,13 +839,8 @@ void cgi_init(void){
   if( cgi_parameter("PATH_INFO",0)==0 ){
     int i, j;
     for(i=0; zRequestUri[i]==zScriptName[i] && zRequestUri[i]; i++){}
-    if( zRequestUri[i]=='/' ){
-      for(j=i; zRequestUri[j] && zRequestUri[j]!='?'; j++){}
-      cgi_set_parameter("PATH_INFO", mprintf("%.*s", j-i, zRequestUri+i));
-    }else{
-      malformed_request("cannot compute PATH_INFO from REQUEST_URI"
-                        " and SCRIPT_NAME");
-    }
+    for(j=i; zRequestUri[j] && zRequestUri[j]!='?'; j++){}
+    cgi_set_parameter("PATH_INFO", mprintf("%.*s", j-i, zRequestUri+i));
   }
 
   z = (char*)P("HTTP_COOKIE");
