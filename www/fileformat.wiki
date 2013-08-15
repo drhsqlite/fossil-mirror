@@ -534,9 +534,11 @@ The Z card is the required checksum over the rest of the artifact.
 <h2>8.0 Card Summary</h2>
 
 The following table summaries the various kinds of cards that appear
-on Fossil artifacts. An "R" means that the card is required and "O"
-means it is optional (or optional in specific contexts). A blank entry
-means the card is not legal for that artifact type.
+on Fossil artifacts. A blank entry means that combination of card and
+artifact is not legal. A number or range of numbers indicates the number
+of times a card may (or must) appear in the corresponding artifact type.
+e.g. a value of 1 indicates a required unique card and 1+ indicates that one
+or more such cards are required.
 
 <table border=1 width="100%">
 <tr>
@@ -559,12 +561,12 @@ means the card is not legal for that artifact type.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
-<td align=center><b>R</b></td>
+<td align=center><b>1</b></td>
 <td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>B</b> <i>baseline</i></td>
-<td align=center><b>O</b></td>
+<td align=center><b>0-1*</b></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -572,25 +574,26 @@ means the card is not legal for that artifact type.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 </tr>
+<tr><td>&nbsp;</td><td colspan='7'>* = Required for delta manifests</td></tr>
 <tr>
 <td><b>C</b> <i>comment-text</i></td>
-<td align=center><b>R</b></td>
+<td align=center><b>1</b></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
-<td align=center><b>O</b></td>
-<td align=center><b>R</b></td>
+<td align=center><b>0-1</b></td>
+<td align=center><b>1</b></td>
 </tr>
 <tr>
 <td><b>D</b> <i>date-time-stamp</i></td>
-<td align=center><b>R</b></td>
+<td align=center><b>1</b></td>
 <td align=center>&nbsp;</td>
-<td align=center><b>R</b></td>
-<td align=center><b>R</b></td>
-<td align=center><b>R</b></td>
-<td align=center><b>R</b></td>
-<td align=center><b>R</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
 </tr>
 <tr>
 <td><b>E</b> <i>event-time event-id</i></td>
@@ -600,11 +603,11 @@ means the card is not legal for that artifact type.
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<td align=center><b>R</b></td>
+<td align=center><b>1</b></td>
 </tr>
 <tr>
 <td><b>F</b> <i>filename uuid permissions oldname</i></td>
-<td align=center><b>O</b></td>
+<td align=center><b>0+</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
@@ -618,7 +621,7 @@ means the card is not legal for that artifact type.
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<td align=center><b>R</b></td>
+<td align=center><b>1+</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 </tr>
@@ -628,7 +631,7 @@ means the card is not legal for that artifact type.
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<td align=center><b>R</b></td>
+<td align=center><b>1</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 </tr>
@@ -637,7 +640,7 @@ means the card is not legal for that artifact type.
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<td align=center><b>R</b></td>
+<td align=center><b>1</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
@@ -645,7 +648,7 @@ means the card is not legal for that artifact type.
 <tr>
 <td><b>M</b> <i>uuid</i></td>
 <td align=center>&nbsp;</td>
-<td align=center><b>R</b></td>
+<td align=center><b>1+</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
@@ -654,27 +657,27 @@ means the card is not legal for that artifact type.
 </tr>
 <tr>
 <td><b>N</b> <i>mimetype</i></td>
-<td align=center><b>O</b></td>
+<td align=center><b>0-1</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<td align=center><b>O</b></td>
+<td align=center><b>0-1</b></td>
 <td align=center>&nbsp;</td>
-<td align=center><b>O</b></td>
-<td align=center><b>O</b></td>
+<td align=center><b>0-1</b></td>
+<td align=center><b>0-1</b></td>
 </tr>
 <tr>
 <td><b>P</b> <i>uuid ...</i></td>
-<td align=center><b>O</b></td>
+<td align=center><b>0-1</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<td align=center><b>O</b></td>
+<td align=center><b>0-1</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<td align=center><b>O</b></td>
+<td align=center><b>0-1</b></td>
 </tr>
 <tr>
 <td><b>Q</b> (<b>+</b>|<b>-</b>)<i>uuid uuid</i></td>
-<td align=center><b>O</b></td>
+<td align=center><b>0+</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
@@ -684,7 +687,7 @@ means the card is not legal for that artifact type.
 </tr>
 <tr>
 <td><b>R</b> <i>md5sum</i></td>
-<td align=center><b>O*</b></td>
+<td align=center><b>0-1*</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
@@ -694,43 +697,43 @@ means the card is not legal for that artifact type.
 <tr><td>&nbsp;</td><td colspan='7'>* = Required when using F cards</td></tr>
 <tr>
 <td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname uuid value</i></td>
-<td align=center><b>O</b></td>
+<td align=center><b>0+</b></td>
 <td align=center>&nbsp;</td>
-<td align=center><b>R</b></td>
+<td align=center><b>1+</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<td align=center><b>O</b></td>
+<td align=center><b>0+</b></td>
 </tr>
 <tr>
 <td><b>U</b> <i>username</i></td>
-<td align=center><b>R</b></td>
+<td align=center><b>1</b></td>
 <td align=center>&nbsp;</td>
-<td align=center><b>R</b></td>
-<td align=center><b>R</b></td>
-<td align=center><b>R</b></td>
-<td align=center><b>O</b></td>
-<td align=center><b>O</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>0-1</b></td>
+<td align=center><b>0-1</b></td>
 </tr>
 <tr>
 <td><b>W</b> <i>size</i></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<td align=center><b>R</b></td>
+<td align=center><b>1</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<td align=center><b>R</b></td>
+<td align=center><b>1</b></td>
 </tr>
 <tr>
 <td><b>Z</b> <i>md5sum</i></td>
-<td align=center><b>R</b></td>
-<td align=center><b>R</b></td>
-<td align=center><b>R</b></td>
-<td align=center><b>R</b></td>
-<td align=center><b>R</b></td>
-<td align=center><b>R</b></td>
-<td align=center><b>R</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
 </tr>
 </table>
 
