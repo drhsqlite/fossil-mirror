@@ -1729,7 +1729,7 @@ void commit_cmd(void){
         blob_zero(&ctrl);
         zDate = date_in_standard_format(sCiInfo.zDateOvrd ? sCiInfo.zDateOvrd : "now");
         blob_appendf(&ctrl, "D %s\n", zDate);
-        blob_appendf(&ctrl, "T +closed %s\n", zIntegrateUuid);
+        blob_appendf(&ctrl, "T +closed %s by\\smerge\\s--integrate\n", zIntegrateUuid);
         blob_appendf(&ctrl, "U %F\n", sCiInfo.zUserOvrd ? sCiInfo.zUserOvrd : g.zLogin);
         md5sum_blob(&ctrl, &cksum);
         blob_appendf(&ctrl, "Z %b\n", &cksum);
