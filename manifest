@@ -1,5 +1,5 @@
-C Fix\sdisplay\sof\stimeline\sgraph\sin\sIE8,\sbroken\sby\scommit\s[e412f97999]
-D 2013-08-16T08:17:43.789
+C Added\sa\sminor\sclarification\sregarding\sfossilization\sof\sstrings\sto\sthe\sR\scard\sdemo.
+D 2013-08-16T09:14:56.994
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -584,7 +584,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
 F www/faq.tcl b9e03410240fcc3907848877a452f2883cda7e86
 F www/faq.wiki 281b387c178fd439a4d2f47856434dd2e54f566f
-F www/fileformat.wiki f6f61f4f38e30c31d3cfb1a826168c32fcc29591
+F www/fileformat.wiki 29e518dca19a8f404f3097cac9419c76626076d8
 F www/fiveminutes.wiki f83379e169ba6f17066f2988ad3a4bbf27984748
 F www/foss-cklist.wiki 881f1c5f69f1880c756152cff7a6f9c78ce72d4f
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c06e296b4069e2792a4cfa3b7d2672266e0537fd ef5e74961acda29e97db547c9e9a92c9f36f3417
-R e91d473d829b5bf7ea2b881c068d3612
-U jan.nijtmans
-Z 2a3f73b17ecc46698a33d7b90ed2d038
+P 5885241f52c6182e92368b19d0da892bb61f9a01
+R 6b45941d32fdebc79234b3069997c87b
+U stephan
+Z 5744686b1f529bd10e09669c516bc69c

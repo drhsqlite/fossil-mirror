@@ -773,3 +773,9 @@ R c0788982781981c96a0d81465fec7192
 done | md5sum
 c0788982781981c96a0d81465fec7192  -
 </pre></nowiki>
+
+Minor caveat: the above demonstration will work only when none of the
+filenames in the manifest are "fossilized" (encoded) because they contain
+spaces. In that case the shell-generated hash would differ because the
+<tt>stat</tt> calls will fail to find such files (which are output in encoded
+form here).
