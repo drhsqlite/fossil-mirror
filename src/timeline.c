@@ -651,9 +651,9 @@ void timeline_output_graph_javascript(
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
     @ var canvasDiv = gebi("canvas");
-    @ var canvasStyle = window.getComputedStyle(canvasDiv,null);
-    @ var lineColor = canvasStyle.getPropertyValue('color') || 'black';
-    @ var bgColor = canvasStyle.getPropertyValue('background-color') || 'white';
+    @ var canvasStyle = window.getComputedStyle && window.getComputedStyle(canvasDiv,null);
+    @ var lineColor = (canvasStyle && window.getComputedStyle(canvasDiv,null).getPropertyValue('color')) || 'black';
+    @ var bgColor = (canvasStyle && canvasStyle.getPropertyValue('background-color')) || 'white';
     @ if( bgColor=='transparent' ) bgColor = 'white';
     @ var boxColor = lineColor;
     @ function drawBox(color,x0,y0,x1,y1){
