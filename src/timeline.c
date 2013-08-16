@@ -651,6 +651,11 @@ void timeline_output_graph_javascript(
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
     @ var canvasDiv = gebi("canvas");
+    @ var canvasStyle = window.getComputedStyle(canvasDiv,null);
+    @ var lineColor = canvasStyle.getPropertyValue('color') || 'black';
+    @ var bgColor = canvasStyle.getPropertyValue('background-color') || 'white';
+    @ if( bgColor=='transparent' ) bgColor = 'white';
+    @ var boxColor = lineColor;
     @ function drawBox(color,x0,y0,x1,y1){
     @   var n = document.createElement("div");
     @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
@@ -691,34 +696,34 @@ void timeline_output_graph_javascript(
     @   return left;
     @ }
     @ function drawUpArrow(x,y0,y1){
-    @   drawBox("black",x,y0,x+1,y1);
+    @   drawBox(lineColor,x,y0,x+1,y1);
     @   if( y0+10>=y1 ){
-    @     drawBox("black",x-1,y0+1,x+2,y0+2);
-    @     drawBox("black",x-2,y0+3,x+3,y0+4);
+    @     drawBox(lineColor,x-1,y0+1,x+2,y0+2);
+    @     drawBox(lineColor,x-2,y0+3,x+3,y0+4);
     @   }else{
-    @     drawBox("black",x-1,y0+2,x+2,y0+4);
-    @     drawBox("black",x-2,y0+5,x+3,y0+7);
+    @     drawBox(lineColor,x-1,y0+2,x+2,y0+4);
+    @     drawBox(lineColor,x-2,y0+5,x+3,y0+7);
     @   }
     @ }
     @ function drawThinArrow(y,xFrom,xTo){
     @   if( xFrom<xTo ){
-    @     drawBox("black",xFrom,y,xTo,y);
-    @     drawBox("black",xTo-3,y-1,xTo-2,y+1);
-    @     drawBox("black",xTo-4,y-2,xTo-4,y+2);
+    @     drawBox(lineColor,xFrom,y,xTo,y);
+    @     drawBox(lineColor,xTo-3,y-1,xTo-2,y+1);
+    @     drawBox(lineColor,xTo-4,y-2,xTo-4,y+2);
     @   }else{
-    @     drawBox("black",xTo,y,xFrom,y);
-    @     drawBox("black",xTo+2,y-1,xTo+3,y+1);
-    @     drawBox("black",xTo+4,y-2,xTo+4,y+2);
+    @     drawBox(lineColor,xTo,y,xFrom,y);
+    @     drawBox(lineColor,xTo+2,y-1,xTo+3,y+1);
+    @     drawBox(lineColor,xTo+4,y-2,xTo+4,y+2);
     @   }
     @ }
     @ function drawThinLine(x0,y0,x1,y1){
-    @   drawBox("black",x0,y0,x1,y1);
+    @   drawBox(lineColor,x0,y0,x1,y1);
     @ }
     @ function drawNode(p, left, btm){
-    @   drawBox("black",p.x-5,p.y-5,p.x+6,p.y+6);
-    @   drawBox(p.bg,p.x-4,p.y-4,p.x+5,p.y+5);
+    @   drawBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
+    @   drawBox(p.bg||bgColor,p.x-4,p.y-4,p.x+5,p.y+5);
     @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
-    @   if( p.f&1 ) drawBox("black",p.x-1,p.y-1,p.x+2,p.y+2);
+    @   if( p.f&1 ) drawBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2);
     if( !omitDescenders ){
       @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
       @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
@@ -742,7 +747,7 @@ void timeline_output_graph_javascript(
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
-    @       drawBox("black",x0,p.y,x1,p.y+1);
+    @       drawBox(lineColor,x0,p.y,x1,p.y+1);
     @       drawUpArrow(x1, u.y+6, p.y);
     @     }else{
     @       drawBox("#600000",x0,p.y,x1,p.y+1);

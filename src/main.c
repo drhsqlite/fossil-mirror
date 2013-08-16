@@ -187,6 +187,7 @@ struct Global {
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
+  int isHuman;            /* True if access by a human, not a spider or bot */
 
   /* Information used to populate the RCVFROM table */
   int rcvid;              /* The rcvid.  0 if not yet defined. */
@@ -1641,6 +1642,7 @@ static void find_server_repository(int disallowDir){
 **   --notfound URL   use URL as "HTTP 404, object not found" page.
 **   --files GLOB     comma-separate glob patterns for static file to serve
 **   --baseurl URL    base URL (useful with reverse proxies)
+**   --scgi           Interpret input as SCGI rather than HTTP
 **
 ** See also: cgi, server, winsrv
 */
@@ -1650,6 +1652,7 @@ void cmd_http(void){
   const char *zHost;
   const char *zAltBase;
   const char *zFileGlob;
+  int useSCGI;
 
   /* The winhttp module passes the --files option as --files-urlenc with
   ** the argument being URL encoded, to avoid wildcard expansion in the
@@ -1666,6 +1669,7 @@ void cmd_http(void){
   zNotFound = find_option("notfound", 0, 1);
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
+  useSCGI = find_option("scgi", 0, 0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
   if( zAltBase ) set_base_url(zAltBase);
   if( find_option("https",0,0)!=0 ) cgi_replace_parameter("HTTPS","on");
@@ -1690,7 +1694,11 @@ void cmd_http(void){
   }
   find_server_repository(0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
-  cgi_handle_http_request(zIpAddr);
+  if( useSCGI ){
+    cgi_handle_scgi_request();
+  }else{
+    cgi_handle_http_request(zIpAddr);
+  }
   process_one_web_page(zNotFound, glob_create(zFileGlob));
 }
 
@@ -1786,6 +1794,7 @@ static int binaryOnPath(const char *zBinary){
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
 **   --notfound URL      Redirect
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
+**   --scgi              Accept SCGI rather than HTTP
 **
 ** See also: cgi, http, winsrv
 */
@@ -1812,6 +1821,7 @@ void cmd_webserver(void){
   zPort = find_option("port", "P", 1);
   zNotFound = find_option("notfound", 0, 1);
   zAltBase = find_option("baseurl", 0, 1);
+  if( find_option("scgi", 0, 0)!=0 ) flags |= HTTP_SERVER_SCGI;
   if( zAltBase ){
     set_base_url(zAltBase);
   }
@@ -1876,7 +1886,11 @@ void cmd_webserver(void){
   g.cgiOutput = 1;
   find_server_repository(isUiCmd && zNotFound==0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
-  cgi_handle_http_request(0);
+  if( flags & HTTP_SERVER_SCGI ){
+    cgi_handle_scgi_request();
+  }else{
+    cgi_handle_http_request(0);
+  }
   process_one_web_page(zNotFound, glob_create(zFileGlob));
 #else
   /* Win32 implementation */

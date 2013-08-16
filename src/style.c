@@ -114,7 +114,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a %s id='a%d'>", zExtra, nHref);
+  return mprintf("<a %s id='a%d' href='%R/honeypot'>", zExtra, nHref);
 }
 char *href(const char *zFormat, ...){
   char *zUrl;
@@ -132,7 +132,7 @@ char *href(const char *zFormat, ...){
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a id='a%d'>", nHref);
+  return mprintf("<a id='a%d' href='%R/honeypot'>", nHref);
 }
 
 /*
@@ -974,6 +974,7 @@ const struct strctCssDefaults {
   },
   { "table.sbsdiffcols",
     "side-by-side diff display (column-based)",
+    @   width: 90%;
     @   border-spacing: 0;
     @   font-size: xx-small;
   },
@@ -1178,6 +1179,7 @@ void page_test_env(void){
   zCap[i] = 0;
   @ g.userUid = %d(g.userUid)<br />
   @ g.zLogin = %h(g.zLogin)<br />
+  @ g.isHuman = %d(g.isHuman)<br />
   @ capabilities = %s(zCap)<br />
   @ <hr>
   P("HTTP_USER_AGENT");
@@ -1193,4 +1195,14 @@ void page_test_env(void){
     if( zRedir ) cgi_redirect(zRedir);
   }
   style_footer();
+}
+
+/*
+** This page is a honeypot for spiders and bots. 
+**
+** WEBPAGE: honeypot
+*/
+void honeypot_page(void){
+  cgi_set_status(403, "Forbidden");
+  @ <p>Access by spiders and robots is forbidden</p>
 }

@@ -158,7 +158,7 @@ Once you have the command running, you can then start adding code to
 make it do useful things.  There are lots of utility functions in
 Fossil for parsing command-line options and for
 opening and accessing and manipulating the repository and
-the working check-out.  Study at the implementations of existing commands
+the working check-out.  Study implementations of existing commands
 to get an idea of how things are done.  You can easily find the implementations
 of existing commands by searching for "COMMAND: <i>name</i>" in the
 files of the "src/" directory.
