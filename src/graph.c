@@ -200,7 +200,7 @@ int graph_add_row(
   sqlite3_snprintf(sizeof(pRow->zUuid), pRow->zUuid, "%s", zUuid);
   pRow->isLeaf = isLeaf;
   memset(pRow->aiRiser, -1, sizeof(pRow->aiRiser));
-  if( zBgClr==0 || zBgClr[0]==0 ) zBgClr = "white";
+  if( zBgClr==0 ) zBgClr = "";
   pRow->zBgClr = persistBranchName(p, zBgClr);
   memcpy(pRow->aParent, aParent, sizeof(aParent[0])*nParent);
   if( p->pFirst==0 ){

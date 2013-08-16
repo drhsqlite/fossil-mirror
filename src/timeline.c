@@ -651,8 +651,10 @@ void timeline_output_graph_javascript(
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
     @ var canvasDiv = gebi("canvas");
-    @ var canvasStyle = window.getComputedStyle(canvasDiv);
+    @ var canvasStyle = window.getComputedStyle(canvasDiv,null);
     @ var lineColor = canvasStyle.getPropertyValue('color') || 'black';
+    @ var bgColor = canvasStyle.getPropertyValue('background-color') || 'white';
+    @ if( bgColor=='transparent' ) bgColor = 'white';
     @ var boxColor = lineColor;
     @ function drawBox(color,x0,y0,x1,y1){
     @   var n = document.createElement("div");
@@ -719,7 +721,7 @@ void timeline_output_graph_javascript(
     @ }
     @ function drawNode(p, left, btm){
     @   drawBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
-    @   drawBox(p.bg,p.x-4,p.y-4,p.x+5,p.y+5);
+    @   drawBox(p.bg||bgColor,p.x-4,p.y-4,p.x+5,p.y+5);
     @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
     @   if( p.f&1 ) drawBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2);
     if( !omitDescenders ){
