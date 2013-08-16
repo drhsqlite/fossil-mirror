@@ -1926,6 +1926,9 @@ int manifest_crosslink(int rid, Blob *pContent){
     const char *zUuid;
     int branchMove = 0;
     blob_zero(&comment);
+    if( p->zComment ){
+      blob_appendf(&comment, "%s. ", p->zComment);
+    }
     for(i=0; i<p->nTag; i++){
       zUuid = p->aTag[i].zUuid;
       if( i==0 || fossil_strcmp(zUuid, p->aTag[i-1].zUuid)!=0 ){
