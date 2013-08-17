@@ -401,7 +401,7 @@ void eventedit_page(void){
   @ <input type="hidden" name="name" value="%h(zEventId)" />
   @ <table border="0" cellspacing="10">
 
-  @ <tr><th align="right" valign="top">Event&nbsp;Time:</th>
+  @ <tr><th align="right" valign="top">Event&nbsp;Time (UTC):</th>
   @ <td valign="top">
   @   <input type="text" name="t" size="25" value="%h(zETime)" />
   @ </td></tr>
