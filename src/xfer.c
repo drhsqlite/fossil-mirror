@@ -1230,6 +1230,7 @@ void page_xfer(void){
       @ error bad\scommand:\s%F(blob_str(&xfer.line))
     }
     blobarray_reset(xfer.aToken, xfer.nToken);
+    blob_reset(&xfer.line);
   }
   if( isPush ){
     if( run_push_script()==TH_ERROR ){
@@ -1257,6 +1258,7 @@ void page_xfer(void){
   if( recvConfig ){
     configure_finalize_receive();
   }
+  db_multi_exec("DROP TABLE onremote");
   manifest_crosslink_end();
 
   /* Send the server timestamp last, in case prior processing happened

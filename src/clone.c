@@ -92,14 +92,15 @@ void delete_private_content(void){
 **     http[s]://[userid[:password]@]host[:port][/path]
 **
 **   SSH protocol:
-**     ssh://[userid[:password]@]host[:port]/path/to/repo.fossil\\
-**     [?fossil=path/to/fossil.exe]
+**     ssh://[userid[:password]@]host[:port]/path/to/repo.fossil
 **
 **   Filesystem:
 **     [file://]path/to/repo.fossil
 **
 **   Note: For ssh and filesystem, path must have an extra leading 
 **         '/' to use an absolute path.
+**
+**   Note: the userid for SSH is the SSH account, not the Fossil account.
 **
 ** By default, your current login name is used to create the default
 ** admin user. This can be overridden using the -A|--admin-user

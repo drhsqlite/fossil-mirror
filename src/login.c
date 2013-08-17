@@ -795,7 +795,8 @@ void login_check_credentials(void){
   ** full access rights without having to log in.
   */
   zRemoteAddr = ipPrefix(zIpAddr = PD("REMOTE_ADDR","nil"));
-  if( fossil_strcmp(zIpAddr, "127.0.0.1")==0
+  if( ( fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
+        g.fSshClient & CGI_SSH_CLIENT )
    && g.useLocalauth
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0

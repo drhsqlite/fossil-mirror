@@ -114,6 +114,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   blob_appendf(pHdr, "Host: %s\r\n", g.urlHostname);
   blob_appendf(pHdr, "User-Agent: Fossil/" RELEASE_VERSION 
                      " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
+  if( g.urlIsSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
   if( g.fHttpTrace ){
     blob_appendf(pHdr, "Content-Type: application/x-fossil-debug\r\n");
   }else{
@@ -219,6 +220,16 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }else{
         closeConnection = 0;
       }
+    }else if( g.urlIsSsh && fossil_strnicmp(zLine, "status:", 7)==0 ){
+      if( sscanf(zLine, "Status: %d", &rc)!=1 ) goto write_err;
+      if( rc!=200 && rc!=302 ){
+        int ii;
+        for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
+        while( zLine[ii]==' ' ) ii++;
+        fossil_warning("server says: %s", &zLine[ii]);
+        goto write_err;
+      }
+      closeConnection = 0;
     }else if( fossil_strnicmp(zLine, "content-length:", 15)==0 ){
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
@@ -297,8 +308,10 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   ** FIXME:  There is some bug in the lower layers that prevents the
   ** connection from remaining open.  The easiest fix for now is to
   ** simply close and restart the connection for each round-trip.
+  **
+  ** For SSH we will leave the connection open.
   */
-  closeConnection = 1; /* FIX ME */
+  if( ! g.urlIsSsh ) closeConnection = 1; /* FIX ME */
   if( closeConnection ){
     transport_close();
   }else{
