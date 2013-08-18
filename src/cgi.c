@@ -1338,7 +1338,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
     if( zToken==0 ){
       malformed_request("malformed HTTP header");
     }
-  }else if( zToken && strlen(zToken)==0 ){
+  }else if( zToken && strlen(zToken)==0 && zCmd ){
     /* transport_flip request and continued transport_open */
     cgi_handle_ssh_transport(zCmd);
     if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
