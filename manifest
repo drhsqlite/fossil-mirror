@@ -1,5 +1,5 @@
-C Resolved\sticket\s[05f4bbc266].
-D 2013-08-17T19:38:48.786
+C Add\sCSS\sclass\sto\sanchor\sfor\sopen\sleaves\sfor\sconsistency.
+D 2013-08-18T04:22:15.844
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -310,7 +310,7 @@ F src/attach.c 657e139a0654fb2019274cce00ac7e50993e06fb
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 9eef1e8551df42bdee81aef68359e65985c6c8b9
 F src/blob.c b648d6a6793c08c507634cf0145b8915806ee56f
-F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
+F src/branch.c 64b9b4bca80b7db5ff6dbe8fc06565f9803773da
 F src/browse.c 4f11469038984f7e0e886fbae8e44f72b294f6b4
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c b1959e1a66f630cfcf8cf8d390978d324a7833e5
@@ -631,7 +631,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 08429eb7b258d4f045dd2f4163212f0f0eef6774
-R 020beb3b3287f94f34ff41be69ca2bb0
-U stephan
-Z d4cf0e0ad38eabecbe8616e4dcd6ac21
+P 635598ed936c602cae86c2cce041abc44b1b93af
+R a338b48f483800411a42ee2702fbf54b
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U andybradford
+Z e98ae5701a9504de3dc981cd98cd599f
