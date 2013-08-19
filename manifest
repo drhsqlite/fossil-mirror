@@ -1,5 +1,5 @@
-C Don't\suse\sa\sseparate\sControl\sartifact\sfor\s"merge\s--integrate"\sany\smore
-D 2013-08-19T14:30:57.002
+C Set\sdefault\sCSS\sfor\scanvas\snode\scolors\ssince\sChrome\shas\sdifferent\sbrowser\ndefaults\sthan\sall\sothers.
+D 2013-08-19T17:13:01.775
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -400,7 +400,7 @@ F src/sqlite3.c d2696682d62439d94a22d0c72855c1e0bb572bbf
 F src/sqlite3.h 4ca8bc6e389283c6430a27a431712169da1c560c
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 0cd57adbb99c53b894b3751c429b0f814222acf1
-F src/style.c 9dbeede373d1c3780fcd04175c67ca0df7260e26
+F src/style.c 62ec4dd89b86545dcc2403f100aea4ebf2b35f08
 F src/sync.c 0aff66442a69060943513f7bddafc9eb9c0343a7
 F src/tag.c e559f8284f91556a28035efab1caa20b2864c8f6
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -631,8 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 12c30d33d477c81248285f45797fcf1a21313147 eb8787a326d4536de4096e988f047dc1f84338c4
-R b9a504f908769c6b8450f4f531e966a8
-T +closed eb8787a326d4536de4096e988f047dc1f84338c4
-U jan.nijtmans
-Z f8e257acd6ecf42400d1d50ef95abdde
+P daa8eb95e4b13169b0125715df0142293525199d
+R c2d2a39ca48ee46231dbd7f724472b5b
+U drh
+Z 9883e5c00ea7d850a2627b44e002382b

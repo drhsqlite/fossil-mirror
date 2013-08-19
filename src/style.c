@@ -1088,6 +1088,10 @@ const struct strctCssDefaults {
     "odd table row color",
     @ /* Use default */
   },
+  { "#canvas", "timeline graph node colors",
+    @ color: black;
+    @ background-color: white;
+  },
   { 0,
     0,
     0
