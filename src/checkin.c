@@ -1051,6 +1051,18 @@ static void create_manifest(
     /* One-time background color */
     blob_appendf(pOut, "T +bgcolor * %F\n", zColor);
   }
+  db_prepare(&q2, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
+                 " WHERE id=-4 ORDER BY 1");
+  while( db_step(&q2)==SQLITE_ROW ){
+    const char *zIntegrateUuid = db_column_text(&q2, 0);
+    int rid = db_column_int(&q2, 1);
+    if( is_a_leaf(rid) && !db_exists("SELECT 1 FROM tagxref "
+        " WHERE tagid=%d AND rid=%d AND tagtype>0", TAG_CLOSED, rid)){
+      blob_appendf(pOut, "T +closed %s\n", zIntegrateUuid);
+    }
+  }
+  db_finalize(&q2);
+
   if( p->azTag ){
     for(i=0; p->azTag[i]; i++){
       /* Add a symbolic tag to this check-in.  The tag names have already
@@ -1716,32 +1728,10 @@ void commit_cmd(void){
                  " WHERE id=-4");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zIntegrateUuid = db_column_text(&q, 0);
-    int rid = db_column_int(&q, 1);
-    if( !is_a_leaf(rid) ){
-      fossil_print("Not_Closed: %s (not a leaf any more)\n", zIntegrateUuid);
-    }else{
-      if (!db_exists("SELECT 1 FROM tagxref "
-                   " WHERE tagid=%d AND rid=%d AND tagtype>0",
-                   TAG_CLOSED, rid)
-      ){
-        Blob ctrl;
-        Blob cksum;
-        char *zDate;
-        int nrid;
-
-        blob_zero(&ctrl);
-        zDate = date_in_standard_format(sCiInfo.zDateOvrd ? sCiInfo.zDateOvrd : "now");
-        blob_appendf(&ctrl, "C Merge\\s--integrate\\sinto\\s[%S]\n", zUuid);
-        blob_appendf(&ctrl, "D %s\n", zDate);
-        blob_appendf(&ctrl, "T +closed %s\n", zIntegrateUuid);
-        blob_appendf(&ctrl, "U %F\n", sCiInfo.zUserOvrd ? sCiInfo.zUserOvrd : g.zLogin);
-        md5sum_blob(&ctrl, &cksum);
-        blob_appendf(&ctrl, "Z %b\n", &cksum);
-        nrid = content_put(&ctrl);
-        manifest_crosslink(nrid, &ctrl);
-        assert( blob_is_reset(&ctrl) );
-      }
+    if( is_a_leaf(db_column_int(&q, 1)) ){
       fossil_print("Closed: %s\n", zIntegrateUuid);
+    }else{
+      fossil_print("Not_Closed: %s (not a leaf any more)\n", zIntegrateUuid);
     }
   }
   db_finalize(&q);
