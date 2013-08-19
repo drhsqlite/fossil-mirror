@@ -774,8 +774,11 @@ done | md5sum
 c0788982781981c96a0d81465fec7192  -
 </pre></nowiki>
 
-Minor caveat: the above demonstration will work only when none of the
+Minor caveats: the above demonstration will work only when none of the
 filenames in the manifest are "fossilized" (encoded) because they contain
 spaces. In that case the shell-generated hash would differ because the
 <tt>stat</tt> calls will fail to find such files (which are output in encoded
-form here).
+form here). That approach also won't work for delta manifests. Calculating
+the R-card for delta manifests requires traversing both the delta and its baseline in
+lexical order of the files, prefering the delta's copy if both contain
+a given file.
