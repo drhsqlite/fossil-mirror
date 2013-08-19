@@ -1708,6 +1708,9 @@ void commit_cmd(void){
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
   manifest_crosslink(nvid, &manifest);
+  assert( blob_is_reset(&manifest) );
+  content_deltify(vid, nvid, 0);
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
 
   db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
                  " WHERE id=-4");
@@ -1728,8 +1731,9 @@ void commit_cmd(void){
 
         blob_zero(&ctrl);
         zDate = date_in_standard_format(sCiInfo.zDateOvrd ? sCiInfo.zDateOvrd : "now");
+        blob_appendf(&ctrl, "C Merge\\s--integrate\\sinto\\s[%S]\n", zUuid);
         blob_appendf(&ctrl, "D %s\n", zDate);
-        blob_appendf(&ctrl, "T +closed %s by\\smerge\\s--integrate\n", zIntegrateUuid);
+        blob_appendf(&ctrl, "T +closed %s\n", zIntegrateUuid);
         blob_appendf(&ctrl, "U %F\n", sCiInfo.zUserOvrd ? sCiInfo.zUserOvrd : g.zLogin);
         md5sum_blob(&ctrl, &cksum);
         blob_appendf(&ctrl, "Z %b\n", &cksum);
@@ -1742,9 +1746,6 @@ void commit_cmd(void){
   }
   db_finalize(&q);
 
-  assert( blob_is_reset(&manifest) );
-  content_deltify(vid, nvid, 0);
-  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
   fossil_print("New_Version: %s\n", zUuid);
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
