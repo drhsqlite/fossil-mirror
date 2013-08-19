@@ -1474,7 +1474,7 @@ char *cgi_handle_ssh_probes(char *zLine, int zSize, char *z, char *zToken){
   /* Got all probes now first transport_open is completed
   ** so return the command that was requested
   */
-  /* *zCmd = mprintf("%s", zToken); */
+  g.fSshClient |= CGI_SSH_COMPAT;
   return mprintf("%s", zToken);
 }
 

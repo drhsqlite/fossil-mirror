@@ -1728,13 +1728,10 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 ** COMMAND: test-http
 ** Works like the http command but gives setup permission to all users.
 **
-** Options:
-**   --ssh-compat        Compatibility option for SSH keys and old clients
 */
 void cmd_test_http(void){
   const char *zIpAddr;    /* IP address of remote client */
 
-  if( find_option("ssh-compat", 0, 0)!=0 ) g.fSshClient |= CGI_SSH_COMPAT;
   Th_InitTraceLog();
   login_set_capabilities("sx", 0);
   g.useLocalauth = 1;
