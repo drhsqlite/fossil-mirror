@@ -771,8 +771,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         p->aTag[i].zName = zName;
         p->aTag[i].zUuid = zUuid;
         p->aTag[i].zValue = zValue;
-        if( i>0 && fossil_strcmp(p->aTag[i-1].zName, zName)>0 ){
-          SYNTAX("T-card in the wrong order");
+        if( i>0 ){
+          int c = fossil_strcmp(p->aTag[i-1].zName, zName);
+          if( c>0 || (c==0 && fossil_strcmp(p->aTag[i-1].zUuid, zUuid)>=0) ){
+            SYNTAX("T-card in the wrong order");
+          }
         }
         break;
       }
