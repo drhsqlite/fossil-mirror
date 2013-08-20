@@ -71,7 +71,7 @@ int nFormAction = 0;
 ** href values to be inserted after the page has loaded.  If
 ** g.perm.History is false, then the <a id="ID"> form is still
 ** generated but the javascript is not generated so the links never
-** activate. 
+** activate.
 **
 ** If the user lacks the Hyperlink (h) property and the "auto-hyperlink"
 ** setting is true, then g.perm.Hyperlink is changed from 0 to 1 and
@@ -1055,7 +1055,7 @@ const struct strctCssDefaults {
     "for the /stats_report views",
     @   background-color: #446979;
   },
-  { ".statistics-report-table-events th"
+  { ".statistics-report-table-events th",
     "",
     @   padding: 0 1em 0 1em;
   },
@@ -1202,7 +1202,7 @@ void page_test_env(void){
 }
 
 /*
-** This page is a honeypot for spiders and bots. 
+** This page is a honeypot for spiders and bots.
 **
 ** WEBPAGE: honeypot
 */

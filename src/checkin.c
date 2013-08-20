@@ -903,8 +903,7 @@ static void create_manifest(
   char *zParentUuid;          /* UUID of parent check-in */
   Blob filename;              /* A single filename */
   int nBasename;              /* Size of base filename */
-  Stmt q;                     /* Query of files changed */
-  Stmt q2;                    /* Query of merge parents */
+  Stmt q;                     /* Various queries */
   Blob mcksum;                /* Manifest checksum */
   ManifestFile *pFile;        /* File from the baseline */
   int nFBcard = 0;            /* Number of B-cards and F-cards */
@@ -1008,10 +1007,10 @@ static void create_manifest(
   blob_appendf(pOut, "P %s", zParentUuid);
   if( p->verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
   free(zParentUuid);
-  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=0 OR id<-2");
-  while( db_step(&q2)==SQLITE_ROW ){
+  db_prepare(&q, "SELECT merge FROM vmerge WHERE id=0 OR id<-2");
+  while( db_step(&q)==SQLITE_ROW ){
     char *zMergeUuid;
-    int mid = db_column_int(&q2, 0);
+    int mid = db_column_int(&q, 0);
     if( !g.markPrivate && content_is_private(mid) ) continue;
     zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
     if( zMergeUuid ){
@@ -1020,21 +1019,21 @@ static void create_manifest(
       free(zMergeUuid);
     }
   }
-  db_finalize(&q2);
+  db_finalize(&q);
   free(zDate);
   blob_appendf(pOut, "\n");
 
-  db_prepare(&q2,
+  db_prepare(&q,
     "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid"
     "  FROM vmerge, blob"
     " WHERE (vmerge.id=-1 OR vmerge.id=-2)"
     "   AND blob.rid=vmerge.merge"
     " ORDER BY 1");
-  while( db_step(&q2)==SQLITE_ROW ){
-    const char *zCherrypickUuid = db_column_text(&q2, 0);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zCherrypickUuid = db_column_text(&q, 0);
     blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
   }
-  db_finalize(&q2);
+  db_finalize(&q);
 
   if( p->pCksum ) blob_appendf(pOut, "R %b\n", p->pCksum);
   zColor = p->zColor;
@@ -1051,17 +1050,17 @@ static void create_manifest(
     /* One-time background color */
     blob_appendf(pOut, "T +bgcolor * %F\n", zColor);
   }
-  db_prepare(&q2, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
+  db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
                  " WHERE id=-4 ORDER BY 1");
-  while( db_step(&q2)==SQLITE_ROW ){
-    const char *zIntegrateUuid = db_column_text(&q2, 0);
-    int rid = db_column_int(&q2, 1);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zIntegrateUuid = db_column_text(&q, 0);
+    int rid = db_column_int(&q, 1);
     if( is_a_leaf(rid) && !db_exists("SELECT 1 FROM tagxref "
         " WHERE tagid=%d AND rid=%d AND tagtype>0", TAG_CLOSED, rid)){
       blob_appendf(pOut, "T +closed %s\n", zIntegrateUuid);
     }
   }
-  db_finalize(&q2);
+  db_finalize(&q);
 
   if( p->azTag ){
     for(i=0; p->azTag[i]; i++){
@@ -1073,7 +1072,6 @@ static void create_manifest(
   }
   if( p->zBranch && p->zBranch[0] ){
     /* For a new branch, cancel all prior propagating tags */
-    Stmt q;
     db_prepare(&q,
         "SELECT tagname FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
@@ -1312,7 +1310,7 @@ void commit_cmd(void){
   int nvid;              /* Blob-id of the new check-in */
   Blob comment;          /* Check-in comment */
   const char *zComment;  /* Check-in comment */
-  Stmt q;                /* Query to find files that have been modified */
+  Stmt q;                /* Various queries */
   char *zUuid;           /* UUID of the new check-in */
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
@@ -1465,21 +1463,20 @@ void commit_cmd(void){
   ** it and disallow it.  Ticket [0ff64b0a5fc8].
   */
   if( g.aCommitFile ){
-    Stmt qRename;
-    db_prepare(&qRename,
+    db_prepare(&q,
        "SELECT v1.pathname, v2.pathname"
        "  FROM vfile AS v1, vfile AS v2"
        " WHERE is_selected(v1.id)"
        "   AND v2.origname IS NOT NULL"
        "   AND v2.origname=v1.pathname"
        "   AND NOT is_selected(v2.id)");
-    if( db_step(&qRename)==SQLITE_ROW ){
-      const char *zFrom = db_column_text(&qRename, 0);
-      const char *zTo = db_column_text(&qRename, 1);
+    if( db_step(&q)==SQLITE_ROW ){
+      const char *zFrom = db_column_text(&q, 0);
+      const char *zTo = db_column_text(&q, 1);
       fossil_fatal("cannot do a partial commit of '%s' without '%s' because "
                    "'%s' was renamed to '%s'", zFrom, zTo, zFrom, zTo);
     }
-    db_finalize(&qRename);
+    db_finalize(&q);
   }
 
   user_select();

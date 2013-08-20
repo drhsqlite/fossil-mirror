@@ -718,7 +718,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** in the manifest.
       */
       case 'R': {
-        if( p->zRepoCksum!=0 ) SYNTAX("more than on R-card");
+        if( p->zRepoCksum!=0 ) SYNTAX("more than one R-card");
         p->zRepoCksum = next_token(&x, &sz);
         if( sz!=32 ) SYNTAX("wrong size cksum on R-card");
         if( !validate16(p->zRepoCksum, 32) ) SYNTAX("malformed R-card cksum");
