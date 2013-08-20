@@ -926,6 +926,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     if( p->zAttachName ) SYNTAX("A-card in tag");
     if( p->zMimetype ) SYNTAX("N-card in tag");
     if( !seenZ ) SYNTAX("missing Z-card on tag");
+    for(i=0; i<p->nTag; i++){
+      if( p->aTag[i].zUuid==0 ) SYNTAX("self-referential T-card in tag");
+    }
     p->type = CFTYPE_CONTROL;
   }else if( p->zAttachName ){
     if( p->nCChild>0 ) SYNTAX("M-card in attachment");
