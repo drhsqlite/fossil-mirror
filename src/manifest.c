@@ -1678,6 +1678,7 @@ int manifest_crosslink(int rid, Blob *pContent){
   db_begin_transaction();
   if( p->type==CFTYPE_MANIFEST ){
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
+      Blob bCom = empty_blob;
       char *zCom;
       for(i=0; i<p->nParent; i++){
         int pid = uuid_to_rid(p->azParent[i], 1);
@@ -1703,6 +1704,13 @@ int manifest_crosslink(int rid, Blob *pContent){
                         isPublic, manifest_file_mperm(&p->aFile[i]));
         }
       }
+      blob_append(&bCom, p->zComment, -1);
+      if( p->fSigned ){
+        char * zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+        blob_appendf( &bCom, " ([%R/artifact/%.12s | PGP SIGNED])",
+                      zUuid);
+        fossil_free(zUuid);
+      }
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment,"
                            "bgcolor,euser,ecomment,omtime)"
@@ -1711,17 +1719,17 @@ int manifest_crosslink(int rid, Blob *pContent){
         "    (SELECT julianday(value) FROM tagxref WHERE tagid=%d AND rid=%d),"
         "    %.17g"
         "  ),"
-        "  %d,%Q,%Q || %Q,"
+        "  %d,%Q,%B,"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>0),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),%.17g);",
         TAG_DATE, rid, p->rDate,
-        rid, p->zUser, p->zComment,
-        p->fSigned ? " (*PGP SIGNED*)" : "",
+        rid, p->zUser, &bCom,
         TAG_BGCOLOR, rid,
         TAG_USER, rid,
         TAG_COMMENT, rid, p->rDate
       );
+      blob_reset(&bCom);
       zCom = db_text(0, "SELECT coalesce(ecomment, comment) FROM event"
                         " WHERE rowid=last_insert_rowid()");
       wiki_extract_links(zCom, rid, 0, p->rDate, 1, WIKI_INLINE);
