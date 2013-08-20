@@ -62,6 +62,7 @@ struct Manifest {
   Blob content;         /* The original content blob */
   int type;             /* Type of artifact.  One of CFTYPE_xxxxx */
   int rid;              /* The blob-id for this manifest */
+  int fSigned;          /* True if the manifest was PGP-signed */
   char *zBaseline;      /* Baseline manifest.  The B card. */
   Manifest *pBaseline;  /* The actual baseline manifest */
   char *zComment;       /* Decoded comment.  The C card. */
@@ -358,6 +359,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   int isRepeat;
   static Bag seen;
   const char *zErr = 0;
+  int fSigned = 0;
 
   if( rid==0 ){
     isRepeat = 1;
@@ -383,7 +385,12 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   /* Strip off the PGP signature if there is one.  Then verify the
   ** Z-card.
   */
-  remove_pgp_signature(&z, &n);
+  {
+    int const oldLen = n;
+    remove_pgp_signature(&z, &n);
+    fSigned = n<oldLen;
+  }
+
   if( verify_z_card(z, n)==2 ){
     blob_reset(pContent);
     blob_appendf(pErr, "incorrect Z-card cksum");
@@ -407,6 +414,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   p->rid = rid;
   blob_zero(pContent);
   pContent = &p->content;
+  p->fSigned = fSigned;
 
   /* Begin parsing, card by card.
   */
@@ -1703,12 +1711,13 @@ int manifest_crosslink(int rid, Blob *pContent){
         "    (SELECT julianday(value) FROM tagxref WHERE tagid=%d AND rid=%d),"
         "    %.17g"
         "  ),"
-        "  %d,%Q,%Q,"
+        "  %d,%Q,%Q || %Q,"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>0),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),%.17g);",
         TAG_DATE, rid, p->rDate,
-        rid, p->zUser, p->zComment, 
+        rid, p->zUser, p->zComment,
+        p->fSigned ? " (*PGP SIGNED*)" : "",
         TAG_BGCOLOR, rid,
         TAG_USER, rid,
         TAG_COMMENT, rid, p->rDate
