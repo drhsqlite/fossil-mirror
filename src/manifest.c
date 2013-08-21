@@ -902,24 +902,24 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   }else if( p->zEventId ){
     if( p->rDate<=0.0 ) SYNTAX("missing date for event");
     if( p->zWikiTitle!=0 ) SYNTAX("L-card in event");
-    if( p->zWiki==0 ) SYNTAX("W-card in event");
+    if( p->zWiki==0 ) SYNTAX("missing W-card in event");
     if( p->zAttachName ) SYNTAX("A-card in event");
     for(i=0; i<p->nTag; i++){
       if( p->aTag[i].zName[0]!='+' ) SYNTAX("propagating tag in event");
       if( p->aTag[i].zUuid!=0 ) SYNTAX("non-self-referential tag in event");
     }
-    if( !seenZ ) SYNTAX("Z-card missing in event");
+    if( !seenZ ) SYNTAX("missing Z-card in event");
     p->type = CFTYPE_EVENT;
   }else if( p->zWiki!=0 || p->zWikiTitle!=0 ){
-    if( p->rDate<=0.0 ) SYNTAX("date missing on wiki");
+    if( p->rDate<=0.0 ) SYNTAX("missing date on wiki");
     if( p->nTag>0 ) SYNTAX("T-card in wiki");
     if( p->zWiki==0 ) SYNTAX("missing W-card in wiki");
-    if( p->zWikiTitle==0 ) SYNTAX("L-card in wiki");
+    if( p->zWikiTitle==0 ) SYNTAX("missing L-card in wiki");
     if( p->zAttachName ) SYNTAX("A-card in wiki");
     if( !seenZ ) SYNTAX("missing Z-card on wiki");
     p->type = CFTYPE_WIKI;
   }else if( p->nTag>0 ){
-    if( p->rDate<=0.0 ) SYNTAX("date missing on tag");
+    if( p->rDate<=0.0 ) SYNTAX("missing date on tag");
     if( p->nParent>0 ) SYNTAX("P-card on tag");
     if( p->zAttachName ) SYNTAX("A-card in tag");
     if( p->zMimetype ) SYNTAX("N-card in tag");
