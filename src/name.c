@@ -250,16 +250,19 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( rid>0 ) return rid;
 
   /* Undocumented:  numeric tags get translated directly into the RID */
-  for(i=0; fossil_isdigit(zTag[i]); i++){}
-  if( zTag[i]==0 ){
-    if( strcmp(zType,"*")==0 ){
-      rid = atoi(zTag);
-    }else{
-      rid = db_int(0, 
-        "SELECT event.objid"
-        "  FROM event"
-        " WHERE event.objid=%s"
-        "   AND event.type GLOB '%q'", zTag, zType);
+  if( memcmp(zTag, "rid:", 4)==0 ){
+    zTag += 4;
+    for(i=0; fossil_isdigit(zTag[i]); i++){}
+    if( zTag[i]==0 ){
+      if( strcmp(zType,"*")==0 ){
+        rid = atoi(zTag);
+      }else{
+        rid = db_int(0, 
+          "SELECT event.objid"
+          "  FROM event"
+          " WHERE event.objid=%s"
+          "   AND event.type GLOB '%q'", zTag, zType);
+      }
     }
   }
   return rid;

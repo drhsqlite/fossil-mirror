@@ -1,5 +1,5 @@
-C Fix\ssome\serrors/inconsistancies\sin\sSYSTAX\serror\smessages
-D 2013-08-21T12:58:18.450
+C The\sundocumented\sfeature\sof\sresolving\sRID-looking\sstrings\sas\sRIDs\shas\sbeen\schanged\sto\srid:###\sinstead\sto\savoid\ssurprise,\sper\sML\sdiscussion.
+D 2013-08-21T14:24:38.035
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -378,7 +378,7 @@ F src/merge3.c 3107d0e4b213dd130cd9046184d86712e35c13eb
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
 F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
 F src/moderate.c 704772b428d469a012bf6848633c932bff35a781
-F src/name.c 7cf572cae550c67e4de994d1ff99560badabe8af
+F src/name.c b2f239f28d1adbea2a7e81a5a8f2f895a70b8173
 F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 13e2c73aec7fa125b64ee421824951f171c36ace
-R 99b1c9af5a2f5cdb5a59d2505cce1181
-U jan.nijtmans
-Z 1b98bc16acd701938dc162af00267e0c
+P ccc7724a511fad30331e4d77f609ce8858e72da8
+R 0cbe1f6132b1cb6b2a8f9f4b8890f009
+U stephan
+Z 4c58d5e0708e955b54991bc23be501ac
