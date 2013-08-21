@@ -619,8 +619,6 @@ static const char zDiffScript[] =
 @   FN_BG      #444444
 @   FN_FG      #ffffff
 @   FN_PAD     5
-@   FONTS      {{DejaVu Sans Mono} Consolas Monaco}
-@   FONT_SIZE  9
 @   PADX       5
 @   WIDTH      80
 @   HEIGHT     45
@@ -870,17 +868,11 @@ static const char zDiffScript[] =
 @ }
 @ text .mkr
 @ 
-@ font create mono -family courier -size $CFG(FONT_SIZE)
-@ foreach font $CFG(FONTS) {
-@   if {[lsearch -exact [font families] $font] != -1} {
-@      font config mono -family $font
-@      break
-@   }
-@ }
 @ foreach c [cols] {
 @   set keyPrefix [string toupper [colType $c]]_COL_
+@   if {$tcl_platform(platform)=="windows"} {$c config -font {courier 9}}
 @   $c config -bg $CFG(${keyPrefix}BG) -fg $CFG(${keyPrefix}FG) -borderwidth 0 \
-@     -font mono -padx $CFG(PADX) -yscroll sync-y
+@     -padx $CFG(PADX) -yscroll sync-y
 @   $c tag config hr -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
 @      -foreground $CFG(HR_FG)
 @   $c tag config fn -spacing1 $CFG(FN_PAD) -spacing3 $CFG(FN_PAD)
