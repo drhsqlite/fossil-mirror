@@ -870,7 +870,7 @@ static const char zDiffScript[] =
 @ 
 @ foreach c [cols] {
 @   set keyPrefix [string toupper [colType $c]]_COL_
-@   if {$tcl_platform(platform)=="windows"} {$c config -font {courier 9}}
+@   if {[tk windowingsystem]=="win32"} {$c config -font {courier 9}}
 @   $c config -bg $CFG(${keyPrefix}BG) -fg $CFG(${keyPrefix}FG) -borderwidth 0 \
 @     -padx $CFG(PADX) -yscroll sync-y
 @   $c tag config hr -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
