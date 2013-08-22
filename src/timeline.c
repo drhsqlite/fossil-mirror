@@ -669,7 +669,6 @@ void timeline_output_graph_javascript(
     @   n.style.width = w+"px";
     @   n.style.height = h+"px";
     @   n.style.backgroundColor = color;
-    @   n.style.cursor = "pointer";
     @   canvasDiv.appendChild(n);
     @   return n;
     @ }
@@ -719,11 +718,14 @@ void timeline_output_graph_javascript(
     @ function drawThinLine(x0,y0,x1,y1){
     @   drawBox(lineColor,x0,y0,x1,y1);
     @ }
+    @ function drawNodeBox(color,x0,y0,x1,y1){
+    @   drawBox(color,x0,y0,x1,y1).style.cursor = "pointer";
+    @ }
     @ function drawNode(p, left, btm){
-    @   drawBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
-    @   drawBox(p.bg||bgColor,p.x-4,p.y-4,p.x+5,p.y+5);
+    @   drawNodeBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
+    @   drawNodeBox(p.bg||bgColor,p.x-4,p.y-4,p.x+5,p.y+5);
     @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
-    @   if( p.f&1 ) drawBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2);
+    @   if( p.f&1 ) drawNodeBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2);
     if( !omitDescenders ){
       @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
       @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
