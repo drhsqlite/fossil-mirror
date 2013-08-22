@@ -380,15 +380,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     return 0;
   }
 
-  /* Strip off the PGP signature if there is one.  Then verify the
-  ** Z-card.
+  /* Strip off the PGP signature if there is one.
   */
   remove_pgp_signature(&z, &n);
-  if( verify_z_card(z, n)==2 ){
-    blob_reset(pContent);
-    blob_appendf(pErr, "incorrect Z-card cksum");
-    return 0;
-  }
 
   /* Verify that the first few characters of the artifact look like
   ** a control artifact.
@@ -396,6 +390,13 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   if( n<10 || z[0]<'A' || z[0]>'Z' || z[1]!=' ' ){
     blob_reset(pContent);
     blob_appendf(pErr, "line 1 not recognized");
+    return 0;
+  }
+  /* Then verify the Z-card.
+  */
+  if( verify_z_card(z, n)==2 ){
+    blob_reset(pContent);
+    blob_appendf(pErr, "incorrect Z-card cksum");
     return 0;
   }
 
