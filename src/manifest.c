@@ -878,7 +878,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     if( !seenZ ) SYNTAX("missing Z-card on cluster");
     p->type = CFTYPE_CLUSTER;
   }else if( p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
-    if( p->rDate<=0.0 ) SYNTAX("missing date for check-in");
+    if( p->rDate<=0.0 ) SYNTAX("missing date on check-in");
     if( p->nField>0 ) SYNTAX("J-card in check-in");
     if( p->zTicketUuid ) SYNTAX("K-card in check-in");
     if( p->zWiki ) SYNTAX("W-card in check-in");
@@ -888,54 +888,54 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     if( p->zAttachName ) SYNTAX("A-card in check-in");
     p->type = CFTYPE_MANIFEST;
   }else if( p->nField>0 || p->zTicketUuid!=0 ){
-    if( p->rDate<=0.0 ) SYNTAX("missing date for ticket");
+    if( p->rDate<=0.0 ) SYNTAX("missing date on ticket");
     if( p->zWiki ) SYNTAX("W-card in ticket");
     if( p->zWikiTitle ) SYNTAX("L-card in ticket");
     if( p->zEventId ) SYNTAX("E-card in ticket");
-    if( p->nField==0 ) SYNTAX("missing J-card in ticket");
+    if( p->nField==0 ) SYNTAX("missing J-card on ticket");
     if( p->nTag>0 ) SYNTAX("T-card in ticket");
-    if( p->zTicketUuid==0 ) SYNTAX("missing K-card in ticket");
-    if( p->zUser==0 ) SYNTAX("missing U-card in ticket");
+    if( p->zTicketUuid==0 ) SYNTAX("missing K-card on ticket");
+    if( p->zUser==0 ) SYNTAX("missing U-card on ticket");
     if( p->zAttachName ) SYNTAX("A-card in ticket");
     if( p->zMimetype) SYNTAX("N-card in ticket");
-    if( !seenZ ) SYNTAX("missing Z-card in ticket");
+    if( !seenZ ) SYNTAX("missing Z-card on ticket");
     p->type = CFTYPE_TICKET;
   }else if( p->zEventId ){
-    if( p->rDate<=0.0 ) SYNTAX("missing date for event");
+    if( p->rDate<=0.0 ) SYNTAX("missing date on event");
     if( p->zWikiTitle!=0 ) SYNTAX("L-card in event");
-    if( p->zWiki==0 ) SYNTAX("missing W-card in event");
+    if( p->zWiki==0 ) SYNTAX("missing W-card on event");
     if( p->zAttachName ) SYNTAX("A-card in event");
     for(i=0; i<p->nTag; i++){
       if( p->aTag[i].zName[0]!='+' ) SYNTAX("propagating tag in event");
       if( p->aTag[i].zUuid!=0 ) SYNTAX("non-self-referential tag in event");
     }
-    if( !seenZ ) SYNTAX("missing Z-card in event");
+    if( !seenZ ) SYNTAX("missing Z-card on event");
     p->type = CFTYPE_EVENT;
   }else if( p->zWiki!=0 || p->zWikiTitle!=0 ){
     if( p->rDate<=0.0 ) SYNTAX("missing date on wiki");
     if( p->nTag>0 ) SYNTAX("T-card in wiki");
-    if( p->zWiki==0 ) SYNTAX("missing W-card in wiki");
-    if( p->zWikiTitle==0 ) SYNTAX("missing L-card in wiki");
+    if( p->zWiki==0 ) SYNTAX("missing W-card on wiki");
+    if( p->zWikiTitle==0 ) SYNTAX("missing L-card on wiki");
     if( p->zAttachName ) SYNTAX("A-card in wiki");
     if( !seenZ ) SYNTAX("missing Z-card on wiki");
     p->type = CFTYPE_WIKI;
-  }else if( p->nTag>0 ){
+  }else if( p->zAttachName ){
+    if( p->rDate<=0.0 ) SYNTAX("missing date on attachment");
+    if( p->nTag>0 ) SYNTAX("T-card in attachment");
+    if( !seenZ ) SYNTAX("missing Z-card on attachment");
+    p->type = CFTYPE_ATTACHMENT;
+  }else if( p->nTag==0 ){
+    if( p->rDate<=0.0 ) SYNTAX("missing date on check-in");
+    p->type = CFTYPE_MANIFEST;
+  }else{
     if( p->rDate<=0.0 ) SYNTAX("missing date on tag");
-    if( p->nParent>0 ) SYNTAX("P-card on tag");
-    if( p->zAttachName ) SYNTAX("A-card in tag");
+    if( p->nParent>0 ) SYNTAX("P-card in tag");
     if( p->zMimetype ) SYNTAX("N-card in tag");
     if( !seenZ ) SYNTAX("missing Z-card on tag");
     for(i=0; i<p->nTag; i++){
       if( p->aTag[i].zUuid==0 ) SYNTAX("self-referential T-card in tag");
     }
     p->type = CFTYPE_CONTROL;
-  }else if( p->zAttachName ){
-    if( p->rDate<=0.0 ) SYNTAX("missing date in attachment");
-    if( !seenZ ) SYNTAX("missing Z-card on attachment");
-    p->type = CFTYPE_ATTACHMENT;
-  }else{
-    if( p->rDate<=0.0 ) SYNTAX("missing date in check-in");
-    p->type = CFTYPE_MANIFEST;
   }
   md5sum_init();
   if( !isRepeat ) g.parseCnt[p->type]++;
