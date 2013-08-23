@@ -877,31 +877,13 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     }
     if( !seenZ ) SYNTAX("missing Z-card on cluster");
     p->type = CFTYPE_CLUSTER;
-  }else if( p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
-    if( p->rDate<=0.0 ) SYNTAX("missing date on check-in");
-    if( p->nField>0 ) SYNTAX("J-card in check-in");
-    if( p->zTicketUuid ) SYNTAX("K-card in check-in");
-    if( p->zWiki ) SYNTAX("W-card in check-in");
-    if( p->zWikiTitle ) SYNTAX("L-card in check-in");
-    if( p->zEventId ) SYNTAX("E-card in check-in");
-    if( p->zTicketUuid ) SYNTAX("K-card in check-in");
-    if( p->zAttachName ) SYNTAX("A-card in check-in");
-    p->type = CFTYPE_MANIFEST;
-  }else if( p->nField>0 || p->zTicketUuid!=0 ){
-    if( p->rDate<=0.0 ) SYNTAX("missing date on ticket");
-    if( p->zWiki ) SYNTAX("W-card in ticket");
-    if( p->zWikiTitle ) SYNTAX("L-card in ticket");
-    if( p->zEventId ) SYNTAX("E-card in ticket");
-    if( p->nField==0 ) SYNTAX("missing J-card on ticket");
-    if( p->nTag>0 ) SYNTAX("T-card in ticket");
-    if( p->zTicketUuid==0 ) SYNTAX("missing K-card on ticket");
-    if( p->zUser==0 ) SYNTAX("missing U-card on ticket");
-    if( p->zAttachName ) SYNTAX("A-card in ticket");
-    if( p->zMimetype) SYNTAX("N-card in ticket");
-    if( !seenZ ) SYNTAX("missing Z-card on ticket");
-    p->type = CFTYPE_TICKET;
   }else if( p->zEventId ){
     if( p->rDate<=0.0 ) SYNTAX("missing date on event");
+    if( p->nFile>0 ) SYNTAX("F-card in event");
+    if( p->zRepoCksum ) SYNTAX("R-card in event");
+    if( p->zBaseline ) SYNTAX("B-card in event");
+    if( p->nField>0 ) SYNTAX("J-card in event");
+    if( p->zTicketUuid ) SYNTAX("K-card in event");
     if( p->zWikiTitle!=0 ) SYNTAX("L-card in event");
     if( p->zWiki==0 ) SYNTAX("missing W-card on event");
     if( p->zAttachName ) SYNTAX("A-card in event");
@@ -911,6 +893,27 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     }
     if( !seenZ ) SYNTAX("missing Z-card on event");
     p->type = CFTYPE_EVENT;
+  }else if( p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
+    if( p->rDate<=0.0 ) SYNTAX("missing date on check-in");
+    if( p->nField>0 ) SYNTAX("J-card in check-in");
+    if( p->zTicketUuid ) SYNTAX("K-card in check-in");
+    if( p->zWiki ) SYNTAX("W-card in check-in");
+    if( p->zWikiTitle ) SYNTAX("L-card in check-in");
+    if( p->zTicketUuid ) SYNTAX("K-card in check-in");
+    if( p->zAttachName ) SYNTAX("A-card in check-in");
+    p->type = CFTYPE_MANIFEST;
+  }else if( p->nField>0 || p->zTicketUuid!=0 ){
+    if( p->rDate<=0.0 ) SYNTAX("missing date on ticket");
+    if( p->zWiki ) SYNTAX("W-card in ticket");
+    if( p->zWikiTitle ) SYNTAX("L-card in ticket");
+    if( p->nField==0 ) SYNTAX("missing J-card on ticket");
+    if( p->nTag>0 ) SYNTAX("T-card in ticket");
+    if( p->zTicketUuid==0 ) SYNTAX("missing K-card on ticket");
+    if( p->zUser==0 ) SYNTAX("missing U-card on ticket");
+    if( p->zAttachName ) SYNTAX("A-card in ticket");
+    if( p->zMimetype) SYNTAX("N-card in ticket");
+    if( !seenZ ) SYNTAX("missing Z-card on ticket");
+    p->type = CFTYPE_TICKET;
   }else if( p->zWiki!=0 || p->zWikiTitle!=0 ){
     if( p->rDate<=0.0 ) SYNTAX("missing date on wiki");
     if( p->nTag>0 ) SYNTAX("T-card in wiki");
