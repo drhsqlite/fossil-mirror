@@ -213,7 +213,7 @@ A manifest might contain one or more T-cards used to set
 [./branching.wiki#tags | tags or properties]
 on the check-in.  The format of the T-card is the same as
 described in <i>Control Artifacts</i> section below, except that the
-second argument is the single characcter "<b>*</b>" instead of an
+second argument is the single character "<b>*</b>" instead of an
 artifact ID.  The <b>*</b> in place of the artifact ID indicates that
 the tag or property applies to the current artifact.  It is not
 possible to encode the current artifact ID as part of an artifact,
@@ -510,7 +510,7 @@ An event might contain one or more T-cards used to set
 [./branching.wiki#tags | tags or properties]
 on the event.  The format of the T-card is the same as
 described in [#ctrl | Control Artifacts] section above, except that the
-second argument is the single characcter "<b>*</b>" instead of an
+second argument is the single character "<b>*</b>" instead of an
 artifact ID and the name is always prefaced by "<b>+</b>".
 The <b>*</b> in place of the artifact ID indicates that
 the tag or property applies to the current artifact.  It is not
