@@ -101,6 +101,7 @@ struct Manifest {
   } *aTag;              /* One for each T card */
   int nField;           /* Number of J cards */
   int nFieldAlloc;      /* Slots allocated in aField[] */
+  int noR;
   struct { 
     char *zName;           /* Key or field name */
     char *zValue;          /* Value of the field */
@@ -902,6 +903,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     if( p->zWikiTitle ) SYNTAX("L-card in check-in");
     if( p->zTicketUuid ) SYNTAX("K-card in check-in");
     if( p->zAttachName ) SYNTAX("A-card in check-in");
+    if( !p->zRepoCksum ) p->noR=1;
     p->type = CFTYPE_MANIFEST;
   }else if( p->nField>0 || p->zTicketUuid!=0 ){
     if( p->rDate<=0.0 ) SYNTAX("missing date on ticket");
@@ -936,6 +938,10 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     p->type = CFTYPE_CONTROL;
   }
   md5sum_init();
+  if (p->noR && p->nFile>0) {
+      const char *x = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      fossil_warning("Manifest lacking R-card: %s by %s\n", x, p->zUser);
+  }
   if( !isRepeat ) g.parseCnt[p->type]++;
   return p;
 
