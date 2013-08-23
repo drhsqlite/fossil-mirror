@@ -71,12 +71,12 @@ static const unsigned int aFont1[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = fossil_malloc( 500 );
+  char *z = fossil_malloc( 9*6*strlen(zPw) + 7 );
   int i, j, k, m;
 
   k = 0;
   for(i=0; i<6; i++){
-    for(j=0; j<8; j++){
+    for(j=0; zPw[j]; j++){
       unsigned char v = hexValue(zPw[j]);
       v = (aFont1[v] >> ((5-i)*4)) & 0xf;
       for(m=8; m>=1; m = m>>1){
@@ -204,13 +204,13 @@ static const char *const azFont2[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = fossil_malloc( 300 );
+  char *z = fossil_malloc( 7*4*strlen(zPw) + 5 );
   int i, j, k, m;
   const char *zChar;
 
   k = 0;
   for(i=0; i<4; i++){
-    for(j=0; j<8; j++){
+    for(j=0; zPw[j]; j++){
       unsigned char v = hexValue(zPw[j]);
       zChar = azFont2[4*v + i];
       for(m=0; zChar[m]; m++){
@@ -361,15 +361,48 @@ static const char *const azFont3[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = fossil_malloc( 600 );
+  char *z = fossil_malloc( 10*6*strlen(zPw) + 7 );
   int i, j, k, m;
   const char *zChar;
+  unsigned char x;
+  int y;
 
   k = 0;
   for(i=0; i<6; i++){
-    for(j=0; j<8; j++){
+    x = 0;
+    for(j=0; zPw[j]; j++){
       unsigned char v = hexValue(zPw[j]);
+      x = (x<<4) + v;
+      switch( x ){
+        case 0x7a:
+        case 0xfa:
+          y = 3;
+          break;
+        case 0x47:
+          y = 2;
+          break;
+        case 0xf6:
+        case 0xa9:
+        case 0xa4:
+        case 0xa1:
+        case 0x9a:
+        case 0x76:
+        case 0x61:
+        case 0x67:
+        case 0x69:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x4a:
+          y = 1;
+          break;
+        default:
+          y = 0;
+          break;
+      }
       zChar = azFont3[6*v + i];
+      while( y && zChar[0]==' ' ){ y--; zChar++; }
+      while( y && z[k-1]==' ' ){ y--; k--; }
       for(m=0; zChar[m]; m++){
         z[k++] = zChar[m];
       }
@@ -514,4 +547,21 @@ void captcha_generate(void){
   @ <input type="hidden" name="captchaseed" value="%u(uSeed)" />
   @ <input type="text" name="captcha" size=8 />
   @ </td></tr></table></div>
+}
+
+/*
+** WEBPAGE: test-captcha
+*/
+void captcha_test(void){
+  const char *zPw = P("name");
+  if( zPw==0 || zPw[0]==0 ){
+    u64 x;
+    sqlite3_randomness(sizeof(x), &x);
+    zPw = mprintf("%016llx", x);
+  }
+  style_header("Captcha Test");
+  @ <pre>
+  @ %s(captcha_render(zPw))
+  @ </pre>
+  style_footer();
 }
