@@ -432,8 +432,9 @@ static int comboboxCmd(
     Th_SplitList(interp, argv[2], argl[2], &azElem, &aszElem, &nElem);
     blob_init(&name, (char*)argv[1], argl[1]);
     zValue = Th_Fetch(blob_str(&name), &nValue);
-    z = mprintf("<select name=\"%z\" size=\"%d\">", 
-                 htmlize(blob_buffer(&name), blob_size(&name)), height);
+    zH = htmlize(blob_buffer(&name), blob_size(&name));
+    z = mprintf("<select id=\"%s\" name=\"%s\" size=\"%d\">", zH, zH, height);
+    free(zH);
     sendText(z, -1, 0);
     free(z);
     blob_reset(&name);
