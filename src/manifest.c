@@ -355,7 +355,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   int n;
   char *zUuid;
   int sz = 0;
-  int isRepeat;
+  int isRepeat, hasSelfRefTag = 0;
   static Bag seen;
   const char *zErr = 0;
 
@@ -753,6 +753,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
           /* A valid uuid */
         }else if( sz==1 && zUuid[0]=='*' ){
           zUuid = 0;
+          hasSelfRefTag = 1;
         }else{
           SYNTAX("malformed UUID on T-card");
         }
@@ -893,7 +894,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     }
     if( !seenZ ) SYNTAX("missing Z-card on event");
     p->type = CFTYPE_EVENT;
-  }else if( p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
+  }else if( hasSelfRefTag || p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
     if( p->rDate<=0.0 ) SYNTAX("missing date on check-in");
     if( p->nField>0 ) SYNTAX("J-card in check-in");
     if( p->zTicketUuid ) SYNTAX("K-card in check-in");
@@ -927,17 +928,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     if( p->nTag>0 ) SYNTAX("T-card in attachment");
     if( !seenZ ) SYNTAX("missing Z-card on attachment");
     p->type = CFTYPE_ATTACHMENT;
-  }else if( p->nTag==0 ){
-    if( p->rDate<=0.0 ) SYNTAX("missing date on check-in");
-    p->type = CFTYPE_MANIFEST;
   }else{
     if( p->rDate<=0.0 ) SYNTAX("missing date on tag");
     if( p->nParent>0 ) SYNTAX("P-card in tag");
     if( p->zMimetype ) SYNTAX("N-card in tag");
     if( !seenZ ) SYNTAX("missing Z-card on tag");
-    for(i=0; i<p->nTag; i++){
-      if( p->aTag[i].zUuid==0 ) SYNTAX("self-referential T-card in tag");
-    }
     p->type = CFTYPE_CONTROL;
   }
   md5sum_init();
