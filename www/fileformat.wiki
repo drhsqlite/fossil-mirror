@@ -687,14 +687,13 @@ or more such cards are required.
 </tr>
 <tr>
 <td><b>R</b> <i>md5sum</i></td>
-<td align=center><b>0-1*</b></td>
+<td align=center><b>0-1</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<tr><td>&nbsp;</td><td colspan='7'>* = Required when using F cards</td></tr>
 <tr>
 <td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname</i> <i>uuid</i> ?<i>value</i>?</td>
 <td align=center><b>0+</b></td>
