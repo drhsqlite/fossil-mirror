@@ -77,21 +77,6 @@ void transport_stats(i64 *pnSent, i64 *pnRcvd, int resetFlag){
 }
 
 /*
-** Read text from sshIn.  Zero-terminate and remove trailing
-** whitespace.
-*/
-static void sshin_read(char *zBuf, int szBuf){
-  int got;
-  zBuf[0] = 0;
-  got = read(sshIn, zBuf, szBuf-1);
-  while( got>=0 ){
-    zBuf[got] = 0;
-    if( got==0 || !fossil_isspace(zBuf[got-1]) ) break;
-    got--;
-  }
-}
-
-/*
 ** Default SSH command
 */
 #ifdef __MINGW32__
