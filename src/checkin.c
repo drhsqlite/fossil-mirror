@@ -922,7 +922,11 @@ static void create_manifest(
   }else{
     pFile = 0;
   }
-  blob_appendf(pOut, "C %F\n", blob_str(p->pComment));
+  if( blob_size(p->pComment)!=0 ){
+    blob_appendf(pOut, "C %F\n", blob_str(p->pComment));
+  }else{
+    blob_append(pOut, "C (no\\scomment)\n", 16);
+  }
   zDate = date_in_standard_format(p->zDateOvrd ? p->zDateOvrd : "now");
   blob_appendf(pOut, "D %s\n", zDate);
   zDate[10] = ' ';
@@ -1539,9 +1543,6 @@ void commit_cmd(void){
     blob_to_utf8_no_bom(&comment, 1);
   }else if(dryRunFlag){
     blob_zero(&comment);
-    blob_append(&comment, "Dry-run mode - no comment provided.", -1)
-      /* Comment needed to avoid downstream assertion. */
-      ;
   }else{
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, &sCiInfo, vid);
@@ -1554,11 +1555,13 @@ void commit_cmd(void){
     free(zInit);
   }
   if( blob_size(&comment)==0 ){
-    blob_zero(&ans);
-    prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
-    cReply = blob_str(&ans)[0];
-    if( cReply!='y' && cReply!='Y' ){
-      fossil_exit(1);
+    if( !dryRunFlag ){
+      blob_zero(&ans);
+      prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_exit(1);
+      }
     }
   }else{
     db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
@@ -1631,9 +1634,6 @@ void commit_cmd(void){
   }
 
   /* Create the new manifest */
-  if( blob_size(&comment)==0 ){
-    blob_append(&comment, "(no comment)", -1);
-  }
   sCiInfo.pComment = &comment;
   sCiInfo.pCksum =  useCksum ? &cksum1 : 0;
   sCiInfo.verifyDate = !allowOlder && !forceFlag;
