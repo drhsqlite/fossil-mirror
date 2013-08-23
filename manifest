@@ -1,5 +1,5 @@
-C When\sdoing\sa\s"fossil\scommit\s--dry-run",\sdon't\sstore\sthe\stext\s"Dry-run\smode\s-\sno\scomment\sprovided."\sas\stemplate\sfor\sthe\snext\scommit\scomment.
-D 2013-08-23T09:27:57.318
+C According\sto\sthe\sdocumentation\s[9974dfbc5c?txt=1&ln=178-179],\sthe\sfirst\smanifest\sin\sthe\sproject\shas\sno\sP-card.\sMake\sit\sso,\sas\sa\sP-card\swith\sno\sarguments\sis\sjust\signored\sand\sserves\sno\spurpose.\s(I\stested\sthis\sin\sa\snew\srepo,\sand\sit\sworks\sjust\sfine)
+D 2013-08-23T09:54:57.529
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -324,7 +324,7 @@ F src/configure.c d9192353fbb8d656ef1a927a5c0b75beaa4f9e8a
 F src/content.c ee6dc35f547ed1f392b7f13fa45312cd763479c8
 F src/cson_amalgamation.c 010f2b38513f5971336149937e9363caba429a11
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
-F src/db.c 0adc1aa79c24d8bc88b32e2ef7a8f29d32619d79
+F src/db.c ba3980d4cd89f062ed9679f0fe4499acd2faefcb
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 52bf9059350b59778c911f2b0afd5f858b328beb
-R c6b410fe41e50e6717ef9ab3c099299c
+P dfd8962ff260c63b98b252d7da260e8c4136c824
+R a05ea38656420e62dcd6c7d0bc58b664
 U jan.nijtmans
-Z 72df4bb598c68877bc2b29766a45980b
+Z 038b8cff7371166d9a42f999ff9884c3

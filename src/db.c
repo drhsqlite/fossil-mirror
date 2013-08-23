@@ -1402,7 +1402,6 @@ void db_initial_setup(
     blob_appendf(&manifest, "C initial\\sempty\\scheck-in\n");
     zDate = date_in_standard_format(zInitialDate);
     blob_appendf(&manifest, "D %s\n", zDate);
-    blob_appendf(&manifest, "P\n");
     md5sum_init();
     blob_appendf(&manifest, "R %s\n", md5sum_finish(0));
     blob_appendf(&manifest, "T *branch * trunk\n");
