@@ -99,6 +99,7 @@ int transport_ssh_open(void){
   char *zHost;       /* The host name to contact */
   int n;             /* Size of prefix string */
 
+  socket_ssh_resolve_addr();
   zSsh = db_get("ssh-command", zDefaultSshCmd);
   zSshFossilCmd = db_get("ssh-fossil", "fossil");
   blob_init(&zCmd, zSsh, -1);
