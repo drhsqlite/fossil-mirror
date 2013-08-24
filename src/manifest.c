@@ -94,7 +94,7 @@ struct Manifest {
   char **azCChild;      /* UUIDs of referenced objects in a cluster. M cards */
   int nTag;             /* Number of T Cards */
   int nTagAlloc;        /* Slots allocated in aTag[] */
-  struct { 
+  struct TagType {
     char *zName;           /* Name of the tag */
     char *zUuid;           /* UUID that the tag is applied to */
     char *zValue;          /* Value if the tag is really a property */
@@ -1610,6 +1610,20 @@ void manifest_ticket_event(
 }
 
 /*
+** This is the comparison function used to sort the tag array.
+*/
+static int tag_compare(const void *a, const void *b){
+  struct TagType *pA = (struct TagType*)a;
+  struct TagType *pB = (struct TagType*)b;
+  int c;
+  c = fossil_strcmp(pA->zUuid, pB->zUuid);
+  if( c==0 ){
+    c = fossil_strcmp(pA->zName, pB->zName);
+  }
+  return c;
+}
+
+/*
 ** Scan artifact rid/pContent to see if it is a control artifact of
 ** any key:
 **
@@ -1923,14 +1937,16 @@ int manifest_crosslink(int rid, Blob *pContent){
     int branchMove = 0;
     blob_zero(&comment);
     if( p->zComment ){
-      blob_appendf(&comment, "%s. ", p->zComment);
+      blob_appendf(&comment, " %s.", p->zComment);
     }
+    /* Next loop expects tags to be sorted on UUID, so sort it. */
+    qsort(p->aTag, p->nTag, sizeof(p->aTag[0]), tag_compare);
     for(i=0; i<p->nTag; i++){
       zUuid = p->aTag[i].zUuid;
+      if( !zUuid ) continue;
       if( i==0 || fossil_strcmp(zUuid, p->aTag[i-1].zUuid)!=0 ){
-        if( i>0 ) blob_append(&comment, " ", 1);
         blob_appendf(&comment,
-           "Edit [%S]:",
+           " Edit [%S]:",
            zUuid);
         branchMove = 0;
       }
@@ -1993,10 +2009,11 @@ int manifest_crosslink(int rid, Blob *pContent){
       }
     }
     /*blob_appendf(&comment, " &#91;[/info/%S | details]&#93;");*/
+    if( blob_size(&comment)==0 ) blob_append(&comment, " ", 1);
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment)"
       "VALUES('g',%.17g,%d,%Q,%Q)",
-      p->rDate, rid, p->zUser, blob_str(&comment)
+      p->rDate, rid, p->zUser, blob_str(&comment)+1
     );
     blob_reset(&comment);
   }
