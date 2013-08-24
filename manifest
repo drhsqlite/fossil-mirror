@@ -1,5 +1,5 @@
-C Add\sthe\s--parse\soption\sto\stest-integrity\swhich\scauses\sartifacts\sto\sbe\nrun\sthrough\sthe\smanifest\sparser.
-D 2013-08-24T16:11:19.474
+C check-in->manifest\sand\stag->control,\sthat\sare\sthe\snames\sof\sthe\sartifact\stypes\sused\severywhere\selse.
+D 2013-08-24T20:44:07.614
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -369,7 +369,7 @@ F src/main.mk 02a81e04ae23ef5f72a010b219ad3f1b4bd3ea7a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 85ab303476524dec4c1b353f6845f2cb8de556c2
-F src/manifest.c 89c81c14741176183b863659cf68668de81aafd3
+F src/manifest.c 36c30ad7775b6ff91a03233b9b83b733bf08d2a7
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c e1c6fb412ad1556e5a189786be40585e8c9ffcee
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 45843c8e95cf9ca8c3a9389eac6180041f8316c0
-R e6d3083b134bf575270ee8d0b9a9079d
-U drh
-Z 7b1e770574f8dad9277bb0ab2f68853c
+P 2e83d0dea36f7e2dbf72856a77bacbd90a59413b
+R 45d73d4ef158eb6360d12ab6d68ef737
+U jan.nijtmans
+Z c85bd6cef8381b2f87a8392c2e8c8c89

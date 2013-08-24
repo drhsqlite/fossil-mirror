@@ -895,13 +895,13 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     if( !seenZ ) SYNTAX("missing Z-card on event");
     p->type = CFTYPE_EVENT;
   }else if( hasSelfRefTag || p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
-    if( p->rDate<=0.0 ) SYNTAX("missing date on check-in");
-    if( p->nField>0 ) SYNTAX("J-card in check-in");
-    if( p->zTicketUuid ) SYNTAX("K-card in check-in");
-    if( p->zWiki ) SYNTAX("W-card in check-in");
-    if( p->zWikiTitle ) SYNTAX("L-card in check-in");
-    if( p->zTicketUuid ) SYNTAX("K-card in check-in");
-    if( p->zAttachName ) SYNTAX("A-card in check-in");
+    if( p->rDate<=0.0 ) SYNTAX("missing date on manifest");
+    if( p->nField>0 ) SYNTAX("J-card in manifest");
+    if( p->zTicketUuid ) SYNTAX("K-card in manifest");
+    if( p->zWiki ) SYNTAX("W-card in manifest");
+    if( p->zWikiTitle ) SYNTAX("L-card in manifest");
+    if( p->zTicketUuid ) SYNTAX("K-card in manifest");
+    if( p->zAttachName ) SYNTAX("A-card in manifest");
     p->type = CFTYPE_MANIFEST;
   }else if( p->nField>0 || p->zTicketUuid!=0 ){
     if( p->rDate<=0.0 ) SYNTAX("missing date on ticket");
@@ -929,10 +929,10 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     if( !seenZ ) SYNTAX("missing Z-card on attachment");
     p->type = CFTYPE_ATTACHMENT;
   }else{
-    if( p->rDate<=0.0 ) SYNTAX("missing date on tag");
-    if( p->nParent>0 ) SYNTAX("P-card in tag");
-    if( p->zMimetype ) SYNTAX("N-card in tag");
-    if( !seenZ ) SYNTAX("missing Z-card on tag");
+    if( p->rDate<=0.0 ) SYNTAX("missing date on control");
+    if( p->nParent>0 ) SYNTAX("P-card in control");
+    if( p->zMimetype ) SYNTAX("N-card in control");
+    if( !seenZ ) SYNTAX("missing Z-card on control");
     p->type = CFTYPE_CONTROL;
   }
   md5sum_init();
