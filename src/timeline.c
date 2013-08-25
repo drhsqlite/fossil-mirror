@@ -1906,8 +1906,10 @@ static void stats_report_by_month_year(char includeMonth,
   char showYearTotal = 0;            /* Flag telling us when to show
                                         the per-year event totals */
   Blob header = empty_blob;          /* Page header text */
-  int nMaxEvents  = 1;            /* for calculating length of graph bars. */
-
+  int nMaxEvents  = 1;               /* for calculating length of graph
+                                        bars. */
+  int iterations = 0;                /* number of weeks/months we iterate
+                                        over */
   blob_appendf(&header, "Timeline Events by year%s",
                (includeMonth ? "/month" : ""));
   blob_appendf(&sql,
@@ -1944,6 +1946,7 @@ static void stats_report_by_month_year(char includeMonth,
     if(nCount>nMaxEvents){
       nMaxEvents = nCount;
     }
+    ++iterations;
   }
   db_reset(&query);
   while( SQLITE_ROW == db_step(&query) ){
@@ -2029,7 +2032,12 @@ static void stats_report_by_month_year(char includeMonth,
   }
   @ </tbody></table>
   if(nEventTotal){
-    @ <br><div>Total events: %d(nEventTotal)</div>
+    char const * zAvgLabel = includeMonth ? "month" : "year";
+    int nAvg = iterations ? (nEventTotal/iterations) : 0;
+    int nWidth = (int)(100 * nAvg / nMaxEvents);
+    @ <br><div>Total events: %d(nEventTotal)
+    @ <br>Average per active %s(zAvgLabel): %d(nAvg)
+    @ </div>
   }
   if( !includeMonth ){
     output_table_sorting_javascript("statsTable","tnx");
@@ -2114,7 +2122,8 @@ static void stats_report_year_weeks(const char * zUserName){
   Blob sql = empty_blob;
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
-
+  int iterations;                   /* # of active time periods. */
+  
   cgi_printf("Select year: ");
   blob_append(&sql,
               "SELECT DISTINCT substr(date(mtime),1,4) AS y "
@@ -2180,6 +2189,7 @@ static void stats_report_year_weeks(const char * zUserName){
       if(nCount>nMaxEvents){
         nMaxEvents = nCount;
       }
+      ++iterations;
     }
     db_reset(&stWeek);
     while( SQLITE_ROW == db_step(&stWeek) ){
@@ -2210,8 +2220,10 @@ static void stats_report_year_weeks(const char * zUserName){
     free(zDefaultYear);
     cgi_printf("</tbody></table>");
     if(total){
-      cgi_printf("<br><div>Total events: %d</div>",
-                 total);
+      int nAvg = iterations ? (total/iterations) : 0;
+      cgi_printf("<br><div>Total events: %d<br>"
+                 "Average per active week: %d</div>",
+                 total, nAvg);
     }
     output_table_sorting_javascript("statsTable","tnx");
   }
