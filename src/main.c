@@ -1369,7 +1369,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
     if(!g.json.isJsonMode){
 #endif
       dehttpize(g.zExtra);
-      cgi_set_parameter_nocopy("name", g.zExtra);
+      cgi_set_parameter_nocopy("name", g.zExtra, 1);
 #ifdef FOSSIL_ENABLE_JSON
     }
 #endif

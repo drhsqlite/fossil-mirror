@@ -339,7 +339,7 @@ void attachadd_page(void){
   @ <input type="submit" name="ok" value="Add Attachment" />
   @ <input type="submit" name="cancel" value="Cancel" />
   @ </div>
-  captcha_generate();
+  captcha_generate(0);
   @ </form>
   style_footer();
 }

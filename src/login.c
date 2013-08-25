@@ -71,7 +71,7 @@ const char *login_group_name(void){
 ** The path is g.zTop for single-repo cookies.  It is "/" for
 ** cookies of a login-group.
 */
-static const char *login_cookie_path(void){
+const char *login_cookie_path(void){
   if( login_group_name()==0 ){
     return g.zTop;
   }else{

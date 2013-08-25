@@ -1,5 +1,5 @@
-C Report\sall\savailable\sCGI\senvironment\svariables\son\sthe\stest_env\spage.
-D 2013-08-24T22:33:37.129
+C Spiders\sand\srobots\sare\spresented\swith\sa\scaptcha\sif\sthey\srequest\sthe\nannotation\spage.
+D 2013-08-25T02:11:46.879
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -306,14 +306,14 @@ F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 58a552c876769f6e54e53a65d6409a7d002193ca
 F src/allrepo.c cf257abcfc4c887f3fc497ca907e0cfa19961e5e
-F src/attach.c 657e139a0654fb2019274cce00ac7e50993e06fb
+F src/attach.c a044ca857040c65907da258f78c14c771bac7324
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 9eef1e8551df42bdee81aef68359e65985c6c8b9
 F src/blob.c b648d6a6793c08c507634cf0145b8915806ee56f
 F src/branch.c 654edeb0405a89371fa007c4cefa6b61e040efcd
 F src/browse.c 4f11469038984f7e0e886fbae8e44f72b294f6b4
-F src/captcha.c 05111465aad2d6e09184ed5b82066842bd63532d
-F src/cgi.c b1959e1a66f630cfcf8cf8d390978d324a7833e5
+F src/captcha.c de30cda16d8d774c88ee465f15fc735ecb81ac34
+F src/cgi.c e4d2ef19ae8c571423f62487e064ff413d13c531
 F src/checkin.c 632cf28eb18c2490a5f5fdbd026e64a1a6f8d180
 F src/checkout.c f55c4fcce7c79370b9413b99644c50e056fb7c79
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -328,7 +328,7 @@ F src/db.c ba3980d4cd89f062ed9679f0fe4499acd2faefcb
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d9dad7249f42331d9b4b1b82373dc10bdbb9b44c
-F src/diff.c 9cb8813108714275be0f60debf0c4088f4ef788c
+F src/diff.c 90ed5dfac798f6910a6c4798603634c6de4c4dc1
 F src/diffcmd.c 148961929c5ce53fca1e4775dfcb81afa4712c28
 F src/doc.c 768527b613d800c88f6848c814194c70cb2214cf
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -362,9 +362,9 @@ F src/json_timeline.c e5580fa64d3ae5719b5f45a7cd4fa3061a8b5416
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c aca022222edf7892f642dd99cf239db80d853e7e
+F src/login.c 780da40a082140996567309334f12e138275d1c1
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c c521f41faa7c8d487afd3ed5e8957ff3894743e0
+F src/main.c 56667508a48adddffb58f201d6af49e9eb44efbf
 F src/main.mk 02a81e04ae23ef5f72a010b219ad3f1b4bd3ea7a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -410,7 +410,7 @@ F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c bb5c38a9d2812f76e526897c0dd6f1d65568ccc8
 F src/th_tcl.c eed73f34d18820a8e7a25453eb403919b9d66254
 F src/timeline.c 6bb7229188c31547defacc7dfb37c715249e58b5
-F src/tkt.c c0002b066046bd287b7e05b25e7c08ee0b08f766
+F src/tkt.c 60dbcb5f80090afa50d3cdb059d85038bbba4b49
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
@@ -422,7 +422,7 @@ F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
 F src/util.c d31f9b92152fade029a8177de4e5a996a071e170
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
 F src/vfile.c 662553ad434017687484d6e6c48b96d47855a16c
-F src/wiki.c 7d7cc5c4c5d983e27485fa1a383f8a3be0b2022e
+F src/wiki.c 92f6fddf822503533c3f7524b87fe46cfb231b6d
 F src/wikiformat.c f0d71d387b33931ce3cca528c24ad5b5f5916ee0
 F src/winhttp.c cd90cf700e4916c2226cbc82bafff2de05b1fa6d
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5b1a6850aca9bba670399fd00acde79fe656aa45
-R 649bb58f654873cf896850df3826ebb7
+P f9c2dec2ec70f51df6183e08f145d5cf0c5dd9be
+R ae90d494985e1331882c37b430484754
 U drh
-Z 062cc0c116ca14b7c32542a5f40b5f62
+Z 67e4bca02360443038623a4d548933be
