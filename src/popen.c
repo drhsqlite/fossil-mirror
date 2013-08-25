@@ -19,8 +19,6 @@
 */
 #include "config.h"
 #include "popen.h"
-#include <signal.h>
-#include <sys/wait.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -31,6 +29,9 @@
 static void win32_fatal_error(const char *zMsg){
   fossil_fatal("%s", zMsg);
 }
+#else
+#include <signal.h>
+#include <sys/wait.h>
 #endif
 
 /*
