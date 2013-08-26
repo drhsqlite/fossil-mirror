@@ -1,5 +1,5 @@
-C Report\ssyntax\serrors\sin\sT-cards\sfor\sevents\swhen\sthey\shappen,\snot\swhen\sthe\scomplete\smanifest\sis\sparsed\salready.
-D 2013-08-26T08:40:25.387
+C Update\sjson\sstatus\spage\sfor\s"merge\s--integrate"
+D 2013-08-26T11:56:35.211
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -356,7 +356,7 @@ F src/json_finfo.c 2ac4e4a70b53f10e84b5759754a85190f3412342
 F src/json_login.c d8daafbf01d285a7c64b9ef08c1e5875f8efa65f
 F src/json_query.c 017ab69953ee208381dc210ee01716585f1bac15
 F src/json_report.c 1bce5178ec70545ec16becdbaac22d785d1880ba
-F src/json_status.c c5fdb35c6447d6c6b5af2b17870b9f68db8a2cad
+F src/json_status.c c38b2e51815f2dacb1c48304d56ccb00a063183e
 F src/json_tag.c 70261471bbfe05f47af230561053a4fcbbeba5a9
 F src/json_timeline.c e5580fa64d3ae5719b5f45a7cd4fa3061a8b5416
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4bf2708294bf6be1093c5d6b03cba0f230ecbca9
-R 5eb065fca116c362be91df9bb7887b44
+P 512cc1977a40adf57dd6435fef48f2a9d5f7383a
+R 5aa3f4319e987d7aa6b5ce91d7705c09
 U jan.nijtmans
-Z 278418d020098a812c1069a10f068b52
+Z 5eb8a6d597bf1b84863900aeabef0105

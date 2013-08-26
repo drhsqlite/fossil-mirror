@@ -128,6 +128,10 @@ cson_value * json_page_status(){
       zStatus = "updatedByMerge";
     }else if( 3==isChnged ){
       zStatus = "addedByMerge";
+    }else if( 4==isChnged ){
+      zStatus = "updatedByIntegrate";
+    }else if( 5==isChnged ){
+      zStatus = "addedByIntegrate";
     }else if( 1==isChnged ){
       if( file_contains_merge_marker(zFullName) ){
         zStatus = "conflict";
