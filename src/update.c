@@ -226,7 +226,7 @@ void update_cmd(void){
     "  ridv INTEGER,"             /* Record ID for current version */
     "  ridt INTEGER,"             /* Record ID for target */
     "  isexe BOOLEAN,"            /* Does target have execute permission? */
-    "  deleted BOOLEAN DEFAULT 0,"/* File marke by "rm" to become unmanaged */
+    "  deleted BOOLEAN DEFAULT 0,"/* File marked by "rm" to become unmanaged */
     "  fnt TEXT %s"               /* Filename of same file on target version */
     ");",
     filename_collation(), filename_collation()
@@ -402,7 +402,7 @@ void update_cmd(void){
       /* The file is unedited.  Change it to the target version */
       undo_save(zName);
       if( deleted ){
-        fossil_print("UPDATE %s - change to unmanged file\n", zName);
+        fossil_print("UPDATE %s - change to unmanaged file\n", zName);
       }else{
         fossil_print("UPDATE %s\n", zName);
       }
