@@ -1015,7 +1015,7 @@ static void create_manifest(
   while( db_step(&q)==SQLITE_ROW ){
     char *zMergeUuid;
     int mid = db_column_int(&q, 0);
-    if( !g.markPrivate && content_is_private(mid) ) continue;
+    if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
     zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
     if( zMergeUuid ){
       blob_appendf(pOut, " %s", zMergeUuid);
