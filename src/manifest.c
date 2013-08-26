@@ -751,9 +751,13 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( zValue ) defossilize(zValue);
         if( sz==UUID_SIZE && validate16(zUuid, UUID_SIZE) ){
           /* A valid uuid */
+          if( p->zEventId ) SYNTAX("non-self-referential T-card in event");
         }else if( sz==1 && zUuid[0]=='*' ){
           zUuid = 0;
           hasSelfRefTag = 1;
+          if( p->zEventId && zName[0]!='+' ){
+            SYNTAX("propagating T-card in event");
+          }
         }else{
           SYNTAX("malformed UUID on T-card");
         }
@@ -888,10 +892,6 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     if( p->zWikiTitle!=0 ) SYNTAX("L-card in event");
     if( p->zWiki==0 ) SYNTAX("missing W-card on event");
     if( p->zAttachName ) SYNTAX("A-card in event");
-    for(i=0; i<p->nTag; i++){
-      if( p->aTag[i].zName[0]!='+' ) SYNTAX("propagating tag in event");
-      if( p->aTag[i].zUuid!=0 ) SYNTAX("non-self-referential tag in event");
-    }
     if( !seenZ ) SYNTAX("missing Z-card on event");
     p->type = CFTYPE_EVENT;
   }else if( hasSelfRefTag || p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
