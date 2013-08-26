@@ -307,7 +307,7 @@ void attachadd_page(void){
     n = strlen(zComment);
     while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
     if( n>0 ){
-      blob_appendf(&manifest, "C %F\n", zComment);
+      blob_appendf(&manifest, "C %#F\n", n, zComment);
     }
     zDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zDate);
