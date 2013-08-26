@@ -1403,6 +1403,9 @@ void db_initial_setup(
     zDate = date_in_standard_format(zInitialDate);
     blob_appendf(&manifest, "D %s\n", zDate);
     md5sum_init();
+    /* The R-card is necessary here because without it
+     * fossil versions earlier than versions 1.27 would
+     * interpret this artifact as a "control". */
     blob_appendf(&manifest, "R %s\n", md5sum_finish(0));
     blob_appendf(&manifest, "T *branch * trunk\n");
     blob_appendf(&manifest, "T *sym-trunk *\n");
