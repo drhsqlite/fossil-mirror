@@ -407,11 +407,10 @@ void update_cmd(void){
         fossil_print("UPDATE %s\n", zName);
       }
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
-    }else if( idt>0 && idv>0 && file_wd_size(zFullPath)<0 ){
+    }else if( idt>0 && idv>0 && !deleted && file_wd_size(zFullPath)<0 ){
       /* The file missing from the local check-out. Restore it to the
       ** version that appears in the target. */
-      fossil_print("UPDATE %s%s\n", zName,
-                    deleted?" - change to unmanaged file":"");
+      fossil_print("UPDATE %s\n", zName);
       undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt==0 && idv>0 ){
