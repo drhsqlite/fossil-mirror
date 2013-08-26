@@ -484,7 +484,7 @@ The following cards are allowed on an event artifact:
 </blockquote>
 
 The C card contains text that is displayed on the timeline for the
-event.  Exactly one C card is required on an event artifact.
+event.  The C card is optional, but there can only be one.
 
 A single D card is required to give the date and time when the 
 event artifact was created.  This is different from the time at which
@@ -583,7 +583,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
-<td align=center><b>1</b></td>
+<td align=center><b>0-1</b></td>
 </tr>
 <tr>
 <td><b>D</b> <i>date-time-stamp</i></td>

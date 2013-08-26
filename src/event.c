@@ -282,11 +282,16 @@ void eventedit_page(void){
   if( P("submit")!=0 && (zBody!=0 && zComment!=0) ){
     char *zDate;
     Blob cksum;
-    int nrid;
+    int nrid, n;
     blob_zero(&event);
     db_begin_transaction();
     login_verify_csrf_secret();
-    blob_appendf(&event, "C %F\n", zComment);
+    while( fossil_isspace(zComment[0]) ) zComment++;
+    n = strlen(zComment);
+    while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
+    if( n>0 ){
+      blob_appendf(&event, "C %F\n", zComment);
+    }
     zDate = date_in_standard_format("now");
     blob_appendf(&event, "D %s\n", zDate);
     free(zDate);
