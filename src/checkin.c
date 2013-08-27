@@ -625,9 +625,13 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   if( zEditor==0 ){
     zEditor = fossil_getenv("EDITOR");
   }
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   if( zEditor==0 ){
-    zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SystemRoot"));
+    zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SYSTEMROOT"));
+#if defined(__CYGWIN__)
+    zEditor = fossil_utf8_to_filename(zEditor);
+    blob_add_cr(pPrompt);
+#endif
   }
 #endif
   if( zEditor==0 ){
