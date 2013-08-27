@@ -1032,14 +1032,17 @@ static void create_manifest(
   blob_appendf(pOut, "\n");
 
   db_prepare(&q,
-    "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid"
+    "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid, merge"
     "  FROM vmerge, blob"
     " WHERE (vmerge.id=-1 OR vmerge.id=-2)"
     "   AND blob.rid=vmerge.merge"
     " ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zCherrypickUuid = db_column_text(&q, 0);
-    blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
+    int mid = db_column_int(&q, 1);
+    if( mid != vid ){
+      blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
+    }
   }
   db_finalize(&q);
 
