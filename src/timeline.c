@@ -2034,7 +2034,6 @@ static void stats_report_by_month_year(char includeMonth,
   if(nEventTotal){
     char const * zAvgLabel = includeMonth ? "month" : "year";
     int nAvg = iterations ? (nEventTotal/iterations) : 0;
-    int nWidth = (int)(100 * nAvg / nMaxEvents);
     @ <br><div>Total events: %d(nEventTotal)
     @ <br>Average per active %s(zAvgLabel): %d(nAvg)
     @ </div>
@@ -2122,8 +2121,8 @@ static void stats_report_year_weeks(const char * zUserName){
   Blob sql = empty_blob;
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
-  int iterations;                   /* # of active time periods. */
-  
+  int iterations = 0;                /* # of active time periods. */
+
   cgi_printf("Select year: ");
   blob_append(&sql,
               "SELECT DISTINCT substr(date(mtime),1,4) AS y "
