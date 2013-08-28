@@ -355,7 +355,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   int n;
   char *zUuid;
   int sz = 0;
-  int isRepeat, hasSelfRefTag = 0;
+  int isRepeat, hasSelfRefTag = 0, hasShunnedMCard = 0;
   static Bag seen;
   const char *zErr = 0;
 
@@ -644,6 +644,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( i>0 && fossil_strcmp(p->azCChild[i-1], zUuid)>=0 ){
           SYNTAX("M-card in the wrong order");
         }
+        if( !hasShunnedMCard ){
+          hasShunnedMCard = uuid_is_shunned(zUuid);
+        }
         break;
       }
 
@@ -881,6 +884,15 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       SYNTAX("cluster contains a card other than M- or Z-");
     }
     if( !seenZ ) SYNTAX("missing Z-card on cluster");
+    if( hasShunnedMCard) {
+      zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
+      db_begin_transaction();
+      db_multi_exec(
+        "INSERT OR IGNORE INTO shun(uuid,mtime)"
+        " VALUES('%s', now())", zUuid);
+      db_end_transaction(0);
+      SYNTAX("shunned M-card on cluster");
+    }
     p->type = CFTYPE_CLUSTER;
   }else if( p->zEventId ){
     if( p->rDate<=0.0 ) SYNTAX("missing date on event");
