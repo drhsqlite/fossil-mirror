@@ -1,5 +1,5 @@
-C An\sunused\sand\san\suninitialized\svariable.
-D 2013-08-27T13:50:02.241
+C On\sCygwin,\sif\sall\selse\sfails,\suse\sInternet\sExplorer\sas\sbrowser\sfor\s"fossil\sui".
+D 2013-08-29T11:16:07.290
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -364,7 +364,7 @@ F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 780da40a082140996567309334f12e138275d1c1
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c 56667508a48adddffb58f201d6af49e9eb44efbf
+F src/main.c 419a35e8c4f648c96dd4c7525b34458fdb8c8355
 F src/main.mk 02a81e04ae23ef5f72a010b219ad3f1b4bd3ea7a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d5649979ed10dd73ba3eaec02c20be72532f61fa
-R cec0bfe0651d9f01a76312e3b6024b31
+P 669f22fb7cc25561633e462cb7f521b0cbeba864
+R e8c83c60a763c93c20fac3041bf29711
 U jan.nijtmans
-Z 90da6dd1bac9d4c701891e7ca32cd5c7
+Z ca04c0397cafac58b9b027c76aea2cc6

@@ -1850,7 +1850,13 @@ void cmd_webserver(void){
       static const char *const azBrowserProg[] =
           { "xdg-open", "gnome-open", "firefox", "google-chrome" };
       int i;
+#if defined(__CYGWIN__)
+      const char *path = fossil_getenv("PROGRAMFILES");
+      path = fossil_utf8_to_filename(path);
+      zBrowser = mprintf("\"%s/Internet Explorer/iexplore.exe\"", path);
+#else
       zBrowser = "echo";
+#endif
       for(i=0; i<sizeof(azBrowserProg)/sizeof(azBrowserProg[0]); i++){
         if( binaryOnPath(azBrowserProg[i]) ){
           zBrowser = azBrowserProg[i];
