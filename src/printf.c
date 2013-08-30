@@ -924,13 +924,12 @@ NORETURN void fossil_panic(const char *zFormat, ...){
   va_list ap;
   int rc = 1;
   char z[1000];
-  static int once = 1;
+  static int once = 0;
 
-  if( g.db ){
-    sqlite3_close_v2(g.db);
-    g.db = 0;
-  }
+  if( once ) exit(1);
+  once = 1;
   mainInFatalError = 1;
+  db_force_rollback();
   va_start(ap, zFormat);
   sqlite3_vsnprintf(sizeof(z),z,zFormat, ap);
   va_end(ap);
@@ -944,8 +943,7 @@ NORETURN void fossil_panic(const char *zFormat, ...){
   else
 #endif
   {
-    if( g.cgiOutput && once ){
-      once = 0;
+    if( g.cgiOutput ){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
       cgi_reply();
     }else if( !g.fQuiet ){
@@ -955,7 +953,7 @@ NORETURN void fossil_panic(const char *zFormat, ...){
       fossil_puts("\n", 1);
     }
   }
-  fossil_exit(rc);
+  exit(rc);
 }
 
 NORETURN void fossil_fatal(const char *zFormat, ...){
