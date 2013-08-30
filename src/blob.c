@@ -768,17 +768,16 @@ int blob_read_link(Blob *pBlob, const char *zFilename){
 */
 int blob_write_to_file(Blob *pBlob, const char *zFilename){
   FILE *out;
-  int wrote;
+  int nWrote;
 
   if( zFilename[0]==0 || (zFilename[0]=='-' && zFilename[1]==0) ){
-    int n = blob_size(pBlob);
+    nWrote = blob_size(pBlob);
 #if defined(_WIN32)
-    if( fossil_utf8_to_console(blob_buffer(pBlob), n, 0) >= 0 ){
-      return n;
+    if( fossil_utf8_to_console(blob_buffer(pBlob), nWrote, 0) >= 0 ){
+      return nWrote;
     }
 #endif
-    fwrite(blob_buffer(pBlob), 1, n, stdout);
-    return n;
+    fwrite(blob_buffer(pBlob), 1, nWrote, stdout);
   }else{
     int i, nName;
     char *zName, zBuf[1000];
@@ -818,15 +817,15 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
       return 0;
     }
     if( zName!=zBuf ) free(zName);
+    blob_is_init(pBlob);
+    nWrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
+    fclose(out);
+    if( nWrote!=blob_size(pBlob) ){
+      fossil_fatal_recursive("short write: %d of %d bytes to %s", nWrote,
+         blob_size(pBlob), zFilename);
+    }
   }
-  blob_is_init(pBlob);
-  wrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
-  fclose(out);
-  if( wrote!=blob_size(pBlob) && out!=stdout ){
-    fossil_fatal_recursive("short write: %d of %d bytes to %s", wrote,
-       blob_size(pBlob), zFilename);
-  }
-  return wrote;
+  return nWrote;
 }
 
 /*

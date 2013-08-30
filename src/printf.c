@@ -24,6 +24,7 @@
 #   include <io.h>
 #   include <fcntl.h>
 #endif
+#include <time.h>
 
 /*
 ** Conversion types fall into various categories as defined by the
@@ -908,6 +909,39 @@ void fossil_trace(const char *zFormat, ...){
   va_end(ap);
 }
 
+/*
+** Write a message to the error log, if the error log filename is
+** defined.
+*/
+static void fossil_errorlog(const char *zFormat, ...){
+  struct tm *pNow;
+  time_t now;
+  FILE *out;
+  const char *z;
+  int i;
+  va_list ap;
+  static const char *azEnv[] = { "HTTP_HOST", "HTTP_USER_AGENT",
+      "PATH_INFO", "QUERY_STRING", "REMOTE_ADDR", "REQUEST_METHOD",
+      "REQUEST_URI", "SCRIPT_NAME" };
+  if( g.zErrlog==0 ) return;
+  out = fopen(g.zErrlog, "a");
+  if( out==0 ) return;
+  now = time(0);
+  pNow = gmtime(&now);
+  fprintf(out, "------------- %04d-%02d-%02d %02d:%02d:%02d UTC ------------\n",
+          pNow->tm_year+1900, pNow->tm_mon+1, pNow->tm_mday+1,
+          pNow->tm_hour, pNow->tm_min, pNow->tm_sec);
+  va_start(ap, zFormat);
+  vfprintf(out, zFormat, ap);
+  fprintf(out, "\n");
+  va_end(ap);
+  for(i=0; i<sizeof(azEnv)/sizeof(azEnv[0]); i++){
+    if( (z = getenv(azEnv[i]))!=0 || (z = P(azEnv[i]))!=0 ){
+      fprintf(out, "%s=%s\n", azEnv[i], z);
+    }
+  }
+  fclose(out);
+}
 
 /*
 ** The following variable becomes true while processing a fatal error
@@ -933,6 +967,7 @@ NORETURN void fossil_panic(const char *zFormat, ...){
   va_start(ap, zFormat);
   sqlite3_vsnprintf(sizeof(z),z,zFormat, ap);
   va_end(ap);
+  fossil_errorlog("panic: %s", z);
 #ifdef FOSSIL_ENABLE_JSON
   if( g.json.isJsonMode ){
     json_err( 0, z, 1 );
@@ -964,6 +999,7 @@ NORETURN void fossil_fatal(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
+  fossil_errorlog("fatal: %s", z);
 #ifdef FOSSIL_ENABLE_JSON
   if( g.json.isJsonMode ){
     json_err( g.json.resultCode, z, 1 );
@@ -1006,6 +1042,7 @@ void fossil_fatal_recursive(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
+  fossil_errorlog("fatal: %s", z);
 #ifdef FOSSIL_ENABLE_JSON
   if( g.json.isJsonMode ){
     json_err( g.json.resultCode, z, 1 );
@@ -1036,6 +1073,7 @@ void fossil_warning(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
+  fossil_errorlog("warning: %s", z);
 #ifdef FOSSIL_ENABLE_JSON
   if(g.json.isJsonMode){
     json_warn( FSL_JSON_W_UNKNOWN, z );

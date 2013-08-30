@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sthe\sfossil_panic()\sprocedure\sto\sprevent\sit\sfrom\nlooping\sand\sto\sforce\san\searly\sclose\sof\sthe\sdatabase\sfile.
-D 2013-08-30T06:41:05.981
+C Add\sthe\s--errorlog\scommand-line\soption\sand\sthe\serrorlog:\sparameter\sto\nCGI\sscripts.\s\sLog\sall\spanics,\sfatal\serrors,\sand\swarnings\sto\sthe\serror\slog,\nif\sdefined.\s\sPanic\sif\sfile\sdescriptor\s2\sis\snot\sopen\son\sunix.\s\sClean\sup\nsome\sroutines\sthat\sdeal\swith\sclose().
+D 2013-08-30T12:18:25.367
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -309,7 +309,7 @@ F src/allrepo.c cf257abcfc4c887f3fc497ca907e0cfa19961e5e
 F src/attach.c 5cc1ab08fed1884006730e691e76298b0f32a591
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 9eef1e8551df42bdee81aef68359e65985c6c8b9
-F src/blob.c 6f0e1313d508f67eb02a6422127096c5d92915b6
+F src/blob.c 9b834e63fab2e586cc2ac29ba56a38acc989c3ca
 F src/branch.c 7d592b743b390e90ecec5bb3096e6d636f5b0ed1
 F src/browse.c 4f11469038984f7e0e886fbae8e44f72b294f6b4
 F src/captcha.c de30cda16d8d774c88ee465f15fc735ecb81ac34
@@ -364,7 +364,7 @@ F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 780da40a082140996567309334f12e138275d1c1
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c b4ac7e532a1800dd10ee5017475a6d2da59c12ce
+F src/main.c ccab6eede388e12666627ecce1facb90ea4c1bbb
 F src/main.mk 02a81e04ae23ef5f72a010b219ad3f1b4bd3ea7a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -383,7 +383,7 @@ F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
 F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c d7231364f0df57c6e3f56cae4ff37c2de0d92821
+F src/printf.c 50cf5ba580140968b49974ef64df76441fc1358f
 F src/rebuild.c 1d302b38a7e33a50d5229189215be6085454cc51
 F src/regexp.c 056d7e54c5a85247ee9d003ede339b07ae049a5f
 F src/report.c 23c9e4a0828b013d723724613de1c8b76333f030
@@ -400,7 +400,7 @@ F src/sqlite3.c 02a9ea39fef2bac6caaf27f33dd0399dd11ef18b
 F src/sqlite3.h d25ab1d997d4c02279539ce66a4ed2d203afbcad
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 0cd57adbb99c53b894b3751c429b0f814222acf1
-F src/style.c 343de120e86c8fa9ec922e113b4bae229e5fc802
+F src/style.c 5be034c976adcd65b7dbd144e151afbf99610178
 F src/sync.c 0aff66442a69060943513f7bddafc9eb9c0343a7
 F src/tag.c e559f8284f91556a28035efab1caa20b2864c8f6
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -419,7 +419,7 @@ F src/update.c 04c06e5a328acdcfb50f5e2ea82dbeaf1d6acc58
 F src/url.c 3cfb983699aa08d605c47ad368d5796c09f6143d
 F src/user.c 0c0c3d82374d547e830712a4aeb68f54c3aa9769
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
-F src/util.c d31f9b92152fade029a8177de4e5a996a071e170
+F src/util.c a2369fb9733908a006702613f091ca39949738ac
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
 F src/vfile.c 2035952f79d653f63259ab9da4d402cdf5236fe4
 F src/wiki.c 92f6fddf822503533c3f7524b87fe46cfb231b6d
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 98b16c72c72a0cd0e9eef9369c85af308f90a448
-R 2103aa195a3391dbbc6ac237a2e8eff0
+P 9d73d4c127fc8cf0fc9bbe86a725ebf6f68f9dfa
+R f5dfb810bfe0a9b3f445d6c4986845a1
 U drh
-Z 028aeeeebe8984c33f62bdd286b29d43
+Z a282b6d9905e6aeb1c62f8035127bed4

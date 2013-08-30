@@ -116,6 +116,7 @@ struct TclContext {
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
+  const char *zErrlog;    /* Log errors to this file, if not NULL */
   int isConst;            /* True if the output is unchanging */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
@@ -374,7 +375,7 @@ static void expand_args_option(int argc, void *argv){
   char *z;                  /* General use string pointer */
   char **newArgv;           /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
-  FILE * zInFile;           /* input FILE */
+  FILE *inFile;             /* input FILE */
 #if defined(_WIN32)
   wchar_t buf[MAX_PATH];
 #endif
@@ -404,17 +405,17 @@ static void expand_args_option(int argc, void *argv){
   if( i>=g.argc-1 ) return;
 
   zFileName = g.argv[i+1];
-  zInFile = (0==strcmp("-",zFileName))
+  inFile = (0==strcmp("-",zFileName))
     ? stdin
     : fossil_fopen(zFileName,"rb");
-  if(!zInFile){
+  if(!inFile){
     fossil_fatal("Cannot open -args file [%s]", zFileName);
   }else{
-    blob_read_from_channel(&file, zInFile, -1);
-    if(stdin != zInFile){
-      fclose(zInFile);
+    blob_read_from_channel(&file, inFile, -1);
+    if(stdin != inFile){
+      fclose(inFile);
     }
-    zInFile = NULL;
+    inFile = NULL;
   }
   blob_to_utf8_no_bom(&file, 1);
   z = blob_str(&file);
@@ -588,6 +589,7 @@ int main(int argc, char **argv)
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
+    g.zErrlog = find_option("errorlog", 0, 1);
     if( find_option("utc",0,0) ) g.fTimeFormat = 1;
     if( find_option("localtime",0,0) ) g.fTimeFormat = 2;
     if( zChdir && file_chdir(zChdir, 0) ){
@@ -607,6 +609,7 @@ int main(int argc, char **argv)
     }
     zCmdName = g.argv[1];
   }
+  if( !is_valid_fd(2) ) fossil_panic("file descriptor 2 not open");
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
   if( rc==1 ){
     fossil_fatal("%s: unknown command: %s\n"
@@ -1505,6 +1508,10 @@ void cmd_cgi(void){
     if( blob_eq(&key, "debug:") && blob_token(&line, &value) ){
       g.fDebug = fossil_fopen(blob_str(&value), "ab");
       blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "errorlog:") && blob_token(&line, &value) ){
+      g.zErrlog = mprintf("%s", blob_str(&value));
       continue;
     }
     if( blob_eq(&key, "HOME:") && blob_token(&line, &value) ){

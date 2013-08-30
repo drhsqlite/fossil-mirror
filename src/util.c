@@ -28,6 +28,9 @@
 #else
 # include <sys/time.h>
 # include <sys/resource.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <errno.h>
 #endif
 
 
@@ -300,4 +303,16 @@ int fossil_timer_is_active( int timerId ){
     assert(!rc || (rc == timerId));
     return fossilTimerList[timerId-1].id;
   }
+}
+
+/*
+** Return TRUE if fd is a valid open file descriptor.  This only
+** works on unix.  The function always returns true on Windows.
+*/
+int is_valid_fd(int fd){
+#ifdef _WIN32
+  return 1;
+#else
+  return fcntl(fd, F_GETFL)!=(-1) || errno!=EBADF;
+#endif
 }
