@@ -217,7 +217,7 @@ void info_cmd(void){
     int rid;
     rid = name_to_rid(g.argv[2]);
     if( rid==0 ){
-      fossil_panic("no such object: %s\n", g.argv[2]);
+      fossil_fatal("no such object: %s\n", g.argv[2]);
     }
     show_common_info(rid, "uuid:", 1, 1);
   }
@@ -473,7 +473,7 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
 ** "show-version-diffs" setting is turned on.
 */
 void ci_page(void){
-  Stmt q;
+  Stmt q1, q2, q3;
   int rid;
   int isLeaf;
   int verboseFlag;     /* True to show diffs */
@@ -504,7 +504,7 @@ void ci_page(void){
     rid
   );
   isLeaf = is_a_leaf(rid);
-  db_prepare(&q,
+  db_prepare(&q1,
      "SELECT uuid, datetime(mtime, 'localtime'), user, comment,"
      "       datetime(omtime, 'localtime'), mtime"
      "  FROM blob, event"
@@ -513,8 +513,8 @@ void ci_page(void){
      rid, rid
   );
   sideBySide = !is_false(PD("sbs","1"));
-  if( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
+  if( db_step(&q1)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q1, 0);
     char *zTitle = mprintf("Check-in [%.10s]", zUuid);
     char *zEUser, *zEComment;
     const char *zUser;
@@ -531,10 +531,10 @@ void ci_page(void){
     zEComment = db_text(0,
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
-    zUser = db_column_text(&q, 2);
-    zComment = db_column_text(&q, 3);
-    zDate = db_column_text(&q,1);
-    zOrigDate = db_column_text(&q, 4);
+    zUser = db_column_text(&q1, 2);
+    zComment = db_column_text(&q1, 3);
+    zDate = db_column_text(&q1,1);
+    zOrigDate = db_column_text(&q1, 4);
     @ <div class="section">Overview</div>
     @ <table class="label-value">
     @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
@@ -564,21 +564,21 @@ void ci_page(void){
       @ <tr><th>Comment:</th><td class="infoComment">%!w(zComment)</td></tr>
     }
     if( g.perm.Admin ){
-      db_prepare(&q,
+      db_prepare(&q2,
          "SELECT rcvfrom.ipaddr, user.login, datetime(rcvfrom.mtime)"
          "  FROM blob JOIN rcvfrom USING(rcvid) LEFT JOIN user USING(uid)"
          " WHERE blob.rid=%d",
          rid
       );
-      if( db_step(&q)==SQLITE_ROW ){
-        const char *zIpAddr = db_column_text(&q, 0);
-        const char *zUser = db_column_text(&q, 1);
-        const char *zDate = db_column_text(&q, 2);
+      if( db_step(&q2)==SQLITE_ROW ){
+        const char *zIpAddr = db_column_text(&q2, 0);
+        const char *zUser = db_column_text(&q2, 1);
+        const char *zDate = db_column_text(&q2, 2);
         if( zUser==0 || zUser[0]==0 ) zUser = "unknown";
         @ <tr><th>Received&nbsp;From:</th>
         @ <td>%h(zUser) @ %h(zIpAddr) on %s(zDate)</td></tr>
       }
-      db_finalize(&q);
+      db_finalize(&q2);
     }
     if( g.perm.Hyperlink ){
       const char *zProjName = db_get("project-name", "unnamed");
@@ -593,15 +593,15 @@ void ci_page(void){
       if( zParent && !isLeaf ){
         @ | %z(href("%R/timeline?dp=%S",zUuid))both</a>
       }
-      db_prepare(&q, "SELECT substr(tag.tagname,5) FROM tagxref, tag "
+      db_prepare(&q2,"SELECT substr(tag.tagname,5) FROM tagxref, tag "
                      " WHERE rid=%d AND tagtype>0 "
                      "   AND tag.tagid=tagxref.tagid "
                      "   AND +tag.tagname GLOB 'sym-*'", rid);
-      while( db_step(&q)==SQLITE_ROW ){
-        const char *zTagName = db_column_text(&q, 0);
+      while( db_step(&q2)==SQLITE_ROW ){
+        const char *zTagName = db_column_text(&q2, 0);
         @  | %z(href("%R/timeline?r=%T",zTagName))%h(zTagName)</a>
       }
-      db_finalize(&q);
+      db_finalize(&q2);
 
 
       /* The Download: line */
@@ -632,7 +632,7 @@ void ci_page(void){
     style_header("Check-in Information");
     login_anonymous_available();
   }
-  db_finalize(&q);
+  db_finalize(&q1);
   showTags(rid, "");
   if( zParent ){
     @ <div class="section">Changes</div>
@@ -679,7 +679,7 @@ void ci_page(void){
       @ <p><b>Only differences that match regular expression "%h(zRe)"
       @ are shown.</b></p>
     }
-    db_prepare(&q,
+    db_prepare(&q3,
        "SELECT name,"
        "       mperm,"
        "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
@@ -693,15 +693,15 @@ void ci_page(void){
        rid, rid
     );
     diffFlags = construct_diff_flags(verboseFlag, sideBySide);
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zName = db_column_text(&q,0);
-      int mperm = db_column_int(&q, 1);
-      const char *zOld = db_column_text(&q,2);
-      const char *zNew = db_column_text(&q,3);
-      const char *zOldName = db_column_text(&q, 4);
+    while( db_step(&q3)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q3,0);
+      int mperm = db_column_int(&q3, 1);
+      const char *zOld = db_column_text(&q3,2);
+      const char *zNew = db_column_text(&q3,3);
+      const char *zOldName = db_column_text(&q3, 4);
       append_file_change_line(zName, zOld, zNew, zOldName, diffFlags,pRe,mperm);
     }
-    db_finalize(&q);
+    db_finalize(&q3);
   }
   append_diff_javascript(sideBySide);
   style_footer();

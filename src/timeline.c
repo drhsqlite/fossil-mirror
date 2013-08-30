@@ -651,9 +651,9 @@ void timeline_output_graph_javascript(
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
     @ var canvasDiv = gebi("canvas");
-    @ var canvasStyle = window.getComputedStyle(canvasDiv,null);
-    @ var lineColor = canvasStyle.getPropertyValue('color') || 'black';
-    @ var bgColor = canvasStyle.getPropertyValue('background-color') || 'white';
+    @ var canvasStyle = window.getComputedStyle && window.getComputedStyle(canvasDiv,null);
+    @ var lineColor = (canvasStyle && canvasStyle.getPropertyValue('color')) || 'black';
+    @ var bgColor = (canvasStyle && canvasStyle.getPropertyValue('background-color')) || 'white';
     @ if( bgColor=='transparent' ) bgColor = 'white';
     @ var boxColor = lineColor;
     @ function drawBox(color,x0,y0,x1,y1){
@@ -669,7 +669,6 @@ void timeline_output_graph_javascript(
     @   n.style.width = w+"px";
     @   n.style.height = h+"px";
     @   n.style.backgroundColor = color;
-    @   n.style.cursor = "pointer";
     @   canvasDiv.appendChild(n);
     @   return n;
     @ }
@@ -719,11 +718,14 @@ void timeline_output_graph_javascript(
     @ function drawThinLine(x0,y0,x1,y1){
     @   drawBox(lineColor,x0,y0,x1,y1);
     @ }
+    @ function drawNodeBox(color,x0,y0,x1,y1){
+    @   drawBox(color,x0,y0,x1,y1).style.cursor = "pointer";
+    @ }
     @ function drawNode(p, left, btm){
-    @   drawBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
-    @   drawBox(p.bg||bgColor,p.x-4,p.y-4,p.x+5,p.y+5);
+    @   drawNodeBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
+    @   drawNodeBox(p.bg||bgColor,p.x-4,p.y-4,p.x+5,p.y+5);
     @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
-    @   if( p.f&1 ) drawBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2);
+    @   if( p.f&1 ) drawNodeBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2);
     if( !omitDescenders ){
       @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
       @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
@@ -1904,8 +1906,10 @@ static void stats_report_by_month_year(char includeMonth,
   char showYearTotal = 0;            /* Flag telling us when to show
                                         the per-year event totals */
   Blob header = empty_blob;          /* Page header text */
-  int nMaxEvents  = 1;            /* for calculating length of graph bars. */
-
+  int nMaxEvents  = 1;               /* for calculating length of graph
+                                        bars. */
+  int iterations = 0;                /* number of weeks/months we iterate
+                                        over */
   blob_appendf(&header, "Timeline Events by year%s",
                (includeMonth ? "/month" : ""));
   blob_appendf(&sql,
@@ -1942,6 +1946,7 @@ static void stats_report_by_month_year(char includeMonth,
     if(nCount>nMaxEvents){
       nMaxEvents = nCount;
     }
+    ++iterations;
   }
   db_reset(&query);
   while( SQLITE_ROW == db_step(&query) ){
@@ -2027,7 +2032,11 @@ static void stats_report_by_month_year(char includeMonth,
   }
   @ </tbody></table>
   if(nEventTotal){
-    @ <br><div>Total events: %d(nEventTotal)</div>
+    char const * zAvgLabel = includeMonth ? "month" : "year";
+    int nAvg = iterations ? (nEventTotal/iterations) : 0;
+    @ <br><div>Total events: %d(nEventTotal)
+    @ <br>Average per active %s(zAvgLabel): %d(nAvg)
+    @ </div>
   }
   if( !includeMonth ){
     output_table_sorting_javascript("statsTable","tnx");
@@ -2112,6 +2121,7 @@ static void stats_report_year_weeks(const char * zUserName){
   Blob sql = empty_blob;
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
+  int iterations = 0;                /* # of active time periods. */
 
   cgi_printf("Select year: ");
   blob_append(&sql,
@@ -2178,6 +2188,7 @@ static void stats_report_year_weeks(const char * zUserName){
       if(nCount>nMaxEvents){
         nMaxEvents = nCount;
       }
+      ++iterations;
     }
     db_reset(&stWeek);
     while( SQLITE_ROW == db_step(&stWeek) ){
@@ -2208,8 +2219,10 @@ static void stats_report_year_weeks(const char * zUserName){
     free(zDefaultYear);
     cgi_printf("</tbody></table>");
     if(total){
-      cgi_printf("<br><div>Total events: %d</div>",
-                 total);
+      int nAvg = iterations ? (total/iterations) : 0;
+      cgi_printf("<br><div>Total events: %d<br>"
+                 "Average per active week: %d</div>",
+                 total, nAvg);
     }
     output_table_sorting_javascript("statsTable","tnx");
   }

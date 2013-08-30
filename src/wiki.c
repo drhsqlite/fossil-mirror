@@ -98,7 +98,7 @@ void home_page(void){
   if( zPageName ){
     login_check_credentials();
     g.zExtra = zPageName;
-    cgi_set_parameter_nocopy("name", g.zExtra);
+    cgi_set_parameter_nocopy("name", g.zExtra, 1);
     g.isHome = 1;
     wiki_page();
     return;
@@ -495,7 +495,7 @@ void wikiedit_page(void){
   @ <input type="submit" name="cancel" value="Cancel"
   @  onclick='confirm("Abandon your changes?")' />
   @ </div>
-  captcha_generate();
+  captcha_generate(0);
   @ </form>
   manifest_destroy(pWiki);
   blob_reset(&wiki);
@@ -698,7 +698,7 @@ void wikiappend_page(void){
   @ <input type="submit" name="preview" value="Preview Your Comment" />
   @ <input type="submit" name="submit" value="Append Your Changes" />
   @ <input type="submit" name="cancel" value="Cancel" />
-  captcha_generate();
+  captcha_generate(0);
   @ </form>
   style_footer();
 }

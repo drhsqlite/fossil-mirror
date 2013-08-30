@@ -413,6 +413,7 @@ static struct QParam {   /* One entry for each query parameter or cookie */
   const char *zName;        /* Parameter or cookie name */
   const char *zValue;       /* Value of the query parameter or cookie */
   int seq;                  /* Order of insertion */
+  int isQP;                 /* True for query parameters */
 } *aParamQP;             /* An array of all parameters and cookies */
 
 /*
@@ -423,7 +424,7 @@ static struct QParam {   /* One entry for each query parameter or cookie */
 ** zName and zValue are not copied and must not change or be
 ** deallocated after this routine returns.
 */
-void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
+void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
   if( nAllocQP<=nUsedQP ){
     nAllocQP = nAllocQP*2 + 10;
     if( nAllocQP>1000 ){
@@ -438,6 +439,7 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
     fprintf(stderr, "# cgi: %s = [%s]\n", zName, zValue);
   }
   aParamQP[nUsedQP].seq = seqQP++;
+  aParamQP[nUsedQP].isQP = isQP;
   nUsedQP++;
   sortQP = 1;
 }
@@ -450,7 +452,7 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
 ** Copies are made of both the zName and zValue parameters.
 */
 void cgi_set_parameter(const char *zName, const char *zValue){
-  cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue));
+  cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue), 0);
 }
 
 /*
@@ -464,7 +466,7 @@ void cgi_replace_parameter(const char *zName, const char *zValue){
       return;
     }
   }
-  cgi_set_parameter_nocopy(zName, mprintf("%s",zValue));
+  cgi_set_parameter_nocopy(zName, mprintf("%s",zValue), 0);
 }
 
 /*
@@ -472,7 +474,7 @@ void cgi_replace_parameter(const char *zName, const char *zValue){
 ** must be made of zValue.
 */
 void cgi_setenv(const char *zName, const char *zValue){
-  cgi_set_parameter_nocopy(zName, mprintf("%s",zValue));
+  cgi_set_parameter_nocopy(zName, mprintf("%s",zValue), 0);
 }
  
 
@@ -502,6 +504,7 @@ void cgi_setenv(const char *zName, const char *zValue){
 ** returns or it will corrupt the parameter table.
 */
 static void add_param_list(char *z, int terminator){
+  int isQP = terminator=='&';
   while( *z ){
     char *zName;
     char *zValue;
@@ -523,7 +526,7 @@ static void add_param_list(char *z, int terminator){
       zValue = "";
     }
     if( fossil_islower(zName[0]) ){
-      cgi_set_parameter_nocopy(zName, zValue);
+      cgi_set_parameter_nocopy(zName, zValue, isQP);
     }
 #ifdef FOSSIL_ENABLE_JSON
     json_setenv( zName, cson_value_new_string(zValue,strlen(zValue)) );
@@ -667,10 +670,10 @@ static void process_multipart_form_data(char *z, int len){
       int nContent = 0;
       zValue = get_bounded_content(&z, &len, zBoundry, &nContent);
       if( zName && zValue && fossil_islower(zName[0]) ){
-        cgi_set_parameter_nocopy(zName, zValue);
+        cgi_set_parameter_nocopy(zName, zValue, 1);
         if( showBytes ){
           cgi_set_parameter_nocopy(mprintf("%s:bytes", zName),
-               mprintf("%d",nContent));
+               mprintf("%d",nContent), 1);
         }
       }
       zName = 0;
@@ -687,13 +690,13 @@ static void process_multipart_form_data(char *z, int len){
         }else if( c=='f' && sqlite3_strnicmp(azArg[i],"filename=",n)==0 ){
           char *z = azArg[++i];
           if( zName && z && fossil_islower(zName[0]) ){
-            cgi_set_parameter_nocopy(mprintf("%s:filename",zName), z);
+            cgi_set_parameter_nocopy(mprintf("%s:filename",zName), z, 1);
           }
           showBytes = 1;
         }else if( c=='c' && sqlite3_strnicmp(azArg[i],"content-type:",n)==0 ){
           char *z = azArg[++i];
           if( zName && z && fossil_islower(zName[0]) ){
-            cgi_set_parameter_nocopy(mprintf("%s:mimetype",zName), z);
+            cgi_set_parameter_nocopy(mprintf("%s:mimetype",zName), z, 1);
           }
         }
       }
@@ -869,8 +872,8 @@ void cgi_init(void){
 
   len = atoi(PD("CONTENT_LENGTH", "0"));
   g.zContentType = zType = P("CONTENT_TYPE");
+  blob_zero(&g.cgiIn);
   if( len>0 && zType ){
-    blob_zero(&g.cgiIn);
     if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0 
          || strncmp(zType,"multipart/form-data",19)==0 ){
       z = fossil_malloc( len+1 );
@@ -989,7 +992,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   if( fossil_isupper(zName[0]) ){
     const char *zValue = fossil_getenv(zName);
     if( zValue ){
-      cgi_set_parameter_nocopy(zName, zValue);
+      cgi_set_parameter_nocopy(zName, zValue, 0);
       CGIDEBUG(("env-match [%s] = [%s]\n", zName, zValue));
       return zValue;
     }
@@ -1088,6 +1091,21 @@ void cgi_print_all(int showAll){
       if( fossil_strnicmp("fossil-",zName,7)==0 ) continue;
     }
     cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+  }
+}
+
+/*
+** Export all query parameters (but not cookies or environment variables)
+** as hidden values of a form.
+*/
+void cgi_query_parameters_to_hidden(void){
+  int i;
+  const char *zN, *zV;
+  for(i=0; i<nUsedQP; i++){
+    if( aParamQP[i].isQP==0 ) continue;
+    zN = aParamQP[i].zName;
+    zV = aParamQP[i].zValue;
+    @ <input type="hidden" name="%h(zN)" value="%h(zV)">
   }
 }
 

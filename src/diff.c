@@ -2048,10 +2048,10 @@ static void annotate_file(
   /* Initialize the annotation */
   rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
   if( rid==0 ){
-    fossil_panic("file #%d is unchanged in manifest #%d", fnid, mid);
+    fossil_fatal("file #%d is unchanged in manifest #%d", fnid, mid);
   }
   if( !content_get(rid, &toAnnotate) ){
-    fossil_panic("unable to retrieve content of artifact #%d", rid);
+    fossil_fatal("unable to retrieve content of artifact #%d", rid);
   }
   if( iLimit<=0 ) iLimit = 1000000000;
   annotation_start(p, &toAnnotate);
@@ -2152,6 +2152,7 @@ void annotation_page(void){
   showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
+  if( exclude_spiders("annotate") ) return;
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
   zFilename = P("filename");
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
@@ -2330,7 +2331,7 @@ void annotate_cmd(void){
           " ORDER BY ancestor.generation ASC LIMIT 1",
           fid, fnid);
   if( mid==0 ){
-    fossil_panic("unable to find manifest");
+    fossil_fatal("unable to find manifest");
   }
   annFlags |= ANN_FILE_ANCEST;
   annotate_file(&ann, fnid, mid, iLimit, annFlags);

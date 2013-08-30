@@ -71,12 +71,12 @@ static const unsigned int aFont1[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = fossil_malloc( 500 );
+  char *z = fossil_malloc( 9*6*strlen(zPw) + 7 );
   int i, j, k, m;
 
   k = 0;
   for(i=0; i<6; i++){
-    for(j=0; j<8; j++){
+    for(j=0; zPw[j]; j++){
       unsigned char v = hexValue(zPw[j]);
       v = (aFont1[v] >> ((5-i)*4)) & 0xf;
       for(m=8; m>=1; m = m>>1){
@@ -204,13 +204,13 @@ static const char *const azFont2[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = fossil_malloc( 300 );
+  char *z = fossil_malloc( 7*4*strlen(zPw) + 5 );
   int i, j, k, m;
   const char *zChar;
 
   k = 0;
   for(i=0; i<4; i++){
-    for(j=0; j<8; j++){
+    for(j=0; zPw[j]; j++){
       unsigned char v = hexValue(zPw[j]);
       zChar = azFont2[4*v + i];
       for(m=0; zChar[m]; m++){
@@ -361,15 +361,48 @@ static const char *const azFont3[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = fossil_malloc( 600 );
+  char *z = fossil_malloc( 10*6*strlen(zPw) + 7 );
   int i, j, k, m;
   const char *zChar;
+  unsigned char x;
+  int y;
 
   k = 0;
   for(i=0; i<6; i++){
-    for(j=0; j<8; j++){
+    x = 0;
+    for(j=0; zPw[j]; j++){
       unsigned char v = hexValue(zPw[j]);
+      x = (x<<4) + v;
+      switch( x ){
+        case 0x7a:
+        case 0xfa:
+          y = 3;
+          break;
+        case 0x47:
+          y = 2;
+          break;
+        case 0xf6:
+        case 0xa9:
+        case 0xa4:
+        case 0xa1:
+        case 0x9a:
+        case 0x76:
+        case 0x61:
+        case 0x67:
+        case 0x69:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x4a:
+          y = 1;
+          break;
+        default:
+          y = 0;
+          break;
+      }
       zChar = azFont3[6*v + i];
+      while( y && zChar[0]==' ' ){ y--; zChar++; }
+      while( y && z[k-1]==' ' ){ y--; k--; }
       for(m=0; zChar[m]; m++){
         z[k++] = zChar[m];
       }
@@ -498,7 +531,7 @@ int captcha_is_correct(void){
 **
 ** This routine is a no-op if no captcha is required.
 */
-void captcha_generate(void){
+void captcha_generate(int showButton){
   unsigned int uSeed;
   const char *zDecoded;
   char *zCaptcha;
@@ -513,5 +546,63 @@ void captcha_generate(void){
   @ Enter security code shown above:
   @ <input type="hidden" name="captchaseed" value="%u(uSeed)" />
   @ <input type="text" name="captcha" size=8 />
+  if( showButton ){
+    @ <input type="submit" value="Submit">
+  }
   @ </td></tr></table></div>
+}
+
+/*
+** WEBPAGE: test-captcha
+*/
+void captcha_test(void){
+  const char *zPw = P("name");
+  if( zPw==0 || zPw[0]==0 ){
+    u64 x;
+    sqlite3_randomness(sizeof(x), &x);
+    zPw = mprintf("%016llx", x);
+  }
+  style_header("Captcha Test");
+  @ <pre>
+  @ %s(captcha_render(zPw))
+  @ </pre>
+  style_footer();
+}
+
+/*
+** Check to see if the current request is coming from an agent that might
+** be a spider.  If the agent is not a spider, then return 0 without doing
+** anything.  But if the user agent appears to be a spider, offer
+** a captcha challenge to allow the user agent to prove that it is human
+** and return non-zero.
+*/
+int exclude_spiders(const char *zPage){
+  const char *zCookieValue;
+  char *zCookieName;
+  if( g.isHuman ) return 0;
+#if 0
+  {
+    const char *zReferer = P("HTTP_REFERER");
+    if( zReferer && strncmp(g.zBaseURL, zReferer, strlen(g.zBaseURL))==0 ){
+      return 0;
+    }
+  }
+#endif
+  zCookieName = mprintf("fossil-cc-%.10s", db_get("project-code","x"));
+  zCookieValue = P(zCookieName);
+  if( zCookieValue && atoi(zCookieValue)==1 ) return 0;
+  if( captcha_is_correct() ){
+    cgi_set_cookie(zCookieName, "1", login_cookie_path(), 8*3600);
+    return 0;
+  }
+
+  /* This appears to be a spider.  Offer the captcha */
+  style_header("Verification");
+  form_begin(0, "%s", zPage);
+  cgi_query_parameters_to_hidden();
+  @ <p>Please demonstrate that you are human, not a spider or robot</p>
+  captcha_generate(1);
+  @ </form>
+  style_footer();
+  return 1;
 }

@@ -290,11 +290,11 @@ static int json_branch_new(BranchCreateOptions * zOpt,
 
   brid = content_put(&branch);
   if( brid==0 ){
-    fossil_panic("Problem committing manifest: %s", g.zErrMsg);
+    fossil_fatal("Problem committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
   if( manifest_crosslink(brid, &branch)==0 ){
-    fossil_panic("unable to install new manifest");
+    fossil_fatal("unable to install new manifest");
   }
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);

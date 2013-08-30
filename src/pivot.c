@@ -84,7 +84,7 @@ int pivot_find(void){
   ** we abort early
   */
   if( db_int(0, "SELECT count(distinct src) FROM aqueue")<2 ){
-    fossil_panic("lack both primary and secondary files");
+    fossil_fatal("lack both primary and secondary files");
   }
 
   /* Prepare queries we will be needing

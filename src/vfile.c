@@ -746,7 +746,7 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   db_must_be_within_tree();
   pManifest = manifest_get(vid, CFTYPE_MANIFEST);
   if( pManifest==0 ){
-    fossil_panic("manifest file (%d) is malformed", vid);
+    fossil_fatal("manifest file (%d) is malformed", vid);
   }
   manifest_file_rewind(pManifest);
   while( (pFile = manifest_file_next(pManifest,0))!=0 ){

@@ -1402,8 +1402,10 @@ void db_initial_setup(
     blob_appendf(&manifest, "C initial\\sempty\\scheck-in\n");
     zDate = date_in_standard_format(zInitialDate);
     blob_appendf(&manifest, "D %s\n", zDate);
-    blob_appendf(&manifest, "P\n");
     md5sum_init();
+    /* The R-card is necessary here because without it
+     * fossil versions earlier than versions 1.27 would
+     * interpret this artifact as a "control". */
     blob_appendf(&manifest, "R %s\n", md5sum_finish(0));
     blob_appendf(&manifest, "T *branch * trunk\n");
     blob_appendf(&manifest, "T *sym-trunk *\n");
@@ -1994,7 +1996,7 @@ void cmd_open(void){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
   if( !allowNested && db_open_local(0) ){
-    fossil_panic("already within an open tree rooted at %s", g.zLocalRoot);
+    fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
   }
   db_open_repository(g.argv[2]);
 #if defined(_WIN32) || defined(__CYGWIN__)

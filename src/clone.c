@@ -130,7 +130,7 @@ void clone_cmd(void){
   }
   db_open_config(0);
   if( file_size(g.argv[3])>0 ){
-    fossil_panic("file already exists: %s", g.argv[3]);
+    fossil_fatal("file already exists: %s", g.argv[3]);
   }
 
   zDefaultUser = find_option("admin-user","A",1);

@@ -213,7 +213,7 @@ A manifest might contain one or more T-cards used to set
 [./branching.wiki#tags | tags or properties]
 on the check-in.  The format of the T-card is the same as
 described in <i>Control Artifacts</i> section below, except that the
-second argument is the single characcter "<b>*</b>" instead of an
+second argument is the single character "<b>*</b>" instead of an
 artifact ID.  The <b>*</b> in place of the artifact ID indicates that
 the tag or property applies to the current artifact.  It is not
 possible to encode the current artifact ID as part of an artifact,
@@ -484,7 +484,7 @@ The following cards are allowed on an event artifact:
 </blockquote>
 
 The C card contains text that is displayed on the timeline for the
-event.  Exactly one C card is required on an event artifact.
+event.  The C card is optional, but there can only be one.
 
 A single D card is required to give the date and time when the 
 event artifact was created.  This is different from the time at which
@@ -510,7 +510,7 @@ An event might contain one or more T-cards used to set
 [./branching.wiki#tags | tags or properties]
 on the event.  The format of the T-card is the same as
 described in [#ctrl | Control Artifacts] section above, except that the
-second argument is the single characcter "<b>*</b>" instead of an
+second argument is the single character "<b>*</b>" instead of an
 artifact ID and the name is always prefaced by "<b>+</b>".
 The <b>*</b> in place of the artifact ID indicates that
 the tag or property applies to the current artifact.  It is not
@@ -583,7 +583,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
-<td align=center><b>1</b></td>
+<td align=center><b>0-1</b></td>
 </tr>
 <tr>
 <td><b>D</b> <i>date-time-stamp</i></td>
@@ -687,14 +687,13 @@ or more such cards are required.
 </tr>
 <tr>
 <td><b>R</b> <i>md5sum</i></td>
-<td align=center><b>0-1*</b></td>
+<td align=center><b>0-1</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<tr><td>&nbsp;</td><td colspan='7'>* = Required when using F cards</td></tr>
 <tr>
 <td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname</i> <i>uuid</i> ?<i>value</i>?</td>
 <td align=center><b>0+</b></td>
@@ -773,3 +772,12 @@ R c0788982781981c96a0d81465fec7192
 done | md5sum
 c0788982781981c96a0d81465fec7192  -
 </pre></nowiki>
+
+Minor caveats: the above demonstration will work only when none of the
+filenames in the manifest are "fossilized" (encoded) because they contain
+spaces. In that case the shell-generated hash would differ because the
+<tt>stat</tt> calls will fail to find such files (which are output in encoded
+form here). That approach also won't work for delta manifests. Calculating
+the R-card for delta manifests requires traversing both the delta and its baseline in
+lexical order of the files, prefering the delta's copy if both contain
+a given file.

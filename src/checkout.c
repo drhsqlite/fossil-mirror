@@ -63,7 +63,7 @@ int load_vfile(const char *zName){
 
   blob_init(&uuid, zName, -1);
   if( name_to_uuid(&uuid, 1, "ci") ){
-    fossil_panic(g.zErrMsg);
+    fossil_fatal(g.zErrMsg);
   }
   vid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
   if( vid==0 ){

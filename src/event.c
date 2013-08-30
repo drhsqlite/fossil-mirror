@@ -117,7 +117,7 @@ void event_page(void){
   */
   pEvent = manifest_get(rid, CFTYPE_EVENT);
   if( pEvent==0 ){
-    fossil_panic("Object #%d is not an event", rid);
+    fossil_fatal("Object #%d is not an event", rid);
   }
   blob_init(&fullbody, pEvent->zWiki, -1);
   if( wiki_find_title(&fullbody, &title, &tail) ){
@@ -282,11 +282,16 @@ void eventedit_page(void){
   if( P("submit")!=0 && (zBody!=0 && zComment!=0) ){
     char *zDate;
     Blob cksum;
-    int nrid;
+    int nrid, n;
     blob_zero(&event);
     db_begin_transaction();
     login_verify_csrf_secret();
-    blob_appendf(&event, "C %F\n", zComment);
+    while( fossil_isspace(zComment[0]) ) zComment++;
+    n = strlen(zComment);
+    while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
+    if( n>0 ){
+      blob_appendf(&event, "C %#F\n", n, zComment);
+    }
     zDate = date_in_standard_format("now");
     blob_appendf(&event, "D %s\n", zDate);
     free(zDate);
@@ -401,7 +406,7 @@ void eventedit_page(void){
   @ <input type="hidden" name="name" value="%h(zEventId)" />
   @ <table border="0" cellspacing="10">
 
-  @ <tr><th align="right" valign="top">Event&nbsp;Time:</th>
+  @ <tr><th align="right" valign="top">Event&nbsp;Time (UTC):</th>
   @ <td valign="top">
   @   <input type="text" name="t" size="25" value="%h(zETime)" />
   @ </td></tr>

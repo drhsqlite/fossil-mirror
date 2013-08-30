@@ -201,7 +201,7 @@ void update_cmd(void){
   }
 
   if( tid==0 ){
-    fossil_panic("Internal Error: unable to find a version to update to.");
+    fossil_panic("unable to find a version to update to.");
   }
 
   db_begin_transaction();
@@ -226,7 +226,7 @@ void update_cmd(void){
     "  ridv INTEGER,"             /* Record ID for current version */
     "  ridt INTEGER,"             /* Record ID for target */
     "  isexe BOOLEAN,"            /* Does target have execute permission? */
-    "  deleted BOOLEAN DEFAULT 0,"/* File marke by "rm" to become unmanaged */
+    "  deleted BOOLEAN DEFAULT 0,"/* File marked by "rm" to become unmanaged */
     "  fnt TEXT %s"               /* Filename of same file on target version */
     ");",
     filename_collation(), filename_collation()
@@ -402,16 +402,15 @@ void update_cmd(void){
       /* The file is unedited.  Change it to the target version */
       undo_save(zName);
       if( deleted ){
-        fossil_print("UPDATE %s - change to unmanged file\n", zName);
+        fossil_print("UPDATE %s - change to unmanaged file\n", zName);
       }else{
         fossil_print("UPDATE %s\n", zName);
       }
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
-    }else if( idt>0 && idv>0 && file_wd_size(zFullPath)<0 ){
+    }else if( idt>0 && idv>0 && !deleted && file_wd_size(zFullPath)<0 ){
       /* The file missing from the local check-out. Restore it to the
       ** version that appears in the target. */
-      fossil_print("UPDATE %s%s\n", zName,
-                    deleted?" - change to unmanaged file":"");
+      fossil_print("UPDATE %s\n", zName);
       undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt==0 && idv>0 ){
@@ -661,7 +660,7 @@ int historical_version_of_file(
     if( revision==0 ){
       revision = db_text("current", "SELECT uuid FROM blob WHERE rid=%d", rid);
     }
-    fossil_panic("could not parse manifest for checkin: %s", revision);
+    fossil_fatal("could not parse manifest for checkin: %s", revision);
   }
   return errCode;
 }

@@ -522,7 +522,7 @@ static void ticket_put(
 ){
   int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
   if( rid==0 ){
-    fossil_panic("trouble committing ticket: %s", g.zErrMsg);
+    fossil_fatal("trouble committing ticket: %s", g.zErrMsg);
   }
   if( needMod ){
     moderation_table_create();
@@ -678,7 +678,7 @@ void tktnew_page(void){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zNewUuid));
     return;
   }
-  captcha_generate();
+  captcha_generate(0);
   @ </form>
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
   style_footer();
@@ -746,7 +746,7 @@ void tktedit_page(void){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zName));
     return;
   }
-  captcha_generate();
+  captcha_generate(0);
   @ </form>
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
   style_footer();

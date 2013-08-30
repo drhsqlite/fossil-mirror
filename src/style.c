@@ -71,7 +71,7 @@ int nFormAction = 0;
 ** href values to be inserted after the page has loaded.  If
 ** g.perm.History is false, then the <a id="ID"> form is still
 ** generated but the javascript is not generated so the links never
-** activate. 
+** activate.
 **
 ** If the user lacks the Hyperlink (h) property and the "auto-hyperlink"
 ** setting is true, then g.perm.Hyperlink is changed from 0 to 1 and
@@ -1055,7 +1055,7 @@ const struct strctCssDefaults {
     "for the /stats_report views",
     @   background-color: #446979;
   },
-  { ".statistics-report-table-events th"
+  { ".statistics-report-table-events th",
     "",
     @   padding: 0 1em 0 1em;
   },
@@ -1087,6 +1087,10 @@ const struct strctCssDefaults {
   { "tr.row1",
     "odd table row color",
     @ /* Use default */
+  },
+  { "#canvas", "timeline graph node colors",
+    @ color: black;
+    @ background-color: white;
   },
   { 0,
     0,
@@ -1154,11 +1158,21 @@ void page_test_env(void){
   int i;
   int showAll;
   char zCap[30];
+  static const char *azCgiVars[] = {
+    "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",
+    "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
+    "HTTP_ACCEPT_LANGUAGE", "HTTP_CONNECTION", "HTTP_HOST",
+    "HTTP_USER_AGENT", "HTTP_REFERER", "PATH_INFO", "PATH_TRANSLATED",
+    "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT", "REQUEST_METHOD",
+    "REQUEST_URI", "SCRIPT_FILENAME", "SCRIPT_NAME", "SERVER_PROTOCOL",
+  };
+
   login_check_credentials();
   if( !g.perm.Admin && !g.perm.Setup && !db_get_boolean("test_env_enable",0) ){
     login_needed();
     return;
   }
+  for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
   style_header("Environment Test");
   showAll = atoi(PD("showall","0"));
   if( !showAll ){
@@ -1195,10 +1209,11 @@ void page_test_env(void){
     if( zRedir ) cgi_redirect(zRedir);
   }
   style_footer();
+  if( g.perm.Admin && P("err") ) fossil_fatal("%s", P("err"));
 }
 
 /*
-** This page is a honeypot for spiders and bots. 
+** This page is a honeypot for spiders and bots.
 **
 ** WEBPAGE: honeypot
 */
