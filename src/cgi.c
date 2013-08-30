@@ -865,8 +865,8 @@ void cgi_init(void){
 
   len = atoi(PD("CONTENT_LENGTH", "0"));
   g.zContentType = zType = P("CONTENT_TYPE");
+  blob_zero(&g.cgiIn);
   if( len>0 && zType ){
-    blob_zero(&g.cgiIn);
     if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0 
          || strncmp(zType,"multipart/form-data",19)==0 ){
       z = fossil_malloc( len+1 );
