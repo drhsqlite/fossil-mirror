@@ -117,7 +117,7 @@ void event_page(void){
   */
   pEvent = manifest_get(rid, CFTYPE_EVENT);
   if( pEvent==0 ){
-    fossil_panic("Object #%d is not an event", rid);
+    fossil_fatal("Object #%d is not an event", rid);
   }
   blob_init(&fullbody, pEvent->zWiki, -1);
   if( wiki_find_title(&fullbody, &title, &tail) ){

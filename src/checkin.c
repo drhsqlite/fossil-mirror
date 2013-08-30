@@ -1692,7 +1692,7 @@ void commit_cmd(void){
         blob_reset(&delta);
       }
     }else if( forceDelta ){
-      fossil_panic("unable to find a baseline-manifest for the delta");
+      fossil_fatal("unable to find a baseline-manifest for the delta");
     }
   }
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
@@ -1720,7 +1720,7 @@ void commit_cmd(void){
 
   nvid = content_put(&manifest);
   if( nvid==0 ){
-    fossil_panic("trouble committing manifest: %s", g.zErrMsg);
+    fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
   manifest_crosslink(nvid, &manifest);

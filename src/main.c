@@ -408,7 +408,7 @@ static void expand_args_option(int argc, void *argv){
     ? stdin
     : fossil_fopen(zFileName,"rb");
   if(!zInFile){
-    fossil_panic("Cannot open -args file [%s]", zFileName);
+    fossil_fatal("Cannot open -args file [%s]", zFileName);
   }else{
     blob_read_from_channel(&file, zInFile, -1);
     if(stdin != zInFile){
@@ -1116,7 +1116,7 @@ static char *enter_chroot_jail(char *zRepo){
       zRepo = "/";
     }else{
       for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
-      if( zDir[i]!='/' ) fossil_panic("bad repository name: %s", zRepo);
+      if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
       if( i>0 ){
         zDir[i] = 0;
         if( file_chdir(zDir, 1) ){

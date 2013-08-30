@@ -66,7 +66,7 @@ void finfo_cmd(void){
     if( g.argc!=3 ) usage("-s|--status FILENAME");
     vid = db_lget_int("checkout", 0);
     if( vid==0 ){
-      fossil_panic("no checkout to finfo files in");
+      fossil_fatal("no checkout to finfo files in");
     }
     vfile_check_signature(vid, CKSIG_ENOTFILE);
     file_tree_name(g.argv[2], &fname, 1);

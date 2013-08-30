@@ -921,13 +921,18 @@ static int mainInFatalError = 0;
 ** routines never return.
 */
 NORETURN void fossil_panic(const char *zFormat, ...){
-  char *z;
   va_list ap;
   int rc = 1;
+  char z[1000];
   static int once = 1;
+
+  if( g.db ){
+    sqlite3_close_v2(g.db);
+    g.db = 0;
+  }
   mainInFatalError = 1;
   va_start(ap, zFormat);
-  z = vmprintf(zFormat, ap);
+  sqlite3_vsnprintf(sizeof(z),z,zFormat, ap);
   va_end(ap);
 #ifdef FOSSIL_ENABLE_JSON
   if( g.json.isJsonMode ){
@@ -945,11 +950,11 @@ NORETURN void fossil_panic(const char *zFormat, ...){
       cgi_reply();
     }else if( !g.fQuiet ){
       fossil_force_newline();
-      fossil_trace("Fossil internal error: %s\n", z);
+      fossil_puts("Fossil internal error: ", 1);
+      fossil_puts(z, 1);
+      fossil_puts("\n", 1);
     }
   }
-  free(z);
-  db_force_rollback();
   fossil_exit(rc);
 }
 

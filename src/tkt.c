@@ -522,7 +522,7 @@ static void ticket_put(
 ){
   int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
   if( rid==0 ){
-    fossil_panic("trouble committing ticket: %s", g.zErrMsg);
+    fossil_fatal("trouble committing ticket: %s", g.zErrMsg);
   }
   if( needMod ){
     moderation_table_create();

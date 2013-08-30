@@ -702,7 +702,7 @@ int blob_read_from_channel(Blob *pBlob, FILE *in, int nToRead){
 **
 ** Any prior content of the blob is discarded, not freed.
 **
-** Return the number of bytes read. Calls fossil_panic() error (i.e.
+** Return the number of bytes read. Calls fossil_fatal() error (i.e.
 ** it exit()s and does not return).
 */
 int blob_read_from_file(Blob *pBlob, const char *zFilename){
@@ -723,7 +723,7 @@ int blob_read_from_file(Blob *pBlob, const char *zFilename){
   blob_resize(pBlob, size);
   in = fossil_fopen(zFilename, "rb");
   if( in==0 ){
-    fossil_panic("cannot open %s for reading", zFilename);
+    fossil_fatal("cannot open %s for reading", zFilename);
   }
   got = fread(blob_buffer(pBlob), 1, size, in);
   fclose(in);
@@ -746,7 +746,7 @@ int blob_read_link(Blob *pBlob, const char *zFilename){
   char zBuf[1024];
   ssize_t len = readlink(zFilename, zBuf, 1023);
   if( len < 0 ){
-    fossil_panic("cannot read symbolic link %s", zFilename);
+    fossil_fatal("cannot read symbolic link %s", zFilename);
   }
   zBuf[len] = 0;   /* null-terminate */
   blob_zero(pBlob);
@@ -980,7 +980,7 @@ void test_cycle_compress(void){
     blob_compress(&b1, &b2);
     blob_uncompress(&b2, &b3);
     if( blob_compare(&b1, &b3) ){
-      fossil_panic("compress/uncompress cycle failed for %s", g.argv[i]);
+      fossil_fatal("compress/uncompress cycle failed for %s", g.argv[i]);
     }
     blob_reset(&b1);
     blob_reset(&b2);

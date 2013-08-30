@@ -1996,7 +1996,7 @@ void cmd_open(void){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
   if( !allowNested && db_open_local(0) ){
-    fossil_panic("already within an open tree rooted at %s", g.zLocalRoot);
+    fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
   }
   db_open_repository(g.argv[2]);
 #if defined(_WIN32) || defined(__CYGWIN__)

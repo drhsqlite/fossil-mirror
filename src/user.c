@@ -279,7 +279,7 @@ void user_cmd(void){
     }
     fossil_print("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
   }else{
-    fossil_panic("user subcommand should be one of: "
+    fossil_fatal("user subcommand should be one of: "
                  "capabilities default list new password");
   }
 }
