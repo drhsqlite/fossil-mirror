@@ -1,5 +1,5 @@
-C Finalize\sthe\squery\sfor\sthe\svarious\sreport\sformats\son\sthe\sreportlist\spage.
-D 2013-08-30T12:25:59.478
+C Be\ssure\sto\sfinalize\sall\squeries\son\sthe\s/info\spage.
+D 2013-08-30T12:32:33.361
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -344,7 +344,7 @@ F src/http_socket.c f4b1e573915c33aa02f85b9ee33748efac91f894
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 28003eaeafc7e4fc96dcbc06bd27b8d7412dd0e2
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
-F src/info.c c0a351094c0de75ae0aa4be63d987847f02388b9
+F src/info.c 8a963a971c5ad9ccfb96c07dfcddb4015ba6fb4c
 F src/json.c 7ef14201ed4754f9b4712f6b0b3a19c04794fc74
 F src/json_artifact.c 09284d77e664f67051b40f20185bd381ac3aff12
 F src/json_branch.c fc7595e6e685234f1c1e97770ebbed6d876adb7a
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4727ef4a8e6b266b9f6bb7f327b078fbe5b8d4fe
-R 1f44bc68e7eec0e94ce67ed39cdff5a1
+P 34ccf66e17481650eaf7899f497cc9caca2fdd19
+R 3f4a46641a0b48693fb68e675f7a8620
 U drh
-Z d4a00a252a66f7d28ba41b4bb1a4f087
+Z 72644a82e220bf0c62675c62c0c74d60
