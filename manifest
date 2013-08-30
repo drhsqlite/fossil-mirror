@@ -1,5 +1,5 @@
-C Add\sthe\s--errorlog\scommand-line\soption\sand\sthe\serrorlog:\sparameter\sto\nCGI\sscripts.\s\sLog\sall\spanics,\sfatal\serrors,\sand\swarnings\sto\sthe\serror\slog,\nif\sdefined.\s\sPanic\sif\sfile\sdescriptor\s2\sis\snot\sopen\son\sunix.\s\sClean\sup\nsome\sroutines\sthat\sdeal\swith\sclose().
-D 2013-08-30T12:18:25.367
+C Finalize\sthe\squery\sfor\sthe\svarious\sreport\sformats\son\sthe\sreportlist\spage.
+D 2013-08-30T12:25:59.478
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -386,7 +386,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 50cf5ba580140968b49974ef64df76441fc1358f
 F src/rebuild.c 1d302b38a7e33a50d5229189215be6085454cc51
 F src/regexp.c 056d7e54c5a85247ee9d003ede339b07ae049a5f
-F src/report.c 23c9e4a0828b013d723724613de1c8b76333f030
+F src/report.c 1e10fba72e19562627c8ec02dc537b5a0e766d85
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c 571fe8e1ef8e00accae77710a50d10517f41741a
 F src/search.c b11073e3b3546f8986d87c5d0cd456eb0478067e
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9d73d4c127fc8cf0fc9bbe86a725ebf6f68f9dfa
-R f5dfb810bfe0a9b3f445d6c4986845a1
+P 4727ef4a8e6b266b9f6bb7f327b078fbe5b8d4fe
+R 1f44bc68e7eec0e94ce67ed39cdff5a1
 U drh
-Z a282b6d9905e6aeb1c62f8035127bed4
+Z d4a00a252a66f7d28ba41b4bb1a4f087
