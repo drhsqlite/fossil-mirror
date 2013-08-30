@@ -1,5 +1,5 @@
-C Be\ssure\sto\sfinalize\sall\squeries\son\sthe\s/info\spage.
-D 2013-08-30T12:32:33.361
+C Do\snot\sprint\swarnings\sabout\sSQLITE_SCHEMA\serrors.
+D 2013-08-30T14:33:00.205
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -364,7 +364,7 @@ F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 780da40a082140996567309334f12e138275d1c1
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c ccab6eede388e12666627ecce1facb90ea4c1bbb
+F src/main.c 0ec2d075e3150b5bc6ce42a168a06098468c1bc3
 F src/main.mk 02a81e04ae23ef5f72a010b219ad3f1b4bd3ea7a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 34ccf66e17481650eaf7899f497cc9caca2fdd19
-R 3f4a46641a0b48693fb68e675f7a8620
+P cca1adad02b98121e7f733164ba8d95e1c1e2db0
+R 1a2f30b8d388962528ee0f8e82241856
 U drh
-Z 72644a82e220bf0c62675c62c0c74d60
+Z 8b6b4bbd61559db18cac3e2b7dace819
