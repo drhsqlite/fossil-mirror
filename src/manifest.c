@@ -471,8 +471,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       **     C <comment>
       **
       ** Comment text is fossil-encoded.  There may be no more than
-      ** one C line.  C lines are required for manifests and are
-      ** disallowed on all other control files.
+      ** one C line.  C lines are required for manifests, are optional
+      ** for Events and Attachments, and are disallowed on all other
+      ** control files.
       */
       case 'C': {
         if( p->zComment!=0 ) SYNTAX("more than one C-card");
@@ -665,7 +666,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       **
       ** Specify one or more other artifacts which are the parents of
       ** this artifact.  The first parent is the primary parent.  All
-      ** others are parents by merge.
+      ** others are parents by merge. Note that the initial empty
+      ** checkin historically has an empty P-card, so empty P-cards
+      ** must be accepted.
       */
       case 'P': {
         while( (zUuid = next_token(&x, &sz))!=0 ){
