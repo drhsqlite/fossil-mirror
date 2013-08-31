@@ -612,7 +612,7 @@ int main(int argc, char **argv)
   }
 #ifndef _WIN32
   if( !is_valid_fd(2) ) fossil_panic("file descriptor 2 not open");
-  if( is_valid_fd(3) ) fossil_warning("file descriptor 3 is open");
+  /* if( is_valid_fd(3) ) fossil_warning("file descriptor 3 is open"); */
 #endif
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
   if( rc==1 ){
