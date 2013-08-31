@@ -1960,42 +1960,38 @@ int manifest_crosslink(int rid, Blob *pContent){
            " Move to branch [/timeline?r=%h&nd&dp=%S | %h].",
            zValue, zUuid, zValue);
         branchMove = 1;
+        continue;
       }else if( strcmp(zName, "*bgcolor")==0 ){
         blob_appendf(&comment,
            " Change branch background color to \"%h\".", zValue);
+        continue;
       }else if( strcmp(zName, "+bgcolor")==0 ){
         blob_appendf(&comment,
            " Change background color to \"%h\".", zValue);
+        continue;
       }else if( strcmp(zName, "-bgcolor")==0 ){
-        blob_appendf(&comment, " Cancel background color.");
+        blob_appendf(&comment, " Cancel background color");
       }else if( strcmp(zName, "+comment")==0 ){
         blob_appendf(&comment, " Edit check-in comment.");
+        continue;
       }else if( strcmp(zName, "+user")==0 ){
         blob_appendf(&comment, " Change user to \"%h\".", zValue);
+        continue;
       }else if( strcmp(zName, "+date")==0 ){
         blob_appendf(&comment, " Timestamp %h.", zValue);
+        continue;
       }else if( memcmp(zName, "-sym-",5)==0 ){
-        if( !branchMove ) blob_appendf(&comment, " Cancel tag %h.", &zName[5]);
+        if( !branchMove ) blob_appendf(&comment, " Cancel tag \"%h\"", &zName[5]);
       }else if( memcmp(zName, "*sym-",5)==0 ){
         if( !branchMove ){
-          blob_appendf(&comment, " Add propagating tag \"%h\".", &zName[5]);
+          blob_appendf(&comment, " Add propagating tag \"%h\"", &zName[5]);
         }
       }else if( memcmp(zName, "+sym-",5)==0 ){
-        blob_appendf(&comment, " Add tag \"%h\".", &zName[5]);
-      }else if( memcmp(zName, "-sym-",5)==0 ){
-        blob_appendf(&comment, " Cancel tag \"%h\".", &zName[5]);
+        blob_appendf(&comment, " Add tag \"%h\"", &zName[5]);
       }else if( strcmp(zName, "+closed")==0 ){
         blob_append(&comment, " Marked \"Closed\"", -1);
-        if( zValue && *zValue ){
-          blob_appendf(&comment, " with note \"%h\"", zValue);
-        }
-        blob_append(&comment, ".", 1);
       }else if( strcmp(zName, "-closed")==0 ){
         blob_append(&comment, " Removed the \"Closed\" mark", -1);
-        if( zValue && *zValue ){
-          blob_appendf(&comment, " with note \"%h\"", zValue);
-        }
-        blob_append(&comment, ".", 1);
       }else {
         if( zName[0]=='-' ){
           blob_appendf(&comment, " Cancel \"%h\"", &zName[1]);
@@ -2009,6 +2005,12 @@ int manifest_crosslink(int rid, Blob *pContent){
         }else{
           blob_appendf(&comment, ".");
         }
+        continue;
+      }
+      if( zValue && zValue[0] ){
+        blob_appendf(&comment, " with note \"%h\".", zValue);
+      }else{
+        blob_appendf(&comment, ".");
       }
     }
     /*blob_appendf(&comment, " &#91;[/info/%S | details]&#93;");*/

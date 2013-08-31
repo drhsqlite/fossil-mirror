@@ -1,5 +1,5 @@
-C Optimized\sout\san\sunnecessary\sstring\scopy\sin\sappendDiffLine(),\s#undef'd\sa\slocal\smacro\sin\sEncodeHttp().
-D 2013-08-31T14:03:19.524
+C Allow\s"with\snote"\sin\stimeline\sfor\sall\sappropriate\stags,\snot\sonly\s+close\sand\s-close.
+D 2013-08-31T15:09:50.505
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -369,7 +369,7 @@ F src/main.mk 02a81e04ae23ef5f72a010b219ad3f1b4bd3ea7a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 85ab303476524dec4c1b353f6845f2cb8de556c2
-F src/manifest.c 5463e79794b75225333406d5d2f05d350ad9b99c
+F src/manifest.c 700054e452d978baaec57d6c6105b97a20b38aab
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c e1c6fb412ad1556e5a189786be40585e8c9ffcee
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b5f2ebd3235d88643ba297576bd25bcc378fa960
-R ffdb75b035cda43a87f5c454cef27dbc
-U stephan
-Z b32d64a5909fd91d3057d886a0fe7f89
+P a789e85ff63c432e18519081ccdfff3555129216
+R 9f6633107cf8d9ea7b7fb6b117338741
+U jan.nijtmans
+Z a85c00bf34992360bc4d7cc6fc2665db
