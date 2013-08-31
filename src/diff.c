@@ -216,7 +216,6 @@ static void appendDiffLine(
 ){
   blob_append(pOut, &cPrefix, 1);
   if( html ){
-    char *zHtml;
     if( pRe && re_dline_match(pRe, pLine, 1)==0 ){
       cPrefix = ' ';
     }else if( cPrefix=='+' ){
@@ -224,9 +223,7 @@ static void appendDiffLine(
     }else if( cPrefix=='-' ){
       blob_append(pOut, "<span class=\"diffrm\">", -1);
     }
-    zHtml = htmlize(pLine->z, (pLine->h & LENGTH_MASK));
-    blob_append(pOut, zHtml, -1);
-    fossil_free(zHtml);
+    htmlize_to_blob(pOut, pLine->z, (pLine->h & LENGTH_MASK));
     if( cPrefix!=' ' ){
       blob_append(pOut, "</span>", -1);
     }
