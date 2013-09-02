@@ -1862,9 +1862,20 @@ void cmd_webserver(void){
           { "xdg-open", "gnome-open", "firefox", "google-chrome" };
       int i;
 #if defined(__CYGWIN__)
-      const char *path = fossil_getenv("PROGRAMFILES");
+      const char *path = fossil_getenv("ProgramFiles(x86)");
+      if( !path ){
+        path = fossil_getenv("PROGRAMFILES");
+      }
       path = fossil_utf8_to_filename(path);
-      zBrowser = mprintf("\"%s/Internet Explorer/iexplore.exe\"", path);
+      zBrowser = mprintf("%s/Google/Chrome/Application/chrome.exe", path);
+      if( file_access(zBrowser, X_OK) ){
+        zBrowser = mprintf("%s/Mozilla Firefox/firefox.exe", path);
+      }
+      if( file_access(zBrowser, X_OK) ){
+        path = fossil_utf8_to_filename(fossil_getenv("PROGRAMFILES"));
+        zBrowser = mprintf("%s/Internet Explorer/iexplore.exe", path);
+      }
+      zBrowser = mprintf("\"%s\"", zBrowser);
 #else
       zBrowser = "echo";
 #endif
