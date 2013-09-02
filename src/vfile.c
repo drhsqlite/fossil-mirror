@@ -84,8 +84,10 @@ void load_vfile_from_rid(int vid){
 
   db_begin_transaction();
   p = manifest_get(vid, CFTYPE_MANIFEST);
-  if( p==0 ) return;
-  db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
+  if( p==0 ) {
+    db_end_transaction(1);
+    return;
+  }
   db_prepare(&ins,
     "INSERT INTO vfile(vid,isexe,islink,rid,mrid,pathname) "
     " VALUES(:vid,:isexe,:islink,:id,:id,:name)");
