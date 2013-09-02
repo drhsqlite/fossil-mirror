@@ -99,7 +99,7 @@ void load_vfile_from_rid(int vid){
     db_bind_text(&ridq, ":uuid", pFile->zUuid);
     if( db_step(&ridq)==SQLITE_ROW ){
       rid = db_column_int(&ridq, 0);
-      size = db_column_int(&ridq, 0);
+      size = db_column_int(&ridq, 1);
     }else{
       rid = 0;
       size = 0;
