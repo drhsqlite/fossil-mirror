@@ -508,6 +508,63 @@ static const char *sqlite_error_code_name(int iCode){
   return zCode;
 }
 
+static void update_cmd_usage_stats(char const * zCommand){
+  if(!g.zLocalRoot) return /* we need a checkout */;
+  db_multi_exec("CREATE TABLE IF NOT EXISTS cmd_usage (name,mtime FLOAT);"
+                "INSERT INTO cmd_usage (name,mtime) VALUES (%Q,julianday('now'));",
+                zCommand);
+
+}
+
+/*
+** COMMAND: usage*
+**
+** Usage: %fossil usage [-clear|-c]
+**
+** Reports or clears information from the local checkout's cmd_usage
+** table (if any). The cmd_usage table is updated each time a fossil
+** CLI command succeeds (returns).  The db has (name TEXT, mtime FLOAT
+** (Julian Day)) fields for collecting statistics about usage. This
+** information is stored in the local checkout db and is not
+** synchronized.
+*/
+void usage_cmd(){
+  int rc;
+  Stmt q;
+  int i = 0;
+  int fClear = find_option("clear","c",0)!=0;
+  db_find_and_open_repository(0, 0);
+  rc = db_prepare_ignore_error(&q,
+                               "SELECT name, count(*) AS n "
+                               "FROM cmd_usage GROUP BY name "
+                               "ORDER BY n DESC");
+  if(rc){
+    /* Assume missing cmd_usage table. */
+    fossil_print("(An sqlite error message is normal the first time "
+                 "this is run for a given checkout!)\n"
+                 "No command usage history has been collected "
+                 "for this checkout.\n");
+    return;
+  }
+  if(fClear){
+    db_multi_exec("DELETE FROM cmd_usage;");
+    fossil_print("Usage history cleared.\n");
+    return;
+  }
+  fossil_print("CLI command usage history for this checkout:\n");
+  fossil_print("Count  Command\n");
+  while(SQLITE_ROW==db_step(&q)){
+    ++i;
+    fossil_print("%5d  %s\n", db_column_int(&q, 1),
+                 db_column_text(&q,0));
+  }
+  db_finalize(&q);
+  if(!i){
+    fossil_print("No command usage history has been collected "
+                 "for this checkout.\n");
+  }
+}
+
 /* Error logs from SQLite */
 static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 #ifdef __APPLE__
@@ -637,6 +694,7 @@ int main(int argc, char **argv)
   }
   atexit( fossil_atexit );
   aCommand[idx].xFunc();
+  update_cmd_usage_stats(aCommand[idx].zName);
   fossil_exit(0);
   /*NOT_REACHED*/
   return 0;
