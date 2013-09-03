@@ -1,5 +1,5 @@
-C Fixed\sa\swrong-column\suse\sin\sload_vfile_from_rid(),\swhich\scaused\san\sis-a-phantom\scheck\sto\salways\seval\sto\sfalse,\seven\sfor\sphantoms.\sThis\shas\s'probably'\snever\sbeen\striggered\sbefore.
-D 2013-09-02T19:20:13.019
+C Update\sthe\sbuilt-in\sSQLite\sfrom\supstream,\sfor\sthe\spurpose\sof\stesting\sSQLite.
+D 2013-09-03T15:24:03.341
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -396,8 +396,8 @@ F src/shell.c 35f66cc92f529493a6a0795a9a5498e6e42bacae
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
 F src/skins.c 850cb3518094003a6780e61fb0611b2598fe2cfb
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c 02a9ea39fef2bac6caaf27f33dd0399dd11ef18b
-F src/sqlite3.h d25ab1d997d4c02279539ce66a4ed2d203afbcad
+F src/sqlite3.c 05533a2cce4331e98dcad466960ceee8d3de6d6a
+F src/sqlite3.h 42af65a2087f913afc049b76bbf936a69d61570f
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 0cd57adbb99c53b894b3751c429b0f814222acf1
 F src/style.c 5be034c976adcd65b7dbd144e151afbf99610178
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3e9f9b0609095ffc2d41cb78ea435f7d7606f70b
-R abcc161b1f1e408b6d8fa651b75935c7
-U stephan
-Z 43f435ebec93c9a129740b641f2cf759
+P 612e0ecc2500e966742dc4b755d4a00ac8380710
+R 8b784032980a91fdb44bc2d3ebadb917
+U drh
+Z f3ffde8b43520fe467677e4d48c80e86
