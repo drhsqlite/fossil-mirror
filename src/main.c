@@ -509,10 +509,11 @@ static const char *sqlite_error_code_name(int iCode){
 }
 
 static void update_cmd_usage_stats(char const * zCommand){
-  if(g.isHTTP || !g.zLocalRoot) return
+  if(!g.localOpen || g.isHTTP) return
     /* we need a checkout and do not want to log the 'ui' bits forked
        by local ui mode.*/;
-  db_multi_exec("CREATE TABLE IF NOT EXISTS cmd_usage (name,mtime FLOAT);"
+  db_multi_exec("CREATE TABLE IF NOT EXISTS "
+                "cmd_usage (name TEXT,mtime FLOAT);"
                 "INSERT INTO cmd_usage (name,mtime) VALUES (%Q,julianday('now'));",
                 zCommand);
 
@@ -521,7 +522,7 @@ static void update_cmd_usage_stats(char const * zCommand){
 /*
 ** COMMAND: usage*
 **
-** Usage: %fossil usage [-clear|-c]
+** Usage: %fossil usage [-clear|-c] [-n|-count ###]
 **
 ** Reports or clears information from the local checkout's cmd_usage
 ** table (if any). The cmd_usage table is updated each time a fossil
@@ -529,17 +530,31 @@ static void update_cmd_usage_stats(char const * zCommand){
 ** (Julian Day)) fields for collecting statistics about usage. This
 ** information is stored in the local checkout db and is not
 ** synchronized.
+**
+** The -n|-count ### option changes the output to list the last ###
+** commands used, ordered by time (most recent first). A value of 0
+** means "no limit", and lists all history for the checkout. If the
+** ### value is negative, it is ignored (treated as if -n had not been
+** specified).
 */
 void usage_cmd(){
   int rc;
   Stmt q;
   int i = 0;
   int fClear = find_option("clear","c",0)!=0;
-  db_find_and_open_repository(0, 0);
-  rc = db_prepare_ignore_error(&q,
-                               "SELECT name, count(*) AS n "
-                               "FROM cmd_usage GROUP BY name "
-                               "ORDER BY n DESC");
+  char const *zLimit = find_option("n","count",1);
+  int fLimit = zLimit ? atoi(zLimit) : -1;
+  char const * sql;
+  db_open_local(0);
+  if(fLimit>=0){
+      sql = "SELECT name, strftime('%%Y-%%m-%%d %%H:%%M:%%S',mtime) "
+          "FROM cmd_usage ORDER BY mtime DESC";
+  }else{
+      sql = "SELECT name, count(*) AS n "
+          "FROM cmd_usage GROUP BY name "
+          "ORDER BY n DESC";
+  }
+  rc = db_prepare_ignore_error(&q,sql);
   if(rc){
     /* Assume missing cmd_usage table. */
     fossil_print("(An sqlite error message is normal the first time "
@@ -554,12 +569,24 @@ void usage_cmd(){
     db_finalize(&q);
     return;
   }
-  fossil_print("CLI command usage history for this checkout:\n");
-  fossil_print("Count  Command\n");
+  if(fLimit>=0){
+    if(fLimit>0) fossil_print("Most recent %d CLI command(s):\n", fLimit);
+    else fossil_print("All CLI command history:\n");
+    fossil_print("Time                 Command\n");
+  }else{
+    fossil_print("CLI command usage history for this checkout:\n");
+    fossil_print("Count  Command\n");
+  }
   while(SQLITE_ROW==db_step(&q)){
     ++i;
-    fossil_print("%5d  %s\n", db_column_int(&q, 1),
-                 db_column_text(&q,0));
+    if(fLimit>=0){
+        fossil_print("%s  %s\n", db_column_text(&q, 1),
+                     db_column_text(&q,0));
+        if(i==fLimit) break;
+    }else{
+        fossil_print("%5d  %s\n", db_column_int(&q, 1),
+                     db_column_text(&q,0));
+    }
   }
   db_finalize(&q);
   if(!i){
