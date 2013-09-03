@@ -510,8 +510,8 @@ static const char *sqlite_error_code_name(int iCode){
 
 static void update_cmd_usage_stats(char const * zCommand){
   if(!g.localOpen || g.isHTTP) return
-    /* we need a checkout and do not want to log the 'ui' bits forked
-       by local ui mode.*/;
+    /* We need an opened checkout and do not want to log the 'ui' bits
+       forked by local ui mode. */;
   db_multi_exec("CREATE TABLE IF NOT EXISTS "
                 "cmd_usage (name TEXT,mtime FLOAT);"
                 "INSERT INTO cmd_usage (name,mtime) VALUES (%Q,julianday('now'));",
@@ -545,7 +545,9 @@ void usage_cmd(){
   char const *zLimit = find_option("n","count",1);
   int fLimit = zLimit ? atoi(zLimit) : -1;
   char const * sql;
-  db_open_local(0);
+  if(!db_open_local(0)){
+    fossil_fatal("'usage' requires a checkout.");
+  }
   if(fLimit>=0){
       sql = "SELECT name, strftime('%%Y-%%m-%%d %%H:%%M:%%S',mtime) "
           "FROM cmd_usage ORDER BY mtime DESC";
