@@ -509,7 +509,9 @@ static const char *sqlite_error_code_name(int iCode){
 }
 
 static void update_cmd_usage_stats(char const * zCommand){
-  if(!g.zLocalRoot) return /* we need a checkout */;
+  if(g.isHTTP || !g.zLocalRoot) return
+    /* we need a checkout and do not want to log the 'ui' bits forked
+       by local ui mode.*/;
   db_multi_exec("CREATE TABLE IF NOT EXISTS cmd_usage (name,mtime FLOAT);"
                 "INSERT INTO cmd_usage (name,mtime) VALUES (%Q,julianday('now'));",
                 zCommand);
