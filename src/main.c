@@ -549,6 +549,7 @@ void usage_cmd(){
   if(fClear){
     db_multi_exec("DELETE FROM cmd_usage;");
     fossil_print("Usage history cleared.\n");
+    db_finalize(&q);
     return;
   }
   fossil_print("CLI command usage history for this checkout:\n");
