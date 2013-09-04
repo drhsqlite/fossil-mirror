@@ -1181,7 +1181,7 @@ void ticket_cmd(void){
           usage("set|change|history TICKETUUID");
         }
         zTktUuid = db_text(0, 
-          "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'", g.argv[3]
+          "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB (mnemonic_decode(%Q)||'*')", g.argv[3]
         );
         if( !zTktUuid ){
           fossil_fatal("unknown ticket: '%s'!",g.argv[3]);

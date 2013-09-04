@@ -3232,13 +3232,8 @@ int main(int argc, char **argv){
     fprintf(stderr,"%s: Error: no database filename specified\n", Argv0);
     return 1;
 #endif
-    /***** Begin Fossil Patch *****/
-    {
-      extern void fossil_open(const char **);
-      fossil_open(&data.zDbFilename);
-    }
-    /***** End Fossil Patch *****/
   }
+
   data.out = stdout;
 
   /* Go ahead and open the database file if it already exists.  If the
@@ -3246,9 +3241,13 @@ int main(int argc, char **argv){
   ** files from being created if a user mistypes the database name argument
   ** to the sqlite command-line tool.
   */
-  if( access(data.zDbFilename, 0)==0 ){
+  /***** Begin Fossil Patch *****/
+  {
+    extern void fossil_open(const char **);
     open_db(&data);
+    add_sql_func(data.db);
   }
+  /***** End Fossil Patch *****/
 
   /* Process the initialization file if there is one.  If no -init option
   ** is given on the command line, look for a file named ~/.sqliterc and

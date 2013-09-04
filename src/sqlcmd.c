@@ -105,14 +105,11 @@ static void sqlcmd_decompress(
 }
 
 /*
-** This is the "automatic extension" initializer that runs right after
-** the connection to the repository database is opened.  Set up the
-** database connection to be more useful to the human operator.
+** This function adds any SQL functions that we might need during the
+** session.
 */
-static int sqlcmd_autoinit(
-  sqlite3 *db,
-  const char **pzErrMsg,
-  const void *notUsed
+void add_sql_func(
+  sqlite3 *db
 ){
   sqlite3_create_function(db, "content", 1, SQLITE_ANY, 0,
                           sqlcmd_content, 0, 0);
@@ -121,9 +118,7 @@ static int sqlcmd_autoinit(
   sqlite3_create_function(db, "decompress", 1, SQLITE_ANY, 0,
                           sqlcmd_decompress, 0, 0);
   re_add_sql_func(db);
-  g.repositoryOpen = 1;
-  g.db = db;
-  return SQLITE_OK;
+  mnemonic_add_sql_func(db);
 }
 
 
@@ -147,13 +142,4 @@ void sqlite3_cmd(void){
   sqlite3_shutdown();
   sqlite3_shell(g.argc-1, g.argv+1);
   g.db = 0;
-}
-
-/*
-** This routine is called by the patched sqlite3 command-line shell in order
-** to load the name and database connection for the open Fossil database.
-*/
-void fossil_open(const char **pzRepoName){
-  sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
-  *pzRepoName = g.zRepositoryName;
 }
