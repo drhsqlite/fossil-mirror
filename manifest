@@ -1,5 +1,5 @@
-C Added\sa\smissing\serror\scode\scheck\s-\snow\sproperly\sfails\sif\sno\scheckout\sis\savailable\s(e.g.\swhen\scalled\susing\s-R\srepofile).
-D 2013-09-03T22:01:22.547
+C merged\sin\strunk\sfor\ssqlite\sbuild\sfixes.
+D 2013-09-04T11:33:56.813
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -396,8 +396,8 @@ F src/shell.c 35f66cc92f529493a6a0795a9a5498e6e42bacae
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
 F src/skins.c 850cb3518094003a6780e61fb0611b2598fe2cfb
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c 05533a2cce4331e98dcad466960ceee8d3de6d6a
-F src/sqlite3.h 42af65a2087f913afc049b76bbf936a69d61570f
+F src/sqlite3.c eccb4d83fa2153f96cac66ac15e39e12eec3a889
+F src/sqlite3.h 9b2ab972015cdf779ac297557d66234a41808d0f
 F src/stash.c 6b83b48b003f644a5bd1807013d822a04a839a44
 F src/stat.c 0cd57adbb99c53b894b3751c429b0f814222acf1
 F src/style.c 5be034c976adcd65b7dbd144e151afbf99610178
@@ -551,7 +551,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 99d99c3b86f2ba7249070ff0e427a8183b06c692
-F www/changes.wiki 86c3f24ae5030e9a1ecdd3a31872e1de55190009
+F www/changes.wiki 22b173f7f18946ef34b0049dfba159a055f697c0
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b613c52bc5a48da076162e8f22ab2cba5cc97e7b
-R 29ce4d6ddfa5dea90763f03dd1007628
+P f550bdc7b9e37889855ab202ae2af9bd3eb740d6 9aae838b8b4a18e5c4beb86066fe5c58ea233022
+R 6751384ece02e08a58358fee50366b1e
 U stephan
-Z 1b09c4180dffe842862467998fef6b3a
+Z 209f8290fdbc27890659abc9712fc992
