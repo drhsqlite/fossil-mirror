@@ -116,6 +116,7 @@ struct TclContext {
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
+  const char *zErrlog;    /* Log errors to this file, if not NULL */
   int isConst;            /* True if the output is unchanging */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
@@ -374,7 +375,7 @@ static void expand_args_option(int argc, void *argv){
   char *z;                  /* General use string pointer */
   char **newArgv;           /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
-  FILE * zInFile;           /* input FILE */
+  FILE *inFile;             /* input FILE */
 #if defined(_WIN32)
   wchar_t buf[MAX_PATH];
 #endif
@@ -404,17 +405,17 @@ static void expand_args_option(int argc, void *argv){
   if( i>=g.argc-1 ) return;
 
   zFileName = g.argv[i+1];
-  zInFile = (0==strcmp("-",zFileName))
+  inFile = (0==strcmp("-",zFileName))
     ? stdin
     : fossil_fopen(zFileName,"rb");
-  if(!zInFile){
-    fossil_panic("Cannot open -args file [%s]", zFileName);
+  if(!inFile){
+    fossil_fatal("Cannot open -args file [%s]", zFileName);
   }else{
-    blob_read_from_channel(&file, zInFile, -1);
-    if(stdin != zInFile){
-      fclose(zInFile);
+    blob_read_from_channel(&file, inFile, -1);
+    if(stdin != inFile){
+      fclose(inFile);
     }
-    zInFile = NULL;
+    inFile = NULL;
   }
   blob_to_utf8_no_bom(&file, 1);
   z = blob_str(&file);
@@ -514,6 +515,7 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
   ** creates lots of aliases and the warning alarms people. */
   if( iCode==SQLITE_WARNING ) return;
 #endif
+  if( iCode==SQLITE_SCHEMA ) return;
   fossil_warning("%s: %s", sqlite_error_code_name(iCode), zErrmsg);
 }
 
@@ -588,6 +590,7 @@ int main(int argc, char **argv)
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
+    g.zErrlog = find_option("errorlog", 0, 1);
     if( find_option("utc",0,0) ) g.fTimeFormat = 1;
     if( find_option("localtime",0,0) ) g.fTimeFormat = 2;
     if( zChdir && file_chdir(zChdir, 0) ){
@@ -607,6 +610,10 @@ int main(int argc, char **argv)
     }
     zCmdName = g.argv[1];
   }
+#ifndef _WIN32
+  if( !is_valid_fd(2) ) fossil_panic("file descriptor 2 not open");
+  /* if( is_valid_fd(3) ) fossil_warning("file descriptor 3 is open"); */
+#endif
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
   if( rc==1 ){
     fossil_fatal("%s: unknown command: %s\n"
@@ -1116,7 +1123,7 @@ static char *enter_chroot_jail(char *zRepo){
       zRepo = "/";
     }else{
       for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
-      if( zDir[i]!='/' ) fossil_panic("bad repository name: %s", zRepo);
+      if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
       if( i>0 ){
         zDir[i] = 0;
         if( file_chdir(zDir, 1) ){
@@ -1507,6 +1514,10 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
+    if( blob_eq(&key, "errorlog:") && blob_token(&line, &value) ){
+      g.zErrlog = mprintf("%s", blob_str(&value));
+      continue;
+    }
     if( blob_eq(&key, "HOME:") && blob_token(&line, &value) ){
       cgi_setenv("HOME", blob_str(&value));
       blob_reset(&value);
@@ -1851,9 +1862,20 @@ void cmd_webserver(void){
           { "xdg-open", "gnome-open", "firefox", "google-chrome" };
       int i;
 #if defined(__CYGWIN__)
-      const char *path = fossil_getenv("PROGRAMFILES");
+      const char *path = fossil_getenv("ProgramFiles(x86)");
+      if( !path ){
+        path = fossil_getenv("PROGRAMFILES");
+      }
       path = fossil_utf8_to_filename(path);
-      zBrowser = mprintf("\"%s/Internet Explorer/iexplore.exe\"", path);
+      zBrowser = mprintf("%s/Google/Chrome/Application/chrome.exe", path);
+      if( file_access(zBrowser, X_OK) ){
+        zBrowser = mprintf("%s/Mozilla Firefox/firefox.exe", path);
+      }
+      if( file_access(zBrowser, X_OK) ){
+        path = fossil_utf8_to_filename(fossil_getenv("PROGRAMFILES"));
+        zBrowser = mprintf("%s/Internet Explorer/iexplore.exe", path);
+      }
+      zBrowser = mprintf("\"%s\"", zBrowser);
 #else
       zBrowser = "echo";
 #endif

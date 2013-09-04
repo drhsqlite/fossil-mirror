@@ -1209,6 +1209,7 @@ void page_test_env(void){
     if( zRedir ) cgi_redirect(zRedir);
   }
   style_footer();
+  if( g.perm.Admin && P("err") ) fossil_fatal("%s", P("err"));
 }
 
 /*

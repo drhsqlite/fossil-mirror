@@ -201,7 +201,7 @@ void update_cmd(void){
   }
 
   if( tid==0 ){
-    fossil_panic("Internal Error: unable to find a version to update to.");
+    fossil_panic("unable to find a version to update to.");
   }
 
   db_begin_transaction();
@@ -660,7 +660,7 @@ int historical_version_of_file(
     if( revision==0 ){
       revision = db_text("current", "SELECT uuid FROM blob WHERE rid=%d", rid);
     }
-    fossil_panic("could not parse manifest for checkin: %s", revision);
+    fossil_fatal("could not parse manifest for checkin: %s", revision);
   }
   return errCode;
 }

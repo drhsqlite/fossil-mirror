@@ -882,6 +882,7 @@ struct CheckinInfo {
   Blob *pComment;             /* Check-in comment text */
   const char *zMimetype;      /* Mimetype of check-in command.  May be NULL */
   int verifyDate;             /* Verify that child is younger */
+  int closeFlag;              /* Close the branch being committed */
   Blob *pCksum;               /* Repository checksum.  May be 0 */
   const char *zDateOvrd;      /* Date override.  If 0 then use 'now' */
   const char *zUserOvrd;      /* User override.  If 0 then use g.zLogin */
@@ -1060,6 +1061,9 @@ static void create_manifest(
   if( zColor && zColor[0] ){
     /* One-time background color */
     blob_appendf(pOut, "T +bgcolor * %F\n", zColor);
+  }
+  if( p->closeFlag ){
+    blob_appendf(pOut, "T +closed *\n");
   }
   db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
                  " WHERE id=-4 ORDER BY 1");
@@ -1302,6 +1306,7 @@ static int tagCmp(const void *a, const void *b){
 **    --bgcolor COLOR            apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   check in to this new branch
 **    --branchcolor COLOR        apply given COLOR to the branch
+**    --close                    close the branch being committed
 **    --delta                    use a delta manifest in the commit process
 **    -m|--comment COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    -M|--message-file FILE     read the commit comment from given file
@@ -1374,6 +1379,7 @@ void commit_cmd(void){
   sCiInfo.zBranch = find_option("branch","b",1);
   sCiInfo.zColor = find_option("bgcolor",0,1);
   sCiInfo.zBrClr = find_option("branchcolor",0,1);
+  sCiInfo.closeFlag = find_option("close",0,0)!=0;
   sCiInfo.zMimetype = find_option("mimetype",0,1);
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
@@ -1692,7 +1698,7 @@ void commit_cmd(void){
         blob_reset(&delta);
       }
     }else if( forceDelta ){
-      fossil_panic("unable to find a baseline-manifest for the delta");
+      fossil_fatal("unable to find a baseline-manifest for the delta");
     }
   }
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
@@ -1720,7 +1726,7 @@ void commit_cmd(void){
 
   nvid = content_put(&manifest);
   if( nvid==0 ){
-    fossil_panic("trouble committing manifest: %s", g.zErrMsg);
+    fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
   manifest_crosslink(nvid, &manifest);
