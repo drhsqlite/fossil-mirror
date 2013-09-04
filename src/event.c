@@ -117,7 +117,7 @@ void event_page(void){
   */
   pEvent = manifest_get(rid, CFTYPE_EVENT);
   if( pEvent==0 ){
-    fossil_panic("Object #%d is not an event", rid);
+    fossil_fatal("Object #%d is not an event", rid);
   }
   blob_init(&fullbody, pEvent->zWiki, -1);
   if( wiki_find_title(&fullbody, &title, &tail) ){
@@ -282,11 +282,16 @@ void eventedit_page(void){
   if( P("submit")!=0 && (zBody!=0 && zComment!=0) ){
     char *zDate;
     Blob cksum;
-    int nrid;
+    int nrid, n;
     blob_zero(&event);
     db_begin_transaction();
     login_verify_csrf_secret();
-    blob_appendf(&event, "C %F\n", zComment);
+    while( fossil_isspace(zComment[0]) ) zComment++;
+    n = strlen(zComment);
+    while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
+    if( n>0 ){
+      blob_appendf(&event, "C %#F\n", n, zComment);
+    }
     zDate = date_in_standard_format("now");
     blob_appendf(&event, "D %s\n", zDate);
     free(zDate);
@@ -401,28 +406,28 @@ void eventedit_page(void){
   @ <input type="hidden" name="name" value="%h(zEventId)" />
   @ <table border="0" cellspacing="10">
 
-  @ <tr><td align="right" valign="top"><b>Event&nbsp;Time:</b></td>
+  @ <tr><th align="right" valign="top">Event&nbsp;Time (UTC):</th>
   @ <td valign="top">
   @   <input type="text" name="t" size="25" value="%h(zETime)" />
   @ </td></tr>
 
-  @ <tr><td align="right" valign="top"><b>Timeline&nbsp;Comment:</b></td>
+  @ <tr><th align="right" valign="top">Timeline&nbsp;Comment:</th>
   @ <td valign="top">
   @ <textarea name="c" class="eventedit" cols="80" 
   @  rows="3" wrap="virtual">%h(zComment)</textarea>
   @ </td></tr>
 
-  @ <tr><td align="right" valign="top"><b>Background&nbsp;Color:</b></td>
+  @ <tr><th align="right" valign="top">Background&nbsp;Color:</th>
   @ <td valign="top">
   render_color_chooser(0, zClr, 0, "clr", "cclr");
   @ </td></tr>
   
-  @ <tr><td align="right" valign="top"><b>Tags:</b></td>
+  @ <tr><th align="right" valign="top">Tags:</th>
   @ <td valign="top">
   @   <input type="text" name="g" size="40" value="%h(zTags)" />
   @ </td></tr>
   
-  @ <tr><td align="right" valign="top"><b>Page&nbsp;Content:</b></td>
+  @ <tr><th align="right" valign="top">Page&nbsp;Content:</th>
   @ <td valign="top">
   @ <textarea name="w" class="eventedit" cols="80" 
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>

@@ -71,7 +71,7 @@ int nFormAction = 0;
 ** href values to be inserted after the page has loaded.  If
 ** g.perm.History is false, then the <a id="ID"> form is still
 ** generated but the javascript is not generated so the links never
-** activate. 
+** activate.
 **
 ** If the user lacks the Hyperlink (h) property and the "auto-hyperlink"
 ** setting is true, then g.perm.Hyperlink is changed from 0 to 1 and
@@ -114,7 +114,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a %s id='a%d'>", zExtra, nHref);
+  return mprintf("<a %s id='a%d' href='%R/honeypot'>", zExtra, nHref);
 }
 char *href(const char *zFormat, ...){
   char *zUrl;
@@ -132,7 +132,7 @@ char *href(const char *zFormat, ...){
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a id='a%d'>", nHref);
+  return mprintf("<a id='a%d' href='%R/honeypot'>", nHref);
 }
 
 /*
@@ -659,6 +659,11 @@ const struct strctCssDefaults {
     @   vertical-align: top;
     @   text-align: left;
   },
+  { "tr.timelineCurrent td.timelineTableCell",
+    "the format for the timeline data cell of the current checkout",
+    @   padding: .1em .2em;
+    @   border: 1px dashed #446979;
+  },
   { "span.timelineLeaf",
     "the format for the timeline leaf marks",
     @   font-weight: bold;
@@ -969,6 +974,7 @@ const struct strctCssDefaults {
   },
   { "table.sbsdiffcols",
     "side-by-side diff display (column-based)",
+    @   width: 90%;
     @   border-spacing: 0;
     @   font-size: xx-small;
   },
@@ -1049,7 +1055,7 @@ const struct strctCssDefaults {
     "for the /stats_report views",
     @   background-color: #446979;
   },
-  { ".statistics-report-table-events th"
+  { ".statistics-report-table-events th",
     "",
     @   padding: 0 1em 0 1em;
   },
@@ -1081,6 +1087,10 @@ const struct strctCssDefaults {
   { "tr.row1",
     "odd table row color",
     @ /* Use default */
+  },
+  { "#canvas", "timeline graph node colors",
+    @ color: black;
+    @ background-color: white;
   },
   { 0,
     0,
@@ -1148,11 +1158,21 @@ void page_test_env(void){
   int i;
   int showAll;
   char zCap[30];
+  static const char *azCgiVars[] = {
+    "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",
+    "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
+    "HTTP_ACCEPT_LANGUAGE", "HTTP_CONNECTION", "HTTP_HOST",
+    "HTTP_USER_AGENT", "HTTP_REFERER", "PATH_INFO", "PATH_TRANSLATED",
+    "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT", "REQUEST_METHOD",
+    "REQUEST_URI", "SCRIPT_FILENAME", "SCRIPT_NAME", "SERVER_PROTOCOL",
+  };
+
   login_check_credentials();
   if( !g.perm.Admin && !g.perm.Setup && !db_get_boolean("test_env_enable",0) ){
     login_needed();
     return;
   }
+  for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
   style_header("Environment Test");
   showAll = atoi(PD("showall","0"));
   if( !showAll ){
@@ -1173,13 +1193,31 @@ void page_test_env(void){
   zCap[i] = 0;
   @ g.userUid = %d(g.userUid)<br />
   @ g.zLogin = %h(g.zLogin)<br />
+  @ g.isHuman = %d(g.isHuman)<br />
   @ capabilities = %s(zCap)<br />
   @ <hr>
   P("HTTP_USER_AGENT");
-  cgi_print_all(atoi(PD("showall","0")));
+  cgi_print_all(showAll);
+  if( showAll && blob_size(&g.httpHeader)>0 ){
+    @ <hr>
+    @ <pre>
+    @ %h(blob_str(&g.httpHeader))
+    @ </pre>
+  }
   if( g.perm.Setup ){
     const char *zRedir = P("redirect");
     if( zRedir ) cgi_redirect(zRedir);
   }
   style_footer();
+  if( g.perm.Admin && P("err") ) fossil_fatal("%s", P("err"));
+}
+
+/*
+** This page is a honeypot for spiders and bots.
+**
+** WEBPAGE: honeypot
+*/
+void honeypot_page(void){
+  cgi_set_status(403, "Forbidden");
+  @ <p>Access by spiders and robots is forbidden</p>
 }

@@ -5,6 +5,18 @@
      [/help?cmd=clean | fossil clean], [/help?cmd=extras | fossil extras],
      [/help?cmd=ls | fossil ls] and [/help?cmd=status | fossil status] commands
      to restrict operation to files and directories named on the command-line.
+  *  New --integrate option to [/help?cmd=merge | fossil merge], which
+     automatically closes the merged branch when committing.
+  *  Renamed <tt>/stats_report</tt> page to [/reports]. Graph width is now
+     relative, not absolute.
+  *  Added <tt>yw=YYYY-WW</tt> (year-week) filter to timeline to limit the results
+     to a specific year and calendar week number, e.g. [/timeline?yw=2013-01].
+  *  Fixed an obscure condition under which an assertion failure could overwrite
+     part of a repository database file, corrupting it. This problem has only
+     been seen once in the wild.
+  *  Added support for unlimited line lengths in side-by-side diffs.
+  *  New --close option to [/help?cmd=commit | fossil commit], which
+     immediately closes the branch being committed.
 
 <h2>Changes For Version 1.26 (2013-06-18)</h2>
   *  The argument to the --port option for the [/help?cmd=ui | fossil ui] and

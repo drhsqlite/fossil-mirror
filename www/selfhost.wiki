@@ -23,8 +23,8 @@ Server (1) runs as a CGI script on a
 <a href="http://www.linode.com/">Linode 1024</a> located in Dallas, TX
 - on the same virtual machine that 
 hosts <a href="http://www.sqlite.org/">SQLite</a> and over a
-dozen other smaller projects.  This demonstrates that Fossil does not
-require much server power.
+dozen other smaller projects.  This demonstrates that Fossil can run on
+a low-power host processor.
 Multiple fossil-based projects can easily be hosted on the same machine,
 even if that machine is itself one of several dozen virtual machines on
 single physical box.  The CGI script that runs the canonical Fossil
@@ -40,7 +40,8 @@ Server (3) runs as a CGI script on a shared hosting account at
 This server demonstrates the ability of
 Fossil to run on an economical shared-host web account with no
 privileges beyond port 80 HTTP access and CGI.  It is not necessary
-to have a dedicated server to run Fossil.  As far as we are aware, 
+to have a dedicated computer with administrator to run Fossil.
+As far as we are aware, 
 Fossil is the only full-featured configuration management system 
 that can run in
 such a restricted environment.  The CGI script that runs on the

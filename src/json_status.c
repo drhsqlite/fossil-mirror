@@ -128,6 +128,10 @@ cson_value * json_page_status(){
       zStatus = "updatedByMerge";
     }else if( 3==isChnged ){
       zStatus = "addedByMerge";
+    }else if( 4==isChnged ){
+      zStatus = "updatedByIntegrate";
+    }else if( 5==isChnged ){
+      zStatus = "addedByIntegrate";
     }else if( 1==isChnged ){
       if( file_contains_merge_marker(zFullName) ){
         zStatus = "conflict";
@@ -159,6 +163,7 @@ cson_value * json_page_status(){
     switch( db_column_int(&q, 1) ){
       case -1:  zLabel = "CHERRYPICK ";  break;
       case -2:  zLabel = "BACKOUT    ";  break;
+      case -4:  zLabel = "INTEGRATE  ";  break;
     }
     blob_append(report, zPrefix, nPrefix);
     blob_appendf(report, "%s %s\n", zLabel, db_column_text(&q, 0));

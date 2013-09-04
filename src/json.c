@@ -2007,7 +2007,7 @@ cson_value * json_page_stat(){
 **
 ** The list is appended to pOut. The number of items (not bytes)
 ** appended are returned. If filterByMode is non-0 then the result
-** list will contain only commands which are able to run in the the
+** list will contain only commands which are able to run in the
 ** current run mode (CLI vs. HTTP).
 */
 static int json_pagedefs_to_string(JsonPageDef const * zPages,

@@ -58,7 +58,7 @@ void branch_new(void){
   /* fossil branch new name */
   zBranch = g.argv[3];
   if( zBranch==0 || zBranch[0]==0 ){
-    fossil_panic("branch name cannot be empty");
+    fossil_fatal("branch name cannot be empty");
   }
   if( db_exists(
         "SELECT 1 FROM tagxref"
@@ -152,11 +152,11 @@ void branch_new(void){
 
   brid = content_put_ex(&branch, 0, 0, 0, isPrivate);
   if( brid==0 ){
-    fossil_panic("trouble committing manifest: %s", g.zErrMsg);
+    fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
   if( manifest_crosslink(brid, &branch)==0 ){
-    fossil_panic("unable to install new manifest");
+    fossil_fatal("unable to install new manifest");
   }
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
@@ -281,7 +281,7 @@ void branch_cmd(void){
     }
     db_finalize(&q);
   }else{
-    fossil_panic("branch subcommand should be one of: "
+    fossil_fatal("branch subcommand should be one of: "
                  "new list ls");
   }
 }

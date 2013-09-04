@@ -80,6 +80,7 @@ void view_list(void){
     }
     blob_appendf(&ril, "</li>\n");
   }
+  db_finalize(&q);
 
   Th_Store("report_items", blob_str(&ril));
   

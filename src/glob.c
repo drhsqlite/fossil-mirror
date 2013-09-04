@@ -254,7 +254,7 @@ void glob_free(Glob *pGlob){
 ** quoted glob patterns.  Show which of the STRINGs that follow match
 ** the PATTERN.
 **
-** If PATTERN begins with "@" the the rest of the pattern is understood
+** If PATTERN begins with "@" the rest of the pattern is understood
 ** to be a setting name (such as binary-glob, crln-glob, or encoding-glob)
 ** and the value of that setting is used as the actually glob pattern.
 */
