@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sfrom\supstream,\staking\sover\sJoe's\sfix\sfror\sMSVC\s(reported\sby\sRoss\sBerteig)
-D 2013-09-04T11:30:57.253
+C New\s--close\soption\sto\s"fossil\s[/help?cmd=commit|commit]",\swhich\simmediately\scloses\sthe\sbranch\sbeing\scommitted.
+D 2013-09-04T12:50:35.957
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -314,7 +314,7 @@ F src/branch.c 7d592b743b390e90ecec5bb3096e6d636f5b0ed1
 F src/browse.c 4f11469038984f7e0e886fbae8e44f72b294f6b4
 F src/captcha.c de30cda16d8d774c88ee465f15fc735ecb81ac34
 F src/cgi.c 513881db505feca5d435019e0c4b3cf0b702558f
-F src/checkin.c 691887bd8f21a70d240b230e6c65ff7b1701d067
+F src/checkin.c 8ba614255f52e95ef5538d0d45ac280bb43794d4
 F src/checkout.c c79fcc729323e605bc04cdca92c069438aeee055
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c b949ddcaa488a5cc56b01aceadf2783bea146255
@@ -551,7 +551,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 99d99c3b86f2ba7249070ff0e427a8183b06c692
-F www/changes.wiki 22b173f7f18946ef34b0049dfba159a055f697c0
+F www/changes.wiki 7d7b686109efaa98c4f29ed46661be3849f41950
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -631,7 +631,11 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f2ce086b5dd19570c08d3111292153e53dfa71e4
-R 204d42584e1f533bcf2834d03c9141ea
+P 9aae838b8b4a18e5c4beb86066fe5c58ea233022
+R d8ec4f8af0fbc494a4d21b5c7c2541ff
+T *branch * commit-close
+T *sym-commit-close *
+T +closed *
+T -sym-trunk *
 U jan.nijtmans
-Z 5e70a33404a99a2d39c01b1cc81f9a98
+Z 55186d9a6ea579266915d8bf86211450

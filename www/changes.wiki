@@ -15,6 +15,8 @@
      part of a repository database file, corrupting it. This problem has only
      been seen once in the wild.
   *  Added support for unlimited line lengths in side-by-side diffs.
+  *  New --close option to [/help?cmd=commit | fossil commit], which
+     immediately closes the branch being committed.
 
 <h2>Changes For Version 1.26 (2013-06-18)</h2>
   *  The argument to the --port option for the [/help?cmd=ui | fossil ui] and
