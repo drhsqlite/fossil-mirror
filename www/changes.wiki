@@ -17,6 +17,14 @@
   *  Added support for unlimited line lengths in side-by-side diffs.
   *  New --close option to [/help?cmd=commit | fossil commit], which
      immediately closes the branch being committed.
+  *  Added <tt>chart</tt> option to [/help?cmd=bisect | fossil bisect].
+  *  Improvements to the "human or bot?" determination.
+  *  Reports errors about missing CGI-standard environment variables for HTTP
+     servers which do not support them.
+  *  [/help?cmd=ls | fossil ls] now accepts filenames or directories as arguments.
+  *  Minor improvements to sync support on Windows.
+  *  Added <tt>--scgi</tt> option to [/help?cmd=server | fossil server].
+  *  Internal improvements to the sync process.
 
 <h2>Changes For Version 1.26 (2013-06-18)</h2>
   *  The argument to the --port option for the [/help?cmd=ui | fossil ui] and

@@ -1,5 +1,5 @@
-C On\sCygwin,\sdon't\sset\sbrowser\sto\s"echo"\sif\sit\scannot\sbe\sfound,\sbut\srevert\sto\sShellExecuteW\swhich\scan\sdo\sa\smuch\sbetter\sjob.
-D 2013-09-05T12:42:33.086
+C Updated\schangelog\sbased\son\sthe\s1.27\s(pending)\sdiffs.\sAdded\sa\slink\sto\sthe\srelease\schecklist\spage.
+D 2013-09-05T19:56:24.477
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -446,7 +446,7 @@ F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
 F test/merge5.test 5447884e828abd47bb25d363342acc94269f36a8
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge_renames.test 5e04c75d53fdb4c89eeccb9fa1acf0ee741ad51e
-F test/release-checklist.wiki f05433096a91b7d12739d1429744e57ca3d9240a
+F test/release-checklist.wiki f4f0e97da511a9c54cd6d49d8c6755d7e1f49d0f
 F test/revert.test 7c20e28f641dbb3ab991fa85f20abed0ff7e20d4
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F test/th1-tcl.test ac226c74c0ec13914d771b15c933fb509cd549ad
@@ -551,7 +551,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 99d99c3b86f2ba7249070ff0e427a8183b06c692
-F www/changes.wiki 7d7b686109efaa98c4f29ed46661be3849f41950
+F www/changes.wiki 9a8e10c852d011af01c0074e112deba2486a7132
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2653fb4ebef997ced58cf2e8baab52b9e3c90005
-R ef45ea963d1fadf15e124b17100e8b2c
-U jan.nijtmans
-Z f8624465efaf217825e8397f781cc4f8
+P 0efd9e6a94104308c8640f7fdca901c8bc120d22
+R dbac718e577260891a7a9bc3c37d1c43
+U stephan
+Z 8928a28a623afb2c18acfadafef6014a
