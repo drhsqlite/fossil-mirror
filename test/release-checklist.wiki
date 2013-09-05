@@ -57,7 +57,8 @@ uninitialized value that occurs within zlib).
 </ol>
 
 <li><p>
-Inspect all code changes since the previous release, paying particular
+
+Inspect [http://www.fossil-scm.org/index.html/vdiff?from=release&to=trunk&sbs=1|all code changes since the previous release], paying particular
 attention to the following details:
 <ol type="a">
 <li> Can a malicious HTTP request cause a buffer overrun.
