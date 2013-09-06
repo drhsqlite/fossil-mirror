@@ -716,7 +716,7 @@ static void prepare_commit_comment(
   int parent_rid
 ){
   Blob prompt;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   int bomSize;
   const unsigned char *bom = get_utf8_bom(&bomSize);
   blob_init(&prompt, (const char *) bom, bomSize);
