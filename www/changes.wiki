@@ -21,7 +21,6 @@
   *  Improvements to the "human or bot?" determination.
   *  Reports errors about missing CGI-standard environment variables for HTTP
      servers which do not support them.
-  *  [/help?cmd=ls | fossil ls] now accepts filenames or directories as arguments.
   *  Minor improvements to sync support on Windows.
   *  Added <tt>--scgi</tt> option to [/help?cmd=server | fossil server].
   *  Internal improvements to the sync process.
