@@ -3803,12 +3803,20 @@ static int cson_str_to_json( char const * str, unsigned int len,
                    text. file(1) thinks it's a FORTRAN program.
                 */
                 if((*pos != ch) && (0xfffd==ch)){
-                    ch = *pos;
+                    ch = *pos
+                        /* We should arguably translate to '?', and
+                           will if this problem ever comes up with a
+                           non-latin1 encoding. For latin1 this
+                           workaround incidentally corrects the output
+                           to proper UTF8-escaped characters, and only
+                           for that reason is it being kept around.
+                        */;
                     /* MARKER("ch=%04x, *pos=%04x\n", ch, *pos); */
-                    goto two_bytes;
+                    goto assume_latin1;
                 }
-#endif
+#else
                 assert( *pos == ch );
+#endif
                 escChar[1] = 0;
                 switch(ch)
                 {
@@ -3864,7 +3872,7 @@ static int cson_str_to_json( char const * str, unsigned int len,
             else
             { /* UTF: transform it to \uXXXX */
 #if defined(CSON_FOSSIL_MODE)
-                two_bytes:
+                assume_latin1:
 #endif
                 memset(ubuf,0,UBLen);
                 rc = sprintf(ubuf, "\\u%04x",ch);
