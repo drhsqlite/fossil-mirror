@@ -3802,7 +3802,9 @@ static int cson_str_to_json( char const * str, unsigned int len,
                    which has what appears to be latin1-encoded
                    text. file(1) thinks it's a FORTRAN program.
                 */
-                if((*pos != ch) && (0xfffd==ch)){
+                if(0xfffd==ch){
+                    assert(*pos != ch);
+                    /* MARKER("ch=%04x, *pos=%04x\n", ch, *pos); */
                     ch = *pos
                         /* We should arguably translate to '?', and
                            will if this problem ever comes up with a
@@ -3811,12 +3813,10 @@ static int cson_str_to_json( char const * str, unsigned int len,
                            to proper UTF8-escaped characters, and only
                            for that reason is it being kept around.
                         */;
-                    /* MARKER("ch=%04x, *pos=%04x\n", ch, *pos); */
                     goto assume_latin1;
                 }
-#else
-                assert( *pos == ch );
 #endif
+                assert( (*pos == ch) && "Invalid UTF8" );
                 escChar[1] = 0;
                 switch(ch)
                 {
