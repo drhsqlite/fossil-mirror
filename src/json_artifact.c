@@ -133,7 +133,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
                    TAG_USER, rid);
     if(zEUser){
       SET("user", json_new_string(zEUser));
-      if(0!=strcmp(zEUser,zUser)){
+      if(0!=fossil_strcmp(zEUser,zUser)){
         SET("originUser",json_new_string(zUser));
       }
       free(zEUser);
@@ -147,7 +147,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
                    TAG_COMMENT, rid);
     if(zEComment){
       SET("comment",json_new_string(zEComment));
-      if(0 != strcmp(zEComment,zComment)){
+      if(0 != fossil_strcmp(zEComment,zComment)){
         SET("originComment", json_new_string(zComment));
       }
       free(zEComment);
@@ -472,7 +472,7 @@ cson_value * json_page_artifact(){
   pay = cson_new_object();
   assert( (NULL != zType) && "Internal dispatching error." );
   for( ; dispatcher->name; ++dispatcher ){
-    if(0!=strcmp(dispatcher->name, zType)){
+    if(0!=fossil_strcmp(dispatcher->name, zType)){
       continue;
     }else{
       entry = (*dispatcher->func)(pay, rid);
