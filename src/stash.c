@@ -641,6 +641,7 @@ void stash_cmd(void){
       zDiffCmd = diff_command_external(0);
     }
     diffFlags = diff_options();
+    if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
     if( g.argc>4 ) usage(mprintf("%s STASHID", zCmd));
     if( zDiffCmd ){
       zBinGlob = diff_get_binary_glob();
