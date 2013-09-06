@@ -1578,10 +1578,25 @@ struct cson_string
 static const cson_string cson_string_empty = cson_string_empty_m;
 
 
-
+/**
+   Assumes V is a (cson_value*) ans V->value is a (T*). Returns
+   V->value cast to a (T*).
+*/
 #define CSON_CAST(T,V) ((T*)((V)->value))
+/**
+   Assumes V is a pointer to memory which is allocated as part of a
+   cson_value instance (the bytes immediately after that part).
+   Returns a pointer a a cson_value by subtracting sizeof(cson_value)
+   from that address and casting it to a (cson_value*)
+*/
 #define CSON_VCAST(V) ((cson_value *)(((unsigned char *)(V))-sizeof(cson_value)))
 
+/**
+   CSON_INT(V) assumes that V is a (cson_value*) of type
+   CSON_TYPE_INTEGER. This macro returns a (cson_int_t*) representing
+   its value (how that is stored depends on whether we are running in
+   32- or 64-bit mode).
+ */
 #if CSON_VOID_PTR_IS_BIG
 #  define CSON_INT(V) ((cson_int_t*)(&((V)->value)))
 #else
@@ -1594,10 +1609,8 @@ static const cson_string cson_string_empty = cson_string_empty_m;
 #define CSON_ARRAY(V) CSON_CAST(cson_array,(V))
 
 /**
- 
  Holds special shared "constant" (though they are non-const)
- values.
- 
+ values. 
 */
 static struct CSON_EMPTY_HOLDER_
 {
@@ -1811,7 +1824,7 @@ static void * cson_realloc( void * hint, size_t n, char const * descr )
    val->api->cleanup are NULL then this is a no-op.
 
    If v is a container type (object or array) its children are also
-   cleaned up (BUT NOT FREED), recursively.
+   cleaned up, recursively.
 
    After calling this, val will have the special "undefined" type.
 */
@@ -1891,7 +1904,7 @@ unsigned int cson_string_length_bytes( cson_string const * str )
 /**
    Fetches v's string value as a non-const string.
 
-   cson_strings are supposed to be immutable, but this form provides
+   cson_strings are intended to be immutable, but this form provides
    access to the immutable bits, which are v->length bytes long. A
    length-0 string is returned as NULL from here, as opposed to
    "". (This is a side-effect of the string allocation mechanism.)
@@ -3783,6 +3796,18 @@ static int cson_str_to_json( char const * str, unsigned int len,
             assert( clen );
             if( 1 == clen )
             { /* ASCII */
+#if defined(CSON_FOSSIL_MODE)
+                /* Workaround for fossil repo artifact
+                   f460839cff85d4e4f1360b366bb2858cef1411ea,
+                   which has what appears to be latin1-encoded
+                   text. file(1) thinks it's a FORTRAN program.
+                */
+                if((*pos != ch) && (0xfffd==ch)){
+                    ch = *pos;
+                    /* MARKER("ch=%04x, *pos=%04x\n", ch, *pos); */
+                    goto two_bytes;
+                }
+#endif
                 assert( *pos == ch );
                 escChar[1] = 0;
                 switch(ch)
@@ -3838,6 +3863,9 @@ static int cson_str_to_json( char const * str, unsigned int len,
             }
             else
             { /* UTF: transform it to \uXXXX */
+#if defined(CSON_FOSSIL_MODE)
+                two_bytes:
+#endif
                 memset(ubuf,0,UBLen);
                 rc = sprintf(ubuf, "\\u%04x",ch);
                 if( rc != 6 )
@@ -4107,7 +4135,7 @@ static int cson_output_array( cson_value const * src, cson_data_dest_f f, void *
                     {
                         rc = doIndent
                             ? cson_output_indent( f, state, fmt->indentation, level )
-                            : f( state, " ", 1 );
+                            : 0 /*f( state, " ", 1 )*/;
                     }
                 }
             }
@@ -4185,7 +4213,7 @@ static int cson_output_object( cson_value const * src, cson_data_dest_f f, void 
                     {
                         rc = doIndent
                             ? cson_output_indent( f, state, fmt->indentation, level )
-                            : f( state, " ", 1 );
+                            : 0 /*f( state, " ", 1 )*/;
                     }
                 }
             }
@@ -4398,7 +4426,7 @@ static int cson_data_dest_cson_buffer( void * arg, void const * data_, unsigned 
             if( asz < npos ) return cson_rc.ArgError; /* overflow */
             else if( 0 != cson_buffer_reserve( sb, asz ) ) return cson_rc.AllocError;
             assert( (sb->capacity > oldCap) && "Internal error in memory buffer management!" );
-            /* make sure it gets NULL terminated. */
+            /* make sure it gets NUL terminated. */
             memset( sb->mem + oldCap, 0, (sb->capacity - oldCap) );
         }
         for( i = 0; i < n; ++i, ++sb->used )
