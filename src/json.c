@@ -1309,6 +1309,7 @@ cson_value * json_g_to_json(){
   CSTR(g, urlPasswd);
   CSTR(g, urlCanonical);
   CSTR(g, urlProxyAuth);
+  CSTR(g, urlFossil);
   CSTR(g, zLogin);
   CSTR(g, zSSLIdentity);
   CSTR(g, zIpAddr);

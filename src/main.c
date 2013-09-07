@@ -138,7 +138,6 @@ struct Global {
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
   int fSshClient;         /* HTTP client flags for SSH client */
-  char *zSshFossilCmd;    /* Path to remoe fossil command for SSH */
   char *zSshCmd;          /* SSH command string */
   char *zFossilUser;      /* Fossil user if different from URL user */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
@@ -181,6 +180,7 @@ struct Global {
   char *urlPasswd;        /* Password for http: */
   char *urlCanonical;     /* Canonical representation of the URL */
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
+  char *urlFossil;        /* The fossil query parameter on ssh: */
   unsigned urlFlags;      /* Boolean flags controlling URL processing */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
@@ -587,7 +587,6 @@ int main(int argc, char **argv)
     g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;
     g.fSshTrace = find_option("sshtrace", 0, 0)!=0;
     g.fSshClient = 0;
-    g.zSshFossilCmd = 0;
     g.zSshCmd = 0;
     g.zFossilUser = 0;
     if( g.fSqlTrace ) g.fSqlStats = 1;

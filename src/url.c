@@ -66,7 +66,7 @@ static void url_tolower(char *z){
 **
 ** SSH url format is:
 **
-**     ssh://userid:password@host:port/path
+**     ssh://userid:password@host:port/path?fossil=path/to/fossil.exe
 **
 */
 void url_parse(const char *zUrl, unsigned int urlFlags){
@@ -109,6 +109,7 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
       g.urlIsSsh = 1;
       g.urlProtocol = "ssh";
       g.urlDfltPort = 22;
+      g.urlFossil = "fossil";
       iStart = 6;
     }else{
       g.urlIsHttps = 0;
@@ -159,17 +160,40 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
       g.urlPath[i] = 0;
       i++;
     }
+    zExe = mprintf("");
+    while( g.urlPath[i]!=0 ){
+      char *zName, *zValue;
+      zName = &g.urlPath[i];
+      zValue = zName;
+      while( g.urlPath[i] && g.urlPath[i]!='=' ){ i++; }
+      if( g.urlPath[i]=='=' ){
+        g.urlPath[i] = 0;
+        i++;
+        zValue = &g.urlPath[i];
+        while( g.urlPath[i] && g.urlPath[i]!='&' ){ i++; }
+      }
+      if( g.urlPath[i] ){
+        g.urlPath[i] = 0;
+        i++;
+      }
+      if( fossil_strcmp(zName,"fossil")==0 ){
+        g.urlFossil = zValue;
+        dehttpize(g.urlFossil);
+        zExe = mprintf("%cfossil=%T", cQuerySep, g.urlFossil);
+        cQuerySep = '&';
+      }
+    }
 
     dehttpize(g.urlPath);
     if( g.urlDfltPort==g.urlPort ){
       g.urlCanonical = mprintf(
-        "%s://%s%T%T", 
-        g.urlProtocol, zLogin, g.urlName, g.urlPath
+        "%s://%s%T%T%s", 
+        g.urlProtocol, zLogin, g.urlName, g.urlPath, zExe
       );
     }else{
       g.urlCanonical = mprintf(
-        "%s://%s%T:%d%T",
-        g.urlProtocol, zLogin, g.urlName, g.urlPort, g.urlPath
+        "%s://%s%T:%d%T%s",
+        g.urlProtocol, zLogin, g.urlName, g.urlPort, g.urlPath, zExe
       );
     }
     if( g.urlIsSsh && g.urlPath[1] ) g.urlPath++;
@@ -256,6 +280,7 @@ void cmd_test_urlparser(void){
     fossil_print("g.urlUser      = %s\n", g.urlUser);
     fossil_print("g.urlPasswd    = %s\n", g.urlPasswd);
     fossil_print("g.urlCanonical = %s\n", g.urlCanonical);
+    fossil_print("g.urlFossil    = %s\n", g.urlFossil);
     fossil_print("g.urlFlags     = 0x%02x\n", g.urlFlags);
     if( g.urlIsFile || g.urlIsSsh ) break;
     if( i==0 ){
