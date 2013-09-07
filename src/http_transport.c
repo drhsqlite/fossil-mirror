@@ -93,7 +93,6 @@ int transport_ssh_open(void){
   ** to talk to the remote machine.
   */
   static int fPrintSshCmd = 1;  /* Print SSH command only once */
-  const char *zSshFossilCmd;    /* Path to fossil on remote host */
   const char *zSsh;  /* The base SSH command */
   Blob zCmd;         /* The SSH command */
   char *zHost;       /* The host name to contact */
@@ -101,7 +100,6 @@ int transport_ssh_open(void){
 
   socket_ssh_resolve_addr();
   zSsh = db_get("ssh-command", zDefaultSshCmd);
-  zSshFossilCmd = db_get("ssh-fossil", "fossil");
   blob_init(&zCmd, zSsh, -1);
   if( g.urlPort!=g.urlDfltPort && g.urlPort ){
 #ifdef __MINGW32__
@@ -123,12 +121,8 @@ int transport_ssh_open(void){
   blob_append(&zCmd, " ", 1);
   shell_escape(&zCmd, zHost);
   blob_append(&zCmd, " ", 1);
-  shell_escape(&zCmd, mprintf("%s", zSshFossilCmd));
-  if( url_ssh_use_http() ){
-    blob_append(&zCmd, " http", 5);
-  }else{
-    blob_append(&zCmd, " test-http", 10);
-  }
+  shell_escape(&zCmd, mprintf("%s", g.urlFossil));
+  blob_append(&zCmd, " test-http", 10);
   if( g.urlPath && g.urlPath[0] ){
     blob_append(&zCmd, " ", 1);
     shell_escape(&zCmd, mprintf("%s", g.urlPath));

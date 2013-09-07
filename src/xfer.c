@@ -1781,9 +1781,7 @@ int client_sync(
               g.urlPasswd = 0;
               go = 1;
               if( g.cgiOutput==0 ){
-                if( g.urlIsSsh ){
-                  g.urlFlags |= URL_PROMPT_PW;
-                }
+                g.urlFlags |= URL_PROMPT_PW;
                 url_prompt_for_password();
               }
             }

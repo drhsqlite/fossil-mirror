@@ -159,30 +159,6 @@ char *prompt_for_user_password(const char *zUser){
 }
 
 /*
-** Return Fossil user if allocated and URL is SSH or URL user
-*/
-const char *url_or_fossil_user(void){
-  return is_fossil_user() ? get_fossil_user() : g.urlUser;
-}
-
-/*
-** Return the Fossil user from global variable (set from command line)
-** or ssh-fossil-user database setting.
-*/
-const char *get_fossil_user(void){
-  return ( g.zFossilUser && g.zFossilUser[0] ) ? g.zFossilUser :
-    db_get("ssh-fossil-user", 0);
-}
-
-/*
-** Return true if URL is SSH and Fossil user is allocated
-*/
-int is_fossil_user(void) {
-  return g.urlIsSsh && ( g.zFossilUser && g.zFossilUser[0] ||
-   db_get("ssh-fossil-user", 0)!=0 );
-}
-
-/*
 ** Prompt the user to enter a single line of text.
 */
 void prompt_user(const char *zPrompt, Blob *pIn){
@@ -372,8 +348,6 @@ static int attempt_user(const char *zLogin){
 **
 **   (8)  Check if the user can be extracted from the remote URL.
 **
-**   (9)  Check if the user was supplied as SSH command-line option.
-**
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
 void user_select(void){
@@ -400,8 +374,6 @@ void user_select(void){
 
   url_parse(0, 0);
   if( g.urlUser && attempt_user(g.urlUser) ) return;
-
-  if( g.zFossilUser && attempt_user(g.zFossilUser) ) return;
 
   fossil_print(
     "Cannot figure out who you are!  Consider using the --user\n"

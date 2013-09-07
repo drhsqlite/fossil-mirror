@@ -92,15 +92,14 @@ void delete_private_content(void){
 **     http[s]://[userid[:password]@]host[:port][/path]
 **
 **   SSH protocol:
-**     ssh://[userid[:password]@]host[:port]/path/to/repo.fossil
+**     ssh://[userid[:password]@]host[:port]/path/to/repo.fossil\\
+**     [?fossil=path/to/fossil.exe]
 **
 **   Filesystem:
 **     [file://]path/to/repo.fossil
 **
 **   Note: For ssh and filesystem, path must have an extra leading 
 **         '/' to use an absolute path.
-**
-**   Note: the userid for SSH is the SSH account, not the Fossil account.
 **
 ** By default, your current login name is used to create the default
 ** admin user. This can be overridden using the -A|--admin-user
@@ -110,9 +109,7 @@ void delete_private_content(void){
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
 **    --private                  Also clone private branches 
 **    --ssl-identity=filename    Use the SSL identity if requested by the server
-**    --ssh-fossil|-f /fossil    Use this path as remote fossil command
 **    --ssh-command|-c 'command' Use this SSH command
-**    --ssh-fossil-user|-l user  Fossil user to use for SSH if different.
 **
 ** See also: init
 */
@@ -201,21 +198,11 @@ void clone_cmd(void){
 ** Look for SSH clone command line options and setup in globals.
 */
 void clone_ssh_find_options(void){
-  const char *zSshFossilCmd;  /* Path to remote fossil command for SSH */
   const char *zSshCmd;        /* SSH command string */
-  const char *zFossilUser;    /* Fossil user if login specified for SSH */
 
-  zSshFossilCmd = find_option("ssh-fossil","f",1);
-  if( zSshFossilCmd && zSshFossilCmd[0] ){
-    g.zSshFossilCmd = mprintf("%s", zSshFossilCmd);
-  }
   zSshCmd = find_option("ssh-command","c",1);
   if( zSshCmd && zSshCmd[0] ){
     g.zSshCmd = mprintf("%s", zSshCmd);
-  }
-  zFossilUser = find_option("ssh-fossil-user","l",1);
-  if( zFossilUser && zFossilUser[0] ){
-    g.zFossilUser = mprintf("%s", zFossilUser);
   }
 }
 
@@ -224,13 +211,7 @@ void clone_ssh_find_options(void){
 ** options).
 */
 void clone_ssh_db_set_options(void){
-  if( g.zSshFossilCmd && g.zSshFossilCmd[0] ){
-    db_set("ssh-fossil", g.zSshFossilCmd, 0);
-  }
   if( g.zSshCmd && g.zSshCmd[0] ){
     db_set("ssh-command", g.zSshCmd, 0);
-  }
-  if( g.zFossilUser && g.zFossilUser[0] ){
-    db_set("ssh-fossil-user", g.zFossilUser, 0);
   }
 }

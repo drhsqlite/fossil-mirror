@@ -462,11 +462,11 @@ void cgi_replace_parameter(const char *zName, const char *zValue){
   int i;
   for(i=0; i<nUsedQP; i++){
     if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
-      aParamQP[i].zValue = mprintf("%s",zValue);
+      aParamQP[i].zValue = zValue;
       return;
     }
   }
-  cgi_set_parameter_nocopy(zName, mprintf("%s",zValue), 0);
+  cgi_set_parameter_nocopy(zName, zValue, 0);
 }
 
 /*
@@ -1393,7 +1393,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   if( nCycles==0 ){
     cgi_setenv("PATH_INFO", zToken);
   }else{
-    cgi_replace_parameter("PATH_INFO", zToken);
+    cgi_replace_parameter("PATH_INFO", mprintf("%s",zToken));
   }
  
   /* Get all the optional fields that follow the first line.
