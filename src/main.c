@@ -516,6 +516,7 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
   ** creates lots of aliases and the warning alarms people. */
   if( iCode==SQLITE_WARNING ) return;
 #endif
+  if( iCode==SQLITE_SCHEMA ) return;
   fossil_warning("%s: %s", sqlite_error_code_name(iCode), zErrmsg);
 }
 
@@ -612,7 +613,10 @@ int main(int argc, char **argv)
     }
     zCmdName = g.argv[1];
   }
+#ifndef _WIN32
   if( !is_valid_fd(2) ) fossil_panic("file descriptor 2 not open");
+  /* if( is_valid_fd(3) ) fossil_warning("file descriptor 3 is open"); */
+#endif
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
   if( rc==1 ){
     fossil_fatal("%s: unknown command: %s\n"
@@ -1890,13 +1894,7 @@ void cmd_webserver(void){
       static const char *const azBrowserProg[] =
           { "xdg-open", "gnome-open", "firefox", "google-chrome" };
       int i;
-#if defined(__CYGWIN__)
-      const char *path = fossil_getenv("PROGRAMFILES");
-      path = fossil_utf8_to_filename(path);
-      zBrowser = mprintf("\"%s/Internet Explorer/iexplore.exe\"", path);
-#else
       zBrowser = "echo";
-#endif
       for(i=0; i<sizeof(azBrowserProg)/sizeof(azBrowserProg[0]); i++){
         if( binaryOnPath(azBrowserProg[i]) ){
           zBrowser = azBrowserProg[i];

@@ -644,8 +644,8 @@ static const char zDiffScript[] =
 @   return $type
 @ }
 @ 
-@ proc readDiffs {cmd} {
-@   set in [open $cmd r]
+@ proc readDiffs {fossilcmd} {
+@   set in [open $fossilcmd r]
 @   fconfigure $in -encoding utf-8
 @   set nDiffs 0
 @   array set widths {txt 0 ln 0 mkr 0}
@@ -885,7 +885,7 @@ static const char zDiffScript[] =
 @ ::ttk::scrollbar .sbxB -command {.txtB xview} -orient horizontal
 @ frame .spacer
 @ 
-@ if {[readDiffs $cmd] == 0} {
+@ if {[readDiffs $fossilcmd] == 0} {
 @   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
 @   exit
 @ }
@@ -920,7 +920,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
   char *zTempFile;
   char *zCmd;
   blob_zero(&script);
-  blob_appendf(&script, "set cmd {| \"%/\" %s --html -y -i -v",
+  blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v",
                g.nameOfExe, zSubCmd);
   for(i=firstArg; i<g.argc; i++){
     const char *z = g.argv[i];
