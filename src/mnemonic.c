@@ -4,7 +4,6 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -16,19 +15,29 @@
 *******************************************************************************
 **
 ** This file contains the code to do mnemonic encoding of commit IDs. The
-** wordlist and algorithm is taken from:
+** wordlist and algorithm were originally taken from:
 **
 **   https://github.com/singpolyma/mnemonicode
 **
-** The original code is MIT licensed, but this code uses a reimplementation
-** from scratch anyway.
+** ...which is BSD licensed. However, the algorithm has since been heavily
+** modified to more fit Fossil's special needs.
+**
+** The new algorithm works by reading hex characters one at a time and
+** accumulating bits into a ring buffer. When available, 10 bits are consumed
+** and used as a word index. This only uses 1024 of the available 1626 words
+** but preserves the property that encoded strings may be truncated at any
+** point and the resulting hex string, when decoded, is a truncated form of
+** the original hex string. It is, unfortunately, slightly less efficient, and
+** three words can only encode seven hex digits.
 */
 
 #include "config.h"
 #include "mnemonic.h"
 
 #define MN_BASE 1626
-#define MN_REMAINDER 7
+
+/* Number of bits to encode as a word. 10 is the maximum. */
+#define CHUNK_SIZE 10
 
 static const char* basewordlist[MN_BASE] =
 {
@@ -305,33 +314,24 @@ static const char* basewordlist[MN_BASE] =
   "RESERVE",  "REUNION",  "ROOF",     "SINGER",   "VERBAL",   "AMEN"
 };
 
-static const char* extwordlist[MN_REMAINDER] =
-{
-  "EGO",      "FAX",      "JET",      "JOB",      "RIO",      "SKI",
-  "YES"
-};
-
 /*
-** String comparator which supports both '\0' and ' ' as a terminator
-** character.
+** Special string comparator.
 */
 
-static int strspacecmp(const char* s1, const char* s2)
+static int strspecialcmp(const char* s1, const char* s2)
 {
   int c1, c2;
 
   do
   {
-    c1 = *s1++;
-    c2 = *s2++;
-    if ((c1 == '\0') || (c2 == ' '))
-    {
-      if (c1 == ' ')
-        c1 = '\0';
-      if (c2 == ' ')
-        c2 = '\0';
-      break;
-    }
+    c1 = toupper(*s1++);
+    c2 = toupper(*s2++);
+		if ((c1 == ' ') || (c1 == '-') || (c1 == '_'))
+			c1 = 0;
+		if ((c2 == ' ') || (c2 == '-') || (c2 == '_'))
+			c2 = 0;
+		if (!c1 || !c2)
+			break;
   }
   while (c1 == c2);
 
@@ -348,7 +348,7 @@ static int baseword_to_index(const char* word)
   int i;
 
   for (i=0; i<sizeof(basewordlist)/sizeof(*basewordlist); i++)
-    if (strspacecmp(basewordlist[i], word) == 0)
+    if (strspecialcmp(basewordlist[i], word) == 0)
       return i;
 
   return -1;
@@ -364,57 +364,45 @@ static const char* index_to_baseword(int index)
 }
 
 /*
-** Look up a word in the extended dictionary and return its index; -1 if the
-** word is not in the dictionary.
-*/
-
-static int extword_to_index(const char* word)
-{
-  int i;
-
-  for (i=0; i<sizeof(extwordlist)/sizeof(*extwordlist); i++)
-    if (strspacecmp(extwordlist[i], word) == 0)
-      return i;
-
-  return -1;
-}
-
-/*
-** Look up a word by index in the extended dictionary and return the string.
-*/
-
-static const char* index_to_extword(int index)
-{
-  return extwordlist[index];
-}
-
-/*
 ** Encode a hex-character string using mnemonic encoding, writing the
 ** result into the supplied blob.
 */
 
 int mnemonic_encode(const char* zString, Blob* xBlob)
 {
-  int stringlen = strlen(zString);
-  unsigned int accumulator;
-  int charsread;
+	unsigned int buffer = 0;
+	int buflen = 0;
   int first = 1;
+	int value;
 
-  while (stringlen > 0)
-  {
-    /* Read up to four bytes worth of digest into the accumulator. */
+	for (;;)
+	{
+		/* Read hex characters into the buffer until we have at least CHUNK_SIZE
+     * bits. */
 
-    {
-      int i = sscanf(zString, "%8x%n", &accumulator, &charsread);
-      if (i == 0)
-        return 0;
-      if (i == EOF)
-        break;
-      if (charsread & 1) /* Ensure we read complete bytes (pairs of chars) */
-        return 0;
+		while (buflen < CHUNK_SIZE)
+		{
+			int i = sscanf(zString, "%1x", &value);
+			if (i == 0) /* Parse error? */
+				return 0;
+			if (i == EOF) /* End of line */	
+				break;
+			buffer <<= 4;
+			buffer |= value;
+			buflen += 4;
+			zString++;
+		}
 
-      zString += charsread;
-    }
+		if (buflen < CHUNK_SIZE)
+		{
+			/* Run out of available characters --- give up. */
+			break;
+		}
+
+		/* Extract ten bits of data. */
+
+		value = (buffer >> (buflen-CHUNK_SIZE)) & ((1<<CHUNK_SIZE)-1);
+		buflen -= CHUNK_SIZE;
 
     /* Insert a leading space, if necessary. */
 
@@ -422,41 +410,10 @@ int mnemonic_encode(const char* zString, Blob* xBlob)
       blob_appendf(xBlob, " ");
     first = 0;
 
-    /* Actually do the encoding. */
+		/* Actually encode a word. */
 
-    {
-      switch (charsread)
-      {
-        /* 24-bit encodings are special. */
-
-        case 6:
-          blob_appendf(xBlob, "%s ", index_to_baseword(accumulator % MN_BASE));
-          accumulator /= MN_BASE;
-
-          blob_appendf(xBlob, "%s ", index_to_baseword(accumulator % MN_BASE));
-          accumulator /= MN_BASE;
-
-          blob_appendf(xBlob, "%s", index_to_extword(accumulator));
-          break;
-
-        /* Otherwise, just follow the common pattern. */
-
-        case 8:
-          blob_appendf(xBlob, "%s ", index_to_baseword(accumulator % MN_BASE));
-          accumulator /= MN_BASE;
-          /* fall through */
-
-        case 4:
-          blob_appendf(xBlob, "%s ", index_to_baseword(accumulator % MN_BASE));
-          accumulator /= MN_BASE;
-          /* fall through */
-
-        case 2:
-          blob_appendf(xBlob, "%s", index_to_baseword(accumulator));
-          break;
-      }
-    }
-  }
+		blob_appendf(xBlob, "%s", index_to_baseword(value));
+	}
 
   return 1;
 }
@@ -468,100 +425,51 @@ int mnemonic_encode(const char* zString, Blob* xBlob)
 
 int mnemonic_decode(const char* zString, Blob* xBlob)
 {
-  const char* word1;
-  const char* word2;
-  const char* word3;
-  const char* p;
-  int i;
-  unsigned int value;
+	unsigned int buffer = 0;
+	int buflen = 0;
+  int first = 1;
+	int value;
 
-  do
-  {
-    word1 = word2 = word3 = NULL;
+	while (zString)
+	{
+		/* Consume a word, if necessary. */
 
-    /* Read up to three words from the string. */
+		while (buflen < 4)
+		{
+			/* Find the end of the current word. */
 
-    word1 = zString;
-    p = strchr(zString, ' ');
-    if (!p)
-      zString = NULL;
-    else
-    {
-      zString = p+1;
-      word2 = zString;
-      p = strchr(zString, ' ');
-      if (!p)
-        zString = NULL;
-      else
-      {
-        zString = p+1;
-        word3 = zString;
-        p = strchr(zString, ' ');
-        if (!p)
-          zString = NULL;
-        else
-          zString = p+1;
-      }
-    }
+			const char* end = strchr(zString, ' ');
+			if (!end)
+				end = strchr(zString, '-');
+			if (!end)
+				end = strchr(zString, '_');
 
-    if (word1 && !word2 && !word3)
-    {
-      /* One word means one byte. */
+			/* Parse. */
 
-      i = baseword_to_index(word1);
-      if (i == -1)
-        return 0;
+			value = baseword_to_index(zString);
+			if (value == -1) /* Parse error? */
+				return 0;
+			buffer <<= CHUNK_SIZE;
+			buffer |= value;
+			buflen += CHUNK_SIZE;
 
-      blob_appendf(xBlob, "%02x", i);
-    }
-    else if (word1 && word2 && !word3)
-    {
-      /* Two words means two bytes. */
+			/* Advance the pointer to the next word. */
 
-      i = baseword_to_index(word1);
-      if (i == -1)
-        return 0;
-      value = i;
+			zString = end;
+			if (zString)
+				zString++;
+		}
 
-      i = baseword_to_index(word2);
-      if (i == -1)
-        return 0;
-      value += i*MN_BASE;
+		/* Now consume nibbles and produce hex bytes. */
 
-      blob_appendf(xBlob, "%04x", value);
-    }
-    else
-    {
-      /* Three words means either three or four bytes, depending on what
-       * the final word is. */
+		while (buflen >= 4)
+		{
+			value = (buffer >> (buflen-4)) & 0xf;
+			buflen -= 4;
 
-      i = baseword_to_index(word1);
-      if (i == -1)
-        return 0;
-      value = i;
-
-      i = baseword_to_index(word2);
-      if (i == -1)
-        return 0;
-      value += i*MN_BASE;
-
-      i = baseword_to_index(word3);
-      if (i == -1)
-      {
-        i = extword_to_index(word3);
-        if (i == -1)
-          return 0;
-        value += i*MN_BASE*MN_BASE;
-        blob_appendf(xBlob, "%06x", value);
-      }
-      else
-      {
-        value += i*MN_BASE*MN_BASE;
-        blob_appendf(xBlob, "%08x", value);
-      }
-    }
-  }
-  while (zString);
+			blob_appendf(xBlob, "%x", value);
+		}
+	}
 
   return 1;
 }
@@ -586,12 +494,11 @@ static void sqlcmd_mnemonic_encode(
 
   blob_zero(&x);
   rc = mnemonic_encode(zName, &x);
-  if ( rc==0 ){
+  if ((rc==0) || (blob_size(&x) == 0))
     sqlite3_result_error(context, "could not mnemonic encode value", -1);
-  }else{
+  else
     sqlite3_result_text(context, blob_buffer(&x), blob_size(&x),
                                  SQLITE_TRANSIENT);
-  }
   blob_reset(&x);
 }
 
@@ -618,12 +525,11 @@ static void sqlcmd_mnemonic_decode(
 
   blob_zero(&x);
   rc = mnemonic_decode(zName, &x);
-  if ( rc==0 ){
+  if ((rc==0) || (blob_size(&x)==0))
     sqlite3_result_text(context, zName, -1, SQLITE_TRANSIENT);
-  }else{
+  else
     sqlite3_result_text(context, blob_buffer(&x), blob_size(&x),
                                  SQLITE_TRANSIENT);
-  }
   blob_reset(&x);
 }
 
@@ -638,3 +544,6 @@ void mnemonic_add_sql_func(sqlite3 *db)
   sqlite3_create_function(db, "mnemonic_decode", 1, SQLITE_ANY, 0,
                           sqlcmd_mnemonic_decode, 0, 0);
 }
+
+/* vi: set ts=2:sw=2:expandtab: */
+

@@ -1,5 +1,5 @@
-C Merge\sfrom\strunk.
-D 2013-09-04T20:44:31.844
+C Rework\sthe\salgorithm\sto\sconsume\sa\scertain\snumber\sof\sbits\sfrom\sthe\nstring,\srather\sthan\susing\smodulus\sarithmetic\s---\sthis\sis\smuch\nfriendlier\son\spartial\shashes,\sat\sthe\sexpense\sof\sbeing\sa\sbit\sless\nefficient.
+D 2013-09-07T16:09:42.806
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -377,7 +377,7 @@ F src/merge.c 1f5bf91c798de527f103b20265ee207c06ef188a
 F src/merge3.c 3107d0e4b213dd130cd9046184d86712e35c13eb
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
 F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
-F src/mnemonic.c e03d89f0e079dee9644d761ff89e605b80de68f3
+F src/mnemonic.c 1dbe8b4dcc2d5dcc29ade9d04030a486008e5e33
 F src/moderate.c 704772b428d469a012bf6848633c932bff35a781
 F src/name.c b2f239f28d1adbea2a7e81a5a8f2f895a70b8173
 F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
@@ -632,7 +632,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 570783f795fa98127dbc084218a01703d1c49a32 abf727105daa183a1f8b66699faaeb1607bb69aa
-R 8ce25fcd800b848b9c6f55a419f06458
+P 15090b9450aa34e93ae4bb999da915597d7dc2a4
+R 5a6a188fed0d77c0b5a12c8a5179809b
 U dg
-Z 5e7dcff1032fea73618a45710daf1796
+Z f3bc8cdb1cc086c9e6e9abbac1161a78
