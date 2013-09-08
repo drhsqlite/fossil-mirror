@@ -24,6 +24,9 @@
   *  Minor improvements to sync support on Windows.
   *  Added <tt>--scgi</tt> option to [/help?cmd=server | fossil server].
   *  Internal improvements to the sync process.
+  *  The internals of the JSON API are now MIT-licensed, so downstream
+     users/packagers are no longer affected by the "do no evil" license
+     clause.
 
 <h2>Changes For Version 1.26 (2013-06-18)</h2>
   *  The argument to the --port option for the [/help?cmd=ui | fossil ui] and
