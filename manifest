@@ -1,5 +1,5 @@
-C Restore\ssupport\sfor\s64-bit\sintegers\sin\sJSON\son\swin32.\sLost\sby\s[10666aaddd].
-D 2013-09-08T12:59:32.469
+C Increase\sthe\sversion\snumber\sto\s1.27\sin\spreparation\sfor\sthe\snext\srelease.
+D 2013-09-09T13:07:54.899
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -10,7 +10,7 @@ F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F Makefile.in ed20ed61a1d9a7c221b3c916bdda056f031dcd8e
-F VERSION e8235232d414c4f60347d15432459dcc200f4ce0
+F VERSION 5fc0479fbc57180ccf8f365cf0d720120b80c4da
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P df828ca69ce26bcc9067ceb016ce91808878afd9
-R 5e94e0219f7687422424a226f0441397
-U jan.nijtmans
-Z cbdf46c20d55d7e5ea0cd478baa7d0c5
+P c7409f105e80250a0239c8725903524d06bc624d
+R 90d1421477db6afb937e4d4c1e35194d
+U drh
+Z fe68b9610c27cffe52ffc8e53727fd41
