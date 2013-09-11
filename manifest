@@ -1,5 +1,5 @@
-C Use\sthe\snew\s-DSQLITE_WIN32_NO_ANSI\sC-flag\sfrom\sSQLite\s3.8.1.\sThis\seliminates\sall\sosIsNT()\scalls\son\sWin32\sand\sCygwin\sin\sSQLite.\s(Fossil\sdoesn't\srun\son\sWin95/98/ME\sanyway)
-D 2013-09-11T13:15:40.682
+C minor\stypo\sfix,\sno\scode\schanges.
+D 2013-09-11T19:53:30.821
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -426,7 +426,7 @@ F src/wiki.c 92f6fddf822503533c3f7524b87fe46cfb231b6d
 F src/wikiformat.c f0d71d387b33931ce3cca528c24ad5b5f5916ee0
 F src/winhttp.c cd90cf700e4916c2226cbc82bafff2de05b1fa6d
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
-F src/xfer.c 20afb20cc12e2586e36c41807a0cf1c88a53de18
+F src/xfer.c 136e7263856709c6d0f0d0c3a3b2b36a3bb42f44
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c 05668eb0320200978083c0fd30796db686b428bf
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -631,7 +631,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 13ad13092060dfb995404ca354aa4e458d66fdbf
-R d9e4b5f0b716a7b1ca873bc7d192fb02
-U jan.nijtmans
-Z 31318f5843bf876bcf21873753563bd8
+P c2fa007451c77bbb4fc0e064112f267570c6776c
+R 51cc7c3929a2e10c1d0842f887a290e2
+U stephan
+Z 54398e631d81e221cfaf57cef8c01999
