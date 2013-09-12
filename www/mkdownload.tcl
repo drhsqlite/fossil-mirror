@@ -70,7 +70,7 @@ foreach datetime [lsort -decr [array names adate]] {
   append dt "[string range $datetime 8 9]:[string range $datetime 10 11]:"
   append dt "[string range $datetime 12 13]"
   set link [string map {{ } +} $dt]
-  set hr http://www.fossil-scm.org/fossil/timeline?c=$link&amp;y=ci
+  set hr "http://www.fossil-scm.org/fossil/timeline?c=$link&amp;y=ci"
   puts $out "<tr><td colspan=6 align=left><hr>"
   puts $out "<center><b><a href=\"$hr\">$dt</a></b></center>"
   puts $out "</td></tr>"
