@@ -77,9 +77,9 @@ foreach datetime [lsort -decr [array names adate]] {
   puts $out "<tr>"
 
   foreach {prefix suffix img desc} {
-    fossil-linux-x86 zip linux.gif {Linux x86}
-    fossil-macosx-x86 zip mac.gif {Mac 10.5 x86}
-    fossil-openbsd-x86 zip openbsd.gif {OpenBSD 4.7 x86}
+    fossil-linux-x86 zip linux.gif {Linux 3.x x86}
+    fossil-macosx-x86 zip mac.gif {Mac 10.x x86}
+    fossil-openbsd-x86 zip openbsd.gif {OpenBSD 4.x x86}
     fossil-w32 zip win32.gif {Windows}
     fossil-src tar.gz src.gif {Source Tarball}
   } {
