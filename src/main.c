@@ -797,6 +797,10 @@ void version_cmd(void){
   if(!find_option("verbose","v",0)){
     return;
   }else{
+#if defined(FOSSIL_ENABLE_TCL)
+    int rc;
+    const char *zRc;
+#endif
     fossil_print("Compiled on %s %s using %s (%d-bit)\n",
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
     fossil_print("SQLite %s %.30s\n", SQLITE_VERSION, SQLITE_SOURCE_ID);
@@ -806,10 +810,18 @@ void version_cmd(void){
     fossil_print("SSL (%s)\n", OPENSSL_VERSION_TEXT);
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
-    fossil_print("TCL (Tcl %s)\n", TCL_PATCH_LEVEL);
-#endif
+    Th_FossilInit(0, 0);
+    th_register_tcl(g.interp, &g.tcl);
+    rc = Th_Eval(g.interp, 0, "tclEval {package require Tcl}", -1);
+    zRc = Th_ReturnCodeName(rc, 1);
+    fossil_print("TCL (Tcl %s%s%s%s)\n", zRc, zRc ? ": " : "",
+      Th_GetResult(g.interp, 0),
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
-    fossil_print("TCL_STUBS\n");
+      zRc? "" : ", loaded only when needed"
+#else
+      ""
+#endif
+    );
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
     fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
