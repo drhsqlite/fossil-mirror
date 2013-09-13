@@ -121,6 +121,14 @@
 #  ifndef TCL_CREATEINTERP_NAME
 #    define TCL_CREATEINTERP_NAME "_Tcl_CreateInterp"
 #  endif
+#define tclStubsPtr staticTclStubsPtr
+static const TclStubs *tclStubsPtr = NULL;
+typedef struct {
+  char *notused1;
+  Tcl_FreeProc *notused2;
+  int notused3;
+  const struct TclStubs *stubTable;
+} Interp;
 #endif /* defined(USE_TCL_STUBS) */
 
 /*
@@ -675,10 +683,25 @@ static int createTclInterp(
   }
   tclContext->xFindExecutable(argv0);
   tclInterp = tclContext->xCreateInterp();
-  if( !tclInterp ||
+
 #if defined(USE_TCL_STUBS)
-      !Tcl_InitStubs(tclInterp, "8.4", 0) ||
+  if( tclInterp ){
+    tclStubsPtr = ((Interp *) tclInterp)->stubTable;
+    if (!tclStubsPtr || (tclStubsPtr->magic != TCL_STUB_MAGIC)) {
+      Th_ErrorMessage(interp,
+        "could not create Tcl interpreter: "
+        "incompatible stubs mechanism", (const char *)"", 0);
+      return TH_ERROR;
+    }
+    if( Tcl_PkgRequireEx(tclInterp, "Tcl", "8.4", 0, (void *)&tclStubsPtr)==0 ){
+      Th_ErrorMessage(interp,
+        "could not create Tcl interpreter: "
+        "incompatible version", (const char *)"", 0);
+      return TH_ERROR;
+    }
+  }
 #endif
+  if( !tclInterp ||
       Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp,
         "could not create Tcl interpreter", (const char *)"", 0);

@@ -124,12 +124,8 @@ if {$tclpath ne ""} {
         set libs "$tclconfig(TCL_LIB_SPEC) $tclconfig(TCL_LIBS)"
     }
     set cflags $tclconfig(TCL_INCLUDE_SPEC)
-    cc-with [list -cflags $cflags -libs $libs] {
-        if {$tclstubs} {
-            if {![cc-check-functions Tcl_InitStubs]} {
-                user-error "Cannot find a usable Tcl stubs library $msg"
-            }
-        } else {
+    if {!$tclstubs} {
+        cc-with [list -cflags $cflags -libs $libs] {
             if {![cc-check-functions Tcl_CreateInterp]} {
                 user-error "Cannot find a usable Tcl library $msg"
             }
@@ -137,7 +133,9 @@ if {$tclpath ne ""} {
     }
     set version $tclconfig(TCL_VERSION)$tclconfig(TCL_PATCH_LEVEL)
     msg-result "Found Tcl $version at $tclconfig(TCL_PREFIX)"
-    define-append LIBS $libs
+    if {!$tclstubs} {
+        define-append LIBS $libs
+    }
     define-append EXTRA_CFLAGS $cflags
     define-append EXTRA_LDFLAGS $tclconfig(TCL_LD_FLAGS)
     define FOSSIL_ENABLE_TCL

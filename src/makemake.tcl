@@ -451,9 +451,7 @@ TCLLIBDIR = $(TCLDIR)/lib
 
 #### Tcl: Which Tcl library do we want to use (8.4, 8.5, 8.6, etc)?
 #
-ifdef FOSSIL_ENABLE_TCL_STUBS
-LIBTCL = -ltclstub86
-else
+ifndef FOSSIL_ENABLE_TCL_STUBS
 LIBTCL = -ltcl86
 endif
 
