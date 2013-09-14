@@ -1434,7 +1434,6 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
         if( nCycles==0 ){
           g.fSshClient |= CGI_SSH_FOSSIL;
           g.fullHttpReply = 0;
-          cgi_setenv("X-FOSSIL_TRANSPORT", zVal);
         }
       }
     }
