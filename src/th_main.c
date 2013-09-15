@@ -22,6 +22,19 @@
 #include "th_main.h"
 #include "sqlite3.h"
 
+#if INTERFACE
+/*
+** Flag parameters to the Th_FossilInit() routine used to control the
+** interpreter creation and initialization process.
+*/
+#define TH_INIT_NONE        ((u32)0x00000000) /* No flags. */
+#define TH_INIT_NEED_CONFIG ((u32)0x00000001) /* Open configuration first? */
+#define TH_INIT_FORCE_TCL   ((u32)0x00000002) /* Force Tcl to be enabled? */
+#define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH commands re-added? */
+#define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
+#define TH_INIT_DEFAULT     (TH_INIT_NONE)    /* Default flags. */
+#endif
+
 /*
 ** Global variable counting the number of outstanding calls to malloc()
 ** made by the th1 implementation. This is used to catch memory leaks
@@ -812,8 +825,12 @@ static int regexpCmd(
 **
 ** The interpreter is stored in the g.interp global variable.
 */
-void Th_FossilInit(int needConfig, int forceSetup){
+void Th_FossilInit(u32 flags){
   int wasInit = 0;
+  int needConfig = flags & TH_INIT_NEED_CONFIG;
+  int forceReset = flags & TH_INIT_FORCE_RESET;
+  int forceTcl = flags & TH_INIT_FORCE_TCL;
+  int forceSetup = flags & TH_INIT_FORCE_SETUP;
   static unsigned int aFlags[] = { 0, 1, WIKI_LINKSONLY };
   static struct _Command {
     const char *zName;
@@ -852,12 +869,14 @@ void Th_FossilInit(int needConfig, int forceSetup){
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
     db_open_config(0);
   }
-  if( g.interp==0 ){
+  if( forceReset || forceTcl || g.interp==0 ){
     int i;
-    g.interp = Th_CreateInterp(&vtab);
-    th_register_language(g.interp);       /* Basic scripting commands. */
+    if( g.interp==0 ) g.interp = Th_CreateInterp(&vtab);
+    if( forceReset || g.interp==0 ){
+      th_register_language(g.interp);       /* Basic scripting commands. */
+    }
 #ifdef FOSSIL_ENABLE_TCL
-    if( getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
+    if( forceTcl || getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
       if( !g.tcl.setup ){
         g.tcl.setup = db_get("tcl-setup", 0); /* Grab Tcl setup script. */
       }
@@ -896,7 +915,7 @@ void Th_FossilInit(int needConfig, int forceSetup){
 ** Store a string value in a variable in the interpreter.
 */
 void Th_Store(const char *zName, const char *zValue){
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   if( zValue ){
     if( g.thTrace ){
       Th_Trace("set %h {%h}<br />\n", zName, zValue);
@@ -911,7 +930,7 @@ void Th_Store(const char *zName, const char *zValue){
 void Th_StoreInt(const char *zName, int iValue){
   Blob value;
   char *zValue;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   blob_zero(&value);
   blob_appendf(&value, "%d", iValue);
   zValue = blob_str(&value);
@@ -937,7 +956,7 @@ void Th_Unstore(const char *zName){
 */
 char *Th_Fetch(const char *zName, int *pSize){
   int rc;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   rc = Th_GetVar(g.interp, (char*)zName, -1);
   if( rc==TH_OK ){
     return (char*)Th_GetResult(g.interp, pSize);
@@ -1017,7 +1036,7 @@ int Th_Render(const char *z){
   int n;
   int rc = TH_OK;
   char *zResult;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   while( z[i] ){
     if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
@@ -1097,7 +1116,7 @@ void test_th_eval(void){
   if( g.argc!=3 ){
     usage("script");
   }
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   rc = Th_Eval(g.interp, 0, g.argv[2], -1);
   zRc = Th_ReturnCodeName(rc, 1);
   fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
