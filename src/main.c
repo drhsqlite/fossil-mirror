@@ -805,7 +805,7 @@ void version_cmd(void){
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
     fossil_print("SQLite %s %.30s\n", SQLITE_VERSION, SQLITE_SOURCE_ID);
     fossil_print("Schema version %s\n", AUX_SCHEMA);
-    fossil_print("zlib %s\n", ZLIB_VERSION);
+    fossil_print("zlib %s\n", zlibVersion());
 #if defined(FOSSIL_ENABLE_SSL)
     fossil_print("SSL (%s)\n", OPENSSL_VERSION_TEXT);
 #endif
