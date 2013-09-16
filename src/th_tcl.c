@@ -158,6 +158,61 @@ typedef int (tcl_NotifyProc) (
 );
 
 /*
+** Are we using our own private implementation of the Tcl stubs mechanism?  If
+** this is enabled, it prevents the user from having to link against the Tcl
+** stubs library for the target platform, which may not be readily available.
+ */
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+/*
+** HACK: Using some preprocessor magic and a private static variable, redirect
+**       the Tcl API calls [found within this file] to the function pointers
+**       that will be contained in our private Tcl stubs table.  This takes
+**       advantage of the fact that the Tcl headers always define the Tcl API
+**       functions in terms of the "tclStubsPtr" variable.
+ */
+#define tclStubsPtr privateTclStubsPtr
+static const TclStubs *tclStubsPtr = NULL;
+
+/*
+** Create a Tcl interpreter structure that mirrors just enough fields to get
+** it up and running successfully with our private implementation of the Tcl
+** stubs mechanism.
+ */
+struct PrivateTclInterp {
+  char *result;
+  Tcl_FreeProc *freeProc;
+  int errorLine;
+  const struct TclStubs *stubTable;
+};
+
+/*
+** Fossil can now be compiled without linking to the actual Tcl stubs library.
+** In that case, this function will be used to perform those steps that would
+** normally be performed within the Tcl stubs library.
+ */
+static int initTclStubs(
+  Th_Interp *interp,
+  Tcl_Interp *tclInterp
+){
+  tclStubsPtr = ((struct PrivateTclInterp *)tclInterp)->stubTable;
+  if( !tclStubsPtr || (tclStubsPtr->magic!=TCL_STUB_MAGIC) ){
+    Th_ErrorMessage(interp,
+        "could not initialize Tcl stubs: incompatible mechanism",
+        (const char *)"", 0);
+    return TH_ERROR;
+  }
+  /* NOTE: At this point, the Tcl API functions should be available. */
+  if( Tcl_PkgRequireEx(tclInterp, "Tcl", "8.4", 0, (void *)&tclStubsPtr)==0 ){
+    Th_ErrorMessage(interp,
+        "could not initialize Tcl stubs: incompatible version",
+        (const char *)"", 0);
+    return TH_ERROR;
+  }
+  return TH_OK;
+}
+#endif /* defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS) */
+
+/*
 ** Creates and initializes a Tcl interpreter for use with the specified TH1
 ** interpreter.  Stores the created Tcl interpreter in the Tcl context supplied
 ** by the caller.  This must be declared here because quite a few functions in
@@ -370,13 +425,13 @@ static int tclInvoke_command(
 #if !defined(USE_TCL_EVALOBJV)
   Tcl_Command command;
   Tcl_CmdInfo cmdInfo;
-#endif
+#endif /* !defined(USE_TCL_EVALOBJV) */
   int rc = TH_OK;
   int nResult;
   const char *zResult;
 #if !defined(USE_TCL_EVALOBJV)
   Tcl_Obj *objPtr;
-#endif
+#endif /* !defined(USE_TCL_EVALOBJV) */
   USE_ARGV_TO_OBJV();
 
   if( createTclInterp(interp, ctx)!=TH_OK ){
@@ -412,14 +467,14 @@ static int tclInvoke_command(
     return TH_ERROR;
   }
   Tcl_DecrRefCount(objPtr);
-#endif
+#endif /* !defined(USE_TCL_EVALOBJV) */
   COPY_ARGV_TO_OBJV();
 #if defined(USE_TCL_EVALOBJV)
   rc = Tcl_EvalObjv(tclInterp, objc, objv, 0);
 #else
   Tcl_ResetResult(tclInterp);
   rc = cmdInfo.objProc(cmdInfo.objClientData, tclInterp, objc, objv);
-#endif
+#endif /* defined(USE_TCL_EVALOBJV) */
   FREE_ARGV_TO_OBJV();
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
@@ -540,7 +595,7 @@ static int loadTcl(
 ){
 #if defined(USE_TCL_STUBS)
   char fileName[] = TCL_LIBRARY_NAME;
-#endif
+#endif /* defined(USE_TCL_STUBS) */
   if( !pLibrary || !pxFindExecutable || !pxCreateInterp ){
     Th_ErrorMessage(interp,
         "invalid Tcl loader argument(s)", (const char *)"", 0);
@@ -603,7 +658,7 @@ static int loadTcl(
   *pxCreateInterp = Tcl_CreateInterp;
   *pxDeleteInterp = Tcl_DeleteInterp;
   return TH_OK;
-#endif
+#endif /* defined(USE_TCL_STUBS) */
 }
 
 /*
@@ -703,13 +758,20 @@ static int createTclInterp(
     return TH_ERROR;
   }
 #if defined(USE_TCL_STUBS)
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+  if( initTclStubs(interp, tclInterp)!=TH_OK ){
+    tclContext->xDeleteInterp(tclInterp);
+    return TH_ERROR;
+  }
+#else
   if( !Tcl_InitStubs(tclInterp, "8.4", 0) ){
     Th_ErrorMessage(interp,
         "could not initialize Tcl stubs", (const char *)"", 0);
     tclContext->xDeleteInterp(tclInterp);
     return TH_ERROR;
   }
-#endif
+#endif /* defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS) */
+#endif /* defined(USE_TCL_STUBS) */
   if( Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp,
         "Tcl interpreter appears to be deleted", (const char *)"", 0);
