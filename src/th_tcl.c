@@ -121,6 +121,9 @@
 #  ifndef TCL_CREATEINTERP_NAME
 #    define TCL_CREATEINTERP_NAME "_Tcl_CreateInterp"
 #  endif
+#  ifndef TCL_DELETEINTERP_NAME
+#    define TCL_DELETEINTERP_NAME "_Tcl_DeleteInterp"
+#  endif
 #endif /* defined(USE_TCL_STUBS) */
 
 /*
@@ -128,10 +131,13 @@
 ** when the Tcl library is being loaded dynamically by a stubs-enabled
 ** application (i.e. the inverse of using a stubs-enabled package).  These are
 ** the only Tcl API functions that MUST be called prior to being able to call
-** Tcl_InitStubs (i.e. because it requires a Tcl interpreter).
+** Tcl_InitStubs (i.e. because it requires a Tcl interpreter).  For complete
+** cleanup if the Tcl stubs initialization fails somehow, the Tcl_DeleteInterp
+** function type is also required.
  */
 typedef void (tcl_FindExecutableProc) (const char * argv0);
 typedef Tcl_Interp *(tcl_CreateInterpProc) (void);
+typedef void (tcl_DeleteInterpProc) (Tcl_Interp *interp);
 
 /*
 ** The function types for the "hook" functions to be called before and after a
@@ -191,6 +197,7 @@ struct TclContext {
   void *library;      /* The Tcl library module handle. */
   tcl_FindExecutableProc *xFindExecutable; /* Tcl_FindExecutable() pointer. */
   tcl_CreateInterpProc *xCreateInterp;     /* Tcl_CreateInterp() pointer. */
+  tcl_DeleteInterpProc *xDeleteInterp;     /* Tcl_DeleteInterp() pointer. */
   Tcl_Interp *interp; /* The on-demand created Tcl interpreter. */
   char *setup;        /* The optional Tcl setup script. */
   tcl_NotifyProc *xPreEval;  /* Optional, called before Tcl_Eval*(). */
@@ -528,7 +535,8 @@ static int loadTcl(
   Th_Interp *interp,
   void **pLibrary,
   tcl_FindExecutableProc **pxFindExecutable,
-  tcl_CreateInterpProc **pxCreateInterp
+  tcl_CreateInterpProc **pxCreateInterp,
+  tcl_DeleteInterpProc **pxDeleteInterp
 ){
 #if defined(USE_TCL_STUBS)
   char fileName[] = TCL_LIBRARY_NAME;
@@ -544,6 +552,7 @@ static int loadTcl(
     if( library ){
       tcl_FindExecutableProc *xFindExecutable;
       tcl_CreateInterpProc *xCreateInterp;
+      tcl_DeleteInterpProc *xDeleteInterp;
       const char *procName = TCL_FINDEXECUTABLE_NAME;
       xFindExecutable = (tcl_FindExecutableProc *)dlsym(library, procName + 1);
       if( !xFindExecutable ){
@@ -566,9 +575,21 @@ static int loadTcl(
         dlclose(library);
         return TH_ERROR;
       }
+      procName = TCL_DELETEINTERP_NAME;
+      xDeleteInterp = (tcl_DeleteInterpProc *)dlsym(library, procName + 1);
+      if( !xDeleteInterp ){
+        xDeleteInterp = (tcl_DeleteInterpProc *)dlsym(library, procName);
+      }
+      if( !xDeleteInterp ){
+        Th_ErrorMessage(interp,
+            "could not locate Tcl_DeleteInterp", (const char *)"", 0);
+        dlclose(library);
+        return TH_ERROR;
+      }
       *pLibrary = library;
       *pxFindExecutable = xFindExecutable;
       *pxCreateInterp = xCreateInterp;
+      *pxDeleteInterp = xDeleteInterp;
       return TH_OK;
     }
   } while( --fileName[TCL_MINOR_OFFSET]>'3' ); /* Tcl 8.4+ */
@@ -580,6 +601,7 @@ static int loadTcl(
   *pLibrary = 0;
   *pxFindExecutable = Tcl_FindExecutable;
   *pxCreateInterp = Tcl_CreateInterp;
+  *pxDeleteInterp = Tcl_DeleteInterp;
   return TH_OK;
 #endif
 }
@@ -665,7 +687,7 @@ static int createTclInterp(
     return TH_OK;
   }
   if( loadTcl(interp, &tclContext->library, &tclContext->xFindExecutable,
-              &tclContext->xCreateInterp)!=TH_OK ){
+      &tclContext->xCreateInterp, &tclContext->xDeleteInterp)!=TH_OK ){
     return TH_ERROR;
   }
   argc = tclContext->argc;
@@ -675,13 +697,23 @@ static int createTclInterp(
   }
   tclContext->xFindExecutable(argv0);
   tclInterp = tclContext->xCreateInterp();
-  if( !tclInterp ||
-#if defined(USE_TCL_STUBS)
-      !Tcl_InitStubs(tclInterp, "8.4", 0) ||
-#endif
-      Tcl_InterpDeleted(tclInterp) ){
+  if( !tclInterp ){
     Th_ErrorMessage(interp,
         "could not create Tcl interpreter", (const char *)"", 0);
+    return TH_ERROR;
+  }
+#if defined(USE_TCL_STUBS)
+  if( !Tcl_InitStubs(tclInterp, "8.4", 0) ){
+    Th_ErrorMessage(interp,
+        "could not initialize Tcl stubs", (const char *)"", 0);
+    tclContext->xDeleteInterp(tclInterp);
+    return TH_ERROR;
+  }
+#endif
+  if( Tcl_InterpDeleted(tclInterp) ){
+    Th_ErrorMessage(interp,
+        "Tcl interpreter appears to be deleted", (const char *)"", 0);
+    tclContext->xDeleteInterp(tclInterp); /* TODO: Redundant? */
     return TH_ERROR;
   }
   tclContext->interp = tclInterp;

@@ -8,7 +8,7 @@ options {
     with-zlib:path       => {Look for zlib in the given path}
     with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
     with-tcl-stubs=0     => {Enable Tcl integration via stubs mechanism}
-    internal-sqlite=1    => {Don't use the internal sqlite, use the system one}
+    internal-sqlite=1    => {Don't use the internal SQLite, use the system one}
     static=0             => {Link a static executable}
     lineedit=1           => {Disable line editing}
     fossil-debug=0       => {Build with fossil debugging enabled}
