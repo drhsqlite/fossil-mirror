@@ -60,7 +60,7 @@ FOSSIL_ENABLE_TCL_STUBS = 1
 
 #### Load Tcl using the private stubs mechanism
 #
-# FOSSIL_ENABLE_TCL_PRIVATE_STUBS = 1
+FOSSIL_ENABLE_TCL_PRIVATE_STUBS = 1
 
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
