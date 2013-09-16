@@ -100,10 +100,11 @@ BEGIN
       VALUE "SslEnabled", "Yes, " OPENSSL_VERSION_TEXT "\0"
 #endif
 #ifdef FOSSIL_ENABLE_TCL
-      VALUE "TclEnabled", "Yes, Tcl " TCL_PATCH_LEVEL "\0"
 #ifdef FOSSIL_ENABLE_TCL_STUBS
+      VALUE "TclEnabled", "Yes, Tcl " TCL_PATCH_LEVEL "\0"
       VALUE "TclStubsEnabled", "Yes\0"
 #else
+      VALUE "TclEnabled", "Yes, Tcl " TCL_VERSION "\0"
       VALUE "TclStubsEnabled", "No\0"
 #endif
 #endif
