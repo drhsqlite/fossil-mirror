@@ -106,7 +106,7 @@ if {$tclpath ne ""} {
     if {$tclpath eq "1"} {
         # Use the system Tcl. Look in some likely places.
         array set tclconfig [parse-tclconfig-sh \
-            /usr /usr/local /usr/share /opt/local]
+            compat/tcl-8.6/unix /usr /usr/local /usr/share /opt/local]
         set msg "on your system"
     } else {
         array set tclconfig [parse-tclconfig-sh $tclpath]
