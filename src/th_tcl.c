@@ -656,6 +656,7 @@ static int loadTcl(
   *pLibrary = 0;
   *pxFindExecutable = Tcl_FindExecutable;
   *pxCreateInterp = Tcl_CreateInterp;
+  *pxDeleteInterp = Tcl_DeleteInterp;
   return TH_OK;
 #endif
 }

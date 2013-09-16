@@ -54,7 +54,7 @@ FOSSIL_ENABLE_SSL = 1
 #
 FOSSIL_ENABLE_TCL = 1
 
-#### Load Tcl using the stubs mechanism
+#### Load Tcl using the stubs library mechanism
 #
 FOSSIL_ENABLE_TCL_STUBS = 1
 

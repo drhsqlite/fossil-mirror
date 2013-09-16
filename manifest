@@ -1,5 +1,5 @@
-C Correct\stypo\sin\sauto.def.\s\sImprovements\sto\sthe\sTcl\sintegration.
-D 2013-09-16T07:31:31.686
+C Fix\sa\scouple\smissed\schanges.
+D 2013-09-16T07:36:31.973
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -411,7 +411,7 @@ F src/th.c 62ecf48202d6a4ae26dd7d96ba16fcd0b91c535a
 F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 600f90b16eec18d59f1784aebb40b4410444906c
-F src/th_tcl.c 9c5bb7b4291d643c7a90578af38e04016dd38737
+F src/th_tcl.c 101a12dcb485f18e308255e7cfed5c7ca741cac9
 F src/timeline.c 937c75978dc8ddbcad4c85e99492a15f7186d34e
 F src/tkt.c 8694bd9d623d659df6757b512d2d04e6ce5cc256
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
@@ -526,7 +526,7 @@ F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 466b96d7e6e8638c41ece8710fc5840d79e51606
 F win/Makefile.dmc 54ae0dde79c5ef3cc06d2da023e87b6616f444dc
 F win/Makefile.mingw d4c063621b661e26482a9143e8b6a7127878993d
-F win/Makefile.mingw.mistachkin c422ccdbf79fd39c025ae14e113133e39a465c8a
+F win/Makefile.mingw.mistachkin f5f8cdcba4f40a63416cf7b07a7b9e26590cc33f
 F win/Makefile.msc 69a9302e6f7f15b8e50d34cb7fba9c7201001ce6
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 97e249d74193a71520e4f83d0f74dd87439899c2
@@ -634,7 +634,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0a94396ddfd9019178ae9c9971b8b06c25a62bc9 c237195fa4b9bf926a53b33548e32f061b6035fb
-R ca77a0fa09c99dad8c75b282ed45b773
+P 6e08e5ae64e008576a7504955cc36064cbe851a2
+R 608c398ef3bdca20f6f54b72bf50a215
 U mistachkin
-Z 0a853a836591d6130012368fad2dc6d8
+Z c016c3d882f15fb7c20f8e15fc336520
