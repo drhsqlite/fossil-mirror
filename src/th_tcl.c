@@ -596,7 +596,7 @@ static int loadTcl(
 #if defined(USE_TCL_STUBS)
   char fileName[] = TCL_LIBRARY_NAME;
 #endif /* defined(USE_TCL_STUBS) */
-  if( !pLibrary || !pxFindExecutable || !pxCreateInterp ){
+  if( !pLibrary || !pxFindExecutable || !pxCreateInterp || !pxDeleteInterp ){
     Th_ErrorMessage(interp,
         "invalid Tcl loader argument(s)", (const char *)"", 0);
     return TH_ERROR;
