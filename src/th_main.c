@@ -870,10 +870,14 @@ void Th_FossilInit(u32 flags){
     db_open_config(0);
   }
   if( forceReset || forceTcl || g.interp==0 ){
+    int created = 0;
     int i;
-    if( g.interp==0 ) g.interp = Th_CreateInterp(&vtab);
-    if( forceReset || g.interp==0 ){
-      th_register_language(g.interp);       /* Basic scripting commands. */
+    if( g.interp==0 ){
+      g.interp = Th_CreateInterp(&vtab);
+      created = 1;
+    }
+    if( forceReset || created ){
+      th_register_language(g.interp);     /* Basic scripting commands. */
     }
 #ifdef FOSSIL_ENABLE_TCL
     if( forceTcl || getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
