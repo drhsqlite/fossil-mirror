@@ -667,8 +667,8 @@ openssl:	zlib
 	$(MAKE) -C $(OPENSSLLIBDIR) build_libs
 
 tcl:
-	cd $(TCLSRCDIR)/win;./configure
-	$(MAKE) -C $(TCLSRCDIR)/win $(TCLTARGET)
+	@cd $(TCLSRCDIR)/win;./configure
+	@$(MAKE) -C $(TCLSRCDIR)/win $(TCLTARGET) PREFIX=$(PREFIX) TCLSRCDIR=`cd $(PWD)/$(TCLSRCDIR);echo $$PWD`
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o

@@ -1,5 +1,5 @@
-C merge\sfork
-D 2013-09-16T07:26:51.370
+C Much\smore\ssimplified\sstubs\simplementation.\sNo\schanges\sto\sFossil\scode\sitself.
+D 2013-09-16T08:34:22.920
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -59,6 +59,11 @@ F autosetup/jimsh0.c e6e4185a110db93cdbf369f3aa04a0b18f81b4ae
 F autosetup/local.tcl 79b8c81822e992ec573689e57b042b348dc6923c
 F autosetup/system.tcl 9e878fb45e32f6a2790ac82b84f9c9d951e15c68
 F autosetup/test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c
+F compat/tcl-8.6/generic/tcl.h a0612cc7630f9d635b26676f42122191ab189f4e
+F compat/tcl-8.6/generic/tclDecls.h c849d83b93c2d1ec2a12bd9063dc3f62b84d2b3c
+F compat/tcl-8.6/generic/tclStubLib.c 11c55c367aeda674701cc06bef7714b6e97d8c58
+F compat/tcl-8.6/win/Makefile ac77714b7456f03906b03f15cda203bb10c605e1
+F compat/tcl-8.6/win/configure b308f2c5e89f554a7c699652c00472dc2159220a x
 F compat/zlib/CMakeLists.txt 21b39c131ad95fe5fdeec73465619a41111a6b99
 F compat/zlib/ChangeLog 2f20d851233b844c2360c745a550d1cfd27b9f05
 F compat/zlib/FAQ 832bb73adff252fa426a141ee4756daa9b8a4db4
@@ -368,7 +373,7 @@ F src/main.c 99c11c4846ad20127c29cac5008e859e75b98825
 F src/main.mk f7d0f9802282ed6e022da703643799c4380c946c
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl e18351884f021def073f109268875476d590ac47
+F src/makemake.tcl 11251957fc9942e02c8c1d87edbbd0a52480e3fe
 F src/manifest.c 700054e452d978baaec57d6c6105b97a20b38aab
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
@@ -522,8 +527,8 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 466b96d7e6e8638c41ece8710fc5840d79e51606
 F win/Makefile.dmc 54ae0dde79c5ef3cc06d2da023e87b6616f444dc
-F win/Makefile.mingw 7e66cd2b14da364c7c49173169d63523ff4af0fe
-F win/Makefile.mingw.mistachkin a8f1b67e9437b6a1ce76e0e901d51c5b511da33f
+F win/Makefile.mingw 50c8e67c4e3df06d4f3b5596983622bdc421c17c
+F win/Makefile.mingw.mistachkin 3d242dbfc71ec6e5738d25f61074645215eaf676
 F win/Makefile.msc 69a9302e6f7f15b8e50d34cb7fba9c7201001ce6
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 97e249d74193a71520e4f83d0f74dd87439899c2
@@ -631,7 +636,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c237195fa4b9bf926a53b33548e32f061b6035fb efaea6b641344cd4034e15f05c27b607425f6fb7
-R e593500f81e7a5aeaedd9070b883a1fa
+P fea040240f513450fd1671ac64cdc54ae6bbb0a3
+R ef604c896b9a43e8f3eeae8712ad8813
+T *branch * tcl-stubs-v2
+T *sym-tcl-stubs-v2 *
+T -sym-trunk *
 U jan.nijtmans
-Z 821b5180677fe1d2f7efb9a9111b42d9
+Z a5e342613ab0d7651c441bbe6e707391
