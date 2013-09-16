@@ -110,6 +110,11 @@ BEGIN
 #else
       VALUE "TclStubsEnabled", "No\0"
 #endif /* defined(FOSSIL_ENABLE_TCL_STUBS) */
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+      VALUE "TclPrivateStubsEnabled", "Yes\0"
+#else
+      VALUE "TclPrivateStubsEnabled", "No\0"
+#endif /* defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS) */
 #endif /* defined(FOSSIL_ENABLE_TCL) */
 #if defined(FOSSIL_ENABLE_JSON)
       VALUE "JsonEnabled", "Yes, cson " FOSSIL_JSON_API_VERSION "\0"

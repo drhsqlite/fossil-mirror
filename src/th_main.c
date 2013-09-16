@@ -298,11 +298,12 @@ static int hascapCmd(
 ** Return true if the fossil binary has the given compile-time feature
 ** enabled. The set of features includes:
 **
-** "ssl"      = FOSSIL_ENABLE_SSL
-** "tcl"      = FOSSIL_ENABLE_TCL
-** "tclStubs" = FOSSIL_ENABLE_TCL_STUBS
-** "json"     = FOSSIL_ENABLE_JSON
-** "markdown" = FOSSIL_ENABLE_MARKDOWN
+** "ssl"             = FOSSIL_ENABLE_SSL
+** "tcl"             = FOSSIL_ENABLE_TCL
+** "tclStubs"        = FOSSIL_ENABLE_TCL_STUBS
+** "tclPrivateStubs" = FOSSIL_ENABLE_TCL_PRIVATE_STUBS
+** "json"            = FOSSIL_ENABLE_JSON
+** "markdown"        = FOSSIL_ENABLE_MARKDOWN
 **
 */
 static int hasfeatureCmd(
@@ -322,26 +323,31 @@ static int hasfeatureCmd(
     /* placeholder for following ifdefs... */
   }
 #if defined(FOSSIL_ENABLE_SSL)
-  else if( 0 == fossil_strnicmp( zArg, "ssl", 3 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "ssl\0", 4 ) ){
     rc = 1;
   }
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
-  else if( 0 == fossil_strnicmp( zArg, "tcl", 3 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "tcl\0", 4 ) ){
     rc = 1;
   }
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
-  else if( 0 == fossil_strnicmp( zArg, "tclStubs", 8 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "tclStubs\0", 9 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+  else if( 0 == fossil_strnicmp( zArg, "tclPrivateStubs\0", 16 ) ){
     rc = 1;
   }
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
-  else if( 0 == fossil_strnicmp( zArg, "json", 4 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "json\0", 5 ) ){
     rc = 1;
   }
 #endif
-  else if( 0 == fossil_strnicmp( zArg, "markdown", 8 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "markdown\0", 9 ) ){
     rc = 1;
   }
   if( g.thTrace ){

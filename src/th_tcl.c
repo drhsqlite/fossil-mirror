@@ -230,6 +230,7 @@ static char *getTclResult(
   int *pN
 ){
   Tcl_Obj *resultPtr;
+
   if( !pInterp ){ /* This should not happen. */
     if( pN ) *pN = 0;
     return 0;
@@ -572,6 +573,7 @@ static void Th1DeleteProc(
 ){
   int i;
   Th_Interp *th1Interp = (Th_Interp *)clientData;
+
   if( !th1Interp ) return;
   /* Remove the Tcl integration commands. */
   for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
@@ -596,6 +598,7 @@ static int loadTcl(
 #if defined(USE_TCL_STUBS)
   char fileName[] = TCL_LIBRARY_NAME;
 #endif /* defined(USE_TCL_STUBS) */
+
   if( !pLibrary || !pxFindExecutable || !pxCreateInterp || !pxDeleteInterp ){
     Th_ErrorMessage(interp,
         "invalid Tcl loader argument(s)", (const char *)"", 0);
@@ -674,6 +677,7 @@ static int setTclArguments(
   Tcl_Obj *resultObjPtr;
   Tcl_Obj *listPtr;
   int rc = TCL_OK;
+
   if( argc<=0 || !argv ){
     return TCL_OK;
   }
@@ -818,6 +822,7 @@ int th_register_tcl(
   void *pContext
 ){
   int i;
+
   /* Add the Tcl integration commands to TH1. */
   for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
     void *ctx;

@@ -824,6 +824,9 @@ void version_cmd(void){
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
     fossil_print("TCL_STUBS\n");
 #endif
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+    fossil_print("TCL_PRIVATE_STUBS\n");
+#endif
 #if defined(FOSSIL_ENABLE_JSON)
     fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
 #endif
