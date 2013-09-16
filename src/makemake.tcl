@@ -453,8 +453,10 @@ TCLLIBDIR = $(TCLDIR)/lib
 #
 ifdef FOSSIL_ENABLE_TCL_STUBS
 LIBTCL = -ltclstub86
+TCLTARGET = libtclstub86.a
 else
 LIBTCL = -ltcl86
+TCLTARGET = binaries
 endif
 
 #### C Compile and options for use in building executables that
@@ -696,6 +698,10 @@ zlib:
 openssl:	zlib
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib mingw
 	$(MAKE) -C $(OPENSSLLIBDIR) build_libs
+
+tcl:
+	cd $(TCLSRCDIR)/win;./configure
+	$(MAKE) -C $(TCLSRCDIR)/win $(TCLTARGET)
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
