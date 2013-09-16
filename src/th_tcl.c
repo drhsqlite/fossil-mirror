@@ -138,7 +138,7 @@ typedef struct {
 ** the only Tcl API functions that MUST be called prior to being able to call
 ** Tcl_InitStubs (i.e. because it requires a Tcl interpreter).
  */
-typedef void (tcl_FindExecutableProc) (CONST char * argv0);
+typedef void (tcl_FindExecutableProc) (const char * argv0);
 typedef Tcl_Interp *(tcl_CreateInterpProc) (void);
 
 /*
@@ -438,7 +438,7 @@ static int Th1EvalObjCmd(
   ClientData clientData,
   Tcl_Interp *interp,
   int objc,
-  Tcl_Obj *CONST objv[]
+  Tcl_Obj *const objv[]
 ){
   Th_Interp *th1Interp;
   int nArg;
@@ -470,7 +470,7 @@ static int Th1ExprObjCmd(
   ClientData clientData,
   Tcl_Interp *interp,
   int objc,
-  Tcl_Obj *CONST objv[]
+  Tcl_Obj *const objv[]
 ){
   Th_Interp *th1Interp;
   int nArg;

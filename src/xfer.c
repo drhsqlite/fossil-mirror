@@ -829,7 +829,7 @@ static int run_script(const char *zScript){
   if( !zScript ){
     return TH_OK; /* No script, return success. */
   }
-  Th_FossilInit(0, 0); /* Make sure TH1 is ready. */
+  Th_FossilInit(TH_INIT_DEFAULT); /* Make sure TH1 is ready. */
   return Th_Eval(g.interp, 0, zScript, -1);
 }
 
