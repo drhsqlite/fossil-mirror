@@ -162,7 +162,7 @@ typedef int (tcl_NotifyProc) (
 ** this is enabled, it prevents the user from having to link against the Tcl
 ** stubs library for the target platform, which may not be readily available.
  */
-#if defined(FOSSIL_ENABLE_TCL_FAKE_STUBS)
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
 /*
 ** HACK: Using some preprocessor magic and a private static variable, redirect
 **       the Tcl API calls [found within this file] to the function pointers
@@ -757,7 +757,7 @@ static int createTclInterp(
     return TH_ERROR;
   }
 #if defined(USE_TCL_STUBS)
-#if defined(FOSSIL_ENABLE_TCL_FAKE_STUBS)
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
   if( initTclStubs(interp, tclInterp)!=TH_OK ){
     tclContext->xDeleteInterp(tclInterp);
     return TH_ERROR;
@@ -769,7 +769,7 @@ static int createTclInterp(
     tclContext->xDeleteInterp(tclInterp);
     return TH_ERROR;
   }
-#endif /* defined(FOSSIL_ENABLE_TCL_FAKE_STUBS) */
+#endif /* defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS) */
 #endif /* defined(USE_TCL_STUBS) */
   if( Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp,
