@@ -397,6 +397,10 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_TCL_STUBS = 1
 
+#### Load Tcl using the "fake" stubs mechanism
+#
+# FOSSIL_ENABLE_TCL_FAKE_STUBS = 1
+
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
 #
@@ -451,7 +455,11 @@ TCLLIBDIR = $(TCLDIR)/lib
 
 #### Tcl: Which Tcl library do we want to use (8.4, 8.5, 8.6, etc)?
 #
-ifndef FOSSIL_ENABLE_TCL_STUBS
+ifdef FOSSIL_ENABLE_TCL_STUBS
+ifndef FOSSIL_ENABLE_TCL_FAKE_STUBS
+LIBTCL = -ltclstub86
+endif
+else
 LIBTCL = -ltcl86
 endif
 
@@ -512,6 +520,10 @@ RCC += -DFOSSIL_ENABLE_TCL=1
 ifdef FOSSIL_ENABLE_TCL_STUBS
 TCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
 RCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
+ifdef FOSSIL_ENABLE_TCL_FAKE_STUBS
+TCC += -DFOSSIL_ENABLE_TCL_FAKE_STUBS=1
+RCC += -DFOSSIL_ENABLE_TCL_FAKE_STUBS=1
+endif
 else
 TCC += -DSTATIC_BUILD
 RCC += -DSTATIC_BUILD
