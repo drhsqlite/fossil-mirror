@@ -204,7 +204,7 @@ static int initTclStubs(
   /* NOTE: At this point, the Tcl API functions should be available. */
   if( Tcl_PkgRequireEx(tclInterp, "Tcl", "8.4", 0, (void *)&tclStubsPtr)==0 ){
     Th_ErrorMessage(interp,
-        "could not create Tcl interpreter: incompatible version",
+        "could not initialize Tcl stubs: incompatible version",
         (const char *)"", 0);
     return TH_ERROR;
   }

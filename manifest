@@ -1,5 +1,5 @@
-C Merge\sTH1\sinitialization\sfix\sfrom\strunk.
-D 2013-09-16T06:21:57.359
+C Fix\sinaccurate\serror\smessage.
+D 2013-09-16T06:23:54.275
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -411,7 +411,7 @@ F src/th.c 62ecf48202d6a4ae26dd7d96ba16fcd0b91c535a
 F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 600f90b16eec18d59f1784aebb40b4410444906c
-F src/th_tcl.c 2b70dea10278475f52ed38a5076b52dc1ac57584
+F src/th_tcl.c 9c5bb7b4291d643c7a90578af38e04016dd38737
 F src/timeline.c 937c75978dc8ddbcad4c85e99492a15f7186d34e
 F src/tkt.c 8694bd9d623d659df6757b512d2d04e6ce5cc256
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
@@ -634,7 +634,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 48f501ec2181b5dd91b4a42659c9a368cc85853f 5d20065c4b9963c6dcb60e94944750173cb98b9d
-R 53f38bfeb4c56d27cb03ad4377dd3090
+P deb196f00a99791decbc89cad407914f461098e4
+R 892758a2de765a184f7e4b93c02b8513
 U mistachkin
-Z 55a3c25f4104fdd93a30a4ca989fe8d7
+Z 465fe527fbd25d4f99d2c326c7c9e887
