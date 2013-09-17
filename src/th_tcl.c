@@ -31,7 +31,20 @@
  */
 #if !defined(USE_TCL_EVALOBJV)
 /*
-** Are we being compiled against Tcl 8.6 or higher?
+** Are we being compiled against Tcl 8.6 or higher?  This check is [mostly]
+** wrong for at least the following two reasons:
+**
+** 1. This check assumes that all versions of Tcl 8.6 and higher suffer from
+**    the issue described in SF bug #3399564, which is incorrect.
+**
+** 2. Technically, this check is completely useless when the stubs mechanism
+**    is in use.  In that case, a runtime version check would be required and
+**    that has not been implemented.
+**
+** However, if a particular user compiles and runs against Tcl 8.6 (or later),
+** this will cause a fallback to using the "conservative" method of directly
+** invoking a Tcl command.  In that case, potential crashes will be avoided if
+** the user just so happened to compile or run against a late beta of Tcl 8.6.
  */
 #if (TCL_MAJOR_VERSION > 8) || \
     ((TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 6))
@@ -39,7 +52,13 @@
 ** Workaround NRE-specific issue in Tcl_EvalObjCmd (SF bug #3399564) by using
 ** Tcl_EvalObjv instead of invoking the objProc directly.
  */
-#  define USE_TCL_EVALOBJV   1
+#  define USE_TCL_EVALOBJV    (1)
+#else
+/*
+** We should be able to safely use Tcl_GetCommandInfoFromToken, when the need
+** arises, to invoke a specific Tcl command "directly" with some arguments.
+ */
+#  define USE_TCL_EVALOBJV    (0)
 #endif /* (TCL_MAJOR_VERSION > 8) ... */
 #endif /* !defined(USE_TCL_EVALOBJV) */
 
@@ -771,6 +790,7 @@ static int createTclInterp(
 #if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
   if( initTclStubs(interp, tclInterp)!=TH_OK ){
     tclContext->xDeleteInterp(tclInterp);
+    tclInterp = 0;
     return TH_ERROR;
   }
 #else
@@ -778,6 +798,7 @@ static int createTclInterp(
     Th_ErrorMessage(interp,
         "could not initialize Tcl stubs", (const char *)"", 0);
     tclContext->xDeleteInterp(tclInterp);
+    tclInterp = 0;
     return TH_ERROR;
   }
 #endif /* defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS) */
@@ -785,7 +806,8 @@ static int createTclInterp(
   if( Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp,
         "Tcl interpreter appears to be deleted", (const char *)"", 0);
-    tclContext->xDeleteInterp(tclInterp); /* TODO: Redundant? */
+    Tcl_DeleteInterp(tclInterp); /* TODO: Redundant? */
+    tclInterp = 0;
     return TH_ERROR;
   }
   tclContext->interp = tclInterp;
