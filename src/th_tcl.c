@@ -26,6 +26,11 @@
 #include "tcl.h"
 
 /*
+** Has the decision about whether or not to use Tcl_EvalObjv already been made
+** via the Makefile?
+ */
+#if !defined(USE_TCL_EVALOBJV)
+/*
 ** Are we being compiled against Tcl 8.6 or higher?
  */
 #if (TCL_MAJOR_VERSION > 8) || \
@@ -35,7 +40,8 @@
 ** Tcl_EvalObjv instead of invoking the objProc directly.
  */
 #  define USE_TCL_EVALOBJV   1
-#endif
+#endif /* (TCL_MAJOR_VERSION > 8) ... */
+#endif /* !defined(USE_TCL_EVALOBJV) */
 
 /*
 ** These macros are designed to reduce the redundant code required to marshal
@@ -423,16 +429,16 @@ static int tclInvoke_command(
   int *argl
 ){
   Tcl_Interp *tclInterp;
-#if !defined(USE_TCL_EVALOBJV)
+#if !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV
   Tcl_Command command;
   Tcl_CmdInfo cmdInfo;
-#endif /* !defined(USE_TCL_EVALOBJV) */
+#endif /* !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV */
   int rc = TH_OK;
   int nResult;
   const char *zResult;
-#if !defined(USE_TCL_EVALOBJV)
+#if !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV
   Tcl_Obj *objPtr;
-#endif /* !defined(USE_TCL_EVALOBJV) */
+#endif /* !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV */
   USE_ARGV_TO_OBJV();
 
   if( createTclInterp(interp, ctx)!=TH_OK ){
@@ -451,7 +457,7 @@ static int tclInvoke_command(
     return rc;
   }
   Tcl_Preserve((ClientData)tclInterp);
-#if !defined(USE_TCL_EVALOBJV)
+#if !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV
   objPtr = Tcl_NewStringObj(argv[1], argl[1]);
   Tcl_IncrRefCount(objPtr);
   command = Tcl_GetCommandFromObj(tclInterp, objPtr);
@@ -468,14 +474,14 @@ static int tclInvoke_command(
     return TH_ERROR;
   }
   Tcl_DecrRefCount(objPtr);
-#endif /* !defined(USE_TCL_EVALOBJV) */
+#endif /* !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV */
   COPY_ARGV_TO_OBJV();
-#if defined(USE_TCL_EVALOBJV)
+#if defined(USE_TCL_EVALOBJV) && USE_TCL_EVALOBJV
   rc = Tcl_EvalObjv(tclInterp, objc, objv, 0);
 #else
   Tcl_ResetResult(tclInterp);
   rc = cmdInfo.objProc(cmdInfo.objClientData, tclInterp, objc, objv);
-#endif /* defined(USE_TCL_EVALOBJV) */
+#endif /* defined(USE_TCL_EVALOBJV) && USE_TCL_EVALOBJV */
   FREE_ARGV_TO_OBJV();
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
