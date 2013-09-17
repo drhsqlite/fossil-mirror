@@ -104,13 +104,22 @@ if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
 
 set tclpath [opt-val with-tcl]
 if {$tclpath ne ""} {
+    set tclprivatestubs [opt-bool with-tcl-private-stubs]
     # Note parse-tclconfig-sh is in autosetup/local.tcl
     if {$tclpath eq "1"} {
-        # Use the system Tcl. Look in some likely places.
-        array set tclconfig [parse-tclconfig-sh \
-            compat/tcl-8.6/unix compat/tcl-8.6/win \
-            /usr /usr/local /usr/share /opt/local]
-        set msg "on your system"
+        if {$tclprivatestubs} {
+            set tclconfig(TCL_INCLUDE_SPEC) -Icompat/tcl-8.6/generic
+            set tclconfig(TCL_VERSION) {Private Stubs}
+            set tclconfig(TCL_PATCH_LEVEL) {}
+            set tclconfig(TCL_PREFIX) {compat/tcl-8.6}
+            set tclconfig(TCL_LD_FLAGS) { }
+        } else {
+            # Use the system Tcl. Look in some likely places.
+            array set tclconfig [parse-tclconfig-sh \
+                compat/tcl-8.6/unix compat/tcl-8.6/win \
+                /usr /usr/local /usr/share /opt/local]
+            set msg "on your system"
+        }
     } else {
         array set tclconfig [parse-tclconfig-sh $tclpath]
         set msg "at $tclpath"
@@ -119,7 +128,6 @@ if {$tclpath ne ""} {
         user-error "Cannot find Tcl $msg"
     }
     set tclstubs [opt-bool with-tcl-stubs]
-    set tclprivatestubs [opt-bool with-tcl-private-stubs]
     if {$tclprivatestubs} {
         define FOSSIL_ENABLE_TCL_PRIVATE_STUBS
         define USE_TCL_STUBS
