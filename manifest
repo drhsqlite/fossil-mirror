@@ -1,5 +1,5 @@
-C Minor\scleanup\sof\sTcl\sintegration\scode.\s\sAlso,\sadd\smore\scomments\sdescribing\sUSE_TCL_EVALOBJV.
-D 2013-09-17T10:06:43.526
+C Don't\sset\sUSE_TCL_EVALOBJV=1\sfor\sTcl\s8.6b3\sand\shigher\sby\sdefault.
+D 2013-09-17T11:33:40.649
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -411,7 +411,7 @@ F src/th.c 62ecf48202d6a4ae26dd7d96ba16fcd0b91c535a
 F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c bb98835fbf2960ddcb2344b7d1f6ec5d13119ab8
-F src/th_tcl.c c9928b8a1700dc8b4e017b96f9a570af1c032752
+F src/th_tcl.c 8dda47b2bb5e11155ac09ed3796e55d6cd113066
 F src/timeline.c 937c75978dc8ddbcad4c85e99492a15f7186d34e
 F src/tkt.c 8694bd9d623d659df6757b512d2d04e6ce5cc256
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
@@ -634,7 +634,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5782fa032e1b67a7b84de0a5aff24f927fee23ff
-R 09c41aff56d181315a20f4c7a9c8e3a9
-U mistachkin
-Z f6b9c80e8890d3779f4e73284ea7f956
+P d7f83e7462c75e04fdb7cf05e72a5820641f6ad5
+R 8ff3d2ab20c5aff4d8bcc8f1b551899a
+U jan.nijtmans
+Z bc454f03f13772b1f1c767c1ab7bbe42
