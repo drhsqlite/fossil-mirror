@@ -705,13 +705,22 @@ endif
 zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
 
+clean-zlib:
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
+
 openssl:	zlib
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib mingw
 	$(MAKE) -C $(OPENSSLLIBDIR) build_libs
 
+clean-openssl:
+	$(MAKE) -C $(OPENSSLLIBDIR) clean
+
 tcl:
 	cd $(TCLSRCDIR)/win;./configure
 	$(MAKE) -C $(TCLSRCDIR)/win $(TCLTARGET)
+
+clean-tcl:
+	$(MAKE) -C $(TCLSRCDIR)/win distclean
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
