@@ -447,7 +447,9 @@ void ainfo_page(void){
     @ </form>
   }
 
-  isModerator = (zTktUuid && g.perm.ModTkt) || (zWikiName && g.perm.ModWiki);
+  isModerator = g.perm.Admin || 
+                (zTktUuid && g.perm.ModTkt) ||
+                (zWikiName && g.perm.ModWiki);
   if( isModerator && (zModAction = P("modaction"))!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
       moderation_disapprove(rid);
