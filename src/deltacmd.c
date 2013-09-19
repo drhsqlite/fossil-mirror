@@ -146,7 +146,7 @@ void cmd_test_delta(void){
   blob_delta_apply(&f1, &d12, &a2);
   blob_delta_apply(&f2, &d21, &a1);
   if( blob_compare(&f1,&a1) || blob_compare(&f2, &a2) ){
-    fossil_panic("delta test failed");
+    fossil_fatal("delta test failed");
   }
   fossil_print("ok\n");
 }

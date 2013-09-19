@@ -86,37 +86,41 @@ static void status_report(
     }
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
-      blob_appendf(report, "DELETED       %s\n", zDisplayName);
+      blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( !file_wd_isfile_or_link(zFullName) ){
       if( file_access(zFullName, 0)==0 ){
-        blob_appendf(report, "NOT_A_FILE    %s\n", zDisplayName);
+        blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
         if( missingIsFatal ){
           fossil_warning("not a file: %s", zDisplayName);
           nErr++;
         }
       }else{
-        blob_appendf(report, "MISSING       %s\n", zDisplayName);
+        blob_appendf(report, "MISSING    %s\n", zDisplayName);
         if( missingIsFatal ){
           fossil_warning("missing file: %s", zDisplayName);
           nErr++;
         }
       }
     }else if( isNew ){
-      blob_appendf(report, "ADDED         %s\n", zDisplayName);
+      blob_appendf(report, "ADDED      %s\n", zDisplayName);
     }else if( isDeleted ){
-      blob_appendf(report, "DELETED       %s\n", zDisplayName);
+      blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( isChnged ){
       if( isChnged==2 ){
-        blob_appendf(report, "UPD_BY_MERGE  %s\n", zDisplayName);
+        blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
       }else if( isChnged==3 ){
-        blob_appendf(report, "ADD_BY_MERGE  %s\n", zDisplayName);
+        blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
+      }else if( isChnged==4 ){
+        blob_appendf(report, "UPDATED_BY_INTEGRATE %s\n", zDisplayName);
+      }else if( isChnged==5 ){
+        blob_appendf(report, "ADDED_BY_INTEGRATE %s\n", zDisplayName);
       }else if( file_contains_merge_marker(zFullName) ){
-        blob_appendf(report, "CONFLICT      %s\n", zDisplayName);
+        blob_appendf(report, "CONFLICT   %s\n", zDisplayName);
       }else{
-        blob_appendf(report, "EDITED        %s\n", zDisplayName);
+        blob_appendf(report, "EDITED     %s\n", zDisplayName);
       }
     }else if( isRenamed ){
-      blob_appendf(report, "RENAMED       %s\n", zDisplayName);
+      blob_appendf(report, "RENAMED    %s\n", zDisplayName);
     }else{
       report->nUsed -= nPrefix;
     }
@@ -131,6 +135,7 @@ static void status_report(
     switch( db_column_int(&q, 1) ){
       case -1:  zLabel = "CHERRYPICK ";  break;
       case -2:  zLabel = "BACKOUT    ";  break;
+      case -4:  zLabel = "INTEGRATE  ";  break;
     }
     blob_append(report, zPrefix, nPrefix);
     blob_appendf(report, "%s %s\n", zLabel, db_column_text(&q, 0));
@@ -320,29 +325,33 @@ void ls_cmd(void){
     const char *type = "";
     if( verboseFlag ){
       if( isNew ){
-        type = "ADDED         ";
+        type = "ADDED      ";
       }else if( isDeleted ){
-        type = "DELETED       ";
+        type = "DELETED    ";
       }else if( !file_wd_isfile_or_link(zFullName) ){
         if( file_access(zFullName, 0)==0 ){
-          type = "NOT_A_FILE    ";
+          type = "NOT_A_FILE ";
         }else{
-          type = "MISSING       ";
+          type = "MISSING    ";
         }
       }else if( chnged ){
         if( chnged==2 ){
-          type = "UPD_BY_MERGE  ";
+          type = "UPDATED_BY_MERGE ";
         }else if( chnged==3 ){
-          type = "ADD_BY_MERGE  ";
+          type = "ADDED_BY_MERGE ";
+        }else if( chnged==4 ){
+          type = "UPDATED_BY_INTEGRATE ";
+        }else if( chnged==5 ){
+          type = "ADDED_BY_INTEGRATE ";
         }else if( file_contains_merge_marker(zFullName) ){
-          type = "CONFLICT      ";
+          type = "CONFLICT   ";
         }else{
-          type = "EDITED        ";
+          type = "EDITED     ";
         }
       }else if( renamed ){
-        type = "RENAMED       ";
+        type = "RENAMED    ";
       }else{
-        type = "UNCHANGED     ";
+        type = "UNCHANGED  ";
       }
     }
     if( showAge ){
@@ -616,9 +625,13 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   if( zEditor==0 ){
     zEditor = fossil_getenv("EDITOR");
   }
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   if( zEditor==0 ){
-    zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SystemRoot"));
+    zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SYSTEMROOT"));
+#if defined(__CYGWIN__)
+    zEditor = fossil_utf8_to_filename(zEditor);
+    blob_add_cr(pPrompt);
+#endif
   }
 #endif
   if( zEditor==0 ){
@@ -631,8 +644,12 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
        "# Type \".\" on a line by itself when you are done:\n", -1);
     zFile = mprintf("-");
   }else{
+    Blob fname;
+    blob_zero(&fname);
+    file_relative_name(g.zLocalRoot, &fname, 1);
     zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
-                    g.zLocalRoot);
+                    blob_str(&fname));
+    blob_reset(&fname);
   }
 #if defined(_WIN32)
   blob_add_cr(pPrompt);
@@ -703,7 +720,7 @@ static void prepare_commit_comment(
   int parent_rid
 ){
   Blob prompt;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   int bomSize;
   const unsigned char *bom = get_utf8_bom(&bomSize);
   blob_init(&prompt, (const char *) bom, bomSize);
@@ -869,6 +886,7 @@ struct CheckinInfo {
   Blob *pComment;             /* Check-in comment text */
   const char *zMimetype;      /* Mimetype of check-in command.  May be NULL */
   int verifyDate;             /* Verify that child is younger */
+  int closeFlag;              /* Close the branch being committed */
   Blob *pCksum;               /* Repository checksum.  May be 0 */
   const char *zDateOvrd;      /* Date override.  If 0 then use 'now' */
   const char *zUserOvrd;      /* User override.  If 0 then use g.zLogin */
@@ -894,8 +912,7 @@ static void create_manifest(
   char *zParentUuid;          /* UUID of parent check-in */
   Blob filename;              /* A single filename */
   int nBasename;              /* Size of base filename */
-  Stmt q;                     /* Query of files changed */
-  Stmt q2;                    /* Query of merge parents */
+  Stmt q;                     /* Various queries */
   Blob mcksum;                /* Manifest checksum */
   ManifestFile *pFile;        /* File from the baseline */
   int nFBcard = 0;            /* Number of B-cards and F-cards */
@@ -914,7 +931,11 @@ static void create_manifest(
   }else{
     pFile = 0;
   }
-  blob_appendf(pOut, "C %F\n", blob_str(p->pComment));
+  if( blob_size(p->pComment)!=0 ){
+    blob_appendf(pOut, "C %F\n", blob_str(p->pComment));
+  }else{
+    blob_append(pOut, "C (no\\scomment)\n", 16);
+  }
   zDate = date_in_standard_format(p->zDateOvrd ? p->zDateOvrd : "now");
   blob_appendf(pOut, "D %s\n", zDate);
   zDate[10] = ' ';
@@ -999,11 +1020,11 @@ static void create_manifest(
   blob_appendf(pOut, "P %s", zParentUuid);
   if( p->verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
   free(zParentUuid);
-  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=0 OR id<-2");
-  while( db_step(&q2)==SQLITE_ROW ){
+  db_prepare(&q, "SELECT merge FROM vmerge WHERE id=0 OR id<-2");
+  while( db_step(&q)==SQLITE_ROW ){
     char *zMergeUuid;
-    int mid = db_column_int(&q2, 0);
-    if( !g.markPrivate && content_is_private(mid) ) continue;
+    int mid = db_column_int(&q, 0);
+    if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
     zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
     if( zMergeUuid ){
       blob_appendf(pOut, " %s", zMergeUuid);
@@ -1011,21 +1032,24 @@ static void create_manifest(
       free(zMergeUuid);
     }
   }
-  db_finalize(&q2);
+  db_finalize(&q);
   free(zDate);
   blob_appendf(pOut, "\n");
 
-  db_prepare(&q2,
-    "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid"
+  db_prepare(&q,
+    "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid, merge"
     "  FROM vmerge, blob"
     " WHERE (vmerge.id=-1 OR vmerge.id=-2)"
     "   AND blob.rid=vmerge.merge"
     " ORDER BY 1");
-  while( db_step(&q2)==SQLITE_ROW ){
-    const char *zCherrypickUuid = db_column_text(&q2, 0);
-    blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zCherrypickUuid = db_column_text(&q, 0);
+    int mid = db_column_int(&q, 1);
+    if( mid != vid ){
+      blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
+    }
   }
-  db_finalize(&q2);
+  db_finalize(&q);
 
   if( p->pCksum ) blob_appendf(pOut, "R %b\n", p->pCksum);
   zColor = p->zColor;
@@ -1042,6 +1066,21 @@ static void create_manifest(
     /* One-time background color */
     blob_appendf(pOut, "T +bgcolor * %F\n", zColor);
   }
+  if( p->closeFlag ){
+    blob_appendf(pOut, "T +closed *\n");
+  }
+  db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
+                 " WHERE id=-4 ORDER BY 1");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zIntegrateUuid = db_column_text(&q, 0);
+    int rid = db_column_int(&q, 1);
+    if( is_a_leaf(rid) && !db_exists("SELECT 1 FROM tagxref "
+        " WHERE tagid=%d AND rid=%d AND tagtype>0", TAG_CLOSED, rid)){
+      blob_appendf(pOut, "T +closed %s\n", zIntegrateUuid);
+    }
+  }
+  db_finalize(&q);
+
   if( p->azTag ){
     for(i=0; p->azTag[i]; i++){
       /* Add a symbolic tag to this check-in.  The tag names have already
@@ -1052,7 +1091,6 @@ static void create_manifest(
   }
   if( p->zBranch && p->zBranch[0] ){
     /* For a new branch, cancel all prior propagating tags */
-    Stmt q;
     db_prepare(&q,
         "SELECT tagname FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
@@ -1272,6 +1310,7 @@ static int tagCmp(const void *a, const void *b){
 **    --bgcolor COLOR            apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   check in to this new branch
 **    --branchcolor COLOR        apply given COLOR to the branch
+**    --close                    close the branch being committed
 **    --delta                    use a delta manifest in the commit process
 **    -m|--comment COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    -M|--message-file FILE     read the commit comment from given file
@@ -1291,7 +1330,7 @@ void commit_cmd(void){
   int nvid;              /* Blob-id of the new check-in */
   Blob comment;          /* Check-in comment */
   const char *zComment;  /* Check-in comment */
-  Stmt q;                /* Query to find files that have been modified */
+  Stmt q;                /* Various queries */
   char *zUuid;           /* UUID of the new check-in */
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
@@ -1344,6 +1383,7 @@ void commit_cmd(void){
   sCiInfo.zBranch = find_option("branch","b",1);
   sCiInfo.zColor = find_option("bgcolor",0,1);
   sCiInfo.zBrClr = find_option("branchcolor",0,1);
+  sCiInfo.closeFlag = find_option("close",0,0)!=0;
   sCiInfo.zMimetype = find_option("mimetype",0,1);
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
@@ -1444,21 +1484,20 @@ void commit_cmd(void){
   ** it and disallow it.  Ticket [0ff64b0a5fc8].
   */
   if( g.aCommitFile ){
-    Stmt qRename;
-    db_prepare(&qRename,
+    db_prepare(&q,
        "SELECT v1.pathname, v2.pathname"
        "  FROM vfile AS v1, vfile AS v2"
        " WHERE is_selected(v1.id)"
        "   AND v2.origname IS NOT NULL"
        "   AND v2.origname=v1.pathname"
        "   AND NOT is_selected(v2.id)");
-    if( db_step(&qRename)==SQLITE_ROW ){
-      const char *zFrom = db_column_text(&qRename, 0);
-      const char *zTo = db_column_text(&qRename, 1);
+    if( db_step(&q)==SQLITE_ROW ){
+      const char *zFrom = db_column_text(&q, 0);
+      const char *zTo = db_column_text(&q, 1);
       fossil_fatal("cannot do a partial commit of '%s' without '%s' because "
                    "'%s' was renamed to '%s'", zFrom, zTo, zFrom, zTo);
     }
-    db_finalize(&qRename);
+    db_finalize(&q);
   }
 
   user_select();
@@ -1519,6 +1558,8 @@ void commit_cmd(void){
     blob_zero(&comment);
     blob_read_from_file(&comment, zComFile);
     blob_to_utf8_no_bom(&comment, 1);
+  }else if(dryRunFlag){
+    blob_zero(&comment);
   }else{
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, &sCiInfo, vid);
@@ -1531,11 +1572,13 @@ void commit_cmd(void){
     free(zInit);
   }
   if( blob_size(&comment)==0 ){
-    blob_zero(&ans);
-    prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
-    cReply = blob_str(&ans)[0];
-    if( cReply!='y' && cReply!='Y' ){
-      fossil_exit(1);
+    if( !dryRunFlag ){
+      blob_zero(&ans);
+      prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_exit(1);
+      }
     }
   }else{
     db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
@@ -1608,9 +1651,6 @@ void commit_cmd(void){
   }
 
   /* Create the new manifest */
-  if( blob_size(&comment)==0 ){
-    blob_append(&comment, "(no comment)", -1);
-  }
   sCiInfo.pComment = &comment;
   sCiInfo.pCksum =  useCksum ? &cksum1 : 0;
   sCiInfo.verifyDate = !allowOlder && !forceFlag;
@@ -1662,7 +1702,7 @@ void commit_cmd(void){
         blob_reset(&delta);
       }
     }else if( forceDelta ){
-      fossil_panic("unable to find a baseline-manifest for the delta");
+      fossil_fatal("unable to find a baseline-manifest for the delta");
     }
   }
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
@@ -1680,7 +1720,6 @@ void commit_cmd(void){
   if( dryRunFlag ){
     blob_write_to_file(&manifest, "");
   }
-
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManifestFile);
@@ -1688,9 +1727,10 @@ void commit_cmd(void){
     blob_read_from_file(&manifest, zManifestFile);
     free(zManifestFile);
   }
+
   nvid = content_put(&manifest);
   if( nvid==0 ){
-    fossil_panic("trouble committing manifest: %s", g.zErrMsg);
+    fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
   if( !dryRunFlag ){
@@ -1701,6 +1741,19 @@ void commit_cmd(void){
   assert( blob_is_reset(&manifest) );
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
+
+  db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
+                 " WHERE id=-4");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zIntegrateUuid = db_column_text(&q, 0);
+    if( is_a_leaf(db_column_int(&q, 1)) ){
+      fossil_print("Closed: %s\n", zIntegrateUuid);
+    }else{
+      fossil_print("Not_Closed: %s (not a leaf any more)\n", zIntegrateUuid);
+    }
+  }
+  db_finalize(&q);
+
   fossil_print("New_Version: %s\n", zUuid);
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);

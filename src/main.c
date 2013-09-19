@@ -101,6 +101,7 @@ struct TclContext {
   void *library;         /* The Tcl library module handle. */
   void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
+  void *xDeleteInterp;   /* See tcl_DeleteInterpProc in th_tcl.c. */
   Tcl_Interp *interp;    /* The on-demand created Tcl interpreter. */
   char *setup;           /* The optional Tcl setup script. */
   void *xPreEval;        /* Optional, called before Tcl_Eval*(). */
@@ -116,6 +117,7 @@ struct TclContext {
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
+  const char *zErrlog;    /* Log errors to this file, if not NULL */
   int isConst;            /* True if the output is unchanging */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
@@ -161,6 +163,7 @@ struct Global {
   int wikiFlags;          /* Wiki conversion flags applied to %w and %W */
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
+  Blob httpHeader;        /* Complete text of the HTTP request header */
 
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */
@@ -185,6 +188,7 @@ struct Global {
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
+  int isHuman;            /* True if access by a human, not a spider or bot */
 
   /* Information used to populate the RCVFROM table */
   int rcvid;              /* The rcvid.  0 if not yet defined. */
@@ -372,7 +376,7 @@ static void expand_args_option(int argc, void *argv){
   char *z;                  /* General use string pointer */
   char **newArgv;           /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
-  FILE * zInFile;           /* input FILE */
+  FILE *inFile;             /* input FILE */
 #if defined(_WIN32)
   wchar_t buf[MAX_PATH];
 #endif
@@ -402,17 +406,17 @@ static void expand_args_option(int argc, void *argv){
   if( i>=g.argc-1 ) return;
 
   zFileName = g.argv[i+1];
-  zInFile = (0==strcmp("-",zFileName))
+  inFile = (0==strcmp("-",zFileName))
     ? stdin
     : fossil_fopen(zFileName,"rb");
-  if(!zInFile){
-    fossil_panic("Cannot open -args file [%s]", zFileName);
+  if(!inFile){
+    fossil_fatal("Cannot open -args file [%s]", zFileName);
   }else{
-    blob_read_from_channel(&file, zInFile, -1);
-    if(stdin != zInFile){
-      fclose(zInFile);
+    blob_read_from_channel(&file, inFile, -1);
+    if(stdin != inFile){
+      fclose(inFile);
     }
-    zInFile = NULL;
+    inFile = NULL;
   }
   blob_to_utf8_no_bom(&file, 1);
   z = blob_str(&file);
@@ -512,6 +516,7 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
   ** creates lots of aliases and the warning alarms people. */
   if( iCode==SQLITE_WARNING ) return;
 #endif
+  if( iCode==SQLITE_SCHEMA ) return;
   fossil_warning("%s: %s", sqlite_error_code_name(iCode), zErrmsg);
 }
 
@@ -531,6 +536,7 @@ int main(int argc, char **argv)
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);
+  g.httpHeader = empty_blob;
 #ifdef FOSSIL_ENABLE_JSON
 #if defined(NDEBUG)
   g.json.errorDetailParanoia = 2 /* FIXME: make configurable
@@ -585,6 +591,7 @@ int main(int argc, char **argv)
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
+    g.zErrlog = find_option("errorlog", 0, 1);
     if( find_option("utc",0,0) ) g.fTimeFormat = 1;
     if( find_option("localtime",0,0) ) g.fTimeFormat = 2;
     if( zChdir && file_chdir(zChdir, 0) ){
@@ -604,6 +611,10 @@ int main(int argc, char **argv)
     }
     zCmdName = g.argv[1];
   }
+#ifndef _WIN32
+  if( !is_valid_fd(2) ) fossil_panic("file descriptor 2 not open");
+  /* if( is_valid_fd(3) ) fossil_warning("file descriptor 3 is open"); */
+#endif
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
   if( rc==1 ){
     fossil_fatal("%s: unknown command: %s\n"
@@ -771,6 +782,9 @@ void cmd_test_webpage_list(void){
   multi_column_list(aCmd, nCmd);
 }
 
+
+
+
 /*
 ** COMMAND: version
 **
@@ -787,18 +801,31 @@ void version_cmd(void){
   if(!find_option("verbose","v",0)){
     return;
   }else{
+#if defined(FOSSIL_ENABLE_TCL)
+    int rc;
+    const char *zRc;
+#endif
     fossil_print("Compiled on %s %s using %s (%d-bit)\n",
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
     fossil_print("SQLite %s %.30s\n", SQLITE_VERSION, SQLITE_SOURCE_ID);
-    fossil_print("zlib %s\n", ZLIB_VERSION);
+    fossil_print("Schema version %s\n", AUX_SCHEMA);
+    fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #if defined(FOSSIL_ENABLE_SSL)
     fossil_print("SSL (%s)\n", OPENSSL_VERSION_TEXT);
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
-    fossil_print("TCL (Tcl %s)\n", TCL_PATCH_LEVEL);
+    Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
+    rc = Th_Eval(g.interp, 0, "tclEval {info patchlevel}", -1);
+    zRc = Th_ReturnCodeName(rc, 0);
+    fossil_print("TCL (Tcl %s, loaded %s: %s)\n",
+      TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
+    );
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
     fossil_print("TCL_STUBS\n");
+#endif
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+    fossil_print("TCL_PRIVATE_STUBS\n");
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
     fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
@@ -1112,7 +1139,7 @@ static char *enter_chroot_jail(char *zRepo){
       zRepo = "/";
     }else{
       for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
-      if( zDir[i]!='/' ) fossil_panic("bad repository name: %s", zRepo);
+      if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
       if( i>0 ){
         zDir[i] = 0;
         if( file_chdir(zDir, 1) ){
@@ -1365,7 +1392,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
     if(!g.json.isJsonMode){
 #endif
       dehttpize(g.zExtra);
-      cgi_set_parameter_nocopy("name", g.zExtra);
+      cgi_set_parameter_nocopy("name", g.zExtra, 1);
 #ifdef FOSSIL_ENABLE_JSON
     }
 #endif
@@ -1503,6 +1530,10 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
+    if( blob_eq(&key, "errorlog:") && blob_token(&line, &value) ){
+      g.zErrlog = mprintf("%s", blob_str(&value));
+      continue;
+    }
     if( blob_eq(&key, "HOME:") && blob_token(&line, &value) ){
       cgi_setenv("HOME", blob_str(&value));
       blob_reset(&value);
@@ -1635,6 +1666,7 @@ static void find_server_repository(int disallowDir){
 **   --notfound URL   use URL as "HTTP 404, object not found" page.
 **   --files GLOB     comma-separate glob patterns for static file to serve
 **   --baseurl URL    base URL (useful with reverse proxies)
+**   --scgi           Interpret input as SCGI rather than HTTP
 **
 ** See also: cgi, server, winsrv
 */
@@ -1644,6 +1676,7 @@ void cmd_http(void){
   const char *zHost;
   const char *zAltBase;
   const char *zFileGlob;
+  int useSCGI;
 
   /* The winhttp module passes the --files option as --files-urlenc with
   ** the argument being URL encoded, to avoid wildcard expansion in the
@@ -1660,6 +1693,7 @@ void cmd_http(void){
   zNotFound = find_option("notfound", 0, 1);
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
+  useSCGI = find_option("scgi", 0, 0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
   if( zAltBase ) set_base_url(zAltBase);
   if( find_option("https",0,0)!=0 ) cgi_replace_parameter("HTTPS","on");
@@ -1681,7 +1715,11 @@ void cmd_http(void){
   }
   find_server_repository(0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
-  cgi_handle_http_request(zIpAddr);
+  if( useSCGI ){
+    cgi_handle_scgi_request();
+  }else{
+    cgi_handle_http_request(zIpAddr);
+  }
   process_one_web_page(zNotFound, glob_create(zFileGlob));
 }
 
@@ -1777,6 +1815,7 @@ static int binaryOnPath(const char *zBinary){
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
 **   --notfound URL      Redirect
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
+**   --scgi              Accept SCGI rather than HTTP
 **
 ** See also: cgi, http, winsrv
 */
@@ -1803,6 +1842,7 @@ void cmd_webserver(void){
   zPort = find_option("port", "P", 1);
   zNotFound = find_option("notfound", 0, 1);
   zAltBase = find_option("baseurl", 0, 1);
+  if( find_option("scgi", 0, 0)!=0 ) flags |= HTTP_SERVER_SCGI;
   if( zAltBase ){
     set_base_url(zAltBase);
   }
@@ -1867,7 +1907,11 @@ void cmd_webserver(void){
   g.cgiOutput = 1;
   find_server_repository(isUiCmd && zNotFound==0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
-  cgi_handle_http_request(0);
+  if( flags & HTTP_SERVER_SCGI ){
+    cgi_handle_scgi_request();
+  }else{
+    cgi_handle_http_request(0);
+  }
   process_one_web_page(zNotFound, glob_create(zFileGlob));
 #else
   /* Win32 implementation */

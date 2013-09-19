@@ -163,6 +163,7 @@ static char *EncodeHttp(const char *zIn, int n, int encodeSlash){
     zIn++;
   }
   zOut[i] = 0;
+#undef IsSafeChar
   return zOut;
 }
 

@@ -315,7 +315,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
 */
 void ticket_init(void){
   const char *zConfig;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   zConfig = ticket_common_code();
   Th_Eval(g.interp, 0, zConfig, -1);
 }
@@ -513,7 +513,7 @@ static int ticket_put(
   int result;
   int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
   if( rid==0 ){
-    fossil_panic("trouble committing ticket: %s", g.zErrMsg);
+    fossil_fatal("trouble committing ticket: %s", g.zErrMsg);
   }
   if( needMod ){
     moderation_table_create();
@@ -669,7 +669,7 @@ void tktnew_page(void){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zNewUuid));
     return;
   }
-  captcha_generate();
+  captcha_generate(0);
   @ </form>
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
   style_footer();
@@ -739,7 +739,7 @@ void tktedit_page(void){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zName));
     return;
   }
-  captcha_generate();
+  captcha_generate(0);
   @ </form>
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
   style_footer();

@@ -28,6 +28,9 @@
 #else
 # include <sys/time.h>
 # include <sys/resource.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <errno.h>
 #endif
 
 
@@ -229,9 +232,7 @@ int fossil_timer_start(){
 ** since it was last reset). Returns 0 if timerId is out of range.
 */
 sqlite3_uint64 fossil_timer_fetch(int timerId){
-  if(timerId<1 || timerId>FOSSIL_TIMER_COUNT){
-    return 0;
-  }else{
+  if( timerId>0 && timerId<=FOSSIL_TIMER_COUNT ){
     struct FossilTimer * start = &fossilTimerList[timerId-1];
     if( !start->id ){
       fossil_fatal("Invalid call to fetch a non-allocated "
@@ -243,6 +244,7 @@ sqlite3_uint64 fossil_timer_fetch(int timerId){
       return (eu - start->u) + (es - start->s);
     }
   }
+  return 0;
 }
 
 /*
@@ -250,9 +252,7 @@ sqlite3_uint64 fossil_timer_fetch(int timerId){
 ** fossil_timer_start(), to the current CPU time values.
 */
 sqlite3_uint64 fossil_timer_reset(int timerId){
-  if(timerId<1 || timerId>FOSSIL_TIMER_COUNT){
-    return 0;
-  }else{
+  if( timerId>0 && timerId<=FOSSIL_TIMER_COUNT ){
     struct FossilTimer * start = &fossilTimerList[timerId-1];
     if( !start->id ){
       fossil_fatal("Invalid call to reset a non-allocated "
@@ -264,6 +264,7 @@ sqlite3_uint64 fossil_timer_reset(int timerId){
       return rc;
     }
   }
+  return 0;
 }
 
 /**
@@ -300,4 +301,16 @@ int fossil_timer_is_active( int timerId ){
     assert(!rc || (rc == timerId));
     return fossilTimerList[timerId-1].id;
   }
+}
+
+/*
+** Return TRUE if fd is a valid open file descriptor.  This only
+** works on unix.  The function always returns true on Windows.
+*/
+int is_valid_fd(int fd){
+#ifdef _WIN32
+  return 1;
+#else
+  return fcntl(fd, F_GETFL)!=(-1) || errno!=EBADF;
+#endif
 }

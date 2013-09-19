@@ -216,7 +216,6 @@ static void appendDiffLine(
 ){
   blob_append(pOut, &cPrefix, 1);
   if( html ){
-    char *zHtml;
     if( pRe && re_dline_match(pRe, pLine, 1)==0 ){
       cPrefix = ' ';
     }else if( cPrefix=='+' ){
@@ -224,9 +223,7 @@ static void appendDiffLine(
     }else if( cPrefix=='-' ){
       blob_append(pOut, "<span class=\"diffrm\">", -1);
     }
-    zHtml = htmlize(pLine->z, (pLine->h & LENGTH_MASK));
-    blob_append(pOut, zHtml, -1);
-    fossil_free(zHtml);
+    htmlize_to_blob(pOut, pLine->z, (pLine->h & LENGTH_MASK));
     if( cPrefix!=' ' ){
       blob_append(pOut, "</span>", -1);
     }
@@ -1312,7 +1309,7 @@ static void sbsDiff(
   }
   
   if( s.escHtml && blob_size(s.apCols[SBS_LNA])>0 ){
-    blob_append(pOut, "<table class=\"sbsdiffcols\" width=\"90%\"><tr>\n", -1);
+    blob_append(pOut, "<table class=\"sbsdiffcols\"><tr>\n", -1);
     for(i=SBS_LNA; i<=SBS_TXTB; i++){
       sbsWriteColumn(pOut, s.apCols[i], i);
       blob_reset(s.apCols[i]);
@@ -2048,10 +2045,10 @@ static void annotate_file(
   /* Initialize the annotation */
   rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
   if( rid==0 ){
-    fossil_panic("file #%d is unchanged in manifest #%d", fnid, mid);
+    fossil_fatal("file #%d is unchanged in manifest #%d", fnid, mid);
   }
   if( !content_get(rid, &toAnnotate) ){
-    fossil_panic("unable to retrieve content of artifact #%d", rid);
+    fossil_fatal("unable to retrieve content of artifact #%d", rid);
   }
   if( iLimit<=0 ) iLimit = 1000000000;
   annotation_start(p, &toAnnotate);
@@ -2152,6 +2149,7 @@ void annotation_page(void){
   showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
+  if( exclude_spiders("annotate") ) return;
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
   zFilename = P("filename");
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
@@ -2330,7 +2328,7 @@ void annotate_cmd(void){
           " ORDER BY ancestor.generation ASC LIMIT 1",
           fid, fnid);
   if( mid==0 ){
-    fossil_panic("unable to find manifest");
+    fossil_fatal("unable to find manifest");
   }
   annFlags |= ANN_FILE_ANCEST;
   annotate_file(&ann, fnid, mid, iLimit, annFlags);

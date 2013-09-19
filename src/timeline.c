@@ -247,7 +247,11 @@ void www_print_timeline(
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
-
+  int vid = 0;                /* Current checkout version */
+  
+  if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
+    vid = db_lget_int("checkout", 0);
+  }
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   if( tmFlags & TIMELINE_GRAPH ){
@@ -320,7 +324,11 @@ void www_print_timeline(
     }
     memcpy(zTime, &zDate[11], 5);
     zTime[5] = 0;
-    @ <tr>
+    if( rid == vid ){
+      @ <tr class="timelineCurrent">
+    }else {
+      @ <tr>
+    }
     @ <td class="timelineTime">%s(zTime)</td>
     @ <td class="timelineGraph">
     if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
@@ -643,6 +651,11 @@ void timeline_output_graph_javascript(
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
     @ var canvasDiv = gebi("canvas");
+    @ var canvasStyle = window.getComputedStyle && window.getComputedStyle(canvasDiv,null);
+    @ var lineColor = (canvasStyle && canvasStyle.getPropertyValue('color')) || 'black';
+    @ var bgColor = (canvasStyle && canvasStyle.getPropertyValue('background-color')) || 'white';
+    @ if( bgColor=='transparent' ) bgColor = 'white';
+    @ var boxColor = lineColor;
     @ function drawBox(color,x0,y0,x1,y1){
     @   var n = document.createElement("div");
     @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
@@ -656,7 +669,6 @@ void timeline_output_graph_javascript(
     @   n.style.width = w+"px";
     @   n.style.height = h+"px";
     @   n.style.backgroundColor = color;
-    @   n.style.cursor = "pointer";
     @   canvasDiv.appendChild(n);
     @   return n;
     @ }
@@ -683,34 +695,37 @@ void timeline_output_graph_javascript(
     @   return left;
     @ }
     @ function drawUpArrow(x,y0,y1){
-    @   drawBox("black",x,y0,x+1,y1);
+    @   drawBox(lineColor,x,y0,x+1,y1);
     @   if( y0+10>=y1 ){
-    @     drawBox("black",x-1,y0+1,x+2,y0+2);
-    @     drawBox("black",x-2,y0+3,x+3,y0+4);
+    @     drawBox(lineColor,x-1,y0+1,x+2,y0+2);
+    @     drawBox(lineColor,x-2,y0+3,x+3,y0+4);
     @   }else{
-    @     drawBox("black",x-1,y0+2,x+2,y0+4);
-    @     drawBox("black",x-2,y0+5,x+3,y0+7);
+    @     drawBox(lineColor,x-1,y0+2,x+2,y0+4);
+    @     drawBox(lineColor,x-2,y0+5,x+3,y0+7);
     @   }
     @ }
     @ function drawThinArrow(y,xFrom,xTo){
     @   if( xFrom<xTo ){
-    @     drawBox("black",xFrom,y,xTo,y);
-    @     drawBox("black",xTo-3,y-1,xTo-2,y+1);
-    @     drawBox("black",xTo-4,y-2,xTo-4,y+2);
+    @     drawBox(lineColor,xFrom,y,xTo,y);
+    @     drawBox(lineColor,xTo-3,y-1,xTo-2,y+1);
+    @     drawBox(lineColor,xTo-4,y-2,xTo-4,y+2);
     @   }else{
-    @     drawBox("black",xTo,y,xFrom,y);
-    @     drawBox("black",xTo+2,y-1,xTo+3,y+1);
-    @     drawBox("black",xTo+4,y-2,xTo+4,y+2);
+    @     drawBox(lineColor,xTo,y,xFrom,y);
+    @     drawBox(lineColor,xTo+2,y-1,xTo+3,y+1);
+    @     drawBox(lineColor,xTo+4,y-2,xTo+4,y+2);
     @   }
     @ }
     @ function drawThinLine(x0,y0,x1,y1){
-    @   drawBox("black",x0,y0,x1,y1);
+    @   drawBox(lineColor,x0,y0,x1,y1);
+    @ }
+    @ function drawNodeBox(color,x0,y0,x1,y1){
+    @   drawBox(color,x0,y0,x1,y1).style.cursor = "pointer";
     @ }
     @ function drawNode(p, left, btm){
-    @   drawBox("black",p.x-5,p.y-5,p.x+6,p.y+6);
-    @   drawBox(p.bg,p.x-4,p.y-4,p.x+5,p.y+5);
+    @   drawNodeBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
+    @   drawNodeBox(p.bg||bgColor,p.x-4,p.y-4,p.x+5,p.y+5);
     @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
-    @   if( p.f&1 ) drawBox("black",p.x-1,p.y-1,p.x+2,p.y+2);
+    @   if( p.f&1 ) drawNodeBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2);
     if( !omitDescenders ){
       @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
       @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
@@ -734,7 +749,7 @@ void timeline_output_graph_javascript(
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
-    @       drawBox("black",x0,p.y,x1,p.y+1);
+    @       drawBox(lineColor,x0,p.y,x1,p.y+1);
     @       drawUpArrow(x1, u.y+6, p.y);
     @     }else{
     @       drawBox("#600000",x0,p.y,x1,p.y+1);
@@ -1868,7 +1883,7 @@ static void stats_report_output_week_links(const char * zTimeframe){
 }
 
 /*
-** Implements the "byyear" and "bymonth" reports for /stats_report.
+** Implements the "byyear" and "bymonth" reports for /reports.
 ** If includeMonth is true then it generates the "bymonth" report,
 ** else the "byyear" report. If zUserName is not NULL and not empty
 ** then the report is restricted to events created by the named user
@@ -1891,8 +1906,10 @@ static void stats_report_by_month_year(char includeMonth,
   char showYearTotal = 0;            /* Flag telling us when to show
                                         the per-year event totals */
   Blob header = empty_blob;          /* Page header text */
-  int nMaxEvents  = 1;            /* for calculating length of graph bars. */
-
+  int nMaxEvents  = 1;               /* for calculating length of graph
+                                        bars. */
+  int iterations = 0;                /* number of weeks/months we iterate
+                                        over */
   blob_appendf(&header, "Timeline Events by year%s",
                (includeMonth ? "/month" : ""));
   blob_appendf(&sql,
@@ -1929,6 +1946,7 @@ static void stats_report_by_month_year(char includeMonth,
     if(nCount>nMaxEvents){
       nMaxEvents = nCount;
     }
+    ++iterations;
   }
   db_reset(&query);
   while( SQLITE_ROW == db_step(&query) ){
@@ -2014,7 +2032,11 @@ static void stats_report_by_month_year(char includeMonth,
   }
   @ </tbody></table>
   if(nEventTotal){
-    @ <br><div>Total events: %d(nEventTotal)</div>
+    char const * zAvgLabel = includeMonth ? "month" : "year";
+    int nAvg = iterations ? (nEventTotal/iterations) : 0;
+    @ <br><div>Total events: %d(nEventTotal)
+    @ <br>Average per active %s(zAvgLabel): %d(nAvg)
+    @ </div>
   }
   if( !includeMonth ){
     output_table_sorting_javascript("statsTable","tnx");
@@ -2022,7 +2044,7 @@ static void stats_report_by_month_year(char includeMonth,
 }
 
 /*
-** Implements the "byuser" view for /stats_report.
+** Implements the "byuser" view for /reports.
 */
 static void stats_report_by_user(){
   Stmt query = empty_Stmt;
@@ -2067,7 +2089,7 @@ static void stats_report_by_user(){
     nEventTotal += nCount;
     @<tr class='row%d(rowClass)'>
     @ <td>
-    @ <a href="?view=bymonth&user=%h(zUser)" target="_new">%h(zUser)</a>
+    @ <a href="?view=bymonth&user=%h(zUser)">%h(zUser)</a>
     @ </td><td>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
@@ -2099,6 +2121,7 @@ static void stats_report_year_weeks(const char * zUserName){
   Blob sql = empty_blob;
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
+  int iterations = 0;                /* # of active time periods. */
 
   cgi_printf("Select year: ");
   blob_append(&sql,
@@ -2165,6 +2188,7 @@ static void stats_report_year_weeks(const char * zUserName){
       if(nCount>nMaxEvents){
         nMaxEvents = nCount;
       }
+      ++iterations;
     }
     db_reset(&stWeek);
     while( SQLITE_ROW == db_step(&stWeek) ){
@@ -2195,15 +2219,17 @@ static void stats_report_year_weeks(const char * zUserName){
     free(zDefaultYear);
     cgi_printf("</tbody></table>");
     if(total){
-      cgi_printf("<br><div>Total events: %d</div>",
-                 total);
+      int nAvg = iterations ? (total/iterations) : 0;
+      cgi_printf("<br><div>Total events: %d<br>"
+                 "Average per active week: %d</div>",
+                 total, nAvg);
     }
     output_table_sorting_javascript("statsTable","tnx");
   }
 }
 
 /*
-** WEBPAGE: stats_report
+** WEBPAGE: reports
 **
 ** Shows activity reports for the repository.
 **
@@ -2217,7 +2243,7 @@ void stats_report_page(){
   const char * zView = P("view");    /* Which view/report to show. */
   const char *zUserName = P("user");
   if(!zUserName) zUserName = P("u");
-  url_initialize(&url, "stats_report");
+  url_initialize(&url, "reports");
 
   if(zUserName && *zUserName){
     url_add_parameter(&url,"user", zUserName);

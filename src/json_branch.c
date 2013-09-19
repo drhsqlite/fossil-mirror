@@ -290,12 +290,12 @@ static int json_branch_new(BranchCreateOptions * zOpt,
 
   brid = content_put(&branch);
   if( brid==0 ){
-    fossil_panic("Problem committing manifest: %s", g.zErrMsg);
+    fossil_fatal("Problem committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
   run_common_script();
   if( manifest_crosslink(brid, &branch) ){
-    fossil_panic("%s\n", g.zErrMsg);
+    fossil_fatal("%s\n", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);

@@ -84,8 +84,10 @@ void load_vfile_from_rid(int vid){
 
   db_begin_transaction();
   p = manifest_get(vid, CFTYPE_MANIFEST);
-  if( p==0 ) return;
-  db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
+  if( p==0 ) {
+    db_end_transaction(1);
+    return;
+  }
   db_prepare(&ins,
     "INSERT INTO vfile(vid,isexe,islink,rid,mrid,pathname) "
     " VALUES(:vid,:isexe,:islink,:id,:id,:name)");
@@ -97,7 +99,7 @@ void load_vfile_from_rid(int vid){
     db_bind_text(&ridq, ":uuid", pFile->zUuid);
     if( db_step(&ridq)==SQLITE_ROW ){
       rid = db_column_int(&ridq, 0);
-      size = db_column_int(&ridq, 0);
+      size = db_column_int(&ridq, 1);
     }else{
       rid = 0;
       size = 0;
@@ -215,7 +217,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       if( blob_compare(&fileCksum, &origCksum)==0 ) chnged = 0;
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
-    }else if( (chnged==0 || chnged==2)
+    }else if( (chnged==0 || chnged==2 || chnged==4)
            && (useMtime==0 || currentMtime!=oldMtime) ){
       /* For files that were formerly believed to be unchanged or that were
       ** changed by merging, if their mtime changes, or unconditionally
@@ -232,7 +234,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
     }
-    if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2) ){
+    if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2 || chnged==4) ){
       i64 desiredMtime;
       if( mtime_of_manifest_file(vid,rid,&desiredMtime)==0 ){
         if( currentMtime!=desiredMtime ){
@@ -746,7 +748,7 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   db_must_be_within_tree();
   pManifest = manifest_get(vid, CFTYPE_MANIFEST);
   if( pManifest==0 ){
-    fossil_panic("manifest file (%d) is malformed", vid);
+    fossil_fatal("manifest file (%d) is malformed", vid);
   }
   manifest_file_rewind(pManifest);
   while( (pFile = manifest_file_next(pManifest,0))!=0 ){

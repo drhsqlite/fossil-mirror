@@ -69,7 +69,8 @@ port or to type arcane strings into your browser URL entry box.
 The interface just pops right up, ready to run.
 
 The Fossil web interface is also very easy to setup and run on a
-network server, as either a CGI program or from inetd.  Details on how
+network server, as either a CGI program or from inetd, or as an
+SCGI server.  Details on how
 to do that are described further below.
 
 <h2>Things To Do Using The Web Interface</h2>
@@ -137,7 +138,8 @@ up as the "Home" page can be changed.  It is often useful to set the
 When you create a new Fossil project and after you have configured it
 like you want it using the web interface, you can make the project
 available to a distributed team by simply copying the single
-repository file up to a web server that supports CGI.  Just put the
+repository file up to a web server that supports CGI or SCGI.  To
+run Fossil as CGI, just put the
 <b>sample-project.fossil</b> file in a directory where CGI scripts
 have both read and write permission on the file and the directory that
 contains the file, then add a CGI script that looks something like this:
@@ -153,7 +155,11 @@ But that is <u>all</u> you have to do.  You now have everything you need to host
 a distributed software development project in less than five minutes using a 
 two-line CGI script.
 
-You don't have a CGI-capable web server running on your server machine?
+Instructions for setting up an SCGI server are
+[./scgi.wiki | available separately].
+
+You don't have a CGI- or SCGI-capable web server running on your
+server machine?
 Not a problem.  The Fossil interface can also be launched via inetd or
 xinetd.  An inetd configuration line sufficient to launch the Fossil
 web interface looks like this:

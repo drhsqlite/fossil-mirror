@@ -1777,7 +1777,7 @@ static Operator aOperator[] = {
   {"^",  OP_BITWISE_XOR,    9, ARG_INTEGER},
   {"|",  OP_BITWISE_OR,    10, ARG_INTEGER},
 
-  {0,0,0}
+  {0,0,0,0}
 };
 
 /*

@@ -47,7 +47,8 @@ struct Xfer {
   int nFileRcvd;      /* Number of files received */
   int nDeltaRcvd;     /* Number of deltas received */
   int nDanglingFile;  /* Number of dangling deltas received */
-  int mxSend;         /* Stop sending "file" with pOut reaches this size */
+  int mxSend;         /* Stop sending "file" when pOut reaches this size */
+  int resync;         /* Send igot cards for all holdings */
   u8 syncPrivate;     /* True to enable syncing private content */
   u8 nextIsPrivate;   /* If true, next "file" received is a private */
   time_t maxTime;     /* Time when this transfer should be finished */
@@ -738,17 +739,33 @@ static int send_private(Xfer *pXfer){
 static int send_unclustered(Xfer *pXfer){
   Stmt q;
   int cnt = 0;
-  db_prepare(&q, 
-    "SELECT uuid FROM unclustered JOIN blob USING(rid)"
-    " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
-    "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
-    "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
-  );
+  if( pXfer->resync ){
+    db_prepare(&q, 
+      "SELECT uuid, rid FROM blob"
+      " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
+      "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
+      "   AND blob.rid<=%d"
+      " ORDER BY blob.rid DESC",
+      pXfer->resync
+    );
+  }else{
+    db_prepare(&q, 
+      "SELECT uuid FROM unclustered JOIN blob USING(rid)"
+      " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
+      "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
+    );
+  }
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
     cnt++;
+    if( pXfer->resync && pXfer->mxSend<blob_size(pXfer->pOut) ){
+      pXfer->resync = db_column_int(&q, 1)-1;
+    }
   }
   db_finalize(&q);
+  if( cnt==0 ) pXfer->resync = 0;
   return cnt;
 }
 
@@ -918,7 +935,7 @@ int run_script(const char *zScript, const char *zUuid){
 int run_common_script(void){
   int result = 0;
   if( !commonScriptRan ){
-    Th_FossilInit(0, 0); /* Make sure TH1 is ready. */
+    Th_FossilInit(TH_INIT_DEFAULT); /* Make sure TH1 is ready. */
     commonScriptRan = 1; /* enable run_script to do something */
     result = run_script("xfer-common-script", 0);
     Th_CreateCommand(g.interp, "http", httpCmd, 0, 0);
@@ -1293,6 +1310,13 @@ void page_xfer(void){
           xfer.syncPrivate = 1;
         }
       }
+      /*   pragma send-catalog
+      **
+      ** Send igot cards for all known artifacts.
+      */
+      if( blob_eq(&xfer.aToken[1], "send-catalog") ){
+        xfer.resync = 0x7fffffff;
+      }
     }else
 
     /* Unknown message
@@ -1390,7 +1414,15 @@ static const char zBriefFormat[] =
 #define SYNC_CLONE     0x0004
 #define SYNC_PRIVATE   0x0008
 #define SYNC_VERBOSE   0x0010
+#define SYNC_RESYNC    0x0020
 #endif
+
+/*
+** Floating-point absolute value
+*/
+static double fossil_fabs(double x){
+  return x>0.0 ? x : -x;
+}
 
 /*
 ** Sync to the host identified in g.urlName and g.urlPath.  This
@@ -1429,6 +1461,7 @@ int client_sync(
   int nArtifactSent = 0;  /* Total artifacts sent */
   int nArtifactRcvd = 0;  /* Total artifacts received */
   const char *zOpType = 0;/* Push, Pull, Sync, Clone */
+  double rSkew = 0.0;     /* Maximum time skew */
 
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
   if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE))==0 
@@ -1478,11 +1511,16 @@ int client_sync(
     blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
     nCardSent++;
     zOpType = (syncFlags & SYNC_PUSH)?"Sync":"Pull";
+    if( (syncFlags & SYNC_RESYNC)!=0 && nCycle<2 ){
+      blob_appendf(&send, "pragma send-catalog\n");
+      nCardSent++;
+    }
   }
   if( syncFlags & SYNC_PUSH ){
     blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
     nCardSent++;
     if( (syncFlags & SYNC_PULL)==0 ) zOpType = "Push";
+    if( (syncFlags & SYNC_RESYNC)!=0 ) xfer.resync = 0x7fffffff;
   }
   manifest_crosslink_begin();
   transport_global_startup();
@@ -1622,15 +1660,8 @@ int client_sync(
           rDiff = db_double(9e99, "SELECT julianday('%q') - %.17g",
                             zTime, rArrivalTime);
           if( rDiff>9e98 || rDiff<-9e98 ) rDiff = 0.0;
-          if( (rDiff*24.0*3600.0) > 10.0 ){
-             fossil_warning("*** time skew *** server is fast by %s",
-                            db_timespan_name(rDiff));
-             g.clockSkewSeen = 1;
-          }else if( rDiff*24.0*3600.0 < -(blob_size(&recv)/5000.0 + 20.0) ){
-             fossil_warning("*** time skew *** server is slow by %s",
-                            db_timespan_name(-rDiff));
-             g.clockSkewSeen = 1;
-          }
+          if( rDiff*24.0*3600.0 >= -(blob_size(&recv)/5000.0 + 20) ) rDiff = 0.0;
+          if( fossil_fabs(rDiff)>fossil_fabs(rSkew) ) rSkew = rDiff;
         }
         nCardRcvd++;
         continue;
@@ -1924,6 +1955,16 @@ int client_sync(
     if( cloneSeqno<=0 && nCycle>1 ) go = 0;   
   };
   transport_stats(&nSent, &nRcvd, 1);
+  if( (rSkew*24.0*3600.0) > 10.0 ){
+     fossil_warning("*** time skew *** server is fast by %s",
+                    db_timespan_name(rSkew));
+     g.clockSkewSeen = 1;
+  }else if( rSkew*24.0*3600.0 < -10.0 ){
+     fossil_warning("*** time skew *** server is slow by %s",
+                    db_timespan_name(-rSkew));
+     g.clockSkewSeen = 1;
+  }
+
   fossil_force_newline();
   fossil_print(
      "%s finished with %lld bytes sent, %lld bytes received\n",

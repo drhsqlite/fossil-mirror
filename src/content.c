@@ -29,7 +29,6 @@ static struct {
   int n;               /* Current number of cache entries */
   int nAlloc;          /* Number of slots allocated in a[] */
   int nextAge;         /* Age counter for implementing LRU */
-  int skipCnt;         /* Used to limit entries expelled from cache */
   struct cacheLine {   /* One instance of this for each cache entry */
     int rid;                  /* Artifact id */
     int age;                  /* Age.  Newer is larger */
@@ -494,7 +493,6 @@ int content_put_ex(
   assert( pBlob!=0 );
   assert( srcId==0 || zUuid!=0 );
   if( zUuid==0 ){
-    assert( pBlob!=0 );
     assert( nBlob==0 );
     sha1sum_blob(pBlob, &hash);
   }else{
@@ -829,11 +827,29 @@ void test_content_deltify_cmd(void){
 }
 
 /*
-** COMMAND: test-integrity
+** Return true if Blob p looks like it might be a parsable control artifact.
+*/
+static int looks_like_control_artifact(Blob *p){
+  const char *z = blob_buffer(p);
+  int n = blob_size(p);
+  if( n<10 ) return 0;
+  if( strncmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)==0 ) return 1;
+  if( z[0]<'A' || z[0]>'Z' || z[1]!=' ' || z[0]=='I' ) return 0;
+  if( z[n-1]!='\n' ) return 0;
+  return 1;
+}
+
+/*
+** COMMAND: test-integrity ?OPTIONS?
 **
 ** Verify that all content can be extracted from the BLOB table correctly.
 ** If the BLOB table is correct, then the repository can always be
 ** successfully reconstructed using "fossil rebuild".
+**
+** Options:
+**
+**    --parse            Parse all manifests, wikis, tickets, events, and
+**                       so forth, reporting any errors found.
 */
 void test_integrity(void){
   Stmt q;
@@ -843,7 +859,11 @@ void test_integrity(void){
   int n2 = 0;
   int nErr = 0;
   int total;
+  int nCA = 0;
+  int anCA[10];
+  int bParse = find_option("parse",0,0)!=0;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
+  memset(anCA, 0, sizeof(anCA));
 
   /* Make sure no public artifact is a delta from a private artifact */
   db_prepare(&q,
@@ -891,13 +911,50 @@ void test_integrity(void){
                    rid, zUuid, blob_str(&cksum));
       nErr++;
     }
+    if( bParse && looks_like_control_artifact(&content) ){
+      Blob err;
+      int i, n;
+      char *z;
+      Manifest *p;
+      char zFirstLine[400];
+      blob_zero(&err);
+
+      z = blob_buffer(&content);
+      n = blob_size(&content);
+      for(i=0; i<n && z[i] && z[i]!='\n' && i<sizeof(zFirstLine)-1; i++){}
+      memcpy(zFirstLine, z, i);
+      zFirstLine[i] = 0;
+      p = manifest_parse(&content, 0, &err);
+      if( p==0 ){
+        fossil_print("manifest_parse failed for %s:\n%s\n",
+               blob_str(&cksum), blob_str(&err));
+        if( strncmp(blob_str(&err), "line 1:", 7)==0 ){
+          fossil_print("\"%s\"\n", zFirstLine);
+        }
+      }else{
+        anCA[p->type]++;
+        manifest_destroy(p);
+        nCA++;
+      }
+      blob_reset(&err);
+    }else{
+      blob_reset(&content);
+    }
     blob_reset(&cksum);
-    blob_reset(&content);
     n2++;
   }
   db_finalize(&q);
   fossil_print("%d non-phantom blobs (out of %d total) checked:  %d errors\n",
                n2, n1, nErr);
+  if( bParse ){
+    const char *azType[] = { 0, "manifest", "cluster", "control", "wiki",
+                             "ticket", "attachment", "event" };
+    int i;
+    fossil_print("%d total control artifacts\n", nCA);
+    for(i=1; i<count(azType); i++){
+      if( anCA[i] ) fossil_print("  %d %ss\n", anCA[i], azType[i]);
+    }
+  }
 }
 
 /*

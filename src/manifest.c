@@ -94,7 +94,7 @@ struct Manifest {
   char **azCChild;      /* UUIDs of referenced objects in a cluster. M cards */
   int nTag;             /* Number of T Cards */
   int nTagAlloc;        /* Slots allocated in aTag[] */
-  struct { 
+  struct TagType {
     char *zName;           /* Name of the tag */
     char *zUuid;           /* UUID that the tag is applied to */
     char *zValue;          /* Value if the tag is really a property */
@@ -355,7 +355,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   int n;
   char *zUuid;
   int sz = 0;
-  int isRepeat;
+  int isRepeat, hasSelfRefTag = 0;
   static Bag seen;
   const char *zErr = 0;
 
@@ -380,15 +380,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     return 0;
   }
 
-  /* Strip off the PGP signature if there is one.  Then verify the
-  ** Z-card.
+  /* Strip off the PGP signature if there is one.
   */
   remove_pgp_signature(&z, &n);
-  if( verify_z_card(z, n)==2 ){
-    blob_reset(pContent);
-    blob_appendf(pErr, "incorrect Z-card cksum");
-    return 0;
-  }
 
   /* Verify that the first few characters of the artifact look like
   ** a control artifact.
@@ -396,6 +390,13 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   if( n<10 || z[0]<'A' || z[0]>'Z' || z[1]!=' ' ){
     blob_reset(pContent);
     blob_appendf(pErr, "line 1 not recognized");
+    return 0;
+  }
+  /* Then verify the Z-card.
+  */
+  if( verify_z_card(z, n)==2 ){
+    blob_reset(pContent);
+    blob_appendf(pErr, "incorrect Z-card cksum");
     return 0;
   }
 
@@ -470,8 +471,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       **     C <comment>
       **
       ** Comment text is fossil-encoded.  There may be no more than
-      ** one C line.  C lines are required for manifests and are
-      ** disallowed on all other control files.
+      ** one C line.  C lines are required for manifests, are optional
+      ** for Events and Attachments, and are disallowed on all other
+      ** control files.
       */
       case 'C': {
         if( p->zComment!=0 ) SYNTAX("more than one C-card");
@@ -662,9 +664,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       /*
       **     P <uuid> ...
       **
-      ** Specify one or more other artifacts where are the parents of
+      ** Specify one or more other artifacts which are the parents of
       ** this artifact.  The first parent is the primary parent.  All
-      ** others are parents by merge.
+      ** others are parents by merge. Note that the initial empty
+      ** checkin historically has an empty P-card, so empty P-cards
+      ** must be accepted.
       */
       case 'P': {
         while( (zUuid = next_token(&x, &sz))!=0 ){
@@ -718,7 +722,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** in the manifest.
       */
       case 'R': {
-        if( p->zRepoCksum!=0 ) SYNTAX("more than on R-card");
+        if( p->zRepoCksum!=0 ) SYNTAX("more than one R-card");
         p->zRepoCksum = next_token(&x, &sz);
         if( sz!=32 ) SYNTAX("wrong size cksum on R-card");
         if( !validate16(p->zRepoCksum, 32) ) SYNTAX("malformed R-card cksum");
@@ -750,8 +754,13 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( zValue ) defossilize(zValue);
         if( sz==UUID_SIZE && validate16(zUuid, UUID_SIZE) ){
           /* A valid uuid */
+          if( p->zEventId ) SYNTAX("non-self-referential T-card in event");
         }else if( sz==1 && zUuid[0]=='*' ){
           zUuid = 0;
+          hasSelfRefTag = 1;
+          if( p->zEventId && zName[0]!='+' ){
+            SYNTAX("propagating T-card in event");
+          }
         }else{
           SYNTAX("malformed UUID on T-card");
         }
@@ -771,8 +780,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         p->aTag[i].zName = zName;
         p->aTag[i].zUuid = zUuid;
         p->aTag[i].zValue = zValue;
-        if( i>0 && fossil_strcmp(p->aTag[i-1].zName, zName)>=0 ){
-          SYNTAX("T-card in the wrong order");
+        if( i>0 ){
+          int c = fossil_strcmp(p->aTag[i-1].zName, zName);
+          if( c>0 || (c==0 && fossil_strcmp(p->aTag[i-1].zUuid, zUuid)>=0) ){
+            SYNTAX("T-card in the wrong order");
+          }
         }
         break;
       }
@@ -785,7 +797,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** If the user name is omitted, take that to be "anonymous".
       */
       case 'U': {
-        if( p->zUser!=0 ) SYNTAX("more than on U-card");
+        if( p->zUser!=0 ) SYNTAX("more than one U-card");
         p->zUser = next_token(&x, 0);
         if( p->zUser==0 ){
           p->zUser = "anonymous";
@@ -851,93 +863,80 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   }
   if( x.z<x.zEnd ) SYNTAX("extra characters at end of card");
 
-  if( p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
-    if( p->nCChild>0 ) SYNTAX("M-card in check-in");
-    if( p->rDate<=0.0 ) SYNTAX("missing date for check-in");
-    if( p->nField>0 ) SYNTAX("J-card in check-in");
-    if( p->zTicketUuid ) SYNTAX("K-card in check-in");
-    if( p->zWiki ) SYNTAX("W-card in check-in");
-    if( p->zWikiTitle ) SYNTAX("L-card in check-in");
-    if( p->zEventId ) SYNTAX("E-card in check-in");
-    if( p->zTicketUuid ) SYNTAX("K-card in check-in");
-    if( p->zAttachName ) SYNTAX("A-card in check-in");
-    p->type = CFTYPE_MANIFEST;
-  }else if( p->nCChild>0 ){
-    if( p->rDate>0.0
-     || p->zComment!=0
-     || p->zUser!=0
-     || p->nTag>0
-     || p->nParent>0
+  if( p->nCChild>0 ){
+    if( p->zAttachName
+     || p->zBaseline
+     || p->zComment
+     || p->rDate>0.0
+     || p->zEventId
+     || p->nFile>0
      || p->nField>0
      || p->zTicketUuid
-     || p->zWiki
      || p->zWikiTitle
-     || p->zEventId
-     || p->zAttachName
      || p->zMimetype
+     || p->nParent>0
+     || p->nCherrypick>0
+     || p->zRepoCksum
+     || p->nTag>0
+     || p->zUser
+     || p->zWiki
     ){
       SYNTAX("cluster contains a card other than M- or Z-");
     }
     if( !seenZ ) SYNTAX("missing Z-card on cluster");
     p->type = CFTYPE_CLUSTER;
-  }else if( p->nField>0 ){
-    if( p->rDate<=0.0 ) SYNTAX("missing date for ticket");
+  }else if( p->zEventId ){
+    if( p->rDate<=0.0 ) SYNTAX("missing date on event");
+    if( p->nFile>0 ) SYNTAX("F-card in event");
+    if( p->zRepoCksum ) SYNTAX("R-card in event");
+    if( p->zBaseline ) SYNTAX("B-card in event");
+    if( p->nField>0 ) SYNTAX("J-card in event");
+    if( p->zTicketUuid ) SYNTAX("K-card in event");
+    if( p->zWikiTitle!=0 ) SYNTAX("L-card in event");
+    if( p->zWiki==0 ) SYNTAX("missing W-card on event");
+    if( p->zAttachName ) SYNTAX("A-card in event");
+    if( !seenZ ) SYNTAX("missing Z-card on event");
+    p->type = CFTYPE_EVENT;
+  }else if( hasSelfRefTag || p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
+    if( p->rDate<=0.0 ) SYNTAX("missing date on manifest");
+    if( p->nField>0 ) SYNTAX("J-card in manifest");
+    if( p->zTicketUuid ) SYNTAX("K-card in manifest");
+    if( p->zWiki ) SYNTAX("W-card in manifest");
+    if( p->zWikiTitle ) SYNTAX("L-card in manifest");
+    if( p->zTicketUuid ) SYNTAX("K-card in manifest");
+    if( p->zAttachName ) SYNTAX("A-card in manifest");
+    p->type = CFTYPE_MANIFEST;
+  }else if( p->nField>0 || p->zTicketUuid!=0 ){
+    if( p->rDate<=0.0 ) SYNTAX("missing date on ticket");
     if( p->zWiki ) SYNTAX("W-card in ticket");
     if( p->zWikiTitle ) SYNTAX("L-card in ticket");
-    if( p->zEventId ) SYNTAX("E-card in ticket");
-    if( p->nCChild>0 ) SYNTAX("M-card in ticket");
+    if( p->nField==0 ) SYNTAX("missing J-card on ticket");
     if( p->nTag>0 ) SYNTAX("T-card in ticket");
-    if( p->zTicketUuid==0 ) SYNTAX("missing K-card in ticket");
-    if( p->zUser==0 ) SYNTAX("missing U-card in ticket");
+    if( p->zTicketUuid==0 ) SYNTAX("missing K-card on ticket");
+    if( p->zUser==0 ) SYNTAX("missing U-card on ticket");
     if( p->zAttachName ) SYNTAX("A-card in ticket");
     if( p->zMimetype) SYNTAX("N-card in ticket");
-    if( !seenZ ) SYNTAX("missing Z-card in ticket");
+    if( !seenZ ) SYNTAX("missing Z-card on ticket");
     p->type = CFTYPE_TICKET;
-  }else if( p->zEventId ){
-    if( p->rDate<=0.0 ) SYNTAX("missing date for event");
-    if( p->nCChild>0 ) SYNTAX("M-card in event");
-    if( p->zTicketUuid!=0 ) SYNTAX("K-card in event");
-    if( p->zWikiTitle!=0 ) SYNTAX("L-card in event");
-    if( p->zWiki==0 ) SYNTAX("W-card in event");
-    if( p->zAttachName ) SYNTAX("A-card in event");
-    for(i=0; i<p->nTag; i++){
-      if( p->aTag[i].zName[0]!='+' ) SYNTAX("propagating tag in event");
-      if( p->aTag[i].zUuid!=0 ) SYNTAX("non-self-referential tag in event");
-    }
-    if( !seenZ ) SYNTAX("Z-card missing in event");
-    p->type = CFTYPE_EVENT;
-  }else if( p->zWiki!=0 ){
-    if( p->rDate<=0.0 ) SYNTAX("date missing on wiki");
-    if( p->nCChild>0 ) SYNTAX("M-card in wiki");
+  }else if( p->zWiki!=0 || p->zWikiTitle!=0 ){
+    if( p->rDate<=0.0 ) SYNTAX("missing date on wiki");
     if( p->nTag>0 ) SYNTAX("T-card in wiki");
-    if( p->zTicketUuid!=0 ) SYNTAX("K-card in wiki");
-    if( p->zWikiTitle==0 ) SYNTAX("L-card in wiki");
+    if( p->zWiki==0 ) SYNTAX("missing W-card on wiki");
+    if( p->zWikiTitle==0 ) SYNTAX("missing L-card on wiki");
     if( p->zAttachName ) SYNTAX("A-card in wiki");
     if( !seenZ ) SYNTAX("missing Z-card on wiki");
     p->type = CFTYPE_WIKI;
-  }else if( p->nTag>0 ){
-    if( p->rDate<=0.0 ) SYNTAX("date missing on tag");
-    if( p->nParent>0 ) SYNTAX("P-card on tag");
-    if( p->zWikiTitle ) SYNTAX("L-card on tag");
-    if( p->zTicketUuid ) SYNTAX("K-card in tag");
-    if( p->zAttachName ) SYNTAX("A-card in tag");
-    if( p->zMimetype ) SYNTAX("N-card in tag");
-    if( !seenZ ) SYNTAX("missing Z-card on tag");
-    p->type = CFTYPE_CONTROL;
   }else if( p->zAttachName ){
-    if( p->nCChild>0 ) SYNTAX("M-card in attachment");
-    if( p->rDate<=0.0 ) SYNTAX("missing date in attachment");
-    if( p->zTicketUuid ) SYNTAX("K-card in attachment");
-    if( p->zWikiTitle ) SYNTAX("L-card in attachment");
+    if( p->rDate<=0.0 ) SYNTAX("missing date on attachment");
+    if( p->nTag>0 ) SYNTAX("T-card in attachment");
     if( !seenZ ) SYNTAX("missing Z-card on attachment");
     p->type = CFTYPE_ATTACHMENT;
   }else{
-    if( p->nCChild>0 ) SYNTAX("M-card in check-in");
-    if( p->rDate<=0.0 ) SYNTAX("missing date in check-in");
-    if( p->nField>0 ) SYNTAX("J-card in check-in");
-    if( p->zTicketUuid ) SYNTAX("K-card in check-in");
-    if( p->zWikiTitle ) SYNTAX("L-card in check-in");
-    p->type = CFTYPE_MANIFEST;
+    if( p->rDate<=0.0 ) SYNTAX("missing date on control");
+    if( p->nParent>0 ) SYNTAX("P-card in control");
+    if( p->zMimetype ) SYNTAX("N-card in control");
+    if( !seenZ ) SYNTAX("missing Z-card on control");
+    p->type = CFTYPE_CONTROL;
   }
   md5sum_init();
   if( !isRepeat ) g.parseCnt[p->type]++;
@@ -1614,6 +1613,20 @@ void manifest_ticket_event(
 }
 
 /*
+** This is the comparison function used to sort the tag array.
+*/
+static int tag_compare(const void *a, const void *b){
+  struct TagType *pA = (struct TagType*)a;
+  struct TagType *pB = (struct TagType*)b;
+  int c;
+  c = fossil_strcmp(pA->zUuid, pB->zUuid);
+  if( c==0 ){
+    c = fossil_strcmp(pA->zName, pB->zName);
+  }
+  return c;
+}
+
+/*
 ** Scan artifact rid/pContent to see if it is a control artifact of
 ** any key:
 **
@@ -1935,12 +1948,17 @@ int manifest_crosslink(int rid, Blob *pContent){
     const char *zUuid;
     int branchMove = 0;
     blob_zero(&comment);
+    if( p->zComment ){
+      blob_appendf(&comment, " %s.", p->zComment);
+    }
+    /* Next loop expects tags to be sorted on UUID, so sort it. */
+    qsort(p->aTag, p->nTag, sizeof(p->aTag[0]), tag_compare);
     for(i=0; i<p->nTag; i++){
       zUuid = p->aTag[i].zUuid;
+      if( !zUuid ) continue;
       if( i==0 || fossil_strcmp(zUuid, p->aTag[i-1].zUuid)!=0 ){
-        if( i>0 ) blob_append(&comment, " ", 1);
         blob_appendf(&comment,
-           "Edit [%S]:",
+           " Edit [%S]:",
            zUuid);
         branchMove = 0;
       }
@@ -1951,34 +1969,38 @@ int manifest_crosslink(int rid, Blob *pContent){
            " Move to branch [/timeline?r=%h&nd&dp=%S | %h].",
            zValue, zUuid, zValue);
         branchMove = 1;
+        continue;
       }else if( strcmp(zName, "*bgcolor")==0 ){
         blob_appendf(&comment,
            " Change branch background color to \"%h\".", zValue);
+        continue;
       }else if( strcmp(zName, "+bgcolor")==0 ){
         blob_appendf(&comment,
            " Change background color to \"%h\".", zValue);
+        continue;
       }else if( strcmp(zName, "-bgcolor")==0 ){
-        blob_appendf(&comment, " Cancel background color.");
+        blob_appendf(&comment, " Cancel background color");
       }else if( strcmp(zName, "+comment")==0 ){
         blob_appendf(&comment, " Edit check-in comment.");
+        continue;
       }else if( strcmp(zName, "+user")==0 ){
         blob_appendf(&comment, " Change user to \"%h\".", zValue);
+        continue;
       }else if( strcmp(zName, "+date")==0 ){
         blob_appendf(&comment, " Timestamp %h.", zValue);
+        continue;
       }else if( memcmp(zName, "-sym-",5)==0 ){
-        if( !branchMove ) blob_appendf(&comment, " Cancel tag %h.", &zName[5]);
+        if( !branchMove ) blob_appendf(&comment, " Cancel tag \"%h\"", &zName[5]);
       }else if( memcmp(zName, "*sym-",5)==0 ){
         if( !branchMove ){
-          blob_appendf(&comment, " Add propagating tag \"%h\".", &zName[5]);
+          blob_appendf(&comment, " Add propagating tag \"%h\"", &zName[5]);
         }
       }else if( memcmp(zName, "+sym-",5)==0 ){
-        blob_appendf(&comment, " Add tag \"%h\".", &zName[5]);
-      }else if( memcmp(zName, "-sym-",5)==0 ){
-        blob_appendf(&comment, " Cancel tag \"%h\".", &zName[5]);
+        blob_appendf(&comment, " Add tag \"%h\"", &zName[5]);
       }else if( strcmp(zName, "+closed")==0 ){
-        blob_appendf(&comment, " Marked \"Closed\".");
+        blob_append(&comment, " Marked \"Closed\"", -1);
       }else if( strcmp(zName, "-closed")==0 ){
-        blob_appendf(&comment, " Removed the \"Closed\" mark.");
+        blob_append(&comment, " Removed the \"Closed\" mark", -1);
       }else {
         if( zName[0]=='-' ){
           blob_appendf(&comment, " Cancel \"%h\"", &zName[1]);
@@ -1992,13 +2014,20 @@ int manifest_crosslink(int rid, Blob *pContent){
         }else{
           blob_appendf(&comment, ".");
         }
+        continue;
+      }
+      if( zValue && zValue[0] ){
+        blob_appendf(&comment, " with note \"%h\".", zValue);
+      }else{
+        blob_appendf(&comment, ".");
       }
     }
     /*blob_appendf(&comment, " &#91;[/info/%S | details]&#93;");*/
+    if( blob_size(&comment)==0 ) blob_append(&comment, " ", 1);
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment)"
       "VALUES('g',%.17g,%d,%Q,%Q)",
-      p->rDate, rid, p->zUser, blob_str(&comment)
+      p->rDate, rid, p->zUser, blob_str(&comment)+1
     );
     blob_reset(&comment);
   }
