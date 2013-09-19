@@ -101,6 +101,7 @@ struct TclContext {
   void *library;         /* The Tcl library module handle. */
   void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
+  void *xDeleteInterp;   /* See tcl_DeleteInterpProc in th_tcl.c. */
   Tcl_Interp *interp;    /* The on-demand created Tcl interpreter. */
   char *setup;           /* The optional Tcl setup script. */
   void *xPreEval;        /* Optional, called before Tcl_Eval*(). */
@@ -784,6 +785,9 @@ void cmd_test_webpage_list(void){
   multi_column_list(aCmd, nCmd);
 }
 
+
+
+
 /*
 ** COMMAND: version
 **
@@ -808,23 +812,23 @@ void version_cmd(void){
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
     fossil_print("SQLite %s %.30s\n", SQLITE_VERSION, SQLITE_SOURCE_ID);
     fossil_print("Schema version %s\n", AUX_SCHEMA);
-    fossil_print("zlib %s\n", ZLIB_VERSION);
+    fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #if defined(FOSSIL_ENABLE_SSL)
     fossil_print("SSL (%s)\n", OPENSSL_VERSION_TEXT);
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
-    Th_FossilInit(0, 0);
-    th_register_tcl(g.interp, &g.tcl);
-    rc = Th_Eval(g.interp, 0, "tclEval {package require Tcl}", -1);
-    zRc = Th_ReturnCodeName(rc, 1);
-    fossil_print("TCL (Tcl %s%s%s%s)\n", zRc, zRc ? ": " : "",
-      Th_GetResult(g.interp, 0),
-#if defined(FOSSIL_ENABLE_TCL_STUBS)
-      zRc? "" : ", loaded only when needed"
-#else
-      ""
-#endif
+    Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
+    rc = Th_Eval(g.interp, 0, "tclEval {info patchlevel}", -1);
+    zRc = Th_ReturnCodeName(rc, 0);
+    fossil_print("TCL (Tcl %s, loaded %s: %s)\n",
+      TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
     );
+#endif
+#if defined(FOSSIL_ENABLE_TCL_STUBS)
+    fossil_print("TCL_STUBS\n");
+#endif
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+    fossil_print("TCL_PRIVATE_STUBS\n");
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
     fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
