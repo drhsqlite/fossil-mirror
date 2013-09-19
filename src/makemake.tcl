@@ -293,6 +293,7 @@ append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
 append opt " -DSQLITE_ENABLE_STAT3"
 append opt " -Dlocaltime=fossil_localtime"
 append opt " -DSQLITE_ENABLE_LOCKING_STYLE=0"
+append opt " -DSQLITE_WIN32_NO_ANSI"
 set SQLITE_OPTIONS $opt
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
@@ -392,9 +393,13 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_TCL = 1
 
-#### Load Tcl using the stubs mechanism
+#### Load Tcl using the stubs library mechanism
 #
 # FOSSIL_ENABLE_TCL_STUBS = 1
+
+#### Load Tcl using the private stubs mechanism
+#
+# FOSSIL_ENABLE_TCL_PRIVATE_STUBS = 1
 
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
@@ -451,9 +456,13 @@ TCLLIBDIR = $(TCLDIR)/lib
 #### Tcl: Which Tcl library do we want to use (8.4, 8.5, 8.6, etc)?
 #
 ifdef FOSSIL_ENABLE_TCL_STUBS
+ifndef FOSSIL_ENABLE_TCL_PRIVATE_STUBS
 LIBTCL = -ltclstub86
+endif
+TCLTARGET = libtclstub86.a
 else
 LIBTCL = -ltcl86
+TCLTARGET = binaries
 endif
 
 #### C Compile and options for use in building executables that
@@ -513,6 +522,10 @@ RCC += -DFOSSIL_ENABLE_TCL=1
 ifdef FOSSIL_ENABLE_TCL_STUBS
 TCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
 RCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
+ifdef FOSSIL_ENABLE_TCL_PRIVATE_STUBS
+TCC += -DFOSSIL_ENABLE_TCL_PRIVATE_STUBS=1
+RCC += -DFOSSIL_ENABLE_TCL_PRIVATE_STUBS=1
+endif
 else
 TCC += -DSTATIC_BUILD
 RCC += -DSTATIC_BUILD
@@ -691,6 +704,23 @@ endif
 
 zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
+
+clean-zlib:
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
+
+openssl:	zlib
+	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib mingw
+	$(MAKE) -C $(OPENSSLLIBDIR) build_libs
+
+clean-openssl:
+	$(MAKE) -C $(OPENSSLLIBDIR) clean
+
+tcl:
+	cd $(TCLSRCDIR)/win;./configure
+	$(MAKE) -C $(TCLSRCDIR)/win $(TCLTARGET)
+
+clean-tcl:
+	$(MAKE) -C $(TCLSRCDIR)/win distclean
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
@@ -1232,13 +1262,13 @@ UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 SQLITESRC=sqlite3.c
 ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
-SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0
+SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_WIN32_NO_ANSI
 
 # define the sqlite shell files, which need special flags on compile
 SQLITESHELLSRC=shell.c
 ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
-SQLITESHELLDEFINES=-Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1
+SQLITESHELLDEFINES=-Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -Dsqlite3_strglob=strglob
 
 # define the th scripting files, which need special flags on compile
 THSRC=th.c th_lang.c

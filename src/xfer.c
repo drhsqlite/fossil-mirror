@@ -47,7 +47,7 @@ struct Xfer {
   int nFileRcvd;      /* Number of files received */
   int nDeltaRcvd;     /* Number of deltas received */
   int nDanglingFile;  /* Number of dangling deltas received */
-  int mxSend;         /* Stop sending "file" with pOut reaches this size */
+  int mxSend;         /* Stop sending "file" when pOut reaches this size */
   int resync;         /* Send igot cards for all holdings */
   u8 syncPrivate;     /* True to enable syncing private content */
   u8 nextIsPrivate;   /* If true, next "file" received is a private */
@@ -829,7 +829,7 @@ static int run_script(const char *zScript){
   if( !zScript ){
     return TH_OK; /* No script, return success. */
   }
-  Th_FossilInit(0, 0); /* Make sure TH1 is ready. */
+  Th_FossilInit(TH_INIT_DEFAULT); /* Make sure TH1 is ready. */
   return Th_Eval(g.interp, 0, zScript, -1);
 }
 

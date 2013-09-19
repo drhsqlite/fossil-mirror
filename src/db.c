@@ -2200,7 +2200,7 @@ struct stControlSettings const ctrlSettings[] = {
 **                     for committing and merging purposes.  Example: *.jpg
 **
 **    case-sensitive   If TRUE, the files whose names differ only in case
-**                     care considered distinct.  If FALSE files whose names
+**                     are considered distinct.  If FALSE files whose names
 **                     differ only in case are the same file.  Defaults to
 **                     TRUE for unix and FALSE for Cygwin, Mac and Windows.
 **

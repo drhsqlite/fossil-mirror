@@ -101,6 +101,7 @@ struct TclContext {
   void *library;         /* The Tcl library module handle. */
   void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
+  void *xDeleteInterp;   /* See tcl_DeleteInterpProc in th_tcl.c. */
   Tcl_Interp *interp;    /* The on-demand created Tcl interpreter. */
   char *setup;           /* The optional Tcl setup script. */
   void *xPreEval;        /* Optional, called before Tcl_Eval*(). */
@@ -871,6 +872,9 @@ void cmd_test_webpage_list(void){
   multi_column_list(aCmd, nCmd);
 }
 
+
+
+
 /*
 ** COMMAND: version
 **
@@ -887,19 +891,31 @@ void version_cmd(void){
   if(!find_option("verbose","v",0)){
     return;
   }else{
+#if defined(FOSSIL_ENABLE_TCL)
+    int rc;
+    const char *zRc;
+#endif
     fossil_print("Compiled on %s %s using %s (%d-bit)\n",
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
     fossil_print("SQLite %s %.30s\n", SQLITE_VERSION, SQLITE_SOURCE_ID);
     fossil_print("Schema version %s\n", AUX_SCHEMA);
-    fossil_print("zlib %s\n", ZLIB_VERSION);
+    fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #if defined(FOSSIL_ENABLE_SSL)
     fossil_print("SSL (%s)\n", OPENSSL_VERSION_TEXT);
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
-    fossil_print("TCL (Tcl %s)\n", TCL_PATCH_LEVEL);
+    Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
+    rc = Th_Eval(g.interp, 0, "tclEval {info patchlevel}", -1);
+    zRc = Th_ReturnCodeName(rc, 0);
+    fossil_print("TCL (Tcl %s, loaded %s: %s)\n",
+      TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
+    );
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
     fossil_print("TCL_STUBS\n");
+#endif
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+    fossil_print("TCL_PRIVATE_STUBS\n");
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
     fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
