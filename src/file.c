@@ -879,17 +879,21 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
     while( zPath[i] && zPwd[i]==zPath[i] ) i++;
 #endif
     if( zPath[i]==0 ){
-      blob_reset(pOut);
+      memcpy(&tmp, pOut, sizeof(tmp));
       if( zPwd[i]==0 ){
-        blob_append(pOut, ".", 1);
+        blob_set(pOut, ".");
       }else{
-        blob_append(pOut, "..", 2);
+        blob_set(pOut, "..");
         for(j=i+1; zPwd[j]; j++){
           if( zPwd[j]=='/' ){
             blob_append(pOut, "/..", 3);
           }
         }
       }
+      if( slash && i>0 && zPath[strlen(zPath)-1]=='/'){
+        blob_append(pOut, "/", 1);
+      }
+      blob_reset(&tmp);
       return;
     }
     if( zPwd[i]==0 && zPath[i]=='/' ){
