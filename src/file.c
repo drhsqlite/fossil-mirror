@@ -796,11 +796,12 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 void cmd_test_canonical_name(void){
   int i;
   Blob x;
+  int slashFlag = find_option("slash",0,0)!=0;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
     char zBuf[100];
     const char *zName = g.argv[i];
-    file_canonical_name(zName, &x, 0);
+    file_canonical_name(zName, &x, slashFlag);
     fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
     blob_reset(&x);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zName));
@@ -918,10 +919,11 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
 */
 void cmd_test_relative_name(void){
   int i;
+  int slashFlag = find_option("slash",0,0)!=0;
   Blob x;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
-    file_relative_name(g.argv[i], &x, 0);
+    file_relative_name(g.argv[i], &x, slashFlag);
     fossil_print("%s\n", blob_buffer(&x));
     blob_reset(&x);
   }
