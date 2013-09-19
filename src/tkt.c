@@ -526,7 +526,7 @@ static int ticket_put(
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   manifest_crosslink_begin();
-  result = manifest_crosslink(rid, pTicket);
+  result = manifest_crosslink(rid, pTicket)==0;
   assert( blob_is_reset(pTicket) );
   manifest_crosslink_end();
   return result;
@@ -1341,7 +1341,7 @@ void ticket_cmd(void){
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
       if( run_common_script() || ticket_put(&tktchng, zTktUuid, 0)){
-        fossil_panic("%s\n", g.zErrMsg);
+        fossil_fatal("%s\n", g.zErrMsg);
       }else{
         fossil_print("ticket %s succeeded for %s\n",
              (eCmd==set?"set":"add"),zTktUuid);

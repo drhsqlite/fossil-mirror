@@ -294,7 +294,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
   run_common_script();
-  if( manifest_crosslink(brid, &branch) ){
+  if( manifest_crosslink(brid, &branch)==0 ){
     fossil_fatal("%s\n", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
