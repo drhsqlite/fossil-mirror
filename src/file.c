@@ -923,8 +923,8 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
 */
 void cmd_test_relative_name(void){
   int i;
-  int slashFlag = find_option("slash",0,0)!=0;
   Blob x;
+  int slashFlag = find_option("slash",0,0)!=0;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
     file_relative_name(g.argv[i], &x, slashFlag);
