@@ -825,7 +825,7 @@ void version_cmd(void){
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
     Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
-    rc = Th_Eval(g.interp, 0, "tclEval {info patchlevel}", -1);
+    rc = Th_Eval(g.interp, 0, "tclInvoke info patchlevel", -1);
     zRc = Th_ReturnCodeName(rc, 0);
     fossil_print("TCL (Tcl %s, loaded %s: %s)\n",
       TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)

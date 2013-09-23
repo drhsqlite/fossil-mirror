@@ -31,23 +31,24 @@
  */
 #if !defined(USE_TCL_EVALOBJV)
 /*
-** Are we being compiled against Tcl 8.6b1 or b2?  This check is [mostly]
+** Are we being compiled against Tcl 8.4, 8.6b1 or b2?  This check is [mostly]
 ** wrong for at the following reason:
 **
 ** 1. Technically, this check is completely useless when the stubs mechanism
 **    is in use.  In that case, a runtime version check would be required and
 **    that has not been implemented.
 **
-** However, if a particular user compiles and runs against Tcl 8.6b1 or b2,
+** However, if a particular user compiles and runs against Tcl 8.4, 8.6b1 or b2,
 ** this will cause a fallback to using the "conservative" method of directly
 ** invoking a Tcl command.  In that case, potential crashes will be avoided if
-** the user just so happened to compile or run against Tcl 8.6b1 or b2.
+** the user just so happened to compile or run against Tcl 8.4, 8.6b1 or b2.
  */
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION == 6) && \
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION < 5) || (TCL_MINOR_VERSION == 6) && \
     (TCL_RELEASE_LEVEL == TCL_BETA_RELEASE) && (TCL_RELEASE_SERIAL < 3)
 /*
 ** Workaround NRE-specific issue in Tcl_EvalObjCmd (SF bug #3399564) by using
-** Tcl_EvalObjv instead of invoking the objProc directly.
+** Tcl_EvalObjv instead of invoking the objProc directly. In addition, Tcl 8.4
+** doesn't have the function Tcl_GetCommandFromObj (see TIP #139)
  */
 #  define USE_TCL_EVALOBJV    (1)
 #else
@@ -445,16 +446,16 @@ static int tclInvoke_command(
   int *argl
 ){
   Tcl_Interp *tclInterp;
-#if !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV
+#if !USE_TCL_EVALOBJV
   Tcl_Command command;
   Tcl_CmdInfo cmdInfo;
-#endif /* !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV */
+#endif /* !USE_TCL_EVALOBJV */
   int rc = TH_OK;
   int nResult;
   const char *zResult;
-#if !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV
+#if !USE_TCL_EVALOBJV
   Tcl_Obj *objPtr;
-#endif /* !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV */
+#endif /* !USE_TCL_EVALOBJV */
   USE_ARGV_TO_OBJV();
 
   if( createTclInterp(interp, ctx)!=TH_OK ){
@@ -473,7 +474,7 @@ static int tclInvoke_command(
     return rc;
   }
   Tcl_Preserve((ClientData)tclInterp);
-#if !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV
+#if !USE_TCL_EVALOBJV
   objPtr = Tcl_NewStringObj(argv[1], argl[1]);
   Tcl_IncrRefCount(objPtr);
   command = Tcl_GetCommandFromObj(tclInterp, objPtr);
@@ -490,14 +491,14 @@ static int tclInvoke_command(
     return TH_ERROR;
   }
   Tcl_DecrRefCount(objPtr);
-#endif /* !defined(USE_TCL_EVALOBJV) || !USE_TCL_EVALOBJV */
+#endif /* !USE_TCL_EVALOBJV */
   COPY_ARGV_TO_OBJV();
-#if defined(USE_TCL_EVALOBJV) && USE_TCL_EVALOBJV
+#if USE_TCL_EVALOBJV
   rc = Tcl_EvalObjv(tclInterp, objc, objv, 0);
 #else
   Tcl_ResetResult(tclInterp);
   rc = cmdInfo.objProc(cmdInfo.objClientData, tclInterp, objc, objv);
-#endif /* defined(USE_TCL_EVALOBJV) && USE_TCL_EVALOBJV */
+#endif /* USE_TCL_EVALOBJV */
   FREE_ARGV_TO_OBJV();
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
@@ -672,10 +673,14 @@ static int loadTcl(
       *pxDeleteInterp = xDeleteInterp;
       return TH_OK;
     }
-  } while( --fileName[TCL_MINOR_OFFSET]>'3' ); /* Tcl 8.4+ */
+  } while( --fileName[TCL_MINOR_OFFSET]>(USE_TCL_EVALOBJV?'4':'3') ); /* Tcl 8.5+ or 4*/
   fileName[TCL_MINOR_OFFSET] = 'x';
   Th_ErrorMessage(interp,
+#if USE_TCL_EVALOBJV
       "could not load any supported Tcl 8.6, 8.5, or 8.4 shared library \"",
+#else
+      "could not load any supported Tcl 8.6 or 8.5 shared library \"",
+#endif
       fileName, -1);
   return TH_ERROR;
 #else
