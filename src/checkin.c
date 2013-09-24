@@ -644,8 +644,12 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
        "# Type \".\" on a line by itself when you are done:\n", -1);
     zFile = mprintf("-");
   }else{
+    Blob fname;
+    blob_zero(&fname);
+    file_relative_name(g.zLocalRoot, &fname, 1);
     zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
-                    g.zLocalRoot);
+                    blob_str(&fname));
+    blob_reset(&fname);
   }
 #if defined(_WIN32)
   blob_add_cr(pPrompt);

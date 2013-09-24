@@ -346,6 +346,16 @@ static int name_search(
 ** used by fossil.
 */
 static void fossil_atexit(void) {
+#if defined(_WIN32) && defined(USE_TCL_STUBS)
+  /* If Tcl is compiled on win32 using the latest mingw,
+   * fossil crashes when exiting while Tcl is still loaded.
+   * That's a bug in mingw, see:
+   * <http://comments.gmane.org/gmane.comp.gnu.mingw.user/41724>
+   * but the workaround is not that bad at all: */
+  if( g.tcl.library ){
+    FreeLibrary(g.tcl.library);
+  }
+#endif
 #ifdef FOSSIL_ENABLE_JSON
   cson_value_free(g.json.gc.v);
   memset(&g.json, 0, sizeof(g.json));
