@@ -300,6 +300,7 @@ static int hascapCmd(
 **
 ** "ssl"             = FOSSIL_ENABLE_SSL
 ** "tcl"             = FOSSIL_ENABLE_TCL
+** "useTclStubs"     = USE_TCL_STUBS
 ** "tclStubs"        = FOSSIL_ENABLE_TCL_STUBS
 ** "tclPrivateStubs" = FOSSIL_ENABLE_TCL_PRIVATE_STUBS
 ** "json"            = FOSSIL_ENABLE_JSON
@@ -329,6 +330,11 @@ static int hasfeatureCmd(
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
   else if( 0 == fossil_strnicmp( zArg, "tcl\0", 4 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(USE_TCL_STUBS)
+  else if( 0 == fossil_strnicmp( zArg, "useTclStubs\0", 12 ) ){
     rc = 1;
   }
 #endif
