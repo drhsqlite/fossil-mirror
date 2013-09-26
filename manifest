@@ -1,5 +1,5 @@
-C Add\sformal\sunloading\ssupport\sto\sthe\sTcl\sintegration\ssubsystem.\s\sThis\sis\snecessary\sto\sprevent\sa\sdeadlock\swhile\sexiting\sthe\sprocess\swhen\sTcl\sis\sloaded.\sAdd\sruntime\sdetection\sof\sthe\sability\sto\sdirectly\sinvoke\san\sobjProc\sfor\sa\sTcl\scommand.\sSupport\sUSE_TCL_STUBS\sdefine\sin\sthe\sversion\sinformation.
-D 2013-09-25T23:56:32.927
+C Workaround\sfor\s[http://sourceforge.net/p/mingw/bugs/2062/|MinGW\sbug\s#2062]
+D 2013-09-26T06:58:59.276
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -367,7 +367,7 @@ F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 780da40a082140996567309334f12e138275d1c1
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c 6a58a3619736eb27f1475597cefd751609fd6b8e
+F src/main.c b6d62892df6e4d70cba746df1933eb2a43414b4c
 F src/main.mk f7d0f9802282ed6e022da703643799c4380c946c
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -634,7 +634,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P da96f916cb02bdb94f9c4b457b377a954b176cd3
-R 9c3eec051fdcad6a42f1cfb38161cf3a
-U mistachkin
-Z 52497a17e943f51b94bbecf428963587
+P 6b58c67ed8f95c327eab7e97e1977bcb23ef0138
+R b2ed4161ff7942ab9f3c95dd0b01cfee
+U jan.nijtmans
+Z 14a2ca3a9bef57b04899a3dd877563f0

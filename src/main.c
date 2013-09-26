@@ -542,6 +542,9 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 int _dowildcard = -1; /* This turns on command-line globbing in MinGW-w64 */
 int wmain(int argc, wchar_t **argv)
 #else
+#if defined(_WIN32)
+int _CRT_glob = 0x0001; /* See MinGW bug #2062 */
+#endif
 int main(int argc, char **argv)
 #endif
 {
