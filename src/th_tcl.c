@@ -870,6 +870,7 @@ static int createTclInterp(
   return TH_OK;
 }
 
+#if defined(_WIN32) && !defined(_WIN64) && defined(FOSSIL_ENABLE_TCL) && defined(USE_TCL_STUBS)
 /*
 ** Finalizes and unloads the previously loaded Tcl library, if applicable.
 */
@@ -879,10 +880,7 @@ int unloadTcl(
 ){
   struct TclContext *tclContext = (struct TclContext *)pContext;
   Tcl_Interp *tclInterp;
-  tcl_FinalizeProc *xFinalize;
-#if defined(USE_TCL_STUBS)
   void *library;
-#endif /* defined(USE_TCL_STUBS) */
 
   if ( !tclContext ){
     Th_ErrorMessage(interp,
@@ -890,25 +888,13 @@ int unloadTcl(
     return TH_ERROR;
   }
   /*
-  ** Grab the Tcl_Finalize function pointer prior to deleting the Tcl
-  ** interpreter because the memory backing the Tcl stubs table will
-  ** be going away.
-  */
-  xFinalize = tclContext->xFinalize;
-  /*
   ** If the Tcl interpreter has been created, formally delete it now.
   */
   tclInterp = tclContext->interp;
   if ( tclInterp ){
     Tcl_DeleteInterp(tclInterp);
-    tclContext->interp = tclInterp = 0;
+    tclContext->interp = 0;
   }
-  /*
-  ** If the Tcl library is not finalized prior to unloading it, a deadlock
-  ** can occur in some circumstances (i.e. the [clock] thread is running).
-  */
-  if( xFinalize ) xFinalize();
-#if defined(USE_TCL_STUBS)
   /*
   ** If Tcl is compiled on Windows using the latest MinGW, Fossil can crash
   ** when exiting while a stubs-enabled Tcl is still loaded.  This is due to
@@ -921,12 +907,17 @@ int unloadTcl(
   */
   library = tclContext->library;
   if( library ){
+    /*
+    ** If the Tcl library is not finalized prior to unloading it, a deadlock
+    ** can occur in some circumstances (i.e. the [clock] thread is running).
+    */
+    tclContext->xFinalize();
     dlclose(library);
-    tclContext->library = library = 0;
+    tclContext->library = 0;
   }
-#endif /* defined(USE_TCL_STUBS) */
   return TH_OK;
 }
+#endif
 
 /*
 ** Register the Tcl language commands with interpreter interp.
