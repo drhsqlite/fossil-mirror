@@ -348,7 +348,8 @@ static int name_search(
 ** used by fossil.
 */
 static void fossil_atexit(void) {
-#if defined(_WIN32) && defined(FOSSIL_ENABLE_TCL) && defined(USE_TCL_STUBS)
+#if defined(_WIN32) && !defined(_WIN64) && defined(FOSSIL_ENABLE_TCL) && \
+    defined(USE_TCL_STUBS)
   /*
   ** If Tcl is compiled on Windows using the latest MinGW, Fossil can crash
   ** when exiting while a stubs-enabled Tcl is still loaded.  This is due to
@@ -357,7 +358,7 @@ static void fossil_atexit(void) {
   **     http://comments.gmane.org/gmane.comp.gnu.mingw.user/41724
   **
   ** The workaround is to manually unload the loaded Tcl library prior to
-  ** exiting the process.
+  ** exiting the process.  This issue does not impact 64-bit Windows.
   */
   unloadTcl(g.interp, &g.tcl);
 #endif
