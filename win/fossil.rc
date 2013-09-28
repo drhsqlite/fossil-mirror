@@ -105,6 +105,11 @@ BEGIN
 #endif /* defined(FOSSIL_ENABLE_SSL) */
 #if defined(FOSSIL_ENABLE_TCL)
       VALUE "TclEnabled", "Yes, Tcl " TCL_PATCH_LEVEL "\0"
+#if defined(USE_TCL_STUBS)
+      VALUE "UseTclStubsEnabled", "Yes\0"
+#else
+      VALUE "UseTclStubsEnabled", "No\0"
+#endif /* defined(USE_TCL_STUBS) */
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
       VALUE "TclStubsEnabled", "Yes\0"
 #else
