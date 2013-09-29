@@ -250,7 +250,7 @@ void status_cmd(void){
 ** Usage: %fossil ls ?OPTIONS? ?VERSION? ?FILENAMES?
 **
 ** Show the names of all files in the current checkout.  The -v provides
-** extra information about each file.  If FILENAMES are included, the only
+** extra information about each file.  If FILENAMES are included, only
 ** the files listed (or their children if they are directories) are shown.
 **
 ** Options:
