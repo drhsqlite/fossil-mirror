@@ -1151,6 +1151,9 @@ static char *enter_chroot_jail(char *zRepo){
     struct stat sStat;
     Blob dir;
     char *zDir;
+    if( g.db!=0 ){
+      db_close(1);
+    }
 
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
@@ -1179,10 +1182,7 @@ static char *enter_chroot_jail(char *zRepo){
     if(i){
       fossil_fatal("setgid/uid() failed with errno %d", errno);
     }
-    if( g.db!=0 ){
-      db_close(1);
-      db_open_repository(zRepo);
-    }
+    db_open_repository(zRepo);
   }
 #endif
   return zRepo;
