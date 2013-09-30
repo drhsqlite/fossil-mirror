@@ -1161,8 +1161,8 @@ void page_timeline(void){
     blob_append(&sql, ")", -1);
     path_reset();
     blob_append(&desc, "All nodes on the path from ", -1);
-    blob_appendf(&desc, "%z%h</a>", href("%R/info/%h", zFrom), zFrom);
-    blob_append(&desc, " and ", -1);
+    blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
+    blob_append(&desc, " to ", -1);
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h",zTo), zTo);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_str(&sql));
