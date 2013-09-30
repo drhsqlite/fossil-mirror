@@ -565,7 +565,7 @@ int vfile_dir_scan(
     db_prepare(&ins,
        "INSERT OR IGNORE INTO dscan_temp(x, y) SELECT :file, :count"
        "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
-       " pathname GLOB :pattern %s)", filename_collation()
+       " pathname GLOB :file || '/*' %s)", filename_collation()
     );
     db_prepare(&upd,
        "UPDATE OR IGNORE dscan_temp SET y = coalesce(y, 0) + 1"
@@ -597,17 +597,14 @@ int vfile_dir_scan(
         /* do nothing */
       }else if( file_wd_isdir(zPath)==1 ){
         if( (scanFlags & SCAN_NESTED) || !vfile_top_of_checkout(zPath) ){
-          Blob dirPattern;
+          char *zSavePath = mprintf("%s", zPath);
           int count = vfile_dir_scan(pPath, nPrefix, scanFlags, pIgnore1,
                                      pIgnore2, pIgnore3);
-          blob_init(&dirPattern, &zPath[nPrefix+1], -1);
-          blob_appendf(&dirPattern, "*");
-          db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
+          db_bind_text(&ins, ":file", &zSavePath[nPrefix+1]);
           db_bind_int(&ins, ":count", count);
-          db_bind_text(&ins, ":pattern", blob_str(&dirPattern));
           db_step(&ins);
           db_reset(&ins);
-          blob_reset(&dirPattern);
+          fossil_free(zSavePath);
           result += count; /* found X normal files? */
         }
       }else if( file_wd_isfile_or_link(zPath) ){
