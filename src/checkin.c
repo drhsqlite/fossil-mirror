@@ -517,7 +517,8 @@ void extra_cmd(void){
 **                     not be checked.
 **    --case-sensitive <BOOL> override case-sensitive setting
 **    --dirsonly       Only remove empty directories.  No files will
-**                     be removed.
+**                     be removed.  Using this option will automatically
+**                     enable the --emptydirs option as well.
 **    --dotfiles       Include files beginning with a dot (".").
 **    --emptydirs      Remove any empty directories that are not
 **                     explicitly exempted via the empty-dirs setting
@@ -552,8 +553,8 @@ void clean_cmd(void){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
   allFileFlag = allDirFlag = find_option("force","f",0)!=0;
-  emptyDirsFlag = find_option("emptydirs","d",0)!=0;
   dirsOnlyFlag = find_option("dirsonly",0,0)!=0;
+  emptyDirsFlag = dirsOnlyFlag || find_option("emptydirs","d",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   if( find_option("allckouts",0,0)!=0 ) scanFlags |= SCAN_NESTED;
