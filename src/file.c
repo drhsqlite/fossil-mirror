@@ -463,16 +463,20 @@ void test_set_mtime(void){
 
 /*
 ** Delete a file.
+**
+** Returns zero upon success.
 */
-void file_delete(const char *zFilename){
+int file_delete(const char *zFilename){
+  int rc;
 #ifdef _WIN32
   wchar_t *z = fossil_utf8_to_filename(zFilename);
-  _wunlink(z);
+  rc = _wunlink(z);
 #else
   char *z = fossil_utf8_to_filename(zFilename);
-  unlink(zFilename);
+  rc = unlink(zFilename);
 #endif
   fossil_filename_free(z);
+  return rc;
 }
 
 /*
@@ -495,6 +499,29 @@ int file_mkdir(const char *zName, int forceFlag){
 #else
     char *zMbcs = fossil_utf8_to_filename(zName);
     rc = mkdir(zName, 0755);
+#endif
+    fossil_filename_free(zMbcs);
+    return rc;
+  }
+  return 0;
+}
+
+/*
+** Removes the directory named in the argument, if it exists.  The directory
+** must be empty and cannot be the current directory or the root directory.
+**
+** Returns zero upon success.
+*/
+int file_rmdir(const char *zName){
+  int rc = file_wd_isdir(zName);
+  if( rc==2 ) return 1; /* cannot remove normal file */
+  if( rc==1 ){
+#if defined(_WIN32)
+    wchar_t *zMbcs = fossil_utf8_to_filename(zName);
+    rc = _wrmdir(zMbcs);
+#else
+    char *zMbcs = fossil_utf8_to_filename(zName);
+    rc = rmdir(zName);
 #endif
     fossil_filename_free(zMbcs);
     return rc;

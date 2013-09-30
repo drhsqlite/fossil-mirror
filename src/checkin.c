@@ -365,23 +365,24 @@ void ls_cmd(void){
 }
 
 /*
-** Create a TEMP table named SFILE and add all unmanaged files named on the command-line
-** to that table.  If directories are named, then add all unmanaged files contained
-** underneath those directories.  If there are no files or directories named on the
-** command-line, then add all unmanaged files anywhere in the checkout.
+** Create a TEMP table named SFILE and add all unmanaged files named on
+** the command-line to that table.  If directories are named, then add
+** all unmanaged files contained underneath those directories.  If there
+** are no files or directories named on the command-line, then add all
+** unmanaged files anywhere in the checkout.
 */
 static void locate_unmanaged_files(
-  int argc,              /* Number of command-line arguments to examine */
-  char **argv,           /* values of command-line arguments */
-  unsigned scanFlags,    /* Zero or more SCAN_xxx flags */
-  Glob *pIgnore1,        /* Do not add files that match this GLOB */
-  Glob *pIgnore2         /* Omit files matching this GLOB too */
+  int argc,           /* Number of command-line arguments to examine */
+  char **argv,        /* values of command-line arguments */
+  unsigned scanFlags, /* Zero or more SCAN_xxx flags */
+  Glob *pIgnore1,     /* Do not add files that match this GLOB */
+  Glob *pIgnore2      /* Omit files matching this GLOB too */
 ){
-  Blob name;      /* Name of a candidate file or directory */
-  char *zName;    /* Name of a candidate file or directory */
-  int isDir;      /* 1 for a directory, 0 if doesn't exist, 2 for anything else */
-  int i;          /* Loop counter */
-  int nRoot;      /* length of g.zLocalRoot */
+  Blob name;   /* Name of a candidate file or directory */
+  char *zName; /* Name of a candidate file or directory */
+  int isDir;   /* 1 for a directory, 0 if doesn't exist, 2 for anything else */
+  int i;       /* Loop counter */
+  int nRoot;   /* length of g.zLocalRoot */
 
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
@@ -510,6 +511,13 @@ void extra_cmd(void){
 ** Options:
 **    --case-sensitive <BOOL> override case-sensitive setting
 **    --dotfiles       Include files beginning with a dot (".").
+**    --emptydirs      Remove any empty directories that are not
+**                     explicitly exempted via the empty-dirs setting
+**                     or another applicable setting or command line
+**                     argument.  Matching files, if any, are removed
+**                     prior to checking for any empty directories;
+**                     therefore, directories that contain only files
+**                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
 **    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
@@ -524,7 +532,7 @@ void extra_cmd(void){
 ** See also: addremove, extra, status
 */
 void clean_cmd(void){
-  int allFlag, dryRunFlag, verboseFlag;
+  int allFileFlag, allDirFlag, dryRunFlag, emptyDirsFlag, verboseFlag;
   unsigned scanFlags = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
   Blob repo;
@@ -536,7 +544,8 @@ void clean_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
-  allFlag = find_option("force","f",0)!=0;
+  allFileFlag = allDirFlag = find_option("force","f",0)!=0;
+  emptyDirsFlag = find_option("emptydirs","d",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   zIgnoreFlag = find_option("ignore",0,1);
@@ -559,8 +568,6 @@ void clean_cmd(void){
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
   locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, pKeep);
-  glob_free(pKeep);
-  glob_free(pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
@@ -574,7 +581,7 @@ void clean_cmd(void){
   nRoot = (int)strlen(g.zLocalRoot);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    if( !allFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
+    if( !allFileFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
       Blob ans;
       char cReply;
       char *prompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
@@ -583,21 +590,66 @@ void clean_cmd(void){
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
       if( cReply=='a' || cReply=='A' ){
-        allFlag = 1;
+        allFileFlag = 1;
       }else if( cReply!='y' && cReply!='Y' ){
         blob_reset(&ans);
         continue;
       }
       blob_reset(&ans);
     }
-    if( verboseFlag || dryRunFlag ){
-      fossil_print("Removed unmanaged file: %s\n", zName+nRoot);
-    }
-    if( !dryRunFlag ){
-      file_delete(zName);
+    if ( dryRunFlag || file_delete(zName)==0 ){
+      if( verboseFlag || dryRunFlag ){
+        fossil_print("Removed unmanaged file: %s\n", zName+nRoot);
+      }
+    }else if( verboseFlag ){
+      fossil_print("Could not remove file: %s\n", zName+nRoot);
     }
   }
+  if( emptyDirsFlag ){
+    Glob *pEmptyDirs = glob_create(db_get("empty-dirs", 0));
+    Blob root;
+    blob_init(&root, g.zLocalRoot, nRoot - 1);
+    vfile_dir_scan(&root, blob_size(&root), scanFlags, pIgnore, pKeep,
+                   pEmptyDirs);
+    blob_reset(&root);
+    db_finalize(&q);
+    db_prepare(&q,
+        "SELECT %Q || x FROM dscan_temp"
+        " WHERE x NOT IN (%s) AND y = 0"
+        " ORDER BY 1 DESC",
+        g.zLocalRoot, fossil_all_reserved_names(0)
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q, 0);
+      if( !allDirFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
+        Blob ans;
+        char cReply;
+        char *prompt = mprintf("Remove empty directory \"%s\" (a=all/y/N)? ",
+                               zName+nRoot);
+        blob_zero(&ans);
+        prompt_user(prompt, &ans);
+        cReply = blob_str(&ans)[0];
+        if( cReply=='a' || cReply=='A' ){
+          allDirFlag = 1;
+        }else if( cReply!='y' && cReply!='Y' ){
+          blob_reset(&ans);
+          continue;
+        }
+        blob_reset(&ans);
+      }
+      if ( dryRunFlag || file_rmdir(zName)==0 ){
+        if( verboseFlag || dryRunFlag ){
+          fossil_print("Removed unmanaged directory: %s\n", zName+nRoot);
+        }
+      }else if( verboseFlag ){
+        fossil_print("Could not remove directory: %s\n", zName+nRoot);
+      }
+    }
+    glob_free(pEmptyDirs);
+  }
   glob_free(pClean);
+  glob_free(pKeep);
+  glob_free(pIgnore);
   db_finalize(&q);
 }
 
