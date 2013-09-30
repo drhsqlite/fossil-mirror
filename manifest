@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sheader\sof\sfrom/to\stimelines.
-D 2013-09-30T13:32:14.191
+C Merge\sthe\snew\s--dirsonly\sand\s--emptydirs\sand\s--allckouts\soptions\sfor\sthe\n"fossil\sclean"\scommand\sonto\strunk.
+D 2013-09-30T14:45:45.895
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -317,7 +317,7 @@ F src/branch.c 973d2d5ed2cf67592de603580454f4e861c9a754
 F src/browse.c 4f11469038984f7e0e886fbae8e44f72b294f6b4
 F src/captcha.c de30cda16d8d774c88ee465f15fc735ecb81ac34
 F src/cgi.c a2d9cab902fe2b21d959a4c01f144378b59a990e
-F src/checkin.c 94f27d3b92d5dd148a7edd76e3798d1141c3877d
+F src/checkin.c 45e789bdbb93b34169c7a874a342cadc96160d9f
 F src/checkout.c c79fcc729323e605bc04cdca92c069438aeee055
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c b949ddcaa488a5cc56b01aceadf2783bea146255
@@ -337,7 +337,7 @@ F src/doc.c 768527b613d800c88f6848c814194c70cb2214cf
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c a6138d64c47c071a44187de930284cf278ad1284
 F src/export.c 026f3746292c9c5bddcd454591ff71fb6d846481
-F src/file.c 222d00f8fccfa1ab4a821540cf1e62e5a648ee6a
+F src/file.c c0add7cfd3595f6780a7d393d71ee42d7e219b78
 F src/finfo.c 0f3214c253c2552c5519c21c5a6bb8da46106a19
 F src/glob.c 968a3f5b9e203af3053939639533ee7b26259836
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
@@ -424,7 +424,7 @@ F src/user.c 0c0c3d82374d547e830712a4aeb68f54c3aa9769
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
 F src/util.c 7054510104b0eb24815b856227807dd964115ebe
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
-F src/vfile.c 3008a3b8b88170f0d78f43a7ac83149840d39689
+F src/vfile.c 0e2f3aa96c9d2fc79f158f3944378b1e7fe8f3ec
 F src/wiki.c 92f6fddf822503533c3f7524b87fe46cfb231b6d
 F src/wikiformat.c f0d71d387b33931ce3cca528c24ad5b5f5916ee0
 F src/winhttp.c cd90cf700e4916c2226cbc82bafff2de05b1fa6d
@@ -634,7 +634,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1050f2e75fb8105a87c92056eaf8ad15a579e746
-R d2538ba6b8017e8d18439470ca6ece07
+P 564d75b0cd58f6628d41f39ebb3c7e3561f8edff 0ecb9500028e7ce665e87125bd715e1d0c4d690f
+R 809808a15ca119dfcdca989c090c2c42
 U drh
-Z 15396782013cb4b3b54c1b5dc2261ec1
+Z c17013bbadf01d7b0d517db2c66c599d
