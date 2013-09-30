@@ -1,5 +1,5 @@
-C added\ssome\sdocs\sregarding\sread/write\sperms\sfor\sCGI\sconfigurations,\sper\sML\sthread.
-D 2013-09-29T15:40:54.688
+C Silence\sharmless\scompiler\swarning.
+D 2013-09-30T11:39:11.235
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -393,7 +393,7 @@ F src/report.c 1e10fba72e19562627c8ec02dc537b5a0e766d85
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c 571fe8e1ef8e00accae77710a50d10517f41741a
 F src/search.c b11073e3b3546f8986d87c5d0cd456eb0478067e
-F src/setup.c ad90b1f40e7efbbc32517387876bf47aa19cbcdf
+F src/setup.c fa543db439da3d975460a3655c145f585e4b8a81
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
 F src/shell.c 8447c7fc7450562fb6a43a20e9bd83b0cf6ac2d5
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
@@ -634,7 +634,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e65162b4ad664ae3782598c65ead286fd6acbaf0
-R 3746ec68092cae61983947d2c0c5a7af
-U stephan
-Z 4d9a158828d94d60b64bb4dfe7d969e3
+P 3892fcab71e6a45cd514453eba314f6459954562
+R 7a315d5c061511612d4514b1c147e8c0
+U mistachkin
+Z cd0a39afd9c7a37cb9386b4d1837c636
