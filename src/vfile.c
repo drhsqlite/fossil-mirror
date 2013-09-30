@@ -420,6 +420,7 @@ static int is_temporary_file(const char *zName){
 */
 #define SCAN_ALL    0x001    /* Includes files that begin with "." */
 #define SCAN_TEMP   0x002    /* Only Fossil-generated files like *-baseline */
+#define SCAN_NESTED 0x004    /* Scan for empty dirs in nested checkouts */
 #endif /* INTERFACE */
 
 /*
@@ -595,7 +596,7 @@ int vfile_dir_scan(
           glob_match(pIgnore3, &zPath[nPrefix+1]) ){
         /* do nothing */
       }else if( file_wd_isdir(zPath)==1 ){
-        if( !vfile_top_of_checkout(zPath) ){
+        if( (scanFlags & SCAN_NESTED) || !vfile_top_of_checkout(zPath) ){
           Blob dirPattern;
           int count = vfile_dir_scan(pPath, nPrefix, scanFlags, pIgnore1,
                                      pIgnore2, pIgnore3);

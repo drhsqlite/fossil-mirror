@@ -1,5 +1,5 @@
-C Add\s--emptydirs\soption\sto\sthe\s'clean'\scommand\sto\sremove\sempty\sdirectories.\s\sCorrections\sto\sstyle\sand\scomments.\s\sRemove\ssuperfluous\slocal\svariable\szDir\sin\svfile_scan.
-D 2013-09-30T11:45:35.474
+C Add\sthe\s--dirsonly\sand\s--allckouts\soptions\sto\sthe\s'clean'\scommand.
+D 2013-09-30T12:16:26.356
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -317,7 +317,7 @@ F src/branch.c 973d2d5ed2cf67592de603580454f4e861c9a754
 F src/browse.c 4f11469038984f7e0e886fbae8e44f72b294f6b4
 F src/captcha.c de30cda16d8d774c88ee465f15fc735ecb81ac34
 F src/cgi.c a2d9cab902fe2b21d959a4c01f144378b59a990e
-F src/checkin.c ab8972d96a7a716afc9280b7e848498b7a8382f7
+F src/checkin.c 49877e9079e2c47060ae23ec35cd90294fd187f5
 F src/checkout.c c79fcc729323e605bc04cdca92c069438aeee055
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c b949ddcaa488a5cc56b01aceadf2783bea146255
@@ -424,7 +424,7 @@ F src/user.c 0c0c3d82374d547e830712a4aeb68f54c3aa9769
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
 F src/util.c 7054510104b0eb24815b856227807dd964115ebe
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
-F src/vfile.c ca402b9192668708a3fa77f9678b7d1e8d792801
+F src/vfile.c 1f7a9e966dfd6b87f341c19a3f2df666c2302bc9
 F src/wiki.c 92f6fddf822503533c3f7524b87fe46cfb231b6d
 F src/wikiformat.c f0d71d387b33931ce3cca528c24ad5b5f5916ee0
 F src/winhttp.c cd90cf700e4916c2226cbc82bafff2de05b1fa6d
@@ -634,10 +634,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 16113accff6000b605e03ef46d0e48b06e7beafc
-R aa74706f002413046398094dfbce6246
-T *branch * cleanEmptyDirs
-T *sym-cleanEmptyDirs *
-T -sym-trunk *
+P 8f1e1ee8fbbe7625cfc2836de034200df11dda37
+R 9c3cf6c7e8344d4208e8c3a2da9a1a48
 U mistachkin
-Z 14f3bf362e59b1a7e926f703b20fb987
+Z d6303d9e4a2237f254bb337ba4f5d4a1
