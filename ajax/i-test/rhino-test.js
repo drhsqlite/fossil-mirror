@@ -185,7 +185,7 @@ function testFetchCheckinArtifact(){
             }
         });
     assertResponseOK(rs);
-    assert(3 == rs.payload.artifact.parents.length, 'Got 3 parent artifacts.');
+    assert(3 == rs.payload.parents.length, 'Got 3 parent artifacts.');
 }
 testFetchCheckinArtifact.description = '/json/artifact/CHECKIN';
 

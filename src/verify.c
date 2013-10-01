@@ -43,7 +43,7 @@ static void verify_rid(int rid){
   blob_zero(&uuid);
   db_blob(&uuid, "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( blob_size(&uuid)!=UUID_SIZE ){
-    fossil_panic("not a valid rid: %d", rid);
+    fossil_fatal("not a valid rid: %d", rid);
   }
   if( content_get(rid, &content) ){
     sha1sum_blob(&content, &hash);

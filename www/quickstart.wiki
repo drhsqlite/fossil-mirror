@@ -175,9 +175,17 @@ and painlessly.</p>
     <p>You will be prompted for check-in comments using whatever editor
     is specified by your VISUAL or EDITOR environment variable.</p>
 
+    In the default configuration, the [/help/commit|commit]
+    command will also automatically [/help/push|push] your changes, but that
+    feature can be disabled.  (More information about 
+    [./concepts.wiki#workflow|autosync] and how to disable it.)
+    Remember that your coworkers can not see your changes until you 
+    commit and push them.</p>
+
 <h2>Sharing Changes</h2>
 
-    <p>The changes you [/help/commit | commit] are only
+    <p>When [./concepts.wiki#workflow|autosync] is turned off, 
+    the changes you [/help/commit | commit] are only
     on your local repository.
     To share those changes with other repositories, do:</p>
 
@@ -214,6 +222,13 @@ and painlessly.</p>
     the <i>VERSION</i>, then fossil moves you to the
     latest version of the branch your are currently on.</p>
 
+    <p>The default behaviors is for [./concepts.wiki#workflow|autosync] to
+    be turned on.  That means that a [/help/pull|pull] automatically occurs
+    when you run [/help/update|update] and a [/help/push|push] happens 
+    automatically after you [/help/commit|commit].  So in normal practice,
+    the push, pull, and sync commands are rarely used.  But it is important
+    to know about them, all the same.</p>
+
 <h2>Branching And Merging</h2>
 
     <p>Use the --branch option to the [/help/commit | commit] command
@@ -224,32 +239,39 @@ and painlessly.</p>
     until they are ready to commit.
 
     To merge two branches back together, first
-    [/help/update | update] to the leaf of one branch.  Then do a
-    [/help/merge | merge] of the leaf of the other branch:</p>
+    [/help/update | update] to the branch you want to merge into.
+    Then do a [/help/merge|merge] another branch that you want to incorporate
+    the changes from.  For example, to merge "featureX" changes into "trunk"
+    do this:</p>
 
     <blockquote>
-    <b>[/help/merge | fossil merge]</b> <i>VERSION</i>
+    <b>fossil [/help/update|update] trunk</b><br>
+    <b>fossil [/help/merge|merge] featureX</b><br>
+    <i># make sure the merge didn't break anything...</i><br>
+    <b>fossil [/help/commit|commit]
     </blockquote>
 
-    <p>The <i>VERSION</i> can be any of the forms allowed for 
-    [/help/update | update].
-    After performing the merge, you will normally want to test it to
-    make sure it does not break anything, then
-    [/help/commit | commit] your changes.
-    In the default configuration, the [/help/commit|commit]
-    command will also automatically [/help/push|push] your changes, but that
-    feature can be disabled.  (More information about 
-    [./concepts.wiki#workflow|autosync] and how to disable it.)
-    Remember that your coworkers can not see your changes until you 
-    commit and push them.</p>
+    <p>The argument to the [/help/merge|merge] command can be any of the
+    version identifier forms that work for [/help/update|update].
+    ([./checkin_names.wiki|more info].)
+    The merge command has options to cherrypick individual
+    changes, or to back out individual changes, if you don't want to
+    do a full merge.</p>
 
-    <p>The merge command has options to cherrypick individual
-    changes, or to back out individual changes.</p>
+    The merge command puts all changes in your working check-out.
+    No changes are made to the repository.
+    You must run [/help/commit|commit] separately
+    to add the merge changes into your repository to make them persistent
+    and so that your coworkers can see them.
+    But before you do that, you will normally want to run a few tests
+    to verify that the merge didn't cause logic breaks in your code.
 
-    <p>Note that the merge command changes only your local check-out.
-    The merge command does <em>not</em> modify the repository in any way.
-    You must do a separate [/help/commit | commit] after the merge in order
-    to put the merged code back into the repository.</p>
+    The same branch can be merged multiple times without trouble. Fossil
+    automatically keeps up with things and avoids conflicts when doing
+    multiple merges.  So even if you have merged the featureX branch
+    into trunk previously, you can do so again and Fossil will automatically
+    know to pull in only those changes that have occurred since the previous
+    merge.
 
     <p>If a merge or update doesn't work out (perhaps something breaks or
     there are many merge conflicts) then you back up using:</p>
@@ -265,65 +287,36 @@ and painlessly.</p>
     level of undo/redo.</p>
 
 
-<a name="serversetup"></a>
 <h2>Setting Up A Server</h2>
 
-    <p>The easiest way to set up a server is:</p>
+    <p>Fossil can act as a stand-alone web server using one of these
+    commands:</p>
 
     <blockquote>
-    <b>[/help/server | fossil server]</b> <i>repository-filename</i>
-    </blockquote>
-
-    <p>Or</b>
-
-    <blockquote>
+    <b>[/help/server | fossil server]</b> <i>repository-filename</i><br>
     <b>[/help/ui | fossil ui]</b> <i>repository-filename</i>
     </blockquote>
 
+    <p>The <i>repository-filename</i> can be omitted when these commands
+    are run from within an open check-out, which a particularly useful
+    shortcut for the <b>fossil ui</b> command.
+
     <p>The <b>ui</b> command is intended for accessing the web interface
     from a local desktop.  The <b>ui</b> command binds to the loopback IP
-    address only (and is thus makes the web interface visible only on the
+    address only (and thus makes the web interface visible only on the
     local machine) and it automatically start your web browser pointing at the
     server.  For cross-machine collaboration, use the <b>server</b> command,
-    which binds on all IP addresses and does not try to start a web browser.
-    You can omit the <i>repository-filename</i> if you are within
-    a checked-out local tree.  The <b>server</b> uses port 8080 by default
-    but you can specify a different port using the <b>-port</b> option.</p>
+    which binds on all IP addresses and does not try to start a web browser.</p>
 
-    <p>Command-line servers like this are useful when two people want
-    to share a repository on temporary or ad-hoc basis.  For a more
-    permanent installation, you should use either the CGI server or the
-    inetd server.
-    <a name="cgiserver"></a>
-    To use the CGI server, create a CGI script that
-    looks something like this:</p>
+    <p>Servers are also easily configured as:
+    <ul>
+    <li>[./server.wiki#inetd|inetd/xinetd]
+    <li>[./server.wiki#cgi|CGI]
+    <li>[./server.wiki#scgi|SCGI]
+    </ul>
 
-    <blockquote><b>
-    #!/usr/local/bin/fossil<br>
-    repository: /home/proj1/repos1.fossil
-    </b></blockquote>
-
-    <p>Adjust the paths in this CGI script to match your installation
-    and make sure both repository file and the directory that contains it
-    are readable and writable by the user that CGI scripts run as.
-    Then point clients at the CGI script.  That's all there is to it!</p>
-
-    <a name="inetdserver"></a>
-    <p>You can also run fossil from inetd or xinetd.  For an inetd
-    installation, make an entry in /etc/inetd.conf that looks something
-    like this:</p>
-
-    <blockquote><b>
-    80 stream tcp nowait.1000 root /usr/bin/fossil \<br>
-        /usr/bin/fossil http /home/proj1/repos1.fossil
-    </b></blockquote>
-
-    <p>Adjust the paths to suit your installation, of course.  Notice that
-    fossil runs as root.  This is not required - you can run it as an
-    unprivileged user.  But it is more secure to run fossil as root.
-    When you do run fossil as root, it automatically puts itself in a
-    chroot jail in the same directory as the repository, then drops
-    root privileges prior to reading any information from the request.</p>
+    <p>The the [./selfhost.wiki | self-hosting fossil repositories] use
+    CGI.  
 
 <a name="proxy"></a>
 <h2>HTTP Proxies</h2>
@@ -371,6 +364,9 @@ and painlessly.</p>
 
 <h2>More Hints</h2>
 
-    <p>A [/help | complete list of commands] is available.
+    <p>A [/help | complete list of commands] is available, as is the
+    [./hints.wiki|helpful hints] document.  See the
+    [./permutedindex.wiki#pindex|permuted index] for additional
+    documentation.
 
     <p>Explore and have fun!</p>

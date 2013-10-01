@@ -249,9 +249,11 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
       if( aUsed[i]==0
        && (aField[i].mUsed & USEDBY_BOTH)==USEDBY_BOTH
       ){
+        const char *z = aField[i].zName;
+        if( z[0]=='+' ) z++;
         fromTkt = 1;
-        blob_appendf(&sql2, ",%s", aField[i].zName);
-        blob_appendf(&sql3, ",%s", aField[i].zName);
+        blob_appendf(&sql2, ",%s", z);
+        blob_appendf(&sql3, ",%s", z);
       }
     }
     if( fromTkt ){
@@ -313,7 +315,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
 */
 void ticket_init(void){
   const char *zConfig;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   zConfig = ticket_common_code();
   Th_Eval(g.interp, 0, zConfig, -1);
 }
@@ -323,7 +325,7 @@ void ticket_init(void){
 */
 int ticket_change(void){
   const char *zConfig;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   zConfig = ticket_change_code();
   return Th_Eval(g.interp, 0, zConfig, -1);
 }
@@ -520,7 +522,7 @@ static void ticket_put(
 ){
   int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
   if( rid==0 ){
-    fossil_panic("trouble committing ticket: %s", g.zErrMsg);
+    fossil_fatal("trouble committing ticket: %s", g.zErrMsg);
   }
   if( needMod ){
     moderation_table_create();
@@ -676,7 +678,7 @@ void tktnew_page(void){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zNewUuid));
     return;
   }
-  captcha_generate();
+  captcha_generate(0);
   @ </form>
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
   style_footer();
@@ -744,7 +746,7 @@ void tktedit_page(void){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zName));
     return;
   }
-  captcha_generate();
+  captcha_generate(0);
   @ </form>
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
   style_footer();
@@ -1028,7 +1030,7 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
 **
 **     Run the ticket report, identified by the report format title
 **     used in the gui. The data is written as flat file on stdout,
-**     using "," as separator. The separator "," can be changed using
+**     using TAB as separator. The separator can be changed using
 **     the -l or --limit option.
 **
 **     If TICKETFILTER is given on the commandline, the query is
@@ -1111,12 +1113,12 @@ void ticket_cmd(void){
   }
 
   if( g.argc<3 ){
-    usage("add|fieldlist|set|show|history");
+    usage("add|change|list|set|show|history");
   }
   n = strlen(g.argv[2]);
   if( n==1 && g.argv[2][0]=='s' ){
     /* set/show cannot be distinguished, so show the usage */
-    usage("add|fieldlist|set|show|history");
+    usage("add|change|list|set|show|history");
   }
   if( strncmp(g.argv[2],"list",n)==0 ){
     if( g.argc==3 ){

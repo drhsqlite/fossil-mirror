@@ -266,10 +266,11 @@ void add_cmd(void){
   }
   vid = db_lget_int("checkout",0);
   if( vid==0 ){
-    fossil_panic("no checkout to add to");
+    fossil_fatal("no checkout to add to");
   }
   db_begin_transaction();
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
   pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
   nRoot = strlen(g.zLocalRoot);
@@ -284,7 +285,7 @@ void add_cmd(void){
     zName = blob_str(&fullName);
     isDir = file_wd_isdir(zName);
     if( isDir==1 ){
-      vfile_scan2(&fullName, nRoot-1, scanFlags, pClean, pIgnore);
+      vfile_scan(&fullName, nRoot-1, scanFlags, pClean, pIgnore);
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
     }else if( file_access(zName, R_OK) ){
@@ -318,6 +319,9 @@ void add_cmd(void){
 ** files as no longer being part of the project.  In other words, future
 ** changes to the named files will not be versioned.
 **
+** Options:
+**   --case-sensitive <BOOL> override case-sensitive setting
+**
 ** See also: addremove, add
 */
 void delete_cmd(void){
@@ -325,13 +329,15 @@ void delete_cmd(void){
   int vid;
   Stmt loop;
 
+  capture_case_sensitive_option();
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
-    fossil_panic("no checkout to remove from");
+    fossil_fatal("no checkout to remove from");
   }
   db_begin_transaction();
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
   for(i=2; i<g.argc; i++){
     Blob treeName;
     char *zTreeName;
@@ -341,10 +347,11 @@ void delete_cmd(void){
     db_multi_exec(
        "INSERT OR IGNORE INTO sfile"
        " SELECT pathname FROM vfile"
-       "  WHERE (pathname=%Q"
-       "     OR (pathname>'%q/' AND pathname<'%q0'))"
+       "  WHERE (pathname=%Q %s"
+       "     OR (pathname>'%q/' %s AND pathname<'%q0' %s))"
        "    AND NOT deleted",
-       zTreeName, zTreeName, zTreeName
+       zTreeName, filename_collation(), zTreeName,
+       filename_collation(), zTreeName, filename_collation()
     );
     blob_reset(&treeName);
   }
@@ -501,7 +508,7 @@ void addremove_cmd(void){
   }
   vid = db_lget_int("checkout",0);
   if( vid==0 ){
-    fossil_panic("no checkout to add to");
+    fossil_fatal("no checkout to add to");
   }
   db_begin_transaction();
 
@@ -511,13 +518,14 @@ void addremove_cmd(void){
   ** --ignore or ignore-glob patterns and dot-files.  Then add all of
   ** the files in the sfile temp table to the set of managed files.
   */
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   /* now we read the complete file structure into a temp table */
   pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan2(&path, blob_size(&path), scanFlags, pClean, pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, pClean, pIgnore);
   glob_free(pIgnore);
   glob_free(pClean);
   nAdd = add_files_in_sfile(vid);
@@ -557,7 +565,8 @@ void addremove_cmd(void){
 ** The original name of the file is zOrig.  The new filename is zNew.
 */
 static void mv_one_file(int vid, const char *zOrig, const char *zNew){
-  int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q", zNew);
+  int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q %s",
+		         zNew, filename_collation());
   if( x>=0 ){
     if( x==0 ){
       fossil_fatal("cannot rename '%s' to '%s' since another file named '%s'"
@@ -569,8 +578,8 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
   }
   fossil_print("RENAME %s %s\n", zOrig, zNew);
   db_multi_exec(
-    "UPDATE vfile SET pathname='%q' WHERE pathname='%q' AND vid=%d",
-    zNew, zOrig, vid
+    "UPDATE vfile SET pathname='%q' WHERE pathname='%q' %s AND vid=%d",
+    zNew, zOrig, filename_collation(), vid
   );
 }
 
@@ -588,6 +597,9 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 ** records the fact that filenames have changed so that appropriate notations
 ** can be made at the next commit/checkin.
 **
+** Options:
+**   --case-sensitive <BOOL> override case-sensitive setting
+**
 ** See also: changes, status
 */
 void mv_cmd(void){
@@ -597,10 +609,11 @@ void mv_cmd(void){
   Blob dest;
   Stmt q;
 
+  capture_case_sensitive_option();
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
-    fossil_panic("no checkout rename files in");
+    fossil_fatal("no checkout rename files in");
   }
   if( g.argc<4 ){
     usage("OLDNAME NEWNAME");
@@ -639,9 +652,10 @@ void mv_cmd(void){
       db_prepare(&q,
          "SELECT pathname FROM vfile"
          " WHERE vid=%d"
-         "   AND (pathname='%q' OR (pathname>'%q/' AND pathname<'%q0'))"
+         "   AND (pathname='%q' %s OR (pathname>'%q/' %s AND pathname<'%q0' %s))"
          " ORDER BY 1",
-         vid, zOrig, zOrig, zOrig
+         vid, zOrig, filename_collation(), zOrig, filename_collation(),
+         zOrig, filename_collation()
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zPath = db_column_text(&q, 0);

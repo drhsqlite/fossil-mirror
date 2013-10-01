@@ -66,7 +66,7 @@ void finfo_cmd(void){
     if( g.argc!=3 ) usage("-s|--status FILENAME");
     vid = db_lget_int("checkout", 0);
     if( vid==0 ){
-      fossil_panic("no checkout to finfo files in");
+      fossil_fatal("no checkout to finfo files in");
     }
     vfile_check_signature(vid, CKSIG_ENOTFILE);
     file_tree_name(g.argv[2], &fname, 1);
@@ -198,7 +198,7 @@ void finfo_cmd(void){
         blob_appendf(&line, "%.10s ", zDate);
         blob_appendf(&line, "%8.8s ", zUser);
         blob_appendf(&line, "%8.8s ", zBr);
-        blob_appendf(&line,"%-40.40s\n", zCom );
+        blob_appendf(&line,"%-39.39s", zCom );
         comment_print(blob_str(&line), 0, 79);
       }
     }
@@ -465,7 +465,12 @@ void finfo_page(void){
       @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
-      @ fid=%d(frid), pid=%d(fpid), mid=%d(fmid)
+      int srcid = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", frid);
+      int sz = db_int(0, "SELECT length(content) FROM blob WHERE rid=%d", frid);
+      @ <br>fid=%d(frid) pid=%d(fpid) mid=%d(fmid) sz=%d(sz)
+      if( srcid ){
+        @ srcid=%d(srcid)
+      }
     }
     @ </td></tr>
   }

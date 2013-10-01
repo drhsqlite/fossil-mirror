@@ -269,7 +269,7 @@ cson_value * json_new_string_f( char const * fmt, ... ){
   return v;
 }
 
-cson_value * json_new_int( int v ){
+cson_value * json_new_int( i64 v ){
   return cson_value_new_integer((cson_int_t)v);
 }
 
@@ -2007,7 +2007,7 @@ cson_value * json_page_stat(){
 **
 ** The list is appended to pOut. The number of items (not bytes)
 ** appended are returned. If filterByMode is non-0 then the result
-** list will contain only commands which are able to run in the the
+** list will contain only commands which are able to run in the
 ** current run mode (CLI vs. HTTP).
 */
 static int json_pagedefs_to_string(JsonPageDef const * zPages,

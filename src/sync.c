@@ -96,6 +96,12 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   if( find_option("verbose","v",0)!=0 ){
     *pSyncFlags |= SYNC_VERBOSE;
   }
+  /* The --verily option to sync, push, and pull forces extra igot cards
+  ** to be exchanged.  This can overcome malfunctions in the sync protocol.
+  */
+  if( find_option("verily",0,0)!=0 ){
+    *pSyncFlags |= SYNC_RESYNC;
+  }
   url_proxy_options();
   db_find_and_open_repository(0, 0);
   db_open_config(0);
@@ -132,6 +138,8 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
 ** Use the "-R REPO" or "--repository REPO" command-line options
 ** to specify an alternative repository file.
 **
+** See clone usage for possible URL formats.
+**
 ** If the URL is not specified, then the URL from the most recent
 ** clone, push, pull, remote-url, or sync command is used.
 **
@@ -160,6 +168,8 @@ void pull_cmd(void){
 ** Push changes in the local repository over into a remote repository.
 ** Use the "-R REPO" or "--repository REPO" command-line options
 ** to specify an alternative repository file.
+**
+** See clone usage for possible URL formats.
 **
 ** If the URL is not specified, then the URL from the most recent
 ** clone, push, pull, remote-url, or sync command is used.
@@ -195,12 +205,10 @@ void push_cmd(void){
 ** Use the "-R REPO" or "--repository REPO" command-line options
 ** to specify an alternative repository file.
 **
-** If a user-id and password are required, specify them as follows:
+** See clone usage for possible URL formats.
 **
-**     http://userid:password@www.domain.com:1234/path
-**
-** If the URL is not specified, then the URL from the most recent successful
-** clone, push, pull, remote-url, or sync command is used.
+** If the URL is not specified, then the URL from the most recent
+** successful clone, push, pull, remote-url, or sync command is used.
 **
 ** The URL specified normally becomes the new "remote-url" used for
 ** subsequent push, pull, and sync operations.  However, the "--once"
@@ -235,6 +243,8 @@ void sync_cmd(void){
 ** "sync", "push", or "pull" command that specifies an explicit URL.
 ** The default remote-url is used by auto-syncing and by "sync", "push",
 ** "pull" that omit the server URL.
+**
+** See clone usage for possible URL formats.
 **
 ** See also: clone, push, pull, sync
 */

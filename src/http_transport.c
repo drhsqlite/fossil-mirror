@@ -39,7 +39,7 @@ static struct {
   char *zInFile;          /* Name of inbound file for FILE: */
   FILE *pLog;             /* Log output here */
 } transport = {
-  0, 0, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 /*
@@ -310,9 +310,9 @@ int transport_open(void){
     }else if( g.urlIsFile ){
       sqlite3_uint64 iRandId;
       sqlite3_randomness(sizeof(iRandId), &iRandId);
-      transport.zOutFile = mprintf("%s-%llu-out.http", 
+      transport.zOutFile = mprintf("%s-%llu-out.http",
                                        g.zRepositoryName, iRandId);
-      transport.zInFile = mprintf("%s-%llu-in.http", 
+      transport.zInFile = mprintf("%s-%llu-in.http",
                                        g.zRepositoryName, iRandId);
       transport.pFile = fossil_fopen(transport.zOutFile, "wb");
       if( transport.pFile==0 ){
@@ -348,7 +348,7 @@ void transport_close(void){
       ssl_close();
       #endif
     }else if( g.urlIsFile ){
-      if( transport.pFile ){ 
+      if( transport.pFile ){
         fclose(transport.pFile);
         transport.pFile = 0;
       }
@@ -381,7 +381,7 @@ void transport_send(Blob *toSend){
       /* printf("Sent %d of %d bytes\n", sent, n); fflush(stdout); */
       if( sent<=0 ) break;
       n -= sent;
-    }    
+    }
     #endif
   }else if( g.urlIsFile ){
     fwrite(z, 1, n, transport.pFile);

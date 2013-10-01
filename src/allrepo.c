@@ -155,6 +155,7 @@ void all_cmd(void){
     zCmd = "sync -autourl -R";
     collect_argument(&extra, "verbose","v");
   }else if( strncmp(zCmd, "test-integrity", n)==0 ){
+    collect_argument(&extra, "parse", 0);
     zCmd = "test-integrity";
   }else if( strncmp(zCmd, "test-orphans", n)==0 ){
     zCmd = "test-orphans -R";

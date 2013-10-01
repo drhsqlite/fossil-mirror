@@ -32,6 +32,21 @@
 ** the middle of a C program.  This program then translates the text
 ** into standard C by inserting all necessary backslashes and other
 ** punctuation.
+**
+** Enhancement #1:
+**
+** If the last non-whitespace character prior to the first "@" of a
+** @-block is "=" or "," then the @-block is a string literal initializer 
+** rather than text that is to be output via cgi_printf().  Render it
+** as such.
+**
+** Enhancement #2:
+**
+** Comments of the form:  "/* @-comment: CC" cause CC to become a 
+** comment character for the @-substitution.  Typical values for CC are
+** "--" (for SQL text) or "#" (for TCL script) or "//" (for C++ code).
+** Lines of subsequent @-blocks that begin with CC are omitted from the
+** output.
 ** 
 */
 #include <stdio.h>

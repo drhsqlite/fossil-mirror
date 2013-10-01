@@ -41,11 +41,32 @@ static void status_report(
   int nPrefix = strlen(zPrefix);
   int nErr = 0;
   Blob rewrittenPathname;
+  Blob where;
+  const char *zName;
+  int i;
+
+  blob_zero(&where);
+  for(i=2; i<g.argc; i++) {
+    Blob fname;
+    file_tree_name(g.argv[i], &fname, 1);
+    zName = blob_str(&fname);
+    if( fossil_strcmp(zName, ".")==0 ) {
+      blob_reset(&where);
+      break;
+    }
+    blob_appendf(&where, " %s (pathname=%Q %s) "
+                 "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+                 (blob_size(&where)>0) ? "OR" : "AND", zName,
+                 filename_collation(), zName, filename_collation(),
+                 zName, filename_collation());
+  }
+
   db_prepare(&q,
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
-    " WHERE is_selected(id)"
-    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1"
+    " WHERE is_selected(id) %s"
+    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1",
+    blob_str(&where)
   );
   blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
@@ -84,18 +105,24 @@ static void status_report(
       blob_appendf(report, "ADDED      %s\n", zDisplayName);
     }else if( isDeleted ){
       blob_appendf(report, "DELETED    %s\n", zDisplayName);
-    }else if( isChnged==2 ){
-      blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
-    }else if( isChnged==3 ){
-      blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
-    }else if( isChnged==1 ){
-      if( file_contains_merge_marker(zFullName) ){
+    }else if( isChnged ){
+      if( isChnged==2 ){
+        blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
+      }else if( isChnged==3 ){
+        blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
+      }else if( isChnged==4 ){
+        blob_appendf(report, "UPDATED_BY_INTEGRATE %s\n", zDisplayName);
+      }else if( isChnged==5 ){
+        blob_appendf(report, "ADDED_BY_INTEGRATE %s\n", zDisplayName);
+      }else if( file_contains_merge_marker(zFullName) ){
         blob_appendf(report, "CONFLICT   %s\n", zDisplayName);
       }else{
         blob_appendf(report, "EDITED     %s\n", zDisplayName);
       }
     }else if( isRenamed ){
       blob_appendf(report, "RENAMED    %s\n", zDisplayName);
+    }else{
+      report->nUsed -= nPrefix;
     }
     free(zFullName);
   }
@@ -106,8 +133,9 @@ static void status_report(
   while( db_step(&q)==SQLITE_ROW ){
     const char *zLabel = "MERGED_WITH";
     switch( db_column_int(&q, 1) ){
-      case -1:  zLabel = "CHERRYPICK";  break;
-      case -2:  zLabel = "BACKOUT   ";  break;
+      case -1:  zLabel = "CHERRYPICK ";  break;
+      case -2:  zLabel = "BACKOUT    ";  break;
+      case -4:  zLabel = "INTEGRATE  ";  break;
     }
     blob_append(report, zPrefix, nPrefix);
     blob_appendf(report, "%s %s\n", zLabel, db_column_text(&q, 0));
@@ -219,10 +247,11 @@ void status_cmd(void){
 /*
 ** COMMAND: ls
 **
-** Usage: %fossil ls ?OPTIONS? ?VERSION?
+** Usage: %fossil ls ?OPTIONS? ?VERSION? ?FILENAMES?
 **
 ** Show the names of all files in the current checkout.  The -v provides
-** extra information about each file.
+** extra information about each file.  If FILENAMES are included, only
+** the files listed (or their children if they are directories) are shown.
 **
 ** Options:
 **   --age           Show when each file was committed
@@ -236,6 +265,9 @@ void ls_cmd(void){
   int verboseFlag;
   int showAge;
   char *zOrderBy = "pathname";
+  Blob where;
+  int i;
+  const char *zName;
 
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag ){
@@ -252,21 +284,37 @@ void ls_cmd(void){
     }
   }
   verify_all_options();
+  blob_zero(&where);
+  for(i=2; i<g.argc; i++){
+    Blob fname;
+    file_tree_name(g.argv[i], &fname, 1);
+    zName = blob_str(&fname);
+    if( fossil_strcmp(zName, ".")==0 ) {
+      blob_reset(&where);
+      break;
+    }
+    blob_appendf(&where, " %s (pathname=%Q %s) "
+                 "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+                 (blob_size(&where)>0) ? "OR" : "WHERE", zName,
+                 filename_collation(), zName, filename_collation(),
+                 zName, filename_collation());
+  }
   vfile_check_signature(vid, 0);
   if( showAge ){
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
        "       datetime(checkin_mtime(%d,rid),'unixepoch','localtime')"
-       "  FROM vfile"
-       " ORDER BY %s", vid, zOrderBy
+       "  FROM vfile %s"
+       " ORDER BY %s", vid, blob_str(&where), zOrderBy
     );
   }else{
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
-       "  FROM vfile"
-       " ORDER BY %s", zOrderBy
+       "  FROM vfile %s"
+       " ORDER BY %s", blob_str(&where), zOrderBy
     );
   }
+  blob_reset(&where);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
     int isDeleted = db_column_int(&q, 1);
@@ -274,26 +322,42 @@ void ls_cmd(void){
     int chnged = db_column_int(&q,3);
     int renamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-    if( showAge ){
-      fossil_print("%s  %s\n", db_column_text(&q, 5), zPathname);
-    }else if( !verboseFlag ){
-      fossil_print("%s\n", zPathname);
-    }else if( isNew ){
-      fossil_print("ADDED      %s\n", zPathname);
-    }else if( isDeleted ){
-      fossil_print("DELETED    %s\n", zPathname);
-    }else if( !file_wd_isfile_or_link(zFullName) ){
-      if( file_access(zFullName, 0)==0 ){
-        fossil_print("NOT_A_FILE %s\n", zPathname);
+    const char *type = "";
+    if( verboseFlag ){
+      if( isNew ){
+        type = "ADDED      ";
+      }else if( isDeleted ){
+        type = "DELETED    ";
+      }else if( !file_wd_isfile_or_link(zFullName) ){
+        if( file_access(zFullName, 0)==0 ){
+          type = "NOT_A_FILE ";
+        }else{
+          type = "MISSING    ";
+        }
+      }else if( chnged ){
+        if( chnged==2 ){
+          type = "UPDATED_BY_MERGE ";
+        }else if( chnged==3 ){
+          type = "ADDED_BY_MERGE ";
+        }else if( chnged==4 ){
+          type = "UPDATED_BY_INTEGRATE ";
+        }else if( chnged==5 ){
+          type = "ADDED_BY_INTEGRATE ";
+        }else if( file_contains_merge_marker(zFullName) ){
+          type = "CONFLICT   ";
+        }else{
+          type = "EDITED     ";
+        }
+      }else if( renamed ){
+        type = "RENAMED    ";
       }else{
-        fossil_print("MISSING    %s\n", zPathname);
+        type = "UNCHANGED  ";
       }
-    }else if( chnged ){
-      fossil_print("EDITED     %s\n", zPathname);
-    }else if( renamed ){
-      fossil_print("RENAMED    %s\n", zPathname);
+    }
+    if( showAge ){
+      fossil_print("%s%s  %s\n", type, db_column_text(&q, 5), zPathname);
     }else{
-      fossil_print("UNCHANGED  %s\n", zPathname);
+      fossil_print("%s%s\n", type, zPathname);
     }
     free(zFullName);
   }
@@ -301,11 +365,61 @@ void ls_cmd(void){
 }
 
 /*
+** Create a TEMP table named SFILE and add all unmanaged files named on
+** the command-line to that table.  If directories are named, then add
+** all unmanaged files contained underneath those directories.  If there
+** are no files or directories named on the command-line, then add all
+** unmanaged files anywhere in the checkout.
+*/
+static void locate_unmanaged_files(
+  int argc,           /* Number of command-line arguments to examine */
+  char **argv,        /* values of command-line arguments */
+  unsigned scanFlags, /* Zero or more SCAN_xxx flags */
+  Glob *pIgnore1,     /* Do not add files that match this GLOB */
+  Glob *pIgnore2      /* Omit files matching this GLOB too */
+){
+  Blob name;   /* Name of a candidate file or directory */
+  char *zName; /* Name of a candidate file or directory */
+  int isDir;   /* 1 for a directory, 0 if doesn't exist, 2 for anything else */
+  int i;       /* Loop counter */
+  int nRoot;   /* length of g.zLocalRoot */
+
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
+  nRoot = (int)strlen(g.zLocalRoot);
+  if( argc==0 ){
+    blob_init(&name, g.zLocalRoot, nRoot - 1);
+    vfile_scan(&name, blob_size(&name), scanFlags, pIgnore1, pIgnore2);
+    blob_reset(&name);
+  }else{
+    for(i=0; i<argc; i++){
+      file_canonical_name(argv[i], &name, 0);
+      zName = blob_str(&name);
+      isDir = file_wd_isdir(zName);
+      if( isDir==1 ){
+        vfile_scan(&name, nRoot-1, scanFlags, pIgnore1, pIgnore2);
+      }else if( isDir==0 ){
+        fossil_warning("not found: %s", &zName[nRoot]);
+      }else if( file_access(zName, R_OK) ){
+        fossil_fatal("cannot open %s", &zName[nRoot]);
+      }else{
+        db_multi_exec(
+           "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
+           &zName[nRoot]
+        );
+      }
+      blob_reset(&name);
+    }
+  }
+}
+
+/*
 ** COMMAND: extras
-** Usage: %fossil extras ?OPTIONS?
+** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
 **
 ** Print a list of all files in the source tree that are not part of
-** the current checkout.  See also the "clean" command.
+** the current checkout.  See also the "clean" command. If paths are
+** specified, only files in the given directories will be listed.
 **
 ** Files and subdirectories whose names begin with "." are normally
 ** ignored but can be included by adding the --dotfiles option.
@@ -328,9 +442,7 @@ void ls_cmd(void){
 ** See also: changes, clean, status
 */
 void extra_cmd(void){
-  Blob path;
   Stmt q;
-  int n;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
   int cwdRelative = 0;
@@ -342,15 +454,11 @@ void extra_cmd(void){
   capture_case_sensitive_option();
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
-                filename_collation());
-  n = strlen(g.zLocalRoot);
-  blob_init(&path, g.zLocalRoot, n-1);
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+  locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, 0);
   glob_free(pIgnore);
   db_prepare(&q,
       "SELECT x FROM sfile"
@@ -379,11 +487,12 @@ void extra_cmd(void){
 
 /*
 ** COMMAND: clean
-** Usage: %fossil clean ?OPTIONS?
+** Usage: %fossil clean ?OPTIONS? ?PATH1 ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout. This operation
-** cannot be undone.
+** cannot be undone. If paths are specified, only the directories or
+** files specified will be considered for cleaning.
 **
 ** WARNING:  Normally, only the files unknown to Fossil are removed;
 ** however, if the --extreme option is specified, all files that are
@@ -406,8 +515,24 @@ void extra_cmd(void){
 ** is used.
 **
 ** Options:
+**    --allckouts      Check for empty directories within any checkouts
+**                     that may be nested within the current one.  This
+**                     option should be used with great care because the
+**                     empty-dirs setting (and other applicable settings)
+**                     belonging to the other repositories, if any, will
+**                     not be checked.
 **    --case-sensitive <BOOL> override case-sensitive setting
+**    --dirsonly       Only remove empty directories.  No files will
+**                     be removed.  Using this option will automatically
+**                     enable the --emptydirs option as well.
 **    --dotfiles       Include files beginning with a dot (".").
+**    --emptydirs      Remove any empty directories that are not
+**                     explicitly exempted via the empty-dirs setting
+**                     or another applicable setting or command line
+**                     argument.  Matching files, if any, are removed
+**                     prior to checking for any empty directories;
+**                     therefore, directories that contain only files
+**                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
 **    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
@@ -427,22 +552,24 @@ void extra_cmd(void){
 ** See also: addremove, extra, status
 */
 void clean_cmd(void){
-  int allFlag, dryRunFlag, verboseFlag, extremeFlag;
+  int allFileFlag, allDirFlag, dryRunFlag, verboseFlag, extremeFlag;
+  int emptyDirsFlag, dirsOnlyFlag;
   unsigned scanFlags = 0;
   const char *zIgnoreFlag, *zKeepFlag, *zCleanFlag;
-  Blob path, repo;
-  Stmt q;
-  int n;
   Glob *pIgnore, *pKeep, *pClean;
+  int nRoot;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
   extremeFlag = find_option("extreme","x",0)!=0;
-  allFlag = find_option("force","f",0)!=0;
+  allFileFlag = allDirFlag = find_option("force","f",0)!=0;
+  dirsOnlyFlag = find_option("dirsonly",0,0)!=0;
+  emptyDirsFlag = find_option("emptydirs","d",0)!=0 || dirsOnlyFlag;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
+  if( find_option("allckouts",0,0)!=0 ) scanFlags |= SCAN_NESTED;
   zIgnoreFlag = find_option("ignore",0,1);
   verboseFlag = find_option("verbose","v",0)!=0;
   zKeepFlag = find_option("keep",0,1);
@@ -479,58 +606,111 @@ void clean_cmd(void){
     }
     blob_reset(&extremeAnswer);
   }
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
-                filename_collation());
-  n = strlen(g.zLocalRoot);
-  blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
-  vfile_scan2(&path, blob_size(&path), scanFlags,
-              extremeFlag ? 0 : pIgnore, extremeFlag ? 0 : pKeep);
-  db_prepare(&q,
-      "SELECT %Q || x FROM sfile"
-      " WHERE x NOT IN (%s)"
-      " ORDER BY 1",
-      g.zLocalRoot, fossil_all_reserved_names(0)
-  );
-  if( file_tree_name(g.zRepositoryName, &repo, 0) ){
-    db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
-  }
-  db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zName = db_column_text(&q, 0);
-    if( !allFlag && !glob_match(pClean, zName+n) ){
-      Blob ans;
-      char cReply;
-      int matchIgnore = glob_match(pIgnore, zName+n);
-      int matchKeep = glob_match(pKeep, zName+n);
-      char *prompt = mprintf("%sRemove %s file \"%s\" (a=all/y/N)? ",
-                             (matchIgnore || matchKeep) ? "WARNING: " : "",
-                             matchKeep ? "\"KEPT\"" : (matchIgnore ?
-                             "\"IGNORED\"" : "unmanaged"), zName+n);
-      blob_zero(&ans);
-      prompt_user(prompt, &ans);
-      cReply = blob_str(&ans)[0];
-      if( cReply=='a' || cReply=='A' ){
-        allFlag = 1;
-      }else if( cReply!='y' && cReply!='Y' ){
+  nRoot = (int)strlen(g.zLocalRoot);
+  if( !dirsOnlyFlag ){
+    Stmt q;
+    Blob repo;
+    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags,
+                           extremeFlag ? 0 : pIgnore, extremeFlag ? 0 : pKeep);
+    db_prepare(&q,
+        "SELECT %Q || x FROM sfile"
+        " WHERE x NOT IN (%s)"
+        " ORDER BY 1",
+        g.zLocalRoot, fossil_all_reserved_names(0)
+    );
+    if( file_tree_name(g.zRepositoryName, &repo, 0) ){
+      db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
+    }
+    db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q, 0);
+      if( !allFileFlag && !glob_match(pClean, zName+nRoot) ){
+        Blob ans;
+        char cReply;
+        int matchIgnore = glob_match(pIgnore, zName+nRoot);
+        int matchKeep = glob_match(pKeep, zName+nRoot);
+        char *prompt = mprintf("%sRemove %s file \"%s\" (a=all/y/N)? ",
+                               (matchIgnore || matchKeep) ? "WARNING: " : "",
+                               matchKeep ? "\"KEPT\"" : (matchIgnore ?
+                               "\"IGNORED\"" : "unmanaged"), zName+nRoot);
+        blob_zero(&ans);
+        prompt_user(prompt, &ans);
+        cReply = blob_str(&ans)[0];
+        if( cReply=='a' || cReply=='A' ){
+          allFileFlag = 1;
+        }else if( cReply!='y' && cReply!='Y' ){
+          blob_reset(&ans);
+          continue;
+        }
         blob_reset(&ans);
-        continue;
       }
-      blob_reset(&ans);
+      if ( dryRunFlag || file_delete(zName)==0 ){
+        if( verboseFlag || dryRunFlag ){
+          fossil_print("Removed unmanaged file: %s\n", zName+nRoot);
+        }
+      }else if( verboseFlag ){
+        fossil_print("Could not remove file: %s\n", zName+nRoot);
+      }
     }
-    if( verboseFlag || dryRunFlag ){
-      fossil_print("Removed unmanaged file: %s\n", zName+n);
+    db_finalize(&q);
+  }
+  if( emptyDirsFlag ){
+    Glob *pEmptyDirs = glob_create(db_get("empty-dirs", 0));
+    Stmt q;
+    Blob root;
+    blob_init(&root, g.zLocalRoot, nRoot - 1);
+    vfile_dir_scan(&root, blob_size(&root), scanFlags,
+                   extremeFlag ? 0 : pIgnore, extremeFlag ? 0 : pKeep,
+                   extremeFlag ? 0 : pEmptyDirs);
+    blob_reset(&root);
+    db_prepare(&q,
+        "SELECT %Q || x FROM dscan_temp"
+        " WHERE x NOT IN (%s) AND y = 0"
+        " ORDER BY 1 DESC",
+        g.zLocalRoot, fossil_all_reserved_names(0)
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q, 0);
+      if( !allDirFlag && !glob_match(pClean, zName+nRoot) ){
+        Blob ans;
+        char cReply;
+        int matchIgnore = glob_match(pIgnore, zName+nRoot);
+        int matchKeep = glob_match(pKeep, zName+nRoot);
+        int matchEmpty = glob_match(pEmptyDirs, zName+nRoot);
+        char *prompt = mprintf("%sRemove %s empty directory \"%s\" "
+                               "(a=all/y/N)? ",
+                               (matchEmpty || matchIgnore || matchKeep) ?
+                               "WARNING: " : "", matchEmpty ? "\"RESERVED\"" :
+                               matchKeep ? "\"KEPT\"" : (matchIgnore ?
+                               "\"IGNORED\"" : "unmanaged"), zName+nRoot);
+        blob_zero(&ans);
+        prompt_user(prompt, &ans);
+        cReply = blob_str(&ans)[0];
+        if( cReply=='a' || cReply=='A' ){
+          allDirFlag = 1;
+        }else if( cReply!='y' && cReply!='Y' ){
+          blob_reset(&ans);
+          continue;
+        }
+        blob_reset(&ans);
+      }
+      if ( dryRunFlag || file_rmdir(zName)==0 ){
+        if( verboseFlag || dryRunFlag ){
+          fossil_print("Removed unmanaged directory: %s\n", zName+nRoot);
+        }
+      }else if( verboseFlag ){
+        fossil_print("Could not remove directory: %s\n", zName+nRoot);
+      }
     }
-    if( !dryRunFlag ){
-      file_delete(zName);
-    }
+    db_finalize(&q);
+    glob_free(pEmptyDirs);
   }
   glob_free(pClean);
   glob_free(pKeep);
   glob_free(pIgnore);
-  db_finalize(&q);
 }
 
 /*
@@ -557,9 +737,13 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   if( zEditor==0 ){
     zEditor = fossil_getenv("EDITOR");
   }
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   if( zEditor==0 ){
-    zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SystemRoot"));
+    zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SYSTEMROOT"));
+#if defined(__CYGWIN__)
+    zEditor = fossil_utf8_to_filename(zEditor);
+    blob_add_cr(pPrompt);
+#endif
   }
 #endif
   if( zEditor==0 ){
@@ -572,8 +756,12 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
        "# Type \".\" on a line by itself when you are done:\n", -1);
     zFile = mprintf("-");
   }else{
+    Blob fname;
+    blob_zero(&fname);
+    file_relative_name(g.zLocalRoot, &fname, 1);
     zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
-                    g.zLocalRoot);
+                    blob_str(&fname));
+    blob_reset(&fname);
   }
 #if defined(_WIN32)
   blob_add_cr(pPrompt);
@@ -644,7 +832,7 @@ static void prepare_commit_comment(
   int parent_rid
 ){
   Blob prompt;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   int bomSize;
   const unsigned char *bom = get_utf8_bom(&bomSize);
   blob_init(&prompt, (const char *) bom, bomSize);
@@ -696,25 +884,46 @@ static void prepare_commit_comment(
 */
 int select_commit_files(void){
   int result = 0;
+  assert( g.aCommitFile==0 );
   if( g.argc>2 ){
     int ii, jj=0;
-    Blob b;
-    blob_zero(&b);
-    g.aCommitFile = fossil_malloc(sizeof(int)*(g.argc-1));
+    Blob fname;
+    Stmt q;
+    const char *zCollate;
+    Bag toCommit;
 
+    zCollate = filename_collation();
+    blob_zero(&fname);
+    bag_init(&toCommit);
     for(ii=2; ii<g.argc; ii++){
-      int iId;
-      file_tree_name(g.argv[ii], &b, 1);
-      iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q", blob_str(&b));
-      if( iId<0 ){
+      int cnt = 0;
+      file_tree_name(g.argv[ii], &fname, 1);
+      if( fossil_strcmp(blob_str(&fname),".")==0 ){
+        bag_clear(&toCommit);
+        return result;
+      }
+      db_prepare(&q,
+        "SELECT id FROM vfile WHERE pathname=%Q %s"
+        " OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+        blob_str(&fname), zCollate, blob_str(&fname),
+        zCollate, blob_str(&fname), zCollate);
+      while( db_step(&q)==SQLITE_ROW ){
+        cnt++;
+        bag_insert(&toCommit, db_column_int(&q, 0));
+      }
+      db_finalize(&q);
+      if( cnt==0 ){
         fossil_warning("fossil knows nothing about: %s", g.argv[ii]);
         result = 1;
-      }else{
-        g.aCommitFile[jj++] = iId;
       }
-      blob_reset(&b);
+      blob_reset(&fname);
+    }
+    g.aCommitFile = fossil_malloc( (bag_count(&toCommit)+1) * sizeof(g.aCommitFile[0]) );
+    for(ii=bag_first(&toCommit); ii>0; ii=bag_next(&toCommit, ii)){
+      g.aCommitFile[jj++] = ii;
     }
     g.aCommitFile[jj] = 0;
+    bag_clear(&toCommit);
   }
   return result;
 }
@@ -789,6 +998,7 @@ struct CheckinInfo {
   Blob *pComment;             /* Check-in comment text */
   const char *zMimetype;      /* Mimetype of check-in command.  May be NULL */
   int verifyDate;             /* Verify that child is younger */
+  int closeFlag;              /* Close the branch being committed */
   Blob *pCksum;               /* Repository checksum.  May be 0 */
   const char *zDateOvrd;      /* Date override.  If 0 then use 'now' */
   const char *zUserOvrd;      /* User override.  If 0 then use g.zLogin */
@@ -814,8 +1024,7 @@ static void create_manifest(
   char *zParentUuid;          /* UUID of parent check-in */
   Blob filename;              /* A single filename */
   int nBasename;              /* Size of base filename */
-  Stmt q;                     /* Query of files changed */
-  Stmt q2;                    /* Query of merge parents */
+  Stmt q;                     /* Various queries */
   Blob mcksum;                /* Manifest checksum */
   ManifestFile *pFile;        /* File from the baseline */
   int nFBcard = 0;            /* Number of B-cards and F-cards */
@@ -834,7 +1043,11 @@ static void create_manifest(
   }else{
     pFile = 0;
   }
-  blob_appendf(pOut, "C %F\n", blob_str(p->pComment));
+  if( blob_size(p->pComment)!=0 ){
+    blob_appendf(pOut, "C %F\n", blob_str(p->pComment));
+  }else{
+    blob_append(pOut, "C (no\\scomment)\n", 16);
+  }
   zDate = date_in_standard_format(p->zDateOvrd ? p->zDateOvrd : "now");
   blob_appendf(pOut, "D %s\n", zDate);
   zDate[10] = ' ';
@@ -919,11 +1132,11 @@ static void create_manifest(
   blob_appendf(pOut, "P %s", zParentUuid);
   if( p->verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
   free(zParentUuid);
-  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=0");
-  while( db_step(&q2)==SQLITE_ROW ){
+  db_prepare(&q, "SELECT merge FROM vmerge WHERE id=0 OR id<-2");
+  while( db_step(&q)==SQLITE_ROW ){
     char *zMergeUuid;
-    int mid = db_column_int(&q2, 0);
-    if( !g.markPrivate && content_is_private(mid) ) continue;
+    int mid = db_column_int(&q, 0);
+    if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
     zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
     if( zMergeUuid ){
       blob_appendf(pOut, " %s", zMergeUuid);
@@ -931,21 +1144,24 @@ static void create_manifest(
       free(zMergeUuid);
     }
   }
-  db_finalize(&q2);
+  db_finalize(&q);
   free(zDate);
   blob_appendf(pOut, "\n");
 
-  db_prepare(&q2,
-    "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid"
+  db_prepare(&q,
+    "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid, merge"
     "  FROM vmerge, blob"
-    " WHERE vmerge.id<0"
+    " WHERE (vmerge.id=-1 OR vmerge.id=-2)"
     "   AND blob.rid=vmerge.merge"
     " ORDER BY 1");
-  while( db_step(&q2)==SQLITE_ROW ){
-    const char *zCherrypickUuid = db_column_text(&q2, 0);
-    blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zCherrypickUuid = db_column_text(&q, 0);
+    int mid = db_column_int(&q, 1);
+    if( mid != vid ){
+      blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
+    }
   }
-  db_finalize(&q2);
+  db_finalize(&q);
 
   if( p->pCksum ) blob_appendf(pOut, "R %b\n", p->pCksum);
   zColor = p->zColor;
@@ -962,6 +1178,21 @@ static void create_manifest(
     /* One-time background color */
     blob_appendf(pOut, "T +bgcolor * %F\n", zColor);
   }
+  if( p->closeFlag ){
+    blob_appendf(pOut, "T +closed *\n");
+  }
+  db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
+                 " WHERE id=-4 ORDER BY 1");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zIntegrateUuid = db_column_text(&q, 0);
+    int rid = db_column_int(&q, 1);
+    if( is_a_leaf(rid) && !db_exists("SELECT 1 FROM tagxref "
+        " WHERE tagid=%d AND rid=%d AND tagtype>0", TAG_CLOSED, rid)){
+      blob_appendf(pOut, "T +closed %s\n", zIntegrateUuid);
+    }
+  }
+  db_finalize(&q);
+
   if( p->azTag ){
     for(i=0; p->azTag[i]; i++){
       /* Add a symbolic tag to this check-in.  The tag names have already
@@ -972,7 +1203,6 @@ static void create_manifest(
   }
   if( p->zBranch && p->zBranch[0] ){
     /* For a new branch, cancel all prior propagating tags */
-    Stmt q;
     db_prepare(&q,
         "SELECT tagname FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
@@ -1192,6 +1422,7 @@ static int tagCmp(const void *a, const void *b){
 **    --bgcolor COLOR            apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   check in to this new branch
 **    --branchcolor COLOR        apply given COLOR to the branch
+**    --close                    close the branch being committed
 **    --delta                    use a delta manifest in the commit process
 **    -m|--comment COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    -M|--message-file FILE     read the commit comment from given file
@@ -1211,7 +1442,7 @@ void commit_cmd(void){
   int nvid;              /* Blob-id of the new check-in */
   Blob comment;          /* Check-in comment */
   const char *zComment;  /* Check-in comment */
-  Stmt q;                /* Query to find files that have been modified */
+  Stmt q;                /* Various queries */
   char *zUuid;           /* UUID of the new check-in */
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
@@ -1264,6 +1495,7 @@ void commit_cmd(void){
   sCiInfo.zBranch = find_option("branch","b",1);
   sCiInfo.zColor = find_option("bgcolor",0,1);
   sCiInfo.zBrClr = find_option("branchcolor",0,1);
+  sCiInfo.closeFlag = find_option("close",0,0)!=0;
   sCiInfo.zMimetype = find_option("mimetype",0,1);
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
@@ -1353,7 +1585,7 @@ void commit_cmd(void){
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
   }
-  isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0");
+  isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0 OR id<-2");
   if( g.aCommitFile && isAMerge ){
     fossil_fatal("cannot do a partial commit of a merge");
   }
@@ -1364,21 +1596,20 @@ void commit_cmd(void){
   ** it and disallow it.  Ticket [0ff64b0a5fc8].
   */
   if( g.aCommitFile ){
-    Stmt qRename;
-    db_prepare(&qRename,
+    db_prepare(&q,
        "SELECT v1.pathname, v2.pathname"
        "  FROM vfile AS v1, vfile AS v2"
        " WHERE is_selected(v1.id)"
        "   AND v2.origname IS NOT NULL"
        "   AND v2.origname=v1.pathname"
        "   AND NOT is_selected(v2.id)");
-    if( db_step(&qRename)==SQLITE_ROW ){
-      const char *zFrom = db_column_text(&qRename, 0);
-      const char *zTo = db_column_text(&qRename, 1);
+    if( db_step(&q)==SQLITE_ROW ){
+      const char *zFrom = db_column_text(&q, 0);
+      const char *zTo = db_column_text(&q, 1);
       fossil_fatal("cannot do a partial commit of '%s' without '%s' because "
                    "'%s' was renamed to '%s'", zFrom, zTo, zFrom, zTo);
     }
-    db_finalize(&qRename);
+    db_finalize(&q);
   }
 
   user_select();
@@ -1439,6 +1670,8 @@ void commit_cmd(void){
     blob_zero(&comment);
     blob_read_from_file(&comment, zComFile);
     blob_to_utf8_no_bom(&comment, 1);
+  }else if(dryRunFlag){
+    blob_zero(&comment);
   }else{
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, &sCiInfo, vid);
@@ -1451,11 +1684,13 @@ void commit_cmd(void){
     free(zInit);
   }
   if( blob_size(&comment)==0 ){
-    blob_zero(&ans);
-    prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
-    cReply = blob_str(&ans)[0];
-    if( cReply!='y' && cReply!='Y' ){
-      fossil_exit(1);
+    if( !dryRunFlag ){
+      blob_zero(&ans);
+      prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      if( cReply!='y' && cReply!='Y' ){
+        fossil_exit(1);
+      }
     }
   }else{
     db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
@@ -1528,9 +1763,6 @@ void commit_cmd(void){
   }
 
   /* Create the new manifest */
-  if( blob_size(&comment)==0 ){
-    blob_append(&comment, "(no comment)", -1);
-  }
   sCiInfo.pComment = &comment;
   sCiInfo.pCksum =  useCksum ? &cksum1 : 0;
   sCiInfo.verifyDate = !allowOlder && !forceFlag;
@@ -1582,7 +1814,7 @@ void commit_cmd(void){
         blob_reset(&delta);
       }
     }else if( forceDelta ){
-      fossil_panic("unable to find a baseline-manifest for the delta");
+      fossil_fatal("unable to find a baseline-manifest for the delta");
     }
   }
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
@@ -1600,7 +1832,6 @@ void commit_cmd(void){
   if( dryRunFlag ){
     blob_write_to_file(&manifest, "");
   }
-
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManifestFile);
@@ -1608,15 +1839,29 @@ void commit_cmd(void){
     blob_read_from_file(&manifest, zManifestFile);
     free(zManifestFile);
   }
+
   nvid = content_put(&manifest);
   if( nvid==0 ){
-    fossil_panic("trouble committing manifest: %s", g.zErrMsg);
+    fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
   manifest_crosslink(nvid, &manifest);
   assert( blob_is_reset(&manifest) );
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
+
+  db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
+                 " WHERE id=-4");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zIntegrateUuid = db_column_text(&q, 0);
+    if( is_a_leaf(db_column_int(&q, 1)) ){
+      fossil_print("Closed: %s\n", zIntegrateUuid);
+    }else{
+      fossil_print("Not_Closed: %s (not a leaf any more)\n", zIntegrateUuid);
+    }
+  }
+  db_finalize(&q);
+
   fossil_print("New_Version: %s\n", zUuid);
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);

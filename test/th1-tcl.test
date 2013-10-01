@@ -116,7 +116,8 @@ fossil test-th-render --th-open-config \
 test th1-tcl-8 {$RESULT eq {<hr><p class="thmainError">ERROR:\
 cannot invoke Tcl command: tailcall</p>} || $RESULT eq {<hr><p\
 class="thmainError">ERROR: tailcall can only be called from a proc or\
-lambda</p>}}
+lambda</p>} || $RESULT eq {<hr><p class="thmainError">ERROR: This test\
+requires Tcl 8.6 or higher.</p>}}
 
 ###############################################################################
 

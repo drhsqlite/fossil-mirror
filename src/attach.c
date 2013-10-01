@@ -307,7 +307,7 @@ void attachadd_page(void){
     n = strlen(zComment);
     while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
     if( n>0 ){
-      blob_appendf(&manifest, "C %F\n", zComment);
+      blob_appendf(&manifest, "C %#F\n", n, zComment);
     }
     zDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zDate);
@@ -339,7 +339,7 @@ void attachadd_page(void){
   @ <input type="submit" name="ok" value="Add Attachment" />
   @ <input type="submit" name="cancel" value="Cancel" />
   @ </div>
-  captcha_generate();
+  captcha_generate(0);
   @ </form>
   style_footer();
 }
@@ -447,7 +447,9 @@ void ainfo_page(void){
     @ </form>
   }
 
-  isModerator = (zTktUuid && g.perm.ModTkt) || (zWikiName && g.perm.ModWiki);
+  isModerator = g.perm.Admin || 
+                (zTktUuid && g.perm.ModTkt) ||
+                (zWikiName && g.perm.ModWiki);
   if( isModerator && (zModAction = P("modaction"))!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
       moderation_disapprove(rid);
@@ -486,7 +488,6 @@ void ainfo_page(void){
   }
   @ <tr><th>Date:</th><td>
   hyperlink_to_date(zDate, "</td></tr>");
-  free(zDate);
   @ <tr><th>User:</th><td>
   hyperlink_to_user(pAttach->zUser, zDate, "</td></tr>");
   @ <tr><th>Artifact&nbsp;Attached:</th>

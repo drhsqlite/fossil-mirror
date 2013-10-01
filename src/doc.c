@@ -183,6 +183,7 @@ const char *mimetype_from_name(const char *zName){
     { "movie",      5, "video/x-sgi-movie"                 },
     { "mp2",        3, "audio/mpeg"                        },
     { "mp3",        3, "audio/mpeg"                        },
+    { "mp4",        3, "video/mp4"                         },
     { "mpe",        3, "video/mpeg"                        },
     { "mpeg",       4, "video/mpeg"                        },
     { "mpg",        3, "video/mpeg"                        },

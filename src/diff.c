@@ -53,43 +53,16 @@
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
 
-#define DIFF_TOO_MANY_CHANGES_TXT \
+#define DIFF_TOO_MANY_CHANGES \
     "more than 10,000 changes\n"
-
-#define DIFF_TOO_MANY_CHANGES_HTML \
-    "<p class='generalError'>More than 10,000 changes</p>\n"
-
-/*
-** This macro is designed to return non-zero if the specified blob contains
-** data that MAY be binary in nature; otherwise, zero will be returned.
-*/
-#define looks_like_binary(blob) \
-    ((looks_like_utf8((blob), LOOK_BINARY) & LOOK_BINARY) != LOOK_NONE)
-
-/*
-** Output flags for the looks_like_utf8() and looks_like_utf16() routines used
-** to convey status information about the blob content.
-*/
-#define LOOK_NONE    ((int)0x00000000) /* Nothing special was found. */
-#define LOOK_NUL     ((int)0x00000001) /* One or more NUL chars were found. */
-#define LOOK_CR      ((int)0x00000002) /* One or more CR chars were found. */
-#define LOOK_LONE_CR ((int)0x00000004) /* An unpaired CR char was found. */
-#define LOOK_LF      ((int)0x00000008) /* One or more LF chars were found. */
-#define LOOK_LONE_LF ((int)0x00000010) /* An unpaired LF char was found. */
-#define LOOK_CRLF    ((int)0x00000020) /* One or more CR/LF pairs were found. */
-#define LOOK_LONG    ((int)0x00000040) /* An over length line was found. */
-#define LOOK_ODD     ((int)0x00000080) /* An odd number of bytes was found. */
-#define LOOK_SHORT   ((int)0x00000100) /* Unable to perform full check. */
-#define LOOK_INVALID ((int)0x00000200) /* Invalid sequence was found. */
-#define LOOK_BINARY  (LOOK_NUL | LOOK_LONG | LOOK_SHORT) /* May be binary. */
-#define LOOK_EOL     (LOOK_LONE_CR | LOOK_LONE_LF | LOOK_CRLF) /* Line seps. */
-#endif /* INTERFACE */
 
 /*
 ** Maximum length of a line in a text file, in bytes.  (2**13 = 8192 bytes)
 */
 #define LENGTH_MASK_SZ  13
 #define LENGTH_MASK     ((1<<LENGTH_MASK_SZ)-1)
+
+#endif /* INTERFACE */
 
 /*
 ** Information about each line of a file being diffed.
@@ -207,278 +180,6 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 }
 
 /*
-** This function attempts to scan each logical line within the blob to
-** determine the type of content it appears to contain.  The return value
-** is a combination of one or more of the LOOK_XXX flags (see above):
-**
-** !LOOK_BINARY -- The content appears to consist entirely of text; however,
-**                 the encoding may not be UTF-8.
-**
-** LOOK_BINARY -- The content appears to be binary because it contains one
-**                or more embedded NUL characters or an extremely long line.
-**                Since this function does not understand UTF-16, it may
-**                falsely consider UTF-16 text to be binary.
-**
-** Additional flags (i.e. those other than the ones included in LOOK_BINARY)
-** may be present in the result as well; however, they should not impact the
-** determination of text versus binary content.
-**
-************************************ WARNING **********************************
-**
-** This function does not validate that the blob content is properly formed
-** UTF-8.  It assumes that all code points are the same size.  It does not
-** validate any code points.  It makes no attempt to detect if any [invalid]
-** switches between UTF-8 and other encodings occur.
-**
-** The only code points that this function cares about are the NUL character,
-** carriage-return, and line-feed.
-**
-** This function examines the contents of the blob until one of the flags
-** specified in "stopFlags" is set.
-**
-************************************ WARNING **********************************
-*/
-int looks_like_utf8(const Blob *pContent, int stopFlags){
-  const char *z = blob_buffer(pContent);
-  unsigned int n = blob_size(pContent);
-  int j, c, flags = LOOK_NONE;  /* Assume UTF-8 text, prove otherwise */
-
-  if( n==0 ) return flags;  /* Empty file -> text */
-  c = *z;
-  if( c==0 ){
-    flags |= LOOK_NUL;  /* NUL character in a file -> binary */
-  }else if( c=='\r' ){
-    flags |= LOOK_CR;
-    if( n<=1 || z[1]!='\n' ){
-      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
-    }
-  }
-  j = (c!='\n');
-  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
-  while( !(flags&stopFlags) && --n>0 ){
-    int c2 = c;
-    c = *++z; ++j;
-    if( c==0 ){
-      flags |= LOOK_NUL;  /* NUL character in a file -> binary */
-    }else if( c=='\n' ){
-      flags |= LOOK_LF;
-      if( c2=='\r' ){
-        flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
-      }else{
-        flags |= LOOK_LONE_LF;
-      }
-      if( j>LENGTH_MASK ){
-        flags |= LOOK_LONG;  /* Very long line -> binary */
-      }
-      j = 0;
-    }else if( c=='\r' ){
-      flags |= LOOK_CR;
-      if( n<=1 || z[1]!='\n' ){
-        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
-      }
-    }
-  }
-  if( n ){
-    flags |= LOOK_SHORT;  /* The whole blob was not examined */
-  }
-  if( j>LENGTH_MASK ){
-    flags |= LOOK_LONG;  /* Very long line -> binary */
-  }
-  return flags;
-}
-
-/*
-** Define the type needed to represent a Unicode (UTF-16) character.
-*/
-#ifndef WCHAR_T
-#  ifdef _WIN32
-#    define WCHAR_T wchar_t
-#  else
-#    define WCHAR_T unsigned short
-#  endif
-#endif
-
-/*
-** Maximum length of a line in a text file, in UTF-16 characters.  (4096)
-** The number of bytes represented by this value cannot exceed LENGTH_MASK
-** bytes, because that is the line buffer size used by the diff engine.
-*/
-#define UTF16_LENGTH_MASK_SZ   (LENGTH_MASK_SZ-(sizeof(WCHAR_T)-sizeof(char)))
-#define UTF16_LENGTH_MASK      ((1<<UTF16_LENGTH_MASK_SZ)-1)
-
-/*
-** This macro is used to swap the byte order of a UTF-16 character in the
-** looks_like_utf16() function.
-*/
-#define UTF16_SWAP(ch)         ((((ch) << 8) & 0xFF00) | (((ch) >> 8) & 0xFF))
-#define UTF16_SWAP_IF(expr,ch) ((expr) ? UTF16_SWAP((ch)) : (ch))
-
-/*
-** This function attempts to scan each logical line within the blob to
-** determine the type of content it appears to contain.  The return value
-** is a combination of one or more of the LOOK_XXX flags (see above):
-**
-** !LOOK_BINARY -- The content appears to consist entirely of text; however,
-**                 the encoding may not be UTF-16.
-**
-** LOOK_BINARY -- The content appears to be binary because it contains one
-**                or more embedded NUL characters or an extremely long line.
-**                Since this function does not understand UTF-8, it may
-**                falsely consider UTF-8 text to be binary.
-**
-** Additional flags (i.e. those other than the ones included in LOOK_BINARY)
-** may be present in the result as well; however, they should not impact the
-** determination of text versus binary content.
-**
-************************************ WARNING **********************************
-**
-** This function does not validate that the blob content is properly formed
-** UTF-16.  It assumes that all code points are the same size.  It does not
-** validate any code points.  It makes no attempt to detect if any [invalid]
-** switches between the UTF-16be and UTF-16le encodings occur.
-**
-** The only code points that this function cares about are the NUL character,
-** carriage-return, and line-feed.
-**
-** This function examines the contents of the blob until one of the flags
-** specified in "stopFlags" is set.
-**
-************************************ WARNING **********************************
-*/
-int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
-  const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
-  unsigned int n = blob_size(pContent);
-  int j, c, flags = LOOK_NONE;  /* Assume UTF-16 text, prove otherwise */
-
-  if( n==0 ) return flags;  /* Empty file -> text */
-  if( n%sizeof(WCHAR_T) ){
-    flags |= LOOK_ODD;  /* Odd number of bytes -> binary (UTF-8?) */
-    if( n<sizeof(WCHAR_T) ) return flags;  /* One byte -> binary (UTF-8?) */
-  }
-  c = *z;
-  if( bReverse ){
-    c = UTF16_SWAP(c);
-  }
-  if( c==0 ){
-    flags |= LOOK_NUL;  /* NUL character in a file -> binary */
-  }else if( c=='\r' ){
-    flags |= LOOK_CR;
-    if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
-      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
-    }
-  }
-  j = (c!='\n');
-  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
-  while( 1 ){
-    int c2 = c;
-    if( flags&stopFlags ) break;
-    n -= sizeof(WCHAR_T);
-    if( n<sizeof(WCHAR_T) ) break;
-    c = *++z;
-    if( bReverse ){
-      c = UTF16_SWAP(c);
-    }
-    ++j;
-    if( c==0 ){
-      flags |= LOOK_NUL;  /* NUL character in a file -> binary */
-    }else if( c=='\n' ){
-      flags |= LOOK_LF;
-      if( c2=='\r' ){
-        flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
-      }else{
-        flags |= LOOK_LONE_LF;
-      }
-      if( j>UTF16_LENGTH_MASK ){
-        flags |= LOOK_LONG;  /* Very long line -> binary */
-      }
-      j = 0;
-    }else if( c=='\r' ){
-      flags |= LOOK_CR;
-      if( n<(2*sizeof(WCHAR_T)) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
-        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
-      }
-    }
-  }
-  if( n ){
-    flags |= LOOK_SHORT;  /* The whole blob was not examined */
-  }
-  if( j>UTF16_LENGTH_MASK ){
-    flags |= LOOK_LONG;  /* Very long line -> binary */
-  }
-  return flags;
-}
-
-/*
-** This function returns an array of bytes representing the byte-order-mark
-** for UTF-8.
-*/
-const unsigned char *get_utf8_bom(int *pnByte){
-  static const unsigned char bom[] = {
-    0xEF, 0xBB, 0xBF, 0x00, 0x00, 0x00
-  };
-  if( pnByte ) *pnByte = 3;
-  return bom;
-}
-
-/*
-** This function returns non-zero if the blob starts with a UTF-8
-** byte-order-mark (BOM).
-*/
-int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
-  const char *z = blob_buffer(pContent);
-  int bomSize = 0;
-  const unsigned char *bom = get_utf8_bom(&bomSize);
-
-  if( pnByte ) *pnByte = bomSize;
-  if( blob_size(pContent)<bomSize ) return 0;
-  return memcmp(z, bom, bomSize)==0;
-}
-
-/*
-** This function returns non-zero if the blob starts with a UTF-16
-** byte-order-mark (BOM), either in the endianness of the machine
-** or in reversed byte order. The UTF-32 BOM is ruled out by checking
-** if the UTF-16 BOM is not immediately followed by (utf16) 0.
-** pnByte is only set when the function returns 1.
-**
-** pbReverse is always set, even when no BOM is found. Without a BOM,
-** it is set to 1 on little-endian and 0 on big-endian platforms. See
-** clause D98 of conformance (section 3.10) of the Unicode standard.
-*/
-int starts_with_utf16_bom(
-  const Blob *pContent, /* IN: Blob content to perform BOM detection on. */
-  int *pnByte,          /* OUT: The number of bytes used for the BOM. */
-  int *pbReverse        /* OUT: Non-zero for BOM in reverse byte-order. */
-){
-  const unsigned short *z = (unsigned short *)blob_buffer(pContent);
-  int bomSize = sizeof(unsigned short);
-  int size = blob_size(pContent);
-
-  if( size<bomSize ) goto noBom;  /* No: cannot read BOM. */
-  if( size>=(2*bomSize) && z[1]==0 ) goto noBom;  /* No: possible UTF-32. */
-  if( z[0]==0xfeff ){
-    if( pbReverse ) *pbReverse = 0;
-  }else if( z[0]==0xfffe ){
-    if( pbReverse ) *pbReverse = 1;
-  }else{
-    static const int one = 1;
-  noBom:
-    if( pbReverse ) *pbReverse = *(char *) &one;
-    return 0; /* No: UTF-16 byte-order-mark not found. */
-  }
-  if( pnByte ) *pnByte = bomSize;
-  return 1; /* Yes. */
-}
-
-/*
-** Returns non-zero if the specified content could be valid UTF-16.
-*/
-int could_be_utf16(const Blob *pContent, int *pbReverse){
-  return (blob_size(pContent) % sizeof(WCHAR_T) == 0) ?
-      starts_with_utf16_bom(pContent, 0, pbReverse) : 0;
-}
-
-/*
 ** Return true if two DLine elements are identical.
 */
 static int same_dline(DLine *pA, DLine *pB){
@@ -515,7 +216,6 @@ static void appendDiffLine(
 ){
   blob_append(pOut, &cPrefix, 1);
   if( html ){
-    char *zHtml;
     if( pRe && re_dline_match(pRe, pLine, 1)==0 ){
       cPrefix = ' ';
     }else if( cPrefix=='+' ){
@@ -523,9 +223,7 @@ static void appendDiffLine(
     }else if( cPrefix=='-' ){
       blob_append(pOut, "<span class=\"diffrm\">", -1);
     }
-    zHtml = htmlize(pLine->z, (pLine->h & LENGTH_MASK));
-    blob_append(pOut, zHtml, -1);
-    fossil_free(zHtml);
+    htmlize_to_blob(pOut, pLine->z, (pLine->h & LENGTH_MASK));
     if( cPrefix!=' ' ){
       blob_append(pOut, "</span>", -1);
     }
@@ -578,7 +276,7 @@ static void contextDiff(
   int i, j;     /* Loop counters */
   int m;        /* Number of lines to output */
   int skip;     /* Number of lines to skip */
-  int nChunk = 0;  /* Number of diff chunks seen so far */
+  static int nChunk = 0;  /* Number of diff chunks seen so far */
   int nContext;    /* Number of lines of context */
   int showLn;      /* Show line numbers */
   int html;        /* Render as HTML */
@@ -659,10 +357,10 @@ static void contextDiff(
         showDivider = 1;
       }else if( html ){
         blob_appendf(pOut, "<span class=\"diffhr\">%.80c</span>\n", '.');
-        blob_appendf(pOut, "<a name=\"chunk%d\"></a>\n", nChunk);
       }else{
         blob_appendf(pOut, "%.80c\n", '.');
       }
+      if( html ) blob_appendf(pOut, "<span id=\"chunk%d\"></span>", nChunk);
     }else{
       if( html ) blob_appendf(pOut, "<span class=\"diffln\">");
       /*
@@ -729,8 +427,7 @@ static void contextDiff(
 */
 typedef struct SbsLine SbsLine;
 struct SbsLine {
-  char *zLine;             /* The output line under construction */
-  int n;                   /* Index of next unused slot in the zLine[] */
+  Blob *apCols[5];         /* Array of pointers to output columns */
   int width;               /* Maximum width of a column in the output */
   unsigned char escHtml;   /* True to escape html characters */
   int iStart;              /* Write zStart prior to character iStart */
@@ -743,39 +440,60 @@ struct SbsLine {
 };
 
 /*
-** Flags for sbsWriteText()
+** Column indices for SbsLine.apCols[]
 */
-#define SBS_NEWLINE      0x0001   /* End with \n\000 */
-#define SBS_PAD          0x0002   /* Pad output to width spaces */
+#define SBS_LNA  0     /* Left line number */
+#define SBS_TXTA 1     /* Left text */
+#define SBS_MKR  2     /* Middle separator column */
+#define SBS_LNB  3     /* Right line number */
+#define SBS_TXTB 4     /* Right text */
 
 /*
-** Write up to width characters of pLine into p->zLine[].  Translate tabs into
-** spaces.  Add a newline if SBS_NEWLINE is set.  Translate HTML characters
-** if SBS_HTML is set.  Pad the rendering out width bytes if SBS_PAD is set.
+** Append newlines to all columns.
+*/
+static void sbsWriteNewlines(SbsLine *p){
+  int i;
+  for( i=p->escHtml ? SBS_LNA : SBS_TXTB; i<=SBS_TXTB; i++ ){
+    blob_append(p->apCols[i], "\n", 1);
+  }
+}
+
+/*
+** Append n spaces to the column.
+*/
+static void sbsWriteSpace(SbsLine *p, int n, int col){
+  blob_appendf(p->apCols[col], "%*s", n, "");
+}
+
+/*
+** Write the text of pLine into column iCol of p.
+**
+** If outputting HTML, write the full line.  Otherwise, only write the
+** width characters.  Translate tabs into spaces.  Add newlines if col
+** is SBS_TXTB.  Translate HTML characters if escHtml is true.  Pad the
+** rendering to width bytes if col is SBS_TXTA and escHtml is false.
 **
 ** This comment contains multibyte unicode characters (ü, Æ, ð) in order
 ** to test the ability of the diff code to handle such characters.
 */
-static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
+static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
+  Blob *pCol = p->apCols[col];
   int n = pLine->h & LENGTH_MASK;
   int i;   /* Number of input characters consumed */
-  int j;   /* Number of output characters generated */
   int k;   /* Cursor position */
   int needEndSpan = 0;
   const char *zIn = pLine->z;
-  char *z = &p->zLine[p->n];
   int w = p->width;
   int colorize = p->escHtml;
   if( colorize && p->pRe && re_dline_match(p->pRe, pLine, 1)==0 ){
     colorize = 0;
   }
-  for(i=j=k=0; k<w && i<n; i++, k++){
+  for(i=k=0; (p->escHtml || k<w) && i<n; i++, k++){
     char c = zIn[i];
     if( colorize ){
       if( i==p->iStart ){
         int x = strlen(p->zStart);
-        memcpy(z+j, p->zStart, x);
-        j += x;
+        blob_append(pCol, p->zStart, x);
         needEndSpan = 1;
         if( p->iStart2 ){
           p->iStart = p->iStart2;
@@ -783,8 +501,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
           p->iStart2 = 0;
         }
       }else if( i==p->iEnd ){
-        memcpy(z+j, "</span>", 7);
-        j += 7;
+        blob_append(pCol, "</span>", 7);
         needEndSpan = 0;
         if( p->iEnd2 ){
           p->iEnd = p->iEnd2;
@@ -792,72 +509,82 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
         }
       }
     }
-    if( c=='\t' ){
-      z[j++] = ' ';
-      while( (k&7)!=7 && k<w ){ z[j++] = ' '; k++; }
+    if( c=='\t' && !p->escHtml ){
+      blob_append(pCol, " ", 1);
+      while( (k&7)!=7 && (p->escHtml || k<w) ){
+        blob_append(pCol, " ", 1);
+        k++;
+      }
     }else if( c=='\r' || c=='\f' ){
-      z[j++] = ' ';
+      blob_append(pCol, " ", 1);
     }else if( c=='<' && p->escHtml ){
-      memcpy(&z[j], "&lt;", 4);
-      j += 4;
+      blob_append(pCol, "&lt;", 4);
     }else if( c=='&' && p->escHtml ){
-      memcpy(&z[j], "&amp;", 5);
-      j += 5;
+      blob_append(pCol, "&amp;", 5);
     }else if( c=='>' && p->escHtml ){
-      memcpy(&z[j], "&gt;", 4);
-      j += 4;
+      blob_append(pCol, "&gt;", 4);
     }else if( c=='"' && p->escHtml ){
-      memcpy(&z[j], "&quot;", 6);
-      j += 6;
+      blob_append(pCol, "&quot;", 6);
     }else{
-      z[j++] = c;
+      blob_append(pCol, &zIn[i], 1);
       if( (c&0xc0)==0x80 ) k--;
     }
   }
   if( needEndSpan ){
-    memcpy(&z[j], "</span>", 7);
-    j += 7;
+    blob_append(pCol, "</span>", 7);
   }
-  if( (flags & SBS_PAD)!=0 ){
-    while( k<w ){ k++;  z[j++] = ' '; }
+  if( col==SBS_TXTB ){
+    sbsWriteNewlines(p);
+  }else if( !p->escHtml ){
+    sbsWriteSpace(p, w-k, SBS_TXTA);
   }
-  if( flags & SBS_NEWLINE ){
-    z[j++] = '\n';
+}
+
+/*
+** Append a column to the final output blob.
+*/
+static void sbsWriteColumn(Blob *pOut, Blob *pCol, int col){
+  blob_appendf(pOut,
+    "<td><div class=\"diff%scol\">\n"
+    "<pre>\n"
+    "%s"
+    "</pre>\n"
+    "</div></td>\n",
+    col % 3 ? (col == SBS_MKR ? "mkr" : "txt") : "ln",
+    blob_str(pCol)
+  );
+}
+
+/*
+** Append a separator line to column iCol
+*/
+static void sbsWriteSep(SbsLine *p, int len, int col){
+  char ch = '.';
+  if( len<1 ){
+    len = 1;
+    ch = ' ';
   }
-  p->n += j;
+  blob_appendf(p->apCols[col], "<span class=\"diffhr\">%.*c</span>\n", len, ch);
 }
 
 /*
-** Append a string to an SbSLine without coding, interpretation, or padding.
+** Append the appropriate marker into the center column of the diff.
 */
-static void sbsWrite(SbsLine *p, const char *zIn, int nIn){
-  memcpy(p->zLine+p->n, zIn, nIn);
-  p->n += nIn;
+static void sbsWriteMarker(SbsLine *p, const char *zTxt, const char *zHtml){
+  blob_append(p->apCols[SBS_MKR], p->escHtml ? zHtml : zTxt, -1);
 }
 
 /*
-** Append n spaces to the string.
+** Append a line number to the column.
 */
-static void sbsWriteSpace(SbsLine *p, int n){
-  while( n-- ) p->zLine[p->n++] = ' ';
-}
-
-/*
-** Append a string to the output only if we are rendering HTML.
-*/
-static void sbsWriteHtml(SbsLine *p, const char *zIn){
-  if( p->escHtml ) sbsWrite(p, zIn, strlen(zIn));
-}
-
-/*
-** Write a 6-digit line number followed by a single space onto the line.
-*/
-static void sbsWriteLineno(SbsLine *p, int ln){
-  sbsWriteHtml(p, "<span class=\"diffln\">");
-  sqlite3_snprintf(7, &p->zLine[p->n], "%5d ", ln+1);
-  p->n += 6;
-  sbsWriteHtml(p, "</span>");
-  p->zLine[p->n++] = ' ';
+static void sbsWriteLineno(SbsLine *p, int ln, int col){
+  if( p->escHtml ){
+    blob_appendf(p->apCols[col], "%d", ln+1);
+  }else{
+    char zLn[7];
+    sqlite3_snprintf(7, zLn, "%5d ", ln+1);
+    blob_appendf(p->apCols[col], "%s ", zLn);
+  }
 }
 
 /*
@@ -1020,39 +747,38 @@ static void sbsWriteLineChange(
   }
   if( nPrefix+nSuffix > nShort ) nPrefix = nShort - nSuffix;
 
-
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
-    sbsWriteLineno(p, lnLeft);
+    sbsWriteLineno(p, lnLeft, SBS_LNA);
     p->iStart2 = p->iEnd2 = 0;
     p->iStart = p->iEnd = -1;
-    sbsWriteText(p, pLeft, SBS_PAD);
+    sbsWriteText(p, pLeft, SBS_TXTA);
     if( nLeft==nRight && zLeft[nLeft]==zRight[nRight] ){
-      sbsWrite(p, "   ", 3);
+      sbsWriteMarker(p, "   ", "");
     }else{
-      sbsWrite(p, " | ", 3);
+      sbsWriteMarker(p, " | ", "|");
     }
-    sbsWriteLineno(p, lnRight);
+    sbsWriteLineno(p, lnRight, SBS_LNB);
     p->iStart = nPrefix;
     p->iEnd = nRight - nSuffix;
     p->zStart = zClassAdd;
-    sbsWriteText(p, pRight, SBS_NEWLINE);
+    sbsWriteText(p, pRight, SBS_TXTB);
     return;
   }
 
   /* A single chunk of text deleted from the left */
   if( nPrefix+nSuffix==nRight ){
     /* Text deleted from the left */
-    sbsWriteLineno(p, lnLeft);
+    sbsWriteLineno(p, lnLeft, SBS_LNA);
     p->iStart2 = p->iEnd2 = 0;
     p->iStart = nPrefix;
     p->iEnd = nLeft - nSuffix;
     p->zStart = zClassRm;
-    sbsWriteText(p, pLeft, SBS_PAD);
-    sbsWrite(p, " | ", 3);
-    sbsWriteLineno(p, lnRight);
+    sbsWriteText(p, pLeft, SBS_TXTA);
+    sbsWriteMarker(p, " | ", "|");
+    sbsWriteLineno(p, lnRight, SBS_LNB);
     p->iStart = p->iEnd = -1;
-    sbsWriteText(p, pRight, SBS_NEWLINE);
+    sbsWriteText(p, pRight, SBS_TXTB);
     return;
   }
 
@@ -1067,7 +793,7 @@ static void sbsWriteLineChange(
    && nRightDiff >= 6
    && textLCS(&zLeft[nPrefix], nLeftDiff, &zRight[nPrefix], nRightDiff, aLCS)
   ){
-    sbsWriteLineno(p, lnLeft);
+    sbsWriteLineno(p, lnLeft, SBS_LNA);
     p->iStart = nPrefix;
     p->iEnd = nPrefix + aLCS[0];
     if( aLCS[2]==0 ){
@@ -1080,9 +806,9 @@ static void sbsWriteLineChange(
     p->iEnd2 = nLeft - nSuffix;
     p->zStart2 = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
     sbsSimplifyLine(p, zLeft+nPrefix);
-    sbsWriteText(p, pLeft, SBS_PAD);
-    sbsWrite(p, " | ", 3);
-    sbsWriteLineno(p, lnRight);
+    sbsWriteText(p, pLeft, SBS_TXTA);
+    sbsWriteMarker(p, " | ", "|");
+    sbsWriteLineno(p, lnRight, SBS_LNB);
     p->iStart = nPrefix;
     p->iEnd = nPrefix + aLCS[2];
     if( aLCS[0]==0 ){
@@ -1095,21 +821,21 @@ static void sbsWriteLineChange(
     p->iEnd2 = nRight - nSuffix;
     p->zStart2 = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
     sbsSimplifyLine(p, zRight+nPrefix);
-    sbsWriteText(p, pRight, SBS_NEWLINE);
+    sbsWriteText(p, pRight, SBS_TXTB);
     return;
   }
 
   /* If all else fails, show a single big change between left and right */
-  sbsWriteLineno(p, lnLeft);
+  sbsWriteLineno(p, lnLeft, SBS_LNA);
   p->iStart2 = p->iEnd2 = 0;
   p->iStart = nPrefix;
   p->iEnd = nLeft - nSuffix;
   p->zStart = zClassChng;
-  sbsWriteText(p, pLeft, SBS_PAD);
-  sbsWrite(p, " | ", 3);
-  sbsWriteLineno(p, lnRight);
+  sbsWriteText(p, pLeft, SBS_TXTA);
+  sbsWriteMarker(p, " | ", "|");
+  sbsWriteLineno(p, lnRight, SBS_LNB);
   p->iEnd = nRight - nSuffix;
-  sbsWriteText(p, pRight, SBS_NEWLINE);
+  sbsWriteText(p, pRight, SBS_TXTB);
 }
 
 /*
@@ -1359,17 +1085,26 @@ static void sbsDiff(
   int i, j;     /* Loop counters */
   int m, ma, mb;/* Number of lines to output */
   int skip;     /* Number of lines to skip */
-  int nChunk = 0; /* Number of chunks of diff output seen so far */
+  static int nChunk = 0; /* Number of chunks of diff output seen so far */
   SbsLine s;    /* Output line buffer */
   int nContext; /* Lines of context above and below each change */
   int showDivider = 0;  /* True to show the divider */
+  Blob aCols[5]; /* Array of column blobs */
 
   memset(&s, 0, sizeof(s));
   s.width = diff_width(diffFlags);
-  s.zLine = fossil_malloc( 15*s.width + 200 );
-  if( s.zLine==0 ) return;
   nContext = diff_context_lines(diffFlags);
   s.escHtml = (diffFlags & DIFF_HTML)!=0;
+  if( s.escHtml ){
+    for(i=SBS_LNA; i<=SBS_TXTB; i++){
+      blob_zero(&aCols[i]);
+      s.apCols[i] = &aCols[i];
+    }
+  }else{
+    for(i=SBS_LNA; i<=SBS_TXTB; i++){
+      s.apCols[i] = pOut;
+    }
+  }
   s.pRe = pRe;
   s.iStart = -1;
   s.iStart2 = 0;
@@ -1379,6 +1114,7 @@ static void sbsDiff(
   R = p->aEdit;
   mxr = p->nEdit;
   while( mxr>2 && R[mxr-1]==0 && R[mxr-2]==0 ){ mxr -= 3; }
+
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
     for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
@@ -1438,8 +1174,14 @@ static void sbsDiff(
     /* Draw the separator between blocks */
     if( showDivider ){
       if( s.escHtml ){
-        blob_appendf(pOut, "<span class=\"diffhr\">%.*c</span>\n",
-                           s.width*2+16, '.');
+        char zLn[10];
+        sqlite3_snprintf(sizeof(zLn), zLn, "%d", a+skip+1);
+        sbsWriteSep(&s, strlen(zLn), SBS_LNA);
+        sbsWriteSep(&s, s.width, SBS_TXTA);
+        sbsWriteSep(&s, 0, SBS_MKR);
+        sqlite3_snprintf(sizeof(zLn), zLn, "%d", b+skip+1);
+        sbsWriteSep(&s, strlen(zLn), SBS_LNB);
+        sbsWriteSep(&s, s.width, SBS_TXTB);
       }else{
         blob_appendf(pOut, "%.*c\n", s.width*2+16, '.');
       }
@@ -1447,7 +1189,7 @@ static void sbsDiff(
     showDivider = 1;
     nChunk++;
     if( s.escHtml ){
-      blob_appendf(pOut, "<a name=\"chunk%d\"></a>\n", nChunk);
+      blob_appendf(s.apCols[SBS_LNA], "<span id=\"chunk%d\"></span>", nChunk);
     }
 
     /* Show the initial common area */
@@ -1455,14 +1197,12 @@ static void sbsDiff(
     b += skip;
     m = R[r] - skip;
     for(j=0; j<m; j++){
-      s.n = 0;
-      sbsWriteLineno(&s, a+j);
+      sbsWriteLineno(&s, a+j, SBS_LNA);
       s.iStart = s.iEnd = -1;
-      sbsWriteText(&s, &A[a+j], SBS_PAD);
-      sbsWrite(&s, "   ", 3);
-      sbsWriteLineno(&s, b+j);
-      sbsWriteText(&s, &B[b+j], SBS_NEWLINE);
-      blob_append(pOut, s.zLine, s.n);
+      sbsWriteText(&s, &A[a+j], SBS_TXTA);
+      sbsWriteMarker(&s, "   ", "");
+      sbsWriteLineno(&s, b+j, SBS_LNB);
+      sbsWriteText(&s, &B[b+j], SBS_TXTB);
     }
     a += m;
     b += m;
@@ -1487,26 +1227,19 @@ static void sbsDiff(
       for(j=0; ma+mb>0; j++){
         if( alignment[j]==1 ){
           /* Delete one line from the left */
-          s.n = 0;
-          sbsWriteLineno(&s, a);
+          sbsWriteLineno(&s, a, SBS_LNA);
           s.iStart = 0;
           s.zStart = "<span class=\"diffrm\">";
           s.iEnd = LENGTH(&A[a]);
-          sbsWriteText(&s, &A[a], SBS_PAD);
-          if( s.escHtml ){
-            sbsWrite(&s, " &lt;\n", 6);
-          }else{
-            sbsWrite(&s, " <\n", 3);
-          }
-          blob_append(pOut, s.zLine, s.n);
+          sbsWriteText(&s, &A[a], SBS_TXTA);
+          sbsWriteMarker(&s, " <", "&lt;");
+          sbsWriteNewlines(&s);
           assert( ma>0 );
           ma--;
           a++;
         }else if( alignment[j]==3 ){
           /* The left line is changed into the right line */
-          s.n = 0;
           sbsWriteLineChange(&s, &A[a], a, &B[b], b);
-          blob_append(pOut, s.zLine, s.n);
           assert( ma>0 && mb>0 );
           ma--;
           mb--;
@@ -1514,56 +1247,47 @@ static void sbsDiff(
           b++;
         }else if( alignment[j]==2 ){
           /* Insert one line on the right */
-          s.n = 0;
-          sbsWriteSpace(&s, s.width + 7);
-          if( s.escHtml ){
-            sbsWrite(&s, " &gt; ", 6);
-          }else{
-            sbsWrite(&s, " > ", 3);
+          if( !s.escHtml ){
+            sbsWriteSpace(&s, s.width + 7, SBS_TXTA);
           }
-          sbsWriteLineno(&s, b);
+          sbsWriteMarker(&s, " > ", "&gt;");
+          sbsWriteLineno(&s, b, SBS_LNB);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
           s.iEnd = LENGTH(&B[b]);
-          sbsWriteText(&s, &B[b], SBS_NEWLINE);
-          blob_append(pOut, s.zLine, s.n);
+          sbsWriteText(&s, &B[b], SBS_TXTB);
           assert( mb>0 );
           mb--;
           b++;
         }else{
           /* Delete from the left and insert on the right */
-          s.n = 0;
-          sbsWriteLineno(&s, a);
+          sbsWriteLineno(&s, a, SBS_LNA);
           s.iStart = 0;
           s.zStart = "<span class=\"diffrm\">";
           s.iEnd = LENGTH(&A[a]);
-          sbsWriteText(&s, &A[a], SBS_PAD);
-          sbsWrite(&s, " | ", 3);
-          sbsWriteLineno(&s, b);
+          sbsWriteText(&s, &A[a], SBS_TXTA);
+          sbsWriteMarker(&s, " | ", "|");
+          sbsWriteLineno(&s, b, SBS_LNB);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
           s.iEnd = LENGTH(&B[b]);
-          sbsWriteText(&s, &B[b], SBS_NEWLINE);
-          blob_append(pOut, s.zLine, s.n);
+          sbsWriteText(&s, &B[b], SBS_TXTB);
           ma--;
           mb--;
           a++;
           b++;
         }
-
       }
       fossil_free(alignment);
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
-          s.n = 0;
-          sbsWriteLineno(&s, a+j);
+          sbsWriteLineno(&s, a+j, SBS_LNA);
           s.iStart = s.iEnd = -1;
-          sbsWriteText(&s, &A[a+j], SBS_PAD);
-          sbsWrite(&s, "   ", 3);
-          sbsWriteLineno(&s, b+j);
-          sbsWriteText(&s, &B[b+j], SBS_NEWLINE);
-          blob_append(pOut, s.zLine, s.n);
+          sbsWriteText(&s, &A[a+j], SBS_TXTA);
+          sbsWriteMarker(&s, "   ", "");
+          sbsWriteLineno(&s, b+j, SBS_LNB);
+          sbsWriteText(&s, &B[b+j], SBS_TXTB);
         }
         b += m;
         a += m;
@@ -1575,17 +1299,23 @@ static void sbsDiff(
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
-      s.n = 0;
-      sbsWriteLineno(&s, a+j);
+      sbsWriteLineno(&s, a+j, SBS_LNA);
       s.iStart = s.iEnd = -1;
-      sbsWriteText(&s, &A[a+j], SBS_PAD);
-      sbsWrite(&s, "   ", 3);
-      sbsWriteLineno(&s, b+j);
-      sbsWriteText(&s, &B[b+j], SBS_NEWLINE);
-      blob_append(pOut, s.zLine, s.n);
+      sbsWriteText(&s, &A[a+j], SBS_TXTA);
+      sbsWriteMarker(&s, "   ", "");
+      sbsWriteLineno(&s, b+j, SBS_LNB);
+      sbsWriteText(&s, &B[b+j], SBS_TXTB);
     }
   }
-  free(s.zLine);
+  
+  if( s.escHtml && blob_size(s.apCols[SBS_LNA])>0 ){
+    blob_append(pOut, "<table class=\"sbsdiffcols\"><tr>\n", -1);
+    for(i=SBS_LNA; i<=SBS_TXTB; i++){
+      sbsWriteColumn(pOut, s.apCols[i], i);
+      blob_reset(s.apCols[i]);
+    }
+    blob_append(pOut, "</tr></table>\n", -1);
+  }
 }
 
 /*
@@ -1994,6 +1724,17 @@ int diff_width(u64 diffFlags){
 }
 
 /*
+** Append the error message to pOut.
+*/
+void diff_errmsg(Blob *pOut, const char *msg, int diffFlags){
+  if( diffFlags & DIFF_HTML ){
+    blob_appendf(pOut, "<p class=\"generalError\">%s</p>", msg);
+  }else{
+    blob_append(pOut, msg, -1);
+  }
+}
+
+/*
 ** Generate a report of the differences between files pA and pB.
 ** If pOut is not NULL then a unified diff is appended there.  It
 ** is assumed that pOut has already been initialized.  If pOut is
@@ -2034,7 +1775,7 @@ int *text_diff(
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
     if( pOut ){
-      blob_appendf(pOut, DIFF_CANNOT_COMPUTE_BINARY);
+      diff_errmsg(pOut, DIFF_CANNOT_COMPUTE_BINARY, diffFlags);
     }
     return 0;
   }
@@ -2050,11 +1791,7 @@ int *text_diff(
       fossil_free(c.aFrom);
       fossil_free(c.aTo);
       fossil_free(c.aEdit);
-      if( diffFlags & DIFF_HTML ){
-        blob_append(pOut, DIFF_TOO_MANY_CHANGES_HTML, -1);
-      }else{
-        blob_append(pOut, DIFF_TOO_MANY_CHANGES_TXT, -1);
-      }
+      diff_errmsg(pOut, DIFF_TOO_MANY_CHANGES, diffFlags);
       return 0;
     }
   }
@@ -2161,6 +1898,7 @@ void test_diff_cmd(void){
     return;
   }
   find_option("i",0,0);
+  find_option("v",0,0);
   zRe = find_option("regexp","e",1);
   if( zRe ){
     const char *zErr = re_compile(&pRe, zRe, 0);
@@ -2307,10 +2045,10 @@ static void annotate_file(
   /* Initialize the annotation */
   rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
   if( rid==0 ){
-    fossil_panic("file #%d is unchanged in manifest #%d", fnid, mid);
+    fossil_fatal("file #%d is unchanged in manifest #%d", fnid, mid);
   }
   if( !content_get(rid, &toAnnotate) ){
-    fossil_panic("unable to retrieve content of artifact #%d", rid);
+    fossil_fatal("unable to retrieve content of artifact #%d", rid);
   }
   if( iLimit<=0 ) iLimit = 1000000000;
   annotation_start(p, &toAnnotate);
@@ -2411,6 +2149,7 @@ void annotation_page(void){
   showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
+  if( exclude_spiders("annotate") ) return;
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
   zFilename = P("filename");
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
@@ -2589,7 +2328,7 @@ void annotate_cmd(void){
           " ORDER BY ancestor.generation ASC LIMIT 1",
           fid, fnid);
   if( mid==0 ){
-    fossil_panic("unable to find manifest");
+    fossil_fatal("unable to find manifest");
   }
   annFlags |= ANN_FILE_ANCEST;
   annotate_file(&ann, fnid, mid, iLimit, annFlags);
@@ -2617,59 +2356,4 @@ void annotate_cmd(void){
     }
     fossil_print("%21s %4d: %.*s\n", zPrefix, i+1, n, z);
   }
-}
-
-/*
-** COMMAND: test-looks-like-utf
-**
-** Usage:  %fossil test-looks-like-utf FILENAME
-**
-** Options:
-**    --utf8           Ignoring BOM and file size, force UTF-8 checking
-**    --utf16          Ignoring BOM and file size, force UTF-16 checking
-**
-** FILENAME is the name of a file to check for textual content in the UTF-8
-** and/or UTF-16 encodings.
-*/
-void looks_like_utf_test_cmd(void){
-  Blob blob;     /* the contents of the specified file */
-  int fUtf8;     /* return value of starts_with_utf8_bom() */
-  int fUtf16;    /* return value of starts_with_utf16_bom() */
-  int fUnicode;  /* return value of could_be_utf16() */
-  int lookFlags; /* output flags from looks_like_utf8/utf16() */
-  int bRevUtf16 = 0; /* non-zero -> UTF-16 byte order reversed */
-  int bRevUnicode = 0; /* non-zero -> UTF-16 byte order reversed */
-  int fForceUtf8 = find_option("utf8",0,0)!=0;
-  int fForceUtf16 = find_option("utf16",0,0)!=0;
-  if( g.argc!=3 ) usage("FILENAME");
-  blob_read_from_file(&blob, g.argv[2]);
-  fUtf8 = starts_with_utf8_bom(&blob, 0);
-  fUtf16 = starts_with_utf16_bom(&blob, 0, &bRevUtf16);
-  if( fForceUtf8 ){
-    fUnicode = 0;
-  }else{
-    fUnicode = could_be_utf16(&blob, &bRevUnicode) || fForceUtf16;
-  }
-  lookFlags = fUnicode ? looks_like_utf16(&blob, bRevUnicode, 0) :
-                         looks_like_utf8(&blob, 0);
-  fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
-  fossil_print("Starts with UTF-8 BOM: %s\n",fUtf8?"yes":"no");
-  fossil_print("Starts with UTF-16 BOM: %s\n",
-               fUtf16?(bRevUtf16?"reversed":"yes"):"no");
-  fossil_print("Looks like UTF-%s: %s\n",fUnicode?"16":"8",
-               (lookFlags&LOOK_BINARY)?"no":"yes");
-  fossil_print("Has flag LOOK_NUL: %s\n",(lookFlags&LOOK_NUL)?"yes":"no");
-  fossil_print("Has flag LOOK_CR: %s\n",(lookFlags&LOOK_CR)?"yes":"no");
-  fossil_print("Has flag LOOK_LONE_CR: %s\n",
-               (lookFlags&LOOK_LONE_CR)?"yes":"no");
-  fossil_print("Has flag LOOK_LF: %s\n",(lookFlags&LOOK_LF)?"yes":"no");
-  fossil_print("Has flag LOOK_LONE_LF: %s\n",
-               (lookFlags&LOOK_LONE_LF)?"yes":"no");
-  fossil_print("Has flag LOOK_CRLF: %s\n",(lookFlags&LOOK_CRLF)?"yes":"no");
-  fossil_print("Has flag LOOK_LONG: %s\n",(lookFlags&LOOK_LONG)?"yes":"no");
-  fossil_print("Has flag LOOK_INVALID: %s\n",
-               (lookFlags&LOOK_INVALID)?"yes":"no");
-  fossil_print("Has flag LOOK_ODD: %s\n",(lookFlags&LOOK_ODD)?"yes":"no");
-  fossil_print("Has flag LOOK_SHORT: %s\n",(lookFlags&LOOK_SHORT)?"yes":"no");
-  blob_reset(&blob);
 }
