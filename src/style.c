@@ -177,7 +177,14 @@ void style_resolve_href(void){
     @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
   }
   @ }
-  if( db_get_boolean("auto-hyperlink-mouseover",0) ){
+  if( strglob("*Opera Mini/[1-9]*", P("HTTP_USER_AGENT")) ){
+    /* Special case for Opera Mini, which executes JS server-side */
+    @ var isOperaMini = Object.prototype.toString.call(window.operamini)
+    @                   === "[object OperaMini]";
+    @ if( isOperaMini ){
+    @   setTimeout("setAllHrefs();",%d(nDelay));
+    @ }
+  }else if( db_get_boolean("auto-hyperlink-mouseover",0) ){
     /* Require mouse movement prior to activating hyperlinks */
     @ document.getElementsByTagName("body")[0].onmousemove=function(){
     @   setTimeout("setAllHrefs();",%d(nDelay));
@@ -265,6 +272,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
   Th_Store("current_page", local_zCurrentPage ? local_zCurrentPage : g.zPath);
+  Th_Store("csrf_token", g.zCsrfToken);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);

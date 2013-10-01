@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.27 (as yet unreleased)</h2>
+<h2>Changes For Version 1.27 (2013-09-11)</h2>
   *  Enhance the [/help?cmd=changes | fossil changes],
      [/help?cmd=clean | fossil clean], [/help?cmd=extras | fossil extras],
      [/help?cmd=ls | fossil ls] and [/help?cmd=status | fossil status] commands
@@ -11,12 +11,22 @@
      relative, not absolute.
   *  Added <tt>yw=YYYY-WW</tt> (year-week) filter to timeline to limit the results
      to a specific year and calendar week number, e.g. [/timeline?yw=2013-01].
-  *  Fixed an obscure condition under which an assertion failure could overwrite
-     part of a repository database file, corrupting it. This problem has only
-     been seen once in the wild.
+  *  Updates to SQLite to prevent opening a repository file using file descriptors
+     1 or 2 on unix.  This fixes a bug under which an assertion failure could
+     overwrite part of a repository database file, corrupting it.
   *  Added support for unlimited line lengths in side-by-side diffs.
   *  New --close option to [/help?cmd=commit | fossil commit], which
      immediately closes the branch being committed.
+  *  Added <tt>chart</tt> option to [/help?cmd=bisect | fossil bisect].
+  *  Improvements to the "human or bot?" determination.
+  *  Reports errors about missing CGI-standard environment variables for HTTP
+     servers which do not support them.
+  *  Minor improvements to sync support on Windows.
+  *  Added <tt>--scgi</tt> option to [/help?cmd=server | fossil server].
+  *  Internal improvements to the sync process.
+  *  The internals of the JSON API are now MIT-licensed, so downstream
+     users/packagers are no longer affected by the "do no evil" license
+     clause.
 
 <h2>Changes For Version 1.26 (2013-06-18)</h2>
   *  The argument to the --port option for the [/help?cmd=ui | fossil ui] and

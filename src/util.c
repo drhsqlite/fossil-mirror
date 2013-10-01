@@ -232,9 +232,7 @@ int fossil_timer_start(){
 ** since it was last reset). Returns 0 if timerId is out of range.
 */
 sqlite3_uint64 fossil_timer_fetch(int timerId){
-  if(timerId<1 || timerId>FOSSIL_TIMER_COUNT){
-    return 0;
-  }else{
+  if( timerId>0 && timerId<=FOSSIL_TIMER_COUNT ){
     struct FossilTimer * start = &fossilTimerList[timerId-1];
     if( !start->id ){
       fossil_fatal("Invalid call to fetch a non-allocated "
@@ -246,6 +244,7 @@ sqlite3_uint64 fossil_timer_fetch(int timerId){
       return (eu - start->u) + (es - start->s);
     }
   }
+  return 0;
 }
 
 /*
@@ -253,9 +252,7 @@ sqlite3_uint64 fossil_timer_fetch(int timerId){
 ** fossil_timer_start(), to the current CPU time values.
 */
 sqlite3_uint64 fossil_timer_reset(int timerId){
-  if(timerId<1 || timerId>FOSSIL_TIMER_COUNT){
-    return 0;
-  }else{
+  if( timerId>0 && timerId<=FOSSIL_TIMER_COUNT ){
     struct FossilTimer * start = &fossilTimerList[timerId-1];
     if( !start->id ){
       fossil_fatal("Invalid call to reset a non-allocated "
@@ -267,6 +264,7 @@ sqlite3_uint64 fossil_timer_reset(int timerId){
       return rc;
     }
   }
+  return 0;
 }
 
 /**

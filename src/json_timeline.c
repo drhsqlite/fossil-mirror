@@ -126,7 +126,7 @@ char const * json_timeline_query(void){
 ** mode's "r" option. They are very similar, but subtly different -
 ** tag mode shows only entries with a given tag but branch mode can
 ** also reveal some with "related" tags (meaning they were merged into
-** the requested branch).
+** the requested branch, or back).
 **
 ** pSql is the target blob to append the query [subset]
 ** to.
@@ -146,6 +146,7 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
                                                 cson_object * pPayload){
   char const * zTag = NULL;
   char const * zBranch = NULL;
+  char const * zMiOnly = NULL;
   int tagid = 0;
   if(! g.perm.Read ){
     return 0;
@@ -157,6 +158,7 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
       return 0;
     }
     zTag = zBranch;
+    zMiOnly = json_find_option_cstr("mionly",NULL,NULL);
   }
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
                  zTag);
@@ -177,12 +179,12 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
                  " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
                  "    WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
                  tagid);
-#if 0 /* from the undocumented "mionly" flag in page_timeline() */
-    blob_appendf(pSql,
+    if( zMiOnly==0 ){
+      blob_appendf(pSql,
                  " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
                  "    WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
                  tagid);
-#endif
+    }
   }
   blob_append(pSql," ) ",3);
   return 1;

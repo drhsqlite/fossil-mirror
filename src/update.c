@@ -130,6 +130,7 @@ void update_cmd(void){
   if( vid==0 ){
     fossil_fatal("cannot find current version");
   }
+  user_select();
   if( !dryRunFlag && !internalUpdate ){
     autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag);
   }

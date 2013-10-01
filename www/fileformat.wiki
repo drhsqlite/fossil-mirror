@@ -588,7 +588,7 @@ or more such cards are required.
 <tr>
 <td><b>D</b> <i>date-time-stamp</i></td>
 <td align=center><b>1</b></td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
@@ -597,117 +597,117 @@ or more such cards are required.
 </tr>
 <tr>
 <td><b>E</b> <i>event-time event-id</i></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>1</b></td>
 </tr>
 <tr>
 <td><b>F</b> <i>filename</i> ?<i>uuid</i>? ?<i>permissions</i>? ?<i>oldname</i>?</td>
 <td align=center><b>0+</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>J</b> <i>name</i> ?<i>value</i>?</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>1+</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>K</b> <i>ticket-uuid</i></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>1</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>L</b> <i>wiki-title</i></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>1</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>M</b> <i>uuid</i></td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>1+</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>N</b> <i>mimetype</i></td>
 <td align=center><b>0-1</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
 <td align=center><b>0-1</b></td>
 </tr>
 <tr>
 <td><b>P</b> <i>uuid ...</i></td>
 <td align=center><b>0-1</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
 </tr>
 <tr>
 <td><b>Q</b> (<b>+</b>|<b>-</b>)<i>uuid</i> ?<i>uuid</i>?</td>
 <td align=center><b>0+</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>R</b> <i>md5sum</i></td>
 <td align=center><b>0-1</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <tr>
 <td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname</i> <i>uuid</i> ?<i>value</i>?</td>
 <td align=center><b>0+</b></td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>1+</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>0+</b></td>
 </tr>
 <tr>
 <td><b>U</b> <i>username</i></td>
 <td align=center><b>1</b></td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
@@ -716,12 +716,12 @@ or more such cards are required.
 </tr>
 <tr>
 <td><b>W</b> <i>size</i></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>1</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <td align=center><b>1</b></td>
 </tr>
 <tr>
@@ -779,5 +779,5 @@ spaces. In that case the shell-generated hash would differ because the
 <tt>stat</tt> calls will fail to find such files (which are output in encoded
 form here). That approach also won't work for delta manifests. Calculating
 the R-card for delta manifests requires traversing both the delta and its baseline in
-lexical order of the files, prefering the delta's copy if both contain
+lexical order of the files, preferring the delta's copy if both contain
 a given file.

@@ -42,6 +42,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "cgi.h"
+#ifdef __CYGWIN__
+  __declspec(dllimport) extern __stdcall int ShellExecuteW(void *, void *,
+      void *, void *, void *, int);
+  __declspec(dllimport) extern __stdcall size_t wcslen(const wchar_t *);
+#endif
 
 #if INTERFACE
 /*
@@ -1437,6 +1442,16 @@ int cgi_http_server(
   }
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
+#if defined(__CYGWIN__)
+    /* On Cygwin, we can do better than "echo" */
+    if( memcmp(zBrowser, "echo ", 5)==0 ){
+      wchar_t *wUrl = fossil_utf8_to_unicode(zBrowser+5);
+      wUrl[wcslen(wUrl)-2] = 0; /* Strip terminating " &" */
+      if( ShellExecuteW(0, L"open", wUrl, 0, 0, 1)<33 ){
+        fossil_warning("cannot start browser\n");
+      }
+    }else
+#endif
     if( system(zBrowser)<0 ){
       fossil_warning("cannot start browser: %s\n", zBrowser);
     }

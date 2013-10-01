@@ -101,7 +101,10 @@ struct TclContext {
   void *library;         /* The Tcl library module handle. */
   void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
+  void *xDeleteInterp;   /* See tcl_DeleteInterpProc in th_tcl.c. */
+  void *xFinalize;       /* See tcl_FinalizeProc in th_tcl.c. */
   Tcl_Interp *interp;    /* The on-demand created Tcl interpreter. */
+  int useObjProc;        /* Non-zero if an objProc can be called directly. */
   char *setup;           /* The optional Tcl setup script. */
   void *xPreEval;        /* Optional, called before Tcl_Eval*(). */
   void *pPreContext;     /* Optional, provided to xPreEval(). */
@@ -345,6 +348,20 @@ static int name_search(
 ** used by fossil.
 */
 static void fossil_atexit(void) {
+#if defined(_WIN32) && !defined(_WIN64) && defined(FOSSIL_ENABLE_TCL) && \
+    defined(USE_TCL_STUBS)
+  /*
+  ** If Tcl is compiled on Windows using the latest MinGW, Fossil can crash
+  ** when exiting while a stubs-enabled Tcl is still loaded.  This is due to
+  ** a bug in MinGW, see:
+  **
+  **     http://comments.gmane.org/gmane.comp.gnu.mingw.user/41724
+  **
+  ** The workaround is to manually unload the loaded Tcl library prior to
+  ** exiting the process.  This issue does not impact 64-bit Windows.
+  */
+  unloadTcl(g.interp, &g.tcl);
+#endif
 #ifdef FOSSIL_ENABLE_JSON
   cson_value_free(g.json.gc.v);
   memset(&g.json, 0, sizeof(g.json));
@@ -526,6 +543,9 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 int _dowildcard = -1; /* This turns on command-line globbing in MinGW-w64 */
 int wmain(int argc, wchar_t **argv)
 #else
+#if defined(_WIN32)
+int _CRT_glob = 0x0001; /* See MinGW bug #2062 */
+#endif
 int main(int argc, char **argv)
 #endif
 {
@@ -781,6 +801,9 @@ void cmd_test_webpage_list(void){
   multi_column_list(aCmd, nCmd);
 }
 
+
+
+
 /*
 ** COMMAND: version
 **
@@ -797,19 +820,34 @@ void version_cmd(void){
   if(!find_option("verbose","v",0)){
     return;
   }else{
+#if defined(FOSSIL_ENABLE_TCL)
+    int rc;
+    const char *zRc;
+#endif
     fossil_print("Compiled on %s %s using %s (%d-bit)\n",
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
     fossil_print("SQLite %s %.30s\n", SQLITE_VERSION, SQLITE_SOURCE_ID);
     fossil_print("Schema version %s\n", AUX_SCHEMA);
-    fossil_print("zlib %s\n", ZLIB_VERSION);
+    fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #if defined(FOSSIL_ENABLE_SSL)
     fossil_print("SSL (%s)\n", OPENSSL_VERSION_TEXT);
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
-    fossil_print("TCL (Tcl %s)\n", TCL_PATCH_LEVEL);
+    Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
+    rc = Th_Eval(g.interp, 0, "tclInvoke info patchlevel", -1);
+    zRc = Th_ReturnCodeName(rc, 0);
+    fossil_print("TCL (Tcl %s, loaded %s: %s)\n",
+      TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
+    );
+#endif
+#if defined(USE_TCL_STUBS)
+    fossil_print("USE_TCL_STUBS\n");
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
     fossil_print("TCL_STUBS\n");
+#endif
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+    fossil_print("TCL_PRIVATE_STUBS\n");
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
     fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
@@ -1113,6 +1151,9 @@ static char *enter_chroot_jail(char *zRepo){
     struct stat sStat;
     Blob dir;
     char *zDir;
+    if( g.db!=0 ){
+      db_close(1);
+    }
 
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
@@ -1140,10 +1181,6 @@ static char *enter_chroot_jail(char *zRepo){
     i = i || setuid(sStat.st_uid);
     if(i){
       fossil_fatal("setgid/uid() failed with errno %d", errno);
-    }
-    if( g.db!=0 ){
-      db_close(1);
-      db_open_repository(zRepo);
     }
   }
 #endif
@@ -1861,24 +1898,7 @@ void cmd_webserver(void){
       static const char *const azBrowserProg[] =
           { "xdg-open", "gnome-open", "firefox", "google-chrome" };
       int i;
-#if defined(__CYGWIN__)
-      const char *path = fossil_getenv("ProgramFiles(x86)");
-      if( !path ){
-        path = fossil_getenv("PROGRAMFILES");
-      }
-      path = fossil_utf8_to_filename(path);
-      zBrowser = mprintf("%s/Google/Chrome/Application/chrome.exe", path);
-      if( file_access(zBrowser, X_OK) ){
-        zBrowser = mprintf("%s/Mozilla Firefox/firefox.exe", path);
-      }
-      if( file_access(zBrowser, X_OK) ){
-        path = fossil_utf8_to_filename(fossil_getenv("PROGRAMFILES"));
-        zBrowser = mprintf("%s/Internet Explorer/iexplore.exe", path);
-      }
-      zBrowser = mprintf("\"%s\"", zBrowser);
-#else
       zBrowser = "echo";
-#endif
       for(i=0; i<sizeof(azBrowserProg)/sizeof(azBrowserProg[0]); i++){
         if( binaryOnPath(azBrowserProg[i]) ){
           zBrowser = azBrowserProg[i];
