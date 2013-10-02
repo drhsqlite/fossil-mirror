@@ -1854,6 +1854,71 @@ void test_timewarp_page(void){
 }
 
 /*
+** Creates a TEMP VIEW named v_reports which is a wrapper around the
+** EVENT table filtered on event.type. It looks for the request
+** parameter 'y' (for consistency with /timeline) and expects it to
+** contain one of the conventional values from event.type or the value
+** "all", which is treated as equivalent to "*".  By default (if no
+** 'y' is specified), "*" is assumed (that is also the default for
+** invalid/unknown filter values). That 'y' filter is the one used for
+** the event list. Note that a filter of "*" or "all" is equivalent to
+** querying against the full event table. The view, however, adds an
+** abstraction level to simplify the implementation code for the
+** various /reports pages.
+**
+** Returns one of: 'c', 'w', 'g', 't', 'e', representing the type of
+** filter it applies, or 0 (NUL) if no filter is applied (i.e. if
+** "all" is used).
+*/
+static char stats_report_init_view(){
+  char const * zType = PD("y","*");  /* analog to /timeline?y=... */
+  char const * zRealType = NULL;     /* normalized form of zType */
+  char rc = 0;                       /* result code */
+  switch( (zType && *zType) ? *zType : '*' ){
+    case 'c':
+    case 'C':
+      zRealType = "ci";
+      rc = *zRealType;
+      break;
+    case 'e':
+    case 'E':
+      zRealType = "e";
+      rc = *zRealType;
+      break;
+    case 'g':
+    case 'G':
+      zRealType = "g";
+      rc = *zRealType;
+      break;
+    case 't':
+    case 'T':
+      zRealType = "t";
+      rc = *zRealType;
+      break;
+    case 'w':
+    case 'W':
+      zRealType = "w";
+      rc = *zRealType;
+      break;
+    default:
+      rc = '*';
+      break;
+  }
+  assert(0 != rc);
+  if(zRealType){
+    assert(*zRealType);
+    db_multi_exec("CREATE TEMP VIEW v_reports AS "
+                  "SELECT * FROM event WHERE type GLOB %Q",
+                  zRealType);
+  }else{
+    db_multi_exec("CREATE TEMP VIEW v_reports AS "
+                  "SELECT * FROM event");
+  }
+  return rc;
+}
+
+
+/*
 ** Helper for stats_report_by_month_year(), which generates a list of
 ** week numbers. zTimeframe should be either a timeframe in the form YYYY
 ** or YYYY-MM.
@@ -1866,7 +1931,7 @@ static void stats_report_output_week_links(const char * zTimeframe){
              "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
              "count(*) AS n, "
              "substr(date(mtime),1,%d) AS ym "
-             "FROM event "
+             "FROM v_reports "
              "WHERE ym=%Q AND mtime < current_timestamp "
              "GROUP BY wk ORDER BY wk",
              strlen(zTimeframe),
@@ -1910,12 +1975,13 @@ static void stats_report_by_month_year(char includeMonth,
                                         bars. */
   int iterations = 0;                /* number of weeks/months we iterate
                                         over */
+  stats_report_init_view();
   blob_appendf(&header, "Timeline Events by year%s",
                (includeMonth ? "/month" : ""));
   blob_appendf(&sql,
                "SELECT substr(date(mtime),1,%d) AS timeframe, "
                "count(*) AS eventCount "
-               "FROM event ",
+               "FROM v_reports ",
                includeMonth ? 7 : 4);
   if(zUserName&&*zUserName){
     blob_appendf(&sql, " WHERE user=%Q ", zUserName);
@@ -2055,10 +2121,11 @@ static void stats_report_by_user(){
   Blob sql = empty_blob;             /* SQL */
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
+  stats_report_init_view();
   blob_append(&sql,
                "SELECT user, "
                "COUNT(*) AS eventCount "
-               "FROM event "
+               "FROM v_reports "
                "GROUP BY user ORDER BY eventCount DESC",
               -1);
   db_prepare(&query, blob_str(&sql));
@@ -2123,10 +2190,11 @@ static void stats_report_year_weeks(const char * zUserName){
                                         all rows. */
   int iterations = 0;                /* # of active time periods. */
 
+  stats_report_init_view();
   cgi_printf("Select year: ");
   blob_append(&sql,
               "SELECT DISTINCT substr(date(mtime),1,4) AS y "
-              "FROM event WHERE 1 ", -1);
+              "FROM v_reports WHERE 1 ", -1);
   if(zUserName&&*zUserName){
     blob_appendf(&sql,"AND user=%Q ", zUserName);
   }
