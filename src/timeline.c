@@ -1856,10 +1856,11 @@ void test_timewarp_page(void){
 /*
 ** Creates a TEMP VIEW named v_reports which is a wrapper around the
 ** EVENT table filtered on event.type. It looks for the request
-** parameter 'y' (for consistency with /timeline) and expects it to
-** contain one of the conventional values from event.type or the value
-** "all", which is treated as equivalent to "*".  By default (if no
-** 'y' is specified), "*" is assumed (that is also the default for
+** parameter 'type' (reminder: we "should" use 'y' for consistency
+** with /timeline, but /reports uses 'y' for the year) and expects it
+** to contain one of the conventional values from event.type or the
+** value "all", which is treated as equivalent to "*".  By default (if
+** no 'y' is specified), "*" is assumed (that is also the default for
 ** invalid/unknown filter values). That 'y' filter is the one used for
 ** the event list. Note that a filter of "*" or "all" is equivalent to
 ** querying against the full event table. The view, however, adds an
@@ -1871,10 +1872,10 @@ void test_timewarp_page(void){
 ** used).
 */
 static char stats_report_init_view(){
-  char const * zType = PD("y","*");  /* analog to /timeline?y=... */
-  char const * zRealType = NULL;     /* normalized form of zType */
-  char rc = 0;                       /* result code */
-  switch( (zType && *zType) ? *zType : '*' ){
+  char const * zType = PD("type","*");  /* analog to /timeline?y=... */
+  char const * zRealType = NULL;        /* normalized form of zType */
+  char rc = 0;                          /* result code */
+  switch( (zType && *zType) ? *zType : 0 ){
     case 'c':
     case 'C':
       zRealType = "ci";
@@ -1906,7 +1907,6 @@ static char stats_report_init_view(){
   }
   assert(0 != rc);
   if(zRealType){
-    assert(*zRealType);
     db_multi_exec("CREATE TEMP VIEW v_reports AS "
                   "SELECT * FROM event WHERE type GLOB %Q",
                   zRealType);
@@ -2229,7 +2229,7 @@ static void stats_report_year_weeks(const char * zUserName){
     blob_appendf(&sql,
                  "SELECT DISTINCT strftime('%%%%W',mtime) AS wk, "
                  "count(*) AS n "
-                 "FROM event "
+                 "FROM v_reports "
                  "WHERE %Q=substr(date(mtime),1,4) "
                  "AND mtime < current_timestamp ",
                  zYear);
