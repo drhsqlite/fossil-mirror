@@ -1201,6 +1201,7 @@ void setup_settings(void){
     login_needed();
   }
 
+  (void) aCmdHelp; /* NOTE: Silence compiler warning. */
   style_header("Settings");
   db_open_local(0);
   db_begin_transaction();

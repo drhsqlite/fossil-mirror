@@ -463,16 +463,20 @@ void test_set_mtime(void){
 
 /*
 ** Delete a file.
+**
+** Returns zero upon success.
 */
-void file_delete(const char *zFilename){
+int file_delete(const char *zFilename){
+  int rc;
 #ifdef _WIN32
   wchar_t *z = fossil_utf8_to_filename(zFilename);
-  _wunlink(z);
+  rc = _wunlink(z);
 #else
   char *z = fossil_utf8_to_filename(zFilename);
-  unlink(zFilename);
+  rc = unlink(zFilename);
 #endif
   fossil_filename_free(z);
+  return rc;
 }
 
 /*
@@ -495,6 +499,29 @@ int file_mkdir(const char *zName, int forceFlag){
 #else
     char *zMbcs = fossil_utf8_to_filename(zName);
     rc = mkdir(zName, 0755);
+#endif
+    fossil_filename_free(zMbcs);
+    return rc;
+  }
+  return 0;
+}
+
+/*
+** Removes the directory named in the argument, if it exists.  The directory
+** must be empty and cannot be the current directory or the root directory.
+**
+** Returns zero upon success.
+*/
+int file_rmdir(const char *zName){
+  int rc = file_wd_isdir(zName);
+  if( rc==2 ) return 1; /* cannot remove normal file */
+  if( rc==1 ){
+#if defined(_WIN32)
+    wchar_t *zMbcs = fossil_utf8_to_filename(zName);
+    rc = _wrmdir(zMbcs);
+#else
+    char *zMbcs = fossil_utf8_to_filename(zName);
+    rc = rmdir(zName);
 #endif
     fossil_filename_free(zMbcs);
     return rc;
@@ -796,11 +823,12 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 void cmd_test_canonical_name(void){
   int i;
   Blob x;
+  int slashFlag = find_option("slash",0,0)!=0;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
     char zBuf[100];
     const char *zName = g.argv[i];
-    file_canonical_name(zName, &x, 0);
+    file_canonical_name(zName, &x, slashFlag);
     fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
     blob_reset(&x);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zName));
@@ -878,17 +906,21 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
     while( zPath[i] && zPwd[i]==zPath[i] ) i++;
 #endif
     if( zPath[i]==0 ){
-      blob_reset(pOut);
+      memcpy(&tmp, pOut, sizeof(tmp));
       if( zPwd[i]==0 ){
-        blob_append(pOut, ".", 1);
+        blob_set(pOut, ".");
       }else{
-        blob_append(pOut, "..", 2);
+        blob_set(pOut, "..");
         for(j=i+1; zPwd[j]; j++){
           if( zPwd[j]=='/' ){
             blob_append(pOut, "/..", 3);
           }
         }
       }
+      if( slash && i>0 && zPath[strlen(zPath)-1]=='/'){
+        blob_append(pOut, "/", 1);
+      }
+      blob_reset(&tmp);
       return;
     }
     if( zPwd[i]==0 && zPath[i]=='/' ){
@@ -919,9 +951,10 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
 void cmd_test_relative_name(void){
   int i;
   Blob x;
+  int slashFlag = find_option("slash",0,0)!=0;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
-    file_relative_name(g.argv[i], &x, 0);
+    file_relative_name(g.argv[i], &x, slashFlag);
     fossil_print("%s\n", blob_buffer(&x));
     blob_reset(&x);
   }

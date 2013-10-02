@@ -102,7 +102,9 @@ struct TclContext {
   void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
   void *xDeleteInterp;   /* See tcl_DeleteInterpProc in th_tcl.c. */
+  void *xFinalize;       /* See tcl_FinalizeProc in th_tcl.c. */
   Tcl_Interp *interp;    /* The on-demand created Tcl interpreter. */
+  int useObjProc;        /* Non-zero if an objProc can be called directly. */
   char *setup;           /* The optional Tcl setup script. */
   void *xPreEval;        /* Optional, called before Tcl_Eval*(). */
   void *pPreContext;     /* Optional, provided to xPreEval(). */
@@ -347,6 +349,20 @@ static int name_search(
 ** used by fossil.
 */
 static void fossil_atexit(void) {
+#if defined(_WIN32) && !defined(_WIN64) && defined(FOSSIL_ENABLE_TCL) && \
+    defined(USE_TCL_STUBS)
+  /*
+  ** If Tcl is compiled on Windows using the latest MinGW, Fossil can crash
+  ** when exiting while a stubs-enabled Tcl is still loaded.  This is due to
+  ** a bug in MinGW, see:
+  **
+  **     http://comments.gmane.org/gmane.comp.gnu.mingw.user/41724
+  **
+  ** The workaround is to manually unload the loaded Tcl library prior to
+  ** exiting the process.  This issue does not impact 64-bit Windows.
+  */
+  unloadTcl(g.interp, &g.tcl);
+#endif
 #ifdef FOSSIL_ENABLE_JSON
   cson_value_free(g.json.gc.v);
   memset(&g.json, 0, sizeof(g.json));
@@ -528,6 +544,9 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 int _dowildcard = -1; /* This turns on command-line globbing in MinGW-w64 */
 int wmain(int argc, wchar_t **argv)
 #else
+#if defined(_WIN32)
+int _CRT_glob = 0x0001; /* See MinGW bug #2062 */
+#endif
 int main(int argc, char **argv)
 #endif
 {
@@ -818,11 +837,14 @@ void version_cmd(void){
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
     Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
-    rc = Th_Eval(g.interp, 0, "tclEval {info patchlevel}", -1);
+    rc = Th_Eval(g.interp, 0, "tclInvoke info patchlevel", -1);
     zRc = Th_ReturnCodeName(rc, 0);
     fossil_print("TCL (Tcl %s, loaded %s: %s)\n",
       TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
     );
+#endif
+#if defined(USE_TCL_STUBS)
+    fossil_print("USE_TCL_STUBS\n");
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
     fossil_print("TCL_STUBS\n");
@@ -1132,6 +1154,9 @@ static char *enter_chroot_jail(char *zRepo){
     struct stat sStat;
     Blob dir;
     char *zDir;
+    if( g.db!=0 ){
+      db_close(1);
+    }
 
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
@@ -1159,10 +1184,6 @@ static char *enter_chroot_jail(char *zRepo){
     i = i || setuid(sStat.st_uid);
     if(i){
       fossil_fatal("setgid/uid() failed with errno %d", errno);
-    }
-    if( g.db!=0 ){
-      db_close(1);
-      db_open_repository(zRepo);
     }
   }
 #endif

@@ -131,12 +131,27 @@ of your web server and having content like this:
 repository: /home/fossil/repo.fossil
 </pre></blockquote>
 </p>
+
 <p>
 As always, adjust your paths appropriately.
 It may be necessary to set permissions properly, or to modify an ".htaccess"
 file or make other server-specific changes.  Consult the documentation
-for your particular web server.
+for your particular web server. In particular, the following permissions are
+<em>normally</em> required (but, again, may be different for a particular
+configuration):
+
+<ul>
+<li>The Fossil binary must be readable/executable, and ALL directories leading up to it
+must be readable by the process which executes the CGI.</li>
+<li>ALL directories leading to the CGI script must also be readable and the CGI
+script itself must be executable for the user under which it will run (which often differs
+from the one running the web server - consult your site's documentation or administrator).</li>
+<li>The repository file AND the directory containing it must be writable by the same account
+which executes the Fossil binary (again, this might differ from the WWW user). The directory
+needs to be writable so that sqlite can write its journal files.</li>
+</ul>
 </p>
+
 <p>
 Once the script is set up correctly, and assuming your server is also set
 correctly, you should be able to access your repository with a URL like:

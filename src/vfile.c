@@ -420,6 +420,7 @@ static int is_temporary_file(const char *zName){
 */
 #define SCAN_ALL    0x001    /* Includes files that begin with "." */
 #define SCAN_TEMP   0x002    /* Only Fossil-generated files like *-baseline */
+#define SCAN_NESTED 0x004    /* Scan for empty dirs in nested checkouts */
 #endif /* INTERFACE */
 
 /*
@@ -430,11 +431,12 @@ static int is_temporary_file(const char *zName){
 ** Subdirectories are scanned recursively.
 ** Omit files named in VFILE.
 **
-** Files whose names begin with "." are omitted unless allFlag is true.
+** Files whose names begin with "." are omitted unless the SCAN_ALL
+** flag is set.
 **
-** Any files or directories that match the glob pattern pIgnore are 
-** excluded from the scan.  Name matching occurs after the first
-** nPrefix characters are elided from the filename.
+** Any files or directories that match the glob patterns pIgnore*
+** are excluded from the scan.  Name matching occurs after the
+** first nPrefix characters are elided from the filename.
 */
 void vfile_scan(
   Blob *pPath,           /* Directory to be scanned */
@@ -445,7 +447,6 @@ void vfile_scan(
 ){
   DIR *d;
   int origSize;
-  const char *zDir;
   struct dirent *pEntry;
   int skipAll = 0;
   static Stmt ins;
@@ -470,8 +471,7 @@ void vfile_scan(
   }
   depth++;
 
-  zDir = blob_str(pPath);
-  zNative = fossil_utf8_to_filename(zDir);
+  zNative = fossil_utf8_to_filename(blob_str(pPath));
   d = opendir(zNative);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
@@ -510,6 +510,123 @@ void vfile_scan(
   if( depth==0 ){
     db_finalize(&ins);
   }
+}
+
+/*
+** Scans the specified base directory for any directories within it, while
+** keeping a count of how many files they each contains, either directly or
+** indirectly.
+**
+** Subdirectories are scanned recursively.
+** Omit files named in VFILE.
+**
+** Directories whose names begin with "." are omitted unless the SCAN_ALL
+** flag is set.
+**
+** Any directories that match the glob patterns pIgnore* are excluded from
+** the scan.  Name matching occurs after the first nPrefix characters are
+** elided from the filename.
+**
+** Returns the total number of files found.
+*/
+int vfile_dir_scan(
+  Blob *pPath,           /* Base directory to be scanned */
+  int nPrefix,           /* Number of bytes in base directory name */
+  unsigned scanFlags,    /* Zero or more SCAN_xxx flags */
+  Glob *pIgnore1,        /* Do not add directories that match this GLOB */
+  Glob *pIgnore2,        /* Omit directories matching this GLOB too */
+  Glob *pIgnore3         /* Omit directories matching this GLOB too */
+){
+  int result = 0;
+  DIR *d;
+  int origSize;
+  struct dirent *pEntry;
+  int skipAll = 0;
+  static Stmt ins;
+  static Stmt upd;
+  static int depth = 0;
+  void *zNative;
+
+  origSize = blob_size(pPath);
+  if( pIgnore1 || pIgnore2 || pIgnore3 ){
+    blob_appendf(pPath, "/");
+    if( glob_match(pIgnore1, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
+    if( glob_match(pIgnore2, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
+    if( glob_match(pIgnore3, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
+    blob_resize(pPath, origSize);
+  }
+  if( skipAll ) return result;
+
+  if( depth==0 ){
+    db_multi_exec("DROP TABLE IF EXISTS dscan_temp;"
+                  "CREATE TEMP TABLE dscan_temp("
+                  "  x TEXT PRIMARY KEY %s, y INTEGER)",
+                  filename_collation());
+    db_prepare(&ins,
+       "INSERT OR IGNORE INTO dscan_temp(x, y) SELECT :file, :count"
+       "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
+       " pathname GLOB :file || '/*' %s)", filename_collation()
+    );
+    db_prepare(&upd,
+       "UPDATE OR IGNORE dscan_temp SET y = coalesce(y, 0) + 1"
+       "  WHERE x=:file %s",
+       filename_collation()
+    );
+  }
+  depth++;
+
+  zNative = fossil_utf8_to_filename(blob_str(pPath));
+  d = opendir(zNative);
+  if( d ){
+    while( (pEntry=readdir(d))!=0 ){
+      char *zOrigPath;
+      char *zPath;
+      char *zUtf8;
+      if( pEntry->d_name[0]=='.' ){
+        if( (scanFlags & SCAN_ALL)==0 ) continue;
+        if( pEntry->d_name[1]==0 ) continue;
+        if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
+      }
+      zOrigPath = mprintf("%s", blob_str(pPath));
+      zUtf8 = fossil_filename_to_utf8(pEntry->d_name);
+      blob_appendf(pPath, "/%s", zUtf8);
+      zPath = blob_str(pPath);
+      if( glob_match(pIgnore1, &zPath[nPrefix+1]) ||
+          glob_match(pIgnore2, &zPath[nPrefix+1]) ||
+          glob_match(pIgnore3, &zPath[nPrefix+1]) ){
+        /* do nothing */
+      }else if( file_wd_isdir(zPath)==1 ){
+        if( (scanFlags & SCAN_NESTED) || !vfile_top_of_checkout(zPath) ){
+          char *zSavePath = mprintf("%s", zPath);
+          int count = vfile_dir_scan(pPath, nPrefix, scanFlags, pIgnore1,
+                                     pIgnore2, pIgnore3);
+          db_bind_text(&ins, ":file", &zSavePath[nPrefix+1]);
+          db_bind_int(&ins, ":count", count);
+          db_step(&ins);
+          db_reset(&ins);
+          fossil_free(zSavePath);
+          result += count; /* found X normal files? */
+        }
+      }else if( file_wd_isfile_or_link(zPath) ){
+        db_bind_text(&upd, ":file", zOrigPath);
+        db_step(&upd);
+        db_reset(&upd);
+        result++; /* found 1 normal file */
+      }
+      fossil_filename_free(zUtf8);
+      blob_resize(pPath, origSize);
+      fossil_free(zOrigPath);
+    }
+    closedir(d);
+  }
+  fossil_filename_free(zNative);
+
+  depth--;
+  if( depth==0 ){
+    db_finalize(&upd);
+    db_finalize(&ins);
+  }
+  return result;
 }
 
 /*
