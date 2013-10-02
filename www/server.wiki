@@ -160,7 +160,7 @@ accessible under "cgi-bin", which would be a typical deployment on Apache
 for instance).
 </p>
 <p>
-To server multiple repositories from a directory using CGI, use the "directory:"
+To serve multiple repositories from a directory using CGI, use the "directory:"
 tag in the CGI script rather than "repository:".   You might also want to add
 a "notfound:" tag to tell where to redirect if the particular repository requested
 by the URL is not found:
@@ -172,7 +172,7 @@ notfound: http://url-to-go-to-if-repo-not-found/
 </p>
 <p>
 Once deployed, a URL like: <b>http://mydomain.org/cgi-bin/repo/XYZ</b>
-will serve up the repository "/home/fossil/repos/XYX.fossil" (if it exists).
+will serve up the repository "/home/fossil/repos/XYZ.fossil" (if it exists).
 </p>
 </blockquote>
 
