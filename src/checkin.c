@@ -547,7 +547,7 @@ void extra_cmd(void){
 ** See also: addremove, extra, status
 */
 void clean_cmd(void){
-  int allFileFlag, allDirFlag, dryRunFlag, extremeFlag, verboseFlag;
+  int allFileFlag, allDirFlag, dryRunFlag, verboseFlag, extremeFlag;
   int emptyDirsFlag, dirsOnlyFlag;
   unsigned scanFlags = 0;
   const char *zIgnoreFlag, *zKeepFlag;
@@ -561,7 +561,7 @@ void clean_cmd(void){
   extremeFlag = find_option("extreme","x",0)!=0;
   allFileFlag = allDirFlag = find_option("force","f",0)!=0;
   dirsOnlyFlag = find_option("dirsonly",0,0)!=0;
-  emptyDirsFlag = dirsOnlyFlag || find_option("emptydirs","d",0)!=0;
+  emptyDirsFlag = find_option("emptydirs","d",0)!=0 || dirsOnlyFlag;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   if( find_option("allckouts",0,0)!=0 ) scanFlags |= SCAN_NESTED;
@@ -602,7 +602,8 @@ void clean_cmd(void){
   if( !dirsOnlyFlag ){
     Stmt q;
     Blob repo;
-    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, extremeFlag ? 0 : pIgnore);
+    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags,
+                           extremeFlag ? 0 : pIgnore);
     db_prepare(&q,
         "SELECT %Q || x FROM sfile"
         " WHERE x NOT IN (%s)"
@@ -615,6 +616,10 @@ void clean_cmd(void){
     db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
+      if( glob_match(pKeep, zName+nRoot) ){
+        fossil_print("WARNING: KEPT file \"%s\" not removed\n", zName+nRoot);
+        continue;
+      }
       if( !allFileFlag && (!extremeFlag || !glob_match(pIgnore, zName+nRoot)) ){
         Blob ans;
         char cReply;
@@ -646,8 +651,9 @@ void clean_cmd(void){
     Stmt q;
     Blob root;
     blob_init(&root, g.zLocalRoot, nRoot - 1);
-    vfile_dir_scan(&root, blob_size(&root), scanFlags, pIgnore, pKeep,
-                   pEmptyDirs);
+    vfile_dir_scan(&root, blob_size(&root), scanFlags,
+                   extremeFlag ? 0 : pIgnore,
+                   extremeFlag ? 0 : pEmptyDirs);
     blob_reset(&root);
     db_prepare(&q,
         "SELECT %Q || x FROM dscan_temp"
@@ -658,7 +664,7 @@ void clean_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( glob_match(pKeep, zName+nRoot) ){
-        fossil_print("WARNING: KEPT file \"%s\" not removed\n", zName+nRoot);
+        fossil_print("WARNING: KEPT directory \"%s\" not removed\n", zName+nRoot);
         continue;
       }
       if( !allDirFlag && (!extremeFlag || !glob_match(pIgnore, zName+nRoot)) ){
