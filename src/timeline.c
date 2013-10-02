@@ -1867,8 +1867,8 @@ void test_timewarp_page(void){
 ** various /reports pages.
 **
 ** Returns one of: 'c', 'w', 'g', 't', 'e', representing the type of
-** filter it applies, or 0 (NUL) if no filter is applied (i.e. if
-** "all" is used).
+** filter it applies, or '*' if no filter is applied (i.e. if "all" is
+** used).
 */
 static char stats_report_init_view(){
   char const * zType = PD("y","*");  /* analog to /timeline?y=... */
