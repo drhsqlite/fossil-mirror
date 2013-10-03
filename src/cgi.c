@@ -43,9 +43,9 @@
 #include <unistd.h>
 #include "cgi.h"
 #ifdef __CYGWIN__
+# include <wchar.h>
   __declspec(dllimport) extern __stdcall int ShellExecuteW(void *, void *,
       void *, void *, void *, int);
-  __declspec(dllimport) extern __stdcall size_t wcslen(const wchar_t *);
 #endif
 
 #if INTERFACE
