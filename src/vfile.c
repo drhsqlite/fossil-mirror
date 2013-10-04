@@ -83,7 +83,7 @@ void load_vfile_from_rid(int vid){
   }
 
   db_begin_transaction();
-  p = manifest_get(vid, CFTYPE_MANIFEST);
+  p = manifest_get(vid, CFTYPE_MANIFEST, 0);
   if( p==0 ) {
     db_end_transaction(1);
     return;
@@ -854,18 +854,21 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   int fid;
   Blob file;
+  Blob err;
   Manifest *pManifest;
   ManifestFile *pFile;
   char zBuf[100];
 
   blob_zero(pOut);
+  blob_zero(&err);
   if( pManOut ){
     blob_zero(pManOut);
   }
   db_must_be_within_tree();
-  pManifest = manifest_get(vid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(vid, CFTYPE_MANIFEST, &err);
   if( pManifest==0 ){
-    fossil_fatal("manifest file (%d) is malformed", vid);
+    fossil_fatal("manifest file (%d) is malformed:\n%s\n",
+                 blob_str(&err));
   }
   manifest_file_rewind(pManifest);
   while( (pFile = manifest_file_next(pManifest,0))!=0 ){

@@ -115,7 +115,7 @@ void event_page(void){
 
   /* Extract the event content.
   */
-  pEvent = manifest_get(rid, CFTYPE_EVENT);
+  pEvent = manifest_get(rid, CFTYPE_EVENT, 0);
   if( pEvent==0 ){
     fossil_fatal("Object #%d is not an event", rid);
   }
@@ -259,7 +259,7 @@ void eventedit_page(void){
   */
   if( rid && (zBody==0 || zETime==0 || zComment==0 || zTags==0) ){
     Manifest *pEvent;
-    pEvent = manifest_get(rid, CFTYPE_EVENT);
+    pEvent = manifest_get(rid, CFTYPE_EVENT, 0);
     if( pEvent && pEvent->type==CFTYPE_EVENT ){
       if( zBody==0 ) zBody = pEvent->zWiki;
       if( zETime==0 ){

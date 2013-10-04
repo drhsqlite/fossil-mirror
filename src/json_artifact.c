@@ -194,7 +194,7 @@ cson_value * json_artifact_ticket( cson_object * zParent, int rid ){
     json_gc_add("$EVENT_TYPE_LABEL(ticket)", eventTypeLabel);
   }
 
-  pTktChng = manifest_get(rid, CFTYPE_TICKET);
+  pTktChng = manifest_get(rid, CFTYPE_TICKET, 0);
   if( pTktChng==0 ){
     g.json.resultCode = FSL_JSON_E_MANIFEST_READ_FAILED;
     return NULL;

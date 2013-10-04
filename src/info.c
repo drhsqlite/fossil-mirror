@@ -725,7 +725,7 @@ void winfo_page(void){
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(); return; }
   rid = name_to_rid_www("name");
-  if( rid==0 || (pWiki = manifest_get(rid, CFTYPE_WIKI))==0 ){
+  if( rid==0 || (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))==0 ){
     style_header("Wiki Page Information Error");
     @ No such object: %h(P("name"))
     style_footer();
@@ -836,7 +836,7 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
     webpage_error("Artifact %s is not a checkin.", P(zParam));
     return 0;
   }
-  return manifest_get(rid, CFTYPE_MANIFEST);
+  return manifest_get(rid, CFTYPE_MANIFEST, 0);
 }
 
 /*
@@ -1487,7 +1487,7 @@ int artifact_from_ci_and_filename(void){
   zFilename = P("filename");
   if( zFilename==0 ) return 0;
   cirid = name_to_rid_www("ci");
-  pManifest = manifest_get(cirid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(cirid, CFTYPE_MANIFEST, 0);
   if( pManifest==0 ) return 0;
   manifest_file_rewind(pManifest);
   while( (pFile = manifest_file_next(pManifest,0))!=0 ){
@@ -1710,7 +1710,7 @@ void tinfo_page(void){
             g.zTop, zUuid);
     }
   }
-  pTktChng = manifest_get(rid, CFTYPE_TICKET);
+  pTktChng = manifest_get(rid, CFTYPE_TICKET, 0);
   if( pTktChng==0 ) fossil_redirect_home();
   zDate = db_text(0, "SELECT datetime(%.12f)", pTktChng->rDate);
   memcpy(zTktName, pTktChng->zTicketUuid, UUID_SIZE+1);
