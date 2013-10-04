@@ -42,11 +42,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "cgi.h"
-#ifdef __CYGWIN__
-# include <wchar.h>
-  __declspec(dllimport) extern __stdcall int ShellExecuteW(void *, void *,
-      void *, void *, void *, int);
-#endif
+#include "cygsup.h"
 
 #if INTERFACE
 /*

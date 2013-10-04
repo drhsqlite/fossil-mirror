@@ -1,5 +1,5 @@
-C Revert\s[b7625d8d8c],\sinstead\smake\ssure\sthe\scorrect\sheader\sfile\sis\sincluded\sfor\sCygwin.
-D 2013-10-03T14:59:11.095
+C Consolidate\sall\sthe\sCygwin-specific\spreprocessor\sdirectives\sinto\sone\sfile\sand\sinclude\sit\swhere\snecessary.
+D 2013-10-04T02:50:26.226
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -307,7 +307,7 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c a6a7f08595164445bfcfa0326b38bd276b98e271
+F src/add.c 2bf1d1a5323760724d52a04a2cd1e0b64d805ed1
 F src/allrepo.c cf257abcfc4c887f3fc497ca907e0cfa19961e5e
 F src/attach.c 7b9f0df4256e5e2f5f927ae1c3922ec7207185d5
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -316,7 +316,7 @@ F src/blob.c 9b834e63fab2e586cc2ac29ba56a38acc989c3ca
 F src/branch.c 973d2d5ed2cf67592de603580454f4e861c9a754
 F src/browse.c 4f11469038984f7e0e886fbae8e44f72b294f6b4
 F src/captcha.c de30cda16d8d774c88ee465f15fc735ecb81ac34
-F src/cgi.c fe11d86a810a63a580b6653df21e36c7c338075a
+F src/cgi.c bee73d05f937f9348a70fb163b0d35c92dadab3c
 F src/checkin.c e7d2d68a6874432c586105968cd19aa6ad936278
 F src/checkout.c c79fcc729323e605bc04cdca92c069438aeee055
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -327,6 +327,7 @@ F src/configure.c d9192353fbb8d656ef1a927a5c0b75beaa4f9e8a
 F src/content.c 468d7f73a4b09fe03d16d8477f9fe6a99481bec9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
+F src/cygsup.h 04c000d51441eab7e520b9db2c02f16555b7e465
 F src/db.c f5e296e45ac2feeeb5bf984f0ec488eed3a5c156
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
@@ -421,7 +422,7 @@ F src/unicode.c 7b3ec02e5e293378c23f6a048c7beedcbb6e0ff0
 F src/update.c c6beda2b80a35e19b6d9db76eb8e0ebe579ecaa5
 F src/url.c 3cfb983699aa08d605c47ad368d5796c09f6143d
 F src/user.c 0c0c3d82374d547e830712a4aeb68f54c3aa9769
-F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
+F src/utf8.c f72d86a09600005942bea4fc9cbfeab625ea2867
 F src/util.c 7054510104b0eb24815b856227807dd964115ebe
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
 F src/vfile.c 0e2f3aa96c9d2fc79f158f3944378b1e7fe8f3ec
@@ -634,8 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e3a2d8f381a1fd59d2686ae525a8a29a4ea1a706
-Q +86a8e1d923911c4bb356f0b5ffc9e39b6e8ce4d2
-R 8be63f7ccfcfadcf3427ec4d03b6a6bd
-U jan.nijtmans
-Z 477bb07ab6f450a09a568ef5a7df2cc7
+P 19b2b2403cc24fba06770df9839a8250c5c93432
+R b6bbec53c7671fb9efb3d4870d7c7463
+U mistachkin
+Z 5c5d18b5f68191b572b47d16ff2208ff

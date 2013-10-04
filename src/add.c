@@ -22,12 +22,7 @@
 #include "add.h"
 #include <assert.h>
 #include <dirent.h>
-#ifdef __CYGWIN__
-  __declspec(dllimport) extern __stdcall int RegOpenKeyExW(void *, void *,
-      int, int, void *);
-  __declspec(dllimport) extern __stdcall int RegQueryValueExW(void *, void *,
-      int, void *, void *, void *);
-#endif
+#include "cygsup.h"
 
 /*
 ** This routine returns the names of files in a working checkout that
