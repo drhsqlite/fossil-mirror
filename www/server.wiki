@@ -114,9 +114,9 @@ exec         = /usr/bin/fossil
 execargs     = /usr/bin/fossil http /home/fossil/ubercool.fossil --https
 </nowiki></pre></blockquote>
 See the stunnel4 documentation for further details bout the /etc/stunnel/stunnel.conf
-configuration file.  Note that the [fossil http] command should include the --https
-option to let Fossil know to use "https" instead of "http" as the scheme on generated
-hyperlinks.
+configuration file.  Note that the [/help/http|fossil http] command should include 
+the --https option to let Fossil know to use "https" instead of "http" as the scheme
+on generated hyperlinks.
 <p>
 Using inetd or xinetd or stunnel is a more complex setup 
 than the "standalone" server, but it has the
