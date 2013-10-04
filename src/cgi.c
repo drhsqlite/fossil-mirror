@@ -1443,7 +1443,7 @@ int cgi_http_server(
     if( memcmp(zBrowser, "echo ", 5)==0 ){
       wchar_t *wUrl = fossil_utf8_to_unicode(zBrowser+5);
       wUrl[wcslen(wUrl)-2] = 0; /* Strip terminating " &" */
-      if( ShellExecuteW(0, L"open", wUrl, 0, 0, 1)<33 ){
+      if( (size_t)ShellExecuteW(0, L"open", wUrl, 0, 0, 1)<33 ){
         fossil_warning("cannot start browser\n");
       }
     }else
