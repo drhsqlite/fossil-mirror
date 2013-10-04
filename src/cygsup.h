@@ -69,24 +69,27 @@
 ** Declare any Cygwin-specific Win32 or other APIs here.  Functions declared in
 ** this section should use the built-in ANSI C types in order to make sure this
 ** header file continues to work as a self-contained unit.
+**
+** On Cygwin64, "long" is 64-bit but in Win64 it's 32-bit. That's why in
+** the signatures below "long" should not be used. Use "int" in stead.
 *******************************************************************************
 */
 
-WINADVAPI extern WINAPI long RegOpenKeyExW(
+WINADVAPI extern WINAPI int RegOpenKeyExW(
     void *,          /* HKEY */
     const wchar_t *, /* LPCWSTR */
-    unsigned long,   /* DWORD */
-    unsigned long,   /* REGSAM */
+    unsigned int,    /* DWORD */
+    unsigned int,    /* REGSAM */
     void *           /* PHKEY */
     );
 
-WINADVAPI extern WINAPI long RegQueryValueExW(
+WINADVAPI extern WINAPI int RegQueryValueExW(
     void *,          /* HKEY */
     const wchar_t *, /* LPCWSTR */
-    unsigned long *, /* LPDWORD */
-    unsigned long *, /* LPDWORD */
+    unsigned int *,  /* LPDWORD */
+    unsigned int *,  /* LPDWORD */
     unsigned char *, /* LPBYTE */
-    unsigned long *  /* LPDWORD */
+    unsigned int *   /* LPDWORD */
     );
 
 SHSTDAPI extern STDAPI void *ShellExecuteW(
@@ -100,7 +103,7 @@ SHSTDAPI extern STDAPI void *ShellExecuteW(
 
 WINBASEAPI extern WINAPI int WideCharToMultiByte(
     unsigned int,    /* UINT */
-    unsigned long,   /* DWORD */
+    unsigned int,    /* DWORD */
     const wchar_t *, /* LPCWSTR */
     int,             /* int */
     char *,          /* LPSTR */
@@ -111,7 +114,7 @@ WINBASEAPI extern WINAPI int WideCharToMultiByte(
 
 WINBASEAPI extern WINAPI int MultiByteToWideChar(
     unsigned int,    /* UINT */
-    unsigned long,   /* DWORD */
+    unsigned int,    /* DWORD */
     const char *,    /* LPCSTR */
     int,             /* int */
     wchar_t *,       /* LPWSTR */
