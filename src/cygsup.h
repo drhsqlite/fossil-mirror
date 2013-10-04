@@ -70,8 +70,8 @@
 ** this section should use the built-in ANSI C types in order to make sure this
 ** header file continues to work as a self-contained unit.
 **
-** On Cygwin64, "long" is 64-bit but in Win64 it's 32-bit. That's why in
-** the signatures below "long" should not be used. Use "int" in stead.
+** On Cygwin64, "long" is 64-bit but in Win64 it's 32-bit.  That's why in the
+** signatures below "long" should not be used.  They now use "int" instead.
 *******************************************************************************
 */
 
