@@ -989,21 +989,8 @@ static void create_manifest(
   assert( pBaseline==0 || pBaseline->zBaseline==0 );
   assert( pBaseline==0 || zBaselineUuid!=0 );
   blob_zero(pOut);
-  zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d "
-                        "AND EXISTS (SELECT 1 FROM mlink WHERE mid=%d)",
-                        vid, vid)
-      /*
-      ** The subselect there ensures that the given vid refers to a
-      ** MANIFEST in this repo. It catches an error which would else
-      ** show up downstream (during verify-at-commit, if we're lucky)
-      ** if the checkout version RID somehow gets out of sync with the
-      ** current copy of the repo.
-      */;
-  if(vid>0 && !zParentUuid){
-    fossil_fatal("Could not find manifest for RID %d. "
-                 "Possible checkout/repo mismatch.", vid);
-  }
-  else if( pBaseline ){
+  zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
+  if( pBaseline ){
     blob_appendf(pOut, "B %s\n", zBaselineUuid);
     manifest_file_rewind(pBaseline);
     pFile = manifest_file_next(pBaseline, 0);
