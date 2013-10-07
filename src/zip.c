@@ -339,7 +339,7 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
   }
   nPrefix = blob_size(&filename);
 
-  pManifest = manifest_get(rid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pManifest ){
     char *zName;
     zip_set_timedate(pManifest->rDate);

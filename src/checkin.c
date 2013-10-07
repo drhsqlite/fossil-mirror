@@ -1732,7 +1732,7 @@ void commit_cmd(void){
     const char *zBaselineUuid;
     Manifest *pParent;
     Manifest *pBaseline;
-    pParent = manifest_get(vid, CFTYPE_MANIFEST);
+    pParent = manifest_get(vid, CFTYPE_MANIFEST, 0);
     if( pParent && pParent->zBaseline ){
       zBaselineUuid = pParent->zBaseline;
       pBaseline = manifest_get_by_name(zBaselineUuid, 0);

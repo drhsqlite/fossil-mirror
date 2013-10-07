@@ -637,7 +637,7 @@ int historical_version_of_file(
     if( errCode>0 ) return errCode;
     fossil_fatal("no such checkin: %s", revision);
   }
-  pManifest = manifest_get(rid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   
   if( pManifest ){
     pFile = manifest_file_find(pManifest, file);
