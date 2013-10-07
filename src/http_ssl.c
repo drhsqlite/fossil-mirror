@@ -176,6 +176,53 @@ void ssl_close(void){
   }
 }
 
+static int establish_proxy_tunnel(BIO *bio){
+  int rc, httpVerMin;
+  char *connStr, *bbuf;
+  Blob reply;
+  int done=0,end=0;
+  if( !g.urlProxyAuth ){
+    connStr = mprintf("CONNECT %s:%d HTTP/1.1\r\n"
+          "Host: %s:%d\r\n\r\n", g.urlHostname, g.proxyOrigPort,
+          g.urlHostname, g.proxyOrigPort);
+  }else{
+    connStr = mprintf("CONNECT %s:%d HTTP/1.1\r\n"
+          "Host: %s:%d\r\n"
+          "Proxy-Authorization: %s\r\n\r\n", g.urlHostname, g.proxyOrigPort,
+          g.urlHostname, g.proxyOrigPort, g.urlProxyAuth);
+  }
+  BIO_write(bio, connStr, strlen(connStr));
+  free(connStr);
+
+  /* Wait for end of reply */
+  blob_zero(&reply);
+  do{
+    int len;
+    char buf[256];
+    len = BIO_read(bio, buf, sizeof(buf));
+    blob_append(&reply, buf, len);
+
+    bbuf = blob_buffer(&reply);
+    len = blob_size(&reply);
+    while(end < len) {
+      if(bbuf[end] == '\r') {
+        if(len - end < 4) {
+          /* need more data */
+          break;
+        }
+        if(memcmp(&bbuf[end], "\r\n\r\n", 4) == 0) {
+          done = 1;
+          break;
+        }
+      }
+      end++;
+    }
+  }while(!done);
+  sscanf(bbuf, "HTTP/1.%d %d", &httpVerMin, &rc);
+  blob_reset(&reply);
+  return rc;
+}
+
 /*
 ** Open an SSL connection.  The identify of the server is determined
 ** by global variables that are set using url_parse():
@@ -203,36 +250,63 @@ int ssl_open(void){
     hasSavedCertificate = 1;
   }
 
-  iBio = BIO_new_ssl_connect(sslCtx);
+  if( g.useProxy ){
+    int rc;
+    BIO *sBio;
+    char *connStr;
+    connStr = mprintf("%s:%d", g.urlName, g.urlPort);
+    sBio = BIO_new_connect(connStr);
+    free(connStr);
+    if( BIO_do_connect(sBio)<=0 ){
+      ssl_set_errmsg("SSL: cannot connect to proxy %s:%d (%s)",
+            g.urlName, g.urlPort, ERR_reason_error_string(ERR_get_error()));
+      ssl_close();
+      return 1;
+    }
+    rc = establish_proxy_tunnel(sBio);
+    if( rc!= 200 ){
+      return 1;
+    }
+
+    g.urlPath = g.proxyUrlPath;
+
+    iBio = BIO_new_ssl(sslCtx, 1);
+    BIO_push(iBio, sBio);
+  }else{
+    iBio = BIO_new_ssl_connect(sslCtx);
+  }
+  if( iBio==NULL ) {
+    ssl_set_errmsg("SSL: cannot open SSL (%s)", 
+                    ERR_reason_error_string(ERR_get_error()));
+    return 1;
+  }
   BIO_get_ssl(iBio, &ssl);
 
 #if (SSLEAY_VERSION_NUMBER >= 0x00908070) && !defined(OPENSSL_NO_TLSEXT)
-  if( !SSL_set_tlsext_host_name(ssl, g.urlName) ){
+  if( !SSL_set_tlsext_host_name(ssl, g.urlHostname) ){
     fossil_warning("WARNING: failed to set server name indication (SNI), "
                   "continuing without it.\n");
   }
 #endif
 
   SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
-  if( iBio==NULL ) {
-    ssl_set_errmsg("SSL: cannot open SSL (%s)", 
-                    ERR_reason_error_string(ERR_get_error()));
-    return 1;
-  }
 
-  BIO_set_conn_hostname(iBio, g.urlName);
-  BIO_set_conn_int_port(iBio, &g.urlPort);
-  
-  if( BIO_do_connect(iBio)<=0 ){
-    ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)", 
-        g.urlName, g.urlPort, ERR_reason_error_string(ERR_get_error()));
-    ssl_close();
-    return 1;
+  if( !g.useProxy ){
+    BIO_set_conn_hostname(iBio, g.urlName);
+    BIO_set_conn_int_port(iBio, &g.urlPort);
+    if( BIO_do_connect(iBio)<=0 ){
+      ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)", 
+          g.urlName, g.urlPort, ERR_reason_error_string(ERR_get_error()));
+      ssl_close();
+      return 1;
+    }
   }
   
   if( BIO_do_handshake(iBio)<=0 ) {
     ssl_set_errmsg("Error establishing SSL connection %s:%d (%s)", 
-        g.urlName, g.urlPort, ERR_reason_error_string(ERR_get_error()));
+        g.useProxy?g.urlHostname:g.urlName,
+        g.useProxy?g.proxyOrigPort:g.urlPort,
+        ERR_reason_error_string(ERR_get_error()));
     ssl_close();
     return 1;
   }

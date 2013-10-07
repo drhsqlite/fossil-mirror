@@ -92,6 +92,7 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
     char cQuerySep = '?';
 
     g.urlIsFile = 0;
+    g.useProxy = 0;
     if( zUrl[4]=='s' ){
       g.urlIsHttps = 1;
       g.urlProtocol = "https";
@@ -330,9 +331,12 @@ void url_enable_proxy(const char *zMsg){
   if( zProxy && zProxy[0] && !is_false(zProxy)
       && !g.urlIsSsh && !g.urlIsFile ){
     char *zOriginalUrl = g.urlCanonical;
+    int fOriginalIsHttps = g.urlIsHttps;
     char *zOriginalHost = g.urlHostname;
     char *zOriginalUser = g.urlUser;
     char *zOriginalPasswd = g.urlPasswd;
+    char *zOriginalUrlPath = g.urlPath;
+    int iOriginalPort = g.urlPort;
     unsigned uOriginalFlags = g.urlFlags;
     g.urlUser = 0;
     g.urlPasswd = "";
@@ -348,6 +352,10 @@ void url_enable_proxy(const char *zMsg){
     }
     g.urlUser = zOriginalUser;
     g.urlPasswd = zOriginalPasswd;
+    g.urlIsHttps = fOriginalIsHttps;
+    g.useProxy = 1;
+    g.proxyUrlPath = zOriginalUrlPath;
+    g.proxyOrigPort = iOriginalPort;
     g.urlFlags = uOriginalFlags;
   }
 }
