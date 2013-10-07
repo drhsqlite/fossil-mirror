@@ -1,5 +1,5 @@
-C Update\shelp\sto\sinclude\s'fossil\sall\sextra'.
-D 2013-10-07T23:36:31.660
+C Add\sthe\s'fossil\sall\sclean'\scommand.\s\sAdd\s-whatif\soption\sto\sthe\s'fossil\sclean'\scommand,\sprimarily\sfor\suse\swith\s'fossil\sall\sclean'.
+D 2013-10-07T23:52:44.137
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -308,7 +308,7 @@ F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 2bf1d1a5323760724d52a04a2cd1e0b64d805ed1
-F src/allrepo.c 099d97d9d1159d5d8154509708c6723308b2a678
+F src/allrepo.c c2d8114e03565f2fb97d9a72eda03f191bec5523
 F src/attach.c 75a89ba4219a0e51e8796337a2122dd0934ce5d0
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 9eef1e8551df42bdee81aef68359e65985c6c8b9
@@ -317,7 +317,7 @@ F src/branch.c fad7611e3fe7a3ada5b61819db2698e7326018ec
 F src/browse.c 19e4bdf78ad41dd01c4cf76b41442dbaf86a2588
 F src/captcha.c de30cda16d8d774c88ee465f15fc735ecb81ac34
 F src/cgi.c 49ca3208c021caaef2fe9ef6c1281299dafb1633
-F src/checkin.c c39f10c2df262c089d0b43215f702dcbc63fd982
+F src/checkin.c 896b5779e7fcd7c4e7dab12750e41ccdd0dad35c
 F src/checkout.c 29bcd4d7dce75cec23e0152aa1e4d18b48b14733
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c b949ddcaa488a5cc56b01aceadf2783bea146255
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f4bcc63fabba1c2bfb3072ad7c6521b8b246b7e2
-R c75e9876ef667962d97a90fe72f00e46
+P aca6db8f2b5d99d3495e9965161161b5d1a44ed9
+R 990f2ee5831e3930e9c93e54011b7302
 U mistachkin
-Z 0ef0d7669b4e1c6d910ccb2000ecb543
+Z ab19b3d055c78f000ea269a4dea69b45
