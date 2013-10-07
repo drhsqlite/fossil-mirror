@@ -72,7 +72,7 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 /*
 ** COMMAND: all
 **
-** Usage: %fossil all (changes|ignore|list|ls|pull|push|rebuild|sync)
+** Usage: %fossil all (changes|extra|ignore|list|ls|pull|push|rebuild|sync)
 **
 ** The ~/.fossil file records the location of all repositories for a
 ** user.  This command performs certain operations on all repositories
@@ -84,6 +84,8 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 ** Available operations are:
 **
 **    changes    Shows all local checkouts that have uncommitted changes
+**
+**    extra      Shows extra files from all local checkouts
 **
 **    ignore     Arguments are repositories that should be ignored
 **               by subsequent list, pull, push, rebuild, and sync.
@@ -128,7 +130,7 @@ void all_cmd(void){
   }
 
   if( g.argc<3 ){
-    usage("changes|ignore|list|ls|pull|push|rebuild|sync");
+    usage("changes|extra|ignore|list|ls|pull|push|rebuild|sync");
   }
   n = strlen(g.argv[2]);
   db_open_config(1);
