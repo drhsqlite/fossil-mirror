@@ -348,13 +348,15 @@ int db_step(Stmt *pStmt){
 
 /*
 ** Steps the SQL statement until there are no more rows.  Returns the
-** total number of rows processed by this function.  If the pazValue
-** parameter is non-zero, captures the iCol'th column value from each
-** row (as text) and stores the resulting final array pointer into the
-** pazValue parameter.  The caller of this function is responsible for
+** total number of rows processed by this function.  If the pazValue1
+** parameter is non-zero, captures the iCol1'th column value from each
+** row (as text) and stores the resulting final array pointer into it.
+** If the paiValue2 parameter is non-zero, captures the iCol2'th column
+** value from each row (as int64) and stores the resulting final array
+** pointer into it.  The caller of this function is responsible for
 ** calling the db_all_column_free() function later, passing it the
-** result of this function along with the values of the pazValue1 and
-** paiValue2 paramters.
+** result of this function along with the values for both the pazValue1
+** and paiValue2 paramters.
 */
 int db_all_column_text_and_int64(
   Stmt *pStmt,       /* The statement handle. */
