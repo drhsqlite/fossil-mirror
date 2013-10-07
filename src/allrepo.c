@@ -116,6 +116,9 @@ void all_cmd(void){
   int dryRunFlag = 0;
   int stopOnError = find_option("dontstop",0,0)==0;
   int rc;
+  int rowCount, i = 0;
+  char **azFilename = 0;
+  i64 *aiRowid = 0;
   Bag outOfDate;
   
   dryRunFlag = find_option("dry-run","n",0)!=0;
@@ -206,21 +209,23 @@ void all_cmd(void){
        " GROUP BY 1 ORDER BY 1"
     );
   }
+  rowCount = db_all_column_text_and_int64(&q, 0, &azFilename, 1, &aiRowid);
+  db_finalize(&q);
   bag_init(&outOfDate);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zFilename = db_column_text(&q, 0);
-    int rowid = db_column_int(&q, 1);
+  while( i<rowCount ){
+    const char *zFilename = azFilename[i];
+    int rowid = (int)aiRowid[i];
     if( file_access(zFilename, 0) || !file_is_canonical(zFilename) ){
       bag_insert(&outOfDate, rowid);
-      continue;
+      i++; continue;
     }
     if( useCheckouts && file_isdir(zFilename)!=1 ){
       bag_insert(&outOfDate, rowid);
-      continue;
+      i++; continue;
     }
     if( zCmd[0]=='l' ){
       fossil_print("%s\n", zFilename);
-      continue;
+      i++; continue;
     }
     zQFilename = quoteFilename(zFilename);
     zSyscmd = mprintf("%s %s %s%s",
@@ -235,8 +240,11 @@ void all_cmd(void){
     if( stopOnError && rc ){
       break;
     }
+    i++;
   }
-  db_finalize(&q);
+  db_all_column_free(rowCount, &azFilename, &aiRowid);
+  assert( !azFilename );
+  assert( !aiRowid );
   
   /* If any repositories whose names appear in the ~/.fossil file could not
   ** be found, remove those names from the ~/.fossil file.

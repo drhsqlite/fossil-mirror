@@ -372,11 +372,11 @@ int db_all_column_text_and_int64(
     count++;
     if( pazValue1 ){
       azValue = fossil_realloc(azValue, count * sizeof(char*));
-      azValue[count] = fossil_strdup(db_column_text(pStmt, iCol1));
+      azValue[count - 1] = fossil_strdup(db_column_text(pStmt, iCol1));
     }
     if( paiValue2 ){
       aiValue = fossil_realloc(aiValue, count * sizeof(i64));
-      aiValue[count] = db_column_int64(pStmt, iCol2);
+      aiValue[count - 1] = db_column_int64(pStmt, iCol2);
     }
   }
   if( pazValue1 ){
