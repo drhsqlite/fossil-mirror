@@ -60,7 +60,11 @@ static void collect_argument(Blob *pExtra, const char *zArg, const char *zShort)
 static void collect_argument_value(Blob *pExtra, const char *zArg){
   const char *zValue = find_option(zArg, 0, 1);
   if( zValue ){
-    blob_appendf(pExtra, " --%s %s", zArg, zValue);
+    if( zValue[0] ){
+      blob_appendf(pExtra, " --%s %s", zArg, zValue);
+    }else{
+      blob_appendf(pExtra, " --%s \"\"", zArg);
+    }
   }
 }
 
@@ -134,6 +138,16 @@ void all_cmd(void){
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;
+  }else if( strncmp(zCmd, "extra", n)==0 ){
+    zCmd = "extra --chdir";
+    collect_argument(&extra, "abs-paths",0);
+    collect_argument_value(&extra, "case-sensitive");
+    collect_argument(&extra, "dotfiles",0);
+    collect_argument_value(&extra, "ignore");
+    collect_argument(&extra, "rel-paths",0);
+    useCheckouts = 1;
+    stopOnError = 0;
+    quiet = 1;
   }else if( strncmp(zCmd, "push", n)==0 ){
     zCmd = "push -autourl -R";
     collect_argument(&extra, "verbose","v");
