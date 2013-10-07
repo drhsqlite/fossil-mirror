@@ -347,6 +347,71 @@ int db_step(Stmt *pStmt){
 }
 
 /*
+** Steps the SQL statement until there are no more rows.  Returns the
+** total number of rows processed by this function.  If the pazValue
+** parameter is non-zero, captures the iCol'th column value from each
+** row (as text) and stores the resulting final array pointer into the
+** pazValue parameter.  The caller of this function is responsible for
+** calling the db_all_column_free() function later, passing it the
+** result of this function along with the values of the pazValue1 and
+** paiValue2 paramters.
+*/
+int db_all_column_text_and_int64(
+  Stmt *pStmt,       /* The statement handle. */
+  int iCol1,         /* The first column number to fetch from the results. */
+  char ***pazValue1, /* Array of iCol1'th column values from query. */
+  int iCol2,         /* The second column number to fetch from the results. */
+  i64 **paiValue2    /* Array of iCol2'th column values from query. */
+){
+  int count = 0;
+  char **azValue = 0;
+  i64 *aiValue = 0;
+  while( db_step(pStmt)==SQLITE_ROW ){
+    count++;
+    if( pazValue1 ){
+      azValue = fossil_realloc(azValue, count * sizeof(char*));
+      azValue[count] = fossil_strdup(db_column_text(pStmt, iCol1));
+    }
+    if( paiValue2 ){
+      aiValue = fossil_realloc(aiValue, count * sizeof(i64));
+      aiValue[count] = db_column_int64(pStmt, iCol2);
+    }
+  }
+  if( pazValue1 ){
+    *pazValue1 = azValue;
+  }
+  if( paiValue2 ){
+    *paiValue2 = aiValue;
+  }
+  return count;
+}
+
+/*
+** This function frees all the storage that was allocated by the
+** db_all_column_text() function.
+*/
+void db_all_column_free(
+  int count,         /* Number of string elements in the array. */
+  char ***pazValue1, /* Array of iCol1'th column values from query. */
+  i64 **paiValue2    /* Array of iCol2'th column values from query. */
+){
+  if( pazValue1 ){
+    char **azValue = *pazValue1;
+    int i;
+    for(i=0; i<count; i++){
+      fossil_free(azValue[i]);
+      azValue[i] = 0;
+    }
+    fossil_free(azValue);
+    *pazValue1 = 0;
+  }
+  if( paiValue2 ){
+    fossil_free(*paiValue2);
+    *paiValue2 = 0;
+  }
+}
+
+/*
 ** Print warnings if a query is inefficient.
 */
 static void db_stats(Stmt *pStmt){
