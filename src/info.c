@@ -587,7 +587,7 @@ void ci_page(void){
       if( zPJ==0 ) zPJ = db_get("project-name", "unnamed");
       zProjName = mprintf("%s", zPJ);
       for(jj=0; zProjName[jj]; jj++){
-        if( strchr("\\/:*?[]", zProjName[jj]) ) zProjName[jj] = '_';
+        if( strchr("\\/:*<>|", zProjName[jj]) ) zProjName[jj] = '_';
       }
       @ <tr><th>Timelines:</th><td>
       @   %z(href("%R/timeline?f=%S",zUuid))family</a>
