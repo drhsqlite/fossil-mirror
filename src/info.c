@@ -581,7 +581,7 @@ void ci_page(void){
       db_finalize(&q2);
     }
     if( g.perm.Hyperlink ){
-      const char *zProjName = db_get("project-name", "unnamed");
+      char *zProjName = mprintf("%t", db_get("project-name", "unnamed"));
       @ <tr><th>Timelines:</th><td>
       @   %z(href("%R/timeline?f=%S",zUuid))family</a>
       if( zParent ){
@@ -626,6 +626,7 @@ void ci_page(void){
       }
       @   </td>
       @ </tr>
+      fossil_free(zProjName);
     }
     @ </table>
   }else{
