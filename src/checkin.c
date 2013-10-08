@@ -1088,24 +1088,26 @@ static void create_manifest(
   if( p->zMimetype && p->zMimetype[0] ){
     blob_appendf(pOut, "N %F\n", p->zMimetype);
   }
-  blob_appendf(pOut, "P %s", zParentUuid);
-  if( p->verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
-  free(zParentUuid);
-  db_prepare(&q, "SELECT merge FROM vmerge WHERE id=0 OR id<-2");
-  while( db_step(&q)==SQLITE_ROW ){
-    char *zMergeUuid;
-    int mid = db_column_int(&q, 0);
-    if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
-    zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
-    if( zMergeUuid ){
-      blob_appendf(pOut, " %s", zMergeUuid);
-      if( p->verifyDate ) checkin_verify_younger(mid, zMergeUuid, zDate);
-      free(zMergeUuid);
+  if( zParentUuid ){
+    blob_appendf(pOut, "P %s", zParentUuid);
+    if( p->verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
+    free(zParentUuid);
+    db_prepare(&q, "SELECT merge FROM vmerge WHERE id=0 OR id<-2");
+    while( db_step(&q)==SQLITE_ROW ){
+      char *zMergeUuid;
+      int mid = db_column_int(&q, 0);
+      if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
+      zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
+      if( zMergeUuid ){
+        blob_appendf(pOut, " %s", zMergeUuid);
+        if( p->verifyDate ) checkin_verify_younger(mid, zMergeUuid, zDate);
+        free(zMergeUuid);
+      }
     }
+    db_finalize(&q);
+    blob_appendf(pOut, "\n");
   }
-  db_finalize(&q);
   free(zDate);
-  blob_appendf(pOut, "\n");
 
   db_prepare(&q,
     "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid, merge"
