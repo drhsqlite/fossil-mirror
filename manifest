@@ -1,5 +1,5 @@
-C Escape\sspecial\scharacters\sused\sin\sthe\sProject\sName\swhen\sgenerating\sthe\nURLs\sfor\starball\sand\sZIP\sarchive.
-D 2013-10-08T13:03:53.185
+C Add\sthe\sundocumented\s--script\sFILENAME\soption\sto\sall\sdiff\soperations\sthat\nmake\suse\sof\sthe\s--tk\soption.\s\sThe\s--script\sFILENAME\soption\sis\sused\sfor\ntesting\sand\sdebugging\sonly.
+D 2013-10-08T13:11:11.820
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -333,7 +333,7 @@ F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 64a811126a3b0f99ab8b4f70f3988d7fb42c60cd
 F src/diff.c 38f3e00ec48806251c5d2d06874c35947ef4c8c1
-F src/diffcmd.c 7cd89a5a7a7b65853366e4223329016d84dbeae1
+F src/diffcmd.c 45ed873a197cff6418cd2e7af42587c19e482c15
 F src/doc.c f4c235f77cd4b429dd56d7f35d0f6f33afd380b6
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 9e7b7208ae99c20a3f74a97fa846687e0670283d
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6f686403d74889ae8f171c1a5a6032e2170991cd
-R a2730d56e8361fb09a94df93c3611c0b
+P ddc313e8e1036459187f75d58ca6c950a3c4c349 fac1093192103b10e6af3c0ad1bf6467c4bab687
+R 714a33001219389cd8c05ef5e25a58cb
 U drh
-Z 92ffe5413d4ca73fecc5e3b1c6d33c3a
+Z 05fc552e81100801ea5583d2a32b06dd
