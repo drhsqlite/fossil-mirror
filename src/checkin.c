@@ -990,6 +990,10 @@ static void create_manifest(
   assert( pBaseline==0 || zBaselineUuid!=0 );
   blob_zero(pOut);
   zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
+  if( !zParentUuid ){
+    fossil_fatal("Could not find manifest for RID %d. "
+                 "Possible checkout/repo mismatch.", vid);
+  }
   if( pBaseline ){
     blob_appendf(pOut, "B %s\n", zBaselineUuid);
     manifest_file_rewind(pBaseline);
