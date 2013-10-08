@@ -1275,15 +1275,22 @@ void setup_config(void){
   @ <hr />
   entry_attribute("Project Name", 60, "project-name", "pn", "", 0);
   @ <p>Give your project a name so visitors know what this site is about.
-  @ The project name will also be used as the RSS feed title and as the default
-  @ directory name for generated tarballs and ZIP archives.  For best results:
-  @ <ul><li>Keep the name short<li>Avoid special characters (ex: "/" and "\")</ul>
+  @ The project name will also be used as the RSS feed title.  This name is distinct
+  @ from the "Abbreviated Name" below.
   @ </p>
   @ <hr />
   textarea_attribute("Project Description", 3, 80,
                      "project-description", "pd", "", 0);
   @ <p>Describe your project. This will be used in page headers for search
   @ engines as well as a short RSS description.</p>
+  @ <hr />
+  entry_attribute("Abbreviated Name", 20, "short-project-name", "spn", "", 0);
+  @ <p>This is a shortened version of the Project Name that is used as the name
+  @ prefix for generated tarballs and ZIP archives.  For best results, keep the
+  @ name brief and avoid special characters such as "/" and "\".  If no abbreviated
+  @ project name is supplied, then the full Project Name above is used in the
+  @ names for tarball and ZIP archive.
+  @ </p>
   @ <hr />
   onoff_attribute("Enable WYSIWYG Wiki Editing",
                   "wysiwyg-wiki", "wysiwyg-wiki", 0, 0);

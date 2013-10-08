@@ -581,8 +581,11 @@ void ci_page(void){
       db_finalize(&q2);
     }
     if( g.perm.Hyperlink ){
-      char *zProjName = mprintf("%s", db_get("project-name", "unnamed"));
+      const char *zPJ = db_get("short-project-name", 0);
+      char *zProjName;
       int jj;
+      if( zPJ==0 ) zPJ = db_get("project-name", "unnamed");
+      zProjName = mprintf("%s", zPJ);
       for(jj=0; zProjName[jj]; jj++){
         if( strchr("\\/:*?[]", zProjName[jj]) ) zProjName[jj] = '_';
       }

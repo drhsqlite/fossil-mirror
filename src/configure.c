@@ -100,6 +100,7 @@ static struct {
 #endif
 
   { "project-name",           CONFIGSET_PROJ },
+  { "short-project-name",     CONFIGSET_PROJ },
   { "project-description",    CONFIGSET_PROJ },
   { "manifest",               CONFIGSET_PROJ },
   { "binary-glob",            CONFIGSET_PROJ },
