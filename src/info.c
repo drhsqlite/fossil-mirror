@@ -581,7 +581,11 @@ void ci_page(void){
       db_finalize(&q2);
     }
     if( g.perm.Hyperlink ){
-      char *zProjName = mprintf("%t", db_get("project-name", "unnamed"));
+      char *zProjName = mprintf("%s", db_get("project-name", "unnamed"));
+      int jj;
+      for(jj=0; zProjName[jj]; jj++){
+        if( strchr("\\/:*?[]", zProjName[jj]) ) zProjName[jj] = '_';
+      }
       @ <tr><th>Timelines:</th><td>
       @   %z(href("%R/timeline?f=%S",zUuid))family</a>
       if( zParent ){

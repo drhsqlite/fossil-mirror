@@ -1275,7 +1275,10 @@ void setup_config(void){
   @ <hr />
   entry_attribute("Project Name", 60, "project-name", "pn", "", 0);
   @ <p>Give your project a name so visitors know what this site is about.
-  @ The project name will also be used as the RSS feed title.</p>
+  @ The project name will also be used as the RSS feed title and as the default
+  @ directory name for generated tarballs and ZIP archives.  For best results:
+  @ <ul><li>Keep the name short<li>Avoid special characters (ex: "/" and "\")</ul>
+  @ </p>
   @ <hr />
   textarea_attribute("Project Description", 3, 80,
                      "project-description", "pd", "", 0);

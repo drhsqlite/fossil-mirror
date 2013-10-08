@@ -1,5 +1,5 @@
-C Add\sthe\sundocumented\s--script\sFILENAME\soption\sto\sall\sdiff\soperations\sthat\nmake\suse\sof\sthe\s--tk\soption.\s\sThe\s--script\sFILENAME\soption\sis\sused\sfor\ntesting\sand\sdebugging\sonly.
-D 2013-10-08T13:11:11.820
+C Revise\sthe\scharacter\sescaping\slogic\sfor\sgenerated\starballs\sand\szip\sarchives.\nAdd\sa\s"For\sbest\sresults"\scomment\sto\sthe\sconfiguration\spage\swhere\sthe\sproject\nname\sis\sset.
+D 2013-10-08T13:45:26.107
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -348,7 +348,7 @@ F src/http_socket.c f4b1e573915c33aa02f85b9ee33748efac91f894
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 28003eaeafc7e4fc96dcbc06bd27b8d7412dd0e2
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
-F src/info.c a2f966d14268f8527cc25ad6588bad10cd11b6c1
+F src/info.c 228753ca8d9c25f8cf17b361a0c7c59b07497e60
 F src/json.c 7ef14201ed4754f9b4712f6b0b3a19c04794fc74
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c 0ef79ac76a1fb1e7397550251eea1b17219194ca
@@ -394,7 +394,7 @@ F src/report.c 1e10fba72e19562627c8ec02dc537b5a0e766d85
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c 571fe8e1ef8e00accae77710a50d10517f41741a
 F src/search.c b11073e3b3546f8986d87c5d0cd456eb0478067e
-F src/setup.c fa543db439da3d975460a3655c145f585e4b8a81
+F src/setup.c 101f2cb23853c64f91e697ebc56c72ed39624a3a
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
 F src/shell.c 8447c7fc7450562fb6a43a20e9bd83b0cf6ac2d5
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ddc313e8e1036459187f75d58ca6c950a3c4c349 fac1093192103b10e6af3c0ad1bf6467c4bab687
-R 714a33001219389cd8c05ef5e25a58cb
+P cee30a34d80d3fe7f8f6b275d0a5dc6f0c3aebb8
+R a574bcda199b2eaff9aa0cbd2186918e
 U drh
-Z 05fc552e81100801ea5583d2a32b06dd
+Z 8b5152d771acc1cfb0fcbd72ff3e17e8
