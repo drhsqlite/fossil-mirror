@@ -581,13 +581,16 @@ void ci_page(void){
       db_finalize(&q2);
     }
     if( g.perm.Hyperlink ){
-      const char *zPJ = db_get("short-project-name", 0);
-      char *zProjName;
+      char *zPJ = db_get("short-project-name", 0);
+      Blob projName;
       int jj;
       if( zPJ==0 ) zPJ = db_get("project-name", "unnamed");
-      zProjName = mprintf("%s", zPJ);
-      for(jj=0; zProjName[jj]; jj++){
-        if( strchr("\"*/:<>?\\|", zProjName[jj]) ) zProjName[jj] = '_';
+      blob_zero(&projName);
+      blob_append(&projName, zPJ, -1);
+      blob_trim(&projName);
+      zPJ = blob_str(&projName);
+      for(jj=0; zPJ[jj]; jj++){
+        if( zPJ[jj]<' '||strchr("\"*/:<>?\\|", zPJ[jj]) ) zPJ[jj] = '_';
       }
       @ <tr><th>Timelines:</th><td>
       @   %z(href("%R/timeline?f=%S",zUuid))family</a>
@@ -614,11 +617,11 @@ void ci_page(void){
       /* The Download: line */
       if( g.perm.Zip ){
         char *zUrl = mprintf("%R/tarball/%t-%S.tar.gz?uuid=%s",
-                             zProjName, zUuid, zUuid);
+                             zPJ, zUuid, zUuid);
         @ </td></tr>
         @ <tr><th>Downloads:</th><td>
         @ %z(href("%s",zUrl))Tarball</a>
-        @ | %z(href("%R/zip/%t-%S.zip?uuid=%s",zProjName,zUuid,zUuid))
+        @ | %z(href("%R/zip/%t-%S.zip?uuid=%s",zPJ,zUuid,zUuid))
         @         ZIP archive</a>
         fossil_free(zUrl);
       }
@@ -633,7 +636,7 @@ void ci_page(void){
       }
       @   </td>
       @ </tr>
-      fossil_free(zProjName);
+      blob_reset(&projName);
     }
     @ </table>
   }else{
