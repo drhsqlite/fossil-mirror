@@ -1,5 +1,5 @@
-C Mention\sthe\s--dontstop\soption\sin\sthe\s"fossil\sall"\son-line\shelp.
-D 2013-10-09T02:44:25.333
+C Fix\sa\scouple\sof\sminor\sdocumentation\stypos.
+D 2013-10-09T03:17:59.874
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -537,7 +537,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/adding_code.wiki 6fd9ec2485605875a6e90d77b745df4075a4ecbf
+F www/adding_code.wiki 9003ffc417cd006cc7d67ecaec111dc31edd2b6b
 F www/antibot.wiki 544a983a29e19f0330fc9b16d78795789b2d566f
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -621,7 +621,7 @@ F www/quotes.wiki 6d0079e2cfc8b55d71f36210670f409f6ad4de52
 F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 23fd916be2143ac1026fcbea2fbea1373bf68876
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
-F www/selfhost.wiki e2337278c120d12963291f189b9a51257645cf6f
+F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
 F www/server.wiki 24b1483c730dcf3f9a9a4cfeb261276b205fdb1b
 F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
 F www/shunning.wiki 716aa915e219fb4b881ba095c9dcd9e33b4016ab
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dbb5e2d32a8c482e6fccfff89cda87081cc2d594
-R 5d312e045936fd651ef9d14335646ad4
+P f89ba310bbe1a3342998b0171d5d49a324d2a1e6
+R e641047409d590d2b97aaeb352258dd3
 U drh
-Z 092a610680b1021526d068a3bd1becbb
+Z ea2c71bee4cf3cff28bacc73ae516818
