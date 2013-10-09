@@ -109,6 +109,7 @@ void delete_private_content(void){
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
 **    --private                  Also clone private branches 
 **    --ssl-identity=filename    Use the SSL identity if requested by the server
+**    --ssh-command|-c 'command' Use this SSH command
 **
 ** See also: init
 */
@@ -119,6 +120,7 @@ void clone_cmd(void){
   int bPrivate = 0;           /* Also clone private branches */
 
   if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
+  clone_ssh_find_options();
   url_proxy_options();
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
@@ -169,6 +171,7 @@ void clone_cmd(void){
       " VALUES('server-code', lower(hex(randomblob(20))), now());"
     );
     url_enable_proxy(0);
+    clone_ssh_db_set_options();
     url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
     nErr = client_sync(SYNC_CLONE | bPrivate,CONFIGSET_ALL,0);
@@ -189,4 +192,26 @@ void clone_cmd(void){
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
   db_end_transaction(0);
+}
+
+/*
+** Look for SSH clone command line options and setup in globals.
+*/
+void clone_ssh_find_options(void){
+  const char *zSshCmd;        /* SSH command string */
+
+  zSshCmd = find_option("ssh-command","c",1);
+  if( zSshCmd && zSshCmd[0] ){
+    g.zSshCmd = mprintf("%s", zSshCmd);
+  }
+}
+
+/*
+** Set SSH options discovered in global variables (set from command line 
+** options).
+*/
+void clone_ssh_db_set_options(void){
+  if( g.zSshCmd && g.zSshCmd[0] ){
+    db_set("ssh-command", g.zSshCmd, 0);
+  }
 }
