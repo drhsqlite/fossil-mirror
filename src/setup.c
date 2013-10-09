@@ -729,7 +729,7 @@ void user_edit(void){
   @ To disable universal access to the repository, make sure no user named
   @ <span class="usertype">nobody</span> exists or that the
   @ <span class="usertype">nobody</span> user has no capabilities
-  @ enabled. The password for <span class="usertype">nobody</span> is ignore.
+  @ enabled. The password for <span class="usertype">nobody</span> is ignored.
   @ To avoid problems with spiders overloading the server, it is recommended
   @ that the <span class="capability">h</span> (Hyperlinks) capability be
   @ turned off for the <span class="usertype">nobody</span> user.
