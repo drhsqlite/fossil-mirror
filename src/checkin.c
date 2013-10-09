@@ -989,9 +989,11 @@ static void create_manifest(
   assert( pBaseline==0 || pBaseline->zBaseline==0 );
   assert( pBaseline==0 || zBaselineUuid!=0 );
   blob_zero(pOut);
-  zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
+  zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d AND "
+    "EXISTS(SELECT 1 FROM event WHERE event.type='ci' and event.objid=%d)",
+    vid, vid);
   if( !zParentUuid ){
-    fossil_fatal("Could not find manifest for RID %d. "
+    fossil_fatal("Could not find a valid check-in for RID %d. "
                  "Possible checkout/repo mismatch.", vid);
   }
   if( pBaseline ){

@@ -1,5 +1,5 @@
-C Be\scarefull\scomparing\sa\schar\s<\s'\s':\sIf\sthe\splatform\s'char'\stype\sis\ssigned,\sthis\swill\sbe\strue\sfor\sall\sUTF-8\scharacters\s>0x7f\sas\swell.
-D 2013-10-09T08:24:38.214
+C Make\ssure\sthat\sthe\sUUID\sof\sa\sgenerated\sP-card\sis\sthe\sUUID\sof\sa\svalid\scheck-in\sin\sthis\srepository.\sIf\snot,\sbail\sout\searly.
+D 2013-10-09T09:20:06.018
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -317,7 +317,7 @@ F src/branch.c fad7611e3fe7a3ada5b61819db2698e7326018ec
 F src/browse.c 19e4bdf78ad41dd01c4cf76b41442dbaf86a2588
 F src/captcha.c de30cda16d8d774c88ee465f15fc735ecb81ac34
 F src/cgi.c 2909167c0534b4e084c2cfea743da539dbe3a284
-F src/checkin.c 254690d9e7d9d593adb921b50a44c9ff6a4d4804
+F src/checkin.c 4ec22770ccd20be5c4d9b1eadf9f9679a297e2fb
 F src/checkout.c 29bcd4d7dce75cec23e0152aa1e4d18b48b14733
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c0d5466e13e29da9f6a7b0a1f0aea3842825d9ab
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e161527c3a372a97f396f5ff3c3e225323d94501
-R 1680833fb93c7a73b6fe3fcf438da7c1
+P c426475eeb639761c9aa1f527a0ee3757a6d9e62
+R 56abbf388cc0ea65e5e96bc8e6705406
 U jan.nijtmans
-Z 1dc96588e14e0d56d818cf7f7941c8f9
+Z d6e7ab82597b9fa17f056a2054706cdb
