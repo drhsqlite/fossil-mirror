@@ -590,7 +590,9 @@ void ci_page(void){
       blob_trim(&projName);
       zPJ = blob_str(&projName);
       for(jj=0; zPJ[jj]; jj++){
-        if( zPJ[jj]<' '||strchr("\"*/:<>?\\|", zPJ[jj]) ) zPJ[jj] = '_';
+        if( (zPJ[jj]>0 && zPJ[jj]<' ') || strchr("\"*/:<>?\\|", zPJ[jj]) ){
+          zPJ[jj] = '_';
+        }
       }
       @ <tr><th>Timelines:</th><td>
       @   %z(href("%R/timeline?f=%S",zUuid))family</a>

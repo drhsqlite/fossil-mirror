@@ -36,7 +36,7 @@ static void strip_string(Blob *pBlob, char *z){
        z[i] = 0;
        break;
     }
-    if( z[i]<' ' ) z[i] = ' ';
+    if( z[i]>0 && z[i]<' ' ) z[i] = ' ';
   }
   blob_append(pBlob, z, -1);
 }
