@@ -100,10 +100,13 @@ static struct {
 #endif
 
   { "project-name",           CONFIGSET_PROJ },
+  { "short-project-name",     CONFIGSET_PROJ },
   { "project-description",    CONFIGSET_PROJ },
   { "manifest",               CONFIGSET_PROJ },
   { "binary-glob",            CONFIGSET_PROJ },
+  { "clean-glob",             CONFIGSET_PROJ },
   { "ignore-glob",            CONFIGSET_PROJ },
+  { "keep-glob",              CONFIGSET_PROJ },
   { "crnl-glob",              CONFIGSET_PROJ },
   { "encoding-glob",          CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
@@ -933,6 +936,7 @@ void configuration_cmd(void){
         db_multi_exec("DELETE FROM shun");
       }else if( fossil_strcmp(zName,"@reportfmt")==0 ){
         db_multi_exec("DELETE FROM reportfmt");
+        db_multi_exec(zRepositorySchemaDefaultReports);
       }
     }
     db_end_transaction(0);

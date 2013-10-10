@@ -205,7 +205,7 @@ void compute_direct_ancestors(int rid, int N){
   Stmt q;
   int gen = 0;
   db_multi_exec(
-    "CREATE TEMP TABLE IF NOT EXISTS ancestor(rid INTEGER,"
+    "CREATE TEMP TABLE IF NOT EXISTS ancestor(rid INTEGER UNIQUE NOT NULL,"
                                             " generation INTEGER PRIMARY KEY);"
     "DELETE FROM ancestor;"
     "INSERT INTO ancestor VALUES(%d, 0);", rid

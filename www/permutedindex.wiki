@@ -13,7 +13,9 @@
 <h2>Permuted Index:</h2>
 <ul>
 <li><a href="fiveminutes.wiki">5 Minutes as a Single User &mdash; Update and Running in</a></li>
+<li><a href="fossil-from-msvc.wiki">2010 IDE &mdash; Integrating Fossil in the Microsoft Express</a></li>
 <li><a href="tech_overview.wiki">A Technical Overview Of The Design And Implementation Of Fossil</a></li>
+<li><a href="adding_code.wiki">Adding New Features To Fossil</a></li>
 <li><a href="antibot.wiki">against Spiders and Bots &mdash; Defense</a></li>
 <li><a href="copyright-release.html">Agreement &mdash; Contributor License</a></li>
 <li><a href="delta_encoder_algorithm.wiki">Algorithm &mdash; Fossil Delta Encoding</a></li>
@@ -61,6 +63,8 @@
 <li><a href="delta_encoder_algorithm.wiki">Encoding Algorithm &mdash; Fossil Delta</a></li>
 <li><a href="event.wiki">Events</a></li>
 <li><a href="inout.wiki">Export To And From Git &mdash; Import And</a></li>
+<li><a href="fossil-from-msvc.wiki">Express 2010 IDE &mdash; Integrating Fossil in the Microsoft</a></li>
+<li><a href="adding_code.wiki">Features To Fossil &mdash; Adding New</a></li>
 <li><a href="fileformat.wiki">File Format &mdash; Fossil</a></li>
 <li><a href="branching.wiki">Forking, Merging, and Tagging &mdash; Branching,</a></li>
 <li><a href="delta_format.wiki">Format &mdash; Fossil Delta</a></li>
@@ -74,6 +78,7 @@
 <li><a href="selfcheck.wiki">Fossil Repository Integrity Self Checks</a></li>
 <li><a href="selfhost.wiki">Fossil Self Hosting Repositories</a></li>
 <li><a href="settings.wiki">Fossil Settings</a></li>
+<li><a href="hints.wiki">Fossil Tips And Usage Hints</a></li>
 <li><a href="fossil-v-git.wiki">Fossil Versus Git</a></li>
 <li><a href="quotes.wiki">Fossil, Git, and DVCSes in General &mdash; Quotes: What People Are Saying About</a></li>
 <li><a href="faq.wiki">Frequently Asked Questions</a></li>
@@ -85,20 +90,28 @@
 <li><a href="quotes.wiki">Git, and DVCSes in General &mdash; Quotes: What People Are Saying About Fossil,</a></li>
 <li><a href="quickstart.wiki">Guide &mdash; Fossil Quick Start</a></li>
 <li><a href="style.wiki">Guidelines &mdash; Source Code Style</a></li>
+<li><a href="hacker-howto.wiki">Hacker How-To</a></li>
+<li><a href="adding_code.wiki">Hacking Fossil</a></li>
+<li><a href="hints.wiki">Hints &mdash; Fossil Tips And Usage</a></li>
 <li><a href="index.wiki">Home Page</a></li>
 <li><a href="selfhost.wiki">Hosting Repositories &mdash; Fossil Self</a></li>
 <li><a href="server.wiki">How To Configure A Fossil Server</a></li>
 <li><a href="newrepo.wiki">How To Create A New Fossil Repository</a></li>
+<li><a href="hacker-howto.wiki">How-To &mdash; Hacker</a></li>
+<li><a href="fossil-from-msvc.wiki">IDE &mdash; Integrating Fossil in the Microsoft Express 2010</a></li>
 <li><a href="tech_overview.wiki">Implementation Of Fossil &mdash; A Technical Overview Of The Design And</a></li>
 <li><a href="inout.wiki">Import And Export To And From Git</a></li>
 <li><a href="build.wiki">Installing Fossil &mdash; Compiling and</a></li>
+<li><a href="fossil-from-msvc.wiki">Integrating Fossil in the Microsoft Express 2010 IDE</a></li>
 <li><a href="selfcheck.wiki">Integrity Self Checks &mdash; Fossil Repository</a></li>
 <li><a href="webui.wiki">Interface &mdash; The Fossil Web</a></li>
 <li><a href="copyright-release.html">License Agreement &mdash; Contributor</a></li>
 <li><a href="password.wiki">Management And Authentication &mdash; Password</a></li>
 <li><a href="branching.wiki">Merging, and Tagging &mdash; Branching, Forking,</a></li>
+<li><a href="fossil-from-msvc.wiki">Microsoft Express 2010 IDE &mdash; Integrating Fossil in the</a></li>
 <li><a href="fiveminutes.wiki">Minutes as a Single User &mdash; Update and Running in 5</a></li>
 <li><a href="checkin_names.wiki">Names &mdash; Checkin And Version</a></li>
+<li><a href="adding_code.wiki">New Features To Fossil &mdash; Adding</a></li>
 <li><a href="newrepo.wiki">New Fossil Repository &mdash; How To Create A</a></li>
 <li><a href="foss-cklist.wiki">Open-Source Projects &mdash; Checklist For Successful</a></li>
 <li><a href="pop.wiki">Operations &mdash; Principles Of</a></li>
@@ -153,8 +166,10 @@
 <li><a href="theory1.wiki">Thoughts On The Design Of The Fossil DVCS</a></li>
 <li><a href="custom_ticket.wiki">Ticket System &mdash; Customizing The</a></li>
 <li><a href="tickets.wiki">Ticket System &mdash; The Fossil</a></li>
+<li><a href="hints.wiki">Tips And Usage Hints &mdash; Fossil</a></li>
 <li><a href="bugtheory.wiki">Tracking In Fossil &mdash; Bug</a></li>
 <li><a href="fiveminutes.wiki">Update and Running in 5 Minutes as a Single User</a></li>
+<li><a href="hints.wiki">Usage Hints &mdash; Fossil Tips And</a></li>
 <li><a href="fiveminutes.wiki">User &mdash; Update and Running in 5 Minutes as a Single</a></li>
 <li><a href="ssl.wiki">Using SSL with Fossil</a></li>
 <li><a href="checkin_names.wiki">Version Names &mdash; Checkin And</a></li>

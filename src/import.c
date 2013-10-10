@@ -421,7 +421,7 @@ static void import_prior_files(void){
   if( gg.zFrom==0 ) return;
   rid = fast_uuid_to_rid(gg.zFrom);
   if( rid==0 ) return;
-  p = manifest_get(rid, CFTYPE_MANIFEST);
+  p = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( p==0 ) return;
   manifest_file_rewind(p);
   while( (pOld = manifest_file_next(p, 0))!=0 ){

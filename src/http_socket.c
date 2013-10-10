@@ -252,11 +252,29 @@ size_t socket_receive(void *NotUsed, void *pContent, size_t N){
   ssize_t got;
   size_t total = 0;
   while( N>0 ){
-    got = recv(iSocket, pContent, N, 0);
+    /* WinXP fails for large values of N.  So limit it to 64KiB. */
+    got = recv(iSocket, pContent, N>65536 ? 65536 : N, 0);
     if( got<=0 ) break;
     total += (size_t)got;
     N -= (size_t)got;
     pContent = (void*)&((char*)pContent)[got];
   }
   return total;
+}
+
+/*
+** Attempt to resolve g.urlName to IP and setup g.zIpAddr so rcvfrom gets
+** populated. For hostnames with more than one IP (or if overridden in
+** ~/.ssh/config) the rcvfrom may not match the host to which we connect.
+*/
+void socket_ssh_resolve_addr(void){
+  struct hostent *pHost;        /* Used to make best effort for rcvfrom */
+  struct sockaddr_in addr;
+
+  memset(&addr, 0, sizeof(addr));
+  pHost = gethostbyname(g.urlName);
+  if( pHost!=0 ){
+    memcpy(&addr.sin_addr,pHost->h_addr_list[0],pHost->h_length);
+    g.zIpAddr = mprintf("%s", inet_ntoa(addr.sin_addr));
+  }
 }

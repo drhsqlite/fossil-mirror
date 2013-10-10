@@ -22,6 +22,19 @@
 #include "th_main.h"
 #include "sqlite3.h"
 
+#if INTERFACE
+/*
+** Flag parameters to the Th_FossilInit() routine used to control the
+** interpreter creation and initialization process.
+*/
+#define TH_INIT_NONE        ((u32)0x00000000) /* No flags. */
+#define TH_INIT_NEED_CONFIG ((u32)0x00000001) /* Open configuration first? */
+#define TH_INIT_FORCE_TCL   ((u32)0x00000002) /* Force Tcl to be enabled? */
+#define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH commands re-added? */
+#define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
+#define TH_INIT_DEFAULT     (TH_INIT_NONE)    /* Default flags. */
+#endif
+
 /*
 ** Global variable counting the number of outstanding calls to malloc()
 ** made by the th1 implementation. This is used to catch memory leaks
@@ -57,6 +70,28 @@ void Th_Trace(const char *zFormat, ...){
   va_end(ap);
 }
 
+/*
+** Checks if the TH1 trace log needs to be enabled.  If so, prepares
+** it for use.
+*/
+void Th_InitTraceLog(){
+  g.thTrace = find_option("th-trace", 0, 0)!=0;
+  if( g.thTrace ){
+    blob_zero(&g.thLog);
+  }
+}
+
+/*
+** Prints the entire contents of the TH1 trace log to the standard
+** output channel.
+*/
+void Th_PrintTraceLog(){
+  if( g.thTrace ){
+    fossil_print("\n------------------ BEGIN TRACE LOG ------------------\n");
+    fossil_print("%s", blob_str(&g.thLog));
+    fossil_print("\n------------------- END TRACE LOG -------------------\n");
+  }
+}
 
 /*
 ** True if output is enabled.  False if disabled.
@@ -263,11 +298,13 @@ static int hascapCmd(
 ** Return true if the fossil binary has the given compile-time feature
 ** enabled. The set of features includes:
 **
-** "ssl"      = FOSSIL_ENABLE_SSL
-** "tcl"      = FOSSIL_ENABLE_TCL
-** "tclStubs" = FOSSIL_ENABLE_TCL_STUBS
-** "json"     = FOSSIL_ENABLE_JSON
-** "markdown" = FOSSIL_ENABLE_MARKDOWN
+** "ssl"             = FOSSIL_ENABLE_SSL
+** "tcl"             = FOSSIL_ENABLE_TCL
+** "useTclStubs"     = USE_TCL_STUBS
+** "tclStubs"        = FOSSIL_ENABLE_TCL_STUBS
+** "tclPrivateStubs" = FOSSIL_ENABLE_TCL_PRIVATE_STUBS
+** "json"            = FOSSIL_ENABLE_JSON
+** "markdown"        = FOSSIL_ENABLE_MARKDOWN
 **
 */
 static int hasfeatureCmd(
@@ -287,30 +324,71 @@ static int hasfeatureCmd(
     /* placeholder for following ifdefs... */
   }
 #if defined(FOSSIL_ENABLE_SSL)
-  else if( 0 == fossil_strnicmp( zArg, "ssl", 3 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "ssl\0", 4 ) ){
     rc = 1;
   }
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
-  else if( 0 == fossil_strnicmp( zArg, "tcl", 3 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "tcl\0", 4 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(USE_TCL_STUBS)
+  else if( 0 == fossil_strnicmp( zArg, "useTclStubs\0", 12 ) ){
     rc = 1;
   }
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
-  else if( 0 == fossil_strnicmp( zArg, "tclStubs", 8 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "tclStubs\0", 9 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+  else if( 0 == fossil_strnicmp( zArg, "tclPrivateStubs\0", 16 ) ){
     rc = 1;
   }
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
-  else if( 0 == fossil_strnicmp( zArg, "json", 4 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "json\0", 5 ) ){
     rc = 1;
   }
 #endif
-  else if( 0 == fossil_strnicmp( zArg, "markdown", 8 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "markdown\0", 9 ) ){
     rc = 1;
   }
   if( g.thTrace ){
     Th_Trace("[hasfeature %#h] => %d<br />\n", argl[1], zArg, rc);
+  }
+  Th_SetResultInt(interp, rc);
+  return TH_OK;
+}
+
+
+/*
+** TH command:     tclReady
+**
+** Return true if the fossil binary has the Tcl integration feature
+** enabled and it is currently available for use by TH1 scripts.
+**
+*/
+static int tclReadyCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc = 0;
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "tclReady");
+  }
+#if defined(FOSSIL_ENABLE_TCL)
+  if( g.tcl.interp ){
+    rc = 1;
+  }
+#endif
+  if( g.thTrace ){
+    Th_Trace("[tclReady] => %d<br />\n", rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -379,8 +457,9 @@ static int comboboxCmd(
     Th_SplitList(interp, argv[2], argl[2], &azElem, &aszElem, &nElem);
     blob_init(&name, (char*)argv[1], argl[1]);
     zValue = Th_Fetch(blob_str(&name), &nValue);
-    z = mprintf("<select name=\"%z\" size=\"%d\">", 
-                 htmlize(blob_buffer(&name), blob_size(&name)), height);
+    zH = htmlize(blob_buffer(&name), blob_size(&name));
+    z = mprintf("<select id=\"%s\" name=\"%s\" size=\"%d\">", zH, zH, height);
+    free(zH);
     sendText(z, -1, 0);
     free(z);
     blob_reset(&name);
@@ -665,6 +744,51 @@ static int queryCmd(
 }
 
 /*
+** TH1 command:     setting name
+**
+** Gets and returns the value of the specified Fossil setting.
+*/
+#define SETTING_WRONGNUMARGS "setting ?-strict? ?--? name"
+static int settingCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  int strict = 0;
+  int nArg = 1;
+  char *zValue;
+  if( argc<2 || argc>4 ){
+    return Th_WrongNumArgs(interp, SETTING_WRONGNUMARGS);
+  }
+  if( fossil_strcmp(argv[nArg], "-strict")==0 ){
+    strict = 1; nArg++;
+  }
+  if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
+  if( nArg+1!=argc ){
+    return Th_WrongNumArgs(interp, SETTING_WRONGNUMARGS);
+  }
+  zValue = db_get(argv[nArg], 0);
+  if( zValue!=0 ){
+    Th_SetResult(interp, zValue, -1);
+    rc = TH_OK;
+  }else if( strict ){
+    Th_ErrorMessage(interp, "no value for setting \"", argv[nArg], -1);
+    rc = TH_ERROR;
+  }else{
+    Th_SetResult(interp, 0, 0);
+    rc = TH_OK;
+  }
+  if( g.thTrace ){
+    Th_Trace("[setting %s%#h] => %d<br />\n", strict ? "strict " : "",
+             argl[nArg], argv[nArg], rc);
+  }
+  return rc;
+}
+
+/*
 ** TH1 command:     regexp ?-nocase? ?--? exp string
 **
 ** Checks the string against the specified regular expression and returns
@@ -713,8 +837,12 @@ static int regexpCmd(
 **
 ** The interpreter is stored in the g.interp global variable.
 */
-void Th_FossilInit(int needConfig, int forceSetup){
+void Th_FossilInit(u32 flags){
   int wasInit = 0;
+  int needConfig = flags & TH_INIT_NEED_CONFIG;
+  int forceReset = flags & TH_INIT_FORCE_RESET;
+  int forceTcl = flags & TH_INIT_FORCE_TCL;
+  int forceSetup = flags & TH_INIT_FORCE_SETUP;
   static unsigned int aFlags[] = { 0, 1, WIKI_LINKSONLY };
   static struct _Command {
     const char *zName;
@@ -736,6 +864,8 @@ void Th_FossilInit(int needConfig, int forceSetup){
     {"randhex",       randhexCmd,           0},
     {"regexp",        regexpCmd,            0},
     {"repository",    repositoryCmd,        0},
+    {"setting",       settingCmd,           0},
+    {"tclReady",      tclReadyCmd,          0},
     {"stime",         stimeCmd,             0},
     {"utime",         utimeCmd,             0},
     {"wiki",          wikiCmd,              (void*)&aFlags[0]},
@@ -751,12 +881,18 @@ void Th_FossilInit(int needConfig, int forceSetup){
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
     db_open_config(0);
   }
-  if( g.interp==0 ){
+  if( forceReset || forceTcl || g.interp==0 ){
+    int created = 0;
     int i;
-    g.interp = Th_CreateInterp(&vtab);
-    th_register_language(g.interp);       /* Basic scripting commands. */
+    if( g.interp==0 ){
+      g.interp = Th_CreateInterp(&vtab);
+      created = 1;
+    }
+    if( forceReset || created ){
+      th_register_language(g.interp);     /* Basic scripting commands. */
+    }
 #ifdef FOSSIL_ENABLE_TCL
-    if( getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
+    if( forceTcl || getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
       if( !g.tcl.setup ){
         g.tcl.setup = db_get("tcl-setup", 0); /* Grab Tcl setup script. */
       }
@@ -795,7 +931,7 @@ void Th_FossilInit(int needConfig, int forceSetup){
 ** Store a string value in a variable in the interpreter.
 */
 void Th_Store(const char *zName, const char *zValue){
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   if( zValue ){
     if( g.thTrace ){
       Th_Trace("set %h {%h}<br />\n", zName, zValue);
@@ -810,7 +946,7 @@ void Th_Store(const char *zName, const char *zValue){
 void Th_StoreInt(const char *zName, int iValue){
   Blob value;
   char *zValue;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   blob_zero(&value);
   blob_appendf(&value, "%d", iValue);
   zValue = blob_str(&value);
@@ -836,7 +972,7 @@ void Th_Unstore(const char *zName){
 */
 char *Th_Fetch(const char *zName, int *pSize){
   int rc;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   rc = Th_GetVar(g.interp, (char*)zName, -1);
   if( rc==TH_OK ){
     return (char*)Th_GetResult(g.interp, pSize);
@@ -916,7 +1052,7 @@ int Th_Render(const char *z){
   int n;
   int rc = TH_OK;
   char *zResult;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   while( z[i] ){
     if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
@@ -968,13 +1104,18 @@ int Th_Render(const char *z){
 */
 void test_th_render(void){
   Blob in;
+  Th_InitTraceLog();
+  if( find_option("th-open-config", 0, 0)!=0 ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
+    db_open_config(0);
+  }
   if( g.argc<3 ){
     usage("FILE");
   }
-  db_open_config(0); /* Needed for global "tcl" setting. */
   blob_zero(&in);
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));
+  Th_PrintTraceLog();
 }
 
 /*
@@ -983,12 +1124,17 @@ void test_th_render(void){
 void test_th_eval(void){
   int rc;
   const char *zRc;
+  Th_InitTraceLog();
+  if( find_option("th-open-config", 0, 0)!=0 ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
+    db_open_config(0);
+  }
   if( g.argc!=3 ){
     usage("script");
   }
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   rc = Th_Eval(g.interp, 0, g.argv[2], -1);
   zRc = Th_ReturnCodeName(rc, 1);
-  fossil_print("%s%s%s\n", zRc, zRc ? ": " : "",
-      Th_GetResult(g.interp, 0));
+  fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
+  Th_PrintTraceLog();
 }

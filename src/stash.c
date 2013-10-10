@@ -160,7 +160,7 @@ static int stash_create(void){
   if( zComment==0 ){
     Blob prompt;                       /* Prompt for stash comment */
     Blob comment;                      /* User comment reply */
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
     int bomSize;
     const unsigned char *bom = get_utf8_bom(&bomSize);
     blob_init(&prompt, (const char *) bom, bomSize);
@@ -418,11 +418,11 @@ static int stash_get_id(const char *zStashId){
 **     arguments.  The "snapshot" verb works the same as "save" but
 **     omits the revert, keeping the check-out unchanged.
 **
-**  fossil stash list ?-l|--detail?
-**  fossil stash ls ?-l|--detail?
+**  fossil stash list ?-v|--verbose?
+**  fossil stash ls ?-v|--verbose?
 **
 **     List all changes sets currently stashed.  Show information about
-**     individual files in each changeset if --detail or -l is used.
+**     individual files in each changeset if -v or --verbose is used.
 **
 **  fossil stash show ?STASHID? ?DIFF-FLAGS?
 **
@@ -459,7 +459,7 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash
 **  fossil stash save ?-m|--comment COMMENT? ?FILES...?
 **  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
-**  fossil stash list|ls  ?-l|--detail?
+**  fossil stash list|ls  ?-v|--verbose?
 **  fossil stash show ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash pop
 **  fossil stash apply ?STASHID?
@@ -513,14 +513,17 @@ void stash_cmd(void){
   if( memcmp(zCmd, "list", nCmd)==0 || memcmp(zCmd, "ls", nCmd)==0 ){
     Stmt q, q2;
     int n = 0;
-    int fDetail = find_option("detail","l",0)!=0;
+    int verboseFlag = find_option("verbose","v",0)!=0;
+    if( !verboseFlag ){
+      verboseFlag = find_option("detail","l",0)!=0; /* deprecated */
+    }
     verify_all_options();
     db_prepare(&q,
        "SELECT stashid, (SELECT uuid FROM blob WHERE rid=vid),"
        "       comment, datetime(ctime) FROM stash"
        " ORDER BY ctime DESC"
     );
-    if( fDetail ){
+    if( verboseFlag ){
       db_prepare(&q2, "SELECT isAdded, isRemoved, origname, newname"
                       "  FROM stashfile WHERE stashid=$id");
     }
@@ -538,7 +541,7 @@ void stash_cmd(void){
         fossil_print("       ");
         comment_print(zCom, 7, 79);
       }
-      if( fDetail ){
+      if( verboseFlag ){
         db_bind_int(&q2, "$id", stashid);
         while( db_step(&q2)==SQLITE_ROW ){
           int isAdded = db_column_int(&q2, 0);
@@ -559,7 +562,7 @@ void stash_cmd(void){
       }
     }
     db_finalize(&q);
-    if( fDetail ) db_finalize(&q2);
+    if( verboseFlag ) db_finalize(&q2);
     if( n==0 ) fossil_print("empty stash\n");
   }else
   if( memcmp(zCmd, "drop", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 ){
@@ -638,6 +641,7 @@ void stash_cmd(void){
       zDiffCmd = diff_command_external(0);
     }
     diffFlags = diff_options();
+    if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
     if( g.argc>4 ) usage(mprintf("%s STASHID", zCmd));
     if( zDiffCmd ){
       zBinGlob = diff_get_binary_glob();

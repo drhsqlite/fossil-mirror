@@ -140,7 +140,7 @@ void export_cmd(void){
 
     f = fossil_fopen(markfile_in, "r");
     if( f==0 ){
-      fossil_panic("cannot open %s for reading", markfile_in);
+      fossil_fatal("cannot open %s for reading", markfile_in);
     }
     db_prepare(&qb, "INSERT OR IGNORE INTO oldblob VALUES (:rid)");
     db_prepare(&qc, "INSERT OR IGNORE INTO oldcommit VALUES (:rid)");
@@ -156,7 +156,7 @@ void export_cmd(void){
         db_reset(&qc);
         bag_insert(&vers, atoi(line + 1));
       }else{
-        fossil_panic("bad input from %s: %s", markfile_in, line);
+        fossil_fatal("bad input from %s: %s", markfile_in, line);
       }
     }
     db_finalize(&qb);
@@ -337,7 +337,7 @@ void export_cmd(void){
     FILE *f;
     f = fossil_fopen(markfile_out, "w");
     if( f == 0 ){
-      fossil_panic("cannot open %s for writing", markfile_out);
+      fossil_fatal("cannot open %s for writing", markfile_out);
     }
     db_prepare(&q, "SELECT rid FROM oldblob");
     while( db_step(&q)==SQLITE_ROW ){
@@ -350,7 +350,7 @@ void export_cmd(void){
     }
     db_finalize(&q);
     if( ferror(f)!=0 || fclose(f)!=0 ) {
-      fossil_panic("error while writing %s", markfile_out);
+      fossil_fatal("error while writing %s", markfile_out);
     }
   }
 }

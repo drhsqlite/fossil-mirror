@@ -36,7 +36,7 @@ static void strip_string(Blob *pBlob, char *z){
        z[i] = 0;
        break;
     }
-    if( z[i]<' ' ) z[i] = ' ';
+    if( z[i]>0 && z[i]<' ' ) z[i] = ' ';
   }
   blob_append(pBlob, z, -1);
 }
@@ -132,6 +132,33 @@ void prompt_for_password(
 }
 
 /*
+** Prompt to save Fossil user password
+*/
+int save_password_prompt(){
+  Blob x;
+  char c;
+  prompt_user("remember password (Y/n)? ", &x);
+  c = blob_str(&x)[0];
+  blob_reset(&x);
+  return ( c!='n' && c!='N' );
+}
+
+/*
+** Prompt for Fossil user password
+*/
+char *prompt_for_user_password(const char *zUser){
+  char *zPrompt = mprintf("\rpassword for %s: ", zUser);
+  char *zPw;
+  Blob x;
+  fossil_force_newline();
+  prompt_for_password(zPrompt, &x, 0);
+  free(zPrompt);
+  zPw = mprintf("%b", &x);
+  blob_reset(&x);
+  return zPw;
+}
+
+/*
 ** Prompt the user to enter a single line of text.
 */
 void prompt_user(const char *zPrompt, Blob *pIn){
@@ -143,6 +170,8 @@ void prompt_user(const char *zPrompt, Blob *pIn){
   fflush(stdout);
   z = fgets(zLine, sizeof(zLine), stdin);
   if( z ){
+    int n = (int)strlen(z);
+    if( n>0 && z[n-1]=='\n' ) fossil_new_line_started();
     strip_string(pIn, z);
   }
 }
@@ -277,7 +306,7 @@ void user_cmd(void){
     }
     fossil_print("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
   }else{
-    fossil_panic("user subcommand should be one of: "
+    fossil_fatal("user subcommand should be one of: "
                  "capabilities default list new password");
   }
 }

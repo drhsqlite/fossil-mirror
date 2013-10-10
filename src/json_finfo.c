@@ -77,12 +77,12 @@ cson_value * json_page_finfo(){
 /*9*/   " (mlink.pid==0) AS isNew,"
 /*10*/  " (mlink.fid==0) AS isDel"
 	"  FROM mlink, blob b, event, blob ci, filename"
-        " WHERE filename.name=%Q %s"
+        " WHERE filename.name=%Q"
         "   AND mlink.fnid=filename.fnid"
         "   AND b.rid=mlink.fid"
         "   AND event.objid=mlink.mid"
         "   AND event.objid=ci.rid",
-        zFilename, filename_collation()
+        zFilename
                );
 
   if( zCheckin && *zCheckin ){
@@ -127,11 +127,11 @@ cson_value * json_page_finfo(){
     cson_object_set(row, "checkin", json_new_string( db_column_text(&q,1) ));
     cson_object_set(row, "uuid", json_new_string( db_column_text(&q,2) ));
     /*cson_object_set(row, "parentArtifact", json_new_string( db_column_text(&q,6) ));*/
-    cson_object_set(row, "timestamp", json_new_int( db_column_int(&q,3) ));
+    cson_object_set(row, "timestamp", json_new_int( db_column_int64(&q,3) ));
     cson_object_set(row, "user", json_new_string( db_column_text(&q,4) ));
     cson_object_set(row, "comment", json_new_string( db_column_text(&q,5) ));
     /*cson_object_set(row, "bgColor", json_new_string( db_column_text(&q,7) ));*/
-    cson_object_set(row, "size", cson_value_new_integer( (cson_int_t)db_column_int64(&q,8) ));
+    cson_object_set(row, "size", json_new_int( db_column_int64(&q,8) ));
     cson_object_set(row, "state",
                     json_new_string(json_artifact_status_to_string(isNew,isDel)));
     if( (0 < limit) && (++currentRow >= limit) ){

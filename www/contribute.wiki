@@ -80,3 +80,4 @@ the checklist and/or the automated test scripts to cover their additions.
   *  [./build.wiki | How To Compile And Install Fossil]
   *  [./makefile.wiki | The Fossil Build Process]
   *  [./tech_overview.wiki | A Technical Overview of Fossil]
+  *  [./adding_code.wiki | Adding Features To Fossil]

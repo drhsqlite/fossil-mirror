@@ -1,0 +1,13 @@
+<title>Fossil Hackers How-To</title>
+
+The following links are of interest to programmers who want to modify
+or enhance Fossil.  Ordinary users can safely ignore this information.
+
+  *  [./build.wiki | How To Compile And Install Fossil]
+  *  [./makefile.wiki | The Fossil Build Process]
+  *  [./tech_overview.wiki | A Technical Overview of Fossil]
+  *  [./adding_code.wiki | Adding Features To Fossil]
+  *  [./contribute.wiki|Contributing Code Or Enhancements To The Fossil Project]
+  *  [./style.wiki | Coding Style Guidelines]
+  *  [./checkin.wiki | Pre-checkin Checklist]
+  *  [../test/release-checklist.wiki | Release Checklist]

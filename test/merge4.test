@@ -22,8 +22,8 @@ proc merge-test {testid basis v1 v2 result1 result2} {
   write_file t1 [join [string trim $basis] \n]\n
   write_file t2 [join [string trim $v1] \n]\n
   write_file t3 [join [string trim $v2] \n]\n
-  fossil test-3-way-merge t1 t2 t3 t4
-  fossil test-3-way-merge t1 t3 t2 t5
+  fossil 3-way-merge t1 t2 t3 t4
+  fossil 3-way-merge t1 t3 t2 t5
   set x [read_file t4]
   regsub -all {<<<<<<< BEGIN MERGE CONFLICT.*<<} $x {>} x
   regsub -all {=======.*=======} $x {=} x

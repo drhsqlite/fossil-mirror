@@ -723,7 +723,7 @@ void test_clusters_cmd(void){
     int i;
     
     bag_remove(&pending, rid);
-    p = manifest_get(rid, CFTYPE_CLUSTER);
+    p = manifest_get(rid, CFTYPE_CLUSTER, 0);
     if( p==0 ){
       fossil_fatal("bad cluster: rid=%d", rid);
     }
@@ -864,7 +864,7 @@ void recon_read_dir(char *zPath){
       blob_init(&path, 0, 0);
       blob_appendf(&path, "%s", zSubpath);
       if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
-        fossil_panic("some unknown error occurred while reading \"%s\"", 
+        fossil_fatal("some unknown error occurred while reading \"%s\"", 
                      blob_str(&path));
       }
       content_put(&aContent);
@@ -876,7 +876,7 @@ void recon_read_dir(char *zPath){
     }
     closedir(d);
   }else {
-    fossil_panic("encountered error %d while trying to open \"%s\".",
+    fossil_fatal("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
   }
   fossil_filename_free(zUnicodePath);

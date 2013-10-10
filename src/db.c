@@ -401,8 +401,12 @@ int db_finalize(Stmt *pStmt){
 /*
 ** Return the rowid of the most recent insert
 */
-i64 db_last_insert_rowid(void){
-  return sqlite3_last_insert_rowid(g.db);
+int db_last_insert_rowid(void){
+  i64 x = sqlite3_last_insert_rowid(g.db);
+  if( x<0 || x>(i64)2147483647 ){
+    fossil_fatal("rowid out of range (0..2147483647)");
+  }
+  return (int)x;
 }
 
 /*
@@ -710,6 +714,9 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   const char *zVfs;
   sqlite3 *db;
 
+#if defined(__CYGWIN__)
+  zDbName = fossil_utf8_to_filename(zDbName);
+#endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   zVfs = fossil_getenv("FOSSIL_VFS");
   rc = sqlite3_open_v2(
@@ -1018,9 +1025,13 @@ void db_open_repository(const char *zDbName){
       fossil_panic("not a valid repository: %s", zDbName);
     }
   }
-  db_open_or_attach(zDbName, "repository", 0);
-  g.repositoryOpen = 1;
+#if defined(__CYGWIN__)
+  g.zRepositoryName = fossil_utf8_to_filename(zDbName);
+#else
   g.zRepositoryName = mprintf("%s", zDbName);
+#endif
+  db_open_or_attach(g.zRepositoryName, "repository", 0);
+  g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
   g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
 }
@@ -1229,6 +1240,7 @@ void db_create_repository(const char *zFilename){
   db_init_database(
      zFilename,
      zRepositorySchema1,
+     zRepositorySchemaDefaultReports,
      zRepositorySchema2,
      (char*)0
   );
@@ -1390,8 +1402,10 @@ void db_initial_setup(
     blob_appendf(&manifest, "C initial\\sempty\\scheck-in\n");
     zDate = date_in_standard_format(zInitialDate);
     blob_appendf(&manifest, "D %s\n", zDate);
-    blob_appendf(&manifest, "P\n");
     md5sum_init();
+    /* The R-card is necessary here because without it
+     * fossil versions earlier than versions 1.27 would
+     * interpret this artifact as a "control". */
     blob_appendf(&manifest, "R %s\n", md5sum_finish(0));
     blob_appendf(&manifest, "T *branch * trunk\n");
     blob_appendf(&manifest, "T *sym-trunk *\n");
@@ -1682,7 +1696,7 @@ void db_swap_connections(void){
 ** Returns the non-versioned value without modification if there is no
 ** versioned value.
 */
-static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
+char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
   char *zVersionedSetting = 0;
   int noWarn = 0;
   struct _cacheEntry {
@@ -1691,6 +1705,7 @@ static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting
   } *cacheEntry = 0;
   static struct _cacheEntry *cache = 0;
 
+  if( !g.localOpen) return zNonVersionedSetting;
   /* Look up name in cache */
   cacheEntry = cache;
   while( cacheEntry!=0 ){
@@ -1776,7 +1791,7 @@ char *db_get(const char *zName, char *zDefault){
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
   }
-  if( ctrlSetting!=0 && ctrlSetting->versionable && g.localOpen ){
+  if( ctrlSetting!=0 && ctrlSetting->versionable ){
     /* This is a versionable setting, try and get the info from a
     ** checked out file */
     z = db_get_do_versionable(zName, z);
@@ -1981,7 +1996,7 @@ void cmd_open(void){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
   if( !allowNested && db_open_local(0) ){
-    fossil_panic("already within an open tree rooted at %s", g.zLocalRoot);
+    fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
   }
   db_open_repository(g.argv[2]);
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -2097,6 +2112,7 @@ struct stControlSettings const ctrlSettings[] = {
 #else
   { "case-sensitive",0,                0, 0, "on"                  },
 #endif
+  { "clean-glob",    0,               40, 1, ""                    },
   { "crnl-glob",     0,               40, 1, ""                    },
   { "default-perms", 0,               16, 0, "u"                   },
   { "diff-binary",   0,                0, 0, "on"                  },
@@ -2110,6 +2126,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "http-port",     0,               16, 0, "8080"                },
   { "https-login",   0,                0, 0, "off"                 },
   { "ignore-glob",   0,               40, 1, ""                    },
+  { "keep-glob",     0,               40, 1, ""                    },
   { "localauth",     0,                0, 0, "off"                 },
   { "main-branch",   0,               40, 0, "trunk"               },
   { "manifest",      0,                0, 1, "off"                 },
@@ -2183,9 +2200,14 @@ struct stControlSettings const ctrlSettings[] = {
 **                     for committing and merging purposes.  Example: *.jpg
 **
 **    case-sensitive   If TRUE, the files whose names differ only in case
-**                     care considered distinct.  If FALSE files whose names
+**                     are considered distinct.  If FALSE files whose names
 **                     differ only in case are the same file.  Defaults to
 **                     TRUE for unix and FALSE for Cygwin, Mac and Windows.
+**
+**    clean-glob       The VALUE is a comma or newline-separated list of GLOB
+**     (versionable)   patterns specifying files that the "clean" command will
+**                     delete without prompting even when the -force flag has
+**                     not been used.  Example:  *.a *.lib *.o
 **
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
@@ -2238,8 +2260,13 @@ struct stControlSettings const ctrlSettings[] = {
 **                     even if the login page request came via HTTP.
 **
 **    ignore-glob      The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "extra" command will
-**                     ignore.  Example:  *.o,*.obj,*.exe
+**     (versionable)   patterns specifying files that the "add", "addremove",
+**                     "clean", and "extra" commands will ignore.
+**                     Example:  *.log customCode.c notes.txt
+**
+**    keep-glob        The VALUE is a comma or newline-separated list of GLOB
+**     (versionable)   patterns specifying files that the "clean" command will
+**                     keep.
 **
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If
@@ -2371,7 +2398,7 @@ void setting_cmd(void){
       manifest_to_disk(db_lget_int("checkout", 0));
     }
   }else{
-    usage("?PROPERTY? ?VALUE?");
+    usage("?PROPERTY? ?VALUE? ?-global?");
   }
 }
 

@@ -112,7 +112,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     const char *zUser;
     const char *zComment;
     char * zEUser, * zEComment;
-    int mtime, omtime;
+    i64 mtime, omtime;
     v = cson_value_new_object();
     o = cson_value_get_object(v);
 #define SET(K,V) cson_object_set(o,(K), (V))
@@ -120,9 +120,9 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     SET("uuid",json_new_string(zUuid));
     SET("isLeaf", cson_value_new_bool(is_a_leaf(rid)));
 
-    mtime = db_column_int(&q,1);
+    mtime = db_column_int64(&q,1);
     SET("timestamp",json_new_int(mtime));
-    omtime = db_column_int(&q,2);
+    omtime = db_column_int64(&q,2);
     if(omtime && (omtime!=mtime)){
       SET("originTime",json_new_int(omtime));
     }
@@ -133,7 +133,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
                    TAG_USER, rid);
     if(zEUser){
       SET("user", json_new_string(zEUser));
-      if(0!=strcmp(zEUser,zUser)){
+      if(0!=fossil_strcmp(zEUser,zUser)){
         SET("originUser",json_new_string(zUser));
       }
       free(zEUser);
@@ -147,7 +147,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
                    TAG_COMMENT, rid);
     if(zEComment){
       SET("comment",json_new_string(zEComment));
-      if(0 != strcmp(zEComment,zComment)){
+      if(0 != fossil_strcmp(zEComment,zComment)){
         SET("originComment", json_new_string(zComment));
       }
       free(zEComment);
@@ -194,7 +194,7 @@ cson_value * json_artifact_ticket( cson_object * zParent, int rid ){
     json_gc_add("$EVENT_TYPE_LABEL(ticket)", eventTypeLabel);
   }
 
-  pTktChng = manifest_get(rid, CFTYPE_TICKET);
+  pTktChng = manifest_get(rid, CFTYPE_TICKET, 0);
   if( pTktChng==0 ){
     g.json.resultCode = FSL_JSON_E_MANIFEST_READ_FAILED;
     return NULL;
@@ -472,7 +472,7 @@ cson_value * json_page_artifact(){
   pay = cson_new_object();
   assert( (NULL != zType) && "Internal dispatching error." );
   for( ; dispatcher->name; ++dispatcher ){
-    if(0!=strcmp(dispatcher->name, zType)){
+    if(0!=fossil_strcmp(dispatcher->name, zType)){
       continue;
     }else{
       entry = (*dispatcher->func)(pay, rid);
