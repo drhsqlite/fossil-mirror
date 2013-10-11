@@ -12,7 +12,7 @@ that are required for any new code that will be accepted into the Fossil core.
 But, of course, if you are writing an extension just for yourself, you can
 use any programming style you want.
 
-The source code for Fossil is not feed directly into the C compiler, however.
+The source code for Fossil is not sent directly into the C compiler.
 There are three separate code [./makefile.wiki#preprocessing|preprocessors]
 that run over the code first.
 

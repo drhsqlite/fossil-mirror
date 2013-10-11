@@ -27,6 +27,11 @@
 #endif
 #define _LARGEFILE_SOURCE 1
 
+/* Make sure that in 64-bit builds, _USE_32BIT_TIME_T is NEVER defined. */
+#ifdef _WIN64
+#  undef _USE_32BIT_TIME_T
+#endif
+
 #ifdef HAVE_AUTOCONFIG_H
 #include "autoconfig.h"
 #endif

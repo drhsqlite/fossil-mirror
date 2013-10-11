@@ -114,6 +114,9 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 ** when one of the following commands are run against the repository: clone,
 ** info, pull, push, or sync.  Even previously ignored repositories are
 ** added back to the list of repositories by these commands.
+**
+** Options:
+**   --dontstop     Continue with other repositories even after an error
 */
 void all_cmd(void){
   int n;
