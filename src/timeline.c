@@ -18,9 +18,9 @@
 ** This file contains code to implement the timeline web page
 **
 */
+#include "config.h"
 #include <string.h>
 #include <time.h>
-#include "config.h"
 #include "timeline.h"
 
 /*

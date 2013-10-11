@@ -17,8 +17,8 @@
 **
 ** Implementation of the Setup page
 */
-#include <assert.h>
 #include "config.h"
+#include <assert.h>
 #include "setup.h"
 
 /*
