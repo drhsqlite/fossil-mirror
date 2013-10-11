@@ -1871,10 +1871,10 @@ void test_timewarp_page(void){
 ** filter it applies, or '*' if no filter is applied (i.e. if "all" is
 ** used).
 */
-static char stats_report_init_view(){
+static int stats_report_init_view(){
   char const * zType = PD("type","*");  /* analog to /timeline?y=... */
   char const * zRealType = NULL;        /* normalized form of zType */
-  char rc = 0;                          /* result code */
+  int rc = 0;                          /* result code */
   switch( (zType && *zType) ? *zType : 0 ){
     case 'c':
     case 'C':
@@ -1915,6 +1915,26 @@ static char stats_report_init_view(){
                   "SELECT * FROM event");
   }
   return rc;
+}
+
+/*
+** Expects to be passed the return value of stats_report_init_view(),
+** and returns a string suitable (for a given value of suitable) for
+** use in a label. The returned bytes are static.
+*/
+static char const * stats_report_label_for_type( int reportType ){
+  switch( reportType ){
+    case 'c':
+      return "commits";
+    case 'w':
+      return "wiki changes";
+    case 't':
+      return "ticket changes";
+    case 'g':
+      return "tag changes";
+    default:
+      return "all types";
+  }
 }
 
 
@@ -1975,8 +1995,9 @@ static void stats_report_by_month_year(char includeMonth,
                                         bars. */
   int iterations = 0;                /* number of weeks/months we iterate
                                         over */
-  stats_report_init_view();
-  blob_appendf(&header, "Timeline Events by year%s",
+  int reportType = stats_report_init_view();
+  blob_appendf(&header, "Timeline Events (%s) by year%s",
+               stats_report_label_for_type(reportType),
                (includeMonth ? "/month" : ""));
   blob_appendf(&sql,
                "SELECT substr(date(mtime),1,%d) AS timeframe, "
@@ -2121,7 +2142,7 @@ static void stats_report_by_user(){
   Blob sql = empty_blob;             /* SQL */
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
-  stats_report_init_view();
+  int reportType = stats_report_init_view();
   blob_append(&sql,
                "SELECT user, "
                "COUNT(*) AS eventCount "
@@ -2130,7 +2151,8 @@ static void stats_report_by_user(){
               -1);
   db_prepare(&query, blob_str(&sql));
   blob_reset(&sql);
-  @ <h1>Timeline Events by User</h1>
+  @ <h1>Timeline Events
+  @ (%s(stats_report_label_for_type(reportType))) by User</h1>
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
   @ <thead><tr>
@@ -2189,8 +2211,7 @@ static void stats_report_year_weeks(const char * zUserName){
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
   int iterations = 0;                /* # of active time periods. */
-
-  stats_report_init_view();
+  int reportType = stats_report_init_view();
   cgi_printf("Select year: ");
   blob_append(&sql,
               "SELECT DISTINCT substr(date(mtime),1,4) AS y "
@@ -2224,8 +2245,9 @@ static void stats_report_year_weeks(const char * zUserName){
     int rowCount = 0;
     int total = 0;
     Blob header = empty_blob;
-    blob_appendf(&header, "Timeline events for the calendar weeks "
-                 "of %h", zYear);
+    blob_appendf(&header, "Timeline events (%s) for the calendar weeks "
+                 "of %h", stats_report_label_for_type(reportType),
+                 zYear);
     blob_appendf(&sql,
                  "SELECT DISTINCT strftime('%%%%W',mtime) AS wk, "
                  "count(*) AS n "
