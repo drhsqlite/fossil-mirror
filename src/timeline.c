@@ -2393,6 +2393,16 @@ static void stats_report_year_weeks(const char * zUserName){
 **
 **   view=REPORT_NAME  Valid values: bymonth, byyear, byuser
 **   user=NAME         Restricts statistics to the given user
+**   type=TYPE         Restricts the report to a specific event type:
+**                     ci (checkin), w (wiki), t (ticket), g (tag)
+**                     Defaulting to all event types.
+**
+** The view-specific query parameters include:
+**
+** view=byweek:
+**
+**   y=YYYY            The year to report (default is the server's
+**                     current year).
 */
 void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
