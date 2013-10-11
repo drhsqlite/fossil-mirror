@@ -1,5 +1,5 @@
-C Added\sby-type\slabels\sfor\s/reports\spage\sheaders,\sbut\sstill\snot\ssure\show\sto\sintegrate\sthe\sflags\ssensibly\sinto\sthe\sUI.
-D 2013-10-11T19:04:49.247
+C Added\ssub-submenu\sto\s/reports\sfor\sselecting\stype\sof\sevent\sto\sfilter\son.
+D 2013-10-11T19:58:24.924
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -413,7 +413,7 @@ F src/th.h e0461c004ee27605ce65a13ee46d99eb8cb0210a
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 204578f2ec015c13d9e92b3c78bc94b6a61231bc
 F src/th_tcl.c 95fc3c09eebb7ba828248dc0c5407f083c77b0f6
-F src/timeline.c ff282d8f4ed116a7fad14d21b3b80363ad84a6f1
+F src/timeline.c 08c9352db67de591587f023e4ec4ea0dbabbe5d1
 F src/tkt.c a8f0e869696dffeb00faa18eba6b89df0f904c7f
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7f5fbf95ebbf1caf0011c5916d0b85ec44870bb8
-R fcb483940e4bc117dc7a7e6a032ee8c3
+P 0761df83b09ddb5e7b2fbaab37bfb74f228e7275
+R be1ec533b3ea8c6d7cfbbfd4f1edc618
 U stephan
-Z 65ead78e6feb3f16ab058c0631ee1b25
+Z 1ec31147c5783a9f801e3309f3e14e26
