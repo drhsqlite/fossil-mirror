@@ -27,9 +27,9 @@
 #endif
 #define _LARGEFILE_SOURCE 1
 
-/* Make sure that in 64-bit builds, _USE_32BIT_TIME_T is NEVER defined. */
-#ifdef _WIN64
-#  undef _USE_32BIT_TIME_T
+/* Make sure that in Win32 builds, _USE_32BIT_TIME_T is always defined. */
+#if defined(_WIN32) && !defined(_WIN64)
+#  define _USE_32BIT_TIME_T
 #endif
 
 #ifdef HAVE_AUTOCONFIG_H

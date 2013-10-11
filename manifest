@@ -1,5 +1,5 @@
-C Make\ssure\sthat\sEVERY\ssource\sfile\sincludes\s"config.h"\sbefore\sany\sother\ssystem\sincludes.\s\nThis\sis\sthe\sfirst\sstep\sin\smaking\sfossil\scompile\sfor\sWin64\susing\sMinGW.
-D 2013-10-11T08:36:40.169
+C Attempt\sto\sfix\sWin64\sMinGW\sbuild.\sDoesn't\swork\syet.
+D 2013-10-11T11:13:23.915
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -322,7 +322,7 @@ F src/checkout.c 29bcd4d7dce75cec23e0152aa1e4d18b48b14733
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c0d5466e13e29da9f6a7b0a1f0aea3842825d9ab
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
-F src/config.h e6f05181e796acc18c6666fbc204228dd92d9bda
+F src/config.h d5d962f277475d40103d1d757c7625acdd1e1079
 F src/configure.c 7d6cae0993b72526978745b42d6f3febe2383b59
 F src/content.c 468d7f73a4b09fe03d16d8477f9fe6a99481bec9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
@@ -372,7 +372,7 @@ F src/main.c 5bfa6b95f3f8ef06ed59f877b0ace4e36168cbb9
 F src/main.mk f7d0f9802282ed6e022da703643799c4380c946c
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 3d6caf1a8d4bdf9915f8c653c183ca27021bb5c6
+F src/makemake.tcl 724e55dbbb408a50db2bd0480dd47f21d0ca5ca0
 F src/manifest.c 4fe1f808dc2c7f467cd7ac2f16367e482407335c
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
@@ -526,8 +526,8 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 466b96d7e6e8638c41ece8710fc5840d79e51606
 F win/Makefile.dmc 54ae0dde79c5ef3cc06d2da023e87b6616f444dc
-F win/Makefile.mingw 9f6d3580f97ebe853751ac406fece049e7afe07f
-F win/Makefile.mingw.mistachkin 5179c040e607690f17cb953355436b3efeb221e4
+F win/Makefile.mingw 019b35a28a21f298ef38675a7728ac566f077ccc
+F win/Makefile.mingw.mistachkin a8547be3b950b228466accaeb7ee49fa65880a23
 F win/Makefile.msc 69a9302e6f7f15b8e50d34cb7fba9c7201001ce6
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc efbdb5fd4b081e81666942f5bf1cb937b23d69c4
@@ -635,7 +635,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cb29ef2a1e8b7ccdd4c732357ce7d468b3a7a184
-R 7e404aa9f66547ece7a164a0a467a2ea
+P c30cd93b918f8557bfc4cb758efc945db750f73f
+R 13fd9ea6bdeb35b58e8ec566d6c3a9d8
+T *branch * fix-win64-mingw
+T *sym-fix-win64-mingw *
+T -sym-trunk *
 U jan.nijtmans
-Z 3243af050b8218133b2aa5bb51419d53
+Z e8a760ad5529b597b0a991b891cfa0cf
