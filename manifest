@@ -1,5 +1,5 @@
-C Attempt\sto\sfix\sWin64\sMinGW\sbuild.\sDoesn't\swork\syet.
-D 2013-10-11T11:13:23.915
+C With\sthis\sadditional\schange,\sit\sworks.\sBut\sI\sdon't\sunderstand\swhy,\sand\sit\smeans\spatching\sSQLite.
+D 2013-10-11T11:20:42.088
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -400,7 +400,7 @@ F src/shell.c db8709a9ff1f167e0223d6e399df149612a6957a
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
 F src/skins.c 33e5775a510a6efc13ab69cbb7f3e2a42d35e00d
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c 70fe0ee1e6732bd74c5c3a4d0aa8d8dee579f52c
+F src/sqlite3.c ff00dcb54a90f81b2a2282901769df2e01ce8fd0
 F src/sqlite3.h d3177c39848e65b6f66040411178b06948c37c8d
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 996d2fc7011c02d117c10be77344cbf470132424
@@ -635,10 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c30cd93b918f8557bfc4cb758efc945db750f73f
-R 13fd9ea6bdeb35b58e8ec566d6c3a9d8
-T *branch * fix-win64-mingw
-T *sym-fix-win64-mingw *
-T -sym-trunk *
+P e25410039dc67d9046a664a8fa38cf904c07f1f0
+R 87d6f8e66207b8065430b51b5666a4dd
 U jan.nijtmans
-Z e8a760ad5529b597b0a991b891cfa0cf
+Z 67fc5fa6cb1144fe539722b3e652d71a
