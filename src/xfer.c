@@ -920,10 +920,14 @@ int run_script(const char *zScript, const char *zUuid){
   if( !commonScriptRan || !zScript || !(zScript = db_get(zScript, 0))){
     return 0; /* No script or common script didn't run, return success. */
   }
-  if( zUuid ){
-    Th_SetVar(g.interp, "uuid", -1, zUuid, strlen(zUuid));
+  if( commonScriptRan == 1 ){
+    if( zUuid ){
+      Th_SetVar(g.interp, "uuid", -1, zUuid, strlen(zUuid));
+    }
+    result = Th_Eval(g.interp, 0, zScript, -1) != TH_OK;
+  }else{
+    result = TH_ERROR;
   }
-  result = Th_Eval(g.interp, 0, zScript, -1) != TH_OK;
   if (result) fossil_error(1, "%s", Th_GetResult(g.interp, 0));
   return result;
 }
@@ -938,6 +942,10 @@ int run_common_script(void){
     Th_FossilInit(TH_INIT_DEFAULT); /* Make sure TH1 is ready. */
     commonScriptRan = 1; /* enable run_script to do something */
     result = run_script("xfer-common-script", 0);
+    if( result == TH_ERROR ){
+      /* Error message is left in th interpreter. */
+      commonScriptRan = 2;
+    }
     Th_CreateCommand(g.interp, "http", httpCmd, 0, 0);
   }
   return result;
