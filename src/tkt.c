@@ -614,6 +614,7 @@ static int submitTicketCmd(
     @ <p>Ticket artifact that would have been submitted:</p>
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
     @ <hr /></font>
+    return TH_OK;
   }else if( g.thTrace ){
     Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
              "}<br />\n",
@@ -622,7 +623,7 @@ static int submitTicketCmd(
     ticket_put(&tktchng, zUuid,
                (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
   }
-  return TH_OK;
+  return TH_RETURN;
 }
 
 
@@ -674,7 +675,7 @@ void tktnew_page(void){
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
   style_footer();
   run_common_script();
-  run_script("ticket-change", zNewUuid);
+  run_script("xfer-ticket-script", zNewUuid);
 }
 
 /*
@@ -744,7 +745,7 @@ void tktedit_page(void){
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
   style_footer();
   run_common_script();
-  run_script("ticket-change", zName);
+  run_script("xfer-ticket-script", zName);
 }
 
 /*

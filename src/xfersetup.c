@@ -182,7 +182,7 @@ void xfersetup_ticket_page(void){
   ;
   xfersetup_generic(
     "Transfer Ticket Script",
-    "ticket-change",
+    "xfer-ticket-script",
     zDefaultXferTicket,
     zDesc,
     0,

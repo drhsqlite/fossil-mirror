@@ -1879,7 +1879,7 @@ int manifest_crosslink(int rid, Blob *pContent){
   if( p->type==CFTYPE_TICKET ){
     char *zTag;
 
-    hook = "ticket-change";
+    hook = "xfer-ticket-script";
     zUuid = p->zTicketUuid;
     assert( manifest_crosslink_busy==1 );
     zTag = mprintf("tkt-%s", p->zTicketUuid);
