@@ -371,14 +371,10 @@ void www_print_timeline(
       @ <div id="m%d(gidx)"></div>
     }
     @</td>
-    @ <td class="timelineTableCell"
-    if( zTagList && zTagList[0] ){
-      @ class="%h(zTagList)"
-    }
     if( zBgClr && zBgClr[0] ){
-      @ style="background-color: %h(zBgClr);">
+      @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
     }else{
-      @ >
+      @ <td class="timelineTableCell">
     }
     if( pGraph && zType[0]!='c' ){
       @ &bull;

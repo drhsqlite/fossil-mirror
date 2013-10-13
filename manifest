@@ -1,5 +1,5 @@
-C Fix\sredirect\safter\sticket\ssubmission,\sas\ssuggested\sby\sJustin\sForest.\s\nRename\s"ticket-change"\sto\s"xfer-ticket-script"\severywhere
-D 2013-10-13T10:06:29.304
+C manifest_crosslink()\sshould\salways\sbe\scalled,\swheter\srun_common_script()\sfails\sor\snot.\s\nrevert\sexperimental\schange\sin\stimeline
+D 2013-10-13T10:33:41.981
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -317,7 +317,7 @@ F src/branch.c 5d0f0ea9274090728041212a9453a3019cff9615
 F src/browse.c 19e4bdf78ad41dd01c4cf76b41442dbaf86a2588
 F src/captcha.c 2c855a6f943b546b855eabe58f1388d677d5ea73
 F src/cgi.c 2909167c0534b4e084c2cfea743da539dbe3a284
-F src/checkin.c 54acbfac236a176ae0e1031c247484c2480c00ea
+F src/checkin.c ae1961136baeaf34578d2364c6ae14972b084631
 F src/checkout.c 29bcd4d7dce75cec23e0152aa1e4d18b48b14733
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c0d5466e13e29da9f6a7b0a1f0aea3842825d9ab
@@ -413,7 +413,7 @@ F src/th.h e0461c004ee27605ce65a13ee46d99eb8cb0210a
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 204578f2ec015c13d9e92b3c78bc94b6a61231bc
 F src/th_tcl.c 95fc3c09eebb7ba828248dc0c5407f083c77b0f6
-F src/timeline.c 928f211547b2b0b5f091eaa4cc86c1fdd2bd97ed
+F src/timeline.c 019ea6e8f7f0d543e0ad51e6c5ee016c390a9263
 F src/tkt.c 0c13d58d9ed9c2912e95fd913497281460770102
 F src/tktsetup.c 389d153eab7a2d50dc425caa5419e1f22bb9fe40
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a4327ba0b63e4e0ebad79eae6853b2c712c5c917
-R 80bb6d82b40c49cfa2145cdded030b87
+P 26d6877ff637916620e3593a888fd2257ee46359
+R 5406e9ca600358d73006a2cc69fa9e85
 U jan.nijtmans
-Z cabe76369a663c6315f9ef7d109c0ea6
+Z e4c4d149ff646c438ca04bac33bd422c
