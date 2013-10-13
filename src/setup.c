@@ -17,8 +17,8 @@
 **
 ** Implementation of the Setup page
 */
-#include <assert.h>
 #include "config.h"
+#include <assert.h>
 #include "setup.h"
 
 /*
@@ -729,7 +729,7 @@ void user_edit(void){
   @ To disable universal access to the repository, make sure no user named
   @ <span class="usertype">nobody</span> exists or that the
   @ <span class="usertype">nobody</span> user has no capabilities
-  @ enabled. The password for <span class="usertype">nobody</span> is ignore.
+  @ enabled. The password for <span class="usertype">nobody</span> is ignored.
   @ To avoid problems with spiders overloading the server, it is recommended
   @ that the <span class="capability">h</span> (Hyperlinks) capability be
   @ turned off for the <span class="usertype">nobody</span> user.
@@ -1201,6 +1201,7 @@ void setup_settings(void){
     login_needed();
   }
 
+  (void) aCmdHelp; /* NOTE: Silence compiler warning. */
   style_header("Settings");
   db_open_local(0);
   db_begin_transaction();
@@ -1274,12 +1275,20 @@ void setup_config(void){
   @ <hr />
   entry_attribute("Project Name", 60, "project-name", "pn", "", 0);
   @ <p>Give your project a name so visitors know what this site is about.
-  @ The project name will also be used as the RSS feed title.</p>
+  @ The project name will also be used as the RSS feed title.
+  @ </p>
   @ <hr />
   textarea_attribute("Project Description", 3, 80,
                      "project-description", "pd", "", 0);
   @ <p>Describe your project. This will be used in page headers for search
   @ engines as well as a short RSS description.</p>
+  @ <hr />
+  entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name", "spn", "", 0);
+  @ <p>This is used as a prefix on the names of generated tarballs and ZIP archive.
+  @ For best results, keep this prefix brief and avoid special characters such
+  @ as "/" and "\".
+  @ If no tarball prefix is specified, then the full Project Name above is used.
+  @ </p>
   @ <hr />
   onoff_attribute("Enable WYSIWYG Wiki Editing",
                   "wysiwyg-wiki", "wysiwyg-wiki", 0, 0);
@@ -1489,7 +1498,7 @@ void setup_modreq(void){
   @ Ticket changes enter the system and are shown locally, but are not
   @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Ticket changes made by
-  @ a user who hwas the Mod-Tkt privilege are never subject to
+  @ a user who has the Mod-Tkt privilege are never subject to
   @ moderation.
   @
   @ <hr />

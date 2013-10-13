@@ -220,7 +220,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
     return FSL_JSON_E_RESOURCE_NOT_FOUND;
   }
 
-  pParent = manifest_get(rootid, CFTYPE_MANIFEST);
+  pParent = manifest_get(rootid, CFTYPE_MANIFEST, 0);
   if( pParent==0 ){
     zOpt->rcErrMsg = "Could not read parent manifest.";
     return FSL_JSON_E_UNKNOWN;

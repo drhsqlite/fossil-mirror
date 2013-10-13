@@ -17,8 +17,8 @@
 **
 ** Implementation of the Setup page for "skins".
 */
-#include <assert.h>
 #include "config.h"
+#include <assert.h>
 #include "skins.h"
 
 /* @-comment: ## */

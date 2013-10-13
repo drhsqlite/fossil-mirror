@@ -70,9 +70,9 @@ FOSSIL_TCL_SOURCE = 1
 #### Check if the workaround for the MinGW command line handling needs to
 #    be enabled by default.
 #
-ifndef BROKEN_MINGW_CMDLINE
+ifndef MINGW_IS_32BIT_ONLY
 ifeq (,$(findstring w64-mingw32,$(PREFIX)))
-BROKEN_MINGW_CMDLINE = 1
+MINGW_IS_32BIT_ONLY = 1
 endif
 endif
 
@@ -164,7 +164,7 @@ endif
 endif
 
 # With MinGW command line handling workaround
-ifdef BROKEN_MINGW_CMDLINE
+ifdef MINGW_IS_32BIT_ONLY
 TCC += -DBROKEN_MINGW_CMDLINE=1
 RCC += -DBROKEN_MINGW_CMDLINE=1
 endif
@@ -205,7 +205,7 @@ endif
 LIB = -static
 
 # MinGW: If available, use the Unicode capable runtime startup code.
-ifndef BROKEN_MINGW_CMDLINE
+ifndef MINGW_IS_32BIT_ONLY
 LIB += -municode
 endif
 
@@ -1687,7 +1687,7 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h  $(SRCDIR)/config.h
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
-	$(XTCC) -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_ENABLE_STAT3 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_WIN32_NO_ANSI -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
+	$(XTCC) -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_ENABLE_STAT3 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_WIN32_NO_ANSI -D_HAVE_SQLITE_CONFIG_H -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
 
 $(OBJDIR)/cson_amalgamation.o:	$(SRCDIR)/cson_amalgamation.c
 	$(XTCC)  -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o

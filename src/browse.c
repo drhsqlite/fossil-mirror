@@ -333,7 +333,7 @@ int compute_fileage(int vid){
     ");"
     "CREATE INDEX fileage_fid ON fileage(fid);"
   );
-  pManifest = manifest_get(vid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(vid, CFTYPE_MANIFEST, 0);
   if( pManifest==0 ) return 1;
   manifest_file_rewind(pManifest);
   db_prepare(&ins,

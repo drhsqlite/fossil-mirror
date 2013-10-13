@@ -1326,6 +1326,7 @@ void page_xfer(void){
       @ error bad\scommand:\s%F(blob_str(&xfer.line))
     }
     blobarray_reset(xfer.aToken, xfer.nToken);
+    blob_reset(&xfer.line);
   }
   if( isPush ){
     if( run_script("xfer-push-script", 0) ){
@@ -1353,6 +1354,7 @@ void page_xfer(void){
   if( recvConfig ){
     configure_finalize_receive();
   }
+  db_multi_exec("DROP TABLE onremote");
   manifest_crosslink_end();
 
   /* Send the server timestamp last, in case prior processing happened
@@ -1523,7 +1525,6 @@ int client_sync(
     if( (syncFlags & SYNC_RESYNC)!=0 ) xfer.resync = 0x7fffffff;
   }
   manifest_crosslink_begin();
-  transport_global_startup();
   if( syncFlags & SYNC_VERBOSE ){
     fossil_print(zLabelFormat, "", "Bytes", "Cards", "Artifacts", "Deltas");
   }
@@ -1602,7 +1603,18 @@ int client_sync(
     blob_appendf(&send, "# %s\n", zRandomness);
     free(zRandomness);
 
+    if( syncFlags & SYNC_VERBOSE ){
+      fossil_print("waiting for server...");
+    }
+    fflush(stdout);
     /* Exchange messages with the server */
+    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0,
+        MAX_REDIRECTS) ){
+      nErr++;
+      break;
+    }
+
+    /* Output current stats */
     if( syncFlags & SYNC_VERBOSE ){
       fossil_print(zValueFormat, "Sent:",
                    blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
@@ -1618,15 +1630,7 @@ int client_sync(
     xfer.nDeltaSent = 0;
     xfer.nGimmeSent = 0;
     xfer.nIGotSent = 0;
-    if( syncFlags & SYNC_VERBOSE ){
-      fossil_print("waiting for server...");
-    }
-    fflush(stdout);
-    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0,
-        MAX_REDIRECTS) ){
-      nErr++;
-      break;
-    }
+
     lastPctDone = -1;
     blob_reset(&send);
     rArrivalTime = db_double(0.0, "SELECT julianday('now')");
@@ -1873,7 +1877,10 @@ int client_sync(
             if( nCycle<2 ){
               g.urlPasswd = 0;
               go = 1;
-              if( g.cgiOutput==0 ) url_prompt_for_password();
+              if( g.cgiOutput==0 ){
+                g.urlFlags |= URL_PROMPT_PW;
+                url_prompt_for_password();
+              }
             }
           }else{
             blob_appendf(&xfer.err, "server says: %s\n", zMsg);

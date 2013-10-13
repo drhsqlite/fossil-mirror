@@ -409,9 +409,9 @@ FOSSIL_TCL_SOURCE = 1
 #### Check if the workaround for the MinGW command line handling needs to
 #    be enabled by default.
 #
-ifndef BROKEN_MINGW_CMDLINE
+ifndef MINGW_IS_32BIT_ONLY
 ifeq (,$(findstring w64-mingw32,$(PREFIX)))
-BROKEN_MINGW_CMDLINE = 1
+MINGW_IS_32BIT_ONLY = 1
 endif
 endif
 
@@ -503,7 +503,7 @@ endif
 endif
 
 # With MinGW command line handling workaround
-ifdef BROKEN_MINGW_CMDLINE
+ifdef MINGW_IS_32BIT_ONLY
 TCC += -DBROKEN_MINGW_CMDLINE=1
 RCC += -DBROKEN_MINGW_CMDLINE=1
 endif
@@ -544,7 +544,7 @@ endif
 LIB = -static
 
 # MinGW: If available, use the Unicode capable runtime startup code.
-ifndef BROKEN_MINGW_CMDLINE
+ifndef MINGW_IS_32BIT_ONLY
 LIB += -municode
 endif
 
@@ -773,6 +773,7 @@ foreach s [lsort $src] {
 
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 set opt $SQLITE_OPTIONS
+append opt " -D_HAVE_SQLITE_CONFIG_H"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 set opt {}

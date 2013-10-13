@@ -104,7 +104,19 @@ accepts and decodes SSL-encrypted connections.  Fossil can be run directly from
 stunnel in a mannar similar to inetd and xinetd.  This can be used to provide
 a secure link to a Fossil project.  The configuration needed to get stunnel4
 to invoke Fossil is very similar to the inetd and xinetd examples shown above.
-See the stunnel4 documentation for details.
+The relevant parts of an stunnel configuration might look something
+like the following:
+<blockquote><pre><nowiki>
+[https]
+accept       = www.ubercool-project.org:443
+TIMEOUTclose = 0
+exec         = /usr/bin/fossil
+execargs     = /usr/bin/fossil http /home/fossil/ubercool.fossil --https
+</nowiki></pre></blockquote>
+See the stunnel4 documentation for further details bout the /etc/stunnel/stunnel.conf
+configuration file.  Note that the [/help/http|fossil http] command should include 
+the --https option to let Fossil know to use "https" instead of "http" as the scheme
+on generated hyperlinks.
 <p>
 Using inetd or xinetd or stunnel is a more complex setup 
 than the "standalone" server, but it has the
@@ -131,12 +143,27 @@ of your web server and having content like this:
 repository: /home/fossil/repo.fossil
 </pre></blockquote>
 </p>
+
 <p>
 As always, adjust your paths appropriately.
 It may be necessary to set permissions properly, or to modify an ".htaccess"
 file or make other server-specific changes.  Consult the documentation
-for your particular web server.
+for your particular web server. In particular, the following permissions are
+<em>normally</em> required (but, again, may be different for a particular
+configuration):
+
+<ul>
+<li>The Fossil binary must be readable/executable, and ALL directories leading up to it
+must be readable by the process which executes the CGI.</li>
+<li>ALL directories leading to the CGI script must also be readable and the CGI
+script itself must be executable for the user under which it will run (which often differs
+from the one running the web server - consult your site's documentation or administrator).</li>
+<li>The repository file AND the directory containing it must be writable by the same account
+which executes the Fossil binary (again, this might differ from the WWW user). The directory
+needs to be writable so that sqlite can write its journal files.</li>
+</ul>
 </p>
+
 <p>
 Once the script is set up correctly, and assuming your server is also set
 correctly, you should be able to access your repository with a URL like:
@@ -145,7 +172,7 @@ accessible under "cgi-bin", which would be a typical deployment on Apache
 for instance).
 </p>
 <p>
-To server multiple repositories from a directory using CGI, use the "directory:"
+To serve multiple repositories from a directory using CGI, use the "directory:"
 tag in the CGI script rather than "repository:".   You might also want to add
 a "notfound:" tag to tell where to redirect if the particular repository requested
 by the URL is not found:
@@ -157,7 +184,7 @@ notfound: http://url-to-go-to-if-repo-not-found/
 </p>
 <p>
 Once deployed, a URL like: <b>http://mydomain.org/cgi-bin/repo/XYZ</b>
-will serve up the repository "/home/fossil/repos/XYX.fossil" (if it exists).
+will serve up the repository "/home/fossil/repos/XYZ.fossil" (if it exists).
 </p>
 </blockquote>
 
