@@ -326,7 +326,7 @@ void ticket_init(void){
 int ticket_change(void){
   const char *zConfig;
   Th_FossilInit(TH_INIT_DEFAULT);
-  zConfig = db_get("ticket-change", "return\n");
+  zConfig = ticket_change_code();
   return Th_Eval(g.interp, 0, zConfig, -1);
 }
 
