@@ -114,6 +114,7 @@ static struct {
 
   { "ticket-table",           CONFIGSET_TKT  },
   { "ticket-common",          CONFIGSET_TKT  },
+  { "ticket-change",          CONFIGSET_TKT  },
   { "ticket-newpage",         CONFIGSET_TKT  },
   { "ticket-viewpage",        CONFIGSET_TKT  },
   { "ticket-editpage",        CONFIGSET_TKT  },

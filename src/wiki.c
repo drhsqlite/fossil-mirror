@@ -296,7 +296,6 @@ static void wiki_put(Blob *pWiki, int parent){
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", nrid);
-  run_common_script();
   manifest_crosslink(nrid, pWiki);
 }
 

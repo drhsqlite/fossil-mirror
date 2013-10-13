@@ -321,6 +321,16 @@ void ticket_init(void){
 }
 
 /*
+** Create the TH1 interpreter and load the "change" code.
+*/
+int ticket_change(void){
+  const char *zConfig;
+  Th_FossilInit(TH_INIT_DEFAULT);
+  zConfig = db_get("ticket-change", "return\n");
+  return Th_Eval(g.interp, 0, zConfig, -1);
+}
+
+/*
 ** Recreate the TICKET and TICKETCHNG tables.
 */
 void ticket_create_table(int separateConnection){
@@ -623,7 +633,7 @@ static int submitTicketCmd(
     ticket_put(&tktchng, zUuid,
                (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
   }
-  return TH_RETURN;
+  return ticket_change();
 }
 
 
