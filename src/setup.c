@@ -17,8 +17,8 @@
 **
 ** Implementation of the Setup page
 */
-#include <assert.h>
 #include "config.h"
+#include <assert.h>
 #include "setup.h"
 
 /*
@@ -1498,7 +1498,7 @@ void setup_modreq(void){
   @ Ticket changes enter the system and are shown locally, but are not
   @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Ticket changes made by
-  @ a user who hwas the Mod-Tkt privilege are never subject to
+  @ a user who has the Mod-Tkt privilege are never subject to
   @ moderation.
   @
   @ <hr />

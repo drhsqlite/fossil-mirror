@@ -504,8 +504,8 @@ endif
 
 # With MinGW command line handling workaround
 ifdef MINGW_IS_32BIT_ONLY
-TCC += -DBROKEN_MINGW_CMDLINE=1 -D_USE_32BIT_TIME_T
-RCC += -DBROKEN_MINGW_CMDLINE=1 -D_USE_32BIT_TIME_T
+TCC += -DBROKEN_MINGW_CMDLINE=1
+RCC += -DBROKEN_MINGW_CMDLINE=1
 endif
 
 # With HTTPS support
@@ -773,6 +773,7 @@ foreach s [lsort $src] {
 
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 set opt $SQLITE_OPTIONS
+append opt " -D_HAVE_SQLITE_CONFIG_H"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 set opt {}

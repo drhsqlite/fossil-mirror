@@ -18,9 +18,9 @@
 **
 ** This file contains code to do formatting of wiki text.
 */
+#include "config.h"
 #include <assert.h>
 #include <ctype.h>
-#include "config.h"
 #include "wiki.h"
 
 /*

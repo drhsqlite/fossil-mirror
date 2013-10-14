@@ -21,9 +21,9 @@
 ** State information is stored in static variables, so this implementation
 ** can only be building up a single GZIP file at a time.
 */
+#include "config.h"
 #include <assert.h>
 #include <zlib.h>
-#include "config.h"
 #include "gzip.h"
 
 /*

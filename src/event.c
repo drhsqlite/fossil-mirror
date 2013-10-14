@@ -23,9 +23,9 @@
 **     Process checkpoints
 **     Announcements
 */
+#include "config.h"
 #include <assert.h>
 #include <ctype.h>
-#include "config.h"
 #include "event.h"
 
 /*

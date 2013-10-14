@@ -17,9 +17,9 @@
 **
 ** This file contains code used to generate tarballs.
 */
+#include "config.h"
 #include <assert.h>
 #include <zlib.h>
-#include "config.h"
 #include "tar.h"
 
 /*
