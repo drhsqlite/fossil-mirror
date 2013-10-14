@@ -827,9 +827,10 @@ static int commonScriptRan = 0;
 ** Run the specified TH1 script, if any, and returns 1 on error.
 */
 int xfer_run_script(const char *zScript, const char *zUuid){
-  int result = 0;
+  int result = TH_ERROR;
   if( !commonScriptRan || !zScript || !(zScript = db_get(zScript, 0))){
-    return 0; /* No script or common script didn't run, return success. */
+    /* No script or common script didn't run, return success. */
+    return TH_OK;
   }
   if( commonScriptRan == 1 ){
     if( zUuid ){
@@ -839,9 +840,7 @@ int xfer_run_script(const char *zScript, const char *zUuid){
         return result;
       }
     }
-    result = Th_Eval(g.interp, 0, zScript, -1) != TH_OK;
-  }else{
-    result = TH_ERROR;
+    result = Th_Eval(g.interp, 0, zScript, -1);
   }
   if( result!=TH_OK ){
     fossil_error(1, "%s", Th_GetResult(g.interp, 0));
