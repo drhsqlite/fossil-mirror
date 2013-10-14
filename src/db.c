@@ -2123,7 +2123,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "encoding-glob",  0,              40, 1, ""                    },
   { "gdiff-command", 0,               40, 0, "gdiff"               },
   { "gmerge-command",0,               40, 0, ""                    },
-  { "http-allow-regexp",0,            40, 0, ""                    },
+  { "th1-uri-regexp",0,               40, 0, ""                    },
   { "http-port",     0,               16, 0, "8080"                },
   { "https-login",   0,                0, 0, "off"                 },
   { "ignore-glob",   0,               40, 1, ""                    },
@@ -2254,10 +2254,6 @@ struct stControlSettings const ctrlSettings[] = {
 **                     Ex: xxdiff "%original" "%baseline" "%merge" -M "%output"
 **                     Ex: meld "%baseline" "%original" "%merge" "%output"
 **
-**    http-allow-regexp Specify which URL's are allowed in http requests for
-**                     commit and ticket hooks. If empty, no http requests
-**                     are allowed whatsoever. Default: "".
-**
 **    http-port        The TCP/IP port number to use by the "server"
 **                     and "ui" commands.  Default: 8080
 **
@@ -2346,6 +2342,10 @@ struct stControlSettings const ctrlSettings[] = {
 **    th1-setup        This is the setup script to be evaluated after creating
 **                     and initializing the TH1 interpreter.  By default, this
 **                     is empty and no extra setup is performed.
+**
+**    th1-uri-regexp   Specify which URI's are allowed in HTTP requests from
+**                     TH1 scripts.  If empty, no HTTP requests are allowed
+**                     whatsoever.  The default is an empty string.
 **
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.

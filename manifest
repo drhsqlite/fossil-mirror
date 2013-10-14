@@ -1,5 +1,5 @@
-C don't\shardcode\sdefault\svalue\sof\s"ticket-change"\scode
-D 2013-10-13T15:19:49.991
+C Rename\sthe\s'http-allow-regexp'\ssetting\sto\s'th1-uri-regexp'.
+D 2013-10-14T04:15:34.904
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -328,7 +328,7 @@ F src/content.c 468d7f73a4b09fe03d16d8477f9fe6a99481bec9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 7e1ace14f143a985071b1d19f1da0dcf1cf17254
+F src/db.c 50f855b0df457c2e4559251d69e1edd0a08dc997
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 64a811126a3b0f99ab8b4f70f3988d7fb42c60cd
@@ -430,7 +430,7 @@ F src/wiki.c d254dff298ad37abd89cda54a60150d6298ff585
 F src/wikiformat.c 8e2399dda22b4f12e3e191c708af0bf2fbe8fa12
 F src/winhttp.c cd90cf700e4916c2226cbc82bafff2de05b1fa6d
 F src/wysiwyg.c 05edd99047b960c4410d6de58eea81385a373323
-F src/xfer.c 500cb34000d4e99f4a4f0ee623a93f80b65efb57
+F src/xfer.c 3fe527672bfa5c302dd3507a621372cc064b157a
 F src/xfersetup.c a60a29861045c2d3cc00ccee8f77a58b27c67d8c
 F src/zip.c 4cf2d7192533380c48f95600c5af5b5b7fd40e19
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 12c53e1cb6f714bc9ec8c3b50379eccf86fe5060
-R e017d48fc5df943bcbfcc69886c3b8c7
-U jan.nijtmans
-Z 0ae4e7c5b51adf319f0c83083394d0fe
+P 0e1f94732c354b9b1cd62db473bd2fe8e81ead72
+R fc4930137e685d4ab8e4f3ff843e7c3c
+U mistachkin
+Z d356fb8f3ea482e710a694b2d9feab23

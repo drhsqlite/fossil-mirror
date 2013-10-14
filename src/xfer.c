@@ -861,7 +861,7 @@ static int httpCmd(
     Th_ErrorMessage(interp, "url must be http:// or https://", 0, 0);
     return TH_ERROR;
   }
-  regexp = db_get("http-allow-regexp", 0);
+  regexp = db_get("th1-uri-regexp", 0);
   if( regexp && regexp[0] ){
     const char * zErr = re_compile(&pRe, regexp, 0);
     if( zErr ){
