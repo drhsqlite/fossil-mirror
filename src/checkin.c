@@ -1810,9 +1810,9 @@ void commit_cmd(void){
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
   if( !dryRunFlag ){
     xfer_run_common_script();
-    if( manifest_crosslink(nvid, &manifest)==0 ){
-      fossil_fatal("%s\n", g.zErrMsg);
-    }
+  }
+  if( manifest_crosslink(nvid, &manifest)==0 ){
+    fossil_fatal("%s\n", g.zErrMsg);
   }
   assert( blob_is_reset(&manifest) );
   content_deltify(vid, nvid, 0);
