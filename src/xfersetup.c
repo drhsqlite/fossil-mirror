@@ -39,9 +39,9 @@ void xfersetup_page(void){
   setup_menu_entry("Push", "xfersetup_push",
     "Specific TH1 code to run after \"push\" transfer requests.");
   setup_menu_entry("Commit", "xfersetup_commit",
-    "The TH1 code run after a commit.");
+    "Specific TH1 code to run after processing a commit.");
   setup_menu_entry("Ticket", "xfersetup_ticket",
-    "The TH1 code run after a ticket change.");
+    "Specific TH1 code to run after processing a ticket change.");
   @ </table>
   style_footer();
 }
