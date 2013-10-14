@@ -1681,7 +1681,7 @@ int manifest_crosslink(int rid, Blob *pContent){
   }
   db_begin_transaction();
   if( p->type==CFTYPE_MANIFEST ){
-    zScript = xfer_commit_code();
+    zScript = "xfer-commit-script";
     zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
@@ -1879,7 +1879,7 @@ int manifest_crosslink(int rid, Blob *pContent){
   if( p->type==CFTYPE_TICKET ){
     char *zTag;
 
-    zScript = xfer_ticket_code();
+    zScript = "xfer-ticket-script";
     zUuid = p->zTicketUuid;
     assert( manifest_crosslink_busy==1 );
     zTag = mprintf("tkt-%s", p->zTicketUuid);
