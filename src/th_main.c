@@ -847,7 +847,7 @@ static int httpCmd(
   int *argl
 ){
   const char *zSep, *zType, *zRegexp, *zParams;
-  Blob header, payload;
+  Blob hdr, payload;
   ReCompiled *pRe = 0;
   UrlData urlData;
 
@@ -891,30 +891,30 @@ static int httpCmd(
     Th_ErrorMessage(interp, transport_errmsg(&urlData), 0, 0);
     return TH_ERROR;
   }
-  blob_zero(&header);
+  blob_zero(&hdr);
   if( strlen(urlData.path)>0 && zParams!=argv[1] ){
     zSep = "";
   }else{
     zSep = "/";
   }
-  blob_appendf(&header, "%s %s%s%s HTTP/1.0\r\n",
+  blob_appendf(&hdr, "%s %s%s%s HTTP/1.0\r\n",
                zType, zSep, urlData.path, zParams ? zParams : "");
   if( urlData.proxyAuth ){
-    blob_appendf(&header, "Proxy-Authorization: %s\r\n", urlData.proxyAuth);
+    blob_appendf(&hdr, "Proxy-Authorization: %s\r\n", urlData.proxyAuth);
   }
   if( urlData.passwd && urlData.user && urlData.passwd[0]=='#' ){
     char *zCredentials = mprintf("%s:%s", urlData.user, &urlData.passwd[1]);
     char *zEncoded = encode64(zCredentials, -1);
-    blob_appendf(&header, "Authorization: Basic %s\r\n", zEncoded);
+    blob_appendf(&hdr, "Authorization: Basic %s\r\n", zEncoded);
     fossil_free(zEncoded);
     fossil_free(zCredentials);
   }
-  blob_appendf(&header, "Host: %s\r\n", urlData.hostname);
-  blob_appendf(&header, "User-Agent: Fossil/" RELEASE_VERSION
-                        " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
-  blob_appendf(&header, "Content-Type: text/plain\r\n");
-  blob_appendf(&header, "Content-Length: %d\r\n\r\n", blob_size(&payload));
-  transport_send(&urlData, &header);
+  blob_appendf(&hdr, "Host: %s\r\n", urlData.hostname);
+  blob_appendf(&hdr, "User-Agent: Fossil/" RELEASE_VERSION
+                     " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
+  blob_appendf(&hdr, "Content-Type: text/plain\r\n");
+  blob_appendf(&hdr, "Content-Length: %d\r\n\r\n", blob_size(&payload));
+  transport_send(&urlData, &hdr);
   transport_send(&urlData, &payload);
   transport_close(&urlData);
   Th_SetResult(interp, 0, 0); /* NOTE: Asynchronous, no results yet. */
