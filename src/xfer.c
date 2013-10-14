@@ -1894,8 +1894,8 @@ int client_sync(
   fossil_print(
      "%s finished with %lld bytes sent, %lld bytes received\n",
      zOpType, nSent, nRcvd);
-  transport_close();
-  transport_global_shutdown();
+  transport_close(GLOBAL_URL());
+  transport_global_shutdown(GLOBAL_URL());
   db_multi_exec("DROP TABLE onremote");
   manifest_crosslink_end();
   content_enable_dephantomize(1);

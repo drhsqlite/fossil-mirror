@@ -116,6 +116,8 @@ struct TclContext {
 /*
 ** All global variables are in this structure.
 */
+#define GLOBAL_URL()      ((UrlData *)(&g.urlIsFile))
+
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
@@ -169,6 +171,10 @@ struct Global {
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
   Blob httpHeader;        /* Complete text of the HTTP request header */
 
+  /*
+  ** NOTE: These members MUST be kept in sync with those in the "UrlData"
+  **       structure defined in "url.c".
+  */
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */
   int urlIsSsh;           /* True if an "ssh:" url */

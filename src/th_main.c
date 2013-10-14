@@ -849,6 +849,7 @@ static int httpCmd(
   const char *zSep, *zType, *zRegexp, *zParams;
   Blob header, payload;
   ReCompiled *pRe = 0;
+  UrlData urlData;
 
   if( argc>1 && fossil_strnicmp(argv[1], "-asynchronous\0", 14) ){
     Th_ErrorMessage(interp,
@@ -867,8 +868,8 @@ static int httpCmd(
     zType = "GET";
   }
   zParams = strrchr(argv[1], '?');
-  url_parse(argv[1], 0);
-  if( g.urlIsSsh || g.urlIsFile ){
+  url_parse_local(argv[1], 0, &urlData);
+  if( urlData.isSsh || urlData.isFile ){
     Th_ErrorMessage(interp, "url must be http:// or https://", 0, 0);
     return TH_ERROR;
   }
@@ -880,43 +881,42 @@ static int httpCmd(
       return TH_ERROR;
     }
   }
-  if( !re_match(pRe, (const unsigned char *)g.urlCanonical, -1) ){
+  if( !re_match(pRe, (const unsigned char *)urlData.canonical, -1) ){
     Th_SetResult(interp, "url not allowed", -1);
     re_free(pRe);
     return TH_ERROR;
   }
   re_free(pRe);
-  if( transport_open() ){
-    Th_ErrorMessage(interp, transport_errmsg(), 0, 0);
+  if( transport_open(&urlData) ){
+    Th_ErrorMessage(interp, transport_errmsg(&urlData), 0, 0);
     return TH_ERROR;
   }
   blob_zero(&header);
-  if( strlen(g.urlPath)>0 && zParams!=argv[1] ){
+  if( strlen(urlData.path)>0 && zParams!=argv[1] ){
     zSep = "";
   }else{
     zSep = "/";
   }
   blob_appendf(&header, "%s %s%s%s HTTP/1.0\r\n",
-               zType, zSep, g.urlPath, zParams ? zParams : "");
-  if( g.urlProxyAuth ){
-    blob_appendf(&header, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
+               zType, zSep, urlData.path, zParams ? zParams : "");
+  if( urlData.proxyAuth ){
+    blob_appendf(&header, "Proxy-Authorization: %s\r\n", urlData.proxyAuth);
   }
-  if( g.urlPasswd && g.urlUser && g.urlPasswd[0]=='#' ){
-    char *zCredentials = mprintf("%s:%s", g.urlUser, &g.urlPasswd[1]);
+  if( urlData.passwd && urlData.user && urlData.passwd[0]=='#' ){
+    char *zCredentials = mprintf("%s:%s", urlData.user, &urlData.passwd[1]);
     char *zEncoded = encode64(zCredentials, -1);
     blob_appendf(&header, "Authorization: Basic %s\r\n", zEncoded);
     fossil_free(zEncoded);
     fossil_free(zCredentials);
   }
-  blob_appendf(&header, "Host: %s\r\n", g.urlHostname);
+  blob_appendf(&header, "Host: %s\r\n", urlData.hostname);
   blob_appendf(&header, "User-Agent: Fossil/" RELEASE_VERSION
                         " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
   blob_appendf(&header, "Content-Type: text/plain\r\n");
   blob_appendf(&header, "Content-Length: %d\r\n\r\n", blob_size(&payload));
-  transport_send(&header);
-  transport_send(&payload);
-  transport_close();
-  g.urlProtocol = 0; /* Make sure the parsed URL is not reused. */
+  transport_send(&urlData, &header);
+  transport_send(&urlData, &payload);
+  transport_close(&urlData);
   Th_SetResult(interp, 0, 0); /* NOTE: Asynchronous, no results yet. */
   return TH_OK;
 }
