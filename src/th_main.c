@@ -832,10 +832,12 @@ static int regexpCmd(
 }
 
 /*
-** TH command:      http -async URL ?PAYLOAD?
+** TH command:      http -asynchronous url ?payload?
 **
-** Do a HTTP request to specified URL. If PAYLOAD is present
-** it will be POST'ed as text/plain, otherwise it's a GET
+** Perform an HTTP or HTTPS request for the specified URL.  If a
+** payload is present, it will be interpreted as text/plain and
+** the POST method will be used; otherwise, the GET method will
+** be used.  Currently, all requests must be asynchronous.
 */
 static int httpCmd(
   Th_Interp *interp,
@@ -844,43 +846,43 @@ static int httpCmd(
   const char **argv,
   int *argl
 ){
-  int i;
-  const char *zSep, *type, *regexp, *params;
-  Blob hdr, payload;
+  const char *zSep, *zType, *zRegexp, *zParams;
+  Blob header, payload;
   ReCompiled *pRe = 0;
 
-  if( (argc>1) && strcmp(argv[1],"-async") ){
-    Th_ErrorMessage(interp, "synchronous http requests not yet implemented", 0, 0);
+  if( argc>1 && fossil_strnicmp(argv[1], "-asynchronous\0", 14) ){
+    Th_ErrorMessage(interp,
+        "synchronous http requests not yet implemented", 0, 0);
     return TH_ERROR;
   }
-  ++argv;
-  --argc;
+  --argc; ++argv; ++argl; /* advance to next argument */
   blob_zero(&payload);
   if( argc!=2 ){
     if( argc != 3 ){
-      return Th_WrongNumArgs(interp, "http -async url ?payload?");
+      return Th_WrongNumArgs(interp, "http -asynchronous url ?payload?");
     }
-    blob_append(&payload, argv[2], -1);
-    type = "POST";
+    blob_append(&payload, argv[2], argl[2]);
+    zType = "POST";
   }else{
-    type = "GET";
+    zType = "GET";
   }
-  params = strrchr(argv[1], '?');
+  zParams = strrchr(argv[1], '?');
   url_parse(argv[1], 0);
   if( g.urlIsSsh || g.urlIsFile ){
     Th_ErrorMessage(interp, "url must be http:// or https://", 0, 0);
     return TH_ERROR;
   }
-  regexp = db_get("th1-uri-regexp", 0);
-  if( regexp && regexp[0] ){
-    const char * zErr = re_compile(&pRe, regexp, 0);
+  zRegexp = db_get("th1-uri-regexp", 0);
+  if( zRegexp && zRegexp[0] ){
+    const char *zErr = re_compile(&pRe, zRegexp, 0);
     if( zErr ){
       Th_SetResult(interp, zErr, -1);
       return TH_ERROR;
     }
   }
-  if (!pRe || !re_match(pRe, (const unsigned char *)argv[1], -1) ){
+  if( !re_match(pRe, (const unsigned char *)g.urlCanonical, -1) ){
     Th_SetResult(interp, "url not allowed", -1);
+    re_free(pRe);
     return TH_ERROR;
   }
   re_free(pRe);
@@ -888,35 +890,34 @@ static int httpCmd(
     Th_ErrorMessage(interp, transport_errmsg(), 0, 0);
     return TH_ERROR;
   }
-  blob_zero(&hdr);
-  i = strlen(g.urlPath);
-  if( (i>0) && (params!=argv[1]) ){
+  blob_zero(&header);
+  if( strlen(g.urlPath)>0 && zParams!=argv[1] ){
     zSep = "";
   }else{
     zSep = "/";
   }
-  blob_appendf(&hdr, "%s %s%s%s HTTP/1.0\r\n", type, zSep, g.urlPath, params?params:"");
+  blob_appendf(&header, "%s %s%s%s HTTP/1.0\r\n",
+               zType, zSep, g.urlPath, zParams ? zParams : "");
   if( g.urlProxyAuth ){
-    blob_appendf(&hdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
+    blob_appendf(&header, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
   }
   if( g.urlPasswd && g.urlUser && g.urlPasswd[0]=='#' ){
     char *zCredentials = mprintf("%s:%s", g.urlUser, &g.urlPasswd[1]);
     char *zEncoded = encode64(zCredentials, -1);
-    blob_appendf(&hdr, "Authorization: Basic %s\r\n", zEncoded);
+    blob_appendf(&header, "Authorization: Basic %s\r\n", zEncoded);
     fossil_free(zEncoded);
     fossil_free(zCredentials);
   }
-  blob_appendf(&hdr, "Host: %s\r\n", g.urlHostname);
-  blob_appendf(&hdr, "User-Agent: Fossil/" RELEASE_VERSION
-                     " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
-  blob_appendf(&hdr, "Content-Type: text/plain\r\n");
-  blob_appendf(&hdr, "Content-Length: %d\r\n\r\n", blob_size(&payload));
-
-  transport_send(&hdr);
+  blob_appendf(&header, "Host: %s\r\n", g.urlHostname);
+  blob_appendf(&header, "User-Agent: Fossil/" RELEASE_VERSION
+                        " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
+  blob_appendf(&header, "Content-Type: text/plain\r\n");
+  blob_appendf(&header, "Content-Length: %d\r\n\r\n", blob_size(&payload));
+  transport_send(&header);
   transport_send(&payload);
   transport_close();
-  g.urlProtocol=0; /* Make sure the url is not re-used. */
-  Th_SetResult(interp, "", -1);
+  g.urlProtocol = 0; /* Make sure the parsed URL is not reused. */
+  Th_SetResult(interp, 0, 0); /* NOTE: Asynchronous, no results yet. */
   return TH_OK;
 }
 
