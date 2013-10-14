@@ -821,44 +821,62 @@ static void server_private_xfer_not_authorized(void){
   @ error not\sauthorized\sto\ssync\sprivate\scontent
 }
 
-static int commonScriptRan = 0;
+/*
+** Return the common TH1 code to evaluate prior to evaluating any other
+** TH1 transfer notification scripts.
+*/
+const char *xfer_common_code(void){
+  return db_get("xfer-common-script", 0);
+}
+
+/*
+** Return the TH1 code to evaluate when a push is processed.
+*/
+const char *xfer_push_code(void){
+  return db_get("xfer-push-script", 0);
+}
+
+/*
+** Return the TH1 code to evaluate when a commit is processed.
+*/
+const char *xfer_commit_code(void){
+  return db_get("xfer-commit-script", 0);
+}
+
+/*
+** Return the TH1 code to evaluate when a ticket change is processed.
+*/
+const char *xfer_ticket_code(void){
+  return db_get("xfer-ticket-script", 0);
+}
 
 /*
 ** Run the specified TH1 script, if any, and returns 1 on error.
 */
-int run_script(const char *zScript, const char *zUuid){
-  int result = 0;
-  if( !commonScriptRan || !zScript || !(zScript = db_get(zScript, 0))){
-    return 0; /* No script or common script didn't run, return success. */
-  }
-  if( commonScriptRan == 1 ){
-    if( zUuid ){
-      Th_SetVar(g.interp, "uuid", -1, zUuid, strlen(zUuid));
+int xfer_run_script(const char *zScript, const char *zUuid){
+  int result;
+  if( !zScript ) return TH_OK;
+  Th_FossilInit(TH_INIT_DEFAULT);
+  if( zUuid ){
+    result = Th_SetVar(g.interp, "uuid", -1, zUuid, -1);
+    if( result!=TH_OK ){
+      fossil_error(1, "%s", Th_GetResult(g.interp, 0));
+      return result;
     }
-    result = Th_Eval(g.interp, 0, zScript, -1) != TH_OK;
-  }else{
-    result = TH_ERROR;
   }
-  if (result) fossil_error(1, "%s", Th_GetResult(g.interp, 0));
+  result = Th_Eval(g.interp, 0, zScript, -1);
+  if( result!=TH_OK ){
+    fossil_error(1, "%s", Th_GetResult(g.interp, 0));
+  }
   return result;
 }
 
 /*
-** Run the pre-transfer TH1 script, if any, and returns the return code.
-** Prepare the "http" command for use in other hook scripts.
+** Runs the pre-transfer TH1 script, if any, and returns its return code.
 */
-int run_common_script(void){
-  int result = 0;
-  if( !commonScriptRan ){
-    Th_FossilInit(TH_INIT_DEFAULT); /* Make sure TH1 is ready. */
-    commonScriptRan = 1; /* enable run_script to do something */
-    result = run_script("xfer-common-script", 0);
-    if( result == TH_ERROR ){
-      /* Error message is left in th interpreter. */
-      commonScriptRan = 2;
-    }
-  }
-  return result;
+int xfer_run_common_script(void){
+  Th_FossilInit(TH_INIT_DEFAULT);
+  return xfer_run_script(xfer_common_code(), 0);
 }
 
 /*
@@ -920,7 +938,7 @@ void page_xfer(void){
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
   manifest_crosslink_begin();
-  if( run_common_script() ){
+  if( xfer_run_common_script()!=TH_OK ){
     cgi_reset_content();
     @ error common\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
     nErr++;
@@ -1247,7 +1265,7 @@ void page_xfer(void){
     blob_reset(&xfer.line);
   }
   if( isPush ){
-    if( run_script("xfer-push-script", 0) ){
+    if( xfer_run_script(xfer_push_code(), 0)!=TH_OK ){
       cgi_reset_content();
       @ error push\sscript\sfailed:\s%F(g.zErrMsg)
       nErr++;

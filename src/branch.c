@@ -155,7 +155,7 @@ void branch_new(void){
     fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
-  run_common_script();
+  xfer_run_common_script();
   if( manifest_crosslink(brid, &branch)==0 ){
     fossil_fatal("%s\n", g.zErrMsg);
   }

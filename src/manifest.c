@@ -1653,11 +1653,11 @@ static int tag_compare(const void *a, const void *b){
 ** file, is a legacy of its original use.
 */
 int manifest_crosslink(int rid, Blob *pContent){
-  int i;
+  int i, result;
   Manifest *p;
   Stmt q;
   int parentid = 0;
-  const char *hook = 0;
+  const char *zScript = 0;
   const char *zUuid = 0;
 
   if( (p = manifest_cache_find(rid))!=0 ){
@@ -1681,7 +1681,7 @@ int manifest_crosslink(int rid, Blob *pContent){
   }
   db_begin_transaction();
   if( p->type==CFTYPE_MANIFEST ){
-    hook = "xfer-commit-script";
+    zScript = xfer_commit_code();
     zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
@@ -1879,7 +1879,7 @@ int manifest_crosslink(int rid, Blob *pContent){
   if( p->type==CFTYPE_TICKET ){
     char *zTag;
 
-    hook = "xfer-ticket-script";
+    zScript = xfer_ticket_code();
     zUuid = p->zTicketUuid;
     assert( manifest_crosslink_busy==1 );
     zTag = mprintf("tkt-%s", p->zTicketUuid);
@@ -2032,14 +2032,14 @@ int manifest_crosslink(int rid, Blob *pContent){
     blob_reset(&comment);
   }
   db_end_transaction(0);
-  i = run_script(hook, zUuid)==0;
+  result = (xfer_run_script(zScript, zUuid)==TH_OK);
   if( p->type==CFTYPE_MANIFEST ){
     manifest_cache_insert(p);
   }else{
     manifest_destroy(p);
   }
   assert( blob_is_reset(pContent) );
-  return i;
+  return result;
 }
 
 /*

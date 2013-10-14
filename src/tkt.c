@@ -536,6 +536,7 @@ static int ticket_put(
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   manifest_crosslink_begin();
+  xfer_run_common_script();
   result = manifest_crosslink(rid, pTicket)==0;
   assert( blob_is_reset(pTicket) );
   manifest_crosslink_end();
@@ -684,8 +685,8 @@ void tktnew_page(void){
   @ </form>
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
   style_footer();
-  run_common_script();
-  run_script("xfer-ticket-script", zNewUuid);
+  xfer_run_common_script();
+  xfer_run_script(xfer_ticket_code(), zNewUuid);
 }
 
 /*
@@ -754,8 +755,8 @@ void tktedit_page(void){
   @ </form>
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
   style_footer();
-  run_common_script();
-  run_script("xfer-ticket-script", zName);
+  xfer_run_common_script();
+  xfer_run_script(xfer_ticket_code(), zName);
 }
 
 /*
@@ -1351,7 +1352,7 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      if( run_common_script() || ticket_put(&tktchng, zTktUuid, 0)){
+      if( ticket_put(&tktchng, zTktUuid, 0) ){
         fossil_fatal("%s\n", g.zErrMsg);
       }else{
         fossil_print("ticket %s succeeded for %s\n",
