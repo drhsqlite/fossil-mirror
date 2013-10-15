@@ -854,9 +854,18 @@ const char *xfer_ticket_code(void){
 ** Run the specified TH1 script, if any, and returns 1 on error.
 */
 int xfer_run_script(const char *zScript, const char *zUuid){
+  static int commonScriptRan = 0;
   int result;
+  if( !commonScriptRan ){
+    Th_FossilInit(TH_INIT_DEFAULT);
+    result = Th_Eval(g.interp, 0, xfer_common_code(), -1);
+    if( result!=TH_OK ){
+      fossil_error(1, "%s", Th_GetResult(g.interp, 0));
+      return result;
+    }
+    commonScriptRan = 1;
+  }
   if( !zScript ) return TH_OK;
-  Th_FossilInit(TH_INIT_DEFAULT);
   if( zUuid ){
     result = Th_SetVar(g.interp, "uuid", -1, zUuid, -1);
     if( result!=TH_OK ){
@@ -869,14 +878,6 @@ int xfer_run_script(const char *zScript, const char *zUuid){
     fossil_error(1, "%s", Th_GetResult(g.interp, 0));
   }
   return result;
-}
-
-/*
-** Runs the pre-transfer TH1 script, if any, and returns its return code.
-*/
-int xfer_run_common_script(void){
-  Th_FossilInit(TH_INIT_DEFAULT);
-  return xfer_run_script(xfer_common_code(), 0);
 }
 
 /*
@@ -938,11 +939,6 @@ void page_xfer(void){
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
   manifest_crosslink_begin();
-  if( xfer_run_common_script()!=TH_OK ){
-    cgi_reset_content();
-    @ error common\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
-    nErr++;
-  }
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
     if( blob_size(&xfer.line)==0 ) continue;

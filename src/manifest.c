@@ -2039,10 +2039,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }
   db_end_transaction(0);
   if( flags & MC_PERMIT_HOOKS ){
-    result = (xfer_run_common_script()==TH_OK);
-    if( result ){
-      result = (xfer_run_script(zScript, zUuid)==TH_OK);
-    }
+    result = (xfer_run_script(zScript, zUuid)==TH_OK);
   }
   if( p->type==CFTYPE_MANIFEST ){
     manifest_cache_insert(p);
