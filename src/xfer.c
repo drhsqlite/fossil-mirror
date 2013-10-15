@@ -917,6 +917,7 @@ void page_xfer(void){
   int size;
   int recvConfig = 0;
   char *zNow;
+  int result;
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -946,6 +947,12 @@ void page_xfer(void){
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
   manifest_crosslink_begin();
+  result = xfer_run_common_script();
+  if( result==TH_ERROR ){
+    cgi_reset_content();
+    @ error common\sscript\sfailed:\s%F(g.zErrMsg)
+    nErr++;
+  }
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
     if( blob_size(&xfer.line)==0 ) continue;
@@ -1268,7 +1275,10 @@ void page_xfer(void){
     blob_reset(&xfer.line);
   }
   if( isPush ){
-    if( xfer_run_script(xfer_push_code(), 0)!=TH_OK ){
+    if (result!=TH_ERROR){
+      result = xfer_run_script(xfer_push_code(), 0);
+    }
+    if( result==TH_ERROR ){
       cgi_reset_content();
       @ error push\sscript\sfailed:\s%F(g.zErrMsg)
       nErr++;

@@ -1659,7 +1659,7 @@ static int tag_compare(const void *a, const void *b){
 ** file, is a legacy of its original use.
 */
 int manifest_crosslink(int rid, Blob *pContent, int flags){
-  int i, result = 1;
+  int i, result = TH_OK;
   Manifest *p;
   Stmt q;
   int parentid = 0;
@@ -2039,9 +2039,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }
   db_end_transaction(0);
   if( flags & MC_PERMIT_HOOKS ){
-    result = (xfer_run_common_script()==TH_OK);
-    if( result ){
-      result = (xfer_run_script(zScript, zUuid)==TH_OK);
+    result = xfer_run_common_script();
+    if( result==TH_OK){
+      result = xfer_run_script(zScript, zUuid);
     }
   }
   if( p->type==CFTYPE_MANIFEST ){
@@ -2050,7 +2050,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     manifest_destroy(p);
   }
   assert( blob_is_reset(pContent) );
-  return result;
+  return (result!=TH_ERROR);
 }
 
 /*
