@@ -1,5 +1,5 @@
-C Bug-fix\sin\sticket\shandling\swhen\stracing\sis\son.\s(discovered\sin\stkt-change-hook\sbranch)
-D 2013-10-15T06:48:51.017
+C If\s_USE_32BIT_TIME_T\sis\salready\sset,\se.g.\sbecause\sSQLite\sprovides\sit\salready,\sdon't\sset\sit\sagain.
+D 2013-10-15T15:02:51.608
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -322,7 +322,7 @@ F src/checkout.c 29bcd4d7dce75cec23e0152aa1e4d18b48b14733
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c c0d5466e13e29da9f6a7b0a1f0aea3842825d9ab
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
-F src/config.h 4f4af52678bcce08e35599cb23ba2b70482667df
+F src/config.h 504767b3402f04020ce02aff008b6215795ff739
 F src/configure.c 7d6cae0993b72526978745b42d6f3febe2383b59
 F src/content.c 468d7f73a4b09fe03d16d8477f9fe6a99481bec9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 93c258250b4ccf6687aeb14b97e3f1819cf822ac
-R 83ee9493caea8dae489b15556ec1dffa
+P 9e940f2e1e67738b0dffe26ef1ed0cdc63980867
+R fec17aee41b6b37a4137fc4d2a51fcea
 U jan.nijtmans
-Z b5f8ad9d66aa92fde66d0695760ebc54
+Z 820dca330692b40cf73b4125fcb338a6

@@ -28,7 +28,7 @@
 #define _LARGEFILE_SOURCE 1
 
 /* Make sure that in Win32 builds, _USE_32BIT_TIME_T is always defined. */
-#if defined(_WIN32) && !defined(_WIN64)
+#if defined(_WIN32) && !defined(_WIN64) && !defined(_USE_32BIT_TIME_T)
 #  define _USE_32BIT_TIME_T
 #endif
 
