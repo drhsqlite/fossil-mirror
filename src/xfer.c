@@ -854,18 +854,9 @@ const char *xfer_ticket_code(void){
 ** Run the specified TH1 script, if any, and returns 1 on error.
 */
 int xfer_run_script(const char *zScript, const char *zUuid){
-  static int commonScriptRan = 0;
   int result;
-  if( !commonScriptRan ){
-    Th_FossilInit(TH_INIT_DEFAULT);
-    result = Th_Eval(g.interp, 0, xfer_common_code(), -1);
-    if( result!=TH_OK ){
-      fossil_error(1, "%s", Th_GetResult(g.interp, 0));
-      return result;
-    }
-    commonScriptRan = 1;
-  }
   if( !zScript ) return TH_OK;
+  Th_FossilInit(TH_INIT_DEFAULT);
   if( zUuid ){
     result = Th_SetVar(g.interp, "uuid", -1, zUuid, -1);
     if( result!=TH_OK ){
@@ -878,6 +869,22 @@ int xfer_run_script(const char *zScript, const char *zUuid){
     fossil_error(1, "%s", Th_GetResult(g.interp, 0));
   }
   return result;
+}
+
+/*
+** Runs the pre-transfer TH1 script, if any, and returns its return code.
+** This script may be run multiple times.  If the script performs actions
+** that cannot be redone, it should use an internal [if] guard similar to
+** the following:
+**
+** if {![info exists common_done]} {
+**   # ... code here
+**   set common_done 1
+** }
+*/
+int xfer_run_common_script(void){
+  Th_FossilInit(TH_INIT_DEFAULT);
+  return xfer_run_script(xfer_common_code(), 0);
 }
 
 /*

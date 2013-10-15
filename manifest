@@ -1,5 +1,5 @@
-C Keep\sin\salphabetical\sorder.
-D 2013-10-15T07:57:22.600
+C Restore\sprevious\simplementation\sof\sthe\scommon\sscript\sfunction.\s\sAdd\sinline\sdocs\sto\sindicate\sits\susage.
+D 2013-10-15T08:24:24.238
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -373,7 +373,7 @@ F src/main.mk f7d0f9802282ed6e022da703643799c4380c946c
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl d24c2ca51653d5d50ae04b8b9bb79886803f9890
-F src/manifest.c 83a24e7fb94d1d42964a1d142885df713a1e099e
+F src/manifest.c 67c057d934860b9403fbd3948bae60ceeae681f1
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c 23a23dc5b447624e49d50436c09f12cb15c1d97b
@@ -430,7 +430,7 @@ F src/wiki.c 71e0e4fb9ad03cebc6bac9bb251cedc4872d69a4
 F src/wikiformat.c 8e2399dda22b4f12e3e191c708af0bf2fbe8fa12
 F src/winhttp.c cd90cf700e4916c2226cbc82bafff2de05b1fa6d
 F src/wysiwyg.c 05edd99047b960c4410d6de58eea81385a373323
-F src/xfer.c e5f6d8c0c73e0f4c6f59eaf0914f8b25aadbe043
+F src/xfer.c 10d6532e20fd86755580c2e1956f3d7601fbeda4
 F src/xfersetup.c 1ce1011ee327a4dd7eb69f1f8d481db7ea4eb7c9
 F src/zip.c 4cf2d7192533380c48f95600c5af5b5b7fd40e19
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 55fe2bb814ae65848ed38a4c1e366d4729113b7f
-R f1390cf40c38f63c803ba1106eb44d62
-U jan.nijtmans
-Z 01664514849d321e62728817fd4e3e5b
+P de7681780dc674263c6b09b5ed50dba56c65a64e
+R 72354c5614d29a5ff066b247bee6dac3
+U mistachkin
+Z 321a7d53e26255897da635063fd4921e
