@@ -1,5 +1,5 @@
-C The\scommon\sxfer\sscript\sshould\sonly\sbe\srun\sonce\sfor\seach\sinterpreter.
-D 2013-10-15T07:45:07.548
+C Keep\sin\salphabetical\sorder.
+D 2013-10-15T07:57:22.600
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -328,7 +328,7 @@ F src/content.c f479d4ce745f206a4db62a98694815956234b89c
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 4c53117cb1d5de0a6252fc2d4ae9c6d701d88225
+F src/db.c 178d62586956b519c29d3d6e43e3ae566c5c9c02
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 64a811126a3b0f99ab8b4f70f3988d7fb42c60cd
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7c24de9cf192df3d22130e121d67717bc2cfb839
-R 2e523491877b55ece19fde1ece806f2f
+P 55fe2bb814ae65848ed38a4c1e366d4729113b7f
+R f1390cf40c38f63c803ba1106eb44d62
 U jan.nijtmans
-Z 91a86adad5312d747c30f849b2940fb6
+Z 01664514849d321e62728817fd4e3e5b

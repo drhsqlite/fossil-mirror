@@ -2123,7 +2123,6 @@ struct stControlSettings const ctrlSettings[] = {
   { "encoding-glob",  0,              40, 1, ""                    },
   { "gdiff-command", 0,               40, 0, "gdiff"               },
   { "gmerge-command",0,               40, 0, ""                    },
-  { "th1-uri-regexp",0,               40, 0, ""                    },
   { "http-port",     0,               16, 0, "8080"                },
   { "https-login",   0,                0, 0, "off"                 },
   { "ignore-glob",   0,               40, 1, ""                    },
@@ -2146,6 +2145,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "tcl-setup",     0,               40, 0, ""                    },
 #endif
   { "th1-setup",     0,               40, 0, ""                    },
+  { "th1-uri-regexp",0,               40, 0, ""                    },
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
   { 0,0,0,0,0 }
