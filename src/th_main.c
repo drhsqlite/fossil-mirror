@@ -881,7 +881,7 @@ static int httpCmd(
       return TH_ERROR;
     }
   }
-  if( !re_match(pRe, (const unsigned char *)urlData.canonical, -1) ){
+  if( !pRe || !re_match(pRe, (const unsigned char *)urlData.canonical, -1) ){
     Th_SetResult(interp, "url not allowed", -1);
     re_free(pRe);
     return TH_ERROR;
