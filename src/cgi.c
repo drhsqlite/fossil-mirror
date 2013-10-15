@@ -1325,8 +1325,8 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   static int nCycles = 0;
   static char *zCmd = 0;
   char *z, *zToken;
-  const char *zType;
-  int i, content_length;
+  const char *zType = 0;
+  int i, content_length = 0;
   char zLine[2000];     /* A single line of input. */
 
   if( zIpAddr ){
