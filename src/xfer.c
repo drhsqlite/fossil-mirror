@@ -1275,13 +1275,13 @@ void page_xfer(void){
     blob_reset(&xfer.line);
   }
   if( isPush ){
-    if (result!=TH_ERROR){
+    if( result==TH_OK ){
       result = xfer_run_script(xfer_push_code(), 0);
-    }
-    if( result==TH_ERROR ){
-      cgi_reset_content();
-      @ error push\sscript\sfailed:\s%F(g.zErrMsg)
-      nErr++;
+      if( result==TH_ERROR ){
+        cgi_reset_content();
+        @ error push\sscript\sfailed:\s%F(g.zErrMsg)
+        nErr++;
+      }
     }
     request_phantoms(&xfer, 500);
   }

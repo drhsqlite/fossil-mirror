@@ -2040,7 +2040,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   db_end_transaction(0);
   if( flags & MC_PERMIT_HOOKS ){
     result = xfer_run_common_script();
-    if( result==TH_OK){
+    if( result==TH_OK ){
       result = xfer_run_script(zScript, zUuid);
     }
   }
@@ -2050,7 +2050,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     manifest_destroy(p);
   }
   assert( blob_is_reset(pContent) );
-  return (result!=TH_ERROR);
+  return ( result!=TH_ERROR );
 }
 
 /*
