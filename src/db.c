@@ -1414,7 +1414,7 @@ void db_initial_setup(
     blob_appendf(&manifest, "Z %b\n", &hash);
     blob_reset(&hash);
     rid = content_put(&manifest);
-    manifest_crosslink(rid, &manifest);
+    manifest_crosslink(rid, &manifest, MC_NONE);
   }
 }
 

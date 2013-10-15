@@ -536,8 +536,7 @@ static int ticket_put(
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   manifest_crosslink_begin();
-  xfer_run_common_script();
-  result = manifest_crosslink(rid, pTicket)==0;
+  result = (manifest_crosslink(rid, pTicket, MC_PERMIT_HOOKS)==0);
   assert( blob_is_reset(pTicket) );
   manifest_crosslink_end();
   return result;
@@ -626,11 +625,12 @@ static int submitTicketCmd(
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
     @ <hr /></font>
     return TH_OK;
-  }else if( g.thTrace ){
-    Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
-             "}<br />\n",
-       blob_str(&tktchng));
   }else{
+    if( g.thTrace ){
+      Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
+               "}<br />\n",
+         blob_str(&tktchng));
+    }
     ticket_put(&tktchng, zUuid,
                (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
   }
@@ -685,7 +685,6 @@ void tktnew_page(void){
   @ </form>
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
   style_footer();
-  xfer_run_common_script();
 }
 
 /*
@@ -754,7 +753,6 @@ void tktedit_page(void){
   @ </form>
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
   style_footer();
-  xfer_run_common_script();
 }
 
 /*
@@ -1350,7 +1348,7 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      if( xfer_run_common_script() || ticket_put(&tktchng, zTktUuid, 0) ){
+      if( ticket_put(&tktchng, zTktUuid, 0) ){
         fossil_fatal("%s\n", g.zErrMsg);
       }else{
         fossil_print("ticket %s succeeded for %s\n",

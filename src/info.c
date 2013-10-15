@@ -2180,8 +2180,7 @@ void ci_edit_page(void){
       db_begin_transaction();
       g.markPrivate = content_is_private(rid);
       nrid = content_put(&ctrl);
-      xfer_run_common_script();
-      manifest_crosslink(nrid, &ctrl);
+      manifest_crosslink(nrid, &ctrl, MC_PERMIT_HOOKS);
       assert( blob_is_reset(&ctrl) );
       db_end_transaction(0);
     }

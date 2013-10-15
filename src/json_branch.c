@@ -293,8 +293,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
     fossil_fatal("Problem committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
-  xfer_run_common_script();
-  if( manifest_crosslink(brid, &branch)==0 ){
+  if( manifest_crosslink(brid, &branch, MC_PERMIT_HOOKS)==0 ){
     fossil_fatal("%s\n", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );

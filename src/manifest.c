@@ -45,6 +45,12 @@
 #define PERM_LNK          2     /*  symlink       */
 
 /*
+** Flags for use with manifest_crosslink().
+*/
+#define MC_NONE           0  /*  default handling           */
+#define MC_PERMIT_HOOKS   1  /*  permit hooks to execute    */
+
+/*
 ** A single F-card within a manifest
 */
 struct ManifestFile { 
@@ -1652,8 +1658,8 @@ static int tag_compare(const void *a, const void *b){
 ** of the routine, "manifest_crosslink", and the name of this source
 ** file, is a legacy of its original use.
 */
-int manifest_crosslink(int rid, Blob *pContent){
-  int i, result;
+int manifest_crosslink(int rid, Blob *pContent, int flags){
+  int i, result = 1;
   Manifest *p;
   Stmt q;
   int parentid = 0;
@@ -1681,7 +1687,7 @@ int manifest_crosslink(int rid, Blob *pContent){
   }
   db_begin_transaction();
   if( p->type==CFTYPE_MANIFEST ){
-    zScript = "xfer-commit-script";
+    zScript = xfer_commit_code();
     zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
@@ -1879,7 +1885,7 @@ int manifest_crosslink(int rid, Blob *pContent){
   if( p->type==CFTYPE_TICKET ){
     char *zTag;
 
-    zScript = "xfer-ticket-script";
+    zScript = xfer_ticket_code();
     zUuid = p->zTicketUuid;
     assert( manifest_crosslink_busy==1 );
     zTag = mprintf("tkt-%s", p->zTicketUuid);
@@ -2032,7 +2038,12 @@ int manifest_crosslink(int rid, Blob *pContent){
     blob_reset(&comment);
   }
   db_end_transaction(0);
-  result = (xfer_run_script(zScript, zUuid)==TH_OK);
+  if( flags & MC_PERMIT_HOOKS ){
+    result = (xfer_run_common_script()==TH_OK);
+    if( result ){
+      result = (xfer_run_script(zScript, zUuid)==TH_OK);
+    }
+  }
   if( p->type==CFTYPE_MANIFEST ){
     manifest_cache_insert(p);
   }else{
@@ -2057,5 +2068,5 @@ void test_crosslink_cmd(void){
   if( g.argc!=3 ) usage("RECORDID");
   rid = name_to_rid(g.argv[2]);
   content_get(rid, &content);
-  manifest_crosslink(rid, &content);
+  manifest_crosslink(rid, &content, MC_NONE);
 }

@@ -851,7 +851,7 @@ static int httpCmd(
   ReCompiled *pRe = 0;
   UrlData urlData;
 
-  if( argc<2 || argl[1]<6 || fossil_strnicmp(argv[1], "-asynchronous", argl[1]) ){
+  if( argc<2 || fossil_strnicmp(argv[1], "-asynchronous", argl[1]) ){
     Th_ErrorMessage(interp,
         "synchronous http requests not yet implemented", 0, 0);
     return TH_ERROR;
