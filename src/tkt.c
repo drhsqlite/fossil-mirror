@@ -623,11 +623,12 @@ static int submitTicketCmd(
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
     @ <hr /></font>
     return TH_OK;
-  }else if( g.thTrace ){
-    Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
-             "}<br />\n",
-       blob_str(&tktchng));
   }else{
+    if( g.thTrace ){
+      Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
+               "}<br />\n",
+         blob_str(&tktchng));
+    }
     ticket_put(&tktchng, zUuid,
                (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
   }
