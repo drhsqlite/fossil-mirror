@@ -33,6 +33,30 @@ void xfersetup_page(void){
   }
 
   style_header("Transfer Setup");
+  url_parse(0, 0);
+  if (g.urlProtocol){
+    const char *zSync;
+
+    if( db_get_boolean("dont-push", 0) ){
+      zSync = "Pull";
+    }else{
+      zSync = "Synchronize";
+    }
+    if( P("sync") ){
+      user_select();
+      url_enable_proxy(0);
+      client_sync(SYNC_PUSH|SYNC_PULL, 0, 0);
+    }
+    @
+    @ <blockquote>
+    @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
+    login_insert_csrf_secret();
+    @ <input type="submit" name="sync" value="%h(zSync)" />
+    @ </div></form>
+    @ </blockquote>
+    @
+  }
+
   @ <table border="0" cellspacing="20">
   setup_menu_entry("Common", "xfersetup_com",
     "Common TH1 code run before all transfer request processing.");

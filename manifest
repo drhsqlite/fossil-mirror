@@ -1,5 +1,5 @@
-C merge\strunk
-D 2013-10-15T06:51:13.721
+C Add\sa\s"Synchronize"\sbutton\sto\sthe\sAdmin->Transfers\spage\s(or\s"Pull"\sif\sthe\s"dont-push"\soption\sis\sset).\s\nRemark:\sI'm\snot\ssure\sif\sdetermining\sthe\suser\swith\suser_select()\sis\scorrect\shere,\sthat's\sthe\stricky\spoint\sto\sget\sright.\s\nIn\scase\sof\s"fossil\sui"\sit\sworks\sfine,\sbut\scould\sbe\simproved\sfor\susefulness\sin\sother\ssituations.
+D 2013-10-15T06:53:49.474
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -431,7 +431,7 @@ F src/wikiformat.c 8e2399dda22b4f12e3e191c708af0bf2fbe8fa12
 F src/winhttp.c cd90cf700e4916c2226cbc82bafff2de05b1fa6d
 F src/wysiwyg.c 05edd99047b960c4410d6de58eea81385a373323
 F src/xfer.c 33d1c2c500f6a5282f034f5a7e6011487362b726
-F src/xfersetup.c d5d3be0f132fbcefd2f69e37870510cd9d62e573
+F src/xfersetup.c 1ce1011ee327a4dd7eb69f1f8d481db7ea4eb7c9
 F src/zip.c 4cf2d7192533380c48f95600c5af5b5b7fd40e19
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
@@ -635,7 +635,8 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6cf28968dbfb948d67034b344a57979cbd6f8268 9e940f2e1e67738b0dffe26ef1ed0cdc63980867
-R 6ce2d2cc94ff8de4e4ee43a71fd43356
+P 837c85bae5fb6148439cf2ad6137a90e89b672e8
+Q +4807e6f0c3710c2d4f2a8a824cf48f6328af9d25
+R cce57a3071314ab02364faec9fa3efc0
 U jan.nijtmans
-Z 99036978b78003dcad80a5fc6c3edf56
+Z 46c79a471d161ca0cac573972f1c970f
