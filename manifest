@@ -1,5 +1,5 @@
-C Make\sthe\sTH1\scommon\sscript\sresult\shandling\smore\sconsistent.\s\sMinor\sstyle\sfixes.
-D 2013-10-15T18:36:35.954
+C A\scontrol\sartifact\swhich\smodifies\san\salready\sexisting\svalid\scheck-in\s(e.g.\smoving\sit\sto\sanother\sbranch),\sshould\sfire\sthe\s(commit)\shook\sfor\sthe\schanged\smanifest.
+D 2013-10-16T09:50:09.351
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -373,7 +373,7 @@ F src/main.mk f7d0f9802282ed6e022da703643799c4380c946c
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl d24c2ca51653d5d50ae04b8b9bb79886803f9890
-F src/manifest.c 7584d0951fd1cd4c7b54550ef8834a0fa7781791
+F src/manifest.c 069bd8dbb5bec7ff6caeb0d8789ded21583f3a9f
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c 23a23dc5b447624e49d50436c09f12cb15c1d97b
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d79eaeb101ecbf5040423b3a8b1c8eeab4fd0a68
-R 65c458aea584bf5b5a1f480303b346fa
-U mistachkin
-Z 24cfa71aacb1ddc3b524cd7240fe78bb
+P 0ffe1b08fa9071c8f7e8a2d9dd8cb4a2798e39b3
+R b52a8173e22038cac8ab8c6a4b90688c
+U jan.nijtmans
+Z d5d85c09747e9eb6a22cddff6240841f

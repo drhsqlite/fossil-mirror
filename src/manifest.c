@@ -1951,7 +1951,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     int i;
     const char *zName;
     const char *zValue;
-    const char *zUuid;
+    const char *zTagUuid;
     int branchMove = 0;
     blob_zero(&comment);
     if( p->zComment ){
@@ -1960,20 +1960,26 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     /* Next loop expects tags to be sorted on UUID, so sort it. */
     qsort(p->aTag, p->nTag, sizeof(p->aTag[0]), tag_compare);
     for(i=0; i<p->nTag; i++){
-      zUuid = p->aTag[i].zUuid;
-      if( !zUuid ) continue;
-      if( i==0 || fossil_strcmp(zUuid, p->aTag[i-1].zUuid)!=0 ){
+      zTagUuid = p->aTag[i].zUuid;
+      if( !zTagUuid ) continue;
+      if( i==0 || fossil_strcmp(zTagUuid, p->aTag[i-1].zUuid)!=0 ){
         blob_appendf(&comment,
            " Edit [%S]:",
-           zUuid);
+           zTagUuid);
         branchMove = 0;
+        if( db_exists("SELECT event.type FROM event, blob"
+            " WHERE event.type='ci' AND event.objid=blob.rid"
+            " AND blob.uuid='%s'", zTagUuid) ){
+          zScript = xfer_commit_code();
+          zUuid = zTagUuid;
+        }
       }
       zName = p->aTag[i].zName;
       zValue = p->aTag[i].zValue;
       if( strcmp(zName, "*branch")==0 ){
         blob_appendf(&comment,
            " Move to branch [/timeline?r=%h&nd&dp=%S | %h].",
-           zValue, zUuid, zValue);
+           zValue, zTagUuid, zValue);
         branchMove = 1;
         continue;
       }else if( strcmp(zName, "*bgcolor")==0 ){
@@ -2038,7 +2044,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     blob_reset(&comment);
   }
   db_end_transaction(0);
-  if( flags & MC_PERMIT_HOOKS ){
+  if( zScript && (flags & MC_PERMIT_HOOKS) ){
     result = xfer_run_common_script();
     if( result==TH_OK ){
       result = xfer_run_script(zScript, zUuid);
