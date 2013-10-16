@@ -1967,7 +1967,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
            " Edit [%S]:",
            zTagUuid);
         branchMove = 0;
-        if( db_exists("SELECT event.type FROM event, blob"
+        if( db_exists("SELECT 1 FROM event, blob"
             " WHERE event.type='ci' AND event.objid=blob.rid"
             " AND blob.uuid='%s'", zTagUuid) ){
           zScript = xfer_commit_code();

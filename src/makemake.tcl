@@ -977,6 +977,9 @@ OX     = .
 O      = .obj
 E      = .exe
 
+# Uncomment to enable debug symbols
+# DEBUG = 1
+
 # Uncomment to enable JSON API
 # FOSSIL_ENABLE_JSON = 1
 
@@ -990,33 +993,40 @@ SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !endif
 
 # zlib options
-ZINCDIR = $(B)\compat\zlib
-ZLIBDIR = $(B)\compat\zlib
-ZLIB    = zlib.lib
+ZINCDIR   = $(B)\compat\zlib
+ZLIBDIR   = $(B)\compat\zlib
+ZLIB      = zlib.lib
 
-INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
+INCL      = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
 
 !ifdef FOSSIL_ENABLE_SSL
-INCL   = $(INCL) -I$(SSLINCDIR)
+INCL      = $(INCL) -I$(SSLINCDIR)
 !endif
 
-CFLAGS = -nologo -MT -O2
-BCC    = $(CC) $(CFLAGS)
-TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(INCL)
-RCC    = rc -D_WIN32 -D_MSC_VER $(MSCDEF) $(INCL)
-LIBS   = $(ZLIB) ws2_32.lib advapi32.lib
-LIBDIR = -LIBPATH:$(ZLIBDIR)
+CFLAGS    = -nologo -MT -O2
+LDFLAGS   = /NODEFAULTLIB:msvcrt
+
+!ifdef DEBUG
+CFLAGS    = $(CFLAGS) -Zi
+LDFLAGS   = $(LDFLAGS) /DEBUG
+!endif
+
+BCC       = $(CC) $(CFLAGS)
+TCC       = $(CC) -c $(CFLAGS) $(MSCDEF) $(INCL)
+RCC       = rc -D_WIN32 -D_MSC_VER $(MSCDEF) $(INCL)
+LIBS      = $(ZLIB) ws2_32.lib advapi32.lib
+LIBDIR    = -LIBPATH:$(ZLIBDIR)
 
 !ifdef FOSSIL_ENABLE_JSON
-TCC = $(TCC) -DFOSSIL_ENABLE_JSON=1
-RCC = $(RCC) -DFOSSIL_ENABLE_JSON=1
+TCC       = $(TCC) -DFOSSIL_ENABLE_JSON=1
+RCC       = $(RCC) -DFOSSIL_ENABLE_JSON=1
 !endif
 
 !ifdef FOSSIL_ENABLE_SSL
-TCC    = $(TCC) -DFOSSIL_ENABLE_SSL=1
-RCC    = $(RCC) -DFOSSIL_ENABLE_SSL=1
-LIBS   = $(LIBS) $(SSLLIB)
-LIBDIR = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
+TCC       = $(TCC) -DFOSSIL_ENABLE_SSL=1
+RCC       = $(RCC) -DFOSSIL_ENABLE_SSL=1
+LIBS      = $(LIBS) $(SSLLIB)
+LIBDIR    = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
 !endif
 }
 regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS
@@ -1055,7 +1065,7 @@ zlib:
 
 $(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
 	cd $(OX) 
-	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
+	link $(LDFLAGS) -OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
 set redir {>}
