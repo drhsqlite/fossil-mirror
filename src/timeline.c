@@ -1476,7 +1476,7 @@ void page_timeline(void){
 ** The input query q selects various records.  Print a human-readable
 ** summary of those records.
 **
-** Limit the number of entries printed to nLine.
+** Limit number of entries printed to N.
 **
 ** The query should return these columns:
 **
@@ -1489,8 +1489,8 @@ void page_timeline(void){
 **    6.  mtime
 **    7.  branch
 */
-void print_timeline(Stmt *q, int mxLine, int verboseFlag){
-  int nLine = 0;
+void print_timeline(Stmt *q, int N, int verboseFlag){
+  int nEntry = 0;
   char zPrevDate[20];
   const char *zCurrentUuid=0;
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
@@ -1502,7 +1502,7 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
     zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
-  while( db_step(q)==SQLITE_ROW && nLine<=mxLine ){
+  while( db_step(q)==SQLITE_ROW && nEntry<N){
     int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
@@ -1518,7 +1518,6 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
     if( memcmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
-      nLine++;
     }
     if( zCom==0 ) zCom = "";
     fossil_print("%.8s ", &zDate[11]);
@@ -1541,8 +1540,9 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*CURRENT* ");
       n += strlen(zPrefix);
     }
+    nEntry++;
     zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
-    nLine += comment_print(zFree, 9, 79);
+    comment_print(zFree, 9, 79);
     sqlite3_free(zFree);
 
     if(verboseFlag){
