@@ -1518,7 +1518,7 @@ void print_timeline(Stmt *q, int N, int verboseFlag){
     if( memcmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
-      if( n<0 ){
+      if( N<0 ){
         --nEntry;
       }
     }
