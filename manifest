@@ -1,5 +1,5 @@
-C Add\skeep-alive\sfor\sunauthenticated\sproxy\stunnels.\sRemove\sport\snumber\sfrom\shost.
-D 2013-10-17T09:31:34.389
+C Include\sUser-Agent\swhen\sconnecting\sto\sproxy\sfor\shttps\stunnels.\sFixed\sa\smisplaced\sEOL.
+D 2013-10-17T10:04:18.386
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -345,7 +345,7 @@ F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c e9f82fa14d0e894ed987a12d7d5a1477ada6115e
 F src/http_socket.c f4b1e573915c33aa02f85b9ee33748efac91f894
-F src/http_ssl.c 93d9aae7e38d1600e8690dde36d40a5efad539af
+F src/http_ssl.c dc9910652617e08a8d3930be136a281e7ed6efdd
 F src/http_transport.c 28003eaeafc7e4fc96dcbc06bd27b8d7412dd0e2
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
 F src/info.c 1eb613abd11b6ab80ddbf3d723b65beb372e3461
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ca82d0c1fa415e8a0c32344cc2280c19bfe45f98
-R f2d029420730db6c74087f064cbde014
+P ca61c5e992a1513e209474bd4b4f9a54d3e3ffe4
+R acddc2d8dab0e9f2c328f0ba238c2bbc
 U jan
-Z 059939bdfb66a7dc60c1468e39728cd0
+Z eb3d3e5151a52ca01f9e93e87d4d6378
