@@ -832,6 +832,16 @@ static NORETURN void malformed_request(const char *zMsg);
 ** Initialize the query parameter database.  Information is pulled from
 ** the QUERY_STRING environment variable (if it exists), from standard
 ** input if there is POST data, and from HTTP_COOKIE.
+**
+** We require parameter SCRIPT_NAME and one of REQUEST_URI or PATH_INFO.
+** These three are related as following:
+**
+**      REQUEST_URI == SCRIPT_NAME + PATH_INFO
+**
+** Where "+" means concatenate.  One of PATH_INFO or REQUEST_URI can
+** be missing and it will be computed from the other two terms.
+**
+** SCGI typically omits PATH_INFO.  CGI sometimes omits REQUEST_URI.
 */
 void cgi_init(void){
   char *z;
@@ -839,15 +849,24 @@ void cgi_init(void){
   int len;
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
   const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
+  const char *zPathInfo = cgi_parameter("PATH_INFO",0);
 
 #ifdef FOSSIL_ENABLE_JSON
   json_main_bootstrap();
 #endif
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
-  if( zRequestUri==0 ) malformed_request("missing REQUEST_URI");
   if( zScriptName==0 ) malformed_request("missing SCRIPT_NAME");
-  if( cgi_parameter("PATH_INFO",0)==0 ){
+  if( zRequestUri==0 ){
+    const char *z = zPathInfo;
+    if( zPathInfo==0 ){
+      malformed_request("missing PATH_INFO and/or REQUEST_URI");
+    }
+    if( z[0]=='/' ) z++;
+    zRequestUri = mprintf("%s/%s", zScriptName, z);
+    cgi_set_parameter("REQUEST_URI", zRequestUri);
+  }
+  if( zPathInfo==0 ){
     int i, j;
     for(i=0; zRequestUri[i]==zScriptName[i] && zRequestUri[i]; i++){}
     for(j=i; zRequestUri[j] && zRequestUri[j]!='?'; j++){}
