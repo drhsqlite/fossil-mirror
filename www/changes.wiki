@@ -3,7 +3,7 @@
 <h2>Changes For Version 1.28 (as yet unreleased)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
   *  When cloning a repository, the user name passed via the URL (if any)
-     is now uses as the default local admin user's name.
+     is now used as the default local admin user's name.
 
 <h2>Changes For Version 1.27 (2013-09-11)</h2>
   *  Enhance the [/help?cmd=changes | fossil changes],
