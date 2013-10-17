@@ -1,5 +1,5 @@
-C Support\sfor\stunneling\shttps\sthrough\shttp\sproxy.
-D 2013-10-07T13:27:10.648
+C Make\sproxy\sconnection\s'keep-alive'\sfor\shttps\stunnel.
+D 2013-10-17T09:07:47.007
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -345,7 +345,7 @@ F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c e9f82fa14d0e894ed987a12d7d5a1477ada6115e
 F src/http_socket.c f4b1e573915c33aa02f85b9ee33748efac91f894
-F src/http_ssl.c e121b650a375e886f27bad8ebcdc2a40ccf39f73
+F src/http_ssl.c aa8d1a0536b78288dbb16b94f2492eb0180bd5b9
 F src/http_transport.c 28003eaeafc7e4fc96dcbc06bd27b8d7412dd0e2
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
 F src/info.c 1eb613abd11b6ab80ddbf3d723b65beb372e3461
@@ -635,10 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ec81aee9156f43f45021592062d70d2829f43703
-R 49a575a94daebe678847c3907484a815
-T *branch * jan-httpsproxytunnel
-T *sym-jan-httpsproxytunnel *
-T -sym-trunk *
+P c039efde8375b1c3c76b922ec03d37e02d362aba
+R d04f17a2bb490c7beadceabdff004489
 U jan
-Z e8159d1050c1e10e1a26ec4443ce331f
+Z 8cd1d73fcb322f57e6b3a9d230673cb5
