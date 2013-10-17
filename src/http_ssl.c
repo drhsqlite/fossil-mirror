@@ -191,7 +191,7 @@ static int establish_proxy_tunnel(BIO *bio){
     connStr = mprintf("CONNECT %s:%d HTTP/1.1\r\n"
           "Host: %s\r\n"
           "Proxy-Connection: keep-alive\r\n"
-          "User-Agent: Fossil/" RELEASE_VERSION "\r\n",
+          "User-Agent: Fossil/" RELEASE_VERSION "\r\n"
           "Proxy-Authorization: %s\r\n\r\n",
           g.urlHostname, g.proxyOrigPort, g.urlHostname, g.urlProxyAuth);
   }
