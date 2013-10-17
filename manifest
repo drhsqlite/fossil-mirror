@@ -1,5 +1,5 @@
-C Increase\sthe\sversion\snumber\sto\s1.28.
-D 2013-10-17T18:12:42.645
+C Enhance\sthe\sCGI\sprocessor\sto\sassume\sthat\sPATH_INFO\sis\san\sempty\sstring\sif\sit\nis\somitted.
+D 2013-10-17T18:36:08.481
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -316,7 +316,7 @@ F src/blob.c 9b834e63fab2e586cc2ac29ba56a38acc989c3ca
 F src/branch.c fad7611e3fe7a3ada5b61819db2698e7326018ec
 F src/browse.c 19e4bdf78ad41dd01c4cf76b41442dbaf86a2588
 F src/captcha.c 2c855a6f943b546b855eabe58f1388d677d5ea73
-F src/cgi.c d3698584a45418e0219eaa464fc2188e60e5f5ff
+F src/cgi.c 6a9589d91c12aa35d7ea6ceb3d2af48e37b3761d
 F src/checkin.c fa923bea9b22a7b53f6ad73ab4235f0c7cea1a96
 F src/checkout.c 29bcd4d7dce75cec23e0152aa1e4d18b48b14733
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d694ef089df511bc179b57b255e9810dabbdec43
-R f554b73affaeff1eb3afa2d4fde494de
+P d8eb5cb7a503ac01fce0d8b5cd7dda12fb32718a
+R 4f0bf38058fde7c03cacb5036a1e522c
 U drh
-Z 39b82654d976c78bf70fb1557acc95e6
+Z fd15e51590e2d2675d58a0dca9d92800
