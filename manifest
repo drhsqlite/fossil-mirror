@@ -1,5 +1,5 @@
-C merge\strunk.\s\nSlightly\ssimpler\sSELECT
-D 2013-10-16T13:39:20.744
+C merge\strunk
+D 2013-10-17T20:22:14.785
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -10,7 +10,7 @@ F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F Makefile.in 04d4b4d0b0481e76d537c1081142d8b7e6b34427
-F VERSION 5fc0479fbc57180ccf8f365cf0d720120b80c4da
+F VERSION e35bcf2ce1473bfa1a2b22ad8442d68f39e543d8
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -316,11 +316,11 @@ F src/blob.c 9b834e63fab2e586cc2ac29ba56a38acc989c3ca
 F src/branch.c 18a789dda16d8d12ff634ec8dd12a7d4da2e023a
 F src/browse.c 19e4bdf78ad41dd01c4cf76b41442dbaf86a2588
 F src/captcha.c 2c855a6f943b546b855eabe58f1388d677d5ea73
-F src/cgi.c a798c0316901e9e43dfcf3ac3a19b64b10bf1950
+F src/cgi.c 6a9589d91c12aa35d7ea6ceb3d2af48e37b3761d
 F src/checkin.c 89d311e99327a32fc692de18895bee0377a897fe
 F src/checkout.c 29bcd4d7dce75cec23e0152aa1e4d18b48b14733
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c c0d5466e13e29da9f6a7b0a1f0aea3842825d9ab
+F src/clone.c b6cf9cc173d60efd3349009585195ec6a925eb9c
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 504767b3402f04020ce02aff008b6215795ff739
 F src/configure.c 9190b7fea211a86714a6b33825a07ac2a9539307
@@ -400,8 +400,8 @@ F src/shell.c 3dfc3461d79db60696941c2e663c55ef6cce4d22
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
 F src/skins.c 33e5775a510a6efc13ab69cbb7f3e2a42d35e00d
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c 9a511da17c0e821853cf3d2cfc2ecc393c3cd578
-F src/sqlite3.h 8b1ac3cd9b84d142168917e658b464d932b0455f
+F src/sqlite3.c 0a54d76566728c2ba96292a49b138e4f69a7c391
+F src/sqlite3.h 713dd84bf4539a72a34997f2e5293c32ed3330e0
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 996d2fc7011c02d117c10be77344cbf470132424
 F src/style.c 631e1145bd064273b494fe5df4774d4caf4f2ede
@@ -554,8 +554,8 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 99d99c3b86f2ba7249070ff0e427a8183b06c692
-F www/changes.wiki f95cf12eff0edb94f7c13b2c48c03da696b6d747
+F www/build.wiki 21532a6f8b04f2e83cf4eaa66002c888c2e76339
+F www/changes.wiki e4880908d67201a4349bc6aa241161dcf2c73b56
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 52861df1e93f5c5b1a36d83a2887cd7b08d985ce 9801449b68431295ebff30d1b565edd59860f263
-R a9381501a3bf077c595430f62e28e29e
+P 900bfb377d62e9f9980b95b30a0bb917a0dafb34 63a84cb66efa6bdb3361616eb17e80b6acf7e040
+R 32b38e07497fc7ee47f8f330da681367
 U jan.nijtmans
-Z e1a1a1e524955cae8cf2ac52b2c423fb
+Z 261dfb62cd363a91489c2489a95601af
