@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.1"
 #define SQLITE_VERSION_NUMBER 3008001
-#define SQLITE_SOURCE_ID      "2013-10-11 13:27:26 03593817ab5abdd4bbaa5e47e2e4745eef025af9"
+#define SQLITE_SOURCE_ID      "2013-10-17 12:57:35 c78be6d786c19073b3a6730dfe3fb1be54f5657a"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1617,27 +1617,27 @@ struct sqlite3_mem_methods {
 ** function must be threadsafe. </dd>
 **
 ** [[SQLITE_CONFIG_URI]] <dt>SQLITE_CONFIG_URI
-** <dd> This option takes a single argument of type int. If non-zero, then
+** <dd>^(This option takes a single argument of type int. If non-zero, then
 ** URI handling is globally enabled. If the parameter is zero, then URI handling
-** is globally disabled. If URI handling is globally enabled, all filenames
+** is globally disabled.)^ ^If URI handling is globally enabled, all filenames
 ** passed to [sqlite3_open()], [sqlite3_open_v2()], [sqlite3_open16()] or
 ** specified as part of [ATTACH] commands are interpreted as URIs, regardless
 ** of whether or not the [SQLITE_OPEN_URI] flag is set when the database
-** connection is opened. If it is globally disabled, filenames are
+** connection is opened. ^If it is globally disabled, filenames are
 ** only interpreted as URIs if the SQLITE_OPEN_URI flag is set when the
-** database connection is opened. By default, URI handling is globally
+** database connection is opened. ^(By default, URI handling is globally
 ** disabled. The default value may be changed by compiling with the
-** [SQLITE_USE_URI] symbol defined.
+** [SQLITE_USE_URI] symbol defined.)^
 **
 ** [[SQLITE_CONFIG_COVERING_INDEX_SCAN]] <dt>SQLITE_CONFIG_COVERING_INDEX_SCAN
-** <dd> This option takes a single integer argument which is interpreted as
+** <dd>^This option takes a single integer argument which is interpreted as
 ** a boolean in order to enable or disable the use of covering indices for
-** full table scans in the query optimizer.  The default setting is determined
+** full table scans in the query optimizer.  ^The default setting is determined
 ** by the [SQLITE_ALLOW_COVERING_INDEX_SCAN] compile-time option, or is "on"
 ** if that compile-time option is omitted.
 ** The ability to disable the use of covering indices for full table scans
 ** is because some incorrectly coded legacy applications might malfunction
-** malfunction when the optimization is enabled.  Providing the ability to
+** when the optimization is enabled.  Providing the ability to
 ** disable the optimization allows the older, buggy application code to work
 ** without change even with newer versions of SQLite.
 **
@@ -1666,16 +1666,16 @@ struct sqlite3_mem_methods {
 **
 ** [[SQLITE_CONFIG_MMAP_SIZE]]
 ** <dt>SQLITE_CONFIG_MMAP_SIZE
-** <dd>SQLITE_CONFIG_MMAP_SIZE takes two 64-bit integer (sqlite3_int64) values
+** <dd>^SQLITE_CONFIG_MMAP_SIZE takes two 64-bit integer (sqlite3_int64) values
 ** that are the default mmap size limit (the default setting for
 ** [PRAGMA mmap_size]) and the maximum allowed mmap size limit.
-** The default setting can be overridden by each database connection using
+** ^The default setting can be overridden by each database connection using
 ** either the [PRAGMA mmap_size] command, or by using the
-** [SQLITE_FCNTL_MMAP_SIZE] file control.  The maximum allowed mmap size
+** [SQLITE_FCNTL_MMAP_SIZE] file control.  ^(The maximum allowed mmap size
 ** cannot be changed at run-time.  Nor may the maximum allowed mmap size
 ** exceed the compile-time maximum mmap size set by the
-** [SQLITE_MAX_MMAP_SIZE] compile-time option.  
-** If either argument to this option is negative, then that argument is
+** [SQLITE_MAX_MMAP_SIZE] compile-time option.)^
+** ^If either argument to this option is negative, then that argument is
 ** changed to its compile-time default.
 ** </dl>
 */

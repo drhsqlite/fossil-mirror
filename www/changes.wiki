@@ -2,7 +2,24 @@
 
 <h2>Changes For Version 1.28 (as yet unreleased)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
-
+  *  When cloning a repository, the user name passed via the URL (if any)
+     is now used as the default local admin user's name.
+  *  Enhance the SSH transport mechanism so that it runs a single instance of
+     the "fossil" executable on the remote side, obviating the need for a shell
+     on the remote side.  Some users may need to add the "?fossil=/path/to/fossil"
+     query parameter to "ssh:" URIs if their fossil binary is not in a standard
+     place.
+  *  Add the "[/help?cmd=blame | fossil blame]" command that works just like
+     "fossil annotate" but uses a different output format that includes the
+     user who made each changes and omits line numbers.
+  *  Add the "Tarball and ZIP-archive Prefix" configuration parameter under
+     Admin/Configuration.
+  *  Fix CGI processing so that it works on web servers that do not
+     supply REQUEST_URI.
+  *  Add options --dirsonly, --emptydirs, and --allckouts to the
+     "[/help?cmd=clean | fossil clean]" command.
+  *  Ten-fold performance improvement in large "fossil blame" or 
+     "fossil annotate" commands.
 
 <h2>Changes For Version 1.27 (2013-09-11)</h2>
   *  Enhance the [/help?cmd=changes | fossil changes],
