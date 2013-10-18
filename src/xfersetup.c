@@ -48,16 +48,16 @@ void xfersetup_page(void){
   url_parse(0, 0);
   if( g.urlProtocol ){
     unsigned syncFlags;
-    const char *zSync;
+    const char *zButton;
     char *zWarning;
 
     if( db_get_boolean("dont-push", 0) ){
       syncFlags = SYNC_PULL;
-      zSync = "Pull";
+      zButton = "Pull";
       zWarning = 0;
     }else{
       syncFlags = SYNC_PUSH | SYNC_PULL;
-      zSync = "Synchronize";
+      zButton = "Synchronize";
       zWarning = mprintf("WARNING: Pushing to \"%s\" is enabled.",
                          g.urlCanonical);
     }
@@ -66,10 +66,11 @@ void xfersetup_page(void){
       url_enable_proxy(0);
       client_sync(syncFlags, 0, 0);
     }
-    @ <p>Press the %h(zSync) button below to synchronize the local repository
-    @ now.  This may be useful when testing the various transfer scripts.</p>
-    @
+    @ <p>Press the %h(zButton) button below to synchronize with the
+    @ "%h(g.urlCanonical)" repository now.  This may be useful when
+    @ testing the various transfer scripts.</p>
     if( zWarning ){
+      @
       @ <big><b>%h(zWarning)</b></big>
       free(zWarning);
     }
@@ -77,7 +78,7 @@ void xfersetup_page(void){
     @ <blockquote>
     @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
     login_insert_csrf_secret();
-    @ <input type="submit" name="sync" value="%h(zSync)" />
+    @ <input type="submit" name="sync" value="%h(zButton)" />
     @ </div></form>
     @ </blockquote>
     @
