@@ -832,13 +832,17 @@ static int regexpCmd(
 }
 
 /*
-** TH command:      http -asynchronous url ?payload?
+** TH command:      http ?-asynchronous? ?--? url ?payload?
 **
 ** Perform an HTTP or HTTPS request for the specified URL.  If a
 ** payload is present, it will be interpreted as text/plain and
 ** the POST method will be used; otherwise, the GET method will
-** be used.  Currently, all requests must be asynchronous.
+** be used.  Upon success, if the -asynchronous option is used, an
+** empty string is returned as the result; otherwise, the response
+** from the server is returned as the result.  Synchronous requests
+** are not currently implemented.
 */
+#define HTTP_WRONGNUMARGS "http ?-asynchronous? ?--? url ?payload?"
 static int httpCmd(
   Th_Interp *interp,
   void *p,
@@ -846,29 +850,24 @@ static int httpCmd(
   const char **argv,
   int *argl
 ){
-  const char *zSep, *zType, *zRegexp, *zParams;
-  Blob hdr, payload;
+  int nArg = 1;
+  int fAsynchronous = 0;
+  const char *zType, *zRegexp;
+  Blob payload;
   ReCompiled *pRe = 0;
   UrlData urlData;
 
-  if( argc<2 || fossil_strnicmp(argv[1], "-asynchronous", argl[1]) ){
-    Th_ErrorMessage(interp,
-        "synchronous http requests not yet implemented", 0, 0);
-    return TH_ERROR;
+  if( argc<2 || argc>5 ){
+    return Th_WrongNumArgs(interp, HTTP_WRONGNUMARGS);
   }
-  --argc; ++argv; ++argl; /* advance to next argument */
-  blob_zero(&payload);
-  if( argc!=2 ){
-    if( argc != 3 ){
-      return Th_WrongNumArgs(interp, "http -asynchronous url ?payload?");
-    }
-    blob_append(&payload, argv[2], argl[2]);
-    zType = "POST";
-  }else{
-    zType = "GET";
+  if( fossil_strnicmp(argv[nArg], "-asynchronous", argl[nArg])==0 ){
+    fAsynchronous = 1; nArg++;
   }
-  zParams = strrchr(argv[1], '?');
-  url_parse_local(argv[1], 0, &urlData);
+  if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
+  if( nArg+1!=argc && nArg+2!=argc ){
+    return Th_WrongNumArgs(interp, REGEXP_WRONGNUMARGS);
+  }
+  url_parse_local(argv[nArg], 0, &urlData);
   if( urlData.isSsh || urlData.isFile ){
     Th_ErrorMessage(interp, "url must be http:// or https://", 0, 0);
     return TH_ERROR;
@@ -887,38 +886,57 @@ static int httpCmd(
     return TH_ERROR;
   }
   re_free(pRe);
-  if( transport_open(&urlData) ){
-    Th_ErrorMessage(interp, transport_errmsg(&urlData), 0, 0);
+  blob_zero(&payload);
+  if( nArg+2==argc ){
+    blob_append(&payload, argv[nArg+1], argl[nArg+1]);
+    zType = "POST";
+  }else{
+    zType = "GET";
+  }
+  if( fAsynchronous ){
+    const char *zSep, *zParams;
+    Blob hdr;
+    zParams = strrchr(argv[nArg], '?');
+    if( strlen(urlData.path)>0 && zParams!=argv[nArg] ){
+      zSep = "";
+    }else{
+      zSep = "/";
+    }
+    blob_zero(&hdr);
+    blob_appendf(&hdr, "%s %s%s%s HTTP/1.0\r\n",
+                 zType, zSep, urlData.path, zParams ? zParams : "");
+    if( urlData.proxyAuth ){
+      blob_appendf(&hdr, "Proxy-Authorization: %s\r\n", urlData.proxyAuth);
+    }
+    if( urlData.passwd && urlData.user && urlData.passwd[0]=='#' ){
+      char *zCredentials = mprintf("%s:%s", urlData.user, &urlData.passwd[1]);
+      char *zEncoded = encode64(zCredentials, -1);
+      blob_appendf(&hdr, "Authorization: Basic %s\r\n", zEncoded);
+      fossil_free(zEncoded);
+      fossil_free(zCredentials);
+    }
+    blob_appendf(&hdr, "Host: %s\r\n", urlData.hostname);
+    blob_appendf(&hdr, "User-Agent: Fossil/" RELEASE_VERSION
+                       " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
+    blob_appendf(&hdr, "Content-Type: text/plain\r\n");
+    blob_appendf(&hdr, "Content-Length: %d\r\n\r\n", blob_size(&payload));
+    if( transport_open(&urlData) ){
+      Th_ErrorMessage(interp, transport_errmsg(&urlData), 0, 0);
+      return TH_ERROR;
+    }
+    transport_send(&urlData, &hdr);
+    transport_send(&urlData, &payload);
+    blob_reset(&hdr);
+    blob_reset(&payload);
+    transport_close(&urlData);
+    Th_SetResult(interp, 0, 0); /* NOTE: Asynchronous, no results. */
+    return TH_OK;
+  }else{
+    blob_reset(&payload);
+    Th_ErrorMessage(interp,
+        "synchronous requests are not yet implemented", 0, 0);
     return TH_ERROR;
   }
-  blob_zero(&hdr);
-  if( strlen(urlData.path)>0 && zParams!=argv[1] ){
-    zSep = "";
-  }else{
-    zSep = "/";
-  }
-  blob_appendf(&hdr, "%s %s%s%s HTTP/1.0\r\n",
-               zType, zSep, urlData.path, zParams ? zParams : "");
-  if( urlData.proxyAuth ){
-    blob_appendf(&hdr, "Proxy-Authorization: %s\r\n", urlData.proxyAuth);
-  }
-  if( urlData.passwd && urlData.user && urlData.passwd[0]=='#' ){
-    char *zCredentials = mprintf("%s:%s", urlData.user, &urlData.passwd[1]);
-    char *zEncoded = encode64(zCredentials, -1);
-    blob_appendf(&hdr, "Authorization: Basic %s\r\n", zEncoded);
-    fossil_free(zEncoded);
-    fossil_free(zCredentials);
-  }
-  blob_appendf(&hdr, "Host: %s\r\n", urlData.hostname);
-  blob_appendf(&hdr, "User-Agent: Fossil/" RELEASE_VERSION
-                     " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
-  blob_appendf(&hdr, "Content-Type: text/plain\r\n");
-  blob_appendf(&hdr, "Content-Length: %d\r\n\r\n", blob_size(&payload));
-  transport_send(&urlData, &hdr);
-  transport_send(&urlData, &payload);
-  transport_close(&urlData);
-  Th_SetResult(interp, 0, 0); /* NOTE: Asynchronous, no results yet. */
-  return TH_OK;
 }
 
 /*
