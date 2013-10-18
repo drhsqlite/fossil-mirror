@@ -1,5 +1,5 @@
-C merge\strunk
-D 2013-10-17T20:22:14.785
+C Make\sthe\snew\sbutton\son\sthe\stransfer\ssetup\spage\suse\sthe\sselected\ssync\sflags.\s\sMove\sthe\sbutton\sto\sthe\sbottom\sof\sthe\scontent\sand\sadd\ssome\sexplanatory\stext\sand\sa\swarning\smessage.
+D 2013-10-18T00:33:27.015
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -431,7 +431,7 @@ F src/wikiformat.c 8e2399dda22b4f12e3e191c708af0bf2fbe8fa12
 F src/winhttp.c cd90cf700e4916c2226cbc82bafff2de05b1fa6d
 F src/wysiwyg.c 05edd99047b960c4410d6de58eea81385a373323
 F src/xfer.c 92354a917d54c94d8e11f22661a8332708fa4ded
-F src/xfersetup.c 1ce1011ee327a4dd7eb69f1f8d481db7ea4eb7c9
+F src/xfersetup.c f63c8409c1216cb834537490cd868055eee7f7cf
 F src/zip.c 4cf2d7192533380c48f95600c5af5b5b7fd40e19
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 900bfb377d62e9f9980b95b30a0bb917a0dafb34 63a84cb66efa6bdb3361616eb17e80b6acf7e040
-R 32b38e07497fc7ee47f8f330da681367
-U jan.nijtmans
-Z 261dfb62cd363a91489c2489a95601af
+P bf45c30d1d2f220a88a9294edef5ce9fee477c4b
+R beddb0483aa57f6f77930d9f7585d552
+U mistachkin
+Z ee0cbce93d0fb5c648ec03663a0ce128

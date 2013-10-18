@@ -33,29 +33,6 @@ void xfersetup_page(void){
   }
 
   style_header("Transfer Setup");
-  url_parse(0, 0);
-  if (g.urlProtocol){
-    const char *zSync;
-
-    if( db_get_boolean("dont-push", 0) ){
-      zSync = "Pull";
-    }else{
-      zSync = "Synchronize";
-    }
-    if( P("sync") ){
-      user_select();
-      url_enable_proxy(0);
-      client_sync(SYNC_PUSH|SYNC_PULL, 0, 0);
-    }
-    @
-    @ <blockquote>
-    @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
-    login_insert_csrf_secret();
-    @ <input type="submit" name="sync" value="%h(zSync)" />
-    @ </div></form>
-    @ </blockquote>
-    @
-  }
 
   @ <table border="0" cellspacing="20">
   setup_menu_entry("Common", "xfersetup_com",
@@ -67,6 +44,45 @@ void xfersetup_page(void){
   setup_menu_entry("Ticket", "xfersetup_ticket",
     "Specific TH1 code to run after processing a ticket change.");
   @ </table>
+
+  url_parse(0, 0);
+  if( g.urlProtocol ){
+    unsigned syncFlags;
+    const char *zSync;
+    char *zWarning;
+
+    if( db_get_boolean("dont-push", 0) ){
+      syncFlags = SYNC_PULL;
+      zSync = "Pull";
+      zWarning = 0;
+    }else{
+      syncFlags = SYNC_PUSH | SYNC_PULL;
+      zSync = "Synchronize";
+      zWarning = mprintf("WARNING: Pushing to \"%s\" is enabled.",
+                         g.urlCanonical);
+    }
+    if( P("sync") ){
+      user_select();
+      url_enable_proxy(0);
+      client_sync(syncFlags, 0, 0);
+    }
+    @ <p>Press the %h(zSync) button below to synchronize the local repository
+    @ now.  This may be useful when testing the various transfer scripts.</p>
+    @
+    if( zWarning ){
+      @ <big><b>%h(zWarning)</b></big>
+      free(zWarning);
+    }
+    @
+    @ <blockquote>
+    @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
+    login_insert_csrf_secret();
+    @ <input type="submit" name="sync" value="%h(zSync)" />
+    @ </div></form>
+    @ </blockquote>
+    @
+  }
+
   style_footer();
 }
 
