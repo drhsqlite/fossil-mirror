@@ -446,7 +446,7 @@ void tag_cmd(void){
         "   AND blob.rid=tagxref.rid",
         g.argv[3]
       );
-      if(nFindLimit>0){
+      if( nFindLimit>0 ){
         blob_appendf(&sql, " LIMIT %d", nFindLimit);
       }
       db_prepare(&q, "%s", blob_str(&sql));
@@ -474,7 +474,7 @@ void tag_cmd(void){
         }
         db_prepare(&q, "%s", blob_str(&sql));
         blob_reset(&sql);
-        print_timeline(&q, 2000, 0);
+        print_timeline(&q, nFindLimit, 0);
         db_finalize(&q);
       }
     }

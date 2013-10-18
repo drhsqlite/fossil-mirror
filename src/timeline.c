@@ -1476,7 +1476,13 @@ void page_timeline(void){
 ** The input query q selects various records.  Print a human-readable
 ** summary of those records.
 **
-** Limit number of entries printed to N.
+** Limit number of lines or entries printed to nLimit.  If nLimit is zero
+** there is no limit.  If nLimit is greater than zero, limit the number of
+** complete entries printed.  If nLimit is less than zero, attempt to limit
+** the number of lines printed (this is basically the legacy behavior).
+** The line limit, if used, is approximate because it is only checked on a
+** per-entry basis.  If verbose mode, the file name details are considered
+** to be part of the entry.
 **
 ** The query should return these columns:
 **
@@ -1489,7 +1495,9 @@ void page_timeline(void){
 **    6.  mtime
 **    7.  branch
 */
-void print_timeline(Stmt *q, int N, int verboseFlag){
+void print_timeline(Stmt *q, int nLimit, int verboseFlag){
+  int nAbsLimit = (nLimit >= 0) ? nLimit : -nLimit;
+  int nLine = 0;
   int nEntry = 0;
   char zPrevDate[20];
   const char *zCurrentUuid=0;
@@ -1502,7 +1510,7 @@ void print_timeline(Stmt *q, int N, int verboseFlag){
     zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
-  while( db_step(q)==SQLITE_ROW && nEntry<N){
+  while( db_step(q)==SQLITE_ROW ){
     int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
@@ -1518,6 +1526,7 @@ void print_timeline(Stmt *q, int N, int verboseFlag){
     if( memcmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
+      nLine++; /* record another line */
     }
     if( zCom==0 ) zCom = "";
     fossil_print("%.8s ", &zDate[11]);
@@ -1540,9 +1549,8 @@ void print_timeline(Stmt *q, int N, int verboseFlag){
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*CURRENT* ");
       n += strlen(zPrefix);
     }
-    nEntry++;
     zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
-    comment_print(zFree, 9, 79);
+    nLine += comment_print(zFree, 9, 79); /* record another X lines */
     sqlite3_free(zFree);
 
     if(verboseFlag){
@@ -1566,13 +1574,23 @@ void print_timeline(Stmt *q, int N, int verboseFlag){
         int isDel = db_column_int(&fchngQuery, 1);
         if( isNew ){
           fossil_print("   ADDED %s\n",zFilename);
+          nLine++; /* record another line */
         }else if( isDel ){
           fossil_print("   DELETED %s\n",zFilename);
+          nLine++; /* record another line */
         }else{
           fossil_print("   EDITED %s\n", zFilename);
+          nLine++; /* record another line */
         }
       }
       db_reset(&fchngQuery);
+    }
+    nEntry++; /* record another complete entry */
+    if( !nAbsLimit ) continue; /* no limit, continue */
+    if( nLimit<0 && nLine>=nAbsLimit ){
+      break; /* line count limit hit, stop. */
+    }else if( nEntry>=nAbsLimit ){
+      break; /* entry count limit hit, stop. */
     }
   }
   if( fchngQueryInit ) db_finalize(&fchngQuery);
@@ -1679,7 +1697,7 @@ void timeline_cmd(void){
   if( zLimit ){
     n = atoi(zLimit);
   }else{
-    n = 20;
+    n = -20;
   }
   if( g.argc>=4 ){
     k = strlen(g.argv[2]);
