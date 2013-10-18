@@ -228,7 +228,7 @@ void all_cmd(void){
     return;
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "changes ignore list ls push pull rebuild sync");
+                 "changes clean extra ignore list ls push pull rebuild sync");
   }
   verify_all_options();
   zFossil = quoteFilename(g.nameOfExe);
