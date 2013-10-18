@@ -138,5 +138,6 @@ To uninstall, just delete the binary.</p>
   TCC += -DSQLITE_WITHOUT_ZONEMALLOC
   TCC += -DWITHOUT_ICONV
   TCC += -Dsocketlen_t=int
-  </pre></blockquote>
+  TCC += -DSQLITE_MAX_MMAP_SIZE=0
+</pre></blockquote>
 </ul>

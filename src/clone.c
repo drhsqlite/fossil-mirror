@@ -133,6 +133,7 @@ void clone_cmd(void){
   zDefaultUser = find_option("admin-user","A",1);
 
   url_parse(g.argv[2], URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
+  if( zDefaultUser==0 && g.urlUser!=0 ) zDefaultUser = g.urlUser;
   if( g.urlIsFile ){
     file_copy(g.urlName, g.argv[3]);
     db_close(1);
