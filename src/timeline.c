@@ -2099,10 +2099,11 @@ static void stats_report_by_month_year(char includeMonth,
   while( SQLITE_ROW == db_step(&query) ){
     const char * zTimeframe = db_column_text(&query, 0);
     const int nCount = db_column_int(&query, 1);
-    const int nSize = nCount
+    int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
       : 1;
     showYearTotal = 0;
+    if(!nSize) nSize = 1;
     if(includeMonth){
       /* For Month/year view, add a separator for each distinct year. */
       if(!*zPrevYear ||
@@ -2233,10 +2234,11 @@ static void stats_report_by_user(){
   while( SQLITE_ROW == db_step(&query) ){
     const char * zUser = db_column_text(&query, 0);
     const int nCount = db_column_int(&query, 1);
-    const int nSize = nCount
+    int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
       : 0;
     if(!nCount) continue /* arguable! Possible? */;
+    else if(!nSize) nSize = 1;
     rowClass = ++nRowNumber % 2;
     nEventTotal += nCount;
     @<tr class='row%d(rowClass)'>
@@ -2349,9 +2351,10 @@ static void stats_report_year_weeks(const char * zUserName){
     while( SQLITE_ROW == db_step(&stWeek) ){
       const char * zWeek = db_column_text(&stWeek,0);
       const int nCount = db_column_int(&stWeek,1);
-      const int nSize = nCount
+      int nSize = nCount
         ? (int)(100 * nCount / nMaxEvents)
         : 0;
+      if(!nSize) nSize = 1;
       total += nCount;
       cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
       cgi_printf("<td><a href='%s/timeline?yw=%t-%s&n=%d&y=%s",
