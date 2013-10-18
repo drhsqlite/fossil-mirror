@@ -60,7 +60,11 @@ static void collect_argument(Blob *pExtra, const char *zArg, const char *zShort)
 static void collect_argument_value(Blob *pExtra, const char *zArg){
   const char *zValue = find_option(zArg, 0, 1);
   if( zValue ){
-    blob_appendf(pExtra, " --%s %s", zArg, zValue);
+    if( zValue[0] ){
+      blob_appendf(pExtra, " --%s %s", zArg, zValue);
+    }else{
+      blob_appendf(pExtra, " --%s \"\"", zArg);
+    }
   }
 }
 
@@ -68,7 +72,7 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 /*
 ** COMMAND: all
 **
-** Usage: %fossil all (changes|ignore|list|ls|pull|push|rebuild|sync)
+** Usage: %fossil all (changes|clean|extra|ignore|list|ls|pull|push|rebuild|sync)
 **
 ** The ~/.fossil file records the location of all repositories for a
 ** user.  This command performs certain operations on all repositories
@@ -80,6 +84,15 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 ** Available operations are:
 **
 **    changes    Shows all local checkouts that have uncommitted changes
+**
+**    clean      Delete all "extra" files in all local checkouts.  Extreme
+**               caution should be exercised with this command because its
+**               effects cannot be undone.  Use of the -dry-run option to
+**               carefully review the local checkouts to be operated upon
+**               and the -whatif option to carefully review the files to
+**               be deleted beforehand is highly recommended.
+**
+**    extra      Shows extra files from all local checkouts
 **
 **    ignore     Arguments are repositories that should be ignored
 **               by subsequent list, pull, push, rebuild, and sync.
@@ -127,7 +140,7 @@ void all_cmd(void){
   }
 
   if( g.argc<3 ){
-    usage("changes|ignore|list|ls|pull|push|rebuild|sync");
+    usage("changes|clean|extra|ignore|list|ls|pull|push|rebuild|sync");
   }
   n = strlen(g.argv[2]);
   db_open_config(1);
@@ -137,6 +150,31 @@ void all_cmd(void){
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;
+  }else if( strncmp(zCmd, "clean", n)==0 ){
+    zCmd = "clean --chdir";
+    collect_argument(&extra, "allckouts",0);
+    collect_argument_value(&extra, "case-sensitive");
+    collect_argument_value(&extra, "clean");
+    collect_argument(&extra, "dirsonly",0);
+    collect_argument(&extra, "dotfiles",0);
+    collect_argument(&extra, "emptydirs",0);
+    collect_argument(&extra, "force","f");
+    collect_argument_value(&extra, "ignore");
+    collect_argument_value(&extra, "keep");
+    collect_argument(&extra, "temp",0);
+    collect_argument(&extra, "verbose","v");
+    collect_argument(&extra, "whatif",0);
+    useCheckouts = 1;
+  }else if( strncmp(zCmd, "extra", n)==0 ){
+    zCmd = "extra --chdir";
+    collect_argument(&extra, "abs-paths",0);
+    collect_argument_value(&extra, "case-sensitive");
+    collect_argument(&extra, "dotfiles",0);
+    collect_argument_value(&extra, "ignore");
+    collect_argument(&extra, "rel-paths",0);
+    useCheckouts = 1;
+    stopOnError = 0;
+    quiet = 1;
   }else if( strncmp(zCmd, "push", n)==0 ){
     zCmd = "push -autourl -R";
     collect_argument(&extra, "verbose","v");

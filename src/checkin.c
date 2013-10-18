@@ -552,6 +552,9 @@ void clean_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
+  if( !dryRunFlag ){
+    dryRunFlag = find_option("whatif",0,0)!=0;
+  }
   allFileFlag = allDirFlag = find_option("force","f",0)!=0;
   dirsOnlyFlag = find_option("dirsonly",0,0)!=0;
   emptyDirsFlag = find_option("emptydirs","d",0)!=0 || dirsOnlyFlag;
