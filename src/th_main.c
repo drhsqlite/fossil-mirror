@@ -922,6 +922,8 @@ static int httpCmd(
     blob_appendf(&hdr, "Content-Length: %d\r\n\r\n", blob_size(&payload));
     if( transport_open(&urlData) ){
       Th_ErrorMessage(interp, transport_errmsg(&urlData), 0, 0);
+      blob_reset(&hdr);
+      blob_reset(&payload);
       return TH_ERROR;
     }
     transport_send(&urlData, &hdr);
@@ -932,9 +934,9 @@ static int httpCmd(
     Th_SetResult(interp, 0, 0); /* NOTE: Asynchronous, no results. */
     return TH_OK;
   }else{
-    blob_reset(&payload);
     Th_ErrorMessage(interp,
         "synchronous requests are not yet implemented", 0, 0);
+    blob_reset(&payload);
     return TH_ERROR;
   }
 }
