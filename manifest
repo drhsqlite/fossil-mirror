@@ -1,5 +1,5 @@
-C cosmetic:\sensure\sthat\s/reports\sgraph\sbars\shave\sa\swidth\sof\sat\sleast\s1,\sto\savoid\sthat\sa\spositive\sevent\scount\shas\san\sempty\sgraph\sbar\sduring\slow-activity\stime\speriods\s(where\sactive\sis\sunder\s1%\sof\sactivity\srelative\sto\sthe\srest\sof\sthe\sreport).
-D 2013-10-18T10:30:56.280
+C Add\sthe\sability\sto\scontrol\sthe\stimeline\sdate\sand\stime\sformat\sfrom\sthe\nAdmin/Timeline\ssetup\smenu.
+D 2013-10-18T11:46:50.150
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -394,7 +394,7 @@ F src/report.c 1e10fba72e19562627c8ec02dc537b5a0e766d85
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c 571fe8e1ef8e00accae77710a50d10517f41741a
 F src/search.c b11073e3b3546f8986d87c5d0cd456eb0478067e
-F src/setup.c e790e4ebbea106ff218f2fc19e127963fe38badb
+F src/setup.c c9af9afaa54114d8e46fc981eab996facd336112
 F src/sha1.c 720c5139d74301e5ec32e7e561c4be4d3c20d5e3
 F src/shell.c 3dfc3461d79db60696941c2e663c55ef6cce4d22
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
@@ -404,7 +404,7 @@ F src/sqlite3.c 0a54d76566728c2ba96292a49b138e4f69a7c391
 F src/sqlite3.h 713dd84bf4539a72a34997f2e5293c32ed3330e0
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 996d2fc7011c02d117c10be77344cbf470132424
-F src/style.c 631e1145bd064273b494fe5df4774d4caf4f2ede
+F src/style.c c8e91b5a1b3029c5e0fc3321d59b442a501e2a19
 F src/sync.c 8525850761d9a084923d28bf540f092a971851ba
 F src/tag.c e559f8284f91556a28035efab1caa20b2864c8f6
 F src/tar.c 7e83fb52d6078d9a6f1269a9642d630a30354e19
@@ -413,7 +413,7 @@ F src/th.h e0461c004ee27605ce65a13ee46d99eb8cb0210a
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 204578f2ec015c13d9e92b3c78bc94b6a61231bc
 F src/th_tcl.c 95fc3c09eebb7ba828248dc0c5407f083c77b0f6
-F src/timeline.c ac8a15a0c1d042305c705e5908261baa5f1a01cf
+F src/timeline.c 57982c32d4c6e36c366a40bbd5988c9b23551c71
 F src/tkt.c 98f85a40ea25293bb0d3048bf5e68b77dfe9480b
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6cc54a7962b29b720cf45fc240d79786aa129fa5
-R e604375cba876fb9963964593c5e44a9
-U stephan
-Z a243f7346f32a79f51570d9f0b44cd56
+P 50c08819fbef9d59822b4cd1adb706371d6b8f8e
+R 356afbbdb32a733c122ed56015a89630
+U drh
+Z 6f08015649d0805687dff7f15fca0e01

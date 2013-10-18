@@ -248,12 +248,14 @@ void www_print_timeline(
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current checkout version */
+  int dateFormat = 0;         /* 0: HH:MM  1: HH:MM:SS  2: YYYY-MM-DD HH:MM */
   
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
   }
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
+  dateFormat = db_get_int("timeline-date-format", 0);
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
     /* style is not moved to css, because this is
@@ -284,7 +286,7 @@ void www_print_timeline(
     const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
-    char zTime[8];
+    char zTime[20];
 
     modPending =  moderation_pending(rid);
     if( tagid ){
@@ -316,14 +318,18 @@ void www_print_timeline(
       continue;
     }
     prevWasDivider = 0;
-    if( memcmp(zDate, zPrevDate, 10) ){
-      sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
-      @ <tr><td>
-      @   <div class="divider timelineDate">%s(zPrevDate)</div>
-      @ </td><td></td><td></td></tr>
+    if( dateFormat<2 ){
+      if( memcmp(zDate, zPrevDate, 10) ){
+        sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
+        @ <tr><td>
+        @   <div class="divider timelineDate">%s(zPrevDate)</div>
+        @ </td><td></td><td></td></tr>
+      }
+      memcpy(zTime, &zDate[11], 5+dateFormat*3);
+      zTime[5+dateFormat*3] = 0;
+    }else{
+      sqlite3_snprintf(sizeof(zTime), zTime, "%.16s", zDate);
     }
-    memcpy(zTime, &zDate[11], 5);
-    zTime[5] = 0;
     if( rid == vid ){
       @ <tr class="timelineCurrent">
     }else {

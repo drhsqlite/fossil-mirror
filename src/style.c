@@ -688,6 +688,7 @@ const struct strctCssDefaults {
     "the format for the timeline time display",
     @   vertical-align: top;
     @   text-align: right;
+    @   white-space: nowrap;
   },
   { "td.timelineGraph",
     "the format for the grap placeholder cells in timelines",
