@@ -191,8 +191,8 @@ void search_cmd(void){
                                                      off the end of the
                                                      results. */
   char const * zLimit = find_option("limit","n",1);
-  int const nLimit = zLimit ? atoi(zLimit) : 0; /* Max number of entries
-                                                    to list */
+  int const nLimit = zLimit ? atoi(zLimit) : 0; /* Max number of matching
+                                                   lines/entries to list */
 
   db_must_be_within_tree();
   if( g.argc<2 ) return;
