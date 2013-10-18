@@ -43,6 +43,13 @@
 #define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
 #define CONFIGSET_OLDFORMAT 0x200000     /* Use the legacy format */
 
+/*
+** This mask is used for the common TH1 configuration settings (i.e. those
+** that are not specific to one particular subsystem, such as the transfer
+** subsystem).
+*/
+#define CONFIGSET_TH1       (CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER)
+
 #endif /* INTERFACE */
 
 /*
@@ -92,11 +99,12 @@ static struct {
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
-  { "th1-setup",              CONFIGSET_ALL },
+  { "th1-setup",              CONFIGSET_TH1 },
+  { "th1-uri-regexp",         CONFIGSET_TH1 },
 
 #ifdef FOSSIL_ENABLE_TCL
-  { "tcl",                    CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
-  { "tcl-setup",              CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
+  { "tcl",                    CONFIGSET_TH1 },
+  { "tcl-setup",              CONFIGSET_TH1 },
 #endif
 
   { "project-name",           CONFIGSET_PROJ },
