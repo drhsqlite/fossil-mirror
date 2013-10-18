@@ -248,7 +248,9 @@ void www_print_timeline(
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current checkout version */
-  int dateFormat = 0;         /* 0: HH:MM  1: HH:MM:SS  2: YYYY-MM-DD HH:MM */
+  int dateFormat = 0;         /* 0: HH:MM  1: HH:MM:SS 
+                                 2: YYYY-MM-DD HH:MM
+                                 3: YYMMDD HH:MM */
   
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
@@ -327,7 +329,19 @@ void www_print_timeline(
       }
       memcpy(zTime, &zDate[11], 5+dateFormat*3);
       zTime[5+dateFormat*3] = 0;
+    }else if(3==dateFormat){
+      /* YYMMDD HH:MM */
+      int pos = 0;
+      zTime[pos++] = zDate[2]; zTime[pos++] = zDate[3]; /* YY */
+      zTime[pos++] = zDate[5]; zTime[pos++] = zDate[6]; /* MM */
+      zTime[pos++] = zDate[8]; zTime[pos++] = zDate[9]; /* DD */
+      zTime[pos++] = ' ';
+      zTime[pos++] = zDate[11]; zTime[pos++] = zDate[12]; /* HH */
+      zTime[pos++] = ':';
+      zTime[pos++] = zDate[14]; zTime[pos++] = zDate[15]; /* MM */
+      zTime[pos++] = 0;
     }else{
+      /* YYYY-MM-DD HH:MM */
       sqlite3_snprintf(sizeof(zTime), zTime, "%.16s", zDate);
     }
     if( rid == vid ){

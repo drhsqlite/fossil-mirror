@@ -1156,7 +1156,8 @@ void setup_timeline(void){
   static const char *azTimeFormats[] = {
       "0", "HH:MM",
       "1", "HH:MM:SS",
-      "2", "YYYY-MM-DD HH:MM"
+      "2", "YYYY-MM-DD HH:MM",
+      "3", "YYMMDD HH:MM"
   };
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -1203,11 +1204,11 @@ void setup_timeline(void){
 
   @ <hr />
   multiple_choice_attribute("Per-Item Time Format", "timeline-date-format", "tdf", "0",
-                            3, azTimeFormats);
+                            4, azTimeFormats);
   @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
   @ in a separate box (using CSS class "timelineDate") whenever the date changes.
-  @ With the "YYYY-MM-DD&nbsp;HH:MM" format, the complete date and time is shown on
-  @ every timeline entry (using the CSS class "timelineTime").</p>
+  @ With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats, the complete date
+  @ and time is shown on every timeline entry (using the CSS class "timelineTime").</p>
 
   @ <hr />
   onoff_attribute("Show version differences by default",
