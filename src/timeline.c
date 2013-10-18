@@ -248,12 +248,16 @@ void www_print_timeline(
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current checkout version */
+  int dateFormat = 0;         /* 0: HH:MM  1: HH:MM:SS 
+                                 2: YYYY-MM-DD HH:MM
+                                 3: YYMMDD HH:MM */
   
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
   }
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
+  dateFormat = db_get_int("timeline-date-format", 0);
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
     /* style is not moved to css, because this is
@@ -284,7 +288,7 @@ void www_print_timeline(
     const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
-    char zTime[8];
+    char zTime[20];
 
     modPending =  moderation_pending(rid);
     if( tagid ){
@@ -316,14 +320,30 @@ void www_print_timeline(
       continue;
     }
     prevWasDivider = 0;
-    if( memcmp(zDate, zPrevDate, 10) ){
-      sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
-      @ <tr><td>
-      @   <div class="divider">%s(zPrevDate)</div>
-      @ </td><td></td><td></td></tr>
+    if( dateFormat<2 ){
+      if( memcmp(zDate, zPrevDate, 10) ){
+        sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
+        @ <tr><td>
+        @   <div class="divider timelineDate">%s(zPrevDate)</div>
+        @ </td><td></td><td></td></tr>
+      }
+      memcpy(zTime, &zDate[11], 5+dateFormat*3);
+      zTime[5+dateFormat*3] = 0;
+    }else if(3==dateFormat){
+      /* YYMMDD HH:MM */
+      int pos = 0;
+      zTime[pos++] = zDate[2]; zTime[pos++] = zDate[3]; /* YY */
+      zTime[pos++] = zDate[5]; zTime[pos++] = zDate[6]; /* MM */
+      zTime[pos++] = zDate[8]; zTime[pos++] = zDate[9]; /* DD */
+      zTime[pos++] = ' ';
+      zTime[pos++] = zDate[11]; zTime[pos++] = zDate[12]; /* HH */
+      zTime[pos++] = ':';
+      zTime[pos++] = zDate[14]; zTime[pos++] = zDate[15]; /* MM */
+      zTime[pos++] = 0;
+    }else{
+      /* YYYY-MM-DD HH:MM */
+      sqlite3_snprintf(sizeof(zTime), zTime, "%.16s", zDate);
     }
-    memcpy(zTime, &zDate[11], 5);
-    zTime[5] = 0;
     if( rid == vid ){
       @ <tr class="timelineCurrent">
     }else {
@@ -2117,10 +2137,11 @@ static void stats_report_by_month_year(char includeMonth,
   while( SQLITE_ROW == db_step(&query) ){
     const char * zTimeframe = db_column_text(&query, 0);
     const int nCount = db_column_int(&query, 1);
-    const int nSize = nCount
+    int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
       : 1;
     showYearTotal = 0;
+    if(!nSize) nSize = 1;
     if(includeMonth){
       /* For Month/year view, add a separator for each distinct year. */
       if(!*zPrevYear ||
@@ -2251,10 +2272,11 @@ static void stats_report_by_user(){
   while( SQLITE_ROW == db_step(&query) ){
     const char * zUser = db_column_text(&query, 0);
     const int nCount = db_column_int(&query, 1);
-    const int nSize = nCount
+    int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
       : 0;
     if(!nCount) continue /* arguable! Possible? */;
+    else if(!nSize) nSize = 1;
     rowClass = ++nRowNumber % 2;
     nEventTotal += nCount;
     @<tr class='row%d(rowClass)'>
@@ -2367,9 +2389,10 @@ static void stats_report_year_weeks(const char * zUserName){
     while( SQLITE_ROW == db_step(&stWeek) ){
       const char * zWeek = db_column_text(&stWeek,0);
       const int nCount = db_column_int(&stWeek,1);
-      const int nSize = nCount
+      int nSize = nCount
         ? (int)(100 * nCount / nMaxEvents)
         : 0;
+      if(!nSize) nSize = 1;
       total += nCount;
       cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
       cgi_printf("<td><a href='%s/timeline?yw=%t-%s&n=%d&y=%s",
