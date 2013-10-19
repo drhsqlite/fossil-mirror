@@ -81,7 +81,7 @@ information about the project.
 
 A particular version of a particular file is called an "artifact".
 Each artifact has a universally unique name which is the
-<a href="http://en.wikipedia.org/wiki/SHA">SHA1</a> hash of the content
+<a href="http://en.wikipedia.org/wiki/SHA1">SHA1</a> hash of the content
 of that file expressed as 40 characters of lower-case hexadecimal.  Such
 a hash is referred to as the Artifact Identifier or Artifact ID
 for the artifact.  The SHA1 algorithm is created with the purpose of
