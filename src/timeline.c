@@ -591,6 +591,7 @@ void timeline_output_graph_javascript(
     GraphRow *pRow;
     int i;
     char cSep;
+    
     @ <script  type="text/JavaScript">
     @ /* <![CDATA[ */
     @ var railPitch=%d(pGraph->iRailPitch);
@@ -852,7 +853,11 @@ void timeline_output_graph_javascript(
     if( fileDiff ){
       @     location.href="%R/fdiff?v1="+selRow.h+"&v2="+p.h+"&sbs=1";
     }else{
-      @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=1";
+      if( db_get_boolean("show-version-diffs", 0) == 0 ){
+        @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=0";
+      }else{
+        @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=1";
+      }
     }
     @   }
     @ }
