@@ -1776,6 +1776,12 @@ void timeline_cmd(void){
     blob_appendf(&sql, " AND event.type=%Q ", zType);
   }
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
+  if(n>0){
+    blob_appendf(&sql, " LIMIT %d", n);
+    n = 9999999;
+  }else{
+    n = -n;
+  }
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
   print_timeline(&q, n, verboseFlag);
