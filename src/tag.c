@@ -391,7 +391,7 @@ void tag_cmd(void){
   int fPropagate = find_option("propagate","",0)!=0;
   const char *zPrefix = fRaw ? "" : "sym-";
   char const * zFindLimit = find_option("limit","n",1);
-  int const nFindLimit = zFindLimit ? atoi(zFindLimit) : 0;
+  int const nFindLimit = zFindLimit ? atoi(zFindLimit) : -20;
 
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
@@ -474,7 +474,7 @@ void tag_cmd(void){
         }
         db_prepare(&q, "%s", blob_str(&sql));
         blob_reset(&sql);
-        print_timeline(&q, 2000, 0);
+        print_timeline(&q, nFindLimit<0?-nFindLimit:0, 0);
         db_finalize(&q);
       }
     }
