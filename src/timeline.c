@@ -1594,14 +1594,12 @@ void print_timeline(Stmt *q, int nLimit, int verboseFlag){
         int isDel = db_column_int(&fchngQuery, 1);
         if( isNew ){
           fossil_print("   ADDED %s\n",zFilename);
-          nLine++; /* record another line */
         }else if( isDel ){
           fossil_print("   DELETED %s\n",zFilename);
-          nLine++; /* record another line */
         }else{
           fossil_print("   EDITED %s\n", zFilename);
-          nLine++; /* record another line */
         }
+        nLine++; /* record another line */
       }
       db_reset(&fchngQuery);
     }
