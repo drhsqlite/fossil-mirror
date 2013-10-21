@@ -176,27 +176,24 @@ void ssl_close(void){
   }
 }
 
+/* See RFC2817 for details */
 static int establish_proxy_tunnel(BIO *bio){
   int rc, httpVerMin;
-  char *connStr, *bbuf;
-  Blob reply;
+  char *bbuf;
+  Blob snd, reply;
   int done=0,end=0;
-  if( !g.urlProxyAuth ){
-    connStr = mprintf("CONNECT %s:%d HTTP/1.1\r\n"
-          "Host: %s\r\n"
-          "Proxy-Connection: keep-alive\r\n",
-          "User-Agent: Fossil/" RELEASE_VERSION "\r\n\r\n",
-          g.urlHostname, g.proxyOrigPort, g.urlHostname);
-  }else{
-    connStr = mprintf("CONNECT %s:%d HTTP/1.1\r\n"
-          "Host: %s\r\n"
-          "Proxy-Connection: keep-alive\r\n"
-          "User-Agent: Fossil/" RELEASE_VERSION "\r\n"
-          "Proxy-Authorization: %s\r\n\r\n",
-          g.urlHostname, g.proxyOrigPort, g.urlHostname, g.urlProxyAuth);
+  blob_zero(&snd);
+  blob_appendf(&snd, "CONNECT %s:%d HTTP/1.1\r\n", g.urlHostname,
+      g.proxyOrigPort);
+  blob_appendf(&snd, "Host: %s:%d\r\n", g.urlHostname, g.proxyOrigPort);
+  if( g.urlProxyAuth ){
+    blob_appendf(&snd, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
   }
-  BIO_write(bio, connStr, strlen(connStr));
-  free(connStr);
+  blob_append(&snd, "Proxy-Connection: keep-alive\r\n", -1);
+  blob_append(&snd, "User-Agent: Fossil/" RELEASE_VERSION "\r\n", -1);
+  blob_append(&snd, "\r\n", 2);
+  BIO_write(bio, blob_buffer(&snd), blob_size(&snd));
+  blob_reset(&snd);
 
   /* Wait for end of reply */
   blob_zero(&reply);
