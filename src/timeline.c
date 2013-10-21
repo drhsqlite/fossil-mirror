@@ -1496,9 +1496,9 @@ void page_timeline(void){
 ** The input query q selects various records.  Print a human-readable
 ** summary of those records.
 **
-** Limit the number of lines printed to nLine.  If nLimit is negative
-** there is no limit.  The line limit is approximate because it is
-** only checked on a per-entry basis.  In verbose mode, the file
+** Limit the number of lines printed to mxLine.  If mxLine is zero or
+** negative there is no limit.  The line limit is approximate because
+** it is only checked on a per-entry basis.  In verbose mode, the file
 ** name details are considered to be part of the entry.
 **
 ** The query should return these columns:
@@ -1525,10 +1525,7 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
     zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
-  if( mxLine<0 ){
-    mxLine = (int)(((unsigned int)-1)>>1);
-  }
-  while( db_step(q)==SQLITE_ROW && nLine<=mxLine ){
+  while( db_step(q)==SQLITE_ROW && (mxLine<=0 || nLine<=mxLine) ){
     int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
