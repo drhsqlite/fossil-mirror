@@ -19,8 +19,8 @@
 ** defeated by a sophisticated attacker, this CAPTCHA does at least make
 ** scripting attacks more difficult.
 */
-#include <assert.h>
 #include "config.h"
+#include <assert.h>
 #include "captcha.h"
 
 #if INTERFACE

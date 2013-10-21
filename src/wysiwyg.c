@@ -18,9 +18,9 @@
 ** This file contains code that generates WYSIWYG text editors on
 ** web pages.
 */
+#include "config.h"
 #include <assert.h>
 #include <ctype.h>
-#include "config.h"
 #include "wysiwyg.h"
 
 

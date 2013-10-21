@@ -18,8 +18,8 @@
 ** This file contains code to implement the stat web page
 **
 */
-#include <string.h>
 #include "config.h"
+#include <string.h>
 #include "stat.h"
 
 /*

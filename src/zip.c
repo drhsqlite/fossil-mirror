@@ -17,9 +17,9 @@
 **
 ** This file contains code used to generate ZIP archives.
 */
+#include "config.h"
 #include <assert.h>
 #include <zlib.h>
-#include "config.h"
 #include "zip.h"
 
 /*

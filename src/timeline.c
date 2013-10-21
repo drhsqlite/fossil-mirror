@@ -18,9 +18,9 @@
 ** This file contains code to implement the timeline web page
 **
 */
+#include "config.h"
 #include <string.h>
 #include <time.h>
-#include "config.h"
 #include "timeline.h"
 
 /*
@@ -248,12 +248,16 @@ void www_print_timeline(
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current checkout version */
+  int dateFormat = 0;         /* 0: HH:MM  1: HH:MM:SS 
+                                 2: YYYY-MM-DD HH:MM
+                                 3: YYMMDD HH:MM */
   
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
   }
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
+  dateFormat = db_get_int("timeline-date-format", 0);
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
     /* style is not moved to css, because this is
@@ -284,7 +288,7 @@ void www_print_timeline(
     const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
-    char zTime[8];
+    char zTime[20];
 
     modPending =  moderation_pending(rid);
     if( tagid ){
@@ -316,14 +320,30 @@ void www_print_timeline(
       continue;
     }
     prevWasDivider = 0;
-    if( memcmp(zDate, zPrevDate, 10) ){
-      sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
-      @ <tr><td>
-      @   <div class="divider">%s(zPrevDate)</div>
-      @ </td><td></td><td></td></tr>
+    if( dateFormat<2 ){
+      if( memcmp(zDate, zPrevDate, 10) ){
+        sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
+        @ <tr><td>
+        @   <div class="divider timelineDate">%s(zPrevDate)</div>
+        @ </td><td></td><td></td></tr>
+      }
+      memcpy(zTime, &zDate[11], 5+dateFormat*3);
+      zTime[5+dateFormat*3] = 0;
+    }else if(3==dateFormat){
+      /* YYMMDD HH:MM */
+      int pos = 0;
+      zTime[pos++] = zDate[2]; zTime[pos++] = zDate[3]; /* YY */
+      zTime[pos++] = zDate[5]; zTime[pos++] = zDate[6]; /* MM */
+      zTime[pos++] = zDate[8]; zTime[pos++] = zDate[9]; /* DD */
+      zTime[pos++] = ' ';
+      zTime[pos++] = zDate[11]; zTime[pos++] = zDate[12]; /* HH */
+      zTime[pos++] = ':';
+      zTime[pos++] = zDate[14]; zTime[pos++] = zDate[15]; /* MM */
+      zTime[pos++] = 0;
+    }else{
+      /* YYYY-MM-DD HH:MM */
+      sqlite3_snprintf(sizeof(zTime), zTime, "%.16s", zDate);
     }
-    memcpy(zTime, &zDate[11], 5);
-    zTime[5] = 0;
     if( rid == vid ){
       @ <tr class="timelineCurrent">
     }else {
@@ -1476,7 +1496,10 @@ void page_timeline(void){
 ** The input query q selects various records.  Print a human-readable
 ** summary of those records.
 **
-** Limit the number of entries printed to nLine.
+** Limit the number of lines printed to mxLine.  If mxLine is zero or
+** negative there is no limit.  The line limit is approximate because
+** it is only checked on a per-entry basis.  In verbose mode, the file
+** name details are considered to be part of the entry.
 **
 ** The query should return these columns:
 **
@@ -1502,7 +1525,7 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
     zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
-  while( db_step(q)==SQLITE_ROW && nLine<=mxLine ){
+  while( db_step(q)==SQLITE_ROW && (mxLine<=0 || nLine<=mxLine) ){
     int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
@@ -1518,7 +1541,7 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
     if( memcmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
-      nLine++;
+      nLine++; /* record another line */
     }
     if( zCom==0 ) zCom = "";
     fossil_print("%.8s ", &zDate[11]);
@@ -1542,7 +1565,7 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
       n += strlen(zPrefix);
     }
     zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
-    nLine += comment_print(zFree, 9, 79);
+    nLine += comment_print(zFree, 9, 79); /* record another X lines */
     sqlite3_free(zFree);
 
     if(verboseFlag){
@@ -1571,6 +1594,7 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
         }else{
           fossil_print("   EDITED %s\n", zFilename);
         }
+        nLine++; /* record another line */
       }
       db_reset(&fchngQuery);
     }
@@ -1853,6 +1877,150 @@ void test_timewarp_page(void){
   style_footer();
 }
 
+
+/*
+** Used by stats_report_xxxxx() to remember which type of events
+** to show. Populated by stats_report_init_view() and holds the
+** return value of that function.
+*/
+static int statsReportType = 0;
+
+/*
+** Set by stats_report_init_view() to one of the y=XXXX values
+** accepted by /timeline?y=XXXX.
+*/
+static char const * statsReportTimelineYFlag = NULL;
+
+/*
+** Creates a TEMP VIEW named v_reports which is a wrapper around the
+** EVENT table filtered on event.type. It looks for the request
+** parameter 'type' (reminder: we "should" use 'y' for consistency
+** with /timeline, but /reports uses 'y' for the year) and expects it
+** to contain one of the conventional values from event.type or the
+** value "all", which is treated as equivalent to "*".  By default (if
+** no 'y' is specified), "*" is assumed (that is also the default for
+** invalid/unknown filter values). That 'y' filter is the one used for
+** the event list. Note that a filter of "*" or "all" is equivalent to
+** querying against the full event table. The view, however, adds an
+** abstraction level to simplify the implementation code for the
+** various /reports pages.
+**
+** Returns one of: 'c', 'w', 'g', 't', 'e', representing the type of
+** filter it applies, or '*' if no filter is applied (i.e. if "all" is
+** used).
+*/
+static int stats_report_init_view(){
+  char const * zType = PD("type","*");  /* analog to /timeline?y=... */
+  char const * zRealType = NULL;        /* normalized form of zType */
+  int rc = 0;                          /* result code */
+  assert( !statsReportType && "Must not be called more than once." );
+  switch( (zType && *zType) ? *zType : 0 ){
+    case 'c':
+    case 'C':
+      zRealType = "ci";
+      rc = *zRealType;
+      break;
+    case 'e':
+    case 'E':
+      zRealType = "e";
+      rc = *zRealType;
+      break;
+    case 'g':
+    case 'G':
+      zRealType = "g";
+      rc = *zRealType;
+      break;
+    case 't':
+    case 'T':
+      zRealType = "t";
+      rc = *zRealType;
+      break;
+    case 'w':
+    case 'W':
+      zRealType = "w";
+      rc = *zRealType;
+      break;
+    default:
+      rc = '*';
+      break;
+  }
+  assert(0 != rc);
+  if(zRealType){
+    statsReportTimelineYFlag = zRealType;
+    db_multi_exec("CREATE TEMP VIEW v_reports AS "
+                  "SELECT * FROM event WHERE type GLOB %Q",
+                  zRealType);
+  }else{
+    statsReportTimelineYFlag = "a";
+    db_multi_exec("CREATE TEMP VIEW v_reports AS "
+                  "SELECT * FROM event");
+  }
+  return statsReportType = rc;
+}
+
+/*
+** Returns a string suitable (for a given value of suitable) for
+** use in a label with the header of the /reports pages, dependent
+** on the 'type' flag. See stats_report_init_view().
+** The returned bytes are static.
+*/
+static char const * stats_report_label_for_type(){
+  assert( statsReportType && "Must call stats_report_init_view() first." );
+  switch( statsReportType ){
+    case 'c':
+      return "checkins";
+    case 'w':
+      return "wiki changes";
+    case 't':
+      return "ticket changes";
+    case 'g':
+      return "tag changes";
+    default:
+      return "all types";
+  }
+}
+
+/*
+** A helper for the /reports family of pages which prints out a menu
+** of links for the various type=XXX flags. zCurrentViewName must be
+** the name/value of the 'view' parameter which is in effect at
+** the time this is called. e.g. if called from the 'byuser' view
+** then zCurrentViewName must be "byuser".
+*/
+static void stats_report_event_types_menu(char const * zCurrentViewName){
+  char * zTop = mprintf("%s/reports?view=%s", g.zTop, zCurrentViewName);
+  cgi_printf("<div>");
+  cgi_printf("<span>Event types:</span> ");
+  if('*' == statsReportType){
+    cgi_printf(" <strong>all</strong>", zTop);
+  }else{
+    cgi_printf(" <a href='%s'>all</a>", zTop);
+  }
+  if('c' == statsReportType){
+    cgi_printf(" <strong>checkins</strong>", zTop);
+  }else{
+    cgi_printf(" <a href='%s&type=ci'>checkins</a>", zTop);
+  }
+  if( 't' == statsReportType ){
+    cgi_printf(" <strong>tickets</strong>", zTop);
+  }else{
+    cgi_printf(" <a href='%s&type=t'>tickets</a>", zTop);
+  }
+  if( 'g' == statsReportType ){
+    cgi_printf(" <strong>tags</strong>", zTop);
+  }else{
+    cgi_printf(" <a href='%s&type=g'>tags</a>", zTop);
+  }
+  if( 'w' == statsReportType ){
+    cgi_printf(" <strong>wiki</strong>", zTop);
+  }else{
+    cgi_printf(" <a href='%s&type=w'>wiki</a>", zTop);
+  }
+  fossil_free(zTop);
+  cgi_printf("</div>");
+}
+
+
 /*
 ** Helper for stats_report_by_month_year(), which generates a list of
 ** week numbers. zTimeframe should be either a timeframe in the form YYYY
@@ -1866,7 +2034,7 @@ static void stats_report_output_week_links(const char * zTimeframe){
              "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
              "count(*) AS n, "
              "substr(date(mtime),1,%d) AS ym "
-             "FROM event "
+             "FROM v_reports "
              "WHERE ym=%Q AND mtime < current_timestamp "
              "GROUP BY wk ORDER BY wk",
              strlen(zTimeframe),
@@ -1875,9 +2043,9 @@ static void stats_report_output_week_links(const char * zTimeframe){
     const char * zWeek = db_column_text(&stWeek,0);
     const int nCount = db_column_int(&stWeek,1);
     cgi_printf("<a href='%s/timeline?"
-               "yw=%t-%t&n=%d'>%s</a>",
+               "yw=%t-%t&n=%d&y=%s'>%s</a>",
                g.zTop, yearPart, zWeek,
-               nCount, zWeek);
+               nCount, statsReportTimelineYFlag, zWeek);
   }
   db_finalize(&stWeek);
 }
@@ -1910,12 +2078,15 @@ static void stats_report_by_month_year(char includeMonth,
                                         bars. */
   int iterations = 0;                /* number of weeks/months we iterate
                                         over */
-  blob_appendf(&header, "Timeline Events by year%s",
+  stats_report_init_view();
+  stats_report_event_types_menu( includeMonth ? "bymonth" : "byyear" );
+  blob_appendf(&header, "Timeline Events (%s) by year%s",
+               stats_report_label_for_type(),
                (includeMonth ? "/month" : ""));
   blob_appendf(&sql,
                "SELECT substr(date(mtime),1,%d) AS timeframe, "
                "count(*) AS eventCount "
-               "FROM event ",
+               "FROM v_reports ",
                includeMonth ? 7 : 4);
   if(zUserName&&*zUserName){
     blob_appendf(&sql, " WHERE user=%Q ", zUserName);
@@ -1952,10 +2123,11 @@ static void stats_report_by_month_year(char includeMonth,
   while( SQLITE_ROW == db_step(&query) ){
     const char * zTimeframe = db_column_text(&query, 0);
     const int nCount = db_column_int(&query, 1);
-    const int nSize = nCount
+    int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
       : 1;
     showYearTotal = 0;
+    if(!nSize) nSize = 1;
     if(includeMonth){
       /* For Month/year view, add a separator for each distinct year. */
       if(!*zPrevYear ||
@@ -1983,8 +2155,9 @@ static void stats_report_by_month_year(char includeMonth,
    @ <td>
     if(includeMonth){
       cgi_printf("<a href='%s/timeline?"
-                 "ym=%t&n=%d",
-                 g.zTop, zTimeframe, nCount );
+                 "ym=%t&n=%d&y=%s",
+                 g.zTop, zTimeframe, nCount,
+                 statsReportTimelineYFlag );
       /* Reminder: n=nCount is not actually correct for bymonth unless
          that was the only user who caused events.
       */
@@ -1993,7 +2166,8 @@ static void stats_report_by_month_year(char includeMonth,
       }
       cgi_printf("' target='_new'>%s</a>",zTimeframe);
     }else {
-      cgi_printf("<a href='?view=byweek&y=%s", zTimeframe);
+      cgi_printf("<a href='?view=byweek&y=%s&type=%c",
+                 zTimeframe, (char)statsReportType);
       if(zUserName && *zUserName){
         cgi_printf("&u=%t", zUserName);
       }
@@ -2055,15 +2229,18 @@ static void stats_report_by_user(){
   Blob sql = empty_blob;             /* SQL */
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
+  stats_report_init_view();
+  stats_report_event_types_menu("byuser");
   blob_append(&sql,
                "SELECT user, "
                "COUNT(*) AS eventCount "
-               "FROM event "
+               "FROM v_reports "
                "GROUP BY user ORDER BY eventCount DESC",
               -1);
   db_prepare(&query, blob_str(&sql));
   blob_reset(&sql);
-  @ <h1>Timeline Events by User</h1>
+  @ <h1>Timeline Events
+  @ (%s(stats_report_label_for_type())) by User</h1>
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
   @ <thead><tr>
@@ -2081,15 +2258,16 @@ static void stats_report_by_user(){
   while( SQLITE_ROW == db_step(&query) ){
     const char * zUser = db_column_text(&query, 0);
     const int nCount = db_column_int(&query, 1);
-    const int nSize = nCount
+    int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
       : 0;
     if(!nCount) continue /* arguable! Possible? */;
+    else if(!nSize) nSize = 1;
     rowClass = ++nRowNumber % 2;
     nEventTotal += nCount;
     @<tr class='row%d(rowClass)'>
     @ <td>
-    @ <a href="?view=bymonth&user=%h(zUser)">%h(zUser)</a>
+    @ <a href="?view=bymonth&user=%h(zUser)&type=%c((char)statsReportType)">%h(zUser)</a>
     @ </td><td>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
@@ -2122,11 +2300,12 @@ static void stats_report_year_weeks(const char * zUserName){
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
   int iterations = 0;                /* # of active time periods. */
-
+  stats_report_init_view();
+  stats_report_event_types_menu("byweek");
   cgi_printf("Select year: ");
   blob_append(&sql,
               "SELECT DISTINCT substr(date(mtime),1,4) AS y "
-              "FROM event WHERE 1 ", -1);
+              "FROM v_reports WHERE 1 ", -1);
   if(zUserName&&*zUserName){
     blob_appendf(&sql,"AND user=%Q ", zUserName);
   }
@@ -2138,7 +2317,8 @@ static void stats_report_year_weeks(const char * zUserName){
     if( i++ ){
       cgi_printf(" ");
     }
-    cgi_printf("<a href='?view=byweek&y=%s", zT);
+    cgi_printf("<a href='?view=byweek&y=%s&type=%c", zT,
+               (char)statsReportType);
     if(zUserName && *zUserName){
       cgi_printf("&user=%t",zUserName);
     }
@@ -2156,12 +2336,13 @@ static void stats_report_year_weeks(const char * zUserName){
     int rowCount = 0;
     int total = 0;
     Blob header = empty_blob;
-    blob_appendf(&header, "Timeline events for the calendar weeks "
-                 "of %h", zYear);
+    blob_appendf(&header, "Timeline events (%s) for the calendar weeks "
+                 "of %h", stats_report_label_for_type(),
+                 zYear);
     blob_appendf(&sql,
                  "SELECT DISTINCT strftime('%%%%W',mtime) AS wk, "
                  "count(*) AS n "
-                 "FROM event "
+                 "FROM v_reports "
                  "WHERE %Q=substr(date(mtime),1,4) "
                  "AND mtime < current_timestamp ",
                  zYear);
@@ -2194,13 +2375,15 @@ static void stats_report_year_weeks(const char * zUserName){
     while( SQLITE_ROW == db_step(&stWeek) ){
       const char * zWeek = db_column_text(&stWeek,0);
       const int nCount = db_column_int(&stWeek,1);
-      const int nSize = nCount
+      int nSize = nCount
         ? (int)(100 * nCount / nMaxEvents)
         : 0;
+      if(!nSize) nSize = 1;
       total += nCount;
       cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
-      cgi_printf("<td><a href='%s/timeline?yw=%t-%s&n=%d",
-                 g.zTop, zYear, zWeek, nCount);
+      cgi_printf("<td><a href='%s/timeline?yw=%t-%s&n=%d&y=%s",
+                 g.zTop, zYear, zWeek, nCount,
+                 statsReportTimelineYFlag);
       if(zUserName && *zUserName){
         cgi_printf("&u=%t",zUserName);
       }
@@ -2237,6 +2420,16 @@ static void stats_report_year_weeks(const char * zUserName){
 **
 **   view=REPORT_NAME  Valid values: bymonth, byyear, byuser
 **   user=NAME         Restricts statistics to the given user
+**   type=TYPE         Restricts the report to a specific event type:
+**                     ci (checkin), w (wiki), t (ticket), g (tag)
+**                     Defaulting to all event types.
+**
+** The view-specific query parameters include:
+**
+** view=byweek:
+**
+**   y=YYYY            The year to report (default is the server's
+**                     current year).
 */
 void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
