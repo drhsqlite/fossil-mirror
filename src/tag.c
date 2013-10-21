@@ -439,6 +439,7 @@ void tag_cmd(void){
       usage("find ?--raw? ?-t|--type TYPE? ?-n|--limit #? TAGNAME");
     }
     if( fRaw ){
+      int nLine = 0;
       blob_appendf(&sql,
         "SELECT blob.uuid FROM tagxref, blob"
         " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
@@ -446,13 +447,14 @@ void tag_cmd(void){
         "   AND blob.rid=tagxref.rid",
         g.argv[3]
       );
-      if(nFindLimit>0){
+      if( nFindLimit>0 ){
         blob_appendf(&sql, " LIMIT %d", nFindLimit);
       }
       db_prepare(&q, "%s", blob_str(&sql));
       blob_reset(&sql);
-      while( db_step(&q)==SQLITE_ROW ){
+      while( db_step(&q)==SQLITE_ROW && (nFindLimit<=0 || nLine<=nFindLimit)){
         fossil_print("%s\n", db_column_text(&q, 0));
+        nLine++;
       }
       db_finalize(&q);
     }else{
