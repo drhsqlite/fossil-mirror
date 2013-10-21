@@ -1496,7 +1496,10 @@ void page_timeline(void){
 ** The input query q selects various records.  Print a human-readable
 ** summary of those records.
 **
-** Limit the number of entries printed to nLine.
+** Limit the number of lines printed to mxLine.  If mxLine is zero or
+** negative there is no limit.  The line limit is approximate because
+** it is only checked on a per-entry basis.  In verbose mode, the file
+** name details are considered to be part of the entry.
 **
 ** The query should return these columns:
 **
@@ -1522,7 +1525,7 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
     zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
-  while( db_step(q)==SQLITE_ROW && nLine<=mxLine ){
+  while( db_step(q)==SQLITE_ROW && (mxLine<=0 || nLine<=mxLine) ){
     int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
@@ -1538,7 +1541,7 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
     if( memcmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
-      nLine++;
+      nLine++; /* record another line */
     }
     if( zCom==0 ) zCom = "";
     fossil_print("%.8s ", &zDate[11]);
@@ -1562,7 +1565,7 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
       n += strlen(zPrefix);
     }
     zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
-    nLine += comment_print(zFree, 9, 79);
+    nLine += comment_print(zFree, 9, 79); /* record another X lines */
     sqlite3_free(zFree);
 
     if(verboseFlag){
@@ -1591,6 +1594,7 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
         }else{
           fossil_print("   EDITED %s\n", zFilename);
         }
+        nLine++; /* record another line */
       }
       db_reset(&fchngQuery);
     }
@@ -1699,7 +1703,7 @@ void timeline_cmd(void){
   if( zLimit ){
     n = atoi(zLimit);
   }else{
-    n = 20;
+    n = -20;
   }
   if( g.argc>=4 ){
     k = strlen(g.argv[2]);
@@ -1778,13 +1782,10 @@ void timeline_cmd(void){
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   if(n>0){
     blob_appendf(&sql, " LIMIT %d", n);
-    n = 9999999;
-  }else{
-    n = -n;
   }
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, n, verboseFlag);
+  print_timeline(&q, n<0?-n:0, verboseFlag);
   db_finalize(&q);
 }
 
