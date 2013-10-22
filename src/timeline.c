@@ -1542,6 +1542,15 @@ void print_timeline(Stmt *q, int nLimit, int verboseFlag){
     char zPrefix[80];
     char zUuid[UUID_SIZE+1];
 
+    if( nAbsLimit!=0 ){
+      if( nLimit<0 && nLine>=nAbsLimit ){
+        fossil_print("=== line limit (%d) reached ===\n", nAbsLimit);
+        break; /* line count limit hit, stop. */
+      }else if( nEntry>=nAbsLimit ){
+        fossil_print("=== entry limit (%d) reached ===\n", nAbsLimit);
+        break; /* entry count limit hit, stop. */
+      }
+    }
     sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
     if( memcmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
@@ -1604,14 +1613,6 @@ void print_timeline(Stmt *q, int nLimit, int verboseFlag){
       db_reset(&fchngQuery);
     }
     nEntry++; /* record another complete entry */
-    if( !nAbsLimit ) continue; /* no limit, continue */
-    if( nLimit<0 && nLine>=nAbsLimit ){
-      fossil_print("=== line limit reached ===\n");
-      break; /* line count limit hit, stop. */
-    }else if( nEntry>=nAbsLimit ){
-      fossil_print("=== entry limit reached ===\n");
-      break; /* entry count limit hit, stop. */
-    }
   }
   if( fchngQueryInit ) db_finalize(&fchngQuery);
 }
