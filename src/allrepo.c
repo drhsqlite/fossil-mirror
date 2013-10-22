@@ -105,7 +105,7 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 **               local checkouts to be ignored instead.
 **
 **    list | ls  Display the location of all repositories.  The -c|--ckout
-**               option causes all local checkouts to be list instead.
+**               option causes all local checkouts to be listed instead.
 **
 **    pull       Run a "pull" operation on all repositories.  Only the
 **               --verbose option is supported.

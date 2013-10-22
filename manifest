@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s'fossil\sall'\shelp\stext.
-D 2013-10-18T09:34:43.256
+C Merge\supdates\sfrom\strunk.
+D 2013-10-22T08:34:59.614
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -308,7 +308,7 @@ F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 2bf1d1a5323760724d52a04a2cd1e0b64d805ed1
-F src/allrepo.c d630cad38b9c6572eafaf9b1f02caad513856f98
+F src/allrepo.c 7887fd7c232f95976e2251110a8d3eb9a7c5ed00
 F src/attach.c fc2d3200d2f60501df9f2572bcfd5e2a9b785f49
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 9eef1e8551df42bdee81aef68359e65985c6c8b9
@@ -394,7 +394,7 @@ F src/report.c 1e10fba72e19562627c8ec02dc537b5a0e766d85
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c 571fe8e1ef8e00accae77710a50d10517f41741a
 F src/search.c b11073e3b3546f8986d87c5d0cd456eb0478067e
-F src/setup.c e790e4ebbea106ff218f2fc19e127963fe38badb
+F src/setup.c 8970ab9571e26ab13803a9350d48d07ac09bde6b
 F src/sha1.c 720c5139d74301e5ec32e7e561c4be4d3c20d5e3
 F src/shell.c 3dfc3461d79db60696941c2e663c55ef6cce4d22
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
@@ -404,7 +404,7 @@ F src/sqlite3.c 0a54d76566728c2ba96292a49b138e4f69a7c391
 F src/sqlite3.h 713dd84bf4539a72a34997f2e5293c32ed3330e0
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 996d2fc7011c02d117c10be77344cbf470132424
-F src/style.c 631e1145bd064273b494fe5df4774d4caf4f2ede
+F src/style.c c8e91b5a1b3029c5e0fc3321d59b442a501e2a19
 F src/sync.c 8525850761d9a084923d28bf540f092a971851ba
 F src/tag.c 73b4800d07bd5e5ac2fcffcd17cbbb25a4c2ceb0
 F src/tar.c 7e83fb52d6078d9a6f1269a9642d630a30354e19
@@ -413,7 +413,7 @@ F src/th.h e0461c004ee27605ce65a13ee46d99eb8cb0210a
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c a6e2c72665e40bff588057ce1a1613fa7b88ef16
 F src/th_tcl.c 95fc3c09eebb7ba828248dc0c5407f083c77b0f6
-F src/timeline.c 019ea6e8f7f0d543e0ad51e6c5ee016c390a9263
+F src/timeline.c f4153db4491c78cd90a13319a922d163f22320f9
 F src/tkt.c bf4aaae6f3f03cfbe2168bfc223ad39b55481464
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
@@ -561,7 +561,7 @@ F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki 9f9e2933947cba5f99d3d22d88620955908999d3
+F www/concepts.wiki 3f8ebc386d5221f7677ec2b18c69dae8715d96ed
 F www/contribute.wiki 57e13151802a559fa6a78587048d74bc7368cca6
 F www/copyright-release.html 76db86c906d5d09347b000e07d1bda8ca5754ad6
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9e4a3bc67bded71ff4c63157fa482075e8ca7799
-R 3a7f1d34287a9b2db84e06ebccd88fd5
+P 8019d49bdb1c2edb6194eeedb3ac72c87774b9c2 d7f457b4563a812dbc63359a5fb3be370b603234
+R 515969514adeaa9c48041385f0fa277a
 U mistachkin
-Z 37be06a84fae247a0ff4df55e1790fee
+Z ec3288e550d1b4975196118a237b7841

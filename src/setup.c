@@ -852,6 +852,33 @@ static void textarea_attribute(
   }
 }
 
+/*
+** Generate a text box for an attribute.
+*/
+static void multiple_choice_attribute(
+  const char *zLabel,   /* The text label on the menu */
+  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zQP,      /* The query parameter */
+  const char *zDflt,    /* Default value if VAR table entry does not exist */
+  int nChoice,          /* Number of choices */
+  const char **azChoice /* Choices. 2 per choice: (VAR value, Display) */
+){
+  const char *z = db_get(zVar, (char*)zDflt);
+  const char *zQ = P(zQP);
+  int i;
+  if( zQ && fossil_strcmp(zQ,z)!=0){
+    login_verify_csrf_secret();
+    db_set(zVar, zQ, 0);
+    z = zQ;
+  }
+  @ <select size="1" name="%s(zQP)" id="id%s(zQP)">
+  for(i=0; i<nChoice*2; i+=2){
+    const char *zSel = fossil_strcmp(azChoice[i],z)==0 ? " selected" : "";
+    @ <option value="%h(azChoice[i])"%s(zSel)>%h(azChoice[i+1])</option>
+  }
+  @ </select>
+}
+
 
 /*
 ** WEBPAGE: setup_access
@@ -1126,6 +1153,12 @@ void setup_login_group(void){
 void setup_timeline(void){
   double tmDiff;
   char zTmDiff[20];
+  static const char *azTimeFormats[] = {
+      "0", "HH:MM",
+      "1", "HH:MM:SS",
+      "2", "YYYY-MM-DD HH:MM",
+      "3", "YYMMDD HH:MM"
+  };
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed();
@@ -1168,6 +1201,14 @@ void setup_timeline(void){
   }else{
     @ %s(zTmDiff) hours ahead of UTC.</p>
   }
+
+  @ <hr />
+  multiple_choice_attribute("Per-Item Time Format", "timeline-date-format", "tdf", "0",
+                            4, azTimeFormats);
+  @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
+  @ in a separate box (using CSS class "timelineDate") whenever the date changes.
+  @ With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats, the complete date
+  @ and time is shown on every timeline entry (using the CSS class "timelineTime").</p>
 
   @ <hr />
   onoff_attribute("Show version differences by default",
