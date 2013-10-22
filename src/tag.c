@@ -469,9 +469,6 @@ void tag_cmd(void){
           " ORDER BY event.mtime DESC",
           timeline_query_for_tty(), zType, tagid
         );
-        if(nFindLimit>0){
-          blob_appendf(&sql, " LIMIT %d", nFindLimit);
-        }
         db_prepare(&q, "%s", blob_str(&sql));
         blob_reset(&sql);
         print_timeline(&q, nFindLimit, 0);
