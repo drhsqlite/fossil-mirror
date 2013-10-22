@@ -199,7 +199,7 @@ static const char *zDefaultXferCommit = 0;
 */
 void xfersetup_commit_page(void){
   static const char zDesc[] =
-  @ Enter TH1 script that runs for each "commit" in a transfer requests.
+  @ Enter TH1 script that runs when a commit is processed.
   ;
   xfersetup_generic(
     "Transfer Commit Script",
@@ -219,7 +219,7 @@ static const char *zDefaultXferTicket = 0;
 */
 void xfersetup_ticket_page(void){
   static const char zDesc[] =
-  @ Enter TH1 script that runs for each "ticket" change in a transfer requests.
+  @ Enter TH1 script that runs when a ticket change is processed.
   ;
   xfersetup_generic(
     "Transfer Ticket Script",
