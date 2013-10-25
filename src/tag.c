@@ -471,7 +471,7 @@ void tag_cmd(void){
         );
         db_prepare(&q, "%s", blob_str(&sql));
         blob_reset(&sql);
-        print_timeline(&q, nFindLimit, 0);
+        print_timeline(&q, nFindLimit, 80, 0);
         db_finalize(&q);
       }
     }

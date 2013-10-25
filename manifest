@@ -1,5 +1,5 @@
-C Adapt\sother\scallers\sof\sprint_timeline(),\sso\sthey\sshow\sas\swell\swhether\sthe\slimit\swas\sreached.
-D 2013-10-22T07:46:45.147
+C Merge\strunk.\s\nAdd\sthe\s"-W|--width\sWIDTH"\soption\sto\s"fossil\stimeline".\sDefault\sis\s80.
+D 2013-10-25T12:42:54.650
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -317,12 +317,12 @@ F src/branch.c fad7611e3fe7a3ada5b61819db2698e7326018ec
 F src/browse.c 19e4bdf78ad41dd01c4cf76b41442dbaf86a2588
 F src/captcha.c 2c855a6f943b546b855eabe58f1388d677d5ea73
 F src/cgi.c 6a9589d91c12aa35d7ea6ceb3d2af48e37b3761d
-F src/checkin.c b4556b12bef9b362db0e2ac4b24c30aef815e7bc
+F src/checkin.c 93d17ecd8ddb455d4ad35f9baad99b31da5095d3
 F src/checkout.c 29bcd4d7dce75cec23e0152aa1e4d18b48b14733
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c b6cf9cc173d60efd3349009585195ec6a925eb9c
-F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
-F src/config.h 504767b3402f04020ce02aff008b6215795ff739
+F src/comformat.c 6fec4b4b834d31976a75959ec941e1a482368236
+F src/config.h c2c5361cd6e8b6bf9edcf722c9294eef75c811b2
 F src/configure.c 6cae04ae000d244db3c63be7cf1a7dce877a24c2
 F src/content.c 468d7f73a4b09fe03d16d8477f9fe6a99481bec9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
@@ -331,7 +331,7 @@ F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c f5e296e45ac2feeeb5bf984f0ec488eed3a5c156
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
-F src/descendants.c de22b362c3a46236bd430743dafba305b4473c44
+F src/descendants.c 6706f4a1b6cbbc6320708cd0cf8bafe01609d774
 F src/diff.c d54bdafec49934bc1b3590e6750ab1c13d5f9f8b
 F src/diffcmd.c 45ed873a197cff6418cd2e7af42587c19e482c15
 F src/doc.c f4c235f77cd4b429dd56d7f35d0f6f33afd380b6
@@ -393,7 +393,7 @@ F src/regexp.c 056d7e54c5a85247ee9d003ede339b07ae049a5f
 F src/report.c 1e10fba72e19562627c8ec02dc537b5a0e766d85
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c 571fe8e1ef8e00accae77710a50d10517f41741a
-F src/search.c 047036ee31e297ee0f1883aa5a252401aac39bc8
+F src/search.c 8c8cb06ab71ca4bb52da5857757629e41600bee9
 F src/setup.c 8970ab9571e26ab13803a9350d48d07ac09bde6b
 F src/sha1.c 720c5139d74301e5ec32e7e561c4be4d3c20d5e3
 F src/shell.c 3dfc3461d79db60696941c2e663c55ef6cce4d22
@@ -406,20 +406,20 @@ F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 996d2fc7011c02d117c10be77344cbf470132424
 F src/style.c c8e91b5a1b3029c5e0fc3321d59b442a501e2a19
 F src/sync.c 8525850761d9a084923d28bf540f092a971851ba
-F src/tag.c 7fdcee92362dbfbf7723e3126699aaaba88b2544
+F src/tag.c e3d60e85c96a1c3355b755912fcced3a2935e0cc
 F src/tar.c 7e83fb52d6078d9a6f1269a9642d630a30354e19
 F src/th.c 412d1b507479f028c4030d8c5ebe9d657be885a2
 F src/th.h e0461c004ee27605ce65a13ee46d99eb8cb0210a
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 204578f2ec015c13d9e92b3c78bc94b6a61231bc
 F src/th_tcl.c 95fc3c09eebb7ba828248dc0c5407f083c77b0f6
-F src/timeline.c d274ca9c6331388beb660345b23ec6a20edfe745
+F src/timeline.c 39330422891f8ff5bce91a80d2483a6a2c62b5c4
 F src/tkt.c 98f85a40ea25293bb0d3048bf5e68b77dfe9480b
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 7b3ec02e5e293378c23f6a048c7beedcbb6e0ff0
-F src/update.c 83d60b462fdf30139833dbe9228c7a6f4cdce83a
+F src/update.c beb359e1181ff6db57c88d44831d3e91bc03ac1f
 F src/url.c fa6e58d90cdf4dfdc624fdc1eb0e4b47b5371baf
 F src/user.c 5de78b1eaecdc7c3ed9a70713280dfee6d4f6bd0
 F src/utf8.c f72d86a09600005942bea4fc9cbfeab625ea2867
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P feb175065c028d12e1ec3928ee4b224dd956cdd1
-R af4257a1d8b4d45077e67806fd13f424
+P 25d0049045e2caa75d5b22868dc7fec57f702610 8e7edc60fa0ec8c9060a36a966a683b506b3d868
+R 029e305a7fdc83154dce26a420adfbac
 U jan.nijtmans
-Z b0aad8a47125be9c21f4f4ff32c9e84f
+Z 1488aa37b59625a140a6bb4e317c763d

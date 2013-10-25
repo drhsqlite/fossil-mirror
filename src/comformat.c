@@ -28,15 +28,13 @@
 ** the left margin and that a single line can contain no more than
 ** lineLength characters.  Indent all subsequent lines by indent.
 **
-** lineLength must be less than 400.
-**
 ** Return the number of newlines that are output.
 */
 int comment_print(const char *zText, int indent, int lineLength){
   int tlen = lineLength - indent;
   int si, sk, i, k;
   int doIndent = 0;
-  char zBuf[400];
+  char *zBuf = fossil_malloc(strlen(zText)+400);
   int lineCnt = 0; 
 
   for(;;){
@@ -46,9 +44,10 @@ int comment_print(const char *zText, int indent, int lineLength){
         fossil_print("\n");
         lineCnt = 1;
       }
+      fossil_free(zBuf);
       return lineCnt;
     }
-    for(sk=si=i=k=0; zText[i] && k<tlen; i++){
+    for(sk=si=i=k=0; zText[i] && ((tlen<=0)||(k<tlen)); i++){
       char c = zText[i];
       if( fossil_isspace(c) ){
         si = i;

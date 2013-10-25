@@ -992,12 +992,14 @@ static void create_manifest(
   assert( pBaseline==0 || pBaseline->zBaseline==0 );
   assert( pBaseline==0 || zBaselineUuid!=0 );
   blob_zero(pOut);
-  zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d AND "
-    "EXISTS(SELECT 1 FROM event WHERE event.type='ci' and event.objid=%d)",
-    vid, vid);
-  if( !zParentUuid ){
-    fossil_fatal("Could not find a valid check-in for RID %d. "
-                 "Possible checkout/repo mismatch.", vid);
+  if( vid ){
+    zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d AND "
+      "EXISTS(SELECT 1 FROM event WHERE event.type='ci' and event.objid=%d)",
+      vid, vid);
+    if( !zParentUuid ){
+      fossil_fatal("Could not find a valid check-in for RID %d. "
+                   "Possible checkout/repo mismatch.", vid);
+    }
   }
   if( pBaseline ){
     blob_appendf(pOut, "B %s\n", zBaselineUuid);
@@ -1093,7 +1095,7 @@ static void create_manifest(
   if( p->zMimetype && p->zMimetype[0] ){
     blob_appendf(pOut, "N %F\n", p->zMimetype);
   }
-  if( zParentUuid ){
+  if( vid ){
     blob_appendf(pOut, "P %s", zParentUuid);
     if( p->verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
     free(zParentUuid);
@@ -1612,8 +1614,13 @@ void commit_cmd(void){
   /*
   ** Do not allow a commit that will cause a fork unless the --allow-fork
   ** or --force flags is used, or unless this is a private check-in.
+  ** The initial commit MUST have tags "trunk" and "sym-trunk".
   */
-  if( sCiInfo.zBranch==0 && allowFork==0 && forceFlag==0
+  if( !vid ){
+    if( sCiInfo.zBranch==0 ){
+      sCiInfo.zBranch = db_get("main-branch", "trunk");
+    }
+  }else if( sCiInfo.zBranch==0 && allowFork==0 && forceFlag==0
     && g.markPrivate==0 && !is_a_leaf(vid)
   ){
     fossil_fatal("would fork.  \"update\" first or use --allow-fork.");

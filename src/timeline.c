@@ -1515,7 +1515,7 @@ void page_timeline(void){
 **    6.  mtime
 **    7.  branch
 */
-void print_timeline(Stmt *q, int nLimit, int verboseFlag){
+void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
   int nAbsLimit = (nLimit >= 0) ? nLimit : -nLimit;
   int nLine = 0;
   int nEntry = 0;
@@ -1579,7 +1579,7 @@ void print_timeline(Stmt *q, int nLimit, int verboseFlag){
       n += strlen(zPrefix);
     }
     zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
-    nLine += comment_print(zFree, 9, 79); /* record another X lines */
+    nLine += comment_print(zFree, 9, width-1); /* record another X lines */
     sqlite3_free(zFree);
 
     if(verboseFlag){
@@ -1683,7 +1683,7 @@ static int isIsoDate(const char *z){
 ** for the current version or "now" for the current time.
 **
 ** Options:
-**   -n|--limit N         Output the first N changes (default 20)
+**   -n|--limit N         Output the first N entries (default 20 lines)
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
 **                            e  = events only
@@ -1692,11 +1692,13 @@ static int isIsoDate(const char *z){
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the checkin comment.
+**   -W|--width <num>     With of lines (default 80). 0=no limit.
 */
 void timeline_cmd(void){
   Stmt q;
-  int n, k;
+  int n, k, width;
   const char *zLimit;
+  const char *zWidth;
   const char *zType;
   char *zOrigin;
   char *zDate;
@@ -1711,6 +1713,7 @@ void timeline_cmd(void){
   }
   db_find_and_open_repository(0, 0);
   zLimit = find_option("limit","n",1);
+  zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
   if ( !zLimit ){
     zLimit = find_option("count",0,1);
@@ -1719,6 +1722,11 @@ void timeline_cmd(void){
     n = atoi(zLimit);
   }else{
     n = -20;
+  }
+  if( zWidth ){
+    width = atoi(zWidth);
+  }else{
+    width = 80;
   }
   if( g.argc>=4 ){
     k = strlen(g.argv[2]);
@@ -1735,7 +1743,7 @@ void timeline_cmd(void){
     }else if( strncmp(g.argv[2],"parents",k)==0 ){
       mode = 4;
     }else if(!zType && !zLimit){
-      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit N? ?-t|--type TYPE?");
+      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit N? ?-t|--type TYPE? ?-W|--width WIDTH?");
     }
     if( '-' != *g.argv[3] ){
       zOrigin = g.argv[3];
@@ -1797,7 +1805,7 @@ void timeline_cmd(void){
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, n, verboseFlag);
+  print_timeline(&q, n, width, verboseFlag);
   db_finalize(&q);
 }
 
