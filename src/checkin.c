@@ -997,7 +997,7 @@ static void create_manifest(
       "EXISTS(SELECT 1 FROM event WHERE event.type='ci' and event.objid=%d)",
       vid, vid);
     if( !zParentUuid ){
-      fossil_fatal("Could not find valid manifest for RID %d. "
+      fossil_fatal("Could not find a valid check-in for RID %d. "
                    "Possible checkout/repo mismatch.", vid);
     }
   }
