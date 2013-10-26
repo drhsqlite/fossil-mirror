@@ -265,7 +265,7 @@ int ssl_open(void){
       return 1;
     }
     rc = establish_proxy_tunnel(sBio);
-    if( rc!= 200 ){
+    if( rc<200||rc>299 ){
       return 1;
     }
 
