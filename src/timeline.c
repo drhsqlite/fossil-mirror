@@ -1512,7 +1512,7 @@ void page_timeline(void){
 **    6.  mtime
 **    7.  branch
 */
-void print_timeline(Stmt *q, int mxLine, int verboseFlag){
+void print_timeline(Stmt *q, int mxLine, int width, int verboseFlag){
   int nLine = 0;
   char zPrevDate[20];
   const char *zCurrentUuid=0;
@@ -1565,7 +1565,7 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
       n += strlen(zPrefix);
     }
     zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
-    nLine += comment_print(zFree, 9, 79); /* record another X lines */
+    nLine += comment_print(zFree, 9, width); /* record another X lines */
     sqlite3_free(zFree);
 
     if(verboseFlag){
@@ -1782,7 +1782,7 @@ void timeline_cmd(void){
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, n, verboseFlag);
+  print_timeline(&q, n, 79, verboseFlag);
   db_finalize(&q);
 }
 
