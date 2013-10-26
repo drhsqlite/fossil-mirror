@@ -227,6 +227,6 @@ void search_cmd(void){
   }
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, 1000, 0);
+  print_timeline(&q, 1000, 79, 0);
   db_finalize(&q);
 }
