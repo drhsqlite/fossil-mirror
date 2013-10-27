@@ -1,5 +1,5 @@
-C Prevent\sincorrect\sattachment\slinks\sfrom\sappearing\son\sthe\stimeline.\s\sReported\svia\sthe\smailing\slist.
-D 2013-10-27T01:18:16.154
+C Modify\sTH1/Tcl\sintegration\smacros\sto\savoid\susing\sa\sgeneric\svariable\sname.
+D 2013-10-27T04:48:09.427
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -412,7 +412,7 @@ F src/th.c 412d1b507479f028c4030d8c5ebe9d657be885a2
 F src/th.h e0461c004ee27605ce65a13ee46d99eb8cb0210a
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 204578f2ec015c13d9e92b3c78bc94b6a61231bc
-F src/th_tcl.c 95fc3c09eebb7ba828248dc0c5407f083c77b0f6
+F src/th_tcl.c 3a306432ca4e1644d065a87e8741583b05d2cb60
 F src/timeline.c 13adbcf254f4b089d05aae6ad3a5af2086c68dcf
 F src/tkt.c 98f85a40ea25293bb0d3048bf5e68b77dfe9480b
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9147aa2c5b4dbdb237b34858eefb691b78348165
-R 239a5322f6d25a699262d00bcf00616f
+P 359399307eec47efd02a7086e66111ca8d6ddb63
+R 6e3e2c941c66e1c7c933835636f34e45
 U mistachkin
-Z d870dcd84cca3ba5ee359dc4f0083fa6
+Z 993af3288833be682fd17b8735bd5d6a
