@@ -1515,7 +1515,8 @@ void page_timeline(void){
 **    6.  mtime
 **    7.  branch
 */
-void print_timeline(Stmt *q, int mxLine, int width, int verboseFlag){
+void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
+  int nAbsLimit = (nLimit >= 0) ? nLimit : -nLimit;
   int nLine = 0;
   int nEntry = 0;
   char zPrevDate[20];
@@ -1721,11 +1722,6 @@ void timeline_cmd(void){
     n = atoi(zLimit);
   }else{
     n = -20;
-  }
-  if( zWidth ){
-    width = atoi(zWidth);
-  }else{
-    width = 80;
   }
   if( zWidth ){
     width = atoi(zWidth);
