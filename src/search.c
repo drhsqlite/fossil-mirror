@@ -224,6 +224,6 @@ void search_cmd(void){
   blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, nLimit, 80, 0);
+  print_timeline(&q, 1000, 79, 0);
   db_finalize(&q);
 }

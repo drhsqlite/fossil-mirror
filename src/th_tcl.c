@@ -32,20 +32,20 @@
 #define USE_ARGV_TO_OBJV() \
   int objc;                \
   Tcl_Obj **objv;          \
-  int i;
+  int obji;
 
 #define COPY_ARGV_TO_OBJV()                                         \
   objc = argc-1;                                                    \
   objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *))); \
-  for(i=1; i<argc; i++){                                            \
-    objv[i-1] = Tcl_NewStringObj(argv[i], argl[i]);                 \
-    Tcl_IncrRefCount(objv[i-1]);                                    \
+  for(obji=1; obji<argc; obji++){                                   \
+    objv[obji-1] = Tcl_NewStringObj(argv[obji], argl[obji]);        \
+    Tcl_IncrRefCount(objv[obji-1]);                                 \
   }
 
-#define FREE_ARGV_TO_OBJV()      \
-  for(i=1; i<argc; i++){         \
-    Tcl_DecrRefCount(objv[i-1]); \
-  }                              \
+#define FREE_ARGV_TO_OBJV()         \
+  for(obji=1; obji<argc; obji++){   \
+    Tcl_DecrRefCount(objv[obji-1]); \
+  }                                 \
   ckfree((char *)objv);
 
 /*

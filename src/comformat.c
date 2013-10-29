@@ -34,9 +34,18 @@ int comment_print(const char *zText, int indent, int lineLength){
   int tlen = lineLength - indent;
   int si, sk, i, k;
   int doIndent = 0;
-  char *zBuf = fossil_malloc(strlen(zText)+400);
+  char *zBuf;
+  char zBuffer[400];
   int lineCnt = 0; 
 
+  if( tlen<=0 ){
+    tlen = strlen(zText);
+  }
+  if( tlen >= (sizeof(zBuffer)) ){
+    zBuf = fossil_malloc(tlen+1);
+  }else{
+    zBuf = zBuffer;
+  }
   for(;;){
     while( fossil_isspace(zText[0]) ){ zText++; }
     if( zText[0]==0 ){
@@ -44,10 +53,10 @@ int comment_print(const char *zText, int indent, int lineLength){
         fossil_print("\n");
         lineCnt = 1;
       }
-      fossil_free(zBuf);
+      if( zBuf!=zBuffer) fossil_free(zBuf);
       return lineCnt;
     }
-    for(sk=si=i=k=0; zText[i] && ((tlen<=0)||(k<tlen)); i++){
+    for(sk=si=i=k=0; zText[i] && k<tlen; i++){
       char c = zText[i];
       if( fossil_isspace(c) ){
         si = i;
@@ -70,15 +79,12 @@ int comment_print(const char *zText, int indent, int lineLength){
     doIndent = 1;
     if( sk>0 && zText[i] ){
       zText += si;
-      zBuf[sk++] =  '\n';
       zBuf[sk] = 0;
-      fossil_print("%s", zBuf);
     }else{
       zText += i;
-      zBuf[k++] =  '\n';
       zBuf[k] = 0;
-      fossil_print("%s", zBuf);
     }
+    fossil_print("%s\n", zBuf);
     lineCnt++;
   }
 }

@@ -190,7 +190,7 @@ void update_cmd(void){
           " ORDER BY event.mtime DESC",
           timeline_query_for_tty()
         );
-        print_timeline(&q, -100, 80, 0);
+        print_timeline(&q, 100, 79, 0);
         db_finalize(&q);
         fossil_fatal("Multiple descendants");
       }

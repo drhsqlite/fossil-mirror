@@ -351,6 +351,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
                          "'config','shun','private','reportfmt',"
                          "'concealed','accesslog','modreq')"
        " AND name NOT GLOB 'sqlite_*'"
+       " AND name NOT GLOB 'fx_*'"
     );
     if( zTable==0 ) break;
     db_multi_exec("DROP TABLE %Q", zTable);

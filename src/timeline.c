@@ -1515,8 +1515,7 @@ void page_timeline(void){
 **    6.  mtime
 **    7.  branch
 */
-void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
-  int nAbsLimit = (nLimit >= 0) ? nLimit : -nLimit;
+void print_timeline(Stmt *q, int mxLine, int width, int verboseFlag){
   int nLine = 0;
   int nEntry = 0;
   char zPrevDate[20];
@@ -1579,7 +1578,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
       n += strlen(zPrefix);
     }
     zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
-    nLine += comment_print(zFree, 9, width-1); /* record another X lines */
+    nLine += comment_print(zFree, 9, width); /* record another X lines */
     sqlite3_free(zFree);
 
     if(verboseFlag){
@@ -1692,7 +1691,7 @@ static int isIsoDate(const char *z){
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the checkin comment.
-**   -W|--width <num>     With of lines (default 80). 0=no limit.
+**   -W|--width <num>     With of lines (default 79). Must be >20 or 0.
 */
 void timeline_cmd(void){
   Stmt q;
@@ -1727,6 +1726,14 @@ void timeline_cmd(void){
     width = atoi(zWidth);
   }else{
     width = 80;
+  }
+  if( zWidth ){
+    width = atoi(zWidth);
+    if( (width!=0) && (width<=20) ){
+      fossil_fatal("--width|-W value must be >20 or 0");
+    }
+  }else{
+    width = 79;
   }
   if( g.argc>=4 ){
     k = strlen(g.argv[2]);

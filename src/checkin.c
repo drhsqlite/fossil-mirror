@@ -979,7 +979,7 @@ static void create_manifest(
   int *pnFBcard               /* OUT: Number of generated B- and F-cards */
 ){
   char *zDate;                /* Date of the check-in */
-  char *zParentUuid;          /* UUID of parent check-in */
+  char *zParentUuid = 0;      /* UUID of parent check-in */
   Blob filename;              /* A single filename */
   int nBasename;              /* Size of base filename */
   Stmt q;                     /* Various queries */
