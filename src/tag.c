@@ -446,7 +446,7 @@ void tag_cmd(void){
         "   AND blob.rid=tagxref.rid",
         g.argv[3]
       );
-      if(nFindLimit>0){
+      if( nFindLimit>0 ){
         blob_appendf(&sql, " LIMIT %d", nFindLimit);
       }
       db_prepare(&q, "%s", blob_str(&sql));
@@ -469,7 +469,7 @@ void tag_cmd(void){
           " ORDER BY event.mtime DESC",
           timeline_query_for_tty(), zType, tagid
         );
-        if(nFindLimit>0){
+        if( nFindLimit>0 ){
           blob_appendf(&sql, " LIMIT %d", nFindLimit);
         }
         db_prepare(&q, "%s", blob_str(&sql));
