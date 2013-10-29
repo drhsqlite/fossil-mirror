@@ -1677,11 +1677,13 @@ static int isIsoDate(const char *z){
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the checkin comment.
+**   -W|--width <num>     With of lines (default 79). Must be >20 or 0.
 */
 void timeline_cmd(void){
   Stmt q;
-  int n, k;
+  int n, k, width;
   const char *zLimit;
+  const char *zWidth;
   const char *zType;
   char *zOrigin;
   char *zDate;
@@ -1696,6 +1698,7 @@ void timeline_cmd(void){
   }
   db_find_and_open_repository(0, 0);
   zLimit = find_option("limit","n",1);
+  zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
   if ( !zLimit ){
     zLimit = find_option("count",0,1);
@@ -1704,6 +1707,14 @@ void timeline_cmd(void){
     n = atoi(zLimit);
   }else{
     n = 20;
+  }
+  if( zWidth ){
+    width = atoi(zWidth);
+    if( (width!=0) && (width<=20) ){
+      fossil_fatal("--width|-W value must be >20 or 0");
+    }
+  }else{
+    width = 79;
   }
   if( g.argc>=4 ){
     k = strlen(g.argv[2]);
@@ -1720,7 +1731,7 @@ void timeline_cmd(void){
     }else if( strncmp(g.argv[2],"parents",k)==0 ){
       mode = 4;
     }else if(!zType && !zLimit){
-      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit N? ?-t|--type TYPE?");
+      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit N? ?-t|--type TYPE? ?-W|--width WIDTH?");
     }
     if( '-' != *g.argv[3] ){
       zOrigin = g.argv[3];
@@ -1782,7 +1793,7 @@ void timeline_cmd(void){
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, n, 79, verboseFlag);
+  print_timeline(&q, n, width, verboseFlag);
   db_finalize(&q);
 }
 

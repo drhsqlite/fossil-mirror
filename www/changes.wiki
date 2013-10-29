@@ -20,6 +20,8 @@
      "[/help?cmd=clean | fossil clean]" command.
   *  Ten-fold performance improvement in large "fossil blame" or 
      "fossil annotate" commands.
+  *  Add option -W|--width to the "[/help?cmd=timeline | fossil timeline]"
+     and  "[/help?cmd=finfo | fossil finfo]" commands.
 
 <h2>Changes For Version 1.27 (2013-09-11)</h2>
   *  Enhance the [/help?cmd=changes | fossil changes],

@@ -38,8 +38,11 @@ int comment_print(const char *zText, int indent, int lineLength){
   char zBuffer[400];
   int lineCnt = 0; 
 
-  if( lineLength > sizeof(zBuffer) ){
-    zBuf = fossil_malloc(lineLength);
+  if( tlen<=0 ){
+    tlen = strlen(zText);
+  }
+  if( tlen >= (sizeof(zBuffer)) ){
+    zBuf = fossil_malloc(tlen+1);
   }else{
     zBuf = zBuffer;
   }
@@ -76,15 +79,12 @@ int comment_print(const char *zText, int indent, int lineLength){
     doIndent = 1;
     if( sk>0 && zText[i] ){
       zText += si;
-      zBuf[sk++] =  '\n';
       zBuf[sk] = 0;
-      fossil_print("%s", zBuf);
     }else{
       zText += i;
-      zBuf[k++] =  '\n';
       zBuf[k] = 0;
-      fossil_print("%s", zBuf);
     }
+    fossil_print("%s\n", zBuf);
     lineCnt++;
   }
 }

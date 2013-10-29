@@ -1,5 +1,5 @@
-C Code\sstyle\scleanup.
-D 2013-10-28T20:13:44.955
+C Add\soption\s-W|--width\sto\sthe\s"fossil\stimeline"\sand\s"fossil\sfinfo"\scommands.\sDefaults\sto\s79.
+D 2013-10-29T10:55:37.684
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -321,7 +321,7 @@ F src/checkin.c 72a08db1f6364ca01fefcf6350e9bd77070265db
 F src/checkout.c 29bcd4d7dce75cec23e0152aa1e4d18b48b14733
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c b6cf9cc173d60efd3349009585195ec6a925eb9c
-F src/comformat.c 92c6bd1006d030b00264646d21fa312a0d588e4b
+F src/comformat.c 53bb36cde36fa27e41b370d255149003e04a26de
 F src/config.h c2c5361cd6e8b6bf9edcf722c9294eef75c811b2
 F src/configure.c 6cae04ae000d244db3c63be7cf1a7dce877a24c2
 F src/content.c 468d7f73a4b09fe03d16d8477f9fe6a99481bec9
@@ -339,7 +339,7 @@ F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 433f9f2e051979848bcd2b735fd34f6be2863028
 F src/export.c 026f3746292c9c5bddcd454591ff71fb6d846481
 F src/file.c c0add7cfd3595f6780a7d393d71ee42d7e219b78
-F src/finfo.c 0f3214c253c2552c5519c21c5a6bb8da46106a19
+F src/finfo.c 2097dadba19629a02c482fde0c9f1c65b3a904af
 F src/glob.c 968a3f5b9e203af3053939639533ee7b26259836
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
 F src/gzip.c eddefe3eff75a8b8bbaccdf30fc0828a76577022
@@ -413,7 +413,7 @@ F src/th.h e0461c004ee27605ce65a13ee46d99eb8cb0210a
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c 338f4d7f8dc291c788122daeeb8389631121a8a5
 F src/th_tcl.c 3a306432ca4e1644d065a87e8741583b05d2cb60
-F src/timeline.c 13adbcf254f4b089d05aae6ad3a5af2086c68dcf
+F src/timeline.c 8eb65f76e9e39ab755eb78eacdd0cf3da1960508
 F src/tkt.c 98f85a40ea25293bb0d3048bf5e68b77dfe9480b
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
@@ -555,7 +555,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 21532a6f8b04f2e83cf4eaa66002c888c2e76339
-F www/changes.wiki e4880908d67201a4349bc6aa241161dcf2c73b56
+F www/changes.wiki ee8cba85fb2895f00e0f296ef202a95a91ae1e9d
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3ede3702a27f6c8d000739b6b2acc329e3825c9f
-R 54644c8f40e533f86a7487f69cea1d2c
-U mistachkin
-Z 3d86e5179f52e94916b1adaf3f1fcf88
+P 24273fd0c429d71dbc134acc3999c7d3359ab57e
+R af4db193ae39b6a3122b0e76305569b5
+U jan.nijtmans
+Z f7d1ba6f17d5e73d37026cf42ef0c11d
