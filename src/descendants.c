@@ -331,7 +331,7 @@ void descendants_cmd(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_tty()
   );
-  print_timeline(&q, 20, 79, 0);
+  print_timeline(&q, -20, 79, 0);
   db_finalize(&q);
 }
 

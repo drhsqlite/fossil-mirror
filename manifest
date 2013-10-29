@@ -1,5 +1,5 @@
-C correct\smerge\sconflict
-D 2013-10-29T11:10:55.362
+C Fix\sexisting\sprint_timeline()\scalls,\sso\sthey\sreturn\sthe\ssame\soutput\sas\strunk\sby\sdefault.
+D 2013-10-29T12:58:55.447
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -331,7 +331,7 @@ F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c f5e296e45ac2feeeb5bf984f0ec488eed3a5c156
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
-F src/descendants.c d9474e9a176b320a5b1e1fe7099477f4ff3c56e9
+F src/descendants.c d59a0e546f5e82c884defcf3a695cc066bded992
 F src/diff.c d54bdafec49934bc1b3590e6750ab1c13d5f9f8b
 F src/diffcmd.c 45ed873a197cff6418cd2e7af42587c19e482c15
 F src/doc.c f4c235f77cd4b429dd56d7f35d0f6f33afd380b6
@@ -393,7 +393,7 @@ F src/regexp.c 056d7e54c5a85247ee9d003ede339b07ae049a5f
 F src/report.c 1e10fba72e19562627c8ec02dc537b5a0e766d85
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c 571fe8e1ef8e00accae77710a50d10517f41741a
-F src/search.c 7bf7bd8e54d4dd6e1c72d53166e9e723fc7f5246
+F src/search.c bd9e49cce5cfc24bebed9bb93fc101bb77ac033c
 F src/setup.c 8970ab9571e26ab13803a9350d48d07ac09bde6b
 F src/sha1.c 720c5139d74301e5ec32e7e561c4be4d3c20d5e3
 F src/shell.c 3dfc3461d79db60696941c2e663c55ef6cce4d22
@@ -406,7 +406,7 @@ F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 996d2fc7011c02d117c10be77344cbf470132424
 F src/style.c f75cbc937ce5c5d0990b468f0493bea48a240877
 F src/sync.c 8525850761d9a084923d28bf540f092a971851ba
-F src/tag.c 3961b434c367d6156534e9e60c810fffe3f72c01
+F src/tag.c 840a6950d6d6c5e05b8447185b19aee12f29f460
 F src/tar.c 7e83fb52d6078d9a6f1269a9642d630a30354e19
 F src/th.c 412d1b507479f028c4030d8c5ebe9d657be885a2
 F src/th.h e0461c004ee27605ce65a13ee46d99eb8cb0210a
@@ -419,7 +419,7 @@ F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 7b3ec02e5e293378c23f6a048c7beedcbb6e0ff0
-F src/update.c c02970a19399316f0936e5e55d16f0260c049ddf
+F src/update.c ab8c15d3185c4a897800eadd1a63532b803cf45b
 F src/url.c fa6e58d90cdf4dfdc624fdc1eb0e4b47b5371baf
 F src/user.c 5de78b1eaecdc7c3ed9a70713280dfee6d4f6bd0
 F src/utf8.c f72d86a09600005942bea4fc9cbfeab625ea2867
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1d6cccc5528083fd515ddf38ee0d88fb1cf96242
-R ae505255bf000952ab8500b572c5cacf
+P 0cb3ab794f9dd3208295c6724cd12b75340f1747
+R ccb6fa71e17eedfb214386e85a636607
 U jan.nijtmans
-Z ece31481f72a39eb3e912cf1afe82cdf
+Z 3bc002382445fc07fd6f7b18365c1752
