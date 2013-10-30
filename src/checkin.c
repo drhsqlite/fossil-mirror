@@ -844,7 +844,7 @@ static void prepare_commit_comment(
 #endif
   blob_append(&prompt,
     "\n"
-    "# Enter comments on this check-in.  Lines beginning with # are ignored.\n"
+    "# Enter commit message for this check-in. Lines beginning with # are ignored.\n"
     "#\n", -1
   );
   blob_appendf(&prompt, "# user: %s\n", p->zUserOvrd ? p->zUserOvrd : g.zLogin);
@@ -1021,7 +1021,7 @@ static void create_manifest(
   int *pnFBcard               /* OUT: Number of generated B- and F-cards */
 ){
   char *zDate;                /* Date of the check-in */
-  char *zParentUuid;          /* UUID of parent check-in */
+  char *zParentUuid = 0;      /* UUID of parent check-in */
   Blob filename;              /* A single filename */
   int nBasename;              /* Size of base filename */
   Stmt q;                     /* Various queries */
@@ -1034,7 +1034,15 @@ static void create_manifest(
   assert( pBaseline==0 || pBaseline->zBaseline==0 );
   assert( pBaseline==0 || zBaselineUuid!=0 );
   blob_zero(pOut);
-  zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
+  if( vid ){
+    zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d AND "
+      "EXISTS(SELECT 1 FROM event WHERE event.type='ci' and event.objid=%d)",
+      vid, vid);
+    if( !zParentUuid ){
+      fossil_fatal("Could not find a valid check-in for RID %d. "
+                   "Possible checkout/repo mismatch.", vid);
+    }
+  }
   if( pBaseline ){
     blob_appendf(pOut, "B %s\n", zBaselineUuid);
     manifest_file_rewind(pBaseline);
@@ -1129,24 +1137,26 @@ static void create_manifest(
   if( p->zMimetype && p->zMimetype[0] ){
     blob_appendf(pOut, "N %F\n", p->zMimetype);
   }
-  blob_appendf(pOut, "P %s", zParentUuid);
-  if( p->verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
-  free(zParentUuid);
-  db_prepare(&q, "SELECT merge FROM vmerge WHERE id=0 OR id<-2");
-  while( db_step(&q)==SQLITE_ROW ){
-    char *zMergeUuid;
-    int mid = db_column_int(&q, 0);
-    if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
-    zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
-    if( zMergeUuid ){
-      blob_appendf(pOut, " %s", zMergeUuid);
-      if( p->verifyDate ) checkin_verify_younger(mid, zMergeUuid, zDate);
-      free(zMergeUuid);
+  if( vid ){
+    blob_appendf(pOut, "P %s", zParentUuid);
+    if( p->verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
+    free(zParentUuid);
+    db_prepare(&q, "SELECT merge FROM vmerge WHERE id=0 OR id<-2");
+    while( db_step(&q)==SQLITE_ROW ){
+      char *zMergeUuid;
+      int mid = db_column_int(&q, 0);
+      if( (!g.markPrivate && content_is_private(mid)) || (mid == vid) ) continue;
+      zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
+      if( zMergeUuid ){
+        blob_appendf(pOut, " %s", zMergeUuid);
+        if( p->verifyDate ) checkin_verify_younger(mid, zMergeUuid, zDate);
+        free(zMergeUuid);
+      }
     }
+    db_finalize(&q);
+    blob_appendf(pOut, "\n");
   }
-  db_finalize(&q);
   free(zDate);
-  blob_appendf(pOut, "\n");
 
   db_prepare(&q,
     "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid, merge"
@@ -1646,8 +1656,13 @@ void commit_cmd(void){
   /*
   ** Do not allow a commit that will cause a fork unless the --allow-fork
   ** or --force flags is used, or unless this is a private check-in.
+  ** The initial commit MUST have tags "trunk" and "sym-trunk".
   */
-  if( sCiInfo.zBranch==0 && allowFork==0 && forceFlag==0
+  if( !vid ){
+    if( sCiInfo.zBranch==0 ){
+      sCiInfo.zBranch = db_get("main-branch", "trunk");
+    }
+  }else if( sCiInfo.zBranch==0 && allowFork==0 && forceFlag==0
     && g.markPrivate==0 && !is_a_leaf(vid)
   ){
     fossil_fatal("would fork.  \"update\" first or use --allow-fork.");
@@ -1777,7 +1792,7 @@ void commit_cmd(void){
     const char *zBaselineUuid;
     Manifest *pParent;
     Manifest *pBaseline;
-    pParent = manifest_get(vid, CFTYPE_MANIFEST);
+    pParent = manifest_get(vid, CFTYPE_MANIFEST, 0);
     if( pParent && pParent->zBaseline ){
       zBaselineUuid = pParent->zBaseline;
       pBaseline = manifest_get_by_name(zBaselineUuid, 0);

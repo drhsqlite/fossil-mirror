@@ -298,7 +298,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
   db_prepare(&q, "SELECT rid FROM tagxref WHERE tagid=%d ORDER BY mtime",tagid);
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
-    pTicket = manifest_get(rid, CFTYPE_TICKET);
+    pTicket = manifest_get(rid, CFTYPE_TICKET, 0);
     if( pTicket ){
       tktid = ticket_insert(pTicket, rid, tktid);
       manifest_ticket_event(rid, pTicket, createFlag, tagid);
@@ -623,11 +623,12 @@ static int submitTicketCmd(
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
     @ <hr /></font>
     return TH_OK;
-  }else if( g.thTrace ){
-    Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
-             "}<br />\n",
-       blob_str(&tktchng));
   }else{
+    if( g.thTrace ){
+      Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
+               "}<br />\n",
+         blob_str(&tktchng));
+    }
     ticket_put(&tktchng, zUuid,
                (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
   }
@@ -945,7 +946,7 @@ void tkthistory_page(void){
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".</p>");
     }else{
-      pTicket = manifest_get(rid, CFTYPE_TICKET);
+      pTicket = manifest_get(rid, CFTYPE_TICKET, 0);
       if( pTicket ){
         @
         @ <li><p>Ticket change
@@ -1245,7 +1246,7 @@ void ticket_cmd(void){
             }
             fossil_print(" by %s on %s\n", zUser, zDate);
           }else{
-            pTicket = manifest_get(rid, CFTYPE_TICKET);
+            pTicket = manifest_get(rid, CFTYPE_TICKET, 0);
             if( pTicket ){
               int i;
 

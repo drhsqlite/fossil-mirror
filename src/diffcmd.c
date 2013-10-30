@@ -917,7 +917,7 @@ static const char zDiffScript[] =
 void diff_tk(const char *zSubCmd, int firstArg){
   int i;
   Blob script;
-  char *zTempFile;
+  char *zTempFile = 0;
   char *zCmd;
   blob_zero(&script);
   blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v",
@@ -928,16 +928,30 @@ void diff_tk(const char *zSubCmd, int firstArg){
       if( strglob("*-html",z) ) continue;
       if( strglob("*-y",z) ) continue;
       if( strglob("*-i",z) ) continue;
+      /* The undocumented --script FILENAME option causes the Tk script to
+      ** be written into the FILENAME instead of being run.  This is used
+      ** for testing and debugging. */
+      if( strglob("*-script",z) && i<g.argc-1 ){
+        i++;
+        zTempFile = g.argv[i];
+        continue;
+      }
     }
     blob_append(&script, " ", 1);
     shell_escape(&script, z);
   }
   blob_appendf(&script, "}\n%s", zDiffScript);
-  zTempFile = write_blob_to_temp_file(&script);
-  zCmd = mprintf("tclsh \"%s\"", zTempFile);
-  fossil_system(zCmd);
-  file_delete(zTempFile);
-  fossil_free(zCmd);
+  if( zTempFile ){
+    blob_write_to_file(&script, zTempFile);
+    fossil_print("To see diff, run: tclsh \"%s\"\n", zTempFile);
+  }else{
+    zTempFile = write_blob_to_temp_file(&script);
+    zCmd = mprintf("tclsh \"%s\"", zTempFile);
+    fossil_system(zCmd);
+    file_delete(zTempFile);
+    fossil_free(zCmd);
+  }
+  blob_reset(&script);
 }
 
 /*

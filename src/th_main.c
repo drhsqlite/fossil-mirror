@@ -531,12 +531,11 @@ static int repositoryCmd(
   const char **argv, 
   int *argl
 ){
-  int openRepository;
-
   if( argc!=1 && argc!=2 ){
     return Th_WrongNumArgs(interp, "repository ?BOOLEAN?");
   }
   if( argc==2 ){
+    int openRepository = 0;
     if( Th_ToInt(interp, argv[1], argl[1], &openRepository) ){
       return TH_ERROR;
     }

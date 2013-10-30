@@ -53,6 +53,8 @@ int autosync(int flags){
   if( g.urlProtocol==0 ) return 0;  
   if( g.urlUser!=0 && g.urlPasswd==0 ){
     g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
+    g.urlFlags |= URL_PROMPT_PW;
+    url_prompt_for_password();
   }
 #if 0 /* Disabled for now */
   if( (flags & AUTOSYNC_PULL)!=0 && db_get_boolean("auto-shun",1) ){
@@ -103,12 +105,16 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
     *pSyncFlags |= SYNC_RESYNC;
   }
   url_proxy_options();
+  clone_ssh_find_options();
   db_find_and_open_repository(0, 0);
   db_open_config(0);
   if( g.argc==2 ){
     if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
+  }
+  if( urlFlags & URL_REMEMBER ){
+    clone_ssh_db_set_options();
   }
   url_parse(zUrl, urlFlags);
   if( g.urlProtocol==0 ){

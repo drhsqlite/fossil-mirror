@@ -104,7 +104,19 @@ accepts and decodes SSL-encrypted connections.  Fossil can be run directly from
 stunnel in a mannar similar to inetd and xinetd.  This can be used to provide
 a secure link to a Fossil project.  The configuration needed to get stunnel4
 to invoke Fossil is very similar to the inetd and xinetd examples shown above.
-See the stunnel4 documentation for details.
+The relevant parts of an stunnel configuration might look something
+like the following:
+<blockquote><pre><nowiki>
+[https]
+accept       = www.ubercool-project.org:443
+TIMEOUTclose = 0
+exec         = /usr/bin/fossil
+execargs     = /usr/bin/fossil http /home/fossil/ubercool.fossil --https
+</nowiki></pre></blockquote>
+See the stunnel4 documentation for further details bout the /etc/stunnel/stunnel.conf
+configuration file.  Note that the [/help/http|fossil http] command should include 
+the --https option to let Fossil know to use "https" instead of "http" as the scheme
+on generated hyperlinks.
 <p>
 Using inetd or xinetd or stunnel is a more complex setup 
 than the "standalone" server, but it has the
@@ -160,7 +172,7 @@ accessible under "cgi-bin", which would be a typical deployment on Apache
 for instance).
 </p>
 <p>
-To server multiple repositories from a directory using CGI, use the "directory:"
+To serve multiple repositories from a directory using CGI, use the "directory:"
 tag in the CGI script rather than "repository:".   You might also want to add
 a "notfound:" tag to tell where to redirect if the particular repository requested
 by the URL is not found:
@@ -172,7 +184,7 @@ notfound: http://url-to-go-to-if-repo-not-found/
 </p>
 <p>
 Once deployed, a URL like: <b>http://mydomain.org/cgi-bin/repo/XYZ</b>
-will serve up the repository "/home/fossil/repos/XYX.fossil" (if it exists).
+will serve up the repository "/home/fossil/repos/XYZ.fossil" (if it exists).
 </p>
 </blockquote>
 
