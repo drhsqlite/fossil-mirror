@@ -45,7 +45,7 @@
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
 **                        boolean: "yes", "no", "true", "false", etc.
 **   -l|--log             select log mode (the default)
-**   -n|--limit N         display the first N changes
+**   -n|--limit N         display the first N changes. N=0 means no limit.
 **   --offset P           skip P changes
 **   -p|--print           select print mode
 **   -r|--revision R      print the given revision (or ckout, if none is given)

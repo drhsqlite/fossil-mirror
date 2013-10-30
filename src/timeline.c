@@ -1496,10 +1496,13 @@ void page_timeline(void){
 ** The input query q selects various records.  Print a human-readable
 ** summary of those records.
 **
-** Limit the number of lines printed to mxLine.  If mxLine is zero or
-** negative there is no limit.  The line limit is approximate because
-** it is only checked on a per-entry basis.  In verbose mode, the file
-** name details are considered to be part of the entry.
+** Limit number of lines or entries printed to nLimit.  If nLimit is zero
+** there is no limit.  If nLimit is greater than zero, limit the number of
+** complete entries printed.  If nLimit is less than zero, attempt to limit
+** the number of lines printed (this is basically the legacy behavior).
+** The line limit, if used, is approximate because it is only checked on a
+** per-entry basis.  If verbose mode, the file name details are considered
+** to be part of the entry.
 **
 ** The query should return these columns:
 **
@@ -1512,8 +1515,10 @@ void page_timeline(void){
 **    6.  mtime
 **    7.  branch
 */
-void print_timeline(Stmt *q, int mxLine, int width, int verboseFlag){
+void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
+  int nAbsLimit = (nLimit >= 0) ? nLimit : -nLimit;
   int nLine = 0;
+  int nEntry = 0;
   char zPrevDate[20];
   const char *zCurrentUuid=0;
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
@@ -1525,7 +1530,7 @@ void print_timeline(Stmt *q, int mxLine, int width, int verboseFlag){
     zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
-  while( db_step(q)==SQLITE_ROW && (mxLine<=0 || nLine<=mxLine) ){
+  while( db_step(q)==SQLITE_ROW ){
     int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
@@ -1537,6 +1542,15 @@ void print_timeline(Stmt *q, int mxLine, int width, int verboseFlag){
     char zPrefix[80];
     char zUuid[UUID_SIZE+1];
 
+    if( nAbsLimit!=0 ){
+      if( nLimit<0 && nLine>=nAbsLimit ){
+        fossil_print("=== line limit (%d) reached ===\n", nAbsLimit);
+        break; /* line count limit hit, stop. */
+      }else if( nEntry>=nAbsLimit ){
+        fossil_print("=== entry limit (%d) reached ===\n", nAbsLimit);
+        break; /* entry count limit hit, stop. */
+      }
+    }
     sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
     if( memcmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
@@ -1598,6 +1612,7 @@ void print_timeline(Stmt *q, int mxLine, int width, int verboseFlag){
       }
       db_reset(&fchngQuery);
     }
+    nEntry++; /* record another complete entry */
   }
   if( fchngQueryInit ) db_finalize(&fchngQuery);
 }
@@ -1668,7 +1683,8 @@ static int isIsoDate(const char *z){
 ** for the current version or "now" for the current time.
 **
 ** Options:
-**   -n|--limit N         Output the first N changes (default 20)
+**   -n|--limit N         Output the first N entries (default 20 lines).
+**                        N=0 means no limit.
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
 **                            e  = events only
@@ -1706,7 +1722,7 @@ void timeline_cmd(void){
   if( zLimit ){
     n = atoi(zLimit);
   }else{
-    n = 20;
+    n = -20;
   }
   if( zWidth ){
     width = atoi(zWidth);
@@ -1731,7 +1747,7 @@ void timeline_cmd(void){
     }else if( strncmp(g.argv[2],"parents",k)==0 ){
       mode = 4;
     }else if(!zType && !zLimit){
-      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit N? ?-t|--type TYPE? ?-W|--width WIDTH?");
+      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit #? ?-t|--type TYPE? ?-W|--width WIDTH?");
     }
     if( '-' != *g.argv[3] ){
       zOrigin = g.argv[3];

@@ -22,6 +22,11 @@
      "fossil annotate" commands.
   *  Add option -W|--width to the "[/help?cmd=timeline | fossil timeline]"
      and  "[/help?cmd=finfo | fossil finfo]" commands.
+  *  Option -n|--limit of "[/help?cmd=timeline | fossil timeline]" now
+     specifies the number of entries, just like all other commands which
+     have the -n|--limit option. The various timeline-related functions
+     now output "=== ?? limit (??) reached ===" at the end whenever
+     appropriate. Use "-n 0" if no limit is desired.
 
 <h2>Changes For Version 1.27 (2013-09-11)</h2>
   *  Enhance the [/help?cmd=changes | fossil changes],
