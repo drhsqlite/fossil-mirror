@@ -127,9 +127,6 @@ void update_cmd(void){
   capture_case_sensitive_option();
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
-  if( vid==0 ){
-    fossil_fatal("cannot find current version");
-  }
   user_select();
   if( !dryRunFlag && !internalUpdate ){
     autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag);
@@ -202,7 +199,7 @@ void update_cmd(void){
   }
 
   if( tid==0 ){
-    fossil_panic("unable to find a version to update to.");
+    return;
   }
 
   db_begin_transaction();
