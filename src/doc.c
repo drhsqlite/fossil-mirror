@@ -451,7 +451,7 @@ void doc_page(void){
       if( db_int(0, "SELECT count(*) FROM vcache")>10000 ){
         db_multi_exec("DELETE FROM vcache");
       }
-      pM = manifest_get(vid, CFTYPE_MANIFEST);
+      pM = manifest_get(vid, CFTYPE_MANIFEST, 0);
       if( pM==0 ){
         goto doc_not_found;
       }

@@ -1,8 +1,8 @@
 /*
 ** This implementation of SHA1.
 */
-#include <sys/types.h>
 #include "config.h"
+#include <sys/types.h>
 #include "sha1.h"
 
 

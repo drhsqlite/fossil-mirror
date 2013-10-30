@@ -60,7 +60,11 @@ static void collect_argument(Blob *pExtra, const char *zArg, const char *zShort)
 static void collect_argument_value(Blob *pExtra, const char *zArg){
   const char *zValue = find_option(zArg, 0, 1);
   if( zValue ){
-    blob_appendf(pExtra, " --%s %s", zArg, zValue);
+    if( zValue[0] ){
+      blob_appendf(pExtra, " --%s %s", zArg, zValue);
+    }else{
+      blob_appendf(pExtra, " --%s \"\"", zArg);
+    }
   }
 }
 
@@ -68,7 +72,7 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 /*
 ** COMMAND: all
 **
-** Usage: %fossil all (changes|ignore|list|ls|pull|push|rebuild|sync)
+** Usage: %fossil all (changes|clean|extra|ignore|list|ls|pull|push|rebuild|sync)
 **
 ** The ~/.fossil file records the location of all repositories for a
 ** user.  This command performs certain operations on all repositories
@@ -79,29 +83,52 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 **
 ** Available operations are:
 **
-**    changes    Shows all local checkouts that have uncommitted changes
+**    changes    Shows all local checkouts that have uncommitted changes.
+**               This operation has no additional options.
 **
-**    ignore     Arguments are repositories that should be ignored
-**               by subsequent list, pull, push, rebuild, and sync.
-**               The -c|--ckout option causes the listed local checkouts
-**               to be ignored instead.
+**    clean      Delete all "extra" files in all local checkouts.  Extreme
+**               caution should be exercised with this command because its
+**               effects cannot be undone.  Use of the --dry-run option to
+**               carefully review the local checkouts to be operated upon
+**               and the --whatif option to carefully review the files to
+**               be deleted beforehand is highly recommended.  The command
+**               line options supported by the clean command itself, if any
+**               are present, are passed along verbatim.
 **
-**    list | ls  Display the location of all repositories.
-**               The -c|--ckout option causes all local checkouts to be
-**               list instead.
+**    extra      Shows extra files from all local checkouts.  The command
+**               line options supported by the extra command itself, if any
+**               are present, are passed along verbatim.
 **
-**    pull       Run a "pull" operation on all repositories
+**    ignore     Arguments are repositories that should be ignored by
+**               subsequent clean, extra, list, pull, push, rebuild, and
+**               sync operations.  The -c|--ckout option causes the listed
+**               local checkouts to be ignored instead.
 **
-**    push       Run a "push" on all repositories
+**    list | ls  Display the location of all repositories.  The -c|--ckout
+**               option causes all local checkouts to be listed instead.
 **
-**    rebuild    Rebuild on all repositories
+**    pull       Run a "pull" operation on all repositories.  Only the
+**               --verbose option is supported.
 **
-**    sync       Run a "sync" on all repositories
+**    push       Run a "push" on all repositories.  Only the --verbose
+**               option is supported.
+**
+**    rebuild    Rebuild on all repositories.  The command line options
+**               supported by the rebuild command itself, if any are
+**               present, are passed along verbatim.  The --force and
+**               --randomize options are not supported.
+**
+**    sync       Run a "sync" on all repositories.  Only the --verbose
+**               option is supported.
 **
 ** Repositories are automatically added to the set of known repositories
-** when one of the following commands are run against the repository: clone,
-** info, pull, push, or sync.  Even previously ignored repositories are
-** added back to the list of repositories by these commands.
+** when one of the following commands are run against the repository:
+** clone, info, pull, push, or sync.  Even previously ignored repositories
+** are added back to the list of repositories by these commands.
+**
+** Options:
+**   --dontstop     Continue with other repositories even after an error.
+**   --dry-run      If given, display instead of run actions.
 */
 void all_cmd(void){
   int n;
@@ -124,7 +151,7 @@ void all_cmd(void){
   }
 
   if( g.argc<3 ){
-    usage("changes|ignore|list|ls|pull|push|rebuild|sync");
+    usage("changes|clean|extra|ignore|list|ls|pull|push|rebuild|sync");
   }
   n = strlen(g.argv[2]);
   db_open_config(1);
@@ -134,6 +161,31 @@ void all_cmd(void){
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;
+  }else if( strncmp(zCmd, "clean", n)==0 ){
+    zCmd = "clean --chdir";
+    collect_argument(&extra, "allckouts",0);
+    collect_argument_value(&extra, "case-sensitive");
+    collect_argument_value(&extra, "clean");
+    collect_argument(&extra, "dirsonly",0);
+    collect_argument(&extra, "dotfiles",0);
+    collect_argument(&extra, "emptydirs",0);
+    collect_argument(&extra, "force","f");
+    collect_argument_value(&extra, "ignore");
+    collect_argument_value(&extra, "keep");
+    collect_argument(&extra, "temp",0);
+    collect_argument(&extra, "verbose","v");
+    collect_argument(&extra, "whatif",0);
+    useCheckouts = 1;
+  }else if( strncmp(zCmd, "extra", n)==0 ){
+    zCmd = "extra --chdir";
+    collect_argument(&extra, "abs-paths",0);
+    collect_argument_value(&extra, "case-sensitive");
+    collect_argument(&extra, "dotfiles",0);
+    collect_argument_value(&extra, "ignore");
+    collect_argument(&extra, "rel-paths",0);
+    useCheckouts = 1;
+    stopOnError = 0;
+    quiet = 1;
   }else if( strncmp(zCmd, "push", n)==0 ){
     zCmd = "push -autourl -R";
     collect_argument(&extra, "verbose","v");
@@ -187,7 +239,7 @@ void all_cmd(void){
     return;
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "changes ignore list ls push pull rebuild sync");
+                 "changes clean extra ignore list ls push pull rebuild sync");
   }
   verify_all_options();
   zFossil = quoteFilename(g.nameOfExe);

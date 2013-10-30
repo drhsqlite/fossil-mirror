@@ -688,6 +688,7 @@ const struct strctCssDefaults {
     "the format for the timeline time display",
     @   vertical-align: top;
     @   text-align: right;
+    @   white-space: nowrap;
   },
   { "td.timelineGraph",
     "the format for the grap placeholder cells in timelines",
@@ -1227,5 +1228,5 @@ void page_test_env(void){
 */
 void honeypot_page(void){
   cgi_set_status(403, "Forbidden");
-  @ <p>Access by spiders and robots is forbidden</p>
+  @ <p>Please enable javascript or log in to see this content</p>
 }

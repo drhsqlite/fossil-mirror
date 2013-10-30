@@ -140,6 +140,8 @@ struct Global {
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
+  int fSshClient;         /* HTTP client flags for SSH client */
+  char *zSshCmd;          /* SSH command string */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
@@ -181,7 +183,6 @@ struct Global {
   char *urlCanonical;     /* Canonical representation of the URL */
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
   char *urlFossil;        /* The fossil query parameter on ssh: */
-  char *urlShell;         /* The shell query parameter on ssh: */
   unsigned urlFlags;      /* Boolean flags controlling URL processing */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
@@ -605,6 +606,8 @@ int main(int argc, char **argv)
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
     g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;
     g.fSshTrace = find_option("sshtrace", 0, 0)!=0;
+    g.fSshClient = 0;
+    g.zSshCmd = 0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
@@ -1316,7 +1319,8 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
   /* Find the page that the user has requested, construct and deliver that
   ** page.
   */
-  if( g.zContentType && memcmp(g.zContentType, "application/x-fossil", 20)==0 ){
+  if( g.zContentType &&
+      strncmp(g.zContentType, "application/x-fossil", 20)==0 ){
     zPathInfo = "/xfer";
   }
   set_base_url(0);
@@ -1734,10 +1738,18 @@ void cmd_http(void){
     g.httpOut = stdout;
     zIpAddr = 0;
   }
+  if( zIpAddr==0 ){
+    zIpAddr = cgi_ssh_remote_addr(0);
+    if( zIpAddr && zIpAddr[0] ){
+      g.fSshClient |= CGI_SSH_CLIENT;
+    }
+  }
   find_server_repository(0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   if( useSCGI ){
     cgi_handle_scgi_request();
+  }else if( g.fSshClient & CGI_SSH_CLIENT ){
+    ssh_request_loop(zIpAddr, glob_create(zFileGlob));
   }else{
     cgi_handle_http_request(zIpAddr);
   }
@@ -1745,23 +1757,44 @@ void cmd_http(void){
 }
 
 /*
+** Process all requests in a single SSH connection if possible.
+*/
+void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
+  do{
+    cgi_handle_ssh_http_request(zIpAddr);
+    process_one_web_page(0, FileGlob);
+    blob_reset(&g.cgiIn);
+  } while ( g.fSshClient & CGI_SSH_FOSSIL ||
+          g.fSshClient & CGI_SSH_COMPAT );
+}
+
+/*
 ** Note that the following command is used by ssh:// processing.
 **
 ** COMMAND: test-http
 ** Works like the http command but gives setup permission to all users.
+**
 */
 void cmd_test_http(void){
+  const char *zIpAddr;    /* IP address of remote client */
+
   Th_InitTraceLog();
   login_set_capabilities("sx", 0);
   g.useLocalauth = 1;
-  cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
   g.httpIn = stdin;
   g.httpOut = stdout;
   find_server_repository(0);
   g.cgiOutput = 1;
   g.fullHttpReply = 1;
-  cgi_handle_http_request(0);
-  process_one_web_page(0, 0);
+  zIpAddr = cgi_ssh_remote_addr(0);
+  if( zIpAddr && zIpAddr[0] ){
+    g.fSshClient |= CGI_SSH_CLIENT;
+    ssh_request_loop(zIpAddr, 0);
+  }else{
+    cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
+    cgi_handle_http_request(0);
+    process_one_web_page(0, 0);
+  }
 }
 
 #if !defined(_WIN32)

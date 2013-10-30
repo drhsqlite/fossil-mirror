@@ -191,8 +191,8 @@ void search_cmd(void){
                                                      off the end of the
                                                      results. */
   char const * zLimit = find_option("limit","n",1);
-  int const nLimit = zLimit ? atoi(zLimit) : -1; /* Max number of entries
-                                                    to list */
+  int nLimit = zLimit ? atoi(zLimit) : -1000;   /* Max number of matching
+                                                   lines/entries to list */
 
   db_must_be_within_tree();
   if( g.argc<2 ) return;
@@ -222,11 +222,8 @@ void search_cmd(void){
     blob_appendf(&sql,"AND x>%d ", iBest/3);
   }
   blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
-  if(nLimit>0){
-    blob_appendf(&sql, "LIMIT %d", nLimit);
-  }
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, 1000, 0);
+  print_timeline(&q, nLimit, 79, 0);
   db_finalize(&q);
 }

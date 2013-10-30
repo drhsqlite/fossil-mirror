@@ -36,7 +36,7 @@ static void strip_string(Blob *pBlob, char *z){
        z[i] = 0;
        break;
     }
-    if( z[i]<' ' ) z[i] = ' ';
+    if( z[i]>0 && z[i]<' ' ) z[i] = ' ';
   }
   blob_append(pBlob, z, -1);
 }
@@ -129,6 +129,33 @@ void prompt_for_password(
     }
   }
   blob_reset(&secondTry);
+}
+
+/*
+** Prompt to save Fossil user password
+*/
+int save_password_prompt(){
+  Blob x;
+  char c;
+  prompt_user("remember password (Y/n)? ", &x);
+  c = blob_str(&x)[0];
+  blob_reset(&x);
+  return ( c!='n' && c!='N' );
+}
+
+/*
+** Prompt for Fossil user password
+*/
+char *prompt_for_user_password(const char *zUser){
+  char *zPrompt = mprintf("\rpassword for %s: ", zUser);
+  char *zPw;
+  Blob x;
+  fossil_force_newline();
+  prompt_for_password(zPrompt, &x, 0);
+  free(zPrompt);
+  zPw = mprintf("%b", &x);
+  blob_reset(&x);
+  return zPw;
 }
 
 /*

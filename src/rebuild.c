@@ -351,6 +351,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
                          "'config','shun','private','reportfmt',"
                          "'concealed','accesslog','modreq')"
        " AND name NOT GLOB 'sqlite_*'"
+       " AND name NOT GLOB 'fx_*'"
     );
     if( zTable==0 ) break;
     db_multi_exec("DROP TABLE %Q", zTable);
@@ -723,7 +724,7 @@ void test_clusters_cmd(void){
     int i;
     
     bag_remove(&pending, rid);
-    p = manifest_get(rid, CFTYPE_CLUSTER);
+    p = manifest_get(rid, CFTYPE_CLUSTER, 0);
     if( p==0 ){
       fossil_fatal("bad cluster: rid=%d", rid);
     }

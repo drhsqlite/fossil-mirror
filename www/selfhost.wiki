@@ -40,7 +40,7 @@ Server (3) runs as a CGI script on a shared hosting account at
 This server demonstrates the ability of
 Fossil to run on an economical shared-host web account with no
 privileges beyond port 80 HTTP access and CGI.  It is not necessary
-to have a dedicated computer with administrator to run Fossil.
+to have a dedicated computer with administrator privileges to run Fossil.
 As far as we are aware, 
 Fossil is the only full-featured configuration management system 
 that can run in

@@ -1941,6 +1941,7 @@ struct Annotator {
     const char *zMUuid;   /* Check-in containing the file */
     const char *zDate;    /* Date of the check-in */
     const char *zBgColor; /* Suggested background color */
+    const char *zUser;    /* Name of user who did the check-in */
     unsigned cnt;         /* Number of lines contributed by this check-in */
   } *aVers;         /* For each check-in analyzed */
   char **azVers;    /* Names of versions analyzed */
@@ -2063,6 +2064,7 @@ static void annotate_file(
     "SELECT (SELECT uuid FROM blob WHERE rid=mlink.fid),"
     "       (SELECT uuid FROM blob WHERE rid=mlink.mid),"
     "       date(event.mtime),"
+    "       coalesce(event.euser,event.user),"
     "       mlink.pid"
     "  FROM mlink, event"
     " WHERE mlink.fid=:rid"
@@ -2076,11 +2078,12 @@ static void annotate_file(
   db_bind_int(&q, ":rid", rid);
   if( iLimit==0 ) iLimit = 1000000000;
   while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
-    int prevId = db_column_int(&q, 3);
+    int prevId = db_column_int(&q, 4);
     p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
     p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
     p->aVers[p->nVers].zMUuid = fossil_strdup(db_column_text(&q, 1));
     p->aVers[p->nVers].zDate = fossil_strdup(db_column_text(&q, 2));
+    p->aVers[p->nVers].zUser = fossil_strdup(db_column_text(&q, 3));
     if( p->nVers ){
       content_get(rid, &step);
       annotation_step(p, &step, p->nVers-1);
@@ -2270,11 +2273,14 @@ void annotation_page(void){
 
 /*
 ** COMMAND: annotate
+** COMMAND: blame
 **
-** %fossil annotate ?OPTIONS? FILENAME
+** %fossil (annotate|blame) ?OPTIONS? FILENAME
 **
 ** Output the text of a file with markings to show when each line of
-** the file was last modified.
+** the file was last modified.  The "annotate" command shows line numbers
+** and omits the username.  The "blame" command shows the user who made each
+** checkin and omits the line number.
 **
 ** Options:
 **   --filevers      Show file version numbers rather than check-in versions
@@ -2297,7 +2303,9 @@ void annotate_cmd(void){
   int showLog;      /* True to show the log */
   int fileVers;     /* Show file version instead of check-in versions */
   int annFlags = 0; /* Flags to control annotation properties */
+  int bBlame = 0;   /* True for BLAME output.  False for ANNOTATE. */
 
+  bBlame = g.argv[1][0]=='b';
   zLimit = find_option("limit","n",1);
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
@@ -2344,16 +2352,24 @@ void annotate_cmd(void){
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
     int n = ann.aOrig[i].n;
-    char zPrefix[200];
-    z[n] = 0;
+    struct AnnVers *p;
     if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
-    if( iVers>=0 ){
-      struct AnnVers *p = ann.aVers+iVers;
-      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%.10s %s",
-           fileVers ? p->zFUuid : p->zMUuid, p->zDate);
+    p = ann.aVers + iVers;
+    if( bBlame ){
+      if( iVers>=0 ){
+        fossil_print("%.10s %s %13.13s: %.*s\n",
+             fileVers ? p->zFUuid : p->zMUuid, p->zDate, p->zUser, n, z);
+      }else{
+        fossil_print("%35s  %.*s\n", "", n, z);
+      }
     }else{
-      zPrefix[0] = 0;
+      if( iVers>=0 ){
+        fossil_print("%.10s %s %5d: %.*s\n",
+             fileVers ? p->zFUuid : p->zMUuid, p->zDate, i+1, n, z);
+      }else{
+        fossil_print("%21s %5d: %.*s\n",
+             "", i+1, n, z);
+      }
     }
-    fossil_print("%21s %4d: %.*s\n", zPrefix, i+1, n, z);
   }
 }

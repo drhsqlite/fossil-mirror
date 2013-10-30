@@ -581,7 +581,19 @@ void ci_page(void){
       db_finalize(&q2);
     }
     if( g.perm.Hyperlink ){
-      const char *zProjName = db_get("project-name", "unnamed");
+      char *zPJ = db_get("short-project-name", 0);
+      Blob projName;
+      int jj;
+      if( zPJ==0 ) zPJ = db_get("project-name", "unnamed");
+      blob_zero(&projName);
+      blob_append(&projName, zPJ, -1);
+      blob_trim(&projName);
+      zPJ = blob_str(&projName);
+      for(jj=0; zPJ[jj]; jj++){
+        if( (zPJ[jj]>0 && zPJ[jj]<' ') || strchr("\"*/:<>?\\|", zPJ[jj]) ){
+          zPJ[jj] = '_';
+        }
+      }
       @ <tr><th>Timelines:</th><td>
       @   %z(href("%R/timeline?f=%S",zUuid))family</a>
       if( zParent ){
@@ -607,11 +619,11 @@ void ci_page(void){
       /* The Download: line */
       if( g.perm.Zip ){
         char *zUrl = mprintf("%R/tarball/%t-%S.tar.gz?uuid=%s",
-                             zProjName, zUuid, zUuid);
+                             zPJ, zUuid, zUuid);
         @ </td></tr>
         @ <tr><th>Downloads:</th><td>
         @ %z(href("%s",zUrl))Tarball</a>
-        @ | %z(href("%R/zip/%t-%S.zip?uuid=%s",zProjName,zUuid,zUuid))
+        @ | %z(href("%R/zip/%t-%S.zip?uuid=%s",zPJ,zUuid,zUuid))
         @         ZIP archive</a>
         fossil_free(zUrl);
       }
@@ -626,6 +638,7 @@ void ci_page(void){
       }
       @   </td>
       @ </tr>
+      blob_reset(&projName);
     }
     @ </table>
   }else{
@@ -725,7 +738,7 @@ void winfo_page(void){
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(); return; }
   rid = name_to_rid_www("name");
-  if( rid==0 || (pWiki = manifest_get(rid, CFTYPE_WIKI))==0 ){
+  if( rid==0 || (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))==0 ){
     style_header("Wiki Page Information Error");
     @ No such object: %h(P("name"))
     style_footer();
@@ -836,7 +849,7 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
     webpage_error("Artifact %s is not a checkin.", P(zParam));
     return 0;
   }
-  return manifest_get(rid, CFTYPE_MANIFEST);
+  return manifest_get(rid, CFTYPE_MANIFEST, 0);
 }
 
 /*
@@ -1487,7 +1500,7 @@ int artifact_from_ci_and_filename(void){
   zFilename = P("filename");
   if( zFilename==0 ) return 0;
   cirid = name_to_rid_www("ci");
-  pManifest = manifest_get(cirid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(cirid, CFTYPE_MANIFEST, 0);
   if( pManifest==0 ) return 0;
   manifest_file_rewind(pManifest);
   while( (pFile = manifest_file_next(pManifest,0))!=0 ){
@@ -1710,7 +1723,7 @@ void tinfo_page(void){
             g.zTop, zUuid);
     }
   }
-  pTktChng = manifest_get(rid, CFTYPE_TICKET);
+  pTktChng = manifest_get(rid, CFTYPE_TICKET, 0);
   if( pTktChng==0 ) fossil_redirect_home();
   zDate = db_text(0, "SELECT datetime(%.12f)", pTktChng->rDate);
   memcpy(zTktName, pTktChng->zTicketUuid, UUID_SIZE+1);

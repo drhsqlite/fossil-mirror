@@ -18,9 +18,9 @@
 **
 ** This file contains code to do formatting of wiki text.
 */
+#include "config.h"
 #include <assert.h>
 #include <ctype.h>
-#include "config.h"
 #include "wiki.h"
 
 /*
@@ -230,7 +230,7 @@ void wiki_page(void){
       " ORDER BY mtime DESC", zTag
     );
     free(zTag);
-    pWiki = manifest_get(rid, CFTYPE_WIKI);
+    pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
     if( pWiki ){
       zBody = pWiki->zWiki;
       zMimetype = pWiki->zMimetype;
@@ -393,7 +393,7 @@ void wikiedit_page(void){
       login_needed();
       return;
     }
-    if( zBody==0 && (pWiki = manifest_get(rid, CFTYPE_WIKI))!=0 ){
+    if( zBody==0 && (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
       zBody = pWiki->zWiki;
       zMimetype = pWiki->zMimetype;
     }
@@ -634,7 +634,7 @@ void wikiappend_page(void){
       db_set("sandbox", blob_str(&body), 0);
     }else{
       login_verify_csrf_secret();
-      pWiki = manifest_get(rid, CFTYPE_WIKI);
+      pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
       if( pWiki ){
         blob_append(&body, pWiki->zWiki, -1);
         manifest_destroy(pWiki);
@@ -784,11 +784,11 @@ void wdiff_page(void){
       zPageName, rid1
     );
   }
-  pW1 = manifest_get(rid1, CFTYPE_WIKI);
+  pW1 = manifest_get(rid1, CFTYPE_WIKI, 0);
   if( pW1==0 ) fossil_redirect_home();
   blob_init(&w1, pW1->zWiki, -1);
   blob_zero(&w2);
-  if( rid2 && (pW2 = manifest_get(rid2, CFTYPE_WIKI))!=0 ){
+  if( rid2 && (pW2 = manifest_get(rid2, CFTYPE_WIKI, 0))!=0 ){
     blob_init(&w2, pW2->zWiki, -1);
   }
   blob_zero(&d);
@@ -1066,7 +1066,7 @@ void wiki_cmd(void){
       " ORDER BY x.mtime DESC LIMIT 1",
       zPageName 
     );
-    if( (pWiki = manifest_get(rid, CFTYPE_WIKI))!=0 ){
+    if( (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
       zBody = pWiki->zWiki;
     }
     if( zBody==0 ){

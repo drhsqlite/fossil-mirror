@@ -634,7 +634,7 @@ static cson_value * json_timeline_ticket(){
     cson_value * rowV;
     cson_object * row;
     /*printf("rid=%d\n",rid);*/
-    pMan = manifest_get(rid, CFTYPE_TICKET);
+    pMan = manifest_get(rid, CFTYPE_TICKET, 0);
     if(!pMan){
       /* this might be an attachment? I'm seeing this with
          rid 15380, uuid [1292fef05f2472108].

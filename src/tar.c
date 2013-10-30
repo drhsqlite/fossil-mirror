@@ -17,9 +17,9 @@
 **
 ** This file contains code used to generate tarballs.
 */
+#include "config.h"
 #include <assert.h>
 #include <zlib.h>
-#include "config.h"
 #include "tar.h"
 
 /*
@@ -481,7 +481,7 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
   }
   nPrefix = blob_size(&filename);
 
-  pManifest = manifest_get(rid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pManifest ){
     mTime = (pManifest->rDate - 2440587.5)*86400.0;
     tar_begin(mTime);

@@ -386,7 +386,7 @@ void ainfo_page(void){
     }
   }
 #endif
-  pAttach = manifest_get(rid, CFTYPE_ATTACHMENT);
+  pAttach = manifest_get(rid, CFTYPE_ATTACHMENT, 0);
   if( pAttach==0 ) fossil_redirect_home();
   zTarget = pAttach->zAttachTarget;
   zSrc = pAttach->zAttachSrc;

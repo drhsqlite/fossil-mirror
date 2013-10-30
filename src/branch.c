@@ -75,7 +75,7 @@ void branch_new(void){
     fossil_fatal("unable to locate check-in off of which to branch");
   }
 
-  pParent = manifest_get(rootid, CFTYPE_MANIFEST);
+  pParent = manifest_get(rootid, CFTYPE_MANIFEST, 0);
   if( pParent==0 ){
     fossil_fatal("%s is not a valid check-in", g.argv[4]);
   }
