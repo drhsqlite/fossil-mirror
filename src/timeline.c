@@ -345,11 +345,14 @@ void www_print_timeline(
       sqlite3_snprintf(sizeof(zTime), zTime, "%.16s", zDate);
     }
     if( rid == vid ){
-      @ <tr class="timelineCurrent">
+      @ <tr class="timelineCurrent"
     }else {
-      @ <tr>
+      @ <tr
     }
-    @ <td class="timelineTime">%s(zTime)</td>
+    if( zTagList && zTagList[0] ){
+      @ class="%h(zTagList)"
+    }
+    @> <td class="timelineTime">%s(zTime)</td>
     @ <td class="timelineGraph">
     if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
     if( zType[0]=='c'
