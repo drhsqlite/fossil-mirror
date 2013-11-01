@@ -116,7 +116,7 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
       g.urlUser = mprintf("%.*s", j-iStart, &zUrl[iStart]);
       dehttpize(g.urlUser);
       if( j<i ){
-        urlFlags |= URL_ASK_REMEMBER_PW;
+        if( urlFlags & URL_REMEMBER ) urlFlags |= URL_ASK_REMEMBER_PW;
         g.urlPasswd = mprintf("%.*s", i-j-1, &zUrl[j+1]);
         dehttpize(g.urlPasswd);
       }
@@ -227,7 +227,7 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
   }else if( g.urlUser!=0 && g.urlPasswd==0 && (urlFlags & URL_PROMPT_PW) ){
     url_prompt_for_password();
     bPrompted = 1;
-  }else if( g.urlUser!=0 && (urlFlags & URL_ASK_REMEMBER_PW ) &&
+  }else if( g.urlUser!=0 && ( urlFlags & URL_ASK_REMEMBER_PW ) &&
             save_password_prompt() ){
     g.urlFlags = urlFlags |= URL_REMEMBER_PW;
   }

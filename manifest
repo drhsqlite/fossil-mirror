@@ -1,5 +1,5 @@
-C Prompt\sto\sremember\spassword\swhen\spassword\sis\sembedded\sin\sURL.\nAlso\simprove\spassword\sfailure\sprompting\sduring\sclone/sync\soperations.
-D 2013-11-01T05:14:54.909
+C Avoid\sclobbering\sthe\slast-sync-pw\swhen\sdoing\ssync\s--once.
+D 2013-11-01T08:11:19.675
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -420,7 +420,7 @@ F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 7b3ec02e5e293378c23f6a048c7beedcbb6e0ff0
 F src/update.c 8834951295705765a92d4db989df23536d2ca139
-F src/url.c 4dc1c1bbff61bb153f32160385a66445203ab916
+F src/url.c e9e4b64d3bbf73ef19deeaf5f59d50dc8dd2bfb8
 F src/user.c 5de78b1eaecdc7c3ed9a70713280dfee6d4f6bd0
 F src/utf8.c f72d86a09600005942bea4fc9cbfeab625ea2867
 F src/util.c 7054510104b0eb24815b856227807dd964115ebe
@@ -430,7 +430,7 @@ F src/wiki.c d254dff298ad37abd89cda54a60150d6298ff585
 F src/wikiformat.c 8e2399dda22b4f12e3e191c708af0bf2fbe8fa12
 F src/winhttp.c cd90cf700e4916c2226cbc82bafff2de05b1fa6d
 F src/wysiwyg.c 05edd99047b960c4410d6de58eea81385a373323
-F src/xfer.c 5ec7572ec9bd80cb378efab76876aa359b03fe81
+F src/xfer.c 06df18e3d3d7dfb35bb3c9d39155412fc1c16ae5
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c 4cf2d7192533380c48f95600c5af5b5b7fd40e19
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -635,10 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dda5b18b0dd67c680ea01cef07ce25e94413bdf9
-R 2d5b133afb8e042727ebee648edf03c9
-T *branch * pending-review
-T *sym-pending-review *
-T -sym-trunk *
+P 1ccbb651c5d6c1e93bfc9ab60f60445881796072
+R db26138cd2c5dc7600294b9a50275705
 U andybradford
-Z 30c1d9ceed8e65d3dc82a8edbd1b4a56
+Z c602fc0faee6d74bb23a09775dd6e75f

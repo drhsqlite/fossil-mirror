@@ -1782,8 +1782,7 @@ int client_sync(
               g.urlPasswd = 0;
               go = 1;
               if( g.cgiOutput==0 ){
-                g.urlFlags |= URL_PROMPT_PW | URL_ASK_REMEMBER_PW;
-                g.urlFlags |= URL_REMEMBER;
+                g.urlFlags |= URL_PROMPT_PW;
                 url_prompt_for_password();
               }
             }
