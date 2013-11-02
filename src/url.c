@@ -78,7 +78,9 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
   if( zUrl==0 ){
     zUrl = db_get("last-sync-url", 0);
     if( zUrl==0 ) return;
-    g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
+    if( g.urlPasswd==0 ){
+      g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
+    }
     bSetUrl = 0;
   }
 
