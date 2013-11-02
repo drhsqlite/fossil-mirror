@@ -230,7 +230,7 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
     url_prompt_for_password();
     bPrompted = 1;
   }else if( g.urlUser!=0 && ( urlFlags & URL_ASK_REMEMBER_PW ) &&
-            save_password_prompt() ){
+            isatty(fileno(stdin)) && save_password_prompt() ){
     g.urlFlags = urlFlags |= URL_REMEMBER_PW;
   }
   if( urlFlags & URL_REMEMBER ){
