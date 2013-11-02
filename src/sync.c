@@ -122,6 +122,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
     usage("URL");
   }
   user_select();
+  g.urlFlags = urlFlags;
   if( g.argc==2 ){
     if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
       fossil_print("Sync with %s\n", g.urlCanonical);
