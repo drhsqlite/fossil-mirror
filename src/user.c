@@ -137,6 +137,10 @@ void prompt_for_password(
 int save_password_prompt(){
   Blob x;
   char c;
+  const char *old = unobscure(db_get("last-sync-pw", 0));
+  if( (old!=0) && !strcmp(old, g.urlPasswd) ){
+     return 0;
+  }
   prompt_user("remember password (Y/n)? ", &x);
   c = blob_str(&x)[0];
   blob_reset(&x);
