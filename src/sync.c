@@ -121,6 +121,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
     if( urlOptional ) fossil_exit(0);
     usage("URL");
   }
+  urlFlags = g.urlFlags;
   user_select();
   g.urlFlags = urlFlags;
   if( g.argc==2 ){
