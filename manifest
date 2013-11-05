@@ -1,5 +1,5 @@
-C Make\sit\sso\spassword\sprompts\sduring\scommit\sare\salso\shonored.
-D 2013-11-05T02:08:41.401
+C Add\s--once\soption\sto\s"fossil\sclone"
+D 2013-11-05T09:37:13.194
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
 F .fossil-settings/keep-glob 531bcff609de3ddf55a639f8dbaa1ded04d9ae51
@@ -320,7 +320,7 @@ F src/cgi.c 6a9589d91c12aa35d7ea6ceb3d2af48e37b3761d
 F src/checkin.c 72a08db1f6364ca01fefcf6350e9bd77070265db
 F src/checkout.c 395ab5b4d8c49889cd07bb8301e2d0c254257f7e
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c b6cf9cc173d60efd3349009585195ec6a925eb9c
+F src/clone.c 035a3f81488fe1f58abea87ce559f4721fd4e21c
 F src/comformat.c 53bb36cde36fa27e41b370d255149003e04a26de
 F src/config.h c2c5361cd6e8b6bf9edcf722c9294eef75c811b2
 F src/configure.c 6cae04ae000d244db3c63be7cf1a7dce877a24c2
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 23e51b9d9b6f126ac38bc5c0783ed0743a9b25c7
-R 198d2a2d15263cbc749dad62682a7299
-U andybradford
-Z 2785d3e8f1ee701268a9831d6c99e7a7
+P 1854e090fda7dd695551ea67271ced63f21f4461
+R 68ba6d183ad966e787edc4211836bac5
+U jan.nijtmans
+Z b7d64a84c6fc009d19a02af350fec004
