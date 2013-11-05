@@ -72,7 +72,6 @@ static void url_tolower(char *z){
 void url_parse(const char *zUrl, unsigned int urlFlags){
   int i, j, c;
   char *zFile = 0;
-  int bPrompted = 0;
   int bSetUrl = 1;
  
   if( zUrl==0 ){
@@ -228,16 +227,20 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
     blob_reset(&cfile);
   }else if( g.urlUser!=0 && g.urlPasswd==0 && (urlFlags & URL_PROMPT_PW) ){
     url_prompt_for_password();
-    bPrompted = 1;
-  }else if( g.urlUser!=0 && ( urlFlags & URL_ASK_REMEMBER_PW ) &&
-            isatty(fileno(stdin)) && save_password_prompt() ){
-    g.urlFlags = urlFlags |= URL_REMEMBER_PW;
+  }else if( g.urlUser!=0 && ( urlFlags & URL_ASK_REMEMBER_PW ) ){
+    if( isatty(fileno(stdin)) ){
+      if( save_password_prompt() ){
+        g.urlFlags = urlFlags |= URL_REMEMBER_PW;
+      }else{
+        g.urlFlags = urlFlags &= ~URL_REMEMBER_PW;
+      }
+    }
   }
   if( urlFlags & URL_REMEMBER ){
     if( bSetUrl ){
       db_set("last-sync-url", g.urlCanonical, 0);
     }
-    if( !bPrompted && g.urlPasswd && g.urlUser ){
+    if( g.urlPasswd && g.urlUser && ( g.urlFlags & URL_REMEMBER_PW ) ){
       db_set("last-sync-pw", obscure(g.urlPasswd), 0);
     }
   }
@@ -455,6 +458,8 @@ void url_prompt_for_password(void){
         if( g.urlFlags & URL_REMEMBER ){
           db_set("last-sync-pw", obscure(g.urlPasswd), 0);
         }
+      }else{
+        g.urlFlags &= ~URL_REMEMBER_PW;
       }
     }
   }else{
