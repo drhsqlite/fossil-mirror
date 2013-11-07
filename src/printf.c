@@ -924,7 +924,7 @@ static void fossil_errorlog(const char *zFormat, ...){
       "PATH_INFO", "QUERY_STRING", "REMOTE_ADDR", "REQUEST_METHOD",
       "REQUEST_URI", "SCRIPT_NAME" };
   if( g.zErrlog==0 ) return;
-  out = fopen(g.zErrlog, "a");
+  out = fossil_fopen(g.zErrlog, "a");
   if( out==0 ) return;
   now = time(0);
   pNow = gmtime(&now);
@@ -936,7 +936,11 @@ static void fossil_errorlog(const char *zFormat, ...){
   fprintf(out, "\n");
   va_end(ap);
   for(i=0; i<sizeof(azEnv)/sizeof(azEnv[0]); i++){
-    if( (z = getenv(azEnv[i]))!=0 || (z = P(azEnv[i]))!=0 ){
+    char *p;
+    if( (p = fossil_getenv(azEnv[i]))!=0 ){
+      fprintf(out, "%s=%s\n", azEnv[i], p);
+      fossil_filename_free(p);
+    }else if( (z = P(azEnv[i]))!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], z);
     }
   }
