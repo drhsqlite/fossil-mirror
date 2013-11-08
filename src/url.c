@@ -66,13 +66,12 @@ static void url_tolower(char *z){
 **
 ** SSH url format is:
 **
-**     ssh://userid:password@host:port/path?fossil=path/to/fossil.exe
+**     ssh://userid@host:port/path?fossil=path/to/fossil.exe
 **
 */
 void url_parse(const char *zUrl, unsigned int urlFlags){
   int i, j, c;
   char *zFile = 0;
-  int bSetUrl = 1;
  
   if( zUrl==0 ){
     zUrl = db_get("last-sync-url", 0);
@@ -80,7 +79,6 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
     if( g.urlPasswd==0 ){
       g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
     }
-    bSetUrl = 0;
   }
 
   if( strncmp(zUrl, "http://", 7)==0
@@ -117,15 +115,16 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
       g.urlUser = mprintf("%.*s", j-iStart, &zUrl[iStart]);
       dehttpize(g.urlUser);
       if( j<i ){
-        if( urlFlags & URL_REMEMBER ) urlFlags |= URL_ASK_REMEMBER_PW;
+        if( ( urlFlags & URL_REMEMBER ) && g.urlIsSsh==0 ){
+          urlFlags |= URL_ASK_REMEMBER_PW;
+        }
         g.urlPasswd = mprintf("%.*s", i-j-1, &zUrl[j+1]);
         dehttpize(g.urlPasswd);
       }
-      if( g.urlIsSsh && g.urlPasswd ){
-        zLogin = mprintf("%t:*@", g.urlUser);
-      }else{
-        zLogin = mprintf("%t@", g.urlUser);
+      if( g.urlIsSsh ){
+        urlFlags &= ~URL_ASK_REMEMBER_PW;
       }
+      zLogin = mprintf("%t@", g.urlUser);
       for(j=i+1; (c=zUrl[j])!=0 && c!='/' && c!=':'; j++){}
       g.urlName = mprintf("%.*s", j-i-1, &zUrl[i+1]);
       i = j;
@@ -234,14 +233,6 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
       }else{
         g.urlFlags = urlFlags &= ~URL_REMEMBER_PW;
       }
-    }
-  }
-  if( urlFlags & URL_REMEMBER ){
-    if( bSetUrl ){
-      db_set("last-sync-url", g.urlCanonical, 0);
-    }
-    if( g.urlPasswd && g.urlUser && ( g.urlFlags & URL_REMEMBER_PW ) ){
-      db_set("last-sync-pw", obscure(g.urlPasswd), 0);
     }
   }
 }
@@ -455,9 +446,6 @@ void url_prompt_for_password(void){
     ){
       if( save_password_prompt() ){
         g.urlFlags |= URL_REMEMBER_PW;
-        if( g.urlFlags & URL_REMEMBER ){
-          db_set("last-sync-pw", obscure(g.urlPasswd), 0);
-        }
       }else{
         g.urlFlags &= ~URL_REMEMBER_PW;
       }
@@ -469,14 +457,15 @@ void url_prompt_for_password(void){
 }
 
 /*
-** Remember the URL if requested.
+** Remember the URL and password if requested.
 */
 void url_remember(void){
-  db_set("last-sync-url", g.urlCanonical, 0);
-  if( g.urlFlags & URL_REMEMBER_PW ){
-    db_set("last-sync-pw", obscure(g.urlPasswd), 0);
+  if( g.urlFlags & URL_REMEMBER ){
+    db_set("last-sync-url", g.urlCanonical, 0);
+    if( g.urlUser!=0 && g.urlPasswd!=0 && ( g.urlFlags & URL_REMEMBER_PW ) ){
+      db_set("last-sync-pw", obscure(g.urlPasswd), 0);
+    }
   }
-  g.urlFlags |= URL_REMEMBER;
 }
 
 /* Preemptively prompt for a password if a username is given in the

@@ -1785,6 +1785,7 @@ int client_sync(
                 g.urlFlags |= URL_PROMPT_PW;
                 g.urlFlags &= ~URL_PROMPTED;
                 url_prompt_for_password();
+                url_remember();
               }
             }
           }else{

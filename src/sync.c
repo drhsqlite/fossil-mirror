@@ -56,6 +56,7 @@ int autosync(int flags){
     g.urlFlags |= URL_PROMPT_PW;
     url_prompt_for_password();
   }
+  url_remember();
 #if 0 /* Disabled for now */
   if( (flags & AUTOSYNC_PULL)!=0 && db_get_boolean("auto-shun",1) ){
     /* When doing an automatic pull, also automatically pull shuns from
@@ -117,6 +118,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
     clone_ssh_db_set_options();
   }
   url_parse(zUrl, urlFlags);
+  url_remember();
   if( g.urlProtocol==0 ){
     if( urlOptional ) fossil_exit(0);
     usage("URL");
@@ -266,8 +268,9 @@ void remote_url_cmd(void){
     db_unset("last-sync-url", 0);
     db_unset("last-sync-pw", 0);
     if( is_false(g.argv[2]) ) return;
-    url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW);
+    url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
   }
+  url_remember();
   zUrl = db_get("last-sync-url", 0);
   if( zUrl==0 ){
     fossil_print("off\n");

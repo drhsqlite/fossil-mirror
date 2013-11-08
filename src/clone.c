@@ -119,10 +119,10 @@ void clone_cmd(void){
   const char *zDefaultUser;   /* Optional name of the default user */
   int nErr = 0;
   int bPrivate = 0;           /* Also clone private branches */
-  int urlFlags = URL_PROMPT_PW;
+  int urlFlags = URL_PROMPT_PW | URL_REMEMBER;
 
   if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
-  if( find_option("once",0,0)==0) urlFlags |= URL_ASK_REMEMBER_PW;
+  if( find_option("once",0,0)!=0) urlFlags &= ~URL_REMEMBER;
   clone_ssh_find_options();
   url_proxy_options();
   if( g.argc < 4 ){
@@ -142,9 +142,7 @@ void clone_cmd(void){
     db_close(1);
     db_open_repository(g.argv[3]);
     db_record_repository_filename(g.argv[3]);
-    if( urlFlags&URL_ASK_REMEMBER_PW ){
-      url_remember();
-    }
+    url_remember();
     if( !bPrivate ) delete_private_content();
     shun_artifacts();
     db_create_default_users(1, zDefaultUser);
@@ -163,9 +161,7 @@ void clone_cmd(void){
     user_select();
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA, 0);
-    if( urlFlags&URL_ASK_REMEMBER_PW ){
-      url_remember();
-    }
+    url_remember();
     if( g.zSSLIdentity!=0 ){
       /* If the --ssl-identity option was specified, store it as a setting */
       Blob fn;
