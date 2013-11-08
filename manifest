@@ -1,5 +1,5 @@
-C Make\ssure\sthat\s"fossil\sclean"\snever\scleans\swin/fossil.exe\seither.
-D 2013-11-07T13:31:06.943
+C Fix\stemporary\sdirectory\sseparator\shandling\sfor\sCygwin.\sFor\stesting\spurposes.\s(Change\staken\sover\sfrom\sSQLite's\s"cygDirSep"\sbranch)
+D 2013-11-08T15:46:46.320
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -400,7 +400,7 @@ F src/shell.c 3dfc3461d79db60696941c2e663c55ef6cce4d22
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
 F src/skins.c 33e5775a510a6efc13ab69cbb7f3e2a42d35e00d
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c 0a54d76566728c2ba96292a49b138e4f69a7c391
+F src/sqlite3.c 546383257ec4a6d3411a5ddde1bd8032e3172e76
 F src/sqlite3.h 713dd84bf4539a72a34997f2e5293c32ed3330e0
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 996d2fc7011c02d117c10be77344cbf470132424
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P aab8ce2fcc857d993461c967c50bb31f02b03a9b
-R 29e05eae15c509f057d6e0f982f5c459
+P 6dd4d75e1508d5cb760c52090f20399dfacbbcbb
+R 41d7c837a456e292bb33818fb9403a3c
 U jan.nijtmans
-Z 609282de39d0c3a39db15ee7d1a7ff47
+Z f4b7d04a8d8067445420232d99d5af42
