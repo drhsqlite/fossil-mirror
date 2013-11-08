@@ -213,7 +213,7 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
   }else{
     fossil_fatal("unknown repository: %s", zUrl);
   }
-  g.urlFlags = urlFlags;
+  if( urlFlags ) g.urlFlags = urlFlags;
   if( g.urlIsFile ){
     Blob cfile;
     dehttpize(zFile);  
