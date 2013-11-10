@@ -780,7 +780,7 @@ void login_check_credentials(void){
   char *zRemoteAddr;            /* Abbreviated IP address of the requestor */
   const char *zCap = 0;         /* Capability string */
   const char *zPublicPages = 0; /* GLOB patterns of public pages */
-  const char *zLogin;           /* Login user for credentials */
+  const char *zLogin = 0;       /* Login user for credentials */
 
   /* Only run this check once.  */
   if( g.userUid!=0 ) return;
@@ -802,8 +802,8 @@ void login_check_credentials(void){
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0
   ){
-    zLogin = db_lget("default-user",0);
-    if( g.localOpen && zLogin!=0 ){
+    if( g.localOpen ) zLogin = db_lget("default-user",0);
+    if( zLogin!=0 ){
       uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zLogin);
     }else{
       uid = db_int(0, "SELECT uid FROM user WHERE cap LIKE '%%s%%'");
