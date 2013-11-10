@@ -19,6 +19,12 @@
 */
 #include "config.h"
 #include "url.h"
+#include <stdio.h>
+#ifdef _WIN32
+#include <io.h>
+#define isatty(d) _isatty(d)
+#define fileno(s) _fileno(s)
+#endif
 
 #if INTERFACE
 /*
@@ -474,7 +480,7 @@ void url_remember(void){
 void url_get_password_if_needed(void){
   if( (g.urlUser && g.urlUser[0])
    && (g.urlPasswd==0 || g.urlPasswd[0]==0)
-   && isatty(fileno(stdin)) 
+   && isatty(fileno(stdin))
   ){
     url_prompt_for_password();
   }
