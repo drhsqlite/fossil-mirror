@@ -1545,8 +1545,10 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
 
     if( nAbsLimit!=0 ){
       if( nLimit<0 && nLine>=nAbsLimit ){
+        fossil_print("=== line limit (%d) reached ===\n", nAbsLimit);
         break; /* line count limit hit, stop. */
       }else if( nEntry>=nAbsLimit ){
+        fossil_print("=== entry limit (%d) reached ===\n", nAbsLimit);
         break; /* entry count limit hit, stop. */
       }
     }
