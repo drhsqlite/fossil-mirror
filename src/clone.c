@@ -158,6 +158,7 @@ void clone_cmd(void){
     user_select();
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA, 0);
+    db_set("rebuilt", get_version(), 0);
     url_remember();
     if( g.zSSLIdentity!=0 ){
       /* If the --ssl-identity option was specified, store it as a setting */

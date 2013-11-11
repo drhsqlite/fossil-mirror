@@ -1342,6 +1342,7 @@ void db_initial_setup(
 
   db_set("content-schema", CONTENT_SCHEMA, 0);
   db_set("aux-schema", AUX_SCHEMA, 0);
+  db_set("rebuilt", get_version(), 0);
   if( makeServerCodes ){
     db_multi_exec(
       "INSERT INTO config(name,value,mtime)"
@@ -1798,6 +1799,23 @@ char *db_get(const char *zName, char *zDefault){
   }
   if( z==0 ){
     z = zDefault;
+  }
+  return z;
+}
+char *db_get_mtime(const char *zName, char *zFormat, char *zDefault){
+  char *z = 0;
+  if( g.repositoryOpen ){
+    z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
+  }
+  if( z==0 && g.zConfigDbName ){
+    db_swap_connections();
+    z = db_text(0, "SELECT mtime FROM global_config WHERE name=%Q", zName);
+    db_swap_connections();
+  }
+  if( z==0 ){
+    z = zDefault;
+  }else if( zFormat!=0 ){
+    z = db_text(0, "SELECT strftime(%Q,%Q,'unixepoch');", zFormat, z);
   }
   return z;
 }
