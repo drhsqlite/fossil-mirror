@@ -1523,7 +1523,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
   const char *zCurrentUuid = 0;
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
-  int step;
+  int rc;
 
   zPrevDate[0] = 0;
   if( g.localOpen ){
@@ -1531,7 +1531,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
-  while( (step=db_step(q))==SQLITE_ROW ){
+  while( (rc=db_step(q))==SQLITE_ROW ){
     int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
@@ -1545,10 +1545,10 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
 
     if( nAbsLimit!=0 ){
       if( nLimit<0 && nLine>=nAbsLimit ){
-        fossil_print("=== line limit (%d) reached ===\n", nAbsLimit);
+        fossil_print("--- line limit (%d) reached ---\n", nAbsLimit);
         break; /* line count limit hit, stop. */
       }else if( nEntry>=nAbsLimit ){
-        fossil_print("=== entry limit (%d) reached ===\n", nAbsLimit);
+        fossil_print("--- entry limit (%d) reached ---\n", nAbsLimit);
         break; /* entry count limit hit, stop. */
       }
     }
@@ -1615,8 +1615,8 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     }
     nEntry++; /* record another complete entry */
   }
-  if( (nAbsLimit!=0) && (step!=SQLITE_ROW) ){
-    fossil_print("+++ end of timeline reached +++\n");
+  if( rc==SQLITE_DONE ){
+    fossil_print("+++ end of timeline +++\n");
   }
   if( fchngQueryInit ) db_finalize(&fchngQuery);
 }
