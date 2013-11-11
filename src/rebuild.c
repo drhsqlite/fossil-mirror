@@ -609,7 +609,8 @@ void rebuild_database(void){
     }
     if( runDeanalyze ){
       db_multi_exec("DROP TABLE IF EXISTS sqlite_stat1;"
-                    "DROP TABLE IF EXISTS sqlite_stat3;");
+                    "DROP TABLE IF EXISTS sqlite_stat3;"
+                    "DROP TABLE IF EXISTS sqlite_stat4;");
     }
     if( runAnalyze ){
       fossil_print("Analyzing the database... "); fflush(stdout);
