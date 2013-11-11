@@ -245,17 +245,17 @@ void all_cmd(void){
   zFossil = quoteFilename(g.nameOfExe);
   if( useCheckouts ){
     db_prepare(&q,
-       "SELECT substr(name, 7) COLLATE nocase, max(rowid)"
+       "SELECT DISTINCT substr(name, 7) COLLATE nocase"
        "  FROM global_config"
        " WHERE substr(name, 1, 6)=='ckout:'"
-       " GROUP BY 1 ORDER BY 1"
+       " ORDER BY 1"
     );
   }else{
     db_prepare(&q,
-       "SELECT substr(name, 6) COLLATE nocase, max(rowid)"
+       "SELECT DISTINCT substr(name, 6) COLLATE nocase"
        "  FROM global_config"
        " WHERE substr(name, 1, 5)=='repo:'"
-       " GROUP BY 1 ORDER BY 1"
+       " ORDER BY 1"
     );
   }
   bag_init(&outOfDate);

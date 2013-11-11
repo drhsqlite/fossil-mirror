@@ -43,10 +43,10 @@ static const char zSchemaUpdates1[] =
 @ -- UUID.
 @ --
 @ CREATE TABLE IF NOT EXISTS shun(
-@   uuid UNIQUE,          -- UUID of artifact to be shunned. Canonical form
+@   uuid TEXT PRIMARY KEY,-- UUID of artifact to be shunned. Canonical form
 @   mtime INTEGER,        -- When added.  Seconds since 1970
 @   scom TEXT             -- Optional text explaining why the shun occurred
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- Artifacts that should not be pushed are stored in the "private"
 @ -- table.  
@@ -65,7 +65,7 @@ static const char zSchemaUpdates1[] =
 @   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
 @   mtime INTEGER,            -- Time created.  Seconds since 1970
 @   content TEXT              -- Content intended to be concealed
-@ );
+@ ) WITHOUT ROWID;
 ;
 static const char zSchemaUpdates2[] =
 @ -- An entry in this table describes a database query that generates a

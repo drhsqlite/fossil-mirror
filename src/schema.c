@@ -30,7 +30,7 @@ const char zConfigSchema[] =
 @ CREATE TABLE global_config(
 @   name TEXT PRIMARY KEY,
 @   value TEXT
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- Identifier for this file type.
 @ -- The integer is the same as 'FSLG'.
@@ -135,7 +135,7 @@ const char zRepositorySchema1[] =
 @   value CLOB,                      -- Content of the named parameter
 @   mtime DATE,                      -- last modified.  seconds since 1970
 @   CHECK( typeof(name)='text' AND length(name)>=1 )
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- Artifacts that should not be processed are identified in the
 @ -- "shun" table.  Artifacts that are control-file forgeries or
@@ -148,10 +148,10 @@ const char zRepositorySchema1[] =
 @ -- UUID.
 @ --
 @ CREATE TABLE shun(
-@   uuid UNIQUE,          -- UUID of artifact to be shunned. Canonical form
+@   uuid TEXT PRIMARY KEY,-- UUID of artifact to be shunned. Canonical form
 @   mtime DATE,           -- When added.  seconds since 1970
 @   scom TEXT             -- Optional text explaining why the shun occurred
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- Artifacts that should not be pushed are stored in the "private"
 @ -- table.  Private artifacts are omitted from the "unclustered" and
@@ -183,7 +183,7 @@ const char zRepositorySchema1[] =
 @   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
 @   mtime DATE,               -- Time created.  Seconds since 1970
 @   content TEXT              -- Content intended to be concealed
-@ );
+@ ) WITHOUT ROWID;
 @
 @ -- The application ID helps the unix "file" command to identify the
 @ -- database as a fossil repository.
@@ -252,8 +252,8 @@ const char zRepositorySchema2[] =
 @   cid INTEGER REFERENCES blob,    -- Child manifest
 @   isprim BOOLEAN,                 -- pid is the primary parent of cid
 @   mtime DATETIME,                 -- the date/time stamp on cid.  Julian day.
-@   UNIQUE(pid, cid)
-@ );
+@   PRIMARY KEY(pid, cid)
+@ ) WITHOUT ROWID;
 @ CREATE INDEX plink_i2 ON plink(cid,pid);
 @
 @ -- A "leaf" checkin is a checkin that has no children in the same
@@ -358,8 +358,8 @@ const char zRepositorySchema2[] =
 @   value TEXT,                     -- Value of the tag.  Might be NULL.
 @   mtime TIMESTAMP,                -- Time of addition or removal. Julian day
 @   rid INTEGER REFERENCE blob,     -- Artifact tag is applied to
-@   UNIQUE(rid, tagid)
-@ );
+@   PRIMARY KEY(rid, tagid)
+@ ) WITHOUT ROWID;
 @ CREATE INDEX tagxref_i1 ON tagxref(tagid, mtime);
 @
 @ -- When a hyperlink occurs from one artifact to another (for example
@@ -372,8 +372,8 @@ const char zRepositorySchema2[] =
 @   srctype INT,           -- 0: check-in  1: ticket  2: wiki
 @   srcid INT,             -- rid for checkin or wiki.  tkt_id for ticket.
 @   mtime TIMESTAMP,       -- time that the hyperlink was added. Julian day.
-@   UNIQUE(target, srctype, srcid)
-@ );
+@   PRIMARY KEY(target, srctype, srcid)
+@ ) WITHOUT ROWID;
 @ CREATE INDEX backlink_src ON backlink(srcid, srctype);
 @
 @ -- Each attachment is an entry in the following table.  Only

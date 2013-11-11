@@ -222,7 +222,7 @@ void undo_begin(void){
   const char *zDb = db_name("localdb");
   static const char zSql[] = 
     @ CREATE TABLE %s.undo(
-    @   pathname TEXT UNIQUE,             -- Name of the file
+    @   pathname TEXT PRIMARY KEY,        -- Name of the file
     @   redoflag BOOLEAN,                 -- 0 for undoable.  1 for redoable
     @   existsflag BOOLEAN,               -- True if the file exists
     @   isExe BOOLEAN,                    -- True if the file is executable
