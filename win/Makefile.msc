@@ -442,7 +442,7 @@ mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
 $(OX)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) /Fo$@ /Dmain=sqlite3_shell $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
+	$(TCC) /Fo$@ /Dmain=sqlite3_shell /Dsqlite3_strglob=strglob /Dgetenv=fossil_getenv /Dfopen=fossil_fopen $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
 
 $(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
 	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**

@@ -32,20 +32,20 @@
 #define USE_ARGV_TO_OBJV() \
   int objc;                \
   Tcl_Obj **objv;          \
-  int i;
+  int obji;
 
 #define COPY_ARGV_TO_OBJV()                                         \
   objc = argc-1;                                                    \
   objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *))); \
-  for(i=1; i<argc; i++){                                            \
-    objv[i-1] = Tcl_NewStringObj(argv[i], argl[i]);                 \
-    Tcl_IncrRefCount(objv[i-1]);                                    \
+  for(obji=1; obji<argc; obji++){                                   \
+    objv[obji-1] = Tcl_NewStringObj(argv[obji], argl[obji]);        \
+    Tcl_IncrRefCount(objv[obji-1]);                                 \
   }
 
-#define FREE_ARGV_TO_OBJV()      \
-  for(i=1; i<argc; i++){         \
-    Tcl_DecrRefCount(objv[i-1]); \
-  }                              \
+#define FREE_ARGV_TO_OBJV()         \
+  for(obji=1; obji<argc; obji++){   \
+    Tcl_DecrRefCount(objv[obji-1]); \
+  }                                 \
   ckfree((char *)objv);
 
 /*
@@ -111,16 +111,16 @@
 #    endif /* defined(__CYGWIN__) */
 #  endif /* defined(_WIN32) */
 #  ifndef TCL_FINDEXECUTABLE_NAME
-#    define TCL_FINDEXECUTABLE_NAME "_Tcl_FindExecutable"
+#    define TCL_FINDEXECUTABLE_NAME "_Tcl_FindExecutable\0"
 #  endif
 #  ifndef TCL_CREATEINTERP_NAME
-#    define TCL_CREATEINTERP_NAME "_Tcl_CreateInterp"
+#    define TCL_CREATEINTERP_NAME "_Tcl_CreateInterp\0"
 #  endif
 #  ifndef TCL_DELETEINTERP_NAME
-#    define TCL_DELETEINTERP_NAME "_Tcl_DeleteInterp"
+#    define TCL_DELETEINTERP_NAME "_Tcl_DeleteInterp\0"
 #  endif
 #  ifndef TCL_FINALIZE_NAME
-#    define TCL_FINALIZE_NAME "_Tcl_Finalize"
+#    define TCL_FINALIZE_NAME "_Tcl_Finalize\0"
 #  endif
 #endif /* defined(USE_TCL_STUBS) */
 
@@ -313,13 +313,13 @@ static int notifyPreOrPostEval(
   struct TclContext *tclContext = (struct TclContext *)ctx;
   tcl_NotifyProc *xNotifyProc;
 
-  if ( !tclContext ){
+  if( !tclContext ){
     Th_ErrorMessage(interp,
         "invalid Tcl context", (const char *)"", 0);
     return TH_ERROR;
   }
   xNotifyProc = bIsPost ? tclContext->xPostEval : tclContext->xPreEval;
-  if ( xNotifyProc ){
+  if( xNotifyProc ){
     rc = xNotifyProc(bIsPost ?
         tclContext->pPostContext : tclContext->pPreContext,
         interp, ctx, argc, argv, argl, rc);
@@ -785,12 +785,12 @@ static int createTclInterp(
   Tcl_Interp *tclInterp;
   char *setup;
 
-  if ( !tclContext ){
+  if( !tclContext ){
     Th_ErrorMessage(interp,
         "invalid Tcl context", (const char *)"", 0);
     return TH_ERROR;
   }
-  if ( tclContext->interp ){
+  if( tclContext->interp ){
     return TH_OK;
   }
   if( loadTcl(interp, &tclContext->library, &tclContext->xFindExecutable,
@@ -884,7 +884,7 @@ int unloadTcl(
   void *library;
 #endif /* defined(USE_TCL_STUBS) */
 
-  if ( !tclContext ){
+  if( !tclContext ){
     Th_ErrorMessage(interp,
         "invalid Tcl context", (const char *)"", 0);
     return TH_ERROR;
@@ -899,7 +899,7 @@ int unloadTcl(
   ** If the Tcl interpreter has been created, formally delete it now.
   */
   tclInterp = tclContext->interp;
-  if ( tclInterp ){
+  if( tclInterp ){
     Tcl_DeleteInterp(tclInterp);
     tclContext->interp = tclInterp = 0;
   }
@@ -941,7 +941,7 @@ int th_register_tcl(
   /* Add the Tcl integration commands to TH1. */
   for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
     void *ctx;
-    if ( !aCommand[i].zName || !aCommand[i].xProc ) continue;
+    if( !aCommand[i].zName || !aCommand[i].xProc ) continue;
     ctx = aCommand[i].pContext;
     /* Use Tcl interpreter for context? */
     if( !ctx ) ctx = pContext;

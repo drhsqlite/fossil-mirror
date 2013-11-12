@@ -809,6 +809,14 @@ void cmd_test_webpage_list(void){
 
 
 
+/*
+** This function returns a human readable version string.
+*/
+const char *get_version(){
+  static const char version[] = RELEASE_VERSION " " MANIFEST_VERSION " "
+                                MANIFEST_DATE " UTC";
+  return version;
+}
 
 /*
 ** COMMAND: version
@@ -821,8 +829,7 @@ void cmd_test_webpage_list(void){
 ** with
 */
 void version_cmd(void){
-  fossil_print("This is fossil version " RELEASE_VERSION " "
-               MANIFEST_VERSION " " MANIFEST_DATE " UTC\n");
+  fossil_print("This is fossil version %s\n", get_version());
   if(!find_option("verbose","v",0)){
     return;
   }else{

@@ -137,6 +137,10 @@ void prompt_for_password(
 int save_password_prompt(){
   Blob x;
   char c;
+  const char *old = db_get("last-sync-pw", 0);
+  if( (old!=0) && fossil_strcmp(unobscure(old), g.urlPasswd)==0 ){
+     return 0;
+  }
   prompt_user("remember password (Y/n)? ", &x);
   c = blob_str(&x)[0];
   blob_reset(&x);
@@ -292,7 +296,7 @@ void user_cmd(void){
   }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
     int uid;
     if( g.argc!=4 && g.argc!=5 ){
-      usage("user capabilities USERNAME ?PERMISSIONS?");
+      usage("capabilities USERNAME ?PERMISSIONS?");
     }
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.argv[3]);
     if( uid==0 ){

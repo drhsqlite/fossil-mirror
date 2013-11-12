@@ -1342,6 +1342,7 @@ void db_initial_setup(
 
   db_set("content-schema", CONTENT_SCHEMA, 0);
   db_set("aux-schema", AUX_SCHEMA, 0);
+  db_set("rebuilt", get_version(), 0);
   if( makeServerCodes ){
     db_multi_exec(
       "INSERT INTO config(name,value,mtime)"
@@ -1798,6 +1799,23 @@ char *db_get(const char *zName, char *zDefault){
   }
   if( z==0 ){
     z = zDefault;
+  }
+  return z;
+}
+char *db_get_mtime(const char *zName, char *zFormat, char *zDefault){
+  char *z = 0;
+  if( g.repositoryOpen ){
+    z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
+  }
+  if( z==0 && g.zConfigDbName ){
+    db_swap_connections();
+    z = db_text(0, "SELECT mtime FROM global_config WHERE name=%Q", zName);
+    db_swap_connections();
+  }
+  if( z==0 ){
+    z = zDefault;
+  }else if( zFormat!=0 ){
+    z = db_text(0, "SELECT strftime(%Q,%Q,'unixepoch');", zFormat, z);
   }
   return z;
 }
@@ -2443,4 +2461,70 @@ void test_timespan_cmd(void){
   fossil_print("Time differences: %s\n", db_timespan_name(rDiff));
   sqlite3_close(g.db);
   g.db = 0;
+}
+
+/*
+** COMMAND: test-without-rowid
+** %fossil test-without-rowid FILENAME...
+**
+** Change the Fossil repository FILENAME to make use of the WITHOUT ROWID
+** optimization.  FILENAME can also be the ~/.fossil file or a local
+** .fslckout or _FOSSIL_ file.
+**
+** The purpose of this command is for testing the WITHOUT ROWID capabilities
+** of SQLite.  There is no big advantage to using WITHOUT ROWID in Fossil.
+**
+** Options:
+**    --dryrun | -n         No changes.  Just print what would happen.
+*/
+void test_without_rowid(void){
+  int i, j;
+  Stmt q;
+  Blob allSql;
+  int dryRun = find_option("dry-run", "n", 0)!=0;
+  for(i=2; i<g.argc; i++){
+    db_open_or_attach(g.argv[i], "main", 0);
+    blob_init(&allSql, "BEGIN;\n", -1);
+    db_prepare(&q,
+      "SELECT name, sql FROM main.sqlite_master "
+      " WHERE type='table' AND sql NOT LIKE '%%WITHOUT ROWID%%'"
+      "   AND name IN ('global_config','shun','concealed','config',"
+                    "  'plink','tagxref','backlink','vcache');"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zTName = db_column_text(&q, 0);
+      const char *zOrigSql = db_column_text(&q, 1);
+      Blob newSql;
+      blob_init(&newSql, 0, 0);
+      for(j=0; zOrigSql[j]; j++){
+        if( fossil_strnicmp(zOrigSql+j,"unique",6)==0 ){
+          blob_append(&newSql, zOrigSql, j);
+          blob_append(&newSql, "PRIMARY KEY", -1);
+          zOrigSql += j+6;
+          j = -1;
+        }
+      }
+      blob_append(&newSql, zOrigSql, -1);
+      blob_appendf(&allSql, 
+         "ALTER TABLE %s RENAME TO x_%s;\n"
+         "%s WITHOUT ROWID;\n"
+         "INSERT INTO %s SELECT * FROM x_%s;\n"
+         "DROP TABLE x_%s;\n",
+         zTName, zTName, blob_str(&newSql), zTName, zTName, zTName
+      );
+      fossil_print("Converting table %s of %s to WITHOUT ROWID.\n", zTName, g.argv[i]);
+      blob_reset(&newSql);
+    }
+    blob_appendf(&allSql, "COMMIT;\n");
+    db_finalize(&q);
+    if( dryRun ){
+      fossil_print("SQL that would have been evaluated:\n");
+      fossil_print("-------------------------------------------------------------\n");
+      fossil_print("%s", blob_str(&allSql));
+    }else{
+      db_multi_exec("%s", blob_str(&allSql));
+    }
+    blob_reset(&allSql);
+    db_close(1);
+  }
 }

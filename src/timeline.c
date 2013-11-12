@@ -1496,10 +1496,13 @@ void page_timeline(void){
 ** The input query q selects various records.  Print a human-readable
 ** summary of those records.
 **
-** Limit the number of lines printed to mxLine.  If mxLine is zero or
-** negative there is no limit.  The line limit is approximate because
-** it is only checked on a per-entry basis.  In verbose mode, the file
-** name details are considered to be part of the entry.
+** Limit number of lines or entries printed to nLimit.  If nLimit is zero
+** there is no limit.  If nLimit is greater than zero, limit the number of
+** complete entries printed.  If nLimit is less than zero, attempt to limit
+** the number of lines printed (this is basically the legacy behavior).
+** The line limit, if used, is approximate because it is only checked on a
+** per-entry basis.  If verbose mode, the file name details are considered
+** to be part of the entry.
 **
 ** The query should return these columns:
 **
@@ -1512,20 +1515,22 @@ void page_timeline(void){
 **    6.  mtime
 **    7.  branch
 */
-void print_timeline(Stmt *q, int mxLine, int verboseFlag){
+void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
+  int nAbsLimit = (nLimit >= 0) ? nLimit : -nLimit;
   int nLine = 0;
+  int nEntry = 0;
   char zPrevDate[20];
-  const char *zCurrentUuid=0;
+  const char *zCurrentUuid = 0;
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
-  zPrevDate[0] = 0;
 
+  zPrevDate[0] = 0;
   if( g.localOpen ){
     int rid = db_lget_int("checkout", 0);
     zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
-  while( db_step(q)==SQLITE_ROW && (mxLine<=0 || nLine<=mxLine) ){
+  while( db_step(q)==SQLITE_ROW ){
     int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
@@ -1537,6 +1542,15 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
     char zPrefix[80];
     char zUuid[UUID_SIZE+1];
 
+    if( nAbsLimit!=0 ){
+      if( nLimit<0 && nLine>=nAbsLimit ){
+        fossil_print("--- line limit (%d) reached ---\n", nAbsLimit);
+        break; /* line count limit hit, stop. */
+      }else if( nEntry>=nAbsLimit ){
+        fossil_print("--- entry limit (%d) reached ---\n", nAbsLimit);
+        break; /* entry count limit hit, stop. */
+      }
+    }
     sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
     if( memcmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
@@ -1565,7 +1579,7 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
       n += strlen(zPrefix);
     }
     zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
-    nLine += comment_print(zFree, 9, 79); /* record another X lines */
+    nLine += comment_print(zFree, 9, width); /* record another X lines */
     sqlite3_free(zFree);
 
     if(verboseFlag){
@@ -1598,6 +1612,7 @@ void print_timeline(Stmt *q, int mxLine, int verboseFlag){
       }
       db_reset(&fchngQuery);
     }
+    nEntry++; /* record another complete entry */
   }
   if( fchngQueryInit ) db_finalize(&fchngQuery);
 }
@@ -1668,7 +1683,9 @@ static int isIsoDate(const char *z){
 ** for the current version or "now" for the current time.
 **
 ** Options:
-**   -n|--limit N         Output the first N changes (default 20)
+**   -n|--limit N         Output the first N entries (default 20 lines).
+**                        N=0 means no limit.
+**   --offset P           skip P changes
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
 **                            e  = events only
@@ -1677,11 +1694,15 @@ static int isIsoDate(const char *z){
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the checkin comment.
+**   -W|--width <num>     With of lines (default 79). Must be >20 or 0
+**                        (= no limit, resulting in a single line per entry).
 */
 void timeline_cmd(void){
   Stmt q;
-  int n, k;
+  int n, k, width;
   const char *zLimit;
+  const char *zWidth;
+  const char *zOffset;
   const char *zType;
   char *zOrigin;
   char *zDate;
@@ -1690,12 +1711,15 @@ void timeline_cmd(void){
   Blob uuid;
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
   int verboseFlag = 0 ;
+  int iOffset;
+
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag){
     verboseFlag = find_option("showfiles","f", 0)!=0; /* deprecated */
   }
   db_find_and_open_repository(0, 0);
   zLimit = find_option("limit","n",1);
+  zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
   if ( !zLimit ){
     zLimit = find_option("count",0,1);
@@ -1703,8 +1727,18 @@ void timeline_cmd(void){
   if( zLimit ){
     n = atoi(zLimit);
   }else{
-    n = 20;
+    n = -20;
   }
+  if( zWidth ){
+    width = atoi(zWidth);
+    if( (width!=0) && (width<=20) ){
+      fossil_fatal("--width|-W value must be >20 or 0");
+    }
+  }else{
+    width = 79;
+  }
+  zOffset = find_option("offset",0,1);
+  iOffset = zOffset ? atoi(zOffset) : 0;
   if( g.argc>=4 ){
     k = strlen(g.argv[2]);
     if( strncmp(g.argv[2],"before",k)==0 ){
@@ -1720,7 +1754,7 @@ void timeline_cmd(void){
     }else if( strncmp(g.argv[2],"parents",k)==0 ){
       mode = 4;
     }else if(!zType && !zLimit){
-      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit N? ?-t|--type TYPE?");
+      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit #? ?-t|--type TYPE? ?-W|--width WIDTH?");
     }
     if( '-' != *g.argv[3] ){
       zOrigin = g.argv[3];
@@ -1780,9 +1814,12 @@ void timeline_cmd(void){
     blob_appendf(&sql, " AND event.type=%Q ", zType);
   }
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
+  if( iOffset>0 ){
+    blob_appendf(&sql, " LIMIT %d OFFSET %d", n>0?n+1:99999, iOffset);
+  }
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, n, verboseFlag);
+  print_timeline(&q, n, width, verboseFlag);
   db_finalize(&q);
 }
 
