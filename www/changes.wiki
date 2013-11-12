@@ -20,7 +20,7 @@
      "[/help?cmd=clean | fossil clean]" command.
   *  Ten-fold performance improvement in large "fossil blame" or 
      "fossil annotate" commands.
-  *  Add option -W|--width to the "[/help?cmd=timeline | fossil timeline]"
+  *  Add option -W|--width and --offset to "[/help?cmd=timeline | fossil timeline]"
      and  "[/help?cmd=finfo | fossil finfo]" commands.
   *  Option -n|--limit of "[/help?cmd=timeline | fossil timeline]" now
      specifies the number of entries, just like all other commands which

@@ -1685,6 +1685,7 @@ static int isIsoDate(const char *z){
 ** Options:
 **   -n|--limit N         Output the first N entries (default 20 lines).
 **                        N=0 means no limit.
+**   --offset P           skip P changes
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
 **                            e  = events only
@@ -1693,13 +1694,15 @@ static int isIsoDate(const char *z){
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the checkin comment.
-**   -W|--width <num>     With of lines (default 79). Must be >20 or 0.
+**   -W|--width <num>     With of lines (default 79). Must be >20 or 0
+**                        (= no limit, resulting in a single line per entry).
 */
 void timeline_cmd(void){
   Stmt q;
   int n, k, width;
   const char *zLimit;
   const char *zWidth;
+  const char *zOffset;
   const char *zType;
   char *zOrigin;
   char *zDate;
@@ -1708,6 +1711,8 @@ void timeline_cmd(void){
   Blob uuid;
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
   int verboseFlag = 0 ;
+  int iOffset;
+
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag){
     verboseFlag = find_option("showfiles","f", 0)!=0; /* deprecated */
@@ -1732,6 +1737,8 @@ void timeline_cmd(void){
   }else{
     width = 79;
   }
+  zOffset = find_option("offset",0,1);
+  iOffset = zOffset ? atoi(zOffset) : 0;
   if( g.argc>=4 ){
     k = strlen(g.argv[2]);
     if( strncmp(g.argv[2],"before",k)==0 ){
@@ -1807,6 +1814,9 @@ void timeline_cmd(void){
     blob_appendf(&sql, " AND event.type=%Q ", zType);
   }
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
+  if( iOffset>0 ){
+    blob_appendf(&sql, " LIMIT %d OFFSET %d", n>0?n+1:99999, iOffset);
+  }
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
   print_timeline(&q, n, width, verboseFlag);
