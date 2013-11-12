@@ -989,7 +989,7 @@ static void json_mode_bootstrap(){
     }
     inFile = (0==strcmp("-",jfile))
       ? stdin
-      : fopen(jfile,"rb");
+      : fossil_fopen(jfile,"rb");
     if(!inFile){
       g.json.resultCode = FSL_JSON_E_FILE_OPEN_FAILED;
       fossil_fatal("Could not open JSON file [%s].",jfile)

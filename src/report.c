@@ -185,6 +185,9 @@ int report_query_authorizer(
          "tagxref",
       };
       int i;
+      if( fossil_strncmp(zArg1, "fx_", 3)==0 ){
+        break;
+      }
       for(i=0; i<sizeof(azAllowed)/sizeof(azAllowed[0]); i++){
         if( fossil_stricmp(zArg1, azAllowed[i])==0 ) break;
       }

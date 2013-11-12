@@ -783,6 +783,9 @@ writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 set opt {-Dmain=sqlite3_shell}
+append opt " -Dsqlite3_strglob=strglob"
+append opt " -Dgetenv=fossil_getenv"
+append opt " -Dfopen=fossil_fopen"
 append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
@@ -890,7 +893,7 @@ version$E: $B\src\mkversion.c
 	$(BCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) -o$@ -c -Dmain=sqlite3_shell $(SQLITE_OPTIONS) $**
+	$(TCC) -o$@ -c -Dmain=sqlite3_shell -Dsqlite3_strglob=strglob -Dgetenv=fossil_getenv -Dfopen=fossil_fopen $(SQLITE_OPTIONS) $**
 
 $(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
 	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $**
@@ -1093,7 +1096,7 @@ mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
 $(OX)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) /Fo$@ /Dmain=sqlite3_shell $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
+	$(TCC) /Fo$@ /Dmain=sqlite3_shell /Dsqlite3_strglob=strglob /Dgetenv=fossil_getenv /Dfopen=fossil_fopen $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
 
 $(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
 	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**
@@ -1279,7 +1282,7 @@ SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFA
 SQLITESHELLSRC=shell.c
 ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
-SQLITESHELLDEFINES=-Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -Dsqlite3_strglob=strglob
+SQLITESHELLDEFINES=-Dmain=sqlite3_shell -Dsqlite3_strglob=strglob -Dgetenv=fossil_getenv -Dfopen=fossil_fopen -DSQLITE_OMIT_LOAD_EXTENSION=1
 
 # define the th scripting files, which need special flags on compile
 THSRC=th.c th_lang.c

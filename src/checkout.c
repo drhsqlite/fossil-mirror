@@ -222,7 +222,7 @@ void checkout_cmd(void){
                          " ORDER BY event.mtime DESC");
     }
     if( zVers==0 ){
-      fossil_fatal("cannot locate \"latest\" checkout");
+      return;
     }
   }else{
     zVers = g.argv[2];

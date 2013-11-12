@@ -260,9 +260,6 @@ void add_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   vid = db_lget_int("checkout",0);
-  if( vid==0 ){
-    fossil_fatal("no checkout to add to");
-  }
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
@@ -502,9 +499,6 @@ void addremove_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   vid = db_lget_int("checkout",0);
-  if( vid==0 ){
-    fossil_fatal("no checkout to add to");
-  }
   db_begin_transaction();
 
   /* step 1:  

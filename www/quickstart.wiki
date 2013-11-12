@@ -222,7 +222,7 @@ and painlessly.</p>
     the <i>VERSION</i>, then fossil moves you to the
     latest version of the branch your are currently on.</p>
 
-    <p>The default behaviors is for [./concepts.wiki#workflow|autosync] to
+    <p>The default behavior is for [./concepts.wiki#workflow|autosync] to
     be turned on.  That means that a [/help/pull|pull] automatically occurs
     when you run [/help/update|update] and a [/help/push|push] happens 
     automatically after you [/help/commit|commit].  So in normal practice,

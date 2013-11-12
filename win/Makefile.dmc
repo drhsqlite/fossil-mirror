@@ -68,7 +68,7 @@ version$E: $B\src\mkversion.c
 	$(BCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) -o$@ -c -Dmain=sqlite3_shell $(SQLITE_OPTIONS) $**
+	$(TCC) -o$@ -c -Dmain=sqlite3_shell -Dsqlite3_strglob=strglob -Dgetenv=fossil_getenv -Dfopen=fossil_fopen $(SQLITE_OPTIONS) $**
 
 $(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
 	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $**
