@@ -143,7 +143,7 @@ void all_cmd(void){
   int dryRunFlag = 0;
   int stopOnError = find_option("dontstop",0,0)==0;
   int rc;
-  Bag outOfDate;
+  int nToDel = 0;
   
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
@@ -245,29 +245,28 @@ void all_cmd(void){
   zFossil = quoteFilename(g.nameOfExe);
   if( useCheckouts ){
     db_prepare(&q,
-       "SELECT substr(name, 7) COLLATE nocase, max(rowid)"
+       "SELECT DISTINCT substr(name, 7), name COLLATE nocase"
        "  FROM global_config"
        " WHERE substr(name, 1, 6)=='ckout:'"
-       " GROUP BY 1 ORDER BY 1"
+       " ORDER BY 1"
     );
   }else{
     db_prepare(&q,
-       "SELECT substr(name, 6) COLLATE nocase, max(rowid)"
+       "SELECT DISTINCT substr(name, 6), name COLLATE nocase"
        "  FROM global_config"
        " WHERE substr(name, 1, 5)=='repo:'"
-       " GROUP BY 1 ORDER BY 1"
+       " ORDER BY 1"
     );
   }
-  bag_init(&outOfDate);
+  db_multi_exec("CREATE TEMP TABLE todel(x TEXT)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
-    int rowid = db_column_int(&q, 1);
-    if( file_access(zFilename, 0) || !file_is_canonical(zFilename) ){
-      bag_insert(&outOfDate, rowid);
-      continue;
-    }
-    if( useCheckouts && file_isdir(zFilename)!=1 ){
-      bag_insert(&outOfDate, rowid);
+    if( file_access(zFilename, 0)
+     || !file_is_canonical(zFilename)
+     || (useCheckouts && file_isdir(zFilename)!=1)
+    ){
+      db_multi_exec("INSERT INTO todel VALUES(%Q)", db_column_text(&q, 1));
+      nToDel++;
       continue;
     }
     if( zCmd[0]=='l' ){
@@ -293,22 +292,12 @@ void all_cmd(void){
   /* If any repositories whose names appear in the ~/.fossil file could not
   ** be found, remove those names from the ~/.fossil file.
   */
-  if( bag_count(&outOfDate)>0 ){
-    Blob sql;
-    char *zSep = "(";
-    int rowid;
-    blob_zero(&sql);
-    blob_appendf(&sql, "DELETE FROM global_config WHERE rowid IN ");
-    for(rowid=bag_first(&outOfDate); rowid>0; rowid=bag_next(&outOfDate,rowid)){
-      blob_appendf(&sql, "%s%d", zSep, rowid);
-      zSep = ",";
-    }
-    blob_appendf(&sql, ")");
+  if( nToDel>0 ){
+    const char *zSql = "DELETE FROM global_config WHERE name IN toDel";
     if( dryRunFlag ){
-      fossil_print("%s\n", blob_str(&sql));
+      fossil_print("%s\n", zSql);
     }else{
-      db_multi_exec(blob_str(&sql));
+      db_multi_exec(zSql);
     }
-    blob_reset(&sql);
   }
 }
