@@ -25,9 +25,8 @@
   *  Option -n|--limit of "[/help?cmd=timeline | fossil timeline]" now
      specifies the number of entries, just like all other commands which
      have the -n|--limit option. The various timeline-related functions
-     now output "+++ end of timeline reached +++" whenever appropriate.
-     Use "-n 0" if no limit is desired, the end of timeline marker will
-     not be printed then.
+     now output "--- ?? limit (??) reached ---" at the end whenever
+     appropriate. Use "-n 0" if no limit is desired.
   *  Fix handling of password embedded in Fossil URL.
   *  New --once option to [/help?cmd=clone | fossil clone] command which does
      not store the URL or password when cloning.

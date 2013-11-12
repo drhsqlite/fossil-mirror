@@ -1523,7 +1523,6 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
   const char *zCurrentUuid = 0;
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
-  int rc;
 
   zPrevDate[0] = 0;
   if( g.localOpen ){
@@ -1531,7 +1530,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
-  while( (rc=db_step(q))==SQLITE_ROW ){
+  while( db_step(q)==SQLITE_ROW ){
     int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
@@ -1614,9 +1613,6 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
       db_reset(&fchngQuery);
     }
     nEntry++; /* record another complete entry */
-  }
-  if( rc==SQLITE_DONE ){
-    fossil_print("+++ end of timeline +++\n");
   }
   if( fchngQueryInit ) db_finalize(&fchngQuery);
 }
