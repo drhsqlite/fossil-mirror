@@ -1,5 +1,5 @@
-C Merge\sin\sfixes\sfor\sthe\spassword\sembedded\sin\sthe\sURL,\ssave\spassword\sprompting,\nand\snew\sclone\s--once\soption.
-D 2013-11-12T02:41:52.222
+C Merge\schange\sto\sfossil\sui\swhich\sfirst\slooks\sfor\sdefault\suser\sif\sset\sbefore\nfalling\sback\sto\sthe\sSetup\suser.
+D 2013-11-12T03:43:19.361
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -366,7 +366,7 @@ F src/json_timeline.c 77cc557bbfc663336f7276c0fc93d3f40571f341
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 3ef3369d9107698e407f917ab61be1abac73eef5
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c f9891dde90ae9ff03ce0a3051f65e48427e478ac
+F src/login.c 66e6eb4eb658359417e12d8fc35a306d583a20b5
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
 F src/main.c 28681521d125d66431b645fefd47250cb04afe87
 F src/main.mk f7d0f9802282ed6e022da703643799c4380c946c
@@ -555,7 +555,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 21532a6f8b04f2e83cf4eaa66002c888c2e76339
-F www/changes.wiki e8851be5f7c86cfcd6427351c0c9ba41d70a5d2e
+F www/changes.wiki 86384540ef6bec30e6cf33c7a434aea74fd07ba2
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -635,8 +635,8 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8b03ef24891c139307074d8838420374dc8b6bf2 69a19a7d7535b9740f4c0351d91c4045b79cc2d9
-R 80c4cad48f388853872e3b0fa0d1c416
-T +closed 69a19a7d7535b9740f4c0351d91c4045b79cc2d9
+P ff159bfdd76da13ee669002da9d9d1801a9cd6fd 8a7a45e09455d3008fa60772d2267dbda60ab9d6
+R 26ffd4201ee893cb72b82600fcc7f8e7
+T +closed 8a7a45e09455d3008fa60772d2267dbda60ab9d6
 U andybradford
-Z a02a9325e8cbc16ea98fe84bfcceb1ec
+Z 876c4525c6259ceaa00822be0d5d701b
