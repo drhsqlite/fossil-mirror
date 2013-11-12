@@ -181,12 +181,12 @@ struct Global {
   char *urlUser;          /* User id for http: */
   char *urlPasswd;        /* Password for http: */
   char *urlCanonical;     /* Canonical representation of the URL */
-  int useProxy;           /* Used to remember that a proxy is in use */
-  char *proxyUrlPath;
-  int proxyOrigPort;      /* Tunneled port number for https through proxy */
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
   char *urlFossil;        /* The fossil query parameter on ssh: */
   unsigned urlFlags;      /* Boolean flags controlling URL processing */
+  int useProxy;           /* Used to remember that a proxy is in use */
+  char *proxyUrlPath;
+  int proxyOrigPort;      /* Tunneled port number for https through proxy */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
