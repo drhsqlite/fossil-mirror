@@ -20,10 +20,15 @@
 #include "config.h"
 #include "url.h"
 #include <stdio.h>
+
 #ifdef _WIN32
 #include <io.h>
+#ifndef isatty
 #define isatty(d) _isatty(d)
+#endif
+#ifndef fileno
 #define fileno(s) _fileno(s)
+#endif
 #endif
 
 #if INTERFACE
