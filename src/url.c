@@ -252,10 +252,10 @@ void url_parse_local(
     pUrlData->canonical = mprintf("file://%T", pUrlData->name);
     blob_reset(&cfile);
   }else if( pUrlData->user!=0 && pUrlData->passwd==0 && (urlFlags & URL_PROMPT_PW) ){
-    url_prompt_for_password();
+    url_prompt_for_password_local(pUrlData);
   }else if( pUrlData->user!=0 && ( urlFlags & URL_ASK_REMEMBER_PW ) ){
     if( isatty(fileno(stdin)) ){
-      if( save_password_prompt() ){
+      if( save_password_prompt(pUrlData->passwd) ){
         pUrlData->flags = urlFlags |= URL_REMEMBER_PW;
       }else{
         pUrlData->flags = urlFlags &= ~URL_REMEMBER_PW;
@@ -505,7 +505,7 @@ void url_prompt_for_password_local(UrlData *pUrlData){
     if( pUrlData->passwd[0]
      && (pUrlData->flags & (URL_REMEMBER|URL_ASK_REMEMBER_PW))!=0
     ){
-      if( save_password_prompt() ){
+      if( save_password_prompt(pUrlData->passwd) ){
         pUrlData->flags |= URL_REMEMBER_PW;
       }else{
         pUrlData->flags &= ~URL_REMEMBER_PW;

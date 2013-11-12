@@ -1,5 +1,5 @@
-C merge\strunk
-D 2013-11-12T12:39:21.358
+C Fix\spassword\shandling\sas\sin\strunk.
+D 2013-11-12T15:10:26.035
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -420,8 +420,8 @@ F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 7b3ec02e5e293378c23f6a048c7beedcbb6e0ff0
 F src/update.c 8834951295705765a92d4db989df23536d2ca139
-F src/url.c 27a321503533716da13ea5b8bad3b1514967507d
-F src/user.c 7a4ff75307459be4e7784b9f90657e839b63feb1
+F src/url.c 2a1a8c951c39a51164f8a1c33ffd8ecabb8a0607
+F src/user.c 68bfd6dbb3e9369e6ac7397be89264cb5abcfa39
 F src/utf8.c f72d86a09600005942bea4fc9cbfeab625ea2867
 F src/util.c 7054510104b0eb24815b856227807dd964115ebe
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
@@ -635,7 +635,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4833cda5a7fc8fe7d0f6ace38269fcdd276c7bec 32a9b55e17d68f6998babf061c013a44471d991e
-R cb8aa8a7b1ef8dc0be92c163d2fd621e
+P 3d63f560393c43a7e0a6320f63bed435adf73743
+R 1ec0736e368c7d23ef916694c08697d0
 U jan.nijtmans
-Z 4fa12be96da263eff11e1b968d720a7e
+Z 6f20c81d9151588ca6b009eefedcac7b
