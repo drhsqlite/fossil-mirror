@@ -1523,6 +1523,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
   const char *zCurrentUuid = 0;
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
+  int rc;
 
   zPrevDate[0] = 0;
   if( g.localOpen ){
@@ -1530,7 +1531,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
-  while( db_step(q)==SQLITE_ROW ){
+  while( (rc=db_step(q))==SQLITE_ROW ){
     int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
@@ -1613,6 +1614,14 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
       db_reset(&fchngQuery);
     }
     nEntry++; /* record another complete entry */
+  }
+  if( rc==SQLITE_DONE ){
+    /* Did the underlying query actually have all entries? */
+    if( nAbsLimit==0 ){
+      fossil_print("+++ end of timeline (%d) +++\n", nEntry);
+    }else{
+      fossil_print("+++ no more data (%d) +++\n", nEntry);
+    }
   }
   if( fchngQueryInit ) db_finalize(&fchngQuery);
 }
@@ -1754,7 +1763,8 @@ void timeline_cmd(void){
     }else if( strncmp(g.argv[2],"parents",k)==0 ){
       mode = 4;
     }else if(!zType && !zLimit){
-      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit #? ?-t|--type TYPE? ?-W|--width WIDTH?");
+      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit #? ?-t|--type TYPE? "
+            "?-W|--width WIDTH?");
     }
     if( '-' != *g.argv[3] ){
       zOrigin = g.argv[3];
@@ -1815,7 +1825,9 @@ void timeline_cmd(void){
   }
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   if( iOffset>0 ){
-    blob_appendf(&sql, " LIMIT %d OFFSET %d", n>0?n+1:99999, iOffset);
+    int n2 = (n >= 0) ? n : -n;
+    if( n2==0 ) n2 = -1; /* NO LIMIT */
+    blob_appendf(&sql, " LIMIT %d OFFSET %d", n2, iOffset);
   }
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
