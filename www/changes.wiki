@@ -28,6 +28,9 @@
      now output "+++ end of timeline reached +++" whenever appropriate.
      Use "-n 0" if no limit is desired, the end of timeline marker will
      not be printed then.
+  *  Fix handling of password embedded in Fossil URL.
+  *  New --once option to [/help?cmd=clone | fossil clone] command which does
+     not store the URL or password when cloning.
 
 <h2>Changes For Version 1.27 (2013-09-11)</h2>
   *  Enhance the [/help?cmd=changes | fossil changes],
