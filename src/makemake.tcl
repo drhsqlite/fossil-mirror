@@ -774,6 +774,8 @@ foreach s [lsort $src] {
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 set opt $SQLITE_OPTIONS
 append opt " -D_HAVE_SQLITE_CONFIG_H"
+append opt " -DSQLITE_USE_MALLOC_H"
+append opt " -DSQLITE_USE_MSIZE"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 set opt {}
