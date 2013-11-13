@@ -1213,7 +1213,7 @@ void setup_timeline(void){
   @ <hr />
   onoff_attribute("Show version differences by default",
                   "show-version-diffs", "vdiff", 0, 0);
-  @ <p>On the version-information pages linked from the timeline can either
+  @ <p>The version-information pages linked from the timeline can either
   @ show complete diffs of all file changes, or can just list the names of
   @ the files that have changed.  Users can get to either page by
   @ clicking.  This setting selects the default.</p>
