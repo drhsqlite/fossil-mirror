@@ -126,6 +126,9 @@ void stat_page(void){
   @ </td></tr>
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(SQLITE_SOURCE_ID)
   @ [%.10s(&SQLITE_SOURCE_ID[20])] (%s(SQLITE_VERSION))</td></tr>
+  @ <tr><th>Repository Rebuilt:</th><td>
+  @ %h(db_get_mtime("rebuilt","%Y-%m-%d %H:%M:%S","Never"))
+  @ By Fossil %h(db_get("rebuilt","Unknown"))</td></tr>
   @ <tr><th>Database&nbsp;Stats:</th><td>
   zDb = db_name("repository");
   @ %d(db_int(0, "PRAGMA %s.page_count", zDb)) pages,

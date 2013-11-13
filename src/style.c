@@ -1228,5 +1228,5 @@ void page_test_env(void){
 */
 void honeypot_page(void){
   cgi_set_status(403, "Forbidden");
-  @ <p>Access by spiders and robots is forbidden</p>
+  @ <p>Please enable javascript or log in to see this content</p>
 }

@@ -1783,7 +1783,9 @@ int client_sync(
               go = 1;
               if( g.cgiOutput==0 ){
                 g.urlFlags |= URL_PROMPT_PW;
+                g.urlFlags &= ~URL_PROMPTED;
                 url_prompt_for_password();
+                url_remember();
               }
             }
           }else{

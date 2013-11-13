@@ -391,7 +391,7 @@ void tag_cmd(void){
   int fPropagate = find_option("propagate","",0)!=0;
   const char *zPrefix = fRaw ? "" : "sym-";
   char const * zFindLimit = find_option("limit","n",1);
-  int const nFindLimit = zFindLimit ? atoi(zFindLimit) : 0;
+  int const nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
 
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
@@ -446,7 +446,7 @@ void tag_cmd(void){
         "   AND blob.rid=tagxref.rid",
         g.argv[3]
       );
-      if(nFindLimit>0){
+      if( nFindLimit>0 ){
         blob_appendf(&sql, " LIMIT %d", nFindLimit);
       }
       db_prepare(&q, "%s", blob_str(&sql));
@@ -469,12 +469,9 @@ void tag_cmd(void){
           " ORDER BY event.mtime DESC",
           timeline_query_for_tty(), zType, tagid
         );
-        if(nFindLimit>0){
-          blob_appendf(&sql, " LIMIT %d", nFindLimit);
-        }
         db_prepare(&q, "%s", blob_str(&sql));
         blob_reset(&sql);
-        print_timeline(&q, 2000, 79, 0);
+        print_timeline(&q, nFindLimit, 79, 0);
         db_finalize(&q);
       }
     }
