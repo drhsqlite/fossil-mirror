@@ -266,6 +266,7 @@ int ssl_open(void){
     }
     rc = establish_proxy_tunnel(sBio);
     if( rc<200||rc>299 ){
+      ssl_set_errmsg("SSL: proxy connect failed with HTTP status code %d", rc);
       return 1;
     }
 
