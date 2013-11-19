@@ -1807,11 +1807,6 @@ char *db_get_mtime(const char *zName, char *zFormat, char *zDefault){
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
   }
-  if( z==0 && g.zConfigDbName ){
-    db_swap_connections();
-    z = db_text(0, "SELECT mtime FROM global_config WHERE name=%Q", zName);
-    db_swap_connections();
-  }
   if( z==0 ){
     z = zDefault;
   }else if( zFormat!=0 ){

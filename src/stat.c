@@ -57,6 +57,7 @@ void stat_page(void){
   style_header("Repository Statistics");
   if( g.perm.Admin ){
     style_submenu_element("URLs", "URLs and Checkouts", "urllist");
+    style_submenu_element("Schema", "Repository Schema", "repo_schema");
   }
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
@@ -239,8 +240,6 @@ void dbstat_cmd(void){
 
 }
 
-
-
 /*
 ** WEBPAGE: urllist
 **
@@ -254,6 +253,7 @@ void urllist_page(void){
 
   style_header("URLs and Checkouts");
   style_submenu_element("Stat", "Repository Stats", "stat");
+  style_submenu_element("Schema", "Repository Schema", "repo_schema");
   @ <div class="section">URLs</div>
   @ <table border="0" width='100%%'>
   db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch')"
@@ -284,5 +284,30 @@ void urllist_page(void){
     @ <tr><td>(none)</td>
   }
   @ </table>
+  style_footer();
+}
+
+/*
+** WEBPAGE: repo_schema
+**
+** Show the repository schema
+*/
+void repo_schema_page(void){
+  Stmt q;
+  int cnt;
+  login_check_credentials();
+  if( !g.perm.Admin ){ login_needed(); return; }
+
+  style_header("Repository Schema");
+  style_submenu_element("Stat", "Repository Stats", "stat");
+  style_submenu_element("URLs", "URLs and Checkouts", "urllist");
+  db_prepare(&q, "SELECT sql FROM %s.sqlite_master WHERE sql IS NOT NULL",
+             db_name("repository"));
+  @ <pre>
+  while( db_step(&q)==SQLITE_ROW ){
+    @ %h(db_column_text(&q, 0));
+  }
+  @ </pre>
+  db_finalize(&q);
   style_footer();
 }
