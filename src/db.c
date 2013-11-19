@@ -1997,7 +1997,6 @@ void db_record_repository_filename(const char *zName){
 ** See also: close
 */
 void cmd_open(void){
-  int vid;
   int keepFlag;
   int allowNested;
   char **oldArgv;
