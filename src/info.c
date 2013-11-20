@@ -1130,9 +1130,11 @@ int object_description(
     @ - %!w(zCom) (user:
     hyperlink_to_user(zUser,zDate,")");
     if( g.perm.Hyperlink ){
+      @ %z(href("%R/finfo?name=%T&ci=%S",zName,zVers))[ancestry]</a>
       @ %z(href("%R/annotate?checkin=%S&filename=%T",zVers,zName))
       @ [annotate]</a>
-      @ %z(href("%R/finfo?name=%T&ci=%S",zName,zVers))[ancestry]</a>
+      @ %z(href("%R/blame?checkin=%S&filename=%T",zVers,zName))
+      @ [blame]</a>
     }
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
