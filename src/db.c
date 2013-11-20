@@ -2035,6 +2035,8 @@ void cmd_open(void){
   g.argc = 3;
   if( oldArgc==4 ){
     azNewArgv[g.argc-1] = oldArgv[3];
+  }else if( !db_exists("SELECT 1 FROM event WHERE type='ci'") ){
+    azNewArgv[g.argc-1] = "--latest";
   }else{
     azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
   }
