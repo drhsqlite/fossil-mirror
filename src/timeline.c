@@ -853,7 +853,7 @@ void timeline_output_graph_javascript(
     if( fileDiff ){
       @     location.href="%R/fdiff?v1="+selRow.h+"&v2="+p.h+"&sbs=1";
     }else{
-      if( db_get_boolean("show-version-diffs", 0) == 0 ){
+      if( db_get_boolean("show-version-diffs", 0)==0 ){
         @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=0";
       }else{
         @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=1";
