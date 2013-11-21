@@ -1807,11 +1807,6 @@ char *db_get_mtime(const char *zName, char *zFormat, char *zDefault){
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
   }
-  if( z==0 && g.zConfigDbName ){
-    db_swap_connections();
-    z = db_text(0, "SELECT mtime FROM global_config WHERE name=%Q", zName);
-    db_swap_connections();
-  }
   if( z==0 ){
     z = zDefault;
   }else if( zFormat!=0 ){
@@ -2002,9 +1997,10 @@ void db_record_repository_filename(const char *zName){
 ** See also: close
 */
 void cmd_open(void){
-  int vid;
   int keepFlag;
   int allowNested;
+  char **oldArgv;
+  int oldArgc;
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0 };
 
   url_proxy_options();
@@ -2031,29 +2027,25 @@ void cmd_open(void){
   db_open_local(0);
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
-  vid = db_int(0, "SELECT pid FROM plink y"
-                  " WHERE NOT EXISTS(SELECT 1 FROM plink x WHERE x.cid=y.pid)");
-  if( vid==0 ){
-    db_lset_int("checkout", 1);
+  db_lset_int("checkout", 0);
+  oldArgv = g.argv;
+  oldArgc = g.argc;
+  azNewArgv[0] = g.argv[0];
+  g.argv = azNewArgv;
+  g.argc = 3;
+  if( oldArgc==4 ){
+    azNewArgv[g.argc-1] = oldArgv[3];
+  }else if( !db_exists("SELECT 1 FROM event WHERE type='ci'") ){
+    azNewArgv[g.argc-1] = "--latest";
   }else{
-    char **oldArgv = g.argv;
-    int oldArgc = g.argc;
-    db_lset_int("checkout", vid);
-    azNewArgv[0] = g.argv[0];
-    g.argv = azNewArgv;
-    g.argc = 3;
-    if( oldArgc==4 ){
-      azNewArgv[g.argc-1] = oldArgv[3];
-    }else{
-      azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
-    }
-    if( keepFlag ){
-      azNewArgv[g.argc++] = "--keep";
-    }
-    checkout_cmd();
-    g.argc = 2;
-    info_cmd();
+    azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
   }
+  if( keepFlag ){
+    azNewArgv[g.argc++] = "--keep";
+  }
+  checkout_cmd();
+  g.argc = 2;
+  info_cmd();
 }
 
 /*

@@ -318,15 +318,10 @@ void add_cmd(void){
 */
 void delete_cmd(void){
   int i;
-  int vid;
   Stmt loop;
 
   capture_case_sensitive_option();
   db_must_be_within_tree();
-  vid = db_lget_int("checkout", 0);
-  if( vid==0 ){
-    fossil_fatal("no checkout to remove from");
-  }
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());

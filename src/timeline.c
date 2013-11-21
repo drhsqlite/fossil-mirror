@@ -1830,9 +1830,9 @@ void timeline_cmd(void){
   }
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   if( iOffset>0 ){
-    int n2 = (n >= 0) ? n : -n;
-    if( n2==0 ) n2 = -1; /* NO LIMIT */
-    blob_appendf(&sql, " LIMIT %d OFFSET %d", n2, iOffset);
+    /* Don't handle LIMIT here, otherwise print_timeline()
+     * will not determine the end-marker correctly! */
+    blob_appendf(&sql, " LIMIT -1 OFFSET %d", iOffset);
   }
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);

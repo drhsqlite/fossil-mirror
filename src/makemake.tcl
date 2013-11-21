@@ -290,7 +290,9 @@ writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1}
 append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
 #append opt " -DSQLITE_ENABLE_FTS3=1"
-append opt " -DSQLITE_ENABLE_STAT3"
+#append opt " -DSQLITE_ENABLE_STAT4"
+append opt " -DSQLITE_OMIT_DEPRECATED"
+append opt " -DSQLITE_ENABLE_EXPLAIN_COMMENTS"
 append opt " -Dlocaltime=fossil_localtime"
 append opt " -DSQLITE_ENABLE_LOCKING_STYLE=0"
 append opt " -DSQLITE_WIN32_NO_ANSI"
@@ -774,6 +776,8 @@ foreach s [lsort $src] {
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 set opt $SQLITE_OPTIONS
 append opt " -D_HAVE_SQLITE_CONFIG_H"
+append opt " -DSQLITE_USE_MALLOC_H"
+append opt " -DSQLITE_USE_MSIZE"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 set opt {}

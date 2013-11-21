@@ -69,7 +69,8 @@ LIBDIR    = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
 SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  /DSQLITE_THREADSAFE=0 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
-                 /DSQLITE_ENABLE_STAT3 \
+                 /DSQLITE_OMIT_DEPRECATED \
+                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  /Dlocaltime=fossil_localtime \
                  /DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  /DSQLITE_WIN32_NO_ANSI

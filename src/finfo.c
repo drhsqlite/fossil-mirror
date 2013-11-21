@@ -465,12 +465,14 @@ void finfo_page(void){
     @ branch: %h(zBr))
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
+      @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
+      @ [annotate]</a>
+      @ %z(href("%R/blame?checkin=%S&filename=%h",zCkin,z))
+      @ [blame]</a>
+      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
       if( fpid ){
         @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zPUuid,zUuid))[diff]</a>
       }
-      @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
-      @ [annotate]</a>
-      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
       int srcid = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", frid);

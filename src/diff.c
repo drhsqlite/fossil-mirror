@@ -2125,6 +2125,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 
 /*
 ** WEBPAGE: annotate
+** WEBPAGE: blame
 **
 ** Query parameters:
 **
@@ -2147,6 +2148,7 @@ void annotation_page(void){
   HQuery url;
   struct AnnVers *p;
   unsigned clr1, clr2, clr;
+  int bBlame = g.zPath[0]=='b';/* True for BLAME output.  False for ANNOTATE. */
 
   /* Gather query parameters */
   showLog = atoi(PD("log","1"));
@@ -2253,16 +2255,31 @@ void annotation_page(void){
     char zPrefix[300];
     z[n] = 0;
     if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
-    if( iVers>=0 ){
-      struct AnnVers *p = ann.aVers+iVers;
-      char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
-      sqlite3_snprintf(sizeof(zPrefix), zPrefix,
-           "<span style='background-color:%s'>"
-           "%s%.10s</a> %s</span> %4d:",
-           p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
-      fossil_free(zLink);
+
+    if( bBlame ){
+      if( iVers>=0 ){
+        struct AnnVers *p = ann.aVers+iVers;
+        char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix,
+             "<span style='background-color:%s'>"
+             "%s%.10s</a> %s</span> %13.13s:",
+             p->zBgColor, zLink, p->zMUuid, p->zDate, p->zUser);
+        fossil_free(zLink);
+      }else{
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s", "");
+      }
     }else{
-      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
+      if( iVers>=0 ){
+        struct AnnVers *p = ann.aVers+iVers;
+        char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix,
+             "<span style='background-color:%s'>"
+             "%s%.10s</a> %s</span> %4d:",
+             p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
+        fossil_free(zLink);
+      }else{
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
+      }
     }
     @ %s(zPrefix) %h(z)
 
