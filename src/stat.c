@@ -294,7 +294,6 @@ void urllist_page(void){
 */
 void repo_schema_page(void){
   Stmt q;
-  int cnt;
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(); return; }
 
