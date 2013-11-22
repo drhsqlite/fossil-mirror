@@ -967,6 +967,11 @@ void vdiff_page(void){
   if( !verboseFlag && sideBySide ) verboseFlag = 1;
   zFrom = P("from");
   zTo = P("to");
+  if( sideBySide || verboseFlag ){
+    style_submenu_element("Hide Diff", "hidediff",
+                          "%R/vdiff?from=%T&to=%T&sbs=0",
+                          zFrom, zTo);
+  }
   if( !sideBySide ){
     style_submenu_element("Side-by-side Diff", "sbsdiff",
                           "%R/vdiff?from=%T&to=%T&sbs=1",
