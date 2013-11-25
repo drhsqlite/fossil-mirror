@@ -2053,8 +2053,10 @@ void ci_edit_page(void){
   const char *zNewBrFlag;
   const char *zNewBranch;
   const char *zCloseFlag;
+  const char *zHiddenFlag;
   int fPropagateColor;          /* True if color propagates before edit */
   int fNewPropagateColor;       /* True if color propagates after edit */
+  int fHasHidden = 0;           /* True hidden flag already set */
   const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
   char *zUuid;
   Blob comment;
@@ -2095,6 +2097,7 @@ void ci_edit_page(void){
   zNewBrFlag = P("newbr") ? " checked" : "";
   zNewBranch = PDT("brname","");
   zCloseFlag = P("close") ? " checked" : "";
+  zHiddenFlag = P("hidden") ? " checked" : "";
   if( P("apply") ){
     Blob ctrl;
     char *zNow;
@@ -2147,6 +2150,9 @@ void ci_edit_page(void){
     db_finalize(&q);
     if( zCloseFlag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('closed','+',NULL)");
+    }
+    if( zHiddenFlag[0] ){
+      db_multi_exec("REPLACE INTO newtags VALUES('hidden','+',NULL)");
     }
     if( zNewTagFlag[0] && zNewTag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('sym-%q','+',NULL)", zNewTag);
@@ -2297,10 +2303,15 @@ void ci_edit_page(void){
     if( strncmp(zTagName, "sym-", 4)==0 ){
       @ Cancel tag <b>%h(&zTagName[4])</b></label>
     }else{
+      if( strcmp(zTagName, "hidden")==0 ) fHasHidden = 1;
       @ Cancel special tag <b>%h(zTagName)</b></label>
     }
   }
   db_finalize(&q);
+  if( !fHasHidden ){
+    @ <br /><label><input type="checkbox" name="hidden"%s(zHiddenFlag) />
+    @ Hide this check-in from the timeline</label>
+  }
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">Branching:</th>

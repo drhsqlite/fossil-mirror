@@ -924,9 +924,11 @@ const char *timeline_query_for_www(void){
     @   event.mtime AS mtime
     @  FROM event CROSS JOIN blob
     @ WHERE blob.rid=event.objid
+    @  AND NOT EXISTS(SELECT 1 FROM tagxref
+    @     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)
   ;
   if( zBase==0 ){
-    zBase = mprintf(zBaseSql, TAG_BRANCH, TAG_BRANCH);
+    zBase = mprintf(zBaseSql, TAG_HIDDEN);
   }
   return zBase;
 }
@@ -1280,14 +1282,18 @@ void page_timeline(void){
         */
         blob_appendf(&sql,
           " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=cid"
+                     " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)"
+          " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
                      " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
-           tagid
+           tagid, TAG_HIDDEN
         );
         if( P("mionly")==0 ){
           blob_appendf(&sql,
             " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=pid"
+                       " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)"
+            " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
                        " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
-            tagid
+            tagid, TAG_HIDDEN
           );
         }else{
           url_add_parameter(&url, "mionly", "1");

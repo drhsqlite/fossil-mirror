@@ -169,21 +169,27 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
     cson_object_set( pPayload, zBranch ? "branch" : "tag", json_new_string(zTag) );
   }
   blob_appendf(pSql,
+               " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=blob.rid"
+               "    WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)"
                " AND ("
                " EXISTS(SELECT 1 FROM tagxref"
                "        WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
-               tagid);
+               TAG_HIDDEN, tagid);
   if(zBranch){
     /* from "r" flag code in page_timeline().*/
     blob_appendf(pSql,
                  " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
+                 "    WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)"
+                 " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
                  "    WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
-                 tagid);
+                 tagid, TAG_HIDDEN);
     if( zMiOnly==0 ){
       blob_appendf(pSql,
                  " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+                 "    WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)"
+                 " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
                  "    WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
-                 tagid);
+                 tagid, TAG_HIDDEN);
     }
   }
   blob_append(pSql," ) ",3);
