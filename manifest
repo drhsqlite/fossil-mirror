@@ -1,5 +1,5 @@
-C Fix\shandling\sof\sUTF-8\spaths\son\sCygwin\s(SQLite's\s"cygUtf8"\sbranch).\sMeant\sfor\stesting.\sThis\sfix\sis\sCygwin-only.
-D 2013-11-25T10:12:18.106
+C Update\sto\sthe\slatest\sSQLite\scontaining\sstorage\sengine\sperformance\senhancements.
+D 2013-11-25T21:22:02.915
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -400,8 +400,8 @@ F src/shell.c 5aba27fc4617d8eef4ae5aec2b4fde2be2e25e1a
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
 F src/skins.c 33e5775a510a6efc13ab69cbb7f3e2a42d35e00d
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c 85b937e958320bdac7f1be81bb8144d5617c5511
-F src/sqlite3.h ddb8970b6c43bd5b66c2556d6fe0c318438fc860
+F src/sqlite3.c aa00687e2ee8fad8e6785e84cf3a65442fb67cde
+F src/sqlite3.h f4f0067e177edac17c72e5ec5156e58e9b1486cd
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c da8399492c8f76ffaafa28bfa8b03d5bcae642d1
 F src/style.c f75cbc937ce5c5d0990b468f0493bea48a240877
@@ -636,7 +636,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f103e0bc97d19ac84e77a2a698ce7f63992bb42e
-R f6af6272e7f0dd50f279a6a5acd658e4
-U jan.nijtmans
-Z e2688e6a430774a9f8009aa047074904
+P 9f58fc6528a40198aacb8535dcebbba48c56dc23
+R 7566bbeb9efeddbb2e2e5ed097353376
+U drh
+Z 6b0ab9e47ff7a86b5a530fc5b3e8527c
