@@ -905,7 +905,6 @@ static void timeline_temp_table(void){
 ** for a timeline query for the WWW interface.
 */
 const char *timeline_query_for_www(void){
-  static char *zBase = 0;
   static const char zBaseSql[] =
     @ SELECT
     @   blob.rid AS blobRid,
@@ -925,10 +924,7 @@ const char *timeline_query_for_www(void){
     @  FROM event CROSS JOIN blob
     @ WHERE blob.rid=event.objid
   ;
-  if( zBase==0 ){
-    zBase = mprintf(zBaseSql, TAG_BRANCH, TAG_BRANCH);
-  }
-  return zBase;
+  return zBaseSql;
 }
 
 /*
