@@ -1154,10 +1154,8 @@ void page_timeline(void){
   timeline_temp_table();
   blob_zero(&sql);
   blob_zero(&desc);
-  blob_appendf(&sql, "INSERT OR IGNORE INTO timeline "
-		       "%s AND NOT EXISTS(SELECT 1 FROM tagxref"
-               "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
-               timeline_query_for_www());
+  blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
+  blob_append(&sql, timeline_query_for_www(), -1);
   if( P("fc")!=0 || P("v")!=0 || P("detail")!=0 ){
     tmFlags |= TIMELINE_FCHANGES;
     url_add_parameter(&url, "v", 0);
