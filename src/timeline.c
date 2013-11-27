@@ -113,6 +113,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_BRCOLOR  0x0040  /* Background color by branch name */
 #define TIMELINE_UCOLOR   0x0080  /* Background color by user */
 #define TIMELINE_FRENAMES 0x0100  /* Detail only file name changes */
+#define TIMELINE_UNHIDE   0x0200  /* Unhide */
 #endif
 
 /*
@@ -905,7 +906,6 @@ static void timeline_temp_table(void){
 ** for a timeline query for the WWW interface.
 */
 const char *timeline_query_for_www(void){
-  static char *zBase = 0;
   static const char zBaseSql[] =
     @ SELECT
     @   blob.rid AS blobRid,
@@ -924,13 +924,8 @@ const char *timeline_query_for_www(void){
     @   event.mtime AS mtime
     @  FROM event CROSS JOIN blob
     @ WHERE blob.rid=event.objid
-    @  AND NOT EXISTS(SELECT 1 FROM tagxref
-    @     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)
   ;
-  if( zBase==0 ){
-    zBase = mprintf(zBaseSql, TAG_HIDDEN);
-  }
-  return zBase;
+  return zBaseSql;
 }
 
 /*
@@ -1126,6 +1121,10 @@ void page_timeline(void){
     tmFlags |= TIMELINE_BRCOLOR;
     url_add_parameter(&url, "brbg", 0);
   }
+  if( P("unhide")!=0 ){
+    tmFlags |= TIMELINE_UNHIDE;
+    url_add_parameter(&url, "unhide", 0);
+  }
   if( P("ubg")!=0 ){
     tmFlags |= TIMELINE_UCOLOR;
     url_add_parameter(&url, "ubg", 0);
@@ -1155,11 +1154,18 @@ void page_timeline(void){
   timeline_temp_table();
   blob_zero(&sql);
   blob_zero(&desc);
-  blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
-  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_appendf(&sql, "INSERT OR IGNORE INTO timeline "
+		       "%s AND NOT EXISTS(SELECT 1 FROM tagxref"
+               "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
+               timeline_query_for_www());
   if( P("fc")!=0 || P("v")!=0 || P("detail")!=0 ){
     tmFlags |= TIMELINE_FCHANGES;
     url_add_parameter(&url, "v", 0);
+  }
+  if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+    blob_appendf(&sql, " AND NOT EXISTS(SELECT 1 FROM tagxref"
+                 "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
+                 TAG_HIDDEN);
   }
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
@@ -1487,6 +1493,9 @@ void page_timeline(void){
           timeline_submenu(&url, "Hide Files", "v", 0, 0);
         }else{
           timeline_submenu(&url, "Show Files", "v", "", 0);
+        }
+        if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+          timeline_submenu(&url, "Unhide", "unhide", "", 0);
         }
       }
     }

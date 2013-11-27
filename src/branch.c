@@ -417,10 +417,12 @@ void brtimeline_page(void){
   login_anonymous_available();
   @ <h2>The initial check-in for each branch:</h2>
   db_prepare(&q,
-    "%s AND blob.rid IN (SELECT rid FROM tagxref"
+    "%s AND NOT EXISTS(SELECT 1 FROM tagxref"
+    "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)"
+    "  AND blob.rid IN (SELECT rid FROM tagxref"
     "                     WHERE tagtype>0 AND tagid=%d AND srcid!=0)"
     " ORDER BY event.mtime DESC",
-    timeline_query_for_www(), TAG_BRANCH
+    timeline_query_for_www(), TAG_HIDDEN, TAG_HIDDEN, TAG_BRANCH
   );
   www_print_timeline(&q, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);

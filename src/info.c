@@ -2152,7 +2152,7 @@ void ci_edit_page(void){
       db_multi_exec("REPLACE INTO newtags VALUES('closed','+',NULL)");
     }
     if( zHiddenFlag[0] ){
-      db_multi_exec("REPLACE INTO newtags VALUES('hidden','+',NULL)");
+      db_multi_exec("REPLACE INTO newtags VALUES('hidden','*',NULL)");
     }
     if( zNewTagFlag[0] && zNewTag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('sym-%q','+',NULL)", zNewTag);
