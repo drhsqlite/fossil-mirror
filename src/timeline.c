@@ -1288,19 +1288,27 @@ void page_timeline(void){
         */
         blob_appendf(&sql,
           " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=cid"
-                     " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)"
-          " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
                      " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
-           tagid, TAG_HIDDEN
+          tagid
         );
+        if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+          blob_appendf(&sql,
+            " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
+                       " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
+            TAG_HIDDEN
+          );
+        }
         if( P("mionly")==0 ){
           blob_appendf(&sql,
             " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=pid"
-                       " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)"
-            " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
                        " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
-            tagid, TAG_HIDDEN
+            tagid
           );
+          if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+            blob_appendf(&sql, " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+                       " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+                         TAG_HIDDEN);
+          }
         }else{
           url_add_parameter(&url, "mionly", "1");
         }
@@ -1720,6 +1728,7 @@ static int isIsoDate(const char *z){
 **                            e  = events only
 **                            t  = tickets only
 **                            w  = wiki commits only
+**   -u|--unhide          Unhide items with "hidden" tag
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the checkin comment.
@@ -1739,13 +1748,14 @@ void timeline_cmd(void){
   int objid = 0;
   Blob uuid;
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
-  int verboseFlag = 0 ;
+  int verboseFlag, unhideFlag;
   int iOffset;
 
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag){
     verboseFlag = find_option("showfiles","f", 0)!=0; /* deprecated */
   }
+  unhideFlag = find_option("unhide","u", 0)!=0;
   db_find_and_open_repository(0, 0);
   zLimit = find_option("limit","n",1);
   zWidth = find_option("width","W",1);
