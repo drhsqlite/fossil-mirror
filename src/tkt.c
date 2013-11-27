@@ -838,19 +838,15 @@ void tkttimeline_page(void){
                          tagid);
   if( zType[0]=='c' ){
     zSQL = mprintf(
-         "%s AND NOT EXISTS(SELECT 1 FROM tagxref"
-         "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)"
-         "  AND event.objid IN "
+         "%s AND event.objid IN "
          "   (SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
                                          "AND '%s' GLOB (target||'*')) "
          "ORDER BY mtime DESC",
-         timeline_query_for_www(), TAG_HIDDEN, zFullUuid, zFullUuid
+         timeline_query_for_www(), zFullUuid, zFullUuid
     );
   }else{
     zSQL = mprintf(
-         "%s AND NOT EXISTS(SELECT 1 FROM tagxref"
-         "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)"
-         " AND event.objid IN "
+         "%s AND event.objid IN "
          "  (SELECT rid FROM tagxref WHERE tagid=%d"
          "   UNION SELECT srcid FROM backlink"
                   " WHERE target GLOB '%.4s*'"
@@ -858,7 +854,7 @@ void tkttimeline_page(void){
          "   UNION SELECT attachid FROM attachment"
                   " WHERE target=%Q) "
          "ORDER BY mtime DESC",
-         timeline_query_for_www(), TAG_HIDDEN, tagid, zFullUuid, zFullUuid, zFullUuid
+         timeline_query_for_www(), tagid, zFullUuid, zFullUuid, zFullUuid
     );
   }
   db_prepare(&q, zSQL);

@@ -736,15 +736,13 @@ void whistory_page(void){
   style_header(zTitle);
   free(zTitle);
 
-  zSQL = mprintf("%s AND NOT EXISTS(SELECT 1 FROM tagxref"
-                 "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)"
-                 "  AND event.objid IN "
+  zSQL = mprintf("%s AND event.objid IN "
                  "  (SELECT rid FROM tagxref WHERE tagid="
                        "(SELECT tagid FROM tag WHERE tagname='wiki-%q')"
                  "   UNION SELECT attachid FROM attachment"
                           " WHERE target=%Q)"
                  "ORDER BY mtime DESC",
-                 timeline_query_for_www(), TAG_HIDDEN, zPageName, zPageName);
+                 timeline_query_for_www(), zPageName, zPageName);
   db_prepare(&q, zSQL);
   free(zSQL);
   zWikiPageName = zPageName;

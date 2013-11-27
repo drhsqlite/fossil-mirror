@@ -587,14 +587,12 @@ void tagtimeline_page(void){
   login_anonymous_available();
   @ <h2>Check-ins with non-propagating tags:</h2>
   db_prepare(&q,
-    "%s AND NOT EXISTS(SELECT 1 FROM tagxref"
-    "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)"
-    "  AND blob.rid IN (SELECT rid FROM tagxref"
+    "%s AND blob.rid IN (SELECT rid FROM tagxref"
     "                     WHERE tagtype=1 AND srcid>0"
     "                       AND tagid IN (SELECT tagid FROM tag "
     "                                      WHERE tagname GLOB 'sym-*'))"
     " ORDER BY event.mtime DESC",
-    timeline_query_for_www(), TAG_HIDDEN
+    timeline_query_for_www()
   );
   www_print_timeline(&q, 0, 0, 0, 0);
   db_finalize(&q);
