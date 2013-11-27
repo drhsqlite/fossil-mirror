@@ -1,5 +1,5 @@
-C TAG_BRANCH\sis\sunused\sin\sthis\squery
-D 2013-11-27T14:07:50.762
+C Import\sthe\slatest\sSQLite\s3.8.2\sbeta\sfrom\supstream,\sincluding\sCygwin\sfixes\sand\nperformance\senhancements.
+D 2013-11-27T15:55:56.824
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -396,12 +396,12 @@ F src/schema.c 571fe8e1ef8e00accae77710a50d10517f41741a
 F src/search.c bd9e49cce5cfc24bebed9bb93fc101bb77ac033c
 F src/setup.c d835198a8bad8410439c01c429648063b849fcce
 F src/sha1.c 720c5139d74301e5ec32e7e561c4be4d3c20d5e3
-F src/shell.c 5aba27fc4617d8eef4ae5aec2b4fde2be2e25e1a
+F src/shell.c 3ed2185ec5441468c4b597d1893dbe1a6697cd89
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
 F src/skins.c 33e5775a510a6efc13ab69cbb7f3e2a42d35e00d
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c aa00687e2ee8fad8e6785e84cf3a65442fb67cde
-F src/sqlite3.h f4f0067e177edac17c72e5ec5156e58e9b1486cd
+F src/sqlite3.c ff2994764f1d879850a5a4bb5f0a39fd418ff21c
+F src/sqlite3.h d2a345b26ac6df0d4b18b2247fedab407a4d7fd0
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c da8399492c8f76ffaafa28bfa8b03d5bcae642d1
 F src/style.c f75cbc937ce5c5d0990b468f0493bea48a240877
@@ -636,7 +636,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3957e9610f806e5a0b3a75d6967da044454e627b
-R 267a857a0177a8e0eb2a82e00a6ad26e
-U jan.nijtmans
-Z a75645d328166c0998a7cfec027944fc
+P 170c3c73632ac83439ebaa237df450e6ae7eb746
+R 085fe73bff1b99b2b32cfc8eafd2c598
+U drh
+Z e970ebbf0cc431696a6b260fc70d729a

@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.2"
 #define SQLITE_VERSION_NUMBER 3008002
-#define SQLITE_SOURCE_ID      "2013-11-25 20:50:23 032e89934f36de10652d3454a0065a337827221a"
+#define SQLITE_SOURCE_ID      "2013-11-27 14:50:51 c75f561f337a56c14335366ed9990e44bc9fc594"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1687,6 +1687,13 @@ struct sqlite3_mem_methods {
 ** [SQLITE_MAX_MMAP_SIZE] compile-time option.)^
 ** ^If either argument to this option is negative, then that argument is
 ** changed to its compile-time default.
+**
+** [[SQLITE_CONFIG_WIN32_HEAPSIZE]]
+** <dt>SQLITE_CONFIG_WIN32_HEAPSIZE
+** <dd>^This option is only available if SQLite is compiled for Windows
+** with the [SQLITE_WIN32_MALLOC] pre-processor macro defined.
+** SQLITE_CONFIG_WIN32_HEAPSIZE takes a 32-bit unsigned integer value
+** that specifies the maximum size of the created heap.
 ** </dl>
 */
 #define SQLITE_CONFIG_SINGLETHREAD  1  /* nil */
@@ -1711,6 +1718,7 @@ struct sqlite3_mem_methods {
 #define SQLITE_CONFIG_COVERING_INDEX_SCAN 20  /* int */
 #define SQLITE_CONFIG_SQLLOG       21  /* xSqllog, void* */
 #define SQLITE_CONFIG_MMAP_SIZE    22  /* sqlite3_int64, sqlite3_int64 */
+#define SQLITE_CONFIG_WIN32_HEAPSIZE      23  /* int nByte */
 
 /*
 ** CAPI3REF: Database Connection Configuration Options
