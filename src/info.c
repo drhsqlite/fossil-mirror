@@ -2310,7 +2310,7 @@ void ci_edit_page(void){
   db_finalize(&q);
   if( !fHasHidden ){
     @ <br /><label><input type="checkbox" name="hidden"%s(zHiddenFlag) />
-    @ Hide this check-in from the timeline</label>
+    @ Hide this branch from the timeline, starting from here</label>
   }
   @ </td></tr>
 
