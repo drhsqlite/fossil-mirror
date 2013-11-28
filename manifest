@@ -1,5 +1,5 @@
-C Implement\s"unhide"\soption\sfor\sjson\stimeline.\s\nProtect\s"trunk"\sfrom\sbeing\shidden,\sand\sindicate\smore\sclear\swhich\sbranch\sis\sbeing\shidden:\sThe\s"mistake"\sbranch\sis\sthe\sonly\sbranch\sthat\sshould\shave\shidden\snodes.
-D 2013-11-28T10:34:10.507
+C When\shiding\sa\sbranch,\sclose\sit\sas\swell:\sCommits\son\sa\shidden\sbranch\smake\sno\ssense.
+D 2013-11-28T22:36:47.797
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -348,7 +348,7 @@ F src/http_socket.c 9d44a02ecd4e9dc325eeac397620e098d172ad09
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 14bab6693bd559c0f97247cc3a4dfefad856eedc
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
-F src/info.c eb08d9debf8d3f9adbbe2b1f02fd66773d488120
+F src/info.c bae0ff32a2a7ddfd74db5e3c1f784842673b528f
 F src/json.c bf7c3a161465108ba77c604c07617efe9c826b85
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c 0ef79ac76a1fb1e7397550251eea1b17219194ca
@@ -636,7 +636,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fd2659fbe30408df69e757918e19eb4de6c85026
-R 5bbf92617289eff6590396d808784842
+P 6b61145f4f8c0ee27e65600814b61988ff2cbe74
+R 88aaefbc8c552c325feae4b561bd615a
 U jan.nijtmans
-Z eff7f390b69f11032ec5acd563020c79
+Z 33da89ca32f579b01da6593ed88d9398

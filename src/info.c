@@ -2149,11 +2149,11 @@ void ci_edit_page(void){
       }
     }
     db_finalize(&q);
-    if( zCloseFlag[0] ){
-      db_multi_exec("REPLACE INTO newtags VALUES('closed','+',NULL)");
-    }
     if( zHiddenFlag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('hidden','*',NULL)");
+      db_multi_exec("REPLACE INTO newtags VALUES('closed','*',NULL)");
+    }else if( zCloseFlag[0] ){
+      db_multi_exec("REPLACE INTO newtags VALUES('closed','+',NULL)");
     }
     if( zNewTagFlag[0] && zNewTag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('sym-%q','+',NULL)", zNewTag);
@@ -2319,7 +2319,8 @@ void ci_edit_page(void){
   db_finalize(&q);
   if( !fHasHidden && zBranchName ){
     @ <br /><label><input type="checkbox" name="hidden"%s(zHiddenFlag) />
-    @ Hide branch <b>%s(zBranchName)</b> from the timeline, starting from here</label>
+    @ Hide branch <b>%s(zBranchName)</b> from the timeline starting from this
+    @ check-in and make sure it is closed</label>
   }
   @ </td></tr>
 
