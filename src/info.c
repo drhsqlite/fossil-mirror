@@ -2060,6 +2060,7 @@ void ci_edit_page(void){
   const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
   char *zUuid;
   Blob comment;
+  const char *zBranchName = 0;
   Stmt q;
 
   login_check_credentials();
@@ -2283,7 +2284,7 @@ void ci_edit_page(void){
   @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)"
   @ onkeyup="gebi('newtag').checked=!!this.value" />
   db_prepare(&q,
-     "SELECT tag.tagid, tagname FROM tagxref, tag"
+     "SELECT tag.tagid, tagname, tagxref.value FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
      " ORDER BY CASE WHEN tagname GLOB 'sym-*' THEN substr(tagname,5)"
      "               ELSE tagname END /*sort*/",
@@ -2303,14 +2304,22 @@ void ci_edit_page(void){
     if( strncmp(zTagName, "sym-", 4)==0 ){
       @ Cancel tag <b>%h(&zTagName[4])</b></label>
     }else{
-      if( strcmp(zTagName, "hidden")==0 ) fHasHidden = 1;
+      if( strcmp(zTagName, "hidden")==0 ){
+        fHasHidden = 1;
+      }else if( strcmp(zTagName, "branch")==0 ){
+        const char *value = db_column_text(&q, 2);
+        /* Protect "trunk" nodes from ever being hidden! */
+        if( strcmp(value, db_get("main-branch", "trunk"))!=0 ){
+   	      zBranchName = mprintf("%s", value);
+        }
+      }
       @ Cancel special tag <b>%h(zTagName)</b></label>
     }
   }
   db_finalize(&q);
-  if( !fHasHidden ){
+  if( !fHasHidden && zBranchName ){
     @ <br /><label><input type="checkbox" name="hidden"%s(zHiddenFlag) />
-    @ Hide this branch from the timeline, starting from here</label>
+    @ Hide branch <b>%s(zBranchName)</b> from the timeline, starting from here</label>
   }
   @ </td></tr>
 

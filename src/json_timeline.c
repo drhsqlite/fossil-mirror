@@ -147,6 +147,7 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
   char const * zTag = NULL;
   char const * zBranch = NULL;
   char const * zMiOnly = NULL;
+  char const * zUnhide = NULL;
   int tagid = 0;
   if(! g.perm.Read ){
     return 0;
@@ -160,6 +161,7 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
     zTag = zBranch;
     zMiOnly = json_find_option_cstr("mionly",NULL,NULL);
   }
+  zUnhide = json_find_option_cstr("unhide",NULL,NULL);
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
                  zTag);
   if(tagid<=0){
@@ -169,27 +171,39 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
     cson_object_set( pPayload, zBranch ? "branch" : "tag", json_new_string(zTag) );
   }
   blob_appendf(pSql,
-               " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=blob.rid"
-               "    WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)"
                " AND ("
                " EXISTS(SELECT 1 FROM tagxref"
                "        WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
-               TAG_HIDDEN, tagid);
+               tagid);
+  if(!zUnhide){
+    blob_appendf(pSql,
+               " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=blob.rid"
+               "    WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
+               TAG_HIDDEN);
+  }
   if(zBranch){
     /* from "r" flag code in page_timeline().*/
     blob_appendf(pSql,
                  " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
-                 "    WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)"
+                 "    WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
+                 tagid);
+    if( !zUnhide ){
+      blob_appendf(pSql,
                  " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
                  "    WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
-                 tagid, TAG_HIDDEN);
+                 TAG_HIDDEN);
+    }
     if( zMiOnly==0 ){
       blob_appendf(pSql,
                  " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
-                 "    WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)"
+                 "    WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+                 tagid);
+      if( !zUnhide ){
+        blob_appendf(pSql,
                  " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
                  "    WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
-                 tagid, TAG_HIDDEN);
+                 TAG_HIDDEN);
+      }
     }
   }
   blob_append(pSql," ) ",3);
