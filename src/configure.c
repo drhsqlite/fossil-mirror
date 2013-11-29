@@ -404,6 +404,21 @@ void configure_finalize_receive(void){
 }
 
 /*
+** Mask of modified configuration sets
+*/
+static int rebuildMask = 0;
+
+/*
+** Rebuild auxiliary tables as required by configuration changes.
+*/
+void configure_rebuild(void){
+  if( rebuildMask & CONFIGSET_TKT ){
+    ticket_rebuild();
+  }
+  rebuildMask = 0;
+}
+
+/*
 ** Return true if z[] is not a "safe" SQL token.  A safe token is one of:
 **
 **   *   A string literal
@@ -568,6 +583,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
       db_multi_exec("%s", blob_str(&sql));
     }
     blob_reset(&sql);
+    rebuildMask |= thisMask;
   }else{
     /* Otherwise, the old format */
     if( (configure_is_exportable(zName) & groupMask)==0 ) return;
@@ -950,9 +966,11 @@ void configuration_cmd(void){
     fossil_print("Configuration reset to factory defaults.\n");
     fossil_print("To recover, use:  %s %s import %s\n",
             g.argv[0], g.argv[1], zBackup);
+    rebuildMask |= mask;
   }else
   {
     fossil_fatal("METHOD should be one of:"
                  " export import merge pull push reset");
   }
+  configure_rebuild();
 }
