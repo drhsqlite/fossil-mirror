@@ -125,8 +125,8 @@ void stat_page(void){
   @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
   @ (%h(RELEASE_VERSION)) [compiled using %h(COMPILER_NAME)]
   @ </td></tr>
-  @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(SQLITE_SOURCE_ID)
-  @ [%.10s(&SQLITE_SOURCE_ID[20])] (%s(SQLITE_VERSION))</td></tr>
+  @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
+  @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))</td></tr>
   @ <tr><th>Repository Rebuilt:</th><td>
   @ %h(db_get_mtime("rebuilt","%Y-%m-%d %H:%M:%S","Never"))
   @ By Fossil %h(db_get("rebuilt","Unknown"))</td></tr>
@@ -226,8 +226,8 @@ void dbstat_cmd(void){
                COMPILER_NAME);
   fossil_print("%*s%.19s [%.10s] (%s)\n",
                colWidth, "sqlite-version:",
-               SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20],
-               SQLITE_VERSION);
+               sqlite3_sourceid(), &sqlite3_sourceid()[20],
+               sqlite3_libversion());
   zDb = db_name("repository");
   fossil_print("%*s%d pages, %d bytes/pg, %d free pages, "
                "%s, %s mode\n",

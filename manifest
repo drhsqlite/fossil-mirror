@@ -1,5 +1,5 @@
-C Rebuild\sticket\stables\swhen\smodifications\sare\smade\susing\s'fossil\sconfig'.
-D 2013-11-29T06:10:29.413
+C When\sconfiguring\sfossil\susing\s"--disable-internal-sqlite"\s(having\sSQLite\s3.8.1\sinstalled),\n"./fossil\sversion\s-v"\sgives:\s"SQLite\s3.8.2\s2013-11-27\s14:50:51\sc75f561f33",\swhich\swas\snot\nthe\sSQLite\sversion\scompiled\swith,\sneither\sthe\sSQLite\sversion\sactually\srunning\s(3.8.1).
+D 2013-11-29T11:26:47.713
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -349,7 +349,7 @@ F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 14bab6693bd559c0f97247cc3a4dfefad856eedc
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
 F src/info.c afbe115ca1dc5987c31e91b016f3fa32718cae6f
-F src/json.c bf7c3a161465108ba77c604c07617efe9c826b85
+F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c 0ef79ac76a1fb1e7397550251eea1b17219194ca
 F src/json_config.c 61a843f7fcf5f8ca0087f88be21cfc2584b1cdab
@@ -368,7 +368,7 @@ F src/json_wiki.c 3ef3369d9107698e407f917ab61be1abac73eef5
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 66e6eb4eb658359417e12d8fc35a306d583a20b5
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c 4c5160c37140c9f84e70f495a7cb10425b9826be
+F src/main.c 18058a58654f9b511c653b6027b125efcd3597af
 F src/main.mk 5d9e4bcf05dac59c75fdd95dd5c804767b03b2dd
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -403,7 +403,7 @@ F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
 F src/sqlite3.c ff2994764f1d879850a5a4bb5f0a39fd418ff21c
 F src/sqlite3.h d2a345b26ac6df0d4b18b2247fedab407a4d7fd0
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
-F src/stat.c da8399492c8f76ffaafa28bfa8b03d5bcae642d1
+F src/stat.c 28b9be27fd580b4b2dac60226ae296e55b2c9c9e
 F src/style.c f75cbc937ce5c5d0990b468f0493bea48a240877
 F src/sync.c bb1f61e400aaa9daa59c6972b1fd987276bd6d80
 F src/tag.c 840a6950d6d6c5e05b8447185b19aee12f29f460
@@ -636,7 +636,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 38c02b775d75c1f973db521b548958b4266abe50
-R 3ecfa2474f0705817e5013813ba3fcbd
-U joel
-Z a3b938e387737f6366ad6a97fd6eaf74
+P 0047370ce670cd77ab756826a4445c2ef8e84106
+R d515e3055cb0ef285467a3add5b3e595
+U jan.nijtmans
+Z be5f452cb2e8fdfc0886f4b9350fbe2e
