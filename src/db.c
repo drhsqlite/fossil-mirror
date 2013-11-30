@@ -719,6 +719,11 @@ LOCAL sqlite3 *db_open(const char *zDbName){
 #endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   zVfs = fossil_getenv("FOSSIL_VFS");
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if( zVfs==0 && sqlite3_libversion_number()>=3008001 ){
+    zVfs = "win32-longpath";
+  }
+#endif
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,

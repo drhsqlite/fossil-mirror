@@ -1269,6 +1269,7 @@ void page_xfer(void){
   free(zNow);
 
   db_end_transaction(0);
+  configure_rebuild();
 }
 
 /*
