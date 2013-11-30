@@ -1,5 +1,5 @@
-C When\sconfiguring\sfossil\susing\s"--disable-internal-sqlite"\s(having\sSQLite\s3.8.1\sinstalled),\n"./fossil\sversion\s-v"\sgives:\s"SQLite\s3.8.2\s2013-11-27\s14:50:51\sc75f561f33",\swhich\swas\snot\nthe\sSQLite\sversion\scompiled\swith,\sneither\sthe\sSQLite\sversion\sactually\srunning\s(3.8.1).
-D 2013-11-29T11:26:47.713
+C When\savailable,\smake\s"win32-longpath"\sthe\sdefault\sVFS\son\sWindows\sand\sCygwin
+D 2013-11-30T09:28:30.614
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -328,7 +328,7 @@ F src/content.c 468d7f73a4b09fe03d16d8477f9fe6a99481bec9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 3cfd6f07a21fe496c99c159d2693e1fb873ec323
+F src/db.c 3676a93261a47eb14534845eb055569d5ab6a1ad
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c d59a0e546f5e82c884defcf3a695cc066bded992
@@ -636,7 +636,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0047370ce670cd77ab756826a4445c2ef8e84106
-R d515e3055cb0ef285467a3add5b3e595
+P d7806931818cea4fa5d41996d4fbc7fc4204af04
+R 910949c144ab748ec8a02f4dd29163e3
 U jan.nijtmans
-Z be5f452cb2e8fdfc0886f4b9350fbe2e
+Z 2a8bd841f0a0663fd71478b36ee64711
