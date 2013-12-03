@@ -690,6 +690,7 @@ static int login_transfer_credentials(
   char *zOtherRepo;            /* Filename of the other repository */
   int rc;                      /* Result code from SQLite library functions */
   int nXfer = 0;               /* Number of credentials transferred */
+  const char *zVfs;
 
   zOtherRepo = db_text(0, 
        "SELECT value FROM config WHERE name='peer-repo-%q'",
@@ -697,7 +698,15 @@ static int login_transfer_credentials(
   );
   if( zOtherRepo==0 ) return 0;  /* No such peer repository */
 
-  rc = sqlite3_open(zOtherRepo, &pOther);
+  zVfs = fossil_getenv("FOSSIL_VFS");
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if( zVfs==0 && sqlite3_libversion_number()>=3008001 ){
+    zVfs = "win32-longpath";
+  }
+#endif
+  rc = sqlite3_open_v2(zOtherRepo, &pOther,
+	       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+	       zVfs);
   if( rc==SQLITE_OK ){
     sqlite3_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
     sqlite3_create_function(pOther, "constant_time_cmp", 2, SQLITE_UTF8, 0,
@@ -1430,6 +1439,7 @@ void login_group_join(
   char *zSelfProjCode;       /* Our project-code */
   char *zSql;                /* SQL to run on all peers */
   const char *zSelf;         /* The ATTACH name of our repository */
+  const char *zVfs;
 
   *pzErrMsg = 0;   /* Default to no errors */
   zSelf = db_name("repository");
@@ -1461,7 +1471,15 @@ void login_group_join(
     *pzErrMsg = mprintf("repository file \"%s\" does not exist", zRepo);
     return;
   }
-  rc = sqlite3_open(zRepo, &pOther);
+  zVfs = fossil_getenv("FOSSIL_VFS");
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if( zVfs==0 && sqlite3_libversion_number()>=3008001 ){
+    zVfs = "win32-longpath";
+  }
+#endif
+  rc = sqlite3_open_v2(zRepo, &pOther,
+	       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+	       zVfs);
   if( rc!=SQLITE_OK ){
     *pzErrMsg = mprintf(sqlite3_errmsg(pOther));
   }else{
