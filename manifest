@@ -1,5 +1,5 @@
-C Be\sconsistent\swith\snaming.\s\sAlso\sremove\sunused\sline\sof\scode.
-D 2013-12-03T05:21:01.976
+C Merge\strunk.\s\nGive\s"Branch\sHiding"\sit's\sown\ssection\sin\sthe\sci_edit\spage.
+D 2013-12-03T14:59:54.231
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -348,7 +348,7 @@ F src/http_socket.c 9d44a02ecd4e9dc325eeac397620e098d172ad09
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 14bab6693bd559c0f97247cc3a4dfefad856eedc
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
-F src/info.c bae0ff32a2a7ddfd74db5e3c1f784842673b528f
+F src/info.c 2c6c4b077ba10923a3f26104c87f6415908bc813
 F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c 0ef79ac76a1fb1e7397550251eea1b17219194ca
@@ -366,7 +366,7 @@ F src/json_timeline.c 8796261bcd284ac4f8eb7850f43612fa508ba791
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 3ef3369d9107698e407f917ab61be1abac73eef5
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 66e6eb4eb658359417e12d8fc35a306d583a20b5
+F src/login.c 8a18d3c0741da3240d171c25bfa48222f66922f7
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
 F src/main.c 18058a58654f9b511c653b6027b125efcd3597af
 F src/main.mk 5d9e4bcf05dac59c75fdd95dd5c804767b03b2dd
@@ -400,8 +400,8 @@ F src/shell.c 3ed2185ec5441468c4b597d1893dbe1a6697cd89
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
 F src/skins.c 33e5775a510a6efc13ab69cbb7f3e2a42d35e00d
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c ff2994764f1d879850a5a4bb5f0a39fd418ff21c
-F src/sqlite3.h d2a345b26ac6df0d4b18b2247fedab407a4d7fd0
+F src/sqlite3.c 99349c6b2532dbb94142cefef873ed0a1258f009
+F src/sqlite3.h dc8ffc99e74134dc0e120e453a1cd6eb527c68ff
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 28b9be27fd580b4b2dac60226ae296e55b2c9c9e
 F src/style.c f75cbc937ce5c5d0990b468f0493bea48a240877
@@ -636,7 +636,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 39667fd75e073345afc3f0aa5d7f62384c79f90d
-R 82c9948d2c3b998bc982ffa3d8de695f
-U andybradford
-Z cd5a236cb7433f742d7ddf4ec51f9452
+P f742be5faa73d0caa0be1c4be423cf9f7257a41c 2d2ab567547e1e473e559b453a17d64444e77ab3
+R 6f23053d777f82aafe90777adb2a0be7
+U jan.nijtmans
+Z 750ee4090428be51749a41b365e7d6a8

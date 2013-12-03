@@ -2294,6 +2294,7 @@ void ci_edit_page(void){
     int tagid = db_column_int(&q, 0);
     const char *zTagName = db_column_text(&q, 1);
     char zLabel[30];
+    if (tagid == TAG_COMMENT) continue;
     sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
     @ <br /><label>
     if( P(zLabel) ){
@@ -2317,11 +2318,6 @@ void ci_edit_page(void){
     }
   }
   db_finalize(&q);
-  if( !fHasHidden && zBranchName ){
-    @ <br /><label><input type="checkbox" name="hidden"%s(zHiddenFlag) />
-    @ Hide branch <b>%s(zBranchName)</b> from the timeline starting from this
-    @ check-in and make sure it is closed</label>
-  }
   @ </td></tr>
 
   @ <tr><th align="right" valign="top">Branching:</th>
@@ -2332,6 +2328,15 @@ void ci_edit_page(void){
   @ onkeyup="gebi('newbr').checked=!!this.value" />
   @ </td></tr>
 
+  if( !fHasHidden && zBranchName ){
+    @ <tr><th align="right" valign="top">Branch Hiding:</th>
+    @ <td valign="top">
+    @ <label><input type="checkbox" name="hidden"%s(zHiddenFlag) />
+    @ Hide branch <b>%s(zBranchName)</b> from the timeline starting from this
+    @ check-in and make sure it is closed</label>
+    @ </td></tr>
+  }
+
   if( is_a_leaf(rid)
    && !db_exists("SELECT 1 FROM tagxref "
                  " WHERE tagid=%d AND rid=%d AND tagtype>0",
@@ -2341,7 +2346,7 @@ void ci_edit_page(void){
     @ <td valign="top">
     @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
     @ Mark this leaf as "closed" so that it no longer appears on the
-    @ "leaves" page and is no longer labeled as a "<b>Leaf</b>".</label>
+    @ "leaves" page and is no longer labeled as a "<b>Leaf</b>"</label>
     @ </td></tr>
   }
 
