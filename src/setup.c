@@ -1219,6 +1219,11 @@ void setup_timeline(void){
   @ clicking.  This setting selects the default.</p>
 
   @ <hr />
+  onoff_attribute("Show hidden artifacts by default",
+                  "show-hidden-artifacts", "unhide", 0, 0);
+  @ <p>In timeline displays, show hidden check-ins by default.</p>
+
+  @ <hr />
   entry_attribute("Max timeline comment length", 6,
                   "timeline-max-comment", "tmc", "0", 0);
   @ <p>The maximum length of a comment to be displayed in a timeline.

@@ -1122,8 +1122,15 @@ void page_timeline(void){
     url_add_parameter(&url, "brbg", 0);
   }
   if( P("unhide")!=0 ){
+    if( is_truth(P("unhide")) ){
+      tmFlags |= TIMELINE_UNHIDE;
+      url_add_parameter(&url, "unhide", "1");
+    }else{
+      url_add_parameter(&url, "unhide", "0");
+    }
+  }else if( db_get_boolean("show-hidden-artifacts", 0)==1 ){
     tmFlags |= TIMELINE_UNHIDE;
-    url_add_parameter(&url, "unhide", 0);
+    /*url_add_parameter(&url, "unhide", "1");*/
   }
   if( P("ubg")!=0 ){
     tmFlags |= TIMELINE_UCOLOR;
@@ -1501,7 +1508,9 @@ void page_timeline(void){
           timeline_submenu(&url, "Show Files", "v", "", 0);
         }
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-          timeline_submenu(&url, "Unhide", "unhide", "", 0);
+          timeline_submenu(&url, "Unhide", "unhide", "1", 0);
+        }else{ 
+          timeline_submenu(&url, "Hide", "unhide", "0", 0);
         }
       }
     }
