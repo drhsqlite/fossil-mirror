@@ -2287,6 +2287,7 @@ void ci_edit_page(void){
     int tagid = db_column_int(&q, 0);
     const char *zTagName = db_column_text(&q, 1);
     char zLabel[30];
+    if (tagid == TAG_COMMENT) continue;
     sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
     @ <br /><label>
     if( P(zLabel) ){
@@ -2320,7 +2321,7 @@ void ci_edit_page(void){
     @ <td valign="top">
     @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
     @ Mark this leaf as "closed" so that it no longer appears on the
-    @ "leaves" page and is no longer labeled as a "<b>Leaf</b>".</label>
+    @ "leaves" page and is no longer labeled as a "<b>Leaf</b>"</label>
     @ </td></tr>
   }
 

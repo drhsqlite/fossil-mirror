@@ -1,5 +1,5 @@
-C Use\s"win32-longpath"\sas\sdefault\s(when\savailable,\soverridable\swith\sFOSSIL_VFS\senvironment\svariable)\swhen\saccessing\speer\srepositories.
-D 2013-12-03T13:49:47.132
+C "comment"\stag\sfrom\scheck-in's\scannot\sbe\scanceled:\sthat\swould\sresult\sin\sa\scheck-in\swithout\sa\scomment!\s\nExtraneous\sdot\sin\slabel\stext.
+D 2013-12-03T14:56:31.202
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -348,7 +348,7 @@ F src/http_socket.c 9d44a02ecd4e9dc325eeac397620e098d172ad09
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 14bab6693bd559c0f97247cc3a4dfefad856eedc
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
-F src/info.c afbe115ca1dc5987c31e91b016f3fa32718cae6f
+F src/info.c 7f8f96e38c13e540e7303ad00fc8ce816aaaba73
 F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c 0ef79ac76a1fb1e7397550251eea1b17219194ca
@@ -636,7 +636,8 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 81d24c6bfe5fed60ccbc0470e7bdd15a7acdb775
-R 4def612ebdc54a1ded8917249775fccf
+P f8eefabe6a9d3dbf867504bd00dfc398a86ac230
+Q +20015206bca369736279a2d9d1bc9eb1e065710c
+R a0a0d849f87dcb5d2ee04959204881f1
 U jan.nijtmans
-Z 2c2b69e015112ba0163b3d6d4cec4ebd
+Z 92b67b9843926d5109959a12cf28e4f9
