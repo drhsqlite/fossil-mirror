@@ -2056,7 +2056,8 @@ void ci_edit_page(void){
   const char *zHiddenFlag;
   int fPropagateColor;          /* True if color propagates before edit */
   int fNewPropagateColor;       /* True if color propagates after edit */
-  int fHasHidden = 0;           /* True hidden flag already set */
+  int fHasHidden = 0;           /* True if hidden tag already set */
+  int fHasClosed = 0;           /* True if closed tag already set */
   const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
   char *zUuid;
   Blob comment;
@@ -2098,7 +2099,7 @@ void ci_edit_page(void){
   zNewBrFlag = P("newbr") ? " checked" : "";
   zNewBranch = PDT("brname","");
   zCloseFlag = P("close") ? " checked" : "";
-  zHiddenFlag = P("hidden") ? " checked" : "";
+  zHiddenFlag = P("hide") ? " checked" : "";
   if( P("apply") ){
     Blob ctrl;
     char *zNow;
@@ -2305,9 +2306,11 @@ void ci_edit_page(void){
     if( strncmp(zTagName, "sym-", 4)==0 ){
       @ Cancel tag <b>%h(&zTagName[4])</b></label>
     }else{
-      if( strcmp(zTagName, "hidden")==0 ){
+      if( tagid==TAG_HIDDEN ){
         fHasHidden = 1;
-      }else if( strcmp(zTagName, "branch")==0 ){
+      }else if( tagid==TAG_CLOSED ){
+        fHasClosed = 1;
+      }else if( tagid==TAG_BRANCH ){
         const char *value = db_column_text(&q, 2);
         /* Protect "trunk" nodes from ever being hidden! */
         if( strcmp(value, db_get("main-branch", "trunk"))!=0 ){
@@ -2331,17 +2334,13 @@ void ci_edit_page(void){
   if( !fHasHidden && zBranchName ){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
-    @ <label><input type="checkbox" name="hidden"%s(zHiddenFlag) />
+    @ <label><input type="checkbox" name="hide"%s(zHiddenFlag) />
     @ Hide branch <b>%s(zBranchName)</b> from the timeline starting from this
     @ check-in and make sure it is closed</label>
     @ </td></tr>
   }
 
-  if( is_a_leaf(rid)
-   && !db_exists("SELECT 1 FROM tagxref "
-                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
-                 TAG_CLOSED, rid)
-  ){
+  if( !fHasClosed && is_a_leaf(rid) ){
     @ <tr><th align="right" valign="top">Leaf Closure:</th>
     @ <td valign="top">
     @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
