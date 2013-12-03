@@ -1128,9 +1128,8 @@ void page_timeline(void){
     }else{
       url_add_parameter(&url, "unhide", "0");
     }
-  }else if( db_get_boolean("show-hidden-artifacts", 0)==1 ){
+  }else if( db_get_boolean("show-hidden-checkins", 0)==1 ){
     tmFlags |= TIMELINE_UNHIDE;
-    /*url_add_parameter(&url, "unhide", "1");*/
   }
   if( P("ubg")!=0 ){
     tmFlags |= TIMELINE_UCOLOR;

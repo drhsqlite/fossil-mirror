@@ -1219,8 +1219,8 @@ void setup_timeline(void){
   @ clicking.  This setting selects the default.</p>
 
   @ <hr />
-  onoff_attribute("Show hidden artifacts by default",
-                  "show-hidden-artifacts", "unhide", 0, 0);
+  onoff_attribute("Show hidden check-ins by default",
+                  "show-hidden-checkins", "unhide", 0, 0);
   @ <p>In timeline displays, show hidden check-ins by default.</p>
 
   @ <hr />
