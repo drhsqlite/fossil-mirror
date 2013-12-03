@@ -1,5 +1,5 @@
-C When\savailable,\smake\s"win32-longpath"\sthe\sdefault\sVFS\son\sWindows\sand\sCygwin
-D 2013-11-30T09:28:30.614
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.8.2\sfirst\srelease\scandidate.
+D 2013-12-03T03:16:04.003
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -400,8 +400,8 @@ F src/shell.c 3ed2185ec5441468c4b597d1893dbe1a6697cd89
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
 F src/skins.c 33e5775a510a6efc13ab69cbb7f3e2a42d35e00d
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c ff2994764f1d879850a5a4bb5f0a39fd418ff21c
-F src/sqlite3.h d2a345b26ac6df0d4b18b2247fedab407a4d7fd0
+F src/sqlite3.c 99349c6b2532dbb94142cefef873ed0a1258f009
+F src/sqlite3.h dc8ffc99e74134dc0e120e453a1cd6eb527c68ff
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 28b9be27fd580b4b2dac60226ae296e55b2c9c9e
 F src/style.c f75cbc937ce5c5d0990b468f0493bea48a240877
@@ -636,7 +636,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d7806931818cea4fa5d41996d4fbc7fc4204af04
-R 910949c144ab748ec8a02f4dd29163e3
-U jan.nijtmans
-Z 2a8bd841f0a0663fd71478b36ee64711
+P 6e31396fafa695483b90796426850fcbc725a1e3
+R 22778ea4656f6dbd20b2f1eb31d13ed3
+U drh
+Z 5445d10751c83a6ae2ee577f3fd2266d
