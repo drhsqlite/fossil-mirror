@@ -550,7 +550,7 @@ void addremove_cmd(void){
 */
 static void mv_one_file(int vid, const char *zOrig, const char *zNew){
   int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q %s",
-		         zNew, filename_collation());
+                         zNew, filename_collation());
   if( x>=0 ){
     if( x==0 ){
       fossil_fatal("cannot rename '%s' to '%s' since another file named '%s'"

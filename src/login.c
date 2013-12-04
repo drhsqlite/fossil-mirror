@@ -476,7 +476,7 @@ void login_page(void){
 
   login_check_credentials();
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
-		  constant_time_cmp_function, 0, 0);
+                  constant_time_cmp_function, 0, 0);
   zUsername = P("u");
   zPasswd = P("p");
   anonFlag = P("anon")!=0;
@@ -705,12 +705,12 @@ static int login_transfer_credentials(
   }
 #endif
   rc = sqlite3_open_v2(zOtherRepo, &pOther,
-	       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-	       zVfs);
+               SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+               zVfs);
   if( rc==SQLITE_OK ){
     sqlite3_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
     sqlite3_create_function(pOther, "constant_time_cmp", 2, SQLITE_UTF8, 0,
-		  constant_time_cmp_function, 0, 0);
+                  constant_time_cmp_function, 0, 0);
     sqlite3_busy_timeout(pOther, 5000);
     zSQL = mprintf(
       "SELECT cexpire FROM user"
@@ -795,7 +795,7 @@ void login_check_credentials(void){
   if( g.userUid!=0 ) return;
 
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
-		  constant_time_cmp_function, 0, 0);
+                  constant_time_cmp_function, 0, 0);
 
   /* If the HTTP connection is coming over 127.0.0.1 and if
   ** local login is disabled and if we are using HTTP and not HTTPS, 
@@ -1478,8 +1478,8 @@ void login_group_join(
   }
 #endif
   rc = sqlite3_open_v2(zRepo, &pOther,
-	       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-	       zVfs);
+               SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+               zVfs);
   if( rc!=SQLITE_OK ){
     *pzErrMsg = mprintf(sqlite3_errmsg(pOther));
   }else{
