@@ -2350,7 +2350,7 @@ void ci_edit_page(void){
   if(zBranchName) fossil_free(zBranchName);
 
   if( !fHasClosed ){
-	if( is_a_leaf(rid) ){
+    if( is_a_leaf(rid) ){
       @ <tr><th align="right" valign="top">Leaf Closure:</th>
       @ <td valign="top">
       @ <label><input type="checkbox" name="close"%s(zCloseFlag) />

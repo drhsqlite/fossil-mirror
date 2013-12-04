@@ -871,7 +871,7 @@ void wfind_page(void){
   db_prepare(&q, 
     "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname like 'wiki-%%%q%%'"
     " ORDER BY lower(tagname) /*sort*/" ,
-	zTitle);
+    zTitle);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     @ <li>%z(href("%R/wiki?name=%T",zName))%h(zName)</a></li>
