@@ -297,7 +297,7 @@ append opt " -Dlocaltime=fossil_localtime"
 append opt " -DSQLITE_ENABLE_LOCKING_STYLE=0"
 append opt " -DSQLITE_WIN32_NO_ANSI"
 set SQLITE_OPTIONS $opt
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+writeln "\t\$(XTCC) $opt -DSQLITE_WINNT_MAX_PATH_CHARS=4096 -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 set opt {-Dmain=sqlite3_shell}
@@ -1282,7 +1282,7 @@ UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 SQLITESRC=sqlite3.c
 ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
-SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_WIN32_NO_ANSI
+SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_OMIT_DEPRECATED=1 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_WIN32_NO_ANSI
 
 # define the sqlite shell files, which need special flags on compile
 SQLITESHELLSRC=shell.c
