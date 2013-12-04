@@ -2053,7 +2053,7 @@ void ci_edit_page(void){
   const char *zNewBrFlag;
   const char *zNewBranch;
   const char *zCloseFlag;
-  const char *zHiddenFlag;
+  const char *zHideFlag;
   int fPropagateColor;          /* True if color propagates before edit */
   int fNewPropagateColor;       /* True if color propagates after edit */
   int fHasHidden = 0;           /* True if hidden tag already set */
@@ -2061,7 +2061,7 @@ void ci_edit_page(void){
   const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
   char *zUuid;
   Blob comment;
-  const char *zBranchName = 0;
+  char *zBranchName = 0;
   Stmt q;
 
   login_check_credentials();
@@ -2099,7 +2099,7 @@ void ci_edit_page(void){
   zNewBrFlag = P("newbr") ? " checked" : "";
   zNewBranch = PDT("brname","");
   zCloseFlag = P("close") ? " checked" : "";
-  zHiddenFlag = P("hide") ? " checked" : "";
+  zHideFlag = P("hide") ? " checked" : "";
   if( P("apply") ){
     Blob ctrl;
     char *zNow;
@@ -2150,11 +2150,15 @@ void ci_edit_page(void){
       }
     }
     db_finalize(&q);
-    if( zHiddenFlag[0] ){
+    if( zHideFlag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('hidden','*',NULL)");
-      db_multi_exec("REPLACE INTO newtags VALUES('closed','*',NULL)");
-    }else if( zCloseFlag[0] ){
-      db_multi_exec("REPLACE INTO newtags VALUES('closed','+',NULL)");
+    }
+    if( zCloseFlag[0] ){
+      if( is_a_leaf(rid) ){
+        db_multi_exec("REPLACE INTO newtags VALUES('closed','+',NULL)");
+      }else{
+        db_multi_exec("REPLACE INTO newtags VALUES('closed','*',NULL)");
+      }
     }
     if( zNewTagFlag[0] && zNewTag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('sym-%q','+',NULL)", zNewTag);
@@ -2294,8 +2298,22 @@ void ci_edit_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     int tagid = db_column_int(&q, 0);
     const char *zTagName = db_column_text(&q, 1);
+    int isSpecialTag = strncmp(zTagName, "sym-", 4)!=0;
     char zLabel[30];
-    if (tagid == TAG_COMMENT) continue;
+
+    if (tagid == TAG_CLOSED){
+      fHasClosed = 1;
+    }else if (tagid == TAG_COMMENT){
+      continue;
+    }else if (tagid == TAG_BRANCH){
+      zBranchName = mprintf("%s", db_column_text(&q, 2));
+      continue;
+    }else if( tagid==TAG_HIDDEN ){
+      fHasHidden = 1;
+    }else if( !isSpecialTag && zBranchName &&
+        strcmp(&zTagName[4], zBranchName)==0){
+      continue;
+    }
     sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
     @ <br /><label>
     if( P(zLabel) ){
@@ -2303,21 +2321,10 @@ void ci_edit_page(void){
     }else{
       @ <input type="checkbox" name="c%d(tagid)" />
     }
-    if( strncmp(zTagName, "sym-", 4)==0 ){
-      @ Cancel tag <b>%h(&zTagName[4])</b></label>
-    }else{
-      if( tagid==TAG_HIDDEN ){
-        fHasHidden = 1;
-      }else if( tagid==TAG_CLOSED ){
-        fHasClosed = 1;
-      }else if( tagid==TAG_BRANCH ){
-        const char *value = db_column_text(&q, 2);
-        /* Protect "trunk" nodes from ever being hidden! */
-        if( strcmp(value, db_get("main-branch", "trunk"))!=0 ){
-   	      zBranchName = mprintf("%s", value);
-        }
-      }
+    if( isSpecialTag ){
       @ Cancel special tag <b>%h(zTagName)</b></label>
+    }else{
+      @ Cancel tag <b>%h(&zTagName[4])</b></label>
     }
   }
   db_finalize(&q);
@@ -2334,19 +2341,30 @@ void ci_edit_page(void){
   if( !fHasHidden && zBranchName ){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
-    @ <label><input type="checkbox" name="hide"%s(zHiddenFlag) />
+    @ <label><input type="checkbox" name="hide"%s(zHideFlag) />
     @ Hide branch <b>%s(zBranchName)</b> from the timeline starting from this
-    @ check-in and make sure it is closed</label>
+    @ check-in</label>
     @ </td></tr>
   }
 
-  if( !fHasClosed && is_a_leaf(rid) ){
-    @ <tr><th align="right" valign="top">Leaf Closure:</th>
-    @ <td valign="top">
-    @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
-    @ Mark this leaf as "closed" so that it no longer appears on the
-    @ "leaves" page and is no longer labeled as a "<b>Leaf</b>"</label>
-    @ </td></tr>
+  if(zBranchName) fossil_free(zBranchName);
+
+  if( !fHasClosed ){
+	if( is_a_leaf(rid) ){
+      @ <tr><th align="right" valign="top">Leaf Closure:</th>
+      @ <td valign="top">
+      @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
+      @ Mark this leaf as "closed" so that it no longer appears on the
+      @ "leaves" page and is no longer labeled as a "<b>Leaf</b>"</label>
+      @ </td></tr>
+    }else{
+      @ <tr><th align="right" valign="top">Branch Closure:</th>
+      @ <td valign="top">
+      @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
+      @ Mark this branch as "closed" so that its leaf no longer appears on the
+      @ "leaves" page and is no longer labeled as a "<b>Leaf</b>"</label>
+      @ </td></tr>
+    }
   }
 
 
