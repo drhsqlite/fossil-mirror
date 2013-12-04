@@ -2055,9 +2055,11 @@ void ci_edit_page(void){
   const char *zCloseFlag;
   int fPropagateColor;          /* True if color propagates before edit */
   int fNewPropagateColor;       /* True if color propagates after edit */
+  int fHasClosed = 0;           /* True if closed tag already set */
   const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
   char *zUuid;
   Blob comment;
+  char *zBranchName = 0;
   Stmt q;
 
   login_check_credentials();
@@ -2277,7 +2279,7 @@ void ci_edit_page(void){
   @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)"
   @ onkeyup="gebi('newtag').checked=!!this.value" />
   db_prepare(&q,
-     "SELECT tag.tagid, tagname FROM tagxref, tag"
+     "SELECT tag.tagid, tagname, tagxref.value FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
      " ORDER BY CASE WHEN tagname GLOB 'sym-*' THEN substr(tagname,5)"
      "               ELSE tagname END /*sort*/",
@@ -2286,8 +2288,20 @@ void ci_edit_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     int tagid = db_column_int(&q, 0);
     const char *zTagName = db_column_text(&q, 1);
+    int isSpecialTag = strncmp(zTagName, "sym-", 4)!=0;
     char zLabel[30];
-    if (tagid == TAG_COMMENT) continue;
+
+    if (tagid == TAG_CLOSED){
+      fHasClosed = 1;
+    }else if (tagid == TAG_COMMENT){
+      continue;
+    }else if (tagid == TAG_BRANCH){
+      zBranchName = mprintf("%s", db_column_text(&q, 2));
+      continue;
+    }else if( !isSpecialTag && zBranchName &&
+        strcmp(&zTagName[4], zBranchName)==0){
+      continue;
+    }
     sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
     @ <br /><label>
     if( P(zLabel) ){
@@ -2295,10 +2309,10 @@ void ci_edit_page(void){
     }else{
       @ <input type="checkbox" name="c%d(tagid)" />
     }
-    if( strncmp(zTagName, "sym-", 4)==0 ){
-      @ Cancel tag <b>%h(&zTagName[4])</b></label>
-    }else{
+    if( isSpecialTag ){
       @ Cancel special tag <b>%h(zTagName)</b></label>
+    }else{
+      @ Cancel tag <b>%h(&zTagName[4])</b></label>
     }
   }
   db_finalize(&q);
@@ -2312,11 +2326,7 @@ void ci_edit_page(void){
   @ onkeyup="gebi('newbr').checked=!!this.value" />
   @ </td></tr>
 
-  if( is_a_leaf(rid)
-   && !db_exists("SELECT 1 FROM tagxref "
-                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
-                 TAG_CLOSED, rid)
-  ){
+  if( !fHasClosed && is_a_leaf(rid) ){
     @ <tr><th align="right" valign="top">Leaf Closure:</th>
     @ <td valign="top">
     @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
@@ -2324,6 +2334,7 @@ void ci_edit_page(void){
     @ "leaves" page and is no longer labeled as a "<b>Leaf</b>"</label>
     @ </td></tr>
   }
+  if(zBranchName) fossil_free(zBranchName);
 
 
   @ <tr><td colspan="2">
