@@ -2347,7 +2347,6 @@ void ci_edit_page(void){
     @ </td></tr>
   }
 
-  if(zBranchName) fossil_free(zBranchName);
 
   if( !fHasClosed ){
     if( is_a_leaf(rid) ){
@@ -2361,11 +2360,13 @@ void ci_edit_page(void){
       @ <tr><th align="right" valign="top">Branch Closure:</th>
       @ <td valign="top">
       @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
-      @ Mark this branch as "closed" so that its leaf no longer appears on the
-      @ "leaves" page and is no longer labeled as a "<b>Leaf</b>"</label>
+      @ Mark branch <b>%s(zBranchName)</b> as "closed" so that its leaf no
+      @ longer appears on the "leaves" page and is no longer labeled as a
+      @ "<b>Leaf</b>"</label>
       @ </td></tr>
     }
   }
+  if(zBranchName) fossil_free(zBranchName);
 
 
   @ <tr><td colspan="2">
