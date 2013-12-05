@@ -2210,12 +2210,12 @@ void ci_edit_page(void){
   /*
   ** Javascript functions to assist in modifying hidden branch options.
   ** stcbi: sets the textContent for the given element id to val
-  ** hcbxbi: hids the checkbox and unchecks for the given element id
+  ** hcbxbi: hides the checkbox and unchecks for the given element id
   ** hauc: hides and unchecks the checkbox when needed
   */
   @ <script>
   @ function stcbi(id,val){
-  @   id.textContent = val;
+  @   if( id ) id.textContent = val;
   @ }
   @ function hcbxbi(id,toggle){
   @   if( toggle ){
@@ -2228,14 +2228,15 @@ void ci_edit_page(void){
   @ function hauc(cbxid,zdef,formid,toggle){
   @   if( cbxid ) hcbxbi(cbxid,toggle);
   @   hidbrid = gebi('hbranch');
-  @   cidbrid = document.getElementById('cbranch') ? gebi('cbranch') : null;
+  @   cidbrid = document.getElementById('cbranch');
   @   if( toggle ){
   @     stcbi(hidbrid,zdef);
-  @     if(cidbrid) stcbi(cidbrid,zdef);
+  @     stcbi(cidbrid,zdef);
   @   }else{
-  @     if( gebi(formid).value ){
-  @       stcbi(hidbrid,gebi(formid).value);
-  @       if(cidbrid) stcbi(cidbrid,gebi(formid).value);
+  @     newvalue = gebi(formid).value;
+  @     if( newvalue ){
+  @       stcbi(hidbrid,newvalue);
+  @       stcbi(cidbrid,newvalue);
   @     }
   @   }
   @ }
