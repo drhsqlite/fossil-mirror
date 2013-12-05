@@ -1373,7 +1373,8 @@ void db_initial_setup(
       "INSERT OR REPLACE INTO config"
       " SELECT name,value,mtime FROM settingSrc.config"
       "  WHERE (name IN %s OR name IN %s)"
-      "    AND name NOT GLOB 'project-*';",
+      "    AND name NOT GLOB 'project-*'"
+      "    AND name NOT GLOB 'short-project-*';",
       configure_inop_rhs(CONFIGSET_ALL),
       db_setting_inop_rhs()
     );
