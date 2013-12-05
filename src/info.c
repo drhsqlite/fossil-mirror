@@ -2379,12 +2379,16 @@ void ci_edit_page(void){
   @ <input type="text" style="width:15;" id="brname" name="brname"
   @ value="%h(zNewBranch)"
   if( !fHasHidden && zBranchName ){
-    @ onkeyup="gebi('newbr').checked=!!this.value;
+    @ onkeyup="f=!!this.value
+    if( zBranchName ){
+      @  if(f)f=this.value!='%h(zBranchName)'
+    }
+    @ gebi('newbr').checked=f
     if( fossil_strcmp(zBranchName, trunk)==0 ){
       @ hauc(gebi('hidebr'),'%h(zBranchName)',
-      @ 'brname',!this.value)"
+      @ 'brname',!f)"
     }else{
-      @ hauc(null,'%h(zBranchName)','brname',!this.value)"
+      @ hauc(null,'%h(zBranchName)','brname',!f)"
     }
   }
   @ />
