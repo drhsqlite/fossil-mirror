@@ -2148,7 +2148,8 @@ void ci_edit_page(void){
     }
     db_finalize(&q);
     if( zCloseFlag[0] ){
-      db_multi_exec("REPLACE INTO newtags VALUES('closed','+',NULL)");
+      db_multi_exec("REPLACE INTO newtags VALUES('closed','%s',NULL)",
+          is_a_leaf(rid)?"+":"*");
     }
     if( zNewTagFlag[0] && zNewTag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('sym-%q','+',NULL)", zNewTag);
@@ -2326,13 +2327,23 @@ void ci_edit_page(void){
   @ onkeyup="gebi('newbr').checked=!!this.value" />
   @ </td></tr>
 
-  if( !fHasClosed && is_a_leaf(rid) ){
-    @ <tr><th align="right" valign="top">Leaf Closure:</th>
-    @ <td valign="top">
-    @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
-    @ Mark this leaf as "closed" so that it no longer appears on the
-    @ "leaves" page and is no longer labeled as a "<b>Leaf</b>"</label>
-    @ </td></tr>
+  if( !fHasClosed ){
+    if( is_a_leaf(rid) ){
+      @ <tr><th align="right" valign="top">Leaf Closure:</th>
+      @ <td valign="top">
+      @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
+      @ Mark this leaf as "closed" so that it no longer appears on the
+      @ "leaves" page and is no longer labeled as a "<b>Leaf</b>"</label>
+      @ </td></tr>
+    }else if( zBranchName ){
+      @ <tr><th align="right" valign="top">Branch Closure:</th>
+      @ <td valign="top">
+      @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
+      @ Mark branch <span style="font-weight:bold" id="cbranch">%s(zBranchName)</span>
+      @ as "closed" so that its leaf no longer appears on the "leaves" page
+      @ and is no longer labeled as a "<b>Leaf</b>"</label>
+      @ </td></tr>
+    }
   }
   if(zBranchName) fossil_free(zBranchName);
 
