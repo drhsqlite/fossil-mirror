@@ -2228,7 +2228,7 @@ void ci_edit_page(void){
   @ function hauc(cbxid,zdef,formid,toggle){
   @   if( cbxid ) hcbxbi(cbxid,toggle);
   @   hidbrid = gebi('hbranch');
-  @   cidbrid = gebi('cbranch');
+  @   cidbrid = document.getElementById('cbranch') ? gebi('cbranch') : null;
   @   if( toggle ){
   @     stcbi(hidbrid,zdef);
   @     if(cidbrid) stcbi(cidbrid,zdef);
