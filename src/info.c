@@ -2324,8 +2324,11 @@ void ci_edit_page(void){
   @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag) />
   @ Make this check-in the start of a new branch named:</label>
   @ <input type="text" style="width:15;" name="brname" value="%h(zNewBranch)"
-  @ onkeyup="gebi('newbr').checked=!!this.value" />
-  @ </td></tr>
+  @ onkeyup="gebi('newbr').checked=!!this.value
+  if( zBranchName ){
+    @  && this.value!='%h(zBranchName)'
+  }
+  @ " /></td></tr>
 
   if( !fHasClosed ){
     if( is_a_leaf(rid) ){
