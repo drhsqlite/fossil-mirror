@@ -2210,14 +2210,14 @@ void ci_edit_page(void){
   zUuid[10] = 0;
   style_header("Edit Check-in [%s]", zUuid);
   /*
-  ** Javascript functions to assist in modifying hidden branch options
-  ** sihbi: sets the innerHTML for the given element id to val
+  ** Javascript functions to assist in modifying hidden branch options.
+  ** stcbi: sets the textContent for the given element id to val
   ** hcbxbi: hids the checkbox and unchecks for the given element id
   ** hauc: hides and unchecks the checkbox when needed
   */
   @ <script>
-  @ function sihbi(id,val){
-  @   id.innerHTML = val;
+  @ function stcbi(id,val){
+  @   id.textContent = val;
   @ }
   @ function hcbxbi(id,toggle){
   @   if( toggle ){
@@ -2230,9 +2230,9 @@ void ci_edit_page(void){
   @ function hauc(cbxid,hidbrid,zdef,formid,toggle){
   @   if( cbxid ) hcbxbi(cbxid,toggle);
   @   if( toggle ){
-  @     sihbi(hidbrid,zdef);
+  @     stcbi(hidbrid,zdef);
   @   }else{
-  @     if( gebi(formid).value ) sihbi(hidbrid,gebi(formid).value);
+  @     if( gebi(formid).value ) stcbi(hidbrid,gebi(formid).value);
   @   }
   @ }
   @ </script>
@@ -2362,10 +2362,10 @@ void ci_edit_page(void){
   @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag)
   if( !fHasHidden && zBranchName ){
     if( fossil_strcmp(zBranchName, "trunk")==0 ){
-      @ onclick="hauc(gebi('hidebr'),gebi('hbranch'),'%s(zBranchName)',
+      @ onclick="hauc(gebi('hidebr'),gebi('hbranch'),'%h(zBranchName)',
       @ 'brname',this.value)"
     }else{
-      @ onclick="hauc(null,gebi('hbranch'),'%s(zBranchName)',
+      @ onclick="hauc(null,gebi('hbranch'),'%h(zBranchName)',
       @ 'brname',this.value)"
     }
   }
@@ -2376,10 +2376,10 @@ void ci_edit_page(void){
   if( !fHasHidden && zBranchName ){
     @ onkeyup="gebi('newbr').checked=!!this.value;
     if( fossil_strcmp(zBranchName, "trunk")==0 ){
-      @ hauc(gebi('hidebr'),gebi('hbranch'),'%s(zBranchName)',
+      @ hauc(gebi('hidebr'),gebi('hbranch'),'%h(zBranchName)',
       @ 'brname',!this.value)"
     }else{
-      @ hauc(null,gebi('hbranch'),'%s(zBranchName)','brname',!this.value)"
+      @ hauc(null,gebi('hbranch'),'%h(zBranchName)','brname',!this.value)"
     }
   }
   @ />
@@ -2395,7 +2395,7 @@ void ci_edit_page(void){
       @ />
     }
     @ Hide branch 
-    @ <span style="font-weight:bold" id="hbranch">%s(zBranchName)</span>
+    @ <span style="font-weight:bold" id="hbranch">%h(zBranchName)</span>
     @ from the timeline starting from this check-in</label>
     @ </td></tr>
   }
