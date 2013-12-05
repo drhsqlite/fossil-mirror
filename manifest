@@ -1,5 +1,5 @@
-C Add\s-DSQLITE_WINNT_MAX_PATH_CHARS=4096\sfor\sCygwin,\sas\sCygwin\scannot\shandle\spaths\sof\slength\s32767\sanyway.\sDoesn't\saffect\sother\splatforms.\s\nRe-generated\sMakefile.PellesCGMake,\ssomehow\snot\supdated\swhen\smakemake.tcl\schanged\sthe\slast\stime.
-D 2013-12-04T13:10:23.580
+C When\susing\sthe\s--template\soption\sto\sthe\s'init'\scommand,\sthe\sshort\sproject\sname\sshould\sbe\sskipped\sas\swell.
+D 2013-12-05T05:11:13.276
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -328,7 +328,7 @@ F src/content.c 468d7f73a4b09fe03d16d8477f9fe6a99481bec9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 3676a93261a47eb14534845eb055569d5ab6a1ad
+F src/db.c 9bc5bc12335639cc23c6100d0bae18907d391eb6
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c d59a0e546f5e82c884defcf3a695cc066bded992
@@ -636,7 +636,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b3e32c8e8bbdf7b68d47d9a5ce806a896852e7f4
-R c634939def58a003fb9a5219dd5c339a
-U jan.nijtmans
-Z f0aa652d20c27c1eaf136cd33f99e2be
+P 53fd1c9b9c8232297dbc292e0bcadc8ab87baa51
+R f9ae6f874b9a24b0662f2cb7d645de65
+U mistachkin
+Z b5ec2a4bee7a0fa34cacf4ae7f446703
