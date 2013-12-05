@@ -2339,7 +2339,7 @@ void ci_edit_page(void){
       @ <tr><th align="right" valign="top">Branch Closure:</th>
       @ <td valign="top">
       @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
-      @ Mark branch <span style="font-weight:bold" id="cbranch">%s(zBranchName)</span>
+      @ Mark branch <span style="font-weight:bold" id="cbranch">%h(zBranchName)</span>
       @ as "closed" so that its leaf no longer appears on the "leaves" page
       @ and is no longer labeled as a "<b>Leaf</b>"</label>
       @ </td></tr>
