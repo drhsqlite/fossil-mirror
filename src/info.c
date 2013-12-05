@@ -2209,6 +2209,33 @@ void ci_edit_page(void){
   blob_append(&comment, zNewComment, -1);
   zUuid[10] = 0;
   style_header("Edit Check-in [%s]", zUuid);
+  /*
+  ** Javascript functions to assist in modifying hidden branch options
+  ** sihbi: sets the innerHTML for the given element id to val
+  ** hcbxbi: hids the checkbox and unchecks for the given element id
+  ** hauc: hides and unchecks the checkbox when needed
+  */
+  @ <script>
+  @ function sihbi(id,val){
+  @   id.innerHTML = val;
+  @ }
+  @ function hcbxbi(id,toggle){
+  @   if( toggle ){
+  @     id.style.visibility = "hidden";
+  @     id.checked = false;
+  @   }else{
+  @     id.style.visibility = "visible";
+  @   }
+  @ }
+  @ function hauc(cbxid,hidbrid,zdef,formid,toggle){
+  @   if( cbxid ) hcbxbi(cbxid,toggle);
+  @   if( toggle ){
+  @     sihbi(hidbrid,zdef);
+  @   }else{
+  @     if( gebi(formid).value ) sihbi(hidbrid,gebi(formid).value);
+  @   }
+  @ }
+  @ </script>
   if( P("preview") ){
     Blob suffix;
     int nTag = 0;
@@ -2332,18 +2359,44 @@ void ci_edit_page(void){
 
   @ <tr><th align="right" valign="top">Branching:</th>
   @ <td valign="top">
-  @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag) />
+  @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag)
+  if( !fHasHidden && zBranchName ){
+    if( fossil_strcmp(zBranchName, "trunk")==0 ){
+      @ onclick="hauc(gebi('hidebr'),gebi('hbranch'),'%s(zBranchName)',
+      @ 'brname',this.value)"
+    }else{
+      @ onclick="hauc(null,gebi('hbranch'),'%s(zBranchName)',
+      @ 'brname',this.value)"
+    }
+  }
+  @ />
   @ Make this check-in the start of a new branch named:</label>
-  @ <input type="text" style="width:15;" name="brname" value="%h(zNewBranch)"
-  @ onkeyup="gebi('newbr').checked=!!this.value" />
+  @ <input type="text" style="width:15;" id="brname" name="brname"
+  @ value="%h(zNewBranch)"
+  if( !fHasHidden && zBranchName ){
+    @ onkeyup="gebi('newbr').checked=!!this.value;
+    if( fossil_strcmp(zBranchName, "trunk")==0 ){
+      @ hauc(gebi('hidebr'),gebi('hbranch'),'%s(zBranchName)',
+      @ 'brname',!this.value)"
+    }else{
+      @ hauc(null,gebi('hbranch'),'%s(zBranchName)','brname',!this.value)"
+    }
+  }
+  @ />
   @ </td></tr>
 
   if( !fHasHidden && zBranchName ){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
-    @ <label><input type="checkbox" name="hide"%s(zHideFlag) />
-    @ Hide branch <b>%s(zBranchName)</b> from the timeline starting from this
-    @ check-in</label>
+    @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag) 
+    if( fossil_strcmp(zBranchName, "trunk")==0 ){
+      @ style="visibility: hidden" />
+    }else{
+      @ />
+    }
+    @ Hide branch 
+    @ <span style="font-weight:bold" id="hbranch">%s(zBranchName)</span>
+    @ from the timeline starting from this check-in</label>
     @ </td></tr>
   }
 
