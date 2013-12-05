@@ -2062,6 +2062,7 @@ void ci_edit_page(void){
   char *zUuid;
   Blob comment;
   char *zBranchName = 0;
+  const char *trunk;
   Stmt q;
 
   login_check_credentials();
@@ -2224,12 +2225,18 @@ void ci_edit_page(void){
   @     id.disabled = false;
   @   }
   @ }
-  @ function hauc(cbxid,hidbrid,zdef,formid,toggle){
+  @ function hauc(cbxid,zdef,formid,toggle){
   @   if( cbxid ) hcbxbi(cbxid,toggle);
+  @   hidbrid = gebi('hbranch');
+  @   cidbrid = gebi('cbranch');
   @   if( toggle ){
   @     stcbi(hidbrid,zdef);
+  @     if(cidbrid) stcbi(cidbrid,zdef);
   @   }else{
-  @     if( gebi(formid).value ) stcbi(hidbrid,gebi(formid).value);
+  @     if( gebi(formid).value ){
+  @       stcbi(hidbrid,gebi(formid).value);
+  @       if(cidbrid) stcbi(cidbrid,gebi(formid).value);
+  @     }
   @   }
   @ }
   @ </script>
@@ -2319,6 +2326,7 @@ void ci_edit_page(void){
      "               ELSE tagname END /*sort*/",
      rid
   );
+  trunk = db_get("main-branch", "trunk");
   while( db_step(&q)==SQLITE_ROW ){
     int tagid = db_column_int(&q, 0);
     const char *zTagName = db_column_text(&q, 1);
@@ -2358,11 +2366,11 @@ void ci_edit_page(void){
   @ <td valign="top">
   @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag)
   if( !fHasHidden && zBranchName ){
-    if( fossil_strcmp(zBranchName, "trunk")==0 ){
-      @ onclick="hauc(gebi('hidebr'),gebi('hbranch'),'%h(zBranchName)',
+    if( fossil_strcmp(zBranchName, trunk)==0 ){
+      @ onclick="hauc(gebi('hidebr'),'%h(zBranchName)',
       @ 'brname',this.value)"
     }else{
-      @ onclick="hauc(null,gebi('hbranch'),'%h(zBranchName)',
+      @ onclick="hauc(null,'%h(zBranchName)',
       @ 'brname',this.value)"
     }
   }
@@ -2372,11 +2380,11 @@ void ci_edit_page(void){
   @ value="%h(zNewBranch)"
   if( !fHasHidden && zBranchName ){
     @ onkeyup="gebi('newbr').checked=!!this.value;
-    if( fossil_strcmp(zBranchName, "trunk")==0 ){
-      @ hauc(gebi('hidebr'),gebi('hbranch'),'%h(zBranchName)',
+    if( fossil_strcmp(zBranchName, trunk)==0 ){
+      @ hauc(gebi('hidebr'),'%h(zBranchName)',
       @ 'brname',!this.value)"
     }else{
-      @ hauc(null,gebi('hbranch'),'%h(zBranchName)','brname',!this.value)"
+      @ hauc(null,'%h(zBranchName)','brname',!this.value)"
     }
   }
   @ />
@@ -2386,7 +2394,7 @@ void ci_edit_page(void){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
     @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag) 
-    if( fossil_strcmp(zBranchName, "trunk")==0 ){
+    if( fossil_strcmp(zBranchName, trunk)==0 ){
       @ disabled />
     }else{
       @ />
