@@ -1319,7 +1319,7 @@ void diff_page(void){
     blob_reset(&c2);
     return;
   }
-  
+
   sideBySide = !is_false(PD("sbs","1"));
   zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
   zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
@@ -1669,8 +1669,8 @@ void artifact_page(void){
     wiki_convert(&content, 0, 0);
   }else if( renderAsHtml ){
     @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
-    @   width="100%%" frameborder="0" marginwidth="0" marginheight="0" 
-    @   sandbox="allow-same-origin" 
+    @   width="100%%" frameborder="0" marginwidth="0" marginheight="0"
+    @   sandbox="allow-same-origin"
     @   onload="this.height = this.contentDocument.documentElement.scrollHeight;">
     @ </iframe>
   }else{
@@ -2339,9 +2339,9 @@ void ci_edit_page(void){
       @ <tr><th align="right" valign="top">Branch Closure:</th>
       @ <td valign="top">
       @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
-      @ Mark branch <span style="font-weight:bold" id="cbranch">%h(zBranchName)</span>
-      @ as "closed" so that its leaf no longer appears on the "leaves" page
-      @ and is no longer labeled as a "<b>Leaf</b>"</label>
+      @ Mark branch <b>%s(zBranchName)</b> as "closed" so that its leafs
+      @ no longer appear on the "leaves" page and are no longer labeled
+      @ as a leaf "<b>Leaf</b>"</label>
       @ </td></tr>
     }
   }
