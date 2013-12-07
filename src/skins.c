@@ -120,6 +120,13 @@ static const char zBuiltinSkin1[] =
 @ div.content a:link { color: #604000;}
 @ div.content a:visited { color: #600000; }
 @
+@ /* <verbatim> blocks */
+@ pre.verbatim {
+@   background-color: #ffffff;
+@   padding: 0.5em;
+@   white-space: pre-wrap;
+@ }
+@
 @ /* Some pages have section dividers */
 @ div.section {
 @   margin-bottom: 0px;
