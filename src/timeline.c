@@ -113,6 +113,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_BRCOLOR  0x0040  /* Background color by branch name */
 #define TIMELINE_UCOLOR   0x0080  /* Background color by user */
 #define TIMELINE_FRENAMES 0x0100  /* Detail only file name changes */
+#define TIMELINE_UNHIDE   0x0200  /* Unhide check-ins with "hidden" tag */
 #endif
 
 /*
@@ -1120,6 +1121,9 @@ void page_timeline(void){
     tmFlags |= TIMELINE_BRCOLOR;
     url_add_parameter(&url, "brbg", 0);
   }
+  if( P("unhide")!=0 ){
+    tmFlags |= TIMELINE_UNHIDE;
+  }
   if( P("ubg")!=0 ){
     tmFlags |= TIMELINE_UCOLOR;
     url_add_parameter(&url, "ubg", 0);
@@ -1154,6 +1158,11 @@ void page_timeline(void){
   if( P("fc")!=0 || P("v")!=0 || P("detail")!=0 ){
     tmFlags |= TIMELINE_FCHANGES;
     url_add_parameter(&url, "v", 0);
+  }
+  if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+    blob_appendf(&sql, " AND NOT EXISTS(SELECT 1 FROM tagxref"
+                 "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
+                 TAG_HIDDEN);
   }
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
@@ -1279,12 +1288,24 @@ void page_timeline(void){
                      " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
            tagid
         );
+        if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+          blob_appendf(&sql,
+            " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
+                       " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
+            TAG_HIDDEN
+          );
+        }
         if( P("mionly")==0 ){
           blob_appendf(&sql,
             " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=pid"
                        " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
             tagid
           );
+          if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+            blob_appendf(&sql, " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+                       " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+                         TAG_HIDDEN);
+          }
         }else{
           url_add_parameter(&url, "mionly", "1");
         }
