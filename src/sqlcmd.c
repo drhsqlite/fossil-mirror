@@ -157,7 +157,7 @@ void sqlite3_cmd(void){
 ** to load the name and database connection for the open Fossil database.
 */
 void fossil_open(const char **pzRepoName){
-  sqlite3_vfs_register(pDefaultVfs, 1);
+  if( pDefaultVfs ) sqlite3_vfs_register(pDefaultVfs, 1);
   sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
   *pzRepoName = g.zRepositoryName;
 }
