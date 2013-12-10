@@ -2062,7 +2062,7 @@ void ci_edit_page(void){
   char *zUuid;
   Blob comment;
   char *zBranchName = 0;
-  const char *trunk;
+  const char *zTrunk;
   Stmt q;
 
   login_check_credentials();
@@ -2327,7 +2327,7 @@ void ci_edit_page(void){
      "               ELSE tagname END /*sort*/",
      rid
   );
-  trunk = db_get("main-branch", "trunk");
+  zTrunk = db_get("main-branch", "trunk");
   while( db_step(&q)==SQLITE_ROW ){
     int tagid = db_column_int(&q, 0);
     const char *zTagName = db_column_text(&q, 1);
@@ -2367,7 +2367,7 @@ void ci_edit_page(void){
   @ <td valign="top">
   @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag)
   if( !fHasHidden && zBranchName ){
-    if( fossil_strcmp(zBranchName, trunk)==0 ){
+    if( fossil_strcmp(zBranchName, zTrunk)==0 ){
       @ onclick="hauc(gebi('hidebr'),'%h(zBranchName)',
       @ 'brname',this.value)"
     }else{
@@ -2385,7 +2385,7 @@ void ci_edit_page(void){
       @  if(f)f=this.value!='%h(zBranchName)'
     }
     @ gebi('newbr').checked=f
-    if( fossil_strcmp(zBranchName, trunk)==0 ){
+    if( fossil_strcmp(zBranchName, zTrunk)==0 ){
       @ hauc(gebi('hidebr'),'%h(zBranchName)',
       @ 'brname',!f)"
     }else{
@@ -2399,7 +2399,7 @@ void ci_edit_page(void){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
     @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag) 
-    if( fossil_strcmp(zBranchName, trunk)==0 ){
+    if( fossil_strcmp(zBranchName, zTrunk)==0 ){
       @ disabled />
     }else{
       @ />

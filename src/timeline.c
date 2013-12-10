@@ -113,7 +113,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_BRCOLOR  0x0040  /* Background color by branch name */
 #define TIMELINE_UCOLOR   0x0080  /* Background color by user */
 #define TIMELINE_FRENAMES 0x0100  /* Detail only file name changes */
-#define TIMELINE_UNHIDE   0x0200  /* Unhide */
+#define TIMELINE_UNHIDE   0x0200  /* Unhide check-ins with "hidden" tag */
 #endif
 
 /*
