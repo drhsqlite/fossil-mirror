@@ -551,6 +551,7 @@ int main(int argc, char **argv)
 #endif
 {
   const char *zCmdName = "unknown";
+  const char *zVfsName;
   int idx;
   int rc;
   sqlite3_config(SQLITE_CONFIG_SINGLETHREAD);
@@ -578,6 +579,23 @@ int main(int argc, char **argv)
   g.tcl.argv = copy_args(g.argc, g.argv); /* save full arguments */
 #endif
   g.mainTimerId = fossil_timer_start();
+  zVfsName = find_option("vfs",0,1);
+  if( zVfsName==0 ){
+    zVfsName = fossil_getenv("FOSSIL_VFS");
+  }
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if( zVfsName==0 && sqlite3_libversion_number()>=3008001 ){
+    zVfsName = "win32-longpath";
+  }
+#endif
+  if( zVfsName ){
+    sqlite3_vfs *pVfs = sqlite3_vfs_find(zVfsName);
+    if( pVfs ){
+      sqlite3_vfs_register(pVfs, 1);
+    }else{
+      fossil_fatal("no such VFS: \"%s\"", zVfsName);
+    }
+  }
   if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
     g.isHTTP = 1;
