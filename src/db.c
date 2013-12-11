@@ -717,7 +717,11 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   zDbName = fossil_utf8_to_filename(zDbName);
 #endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
-  rc = sqlite3_open(zDbName, &db);
+  rc = sqlite3_open_v2(
+       zDbName, &db,
+       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+       g.zVfsName
+  );
   if( rc!=SQLITE_OK ){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }

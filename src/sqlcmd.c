@@ -126,8 +126,6 @@ static int sqlcmd_autoinit(
   return SQLITE_OK;
 }
 
-static sqlite3_vfs *pDefaultVfs = 0;
-
 /*
 ** COMMAND: sqlite3
 **
@@ -145,8 +143,6 @@ void sqlite3_cmd(void){
   extern int sqlite3_shell(int, char**);
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   db_close(1);
-  /* Determine default VFS and keep it after shutdown */
-  pDefaultVfs = sqlite3_vfs_find(0);
   sqlite3_shutdown();
   sqlite3_shell(g.argc-1, g.argv+1);
   g.db = 0;
@@ -157,7 +153,6 @@ void sqlite3_cmd(void){
 ** to load the name and database connection for the open Fossil database.
 */
 void fossil_open(const char **pzRepoName){
-  if( pDefaultVfs ) sqlite3_vfs_register(pDefaultVfs, 1);
   sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
   *pzRepoName = g.zRepositoryName;
 }

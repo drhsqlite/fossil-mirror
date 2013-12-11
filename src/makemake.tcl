@@ -297,7 +297,7 @@ append opt " -Dlocaltime=fossil_localtime"
 append opt " -DSQLITE_ENABLE_LOCKING_STYLE=0"
 append opt " -DSQLITE_WIN32_NO_ANSI"
 set SQLITE_OPTIONS $opt
-writeln "\t\$(XTCC) $opt -DSQLITE_WINNT_MAX_PATH_CHARS=4096 -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 set opt {-Dmain=sqlite3_shell}
