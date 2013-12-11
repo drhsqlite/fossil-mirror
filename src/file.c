@@ -76,7 +76,17 @@ static int fossil_stat(const char *zFilename, struct stat *buf, int isWd){
   }
 #else
   wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
-  rc = _wstati64(zMbcs, buf);
+  if( memcmp(zMbcs, L"\\\\?\\", 8)==0 ){
+    /* Unfortunately, _wstati64 cannot handle extended prefixes. */
+    if( memcmp(zMbcs+4, "UNC\\", 8)==0 ){
+      zMbcs[6] = '\\';
+      rc = _wstati64(zMbcs+6, buf);
+    }else{
+      rc = _wstati64(zMbcs+4, buf);
+    }
+  }else{
+    rc = _wstati64(zMbcs, buf);
+  }
 #endif
   fossil_filename_free(zMbcs);
   return rc;
