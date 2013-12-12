@@ -49,7 +49,12 @@
 */
 #if defined(_WIN32) && (defined(__MSVCRT__) || defined(_MSC_VER))
 # undef stat
-# define stat _stati64
+# define stat _fossil_stati64
+struct stat {
+    i64 st_size;
+    i64 st_mtime;
+    int st_mode;
+};
 #endif
 /*
 ** On Windows S_ISLNK always returns FALSE.
@@ -75,17 +80,17 @@ static int fossil_stat(const char *zFilename, struct stat *buf, int isWd){
     rc = stat(zMbcs, buf);
   }
 #else
+  WIN32_FILE_ATTRIBUTE_DATA attr;
   wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
-  if( memcmp(zMbcs, L"\\\\?\\", 8)==0 ){
-    /* Unfortunately, _wstati64 cannot handle extended prefixes. */
-    if( memcmp(zMbcs+4, "UNC\\", 8)==0 ){
-      zMbcs[6] = '\\';
-      rc = _wstati64(zMbcs+6, buf);
-    }else{
-      rc = _wstati64(zMbcs+4, buf);
-    }
-  }else{
-    rc = _wstati64(zMbcs, buf);
+  rc = !GetFileAttributesExW(zMbcs, GetFileExInfoStandard, &attr);
+  if( !rc ){
+    ULARGE_INTEGER ull;
+    ull.LowPart = attr.ftLastWriteTime.dwLowDateTime;
+    ull.HighPart = attr.ftLastWriteTime.dwHighDateTime;
+    buf->st_mode = (attr.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)?
+                    S_IFDIR:S_IFREG;
+    buf->st_size = (((i64)attr.nFileSizeHigh)<<32) | buf->attr.nFileSizeLow;
+    buf->st_mtime = ull.QuadPart / 10000000ULL - 11644473600ULL;
   }
 #endif
   fossil_filename_free(zMbcs);
@@ -316,7 +321,18 @@ int file_wd_isdir(const char *zFilename){
 int file_access(const char *zFilename, int flags){
 #ifdef _WIN32
   wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
-  int rc = _waccess(zMbcs, flags);
+  int rc;
+  if( memcmp(zMbcs, L"\\\\?\\", 8)==0 ){
+    /* Unfortunately, _waccess cannot handle extended prefixes. */
+    if( memcmp(zMbcs+4, "UNC\\", 8)==0 ){
+      zMbcs[6] = '\\';
+      rc = _waccess(zMbcs+6, flags);
+    }else{
+      rc = _waccess(zMbcs+4, flags);
+    }
+  }else{
+    rc = _waccess(zMbcs, flags);
+  }
 #else
   char *zMbcs = fossil_utf8_to_filename(zFilename);
   int rc = access(zMbcs, flags);
@@ -333,7 +349,7 @@ int file_access(const char *zFilename, int flags){
 int file_chdir(const char *zChDir, int bChroot){
 #ifdef _WIN32
   wchar_t *zPath = fossil_utf8_to_filename(zChDir);
-  int rc = _wchdir(zPath);
+  int rc = SetCurrentDirectoryW(zPath)==0;
 #else
   char *zPath = fossil_utf8_to_filename(zChDir);
   int rc = chdir(zPath);
