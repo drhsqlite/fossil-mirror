@@ -711,23 +711,16 @@ void db_checkin_mtime_function(
 */
 LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
-  const char *zVfs;
   sqlite3 *db;
 
 #if defined(__CYGWIN__)
   zDbName = fossil_utf8_to_filename(zDbName);
 #endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
-  zVfs = fossil_getenv("FOSSIL_VFS");
-#if defined(_WIN32) || defined(__CYGWIN__)
-  if( zVfs==0 && sqlite3_libversion_number()>=3008001 ){
-    zVfs = "win32-longpath";
-  }
-#endif
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-       zVfs
+       g.zVfsName
   );
   if( rc!=SQLITE_OK ){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));

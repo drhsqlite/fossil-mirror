@@ -1,5 +1,5 @@
-C Rename\svariable\s'trunk'\sto\s'zTrunk'.\sImprove\scomment.
-D 2013-12-10T08:31:04.717
+C merge\strunk
+D 2013-12-12T09:46:15.954
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -328,7 +328,7 @@ F src/content.c 468d7f73a4b09fe03d16d8477f9fe6a99481bec9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 9bc5bc12335639cc23c6100d0bae18907d391eb6
+F src/db.c 217ccd280edadd8d1ff7c4061cbff907d531e600
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c d59a0e546f5e82c884defcf3a695cc066bded992
@@ -366,9 +366,9 @@ F src/json_timeline.c 8796261bcd284ac4f8eb7850f43612fa508ba791
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 3ef3369d9107698e407f917ab61be1abac73eef5
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 0ed027960f31b955eb51a5839c20df3daca72891
+F src/login.c 83ba71fa30dccacd906c06c52ee1b32a1318eb0b
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c 18058a58654f9b511c653b6027b125efcd3597af
+F src/main.c 9ae5013ed9ba83bb537d0cfc77adf99f14afc654
 F src/main.mk 2b3e8f8f345e99228351b3fa8af96be33ce760ff
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -399,9 +399,9 @@ F src/sha1.c 764d029cbe3704941a7db83c0d0b505f6cdb512f
 F src/shell.c 3ed2185ec5441468c4b597d1893dbe1a6697cd89
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
 F src/skins.c 6e1f5ed16b4b79c1b06354cb59a5fb74a95aca53
-F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c 70f88d83caca6c86e2e42b9a2463dc743fbff69a
-F src/sqlite3.h be899ae244d580eb7bdcfebbfb3b7cc7b12b856c
+F src/sqlcmd.c 3c57fc34d6482c978ccc93744f851ec1f7aaf37f
+F src/sqlite3.c 79ca9d087d8db302dec11e822a6bb61eb45db44e
+F src/sqlite3.h 25ace2adeb8268ac72c6fe586c8e07401c28f925
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 28b9be27fd580b4b2dac60226ae296e55b2c9c9e
 F src/style.c 8ba02ed687a178aa2953c2d5b383826ba1079727
@@ -636,7 +636,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 51cd44361e1a1713f7b46e2213b8460fa6d5686e
-R 3aaad022bb4ffe014a4c62c0ccd4941b
+P b75cc0e345e7f040ae20729d0e348b162b42360d a76039815d75ec274a72139903670f2e799e140b
+R ec1d88ff8b9c637f8c3c0da121af44c8
 U jan.nijtmans
-Z d7bae07f8ce480e722395ccd3880d48e
+Z 5a9e3bb799cd54b46dcde60931295c87

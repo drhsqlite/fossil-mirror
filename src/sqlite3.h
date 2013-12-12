@@ -107,9 +107,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.8.2"
-#define SQLITE_VERSION_NUMBER 3008002
-#define SQLITE_SOURCE_ID      "2013-12-03 10:35:00 e4164fd8f75ce1c8d63bec70db7049b68208c12c"
+#define SQLITE_VERSION        "3.8.3"
+#define SQLITE_VERSION_NUMBER 3008003
+#define SQLITE_SOURCE_ID      "2013-12-11 12:02:55 3e1d55f0bd84810a035bd6c54583eb373784a9a3"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -491,6 +491,7 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_READONLY_RECOVERY       (SQLITE_READONLY | (1<<8))
 #define SQLITE_READONLY_CANTLOCK       (SQLITE_READONLY | (2<<8))
 #define SQLITE_READONLY_ROLLBACK       (SQLITE_READONLY | (3<<8))
+#define SQLITE_READONLY_DBMOVED        (SQLITE_READONLY | (4<<8))
 #define SQLITE_ABORT_ROLLBACK          (SQLITE_ABORT | (2<<8))
 #define SQLITE_CONSTRAINT_CHECK        (SQLITE_CONSTRAINT | (1<<8))
 #define SQLITE_CONSTRAINT_COMMITHOOK   (SQLITE_CONSTRAINT | (2<<8))
@@ -558,7 +559,8 @@ SQLITE_API int sqlite3_exec(
 ** after reboot following a crash or power loss, the only bytes in a
 ** file that were written at the application level might have changed
 ** and that adjacent bytes, even bytes within the same sector are
-** guaranteed to be unchanged.
+** guaranteed to be unchanged.  The SQLITE_IOCAP_UNDELETABLE_WHEN_OPEN
+** flag indicate that a file cannot be deleted when open.
 */
 #define SQLITE_IOCAP_ATOMIC                 0x00000001
 #define SQLITE_IOCAP_ATOMIC512              0x00000002
@@ -921,6 +923,12 @@ struct sqlite3_io_methods {
 ** SQLite stack may generate instances of this file control if
 ** the [SQLITE_USE_FCNTL_TRACE] compile-time option is enabled.
 **
+** <li>[[SQLITE_FCNTL_HAS_MOVED]]
+** The [SQLITE_FCNTL_HAS_MOVED] file control interprets its argument as a
+** pointer to an integer and it writes a boolean into that integer depending
+** on whether or not the file has been renamed, moved, or deleted since it
+** was first opened.
+**
 ** </ul>
 */
 #define SQLITE_FCNTL_LOCKSTATE               1
@@ -941,6 +949,7 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_TEMPFILENAME           16
 #define SQLITE_FCNTL_MMAP_SIZE              18
 #define SQLITE_FCNTL_TRACE                  19
+#define SQLITE_FCNTL_HAS_MOVED              20
 
 /*
 ** CAPI3REF: Mutex Handle
