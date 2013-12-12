@@ -193,17 +193,28 @@ char *fossil_filename_to_utf8(const void *zFilename){
 void *fossil_utf8_to_filename(const char *zUtf8){
 #ifdef _WIN32
   int nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
-  wchar_t *zUnicode = sqlite3_malloc( nChar * 2 );
+  wchar_t *zUnicode = sqlite3_malloc( (nChar+6) * 2 );
   wchar_t *wUnicode = zUnicode;
   if( zUnicode==0 ){
     return 0;
   }
-  MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nChar);
   /* If path starts with "<drive>:/" or "<drive>:\", don't translate the ':' */
   if( fossil_isalpha(zUtf8[0]) && zUtf8[1]==':'
            && (zUtf8[2]=='\\' || zUtf8[2]=='/')) {
-    zUnicode[2] = '\\';
+    /* Convert to extended path. */
+    memcpy(zUnicode, L"\\\\?\\", 8);
+    wUnicode += 4;
+    MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, wUnicode, nChar);
+    wUnicode[2] = '\\';
     wUnicode += 3;
+  }else if( (zUtf8[0]=='\\' || zUtf8[0]=='/') &&
+      (zUtf8[1]=='\\' || zUtf8[1]=='/') && zUtf8[2]!='?' ) {
+    /* Convert to extended UNC path. */
+    memcpy(zUnicode, L"\\\\?\\UNC\\", 16);
+    wUnicode += 8;
+    MultiByteToWideChar(CP_UTF8, 0, zUtf8+2, -1, wUnicode, nChar);
+  }else{
+    MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, wUnicode, nChar);
   }
   while( *wUnicode != '\0' ){
     if ( (*wUnicode < ' ') || wcschr(L"\"*:<>?|", *wUnicode) ){

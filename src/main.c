@@ -121,6 +121,7 @@ struct Global {
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
   int isConst;            /* True if the output is unchanging */
+  const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
   int useAttach;          /* True if global_config is attached to repository */
@@ -551,7 +552,6 @@ int main(int argc, char **argv)
 #endif
 {
   const char *zCmdName = "unknown";
-  const char *zVfsName;
   int idx;
   int rc;
   sqlite3_config(SQLITE_CONFIG_SINGLETHREAD);
@@ -579,21 +579,21 @@ int main(int argc, char **argv)
   g.tcl.argv = copy_args(g.argc, g.argv); /* save full arguments */
 #endif
   g.mainTimerId = fossil_timer_start();
-  zVfsName = find_option("vfs",0,1);
-  if( zVfsName==0 ){
-    zVfsName = fossil_getenv("FOSSIL_VFS");
-  }
+  g.zVfsName = find_option("vfs",0,1);
+  if( g.zVfsName==0 ){
+    g.zVfsName = fossil_getenv("FOSSIL_VFS");
 #if defined(_WIN32) || defined(__CYGWIN__)
-  if( zVfsName==0 && sqlite3_libversion_number()>=3008001 ){
-    zVfsName = "win32-longpath";
-  }
+    if( g.zVfsName==0 && sqlite3_libversion_number()>=3008001 ){
+      g.zVfsName = "win32-longpath";
+    }
 #endif
-  if( zVfsName ){
-    sqlite3_vfs *pVfs = sqlite3_vfs_find(zVfsName);
+  }
+  if( g.zVfsName ){
+    sqlite3_vfs *pVfs = sqlite3_vfs_find(g.zVfsName);
     if( pVfs ){
       sqlite3_vfs_register(pVfs, 1);
     }else{
-      fossil_fatal("no such VFS: \"%s\"", zVfsName);
+      fossil_fatal("no such VFS: \"%s\"", g.zVfsName);
     }
   }
   if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
