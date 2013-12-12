@@ -127,6 +127,32 @@ set src {
   http_ssl
 }
 
+# Options used to compile the included SQLite library.
+#
+set SQLITE_OPTIONS {
+  -DSQLITE_OMIT_LOAD_EXTENSION=1
+  -DSQLITE_THREADSAFE=0
+  -DSQLITE_DEFAULT_FILE_FORMAT=4
+  -DSQLITE_OMIT_DEPRECATED
+  -DSQLITE_ENABLE_EXPLAIN_COMMENTS
+  -Dlocaltime=fossil_localtime
+  -DSQLITE_ENABLE_LOCKING_STYLE=0
+}
+#lappend SQLITE_OPTIONS -DSQLITE_ENABLE_FTS3=1
+#lappend SQLITE_OPTIONS -DSQLITE_ENABLE_STAT4
+#lappend SQLITE_OPTIONS -DSQLITE_WIN32_NO_ANSI
+#lappend SQLITE_OPTIONS -DSQLITE_WINNT_MAX_PATH_CHARS=4096
+
+# Options used to compile the included SQLite shell.
+#
+set SHELL_OPTIONS {
+  -Dmain=sqlite3_shell
+  -DSQLITE_OMIT_LOAD_EXTENSION=1
+  -Dsqlite3_strglob=strglob
+}
+#lappend SHELL_OPTIONS -Dgetenv=fossil_getenv
+#lappend SHELL_OPTIONS -Dfopen=fossil_fopen
+
 # Name of the final application
 #
 set name fossil
@@ -285,25 +311,11 @@ foreach s [lsort $src] {
   writeln "\$(OBJDIR)/$s.h:\t\$(OBJDIR)/headers"
 }
 
-
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
-set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1}
-append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
-#append opt " -DSQLITE_ENABLE_FTS3=1"
-#append opt " -DSQLITE_ENABLE_STAT4"
-append opt " -DSQLITE_OMIT_DEPRECATED"
-append opt " -DSQLITE_ENABLE_EXPLAIN_COMMENTS"
-append opt " -Dlocaltime=fossil_localtime"
-append opt " -DSQLITE_ENABLE_LOCKING_STYLE=0"
-append opt " -DSQLITE_WIN32_NO_ANSI"
-set SQLITE_OPTIONS $opt
-writeln "\t\$(XTCC) $opt -DSQLITE_WINNT_MAX_PATH_CHARS=4096 -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+writeln "\t\$(XTCC) [join $SQLITE_OPTIONS { }] \$(SQLITE3_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
-set opt {-Dmain=sqlite3_shell}
-append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
-append opt " -Dsqlite3_strglob=strglob"
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
+writeln "\t\$(XTCC) [join $SHELL_OPTIONS { }] \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
@@ -776,11 +788,12 @@ foreach s [lsort $src] {
 
 
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
-set opt $SQLITE_OPTIONS
+set opt [join $SQLITE_OPTIONS { }]
+append opt " -DSQLITE_WIN32_NO_ANSI"
 append opt " -D_HAVE_SQLITE_CONFIG_H"
 append opt " -DSQLITE_USE_MALLOC_H"
 append opt " -DSQLITE_USE_MSIZE"
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+writeln "\t\$(XTCC) $opt \$(SQLITE3_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 set opt {}
 writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
@@ -788,12 +801,10 @@ writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_am
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
-set opt {-Dmain=sqlite3_shell}
-append opt " -Dsqlite3_strglob=strglob"
+set opt [join $SHELL_OPTIONS { }]
 append opt " -Dgetenv=fossil_getenv"
 append opt " -Dfopen=fossil_fopen"
-append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
+writeln "\t\$(XTCC) $opt \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
@@ -846,7 +857,8 @@ BCC    = $(DMDIR)\bin\dmc $(CFLAGS)
 TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(SSL) $(INCL)
 LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32
 }
-writeln "SQLITE_OPTIONS = $SQLITE_OPTIONS\n"
+writeln "SQLITE_OPTIONS = [join $SQLITE_OPTIONS { }] -DSQLITE_WIN32_NO_ANSI\n"
+writeln "SHELL_OPTIONS = [join $SHELL_OPTIONS { }] -Dgetenv=fossil_getenv -Dfopen=fossil_fopen\n"
 writeln -nonewline "SRC   = "
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c "
@@ -899,10 +911,10 @@ version$E: $B\src\mkversion.c
 	$(BCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) -o$@ -c -Dmain=sqlite3_shell -Dsqlite3_strglob=strglob -Dgetenv=fossil_getenv -Dfopen=fossil_fopen $(SQLITE_OPTIONS) $**
+	$(TCC) -o$@ -c $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $**
 
 $(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $**
+	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $(SQLITE3_CFLAGS) $**
 
 $(OBJDIR)\th$O : $(SRCDIR)\th.c
 	$(TCC) -o$@ -c $**
@@ -1038,9 +1050,17 @@ LIBS      = $(LIBS) $(SSLLIB)
 LIBDIR    = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
 !endif
 }
-regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS
+regsub -all {[-]D} [join $SQLITE_OPTIONS { }] {/D} MSC_SQLITE_OPTIONS
+lappend MSC_SQLITE_OPTIONS /DSQLITE_WIN32_NO_ANSI
 set j " \\\n                 "
 writeln "SQLITE_OPTIONS = [join $MSC_SQLITE_OPTIONS $j]\n"
+
+regsub -all {[-]D} [join $SHELL_OPTIONS { }] {/D} MSC_SHELL_OPTIONS
+lappend MSC_SHELL_OPTIONS /Dgetenv=fossil_getenv
+lappend MSC_SHELL_OPTIONS /Dfopen=fossil_fopen
+set j " \\\n                "
+writeln "SHELL_OPTIONS = [join $MSC_SHELL_OPTIONS $j]\n"
+
 writeln -nonewline "SRC   = "
 set i 0
 foreach s [lsort $src] {
@@ -1102,10 +1122,10 @@ mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
 $(OX)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) /Fo$@ /Dmain=sqlite3_shell /Dsqlite3_strglob=strglob /Dgetenv=fossil_getenv /Dfopen=fossil_fopen $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
+	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
 
 $(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**
+	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE3_CFLAGS) $**
 
 $(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**
@@ -1195,7 +1215,9 @@ puts "building ../win/Makefile.PellesCGMake"
 set output_file [open ../win/Makefile.PellesCGMake w]
 fconfigure $output_file -translation binary
 
-writeln {#
+writeln [string map [list \
+    <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS { }] \
+    <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS { }]] {#
 ##############################################################################
 # WARNING: DO NOT EDIT, AUTOMATICALLY GENERATED FILE (SEE "src/makemake.tcl")
 ##############################################################################
@@ -1282,13 +1304,13 @@ UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 SQLITESRC=sqlite3.c
 ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
-SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_OMIT_DEPRECATED=1 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_WIN32_NO_ANSI
+SQLITEDEFINES=<<<SQLITE_OPTIONS>>> -DSQLITE_WIN32_NO_ANSI
 
 # define the sqlite shell files, which need special flags on compile
 SQLITESHELLSRC=shell.c
 ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
-SQLITESHELLDEFINES=-Dmain=sqlite3_shell -Dsqlite3_strglob=strglob -Dgetenv=fossil_getenv -Dfopen=fossil_fopen -DSQLITE_OMIT_LOAD_EXTENSION=1
+SQLITESHELLDEFINES=<<<SHELL_OPTIONS>>> -Dgetenv=fossil_getenv -Dfopen=fossil_fopen
 
 # define the th scripting files, which need special flags on compile
 THSRC=th.c th_lang.c
@@ -1385,4 +1407,4 @@ clean:
 .PHONY: clobber
 clobber: clean
 	del /F *.exe
-}
+}]
