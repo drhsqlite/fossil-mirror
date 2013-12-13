@@ -451,7 +451,7 @@ $(OX)\shell$O : $(SRCDIR)\shell.c
 	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
 
 $(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE3_CFLAGS) $**
+	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $**
 
 $(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**

@@ -324,7 +324,7 @@ foreach s [lsort $src] {
 }
 
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
-writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE3_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
@@ -804,7 +804,7 @@ set opt [join $SQLITE_OPTIONS { }]
 append opt " -D_HAVE_SQLITE_CONFIG_H"
 append opt " -DSQLITE_USE_MALLOC_H"
 append opt " -DSQLITE_USE_MSIZE"
-writeln "\t\$(XTCC) $opt \$(SQLITE3_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+writeln "\t\$(XTCC) $opt \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 set opt {}
 writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
@@ -923,7 +923,7 @@ $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
 	$(TCC) -o$@ -c $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $**
 
 $(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $(SQLITE3_CFLAGS) $**
+	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $**
 
 $(OBJDIR)\th$O : $(SRCDIR)\th.c
 	$(TCC) -o$@ -c $**
@@ -1131,7 +1131,7 @@ $(OX)\shell$O : $(SRCDIR)\shell.c
 	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
 
 $(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE3_CFLAGS) $**
+	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $**
 
 $(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**
