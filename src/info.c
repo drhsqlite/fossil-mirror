@@ -2058,11 +2058,11 @@ void ci_edit_page(void){
   int fNewPropagateColor;       /* True if color propagates after edit */
   int fHasHidden = 0;           /* True if hidden tag already set */
   int fHasClosed = 0;           /* True if closed tag already set */
+  int fMainBranch = 0;        /* True if branch is trunk or main-branch */
   const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
   char *zUuid;
   Blob comment;
   char *zBranchName = 0;
-  const char *zTrunk;
   Stmt q;
 
   login_check_credentials();
@@ -2327,7 +2327,6 @@ void ci_edit_page(void){
      "               ELSE tagname END /*sort*/",
      rid
   );
-  zTrunk = db_get("main-branch", "trunk");
   while( db_step(&q)==SQLITE_ROW ){
     int tagid = db_column_int(&q, 0);
     const char *zTagName = db_column_text(&q, 1);
@@ -2360,6 +2359,8 @@ void ci_edit_page(void){
       @ Cancel tag <b>%h(&zTagName[4])</b></label>
     }
   }
+  fMainBranch = fossil_strcmp("trunk", zBranchName)==0 ||
+                fossil_strcmp(db_get("main-branch", "trunk"), zBranchName)==0;
   db_finalize(&q);
   @ </td></tr>
 
@@ -2367,7 +2368,7 @@ void ci_edit_page(void){
   @ <td valign="top">
   @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag)
   if( !fHasHidden && zBranchName ){
-    if( fossil_strcmp(zBranchName, zTrunk)==0 ){
+    if( fMainBranch ){
       @ onclick="hauc(gebi('hidebr'),'%h(zBranchName)',
       @ 'brname',this.value)"
     }else{
@@ -2385,7 +2386,7 @@ void ci_edit_page(void){
       @  if(f)f=this.value!='%h(zBranchName)'
     }
     @ gebi('newbr').checked=f
-    if( fossil_strcmp(zBranchName, zTrunk)==0 ){
+    if( fMainBranch ){
       @ hauc(gebi('hidebr'),'%h(zBranchName)',
       @ 'brname',!f)"
     }else{
@@ -2399,7 +2400,7 @@ void ci_edit_page(void){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
     @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag) 
-    if( fossil_strcmp(zBranchName, zTrunk)==0 ){
+    if( fMainBranch ){
       @ disabled />
     }else{
       @ />
