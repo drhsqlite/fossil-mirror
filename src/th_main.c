@@ -916,8 +916,7 @@ static int httpCmd(
       fossil_free(zCredentials);
     }
     blob_appendf(&hdr, "Host: %s\r\n"
-        "User-Agent: Fossil/" RELEASE_VERSION " (" MANIFEST_DATE
-        " " MANIFEST_VERSION ")\r\n", urlData.hostname);
+        "User-Agent: %s\r\n", urlData.hostname, get_user_agent());
     if( zType[0]=='P' ){
       blob_appendf(&hdr, "Content-Type: application/x-www-form-urlencoded\r\n"
           "Content-Length: %d\r\n\r\n", blob_size(&payload));

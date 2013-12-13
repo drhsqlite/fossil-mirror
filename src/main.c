@@ -841,6 +841,16 @@ const char *get_version(){
 }
 
 /*
+** This function returns the user-agent string for Fossil, for
+** use in HTTP(S) requests.
+*/
+const char *get_user_agent(){
+  static const char version[] = "Fossil/" RELEASE_VERSION " (" MANIFEST_DATE
+                                " " MANIFEST_VERSION ")";
+  return version;
+}
+
+/*
 ** COMMAND: version
 **
 ** Usage: %fossil version ?-verbose|-v?
