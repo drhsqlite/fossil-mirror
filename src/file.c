@@ -331,25 +331,24 @@ int file_access(const char *zFilename, int flags){
   BOOL accessYesNo = FALSE;
   PRIVILEGE_SET privSet;
   DWORD privSetSize = sizeof(PRIVILEGE_SET);
-  int error, rc = 0;
+  int rc = 0;
   DWORD attr;
   wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
 
   attr = GetFileAttributesW(zMbcs);
 
-  if (attr == INVALID_FILE_ATTRIBUTES) {
+  if( attr==INVALID_FILE_ATTRIBUTES ){
     /*
      * File might not exist.
      */
 
-    DWORD lasterror = GetLastError();
-    if (lasterror != ERROR_SHARING_VIOLATION) {
+    if( GetLastError()!=ERROR_SHARING_VIOLATION ){
       fossil_filename_free(zMbcs);
       return -1;
     }
   }
 
-  if (flags == F_OK) {
+  if( flags==F_OK ){
     /*
      * File exists, nothing else to check.
      */
@@ -358,9 +357,9 @@ int file_access(const char *zFilename, int flags){
     return 0;
   }
 
-  if ((flags & W_OK)
+  if( (flags & W_OK)
       && (attr & FILE_ATTRIBUTE_READONLY)
-      && !(attr & FILE_ATTRIBUTE_DIRECTORY)) {
+      && !(attr & FILE_ATTRIBUTE_DIRECTORY) ){
     /*
      * The attributes say the file is not writable.     If the file is a
      * regular file (i.e., not a directory), then the file is not
@@ -396,8 +395,7 @@ int file_access(const char *zFilename, int flags){
    * Should have failed with ERROR_INSUFFICIENT_BUFFER
    */
 
-  error = GetLastError();
-  if (error != ERROR_INSUFFICIENT_BUFFER) {
+  if( GetLastError()!=ERROR_INSUFFICIENT_BUFFER ){
     /*
      * Most likely case is ERROR_ACCESS_DENIED, which we will convert
      * to EACCES - just what we want!
@@ -413,23 +411,23 @@ int file_access(const char *zFilename, int flags){
 
   sdPtr = (SECURITY_DESCRIPTOR *) HeapAlloc(GetProcessHeap(), 0, size);
 
-  if (sdPtr == NULL) {
-      goto accessError;
+  if( sdPtr == NULL ){
+    goto accessError;
   }
 
   /*
    * Call GetFileSecurity() for real.
    */
 
-  if (!GetFileSecurityW(zMbcs,
+  if( !GetFileSecurityW(zMbcs,
       OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION
       | DACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION,
-      sdPtr, size, &size)) {
-      /*
-       * Error getting owner SD
-       */
+      sdPtr, size, &size) ){
+    /*
+     * Error getting owner SD
+     */
 
-      goto accessError;
+    goto accessError;
   }
 
   /*
@@ -445,9 +443,9 @@ int file_access(const char *zFilename, int flags){
    * go).
    */
 
-  if(!GetSecurityDescriptorOwner(sdPtr,&pSid,&SidDefaulted) ||
+  if( !GetSecurityDescriptorOwner(sdPtr,&pSid,&SidDefaulted) ||
       memcmp(GetSidIdentifierAuthority(pSid),&samba_unmapped,
-        sizeof(SID_IDENTIFIER_AUTHORITY))==0) {
+        sizeof(SID_IDENTIFIER_AUTHORITY))==0 ){
     HeapFree(GetProcessHeap(), 0, sdPtr);
     fossil_filename_free(zMbcs);
     return 0; /* Attrib tests say access allowed. */
@@ -458,15 +456,15 @@ int file_access(const char *zFilename, int flags){
    * thread token.
    */
 
-  if (!ImpersonateSelf(SecurityImpersonation)) {
+  if( !ImpersonateSelf(SecurityImpersonation) ){
     /*
      * Unable to perform security impersonation.
      */
 
     goto accessError;
   }
-  if (!OpenThreadToken(GetCurrentThread(),
-      TOKEN_DUPLICATE | TOKEN_QUERY, FALSE, &hToken)) {
+  if( !OpenThreadToken(GetCurrentThread(),
+      TOKEN_DUPLICATE | TOKEN_QUERY, FALSE, &hToken) ){
     /*
      * Unable to get current thread's token.
      */
@@ -481,10 +479,10 @@ int file_access(const char *zFilename, int flags){
    * checking.
    */
 
-  if (flags & R_OK) {
+  if( flags & R_OK ){
     desiredAccess |= FILE_GENERIC_READ;
   }
-  if (flags & W_OK) {
+  if( flags & W_OK){
     desiredAccess |= FILE_GENERIC_WRITE;
   }
 
@@ -498,18 +496,18 @@ int file_access(const char *zFilename, int flags){
    * Perform access check using the token.
    */
 
-  if (!AccessCheck(sdPtr, hToken, desiredAccess,
+  if( !AccessCheck(sdPtr, hToken, desiredAccess,
       &genMap, &privSet, &privSetSize, &grantedAccess,
-      &accessYesNo)) {
+      &accessYesNo) ){
     /*
      * Unable to perform access check.
      */
 
   accessError:
-    if (sdPtr != NULL) {
+    if( sdPtr != NULL ){
       HeapFree(GetProcessHeap(), 0, sdPtr);
     }
-    if (hToken != NULL) {
+    if( hToken != NULL ){
       CloseHandle(hToken);
     }
     fossil_filename_free(zMbcs);
@@ -522,9 +520,8 @@ int file_access(const char *zFilename, int flags){
 
   HeapFree(GetProcessHeap(), 0, sdPtr);
   CloseHandle(hToken);
-  if (!accessYesNo) {
-    fossil_filename_free(zMbcs);
-    return -1;
+  if( !accessYesNo ){
+    rc = -1;
   }
 #else
   char *zMbcs = fossil_utf8_to_filename(zFilename);
@@ -641,11 +638,12 @@ int file_wd_setexe(const char *zFilename, int onoff){
 */
 void file_set_mtime(const char *zFilename, i64 newMTime){
 #if !defined(_WIN32)
+  char *zMbcs;
   struct timeval tv[2];
   memset(tv, 0, sizeof(tv[0])*2);
   tv[0].tv_sec = newMTime;
   tv[1].tv_sec = newMTime;
-  char *zMbcs = fossil_utf8_to_filename(zFilename);
+  zMbcs = fossil_utf8_to_filename(zFilename);
   utimes(zMbcs, tv);
 #else
   struct _utimbuf tb;
@@ -948,7 +946,7 @@ void file_getcwd(char *zBuf, int nBuf){
   int nPwd;
   int i;
   wchar_t zPwd[2000];
-  if( _wgetcwd(zPwd, sizeof(zPwd)/sizeof(zPwd[0])-1)==0 ){
+  if( GetCurrentDirectoryW(count(zPwd), zPwd)==0 ){
     fossil_fatal("cannot find the current working directory.");
   }
   zPwdUtf8 = fossil_filename_to_utf8(zPwd);

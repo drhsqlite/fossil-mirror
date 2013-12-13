@@ -2200,6 +2200,24 @@ void ci_edit_page(void){
   blob_append(&comment, zNewComment, -1);
   zUuid[10] = 0;
   style_header("Edit Check-in [%s]", zUuid);
+  /*
+  ** chgcbn/chgbn: Handle change of (checkbox for) branch name in
+  ** remaining of form.
+  */
+  @ <script>
+  @ function chgcbn(checked, branch){
+  @   val = gebi('brname').value;
+  @   if( !val || !checked) val = branch;
+  @   cidbrid = document.getElementById('cbranch');
+  @   if( cidbrid ) cidbrid.textContent = val;
+  @ }
+  @ function chgbn(val, branch){
+  @   if( !val ) val = branch;
+  @   gebi('newbr').checked = (val!=branch);
+  @   cidbrid = document.getElementById('cbranch');
+  @   if( cidbrid ) cidbrid.textContent = val;
+  @ }
+  @ </script>
   if( P("preview") ){
     Blob suffix;
     int nTag = 0;
@@ -2319,17 +2337,20 @@ void ci_edit_page(void){
   db_finalize(&q);
   @ </td></tr>
 
+  if( !zBranchName ){
+    zBranchName = db_get("main-branch", "trunk");
+  }
+  if( !zNewBranch || !zNewBranch[0]){
+    zNewBranch = zBranchName;
+  }
   @ <tr><th align="right" valign="top">Branching:</th>
   @ <td valign="top">
-  @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag) />
+  @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag)
+  @ onchange="chgcbn(this.checked,'%h(zBranchName)')" />
   @ Make this check-in the start of a new branch named:</label>
-  @ <input type="text" style="width:15;" name="brname" value="%h(zNewBranch)"
-  @ onkeyup="gebi('newbr').checked=!!this.value
-  if( zBranchName ){
-    @  && this.value!='%h(zBranchName)'
-  }
-  @ " /></td></tr>
-
+  @ <input id="brname" type="text" style="width:15;" name="brname"
+  @ value="%h(zNewBranch)"
+  @ onkeyup="chgbn(this.value,'%h(zBranchName)')" /></td></tr>
   if( !fHasClosed ){
     if( is_a_leaf(rid) ){
       @ <tr><th align="right" valign="top">Leaf Closure:</th>
