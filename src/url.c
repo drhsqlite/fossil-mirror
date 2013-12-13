@@ -20,10 +20,15 @@
 #include "config.h"
 #include "url.h"
 #include <stdio.h>
+
 #ifdef _WIN32
 #include <io.h>
+#ifndef isatty
 #define isatty(d) _isatty(d)
+#endif
+#ifndef fileno
 #define fileno(s) _fileno(s)
+#endif
 #endif
 
 #if INTERFACE
@@ -291,10 +296,7 @@ void url_parse_local(
 **
 */
 void url_parse(const char *zUrl, unsigned int urlFlags){
-  UrlData urlData;
-  memcpy(&urlData, GLOBAL_URL(), sizeof(UrlData));
-  url_parse_local(zUrl, urlFlags, &urlData);
-  memcpy(GLOBAL_URL(), &urlData, sizeof(UrlData));
+  url_parse_local(zUrl, urlFlags, GLOBAL_URL());
 }
 
 /*
@@ -522,10 +524,7 @@ void url_prompt_for_password_local(UrlData *pUrlData){
 ** in g.urlPasswd.
 */
 void url_prompt_for_password(void){
-  UrlData urlData;
-  memcpy(&urlData, GLOBAL_URL(), sizeof(UrlData));
-  url_prompt_for_password_local(&urlData);
-  memcpy(GLOBAL_URL(), &urlData, sizeof(UrlData));
+  url_prompt_for_password_local(GLOBAL_URL());
 }
 
 /*

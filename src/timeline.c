@@ -113,6 +113,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_BRCOLOR  0x0040  /* Background color by branch name */
 #define TIMELINE_UCOLOR   0x0080  /* Background color by user */
 #define TIMELINE_FRENAMES 0x0100  /* Detail only file name changes */
+#define TIMELINE_UNHIDE   0x0200  /* Unhide check-ins with "hidden" tag */
 #endif
 
 /*
@@ -591,6 +592,7 @@ void timeline_output_graph_javascript(
     GraphRow *pRow;
     int i;
     char cSep;
+    
     @ <script  type="text/JavaScript">
     @ /* <![CDATA[ */
     @ var railPitch=%d(pGraph->iRailPitch);
@@ -852,7 +854,11 @@ void timeline_output_graph_javascript(
     if( fileDiff ){
       @     location.href="%R/fdiff?v1="+selRow.h+"&v2="+p.h+"&sbs=1";
     }else{
-      @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=1";
+      if( db_get_boolean("show-version-diffs", 0)==0 ){
+        @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=0";
+      }else{
+        @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=1";
+      }
     }
     @   }
     @ }
@@ -900,7 +906,6 @@ static void timeline_temp_table(void){
 ** for a timeline query for the WWW interface.
 */
 const char *timeline_query_for_www(void){
-  static char *zBase = 0;
   static const char zBaseSql[] =
     @ SELECT
     @   blob.rid AS blobRid,
@@ -920,10 +925,7 @@ const char *timeline_query_for_www(void){
     @  FROM event CROSS JOIN blob
     @ WHERE blob.rid=event.objid
   ;
-  if( zBase==0 ){
-    zBase = mprintf(zBaseSql, TAG_BRANCH, TAG_BRANCH);
-  }
-  return zBase;
+  return zBaseSql;
 }
 
 /*
@@ -1119,6 +1121,9 @@ void page_timeline(void){
     tmFlags |= TIMELINE_BRCOLOR;
     url_add_parameter(&url, "brbg", 0);
   }
+  if( P("unhide")!=0 ){
+    tmFlags |= TIMELINE_UNHIDE;
+  }
   if( P("ubg")!=0 ){
     tmFlags |= TIMELINE_UCOLOR;
     url_add_parameter(&url, "ubg", 0);
@@ -1153,6 +1158,11 @@ void page_timeline(void){
   if( P("fc")!=0 || P("v")!=0 || P("detail")!=0 ){
     tmFlags |= TIMELINE_FCHANGES;
     url_add_parameter(&url, "v", 0);
+  }
+  if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+    blob_appendf(&sql, " AND NOT EXISTS(SELECT 1 FROM tagxref"
+                 "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
+                 TAG_HIDDEN);
   }
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
@@ -1278,12 +1288,24 @@ void page_timeline(void){
                      " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
            tagid
         );
+        if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+          blob_appendf(&sql,
+            " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
+                       " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
+            TAG_HIDDEN
+          );
+        }
         if( P("mionly")==0 ){
           blob_appendf(&sql,
             " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=pid"
                        " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
             tagid
           );
+          if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+            blob_appendf(&sql, " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+                       " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+                         TAG_HIDDEN);
+          }
         }else{
           url_add_parameter(&url, "mionly", "1");
         }
@@ -1523,6 +1545,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
   const char *zCurrentUuid = 0;
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
+  int rc;
 
   zPrevDate[0] = 0;
   if( g.localOpen ){
@@ -1530,7 +1553,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
-  while( db_step(q)==SQLITE_ROW ){
+  while( (rc=db_step(q))==SQLITE_ROW ){
     int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
@@ -1613,6 +1636,14 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
       db_reset(&fchngQuery);
     }
     nEntry++; /* record another complete entry */
+  }
+  if( rc==SQLITE_DONE ){
+    /* Did the underlying query actually have all entries? */
+    if( nAbsLimit==0 ){
+      fossil_print("+++ end of timeline (%d) +++\n", nEntry);
+    }else{
+      fossil_print("+++ no more data (%d) +++\n", nEntry);
+    }
   }
   if( fchngQueryInit ) db_finalize(&fchngQuery);
 }
@@ -1754,7 +1785,8 @@ void timeline_cmd(void){
     }else if( strncmp(g.argv[2],"parents",k)==0 ){
       mode = 4;
     }else if(!zType && !zLimit){
-      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit #? ?-t|--type TYPE? ?-W|--width WIDTH?");
+      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit #? ?-t|--type TYPE? "
+            "?-W|--width WIDTH?");
     }
     if( '-' != *g.argv[3] ){
       zOrigin = g.argv[3];
@@ -1815,7 +1847,9 @@ void timeline_cmd(void){
   }
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   if( iOffset>0 ){
-    blob_appendf(&sql, " LIMIT %d OFFSET %d", n>0?n+1:99999, iOffset);
+    /* Don't handle LIMIT here, otherwise print_timeline()
+     * will not determine the end-marker correctly! */
+    blob_appendf(&sql, " LIMIT -1 OFFSET %d", iOffset);
   }
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);

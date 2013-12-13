@@ -126,7 +126,6 @@ static int sqlcmd_autoinit(
   return SQLITE_OK;
 }
 
-
 /*
 ** COMMAND: sqlite3
 **

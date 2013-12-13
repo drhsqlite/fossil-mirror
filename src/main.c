@@ -123,6 +123,7 @@ struct Global {
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
   int isConst;            /* True if the output is unchanging */
+  const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
   int useAttach;          /* True if global_config is attached to repository */
@@ -559,6 +560,7 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
+  sqlite3_config(SQLITE_CONFIG_SINGLETHREAD);
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);
@@ -583,6 +585,23 @@ int main(int argc, char **argv)
   g.tcl.argv = copy_args(g.argc, g.argv); /* save full arguments */
 #endif
   g.mainTimerId = fossil_timer_start();
+  g.zVfsName = find_option("vfs",0,1);
+  if( g.zVfsName==0 ){
+    g.zVfsName = fossil_getenv("FOSSIL_VFS");
+#if defined(__CYGWIN__)
+    if( g.zVfsName==0 && sqlite3_libversion_number()>=3008001 ){
+      g.zVfsName = "win32-longpath";
+    }
+#endif
+  }
+  if( g.zVfsName ){
+    sqlite3_vfs *pVfs = sqlite3_vfs_find(g.zVfsName);
+    if( pVfs ){
+      sqlite3_vfs_register(pVfs, 1);
+    }else{
+      fossil_fatal("no such VFS: \"%s\"", g.zVfsName);
+    }
+  }
   if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
     g.isHTTP = 1;
@@ -842,7 +861,7 @@ void version_cmd(void){
 #endif
     fossil_print("Compiled on %s %s using %s (%d-bit)\n",
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
-    fossil_print("SQLite %s %.30s\n", SQLITE_VERSION, SQLITE_SOURCE_ID);
+    fossil_print("SQLite %s %.30s\n", sqlite3_libversion(), sqlite3_sourceid());
     fossil_print("Schema version %s\n", AUX_SCHEMA);
     fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #if defined(FOSSIL_ENABLE_SSL)

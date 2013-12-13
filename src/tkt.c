@@ -1261,12 +1261,12 @@ void ticket_cmd(void){
                 blob_set(&val, pTicket->aField[i].zValue);
                 if( z[0]=='+' ){
                   fossil_print("  Append to ");
-		    z++;
-		  }else{
-		    fossil_print("  Change ");
-                }
-		  fossil_print("%h: ",z);
-		  if( blob_size(&val)>50 || contains_newline(&val)) {
+            z++;
+          }else{
+            fossil_print("  Change ");
+          }
+          fossil_print("%h: ",z);
+          if( blob_size(&val)>50 || contains_newline(&val)) {
                   fossil_print("\n    ",blob_str(&val));
                   comment_print(blob_str(&val),4,79);
                 }else{

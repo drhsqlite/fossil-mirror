@@ -107,9 +107,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.8.2"
-#define SQLITE_VERSION_NUMBER 3008002
-#define SQLITE_SOURCE_ID      "2013-11-11 16:55:52 924d63b283a3d059838114c95d42c6feaf913529"
+#define SQLITE_VERSION        "3.8.3"
+#define SQLITE_VERSION_NUMBER 3008003
+#define SQLITE_SOURCE_ID      "2013-12-11 12:02:55 3e1d55f0bd84810a035bd6c54583eb373784a9a3"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -370,7 +370,7 @@ typedef int (*sqlite3_callback)(void*,int,char**, char**);
 ** <ul>
 ** <li> The application must insure that the 1st parameter to sqlite3_exec()
 **      is a valid and open [database connection].
-** <li> The application must not close [database connection] specified by
+** <li> The application must not close the [database connection] specified by
 **      the 1st parameter to sqlite3_exec() while sqlite3_exec() is running.
 ** <li> The application must not modify the SQL statement text passed into
 **      the 2nd parameter of sqlite3_exec() while sqlite3_exec() is running.
@@ -447,7 +447,7 @@ SQLITE_API int sqlite3_exec(
 ** [sqlite3_extended_result_codes()] API.
 **
 ** Some of the available extended result codes are listed here.
-** One may expect the number of extended result codes will be expand
+** One may expect the number of extended result codes will increase
 ** over time.  Software that uses extended result codes should expect
 ** to see new result codes in future releases of SQLite.
 **
@@ -491,6 +491,7 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_READONLY_RECOVERY       (SQLITE_READONLY | (1<<8))
 #define SQLITE_READONLY_CANTLOCK       (SQLITE_READONLY | (2<<8))
 #define SQLITE_READONLY_ROLLBACK       (SQLITE_READONLY | (3<<8))
+#define SQLITE_READONLY_DBMOVED        (SQLITE_READONLY | (4<<8))
 #define SQLITE_ABORT_ROLLBACK          (SQLITE_ABORT | (2<<8))
 #define SQLITE_CONSTRAINT_CHECK        (SQLITE_CONSTRAINT | (1<<8))
 #define SQLITE_CONSTRAINT_COMMITHOOK   (SQLITE_CONSTRAINT | (2<<8))
@@ -558,7 +559,8 @@ SQLITE_API int sqlite3_exec(
 ** after reboot following a crash or power loss, the only bytes in a
 ** file that were written at the application level might have changed
 ** and that adjacent bytes, even bytes within the same sector are
-** guaranteed to be unchanged.
+** guaranteed to be unchanged.  The SQLITE_IOCAP_UNDELETABLE_WHEN_OPEN
+** flag indicate that a file cannot be deleted when open.
 */
 #define SQLITE_IOCAP_ATOMIC                 0x00000001
 #define SQLITE_IOCAP_ATOMIC512              0x00000002
@@ -921,6 +923,12 @@ struct sqlite3_io_methods {
 ** SQLite stack may generate instances of this file control if
 ** the [SQLITE_USE_FCNTL_TRACE] compile-time option is enabled.
 **
+** <li>[[SQLITE_FCNTL_HAS_MOVED]]
+** The [SQLITE_FCNTL_HAS_MOVED] file control interprets its argument as a
+** pointer to an integer and it writes a boolean into that integer depending
+** on whether or not the file has been renamed, moved, or deleted since it
+** was first opened.
+**
 ** </ul>
 */
 #define SQLITE_FCNTL_LOCKSTATE               1
@@ -941,6 +949,7 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_TEMPFILENAME           16
 #define SQLITE_FCNTL_MMAP_SIZE              18
 #define SQLITE_FCNTL_TRACE                  19
+#define SQLITE_FCNTL_HAS_MOVED              20
 
 /*
 ** CAPI3REF: Mutex Handle
@@ -1385,7 +1394,7 @@ SQLITE_API int sqlite3_db_config(sqlite3*, int op, ...);
 ** or [sqlite3_realloc()] first calls xRoundup.  If xRoundup returns 0, 
 ** that causes the corresponding memory allocation to fail.
 **
-** The xInit method initializes the memory allocator.  (For example,
+** The xInit method initializes the memory allocator.  For example,
 ** it might allocate any require mutexes or initialize internal data
 ** structures.  The xShutdown method is invoked (indirectly) by
 ** [sqlite3_shutdown()] and should deallocate any resources acquired
@@ -1687,6 +1696,13 @@ struct sqlite3_mem_methods {
 ** [SQLITE_MAX_MMAP_SIZE] compile-time option.)^
 ** ^If either argument to this option is negative, then that argument is
 ** changed to its compile-time default.
+**
+** [[SQLITE_CONFIG_WIN32_HEAPSIZE]]
+** <dt>SQLITE_CONFIG_WIN32_HEAPSIZE
+** <dd>^This option is only available if SQLite is compiled for Windows
+** with the [SQLITE_WIN32_MALLOC] pre-processor macro defined.
+** SQLITE_CONFIG_WIN32_HEAPSIZE takes a 32-bit unsigned integer value
+** that specifies the maximum size of the created heap.
 ** </dl>
 */
 #define SQLITE_CONFIG_SINGLETHREAD  1  /* nil */
@@ -1711,6 +1727,7 @@ struct sqlite3_mem_methods {
 #define SQLITE_CONFIG_COVERING_INDEX_SCAN 20  /* int */
 #define SQLITE_CONFIG_SQLLOG       21  /* xSqllog, void* */
 #define SQLITE_CONFIG_MMAP_SIZE    22  /* sqlite3_int64, sqlite3_int64 */
+#define SQLITE_CONFIG_WIN32_HEAPSIZE      23  /* int nByte */
 
 /*
 ** CAPI3REF: Database Connection Configuration Options
@@ -3111,7 +3128,6 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 ** choice of query plan if the parameter is the left-hand side of a [LIKE]
 ** or [GLOB] operator or if the parameter is compared to an indexed column
 ** and the [SQLITE_ENABLE_STAT3] compile-time option is enabled.
-** the 
 ** </li>
 ** </ol>
 */
@@ -3773,19 +3789,19 @@ SQLITE_API int sqlite3_data_count(sqlite3_stmt *pStmt);
 **
 ** <tr><td>  NULL    <td> INTEGER   <td> Result is 0
 ** <tr><td>  NULL    <td>  FLOAT    <td> Result is 0.0
-** <tr><td>  NULL    <td>   TEXT    <td> Result is NULL pointer
-** <tr><td>  NULL    <td>   BLOB    <td> Result is NULL pointer
+** <tr><td>  NULL    <td>   TEXT    <td> Result is a NULL pointer
+** <tr><td>  NULL    <td>   BLOB    <td> Result is a NULL pointer
 ** <tr><td> INTEGER  <td>  FLOAT    <td> Convert from integer to float
 ** <tr><td> INTEGER  <td>   TEXT    <td> ASCII rendering of the integer
 ** <tr><td> INTEGER  <td>   BLOB    <td> Same as INTEGER->TEXT
-** <tr><td>  FLOAT   <td> INTEGER   <td> Convert from float to integer
+** <tr><td>  FLOAT   <td> INTEGER   <td> [CAST] to INTEGER
 ** <tr><td>  FLOAT   <td>   TEXT    <td> ASCII rendering of the float
-** <tr><td>  FLOAT   <td>   BLOB    <td> Same as FLOAT->TEXT
-** <tr><td>  TEXT    <td> INTEGER   <td> Use atoi()
-** <tr><td>  TEXT    <td>  FLOAT    <td> Use atof()
+** <tr><td>  FLOAT   <td>   BLOB    <td> [CAST] to BLOB
+** <tr><td>  TEXT    <td> INTEGER   <td> [CAST] to INTEGER
+** <tr><td>  TEXT    <td>  FLOAT    <td> [CAST] to REAL
 ** <tr><td>  TEXT    <td>   BLOB    <td> No change
-** <tr><td>  BLOB    <td> INTEGER   <td> Convert to TEXT then use atoi()
-** <tr><td>  BLOB    <td>  FLOAT    <td> Convert to TEXT then use atof()
+** <tr><td>  BLOB    <td> INTEGER   <td> [CAST] to INTEGER
+** <tr><td>  BLOB    <td>  FLOAT    <td> [CAST] to REAL
 ** <tr><td>  BLOB    <td>   TEXT    <td> Add a zero terminator if needed
 ** </table>
 ** </blockquote>)^
@@ -3841,7 +3857,7 @@ SQLITE_API int sqlite3_data_count(sqlite3_stmt *pStmt);
 ** described above, or until [sqlite3_step()] or [sqlite3_reset()] or
 ** [sqlite3_finalize()] is called.  ^The memory space used to hold strings
 ** and BLOBs is freed automatically.  Do <b>not</b> pass the pointers returned
-** [sqlite3_column_blob()], [sqlite3_column_text()], etc. into
+** from [sqlite3_column_blob()], [sqlite3_column_text()], etc. into
 ** [sqlite3_free()].
 **
 ** ^(If a memory allocation error occurs during the evaluation of any
@@ -4919,8 +4935,8 @@ SQLITE_API int sqlite3_release_memory(int);
 **
 ** ^The sqlite3_db_release_memory(D) interface attempts to free as much heap
 ** memory as possible from database connection D. Unlike the
-** [sqlite3_release_memory()] interface, this interface is effect even
-** when then [SQLITE_ENABLE_MEMORY_MANAGEMENT] compile-time option is
+** [sqlite3_release_memory()] interface, this interface is in effect even
+** when the [SQLITE_ENABLE_MEMORY_MANAGEMENT] compile-time option is
 ** omitted.
 **
 ** See also: [sqlite3_release_memory()]
@@ -5295,10 +5311,22 @@ struct sqlite3_module {
 ** the correct order to satisfy the ORDER BY clause so that no separate
 ** sorting step is required.
 **
-** ^The estimatedCost value is an estimate of the cost of doing the
-** particular lookup.  A full scan of a table with N entries should have
-** a cost of N.  A binary search of a table of N entries should have a
-** cost of approximately log(N).
+** ^The estimatedCost value is an estimate of the cost of a particular
+** strategy. A cost of N indicates that the cost of the strategy is similar
+** to a linear scan of an SQLite table with N rows. A cost of log(N) 
+** indicates that the expense of the operation is similar to that of a
+** binary search on a unique indexed field of an SQLite table with N rows.
+**
+** ^The estimatedRows value is an estimate of the number of rows that
+** will be returned by the strategy.
+**
+** IMPORTANT: The estimatedRows field was added to the sqlite3_index_info
+** structure for SQLite version 3.8.2. If a virtual table extension is
+** used with an SQLite version earlier than 3.8.2, the results of attempting 
+** to read or write the estimatedRows field are undefined (but are likely 
+** to included crashing the application). The estimatedRows field should
+** therefore only be used if [sqlite3_libversion_number()] returns a
+** value greater than or equal to 3008002.
 */
 struct sqlite3_index_info {
   /* Inputs */
@@ -5323,7 +5351,9 @@ struct sqlite3_index_info {
   char *idxStr;              /* String, possibly obtained from sqlite3_malloc */
   int needToFreeIdxStr;      /* Free idxStr using sqlite3_free() if true */
   int orderByConsumed;       /* True if output is already ordered */
-  double estimatedCost;      /* Estimated cost of using this index */
+  double estimatedCost;           /* Estimated cost of using this index */
+  /* Fields below are only available in SQLite 3.8.2 and later */
+  sqlite3_int64 estimatedRows;    /* Estimated number of rows returned */
 };
 
 /*
@@ -6053,7 +6083,8 @@ SQLITE_API int sqlite3_test_control(int op, ...);
 #define SQLITE_TESTCTRL_SCRATCHMALLOC           17
 #define SQLITE_TESTCTRL_LOCALTIME_FAULT         18
 #define SQLITE_TESTCTRL_EXPLAIN_STMT            19
-#define SQLITE_TESTCTRL_LAST                    19
+#define SQLITE_TESTCTRL_NEVER_CORRUPT           20
+#define SQLITE_TESTCTRL_LAST                    20
 
 /*
 ** CAPI3REF: SQLite Runtime Status
