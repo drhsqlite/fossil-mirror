@@ -2058,7 +2058,6 @@ void ci_edit_page(void){
   int fNewPropagateColor;       /* True if color propagates after edit */
   int fHasHidden = 0;           /* True if hidden tag already set */
   int fHasClosed = 0;           /* True if closed tag already set */
-  int fMainBranch = 0;          /* True if branch is trunk or main-branch */
   const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
   char *zUuid;
   Blob comment;
@@ -2210,23 +2209,13 @@ void ci_edit_page(void){
   /*
   ** Javascript functions to assist in modifying hidden branch options.
   ** stcbi: sets the textContent for the given element id to val
-  ** hcbxbi: hides the checkbox and unchecks for the given element id
-  ** hauc: hides and unchecks the checkbox when needed
+  ** usids: updates SPAN ids that contain the branch IDs
   */
   @ <script>
   @ function stcbi(id,val){
   @   if( id ) id.textContent = val;
   @ }
-  @ function hcbxbi(id,toggle){
-  @   if( toggle ){
-  @     id.disabled = true;
-  @     id.checked = false;
-  @   }else{
-  @     id.disabled = false;
-  @   }
-  @ }
-  @ function hauc(cbxid,zdef,formid,toggle){
-  @   if( cbxid ) hcbxbi(cbxid,toggle);
+  @ function usids(zdef,formid,toggle){
   @   hidbrid = gebi('hbranch');
   @   cidbrid = document.getElementById('cbranch');
   @   if( toggle ){
@@ -2359,8 +2348,6 @@ void ci_edit_page(void){
       @ Cancel tag <b>%h(&zTagName[4])</b></label>
     }
   }
-  fMainBranch = fossil_strcmp("trunk", zBranchName)==0 ||
-                fossil_strcmp(db_get("main-branch", "trunk"), zBranchName)==0;
   db_finalize(&q);
   @ </td></tr>
 
@@ -2368,13 +2355,7 @@ void ci_edit_page(void){
   @ <td valign="top">
   @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag)
   if( !fHasHidden && zBranchName ){
-    if( fMainBranch ){
-      @ onclick="hauc(gebi('hidebr'),'%h(zBranchName)',
-      @ 'brname',this.value)"
-    }else{
-      @ onclick="hauc(null,'%h(zBranchName)',
-      @ 'brname',this.value)"
-    }
+    @ onclick="usids('%h(zBranchName)','brname',this.value)"
   }
   @ />
   @ Make this check-in the start of a new branch named:</label>
@@ -2386,12 +2367,7 @@ void ci_edit_page(void){
       @  if(f)f=this.value!='%h(zBranchName)'
     }
     @ gebi('newbr').checked=f
-    if( fMainBranch ){
-      @ hauc(gebi('hidebr'),'%h(zBranchName)',
-      @ 'brname',!f)"
-    }else{
-      @ hauc(null,'%h(zBranchName)','brname',!f)"
-    }
+    @ usids('%h(zBranchName)','brname',!f)"
   }
   @ />
   @ </td></tr>
@@ -2399,12 +2375,7 @@ void ci_edit_page(void){
   if( !fHasHidden && zBranchName ){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
-    @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag) 
-    if( fMainBranch ){
-      @ disabled />
-    }else{
-      @ />
-    }
+    @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag) />
     @ Hide branch 
     @ <span style="font-weight:bold" id="hbranch">%h(zBranchName)</span>
     @ from the timeline starting from this check-in</label>
