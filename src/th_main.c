@@ -866,7 +866,7 @@ static int httpCmd(
   if( nArg+1!=argc && nArg+2!=argc ){
     return Th_WrongNumArgs(interp, REGEXP_WRONGNUMARGS);
   }
-  memset(&urlData, '0', sizeof(urlData));
+  memset(&urlData, '\0', sizeof(urlData));
   url_parse_local(argv[nArg], 0, &urlData);
   if( urlData.isSsh || urlData.isFile ){
     Th_ErrorMessage(interp, "url must be http:// or https://", 0, 0);
