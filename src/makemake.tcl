@@ -219,7 +219,7 @@ writeln "APPNAME = $name\$(E)"
 writeln "\n"
 
 writeln [string map [list \
-    <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS " \\\n                  "] \
+    <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS " \\\n                 "] \
     <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "]] {
 all:	$(OBJDIR) $(APPNAME)
 
@@ -338,7 +338,6 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
 
-set opt {}
 writeln {
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
@@ -798,22 +797,25 @@ foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}.h:\t\$(OBJDIR)/headers\n"
 }
 
+set MINGW_SQLITE_OPTIONS $SQLITE_OPTIONS
+lappend MINGW_SQLITE_OPTIONS -D_HAVE_SQLITE_CONFIG_H
+lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MALLOC_H
+lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MSIZE
+
+set j " \\\n                 "
+writeln "SQLITE_OPTIONS = [join $MINGW_SQLITE_OPTIONS $j]\n"
+set j " \\\n                "
+writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS $j]\n"
 
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
-set opt [join $SQLITE_OPTIONS { }]
-append opt " -D_HAVE_SQLITE_CONFIG_H"
-append opt " -DSQLITE_USE_MALLOC_H"
-append opt " -DSQLITE_USE_MSIZE"
-writeln "\t\$(XTCC) $opt \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
-set opt {}
 writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
-set opt [join $SHELL_WIN32_OPTIONS { }]
-writeln "\t\$(XTCC) $opt \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
