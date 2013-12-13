@@ -374,6 +374,20 @@ test:	$(OBJDIR) $(APPNAME)
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
+# Setup the options used to compile the included SQLite library.
+SQLITE_OPTIONS = -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                  -DSQLITE_THREADSAFE=0 \
+                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                  -DSQLITE_OMIT_DEPRECATED \
+                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
+                  -Dlocaltime=fossil_localtime \
+                  -DSQLITE_ENABLE_LOCKING_STYLE=0
+
+# Setup the options used to compile the included SQLite shell.
+SHELL_OPTIONS = -Dmain=sqlite3_shell \
+                -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                -Dsqlite3_strglob=strglob
+
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system sqlite will be linked
@@ -1162,10 +1176,10 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h  $(SRCDIR)/config.h
 
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 $(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
-	$(XTCC) -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_OMIT_DEPRECATED -DSQLITE_ENABLE_EXPLAIN_COMMENTS -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 $(SQLITE3_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
+	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE3_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
 
 $(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
-	$(XTCC) -Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -Dsqlite3_strglob=strglob $(SHELL_CFLAGS) -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
+	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 	$(XTCC) -c $(SRCDIR)/th.c -o $(OBJDIR)/th.o
