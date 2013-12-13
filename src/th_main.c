@@ -915,11 +915,15 @@ static int httpCmd(
       fossil_free(zEncoded);
       fossil_free(zCredentials);
     }
-    blob_appendf(&hdr, "Host: %s\r\n", urlData.hostname);
-    blob_appendf(&hdr, "User-Agent: Fossil/" RELEASE_VERSION
-                       " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
-    blob_appendf(&hdr, "Content-Type: text/plain\r\n");
-    blob_appendf(&hdr, "Content-Length: %d\r\n\r\n", blob_size(&payload));
+    blob_appendf(&hdr, "Host: %s\r\n"
+        "User-Agent: Fossil/" RELEASE_VERSION " (" MANIFEST_DATE
+        " " MANIFEST_VERSION ")\r\n", urlData.hostname);
+    if( zType[0]=='P' ){
+      blob_appendf(&hdr, "Content-Type: application/x-www-form-urlencoded\r\n"
+          "Content-Length: %d\r\n\r\n", blob_size(&payload));
+    }else{
+      blob_appendf(&hdr, "\r\n");
+    }
     if( transport_open(&urlData) ){
       Th_ErrorMessage(interp, transport_errmsg(&urlData), 0, 0);
       blob_reset(&hdr);
