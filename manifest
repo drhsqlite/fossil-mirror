@@ -1,5 +1,5 @@
-C If\sthe\s"Branching"\scheckbox\sis\sunchecked,\sthe\s"Branch\sClosure"\slabel\sshould\sreturn\sto\sits\soriginal\sbranchname.\sAdd\sa\sjavascript\shandler\sdoing\sexactly\sthat.
-D 2013-12-13T12:26:38.577
+C Better\simplementation\sof\sfile_access()\sfor\swin32:\sThe\sfunction\s_waccess\scannot\shandle\slong\spaths,\sand\slies\stoo\smuch\s(e.g.\swhen\shandling\sspecific\ssmb\sdrives).\s\nImplementation\sborrowed\sfrom\sTcl\s8.6:\s[http://core.tcl.tk/tcl/artifact/c6b5d4f8d7?ln=1510-1756]
+D 2013-12-13T13:05:03.922
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -339,7 +339,7 @@ F src/doc.c f4c235f77cd4b429dd56d7f35d0f6f33afd380b6
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 433f9f2e051979848bcd2b735fd34f6be2863028
 F src/export.c 026f3746292c9c5bddcd454591ff71fb6d846481
-F src/file.c d6f6d0515d379deba8d554ff0c95c4587f232977
+F src/file.c 22adb08333b6e6836c4b1fb3ab85541d28c6fba0
 F src/finfo.c 4bc626ce9ad738d35e3fac484315191a8a4c9203
 F src/glob.c 968a3f5b9e203af3053939639533ee7b26259836
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
@@ -637,7 +637,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3714782631607e930dff33f7c544c857ec606e3a
-R c63f9f0389b2ee66e212f2b5c1bfe333
+P 2cb54f3981b7f00c964ad9ba2f32303f2de0452e
+R 76e04aa01c78a3477f766c9c2f33be47
 U jan.nijtmans
-Z 69a98ca001581e7ca757ca4255225a16
+Z f898cbd137f3052c5b5eac2f6093445d
