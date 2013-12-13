@@ -1,5 +1,5 @@
-C Use\sSetCurrentDirectoryW/GetFileAttributesExW\sin\sstead\sof\s_wchdir/_wstati64\s(which\scannot\shandle\slong\spathnames)
-D 2013-12-13T09:40:58.983
+C If\sthe\s"Branching"\scheckbox\sis\sunchecked,\sthe\s"Branch\sClosure"\slabel\sshould\sreturn\sto\sits\soriginal\sbranchname.\sAdd\sa\sjavascript\shandler\sdoing\sexactly\sthat.
+D 2013-12-13T12:26:38.577
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -349,7 +349,7 @@ F src/http_socket.c 9d44a02ecd4e9dc325eeac397620e098d172ad09
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 14bab6693bd559c0f97247cc3a4dfefad856eedc
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
-F src/info.c d3ba60c22d2e4e6aa1e08c205fbdb5ded47c5194
+F src/info.c 003d21ea050649753662ed48cfabd1967857f50d
 F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c 0ef79ac76a1fb1e7397550251eea1b17219194ca
@@ -637,7 +637,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cf9293ad53b2717573d20a35af18077bc1d0a643
-R 85a9f992b93788f97168024a98e7c413
+P 3714782631607e930dff33f7c544c857ec606e3a
+R c63f9f0389b2ee66e212f2b5c1bfe333
 U jan.nijtmans
-Z e8c0b7a3e89a22d4d560b434f4068dae
+Z 69a98ca001581e7ca757ca4255225a16
