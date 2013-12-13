@@ -1,5 +1,5 @@
-C Remove\suse\sof\sSQLITE_WIN32_NO_ANSI\soption\severywhere\sexcept\sfor\sCygwin.\s\sFurther\scleanup.
-D 2013-12-12T23:34:47.436
+C Fix\sa\sC99-style\svariable\sdeclaration.
+D 2013-12-13T00:11:33.387
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -339,7 +339,7 @@ F src/doc.c f4c235f77cd4b429dd56d7f35d0f6f33afd380b6
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 433f9f2e051979848bcd2b735fd34f6be2863028
 F src/export.c 026f3746292c9c5bddcd454591ff71fb6d846481
-F src/file.c c0add7cfd3595f6780a7d393d71ee42d7e219b78
+F src/file.c 95bfb8f5d81490dfb839294c2b99fffe7c5bb144
 F src/finfo.c 4bc626ce9ad738d35e3fac484315191a8a4c9203
 F src/glob.c 968a3f5b9e203af3053939639533ee7b26259836
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
@@ -637,7 +637,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e474f5f817e401a1e63ba5d96d18952d2362687f
-R 206dd98108de89775c41f6549d2c2bec
-U mistachkin
-Z 425352344454f6696f530537036977f4
+P 1c37a90508b89cf34747a11bb421ef4ac02b9574
+R eb3cd267865749cbcd7930740d51821e
+U drh
+Z aaff40cc3fd92cb8826f51d073951bb5

@@ -422,11 +422,12 @@ int file_wd_setexe(const char *zFilename, int onoff){
 */
 void file_set_mtime(const char *zFilename, i64 newMTime){
 #if !defined(_WIN32)
+  char *zMbcs;
   struct timeval tv[2];
   memset(tv, 0, sizeof(tv[0])*2);
   tv[0].tv_sec = newMTime;
   tv[1].tv_sec = newMTime;
-  char *zMbcs = fossil_utf8_to_filename(zFilename);
+  zMbcs = fossil_utf8_to_filename(zFilename);
   utimes(zMbcs, tv);
 #else
   struct _utimbuf tb;
