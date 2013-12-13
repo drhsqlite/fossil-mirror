@@ -2058,7 +2058,7 @@ void ci_edit_page(void){
   int fNewPropagateColor;       /* True if color propagates after edit */
   int fHasHidden = 0;           /* True if hidden tag already set */
   int fHasClosed = 0;           /* True if closed tag already set */
-  int fMainBranch = 0;        /* True if branch is trunk or main-branch */
+  int fMainBranch = 0;          /* True if branch is trunk or main-branch */
   const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
   char *zUuid;
   Blob comment;
