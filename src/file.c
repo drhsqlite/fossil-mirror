@@ -49,7 +49,12 @@
 */
 #if defined(_WIN32) && (defined(__MSVCRT__) || defined(_MSC_VER))
 # undef stat
-# define stat _stati64
+# define stat _fossil_stati64
+struct stat {
+    i64 st_size;
+    i64 st_mtime;
+    int st_mode;
+};
 #endif
 /*
 ** On Windows S_ISLNK always returns FALSE.
@@ -75,8 +80,18 @@ static int fossil_stat(const char *zFilename, struct stat *buf, int isWd){
     rc = stat(zMbcs, buf);
   }
 #else
+  WIN32_FILE_ATTRIBUTE_DATA attr;
   wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
-  rc = _wstati64(zMbcs, buf);
+  rc = !GetFileAttributesExW(zMbcs, GetFileExInfoStandard, &attr);
+  if( !rc ){
+    ULARGE_INTEGER ull;
+    ull.LowPart = attr.ftLastWriteTime.dwLowDateTime;
+    ull.HighPart = attr.ftLastWriteTime.dwHighDateTime;
+    buf->st_mode = (attr.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)?
+                    S_IFDIR:S_IFREG;
+    buf->st_size = (((i64)attr.nFileSizeHigh)<<32) | attr.nFileSizeLow;
+    buf->st_mtime = ull.QuadPart / 10000000ULL - 11644473600ULL;
+  }
 #endif
   fossil_filename_free(zMbcs);
   return rc;
@@ -323,7 +338,7 @@ int file_access(const char *zFilename, int flags){
 int file_chdir(const char *zChDir, int bChroot){
 #ifdef _WIN32
   wchar_t *zPath = fossil_utf8_to_filename(zChDir);
-  int rc = _wchdir(zPath);
+  int rc = SetCurrentDirectoryW(zPath)==0;
 #else
   char *zPath = fossil_utf8_to_filename(zChDir);
   int rc = chdir(zPath);
