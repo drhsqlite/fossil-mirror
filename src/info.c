@@ -2301,13 +2301,13 @@ void ci_edit_page(void){
      "SELECT tag.tagid, tagname, tagxref.value FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
      " ORDER BY CASE WHEN tagname GLOB 'sym-*' THEN substr(tagname,5)"
-     "               ELSE tagname END /*sort*/",
+     "               ELSE tag.tagid END /*sort*/",
      rid
   );
   while( db_step(&q)==SQLITE_ROW ){
     int tagid = db_column_int(&q, 0);
     const char *zTagName = db_column_text(&q, 1);
-    int isSpecialTag = strncmp(zTagName, "sym-", 4)!=0;
+    int isSpecialTag = fossil_strncmp(zTagName, "sym-", 4)!=0;
     char zLabel[30];
 
     if (tagid == TAG_CLOSED){
@@ -2318,7 +2318,7 @@ void ci_edit_page(void){
       zBranchName = mprintf("%s", db_column_text(&q, 2));
       continue;
     }else if( !isSpecialTag && zBranchName &&
-        strcmp(&zTagName[4], zBranchName)==0){
+        fossil_strcmp(&zTagName[4], zBranchName)==0){
       continue;
     }
     sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
