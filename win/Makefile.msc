@@ -41,7 +41,7 @@ INCL      = $(INCL) -I$(SSLINCDIR)
 !endif
 
 CFLAGS    = -nologo -MT -O2
-LDFLAGS   = /NODEFAULTLIB:msvcrt
+LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
 
 !ifdef DEBUG
 CFLAGS    = $(CFLAGS) -Zi
@@ -182,6 +182,7 @@ SRC   = add_.c \
         vfile_.c \
         wiki_.c \
         wikiformat_.c \
+        winfile_.c \
         winhttp_.c \
         wysiwyg_.c \
         xfer_.c \
@@ -295,6 +296,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\vfile$O \
         $(OX)\wiki$O \
         $(OX)\wikiformat$O \
+        $(OX)\winfile$O \
         $(OX)\winhttp$O \
         $(OX)\wysiwyg$O \
         $(OX)\xfer$O \
@@ -422,6 +424,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\vfile.obj >> $@
 	echo $(OX)\wiki.obj >> $@
 	echo $(OX)\wikiformat.obj >> $@
+	echo $(OX)\winfile.obj >> $@
 	echo $(OX)\winhttp.obj >> $@
 	echo $(OX)\wysiwyg.obj >> $@
 	echo $(OX)\xfer.obj >> $@
@@ -1113,6 +1116,12 @@ $(OX)\wikiformat$O : wikiformat_.c wikiformat.h
 wikiformat_.c : $(SRCDIR)\wikiformat.c
 	translate$E $** > $@
 
+$(OX)\winfile$O : winfile_.c winfile.h
+	$(TCC) /Fo$@ -c winfile_.c
+
+winfile_.c : $(SRCDIR)\winfile.c
+	translate$E $** > $@
+
 $(OX)\winhttp$O : winhttp_.c winhttp.h
 	$(TCC) /Fo$@ -c winhttp_.c
 
@@ -1248,6 +1257,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			vfile_.c:vfile.h \
 			wiki_.c:wiki.h \
 			wikiformat_.c:wikiformat.h \
+			winfile_.c:winfile.h \
 			winhttp_.c:winhttp.h \
 			wysiwyg_.c:wysiwyg.h \
 			xfer_.c:xfer.h \
