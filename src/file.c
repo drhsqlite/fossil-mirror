@@ -58,11 +58,13 @@ struct fossilStat {
     i64 st_mtime;
     int st_mode;
 };
-#else
-# define fossilStat stat
 #endif
 
 #endif /* INTERFACE */
+
+#if !defined(_WIN32) || !(defined(__MSVCRT__) || defined(_MSC_VER))
+# define fossilStat stat
+#endif
 
 /*
 ** On Windows S_ISLNK always returns FALSE.
