@@ -15,12 +15,13 @@
 **
 *******************************************************************************
 **
-** Win32 File utilities.
+** This file implements several non-trivial file handling wrapper functions
+** on Windows using the Win32 API.
 */
 #include "config.h"
 #ifdef _WIN32
-#include <sys/stat.h>
 /* This code is for win32 only */
+#include <sys/stat.h>
 #include <windows.h>
 #include "winfile.h"
 
@@ -251,7 +252,7 @@ done:
 */
 int win32_chdir(const char *zChDir, int bChroot){
   wchar_t *zPath = fossil_utf8_to_filename(zChDir);
-  int rc = SetCurrentDirectoryW(zPath)==0;
+  int rc = (int)!SetCurrentDirectoryW(zPath);
   fossil_filename_free(zPath);
   return rc;
 }
@@ -268,7 +269,7 @@ void win32_getcwd(char *zBuf, int nBuf){
   char *zUtf8;
   wchar_t *zWide = fossil_malloc( sizeof(wchar_t)*nBuf );
   if( GetCurrentDirectoryW(nBuf, zWide)==0 ){
-    fossil_fatal("cannot obtain current working directory.");
+    fossil_fatal("cannot find current working directory.");
   }
   zUtf8 = fossil_filename_to_utf8(zWide);
   fossil_free(zWide);
