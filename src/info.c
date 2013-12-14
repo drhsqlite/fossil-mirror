@@ -2297,11 +2297,14 @@ void ci_edit_page(void){
   @ Add the following new tag name to this check-in:</label>
   @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)"
   @ onkeyup="gebi('newtag').checked=!!this.value" />
+  zBranchName = db_text(0, "SELECT value FROM tagxref, tag"
+     " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
+     " AND tagxref.tagid=%d", rid, TAG_BRANCH);
   db_prepare(&q,
      "SELECT tag.tagid, tagname, tagxref.value FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
      " ORDER BY CASE WHEN tagname GLOB 'sym-*' THEN substr(tagname,5)"
-     "               ELSE tag.tagid END /*sort*/",
+     "               ELSE tagname END /*sort*/",
      rid
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -2315,7 +2318,6 @@ void ci_edit_page(void){
     }else if (tagid == TAG_COMMENT){
       continue;
     }else if (tagid == TAG_BRANCH){
-      zBranchName = mprintf("%s", db_column_text(&q, 2));
       continue;
     }else if( !isSpecialTag && zBranchName &&
         fossil_strcmp(&zTagName[4], zBranchName)==0){

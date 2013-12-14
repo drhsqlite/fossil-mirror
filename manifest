@@ -1,5 +1,5 @@
-C Prevent\ssym-\stag\sthat\smatches\sbranch\sname\sthat\ssorts\sprior\sto\sbranch\sname\sfrom\ndisplaying\san\soption\sto\scancel\sthe\stag.\s\sAlso\sclean\sup\sa\scouple\sstrcmp.
-D 2013-12-13T17:50:21.356
+C Revert\sto\soriginal\sordering\sto\sretain\ssorting\sof\sspecial\stags.\s\sGet\sthe\sbranch\nname\sprior\sto\sthe\sloop\sthat\sdisplays\sthe\sspecial\sand\ssym-\stags.
+D 2013-12-14T17:32:03.140
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -349,7 +349,7 @@ F src/http_socket.c 9d44a02ecd4e9dc325eeac397620e098d172ad09
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 14bab6693bd559c0f97247cc3a4dfefad856eedc
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
-F src/info.c fbae189e04416aefffa0aa7541ca5996958aa8bf
+F src/info.c 962f09d45f3e06877640f76307b36b7aa1683247
 F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c 0ef79ac76a1fb1e7397550251eea1b17219194ca
@@ -637,10 +637,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4e463bf7bac9958d3171c3e385d907c43a1bfd64
-R 543b54fa36e02d091cb8c5ed26edc98e
-T *branch * pending-review
-T *sym-pending-review *
-T -sym-trunk *
+P c36ad48a877a9e9fcda39b406ef905c492e1e3a0
+R 466842c762b8caa2c582c5fff74ee20d
 U andybradford
-Z 5c96d2e05acea8215dba18ebf53b7cc7
+Z 3169a78b4407315d28fa0a4fc2cc9eec
