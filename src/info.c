@@ -2208,26 +2208,23 @@ void ci_edit_page(void){
   style_header("Edit Check-in [%s]", zUuid);
   /*
   ** Javascript functions to assist in modifying hidden branch options.
-  ** stcbi: sets the textContent for the given element id to val
-  ** usids: updates SPAN ids that contain the branch IDs
+  ** chgcbn/chgbn: Handle change of (checkbox for) branch name in
+  ** remaining of form.
   */
   @ <script>
-  @ function stcbi(id,val){
-  @   if( id ) id.textContent = val;
-  @ }
-  @ function usids(zdef,formid,toggle){
-  @   hidbrid = gebi('hbranch');
+  @ function chgcbn(checked, branch){
+  @   val = gebi('brname').value;
+  @   if( !val || !checked) val = branch;
+  @   gebi('hbranch').textContent = val;
   @   cidbrid = document.getElementById('cbranch');
-  @   if( toggle ){
-  @     stcbi(hidbrid,zdef);
-  @     stcbi(cidbrid,zdef);
-  @   }else{
-  @     newvalue = gebi(formid).value;
-  @     if( newvalue ){
-  @       stcbi(hidbrid,newvalue);
-  @       stcbi(cidbrid,newvalue);
-  @     }
-  @   }
+  @   if( cidbrid ) cidbrid.textContent = val;
+  @ }
+  @ function chgbn(val, branch){
+  @   if( !val ) val = branch;
+  @   gebi('newbr').checked = (val!=branch);
+  @   gebi('hbranch').textContent = val;
+  @   cidbrid = document.getElementById('cbranch');
+  @   if( cidbrid ) cidbrid.textContent = val;
   @ }
   @ </script>
   if( P("preview") ){
@@ -2351,28 +2348,21 @@ void ci_edit_page(void){
   db_finalize(&q);
   @ </td></tr>
 
+  if( !zBranchName ){
+    zBranchName = db_get("main-branch", "trunk");
+  }
+  if( !zNewBranch || !zNewBranch[0]){
+    zNewBranch = zBranchName;
+  }
   @ <tr><th align="right" valign="top">Branching:</th>
   @ <td valign="top">
   @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag)
-  if( !fHasHidden && zBranchName ){
-    @ onclick="usids('%h(zBranchName)','brname',this.value)"
-  }
-  @ />
+  @ onchange="chgcbn(this.checked,'%h(zBranchName)')" />
   @ Make this check-in the start of a new branch named:</label>
-  @ <input type="text" style="width:15;" id="brname" name="brname"
+  @ <input id="brname" type="text" style="width:15;" name="brname"
   @ value="%h(zNewBranch)"
-  if( !fHasHidden && zBranchName ){
-    @ onkeyup="f=!!this.value
-    if( zBranchName ){
-      @  if(f)f=this.value!='%h(zBranchName)'
-    }
-    @ gebi('newbr').checked=f
-    @ usids('%h(zBranchName)','brname',!f)"
-  }
-  @ />
-  @ </td></tr>
-
-  if( !fHasHidden && zBranchName ){
+  @ onkeyup="chgbn(this.value,'%h(zBranchName)')" /></td></tr>
+  if( !fHasHidden ){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
     @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag) />
@@ -2381,8 +2371,6 @@ void ci_edit_page(void){
     @ from the timeline starting from this check-in</label>
     @ </td></tr>
   }
-
-
   if( !fHasClosed ){
     if( is_a_leaf(rid) ){
       @ <tr><th align="right" valign="top">Leaf Closure:</th>

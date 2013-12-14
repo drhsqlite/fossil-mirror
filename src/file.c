@@ -49,7 +49,12 @@
 */
 #if defined(_WIN32) && (defined(__MSVCRT__) || defined(_MSC_VER))
 # undef stat
-# define stat _stati64
+# define stat _fossil_stati64
+struct stat {
+    i64 st_size;
+    i64 st_mtime;
+    int st_mode;
+};
 #endif
 /*
 ** On Windows S_ISLNK always returns FALSE.
@@ -75,8 +80,18 @@ static int fossil_stat(const char *zFilename, struct stat *buf, int isWd){
     rc = stat(zMbcs, buf);
   }
 #else
+  WIN32_FILE_ATTRIBUTE_DATA attr;
   wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
-  rc = _wstati64(zMbcs, buf);
+  rc = !GetFileAttributesExW(zMbcs, GetFileExInfoStandard, &attr);
+  if( !rc ){
+    ULARGE_INTEGER ull;
+    ull.LowPart = attr.ftLastWriteTime.dwLowDateTime;
+    ull.HighPart = attr.ftLastWriteTime.dwHighDateTime;
+    buf->st_mode = (attr.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)?
+                    S_IFDIR:S_IFREG;
+    buf->st_size = (((i64)attr.nFileSizeHigh)<<32) | attr.nFileSizeLow;
+    buf->st_mtime = ull.QuadPart / 10000000ULL - 11644473600ULL;
+  }
 #endif
   fossil_filename_free(zMbcs);
   return rc;
@@ -305,8 +320,209 @@ int file_wd_isdir(const char *zFilename){
 */
 int file_access(const char *zFilename, int flags){
 #ifdef _WIN32
+  SECURITY_DESCRIPTOR *sdPtr = NULL;
+  unsigned long size;
+  PSID pSid = 0;
+  BOOL SidDefaulted;
+  SID_IDENTIFIER_AUTHORITY samba_unmapped = {{0, 0, 0, 0, 0, 22}};
+  GENERIC_MAPPING genMap;
+  HANDLE hToken = NULL;
+  DWORD desiredAccess = 0, grantedAccess = 0;
+  BOOL accessYesNo = FALSE;
+  PRIVILEGE_SET privSet;
+  DWORD privSetSize = sizeof(PRIVILEGE_SET);
+  int rc = 0;
+  DWORD attr;
   wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
-  int rc = _waccess(zMbcs, flags);
+
+  attr = GetFileAttributesW(zMbcs);
+
+  if( attr==INVALID_FILE_ATTRIBUTES ){
+    /*
+     * File might not exist.
+     */
+
+    if( GetLastError()!=ERROR_SHARING_VIOLATION ){
+      fossil_filename_free(zMbcs);
+      return -1;
+    }
+  }
+
+  if( flags==F_OK ){
+    /*
+     * File exists, nothing else to check.
+     */
+
+    fossil_filename_free(zMbcs);
+    return 0;
+  }
+
+  if( (flags & W_OK)
+      && (attr & FILE_ATTRIBUTE_READONLY)
+      && !(attr & FILE_ATTRIBUTE_DIRECTORY) ){
+    /*
+     * The attributes say the file is not writable.     If the file is a
+     * regular file (i.e., not a directory), then the file is not
+     * writable, full stop.     For directories, the read-only bit is
+     * (mostly) ignored by Windows, so we can't ascertain anything about
+     * directory access from the attrib data.  However, if we have the
+     * advanced 'getFileSecurityProc', then more robust ACL checks
+     * will be done below.
+     */
+
+    fossil_filename_free(zMbcs);
+    return -1;
+  }
+
+  /*
+   * It looks as if the permissions are ok, but if we are on NT, 2000 or XP,
+   * we have a more complex permissions structure so we try to check that.
+   * The code below is remarkably complex for such a simple thing as finding
+   * what permissions the OS has set for a file.
+   */
+
+  /*
+   * First find out how big the buffer needs to be.
+   */
+
+  size = 0;
+  GetFileSecurityW(zMbcs,
+      OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION
+      | DACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION,
+      0, 0, &size);
+
+  /*
+   * Should have failed with ERROR_INSUFFICIENT_BUFFER
+   */
+
+  if( GetLastError()!=ERROR_INSUFFICIENT_BUFFER ){
+    /*
+     * Most likely case is ERROR_ACCESS_DENIED, which we will convert
+     * to EACCES - just what we want!
+     */
+
+    fossil_filename_free(zMbcs);
+    return -1;
+  }
+
+  /*
+   * Now size contains the size of buffer needed.
+   */
+
+  sdPtr = (SECURITY_DESCRIPTOR *) HeapAlloc(GetProcessHeap(), 0, size);
+
+  if( sdPtr == NULL ){
+    goto accessError;
+  }
+
+  /*
+   * Call GetFileSecurity() for real.
+   */
+
+  if( !GetFileSecurityW(zMbcs,
+      OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION
+      | DACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION,
+      sdPtr, size, &size) ){
+    /*
+     * Error getting owner SD
+     */
+
+    goto accessError;
+  }
+
+  /*
+   * As of Samba 3.0.23 (10-Jul-2006), unmapped users and groups are
+   * assigned to SID domains S-1-22-1 and S-1-22-2, where "22" is the
+   * top-level authority.     If the file owner and group is unmapped then
+   * the ACL access check below will only test against world access,
+   * which is likely to be more restrictive than the actual access
+   * restrictions.  Since the ACL tests are more likely wrong than
+   * right, skip them.  Moreover, the unix owner access permissions are
+   * usually mapped to the Windows attributes, so if the user is the
+   * file owner then the attrib checks above are correct (as far as they
+   * go).
+   */
+
+  if( !GetSecurityDescriptorOwner(sdPtr,&pSid,&SidDefaulted) ||
+      memcmp(GetSidIdentifierAuthority(pSid),&samba_unmapped,
+        sizeof(SID_IDENTIFIER_AUTHORITY))==0 ){
+    HeapFree(GetProcessHeap(), 0, sdPtr);
+    fossil_filename_free(zMbcs);
+    return 0; /* Attrib tests say access allowed. */
+  }
+
+  /*
+   * Perform security impersonation of the user and open the resulting
+   * thread token.
+   */
+
+  if( !ImpersonateSelf(SecurityImpersonation) ){
+    /*
+     * Unable to perform security impersonation.
+     */
+
+    goto accessError;
+  }
+  if( !OpenThreadToken(GetCurrentThread(),
+      TOKEN_DUPLICATE | TOKEN_QUERY, FALSE, &hToken) ){
+    /*
+     * Unable to get current thread's token.
+     */
+
+    goto accessError;
+  }
+
+  RevertToSelf();
+
+  /*
+   * Setup desiredAccess according to the access priveleges we are
+   * checking.
+   */
+
+  if( flags & R_OK ){
+    desiredAccess |= FILE_GENERIC_READ;
+  }
+  if( flags & W_OK){
+    desiredAccess |= FILE_GENERIC_WRITE;
+  }
+
+  memset(&genMap, 0x0, sizeof(GENERIC_MAPPING));
+  genMap.GenericRead = FILE_GENERIC_READ;
+  genMap.GenericWrite = FILE_GENERIC_WRITE;
+  genMap.GenericExecute = FILE_GENERIC_EXECUTE;
+  genMap.GenericAll = FILE_ALL_ACCESS;
+
+  /*
+   * Perform access check using the token.
+   */
+
+  if( !AccessCheck(sdPtr, hToken, desiredAccess,
+      &genMap, &privSet, &privSetSize, &grantedAccess,
+      &accessYesNo) ){
+    /*
+     * Unable to perform access check.
+     */
+
+  accessError:
+    if( sdPtr != NULL ){
+      HeapFree(GetProcessHeap(), 0, sdPtr);
+    }
+    if( hToken != NULL ){
+      CloseHandle(hToken);
+    }
+    fossil_filename_free(zMbcs);
+    return -1;
+  }
+
+  /*
+   * Clean up.
+   */
+
+  HeapFree(GetProcessHeap(), 0, sdPtr);
+  CloseHandle(hToken);
+  if( !accessYesNo ){
+    rc = -1;
+  }
 #else
   char *zMbcs = fossil_utf8_to_filename(zFilename);
   int rc = access(zMbcs, flags);
@@ -323,7 +539,7 @@ int file_access(const char *zFilename, int flags){
 int file_chdir(const char *zChDir, int bChroot){
 #ifdef _WIN32
   wchar_t *zPath = fossil_utf8_to_filename(zChDir);
-  int rc = _wchdir(zPath);
+  int rc = SetCurrentDirectoryW(zPath)==0;
 #else
   char *zPath = fossil_utf8_to_filename(zChDir);
   int rc = chdir(zPath);
@@ -730,7 +946,7 @@ void file_getcwd(char *zBuf, int nBuf){
   int nPwd;
   int i;
   wchar_t zPwd[2000];
-  if( _wgetcwd(zPwd, sizeof(zPwd)/sizeof(zPwd[0])-1)==0 ){
+  if( GetCurrentDirectoryW(count(zPwd), zPwd)==0 ){
     fossil_fatal("cannot find the current working directory.");
   }
   zPwdUtf8 = fossil_filename_to_utf8(zPwd);

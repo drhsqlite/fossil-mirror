@@ -1,5 +1,5 @@
-C Given\sthat\srecovering\sfrom\sincorrect\shiding\sis\srelatively\sstraightforward,\ndon't\sprevent\saccess\sto\shidden\soption\son\strunk\sand\smain-branch.
-D 2013-12-13T21:29:13.330
+C merge\strunk.\s\nFix\sbehavior\sof\s"Brancing"\scheckbox,\sand\ssimplify\sjavascript\sfunctions.
+D 2013-12-14T09:24:11.585
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -321,7 +321,7 @@ F src/cgi.c 6a9589d91c12aa35d7ea6ceb3d2af48e37b3761d
 F src/checkin.c 72a08db1f6364ca01fefcf6350e9bd77070265db
 F src/checkout.c 395ab5b4d8c49889cd07bb8301e2d0c254257f7e
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c 1237a7033e76697ebf7e00fbd22c5942a77dd272
+F src/clone.c 73486de219e964230427d3246f9625c693afc999
 F src/comformat.c 53bb36cde36fa27e41b370d255149003e04a26de
 F src/config.h c2c5361cd6e8b6bf9edcf722c9294eef75c811b2
 F src/configure.c f6d1642d1b99dfc0923d9ddfeb0178345bc0de3b
@@ -339,7 +339,7 @@ F src/doc.c f4c235f77cd4b429dd56d7f35d0f6f33afd380b6
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 433f9f2e051979848bcd2b735fd34f6be2863028
 F src/export.c 026f3746292c9c5bddcd454591ff71fb6d846481
-F src/file.c 95bfb8f5d81490dfb839294c2b99fffe7c5bb144
+F src/file.c 97412e4c9d645460443402ff1cff1d6820e96d4c
 F src/finfo.c 4bc626ce9ad738d35e3fac484315191a8a4c9203
 F src/glob.c 968a3f5b9e203af3053939639533ee7b26259836
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
@@ -349,7 +349,7 @@ F src/http_socket.c 9d44a02ecd4e9dc325eeac397620e098d172ad09
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 14bab6693bd559c0f97247cc3a4dfefad856eedc
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
-F src/info.c 94ee0f15f80c74fb9ee378d1e115eeb5dc52acb0
+F src/info.c 9fd075f664b941005afc0db8fdfa68e559bb4177
 F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c 0ef79ac76a1fb1e7397550251eea1b17219194ca
@@ -637,7 +637,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1d0517c1fa4885a9b28815b94a1594279a6ba093
-R a202ef30d08da33674371a5b797afd78
-U andybradford
-Z 009e0839460982e5fdc45fbcb60d5f2c
+P d35b1ca05e62915cbc740ac31027201076cb99bf e08177614b4ba3f138c373a5321f8afe4cab4a5f
+R e3f75a1045adfe2125194f2f1f175aa8
+U jan.nijtmans
+Z be424589be418a69702002c76beb1188
