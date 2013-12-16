@@ -1,0 +1,33 @@
+#
+# Tests for 'win32-longpath' VFS, using a repo path >260 chars.
+#
+# Actually, this test should pass on any platform.
+#
+
+# Fossil will write data on $HOME, running 'fossil new' here.
+# We need not to clutter the $HOME of the test caller.
+#
+set env(HOME) [pwd]
+
+# Create the repo
+#
+set x [string repeat x 132]
+set longpath [pwd]/$x
+file mkdir $longpath
+catch {
+  # Use "cygpath" for converting it to win32 path. If not
+  # in Msys or Cygwin shell, nothing needs to be done.
+  set longpath [exec cygpath -w $longpath]
+}
+
+test longpath-test.1 {
+  ![catch {
+    fossil new $longpath/$x.fossil
+  }]
+}
+
+catch {
+    # If file deletion fails because your shell cannot
+    # handle that, you need to clean it up manually
+    exec "rm -rf [pwd]/$x"
+}

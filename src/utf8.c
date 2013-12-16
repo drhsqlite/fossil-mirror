@@ -208,11 +208,16 @@ void *fossil_utf8_to_filename(const char *zUtf8){
     wUnicode[2] = '\\';
     wUnicode += 3;
   }else if( (zUtf8[0]=='\\' || zUtf8[0]=='/') &&
-      (zUtf8[1]=='\\' || zUtf8[1]=='/') && zUtf8[2]!='?' ) {
-    /* Convert to extended UNC path. */
-    memcpy(zUnicode, L"\\\\?\\UNC\\", 16);
-    wUnicode += 8;
-    MultiByteToWideChar(CP_UTF8, 0, zUtf8+2, -1, wUnicode, nChar);
+      (zUtf8[1]=='\\' || zUtf8[1]=='/') ) {
+    if (zUtf8[2]=='?'){
+      MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, wUnicode, nChar);
+      wUnicode+=6;
+    }else{
+      /* Convert to extended UNC path. */
+      memcpy(zUnicode, L"\\\\?\\UNC\\", 16);
+      wUnicode += 8;
+      MultiByteToWideChar(CP_UTF8, 0, zUtf8+2, -1, wUnicode, nChar);
+    }
   }else{
     MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, wUnicode, nChar);
   }
