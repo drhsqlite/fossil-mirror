@@ -15,11 +15,11 @@
 #### Select one of MinGW, MinGW-w64 (32-bit) or MinGW-w64 (64-bit) compilers.
 #    By default, this is an empty string (i.e. use the native compiler).
 #
-# PREFIX =
+PREFIX =
 # PREFIX = mingw32-
 # PREFIX = i686-pc-mingw32-
 # PREFIX = i686-w64-mingw32-
-PREFIX = x86_64-w64-mingw32-
+# PREFIX = x86_64-w64-mingw32-
 
 #### The toplevel directory of the source tree.  Fossil can be built
 #    in a directory that is separate from the source tree.  Just change

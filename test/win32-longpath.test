@@ -26,8 +26,9 @@ test longpath-test.1 {
   }]
 }
 
-catch {
-    # If file deletion fails because your shell cannot
-    # handle that, you need to clean it up manually
-    exec "rm -rf [pwd]/$x"
-}
+# Try to remove the file/dir various ways, different
+# Shells/Tcl versions expect it differently.
+catch {file delete \\\\?\\$longpath\\$x.fossil}
+catch {file delete $longpath/$x.fossil}
+catch {file delete [pwd]/$x/$x.fossil}
+catch {file delete [pwd]/$x}
