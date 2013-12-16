@@ -400,6 +400,7 @@ static int isHuman(const char *zAgent){
     if( strglob("*Firefox/[1-9]*", zAgent) ) return 1;
     if( strglob("*Chrome/[1-9]*", zAgent) ) return 1;
     if( strglob("*(compatible;?MSIE?[1789]*", zAgent) ) return 1;
+    if( strglob("*Trident/[1-9]*;?rv:[1-9]*", zAgent) ) return 1; /* IE11+ */
     if( strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent) ) return 1;
     return 0;
   }
