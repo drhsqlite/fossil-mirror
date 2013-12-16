@@ -20,10 +20,8 @@ catch {
   set longpath [exec cygpath -w $longpath]
 }
 
-test longpath-test.1 {
-  ![catch {
-    fossil new $longpath/$x.fossil
-  }]
+test win32-longpath-test.1 {
+  ![regexp CANTOPEN [fossil new $longpath/$x.fossil]]
 }
 
 # Try to remove the file/dir various ways, different
