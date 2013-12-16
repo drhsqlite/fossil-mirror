@@ -1,5 +1,5 @@
-C Recognize\sIE11's\snew\sUA\sstring.
-D 2013-12-16T08:52:50.721
+C If\sthe\sname\sof\sa\s'sym-<branchname>'\stag\ssorts\sbefore\sthe\s'branch'\stag,\sno\soption\sin\sthe\sci_edit\spage\sshould\sbe\sdisplayed\sto\scancel\sthe\stag.\s\nBug-fix\sdiscovered\sand\simplemented\sby\sAndy\sBradford.
+D 2013-12-16T10:46:47.599
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -349,7 +349,7 @@ F src/http_socket.c 9d44a02ecd4e9dc325eeac397620e098d172ad09
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 14bab6693bd559c0f97247cc3a4dfefad856eedc
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
-F src/info.c 003d21ea050649753662ed48cfabd1967857f50d
+F src/info.c 752e10e4a51ff892c205b6dbac39542a07e17c05
 F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c 0ef79ac76a1fb1e7397550251eea1b17219194ca
@@ -637,7 +637,8 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e08177614b4ba3f138c373a5321f8afe4cab4a5f
-R 9c1481a52193ea73d9876498fdc4ff8b
-U joel
-Z 607a77f1dbaae669fffd15354f16314e
+P 07a8e5d08500d2b9f49c5fb35daafacaf36ec1a7 818c0acd07c481baf5ff70f4b509988519735597
+R 848c709263c2b89c52edb5a14d424de7
+T +closed 818c0acd07c481baf5ff70f4b509988519735597
+U jan.nijtmans
+Z 5c6b0c9aacc30f2027ecaff6cfc2805d
