@@ -208,33 +208,29 @@ void *fossil_utf8_to_filename(const char *zUtf8){
       MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, wUnicode, nChar);
       wUnicode[2] = '\\';
       wUnicode += 3;
-      goto finish;
     }else{
       zUnicode[0] = zUtf8[0];
       memcpy(&zUnicode[1], L":\\", 2 * sizeof(wchar_t));
       wUnicode += 3;
       MultiByteToWideChar(CP_UTF8, 0, zUtf8+3, -1, wUnicode, nChar-3);
     }
-    goto finish;
   }else if( (zUtf8[0]=='\\' || zUtf8[0]=='/') &&
       (zUtf8[1]=='\\' || zUtf8[1]=='/') ) {
-    if (zUtf8[2]=='?' && nChar>5 ){
+    if( zUtf8[2]=='?' && nChar>5 ){
       /* Don't postprocess [?:] in extended path, but do '/' -> '\' */
       memcpy(zUnicode, L"\\\\", 2 * sizeof(wchar_t));
       MultiByteToWideChar(CP_UTF8, 0, zUtf8+2, -1, zUnicode+2, nChar-2);
       if( zUtf8[3]=='/' ) zUnicode[3]='\\';
       wUnicode += 6;
-      goto finish;
     }else if( nChar>MAX_PATH ){
       /* Convert to extended UNC path. */
       memcpy(zUnicode, L"\\\\?\\UNC\\", 16);
       wUnicode += 8;
-      MultiByteToWideChar(CP_UTF8, 0, zUtf8+2, -1, wUnicode, nChar-8);
-      goto finish;
+      MultiByteToWideChar(CP_UTF8, 0, zUtf8+2, -1, wUnicode, nChar-2);
+    }else{
+      MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nChar);
     }
   }
-  MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nChar);
-finish:
   while( *wUnicode != '\0' ){
     if ( (*wUnicode < ' ') || wcschr(L"\"*:<>?|", *wUnicode) ){
       *wUnicode |= 0xF000;
