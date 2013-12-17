@@ -119,6 +119,7 @@ set src {
   vfile
   wiki
   wikiformat
+  winfile
   winhttp
   wysiwyg
   xfer
