@@ -1116,14 +1116,14 @@ void cgi_append_default_css(void) {
   for (i=0;cssDefaultList[i].elementClass;i++){
     if (cssDefaultList[i].elementClass[0]){
       cgi_printf("/* %s */\n%s {\n%s\n}\n\n",
-		 cssDefaultList[i].comment,
-		 cssDefaultList[i].elementClass,
-		 cssDefaultList[i].value
-		);
+                 cssDefaultList[i].comment,
+                 cssDefaultList[i].elementClass,
+                 cssDefaultList[i].value
+                );
     }else{
       cgi_printf("%s",
-		 cssDefaultList[i].value
-		);
+                 cssDefaultList[i].value
+                );
     }
   }
 }

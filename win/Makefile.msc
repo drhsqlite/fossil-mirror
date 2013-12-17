@@ -41,7 +41,7 @@ INCL      = $(INCL) -I$(SSLINCDIR)
 !endif
 
 CFLAGS    = -nologo -MT -O2
-LDFLAGS   = /NODEFAULTLIB:msvcrt
+LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
 
 !ifdef DEBUG
 CFLAGS    = $(CFLAGS) -Zi
@@ -69,10 +69,16 @@ LIBDIR    = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
 SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  /DSQLITE_THREADSAFE=0 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
-                 /DSQLITE_ENABLE_STAT3 \
+                 /DSQLITE_OMIT_DEPRECATED \
+                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  /Dlocaltime=fossil_localtime \
-                 /DSQLITE_ENABLE_LOCKING_STYLE=0 \
-                 /DSQLITE_WIN32_NO_ANSI
+                 /DSQLITE_ENABLE_LOCKING_STYLE=0
+
+SHELL_OPTIONS = /Dmain=sqlite3_shell \
+                /DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                /Dsqlite3_strglob=strglob \
+                /Dgetenv=fossil_getenv \
+                /Dfopen=fossil_fopen
 
 SRC   = add_.c \
         allrepo_.c \
@@ -176,6 +182,7 @@ SRC   = add_.c \
         vfile_.c \
         wiki_.c \
         wikiformat_.c \
+        winfile_.c \
         winhttp_.c \
         wysiwyg_.c \
         xfer_.c \
@@ -289,6 +296,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\vfile$O \
         $(OX)\wiki$O \
         $(OX)\wikiformat$O \
+        $(OX)\winfile$O \
         $(OX)\winhttp$O \
         $(OX)\wysiwyg$O \
         $(OX)\xfer$O \
@@ -416,6 +424,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\vfile.obj >> $@
 	echo $(OX)\wiki.obj >> $@
 	echo $(OX)\wikiformat.obj >> $@
+	echo $(OX)\winfile.obj >> $@
 	echo $(OX)\winhttp.obj >> $@
 	echo $(OX)\wysiwyg.obj >> $@
 	echo $(OX)\xfer.obj >> $@
@@ -442,10 +451,10 @@ mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
 $(OX)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) /Fo$@ /Dmain=sqlite3_shell $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
+	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
 
 $(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**
+	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $**
 
 $(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**
@@ -467,7 +476,6 @@ clean:
 	-del *_.c
 	-del *.h
 	-del *.map
-	-del *.manifest
 	-del headers
 	-del linkopts
 	-del *.res
@@ -1108,6 +1116,12 @@ $(OX)\wikiformat$O : wikiformat_.c wikiformat.h
 wikiformat_.c : $(SRCDIR)\wikiformat.c
 	translate$E $** > $@
 
+$(OX)\winfile$O : winfile_.c winfile.h
+	$(TCC) /Fo$@ -c winfile_.c
+
+winfile_.c : $(SRCDIR)\winfile.c
+	translate$E $** > $@
+
 $(OX)\winhttp$O : winhttp_.c winhttp.h
 	$(TCC) /Fo$@ -c winhttp_.c
 
@@ -1243,6 +1257,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			vfile_.c:vfile.h \
 			wiki_.c:wiki.h \
 			wikiformat_.c:wikiformat.h \
+			winfile_.c:winfile.h \
 			winhttp_.c:winhttp.h \
 			wysiwyg_.c:wysiwyg.h \
 			xfer_.c:xfer.h \

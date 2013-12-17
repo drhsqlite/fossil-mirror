@@ -51,7 +51,8 @@
 **   -r|--revision R      print the given revision (or ckout, if none is given)
 **                        to stdout (only in print mode)
 **   -s|--status          select status mode (print a status indicator for FILE)
-**   -W|--width <num>     With of lines (default 79). Must be >22 or 0.
+**   -W|--width <num>     With of lines (default 79). Must be >22 or 0
+**                        (= no limit, resulting in a single line per entry).
 **
 ** See also: artifact, cat, descendants, info, leaves
 */
@@ -206,7 +207,7 @@ void finfo_cmd(void){
         blob_appendf(&line, "%8.8s ", zUser);
         blob_appendf(&line, "%8.8s ", zBr);
         blob_appendf(&line,"%-39.39s", zCom );
-        comment_print(blob_str(&line), 0, 79);
+        comment_print(blob_str(&line), 0, iWidth);
       }
     }
     db_finalize(&q);
@@ -464,12 +465,14 @@ void finfo_page(void){
     @ branch: %h(zBr))
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
+      @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
+      @ [annotate]</a>
+      @ %z(href("%R/blame?checkin=%S&filename=%h",zCkin,z))
+      @ [blame]</a>
+      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
       if( fpid ){
         @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zPUuid,zUuid))[diff]</a>
       }
-      @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
-      @ [annotate]</a>
-      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
       int srcid = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", frid);

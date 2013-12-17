@@ -583,8 +583,9 @@ void rebuild_database(void){
   reconstruct_private_table();
   db_multi_exec(
     "REPLACE INTO config(name,value,mtime) VALUES('content-schema','%s',now());"
-    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());",
-    CONTENT_SCHEMA, AUX_SCHEMA
+    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());"
+    "REPLACE INTO config(name,value,mtime) VALUES('rebuilt','%s',now());",
+    CONTENT_SCHEMA, AUX_SCHEMA, get_version()
   );
   if( errCnt && !forceFlag ){
     fossil_print(
@@ -609,7 +610,8 @@ void rebuild_database(void){
     }
     if( runDeanalyze ){
       db_multi_exec("DROP TABLE IF EXISTS sqlite_stat1;"
-                    "DROP TABLE IF EXISTS sqlite_stat3;");
+                    "DROP TABLE IF EXISTS sqlite_stat3;"
+                    "DROP TABLE IF EXISTS sqlite_stat4;");
     }
     if( runAnalyze ){
       fossil_print("Analyzing the database... "); fflush(stdout);
