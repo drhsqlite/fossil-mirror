@@ -1,5 +1,5 @@
-C merge\strunk.\s\nFix\sbehavior\sof\s"Brancing"\scheckbox,\sand\ssimplify\sjavascript\sfunctions.
-D 2013-12-14T09:24:11.585
+C When\sediting\sa\sbranch\sname,\smake\sthe\sdefault\svalue\sdisappear\swhen\sthe\sinput\nis\sentered.\s\sAlso,\sstrip\swhitespace\sfrom\sright-end\sof\svalue\sand\sonly\supdate\s\nbranch\snames\sif\snot\sall\swhite\sspace.
+D 2013-12-17T03:46:34.009
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -349,7 +349,7 @@ F src/http_socket.c 9d44a02ecd4e9dc325eeac397620e098d172ad09
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 14bab6693bd559c0f97247cc3a4dfefad856eedc
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
-F src/info.c 9fd075f664b941005afc0db8fdfa68e559bb4177
+F src/info.c 712371d72be3c297e137be8ee365717be0bcd7e0
 F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c 0ef79ac76a1fb1e7397550251eea1b17219194ca
@@ -637,7 +637,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d35b1ca05e62915cbc740ac31027201076cb99bf e08177614b4ba3f138c373a5321f8afe4cab4a5f
-R e3f75a1045adfe2125194f2f1f175aa8
-U jan.nijtmans
-Z be424589be418a69702002c76beb1188
+P 885d72b2bd59067d31de3c966db049e2d6c4f287
+R bc4b4375695b82d6f5e9d66d7603cfee
+U andybradford
+Z e1b55a973e745a74983d227c01548731

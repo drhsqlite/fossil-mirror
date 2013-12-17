@@ -2210,22 +2210,28 @@ void ci_edit_page(void){
   ** Javascript functions to assist in modifying hidden branch options.
   ** chgcbn/chgbn: Handle change of (checkbox for) branch name in
   ** remaining of form.
+  ** defifempty: return to default value if empty.
+  ** clrifsame: clear the value if same as default.
+  ** isempty: returns true if string has no non-whitespace characters.
   */
   @ <script>
   @ function chgcbn(checked, branch){
   @   val = gebi('brname').value;
-  @   if( !val || !checked) val = branch;
+  @   if( !val || !checked ) val = branch;
   @   gebi('hbranch').textContent = val;
   @   cidbrid = document.getElementById('cbranch');
   @   if( cidbrid ) cidbrid.textContent = val;
   @ }
   @ function chgbn(val, branch){
-  @   if( !val ) val = branch;
+  @   if( isempty(val) ) val = branch;
   @   gebi('newbr').checked = (val!=branch);
   @   gebi('hbranch').textContent = val;
   @   cidbrid = document.getElementById('cbranch');
   @   if( cidbrid ) cidbrid.textContent = val;
   @ }
+  @ function isempty(v){ s = v.replace(/\s+$/g,''); return(s == ''); }
+  @ function defifempty(e){ if (isempty(e.value)) e.value = e.defaultValue; }
+  @ function clrifsame(e){ if (e.value == e.defaultValue) e.value = ''; }
   @ </script>
   if( P("preview") ){
     Blob suffix;
@@ -2360,7 +2366,7 @@ void ci_edit_page(void){
   @ onchange="chgcbn(this.checked,'%h(zBranchName)')" />
   @ Make this check-in the start of a new branch named:</label>
   @ <input id="brname" type="text" style="width:15;" name="brname"
-  @ value="%h(zNewBranch)"
+  @ value="%h(zNewBranch)" onblur="defifempty(this)" onfocus="clrifsame(this)"
   @ onkeyup="chgbn(this.value,'%h(zBranchName)')" /></td></tr>
   if( !fHasHidden ){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
