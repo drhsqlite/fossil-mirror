@@ -2212,7 +2212,6 @@ void ci_edit_page(void){
   ** remaining of form.
   ** defifempty: return to default value if empty.
   ** clrifsame: clear the value if same as default.
-  ** isempty: returns true if string has no non-whitespace characters.
   */
   @ <script>
   @ function chgcbn(checked, branch){
@@ -2229,8 +2228,7 @@ void ci_edit_page(void){
   @   cidbrid = document.getElementById('cbranch');
   @   if( cidbrid ) cidbrid.textContent = val;
   @ }
-  @ function isempty(v){ s = v.replace(/\s+$/g,''); return(s == ''); }
-  @ function defifempty(e){ if (isempty(e.value)) e.value = e.defaultValue; }
+  @ function defifempty(e){ if (!e.value.trim()) e.value = e.defaultValue; }
   @ function clrifsame(e){ if (e.value == e.defaultValue) e.value = ''; }
   @ </script>
   if( P("preview") ){

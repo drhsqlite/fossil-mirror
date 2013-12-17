@@ -1,5 +1,5 @@
-C merge\strunk
-D 2013-12-17T10:56:05.324
+C eliminate\sisempty()\sjavascript\sfunction.\sUse\strim()\sin\sstead.
+D 2013-12-17T11:39:18.271
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -349,7 +349,7 @@ F src/http_socket.c 9d44a02ecd4e9dc325eeac397620e098d172ad09
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 14bab6693bd559c0f97247cc3a4dfefad856eedc
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
-F src/info.c 9f2bae9cc03b3b7d1e9bb0355c069be0790e3254
+F src/info.c ca72c4309268280b1db3cb8dfc918d2227e447d5
 F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c 0ef79ac76a1fb1e7397550251eea1b17219194ca
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2e763930218431464ced6e3865e1535943741321 5ceef9bcdd88b77f97e54313df7997384e8dbb5d
-R 0706b2479c4a0dec80441b6e02262d21
+P 6a8ddc43fccaa6e7c0e6d24ee99a828652ff526c
+R c64f595e2489b4080bba165524757c70
 U jan.nijtmans
-Z 18ac935ef006ebb3af499fa44a0475cc
+Z 2532f52bfa55fe676f8560192fe6d8b6
