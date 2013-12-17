@@ -1009,6 +1009,7 @@ OBJDIR = .
 OX     = .
 O      = .obj
 E      = .exe
+P      = .pdb
 
 # Uncomment to enable debug symbols
 # DEBUG = 1
@@ -1094,6 +1095,7 @@ writeln " \\"
 writeln -nonewline "        \$(OX)\\fossil.res\n"
 writeln {
 APPNAME = $(OX)\fossil$(E)
+PDBNAME = $(OX)\fossil$(P)
 
 all: $(OX) $(APPNAME)
 
@@ -1156,12 +1158,14 @@ clean:
 	-del *_.c
 	-del *.h
 	-del *.map
+	-del *.res
 	-del headers
 	-del linkopts
-	-del *.res
+	-del vc*.pdb
 
 realclean: clean
 	-del $(APPNAME)
+	-del $(PDBNAME)
 	-del translate$E
 	-del mkindex$E
 	-del makeheaders$E
