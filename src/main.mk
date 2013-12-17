@@ -378,13 +378,12 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
 # Setup the options used to compile the included SQLite library.
-SQLITE_OPTIONS = -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+SQLITE_OPTIONS = -Dlocaltime=fossil_localtime \
+                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_THREADSAFE=0 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
-                 -DSQLITE_OMIT_DEPRECATED \
-                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
-                 -Dlocaltime=fossil_localtime \
-                 -DSQLITE_ENABLE_LOCKING_STYLE=0
+                 -DSQLITE_OMIT_DEPRECATED
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -Dmain=sqlite3_shell \

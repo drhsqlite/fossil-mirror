@@ -1,5 +1,5 @@
-C If\s'newbranch'\sfield\sonly\scontains\sspaces,\sconsider\sit\sempty.
-D 2013-12-17T10:51:46.177
+C Align\srecommended\sSQLite\scompilation\soptions\swith\sactual\soptions\sused\swhen\scompiling\sSQLite.\s\n(I\sdon't\sthink\sSQLITE_ENABLE_EXPLAIN_COMMENTS\sshould\sbe\sone\sof\sthem,\sit\snever\swas\sin\searlier\sreleases)
+D 2013-12-17T11:56:37.756
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -370,10 +370,10 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c e9d37479c74accfc55ad5ed7a77af9a02a35dc50
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
 F src/main.c 671fcaadbcd92d3f497351fdf1298e53c3d5c010
-F src/main.mk 2dcbebf44f88f4ecdb46d9cca151c057b0b4a695
+F src/main.mk 0c167f2f447bbffc4c6e935af0a2a84d323548cf
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 0b49f11d4b4e95ef4877ef6d7b8b0c5e12f0ded8
+F src/makemake.tcl 4927b19fffa425f890fb6097593e68fd93e0cdc2
 F src/manifest.c ea85b422f671048c16d9ecc9d86d8f7a5404584a
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
@@ -470,7 +470,7 @@ F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 4ab7763cdb223c7801d1713922524a92f67ed412
 F test/valgrind-www.tcl 921135f07258d89e3876e074808ca7b462b92eb4
-F test/win32-longpath.test b1ff2af5ed12878bfe9bb62dbf70dbe417f2c5c1
+F test/win32-longpath.test b1ff2af5ed12878bfe9bb62dbf70dbe417f2c5c1 x
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -527,11 +527,11 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
-F win/Makefile.PellesCGMake 544fa6e7b60061e4efdb48f798e99896b6d668ad
-F win/Makefile.dmc d8641f263860f4f2da353ab1f46a81ef71da7fff
-F win/Makefile.mingw 41ecf120c8463bd8e5b48e163d64fc806ee4c2dc
-F win/Makefile.mingw.mistachkin 76ef7db62da1e40c9806e6e62361b7540f50af8b
-F win/Makefile.msc cfb9fa52a5696b034569247bc4ebeedd2c8e5a1f
+F win/Makefile.PellesCGMake a7dd800f26abbf59a8fe5da009597ee536ec67af
+F win/Makefile.dmc 308da89bd33f6ccfa4a529745239e5ff6646fdc1
+F win/Makefile.mingw baec65a6417a8edacea432afca98724dcf0fcc7d
+F win/Makefile.mingw.mistachkin 799cacf88c7b9e8a4640b9310e331d65551007ba
+F win/Makefile.msc 4a3aa1a7f073580a256c815d9ac46493a9c65d11
 F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 3dca922ba4a3f93b4ed4f59f62a4e3eed25205a0
@@ -611,7 +611,7 @@ F www/hacker-howto.wiki 1b0b1fa68606bbad790b4100f1da62738d9c65e2
 F www/hints.wiki 2ed95a101dd4639232b40360dbf5d131d98b098c
 F www/index.wiki bdcd0e8e63606bf0467ac409b91b6760f2faae18
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
-F www/makefile.wiki c2788cca1e3014069d85acd67f086c6035d1d2f6
+F www/makefile.wiki e2515179557b4345962e739337fc758a9766afa7
 F www/mkdownload.tcl c313e4cab0609b19b030541af140d8bbfebfc0f4
 F www/mkindex.tcl c766a73aa93987f678c525c497e761704724903d
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4b49bb9cc3234b713c71a680ab7385788dfb6ef0
-R 64345fe4c2d8908d74dfca7f8b651d9a
+P 5ceef9bcdd88b77f97e54313df7997384e8dbb5d
+R 357572bb57a2a0fc904513b060c2e2ec
 U jan.nijtmans
-Z a3b79f8480bb51fcf981b23b4c1578d0
+Z 342bbe8c7124e1d9965b6b844713e1b6

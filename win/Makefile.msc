@@ -41,7 +41,7 @@ INCL      = $(INCL) -I$(SSLINCDIR)
 !endif
 
 CFLAGS    = -nologo -MT -O2
-LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
+LDFLAGS   = /NODEFAULTLIB:msvcrt
 
 !ifdef DEBUG
 CFLAGS    = $(CFLAGS) -Zi
@@ -66,13 +66,12 @@ LIBS      = $(LIBS) $(SSLLIB)
 LIBDIR    = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
 !endif
 
-SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 \
+SQLITE_OPTIONS = /Dlocaltime=fossil_localtime \
+                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                 /DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  /DSQLITE_THREADSAFE=0 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
-                 /DSQLITE_OMIT_DEPRECATED \
-                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
-                 /Dlocaltime=fossil_localtime \
-                 /DSQLITE_ENABLE_LOCKING_STYLE=0
+                 /DSQLITE_OMIT_DEPRECATED
 
 SHELL_OPTIONS = /Dmain=sqlite3_shell \
                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \

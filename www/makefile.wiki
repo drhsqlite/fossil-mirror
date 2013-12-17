@@ -210,7 +210,7 @@ When compiling sqlite.c, the following macros are recommended:
   *  -DSQLITE_ENABLE_LOCKING_STYLE=0
   *  -DSQLITE_THREADSAFE=0
   *  -DSQLITE_DEFAULT_FILE_FORMAT=4
-  *  -DSQLITE_ENABLE_STAT3
+  *  -DSQLITE_OMIT_DEPRECATED
 
 The first and second symbol definitions above are required; the others
 are merely recommended.  The "localtime()" library function in SQLite must

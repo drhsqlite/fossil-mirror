@@ -1700,13 +1700,12 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h  $(SRCDIR)/config.h
 
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 
-SQLITE_OPTIONS = -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+SQLITE_OPTIONS = -Dlocaltime=fossil_localtime \
+                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_THREADSAFE=0 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_OMIT_DEPRECATED \
-                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
-                 -Dlocaltime=fossil_localtime \
-                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -D_HAVE_SQLITE_CONFIG_H \
                  -DSQLITE_USE_MALLOC_H \
                  -DSQLITE_USE_MSIZE
