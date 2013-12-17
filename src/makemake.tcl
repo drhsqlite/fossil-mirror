@@ -1037,7 +1037,7 @@ INCL      = $(INCL) -I$(SSLINCDIR)
 !endif
 
 CFLAGS    = -nologo -MT -O2
-LDFLAGS   = /NODEFAULTLIB:msvcrt
+LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
 
 !ifdef DEBUG
 CFLAGS    = $(CFLAGS) -Zi
