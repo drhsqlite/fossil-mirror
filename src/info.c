@@ -2216,14 +2216,14 @@ void ci_edit_page(void){
   */
   @ <script>
   @ function chgcbn(checked, branch){
-  @   val = gebi('brname').value;
+  @   val = gebi('brname').value.trim();
   @   if( !val || !checked ) val = branch;
   @   gebi('hbranch').textContent = val;
   @   cidbrid = document.getElementById('cbranch');
   @   if( cidbrid ) cidbrid.textContent = val;
   @ }
   @ function chgbn(val, branch){
-  @   if( isempty(val) ) val = branch;
+  @   if( !val ) val = branch;
   @   gebi('newbr').checked = (val!=branch);
   @   gebi('hbranch').textContent = val;
   @   cidbrid = document.getElementById('cbranch');
@@ -2367,7 +2367,7 @@ void ci_edit_page(void){
   @ Make this check-in the start of a new branch named:</label>
   @ <input id="brname" type="text" style="width:15;" name="brname"
   @ value="%h(zNewBranch)" onblur="defifempty(this)" onfocus="clrifsame(this)"
-  @ onkeyup="chgbn(this.value,'%h(zBranchName)')" /></td></tr>
+  @ onkeyup="chgbn(this.value.trim(),'%h(zBranchName)')" /></td></tr>
   if( !fHasHidden ){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
