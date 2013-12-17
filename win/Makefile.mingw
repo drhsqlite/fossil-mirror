@@ -359,6 +359,7 @@ SRC = \
   $(SRCDIR)/vfile.c \
   $(SRCDIR)/wiki.c \
   $(SRCDIR)/wikiformat.c \
+  $(SRCDIR)/winfile.c \
   $(SRCDIR)/winhttp.c \
   $(SRCDIR)/wysiwyg.c \
   $(SRCDIR)/xfer.c \
@@ -468,6 +469,7 @@ TRANS_SRC = \
   $(OBJDIR)/vfile_.c \
   $(OBJDIR)/wiki_.c \
   $(OBJDIR)/wikiformat_.c \
+  $(OBJDIR)/winfile_.c \
   $(OBJDIR)/winhttp_.c \
   $(OBJDIR)/wysiwyg_.c \
   $(OBJDIR)/xfer_.c \
@@ -577,6 +579,7 @@ OBJ = \
  $(OBJDIR)/vfile.o \
  $(OBJDIR)/wiki.o \
  $(OBJDIR)/wikiformat.o \
+ $(OBJDIR)/winfile.o \
  $(OBJDIR)/winhttp.o \
  $(OBJDIR)/wysiwyg.o \
  $(OBJDIR)/xfer.o \
@@ -818,6 +821,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/vfile_.c:$(OBJDIR)/vfile.h \
 		$(OBJDIR)/wiki_.c:$(OBJDIR)/wiki.h \
 		$(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h \
+		$(OBJDIR)/winfile_.c:$(OBJDIR)/winfile.h \
 		$(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h \
 		$(OBJDIR)/wysiwyg_.c:$(OBJDIR)/wysiwyg.h \
 		$(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h \
@@ -1647,6 +1651,14 @@ $(OBJDIR)/wikiformat.o:	$(OBJDIR)/wikiformat_.c $(OBJDIR)/wikiformat.h  $(SRCDIR
 	$(XTCC) -o $(OBJDIR)/wikiformat.o -c $(OBJDIR)/wikiformat_.c
 
 $(OBJDIR)/wikiformat.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/winfile_.c:	$(SRCDIR)/winfile.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/winfile.c >$(OBJDIR)/winfile_.c
+
+$(OBJDIR)/winfile.o:	$(OBJDIR)/winfile_.c $(OBJDIR)/winfile.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/winfile.o -c $(OBJDIR)/winfile_.c
+
+$(OBJDIR)/winfile.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/winhttp_.c:	$(SRCDIR)/winhttp.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/winhttp.c >$(OBJDIR)/winhttp_.c

@@ -1772,7 +1772,7 @@ void tinfo_page(void){
   }
   @ <tr><th>Ticket:</th>
   @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a>
-  if(zTktTitle){
+  if( zTktTitle ){
         @<br>%h(zTktTitle)
   }
   @</td></tr>
@@ -2312,6 +2312,9 @@ void ci_edit_page(void){
   @ Add the following new tag name to this check-in:</label>
   @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)"
   @ onkeyup="gebi('newtag').checked=!!this.value" />
+  zBranchName = db_text(0, "SELECT value FROM tagxref, tag"
+     " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
+     " AND tagxref.tagid=%d", rid, TAG_BRANCH);
   db_prepare(&q,
      "SELECT tag.tagid, tagname, tagxref.value FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
@@ -2322,20 +2325,17 @@ void ci_edit_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     int tagid = db_column_int(&q, 0);
     const char *zTagName = db_column_text(&q, 1);
-    int isSpecialTag = strncmp(zTagName, "sym-", 4)!=0;
+    int isSpecialTag = fossil_strncmp(zTagName, "sym-", 4)!=0;
     char zLabel[30];
 
-    if (tagid == TAG_CLOSED){
+    if( tagid == TAG_CLOSED ){
       fHasClosed = 1;
-    }else if (tagid == TAG_COMMENT){
-      continue;
-    }else if (tagid == TAG_BRANCH){
-      zBranchName = mprintf("%s", db_column_text(&q, 2));
+    }else if( (tagid == TAG_COMMENT) || (tagid == TAG_BRANCH) ){
       continue;
     }else if( tagid==TAG_HIDDEN ){
       fHasHidden = 1;
-    }else if( !isSpecialTag && zBranchName &&
-        strcmp(&zTagName[4], zBranchName)==0){
+    }else if( !isSpecialTag && zTagName &&
+        fossil_strcmp(&zTagName[4], zBranchName)==0){
       continue;
     }
     sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
@@ -2396,7 +2396,7 @@ void ci_edit_page(void){
       @ </td></tr>
     }
   }
-  if(zBranchName) fossil_free(zBranchName);
+  if( zBranchName ) fossil_free(zBranchName);
 
 
   @ <tr><td colspan="2">
