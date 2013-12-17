@@ -713,8 +713,12 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
   sqlite3 *db;
 
-#if defined(__CYGWIN__)
+#if defined(__CYGWIN__) || defined(_WIN32)
   zDbName = fossil_utf8_to_filename(zDbName);
+#ifdef _WIN32
+  /* Convert back to utf-8. TODO: SQLite should handle this */
+  zDbName = fossil_filename_to_utf8(zDbName);
+#endif
 #endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   rc = sqlite3_open_v2(

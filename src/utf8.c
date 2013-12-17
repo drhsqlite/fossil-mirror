@@ -193,7 +193,8 @@ char *fossil_filename_to_utf8(const void *zFilename){
 void *fossil_utf8_to_filename(const char *zUtf8){
 #ifdef _WIN32
   int nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
-  wchar_t *zUnicode = sqlite3_malloc( nChar * sizeof(wchar_t) );
+  /* Overallocate 6 chars, making some room for extended paths */
+  wchar_t *zUnicode = sqlite3_malloc( (nChar+6) * sizeof(wchar_t) );
   wchar_t *wUnicode = zUnicode;
   if( zUnicode==0 ){
     return 0;
@@ -201,19 +202,34 @@ void *fossil_utf8_to_filename(const char *zUtf8){
   if( fossil_isalpha(zUtf8[0]) && zUtf8[1]==':'
            && (zUtf8[2]=='\\' || zUtf8[2]=='/')) {
     /* If path starts with "<drive>:[/\]", don't process the ':' */
-    zUnicode[0] = zUtf8[0];
-    memcpy(&zUnicode[1], L":\\", 2 * sizeof(wchar_t)); 
-    wUnicode += 3;
-    MultiByteToWideChar(CP_UTF8, 0, zUtf8+3, -1, wUnicode, nChar-3);
+    if( nChar>MAX_PATH ) {
+      memcpy(zUnicode, L"\\\\?\\", 8);
+      wUnicode += 4;
+      MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, wUnicode, nChar);
+      wUnicode[2] = '\\';
+      wUnicode += 3;
+      goto finish;
+    }else{
+      zUnicode[0] = zUtf8[0];
+      memcpy(&zUnicode[1], L":\\", 2 * sizeof(wchar_t));
+      wUnicode += 3;
+      MultiByteToWideChar(CP_UTF8, 0, zUtf8+3, -1, wUnicode, nChar-3);
+    }
     goto finish;
   }else if( (zUtf8[0]=='\\' || zUtf8[0]=='/') &&
       (zUtf8[1]=='\\' || zUtf8[1]=='/') ) {
-    if( zUtf8[2]=='?' && nChar>5 ){
+    if (zUtf8[2]=='?' && nChar>5 ){
       /* Don't postprocess [?:] in extended path, but do '/' -> '\' */
-      memcpy(zUnicode, L"\\\\", 2 * sizeof(wchar_t)); 
+      memcpy(zUnicode, L"\\\\", 2 * sizeof(wchar_t));
       MultiByteToWideChar(CP_UTF8, 0, zUtf8+2, -1, zUnicode+2, nChar-2);
       if( zUtf8[3]=='/' ) zUnicode[3]='\\';
       wUnicode += 6;
+      goto finish;
+    }else if( nChar>MAX_PATH ){
+      /* Convert to extended UNC path. */
+      memcpy(zUnicode, L"\\\\?\\UNC\\", 16);
+      wUnicode += 8;
+      MultiByteToWideChar(CP_UTF8, 0, zUtf8+2, -1, wUnicode, nChar-8);
       goto finish;
     }
   }

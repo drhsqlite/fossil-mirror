@@ -1,5 +1,5 @@
-C If\s"fossil\snew"\sor\s"fossil\sopen"'s\sargument\shas\san\sextended\spath\sprefix\slike\s"\\\\?\\C:\\",\sdon't\sprocess\sthe\s'?'\sand\s':'\sin\sit\sas\sspecial\spath\scharacters,\sonly\sdo\s'/'\s->\s'\\'\stranslation.\s\nThis\smakes\sextended\spaths\susable\sin\sfossil\severywhere\s(hopefully),\sfor\snow\s<260.
-D 2013-12-17T09:32:35.313
+C Break\sthe\s260\scharacter\spath\sbarrier\son\sWin32.\sAdd\stest-case\s"win32-longpath"\sfor\sproving\sthat\sit\sworks.
+D 2013-12-17T10:20:10.798
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -329,7 +329,7 @@ F src/content.c 468d7f73a4b09fe03d16d8477f9fe6a99481bec9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 217ccd280edadd8d1ff7c4061cbff907d531e600
+F src/db.c 5fd27f14b165b054f7ffbd926df9da50b4f61ad1
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c d59a0e546f5e82c884defcf3a695cc066bded992
@@ -369,7 +369,7 @@ F src/json_wiki.c 3ef3369d9107698e407f917ab61be1abac73eef5
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c e9d37479c74accfc55ad5ed7a77af9a02a35dc50
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c 9ae5013ed9ba83bb537d0cfc77adf99f14afc654
+F src/main.c 671fcaadbcd92d3f497351fdf1298e53c3d5c010
 F src/main.mk 2dcbebf44f88f4ecdb46d9cca151c057b0b4a695
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -423,7 +423,7 @@ F src/unicode.c 7b3ec02e5e293378c23f6a048c7beedcbb6e0ff0
 F src/update.c 8834951295705765a92d4db989df23536d2ca139
 F src/url.c c4e1a76500f13b8f840c5a3432cf2426416c3e6f
 F src/user.c 7a4ff75307459be4e7784b9f90657e839b63feb1
-F src/utf8.c 50289a4eccdd143c15a6574dc4f1589f6e4a3eab
+F src/utf8.c a30acb54244aa46e300d16dee79e652e373fa7ee
 F src/util.c 7054510104b0eb24815b856227807dd964115ebe
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
 F src/vfile.c e3350e04fd3b7710d213c60b06b8135a0be14f65
@@ -470,6 +470,7 @@ F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 4ab7763cdb223c7801d1713922524a92f67ed412
 F test/valgrind-www.tcl 921135f07258d89e3876e074808ca7b462b92eb4
+F test/win32-longpath.test b1ff2af5ed12878bfe9bb62dbf70dbe417f2c5c1
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -638,7 +639,8 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b7ff13a0aa6317f224fa9af84d5f975b33c1dfdf
-R 2e34490fa8f80995fc52cd05865e235e
+P 04f4e699d41b7378ce8cb5d4c09bc0756a818fb0 1dd5a50941b909616c970eeb291faa28cdb2d299
+R 2f7287bacdf4c5582f2ac77a8e2162e8
+T +closed 1dd5a50941b909616c970eeb291faa28cdb2d299
 U jan.nijtmans
-Z efb5695c96eb23999d97d622f27d245c
+Z bb72c2170bbd90eaecc038629d35c542
