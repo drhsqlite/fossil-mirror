@@ -2206,8 +2206,8 @@ void ci_edit_page(void){
   */
   @ <script>
   @ function chgcbn(checked, branch){
-  @   val = gebi('brname').value;
-  @   if( !val || !checked) val = branch;
+  @   val = gebi('brname').value.trim();
+  @   if( !val || !checked ) val = branch;
   @   cidbrid = document.getElementById('cbranch');
   @   if( cidbrid ) cidbrid.textContent = val;
   @ }
@@ -2350,7 +2350,7 @@ void ci_edit_page(void){
   @ Make this check-in the start of a new branch named:</label>
   @ <input id="brname" type="text" style="width:15;" name="brname"
   @ value="%h(zNewBranch)"
-  @ onkeyup="chgbn(this.value,'%h(zBranchName)')" /></td></tr>
+  @ onkeyup="chgbn(this.value.trim(),'%h(zBranchName)')" /></td></tr>
   if( !fHasClosed ){
     if( is_a_leaf(rid) ){
       @ <tr><th align="right" valign="top">Leaf Closure:</th>

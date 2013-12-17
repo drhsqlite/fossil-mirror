@@ -1,5 +1,5 @@
-C Improve\serror\shandling.\s\sAllow\sVisual\sStudio\sversion\sto\sbe\smanually\soverridden.\s\sPass\sextra\sarguments\sto\sNMAKE.\s\sPreserve\sexisting\senvironment\sand\scurrent\sdirectory.\s\sMiscellaneous\sstyle\sfixes.
-D 2013-12-17T22:10:50.490
+C Merge\supdates\sfrom\strunk.
+D 2013-12-17T22:33:24.576
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -349,7 +349,7 @@ F src/http_socket.c 9d44a02ecd4e9dc325eeac397620e098d172ad09
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 14bab6693bd559c0f97247cc3a4dfefad856eedc
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
-F src/info.c 752e10e4a51ff892c205b6dbac39542a07e17c05
+F src/info.c b97abdd3fc0fb82bc3419344ee26ed2799e334e5
 F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c 0ef79ac76a1fb1e7397550251eea1b17219194ca
@@ -370,10 +370,10 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c e9d37479c74accfc55ad5ed7a77af9a02a35dc50
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
 F src/main.c 9ae5013ed9ba83bb537d0cfc77adf99f14afc654
-F src/main.mk 2dcbebf44f88f4ecdb46d9cca151c057b0b4a695
+F src/main.mk 17185897307057502051b3bb029677c828e046ab
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 0b49f11d4b4e95ef4877ef6d7b8b0c5e12f0ded8
+F src/makemake.tcl d0bf4c860451a3a441f8be65d4d6771627a233ff
 F src/manifest.c ea85b422f671048c16d9ecc9d86d8f7a5404584a
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
@@ -526,12 +526,12 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
-F win/Makefile.PellesCGMake 544fa6e7b60061e4efdb48f798e99896b6d668ad
-F win/Makefile.dmc d8641f263860f4f2da353ab1f46a81ef71da7fff
-F win/Makefile.mingw 41ecf120c8463bd8e5b48e163d64fc806ee4c2dc
-F win/Makefile.mingw.mistachkin 76ef7db62da1e40c9806e6e62361b7540f50af8b
-F win/Makefile.msc cfb9fa52a5696b034569247bc4ebeedd2c8e5a1f
-F win/buildmsvc.bat 9262db0da0083004dec603b4e745800698779a2c w win/msvc_build.bat
+F win/Makefile.PellesCGMake 188db414307e157072d7a8347461598899f81dea
+F win/Makefile.dmc ed99c663fb606a5644dc41757d867bbb1b061d3c
+F win/Makefile.mingw 56ab3b3a914fc4bd7c163a30fcd04afefa1f186b
+F win/Makefile.mingw.mistachkin cca055e3c6cf201724384636dd5be75a01a39bdf
+F win/Makefile.msc e4332c3ab85d1848fec53a7e4ed431cc83655b6d
+F win/buildmsvc.bat 9262db0da0083004dec603b4e745800698779a2c
 F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 3dca922ba4a3f93b4ed4f59f62a4e3eed25205a0
@@ -611,7 +611,7 @@ F www/hacker-howto.wiki 1b0b1fa68606bbad790b4100f1da62738d9c65e2
 F www/hints.wiki 2ed95a101dd4639232b40360dbf5d131d98b098c
 F www/index.wiki bdcd0e8e63606bf0467ac409b91b6760f2faae18
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
-F www/makefile.wiki c2788cca1e3014069d85acd67f086c6035d1d2f6
+F www/makefile.wiki a8f5096422b6f9167a74519ee93feeea37b4d04b
 F www/mkdownload.tcl c313e4cab0609b19b030541af140d8bbfebfc0f4
 F www/mkindex.tcl c766a73aa93987f678c525c497e761704724903d
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
@@ -639,10 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 555c44eb5d9506e7d6377a567933b000f06dcb3f
-R 967ad2275696acd902c3bfccd9e227c0
-T *branch * buildmsvc
-T *sym-buildmsvc *
-T -sym-msvc_build *
+P 8fab3e3f6ccafdb31f291d8287382e5c390c19e1 61e70f1fc795a4f8d6413f808e01309afbdcacb4
+R 5fde88f3b8b77ae813c3be9cbd5a4b9a
 U mistachkin
-Z 7379b079443200aa21e8ba6dcd5980db
+Z 0badb2ddc31d2e759c9c016ff9013436
