@@ -2208,6 +2208,7 @@ void ci_edit_page(void){
   @ function chgcbn(checked, branch){
   @   val = gebi('brname').value.trim();
   @   if( !val || !checked ) val = branch;
+  @   if( checked ) gebi('brname').select();
   @   cidbrid = document.getElementById('cbranch');
   @   if( cidbrid ) cidbrid.textContent = val;
   @ }
