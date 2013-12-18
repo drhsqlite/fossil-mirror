@@ -1,5 +1,5 @@
-C Add\sbatch\sfile\sto\sbuild\sFossil\swith\sthe\slatest\sinstalled\sversion\sof\sMSVC.
-D 2013-12-18T12:27:16.113
+C Further\srobustness\senhancements\sto\sthe\sautomated\sMSVC\sbatch\sfile.\s\sAlso,\supdate\sbuild\swiki\spage\sto\srefer\sto\sit.
+D 2013-12-18T23:19:28.045
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -531,7 +531,7 @@ F win/Makefile.dmc ed99c663fb606a5644dc41757d867bbb1b061d3c
 F win/Makefile.mingw 56ab3b3a914fc4bd7c163a30fcd04afefa1f186b
 F win/Makefile.mingw.mistachkin cca055e3c6cf201724384636dd5be75a01a39bdf
 F win/Makefile.msc e4332c3ab85d1848fec53a7e4ed431cc83655b6d
-F win/buildmsvc.bat 9262db0da0083004dec603b4e745800698779a2c
+F win/buildmsvc.bat c0137b54ac6bfabbd7fb57ae087e1b03a98ab5ec
 F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 3dca922ba4a3f93b4ed4f59f62a4e3eed25205a0
@@ -558,7 +558,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 21532a6f8b04f2e83cf4eaa66002c888c2e76339
+F www/build.wiki 8ca3a62bd54271d226356441e25cda6834ee1913
 F www/changes.wiki 03bafb3e6ac10c91bbf9a40430c4a0cfe26961af
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 22a4e0c5a27bc4120975202f275f1f68c0b2617d 7d4f06dec04614691ae0f259250aad3ba14764fb
-R c05cf2c43e3acf25dc3c8a9d19e7cb40
+P c8b1f75f30c59fe78c4bfb9869bbd1c19ca28587
+R 78c95d6a76f3aaa6acdd1bcf5fdc6d16
 U mistachkin
-Z fb6975626aab1f9bd3834e80a8203b85
+Z 7e24dae524f20109619aa0ba4982ce3c

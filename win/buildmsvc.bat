@@ -3,7 +3,7 @@
 ::
 :: buildmsvc.bat --
 ::
-:: This batch file attempts to compile Fossil using the latest version
+:: This batch file attempts to build Fossil using the latest version
 :: Microsoft Visual Studio installed on this machine.
 ::
 ::
@@ -19,49 +19,97 @@ IF NOT DEFINED _VECHO (SET _VECHO=REM)
 REM
 REM Visual Studio ????
 REM
-IF DEFINED VSVARS32 IF EXIST "%VSVARS32%" GOTO skip_setVisualStudio
+IF DEFINED VSVARS32 IF EXIST "%VSVARS32%" GOTO skip_detectVisualStudio
 
 REM
 REM Visual Studio 2013
 REM
+IF NOT DEFINED VS120COMNTOOLS GOTO skip_detectVisualStudio2013
 SET VSVARS32=%VS120COMNTOOLS%\vsvars32.bat
-IF EXIST "%VSVARS32%" GOTO skip_setVisualStudio
+IF EXIST "%VSVARS32%" (
+  %_AECHO% Using Visual Studio 2013...
+  GOTO skip_detectVisualStudio
+)
+:skip_detectVisualStudio2013
 
 REM
 REM Visual Studio 2012
 REM
+IF NOT DEFINED VS110COMNTOOLS GOTO skip_detectVisualStudio2012
 SET VSVARS32=%VS110COMNTOOLS%\vsvars32.bat
-IF EXIST "%VSVARS32%" GOTO skip_setVisualStudio
+IF EXIST "%VSVARS32%" (
+  %_AECHO% Using Visual Studio 2012...
+  GOTO skip_detectVisualStudio
+)
+:skip_detectVisualStudio2012
 
 REM
 REM Visual Studio 2010
 REM
+IF NOT DEFINED VS100COMNTOOLS GOTO skip_detectVisualStudio2010
 SET VSVARS32=%VS100COMNTOOLS%\vsvars32.bat
-IF EXIST "%VSVARS32%" GOTO skip_setVisualStudio
+IF EXIST "%VSVARS32%" (
+  %_AECHO% Using Visual Studio 2010...
+  GOTO skip_detectVisualStudio
+)
+:skip_detectVisualStudio2010
 
 REM
 REM Visual Studio 2008
 REM
+IF NOT DEFINED VS90COMNTOOLS GOTO skip_detectVisualStudio2008
 SET VSVARS32=%VS90COMNTOOLS%\vsvars32.bat
-IF EXIST "%VSVARS32%" GOTO skip_setVisualStudio
+IF EXIST "%VSVARS32%" (
+  %_AECHO% Using Visual Studio 2008...
+  GOTO skip_detectVisualStudio
+)
+:skip_detectVisualStudio2008
 
 REM
 REM Visual Studio 2005
 REM
+IF NOT DEFINED VS80COMNTOOLS GOTO skip_detectVisualStudio2005
 SET VSVARS32=%VS80COMNTOOLS%\vsvars32.bat
-IF EXIST "%VSVARS32%" GOTO skip_setVisualStudio
+IF EXIST "%VSVARS32%" (
+  %_AECHO% Using Visual Studio 2005...
+  GOTO skip_detectVisualStudio
+)
+:skip_detectVisualStudio2005
 
 REM
 REM Visual Studio 2003
 REM
+IF NOT DEFINED VS71COMNTOOLS GOTO skip_detectVisualStudio2003
 SET VSVARS32=%VS71COMNTOOLS%\vsvars32.bat
-IF EXIST "%VSVARS32%" GOTO skip_setVisualStudio
+IF EXIST "%VSVARS32%" (
+  %_AECHO% Using Visual Studio 2003...
+  GOTO skip_detectVisualStudio
+)
+:skip_detectVisualStudio2003
+
+REM
+REM Visual Studio 2002
+REM
+IF NOT DEFINED VS70COMNTOOLS GOTO skip_detectVisualStudio2002
+SET VSVARS32=%VS70COMNTOOLS%\vsvars32.bat
+IF EXIST "%VSVARS32%" (
+  %_AECHO% Using Visual Studio 2002...
+  GOTO skip_detectVisualStudio
+)
+:skip_detectVisualStudio2002
+
+REM
+REM NOTE: If we get to this point, no Visual Studio build environment batch
+REM       files were found.
+REM
+ECHO No Visual Studio build environment batch files were found.
+GOTO errors
 
 REM
 REM NOTE: At this point, the appropriate Visual Studio version should be
 REM       selected.
 REM
-:skip_setVisualStudio
+:skip_detectVisualStudio
 
 REM
 REM NOTE: Remove any double-backslash sequences that may be present in the
@@ -71,15 +119,6 @@ REM
 SET VSVARS32=%VSVARS32:\\=\%
 
 %_VECHO% VsVars32 = '%VSVARS32%'
-
-REM
-REM NOTE: Verify that the specified Visual Studio environment batch file
-REM       exists.
-REM
-IF NOT EXIST "%VSVARS32%" (
-  ECHO Visual Studio environment batch file "%VSVARS32%" does not exist.
-  GOTO errors
-)
 
 REM
 REM NOTE: Setup local environment variables that point to the root directory
@@ -108,7 +147,7 @@ REM
 %__ECHO3% CALL "%VSVARS32%"
 
 IF ERRORLEVEL 1 (
-  ECHO Visual Studio environment batch file "%VSVARS32%" failed.
+  ECHO Visual Studio build environment batch file "%VSVARS32%" failed.
   GOTO errors
 )
 
