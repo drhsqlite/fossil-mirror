@@ -19,7 +19,10 @@ IF NOT DEFINED _VECHO (SET _VECHO=REM)
 REM
 REM Visual Studio ????
 REM
-IF DEFINED VSVARS32 IF EXIST "%VSVARS32%" GOTO skip_detectVisualStudio
+IF DEFINED VSVARS32 IF EXIST "%VSVARS32%" (
+  %_AECHO% Build environment batch file manually overridden to "%VSVARS32%"...
+  GOTO skip_detectVisualStudio
+)
 
 REM
 REM Visual Studio 2013
