@@ -216,7 +216,7 @@ void *fossil_utf8_to_filename(const char *zUtf8){
     }
   }else if( (zUtf8[0]=='\\' || zUtf8[0]=='/') &&
       (zUtf8[1]=='\\' || zUtf8[1]=='/') ) {
-    if( zUtf8[2]=='?' && nChar>5 ){
+    if( zUtf8[2]=='?' && nChar>7 ){
       /* Don't postprocess [?:] in extended path, but do '/' -> '\' */
       memcpy(zUnicode, L"\\\\", 2 * sizeof(wchar_t));
       MultiByteToWideChar(CP_UTF8, 0, zUtf8+2, -1, zUnicode+2, nChar-2);

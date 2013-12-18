@@ -1243,7 +1243,7 @@ static const char zBuiltinSkin5[] =
 @   <a href="$fossilUrl/">Fossil</a>
 @   version $release_version $tclVersion
 @   <a href="$fossilUrl/index.html/info/$version">$manifest_version</a>
-@   <a href="$fossilUrl/fossil/timeline?c=$manifest_date&amp;y=ci">$manifest_date</a>
+@   <a href="$fossilUrl/index.html/timeline?c=$manifest_date&amp;y=ci">$manifest_date</a>
 @ </div>
 @ </body></html>
 @ ');
