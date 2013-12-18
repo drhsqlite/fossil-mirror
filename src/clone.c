@@ -123,6 +123,7 @@ void clone_cmd(void){
 
   if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
   if( find_option("once",0,0)!=0) urlFlags &= ~URL_REMEMBER;
+  zDefaultUser = find_option("admin-user","A",1);
   clone_ssh_find_options();
   url_proxy_options();
   if( g.argc < 4 ){
@@ -132,8 +133,6 @@ void clone_cmd(void){
   if( file_size(g.argv[3])>0 ){
     fossil_fatal("file already exists: %s", g.argv[3]);
   }
-
-  zDefaultUser = find_option("admin-user","A",1);
 
   url_parse(g.argv[2], urlFlags);
   if( zDefaultUser==0 && g.urlUser!=0 ) zDefaultUser = g.urlUser;

@@ -69,6 +69,8 @@ void xfersetup_page(void){
     @ <p>Press the %h(zButton) button below to synchronize with the
     @ "%h(g.urlCanonical)" repository now.  This may be useful when
     @ testing the various transfer scripts.</p>
+    @ <p>You can use the "http -async" command in your scripts, but
+    @ make sure the "th1-uri-regexp" setting is set first.</p>
     if( zWarning ){
       @
       @ <big><b>%h(zWarning)</b></big>

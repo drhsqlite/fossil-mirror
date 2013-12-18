@@ -13,6 +13,7 @@ OBJDIR = .
 OX     = .
 O      = .obj
 E      = .exe
+P      = .pdb
 
 # Uncomment to enable debug symbols
 # DEBUG = 1
@@ -41,7 +42,7 @@ INCL      = $(INCL) -I$(SSLINCDIR)
 !endif
 
 CFLAGS    = -nologo -MT -O2
-LDFLAGS   = /NODEFAULTLIB:msvcrt
+LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
 
 !ifdef DEBUG
 CFLAGS    = $(CFLAGS) -Zi
@@ -66,13 +67,13 @@ LIBS      = $(LIBS) $(SSLLIB)
 LIBDIR    = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
 !endif
 
-SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 \
+SQLITE_OPTIONS = /Dlocaltime=fossil_localtime \
+                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                 /DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  /DSQLITE_THREADSAFE=0 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  /DSQLITE_OMIT_DEPRECATED \
-                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
-                 /Dlocaltime=fossil_localtime \
-                 /DSQLITE_ENABLE_LOCKING_STYLE=0
+                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS
 
 SHELL_OPTIONS = /Dmain=sqlite3_shell \
                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
@@ -182,6 +183,7 @@ SRC   = add_.c \
         vfile_.c \
         wiki_.c \
         wikiformat_.c \
+        winfile_.c \
         winhttp_.c \
         wysiwyg_.c \
         xfer_.c \
@@ -295,6 +297,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\vfile$O \
         $(OX)\wiki$O \
         $(OX)\wikiformat$O \
+        $(OX)\winfile$O \
         $(OX)\winhttp$O \
         $(OX)\wysiwyg$O \
         $(OX)\xfer$O \
@@ -303,6 +306,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\fossil.res
 
 APPNAME = $(OX)\fossil$(E)
+PDBNAME = $(OX)\fossil$(P)
 
 all: $(OX) $(APPNAME)
 
@@ -422,6 +426,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\vfile.obj >> $@
 	echo $(OX)\wiki.obj >> $@
 	echo $(OX)\wikiformat.obj >> $@
+	echo $(OX)\winfile.obj >> $@
 	echo $(OX)\winhttp.obj >> $@
 	echo $(OX)\wysiwyg.obj >> $@
 	echo $(OX)\xfer.obj >> $@
@@ -473,12 +478,14 @@ clean:
 	-del *_.c
 	-del *.h
 	-del *.map
+	-del *.res
 	-del headers
 	-del linkopts
-	-del *.res
+	-del vc*.pdb
 
 realclean: clean
 	-del $(APPNAME)
+	-del $(PDBNAME)
 	-del translate$E
 	-del mkindex$E
 	-del makeheaders$E
@@ -1113,6 +1120,12 @@ $(OX)\wikiformat$O : wikiformat_.c wikiformat.h
 wikiformat_.c : $(SRCDIR)\wikiformat.c
 	translate$E $** > $@
 
+$(OX)\winfile$O : winfile_.c winfile.h
+	$(TCC) /Fo$@ -c winfile_.c
+
+winfile_.c : $(SRCDIR)\winfile.c
+	translate$E $** > $@
+
 $(OX)\winhttp$O : winhttp_.c winhttp.h
 	$(TCC) /Fo$@ -c winhttp_.c
 
@@ -1248,6 +1261,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			vfile_.c:vfile.h \
 			wiki_.c:wiki.h \
 			wikiformat_.c:wikiformat.h \
+			winfile_.c:winfile.h \
 			winhttp_.c:winhttp.h \
 			wysiwyg_.c:wysiwyg.h \
 			xfer_.c:xfer.h \

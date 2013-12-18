@@ -119,6 +119,7 @@ set src {
   vfile
   wiki
   wikiformat
+  winfile
   winhttp
   wysiwyg
   xfer
@@ -130,13 +131,13 @@ set src {
 # Options used to compile the included SQLite library.
 #
 set SQLITE_OPTIONS {
+  -Dlocaltime=fossil_localtime
   -DSQLITE_OMIT_LOAD_EXTENSION=1
+  -DSQLITE_ENABLE_LOCKING_STYLE=0
   -DSQLITE_THREADSAFE=0
   -DSQLITE_DEFAULT_FILE_FORMAT=4
   -DSQLITE_OMIT_DEPRECATED
   -DSQLITE_ENABLE_EXPLAIN_COMMENTS
-  -Dlocaltime=fossil_localtime
-  -DSQLITE_ENABLE_LOCKING_STYLE=0
 }
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_FTS3=1
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_STAT4
@@ -1008,6 +1009,7 @@ OBJDIR = .
 OX     = .
 O      = .obj
 E      = .exe
+P      = .pdb
 
 # Uncomment to enable debug symbols
 # DEBUG = 1
@@ -1036,7 +1038,7 @@ INCL      = $(INCL) -I$(SSLINCDIR)
 !endif
 
 CFLAGS    = -nologo -MT -O2
-LDFLAGS   = /NODEFAULTLIB:msvcrt
+LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
 
 !ifdef DEBUG
 CFLAGS    = $(CFLAGS) -Zi
@@ -1093,6 +1095,7 @@ writeln " \\"
 writeln -nonewline "        \$(OX)\\fossil.res\n"
 writeln {
 APPNAME = $(OX)\fossil$(E)
+PDBNAME = $(OX)\fossil$(P)
 
 all: $(OX) $(APPNAME)
 
@@ -1155,12 +1158,14 @@ clean:
 	-del *_.c
 	-del *.h
 	-del *.map
+	-del *.res
 	-del headers
 	-del linkopts
-	-del *.res
+	-del vc*.pdb
 
 realclean: clean
 	-del $(APPNAME)
+	-del $(PDBNAME)
 	-del translate$E
 	-del mkindex$E
 	-del makeheaders$E

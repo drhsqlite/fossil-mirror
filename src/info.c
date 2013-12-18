@@ -1772,7 +1772,7 @@ void tinfo_page(void){
   }
   @ <tr><th>Ticket:</th>
   @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a>
-  if(zTktTitle){
+  if( zTktTitle ){
         @<br>%h(zTktTitle)
   }
   @</td></tr>
@@ -2053,8 +2053,10 @@ void ci_edit_page(void){
   const char *zNewBrFlag;
   const char *zNewBranch;
   const char *zCloseFlag;
+  const char *zHideFlag;
   int fPropagateColor;          /* True if color propagates before edit */
   int fNewPropagateColor;       /* True if color propagates after edit */
+  int fHasHidden = 0;           /* True if hidden tag already set */
   int fHasClosed = 0;           /* True if closed tag already set */
   const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
   char *zUuid;
@@ -2097,6 +2099,7 @@ void ci_edit_page(void){
   zNewBrFlag = P("newbr") ? " checked" : "";
   zNewBranch = PDT("brname","");
   zCloseFlag = P("close") ? " checked" : "";
+  zHideFlag = P("hide") ? " checked" : "";
   if( P("apply") ){
     Blob ctrl;
     char *zNow;
@@ -2147,6 +2150,9 @@ void ci_edit_page(void){
       }
     }
     db_finalize(&q);
+    if( zHideFlag[0] ){
+      db_multi_exec("REPLACE INTO newtags VALUES('hidden','*',NULL)");
+    }
     if( zCloseFlag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('closed','%s',NULL)",
           is_a_leaf(rid)?"+":"*");
@@ -2206,14 +2212,17 @@ void ci_edit_page(void){
   */
   @ <script>
   @ function chgcbn(checked, branch){
-  @   val = gebi('brname').value;
-  @   if( !val || !checked) val = branch;
+  @   val = gebi('brname').value.trim();
+  @   if( !val || !checked ) val = branch;
+  @   if( checked ) gebi('brname').select();
+  @   gebi('hbranch').textContent = val;
   @   cidbrid = document.getElementById('cbranch');
   @   if( cidbrid ) cidbrid.textContent = val;
   @ }
   @ function chgbn(val, branch){
   @   if( !val ) val = branch;
   @   gebi('newbr').checked = (val!=branch);
+  @   gebi('hbranch').textContent = val;
   @   cidbrid = document.getElementById('cbranch');
   @   if( cidbrid ) cidbrid.textContent = val;
   @ }
@@ -2297,6 +2306,9 @@ void ci_edit_page(void){
   @ Add the following new tag name to this check-in:</label>
   @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)"
   @ onkeyup="gebi('newtag').checked=!!this.value" />
+  zBranchName = db_text(0, "SELECT value FROM tagxref, tag"
+     " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
+     " AND tagxref.tagid=%d", rid, TAG_BRANCH);
   db_prepare(&q,
      "SELECT tag.tagid, tagname, tagxref.value FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
@@ -2307,18 +2319,17 @@ void ci_edit_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     int tagid = db_column_int(&q, 0);
     const char *zTagName = db_column_text(&q, 1);
-    int isSpecialTag = strncmp(zTagName, "sym-", 4)!=0;
+    int isSpecialTag = fossil_strncmp(zTagName, "sym-", 4)!=0;
     char zLabel[30];
 
-    if (tagid == TAG_CLOSED){
+    if( tagid == TAG_CLOSED ){
       fHasClosed = 1;
-    }else if (tagid == TAG_COMMENT){
+    }else if( (tagid == TAG_COMMENT) || (tagid == TAG_BRANCH) ){
       continue;
-    }else if (tagid == TAG_BRANCH){
-      zBranchName = mprintf("%s", db_column_text(&q, 2));
-      continue;
-    }else if( !isSpecialTag && zBranchName &&
-        strcmp(&zTagName[4], zBranchName)==0){
+    }else if( tagid==TAG_HIDDEN ){
+      fHasHidden = 1;
+    }else if( !isSpecialTag && zTagName &&
+        fossil_strcmp(&zTagName[4], zBranchName)==0){
       continue;
     }
     sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
@@ -2350,7 +2361,16 @@ void ci_edit_page(void){
   @ Make this check-in the start of a new branch named:</label>
   @ <input id="brname" type="text" style="width:15;" name="brname"
   @ value="%h(zNewBranch)"
-  @ onkeyup="chgbn(this.value,'%h(zBranchName)')" /></td></tr>
+  @ onkeyup="chgbn(this.value.trim(),'%h(zBranchName)')" /></td></tr>
+  if( !fHasHidden ){
+    @ <tr><th align="right" valign="top">Branch Hiding:</th>
+    @ <td valign="top">
+    @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag) />
+    @ Hide branch 
+    @ <span style="font-weight:bold" id="hbranch">%h(zBranchName)</span>
+    @ from the timeline starting from this check-in</label>
+    @ </td></tr>
+  }
   if( !fHasClosed ){
     if( is_a_leaf(rid) ){
       @ <tr><th align="right" valign="top">Leaf Closure:</th>
@@ -2370,7 +2390,7 @@ void ci_edit_page(void){
       @ </td></tr>
     }
   }
-  if(zBranchName) fossil_free(zBranchName);
+  if( zBranchName ) fossil_free(zBranchName);
 
 
   @ <tr><td colspan="2">

@@ -1123,6 +1123,7 @@ void page_timeline(void){
   }
   if( P("unhide")!=0 ){
     tmFlags |= TIMELINE_UNHIDE;
+    url_add_parameter(&url, "unhide", 0);
   }
   if( P("ubg")!=0 ){
     tmFlags |= TIMELINE_UCOLOR;
@@ -1498,6 +1499,9 @@ void page_timeline(void){
           timeline_submenu(&url, "Hide Files", "v", 0, 0);
         }else{
           timeline_submenu(&url, "Show Files", "v", "", 0);
+        }
+        if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+          timeline_submenu(&url, "Unhide", "unhide", "", 0);
         }
       }
     }
