@@ -1706,6 +1706,7 @@ SQLITE_OPTIONS = -Dlocaltime=fossil_localtime \
                  -DSQLITE_THREADSAFE=0 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_OMIT_DEPRECATED \
+                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  -D_HAVE_SQLITE_CONFIG_H \
                  -DSQLITE_USE_MALLOC_H \
                  -DSQLITE_USE_MSIZE

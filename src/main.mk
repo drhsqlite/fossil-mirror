@@ -383,7 +383,8 @@ SQLITE_OPTIONS = -Dlocaltime=fossil_localtime \
                  -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_THREADSAFE=0 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
-                 -DSQLITE_OMIT_DEPRECATED
+                 -DSQLITE_OMIT_DEPRECATED \
+                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
