@@ -2053,8 +2053,10 @@ void ci_edit_page(void){
   const char *zNewBrFlag;
   const char *zNewBranch;
   const char *zCloseFlag;
+  const char *zHideFlag;
   int fPropagateColor;          /* True if color propagates before edit */
   int fNewPropagateColor;       /* True if color propagates after edit */
+  int fHasHidden = 0;           /* True if hidden tag already set */
   int fHasClosed = 0;           /* True if closed tag already set */
   const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
   char *zUuid;
@@ -2097,6 +2099,7 @@ void ci_edit_page(void){
   zNewBrFlag = P("newbr") ? " checked" : "";
   zNewBranch = PDT("brname","");
   zCloseFlag = P("close") ? " checked" : "";
+  zHideFlag = P("hide") ? " checked" : "";
   if( P("apply") ){
     Blob ctrl;
     char *zNow;
@@ -2147,6 +2150,9 @@ void ci_edit_page(void){
       }
     }
     db_finalize(&q);
+    if( zHideFlag[0] ){
+      db_multi_exec("REPLACE INTO newtags VALUES('hidden','*',NULL)");
+    }
     if( zCloseFlag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('closed','%s',NULL)",
           is_a_leaf(rid)?"+":"*");
@@ -2209,12 +2215,14 @@ void ci_edit_page(void){
   @   val = gebi('brname').value.trim();
   @   if( !val || !checked ) val = branch;
   @   if( checked ) gebi('brname').select();
+  @   gebi('hbranch').textContent = val;
   @   cidbrid = document.getElementById('cbranch');
   @   if( cidbrid ) cidbrid.textContent = val;
   @ }
   @ function chgbn(val, branch){
   @   if( !val ) val = branch;
   @   gebi('newbr').checked = (val!=branch);
+  @   gebi('hbranch').textContent = val;
   @   cidbrid = document.getElementById('cbranch');
   @   if( cidbrid ) cidbrid.textContent = val;
   @ }
@@ -2318,6 +2326,8 @@ void ci_edit_page(void){
       fHasClosed = 1;
     }else if( (tagid == TAG_COMMENT) || (tagid == TAG_BRANCH) ){
       continue;
+    }else if( tagid==TAG_HIDDEN ){
+      fHasHidden = 1;
     }else if( !isSpecialTag && zTagName &&
         fossil_strcmp(&zTagName[4], zBranchName)==0){
       continue;
@@ -2352,6 +2362,15 @@ void ci_edit_page(void){
   @ <input id="brname" type="text" style="width:15;" name="brname"
   @ value="%h(zNewBranch)"
   @ onkeyup="chgbn(this.value.trim(),'%h(zBranchName)')" /></td></tr>
+  if( !fHasHidden ){
+    @ <tr><th align="right" valign="top">Branch Hiding:</th>
+    @ <td valign="top">
+    @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag) />
+    @ Hide branch 
+    @ <span style="font-weight:bold" id="hbranch">%h(zBranchName)</span>
+    @ from the timeline starting from this check-in</label>
+    @ </td></tr>
+  }
   if( !fHasClosed ){
     if( is_a_leaf(rid) ){
       @ <tr><th align="right" valign="top">Leaf Closure:</th>
