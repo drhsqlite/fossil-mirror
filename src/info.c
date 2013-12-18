@@ -2210,8 +2210,6 @@ void ci_edit_page(void){
   ** Javascript functions to assist in modifying hidden branch options.
   ** chgcbn/chgbn: Handle change of (checkbox for) branch name in
   ** remaining of form.
-  ** defifempty: return to default value if empty.
-  ** clrifsame: clear the value if same as default.
   */
   @ <script>
   @ function chgcbn(checked, branch){
@@ -2228,8 +2226,6 @@ void ci_edit_page(void){
   @   cidbrid = document.getElementById('cbranch');
   @   if( cidbrid ) cidbrid.textContent = val;
   @ }
-  @ function defifempty(e){ if (!e.value.trim()) e.value = e.defaultValue; }
-  @ function clrifsame(e){ if (e.value == e.defaultValue) e.value = ''; }
   @ </script>
   if( P("preview") ){
     Blob suffix;
@@ -2364,7 +2360,7 @@ void ci_edit_page(void){
   @ onchange="chgcbn(this.checked,'%h(zBranchName)')" />
   @ Make this check-in the start of a new branch named:</label>
   @ <input id="brname" type="text" style="width:15;" name="brname"
-  @ value="%h(zNewBranch)" onblur="defifempty(this)" onfocus="clrifsame(this)"
+  @ value="%h(zNewBranch)"
   @ onkeyup="chgbn(this.value.trim(),'%h(zBranchName)')" /></td></tr>
   if( !fHasHidden ){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
