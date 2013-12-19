@@ -54,9 +54,13 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_TCL = 1
 
-#### Load Tcl using the stubs mechanism
+#### Load Tcl using the stubs library mechanism
 #
 # FOSSIL_ENABLE_TCL_STUBS = 1
+
+#### Load Tcl using the private stubs mechanism
+#
+# FOSSIL_ENABLE_TCL_PRIVATE_STUBS = 1
 
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
@@ -66,9 +70,9 @@ FOSSIL_TCL_SOURCE = 1
 #### Check if the workaround for the MinGW command line handling needs to
 #    be enabled by default.
 #
-ifndef BROKEN_MINGW_CMDLINE
+ifndef MINGW_IS_32BIT_ONLY
 ifeq (,$(findstring w64-mingw32,$(PREFIX)))
-BROKEN_MINGW_CMDLINE = 1
+MINGW_IS_32BIT_ONLY = 1
 endif
 endif
 
@@ -113,9 +117,13 @@ TCLLIBDIR = $(TCLDIR)/lib
 #### Tcl: Which Tcl library do we want to use (8.4, 8.5, 8.6, etc)?
 #
 ifdef FOSSIL_ENABLE_TCL_STUBS
+ifndef FOSSIL_ENABLE_TCL_PRIVATE_STUBS
 LIBTCL = -ltclstub86
+endif
+TCLTARGET = libtclstub86.a
 else
 LIBTCL = -ltcl86
+TCLTARGET = binaries
 endif
 
 #### C Compile and options for use in building executables that
@@ -156,7 +164,7 @@ endif
 endif
 
 # With MinGW command line handling workaround
-ifdef BROKEN_MINGW_CMDLINE
+ifdef MINGW_IS_32BIT_ONLY
 TCC += -DBROKEN_MINGW_CMDLINE=1
 RCC += -DBROKEN_MINGW_CMDLINE=1
 endif
@@ -175,6 +183,10 @@ RCC += -DFOSSIL_ENABLE_TCL=1
 ifdef FOSSIL_ENABLE_TCL_STUBS
 TCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
 RCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
+ifdef FOSSIL_ENABLE_TCL_PRIVATE_STUBS
+TCC += -DFOSSIL_ENABLE_TCL_PRIVATE_STUBS=1
+RCC += -DFOSSIL_ENABLE_TCL_PRIVATE_STUBS=1
+endif
 else
 TCC += -DSTATIC_BUILD
 RCC += -DSTATIC_BUILD
@@ -193,7 +205,7 @@ endif
 LIB = -static
 
 # MinGW: If available, use the Unicode capable runtime startup code.
-ifndef BROKEN_MINGW_CMDLINE
+ifndef MINGW_IS_32BIT_ONLY
 LIB += -municode
 endif
 
@@ -308,6 +320,7 @@ SRC = \
   $(SRCDIR)/md5.c \
   $(SRCDIR)/merge.c \
   $(SRCDIR)/merge3.c \
+  $(SRCDIR)/mnemonic.c \
   $(SRCDIR)/moderate.c \
   $(SRCDIR)/name.c \
   $(SRCDIR)/path.c \
@@ -347,6 +360,7 @@ SRC = \
   $(SRCDIR)/vfile.c \
   $(SRCDIR)/wiki.c \
   $(SRCDIR)/wikiformat.c \
+  $(SRCDIR)/winfile.c \
   $(SRCDIR)/winhttp.c \
   $(SRCDIR)/wysiwyg.c \
   $(SRCDIR)/xfer.c \
@@ -417,6 +431,7 @@ TRANS_SRC = \
   $(OBJDIR)/md5_.c \
   $(OBJDIR)/merge_.c \
   $(OBJDIR)/merge3_.c \
+  $(OBJDIR)/mnemonic_.c \
   $(OBJDIR)/moderate_.c \
   $(OBJDIR)/name_.c \
   $(OBJDIR)/path_.c \
@@ -456,6 +471,7 @@ TRANS_SRC = \
   $(OBJDIR)/vfile_.c \
   $(OBJDIR)/wiki_.c \
   $(OBJDIR)/wikiformat_.c \
+  $(OBJDIR)/winfile_.c \
   $(OBJDIR)/winhttp_.c \
   $(OBJDIR)/wysiwyg_.c \
   $(OBJDIR)/xfer_.c \
@@ -526,6 +542,7 @@ OBJ = \
  $(OBJDIR)/md5.o \
  $(OBJDIR)/merge.o \
  $(OBJDIR)/merge3.o \
+ $(OBJDIR)/mnemonic.o \
  $(OBJDIR)/moderate.o \
  $(OBJDIR)/name.o \
  $(OBJDIR)/path.o \
@@ -565,6 +582,7 @@ OBJ = \
  $(OBJDIR)/vfile.o \
  $(OBJDIR)/wiki.o \
  $(OBJDIR)/wikiformat.o \
+ $(OBJDIR)/winfile.o \
  $(OBJDIR)/winhttp.o \
  $(OBJDIR)/wysiwyg.o \
  $(OBJDIR)/xfer.o \
@@ -608,9 +626,11 @@ $(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 ifdef USE_WINDOWS
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.ico) $(subst /,\,$(OBJDIR))
+	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.exe.manifest) $(subst /,\,$(OBJDIR))
 else
 	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
+	$(CP) $(SRCDIR)/../win/fossil.exe.manifest $(OBJDIR)
 endif
 	$(RCC) $(OBJDIR)/fossil.rc -o $(OBJDIR)/fossil.o
 
@@ -659,6 +679,23 @@ endif
 
 zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
+
+clean-zlib:
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
+
+openssl:	zlib
+	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib mingw
+	$(MAKE) -C $(OPENSSLLIBDIR) build_libs
+
+clean-openssl:
+	$(MAKE) -C $(OPENSSLLIBDIR) clean
+
+tcl:
+	cd $(TCLSRCDIR)/win;./configure
+	$(MAKE) -C $(TCLSRCDIR)/win $(TCLTARGET)
+
+clean-tcl:
+	$(MAKE) -C $(TCLSRCDIR)/win distclean
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
@@ -748,6 +785,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/md5_.c:$(OBJDIR)/md5.h \
 		$(OBJDIR)/merge_.c:$(OBJDIR)/merge.h \
 		$(OBJDIR)/merge3_.c:$(OBJDIR)/merge3.h \
+		$(OBJDIR)/mnemonic_.c:$(OBJDIR)/mnemonic.h \
 		$(OBJDIR)/moderate_.c:$(OBJDIR)/moderate.h \
 		$(OBJDIR)/name_.c:$(OBJDIR)/name.h \
 		$(OBJDIR)/path_.c:$(OBJDIR)/path.h \
@@ -787,6 +825,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/vfile_.c:$(OBJDIR)/vfile.h \
 		$(OBJDIR)/wiki_.c:$(OBJDIR)/wiki.h \
 		$(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h \
+		$(OBJDIR)/winfile_.c:$(OBJDIR)/winfile.h \
 		$(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h \
 		$(OBJDIR)/wysiwyg_.c:$(OBJDIR)/wysiwyg.h \
 		$(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h \
@@ -1305,6 +1344,14 @@ $(OBJDIR)/merge3.o:	$(OBJDIR)/merge3_.c $(OBJDIR)/merge3.h  $(SRCDIR)/config.h
 
 $(OBJDIR)/merge3.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/mnemonic_.c:	$(SRCDIR)/mnemonic.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/mnemonic.c >$(OBJDIR)/mnemonic_.c
+
+$(OBJDIR)/mnemonic.o:	$(OBJDIR)/mnemonic_.c $(OBJDIR)/mnemonic.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/mnemonic.o -c $(OBJDIR)/mnemonic_.c
+
+$(OBJDIR)/mnemonic.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/moderate_.c:	$(SRCDIR)/moderate.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/moderate.c >$(OBJDIR)/moderate_.c
 
@@ -1617,6 +1664,14 @@ $(OBJDIR)/wikiformat.o:	$(OBJDIR)/wikiformat_.c $(OBJDIR)/wikiformat.h  $(SRCDIR
 
 $(OBJDIR)/wikiformat.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/winfile_.c:	$(SRCDIR)/winfile.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/winfile.c >$(OBJDIR)/winfile_.c
+
+$(OBJDIR)/winfile.o:	$(OBJDIR)/winfile_.c $(OBJDIR)/winfile.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/winfile.o -c $(OBJDIR)/winfile_.c
+
+$(OBJDIR)/winfile.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/winhttp_.c:	$(SRCDIR)/winhttp.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/winhttp.c >$(OBJDIR)/winhttp_.c
 
@@ -1657,16 +1712,33 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h  $(SRCDIR)/config.h
 
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 
+SQLITE_OPTIONS = -Dlocaltime=fossil_localtime \
+                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                 -DSQLITE_THREADSAFE=0 \
+                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 -DSQLITE_OMIT_DEPRECATED \
+                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
+                 -D_HAVE_SQLITE_CONFIG_H \
+                 -DSQLITE_USE_MALLOC_H \
+                 -DSQLITE_USE_MSIZE
+
+SHELL_OPTIONS = -Dmain=sqlite3_shell \
+                -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                -Dsqlite3_strglob=strglob \
+                -Dgetenv=fossil_getenv \
+                -Dfopen=fossil_fopen
+
 $(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
-	$(XTCC) -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_ENABLE_STAT3 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
+	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
 
 $(OBJDIR)/cson_amalgamation.o:	$(SRCDIR)/cson_amalgamation.c
-	$(XTCC)  -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
+	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
 
 $(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/json_config.o $(OBJDIR)/json_diff.o $(OBJDIR)/json_dir.o $(OBJDIR)/jsos_finfo.o $(OBJDIR)/json_login.o $(OBJDIR)/json_query.o $(OBJDIR)/json_report.o $(OBJDIR)/json_status.o $(OBJDIR)/json_tag.o $(OBJDIR)/json_timeline.o $(OBJDIR)/json_user.o $(OBJDIR)/json_wiki.o : $(SRCDIR)/json_detail.h
 
 $(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
-	$(XTCC) -Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
+	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 	$(XTCC) -c $(SRCDIR)/th.c -o $(OBJDIR)/th.o

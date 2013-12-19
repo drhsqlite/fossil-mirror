@@ -43,6 +43,13 @@
 #define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
 #define CONFIGSET_OLDFORMAT 0x200000     /* Use the legacy format */
 
+/*
+** This mask is used for the common TH1 configuration settings (i.e. those
+** that are not specific to one particular subsystem, such as the transfer
+** subsystem).
+*/
+#define CONFIGSET_TH1       (CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER)
+
 #endif /* INTERFACE */
 
 /*
@@ -92,14 +99,15 @@ static struct {
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
-  { "th1-setup",              CONFIGSET_ALL },
+  { "th1-setup",              CONFIGSET_TH1 },
 
 #ifdef FOSSIL_ENABLE_TCL
-  { "tcl",                    CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
-  { "tcl-setup",              CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
+  { "tcl",                    CONFIGSET_TH1 },
+  { "tcl-setup",              CONFIGSET_TH1 },
 #endif
 
   { "project-name",           CONFIGSET_PROJ },
+  { "short-project-name",     CONFIGSET_PROJ },
   { "project-description",    CONFIGSET_PROJ },
   { "manifest",               CONFIGSET_PROJ },
   { "binary-glob",            CONFIGSET_PROJ },
@@ -396,6 +404,21 @@ void configure_finalize_receive(void){
 }
 
 /*
+** Mask of modified configuration sets
+*/
+static int rebuildMask = 0;
+
+/*
+** Rebuild auxiliary tables as required by configuration changes.
+*/
+void configure_rebuild(void){
+  if( rebuildMask & CONFIGSET_TKT ){
+    ticket_rebuild();
+  }
+  rebuildMask = 0;
+}
+
+/*
 ** Return true if z[] is not a "safe" SQL token.  A safe token is one of:
 **
 **   *   A string literal
@@ -560,6 +583,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
       db_multi_exec("%s", blob_str(&sql));
     }
     blob_reset(&sql);
+    rebuildMask |= thisMask;
   }else{
     /* Otherwise, the old format */
     if( (configure_is_exportable(zName) & groupMask)==0 ) return;
@@ -942,9 +966,11 @@ void configuration_cmd(void){
     fossil_print("Configuration reset to factory defaults.\n");
     fossil_print("To recover, use:  %s %s import %s\n",
             g.argv[0], g.argv[1], zBackup);
+    rebuildMask |= mask;
   }else
   {
     fossil_fatal("METHOD should be one of:"
                  " export import merge pull push reset");
   }
+  configure_rebuild();
 }

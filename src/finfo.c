@@ -45,12 +45,14 @@
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
 **                        boolean: "yes", "no", "true", "false", etc.
 **   -l|--log             select log mode (the default)
-**   -n|--limit N         display the first N changes
+**   -n|--limit N         display the first N changes. N=0 means no limit.
 **   --offset P           skip P changes
 **   -p|--print           select print mode
 **   -r|--revision R      print the given revision (or ckout, if none is given)
 **                        to stdout (only in print mode)
 **   -s|--status          select status mode (print a status indicator for FILE)
+**   -W|--width <num>     With of lines (default 79). Must be >22 or 0
+**                        (= no limit, resulting in a single line per entry).
 **
 ** See also: artifact, cat, descendants, info, leaves
 */
@@ -136,17 +138,23 @@ void finfo_cmd(void){
     int rid;
     const char *zFilename;
     const char *zLimit;
+    const char *zWidth;
     const char *zOffset;
-    int iLimit, iOffset, iBrief;
+    int iLimit, iOffset, iBrief, iWidth;
 
     if( find_option("log","l",0) ){
       /* this is the default, no-op */
     }
     zLimit = find_option("limit","n",1);
+    zWidth = find_option("width","W",1);
     iLimit = zLimit ? atoi(zLimit) : -1;
+    iWidth = zWidth ? atoi(zWidth) : 79;
     zOffset = find_option("offset",0,1);
     iOffset = zOffset ? atoi(zOffset) : 0;
     iBrief = (find_option("brief","b",0) == 0);
+    if( (iWidth!=0) && (iWidth<=22) ){
+      fossil_fatal("--width|-W value must be >22 or 0");
+    }
     if( g.argc!=3 ){
       usage("?-l|--log? ?-b|--brief? FILENAME");
     }
@@ -190,7 +198,7 @@ void finfo_cmd(void){
         zOut = sqlite3_mprintf(
            "[%.10s] %s (user: %s, artifact: [%.10s], branch: %s)",
            zCiUuid, zCom, zUser, zFileUuid, zBr);
-        comment_print(zOut, 11, 79);
+        comment_print(zOut, 11, iWidth);
         sqlite3_free(zOut);
       }else{
         blob_reset(&line);
@@ -198,8 +206,8 @@ void finfo_cmd(void){
         blob_appendf(&line, "%.10s ", zDate);
         blob_appendf(&line, "%8.8s ", zUser);
         blob_appendf(&line, "%8.8s ", zBr);
-        blob_appendf(&line,"%-40.40s\n", zCom );
-        comment_print(blob_str(&line), 0, 79);
+        blob_appendf(&line,"%-39.39s", zCom );
+        comment_print(blob_str(&line), 0, iWidth);
       }
     }
     db_finalize(&q);
@@ -457,12 +465,14 @@ void finfo_page(void){
     @ branch: %h(zBr))
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
+      @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
+      @ [annotate]</a>
+      @ %z(href("%R/blame?checkin=%S&filename=%h",zCkin,z))
+      @ [blame]</a>
+      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
       if( fpid ){
         @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zPUuid,zUuid))[diff]</a>
       }
-      @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
-      @ [annotate]</a>
-      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
       int srcid = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", frid);

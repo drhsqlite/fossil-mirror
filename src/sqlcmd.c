@@ -121,7 +121,6 @@ void add_sql_func(
   mnemonic_add_sql_func(db);
 }
 
-
 /*
 ** COMMAND: sqlite3
 **

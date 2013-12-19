@@ -47,7 +47,7 @@ struct Xfer {
   int nFileRcvd;      /* Number of files received */
   int nDeltaRcvd;     /* Number of deltas received */
   int nDanglingFile;  /* Number of dangling deltas received */
-  int mxSend;         /* Stop sending "file" with pOut reaches this size */
+  int mxSend;         /* Stop sending "file" when pOut reaches this size */
   int resync;         /* Send igot cards for all holdings */
   u8 syncPrivate;     /* True to enable syncing private content */
   u8 nextIsPrivate;   /* If true, next "file" received is a private */
@@ -829,7 +829,7 @@ static int run_script(const char *zScript){
   if( !zScript ){
     return TH_OK; /* No script, return success. */
   }
-  Th_FossilInit(0, 0); /* Make sure TH1 is ready. */
+  Th_FossilInit(TH_INIT_DEFAULT); /* Make sure TH1 is ready. */
   return Th_Eval(g.interp, 0, zScript, -1);
 }
 
@@ -1230,6 +1230,7 @@ void page_xfer(void){
       @ error bad\scommand:\s%F(blob_str(&xfer.line))
     }
     blobarray_reset(xfer.aToken, xfer.nToken);
+    blob_reset(&xfer.line);
   }
   if( isPush ){
     if( run_push_script()==TH_ERROR ){
@@ -1257,6 +1258,7 @@ void page_xfer(void){
   if( recvConfig ){
     configure_finalize_receive();
   }
+  db_multi_exec("DROP TABLE onremote");
   manifest_crosslink_end();
 
   /* Send the server timestamp last, in case prior processing happened
@@ -1267,6 +1269,7 @@ void page_xfer(void){
   free(zNow);
 
   db_end_transaction(0);
+  configure_rebuild();
 }
 
 /*
@@ -1427,7 +1430,6 @@ int client_sync(
     if( (syncFlags & SYNC_RESYNC)!=0 ) xfer.resync = 0x7fffffff;
   }
   manifest_crosslink_begin();
-  transport_global_startup();
   if( syncFlags & SYNC_VERBOSE ){
     fossil_print(zLabelFormat, "", "Bytes", "Cards", "Artifacts", "Deltas");
   }
@@ -1506,7 +1508,18 @@ int client_sync(
     blob_appendf(&send, "# %s\n", zRandomness);
     free(zRandomness);
 
+    if( syncFlags & SYNC_VERBOSE ){
+      fossil_print("waiting for server...");
+    }
+    fflush(stdout);
     /* Exchange messages with the server */
+    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0,
+        MAX_REDIRECTS) ){
+      nErr++;
+      break;
+    }
+
+    /* Output current stats */
     if( syncFlags & SYNC_VERBOSE ){
       fossil_print(zValueFormat, "Sent:",
                    blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
@@ -1522,15 +1535,7 @@ int client_sync(
     xfer.nDeltaSent = 0;
     xfer.nGimmeSent = 0;
     xfer.nIGotSent = 0;
-    if( syncFlags & SYNC_VERBOSE ){
-      fossil_print("waiting for server...");
-    }
-    fflush(stdout);
-    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0,
-        MAX_REDIRECTS) ){
-      nErr++;
-      break;
-    }
+
     lastPctDone = -1;
     blob_reset(&send);
     rArrivalTime = db_double(0.0, "SELECT julianday('now')");
@@ -1777,7 +1782,12 @@ int client_sync(
             if( nCycle<2 ){
               g.urlPasswd = 0;
               go = 1;
-              if( g.cgiOutput==0 ) url_prompt_for_password();
+              if( g.cgiOutput==0 ){
+                g.urlFlags |= URL_PROMPT_PW;
+                g.urlFlags &= ~URL_PROMPTED;
+                url_prompt_for_password();
+                url_remember();
+              }
             }
           }else{
             blob_appendf(&xfer.err, "server says: %s\n", zMsg);

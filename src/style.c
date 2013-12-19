@@ -177,7 +177,14 @@ void style_resolve_href(void){
     @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
   }
   @ }
-  if( db_get_boolean("auto-hyperlink-mouseover",0) ){
+  if( strglob("*Opera Mini/[1-9]*", P("HTTP_USER_AGENT")) ){
+    /* Special case for Opera Mini, which executes JS server-side */
+    @ var isOperaMini = Object.prototype.toString.call(window.operamini)
+    @                   === "[object OperaMini]";
+    @ if( isOperaMini ){
+    @   setTimeout("setAllHrefs();",%d(nDelay));
+    @ }
+  }else if( db_get_boolean("auto-hyperlink-mouseover",0) ){
     /* Require mouse movement prior to activating hyperlinks */
     @ document.getElementsByTagName("body")[0].onmousemove=function(){
     @   setTimeout("setAllHrefs();",%d(nDelay));
@@ -681,6 +688,7 @@ const struct strctCssDefaults {
     "the format for the timeline time display",
     @   vertical-align: top;
     @   text-align: right;
+    @   white-space: nowrap;
   },
   { "td.timelineGraph",
     "the format for the grap placeholder cells in timelines",
@@ -1108,14 +1116,14 @@ void cgi_append_default_css(void) {
   for (i=0;cssDefaultList[i].elementClass;i++){
     if (cssDefaultList[i].elementClass[0]){
       cgi_printf("/* %s */\n%s {\n%s\n}\n\n",
-		 cssDefaultList[i].comment,
-		 cssDefaultList[i].elementClass,
-		 cssDefaultList[i].value
-		);
+                 cssDefaultList[i].comment,
+                 cssDefaultList[i].elementClass,
+                 cssDefaultList[i].value
+                );
     }else{
       cgi_printf("%s",
-		 cssDefaultList[i].value
-		);
+                 cssDefaultList[i].value
+                );
     }
   }
 }
@@ -1220,5 +1228,5 @@ void page_test_env(void){
 */
 void honeypot_page(void){
   cgi_set_status(403, "Forbidden");
-  @ <p>Access by spiders and robots is forbidden</p>
+  @ <p>Please enable javascript or log in to see this content</p>
 }

@@ -42,10 +42,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "cgi.h"
-#ifdef __CYGWIN__
-  __declspec(dllimport) extern __stdcall int ShellExecuteW(void *, void *,
-      void *, void *, void *, int);
-#endif
+#include "cygsup.h"
 
 #if INTERFACE
 /*
@@ -64,6 +61,13 @@
 */
 #define CGI_HEADER   0
 #define CGI_BODY     1
+
+/*
+** Flags for SSH HTTP clients
+*/
+#define CGI_SSH_CLIENT           0x0001     /* Client is SSH */
+#define CGI_SSH_COMPAT           0x0002     /* Compat for old SSH transport */
+#define CGI_SSH_FOSSIL           0x0004     /* Use new Fossil SSH transport */
 
 #endif /* INTERFACE */
 
@@ -828,6 +832,21 @@ static NORETURN void malformed_request(const char *zMsg);
 ** Initialize the query parameter database.  Information is pulled from
 ** the QUERY_STRING environment variable (if it exists), from standard
 ** input if there is POST data, and from HTTP_COOKIE.
+**
+** REQUEST_URI, PATH_INFO, and SCRIPT_NAME are related as follows:
+**
+**      REQUEST_URI == SCRIPT_NAME + PATH_INFO
+**
+** Where "+" means concatenate.  Fossil requires SCRIPT_NAME.  If
+** REQUEST_URI is provided but PATH_INFO is not, then PATH_INFO is
+** computed from REQUEST_URI and SCRIPT_NAME.  If PATH_INFO is provided
+** but REQUEST_URI is not, then compute REQUEST_URI from PATH_INFO and
+** SCRIPT_NAME.  If neither REQUEST_URI nor PATH_INFO are provided, then
+** assume that PATH_INFO is an empty string and set REQUEST_URI equal
+** to PATH_INFO.
+**
+** SCGI typically omits PATH_INFO.  CGI sometimes omits REQUEST_URI and
+** PATH_INFO when it is empty.
 */
 void cgi_init(void){
   char *z;
@@ -835,15 +854,24 @@ void cgi_init(void){
   int len;
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
   const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
+  const char *zPathInfo = cgi_parameter("PATH_INFO","");
 
 #ifdef FOSSIL_ENABLE_JSON
   json_main_bootstrap();
 #endif
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
-  if( zRequestUri==0 ) malformed_request("missing REQUEST_URI");
   if( zScriptName==0 ) malformed_request("missing SCRIPT_NAME");
-  if( cgi_parameter("PATH_INFO",0)==0 ){
+  if( zRequestUri==0 ){
+    const char *z = zPathInfo;
+    if( zPathInfo==0 ){
+      malformed_request("missing PATH_INFO and/or REQUEST_URI");
+    }
+    if( z[0]=='/' ) z++;
+    zRequestUri = mprintf("%s/%s", zScriptName, z);
+    cgi_set_parameter("REQUEST_URI", zRequestUri);
+  }
+  if( zPathInfo==0 ){
     int i, j;
     for(i=0; zRequestUri[i]==zScriptName[i] && zRequestUri[i]; i++){}
     for(j=i; zRequestUri[j] && zRequestUri[j]!='?'; j++){}
@@ -1309,6 +1337,230 @@ void cgi_handle_http_request(const char *zIpAddr){
 }
 
 /*
+** This routine handles a single HTTP request from an SSH client which is
+** coming in on g.httpIn and which replies on g.httpOut
+**
+** Once all the setup is finished, this procedure returns
+** and subsequent code handles the actual generation of the webpage.
+**
+** It is called in a loop so some variables will need to be replaced
+*/
+void cgi_handle_ssh_http_request(const char *zIpAddr){
+  static int nCycles = 0;
+  static char *zCmd = 0;
+  char *z, *zToken;
+  const char *zType = 0;
+  int i, content_length = 0;
+  char zLine[2000];     /* A single line of input. */
+
+  if( zIpAddr ){
+    if( nCycles==0 ){   
+      cgi_setenv("REMOTE_ADDR", zIpAddr);
+      g.zIpAddr = mprintf("%s", zIpAddr);
+    }
+  }else{
+    fossil_panic("missing SSH IP address");
+  }
+  if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
+    malformed_request("missing HTTP header");
+  }
+  cgi_trace(zLine);
+  zToken = extract_token(zLine, &z);
+  if( zToken==0 ){
+    malformed_request("malformed HTTP header");
+  }
+
+  if( fossil_strcmp(zToken, "echo")==0 ){
+    /* start looking for probes to complete transport_open */
+    zCmd = cgi_handle_ssh_probes(zLine, sizeof(zLine), z, zToken);
+    if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
+      malformed_request("missing HTTP header");
+    }
+    cgi_trace(zLine);
+    zToken = extract_token(zLine, &z);
+    if( zToken==0 ){
+      malformed_request("malformed HTTP header");
+    }
+  }else if( zToken && strlen(zToken)==0 && zCmd ){
+    /* transport_flip request and continued transport_open */
+    cgi_handle_ssh_transport(zCmd);
+    if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
+      malformed_request("missing HTTP header");
+    }
+    cgi_trace(zLine);
+    zToken = extract_token(zLine, &z);
+    if( zToken==0 ){
+      malformed_request("malformed HTTP header");
+    }
+  }
+
+  if( fossil_strcmp(zToken,"GET")!=0 && fossil_strcmp(zToken,"POST")!=0
+      && fossil_strcmp(zToken,"HEAD")!=0 ){
+    malformed_request("unsupported HTTP method");
+  }
+
+  if( nCycles==0 ){
+    cgi_setenv("GATEWAY_INTERFACE","CGI/1.0");
+    cgi_setenv("REQUEST_METHOD",zToken);
+  }
+
+  zToken = extract_token(z, &z);
+  if( zToken==0 ){
+    malformed_request("malformed URL in HTTP header");
+  }
+  if( nCycles==0 ){
+    cgi_setenv("REQUEST_URI", zToken);
+    cgi_setenv("SCRIPT_NAME", "");
+  }
+
+  for(i=0; zToken[i] && zToken[i]!='?'; i++){}
+  if( zToken[i] ) zToken[i++] = 0;
+  if( nCycles==0 ){
+    cgi_setenv("PATH_INFO", zToken);
+  }else{
+    cgi_replace_parameter("PATH_INFO", mprintf("%s",zToken));
+  }
+ 
+  /* Get all the optional fields that follow the first line.
+  */
+  while( fgets(zLine,sizeof(zLine),g.httpIn) ){
+    char *zFieldName;
+    char *zVal;
+
+    cgi_trace(zLine);
+    zFieldName = extract_token(zLine,&zVal);
+    if( zFieldName==0 || *zFieldName==0 ) break;
+    while( fossil_isspace(*zVal) ){ zVal++; }
+    i = strlen(zVal);
+    while( i>0 && fossil_isspace(zVal[i-1]) ){ i--; }
+    zVal[i] = 0;
+    for(i=0; zFieldName[i]; i++){
+      zFieldName[i] = fossil_tolower(zFieldName[i]);
+    }
+    if( fossil_strcmp(zFieldName,"content-length:")==0 ){
+      content_length = atoi(zVal);
+    }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
+      g.zContentType = zType = mprintf("%s", zVal);
+    }else if( fossil_strcmp(zFieldName,"host:")==0 ){
+      if( nCycles==0 ){
+        cgi_setenv("HTTP_HOST", zVal);
+      }
+    }else if( fossil_strcmp(zFieldName,"user-agent:")==0 ){
+      if( nCycles==0 ){
+        cgi_setenv("HTTP_USER_AGENT", zVal);
+      }
+    }else if( fossil_strcmp(zFieldName,"x-fossil-transport:")==0 ){
+      if( fossil_strnicmp(zVal, "ssh", 3)==0 ){
+        if( nCycles==0 ){
+          g.fSshClient |= CGI_SSH_FOSSIL;
+          g.fullHttpReply = 0;
+        }
+      }
+    }
+  }
+
+  if( nCycles==0 ){
+    if( ! ( g.fSshClient & CGI_SSH_FOSSIL ) ){
+      /* did not find new fossil ssh transport */
+      g.fSshClient &= ~CGI_SSH_CLIENT;
+      g.fullHttpReply = 1;
+      cgi_replace_parameter("REMOTE_ADDR", "127.0.0.1");
+    }
+  }
+
+  cgi_reset_content();
+  cgi_destination(CGI_BODY);
+
+  if( content_length>0 && zType ){
+    blob_zero(&g.cgiIn);
+    if( fossil_strcmp(zType, "application/x-fossil")==0 ){
+      blob_read_from_channel(&g.cgiIn, g.httpIn, content_length);
+      blob_uncompress(&g.cgiIn, &g.cgiIn);
+    }else if( fossil_strcmp(zType, "application/x-fossil-debug")==0 ){
+      blob_read_from_channel(&g.cgiIn, g.httpIn, content_length);
+    }else if( fossil_strcmp(zType, "application/x-fossil-uncompressed")==0 ){
+      blob_read_from_channel(&g.cgiIn, g.httpIn, content_length);
+    }
+  }
+  cgi_trace(0);
+  nCycles++;
+}
+
+/*
+** This routine handles the old fossil SSH probes
+*/
+char *cgi_handle_ssh_probes(char *zLine, int zSize, char *z, char *zToken){
+  /* Start looking for probes */
+  while( fossil_strcmp(zToken, "echo")==0 ){
+    zToken = extract_token(z, &z);
+    if( zToken==0 ){
+      malformed_request("malformed probe");
+    }
+    if( fossil_strncmp(zToken, "test", 4)==0 ||
+        fossil_strncmp(zToken, "probe-", 6)==0 ){
+      fprintf(g.httpOut, "%s\n", zToken);
+      fflush(g.httpOut);
+    }else{
+      malformed_request("malformed probe");
+    }
+    if( fgets(zLine, zSize, g.httpIn)==0 ){
+      malformed_request("malformed probe");
+    }
+    cgi_trace(zLine);
+    zToken = extract_token(zLine, &z);
+    if( zToken==0 ){
+      malformed_request("malformed probe");
+    }
+  }
+
+  /* Got all probes now first transport_open is completed
+  ** so return the command that was requested
+  */
+  g.fSshClient |= CGI_SSH_COMPAT;
+  return mprintf("%s", zToken);
+}
+
+/*
+** This routine handles the old fossil SSH transport_flip
+** and transport_open communications if detected.
+*/
+void cgi_handle_ssh_transport(const char *zCmd){
+  char *z, *zToken;
+  char zLine[2000];     /* A single line of input. */
+
+  /* look for second newline of transport_flip */
+  if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
+    malformed_request("incorrect transport_flip");
+  }
+  cgi_trace(zLine);
+  zToken = extract_token(zLine, &z);
+  if( zToken && strlen(zToken)==0 ){
+    /* look for path to fossil */
+    if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
+      if ( zCmd==0 ){
+        malformed_request("missing fossil command");
+      }else{
+        /* no new command so exit */
+        fossil_exit(0);
+      }
+    }
+    cgi_trace(zLine);
+    zToken = extract_token(zLine, &z);
+    if( zToken==0 ){
+      malformed_request("malformed fossil command");
+    }
+    /* see if we've seen the command */
+    if( zCmd && zCmd[0] && fossil_strcmp(zToken, zCmd)==0 ){
+      return;
+    }else{
+      malformed_request("transport_open failed");
+    }
+  }else{
+    malformed_request("transport_flip failed");
+  }
+}
+
+/*
 ** This routine handles a single SCGI request which is coming in on
 ** g.httpIn and which replies on g.httpOut
 **
@@ -1446,7 +1698,7 @@ int cgi_http_server(
     if( memcmp(zBrowser, "echo ", 5)==0 ){
       wchar_t *wUrl = fossil_utf8_to_unicode(zBrowser+5);
       wUrl[wcslen(wUrl)-2] = 0; /* Strip terminating " &" */
-      if( ShellExecuteW(0, L"open", wUrl, 0, 0, 1)<33 ){
+      if( (size_t)ShellExecuteW(0, L"open", wUrl, 0, 0, 1)<33 ){
         fossil_warning("cannot start browser\n");
       }
     }else
@@ -1604,4 +1856,22 @@ void cgi_modified_since(time_t objectTime){
   cgi_reset_content();
   cgi_reply();
   fossil_exit(0);
+}
+
+/*
+** Check to see if the remote client is SSH and return
+** its IP or return default
+*/
+const char *cgi_ssh_remote_addr(const char *zDefault){
+  char *zIndex;
+  const char *zSshConn = fossil_getenv("SSH_CONNECTION");
+
+  if( zSshConn && zSshConn[0] ){
+    char *zSshClient = mprintf("%s",zSshConn);
+    if( (zIndex = strchr(zSshClient,' '))!=0 ){
+      zSshClient[zIndex-zSshClient] = '\0';
+      return zSshClient;
+    }
+  }
+  return zDefault;
 }

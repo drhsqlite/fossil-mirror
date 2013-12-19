@@ -211,3 +211,20 @@ size_t socket_receive(void *NotUsed, void *pContent, size_t N){
   }
   return total;
 }
+
+/*
+** Attempt to resolve g.urlName to IP and setup g.zIpAddr so rcvfrom gets
+** populated. For hostnames with more than one IP (or if overridden in
+** ~/.ssh/config) the rcvfrom may not match the host to which we connect.
+*/
+void socket_ssh_resolve_addr(void){
+  struct hostent *pHost;        /* Used to make best effort for rcvfrom */
+  struct sockaddr_in addr;
+
+  memset(&addr, 0, sizeof(addr));
+  pHost = gethostbyname(g.urlName);
+  if( pHost!=0 ){
+    memcpy(&addr.sin_addr,pHost->h_addr_list[0],pHost->h_length);
+    g.zIpAddr = mprintf("%s", inet_ntoa(addr.sin_addr));
+  }
+}

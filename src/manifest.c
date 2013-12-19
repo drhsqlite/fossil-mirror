@@ -957,7 +957,7 @@ manifest_syntax_error:
 ** Get a manifest given the rid for the control artifact.  Return
 ** a pointer to the manifest on success or NULL if there is a failure.
 */
-Manifest *manifest_get(int rid, int cfType){
+Manifest *manifest_get(int rid, int cfType, Blob *pErr){
   Blob content;
   Manifest *p;
   if( !rid ) return 0;
@@ -970,7 +970,7 @@ Manifest *manifest_get(int rid, int cfType){
     return p;
   }
   content_get(rid, &content);
-  p = manifest_parse(&content, rid, 0);
+  p = manifest_parse(&content, rid, pErr);
   if( p && cfType!=CFTYPE_ANY && cfType!=p->type ){
     manifest_destroy(p);
     p = 0;
@@ -991,7 +991,7 @@ Manifest *manifest_get_by_name(const char *zName, int *pRid){
     fossil_fatal("no such checkin: %s", zName);
   }
   if( pRid ) *pRid = rid;
-  p = manifest_get(rid, CFTYPE_MANIFEST);
+  p = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( p==0 ){
     fossil_fatal("cannot parse manifest for checkin: %s", zName);
   }
@@ -1038,7 +1038,7 @@ void manifest_test_parse_cmd(void){
 static int fetch_baseline(Manifest *p, int throwError){
   if( p->zBaseline!=0 && p->pBaseline==0 ){
     int rid = uuid_to_rid(p->zBaseline, 1);
-    p->pBaseline = manifest_get(rid, CFTYPE_MANIFEST);
+    p->pBaseline = manifest_get(rid, CFTYPE_MANIFEST, 0);
     if( p->pBaseline==0 ){
       if( !throwError ){
         db_multi_exec(
@@ -1901,7 +1901,7 @@ int manifest_crosslink(int rid, Blob *pContent){
       char *zComment;
       if( p->zAttachSrc && p->zAttachSrc[0] ){
         zComment = mprintf(
-             "Add attachment [%R/artifact/%S|%h] to wiki page [%h]",
+             "Add attachment [/artifact/%S|%h] to wiki page [%h]",
              p->zAttachSrc, p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
@@ -1917,7 +1917,7 @@ int manifest_crosslink(int rid, Blob *pContent){
       char *zComment;
       if( p->zAttachSrc && p->zAttachSrc[0] ){
         zComment = mprintf(
-             "Add attachment [%R/artifact/%S|%h] to ticket [%S]",
+             "Add attachment [/artifact/%S|%h] to ticket [%S]",
              p->zAttachSrc, p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from ticket [%.10s]",

@@ -75,7 +75,7 @@ void branch_new(void){
     fossil_fatal("unable to locate check-in off of which to branch");
   }
 
-  pParent = manifest_get(rootid, CFTYPE_MANIFEST);
+  pParent = manifest_get(rootid, CFTYPE_MANIFEST, 0);
   if( pParent==0 ){
     fossil_fatal("%s is not a valid check-in", g.argv[4]);
   }
@@ -327,8 +327,8 @@ void brlist_page(void){
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
   @ <li> An <div class="sideboxDescribed">%z(href("brlist"))
-  @ open branch</a></div> is a branch that has one or
-  @ more %z(href("leaves"))open leaves.</a>
+  @ open branch</a></div> is a branch that has one or more
+  @ <div class="sideboxDescribed">%z(href("leaves"))open leaves.</a></div>
   @ The presence of open leaves presumably means
   @ that the branch is still being extended with new check-ins.</li>
   @ <li> A <div class="sideboxDescribed">%z(href("brlist?closed"))

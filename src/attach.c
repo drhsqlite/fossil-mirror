@@ -386,7 +386,7 @@ void ainfo_page(void){
     }
   }
 #endif
-  pAttach = manifest_get(rid, CFTYPE_ATTACHMENT);
+  pAttach = manifest_get(rid, CFTYPE_ATTACHMENT, 0);
   if( pAttach==0 ) fossil_redirect_home();
   zTarget = pAttach->zAttachTarget;
   zSrc = pAttach->zAttachSrc;
@@ -447,7 +447,9 @@ void ainfo_page(void){
     @ </form>
   }
 
-  isModerator = (zTktUuid && g.perm.ModTkt) || (zWikiName && g.perm.ModWiki);
+  isModerator = g.perm.Admin || 
+                (zTktUuid && g.perm.ModTkt) ||
+                (zWikiName && g.perm.ModWiki);
   if( isModerator && (zModAction = P("modaction"))!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
       moderation_disapprove(rid);

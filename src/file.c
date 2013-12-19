@@ -41,16 +41,31 @@
 # include <sys/time.h>
 #endif
 
-/*
-** The file status information from the most recent stat() call.
-**
-** Use _stati64 rather than stat on windows, in order to handle files
-** larger than 2GB.
-*/
+#if INTERFACE
+
+#include <dirent.h>
+#if defined(_WIN32)
+# define DIR _WDIR
+# define dirent _wdirent
+# define opendir _wopendir
+# define readdir _wreaddir
+# define closedir _wclosedir
+#endif /* _WIN32 */
+
 #if defined(_WIN32) && (defined(__MSVCRT__) || defined(_MSC_VER))
-# undef stat
-# define stat _stati64
+struct fossilStat {
+    i64 st_size;
+    i64 st_mtime;
+    int st_mode;
+};
 #endif
+
+#endif /* INTERFACE */
+
+#if !defined(_WIN32) || !(defined(__MSVCRT__) || defined(_MSC_VER))
+# define fossilStat stat
+#endif
+
 /*
 ** On Windows S_ISLNK always returns FALSE.
 */
@@ -58,28 +73,27 @@
 # define S_ISLNK(x) (0)
 #endif
 static int fileStatValid = 0;
-static struct stat fileStat;
+static struct fossilStat fileStat;
 
 /*
 ** Fill stat buf with information received from stat() or lstat().
 ** lstat() is called on Unix if isWd is TRUE and allow-symlinks setting is on.
 **
 */
-static int fossil_stat(const char *zFilename, struct stat *buf, int isWd){
-  int rc;
+static int fossil_stat(const char *zFilename, struct fossilStat *buf, int isWd){
 #if !defined(_WIN32)
+  int rc;
   char *zMbcs = fossil_utf8_to_filename(zFilename);
   if( isWd && g.allowSymlinks ){
     rc = lstat(zMbcs, buf);
   }else{
     rc = stat(zMbcs, buf);
   }
-#else
-  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
-  rc = _wstati64(zMbcs, buf);
-#endif
   fossil_filename_free(zMbcs);
   return rc;
+#else
+  return win32_stat(zFilename, buf, isWd);
+#endif
 }
 
 /*
@@ -305,14 +319,13 @@ int file_wd_isdir(const char *zFilename){
 */
 int file_access(const char *zFilename, int flags){
 #ifdef _WIN32
-  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
-  int rc = _waccess(zMbcs, flags);
+  return win32_access(zFilename, flags);
 #else
   char *zMbcs = fossil_utf8_to_filename(zFilename);
   int rc = access(zMbcs, flags);
-#endif
   fossil_filename_free(zMbcs);
   return rc;
+#endif
 }
 
 /*
@@ -322,8 +335,7 @@ int file_access(const char *zFilename, int flags){
 */
 int file_chdir(const char *zChDir, int bChroot){
 #ifdef _WIN32
-  wchar_t *zPath = fossil_utf8_to_filename(zChDir);
-  int rc = _wchdir(zPath);
+  return win32_chdir(zChDir, bChroot);
 #else
   char *zPath = fossil_utf8_to_filename(zChDir);
   int rc = chdir(zPath);
@@ -331,9 +343,9 @@ int file_chdir(const char *zChDir, int bChroot){
     rc = chroot(zPath);
     if( !rc ) rc = chdir("/");
   }
-#endif
   fossil_filename_free(zPath);
   return rc;
+#endif
 }
 
 /*
@@ -422,11 +434,12 @@ int file_wd_setexe(const char *zFilename, int onoff){
 */
 void file_set_mtime(const char *zFilename, i64 newMTime){
 #if !defined(_WIN32)
+  char *zMbcs;
   struct timeval tv[2];
   memset(tv, 0, sizeof(tv[0])*2);
   tv[0].tv_sec = newMTime;
   tv[1].tv_sec = newMTime;
-  char *zMbcs = fossil_utf8_to_filename(zFilename);
+  zMbcs = fossil_utf8_to_filename(zFilename);
   utimes(zMbcs, tv);
 #else
   struct _utimbuf tb;
@@ -463,16 +476,20 @@ void test_set_mtime(void){
 
 /*
 ** Delete a file.
+**
+** Returns zero upon success.
 */
-void file_delete(const char *zFilename){
+int file_delete(const char *zFilename){
+  int rc;
 #ifdef _WIN32
   wchar_t *z = fossil_utf8_to_filename(zFilename);
-  _wunlink(z);
+  rc = _wunlink(z);
 #else
   char *z = fossil_utf8_to_filename(zFilename);
-  unlink(zFilename);
+  rc = unlink(zFilename);
 #endif
   fossil_filename_free(z);
+  return rc;
 }
 
 /*
@@ -495,6 +512,29 @@ int file_mkdir(const char *zName, int forceFlag){
 #else
     char *zMbcs = fossil_utf8_to_filename(zName);
     rc = mkdir(zName, 0755);
+#endif
+    fossil_filename_free(zMbcs);
+    return rc;
+  }
+  return 0;
+}
+
+/*
+** Removes the directory named in the argument, if it exists.  The directory
+** must be empty and cannot be the current directory or the root directory.
+**
+** Returns zero upon success.
+*/
+int file_rmdir(const char *zName){
+  int rc = file_wd_isdir(zName);
+  if( rc==2 ) return 1; /* cannot remove normal file */
+  if( rc==1 ){
+#if defined(_WIN32)
+    wchar_t *zMbcs = fossil_utf8_to_filename(zName);
+    rc = _wrmdir(zMbcs);
+#else
+    char *zMbcs = fossil_utf8_to_filename(zName);
+    rc = rmdir(zName);
 #endif
     fossil_filename_free(zMbcs);
     return rc;
@@ -698,21 +738,7 @@ void cmd_test_simplify_name(void){
 */
 void file_getcwd(char *zBuf, int nBuf){
 #ifdef _WIN32
-  char *zPwdUtf8;
-  int nPwd;
-  int i;
-  wchar_t zPwd[2000];
-  if( _wgetcwd(zPwd, sizeof(zPwd)/sizeof(zPwd[0])-1)==0 ){
-    fossil_fatal("cannot find the current working directory.");
-  }
-  zPwdUtf8 = fossil_filename_to_utf8(zPwd);
-  nPwd = strlen(zPwdUtf8);
-  if( nPwd > nBuf-1 ){
-    fossil_fatal("pwd too big: max %d\n", nBuf-1);
-  }
-  for(i=0; zPwdUtf8[i]; i++) if( zPwdUtf8[i]=='\\' ) zPwdUtf8[i] = '/';
-  memcpy(zBuf, zPwdUtf8, nPwd+1);
-  fossil_filename_free(zPwdUtf8);
+  win32_getcwd(zBuf, nBuf);
 #else
   if( getcwd(zBuf, nBuf-1)==0 ){
     if( errno==ERANGE ){
@@ -796,11 +822,12 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 void cmd_test_canonical_name(void){
   int i;
   Blob x;
+  int slashFlag = find_option("slash",0,0)!=0;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
     char zBuf[100];
     const char *zName = g.argv[i];
-    file_canonical_name(zName, &x, 0);
+    file_canonical_name(zName, &x, slashFlag);
     fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
     blob_reset(&x);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zName));
@@ -878,17 +905,21 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
     while( zPath[i] && zPwd[i]==zPath[i] ) i++;
 #endif
     if( zPath[i]==0 ){
-      blob_reset(pOut);
+      memcpy(&tmp, pOut, sizeof(tmp));
       if( zPwd[i]==0 ){
-        blob_append(pOut, ".", 1);
+        blob_set(pOut, ".");
       }else{
-        blob_append(pOut, "..", 2);
+        blob_set(pOut, "..");
         for(j=i+1; zPwd[j]; j++){
           if( zPwd[j]=='/' ){
             blob_append(pOut, "/..", 3);
           }
         }
       }
+      if( slash && i>0 && zPath[strlen(zPath)-1]=='/'){
+        blob_append(pOut, "/", 1);
+      }
+      blob_reset(&tmp);
       return;
     }
     if( zPwd[i]==0 && zPath[i]=='/' ){
@@ -919,9 +950,10 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
 void cmd_test_relative_name(void){
   int i;
   Blob x;
+  int slashFlag = find_option("slash",0,0)!=0;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
-    file_relative_name(g.argv[i], &x, 0);
+    file_relative_name(g.argv[i], &x, slashFlag);
     fossil_print("%s\n", blob_buffer(&x));
     blob_reset(&x);
   }
@@ -1139,22 +1171,6 @@ int file_is_the_same(Blob *pContent, const char *zName){
   blob_reset(&onDisk);
   return rc==0;
 }
-
-/*
-** Portable unicode implementation of opendir()
-*/
-#if INTERFACE
-
-#include <dirent.h>
-#if defined(_WIN32)
-# define DIR _WDIR
-# define dirent _wdirent
-# define opendir _wopendir
-# define readdir _wreaddir
-# define closedir _wclosedir
-#endif /* _WIN32 */
-
-#endif /* INTERFACE */
 
 /*
 ** Return the value of an environment variable as UTF8.

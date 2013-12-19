@@ -400,6 +400,7 @@ static int isHuman(const char *zAgent){
     if( strglob("*Firefox/[1-9]*", zAgent) ) return 1;
     if( strglob("*Chrome/[1-9]*", zAgent) ) return 1;
     if( strglob("*(compatible;?MSIE?[1789]*", zAgent) ) return 1;
+    if( strglob("*Trident/[1-9]*;?rv:[1-9]*", zAgent) ) return 1; /* IE11+ */
     if( strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent) ) return 1;
     return 0;
   }
@@ -476,7 +477,7 @@ void login_page(void){
 
   login_check_credentials();
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
-		  constant_time_cmp_function, 0, 0);
+                  constant_time_cmp_function, 0, 0);
   zUsername = P("u");
   zPasswd = P("p");
   anonFlag = P("anon")!=0;
@@ -697,11 +698,15 @@ static int login_transfer_credentials(
   );
   if( zOtherRepo==0 ) return 0;  /* No such peer repository */
 
-  rc = sqlite3_open(zOtherRepo, &pOther);
+  rc = sqlite3_open_v2(
+       zOtherRepo, &pOther,
+       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+       g.zVfsName
+  );
   if( rc==SQLITE_OK ){
     sqlite3_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
     sqlite3_create_function(pOther, "constant_time_cmp", 2, SQLITE_UTF8, 0,
-		  constant_time_cmp_function, 0, 0);
+                  constant_time_cmp_function, 0, 0);
     sqlite3_busy_timeout(pOther, 5000);
     zSQL = mprintf(
       "SELECT cexpire FROM user"
@@ -780,12 +785,13 @@ void login_check_credentials(void){
   char *zRemoteAddr;            /* Abbreviated IP address of the requestor */
   const char *zCap = 0;         /* Capability string */
   const char *zPublicPages = 0; /* GLOB patterns of public pages */
+  const char *zLogin = 0;       /* Login user for credentials */
 
   /* Only run this check once.  */
   if( g.userUid!=0 ) return;
 
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
-		  constant_time_cmp_function, 0, 0);
+                  constant_time_cmp_function, 0, 0);
 
   /* If the HTTP connection is coming over 127.0.0.1 and if
   ** local login is disabled and if we are using HTTP and not HTTPS, 
@@ -795,12 +801,18 @@ void login_check_credentials(void){
   ** full access rights without having to log in.
   */
   zRemoteAddr = ipPrefix(zIpAddr = PD("REMOTE_ADDR","nil"));
-  if( fossil_strcmp(zIpAddr, "127.0.0.1")==0
+  if( ( fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
+        g.fSshClient & CGI_SSH_CLIENT )
    && g.useLocalauth
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0
   ){
-    uid = db_int(0, "SELECT uid FROM user WHERE cap LIKE '%%s%%'");
+    if( g.localOpen ) zLogin = db_lget("default-user",0);
+    if( zLogin!=0 ){
+      uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zLogin);
+    }else{
+      uid = db_int(0, "SELECT uid FROM user WHERE cap LIKE '%%s%%'");
+    }
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
     zCap = "sx";
     g.noPswd = 1;
@@ -1367,7 +1379,11 @@ int login_group_sql(
       );
       continue;
     }
-    rc = sqlite3_open_v2(zRepoName, &pPeer, SQLITE_OPEN_READWRITE, 0);
+    rc = sqlite3_open_v2(
+         zRepoName, &pPeer,
+         SQLITE_OPEN_READWRITE,
+         g.zVfsName
+    );
     if( rc!=SQLITE_OK ){
       blob_appendf(&err, "%s%s: %s%s", zPrefix, zRepoName,
                    sqlite3_errmsg(pPeer), zSuffix);
@@ -1454,7 +1470,11 @@ void login_group_join(
     *pzErrMsg = mprintf("repository file \"%s\" does not exist", zRepo);
     return;
   }
-  rc = sqlite3_open(zRepo, &pOther);
+  rc = sqlite3_open_v2(
+       zRepo, &pOther,
+       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+       g.zVfsName
+  );
   if( rc!=SQLITE_OK ){
     *pzErrMsg = mprintf(sqlite3_errmsg(pOther));
   }else{

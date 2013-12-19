@@ -22,6 +22,7 @@
 ** fossil source code base.  Nothing in this file depends on anything
 ** else in fossil.
 */
+#include "config.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
