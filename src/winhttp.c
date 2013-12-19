@@ -139,7 +139,6 @@ static void win32_scgi_request(void *pAppData){
   FILE *in = 0, *out = 0;
   int amt, got, nHdr, i;
   int wanted = 0;
-  char *z;
   char zRequestFName[MAX_PATH];
   char zReplyFName[MAX_PATH];
   char zCmd[2000];          /* Command-line to process the request */

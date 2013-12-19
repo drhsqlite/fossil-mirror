@@ -216,7 +216,6 @@ static void appendDiffLine(
 ){
   blob_append(pOut, &cPrefix, 1);
   if( html ){
-    char *zHtml;
     if( pRe && re_dline_match(pRe, pLine, 1)==0 ){
       cPrefix = ' ';
     }else if( cPrefix=='+' ){
@@ -224,9 +223,7 @@ static void appendDiffLine(
     }else if( cPrefix=='-' ){
       blob_append(pOut, "<span class=\"diffrm\">", -1);
     }
-    zHtml = htmlize(pLine->z, (pLine->h & LENGTH_MASK));
-    blob_append(pOut, zHtml, -1);
-    fossil_free(zHtml);
+    htmlize_to_blob(pOut, pLine->z, (pLine->h & LENGTH_MASK));
     if( cPrefix!=' ' ){
       blob_append(pOut, "</span>", -1);
     }
@@ -1944,6 +1941,7 @@ struct Annotator {
     const char *zMUuid;   /* Check-in containing the file */
     const char *zDate;    /* Date of the check-in */
     const char *zBgColor; /* Suggested background color */
+    const char *zUser;    /* Name of user who did the check-in */
     unsigned cnt;         /* Number of lines contributed by this check-in */
   } *aVers;         /* For each check-in analyzed */
   char **azVers;    /* Names of versions analyzed */
@@ -2048,10 +2046,10 @@ static void annotate_file(
   /* Initialize the annotation */
   rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
   if( rid==0 ){
-    fossil_panic("file #%d is unchanged in manifest #%d", fnid, mid);
+    fossil_fatal("file #%d is unchanged in manifest #%d", fnid, mid);
   }
   if( !content_get(rid, &toAnnotate) ){
-    fossil_panic("unable to retrieve content of artifact #%d", rid);
+    fossil_fatal("unable to retrieve content of artifact #%d", rid);
   }
   if( iLimit<=0 ) iLimit = 1000000000;
   annotation_start(p, &toAnnotate);
@@ -2066,6 +2064,7 @@ static void annotate_file(
     "SELECT (SELECT uuid FROM blob WHERE rid=mlink.fid),"
     "       (SELECT uuid FROM blob WHERE rid=mlink.mid),"
     "       date(event.mtime),"
+    "       coalesce(event.euser,event.user),"
     "       mlink.pid"
     "  FROM mlink, event"
     " WHERE mlink.fid=:rid"
@@ -2079,11 +2078,12 @@ static void annotate_file(
   db_bind_int(&q, ":rid", rid);
   if( iLimit==0 ) iLimit = 1000000000;
   while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
-    int prevId = db_column_int(&q, 3);
+    int prevId = db_column_int(&q, 4);
     p->aVers = fossil_realloc(p->aVers, (p->nVers+1)*sizeof(p->aVers[0]));
     p->aVers[p->nVers].zFUuid = fossil_strdup(db_column_text(&q, 0));
     p->aVers[p->nVers].zMUuid = fossil_strdup(db_column_text(&q, 1));
     p->aVers[p->nVers].zDate = fossil_strdup(db_column_text(&q, 2));
+    p->aVers[p->nVers].zUser = fossil_strdup(db_column_text(&q, 3));
     if( p->nVers ){
       content_get(rid, &step);
       annotation_step(p, &step, p->nVers-1);
@@ -2125,6 +2125,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 
 /*
 ** WEBPAGE: annotate
+** WEBPAGE: blame
 **
 ** Query parameters:
 **
@@ -2147,11 +2148,13 @@ void annotation_page(void){
   HQuery url;
   struct AnnVers *p;
   unsigned clr1, clr2, clr;
+  int bBlame = g.zPath[0]=='b';/* True for BLAME output.  False for ANNOTATE. */
 
   /* Gather query parameters */
   showLog = atoi(PD("log","1"));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
+  if( exclude_spiders("annotate") ) return;
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
   zFilename = P("filename");
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
@@ -2252,16 +2255,31 @@ void annotation_page(void){
     char zPrefix[300];
     z[n] = 0;
     if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
-    if( iVers>=0 ){
-      struct AnnVers *p = ann.aVers+iVers;
-      char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
-      sqlite3_snprintf(sizeof(zPrefix), zPrefix,
-           "<span style='background-color:%s'>"
-           "%s%.10s</a> %s</span> %4d:",
-           p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
-      fossil_free(zLink);
+
+    if( bBlame ){
+      if( iVers>=0 ){
+        struct AnnVers *p = ann.aVers+iVers;
+        char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix,
+             "<span style='background-color:%s'>"
+             "%s%.10s</a> %s</span> %13.13s:",
+             p->zBgColor, zLink, p->zMUuid, p->zDate, p->zUser);
+        fossil_free(zLink);
+      }else{
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s", "");
+      }
     }else{
-      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
+      if( iVers>=0 ){
+        struct AnnVers *p = ann.aVers+iVers;
+        char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix,
+             "<span style='background-color:%s'>"
+             "%s%.10s</a> %s</span> %4d:",
+             p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
+        fossil_free(zLink);
+      }else{
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
+      }
     }
     @ %s(zPrefix) %h(z)
 
@@ -2272,11 +2290,14 @@ void annotation_page(void){
 
 /*
 ** COMMAND: annotate
+** COMMAND: blame
 **
-** %fossil annotate ?OPTIONS? FILENAME
+** %fossil (annotate|blame) ?OPTIONS? FILENAME
 **
 ** Output the text of a file with markings to show when each line of
-** the file was last modified.
+** the file was last modified.  The "annotate" command shows line numbers
+** and omits the username.  The "blame" command shows the user who made each
+** checkin and omits the line number.
 **
 ** Options:
 **   --filevers      Show file version numbers rather than check-in versions
@@ -2299,7 +2320,9 @@ void annotate_cmd(void){
   int showLog;      /* True to show the log */
   int fileVers;     /* Show file version instead of check-in versions */
   int annFlags = 0; /* Flags to control annotation properties */
+  int bBlame = 0;   /* True for BLAME output.  False for ANNOTATE. */
 
+  bBlame = g.argv[1][0]=='b';
   zLimit = find_option("limit","n",1);
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
@@ -2330,7 +2353,7 @@ void annotate_cmd(void){
           " ORDER BY ancestor.generation ASC LIMIT 1",
           fid, fnid);
   if( mid==0 ){
-    fossil_panic("unable to find manifest");
+    fossil_fatal("unable to find manifest");
   }
   annFlags |= ANN_FILE_ANCEST;
   annotate_file(&ann, fnid, mid, iLimit, annFlags);
@@ -2346,16 +2369,24 @@ void annotate_cmd(void){
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
     int n = ann.aOrig[i].n;
-    char zPrefix[200];
-    z[n] = 0;
+    struct AnnVers *p;
     if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
-    if( iVers>=0 ){
-      struct AnnVers *p = ann.aVers+iVers;
-      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%.10s %s",
-           fileVers ? p->zFUuid : p->zMUuid, p->zDate);
+    p = ann.aVers + iVers;
+    if( bBlame ){
+      if( iVers>=0 ){
+        fossil_print("%.10s %s %13.13s: %.*s\n",
+             fileVers ? p->zFUuid : p->zMUuid, p->zDate, p->zUser, n, z);
+      }else{
+        fossil_print("%35s  %.*s\n", "", n, z);
+      }
     }else{
-      zPrefix[0] = 0;
+      if( iVers>=0 ){
+        fossil_print("%.10s %s %5d: %.*s\n",
+             fileVers ? p->zFUuid : p->zMUuid, p->zDate, i+1, n, z);
+      }else{
+        fossil_print("%21s %5d: %.*s\n",
+             "", i+1, n, z);
+      }
     }
-    fossil_print("%21s %4d: %.*s\n", zPrefix, i+1, n, z);
   }
 }

@@ -351,6 +351,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
                          "'config','shun','private','reportfmt',"
                          "'concealed','accesslog','modreq')"
        " AND name NOT GLOB 'sqlite_*'"
+       " AND name NOT GLOB 'fx_*'"
     );
     if( zTable==0 ) break;
     db_multi_exec("DROP TABLE %Q", zTable);
@@ -582,8 +583,9 @@ void rebuild_database(void){
   reconstruct_private_table();
   db_multi_exec(
     "REPLACE INTO config(name,value,mtime) VALUES('content-schema','%s',now());"
-    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());",
-    CONTENT_SCHEMA, AUX_SCHEMA
+    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());"
+    "REPLACE INTO config(name,value,mtime) VALUES('rebuilt','%s',now());",
+    CONTENT_SCHEMA, AUX_SCHEMA, get_version()
   );
   if( errCnt && !forceFlag ){
     fossil_print(
@@ -608,7 +610,8 @@ void rebuild_database(void){
     }
     if( runDeanalyze ){
       db_multi_exec("DROP TABLE IF EXISTS sqlite_stat1;"
-                    "DROP TABLE IF EXISTS sqlite_stat3;");
+                    "DROP TABLE IF EXISTS sqlite_stat3;"
+                    "DROP TABLE IF EXISTS sqlite_stat4;");
     }
     if( runAnalyze ){
       fossil_print("Analyzing the database... "); fflush(stdout);
@@ -723,7 +726,7 @@ void test_clusters_cmd(void){
     int i;
     
     bag_remove(&pending, rid);
-    p = manifest_get(rid, CFTYPE_CLUSTER);
+    p = manifest_get(rid, CFTYPE_CLUSTER, 0);
     if( p==0 ){
       fossil_fatal("bad cluster: rid=%d", rid);
     }
@@ -864,7 +867,7 @@ void recon_read_dir(char *zPath){
       blob_init(&path, 0, 0);
       blob_appendf(&path, "%s", zSubpath);
       if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
-        fossil_panic("some unknown error occurred while reading \"%s\"", 
+        fossil_fatal("some unknown error occurred while reading \"%s\"", 
                      blob_str(&path));
       }
       content_put(&aContent);
@@ -876,7 +879,7 @@ void recon_read_dir(char *zPath){
     }
     closedir(d);
   }else {
-    fossil_panic("encountered error %d while trying to open \"%s\".",
+    fossil_fatal("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
   }
   fossil_filename_free(zUnicodePath);

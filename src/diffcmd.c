@@ -619,8 +619,6 @@ static const char zDiffScript[] =
 @   FN_BG      #444444
 @   FN_FG      #ffffff
 @   FN_PAD     5
-@   FONTS      {{DejaVu Sans Mono} Consolas Monaco}
-@   FONT_SIZE  9
 @   PADX       5
 @   WIDTH      80
 @   HEIGHT     45
@@ -646,8 +644,8 @@ static const char zDiffScript[] =
 @   return $type
 @ }
 @ 
-@ proc readDiffs {cmd} {
-@   set in [open $cmd r]
+@ proc readDiffs {fossilcmd} {
+@   set in [open $fossilcmd r]
 @   fconfigure $in -encoding utf-8
 @   set nDiffs 0
 @   array set widths {txt 0 ln 0 mkr 0}
@@ -870,17 +868,11 @@ static const char zDiffScript[] =
 @ }
 @ text .mkr
 @ 
-@ font create mono -family courier -size $CFG(FONT_SIZE)
-@ foreach font $CFG(FONTS) {
-@   if {[lsearch -exact [font families] $font] != -1} {
-@      font config mono -family $font
-@      break
-@   }
-@ }
 @ foreach c [cols] {
 @   set keyPrefix [string toupper [colType $c]]_COL_
+@   if {[tk windowingsystem] eq "win32"} {$c config -font {courier 9}}
 @   $c config -bg $CFG(${keyPrefix}BG) -fg $CFG(${keyPrefix}FG) -borderwidth 0 \
-@     -font mono -padx $CFG(PADX) -yscroll sync-y
+@     -padx $CFG(PADX) -yscroll sync-y
 @   $c tag config hr -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
 @      -foreground $CFG(HR_FG)
 @   $c tag config fn -spacing1 $CFG(FN_PAD) -spacing3 $CFG(FN_PAD)
@@ -893,7 +885,7 @@ static const char zDiffScript[] =
 @ ::ttk::scrollbar .sbxB -command {.txtB xview} -orient horizontal
 @ frame .spacer
 @ 
-@ if {[readDiffs $cmd] == 0} {
+@ if {[readDiffs $fossilcmd] == 0} {
 @   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
 @   exit
 @ }
@@ -925,10 +917,10 @@ static const char zDiffScript[] =
 void diff_tk(const char *zSubCmd, int firstArg){
   int i;
   Blob script;
-  char *zTempFile;
+  char *zTempFile = 0;
   char *zCmd;
   blob_zero(&script);
-  blob_appendf(&script, "set cmd {| \"%/\" %s --html -y -i -v",
+  blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v",
                g.nameOfExe, zSubCmd);
   for(i=firstArg; i<g.argc; i++){
     const char *z = g.argv[i];
@@ -936,16 +928,30 @@ void diff_tk(const char *zSubCmd, int firstArg){
       if( strglob("*-html",z) ) continue;
       if( strglob("*-y",z) ) continue;
       if( strglob("*-i",z) ) continue;
+      /* The undocumented --script FILENAME option causes the Tk script to
+      ** be written into the FILENAME instead of being run.  This is used
+      ** for testing and debugging. */
+      if( strglob("*-script",z) && i<g.argc-1 ){
+        i++;
+        zTempFile = g.argv[i];
+        continue;
+      }
     }
     blob_append(&script, " ", 1);
     shell_escape(&script, z);
   }
   blob_appendf(&script, "}\n%s", zDiffScript);
-  zTempFile = write_blob_to_temp_file(&script);
-  zCmd = mprintf("tclsh \"%s\"", zTempFile);
-  fossil_system(zCmd);
-  file_delete(zTempFile);
-  fossil_free(zCmd);
+  if( zTempFile ){
+    blob_write_to_file(&script, zTempFile);
+    fossil_print("To see diff, run: tclsh \"%s\"\n", zTempFile);
+  }else{
+    zTempFile = write_blob_to_temp_file(&script);
+    zCmd = mprintf("tclsh \"%s\"", zTempFile);
+    fossil_system(zCmd);
+    file_delete(zTempFile);
+    fossil_free(zCmd);
+  }
+  blob_reset(&script);
 }
 
 /*

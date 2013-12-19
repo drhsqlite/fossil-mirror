@@ -217,7 +217,7 @@ void info_cmd(void){
     int rid;
     rid = name_to_rid(g.argv[2]);
     if( rid==0 ){
-      fossil_panic("no such object: %s\n", g.argv[2]);
+      fossil_fatal("no such object: %s\n", g.argv[2]);
     }
     show_common_info(rid, "uuid:", 1, 1);
   }
@@ -473,7 +473,7 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
 ** "show-version-diffs" setting is turned on.
 */
 void ci_page(void){
-  Stmt q;
+  Stmt q1, q2, q3;
   int rid;
   int isLeaf;
   int verboseFlag;     /* True to show diffs */
@@ -504,7 +504,7 @@ void ci_page(void){
     rid
   );
   isLeaf = is_a_leaf(rid);
-  db_prepare(&q,
+  db_prepare(&q1,
      "SELECT uuid, datetime(mtime, 'localtime'), user, comment,"
      "       datetime(omtime, 'localtime'), mtime"
      "  FROM blob, event"
@@ -513,8 +513,8 @@ void ci_page(void){
      rid, rid
   );
   sideBySide = !is_false(PD("sbs","1"));
-  if( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
+  if( db_step(&q1)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q1, 0);
     char *zTitle = mprintf("Check-in [%.10s]", zUuid);
     char *zEUser, *zEComment;
     const char *zUser;
@@ -531,10 +531,10 @@ void ci_page(void){
     zEComment = db_text(0,
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
-    zUser = db_column_text(&q, 2);
-    zComment = db_column_text(&q, 3);
-    zDate = db_column_text(&q,1);
-    zOrigDate = db_column_text(&q, 4);
+    zUser = db_column_text(&q1, 2);
+    zComment = db_column_text(&q1, 3);
+    zDate = db_column_text(&q1,1);
+    zOrigDate = db_column_text(&q1, 4);
     @ <div class="section">Overview</div>
     @ <table class="label-value">
     @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
@@ -564,24 +564,36 @@ void ci_page(void){
       @ <tr><th>Comment:</th><td class="infoComment">%!w(zComment)</td></tr>
     }
     if( g.perm.Admin ){
-      db_prepare(&q,
+      db_prepare(&q2,
          "SELECT rcvfrom.ipaddr, user.login, datetime(rcvfrom.mtime)"
          "  FROM blob JOIN rcvfrom USING(rcvid) LEFT JOIN user USING(uid)"
          " WHERE blob.rid=%d",
          rid
       );
-      if( db_step(&q)==SQLITE_ROW ){
-        const char *zIpAddr = db_column_text(&q, 0);
-        const char *zUser = db_column_text(&q, 1);
-        const char *zDate = db_column_text(&q, 2);
+      if( db_step(&q2)==SQLITE_ROW ){
+        const char *zIpAddr = db_column_text(&q2, 0);
+        const char *zUser = db_column_text(&q2, 1);
+        const char *zDate = db_column_text(&q2, 2);
         if( zUser==0 || zUser[0]==0 ) zUser = "unknown";
         @ <tr><th>Received&nbsp;From:</th>
         @ <td>%h(zUser) @ %h(zIpAddr) on %s(zDate)</td></tr>
       }
-      db_finalize(&q);
+      db_finalize(&q2);
     }
     if( g.perm.Hyperlink ){
-      const char *zProjName = db_get("project-name", "unnamed");
+      char *zPJ = db_get("short-project-name", 0);
+      Blob projName;
+      int jj;
+      if( zPJ==0 ) zPJ = db_get("project-name", "unnamed");
+      blob_zero(&projName);
+      blob_append(&projName, zPJ, -1);
+      blob_trim(&projName);
+      zPJ = blob_str(&projName);
+      for(jj=0; zPJ[jj]; jj++){
+        if( (zPJ[jj]>0 && zPJ[jj]<' ') || strchr("\"*/:<>?\\|", zPJ[jj]) ){
+          zPJ[jj] = '_';
+        }
+      }
       @ <tr><th>Timelines:</th><td>
       @   %z(href("%R/timeline?f=%S",zUuid))family</a>
       if( zParent ){
@@ -593,25 +605,25 @@ void ci_page(void){
       if( zParent && !isLeaf ){
         @ | %z(href("%R/timeline?dp=%S",zUuid))both</a>
       }
-      db_prepare(&q, "SELECT substr(tag.tagname,5) FROM tagxref, tag "
+      db_prepare(&q2,"SELECT substr(tag.tagname,5) FROM tagxref, tag "
                      " WHERE rid=%d AND tagtype>0 "
                      "   AND tag.tagid=tagxref.tagid "
                      "   AND +tag.tagname GLOB 'sym-*'", rid);
-      while( db_step(&q)==SQLITE_ROW ){
-        const char *zTagName = db_column_text(&q, 0);
+      while( db_step(&q2)==SQLITE_ROW ){
+        const char *zTagName = db_column_text(&q2, 0);
         @  | %z(href("%R/timeline?r=%T",zTagName))%h(zTagName)</a>
       }
-      db_finalize(&q);
+      db_finalize(&q2);
 
 
       /* The Download: line */
       if( g.perm.Zip ){
         char *zUrl = mprintf("%R/tarball/%t-%S.tar.gz?uuid=%s",
-                             zProjName, zUuid, zUuid);
+                             zPJ, zUuid, zUuid);
         @ </td></tr>
         @ <tr><th>Downloads:</th><td>
         @ %z(href("%s",zUrl))Tarball</a>
-        @ | %z(href("%R/zip/%t-%S.zip?uuid=%s",zProjName,zUuid,zUuid))
+        @ | %z(href("%R/zip/%t-%S.zip?uuid=%s",zPJ,zUuid,zUuid))
         @         ZIP archive</a>
         fossil_free(zUrl);
       }
@@ -626,13 +638,14 @@ void ci_page(void){
       }
       @   </td>
       @ </tr>
+      blob_reset(&projName);
     }
     @ </table>
   }else{
     style_header("Check-in Information");
     login_anonymous_available();
   }
-  db_finalize(&q);
+  db_finalize(&q1);
   showTags(rid, "");
   if( zParent ){
     @ <div class="section">Changes</div>
@@ -679,7 +692,7 @@ void ci_page(void){
       @ <p><b>Only differences that match regular expression "%h(zRe)"
       @ are shown.</b></p>
     }
-    db_prepare(&q,
+    db_prepare(&q3,
        "SELECT name,"
        "       mperm,"
        "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
@@ -693,15 +706,15 @@ void ci_page(void){
        rid, rid
     );
     diffFlags = construct_diff_flags(verboseFlag, sideBySide);
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zName = db_column_text(&q,0);
-      int mperm = db_column_int(&q, 1);
-      const char *zOld = db_column_text(&q,2);
-      const char *zNew = db_column_text(&q,3);
-      const char *zOldName = db_column_text(&q, 4);
+    while( db_step(&q3)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q3,0);
+      int mperm = db_column_int(&q3, 1);
+      const char *zOld = db_column_text(&q3,2);
+      const char *zNew = db_column_text(&q3,3);
+      const char *zOldName = db_column_text(&q3, 4);
       append_file_change_line(zName, zOld, zNew, zOldName, diffFlags,pRe,mperm);
     }
-    db_finalize(&q);
+    db_finalize(&q3);
   }
   append_diff_javascript(sideBySide);
   style_footer();
@@ -725,7 +738,7 @@ void winfo_page(void){
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(); return; }
   rid = name_to_rid_www("name");
-  if( rid==0 || (pWiki = manifest_get(rid, CFTYPE_WIKI))==0 ){
+  if( rid==0 || (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))==0 ){
     style_header("Wiki Page Information Error");
     @ No such object: %h(P("name"))
     style_footer();
@@ -836,7 +849,7 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
     webpage_error("Artifact %s is not a checkin.", P(zParam));
     return 0;
   }
-  return manifest_get(rid, CFTYPE_MANIFEST);
+  return manifest_get(rid, CFTYPE_MANIFEST, 0);
 }
 
 /*
@@ -954,6 +967,11 @@ void vdiff_page(void){
   if( !verboseFlag && sideBySide ) verboseFlag = 1;
   zFrom = P("from");
   zTo = P("to");
+  if( sideBySide || verboseFlag ){
+    style_submenu_element("Hide Diff", "hidediff",
+                          "%R/vdiff?from=%T&to=%T&sbs=0",
+                          zFrom, zTo);
+  }
   if( !sideBySide ){
     style_submenu_element("Side-by-side Diff", "sbsdiff",
                           "%R/vdiff?from=%T&to=%T&sbs=1",
@@ -1117,9 +1135,11 @@ int object_description(
     @ - %!w(zCom) (user:
     hyperlink_to_user(zUser,zDate,")");
     if( g.perm.Hyperlink ){
+      @ %z(href("%R/finfo?name=%T&ci=%S",zName,zVers))[ancestry]</a>
       @ %z(href("%R/annotate?checkin=%S&filename=%T",zVers,zName))
       @ [annotate]</a>
-      @ %z(href("%R/finfo?name=%T&ci=%S",zName,zVers))[ancestry]</a>
+      @ %z(href("%R/blame?checkin=%S&filename=%T",zVers,zName))
+      @ [blame]</a>
     }
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
@@ -1299,7 +1319,7 @@ void diff_page(void){
     blob_reset(&c2);
     return;
   }
-  
+
   sideBySide = !is_false(PD("sbs","1"));
   zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
   zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
@@ -1487,7 +1507,7 @@ int artifact_from_ci_and_filename(void){
   zFilename = P("filename");
   if( zFilename==0 ) return 0;
   cirid = name_to_rid_www("ci");
-  pManifest = manifest_get(cirid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(cirid, CFTYPE_MANIFEST, 0);
   if( pManifest==0 ) return 0;
   manifest_file_rewind(pManifest);
   while( (pFile = manifest_file_next(pManifest,0))!=0 ){
@@ -1649,8 +1669,8 @@ void artifact_page(void){
     wiki_convert(&content, 0, 0);
   }else if( renderAsHtml ){
     @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
-    @   width="100%%" frameborder="0" marginwidth="0" marginheight="0" 
-    @   sandbox="allow-same-origin" 
+    @   width="100%%" frameborder="0" marginwidth="0" marginheight="0"
+    @   sandbox="allow-same-origin"
     @   onload="this.height = this.contentDocument.documentElement.scrollHeight;">
     @ </iframe>
   }else{
@@ -1710,7 +1730,7 @@ void tinfo_page(void){
             g.zTop, zUuid);
     }
   }
-  pTktChng = manifest_get(rid, CFTYPE_TICKET);
+  pTktChng = manifest_get(rid, CFTYPE_TICKET, 0);
   if( pTktChng==0 ) fossil_redirect_home();
   zDate = db_text(0, "SELECT datetime(%.12f)", pTktChng->rDate);
   memcpy(zTktName, pTktChng->zTicketUuid, UUID_SIZE+1);
@@ -1752,7 +1772,7 @@ void tinfo_page(void){
   }
   @ <tr><th>Ticket:</th>
   @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a>
-  if(zTktTitle){
+  if( zTktTitle ){
         @<br>%h(zTktTitle)
   }
   @</td></tr>
@@ -2033,11 +2053,15 @@ void ci_edit_page(void){
   const char *zNewBrFlag;
   const char *zNewBranch;
   const char *zCloseFlag;
+  const char *zHideFlag;
   int fPropagateColor;          /* True if color propagates before edit */
   int fNewPropagateColor;       /* True if color propagates after edit */
+  int fHasHidden = 0;           /* True if hidden tag already set */
+  int fHasClosed = 0;           /* True if closed tag already set */
   const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
   char *zUuid;
   Blob comment;
+  char *zBranchName = 0;
   Stmt q;
 
   login_check_credentials();
@@ -2075,6 +2099,7 @@ void ci_edit_page(void){
   zNewBrFlag = P("newbr") ? " checked" : "";
   zNewBranch = PDT("brname","");
   zCloseFlag = P("close") ? " checked" : "";
+  zHideFlag = P("hide") ? " checked" : "";
   if( P("apply") ){
     Blob ctrl;
     char *zNow;
@@ -2125,8 +2150,12 @@ void ci_edit_page(void){
       }
     }
     db_finalize(&q);
+    if( zHideFlag[0] ){
+      db_multi_exec("REPLACE INTO newtags VALUES('hidden','*',NULL)");
+    }
     if( zCloseFlag[0] ){
-      db_multi_exec("REPLACE INTO newtags VALUES('closed','+',NULL)");
+      db_multi_exec("REPLACE INTO newtags VALUES('closed','%s',NULL)",
+          is_a_leaf(rid)?"+":"*");
     }
     if( zNewTagFlag[0] && zNewTag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('sym-%q','+',NULL)", zNewTag);
@@ -2177,6 +2206,27 @@ void ci_edit_page(void){
   blob_append(&comment, zNewComment, -1);
   zUuid[10] = 0;
   style_header("Edit Check-in [%s]", zUuid);
+  /*
+  ** chgcbn/chgbn: Handle change of (checkbox for) branch name in
+  ** remaining of form.
+  */
+  @ <script>
+  @ function chgcbn(checked, branch){
+  @   val = gebi('brname').value.trim();
+  @   if( !val || !checked ) val = branch;
+  @   if( checked ) gebi('brname').select();
+  @   gebi('hbranch').textContent = val;
+  @   cidbrid = document.getElementById('cbranch');
+  @   if( cidbrid ) cidbrid.textContent = val;
+  @ }
+  @ function chgbn(val, branch){
+  @   if( !val ) val = branch;
+  @   gebi('newbr').checked = (val!=branch);
+  @   gebi('hbranch').textContent = val;
+  @   cidbrid = document.getElementById('cbranch');
+  @   if( cidbrid ) cidbrid.textContent = val;
+  @ }
+  @ </script>
   if( P("preview") ){
     Blob suffix;
     int nTag = 0;
@@ -2256,8 +2306,11 @@ void ci_edit_page(void){
   @ Add the following new tag name to this check-in:</label>
   @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)"
   @ onkeyup="gebi('newtag').checked=!!this.value" />
+  zBranchName = db_text(0, "SELECT value FROM tagxref, tag"
+     " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
+     " AND tagxref.tagid=%d", rid, TAG_BRANCH);
   db_prepare(&q,
-     "SELECT tag.tagid, tagname FROM tagxref, tag"
+     "SELECT tag.tagid, tagname, tagxref.value FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
      " ORDER BY CASE WHEN tagname GLOB 'sym-*' THEN substr(tagname,5)"
      "               ELSE tagname END /*sort*/",
@@ -2266,7 +2319,19 @@ void ci_edit_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     int tagid = db_column_int(&q, 0);
     const char *zTagName = db_column_text(&q, 1);
+    int isSpecialTag = fossil_strncmp(zTagName, "sym-", 4)!=0;
     char zLabel[30];
+
+    if( tagid == TAG_CLOSED ){
+      fHasClosed = 1;
+    }else if( (tagid == TAG_COMMENT) || (tagid == TAG_BRANCH) ){
+      continue;
+    }else if( tagid==TAG_HIDDEN ){
+      fHasHidden = 1;
+    }else if( !isSpecialTag && zTagName &&
+        fossil_strcmp(&zTagName[4], zBranchName)==0){
+      continue;
+    }
     sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
     @ <br /><label>
     if( P(zLabel) ){
@@ -2274,35 +2339,58 @@ void ci_edit_page(void){
     }else{
       @ <input type="checkbox" name="c%d(tagid)" />
     }
-    if( strncmp(zTagName, "sym-", 4)==0 ){
-      @ Cancel tag <b>%h(&zTagName[4])</b></label>
-    }else{
+    if( isSpecialTag ){
       @ Cancel special tag <b>%h(zTagName)</b></label>
+    }else{
+      @ Cancel tag <b>%h(&zTagName[4])</b></label>
     }
   }
   db_finalize(&q);
   @ </td></tr>
 
+  if( !zBranchName ){
+    zBranchName = db_get("main-branch", "trunk");
+  }
+  if( !zNewBranch || !zNewBranch[0]){
+    zNewBranch = zBranchName;
+  }
   @ <tr><th align="right" valign="top">Branching:</th>
   @ <td valign="top">
-  @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag) />
+  @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag)
+  @ onchange="chgcbn(this.checked,'%h(zBranchName)')" />
   @ Make this check-in the start of a new branch named:</label>
-  @ <input type="text" style="width:15;" name="brname" value="%h(zNewBranch)"
-  @ onkeyup="gebi('newbr').checked=!!this.value" />
-  @ </td></tr>
-
-  if( is_a_leaf(rid)
-   && !db_exists("SELECT 1 FROM tagxref "
-                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
-                 TAG_CLOSED, rid)
-  ){
-    @ <tr><th align="right" valign="top">Leaf Closure:</th>
+  @ <input id="brname" type="text" style="width:15;" name="brname"
+  @ value="%h(zNewBranch)"
+  @ onkeyup="chgbn(this.value.trim(),'%h(zBranchName)')" /></td></tr>
+  if( !fHasHidden ){
+    @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
-    @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
-    @ Mark this leaf as "closed" so that it no longer appears on the
-    @ "leaves" page and is no longer labeled as a "<b>Leaf</b>".</label>
+    @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag) />
+    @ Hide branch 
+    @ <span style="font-weight:bold" id="hbranch">%h(zBranchName)</span>
+    @ from the timeline starting from this check-in</label>
     @ </td></tr>
   }
+  if( !fHasClosed ){
+    if( is_a_leaf(rid) ){
+      @ <tr><th align="right" valign="top">Leaf Closure:</th>
+      @ <td valign="top">
+      @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
+      @ Mark this leaf as "closed" so that it no longer appears on the
+      @ "leaves" page and is no longer labeled as a "<b>Leaf</b>"</label>
+      @ </td></tr>
+    }else if( zBranchName ){
+      @ <tr><th align="right" valign="top">Branch Closure:</th>
+      @ <td valign="top">
+      @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
+      @ Mark branch
+      @ <span style="font-weight:bold" id="cbranch">%h(zBranchName)</span>
+      @ as "closed" so that its leafs no longer appear on the "leaves" page
+      @ and are no longer labeled as a leaf "<b>Leaf</b>"</label>
+      @ </td></tr>
+    }
+  }
+  if( zBranchName ) fossil_free(zBranchName);
 
 
   @ <tr><td colspan="2">

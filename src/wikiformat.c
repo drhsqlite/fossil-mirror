@@ -17,8 +17,8 @@
 **
 ** This file contains code to do formatting of wiki text.
 */
-#include <assert.h>
 #include "config.h"
+#include <assert.h>
 #include "wikiformat.h"
 
 #if INTERFACE

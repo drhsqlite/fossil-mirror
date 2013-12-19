@@ -17,8 +17,8 @@
 **
 ** Implementation of the Setup page for "skins".
 */
-#include <assert.h>
 #include "config.h"
+#include <assert.h>
 #include "skins.h"
 
 /* @-comment: ## */
@@ -119,6 +119,13 @@ static const char zBuiltinSkin1[] =
 @ div.content a { color: #604000; }
 @ div.content a:link { color: #604000;}
 @ div.content a:visited { color: #600000; }
+@
+@ /* <verbatim> blocks */
+@ pre.verbatim {
+@   background-color: #ffffff;
+@   padding: 0.5em;
+@   white-space: pre-wrap;
+@ }
 @
 @ /* Some pages have section dividers */
 @ div.section {
@@ -1236,7 +1243,7 @@ static const char zBuiltinSkin5[] =
 @   <a href="$fossilUrl/">Fossil</a>
 @   version $release_version $tclVersion
 @   <a href="$fossilUrl/index.html/info/$version">$manifest_version</a>
-@   <a href="$fossilUrl/fossil/timeline?c=$manifest_date&amp;y=ci">$manifest_date</a>
+@   <a href="$fossilUrl/index.html/timeline?c=$manifest_date&amp;y=ci">$manifest_date</a>
 @ </div>
 @ </body></html>
 @ ');

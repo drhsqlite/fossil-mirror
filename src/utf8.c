@@ -25,14 +25,7 @@
 #ifdef _WIN32
 # include <windows.h>
 #endif
-#ifdef __CYGWIN__
-# include <sys/cygwin.h>
-# define CP_UTF8 65001
-  __declspec(dllimport) extern __stdcall int WideCharToMultiByte(int, int,
-      const char *, int, const char *, int, const char *, const char *);
-  __declspec(dllimport) extern __stdcall int MultiByteToWideChar(int, int,
-      const char *, int, wchar_t*, int);
-#endif
+#include "cygsup.h"
 
 #ifdef _WIN32
 /*

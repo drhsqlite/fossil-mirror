@@ -157,7 +157,11 @@ int th_register_language(Th_Interp *interp);            /* th_lang.c */
 int th_register_sqlite(Th_Interp *interp);              /* th_sqlite.c */
 int th_register_vfs(Th_Interp *interp);                 /* th_vfs.c */
 int th_register_testvfs(Th_Interp *interp);             /* th_testvfs.c */
+
+#ifdef FOSSIL_ENABLE_TCL
 int th_register_tcl(Th_Interp *interp, void *pContext); /* th_tcl.c */
+int unloadTcl(Th_Interp *interp, void *pContext);       /* th_tcl.c */
+#endif
 
 /*
 ** General purpose hash table from th_lang.c.

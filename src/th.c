@@ -4,6 +4,7 @@
 ** the implementation of the interface in th.h.
 */
 
+#include "config.h"
 #include "th.h"
 #include <string.h>
 #include <assert.h>
@@ -1777,7 +1778,7 @@ static Operator aOperator[] = {
   {"^",  OP_BITWISE_XOR,    9, ARG_INTEGER},
   {"|",  OP_BITWISE_OR,    10, ARG_INTEGER},
 
-  {0,0,0}
+  {0,0,0,0}
 };
 
 /*
@@ -2356,7 +2357,6 @@ int th_isalnum(char c){
 #ifndef LONGDOUBLE_TYPE
 # define LONGDOUBLE_TYPE long double
 #endif
-typedef char u8;
 
 
 /*

@@ -101,7 +101,10 @@ struct TclContext {
   void *library;         /* The Tcl library module handle. */
   void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
+  void *xDeleteInterp;   /* See tcl_DeleteInterpProc in th_tcl.c. */
+  void *xFinalize;       /* See tcl_FinalizeProc in th_tcl.c. */
   Tcl_Interp *interp;    /* The on-demand created Tcl interpreter. */
+  int useObjProc;        /* Non-zero if an objProc can be called directly. */
   char *setup;           /* The optional Tcl setup script. */
   void *xPreEval;        /* Optional, called before Tcl_Eval*(). */
   void *pPreContext;     /* Optional, provided to xPreEval(). */
@@ -116,7 +119,9 @@ struct TclContext {
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
+  const char *zErrlog;    /* Log errors to this file, if not NULL */
   int isConst;            /* True if the output is unchanging */
+  const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
   int useAttach;          /* True if global_config is attached to repository */
@@ -136,6 +141,8 @@ struct Global {
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
+  int fSshClient;         /* HTTP client flags for SSH client */
+  char *zSshCmd;          /* SSH command string */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
@@ -178,7 +185,6 @@ struct Global {
   char *urlCanonical;     /* Canonical representation of the URL */
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
   char *urlFossil;        /* The fossil query parameter on ssh: */
-  char *urlShell;         /* The shell query parameter on ssh: */
   unsigned urlFlags;      /* Boolean flags controlling URL processing */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
@@ -345,6 +351,20 @@ static int name_search(
 ** used by fossil.
 */
 static void fossil_atexit(void) {
+#if defined(_WIN32) && !defined(_WIN64) && defined(FOSSIL_ENABLE_TCL) && \
+    defined(USE_TCL_STUBS)
+  /*
+  ** If Tcl is compiled on Windows using the latest MinGW, Fossil can crash
+  ** when exiting while a stubs-enabled Tcl is still loaded.  This is due to
+  ** a bug in MinGW, see:
+  **
+  **     http://comments.gmane.org/gmane.comp.gnu.mingw.user/41724
+  **
+  ** The workaround is to manually unload the loaded Tcl library prior to
+  ** exiting the process.  This issue does not impact 64-bit Windows.
+  */
+  unloadTcl(g.interp, &g.tcl);
+#endif
 #ifdef FOSSIL_ENABLE_JSON
   cson_value_free(g.json.gc.v);
   memset(&g.json, 0, sizeof(g.json));
@@ -375,7 +395,7 @@ static void expand_args_option(int argc, void *argv){
   char *z;                  /* General use string pointer */
   char **newArgv;           /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
-  FILE * zInFile;           /* input FILE */
+  FILE *inFile;             /* input FILE */
 #if defined(_WIN32)
   wchar_t buf[MAX_PATH];
 #endif
@@ -405,17 +425,17 @@ static void expand_args_option(int argc, void *argv){
   if( i>=g.argc-1 ) return;
 
   zFileName = g.argv[i+1];
-  zInFile = (0==strcmp("-",zFileName))
+  inFile = (0==strcmp("-",zFileName))
     ? stdin
     : fossil_fopen(zFileName,"rb");
-  if(!zInFile){
-    fossil_panic("Cannot open -args file [%s]", zFileName);
+  if(!inFile){
+    fossil_fatal("Cannot open -args file [%s]", zFileName);
   }else{
-    blob_read_from_channel(&file, zInFile, -1);
-    if(stdin != zInFile){
-      fclose(zInFile);
+    blob_read_from_channel(&file, inFile, -1);
+    if(stdin != inFile){
+      fclose(inFile);
     }
-    zInFile = NULL;
+    inFile = NULL;
   }
   blob_to_utf8_no_bom(&file, 1);
   z = blob_str(&file);
@@ -515,6 +535,7 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
   ** creates lots of aliases and the warning alarms people. */
   if( iCode==SQLITE_WARNING ) return;
 #endif
+  if( iCode==SQLITE_SCHEMA ) return;
   fossil_warning("%s: %s", sqlite_error_code_name(iCode), zErrmsg);
 }
 
@@ -525,12 +546,16 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 int _dowildcard = -1; /* This turns on command-line globbing in MinGW-w64 */
 int wmain(int argc, wchar_t **argv)
 #else
+#if defined(_WIN32)
+int _CRT_glob = 0x0001; /* See MinGW bug #2062 */
+#endif
 int main(int argc, char **argv)
 #endif
 {
   const char *zCmdName = "unknown";
   int idx;
   int rc;
+  sqlite3_config(SQLITE_CONFIG_SINGLETHREAD);
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);
@@ -555,6 +580,23 @@ int main(int argc, char **argv)
   g.tcl.argv = copy_args(g.argc, g.argv); /* save full arguments */
 #endif
   g.mainTimerId = fossil_timer_start();
+  g.zVfsName = find_option("vfs",0,1);
+  if( g.zVfsName==0 ){
+    g.zVfsName = fossil_getenv("FOSSIL_VFS");
+#if defined(__CYGWIN__)
+    if( g.zVfsName==0 && sqlite3_libversion_number()>=3008001 ){
+      g.zVfsName = "win32-longpath";
+    }
+#endif
+  }
+  if( g.zVfsName ){
+    sqlite3_vfs *pVfs = sqlite3_vfs_find(g.zVfsName);
+    if( pVfs ){
+      sqlite3_vfs_register(pVfs, 1);
+    }else{
+      fossil_fatal("no such VFS: \"%s\"", g.zVfsName);
+    }
+  }
   if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
     g.isHTTP = 1;
@@ -584,11 +626,14 @@ int main(int argc, char **argv)
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
     g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;
     g.fSshTrace = find_option("sshtrace", 0, 0)!=0;
+    g.fSshClient = 0;
+    g.zSshCmd = 0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
+    g.zErrlog = find_option("errorlog", 0, 1);
     if( find_option("utc",0,0) ) g.fTimeFormat = 1;
     if( find_option("localtime",0,0) ) g.fTimeFormat = 2;
     if( zChdir && file_chdir(zChdir, 0) ){
@@ -608,6 +653,10 @@ int main(int argc, char **argv)
     }
     zCmdName = g.argv[1];
   }
+#ifndef _WIN32
+  if( !is_valid_fd(2) ) fossil_panic("file descriptor 2 not open");
+  /* if( is_valid_fd(3) ) fossil_warning("file descriptor 3 is open"); */
+#endif
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
   if( rc==1 ){
     fossil_fatal("%s: unknown command: %s\n"
@@ -775,6 +824,17 @@ void cmd_test_webpage_list(void){
   multi_column_list(aCmd, nCmd);
 }
 
+
+
+/*
+** This function returns a human readable version string.
+*/
+const char *get_version(){
+  static const char version[] = RELEASE_VERSION " " MANIFEST_VERSION " "
+                                MANIFEST_DATE " UTC";
+  return version;
+}
+
 /*
 ** COMMAND: version
 **
@@ -786,23 +846,38 @@ void cmd_test_webpage_list(void){
 ** with
 */
 void version_cmd(void){
-  fossil_print("This is fossil version " RELEASE_VERSION " "
-               MANIFEST_VERSION " " MANIFEST_DATE " UTC\n");
+  fossil_print("This is fossil version %s\n", get_version());
   if(!find_option("verbose","v",0)){
     return;
   }else{
+#if defined(FOSSIL_ENABLE_TCL)
+    int rc;
+    const char *zRc;
+#endif
     fossil_print("Compiled on %s %s using %s (%d-bit)\n",
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
-    fossil_print("SQLite %s %.30s\n", SQLITE_VERSION, SQLITE_SOURCE_ID);
-    fossil_print("zlib %s\n", ZLIB_VERSION);
+    fossil_print("SQLite %s %.30s\n", sqlite3_libversion(), sqlite3_sourceid());
+    fossil_print("Schema version %s\n", AUX_SCHEMA);
+    fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #if defined(FOSSIL_ENABLE_SSL)
     fossil_print("SSL (%s)\n", OPENSSL_VERSION_TEXT);
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
-    fossil_print("TCL (Tcl %s)\n", TCL_PATCH_LEVEL);
+    Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
+    rc = Th_Eval(g.interp, 0, "tclInvoke info patchlevel", -1);
+    zRc = Th_ReturnCodeName(rc, 0);
+    fossil_print("TCL (Tcl %s, loaded %s: %s)\n",
+      TCL_PATCH_LEVEL, zRc, Th_GetResult(g.interp, 0)
+    );
+#endif
+#if defined(USE_TCL_STUBS)
+    fossil_print("USE_TCL_STUBS\n");
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
     fossil_print("TCL_STUBS\n");
+#endif
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+    fossil_print("TCL_PRIVATE_STUBS\n");
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
     fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
@@ -1112,6 +1187,9 @@ static char *enter_chroot_jail(char *zRepo){
     struct stat sStat;
     Blob dir;
     char *zDir;
+    if( g.db!=0 ){
+      db_close(1);
+    }
 
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
@@ -1122,7 +1200,7 @@ static char *enter_chroot_jail(char *zRepo){
       zRepo = "/";
     }else{
       for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
-      if( zDir[i]!='/' ) fossil_panic("bad repository name: %s", zRepo);
+      if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
       if( i>0 ){
         zDir[i] = 0;
         if( file_chdir(zDir, 1) ){
@@ -1139,10 +1217,6 @@ static char *enter_chroot_jail(char *zRepo){
     i = i || setuid(sStat.st_uid);
     if(i){
       fossil_fatal("setgid/uid() failed with errno %d", errno);
-    }
-    if( g.db!=0 ){
-      db_close(1);
-      db_open_repository(zRepo);
     }
   }
 #endif
@@ -1285,7 +1359,8 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
   /* Find the page that the user has requested, construct and deliver that
   ** page.
   */
-  if( g.zContentType && memcmp(g.zContentType, "application/x-fossil", 20)==0 ){
+  if( g.zContentType &&
+      strncmp(g.zContentType, "application/x-fossil", 20)==0 ){
     zPathInfo = "/xfer";
   }
   if( zPathInfo==0 || zPathInfo[0]==0
@@ -1381,7 +1456,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
     if(!g.json.isJsonMode){
 #endif
       dehttpize(g.zExtra);
-      cgi_set_parameter_nocopy("name", g.zExtra);
+      cgi_set_parameter_nocopy("name", g.zExtra, 1);
 #ifdef FOSSIL_ENABLE_JSON
     }
 #endif
@@ -1517,6 +1592,10 @@ void cmd_cgi(void){
     if( blob_eq(&key, "debug:") && blob_token(&line, &value) ){
       g.fDebug = fossil_fopen(blob_str(&value), "ab");
       blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "errorlog:") && blob_token(&line, &value) ){
+      g.zErrlog = mprintf("%s", blob_str(&value));
       continue;
     }
     if( blob_eq(&key, "HOME:") && blob_token(&line, &value) ){
@@ -1697,10 +1776,18 @@ void cmd_http(void){
   }else{
     zIpAddr = 0;
   }
+  if( zIpAddr==0 ){
+    zIpAddr = cgi_ssh_remote_addr(0);
+    if( zIpAddr && zIpAddr[0] ){
+      g.fSshClient |= CGI_SSH_CLIENT;
+    }
+  }
   find_server_repository(0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   if( useSCGI ){
     cgi_handle_scgi_request();
+  }else if( g.fSshClient & CGI_SSH_CLIENT ){
+    ssh_request_loop(zIpAddr, glob_create(zFileGlob));
   }else{
     cgi_handle_http_request(zIpAddr);
   }
@@ -1708,23 +1795,44 @@ void cmd_http(void){
 }
 
 /*
+** Process all requests in a single SSH connection if possible.
+*/
+void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
+  do{
+    cgi_handle_ssh_http_request(zIpAddr);
+    process_one_web_page(0, FileGlob);
+    blob_reset(&g.cgiIn);
+  } while ( g.fSshClient & CGI_SSH_FOSSIL ||
+          g.fSshClient & CGI_SSH_COMPAT );
+}
+
+/*
 ** Note that the following command is used by ssh:// processing.
 **
 ** COMMAND: test-http
 ** Works like the http command but gives setup permission to all users.
+**
 */
 void cmd_test_http(void){
+  const char *zIpAddr;    /* IP address of remote client */
+
   Th_InitTraceLog();
   login_set_capabilities("sx", 0);
   g.useLocalauth = 1;
-  cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
   g.httpIn = stdin;
   g.httpOut = stdout;
   find_server_repository(0);
   g.cgiOutput = 1;
   g.fullHttpReply = 1;
-  cgi_handle_http_request(0);
-  process_one_web_page(0, 0);
+  zIpAddr = cgi_ssh_remote_addr(0);
+  if( zIpAddr && zIpAddr[0] ){
+    g.fSshClient |= CGI_SSH_CLIENT;
+    ssh_request_loop(zIpAddr, 0);
+  }else{
+    cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
+    cgi_handle_http_request(0);
+    process_one_web_page(0, 0);
+  }
 }
 
 #if !defined(_WIN32)
