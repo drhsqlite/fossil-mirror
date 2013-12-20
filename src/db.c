@@ -717,7 +717,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   /* Necessary if we want Cygwin fossil to recognize win32 file
    * paths, as SQLite doesn't handle that (yet) */
   zDbName = fossil_utf8_to_filename(zDbName);
-#elif defined(_WIN32)
+#elif 0 && defined(_WIN32)
   /* Only necessary when SQLite doesn't handle Extended paths. */
   zDbName = fossil_utf8_to_filename(zDbName);
   zDbName = fossil_filename_to_utf8(zDbName);
