@@ -526,7 +526,8 @@ void ci_page(void){
     login_anonymous_available();
     free(zTitle);
     zEUser = db_text(0,
-                   "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
+                   "SELECT value FROM tagxref"
+                   " WHERE tagid=%d AND rid=%d AND tagtype>0",
                     TAG_USER, rid);
     zEComment = db_text(0,
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
