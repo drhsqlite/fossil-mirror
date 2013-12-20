@@ -577,6 +577,9 @@ static void git_fast_import(FILE *pIn){
     }else
     if( memcmp(zLine, "tagger ", 7)==0 || memcmp(zLine, "committer ",10)==0 ){
       sqlite3_int64 secSince1970;
+	  int hastz;
+	  char tzdir;
+	  int tz;
       for(i=0; zLine[i] && zLine[i]!='<'; i++){}
       if( zLine[i]==0 ) goto malformed_line;
       z = &zLine[i+1];
@@ -586,9 +589,21 @@ static void git_fast_import(FILE *pIn){
       fossil_free(gg.zUser);
       gg.zUser = fossil_strdup(z);
       secSince1970 = 0;
+
+	  /* We don't use sscanf here because of int64 portability issues. */
       for(i=i+2; fossil_isdigit(zLine[i]); i++){
         secSince1970 = secSince1970*10 + zLine[i] - '0';
       }
+
+      /* Read in optional timezone modifier (we don't know if it's strictly
+	   * optional, but better to be sure). */
+      tzdir = '+';
+	  tz = 0;
+	  hastz = sscanf(&zLine[i], " %c%d", &tzdir, &tz);
+	  if ((hastz == 1) || (hastz > 2)) goto malformed_line;
+	  secSince1970 += ((tzdir == '-') ? -1 : 1) *
+	    ((tz/100)*3600 + (tz%100)*60);
+
       fossil_free(gg.zDate);
       gg.zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')", secSince1970);
       gg.zDate[10] = 'T';

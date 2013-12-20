@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
-
-C Create\snew\sbranch\snamed\s"dg-timestamps"
-D 2013-12-20T16:52:12.956
+C Honour\stimezones\sin\sgit\sfast-import\sdump\stimestamps.
+D 2013-12-20T17:05:27.947
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -351,7 +348,7 @@ F src/http.c 2195ed5115282c0bf356d918d3adb7144bf78e8d
 F src/http_socket.c 09d140a27eb27dbae0b8d494172f9c2a39baf9dd
 F src/http_ssl.c b8265d591710fe628a32a54067056d7b000ec91e
 F src/http_transport.c f6b79299ea197c26e9137a7b68b28885edb1b463
-F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
+F src/import.c e7bed6e6ae0f2b8fb077588e397dd912d68ad193
 F src/info.c c0cfe2ed7e5a44633f8691a8bc168747753976d9
 F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
@@ -642,27 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1311841a3c201a669bc0e433e24c6caf3fd3ab1d
-R b5201bd298c58174c2d2203cd6530006
-T *branch * dg-timestamps
-T *sym-dg-timestamps *
-T -sym-trunk *
+P 51331e3e04c514be6eff9583668f0a0fdb6e7a42
+R 141215b57f065faabcd830e51228adc7
 U dg
-Z fb05a77478a8c016180ade98b925fc90
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIVAwUBUrR1vHTPe2DYoi4EAQoRjw//ViwTMzJR805QOElJuNYKglmL1pJvZU2f
-3g4CeZARBwhItSc+XCDQd5AirqVrRcfD8ssNj2CZRMc9DiCYtd29NbpyfIkLq2Qq
-7Lo/lzPMlmIiXb16w1hgvPfpos+9X6w69rTaD2QFKk2ZpXAFlwhsTEgqI/Uqs5Eq
-vFkltWv5fUCEgyQICLAWRIkJTAMJlX0ABANy2lBoc6j8LqLjPPP59sVr5OezPwY0
-jT1txc/rfFRrvSGqXXtaKhf8RDIt3pdpqwzzxgQwKbMVIgpeflBVSixGw460l5nv
-RIj45L1Kb1AzEFtUsKdi6AwaY6l7nmO2MdusE3DhSSfyB4UqmgnArZgAz8onb1Xc
-mGn/YKjxRv/2seyz0XQ2KiRtc5nA8OCIK4b9k7tpx01iFg0fQSEtBfOQJU38JWBa
-ux4dLMsPRM+Mh877UZwYjjT7EbCPEGXC4T2DmPigV5vU+2y3TvsmmFnvL5gnlRBD
-UlyF6Ja2jJQUifSWAfVJh6OkPP4MpmAxT0JYDZofncP0gCTLZNzXS4zwO0WcBVBE
-QXpg0f7cNBqQxtuf0rslVW7rWrAVQ0hEPPmLdiiOpLrh5pPpimX3Uvba4oMGPe/M
-NQg3ScVWBVbPVM8x8WiucCX+H5C7n5gJXveOq5pgSG++BPzNQcAfER3xYeC5E0J3
-57TJZ22dtdg=
-=Dwhe
------END PGP SIGNATURE-----
+Z e342fdb9b1fba8a88b399c803a40c8a6
