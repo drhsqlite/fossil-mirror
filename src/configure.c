@@ -100,6 +100,7 @@ static struct {
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
   { "th1-setup",              CONFIGSET_TH1 },
+  { "th1-uri-regexp",         CONFIGSET_TH1 },
 
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",                    CONFIGSET_TH1 },
@@ -140,6 +141,8 @@ static struct {
 
   { "xfer-common-script",     CONFIGSET_XFER },
   { "xfer-push-script",       CONFIGSET_XFER },
+  { "xfer-commit-script",     CONFIGSET_XFER },
+  { "xfer-ticket-script",     CONFIGSET_XFER },
 
 };
 static int iConfig = 0;

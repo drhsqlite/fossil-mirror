@@ -1414,7 +1414,7 @@ void db_initial_setup(
     blob_appendf(&manifest, "Z %b\n", &hash);
     blob_reset(&hash);
     rid = content_put(&manifest);
-    manifest_crosslink(rid, &manifest);
+    manifest_crosslink(rid, &manifest, MC_NONE);
   }
 }
 
@@ -2154,6 +2154,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "tcl-setup",     0,               40, 0, ""                    },
 #endif
   { "th1-setup",     0,               40, 0, ""                    },
+  { "th1-uri-regexp",0,               40, 0, ""                    },
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
   { 0,0,0,0,0 }
@@ -2350,6 +2351,10 @@ struct stControlSettings const ctrlSettings[] = {
 **    th1-setup        This is the setup script to be evaluated after creating
 **                     and initializing the TH1 interpreter.  By default, this
 **                     is empty and no extra setup is performed.
+**
+**    th1-uri-regexp   Specify which URI's are allowed in HTTP requests from
+**                     TH1 scripts.  If empty, no HTTP requests are allowed
+**                     whatsoever.  The default is an empty string.
 **
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.

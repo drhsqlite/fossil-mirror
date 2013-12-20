@@ -45,6 +45,12 @@
 #define PERM_LNK          2     /*  symlink       */
 
 /*
+** Flags for use with manifest_crosslink().
+*/
+#define MC_NONE           0  /*  default handling           */
+#define MC_PERMIT_HOOKS   1  /*  permit hooks to execute    */
+
+/*
 ** A single F-card within a manifest
 */
 struct ManifestFile { 
@@ -1652,30 +1658,37 @@ static int tag_compare(const void *a, const void *b){
 ** of the routine, "manifest_crosslink", and the name of this source
 ** file, is a legacy of its original use.
 */
-int manifest_crosslink(int rid, Blob *pContent){
-  int i;
+int manifest_crosslink(int rid, Blob *pContent, int flags){
+  int i, result = TH_OK;
   Manifest *p;
   Stmt q;
   int parentid = 0;
+  const char *zScript = 0;
+  const char *zUuid = 0;
 
   if( (p = manifest_cache_find(rid))!=0 ){
     blob_reset(pContent);
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
     assert( blob_is_reset(pContent) || pContent==0 );
+    fossil_error(1, "syntax error in manifest");
     return 0;
   }
   if( g.xlinkClusterOnly && p->type!=CFTYPE_CLUSTER ){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
+    fossil_error(1, "no manifest");
     return 0;
   }
   if( p->type==CFTYPE_MANIFEST && fetch_baseline(p, 0) ){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
+    fossil_error(1, "cannot fetch baseline manifest");
     return 0;
   }
   db_begin_transaction();
   if( p->type==CFTYPE_MANIFEST ){
+    zScript = xfer_commit_code();
+    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
       for(i=0; i<p->nParent; i++){
@@ -1770,7 +1783,7 @@ int manifest_crosslink(int rid, Blob *pContent){
           case '+':  type = 1;  break;  /* Apply to target only */
           case '*':  type = 2;  break;  /* Propagate to descendants */
           default:
-            fossil_fatal("unknown tag type in manifest: %s", p->aTag);
+            fossil_error(1, "unknown tag type in manifest: %s", p->aTag);
             return 0;
         }
         tag_insert(&p->aTag[i].zName[1], type, p->aTag[i].zValue, 
@@ -1872,6 +1885,8 @@ int manifest_crosslink(int rid, Blob *pContent){
   if( p->type==CFTYPE_TICKET ){
     char *zTag;
 
+    zScript = xfer_ticket_code();
+    zUuid = p->zTicketUuid;
     assert( manifest_crosslink_busy==1 );
     zTag = mprintf("tkt-%s", p->zTicketUuid);
     tag_insert(zTag, 1, 0, rid, p->rDate, rid);
@@ -1936,7 +1951,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     int i;
     const char *zName;
     const char *zValue;
-    const char *zUuid;
+    const char *zTagUuid;
     int branchMove = 0;
     blob_zero(&comment);
     if( p->zComment ){
@@ -1945,20 +1960,26 @@ int manifest_crosslink(int rid, Blob *pContent){
     /* Next loop expects tags to be sorted on UUID, so sort it. */
     qsort(p->aTag, p->nTag, sizeof(p->aTag[0]), tag_compare);
     for(i=0; i<p->nTag; i++){
-      zUuid = p->aTag[i].zUuid;
-      if( !zUuid ) continue;
-      if( i==0 || fossil_strcmp(zUuid, p->aTag[i-1].zUuid)!=0 ){
+      zTagUuid = p->aTag[i].zUuid;
+      if( !zTagUuid ) continue;
+      if( i==0 || fossil_strcmp(zTagUuid, p->aTag[i-1].zUuid)!=0 ){
         blob_appendf(&comment,
            " Edit [%S]:",
-           zUuid);
+           zTagUuid);
         branchMove = 0;
+        if( db_exists("SELECT 1 FROM event, blob"
+            " WHERE event.type='ci' AND event.objid=blob.rid"
+            " AND blob.uuid='%s'", zTagUuid) ){
+          zScript = xfer_commit_code();
+          zUuid = zTagUuid;
+        }
       }
       zName = p->aTag[i].zName;
       zValue = p->aTag[i].zValue;
       if( strcmp(zName, "*branch")==0 ){
         blob_appendf(&comment,
            " Move to branch [/timeline?r=%h&nd&dp=%S | %h].",
-           zValue, zUuid, zValue);
+           zValue, zTagUuid, zValue);
         branchMove = 1;
         continue;
       }else if( strcmp(zName, "*bgcolor")==0 ){
@@ -2023,13 +2044,19 @@ int manifest_crosslink(int rid, Blob *pContent){
     blob_reset(&comment);
   }
   db_end_transaction(0);
+  if( zScript && (flags & MC_PERMIT_HOOKS) ){
+    result = xfer_run_common_script();
+    if( result==TH_OK ){
+      result = xfer_run_script(zScript, zUuid);
+    }
+  }
   if( p->type==CFTYPE_MANIFEST ){
     manifest_cache_insert(p);
   }else{
     manifest_destroy(p);
   }
   assert( blob_is_reset(pContent) );
-  return 1;
+  return ( result!=TH_ERROR );
 }
 
 /*
@@ -2047,5 +2074,5 @@ void test_crosslink_cmd(void){
   if( g.argc!=3 ) usage("RECORDID");
   rid = name_to_rid(g.argv[2]);
   content_get(rid, &content);
-  manifest_crosslink(rid, &content);
+  manifest_crosslink(rid, &content, MC_NONE);
 }

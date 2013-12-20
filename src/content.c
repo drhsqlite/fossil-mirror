@@ -390,7 +390,7 @@ void after_dephantomize(int rid, int linkFlag){
     /* Parse the object rid itself */
     if( linkFlag ){
       content_get(rid, &content);
-      manifest_crosslink(rid, &content);
+      manifest_crosslink(rid, &content, MC_NONE);
       assert( blob_is_reset(&content) );
     }
 
@@ -407,7 +407,7 @@ void after_dephantomize(int rid, int linkFlag){
     db_finalize(&q);
     for(i=0; i<nChildUsed; i++){
       content_get(aChild[i], &content);
-      manifest_crosslink(aChild[i], &content);
+      manifest_crosslink(aChild[i], &content, MC_NONE);
       assert( blob_is_reset(&content) );
     }
     if( nChildUsed ){
