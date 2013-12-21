@@ -1978,7 +1978,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       zValue = p->aTag[i].zValue;
       if( strcmp(zName, "*branch")==0 ){
         blob_appendf(&comment,
-           " Move to branch [/timeline?r=%h&nd&dp=%S | %h].",
+           " Move to branch [/timeline?r=%h&nd&dp=%S&unhide | %h].",
            zValue, zTagUuid, zValue);
         branchMove = 1;
         continue;
