@@ -362,10 +362,7 @@ void cgi_reply(void){
   if( iReplyStatus != 304 ) {
     if( is_gzippable() ){
       int i;
-      /* Using an arbitrary constant argument for gzip_begin() so the same
-      ** input always results in the same gzipped output.
-      **/
-      gzip_begin(1);
+      gzip_begin(0);
       for( i=0; i<2; i++ ){
         int size = blob_size(&cgiContent[i]);
         if( size>0 ) gzip_step(blob_buffer(&cgiContent[i]), size);

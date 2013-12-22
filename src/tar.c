@@ -429,7 +429,7 @@ void test_tarball_cmd(void){
     usage("ARCHIVE FILE....");
   }
   sqlite3_open(":memory:", &g.db);
-  tar_begin(0);
+  tar_begin(-1);
   for(i=3; i<g.argc; i++){
     blob_zero(&file);
     blob_read_from_file(&file, g.argv[i]);
