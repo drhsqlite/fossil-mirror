@@ -1636,7 +1636,7 @@ void artifact_page(void){
           "%R/raw/%T?name=%s", blob_str(&downloadName), zUuid);
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
     style_submenu_element("Checkins Using", "Checkins Using",
-          "%R/timeline?uf=%s&n=200",zUuid);
+          "%R/timeline?n=200&uf=%s&unhide",zUuid);
   }
   asText = P("txt")!=0;
   zMime = mimetype_from_name(blob_str(&downloadName));
