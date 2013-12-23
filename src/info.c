@@ -596,7 +596,7 @@ void ci_page(void){
         }
       }
       @ <tr><th>Timelines:</th><td>
-      @   %z(href("%R/timeline?f=%S",zUuid))family</a>
+      @   %z(href("%R/timeline?f=%S&unhide",zUuid))family</a>
       if( zParent ){
         @ | %z(href("%R/timeline?p=%S",zUuid))ancestors</a>
       }
