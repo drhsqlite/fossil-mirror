@@ -598,13 +598,13 @@ void ci_page(void){
       @ <tr><th>Timelines:</th><td>
       @   %z(href("%R/timeline?f=%S&unhide",zUuid))family</a>
       if( zParent ){
-        @ | %z(href("%R/timeline?p=%S",zUuid))ancestors</a>
+        @ | %z(href("%R/timeline?p=%S&unhide",zUuid))ancestors</a>
       }
       if( !isLeaf ){
-        @ | %z(href("%R/timeline?d=%S",zUuid))descendants</a>
+        @ | %z(href("%R/timeline?d=%S&unhide",zUuid))descendants</a>
       }
       if( zParent && !isLeaf ){
-        @ | %z(href("%R/timeline?dp=%S",zUuid))both</a>
+        @ | %z(href("%R/timeline?dp=%S&unhide",zUuid))both</a>
       }
       db_prepare(&q2,"SELECT substr(tag.tagname,5) FROM tagxref, tag "
                      " WHERE rid=%d AND tagtype>0 "

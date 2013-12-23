@@ -469,7 +469,7 @@ void finfo_page(void){
       @ [annotate]</a>
       @ %z(href("%R/blame?checkin=%S&filename=%h",zCkin,z))
       @ [blame]</a>
-      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
+      @ %z(href("%R/timeline?n=200&uf=%S&unhide",zUuid))[checkins&nbsp;using]</a>
       if( fpid ){
         @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zPUuid,zUuid))[diff]</a>
       }
