@@ -275,6 +275,7 @@ void finfo_page(void){
   char zPrevDate[20];
   const char *zA;
   const char *zB;
+  const char *zUnhide;
   int n;
   int baseCheckin;
 
@@ -296,7 +297,7 @@ void finfo_page(void){
   if( uBg ) url_add_parameter(&url, "ubg", 0);
   baseCheckin = name_to_rid_www("ci");
   if( baseCheckin ) firstChngOnly = 1;
-  if( firstChngOnly ) url_add_parameter(&url, "fco", "0");
+  if( !firstChngOnly ) url_add_parameter(&url, "fco", "0");
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
@@ -341,6 +342,9 @@ void finfo_page(void){
     compute_direct_ancestors(baseCheckin, 10000000);
     blob_appendf(&sql,"  AND mlink.mid IN (SELECT rid FROM ancestor)");
   }
+  if( (zUnhide = P("unhide")) ){
+    url_add_parameter(&url, "unhide", "");
+  }
   if( (zA = P("a"))!=0 ){
     blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zA);
     url_add_parameter(&url, "a", zA);
@@ -366,6 +370,10 @@ void finfo_page(void){
                             "Show only first use of a change","%s",
                             url_render(&url, "fco", "1", 0, 0));
     }
+  }
+  if( !zUnhide ){
+    style_submenu_element("Unhide", "Unhide","%s",
+                          url_render(&url, "unhide", "", 0, 0));
   }
   db_prepare(&q, blob_str(&sql));
   if( P("showsql")!=0 ){

@@ -1,5 +1,5 @@
-C Revert\stwo\sincorrect\s"unhide"\sadditions:\s\szUuid\sis\snot\sa\scheck-in\suuid\shere.
-D 2013-12-23T13:01:42.067
+C Add\s"Unhide"\sbuttin\sin\sfinfo\spage.\s(Doesn't\sdo\sanything\syet)
+D 2013-12-23T21:25:47.772
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -340,7 +340,7 @@ F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 8746ce8c2e786d12123334667d047f94cd5c1d7e
 F src/export.c 026f3746292c9c5bddcd454591ff71fb6d846481
 F src/file.c 32744471139356fc717440b8812528c0d96d6b3f
-F src/finfo.c 4bc626ce9ad738d35e3fac484315191a8a4c9203
+F src/finfo.c f799509e3c46f0448411ee131389234914ac3f2b
 F src/glob.c 968a3f5b9e203af3053939639533ee7b26259836
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
 F src/gzip.c e41e31ff0adf9cb45b0c585156f70070241da092
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ef2b77207ad4e484fca21f3347501ce266ce4f27
-R bd21cdd2d2e1880b07919b8f9572a1fc
+P 0a5b0521920ea250450b169601e46f98500dd957
+R d89defab8bb8e9e77ec1d0f645a77a96
 U jan.nijtmans
-Z af7267bc765b6c3b9c575b1e48236d78
+Z 0aafa73eefc72dc2190b308b355f2962
