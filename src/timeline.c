@@ -1237,12 +1237,14 @@ void page_timeline(void){
     if( (tmFlags & TIMELINE_UNHIDE)==0 ){
       if( p_rid ){
         url_add_parameter(&url, "p", zUuid);
-        if( d_rid ){
+      }
+      if( d_rid ){
+        if( p_rid ){
           /* If both p= and d= are set, we don't have the uuid of d yet. */
           zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
         }
+        url_add_parameter(&url, "d", zUuid);
       }
-      if( d_rid ) url_add_parameter(&url, "d", zUuid);
       timeline_submenu(&url, "Unhide", "unhide", "", 0);
     }
   }else if( f_rid && g.perm.Read ){

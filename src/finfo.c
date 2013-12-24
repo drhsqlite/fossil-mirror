@@ -368,7 +368,7 @@ void finfo_page(void){
     }else{
       style_submenu_element("Simplified",
                             "Show only first use of a change","%s",
-                            url_render(&url, "fco", "1", 0, 0));
+                            url_render(&url, "fco", 0, 0, 0));
     }
   }
   if( !zUnhide ){
