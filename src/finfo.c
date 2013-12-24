@@ -296,7 +296,7 @@ void finfo_page(void){
   if( uBg ) url_add_parameter(&url, "ubg", 0);
   baseCheckin = name_to_rid_www("ci");
   if( baseCheckin ) firstChngOnly = 1;
-  if( firstChngOnly ) url_add_parameter(&url, "fco", "0");
+  if( !firstChngOnly ) url_add_parameter(&url, "fco", "0");
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
@@ -364,7 +364,7 @@ void finfo_page(void){
     }else{
       style_submenu_element("Simplified",
                             "Show only first use of a change","%s",
-                            url_render(&url, "fco", "1", 0, 0));
+                            url_render(&url, "fco", 0, 0, 0));
     }
   }
   db_prepare(&q, blob_str(&sql));
