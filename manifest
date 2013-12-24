@@ -1,5 +1,5 @@
-C merge\strunk
-D 2013-12-24T11:45:22.825
+C Add\stkt-change-hook\spossibilities\sto\schangelog
+D 2013-12-24T11:54:16.591
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -559,7 +559,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 8ca3a62bd54271d226356441e25cda6834ee1913
-F www/changes.wiki 7cf530fcad561a9a1e93cc41e64361e83312b14b
+F www/changes.wiki 6a17357428d241ff21022bc97b0e34970276ce08
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 73da41c5eb41278a92b75ecdae1159874de5047a 71aa33cd92f73853faa9a85c9f86f8fa9354f927
-R 748fb4a723c16d2776df6fe8d2945cff
+P 5e0e767892f2c7968fbfbef69c61768d49a530f6
+R 8b572272944b086fe50ea5df4d426546
 U jan.nijtmans
-Z bf712d68ef93d8f2b104412752399e11
+Z 81f7c31686769851e915ebcbc72c3150
