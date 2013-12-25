@@ -23,9 +23,9 @@
 **     Process checkpoints
 **     Announcements
 */
+#include "config.h"
 #include <assert.h>
 #include <ctype.h>
-#include "config.h"
 #include "event.h"
 
 /*
@@ -353,7 +353,7 @@ void eventedit_page(void){
     blob_reset(&cksum);
     nrid = content_put(&event);
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-    manifest_crosslink(nrid, &event);
+    manifest_crosslink(nrid, &event, MC_NONE);
     assert( blob_is_reset(&event) );
     content_deltify(rid, nrid, 0);
     db_end_transaction(0);

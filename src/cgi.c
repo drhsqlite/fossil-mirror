@@ -275,6 +275,16 @@ static int check_cache_control(void){
 #endif
 
 /*
+** Return true if the response should be sent with Content-Encoding: gzip.
+*/
+static int is_gzippable(void){
+  if( strstr(PD("HTTP_ACCEPT_ENCODING", ""), "gzip")==0 ) return 0;
+  return strncmp(zContentType, "text/", 5)==0
+    || strglob("application/*xml", zContentType)
+    || strglob("application/*javascript", zContentType);
+}
+
+/*
 ** Do a normal HTTP reply
 */
 void cgi_reply(void){
@@ -351,6 +361,18 @@ void cgi_reply(void){
   }
 
   if( iReplyStatus != 304 ) {
+    if( is_gzippable() ){
+      int i;
+      gzip_begin(0);
+      for( i=0; i<2; i++ ){
+        int size = blob_size(&cgiContent[i]);
+        if( size>0 ) gzip_step(blob_buffer(&cgiContent[i]), size);
+        blob_reset(&cgiContent[i]);
+      }
+      gzip_finish(&cgiContent[0]);
+      fprintf(g.httpOut, "Content-Encoding: gzip\r\n");
+      fprintf(g.httpOut, "Vary: Accept-Encoding\r\n");
+    }
     total_size = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
     fprintf(g.httpOut, "Content-Length: %d\r\n", total_size);
   }else{
@@ -833,6 +855,21 @@ static NORETURN void malformed_request(const char *zMsg);
 ** Initialize the query parameter database.  Information is pulled from
 ** the QUERY_STRING environment variable (if it exists), from standard
 ** input if there is POST data, and from HTTP_COOKIE.
+**
+** REQUEST_URI, PATH_INFO, and SCRIPT_NAME are related as follows:
+**
+**      REQUEST_URI == SCRIPT_NAME + PATH_INFO
+**
+** Where "+" means concatenate.  Fossil requires SCRIPT_NAME.  If
+** REQUEST_URI is provided but PATH_INFO is not, then PATH_INFO is
+** computed from REQUEST_URI and SCRIPT_NAME.  If PATH_INFO is provided
+** but REQUEST_URI is not, then compute REQUEST_URI from PATH_INFO and
+** SCRIPT_NAME.  If neither REQUEST_URI nor PATH_INFO are provided, then
+** assume that PATH_INFO is an empty string and set REQUEST_URI equal
+** to PATH_INFO.
+**
+** SCGI typically omits PATH_INFO.  CGI sometimes omits REQUEST_URI and
+** PATH_INFO when it is empty.
 */
 void cgi_init(void){
   char *z;
@@ -840,15 +877,24 @@ void cgi_init(void){
   int len;
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
   const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
+  const char *zPathInfo = cgi_parameter("PATH_INFO","");
 
 #ifdef FOSSIL_ENABLE_JSON
   json_main_bootstrap();
 #endif
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
-  if( zRequestUri==0 ) malformed_request("missing REQUEST_URI");
   if( zScriptName==0 ) malformed_request("missing SCRIPT_NAME");
-  if( cgi_parameter("PATH_INFO",0)==0 ){
+  if( zRequestUri==0 ){
+    const char *z = zPathInfo;
+    if( zPathInfo==0 ){
+      malformed_request("missing PATH_INFO and/or REQUEST_URI");
+    }
+    if( z[0]=='/' ) z++;
+    zRequestUri = mprintf("%s/%s", zScriptName, z);
+    cgi_set_parameter("REQUEST_URI", zRequestUri);
+  }
+  if( zPathInfo==0 ){
     int i, j;
     for(i=0; zRequestUri[i]==zScriptName[i] && zRequestUri[i]; i++){}
     for(j=i; zRequestUri[j] && zRequestUri[j]!='?'; j++){}
@@ -1271,7 +1317,9 @@ void cgi_handle_http_request(const char *zIpAddr){
     for(i=0; zFieldName[i]; i++){
       zFieldName[i] = fossil_tolower(zFieldName[i]);
     }
-    if( fossil_strcmp(zFieldName,"content-length:")==0 ){
+    if( fossil_strcmp(zFieldName,"accept-encoding:")==0 ){
+      cgi_setenv("HTTP_ACCEPT_ENCODING", zVal);
+    }else if( fossil_strcmp(zFieldName,"content-length:")==0 ){
       cgi_setenv("CONTENT_LENGTH", zVal);
     }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
       cgi_setenv("CONTENT_TYPE", zVal);
@@ -1352,8 +1400,8 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   static int nCycles = 0;
   static char *zCmd = 0;
   char *z, *zToken;
-  const char *zType;
-  int i, content_length;
+  const char *zType = 0;
+  int i, content_length = 0;
   char zLine[2000];     /* A single line of input. */
 
   if( zIpAddr ){

@@ -17,9 +17,9 @@
 **
 ** This file contains code used to generate tarballs.
 */
+#include "config.h"
 #include <assert.h>
 #include <zlib.h>
-#include "config.h"
 #include "tar.h"
 
 /*
@@ -429,7 +429,7 @@ void test_tarball_cmd(void){
     usage("ARCHIVE FILE....");
   }
   sqlite3_open(":memory:", &g.db);
-  tar_begin(0);
+  tar_begin(-1);
   for(i=3; i<g.argc; i++){
     blob_zero(&file);
     blob_read_from_file(&file, g.argv[i]);

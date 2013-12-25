@@ -193,7 +193,7 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
     blob_reset(&content);
   }else{
     if( !isPriv ) content_make_public(rid);
-    manifest_crosslink(rid, &content);
+    manifest_crosslink(rid, &content, MC_NONE);
   }
   assert( blob_is_reset(&content) );
   remote_has(rid);
@@ -822,29 +822,69 @@ static void server_private_xfer_not_authorized(void){
 }
 
 /*
-** Run the specified TH1 script, if any, and returns the return code or TH_OK
-** when there is no script.
+** Return the common TH1 code to evaluate prior to evaluating any other
+** TH1 transfer notification scripts.
 */
-static int run_script(const char *zScript){
-  if( !zScript ){
-    return TH_OK; /* No script, return success. */
+const char *xfer_common_code(void){
+  return db_get("xfer-common-script", 0);
+}
+
+/*
+** Return the TH1 code to evaluate when a push is processed.
+*/
+const char *xfer_push_code(void){
+  return db_get("xfer-push-script", 0);
+}
+
+/*
+** Return the TH1 code to evaluate when a commit is processed.
+*/
+const char *xfer_commit_code(void){
+  return db_get("xfer-commit-script", 0);
+}
+
+/*
+** Return the TH1 code to evaluate when a ticket change is processed.
+*/
+const char *xfer_ticket_code(void){
+  return db_get("xfer-ticket-script", 0);
+}
+
+/*
+** Run the specified TH1 script, if any, and returns 1 on error.
+*/
+int xfer_run_script(const char *zScript, const char *zUuid){
+  int result;
+  if( !zScript ) return TH_OK;
+  Th_FossilInit(TH_INIT_DEFAULT);
+  if( zUuid ){
+    result = Th_SetVar(g.interp, "uuid", -1, zUuid, -1);
+    if( result!=TH_OK ){
+      fossil_error(1, "%s", Th_GetResult(g.interp, 0));
+      return result;
+    }
   }
-  Th_FossilInit(TH_INIT_DEFAULT); /* Make sure TH1 is ready. */
-  return Th_Eval(g.interp, 0, zScript, -1);
+  result = Th_Eval(g.interp, 0, zScript, -1);
+  if( result!=TH_OK ){
+    fossil_error(1, "%s", Th_GetResult(g.interp, 0));
+  }
+  return result;
 }
 
 /*
-** Run the pre-transfer TH1 script, if any, and returns the return code.
+** Runs the pre-transfer TH1 script, if any, and returns its return code.
+** This script may be run multiple times.  If the script performs actions
+** that cannot be redone, it should use an internal [if] guard similar to
+** the following:
+**
+** if {![info exists common_done]} {
+**   # ... code here
+**   set common_done 1
+** }
 */
-static int run_common_script(void){
-  return run_script(db_get("xfer-common-script", 0));
-}
-
-/*
-** Run the post-push TH1 script, if any, and returns the return code.
-*/
-static int run_push_script(void){
-  return run_script(db_get("xfer-push-script", 0));
+int xfer_run_common_script(void){
+  Th_FossilInit(TH_INIT_DEFAULT);
+  return xfer_run_script(xfer_common_code(), 0);
 }
 
 /*
@@ -877,6 +917,7 @@ void page_xfer(void){
   int size;
   int recvConfig = 0;
   char *zNow;
+  int result;
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -906,9 +947,10 @@ void page_xfer(void){
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
   manifest_crosslink_begin();
-  if( run_common_script()==TH_ERROR ){
+  result = xfer_run_common_script();
+  if( result==TH_ERROR ){
     cgi_reset_content();
-    @ error common\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
+    @ error common\sscript\sfailed:\s%F(g.zErrMsg)
     nErr++;
   }
   while( blob_line(xfer.pIn, &xfer.line) ){
@@ -1233,10 +1275,13 @@ void page_xfer(void){
     blob_reset(&xfer.line);
   }
   if( isPush ){
-    if( run_push_script()==TH_ERROR ){
-      cgi_reset_content();
-      @ error push\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
-      nErr++;
+    if( result==TH_OK ){
+      result = xfer_run_script(xfer_push_code(), 0);
+      if( result==TH_ERROR ){
+        cgi_reset_content();
+        @ error push\sscript\sfailed:\s%F(g.zErrMsg)
+        nErr++;
+      }
     }
     request_phantoms(&xfer, 500);
   }
@@ -1269,6 +1314,7 @@ void page_xfer(void){
   free(zNow);
 
   db_end_transaction(0);
+  configure_rebuild();
 }
 
 /*
@@ -1783,7 +1829,9 @@ int client_sync(
               go = 1;
               if( g.cgiOutput==0 ){
                 g.urlFlags |= URL_PROMPT_PW;
+                g.urlFlags &= ~URL_PROMPTED;
                 url_prompt_for_password();
+                url_remember();
               }
             }
           }else{
@@ -1880,8 +1928,8 @@ int client_sync(
   fossil_print(
      "%s finished with %lld bytes sent, %lld bytes received\n",
      zOpType, nSent, nRcvd);
-  transport_close();
-  transport_global_shutdown();
+  transport_close(GLOBAL_URL());
+  transport_global_shutdown(GLOBAL_URL());
   db_multi_exec("DROP TABLE onremote");
   manifest_crosslink_end();
   content_enable_dephantomize(1);

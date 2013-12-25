@@ -18,9 +18,9 @@
 **
 ** This file contains code to do formatting of wiki text.
 */
+#include "config.h"
 #include <assert.h>
 #include <ctype.h>
-#include "config.h"
 #include "wiki.h"
 
 /*
@@ -29,7 +29,7 @@
 ** Well-formed wiki page names do not begin or end with whitespace,
 ** and do not contain tabs or other control characters and do not
 ** contain more than a single space character in a row.  Well-formed
-** names must be between 3 and 100 characters in length, inclusive.
+** names must be between 1 and 100 characters in length, inclusive.
 */
 int wiki_name_is_wellformed(const unsigned char *z){
   int i;
@@ -41,7 +41,7 @@ int wiki_name_is_wellformed(const unsigned char *z){
     if( z[i]==0x20 && z[i-1]==0x20 ) return 0;
   }
   if( z[i-1]==' ' ) return 0;
-  if( i<3 || i>100 ) return 0;
+  if( i<1 || i>100 ) return 0;
   return 1;
 }
 
@@ -54,7 +54,7 @@ static void well_formed_wiki_name_rules(void){
   @ <li> Must not contain any control characters, including tab or
   @      newline.</li>
   @ <li> Must not have two or more spaces in a row internally.</li>
-  @ <li> Must be between 3 and 100 characters in length.</li>
+  @ <li> Must be between 1 and 100 characters in length.</li>
   @ </ul>
 }
 
@@ -296,7 +296,7 @@ static void wiki_put(Blob *pWiki, int parent){
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", nrid);
-  manifest_crosslink(nrid, pWiki);
+  manifest_crosslink(nrid, pWiki, MC_NONE);
 }
 
 /*
@@ -871,7 +871,7 @@ void wfind_page(void){
   db_prepare(&q, 
     "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname like 'wiki-%%%q%%'"
     " ORDER BY lower(tagname) /*sort*/" ,
-	zTitle);
+    zTitle);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     @ <li>%z(href("%R/wiki?name=%T",zName))%h(zName)</a></li>

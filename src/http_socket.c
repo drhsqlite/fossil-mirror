@@ -133,7 +133,7 @@ void socket_close(void){
 **
 ** Return the number of errors.
 */
-int socket_open(void){
+int socket_open(UrlData *pUrlData){
   int error = 0;
 #ifdef HAVE_GETADDRINFO
   struct addrinfo hints;
@@ -188,18 +188,18 @@ int socket_open(void){
   socket_global_init();
   if( !addrIsInit ){
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(g.urlPort);
-    *(int*)&addr.sin_addr = inet_addr(g.urlName);
+    addr.sin_port = htons(pUrlData->port);
+    *(int*)&addr.sin_addr = inet_addr(pUrlData->name);
     if( -1 == *(int*)&addr.sin_addr ){
 #ifndef FOSSIL_STATIC_LINK
       struct hostent *pHost;
-      pHost = gethostbyname(g.urlName);
+      pHost = gethostbyname(pUrlData->name);
       if( pHost!=0 ){
         memcpy(&addr.sin_addr,pHost->h_addr_list[0],pHost->h_length);
       }else
 #endif
       {
-        socket_set_errmsg("can't resolve host name: %s", g.urlName);
+        socket_set_errmsg("can't resolve host name: %s", pUrlData->name);
         return 1;
       }
     }
@@ -217,7 +217,8 @@ int socket_open(void){
     return 1;
   }
   if( connect(iSocket,(struct sockaddr*)&addr,sizeof(addr))<0 ){
-    socket_set_errmsg("cannot connect to host %s:%d", g.urlName, g.urlPort);
+    socket_set_errmsg("cannot connect to host %s:%d", pUrlData->name,
+                      pUrlData->port);
     socket_close();
     error = 1;
   }
@@ -267,12 +268,12 @@ size_t socket_receive(void *NotUsed, void *pContent, size_t N){
 ** populated. For hostnames with more than one IP (or if overridden in
 ** ~/.ssh/config) the rcvfrom may not match the host to which we connect.
 */
-void socket_ssh_resolve_addr(void){
+void socket_ssh_resolve_addr(UrlData *pUrlData){
   struct hostent *pHost;        /* Used to make best effort for rcvfrom */
   struct sockaddr_in addr;
 
   memset(&addr, 0, sizeof(addr));
-  pHost = gethostbyname(g.urlName);
+  pHost = gethostbyname(pUrlData->name);
   if( pHost!=0 ){
     memcpy(&addr.sin_addr,pHost->h_addr_list[0],pHost->h_length);
     g.zIpAddr = mprintf("%s", inet_ntoa(addr.sin_addr));

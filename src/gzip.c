@@ -21,9 +21,9 @@
 ** State information is stored in static variables, so this implementation
 ** can only be building up a single GZIP file at a time.
 */
+#include "config.h"
 #include <assert.h>
 #include <zlib.h>
-#include "config.h"
 #include "gzip.h"
 
 /*
@@ -57,7 +57,7 @@ void gzip_begin(sqlite3_int64 now){
   aHdr[1] = 0x8b;
   aHdr[2] = 8;
   aHdr[3] = 0;
-  if( now==0 ){
+  if( now==-1 ){
     now = db_int64(0, "SELECT (julianday('now') - 2440587.5)*86400.0");
   }
   put32(&aHdr[4], now&0xffffffff);
@@ -128,7 +128,7 @@ void test_gzip_cmd(void){
   char *zOut;
   if( g.argc!=3 ) usage("FILENAME");
   sqlite3_open(":memory:", &g.db);
-  gzip_begin(0);
+  gzip_begin(-1);
   blob_read_from_file(&b, g.argv[2]);
   zOut = mprintf("%s.gz", g.argv[2]);
   gzip_step(blob_buffer(&b), blob_size(&b));

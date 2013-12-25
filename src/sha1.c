@@ -1,8 +1,8 @@
 /*
 ** This implementation of SHA1.
 */
-#include <sys/types.h>
 #include "config.h"
+#include <sys/types.h>
 #include "sha1.h"
 
 
@@ -163,16 +163,16 @@ static void SHA1Update(
 
     j = context->count[0];
     if ((context->count[0] += len << 3) < j)
-	context->count[1] += (len>>29)+1;
+        context->count[1] += (len>>29)+1;
     j = (j >> 3) & 63;
     if ((j + len) > 63) {
-	(void)memcpy(&context->buffer[j], data, (i = 64-j));
-	SHA1Transform(context->state, context->buffer);
-	for ( ; i + 63 < len; i += 64)
-	    SHA1Transform(context->state, &data[i]);
-	j = 0;
+        (void)memcpy(&context->buffer[j], data, (i = 64-j));
+        SHA1Transform(context->state, context->buffer);
+        for ( ; i + 63 < len; i += 64)
+            SHA1Transform(context->state, &data[i]);
+        j = 0;
     } else {
-	i = 0;
+        i = 0;
     }
     (void)memcpy(&context->buffer[j], &data[i], len - i);
 }
@@ -186,18 +186,18 @@ static void SHA1Final(SHA1Context *context, unsigned char digest[20]){
     unsigned char finalcount[8];
 
     for (i = 0; i < 8; i++) {
-	finalcount[i] = (unsigned char)((context->count[(i >= 4 ? 0 : 1)]
-	 >> ((3-(i & 3)) * 8) ) & 255);	 /* Endian independent */
+        finalcount[i] = (unsigned char)((context->count[(i >= 4 ? 0 : 1)]
+         >> ((3-(i & 3)) * 8) ) & 255); /* Endian independent */
     }
     SHA1Update(context, (const unsigned char *)"\200", 1);
     while ((context->count[0] & 504) != 448)
-	SHA1Update(context, (const unsigned char *)"\0", 1);
+        SHA1Update(context, (const unsigned char *)"\0", 1);
     SHA1Update(context, finalcount, 8);  /* Should cause a SHA1Transform() */
 
     if (digest) {
-	for (i = 0; i < 20; i++)
-	    digest[i] = (unsigned char)
-		((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
+        for (i = 0; i < 20; i++)
+            digest[i] = (unsigned char)
+                ((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
     }
 }
 

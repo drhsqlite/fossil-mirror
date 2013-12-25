@@ -252,7 +252,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
     }
     if( zFNameFormat==0 ){
       /* We are doing "fossil rebuild" */
-      manifest_crosslink(rid, pUse);
+      manifest_crosslink(rid, pUse, MC_NONE);
     }else{
       /* We are doing "fossil deconstruct" */
       char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -351,6 +351,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
                          "'config','shun','private','reportfmt',"
                          "'concealed','accesslog','modreq')"
        " AND name NOT GLOB 'sqlite_*'"
+       " AND name NOT GLOB 'fx_*'"
     );
     if( zTable==0 ) break;
     db_multi_exec("DROP TABLE %Q", zTable);
@@ -582,8 +583,9 @@ void rebuild_database(void){
   reconstruct_private_table();
   db_multi_exec(
     "REPLACE INTO config(name,value,mtime) VALUES('content-schema','%s',now());"
-    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());",
-    CONTENT_SCHEMA, AUX_SCHEMA
+    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());"
+    "REPLACE INTO config(name,value,mtime) VALUES('rebuilt','%s',now());",
+    CONTENT_SCHEMA, AUX_SCHEMA, get_version()
   );
   if( errCnt && !forceFlag ){
     fossil_print(
@@ -608,7 +610,8 @@ void rebuild_database(void){
     }
     if( runDeanalyze ){
       db_multi_exec("DROP TABLE IF EXISTS sqlite_stat1;"
-                    "DROP TABLE IF EXISTS sqlite_stat3;");
+                    "DROP TABLE IF EXISTS sqlite_stat3;"
+                    "DROP TABLE IF EXISTS sqlite_stat4;");
     }
     if( runAnalyze ){
       fossil_print("Analyzing the database... "); fflush(stdout);

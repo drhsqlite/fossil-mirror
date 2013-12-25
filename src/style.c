@@ -688,6 +688,7 @@ const struct strctCssDefaults {
     "the format for the timeline time display",
     @   vertical-align: top;
     @   text-align: right;
+    @   white-space: nowrap;
   },
   { "td.timelineGraph",
     "the format for the grap placeholder cells in timelines",
@@ -1115,14 +1116,14 @@ void cgi_append_default_css(void) {
   for (i=0;cssDefaultList[i].elementClass;i++){
     if (cssDefaultList[i].elementClass[0]){
       cgi_printf("/* %s */\n%s {\n%s\n}\n\n",
-		 cssDefaultList[i].comment,
-		 cssDefaultList[i].elementClass,
-		 cssDefaultList[i].value
-		);
+                 cssDefaultList[i].comment,
+                 cssDefaultList[i].elementClass,
+                 cssDefaultList[i].value
+                );
     }else{
       cgi_printf("%s",
-		 cssDefaultList[i].value
-		);
+                 cssDefaultList[i].value
+                );
     }
   }
 }
@@ -1227,5 +1228,5 @@ void page_test_env(void){
 */
 void honeypot_page(void){
   cgi_set_status(403, "Forbidden");
-  @ <p>Access by spiders and robots is forbidden</p>
+  @ <p>Please enable javascript or log in to see this content</p>
 }

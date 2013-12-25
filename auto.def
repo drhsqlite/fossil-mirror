@@ -269,4 +269,5 @@ if {![cc-check-functions getpassphrase]} {
 cc-check-function-in-lib dlopen dl
 
 make-template Makefile.in
+make-template Makefile.Cygwin.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}

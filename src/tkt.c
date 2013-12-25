@@ -515,11 +515,12 @@ static int appendRemarkCmd(
 /*
 ** Write a ticket into the repository.
 */
-static void ticket_put(
+static int ticket_put(
   Blob *pTicket,           /* The text of the ticket change record */
   const char *zTktId,      /* The ticket to which this change is applied */
   int needMod              /* True if moderation is needed */
 ){
+  int result;
   int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
   if( rid==0 ){
     fossil_fatal("trouble committing ticket: %s", g.zErrMsg);
@@ -535,9 +536,10 @@ static void ticket_put(
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   manifest_crosslink_begin();
-  manifest_crosslink(rid, pTicket);
+  result = (manifest_crosslink(rid, pTicket, MC_PERMIT_HOOKS)==0);
   assert( blob_is_reset(pTicket) );
   manifest_crosslink_end();
+  return result;
 }
 
 /*
@@ -623,11 +625,12 @@ static int submitTicketCmd(
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
     @ <hr /></font>
     return TH_OK;
-  }else if( g.thTrace ){
-    Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
-             "}<br />\n",
-       blob_str(&tktchng));
   }else{
+    if( g.thTrace ){
+      Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
+               "}<br />\n",
+         blob_str(&tktchng));
+    }
     ticket_put(&tktchng, zUuid,
                (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
   }
@@ -1258,12 +1261,12 @@ void ticket_cmd(void){
                 blob_set(&val, pTicket->aField[i].zValue);
                 if( z[0]=='+' ){
                   fossil_print("  Append to ");
-		    z++;
-		  }else{
-		    fossil_print("  Change ");
-                }
-		  fossil_print("%h: ",z);
-		  if( blob_size(&val)>50 || contains_newline(&val)) {
+            z++;
+          }else{
+            fossil_print("  Change ");
+          }
+          fossil_print("%h: ",z);
+          if( blob_size(&val)>50 || contains_newline(&val)) {
                   fossil_print("\n    ",blob_str(&val));
                   comment_print(blob_str(&val),4,79);
                 }else{
@@ -1345,9 +1348,12 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      ticket_put(&tktchng, zTktUuid, 0);
-      printf("ticket %s succeeded for %s\n",
+      if( ticket_put(&tktchng, zTktUuid, 0) ){
+        fossil_fatal("%s\n", g.zErrMsg);
+      }else{
+        fossil_print("ticket %s succeeded for %s\n",
              (eCmd==set?"set":"add"),zTktUuid);
+      }
     }
   }
 }
