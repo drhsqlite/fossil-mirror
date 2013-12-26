@@ -34,6 +34,9 @@
      repository.
   *  Fossil now hides check-ins that have the "hidden" tag in timeline webpages.
   *  Enhance <tt>/ci_edit</tt> page to add the "hidden" tag to check-ins.
+  *  Advanced possibilities for commit and ticket change notifications over
+     http using TH1 scripting.
+  *  Add --sha1sum option to "[/help?cmd=commit | fossil commit]" command.
 
 <h2>Changes For Version 1.27 (2013-09-11)</h2>
   *  Enhance the [/help?cmd=changes | fossil changes],
