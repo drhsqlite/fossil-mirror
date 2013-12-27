@@ -2181,22 +2181,22 @@ void annotation_page(void){
   url_add_parameter(&url, "log", showLog ? "1" : "0");
   if( showLog ){
     style_submenu_element("Hide Log", "Hide Log",
-       url_render(&url, "log", "0", 0, 0));
+       "%s", url_render(&url, "log", "0", 0, 0));
   }else{
     style_submenu_element("Show Log", "Show Log",
-       url_render(&url, "log", "1", 0, 0));
+       "%s", url_render(&url, "log", "1", 0, 0));
   }
   if( ann.bLimit ){
     char *z1, *z2;
     style_submenu_element("All Ancestors", "All Ancestors",
-       url_render(&url, "limit", "-1", 0, 0));
+       "%s", url_render(&url, "limit", "-1", 0, 0));
     z1 = sqlite3_mprintf("%d Ancestors", iLimit+20);
     z2 = sqlite3_mprintf("%d", iLimit+20);
-    style_submenu_element(z1, z1, url_render(&url, "limit", z2, 0, 0));
+    style_submenu_element(z1, z1, "%s", url_render(&url, "limit", z2, 0, 0));
   }
   if( iLimit>20 ){
     style_submenu_element("20 Ancestors", "20 Ancestors",
-       url_render(&url, "limit", "20", 0, 0));
+       "%s", url_render(&url, "limit", "20", 0, 0));
   }
   if( db_get_boolean("white-foreground", 0) ){
     clr1 = 0xa04040;
