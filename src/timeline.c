@@ -1677,11 +1677,12 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
 ** a timeline query for display on a TTY.
 */
 const char *timeline_query_for_tty(void){
+  static const char *zBase = 0;
   static const char zBaseSql[] =
     @ SELECT
     @   blob.rid AS rid,
     @   uuid,
-    @   datetime(event.mtime%s(timeline_utc())) AS mDateTime,
+    @   datetime(event.mtime%s) AS mDateTime,
     @   coalesce(ecomment,comment)
     @     || ' (user: ' || coalesce(euser,user,'?')
     @     || (SELECT case when length(x)>0 then ' tags: ' || x else '' end
@@ -1702,7 +1703,10 @@ const char *timeline_query_for_tty(void){
     @ WHERE blob.rid=event.objid
     @   AND tag.tagname='branch'
   ;
-  return zBaseSql;
+  if( zBase==0 ){
+    zBase = mprintf(zBaseSql, timeline_utc());
+  }
+  return zBase;
 }
 
 /*
