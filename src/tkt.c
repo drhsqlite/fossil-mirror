@@ -139,8 +139,9 @@ static void initializeVariablesFromDb(void){
   int i, n, size, j;
 
   zName = PD("name","-none-");
-  db_prepare(&q, "SELECT datetime(tkt_mtime,'localtime') AS tkt_datetime, *"
-                 "  FROM ticket WHERE tkt_uuid GLOB '%q*'", zName);
+  db_prepare(&q, "SELECT datetime(tkt_mtime%s) AS tkt_datetime, *"
+                 "  FROM ticket WHERE tkt_uuid GLOB '%q*'",
+                 timeline_utc(), zName);
   if( db_step(&q)==SQLITE_ROW ){
     n = db_column_count(&q);
     for(i=0; i<n; i++){
@@ -907,17 +908,17 @@ void tkthistory_page(void){
     return;
   }
   db_prepare(&q,
-    "SELECT datetime(mtime,'localtime'), objid, uuid, NULL, NULL, NULL"
+    "SELECT datetime(mtime%s), objid, uuid, NULL, NULL, NULL"
     "  FROM event, blob"
     " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
     "   AND blob.rid=event.objid"
     " UNION "
-    "SELECT datetime(mtime,'localtime'), attachid, uuid, src, filename, user"
+    "SELECT datetime(mtime%s), attachid, uuid, src, filename, user"
     "  FROM attachment, blob"
     " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
     "   AND blob.rid=attachid"
     " ORDER BY 1",
-    tagid, tagid
+    timeline_utc(), tagid, timeline_utc(), tagid
   );
   while( db_step(&q)==SQLITE_ROW ){
     Manifest *pTicket;
@@ -1216,18 +1217,18 @@ void ticket_cmd(void){
           fossil_fatal("no such ticket %h", zTktUuid);
         }  
         db_prepare(&q,
-          "SELECT datetime(mtime,'localtime'), objid, uuid, NULL, NULL, NULL"
+          "SELECT datetime(mtime%s), objid, uuid, NULL, NULL, NULL"
           "  FROM event, blob"
           " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
           "   AND blob.rid=event.objid"
           " UNION "
-          "SELECT datetime(mtime,'localtime'), attachid, uuid, src, "
+          "SELECT datetime(mtime%s), attachid, uuid, src, "
           "       filename, user"
           "  FROM attachment, blob"
           " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
           "   AND blob.rid=attachid"
           " ORDER BY 1 DESC",
-          tagid, tagid
+          timeline_utc(), tagid, timeline_utc(), tagid
         );
         while( db_step(&q)==SQLITE_ROW ){
           Manifest *pTicket;

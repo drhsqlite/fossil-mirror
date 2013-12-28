@@ -409,7 +409,7 @@ void fileage_page(void){
   style_header("File Ages", zName);
   compute_fileage(rid);
   baseTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
-  zBaseTime = db_text("","SELECT datetime(%.20g,'localtime')", baseTime);
+  zBaseTime = db_text("","SELECT datetime(%.20g%s)", baseTime, timeline_utc());
   @ <h2>File Ages For Check-in
   @ %z(href("%R/info?name=%T",zName))%h(zName)</a></h2>
   @

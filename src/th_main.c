@@ -257,7 +257,7 @@ static int dateCmd(
 ){
   char *zOut;
   if( argc>=2 && argl[1]==6 && memcmp(argv[1],"-local",6)==0 ){
-    zOut = db_text("??", "SELECT datetime('now','localtime')");
+    zOut = db_text("??", "SELECT datetime('now'%s)", timeline_utc());
   }else{
     zOut = db_text("??", "SELECT datetime('now')");
   }

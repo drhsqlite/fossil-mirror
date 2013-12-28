@@ -232,11 +232,11 @@ static void showTags(int rid, const char *zNotGlob){
   db_prepare(&q,
     "SELECT tag.tagid, tagname, "
     "       (SELECT uuid FROM blob WHERE rid=tagxref.srcid AND rid!=%d),"
-    "       value, datetime(tagxref.mtime,'localtime'), tagtype,"
+    "       value, datetime(tagxref.mtime%s), tagtype,"
     "       (SELECT uuid FROM blob WHERE rid=tagxref.origid AND rid!=%d)"
     "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
     " WHERE tagxref.rid=%d AND tagname NOT GLOB '%q'"
-    " ORDER BY tagname /*sort*/", rid, rid, rid, zNotGlob
+    " ORDER BY tagname /*sort*/", rid, timeline_utc(), rid, rid, zNotGlob
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagname = db_column_text(&q, 1);
@@ -505,12 +505,12 @@ void ci_page(void){
   );
   isLeaf = is_a_leaf(rid);
   db_prepare(&q1,
-     "SELECT uuid, datetime(mtime, 'localtime'), user, comment,"
-     "       datetime(omtime, 'localtime'), mtime"
+     "SELECT uuid, datetime(mtime%s), user, comment,"
+     "       datetime(omtime%s), mtime"
      "  FROM blob, event"
      " WHERE blob.rid=%d"
      "   AND event.objid=%d",
-     rid, rid
+     timeline_utc(), timeline_utc(), rid, rid
   );
   sideBySide = !is_false(PD("sbs","1"));
   if( db_step(&q1)==SQLITE_ROW ){
