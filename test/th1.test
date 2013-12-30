@@ -67,3 +67,23 @@ test th1-setting-9 {$RESULT eq {}}
 
 fossil test-th-eval --th-open-config "setting -strict -- --"
 test th1-setting-10 {$RESULT eq {TH_ERROR: no value for setting "--"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42/0"
+test th1-divide-by-zero-1 {$RESULT eq {TH_ERROR: Divide by 0: 42}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42/0.0"
+test th1-divide-by-zero-2 {$RESULT eq {TH_ERROR: Divide by 0: 42}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42.0/0"
+test th1-divide-by-zero-3 {$RESULT eq {TH_ERROR: Divide by 0: 42.0}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42.0/0.0"
+test th1-divide-by-zero-4 {$RESULT eq {TH_ERROR: Divide by 0: 42.0}}

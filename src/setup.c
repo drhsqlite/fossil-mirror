@@ -1186,11 +1186,10 @@ void setup_timeline(void){
                   "timeline-utc", "utc", 1, 0);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
   @ Zulu) instead of in local time.  On this server, local time is currently
-  g.fTimeFormat = 2;
   tmDiff = db_double(0.0, "SELECT julianday('now')");
   tmDiff = db_double(0.0,
-        "SELECT (julianday(%.17g%s)-julianday(%.17g))*24.0",
-        tmDiff, timeline_utc(), tmDiff);
+        "SELECT (julianday(%.17g,'localtime')-julianday(%.17g))*24.0",
+        tmDiff, tmDiff);
   sqlite3_snprintf(sizeof(zTmDiff), zTmDiff, "%.1f", tmDiff);
   if( strcmp(zTmDiff, "0.0")==0 ){
     @ the same as UTC and so this setting will make no difference in

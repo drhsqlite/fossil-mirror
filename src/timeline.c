@@ -1888,9 +1888,9 @@ void timeline_cmd(void){
 /*
 ** Return one of two things:
 **
-**   ",'localtime'"     if the timeline-utc property is set.
+**   ",'localtime'"  if the timeline-utc property is set to 0.
 **
-**   ""                 (empty string) otherwise.
+**   ""              (empty string) otherwise.
 */
 const char *timeline_utc(){
   if( g.fTimeFormat==0 ){
