@@ -1113,6 +1113,7 @@ void page_timeline(void){
   }else{
     tmFlags = TIMELINE_GRAPH;
   }
+  url_add_parameter(&url, "n", mprintf("%d", nEntry));
   if( P("ng")!=0 || zSearch!=0 ){
     tmFlags &= ~TIMELINE_GRAPH;
     url_add_parameter(&url, "ng", 0);
@@ -1233,6 +1234,19 @@ void page_timeline(void){
     }
     blob_appendf(&desc, " of %z[%.10s]</a>",
                    href("%R/info/%s", zUuid), zUuid);
+    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+      if( p_rid ){
+        url_add_parameter(&url, "p", zUuid);
+      }
+      if( d_rid ){
+        if( p_rid ){
+          /* If both p= and d= are set, we don't have the uuid of d yet. */
+          zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
+        }
+        url_add_parameter(&url, "d", zUuid);
+      }
+      timeline_submenu(&url, "Unhide", "unhide", "", 0);
+    }
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1250,13 +1264,15 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%.10s]</a>", href("%R/info/%s", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
+    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+      url_add_parameter(&url, "f", zUuid);
+      timeline_submenu(&url, "Unhide", "unhide", "", 0);
+    }
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
     const char *zEType = "timeline item";
     char *zDate;
-    char *zNEntry = mprintf("%d", nEntry);
-    url_add_parameter(&url, "n", zNEntry);
     if( zUses ){
       blob_appendf(&sql, " AND event.objid IN usesfile ");
     }
@@ -1946,7 +1962,7 @@ void test_timewarp_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     @ <li>
-    @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&amp;d=%S(zUuid)">%S(zUuid)</a>
+    @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&amp;d=%S(zUuid)&amp;unhide">%S(zUuid)</a>
   }
   db_finalize(&q);
   style_footer();

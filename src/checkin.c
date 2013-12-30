@@ -1379,7 +1379,10 @@ static int tagCmp(const void *a, const void *b){
 ** The --private option creates a private check-in that is never synced.
 ** Children of private check-ins are automatically private.
 **
-** the --tag option applies the symbolic tag name to the check-in.
+** The --tag option applies the symbolic tag name to the check-in.
+**
+** The --sha1sum option detects edited files by computing each file's
+** SHA1 hash rather than just checking for changes to its size or mtime.
 **
 ** Options:
 **    --allow-conflict           allow unresolved merge conflicts
@@ -1399,6 +1402,8 @@ static int tagCmp(const void *a, const void *b){
 **    --no-warnings              omit all warnings about file contents
 **    --nosign                   do not attempt to sign this commit with gpg
 **    --private                  do not sync changes and their descendants
+**    --sha1sum                  verify file status using SHA1 hashing rather
+**                               than relying on file mtimes
 **    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
 **
 ** See also: branch, changes, checkout, extra, sync
@@ -1412,6 +1417,7 @@ void commit_cmd(void){
   const char *zComment;  /* Check-in comment */
   Stmt q;                /* Various queries */
   char *zUuid;           /* UUID of the new check-in */
+  int useSha1sum = 0;    /* True to verify file status using SHA1 hashing */
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
   int noWarningFlag = 0; /* True if skipping all warnings */
@@ -1443,6 +1449,7 @@ void commit_cmd(void){
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
+  useSha1sum = find_option("sha1sum", 0, 0)!=0;
   noSign = find_option("nosign",0,0)!=0;
   forceDelta = find_option("delta",0,0)!=0;
   forceBaseline = find_option("baseline",0,0)!=0;
@@ -1588,7 +1595,7 @@ void commit_cmd(void){
     fossil_fatal("no such user: %s", g.zLogin);
   }
 
-  hasChanges = unsaved_changes();
+  hasChanges = unsaved_changes(useSha1sum ? CKSIG_SHA1 : 0);
   db_begin_transaction();
   db_record_repository_filename(0);
   if( hasChanges==0 && !isAMerge && !allowEmpty && !forceFlag ){
@@ -1818,7 +1825,10 @@ void commit_cmd(void){
     fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
-  manifest_crosslink(nvid, &manifest);
+  if( manifest_crosslink(nvid, &manifest,
+                         dryRunFlag ? MC_NONE : MC_PERMIT_HOOKS)==0 ){
+    fossil_fatal("%s\n", g.zErrMsg);
+  }
   assert( blob_is_reset(&manifest) );
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);

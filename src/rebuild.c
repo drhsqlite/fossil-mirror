@@ -252,7 +252,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
     }
     if( zFNameFormat==0 ){
       /* We are doing "fossil rebuild" */
-      manifest_crosslink(rid, pUse);
+      manifest_crosslink(rid, pUse, MC_NONE);
     }else{
       /* We are doing "fossil deconstruct" */
       char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);

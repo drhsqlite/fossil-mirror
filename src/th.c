@@ -1878,14 +1878,14 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
       switch( pExpr->pOp->eOp ) {
         case OP_MULTIPLY:     iRes = iLeft*iRight;  break;
         case OP_DIVIDE:
-          if(!iRight){
+          if( !iRight ){
             Th_ErrorMessage(interp, "Divide by 0:", zLeft, nLeft);
             return TH_ERROR;
           }
           iRes = iLeft/iRight;
           break;
         case OP_MODULUS:
-          if(!iRight){
+          if( !iRight ){
             Th_ErrorMessage(interp, "Modulo by 0:", zLeft, nLeft);
             return TH_ERROR;
           }
@@ -1915,7 +1915,13 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
     }else if( rc==TH_OK && eArgType==ARG_NUMBER ){
       switch( pExpr->pOp->eOp ) {
         case OP_MULTIPLY: Th_SetResultDouble(interp, fLeft*fRight);  break;
-        case OP_DIVIDE:   Th_SetResultDouble(interp, fLeft/fRight);  break;
+        case OP_DIVIDE:
+          if( fRight==0.0 ){
+            Th_ErrorMessage(interp, "Divide by 0:", zLeft, nLeft);
+            return TH_ERROR;
+          }
+          Th_SetResultDouble(interp, fLeft/fRight);
+          break;
         case OP_ADD:      Th_SetResultDouble(interp, fLeft+fRight);  break;
         case OP_SUBTRACT: Th_SetResultDouble(interp, fLeft-fRight);  break;
         case OP_LT:       Th_SetResultInt(interp, fLeft<fRight);  break;

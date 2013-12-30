@@ -274,6 +274,16 @@ static int check_cache_control(void){
 #endif
 
 /*
+** Return true if the response should be sent with Content-Encoding: gzip.
+*/
+static int is_gzippable(void){
+  if( strstr(PD("HTTP_ACCEPT_ENCODING", ""), "gzip")==0 ) return 0;
+  return strncmp(zContentType, "text/", 5)==0
+    || strglob("application/*xml", zContentType)
+    || strglob("application/*javascript", zContentType);
+}
+
+/*
 ** Do a normal HTTP reply
 */
 void cgi_reply(void){
@@ -350,6 +360,18 @@ void cgi_reply(void){
   }
 
   if( iReplyStatus != 304 ) {
+    if( is_gzippable() ){
+      int i;
+      gzip_begin(0);
+      for( i=0; i<2; i++ ){
+        int size = blob_size(&cgiContent[i]);
+        if( size>0 ) gzip_step(blob_buffer(&cgiContent[i]), size);
+        blob_reset(&cgiContent[i]);
+      }
+      gzip_finish(&cgiContent[0]);
+      fprintf(g.httpOut, "Content-Encoding: gzip\r\n");
+      fprintf(g.httpOut, "Vary: Accept-Encoding\r\n");
+    }
     total_size = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
     fprintf(g.httpOut, "Content-Length: %d\r\n", total_size);
   }else{
@@ -1304,7 +1326,9 @@ void cgi_handle_http_request(const char *zIpAddr){
     for(i=0; zFieldName[i]; i++){
       zFieldName[i] = fossil_tolower(zFieldName[i]);
     }
-    if( fossil_strcmp(zFieldName,"content-length:")==0 ){
+    if( fossil_strcmp(zFieldName,"accept-encoding:")==0 ){
+      cgi_setenv("HTTP_ACCEPT_ENCODING", zVal);
+    }else if( fossil_strcmp(zFieldName,"content-length:")==0 ){
       cgi_setenv("CONTENT_LENGTH", zVal);
     }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
       cgi_setenv("CONTENT_TYPE", zVal);

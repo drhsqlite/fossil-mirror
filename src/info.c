@@ -596,15 +596,15 @@ void ci_page(void){
         }
       }
       @ <tr><th>Timelines:</th><td>
-      @   %z(href("%R/timeline?f=%S",zUuid))family</a>
+      @   %z(href("%R/timeline?f=%S&unhide",zUuid))family</a>
       if( zParent ){
-        @ | %z(href("%R/timeline?p=%S",zUuid))ancestors</a>
+        @ | %z(href("%R/timeline?p=%S&unhide",zUuid))ancestors</a>
       }
       if( !isLeaf ){
-        @ | %z(href("%R/timeline?d=%S",zUuid))descendants</a>
+        @ | %z(href("%R/timeline?d=%S&unhide",zUuid))descendants</a>
       }
       if( zParent && !isLeaf ){
-        @ | %z(href("%R/timeline?dp=%S",zUuid))both</a>
+        @ | %z(href("%R/timeline?dp=%S&unhide",zUuid))both</a>
       }
       db_prepare(&q2,"SELECT substr(tag.tagname,5) FROM tagxref, tag "
                      " WHERE rid=%d AND tagtype>0 "
@@ -1636,7 +1636,7 @@ void artifact_page(void){
           "%R/raw/%T?name=%s", blob_str(&downloadName), zUuid);
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
     style_submenu_element("Checkins Using", "Checkins Using",
-          "%R/timeline?uf=%s&n=200",zUuid);
+          "%R/timeline?n=200&uf=%s",zUuid);
   }
   asText = P("txt")!=0;
   zMime = mimetype_from_name(blob_str(&downloadName));
@@ -2197,7 +2197,7 @@ void ci_edit_page(void){
       db_begin_transaction();
       g.markPrivate = content_is_private(rid);
       nrid = content_put(&ctrl);
-      manifest_crosslink(nrid, &ctrl);
+      manifest_crosslink(nrid, &ctrl, MC_PERMIT_HOOKS);
       assert( blob_is_reset(&ctrl) );
       db_end_transaction(0);
     }

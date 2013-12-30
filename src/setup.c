@@ -814,7 +814,7 @@ void entry_attribute(
     db_set(zVar, zQ, 0);
     zVal = zQ;
   }
-  @ <input type="text" name="%s(zQParm)" value="%h(zVal)" size="%d(width)"
+  @ <input type="text" id="%s(zQParm)" name="%s(zQParm)" value="%h(zVal)" size="%d(width)"
   if( disabled ){
     @ disabled="disabled"
   }
