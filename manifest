@@ -1,5 +1,5 @@
-C Set\sg.isConst\son\s/raw\spages\sif\sthe\sfull\sUUID\sis\sgiven.
-D 2013-12-31T08:23:33.639
+C Add\sthe\s/tree\sURI\sfor\sshowing\sa\shierarchical\sfile\slisting.\s\sThe\sURI\sworks,\nbut\sthere\sare\sno\shyperlinks\sto\sit\syet.
+D 2013-12-31T10:43:01.268
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -315,7 +315,7 @@ F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 9eef1e8551df42bdee81aef68359e65985c6c8b9
 F src/blob.c 9b834e63fab2e586cc2ac29ba56a38acc989c3ca
 F src/branch.c 18a789dda16d8d12ff634ec8dd12a7d4da2e023a
-F src/browse.c 19e4bdf78ad41dd01c4cf76b41442dbaf86a2588
+F src/browse.c 6786717f27b595a778e2658353005ab359cadb9f
 F src/captcha.c 2c855a6f943b546b855eabe58f1388d677d5ea73
 F src/cgi.c 063a9bf9ea11962c896c1bd9ff86afdcbbb0ba31
 F src/checkin.c 6be5433109ab77766fda4ee9fc47099c77f52d79
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 479b3de1d201bf0b6880dc3b4dc82fe5a8c6d273
-R eb697bfabed7763b73d7232e73ce4bba
-U joel
-Z a7c4a2ff5bf6a3276bec7962fb89ac36
+P 43a2d0fa70ca4b12b5a7eb337c280d26c4d2d9d6
+R 12799502a8670f1d68464f1f3c487d59
+U drh
+Z 94675392fa572333f056d2abb3b8c67e

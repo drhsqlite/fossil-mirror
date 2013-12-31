@@ -103,7 +103,7 @@ void hyperlinked_path(const char *zPath, Blob *pOut, const char *zCI){
 **
 ** Query parameters:
 **
-**    name=PATH        Directory to display.  Required.
+**    name=PATH        Directory to display.  Optional.  Top-level if missing
 **    ci=LABEL         Show only files in this check-in.  Optional.
 */
 void page_dir(void){
@@ -158,7 +158,7 @@ void page_dir(void){
       style_submenu_element("Trunk", "Trunk", "%R/dir?name=%t&ci=trunk",
                              zD);
     }
-    if ( linkTip ){
+    if( linkTip ){
       style_submenu_element("Tip", "Tip", "%R/dir?name=%t&ci=tip", zD);
     }
   }else{
@@ -167,7 +167,7 @@ void page_dir(void){
     if( linkTrunk ){
       style_submenu_element("Trunk", "Trunk", "%R/dir?ci=trunk");
     }
-    if ( linkTip ){
+    if( linkTip ){
       style_submenu_element("Tip", "Tip", "%R/dir?ci=tip");
     }
   }
@@ -288,6 +288,289 @@ void page_dir(void){
   manifest_destroy(pM);
   @ </ul></td></tr></table>
   style_footer();
+}
+
+/*
+** Objects used by the "tree" webpage.
+*/
+typedef struct FileTreeNode FileTreeNode;
+typedef struct FileTree FileTree;
+
+/*
+** A single line of the file hierarchy
+*/
+struct FileTreeNode {
+  FileTreeNode *pNext;      /* Next line in sequence */
+  FileTreeNode *pPrev;      /* Previous line */
+  FileTreeNode *pParent;    /* Directory containing this line */
+  char *zName;              /* Name of this entry.  The "tail" */
+  char *zFullName;          /* Full pathname of this entry */
+  char *zUuid;              /* SHA1 hash of this file.  May be NULL. */
+  unsigned nFullName;       /* Length of zFullName */
+  unsigned iLevel;          /* Levels of parent directories */
+  u8 isDir;                 /* True if there are children */
+  u8 isLast;                /* True if this is the last child of its parent */
+};
+
+/*
+** A complete file hierarchy
+*/
+struct FileTree {
+  FileTreeNode *pFirst;     /* First line of the list */
+  FileTreeNode *pLast;      /* Last line of the list */
+};
+
+/*
+** Add one or more new FileTreeNodes to the FileTree object so that the
+** leaf object zPathname is at the end of the node list
+*/
+static void tree_add_node(
+  FileTree *pTree,         /* Tree into which nodes are added */
+  const char *zPath,       /* The full pathname of file to add */
+  const char *zUuid        /* UUID of the file.  Might be NULL. */
+){
+  int i;
+  FileTreeNode *pParent;
+  FileTreeNode *pChild;
+
+  pChild = pTree->pLast;
+  pParent = pChild ? pChild->pParent : 0;
+  while( pParent!=0 &&
+      ( strncmp(pParent->zFullName, zPath, pParent->nFullName)!=0
+        || zPath[pParent->nFullName]!='/' )
+  ){
+    pChild = pParent;
+    pParent = pChild->pParent;
+  }
+  i = pParent ? pParent->nFullName+1 : 0;
+  if( pChild ) pChild->isLast = 0;
+  while( zPath[i] ){
+    FileTreeNode *pNew;
+    int iStart = i;
+    int nByte;
+    while( zPath[i] && zPath[i]!='/' ){ i++; }
+    nByte = sizeof(*pNew) + i + 1;
+    if( zUuid!=0 && zPath[i]==0 ) nByte += UUID_SIZE+1;
+    pNew = fossil_malloc( nByte );
+    pNew->zFullName = (char*)&pNew[1];
+    memcpy(pNew->zFullName, zPath, i);
+    pNew->zFullName[i] = 0;
+    pNew->nFullName = i;
+    if( zUuid!=0 && zPath[i]==0 ){
+      pNew->zUuid = pNew->zFullName + i + 1;
+      memcpy(pNew->zUuid, zUuid, UUID_SIZE+1);
+    }else{
+      pNew->zUuid = 0;
+    }
+    pNew->zName = pNew->zFullName + iStart;
+    if( pTree->pLast ){
+      pTree->pLast->pNext = pNew;
+    }else{
+      pTree->pFirst = pNew;
+    }
+    pNew->pPrev = pTree->pLast;
+    pNew->pNext = 0;
+    pNew->pParent = pParent;
+    pTree->pLast = pNew;
+    pNew->iLevel = pParent ? pParent->iLevel+1 : 0;
+    pNew->isDir = zPath[i]=='/';
+    pNew->isLast = 1;
+    while( zPath[i]=='/' ){ i++; }
+    pParent = pNew;
+  }
+}
+
+/*
+** Render parent lines for pNode
+*/
+static void tree_indentation(FileTreeNode *p){
+  if( p==0 ) return;
+  tree_indentation(p->pParent);
+  if( p->isLast ){
+    cgi_append_content("    ", 4);
+  }else{
+    cgi_append_content("&#x2502;   ", 11);
+  }
+}
+
+
+/*
+** WEBPAGE: tree
+**
+** Query parameters:
+**
+**    name=PATH        Directory to display.  Optional
+**    ci=LABEL         Show only files in this check-in.  Optional.
+**    re=REGEXP        Show only files matching REGEXP.  Optional.
+*/
+void page_tree(void){
+  char *zD = fossil_strdup(P("name"));
+  int nD = zD ? strlen(zD)+1 : 0;
+  const char *zCI = P("ci");
+  int rid = 0;
+  char *zUuid = 0;
+  Blob dirname;
+  Manifest *pM = 0;
+  int linkTrunk = 1, linkTip = 1;
+  const char *zRE;
+  ReCompiled *pRE = 0;
+  FileTreeNode *p;
+  FileTree sTree;
+
+  memset(&sTree, 0, sizeof(sTree));
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(); return; }
+  while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
+  style_header("File List");
+  sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
+                          pathelementFunc, 0, 0);
+
+  /* If a regular expression is specified, compile it */
+  zRE = P("re");
+  if( zRE ) re_compile(&pRE, zRE, 0);
+
+  /* If the name= parameter is an empty string, make it a NULL pointer */
+  if( zD && strlen(zD)==0 ){ zD = 0; }
+
+  /* If a specific check-in is requested, fetch and parse it.  If the
+  ** specific check-in does not exist, clear zCI.  zCI==0 will cause all
+  ** files from all check-ins to be displayed.
+  */
+  if( zCI ){
+    pM = manifest_get_by_name(zCI, &rid);
+    if( pM ){
+      int trunkRid = symbolic_name_to_rid("tag:trunk", "ci");
+      linkTrunk = trunkRid && rid != trunkRid;
+      linkTip = rid != symbolic_name_to_rid("tip", "ci");
+      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    }else{
+      zCI = 0;
+    }
+  }
+
+  /* Compute the title of the page */
+  blob_zero(&dirname);
+  if( zD ){
+    blob_appendf(&dirname, "in directory %h", zD);
+    if( zRE ) blob_appendf(&dirname, " matching \"%s\"", zRE);
+    if( linkTrunk ){
+      style_submenu_element("Trunk", "Trunk", "%R/tree?name=%t&ci=trunk",
+                             zD);
+    }
+    if ( linkTip ){
+      style_submenu_element("Tip", "Tip", "%R/tree?name=%t&ci=tip", zD);
+    }
+  }else{
+    if( zRE ){
+      blob_appendf(&dirname, "matching \"%s\"", zRE);
+    }else{
+      blob_append(&dirname, "in the top-level directory", -1);
+    }
+    if( linkTrunk ){
+      style_submenu_element("Trunk", "Trunk", "%R/tree?ci=trunk");
+    }
+    if ( linkTip ){
+      style_submenu_element("Tip", "Tip", "%R/tree?ci=tip");
+    }
+  }
+  if( zCI ){
+    char zShort[20];
+    memcpy(zShort, zUuid, 10);
+    zShort[10] = 0;
+    @ <h2>Files of check-in [%z(href("vinfo?name=%T",zUuid))%s(zShort)</a>]
+    @ %s(blob_str(&dirname))</h2>
+    if( zD ){
+      style_submenu_element("Top", "Top", "%R/tree?ci=%S", zUuid);
+      style_submenu_element("All", "All", "%R/tree?name=%t", zD);
+    }else{
+      style_submenu_element("All", "All", "%R/tree");
+    }
+  }else{
+    @ <h2>The union of all files from all check-ins
+    @ %s(blob_str(&dirname))</h2>
+  }
+
+  /* Compute the file hierarchy.
+  */
+  if( zCI ){
+    Stmt ins, q;
+    ManifestFile *pFile;
+
+    db_multi_exec(
+        "CREATE TEMP TABLE filelist("
+        "   x TEXT PRIMARY KEY COLLATE nocase,"
+        "   uuid TEXT"
+        ") WITHOUT ROWID;"
+    );
+    db_prepare(&ins, "INSERT OR IGNORE INTO filelist VALUES(:f,:u)");
+    manifest_file_rewind(pM);
+    while( (pFile = manifest_file_next(pM,0))!=0 ){
+      if( nD>0
+       && (fossil_strncmp(pFile->zName, zD, nD-1)!=0
+           || pFile->zName[nD-1]!='/')
+      ){
+        continue;
+      }
+      if( pRE && re_match(pRE, (const u8*)pFile->zName, -1)==0 ) continue;
+      db_bind_text(&ins, ":f", &pFile->zName[nD]);
+      db_bind_text(&ins, ":u", pFile->zUuid);
+      db_step(&ins);
+      db_reset(&ins);
+    }
+    db_finalize(&ins);
+    db_prepare(&q, "SELECT x, uuid FROM filelist ORDER BY x");
+    while( db_step(&q)==SQLITE_ROW ){
+      tree_add_node(&sTree, db_column_text(&q,0), db_column_text(&q,1));
+    }
+    db_finalize(&q);
+  }else{
+    Stmt q;
+    db_prepare(&q, "SELECT name FROM filename ORDER BY name COLLATE nocase");
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *z = db_column_text(&q, 0);
+      if( nD>0 && (fossil_strncmp(z, zD, nD-1)!=0 || z[nD-1]!='/') ){
+        continue;
+      }
+      if( pRE && re_match(pRE, (const u8*)z, -1)==0 ) continue;
+      tree_add_node(&sTree, z+nD, 0);
+    }
+    db_finalize(&q);
+  }
+
+  /* Generate a multi-column table listing the contents of zD[]
+  ** directory.
+  */
+  @ <pre>
+  if( nD ){
+    cgi_printf("%.*h\n", nD, zD);
+  }else{
+    @ .
+  }
+  for(p=sTree.pFirst; p; p=p->pNext){
+    tree_indentation(p->pParent);
+    if( p->isLast ){
+      cgi_append_content("&#x2514;&#x2500;&#x2500; ", 25);
+    }else{
+      cgi_append_content("&#x251c;&#x2500;&#x2500; ", 25);
+    }
+    if( p->isDir ){
+      @ %h(p->zName)
+    }else{
+      char *zLink;
+      if( zCI ){
+        zLink = href("%R/artifact/%s",p->zUuid);
+      }else{
+        zLink = href("%R/finfo?name=%T",p->zFullName);
+      }
+      @ %z(zLink)%h(p->zName)</a>
+    }
+  }
+  @ </pre>
+  style_footer();
+
+  /* We could free memory used by sTree here if we needed to.  But
+  ** the process is about to exit, so doing so would not really accomplish
+  ** anything useful. */
 }
 
 /*
