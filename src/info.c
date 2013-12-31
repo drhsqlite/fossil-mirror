@@ -1369,6 +1369,7 @@ void diff_page(void){
 */
 void rawartifact_page(void){
   int rid;
+  char *zUuid;
   const char *zMime;
   Blob content;
 
@@ -1376,6 +1377,11 @@ void rawartifact_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   if( rid==0 ) fossil_redirect_home();
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  if( fossil_strcmp(P("name"), zUuid)==0 ){
+    g.isConst = 1;
+  }
+  free(zUuid);
   zMime = P("m");
   if( zMime==0 ){
     char *zFName = db_text(0, "SELECT filename.name FROM mlink, filename"
