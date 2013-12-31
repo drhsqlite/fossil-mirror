@@ -73,7 +73,13 @@ void pathelementFunc(
 ** The computed string is appended to the pOut blob.  pOut should
 ** have already been initialized.
 */
-void hyperlinked_path(const char *zPath, Blob *pOut, const char *zCI){
+void hyperlinked_path(
+  const char *zPath,    /* Path to render */
+  Blob *pOut,           /* Write into this blob */
+  const char *zCI,      /* check-in name, or NULL */
+  const char *zURI,     /* "dir" or "tree" */
+  const char *zREx      /* Extra query parameters */
+){
   int i, j;
   char *zSep = "";
 
@@ -81,11 +87,11 @@ void hyperlinked_path(const char *zPath, Blob *pOut, const char *zCI){
     for(j=i; zPath[j] && zPath[j]!='/'; j++){}
     if( zPath[j] && g.perm.Hyperlink ){
       if( zCI ){
-        char *zLink = href("%R/dir?ci=%S&name=%#T", zCI, j, zPath);
+        char *zLink = href("%R/%s?ci=%S&name=%#T%s", zURI, zCI, j, zPath,zREx);
         blob_appendf(pOut, "%s%z%#h</a>",
                      zSep, zLink, j-i, &zPath[i]);
       }else{
-        char *zLink = href("%R/dir?name=%#T", j, zPath);
+        char *zLink = href("%R/%s?name=%#T%s", zURI, j, zPath, zREx);
         blob_appendf(pOut, "%s%z%#h</a>",
                      zSep, zLink, j-i, &zPath[i]);
       }
@@ -120,14 +126,18 @@ void page_dir(void){
   Blob dirname;
   Manifest *pM = 0;
   const char *zSubdirLink;
-  int linkTrunk = 1, linkTip = 1;
+  int linkTrunk = 1;
+  int linkTip = 1;
+  HQuery sURI;
 
+  if( strcmp(PD("type",""),"tree")==0 ){ page_tree(); return; }
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   style_header("File List");
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
+  url_initialize(&sURI, "dir");
 
   /* If the name= parameter is an empty string, make it a NULL pointer */
   if( zD && strlen(zD)==0 ){ zD = 0; }
@@ -143,6 +153,7 @@ void page_dir(void){
       linkTrunk = trunkRid && rid != trunkRid;
       linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      url_add_parameter(&sURI, "ci", zCI);
     }else{
       zCI = 0;
     }
@@ -151,25 +162,23 @@ void page_dir(void){
   /* Compute the title of the page */
   blob_zero(&dirname);
   if( zD ){
+    url_add_parameter(&sURI, "name", zD);
     blob_append(&dirname, "in directory ", -1);
-    hyperlinked_path(zD, &dirname, zCI);
+    hyperlinked_path(zD, &dirname, zCI, "dir", "");
     zPrefix = mprintf("%s/", zD);
-    if( linkTrunk ){
-      style_submenu_element("Trunk", "Trunk", "%R/dir?name=%t&ci=trunk",
-                             zD);
-    }
-    if( linkTip ){
-      style_submenu_element("Tip", "Tip", "%R/dir?name=%t&ci=tip", zD);
-    }
+    style_submenu_element("Top", "Top", "%s",
+                          url_render(&sURI, "name", 0, 0, 0));
   }else{
     blob_append(&dirname, "in the top-level directory", -1);
     zPrefix = "";
-    if( linkTrunk ){
-      style_submenu_element("Trunk", "Trunk", "%R/dir?ci=trunk");
-    }
-    if( linkTip ){
-      style_submenu_element("Tip", "Tip", "%R/dir?ci=tip");
-    }
+  }
+  if( linkTrunk ){
+    style_submenu_element("Trunk", "Trunk", "%s",
+                          url_render(&sURI, "ci", "trunk", 0, 0));
+  }
+  if( linkTip ){
+    style_submenu_element("Tip", "Tip", "%s",
+                          url_render(&sURI, "ci", "tip", 0, 0));
   }
   if( zCI ){
     char zShort[20];
@@ -178,11 +187,7 @@ void page_dir(void){
     @ <h2>Files of check-in [%z(href("vinfo?name=%T",zUuid))%s(zShort)</a>]
     @ %s(blob_str(&dirname))</h2>
     zSubdirLink = mprintf("%R/dir?ci=%S&name=%T", zUuid, zPrefix);
-    if( zD ){
-      style_submenu_element("Top", "Top", "%R/dir?ci=%S", zUuid);
-      style_submenu_element("All", "All", "%R/dir?name=%t", zD);
-    }else{
-      style_submenu_element("All", "All", "%R/dir");
+    if( nD==0 ){
       style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%S",
                             zUuid);
     }
@@ -191,6 +196,10 @@ void page_dir(void){
     @ %s(blob_str(&dirname))</h2>
     zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
   }
+  style_submenu_element("All", "All", "%s",
+                        url_render(&sURI, "ci", 0, 0, 0));
+  style_submenu_element("Tree-View", "Tree-View", "%s",
+                        url_render(&sURI, "type", "tree", 0, 0));
 
   /* Compute the temporary table "localfiles" containing the names
   ** of all files and subdirectories in the zD[] directory.
@@ -411,12 +420,17 @@ void page_tree(void){
   char *zUuid = 0;
   Blob dirname;
   Manifest *pM = 0;
-  int linkTrunk = 1, linkTip = 1;
-  const char *zRE;
-  ReCompiled *pRE = 0;
-  FileTreeNode *p;
-  FileTree sTree;
+  int linkTrunk = 1;       /* include link to "trunk" */
+  int linkTip = 1;         /* include link to "tip" */
+  const char *zRE;         /* the value for the re=REGEXP query parameter */
+  char *zPrefix;           /* Prefix on all filenames */
+  char *zREx = "";         /* Extra parameters for path hyperlinks */
+  ReCompiled *pRE = 0;     /* Compiled regular expression */
+  FileTreeNode *p;         /* One line of the tree */
+  FileTree sTree;          /* The complete tree of files */
+  HQuery sURI;             /* Hyperlink */
 
+  if( strcmp(PD("type",""),"flat")==0 ){ page_dir(); return; }
   memset(&sTree, 0, sizeof(sTree));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -424,10 +438,15 @@ void page_tree(void){
   style_header("File List");
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
+  url_initialize(&sURI, "tree");
 
   /* If a regular expression is specified, compile it */
   zRE = P("re");
-  if( zRE ) re_compile(&pRE, zRE, 0);
+  if( zRE ){
+    re_compile(&pRE, zRE, 0);
+    url_add_parameter(&sURI, "re", zRE);
+    zREx = mprintf("&re=%T", zRE);
+  }
 
   /* If the name= parameter is an empty string, make it a NULL pointer */
   if( zD && strlen(zD)==0 ){ zD = 0; }
@@ -443,6 +462,7 @@ void page_tree(void){
       linkTrunk = trunkRid && rid != trunkRid;
       linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      url_add_parameter(&sURI, "ci", zCI);
     }else{
       zCI = 0;
     }
@@ -451,40 +471,37 @@ void page_tree(void){
   /* Compute the title of the page */
   blob_zero(&dirname);
   if( zD ){
-    blob_appendf(&dirname, "in directory %h", zD);
+    url_add_parameter(&sURI, "name", zD);
+    blob_append(&dirname, "within directory ", -1);
+    hyperlinked_path(zD, &dirname, zCI, "tree", zREx);
     if( zRE ) blob_appendf(&dirname, " matching \"%s\"", zRE);
-    if( linkTrunk ){
-      style_submenu_element("Trunk", "Trunk", "%R/tree?name=%t&ci=trunk",
-                             zD);
-    }
-    if ( linkTip ){
-      style_submenu_element("Tip", "Tip", "%R/tree?name=%t&ci=tip", zD);
-    }
+    zPrefix = mprintf("%T/", zD);
+    style_submenu_element("Top", "Top", "%s",
+                          url_render(&sURI, "name", 0, 0, 0));
   }else{
     if( zRE ){
       blob_appendf(&dirname, "matching \"%s\"", zRE);
-    }else{
-      blob_append(&dirname, "in the top-level directory", -1);
     }
-    if( linkTrunk ){
-      style_submenu_element("Trunk", "Trunk", "%R/tree?ci=trunk");
-    }
-    if ( linkTip ){
-      style_submenu_element("Tip", "Tip", "%R/tree?ci=tip");
-    }
+    zPrefix = "";
   }
+  if( linkTrunk ){
+    style_submenu_element("Trunk", "Trunk", "%s",
+                          url_render(&sURI, "ci", "trunk", 0, 0));
+  }
+  if ( linkTip ){
+    style_submenu_element("Tip", "Tip", "%s",
+                          url_render(&sURI, "ci", "tip", 0, 0));
+  }
+  style_submenu_element("All", "All", "%s",
+                        url_render(&sURI, "ci", 0, 0, 0));
+  style_submenu_element("Flat-View", "Flat-View", "%s",
+                        url_render(&sURI, "type", "flat", 0, 0));
   if( zCI ){
     char zShort[20];
     memcpy(zShort, zUuid, 10);
     zShort[10] = 0;
     @ <h2>Files of check-in [%z(href("vinfo?name=%T",zUuid))%s(zShort)</a>]
     @ %s(blob_str(&dirname))</h2>
-    if( zD ){
-      style_submenu_element("Top", "Top", "%R/tree?ci=%S", zUuid);
-      style_submenu_element("All", "All", "%R/tree?name=%t", zD);
-    }else{
-      style_submenu_element("All", "All", "%R/tree");
-    }
   }else{
     @ <h2>The union of all files from all check-ins
     @ %s(blob_str(&dirname))</h2>
@@ -554,13 +571,16 @@ void page_tree(void){
       cgi_append_content("&#x251c;&#x2500;&#x2500; ", 25);
     }
     if( p->isDir ){
-      @ %h(p->zName)
+      char *zName = mprintf("%s%T", zPrefix, p->zFullName);
+      char *zLink = href("%s", url_render(&sURI, "name", zName, 0, 0));
+      fossil_free(zName);
+      @ %z(zLink)%h(p->zName)</a>
     }else{
       char *zLink;
       if( zCI ){
         zLink = href("%R/artifact/%s",p->zUuid);
       }else{
-        zLink = href("%R/finfo?name=%T",p->zFullName);
+        zLink = href("%R/finfo?name=%s%T",zPrefix,p->zFullName);
       }
       @ %z(zLink)%h(p->zName)</a>
     }
