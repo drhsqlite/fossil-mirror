@@ -247,6 +247,36 @@ void style_set_current_page(const char *zFormat, ...){
 }
 
 /*
+** Create a TH1 variable containing the URL for the specified config resource.
+** The resulting variable name will be of the form $[zVarPrefix]_url.
+*/
+static void url_var(
+  const char *zVarPrefix,
+  const char *zConfigName,
+  const char *zPageName
+){
+  char *zMtime = db_get_mtime(zConfigName, 0, 0);
+  char *zUrl = mprintf("%s/%s/%s", g.zTop, zPageName, zMtime);
+  char *zVarName = mprintf("%s_url", zVarPrefix);
+  Th_Store(zVarName, zUrl);
+  free(zMtime);
+  free(zUrl);
+  free(zVarName);
+}
+
+/*
+** Create a TH1 variable containing the URL for the specified config image.
+** The resulting variable name will be of the form $[zImageName]_image_url.
+*/
+static void image_url_var(const char *zImageName){
+  char *zVarPrefix = mprintf("%s_image", zImageName);
+  char *zConfigName = mprintf("%s-image", zImageName);
+  url_var(zVarPrefix, zConfigName, zImageName);
+  free(zVarPrefix);
+  free(zConfigName);
+}
+
+/*
 ** Draw the header.
 */
 void style_header(const char *zTitleFormat, ...){
@@ -277,6 +307,9 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
   Th_Store("compiler_name", COMPILER_NAME);
+  url_var("stylesheet", "css", "style.css");
+  image_url_var("logo");
+  image_url_var("background");
   if( g.zLogin ){
     Th_Store("login", g.zLogin);
   }
@@ -408,13 +441,13 @@ const char zDefaultHeader[] =
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss" />
-@ <link rel="stylesheet" href="$home/style.css?default" type="text/css"
+@ <link rel="stylesheet" href="$stylesheet_url" type="text/css"
 @       media="screen" />
 @ </head>
 @ <body>
 @ <div class="header">
 @   <div class="logo">
-@     <img src="$home/logo" alt="logo" />
+@     <img src="$logo_image_url" alt="logo" />
 @   </div>
 @   <div class="title"><small>$<project_name></small><br />$<title></div>
 @   <div class="status"><th1>
@@ -1153,6 +1186,8 @@ void page_style_css(void){
   */
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("home", g.zTop);
+  image_url_var("logo");
+  image_url_var("background");
   Th_Render(blob_str(&css));
 
   /* Tell CGI that the content returned by this page is considered cacheable */
