@@ -631,7 +631,7 @@ void ci_page(void){
       @ </td></tr>
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      @     %z(href("%R/dir?ci=%S",zUuid))files</a>
+      @     %z(href("%R/tree?ci=%S",zUuid))files</a>
       @   | %z(href("%R/fileage?name=%S",zUuid))file ages</a>
       @   | %z(href("%R/artifact/%S",zUuid))manifest</a>
       if( g.perm.Write ){

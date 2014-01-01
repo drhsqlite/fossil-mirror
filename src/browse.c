@@ -166,7 +166,7 @@ void page_dir(void){
     blob_append(&dirname, "in directory ", -1);
     hyperlinked_path(zD, &dirname, zCI, "dir", "");
     zPrefix = mprintf("%s/", zD);
-    style_submenu_element("Top", "Top", "%s",
+    style_submenu_element("Top-Level", "Top-Level", "%s",
                           url_render(&sURI, "name", 0, 0, 0));
   }else{
     blob_append(&dirname, "in the top-level directory", -1);
@@ -420,6 +420,7 @@ void page_tree(void){
   char *zUuid = 0;
   Blob dirname;
   Manifest *pM = 0;
+  int nFile = 0;           /* Number of files */
   int linkTrunk = 1;       /* include link to "trunk" */
   int linkTip = 1;         /* include link to "tip" */
   const char *zRE;         /* the value for the re=REGEXP query parameter */
@@ -476,13 +477,17 @@ void page_tree(void){
     hyperlinked_path(zD, &dirname, zCI, "tree", zREx);
     if( zRE ) blob_appendf(&dirname, " matching \"%s\"", zRE);
     zPrefix = mprintf("%T/", zD);
-    style_submenu_element("Top", "Top", "%s",
+    style_submenu_element("Top-Level", "Top-Level", "%s",
                           url_render(&sURI, "name", 0, 0, 0));
   }else{
     if( zRE ){
       blob_appendf(&dirname, "matching \"%s\"", zRE);
     }
     zPrefix = "";
+  }
+  if( zCI ){
+    style_submenu_element("All", "All", "%s",
+                          url_render(&sURI, "ci", 0, 0, 0));
   }
   if( linkTrunk ){
     style_submenu_element("Trunk", "Trunk", "%s",
@@ -492,21 +497,8 @@ void page_tree(void){
     style_submenu_element("Tip", "Tip", "%s",
                           url_render(&sURI, "ci", "tip", 0, 0));
   }
-  style_submenu_element("All", "All", "%s",
-                        url_render(&sURI, "ci", 0, 0, 0));
   style_submenu_element("Flat-View", "Flat-View", "%s",
                         url_render(&sURI, "type", "flat", 0, 0));
-  if( zCI ){
-    char zShort[20];
-    memcpy(zShort, zUuid, 10);
-    zShort[10] = 0;
-    @ <h2>Files of check-in [%z(href("vinfo?name=%T",zUuid))%s(zShort)</a>]
-    @ %s(blob_str(&dirname))</h2>
-  }else{
-    @ <h2>The union of all files from all check-ins
-    @ %s(blob_str(&dirname))</h2>
-  }
-
   /* Compute the file hierarchy.
   */
   if( zCI ){
@@ -538,6 +530,7 @@ void page_tree(void){
     db_prepare(&q, "SELECT x, uuid FROM filelist ORDER BY x");
     while( db_step(&q)==SQLITE_ROW ){
       tree_add_node(&sTree, db_column_text(&q,0), db_column_text(&q,1));
+      nFile++;
     }
     db_finalize(&q);
   }else{
@@ -550,9 +543,21 @@ void page_tree(void){
       }
       if( pRE && re_match(pRE, (const u8*)z, -1)==0 ) continue;
       tree_add_node(&sTree, z+nD, 0);
+      nFile++;
     }
     db_finalize(&q);
   }
+
+  if( zCI ){
+    @ <h2>%d(nFile) files of
+    @ check-in [%z(href("vinfo?name=%T",zUuid))%S(zUuid)</a>]
+    @ %s(blob_str(&dirname))</h2>
+  }else{
+    int n = db_int(0, "SELECT count(*) FROM plink");
+    @ <h2>%d(nFile) files from all %d(n) check-ins
+    @ %s(blob_str(&dirname))</h2>
+  }
+
 
   /* Generate a multi-column table listing the contents of zD[]
   ** directory.
