@@ -1186,7 +1186,6 @@ void setup_timeline(void){
                   "timeline-utc", "utc", 1, 0);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
   @ Zulu) instead of in local time.  On this server, local time is currently
-  g.fTimeFormat = 2;
   tmDiff = db_double(0.0, "SELECT julianday('now')");
   tmDiff = db_double(0.0,
         "SELECT (julianday(%.17g,'localtime')-julianday(%.17g))*24.0",

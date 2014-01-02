@@ -509,7 +509,9 @@ void page_tree(void){
         "CREATE TEMP TABLE filelist("
         "   x TEXT PRIMARY KEY COLLATE nocase,"
         "   uuid TEXT"
-        ") WITHOUT ROWID;"
+        ")%s;",
+        /* Can be removed as soon as SQLite 3.8.2 is sufficiently wide-spread */
+        sqlite3_libversion_number()>=3008002 ? " WITHOUT ROWID" : ""
     );
     db_prepare(&ins, "INSERT OR IGNORE INTO filelist VALUES(:f,:u)");
     manifest_file_rewind(pM);
@@ -717,7 +719,7 @@ void fileage_page(void){
   style_header("File Ages", zName);
   compute_fileage(rid);
   baseTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
-  zBaseTime = db_text("","SELECT datetime(%.20g,'localtime')", baseTime);
+  zBaseTime = db_text("","SELECT datetime(%.20g%s)", baseTime, timeline_utc());
   @ <h2>File Ages For Check-in
   @ %z(href("%R/info?name=%T",zName))%h(zName)</a></h2>
   @

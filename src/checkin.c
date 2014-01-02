@@ -303,9 +303,9 @@ void ls_cmd(void){
   if( showAge ){
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
-       "       datetime(checkin_mtime(%d,rid),'unixepoch','localtime')"
+       "       datetime(checkin_mtime(%d,rid),'unixepoch'%s)"
        "  FROM vfile %s"
-       " ORDER BY %s", vid, blob_str(&where), zOrderBy
+       " ORDER BY %s", vid, timeline_utc(), blob_str(&where), zOrderBy
     );
   }else{
     db_prepare(&q,

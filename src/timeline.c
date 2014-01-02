@@ -906,11 +906,12 @@ static void timeline_temp_table(void){
 ** for a timeline query for the WWW interface.
 */
 const char *timeline_query_for_www(void){
+  static const char *zBase = 0;
   static const char zBaseSql[] =
     @ SELECT
     @   blob.rid AS blobRid,
     @   uuid AS uuid,
-    @   datetime(event.mtime,'localtime') AS timestamp,
+    @   datetime(event.mtime%s) AS timestamp,
     @   coalesce(ecomment, comment) AS comment,
     @   coalesce(euser, user) AS user,
     @   blob.rid IN leaf AS leaf,
@@ -925,7 +926,10 @@ const char *timeline_query_for_www(void){
     @  FROM event CROSS JOIN blob
     @ WHERE blob.rid=event.objid
   ;
-  return zBaseSql;
+  if( zBase==0 ){
+    zBase = mprintf(zBaseSql, timeline_utc());
+  }
+  return zBase;
 }
 
 /*
@@ -1673,11 +1677,12 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
 ** a timeline query for display on a TTY.
 */
 const char *timeline_query_for_tty(void){
+  static const char *zBase = 0;
   static const char zBaseSql[] =
     @ SELECT
     @   blob.rid AS rid,
     @   uuid,
-    @   datetime(event.mtime,'localtime') AS mDateTime,
+    @   datetime(event.mtime%s) AS mDateTime,
     @   coalesce(ecomment,comment)
     @     || ' (user: ' || coalesce(euser,user,'?')
     @     || (SELECT case when length(x)>0 then ' tags: ' || x else '' end
@@ -1698,7 +1703,10 @@ const char *timeline_query_for_tty(void){
     @ WHERE blob.rid=event.objid
     @   AND tag.tagname='branch'
   ;
-  return zBaseSql;
+  if( zBase==0 ){
+    zBase = mprintf(zBaseSql, timeline_utc());
+  }
+  return zBase;
 }
 
 /*
@@ -1878,16 +1886,13 @@ void timeline_cmd(void){
 }
 
 /*
-** This is a version of the "localtime()" function from the standard
-** C library.  It converts a unix timestamp (seconds since 1970) into
-** a broken-out local time structure.
+** Return one of two things:
 **
-** This modified version of localtime() works like the library localtime()
-** by default.  Except if the timeline-utc property is set, this routine
-** uses gmttime() instead.  Thus by setting the timeline-utc property, we
-** can get all localtimes to be displayed at UTC time.
+**   ",'localtime'"  if the timeline-utc property is set to 0.
+**
+**   ""              (empty string) otherwise.
 */
-struct tm *fossil_localtime(const time_t *clock){
+const char *timeline_utc(){
   if( g.fTimeFormat==0 ){
     if( db_get_int("timeline-utc", 1) ){
       g.fTimeFormat = 1;
@@ -1895,11 +1900,10 @@ struct tm *fossil_localtime(const time_t *clock){
       g.fTimeFormat = 2;
     }
   }
-  if( clock==0 ) return 0;
   if( g.fTimeFormat==1 ){
-    return gmtime(clock);
+    return "";
   }else{
-    return localtime(clock);
+    return ",'localtime'";
   }
 }
 

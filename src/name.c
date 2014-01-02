@@ -460,14 +460,14 @@ void whatis_cmd(void){
   }else{
     Stmt q;
     db_prepare(&q,
-       "SELECT uuid, size, datetime(mtime, 'localtime'), ipaddr,"
+       "SELECT uuid, size, datetime(mtime%s), ipaddr,"
        "       (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
        "         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
        "           AND tagxref.rid=blob.rid AND tagxref.tagtype>0)"
        "  FROM blob, rcvfrom"
        " WHERE rid=%d"
        "   AND rcvfrom.rcvid=blob.rcvid",
-       rid);
+       timeline_utc(), rid);
     if( db_step(&q)==SQLITE_ROW ){
       const char *zTagList = db_column_text(&q, 4);
       if( verboseFlag ){
@@ -486,9 +486,9 @@ void whatis_cmd(void){
     }
     db_finalize(&q);
     db_prepare(&q,
-       "SELECT type, datetime(mtime,'localtime'),"
+       "SELECT type, datetime(mtime%s),"
        "       coalesce(euser,user), coalesce(ecomment,comment)"
-       "  FROM event WHERE objid=%d", rid);
+       "  FROM event WHERE objid=%d", timeline_utc(), rid);
     if( db_step(&q)==SQLITE_ROW ){
       const char *zType;
       switch( db_column_text(&q,0)[0] ){
@@ -506,7 +506,7 @@ void whatis_cmd(void){
     }
     db_finalize(&q);
     db_prepare(&q,
-      "SELECT filename.name, blob.uuid, datetime(event.mtime,'localtime'),"
+      "SELECT filename.name, blob.uuid, datetime(event.mtime%s),"
       "       coalesce(euser,user), coalesce(ecomment,comment)"
       "  FROM mlink, filename, blob, event"
       " WHERE mlink.fid=%d"
@@ -514,7 +514,7 @@ void whatis_cmd(void){
       "   AND event.objid=mlink.mid"
       "   AND blob.rid=mlink.mid"
       " ORDER BY event.mtime DESC /*sort*/",
-      rid);
+      timeline_utc(), rid);
     while( db_step(&q)==SQLITE_ROW ){
       fossil_print("file:     %s\n", db_column_text(&q,0));
       fossil_print("          part of [%.10s] by %s on %s\n",
