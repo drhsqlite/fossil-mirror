@@ -415,7 +415,6 @@ void page_tree(void){
   FileTreeNode *p;         /* One line of the tree */
   FileTree sTree;          /* The complete tree of files */
   HQuery sURI;             /* Hyperlink */
-  int iDepth = 0;          /* <ul> depth */
   char *zProjectName = db_get("project-name", 0);
 
   if( strcmp(PD("type",""),"flat")==0 ){ page_dir(); return; }
@@ -556,7 +555,6 @@ void page_tree(void){
     @ <a>%h(zProjectName)</a>
   }
   @ <ul class="filetree">
-  iDepth = 2;
   for(p=sTree.pFirst; p; p=p->pNext){
     if( p->isDir ){
       @ <li class="dir">
@@ -567,7 +565,6 @@ void page_tree(void){
         @ %z(zLink)%h(p->zName)</a>
       }
       @ <ul class="filetree">
-      iDepth++;
     }else{
       char *zLink;
       if( zCI ){
@@ -577,14 +574,15 @@ void page_tree(void){
       }
       @ <li class="file">%z(zLink)%h(p->zName)</a>
     }
-    if( p->isLast && !p->isDir ){
-      @ </ul>
-      iDepth--;
+    if( p->isLast ){
+      int nClose = p->iLevel - (p->pNext ? p->pNext->iLevel : 0);
+      while( nClose-- > 0 ){
+        @ </ul>
+      }
     }
   }
-  while( iDepth-- > 0 ) {
-    @ </ul>
-  }
+  @ </ul>
+  @ </ul>
   style_footer();
 
   /* We could free memory used by sTree here if we needed to.  But
