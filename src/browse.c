@@ -509,7 +509,8 @@ void page_tree(void){
         "CREATE TEMP TABLE filelist("
         "   x TEXT PRIMARY KEY COLLATE nocase,"
         "   uuid TEXT"
-        ") WITHOUT ROWID;"
+        ")%s;",
+        sqlite3_libversion_number()>=3008002 ? " WITHOUT ROWID" : ""
     );
     db_prepare(&ins, "INSERT OR IGNORE INTO filelist VALUES(:f,:u)");
     manifest_file_rewind(pM);
