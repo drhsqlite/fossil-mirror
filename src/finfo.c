@@ -378,12 +378,12 @@ void finfo_page(void){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
     char *zLink = href("%R/info/%S", zUuid);
     blob_appendf(&title, "Ancestors of file ");
-    hyperlinked_path(zFilename, &title, zUuid);
+    hyperlinked_path(zFilename, &title, zUuid, "dir", "");
     blob_appendf(&title, " from check-in %z%.10s</a>", zLink, zUuid);
     fossil_free(zUuid);
   }else{
     blob_appendf(&title, "History of files named ");
-    hyperlinked_path(zFilename, &title, 0);
+    hyperlinked_path(zFilename, &title, 0, "dir", "");
   }
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
