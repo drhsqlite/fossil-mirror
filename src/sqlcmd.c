@@ -21,6 +21,7 @@
 ** to initialize the code in shell.c.
 */
 #include "config.h"
+#if !defined(USE_SYSTEM_SQLITE) || !USE_SYSTEM_SQLITE
 #include "sqlcmd.h"
 #include <zlib.h>
 
@@ -156,3 +157,5 @@ void fossil_open(const char **pzRepoName){
   sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
   *pzRepoName = g.zRepositoryName;
 }
+
+#endif /* !USE_SYSTEM_SQLITE */
