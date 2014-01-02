@@ -1,5 +1,5 @@
-C Add\sportion\sof\sMANIFEST_UUID\sto\sTH1\sURL\svariables.
-D 2014-01-02T12:36:14.447
+C Propose\stree-view\senhancement.
+D 2014-01-02T12:47:40.727
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -315,7 +315,7 @@ F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 9eef1e8551df42bdee81aef68359e65985c6c8b9
 F src/blob.c 9b834e63fab2e586cc2ac29ba56a38acc989c3ca
 F src/branch.c 18a789dda16d8d12ff634ec8dd12a7d4da2e023a
-F src/browse.c 5ad305f4a35cfb8568017515f0fbf1278bab1989
+F src/browse.c ad3b5074ee4182a6046071a40e868ad9aee205b3
 F src/captcha.c 2c855a6f943b546b855eabe58f1388d677d5ea73
 F src/cgi.c 063a9bf9ea11962c896c1bd9ff86afdcbbb0ba31
 F src/checkin.c 6be5433109ab77766fda4ee9fc47099c77f52d79
@@ -405,7 +405,7 @@ F src/sqlite3.c 184f4a061ca93faa576ea7314fe499b432e89d16
 F src/sqlite3.h 0d11eaee2c74a74f10a9c9cf4b9a0c20cd2c0bf5
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 28b9be27fd580b4b2dac60226ae296e55b2c9c9e
-F src/style.c f6e63e258dfc2d249c5e9b7745c14ff88f44ebc7
+F src/style.c a60501b1fa586fbae7da694a541335ddd60f6d22
 F src/sync.c bb1f61e400aaa9daa59c6972b1fd987276bd6d80
 F src/tag.c 9d7a7cb5a501246675552fb402b3497fbb8e7d38
 F src/tar.c d8f62d1690ae13b3db209ffe32b87b9334c99712
@@ -639,7 +639,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9930c46ee5e918a96fed4d04ca32d644d409f972
-R 9219d30d8938b046c7f16f731fef053b
+P daa43661dd3ca4ccf639d2de61603ade835cae1b
+R 7225d613b11c12f4997b279d92858ddc
+T *branch * csstree
+T *sym-csstree *
+T -sym-trunk *
 U joel
-Z 7668d3bd70a1b38cc76abfbfa7d7710b
+Z fdd3e0df2e2ba22abf1107672963e20c

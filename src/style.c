@@ -773,6 +773,36 @@ const struct strctCssDefaults {
     @   padding-left: 0.5em;
     @   white-space: nowrap;
   },
+  { ".filetree",
+    "file tree",
+    @   padding-left: 0;
+    @   list-style: none;
+  },
+  {
+    ".filetree li",
+    "file tree list items",
+    @   margin: .2em 0;
+  },
+  { ".filetree ul",
+    "file tree subdirectory lists",
+    @   margin-left: 7px;
+    @   padding-left: 12px;
+    @   border-left: 2px dotted #aaa;
+  },
+  {
+    ".filetree a:before",
+    "file tree link icons",
+    @   margin-right: 5px;
+    @   vertical-align: middle;
+  },
+  { ".filetree .dir > a:before",
+    "file tree directory link icons",
+    @   content: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
+  },
+  { ".filetree .file > a:before",
+    "file tree file link icons",
+    @   content: url(data:image/gif;base64,R0lGODlhDQAQAJEAAP\/\/\/yIiIv\/\/\/wAAACH5BAEHAAIALAAAAAANABAAAAIhjI+iyLYBYmTCyAnZBc3eDm0SIo5HiXklibLr2cIvSNMFADs=);
+  },
   { "table.login_out",
     "table format for login/out label/input table",
     @   text-align: left;
