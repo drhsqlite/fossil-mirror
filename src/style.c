@@ -256,7 +256,8 @@ static void url_var(
   const char *zPageName
 ){
   char *zMtime = db_get_mtime(zConfigName, 0, 0);
-  char *zUrl = mprintf("%s/%s/%s", g.zTop, zPageName, zMtime);
+  char *zUrl = mprintf("%s/%s/%s%.5s", g.zTop, zPageName, zMtime,
+                       MANIFEST_UUID);
   char *zVarName = mprintf("%s_url", zVarPrefix);
   Th_Store(zVarName, zUrl);
   free(zMtime);
