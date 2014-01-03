@@ -775,25 +775,20 @@ const struct strctCssDefaults {
   },
   { ".filetree",
     "file tree",
-    @   padding-left: 0;
+    @   padding: 0;
     @   list-style: none;
-  },
-  {
-    ".filetree li",
-    "file tree list items",
-    @   margin: .2em 0;
+    @   line-height: 1.3;
   },
   { ".filetree ul",
     "file tree subdirectory lists",
-    @   margin-left: 7px;
-    @   padding-left: 12px;
+    @   margin: 0 0 .4em 7px;
+    @   padding: .2em 0 0 12px;
     @   border-left: 2px dotted #aaa;
   },
-  {
-    ".filetree a:before",
+  { ".filetree a:before",
     "file tree link icons",
     @   margin-right: 5px;
-    @   vertical-align: middle;
+    @   vertical-align: -3px;
   },
   { ".filetree .dir > a:before",
     "file tree directory link icons",
