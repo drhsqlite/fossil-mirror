@@ -378,6 +378,15 @@ static void fossil_atexit(void) {
   if(g.db){
     db_close(0);
   }
+  /*
+  ** FIXME: The next two lines cannot always be enabled; however, they
+  **        are useful for tracking down TH1 memory leaks.
+  */
+  /*
+  if( g.interp ){
+    Th_DeleteInterp(g.interp); g.interp = 0;
+  }
+  assert( Th_GetOutstandingMalloc()==0 ); */
 }
 
 /*

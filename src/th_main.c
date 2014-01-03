@@ -61,6 +61,13 @@ static void xFree(void *p){
 static Th_Vtab vtab = { xMalloc, xFree };
 
 /*
+** Returns the number of outstanding TH1 memory allocations.
+*/
+int Th_GetOutstandingMalloc(){
+  return nOutstandingMalloc;
+}
+
+/*
 ** Generate a TH1 trace message if debugging is enabled.
 */
 void Th_Trace(const char *zFormat, ...){

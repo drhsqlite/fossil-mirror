@@ -1880,14 +1880,16 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
         case OP_DIVIDE:
           if( !iRight ){
             Th_ErrorMessage(interp, "Divide by 0:", zLeft, nLeft);
-            return TH_ERROR;
+            rc = TH_ERROR;
+            goto finish;
           }
           iRes = iLeft/iRight;
           break;
         case OP_MODULUS:
           if( !iRight ){
             Th_ErrorMessage(interp, "Modulo by 0:", zLeft, nLeft);
-            return TH_ERROR;
+            rc = TH_ERROR;
+            goto finish;
           }
           iRes = iLeft%iRight;
           break;
@@ -1918,7 +1920,8 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
         case OP_DIVIDE:
           if( fRight==0.0 ){
             Th_ErrorMessage(interp, "Divide by 0:", zLeft, nLeft);
-            return TH_ERROR;
+            rc = TH_ERROR;
+            goto finish;
           }
           Th_SetResultDouble(interp, fLeft/fRight);
           break;
@@ -1944,6 +1947,8 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
         default: assert(!"Internal error");
       }
     }
+
+   finish:
 
     Th_Free(interp, zLeft);
     Th_Free(interp, zRight);

@@ -87,3 +87,25 @@ test th1-divide-by-zero-3 {$RESULT eq {TH_ERROR: Divide by 0: 42.0}}
 
 fossil test-th-eval "expr 42.0/0.0"
 test th1-divide-by-zero-4 {$RESULT eq {TH_ERROR: Divide by 0: 42.0}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42%0"
+test th1-modulus-by-zero-1 {$RESULT eq {TH_ERROR: Modulo by 0: 42}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42%0.0"
+test th1-modulus-by-zero-2 {$RESULT eq {TH_ERROR: expected integer, got: "0.0"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42.0%0"
+test th1-modulus-by-zero-3 {$RESULT eq \
+{TH_ERROR: expected integer, got: "42.0"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42.0%0.0"
+test th1-modulus-by-zero-4 {$RESULT eq \
+{TH_ERROR: expected integer, got: "42.0"}}
