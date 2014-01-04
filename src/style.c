@@ -789,14 +789,11 @@ const struct strctCssDefaults {
     "file tree link icons",
     @   margin-right: 5px;
     @   vertical-align: -3px;
+    @   content: url(data:image/gif;base64,R0lGODlhDQAQAJEAAP\/\/\/yIiIv\/\/\/wAAACH5BAEHAAIALAAAAAANABAAAAIhjI+iyLYBYmTCyAnZBc3eDm0SIo5HiXklibLr2cIvSNMFADs=);
   },
   { ".filetree .dir > a:before",
     "file tree directory link icons",
     @   content: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
-  },
-  { ".filetree .file > a:before",
-    "file tree file link icons",
-    @   content: url(data:image/gif;base64,R0lGODlhDQAQAJEAAP\/\/\/yIiIv\/\/\/wAAACH5BAEHAAIALAAAAAANABAAAAIhjI+iyLYBYmTCyAnZBc3eDm0SIo5HiXklibLr2cIvSNMFADs=);
   },
   { "table.login_out",
     "table format for login/out label/input table",

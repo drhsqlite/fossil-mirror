@@ -572,7 +572,7 @@ void page_tree(void){
       }else{
         zLink = href("%R/finfo?name=%T",p->zFullName);
       }
-      @ <li class="file">%z(zLink)%h(p->zName)</a>
+      @ <li class="%z(fileext_class(p->zName))">%z(zLink)%h(p->zName)</a>
     }
     if( p->isLast ){
       int nClose = p->iLevel - (p->pNext ? p->pNext->iLevel : 0);
