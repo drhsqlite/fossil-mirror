@@ -395,9 +395,9 @@ static int is_temporary_file(const char *zName){
   };
   int i, j, n;
   
-  if( sqlite3_strglob("ci-comment-????????????.txt", zName) ) return 1;
+  if( sqlite3_strglob("ci-comment-????????????.txt", zName)==0 ) return 1;
   for(; zName[0]!=0; zName++){
-    if( zName[0]=='/' && sqlite3_strglob("/ci-comment-????????????.txt", zName) ){
+    if( zName[0]=='/' && sqlite3_strglob("/ci-comment-????????????.txt", zName)==0 ){
       return 1;
     }
     if( zName[0]!='-' ) continue;

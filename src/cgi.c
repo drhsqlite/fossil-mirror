@@ -279,8 +279,8 @@ static int check_cache_control(void){
 static int is_gzippable(void){
   if( strstr(PD("HTTP_ACCEPT_ENCODING", ""), "gzip")==0 ) return 0;
   return strncmp(zContentType, "text/", 5)==0
-    || sqlite3_strglob("application/*xml", zContentType)
-    || sqlite3_strglob("application/*javascript", zContentType);
+    || !sqlite3_strglob("application/*xml", zContentType)
+    || !sqlite3_strglob("application/*javascript", zContentType);
 }
 
 /*

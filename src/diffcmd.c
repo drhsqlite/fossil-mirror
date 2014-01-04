@@ -925,13 +925,13 @@ void diff_tk(const char *zSubCmd, int firstArg){
   for(i=firstArg; i<g.argc; i++){
     const char *z = g.argv[i];
     if( z[0]=='-' ){
-      if( sqlite3_strglob("*-html",z) ) continue;
-      if( sqlite3_strglob("*-y",z) ) continue;
-      if( sqlite3_strglob("*-i",z) ) continue;
+      if( !sqlite3_strglob("*-html",z) ) continue;
+      if( !sqlite3_strglob("*-y",z) ) continue;
+      if( !sqlite3_strglob("*-i",z) ) continue;
       /* The undocumented --script FILENAME option causes the Tk script to
       ** be written into the FILENAME instead of being run.  This is used
       ** for testing and debugging. */
-      if( sqlite3_strglob("*-script",z) && i<g.argc-1 ){
+      if( !sqlite3_strglob("*-script",z) && i<g.argc-1 ){
         i++;
         zTempFile = g.argv[i];
         continue;

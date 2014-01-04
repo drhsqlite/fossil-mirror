@@ -1320,7 +1320,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
         if( pFileGlob!=0
          && file_isfile(zRepo)
          && glob_match(pFileGlob, zRepo)
-         && sqlite3_strglob("*.fossil*",zRepo)==0
+         && sqlite3_strglob("*.fossil*",zRepo)!=0
          && (zMimetype = mimetype_from_name(zRepo))!=0
          && strcmp(zMimetype, "application/x-fossil-artifact")!=0
         ){

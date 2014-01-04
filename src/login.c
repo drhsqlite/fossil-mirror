@@ -397,11 +397,11 @@ static int isHuman(const char *zAgent){
   }
   if( strncmp(zAgent, "Mozilla/", 8)==0 ){
     if( atoi(&zAgent[8])<4 ) return 0;  /* Many bots advertise as Mozilla/3 */
-    if( sqlite3_strglob("*Firefox/[1-9]*", zAgent) ) return 1;
-    if( sqlite3_strglob("*Chrome/[1-9]*", zAgent) ) return 1;
-    if( sqlite3_strglob("*(compatible;?MSIE?[1789]*", zAgent) ) return 1;
-    if( sqlite3_strglob("*Trident/[1-9]*;?rv:[1-9]*", zAgent) ) return 1; /* IE11+ */
-    if( sqlite3_strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent) ) return 1;
+    if( sqlite3_strglob("*Firefox/[1-9]*", zAgent)==0 ) return 1;
+    if( sqlite3_strglob("*Chrome/[1-9]*", zAgent)==0 ) return 1;
+    if( sqlite3_strglob("*(compatible;?MSIE?[1789]*", zAgent)==0 ) return 1;
+    if( sqlite3_strglob("*Trident/[1-9]*;?rv:[1-9]*", zAgent)==0 ) return 1; /* IE11+ */
+    if( sqlite3_strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent)==0 ) return 1;
     return 0;
   }
   if( strncmp(zAgent, "Opera/", 6)==0 ) return 1;
