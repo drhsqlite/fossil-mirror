@@ -598,7 +598,7 @@ int main(int argc, char **argv)
   if( g.zVfsName==0 ){
     g.zVfsName = fossil_getenv("FOSSIL_VFS");
 #if defined(__CYGWIN__)
-    if( g.zVfsName==0 && sqlite3_libversion_number()>=3008001 ){
+    if( g.zVfsName==0 ){
       g.zVfsName = "win32-longpath";
     }
 #endif
@@ -1320,7 +1320,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
         if( pFileGlob!=0
          && file_isfile(zRepo)
          && glob_match(pFileGlob, zRepo)
-         && strglob("*.fossil*",zRepo)==0
+         && sqlite3_strglob("*.fossil*",zRepo)==0
          && (zMimetype = mimetype_from_name(zRepo))!=0
          && strcmp(zMimetype, "application/x-fossil-artifact")!=0
         ){

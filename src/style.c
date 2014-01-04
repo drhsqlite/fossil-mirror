@@ -177,7 +177,7 @@ void style_resolve_href(void){
     @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
   }
   @ }
-  if( strglob("*Opera Mini/[1-9]*", P("HTTP_USER_AGENT")) ){
+  if( sqlite3_strglob("*Opera Mini/[1-9]*", P("HTTP_USER_AGENT")) ){
     /* Special case for Opera Mini, which executes JS server-side */
     @ var isOperaMini = Object.prototype.toString.call(window.operamini)
     @                   === "[object OperaMini]";

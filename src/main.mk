@@ -387,8 +387,7 @@ SQLITE_OPTIONS = -DSQLITE_OMIT_LOAD_EXTENSION=1 \
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
-                -DSQLITE_OMIT_LOAD_EXTENSION=1 \
-                -Dsqlite3_strglob=strglob
+                -DSQLITE_OMIT_LOAD_EXTENSION=1
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
