@@ -792,13 +792,24 @@ const struct strctCssDefaults {
     @   display: block;
     @   margin: 0 0 .5em 7px;
     @   padding: .2em 0 0 12px;
-    @   border-left: 2px dotted #aaa;
+    @   border-left: 2px solid #ccc;
   },
   { ".filetree .subdir li",
     "file tree lists items below subdir",
+    @   position: relative;
     @   display: block;
     @   margin: .2em 0;
     @   padding: 0;
+  },
+  { ".filetree .subdir li:before",
+    "file tree horizontal lines connecting children to parent",
+    @   content: '';
+    @   position: absolute;
+    @   top: .5em;
+    @   left: -12px;
+    @   margin-top: 1px;
+    @   width: 10px;
+    @   border-top: 2px solid #ccc;
   },
   { ".filetree a",
     "file tree links",
