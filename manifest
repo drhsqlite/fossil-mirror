@@ -1,5 +1,5 @@
-C Increase\sminimum\sSQLite\srequirement\sto\s3.7.17,\sand\smake\sefficient\suse\sof\sthe\sfunction\ssqlite3_strglob.\sThis\seliminates\sunnecessary\sstrglob\sfunction\sin\sfossil
-D 2014-01-05T10:51:24.220
+C fix\scomment
+D 2014-01-05T10:55:08.233
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -44,7 +44,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 2a385f5b65584ebf8a157964ca4a6cec2cb4d532
+F auto.def 1069326eb034d16ab887a99abb4828fa24dcd1dd
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup 90ded6ed5126743fe48de4b33103e508700f06a1 x
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 70a374d9a38d2acde512091e07d6a9edbf4bfc43 abf1b425fb92ef46bcad962c46d710834d7eaefa
-R ee1729ca446c86242dc710d779e6de25
+P bde92b38c7f00dacf105850939a6bb43c0f07f73
+R 734768cbfdb0bb46a45bf89095115d5f
 U jan.nijtmans
-Z e69d1a183fde91e07d0729a75a97b79f
+Z 977976a6333b9cbc3c1221554746e6c0

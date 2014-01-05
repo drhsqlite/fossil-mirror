@@ -43,9 +43,9 @@ if {![opt-bool internal-sqlite]} {
     foreach extralibs {{} {-ldl}} {
 
       # Locate the system SQLite by searching for sqlite3_open(). Then check
-      # if sqlite3_strglob() can be found as well. If we can find
-      # open() but not wal_checkpoint(), then the system SQLite is too old
-      # to link against fossil.
+      # if sqlite3_strglob() can be found as well. If we can find open() but
+      # not strglob(), then the system SQLite is too old to link against
+      # fossil.
       #
       if {[cc-check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
         if {![cc-check-function-in-lib sqlite3_strglob sqlite3 $extralibs]} {
