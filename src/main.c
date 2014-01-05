@@ -598,7 +598,7 @@ int main(int argc, char **argv)
   if( g.zVfsName==0 ){
     g.zVfsName = fossil_getenv("FOSSIL_VFS");
 #if defined(__CYGWIN__)
-    if( g.zVfsName==0 && sqlite3_libversion_number()>=3008001 ){
+    if( g.zVfsName==0 ){
       g.zVfsName = "win32-longpath";
     }
 #endif

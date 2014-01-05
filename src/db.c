@@ -854,28 +854,6 @@ void db_open_config(int useAttach){
   g.zConfigDbName = zDbName;
 }
 
-
-/*
-** Returns TRUE if zTable exists in the local database but lacks column
-** zColumn
-*/
-static int db_local_table_exists_but_lacks_column(
-  const char *zTable,
-  const char *zColumn
-){
-  char *zDef = db_text(0, "SELECT sql FROM %s.sqlite_master"
-                   " WHERE name=='%s' /*scan*/",
-                   db_name("localdb"), zTable);
-  int rc = 0;
-  if( zDef ){
-    char *zPattern = mprintf("* %s *", zColumn);
-    rc = strglob(zPattern, zDef)==0;
-    fossil_free(zPattern);
-    fossil_free(zDef);
-  }
-  return rc;
-}
-
 /*
 ** If zDbName is a valid local database file, open it and return
 ** true.  If it is not a valid local database file, return 0.
@@ -892,30 +870,6 @@ static int isValidLocalDb(const char *zDbName){
                          " WHERE name=='vfile'", db_name("localdb"));
   if( zVFileDef==0 ) return 0;
 
-  /* If the "isexe" column is missing from the vfile table, then
-  ** add it now.   This code added on 2010-03-06.  After all users have
-  ** upgraded, this code can be safely deleted.
-  */
-  if( !strglob("* isexe *", zVFileDef) ){
-    db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
-  }
-
-  /* If "islink"/"isLink" columns are missing from tables, then
-  ** add them now.   This code added on 2011-01-17 and 2011-08-27.
-  ** After all users have upgraded, this code can be safely deleted.
-  */
-  if( !strglob("* islink *", zVFileDef) ){
-    db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
-    if( db_local_table_exists_but_lacks_column("stashfile", "isLink") ){
-      db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOL DEFAULT 0");
-    }
-    if( db_local_table_exists_but_lacks_column("undo", "isLink") ){
-      db_multi_exec("ALTER TABLE undo ADD COLUMN isLink BOOLEAN DEFAULT 0");
-    }
-    if( db_local_table_exists_but_lacks_column("undo_vfile", "islink") ){
-      db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOL DEFAULT 0");
-    }
-  }
   return 1;
 }
 
