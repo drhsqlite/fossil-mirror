@@ -1243,7 +1243,7 @@ int Th_LinkVar(
 int Th_UnsetVar(Th_Interp *interp, const char *zVar, int nVar){
   Th_Variable *pValue;
 
-  pValue = thFindValue(interp, zVar, nVar, 1, 1);
+  pValue = thFindValue(interp, zVar, nVar, 0, 1);
   if( !pValue ){
     return TH_ERROR;
   }
