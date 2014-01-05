@@ -547,17 +547,22 @@ void page_tree(void){
   ** directory.
   */
   @ <ul class="filetree root">
-  @ <li class="dir">
   if( nD ){
     char *zLink = href("%s", url_render(&sURI, "name", 0, 0, 0));
+    @ <li class="dir">
     @ %z(zLink)%h(zProjectName)</a>
   }else{
+    @ <li class="dir subdir">
     @ <a>%h(zProjectName)</a>
   }
   @ <ul class="filetree">
   for(p=sTree.pFirst; p; p=p->pNext){
     if( p->isDir ){
-      @ <li class="dir">
+      if( nD && strlen(p->zFullName)==nD-1 ){
+        @ <li class="dir subdir">
+      }else{
+        @ <li class="dir">
+      }
       if( fossil_strcmp(p->zFullName, zD)==0 ){
         @ <a>%h(p->zName)</a>
       }else{

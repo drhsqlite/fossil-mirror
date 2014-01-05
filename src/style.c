@@ -774,16 +774,35 @@ const struct strctCssDefaults {
     @   white-space: nowrap;
   },
   { ".filetree",
-    "file tree",
+    "file tree root and branch lists",
+    @   display: inline;
     @   padding: 0;
+  },
+  { ".filetree.root",
+    "file tree root",
+    @   display: block;
     @   list-style: none;
     @   line-height: 1.3;
   },
-  { ".filetree ul",
-    "file tree subdirectory lists",
+  { ".filetree li",
+    "file tree list items",
+    @   display: inline;
+  },
+  { ".filetree .subdir ul",
+    "file tree lists below subdir",
+    @   display: block;
     @   margin: 0 0 .4em 7px;
     @   padding: .2em 0 0 12px;
     @   border-left: 2px dotted #aaa;
+  },
+  { ".filetree .subdir li",
+    "file tree lists items below subdir",
+    @   display: block;
+    @   padding: 0;
+  },
+  { ".filetree a",
+    "file tree links",
+    @   margin-right: .5em;
   },
   { ".filetree a:before",
     "file tree link icons",
