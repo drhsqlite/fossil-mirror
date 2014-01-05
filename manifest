@@ -1,5 +1,5 @@
-C fix\scomment
-D 2014-01-05T10:55:08.233
+C styling
+D 2014-01-05T11:03:35.297
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -317,7 +317,7 @@ F src/blob.c 9b834e63fab2e586cc2ac29ba56a38acc989c3ca
 F src/branch.c 18a789dda16d8d12ff634ec8dd12a7d4da2e023a
 F src/browse.c c77728edd8d1a71d68ed75df3b7977289455b73d
 F src/captcha.c 2c855a6f943b546b855eabe58f1388d677d5ea73
-F src/cgi.c 79262c972bb9ccc3e01c0026f945b55a6348396f
+F src/cgi.c 6e6b5a0c22445a88a19c90aad20b5d47394820da
 F src/checkin.c ed91bba6749f53c3662a5bf2051c7a07728d92a6
 F src/checkout.c 42168fb4f49498acdf38a6889cd84c86ee8870db
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -334,14 +334,14 @@ F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c d59a0e546f5e82c884defcf3a695cc066bded992
 F src/diff.c 060d80231c01abc5355bb6ca7e5cc29d5a8d6be2
-F src/diffcmd.c 13fd70029e9ea8440279a51bf5486ea6cdb20c62
+F src/diffcmd.c 45a870552e362d40823c092b5cc155a3a7fcafe0
 F src/doc.c f4c235f77cd4b429dd56d7f35d0f6f33afd380b6
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 8746ce8c2e786d12123334667d047f94cd5c1d7e
 F src/export.c 026f3746292c9c5bddcd454591ff71fb6d846481
 F src/file.c 32744471139356fc717440b8812528c0d96d6b3f
 F src/finfo.c 6829fd9dccfe9b9b192e04df442f86dbe083eaf6
-F src/glob.c f5956d9dfc593edcab96fac81555a51fd31b89fa
+F src/glob.c f03aa48608b88a8722ce838bfc2a79a0879c8e8a
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
 F src/gzip.c e41e31ff0adf9cb45b0c585156f70070241da092
 F src/http.c 2195ed5115282c0bf356d918d3adb7144bf78e8d
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bde92b38c7f00dacf105850939a6bb43c0f07f73
-R 734768cbfdb0bb46a45bf89095115d5f
+P 1de0faecffd7c0475a991a710d001939aab7da49
+R 9988c6a2f1e1ae71a578e7f116a1cd22
 U jan.nijtmans
-Z 977976a6333b9cbc3c1221554746e6c0
+Z 0fa470209c7cab05e89601a84ec0b3d8

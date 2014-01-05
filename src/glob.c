@@ -151,7 +151,7 @@ int glob_match(Glob *pGlob, const char *zString){
   int i;
   if( pGlob==0 ) return 0;
   for(i=0; i<pGlob->nPattern; i++){
-    if( !sqlite3_strglob(pGlob->azPattern[i], zString) ) return i+1;
+    if( sqlite3_strglob(pGlob->azPattern[i], zString)==0 ) return i+1;
   }
   return 0;
 }
