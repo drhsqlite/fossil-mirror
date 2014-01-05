@@ -782,7 +782,6 @@ const struct strctCssDefaults {
     "file tree root",
     @   display: block;
     @   list-style: none;
-    @   line-height: 1.3;
   },
   { ".filetree li",
     "file tree list items",
@@ -791,13 +790,14 @@ const struct strctCssDefaults {
   { ".filetree .subdir ul",
     "file tree lists below subdir",
     @   display: block;
-    @   margin: 0 0 .4em 7px;
+    @   margin: 0 0 .5em 7px;
     @   padding: .2em 0 0 12px;
     @   border-left: 2px dotted #aaa;
   },
   { ".filetree .subdir li",
     "file tree lists items below subdir",
     @   display: block;
+    @   margin: .2em 0;
     @   padding: 0;
   },
   { ".filetree a",
@@ -807,8 +807,9 @@ const struct strctCssDefaults {
   { ".filetree a:before",
     "file tree link icons",
     @   margin-right: 5px;
+    @   line-height: 0;
     @   vertical-align: -3px;
-    @   content: url(data:image/gif;base64,R0lGODlhDQAQAJEAAP\/\/\/yIiIv\/\/\/wAAACH5BAEHAAIALAAAAAANABAAAAIhjI+iyLYBYmTCyAnZBc3eDm0SIo5HiXklibLr2cIvSNMFADs=);
+    @   content: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);
   },
   { ".filetree .dir > a:before",
     "file tree directory link icons",
