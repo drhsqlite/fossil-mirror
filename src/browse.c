@@ -590,6 +590,47 @@ void page_tree(void){
   }
   @ </ul>
   @ </ul></div>
+  @ <script>(function(){
+  @ function style(elem, prop){
+  @   return window.getComputedStyle(elem).getPropertyValue(prop);
+  @ }
+  @
+  @ function toggleAll(tree){
+  @   var lists = tree.querySelectorAll('.subdir > ul > li ul');
+  @   var display = 'block';
+  @   for( var i=0; lists[i]; i++ ){
+  @     if( style(lists[i], 'display')!='none'){
+  @       display = 'none';
+  @       break;
+  @     }
+  @   }
+  @   for( var i=0; lists[i]; i++ ){
+  @     lists[i].style.display = display;
+  @   }
+  @ }
+  @ 
+  @ function initTree(tree){
+  @   tree.onclick = function( e ){
+  @     var a = e.target;
+  @     if( a.nodeName!='A' ) return;
+  @     if( a.parentNode.className.indexOf('subdir')>=0 ){
+  @       toggleAll(tree);
+  @       return false;
+  @     }
+  @     if( style(a.parentNode, 'display')=='inline' ) return;
+  @     var ul = a.nextSibling;
+  @     while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
+  @     ul.style.display = style(ul, 'display')=='none' ? 'block' : 'none';
+  @     return false;
+  @   }
+  @   var subdirLink = tree.querySelectorAll('.subdir > a')[0];
+  @   subdirLink.style.cursor = 'pointer';
+  @   toggleAll(tree);
+  @ }
+  @ 
+  @ var trees = document.querySelectorAll('.filetree > ul');
+  @ for( var i=0; trees[i]; i++ ) initTree(trees[i]);
+  @ }())</script>
   style_footer();
 
   /* We could free memory used by sTree here if we needed to.  But
