@@ -611,7 +611,7 @@ const char *fileext_class(const char *zFilename){
   int i;
   for( i=1; isExt && zExt[i]; i++ ) isExt &= fossil_isalnum(zExt[i]);
   if( isExt ){
-    zClass = mprintf("file-%s", zExt+1);
+    zClass = mprintf("file file-%s", zExt+1);
     for ( i=5; zClass[i]; i++ ) zClass[i] = fossil_tolower(zClass[i]);
   }else{
     zClass = mprintf("file");
