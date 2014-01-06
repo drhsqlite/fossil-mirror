@@ -774,14 +774,15 @@ const struct strctCssDefaults {
     @   white-space: nowrap;
   },
   { ".filetree",
-    "file tree root and branch lists",
-    @   display: inline;
-    @   padding: 0;
+    "",
+    @   margin: 1em 0;
+    @   line-height: 1.5;
   },
-  { ".filetree.root",
-    "file tree root",
-    @   display: block;
-    @   list-style: none;
+  { ".filetree ul",
+    "file tree lists",
+    @   display: inline;
+    @   margin: 0;
+    @   padding: 0;
   },
   { ".filetree li",
     "file tree list items",
@@ -789,42 +790,57 @@ const struct strctCssDefaults {
   },
   { ".filetree .subdir ul",
     "file tree lists below subdir",
+    @   position: relative;
     @   display: block;
-    @   margin: 0 0 .5em 7px;
-    @   padding: .2em 0 0 12px;
-    @   border-left: 2px solid #ccc;
+    @   margin: 0 0 0 21px;
+    @   padding: 0;
   },
   { ".filetree .subdir li",
     "file tree lists items below subdir",
     @   position: relative;
     @   display: block;
-    @   margin: .2em 0;
+    @   margin: 0;
     @   padding: 0;
   },
   { ".filetree .subdir li:before",
-    "file tree horizontal lines connecting children to parent",
+    "file tree node lines",
     @   content: '';
     @   position: absolute;
-    @   top: .5em;
-    @   left: -12px;
-    @   margin-top: 1px;
-    @   width: 10px;
-    @   border-top: 2px solid #ccc;
+    @   top: -.8em;
+    @   left: -14px;
+    @   width: 14px;
+    @   height: 1.5em;
+    @   border-left: 2px solid #aaa;
+    @   border-bottom: 2px solid #aaa;
+  },
+  { ".filetree .subdir > ul ul:before",
+    "file tree directory lines",
+    @   content: '';
+    @   position: absolute;
+    @   top: -1.5em;
+    @   bottom: 0;
+    @   left: -35px;
+    @   border-left: 2px solid #aaa;
+  },
+  { ".filetree .subdir li:last-child > ul:before",
+    "",
+    @   display: none;
   },
   { ".filetree a",
     "file tree links",
+    @   position: relative;
+    @   z-index: 1;
+    @   display: inline-block;
+    @   min-height: 16px;
     @   margin-right: .5em;
+    @   padding-left: 21px;
+    @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);
+    @   background-position: center left;
+    @   background-repeat: no-repeat;
   },
-  { ".filetree a:before",
-    "file tree link icons",
-    @   margin-right: 5px;
-    @   line-height: 0;
-    @   vertical-align: -3px;
-    @   content: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);
-  },
-  { ".filetree .dir > a:before",
-    "file tree directory link icons",
-    @   content: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
+  { ".filetree .dir > a",
+    "file tree directory link",
+    @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
   },
   { "table.login_out",
     "table format for login/out label/input table",

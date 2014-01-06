@@ -546,7 +546,7 @@ void page_tree(void){
   /* Generate a multi-column table listing the contents of zD[]
   ** directory.
   */
-  @ <ul class="filetree root">
+  @ <div class="filetree"><ul>
   if( nD ){
     char *zLink = href("%s", url_render(&sURI, "name", 0, 0, 0));
     @ <li class="dir">
@@ -555,7 +555,7 @@ void page_tree(void){
     @ <li class="dir subdir">
     @ <a>%h(zProjectName)</a>
   }
-  @ <ul class="filetree">
+  @ <ul>
   for(p=sTree.pFirst; p; p=p->pNext){
     if( p->isDir ){
       if( nD && strlen(p->zFullName)==nD-1 ){
@@ -569,7 +569,7 @@ void page_tree(void){
         char *zLink = href("%s", url_render(&sURI, "name", p->zFullName, 0, 0));
         @ %z(zLink)%h(p->zName)</a>
       }
-      @ <ul class="filetree">
+      @ <ul>
     }else{
       char *zLink;
       if( zCI ){
@@ -587,7 +587,7 @@ void page_tree(void){
     }
   }
   @ </ul>
-  @ </ul>
+  @ </ul></div>
   style_footer();
 
   /* We could free memory used by sTree here if we needed to.  But
