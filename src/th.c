@@ -1156,7 +1156,8 @@ int Th_GetVar(Th_Interp *interp, const char *zVar, int nVar){
 ** Return true if variable (zVar, nVar) exists.
 */
 int Th_ExistsVar(Th_Interp *interp, const char *zVar, int nVar){
-  return thFindValue(interp, zVar, nVar, 0, 0)!=0;
+  Th_Variable *pValue = thFindValue(interp, zVar, nVar, 0, 0);
+  return pValue && pValue->zData;
 }
 
 /*
@@ -1242,7 +1243,7 @@ int Th_LinkVar(
 int Th_UnsetVar(Th_Interp *interp, const char *zVar, int nVar){
   Th_Variable *pValue;
 
-  pValue = thFindValue(interp, zVar, nVar, 1, 1);
+  pValue = thFindValue(interp, zVar, nVar, 0, 1);
   if( !pValue ){
     return TH_ERROR;
   }

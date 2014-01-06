@@ -390,20 +390,6 @@ static void tree_add_node(
 }
 
 /*
-** Render parent lines for pNode
-*/
-static void tree_indentation(FileTreeNode *p){
-  if( p==0 ) return;
-  tree_indentation(p->pParent);
-  if( p->isLast ){
-    cgi_append_content("    ", 4);
-  }else{
-    cgi_append_content("&#x2502;   ", 11);
-  }
-}
-
-
-/*
 ** WEBPAGE: tree
 **
 ** Query parameters:
@@ -424,12 +410,12 @@ void page_tree(void){
   int linkTrunk = 1;       /* include link to "trunk" */
   int linkTip = 1;         /* include link to "tip" */
   const char *zRE;         /* the value for the re=REGEXP query parameter */
-  char *zPrefix;           /* Prefix on all filenames */
   char *zREx = "";         /* Extra parameters for path hyperlinks */
   ReCompiled *pRE = 0;     /* Compiled regular expression */
   FileTreeNode *p;         /* One line of the tree */
   FileTree sTree;          /* The complete tree of files */
   HQuery sURI;             /* Hyperlink */
+  char *zProjectName = db_get("project-name", 0);
 
   if( strcmp(PD("type",""),"flat")==0 ){ page_dir(); return; }
   memset(&sTree, 0, sizeof(sTree));
@@ -476,14 +462,12 @@ void page_tree(void){
     blob_append(&dirname, "within directory ", -1);
     hyperlinked_path(zD, &dirname, zCI, "tree", zREx);
     if( zRE ) blob_appendf(&dirname, " matching \"%s\"", zRE);
-    zPrefix = mprintf("%T/", zD);
     style_submenu_element("Top-Level", "Top-Level", "%s",
                           url_render(&sURI, "name", 0, 0, 0));
   }else{
     if( zRE ){
       blob_appendf(&dirname, "matching \"%s\"", zRE);
     }
-    zPrefix = "";
   }
   if( zCI ){
     style_submenu_element("All", "All", "%s",
@@ -521,7 +505,7 @@ void page_tree(void){
         continue;
       }
       if( pRE && re_match(pRE, (const u8*)pFile->zName, -1)==0 ) continue;
-      db_bind_text(&ins, ":f", &pFile->zName[nD]);
+      db_bind_text(&ins, ":f", pFile->zName);
       db_bind_text(&ins, ":u", pFile->zUuid);
       db_step(&ins);
       db_reset(&ins);
@@ -542,7 +526,7 @@ void page_tree(void){
         continue;
       }
       if( pRE && re_match(pRE, (const u8*)z, -1)==0 ) continue;
-      tree_add_node(&sTree, z+nD, 0);
+      tree_add_node(&sTree, z, 0);
       nFile++;
     }
     db_finalize(&q);
@@ -562,35 +546,48 @@ void page_tree(void){
   /* Generate a multi-column table listing the contents of zD[]
   ** directory.
   */
-  @ <pre>
+  @ <div class="filetree"><ul>
   if( nD ){
-    cgi_printf("%.*h\n", nD, zD);
+    char *zLink = href("%s", url_render(&sURI, "name", 0, 0, 0));
+    @ <li class="dir">
+    @ %z(zLink)%h(zProjectName)</a>
   }else{
-    @ .
+    @ <li class="dir subdir">
+    @ <a>%h(zProjectName)</a>
   }
+  @ <ul>
   for(p=sTree.pFirst; p; p=p->pNext){
-    tree_indentation(p->pParent);
-    if( p->isLast ){
-      cgi_append_content("&#x2514;&#x2500;&#x2500; ", 25);
-    }else{
-      cgi_append_content("&#x251c;&#x2500;&#x2500; ", 25);
-    }
     if( p->isDir ){
-      char *zName = mprintf("%s%T", zPrefix, p->zFullName);
-      char *zLink = href("%s", url_render(&sURI, "name", zName, 0, 0));
-      fossil_free(zName);
-      @ %z(zLink)%h(p->zName)</a>
+      if( nD && strlen(p->zFullName)==nD-1 ){
+        @ <li class="dir subdir">
+      }else{
+        @ <li class="dir">
+      }
+      if( fossil_strcmp(p->zFullName, zD)==0 ){
+        @ <a>%h(p->zName)</a>
+      }else{
+        char *zLink = href("%s", url_render(&sURI, "name", p->zFullName, 0, 0));
+        @ %z(zLink)%h(p->zName)</a>
+      }
+      @ <ul>
     }else{
       char *zLink;
       if( zCI ){
         zLink = href("%R/artifact/%s",p->zUuid);
       }else{
-        zLink = href("%R/finfo?name=%s%T",zPrefix,p->zFullName);
+        zLink = href("%R/finfo?name=%T",p->zFullName);
       }
-      @ %z(zLink)%h(p->zName)</a>
+      @ <li class="%z(fileext_class(p->zName))">%z(zLink)%h(p->zName)</a>
+    }
+    if( p->isLast ){
+      int nClose = p->iLevel - (p->pNext ? p->pNext->iLevel : 0);
+      while( nClose-- > 0 ){
+        @ </ul>
+      }
     }
   }
-  @ </pre>
+  @ </ul>
+  @ </ul></div>
   style_footer();
 
   /* We could free memory used by sTree here if we needed to.  But
@@ -609,7 +606,7 @@ const char *fileext_class(const char *zFilename){
   int i;
   for( i=1; isExt && zExt[i]; i++ ) isExt &= fossil_isalnum(zExt[i]);
   if( isExt ){
-    zClass = mprintf("file-%s", zExt+1);
+    zClass = mprintf("file file-%s", zExt+1);
     for ( i=5; zClass[i]; i++ ) zClass[i] = fossil_tolower(zClass[i]);
   }else{
     zClass = mprintf("file");

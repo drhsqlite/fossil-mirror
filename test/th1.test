@@ -109,3 +109,38 @@ test th1-modulus-by-zero-3 {$RESULT eq \
 fossil test-th-eval "expr 42.0%0.0"
 test th1-modulus-by-zero-4 {$RESULT eq \
 {TH_ERROR: expected integer, got: "42.0"}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; info exists var"
+test th1-info-exists-1 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var; info exists var"
+test th1-info-exists-2 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var; set var 2; info exists var"
+test th1-info-exists-3 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; expr {\$var+0}"
+test th1-info-exists-4 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var; expr {\$var+0}"
+test th1-info-exists-5 {$RESULT eq {TH_ERROR: no such variable: var}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var"
+test th1-unset-1 {$RESULT eq {var}}
+
+###############################################################################
+
+fossil test-th-eval "unset var"
+test th1-unset-2 {$RESULT eq {TH_ERROR: no such variable: var}}
