@@ -713,9 +713,6 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
   sqlite3 *db;
 
-#if defined(__CYGWIN__)
-  zDbName = fossil_utf8_to_filename(zDbName);
-#endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   rc = sqlite3_open_v2(
        zDbName, &db,
@@ -869,7 +866,7 @@ static int db_local_table_exists_but_lacks_column(
   int rc = 0;
   if( zDef ){
     char *zPattern = mprintf("* %s *", zColumn);
-    rc = strglob(zPattern, zDef)==0;
+    rc = sqlite3_strglob(zPattern, zDef)!=0;
     fossil_free(zPattern);
     fossil_free(zDef);
   }
@@ -896,7 +893,7 @@ static int isValidLocalDb(const char *zDbName){
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted.
   */
-  if( !strglob("* isexe *", zVFileDef) ){
+  if( sqlite3_strglob("* isexe *", zVFileDef)!=0 ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
   }
 
@@ -904,7 +901,7 @@ static int isValidLocalDb(const char *zDbName){
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
   ** After all users have upgraded, this code can be safely deleted.
   */
-  if( !strglob("* islink *", zVFileDef) ){
+  if( sqlite3_strglob("* islink *", zVFileDef)!=0 ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
     if( db_local_table_exists_but_lacks_column("stashfile", "isLink") ){
       db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOL DEFAULT 0");
@@ -1023,11 +1020,7 @@ void db_open_repository(const char *zDbName){
       fossil_panic("not a valid repository: %s", zDbName);
     }
   }
-#if defined(__CYGWIN__)
-  g.zRepositoryName = fossil_utf8_to_filename(zDbName);
-#else
   g.zRepositoryName = mprintf("%s", zDbName);
-#endif
   db_open_or_attach(g.zRepositoryName, "repository", 0);
   g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */

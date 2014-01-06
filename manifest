@@ -1,5 +1,5 @@
-C Merge\strunk
-D 2014-01-06T10:36:38.080
+C If\sfossil\son\sCygwin\sis\scompiled\swith\s--disable-internal-sqlite,\sthose\sCygwin\sspecific\sfossil\smodifications\sare\sno\slonger\snecessary.
+D 2014-01-06T10:50:03.019
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -8,7 +8,6 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F Makefile.Cygwin.in 1072a9c499a08de085081f4ff72858e0f7429a82
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F Makefile.in 04d4b4d0b0481e76d537c1081142d8b7e6b34427
 F VERSION e35bcf2ce1473bfa1a2b22ad8442d68f39e543d8
@@ -44,7 +43,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 1069326eb034d16ab887a99abb4828fa24dcd1dd
+F auto.def cbf224d161c40494f5247488eede8c97321be33e
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup 90ded6ed5126743fe48de4b33103e508700f06a1 x
@@ -329,7 +328,7 @@ F src/content.c f479d4ce745f206a4db62a98694815956234b89c
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 06ffef3d559616f67d5778519012d1b214f0e6bc
+F src/db.c cdec4a89f82d267945bd2d93d5f815df688903e9
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c d59a0e546f5e82c884defcf3a695cc066bded992
@@ -369,7 +368,7 @@ F src/json_wiki.c 3ef3369d9107698e407f917ab61be1abac73eef5
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 5874fbc35d466a3b5d62d38468ecd3619a2b4d4d
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c 0fb129fb96d118668a302ad51bd583e556a709f4
+F src/main.c 9ebc72bca4ab2d18eb9a31046df16e19aa432fb1
 F src/main.mk 6d1757c2c1e4270e7cf50df08ab42cfc313588d9
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -639,7 +638,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0c1a1167911131fe0b28de6a7fc318e60dc56a0b 4ee58093dd9e19cbb13701b3b6fa1abdb2df01fa
-R 70de29a259c9f72070e40692433b2e36
+P 99af4d2a1264cd99cb5f90d3b78e2dc002162a71
+R 4383d2b2aeff39e632b8cc0dea4c769f
 U jan.nijtmans
-Z 7b786b9f8e66dce9e025114d0eca49c2
+Z d1a2551e96f7d4b69b5fe7a7cce23574
