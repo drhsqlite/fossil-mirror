@@ -774,36 +774,36 @@ const struct strctCssDefaults {
     @   white-space: nowrap;
   },
   { ".filetree",
-    "",
+    "tree-view file browser",
     @   margin: 1em 0;
     @   line-height: 1.5;
   },
   { ".filetree ul",
-    "file tree lists",
+    "tree-view lists",
     @   display: inline;
     @   margin: 0;
     @   padding: 0;
   },
   { ".filetree li",
-    "file tree list items",
+    "tree-view list items",
     @   display: inline;
   },
   { ".filetree .subdir ul",
-    "file tree lists below subdir",
+    "tree-view lists below subdir",
     @   position: relative;
     @   display: block;
     @   margin: 0 0 0 21px;
     @   padding: 0;
   },
   { ".filetree .subdir li",
-    "file tree lists items below subdir",
+    "tree-view lists items below subdir",
     @   position: relative;
     @   display: block;
     @   margin: 0;
     @   padding: 0;
   },
   { ".filetree .subdir li:before",
-    "file tree node lines",
+    "tree-view node lines",
     @   content: '';
     @   position: absolute;
     @   top: -.8em;
@@ -814,7 +814,7 @@ const struct strctCssDefaults {
     @   border-bottom: 2px solid #aaa;
   },
   { ".filetree .subdir > ul ul:before",
-    "file tree directory lines",
+    "tree-view directory lines",
     @   content: '';
     @   position: absolute;
     @   top: -1.5em;
@@ -823,11 +823,11 @@ const struct strctCssDefaults {
     @   border-left: 2px solid #aaa;
   },
   { ".filetree .subdir li:last-child > ul:before",
-    "",
+    "hide lines for last-child directories",
     @   display: none;
   },
   { ".filetree a",
-    "file tree links",
+    "tree-view links",
     @   position: relative;
     @   z-index: 1;
     @   display: inline-block;
@@ -839,7 +839,7 @@ const struct strctCssDefaults {
     @   background-repeat: no-repeat;
   },
   { ".filetree .dir > a",
-    "file tree directory link",
+    "tree-view directory links",
     @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
   },
   { "table.login_out",
