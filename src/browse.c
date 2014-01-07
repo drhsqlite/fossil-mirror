@@ -416,6 +416,7 @@ void page_tree(void){
   FileTreeNode *p;         /* One line of the tree */
   FileTree sTree;          /* The complete tree of files */
   HQuery sURI;             /* Hyperlink */
+  int startExpanded;       /* True to start out with the tree expanded */
   char *zProjectName = db_get("project-name", 0);
 
   if( strcmp(PD("type",""),"flat")==0 ){ page_dir(); return; }
@@ -427,6 +428,7 @@ void page_tree(void){
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
   url_initialize(&sURI, "tree");
+  startExpanded = P("expand")!=0;
 
   /* If a regular expression is specified, compile it */
   zRE = P("re");
@@ -580,7 +582,11 @@ void page_tree(void){
         char *zLink = href("%s", url_render(&sURI, "name", p->zFullName, 0, 0));
         @ %z(zLink)%h(p->zName)</a>
       }
-      @ <ul>
+      if( startExpanded ){
+        @ <ul>
+      }else{
+        @ <ul style='display:none;'>
+      }
     }else{
       char *zLink;
       if( zCI ){
@@ -633,11 +639,6 @@ void page_tree(void){
   @   ul.style.display = style(ul, 'display')=='none' ? 'block' : 'none';
   @   return false;
   @ }
-  if( P("expand")==0 ){
-    /* Begin with the tree collapsed, unless the "expand" query parameter
-    ** is present */
-    @ toggleAll(outer_ul);
-  }
   @ }())</script>
   style_footer();
 
