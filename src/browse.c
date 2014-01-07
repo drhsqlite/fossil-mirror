@@ -397,6 +397,7 @@ static void tree_add_node(
 **    name=PATH        Directory to display.  Optional
 **    ci=LABEL         Show only files in this check-in.  Optional.
 **    re=REGEXP        Show only files matching REGEXP.  Optional.
+**    expand           Begin with the tree fully expanded.
 */
 void page_tree(void){
   char *zD = fossil_strdup(P("name"));
