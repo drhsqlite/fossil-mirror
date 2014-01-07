@@ -322,7 +322,7 @@ void www_print_timeline(
     }
     prevWasDivider = 0;
     if( dateFormat<2 ){
-      if( memcmp(zDate, zPrevDate, 10) ){
+      if( fossil_strnicmp(zDate, zPrevDate, 10) ){
         sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
         @ <tr><td>
         @   <div class="divider timelineDate">%s(zPrevDate)</div>
@@ -1599,7 +1599,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
       }
     }
     sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
-    if( memcmp(zDate, zPrevDate, 10) ){
+    if( fossil_strnicmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
       nLine++; /* record another line */
