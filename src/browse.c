@@ -571,19 +571,15 @@ void page_tree(void){
   @ <ul>
   for(p=sTree.pFirst; p; p=p->pNext){
     if( p->isDir ){
-      int nFullName = strlen(p->zFullName)+1;
-      if( nD && nFullName==nD ){
+      if( p->nFullName==nD-1 ){
         @ <li class="dir subdir">
-      }else{
-        @ <li class="dir">
-      }
-      if( fossil_strcmp(p->zFullName, zD)==0 ){
         @ <a>%h(p->zName)</a>
       }else{
         char *zLink = href("%s", url_render(&sURI, "name", p->zFullName, 0, 0));
+        @ <li class="dir">
         @ %z(zLink)%h(p->zName)</a>
       }
-      if( startExpanded || nFullName<=nD ){
+      if( startExpanded || p->nFullName<=nD ){
         @ <ul>
       }else{
         @ <ul style='display:none;'>
