@@ -322,10 +322,10 @@ foreach s [lsort $src] {
   writeln "\$(OBJDIR)/$s.h:\t\$(OBJDIR)/headers"
 }
 
-writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
+writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c autoconfig.h"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
+writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h autoconfig.h"
 writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
@@ -806,14 +806,14 @@ writeln "SQLITE_OPTIONS = [join $MINGW_SQLITE_OPTIONS $j]\n"
 set j " \\\n                "
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS $j]\n"
 
-writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
+writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c win/Makefile.mingw"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
+writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h win/Makefile.mingw"
 writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
@@ -1130,11 +1130,11 @@ mkindex$E: $(SRCDIR)\mkindex.c
 mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
-$(OX)\shell$O : $(SRCDIR)\shell.c
+$(OX)\shell$O : $(SRCDIR)\shell.c Makefile.msc
 	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
 
-$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $**
+$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c Makefile.msc
+	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SRCDIR)\sqlite3.c
 
 $(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**
