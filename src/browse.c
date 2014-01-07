@@ -622,15 +622,16 @@ void page_tree(void){
   @ }
   @ 
   @ var outer_ul = document.querySelector('.filetree > ul');
+  @ var subdir = outer_ul.querySelector('.subdir');
   @ outer_ul.querySelector('.subdir > a').style.cursor = 'pointer';
   @ outer_ul.onclick = function( e ){
   @   var a = e.target;
   @   if( a.nodeName!='A' ) return;
-  @   if( a.parentNode.className.indexOf('subdir')>=0 ){
+  @   if( a.parentNode==subdir ){
   @     toggleAll(outer_ul);
   @     return false;
   @   }
-  @   if( style(a.parentNode, 'display')=='inline' ) return;
+  @   if( !subdir.contains(a) ) return;
   @   var ul = a.nextSibling;
   @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
   @   ul.style.display = style(ul, 'display')=='none' ? 'block' : 'none';
