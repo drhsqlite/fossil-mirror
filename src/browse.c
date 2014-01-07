@@ -570,8 +570,9 @@ void page_tree(void){
   }
   @ <ul>
   for(p=sTree.pFirst; p; p=p->pNext){
+    int nFullName = strlen(p->zFullName)+1;
     if( p->isDir ){
-      if( nD && strlen(p->zFullName)==nD-1 ){
+      if( nD && nFullName==nD ){
         @ <li class="dir subdir">
       }else{
         @ <li class="dir">
@@ -582,7 +583,7 @@ void page_tree(void){
         char *zLink = href("%s", url_render(&sURI, "name", p->zFullName, 0, 0));
         @ %z(zLink)%h(p->zName)</a>
       }
-      if( startExpanded ){
+      if( startExpanded || nFullName<=nD ){
         @ <ul>
       }else{
         @ <ul style='display:none;'>
