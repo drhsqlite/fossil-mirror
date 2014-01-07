@@ -194,7 +194,7 @@ static const char zBuiltinSkin1[] =
 @   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
+@   html "<a href=''$home/tree?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$home/brlist''>Branches</a>\n"
@@ -404,7 +404,7 @@ static const char zBuiltinSkin2[] =
 @   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
+@   html "<a href=''$home/tree?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$home/brlist''>Branches</a>\n"
@@ -647,7 +647,7 @@ static const char zBuiltinSkin3[] =
 @   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
+@   html "<a href=''$home/tree?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$home/brlist''>Branches</a>\n"
@@ -908,7 +908,7 @@ static const char zBuiltinSkin4[] =
 @   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
+@   html "<a href=''$home/tree?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$home/brlist''>Branches</a>\n"
@@ -1197,7 +1197,7 @@ static const char zBuiltinSkin5[] =
 @   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
+@   html "<a href=''$home/tree?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$home/brlist''>Branches</a>\n"

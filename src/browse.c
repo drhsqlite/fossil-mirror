@@ -538,9 +538,11 @@ void page_tree(void){
   }
 
   if( zCI ){
-    @ <h2>%d(nFile) files of
-    @ check-in [%z(href("vinfo?name=%T",zUuid))%S(zUuid)</a>]
-    @ %s(blob_str(&dirname))</h2>
+    @ <h2>%d(nFile) files of check-in
+    if( sqlite3_strnicmp(zCI, zUuid, (int)strlen(zCI))!=0 ){
+      @ "%h(zCI)"
+    }
+    @ [%z(href("vinfo?name=%T",zUuid))%S(zUuid)</a>] %s(blob_str(&dirname))</h2>
   }else{
     int n = db_int(0, "SELECT count(*) FROM plink");
     @ <h2>%d(nFile) files from all %d(n) check-ins
@@ -587,7 +589,7 @@ void page_tree(void){
     }else{
       char *zLink;
       if( zCI ){
-        zLink = href("%R/artifact/%s",p->zUuid);
+        zLink = href("%R/artifact/%S",p->zUuid);
       }else{
         zLink = href("%R/finfo?name=%T",p->zFullName);
       }
