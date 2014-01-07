@@ -291,6 +291,7 @@ void www_print_timeline(
     int modPending;           /* Pending moderation */
     char zTime[20];
 
+    if( zDate==0 ) zDate = "YYYY-MM-DD HH:MM:SS";  /* Something wrong with the repo */
     modPending =  moderation_pending(rid);
     if( tagid ){
       if( modPending ) tagid = -tagid;
