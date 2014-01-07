@@ -633,6 +633,7 @@ void ci_page(void){
       @   <td>
       @     %z(href("%R/tree?ci=%S",zUuid))files</a>
       @   | %z(href("%R/fileage?name=%S",zUuid))file ages</a>
+      @   | %z(href("%R/tree?ci=%S&nofiles",zUuid))folders</a>
       @   | %z(href("%R/artifact/%S",zUuid))manifest</a>
       if( g.perm.Write ){
         @   | %z(href("%R/ci_edit?r=%S",zUuid))edit</a>

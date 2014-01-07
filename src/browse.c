@@ -398,6 +398,7 @@ static void tree_add_node(
 **    ci=LABEL         Show only files in this check-in.  Optional.
 **    re=REGEXP        Show only files matching REGEXP.  Optional.
 **    expand           Begin with the tree fully expanded.
+**    nofiles          Show directories (folders) only.  Omit files.
 */
 void page_tree(void){
   char *zD = fossil_strdup(P("name"));
@@ -407,16 +408,18 @@ void page_tree(void){
   char *zUuid = 0;
   Blob dirname;
   Manifest *pM = 0;
-  int nFile = 0;           /* Number of files */
+  int nFile = 0;           /* Number of files (or folders with "nofiles") */
   int linkTrunk = 1;       /* include link to "trunk" */
   int linkTip = 1;         /* include link to "tip" */
   const char *zRE;         /* the value for the re=REGEXP query parameter */
+  const char *zObjType;    /* "files" by default or "folders" for "nofiles" */
   char *zREx = "";         /* Extra parameters for path hyperlinks */
   ReCompiled *pRE = 0;     /* Compiled regular expression */
   FileTreeNode *p;         /* One line of the tree */
   FileTree sTree;          /* The complete tree of files */
   HQuery sURI;             /* Hyperlink */
   int startExpanded;       /* True to start out with the tree expanded */
+  int showDirOnly;         /* Show directories only.  Omit files */
   char *zProjectName = db_get("project-name", 0);
 
   if( strcmp(PD("type",""),"flat")==0 ){ page_dir(); return; }
@@ -424,11 +427,23 @@ void page_tree(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
-  style_header("File List");
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
   url_initialize(&sURI, "tree");
-  startExpanded = P("expand")!=0;
+  if( P("nofiles")!=0 ){
+    showDirOnly = 1;
+    url_add_parameter(&sURI, "nofiles", "1");
+    style_header("Folder Hierarchy");
+  }else{
+    showDirOnly = 0;
+    style_header("File Tree");
+  }
+  if( P("expand")!=0 ){
+    startExpanded = 1;
+    url_add_parameter(&sURI, "expand", "1");
+  }else{
+    startExpanded = 0;
+  }
 
   /* If a regular expression is specified, compile it */
   zRE = P("re");
@@ -475,7 +490,7 @@ void page_tree(void){
   if( zCI ){
     style_submenu_element("All", "All", "%s",
                           url_render(&sURI, "ci", 0, 0, 0));
-    if( nD==0 ){
+    if( nD==0 && !showDirOnly ){
       style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%S",
                             zUuid);
     }
@@ -488,8 +503,11 @@ void page_tree(void){
     style_submenu_element("Tip", "Tip", "%s",
                           url_render(&sURI, "ci", "tip", 0, 0));
   }
-  style_submenu_element("Flat-View", "Flat-View", "%s",
-                        url_render(&sURI, "type", "flat", 0, 0));
+  if( !showDirOnly ){
+    style_submenu_element("Flat-View", "Flat-View", "%s",
+                          url_render(&sURI, "type", "flat", 0, 0));
+  }
+
   /* Compute the file hierarchy.
   */
   if( zCI ){
@@ -541,15 +559,28 @@ void page_tree(void){
     db_finalize(&q);
   }
 
+  if( showDirOnly ){
+    for(nFile=0, p=sTree.pFirst; p; p=p->pNext){
+      if( p->isDir && p->nFullName>nD ) nFile++;
+    }
+    zObjType = "folders";
+    style_submenu_element("Files","Files","%s",
+                          url_render(&sURI,"nofiles",0,0,0));
+  }else{
+    zObjType = "files";
+    style_submenu_element("Folders","Folders","%s",
+                          url_render(&sURI,"nofiles","1",0,0));
+  }
+
   if( zCI ){
-    @ <h2>%d(nFile) files of check-in
+    @ <h2>%d(nFile) %s(zObjType) of check-in
     if( sqlite3_strnicmp(zCI, zUuid, (int)strlen(zCI))!=0 ){
       @ "%h(zCI)"
     }
     @ [%z(href("vinfo?name=%T",zUuid))%S(zUuid)</a>] %s(blob_str(&dirname))</h2>
   }else{
     int n = db_int(0, "SELECT count(*) FROM plink");
-    @ <h2>%d(nFile) files from all %d(n) check-ins
+    @ <h2>%d(nFile) %s(zObjType) from all %d(n) check-ins
     @ %s(blob_str(&dirname))</h2>
   }
 
@@ -586,7 +617,7 @@ void page_tree(void){
       }else{
         @ <ul style='display:none;'>
       }
-    }else{
+    }else if( !showDirOnly ){
       char *zLink;
       if( zCI ){
         zLink = href("%R/artifact/%S",p->zUuid);
