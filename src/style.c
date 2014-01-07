@@ -780,32 +780,20 @@ const struct strctCssDefaults {
   },
   { ".filetree ul",
     "tree-view lists",
-    @   display: inline;
     @   margin: 0;
     @   padding: 0;
+    @   list-style: none;
+  },
+  { ".filetree ul ul",
+    "tree-view lists below the root",
+    @   position: relative;
+    @   margin: 0 0 0 21px;
   },
   { ".filetree li",
-    "tree-view list items",
-    @   display: inline;
-  },
-  /* There is exactly one element with class="subdir".  That element is
-  ** the name of the directory specified by the "name=" query parameter,
-  ** and the directory described by the text at the top of the page. */
-  { ".filetree .subdir ul",
-    "tree-view lists below subdir",
+    "tree-view lists items",
     @   position: relative;
-    @   display: block;
-    @   margin: 0 0 0 21px;
-    @   padding: 0;
   },
-  { ".filetree .subdir li",
-    "tree-view lists items below subdir",
-    @   position: relative;
-    @   display: block;
-    @   margin: 0;
-    @   padding: 0;
-  },
-  { ".filetree .subdir li:before",
+  { ".filetree li li:before",
     "tree-view node lines",
     @   content: '';
     @   position: absolute;
@@ -816,7 +804,7 @@ const struct strctCssDefaults {
     @   border-left: 2px solid #aaa;
     @   border-bottom: 2px solid #aaa;
   },
-  { ".filetree .subdir > ul ul:before",
+  { ".filetree ul ul:before",
     "tree-view directory lines",
     @   content: '';
     @   position: absolute;
@@ -825,7 +813,7 @@ const struct strctCssDefaults {
     @   left: -35px;
     @   border-left: 2px solid #aaa;
   },
-  { ".filetree .subdir li:last-child > ul:before",
+  { ".filetree li:last-child > ul:before",
     "hide lines for last-child directories",
     @   display: none;
   },
@@ -835,7 +823,6 @@ const struct strctCssDefaults {
     @   z-index: 1;
     @   display: inline-block;
     @   min-height: 16px;
-    @   margin-right: .5em;
     @   padding-left: 21px;
     @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);
     @   background-position: center left;
