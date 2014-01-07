@@ -397,6 +397,7 @@ static void tree_add_node(
 **    name=PATH        Directory to display.  Optional
 **    ci=LABEL         Show only files in this check-in.  Optional.
 **    re=REGEXP        Show only files matching REGEXP.  Optional.
+**    expand           Begin with the tree fully expanded.
 */
 void page_tree(void){
   char *zD = fossil_strdup(P("name"));
@@ -415,6 +416,7 @@ void page_tree(void){
   FileTreeNode *p;         /* One line of the tree */
   FileTree sTree;          /* The complete tree of files */
   HQuery sURI;             /* Hyperlink */
+  int startExpanded;       /* True to start out with the tree expanded */
   char *zProjectName = db_get("project-name", 0);
 
   if( strcmp(PD("type",""),"flat")==0 ){ page_dir(); return; }
@@ -426,6 +428,7 @@ void page_tree(void){
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
   url_initialize(&sURI, "tree");
+  startExpanded = P("expand")!=0;
 
   /* If a regular expression is specified, compile it */
   zRE = P("re");
@@ -543,8 +546,16 @@ void page_tree(void){
   }
 
 
-  /* Generate a multi-column table listing the contents of zD[]
-  ** directory.
+  /* Generate tree of lists.
+  **
+  ** Each file and directory is a list element: <li>.  Files have class=file
+  ** and if the filename as the suffix "xyz" the file also has class=file-xyz.
+  ** Directories have class=dir.  The directory specfied by the name= query
+  ** parameter (or the top-level directory if there is no name= query parameter)
+  ** adds class=subdir.
+  **
+  ** The <li> element for directories also contains a sublist <ul>
+  ** for the contents of that directory.
   */
   @ <div class="filetree"><ul>
   if( nD ){
@@ -558,18 +569,19 @@ void page_tree(void){
   @ <ul>
   for(p=sTree.pFirst; p; p=p->pNext){
     if( p->isDir ){
-      if( nD && strlen(p->zFullName)==nD-1 ){
+      if( p->nFullName==nD-1 ){
         @ <li class="dir subdir">
-      }else{
-        @ <li class="dir">
-      }
-      if( fossil_strcmp(p->zFullName, zD)==0 ){
         @ <a>%h(p->zName)</a>
       }else{
         char *zLink = href("%s", url_render(&sURI, "name", p->zFullName, 0, 0));
+        @ <li class="dir">
         @ %z(zLink)%h(p->zName)</a>
       }
-      @ <ul>
+      if( startExpanded || p->nFullName<=nD ){
+        @ <ul>
+      }else{
+        @ <ul style='display:none;'>
+      }
     }else{
       char *zLink;
       if( zCI ){
@@ -588,6 +600,41 @@ void page_tree(void){
   }
   @ </ul>
   @ </ul></div>
+  @ <script>(function(){
+  @ function style(elem, prop){
+  @   return window.getComputedStyle(elem).getPropertyValue(prop);
+  @ }
+  @
+  @ function toggleAll(tree){
+  @   var lists = tree.querySelectorAll('.subdir > ul > li ul');
+  @   var display = 'block';  /* Default action: make all sublists visible */
+  @   for( var i=0; lists[i]; i++ ){
+  @     if( style(lists[i], 'display')!='none'){
+  @       display = 'none'; /* Any already visible - make them all hidden */
+  @       break;
+  @     }
+  @   }
+  @   for( var i=0; lists[i]; i++ ){
+  @     lists[i].style.display = display;
+  @   }
+  @ }
+  @ 
+  @ var outer_ul = document.querySelector('.filetree > ul');
+  @ outer_ul.querySelector('.subdir > a').style.cursor = 'pointer';
+  @ outer_ul.onclick = function( e ){
+  @   var a = e.target;
+  @   if( a.nodeName!='A' ) return;
+  @   if( a.parentNode.className.indexOf('subdir')>=0 ){
+  @     toggleAll(outer_ul);
+  @     return false;
+  @   }
+  @   if( style(a.parentNode, 'display')=='inline' ) return;
+  @   var ul = a.nextSibling;
+  @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
+  @   ul.style.display = style(ul, 'display')=='none' ? 'block' : 'none';
+  @   return false;
+  @ }
+  @ }())</script>
   style_footer();
 
   /* We could free memory used by sTree here if we needed to.  But

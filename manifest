@@ -1,5 +1,5 @@
-C If\sfossil\son\sCygwin\sis\scompiled\swith\s--disable-internal-sqlite,\sthose\sCygwin\sspecific\sfossil\smodifications\sare\sno\slonger\snecessary.
-D 2014-01-06T10:50:03.019
+C merge\strunk
+D 2014-01-07T08:25:30.237
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -314,7 +314,7 @@ F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 9eef1e8551df42bdee81aef68359e65985c6c8b9
 F src/blob.c 9b834e63fab2e586cc2ac29ba56a38acc989c3ca
 F src/branch.c 18a789dda16d8d12ff634ec8dd12a7d4da2e023a
-F src/browse.c 7a9ac099effab7b077696ac29787efbc4c0d869f
+F src/browse.c 6ea3985fb2034a1bdaa8b1be71efb3e0a76e63ae
 F src/captcha.c 2c855a6f943b546b855eabe58f1388d677d5ea73
 F src/cgi.c 6e6b5a0c22445a88a19c90aad20b5d47394820da
 F src/checkin.c ed91bba6749f53c3662a5bf2051c7a07728d92a6
@@ -368,7 +368,7 @@ F src/json_wiki.c 3ef3369d9107698e407f917ab61be1abac73eef5
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 5874fbc35d466a3b5d62d38468ecd3619a2b4d4d
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c 9ebc72bca4ab2d18eb9a31046df16e19aa432fb1
+F src/main.c 0fb129fb96d118668a302ad51bd583e556a709f4
 F src/main.mk 6d1757c2c1e4270e7cf50df08ab42cfc313588d9
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -404,7 +404,7 @@ F src/sqlite3.c a06e06d293653a0ca18fcf857ad6944c4e802dc2
 F src/sqlite3.h b782cebf5d700524a995ac0c33ef7f05e17d5e28
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 28b9be27fd580b4b2dac60226ae296e55b2c9c9e
-F src/style.c 097ae7dd889e19c458d0979dd389bae1cf79ebda
+F src/style.c 5309b99f111481f0951f2dbeeb1437a2398f2dea
 F src/sync.c bb1f61e400aaa9daa59c6972b1fd987276bd6d80
 F src/tag.c 9d7a7cb5a501246675552fb402b3497fbb8e7d38
 F src/tar.c d8f62d1690ae13b3db209ffe32b87b9334c99712
@@ -638,7 +638,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 99af4d2a1264cd99cb5f90d3b78e2dc002162a71
-R 4383d2b2aeff39e632b8cc0dea4c769f
+P 4f1b3101423d015d7729bd42a52f18b78020736d 6f1b5d6047b39e08d84ff01c837fb64f50039ffb
+R c0fa85b81aa15b05f50c5a094e364425
 U jan.nijtmans
-Z d1a2551e96f7d4b69b5fe7a7cce23574
+Z c55b77327435246505b32bbec17680c5
