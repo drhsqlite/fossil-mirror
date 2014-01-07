@@ -570,8 +570,8 @@ void page_tree(void){
   }
   @ <ul>
   for(p=sTree.pFirst; p; p=p->pNext){
-    int nFullName = strlen(p->zFullName)+1;
     if( p->isDir ){
+      int nFullName = strlen(p->zFullName)+1;
       if( nD && nFullName==nD ){
         @ <li class="dir subdir">
       }else{
