@@ -322,10 +322,10 @@ foreach s [lsort $src] {
   writeln "\$(OBJDIR)/$s.h:\t\$(OBJDIR)/headers"
 }
 
-writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c autoconfig.h"
+writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h autoconfig.h"
+writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
