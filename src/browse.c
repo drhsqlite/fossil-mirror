@@ -475,6 +475,10 @@ void page_tree(void){
   if( zCI ){
     style_submenu_element("All", "All", "%s",
                           url_render(&sURI, "ci", 0, 0, 0));
+    if( nD==0 ){
+      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%S",
+                            zUuid);
+    }
   }
   if( linkTrunk ){
     style_submenu_element("Trunk", "Trunk", "%s",
@@ -563,24 +567,20 @@ void page_tree(void){
   */
   @ <div class="filetree"><ul>
   if( nD ){
-    char *zLink = href("%s", url_render(&sURI, "name", 0, 0, 0));
     @ <li class="dir">
-    @ %z(zLink)%h(zProjectName)</a>
   }else{
     @ <li class="dir subdir">
-    @ <a>%h(zProjectName)</a>
   }
+  @ %z(href("%s",url_render(&sURI,"name",0,0,0)))%h(zProjectName)</a>
   @ <ul>
   for(p=sTree.pFirst; p; p=p->pNext){
     if( p->isDir ){
       if( p->nFullName==nD-1 ){
         @ <li class="dir subdir">
-        @ <a>%h(p->zName)</a>
       }else{
-        char *zLink = href("%s", url_render(&sURI, "name", p->zFullName, 0, 0));
         @ <li class="dir">
-        @ %z(zLink)%h(p->zName)</a>
       }
+      @ %z(href("%s",url_render(&sURI,"name",p->zFullName,0,0)))%h(p->zName)</a>
       if( startExpanded || p->nFullName<=nD ){
         @ <ul>
       }else{
@@ -763,6 +763,7 @@ void fileage_page(void){
   if( rid==0 ){
     fossil_fatal("not a valid check-in: %s", zName);
   }
+  style_submenu_element("Tree-View", "Tree-View", "%R/tree?ci=%T", zName);
   style_header("File Ages", zName);
   compute_fileage(rid);
   baseTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
