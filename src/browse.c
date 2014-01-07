@@ -545,8 +545,16 @@ void page_tree(void){
   }
 
 
-  /* Generate a multi-column table listing the contents of zD[]
-  ** directory.
+  /* Generate tree of lists.
+  **
+  ** Each file and directory is a list element: <li>.  Files have class=file
+  ** and if the filename as the suffix "xyz" the file also has class=file-xyz.
+  ** Directories have class=dir.  The directory specfied by the name= query
+  ** parameter (or the top-level directory if there is no name= query parameter)
+  ** adds class=subdir.
+  **
+  ** The <li> element for directories also contains a sublist <ul>
+  ** for the contents of that directory.
   */
   @ <div class="filetree"><ul>
   if( nD ){
@@ -597,10 +605,10 @@ void page_tree(void){
   @
   @ function toggleAll(tree){
   @   var lists = tree.querySelectorAll('.subdir > ul > li ul');
-  @   var display = 'block';
+  @   var display = 'block';  /* Default action: make all sublists visible */
   @   for( var i=0; lists[i]; i++ ){
   @     if( style(lists[i], 'display')!='none'){
-  @       display = 'none';
+  @       display = 'none'; /* Any already visible - make them all hidden */
   @       break;
   @     }
   @   }
@@ -609,27 +617,26 @@ void page_tree(void){
   @   }
   @ }
   @ 
-  @ function initTree(tree){
-  @   tree.onclick = function( e ){
-  @     var a = e.target;
-  @     if( a.nodeName!='A' ) return;
-  @     if( a.parentNode.className.indexOf('subdir')>=0 ){
-  @       toggleAll(tree);
-  @       return false;
-  @     }
-  @     if( style(a.parentNode, 'display')=='inline' ) return;
-  @     var ul = a.nextSibling;
-  @     while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
-  @     ul.style.display = style(ul, 'display')=='none' ? 'block' : 'none';
+  @ var outer_ul = document.querySelector('.filetree > ul');
+  @ outer_ul.querySelector('.subdir > a').style.cursor = 'pointer';
+  @ outer_ul.onclick = function( e ){
+  @   var a = e.target;
+  @   if( a.nodeName!='A' ) return;
+  @   if( a.parentNode.className.indexOf('subdir')>=0 ){
+  @     toggleAll(outer_ul);
   @     return false;
   @   }
-  @   var subdirLink = tree.querySelectorAll('.subdir > a')[0];
-  @   subdirLink.style.cursor = 'pointer';
-  @   toggleAll(tree);
+  @   if( style(a.parentNode, 'display')=='inline' ) return;
+  @   var ul = a.nextSibling;
+  @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
+  @   ul.style.display = style(ul, 'display')=='none' ? 'block' : 'none';
+  @   return false;
   @ }
-  @ 
-  @ var trees = document.querySelectorAll('.filetree > ul');
-  @ for( var i=0; trees[i]; i++ ) initTree(trees[i]);
+  if( P("expand")==0 ){
+    /* Begin with the tree collapsed, unless the "expand" query parameter
+    ** is present */
+    @ toggleAll(outer_ul);
+  }
   @ }())</script>
   style_footer();
 

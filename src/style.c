@@ -788,6 +788,9 @@ const struct strctCssDefaults {
     "tree-view list items",
     @   display: inline;
   },
+  /* There is exactly one element with class="subdir".  That element is
+  ** the name of the directory specified by the "name=" query parameter,
+  ** and the directory described by the text at the top of the page. */
   { ".filetree .subdir ul",
     "tree-view lists below subdir",
     @   position: relative;
