@@ -936,7 +936,6 @@ static int isValidLocalDb(const char *zDbName){
 ** not the repository database is found.  If the _FOSSIL_ or .fslckout file
 ** is found, it is attached to the open database connection too.
 */
-/* #define DBG_CHECKOUT_ON_ROOT_FIX 1 */
 int db_open_local(const char *zDbName){
   int i, n;
   char zPwd[2000];
@@ -945,9 +944,6 @@ int db_open_local(const char *zDbName){
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
-#ifdef DBG_CHECKOUT_ON_ROOT_FIX
-  fossil_trace("---> DEBUG: zPwd: %s, n: %d\n", zPwd, n);
-#endif
   while( n>0 ){
     for(i=0; i<count(aDbName); i++){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
@@ -959,9 +955,6 @@ int db_open_local(const char *zDbName){
           zPwd[n] = 0;
         }
         g.zLocalRoot = mprintf("%s/", zPwd);
-#ifdef DBG_CHECKOUT_ON_ROOT_FIX
-        fossil_trace("---> DEBUG: g.zLocalRoot: %s\n", g.zLocalRoot);
-#endif
         g.localOpen = 1;
         db_open_config(0);
         db_open_repository(zDbName);
@@ -972,9 +965,6 @@ int db_open_local(const char *zDbName){
     while( n>1 && zPwd[n]!='/' ){ n--; }
     while( n>1 && zPwd[n-1]=='/' ){ n--; }
     zPwd[n] = 0;
-#ifdef DBG_CHECKOUT_ON_ROOT_FIX
-    fossil_trace("---> DEBUG: next zPwd: %s, n: %d\n", zPwd, n);
-#endif
   }
 
   /* A checkout database file could not be found */
