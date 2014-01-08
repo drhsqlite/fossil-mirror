@@ -1,5 +1,5 @@
-C Remove\straces.\s\n\nWaiting\sapproval\sto\smerge\son\strunk..
-D 2014-01-08T04:59:36.115
+C Fix\ssome\sremaining\scorner\scases\swhen\shaving\sa\scheckout\son\s'/'..\n\n-\supdate\swas\sasserting\swhen\slocalroot\sis\s'/'\n\n-\sfix\sfile_canonical_name()\sso\sit\sdoesn't\sreturn\s'.'\spath\smust\sbe\s'/'\sand\savoid\n\s\sthe\sdouble\s'/'\son\sbeginning\sin\ssome\scase.\n\n-\srefactor\sfile_canonical_name()\sfunction\sto\savoid\ssome\sduplicated\scode.\n\n-\sfix\sfile_relative_name()\sso\sit\shandle\sproperly\srelative\spath\swhen\sworking\son\n\s\s'/'.
+D 2014-01-08T17:40:58.261
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -339,7 +339,7 @@ F src/doc.c f4c235f77cd4b429dd56d7f35d0f6f33afd380b6
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 8746ce8c2e786d12123334667d047f94cd5c1d7e
 F src/export.c 026f3746292c9c5bddcd454591ff71fb6d846481
-F src/file.c 32744471139356fc717440b8812528c0d96d6b3f
+F src/file.c 1f61bb729aa5852dbf0b746dd525b29c4078acd4
 F src/finfo.c 56fbdae748d18e55c61da5c6da0c15832224b767
 F src/glob.c 968a3f5b9e203af3053939639533ee7b26259836
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
@@ -420,7 +420,7 @@ F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 7b3ec02e5e293378c23f6a048c7beedcbb6e0ff0
-F src/update.c 8834951295705765a92d4db989df23536d2ca139
+F src/update.c 37748a57dce8eb56e7e5cb832877ccc35f3f1498
 F src/url.c f8bfd2a58858c7537f0134c074dd1b7f5cd1ff63
 F src/user.c 1393a30a7a26a938a3ab7c3528a7b4e617339389
 F src/utf8.c f72d86a09600005942bea4fc9cbfeab625ea2867
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P be993c47d5dd6d319d6317f917446f6691106d63
-R 46355a485a1d15ca5bc5511cca6546a5
+P 84abd455338f32e7bf68f72f3d5298465247da80
+R 2aa7dd6977537a5a8b08d8484a900b5b
 U mgagnon
-Z c627ead186e00a9e5837810f8a1f9bd3
+Z d2d7104662be058e6fed27a25dc2f353
