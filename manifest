@@ -1,5 +1,5 @@
-C Remove\sno\slonger\snecessary\scursor='pointer'.
-D 2014-01-08T00:58:50.053
+C Fix\sdb_open_local()\sfonction\sso\sit\sfind\sthe\slocal\scheckout\sdatabase\son\s"/".\sIt\nwas\sworking\sinconsistently\sdepending\swhat\swas\sthe\scurrent\sdirectory.\n\n**\sEven\sif\sfossil\sis\snot\sthe\sright\stool\sto\sversion\sfiles\son\sthe\sroot\sof\sthe\nsystem,\sI\sfound\sit\svery\susefull\sto\strack\swhat\sfile\schange\son\smy\ssystem\n\nTested\son\sLinux\sonly\sfor\snow..
+D 2014-01-08T04:42:46.600
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -329,7 +329,7 @@ F src/content.c f479d4ce745f206a4db62a98694815956234b89c
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 06ffef3d559616f67d5778519012d1b214f0e6bc
+F src/db.c 710116570e1e2105eaf16426c17a9047c2b1a59f
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c d59a0e546f5e82c884defcf3a695cc066bded992
@@ -639,7 +639,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8407bed76df175504d38423af2f81d0239125ae1
-R f3438f6d81551c4ae96230ef1315a7e1
-U joel
-Z 9b39faeda362b4ddae41be4990f1cef5
+P 927cacb3530c67e3885a95fb678f7c3ce475c41a
+R f4562fbc516546517d4403e060f44e81
+T *branch * checkout_on_root_fix
+T *sym-checkout_on_root_fix *
+T -sym-trunk *
+U mgagnon
+Z 4eb8102ddf876495b1c63dca02ddd520
