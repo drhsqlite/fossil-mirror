@@ -656,7 +656,6 @@ void page_tree(void){
   @ 
   @ var outer_ul = document.querySelector('.filetree > ul');
   @ var subdir = outer_ul.querySelector('.subdir');
-  @ outer_ul.querySelector('.subdir > a').style.cursor = 'pointer';
   @ outer_ul.onclick = function( e ){
   @   var a = e.target;
   @   if( a.nodeName!='A' ) return;
