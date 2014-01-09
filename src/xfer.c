@@ -883,7 +883,6 @@ int xfer_run_script(const char *zScript, const char *zUuid){
 ** }
 */
 int xfer_run_common_script(void){
-  Th_FossilInit(TH_INIT_DEFAULT);
   return xfer_run_script(xfer_common_code(), 0);
 }
 

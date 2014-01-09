@@ -1,5 +1,5 @@
-C Enforce\sminimum\sversion\srequirement\sfor\sSQLite\sof\s3.8.2.
-D 2014-01-09T19:32:46.073
+C Avoid\sinitializing\sTH1\sfor\srunning\shooks\swhen\snot\sstrictly\snecessary.
+D 2014-01-09T20:25:10.247
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -432,7 +432,7 @@ F src/wikiformat.c 8e2399dda22b4f12e3e191c708af0bf2fbe8fa12
 F src/winfile.c 6e7cdcb1c73855cd75de59d009b4119d043af54a
 F src/winhttp.c cd90cf700e4916c2226cbc82bafff2de05b1fa6d
 F src/wysiwyg.c 05edd99047b960c4410d6de58eea81385a373323
-F src/xfer.c 88622baa878d04b00b437f7910587df61777dfc8
+F src/xfer.c d370ebfdea8bb62f04f9ef564b96ab18ce2590ff
 F src/xfersetup.c 6be92485a853589fcc7caf61d4cce5d04adfac1e
 F src/zip.c 4cf2d7192533380c48f95600c5af5b5b7fd40e19
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -639,7 +639,8 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 03504c6262f91d077f61eb7a68b50da64c0ff649 d0476bd9580d73ba91e60b8d6939ec3fda94918f
-R 3bc7a69425a672142040e650235dc998
+P f96162b06b0addb4887864a9468cf63dc428c26b
+Q +e252c944e02141283af6b106ec2e35e06adc72ab
+R 1406ee482f5697e0c2d1b17c9ba85a73
 U mistachkin
-Z 7dcb28108708a6b94d1c3e195979f8bf
+Z 89637ff178c179b78a330889bb401327
