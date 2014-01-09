@@ -1062,7 +1062,8 @@ static Th_Variable *thFindValue(
   const char *zVar,     /* Pointer to variable name */
   int nVar,              /* Number of bytes at nVar */
   int create,            /* If true, create the variable if not found */
-  int arrayok            /* If true, an array is Ok. Otherwise array==error */
+  int arrayok,           /* If true, an array is Ok. Otherwise array==error */
+  int noerror            /* If false, set interpreter result to error message */
 ){
   const char *zOuter;
   int nOuter;
@@ -1095,7 +1096,9 @@ static Th_Variable *thFindValue(
 
   if( zInner ){
     if( pValue->zData ){
-      Th_ErrorMessage(interp, "variable is a scalar:", zOuter, nOuter);
+      if( !noerror ){
+        Th_ErrorMessage(interp, "variable is a scalar:", zOuter, nOuter);
+      }
       return 0;
     }
     if( !pValue->pHash ){
@@ -1117,7 +1120,9 @@ static Th_Variable *thFindValue(
     }
   }else{
     if( pValue->pHash && !arrayok ){
-      Th_ErrorMessage(interp, "variable is an array:", zOuter, nOuter);
+      if( !noerror ){
+        Th_ErrorMessage(interp, "variable is an array:", zOuter, nOuter);
+      }
       return 0;
     }
   }
@@ -1125,7 +1130,9 @@ static Th_Variable *thFindValue(
   return pValue;
 
 no_such_var:
-  Th_ErrorMessage(interp, "no such variable:", zVar, nVar);
+  if( !noerror ){
+    Th_ErrorMessage(interp, "no such variable:", zVar, nVar);
+  }
   return 0;
 }
 
@@ -1140,7 +1147,7 @@ no_such_var:
 int Th_GetVar(Th_Interp *interp, const char *zVar, int nVar){
   Th_Variable *pValue;
 
-  pValue = thFindValue(interp, zVar, nVar, 0, 0);
+  pValue = thFindValue(interp, zVar, nVar, 0, 0, 0);
   if( !pValue ){
     return TH_ERROR;
   }
@@ -1156,7 +1163,7 @@ int Th_GetVar(Th_Interp *interp, const char *zVar, int nVar){
 ** Return true if variable (zVar, nVar) exists.
 */
 int Th_ExistsVar(Th_Interp *interp, const char *zVar, int nVar){
-  Th_Variable *pValue = thFindValue(interp, zVar, nVar, 0, 0);
+  Th_Variable *pValue = thFindValue(interp, zVar, nVar, 0, 0, 1);
   return pValue && pValue->zData;
 }
 
@@ -1177,7 +1184,7 @@ int Th_SetVar(
 ){
   Th_Variable *pValue;
 
-  pValue = thFindValue(interp, zVar, nVar, 1, 0);
+  pValue = thFindValue(interp, zVar, nVar, 1, 0, 0);
   if( !pValue ){
     return TH_ERROR;
   }
@@ -1220,7 +1227,7 @@ int Th_LinkVar(
   }
   pSavedFrame = interp->pFrame;
   interp->pFrame = pFrame;
-  pValue = thFindValue(interp, zLink, nLink, 1, 1);
+  pValue = thFindValue(interp, zLink, nLink, 1, 1, 0);
   interp->pFrame = pSavedFrame;
 
   pEntry = Th_HashFind(interp, interp->pFrame->paVar, zLocal, nLocal, 1);
@@ -1243,7 +1250,7 @@ int Th_LinkVar(
 int Th_UnsetVar(Th_Interp *interp, const char *zVar, int nVar){
   Th_Variable *pValue;
 
-  pValue = thFindValue(interp, zVar, nVar, 0, 1);
+  pValue = thFindValue(interp, zVar, nVar, 0, 1, 0);
   if( !pValue ){
     return TH_ERROR;
   }

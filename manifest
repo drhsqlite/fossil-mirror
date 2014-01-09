@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange-log.
-D 2014-01-09T15:03:42.938
+C Make\ssure\sthe\sTH1\s'info\sexists'\ssub-command\spreserves\sthe\sexisting\sinterp\serror\sstack\strace.
+D 2014-01-09T19:11:06.788
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -409,7 +409,7 @@ F src/style.c d1bf82a154a8c62ea9a58bdfa4fd40096e277850
 F src/sync.c bb1f61e400aaa9daa59c6972b1fd987276bd6d80
 F src/tag.c 9d7a7cb5a501246675552fb402b3497fbb8e7d38
 F src/tar.c d8f62d1690ae13b3db209ffe32b87b9334c99712
-F src/th.c 2ffbe2e47e6bd3948f85c15bcad0452bc0aa5149
+F src/th.c f8517170fe083342713b39171810c848cabc448e
 F src/th.h e0461c004ee27605ce65a13ee46d99eb8cb0210a
 F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
 F src/th_main.c b89bd16f76ad07c1853d8d8615ee2e6ba77a4ef3
@@ -465,7 +465,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 6e11ffc973430c98e44ea987ab7ad41226d71347
+F test/th1.test d276fa72bf9b43902c74c00320a382b0d316855b
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 4ab7763cdb223c7801d1713922524a92f67ed412
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 82f69aa9bfde2d70cd4a8a25267fce27cac62c45
-R ecaa142b3fd2f5565d910744d0291dbf
-U drh
-Z 43f9842e5cceb245c6d0c389e55fc352
+P ad2dd5680baf348307dc3355e4b758c074c6f316
+R f10d7034ab3e2748db80fc1bf4ab153c
+U mistachkin
+Z ecaf6161520b8cb28ca06535683e03f1
