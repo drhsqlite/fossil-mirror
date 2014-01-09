@@ -1499,17 +1499,20 @@ void manifest_crosslink_begin(void){
 int manifest_crosslink_end(int flags){
   Stmt q, u;
   int i;
-  int rc = TH_ERROR;
+  int rc = TH_OK;
+  int permitHooks = (flags & MC_PERMIT_HOOKS);
+  const char *zScript = 0;
   assert( manifest_crosslink_busy==1 );
-  if( flags&MC_PERMIT_HOOKS ){
+  zScript = xfer_ticket_code();
+  if( zScript && permitHooks ){
     rc = xfer_run_common_script();
   }
   db_prepare(&q, "SELECT uuid FROM pending_tkt");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     ticket_rebuild_entry(zUuid);
-    if( rc==TH_OK ){
-      rc = xfer_run_script(xfer_ticket_code(), zUuid);
+    if( rc==TH_OK && zScript && permitHooks ){
+      rc = xfer_run_script(zScript, zUuid);
     }
   }
   db_finalize(&q);
@@ -1545,7 +1548,7 @@ int manifest_crosslink_end(int flags){
 
   db_end_transaction(0);
   manifest_crosslink_busy = 0;
-  return rc;
+  return ( rc!=TH_ERROR );
 }
 
 /*
