@@ -1496,14 +1496,21 @@ void manifest_crosslink_begin(void){
 /*
 ** Finish up a sequence of manifest_crosslink calls.
 */
-void manifest_crosslink_end(void){
+int manifest_crosslink_end(int flags){
   Stmt q, u;
   int i;
+  int rc = TH_ERROR;
   assert( manifest_crosslink_busy==1 );
+  if( flags&MC_PERMIT_HOOKS ){
+    rc = xfer_run_common_script();
+  }
   db_prepare(&q, "SELECT uuid FROM pending_tkt");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     ticket_rebuild_entry(zUuid);
+    if( rc==TH_OK ){
+      rc = xfer_run_script(xfer_ticket_code(), zUuid);
+    }
   }
   db_finalize(&q);
   db_multi_exec("DROP TABLE pending_tkt");
@@ -1538,6 +1545,7 @@ void manifest_crosslink_end(void){
 
   db_end_transaction(0);
   manifest_crosslink_busy = 0;
+  return rc;
 }
 
 /*
@@ -1885,8 +1893,6 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( p->type==CFTYPE_TICKET ){
     char *zTag;
 
-    zScript = xfer_ticket_code();
-    zUuid = p->zTicketUuid;
     assert( manifest_crosslink_busy==1 );
     zTag = mprintf("tkt-%s", p->zTicketUuid);
     tag_insert(zTag, 1, 0, rid, p->rDate, rid);

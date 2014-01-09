@@ -1304,7 +1304,7 @@ void page_xfer(void){
     configure_finalize_receive();
   }
   db_multi_exec("DROP TABLE onremote");
-  manifest_crosslink_end();
+  manifest_crosslink_end(MC_PERMIT_HOOKS);
 
   /* Send the server timestamp last, in case prior processing happened
   ** to use up a significant fraction of our time window.
@@ -1931,7 +1931,7 @@ int client_sync(
   transport_close(GLOBAL_URL());
   transport_global_shutdown(GLOBAL_URL());
   db_multi_exec("DROP TABLE onremote");
-  manifest_crosslink_end();
+  manifest_crosslink_end(MC_PERMIT_HOOKS);
   content_enable_dephantomize(1);
   db_end_transaction(0);
   return nErr;
