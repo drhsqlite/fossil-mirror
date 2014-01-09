@@ -1,5 +1,5 @@
-C Merge\sthe\scheckout_on_root_fix.
-D 2014-01-08T11:38:20.482
+C Attempts\sto\sadd\sfiles\soutside\sthe\sopen\scheckout\stree\sresult\sin\sfatal\serror.
+D 2014-01-09T05:56:05.164
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -308,7 +308,7 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 6b0317211fc9262a4b33e42f747fc08548859394
+F src/add.c 33953960b9baa1c5fac83e79288e68cf7b2e5b0c
 F src/allrepo.c 03cb44320134e1d3cd7714cc7516745f1794f79d
 F src/attach.c b010c385b03f90d7a4556d7cb1c190e918da5cdc
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -639,7 +639,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 927cacb3530c67e3885a95fb678f7c3ce475c41a 84abd455338f32e7bf68f72f3d5298465247da80
-R 46355a485a1d15ca5bc5511cca6546a5
-U drh
-Z c5e91ade102941cf6984e57d1c59d690
+P cbcd7056b6c3cba36c8cac8385d23517222116f3
+R 14aaceab9bcc32f4e0c4d79300da07e1
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U andybradford
+Z 0fbd5e2c84603f7713edbca79fa8339f
