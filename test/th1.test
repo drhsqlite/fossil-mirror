@@ -137,6 +137,11 @@ test th1-info-exists-5 {$RESULT eq {TH_ERROR: no such variable: var}}
 
 ###############################################################################
 
+fossil test-th-eval "catch {bad}; info exists var; set th_stack_trace"
+test th1-info-exists-6 {$RESULT eq {bad}}
+
+###############################################################################
+
 fossil test-th-eval "set var 1; unset var"
 test th1-unset-1 {$RESULT eq {var}}
 
