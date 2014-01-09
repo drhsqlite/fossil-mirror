@@ -169,7 +169,7 @@ void search_sql_setup(Search *p){
 ** Testing the search function.
 **
 ** COMMAND: search*
-** %fossil search [-all|-a] [-limit|-n #] pattern...
+** %fossil search [-all|-a] [-limit|-n #] [-width|-W #] pattern...
 **
 ** Search for timeline entries matching all words
 ** provided on the command line. Whole-word matches
@@ -178,8 +178,10 @@ void search_sql_setup(Search *p){
 ** Outputs, by default, some top-N fraction of the
 ** results. The -all option can be used to output
 ** all matches, regardless of their search score.
-** -limit can be used to limit the number of entries
-** returned.
+** The -limit option can be used to limit the number
+** of entries returned.  The -width option can be
+** used to set the output width used when printing
+** matches.
 */
 void search_cmd(void){
   Search *p;
@@ -192,8 +194,18 @@ void search_cmd(void){
                                                      off the end of the
                                                      results. */
   char const * zLimit = find_option("limit","n",1);
+  const char *zWidth = find_option("width","W",1);
   int nLimit = zLimit ? atoi(zLimit) : -1000;   /* Max number of matching
                                                    lines/entries to list */
+  int width;
+  if( zWidth ){
+    width = atoi(zWidth);
+    if( (width!=0) && (width<=20) ){
+      fossil_fatal("--width|-W value must be >20 or 0");
+    }
+  }else{
+    width = 79;
+  }
 
   db_must_be_within_tree();
   if( g.argc<2 ) return;
@@ -226,6 +238,6 @@ void search_cmd(void){
   blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, nLimit, 79, 0);
+  print_timeline(&q, nLimit, width, 0);
   db_finalize(&q);
 }
