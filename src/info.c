@@ -612,7 +612,7 @@ void ci_page(void){
                      "   AND +tag.tagname GLOB 'sym-*'", rid);
       while( db_step(&q2)==SQLITE_ROW ){
         const char *zTagName = db_column_text(&q2, 0);
-        @  | %z(href("%R/timeline?r=%T",zTagName))%h(zTagName)</a>
+        @  | %z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
       }
       db_finalize(&q2);
 
