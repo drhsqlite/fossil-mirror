@@ -786,9 +786,9 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
     char zPwd[2000];
     file_getcwd(zPwd, sizeof(zPwd)-strlen(zOrigName));
     if( zPwd[0]=='/' && strlen(zPwd)==1 ){
-      // when on '/', don't add an extra '/'
+      /* when on '/', don't add an extra '/' */
       if( zOrigName[0]=='.' && strlen(zOrigName)==1 ){
-        // '.' when on '/' mean '/'
+        /* '.' when on '/' mean '/' */
         blob_appendf(pOut, "%/", zPwd);
       }else{
         blob_appendf(pOut, "%/%/", zPwd, zOrigName);
@@ -932,7 +932,7 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
     }
     while( zPath[i-1]!='/' ){ i--; }
     if( zPwd[0]=='/' && strlen(zPwd)==1 ){
-      // If on '/', don't go to higher level
+      /* If on '/', don't go to higher level */
       blob_zero(&tmp);
     }else{
       blob_set(&tmp, "../");
