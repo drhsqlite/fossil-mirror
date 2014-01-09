@@ -108,6 +108,7 @@ int search_score(Search *p, const char *zDoc){
   unsigned char seen[8];
 
   memset(seen, 0, sizeof(seen));
+  if( zDoc==0 ) return score;
   for(i=0; zDoc[i]; i++){
     char c = zDoc[i];
     if( isBoundary[c&0xff] ) continue;
