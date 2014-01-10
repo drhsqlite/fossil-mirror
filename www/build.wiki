@@ -19,7 +19,8 @@ the newer one.</p>
 <ol>
 <li> Download and unpack a source tarball or ZIP.
 <li> <b>./configure; make</b>
-<li> Move  "fossil" executable to someplace on your $PATH.
+<li> Move the resulting "fossil" or "fossil.exe" executable to someplace on
+your $PATH.
 </ol>
 
 <p><hr>
