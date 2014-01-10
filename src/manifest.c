@@ -1503,15 +1503,17 @@ int manifest_crosslink_end(int flags){
   int permitHooks = (flags & MC_PERMIT_HOOKS);
   const char *zScript = 0;
   assert( manifest_crosslink_busy==1 );
-  zScript = xfer_ticket_code();
-  if( zScript && permitHooks ){
-    rc = xfer_run_common_script();
+  if( permitHooks ){
+    zScript = xfer_ticket_code();
+    if( zScript ){
+      rc = xfer_run_common_script();
+    }
   }
   db_prepare(&q, "SELECT uuid FROM pending_tkt");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     ticket_rebuild_entry(zUuid);
-    if( rc==TH_OK && zScript && permitHooks ){
+    if( rc==TH_OK && zScript ){
       rc = xfer_run_script(zScript, zUuid);
     }
   }

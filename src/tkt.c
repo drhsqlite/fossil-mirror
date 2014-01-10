@@ -539,7 +539,7 @@ static int ticket_put(
   manifest_crosslink_begin();
   result = (manifest_crosslink(rid, pTicket, 0)==0);
   assert( blob_is_reset(pTicket) );
-  if( result ){
+  if( !result ){
     result = manifest_crosslink_end(MC_PERMIT_HOOKS);
   }else{
     manifest_crosslink_end(0);
