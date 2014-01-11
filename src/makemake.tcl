@@ -148,7 +148,6 @@ set SQLITE_OPTIONS {
 set SHELL_OPTIONS {
   -Dmain=sqlite3_shell
   -DSQLITE_OMIT_LOAD_EXTENSION=1
-  -Dsqlite3_strglob=strglob
 }
 
 # Options used to compile the included SQLite shell on Windows.

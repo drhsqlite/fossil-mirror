@@ -1097,6 +1097,36 @@ void help_page(void){
     }
     @ </tr></table>
 
+    @ <h1>Unsupported commands:</h1>
+    @ <table border="0"><tr>
+    for(i=j=0; i<count(aCommand); i++){
+      const char *z = aCommand[i].zName;
+      if( strncmp(z,"test",4)!=0 ) continue;
+      j++;
+    }
+    n = (j+3)/4;
+    for(i=j=0; i<count(aCommand); i++){
+      const char *z = aCommand[i].zName;
+      if( strncmp(z,"test",4)!=0 ) continue;
+      if( j==0 ){
+        @ <td valign="top"><ul>
+      }
+      if( aCmdHelp[i].zText && *aCmdHelp[i].zText ){
+        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a></li>
+      }else{
+        @ <li>%s(z)</li>
+      }
+      j++;
+      if( j>=n ){
+        @ </ul></td>
+        j = 0;
+      }
+    }
+    if( j>0 ){
+      @ </ul></td>
+    }
+    @ </tr></table>
+
   }
   style_footer();
 }
