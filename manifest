@@ -1,5 +1,5 @@
-C Don't\sreplace\ssqlite3_strglob\swith\ssqlglob:\sIt's\swrong\sbecause\sthe\sreturn\svalue\sis\sdifferent.\s\nSince\sSQLite\s3.8.2\sis\sguaranteed\sto\shave\ssqlite3_strglob\sanyway,\sno\sneed\sto\sworry.
-D 2014-01-11T18:26:56.053
+C Fix\sthe\stest/valgrind-www.tcl\sscript\sso\sthat\sit\sworks\son\sUbuntu\s13.10.
+D 2014-01-11T18:56:23.264
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -469,7 +469,7 @@ F test/th1.test d276fa72bf9b43902c74c00320a382b0d316855b
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 4ab7763cdb223c7801d1713922524a92f67ed412
-F test/valgrind-www.tcl 921135f07258d89e3876e074808ca7b462b92eb4
+F test/valgrind-www.tcl 1bd3f03f1c647e177cd1a9f1bb17c380388fc04b
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2ab19a1d62189929025f676f40b70ea1d9acc8b1
-R d01079a8aa9d316dc6c65abcf22fd235
-U jan.nijtmans
-Z a9cdd167583f69ff87717d3c1ec8efd7
+P 492cb995673dffe11cff0b261ecda3c12eb9abda
+R f8cc43f8739d3620984633247621b5da
+U drh
+Z 02e5a76a68ee0727d7b00c2d75c3a4ae
