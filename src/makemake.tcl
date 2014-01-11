@@ -264,7 +264,7 @@ SHELL_OPTIONS = <<<SHELL_OPTIONS>>>
 # the sqlite3.o object. Instead, the system sqlite will be linked
 # using -lsqlite3.
 SQLITE3_OBJ.1 = 
-SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o $(OBJDIR)/shell.o
+SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 # The FOSSIL_ENABLE_TCL variable may be undefined, set to 0, or set to 1.
@@ -276,6 +276,7 @@ TCL_OBJ. = $(TCL_OBJ.0)
 
 EXTRAOBJ = \
   $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
+  $(OBJDIR)/shell.o \
   $(OBJDIR)/th.o \
   $(OBJDIR)/th_lang.o \
   $(TCL_OBJ.$(FOSSIL_ENABLE_TCL)) \
