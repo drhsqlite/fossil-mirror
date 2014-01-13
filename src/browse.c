@@ -658,14 +658,15 @@ void page_tree(void){
   @ var subdir = outer_ul.querySelector('.subdir');
   @ outer_ul.onclick = function( e ){
   @   var a = e.target;
-  @   if( a.nodeName!='A' ) return;
+  @   if( a.nodeName!='A' ) return true;
   @   if( a.parentNode==subdir ){
   @     toggleAll(outer_ul);
   @     return false;
   @   }
-  @   if( !subdir.contains(a) ) return;
+  @   if( !subdir.contains(a) ) return true;
   @   var ul = a.nextSibling;
   @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
+  @   if( !ul ) return true; /* This is a file link, not a directory */
   @   ul.style.display = style(ul, 'display')=='none' ? 'block' : 'none';
   @   return false;
   @ }

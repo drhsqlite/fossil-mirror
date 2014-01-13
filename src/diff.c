@@ -805,7 +805,7 @@ static void sbsWriteLineChange(
     p->iStart2 = nPrefix + aLCS[1];
     p->iEnd2 = nLeft - nSuffix;
     p->zStart2 = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
-    sbsSimplifyLine(p, zLeft+nPrefix);
+    sbsSimplifyLine(p, zLeft);
     sbsWriteText(p, pLeft, SBS_TXTA);
     sbsWriteMarker(p, " | ", "|");
     sbsWriteLineno(p, lnRight, SBS_LNB);
@@ -820,7 +820,7 @@ static void sbsWriteLineChange(
     p->iStart2 = nPrefix + aLCS[3];
     p->iEnd2 = nRight - nSuffix;
     p->zStart2 = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
-    sbsSimplifyLine(p, zRight+nPrefix);
+    sbsSimplifyLine(p, zRight);
     sbsWriteText(p, pRight, SBS_TXTB);
     return;
   }

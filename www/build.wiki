@@ -58,7 +58,7 @@ the Fossil source code?</h2>
 
 Yes!  Any check-in on the 
 [/timeline?t=trunk | trunk branch] of the Fossil
-[http://www.sqlite.org/src/timeline | Fossil self-hosting repository]
+[http://fossil-scm.org/fossil/timeline | Fossil self-hosting repository]
 will work fine.  (Dodgy code is always on a branch.)  In the unlikely
 event that you pick a version with a serious bug, it still won't
 clobber your files.  Fossil uses several

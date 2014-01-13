@@ -414,7 +414,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     }
   }
   db_finalize(&s);
-  manifest_crosslink_end(0);
+  manifest_crosslink_end(MC_NONE);
   rebuild_tag_trunk();
   if( ttyOutput && !g.fQuiet && totalSize>0 ){
     processCnt += incrSize;
