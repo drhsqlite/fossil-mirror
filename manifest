@@ -1,5 +1,5 @@
-C Trim\strailing\swhitespace\sin\sTH1\sand\salign\ssome\scomments.
-D 2014-01-13T23:06:41.921
+C Make\ssure\sthat\sTH1\svariables\sget\sremoved\sfrom\sthe\scall\sframe\supon\sbeing\sunset.
+D 2014-01-13T23:27:54.346
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -409,7 +409,7 @@ F src/style.c d1bf82a154a8c62ea9a58bdfa4fd40096e277850
 F src/sync.c bb1f61e400aaa9daa59c6972b1fd987276bd6d80
 F src/tag.c 9d7a7cb5a501246675552fb402b3497fbb8e7d38
 F src/tar.c 4fd4440b5f21e39937739b2f096dd1d72933893f
-F src/th.c 86c7ac59568c95397fc5739baf592f1456053a41
+F src/th.c c63b4dc633c930e7f3824319dcf0a59f6836082a
 F src/th.h 9ea5f7f0e7585efe29a3d35f5a027f48dbd13adb
 F src/th_lang.c b0c4694bcc12b6d74c54d48ff7719ff3493f164a
 F src/th_main.c b89bd16f76ad07c1853d8d8615ee2e6ba77a4ef3
@@ -465,7 +465,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test d276fa72bf9b43902c74c00320a382b0d316855b
+F test/th1.test 23018a0be9895dcddf18cbece633f005766207ce
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 4ab7763cdb223c7801d1713922524a92f67ed412
@@ -639,10 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cde4759d5e8c30d248dbec71c6629e7de2001f57
-R 7d29ed439cdb9e8dfc46ec0b96341f67
-T *branch * th1Work
-T *sym-th1Work *
-T -sym-trunk *
+P 5a9f9ba61dd6a36ada37347612e10aab4db5860b
+R d7881d87f4ad285e57f410d988e6cbee
 U mistachkin
-Z ebf9cf087b66de08307a4fbe68f4827c
+Z a58bd40b57c28e54a42cc69c8a5144f4

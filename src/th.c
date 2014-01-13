@@ -1081,7 +1081,7 @@ static Th_Variable *thFindValue(
   }
 
   pEntry = Th_HashFind(interp, pFrame->paVar, zOuter, nOuter, create);
-  assert(pEntry || !create);
+  assert(pEntry || create<=0);
   if( !pEntry ){
     goto no_such_var;
   }
@@ -1255,13 +1255,17 @@ int Th_UnsetVar(Th_Interp *interp, const char *zVar, int nVar){
     return TH_ERROR;
   }
 
-  Th_Free(interp, pValue->zData);
-  pValue->zData = 0;
+  if( pValue->zData ){
+    Th_Free(interp, pValue->zData);
+    pValue->zData = 0;
+  }
   if( pValue->pHash ){
     Th_HashIterate(interp, pValue->pHash, thFreeVariable, (void *)interp);
     Th_HashDelete(interp, pValue->pHash);
     pValue->pHash = 0;
   }
+
+  thFindValue(interp, zVar, nVar, -1, 1, 1); /* Finally, delete from frame */
   return TH_OK;
 }
 
