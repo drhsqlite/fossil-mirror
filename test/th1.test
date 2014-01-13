@@ -149,3 +149,8 @@ test th1-unset-1 {$RESULT eq {var}}
 
 fossil test-th-eval "unset var"
 test th1-unset-2 {$RESULT eq {TH_ERROR: no such variable: var}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var; unset var"
+test th1-unset-3 {$RESULT eq {TH_ERROR: no such variable: var}}

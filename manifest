@@ -1,5 +1,5 @@
-C Fix\sincorrect\slink.\sAll\sbug-fixes\sfrom\strunk\sare\snow\smerged\sinto\s"branch-1.28"\sexcept\s(on\spurpose!)\sthe\sharmless\svalgrind\swarning\sin\sthe\starball\sgenerator
-D 2014-01-12T10:55:19.634
+C Make\ssure\sthat\sTH1\svariables\sget\sremoved\sfrom\sthe\scall\sframe\supon\sbeing\sunset.
+D 2014-01-13T23:33:59.196
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -409,9 +409,9 @@ F src/style.c d1bf82a154a8c62ea9a58bdfa4fd40096e277850
 F src/sync.c bb1f61e400aaa9daa59c6972b1fd987276bd6d80
 F src/tag.c 9d7a7cb5a501246675552fb402b3497fbb8e7d38
 F src/tar.c d8f62d1690ae13b3db209ffe32b87b9334c99712
-F src/th.c f8517170fe083342713b39171810c848cabc448e
-F src/th.h e0461c004ee27605ce65a13ee46d99eb8cb0210a
-F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
+F src/th.c c63b4dc633c930e7f3824319dcf0a59f6836082a
+F src/th.h 9ea5f7f0e7585efe29a3d35f5a027f48dbd13adb
+F src/th_lang.c b0c4694bcc12b6d74c54d48ff7719ff3493f164a
 F src/th_main.c b89bd16f76ad07c1853d8d8615ee2e6ba77a4ef3
 F src/th_tcl.c cfe4c67242b63fe655699f96b20db5808314813a
 F src/timeline.c 0db5ebc3409d097ad5cac88767422da2b713340e
@@ -465,7 +465,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test d276fa72bf9b43902c74c00320a382b0d316855b
+F test/th1.test 23018a0be9895dcddf18cbece633f005766207ce
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 4ab7763cdb223c7801d1713922524a92f67ed412
@@ -611,7 +611,7 @@ F www/hacker-howto.wiki 1b0b1fa68606bbad790b4100f1da62738d9c65e2
 F www/hints.wiki 2ed95a101dd4639232b40360dbf5d131d98b098c
 F www/index.wiki bdcd0e8e63606bf0467ac409b91b6760f2faae18
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
-F www/makefile.wiki 4456e13ea14b83cdf8f3647ec4cb3090efb13f66
+F www/makefile.wiki 4b85d484ab7285ece25acd00f638fe43d99f7fff
 F www/mkdownload.tcl c313e4cab0609b19b030541af140d8bbfebfc0f4
 F www/mkindex.tcl c766a73aa93987f678c525c497e761704724903d
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 94fcef10519134527a142121c64875a7ff8c98dd 26c26b6fc3568a4000235423ac1c4c5f65d2d28a
-R 8c83244fc121329d939307902e354b88
-U jan.nijtmans
-Z c782b96f7f173093e2dfcb280e5febe3
+P 1c6a991711d0f451c5e1a0e812af4406e2a60773 fa17f1ce3a8915d5c26c1c7e736cc7a0033a3b8d
+R 4cdf0c498060bb22c10b7bd56a1d6633
+U mistachkin
+Z a1b9e45017ab3659452023e7a44e8f67
