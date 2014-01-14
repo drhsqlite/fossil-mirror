@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.\s\sStyle\sfixes.
-D 2014-01-13T22:50:32.922
+C Merge\srecent\sfixes\sfrom\strunk.
+D 2014-01-14T00:04:33.375
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -348,7 +348,7 @@ F src/http.c 2195ed5115282c0bf356d918d3adb7144bf78e8d
 F src/http_socket.c 09d140a27eb27dbae0b8d494172f9c2a39baf9dd
 F src/http_ssl.c b8265d591710fe628a32a54067056d7b000ec91e
 F src/http_transport.c f6b79299ea197c26e9137a7b68b28885edb1b463
-F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
+F src/import.c be7a31538a60d2b1d89526862f75edfac74e6c3c
 F src/info.c 8458cc17bf1203b060e59743e5345627fb513ed2
 F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
@@ -409,9 +409,9 @@ F src/style.c d1bf82a154a8c62ea9a58bdfa4fd40096e277850
 F src/sync.c bb1f61e400aaa9daa59c6972b1fd987276bd6d80
 F src/tag.c 9d7a7cb5a501246675552fb402b3497fbb8e7d38
 F src/tar.c 4fd4440b5f21e39937739b2f096dd1d72933893f
-F src/th.c f8517170fe083342713b39171810c848cabc448e
-F src/th.h e0461c004ee27605ce65a13ee46d99eb8cb0210a
-F src/th_lang.c c0c6607eb13f12907fb276af3e228bfc8f070cae
+F src/th.c c63b4dc633c930e7f3824319dcf0a59f6836082a
+F src/th.h 9ea5f7f0e7585efe29a3d35f5a027f48dbd13adb
+F src/th_lang.c b0c4694bcc12b6d74c54d48ff7719ff3493f164a
 F src/th_main.c b89bd16f76ad07c1853d8d8615ee2e6ba77a4ef3
 F src/th_tcl.c cfe4c67242b63fe655699f96b20db5808314813a
 F src/timeline.c 0db5ebc3409d097ad5cac88767422da2b713340e
@@ -465,7 +465,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test d276fa72bf9b43902c74c00320a382b0d316855b
+F test/th1.test 23018a0be9895dcddf18cbece633f005766207ce
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 4ab7763cdb223c7801d1713922524a92f67ed412
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7f39fb61cb0039ad4525f4d510eef85d7e5b84ab cde4759d5e8c30d248dbec71c6629e7de2001f57
-R ad627e59c946d52fdd05df5085c46c81
+P 81c185f68591c12b30f03fcfdc9086804e6df935 1aef260f4c0a0fc74f45f624eb0cbe92b98bf6e8
+R 5b25d8862f539930860f6937cb848467
 U mistachkin
-Z e9af54c6b5e6f46b7d8009a621e82f3d
+Z 1add55f767f69a4f745ca285d8657d41
