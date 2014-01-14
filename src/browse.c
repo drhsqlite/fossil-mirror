@@ -668,7 +668,7 @@ void page_tree(void){
   @   }
   @ }
   @
-  @ var expandMap;
+  @ var expandMap = {};
   @ var outer_ul = document.querySelector('.filetree > ul');
   @ var subdir = outer_ul.querySelector('.subdir');
   @ outer_ul.onclick = function(e){
