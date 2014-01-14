@@ -1,5 +1,5 @@
-C Fix\sanother\spossible\smemory\sleak\sin\sa\scorner\scase.\s\sAdd\smore\stests.\s\sImprove\scomments\son\sthe\snew\sFind\sstructure.
-D 2014-01-14T13:25:33.938
+C Simplify\susage\sof\sthe\snew\sTH1\sFind\sstructure.
+D 2014-01-14T13:30:13.767
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -409,7 +409,7 @@ F src/style.c d1bf82a154a8c62ea9a58bdfa4fd40096e277850
 F src/sync.c bb1f61e400aaa9daa59c6972b1fd987276bd6d80
 F src/tag.c 9d7a7cb5a501246675552fb402b3497fbb8e7d38
 F src/tar.c 4fd4440b5f21e39937739b2f096dd1d72933893f
-F src/th.c 4afdfce7363859ad6a442bf4e27811a03d85cb10
+F src/th.c 0de77ff5c000ed605582a48ead0da915bdc86815
 F src/th.h 76d19d77764afab95cd30497b88cdc49fc06c605
 F src/th_lang.c b0c4694bcc12b6d74c54d48ff7719ff3493f164a
 F src/th_main.c e87b1b3b667c73f860fb0ac83c322cedde8a178f
@@ -639,7 +639,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e4047acb76d90c643fd36c6a13377cc938d30179
-R e29845fbf5b0786e05bf2c5c411361c1
+P 9b3b1d0714b1bd04c1b846878bc7b017ddbc1ed6
+R 9e4de772e5cda3fce4439b2f547e7beb
 U mistachkin
-Z f4e7c56be26f0a8588b94d84466be1ac
+Z f2bc839a2a32eea20a9a7e6b2d44c65d

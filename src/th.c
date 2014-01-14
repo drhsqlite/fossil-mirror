@@ -1055,9 +1055,8 @@ static int thAnalyseVarname(
 /*
 ** The Find structure is used to return extra information to callers of the
 ** thFindValue function.  The fields within it are populated by thFindValue
-** as soon as the necessary information is available.  Callers should zero
-** out the structure prior to calling thFindValue and then check each field
-** of interest upon return.
+** as soon as the necessary information is available.  Callers should check
+** each field of interest upon return.
 */
 
 struct Find {
@@ -1103,6 +1102,7 @@ static Th_Variable *thFindValue(
 
   thAnalyseVarname(zVar, nVar, &zOuter, &nOuter, &zInner, &nInner, &isGlobal);
   if( pFind ){
+    memset(pFind, 0, sizeof(Find));
     pFind->zElem = zInner;
     pFind->nElem = nInner;
   }
@@ -1290,7 +1290,6 @@ int Th_UnsetVar(Th_Interp *interp, const char *zVar, int nVar){
   Th_HashEntry *pEntry;
   int rc = TH_ERROR;
 
-  memset(&find, 0, sizeof(Find));
   pValue = thFindValue(interp, zVar, nVar, 0, 1, 0, &find);
   if( !pValue ){
     return rc;
