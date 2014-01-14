@@ -537,9 +537,13 @@ static int ticket_put(
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   manifest_crosslink_begin();
-  result = (manifest_crosslink(rid, pTicket, MC_PERMIT_HOOKS)==0);
+  result = (manifest_crosslink(rid, pTicket, MC_NONE)==0);
   assert( blob_is_reset(pTicket) );
-  manifest_crosslink_end();
+  if( !result ){
+    result = manifest_crosslink_end(MC_PERMIT_HOOKS);
+  }else{
+    manifest_crosslink_end(MC_NONE);
+  }
   return result;
 }
 
