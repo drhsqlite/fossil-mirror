@@ -189,3 +189,23 @@ test th1-unset-3 {$RESULT eq {TH_ERROR: no such variable: var}}
 
 fossil test-th-eval "set gv 1; proc p {} {upvar 1 gv lv; unset lv}; p; unset gv"
 test th1-unset-4 {$RESULT eq {TH_ERROR: no such variable: gv}}
+
+###############################################################################
+
+fossil test-th-eval "set gv 1; upvar 0 gv gv2; info exists gv2"
+test th1-unset-5 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set gv 1; upvar 0 gv gv2; unset gv; unset gv2"
+test th1-unset-6 {$RESULT eq {TH_ERROR: no such variable: gv2}}
+
+###############################################################################
+
+fossil test-th-eval "set gv 1; upvar 0 gv gv2(1); unset gv; unset gv2(1)"
+test th1-unset-7 {$RESULT eq {TH_ERROR: no such variable: gv2(1)}}
+
+###############################################################################
+
+fossil test-th-eval "set gv(1) 1; upvar 0 gv(1) gv2; unset gv(1); unset gv2"
+test th1-unset-8 {$RESULT eq {TH_ERROR: no such variable: gv2}}

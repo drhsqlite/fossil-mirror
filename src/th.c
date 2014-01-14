@@ -1053,6 +1053,22 @@ static int thAnalyseVarname(
 }
 
 /*
+** The Find structure is used to return extra information to callers of the
+** thFindValue function.  The fields within it are populated by thFindValue
+** as soon as the necessary information is available.  Callers should zero
+** out the structure prior to calling thFindValue and then check each field
+** of interest upon return.
+*/
+
+struct Find {
+  Th_HashEntry *pValueEntry; /* Pointer to the scalar or array hash entry */
+  Th_HashEntry *pElemEntry;  /* Pointer to the element hash entry, if any */
+  const char *zElem;         /* Name of array element, if applicable */
+  int nElem;                 /* Length of array element name, if applicable */
+};
+typedef struct Find Find;
+
+/*
 ** Input string (zVar, nVar) contains a variable name. This function locates
 ** the Th_Variable structure associated with the named variable. The
 ** variable name may be a global or local scalar or array variable
@@ -1065,13 +1081,6 @@ static int thAnalyseVarname(
 ** an error is left in the interpreter result and NULL returned. If
 ** arrayok is true an array name is Ok.
 */
-struct Find {
-  Th_HashEntry *pValueEntry;
-  Th_HashEntry *pElemEntry;
-  const char *zElem;
-  int nElem;
-};
-typedef struct Find Find;
 
 static Th_Variable *thFindValue(
   Th_Interp *interp,
@@ -1312,7 +1321,7 @@ int Th_UnsetVar(Th_Interp *interp, const char *zVar, int nVar){
     if( find.zElem ){
       Th_Variable *pValue2 = find.pValueEntry->pData;
       Th_HashFind(interp, pValue2->pHash, find.zElem, find.nElem, -1);
-    }else{
+    }else if( pEntry->pData ){
       Th_Free(interp, pEntry->pData);
       pEntry->pData = 0;
     }
@@ -1325,6 +1334,10 @@ int Th_UnsetVar(Th_Interp *interp, const char *zVar, int nVar){
       Th_HashIterate(interp, pValue->pHash, thFreeVariable, (void *)interp);
       Th_HashDelete(interp, pValue->pHash);
       pValue->pHash = 0;
+    }
+    if( find.zElem ){
+      Th_Variable *pValue2 = find.pValueEntry->pData;
+      Th_HashFind(interp, pValue2->pHash, find.zElem, find.nElem, -1);
     }
   }
   if( !find.zElem ){
