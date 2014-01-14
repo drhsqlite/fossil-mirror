@@ -142,6 +142,36 @@ test th1-info-exists-6 {$RESULT eq {bad}}
 
 ###############################################################################
 
+fossil test-th-eval "set var(1) 1; info exists var"
+test th1-info-exists-7 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; unset var(1); info exists var"
+test th1-info-exists-8 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; unset var; info exists var"
+test th1-info-exists-9 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; info exists var(1)"
+test th1-info-exists-10 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; unset var(1); info exists var(1)"
+test th1-info-exists-11 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; unset var; info exists var(1)"
+test th1-info-exists-12 {$RESULT eq {0}}
+
+###############################################################################
+
 fossil test-th-eval "set var 1; unset var"
 test th1-unset-1 {$RESULT eq {var}}
 
@@ -154,3 +184,8 @@ test th1-unset-2 {$RESULT eq {TH_ERROR: no such variable: var}}
 
 fossil test-th-eval "set var 1; unset var; unset var"
 test th1-unset-3 {$RESULT eq {TH_ERROR: no such variable: var}}
+
+###############################################################################
+
+fossil test-th-eval "set gv 1; proc p {} {upvar 1 gv lv; unset lv}; p; unset gv"
+test th1-unset-4 {$RESULT eq {TH_ERROR: no such variable: gv}}
