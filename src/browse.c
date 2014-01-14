@@ -636,27 +636,42 @@ void page_tree(void){
   @ </ul>
   @ </ul></div>
   @ <script>(function(){
-  @ function style(elem, prop){
-  @   return window.getComputedStyle(elem).getPropertyValue(prop);
+  @ function isExpanded(ul){
+  @   var display = window.getComputedStyle(ul).getPropertyValue('display');
+  @   return display!='none';
   @ }
   @
-  @ function toggleAll(tree){
+  @ function toggleDir(a, useInitValue){
+  @   var ul = a.nextSibling;
+  @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
+  @   if( !ul ) return false; /* This is a file link, not a directory */
+  @   if( !useInitValue ) expandMap[a.id] = !isExpanded(ul);
+  @   ul.style.display = expandMap[a.id] ? 'block' : 'none';
+  @   return true;
+  @ }
+  @
+  @ function toggleAll(tree, useInitValue){
   @   var lists = tree.querySelectorAll('.subdir > ul > li ul');
-  @   var display = 'block';  /* Default action: make all sublists visible */
-  @   for( var i=0; lists[i]; i++ ){
-  @     if( style(lists[i], 'display')!='none'){
-  @       display = 'none'; /* Any already visible - make them all hidden */
-  @       break;
+  @   if( !useInitValue ){
+  @     expand = true;  /* Default action: make all sublists visible */
+  @     for( var i=0; lists[i]; i++ ){
+  @       if( isExpanded(lists[i]) ){
+  @         expand = false; /* Any already visible - make them all hidden */
+  @         break;
+  @       }
   @     }
+  @     expandMap = {'*': expand};
   @   }
+  @   var display = expandMap['*'] ? 'block' : 'none';
   @   for( var i=0; lists[i]; i++ ){
   @     lists[i].style.display = display;
   @   }
   @ }
-  @ 
+  @
+  @ var expandMap;
   @ var outer_ul = document.querySelector('.filetree > ul');
   @ var subdir = outer_ul.querySelector('.subdir');
-  @ outer_ul.onclick = function( e ){
+  @ outer_ul.onclick = function(e){
   @   var a = e.target;
   @   if( a.nodeName!='A' ) return true;
   @   if( a.parentNode==subdir ){
@@ -664,12 +679,18 @@ void page_tree(void){
   @     return false;
   @   }
   @   if( !subdir.contains(a) ) return true;
-  @   var ul = a.nextSibling;
-  @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
-  @   if( !ul ) return true; /* This is a file link, not a directory */
-  @   ul.style.display = style(ul, 'display')=='none' ? 'block' : 'none';
-  @   return false;
+  @   return !toggleDir(a);
   @ }
+  @ addEventListener('pagehide', function(){
+  @   sessionStorage.setItem('tree-expandMap', JSON.stringify(expandMap));
+  @ });
+  @ addEventListener('pageshow', function(){
+  @   expandMap = JSON.parse(sessionStorage.getItem('tree-expandMap')) || {};
+  @   if( expandMap['*'] ) toggleAll(outer_ul, true);
+  @   for( var id in expandMap ){
+  @     if( id!=='*' ) toggleDir(gebi(id), true);
+  @   }
+  @ });
   @ }())</script>
   style_footer();
 
