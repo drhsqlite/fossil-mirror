@@ -1013,7 +1013,8 @@ void Th_FossilInit(u32 flags){
       th_register_language(g.interp);     /* Basic scripting commands. */
     }
 #ifdef FOSSIL_ENABLE_TCL
-    if( forceTcl || getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
+    if( forceTcl || fossil_getenv("TH1_ENABLE_TCL")!=0 ||
+        db_get_boolean("tcl", 0) ){
       if( !g.tcl.setup ){
         g.tcl.setup = db_get("tcl-setup", 0); /* Grab Tcl setup script. */
       }
