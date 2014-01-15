@@ -420,6 +420,7 @@ void page_tree(void){
   HQuery sURI;             /* Hyperlink */
   int startExpanded;       /* True to start out with the tree expanded */
   int showDirOnly;         /* Show directories only.  Omit files */
+  int nDir = 0;            /* Number of directories. Used for ID attributes */
   char *zProjectName = db_get("project-name", 0);
 
   if( strcmp(PD("type",""),"flat")==0 ){ page_dir(); return; }
@@ -604,7 +605,7 @@ void page_tree(void){
   }
   @ %z(href("%s",url_render(&sURI,"name",0,0,0)))%h(zProjectName)</a>
   @ <ul>
-  for(p=sTree.pFirst; p; p=p->pNext){
+  for(p=sTree.pFirst, nDir=0; p; p=p->pNext){
     if( p->isDir ){
       if( p->nFullName==nD-1 ){
         @ <li class="dir subdir">
@@ -613,10 +614,11 @@ void page_tree(void){
       }
       @ %z(href("%s",url_render(&sURI,"name",p->zFullName,0,0)))%h(p->zName)</a>
       if( startExpanded || p->nFullName<=nD ){
-        @ <ul>
+        @ <ul id="dir%d(nDir)">
       }else{
-        @ <ul style='display:none;'>
+        @ <ul id="dir%d(nDir)" style='display:none;'>
       }
+      nDir++;
     }else if( !showDirOnly ){
       char *zLink;
       if( zCI ){
@@ -636,27 +638,53 @@ void page_tree(void){
   @ </ul>
   @ </ul></div>
   @ <script>(function(){
-  @ function style(elem, prop){
-  @   return window.getComputedStyle(elem).getPropertyValue(prop);
+  @ function isExpanded(ul){
+  @   var display = window.getComputedStyle(ul).getPropertyValue('display');
+  @   return display!='none';
   @ }
   @
-  @ function toggleAll(tree){
-  @   var lists = tree.querySelectorAll('.subdir > ul > li ul');
-  @   var display = 'block';  /* Default action: make all sublists visible */
-  @   for( var i=0; lists[i]; i++ ){
-  @     if( style(lists[i], 'display')!='none'){
-  @       display = 'none'; /* Any already visible - make them all hidden */
-  @       break;
-  @     }
+  @ function toggleDir(ul, useInitValue){
+  @   if( !useInitValue ){
+  @     expandMap[ul.id] = !isExpanded(ul);
+  @     history.replaceState(expandMap, '');
   @   }
+  @   ul.style.display = expandMap[ul.id] ? 'block' : 'none';
+  @ }
+  @
+  @ function toggleAll(tree, useInitValue){
+  @   var lists = tree.querySelectorAll('.subdir > ul > li ul');
+  @   if( !useInitValue ){
+  @     var expand = true;  /* Default action: make all sublists visible */
+  @     for( var i=0; lists[i]; i++ ){
+  @       if( isExpanded(lists[i]) ){
+  @         expand = false; /* Any already visible - make them all hidden */
+  @         break;
+  @       }
+  @     }
+  @     expandMap = {'*': expand};
+  @     history.replaceState(expandMap, '');
+  @   }
+  @   var display = expandMap['*'] ? 'block' : 'none';
   @   for( var i=0; lists[i]; i++ ){
   @     lists[i].style.display = display;
   @   }
   @ }
-  @ 
+  @
+  @ function checkState(){
+  @   expandMap = history.state || {};
+  @   if( expandMap['*'] ) toggleAll(outer_ul, true);
+  @   for( var id in expandMap ){
+  @     if( id!=='*' ) toggleDir(gebi(id), true);
+  @   }
+  @ }
+  @
+  @ /* No-op shim for IE9 */
+  @ if( !history.replaceState ) history.replaceState = function(){};
   @ var outer_ul = document.querySelector('.filetree > ul');
   @ var subdir = outer_ul.querySelector('.subdir');
-  @ outer_ul.onclick = function( e ){
+  @ var expandMap = {};
+  @ checkState();
+  @ outer_ul.onclick = function(e){
   @   var a = e.target;
   @   if( a.nodeName!='A' ) return true;
   @   if( a.parentNode==subdir ){
@@ -667,7 +695,7 @@ void page_tree(void){
   @   var ul = a.nextSibling;
   @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
   @   if( !ul ) return true; /* This is a file link, not a directory */
-  @   ul.style.display = style(ul, 'display')=='none' ? 'block' : 'none';
+  @   toggleDir(ul);
   @   return false;
   @ }
   @ }())</script>
