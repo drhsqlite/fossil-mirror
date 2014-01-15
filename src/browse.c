@@ -654,7 +654,7 @@ void page_tree(void){
   @ function toggleAll(tree, useInitValue){
   @   var lists = tree.querySelectorAll('.subdir > ul > li ul');
   @   if( !useInitValue ){
-  @     expand = true;  /* Default action: make all sublists visible */
+  @     var expand = true;  /* Default action: make all sublists visible */
   @     for( var i=0; lists[i]; i++ ){
   @       if( isExpanded(lists[i]) ){
   @         expand = false; /* Any already visible - make them all hidden */
