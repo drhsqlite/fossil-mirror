@@ -420,6 +420,7 @@ void page_tree(void){
   HQuery sURI;             /* Hyperlink */
   int startExpanded;       /* True to start out with the tree expanded */
   int showDirOnly;         /* Show directories only.  Omit files */
+  int nDir = 0;            /* Number of directories. Used for ID attributes */
   char *zProjectName = db_get("project-name", 0);
 
   if( strcmp(PD("type",""),"flat")==0 ){ page_dir(); return; }
@@ -604,7 +605,7 @@ void page_tree(void){
   }
   @ %z(href("%s",url_render(&sURI,"name",0,0,0)))%h(zProjectName)</a>
   @ <ul>
-  for(p=sTree.pFirst; p; p=p->pNext){
+  for(p=sTree.pFirst, nDir=0; p; p=p->pNext){
     if( p->isDir ){
       if( p->nFullName==nD-1 ){
         @ <li class="dir subdir">
@@ -613,10 +614,11 @@ void page_tree(void){
       }
       @ %z(href("%s",url_render(&sURI,"name",p->zFullName,0,0)))%h(p->zName)</a>
       if( startExpanded || p->nFullName<=nD ){
-        @ <ul>
+        @ <ul id="dir%d(nDir)">
       }else{
-        @ <ul style='display:none;'>
+        @ <ul id="dir%d(nDir)" style='display:none;'>
       }
+      nDir++;
     }else if( !showDirOnly ){
       char *zLink;
       if( zCI ){
@@ -641,16 +643,12 @@ void page_tree(void){
   @   return display!='none';
   @ }
   @
-  @ function toggleDir(a, useInitValue){
-  @   var ul = a.nextSibling;
-  @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
-  @   if( !ul ) return false; /* This is a file link, not a directory */
+  @ function toggleDir(ul, useInitValue){
   @   if( !useInitValue ){
-  @     expandMap[a.id] = !isExpanded(ul);
+  @     expandMap[ul.id] = !isExpanded(ul);
   @     history.replaceState(expandMap, '');
   @   }
-  @   ul.style.display = expandMap[a.id] ? 'block' : 'none';
-  @   return true;
+  @   ul.style.display = expandMap[ul.id] ? 'block' : 'none';
   @ }
   @
   @ function toggleAll(tree, useInitValue){
@@ -694,7 +692,11 @@ void page_tree(void){
   @     return false;
   @   }
   @   if( !subdir.contains(a) ) return true;
-  @   return !toggleDir(a);
+  @   var ul = a.nextSibling;
+  @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
+  @   if( !ul ) return true; /* This is a file link, not a directory */
+  @   toggleDir(ul);
+  @   return false;
   @ }
   @ }())</script>
   style_footer();

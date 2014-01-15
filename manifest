@@ -1,5 +1,5 @@
-C Use\shistory\sAPI\sinstead\sof\ssessionStorage.
-D 2014-01-15T00:15:51.689
+C Add\sID\sattribute\sto\ssubdirectory\slists.
+D 2014-01-15T01:26:42.574
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -315,7 +315,7 @@ F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 9eef1e8551df42bdee81aef68359e65985c6c8b9
 F src/blob.c a3c51c2a61105a72fa29c2a0fd159975a7ce3008
 F src/branch.c 18a789dda16d8d12ff634ec8dd12a7d4da2e023a
-F src/browse.c e9065ef740ce48047a9a274bec039176af7dfd56
+F src/browse.c a509a106e956b3ef9987d41e744f9f677b715f1e
 F src/captcha.c 2c855a6f943b546b855eabe58f1388d677d5ea73
 F src/cgi.c 063a9bf9ea11962c896c1bd9ff86afdcbbb0ba31
 F src/checkin.c 8bc9d8943881b706f1d07a01ca3f6e126811dfb9
@@ -640,7 +640,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3bdbc0408f559e736e262be2c756129b1c27369b
-R 9e3c2482fd6eb3c5e3253ca0f277b4b7
+P 434e4538bc95f423804c4e6af1bfeb8a40644b07
+R 45cfb616fb896f5a1dc904edb565f25a
 U joel
-Z 37222c6aabc2c2d48c6c5a992c476ac7
+Z cea508d6b86c3fbf0426656902e76fb1
