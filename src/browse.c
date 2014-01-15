@@ -645,7 +645,10 @@ void page_tree(void){
   @   var ul = a.nextSibling;
   @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
   @   if( !ul ) return false; /* This is a file link, not a directory */
-  @   if( !useInitValue ) expandMap[a.id] = !isExpanded(ul);
+  @   if( !useInitValue ){
+  @     expandMap[a.id] = !isExpanded(ul);
+  @     history.replaceState(expandMap, '');
+  @   }
   @   ul.style.display = expandMap[a.id] ? 'block' : 'none';
   @   return true;
   @ }
@@ -661,6 +664,7 @@ void page_tree(void){
   @       }
   @     }
   @     expandMap = {'*': expand};
+  @     history.replaceState(expandMap, '');
   @   }
   @   var display = expandMap['*'] ? 'block' : 'none';
   @   for( var i=0; lists[i]; i++ ){
@@ -668,9 +672,20 @@ void page_tree(void){
   @   }
   @ }
   @
-  @ var expandMap = {};
+  @ function checkState(){
+  @   expandMap = history.state || {};
+  @   if( expandMap['*'] ) toggleAll(outer_ul, true);
+  @   for( var id in expandMap ){
+  @     if( id!=='*' ) toggleDir(gebi(id), true);
+  @   }
+  @ }
+  @
+  @ /* No-op shim for IE9 */
+  @ if( !history.replaceState ) history.replaceState = function(){};
   @ var outer_ul = document.querySelector('.filetree > ul');
   @ var subdir = outer_ul.querySelector('.subdir');
+  @ var expandMap = {};
+  @ checkState();
   @ outer_ul.onclick = function(e){
   @   var a = e.target;
   @   if( a.nodeName!='A' ) return true;
@@ -681,16 +696,6 @@ void page_tree(void){
   @   if( !subdir.contains(a) ) return true;
   @   return !toggleDir(a);
   @ }
-  @ addEventListener('pagehide', function(){
-  @   sessionStorage.setItem('tree-expandMap', JSON.stringify(expandMap));
-  @ });
-  @ addEventListener('pageshow', function(){
-  @   expandMap = JSON.parse(sessionStorage.getItem('tree-expandMap')) || {};
-  @   if( expandMap['*'] ) toggleAll(outer_ul, true);
-  @   for( var id in expandMap ){
-  @     if( id!=='*' ) toggleDir(gebi(id), true);
-  @   }
-  @ });
   @ }())</script>
   style_footer();
 
