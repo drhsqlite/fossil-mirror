@@ -1542,11 +1542,13 @@ int manifest_crosslink_end(int flags){
   }
   db_finalize(&q);
   db_finalize(&u);
-  db_multi_exec(
-    "UPDATE event SET mtime=(SELECT m1 FROM time_fudge WHERE mid=objid)"
-    " WHERE objid IN (SELECT mid FROM time_fudge);"
-    "DROP TABLE time_fudge;"
-  );
+  if( db_exists("SELECT 1 FROM time_fudge") ){
+    db_multi_exec(
+      "UPDATE event SET mtime=(SELECT m1 FROM time_fudge WHERE mid=objid)"
+      " WHERE objid IN (SELECT mid FROM time_fudge);"
+    );
+  }
+  db_multi_exec("DROP TABLE time_fudge;");
 
   db_end_transaction(0);
   manifest_crosslink_busy = 0;
