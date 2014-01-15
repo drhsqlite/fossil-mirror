@@ -1340,7 +1340,7 @@ int Th_UnsetVar(Th_Interp *interp, const char *zVar, int nVar){
     }
   }
   if( !find.zElem ){
-    thFindValue(interp, zVar, nVar, -1, 1, 1, 0);
+    Th_HashFind(interp, interp->pFrame->paVar, zVar, nVar, -1);
   }
   return rc;
 }
