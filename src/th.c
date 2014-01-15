@@ -1061,7 +1061,7 @@ static int thAnalyseVarname(
 
 struct Find {
   Th_HashEntry *pValueEntry; /* Pointer to the scalar or array hash entry */
-  Th_HashEntry *pElemEntry;  /* Pointer to the element hash entry, if any */
+  Th_HashEntry *pElemEntry;  /* Pointer to array element hash entry, if any */
   const char *zElem;         /* Name of array element, if applicable */
   int nElem;                 /* Length of array element name, if applicable */
 };
