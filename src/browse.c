@@ -678,7 +678,15 @@ void page_tree(void){
   @   }
   @ }
   @
-  @ /* No-op shim for IE9 */
+  @ function belowSubdir(node){
+  @   do{
+  @     node = node.parentNode;
+  @     if( node==subdir ) return true;
+  @   } while( node && node!=outer_ul );
+  @   return false;
+  @ }
+  @
+  @ var history = window.history || {};
   @ if( !history.replaceState ) history.replaceState = function(){};
   @ var outer_ul = document.querySelector('.filetree > ul');
   @ var subdir = outer_ul.querySelector('.subdir');
@@ -691,7 +699,7 @@ void page_tree(void){
   @     toggleAll(outer_ul);
   @     return false;
   @   }
-  @   if( !subdir.contains(a) ) return true;
+  @   if( !belowSubdir(a) ) return true;
   @   var ul = a.nextSibling;
   @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
   @   if( !ul ) return true; /* This is a file link, not a directory */
