@@ -618,7 +618,7 @@ void page_tree(void){
       }
       nDir++;
     }else if( !showDirOnly ){
-      char *zFileClass = fileext_class(p->zName);
+      const char *zFileClass = fileext_class(p->zName);
       char *zLink;
       if( zCI ){
         zLink = href("%R/artifact/%S",p->zUuid);
