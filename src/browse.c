@@ -693,7 +693,7 @@ void page_tree(void){
   @     toggleAll(outer_ul);
   @     return false;
   @   }
-  @   if( !subdir.contains(a) ) return true;
+  @   if( !subdir || !subdir.contains || !subdir.contains(a) ) return true;
   @   var ul = a.nextSibling;
   @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
   @   if( !ul ) return true; /* This is a file link, not a directory */
