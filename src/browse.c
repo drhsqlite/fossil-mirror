@@ -639,7 +639,8 @@ void page_tree(void){
   @ </ul></div>
   @ <script>(function(){
   @ function isExpanded(ul){
-  @   var display = window.getComputedStyle(ul).getPropertyValue('display');
+  @   var ulStyle = window.getComputedStyle && window.getComputedStyle(ul,null);
+  @   var display = (ulStyle && ulStyle.getPropertyValue('display')) || 'none';
   @   return display!='none';
   @ }
   @
