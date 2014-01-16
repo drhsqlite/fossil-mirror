@@ -646,7 +646,9 @@ void page_tree(void){
   @ function toggleDir(ul, useInitValue){
   @   if( !useInitValue ){
   @     expandMap[ul.id] = !isExpanded(ul);
-  @     history.replaceState(expandMap, '');
+  @     if( history && history.replaceState ){
+  @       history.replaceState(expandMap, '');
+  @     }
   @   }
   @   ul.style.display = expandMap[ul.id] ? 'block' : 'none';
   @ }
@@ -662,7 +664,9 @@ void page_tree(void){
   @       }
   @     }
   @     expandMap = {'*': expand};
-  @     history.replaceState(expandMap, '');
+  @     if( history && history.replaceState ){
+  @       history.replaceState(expandMap, '');
+  @     }
   @   }
   @   var display = expandMap['*'] ? 'block' : 'none';
   @   for( var i=0; lists[i]; i++ ){
@@ -671,15 +675,13 @@ void page_tree(void){
   @ }
   @
   @ function checkState(){
-  @   expandMap = history.state || {};
+  @   expandMap = (history && history.state) || {};
   @   if( expandMap['*'] ) toggleAll(outer_ul, true);
   @   for( var id in expandMap ){
   @     if( id!=='*' ) toggleDir(gebi(id), true);
   @   }
   @ }
   @
-  @ /* No-op shim for IE9 */
-  @ if( !history.replaceState ) history.replaceState = function(){};
   @ var outer_ul = document.querySelector('.filetree > ul');
   @ var subdir = outer_ul.querySelector('.subdir');
   @ var expandMap = {};
