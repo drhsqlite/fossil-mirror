@@ -25,6 +25,10 @@
 #include <windows.h>
 #include "winfile.h"
 
+#ifndef LABEL_SECURITY_INFORMATION
+#   define LABEL_SECURITY_INFORMATION (0x00000010L)
+#endif
+
 /*
 ** Fill stat buf with information received from stat() or lstat().
 ** lstat() is called on Unix if isWd is TRUE and allow-symlinks setting is on.

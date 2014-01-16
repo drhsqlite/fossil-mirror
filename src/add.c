@@ -273,6 +273,11 @@ void add_cmd(void){
     int isDir;
     Blob fullName;
 
+    /* file_tree_name() throws a fatal error if g.argv[i] is outside of the
+    ** checkout. */
+    file_tree_name(g.argv[i], &fullName, 1);
+    blob_reset(&fullName);
+
     file_canonical_name(g.argv[i], &fullName, 0);
     zName = blob_str(&fullName);
     isDir = file_wd_isdir(zName);

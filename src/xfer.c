@@ -854,21 +854,21 @@ const char *xfer_ticket_code(void){
 ** Run the specified TH1 script, if any, and returns 1 on error.
 */
 int xfer_run_script(const char *zScript, const char *zUuid){
-  int result;
+  int rc;
   if( !zScript ) return TH_OK;
   Th_FossilInit(TH_INIT_DEFAULT);
   if( zUuid ){
-    result = Th_SetVar(g.interp, "uuid", -1, zUuid, -1);
-    if( result!=TH_OK ){
+    rc = Th_SetVar(g.interp, "uuid", -1, zUuid, -1);
+    if( rc!=TH_OK ){
       fossil_error(1, "%s", Th_GetResult(g.interp, 0));
-      return result;
+      return rc;
     }
   }
-  result = Th_Eval(g.interp, 0, zScript, -1);
-  if( result!=TH_OK ){
+  rc = Th_Eval(g.interp, 0, zScript, -1);
+  if( rc!=TH_OK ){
     fossil_error(1, "%s", Th_GetResult(g.interp, 0));
   }
-  return result;
+  return rc;
 }
 
 /*
@@ -883,7 +883,6 @@ int xfer_run_script(const char *zScript, const char *zUuid){
 ** }
 */
 int xfer_run_common_script(void){
-  Th_FossilInit(TH_INIT_DEFAULT);
   return xfer_run_script(xfer_common_code(), 0);
 }
 
@@ -917,7 +916,7 @@ void page_xfer(void){
   int size;
   int recvConfig = 0;
   char *zNow;
-  int result;
+  int rc;
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -947,8 +946,8 @@ void page_xfer(void){
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
   manifest_crosslink_begin();
-  result = xfer_run_common_script();
-  if( result==TH_ERROR ){
+  rc = xfer_run_common_script();
+  if( rc==TH_ERROR ){
     cgi_reset_content();
     @ error common\sscript\sfailed:\s%F(g.zErrMsg)
     nErr++;
@@ -1275,9 +1274,9 @@ void page_xfer(void){
     blob_reset(&xfer.line);
   }
   if( isPush ){
-    if( result==TH_OK ){
-      result = xfer_run_script(xfer_push_code(), 0);
-      if( result==TH_ERROR ){
+    if( rc==TH_OK ){
+      rc = xfer_run_script(xfer_push_code(), 0);
+      if( rc==TH_ERROR ){
         cgi_reset_content();
         @ error push\sscript\sfailed:\s%F(g.zErrMsg)
         nErr++;
@@ -1304,7 +1303,7 @@ void page_xfer(void){
     configure_finalize_receive();
   }
   db_multi_exec("DROP TABLE onremote");
-  manifest_crosslink_end();
+  manifest_crosslink_end(MC_PERMIT_HOOKS);
 
   /* Send the server timestamp last, in case prior processing happened
   ** to use up a significant fraction of our time window.
@@ -1931,7 +1930,7 @@ int client_sync(
   transport_close(GLOBAL_URL());
   transport_global_shutdown(GLOBAL_URL());
   db_multi_exec("DROP TABLE onremote");
-  manifest_crosslink_end();
+  manifest_crosslink_end(MC_PERMIT_HOOKS);
   content_enable_dephantomize(1);
   db_end_transaction(0);
   return nErr;

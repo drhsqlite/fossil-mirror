@@ -34,6 +34,24 @@
      repository.
   *  Fossil now hides check-ins that have the "hidden" tag in timeline webpages.
   *  Enhance <tt>/ci_edit</tt> page to add the "hidden" tag to check-ins.
+  *  Advanced possibilities for commit and ticket change notifications over
+     http using TH1 scripting.
+  *  Add --sha1sum and --integrate options 
+     to the "[/help?cmd=commit | fossil commit]" command.
+  *  Add the "clean" and "extra" subcommands to the 
+     "[/help?cmd=all | fossil all]" command
+  *  Add the --whatif option to "[/help?cmd=clean|fossil clean]" that works the
+     same as "--dry-run",
+     so that the name does not collide with the --dry-run option of "fossil all".
+  *  Provide a configuration option to show dates on the web timeline
+     as "YYMMMDD HH:MM"
+  *  Add an option to the "stats" webpage that allows an administrator to see
+     the current repository schema.
+  *  Enhancements to the "[/help?cmd=/vdiff|/vdiff]" webpage for more difference 
+     display options.
+  *  Added the "[/tree?ci=trunk&expand | /tree]" webpage as an alternative
+     to "/dir" and make it the default way of showing file lists.
+  *  Send gzipped HTTP responses to clients that support it.
 
 <h2>Changes For Version 1.27 (2013-09-11)</h2>
   *  Enhance the [/help?cmd=changes | fossil changes],

@@ -86,8 +86,8 @@ ZLIBDIR = $(SRCDIR)/../compat/zlib
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1e/include
-OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1e
+OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1f/include
+OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1f
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -1700,8 +1700,7 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h  $(SRCDIR)/config.h
 
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 
-SQLITE_OPTIONS = -Dlocaltime=fossil_localtime \
-                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+SQLITE_OPTIONS = -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_THREADSAFE=0 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
@@ -1713,11 +1712,10 @@ SQLITE_OPTIONS = -Dlocaltime=fossil_localtime \
 
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
-                -Dsqlite3_strglob=strglob \
                 -Dgetenv=fossil_getenv \
                 -Dfopen=fossil_fopen
 
-$(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
+$(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c win/Makefile.mingw
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
 
 $(OBJDIR)/cson_amalgamation.o:	$(SRCDIR)/cson_amalgamation.c
@@ -1725,7 +1723,7 @@ $(OBJDIR)/cson_amalgamation.o:	$(SRCDIR)/cson_amalgamation.c
 
 $(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/json_config.o $(OBJDIR)/json_diff.o $(OBJDIR)/json_dir.o $(OBJDIR)/jsos_finfo.o $(OBJDIR)/json_login.o $(OBJDIR)/json_query.o $(OBJDIR)/json_report.o $(OBJDIR)/json_status.o $(OBJDIR)/json_tag.o $(OBJDIR)/json_timeline.o $(OBJDIR)/json_user.o $(OBJDIR)/json_wiki.o : $(SRCDIR)/json_detail.h
 
-$(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
+$(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h win/Makefile.mingw
 	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c

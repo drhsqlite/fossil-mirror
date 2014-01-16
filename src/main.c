@@ -379,6 +379,16 @@ static void fossil_atexit(void) {
   if(g.db){
     db_close(0);
   }
+  /*
+  ** FIXME: The next two lines cannot always be enabled; however, they
+  **        are very useful for tracking down TH1 memory leaks.
+  */
+  if( fossil_getenv("TH1_DELETE_INTERP")!=0 ){
+    if( g.interp ){
+      Th_DeleteInterp(g.interp); g.interp = 0;
+    }
+    assert( Th_GetOutstandingMalloc()==0 );
+  }
 }
 
 /*
@@ -561,6 +571,10 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
+  if( sqlite3_libversion_number()<3008002 ){
+    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.8.2",
+                 sqlite3_libversion());
+  }
   sqlite3_config(SQLITE_CONFIG_SINGLETHREAD);
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
@@ -1073,6 +1087,36 @@ void help_page(void){
         @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z+1)</a></li>
       }else{
         @ <li>%s(z+1)</li>
+      }
+      j++;
+      if( j>=n ){
+        @ </ul></td>
+        j = 0;
+      }
+    }
+    if( j>0 ){
+      @ </ul></td>
+    }
+    @ </tr></table>
+
+    @ <h1>Unsupported commands:</h1>
+    @ <table border="0"><tr>
+    for(i=j=0; i<count(aCommand); i++){
+      const char *z = aCommand[i].zName;
+      if( strncmp(z,"test",4)!=0 ) continue;
+      j++;
+    }
+    n = (j+3)/4;
+    for(i=j=0; i<count(aCommand); i++){
+      const char *z = aCommand[i].zName;
+      if( strncmp(z,"test",4)!=0 ) continue;
+      if( j==0 ){
+        @ <td valign="top"><ul>
+      }
+      if( aCmdHelp[i].zText && *aCmdHelp[i].zText ){
+        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a></li>
+      }else{
+        @ <li>%s(z)</li>
       }
       j++;
       if( j>=n ){

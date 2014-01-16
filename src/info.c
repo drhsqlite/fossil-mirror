@@ -232,11 +232,11 @@ static void showTags(int rid, const char *zNotGlob){
   db_prepare(&q,
     "SELECT tag.tagid, tagname, "
     "       (SELECT uuid FROM blob WHERE rid=tagxref.srcid AND rid!=%d),"
-    "       value, datetime(tagxref.mtime,'localtime'), tagtype,"
+    "       value, datetime(tagxref.mtime%s), tagtype,"
     "       (SELECT uuid FROM blob WHERE rid=tagxref.origid AND rid!=%d)"
     "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
     " WHERE tagxref.rid=%d AND tagname NOT GLOB '%q'"
-    " ORDER BY tagname /*sort*/", rid, rid, rid, zNotGlob
+    " ORDER BY tagname /*sort*/", rid, timeline_utc(), rid, rid, zNotGlob
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagname = db_column_text(&q, 1);
@@ -505,12 +505,12 @@ void ci_page(void){
   );
   isLeaf = is_a_leaf(rid);
   db_prepare(&q1,
-     "SELECT uuid, datetime(mtime, 'localtime'), user, comment,"
-     "       datetime(omtime, 'localtime'), mtime"
+     "SELECT uuid, datetime(mtime%s), user, comment,"
+     "       datetime(omtime%s), mtime"
      "  FROM blob, event"
      " WHERE blob.rid=%d"
      "   AND event.objid=%d",
-     rid, rid
+     timeline_utc(), timeline_utc(), rid, rid
   );
   sideBySide = !is_false(PD("sbs","1"));
   if( db_step(&q1)==SQLITE_ROW ){
@@ -612,7 +612,7 @@ void ci_page(void){
                      "   AND +tag.tagname GLOB 'sym-*'", rid);
       while( db_step(&q2)==SQLITE_ROW ){
         const char *zTagName = db_column_text(&q2, 0);
-        @  | %z(href("%R/timeline?r=%T",zTagName))%h(zTagName)</a>
+        @  | %z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
       }
       db_finalize(&q2);
 
@@ -631,8 +631,9 @@ void ci_page(void){
       @ </td></tr>
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      @     %z(href("%R/dir?ci=%S",zUuid))files</a>
+      @     %z(href("%R/tree?ci=%S",zUuid))files</a>
       @   | %z(href("%R/fileage?name=%S",zUuid))file ages</a>
+      @   | %z(href("%R/tree?ci=%S&nofiles",zUuid))folders</a>
       @   | %z(href("%R/artifact/%S",zUuid))manifest</a>
       if( g.perm.Write ){
         @   | %z(href("%R/ci_edit?r=%S",zUuid))edit</a>
@@ -1369,6 +1370,7 @@ void diff_page(void){
 */
 void rawartifact_page(void){
   int rid;
+  char *zUuid;
   const char *zMime;
   Blob content;
 
@@ -1376,6 +1378,11 @@ void rawartifact_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   if( rid==0 ) fossil_redirect_home();
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  if( fossil_strcmp(P("name"), zUuid)==0 ){
+    g.isConst = 1;
+  }
+  free(zUuid);
   zMime = P("m");
   if( zMime==0 ){
     char *zFName = db_text(0, "SELECT filename.name FROM mlink, filename"
@@ -1676,12 +1683,12 @@ void artifact_page(void){
     @ </iframe>
   }else{
     style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
+    blob_to_utf8_no_bom(&content, 0);
     zMime = mimetype_from_content(&content);
     @ <blockquote>
     if( zMime==0 ){
       const char *zLn = P("ln");
       const char *z;
-      blob_to_utf8_no_bom(&content, 0);
       z = blob_str(&content);
       if( zLn ){
         output_text_with_line_numbers(z, zLn);

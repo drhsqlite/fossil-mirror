@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.3"
 #define SQLITE_VERSION_NUMBER 3008003
-#define SQLITE_SOURCE_ID      "2013-12-23 11:33:32 25b8a1c9ba77df3b7c78cbce922cb593d661696d"
+#define SQLITE_SOURCE_ID      "2014-01-04 15:17:04 4e725f53131d3584319c710c8710a068989543c6"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2400,11 +2400,13 @@ SQLITE_API sqlite3_int64 sqlite3_memory_highwater(int resetFlag);
 ** applications to access the same PRNG for other purposes.
 **
 ** ^A call to this routine stores N bytes of randomness into buffer P.
+** ^If N is less than one, then P can be a NULL pointer.
 **
-** ^The first time this routine is invoked (either internally or by
-** the application) the PRNG is seeded using randomness obtained
-** from the xRandomness method of the default [sqlite3_vfs] object.
-** ^On all subsequent invocations, the pseudo-randomness is generated
+** ^If this routine has not been previously called or if the previous
+** call had N less than one, then the PRNG is seeded using randomness
+** obtained from the xRandomness method of the default [sqlite3_vfs] object.
+** ^If the previous call to this routine had an N of 1 or more then
+** the pseudo-randomness is generated
 ** internally and without recourse to the [sqlite3_vfs] xRandomness
 ** method.
 */

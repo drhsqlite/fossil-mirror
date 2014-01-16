@@ -378,8 +378,7 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
 # Setup the options used to compile the included SQLite library.
-SQLITE_OPTIONS = -Dlocaltime=fossil_localtime \
-                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+SQLITE_OPTIONS = -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_THREADSAFE=0 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
@@ -388,15 +387,14 @@ SQLITE_OPTIONS = -Dlocaltime=fossil_localtime \
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
-                -DSQLITE_OMIT_LOAD_EXTENSION=1 \
-                -Dsqlite3_strglob=strglob
+                -DSQLITE_OMIT_LOAD_EXTENSION=1
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system sqlite will be linked
 # using -lsqlite3.
 SQLITE3_OBJ.1 = 
-SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o $(OBJDIR)/shell.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 # The FOSSIL_ENABLE_TCL variable may be undefined, set to 0, or set to 1.
@@ -406,7 +404,7 @@ TCL_OBJ.0 =
 TCL_OBJ.1 = $(OBJDIR)/th_tcl.o
 TCL_OBJ. = $(TCL_OBJ.0)
 
-EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(TCL_OBJ.$(FOSSIL_ENABLE_TCL))  $(OBJDIR)/cson_amalgamation.o
+EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(TCL_OBJ.$(FOSSIL_ENABLE_TCL))  $(OBJDIR)/cson_amalgamation.o
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)

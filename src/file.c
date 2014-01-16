@@ -705,7 +705,7 @@ int file_simplify_name(char *z, int n, int slash){
     if( j>=0 ) z[j] = z[i];
     j++;
   }
-  if( j==0 ) z[j++] = '.';
+  if( j==0 ) z[j++] = '/';
   z[j] = 0;
   return j;
 }
@@ -779,35 +779,36 @@ int file_is_absolute_path(const char *zPath){
 ** is retained.
 */
 void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
+  blob_zero(pOut);
   if( file_is_absolute_path(zOrigName) ){
+    blob_appendf(pOut, "%/", zOrigName);
+  }else{
+    char zPwd[2000];
+    file_getcwd(zPwd, sizeof(zPwd)-strlen(zOrigName));
+    if( zPwd[0]=='/' && strlen(zPwd)==1 ){
+      /* when on '/', don't add an extra '/' */
+      if( zOrigName[0]=='.' && strlen(zOrigName)==1 ){
+        /* '.' when on '/' mean '/' */
+        blob_appendf(pOut, "%/", zPwd);
+      }else{
+        blob_appendf(pOut, "%/%/", zPwd, zOrigName);
+      }
+    }else{
+      blob_appendf(pOut, "%//%/", zPwd, zOrigName);
+    }
+  }
 #if defined(_WIN32) || defined(__CYGWIN__)
+  {
     char *zOut;
-#endif
-    blob_set(pOut, zOrigName);
-    blob_materialize(pOut);
-#if defined(_WIN32) || defined(__CYGWIN__)
     /*
     ** On Windows/cygwin, normalize the drive letter to upper case.
     */
     zOut = blob_str(pOut);
-    if( fossil_islower(zOut[0]) && zOut[1]==':' ){
+    if( fossil_islower(zOut[0]) && zOut[1]==':' && zOut[2]=='/' ){
       zOut[0] = fossil_toupper(zOut[0]);
     }
-#endif
-  }else{
-    char zPwd[2000];
-    file_getcwd(zPwd, sizeof(zPwd)-strlen(zOrigName));
-#if defined(_WIN32)
-    /*
-    ** On Windows, normalize the drive letter to upper case.
-    */
-    if( fossil_islower(zPwd[0]) && zPwd[1]==':' ){
-      zPwd[0] = fossil_toupper(zPwd[0]);
-    }
-#endif
-    blob_zero(pOut);
-    blob_appendf(pOut, "%//%/", zPwd, zOrigName);
   }
+#endif
   blob_resize(pOut, file_simplify_name(blob_buffer(pOut),
                                        blob_size(pOut), slash));
 }
@@ -930,7 +931,12 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
       return;
     }
     while( zPath[i-1]!='/' ){ i--; }
-    blob_set(&tmp, "../");
+    if( zPwd[0]=='/' && strlen(zPwd)==1 ){
+      /* If on '/', don't go to higher level */
+      blob_zero(&tmp);
+    }else{
+      blob_set(&tmp, "../");
+    }
     for(j=i; zPwd[j]; j++){
       if( zPwd[j]=='/' ){
         blob_append(&tmp, "../", 3);
@@ -992,7 +998,8 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
   }
 
   /* Special case.  zOrigName refers to g.zLocalRoot directory. */
-  if( nFull==nLocalRoot-1 && xCmp(zLocalRoot, zFull, nFull)==0 ){
+  if( (nFull==nLocalRoot-1 && xCmp(zLocalRoot, zFull, nFull)==0) 
+      || (nFull==1 && zFull[0]=='/' && nLocalRoot==1 && zLocalRoot[0]=='/') ){
     blob_append(pOut, ".", 1);
     blob_reset(&localRoot);
     blob_reset(&full);

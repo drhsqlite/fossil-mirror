@@ -85,13 +85,13 @@ UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 SQLITESRC=sqlite3.c
 ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
-SQLITEDEFINES=-Dlocaltime=fossil_localtime -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_OMIT_DEPRECATED -DSQLITE_ENABLE_EXPLAIN_COMMENTS
+SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_OMIT_DEPRECATED -DSQLITE_ENABLE_EXPLAIN_COMMENTS
 
 # define the sqlite shell files, which need special flags on compile
 SQLITESHELLSRC=shell.c
 ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
-SQLITESHELLDEFINES=-Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -Dsqlite3_strglob=strglob -Dgetenv=fossil_getenv -Dfopen=fossil_fopen
+SQLITESHELLDEFINES=-Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -Dgetenv=fossil_getenv -Dfopen=fossil_fopen
 
 # define the th scripting files, which need special flags on compile
 THSRC=th.c th_lang.c

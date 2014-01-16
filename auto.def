@@ -31,7 +31,7 @@ cc-check-progs tclsh
 
 define EXTRA_CFLAGS ""
 define EXTRA_LDFLAGS ""
-define USE_SYSTEM_SQLITE ""
+define USE_SYSTEM_SQLITE 0
 
 if {![opt-bool internal-sqlite]} {
   proc find_internal_sqlite {} {

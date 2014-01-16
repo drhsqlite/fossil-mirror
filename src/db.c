@@ -318,6 +318,10 @@ int db_bind_text(Stmt *pStmt, const char *zParamName, const char *zValue){
   return sqlite3_bind_text(pStmt->pStmt, paramIdx(pStmt, zParamName), zValue,
                            -1, SQLITE_STATIC);
 }
+int db_bind_text16(Stmt *pStmt, const char *zParamName, const char *zValue){
+  return sqlite3_bind_text16(pStmt->pStmt, paramIdx(pStmt, zParamName), zValue,
+                             -1, SQLITE_STATIC);
+}
 int db_bind_null(Stmt *pStmt, const char *zParamName){
   return sqlite3_bind_null(pStmt->pStmt, paramIdx(pStmt, zParamName));
 }
@@ -944,14 +948,13 @@ int db_open_local(const char *zDbName){
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
-  if( n==1 && zPwd[0]=='/' ) zPwd[0] = '.';
   while( n>0 ){
     for(i=0; i<count(aDbName); i++){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
         zPwd[n] = 0;
-        while( n>1 && zPwd[n-1]=='/' ){
+        while( n>0 && zPwd[n-1]=='/' ){
           n--;
           zPwd[n] = 0;
         }
@@ -963,8 +966,8 @@ int db_open_local(const char *zDbName){
       }
     }
     n--;
-    while( n>0 && zPwd[n]!='/' ){ n--; }
-    while( n>0 && zPwd[n-1]=='/' ){ n--; }
+    while( n>1 && zPwd[n]!='/' ){ n--; }
+    while( n>1 && zPwd[n-1]=='/' ){ n--; }
     zPwd[n] = 0;
   }
 
