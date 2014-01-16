@@ -1,5 +1,5 @@
-C Since\s[5a66b6e785]\sconversions\sfrom\sUnicode\s(actually:\sUTF-16)\sto\sUTF-8\sare\spossible\son\sUNIX\stoo
-D 2014-01-15T21:41:44.905
+C Fix\stypo\sin\sTH1\s'string\slast'\serror\smessage.
+D 2014-01-16T06:31:06.073
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -411,7 +411,7 @@ F src/tag.c 9d7a7cb5a501246675552fb402b3497fbb8e7d38
 F src/tar.c 4fd4440b5f21e39937739b2f096dd1d72933893f
 F src/th.c 4fb1e7e48c49e84c3d8ccac866a427918d4be407
 F src/th.h 76d19d77764afab95cd30497b88cdc49fc06c605
-F src/th_lang.c b0c4694bcc12b6d74c54d48ff7719ff3493f164a
+F src/th_lang.c fe6fadef9c5b4e2a5be998252a5f77dfa80245d5
 F src/th_main.c e87b1b3b667c73f860fb0ac83c322cedde8a178f
 F src/th_tcl.c cfe4c67242b63fe655699f96b20db5808314813a
 F src/timeline.c 0db5ebc3409d097ad5cac88767422da2b713340e
@@ -640,7 +640,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b4dffdac5e706980d911a0e672526ad461ec0640
-R e264555e931272c2c2924b6ccdcddbec
-U jan.nijtmans
-Z 8aaef1c1bb2727fc79e58ff93ea9b309
+P d0d7ca17a46a083237d54e5d9eb546aeb44f51b1
+R 52ee3225b7692b8404af4f10629b2d6e
+U mistachkin
+Z 064762f0a8ef63958f1db809775cc877

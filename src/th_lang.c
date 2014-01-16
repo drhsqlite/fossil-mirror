@@ -721,7 +721,7 @@ static int string_last_command(
   int iRes = -1;
 
   if( argc!=4 ){
-    return Th_WrongNumArgs(interp, "string first needle haystack");
+    return Th_WrongNumArgs(interp, "string last needle haystack");
   }
 
   zNeedle = argv[2];
