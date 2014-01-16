@@ -1035,12 +1035,14 @@ INCL      = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
 INCL      = $(INCL) -I$(SSLINCDIR)
 !endif
 
-CFLAGS    = -nologo -MT -O2
+CFLAGS    = -nologo
 LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
 
 !ifdef DEBUG
-CFLAGS    = $(CFLAGS) -Zi
+CFLAGS    = $(CFLAGS) -Zi -MTd -Od
 LDFLAGS   = $(LDFLAGS) /DEBUG
+!else
+CFLAGS    = $(CFLAGS) -MT -O2
 !endif
 
 BCC       = $(CC) $(CFLAGS)
@@ -1130,10 +1132,10 @@ mkindex$E: $(SRCDIR)\mkindex.c
 mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
-$(OX)\shell$O : $(SRCDIR)\shell.c Makefile.msc
+$(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
 	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
 
-$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c Makefile.msc
+$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c $B\win\Makefile.msc
 	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SRCDIR)\sqlite3.c
 
 $(OX)\th$O : $(SRCDIR)\th.c

@@ -107,8 +107,8 @@ static int thEndOfLine(const char *, int);
 static int  thPushFrame(Th_Interp*, Th_Frame*);
 static void thPopFrame(Th_Interp*);
 
-static void thFreeVariable(Th_HashEntry*, void*);
-static void thFreeCommand(Th_HashEntry*, void*);
+static int thFreeVariable(Th_HashEntry*, void*);
+static int thFreeCommand(Th_HashEntry*, void*);
 
 /*
 ** The following are used by both the expression and language parsers.
@@ -260,8 +260,10 @@ static int thHexdigit(char c){
 ** reference count reaches 0.
 **
 ** Argument pContext is a pointer to the interpreter structure.
+**
+** Returns non-zero if the Th_Variable was actually freed.
 */
-static void thFreeVariable(Th_HashEntry *pEntry, void *pContext){
+static int thFreeVariable(Th_HashEntry *pEntry, void *pContext){
   Th_Variable *pValue = (Th_Variable *)pEntry->pData;
   pValue->nRef--;
   assert( pValue->nRef>=0 );
@@ -273,7 +275,10 @@ static void thFreeVariable(Th_HashEntry *pEntry, void *pContext){
       Th_HashDelete(interp, pValue->pHash);
     }
     Th_Free(interp, pValue);
+    pEntry->pData = 0;
+    return 1;
   }
+  return 0;
 }
 
 /*
@@ -282,14 +287,17 @@ static void thFreeVariable(Th_HashEntry *pEntry, void *pContext){
 ** entry points to.
 **
 ** Argument pContext is a pointer to the interpreter structure.
+**
+** Always returns non-zero.
 */
-static void thFreeCommand(Th_HashEntry *pEntry, void *pContext){
+static int thFreeCommand(Th_HashEntry *pEntry, void *pContext){
   Th_Command *pCommand = (Th_Command *)pEntry->pData;
   if( pCommand->xDel ){
     pCommand->xDel((Th_Interp *)pContext, pCommand->pContext);
   }
   Th_Free((Th_Interp *)pContext, pEntry->pData);
   pEntry->pData = 0;
+  return 1;
 }
 
 /*
@@ -1045,6 +1053,21 @@ static int thAnalyseVarname(
 }
 
 /*
+** The Find structure is used to return extra information to callers of the
+** thFindValue function.  The fields within it are populated by thFindValue
+** as soon as the necessary information is available.  Callers should check
+** each field of interest upon return.
+*/
+
+struct Find {
+  Th_HashEntry *pValueEntry; /* Pointer to the scalar or array hash entry */
+  Th_HashEntry *pElemEntry;  /* Pointer to array element hash entry, if any */
+  const char *zElem;         /* Name of array element, if applicable */
+  int nElem;                 /* Length of array element name, if applicable */
+};
+typedef struct Find Find;
+
+/*
 ** Input string (zVar, nVar) contains a variable name. This function locates
 ** the Th_Variable structure associated with the named variable. The
 ** variable name may be a global or local scalar or array variable
@@ -1057,13 +1080,15 @@ static int thAnalyseVarname(
 ** an error is left in the interpreter result and NULL returned. If
 ** arrayok is true an array name is Ok.
 */
+
 static Th_Variable *thFindValue(
   Th_Interp *interp,
-  const char *zVar,      /* Pointer to variable name */
-  int nVar,              /* Number of bytes at nVar */
-  int create,            /* If true, create the variable if not found */
-  int arrayok,           /* If true, an array is Ok. Otherwise array==error */
-  int noerror            /* If false, set interpreter result to error message */
+  const char *zVar,       /* Pointer to variable name */
+  int nVar,               /* Number of bytes at nVar */
+  int create,             /* If true, create the variable if not found */
+  int arrayok,            /* If true, an array is Ok. Otherwise array==error */
+  int noerror,            /* If false, set interpreter result to error */
+  Find *pFind             /* If non-zero, place output here */
 ){
   const char *zOuter;
   int nOuter;
@@ -1076,12 +1101,20 @@ static Th_Variable *thFindValue(
   Th_Variable *pValue;
 
   thAnalyseVarname(zVar, nVar, &zOuter, &nOuter, &zInner, &nInner, &isGlobal);
+  if( pFind ){
+    memset(pFind, 0, sizeof(Find));
+    pFind->zElem = zInner;
+    pFind->nElem = nInner;
+  }
   if( isGlobal ){
     while( pFrame->pCaller ) pFrame = pFrame->pCaller;
   }
 
   pEntry = Th_HashFind(interp, pFrame->paVar, zOuter, nOuter, create);
   assert(pEntry || create<=0);
+  if( pFind ){
+    pFind->pValueEntry = pEntry;
+  }
   if( !pEntry ){
     goto no_such_var;
   }
@@ -1108,6 +1141,10 @@ static Th_Variable *thFindValue(
       pValue->pHash = Th_HashNew(interp);
     }
     pEntry = Th_HashFind(interp, pValue->pHash, zInner, nInner, create);
+    assert(pEntry || create<=0);
+    if( pFind ){
+      pFind->pElemEntry = pEntry;
+    }
     if( !pEntry ){
       goto no_such_var;
     }
@@ -1147,7 +1184,7 @@ no_such_var:
 int Th_GetVar(Th_Interp *interp, const char *zVar, int nVar){
   Th_Variable *pValue;
 
-  pValue = thFindValue(interp, zVar, nVar, 0, 0, 0);
+  pValue = thFindValue(interp, zVar, nVar, 0, 0, 0, 0);
   if( !pValue ){
     return TH_ERROR;
   }
@@ -1163,8 +1200,8 @@ int Th_GetVar(Th_Interp *interp, const char *zVar, int nVar){
 ** Return true if variable (zVar, nVar) exists.
 */
 int Th_ExistsVar(Th_Interp *interp, const char *zVar, int nVar){
-  Th_Variable *pValue = thFindValue(interp, zVar, nVar, 0, 0, 1);
-  return pValue && pValue->zData;
+  Th_Variable *pValue = thFindValue(interp, zVar, nVar, 0, 1, 1, 0);
+  return pValue && (pValue->zData || pValue->pHash);
 }
 
 /*
@@ -1184,7 +1221,7 @@ int Th_SetVar(
 ){
   Th_Variable *pValue;
 
-  pValue = thFindValue(interp, zVar, nVar, 1, 0, 0);
+  pValue = thFindValue(interp, zVar, nVar, 1, 0, 0, 0);
   if( !pValue ){
     return TH_ERROR;
   }
@@ -1227,7 +1264,7 @@ int Th_LinkVar(
   }
   pSavedFrame = interp->pFrame;
   interp->pFrame = pFrame;
-  pValue = thFindValue(interp, zLink, nLink, 1, 1, 0);
+  pValue = thFindValue(interp, zLink, nLink, 1, 1, 0, 0);
   interp->pFrame = pSavedFrame;
 
   pEntry = Th_HashFind(interp, interp->pFrame->paVar, zLocal, nLocal, 1);
@@ -1248,25 +1285,64 @@ int Th_LinkVar(
 ** in the interpreter result and TH_ERROR is returned.
 */
 int Th_UnsetVar(Th_Interp *interp, const char *zVar, int nVar){
+  Find find;
   Th_Variable *pValue;
+  Th_HashEntry *pEntry;
+  int rc = TH_ERROR;
 
-  pValue = thFindValue(interp, zVar, nVar, 0, 1, 0);
+  pValue = thFindValue(interp, zVar, nVar, 0, 1, 0, &find);
   if( !pValue ){
-    return TH_ERROR;
+    return rc;
   }
 
-  if( pValue->zData ){
-    Th_Free(interp, pValue->zData);
-    pValue->zData = 0;
-  }
-  if( pValue->pHash ){
-    Th_HashIterate(interp, pValue->pHash, thFreeVariable, (void *)interp);
-    Th_HashDelete(interp, pValue->pHash);
-    pValue->pHash = 0;
+  if( pValue->zData || pValue->pHash ){
+    rc = TH_OK;
+  }else {
+    Th_ErrorMessage(interp, "no such variable:", zVar, nVar);
   }
 
-  thFindValue(interp, zVar, nVar, -1, 1, 1); /* Finally, delete from frame */
-  return TH_OK;
+  /*
+  ** The variable may be shared by more than one frame; therefore, make sure
+  ** it is actually freed prior to freeing the parent structure.  The values
+  ** for the variable must be freed now so the variable appears undefined in
+  ** all frames.  The hash entry in the current frame must also be deleted
+  ** now; otherwise, if the current stack frame is later popped, it will try
+  ** to delete a variable which has already been freed.
+  */
+  if( find.zElem ){
+    pEntry = find.pElemEntry;
+  }else{
+    pEntry = find.pValueEntry;
+  }
+  assert( pEntry );
+  assert( pValue );
+  if( thFreeVariable(pEntry, (void *)interp) ){
+    if( find.zElem ){
+      Th_Variable *pValue2 = find.pValueEntry->pData;
+      Th_HashFind(interp, pValue2->pHash, find.zElem, find.nElem, -1);
+    }else if( pEntry->pData ){
+      Th_Free(interp, pEntry->pData);
+      pEntry->pData = 0;
+    }
+  }else{
+    if( pValue->zData ){
+      Th_Free(interp, pValue->zData);
+      pValue->zData = 0;
+    }
+    if( pValue->pHash ){
+      Th_HashIterate(interp, pValue->pHash, thFreeVariable, (void *)interp);
+      Th_HashDelete(interp, pValue->pHash);
+      pValue->pHash = 0;
+    }
+    if( find.zElem ){
+      Th_Variable *pValue2 = find.pValueEntry->pData;
+      Th_HashFind(interp, pValue2->pHash, find.zElem, find.nElem, -1);
+    }
+  }
+  if( !find.zElem ){
+    Th_HashFind(interp, interp->pFrame->paVar, zVar, nVar, -1);
+  }
+  return rc;
 }
 
 /*
@@ -2213,12 +2289,13 @@ Th_Hash *Th_HashNew(Th_Interp *interp){
 ** Iterate through all values currently stored in the hash table. Invoke
 ** the callback function xCallback for each entry. The second argument
 ** passed to xCallback is a copy of the fourth argument passed to this
-** function.
+** function.  The return value from the callback function xCallback is
+** ignored.
 */
 void Th_HashIterate(
   Th_Interp *interp,
   Th_Hash *pHash,
-  void (*xCallback)(Th_HashEntry *pEntry, void *pContext),
+  int (*xCallback)(Th_HashEntry *pEntry, void *pContext),
   void *pContext
 ){
   int i;
@@ -2233,10 +2310,11 @@ void Th_HashIterate(
 }
 
 /*
-** Helper function for Th_HashDelete().
+** Helper function for Th_HashDelete().  Always returns non-zero.
 */
-static void xFreeHashEntry(Th_HashEntry *pEntry, void *pContext){
+static int xFreeHashEntry(Th_HashEntry *pEntry, void *pContext){
   Th_Free((Th_Interp *)pContext, (void *)pEntry);
+  return 1;
 }
 
 /*
