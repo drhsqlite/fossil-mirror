@@ -804,7 +804,7 @@ const struct strctCssDefaults {
     @   border-left: 2px solid #aaa;
     @   border-bottom: 2px solid #aaa;
   },
-  { ".filetree ul ul:before",
+  { ".filetree li > ul:before",
     "tree-view directory lines",
     @   content: '';
     @   position: absolute;
@@ -813,7 +813,7 @@ const struct strctCssDefaults {
     @   left: -35px;
     @   border-left: 2px solid #aaa;
   },
-  { ".filetree li:last-child > ul:before",
+  { ".filetree li.last > ul:before",
     "hide lines for last-child directories",
     @   display: none;
   },

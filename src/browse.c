@@ -599,19 +599,17 @@ void page_tree(void){
   */
   @ <div class="filetree"><ul>
   if( nD ){
-    @ <li class="dir">
+    @ <li class="dir last">
   }else{
-    @ <li class="dir subdir">
+    @ <li class="dir subdir last">
   }
   @ %z(href("%s",url_render(&sURI,"name",0,0,0)))%h(zProjectName)</a>
   @ <ul>
   for(p=sTree.pFirst, nDir=0; p; p=p->pNext){
+    const char *zLastClass = p->isLast ? " last" : "";
     if( p->isDir ){
-      if( p->nFullName==nD-1 ){
-        @ <li class="dir subdir">
-      }else{
-        @ <li class="dir">
-      }
+      const char *zSubdirClass = p->nFullName==nD-1 ? " subdir" : "";
+      @ <li class="dir%s(zSubdirClass)%s(zLastClass)">
       @ %z(href("%s",url_render(&sURI,"name",p->zFullName,0,0)))%h(p->zName)</a>
       if( startExpanded || p->nFullName<=nD ){
         @ <ul id="dir%d(nDir)">
@@ -620,13 +618,14 @@ void page_tree(void){
       }
       nDir++;
     }else if( !showDirOnly ){
+      char *zFileClass = fileext_class(p->zName);
       char *zLink;
       if( zCI ){
         zLink = href("%R/artifact/%S",p->zUuid);
       }else{
         zLink = href("%R/finfo?name=%T",p->zFullName);
       }
-      @ <li class="%z(fileext_class(p->zName))">%z(zLink)%h(p->zName)</a>
+      @ <li class="%z(zFileClass)%s(zLastClass)">%z(zLink)%h(p->zName)</a>
     }
     if( p->isLast ){
       int nClose = p->iLevel - (p->pNext ? p->pNext->iLevel : 0);
