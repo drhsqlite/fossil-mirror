@@ -209,3 +209,93 @@ test th1-unset-7 {$RESULT eq {TH_ERROR: no such variable: gv2(1)}}
 
 fossil test-th-eval "set gv(1) 1; upvar 0 gv(1) gv2; unset gv(1); unset gv2"
 test th1-unset-8 {$RESULT eq {TH_ERROR: no such variable: gv2}}
+
+###############################################################################
+
+fossil test-th-eval "string first {} {}"
+test th1-string-first-1 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {} {a}"
+test th1-string-first-2 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {a} {}"
+test th1-string-first-3 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {a} {a}"
+test th1-string-first-4 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string first {a} {aa}"
+test th1-string-first-5 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string first {aa} {a}"
+test th1-string-first-6 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {ab} {abc}"
+test th1-string-first-7 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string first {bc} {abc}"
+test th1-string-first-8 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {AB} {abc}"
+test th1-string-first-9 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {} {}"
+test th1-string-last-1 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {} {a}"
+test th1-string-last-2 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {a} {}"
+test th1-string-last-3 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {a} {a}"
+test th1-string-last-4 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string last {a} {aa}"
+test th1-string-last-5 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {aa} {a}"
+test th1-string-last-6 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {ab} {abc}"
+test th1-string-last-7 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string last {bc} {abc}"
+test th1-string-last-8 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {AB} {abc}"
+test th1-string-last-9 {$RESULT eq {-1}}

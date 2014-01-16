@@ -652,26 +652,27 @@ static int string_compare_command(
 static int string_first_command(
   Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
-  const char *zNeedle;
   int nNeedle;
-  const char *zHaystack;
   int nHaystack;
-  int i;
   int iRes = -1;
 
   if( argc!=4 ){
     return Th_WrongNumArgs(interp, "string first needle haystack");
   }
 
-  zNeedle = argv[2];
   nNeedle = argl[2];
-  zHaystack = argv[3];
   nHaystack = argl[3];
 
-  for(i=0; i<(nHaystack-nNeedle); i++){
-    if( 0==memcmp(zNeedle, &zHaystack[i], nNeedle) ){
-      iRes = i;
-      break;
+  if( nNeedle && nHaystack && nNeedle<=nHaystack ){
+    const char *zNeedle = argv[2];
+    const char *zHaystack = argv[3];
+    int i;
+
+    for(i=0; i<=(nHaystack-nNeedle); i++){
+      if( 0==memcmp(zNeedle, &zHaystack[i], nNeedle) ){
+        iRes = i;
+        break;
+      }
     }
   }
 
@@ -713,26 +714,27 @@ static int string_is_command(
 static int string_last_command(
   Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
-  const char *zNeedle;
   int nNeedle;
-  const char *zHaystack;
   int nHaystack;
-  int i;
   int iRes = -1;
 
   if( argc!=4 ){
     return Th_WrongNumArgs(interp, "string last needle haystack");
   }
 
-  zNeedle = argv[2];
   nNeedle = argl[2];
-  zHaystack = argv[3];
   nHaystack = argl[3];
 
-  for(i=nHaystack-nNeedle-1; i>=0; i--){
-    if( 0==memcmp(zNeedle, &zHaystack[i], nNeedle) ){
-      iRes = i;
-      break;
+  if( nNeedle && nHaystack && nNeedle<=nHaystack ){
+    const char *zNeedle = argv[2];
+    const char *zHaystack = argv[3];
+    int i;
+
+    for(i=nHaystack-nNeedle; i>=0; i--){
+      if( 0==memcmp(zNeedle, &zHaystack[i], nNeedle) ){
+        iRes = i;
+        break;
+      }
     }
   }
 
