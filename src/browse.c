@@ -647,9 +647,7 @@ void page_tree(void){
   @ function toggleDir(ul, useInitValue){
   @   if( !useInitValue ){
   @     expandMap[ul.id] = !isExpanded(ul);
-  @     if( history && history.replaceState ){
-  @       history.replaceState(expandMap, '');
-  @     }
+  @     history.replaceState(expandMap, '');
   @   }
   @   ul.style.display = expandMap[ul.id] ? 'block' : 'none';
   @ }
@@ -665,9 +663,7 @@ void page_tree(void){
   @       }
   @     }
   @     expandMap = {'*': expand};
-  @     if( history && history.replaceState ){
-  @       history.replaceState(expandMap, '');
-  @     }
+  @     history.replaceState(expandMap, '');
   @   }
   @   var display = expandMap['*'] ? 'block' : 'none';
   @   for( var i=0; lists[i]; i++ ){
@@ -676,13 +672,23 @@ void page_tree(void){
   @ }
   @
   @ function checkState(){
-  @   expandMap = (history && history.state) || {};
+  @   expandMap = history.state || {};
   @   if( expandMap['*'] ) toggleAll(outer_ul, true);
   @   for( var id in expandMap ){
   @     if( id!=='*' ) toggleDir(gebi(id), true);
   @   }
   @ }
   @
+  @ function belowSubdir(node){
+  @   do{
+  @     node = node.parentNode;
+  @     if( node==subdir ) return true;
+  @   } while( node && node!=outer_ul );
+  @   return false;
+  @ }
+  @
+  @ var history = window.history || {};
+  @ if( !history.replaceState ) history.replaceState = function(){};
   @ var outer_ul = document.querySelector('.filetree > ul');
   @ var subdir = outer_ul.querySelector('.subdir');
   @ var expandMap = {};
@@ -694,7 +700,7 @@ void page_tree(void){
   @     toggleAll(outer_ul);
   @     return false;
   @   }
-  @   if( !subdir || !subdir.contains || !subdir.contains(a) ) return true;
+  @   if( !belowSubdir(a) ) return true;
   @   var ul = a.nextSibling;
   @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
   @   if( !ul ) return true; /* This is a file link, not a directory */
