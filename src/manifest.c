@@ -1496,14 +1496,26 @@ void manifest_crosslink_begin(void){
 /*
 ** Finish up a sequence of manifest_crosslink calls.
 */
-void manifest_crosslink_end(void){
+int manifest_crosslink_end(int flags){
   Stmt q, u;
   int i;
+  int rc = TH_OK;
+  int permitHooks = (flags & MC_PERMIT_HOOKS);
+  const char *zScript = 0;
   assert( manifest_crosslink_busy==1 );
+  if( permitHooks ){
+    rc = xfer_run_common_script();
+    if( rc==TH_OK ){
+      zScript = xfer_ticket_code();
+    }
+  }
   db_prepare(&q, "SELECT uuid FROM pending_tkt");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     ticket_rebuild_entry(zUuid);
+    if( permitHooks && rc==TH_OK ){
+      rc = xfer_run_script(zScript, zUuid);
+    }
   }
   db_finalize(&q);
   db_multi_exec("DROP TABLE pending_tkt");
@@ -1538,6 +1550,7 @@ void manifest_crosslink_end(void){
 
   db_end_transaction(0);
   manifest_crosslink_busy = 0;
+  return ( rc!=TH_ERROR );
 }
 
 /*
@@ -1659,10 +1672,11 @@ static int tag_compare(const void *a, const void *b){
 ** file, is a legacy of its original use.
 */
 int manifest_crosslink(int rid, Blob *pContent, int flags){
-  int i, result = TH_OK;
+  int i, rc = TH_OK;
   Manifest *p;
   Stmt q;
   int parentid = 0;
+  int permitHooks = (flags & MC_PERMIT_HOOKS);
   const char *zScript = 0;
   const char *zUuid = 0;
 
@@ -1687,7 +1701,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }
   db_begin_transaction();
   if( p->type==CFTYPE_MANIFEST ){
-    zScript = xfer_commit_code();
+    if( permitHooks ){
+      zScript = xfer_commit_code();
+    }
     zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
@@ -1885,8 +1901,6 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( p->type==CFTYPE_TICKET ){
     char *zTag;
 
-    zScript = xfer_ticket_code();
-    zUuid = p->zTicketUuid;
     assert( manifest_crosslink_busy==1 );
     zTag = mprintf("tkt-%s", p->zTicketUuid);
     tag_insert(zTag, 1, 0, rid, p->rDate, rid);
@@ -1970,7 +1984,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         if( db_exists("SELECT 1 FROM event, blob"
             " WHERE event.type='ci' AND event.objid=blob.rid"
             " AND blob.uuid='%s'", zTagUuid) ){
-          zScript = xfer_commit_code();
+          if( permitHooks ){
+            zScript = xfer_commit_code();
+          }
           zUuid = zTagUuid;
         }
       }
@@ -2044,10 +2060,10 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     blob_reset(&comment);
   }
   db_end_transaction(0);
-  if( zScript && (flags & MC_PERMIT_HOOKS) ){
-    result = xfer_run_common_script();
-    if( result==TH_OK ){
-      result = xfer_run_script(zScript, zUuid);
+  if( permitHooks ){
+    rc = xfer_run_common_script();
+    if( rc==TH_OK ){
+      rc = xfer_run_script(zScript, zUuid);
     }
   }
   if( p->type==CFTYPE_MANIFEST ){
@@ -2056,7 +2072,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     manifest_destroy(p);
   }
   assert( blob_is_reset(pContent) );
-  return ( result!=TH_ERROR );
+  return ( rc!=TH_ERROR );
 }
 
 /*

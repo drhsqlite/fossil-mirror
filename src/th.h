@@ -176,7 +176,7 @@ struct Th_HashEntry {
 };
 Th_Hash *Th_HashNew(Th_Interp *);
 void Th_HashDelete(Th_Interp *, Th_Hash *);
-void Th_HashIterate(Th_Interp*,Th_Hash*,void (*x)(Th_HashEntry*, void*),void*);
+void Th_HashIterate(Th_Interp*,Th_Hash*,int (*x)(Th_HashEntry*, void*),void*);
 Th_HashEntry *Th_HashFind(Th_Interp*, Th_Hash*, const char*, int, int);
 
 /*
