@@ -784,6 +784,10 @@ const struct strctCssDefaults {
     @   padding: 0;
     @   list-style: none;
   },
+  { ".filetree ul.collapsed",
+    "tree-view collapsed list",
+    @   display: none;
+  },
   { ".filetree ul ul",
     "tree-view lists below the root",
     @   position: relative;

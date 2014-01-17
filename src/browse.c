@@ -614,7 +614,7 @@ void page_tree(void){
       if( startExpanded || p->nFullName<=nD ){
         @ <ul id="dir%d(nDir)">
       }else{
-        @ <ul id="dir%d(nDir)" style='display:none;'>
+        @ <ul id="dir%d(nDir)" class="collapsed">
       }
       nDir++;
     }else if( !showDirOnly ){
@@ -638,9 +638,7 @@ void page_tree(void){
   @ </ul></div>
   @ <script>(function(){
   @ function isExpanded(ul){
-  @   var ulStyle = window.getComputedStyle && window.getComputedStyle(ul,null);
-  @   var display = (ulStyle && ulStyle.getPropertyValue('display')) || 'none';
-  @   return display!='none';
+  @   return ul.className=='';
   @ }
   @
   @ function toggleDir(ul, useInitValue){
@@ -648,7 +646,7 @@ void page_tree(void){
   @     expandMap[ul.id] = !isExpanded(ul);
   @     history.replaceState(expandMap, '');
   @   }
-  @   ul.style.display = expandMap[ul.id] ? 'block' : 'none';
+  @   ul.className = expandMap[ul.id] ? '' : 'collapsed';
   @ }
   @
   @ function toggleAll(tree, useInitValue){
@@ -664,15 +662,15 @@ void page_tree(void){
   @     expandMap = {'*': expand};
   @     history.replaceState(expandMap, '');
   @   }
-  @   var display = expandMap['*'] ? 'block' : 'none';
+  @   var className = expandMap['*'] ? '' : 'collapsed';
   @   for( var i=0; lists[i]; i++ ){
-  @     lists[i].style.display = display;
+  @     lists[i].className = className;
   @   }
   @ }
   @
   @ function checkState(){
   @   expandMap = history.state || {};
-  @   if( expandMap['*'] ) toggleAll(outer_ul, true);
+  @   if( '*' in expandMap ) toggleAll(outer_ul, true);
   @   for( var id in expandMap ){
   @     if( id!=='*' ) toggleDir(gebi(id), true);
   @   }
@@ -693,7 +691,8 @@ void page_tree(void){
   @ var expandMap = {};
   @ checkState();
   @ outer_ul.onclick = function(e){
-  @   var a = e.target;
+  @   e = e || window.event;
+  @   var a = e.target || e.srcElement;
   @   if( a.nodeName!='A' ) return true;
   @   if( a.parentNode==subdir ){
   @     toggleAll(outer_ul);
