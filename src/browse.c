@@ -691,7 +691,8 @@ void page_tree(void){
   @ var expandMap = {};
   @ checkState();
   @ outer_ul.onclick = function(e){
-  @   var a = e.target;
+  @   e = e || window.event;
+  @   var a = e.target || e.srcElement;
   @   if( a.nodeName!='A' ) return true;
   @   if( a.parentNode==subdir ){
   @     toggleAll(outer_ul);
