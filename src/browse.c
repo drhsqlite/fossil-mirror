@@ -670,7 +670,7 @@ void page_tree(void){
   @
   @ function checkState(){
   @   expandMap = history.state || {};
-  @   if( expandMap['*'] ) toggleAll(outer_ul, true);
+  @   if( '*' in expandMap ) toggleAll(outer_ul, true);
   @   for( var id in expandMap ){
   @     if( id!=='*' ) toggleDir(gebi(id), true);
   @   }

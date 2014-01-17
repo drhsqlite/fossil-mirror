@@ -1,5 +1,5 @@
-C Recognize\sold\sIE\sevent\sobject\sto\smake\stree-view\sexpand/collapse\swork\sin\sIE8.
-D 2014-01-17T00:07:29.498
+C Call\stoggleAll()\sif\sexpandMap['*']\sexists,\seven\sif\sits\sfalse\s(for\swhen\sthe\sexpand\squery\sstring\sparameter\sis\sused).
+D 2014-01-17T09:07:52.806
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -315,7 +315,7 @@ F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 9eef1e8551df42bdee81aef68359e65985c6c8b9
 F src/blob.c a3c51c2a61105a72fa29c2a0fd159975a7ce3008
 F src/branch.c 18a789dda16d8d12ff634ec8dd12a7d4da2e023a
-F src/browse.c 312b27a0d1ac2c78f184331bc5fc70a0efc2702e
+F src/browse.c 0a4528c36dbc06ff60a375de35404d315377e4a1
 F src/captcha.c 2c855a6f943b546b855eabe58f1388d677d5ea73
 F src/cgi.c 063a9bf9ea11962c896c1bd9ff86afdcbbb0ba31
 F src/checkin.c 8ed7abb67c9f2e329f3d6bb6460f09abebafbb32
@@ -640,7 +640,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 75b96a2912f6f34b212876e58c481aabf887241d
-R 77799ec983e30ec4a7f405b4464d3164
+P 21426d01b464f2761ad342de32aafc149dc4d2ae
+R f7f6185db5f269a59e8660824c50ee07
 U joel
-Z 1440b465f659b7d223992d8007a6b8af
+Z ef9ca5513459499d24818c91eaedd2d1
