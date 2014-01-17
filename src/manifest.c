@@ -1983,13 +1983,11 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
            " Edit [%S]:",
            zTagUuid);
         branchMove = 0;
-        if( db_exists("SELECT 1 FROM event, blob"
+        if( permitHooks && db_exists("SELECT 1 FROM event, blob"
             " WHERE event.type='ci' AND event.objid=blob.rid"
             " AND blob.uuid='%s'", zTagUuid) ){
-          if( permitHooks ){
-            zScript = xfer_commit_code();
-            zUuid = zTagUuid;
-          }
+          zScript = xfer_commit_code();
+          zUuid = zTagUuid;
         }
       }
       zName = p->aTag[i].zName;
