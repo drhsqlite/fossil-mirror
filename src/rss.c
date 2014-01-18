@@ -207,14 +207,38 @@ void page_timeline_rss(void){
 /*
 ** COMMAND: rss
 **
-** The CLI variant of the /timeline.rss page.
+** The CLI variant of the /timeline.rss page, this produces an RSS
+** feed of the timeline to stdout. Options:
+**
+** -type|y FLAG
+**    may be: all (default), ci (show checkins only), t (show tickets only),
+**    w (show wiki only). LIMIT is the number of items to show.
+**
+** -tkt UUID
+**    Filters for only those events for the specified ticket.
+**
+** -tag TAG
+**    filters for a tag
+**
+** -wiki NAME
+**   Filters on a specific wiki page.
+**
+** Only one of -tkt, -tag, or -wiki may be used.
+**
+** -name FILENAME
+**   filters for a specific file. This may be combined with one of the other
+**   filters (useful for looking at a specific branch).
+**
+** -url|-U STRING
+**   Sets the RSS feed's root URL to the given string. The default is
+** "URL-PLACEHOLDER".
 */
 void cmd_timeline_rss(void){
   Stmt q;
   int nLine=0;
   char *zPubDate, *zProjectName, *zProjectDescr, *zFreeProjectName=0;
   Blob bSQL;
-  const char *zType = find_option("y",NULL,1); /* Type of events.  All if NULL */
+  const char *zType = find_option("type","y",1); /* Type of events.  All if NULL */
   const char *zTicketUuid = find_option("tkt",NULL,1);
   const char *zTag = find_option("tag",NULL,1);
   const char *zFilename = find_option("name",NULL,1);
@@ -248,30 +272,7 @@ void cmd_timeline_rss(void){
   blob_append( &bSQL, zSQL1, -1 );
 
   if( zType[0]!='a' ){
-    if( zType[0]=='c' && !g.perm.Read ) zType = "x";
-    if( zType[0]=='w' && !g.perm.RdWiki ) zType = "x";
-    if( zType[0]=='t' && !g.perm.RdTkt ) zType = "x";
     blob_appendf(&bSQL, " AND event.type=%Q", zType);
-  }else{
-    if( !g.perm.Read ){
-      if( g.perm.RdTkt && g.perm.RdWiki ){
-        blob_append(&bSQL, " AND event.type!='ci'", -1);
-      }else if( g.perm.RdTkt ){
-        blob_append(&bSQL, " AND event.type=='t'", -1);
-        
-      }else{
-        blob_append(&bSQL, " AND event.type=='w'", -1);
-      }
-    }else if( !g.perm.RdWiki ){
-      if( g.perm.RdTkt ){
-        blob_append(&bSQL, " AND event.type!='w'", -1);
-      }else{
-        blob_append(&bSQL, " AND event.type=='ci'", -1);
-      }
-    }else if( !g.perm.RdTkt ){
-      assert( !g.perm.RdTkt &&& g.perm.Read && g.perm.RdWiki );
-      blob_append(&bSQL, " AND event.type!='t'", -1);
-    }
   }
 
   if( zTicketUuid ){
