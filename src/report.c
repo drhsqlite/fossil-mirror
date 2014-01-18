@@ -199,6 +199,11 @@ int report_query_authorizer(
       }
       break;
     }
+    case SQLITE_RECURSIVE: {
+      *(char**)pError = mprintf("recursive queries are not allowed");
+      rc = SQLITE_DENY;
+      break;
+    }       
     default: {
       *(char**)pError = mprintf("only SELECT statements are allowed");
       rc = SQLITE_DENY;

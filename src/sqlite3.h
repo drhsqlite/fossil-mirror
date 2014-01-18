@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.3"
 #define SQLITE_VERSION_NUMBER 3008003
-#define SQLITE_SOURCE_ID      "2014-01-04 15:17:04 4e725f53131d3584319c710c8710a068989543c6"
+#define SQLITE_SOURCE_ID      "2014-01-18 15:22:53 2ad4583c0cc7988f0dfe78fd0a2eb0fdb92d835a"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2566,6 +2566,7 @@ SQLITE_API int sqlite3_set_authorizer(
 #define SQLITE_FUNCTION             31   /* NULL            Function Name   */
 #define SQLITE_SAVEPOINT            32   /* Operation       Savepoint Name  */
 #define SQLITE_COPY                  0   /* No longer used */
+#define SQLITE_RECURSIVE            33   /* NULL            NULL            */
 
 /*
 ** CAPI3REF: Tracing And Profiling Functions
