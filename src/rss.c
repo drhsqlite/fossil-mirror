@@ -220,6 +220,7 @@ void cmd_timeline_rss(void){
   const char *zFilename = find_option("name",NULL,1);
   const char *zWiki = find_option("wiki",NULL,1);
   const char *zLimit = find_option("limit", "n",1);
+  const char *zBaseURL = find_option("url", NULL, 1);
   int nLimit = atoi( (zLimit && *zLimit) ? zLimit : "20" );
   int nTagId;
   const char zSQL1[] =
@@ -236,6 +237,9 @@ void cmd_timeline_rss(void){
   ;
   if(!zType || !*zType){
     zType = "all";
+  }
+  if(!zBaseURL || !*zBaseURL){
+    zBaseURL = "URL-PLACEHOLDER";
   }
 
   db_find_and_open_repository(0, 0);
@@ -311,7 +315,7 @@ void cmd_timeline_rss(void){
   zProjectName = db_get("project-name", 0);
   if( zProjectName==0 ){
     zFreeProjectName = zProjectName = mprintf("Fossil source repository for: %s",
-      g.zBaseURL);
+      zBaseURL);
   }
   zProjectDescr = db_get("project-description", 0);
   if( zProjectDescr==0 ){
@@ -324,7 +328,7 @@ void cmd_timeline_rss(void){
   fossil_print("<rss xmlns:dc=\"http://purl.org/dc/elements/1.1/\" version=\"2.0\">");
   fossil_print("<channel>\n");
   fossil_print("<title>%h</title>\n", zProjectName);
-  fossil_print("<link>%s</link>\n", g.zBaseURL);
+  fossil_print("<link>%s</link>\n", zBaseURL);
   fossil_print("<description>%h</description>\n", zProjectDescr);
   fossil_print("<pubDate>%s</pubDate>\n", zPubDate);
   fossil_print("<generator>Fossil version %s %s</generator>\n",
@@ -355,7 +359,7 @@ void cmd_timeline_rss(void){
 
     fossil_print("<item>");
     fossil_print("<title>%s%h</title>\n", zPrefix, zCom);
-    fossil_print("<link>%s/info/%s</link>\n", g.zBaseURL, zId);
+    fossil_print("<link>%s/info/%s</link>\n", zBaseURL, zId);
     fossil_print("<description>%s%h</description>\n", zPrefix, zCom);
     fossil_print("<pubDate>%s</pubDate>\n", zDate);
     fossil_print("<dc:creator>%h</dc:creator>\n", zAuthor);
