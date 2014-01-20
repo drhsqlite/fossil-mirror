@@ -25,6 +25,10 @@
 /* Forward references to static routines */
 static void report_format_hints(void);
 
+#ifndef SQLITE_RECURSIVE
+#  define SQLITE_RECURSIVE            33
+#endif
+
 /*
 ** WEBPAGE: /reportlist
 */
