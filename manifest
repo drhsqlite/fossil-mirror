@@ -1,5 +1,5 @@
-C Don't\scompile\sCygwin\susing\s-DSQLITE_OMIT_CTE:\sMaking\sit\swork\swould\scause\smemory\sleaks.
-D 2014-01-20T15:10:12.006
+C Fix\sa\stypo\sin\sHTML\stext.
+D 2014-01-20T23:17:43.026
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -395,7 +395,7 @@ F src/report.c 0644dc0e112b60efca2a58046b94fb7c8b57c139
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c ab4ba29cfd02cfccfef3b3134c47ba018564ab64
 F src/search.c 9700685108675f8b0a4c5bd81b0b622cb491bcbe
-F src/setup.c 0e338452061d684c57d397ad9ef2da061217e6c9
+F src/setup.c 2239a5c52f5208a4f1d8b996b5d973e4e5608317
 F src/sha1.c 764d029cbe3704941a7db83c0d0b505f6cdb512f
 F src/shell.c 92288d8337426c917906e2ccc5dc4e4d4978aaf1
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 511eecb0e193715242b657a0d4a3a289f51d51e2
-R 0dbd61df656992fefb7074e1cd04ca9e
-U jan.nijtmans
-Z 5c782e9bec0e65c1854fff3d769c732d
+P 5176783c062d6af0c5fa6d85f82cce6f700e81a1
+R 98bbc730d04e38aee59ea1c401b94b87
+U drh
+Z eae49577ebc7e54392d26fefb71ce63a
