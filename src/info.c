@@ -1002,6 +1002,9 @@ void vdiff_page(void){
     @ <p><b>Only differences that match regular expression "%h(zRe)"
     @ are shown.</b></p>
   }
+  if( zGlob ){
+    @ <p><b>Only files matching the glob "%h(zGlob)" are shown.</b></p>
+  }
   @<hr /><p>
 
   manifest_file_rewind(pFrom);
@@ -1035,7 +1038,8 @@ void vdiff_page(void){
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
     }else{
-      if(!zGlob || (strglob(zGlob, pFileFrom->zName) || strglob(zGlob, pFileTo->zName))){
+      if(!zGlob || (strglob(zGlob, pFileFrom->zName)
+                || strglob(zGlob, pFileTo->zName))){
         append_file_change_line(pFileFrom->zName,
                                 pFileFrom->zUuid,
                                 pFileTo->zUuid, 0, diffFlags, pRe,
