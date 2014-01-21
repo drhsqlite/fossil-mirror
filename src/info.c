@@ -946,7 +946,6 @@ void vdiff_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   login_anonymous_available();
-
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
   zBranch = P("branch");
@@ -976,22 +975,31 @@ void vdiff_page(void){
   }
   if( sideBySide || verboseFlag ){
     style_submenu_element("Hide Diff", "hidediff",
-                          "%R/vdiff?from=%T&to=%T&sbs=0",
-                          zFrom, zTo);
+                          "%R/vdiff?from=%T&to=%T&sbs=0%s%T",
+                          zFrom, zTo,
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "");
   }
   if( !sideBySide ){
     style_submenu_element("Side-by-side Diff", "sbsdiff",
-                          "%R/vdiff?from=%T&to=%T&sbs=1",
-                          zFrom, zTo);
+                          "%R/vdiff?from=%T&to=%T&sbs=1%s%T",
+                          zFrom, zTo,
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "");
   }
   if( sideBySide || !verboseFlag ) {
     style_submenu_element("Unified Diff", "udiff",
-                          "%R/vdiff?from=%T&to=%T&sbs=0&v",
-                          zFrom, zTo);
+                          "%R/vdiff?from=%T&to=%T&sbs=0&v%s%T",
+                          zFrom, zTo,
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "");
   }
   style_submenu_element("Invert", "invert",
-                        "%R/vdiff?from=%T&to=%T&sbs=%d%s", zTo, zFrom,
-                        sideBySide, (verboseFlag && !sideBySide)?"&v":"");
+                        "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T", zTo, zFrom,
+                        sideBySide, (verboseFlag && !sideBySide)?"&v":"",
+                        zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+  if( zGlob ){
+    style_submenu_element("Clear glob", "clearglob",
+                          "%R/vdiff?from=%T&to=%T&sbs=%d%s", zFrom, zTo,
+                          sideBySide, (verboseFlag && !sideBySide)?"&v":"");
+  }
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
   checkin_description(ridFrom);
