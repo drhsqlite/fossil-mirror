@@ -229,9 +229,9 @@ void page_timeline_rss(void){
 **   filters for a specific file. This may be combined with one of the other
 **   filters (useful for looking at a specific branch).
 **
-** -url|-U STRING
+** -url STRING
 **   Sets the RSS feed's root URL to the given string. The default is
-** "URL-PLACEHOLDER".
+** "URL-PLACEHOLDER" (without quotes).
 */
 void cmd_timeline_rss(void){
   Stmt q;
