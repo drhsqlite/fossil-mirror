@@ -924,6 +924,7 @@ static void checkin_description(int rid){
 **   branch=TAG
 **   v=BOOLEAN
 **   sbs=BOOLEAN
+**   dir=STRING: only diff files matching this prefix
 **
 **
 ** Show all differences between two checkins.
@@ -940,8 +941,9 @@ void vdiff_page(void){
   const char *zTo;
   const char *zRe;
   const char *zVerbose;
+  const char *zDir;
   ReCompiled *pRe = 0;
-
+  int nDir = 0;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   login_anonymous_available();
@@ -967,8 +969,12 @@ void vdiff_page(void){
   }
   verboseFlag = (zVerbose!=0) && !is_false(zVerbose);
   if( !verboseFlag && sideBySide ) verboseFlag = 1;
+  zDir = P("dir");
   zFrom = P("from");
   zTo = P("to");
+  if( zDir && *zDir ){
+    nDir = (int)strlen(zDir);
+  }
   if( sideBySide || verboseFlag ){
     style_submenu_element("Hide Diff", "hidediff",
                           "%R/vdiff?from=%T&to=%T&sbs=0",
@@ -1006,6 +1012,24 @@ void vdiff_page(void){
   diffFlags = construct_diff_flags(verboseFlag, sideBySide);
   while( pFileFrom || pFileTo ){
     int cmp;
+    if( nDir>0 ){
+      int dirMatch = 0;
+      if( pFileFrom && pFileFrom->zName ){
+        if( 0 == fossil_strncmp(pFileFrom->zName, zDir, nDir) ){
+          ++dirMatch;
+        }
+      }
+      if( !dirMatch && pFileTo && pFileTo->zName ){
+        if( 0 == fossil_strncmp(pFileTo->zName, zDir, nDir) ){
+          ++dirMatch;
+        }
+      }
+      if(!dirMatch){
+        pFileFrom = manifest_file_next(pFrom, 0);
+        pFileTo = manifest_file_next(pTo, 0);
+        continue;
+      }
+    }
     if( pFileFrom==0 ){
       cmp = +1;
     }else if( pFileTo==0 ){
@@ -1023,7 +1047,6 @@ void vdiff_page(void){
                               manifest_file_mperm(pFileTo));
       pFileTo = manifest_file_next(pTo, 0);
     }else if( fossil_strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
-      /* No changes */
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
     }else{
