@@ -941,9 +941,8 @@ void vdiff_page(void){
   const char *zTo;
   const char *zRe;
   const char *zVerbose;
-  const char *zDir;
+  const char *zGlob;
   ReCompiled *pRe = 0;
-  int nDir = 0;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   login_anonymous_available();
@@ -969,11 +968,11 @@ void vdiff_page(void){
   }
   verboseFlag = (zVerbose!=0) && !is_false(zVerbose);
   if( !verboseFlag && sideBySide ) verboseFlag = 1;
-  zDir = P("dir");
+  zGlob = P("glob");
   zFrom = P("from");
   zTo = P("to");
-  if( zDir && *zDir ){
-    nDir = (int)strlen(zDir);
+  if(zGlob && !*zGlob){
+    zGlob = NULL;
   }
   if( sideBySide || verboseFlag ){
     style_submenu_element("Hide Diff", "hidediff",
@@ -1012,24 +1011,6 @@ void vdiff_page(void){
   diffFlags = construct_diff_flags(verboseFlag, sideBySide);
   while( pFileFrom || pFileTo ){
     int cmp;
-    if( nDir>0 ){
-      int dirMatch = 0;
-      if( pFileFrom && pFileFrom->zName ){
-        if( 0 == fossil_strncmp(pFileFrom->zName, zDir, nDir) ){
-          ++dirMatch;
-        }
-      }
-      if( !dirMatch && pFileTo && pFileTo->zName ){
-        if( 0 == fossil_strncmp(pFileTo->zName, zDir, nDir) ){
-          ++dirMatch;
-        }
-      }
-      if(!dirMatch){
-        pFileFrom = manifest_file_next(pFrom, 0);
-        pFileTo = manifest_file_next(pTo, 0);
-        continue;
-      }
-    }
     if( pFileFrom==0 ){
       cmp = +1;
     }else if( pFileTo==0 ){
@@ -1038,22 +1019,28 @@ void vdiff_page(void){
       cmp = fossil_strcmp(pFileFrom->zName, pFileTo->zName);
     }
     if( cmp<0 ){
-      append_file_change_line(pFileFrom->zName,
-                              pFileFrom->zUuid, 0, 0, diffFlags, pRe, 0);
+      if(!zGlob || strglob(zGlob, pFileFrom->zName)){
+        append_file_change_line(pFileFrom->zName,
+                                pFileFrom->zUuid, 0, 0, diffFlags, pRe, 0);
+      }
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
-      append_file_change_line(pFileTo->zName,
-                              0, pFileTo->zUuid, 0, diffFlags, pRe,
-                              manifest_file_mperm(pFileTo));
+      if(!zGlob || strglob(zGlob, pFileTo->zName)){
+        append_file_change_line(pFileTo->zName,
+                                0, pFileTo->zUuid, 0, diffFlags, pRe,
+                                manifest_file_mperm(pFileTo));
+      }
       pFileTo = manifest_file_next(pTo, 0);
     }else if( fossil_strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
     }else{
-      append_file_change_line(pFileFrom->zName,
-                              pFileFrom->zUuid,
-                              pFileTo->zUuid, 0, diffFlags, pRe,
-                              manifest_file_mperm(pFileTo));
+      if(!zGlob || (strglob(zGlob, pFileFrom->zName) || strglob(zGlob, pFileTo->zName))){
+        append_file_change_line(pFileFrom->zName,
+                                pFileFrom->zUuid,
+                                pFileTo->zUuid, 0, diffFlags, pRe,
+                                manifest_file_mperm(pFileTo));
+      }
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
     }
