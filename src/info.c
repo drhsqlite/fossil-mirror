@@ -924,7 +924,7 @@ static void checkin_description(int rid){
 **   branch=TAG
 **   v=BOOLEAN
 **   sbs=BOOLEAN
-**   dir=STRING: only diff files matching this prefix
+**   glob=STRING only diff files matching this glob
 **
 **
 ** Show all differences between two checkins.
