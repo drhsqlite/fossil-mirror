@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sa\sversion\sthat\ssupports\sORDER\sBY\sand\sLIMIT\non\sWITH\sRECURSIVE\squeries\s(but\somits\ssupport\sfor\sthe\snon-standard\sLEVEL\npseudo-column).\s\sRewrite\sthe\srecursive\squery\sthat\scomputes\sancestors\sto\nusing\sORDER\sBY\sand\sLIMIT\sand\somit\sthe\suse\sof\sLEVEL.
-D 2014-01-22T18:19:02.864
+C Fix\sharmless\scompiler\swarnings\sin\sSQLite.
+D 2014-01-22T18:32:05.366
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -401,8 +401,8 @@ F src/shell.c 92288d8337426c917906e2ccc5dc4e4d4978aaf1
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 0837ef2953529c380a94c1402e9f10b47d7d7a06
-F src/sqlite3.c 5ecfd45f9a8a8136abc1387b891b6a60b870e7e8
-F src/sqlite3.h e4f8b79a2d7fe0c7273770d1175eea91ea50988e
+F src/sqlite3.c 55725ef42ea5be835ed82eba2fc7cb486c8328a2
+F src/sqlite3.h 5cd5c93cf31c6db91edf389120f817889893510d
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 28b9be27fd580b4b2dac60226ae296e55b2c9c9e
 F src/style.c 2906427bfedd46c9a06a8afd77784dfa62f8cfe8
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7829abd8935f2ccf51f95cc512d38ffa0700097a
-R d6d341cd12f947e5f7f7b1a733ed67b8
+P af990795fcd3c19773a239157d3e2ac729e02501
+R c5ed5c30f030b5ebcba11f0f3104f755
 U drh
-Z 19d653a5743a676827830d8d43a52848
+Z cab4ad7df5c614071cad504746934697
