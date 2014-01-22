@@ -168,13 +168,11 @@ void compute_ancestors(int rid, int N, int directOnly){
     "      FROM ancestor, plink, event"
     "     WHERE plink.cid=ancestor.rid"
     "       AND event.objid=plink.pid %s"
-    "       AND level<%d"
+    "     ORDER BY mtime DESC LIMIT %d"
     "  )"
     "INSERT INTO ok"
-    "  SELECT rid FROM ancestor "
-    "   ORDER BY mtime DESC"
-    "   LIMIT %d;",
-    rid, rid, directOnly ? "AND plink.isPrim" : "", N, N
+    "  SELECT rid FROM ancestor;",
+    rid, rid, directOnly ? "AND plink.isPrim" : "", N
   );
 }
 
