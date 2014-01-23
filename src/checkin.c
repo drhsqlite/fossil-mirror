@@ -303,9 +303,9 @@ void ls_cmd(void){
   if( showAge ){
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
-       "       datetime(checkin_mtime(%d,rid),'unixepoch','localtime')"
+       "       datetime(checkin_mtime(%d,rid),'unixepoch'%s)"
        "  FROM vfile %s"
-       " ORDER BY %s", vid, blob_str(&where), zOrderBy
+       " ORDER BY %s", vid, timeline_utc(), blob_str(&where), zOrderBy
     );
   }else{
     db_prepare(&q,
@@ -820,6 +820,13 @@ static void prepare_commit_comment(
       "#\n", -1
     );
   }
+  if( p->integrateFlag ){
+    blob_append(&prompt,
+      "#\n"
+      "# All merged-in branches will be closed due to the --integrate flag\n"
+      "#\n", -1
+    );
+  }
   prompt_for_user_comment(pComment, &prompt);
   blob_reset(&prompt);
 }
@@ -957,6 +964,7 @@ struct CheckinInfo {
   const char *zMimetype;      /* Mimetype of check-in command.  May be NULL */
   int verifyDate;             /* Verify that child is younger */
   int closeFlag;              /* Close the branch being committed */
+  int integrateFlag;          /* Close merged-in branches */
   Blob *pCksum;               /* Repository checksum.  May be 0 */
   const char *zDateOvrd;      /* Date override.  If 0 then use 'now' */
   const char *zUserOvrd;      /* User override.  If 0 then use g.zLogin */
@@ -1150,7 +1158,8 @@ static void create_manifest(
     blob_appendf(pOut, "T +closed *\n");
   }
   db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
-                 " WHERE id=-4 ORDER BY 1");
+                 " WHERE id %s ORDER BY 1",
+                 p->integrateFlag ? "IN(0,-4)" : "=(-4)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zIntegrateUuid = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
@@ -1395,6 +1404,7 @@ static int tagCmp(const void *a, const void *b){
 **    --branchcolor COLOR        apply given COLOR to the branch
 **    --close                    close the branch being committed
 **    --delta                    use a delta manifest in the commit process
+**    --integrate                close all merged-in branches
 **    -m|--comment COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    -M|--message-file FILE     read the commit comment from given file
 **    --mimetype MIMETYPE        mimetype of check-in comment
@@ -1471,6 +1481,7 @@ void commit_cmd(void){
   sCiInfo.zColor = find_option("bgcolor",0,1);
   sCiInfo.zBrClr = find_option("branchcolor",0,1);
   sCiInfo.closeFlag = find_option("close",0,0)!=0;
+  sCiInfo.integrateFlag = find_option("integrate",0,0)!=0;
   sCiInfo.zMimetype = find_option("mimetype",0,1);
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;

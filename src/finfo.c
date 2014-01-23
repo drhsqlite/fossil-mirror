@@ -166,7 +166,7 @@ void finfo_cmd(void){
     }
     zFilename = blob_str(&fname);
     db_prepare(&q,
-        "SELECT b.uuid, ci.uuid, date(event.mtime,'localtime'),"
+        "SELECT b.uuid, ci.uuid, date(event.mtime%s),"
         "       coalesce(event.ecomment, event.comment),"
         "       coalesce(event.euser, event.user),"
         "       (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
@@ -178,7 +178,8 @@ void finfo_cmd(void){
         "   AND event.objid=mlink.mid"
         "   AND event.objid=ci.rid"
         " ORDER BY event.mtime DESC LIMIT %d OFFSET %d",
-        TAG_BRANCH, zFilename, filename_collation(), iLimit, iOffset
+        timeline_utc(), TAG_BRANCH, zFilename, filename_collation(),
+        iLimit, iOffset
     );
     blob_zero(&line);
     if( iBrief ){
@@ -304,7 +305,7 @@ void finfo_page(void){
   blob_zero(&sql);
   blob_appendf(&sql,
     "SELECT"
-    " datetime(event.mtime,'localtime'),"            /* Date of change */
+    " datetime(event.mtime%s),"                      /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
     " coalesce(event.euser, event.user),"            /* User who made chng */
     " mlink.pid,"                                    /* Parent file rid */
@@ -317,7 +318,7 @@ void finfo_page(void){
                                 " AND tagxref.rid=mlink.mid)," /* Tags */
     " mlink.mid,"                                    /* check-in ID */
     " mlink.pfnid",                                  /* Previous filename */
-    TAG_BRANCH
+    timeline_utc(), TAG_BRANCH
   );
   if( firstChngOnly ){
 #if 0
@@ -377,12 +378,12 @@ void finfo_page(void){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
     char *zLink = href("%R/info/%S", zUuid);
     blob_appendf(&title, "Ancestors of file ");
-    hyperlinked_path(zFilename, &title, zUuid);
+    hyperlinked_path(zFilename, &title, zUuid, "tree", "");
     blob_appendf(&title, " from check-in %z%.10s</a>", zLink, zUuid);
     fossil_free(zUuid);
   }else{
     blob_appendf(&title, "History of files named ");
-    hyperlinked_path(zFilename, &title, 0);
+    hyperlinked_path(zFilename, &title, 0, "tree", "");
   }
   @ <h2>%b(&title)</h2>
   blob_reset(&title);

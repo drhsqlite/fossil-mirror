@@ -61,6 +61,13 @@ static void xFree(void *p){
 static Th_Vtab vtab = { xMalloc, xFree };
 
 /*
+** Returns the number of outstanding TH1 memory allocations.
+*/
+int Th_GetOutstandingMalloc(){
+  return nOutstandingMalloc;
+}
+
+/*
 ** Generate a TH1 trace message if debugging is enabled.
 */
 void Th_Trace(const char *zFormat, ...){
@@ -257,7 +264,7 @@ static int dateCmd(
 ){
   char *zOut;
   if( argc>=2 && argl[1]==6 && memcmp(argv[1],"-local",6)==0 ){
-    zOut = db_text("??", "SELECT datetime('now','localtime')");
+    zOut = db_text("??", "SELECT datetime('now'%s)", timeline_utc());
   }else{
     zOut = db_text("??", "SELECT datetime('now')");
   }
@@ -1006,7 +1013,8 @@ void Th_FossilInit(u32 flags){
       th_register_language(g.interp);     /* Basic scripting commands. */
     }
 #ifdef FOSSIL_ENABLE_TCL
-    if( forceTcl || getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
+    if( forceTcl || fossil_getenv("TH1_ENABLE_TCL")!=0 ||
+        db_get_boolean("tcl", 0) ){
       if( !g.tcl.setup ){
         g.tcl.setup = db_get("tcl-setup", 0); /* Grab Tcl setup script. */
       }

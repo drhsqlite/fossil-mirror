@@ -1186,7 +1186,6 @@ void setup_timeline(void){
                   "timeline-utc", "utc", 1, 0);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
   @ Zulu) instead of in local time.  On this server, local time is currently
-  g.fTimeFormat = 2;
   tmDiff = db_double(0.0, "SELECT julianday('now')");
   tmDiff = db_double(0.0,
         "SELECT (julianday(%.17g,'localtime')-julianday(%.17g))*24.0",
@@ -1600,9 +1599,11 @@ void setup_adunit(void){
 ** WEBPAGE: setup_logo
 */
 void setup_logo(void){
+  const char *zLogoMtime = db_get_mtime("logo-image", 0, 0);
   const char *zLogoMime = db_get("logo-mimetype","image/gif");
   const char *aLogoImg = P("logoim");
   int szLogoImg = atoi(PD("logoim:bytes","0"));
+  const char *zBgMtime = db_get_mtime("background-image", 0, 0);
   const char *zBgMime = db_get("background-mimetype","image/gif");
   const char *aBgImg = P("bgim");
   int szBgImg = atoi(PD("bgim:bytes","0"));
@@ -1670,7 +1671,7 @@ void setup_logo(void){
   style_header("Edit Project Logo And Background");
   @ <p>The current project logo has a MIME-Type of <b>%h(zLogoMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/logo" alt="logo" border="1" />
+  @ <blockquote><p><img src="%s(g.zTop)/logo/%z(zLogoMtime)" alt="logo" border="1" />
   @ </p></blockquote>
   @
   @ <form action="%s(g.zTop)/setup_logo" method="post"
@@ -1692,7 +1693,7 @@ void setup_logo(void){
   @
   @ <p>The current background image has a MIME-Type of <b>%h(zBgMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/background" alt="background" border=1 />
+  @ <blockquote><p><img src="%s(g.zTop)/background/%z(zBgMtime)" alt="background" border=1 />
   @ </p></blockquote>
   @
   @ <form action="%s(g.zTop)/setup_logo" method="post"

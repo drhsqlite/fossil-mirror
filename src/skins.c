@@ -173,7 +173,7 @@ static const char zBuiltinSkin1[] =
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss">
-@ <link rel="stylesheet" href="$home/style.css?blackwhite" type="text/css"
+@ <link rel="stylesheet" href="$stylesheet_url" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
@@ -194,7 +194,7 @@ static const char zBuiltinSkin1[] =
 @   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
+@   html "<a href=''$home/tree?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$home/brlist''>Branches</a>\n"
@@ -381,7 +381,7 @@ static const char zBuiltinSkin2[] =
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss">
-@ <link rel="stylesheet" href="$home/style.css?tan" type="text/css"
+@ <link rel="stylesheet" href="$stylesheet_url" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
@@ -404,7 +404,7 @@ static const char zBuiltinSkin2[] =
 @   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
+@   html "<a href=''$home/tree?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$home/brlist''>Branches</a>\n"
@@ -622,13 +622,13 @@ static const char zBuiltinSkin3[] =
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss">
-@ <link rel="stylesheet" href="$home/style.css?black2" type="text/css"
+@ <link rel="stylesheet" href="$stylesheet_url" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
 @ <div class="header">
 @   <div class="logo">
-@     <img src="$home/logo" alt="logo">
+@     <img src="$logo_image_url" alt="logo">
 @     <br />$<project_name>
 @   </div>
 @   <div class="title">$<title></div>
@@ -647,7 +647,7 @@ static const char zBuiltinSkin3[] =
 @   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
+@   html "<a href=''$home/tree?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$home/brlist''>Branches</a>\n"
@@ -883,13 +883,13 @@ static const char zBuiltinSkin4[] =
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss">
-@ <link rel="stylesheet" href="$home/style.css?black2" type="text/css"
+@ <link rel="stylesheet" href="$stylesheet_url" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
 @ <div class="header">
 @   <div class="logo">
-@     <img src="$home/logo" alt="logo">
+@     <img src="$logo_image_url" alt="logo">
 @     <br />$<project_name>
 @   </div>
 @   <div class="title">$<title></div>
@@ -908,7 +908,7 @@ static const char zBuiltinSkin4[] =
 @   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
+@   html "<a href=''$home/tree?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$home/brlist''>Branches</a>\n"
@@ -1111,7 +1111,7 @@ static const char zBuiltinSkin5[] =
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss" />
-@ <link rel="stylesheet" href="$home/style.css?enhanced" type="text/css"
+@ <link rel="stylesheet" href="$stylesheet_url" type="text/css"
 @       media="screen" />
 @ </head>
 @ <body>
@@ -1178,7 +1178,7 @@ static const char zBuiltinSkin5[] =
 @     set logourl [getLogoUrl $baseurl]
 @     </th1>
 @     <a href="$logourl">
-@       <img src="$baseurl/logo" border="0" alt="$project_name">
+@       <img src="$logo_image_url" border="0" alt="$project_name">
 @     </a>
 @   </div>
 @   <div class="title"><small>$<project_name></small><br />$<title></div>
@@ -1197,7 +1197,7 @@ static const char zBuiltinSkin5[] =
 @   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
+@   html "<a href=''$home/tree?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$home/brlist''>Branches</a>\n"

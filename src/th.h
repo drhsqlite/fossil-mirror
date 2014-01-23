@@ -20,19 +20,19 @@ typedef struct Th_Vtab Th_Vtab;
 */
 typedef struct Th_Interp Th_Interp;
 
-/* 
-** Create and delete interpreters. 
+/*
+** Create and delete interpreters.
 */
 Th_Interp * Th_CreateInterp(Th_Vtab *pVtab);
 void Th_DeleteInterp(Th_Interp *);
 
-/* 
+/*
 ** Evaluate an TH program in the stack frame identified by parameter
 ** iFrame, according to the following rules:
 **
 **   * If iFrame is 0, this means the current frame.
 **
-**   * If iFrame is negative, then the nth frame up the stack, where n is 
+**   * If iFrame is negative, then the nth frame up the stack, where n is
 **     the absolute value of iFrame. A value of -1 means the calling
 **     procedure.
 **
@@ -42,14 +42,14 @@ void Th_DeleteInterp(Th_Interp *);
 int Th_Eval(Th_Interp *interp, int iFrame, const char *zProg, int nProg);
 
 /*
-** Evaluate a TH expression. The result is stored in the 
+** Evaluate a TH expression. The result is stored in the
 ** interpreter result.
 */
 int Th_Expr(Th_Interp *interp, const char *, int);
 
-/* 
+/*
 ** Access TH variables in the current stack frame. If the variable name
-** begins with "::", the lookup is in the top level (global) frame. 
+** begins with "::", the lookup is in the top level (global) frame.
 */
 int Th_ExistsVar(Th_Interp *, const char *, int);
 int Th_GetVar(Th_Interp *, const char *, int);
@@ -59,27 +59,27 @@ int Th_UnsetVar(Th_Interp *, const char *, int);
 
 typedef int (*Th_CommandProc)(Th_Interp *, void *, int, const char **, int *);
 
-/* 
-** Register new commands. 
+/*
+** Register new commands.
 */
 int Th_CreateCommand(
-  Th_Interp *interp, 
-  const char *zName, 
+  Th_Interp *interp,
+  const char *zName,
   /* int (*xProc)(Th_Interp *, void *, int, const char **, int *), */
   Th_CommandProc xProc,
   void *pContext,
   void (*xDel)(Th_Interp *, void *)
 );
 
-/* 
+/*
 ** Delete or rename commands.
 */
 int Th_RenameCommand(Th_Interp *, const char *, int, const char *, int);
 
-/* 
-** Push a new stack frame (local variable context) onto the interpreter 
-** stack, call the function supplied as parameter xCall with the two 
-** context arguments, 
+/*
+** Push a new stack frame (local variable context) onto the interpreter
+** stack, call the function supplied as parameter xCall with the two
+** context arguments,
 **
 **   xCall(interp, pContext1, pContext2)
 **
@@ -95,7 +95,7 @@ int Th_InFrame(Th_Interp *interp,
   void *pContext2
 );
 
-/* 
+/*
 ** Valid return codes for xProc callbacks.
 */
 #define TH_OK       0
@@ -104,8 +104,8 @@ int Th_InFrame(Th_Interp *interp,
 #define TH_RETURN   3
 #define TH_CONTINUE 4
 
-/* 
-** Set and get the interpreter result. 
+/*
+** Set and get the interpreter result.
 */
 int Th_SetResult(Th_Interp *, const char *, int);
 const char *Th_GetResult(Th_Interp *, int *);
@@ -117,14 +117,14 @@ char *Th_TakeResult(Th_Interp *, int *);
 */
 int Th_ErrorMessage(Th_Interp *, const char *, const char *, int);
 
-/* 
+/*
 ** Access the memory management functions associated with the specified
 ** interpreter.
 */
 void *Th_Malloc(Th_Interp *, int);
 void Th_Free(Th_Interp *, void *);
 
-/* 
+/*
 ** Functions for handling TH lists.
 */
 int Th_ListAppend(Th_Interp *, char **, int *, const char *, int);
@@ -132,7 +132,7 @@ int Th_SplitList(Th_Interp *, const char *, int, char ***, int **, int *);
 
 int Th_StringAppend(Th_Interp *, char **, int *, const char *, int);
 
-/* 
+/*
 ** Functions for handling numbers and pointers.
 */
 int Th_ToInt(Th_Interp *, const char *, int, int *);
@@ -176,7 +176,7 @@ struct Th_HashEntry {
 };
 Th_Hash *Th_HashNew(Th_Interp *);
 void Th_HashDelete(Th_Interp *, Th_Hash *);
-void Th_HashIterate(Th_Interp*,Th_Hash*,void (*x)(Th_HashEntry*, void*),void*);
+void Th_HashIterate(Th_Interp*,Th_Hash*,int (*x)(Th_HashEntry*, void*),void*);
 Th_HashEntry *Th_HashFind(Th_Interp*, Th_Hash*, const char*, int, int);
 
 /*

@@ -597,6 +597,7 @@ static void output_c_string(FILE *out, const char *z){
 */
 static void output_html_string(FILE *out, const char *z){
   int i;
+  if( z==0 ) z = "";
   while( *z ){
     for(i=0;   z[i] 
             && z[i]!='<' 
@@ -1176,7 +1177,7 @@ static int str_in_array(const char *zStr, const char **azArray){
 **
 **     * For each "Goto", if the jump destination is earlier in the program
 **       and ends on one of:
-**          Yield  SeekGt  SeekLt  RowSetRead
+**          Yield  SeekGt  SeekLt  RowSetRead  Rewind
 **       then indent all opcodes between the earlier instruction
 **       and "Goto" by 2 spaces.
 */
@@ -1188,7 +1189,7 @@ static void explain_data_prepare(struct callback_data *p, sqlite3_stmt *pSql){
   int iOp;                        /* Index of operation in p->aiIndent[] */
 
   const char *azNext[] = { "Next", "Prev", "VPrev", "VNext", "SorterNext", 0 };
-  const char *azYield[] = { "Yield", "SeekLt", "SeekGt", "RowSetRead", 0 };
+  const char *azYield[] = { "Yield", "SeekLt", "SeekGt", "RowSetRead", "Rewind", 0 };
   const char *azGoto[] = { "Goto", 0 };
 
   /* Try to figure out if this is really an EXPLAIN statement. If this
@@ -1225,7 +1226,7 @@ static void explain_data_prepare(struct callback_data *p, sqlite3_stmt *pSql){
       for(i=p2op; i<iOp; i++) p->aiIndent[i] += 2;
     }
     if( str_in_array(zOp, azGoto) && p2op<p->nIndent && abYield[p2op] ){
-      for(i=p2op; i<iOp; i++) p->aiIndent[i] += 2;
+      for(i=p2op+1; i<iOp; i++) p->aiIndent[i] += 2;
     }
   }
 
@@ -3302,11 +3303,13 @@ int main(int argc, char **argv){
   int i;
   int rc = 0;
 
+#if 0
   if( strcmp(sqlite3_sourceid(),SQLITE_SOURCE_ID)!=0 ){
     fprintf(stderr, "SQLite header and source version mismatch\n%s\n%s\n",
             sqlite3_sourceid(), SQLITE_SOURCE_ID);
     exit(1);
   }
+#endif
   Argv0 = argv[0];
   main_init(&data);
   stdin_is_interactive = isatty(0);

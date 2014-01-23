@@ -212,7 +212,6 @@ int report_query_authorizer(
 ** Activate the query authorizer
 */
 static void report_restrict_sql(char **pzErr){
-  (void)fossil_localtime(0);
   sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)pzErr);
 }
 static void report_unrestrict_sql(void){
