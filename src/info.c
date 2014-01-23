@@ -1683,12 +1683,12 @@ void artifact_page(void){
     @ </iframe>
   }else{
     style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
+    blob_to_utf8_no_bom(&content, 0);
     zMime = mimetype_from_content(&content);
     @ <blockquote>
     if( zMime==0 ){
       const char *zLn = P("ln");
       const char *z;
-      blob_to_utf8_no_bom(&content, 0);
       z = blob_str(&content);
       if( zLn ){
         output_text_with_line_numbers(z, zLn);

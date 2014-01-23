@@ -3303,13 +3303,11 @@ int main(int argc, char **argv){
   int i;
   int rc = 0;
 
-#if 0
-  if( strcmp(sqlite3_sourceid(),SQLITE_SOURCE_ID)!=0 ){
-    fprintf(stderr, "SQLite header and source version mismatch\n%s\n%s\n",
-            sqlite3_sourceid(), SQLITE_SOURCE_ID);
+  if( sqlite3_libversion_number()<3008003 ){
+    fprintf(stderr, "Unsuitable SQLite version %s, must be at least 3.8.3",
+            sqlite3_libversion());
     exit(1);
   }
-#endif
   Argv0 = argv[0];
   main_init(&data);
   stdin_is_interactive = isatty(0);

@@ -1287,9 +1287,6 @@ static int commit_warning(
         return 0; /* We don't want encoding warnings for this file. */
       }
       zWarning = "Unicode";
-#if !defined(_WIN32) && !defined(__CYGWIN__)
-      zConvert = ""; /* On Unix, we cannot easily convert Unicode files. */
-#endif
       zDisable = "\"encoding-glob\" setting";
     }
     file_relative_name(zFilename, &fname, 0);

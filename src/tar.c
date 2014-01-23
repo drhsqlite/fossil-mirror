@@ -338,8 +338,9 @@ static void tar_add_directory_of(
   int i;
   for(i=nName-1; i>0 && zName[i]!='/'; i--){}
   if( i<=0 ) return;
-  if( i < tball.nPrevDirAlloc && tball.zPrevDir[i]==0 &&
-        memcmp(tball.zPrevDir, zName, i)==0 ) return;
+  if( i<tball.nPrevDirAlloc 
+   && strncmp(tball.zPrevDir, zName, i)==0
+   && tball.zPrevDir[i]==0 ) return;
   db_multi_exec("INSERT OR IGNORE INTO dir VALUES('%#q')", i, zName);
   if( sqlite3_changes(g.db)==0 ) return;
   tar_add_directory_of(zName, i-1, mTime);

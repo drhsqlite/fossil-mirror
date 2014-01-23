@@ -56,14 +56,18 @@ void fossil_mbcs_free(char *zOld){
 char *fossil_unicode_to_utf8(const void *zUnicode){
 #if defined(_WIN32) || defined(__CYGWIN__)
   int nByte = WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, 0, 0, 0, 0);
-  char *zUtf = sqlite3_malloc( nByte );
-  if( zUtf==0 ){
-    return 0;
-  }
+  char *zUtf = fossil_malloc( nByte );
   WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, zUtf, nByte, 0, 0);
   return zUtf;
 #else
-  return fossil_strdup(zUnicode);  /* TODO: implement for unix */
+  static Stmt q;
+  char *zUtf8;
+  db_static_prepare(&q, "SELECT :utf8");
+  db_bind_text16(&q, ":utf8", zUnicode);
+  db_step(&q);
+  zUtf8 = fossil_strdup(db_column_text(&q, 0));
+  db_reset(&q);
+  return zUtf8;
 #endif
 }
 
@@ -75,13 +79,11 @@ char *fossil_unicode_to_utf8(const void *zUnicode){
 void *fossil_utf8_to_unicode(const char *zUtf8){
 #if defined(_WIN32) || defined(__CYGWIN__)
   int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
-  wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
-  if( zUnicode==0 ){
-    return 0;
-  }
+  wchar_t *zUnicode = fossil_malloc( nByte * 2 );
   MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
   return zUnicode;
 #else
+  assert( 0 );  /* Never used in unix */
   return fossil_strdup(zUtf8);  /* TODO: implement for unix */
 #endif
 }
@@ -91,11 +93,7 @@ void *fossil_utf8_to_unicode(const char *zUtf8){
 ** fossil_unicode_to_utf8().
 */
 void fossil_unicode_free(void *pOld){
-#if defined(_WIN32) || defined(__CYGWIN__)
-  sqlite3_free(pOld);
-#else
   fossil_free(pOld);
-#endif
 }
 
 #if defined(__APPLE__) && !defined(WITHOUT_ICONV)

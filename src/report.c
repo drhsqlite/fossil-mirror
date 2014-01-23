@@ -25,6 +25,10 @@
 /* Forward references to static routines */
 static void report_format_hints(void);
 
+#ifndef SQLITE_RECURSIVE
+#  define SQLITE_RECURSIVE            33
+#endif
+
 /*
 ** WEBPAGE: /reportlist
 */
@@ -199,6 +203,11 @@ int report_query_authorizer(
       }
       break;
     }
+    case SQLITE_RECURSIVE: {
+      *(char**)pError = mprintf("recursive queries are not allowed");
+      rc = SQLITE_DENY;
+      break;
+    }       
     default: {
       *(char**)pError = mprintf("only SELECT statements are allowed");
       rc = SQLITE_DENY;

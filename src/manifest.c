@@ -1705,8 +1705,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( p->type==CFTYPE_MANIFEST ){
     if( permitHooks ){
       zScript = xfer_commit_code();
+      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     }
-    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
       for(i=0; i<p->nParent; i++){
@@ -1983,12 +1983,10 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
            " Edit [%S]:",
            zTagUuid);
         branchMove = 0;
-        if( db_exists("SELECT 1 FROM event, blob"
+        if( permitHooks && db_exists("SELECT 1 FROM event, blob"
             " WHERE event.type='ci' AND event.objid=blob.rid"
             " AND blob.uuid='%s'", zTagUuid) ){
-          if( permitHooks ){
-            zScript = xfer_commit_code();
-          }
+          zScript = xfer_commit_code();
           zUuid = zTagUuid;
         }
       }

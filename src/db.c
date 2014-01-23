@@ -318,6 +318,10 @@ int db_bind_text(Stmt *pStmt, const char *zParamName, const char *zValue){
   return sqlite3_bind_text(pStmt->pStmt, paramIdx(pStmt, zParamName), zValue,
                            -1, SQLITE_STATIC);
 }
+int db_bind_text16(Stmt *pStmt, const char *zParamName, const char *zValue){
+  return sqlite3_bind_text16(pStmt->pStmt, paramIdx(pStmt, zParamName), zValue,
+                             -1, SQLITE_STATIC);
+}
 int db_bind_null(Stmt *pStmt, const char *zParamName){
   return sqlite3_bind_null(pStmt->pStmt, paramIdx(pStmt, zParamName));
 }
@@ -835,19 +839,17 @@ void db_open_config(int useAttach){
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
 #else
-  if( file_access(zHome, W_OK) ){
-    fossil_fatal("home directory %s must be writeable", zHome);
-  }
   zDbName = mprintf("%s/.fossil", zHome);
 #endif
   if( file_size(zDbName)<1024*3 ){
+    if( file_access(zHome, W_OK) ){
+      fossil_fatal("home directory %s must be writeable", zHome);
+    }
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
-#if defined(_WIN32) || defined(__CYGWIN__)
   if( file_access(zDbName, W_OK) ){
     fossil_fatal("configuration file %s must be writeable", zDbName);
   }
-#endif
   if( useAttach ){
     db_open_or_attach(zDbName, "configdb", &g.useAttach);
     g.dbConfig = 0;

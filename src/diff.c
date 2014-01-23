@@ -1764,6 +1764,8 @@ int *text_diff(
     pB_Blob = pTemp;
   }
   ignoreEolWs = (diffFlags & DIFF_IGNORE_EOLWS)!=0;
+  blob_to_utf8_no_bom(pA_Blob, 0);
+  blob_to_utf8_no_bom(pB_Blob, 0);
 
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
