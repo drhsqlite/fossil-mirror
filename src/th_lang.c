@@ -427,7 +427,7 @@ static int proc_command(
   int *argl
 ){
   int rc;
-  char *zName;
+  const char *zName;
 
   ProcDefn *p;
   int nByte;
@@ -523,7 +523,7 @@ static int proc_command(
   p->nUsage = nUsage;
 
   /* Register the new command with the th1 interpreter. */
-  zName = (char *)argv[1];
+  zName = argv[1];
   rc = Th_CreateCommand(interp, zName, proc_call1, (void *)p, proc_del);
   if( rc==TH_OK ){
     Th_SetResult(interp, 0, 0);
@@ -894,7 +894,7 @@ int Th_CallSubCommand(
   if( argc>1 ){
     int i;
     for(i=0; aSub[i].zName; i++){
-      char *zName = (char *)aSub[i].zName;
+      const char *zName = aSub[i].zName;
       if( th_strlen(zName)==argl[1] && 0==memcmp(zName, argv[1], argl[1]) ){
         return aSub[i].xProc(interp, ctx, argc, argv, argl);
       }
@@ -1099,7 +1099,7 @@ int th_register_language(Th_Interp *interp){
 
     {0, 0, 0}
   };
-  int i;
+  size_t i;
 
   /* Add the language commands. */
   for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
