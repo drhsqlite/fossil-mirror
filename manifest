@@ -1,5 +1,5 @@
-C Eliminate\stwo\sunneeded\stype-casts\sand\sa\scompiler\swarning\s(signed<>unsigned\scompare)
-D 2014-01-24T10:04:56.868
+C Check\sfor\s"clearsign"\soption\sin\s"fossil\sbranch"\scommand.\sReported\sby\sJ.\svan\sden\sHoff.
+D 2014-01-24T12:37:50.546
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -314,7 +314,7 @@ F src/attach.c b010c385b03f90d7a4556d7cb1c190e918da5cdc
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 9eef1e8551df42bdee81aef68359e65985c6c8b9
 F src/blob.c a3c51c2a61105a72fa29c2a0fd159975a7ce3008
-F src/branch.c 18a789dda16d8d12ff634ec8dd12a7d4da2e023a
+F src/branch.c 6273865efb6c4850e329a3567cc88122c3d8de92
 F src/browse.c 8326ced828a90c40b3d3fdadc4def916b6214ebb
 F src/captcha.c 2c855a6f943b546b855eabe58f1388d677d5ea73
 F src/cgi.c 063a9bf9ea11962c896c1bd9ff86afdcbbb0ba31
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dce90fe35eee6c2a0022f298e4a2bdea099b2c8f
-R c277c5a35a18aa57075740664566ce5c
+P 17f7b650afe14ebfd69e18f7a9ff11d57cb72696
+R c05dca086ba6cf48aca0e525c330d4be
 U jan.nijtmans
-Z a5199720b34ad8b4d32dbe1c8eae1190
+Z 7d1f4d16f667784f6deae615f69d3ba1
