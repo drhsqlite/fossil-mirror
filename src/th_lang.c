@@ -889,7 +889,7 @@ int Th_CallSubCommand(
   int argc,
   const char **argv,
   int *argl,
-  Th_SubCommand *aSub
+  const Th_SubCommand *aSub
 ){
   if( argc>1 ){
     int i;
@@ -926,7 +926,7 @@ static int string_command(
   const char **argv,
   int *argl
 ){
-  Th_SubCommand aSub[] = {
+  static const Th_SubCommand aSub[] = {
     { "compare", string_compare_command },
     { "first",   string_first_command },
     { "is",      string_is_command },
@@ -954,7 +954,7 @@ static int info_command(
   const char **argv,
   int *argl
 ){
-  Th_SubCommand aSub[] = {
+  static const Th_SubCommand aSub[] = {
     { "exists",  info_exists_command },
     { 0, 0 }
   };
