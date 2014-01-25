@@ -1,5 +1,5 @@
-C Merged\svdiff-subdir\sfeature\sbranch\sinto\sroot.
-D 2014-01-25T16:20:46.930
+C /reports\sbyweek\sfix:\sthe\scurrently\sselected\syear\sis\snow\spropagated\sacross\sthe\sevent-type\slinks.
+D 2014-01-25T16:23:12.040
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -414,7 +414,7 @@ F src/th.h cb27ffe89d2d06dc019b73648e06c56174672494
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c e87b1b3b667c73f860fb0ac83c322cedde8a178f
 F src/th_tcl.c cfe4c67242b63fe655699f96b20db5808314813a
-F src/timeline.c 0db5ebc3409d097ad5cac88767422da2b713340e
+F src/timeline.c ea9c6255a56a9c2efb7e11527607299f1b0ee72a
 F src/tkt.c 69f6fe7e18c10cd4a19b31ffcab4c68b284dd895
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
@@ -641,8 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d8a588ba765ae5be70af310967f32f01381c19f0 39e39f216bc5eab87ebfea4e41839bcc47f06878
-R 0c21f1751e4aab19168dc321ee8284a8
-T +closed 39e39f216bc5eab87ebfea4e41839bcc47f06878
+P 9b1932f00e45c2ce48495b1b7ae18a0e9be56cef
+R 7a7f7098ef810655b47521e6f4de6c7d
 U stephan
-Z 814c018466388497b5e4c9759ff84a8b
+Z 7fcfe11a0a7dd26fd603be7a055fb55a

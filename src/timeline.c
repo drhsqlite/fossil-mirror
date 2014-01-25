@@ -2079,12 +2079,20 @@ static char const * stats_report_label_for_type(){
 /*
 ** A helper for the /reports family of pages which prints out a menu
 ** of links for the various type=XXX flags. zCurrentViewName must be
-** the name/value of the 'view' parameter which is in effect at
-** the time this is called. e.g. if called from the 'byuser' view
-** then zCurrentViewName must be "byuser".
-*/
-static void stats_report_event_types_menu(char const * zCurrentViewName){
-  char * zTop = mprintf("%s/reports?view=%s", g.zTop, zCurrentViewName);
+** the name/value of the 'view' parameter which is in effect at the
+** time this is called. e.g. if called from the 'byuser' view then
+** zCurrentViewName must be "byuser". Any URL parameters which need to
+** be added to the generated URLs should be passed in zParam. The
+** caller is expected to have already encoded any zParam in the %T or
+** %t encoding.  */
+static void stats_report_event_types_menu(char const * zCurrentViewName,
+                                          char const * zParam){
+  char * zTop;
+  if(zParam && !*zParam){
+    zParam = NULL;
+  }
+  zTop = mprintf("%s/reports?view=%s%s%s", g.zTop, zCurrentViewName,
+                 zParam ? "&" : "", zParam);
   cgi_printf("<div>");
   cgi_printf("<span>Event types:</span> ");
   if('*' == statsReportType){
@@ -2175,7 +2183,7 @@ static void stats_report_by_month_year(char includeMonth,
   int iterations = 0;                /* number of weeks/months we iterate
                                         over */
   stats_report_init_view();
-  stats_report_event_types_menu( includeMonth ? "bymonth" : "byyear" );
+  stats_report_event_types_menu( includeMonth ? "bymonth" : "byyear", NULL );
   blob_appendf(&header, "Timeline Events (%s) by year%s",
                stats_report_label_for_type(),
                (includeMonth ? "/month" : ""));
@@ -2326,7 +2334,7 @@ static void stats_report_by_user(){
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
   stats_report_init_view();
-  stats_report_event_types_menu("byuser");
+  stats_report_event_types_menu("byuser", NULL);
   blob_append(&sql,
                "SELECT user, "
                "COUNT(*) AS eventCount "
@@ -2397,8 +2405,14 @@ static void stats_report_year_weeks(const char * zUserName){
                                         all rows. */
   int iterations = 0;                /* # of active time periods. */
   stats_report_init_view();
-  stats_report_event_types_menu("byweek");
-  cgi_printf("Select year: ");
+  if(4==nYear){
+    Blob urlParams = empty_blob;
+    blob_appendf(&urlParams, "y=%T", zYear);
+    stats_report_event_types_menu("byweek", blob_str(&urlParams));
+    blob_reset(&urlParams);
+  }else{
+    stats_report_event_types_menu("byweek", NULL);
+  }
   blob_append(&sql,
               "SELECT DISTINCT substr(date(mtime),1,4) AS y "
               "FROM v_reports WHERE 1 ", -1);
@@ -2408,6 +2422,7 @@ static void stats_report_year_weeks(const char * zUserName){
   blob_append(&sql,"GROUP BY y ORDER BY y", -1);
   db_prepare(&qYears, blob_str(&sql));
   blob_reset(&sql);
+  cgi_printf("Select year: ");
   while( SQLITE_ROW == db_step(&qYears) ){
     const char * zT = db_column_text(&qYears, 0);
     if( i++ ){
