@@ -249,10 +249,10 @@ void www_print_timeline(
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current checkout version */
-  int dateFormat = 0;         /* 0: HH:MM  1: HH:MM:SS 
+  int dateFormat = 0;         /* 0: HH:MM  1: HH:MM:SS
                                  2: YYYY-MM-DD HH:MM
                                  3: YYMMDD HH:MM */
-  
+
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
   }
@@ -593,7 +593,7 @@ void timeline_output_graph_javascript(
     GraphRow *pRow;
     int i;
     char cSep;
-    
+
     @ <script  type="text/JavaScript">
     @ /* <![CDATA[ */
     @ var railPitch=%d(pGraph->iRailPitch);
@@ -2242,7 +2242,7 @@ static void stats_report_by_month_year(char includeMonth,
           @ <tr class='row%d(rowClass)'>
           @ <td></td>
           @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
-          @</tr>    
+          @</tr>
         }
         nEventsPerYear = 0;
         memcpy(zPrevYear,zTimeframe,4);
@@ -2306,7 +2306,7 @@ static void stats_report_by_month_year(char includeMonth,
     @ <tr class='row%d(rowClass)'>
     @ <td></td>
     @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
-    @</tr>    
+    @</tr>
   }
   @ </tbody></table>
   if(nEventTotal){

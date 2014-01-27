@@ -224,7 +224,7 @@ void wiki_page(void){
     rid = 0;
   }else{
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -262,7 +262,7 @@ void wiki_page(void){
            g.zTop, zPageName, g.zTop, zPageName);
     }
     if( rid && g.perm.ApndWiki ){
-      style_submenu_element("Append", "Add A Comment", 
+      style_submenu_element("Append", "Add A Comment",
            "%s/wikiappend?name=%T&mimetype=%s",
            g.zTop, zPageName, zMimetype);
     }
@@ -383,7 +383,7 @@ void wikiedit_page(void){
     }
   }else{
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -464,7 +464,7 @@ void wikiedit_page(void){
     form_begin(0, "%R/wikiedit");
     @ <div>
     mimetype_option_menu(zMimetype);
-    @ <br /><textarea name="w" class="wikiedit" cols="80" 
+    @ <br /><textarea name="w" class="wikiedit" cols="80"
     @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
     @ <br />
     if( db_get_boolean("wysiwyg-wiki", 0) ){
@@ -516,7 +516,7 @@ void wikinew_page(void){
   if( !g.perm.NewWiki ){
     login_needed();
     return;
-  }  
+  }
   zName = PD("name","");
   zMimetype = wiki_filter_mimetypes(P("mimetype"));
   if( zName[0] && wiki_name_is_wellformed((const unsigned char *)zName) ){
@@ -559,7 +559,7 @@ static void appendRemark(Blob *p, const char *zMimetype){
   zUser = PD("u",g.zLogin);
   if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
     zId = db_text(0, "SELECT lower(hex(randomblob(8)))");
-    blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h", 
+    blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h",
       zId, zDate, g.zLogin);
     if( zUser[0] && fossil_strcmp(zUser,g.zLogin) ){
       blob_appendf(p, " (claiming to be %h)", zUser);
@@ -603,7 +603,7 @@ void wikiappend_page(void){
   isSandbox = is_sandbox(zPageName);
   if( !isSandbox ){
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -692,7 +692,7 @@ void wikiappend_page(void){
   @ <input type="text" name="u" size="20" value="%h(zUser)" /><br />
   zFormat = mimetype_common_name(zMimetype);
   @ Comment to append (formatted as %s(zFormat)):<br />
-  @ <textarea name="r" class="wikiedit" cols="80" 
+  @ <textarea name="r" class="wikiedit" cols="80"
   @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
   @ <br />
   @ <input type="submit" name="preview" value="Preview Your Comment" />
@@ -811,7 +811,7 @@ void wdiff_page(void){
 ** Used by wcontent_page() and the JSON wiki code.
 */
 void wiki_prepare_page_list( Stmt * pStmt ){
-  db_prepare(pStmt, 
+  db_prepare(pStmt,
     "SELECT"
     "  substr(tagname, 6) as name,"
     "  (SELECT value FROM tagxref WHERE tagid=tag.tagid ORDER BY mtime DESC) as tagXref"
@@ -868,7 +868,7 @@ void wfind_page(void){
   zTitle = PD("title","*");
   style_header("Wiki Pages Found");
   @ <ul>
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname like 'wiki-%%%q%%'"
     " ORDER BY lower(tagname) /*sort*/" ,
     zTitle);
@@ -919,7 +919,7 @@ void wikirules_page(void){
   @ enumerations that count using letters or roman numerials, use HTML.</p></li>
   @ <li> <p><span class="wikiruleHead">Indented Paragraphs</span>.
   @ Any paragraph that begins with two or more spaces or a tab and
-  @ which is not a bullet or enumeration list item is rendered 
+  @ which is not a bullet or enumeration list item is rendered
   @ indented.  Only a single level of indentation is supported by wiki; use
   @ HTML for deeper indentation.</p></li>
   @ <li> <p><span class="wikiruleHead">Hyperlinks</span>.
@@ -1064,7 +1064,7 @@ void wiki_cmd(void){
     rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
       " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
       " ORDER BY x.mtime DESC LIMIT 1",
-      zPageName 
+      zPageName
     );
     if( (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
       zBody = pWiki->zWiki;
@@ -1112,7 +1112,7 @@ void wiki_cmd(void){
   }else
   if( strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;
-    db_prepare(&q, 
+    db_prepare(&q,
       "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
       " ORDER BY lower(tagname) /*sort*/"
     );

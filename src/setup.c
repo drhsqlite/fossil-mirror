@@ -977,7 +977,7 @@ void setup_access(void){
   @ being and not a a robot or spider and (2) the user agent is able to
   @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
   @ and spiders can forge a User-Agent string that makes them seem to be a
-  @ normal browser and they can run javascript just like browsers.  But most 
+  @ normal browser and they can run javascript just like browsers.  But most
   @ bots do not go to that much trouble so this is normally an effective defense.</p>
   @
   @ <p>You do not normally want a bot to walk your entire repository because
@@ -985,7 +985,7 @@ void setup_access(void){
   @ every historical version of every file and creating ZIPs and tarballs of
   @ every historical check-in, which can use a lot of CPU and bandwidth
   @ even for relatively small projects.</p>
-  @ 
+  @
   @ <p>Additional parameters that control this behavior:</p>
   @ <blockquote>
   onoff_attribute("Require mouse movement before enabling hyperlinks",
