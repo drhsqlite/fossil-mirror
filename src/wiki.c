@@ -302,7 +302,7 @@ static void wiki_put(Blob *pWiki, int parent){
 /*
 ** Formal names and common names for the various wiki styles.
 */
-static const char *azStyles[] = {
+static const char *const azStyles[] = {
   "text/x-fossil-wiki", "Fossil Wiki",
   "text/x-markdown",    "Markdown",
   "text/plain",         "Plain Text"

@@ -1266,7 +1266,7 @@ void page_test_env(void){
   int i;
   int showAll;
   char zCap[30];
-  static const char *azCgiVars[] = {
+  static const char *const azCgiVars[] = {
     "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",
     "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
     "HTTP_ACCEPT_LANGUAGE", "HTTP_CONNECTION", "HTTP_HOST",

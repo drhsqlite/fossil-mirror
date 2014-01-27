@@ -628,7 +628,7 @@ void rebuild_database(void){
     }
   }
   if( showStats ){
-    static struct { int idx; const char *zLabel; } aStat[] = {
+    static const struct { int idx; const char *zLabel; } aStat[] = {
        { CFTYPE_ANY,       "Artifacts:" },
        { CFTYPE_MANIFEST,  "Manifests:" },
        { CFTYPE_CLUSTER,   "Clusters:" },

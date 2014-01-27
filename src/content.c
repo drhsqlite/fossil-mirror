@@ -947,8 +947,8 @@ void test_integrity(void){
   fossil_print("%d non-phantom blobs (out of %d total) checked:  %d errors\n",
                n2, n1, nErr);
   if( bParse ){
-    const char *azType[] = { 0, "manifest", "cluster", "control", "wiki",
-                             "ticket", "attachment", "event" };
+    const char *const azType[] = { 0, "manifest", "cluster", "control",
+                                   "wiki", "ticket", "attachment", "event" };
     int i;
     fossil_print("%d total control artifacts\n", nCA);
     for(i=1; i<count(azType); i++){
