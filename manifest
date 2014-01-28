@@ -1,5 +1,5 @@
-C Rename\ssqlite3_cmd()\sto\scmd_sqlite3()\sand\ssqlite3_exec_readonly()\sto\sdb_exec_readonly():\ssqlite3_*\ssymbols\sare\sreserved\sfor\sSQLite,\sin\sorder\sto\sprevent\spossible\sfuture\ssymbol\sconflicts.\s\nEliminate\suse\sof\sdeprecated\s"sqlite3_callback"\stypedef\s(which\sallows\selimination\sof\ssome\stype\scasts).\s\nMissing\s"static"\sin\scontent.c
-D 2014-01-28T09:25:14.433
+C Update\schange-log
+D 2014-01-28T12:58:29.612
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -561,7 +561,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki d4d05c1e0508ade7332024976831ad4dc87d93ae
-F www/changes.wiki d2c88755170b53c3e311e95e25269410ea0a1d4a
+F www/changes.wiki 84d2b3316442306819ed7e41439d16d33ee33e54
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 45f35169f2e2897f9b178ed0610d77fa10c07531
-R 3aa7421f5b6bd7a8129d32b328c0a9cd
+P 0ed6e68d5577abc12fb7087b5d890b1ef45a1025
+R 92de33ed9f89206c75a6814c6eaf49e9
 U jan.nijtmans
-Z f67834002e85185a0b83c43f0154a6e7
+Z 580b3bce8be66d74c1397095b77b484f

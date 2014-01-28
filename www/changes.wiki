@@ -1,6 +1,11 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.28 (as yet unreleased)</h2>
+<h2>Changes For Version 1.29 (as yet unreleased)</h2>
+  *  Add the ability to display content and diffs for UTF16 text files
+     in the web interface.
+  *  Honor timezones in imports from git.
+
+<h2>Changes For Version 1.28 (2014-01-27)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
   *  When cloning a repository, the user name passed via the URL (if any)
      is now used as the default local admin user's name.
