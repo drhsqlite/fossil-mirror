@@ -324,7 +324,7 @@ void finfo_page(void){
 #if 0
     blob_appendf(&sql, ", min(event.mtime)");
 #else
-    blob_appendf(&sql, 
+    blob_appendf(&sql,
         ", min(CASE (SELECT value FROM tagxref"
                     " WHERE tagtype>0 AND tagid=%d"
                     "   AND tagxref.rid=mlink.mid)"

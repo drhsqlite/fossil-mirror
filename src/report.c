@@ -14,7 +14,7 @@
 **   http://www.hwaci.com/drh/
 **
 *******************************************************************************
-**  
+**
 ** Code to generate the ticket listings
 */
 #include "config.h"
@@ -45,7 +45,7 @@ void view_list(void){
   if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST<br />\n", -1);
   zScript = ticket_reportlist_code();
   if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST_SCRIPT<br />\n", -1);
-  
+
   blob_zero(&ril);
   ticket_init();
 
@@ -72,10 +72,10 @@ void view_list(void){
       blob_appendf(&ril, "[%zcopy</a>] ",
                    href("%R/rptedit?rn=%d&copy=1", rn));
     }
-    if( g.perm.Admin 
+    if( g.perm.Admin
      || (g.perm.WrTkt && zOwner && fossil_strcmp(g.zLogin,zOwner)==0)
     ){
-      blob_appendf(&ril, "[%zedit</a>]", 
+      blob_appendf(&ril, "[%zedit</a>]",
                          href("%R/rptedit?rn=%d", rn));
     }
     if( g.perm.TktFmt ){
@@ -87,9 +87,9 @@ void view_list(void){
   db_finalize(&q);
 
   Th_Store("report_items", blob_str(&ril));
-  
+
   Th_Render(zScript);
-  
+
   blob_reset(&ril);
   if( g.thTrace ) Th_Trace("END_REPORTLIST<br />\n", -1);
 
@@ -207,7 +207,7 @@ int report_query_authorizer(
       *(char**)pError = mprintf("recursive queries are not allowed");
       rc = SQLITE_DENY;
       break;
-    }       
+    }
     default: {
       *(char**)pError = mprintf("only SELECT statements are allowed");
       rc = SQLITE_DENY;
@@ -264,7 +264,7 @@ char *verify_sql_statement(char *zSql){
       }
     }
   }
-  
+
   /* Compile the statement and check for illegal accesses or syntax errors. */
   report_restrict_sql(&zErr);
   rc = sqlite3_prepare(g.db, zSql, -1, &pStmt, &zTail);
@@ -385,7 +385,7 @@ void view_edit(void){
     if( zSQL[0]==0 ){
       zErr = "Please supply an SQL query statement";
     }else if( (zTitle = trim_string(zTitle))[0]==0 ){
-      zErr = "Please supply a title"; 
+      zErr = "Please supply a title";
     }else{
       zErr = verify_sql_statement(zSQL);
     }
@@ -1067,9 +1067,9 @@ void rptview_page(void){
     struct GenerateHTML sState;
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
-    style_submenu_element("Raw", "Raw", 
+    style_submenu_element("Raw", "Raw",
       "rptview?tablist=1&%h", PD("QUERY_STRING",""));
-    if( g.perm.Admin 
+    if( g.perm.Admin
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "Edit", "rptedit?rn=%d", rn);
     }
@@ -1081,7 +1081,7 @@ void rptview_page(void){
         "%s/tktnew", g.zTop);
     }
     style_header(zTitle);
-    output_color_key(zClrKey, 1, 
+    output_color_key(zClrKey, 1,
         "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
     @ <table border="1" cellpadding="2" cellspacing="0" class="report"
     @  id="reportTable">
@@ -1179,7 +1179,7 @@ static void output_no_tabs_file(const char *z){
         }
         z += j;
       }
-      break; 
+      break;
   }
 }
 
@@ -1214,7 +1214,7 @@ int output_separated_file(
 ** The output is written to stdout as flat file. The zFilter parameter
 ** is a full WHERE-condition.
 */
-void rptshow( 
+void rptshow(
     const char *zRep,
     const char *zSepIn,
     const char *zFilter,

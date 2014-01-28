@@ -44,7 +44,7 @@ static void sqlcmd_content(
   rid = name_to_rid(zName);
   if( rid==0 ) return;
   if( content_get(rid, &cx) ){
-    sqlite3_result_blob(context, blob_buffer(&cx), blob_size(&cx), 
+    sqlite3_result_blob(context, blob_buffer(&cx), blob_size(&cx),
                                  SQLITE_TRANSIENT);
     blob_reset(&cx);
   }

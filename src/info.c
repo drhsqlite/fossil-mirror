@@ -2396,7 +2396,7 @@ void ci_edit_page(void){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
     @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag) />
-    @ Hide branch 
+    @ Hide branch
     @ <span style="font-weight:bold" id="hbranch">%h(zBranchName)</span>
     @ from the timeline starting from this check-in</label>
     @ </td></tr>

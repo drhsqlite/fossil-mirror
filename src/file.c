@@ -998,7 +998,7 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
   }
 
   /* Special case.  zOrigName refers to g.zLocalRoot directory. */
-  if( (nFull==nLocalRoot-1 && xCmp(zLocalRoot, zFull, nFull)==0) 
+  if( (nFull==nLocalRoot-1 && xCmp(zLocalRoot, zFull, nFull)==0)
       || (nFull==1 && zFull[0]=='/' && nLocalRoot==1 && zLocalRoot[0]=='/') ){
     blob_append(pOut, ".", 1);
     blob_reset(&localRoot);
