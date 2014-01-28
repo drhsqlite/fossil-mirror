@@ -139,7 +139,7 @@ static int sqlcmd_autoinit(
 ** in ways that are unrecoverable.  Be sure you know what you are doing before
 ** running any SQL commands that modifies the repository database.
 */
-void sqlite3_cmd(void){
+void cmd_sqlite3(void){
   extern int sqlite3_shell(int, char**);
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   db_close(1);
