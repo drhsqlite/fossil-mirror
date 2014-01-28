@@ -260,17 +260,9 @@ void merge_cmd(void){
                  " Use --force to override.\n");
     return;
   }
-  if( integrateFlag ){
-    if( db_exists("SELECT 1 FROM vmerge WHERE id=-4")) {
-      /* Fossil earlier than [55cacfcace] cannot handle this,
-       * therefore disallow it. */
-      fossil_fatal("Integration of another branch already in progress."
-        "  Commit or Undo needed first", g.argv[2]);
-    }
-    if( !is_a_leaf(mid) ){
-      fossil_warning("ignoring --integrate: %s is not a leaf", g.argv[2]);
-      integrateFlag = 0;
-    }
+  if( integrateFlag && !is_a_leaf(mid)){
+    fossil_warning("ignoring --integrate: %s is not a leaf", g.argv[2]);
+    integrateFlag = 0;
   }
   if( verboseFlag ){
     print_checkin_description(mid, 12, integrateFlag?"integrate:":"merge-from:");
