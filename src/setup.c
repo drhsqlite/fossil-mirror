@@ -251,10 +251,7 @@ void setup_ulist(void){
      @ <tr><th valign="top">x</th>
      @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
      @ <tr><th valign="top">z</th>
-     @   <td><i>Zip download:</i> Download a baseline via the
-     @   <tt>/zip</tt> URL even without
-     @    check<span class="capability">o</span>ut
-     @    and <span class="capability">h</span>istory permissions</td></tr>
+     @   <td><i>Zip download:</i> Download a ZIP archive or tarball</td></tr>
   @ </table>
   @ </li>
   @
