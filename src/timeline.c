@@ -2546,9 +2546,11 @@ void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
   const char * zView = P("view");    /* Which view/report to show. */
   const char *zUserName = P("user");
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(); return; }
   if(!zUserName) zUserName = P("u");
   url_initialize(&url, "reports");
-
   if(zUserName && *zUserName){
     url_add_parameter(&url,"user", zUserName);
     timeline_submenu(&url, "(Remove User Flag)", "view", zView, "user");
