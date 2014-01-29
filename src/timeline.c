@@ -1887,25 +1887,31 @@ void timeline_cmd(void){
 }
 
 /*
-** Return one of two things:
+** Return one of three forms:
 **
-**   ",'localtime'"  if the timeline-utc property is set to 0.
+**   ",'localtime'"   when (server) localtime is desired
 **
-**   ""              (empty string) otherwise.
+**   ""               when UTC is desired
+**
+**   ",'??? minutes'" otherwise
 */
 const char *timeline_utc(){
+  static char buf[16] = ""; /* only initialized once. */
   if( g.fTimeFormat==0 ){
     if( db_get_int("timeline-utc", 1) ){
-      g.fTimeFormat = 1;
+      g.fTimeFormat = 1000;
     }else{
-      g.fTimeFormat = 2;
+      g.fTimeFormat = -1000;
     }
   }
-  if( g.fTimeFormat==1 ){
+  if( g.fTimeFormat>999 )
     return "";
-  }else{
+  if( g.fTimeFormat<-999 )
     return ",'localtime'";
+  if( !buf[0] ){
+    sprintf(buf, ",'%d minutes'", g.fTimeFormat);
   }
+  return buf;
 }
 
 

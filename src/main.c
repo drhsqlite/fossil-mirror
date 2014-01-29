@@ -163,7 +163,8 @@ struct Global {
   FILE *httpIn;           /* Accept HTTP input from here */
   FILE *httpOut;          /* Send HTTP output here */
   int xlinkClusterOnly;   /* Set when cloning.  Only process clusters */
-  int fTimeFormat;        /* 1 for UTC.  2 for localtime.  0 not yet selected */
+  int fTimeFormat;        /* 1000 for UTC.  -1000 for localtime.  0 not yet selected */
+                          /* -999...999 = minutes difference from UTC */
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
@@ -639,6 +640,7 @@ int main(int argc, char **argv)
     fossil_exit(1);
   }else{
     const char *zChdir = find_option("chdir",0,1);
+    const char *zTimezone = find_option("tz",0,1);
     g.isHTTP = 0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
@@ -653,8 +655,14 @@ int main(int argc, char **argv)
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
     g.zErrlog = find_option("errorlog", 0, 1);
-    if( find_option("utc",0,0) ) g.fTimeFormat = 1;
-    if( find_option("localtime",0,0) ) g.fTimeFormat = 2;
+    if( zTimezone ){
+      int tz = (int)strtol(zTimezone, 0, 0);
+      if( tz<-999 || tz >999 ){
+        fossil_fatal("wrong timezone format %s", zTimezone);
+      }
+      g.fTimeFormat = tz ? tz : 1000;
+    }else if( find_option("utc",0,0) ) g.fTimeFormat = 1000;
+    else if( find_option("localtime",0,0) ) g.fTimeFormat = -1000;
     if( zChdir && file_chdir(zChdir, 0) ){
       fossil_fatal("unable to change directories to %s", zChdir);
     }
