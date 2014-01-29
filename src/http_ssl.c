@@ -177,17 +177,17 @@ void ssl_close(void){
 }
 
 /* See RFC2817 for details */
-static int establish_proxy_tunnel(BIO *bio){
+static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
   int rc, httpVerMin;
   char *bbuf;
   Blob snd, reply;
   int done=0,end=0;
   blob_zero(&snd);
-  blob_appendf(&snd, "CONNECT %s:%d HTTP/1.1\r\n", g.urlHostname,
-      g.proxyOrigPort);
-  blob_appendf(&snd, "Host: %s:%d\r\n", g.urlHostname, g.proxyOrigPort);
-  if( g.urlProxyAuth ){
-    blob_appendf(&snd, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
+  blob_appendf(&snd, "CONNECT %s:%d HTTP/1.1\r\n", pUrlData->hostname,
+      pUrlData->proxyOrigPort);
+  blob_appendf(&snd, "Host: %s:%d\r\n", pUrlData->hostname, pUrlData->proxyOrigPort);
+  if( pUrlData->proxyAuth ){
+    blob_appendf(&snd, "Proxy-Authorization: %s\r\n", pUrlData->proxyAuth);
   }
   blob_append(&snd, "Proxy-Connection: keep-alive\r\n", -1);
   blob_append(&snd, "User-Agent: Fossil/" RELEASE_VERSION "\r\n", -1);
@@ -264,7 +264,7 @@ int ssl_open(UrlData *pUrlData){
       ssl_close();
       return 1;
     }
-    rc = establish_proxy_tunnel(sBio);
+    rc = establish_proxy_tunnel(pUrlData, sBio);
     if( rc<200||rc>299 ){
       ssl_set_errmsg("SSL: proxy connect failed with HTTP status code %d", rc);
       return 1;
