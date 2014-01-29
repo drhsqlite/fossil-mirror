@@ -64,12 +64,6 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
     zPw = g.urlPasswd;
   }
 
-  /* If the first character of the password is "#", then that character is
-  ** not really part of the password - it is an indicator that we should
-  ** use Basic Authentication.  So skip that character.
-  */
-  if( zPw && zPw[0]=='#' ) zPw++;
-
   /* The login card wants the SHA1 hash of the password, so convert the
   ** password to its SHA1 hash it it isn't already a SHA1 hash.
   */
@@ -92,6 +86,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 static void http_build_header(Blob *pPayload, Blob *pHdr){
   int i;
   const char *zSep;
+  const int fUseHttpAuth = db_get_boolean("use-http-auth", 0);
 
   blob_zero(pHdr);
   i = strlen(g.urlPath);
@@ -104,8 +99,8 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   if( g.urlProxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
   }
-  if( g.urlPasswd && g.urlUser && g.urlPasswd[0]=='#' ){
-    char *zCredentials = mprintf("%s:%s", g.urlUser, &g.urlPasswd[1]);
+  if( g.urlPasswd && g.urlUser && fUseHttpAuth ){
+    char *zCredentials = mprintf("%s:%s", g.urlUser, g.urlPasswd);
     char *zEncoded = encode64(zCredentials, -1);
     blob_appendf(pHdr, "Authorization: Basic %s\r\n", zEncoded);
     fossil_free(zEncoded);

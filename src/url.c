@@ -106,6 +106,7 @@ void url_parse_local(
 
   if( zUrl==0 ){
     zUrl = db_get("last-sync-url", 0);
+    g.fUseHttpAuth = db_get_boolean("use-http-auth", 0);
     if( zUrl==0 ) return;
     if( pUrlData->passwd==0 ){
       pUrlData->passwd = unobscure(db_get("last-sync-pw", 0));
@@ -535,6 +536,11 @@ void url_remember(void){
     db_set("last-sync-url", g.urlCanonical, 0);
     if( g.urlUser!=0 && g.urlPasswd!=0 && ( g.urlFlags & URL_REMEMBER_PW ) ){
       db_set("last-sync-pw", obscure(g.urlPasswd), 0);
+    }
+    if( g.fUseHttpAuth ){
+      db_set_int("use-http-auth", 1, 0);
+    }else{
+      db_unset("use-http-auth", 0);
     }
   }
 }

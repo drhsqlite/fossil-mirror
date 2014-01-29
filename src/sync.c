@@ -96,6 +96,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   if( find_option("private",0,0)!=0 ){
     *pSyncFlags |= SYNC_PRIVATE;
   }
+  g.fUseHttpAuth = find_option("httpauth",0,0)!=0;
   if( find_option("verbose","v",0)!=0 ){
     *pSyncFlags |= SYNC_VERBOSE;
   }
