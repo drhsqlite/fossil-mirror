@@ -113,6 +113,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_BRCOLOR  0x0040  /* Background color by branch name */
 #define TIMELINE_UCOLOR   0x0080  /* Background color by user */
 #define TIMELINE_FRENAMES 0x0100  /* Detail only file name changes */
+#define TIMELINE_UNHIDE   0x0200  /* Unhide check-ins with "hidden" tag */
 #endif
 
 /*
@@ -248,10 +249,10 @@ void www_print_timeline(
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current checkout version */
-  int dateFormat = 0;         /* 0: HH:MM  1: HH:MM:SS 
+  int dateFormat = 0;         /* 0: HH:MM  1: HH:MM:SS
                                  2: YYYY-MM-DD HH:MM
                                  3: YYMMDD HH:MM */
-  
+
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
   }
@@ -290,6 +291,7 @@ void www_print_timeline(
     int modPending;           /* Pending moderation */
     char zTime[20];
 
+    if( zDate==0 ) zDate = "YYYY-MM-DD HH:MM:SS";  /* Something wrong with the repo */
     modPending =  moderation_pending(rid);
     if( tagid ){
       if( modPending ) tagid = -tagid;
@@ -321,7 +323,7 @@ void www_print_timeline(
     }
     prevWasDivider = 0;
     if( dateFormat<2 ){
-      if( memcmp(zDate, zPrevDate, 10) ){
+      if( fossil_strnicmp(zDate, zPrevDate, 10) ){
         sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
         @ <tr><td>
         @   <div class="divider timelineDate">%s(zPrevDate)</div>
@@ -591,6 +593,7 @@ void timeline_output_graph_javascript(
     GraphRow *pRow;
     int i;
     char cSep;
+
     @ <script  type="text/JavaScript">
     @ /* <![CDATA[ */
     @ var railPitch=%d(pGraph->iRailPitch);
@@ -852,7 +855,11 @@ void timeline_output_graph_javascript(
     if( fileDiff ){
       @     location.href="%R/fdiff?v1="+selRow.h+"&v2="+p.h+"&sbs=1";
     }else{
-      @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=1";
+      if( db_get_boolean("show-version-diffs", 0)==0 ){
+        @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=0";
+      }else{
+        @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=1";
+      }
     }
     @   }
     @ }
@@ -900,12 +907,12 @@ static void timeline_temp_table(void){
 ** for a timeline query for the WWW interface.
 */
 const char *timeline_query_for_www(void){
-  static char *zBase = 0;
+  static const char *zBase = 0;
   static const char zBaseSql[] =
     @ SELECT
     @   blob.rid AS blobRid,
     @   uuid AS uuid,
-    @   datetime(event.mtime,'localtime') AS timestamp,
+    @   datetime(event.mtime%s) AS timestamp,
     @   coalesce(ecomment, comment) AS comment,
     @   coalesce(euser, user) AS user,
     @   blob.rid IN leaf AS leaf,
@@ -921,7 +928,7 @@ const char *timeline_query_for_www(void){
     @ WHERE blob.rid=event.objid
   ;
   if( zBase==0 ){
-    zBase = mprintf(zBaseSql, TAG_BRANCH, TAG_BRANCH);
+    zBase = mprintf(zBaseSql, timeline_utc());
   }
   return zBase;
 }
@@ -1111,6 +1118,7 @@ void page_timeline(void){
   }else{
     tmFlags = TIMELINE_GRAPH;
   }
+  url_add_parameter(&url, "n", mprintf("%d", nEntry));
   if( P("ng")!=0 || zSearch!=0 ){
     tmFlags &= ~TIMELINE_GRAPH;
     url_add_parameter(&url, "ng", 0);
@@ -1118,6 +1126,10 @@ void page_timeline(void){
   if( P("brbg")!=0 ){
     tmFlags |= TIMELINE_BRCOLOR;
     url_add_parameter(&url, "brbg", 0);
+  }
+  if( P("unhide")!=0 ){
+    tmFlags |= TIMELINE_UNHIDE;
+    url_add_parameter(&url, "unhide", 0);
   }
   if( P("ubg")!=0 ){
     tmFlags |= TIMELINE_UCOLOR;
@@ -1153,6 +1165,11 @@ void page_timeline(void){
   if( P("fc")!=0 || P("v")!=0 || P("detail")!=0 ){
     tmFlags |= TIMELINE_FCHANGES;
     url_add_parameter(&url, "v", 0);
+  }
+  if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+    blob_appendf(&sql, " AND NOT EXISTS(SELECT 1 FROM tagxref"
+                 "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
+                 TAG_HIDDEN);
   }
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
@@ -1222,6 +1239,19 @@ void page_timeline(void){
     }
     blob_appendf(&desc, " of %z[%.10s]</a>",
                    href("%R/info/%s", zUuid), zUuid);
+    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+      if( p_rid ){
+        url_add_parameter(&url, "p", zUuid);
+      }
+      if( d_rid ){
+        if( p_rid ){
+          /* If both p= and d= are set, we don't have the uuid of d yet. */
+          zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
+        }
+        url_add_parameter(&url, "d", zUuid);
+      }
+      timeline_submenu(&url, "Unhide", "unhide", "", 0);
+    }
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1239,13 +1269,15 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%.10s]</a>", href("%R/info/%s", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
+    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+      url_add_parameter(&url, "f", zUuid);
+      timeline_submenu(&url, "Unhide", "unhide", "", 0);
+    }
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
     const char *zEType = "timeline item";
     char *zDate;
-    char *zNEntry = mprintf("%d", nEntry);
-    url_add_parameter(&url, "n", zNEntry);
     if( zUses ){
       blob_appendf(&sql, " AND event.objid IN usesfile ");
     }
@@ -1278,12 +1310,24 @@ void page_timeline(void){
                      " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
            tagid
         );
+        if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+          blob_appendf(&sql,
+            " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
+                       " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
+            TAG_HIDDEN
+          );
+        }
         if( P("mionly")==0 ){
           blob_appendf(&sql,
             " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=pid"
                        " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
             tagid
           );
+          if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+            blob_appendf(&sql, " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+                       " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+                         TAG_HIDDEN);
+          }
         }else{
           url_add_parameter(&url, "mionly", "1");
         }
@@ -1477,6 +1521,9 @@ void page_timeline(void){
         }else{
           timeline_submenu(&url, "Show Files", "v", "", 0);
         }
+        if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+          timeline_submenu(&url, "Unhide", "unhide", "", 0);
+        }
       }
     }
   }
@@ -1523,6 +1570,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
   const char *zCurrentUuid = 0;
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
+  int rc;
 
   zPrevDate[0] = 0;
   if( g.localOpen ){
@@ -1530,7 +1578,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
-  while( db_step(q)==SQLITE_ROW ){
+  while( (rc=db_step(q))==SQLITE_ROW ){
     int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
@@ -1552,7 +1600,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
       }
     }
     sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
-    if( memcmp(zDate, zPrevDate, 10) ){
+    if( fossil_strnicmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
       nLine++; /* record another line */
@@ -1614,6 +1662,14 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     }
     nEntry++; /* record another complete entry */
   }
+  if( rc==SQLITE_DONE ){
+    /* Did the underlying query actually have all entries? */
+    if( nAbsLimit==0 ){
+      fossil_print("+++ end of timeline (%d) +++\n", nEntry);
+    }else{
+      fossil_print("+++ no more data (%d) +++\n", nEntry);
+    }
+  }
   if( fchngQueryInit ) db_finalize(&fchngQuery);
 }
 
@@ -1622,11 +1678,12 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
 ** a timeline query for display on a TTY.
 */
 const char *timeline_query_for_tty(void){
+  static const char *zBase = 0;
   static const char zBaseSql[] =
     @ SELECT
     @   blob.rid AS rid,
     @   uuid,
-    @   datetime(event.mtime,'localtime') AS mDateTime,
+    @   datetime(event.mtime%s) AS mDateTime,
     @   coalesce(ecomment,comment)
     @     || ' (user: ' || coalesce(euser,user,'?')
     @     || (SELECT case when length(x)>0 then ' tags: ' || x else '' end
@@ -1647,7 +1704,10 @@ const char *timeline_query_for_tty(void){
     @ WHERE blob.rid=event.objid
     @   AND tag.tagname='branch'
   ;
-  return zBaseSql;
+  if( zBase==0 ){
+    zBase = mprintf(zBaseSql, timeline_utc());
+  }
+  return zBase;
 }
 
 /*
@@ -1754,7 +1814,8 @@ void timeline_cmd(void){
     }else if( strncmp(g.argv[2],"parents",k)==0 ){
       mode = 4;
     }else if(!zType && !zLimit){
-      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit #? ?-t|--type TYPE? ?-W|--width WIDTH?");
+      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit #? ?-t|--type TYPE? "
+            "?-W|--width WIDTH?");
     }
     if( '-' != *g.argv[3] ){
       zOrigin = g.argv[3];
@@ -1815,7 +1876,9 @@ void timeline_cmd(void){
   }
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   if( iOffset>0 ){
-    blob_appendf(&sql, " LIMIT %d OFFSET %d", n>0?n+1:99999, iOffset);
+    /* Don't handle LIMIT here, otherwise print_timeline()
+     * will not determine the end-marker correctly! */
+    blob_appendf(&sql, " LIMIT -1 OFFSET %d", iOffset);
   }
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
@@ -1824,16 +1887,13 @@ void timeline_cmd(void){
 }
 
 /*
-** This is a version of the "localtime()" function from the standard
-** C library.  It converts a unix timestamp (seconds since 1970) into
-** a broken-out local time structure.
+** Return one of two things:
 **
-** This modified version of localtime() works like the library localtime()
-** by default.  Except if the timeline-utc property is set, this routine
-** uses gmttime() instead.  Thus by setting the timeline-utc property, we
-** can get all localtimes to be displayed at UTC time.
+**   ",'localtime'"  if the timeline-utc property is set to 0.
+**
+**   ""              (empty string) otherwise.
 */
-struct tm *fossil_localtime(const time_t *clock){
+const char *timeline_utc(){
   if( g.fTimeFormat==0 ){
     if( db_get_int("timeline-utc", 1) ){
       g.fTimeFormat = 1;
@@ -1841,11 +1901,10 @@ struct tm *fossil_localtime(const time_t *clock){
       g.fTimeFormat = 2;
     }
   }
-  if( clock==0 ) return 0;
   if( g.fTimeFormat==1 ){
-    return gmtime(clock);
+    return "";
   }else{
-    return localtime(clock);
+    return ",'localtime'";
   }
 }
 
@@ -1908,7 +1967,7 @@ void test_timewarp_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     @ <li>
-    @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&amp;d=%S(zUuid)">%S(zUuid)</a>
+    @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&amp;d=%S(zUuid)&amp;unhide">%S(zUuid)</a>
   }
   db_finalize(&q);
   style_footer();
@@ -2020,12 +2079,20 @@ static char const * stats_report_label_for_type(){
 /*
 ** A helper for the /reports family of pages which prints out a menu
 ** of links for the various type=XXX flags. zCurrentViewName must be
-** the name/value of the 'view' parameter which is in effect at
-** the time this is called. e.g. if called from the 'byuser' view
-** then zCurrentViewName must be "byuser".
-*/
-static void stats_report_event_types_menu(char const * zCurrentViewName){
-  char * zTop = mprintf("%s/reports?view=%s", g.zTop, zCurrentViewName);
+** the name/value of the 'view' parameter which is in effect at the
+** time this is called. e.g. if called from the 'byuser' view then
+** zCurrentViewName must be "byuser". Any URL parameters which need to
+** be added to the generated URLs should be passed in zParam. The
+** caller is expected to have already encoded any zParam in the %T or
+** %t encoding.  */
+static void stats_report_event_types_menu(char const * zCurrentViewName,
+                                          char const * zParam){
+  char * zTop;
+  if(zParam && !*zParam){
+    zParam = NULL;
+  }
+  zTop = mprintf("%s/reports?view=%s%s%s", g.zTop, zCurrentViewName,
+                 zParam ? "&" : "", zParam);
   cgi_printf("<div>");
   cgi_printf("<span>Event types:</span> ");
   if('*' == statsReportType){
@@ -2116,7 +2183,7 @@ static void stats_report_by_month_year(char includeMonth,
   int iterations = 0;                /* number of weeks/months we iterate
                                         over */
   stats_report_init_view();
-  stats_report_event_types_menu( includeMonth ? "bymonth" : "byyear" );
+  stats_report_event_types_menu( includeMonth ? "bymonth" : "byyear", NULL );
   blob_appendf(&header, "Timeline Events (%s) by year%s",
                stats_report_label_for_type(),
                (includeMonth ? "/month" : ""));
@@ -2175,7 +2242,7 @@ static void stats_report_by_month_year(char includeMonth,
           @ <tr class='row%d(rowClass)'>
           @ <td></td>
           @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
-          @</tr>    
+          @</tr>
         }
         nEventsPerYear = 0;
         memcpy(zPrevYear,zTimeframe,4);
@@ -2239,7 +2306,7 @@ static void stats_report_by_month_year(char includeMonth,
     @ <tr class='row%d(rowClass)'>
     @ <td></td>
     @ <td colspan='2'>Yearly total: %d(nEventsPerYear)</td>
-    @</tr>    
+    @</tr>
   }
   @ </tbody></table>
   if(nEventTotal){
@@ -2267,7 +2334,7 @@ static void stats_report_by_user(){
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
   stats_report_init_view();
-  stats_report_event_types_menu("byuser");
+  stats_report_event_types_menu("byuser", NULL);
   blob_append(&sql,
                "SELECT user, "
                "COUNT(*) AS eventCount "
@@ -2338,8 +2405,14 @@ static void stats_report_year_weeks(const char * zUserName){
                                         all rows. */
   int iterations = 0;                /* # of active time periods. */
   stats_report_init_view();
-  stats_report_event_types_menu("byweek");
-  cgi_printf("Select year: ");
+  if(4==nYear){
+    Blob urlParams = empty_blob;
+    blob_appendf(&urlParams, "y=%T", zYear);
+    stats_report_event_types_menu("byweek", blob_str(&urlParams));
+    blob_reset(&urlParams);
+  }else{
+    stats_report_event_types_menu("byweek", NULL);
+  }
   blob_append(&sql,
               "SELECT DISTINCT substr(date(mtime),1,4) AS y "
               "FROM v_reports WHERE 1 ", -1);
@@ -2349,6 +2422,7 @@ static void stats_report_year_weeks(const char * zUserName){
   blob_append(&sql,"GROUP BY y ORDER BY y", -1);
   db_prepare(&qYears, blob_str(&sql));
   blob_reset(&sql);
+  cgi_printf("Select year: ");
   while( SQLITE_ROW == db_step(&qYears) ){
     const char * zT = db_column_text(&qYears, 0);
     if( i++ ){
@@ -2472,9 +2546,11 @@ void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
   const char * zView = P("view");    /* Which view/report to show. */
   const char *zUserName = P("user");
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(); return; }
   if(!zUserName) zUserName = P("u");
   url_initialize(&url, "reports");
-
   if(zUserName && *zUserName){
     url_add_parameter(&url,"user", zUserName);
     timeline_submenu(&url, "(Remove User Flag)", "view", zView, "user");

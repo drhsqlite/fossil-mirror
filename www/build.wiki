@@ -19,8 +19,8 @@ the newer one.</p>
 <ol>
 <li> Download and unpack a source tarball or ZIP.
 <li> <b>./configure; make</b>
-<li> Move or copy the resulting "fossil" executable to someplace
-     on your $PATH.
+<li> Move the resulting "fossil" or "fossil.exe" executable to someplace on
+your $PATH.
 </ol>
 
 <p><hr>
@@ -52,6 +52,26 @@ link.</p></li>
 These link will build a ZIP archive or a gzip-compressed tarball of the 
 complete source code and download it to your browser.
 </ol>
+
+<h2>Aside: Is it really safe to use an unreleased development version of
+the Fossil source code?</h2>
+
+Yes!  Any check-in on the 
+[/timeline?t=trunk | trunk branch] of the Fossil
+[http://fossil-scm.org/fossil/timeline | Fossil self-hosting repository]
+will work fine.  (Dodgy code is always on a branch.)  In the unlikely
+event that you pick a version with a serious bug, it still won't
+clobber your files.  Fossil uses several
+[./selfcheck.wiki | self-checks] prior to committing any
+repository change that prevent loss-of-work due to bugs.
+
+The Fossil [./selfhost.wiki | self-hosting repositories], especially
+the one at [http://www.fossil-scm.org/fossil], usually run a version
+of trunk that is less than a week or two old.  Look at the bottom
+right-hand corner of this screen (to the right of "This page was
+generated in...") to see exactly which version of Fossil is
+rendering this page.  It is always safe to use whatever version
+of the Fossil code you find running on the main Fossil website.
 
 <h2>2.0 Compiling</h2>
 
@@ -94,9 +114,11 @@ need either Cygwin or Msys as build environment. On Cygwin, Linux
 or Darwin you may want to make minor edits to win/Makefile.mingw
 to configure the cross-compile environment.
 
-<li><p><i>VC++</i> → Use the msc makefile.  First
+<li><p><i>MSVC</i> → Use the msc makefile.  First
 change to the "win/" subdirectory ("<b>cd win</b>") then run
-"<b>nmake /f Makefile.msc</b>".
+"<b>nmake /f Makefile.msc</b>".  Alternatively, the batch file
+"<b>win\buildmsvc.bat</b>" may be used and it will attempt to
+detect and use the latest installed version of MSVC.
 </ol>
 </ol>
 

@@ -166,7 +166,7 @@ void finfo_cmd(void){
     }
     zFilename = blob_str(&fname);
     db_prepare(&q,
-        "SELECT b.uuid, ci.uuid, date(event.mtime,'localtime'),"
+        "SELECT b.uuid, ci.uuid, date(event.mtime%s),"
         "       coalesce(event.ecomment, event.comment),"
         "       coalesce(event.euser, event.user),"
         "       (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
@@ -178,7 +178,8 @@ void finfo_cmd(void){
         "   AND event.objid=mlink.mid"
         "   AND event.objid=ci.rid"
         " ORDER BY event.mtime DESC LIMIT %d OFFSET %d",
-        TAG_BRANCH, zFilename, filename_collation(), iLimit, iOffset
+        timeline_utc(), TAG_BRANCH, zFilename, filename_collation(),
+        iLimit, iOffset
     );
     blob_zero(&line);
     if( iBrief ){
@@ -296,7 +297,7 @@ void finfo_page(void){
   if( uBg ) url_add_parameter(&url, "ubg", 0);
   baseCheckin = name_to_rid_www("ci");
   if( baseCheckin ) firstChngOnly = 1;
-  if( firstChngOnly ) url_add_parameter(&url, "fco", "0");
+  if( !firstChngOnly ) url_add_parameter(&url, "fco", "0");
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
@@ -304,7 +305,7 @@ void finfo_page(void){
   blob_zero(&sql);
   blob_appendf(&sql,
     "SELECT"
-    " datetime(event.mtime,'localtime'),"            /* Date of change */
+    " datetime(event.mtime%s),"                      /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
     " coalesce(event.euser, event.user),"            /* User who made chng */
     " mlink.pid,"                                    /* Parent file rid */
@@ -317,13 +318,13 @@ void finfo_page(void){
                                 " AND tagxref.rid=mlink.mid)," /* Tags */
     " mlink.mid,"                                    /* check-in ID */
     " mlink.pfnid",                                  /* Previous filename */
-    TAG_BRANCH
+    timeline_utc(), TAG_BRANCH
   );
   if( firstChngOnly ){
 #if 0
     blob_appendf(&sql, ", min(event.mtime)");
 #else
-    blob_appendf(&sql, 
+    blob_appendf(&sql,
         ", min(CASE (SELECT value FROM tagxref"
                     " WHERE tagtype>0 AND tagid=%d"
                     "   AND tagxref.rid=mlink.mid)"
@@ -364,7 +365,7 @@ void finfo_page(void){
     }else{
       style_submenu_element("Simplified",
                             "Show only first use of a change","%s",
-                            url_render(&url, "fco", "1", 0, 0));
+                            url_render(&url, "fco", 0, 0, 0));
     }
   }
   db_prepare(&q, blob_str(&sql));
@@ -377,12 +378,12 @@ void finfo_page(void){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
     char *zLink = href("%R/info/%S", zUuid);
     blob_appendf(&title, "Ancestors of file ");
-    hyperlinked_path(zFilename, &title, zUuid);
+    hyperlinked_path(zFilename, &title, zUuid, "tree", "");
     blob_appendf(&title, " from check-in %z%.10s</a>", zLink, zUuid);
     fossil_free(zUuid);
   }else{
     blob_appendf(&title, "History of files named ");
-    hyperlinked_path(zFilename, &title, 0);
+    hyperlinked_path(zFilename, &title, 0, "tree", "");
   }
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
@@ -465,12 +466,14 @@ void finfo_page(void){
     @ branch: %h(zBr))
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
+      @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
+      @ [annotate]</a>
+      @ %z(href("%R/blame?checkin=%S&filename=%h",zCkin,z))
+      @ [blame]</a>
+      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
       if( fpid ){
         @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zPUuid,zUuid))[diff]</a>
       }
-      @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
-      @ [annotate]</a>
-      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
       int srcid = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", frid);

@@ -273,6 +273,11 @@ void add_cmd(void){
     int isDir;
     Blob fullName;
 
+    /* file_tree_name() throws a fatal error if g.argv[i] is outside of the
+    ** checkout. */
+    file_tree_name(g.argv[i], &fullName, 1);
+    blob_reset(&fullName);
+
     file_canonical_name(g.argv[i], &fullName, 0);
     zName = blob_str(&fullName);
     isDir = file_wd_isdir(zName);
@@ -318,15 +323,10 @@ void add_cmd(void){
 */
 void delete_cmd(void){
   int i;
-  int vid;
   Stmt loop;
 
   capture_case_sensitive_option();
   db_must_be_within_tree();
-  vid = db_lget_int("checkout", 0);
-  if( vid==0 ){
-    fossil_fatal("no checkout to remove from");
-  }
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
@@ -555,7 +555,7 @@ void addremove_cmd(void){
 */
 static void mv_one_file(int vid, const char *zOrig, const char *zNew){
   int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q %s",
-		         zNew, filename_collation());
+                         zNew, filename_collation());
   if( x>=0 ){
     if( x==0 ){
       fossil_fatal("cannot rename '%s' to '%s' since another file named '%s'"

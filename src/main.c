@@ -116,11 +116,14 @@ struct TclContext {
 /*
 ** All global variables are in this structure.
 */
+#define GLOBAL_URL()      ((UrlData *)(&g.urlIsFile))
+
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
   int isConst;            /* True if the output is unchanging */
+  const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
   int useAttach;          /* True if global_config is attached to repository */
@@ -169,6 +172,10 @@ struct Global {
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
   Blob httpHeader;        /* Complete text of the HTTP request header */
 
+  /*
+  ** NOTE: These members MUST be kept in sync with those in the "UrlData"
+  **       structure defined in "url.c".
+  */
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */
   int urlIsSsh;           /* True if an "ssh:" url */
@@ -187,7 +194,6 @@ struct Global {
   int useProxy;           /* Used to remember that a proxy is in use */
   char *proxyUrlPath;
   int proxyOrigPort;      /* Tunneled port number for https through proxy */
-
   const char *zLogin;     /* Login name.  "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
@@ -374,6 +380,16 @@ static void fossil_atexit(void) {
   if(g.db){
     db_close(0);
   }
+  /*
+  ** FIXME: The next two lines cannot always be enabled; however, they
+  **        are very useful for tracking down TH1 memory leaks.
+  */
+  if( fossil_getenv("TH1_DELETE_INTERP")!=0 ){
+    if( g.interp ){
+      Th_DeleteInterp(g.interp); g.interp = 0;
+    }
+    assert( Th_GetOutstandingMalloc()==0 );
+  }
 }
 
 /*
@@ -556,6 +572,11 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
+  if( sqlite3_libversion_number()<3008003 ){
+    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.8.3",
+                 sqlite3_libversion());
+  }
+  sqlite3_config(SQLITE_CONFIG_SINGLETHREAD);
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);
@@ -580,6 +601,23 @@ int main(int argc, char **argv)
   g.tcl.argv = copy_args(g.argc, g.argv); /* save full arguments */
 #endif
   g.mainTimerId = fossil_timer_start();
+  g.zVfsName = find_option("vfs",0,1);
+  if( g.zVfsName==0 ){
+    g.zVfsName = fossil_getenv("FOSSIL_VFS");
+#if defined(__CYGWIN__)
+    if( g.zVfsName==0 ){
+      g.zVfsName = "win32-longpath";
+    }
+#endif
+  }
+  if( g.zVfsName ){
+    sqlite3_vfs *pVfs = sqlite3_vfs_find(g.zVfsName);
+    if( pVfs ){
+      sqlite3_vfs_register(pVfs, 1);
+    }else{
+      fossil_fatal("no such VFS: \"%s\"", g.zVfsName);
+    }
+  }
   if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
     g.isHTTP = 1;
@@ -819,6 +857,16 @@ const char *get_version(){
 }
 
 /*
+** This function returns the user-agent string for Fossil, for
+** use in HTTP(S) requests.
+*/
+const char *get_user_agent(){
+  static const char version[] = "Fossil/" RELEASE_VERSION " (" MANIFEST_DATE
+                                " " MANIFEST_VERSION ")";
+  return version;
+}
+
+/*
 ** COMMAND: version
 **
 ** Usage: %fossil version ?-verbose|-v?
@@ -839,7 +887,7 @@ void version_cmd(void){
 #endif
     fossil_print("Compiled on %s %s using %s (%d-bit)\n",
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
-    fossil_print("SQLite %s %.30s\n", SQLITE_VERSION, SQLITE_SOURCE_ID);
+    fossil_print("SQLite %s %.30s\n", sqlite3_libversion(), sqlite3_sourceid());
     fossil_print("Schema version %s\n", AUX_SCHEMA);
     fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #if defined(FOSSIL_ENABLE_SSL)
@@ -1040,6 +1088,36 @@ void help_page(void){
         @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z+1)</a></li>
       }else{
         @ <li>%s(z+1)</li>
+      }
+      j++;
+      if( j>=n ){
+        @ </ul></td>
+        j = 0;
+      }
+    }
+    if( j>0 ){
+      @ </ul></td>
+    }
+    @ </tr></table>
+
+    @ <h1>Unsupported commands:</h1>
+    @ <table border="0"><tr>
+    for(i=j=0; i<count(aCommand); i++){
+      const char *z = aCommand[i].zName;
+      if( strncmp(z,"test",4)!=0 ) continue;
+      j++;
+    }
+    n = (j+3)/4;
+    for(i=j=0; i<count(aCommand); i++){
+      const char *z = aCommand[i].zName;
+      if( strncmp(z,"test",4)!=0 ) continue;
+      if( j==0 ){
+        @ <td valign="top"><ul>
+      }
+      if( aCmdHelp[i].zText && *aCmdHelp[i].zText ){
+        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a></li>
+      }else{
+        @ <li>%s(z)</li>
       }
       j++;
       if( j>=n ){

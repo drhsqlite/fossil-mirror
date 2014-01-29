@@ -22,6 +22,7 @@ set filelist [glob $testdir/*]
 foreach f $filelist {
   if {[file isdir $f]} continue
   set base [file root [file tail $f]]
+  if {[string match "utf16*" $base]} continue
   set f1 [read_file $f]
   write_file t1 $f1
   for {set i 0} {$i<100} {incr i} {

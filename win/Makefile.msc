@@ -13,6 +13,7 @@ OBJDIR = .
 OX     = .
 O      = .obj
 E      = .exe
+P      = .pdb
 
 # Uncomment to enable debug symbols
 # DEBUG = 1
@@ -24,8 +25,8 @@ E      = .exe
 # FOSSIL_ENABLE_SSL = 1
 
 !ifdef FOSSIL_ENABLE_SSL
-SSLINCDIR = $(B)\compat\openssl-1.0.1e\include
-SSLLIBDIR = $(B)\compat\openssl-1.0.1e\out32
+SSLINCDIR = $(B)\compat\openssl-1.0.1f\include
+SSLLIBDIR = $(B)\compat\openssl-1.0.1f\out32
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !endif
 
@@ -40,12 +41,14 @@ INCL      = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
 INCL      = $(INCL) -I$(SSLINCDIR)
 !endif
 
-CFLAGS    = -nologo -MT -O2
-LDFLAGS   = /NODEFAULTLIB:msvcrt
+CFLAGS    = -nologo
+LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
 
 !ifdef DEBUG
-CFLAGS    = $(CFLAGS) -Zi
+CFLAGS    = $(CFLAGS) -Zi -MTd -Od
 LDFLAGS   = $(LDFLAGS) /DEBUG
+!else
+CFLAGS    = $(CFLAGS) -MT -O2
 !endif
 
 BCC       = $(CC) $(CFLAGS)
@@ -67,12 +70,16 @@ LIBDIR    = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
 !endif
 
 SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                 /DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  /DSQLITE_THREADSAFE=0 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
-                 /DSQLITE_ENABLE_STAT3 \
-                 /Dlocaltime=fossil_localtime \
-                 /DSQLITE_ENABLE_LOCKING_STYLE=0 \
-                 /DSQLITE_WIN32_NO_ANSI
+                 /DSQLITE_OMIT_DEPRECATED \
+                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS
+
+SHELL_OPTIONS = /Dmain=sqlite3_shell \
+                /DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                /Dgetenv=fossil_getenv \
+                /Dfopen=fossil_fopen
 
 SRC   = add_.c \
         allrepo_.c \
@@ -176,6 +183,7 @@ SRC   = add_.c \
         vfile_.c \
         wiki_.c \
         wikiformat_.c \
+        winfile_.c \
         winhttp_.c \
         wysiwyg_.c \
         xfer_.c \
@@ -289,6 +297,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\vfile$O \
         $(OX)\wiki$O \
         $(OX)\wikiformat$O \
+        $(OX)\winfile$O \
         $(OX)\winhttp$O \
         $(OX)\wysiwyg$O \
         $(OX)\xfer$O \
@@ -297,6 +306,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\fossil.res
 
 APPNAME = $(OX)\fossil$(E)
+PDBNAME = $(OX)\fossil$(P)
 
 all: $(OX) $(APPNAME)
 
@@ -416,6 +426,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\vfile.obj >> $@
 	echo $(OX)\wiki.obj >> $@
 	echo $(OX)\wikiformat.obj >> $@
+	echo $(OX)\winfile.obj >> $@
 	echo $(OX)\winhttp.obj >> $@
 	echo $(OX)\wysiwyg.obj >> $@
 	echo $(OX)\xfer.obj >> $@
@@ -441,11 +452,11 @@ mkindex$E: $(SRCDIR)\mkindex.c
 mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
-$(OX)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) /Fo$@ /Dmain=sqlite3_shell /Dsqlite3_strglob=strglob /Dgetenv=fossil_getenv /Dfopen=fossil_fopen $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
+$(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
+	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
 
-$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**
+$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c $B\win\Makefile.msc
+	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SRCDIR)\sqlite3.c
 
 $(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**
@@ -467,13 +478,14 @@ clean:
 	-del *_.c
 	-del *.h
 	-del *.map
-	-del *.manifest
+	-del *.res
 	-del headers
 	-del linkopts
-	-del *.res
+	-del vc*.pdb
 
 realclean: clean
 	-del $(APPNAME)
+	-del $(PDBNAME)
 	-del translate$E
 	-del mkindex$E
 	-del makeheaders$E
@@ -1108,6 +1120,12 @@ $(OX)\wikiformat$O : wikiformat_.c wikiformat.h
 wikiformat_.c : $(SRCDIR)\wikiformat.c
 	translate$E $** > $@
 
+$(OX)\winfile$O : winfile_.c winfile.h
+	$(TCC) /Fo$@ -c winfile_.c
+
+winfile_.c : $(SRCDIR)\winfile.c
+	translate$E $** > $@
+
 $(OX)\winhttp$O : winhttp_.c winhttp.h
 	$(TCC) /Fo$@ -c winhttp_.c
 
@@ -1243,6 +1261,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			vfile_.c:vfile.h \
 			wiki_.c:wiki.h \
 			wikiformat_.c:wikiformat.h \
+			winfile_.c:winfile.h \
 			winhttp_.c:winhttp.h \
 			wysiwyg_.c:wysiwyg.h \
 			xfer_.c:xfer.h \

@@ -251,10 +251,7 @@ void setup_ulist(void){
      @ <tr><th valign="top">x</th>
      @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
      @ <tr><th valign="top">z</th>
-     @   <td><i>Zip download:</i> Download a baseline via the
-     @   <tt>/zip</tt> URL even without
-     @    check<span class="capability">o</span>ut
-     @    and <span class="capability">h</span>istory permissions</td></tr>
+     @   <td><i>Zip download:</i> Download a ZIP archive or tarball</td></tr>
   @ </table>
   @ </li>
   @
@@ -602,7 +599,7 @@ void user_edit(void){
   @ <h2>Privileges And Capabilities:</h2>
   @ <ul>
   if( higherUser ){
-    @ <li><p class=missingPriv">
+    @ <li><p class="missingPriv">
     @ User %h(zLogin) has Setup privileges and you only have Admin privileges
     @ so you are not permitted to make changes to %h(zLogin).
     @ </p></li>
@@ -814,7 +811,7 @@ void entry_attribute(
     db_set(zVar, zQ, 0);
     zVal = zQ;
   }
-  @ <input type="text" name="%s(zQParm)" value="%h(zVal)" size="%d(width)"
+  @ <input type="text" id="%s(zQParm)" name="%s(zQParm)" value="%h(zVal)" size="%d(width)"
   if( disabled ){
     @ disabled="disabled"
   }
@@ -861,7 +858,7 @@ static void multiple_choice_attribute(
   const char *zQP,      /* The query parameter */
   const char *zDflt,    /* Default value if VAR table entry does not exist */
   int nChoice,          /* Number of choices */
-  const char **azChoice /* Choices. 2 per choice: (VAR value, Display) */
+  const char *const *azChoice /* Choices. 2 per choice: (VAR value, Display) */
 ){
   const char *z = db_get(zVar, (char*)zDflt);
   const char *zQ = P(zQP);
@@ -977,7 +974,7 @@ void setup_access(void){
   @ being and not a a robot or spider and (2) the user agent is able to
   @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
   @ and spiders can forge a User-Agent string that makes them seem to be a
-  @ normal browser and they can run javascript just like browsers.  But most 
+  @ normal browser and they can run javascript just like browsers.  But most
   @ bots do not go to that much trouble so this is normally an effective defense.</p>
   @
   @ <p>You do not normally want a bot to walk your entire repository because
@@ -985,7 +982,7 @@ void setup_access(void){
   @ every historical version of every file and creating ZIPs and tarballs of
   @ every historical check-in, which can use a lot of CPU and bandwidth
   @ even for relatively small projects.</p>
-  @ 
+  @
   @ <p>Additional parameters that control this behavior:</p>
   @ <blockquote>
   onoff_attribute("Require mouse movement before enabling hyperlinks",
@@ -1153,7 +1150,7 @@ void setup_login_group(void){
 void setup_timeline(void){
   double tmDiff;
   char zTmDiff[20];
-  static const char *azTimeFormats[] = {
+  static const char *const azTimeFormats[] = {
       "0", "HH:MM",
       "1", "HH:MM:SS",
       "2", "YYYY-MM-DD HH:MM",
@@ -1186,7 +1183,6 @@ void setup_timeline(void){
                   "timeline-utc", "utc", 1, 0);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
   @ Zulu) instead of in local time.  On this server, local time is currently
-  g.fTimeFormat = 2;
   tmDiff = db_double(0.0, "SELECT julianday('now')");
   tmDiff = db_double(0.0,
         "SELECT (julianday(%.17g,'localtime')-julianday(%.17g))*24.0",
@@ -1213,7 +1209,7 @@ void setup_timeline(void){
   @ <hr />
   onoff_attribute("Show version differences by default",
                   "show-version-diffs", "vdiff", 0, 0);
-  @ <p>On the version-information pages linked from the timeline can either
+  @ <p>The version-information pages linked from the timeline can either
   @ show complete diffs of all file changes, or can just list the names of
   @ the files that have changed.  Users can get to either page by
   @ clicking.  This setting selects the default.</p>
@@ -1600,9 +1596,11 @@ void setup_adunit(void){
 ** WEBPAGE: setup_logo
 */
 void setup_logo(void){
+  const char *zLogoMtime = db_get_mtime("logo-image", 0, 0);
   const char *zLogoMime = db_get("logo-mimetype","image/gif");
   const char *aLogoImg = P("logoim");
   int szLogoImg = atoi(PD("logoim:bytes","0"));
+  const char *zBgMtime = db_get_mtime("background-image", 0, 0);
   const char *zBgMime = db_get("background-mimetype","image/gif");
   const char *aBgImg = P("bgim");
   int szBgImg = atoi(PD("bgim:bytes","0"));
@@ -1670,7 +1668,7 @@ void setup_logo(void){
   style_header("Edit Project Logo And Background");
   @ <p>The current project logo has a MIME-Type of <b>%h(zLogoMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/logo" alt="logo" border="1" />
+  @ <blockquote><p><img src="%s(g.zTop)/logo/%z(zLogoMtime)" alt="logo" border="1" />
   @ </p></blockquote>
   @
   @ <form action="%s(g.zTop)/setup_logo" method="post"
@@ -1692,7 +1690,7 @@ void setup_logo(void){
   @
   @ <p>The current background image has a MIME-Type of <b>%h(zBgMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/background" alt="background" border=1 />
+  @ <blockquote><p><img src="%s(g.zTop)/background/%z(zBgMtime)" alt="background" border=1 />
   @ </p></blockquote>
   @
   @ <form action="%s(g.zTop)/setup_logo" method="post"

@@ -76,7 +76,7 @@ cson_value * json_page_finfo(){
 /*8*/   " b.size,"
 /*9*/   " (mlink.pid==0) AS isNew,"
 /*10*/  " (mlink.fid==0) AS isDel"
-	"  FROM mlink, blob b, event, blob ci, filename"
+        "  FROM mlink, blob b, event, blob ci, filename"
         " WHERE filename.name=%Q"
         "   AND mlink.fnid=filename.fnid"
         "   AND b.rid=mlink.fid"

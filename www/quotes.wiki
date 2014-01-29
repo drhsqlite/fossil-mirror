@@ -118,4 +118,10 @@ than what you actually did.
 <blockquote>
 <i>Mike Meyer on the Fossil mailing list, 2011-10-04</i>
 </blockquote>
+
+<li>github is such a pale shadow of what fossil does.
+
+<blockquote>
+<i>dkf on the Tcl chatroom, 2013-12-06</i>
+</blockquote>
 </ol>

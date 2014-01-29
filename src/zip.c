@@ -160,13 +160,13 @@ void zip_add_file(const char *zName, const Blob *pFile, int mPerm){
   put16(&zHdr[12], dosDate);
   put16(&zHdr[26], nameLen);
   put16(&zHdr[28], 13);
-  
+
   put16(&zExTime[0], 0x5455);
   put16(&zExTime[2], 9);
   zExTime[4] = 3;
   put32(&zExTime[5], unixTime);
   put32(&zExTime[9], unixTime);
-  
+
 
   /* Write the header and filename.
   */
@@ -204,7 +204,7 @@ void zip_add_file(const char *zName, const Blob *pFile, int mPerm){
     nByte = stream.total_in;
     nByteCompr = stream.total_out;
     deflateEnd(&stream);
-  
+
     /* Go back and write the header, now that we know the compressed file size.
     */
     z = &blob_buffer(&body)[iStart];
@@ -212,7 +212,7 @@ void zip_add_file(const char *zName, const Blob *pFile, int mPerm){
     put32(&z[18], nByteCompr);
     put32(&z[22], nByte);
   }
-  
+
   /* Make an entry in the tables of contents
   */
   memset(zBuf, 0, sizeof(zBuf));
@@ -324,7 +324,7 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
   ManifestFile *pFile;
   Blob filename;
   int nPrefix;
-  
+
   content_get(rid, &mfile);
   if( blob_size(&mfile)==0 ){
     blob_zero(pZip);

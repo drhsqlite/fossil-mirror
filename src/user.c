@@ -134,11 +134,11 @@ void prompt_for_password(
 /*
 ** Prompt to save Fossil user password
 */
-int save_password_prompt(){
+int save_password_prompt(const char *passwd){
   Blob x;
   char c;
   const char *old = db_get("last-sync-pw", 0);
-  if( (old!=0) && fossil_strcmp(unobscure(old), g.urlPasswd)==0 ){
+  if( (old!=0) && fossil_strcmp(unobscure(old), passwd)==0 ){
      return 0;
   }
   prompt_user("remember password (Y/n)? ", &x);
@@ -452,9 +452,9 @@ void access_log_page(void){
   }
   style_header("Access Log");
   blob_zero(&sql);
-  blob_append(&sql, 
-    "SELECT uname, ipaddr, datetime(mtime, 'localtime'), success"
-    "  FROM accesslog", -1
+  blob_appendf(&sql,
+    "SELECT uname, ipaddr, datetime(mtime%s), success"
+    "  FROM accesslog", timeline_utc()
   );
   if( y==1 ){
     blob_append(&sql, "  WHERE success", -1);

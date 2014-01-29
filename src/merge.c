@@ -28,13 +28,13 @@
 void print_checkin_description(int rid, int indent, const char *zLabel){
   Stmt q;
   db_prepare(&q,
-     "SELECT datetime(mtime,'localtime'),"
+     "SELECT datetime(mtime%s),"
      "       coalesce(euser,user), coalesce(ecomment,comment),"
      "       (SELECT uuid FROM blob WHERE rid=%d),"
      "       (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
      "         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
      "           AND tagxref.rid=%d AND tagxref.tagtype>0)"
-     "  FROM event WHERE objid=%d", rid, rid, rid);
+     "  FROM event WHERE objid=%d", timeline_utc(), rid, rid, rid);
   if( db_step(&q)==SQLITE_ROW ){
     const char *zTagList = db_column_text(&q, 4);
     char *zCom;
@@ -197,12 +197,12 @@ void merge_cmd(void){
     }
     db_prepare(&q,
       "SELECT blob.uuid,"
-          "   datetime(event.mtime,'localtime'),"
+          "   datetime(event.mtime%s),"
           "   coalesce(ecomment, comment),"
           "   coalesce(euser, user)"
       "  FROM event, blob"
       " WHERE event.objid=%d AND blob.rid=%d",
-      mid, mid
+      timeline_utc(), mid, mid
     );
     if( db_step(&q)==SQLITE_ROW ){
       char *zCom = mprintf("Merging fork [%S] at %s by %s: \"%s\"",
@@ -260,17 +260,9 @@ void merge_cmd(void){
                  " Use --force to override.\n");
     return;
   }
-  if( integrateFlag ){
-    if( db_exists("SELECT 1 FROM vmerge WHERE id=-4")) {
-      /* Fossil earlier than [55cacfcace] cannot handle this,
-       * therefore disallow it. */
-      fossil_fatal("Integration of another branch already in progress."
-        "  Commit or Undo needed first", g.argv[2]);
-    }
-    if( !is_a_leaf(mid) ){
-      fossil_warning("ignoring --integrate: %s is not a leaf", g.argv[2]);
-      integrateFlag = 0;
-    }
+  if( integrateFlag && !is_a_leaf(mid)){
+    fossil_warning("ignoring --integrate: %s is not a leaf", g.argv[2]);
+    integrateFlag = 0;
   }
   if( verboseFlag ){
     print_checkin_description(mid, 12, integrateFlag?"integrate:":"merge-from:");

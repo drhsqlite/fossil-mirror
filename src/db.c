@@ -318,6 +318,10 @@ int db_bind_text(Stmt *pStmt, const char *zParamName, const char *zValue){
   return sqlite3_bind_text(pStmt->pStmt, paramIdx(pStmt, zParamName), zValue,
                            -1, SQLITE_STATIC);
 }
+int db_bind_text16(Stmt *pStmt, const char *zParamName, const char *zValue){
+  return sqlite3_bind_text16(pStmt->pStmt, paramIdx(pStmt, zParamName), zValue,
+                             -1, SQLITE_STATIC);
+}
 int db_bind_null(Stmt *pStmt, const char *zParamName){
   return sqlite3_bind_null(pStmt->pStmt, paramIdx(pStmt, zParamName));
 }
@@ -711,18 +715,16 @@ void db_checkin_mtime_function(
 */
 LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
-  const char *zVfs;
   sqlite3 *db;
 
 #if defined(__CYGWIN__)
   zDbName = fossil_utf8_to_filename(zDbName);
 #endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
-  zVfs = fossil_getenv("FOSSIL_VFS");
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-       zVfs
+       g.zVfsName
   );
   if( rc!=SQLITE_OK ){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
@@ -831,19 +833,17 @@ void db_open_config(int useAttach){
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
 #else
-  if( file_access(zHome, W_OK) ){
-    fossil_fatal("home directory %s must be writeable", zHome);
-  }
   zDbName = mprintf("%s/.fossil", zHome);
 #endif
   if( file_size(zDbName)<1024*3 ){
+    if( file_access(zHome, W_OK) ){
+      fossil_fatal("home directory %s must be writeable", zHome);
+    }
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
-#if defined(_WIN32) || defined(__CYGWIN__)
   if( file_access(zDbName, W_OK) ){
     fossil_fatal("configuration file %s must be writeable", zDbName);
   }
-#endif
   if( useAttach ){
     db_open_or_attach(zDbName, "configdb", &g.useAttach);
     g.dbConfig = 0;
@@ -946,14 +946,13 @@ int db_open_local(const char *zDbName){
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
-  if( n==1 && zPwd[0]=='/' ) zPwd[0] = '.';
   while( n>0 ){
     for(i=0; i<count(aDbName); i++){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
         zPwd[n] = 0;
-        while( n>1 && zPwd[n-1]=='/' ){
+        while( n>0 && zPwd[n-1]=='/' ){
           n--;
           zPwd[n] = 0;
         }
@@ -965,8 +964,8 @@ int db_open_local(const char *zDbName){
       }
     }
     n--;
-    while( n>0 && zPwd[n]!='/' ){ n--; }
-    while( n>0 && zPwd[n-1]=='/' ){ n--; }
+    while( n>1 && zPwd[n]!='/' ){ n--; }
+    while( n>1 && zPwd[n-1]=='/' ){ n--; }
     zPwd[n] = 0;
   }
 
@@ -1368,7 +1367,8 @@ void db_initial_setup(
       "INSERT OR REPLACE INTO config"
       " SELECT name,value,mtime FROM settingSrc.config"
       "  WHERE (name IN %s OR name IN %s)"
-      "    AND name NOT GLOB 'project-*';",
+      "    AND name NOT GLOB 'project-*'"
+      "    AND name NOT GLOB 'short-project-*';",
       configure_inop_rhs(CONFIGSET_ALL),
       db_setting_inop_rhs()
     );
@@ -1415,7 +1415,7 @@ void db_initial_setup(
     blob_appendf(&manifest, "Z %b\n", &hash);
     blob_reset(&hash);
     rid = content_put(&manifest);
-    manifest_crosslink(rid, &manifest);
+    manifest_crosslink(rid, &manifest, MC_NONE);
   }
 }
 
@@ -1807,11 +1807,6 @@ char *db_get_mtime(const char *zName, char *zFormat, char *zDefault){
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
   }
-  if( z==0 && g.zConfigDbName ){
-    db_swap_connections();
-    z = db_text(0, "SELECT mtime FROM global_config WHERE name=%Q", zName);
-    db_swap_connections();
-  }
   if( z==0 ){
     z = zDefault;
   }else if( zFormat!=0 ){
@@ -2002,9 +1997,10 @@ void db_record_repository_filename(const char *zName){
 ** See also: close
 */
 void cmd_open(void){
-  int vid;
   int keepFlag;
   int allowNested;
+  char **oldArgv;
+  int oldArgc;
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0 };
 
   url_proxy_options();
@@ -2031,29 +2027,25 @@ void cmd_open(void){
   db_open_local(0);
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
-  vid = db_int(0, "SELECT pid FROM plink y"
-                  " WHERE NOT EXISTS(SELECT 1 FROM plink x WHERE x.cid=y.pid)");
-  if( vid==0 ){
-    db_lset_int("checkout", 1);
+  db_lset_int("checkout", 0);
+  oldArgv = g.argv;
+  oldArgc = g.argc;
+  azNewArgv[0] = g.argv[0];
+  g.argv = azNewArgv;
+  g.argc = 3;
+  if( oldArgc==4 ){
+    azNewArgv[g.argc-1] = oldArgv[3];
+  }else if( !db_exists("SELECT 1 FROM event WHERE type='ci'") ){
+    azNewArgv[g.argc-1] = "--latest";
   }else{
-    char **oldArgv = g.argv;
-    int oldArgc = g.argc;
-    db_lset_int("checkout", vid);
-    azNewArgv[0] = g.argv[0];
-    g.argv = azNewArgv;
-    g.argc = 3;
-    if( oldArgc==4 ){
-      azNewArgv[g.argc-1] = oldArgv[3];
-    }else{
-      azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
-    }
-    if( keepFlag ){
-      azNewArgv[g.argc++] = "--keep";
-    }
-    checkout_cmd();
-    g.argc = 2;
-    info_cmd();
+    azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
   }
+  if( keepFlag ){
+    azNewArgv[g.argc++] = "--keep";
+  }
+  checkout_cmd();
+  g.argc = 2;
+  info_cmd();
 }
 
 /*
@@ -2163,6 +2155,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "tcl-setup",     0,               40, 0, ""                    },
 #endif
   { "th1-setup",     0,               40, 0, ""                    },
+  { "th1-uri-regexp",0,               40, 0, ""                    },
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
   { 0,0,0,0,0 }
@@ -2359,6 +2352,10 @@ struct stControlSettings const ctrlSettings[] = {
 **    th1-setup        This is the setup script to be evaluated after creating
 **                     and initializing the TH1 interpreter.  By default, this
 **                     is empty and no extra setup is performed.
+**
+**    th1-uri-regexp   Specify which URI's are allowed in HTTP requests from
+**                     TH1 scripts.  If empty, no HTTP requests are allowed
+**                     whatsoever.  The default is an empty string.
 **
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.
