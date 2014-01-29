@@ -4,7 +4,7 @@
   *  Add the ability to display content and diffs for UTF16 text files
      in the web interface.
   *  Honor timezones in imports from git.
-  *  The [/reports] page now requires Read ("u") permissions. The "byweek"
+  *  The [/reports] page now requires Read ("o") permissions. The "byweek"
      report now properly propagates the selected year through the event type
      filter links.
   *  The [/help/info | info command] now shows leaf status of the checkout.
