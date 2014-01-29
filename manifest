@@ -1,5 +1,5 @@
-C When\son\sa\sFossil\sweb-page\swithout\sbeing\slogged-in,\spressing\s"Login"\sand\sdoing\sa\ssuccessful\slogin\swill\sbring\syou\sback\sto\sthe\ssame\sweb-page\sagain.
-D 2014-01-29T13:35:08.484
+C Added\sis-a-leaf\sand\sleaf\sstatus\sto\sinfo\s[/help/info]\sand\sfriends,\sper\sML\srequest.
+D 2014-01-29T15:16:41.523
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -349,7 +349,7 @@ F src/http_socket.c 09d140a27eb27dbae0b8d494172f9c2a39baf9dd
 F src/http_ssl.c 913e196b9eac1cc4ae3b0042e9dc3e3d92ca86a0
 F src/http_transport.c f6b79299ea197c26e9137a7b68b28885edb1b463
 F src/import.c be7a31538a60d2b1d89526862f75edfac74e6c3c
-F src/info.c 22529d5f4d205da492c800cf8b89be029fb67d01
+F src/info.c 11707a3950078eb3eebdc89b7835ef68cb3e678d
 F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c aa922544841030c688df33aec81cca05577bbb7d
@@ -561,7 +561,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki d4d05c1e0508ade7332024976831ad4dc87d93ae
-F www/changes.wiki 84d2b3316442306819ed7e41439d16d33ee33e54
+F www/changes.wiki 1047ad980a1f384d63b5ce3337133571dfe8882b
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ca0a58fac56b532a6a5c106fdc12e9b8b2f00a53
-R 3bb81078927ca1fc8efac0b7966f2db1
-U jan.nijtmans
-Z 560ecac9a6cece0ff20a2653ae6ab1d1
+P d5d7e640d035f1b9aa159fb83eac94fc28862733
+R f6a39bfd1ffcf50717ef145e3788ebe6
+U stephan
+Z 026c45e1ca7c15e24e286103012074ad

@@ -111,6 +111,22 @@ void show_common_info(
     }
     db_finalize(&q);
   }
+  if( zUuid ){
+    fossil_print("%-13s ", "leaf:");
+    if(is_a_leaf(rid)){
+      if(db_int(0, "SELECT 1 FROM tagxref AS tx"
+                " WHERE tx.rid=%d"
+                " AND tx.tagid=%d"
+                " AND tx.tagtype>0",
+                rid, TAG_CLOSED)){
+        fossil_print("%s\n", "closed");
+      }else{
+        fossil_print("%s\n", "open");
+      }
+    }else{
+      fossil_print("no\n");
+    }
+  }
   zTags = info_tags_of_checkin(rid, 0);
   if( zTags && zTags[0] ){
     fossil_print("tags:         %s\n", zTags);
