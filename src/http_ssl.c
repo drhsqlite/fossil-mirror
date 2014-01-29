@@ -178,10 +178,10 @@ void ssl_close(void){
 
 /*
 ** Open an SSL connection.  The identify of the server is determined
-** by global variables that are set using url_parse():
+** by variables that are set using url_parse():
 **
-**    g.urlName       Name of the server.  Ex: www.fossil-scm.org
-**    g.urlPort       TCP/IP port to use.  Ex: 80
+**    pUrlData->name  Name of the server.  Ex: www.fossil-scm.org
+**    pUrlData->port  TCP/IP port to use.  Ex: 80
 **
 ** Return the number of errors.
 */
