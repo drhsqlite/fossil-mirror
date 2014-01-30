@@ -259,6 +259,7 @@ void sync_cmd(void){
 */
 void remote_url_cmd(void){
   char *zUrl;
+  g.fUseHttpAuth = find_option("httpauth",0,0)!=0;
   db_find_and_open_repository(0, 0);
   if( g.argc!=2 && g.argc!=3 ){
     usage("remote-url ?URL|off?");
