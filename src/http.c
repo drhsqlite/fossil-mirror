@@ -204,6 +204,9 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       if( rc==401 ){
         g.fUseHttpAuth = 1;
         transport_close(GLOBAL_URL());
+        if( --maxRedirect == 0 ){
+          fossil_fatal("http authorization limit exceeded");
+        }
         return http_exchange(pSend, pReply, useLogin, maxRedirect);
       }
       if( rc!=200 && rc!=302 ){
