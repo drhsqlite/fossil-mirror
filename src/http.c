@@ -207,12 +207,18 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
       if( rc==401 ){
-        fUseHttpAuth = 1;
-        transport_close(GLOBAL_URL());
-        if( --maxRedirect == 0 ){
-          fossil_fatal("http authorization limit exceeded");
+        if( g.urlIsHttps || db_get_boolean("use-http-auth",0)!=0 ){
+          fUseHttpAuth = 1;
+          transport_close(GLOBAL_URL());
+          if( --maxRedirect == 0 ){
+            fossil_fatal("http authorization limit exceeded");
+          }
+          return http_exchange(pSend, pReply, useLogin, maxRedirect);
+        }else{
+          fossil_warning(
+            "Authorization over unencrypted HTTP requested; "
+            "use --httpauth if appropriate.");
         }
-        return http_exchange(pSend, pReply, useLogin, maxRedirect);
       }
       if( rc!=200 && rc!=302 ){
         int ii;
