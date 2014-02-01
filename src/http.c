@@ -86,7 +86,6 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 static void http_build_header(Blob *pPayload, Blob *pHdr){
   int i;
   const char *zSep;
-  const int fUseHttpAuth = db_get_boolean("use-http-auth", 0);
 
   blob_zero(pHdr);
   i = strlen(g.urlPath);
@@ -99,7 +98,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   if( g.urlProxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
   }
-  if( g.urlPasswd && g.urlUser && fUseHttpAuth ){
+  if( g.urlPasswd && g.urlUser && g.fUseHttpAuth ){
     char *zCredentials = mprintf("%s:%s", g.urlUser, g.urlPasswd);
     char *zEncoded = encode64(zCredentials, -1);
     blob_appendf(pHdr, "Authorization: Basic %s\r\n", zEncoded);
@@ -202,6 +201,11 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
     /* printf("[%s]\n", zLine); fflush(stdout); */
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
+      if( rc==401 ){
+        g.fUseHttpAuth = 1;
+        transport_close(GLOBAL_URL());
+        return http_exchange(pSend, pReply, useLogin, maxRedirect);
+      }
       if( rc!=200 && rc!=302 ){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}

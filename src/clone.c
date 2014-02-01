@@ -111,7 +111,6 @@ void delete_private_content(void){
 **    --private                  Also clone private branches 
 **    --ssl-identity=filename    Use the SSL identity if requested by the server
 **    --ssh-command|-c 'command' Use this SSH command
-**    --httpauth                 Add HTTP Basic Authorization to requests
 **
 ** See also: init
 */
@@ -124,7 +123,6 @@ void clone_cmd(void){
 
   if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
   if( find_option("once",0,0)!=0) urlFlags &= ~URL_REMEMBER;
-  g.fUseHttpAuth = find_option("httpauth",0,0)!=0;
   zDefaultUser = find_option("admin-user","A",1);
   clone_ssh_find_options();
   url_proxy_options();
