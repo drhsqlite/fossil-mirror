@@ -141,7 +141,6 @@ struct Global {
   int fSqlPrint;          /* True if -sqlprint flag is present */
   int fQuiet;             /* True if -quiet flag is present */
   int fHttpTrace;         /* Trace outbound HTTP requests */
-  int fUseHttpAuth;       /* Use HTTP Basic Authentication in requests */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
   int fSshClient;         /* HTTP client flags for SSH client */
@@ -651,7 +650,6 @@ int main(int argc, char **argv)
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
-    g.fUseHttpAuth = 0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
     g.zErrlog = find_option("errorlog", 0, 1);
