@@ -118,14 +118,13 @@ void delete_private_content(void){
 void clone_cmd(void){
   char *zPassword;
   const char *zDefaultUser;   /* Optional name of the default user */
-  int fUseHttpAuth;           /* Use HTTP auth if requested by user */
   int nErr = 0;
   int bPrivate = 0;           /* Also clone private branches */
   int urlFlags = URL_PROMPT_PW | URL_REMEMBER;
 
   if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
   if( find_option("once",0,0)!=0) urlFlags &= ~URL_REMEMBER;
-  fUseHttpAuth = find_option("httpauth","B",0)!=0;
+  g.fUseHttpAuth = find_option("httpauth","B",0)!=0;
   zDefaultUser = find_option("admin-user","A",1);
   clone_ssh_find_options();
   url_proxy_options();
@@ -164,7 +163,7 @@ void clone_cmd(void){
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA, 0);
     db_set("rebuilt", get_version(), 0);
-    remember_http_auth(fUseHttpAuth,g.argv[2]);
+    remember_or_get_http_auth(urlFlags & URL_REMEMBER, g.argv[2]);
     url_remember();
     if( g.zSSLIdentity!=0 ){
       /* If the --ssl-identity option was specified, store it as a setting */
@@ -206,12 +205,19 @@ void clone_cmd(void){
 ** If user chooses to use HTTP Authentication over unencrypted HTTP,
 ** remember decision.  Otherwise, if the URL is being changed and no preference
 ** has been indicated, err on the safe side and revert the decision.
+** Set the global preference if the URL is not being changed.
 */
-void remember_http_auth(int fUseHttpAuth, const char *zUrl){
-  if( fUseHttpAuth==1 ){
-    db_set_int("use-http-auth", 1, 0);
-  }else if( zUrl && zUrl[0] ){
-    db_unset("use-http-auth", 0);
+void remember_or_get_http_auth(int fRemember, const char *zUrl){
+  if( fRemember ){
+    if( g.fUseHttpAuth==1 ){
+      db_set_int("use-http-auth", 1, 0);
+    }else if( zUrl && zUrl[0] ){
+      db_unset("use-http-auth", 0);
+    }else{
+      g.fUseHttpAuth = db_get_boolean("use-http-auth",0)!=0;
+    }
+  }else if( g.fUseHttpAuth==0 && zUrl==0 ){
+    g.fUseHttpAuth = db_get_boolean("use-http-auth",0)!=0;
   }
 }
 

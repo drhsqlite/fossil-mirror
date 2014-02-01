@@ -79,11 +79,6 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 }
 
 /*
-** Use HTTP Basic Authorization if a 401 is seen.
-*/
-static int fUseHttpAuth = 0;
-
-/*
 ** Construct an appropriate HTTP request header.  Write the header
 ** into pHdr.  This routine initializes the pHdr blob.  pPayload is
 ** the complete payload (including the login card) already compressed.
@@ -103,7 +98,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   if( g.urlProxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
   }
-  if( g.urlPasswd && g.urlUser && fUseHttpAuth ){
+  if( g.urlPasswd && g.urlUser && g.fUseHttpAuth ){
     char *zCredentials = mprintf("%s:%s", g.urlUser, g.urlPasswd);
     char *zEncoded = encode64(zCredentials, -1);
     blob_appendf(pHdr, "Authorization: Basic %s\r\n", zEncoded);
@@ -207,8 +202,9 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
       if( rc==401 ){
-        if( g.urlIsHttps || db_get_boolean("use-http-auth",0)!=0 ){
-          fUseHttpAuth = 1;
+        if( g.urlIsHttps || g.fUseHttpAuth ){
+          /* set g.fUseHttpAuth to avoid loop when doing HTTPS */
+          g.fUseHttpAuth = 1;
           transport_close(GLOBAL_URL());
           if( --maxRedirect == 0 ){
             fossil_fatal("http authorization limit exceeded");
