@@ -170,7 +170,7 @@ static int stash_create(void){
     blob_append(&prompt,
        "\n"
        "# Enter a description of what is being stashed.  Lines beginning\n"
-       "# with \"#\" are ignored.  Stash comments are plain text except.\n"
+       "# with \"#\" are ignored.  Stash comments are plain text except\n"
        "# newlines are not preserved.\n",
        -1);
     prompt_for_user_comment(&comment, &prompt);
