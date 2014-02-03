@@ -1,5 +1,5 @@
-C Remove\smalplaced\speriod\sfrom\sthe\smiddle\sof\sa\ssentence.
-D 2014-02-01T19:24:13.535
+C Make\ssure\sthat\sthe\sclose-button\sof\stk's\s"diff"\swindow\sends\sthe\smain-loop\sin\sall\scircumstances.\s\nRemove\sunnecessary\sspace.
+D 2014-02-03T12:39:01.430
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -334,7 +334,7 @@ F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c fa845890d9e4c53f371c422e9c8800092f1ac381
 F src/diff.c afd9c46410520e7f0612ab73dbbde02ea39b8b19
-F src/diffcmd.c aa3441ac1544fce62112cdd61f2caaf09635f52f
+F src/diffcmd.c 4399d1553628ef1eb085912a1e0f94dc0904a179
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 8746ce8c2e786d12123334667d047f94cd5c1d7e
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 167b24c744258b7a82ad62a327c9a52d4d22364a
-R 3a9f850738cfad65755697189d9ede8e
-U andybradford
-Z c8c3ea549f1291a968c5ed7413805f3f
+P 4c8a3fb2b716ed9db13fed7738983c367fbd5330
+R 99bbe51b4f887bb0aab1bddb708b1ac1
+U jan.nijtmans
+Z 5558531b7f03cce425c105bb848a7d21
