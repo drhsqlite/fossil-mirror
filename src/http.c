@@ -295,7 +295,6 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
             free(g.zHttpAuth);
             g.zHttpAuth = 0;
           }
-          transport_close(GLOBAL_URL());
           return http_exchange(pSend, pReply, useLogin, maxRedirect);
         }
       }
