@@ -56,6 +56,7 @@ int autosync(int flags){
     g.urlFlags |= URL_PROMPT_PW;
     url_prompt_for_password();
   }
+  g.zHttpAuth = get_httpauth();
   url_remember();
 #if 0 /* Disabled for now */
   if( (flags & AUTOSYNC_PULL)!=0 && db_get_boolean("auto-shun",1) ){

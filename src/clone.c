@@ -214,15 +214,29 @@ void remember_or_get_http_auth(const char *zHttpAuth, int fRemember, const char 
   }
   if( fRemember ){
     if( g.zHttpAuth && g.zHttpAuth[0] ){
-      db_set("http-auth", obscure(g.zHttpAuth), 0);
+      set_httpauth(g.zHttpAuth);
     }else if( zUrl && zUrl[0] ){
       db_unset("http-auth", 0);
     }else{
-      g.zHttpAuth = unobscure(db_get("http-auth",0));
+      g.zHttpAuth = get_httpauth();
     }
   }else if( g.zHttpAuth==0 && zUrl==0 ){
-    g.zHttpAuth = unobscure(db_get("http-auth",0));
+    g.zHttpAuth = get_httpauth();
   }
+}
+
+/*
+** Get the HTTP Authorization preference from db.
+*/
+char *get_httpauth(void){
+  return unobscure(db_get("http-auth", 0));
+}
+
+/*
+** Set the HTTP Authorization preference in db.
+*/
+void set_httpauth(const char *zHttpAuth){
+  db_set("http-auth", obscure(zHttpAuth), 0);
 }
 
 /*

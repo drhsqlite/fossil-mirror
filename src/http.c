@@ -182,7 +182,7 @@ char *prompt_for_httpauth_creds(void){
     free(zPw);
   }
   if( save_httpauth_prompt() ){
-    db_set("http-auth", obscure(zHttpAuth), 0);
+    set_httpauth(zHttpAuth);
   }
   return zHttpAuth;
 }
