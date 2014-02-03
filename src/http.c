@@ -166,6 +166,7 @@ char *prompt_for_httpauth_creds(void){
   Blob x;
   char *zUser;
   char *zPw;
+  char *zPrompt;
   char *zHttpAuth = 0;
   if( !isatty(fileno(stdin)) ) return 0;
   if ( use_fossil_creds_for_httpauth_prompt() ){
@@ -175,11 +176,15 @@ char *prompt_for_httpauth_creds(void){
   }else{
     prompt_user("Basic Authorization user: ", &x);
     zUser = mprintf("%b", &x);
-    zPw = prompt_for_user_password(zUser);
-    zHttpAuth = mprintf("%s:%s", zUser, zPw);
+    zPrompt = mprintf("HTTP password for %b: ", &x);
     blob_reset(&x);
+    prompt_for_password(zPrompt, &x, 1);
+    zPw = mprintf("%b", &x);
+    zHttpAuth = mprintf("%s:%s", zUser, zPw);
     free(zUser);
     free(zPw);
+    free(zPrompt);
+    blob_reset(&x);
   }
   if( save_httpauth_prompt() ){
     set_httpauth(zHttpAuth);
