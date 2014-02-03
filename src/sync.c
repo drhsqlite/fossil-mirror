@@ -268,7 +268,7 @@ void remote_url_cmd(void){
   if( g.argc==3 ){
     db_unset("last-sync-url", 0);
     db_unset("last-sync-pw", 0);
-    db_unset("use-http-auth", 0);
+    db_unset("http-auth", 0);
     if( is_false(g.argv[2]) ) return;
     url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
   }

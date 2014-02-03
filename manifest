@@ -1,5 +1,5 @@
-C Remove\sredundant\scode.
-D 2014-02-03T07:09:12.101
+C The\sstored\sname\sof\sthe\slocal\soption\shas\schanged.
+D 2014-02-03T07:12:38.030
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -406,7 +406,7 @@ F src/sqlite3.h ebccd0d12686945ae2a6baac99a4530c7d4f9a42
 F src/stash.c 5f639f8cf709b799f97baed003d5f512f8af814a
 F src/stat.c 28b9be27fd580b4b2dac60226ae296e55b2c9c9e
 F src/style.c f8070e4e29abc40aad2658032a51551a8f1ab6d0
-F src/sync.c 9f06f98789e8a4e7327ff2d8644336cf2d566b05
+F src/sync.c 17b60c24d38d6a9b2f3aadd1192b528722850271
 F src/tag.c 9d7a7cb5a501246675552fb402b3497fbb8e7d38
 F src/tar.c 4fd4440b5f21e39937739b2f096dd1d72933893f
 F src/th.c 4fb1e7e48c49e84c3d8ccac866a427918d4be407
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e38bfdae853b31c3124968c90d2059ea4f3f4b31
-R b62acabad8e6d801da30ad82af7ed46f
+P 3afd0289f38b3c20cb96592dbae8b9e21b62620f
+R f9f39ce9d96d67ae7bf75a7a2556f463
 U andybradford
-Z 268576b55be112904e96f399a21c89db
+Z 87da1403e56866c2c3c153990ebc3056
