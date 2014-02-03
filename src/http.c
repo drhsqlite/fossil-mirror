@@ -1,5 +1,4 @@
-/*
-** Copyright (c) 2007 D. Richard Hipp
+/* ** Copyright (c) 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -20,6 +19,19 @@
 #include "config.h"
 #include "http.h"
 #include <assert.h>
+
+#ifdef _WIN32
+#include <io.h>
+#ifndef isatty
+#define isatty(d) _isatty(d)
+#endif
+#ifndef fileno
+#define fileno(s) _fileno(s)
+#endif
+#endif
+
+/* Keep track of HTTP Basic Authorization failures */
+static int fSeenHttpAuth = 0;
 
 /*
 ** Construct the "login" card with the client credentials.
@@ -98,12 +110,11 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   if( g.urlProxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
   }
-  if( g.urlPasswd && g.urlUser && g.fUseHttpAuth ){
-    char *zCredentials = mprintf("%s:%s", g.urlUser, g.urlPasswd);
+  if( g.zHttpAuth && g.zHttpAuth[0] ){
+    const char *zCredentials = g.zHttpAuth;
     char *zEncoded = encode64(zCredentials, -1);
     blob_appendf(pHdr, "Authorization: Basic %s\r\n", zEncoded);
     fossil_free(zEncoded);
-    fossil_free(zCredentials);
   }
   blob_appendf(pHdr, "Host: %s\r\n", g.urlHostname);
   blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
@@ -114,6 +125,65 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
     blob_appendf(pHdr, "Content-Type: application/x-fossil\r\n");
   }
   blob_appendf(pHdr, "Content-Length: %d\r\n\r\n", blob_size(pPayload));
+}
+
+/*
+** Use Fossil credentials for HTTP Basic Authorization prompt
+*/
+static int use_fossil_creds_for_httpauth_prompt(void){
+  Blob x;
+  char c;
+  char *zPrompt = mprintf(
+    "\nBasic Authorization over %s required to continue.\n"
+    "Use Fossil username and password (y/N)? ",
+    g.urlIsHttps==1 ? "encrypted HTTPS" : "unencrypted HTTP");
+  prompt_user(zPrompt, &x);
+  c = blob_str(&x)[0];
+  blob_reset(&x);
+  free(zPrompt);
+  return ( c=='y' || c=='Y' );
+}
+
+/*
+** Prompt to save HTTP Basic Authorization information
+*/
+static int save_httpauth_prompt(void){
+  Blob x;
+  char c;
+  if( (g.urlFlags & URL_REMEMBER)==0 ) return;
+  prompt_user("Remember Basic Authorization credentials (Y/n)? ", &x);
+  c = blob_str(&x)[0];
+  blob_reset(&x);
+  return ( c!='n' && c!='N' );
+}
+
+/*
+** Get the HTTP Basic Authorization credentials from the user 
+** when 401 is received.
+*/
+char *prompt_for_httpauth_creds(void){
+  Blob x;
+  char *zUser;
+  char *zPw;
+  char *zHttpAuth = 0;
+  if( !isatty(fileno(stdin)) ) return 0;
+  if ( use_fossil_creds_for_httpauth_prompt() ){
+    if( g.urlUser && g.urlPasswd ){
+      zHttpAuth = mprintf("%s:%s", g.urlUser, g.urlPasswd);
+    }
+  }else{
+    prompt_user("Basic Authorization user: ", &x);
+    zUser = mprintf("%b", &x);
+    zPw = prompt_for_user_password(zUser);
+    zHttpAuth = mprintf("%s:%s", zUser, zPw);
+    blob_reset(&x);
+    free(zUser);
+    free(zPw);
+  }
+  if( save_httpauth_prompt() ){
+    db_set("http-auth", obscure(zHttpAuth), 0);
+  }
+  return zHttpAuth;
 }
 
 /*
@@ -202,18 +272,30 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
       if( rc==401 ){
-        if( g.urlIsHttps || g.fUseHttpAuth ){
-          /* set g.fUseHttpAuth to avoid loop when doing HTTPS */
-          g.fUseHttpAuth = 1;
-          transport_close(GLOBAL_URL());
-          if( --maxRedirect == 0 ){
-            fossil_fatal("http authorization limit exceeded");
+        transport_close(GLOBAL_URL());
+        if( --maxRedirect == 0 ){
+          fossil_fatal("http authorization limit exceeded");
+        }
+        if( g.zHttpAuth==0 ){
+          g.zHttpAuth = prompt_for_httpauth_creds();
+        }
+        if( g.zHttpAuth && g.zHttpAuth[0] ){
+          if( fSeenHttpAuth ){
+            free(g.zHttpAuth);
+            g.zHttpAuth = 0;
+            fSeenHttpAuth = 0;
+          }else{
+            fSeenHttpAuth = 1;
           }
           return http_exchange(pSend, pReply, useLogin, maxRedirect);
         }else{
-          fossil_warning(
-            "Authorization over unencrypted HTTP requested; "
-            "use --httpauth if appropriate.");
+          fossil_warning("HTTP Basic Authorization failed.");
+          if( g.zHttpAuth ){
+            free(g.zHttpAuth);
+            g.zHttpAuth = 0;
+          }
+          transport_close(GLOBAL_URL());
+          return http_exchange(pSend, pReply, useLogin, maxRedirect);
         }
       }
       if( rc!=200 && rc!=302 ){

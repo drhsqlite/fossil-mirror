@@ -85,6 +85,7 @@ int autosync(int flags){
 */
 static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   const char *zUrl = 0;
+  const char *zHttpAuth = 0;
   unsigned configSync = 0;
   unsigned urlFlags = URL_REMEMBER | URL_PROMPT_PW;
   int urlOptional = 0;
@@ -92,7 +93,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
     urlOptional = 1;
     urlFlags = 0;
   }
-  g.fUseHttpAuth = find_option("httpauth",0,0)!=0;
+  zHttpAuth = find_option("httpauth","B",1);
   if( find_option("once",0,0)!=0 ) urlFlags &= ~URL_REMEMBER;
   if( find_option("private",0,0)!=0 ){
     *pSyncFlags |= SYNC_PRIVATE;
@@ -119,7 +120,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
     clone_ssh_db_set_options();
   }
   url_parse(zUrl, urlFlags);
-  remember_or_get_http_auth(urlFlags & URL_REMEMBER, zUrl);
+  remember_or_get_http_auth(zHttpAuth, urlFlags & URL_REMEMBER, zUrl);
   url_remember();
   if( g.urlProtocol==0 ){
     if( urlOptional ) fossil_exit(0);

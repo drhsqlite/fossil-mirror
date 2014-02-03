@@ -111,20 +111,21 @@ void delete_private_content(void){
 **    --private                  Also clone private branches 
 **    --ssl-identity=filename    Use the SSL identity if requested by the server
 **    --ssh-command|-c 'command' Use this SSH command
-**    --httpauth|-B              Add HTTP Basic Authorization to requests
+**    --httpauth|-B 'user:pass'  Add HTTP Basic Authorization to requests
 **
 ** See also: init
 */
 void clone_cmd(void){
   char *zPassword;
   const char *zDefaultUser;   /* Optional name of the default user */
+  const char *zHttpAuth;      /* HTTP Authorization user:pass information */
   int nErr = 0;
   int bPrivate = 0;           /* Also clone private branches */
   int urlFlags = URL_PROMPT_PW | URL_REMEMBER;
 
   if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
   if( find_option("once",0,0)!=0) urlFlags &= ~URL_REMEMBER;
-  g.fUseHttpAuth = find_option("httpauth","B",0)!=0;
+  zHttpAuth = find_option("httpauth","B",1);
   zDefaultUser = find_option("admin-user","A",1);
   clone_ssh_find_options();
   url_proxy_options();
@@ -163,7 +164,7 @@ void clone_cmd(void){
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA, 0);
     db_set("rebuilt", get_version(), 0);
-    remember_or_get_http_auth(urlFlags & URL_REMEMBER, g.argv[2]);
+    remember_or_get_http_auth(zHttpAuth, urlFlags & URL_REMEMBER, g.argv[2]);
     url_remember();
     if( g.zSSLIdentity!=0 ){
       /* If the --ssl-identity option was specified, store it as a setting */
@@ -207,17 +208,20 @@ void clone_cmd(void){
 ** has been indicated, err on the safe side and revert the decision.
 ** Set the global preference if the URL is not being changed.
 */
-void remember_or_get_http_auth(int fRemember, const char *zUrl){
+void remember_or_get_http_auth(const char *zHttpAuth, int fRemember, const char *zUrl){
+  if( zHttpAuth && zHttpAuth[0] ){
+    g.zHttpAuth = mprintf("%s", zHttpAuth);
+  }
   if( fRemember ){
-    if( g.fUseHttpAuth==1 ){
-      db_set_int("use-http-auth", 1, 0);
+    if( g.zHttpAuth && g.zHttpAuth[0] ){
+      db_set("http-auth", obscure(g.zHttpAuth), 0);
     }else if( zUrl && zUrl[0] ){
-      db_unset("use-http-auth", 0);
+      db_unset("http-auth", 0);
     }else{
-      g.fUseHttpAuth = db_get_boolean("use-http-auth",0)!=0;
+      g.zHttpAuth = unobscure(db_get("http-auth",0));
     }
-  }else if( g.fUseHttpAuth==0 && zUrl==0 ){
-    g.fUseHttpAuth = db_get_boolean("use-http-auth",0)!=0;
+  }else if( g.zHttpAuth==0 && zUrl==0 ){
+    g.zHttpAuth = unobscure(db_get("http-auth",0));
   }
 }
 
