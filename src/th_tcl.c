@@ -770,6 +770,26 @@ static int setTclArguments(
 }
 
 /*
+** Run a Tcl script. If the script succeeds, start the main loop until
+** there is no more work to be done or the script calls "exit".
+*/
+int runTclGui(Th_Interp *interp, void *pContext, const char *script){
+  struct TclContext *tclContext = (struct TclContext *)pContext;
+  int rc;
+
+  if( createTclInterp(interp, pContext)!=TH_OK ){
+    return TH_ERROR;
+  }
+  rc = Tcl_EvalEx(tclContext->interp, script, -1, TCL_EVAL_GLOBAL);
+  if (rc == TCL_OK){
+    while (Tcl_DoOneEvent(0)) {
+      /* do nothing */
+    }
+  }
+  return rc;
+}
+
+/*
 ** Creates and initializes a Tcl interpreter for use with the specified TH1
 ** interpreter.  Stores the created Tcl interpreter in the Tcl context supplied
 ** by the caller.

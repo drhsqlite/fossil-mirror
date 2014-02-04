@@ -161,6 +161,7 @@ int th_register_testvfs(Th_Interp *interp);             /* th_testvfs.c */
 #ifdef FOSSIL_ENABLE_TCL
 int th_register_tcl(Th_Interp *interp, void *pContext); /* th_tcl.c */
 int unloadTcl(Th_Interp *interp, void *pContext);       /* th_tcl.c */
+int runTclGui(Th_Interp *, void *, const char *);       /* th_tcl.c */
 #endif
 
 /*

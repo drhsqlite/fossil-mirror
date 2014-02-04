@@ -1,5 +1,5 @@
-C Make\ssure\sthat\sthe\sclose-button\sof\stk's\s"diff"\swindow\sends\sthe\smain-loop\sin\sall\scircumstances.\s\nRemove\sunnecessary\sspace.
-D 2014-02-03T12:39:01.430
+C Use\sbuilt-in\sTcl\sfor\s"diff\s--tk"\simplementation\sif\spossible.\sFallback\sis\sto\sspawn\san\sexternal\s"tclsh"\sas\sbefore.
+D 2014-02-04T09:34:31.783
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -334,7 +334,7 @@ F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c fa845890d9e4c53f371c422e9c8800092f1ac381
 F src/diff.c afd9c46410520e7f0612ab73dbbde02ea39b8b19
-F src/diffcmd.c 4399d1553628ef1eb085912a1e0f94dc0904a179
+F src/diffcmd.c 67a05613b8b0f0cc596a68f77dd6c055e8e2b804
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 8746ce8c2e786d12123334667d047f94cd5c1d7e
@@ -410,10 +410,10 @@ F src/sync.c bb1f61e400aaa9daa59c6972b1fd987276bd6d80
 F src/tag.c 9d7a7cb5a501246675552fb402b3497fbb8e7d38
 F src/tar.c 4fd4440b5f21e39937739b2f096dd1d72933893f
 F src/th.c 4fb1e7e48c49e84c3d8ccac866a427918d4be407
-F src/th.h cb27ffe89d2d06dc019b73648e06c56174672494
+F src/th.h 7b78a932b37fad5774f95445f0c7b97eff0bcaed
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c e87b1b3b667c73f860fb0ac83c322cedde8a178f
-F src/th_tcl.c cfe4c67242b63fe655699f96b20db5808314813a
+F src/th_tcl.c 0fafdf5e3ebeb389a8f19dd2d84d553e289d2519
 F src/timeline.c 2e93fbc8ebb95a0f6060eb8e719a6ce63cc334eb
 F src/tkt.c 69f6fe7e18c10cd4a19b31ffcab4c68b284dd895
 F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4c8a3fb2b716ed9db13fed7738983c367fbd5330
-R 99bbe51b4f887bb0aab1bddb708b1ac1
+P c275d8ddbb87ddbb594f2d4c241affc2207fd74a
+R a9b007cde10e2bd718ff8106441c809d
 U jan.nijtmans
-Z 5558531b7f03cce425c105bb848a7d21
+Z 41e90290ddd59e8cecd1b76702ad30be

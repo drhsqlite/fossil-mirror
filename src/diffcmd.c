@@ -910,9 +910,11 @@ static const char zDiffScript[] =
 ** Show diff output in a Tcl/Tk window, in response to the --tk option
 ** to the diff command.
 **
-** Steps:
+** If fossil has direct access to a Tcl interpreter (either loaded
+** dynamically through stubs or linked in statically), we can use it
+** directly. Otherwise:
 ** (1) Write the Tcl/Tk script used for rendering into a temp file.
-** (2) Invoke "wish" on the temp file using fossil_system().
+** (2) Invoke "tclsh" on the temp file using fossil_system().
 ** (3) Delete the temp file.
 */
 void diff_tk(const char *zSubCmd, int firstArg){
@@ -946,6 +948,17 @@ void diff_tk(const char *zSubCmd, int firstArg){
     blob_write_to_file(&script, zTempFile);
     fossil_print("To see diff, run: tclsh \"%s\"\n", zTempFile);
   }else{
+#if defined(FOSSIL_ENABLE_TCL)
+    Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
+    if (runTclGui(g.interp, &g.tcl, blob_str(&script)) == TCL_OK){
+      blob_reset(&script);
+      return;
+    }
+    /* If evaluation of the script fails, the reason could be that Tk
+     * cannot be found by the built-in Tcl, or that Tcl cannot be
+     * loaded dynamically (e.g. Win64 Tcl in Win32 fossil). Try again
+     * using an external "tclsh", which might work in those two cases. */
+#endif
     zTempFile = write_blob_to_temp_file(&script);
     zCmd = mprintf("tclsh \"%s\"", zTempFile);
     fossil_system(zCmd);
