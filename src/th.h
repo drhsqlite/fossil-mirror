@@ -159,9 +159,12 @@ int th_register_vfs(Th_Interp *interp);                 /* th_vfs.c */
 int th_register_testvfs(Th_Interp *interp);             /* th_testvfs.c */
 
 #ifdef FOSSIL_ENABLE_TCL
-int th_register_tcl(Th_Interp *interp, void *pContext); /* th_tcl.c */
-int unloadTcl(Th_Interp *interp, void *pContext);       /* th_tcl.c */
-int runTclGui(Th_Interp *, void *, const char *);       /* th_tcl.c */
+/*
+** Interfaces to the full Tcl core library from "th_tcl.c".
+*/
+int th_register_tcl(Th_Interp *, void *);
+int unloadTcl(Th_Interp *, void *);
+int evaluateTclWithEvents(Th_Interp *, void *, const char *, int, int);
 #endif
 
 /*

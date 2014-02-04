@@ -770,21 +770,33 @@ static int setTclArguments(
 }
 
 /*
-** Run a Tcl script. If the script succeeds, start the main loop until
-** there is no more work to be done or the script calls "exit".
+** Evaluate a Tcl script, creating the Tcl interpreter if necessary. If the
+** Tcl script succeeds, start a Tcl event loop until there are no more events
+** remaining to process -OR- the script calls [exit].  If the bWait argument
+** is zero, only process events that are already in the queue; otherwise,
+** process events until the script terminates the Tcl event loop.
 */
-int runTclGui(Th_Interp *interp, void *pContext, const char *script){
+int evaluateTclWithEvents(
+  Th_Interp *interp,
+  void *pContext,
+  const char *zScript,
+  int nScript,
+  int bWait
+){
   struct TclContext *tclContext = (struct TclContext *)pContext;
+  Tcl_Interp *tclInterp;
   int rc;
+  int flags = TCL_ALL_EVENTS;
 
   if( createTclInterp(interp, pContext)!=TH_OK ){
     return TH_ERROR;
   }
-  rc = Tcl_EvalEx(tclContext->interp, script, -1, TCL_EVAL_GLOBAL);
-  if (rc == TCL_OK){
-    while (Tcl_DoOneEvent(0)) {
-      /* do nothing */
-    }
+  tclInterp = tclContext->interp;
+  rc = Tcl_EvalEx(tclInterp, zScript, nScript, TCL_EVAL_GLOBAL);
+  if( rc!=TCL_OK ) return rc;
+  if( !bWait ) flags |= TCL_DONT_WAIT;
+  while( Tcl_DoOneEvent(flags) ){
+    /* do nothing */
   }
   return rc;
 }

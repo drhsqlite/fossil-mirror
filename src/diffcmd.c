@@ -949,8 +949,9 @@ void diff_tk(const char *zSubCmd, int firstArg){
     fossil_print("To see diff, run: tclsh \"%s\"\n", zTempFile);
   }else{
 #if defined(FOSSIL_ENABLE_TCL)
-    Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
-    if (runTclGui(g.interp, &g.tcl, blob_str(&script)) == TCL_OK){
+    Th_FossilInit(TH_INIT_DEFAULT);
+    if( evaluateTclWithEvents(
+        g.interp, &g.tcl, blob_str(&script), blob_size(&script), 1)==TCL_OK ){
       blob_reset(&script);
       return;
     }
