@@ -135,8 +135,8 @@ static int use_fossil_creds_for_httpauth_prompt(void){
   Blob x;
   char c;
   char *zPrompt = mprintf(
-    "\nBasic Authorization over %s required to continue.\n"
-    "Use Fossil username and password (y/N)? ",
+    "\n%s requires Basic Authorization over %s.\n"
+    "Use Fossil username and password (y/N)? ", g.urlName,
     g.urlIsHttps==1 ? "encrypted HTTPS" : "unencrypted HTTP");
   prompt_user(zPrompt, &x);
   c = blob_str(&x)[0];
