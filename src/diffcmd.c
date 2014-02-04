@@ -950,15 +950,17 @@ void diff_tk(const char *zSubCmd, int firstArg){
   }else{
 #if defined(FOSSIL_ENABLE_TCL)
     Th_FossilInit(TH_INIT_DEFAULT);
-    if( evaluateTclWithEvents(
-        g.interp, &g.tcl, blob_str(&script), blob_size(&script), 1)==TCL_OK ){
+    if( evaluateTclWithEvents(g.interp, &g.tcl, blob_str(&script),
+                              blob_size(&script), 1)==TCL_OK ){
       blob_reset(&script);
       return;
     }
-    /* If evaluation of the script fails, the reason could be that Tk
-     * cannot be found by the built-in Tcl, or that Tcl cannot be
-     * loaded dynamically (e.g. Win64 Tcl in Win32 fossil). Try again
-     * using an external "tclsh", which might work in those two cases. */
+    /*
+     * If evaluation of the Tcl script fails, the reason may be that Tk
+     * could not be found by the loaded Tcl, or that Tcl cannot be loaded
+     * dynamically (e.g. x64 Tcl with x86 Fossil).  Therefore, fallback
+     * to using the external "tclsh", if available.
+     */
 #endif
     zTempFile = write_blob_to_temp_file(&script);
     zCmd = mprintf("tclsh \"%s\"", zTempFile);
