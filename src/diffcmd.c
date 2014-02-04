@@ -795,7 +795,7 @@ static const char zDiffScript[] =
 @ wm title . $CFG(TITLE)
 @ wm iconname . $CFG(TITLE)
 @ bind . <q> exit
-@ bind . <Destroy> exit
+@ bind . <Destroy> {after 0 exit}
 @ bind . <Tab> {cycleDiffs; break}
 @ bind . <<PrevWindow>> {cycleDiffs 1; break}
 @ bind . <Return> {
