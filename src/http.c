@@ -31,6 +31,9 @@
 #endif
 #endif
 
+/* Maximum number of HTTP Authorization attempts */
+#define MAX_HTTP_AUTH 2
+
 /* Keep track of HTTP Basic Authorization failures */
 static int fSeenHttpAuth = 0;
 
@@ -278,28 +281,12 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
       if( rc==401 ){
-        transport_close(GLOBAL_URL());
-        if( --maxRedirect == 0 ){
-          fossil_fatal("http authorization limit exceeded");
-        }
-        if( g.zHttpAuth==0 ){
-          g.zHttpAuth = prompt_for_httpauth_creds();
-        }
-        if( g.zHttpAuth && g.zHttpAuth[0] ){
-          if( fSeenHttpAuth ){
-            free(g.zHttpAuth);
-            g.zHttpAuth = 0;
-            fSeenHttpAuth = 0;
-          }else{
-            fSeenHttpAuth = 1;
-          }
-          return http_exchange(pSend, pReply, useLogin, maxRedirect);
-        }else{
-          fossil_warning("HTTP Basic Authorization failed.");
+        if( fSeenHttpAuth++ < MAX_HTTP_AUTH ){
           if( g.zHttpAuth ){
-            free(g.zHttpAuth);
-            g.zHttpAuth = 0;
+            if( g.zHttpAuth ) free(g.zHttpAuth);
           }
+          g.zHttpAuth = prompt_for_httpauth_creds();
+          transport_close(GLOBAL_URL());
           return http_exchange(pSend, pReply, useLogin, maxRedirect);
         }
       }
