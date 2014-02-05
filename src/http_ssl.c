@@ -285,7 +285,7 @@ int ssl_open(UrlData *pUrlData){
   BIO_get_ssl(iBio, &ssl);
 
 #if (SSLEAY_VERSION_NUMBER >= 0x00908070) && !defined(OPENSSL_NO_TLSEXT)
-  if( !SSL_set_tlsext_host_name(ssl, pUrlData->hostname) ){
+  if( !SSL_set_tlsext_host_name(ssl, pUrlData->useProxy?pUrlData->hostname:pUrlData->name) ){
     fossil_warning("WARNING: failed to set server name indication (SNI), "
                   "continuing without it.\n");
   }
