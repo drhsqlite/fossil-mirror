@@ -359,7 +359,7 @@ int ssl_open(UrlData *pUrlData){
         "contact your server\nadministrator.\n\n"
         "Accept certificate for host %s (a=always/y/N)? ",
         X509_verify_cert_error_string(e), desc, warning,
-        pUrlData->name);
+        pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
     BIO_free(mem);
 
     prompt_user(prompt, &ans);
@@ -409,10 +409,10 @@ void ssl_save_certificate(UrlData *pUrlData, X509 *cert, int trusted){
   PEM_write_bio_X509(mem, cert);
   BIO_write(mem, "", 1); /* nul-terminate mem buffer */
   BIO_get_mem_data(mem, &zCert);
-  zHost = mprintf("cert:%s", pUrlData->name);
+  zHost = mprintf("cert:%s", pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
   db_set(zHost, zCert, 1);
   free(zHost);
-  zHost = mprintf("trusted:%s", pUrlData->name);
+  zHost = mprintf("trusted:%s", pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
   db_set_int(zHost, trusted, 1);
   free(zHost);
   BIO_free(mem);  
@@ -427,14 +427,14 @@ X509 *ssl_get_certificate(UrlData *pUrlData, int *pTrusted){
   BIO *mem;
   X509 *cert;
 
-  zHost = mprintf("cert:%s", pUrlData->name);
+  zHost = mprintf("cert:%s", pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
   zCert = db_get(zHost, NULL);
   free(zHost);
   if ( zCert==NULL )
     return NULL;
 
   if ( pTrusted!=0 ){
-    zHost = mprintf("trusted:%s", pUrlData->name);
+    zHost = mprintf("trusted:%s", pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
     *pTrusted = db_get_int(zHost, 0);
     free(zHost);
   }
