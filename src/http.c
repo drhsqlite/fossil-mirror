@@ -138,9 +138,9 @@ static int use_fossil_creds_for_httpauth_prompt(void){
   Blob x;
   char c;
   char *zPrompt = mprintf(
-    "\n%s requires Basic Authorization over %s.\n"
-    "Use Fossil username and password (y/N)? ", g.urlName,
-    g.urlIsHttps==1 ? "encrypted HTTPS" : "unencrypted HTTP");
+    "\n%s Authorization required by:\n%s%s\n"
+    "Use Fossil username and password (y/N)? ",
+    g.urlIsHttps==1 ? "Encrypted HTTPS" : "Unencrypted HTTP", g.urlCanonical);
   prompt_user(zPrompt, &x);
   c = blob_str(&x)[0];
   blob_reset(&x);
@@ -339,6 +339,9 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }
       fossil_print("redirect to %s\n", &zLine[i]);
       url_parse(&zLine[i], 0);
+      fSeenHttpAuth = 0;
+      if( g.zHttpAuth ) free(g.zHttpAuth);
+      g.zHttpAuth = get_httpauth();
       transport_close(GLOBAL_URL());
       return http_exchange(pSend, pReply, useLogin, maxRedirect);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){

@@ -209,6 +209,7 @@ void clone_cmd(void){
 ** Set the global preference if the URL is not being changed.
 */
 void remember_or_get_http_auth(const char *zHttpAuth, int fRemember, const char *zUrl){
+  char *zKey = mprintf("http-auth:%s", g.urlCanonical);
   if( zHttpAuth && zHttpAuth[0] ){
     g.zHttpAuth = mprintf("%s", zHttpAuth);
   }
@@ -216,27 +217,32 @@ void remember_or_get_http_auth(const char *zHttpAuth, int fRemember, const char 
     if( g.zHttpAuth && g.zHttpAuth[0] ){
       set_httpauth(g.zHttpAuth);
     }else if( zUrl && zUrl[0] ){
-      db_unset("http-auth", 0);
+      db_unset(zKey, 0);
     }else{
       g.zHttpAuth = get_httpauth();
     }
   }else if( g.zHttpAuth==0 && zUrl==0 ){
     g.zHttpAuth = get_httpauth();
   }
+  free(zKey);
 }
 
 /*
 ** Get the HTTP Authorization preference from db.
 */
 char *get_httpauth(void){
-  return unobscure(db_get("http-auth", 0));
+  char *zKey = mprintf("http-auth:%s", g.urlCanonical);
+  return unobscure(db_get(zKey, 0));
+  free(zKey);
 }
 
 /*
 ** Set the HTTP Authorization preference in db.
 */
 void set_httpauth(const char *zHttpAuth){
-  db_set("http-auth", obscure(zHttpAuth), 0);
+  char *zKey = mprintf("http-auth:%s", g.urlCanonical);
+  db_set(zKey, obscure(zHttpAuth), 0);
+  free(zKey);
 }
 
 /*
