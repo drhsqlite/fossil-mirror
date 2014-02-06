@@ -190,7 +190,7 @@ static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
     blob_appendf(&snd, "Proxy-Authorization: %s\r\n", pUrlData->proxyAuth);
   }
   blob_append(&snd, "Proxy-Connection: keep-alive\r\n", -1);
-  blob_append(&snd, "User-Agent: Fossil/" RELEASE_VERSION "\r\n", -1);
+  blob_appendf(&snd, "User-Agent: %s\r\n", get_user_agent());
   blob_append(&snd, "\r\n", 2);
   BIO_write(bio, blob_buffer(&snd), blob_size(&snd));
   blob_reset(&snd);
