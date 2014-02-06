@@ -935,12 +935,12 @@ static void checkin_description(int rid){
 **
 ** Query parameters:
 **
-**   from=TAG
-**   to=TAG
-**   branch=TAG
-**   v=BOOLEAN
-**   sbs=BOOLEAN
-**   glob=STRING only diff files matching this glob
+**   from=TAG        Left side of the comparison
+**   to=TAG          Right side of the comparison
+**   branch=TAG      Show all changes on a particular branch
+**   v=BOOLEAN       Default true.  If false, only list files that have changed
+**   sbs=BOOLEAN     Side-by-side diff if true.  Unified diff if false
+**   glob=STRING     only diff files matching this glob
 **
 **
 ** Show all differences between two checkins.
@@ -1015,6 +1015,9 @@ void vdiff_page(void){
     style_submenu_element("Clear glob", "clearglob",
                           "%R/vdiff?from=%T&to=%T&sbs=%d%s", zFrom, zTo,
                           sideBySide, (verboseFlag && !sideBySide)?"&v":"");
+  }else{
+    style_submenu_element("Patch", "patch",
+                          "%R/vpatch?from=%T&to=%T", zFrom, zTo);
   }
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
