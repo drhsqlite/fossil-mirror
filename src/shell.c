@@ -1005,7 +1005,7 @@ static int run_table_dump_query(
   int nResult;
   int i;
   const char *z;
-  rc = sqlite3_prepare(p->db, zSelect, -1, &pSelect, 0);
+  rc = sqlite3_prepare_v2(p->db, zSelect, -1, &pSelect, 0);
   if( rc!=SQLITE_OK || !pSelect ){
     fprintf(p->out, "/**** ERROR: (%d) %s *****/\n", rc, sqlite3_errmsg(p->db));
     if( (rc&0xff)!=SQLITE_CORRUPT ) p->nErr++;
@@ -1453,7 +1453,7 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azCol){
     zTableInfo = appendText(zTableInfo, zTable, '"');
     zTableInfo = appendText(zTableInfo, ");", 0);
 
-    rc = sqlite3_prepare(p->db, zTableInfo, -1, &pTableInfo, 0);
+    rc = sqlite3_prepare_v2(p->db, zTableInfo, -1, &pTableInfo, 0);
     free(zTableInfo);
     if( rc!=SQLITE_OK || !pTableInfo ){
       return 1;
@@ -2175,7 +2175,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       return 1;
     }
     nByte = strlen30(zSql);
-    rc = sqlite3_prepare(p->db, zSql, -1, &pStmt, 0);
+    rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
     if( rc && sqlite3_strglob("no such table: *", sqlite3_errmsg(db))==0 ){
       char *zCreate = sqlite3_mprintf("CREATE TABLE %s", zTable);
       char cSep = '(';
@@ -2201,7 +2201,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
         xCloser(sCsv.in);
         return 1;
       }
-      rc = sqlite3_prepare(p->db, zSql, -1, &pStmt, 0);
+      rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
     }
     sqlite3_free(zSql);
     if( rc ){
@@ -2228,7 +2228,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     }
     zSql[j++] = ')';
     zSql[j] = 0;
-    rc = sqlite3_prepare(p->db, zSql, -1, &pStmt, 0);
+    rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
     sqlite3_free(zSql);
     if( rc ){
       fprintf(stderr, "Error: %s\n", sqlite3_errmsg(db));

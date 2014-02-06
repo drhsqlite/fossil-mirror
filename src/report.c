@@ -267,7 +267,7 @@ char *verify_sql_statement(char *zSql){
 
   /* Compile the statement and check for illegal accesses or syntax errors. */
   report_restrict_sql(&zErr);
-  rc = sqlite3_prepare(g.db, zSql, -1, &pStmt, &zTail);
+  rc = sqlite3_prepare_v2(g.db, zSql, -1, &pStmt, &zTail);
   if( rc!=SQLITE_OK ){
     zErr = mprintf("Syntax error: %s", sqlite3_errmsg(g.db));
   }
