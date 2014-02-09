@@ -36,7 +36,7 @@ static void strip_string(Blob *pBlob, char *z){
        z[i] = 0;
        break;
     }
-    if( z[i]<' ' ) z[i] = ' ';
+    if( z[i]>0 && z[i]<' ' ) z[i] = ' ';
   }
   blob_append(pBlob, z, -1);
 }
@@ -129,6 +129,37 @@ void prompt_for_password(
     }
   }
   blob_reset(&secondTry);
+}
+
+/*
+** Prompt to save Fossil user password
+*/
+int save_password_prompt(const char *passwd){
+  Blob x;
+  char c;
+  const char *old = db_get("last-sync-pw", 0);
+  if( (old!=0) && fossil_strcmp(unobscure(old), passwd)==0 ){
+     return 0;
+  }
+  prompt_user("remember password (Y/n)? ", &x);
+  c = blob_str(&x)[0];
+  blob_reset(&x);
+  return ( c!='n' && c!='N' );
+}
+
+/*
+** Prompt for Fossil user password
+*/
+char *prompt_for_user_password(const char *zUser){
+  char *zPrompt = mprintf("\rpassword for %s: ", zUser);
+  char *zPw;
+  Blob x;
+  fossil_force_newline();
+  prompt_for_password(zPrompt, &x, 0);
+  free(zPrompt);
+  zPw = mprintf("%b", &x);
+  blob_reset(&x);
+  return zPw;
 }
 
 /*
@@ -265,7 +296,7 @@ void user_cmd(void){
   }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
     int uid;
     if( g.argc!=4 && g.argc!=5 ){
-      usage("user capabilities USERNAME ?PERMISSIONS?");
+      usage("capabilities USERNAME ?PERMISSIONS?");
     }
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.argv[3]);
     if( uid==0 ){
@@ -279,7 +310,7 @@ void user_cmd(void){
     }
     fossil_print("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
   }else{
-    fossil_panic("user subcommand should be one of: "
+    fossil_fatal("user subcommand should be one of: "
                  "capabilities default list new password");
   }
 }
@@ -421,9 +452,9 @@ void access_log_page(void){
   }
   style_header("Access Log");
   blob_zero(&sql);
-  blob_append(&sql, 
-    "SELECT uname, ipaddr, datetime(mtime, 'localtime'), success"
-    "  FROM accesslog", -1
+  blob_appendf(&sql,
+    "SELECT uname, ipaddr, datetime(mtime%s), success"
+    "  FROM accesslog", timeline_utc()
   );
   if( y==1 ){
     blob_append(&sql, "  WHERE success", -1);

@@ -45,12 +45,14 @@
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
 **                        boolean: "yes", "no", "true", "false", etc.
 **   -l|--log             select log mode (the default)
-**   -n|--limit N         display the first N changes
+**   -n|--limit N         display the first N changes. N=0 means no limit.
 **   --offset P           skip P changes
 **   -p|--print           select print mode
 **   -r|--revision R      print the given revision (or ckout, if none is given)
 **                        to stdout (only in print mode)
 **   -s|--status          select status mode (print a status indicator for FILE)
+**   -W|--width <num>     With of lines (default 79). Must be >22 or 0
+**                        (= no limit, resulting in a single line per entry).
 **
 ** See also: artifact, cat, descendants, info, leaves
 */
@@ -66,7 +68,7 @@ void finfo_cmd(void){
     if( g.argc!=3 ) usage("-s|--status FILENAME");
     vid = db_lget_int("checkout", 0);
     if( vid==0 ){
-      fossil_panic("no checkout to finfo files in");
+      fossil_fatal("no checkout to finfo files in");
     }
     vfile_check_signature(vid, CKSIG_ENOTFILE);
     file_tree_name(g.argv[2], &fname, 1);
@@ -136,17 +138,23 @@ void finfo_cmd(void){
     int rid;
     const char *zFilename;
     const char *zLimit;
+    const char *zWidth;
     const char *zOffset;
-    int iLimit, iOffset, iBrief;
+    int iLimit, iOffset, iBrief, iWidth;
 
     if( find_option("log","l",0) ){
       /* this is the default, no-op */
     }
     zLimit = find_option("limit","n",1);
+    zWidth = find_option("width","W",1);
     iLimit = zLimit ? atoi(zLimit) : -1;
+    iWidth = zWidth ? atoi(zWidth) : 79;
     zOffset = find_option("offset",0,1);
     iOffset = zOffset ? atoi(zOffset) : 0;
     iBrief = (find_option("brief","b",0) == 0);
+    if( (iWidth!=0) && (iWidth<=22) ){
+      fossil_fatal("--width|-W value must be >22 or 0");
+    }
     if( g.argc!=3 ){
       usage("?-l|--log? ?-b|--brief? FILENAME");
     }
@@ -158,7 +166,7 @@ void finfo_cmd(void){
     }
     zFilename = blob_str(&fname);
     db_prepare(&q,
-        "SELECT b.uuid, ci.uuid, date(event.mtime,'localtime'),"
+        "SELECT b.uuid, ci.uuid, date(event.mtime%s),"
         "       coalesce(event.ecomment, event.comment),"
         "       coalesce(event.euser, event.user),"
         "       (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
@@ -170,7 +178,8 @@ void finfo_cmd(void){
         "   AND event.objid=mlink.mid"
         "   AND event.objid=ci.rid"
         " ORDER BY event.mtime DESC LIMIT %d OFFSET %d",
-        TAG_BRANCH, zFilename, filename_collation(), iLimit, iOffset
+        timeline_utc(), TAG_BRANCH, zFilename, filename_collation(),
+        iLimit, iOffset
     );
     blob_zero(&line);
     if( iBrief ){
@@ -190,7 +199,7 @@ void finfo_cmd(void){
         zOut = sqlite3_mprintf(
            "[%.10s] %s (user: %s, artifact: [%.10s], branch: %s)",
            zCiUuid, zCom, zUser, zFileUuid, zBr);
-        comment_print(zOut, 11, 79);
+        comment_print(zOut, 11, iWidth);
         sqlite3_free(zOut);
       }else{
         blob_reset(&line);
@@ -198,8 +207,8 @@ void finfo_cmd(void){
         blob_appendf(&line, "%.10s ", zDate);
         blob_appendf(&line, "%8.8s ", zUser);
         blob_appendf(&line, "%8.8s ", zBr);
-        blob_appendf(&line,"%-40.40s\n", zCom );
-        comment_print(blob_str(&line), 0, 79);
+        blob_appendf(&line,"%-39.39s", zCom );
+        comment_print(blob_str(&line), 0, iWidth);
       }
     }
     db_finalize(&q);
@@ -288,7 +297,7 @@ void finfo_page(void){
   if( uBg ) url_add_parameter(&url, "ubg", 0);
   baseCheckin = name_to_rid_www("ci");
   if( baseCheckin ) firstChngOnly = 1;
-  if( firstChngOnly ) url_add_parameter(&url, "fco", "0");
+  if( !firstChngOnly ) url_add_parameter(&url, "fco", "0");
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
@@ -296,7 +305,7 @@ void finfo_page(void){
   blob_zero(&sql);
   blob_appendf(&sql,
     "SELECT"
-    " datetime(event.mtime,'localtime'),"            /* Date of change */
+    " datetime(event.mtime%s),"                      /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
     " coalesce(event.euser, event.user),"            /* User who made chng */
     " mlink.pid,"                                    /* Parent file rid */
@@ -309,13 +318,13 @@ void finfo_page(void){
                                 " AND tagxref.rid=mlink.mid)," /* Tags */
     " mlink.mid,"                                    /* check-in ID */
     " mlink.pfnid",                                  /* Previous filename */
-    TAG_BRANCH
+    timeline_utc(), TAG_BRANCH
   );
   if( firstChngOnly ){
 #if 0
     blob_appendf(&sql, ", min(event.mtime)");
 #else
-    blob_appendf(&sql, 
+    blob_appendf(&sql,
         ", min(CASE (SELECT value FROM tagxref"
                     " WHERE tagtype>0 AND tagid=%d"
                     "   AND tagxref.rid=mlink.mid)"
@@ -356,7 +365,7 @@ void finfo_page(void){
     }else{
       style_submenu_element("Simplified",
                             "Show only first use of a change","%s",
-                            url_render(&url, "fco", "1", 0, 0));
+                            url_render(&url, "fco", 0, 0, 0));
     }
   }
   db_prepare(&q, blob_str(&sql));
@@ -369,12 +378,12 @@ void finfo_page(void){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
     char *zLink = href("%R/info/%S", zUuid);
     blob_appendf(&title, "Ancestors of file ");
-    hyperlinked_path(zFilename, &title, zUuid);
+    hyperlinked_path(zFilename, &title, zUuid, "tree", "");
     blob_appendf(&title, " from check-in %z%.10s</a>", zLink, zUuid);
     fossil_free(zUuid);
   }else{
     blob_appendf(&title, "History of files named ");
-    hyperlinked_path(zFilename, &title, 0);
+    hyperlinked_path(zFilename, &title, 0, "tree", "");
   }
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
@@ -457,15 +466,22 @@ void finfo_page(void){
     @ branch: %h(zBr))
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
+      @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
+      @ [annotate]</a>
+      @ %z(href("%R/blame?checkin=%S&filename=%h",zCkin,z))
+      @ [blame]</a>
+      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
       if( fpid ){
         @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zPUuid,zUuid))[diff]</a>
       }
-      @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
-      @ [annotate]</a>
-      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
-      @ fid=%d(frid), pid=%d(fpid), mid=%d(fmid)
+      int srcid = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", frid);
+      int sz = db_int(0, "SELECT length(content) FROM blob WHERE rid=%d", frid);
+      @ <br>fid=%d(frid) pid=%d(fpid) mid=%d(fmid) sz=%d(sz)
+      if( srcid ){
+        @ srcid=%d(srcid)
+      }
     }
     @ </td></tr>
   }

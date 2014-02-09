@@ -269,7 +269,7 @@ cson_value * json_new_string_f( char const * fmt, ... ){
   return v;
 }
 
-cson_value * json_new_int( int v ){
+cson_value * json_new_int( i64 v ){
   return cson_value_new_integer((cson_int_t)v);
 }
 
@@ -989,7 +989,7 @@ static void json_mode_bootstrap(){
     }
     inFile = (0==strcmp("-",jfile))
       ? stdin
-      : fopen(jfile,"rb");
+      : fossil_fopen(jfile,"rb");
     if(!inFile){
       g.json.resultCode = FSL_JSON_E_FILE_OPEN_FAILED;
       fossil_fatal("Could not open JSON file [%s].",jfile)
@@ -1982,7 +1982,7 @@ cson_value * json_page_stat(){
   jo2 = cson_value_get_object(jv2);
   cson_object_set(jo, "sqlite", jv2);
   sqlite3_snprintf(BufLen, zBuf, "%.19s [%.10s] (%s)",
-                   SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20], SQLITE_VERSION);
+                   sqlite3_sourceid(), &sqlite3_sourceid()[20], sqlite3_libversion());
   SETBUF(jo2, "version");
   zDb = db_name("repository");
   cson_object_set(jo2, "pageCount", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA %s.page_count", zDb)));
@@ -2007,7 +2007,7 @@ cson_value * json_page_stat(){
 **
 ** The list is appended to pOut. The number of items (not bytes)
 ** appended are returned. If filterByMode is non-0 then the result
-** list will contain only commands which are able to run in the the
+** list will contain only commands which are able to run in the
 ** current run mode (CLI vs. HTTP).
 */
 static int json_pagedefs_to_string(JsonPageDef const * zPages,

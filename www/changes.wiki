@@ -1,5 +1,96 @@
 <title>Change Log</title>
 
+<h2>Changes For Version 1.29 (as yet unreleased)</h2>
+  *  Add the ability to display content and diffs for UTF16 text files
+     in the web interface.
+  *  Honor timezones in imports from git.
+  *  The [/reports] page now requires Read ("o") permissions. The "byweek"
+     report now properly propagates the selected year through the event type
+     filter links.
+  *  The [/help/info | info command] now shows leaf status of the checkout.
+  *  Add support for tunneling https through a http proxy (Ticket [e854101c4f]).
+
+<h2>Changes For Version 1.28 (2014-01-27)</h2>
+  *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
+  *  When cloning a repository, the user name passed via the URL (if any)
+     is now used as the default local admin user's name.
+  *  Enhance the SSH transport mechanism so that it runs a single instance of
+     the "fossil" executable on the remote side, obviating the need for a shell
+     on the remote side.  Some users may need to add the "?fossil=/path/to/fossil"
+     query parameter to "ssh:" URIs if their fossil binary is not in a standard
+     place.
+  *  Add the "[/help?cmd=blame | fossil blame]" command that works just like
+     "fossil annotate" but uses a different output format that includes the
+     user who made each changes and omits line numbers.
+  *  Add the "Tarball and ZIP-archive Prefix" configuration parameter under
+     Admin/Configuration.
+  *  Fix CGI processing so that it works on web servers that do not
+     supply REQUEST_URI.
+  *  Add options --dirsonly, --emptydirs, and --allckouts to the
+     "[/help?cmd=clean | fossil clean]" command.
+  *  Ten-fold performance improvement in large "fossil blame" or 
+     "fossil annotate" commands.
+  *  Add option -W|--width and --offset to "[/help?cmd=timeline | fossil timeline]"
+     and  "[/help?cmd=finfo | fossil finfo]" commands.
+  *  Option -n|--limit of "[/help?cmd=timeline | fossil timeline]" now
+     specifies the number of entries, just like all other commands which
+     have the -n|--limit option. The various timeline-related functions
+     now output "--- ?? limit (??) reached ---" at the end whenever
+     appropriate. Use "-n 0" if no limit is desired.
+  *  Fix handling of password embedded in Fossil URL.
+  *  New <tt>--once</tt> option to [/help?cmd=clone | fossil clone] command 
+     which does not store the URL or password when cloning.
+  *  Modify [/help?cmd=ui | fossil ui] to respect "default user" in an open
+     repository.
+  *  Fossil now hides check-ins that have the "hidden" tag in timeline webpages.
+  *  Enhance <tt>/ci_edit</tt> page to add the "hidden" tag to check-ins.
+  *  Advanced possibilities for commit and ticket change notifications over
+     http using TH1 scripting.
+  *  Add --sha1sum and --integrate options 
+     to the "[/help?cmd=commit | fossil commit]" command.
+  *  Add the "clean" and "extra" subcommands to the 
+     "[/help?cmd=all | fossil all]" command
+  *  Add the --whatif option to "[/help?cmd=clean|fossil clean]" that works the
+     same as "--dry-run",
+     so that the name does not collide with the --dry-run option of "fossil all".
+  *  Provide a configuration option to show dates on the web timeline
+     as "YYMMMDD HH:MM"
+  *  Add an option to the "stats" webpage that allows an administrator to see
+     the current repository schema.
+  *  Enhancements to the "[/help?cmd=/vdiff|/vdiff]" webpage for more difference 
+     display options.
+  *  Added the "[/tree?ci=trunk&expand | /tree]" webpage as an alternative
+     to "/dir" and make it the default way of showing file lists.
+  *  Send gzipped HTTP responses to clients that support it.
+
+<h2>Changes For Version 1.27 (2013-09-11)</h2>
+  *  Enhance the [/help?cmd=changes | fossil changes],
+     [/help?cmd=clean | fossil clean], [/help?cmd=extras | fossil extras],
+     [/help?cmd=ls | fossil ls] and [/help?cmd=status | fossil status] commands
+     to restrict operation to files and directories named on the command-line.
+  *  New --integrate option to [/help?cmd=merge | fossil merge], which
+     automatically closes the merged branch when committing.
+  *  Renamed <tt>/stats_report</tt> page to [/reports]. Graph width is now
+     relative, not absolute.
+  *  Added <tt>yw=YYYY-WW</tt> (year-week) filter to timeline to limit the results
+     to a specific year and calendar week number, e.g. [/timeline?yw=2013-01].
+  *  Updates to SQLite to prevent opening a repository file using file descriptors
+     1 or 2 on unix.  This fixes a bug under which an assertion failure could
+     overwrite part of a repository database file, corrupting it.
+  *  Added support for unlimited line lengths in side-by-side diffs.
+  *  New --close option to [/help?cmd=commit | fossil commit], which
+     immediately closes the branch being committed.
+  *  Added <tt>chart</tt> option to [/help?cmd=bisect | fossil bisect].
+  *  Improvements to the "human or bot?" determination.
+  *  Reports errors about missing CGI-standard environment variables for HTTP
+     servers which do not support them.
+  *  Minor improvements to sync support on Windows.
+  *  Added <tt>--scgi</tt> option to [/help?cmd=server | fossil server].
+  *  Internal improvements to the sync process.
+  *  The internals of the JSON API are now MIT-licensed, so downstream
+     users/packagers are no longer affected by the "do no evil" license
+     clause.
+
 <h2>Changes For Version 1.26 (2013-06-18)</h2>
   *  The argument to the --port option for the [/help?cmd=ui | fossil ui] and
      [/help?cmd=server | fossil server] commands can take an IP address in addition

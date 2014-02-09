@@ -53,12 +53,13 @@ void branch_new(void){
     usage("new BRANCH-NAME BASIS ?OPTIONS?");
   }
   db_find_and_open_repository(0, 0);
-  noSign = db_get_int("omitsign", 0)|noSign;
+  noSign = db_get_boolean("omitsign", 0)|noSign;
+  if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
 
   /* fossil branch new name */
   zBranch = g.argv[3];
   if( zBranch==0 || zBranch[0]==0 ){
-    fossil_panic("branch name cannot be empty");
+    fossil_fatal("branch name cannot be empty");
   }
   if( db_exists(
         "SELECT 1 FROM tagxref"
@@ -75,7 +76,7 @@ void branch_new(void){
     fossil_fatal("unable to locate check-in off of which to branch");
   }
 
-  pParent = manifest_get(rootid, CFTYPE_MANIFEST);
+  pParent = manifest_get(rootid, CFTYPE_MANIFEST, 0);
   if( pParent==0 ){
     fossil_fatal("%s is not a valid check-in", g.argv[4]);
   }
@@ -152,11 +153,11 @@ void branch_new(void){
 
   brid = content_put_ex(&branch, 0, 0, 0, isPrivate);
   if( brid==0 ){
-    fossil_panic("trouble committing manifest: %s", g.zErrMsg);
+    fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
-  if( manifest_crosslink(brid, &branch)==0 ){
-    fossil_panic("unable to install new manifest");
+  if( manifest_crosslink(brid, &branch, MC_PERMIT_HOOKS)==0 ){
+    fossil_fatal("%s\n", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
@@ -281,7 +282,7 @@ void branch_cmd(void){
     }
     db_finalize(&q);
   }else{
-    fossil_panic("branch subcommand should be one of: "
+    fossil_fatal("branch subcommand should be one of: "
                  "new list ls");
   }
 }
@@ -327,8 +328,8 @@ void brlist_page(void){
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
   @ <li> An <div class="sideboxDescribed">%z(href("brlist"))
-  @ open branch</a></div> is a branch that has one or
-  @ more %z(href("leaves"))open leaves.</a>
+  @ open branch</a></div> is a branch that has one or more
+  @ <div class="sideboxDescribed">%z(href("leaves"))open leaves.</a></div>
   @ The presence of open leaves presumably means
   @ that the branch is still being extended with new check-ins.</li>
   @ <li> A <div class="sideboxDescribed">%z(href("brlist?closed"))

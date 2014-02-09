@@ -160,7 +160,7 @@ static int stash_create(void){
   if( zComment==0 ){
     Blob prompt;                       /* Prompt for stash comment */
     Blob comment;                      /* User comment reply */
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
     int bomSize;
     const unsigned char *bom = get_utf8_bom(&bomSize);
     blob_init(&prompt, (const char *) bom, bomSize);
@@ -170,7 +170,7 @@ static int stash_create(void){
     blob_append(&prompt,
        "\n"
        "# Enter a description of what is being stashed.  Lines beginning\n"
-       "# with \"#\" are ignored.  Stash comments are plain text except.\n"
+       "# with \"#\" are ignored.  Stash comments are plain text except\n"
        "# newlines are not preserved.\n",
        -1);
     prompt_for_user_comment(&comment, &prompt);
@@ -641,6 +641,7 @@ void stash_cmd(void){
       zDiffCmd = diff_command_external(0);
     }
     diffFlags = diff_options();
+    if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
     if( g.argc>4 ) usage(mprintf("%s STASHID", zCmd));
     if( zDiffCmd ){
       zBinGlob = diff_get_binary_glob();

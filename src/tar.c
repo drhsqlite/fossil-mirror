@@ -17,9 +17,9 @@
 **
 ** This file contains code used to generate tarballs.
 */
+#include "config.h"
 #include <assert.h>
 #include <zlib.h>
-#include "config.h"
 #include "tar.h"
 
 /*
@@ -338,8 +338,9 @@ static void tar_add_directory_of(
   int i;
   for(i=nName-1; i>0 && zName[i]!='/'; i--){}
   if( i<=0 ) return;
-  if( i < tball.nPrevDirAlloc && tball.zPrevDir[i]==0 &&
-        memcmp(tball.zPrevDir, zName, i)==0 ) return;
+  if( i<tball.nPrevDirAlloc 
+   && strncmp(tball.zPrevDir, zName, i)==0
+   && tball.zPrevDir[i]==0 ) return;
   db_multi_exec("INSERT OR IGNORE INTO dir VALUES('%#q')", i, zName);
   if( sqlite3_changes(g.db)==0 ) return;
   tar_add_directory_of(zName, i-1, mTime);
@@ -429,7 +430,7 @@ void test_tarball_cmd(void){
     usage("ARCHIVE FILE....");
   }
   sqlite3_open(":memory:", &g.db);
-  tar_begin(0);
+  tar_begin(-1);
   for(i=3; i<g.argc; i++){
     blob_zero(&file);
     blob_read_from_file(&file, g.argv[i]);
@@ -481,7 +482,7 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
   }
   nPrefix = blob_size(&filename);
 
-  pManifest = manifest_get(rid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pManifest ){
     mTime = (pManifest->rDate - 2440587.5)*86400.0;
     tar_begin(mTime);

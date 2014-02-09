@@ -49,14 +49,14 @@ static const char zSchemaUpdates1[] =
 @ );
 @
 @ -- Artifacts that should not be pushed are stored in the "private"
-@ -- table.  
+@ -- table.
 @ --
 @ CREATE TABLE IF NOT EXISTS private(rid INTEGER PRIMARY KEY);
 @
 @ -- Some ticket content (such as the originators email address or contact
 @ -- information) needs to be obscured to protect privacy.  This is achieved
 @ -- by storing an SHA1 hash of the content.  For display, the hash is
-@ -- mapped back into the original text using this table.  
+@ -- mapped back into the original text using this table.
 @ --
 @ -- This table contains sensitive information and should not be shared
 @ -- with unauthorized users.
@@ -155,7 +155,7 @@ static void rebuild_update_schema(void){
       "UPDATE concealed SET mtime=now();"
     );
   }
-}  
+}
 
 /*
 ** Variables used to store state information about an on-going "rebuild"
@@ -229,7 +229,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
          "UPDATE blob SET size=%d WHERE rid=%d", blob_size(pBase), rid
       );
     }
-  
+
     /* Find all children of artifact rid */
     db_static_prepare(&q1, "SELECT rid FROM delta WHERE srcid=:rid");
     db_bind_int(&q1, ":rid", rid);
@@ -242,7 +242,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
     }
     nChild = bag_count(&children);
     db_reset(&q1);
-  
+
     /* Crosslink the artifact */
     if( nChild==0 ){
       pUse = pBase;
@@ -252,7 +252,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
     }
     if( zFNameFormat==0 ){
       /* We are doing "fossil rebuild" */
-      manifest_crosslink(rid, pUse);
+      manifest_crosslink(rid, pUse, MC_NONE);
     }else{
       /* We are doing "fossil deconstruct" */
       char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -264,7 +264,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
     }
     assert( blob_is_reset(pUse) );
     rebuild_step_done(rid);
-  
+
     /* Call all children recursively */
     rid = 0;
     for(cid=bag_first(&children), i=1; cid; cid=bag_next(&children, cid), i++){
@@ -351,6 +351,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
                          "'config','shun','private','reportfmt',"
                          "'concealed','accesslog','modreq')"
        " AND name NOT GLOB 'sqlite_*'"
+       " AND name NOT GLOB 'fx_*'"
     );
     if( zTable==0 ) break;
     db_multi_exec("DROP TABLE %Q", zTable);
@@ -413,7 +414,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     }
   }
   db_finalize(&s);
-  manifest_crosslink_end();
+  manifest_crosslink_end(MC_NONE);
   rebuild_tag_trunk();
   if( ttyOutput && !g.fQuiet && totalSize>0 ){
     processCnt += incrSize;
@@ -582,8 +583,9 @@ void rebuild_database(void){
   reconstruct_private_table();
   db_multi_exec(
     "REPLACE INTO config(name,value,mtime) VALUES('content-schema','%s',now());"
-    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());",
-    CONTENT_SCHEMA, AUX_SCHEMA
+    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());"
+    "REPLACE INTO config(name,value,mtime) VALUES('rebuilt','%s',now());",
+    CONTENT_SCHEMA, AUX_SCHEMA, get_version()
   );
   if( errCnt && !forceFlag ){
     fossil_print(
@@ -608,7 +610,8 @@ void rebuild_database(void){
     }
     if( runDeanalyze ){
       db_multi_exec("DROP TABLE IF EXISTS sqlite_stat1;"
-                    "DROP TABLE IF EXISTS sqlite_stat3;");
+                    "DROP TABLE IF EXISTS sqlite_stat3;"
+                    "DROP TABLE IF EXISTS sqlite_stat4;");
     }
     if( runAnalyze ){
       fossil_print("Analyzing the database... "); fflush(stdout);
@@ -625,7 +628,7 @@ void rebuild_database(void){
     }
   }
   if( showStats ){
-    static struct { int idx; const char *zLabel; } aStat[] = {
+    static const struct { int idx; const char *zLabel; } aStat[] = {
        { CFTYPE_ANY,       "Artifacts:" },
        { CFTYPE_MANIFEST,  "Manifests:" },
        { CFTYPE_CLUSTER,   "Clusters:" },
@@ -686,7 +689,7 @@ void test_createcluster_cmd(void){
   }
   db_begin_transaction();
   create_cluster();
-  db_end_transaction(0);  
+  db_end_transaction(0);
 }
 
 /*
@@ -699,7 +702,7 @@ void test_clusters_cmd(void){
   Bag pending;
   Stmt q;
   int n;
-  
+
   db_find_and_open_repository(0, 2);
   bag_init(&pending);
   db_multi_exec(
@@ -721,9 +724,9 @@ void test_clusters_cmd(void){
     Manifest *p;
     int rid = bag_first(&pending);
     int i;
-    
+
     bag_remove(&pending, rid);
-    p = manifest_get(rid, CFTYPE_CLUSTER);
+    p = manifest_get(rid, CFTYPE_CLUSTER, 0);
     if( p==0 ){
       fossil_fatal("bad cluster: rid=%d", rid);
     }
@@ -860,23 +863,24 @@ void recon_read_dir(char *zPath){
       fossil_filename_free(zUtf8Name);
       if( file_isdir(zSubpath)==1 ){
         recon_read_dir(zSubpath);
+      }else{
+        blob_init(&path, 0, 0);
+        blob_appendf(&path, "%s", zSubpath);
+        if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
+          fossil_fatal("some unknown error occurred while reading \"%s\"",
+                       blob_str(&path));
+        }
+        content_put(&aContent);
+        blob_reset(&path);
+        blob_reset(&aContent);
+        fossil_print("\r%d", ++nFileRead);
+        fflush(stdout);
       }
-      blob_init(&path, 0, 0);
-      blob_appendf(&path, "%s", zSubpath);
-      if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
-        fossil_panic("some unknown error occurred while reading \"%s\"", 
-                     blob_str(&path));
-      }
-      content_put(&aContent);
-      blob_reset(&path);
-      blob_reset(&aContent);
       free(zSubpath);
-      fossil_print("\r%d", ++nFileRead);
-      fflush(stdout);
     }
     closedir(d);
   }else {
-    fossil_panic("encountered error %d while trying to open \"%s\".",
+    fossil_fatal("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
   }
   fossil_filename_free(zUnicodePath);
@@ -921,7 +925,7 @@ void reconstruct_cmd(void) {
   ** long time.
   */
   verify_cancel();
-  
+
   db_end_transaction(0);
   fossil_print("project-id: %s\n", db_get("project-code", 0));
   fossil_print("server-id: %s\n", db_get("server-code", 0));
@@ -941,7 +945,7 @@ void reconstruct_cmd(void) {
 ** AABBBBBBBBB.. is the 40 character artifact ID, AA the first 2 characters.
 ** If -L|--prefixlength is given, the length (default 2) of the directory
 ** prefix can be set to 0,1,..,9 characters.
-** 
+**
 ** Options:
 **   -R|--repository REPOSITORY  deconstruct given REPOSITORY
 **   -L|--prefixlength N         set the length of the names of the DESTINATION

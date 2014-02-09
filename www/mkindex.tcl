@@ -7,6 +7,8 @@
 #
 
 set doclist {
+  adding_code.wiki {Adding New Features To Fossil}
+  adding_code.wiki {Hacking Fossil}
   antibot.wiki {Defense against Spiders and Bots}
   bugtheory.wiki {Bug Tracking In Fossil}
   branching.wiki {Branching, Forking, Merging, and Tagging}
@@ -28,6 +30,7 @@ set doclist {
   foss-cklist.wiki {Checklist For Successful Open-Source Projects}
   fossil-from-msvc.wiki {Integrating Fossil in the Microsoft Express 2010 IDE}
   fossil-v-git.wiki {Fossil Versus Git}
+  hacker-howto.wiki {Hacker How-To}
   hints.wiki {Fossil Tips And Usage Hints}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}

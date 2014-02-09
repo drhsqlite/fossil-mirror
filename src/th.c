@@ -1,9 +1,10 @@
 
 /*
-** The implementation of the TH core. This file contains the parser, and 
+** The implementation of the TH core. This file contains the parser, and
 ** the implementation of the interface in th.h.
 */
 
+#include "config.h"
 #include "th.h"
 #include <string.h>
 #include <assert.h>
@@ -17,7 +18,7 @@ typedef struct Th_Variable  Th_Variable;
 */
 struct Th_Interp {
   Th_Vtab *pVtab;     /* Copy of the argument passed to Th_CreateInterp() */
-  char *zResult;     /* Current interpreter result (Th_Malloc()ed) */
+  char *zResult;      /* Current interpreter result (Th_Malloc()ed) */
   int nResult;        /* number of bytes in zResult */
   Th_Hash *paCmd;     /* Table of registered commands */
   Th_Frame *pFrame;   /* Current execution frame */
@@ -43,8 +44,8 @@ struct Th_Command {
 **
 ** When an interpreter is created, a single Th_Frame structure is also
 ** allocated - the global variable scope. Th_Interp.pFrame (the current
-** interpreter frame) is initialised to point to this Th_Frame. It is 
-** not deleted for the lifetime of the interpreter (because the global 
+** interpreter frame) is initialised to point to this Th_Frame. It is
+** not deleted for the lifetime of the interpreter (because the global
 ** frame never goes out of scope).
 **
 ** New stack frames are created by the Th_InFrame() function. Before
@@ -53,11 +54,11 @@ struct Th_Command {
 ** and sets the current frame to the new frame object. After the callback
 ** has been invoked, the allocated Th_Frame is deleted and the value
 ** of the current frame pointer restored.
-** 
-** By default, the Th_SetVar(), Th_UnsetVar() and Th_GetVar() functions 
-** access variable values in the current frame. If they need to access 
+**
+** By default, the Th_SetVar(), Th_UnsetVar() and Th_GetVar() functions
+** access variable values in the current frame. If they need to access
 ** the global frame, they do so by traversing the pCaller pointer list.
-** Likewise, the Th_LinkVar() function uses the pCaller pointers to 
+** Likewise, the Th_LinkVar() function uses the pCaller pointers to
 ** link to variables located in the global or other stack frames.
 */
 struct Th_Frame {
@@ -85,7 +86,7 @@ struct Th_Frame {
 struct Th_Variable {
   int nRef;                   /* Number of references to this structure */
   int nData;                  /* Number of bytes at Th_Variable.zData */
-  char *zData;               /* Data for scalar variables */
+  char *zData;                /* Data for scalar variables */
   Th_Hash *pHash;             /* Data for array variables */
 };
 
@@ -106,12 +107,12 @@ static int thEndOfLine(const char *, int);
 static int  thPushFrame(Th_Interp*, Th_Frame*);
 static void thPopFrame(Th_Interp*);
 
-static void thFreeVariable(Th_HashEntry*, void*);
-static void thFreeCommand(Th_HashEntry*, void*);
+static int thFreeVariable(Th_HashEntry*, void*);
+static int thFreeCommand(Th_HashEntry*, void*);
 
 /*
 ** The following are used by both the expression and language parsers.
-** Given that the start of the input string (z, n) is a language 
+** Given that the start of the input string (z, n) is a language
 ** construct of the relevant type (a command enclosed in [], an escape
 ** sequence etc.), these functions determine the number of bytes
 ** of the input consumed by the construct. For example:
@@ -119,7 +120,7 @@ static void thFreeCommand(Th_HashEntry*, void*);
 **   int nByte;
 **   thNextCommand(interp, "[expr $a+1] $nIter", 18, &nByte);
 **
-** results in variable nByte being set to 11. Or, 
+** results in variable nByte being set to 11. Or,
 **
 **   thNextVarname(interp, "$a+1", 4, &nByte);
 **
@@ -133,7 +134,7 @@ static int thNextSpace  (Th_Interp*, const char *z, int n, int *pN);
 
 /*
 ** Given that the input string (z, n) contains a language construct of
-** the relevant type (a command enclosed in [], an escape sequence 
+** the relevant type (a command enclosed in [], an escape sequence
 ** like "\xFF" or a variable reference like "${varname}", perform
 ** substitution on the string and store the resulting string in
 ** the interpreter result.
@@ -143,10 +144,10 @@ static int thSubstEscape (Th_Interp*, const char *z, int n);
 static int thSubstVarname(Th_Interp*, const char *z, int n);
 
 /*
-** Given that there is a th1 word located at the start of the input 
+** Given that there is a th1 word located at the start of the input
 ** string (z, n), determine the length in bytes of that word. If the
-** isCmd argument is non-zero, then an unescaped ";" byte not 
-** located inside of a block or quoted string is considered to mark 
+** isCmd argument is non-zero, then an unescaped ";" byte not
+** located inside of a block or quoted string is considered to mark
 ** the end of the word.
 */
 static int thNextWord(Th_Interp*, const char *z, int n, int *pN, int isCmd);
@@ -177,9 +178,9 @@ static void thBufferFree(Th_Interp *interp, Buffer *);
 ** the allocation to make space.
 */
 static int thBufferWrite(
-  Th_Interp *interp, 
-  Buffer *pBuffer, 
-  const char *zAdd, 
+  Th_Interp *interp,
+  Buffer *pBuffer,
+  const char *zAdd,
   int nAdd
 ){
   int nReq;
@@ -259,8 +260,10 @@ static int thHexdigit(char c){
 ** reference count reaches 0.
 **
 ** Argument pContext is a pointer to the interpreter structure.
+**
+** Returns non-zero if the Th_Variable was actually freed.
 */
-static void thFreeVariable(Th_HashEntry *pEntry, void *pContext){
+static int thFreeVariable(Th_HashEntry *pEntry, void *pContext){
   Th_Variable *pValue = (Th_Variable *)pEntry->pData;
   pValue->nRef--;
   assert( pValue->nRef>=0 );
@@ -272,7 +275,10 @@ static void thFreeVariable(Th_HashEntry *pEntry, void *pContext){
       Th_HashDelete(interp, pValue->pHash);
     }
     Th_Free(interp, pValue);
+    pEntry->pData = 0;
+    return 1;
   }
+  return 0;
 }
 
 /*
@@ -281,14 +287,17 @@ static void thFreeVariable(Th_HashEntry *pEntry, void *pContext){
 ** entry points to.
 **
 ** Argument pContext is a pointer to the interpreter structure.
+**
+** Always returns non-zero.
 */
-static void thFreeCommand(Th_HashEntry *pEntry, void *pContext){
+static int thFreeCommand(Th_HashEntry *pEntry, void *pContext){
   Th_Command *pCommand = (Th_Command *)pEntry->pData;
   if( pCommand->xDel ){
     pCommand->xDel((Th_Interp *)pContext, pCommand->pContext);
   }
   Th_Free((Th_Interp *)pContext, pEntry->pData);
   pEntry->pData = 0;
+  return 1;
 }
 
 /*
@@ -312,15 +321,15 @@ static void thPopFrame(Th_Interp *interp){
 }
 
 /*
-** The first part of the string (zInput,nInput) contains an escape 
+** The first part of the string (zInput,nInput) contains an escape
 ** sequence. Set *pnEscape to the number of bytes in the escape sequence.
 ** If there is a parse error, return TH_ERROR and set the interpreter
 ** result to an error message. Otherwise return TH_OK.
 */
 static int thNextEscape(
   Th_Interp *interp,
-  const char *zInput, 
-  int nInput, 
+  const char *zInput,
+  int nInput,
   int *pnEscape
 ){
   int i = 2;
@@ -345,14 +354,14 @@ static int thNextEscape(
 
 /*
 ** The first part of the string (zInput,nInput) contains a variable
-** reference. Set *pnVarname to the number of bytes in the variable 
-** reference. If there is a parse error, return TH_ERROR and set the 
+** reference. Set *pnVarname to the number of bytes in the variable
+** reference. If there is a parse error, return TH_ERROR and set the
 ** interpreter result to an error message. Otherwise return TH_OK.
 */
 int thNextVarname(
   Th_Interp *interp,
-  const char *zInput, 
-  int nInput, 
+  const char *zInput,
+  int nInput,
   int *pnVarname
 ){
   int i;
@@ -402,15 +411,15 @@ int thNextVarname(
 
 /*
 ** The first part of the string (zInput,nInput) contains a command
-** enclosed in a "[]" block. Set *pnCommand to the number of bytes in 
-** the variable reference. If there is a parse error, return TH_ERROR 
-** and set the interpreter result to an error message. Otherwise return 
+** enclosed in a "[]" block. Set *pnCommand to the number of bytes in
+** the variable reference. If there is a parse error, return TH_ERROR
+** and set the interpreter result to an error message. Otherwise return
 ** TH_OK.
 */
 int thNextCommand(
   Th_Interp *interp,
-  const char *zInput, 
-  int nInput, 
+  const char *zInput,
+  int nInput,
   int *pnCommand
 ){
   int nBrace = 0;
@@ -439,13 +448,13 @@ int thNextCommand(
 }
 
 /*
-** Set *pnSpace to the number of whitespace bytes at the start of 
+** Set *pnSpace to the number of whitespace bytes at the start of
 ** input string (zInput, nInput). Always return TH_OK.
 */
 int thNextSpace(
   Th_Interp *interp,
-  const char *zInput, 
-  int nInput, 
+  const char *zInput,
+  int nInput,
   int *pnSpace
 ){
   int i;
@@ -458,17 +467,17 @@ int thNextSpace(
 ** The first byte of the string (zInput,nInput) is not white-space.
 ** Set *pnWord to the number of bytes in the th1 word that starts
 ** with this byte. If a complete word cannot be parsed or some other
-** error occurs, return TH_ERROR and set the interpreter result to 
+** error occurs, return TH_ERROR and set the interpreter result to
 ** an error message. Otherwise return TH_OK.
 **
-** If the isCmd argument is non-zero, then an unescaped ";" byte not 
-** located inside of a block or quoted string is considered to mark 
+** If the isCmd argument is non-zero, then an unescaped ";" byte not
+** located inside of a block or quoted string is considered to mark
 ** the end of the word.
 */
 static int thNextWord(
   Th_Interp *interp,
-  const char *zInput, 
-  int nInput, 
+  const char *zInput,
+  int nInput,
   int *pnWord,
   int isCmd
 ){
@@ -532,8 +541,8 @@ static int thSubstCommand(
 
 /*
 ** The input string (zWord, nWord) contains a th1 variable reference
-** (a '$' byte followed by a variable name). Perform substitution on 
-** the input string and store the resulting string in the interpreter 
+** (a '$' byte followed by a variable name). Perform substitution on
+** the input string and store the resulting string in the interpreter
 ** result.
 */
 static int thSubstVarname(
@@ -573,7 +582,7 @@ static int thSubstVarname(
 
 /*
 ** The input string (zWord, nWord) contains a th1 escape sequence.
-** Perform substitution on the input string and store the resulting 
+** Perform substitution on the input string and store the resulting
 ** string in the interpreter result.
 */
 static int thSubstEscape(
@@ -609,7 +618,7 @@ static int thSubstEscape(
 
 /*
 ** The input string (zWord, nWord) contains a th1 word. Perform
-** substitution on the input string and store the resulting 
+** substitution on the input string and store the resulting
 ** string in the interpreter result.
 */
 static int thSubstWord(
@@ -641,16 +650,16 @@ static int thSubstWord(
 
       switch( zWord[i] ){
         case '\\':
-          xGet = thNextEscape; xSubst = thSubstEscape; 
+          xGet = thNextEscape; xSubst = thSubstEscape;
           break;
         case '[':
           if( !interp->isListMode ){
-            xGet = thNextCommand; xSubst = thSubstCommand; 
+            xGet = thNextCommand; xSubst = thSubstCommand;
             break;
           }
         case '$':
           if( !interp->isListMode ){
-            xGet = thNextVarname; xSubst = thSubstVarname; 
+            xGet = thNextVarname; xSubst = thSubstVarname;
             break;
           }
         default: {
@@ -686,7 +695,7 @@ static int thSubstWord(
 **
 **   + It is empty, or
 **   + It contains nothing but white-space, or
-**   + It contains no non-white-space characters before the first 
+**   + It contains no non-white-space characters before the first
 **     newline character.
 **
 ** Otherwise return false.
@@ -726,12 +735,12 @@ static int thEndOfLine(const char *zInput, int nInput){
 **     //
 **     Th_Free(interp, argv);
 **
-*/ 
+*/
 static int thSplitList(
   Th_Interp *interp,      /* Interpreter context */
-  const char *zList,     /* Pointer to buffer containing input list */
+  const char *zList,      /* Pointer to buffer containing input list */
   int nList,              /* Size of buffer pointed to by zList */
-  char ***pazElem,       /* OUT: Array of list elements */
+  char ***pazElem,        /* OUT: Array of list elements */
   int **panElem,          /* OUT: Lengths of each list element */
   int *pnCount            /* OUT: Number of list elements */
 ){
@@ -775,10 +784,10 @@ static int thSplitList(
   assert((pazElem && panElem) || (!pazElem && !panElem));
   if( pazElem && rc==TH_OK ){
     int i;
-    char *zElem; 
+    char *zElem;
     int *anElem;
     char **azElem = Th_Malloc(interp,
-      sizeof(char*) * nCount +      /* azElem */
+      sizeof(char*) * nCount +       /* azElem */
       sizeof(int) * nCount +         /* anElem */
       strbuf.nBuf                    /* space for list element strings */
     );
@@ -796,7 +805,7 @@ static int thSplitList(
   if( pnCount ){
     *pnCount = nCount;
   }
-  
+
  finish:
   thBufferFree(interp, &strbuf);
   thBufferFree(interp, &lenbuf);
@@ -877,14 +886,14 @@ static int thEvalLocal(Th_Interp *interp, const char *zProgram, int nProgram){
         const char **azArg = (const char **)argv;
         rc = p->xProc(interp, p->pContext, argc, azArg, argl);
       }
-  
+
       /* If an error occurred, add this command to the stack trace report. */
       if( rc==TH_ERROR ){
         char *zRes;
         int nRes;
         char *zStack = 0;
         int nStack = 0;
-  
+
         zRes = Th_TakeResult(interp, &nRes);
         if( TH_OK==Th_GetVar(interp, (char *)"::th_stack_trace", -1) ){
           zStack = Th_TakeResult(interp, &nStack);
@@ -913,11 +922,11 @@ static int thEvalLocal(Th_Interp *interp, const char *zProgram, int nProgram){
 **
 **   * If iFrame is 0, this means the current frame.
 **
-**   * If iFrame is negative, then the nth frame up the stack, where 
-**     n is the absolute value of iFrame. A value of -1 means the 
+**   * If iFrame is negative, then the nth frame up the stack, where
+**     n is the absolute value of iFrame. A value of -1 means the
 **     calling procedure.
 **
-**   * If iFrame is +ve, then the nth frame from the bottom of the 
+**   * If iFrame is +ve, then the nth frame from the bottom of the
 **     stack. An iFrame value of 1 means the toplevel (global) frame.
 */
 static Th_Frame *getFrame(Th_Interp *interp, int iFrame){
@@ -949,14 +958,14 @@ static Th_Frame *getFrame(Th_Interp *interp, int iFrame){
 /*
 ** Evaluate th1 script (zProgram, nProgram) in the frame identified by
 ** argument iFrame. Leave either an error message or a result in the
-** interpreter result and return a th1 error code (TH_OK, TH_ERROR, 
+** interpreter result and return a th1 error code (TH_OK, TH_ERROR,
 ** TH_RETURN, TH_CONTINUE or TH_BREAK).
 */
 int Th_Eval(Th_Interp *interp, int iFrame, const char *zProgram, int nProgram){
   int rc = TH_OK;
   Th_Frame *pSavedFrame = interp->pFrame;
 
-  /* Set Th_Interp.pFrame to the frame that this script is to be 
+  /* Set Th_Interp.pFrame to the frame that this script is to be
   ** evaluated in. The current frame is saved in pSavedFrame and will
   ** be restored before this function returns.
   */
@@ -966,7 +975,7 @@ int Th_Eval(Th_Interp *interp, int iFrame, const char *zProgram, int nProgram){
     rc = TH_ERROR;
   }else{
     int nInput = nProgram;
-  
+
     if( nInput<0 ){
       nInput = th_strlen(zProgram);
     }
@@ -996,9 +1005,9 @@ int Th_Eval(Th_Interp *interp, int iFrame, const char *zProgram, int nProgram){
 static int thAnalyseVarname(
   const char *zVarname,
   int nVarname,
-  const char **pzOuter,     /* OUT: Pointer to scalar/array name */
+  const char **pzOuter,      /* OUT: Pointer to scalar/array name */
   int *pnOuter,              /* OUT: Number of bytes at *pzOuter */
-  const char **pzInner,     /* OUT: Pointer to array key (or null) */
+  const char **pzInner,      /* OUT: Pointer to array key (or null) */
   int *pnInner,              /* OUT: Number of bytes at *pzInner */
   int *pisGlobal             /* OUT: Set to true if this is a global ref */
 ){
@@ -1044,8 +1053,23 @@ static int thAnalyseVarname(
 }
 
 /*
+** The Find structure is used to return extra information to callers of the
+** thFindValue function.  The fields within it are populated by thFindValue
+** as soon as the necessary information is available.  Callers should check
+** each field of interest upon return.
+*/
+
+struct Find {
+  Th_HashEntry *pValueEntry; /* Pointer to the scalar or array hash entry */
+  Th_HashEntry *pElemEntry;  /* Pointer to array element hash entry, if any */
+  const char *zElem;         /* Name of array element, if applicable */
+  int nElem;                 /* Length of array element name, if applicable */
+};
+typedef struct Find Find;
+
+/*
 ** Input string (zVar, nVar) contains a variable name. This function locates
-** the Th_Variable structure associated with the named variable. The 
+** the Th_Variable structure associated with the named variable. The
 ** variable name may be a global or local scalar or array variable
 **
 ** If the create argument is non-zero and the named variable does not exist
@@ -1056,12 +1080,15 @@ static int thAnalyseVarname(
 ** an error is left in the interpreter result and NULL returned. If
 ** arrayok is true an array name is Ok.
 */
+
 static Th_Variable *thFindValue(
   Th_Interp *interp,
-  const char *zVar,     /* Pointer to variable name */
-  int nVar,              /* Number of bytes at nVar */
-  int create,            /* If true, create the variable if not found */
-  int arrayok            /* If true, an array is Ok. Otherwise array==error */
+  const char *zVar,       /* Pointer to variable name */
+  int nVar,               /* Number of bytes at nVar */
+  int create,             /* If true, create the variable if not found */
+  int arrayok,            /* If true, an array is Ok. Otherwise array==error */
+  int noerror,            /* If false, set interpreter result to error */
+  Find *pFind             /* If non-zero, place output here */
 ){
   const char *zOuter;
   int nOuter;
@@ -1074,12 +1101,20 @@ static Th_Variable *thFindValue(
   Th_Variable *pValue;
 
   thAnalyseVarname(zVar, nVar, &zOuter, &nOuter, &zInner, &nInner, &isGlobal);
+  if( pFind ){
+    memset(pFind, 0, sizeof(Find));
+    pFind->zElem = zInner;
+    pFind->nElem = nInner;
+  }
   if( isGlobal ){
     while( pFrame->pCaller ) pFrame = pFrame->pCaller;
   }
 
   pEntry = Th_HashFind(interp, pFrame->paVar, zOuter, nOuter, create);
-  assert(pEntry || !create);
+  assert(pEntry || create<=0);
+  if( pFind ){
+    pFind->pValueEntry = pEntry;
+  }
   if( !pEntry ){
     goto no_such_var;
   }
@@ -1094,7 +1129,9 @@ static Th_Variable *thFindValue(
 
   if( zInner ){
     if( pValue->zData ){
-      Th_ErrorMessage(interp, "variable is a scalar:", zOuter, nOuter);
+      if( !noerror ){
+        Th_ErrorMessage(interp, "variable is a scalar:", zOuter, nOuter);
+      }
       return 0;
     }
     if( !pValue->pHash ){
@@ -1104,6 +1141,10 @@ static Th_Variable *thFindValue(
       pValue->pHash = Th_HashNew(interp);
     }
     pEntry = Th_HashFind(interp, pValue->pHash, zInner, nInner, create);
+    assert(pEntry || create<=0);
+    if( pFind ){
+      pFind->pElemEntry = pEntry;
+    }
     if( !pEntry ){
       goto no_such_var;
     }
@@ -1116,7 +1157,9 @@ static Th_Variable *thFindValue(
     }
   }else{
     if( pValue->pHash && !arrayok ){
-      Th_ErrorMessage(interp, "variable is an array:", zOuter, nOuter);
+      if( !noerror ){
+        Th_ErrorMessage(interp, "variable is an array:", zOuter, nOuter);
+      }
       return 0;
     }
   }
@@ -1124,13 +1167,15 @@ static Th_Variable *thFindValue(
   return pValue;
 
 no_such_var:
-  Th_ErrorMessage(interp, "no such variable:", zVar, nVar);
+  if( !noerror ){
+    Th_ErrorMessage(interp, "no such variable:", zVar, nVar);
+  }
   return 0;
 }
 
 /*
-** String (zVar, nVar) must contain the name of a scalar variable or 
-** array member. Look up the variable, store its current value in 
+** String (zVar, nVar) must contain the name of a scalar variable or
+** array member. Look up the variable, store its current value in
 ** the interpreter result and return TH_OK.
 **
 ** If the named variable does not exist, return TH_ERROR and leave
@@ -1139,7 +1184,7 @@ no_such_var:
 int Th_GetVar(Th_Interp *interp, const char *zVar, int nVar){
   Th_Variable *pValue;
 
-  pValue = thFindValue(interp, zVar, nVar, 0, 0);
+  pValue = thFindValue(interp, zVar, nVar, 0, 0, 0, 0);
   if( !pValue ){
     return TH_ERROR;
   }
@@ -1155,7 +1200,8 @@ int Th_GetVar(Th_Interp *interp, const char *zVar, int nVar){
 ** Return true if variable (zVar, nVar) exists.
 */
 int Th_ExistsVar(Th_Interp *interp, const char *zVar, int nVar){
-  return thFindValue(interp, zVar, nVar, 0, 0)!=0;
+  Th_Variable *pValue = thFindValue(interp, zVar, nVar, 0, 1, 1, 0);
+  return pValue && (pValue->zData || pValue->pHash);
 }
 
 /*
@@ -1167,15 +1213,15 @@ int Th_ExistsVar(Th_Interp *interp, const char *zVar, int nVar){
 ** and an error message left in the interpreter result.
 */
 int Th_SetVar(
-  Th_Interp *interp, 
-  const char *zVar, 
+  Th_Interp *interp,
+  const char *zVar,
   int nVar,
   const char *zValue,
   int nValue
 ){
   Th_Variable *pValue;
 
-  pValue = thFindValue(interp, zVar, nVar, 1, 0);
+  pValue = thFindValue(interp, zVar, nVar, 1, 0, 0, 0);
   if( !pValue ){
     return TH_ERROR;
   }
@@ -1203,9 +1249,9 @@ int Th_SetVar(
 */
 int Th_LinkVar(
   Th_Interp *interp,                 /* Interpreter */
-  const char *zLocal, int nLocal,   /* Local varname */
+  const char *zLocal, int nLocal,    /* Local varname */
   int iFrame,                        /* Stack frame of linked var */
-  const char *zLink, int nLink      /* Linked varname */
+  const char *zLink, int nLink       /* Linked varname */
 ){
   Th_Frame *pSavedFrame = interp->pFrame;
   Th_Frame *pFrame;
@@ -1218,7 +1264,7 @@ int Th_LinkVar(
   }
   pSavedFrame = interp->pFrame;
   interp->pFrame = pFrame;
-  pValue = thFindValue(interp, zLink, nLink, 1, 1);
+  pValue = thFindValue(interp, zLink, nLink, 1, 1, 0, 0);
   interp->pFrame = pSavedFrame;
 
   pEntry = Th_HashFind(interp, interp->pFrame->paVar, zLocal, nLocal, 1);
@@ -1239,21 +1285,64 @@ int Th_LinkVar(
 ** in the interpreter result and TH_ERROR is returned.
 */
 int Th_UnsetVar(Th_Interp *interp, const char *zVar, int nVar){
+  Find find;
   Th_Variable *pValue;
+  Th_HashEntry *pEntry;
+  int rc = TH_ERROR;
 
-  pValue = thFindValue(interp, zVar, nVar, 1, 1);
+  pValue = thFindValue(interp, zVar, nVar, 0, 1, 0, &find);
   if( !pValue ){
-    return TH_ERROR;
+    return rc;
   }
 
-  Th_Free(interp, pValue->zData);
-  pValue->zData = 0;
-  if( pValue->pHash ){
-    Th_HashIterate(interp, pValue->pHash, thFreeVariable, (void *)interp);
-    Th_HashDelete(interp, pValue->pHash);
-    pValue->pHash = 0;
+  if( pValue->zData || pValue->pHash ){
+    rc = TH_OK;
+  }else {
+    Th_ErrorMessage(interp, "no such variable:", zVar, nVar);
   }
-  return TH_OK;
+
+  /*
+  ** The variable may be shared by more than one frame; therefore, make sure
+  ** it is actually freed prior to freeing the parent structure.  The values
+  ** for the variable must be freed now so the variable appears undefined in
+  ** all frames.  The hash entry in the current frame must also be deleted
+  ** now; otherwise, if the current stack frame is later popped, it will try
+  ** to delete a variable which has already been freed.
+  */
+  if( find.zElem ){
+    pEntry = find.pElemEntry;
+  }else{
+    pEntry = find.pValueEntry;
+  }
+  assert( pEntry );
+  assert( pValue );
+  if( thFreeVariable(pEntry, (void *)interp) ){
+    if( find.zElem ){
+      Th_Variable *pValue2 = find.pValueEntry->pData;
+      Th_HashFind(interp, pValue2->pHash, find.zElem, find.nElem, -1);
+    }else if( pEntry->pData ){
+      Th_Free(interp, pEntry->pData);
+      pEntry->pData = 0;
+    }
+  }else{
+    if( pValue->zData ){
+      Th_Free(interp, pValue->zData);
+      pValue->zData = 0;
+    }
+    if( pValue->pHash ){
+      Th_HashIterate(interp, pValue->pHash, thFreeVariable, (void *)interp);
+      Th_HashDelete(interp, pValue->pHash);
+      pValue->pHash = 0;
+    }
+    if( find.zElem ){
+      Th_Variable *pValue2 = find.pValueEntry->pData;
+      Th_HashFind(interp, pValue2->pHash, find.zElem, find.nElem, -1);
+    }
+  }
+  if( !find.zElem ){
+    Th_HashFind(interp, interp->pFrame->paVar, zVar, nVar, -1);
+  }
+  return rc;
 }
 
 /*
@@ -1292,7 +1381,7 @@ int Th_ErrorMessage(Th_Interp *interp, const char *zPre, const char *z, int n){
     int nRes = 0;
 
     Th_SetVar(interp, (char *)"::th_stack_trace", -1, 0, 0);
-  
+
     Th_StringAppend(interp, &zRes, &nRes, zPre, -1);
     if( zRes[nRes-1]=='"' ){
       Th_StringAppend(interp, &zRes, &nRes, z, n);
@@ -1374,8 +1463,8 @@ char *Th_TakeResult(Th_Interp *pInterp, int *pN){
 }
 
 
-/* 
-** Wrappers around the supplied malloc() and free() 
+/*
+** Wrappers around the supplied malloc() and free()
 */
 void *Th_Malloc(Th_Interp *pInterp, int nByte){
   void *p = pInterp->pVtab->xMalloc(nByte);
@@ -1391,12 +1480,12 @@ void Th_Free(Th_Interp *pInterp, void *z){
 }
 
 /*
-** Install a new th1 command. 
+** Install a new th1 command.
 **
 ** If a command of the same name already exists, it is deleted automatically.
 */
 int Th_CreateCommand(
-  Th_Interp *interp, 
+  Th_Interp *interp,
   const char *zName,                 /* New command name */
   Th_CommandProc xProc,              /* Command callback proc */
   void *pContext,                    /* Value to pass as second arg to xProc */
@@ -1418,23 +1507,23 @@ int Th_CreateCommand(
   pCommand->pContext = pContext;
   pCommand->xDel = xDel;
   pEntry->pData = (void *)pCommand;
- 
+
   return TH_OK;
 }
 
 /*
-** Rename the existing command (zName, nName) to (zNew, nNew). If nNew is 0, 
+** Rename the existing command (zName, nName) to (zNew, nNew). If nNew is 0,
 ** the command is deleted instead of renamed.
 **
 ** If successful, TH_OK is returned. If command zName does not exist, or
-** if command zNew already exists, an error message is left in the 
+** if command zNew already exists, an error message is left in the
 ** interpreter result and TH_ERROR is returned.
 */
 int Th_RenameCommand(
-  Th_Interp *interp, 
-  const char *zName,            /* Existing command name */
+  Th_Interp *interp,
+  const char *zName,             /* Existing command name */
   int nName,                     /* Number of bytes at zName */
-  const char *zNew,             /* New command name */
+  const char *zNew,              /* New command name */
   int nNew                       /* Number of bytes at zNew */
 ){
   Th_HashEntry *pEntry;
@@ -1492,7 +1581,7 @@ int Th_InFrame(Th_Interp *interp,
 **
 ** If successful, *pnCount is set to the number of elements in the list.
 ** panElem is set to point at an array of *pnCount integers - the lengths
-** of the element values. *pazElem is set to point at an array of 
+** of the element values. *pazElem is set to point at an array of
 ** pointers to buffers containing the array element's data.
 **
 ** To free the arrays allocated at *pazElem and *panElem, the caller
@@ -1518,9 +1607,9 @@ int Th_InFrame(Th_Interp *interp,
 */
 int Th_SplitList(
   Th_Interp *interp,
-  const char *zList,             /* Pointer to buffer containing list */
+  const char *zList,              /* Pointer to buffer containing list */
   int nList,                      /* Number of bytes at zList */
-  char ***pazElem,               /* OUT: Array of pointers to element data */
+  char ***pazElem,                /* OUT: Array of pointers to element data */
   int **panElem,                  /* OUT: Array of element data lengths */
   int *pnCount                    /* OUT: Number of elements in list */
 ){
@@ -1535,12 +1624,12 @@ int Th_SplitList(
 }
 
 /*
-** Append a new element to an existing th1 list. The element to append 
+** Append a new element to an existing th1 list. The element to append
 ** to the list is (zElem, nElem).
 **
 ** A pointer to the existing list must be stored at *pzList when this
-** function is called. The length must be stored in *pnList. The value 
-** of *pzList must either be NULL (in which case *pnList must be 0), or 
+** function is called. The length must be stored in *pnList. The value
+** of *pzList must either be NULL (in which case *pnList must be 0), or
 ** a pointer to memory obtained from Th_Malloc().
 **
 ** This function calls Th_Free() to free the buffer at *pzList and sets
@@ -1561,9 +1650,9 @@ int Th_SplitList(
 */
 int Th_ListAppend(
   Th_Interp *interp,           /* Interpreter context */
-  char **pzList,              /* IN/OUT: Ptr to ptr to list */
+  char **pzList,               /* IN/OUT: Ptr to ptr to list */
   int *pnList,                 /* IN/OUT: Current length of *pzList */
-  const char *zElem,          /* Data to append */
+  const char *zElem,           /* Data to append */
   int nElem                    /* Length of nElem */
 ){
   Buffer output;
@@ -1616,9 +1705,9 @@ int Th_ListAppend(
 */
 int Th_StringAppend(
   Th_Interp *interp,           /* Interpreter context */
-  char **pzStr,               /* IN/OUT: Ptr to ptr to list */
+  char **pzStr,                /* IN/OUT: Ptr to ptr to list */
   int *pnStr,                  /* IN/OUT: Current length of *pzStr */
-  const char *zElem,          /* Data to append */
+  const char *zElem,           /* Data to append */
   int nElem                    /* Length of nElem */
 ){
   char *zNew;
@@ -1640,7 +1729,7 @@ int Th_StringAppend(
   return TH_OK;
 }
 
-/* 
+/*
 ** Delete an interpreter.
 */
 void Th_DeleteInterp(Th_Interp *interp){
@@ -1661,7 +1750,7 @@ void Th_DeleteInterp(Th_Interp *interp){
   Th_Free(interp, (void *)interp);
 }
 
-/* 
+/*
 ** Create a new interpreter.
 */
 Th_Interp * Th_CreateInterp(Th_Vtab *pVtab){
@@ -1695,7 +1784,7 @@ struct Expr {
   Expr *pLeft;
   Expr *pRight;
 
-  char *zValue;     /* Pointer to literal value */
+  char *zValue;      /* Pointer to literal value */
   int nValue;        /* Length of literal value buffer */
 };
 
@@ -1751,7 +1840,7 @@ static Operator aOperator[] = {
   {"!",  OP_LOGICAL_NOT,    1, ARG_INTEGER},
 
   /* Binary operators. It is important to the parsing in Th_Expr() that
-   * the two-character symbols ("==") appear before the one-character 
+   * the two-character symbols ("==") appear before the one-character
    * ones ("="). And that the priorities of all binary operators are
    * integers between 2 and 12.
    */
@@ -1777,17 +1866,17 @@ static Operator aOperator[] = {
   {"^",  OP_BITWISE_XOR,    9, ARG_INTEGER},
   {"|",  OP_BITWISE_OR,    10, ARG_INTEGER},
 
-  {0,0,0}
+  {0,0,0,0}
 };
 
 /*
 ** The first part of the string (zInput,nInput) contains a number.
-** Set *pnVarname to the number of bytes in the numeric string. 
+** Set *pnVarname to the number of bytes in the numeric string.
 */
 static int thNextNumber(
-  Th_Interp *interp, 
-  const char *zInput, 
-  int nInput, 
+  Th_Interp *interp,
+  const char *zInput,
+  int nInput,
   int *pnLiteral
 ){
   int i;
@@ -1857,7 +1946,7 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
          && (zRight==0 || TH_OK==Th_ToInt(0, zRight, nRight, &iRight))
         ){
           eArgType = ARG_INTEGER;
-        }else if( 
+        }else if(
           (zLeft && TH_OK!=Th_ToDouble(interp, zLeft, nLeft, &fLeft)) ||
           (zRight && TH_OK!=Th_ToDouble(interp, zRight, nRight, &fRight))
         ){
@@ -1869,15 +1958,29 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
         if( rc==TH_OK && zRight ){
           rc = Th_ToInt(interp, zRight, nRight, &iRight);
         }
-      }  
+      }
     }
 
     if( rc==TH_OK && eArgType==ARG_INTEGER ){
       int iRes = 0;
       switch( pExpr->pOp->eOp ) {
         case OP_MULTIPLY:     iRes = iLeft*iRight;  break;
-        case OP_DIVIDE:       iRes = iLeft/iRight;  break;
-        case OP_MODULUS:      iRes = iLeft%iRight;  break;
+        case OP_DIVIDE:
+          if( !iRight ){
+            Th_ErrorMessage(interp, "Divide by 0:", zLeft, nLeft);
+            rc = TH_ERROR;
+            goto finish;
+          }
+          iRes = iLeft/iRight;
+          break;
+        case OP_MODULUS:
+          if( !iRight ){
+            Th_ErrorMessage(interp, "Modulo by 0:", zLeft, nLeft);
+            rc = TH_ERROR;
+            goto finish;
+          }
+          iRes = iLeft%iRight;
+          break;
         case OP_ADD:          iRes = iLeft+iRight;  break;
         case OP_SUBTRACT:     iRes = iLeft-iRight;  break;
         case OP_LEFTSHIFT:    iRes = iLeft<<iRight; break;
@@ -1901,16 +2004,25 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
       Th_SetResultInt(interp, iRes);
     }else if( rc==TH_OK && eArgType==ARG_NUMBER ){
       switch( pExpr->pOp->eOp ) {
-        case OP_MULTIPLY: Th_SetResultDouble(interp, fLeft*fRight);  break;
-        case OP_DIVIDE:   Th_SetResultDouble(interp, fLeft/fRight);  break;
-        case OP_ADD:      Th_SetResultDouble(interp, fLeft+fRight);  break;
-        case OP_SUBTRACT: Th_SetResultDouble(interp, fLeft-fRight);  break;
-        case OP_LT:       Th_SetResultInt(interp, fLeft<fRight);  break;
-        case OP_GT:       Th_SetResultInt(interp, fLeft>fRight);  break;
-        case OP_LE:       Th_SetResultInt(interp, fLeft<=fRight); break;
-        case OP_GE:       Th_SetResultInt(interp, fLeft>=fRight); break;
-        case OP_EQ:       Th_SetResultInt(interp, fLeft==fRight); break;
-        case OP_NE:       Th_SetResultInt(interp, fLeft!=fRight); break;
+        case OP_MULTIPLY: Th_SetResultDouble(interp, fLeft*fRight);    break;
+        case OP_DIVIDE:
+          if( fRight==0.0 ){
+            Th_ErrorMessage(interp, "Divide by 0:", zLeft, nLeft);
+            rc = TH_ERROR;
+            goto finish;
+          }
+          Th_SetResultDouble(interp, fLeft/fRight);
+          break;
+        case OP_ADD:         Th_SetResultDouble(interp, fLeft+fRight); break;
+        case OP_SUBTRACT:    Th_SetResultDouble(interp, fLeft-fRight); break;
+        case OP_LT:          Th_SetResultInt(interp, fLeft<fRight);    break;
+        case OP_GT:          Th_SetResultInt(interp, fLeft>fRight);    break;
+        case OP_LE:          Th_SetResultInt(interp, fLeft<=fRight);   break;
+        case OP_GE:          Th_SetResultInt(interp, fLeft>=fRight);   break;
+        case OP_EQ:          Th_SetResultInt(interp, fLeft==fRight);   break;
+        case OP_NE:          Th_SetResultInt(interp, fLeft!=fRight);   break;
+        case OP_UNARY_MINUS: Th_SetResultDouble(interp, -fLeft);       break;
+        case OP_UNARY_PLUS:  Th_SetResultDouble(interp, +fLeft);       break;
         default: assert(!"Internal error");
       }
     }else if( rc==TH_OK ){
@@ -1925,6 +2037,8 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
         default: assert(!"Internal error");
       }
     }
+
+   finish:
 
     Th_Free(interp, zLeft);
     Th_Free(interp, zRight);
@@ -1948,7 +2062,7 @@ int exprMakeTree(Th_Interp *interp, Expr **apToken, int nToken){
   for(jj=0; jj<nToken; jj++){
     if( apToken[jj]->pOp && apToken[jj]->pOp->eOp==OP_OPEN_BRACKET ){
       int nNest = 1;
-      int iLeft = jj; 
+      int iLeft = jj;
 
       for(jj++; jj<nToken; jj++){
         Operator *pOp = apToken[jj]->pOp;
@@ -2022,7 +2136,7 @@ int exprMakeTree(Th_Interp *interp, Expr **apToken, int nToken){
 */
 static int exprParse(
   Th_Interp *interp,        /* Interpreter to leave error message in */
-  const char *zExpr,       /* Pointer to input string */
+  const char *zExpr,        /* Pointer to input string */
   int nExpr,                /* Number of bytes at zExpr */
   Expr ***papToken,         /* OUT: Array of tokens. */
   int *pnToken              /* OUT: Size of token array */
@@ -2097,7 +2211,7 @@ static int exprParse(
         }
         if( (nToken%16)==0 ){
           /* Grow the apToken array. */
-          Expr **apTokenOld = apToken; 
+          Expr **apTokenOld = apToken;
           apToken = Th_Malloc(interp, sizeof(Expr *)*(nToken+16));
           memcpy(apToken, apTokenOld, sizeof(Expr *)*nToken);
         }
@@ -2122,7 +2236,7 @@ static int exprParse(
 ** the result in the interpreter interp and return TH_OK if
 ** successful. If an error occurs, store an error message in
 ** the interpreter result and return an error code.
-*/ 
+*/
 int Th_Expr(Th_Interp *interp, const char *zExpr, int nExpr){
   int rc;                           /* Return Code */
   int i;                            /* Loop counter */
@@ -2139,7 +2253,7 @@ int Th_Expr(Th_Interp *interp, const char *zExpr, int nExpr){
 
   /* If the parsing was successful, create an expression tree from
   ** the parsed list of tokens. If successful, apToken[0] is set
-  ** to point to the root of the expression tree. 
+  ** to point to the root of the expression tree.
   */
   if( rc==TH_OK ){
     rc = exprMakeTree(interp, apToken, nToken);
@@ -2177,12 +2291,13 @@ Th_Hash *Th_HashNew(Th_Interp *interp){
 ** Iterate through all values currently stored in the hash table. Invoke
 ** the callback function xCallback for each entry. The second argument
 ** passed to xCallback is a copy of the fourth argument passed to this
-** function.
+** function.  The return value from the callback function xCallback is
+** ignored.
 */
 void Th_HashIterate(
-  Th_Interp *interp, 
+  Th_Interp *interp,
   Th_Hash *pHash,
-  void (*xCallback)(Th_HashEntry *pEntry, void *pContext),
+  int (*xCallback)(Th_HashEntry *pEntry, void *pContext),
   void *pContext
 ){
   int i;
@@ -2197,10 +2312,11 @@ void Th_HashIterate(
 }
 
 /*
-** Helper function for Th_HashDelete().
+** Helper function for Th_HashDelete().  Always returns non-zero.
 */
-static void xFreeHashEntry(Th_HashEntry *pEntry, void *pContext){
+static int xFreeHashEntry(Th_HashEntry *pEntry, void *pContext){
   Th_Free((Th_Interp *)pContext, (void *)pEntry);
+  return 1;
 }
 
 /*
@@ -2214,10 +2330,10 @@ void Th_HashDelete(Th_Interp *interp, Th_Hash *pHash){
 }
 
 /*
-** This function is used to insert or delete hash table items, or to 
+** This function is used to insert or delete hash table items, or to
 ** query a hash table for an existing item.
 **
-** If parameter op is less than zero, then the hash-table element 
+** If parameter op is less than zero, then the hash-table element
 ** identified by (zKey, nKey) is removed from the hash-table if it
 ** exists. NULL is returned.
 **
@@ -2228,7 +2344,7 @@ void Th_HashDelete(Th_Interp *interp, Th_Hash *pHash){
 ** not already present in the hash-table.
 */
 Th_HashEntry *Th_HashFind(
-  Th_Interp *interp, 
+  Th_Interp *interp,
   Th_Hash *pHash,
   const char *zKey,
   int nKey,
@@ -2296,7 +2412,7 @@ int th_strlen(const char *zStr){
 **
 ** Whitespace characters have the 0x01 flag set. Decimal digits have the
 ** 0x2 flag set. Single byte printable characters have the 0x4 flag set.
-** Alphabet characters have the 0x8 bit set. 
+** Alphabet characters have the 0x8 bit set.
 **
 ** The special list characters have the 0x10 flag set
 **
@@ -2344,7 +2460,6 @@ int th_isalnum(char c){
 #ifndef LONGDOUBLE_TYPE
 # define LONGDOUBLE_TYPE long double
 #endif
-typedef char u8;
 
 
 /*
@@ -2448,10 +2563,10 @@ static int sqlite3AtoF(const char *z, double *pResult){
 
 /*
 ** Try to convert the string passed as arguments (z, n) to an integer.
-** If successful, store the result in *piOut and return TH_OK. 
+** If successful, store the result in *piOut and return TH_OK.
 **
-** If the string cannot be converted to an integer, return TH_ERROR. 
-** If the interp argument is not NULL, leave an error message in the 
+** If the string cannot be converted to an integer, return TH_ERROR.
+** If the interp argument is not NULL, leave an error message in the
 ** interpreter result too.
 */
 int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
@@ -2483,16 +2598,16 @@ int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
 
 /*
 ** Try to convert the string passed as arguments (z, n) to a double.
-** If successful, store the result in *pfOut and return TH_OK. 
+** If successful, store the result in *pfOut and return TH_OK.
 **
-** If the string cannot be converted to a double, return TH_ERROR. 
-** If the interp argument is not NULL, leave an error message in the 
+** If the string cannot be converted to a double, return TH_ERROR.
+** If the interp argument is not NULL, leave an error message in the
 ** interpreter result too.
 */
 int Th_ToDouble(
-  Th_Interp *interp, 
-  const char *z, 
-  int n, 
+  Th_Interp *interp,
+  const char *z,
+  int n,
   double *pfOut
 ){
   if( !sqlite3IsNumber((const char *)z, 0) ){
@@ -2518,9 +2633,9 @@ int Th_SetResultInt(Th_Interp *interp, int iVal){
     iVal = iVal * -1;
   }
   *(--z) = '\0';
-  *(--z) = (char)(48+(iVal%10));
-  while( (iVal = (iVal/10))>0 ){
-    *(--z) = (char)(48+(iVal%10));
+  *(--z) = (char)(48+((unsigned)iVal%10));
+  while( (iVal = ((unsigned)iVal/10))>0 ){
+    *(--z) = (char)(48+((unsigned)iVal%10));
     assert(z>zBuf);
   }
   if( isNegative ){
@@ -2537,11 +2652,11 @@ int Th_SetResultInt(Th_Interp *interp, int iVal){
 int Th_SetResultDouble(Th_Interp *interp, double fVal){
   int i;                /* Iterator variable */
   double v = fVal;      /* Input value */
-  char zBuf[128];      /* Output buffer */
-  char *z = zBuf;      /* Output cursor */
+  char zBuf[128];       /* Output buffer */
+  char *z = zBuf;       /* Output cursor */
   int iDot = 0;         /* Digit after which to place decimal point */
   int iExp = 0;         /* Exponent (NN in eNN) */
-  const char *zExp;    /* String representation of iExp */
+  const char *zExp;     /* String representation of iExp */
 
   /* Precision: */
   #define INSIGNIFICANT 0.000000000001
@@ -2550,16 +2665,16 @@ int Th_SetResultDouble(Th_Interp *interp, double fVal){
 
   /* If the real value is negative, write a '-' character to the
    * output and transform v to the corresponding positive number.
-   */ 
+   */
   if( v<0.0 ){
     *z++ = '-';
     v *= -1.0;
   }
 
-  /* Normalize v to a value between 1.0 and 10.0. Integer 
+  /* Normalize v to a value between 1.0 and 10.0. Integer
    * variable iExp is set to the exponent. i.e the original
    * value is (v * 10^iExp) (or the negative thereof).
-   */ 
+   */
   if( v>0.0 ){
     while( (v+ROUNDER)>=10.0 ) { iExp++; v *= 0.1; }
     while( (v+ROUNDER)<1.0 )   { iExp--; v *= 10.0; }

@@ -72,6 +72,7 @@ set src {
   json_wiki
   leaf
   login
+  lookslike
   main
   manifest
   markdown
@@ -118,6 +119,7 @@ set src {
   vfile
   wiki
   wikiformat
+  winfile
   winhttp
   wysiwyg
   xfer
@@ -125,6 +127,34 @@ set src {
   zip
   http_ssl
 }
+
+# Options used to compile the included SQLite library.
+#
+set SQLITE_OPTIONS {
+  -DSQLITE_OMIT_LOAD_EXTENSION=1
+  -DSQLITE_ENABLE_LOCKING_STYLE=0
+  -DSQLITE_THREADSAFE=0
+  -DSQLITE_DEFAULT_FILE_FORMAT=4
+  -DSQLITE_OMIT_DEPRECATED
+  -DSQLITE_ENABLE_EXPLAIN_COMMENTS
+}
+#lappend SQLITE_OPTIONS -DSQLITE_ENABLE_FTS3=1
+#lappend SQLITE_OPTIONS -DSQLITE_ENABLE_STAT4
+#lappend SQLITE_OPTIONS -DSQLITE_WIN32_NO_ANSI
+#lappend SQLITE_OPTIONS -DSQLITE_WINNT_MAX_PATH_CHARS=4096
+
+# Options used to compile the included SQLite shell.
+#
+set SHELL_OPTIONS {
+  -Dmain=sqlite3_shell
+  -DSQLITE_OMIT_LOAD_EXTENSION=1
+}
+
+# Options used to compile the included SQLite shell on Windows.
+#
+set SHELL_WIN32_OPTIONS $SHELL_OPTIONS
+lappend SHELL_WIN32_OPTIONS -Dgetenv=fossil_getenv
+lappend SHELL_WIN32_OPTIONS -Dfopen=fossil_fopen
 
 # Name of the final application
 #
@@ -187,7 +217,9 @@ writeln "\n"
 writeln "APPNAME = $name\$(E)"
 writeln "\n"
 
-writeln {
+writeln [string map [list \
+    <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS " \\\n                 "] \
+    <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "]] {
 all:	$(OBJDIR) $(APPNAME)
 
 install:	$(APPNAME)
@@ -219,6 +251,12 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid \
 		$(SRCDIR)/../manifest \
 		$(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
+
+# Setup the options used to compile the included SQLite library.
+SQLITE_OPTIONS = <<<SQLITE_OPTIONS>>>
+
+# Setup the options used to compile the included SQLite shell.
+SHELL_OPTIONS = <<<SHELL_OPTIONS>>>
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
@@ -255,7 +293,7 @@ $(SRCDIR)/../manifest:
 clean:	
 	rm -rf $(OBJDIR)/* $(APPNAME)
 
-}
+}]
 
 set mhargs {}
 foreach s [lsort $src] {
@@ -284,21 +322,11 @@ foreach s [lsort $src] {
   writeln "\$(OBJDIR)/$s.h:\t\$(OBJDIR)/headers"
 }
 
-
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
-set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1}
-append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
-#append opt " -DSQLITE_ENABLE_FTS3=1"
-append opt " -DSQLITE_ENABLE_STAT3"
-append opt " -Dlocaltime=fossil_localtime"
-append opt " -DSQLITE_ENABLE_LOCKING_STYLE=0"
-set SQLITE_OPTIONS $opt
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
-set opt {-Dmain=sqlite3_shell}
-append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
@@ -309,7 +337,6 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
 
-set opt {}
 writeln {
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
@@ -390,9 +417,13 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_TCL = 1
 
-#### Load Tcl using the stubs mechanism
+#### Load Tcl using the stubs library mechanism
 #
 # FOSSIL_ENABLE_TCL_STUBS = 1
+
+#### Load Tcl using the private stubs mechanism
+#
+# FOSSIL_ENABLE_TCL_PRIVATE_STUBS = 1
 
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
@@ -402,9 +433,9 @@ FOSSIL_TCL_SOURCE = 1
 #### Check if the workaround for the MinGW command line handling needs to
 #    be enabled by default.
 #
-ifndef BROKEN_MINGW_CMDLINE
+ifndef MINGW_IS_32BIT_ONLY
 ifeq (,$(findstring w64-mingw32,$(PREFIX)))
-BROKEN_MINGW_CMDLINE = 1
+MINGW_IS_32BIT_ONLY = 1
 endif
 endif
 
@@ -418,8 +449,8 @@ ZLIBDIR = $(SRCDIR)/../compat/zlib
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1e/include
-OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1e
+OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1f/include
+OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1f
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -449,9 +480,13 @@ TCLLIBDIR = $(TCLDIR)/lib
 #### Tcl: Which Tcl library do we want to use (8.4, 8.5, 8.6, etc)?
 #
 ifdef FOSSIL_ENABLE_TCL_STUBS
+ifndef FOSSIL_ENABLE_TCL_PRIVATE_STUBS
 LIBTCL = -ltclstub86
+endif
+TCLTARGET = libtclstub86.a
 else
 LIBTCL = -ltcl86
+TCLTARGET = binaries
 endif
 
 #### C Compile and options for use in building executables that
@@ -492,7 +527,7 @@ endif
 endif
 
 # With MinGW command line handling workaround
-ifdef BROKEN_MINGW_CMDLINE
+ifdef MINGW_IS_32BIT_ONLY
 TCC += -DBROKEN_MINGW_CMDLINE=1
 RCC += -DBROKEN_MINGW_CMDLINE=1
 endif
@@ -511,6 +546,10 @@ RCC += -DFOSSIL_ENABLE_TCL=1
 ifdef FOSSIL_ENABLE_TCL_STUBS
 TCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
 RCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
+ifdef FOSSIL_ENABLE_TCL_PRIVATE_STUBS
+TCC += -DFOSSIL_ENABLE_TCL_PRIVATE_STUBS=1
+RCC += -DFOSSIL_ENABLE_TCL_PRIVATE_STUBS=1
+endif
 else
 TCC += -DSTATIC_BUILD
 RCC += -DSTATIC_BUILD
@@ -529,7 +568,7 @@ endif
 LIB = -static
 
 # MinGW: If available, use the Unicode capable runtime startup code.
-ifndef BROKEN_MINGW_CMDLINE
+ifndef MINGW_IS_32BIT_ONLY
 LIB += -municode
 endif
 
@@ -633,9 +672,11 @@ $(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 ifdef USE_WINDOWS
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.ico) $(subst /,\,$(OBJDIR))
+	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.exe.manifest) $(subst /,\,$(OBJDIR))
 else
 	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
+	$(CP) $(SRCDIR)/../win/fossil.exe.manifest $(OBJDIR)
 endif
 	$(RCC) $(OBJDIR)/fossil.rc -o $(OBJDIR)/fossil.o
 
@@ -690,6 +731,23 @@ endif
 zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
 
+clean-zlib:
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
+
+openssl:	zlib
+	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib mingw
+	$(MAKE) -C $(OPENSSLLIBDIR) build_libs
+
+clean-openssl:
+	$(MAKE) -C $(OPENSSLLIBDIR) clean
+
+tcl:
+	cd $(TCLSRCDIR)/win;./configure
+	$(MAKE) -C $(TCLSRCDIR)/win $(TCLTARGET)
+
+clean-tcl:
+	$(MAKE) -C $(TCLSRCDIR)/win distclean
+
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
@@ -738,20 +796,25 @@ foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}.h:\t\$(OBJDIR)/headers\n"
 }
 
+set MINGW_SQLITE_OPTIONS $SQLITE_OPTIONS
+lappend MINGW_SQLITE_OPTIONS -D_HAVE_SQLITE_CONFIG_H
+lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MALLOC_H
+lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MSIZE
 
-writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
-set opt $SQLITE_OPTIONS
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+set j " \\\n                 "
+writeln "SQLITE_OPTIONS = [join $MINGW_SQLITE_OPTIONS $j]\n"
+set j " \\\n                "
+writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS $j]\n"
 
-set opt {}
+writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c \$(SRCDIR)/../win/Makefile.mingw"
+writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+
 writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
-set opt {-Dmain=sqlite3_shell}
-append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
+writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h \$(SRCDIR)/../win/Makefile.mingw"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
@@ -804,7 +867,8 @@ BCC    = $(DMDIR)\bin\dmc $(CFLAGS)
 TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(SSL) $(INCL)
 LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32
 }
-writeln "SQLITE_OPTIONS = $SQLITE_OPTIONS\n"
+writeln "SQLITE_OPTIONS = [join $SQLITE_OPTIONS { }]\n"
+writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS { }]\n"
 writeln -nonewline "SRC   = "
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c "
@@ -857,10 +921,10 @@ version$E: $B\src\mkversion.c
 	$(BCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) -o$@ -c -Dmain=sqlite3_shell $(SQLITE_OPTIONS) $**
+	$(TCC) -o$@ -c $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $**
 
 $(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $**
+	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $**
 
 $(OBJDIR)\th$O : $(SRCDIR)\th.c
 	$(TCC) -o$@ -c $**
@@ -943,6 +1007,10 @@ OBJDIR = .
 OX     = .
 O      = .obj
 E      = .exe
+P      = .pdb
+
+# Uncomment to enable debug symbols
+# DEBUG = 1
 
 # Uncomment to enable JSON API
 # FOSSIL_ENABLE_JSON = 1
@@ -951,44 +1019,58 @@ E      = .exe
 # FOSSIL_ENABLE_SSL = 1
 
 !ifdef FOSSIL_ENABLE_SSL
-SSLINCDIR = $(B)\compat\openssl-1.0.1e\include
-SSLLIBDIR = $(B)\compat\openssl-1.0.1e\out32
+SSLINCDIR = $(B)\compat\openssl-1.0.1f\include
+SSLLIBDIR = $(B)\compat\openssl-1.0.1f\out32
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !endif
 
 # zlib options
-ZINCDIR = $(B)\compat\zlib
-ZLIBDIR = $(B)\compat\zlib
-ZLIB    = zlib.lib
+ZINCDIR   = $(B)\compat\zlib
+ZLIBDIR   = $(B)\compat\zlib
+ZLIB      = zlib.lib
 
-INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
+INCL      = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
 
 !ifdef FOSSIL_ENABLE_SSL
-INCL   = $(INCL) -I$(SSLINCDIR)
+INCL      = $(INCL) -I$(SSLINCDIR)
 !endif
 
-CFLAGS = -nologo -MT -O2
-BCC    = $(CC) $(CFLAGS)
-TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(INCL)
-RCC    = rc -D_WIN32 -D_MSC_VER $(MSCDEF) $(INCL)
-LIBS   = $(ZLIB) ws2_32.lib advapi32.lib
-LIBDIR = -LIBPATH:$(ZLIBDIR)
+CFLAGS    = -nologo
+LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
+
+!ifdef DEBUG
+CFLAGS    = $(CFLAGS) -Zi -MTd -Od
+LDFLAGS   = $(LDFLAGS) /DEBUG
+!else
+CFLAGS    = $(CFLAGS) -MT -O2
+!endif
+
+BCC       = $(CC) $(CFLAGS)
+TCC       = $(CC) -c $(CFLAGS) $(MSCDEF) $(INCL)
+RCC       = rc -D_WIN32 -D_MSC_VER $(MSCDEF) $(INCL)
+LIBS      = $(ZLIB) ws2_32.lib advapi32.lib
+LIBDIR    = -LIBPATH:$(ZLIBDIR)
 
 !ifdef FOSSIL_ENABLE_JSON
-TCC = $(TCC) -DFOSSIL_ENABLE_JSON=1
-RCC = $(RCC) -DFOSSIL_ENABLE_JSON=1
+TCC       = $(TCC) -DFOSSIL_ENABLE_JSON=1
+RCC       = $(RCC) -DFOSSIL_ENABLE_JSON=1
 !endif
 
 !ifdef FOSSIL_ENABLE_SSL
-TCC    = $(TCC) -DFOSSIL_ENABLE_SSL=1
-RCC    = $(RCC) -DFOSSIL_ENABLE_SSL=1
-LIBS   = $(LIBS) $(SSLLIB)
-LIBDIR = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
+TCC       = $(TCC) -DFOSSIL_ENABLE_SSL=1
+RCC       = $(RCC) -DFOSSIL_ENABLE_SSL=1
+LIBS      = $(LIBS) $(SSLLIB)
+LIBDIR    = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
 !endif
 }
-regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS
+regsub -all {[-]D} [join $SQLITE_OPTIONS { }] {/D} MSC_SQLITE_OPTIONS
 set j " \\\n                 "
 writeln "SQLITE_OPTIONS = [join $MSC_SQLITE_OPTIONS $j]\n"
+
+regsub -all {[-]D} [join $SHELL_WIN32_OPTIONS { }] {/D} MSC_SHELL_OPTIONS
+set j " \\\n                "
+writeln "SHELL_OPTIONS = [join $MSC_SHELL_OPTIONS $j]\n"
+
 writeln -nonewline "SRC   = "
 set i 0
 foreach s [lsort $src] {
@@ -1013,6 +1095,7 @@ writeln " \\"
 writeln -nonewline "        \$(OX)\\fossil.res\n"
 writeln {
 APPNAME = $(OX)\fossil$(E)
+PDBNAME = $(OX)\fossil$(P)
 
 all: $(OX) $(APPNAME)
 
@@ -1022,7 +1105,7 @@ zlib:
 
 $(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
 	cd $(OX) 
-	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
+	link $(LDFLAGS) -OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
 set redir {>}
@@ -1049,11 +1132,11 @@ mkindex$E: $(SRCDIR)\mkindex.c
 mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
-$(OX)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) /Fo$@ /Dmain=sqlite3_shell $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
+$(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
+	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
 
-$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**
+$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c $B\win\Makefile.msc
+	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SRCDIR)\sqlite3.c
 
 $(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**
@@ -1075,13 +1158,14 @@ clean:
 	-del *_.c
 	-del *.h
 	-del *.map
-	-del *.manifest
+	-del *.res
 	-del headers
 	-del linkopts
-	-del *.res
+	-del vc*.pdb
 
 realclean: clean
 	-del $(APPNAME)
+	-del $(PDBNAME)
 	-del translate$E
 	-del mkindex$E
 	-del makeheaders$E
@@ -1143,7 +1227,9 @@ puts "building ../win/Makefile.PellesCGMake"
 set output_file [open ../win/Makefile.PellesCGMake w]
 fconfigure $output_file -translation binary
 
-writeln {#
+writeln [string map [list \
+    <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS { }] \
+    <<<SHELL_OPTIONS>>> [join $SHELL_WIN32_OPTIONS { }]] {#
 ##############################################################################
 # WARNING: DO NOT EDIT, AUTOMATICALLY GENERATED FILE (SEE "src/makemake.tcl")
 ##############################################################################
@@ -1230,13 +1316,13 @@ UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 SQLITESRC=sqlite3.c
 ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
-SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0
+SQLITEDEFINES=<<<SQLITE_OPTIONS>>>
 
 # define the sqlite shell files, which need special flags on compile
 SQLITESHELLSRC=shell.c
 ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
-SQLITESHELLDEFINES=-Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1
+SQLITESHELLDEFINES=<<<SHELL_OPTIONS>>>
 
 # define the th scripting files, which need special flags on compile
 THSRC=th.c th_lang.c
@@ -1333,4 +1419,4 @@ clean:
 .PHONY: clobber
 clobber: clean
 	del /F *.exe
-}
+}]

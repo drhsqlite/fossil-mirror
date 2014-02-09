@@ -22,6 +22,19 @@
 #include "th_main.h"
 #include "sqlite3.h"
 
+#if INTERFACE
+/*
+** Flag parameters to the Th_FossilInit() routine used to control the
+** interpreter creation and initialization process.
+*/
+#define TH_INIT_NONE        ((u32)0x00000000) /* No flags. */
+#define TH_INIT_NEED_CONFIG ((u32)0x00000001) /* Open configuration first? */
+#define TH_INIT_FORCE_TCL   ((u32)0x00000002) /* Force Tcl to be enabled? */
+#define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH commands re-added? */
+#define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
+#define TH_INIT_DEFAULT     (TH_INIT_NONE)    /* Default flags. */
+#endif
+
 /*
 ** Global variable counting the number of outstanding calls to malloc()
 ** made by the th1 implementation. This is used to catch memory leaks
@@ -46,6 +59,13 @@ static void xFree(void *p){
   free(p);
 }
 static Th_Vtab vtab = { xMalloc, xFree };
+
+/*
+** Returns the number of outstanding TH1 memory allocations.
+*/
+int Th_GetOutstandingMalloc(){
+  return nOutstandingMalloc;
+}
 
 /*
 ** Generate a TH1 trace message if debugging is enabled.
@@ -78,6 +98,29 @@ void Th_PrintTraceLog(){
     fossil_print("%s", blob_str(&g.thLog));
     fossil_print("\n------------------- END TRACE LOG -------------------\n");
   }
+}
+
+/*
+** TH command:      httpize STRING
+**
+** Escape all characters of STRING which have special meaning in URI
+** components. Return a new string result.
+*/
+static int httpizeCmd(
+  Th_Interp *interp, 
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  char *zOut;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "httpize STRING");
+  }
+  zOut = httpize((char*)argv[1], argl[1]);
+  Th_SetResult(interp, zOut, -1);
+  free(zOut);
+  return TH_OK;
 }
 
 /*
@@ -244,7 +287,7 @@ static int dateCmd(
 ){
   char *zOut;
   if( argc>=2 && argl[1]==6 && memcmp(argv[1],"-local",6)==0 ){
-    zOut = db_text("??", "SELECT datetime('now','localtime')");
+    zOut = db_text("??", "SELECT datetime('now'%s)", timeline_utc());
   }else{
     zOut = db_text("??", "SELECT datetime('now')");
   }
@@ -285,11 +328,13 @@ static int hascapCmd(
 ** Return true if the fossil binary has the given compile-time feature
 ** enabled. The set of features includes:
 **
-** "ssl"      = FOSSIL_ENABLE_SSL
-** "tcl"      = FOSSIL_ENABLE_TCL
-** "tclStubs" = FOSSIL_ENABLE_TCL_STUBS
-** "json"     = FOSSIL_ENABLE_JSON
-** "markdown" = FOSSIL_ENABLE_MARKDOWN
+** "ssl"             = FOSSIL_ENABLE_SSL
+** "tcl"             = FOSSIL_ENABLE_TCL
+** "useTclStubs"     = USE_TCL_STUBS
+** "tclStubs"        = FOSSIL_ENABLE_TCL_STUBS
+** "tclPrivateStubs" = FOSSIL_ENABLE_TCL_PRIVATE_STUBS
+** "json"            = FOSSIL_ENABLE_JSON
+** "markdown"        = FOSSIL_ENABLE_MARKDOWN
 **
 */
 static int hasfeatureCmd(
@@ -309,26 +354,36 @@ static int hasfeatureCmd(
     /* placeholder for following ifdefs... */
   }
 #if defined(FOSSIL_ENABLE_SSL)
-  else if( 0 == fossil_strnicmp( zArg, "ssl", 3 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "ssl\0", 4 ) ){
     rc = 1;
   }
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
-  else if( 0 == fossil_strnicmp( zArg, "tcl", 3 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "tcl\0", 4 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(USE_TCL_STUBS)
+  else if( 0 == fossil_strnicmp( zArg, "useTclStubs\0", 12 ) ){
     rc = 1;
   }
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
-  else if( 0 == fossil_strnicmp( zArg, "tclStubs", 8 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "tclStubs\0", 9 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+  else if( 0 == fossil_strnicmp( zArg, "tclPrivateStubs\0", 16 ) ){
     rc = 1;
   }
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
-  else if( 0 == fossil_strnicmp( zArg, "json", 4 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "json\0", 5 ) ){
     rc = 1;
   }
 #endif
-  else if( 0 == fossil_strnicmp( zArg, "markdown", 8 ) ){
+  else if( 0 == fossil_strnicmp( zArg, "markdown\0", 9 ) ){
     rc = 1;
   }
   if( g.thTrace ){
@@ -432,8 +487,9 @@ static int comboboxCmd(
     Th_SplitList(interp, argv[2], argl[2], &azElem, &aszElem, &nElem);
     blob_init(&name, (char*)argv[1], argl[1]);
     zValue = Th_Fetch(blob_str(&name), &nValue);
-    z = mprintf("<select name=\"%z\" size=\"%d\">", 
-                 htmlize(blob_buffer(&name), blob_size(&name)), height);
+    zH = htmlize(blob_buffer(&name), blob_size(&name));
+    z = mprintf("<select id=\"%s\" name=\"%s\" size=\"%d\">", zH, zH, height);
+    free(zH);
     sendText(z, -1, 0);
     free(z);
     blob_reset(&name);
@@ -505,12 +561,11 @@ static int repositoryCmd(
   const char **argv, 
   int *argl
 ){
-  int openRepository;
-
   if( argc!=1 && argc!=2 ){
     return Th_WrongNumArgs(interp, "repository ?BOOLEAN?");
   }
   if( argc==2 ){
+    int openRepository = 0;
     if( Th_ToInt(interp, argv[1], argl[1], &openRepository) ){
       return TH_ERROR;
     }
@@ -806,13 +861,131 @@ static int regexpCmd(
 }
 
 /*
+** TH command:      http ?-asynchronous? ?--? url ?payload?
+**
+** Perform an HTTP or HTTPS request for the specified URL.  If a
+** payload is present, it will be interpreted as text/plain and
+** the POST method will be used; otherwise, the GET method will
+** be used.  Upon success, if the -asynchronous option is used, an
+** empty string is returned as the result; otherwise, the response
+** from the server is returned as the result.  Synchronous requests
+** are not currently implemented.
+*/
+#define HTTP_WRONGNUMARGS "http ?-asynchronous? ?--? url ?payload?"
+static int httpCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int nArg = 1;
+  int fAsynchronous = 0;
+  const char *zType, *zRegexp;
+  Blob payload;
+  ReCompiled *pRe = 0;
+  UrlData urlData;
+
+  if( argc<2 || argc>5 ){
+    return Th_WrongNumArgs(interp, HTTP_WRONGNUMARGS);
+  }
+  if( fossil_strnicmp(argv[nArg], "-asynchronous", argl[nArg])==0 ){
+    fAsynchronous = 1; nArg++;
+  }
+  if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
+  if( nArg+1!=argc && nArg+2!=argc ){
+    return Th_WrongNumArgs(interp, REGEXP_WRONGNUMARGS);
+  }
+  memset(&urlData, '\0', sizeof(urlData));
+  url_parse_local(argv[nArg], 0, &urlData);
+  if( urlData.isSsh || urlData.isFile ){
+    Th_ErrorMessage(interp, "url must be http:// or https://", 0, 0);
+    return TH_ERROR;
+  }
+  zRegexp = db_get("th1-uri-regexp", 0);
+  if( zRegexp && zRegexp[0] ){
+    const char *zErr = re_compile(&pRe, zRegexp, 0);
+    if( zErr ){
+      Th_SetResult(interp, zErr, -1);
+      return TH_ERROR;
+    }
+  }
+  if( !pRe || !re_match(pRe, (const unsigned char *)urlData.canonical, -1) ){
+    Th_SetResult(interp, "url not allowed", -1);
+    re_free(pRe);
+    return TH_ERROR;
+  }
+  re_free(pRe);
+  blob_zero(&payload);
+  if( nArg+2==argc ){
+    blob_append(&payload, argv[nArg+1], argl[nArg+1]);
+    zType = "POST";
+  }else{
+    zType = "GET";
+  }
+  if( fAsynchronous ){
+    const char *zSep, *zParams;
+    Blob hdr;
+    zParams = strrchr(argv[nArg], '?');
+    if( strlen(urlData.path)>0 && zParams!=argv[nArg] ){
+      zSep = "";
+    }else{
+      zSep = "/";
+    }
+    blob_zero(&hdr);
+    blob_appendf(&hdr, "%s %s%s%s HTTP/1.0\r\n",
+                 zType, zSep, urlData.path, zParams ? zParams : "");
+    if( urlData.proxyAuth ){
+      blob_appendf(&hdr, "Proxy-Authorization: %s\r\n", urlData.proxyAuth);
+    }
+    if( urlData.passwd && urlData.user && urlData.passwd[0]=='#' ){
+      char *zCredentials = mprintf("%s:%s", urlData.user, &urlData.passwd[1]);
+      char *zEncoded = encode64(zCredentials, -1);
+      blob_appendf(&hdr, "Authorization: Basic %s\r\n", zEncoded);
+      fossil_free(zEncoded);
+      fossil_free(zCredentials);
+    }
+    blob_appendf(&hdr, "Host: %s\r\n"
+        "User-Agent: %s\r\n", urlData.hostname, get_user_agent());
+    if( zType[0]=='P' ){
+      blob_appendf(&hdr, "Content-Type: application/x-www-form-urlencoded\r\n"
+          "Content-Length: %d\r\n\r\n", blob_size(&payload));
+    }else{
+      blob_appendf(&hdr, "\r\n");
+    }
+    if( transport_open(&urlData) ){
+      Th_ErrorMessage(interp, transport_errmsg(&urlData), 0, 0);
+      blob_reset(&hdr);
+      blob_reset(&payload);
+      return TH_ERROR;
+    }
+    transport_send(&urlData, &hdr);
+    transport_send(&urlData, &payload);
+    blob_reset(&hdr);
+    blob_reset(&payload);
+    transport_close(&urlData);
+    Th_SetResult(interp, 0, 0); /* NOTE: Asynchronous, no results. */
+    return TH_OK;
+  }else{
+    Th_ErrorMessage(interp,
+        "synchronous requests are not yet implemented", 0, 0);
+    blob_reset(&payload);
+    return TH_ERROR;
+  }
+}
+
+/*
 ** Make sure the interpreter has been initialized.  Initialize it if
 ** it has not been already.
 **
 ** The interpreter is stored in the g.interp global variable.
 */
-void Th_FossilInit(int needConfig, int forceSetup){
+void Th_FossilInit(u32 flags){
   int wasInit = 0;
+  int needConfig = flags & TH_INIT_NEED_CONFIG;
+  int forceReset = flags & TH_INIT_FORCE_RESET;
+  int forceTcl = flags & TH_INIT_FORCE_TCL;
+  int forceSetup = flags & TH_INIT_FORCE_SETUP;
   static unsigned int aFlags[] = { 0, 1, WIKI_LINKSONLY };
   static struct _Command {
     const char *zName;
@@ -824,10 +997,12 @@ void Th_FossilInit(int needConfig, int forceSetup){
     {"date",          dateCmd,              0},
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"enable_output", enableOutputCmd,      0},
+    {"httpize",       httpizeCmd,           0},
     {"hascap",        hascapCmd,            0},
     {"hasfeature",    hasfeatureCmd,        0},
     {"html",          putsCmd,              (void*)&aFlags[0]},
     {"htmlize",       htmlizeCmd,           0},
+    {"http",          httpCmd,              0},
     {"linecount",     linecntCmd,           0},
     {"puts",          putsCmd,              (void*)&aFlags[1]},
     {"query",         queryCmd,             0},
@@ -851,12 +1026,19 @@ void Th_FossilInit(int needConfig, int forceSetup){
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
     db_open_config(0);
   }
-  if( g.interp==0 ){
+  if( forceReset || forceTcl || g.interp==0 ){
+    int created = 0;
     int i;
-    g.interp = Th_CreateInterp(&vtab);
-    th_register_language(g.interp);       /* Basic scripting commands. */
+    if( g.interp==0 ){
+      g.interp = Th_CreateInterp(&vtab);
+      created = 1;
+    }
+    if( forceReset || created ){
+      th_register_language(g.interp);     /* Basic scripting commands. */
+    }
 #ifdef FOSSIL_ENABLE_TCL
-    if( getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
+    if( forceTcl || fossil_getenv("TH1_ENABLE_TCL")!=0 ||
+        db_get_boolean("tcl", 0) ){
       if( !g.tcl.setup ){
         g.tcl.setup = db_get("tcl-setup", 0); /* Grab Tcl setup script. */
       }
@@ -895,7 +1077,7 @@ void Th_FossilInit(int needConfig, int forceSetup){
 ** Store a string value in a variable in the interpreter.
 */
 void Th_Store(const char *zName, const char *zValue){
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   if( zValue ){
     if( g.thTrace ){
       Th_Trace("set %h {%h}<br />\n", zName, zValue);
@@ -910,7 +1092,7 @@ void Th_Store(const char *zName, const char *zValue){
 void Th_StoreInt(const char *zName, int iValue){
   Blob value;
   char *zValue;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   blob_zero(&value);
   blob_appendf(&value, "%d", iValue);
   zValue = blob_str(&value);
@@ -936,7 +1118,7 @@ void Th_Unstore(const char *zName){
 */
 char *Th_Fetch(const char *zName, int *pSize){
   int rc;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   rc = Th_GetVar(g.interp, (char*)zName, -1);
   if( rc==TH_OK ){
     return (char*)Th_GetResult(g.interp, pSize);
@@ -1016,7 +1198,7 @@ int Th_Render(const char *z){
   int n;
   int rc = TH_OK;
   char *zResult;
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   while( z[i] ){
     if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
@@ -1096,7 +1278,7 @@ void test_th_eval(void){
   if( g.argc!=3 ){
     usage("script");
   }
-  Th_FossilInit(0, 0);
+  Th_FossilInit(TH_INIT_DEFAULT);
   rc = Th_Eval(g.interp, 0, g.argv[2], -1);
   zRc = Th_ReturnCodeName(rc, 1);
   fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));

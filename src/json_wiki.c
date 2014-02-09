@@ -84,7 +84,7 @@ char * json_wiki_get_uuid_for_rid( int rid )
 */
 cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
   Manifest * pWiki = NULL;
-  if( NULL == (pWiki = manifest_get(rid, CFTYPE_WIKI)) ){
+  if( NULL == (pWiki = manifest_get(rid, CFTYPE_WIKI, 0)) ){
     json_set_err( FSL_JSON_E_UNKNOWN,
                   "Error reading wiki page from manifest (rid=%d).",
                   rid );
@@ -530,12 +530,12 @@ static cson_value * json_wiki_diff(){
   }
 
   zErrTag = zV1;
-  pW1 = manifest_get(r1, CFTYPE_WIKI);
+  pW1 = manifest_get(r1, CFTYPE_WIKI, 0);
   if( pW1==0 ) {
     goto manifest;
   }
   zErrTag = zV2;
-  pW2 = manifest_get(r2, CFTYPE_WIKI);
+  pW2 = manifest_get(r2, CFTYPE_WIKI, 0);
   if( pW2==0 ) {
     goto manifest;
   }

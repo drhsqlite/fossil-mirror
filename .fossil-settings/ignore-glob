@@ -1,4 +1,5 @@
-compat/openssl-1.0.1e/*
-compat/tcl-8.6/*
+compat/openssl*
+compat/tcl*
 fossil
 fossil.exe
+win/fossil.exe

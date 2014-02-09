@@ -15,6 +15,7 @@
 <li><a href="fiveminutes.wiki">5 Minutes as a Single User &mdash; Update and Running in</a></li>
 <li><a href="fossil-from-msvc.wiki">2010 IDE &mdash; Integrating Fossil in the Microsoft Express</a></li>
 <li><a href="tech_overview.wiki">A Technical Overview Of The Design And Implementation Of Fossil</a></li>
+<li><a href="adding_code.wiki">Adding New Features To Fossil</a></li>
 <li><a href="antibot.wiki">against Spiders and Bots &mdash; Defense</a></li>
 <li><a href="copyright-release.html">Agreement &mdash; Contributor License</a></li>
 <li><a href="delta_encoder_algorithm.wiki">Algorithm &mdash; Fossil Delta Encoding</a></li>
@@ -63,6 +64,7 @@
 <li><a href="event.wiki">Events</a></li>
 <li><a href="inout.wiki">Export To And From Git &mdash; Import And</a></li>
 <li><a href="fossil-from-msvc.wiki">Express 2010 IDE &mdash; Integrating Fossil in the Microsoft</a></li>
+<li><a href="adding_code.wiki">Features To Fossil &mdash; Adding New</a></li>
 <li><a href="fileformat.wiki">File Format &mdash; Fossil</a></li>
 <li><a href="branching.wiki">Forking, Merging, and Tagging &mdash; Branching,</a></li>
 <li><a href="delta_format.wiki">Format &mdash; Fossil Delta</a></li>
@@ -88,11 +90,14 @@
 <li><a href="quotes.wiki">Git, and DVCSes in General &mdash; Quotes: What People Are Saying About Fossil,</a></li>
 <li><a href="quickstart.wiki">Guide &mdash; Fossil Quick Start</a></li>
 <li><a href="style.wiki">Guidelines &mdash; Source Code Style</a></li>
+<li><a href="hacker-howto.wiki">Hacker How-To</a></li>
+<li><a href="adding_code.wiki">Hacking Fossil</a></li>
 <li><a href="hints.wiki">Hints &mdash; Fossil Tips And Usage</a></li>
 <li><a href="index.wiki">Home Page</a></li>
 <li><a href="selfhost.wiki">Hosting Repositories &mdash; Fossil Self</a></li>
 <li><a href="server.wiki">How To Configure A Fossil Server</a></li>
 <li><a href="newrepo.wiki">How To Create A New Fossil Repository</a></li>
+<li><a href="hacker-howto.wiki">How-To &mdash; Hacker</a></li>
 <li><a href="fossil-from-msvc.wiki">IDE &mdash; Integrating Fossil in the Microsoft Express 2010</a></li>
 <li><a href="tech_overview.wiki">Implementation Of Fossil &mdash; A Technical Overview Of The Design And</a></li>
 <li><a href="inout.wiki">Import And Export To And From Git</a></li>
@@ -106,6 +111,7 @@
 <li><a href="fossil-from-msvc.wiki">Microsoft Express 2010 IDE &mdash; Integrating Fossil in the</a></li>
 <li><a href="fiveminutes.wiki">Minutes as a Single User &mdash; Update and Running in 5</a></li>
 <li><a href="checkin_names.wiki">Names &mdash; Checkin And Version</a></li>
+<li><a href="adding_code.wiki">New Features To Fossil &mdash; Adding</a></li>
 <li><a href="newrepo.wiki">New Fossil Repository &mdash; How To Create A</a></li>
 <li><a href="foss-cklist.wiki">Open-Source Projects &mdash; Checklist For Successful</a></li>
 <li><a href="pop.wiki">Operations &mdash; Principles Of</a></li>

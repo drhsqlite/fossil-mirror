@@ -100,7 +100,7 @@ char const * json_timeline_query(void){
     @   blob.rid,
     @   uuid,
     @   CAST(strftime('%%s',event.mtime) AS INTEGER),
-    @   datetime(event.mtime,'utc'),
+    @   datetime(event.mtime),
     @   coalesce(ecomment, comment),
     @   coalesce(euser, user),
     @   blob.rid IN leaf,
@@ -126,7 +126,7 @@ char const * json_timeline_query(void){
 ** mode's "r" option. They are very similar, but subtly different -
 ** tag mode shows only entries with a given tag but branch mode can
 ** also reveal some with "related" tags (meaning they were merged into
-** the requested branch).
+** the requested branch, or back).
 **
 ** pSql is the target blob to append the query [subset]
 ** to.
@@ -146,6 +146,8 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
                                                 cson_object * pPayload){
   char const * zTag = NULL;
   char const * zBranch = NULL;
+  char const * zMiOnly = NULL;
+  char const * zUnhide = NULL;
   int tagid = 0;
   if(! g.perm.Read ){
     return 0;
@@ -157,7 +159,9 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
       return 0;
     }
     zTag = zBranch;
+    zMiOnly = json_find_option_cstr("mionly",NULL,NULL);
   }
+  zUnhide = json_find_option_cstr("unhide",NULL,NULL);
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
                  zTag);
   if(tagid<=0){
@@ -171,18 +175,36 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
                " EXISTS(SELECT 1 FROM tagxref"
                "        WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
                tagid);
+  if(!zUnhide){
+    blob_appendf(pSql,
+               " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=blob.rid"
+               "    WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
+               TAG_HIDDEN);
+  }
   if(zBranch){
     /* from "r" flag code in page_timeline().*/
     blob_appendf(pSql,
                  " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
                  "    WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
                  tagid);
-#if 0 /* from the undocumented "mionly" flag in page_timeline() */
-    blob_appendf(pSql,
+    if( !zUnhide ){
+      blob_appendf(pSql,
+                 " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
+                 "    WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
+                 TAG_HIDDEN);
+    }
+    if( zMiOnly==0 ){
+      blob_appendf(pSql,
                  " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
                  "    WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
                  tagid);
-#endif
+      if( !zUnhide ){
+        blob_appendf(pSql,
+                 " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+                 "    WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+                 TAG_HIDDEN);
+      }
+    }
   }
   blob_append(pSql," ) ",3);
   return 1;
@@ -632,7 +654,7 @@ static cson_value * json_timeline_ticket(){
     cson_value * rowV;
     cson_object * row;
     /*printf("rid=%d\n",rid);*/
-    pMan = manifest_get(rid, CFTYPE_TICKET);
+    pMan = manifest_get(rid, CFTYPE_TICKET, 0);
     if(!pMan){
       /* this might be an attachment? I'm seeing this with
          rid 15380, uuid [1292fef05f2472108].

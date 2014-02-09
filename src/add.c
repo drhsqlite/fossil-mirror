@@ -22,12 +22,7 @@
 #include "add.h"
 #include <assert.h>
 #include <dirent.h>
-#ifdef __CYGWIN__
-  __declspec(dllimport) extern __stdcall int RegOpenKeyExW(void *, void *,
-      int, int, void *);
-  __declspec(dllimport) extern __stdcall int RegQueryValueExW(void *, void *,
-      int, void *, void *, void *);
-#endif
+#include "cygsup.h"
 
 /*
 ** This routine returns the names of files in a working checkout that
@@ -272,9 +267,6 @@ void add_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   vid = db_lget_int("checkout",0);
-  if( vid==0 ){
-    fossil_panic("no checkout to add to");
-  }
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
@@ -288,11 +280,16 @@ void add_cmd(void){
     int isDir;
     Blob fullName;
 
+    /* file_tree_name() throws a fatal error if g.argv[i] is outside of the
+    ** checkout. */
+    file_tree_name(g.argv[i], &fullName, 1);
+    blob_reset(&fullName);
+
     file_canonical_name(g.argv[i], &fullName, 0);
     zName = blob_str(&fullName);
     isDir = file_wd_isdir(zName);
     if( isDir==1 ){
-      vfile_scan2(&fullName, nRoot-1, scanFlags, pClean, pIgnore);
+      vfile_scan(&fullName, nRoot-1, scanFlags, pClean, pIgnore);
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
     }else if( file_access(zName, R_OK) ){
@@ -351,15 +348,10 @@ void add_cmd(void){
 */
 void delete_cmd(void){
   int i;
-  int vid;
   Stmt loop;
 
   capture_case_sensitive_option();
   db_must_be_within_tree();
-  vid = db_lget_int("checkout", 0);
-  if( vid==0 ){
-    fossil_panic("no checkout to remove from");
-  }
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
@@ -532,9 +524,6 @@ void addremove_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   vid = db_lget_int("checkout",0);
-  if( vid==0 ){
-    fossil_panic("no checkout to add to");
-  }
   db_begin_transaction();
 
   /* step 1:  
@@ -550,7 +539,7 @@ void addremove_cmd(void){
   /* now we read the complete file structure into a temp table */
   pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan2(&path, blob_size(&path), scanFlags, pClean, pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, pClean, pIgnore);
   glob_free(pIgnore);
   glob_free(pClean);
   nAdd = add_files_in_sfile(vid);
@@ -591,7 +580,7 @@ void addremove_cmd(void){
 */
 static void mv_one_file(int vid, const char *zOrig, const char *zNew){
   int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q %s",
-		         zNew, filename_collation());
+                         zNew, filename_collation());
   if( x>=0 ){
     if( x==0 ){
       fossil_fatal("cannot rename '%s' to '%s' since another file named '%s'"
@@ -638,7 +627,7 @@ void mv_cmd(void){
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
-    fossil_panic("no checkout rename files in");
+    fossil_fatal("no checkout rename files in");
   }
   if( g.argc<4 ){
     usage("OLDNAME NEWNAME");

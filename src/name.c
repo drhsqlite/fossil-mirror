@@ -19,7 +19,7 @@
 ** canonical UUIDs.
 **
 ** A user-supplied object name is any unique prefix of a valid UUID but
-** not necessarily in canonical form.  
+** not necessarily in canonical form.
 */
 #include "config.h"
 #include "name.h"
@@ -52,7 +52,7 @@ int fossil_isdate(const char *z){
 **   *  SHA1 hash prefix of at least 4 characters
 **   *  Symbolic Name
 **   *  "tag:" + symbolic name
-**   *  Date or date-time 
+**   *  Date or date-time
 **   *  "date:" + Date or date-time
 **   *  symbolic-name ":" date-time
 **   *  "tip"
@@ -66,7 +66,7 @@ int fossil_isdate(const char *z){
 ** Return the RID of the matching artifact.  Or return 0 if the name does not
 ** match any known object.  Or return -1 if the name is ambiguous.
 **
-** The zType parameter specifies the type of artifact: ci, t, w, e, g. 
+** The zType parameter specifies the type of artifact: ci, t, w, e, g.
 ** If zType is NULL or "" or "*" then any type of artifact will serve.
 ** zType is "ci" in most use cases since we are usually searching for
 ** a check-in.
@@ -95,7 +95,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( g.localOpen && (vid=db_lget_int("checkout",0))!=0 ){
     if( fossil_strcmp(zTag, "current")==0 ){
       rid = vid;
-    }else if( fossil_strcmp(zTag, "prev")==0 
+    }else if( fossil_strcmp(zTag, "prev")==0
               || fossil_strcmp(zTag, "previous")==0 ){
       rid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", vid);
     }else if( fossil_strcmp(zTag, "next")==0 ){
@@ -107,7 +107,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 
   /* Date and times */
   if( memcmp(zTag, "date:", 5)==0 ){
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT objid FROM event"
       " WHERE mtime<=julianday(%Q,'utc') AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
@@ -115,7 +115,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     return rid;
   }
   if( fossil_isdate(zTag) ){
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT objid FROM event"
       " WHERE mtime<=julianday(%Q,'utc') AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
@@ -126,7 +126,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   /* Deprecated date & time formats:   "local:" + date-time and
   ** "utc:" + date-time */
   if( memcmp(zTag, "local:", 6)==0 ){
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT objid FROM event"
       " WHERE mtime<=julianday(%Q) AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
@@ -134,7 +134,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     return rid;
   }
   if( memcmp(zTag, "utc:", 4)==0 ){
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT objid FROM event"
       " WHERE mtime<=julianday('%qz') AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
@@ -155,7 +155,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     );
     return rid;
   }
-  
+
   /* root:TAG -> The origin of the branch */
   if( memcmp(zTag, "root:", 5)==0 ){
     Stmt q;
@@ -250,16 +250,19 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( rid>0 ) return rid;
 
   /* Undocumented:  numeric tags get translated directly into the RID */
-  for(i=0; fossil_isdigit(zTag[i]); i++){}
-  if( zTag[i]==0 ){
-    if( strcmp(zType,"*")==0 ){
-      rid = atoi(zTag);
-    }else{
-      rid = db_int(0, 
-        "SELECT event.objid"
-        "  FROM event"
-        " WHERE event.objid=%s"
-        "   AND event.type GLOB '%q'", zTag, zType);
+  if( memcmp(zTag, "rid:", 4)==0 ){
+    zTag += 4;
+    for(i=0; fossil_isdigit(zTag[i]); i++){}
+    if( zTag[i]==0 ){
+      if( strcmp(zType,"*")==0 ){
+        rid = atoi(zTag);
+      }else{
+        rid = db_int(0,
+          "SELECT event.objid"
+          "  FROM event"
+          " WHERE event.objid=%s"
+          "   AND event.type GLOB '%q'", zTag, zType);
+      }
     }
   }
   return rid;
@@ -277,8 +280,8 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 **
 ** If the input is not a tag, then try to match it as an ISO-8601 date
 ** string YYYY-MM-DD HH:MM:SS and pick the nearest check-in to that date.
-** If the input is of the form "date:*" or "localtime:*" or "utc:*" then
-** always resolve the name as a date.
+** If the input is of the form "date:*" then always resolve the name as
+** a date. The forms "utc:*" and "local:" are deprecated.
 **
 ** Return 0 on success.  Return 1 if the name cannot be resolved.
 ** Return 2 name is ambiguous.
@@ -378,16 +381,16 @@ int name_to_rid(const char *zName){
 /*
 ** WEBPAGE: ambiguous
 ** URL: /ambiguous?name=UUID&src=WEBPAGE
-** 
+**
 ** The UUID given by the name parameter is ambiguous.  Display a page
 ** that shows all possible choices and let the user select between them.
 */
 void ambiguous_page(void){
   Stmt q;
-  const char *zName = P("name");  
+  const char *zName = P("name");
   const char *zSrc = P("src");
   char *z;
-  
+
   if( zName==0 || zName[0]==0 || zSrc==0 || zSrc[0]==0 ){
     fossil_redirect_home();
   }
@@ -457,14 +460,14 @@ void whatis_cmd(void){
   }else{
     Stmt q;
     db_prepare(&q,
-       "SELECT uuid, size, datetime(mtime, 'localtime'), ipaddr,"
+       "SELECT uuid, size, datetime(mtime%s), ipaddr,"
        "       (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
        "         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
        "           AND tagxref.rid=blob.rid AND tagxref.tagtype>0)"
        "  FROM blob, rcvfrom"
        " WHERE rid=%d"
        "   AND rcvfrom.rcvid=blob.rcvid",
-       rid);
+       timeline_utc(), rid);
     if( db_step(&q)==SQLITE_ROW ){
       const char *zTagList = db_column_text(&q, 4);
       if( verboseFlag ){
@@ -483,9 +486,9 @@ void whatis_cmd(void){
     }
     db_finalize(&q);
     db_prepare(&q,
-       "SELECT type, datetime(mtime,'localtime'),"
+       "SELECT type, datetime(mtime%s),"
        "       coalesce(euser,user), coalesce(ecomment,comment)"
-       "  FROM event WHERE objid=%d", rid);
+       "  FROM event WHERE objid=%d", timeline_utc(), rid);
     if( db_step(&q)==SQLITE_ROW ){
       const char *zType;
       switch( db_column_text(&q,0)[0] ){
@@ -503,7 +506,7 @@ void whatis_cmd(void){
     }
     db_finalize(&q);
     db_prepare(&q,
-      "SELECT filename.name, blob.uuid, datetime(event.mtime,'localtime'),"
+      "SELECT filename.name, blob.uuid, datetime(event.mtime%s),"
       "       coalesce(euser,user), coalesce(ecomment,comment)"
       "  FROM mlink, filename, blob, event"
       " WHERE mlink.fid=%d"
@@ -511,7 +514,7 @@ void whatis_cmd(void){
       "   AND event.objid=mlink.mid"
       "   AND blob.rid=mlink.mid"
       " ORDER BY event.mtime DESC /*sort*/",
-      rid);
+      timeline_utc(), rid);
     while( db_step(&q)==SQLITE_ROW ){
       fossil_print("file:     %s\n", db_column_text(&q,0));
       fossil_print("          part of [%.10s] by %s on %s\n",

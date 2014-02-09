@@ -42,12 +42,12 @@ void attachlist_page(void){
   if( zPage && zTkt ) zTkt = 0;
   login_check_credentials();
   blob_zero(&sql);
-  blob_append(&sql,
-     "SELECT datetime(mtime,'localtime'), src, target, filename,"
+  blob_appendf(&sql,
+     "SELECT datetime(mtime%s), src, target, filename,"
      "       comment, user,"
      "       (SELECT uuid FROM blob WHERE rid=attachid), attachid"
      "  FROM attachment",
-     -1
+     timeline_utc()
   );
   if( zPage ){
     if( g.perm.RdWiki==0 ) login_needed();
@@ -216,7 +216,7 @@ static void attach_put(
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
-  manifest_crosslink(rid, pAttach);
+  manifest_crosslink(rid, pAttach, MC_NONE);
 }
 
 
@@ -307,7 +307,7 @@ void attachadd_page(void){
     n = strlen(zComment);
     while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
     if( n>0 ){
-      blob_appendf(&manifest, "C %F\n", zComment);
+      blob_appendf(&manifest, "C %#F\n", n, zComment);
     }
     zDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zDate);
@@ -339,7 +339,7 @@ void attachadd_page(void){
   @ <input type="submit" name="ok" value="Add Attachment" />
   @ <input type="submit" name="cancel" value="Cancel" />
   @ </div>
-  captcha_generate();
+  captcha_generate(0);
   @ </form>
   style_footer();
 }
@@ -386,7 +386,7 @@ void ainfo_page(void){
     }
   }
 #endif
-  pAttach = manifest_get(rid, CFTYPE_ATTACHMENT);
+  pAttach = manifest_get(rid, CFTYPE_ATTACHMENT, 0);
   if( pAttach==0 ) fossil_redirect_home();
   zTarget = pAttach->zAttachTarget;
   zSrc = pAttach->zAttachSrc;
@@ -433,7 +433,7 @@ void ainfo_page(void){
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
     rid = content_put(&manifest);
-    manifest_crosslink(rid, &manifest);
+    manifest_crosslink(rid, &manifest, MC_NONE);
     db_end_transaction(0);
     @ <p>The attachment below has been deleted.</p>
   }
@@ -447,7 +447,9 @@ void ainfo_page(void){
     @ </form>
   }
 
-  isModerator = (zTktUuid && g.perm.ModTkt) || (zWikiName && g.perm.ModWiki);
+  isModerator = g.perm.Admin || 
+                (zTktUuid && g.perm.ModTkt) ||
+                (zWikiName && g.perm.ModWiki);
   if( isModerator && (zModAction = P("modaction"))!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
       moderation_disapprove(rid);
@@ -553,12 +555,12 @@ void attachment_list(
   int cnt = 0;
   Stmt q;
   db_prepare(&q,
-     "SELECT datetime(mtime,'localtime'), filename, user,"
+     "SELECT datetime(mtime%s), filename, user,"
      "       (SELECT uuid FROM blob WHERE rid=attachid), src"
      "  FROM attachment"
      " WHERE isLatest AND src!='' AND target=%Q"
      " ORDER BY mtime DESC", 
-     zTarget
+     timeline_utc(), zTarget
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);

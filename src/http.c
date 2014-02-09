@@ -112,8 +112,8 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
     fossil_free(zCredentials);
   }
   blob_appendf(pHdr, "Host: %s\r\n", g.urlHostname);
-  blob_appendf(pHdr, "User-Agent: Fossil/" RELEASE_VERSION 
-                     " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
+  blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
+  if( g.urlIsSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
   if( g.fHttpTrace ){
     blob_appendf(pHdr, "Content-Type: application/x-fossil-debug\r\n");
   }else{
@@ -145,8 +145,8 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   int isError = 0;      /* True if the reply is an error message */
   int isCompressed = 1; /* True if the reply is compressed */
 
-  if( transport_open() ){
-    fossil_warning(transport_errmsg());
+  if( transport_open(GLOBAL_URL()) ){
+    fossil_warning(transport_errmsg(GLOBAL_URL()));
     return 1;
   }
 
@@ -192,18 +192,18 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   /*
   ** Send the request to the server.
   */
-  transport_send(&hdr);
-  transport_send(&payload);
+  transport_send(GLOBAL_URL(), &hdr);
+  transport_send(GLOBAL_URL(), &payload);
   blob_reset(&hdr);
   blob_reset(&payload);
-  transport_flip();
+  transport_flip(GLOBAL_URL());
   
   /*
   ** Read and interpret the server reply
   */
   closeConnection = 1;
   iLength = -1;
-  while( (zLine = transport_receive_line())!=0 && zLine[0]!=0 ){
+  while( (zLine = transport_receive_line(GLOBAL_URL()))!=0 && zLine[0]!=0 ){
     /* printf("[%s]\n", zLine); fflush(stdout); */
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
@@ -219,6 +219,16 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }else{
         closeConnection = 0;
       }
+    }else if( g.urlIsSsh && fossil_strnicmp(zLine, "status:", 7)==0 ){
+      if( sscanf(zLine, "Status: %d", &rc)!=1 ) goto write_err;
+      if( rc!=200 && rc!=302 ){
+        int ii;
+        for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
+        while( zLine[ii]==' ' ) ii++;
+        fossil_warning("server says: %s", &zLine[ii]);
+        goto write_err;
+      }
+      closeConnection = 0;
     }else if( fossil_strnicmp(zLine, "content-length:", 15)==0 ){
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
@@ -246,7 +256,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }
       fossil_print("redirect to %s\n", &zLine[i]);
       url_parse(&zLine[i], 0);
-      transport_close();
+      transport_close(GLOBAL_URL());
       return http_exchange(pSend, pReply, useLogin, maxRedirect);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
       if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){
@@ -273,7 +283,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   */
   blob_zero(pReply);
   blob_resize(pReply, iLength);
-  iLength = transport_receive(blob_buffer(pReply), iLength);
+  iLength = transport_receive(GLOBAL_URL(), blob_buffer(pReply), iLength);
   blob_resize(pReply, iLength);
   if( isError ){
     char *z;
@@ -297,12 +307,14 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   ** FIXME:  There is some bug in the lower layers that prevents the
   ** connection from remaining open.  The easiest fix for now is to
   ** simply close and restart the connection for each round-trip.
+  **
+  ** For SSH we will leave the connection open.
   */
-  closeConnection = 1; /* FIX ME */
+  if( ! g.urlIsSsh ) closeConnection = 1; /* FIX ME */
   if( closeConnection ){
-    transport_close();
+    transport_close(GLOBAL_URL());
   }else{
-    transport_rewind();
+    transport_rewind(GLOBAL_URL());
   }
   return 0;
 
@@ -310,6 +322,6 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   ** Jump to here if an error is seen.
   */
 write_err:
-  transport_close();
+  transport_close(GLOBAL_URL());
   return 1;  
 }

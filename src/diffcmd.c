@@ -599,66 +599,331 @@ const char *diff_command_external(int guiDiff){
 
 /* A Tcl/Tk script used to render diff output.
 */
-static const char zDiffScript[] = 
+static const char zDiffScript[] =
 @ package require Tk
-@ wm withdraw .
-@ wm title . {Fossil Diff}
-@ wm iconname . {Fossil Diff}
-@ set body {}
-@ set mx 80          ;# Length of the longest line of text
-@ set nLine 0        ;# Number of lines of text
-@ text .t -width 180 -yscroll {.sb set}
-@ if {$tcl_platform(platform)=="windows"} {.t config -font {courier 9}}
-@ .t tag config ln -foreground gray
-@ .t tag config chng -background {#d0d0ff}
-@ .t tag config add -background {#c0ffc0}
-@ .t tag config rm -background {#ffc0c0}
+@
+@ array set CFG {
+@   TITLE      {Fossil Diff}
+@   LN_COL_BG  #dddddd
+@   LN_COL_FG  #444444
+@   TXT_COL_BG #ffffff
+@   TXT_COL_FG #000000
+@   MKR_COL_BG #444444
+@   MKR_COL_FG #dddddd
+@   CHNG_BG    #d0d0ff
+@   ADD_BG     #c0ffc0
+@   RM_BG      #ffc0c0
+@   HR_FG      #888888
+@   HR_PAD_TOP 4
+@   HR_PAD_BTM 8
+@   FN_BG      #444444
+@   FN_FG      #ffffff
+@   FN_PAD     5
+@   PADX       5
+@   WIDTH      80
+@   HEIGHT     45
+@   LB_HEIGHT  25
+@ }
+@
+@ if {![namespace exists ttk]} {
+@   interp alias {} ::ttk::scrollbar {} ::scrollbar
+@   interp alias {} ::ttk::menubutton {} ::menubutton
+@ }
+@
 @ proc dehtml {x} {
+@   set x [regsub -all {<[^>]*>} $x {}]
 @   return [string map {&amp; & &lt; < &gt; > &#39; ' &quot; \"} $x]
 @ }
-@ # puts $cmd
-@ set in [open $cmd r]
-@ while {![eof $in]} {
-@   set line [gets $in]
-@   if {[regexp {^<a name="chunk.*"></a>} $line]} continue
-@   if {[regexp {^===} $line]} {
-@     set n [string length $line]
-@     if {$n>$mx} {set mx $n}
-@   }
-@   incr nLine
-@   while {[regexp {^(.*?)<span class="diff([a-z]+)">(.*?)</span>(.*)$} $line \
-@             all pre class mid tail]} {
-@     .t insert end [dehtml $pre] {} [dehtml $mid] $class
-@     set line $tail
-@   }
-@   .t insert end [dehtml $line]\n {}
+@
+@ proc cols {} {
+@   return [list .lnA .txtA .mkr .lnB .txtB]
 @ }
-@ close $in
-@ if {$mx>250} {set mx 250}      ;# Limit window width to 200 characters
-@ if {$nLine>55} {set nLine 55}  ;# Limit window height to 55 lines
-@ .t config -height $nLine -width $mx
-@ pack .t -side left -fill both -expand 1
-@ scrollbar .sb -command {.t yview} -orient vertical
-@ pack .sb -side left -fill y
+@
+@ proc colType {c} {
+@   regexp {[a-z]+} $c type
+@   return $type
+@ }
+@
+@ proc readDiffs {fossilcmd} {
+@   set in [open $fossilcmd r]
+@   fconfigure $in -encoding utf-8
+@   set nDiffs 0
+@   array set widths {txt 0 ln 0 mkr 0}
+@   while {[gets $in line] != -1} {
+@     if {![regexp {^=+\s+(.*?)\s+=+$} $line all fn]} {
+@       continue
+@     }
+@     if {[string compare -length 6 [gets $in] "<table"]} {
+@       continue
+@     }
+@     incr nDiffs
+@     set idx [expr {$nDiffs > 1 ? [.txtA index end] : "1.0"}]
+@     .wfiles.lb insert end $fn
+@
+@     foreach c [cols] {
+@       while {[gets $in] ne "<pre>"} continue
+@
+@       if {$nDiffs > 1} {
+@         $c insert end \n -
+@       }
+@       if {[colType $c] eq "txt"} {
+@         $c insert end $fn\n fn
+@       } else {
+@         $c insert end \n fn
+@       }
+@       $c insert end \n -
+@
+@       set type [colType $c]
+@       set str {}
+@       while {[set line [gets $in]] ne "</pre>"} {
+@         set len [string length [dehtml $line]]
+@         if {$len > $widths($type)} {
+@           set widths($type) $len
+@         }
+@         append str $line\n
+@       }
+@
+@       set re {<span class="diff([a-z]+)">([^<]*)</span>}
+@       # Use \r as separator since it can't appear in the diff output (it gets
+@       # converted to a space).
+@       set str [regsub -all $re $str "\r\\1\r\\2\r"]
+@       foreach {pre class mid} [split $str \r] {
+@         if {$class ne ""} {
+@           $c insert end [dehtml $pre] - [dehtml $mid] [list $class -]
+@         } else {
+@           $c insert end [dehtml $pre] -
+@         }
+@       }
+@     }
+@   }
+@   close $in
+@
+@   foreach c [cols] {
+@     set type [colType $c]
+@     if {$type ne "txt"} {
+@       $c config -width $widths($type)
+@     }
+@     $c config -state disabled
+@   }
+@   if {$nDiffs <= [.wfiles.lb cget -height]} {
+@     .wfiles.lb config -height $nDiffs
+@     grid remove .wfiles.sb
+@   }
+@
+@   return $nDiffs
+@ }
+@
+@ proc viewDiff {idx} {
+@   .txtA yview $idx
+@   .txtA xview moveto 0
+@ }
+@
+@ proc cycleDiffs {{reverse 0}} {
+@   if {$reverse} {
+@     set range [.txtA tag prevrange fn @0,0 1.0]
+@     if {$range eq ""} {
+@       viewDiff {fn.last -1c}
+@     } else {
+@       viewDiff [lindex $range 0]
+@     }
+@   } else {
+@     set range [.txtA tag nextrange fn {@0,0 +1c} end]
+@     if {$range eq "" || [lindex [.txtA yview] 1] == 1} {
+@       viewDiff fn.first
+@     } else {
+@       viewDiff [lindex $range 0]
+@     }
+@   }
+@ }
+@
+@ proc xvis {col} {
+@   set view [$col xview]
+@   return [expr {[lindex $view 1]-[lindex $view 0]}]
+@ }
+@
+@ proc scroll-x {args} {
+@   set c .txt[expr {[xvis .txtA] < [xvis .txtB] ? "A" : "B"}]
+@   eval $c xview $args
+@ }
+@
+@ interp alias {} scroll-y {} .txtA yview
+@
+@ proc noop {args} {}
+@
+@ proc enableSync {axis} {
+@   update idletasks
+@   interp alias {} sync-$axis {}
+@   rename _sync-$axis sync-$axis
+@ }
+@
+@ proc disableSync {axis} {
+@   rename sync-$axis _sync-$axis
+@   interp alias {} sync-$axis {} noop
+@ }
+@
+@ proc sync-x {col first last} {
+@   disableSync x
+@   $col xview moveto [expr {$first*[xvis $col]/($last-$first)}]
+@   foreach side {A B} {
+@     set sb .sbx$side
+@     set xview [.txt$side xview]
+@     if {[lindex $xview 0] > 0 || [lindex $xview 1] < 1} {
+@       grid $sb
+@       eval $sb set $xview
+@     } else {
+@       grid remove $sb
+@     }
+@   }
+@   enableSync x
+@ }
+@
+@ proc sync-y {first last} {
+@   disableSync y
+@   foreach c [cols] {
+@     $c yview moveto $first
+@   }
+@   if {$first > 0 || $last < 1} {
+@     grid .sby
+@     .sby set $first $last
+@   } else {
+@     grid remove .sby
+@   }
+@   enableSync y
+@ }
+@
+@ wm withdraw .
+@ wm title . $CFG(TITLE)
+@ wm iconname . $CFG(TITLE)
+@ bind . <q> exit
+@ bind . <Destroy> {after 0 exit}
+@ bind . <Tab> {cycleDiffs; break}
+@ bind . <<PrevWindow>> {cycleDiffs 1; break}
+@ bind . <Return> {
+@   event generate .files <1>
+@   event generate .files <ButtonRelease-1>
+@   break
+@ }
+@ foreach {key axis args} {
+@   Up    y {scroll -5 units}
+@   Down  y {scroll 5 units}
+@   Left  x {scroll -5 units}
+@   Right x {scroll 5 units}
+@   Prior y {scroll -1 page}
+@   Next  y {scroll 1 page}
+@   Home  y {moveto 0}
+@   End   y {moveto 1}
+@ } {
+@   bind . <$key> "scroll-$axis $args; break"
+@   bind . <Shift-$key> continue
+@ }
+@
+@ ::ttk::menubutton .files -text "Files"
+@ toplevel .wfiles
+@ wm withdraw .wfiles
+@ update idletasks
+@ wm transient .wfiles .
+@ wm overrideredirect .wfiles 1
+@ listbox .wfiles.lb -width 0 -height $CFG(LB_HEIGHT) -activestyle none \
+@   -yscroll {.wfiles.sb set}
+@ ::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
+@ grid .wfiles.lb .wfiles.sb -sticky ns
+@ bind .files <1> {
+@   set x [winfo rootx %W]
+@   set y [expr {[winfo rooty %W]+[winfo height %W]}]
+@   wm geometry .wfiles +$x+$y
+@   wm deiconify .wfiles
+@   focus .wfiles.lb
+@ }
+@ bind .wfiles <FocusOut> {wm withdraw .wfiles}
+@ bind .wfiles <Escape> {focus .}
+@ foreach evt {1 Return} {
+@   bind .wfiles.lb <$evt> {
+@     catch {
+@       set idx [lindex [.txtA tag ranges fn] [expr {[%W curselection]*2}]]
+@       viewDiff $idx
+@     }
+@     focus .
+@     break
+@   }
+@ }
+@ bind .wfiles.lb <Motion> {
+@   %W selection clear 0 end
+@   %W selection set @%x,%y
+@ }
+@
+@ foreach {side syncCol} {A .txtB B .txtA} {
+@   set ln .ln$side
+@   text $ln
+@   $ln tag config - -justify right
+@
+@   set txt .txt$side
+@   text $txt -width $CFG(WIDTH) -height $CFG(HEIGHT) -wrap none \
+@     -xscroll "sync-x $syncCol"
+@   catch {$txt config -tabstyle wordprocessor} ;# Required for Tk>=8.5
+@   foreach tag {add rm chng} {
+@     $txt tag config $tag -background $CFG([string toupper $tag]_BG)
+@     $txt tag lower $tag
+@   }
+@   $txt tag config fn -background $CFG(FN_BG) -foreground $CFG(FN_FG) \
+@     -justify center
+@ }
+@ text .mkr
+@
+@ foreach c [cols] {
+@   set keyPrefix [string toupper [colType $c]]_COL_
+@   if {[tk windowingsystem] eq "win32"} {$c config -font {courier 9}}
+@   $c config -bg $CFG(${keyPrefix}BG) -fg $CFG(${keyPrefix}FG) -borderwidth 0 \
+@     -padx $CFG(PADX) -yscroll sync-y
+@   $c tag config hr -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
+@      -foreground $CFG(HR_FG)
+@   $c tag config fn -spacing1 $CFG(FN_PAD) -spacing3 $CFG(FN_PAD)
+@   bindtags $c ". $c Text all"
+@   bind $c <1> {focus %W}
+@ }
+@
+@ ::ttk::scrollbar .sby -command {.txtA yview} -orient vertical
+@ ::ttk::scrollbar .sbxA -command {.txtA xview} -orient horizontal
+@ ::ttk::scrollbar .sbxB -command {.txtB xview} -orient horizontal
+@ frame .spacer
+@
+@ if {[readDiffs $fossilcmd] == 0} {
+@   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
+@   exit
+@ }
+@ update idletasks
+@
+@ grid rowconfigure . 1 -weight 1
+@ grid columnconfigure . 1 -weight 1
+@ grid columnconfigure . 4 -weight 1
+@ grid .files -row 0 -columnspan 6
+@ eval grid [cols] -row 1 -sticky nsew
+@ grid .sby -row 1 -column 5 -sticky ns
+@ grid .sbxA -row 2 -columnspan 2 -sticky ew
+@ grid .spacer -row 2 -column 2
+@ grid .sbxB -row 2 -column 3 -columnspan 2 -sticky ew
+@
+@ .spacer config -height [winfo height .sbxA]
 @ wm deiconify .
 ;
 
 /*
 ** Show diff output in a Tcl/Tk window, in response to the --tk option
 ** to the diff command.
-** 
-** Steps:
+**
+** If fossil has direct access to a Tcl interpreter (either loaded
+** dynamically through stubs or linked in statically), we can use it
+** directly. Otherwise:
 ** (1) Write the Tcl/Tk script used for rendering into a temp file.
-** (2) Invoke "wish" on the temp file using fossil_system().
+** (2) Invoke "tclsh" on the temp file using fossil_system().
 ** (3) Delete the temp file.
 */
 void diff_tk(const char *zSubCmd, int firstArg){
   int i;
   Blob script;
-  char *zTempFile;
+  char *zTempFile = 0;
   char *zCmd;
   blob_zero(&script);
-  blob_appendf(&script, "set cmd {| \"%/\" %s --html -y -i",
+  blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v",
                g.nameOfExe, zSubCmd);
   for(i=firstArg; i<g.argc; i++){
     const char *z = g.argv[i];
@@ -666,16 +931,44 @@ void diff_tk(const char *zSubCmd, int firstArg){
       if( strglob("*-html",z) ) continue;
       if( strglob("*-y",z) ) continue;
       if( strglob("*-i",z) ) continue;
+      /* The undocumented --script FILENAME option causes the Tk script to
+      ** be written into the FILENAME instead of being run.  This is used
+      ** for testing and debugging. */
+      if( strglob("*-script",z) && i<g.argc-1 ){
+        i++;
+        zTempFile = g.argv[i];
+        continue;
+      }
     }
     blob_append(&script, " ", 1);
     shell_escape(&script, z);
   }
   blob_appendf(&script, "}\n%s", zDiffScript);
-  zTempFile = write_blob_to_temp_file(&script);
-  zCmd = mprintf("tclsh \"%s\"", zTempFile);
-  fossil_system(zCmd);
-  file_delete(zTempFile);
-  fossil_free(zCmd);
+  if( zTempFile ){
+    blob_write_to_file(&script, zTempFile);
+    fossil_print("To see diff, run: tclsh \"%s\"\n", zTempFile);
+  }else{
+#if defined(FOSSIL_ENABLE_TCL)
+    Th_FossilInit(TH_INIT_DEFAULT);
+    if( evaluateTclWithEvents(g.interp, &g.tcl, blob_str(&script),
+                              blob_size(&script), 1)==TCL_OK ){
+      blob_reset(&script);
+      return;
+    }
+    /*
+     * If evaluation of the Tcl script fails, the reason may be that Tk
+     * could not be found by the loaded Tcl, or that Tcl cannot be loaded
+     * dynamically (e.g. x64 Tcl with x86 Fossil).  Therefore, fallback
+     * to using the external "tclsh", if available.
+     */
+#endif
+    zTempFile = write_blob_to_temp_file(&script);
+    zCmd = mprintf("tclsh \"%s\"", zTempFile);
+    fossil_system(zCmd);
+    file_delete(zTempFile);
+    fossil_free(zCmd);
+  }
+  blob_reset(&script);
 }
 
 /*
@@ -714,7 +1007,7 @@ const char *diff_get_binary_glob(void){
 ** currently in the working check-out.
 **
 ** If the "--from VERSION" or "-r VERSION" option is used it specifies
-** the source check-in for the diff operation.  If not specified, the 
+** the source check-in for the diff operation.  If not specified, the
 ** source check-in is the base check-in for the current check-out.
 **
 ** If the "--to VERSION" option appears, it specifies the check-in from
@@ -741,7 +1034,7 @@ const char *diff_get_binary_glob(void){
 **   --binary PATTERN    Treat files that match the glob PATTERN as binary
 **   --branch BRANCH     Show diff of all changes on BRANCH
 **   --brief             Show filenames only
-**   --context|-c N      Use N lines of context 
+**   --context|-c N      Use N lines of context
 **   --diff-binary BOOL  Include binary files when using external commands
 **   --from|-r VERSION   select VERSION as source for the diff
 **   --internal|-i       use internal diff logic

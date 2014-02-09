@@ -46,7 +46,7 @@
 */
 struct Stmt {
   Blob sql;               /* The SQL for this statement */
-  sqlite3_stmt *pStmt;    /* The results of sqlite3_prepare() */
+  sqlite3_stmt *pStmt;    /* The results of sqlite3_prepare_v2() */
   Stmt *pNext, *pPrev;    /* List of all unfinalized statements */
   int nStep;              /* Number of sqlite3_step() calls */
 };
@@ -110,7 +110,7 @@ static struct DbLocalData {
   int doRollback;           /* True to force a rollback */
   int nCommitHook;          /* Number of commit hooks */
   Stmt *pAllStmt;           /* List of all unfinalized statements */
-  int nPrepare;             /* Number of calls to sqlite3_prepare() */
+  int nPrepare;             /* Number of calls to sqlite3_prepare_v2() */
   int nDeleteOnFail;        /* Number of entries in azDeleteOnFail[] */
   struct sCommitHook {
     int (*xHook)(void);         /* Functions to call at db_end_transaction() */
@@ -318,6 +318,10 @@ int db_bind_text(Stmt *pStmt, const char *zParamName, const char *zValue){
   return sqlite3_bind_text(pStmt->pStmt, paramIdx(pStmt, zParamName), zValue,
                            -1, SQLITE_STATIC);
 }
+int db_bind_text16(Stmt *pStmt, const char *zParamName, const char *zValue){
+  return sqlite3_bind_text16(pStmt->pStmt, paramIdx(pStmt, zParamName), zValue,
+                             -1, SQLITE_STATIC);
+}
 int db_bind_null(Stmt *pStmt, const char *zParamName){
   return sqlite3_bind_null(pStmt->pStmt, paramIdx(pStmt, zParamName));
 }
@@ -401,8 +405,12 @@ int db_finalize(Stmt *pStmt){
 /*
 ** Return the rowid of the most recent insert
 */
-i64 db_last_insert_rowid(void){
-  return sqlite3_last_insert_rowid(g.db);
+int db_last_insert_rowid(void){
+  i64 x = sqlite3_last_insert_rowid(g.db);
+  if( x<0 || x>(i64)2147483647 ){
+    fossil_fatal("rowid out of range (0..2147483647)");
+  }
+  return (int)x;
 }
 
 /*
@@ -707,15 +715,16 @@ void db_checkin_mtime_function(
 */
 LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
-  const char *zVfs;
   sqlite3 *db;
 
+#if defined(__CYGWIN__)
+  zDbName = fossil_utf8_to_filename(zDbName);
+#endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
-  zVfs = fossil_getenv("FOSSIL_VFS");
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-       zVfs
+       g.zVfsName
   );
   if( rc!=SQLITE_OK ){
     db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
@@ -824,19 +833,17 @@ void db_open_config(int useAttach){
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
 #else
-  if( file_access(zHome, W_OK) ){
-    fossil_fatal("home directory %s must be writeable", zHome);
-  }
   zDbName = mprintf("%s/.fossil", zHome);
 #endif
   if( file_size(zDbName)<1024*3 ){
+    if( file_access(zHome, W_OK) ){
+      fossil_fatal("home directory %s must be writeable", zHome);
+    }
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
-#if defined(_WIN32) || defined(__CYGWIN__)
   if( file_access(zDbName, W_OK) ){
     fossil_fatal("configuration file %s must be writeable", zDbName);
   }
-#endif
   if( useAttach ){
     db_open_or_attach(zDbName, "configdb", &g.useAttach);
     g.dbConfig = 0;
@@ -939,14 +946,13 @@ int db_open_local(const char *zDbName){
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
-  if( n==1 && zPwd[0]=='/' ) zPwd[0] = '.';
   while( n>0 ){
     for(i=0; i<count(aDbName); i++){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
         zPwd[n] = 0;
-        while( n>1 && zPwd[n-1]=='/' ){
+        while( n>0 && zPwd[n-1]=='/' ){
           n--;
           zPwd[n] = 0;
         }
@@ -958,8 +964,8 @@ int db_open_local(const char *zDbName){
       }
     }
     n--;
-    while( n>0 && zPwd[n]!='/' ){ n--; }
-    while( n>0 && zPwd[n-1]=='/' ){ n--; }
+    while( n>1 && zPwd[n]!='/' ){ n--; }
+    while( n>1 && zPwd[n-1]=='/' ){ n--; }
     zPwd[n] = 0;
   }
 
@@ -1018,9 +1024,13 @@ void db_open_repository(const char *zDbName){
       fossil_panic("not a valid repository: %s", zDbName);
     }
   }
-  db_open_or_attach(zDbName, "repository", 0);
-  g.repositoryOpen = 1;
+#if defined(__CYGWIN__)
+  g.zRepositoryName = fossil_utf8_to_filename(zDbName);
+#else
   g.zRepositoryName = mprintf("%s", zDbName);
+#endif
+  db_open_or_attach(g.zRepositoryName, "repository", 0);
+  g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
   g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
 }
@@ -1331,6 +1341,7 @@ void db_initial_setup(
 
   db_set("content-schema", CONTENT_SCHEMA, 0);
   db_set("aux-schema", AUX_SCHEMA, 0);
+  db_set("rebuilt", get_version(), 0);
   if( makeServerCodes ){
     db_multi_exec(
       "INSERT INTO config(name,value,mtime)"
@@ -1356,7 +1367,8 @@ void db_initial_setup(
       "INSERT OR REPLACE INTO config"
       " SELECT name,value,mtime FROM settingSrc.config"
       "  WHERE (name IN %s OR name IN %s)"
-      "    AND name NOT GLOB 'project-*';",
+      "    AND name NOT GLOB 'project-*'"
+      "    AND name NOT GLOB 'short-project-*';",
       configure_inop_rhs(CONFIGSET_ALL),
       db_setting_inop_rhs()
     );
@@ -1391,8 +1403,10 @@ void db_initial_setup(
     blob_appendf(&manifest, "C initial\\sempty\\scheck-in\n");
     zDate = date_in_standard_format(zInitialDate);
     blob_appendf(&manifest, "D %s\n", zDate);
-    blob_appendf(&manifest, "P\n");
     md5sum_init();
+    /* The R-card is necessary here because without it
+     * fossil versions earlier than versions 1.27 would
+     * interpret this artifact as a "control". */
     blob_appendf(&manifest, "R %s\n", md5sum_finish(0));
     blob_appendf(&manifest, "T *branch * trunk\n");
     blob_appendf(&manifest, "T *sym-trunk *\n");
@@ -1401,7 +1415,7 @@ void db_initial_setup(
     blob_appendf(&manifest, "Z %b\n", &hash);
     blob_reset(&hash);
     rid = content_put(&manifest);
-    manifest_crosslink(rid, &manifest);
+    manifest_crosslink(rid, &manifest, MC_NONE);
   }
 }
 
@@ -1788,6 +1802,18 @@ char *db_get(const char *zName, char *zDefault){
   }
   return z;
 }
+char *db_get_mtime(const char *zName, char *zFormat, char *zDefault){
+  char *z = 0;
+  if( g.repositoryOpen ){
+    z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
+  }
+  if( z==0 ){
+    z = zDefault;
+  }else if( zFormat!=0 ){
+    z = db_text(0, "SELECT strftime(%Q,%Q,'unixepoch');", zFormat, z);
+  }
+  return z;
+}
 void db_set(const char *zName, const char *zValue, int globalFlag){
   db_begin_transaction();
   if( globalFlag ){
@@ -1971,9 +1997,10 @@ void db_record_repository_filename(const char *zName){
 ** See also: close
 */
 void cmd_open(void){
-  int vid;
   int keepFlag;
   int allowNested;
+  char **oldArgv;
+  int oldArgc;
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0 };
 
   url_proxy_options();
@@ -1983,7 +2010,7 @@ void cmd_open(void){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
   if( !allowNested && db_open_local(0) ){
-    fossil_panic("already within an open tree rooted at %s", g.zLocalRoot);
+    fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
   }
   db_open_repository(g.argv[2]);
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -2000,29 +2027,25 @@ void cmd_open(void){
   db_open_local(0);
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
-  vid = db_int(0, "SELECT pid FROM plink y"
-                  " WHERE NOT EXISTS(SELECT 1 FROM plink x WHERE x.cid=y.pid)");
-  if( vid==0 ){
-    db_lset_int("checkout", 1);
+  db_lset_int("checkout", 0);
+  oldArgv = g.argv;
+  oldArgc = g.argc;
+  azNewArgv[0] = g.argv[0];
+  g.argv = azNewArgv;
+  g.argc = 3;
+  if( oldArgc==4 ){
+    azNewArgv[g.argc-1] = oldArgv[3];
+  }else if( !db_exists("SELECT 1 FROM event WHERE type='ci'") ){
+    azNewArgv[g.argc-1] = "--latest";
   }else{
-    char **oldArgv = g.argv;
-    int oldArgc = g.argc;
-    db_lset_int("checkout", vid);
-    azNewArgv[0] = g.argv[0];
-    g.argv = azNewArgv;
-    g.argc = 3;
-    if( oldArgc==4 ){
-      azNewArgv[g.argc-1] = oldArgv[3];
-    }else{
-      azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
-    }
-    if( keepFlag ){
-      azNewArgv[g.argc++] = "--keep";
-    }
-    checkout_cmd();
-    g.argc = 2;
-    info_cmd();
+    azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
   }
+  if( keepFlag ){
+    azNewArgv[g.argc++] = "--keep";
+  }
+  checkout_cmd();
+  g.argc = 2;
+  info_cmd();
 }
 
 /*
@@ -2132,6 +2155,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "tcl-setup",     0,               40, 0, ""                    },
 #endif
   { "th1-setup",     0,               40, 0, ""                    },
+  { "th1-uri-regexp",0,               40, 0, ""                    },
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
   { 0,0,0,0,0 }
@@ -2187,7 +2211,7 @@ struct stControlSettings const ctrlSettings[] = {
 **                     for committing and merging purposes.  Example: *.jpg
 **
 **    case-sensitive   If TRUE, the files whose names differ only in case
-**                     care considered distinct.  If FALSE files whose names
+**                     are considered distinct.  If FALSE files whose names
 **                     differ only in case are the same file.  Defaults to
 **                     TRUE for unix and FALSE for Cygwin, Mac and Windows.
 **
@@ -2329,6 +2353,10 @@ struct stControlSettings const ctrlSettings[] = {
 **                     and initializing the TH1 interpreter.  By default, this
 **                     is empty and no extra setup is performed.
 **
+**    th1-uri-regexp   Specify which URI's are allowed in HTTP requests from
+**                     TH1 scripts.  If empty, no HTTP requests are allowed
+**                     whatsoever.  The default is an empty string.
+**
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.
 **                     Defaults to "start" on windows, "open" on Mac,
@@ -2385,7 +2413,7 @@ void setting_cmd(void){
       manifest_to_disk(db_lget_int("checkout", 0));
     }
   }else{
-    usage("?PROPERTY? ?VALUE?");
+    usage("?PROPERTY? ?VALUE? ?-global?");
   }
 }
 
@@ -2430,4 +2458,70 @@ void test_timespan_cmd(void){
   fossil_print("Time differences: %s\n", db_timespan_name(rDiff));
   sqlite3_close(g.db);
   g.db = 0;
+}
+
+/*
+** COMMAND: test-without-rowid
+** %fossil test-without-rowid FILENAME...
+**
+** Change the Fossil repository FILENAME to make use of the WITHOUT ROWID
+** optimization.  FILENAME can also be the ~/.fossil file or a local
+** .fslckout or _FOSSIL_ file.
+**
+** The purpose of this command is for testing the WITHOUT ROWID capabilities
+** of SQLite.  There is no big advantage to using WITHOUT ROWID in Fossil.
+**
+** Options:
+**    --dryrun | -n         No changes.  Just print what would happen.
+*/
+void test_without_rowid(void){
+  int i, j;
+  Stmt q;
+  Blob allSql;
+  int dryRun = find_option("dry-run", "n", 0)!=0;
+  for(i=2; i<g.argc; i++){
+    db_open_or_attach(g.argv[i], "main", 0);
+    blob_init(&allSql, "BEGIN;\n", -1);
+    db_prepare(&q,
+      "SELECT name, sql FROM main.sqlite_master "
+      " WHERE type='table' AND sql NOT LIKE '%%WITHOUT ROWID%%'"
+      "   AND name IN ('global_config','shun','concealed','config',"
+                    "  'plink','tagxref','backlink','vcache');"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zTName = db_column_text(&q, 0);
+      const char *zOrigSql = db_column_text(&q, 1);
+      Blob newSql;
+      blob_init(&newSql, 0, 0);
+      for(j=0; zOrigSql[j]; j++){
+        if( fossil_strnicmp(zOrigSql+j,"unique",6)==0 ){
+          blob_append(&newSql, zOrigSql, j);
+          blob_append(&newSql, "PRIMARY KEY", -1);
+          zOrigSql += j+6;
+          j = -1;
+        }
+      }
+      blob_append(&newSql, zOrigSql, -1);
+      blob_appendf(&allSql, 
+         "ALTER TABLE %s RENAME TO x_%s;\n"
+         "%s WITHOUT ROWID;\n"
+         "INSERT INTO %s SELECT * FROM x_%s;\n"
+         "DROP TABLE x_%s;\n",
+         zTName, zTName, blob_str(&newSql), zTName, zTName, zTName
+      );
+      fossil_print("Converting table %s of %s to WITHOUT ROWID.\n", zTName, g.argv[i]);
+      blob_reset(&newSql);
+    }
+    blob_appendf(&allSql, "COMMIT;\n");
+    db_finalize(&q);
+    if( dryRun ){
+      fossil_print("SQL that would have been evaluated:\n");
+      fossil_print("-------------------------------------------------------------\n");
+      fossil_print("%s", blob_str(&allSql));
+    }else{
+      db_multi_exec("%s", blob_str(&allSql));
+    }
+    blob_reset(&allSql);
+    db_close(1);
+  }
 }

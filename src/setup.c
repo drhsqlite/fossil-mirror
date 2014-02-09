@@ -17,8 +17,8 @@
 **
 ** Implementation of the Setup page
 */
-#include <assert.h>
 #include "config.h"
+#include <assert.h>
 #include "setup.h"
 
 /*
@@ -199,62 +199,59 @@ void setup_ulist(void){
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
   @ <table>
-     @ <tr><td valign="top"><b>a</b></td>
+     @ <tr><th valign="top">a</th>
      @   <td><i>Admin:</i> Create and delete users</td></tr>
-     @ <tr><td valign="top"><b>b</b></td>
+     @ <tr><th valign="top">b</th>
      @   <td><i>Attach:</i> Add attachments to wiki or tickets</td></tr>
-     @ <tr><td valign="top"><b>c</b></td>
+     @ <tr><th valign="top">c</th>
      @   <td><i>Append-Tkt:</i> Append to tickets</td></tr>
-     @ <tr><td valign="top"><b>d</b></td>
+     @ <tr><th valign="top">d</th>
      @   <td><i>Delete:</i> Delete wiki and tickets</td></tr>
-     @ <tr><td valign="top"><b>e</b></td>
+     @ <tr><th valign="top">e</th>
      @   <td><i>Email:</i> View sensitive data such as EMail addresses</td></tr>
-     @ <tr><td valign="top"><b>f</b></td>
+     @ <tr><th valign="top">f</th>
      @   <td><i>New-Wiki:</i> Create new wiki pages</td></tr>
-     @ <tr><td valign="top"><b>g</b></td>
+     @ <tr><th valign="top">g</th>
      @   <td><i>Clone:</i> Clone the repository</td></tr>
-     @ <tr><td valign="top"><b>h</b></td>
+     @ <tr><th valign="top">h</th>
      @   <td><i>Hyperlinks:</i> Show hyperlinks to detailed
      @   repository history</td></tr>
-     @ <tr><td valign="top"><b>i</b></td>
+     @ <tr><th valign="top">i</th>
      @   <td><i>Check-In:</i> Commit new versions in the repository</td></tr>
-     @ <tr><td valign="top"><b>j</b></td>
+     @ <tr><th valign="top">j</th>
      @   <td><i>Read-Wiki:</i> View wiki pages</td></tr>
-     @ <tr><td valign="top"><b>k</b></td>
+     @ <tr><th valign="top">k</th>
      @   <td><i>Write-Wiki:</i> Edit wiki pages</td></tr>
-     @ <tr><td valign="top"><b>l</b></td>
+     @ <tr><th valign="top">l</th>
      @   <td><i>Mod-Wiki:</i> Moderator for wiki pages</td></tr>
-     @ <tr><td valign="top"><b>m</b></td>
+     @ <tr><th valign="top">m</th>
      @   <td><i>Append-Wiki:</i> Append to wiki pages</td></tr>
-     @ <tr><td valign="top"><b>n</b></td>
+     @ <tr><th valign="top">n</th>
      @   <td><i>New-Tkt:</i> Create new tickets</td></tr>
-     @ <tr><td valign="top"><b>o</b></td>
+     @ <tr><th valign="top">o</th>
      @   <td><i>Check-Out:</i> Check out versions</td></tr>
-     @ <tr><td valign="top"><b>p</b></td>
+     @ <tr><th valign="top">p</th>
      @   <td><i>Password:</i> Change your own password</td></tr>
-     @ <tr><td valign="top"><b>q</b></td>
+     @ <tr><th valign="top">q</th>
      @   <td><i>Mod-Tkt:</i> Moderator for tickets</td></tr>
-     @ <tr><td valign="top"><b>r</b></td>
+     @ <tr><th valign="top">r</th>
      @   <td><i>Read-Tkt:</i> View tickets</td></tr>
-     @ <tr><td valign="top"><b>s</b></td>
+     @ <tr><th valign="top">s</th>
      @   <td><i>Setup/Super-user:</i> Setup and configure this website</td></tr>
-     @ <tr><td valign="top"><b>t</b></td>
+     @ <tr><th valign="top">t</th>
      @   <td><i>Tkt-Report:</i> Create new bug summary reports</td></tr>
-     @ <tr><td valign="top"><b>u</b></td>
+     @ <tr><th valign="top">u</th>
      @   <td><i>Reader:</i> Inherit privileges of
      @   user <tt>reader</tt></td></tr>
-     @ <tr><td valign="top"><b>v</b></td>
+     @ <tr><th valign="top">v</th>
      @   <td><i>Developer:</i> Inherit privileges of
      @   user <tt>developer</tt></td></tr>
-     @ <tr><td valign="top"><b>w</b></td>
+     @ <tr><th valign="top">w</th>
      @   <td><i>Write-Tkt:</i> Edit tickets</td></tr>
-     @ <tr><td valign="top"><b>x</b></td>
+     @ <tr><th valign="top">x</th>
      @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
-     @ <tr><td valign="top"><b>z</b></td>
-     @   <td><i>Zip download:</i> Download a baseline via the
-     @   <tt>/zip</tt> URL even without
-     @    check<span class="capability">o</span>ut
-     @    and <span class="capability">h</span>istory permissions</td></tr>
+     @ <tr><th valign="top">z</th>
+     @   <td><i>Zip download:</i> Download a ZIP archive or tarball</td></tr>
   @ </table>
   @ </li>
   @
@@ -602,7 +599,7 @@ void user_edit(void){
   @ <h2>Privileges And Capabilities:</h2>
   @ <ul>
   if( higherUser ){
-    @ <li><p class=missingPriv">
+    @ <li><p class="missingPriv">
     @ User %h(zLogin) has Setup privileges and you only have Admin privileges
     @ so you are not permitted to make changes to %h(zLogin).
     @ </p></li>
@@ -729,7 +726,7 @@ void user_edit(void){
   @ To disable universal access to the repository, make sure no user named
   @ <span class="usertype">nobody</span> exists or that the
   @ <span class="usertype">nobody</span> user has no capabilities
-  @ enabled. The password for <span class="usertype">nobody</span> is ignore.
+  @ enabled. The password for <span class="usertype">nobody</span> is ignored.
   @ To avoid problems with spiders overloading the server, it is recommended
   @ that the <span class="capability">h</span> (Hyperlinks) capability be
   @ turned off for the <span class="usertype">nobody</span> user.
@@ -814,7 +811,7 @@ void entry_attribute(
     db_set(zVar, zQ, 0);
     zVal = zQ;
   }
-  @ <input type="text" name="%s(zQParm)" value="%h(zVal)" size="%d(width)"
+  @ <input type="text" id="%s(zQParm)" name="%s(zQParm)" value="%h(zVal)" size="%d(width)"
   if( disabled ){
     @ disabled="disabled"
   }
@@ -850,6 +847,33 @@ static void textarea_attribute(
       @ <span class="textareaLabel">%s(zLabel)</span>
     }
   }
+}
+
+/*
+** Generate a text box for an attribute.
+*/
+static void multiple_choice_attribute(
+  const char *zLabel,   /* The text label on the menu */
+  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zQP,      /* The query parameter */
+  const char *zDflt,    /* Default value if VAR table entry does not exist */
+  int nChoice,          /* Number of choices */
+  const char *const *azChoice /* Choices. 2 per choice: (VAR value, Display) */
+){
+  const char *z = db_get(zVar, (char*)zDflt);
+  const char *zQ = P(zQP);
+  int i;
+  if( zQ && fossil_strcmp(zQ,z)!=0){
+    login_verify_csrf_secret();
+    db_set(zVar, zQ, 0);
+    z = zQ;
+  }
+  @ <select size="1" name="%s(zQP)" id="id%s(zQP)">
+  for(i=0; i<nChoice*2; i+=2){
+    const char *zSel = fossil_strcmp(azChoice[i],z)==0 ? " selected" : "";
+    @ <option value="%h(azChoice[i])"%s(zSel)>%h(azChoice[i+1])</option>
+  }
+  @ </select>
 }
 
 
@@ -950,7 +974,7 @@ void setup_access(void){
   @ being and not a a robot or spider and (2) the user agent is able to
   @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
   @ and spiders can forge a User-Agent string that makes them seem to be a
-  @ normal browser and they can run javascript just like browsers.  But most 
+  @ normal browser and they can run javascript just like browsers.  But most
   @ bots do not go to that much trouble so this is normally an effective defense.</p>
   @
   @ <p>You do not normally want a bot to walk your entire repository because
@@ -958,7 +982,7 @@ void setup_access(void){
   @ every historical version of every file and creating ZIPs and tarballs of
   @ every historical check-in, which can use a lot of CPU and bandwidth
   @ even for relatively small projects.</p>
-  @ 
+  @
   @ <p>Additional parameters that control this behavior:</p>
   @ <blockquote>
   onoff_attribute("Require mouse movement before enabling hyperlinks",
@@ -1064,19 +1088,19 @@ void setup_login_group(void){
     login_insert_csrf_secret();
     @ <blockquote><table border="0">
     @
-    @ <tr><td align="right"><b>Repository filename in group to join:</b></td>
+    @ <tr><th align="right">Repository filename in group to join:</th>
     @ <td width="5"></td><td>
     @ <input type="text" size="50" value="%h(zRepo)" name="repo"></td></tr>
     @
-    @ <tr><td align="right"><b>Login on the above repo:</b></td>
+    @ <tr><th align="right">Login on the above repo:</th>
     @ <td width="5"></td><td>
     @ <input type="text" size="20" value="%h(zLogin)" name="login"></td></tr>
     @
-    @ <tr><td align="right"><b>Password:</b></td>
+    @ <tr><th align="right">Password:</th>
     @ <td width="5"></td><td>
     @ <input type="password" size="20" name="pw"></td></tr>
     @
-    @ <tr><td align="right"><b>Name of login-group:</b></td>
+    @ <tr><th align="right">Name of login-group:</th>
     @ <td width="5"></td><td>
     @ <input type="text" size="30" value="%h(zNewName)" name="newname">
     @ (only used if creating a new login-group).</td></tr>
@@ -1126,6 +1150,12 @@ void setup_login_group(void){
 void setup_timeline(void){
   double tmDiff;
   char zTmDiff[20];
+  static const char *const azTimeFormats[] = {
+      "0", "HH:MM",
+      "1", "HH:MM:SS",
+      "2", "YYYY-MM-DD HH:MM",
+      "3", "YYMMDD HH:MM"
+  };
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed();
@@ -1153,7 +1183,6 @@ void setup_timeline(void){
                   "timeline-utc", "utc", 1, 0);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
   @ Zulu) instead of in local time.  On this server, local time is currently
-  g.fTimeFormat = 2;
   tmDiff = db_double(0.0, "SELECT julianday('now')");
   tmDiff = db_double(0.0,
         "SELECT (julianday(%.17g,'localtime')-julianday(%.17g))*24.0",
@@ -1170,9 +1199,17 @@ void setup_timeline(void){
   }
 
   @ <hr />
+  multiple_choice_attribute("Per-Item Time Format", "timeline-date-format", "tdf", "0",
+                            4, azTimeFormats);
+  @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
+  @ in a separate box (using CSS class "timelineDate") whenever the date changes.
+  @ With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats, the complete date
+  @ and time is shown on every timeline entry (using the CSS class "timelineTime").</p>
+
+  @ <hr />
   onoff_attribute("Show version differences by default",
                   "show-version-diffs", "vdiff", 0, 0);
-  @ <p>On the version-information pages linked from the timeline can either
+  @ <p>The version-information pages linked from the timeline can either
   @ show complete diffs of all file changes, or can just list the names of
   @ the files that have changed.  Users can get to either page by
   @ clicking.  This setting selects the default.</p>
@@ -1201,6 +1238,7 @@ void setup_settings(void){
     login_needed();
   }
 
+  (void) aCmdHelp; /* NOTE: Silence compiler warning. */
   style_header("Settings");
   db_open_local(0);
   db_begin_transaction();
@@ -1274,12 +1312,20 @@ void setup_config(void){
   @ <hr />
   entry_attribute("Project Name", 60, "project-name", "pn", "", 0);
   @ <p>Give your project a name so visitors know what this site is about.
-  @ The project name will also be used as the RSS feed title.</p>
+  @ The project name will also be used as the RSS feed title.
+  @ </p>
   @ <hr />
   textarea_attribute("Project Description", 3, 80,
                      "project-description", "pd", "", 0);
   @ <p>Describe your project. This will be used in page headers for search
   @ engines as well as a short RSS description.</p>
+  @ <hr />
+  entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name", "spn", "", 0);
+  @ <p>This is used as a prefix on the names of generated tarballs and ZIP archive.
+  @ For best results, keep this prefix brief and avoid special characters such
+  @ as "/" and "\".
+  @ If no tarball prefix is specified, then the full Project Name above is used.
+  @ </p>
   @ <hr />
   onoff_attribute("Enable WYSIWYG Wiki Editing",
                   "wysiwyg-wiki", "wysiwyg-wiki", 0, 0);
@@ -1489,7 +1535,7 @@ void setup_modreq(void){
   @ Ticket changes enter the system and are shown locally, but are not
   @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Ticket changes made by
-  @ a user who hwas the Mod-Tkt privilege are never subject to
+  @ a user who has the Mod-Tkt privilege are never subject to
   @ moderation.
   @
   @ <hr />
@@ -1550,9 +1596,11 @@ void setup_adunit(void){
 ** WEBPAGE: setup_logo
 */
 void setup_logo(void){
+  const char *zLogoMtime = db_get_mtime("logo-image", 0, 0);
   const char *zLogoMime = db_get("logo-mimetype","image/gif");
   const char *aLogoImg = P("logoim");
   int szLogoImg = atoi(PD("logoim:bytes","0"));
+  const char *zBgMtime = db_get_mtime("background-image", 0, 0);
   const char *zBgMime = db_get("background-mimetype","image/gif");
   const char *aBgImg = P("bgim");
   int szBgImg = atoi(PD("bgim:bytes","0"));
@@ -1620,7 +1668,7 @@ void setup_logo(void){
   style_header("Edit Project Logo And Background");
   @ <p>The current project logo has a MIME-Type of <b>%h(zLogoMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/logo" alt="logo" border="1" />
+  @ <blockquote><p><img src="%s(g.zTop)/logo/%z(zLogoMtime)" alt="logo" border="1" />
   @ </p></blockquote>
   @
   @ <form action="%s(g.zTop)/setup_logo" method="post"
@@ -1642,7 +1690,7 @@ void setup_logo(void){
   @
   @ <p>The current background image has a MIME-Type of <b>%h(zBgMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/background" alt="background" border=1 />
+  @ <blockquote><p><img src="%s(g.zTop)/background/%z(zBgMtime)" alt="background" border=1 />
   @ </p></blockquote>
   @
   @ <form action="%s(g.zTop)/setup_logo" method="post"

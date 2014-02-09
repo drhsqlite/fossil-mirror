@@ -127,9 +127,7 @@ void update_cmd(void){
   capture_case_sensitive_option();
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
-  if( vid==0 ){
-    fossil_fatal("cannot find current version");
-  }
+  user_select();
   if( !dryRunFlag && !internalUpdate ){
     autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag);
   }
@@ -189,7 +187,7 @@ void update_cmd(void){
           " ORDER BY event.mtime DESC",
           timeline_query_for_tty()
         );
-        print_timeline(&q, 100, 0);
+        print_timeline(&q, -100, 79, 0);
         db_finalize(&q);
         fossil_fatal("Multiple descendants");
       }
@@ -201,7 +199,7 @@ void update_cmd(void){
   }
 
   if( tid==0 ){
-    fossil_panic("Internal Error: unable to find a version to update to.");
+    return;
   }
 
   db_begin_transaction();
@@ -226,7 +224,7 @@ void update_cmd(void){
     "  ridv INTEGER,"             /* Record ID for current version */
     "  ridt INTEGER,"             /* Record ID for target */
     "  isexe BOOLEAN,"            /* Does target have execute permission? */
-    "  deleted BOOLEAN DEFAULT 0,"/* File marke by "rm" to become unmanaged */
+    "  deleted BOOLEAN DEFAULT 0,"/* File marked by "rm" to become unmanaged */
     "  fnt TEXT %s"               /* Filename of same file on target version */
     ");",
     filename_collation(), filename_collation()
@@ -357,7 +355,7 @@ void update_cmd(void){
     " WHERE id=:idt"
   );
   assert( g.zLocalRoot!=0 );
-  assert( strlen(g.zLocalRoot)>1 );
+  assert( strlen(g.zLocalRoot)>0 );
   assert( g.zLocalRoot[strlen(g.zLocalRoot)-1]=='/' );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);  /* The filename from root */
@@ -402,16 +400,15 @@ void update_cmd(void){
       /* The file is unedited.  Change it to the target version */
       undo_save(zName);
       if( deleted ){
-        fossil_print("UPDATE %s - change to unmanged file\n", zName);
+        fossil_print("UPDATE %s - change to unmanaged file\n", zName);
       }else{
         fossil_print("UPDATE %s\n", zName);
       }
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
-    }else if( idt>0 && idv>0 && file_wd_size(zFullPath)<0 ){
+    }else if( idt>0 && idv>0 && !deleted && file_wd_size(zFullPath)<0 ){
       /* The file missing from the local check-out. Restore it to the
       ** version that appears in the target. */
-      fossil_print("UPDATE %s%s\n", zName,
-                    deleted?" - change to unmanaged file":"");
+      fossil_print("UPDATE %s\n", zName);
       undo_save(zName);
       if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt==0 && idv>0 ){
@@ -637,7 +634,7 @@ int historical_version_of_file(
     if( errCode>0 ) return errCode;
     fossil_fatal("no such checkin: %s", revision);
   }
-  pManifest = manifest_get(rid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   
   if( pManifest ){
     pFile = manifest_file_find(pManifest, file);
@@ -661,7 +658,7 @@ int historical_version_of_file(
     if( revision==0 ){
       revision = db_text("current", "SELECT uuid FROM blob WHERE rid=%d", rid);
     }
-    fossil_panic("could not parse manifest for checkin: %s", revision);
+    fossil_fatal("could not parse manifest for checkin: %s", revision);
   }
   return errCode;
 }
