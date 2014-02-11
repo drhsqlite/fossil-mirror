@@ -137,14 +137,9 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
 static int use_fossil_creds_for_httpauth_prompt(void){
   Blob x;
   char c;
-  char *zPrompt = mprintf(
-    "\n%s Authorization required by:\n%s%s\n"
-    "Use Fossil username and password (y/N)? ",
-    g.urlIsHttps==1 ? "Encrypted HTTPS" : "Unencrypted HTTP", g.urlCanonical);
-  prompt_user(zPrompt, &x);
+  prompt_user("Use Fossil username and password (y/N)? ", &x);
   c = blob_str(&x)[0];
   blob_reset(&x);
-  free(zPrompt);
   return ( c=='y' || c=='Y' );
 }
 
@@ -172,10 +167,12 @@ char *prompt_for_httpauth_creds(void){
   char *zPrompt;
   char *zHttpAuth = 0;
   if( !isatty(fileno(stdin)) ) return 0;
-  if ( use_fossil_creds_for_httpauth_prompt() ){
-    if( g.urlUser && g.urlPasswd ){
-      zHttpAuth = mprintf("%s:%s", g.urlUser, g.urlPasswd);
-    }
+  zPrompt = mprintf("\n%s authorization required by\n%s\n",
+    g.urlIsHttps==1 ? "Encrypted HTTPS" : "Unencrypted HTTP", g.urlCanonical);
+  fossil_print(zPrompt);
+  free(zPrompt);
+  if ( g.urlUser && g.urlPasswd && use_fossil_creds_for_httpauth_prompt() ){
+    zHttpAuth = mprintf("%s:%s", g.urlUser, g.urlPasswd);
   }else{
     prompt_user("Basic Authorization user: ", &x);
     zUser = mprintf("%b", &x);
