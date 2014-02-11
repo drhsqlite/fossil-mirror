@@ -796,6 +796,8 @@ const struct strctCssDefaults {
   { ".filetree li",
     "tree-view lists items",
     @   position: relative;
+    @   margin: 0;
+    @   padding: 0;
   },
   { ".filetree li li:before",
     "tree-view node lines",

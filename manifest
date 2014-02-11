@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sversion\s3.8.3.1\srelease\scandidate.
-D 2014-02-11T04:53:10.892
+C Set\smargin\sand\spadding\sto\szero\son\stree-view\slist\sitems.
+D 2014-02-11T16:03:56.998
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -405,7 +405,7 @@ F src/sqlite3.c 8386044f2df2d7ad74c612c36d154d1bbaade28a
 F src/sqlite3.h 06b6a8ae291a0d13c0278fa576a93fe591efbe4d
 F src/stash.c 43c6eecebaf0fd9a57ac1ee3423487b29e3baedf
 F src/stat.c 28b9be27fd580b4b2dac60226ae296e55b2c9c9e
-F src/style.c f8070e4e29abc40aad2658032a51551a8f1ab6d0
+F src/style.c 53dcdc8d5a38ac183309ad1300d7f14e82111ecd
 F src/sync.c bb1f61e400aaa9daa59c6972b1fd987276bd6d80
 F src/tag.c 9d7a7cb5a501246675552fb402b3497fbb8e7d38
 F src/tar.c 4fd4440b5f21e39937739b2f096dd1d72933893f
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0681b39b824625718c77a9f5ba9edf6a01000fdf
-R ca74f51f453c653e3c15b6191f19c923
-U drh
-Z 9e5f1c3e9952803276e3c31024c64c1c
+P 34aef781b5d47c172b0bdbdae50944d0bba8a545
+R 9a256ecb01fab8c8cad3b565defbbbec
+U joel
+Z 5de16d909b64080a31c19cf242f2cf65
