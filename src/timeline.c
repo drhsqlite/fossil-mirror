@@ -2280,8 +2280,8 @@ static void stats_report_by_month_year(char includeMonth,
     @ </td><td>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
-    @  style='height:16px;width:%d(nSize)%%;'>
-    @ </div></td>
+    @  style='width:%d(nSize)%%;'>&nbsp;</div>
+    @ </td>
     @</tr>
     if(includeWeeks){
       /* This part works fine for months but it terribly slow (4.5s on my PC),
@@ -2375,8 +2375,8 @@ static void stats_report_by_user(){
     @ </td><td>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
-    @  style='height:16px;width:%d(nSize)%%;'>
-    @ </div></td>
+    @  style='width:%d(nSize)%%;'>&nbsp;</div>
+    @ </td>
     @</tr>
     /*
       Potential improvement: calculate the min/max event counts and
@@ -2504,7 +2504,7 @@ static void stats_report_year_weeks(const char * zUserName){
       cgi_printf("<td>");
       if(nCount){
         cgi_printf("<div class='statistics-report-graph-line'"
-                   "style='height:16px;width:%d%%;'></div>",
+                   "style='width:%d%%;'>&nbsp;</div>",
                    nSize);
       }
       cgi_printf("</td></tr>");
