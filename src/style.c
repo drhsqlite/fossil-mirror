@@ -1160,7 +1160,7 @@ const struct strctCssDefaults {
     @   padding: 0.2ex 2ex;
   },
   { ".statistics-report-graph-line",
-    "for the /stats_report views",
+    "for the /reports views",
     @   background-color: #446979;
   },
   { ".statistics-report-table-events th",
@@ -1174,10 +1174,6 @@ const struct strctCssDefaults {
   { ".statistics-report-row-year",
     "",
     @   text-align: left;
-  },
-  { ".statistics-report-graph-line",
-    "for the /stats_report views",
-    @   background-color: #446979;
   },
   { ".statistics-report-week-number-label",
     "for the /stats_report views",
