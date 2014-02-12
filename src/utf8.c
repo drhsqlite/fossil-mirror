@@ -181,7 +181,7 @@ char *fossil_filename_to_utf8(const void *zFilename){
 ** characters '"', '*', ':', '<', '>', '?' and '|' are invalid
 ** to be used, except in the 'extended path' prefix ('?') and
 ** as drive specifier (':'). Therefore, translate those to characters
-** in the in the range U+F001 - U+F07F (private use area), so those
+** in the range U+F001 - U+F07F (private use area), so those
 ** characters never arrive in any Windows API. The filenames might
 ** look strange in Windows explorer, but in the cygwin shell
 ** everything looks as expected.
