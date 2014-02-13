@@ -594,8 +594,7 @@ void timeline_output_graph_javascript(
     int i;
     char cSep;
 
-    @ <script  type="text/JavaScript">
-    @ /* <![CDATA[ */
+    @ <script>
     @ var railPitch=%d(pGraph->iRailPitch);
 
     /* the rowinfo[] array contains all the information needed to generate
@@ -874,7 +873,6 @@ void timeline_output_graph_javascript(
     @   setTimeout("checkHeight();", 1000);
     @ }
     @ checkHeight();
-    @ /* ]]> */
     @ </script>
   }
 }

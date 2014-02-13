@@ -165,8 +165,7 @@ void style_resolve_href(void){
   int nDelay = db_get_int("auto-hyperlink-delay",10);
   if( !g.perm.Hyperlink ) return;
   if( nHref==0 && nFormAction==0 ) return;
-  @ <script type="text/JavaScript">
-  @ /* <![CDATA[ */
+  @ <script>
   @ function setAllHrefs(){
   if( g.javascriptHyperlink ){
     for(i=0; i<nHref; i++){
@@ -194,7 +193,6 @@ void style_resolve_href(void){
     /* Active hyperlinks right away */
     @ setTimeout("setAllHrefs();",%d(nDelay));
   }
-  @ /* ]]> */
   @ </script>
 }
 
