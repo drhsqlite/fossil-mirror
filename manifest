@@ -1,5 +1,5 @@
-C Mention\s"timeline-plaintext"\sand\s"ticket-change"\sentries\sin\ssync.wiki
-D 2014-02-13T15:07:57.512
+C Take\sover\s"Fixes\sto\sthe\seditline\ssupport"\sand\s"Updates\sto\sthe\scommand-line\sshell"\sfrom\sSQLite\strunk,\skeeping\sthe\stwo\sin\ssync\sbetter.\sExcept\sfor\sthe\saddition\sof\sthe\s".save"\scommand\sin\s"fossil\ssqlite3",\sit\shas\sno\seffect.
+D 2014-02-13T15:17:25.212
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -397,7 +397,7 @@ F src/schema.c ab4ba29cfd02cfccfef3b3134c47ba018564ab64
 F src/search.c 6471b6201f6ea01f2528cbcd4455f990a5caecf6
 F src/setup.c d50c535ce991c59f8b5f5ab449a4b511db90d070
 F src/sha1.c 764d029cbe3704941a7db83c0d0b505f6cdb512f
-F src/shell.c cc281c03b576063c4d4a5b96066d42cb40aa221b
+F src/shell.c f5d3cf3b60bf37d41fdaf49b9c4cd20273ea9764
 F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 6b4958b9250369d74a0cb0432fa46d4b41797c9a
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 438eebcdbc3014882f4c712bd9bfe42d8fd5d689
-R 7b23820de0243e0c2a937f4ad68498fd
+P dce0566b2ad6691bfc51b1e80084e5e29644638f
+R 80d5ea1ed4f42604dc41a0fc2e415c0d
 U jan.nijtmans
-Z 37a0fb26aa3b08e979b16d18661643fb
+Z 2b728395a8b23c8e5a119d2b518ce7b3
