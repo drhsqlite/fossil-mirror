@@ -1892,14 +1892,7 @@ void wiki_extract_links(
 
         /* Push <div> markup onto the stack together with the id=ID attribute.
         */
-        if( markup.iCode==MARKUP_DIV
-            || markup.iCode==MARKUP_HTML5_ARTICLE
-            || markup.iCode==MARKUP_HTML5_ASIDE
-            || markup.iCode==MARKUP_HTML5_FOOTER
-            || markup.iCode==MARKUP_HTML5_HEADER
-            || markup.iCode==MARKUP_HTML5_NAV
-            || markup.iCode==MARKUP_HTML5_SECTION
-            ){
+        if( markup.iCode==MARKUP_DIV ){
           pushStackWithId(&renderer, markup.iCode, markupId(&markup),
                           (renderer.state & ALLOW_WIKI)!=0);
         }else
