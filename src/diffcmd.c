@@ -776,7 +776,7 @@ static const char zDiffScript[] =
 @   }
 @   enableSync x
 @ }
-@ 
+@
 @ proc sync-y {first last} {
 @   disableSync y
 @   foreach c [cols] {
@@ -795,6 +795,7 @@ static const char zDiffScript[] =
 @ wm title . $CFG(TITLE)
 @ wm iconname . $CFG(TITLE)
 @ bind . <q> exit
+@ bind . <Destroy> {after 0 exit}
 @ bind . <Tab> {cycleDiffs; break}
 @ bind . <<PrevWindow>> {cycleDiffs 1; break}
 @ bind . <Return> {
@@ -909,9 +910,11 @@ static const char zDiffScript[] =
 ** Show diff output in a Tcl/Tk window, in response to the --tk option
 ** to the diff command.
 ** 
-** Steps:
+** If fossil has direct access to a Tcl interpreter (either loaded
+** dynamically through stubs or linked in statically), we can use it
+** directly. Otherwise:
 ** (1) Write the Tcl/Tk script used for rendering into a temp file.
-** (2) Invoke "wish" on the temp file using fossil_system().
+** (2) Invoke "tclsh" on the temp file using fossil_system().
 ** (3) Delete the temp file.
 */
 void diff_tk(const char *zSubCmd, int firstArg){
@@ -945,6 +948,20 @@ void diff_tk(const char *zSubCmd, int firstArg){
     blob_write_to_file(&script, zTempFile);
     fossil_print("To see diff, run: tclsh \"%s\"\n", zTempFile);
   }else{
+#if defined(FOSSIL_ENABLE_TCL)
+    Th_FossilInit(TH_INIT_DEFAULT);
+    if( evaluateTclWithEvents(g.interp, &g.tcl, blob_str(&script),
+                              blob_size(&script), 1)==TCL_OK ){
+      blob_reset(&script);
+      return;
+    }
+    /*
+     * If evaluation of the Tcl script fails, the reason may be that Tk
+     * could not be found by the loaded Tcl, or that Tcl cannot be loaded
+     * dynamically (e.g. x64 Tcl with x86 Fossil).  Therefore, fallback
+     * to using the external "tclsh", if available.
+     */
+#endif
     zTempFile = write_blob_to_temp_file(&script);
     zCmd = mprintf("tclsh \"%s\"", zTempFile);
     fossil_system(zCmd);
