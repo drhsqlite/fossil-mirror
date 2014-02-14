@@ -45,14 +45,17 @@
 # include <sys/types.h>
 #endif
 
-#ifdef HAVE_EDITLINE
-# include <editline/editline.h>
-#endif
-#if defined(HAVE_READLINE) && HAVE_READLINE==1
+#if defined(HAVE_READLINE) && HAVE_READLINE!=0
 # include <readline/readline.h>
 # include <readline/history.h>
+#else
+# undef HAVE_READLINE
 #endif
-#if !defined(HAVE_EDITLINE) && (!defined(HAVE_READLINE) || HAVE_READLINE!=1)
+#if defined(HAVE_EDITLINE) && !defined(HAVE_READLINE)
+# define HAVE_READLINE 1
+# include <editline/readline.h>
+#endif
+#if !defined(HAVE_READLINE)
 # define add_history(X)
 # define read_history(X)
 # define write_history(X)
@@ -413,7 +416,7 @@ static char *one_input_line(FILE *in, char *zPrior, int isContinuation){
     zResult = local_getline(zPrior, in);
   }else{
     zPrompt = isContinuation ? continuePrompt : mainPrompt;
-#if defined(HAVE_READLINE) && HAVE_READLINE==1
+#if defined(HAVE_READLINE)
     free(zPrior);
     zResult = readline(zPrompt);
     if( zResult && *zResult ) add_history(zResult);
@@ -1005,7 +1008,7 @@ static int run_table_dump_query(
   int nResult;
   int i;
   const char *z;
-  rc = sqlite3_prepare(p->db, zSelect, -1, &pSelect, 0);
+  rc = sqlite3_prepare_v2(p->db, zSelect, -1, &pSelect, 0);
   if( rc!=SQLITE_OK || !pSelect ){
     fprintf(p->out, "/**** ERROR: (%d) %s *****/\n", rc, sqlite3_errmsg(p->db));
     if( (rc&0xff)!=SQLITE_CORRUPT ) p->nErr++;
@@ -1453,7 +1456,7 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azCol){
     zTableInfo = appendText(zTableInfo, zTable, '"');
     zTableInfo = appendText(zTableInfo, ");", 0);
 
-    rc = sqlite3_prepare(p->db, zTableInfo, -1, &pTableInfo, 0);
+    rc = sqlite3_prepare_v2(p->db, zTableInfo, -1, &pTableInfo, 0);
     free(zTableInfo);
     if( rc!=SQLITE_OK || !pTableInfo ){
       return 1;
@@ -1543,6 +1546,7 @@ static int run_schema_dump_query(
 static char zHelp[] =
   ".backup ?DB? FILE      Backup DB (default \"main\") to FILE\n"
   ".bail ON|OFF           Stop after hitting an error.  Default OFF\n"
+  ".clone NEWDB           Clone data into NEWDB from the existing database\n"
   ".databases             List names and files of attached databases\n"
   ".dump ?TABLE? ...      Dump the database in an SQL text format\n"
   "                         If TABLE specified, only dump tables matching\n"
@@ -1582,6 +1586,7 @@ static char zHelp[] =
   ".quit                  Exit this program\n"
   ".read FILENAME         Execute SQL in FILENAME\n"
   ".restore ?DB? FILE     Restore content of DB (default \"main\") from FILE\n"
+  ".save FILE             Write in-memory database into FILE\n"
   ".schema ?TABLE?        Show the CREATE statements\n"
   "                         If TABLE specified, only show tables matching\n"
   "                         LIKE pattern TABLE.\n"
@@ -1897,6 +1902,219 @@ static char *csv_read_one_field(CSVReader *p){
 }
 
 /*
+** Try to transfer data for table zTable.  If an error is seen while
+** moving forward, try to go backwards.  The backwards movement won't
+** work for WITHOUT ROWID tables.
+*/
+static void tryToCloneData(
+  struct callback_data *p,
+  sqlite3 *newDb,
+  const char *zTable
+){
+  sqlite3_stmt *pQuery = 0; 
+  sqlite3_stmt *pInsert = 0;
+  char *zQuery = 0;
+  char *zInsert = 0;
+  int rc;
+  int i, j, n;
+  int nTable = (int)strlen(zTable);
+  int k = 0;
+  int cnt = 0;
+  const int spinRate = 10000;
+
+  zQuery = sqlite3_mprintf("SELECT * FROM \"%w\"", zTable);
+  rc = sqlite3_prepare_v2(p->db, zQuery, -1, &pQuery, 0);
+  if( rc ){
+    fprintf(stderr, "Error %d: %s on [%s]\n",
+            sqlite3_extended_errcode(p->db), sqlite3_errmsg(p->db),
+            zQuery);
+    goto end_data_xfer;
+  }
+  n = sqlite3_column_count(pQuery);
+  zInsert = sqlite3_malloc(200 + nTable + n*3);
+  if( zInsert==0 ){
+    fprintf(stderr, "out of memory\n");
+    goto end_data_xfer;
+  }
+  sqlite3_snprintf(200+nTable,zInsert,
+                   "INSERT OR IGNORE INTO \"%s\" VALUES(?", zTable);
+  i = (int)strlen(zInsert);
+  for(j=1; j<n; j++){
+    memcpy(zInsert+i, ",?", 2);
+    i += 2;
+  }
+  memcpy(zInsert+i, ");", 3);
+  rc = sqlite3_prepare_v2(newDb, zInsert, -1, &pInsert, 0);
+  if( rc ){
+    fprintf(stderr, "Error %d: %s on [%s]\n",
+            sqlite3_extended_errcode(newDb), sqlite3_errmsg(newDb),
+            zQuery);
+    goto end_data_xfer;
+  }
+  for(k=0; k<2; k++){
+    while( (rc = sqlite3_step(pQuery))==SQLITE_ROW ){
+      for(i=0; i<n; i++){
+        switch( sqlite3_column_type(pQuery, i) ){
+          case SQLITE_NULL: {
+            sqlite3_bind_null(pInsert, i+1);
+            break;
+          }
+          case SQLITE_INTEGER: {
+            sqlite3_bind_int64(pInsert, i+1, sqlite3_column_int64(pQuery,i));
+            break;
+          }
+          case SQLITE_FLOAT: {
+            sqlite3_bind_double(pInsert, i+1, sqlite3_column_double(pQuery,i));
+            break;
+          }
+          case SQLITE_TEXT: {
+            sqlite3_bind_text(pInsert, i+1,
+                             (const char*)sqlite3_column_text(pQuery,i),
+                             -1, SQLITE_STATIC);
+            break;
+          }
+          case SQLITE_BLOB: {
+            sqlite3_bind_blob(pInsert, i+1, sqlite3_column_blob(pQuery,i),
+                                            sqlite3_column_bytes(pQuery,i),
+                                            SQLITE_STATIC);
+            break;
+          }
+        }
+      } /* End for */
+      rc = sqlite3_step(pInsert);
+      if( rc!=SQLITE_OK && rc!=SQLITE_ROW && rc!=SQLITE_DONE ){
+        fprintf(stderr, "Error %d: %s\n", sqlite3_extended_errcode(newDb),
+                        sqlite3_errmsg(newDb));
+      }
+      sqlite3_reset(pInsert);
+      cnt++;
+      if( (cnt%spinRate)==0 ){
+        printf("%c\b", "|/-\\"[(cnt/spinRate)%4]);
+        fflush(stdout);
+      }
+    } /* End while */
+    if( rc==SQLITE_DONE ) break;
+    sqlite3_finalize(pQuery);
+    sqlite3_free(zQuery);
+    zQuery = sqlite3_mprintf("SELECT * FROM \"%w\" ORDER BY rowid DESC;",
+                             zTable);
+    rc = sqlite3_prepare_v2(p->db, zQuery, -1, &pQuery, 0);
+    if( rc ){
+      fprintf(stderr, "Warning: cannot step \"%s\" backwards", zTable);
+      break;
+    }
+  } /* End for(k=0...) */
+
+end_data_xfer:
+  sqlite3_finalize(pQuery);
+  sqlite3_finalize(pInsert);
+  sqlite3_free(zQuery);
+  sqlite3_free(zInsert);
+}
+
+
+/*
+** Try to transfer all rows of the schema that match zWhere.  For
+** each row, invoke xForEach() on the object defined by that row.
+** If an error is encountered while moving forward through the
+** sqlite_master table, try again moving backwards.
+*/
+static void tryToCloneSchema(
+  struct callback_data *p,
+  sqlite3 *newDb,
+  const char *zWhere,
+  void (*xForEach)(struct callback_data*,sqlite3*,const char*)
+){
+  sqlite3_stmt *pQuery = 0;
+  char *zQuery = 0;
+  int rc;
+  const unsigned char *zName;
+  const unsigned char *zSql;
+  char *zErrMsg = 0;
+
+  zQuery = sqlite3_mprintf("SELECT name, sql FROM sqlite_master"
+                           " WHERE %s", zWhere);
+  rc = sqlite3_prepare_v2(p->db, zQuery, -1, &pQuery, 0);
+  if( rc ){
+    fprintf(stderr, "Error: (%d) %s on [%s]\n",
+                    sqlite3_extended_errcode(p->db), sqlite3_errmsg(p->db),
+                    zQuery);
+    goto end_schema_xfer;
+  }
+  while( (rc = sqlite3_step(pQuery))==SQLITE_ROW ){
+    zName = sqlite3_column_text(pQuery, 0);
+    zSql = sqlite3_column_text(pQuery, 1);
+    printf("%s... ", zName); fflush(stdout);
+    sqlite3_exec(newDb, (const char*)zSql, 0, 0, &zErrMsg);
+    if( zErrMsg ){
+      fprintf(stderr, "Error: %s\nSQL: [%s]\n", zErrMsg, zSql);
+      sqlite3_free(zErrMsg);
+      zErrMsg = 0;
+    }
+    if( xForEach ){
+      xForEach(p, newDb, (const char*)zName);
+    }
+    printf("done\n");
+  }
+  if( rc!=SQLITE_DONE ){
+    sqlite3_finalize(pQuery);
+    sqlite3_free(zQuery);
+    zQuery = sqlite3_mprintf("SELECT name, sql FROM sqlite_master"
+                             " WHERE %s ORDER BY rowid DESC", zWhere);
+    rc = sqlite3_prepare_v2(p->db, zQuery, -1, &pQuery, 0);
+    if( rc ){
+      fprintf(stderr, "Error: (%d) %s on [%s]\n",
+                      sqlite3_extended_errcode(p->db), sqlite3_errmsg(p->db),
+                      zQuery);
+      goto end_schema_xfer;
+    }
+    while( (rc = sqlite3_step(pQuery))==SQLITE_ROW ){
+      zName = sqlite3_column_text(pQuery, 0);
+      zSql = sqlite3_column_text(pQuery, 1);
+      printf("%s... ", zName); fflush(stdout);
+      sqlite3_exec(newDb, (const char*)zSql, 0, 0, &zErrMsg);
+      if( zErrMsg ){
+        fprintf(stderr, "Error: %s\nSQL: [%s]\n", zErrMsg, zSql);
+        sqlite3_free(zErrMsg);
+        zErrMsg = 0;
+      }
+      if( xForEach ){
+        xForEach(p, newDb, (const char*)zName);
+      }
+      printf("done\n");
+    }
+  }
+end_schema_xfer:
+  sqlite3_finalize(pQuery);
+  sqlite3_free(zQuery);
+}
+
+/*
+** Open a new database file named "zNewDb".  Try to recover as much information
+** as possible out of the main database (which might be corrupt) and write it
+** into zNewDb.
+*/
+static void tryToClone(struct callback_data *p, const char *zNewDb){
+  int rc;
+  sqlite3 *newDb = 0;
+  if( access(zNewDb,0)==0 ){
+    fprintf(stderr, "File \"%s\" already exists.\n", zNewDb);
+    return;
+  }
+  rc = sqlite3_open(zNewDb, &newDb);
+  if( rc ){
+    fprintf(stderr, "Cannot create output database: %s\n",
+            sqlite3_errmsg(newDb));
+  }else{
+    sqlite3_exec(newDb, "BEGIN EXCLUSIVE;", 0, 0, 0);
+    tryToCloneSchema(p, newDb, "type='table'", tryToCloneData);
+    tryToCloneSchema(p, newDb, "type!='table'", 0);
+    sqlite3_exec(newDb, "COMMIT;", 0, 0, 0);
+  }
+  sqlite3_close(newDb);
+}
+
+/*
 ** If an input line begins with "." then invoke this routine to
 ** process that line.
 **
@@ -1938,7 +2156,9 @@ static int do_meta_command(char *zLine, struct callback_data *p){
   if( nArg==0 ) return 0; /* no tokens, no error */
   n = strlen30(azArg[0]);
   c = azArg[0][0];
-  if( c=='b' && n>=3 && strncmp(azArg[0], "backup", n)==0 ){
+  if( (c=='b' && n>=3 && strncmp(azArg[0], "backup", n)==0)
+   || (c=='s' && n>=3 && strncmp(azArg[0], "save", n)==0)
+  ){
     const char *zDestFile = 0;
     const char *zDb = 0;
     sqlite3 *pDest;
@@ -2001,6 +2221,10 @@ static int do_meta_command(char *zLine, struct callback_data *p){
   */
   if( c=='b' && n>=3 && strncmp(azArg[0], "breakpoint", n)==0 ){
     test_breakpoint();
+  }else
+
+  if( c=='c' && strncmp(azArg[0], "clone", n)==0 && nArg>1 && nArg<3 ){
+    tryToClone(p, azArg[1]);
   }else
 
   if( c=='d' && n>1 && strncmp(azArg[0], "databases", n)==0 && nArg==1 ){
@@ -2175,7 +2399,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       return 1;
     }
     nByte = strlen30(zSql);
-    rc = sqlite3_prepare(p->db, zSql, -1, &pStmt, 0);
+    rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
     if( rc && sqlite3_strglob("no such table: *", sqlite3_errmsg(db))==0 ){
       char *zCreate = sqlite3_mprintf("CREATE TABLE %s", zTable);
       char cSep = '(';
@@ -2201,7 +2425,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
         xCloser(sCsv.in);
         return 1;
       }
-      rc = sqlite3_prepare(p->db, zSql, -1, &pStmt, 0);
+      rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
     }
     sqlite3_free(zSql);
     if( rc ){
@@ -2228,7 +2452,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     }
     zSql[j++] = ')';
     zSql[j] = 0;
-    rc = sqlite3_prepare(p->db, zSql, -1, &pStmt, 0);
+    rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
     sqlite3_free(zSql);
     if( rc ){
       fprintf(stderr, "Error: %s\n", sqlite3_errmsg(db));
@@ -3283,6 +3507,26 @@ static void main_init(struct callback_data *data) {
 }
 
 /*
+** Output text to the console in a font that attracts extra attention.
+*/
+#ifdef _WIN32
+static void printBold(const char *zText){
+  HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+  CONSOLE_SCREEN_BUFFER_INFO defaultScreenInfo;
+  GetConsoleScreenBufferInfo(out, &defaultScreenInfo);
+  SetConsoleTextAttribute(out,
+         FOREGROUND_RED|FOREGROUND_INTENSITY
+  );
+  printf("%s", zText);
+  SetConsoleTextAttribute(out, defaultScreenInfo.wAttributes);
+}
+#else
+static void printBold(const char *zText){
+  printf("\033[1m%s\033[0m", zText);
+}
+#endif
+
+/*
 ** Get the argument to an --option.  Throw an error and die if no argument
 ** is available.
 */
@@ -3302,6 +3546,7 @@ int main(int argc, char **argv){
   char *zFirstCmd = 0;
   int i;
   int rc = 0;
+  int warnInmemoryDb = 0;
 
   if( sqlite3_libversion_number()<3008003 ){
     fprintf(stderr, "Unsuitable SQLite version %s, must be at least 3.8.3",
@@ -3396,6 +3641,7 @@ int main(int argc, char **argv){
   if( data.zDbFilename==0 ){
 #ifndef SQLITE_OMIT_MEMORYDB
     data.zDbFilename = ":memory:";
+    warnInmemoryDb = argc==1;
 #else
     fprintf(stderr,"%s: Error: no database filename specified\n", Argv0);
     return 1;
@@ -3404,6 +3650,7 @@ int main(int argc, char **argv){
     {
       extern void fossil_open(const char **);
       fossil_open(&data.zDbFilename);
+      warnInmemoryDb = 0;
     }
     /***** End Fossil Patch *****/
   }
@@ -3538,10 +3785,15 @@ int main(int argc, char **argv){
       int nHistory;
       printf(
         "SQLite version %s %.19s\n" /*extra-version-info*/
-        "Enter \".help\" for instructions\n"
-        "Enter SQL statements terminated with a \";\"\n",
+        "Enter \".help\" for usage hints.\n",
         sqlite3_libversion(), sqlite3_sourceid()
       );
+      if( warnInmemoryDb ){
+        printf("Connected to a ");
+        printBold("transient in-memory database.");
+        printf("\nUse \".open FILENAME\" to reopen on a "
+               "persistent database.\n");
+      }
       zHome = find_home_dir();
       if( zHome ){
         nHistory = strlen30(zHome) + 20;
@@ -3549,7 +3801,7 @@ int main(int argc, char **argv){
           sqlite3_snprintf(nHistory, zHistory,"%s/.sqlite_history", zHome);
         }
       }
-#if defined(HAVE_READLINE) && HAVE_READLINE==1
+#if defined(HAVE_READLINE)
       if( zHistory ) read_history(zHistory);
 #endif
       rc = process_input(&data, 0);

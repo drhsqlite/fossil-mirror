@@ -873,7 +873,7 @@ static void multiple_choice_attribute(
     const char *zSel = fossil_strcmp(azChoice[i],z)==0 ? " selected" : "";
     @ <option value="%h(azChoice[i])"%s(zSel)>%h(azChoice[i+1])</option>
   }
-  @ </select>
+  @ </select> <b>%h(zLabel)</b>
 }
 
 
@@ -1176,7 +1176,8 @@ void setup_timeline(void){
   onoff_attribute("Plaintext comments on timelines",
                   "timeline-plaintext", "tpt", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed literally,
-  @ without any wiki or HTML interpretation.</p>
+  @ without any wiki or HTML interpretation.  (Note: Use CSS to change
+  @ display formatting features such as fonts and line-wrapping behavior.)</p>
 
   @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",

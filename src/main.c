@@ -192,7 +192,9 @@ struct Global {
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
   char *urlFossil;        /* The fossil query parameter on ssh: */
   unsigned urlFlags;      /* Boolean flags controlling URL processing */
-
+  int useProxy;           /* Used to remember that a proxy is in use */
+  char *proxyUrlPath;
+  int proxyOrigPort;      /* Tunneled port number for https through proxy */
   const char *zLogin;     /* Login name.  "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */

@@ -64,6 +64,9 @@ struct UrlData {
   char *proxyAuth; /* Proxy-Authorizer: string */
   char *fossil;    /* The fossil query parameter on ssh: */
   unsigned flags;  /* Boolean flags controlling URL processing */
+  int useProxy;    /* Used to remember that a proxy is in use */
+  char *proxyUrlPath;
+  int proxyOrigPort; /* Tunneled port number for https through proxy */
 };
 #endif /* INTERFACE */
 
@@ -122,6 +125,7 @@ void url_parse_local(
     char cQuerySep = '?';
 
     pUrlData->isFile = 0;
+    pUrlData->useProxy = 0;
     if( zUrl[4]=='s' ){
       pUrlData->isHttps = 1;
       pUrlData->protocol = "https";
@@ -386,8 +390,11 @@ void url_enable_proxy(const char *zMsg){
       && !g.urlIsSsh && !g.urlIsFile ){
     char *zOriginalUrl = g.urlCanonical;
     char *zOriginalHost = g.urlHostname;
+    int fOriginalIsHttps = g.urlIsHttps;
     char *zOriginalUser = g.urlUser;
     char *zOriginalPasswd = g.urlPasswd;
+    char *zOriginalUrlPath = g.urlPath;
+    int iOriginalPort = g.urlPort;
     unsigned uOriginalFlags = g.urlFlags;
     g.urlUser = 0;
     g.urlPasswd = "";
@@ -403,6 +410,10 @@ void url_enable_proxy(const char *zMsg){
     }
     g.urlUser = zOriginalUser;
     g.urlPasswd = zOriginalPasswd;
+    g.urlIsHttps = fOriginalIsHttps;
+    g.useProxy = 1;
+    g.proxyUrlPath = zOriginalUrlPath;
+    g.proxyOrigPort = iOriginalPort;
     g.urlFlags = uOriginalFlags;
   }
 }

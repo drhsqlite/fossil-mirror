@@ -449,12 +449,6 @@ void leaves_page(void){
   www_print_timeline(&q, TIMELINE_LEAFONLY, 0, 0, 0);
   db_finalize(&q);
   @ <br />
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }
 

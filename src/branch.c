@@ -370,12 +370,6 @@ void brlist_page(void){
     @ </ul>
   }
   db_finalize(&q);
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }
 
@@ -425,11 +419,5 @@ void brtimeline_page(void){
   );
   www_print_timeline(&q, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }

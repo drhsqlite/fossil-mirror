@@ -69,11 +69,14 @@ static void win32_http_request(void *pAppData){
   int amt, got;
   int wanted = 0;
   char *z;
+  char zCmdFName[MAX_PATH];
   char zRequestFName[MAX_PATH];
   char zReplyFName[MAX_PATH];
   char zCmd[2000];          /* Command-line to process the request */
   char zHdr[2000];          /* The HTTP request header */
 
+  sqlite3_snprintf(MAX_PATH, zCmdFName,
+                   "%s_cmd%d.txt", zTempPrefix, p->id);
   sqlite3_snprintf(MAX_PATH, zRequestFName,
                    "%s_in%d.txt", zTempPrefix, p->id);
   sqlite3_snprintf(MAX_PATH, zReplyFName,
@@ -110,9 +113,17 @@ static void win32_http_request(void *pAppData){
   }
   fclose(out);
   out = 0;
-  sqlite3_snprintf(sizeof(zCmd), zCmd, "\"%s\" http \"%s\" %s %s %s --nossl%s",
-    g.nameOfExe, g.zRepositoryName, zRequestFName, zReplyFName,
-    inet_ntoa(p->addr.sin_addr), p->zOptions
+  sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s\n%s",
+    get_utf8_bom(0), g.zRepositoryName, zRequestFName, zReplyFName,
+    inet_ntoa(p->addr.sin_addr)
+  );
+  out = fossil_fopen(zCmdFName, "wb");
+  if( out==0 ) goto end_request;
+  fwrite(zCmd, 1, strlen(zCmd), out);
+  fclose(out);
+
+  sqlite3_snprintf(sizeof(zCmd), zCmd, "\"%s\" http -args \"%s\" --nossl%s",
+    g.nameOfExe, zCmdFName, p->zOptions
   );
   fossil_system(zCmd);
   in = fossil_fopen(zReplyFName, "rb");
@@ -128,6 +139,7 @@ end_request:
   closesocket(p->s);
   file_delete(zRequestFName);
   file_delete(zReplyFName);
+  file_delete(zCmdFName);
   free(p);
 }
 

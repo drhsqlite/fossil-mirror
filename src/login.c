@@ -601,7 +601,7 @@ void login_page(void){
   @        onClick="chngAction(this.form)" /></td>
   @ </tr>
   @ </table>
-  @ <script type="text/JavaScript">
+  @ <script>
   @   gebi('u').focus()
   @   function chngAction(form){
   if( g.sslNotAvailable==0

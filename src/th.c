@@ -2004,7 +2004,7 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
       Th_SetResultInt(interp, iRes);
     }else if( rc==TH_OK && eArgType==ARG_NUMBER ){
       switch( pExpr->pOp->eOp ) {
-        case OP_MULTIPLY: Th_SetResultDouble(interp, fLeft*fRight);  break;
+        case OP_MULTIPLY: Th_SetResultDouble(interp, fLeft*fRight);    break;
         case OP_DIVIDE:
           if( fRight==0.0 ){
             Th_ErrorMessage(interp, "Divide by 0:", zLeft, nLeft);
@@ -2013,14 +2013,16 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
           }
           Th_SetResultDouble(interp, fLeft/fRight);
           break;
-        case OP_ADD:      Th_SetResultDouble(interp, fLeft+fRight);  break;
-        case OP_SUBTRACT: Th_SetResultDouble(interp, fLeft-fRight);  break;
-        case OP_LT:       Th_SetResultInt(interp, fLeft<fRight);  break;
-        case OP_GT:       Th_SetResultInt(interp, fLeft>fRight);  break;
-        case OP_LE:       Th_SetResultInt(interp, fLeft<=fRight); break;
-        case OP_GE:       Th_SetResultInt(interp, fLeft>=fRight); break;
-        case OP_EQ:       Th_SetResultInt(interp, fLeft==fRight); break;
-        case OP_NE:       Th_SetResultInt(interp, fLeft!=fRight); break;
+        case OP_ADD:         Th_SetResultDouble(interp, fLeft+fRight); break;
+        case OP_SUBTRACT:    Th_SetResultDouble(interp, fLeft-fRight); break;
+        case OP_LT:          Th_SetResultInt(interp, fLeft<fRight);    break;
+        case OP_GT:          Th_SetResultInt(interp, fLeft>fRight);    break;
+        case OP_LE:          Th_SetResultInt(interp, fLeft<=fRight);   break;
+        case OP_GE:          Th_SetResultInt(interp, fLeft>=fRight);   break;
+        case OP_EQ:          Th_SetResultInt(interp, fLeft==fRight);   break;
+        case OP_NE:          Th_SetResultInt(interp, fLeft!=fRight);   break;
+        case OP_UNARY_MINUS: Th_SetResultDouble(interp, -fLeft);       break;
+        case OP_UNARY_PLUS:  Th_SetResultDouble(interp, +fLeft);       break;
         default: assert(!"Internal error");
       }
     }else if( rc==TH_OK ){
@@ -2631,9 +2633,9 @@ int Th_SetResultInt(Th_Interp *interp, int iVal){
     iVal = iVal * -1;
   }
   *(--z) = '\0';
-  *(--z) = (char)(48+(iVal%10));
-  while( (iVal = (iVal/10))>0 ){
-    *(--z) = (char)(48+(iVal%10));
+  *(--z) = (char)(48+((unsigned)iVal%10));
+  while( (iVal = ((unsigned)iVal/10))>0 ){
+    *(--z) = (char)(48+((unsigned)iVal%10));
     assert(z>zBuf);
   }
   if( isNegative ){
