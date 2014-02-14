@@ -191,7 +191,9 @@ struct Global {
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
   char *urlFossil;        /* The fossil query parameter on ssh: */
   unsigned urlFlags;      /* Boolean flags controlling URL processing */
-
+  int useProxy;           /* Used to remember that a proxy is in use */
+  char *proxyUrlPath;
+  int proxyOrigPort;      /* Tunneled port number for https through proxy */
   const char *zLogin;     /* Login name.  "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
@@ -602,7 +604,7 @@ int main(int argc, char **argv)
   g.zVfsName = find_option("vfs",0,1);
   if( g.zVfsName==0 ){
     g.zVfsName = fossil_getenv("FOSSIL_VFS");
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(__CYGWIN__)
     if( g.zVfsName==0 ){
       g.zVfsName = "win32-longpath";
     }

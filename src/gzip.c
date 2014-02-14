@@ -75,7 +75,7 @@ void gzip_begin(sqlite3_int64 now){
 void gzip_step(const char *pIn, int nIn){
   char *zOutBuf;
   int nOut;
-  
+
   nOut = nIn + nIn/10 + 100;
   if( nOut<100000 ) nOut = 100000;
   zOutBuf = fossil_malloc(nOut);

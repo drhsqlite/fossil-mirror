@@ -165,8 +165,7 @@ void style_resolve_href(void){
   int nDelay = db_get_int("auto-hyperlink-delay",10);
   if( !g.perm.Hyperlink ) return;
   if( nHref==0 && nFormAction==0 ) return;
-  @ <script type="text/JavaScript">
-  @ /* <![CDATA[ */
+  @ <script>
   @ function setAllHrefs(){
   if( g.javascriptHyperlink ){
     for(i=0; i<nHref; i++){
@@ -194,7 +193,6 @@ void style_resolve_href(void){
     /* Active hyperlinks right away */
     @ setTimeout("setAllHrefs();",%d(nDelay));
   }
-  @ /* ]]> */
   @ </script>
 }
 
@@ -796,6 +794,8 @@ const struct strctCssDefaults {
   { ".filetree li",
     "tree-view lists items",
     @   position: relative;
+    @   margin: 0;
+    @   padding: 0;
   },
   { ".filetree li li:before",
     "tree-view node lines",
@@ -1158,7 +1158,7 @@ const struct strctCssDefaults {
     @   padding: 0.2ex 2ex;
   },
   { ".statistics-report-graph-line",
-    "for the /stats_report views",
+    "for the /reports views",
     @   background-color: #446979;
   },
   { ".statistics-report-table-events th",
@@ -1172,10 +1172,6 @@ const struct strctCssDefaults {
   { ".statistics-report-row-year",
     "",
     @   text-align: left;
-  },
-  { ".statistics-report-graph-line",
-    "for the /stats_report views",
-    @   background-color: #446979;
   },
   { ".statistics-report-week-number-label",
     "for the /stats_report views",
@@ -1266,7 +1262,7 @@ void page_test_env(void){
   int i;
   int showAll;
   char zCap[30];
-  static const char *azCgiVars[] = {
+  static const char *const azCgiVars[] = {
     "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",
     "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
     "HTTP_ACCEPT_LANGUAGE", "HTTP_CONNECTION", "HTTP_HOST",

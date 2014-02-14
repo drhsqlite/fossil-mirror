@@ -14,7 +14,7 @@
 **   http://www.hwaci.com/drh/
 **
 *******************************************************************************
-**  
+**
 ** Code to generate the ticket listings
 */
 #include "config.h"
@@ -45,7 +45,7 @@ void view_list(void){
   if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST<br />\n", -1);
   zScript = ticket_reportlist_code();
   if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST_SCRIPT<br />\n", -1);
-  
+
   blob_zero(&ril);
   ticket_init();
 
@@ -72,10 +72,10 @@ void view_list(void){
       blob_appendf(&ril, "[%zcopy</a>] ",
                    href("%R/rptedit?rn=%d&copy=1", rn));
     }
-    if( g.perm.Admin 
+    if( g.perm.Admin
      || (g.perm.WrTkt && zOwner && fossil_strcmp(g.zLogin,zOwner)==0)
     ){
-      blob_appendf(&ril, "[%zedit</a>]", 
+      blob_appendf(&ril, "[%zedit</a>]",
                          href("%R/rptedit?rn=%d", rn));
     }
     if( g.perm.TktFmt ){
@@ -87,9 +87,9 @@ void view_list(void){
   db_finalize(&q);
 
   Th_Store("report_items", blob_str(&ril));
-  
+
   Th_Render(zScript);
-  
+
   blob_reset(&ril);
   if( g.thTrace ) Th_Trace("END_REPORTLIST<br />\n", -1);
 
@@ -207,7 +207,7 @@ int report_query_authorizer(
       *(char**)pError = mprintf("recursive queries are not allowed");
       rc = SQLITE_DENY;
       break;
-    }       
+    }
     default: {
       *(char**)pError = mprintf("only SELECT statements are allowed");
       rc = SQLITE_DENY;
@@ -264,10 +264,10 @@ char *verify_sql_statement(char *zSql){
       }
     }
   }
-  
+
   /* Compile the statement and check for illegal accesses or syntax errors. */
   report_restrict_sql(&zErr);
-  rc = sqlite3_prepare(g.db, zSql, -1, &pStmt, &zTail);
+  rc = sqlite3_prepare_v2(g.db, zSql, -1, &pStmt, &zTail);
   if( rc!=SQLITE_OK ){
     zErr = mprintf("Syntax error: %s", sqlite3_errmsg(g.db));
   }
@@ -385,7 +385,7 @@ void view_edit(void){
     if( zSQL[0]==0 ){
       zErr = "Please supply an SQL query statement";
     }else if( (zTitle = trim_string(zTitle))[0]==0 ){
-      zErr = "Please supply a title"; 
+      zErr = "Please supply a title";
     }else{
       zErr = verify_sql_statement(zSQL);
     }
@@ -652,13 +652,13 @@ struct GenerateHTML {
 static int generate_html(
   void *pUser,     /* Pointer to output state */
   int nArg,        /* Number of columns in this result row */
-  char **azArg,    /* Text of data in all columns */
-  char **azName    /* Names of the columns */
+  const char **azArg, /* Text of data in all columns */
+  const char **azName /* Names of the columns */
 ){
   struct GenerateHTML *pState = (struct GenerateHTML*)pUser;
   int i;
   const char *zTid;  /* Ticket UUID.  (value of column named '#') */
-  char *zBg = 0;     /* Use this background color */
+  const char *zBg = 0; /* Use this background color */
 
   /* Do initialization
   */
@@ -712,7 +712,7 @@ static int generate_html(
     @ <thead><tr>
     zTid = 0;
     for(i=0; i<nArg; i++){
-      char *zName = azName[i];
+      const char *zName = azName[i];
       if( i==pState->iBg ) continue;
       if( pState->iNewRow>=0 && i>=pState->iNewRow ){
         if( g.perm.Write && zTid ){
@@ -755,7 +755,7 @@ static int generate_html(
   @ <tr style="background-color:%h(zBg)">
   zTid = 0;
   for(i=0; i<nArg; i++){
-    char *zData;
+    const char *zData;
     if( i==pState->iBg ) continue;
     zData = azArg[i];
     if( zData==0 ) zData = "";
@@ -817,8 +817,8 @@ static void output_no_tabs(const char *z){
 static int output_tab_separated(
   void *pUser,     /* Pointer to row-count integer */
   int nArg,        /* Number of columns in this result row */
-  char **azArg,    /* Text of data in all columns */
-  char **azName    /* Names of the columns */
+  const char **azArg, /* Text of data in all columns */
+  const char **azName /* Names of the columns */
 ){
   int *pCount = (int*)pUser;
   int i;
@@ -842,14 +842,15 @@ static int output_tab_separated(
 */
 void output_color_key(const char *zClrKey, int horiz, char *zTabArgs){
   int i, j, k;
-  char *zSafeKey, *zToFree;
+  const char *zSafeKey;
+  char *zToFree;
   while( fossil_isspace(*zClrKey) ) zClrKey++;
   if( zClrKey[0]==0 ) return;
   @ <table %s(zTabArgs)>
   if( horiz ){
     @ <tr>
   }
-  zToFree = zSafeKey = mprintf("%h", zClrKey);
+  zSafeKey = zToFree = mprintf("%h", zClrKey);
   while( zSafeKey[0] ){
     while( fossil_isspace(*zSafeKey) ) zSafeKey++;
     for(i=0; zSafeKey[i] && !fossil_isspace(zSafeKey[i]); i++){}
@@ -875,19 +876,20 @@ void output_color_key(const char *zClrKey, int horiz, char *zTabArgs){
 ** Execute a single read-only SQL statement.  Invoke xCallback() on each
 ** row.
 */
-int sqlite3_exec_readonly(
+static int db_exec_readonly(
   sqlite3 *db,                /* The database on which the SQL executes */
   const char *zSql,           /* The SQL to be executed */
-  sqlite3_callback xCallback, /* Invoke this callback routine */
+  int (*xCallback)(void*,int,const char**, const char**),
+                              /* Invoke this callback routine */
   void *pArg,                 /* First argument to xCallback() */
   char **pzErrMsg             /* Write error messages here */
 ){
   int rc = SQLITE_OK;         /* Return code */
   const char *zLeftover;      /* Tail of unprocessed SQL */
   sqlite3_stmt *pStmt = 0;    /* The current SQL statement */
-  char **azCols = 0;          /* Names of result columns */
+  const char **azCols = 0;    /* Names of result columns */
   int nCol;                   /* Number of columns of output */
-  char **azVals = 0;          /* Text of all output columns */
+  const char **azVals = 0;    /* Text of all output columns */
   int i;                      /* Loop counter */
 
   pStmt = 0;
@@ -914,11 +916,11 @@ int sqlite3_exec_readonly(
     if( azCols==0 ){
       azCols = &azVals[nCol];
       for(i=0; i<nCol; i++){
-        azCols[i] = (char *)sqlite3_column_name(pStmt, i);
+        azCols[i] = sqlite3_column_name(pStmt, i);
       }
     }
     for(i=0; i<nCol; i++){
-      azVals[i] = (char *)sqlite3_column_text(pStmt, i);
+      azVals[i] = (const char *)sqlite3_column_text(pStmt, i);
     }
     if( xCallback(pArg, nCol, azVals, azCols) ){
       break;
@@ -1067,9 +1069,9 @@ void rptview_page(void){
     struct GenerateHTML sState;
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
-    style_submenu_element("Raw", "Raw", 
+    style_submenu_element("Raw", "Raw",
       "rptview?tablist=1&%h", PD("QUERY_STRING",""));
-    if( g.perm.Admin 
+    if( g.perm.Admin
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "Edit", "rptedit?rn=%d", rn);
     }
@@ -1081,14 +1083,14 @@ void rptview_page(void){
         "%s/tktnew", g.zTop);
     }
     style_header(zTitle);
-    output_color_key(zClrKey, 1, 
+    output_color_key(zClrKey, 1,
         "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
     @ <table border="1" cellpadding="2" cellspacing="0" class="report"
     @  id="reportTable">
     sState.rn = rn;
     sState.nCount = 0;
     report_restrict_sql(&zErr1);
-    sqlite3_exec_readonly(g.db, zSql, generate_html, &sState, &zErr2);
+    db_exec_readonly(g.db, zSql, generate_html, &sState, &zErr2);
     report_unrestrict_sql();
     @ </tbody></table>
     if( zErr1 ){
@@ -1100,7 +1102,7 @@ void rptview_page(void){
     style_footer();
   }else{
     report_restrict_sql(&zErr1);
-    sqlite3_exec_readonly(g.db, zSql, output_tab_separated, &count, &zErr2);
+    db_exec_readonly(g.db, zSql, output_tab_separated, &count, &zErr2);
     report_unrestrict_sql();
     cgi_set_content_type("text/plain");
   }
@@ -1179,7 +1181,7 @@ static void output_no_tabs_file(const char *z){
         }
         z += j;
       }
-      break; 
+      break;
   }
 }
 
@@ -1189,8 +1191,8 @@ static void output_no_tabs_file(const char *z){
 int output_separated_file(
   void *pUser,     /* Pointer to row-count integer */
   int nArg,        /* Number of columns in this result row */
-  char **azArg,    /* Text of data in all columns */
-  char **azName    /* Names of the columns */
+  const char **azArg, /* Text of data in all columns */
+  const char **azName /* Names of the columns */
 ){
   int *pCount = (int*)pUser;
   int i;
@@ -1214,7 +1216,7 @@ int output_separated_file(
 ** The output is written to stdout as flat file. The zFilter parameter
 ** is a full WHERE-condition.
 */
-void rptshow( 
+void rptshow(
     const char *zRep,
     const char *zSepIn,
     const char *zFilter,
@@ -1253,7 +1255,7 @@ void rptshow(
   tktEncode = enc;
   zSep = zSepIn;
   report_restrict_sql(&zErr1);
-  sqlite3_exec_readonly(g.db, zSql, output_separated_file, &count, &zErr2);
+  db_exec_readonly(g.db, zSql, output_separated_file, &count, &zErr2);
   report_unrestrict_sql();
   if( zFilter ){
     free(zSql);

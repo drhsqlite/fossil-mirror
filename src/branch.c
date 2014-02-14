@@ -53,7 +53,8 @@ void branch_new(void){
     usage("new BRANCH-NAME BASIS ?OPTIONS?");
   }
   db_find_and_open_repository(0, 0);
-  noSign = db_get_int("omitsign", 0)|noSign;
+  noSign = db_get_boolean("omitsign", 0)|noSign;
+  if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
 
   /* fossil branch new name */
   zBranch = g.argv[3];
@@ -369,12 +370,6 @@ void brlist_page(void){
     @ </ul>
   }
   db_finalize(&q);
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }
 
@@ -424,11 +419,5 @@ void brtimeline_page(void){
   );
   www_print_timeline(&q, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }

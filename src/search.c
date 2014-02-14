@@ -137,7 +137,7 @@ int search_score(Search *p, const char *zDoc){
   for(j=0; j<p->nTerm; j++){
     if( !seen[j] ) return 0;
   }
-      
+
   return score;
 }
 

@@ -111,6 +111,22 @@ void show_common_info(
     }
     db_finalize(&q);
   }
+  if( zUuid ){
+    fossil_print("%-13s ", "leaf:");
+    if(is_a_leaf(rid)){
+      if(db_int(0, "SELECT 1 FROM tagxref AS tx"
+                " WHERE tx.rid=%d"
+                " AND tx.tagid=%d"
+                " AND tx.tagtype>0",
+                rid, TAG_CLOSED)){
+        fossil_print("%s\n", "closed");
+      }else{
+        fossil_print("%s\n", "open");
+      }
+    }else{
+      fossil_print("no\n");
+    }
+  }
   zTags = info_tags_of_checkin(rid, 0);
   if( zTags && zTags[0] ){
     fossil_print("tags:         %s\n", zTags);
@@ -919,11 +935,12 @@ static void checkin_description(int rid){
 **
 ** Query parameters:
 **
-**   from=TAG
-**   to=TAG
-**   branch=TAG
-**   v=BOOLEAN
-**   sbs=BOOLEAN
+**   from=TAG        Left side of the comparison
+**   to=TAG          Right side of the comparison
+**   branch=TAG      Show all changes on a particular branch
+**   v=BOOLEAN       Default true.  If false, only list files that have changed
+**   sbs=BOOLEAN     Side-by-side diff if true.  Unified diff if false
+**   glob=STRING     only diff files matching this glob
 **
 **
 ** Show all differences between two checkins.
@@ -940,12 +957,11 @@ void vdiff_page(void){
   const char *zTo;
   const char *zRe;
   const char *zVerbose;
+  const char *zGlob;
   ReCompiled *pRe = 0;
-
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   login_anonymous_available();
-
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
   zBranch = P("branch");
@@ -967,26 +983,42 @@ void vdiff_page(void){
   }
   verboseFlag = (zVerbose!=0) && !is_false(zVerbose);
   if( !verboseFlag && sideBySide ) verboseFlag = 1;
+  zGlob = P("glob");
   zFrom = P("from");
   zTo = P("to");
+  if(zGlob && !*zGlob){
+    zGlob = NULL;
+  }
   if( sideBySide || verboseFlag ){
     style_submenu_element("Hide Diff", "hidediff",
-                          "%R/vdiff?from=%T&to=%T&sbs=0",
-                          zFrom, zTo);
+                          "%R/vdiff?from=%T&to=%T&sbs=0%s%T",
+                          zFrom, zTo,
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "");
   }
   if( !sideBySide ){
     style_submenu_element("Side-by-side Diff", "sbsdiff",
-                          "%R/vdiff?from=%T&to=%T&sbs=1",
-                          zFrom, zTo);
+                          "%R/vdiff?from=%T&to=%T&sbs=1%s%T",
+                          zFrom, zTo,
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "");
   }
   if( sideBySide || !verboseFlag ) {
     style_submenu_element("Unified Diff", "udiff",
-                          "%R/vdiff?from=%T&to=%T&sbs=0&v",
-                          zFrom, zTo);
+                          "%R/vdiff?from=%T&to=%T&sbs=0&v%s%T",
+                          zFrom, zTo,
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "");
   }
   style_submenu_element("Invert", "invert",
-                        "%R/vdiff?from=%T&to=%T&sbs=%d%s", zTo, zFrom,
-                        sideBySide, (verboseFlag && !sideBySide)?"&v":"");
+                        "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T", zTo, zFrom,
+                        sideBySide, (verboseFlag && !sideBySide)?"&v":"",
+                        zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+  if( zGlob ){
+    style_submenu_element("Clear glob", "clearglob",
+                          "%R/vdiff?from=%T&to=%T&sbs=%d%s", zFrom, zTo,
+                          sideBySide, (verboseFlag && !sideBySide)?"&v":"");
+  }else{
+    style_submenu_element("Patch", "patch",
+                          "%R/vpatch?from=%T&to=%T", zFrom, zTo);
+  }
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
   checkin_description(ridFrom);
@@ -996,6 +1028,9 @@ void vdiff_page(void){
   if( pRe ){
     @ <p><b>Only differences that match regular expression "%h(zRe)"
     @ are shown.</b></p>
+  }
+  if( zGlob ){
+    @ <p><b>Only files matching the glob "%h(zGlob)" are shown.</b></p>
   }
   @<hr /><p>
 
@@ -1014,23 +1049,29 @@ void vdiff_page(void){
       cmp = fossil_strcmp(pFileFrom->zName, pFileTo->zName);
     }
     if( cmp<0 ){
-      append_file_change_line(pFileFrom->zName,
-                              pFileFrom->zUuid, 0, 0, diffFlags, pRe, 0);
+      if(!zGlob || strglob(zGlob, pFileFrom->zName)){
+        append_file_change_line(pFileFrom->zName,
+                                pFileFrom->zUuid, 0, 0, diffFlags, pRe, 0);
+      }
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
-      append_file_change_line(pFileTo->zName,
-                              0, pFileTo->zUuid, 0, diffFlags, pRe,
-                              manifest_file_mperm(pFileTo));
+      if(!zGlob || strglob(zGlob, pFileTo->zName)){
+        append_file_change_line(pFileTo->zName,
+                                0, pFileTo->zUuid, 0, diffFlags, pRe,
+                                manifest_file_mperm(pFileTo));
+      }
       pFileTo = manifest_file_next(pTo, 0);
     }else if( fossil_strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
-      /* No changes */
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
     }else{
-      append_file_change_line(pFileFrom->zName,
-                              pFileFrom->zUuid,
-                              pFileTo->zUuid, 0, diffFlags, pRe,
-                              manifest_file_mperm(pFileTo));
+      if(!zGlob || (strglob(zGlob, pFileFrom->zName)
+                || strglob(zGlob, pFileTo->zName))){
+        append_file_change_line(pFileFrom->zName,
+                                pFileFrom->zUuid,
+                                pFileTo->zUuid, 0, diffFlags, pRe,
+                                manifest_file_mperm(pFileTo));
+      }
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
     }
@@ -2374,7 +2415,7 @@ void ci_edit_page(void){
     @ <tr><th align="right" valign="top">Branch Hiding:</th>
     @ <td valign="top">
     @ <label><input type="checkbox" id="hidebr" name="hide"%s(zHideFlag) />
-    @ Hide branch 
+    @ Hide branch
     @ <span style="font-weight:bold" id="hbranch">%h(zBranchName)</span>
     @ from the timeline starting from this check-in</label>
     @ </td></tr>

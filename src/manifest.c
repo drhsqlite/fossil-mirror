@@ -53,7 +53,7 @@
 /*
 ** A single F-card within a manifest
 */
-struct ManifestFile { 
+struct ManifestFile {
   char *zName;           /* Name of a file */
   char *zUuid;           /* UUID of the file */
   char *zPerm;           /* File permissions */
@@ -91,7 +91,7 @@ struct Manifest {
   int nParentAlloc;     /* Slots allocated in azParent[] */
   char **azParent;      /* UUIDs of parents.  One for each P card argument */
   int nCherrypick;      /* Number of entries in aCherrypick[] */
-  struct {            
+  struct {
     char *zCPTarget;    /* UUID of cherry-picked version w/ +|- prefix */
     char *zCPBase;      /* UUID of cherry-pick baseline. NULL for singletons */
   } *aCherrypick;
@@ -107,7 +107,7 @@ struct Manifest {
   } *aTag;              /* One for each T card */
   int nField;           /* Number of J cards */
   int nFieldAlloc;      /* Slots allocated in aField[] */
-  struct { 
+  struct {
     char *zName;           /* Key or field name */
     char *zValue;          /* Value of the field */
   } *aField;            /* One for each J card */
@@ -253,7 +253,7 @@ static void remove_pgp_signature(char **pz, int *pn){
 ** exists and is correct.  Return 2 if the Z-card exists and has the wrong
 ** value.
 **
-**   0123456789 123456789 123456789 123456789 
+**   0123456789 123456789 123456789 123456789
 **   Z aea84f4f863865a8d59d0384e4d2a41c
 */
 static int verify_z_card(const char *z, int n){
@@ -437,7 +437,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         zName = next_token(&x, 0);
         zTarget = next_token(&x, &nTarget);
         zSrc = next_token(&x, &nSrc);
-        if( zName==0 || zTarget==0 ) goto manifest_syntax_error;      
+        if( zName==0 || zTarget==0 ) goto manifest_syntax_error;
         if( p->zAttachName!=0 ) goto manifest_syntax_error;
         defossilize(zName);
         if( !file_is_simple_pathname(zName, 0) ){
@@ -506,7 +506,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       /*
       **     E <timestamp> <uuid>
       **
-      ** An "event" card that contains the timestamp of the event in the 
+      ** An "event" card that contains the timestamp of the event in the
       ** format YYYY-MM-DDtHH:MM:SS and a unique identifier for the event.
       ** The event timestamp is distinct from the D timestamp.  The D
       ** timestamp is when the artifact was created whereas the E timestamp
@@ -553,7 +553,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         }
         if( p->nFile>=p->nFileAlloc ){
           p->nFileAlloc = p->nFileAlloc*2 + 10;
-          p->aFile = fossil_realloc(p->aFile, 
+          p->aFile = fossil_realloc(p->aFile,
                                     p->nFileAlloc*sizeof(p->aFile[0]) );
         }
         i = p->nFile++;
@@ -745,7 +745,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** a "*".
       **
       ** The tag is applied to <uuid>.  If <uuid> is "*" then the tag is
-      ** applied to the current manifest.  If <value> is provided then 
+      ** applied to the current manifest.  If <value> is provided then
       ** the tag is really a property with the given value.
       **
       ** Tags are not allowed in clusters.  Multiple T lines are allowed.
@@ -1052,7 +1052,7 @@ static int fetch_baseline(Manifest *p, int throwError){
            p->rid, rid
         );
         return 1;
-      }    
+      }
       fossil_fatal("cannot access baseline manifest %S", p->zBaseline);
     }
   }
@@ -1077,7 +1077,7 @@ void manifest_file_rewind(Manifest *p){
 ** occurs and pErr!=0 then store 1 in *pErr.
 */
 ManifestFile *manifest_file_next(
-  Manifest *p,   
+  Manifest *p,
   int *pErr
 ){
   ManifestFile *pOut = 0;
@@ -1221,7 +1221,7 @@ static void add_one_mlink(
 }
 
 /*
-** Do a binary search to find a file in the p->aFile[] array.  
+** Do a binary search to find a file in the p->aFile[] array.
 **
 ** As an optimization, guess that the file we seek is at index p->iFile.
 ** That will usually be the case.  If it is not found there, then do the
@@ -1265,14 +1265,14 @@ static ManifestFile *manifest_file_seek_base(Manifest *p, const char *zName){
 ** Return a pointer to the appropriate ManifestFile object.  Return NULL
 ** if not found.
 **
-** This routine works even if p is a delta-manifest.  The pointer 
+** This routine works even if p is a delta-manifest.  The pointer
 ** returned might be to the baseline.
 **
 ** We assume that filenames are in sorted order and use a binary search.
 */
 ManifestFile *manifest_file_seek(Manifest *p, const char *zName){
   ManifestFile *pFile;
-  
+
   pFile = manifest_file_seek_base(p, zName);
   if( pFile && pFile->zUuid==0 ) return 0;
   if( pFile==0 && p->zBaseline ){
@@ -1364,11 +1364,11 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   isPublic = !content_is_private(cid);
 
   /* Try to make the parent manifest a delta from the child, if that
-  ** is an appropriate thing to do.  For a new baseline, make the 
+  ** is an appropriate thing to do.  For a new baseline, make the
   ** previous baseline a delta from the current baseline.
   */
   if( (pParent->zBaseline==0)==(pChild->zBaseline==0) ){
-    content_deltify(pid, cid, 0); 
+    content_deltify(pid, cid, 0);
   }else if( pChild->zBaseline==0 && pParent->zBaseline!=0 ){
     content_deltify(pParent->pBaseline->rid, cid, 0);
   }
@@ -1387,7 +1387,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
 
   /* First look at all files in pChild, ignoring its baseline.  This
   ** is where most of the changes will be found.
-  */  
+  */
   for(i=0, pChildFile=pChild->aFile; i<pChild->nFile; i++, pChildFile++){
     int mperm = manifest_file_mperm(pChildFile);
     if( pChildFile->zPrior ){
@@ -1452,7 +1452,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     while( (pParentFile = manifest_file_next(pParent,0))!=0 ){
       pChildFile = manifest_file_seek(pChild, pParentFile->zName);
       if( pChildFile==0 && pParentFile->zUuid!=0 ){
-        add_one_mlink(cid, pParentFile->zUuid, 0, pParentFile->zName, 0, 
+        add_one_mlink(cid, pParentFile->zUuid, 0, pParentFile->zName, 0,
                       isPublic, 0);
       }
     }
@@ -1580,7 +1580,7 @@ void manifest_ticket_event(
     zTitleExpr = db_get("ticket-title-expr", "title");
     zStatusColumn = db_get("ticket-status-column", "status");
   }
-  zTitle = db_text("unknown", 
+  zTitle = db_text("unknown",
     "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
     zTitleExpr, pManifest->zTicketUuid
   );
@@ -1601,7 +1601,7 @@ void manifest_ticket_event(
       blob_appendf(&brief, "%h ticket [%.10s].",
                    zNewStatus, pManifest->zTicketUuid);
     }else{
-      zNewStatus = db_text("unknown", 
+      zNewStatus = db_text("unknown",
          "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
          zStatusColumn, pManifest->zTicketUuid
       );
@@ -1663,7 +1663,7 @@ static int tag_compare(const void *a, const void *b){
 ** in the auxiliary tables of the database in order to crosslink the
 ** artifact.
 **
-** If global variable g.xlinkClusterOnly is true, then ignore all 
+** If global variable g.xlinkClusterOnly is true, then ignore all
 ** control artifacts other than clusters.
 **
 ** This routine always resets the pContent blob before returning.
@@ -1746,7 +1746,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),%.17g);",
         TAG_DATE, rid, p->rDate,
-        rid, p->zUser, p->zComment, 
+        rid, p->zUser, p->zComment,
         TAG_BGCOLOR, rid,
         TAG_USER, rid,
         TAG_COMMENT, rid, p->rDate
@@ -1804,7 +1804,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
             fossil_error(1, "unknown tag type in manifest: %s", p->aTag);
             return 0;
         }
-        tag_insert(&p->aTag[i].zName[1], type, p->aTag[i].zValue, 
+        tag_insert(&p->aTag[i].zName[1], type, p->aTag[i].zValue,
                    rid, p->rDate, tid);
       }
     }
@@ -1845,7 +1845,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>1),"
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
-      p->rDate, rid, p->zUser, zComment, 
+      p->rDate, rid, p->zUser, zComment,
       TAG_BGCOLOR, rid,
       TAG_BGCOLOR, rid,
       TAG_USER, rid,
@@ -1895,7 +1895,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         "REPLACE INTO event(type,mtime,objid,tagid,user,comment,bgcolor)"
         "VALUES('e',%.17g,%d,%d,%Q,%Q,"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
-        p->rEventDate, rid, tagid, p->zUser, p->zComment, 
+        p->rEventDate, rid, tagid, p->zUser, p->zComment,
         TAG_BGCOLOR, rid
       );
     }
@@ -1927,7 +1927,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
        p->zAttachTarget, p->zAttachName
     );
     if( strlen(p->zAttachTarget)!=UUID_SIZE
-     || !validate16(p->zAttachTarget, UUID_SIZE) 
+     || !validate16(p->zAttachTarget, UUID_SIZE)
     ){
       char *zComment;
       if( p->zAttachSrc && p->zAttachSrc[0] ){

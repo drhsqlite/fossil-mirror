@@ -77,7 +77,7 @@ void bag_clear(Bag *p){
 ** it contains N slots
 **
 ** Completely reconstruct the hash table from scratch.  Deleted
-** entries (indicated by a -1) are removed.  When finished, it 
+** entries (indicated by a -1) are removed.  When finished, it
 ** should be the case that p->cnt==p->used.
 */
 static void bag_resize(Bag *p, int newSize){

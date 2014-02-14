@@ -46,7 +46,7 @@ fossil commit -m "c4"
 
 fossil update pivot
 fossil mv f1 f2
-exec mv f1 f2
+file rename -force f1 f2
 fossil commit -b rename -m "c5"
 
 fossil merge trunk
@@ -76,7 +76,7 @@ if {$deletes!=0} {
 }
 
 fossil close -f
-exec rm rep.fossil
+file delete rep.fossil
 
 ######################################
 #  Test 2                            #
@@ -96,7 +96,7 @@ fossil add f2
 fossil commit -m "newfile"
 
 fossil mv f2 f2new
-exec mv f2 f2new
+file rename -force f2 f2new
 fossil commit -m "rename"
 
 fossil update pivot
@@ -128,7 +128,7 @@ if {$deletes!=0} {
 }
 
 fossil close -f
-exec rm rep.fossil
+file delete rep.fossil
 
 ######################################
 #  Test 3                            #
@@ -148,7 +148,7 @@ fossil add f2
 fossil commit -m "newfile"
 
 fossil mv f2 f2new
-exec mv f2 f2new
+file rename -force f2 f2new
 fossil commit -m "rename"
 
 fossil update pivot
@@ -180,7 +180,7 @@ if {$deletes!=0} {
 }
 
 fossil close -f
-exec rm rep.fossil
+file delete rep.fossil
 
 ######################################
 #  Test 4                            #

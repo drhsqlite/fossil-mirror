@@ -46,7 +46,7 @@
 */
 struct Stmt {
   Blob sql;               /* The SQL for this statement */
-  sqlite3_stmt *pStmt;    /* The results of sqlite3_prepare() */
+  sqlite3_stmt *pStmt;    /* The results of sqlite3_prepare_v2() */
   Stmt *pNext, *pPrev;    /* List of all unfinalized statements */
   int nStep;              /* Number of sqlite3_step() calls */
 };
@@ -110,7 +110,7 @@ static struct DbLocalData {
   int doRollback;           /* True to force a rollback */
   int nCommitHook;          /* Number of commit hooks */
   Stmt *pAllStmt;           /* List of all unfinalized statements */
-  int nPrepare;             /* Number of calls to sqlite3_prepare() */
+  int nPrepare;             /* Number of calls to sqlite3_prepare_v2() */
   int nDeleteOnFail;        /* Number of entries in azDeleteOnFail[] */
   struct sCommitHook {
     int (*xHook)(void);         /* Functions to call at db_end_transaction() */
@@ -718,13 +718,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   sqlite3 *db;
 
 #if defined(__CYGWIN__)
-  /* Necessary if we want Cygwin fossil to recognize win32 file
-   * paths, as SQLite doesn't handle that (yet) */
   zDbName = fossil_utf8_to_filename(zDbName);
-#elif defined(_WIN32)
-  /* Only necessary when SQLite doesn't handle Extended paths. */
-  zDbName = fossil_utf8_to_filename(zDbName);
-  zDbName = fossil_filename_to_utf8(zDbName);
 #endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   rc = sqlite3_open_v2(

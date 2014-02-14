@@ -1,6 +1,16 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.28 (as yet unreleased)</h2>
+<h2>Changes For Version 1.29 (as yet unreleased)</h2>
+  *  Add the ability to display content and diffs for UTF16 text files
+     in the web interface.
+  *  Honor timezones in imports from git.
+  *  The [/reports] page now requires Read ("o") permissions. The "byweek"
+     report now properly propagates the selected year through the event type
+     filter links.
+  *  The [/help/info | info command] now shows leaf status of the checkout.
+  *  Add support for tunneling https through a http proxy (Ticket [e854101c4f]).
+
+<h2>Changes For Version 1.28 (2014-01-27)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
   *  When cloning a repository, the user name passed via the URL (if any)
      is now used as the default local admin user's name.

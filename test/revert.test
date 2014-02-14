@@ -93,12 +93,12 @@ fossil commit -m "c1"
 write_file f0 "f0"
 fossil add f0
 # Remove f1
-exec rm f1
+file delete f1
 fossil rm f1
 # Edit f2
 write_file f2 "f2.1"
 # Rename f3 to f3n
-exec mv f3 f3n
+file rename -force f3 f3n
 fossil mv f3 f3n
 
 # Test 'fossil revert' with no arguments

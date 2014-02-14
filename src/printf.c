@@ -861,7 +861,7 @@ void fossil_puts(const char *z, int toStdErr){
 }
 
 /*
-** Force the standard output cursor to move to the beginning 
+** Force the standard output cursor to move to the beginning
 ** of a line, if it is not there already.
 */
 void fossil_force_newline(void){
@@ -920,7 +920,7 @@ static void fossil_errorlog(const char *zFormat, ...){
   const char *z;
   int i;
   va_list ap;
-  static const char *azEnv[] = { "HTTP_HOST", "HTTP_USER_AGENT",
+  static const char *const azEnv[] = { "HTTP_HOST", "HTTP_USER_AGENT",
       "PATH_INFO", "QUERY_STRING", "REMOTE_ADDR", "REQUEST_METHOD",
       "REQUEST_URI", "SCRIPT_NAME" };
   if( g.zErrlog==0 ) return;

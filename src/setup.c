@@ -251,10 +251,7 @@ void setup_ulist(void){
      @ <tr><th valign="top">x</th>
      @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
      @ <tr><th valign="top">z</th>
-     @   <td><i>Zip download:</i> Download a baseline via the
-     @   <tt>/zip</tt> URL even without
-     @    check<span class="capability">o</span>ut
-     @    and <span class="capability">h</span>istory permissions</td></tr>
+     @   <td><i>Zip download:</i> Download a ZIP archive or tarball</td></tr>
   @ </table>
   @ </li>
   @
@@ -861,7 +858,7 @@ static void multiple_choice_attribute(
   const char *zQP,      /* The query parameter */
   const char *zDflt,    /* Default value if VAR table entry does not exist */
   int nChoice,          /* Number of choices */
-  const char **azChoice /* Choices. 2 per choice: (VAR value, Display) */
+  const char *const *azChoice /* Choices. 2 per choice: (VAR value, Display) */
 ){
   const char *z = db_get(zVar, (char*)zDflt);
   const char *zQ = P(zQP);
@@ -876,7 +873,7 @@ static void multiple_choice_attribute(
     const char *zSel = fossil_strcmp(azChoice[i],z)==0 ? " selected" : "";
     @ <option value="%h(azChoice[i])"%s(zSel)>%h(azChoice[i+1])</option>
   }
-  @ </select>
+  @ </select> <b>%h(zLabel)</b>
 }
 
 
@@ -977,7 +974,7 @@ void setup_access(void){
   @ being and not a a robot or spider and (2) the user agent is able to
   @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
   @ and spiders can forge a User-Agent string that makes them seem to be a
-  @ normal browser and they can run javascript just like browsers.  But most 
+  @ normal browser and they can run javascript just like browsers.  But most
   @ bots do not go to that much trouble so this is normally an effective defense.</p>
   @
   @ <p>You do not normally want a bot to walk your entire repository because
@@ -985,7 +982,7 @@ void setup_access(void){
   @ every historical version of every file and creating ZIPs and tarballs of
   @ every historical check-in, which can use a lot of CPU and bandwidth
   @ even for relatively small projects.</p>
-  @ 
+  @
   @ <p>Additional parameters that control this behavior:</p>
   @ <blockquote>
   onoff_attribute("Require mouse movement before enabling hyperlinks",
@@ -1153,7 +1150,7 @@ void setup_login_group(void){
 void setup_timeline(void){
   double tmDiff;
   char zTmDiff[20];
-  static const char *azTimeFormats[] = {
+  static const char *const azTimeFormats[] = {
       "0", "HH:MM",
       "1", "HH:MM:SS",
       "2", "YYYY-MM-DD HH:MM",
@@ -1179,7 +1176,8 @@ void setup_timeline(void){
   onoff_attribute("Plaintext comments on timelines",
                   "timeline-plaintext", "tpt", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed literally,
-  @ without any wiki or HTML interpretation.</p>
+  @ without any wiki or HTML interpretation.  (Note: Use CSS to change
+  @ display formatting features such as fonts and line-wrapping behavior.)</p>
 
   @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",

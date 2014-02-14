@@ -101,6 +101,29 @@ void Th_PrintTraceLog(){
 }
 
 /*
+** TH command:      httpize STRING
+**
+** Escape all characters of STRING which have special meaning in URI
+** components. Return a new string result.
+*/
+static int httpizeCmd(
+  Th_Interp *interp, 
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  char *zOut;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "httpize STRING");
+  }
+  zOut = httpize((char*)argv[1], argl[1]);
+  Th_SetResult(interp, zOut, -1);
+  free(zOut);
+  return TH_OK;
+}
+
+/*
 ** True if output is enabled.  False if disabled.
 */
 static int enableOutput = 1;
@@ -974,6 +997,7 @@ void Th_FossilInit(u32 flags){
     {"date",          dateCmd,              0},
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"enable_output", enableOutputCmd,      0},
+    {"httpize",       httpizeCmd,           0},
     {"hascap",        hascapCmd,            0},
     {"hasfeature",    hasfeatureCmd,        0},
     {"html",          putsCmd,              (void*)&aFlags[0]},
