@@ -18,6 +18,7 @@
 ** This module codes the main() procedure that runs first when the
 ** program is invoked.
 */
+#include "VERSION.h"
 #include "config.h"
 #include "main.h"
 #include <string.h>

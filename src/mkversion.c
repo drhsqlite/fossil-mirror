@@ -71,5 +71,10 @@ int main(int argc, char *argv[]){
     printf("#define RELEASE_RESOURCE_VERSION %s", vx);
     while( d<3 ){ printf(",0"); d++; }
     printf("\n");
+#if defined(_MSC_VER)
+    d = _MSC_VER / 100;
+    x = _MSC_VER % 100;
+    printf("#define COMPILER_VERSION \"%d.%02d\"\n", d, x);
+#endif
     return 0;
 }

@@ -1,5 +1,5 @@
-C Handle\smore\scorner\scases\swhen\slocating\sthe\stitle\sfor\swiki\spages.
-D 2014-02-15T01:44:53.176
+C Further\simprove\sreporting\sof\sthe\scompiler\sversion\sinformation.
+D 2014-02-15T03:03:31.010
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -323,7 +323,7 @@ F src/checkout.c 42168fb4f49498acdf38a6889cd84c86ee8870db
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 73486de219e964230427d3246f9625c693afc999
 F src/comformat.c ef14fd3e1d156cd0d30a039d76edc5ca97088d7b
-F src/config.h 531a34adf59c4851aabab2cf0f01a84a7e8d1325
+F src/config.h 8c2e32a5308df803da2daf34572cbe7195a099fc
 F src/configure.c 3d6e23b7e4d8ba75737c60c78b6e36b594dc00fc
 F src/content.c 5a1a614acc062eef02563cf75746f34e77f7edb9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
@@ -350,7 +350,7 @@ F src/http_ssl.c 8638fbf0fb6be81b617d4e851c676ef62fad8361
 F src/http_transport.c f6b79299ea197c26e9137a7b68b28885edb1b463
 F src/import.c be7a31538a60d2b1d89526862f75edfac74e6c3c
 F src/info.c a3d297f90e3460c4659c721a8811d795f3d14925
-F src/json.c 814026f080bfa2d198fb88b333d9ef218df33ca7
+F src/json.c d3104315937aaa3508d9844d38f479725f66b400
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c aa922544841030c688df33aec81cca05577bbb7d
 F src/json_config.c 1f45ed837ec55e0855c498eae38cc66d8da29e75
@@ -369,7 +369,7 @@ F src/json_wiki.c 3ef3369d9107698e407f917ab61be1abac73eef5
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c c25ebdded497e5f24101c01b53f7747257f16577
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c f3e06bf8c9717352c5ffaa14c55190c19dd420e5
+F src/main.c 4c789c29b5a009931c501f9131089a64e53ffa53
 F src/main.mk f8beee5136c71a3f7a47b3f68ce8de7b232146d8
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -381,7 +381,7 @@ F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
 F src/merge.c 8f32bbf06caf1227babc225dc2efd584467f9db4
 F src/merge3.c 74f9e253b9ca6ca31bc8d47eeed5e353472df3ca
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
-F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
+F src/mkversion.c 7330febca0d049d79ea265fafcb5fa24988fdb23
 F src/moderate.c 5feb233fd9291b5b4f826d91e3fd987e082694e8
 F src/name.c 049359986178e3f44a652fb24a05b81ec8c59a12
 F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
@@ -404,8 +404,8 @@ F src/sqlcmd.c 6b4958b9250369d74a0cb0432fa46d4b41797c9a
 F src/sqlite3.c 990004ef2d0eec6a339e4caa562423897fe02bf0
 F src/sqlite3.h ca27beb66b20a1ff488d668e9f1b83a7629d9c59
 F src/stash.c 43c6eecebaf0fd9a57ac1ee3423487b29e3baedf
-F src/stat.c 28b9be27fd580b4b2dac60226ae296e55b2c9c9e
-F src/style.c f01936f4ebedaaa3fa42bdd6ea65fac134bf1a02
+F src/stat.c 8b6946485253ea73fb3deee9fb742d794870e818
+F src/style.c 806530837482e77cd42dd9401d905fb23694e54e
 F src/sync.c bb1f61e400aaa9daa59c6972b1fd987276bd6d80
 F src/tag.c 239020dca344ddef82fcc50afe3f50275abaaa1a
 F src/tar.c 4fd4440b5f21e39937739b2f096dd1d72933893f
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 916e5a43db5d0b6583d57b7e40d14b943b08218f
-R f39b11e8feb97e71ada5f5ebaf7e3ce5
+P afc25dd4bc495ac5164220345a8812b62eb40530
+R 04d5410927cf4b824420d8ae53e4647a
 U mistachkin
-Z cf7bd2bb852c15fa33e8001ab1d9b6bb
+Z 25b83fc526a678377c6387cac50cb88a

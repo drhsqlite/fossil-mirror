@@ -32,8 +32,8 @@
 **
 **
 */
-#include "config.h"
 #include "VERSION.h"
+#include "config.h"
 #include "json.h"
 #include <assert.h>
 #include <time.h>

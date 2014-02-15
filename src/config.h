@@ -67,9 +67,9 @@
 /*
 ** Utility macro to wrap an argument with double quotes.
 */
-#if !defined(COMPILER_NAME_STRINGIFY)
-#  define COMPILER_NAME_STRINGIFY(x)  COMPILER_NAME_STRINGIFY1(x)
-#  define COMPILER_NAME_STRINGIFY1(x) #x
+#if !defined(COMPILER_STRINGIFY)
+#  define COMPILER_STRINGIFY(x)  COMPILER_STRINGIFY1(x)
+#  define COMPILER_STRINGIFY1(x) #x
 #endif
 
 /*
@@ -85,13 +85,29 @@
 #      define COMPILER_NAME "pellesc32"
 #    endif
 #  elif defined(_MSC_VER)
-#    define COMPILER_NAME "msc-" COMPILER_NAME_STRINGIFY(_MSC_VER)
+#    if !defined(COMPILER_VERSION)
+#      define COMPILER_VERSION COMPILER_STRINGIFY(_MSC_VER)
+#    endif
+#    define COMPILER_NAME "msc-" COMPILER_VERSION
 #  elif defined(__MINGW32__)
-#    define COMPILER_NAME "mingw32-" COMPILER_NAME_STRINGIFY(__MINGW32_VERSION)
+#    if defined(__GNUC__) && defined(__VERSION__)
+#      if !defined(COMPILER_VERSION)
+#        define COMPILER_VERSION COMPILER_STRINGIFY(__MINGW32_VERSION) "-gcc-" __VERSION__
+#      endif
+#      define COMPILER_NAME "mingw32-" COMPILER_VERSION
+#    else
+#      if !defined(COMPILER_VERSION)
+#        define COMPILER_VERSION COMPILER_STRINGIFY(__MINGW32_VERSION)
+#      endif
+#      define COMPILER_NAME "mingw32-" COMPILER_VERSION
+#    endif
 #  elif defined(_WIN32)
 #    define COMPILER_NAME "win32"
 #  elif defined(__GNUC__)
-#    define COMPILER_NAME "gcc-" __VERSION__
+#    if !defined(COMPILER_VERSION)
+#      define COMPILER_VERSION __VERSION__
+#    endif
+#    define COMPILER_NAME "gcc-" COMPILER_VERSION
 #  else
 #    define COMPILER_NAME "unknown"
 #  endif

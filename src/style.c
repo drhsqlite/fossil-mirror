@@ -18,6 +18,7 @@
 ** This file contains code to implement the basic web page look and feel.
 **
 */
+#include "VERSION.h"
 #include "config.h"
 #include "style.h"
 
