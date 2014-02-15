@@ -1,5 +1,5 @@
-C Cleanup\smakefile\sfor\sMSVC\sand\sadd\soptional\sTcl\ssupport\sto\sit.
-D 2014-02-15T05:23:44.125
+C Pretend\sto\sbe\sdrh\sso\smerge5\stests\srun\swithout\serror.
+D 2014-02-15T05:27:05.214
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -449,7 +449,7 @@ F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
 F test/merge2.test 1915d0a7cf117dd7448d6ccc30b54b4cd85a942c
 F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
-F test/merge5.test 5447884e828abd47bb25d363342acc94269f36a8
+F test/merge5.test 28cc9adf08343456fae9f2d9001c35ec62a78f31
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge_renames.test 0255bd0c574cacee551be2c070842a39669714d0
 F test/release-checklist.wiki f4f0e97da511a9c54cd6d49d8c6755d7e1f49d0f
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 43dbc41226a67166bd4596ebae04679daef6901f
-R cddd20ec517152877f4d2fca5d136251
-U mistachkin
-Z 43afe3cb78961fbf7a426515d886bebd
+P 4321595901edb465d327b0255b224428ccb154cf
+R 0f5ccd94e814c13d8ecaf6a03a5fef5a
+U joel
+Z c78ffbc064afdab8358b622f9ddcac62
