@@ -65,6 +65,14 @@
 #endif
 
 /*
+** Utility macro to wrap an argument with double quotes.
+*/
+#if !defined(COMPILER_NAME_STRINGIFY)
+#  define COMPILER_NAME_STRINGIFY(x)  COMPILER_NAME_STRINGIFY1(x)
+#  define COMPILER_NAME_STRINGIFY1(x) #x
+#endif
+
+/*
 ** Define the compiler variant, used to compile the project
 */
 #if !defined(COMPILER_NAME)
@@ -77,9 +85,9 @@
 #      define COMPILER_NAME "pellesc32"
 #    endif
 #  elif defined(_MSC_VER)
-#    define COMPILER_NAME "msc"
+#    define COMPILER_NAME "msc-" COMPILER_NAME_STRINGIFY(_MSC_VER)
 #  elif defined(__MINGW32__)
-#    define COMPILER_NAME "mingw32"
+#    define COMPILER_NAME "mingw32-" COMPILER_NAME_STRINGIFY(__MINGW32_VERSION)
 #  elif defined(_WIN32)
 #    define COMPILER_NAME "win32"
 #  elif defined(__GNUC__)
