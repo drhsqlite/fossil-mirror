@@ -1,5 +1,5 @@
-C Further\simprove\sreporting\sof\sthe\scompiler\sversion\sinformation.
-D 2014-02-15T03:03:31.010
+C Expand\sversion\sreporting\ssupport\sto\sall\scompilers\swith\sin-tree\smakefiles.
+D 2014-02-15T03:49:40.930
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -323,7 +323,7 @@ F src/checkout.c 42168fb4f49498acdf38a6889cd84c86ee8870db
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 73486de219e964230427d3246f9625c693afc999
 F src/comformat.c ef14fd3e1d156cd0d30a039d76edc5ca97088d7b
-F src/config.h 8c2e32a5308df803da2daf34572cbe7195a099fc
+F src/config.h ed617caa7d4ce73785cbcafc340dde9af09bfa7f
 F src/configure.c 3d6e23b7e4d8ba75737c60c78b6e36b594dc00fc
 F src/content.c 5a1a614acc062eef02563cf75746f34e77f7edb9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
@@ -381,7 +381,7 @@ F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
 F src/merge.c 8f32bbf06caf1227babc225dc2efd584467f9db4
 F src/merge3.c 74f9e253b9ca6ca31bc8d47eeed5e353472df3ca
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
-F src/mkversion.c 7330febca0d049d79ea265fafcb5fa24988fdb23
+F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
 F src/moderate.c 5feb233fd9291b5b4f826d91e3fd987e082694e8
 F src/name.c 049359986178e3f44a652fb24a05b81ec8c59a12
 F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P afc25dd4bc495ac5164220345a8812b62eb40530
-R 04d5410927cf4b824420d8ae53e4647a
+P b065aff4b94996282c40e4b1b705ada3ca290da2
+R 5f6e0c72cd6136b4a9bb0fe055619cdc
 U mistachkin
-Z 25b83fc526a678377c6387cac50cb88a
+Z 8ccaef1e696a86537d4297ab0dd5148f
