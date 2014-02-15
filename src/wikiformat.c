@@ -1741,10 +1741,18 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
   if( z[i]!='<' ) return 0;
   i++;
   if( strncmp(&z[i],"title>", 6)!=0 ) return 0;
-  iStart = i+6;
+  for(iStart=i+6; fossil_isspace(z[iStart]); iStart++){}
   for(i=iStart; z[i] && (z[i]!='<' || strncmp(&z[i],"</title>",8)!=0); i++){}
-  if( z[i]!='<' ) return 0;
-  blob_init(pTitle, &z[iStart], i-iStart);
+  if( strncmp(&z[i],"</title>",8)!=0 ){
+    blob_init(pTitle, 0, 0);
+    blob_init(pTail, &z[iStart], -1);
+    return 1;
+  }
+  if( i-iStart>0 ){
+    blob_init(pTitle, &z[iStart], i-iStart);
+  }else{
+    blob_init(pTitle, 0, 0);
+  }
   blob_init(pTail, &z[i+8], -1);
   return 1;
 }
