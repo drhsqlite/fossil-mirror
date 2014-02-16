@@ -1,6 +1,19 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.28 (as yet unreleased)</h2>
+<h2>Changes For Version 1.28.1 (most likely never being released, those
+are candidate cherry-picks just in case)</h2>
+  *  Upgraded internal SQLite to version 3.8.3.1, which adds support
+     for CTE and the WITH clause, and fixes various SQLite bugs.
+  *  Relax minimum SQLite version check to 3.7.17, as Fossil 1.28
+     actually works fine with "configure --disable-internal-sqlite"
+     See: [https://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg14520.html]
+  *  Make "fossil diff --tk" work out-of-the-box on Windows when
+     Activestate Tcl is installed.
+  *  Bug-fix [d8a588ba765ae5be]
+  *  [b4dffdac5e]: Avoid unnecessary no-op write transactions on the
+     server during a pull.
+
+<h2>Changes For Version 1.28 (2014-01-27)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
   *  When cloning a repository, the user name passed via the URL (if any)
      is now used as the default local admin user's name.
