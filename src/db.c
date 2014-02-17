@@ -1991,12 +1991,16 @@ void db_record_repository_filename(const char *zName){
 ** and "manifest.uuid" are modified if the --keep option is present.
 **
 ** Options:
+**   --empty    Initialize checkout as being empty, but still connected
+**              with the local repository. If you commit this checkout,
+**              it will become a new "initial" commit in the repository.
 **   --keep     Only modify the manifest and manifest.uuid files
 **   --nested   Allow opening a repository inside an opened checkout
 **
 ** See also: close
 */
 void cmd_open(void){
+  int emptyFlag;
   int keepFlag;
   int allowNested;
   char **oldArgv;
@@ -2004,6 +2008,7 @@ void cmd_open(void){
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0 };
 
   url_proxy_options();
+  emptyFlag = find_option("empty",0,0)!=0;
   keepFlag = find_option("keep",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
   if( g.argc!=3 && g.argc!=4 ){
@@ -2032,18 +2037,20 @@ void cmd_open(void){
   oldArgc = g.argc;
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
-  g.argc = 3;
-  if( oldArgc==4 ){
-    azNewArgv[g.argc-1] = oldArgv[3];
-  }else if( !db_exists("SELECT 1 FROM event WHERE type='ci'") ){
-    azNewArgv[g.argc-1] = "--latest";
-  }else{
-    azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
+  if( !emptyFlag){
+    g.argc = 3;
+    if( oldArgc==4 ){
+      azNewArgv[g.argc-1] = oldArgv[3];
+    }else if( !db_exists("SELECT 1 FROM event WHERE type='ci'") ){
+      azNewArgv[g.argc-1] = "--latest";
+    }else{
+      azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
+    }
+    if( keepFlag ){
+      azNewArgv[g.argc++] = "--keep";
+    }
+    checkout_cmd();
   }
-  if( keepFlag ){
-    azNewArgv[g.argc++] = "--keep";
-  }
-  checkout_cmd();
   g.argc = 2;
   info_cmd();
 }

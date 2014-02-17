@@ -9,6 +9,7 @@
      filter links.
   *  The [/help/info | info command] now shows leaf status of the checkout.
   *  Add support for tunneling https through a http proxy (Ticket [e854101c4f]).
+  *  Add option --empty to the "[/help?cmd=open | fossil open]" command.
 
 <h2>Changes For Version 1.28 (2014-01-27)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
