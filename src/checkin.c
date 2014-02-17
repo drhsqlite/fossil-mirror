@@ -1522,7 +1522,9 @@ void commit_cmd(void){
 
   /* Get the ID of the parent manifest artifact */
   vid = db_lget_int("checkout", 0);
-  if( content_is_private(vid) ){
+  if( vid==0 ){
+    useCksum = 1;
+  }else if( content_is_private(vid) ){
     g.markPrivate = 1;
   }
 
