@@ -1265,7 +1265,8 @@ void setup_settings(void){
   }
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    if( (pSet->width&SETUP_WIDTH)!=0 && !(pSet->width&SETUP_VERSIONABLE) ){
+    if( (pSet->width&SETUP_WIDTH)!=0
+        && !(pSet->width&(SETUP_VERSIONABLE|SETUP_TEXTAREA)) ){
       entry_attribute(pSet->name, /*pSet->width*/ 25, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def, 0);
