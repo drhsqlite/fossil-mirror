@@ -2159,9 +2159,9 @@ struct stControlSettings const ctrlSettings[] = {
   { "ssl-identity",  0,               40, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",           0,                0, 0, "off"                 },
-  { "tcl-setup",     0,               40, 0, ""                    },
+  { "tcl-setup",     0,               40, 1, ""                    },
 #endif
-  { "th1-setup",     0,               40, 0, ""                    },
+  { "th1-setup",     0,               40, 1, ""                    },
   { "th1-uri-regexp",0,               40, 0, ""                    },
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },

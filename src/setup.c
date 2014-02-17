@@ -1272,10 +1272,20 @@ void setup_settings(void){
       @ <br />
     }
   }
+  for(pSet=ctrlSettings; pSet->name!=0; pSet++){
+    if( pSet->width!=0 && pSet->versionable && sqlite3_strglob("*glob", pSet->name) ){
+      int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
+      @<b>%s(pSet->name)</b> (v)<br />
+      textarea_attribute("", /*rows*/ 3, /*cols*/ 35, pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name,
+                      (char*)pSet->def, hasVersionableValue);
+      @ <br />
+    }
+  }
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
     int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
-    if( pSet->width!=0 && pSet->versionable){
+    if( pSet->width!=0 && !sqlite3_strglob("*glob", pSet->name)){
       @<b>%s(pSet->name)</b> (v)<br />
       textarea_attribute("", /*rows*/ 3, /*cols*/ 20, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
