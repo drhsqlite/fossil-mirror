@@ -1792,7 +1792,7 @@ char *db_get(const char *zName, char *zDefault){
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
   }
-  if( ctrlSetting!=0 && ctrlSetting->versionable ){
+  if( ctrlSetting!=0 && (ctrlSetting->width&SETUP_VERSIONABLE) ){
     /* This is a versionable setting, try and get the info from a
     ** checked out file */
     z = db_get_do_versionable(zName, z);
@@ -2082,7 +2082,7 @@ static void print_setting(
   }else{
     fossil_print("%-20s\n", ctrlSetting->name);
   }
-  if( ctrlSetting->versionable && localOpen ){
+  if( (ctrlSetting->width&SETUP_VERSIONABLE) && localOpen ){
     /* Check to see if this is overridden by a versionable settings file */
     Blob versionedPathname;
     blob_zero(&versionedPathname);
@@ -2107,65 +2107,70 @@ static void print_setting(
 ** set-commands and displays the 'set'-help as info.
 */
 #if INTERFACE
+
+#define SETUP_WIDTH           63
+#define SETUP_TEXTAREA        64
+#define SETUP_VERSIONABLE    128
+
 struct stControlSettings {
   char const *name;     /* Name of the setting */
   char const *var;      /* Internal variable name used by db_set() */
-  int width;            /* Width of display.  0 for boolean values */
-  int versionable;      /* Is this setting versionable? */
+  int width;            /* Width of display.  0 for boolean values.
+                           possibly or'ed with above flags. */
   char const *def;      /* Default value */
 };
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
-  { "access-log",    0,                0, 0, "off"                 },
-  { "allow-symlinks",0,                0, 1, "off"                 },
-  { "auto-captcha",  "autocaptcha",    0, 0, "on"                  },
-  { "auto-hyperlink",0,                0, 0, "on",                 },
-  { "auto-shun",     0,                0, 0, "on"                  },
-  { "autosync",      0,                0, 0, "on"                  },
-  { "binary-glob",   0,               40, 1, ""                    },
-  { "clearsign",     0,                0, 0, "off"                 },
+  { "access-log",    0,                    0, "off"                 },
+  { "allow-symlinks",0,    SETUP_VERSIONABLE, "off"                 },
+  { "auto-captcha",  "autocaptcha",        0, "on"                  },
+  { "auto-hyperlink",0,                    0, "on",                 },
+  { "auto-shun",     0,                    0, "on"                  },
+  { "autosync",      0,                    0, "on"                  },
+  { "binary-glob",   0, SETUP_VERSIONABLE|40, ""                    },
+  { "clearsign",     0,                    0, "off"                 },
 #if defined(_WIN32) || defined(__CYGWIN__) || defined(__DARWIN__) || defined(__APPLE__)
-  { "case-sensitive",0,                0, 0, "off"                 },
+  { "case-sensitive",0,                    0, "off"                 },
 #else
-  { "case-sensitive",0,                0, 0, "on"                  },
+  { "case-sensitive",0,                    0, "on"                  },
 #endif
-  { "clean-glob",    0,               40, 1, ""                    },
-  { "crnl-glob",     0,               40, 1, ""                    },
-  { "default-perms", 0,               16, 0, "u"                   },
-  { "diff-binary",   0,                0, 0, "on"                  },
-  { "diff-command",  0,               40, 0, ""                    },
-  { "dont-push",     0,                0, 0, "off"                 },
-  { "editor",        0,               32, 0, ""                    },
-  { "empty-dirs",    0,               40, 1, ""                    },
-  { "encoding-glob",  0,              40, 1, ""                    },
-  { "gdiff-command", 0,               40, 0, "gdiff"               },
-  { "gmerge-command",0,               40, 0, ""                    },
-  { "http-port",     0,               16, 0, "8080"                },
-  { "https-login",   0,                0, 0, "off"                 },
-  { "ignore-glob",   0,               40, 1, ""                    },
-  { "keep-glob",     0,               40, 1, ""                    },
-  { "localauth",     0,                0, 0, "off"                 },
-  { "main-branch",   0,               40, 0, "trunk"               },
-  { "manifest",      0,                0, 1, "off"                 },
-  { "max-upload",    0,               25, 0, "250000"              },
-  { "mtime-changes", 0,                0, 0, "on"                  },
-  { "pgp-command",   0,               40, 0, "gpg --clearsign -o " },
-  { "proxy",         0,               32, 0, "off"                 },
-  { "relative-paths",0,                0, 0, "on"                  },
-  { "repo-cksum",    0,                0, 0, "on"                  },
-  { "self-register", 0,                0, 0, "off"                 },
-  { "ssh-command",   0,               40, 0, ""                    },
-  { "ssl-ca-location",0,              40, 0, ""                    },
-  { "ssl-identity",  0,               40, 0, ""                    },
+  { "clean-glob",    0, SETUP_VERSIONABLE|40, ""                    },
+  { "crnl-glob",     0, SETUP_VERSIONABLE|40, ""                    },
+  { "default-perms", 0,                   16, "u"                   },
+  { "diff-binary",   0,                    0, "on"                  },
+  { "diff-command",  0,                   40, ""                    },
+  { "dont-push",     0,                    0, "off"                 },
+  { "editor",        0,                   32, ""                    },
+  { "empty-dirs",    0, SETUP_VERSIONABLE|40, ""                    },
+  { "encoding-glob", 0, SETUP_VERSIONABLE|40, ""                    },
+  { "gdiff-command", 0,                   40, "gdiff"               },
+  { "gmerge-command",0,                   40, ""                    },
+  { "http-port",     0,                   16, "8080"                },
+  { "https-login",   0,                    0, "off"                 },
+  { "ignore-glob",   0, SETUP_VERSIONABLE|40, ""                    },
+  { "keep-glob",     0, SETUP_VERSIONABLE|40, ""                    },
+  { "localauth",     0,                    0, "off"                 },
+  { "main-branch",   0,                   40, "trunk"               },
+  { "manifest",      0,    SETUP_VERSIONABLE, "off"                 },
+  { "max-upload",    0,                   25, "250000"              },
+  { "mtime-changes", 0,                    0, "on"                  },
+  { "pgp-command",   0,                   40, "gpg --clearsign -o " },
+  { "proxy",         0,                   32, "off"                 },
+  { "relative-paths",0,                    0, "on"                  },
+  { "repo-cksum",    0,                    0, "on"                  },
+  { "self-register", 0,                    0, "off"                 },
+  { "ssh-command",   0,                   40, ""                    },
+  { "ssl-ca-location",0,                  40, ""                    },
+  { "ssl-identity",  0,                   40, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
-  { "tcl",           0,                0, 0, "off"                 },
-  { "tcl-setup",     0,               40, 1, ""                    },
+  { "tcl",           0,                    0, "off"                 },
+  { "tcl-setup",     0,    SETUP_TEXTAREA|40, ""                    },
 #endif
-  { "th1-setup",     0,               40, 1, ""                    },
-  { "th1-uri-regexp",0,               40, 0, ""                    },
-  { "web-browser",   0,               32, 0, ""                    },
-  { "white-foreground", 0,             0, 0, "off"                 },
-  { 0,0,0,0,0 }
+  { "th1-setup",     0,    SETUP_TEXTAREA|40, ""                    },
+  { "th1-uri-regexp",0,                   40, ""                    },
+  { "web-browser",   0,                   32, ""                    },
+  { "white-foreground", 0,                 0, "off"                 },
+  { 0,0,0,0 }
 };
 
 /*

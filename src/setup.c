@@ -1250,13 +1250,13 @@ void setup_settings(void){
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    if( pSet->width==0 ){
-      int hasVersionableValue = pSet->versionable &&
+    if( (pSet->width&SETUP_WIDTH)==0 ){
+      int hasVersionableValue = (pSet->width&SETUP_VERSIONABLE) &&
           (db_get_do_versionable(pSet->name, NULL)!=0);
       onoff_attribute(pSet->name, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       is_truth(pSet->def), hasVersionableValue);
-      if( pSet->versionable ){
+      if( (pSet->width&SETUP_VERSIONABLE) ){
         @  (v)<br />
       } else {
         @ <br />
@@ -1265,7 +1265,7 @@ void setup_settings(void){
   }
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    if( pSet->width!=0 && !pSet->versionable){
+    if( (pSet->width&SETUP_WIDTH)!=0 && !(pSet->width&SETUP_VERSIONABLE) ){
       entry_attribute(pSet->name, /*pSet->width*/ 25, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def, 0);
@@ -1273,9 +1273,15 @@ void setup_settings(void){
     }
   }
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    if( pSet->width!=0 && pSet->versionable && sqlite3_strglob("*glob", pSet->name) ){
-      int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
-      @<b>%s(pSet->name)</b> (v)<br />
+    if( (pSet->width&SETUP_WIDTH)!=0 && sqlite3_strglob("*glob", pSet->name)
+        && (pSet->width&(SETUP_VERSIONABLE|SETUP_TEXTAREA)) ){
+      int hasVersionableValue = 0;
+      @<b>%s(pSet->name)</b>
+      if( pSet->width&SETUP_VERSIONABLE ){
+        hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
+        @ (v)
+      }
+      @<br />
       textarea_attribute("", /*rows*/ 3, /*cols*/ 35, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def, hasVersionableValue);
@@ -1285,7 +1291,7 @@ void setup_settings(void){
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
     int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
-    if( pSet->width!=0 && !sqlite3_strglob("*glob", pSet->name)){
+    if( (pSet->width&SETUP_WIDTH)!=0 && !sqlite3_strglob("*glob", pSet->name)){
       @<b>%s(pSet->name)</b> (v)<br />
       textarea_attribute("", /*rows*/ 3, /*cols*/ 20, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
