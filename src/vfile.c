@@ -706,7 +706,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
       Blob file;
 
       if( zOrigName ) zName = zOrigName;
-      if( rid>0 ){
+      if( rid>0 || vid==0 ){
         md5sum_step_text(zName, -1);
         blob_zero(&file);
         content_get(rid, &file);
@@ -815,9 +815,9 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
   db_prepare(&q, "SELECT pathname, origname, rid, is_selected(id)"
                  " FROM vfile"
                  " WHERE (NOT deleted OR NOT is_selected(id))"
-                 "   AND rid>0 AND vid=%d"
+                 "   %s AND vid=%d"
                  " ORDER BY if_selected(id,pathname,origname) /*scan*/",
-                 vid);
+                 (vid ? "AND rid>0" : ""), vid);
   blob_zero(&file);
   md5sum_init();
   while( db_step(&q)==SQLITE_ROW ){

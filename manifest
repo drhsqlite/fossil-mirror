@@ -1,5 +1,5 @@
-C [202edc2c1c]:\sMake\s'th1-setup'\sa\stextarea\sin\ssettings\sUI.
-D 2014-02-17T19:48:03.649
+C Make\s"fossil\sadd"\swork\swhen\svid=0\s(empty\scheck-out).\sThis\smakes\sit\spossible\sto\screate\sinitial\snon-empty\scheck-ins\sby\sdoing\sa\s"fossil\sadd"\sbefore\sthe\sfirst\s"fossil\scommit"
+D 2014-02-18T08:35:10.074
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -426,7 +426,7 @@ F src/user.c 1393a30a7a26a938a3ab7c3528a7b4e617339389
 F src/utf8.c fee86fccf9a04e58a81b28127271144050744f0f
 F src/util.c 7054510104b0eb24815b856227807dd964115ebe
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
-F src/vfile.c 83d54576fdfe8777a76f5284f3c14d9590496937
+F src/vfile.c ba71e9edb831a8d264b81f9d48b3326bd685552f
 F src/wiki.c b2684fa005dd4d5130436f9761bce145d31abd17
 F src/wikiformat.c 79988cc4f0e118c0f1aeeba67c3f393c4d443f3c
 F src/winfile.c 99b3ce4828613d627bb442666ef74e1f3c7632c0
@@ -641,8 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 60f669e937698c14ace99ac20a51ef2662c5b4ba d6aa95d332977f7df991829e0dbbfbc354f71c3f
-R 718613a4e2f2be9e86fc8921b85149bf
-T +closed d6aa95d332977f7df991829e0dbbfbc354f71c3f
+P 5447125d34784c7181fe615a34d4e4f41633935a
+R e0266a07e5008d96d62602715c715add
 U jan.nijtmans
-Z c3f19382387e84b66fad148616745f4e
+Z 3ceae908509832eeb92c4e7f189d260e
