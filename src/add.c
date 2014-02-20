@@ -301,7 +301,6 @@ void add_cmd(void){
         char cReply;
         char *prompt = mprintf("file \"%s\" matches \"ignore-glob\".  "
                                "Add it (a=all/y/N)? ", zTreeName);
-        blob_zero(&ans);
         prompt_user(prompt, &ans);
         cReply = blob_str(&ans)[0];
         blob_reset(&ans);

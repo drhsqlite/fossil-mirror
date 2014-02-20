@@ -570,7 +570,6 @@ void stash_cmd(void){
     if( allFlag ){
       Blob ans;
       char cReply;
-      blob_zero(&ans);
       prompt_user("This action is not undoable.  Continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply=='y' || cReply=='Y' ){

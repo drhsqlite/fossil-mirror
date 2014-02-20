@@ -795,7 +795,6 @@ void scrub_cmd(void){
   if( !bForce ){
     Blob ans;
     char cReply;
-    blob_zero(&ans);
     prompt_user(
          "Scrubbing the repository will permanently delete information.\n"
          "Changes cannot be undone.  Continue (y/N)? ", &ans);
