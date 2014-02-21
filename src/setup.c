@@ -1250,13 +1250,13 @@ void setup_settings(void){
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    if( (pSet->width&SETUP_WIDTH)==0 ){
-      int hasVersionableValue = (pSet->width&SETUP_VERSIONABLE) &&
+    if( pSet->width==0 ){
+      int hasVersionableValue = pSet->versionable &&
           (db_get_do_versionable(pSet->name, NULL)!=0);
       onoff_attribute(pSet->name, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       is_truth(pSet->def), hasVersionableValue);
-      if( (pSet->width&SETUP_VERSIONABLE) ){
+      if( pSet->versionable ){
         @  (v)<br />
       } else {
         @ <br />
@@ -1266,8 +1266,7 @@ void setup_settings(void){
   @ <br /><input type="submit"  name="submit" value="Apply Changes" />
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    if( (pSet->width&SETUP_WIDTH)!=0
-        && !(pSet->width&(SETUP_VERSIONABLE|SETUP_TEXTAREA)) ){
+    if( pSet->width!=0 && !pSet->versionable && !pSet->forceTextArea ){
       entry_attribute(pSet->name, /*pSet->width*/ 25, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def, 0);
@@ -1275,8 +1274,7 @@ void setup_settings(void){
     }
   }
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    if( (pSet->width&SETUP_WIDTH)!=0 && sqlite3_strglob("*glob", pSet->name)
-        && (pSet->width&SETUP_TEXTAREA) ){
+    if( pSet->width!=0 && !pSet->versionable && pSet->forceTextArea ){
       @<b>%s(pSet->name)</b><br />
       textarea_attribute("", /*rows*/ 3, /*cols*/ 50, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
@@ -1286,7 +1284,7 @@ void setup_settings(void){
   }
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    if( (pSet->width&SETUP_WIDTH)!=0 && (pSet->width&SETUP_VERSIONABLE) ){
+    if( pSet->width!=0 && pSet->versionable ){
       int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
       @<b>%s(pSet->name)</b> (v)<br />
       textarea_attribute("", /*rows*/ 3, /*cols*/ 20, pSet->name,
