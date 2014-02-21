@@ -57,7 +57,7 @@ void gzip_begin(sqlite3_int64 now){
   aHdr[1] = 0x8b;
   aHdr[2] = 8;
   aHdr[3] = 0;
-  if( now==0 ){
+  if( now==-1 ){
     now = db_int64(0, "SELECT (julianday('now') - 2440587.5)*86400.0");
   }
   put32(&aHdr[4], now&0xffffffff);
@@ -75,7 +75,7 @@ void gzip_begin(sqlite3_int64 now){
 void gzip_step(const char *pIn, int nIn){
   char *zOutBuf;
   int nOut;
-  
+
   nOut = nIn + nIn/10 + 100;
   if( nOut<100000 ) nOut = 100000;
   zOutBuf = fossil_malloc(nOut);
@@ -128,7 +128,7 @@ void test_gzip_cmd(void){
   char *zOut;
   if( g.argc!=3 ) usage("FILENAME");
   sqlite3_open(":memory:", &g.db);
-  gzip_begin(0);
+  gzip_begin(-1);
   blob_read_from_file(&b, g.argv[2]);
   zOut = mprintf("%s.gz", g.argv[2]);
   gzip_step(blob_buffer(&b), blob_size(&b));

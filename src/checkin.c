@@ -303,9 +303,9 @@ void ls_cmd(void){
   if( showAge ){
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
-       "       datetime(checkin_mtime(%d,rid),'unixepoch','localtime')"
+       "       datetime(checkin_mtime(%d,rid),'unixepoch'%s)"
        "  FROM vfile %s"
-       " ORDER BY %s", vid, blob_str(&where), zOrderBy
+       " ORDER BY %s", vid, timeline_utc(), blob_str(&where), zOrderBy
     );
   }else{
     db_prepare(&q,
@@ -625,7 +625,6 @@ void clean_cmd(void){
         char cReply;
         char *prompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
                                zName+nRoot);
-        blob_zero(&ans);
         prompt_user(prompt, &ans);
         cReply = blob_str(&ans)[0];
         if( cReply=='a' || cReply=='A' ){
@@ -672,7 +671,6 @@ void clean_cmd(void){
         char cReply;
         char *prompt = mprintf("Remove empty directory \"%s\" (a=all/y/N)? ",
                                zName+nRoot);
-        blob_zero(&ans);
         prompt_user(prompt, &ans);
         cReply = blob_str(&ans)[0];
         if( cReply=='a' || cReply=='A' ){
@@ -847,6 +845,13 @@ static void prepare_commit_comment(
       "#\n", -1
     );
   }
+  if( p->integrateFlag ){
+    blob_append(&prompt,
+      "#\n"
+      "# All merged-in branches will be closed due to the --integrate flag\n"
+      "#\n", -1
+    );
+  }
   prompt_for_user_comment(pComment, &prompt);
   blob_reset(&prompt);
 }
@@ -984,6 +989,7 @@ struct CheckinInfo {
   const char *zMimetype;      /* Mimetype of check-in command.  May be NULL */
   int verifyDate;             /* Verify that child is younger */
   int closeFlag;              /* Close the branch being committed */
+  int integrateFlag;          /* Close merged-in branches */
   Blob *pCksum;               /* Repository checksum.  May be 0 */
   const char *zDateOvrd;      /* Date override.  If 0 then use 'now' */
   const char *zUserOvrd;      /* User override.  If 0 then use g.zLogin */
@@ -1177,7 +1183,8 @@ static void create_manifest(
     blob_appendf(pOut, "T +closed *\n");
   }
   db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
-                 " WHERE id=-4 ORDER BY 1");
+                 " WHERE id %s ORDER BY 1",
+                 p->integrateFlag ? "IN(0,-4)" : "=(-4)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zIntegrateUuid = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
@@ -1305,13 +1312,9 @@ static int commit_warning(
         return 0; /* We don't want encoding warnings for this file. */
       }
       zWarning = "Unicode";
-#if !defined(_WIN32) && !defined(__CYGWIN__)
-      zConvert = ""; /* On Unix, we cannot easily convert Unicode files. */
-#endif
       zDisable = "\"encoding-glob\" setting";
     }
     file_relative_name(zFilename, &fname, 0);
-    blob_zero(&ans);
     zMsg = mprintf(
          "%s contains %s. Use --no-warnings or the %s to disable this warning.\n"
          "Commit anyhow (a=all/%sy/N)? ",
@@ -1406,7 +1409,10 @@ static int tagCmp(const void *a, const void *b){
 ** The --private option creates a private check-in that is never synced.
 ** Children of private check-ins are automatically private.
 **
-** the --tag option applies the symbolic tag name to the check-in.
+** The --tag option applies the symbolic tag name to the check-in.
+**
+** The --sha1sum option detects edited files by computing each file's
+** SHA1 hash rather than just checking for changes to its size or mtime.
 **
 ** Options:
 **    --allow-conflict           allow unresolved merge conflicts
@@ -1419,6 +1425,7 @@ static int tagCmp(const void *a, const void *b){
 **    --branchcolor COLOR        apply given COLOR to the branch
 **    --close                    close the branch being committed
 **    --delta                    use a delta manifest in the commit process
+**    --integrate                close all merged-in branches
 **    -m|--comment COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    -M|--message-file FILE     read the commit comment from given file
 **    --mimetype MIMETYPE        mimetype of check-in comment
@@ -1426,6 +1433,8 @@ static int tagCmp(const void *a, const void *b){
 **    --no-warnings              omit all warnings about file contents
 **    --nosign                   do not attempt to sign this commit with gpg
 **    --private                  do not sync changes and their descendants
+**    --sha1sum                  verify file status using SHA1 hashing rather
+**                               than relying on file mtimes
 **    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
 **
 ** See also: branch, changes, checkout, extra, sync
@@ -1439,6 +1448,7 @@ void commit_cmd(void){
   const char *zComment;  /* Check-in comment */
   Stmt q;                /* Various queries */
   char *zUuid;           /* UUID of the new check-in */
+  int useSha1sum = 0;    /* True to verify file status using SHA1 hashing */
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
   int noWarningFlag = 0; /* True if skipping all warnings */
@@ -1470,6 +1480,7 @@ void commit_cmd(void){
 
   memset(&sCiInfo, 0, sizeof(sCiInfo));
   url_proxy_options();
+  useSha1sum = find_option("sha1sum", 0, 0)!=0;
   noSign = find_option("nosign",0,0)!=0;
   forceDelta = find_option("delta",0,0)!=0;
   forceBaseline = find_option("baseline",0,0)!=0;
@@ -1491,6 +1502,7 @@ void commit_cmd(void){
   sCiInfo.zColor = find_option("bgcolor",0,1);
   sCiInfo.zBrClr = find_option("branchcolor",0,1);
   sCiInfo.closeFlag = find_option("close",0,0)!=0;
+  sCiInfo.integrateFlag = find_option("integrate",0,0)!=0;
   sCiInfo.zMimetype = find_option("mimetype",0,1);
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
@@ -1534,7 +1546,9 @@ void commit_cmd(void){
 
   /* Get the ID of the parent manifest artifact */
   vid = db_lget_int("checkout", 0);
-  if( content_is_private(vid) ){
+  if( vid==0 ){
+    useCksum = 1;
+  }else if( content_is_private(vid) ){
     g.markPrivate = 1;
   }
 
@@ -1543,7 +1557,6 @@ void commit_cmd(void){
   */
   if( !g.markPrivate ){
     if( autosync(SYNC_PULL) ){
-      blob_zero(&ans);
       prompt_user("continue in spite of sync failure (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply!='y' && cReply!='Y' ){
@@ -1556,7 +1569,6 @@ void commit_cmd(void){
   ** clock skew
   */
   if( g.clockSkewSeen ){
-    blob_zero(&ans);
     prompt_user("continue in spite of time skew (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y' ){
@@ -1575,7 +1587,6 @@ void commit_cmd(void){
   ** should be committed.
   */
   if( select_commit_files() ){
-    blob_zero(&ans);
     prompt_user("continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
@@ -1615,7 +1626,7 @@ void commit_cmd(void){
     fossil_fatal("no such user: %s", g.zLogin);
   }
 
-  hasChanges = unsaved_changes();
+  hasChanges = unsaved_changes(useSha1sum ? CKSIG_SHA1 : 0);
   db_begin_transaction();
   db_record_repository_filename(0);
   if( hasChanges==0 && !isAMerge && !allowEmpty && !forceFlag ){
@@ -1676,7 +1687,6 @@ void commit_cmd(void){
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, &sCiInfo, vid);
     if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
-      blob_zero(&ans);
       prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
@@ -1685,7 +1695,6 @@ void commit_cmd(void){
   }
   if( blob_size(&comment)==0 ){
     if( !dryRunFlag ){
-      blob_zero(&ans);
       prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply!='y' && cReply!='Y' ){
@@ -1818,7 +1827,6 @@ void commit_cmd(void){
     }
   }
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
-    blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y' ){
@@ -1845,7 +1853,10 @@ void commit_cmd(void){
     fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
-  manifest_crosslink(nvid, &manifest);
+  if( manifest_crosslink(nvid, &manifest,
+                         dryRunFlag ? MC_NONE : MC_PERMIT_HOOKS)==0 ){
+    fossil_fatal("%s\n", g.zErrMsg);
+  }
   assert( blob_is_reset(&manifest) );
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);

@@ -230,14 +230,14 @@ void wysiwygEditor(
   @  contenteditable="true">%s(zContent)</div>
   @ <script>
   @ var oDoc;
-  @ 
+  @
   @ /* Initialize the document editor */
   @ function initDoc() {
   @   oDoc = document.getElementById("wysiwygBox");
   @   if (!isWysiwyg()) { setDocMode(true); }
   @ }
-  @ 
-  @ /* Return true if the document editor is in WYSIWYG mode.  Return 
+  @
+  @ /* Return true if the document editor is in WYSIWYG mode.  Return
   @ ** false if it is in Markup mode */
   @ function isWysiwyg() {
   @   return document.getElementById("editMode").selectedIndex==0;
@@ -249,8 +249,8 @@ void wysiwygEditor(
   @   if(oDoc.style.whiteSpace=="pre-wrap"){setDocMode(0);}
   @   document.getElementById("wysiwygValue").value=oDoc.innerHTML;
   @ }
-  @ 
-  @ /* Run the editing command if in WYSIWYG mode */ 
+  @
+  @ /* Run the editing command if in WYSIWYG mode */
   @ function formatDoc(sCmd, sValue) {
   @   if (isWysiwyg()){
   @     document.execCommand("styleWithCSS", false, false);
@@ -258,9 +258,9 @@ void wysiwygEditor(
   @     oDoc.focus();
   @   }
   @ }
-  @ 
+  @
   @ /* Change the editing mode.  Convert to markup if the argument
-  @ ** is true and wysiwyg if the argument is false. */ 
+  @ ** is true and wysiwyg if the argument is false. */
   @ function setDocMode(bToMarkup) {
   @   var oContent;
   @   if (bToMarkup) {

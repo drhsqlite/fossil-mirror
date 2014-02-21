@@ -328,7 +328,7 @@ void tag_add_artifact(
   md5sum_blob(&ctrl, &cksum);
   blob_appendf(&ctrl, "Z %b\n", &cksum);
   nrid = content_put(&ctrl);
-  manifest_crosslink(nrid, &ctrl);
+  manifest_crosslink(nrid, &ctrl, MC_PERMIT_HOOKS);
   assert( blob_is_reset(&ctrl) );
 }
 
@@ -597,11 +597,5 @@ void tagtimeline_page(void){
   www_print_timeline(&q, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }

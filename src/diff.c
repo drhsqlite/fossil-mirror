@@ -805,7 +805,7 @@ static void sbsWriteLineChange(
     p->iStart2 = nPrefix + aLCS[1];
     p->iEnd2 = nLeft - nSuffix;
     p->zStart2 = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
-    sbsSimplifyLine(p, zLeft+nPrefix);
+    sbsSimplifyLine(p, zLeft);
     sbsWriteText(p, pLeft, SBS_TXTA);
     sbsWriteMarker(p, " | ", "|");
     sbsWriteLineno(p, lnRight, SBS_LNB);
@@ -820,7 +820,7 @@ static void sbsWriteLineChange(
     p->iStart2 = nPrefix + aLCS[3];
     p->iEnd2 = nRight - nSuffix;
     p->zStart2 = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
-    sbsSimplifyLine(p, zRight+nPrefix);
+    sbsSimplifyLine(p, zRight);
     sbsWriteText(p, pRight, SBS_TXTB);
     return;
   }
@@ -1764,6 +1764,8 @@ int *text_diff(
     pB_Blob = pTemp;
   }
   ignoreEolWs = (diffFlags & DIFF_IGNORE_EOLWS)!=0;
+  blob_to_utf8_no_bom(pA_Blob, 0);
+  blob_to_utf8_no_bom(pB_Blob, 0);
 
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
@@ -2125,6 +2127,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 
 /*
 ** WEBPAGE: annotate
+** WEBPAGE: blame
 **
 ** Query parameters:
 **
@@ -2147,6 +2150,7 @@ void annotation_page(void){
   HQuery url;
   struct AnnVers *p;
   unsigned clr1, clr2, clr;
+  int bBlame = g.zPath[0]=='b';/* True for BLAME output.  False for ANNOTATE. */
 
   /* Gather query parameters */
   showLog = atoi(PD("log","1"));
@@ -2179,22 +2183,22 @@ void annotation_page(void){
   url_add_parameter(&url, "log", showLog ? "1" : "0");
   if( showLog ){
     style_submenu_element("Hide Log", "Hide Log",
-       url_render(&url, "log", "0", 0, 0));
+       "%s", url_render(&url, "log", "0", 0, 0));
   }else{
     style_submenu_element("Show Log", "Show Log",
-       url_render(&url, "log", "1", 0, 0));
+       "%s", url_render(&url, "log", "1", 0, 0));
   }
   if( ann.bLimit ){
     char *z1, *z2;
     style_submenu_element("All Ancestors", "All Ancestors",
-       url_render(&url, "limit", "-1", 0, 0));
+       "%s", url_render(&url, "limit", "-1", 0, 0));
     z1 = sqlite3_mprintf("%d Ancestors", iLimit+20);
     z2 = sqlite3_mprintf("%d", iLimit+20);
-    style_submenu_element(z1, z1, url_render(&url, "limit", z2, 0, 0));
+    style_submenu_element(z1, z1, "%s", url_render(&url, "limit", z2, 0, 0));
   }
   if( iLimit>20 ){
     style_submenu_element("20 Ancestors", "20 Ancestors",
-       url_render(&url, "limit", "20", 0, 0));
+       "%s", url_render(&url, "limit", "20", 0, 0));
   }
   if( db_get_boolean("white-foreground", 0) ){
     clr1 = 0xa04040;
@@ -2253,16 +2257,31 @@ void annotation_page(void){
     char zPrefix[300];
     z[n] = 0;
     if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
-    if( iVers>=0 ){
-      struct AnnVers *p = ann.aVers+iVers;
-      char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
-      sqlite3_snprintf(sizeof(zPrefix), zPrefix,
-           "<span style='background-color:%s'>"
-           "%s%.10s</a> %s</span> %4d:",
-           p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
-      fossil_free(zLink);
+
+    if( bBlame ){
+      if( iVers>=0 ){
+        struct AnnVers *p = ann.aVers+iVers;
+        char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix,
+             "<span style='background-color:%s'>"
+             "%s%.10s</a> %s</span> %13.13s:",
+             p->zBgColor, zLink, p->zMUuid, p->zDate, p->zUser);
+        fossil_free(zLink);
+      }else{
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s", "");
+      }
     }else{
-      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
+      if( iVers>=0 ){
+        struct AnnVers *p = ann.aVers+iVers;
+        char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix,
+             "<span style='background-color:%s'>"
+             "%s%.10s</a> %s</span> %4d:",
+             p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
+        fossil_free(zLink);
+      }else{
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
+      }
     }
     @ %s(zPrefix) %h(z)
 

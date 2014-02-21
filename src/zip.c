@@ -83,7 +83,7 @@ void zip_set_timedate_from_str(const char *zDate){
 void zip_set_timedate(double rDate){
   char *zDate = db_text(0, "SELECT datetime(%.17g)", rDate);
   zip_set_timedate_from_str(zDate);
-  free(zDate);
+  fossil_free(zDate);
   unixTime = (rDate - 2440587.5)*86400.0;
 }
 
@@ -160,13 +160,13 @@ void zip_add_file(const char *zName, const Blob *pFile, int mPerm){
   put16(&zHdr[12], dosDate);
   put16(&zHdr[26], nameLen);
   put16(&zHdr[28], 13);
-  
+
   put16(&zExTime[0], 0x5455);
   put16(&zExTime[2], 9);
   zExTime[4] = 3;
   put32(&zExTime[5], unixTime);
   put32(&zExTime[9], unixTime);
-  
+
 
   /* Write the header and filename.
   */
@@ -204,7 +204,7 @@ void zip_add_file(const char *zName, const Blob *pFile, int mPerm){
     nByte = stream.total_in;
     nByteCompr = stream.total_out;
     deflateEnd(&stream);
-  
+
     /* Go back and write the header, now that we know the compressed file size.
     */
     z = &blob_buffer(&body)[iStart];
@@ -212,7 +212,7 @@ void zip_add_file(const char *zName, const Blob *pFile, int mPerm){
     put32(&z[18], nByteCompr);
     put32(&z[22], nByte);
   }
-  
+
   /* Make an entry in the tables of contents
   */
   memset(zBuf, 0, sizeof(zBuf));
@@ -269,9 +269,9 @@ void zip_close(Blob *pZip){
   blob_zero(&body);
   nEntry = 0;
   for(i=0; i<nDir; i++){
-    free(azDir[i]);
+    fossil_free(azDir[i]);
   }
-  free(azDir);
+  fossil_free(azDir);
   nDir = 0;
   azDir = 0;
 }
@@ -324,7 +324,7 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
   ManifestFile *pFile;
   Blob filename;
   int nPrefix;
-  
+
   content_get(rid, &mfile);
   if( blob_size(&mfile)==0 ){
     blob_zero(pZip);
@@ -446,8 +446,8 @@ void baseline_zip_page(void){
   }
   if( nRid==0 && nName>10 ) zName[10] = 0;
   zip_of_baseline(rid, &zip, zName);
-  free( zName );
-  free( zRid );
+  fossil_free( zName );
+  fossil_free( zRid );
   cgi_set_content(&zip);
   cgi_set_content_type("application/zip");
 }

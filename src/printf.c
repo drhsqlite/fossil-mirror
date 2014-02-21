@@ -861,7 +861,7 @@ void fossil_puts(const char *z, int toStdErr){
 }
 
 /*
-** Force the standard output cursor to move to the beginning 
+** Force the standard output cursor to move to the beginning
 ** of a line, if it is not there already.
 */
 void fossil_force_newline(void){
@@ -920,11 +920,11 @@ static void fossil_errorlog(const char *zFormat, ...){
   const char *z;
   int i;
   va_list ap;
-  static const char *azEnv[] = { "HTTP_HOST", "HTTP_USER_AGENT",
+  static const char *const azEnv[] = { "HTTP_HOST", "HTTP_USER_AGENT",
       "PATH_INFO", "QUERY_STRING", "REMOTE_ADDR", "REQUEST_METHOD",
       "REQUEST_URI", "SCRIPT_NAME" };
   if( g.zErrlog==0 ) return;
-  out = fopen(g.zErrlog, "a");
+  out = fossil_fopen(g.zErrlog, "a");
   if( out==0 ) return;
   now = time(0);
   pNow = gmtime(&now);
@@ -936,7 +936,11 @@ static void fossil_errorlog(const char *zFormat, ...){
   fprintf(out, "\n");
   va_end(ap);
   for(i=0; i<sizeof(azEnv)/sizeof(azEnv[0]); i++){
-    if( (z = getenv(azEnv[i]))!=0 || (z = P(azEnv[i]))!=0 ){
+    char *p;
+    if( (p = fossil_getenv(azEnv[i]))!=0 ){
+      fprintf(out, "%s=%s\n", azEnv[i], p);
+      fossil_filename_free(p);
+    }else if( (z = P(azEnv[i]))!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], z);
     }
   }

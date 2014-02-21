@@ -205,20 +205,18 @@ together in a final step.
 Some files require special C-preprocessor macro definitions.
 When compiling sqlite.c, the following macros are recommended:
 
-  *  -Dlocaltime=fossil_localtime
   *  -DSQLITE_OMIT_LOAD_EXTENSION=1
   *  -DSQLITE_ENABLE_LOCKING_STYLE=0
   *  -DSQLITE_THREADSAFE=0
   *  -DSQLITE_DEFAULT_FILE_FORMAT=4
-  *  -DSQLITE_ENABLE_STAT3
+  *  -DSQLITE_ENABLE_EXPLAIN_COMMENTS=1
 
-The first and second symbol definitions above are required; the others
-are merely recommended.  The "localtime()" library function in SQLite must
-be redefined to invoke fossil_localtime() instead.  The fossil_localtime()
-routine will invoke either gmtime() or localtime() depending on the 
-"Use UTC" setting for the fossil repository.  Extension loading is omitted
+The first symbol definition above is required; the others
+are merely recommended.  Extension loading is omitted
 as a security measure.  Fossil is single-threaded so mutexing is disabled
-in SQLite as a performance enhancement.
+in SQLite as a performance enhancement.  The SQLITE_ENABLE_EXPLAIN_COMMENTS
+option makes the output of "EXPLAIN" queries in the 
+"[/help?cmd=sqlite3|fossil sql]" command much more readable.
 
 When compiling the shell.c source file, these macros are required:
 

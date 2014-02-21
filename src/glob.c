@@ -156,67 +156,7 @@ Glob *glob_create(const char *zPatternList){
 **     [^...]     Matches one character not in the enclosed list.
 */
 int strglob(const char *zGlob, const char *z){
-  int c, c2;
-  int invert;
-  int seen;
-
-  while( (c = (*(zGlob++)))!=0 ){
-    if( c=='*' ){
-      while( (c=(*(zGlob++))) == '*' || c=='?' ){
-        if( c=='?' && (*(z++))==0 ) return 0;
-      }
-      if( c==0 ){
-        return 1;
-      }else if( c=='[' ){
-        while( *z && strglob(zGlob-1,z)==0 ){
-          z++;
-        }
-        return (*z)!=0;
-      }
-      while( (c2 = (*(z++)))!=0 ){
-        while( c2!=c ){
-          c2 = *(z++);
-          if( c2==0 ) return 0;
-        }
-        if( strglob(zGlob,z) ) return 1;
-      }
-      return 0;
-    }else if( c=='?' ){
-      if( (*(z++))==0 ) return 0;
-    }else if( c=='[' ){
-      int prior_c = 0;
-      seen = 0;
-      invert = 0;
-      c = *(z++);
-      if( c==0 ) return 0;
-      c2 = *(zGlob++);
-      if( c2=='^' ){
-        invert = 1;
-        c2 = *(zGlob++);
-      }
-      if( c2==']' ){
-        if( c==']' ) seen = 1;
-        c2 = *(zGlob++);
-      }
-      while( c2 && c2!=']' ){
-        if( c2=='-' && zGlob[0]!=']' && zGlob[0]!=0 && prior_c>0 ){
-          c2 = *(zGlob++);
-          if( c>=prior_c && c<=c2 ) seen = 1;
-          prior_c = 0;
-        }else{
-          if( c==c2 ){
-            seen = 1;
-          }
-          prior_c = c2;
-        }
-        c2 = *(zGlob++);
-      }
-      if( c2==0 || (seen ^ invert)==0 ) return 0;
-    }else{
-      if( c!=(*(z++)) ) return 0;
-    }
-  }
-  return *z==0;
+  return sqlite3_strglob(zGlob, z)==0;
 }
 
 /*
@@ -230,7 +170,7 @@ int glob_match(Glob *pGlob, const char *zString){
   int i;
   if( pGlob==0 ) return 0;
   for(i=0; i<pGlob->nPattern; i++){
-    if( strglob(pGlob->azPattern[i], zString) ) return i+1;
+    if( sqlite3_strglob(pGlob->azPattern[i], zString)==0 ) return i+1;
   }
   return 0;
 }

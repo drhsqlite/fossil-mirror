@@ -55,12 +55,17 @@ static const struct JsonConfigProperty {
   char const * name;
   int groupMask;
 } JsonConfigProperties[] = {
-{ "css",                    CONFIGSET_SKIN },
+{ "css",                    CONFIGSET_CSS },
 { "header",                 CONFIGSET_SKIN },
 { "footer",                 CONFIGSET_SKIN },
+{ "logo-mimetype",          CONFIGSET_SKIN },
+{ "logo-image",             CONFIGSET_SKIN },
+{ "background-mimetype",    CONFIGSET_SKIN },
+{ "background-image",       CONFIGSET_SKIN },
 { "index-page",             CONFIGSET_SKIN },
 { "timeline-block-markup",  CONFIGSET_SKIN },
 { "timeline-max-comment",   CONFIGSET_SKIN },
+{ "timeline-plaintext",     CONFIGSET_SKIN },
 
 { "project-name",           CONFIGSET_PROJ },
 { "project-description",    CONFIGSET_PROJ },
@@ -71,6 +76,7 @@ static const struct JsonConfigProperty {
 { "keep-glob",              CONFIGSET_PROJ },
 { "crnl-glob",              CONFIGSET_PROJ },
 { "empty-dirs",             CONFIGSET_PROJ },
+{ "allow-clean-x",          CONFIGSET_PROJ },
 { "allow-symlinks",         CONFIGSET_PROJ },
 
 { "ticket-table",           CONFIGSET_TKT  },
@@ -114,7 +120,7 @@ static cson_value * json_config_get(){
     }else if(0==(strcmp("project", zName))){
       confMask |= CONFIGSET_PROJ;
     }else if(0==(strcmp("skin", zName))){
-      confMask |= CONFIGSET_SKIN;
+      confMask |= (CONFIGSET_CSS|CONFIGSET_SKIN);
     }else if(0==(strcmp("ticket", zName))){
       confMask |= CONFIGSET_TKT;
     }else if(0==(strcmp("skin-backup", zName))){

@@ -366,7 +366,7 @@ int file_contains_merge_marker(const char *zFullpath){
 **      cp Xup.c Xbase.c
 **      # Verify that everything still works
 **      fossil commit
-** 
+**
 */
 void delta_3waymerge_cmd(void){
   Blob pivot, v1, v2, merged;

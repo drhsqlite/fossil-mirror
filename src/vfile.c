@@ -47,14 +47,14 @@ int fast_uuid_to_rid(const char *zUuid){
 ** For this routine, the UUID must be exact.  For a match against
 ** user input with mixed case, use resolve_uuid().
 **
-** If the UUID is not found and phantomize is 1 or 2, then attempt to 
+** If the UUID is not found and phantomize is 1 or 2, then attempt to
 ** create a phantom record.  A private phantom is created for 2 and
 ** a public phantom is created for 1.
 */
 int uuid_to_rid(const char *zUuid, int phantomize){
   int rid, sz;
   char z[UUID_SIZE+1];
-  
+
   sz = strlen(zUuid);
   if( sz!=UUID_SIZE || !validate16(zUuid, sz) ){
     return 0;
@@ -142,7 +142,7 @@ void load_vfile_from_rid(int vid){
 **
 ** If VFILE.DELETED is true or if VFILE.RID is zero, then the file was either
 ** removed from configuration management via "fossil rm" or added via
-** "fossil add", respectively, and in both cases we always know that 
+** "fossil add", respectively, and in both cases we always know that
 ** the file has changed without having the check the size, mtime,
 ** or on-disk content.
 **
@@ -317,7 +317,7 @@ void vfile_to_disk(
     if( file_wd_isdir(zName) == 1 ){
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite\n", zName);
-    }    
+    }
     if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(zName)) ){
       file_delete(zName);
     }
@@ -394,7 +394,7 @@ static int is_temporary_file(const char *zName){
      "output",
   };
   int i, j, n;
-  
+
   if( strglob("ci-comment-????????????.txt", zName) ) return 1;
   for(; zName[0]!=0; zName++){
     if( zName[0]=='/' && strglob("/ci-comment-????????????.txt", zName) ){
@@ -409,7 +409,7 @@ static int is_temporary_file(const char *zName){
         for(j=n+2; zName[j] && fossil_isdigit(zName[j]); j++){}
         if( zName[j]==0 ) return 1;
       }
-    }      
+    }
   }
   return 0;
 }
@@ -650,7 +650,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
   char zBuf[4096];
 
   db_must_be_within_tree();
-  db_prepare(&q, 
+  db_prepare(&q,
       "SELECT %Q || pathname, pathname, origname, is_selected(id), rid"
       "  FROM vfile"
       " WHERE (NOT deleted OR NOT is_selected(id)) AND vid=%d"
@@ -669,7 +669,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
         /* Instead of file content, use link destination path */
         Blob pathBuf;
 
-        sqlite3_snprintf(sizeof(zBuf), zBuf, " %ld\n", 
+        sqlite3_snprintf(sizeof(zBuf), zBuf, " %ld\n",
                          blob_read_link(&pathBuf, zFullpath));
         md5sum_step_text(zBuf, -1);
         md5sum_step_text(blob_str(&pathBuf), -1);
@@ -700,7 +700,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
       Blob file;
 
       if( zOrigName ) zName = zOrigName;
-      if( rid>0 ){
+      if( rid>0 || vid==0 ){
         md5sum_step_text(zName, -1);
         blob_zero(&file);
         content_get(rid, &file);
@@ -739,9 +739,9 @@ void vfile_compare_repository_to_disk(int vid){
   Stmt q;
   Blob disk, repo;
   char *zOut;
-  
+
   db_must_be_within_tree();
-  db_prepare(&q, 
+  db_prepare(&q,
       "SELECT %Q || pathname, pathname, rid FROM vfile"
       " WHERE NOT deleted AND vid=%d AND is_selected(id)"
       " ORDER BY if_selected(id, pathname, origname) /*scan*/",
@@ -805,13 +805,13 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
   char zBuf[100];
 
   db_must_be_within_tree();
- 
+
   db_prepare(&q, "SELECT pathname, origname, rid, is_selected(id)"
                  " FROM vfile"
                  " WHERE (NOT deleted OR NOT is_selected(id))"
-                 "   AND rid>0 AND vid=%d"
+                 "   %s AND vid=%d"
                  " ORDER BY if_selected(id,pathname,origname) /*scan*/",
-                 vid);
+                 (vid ? "AND rid>0" : ""), vid);
   blob_zero(&file);
   md5sum_init();
   while( db_step(&q)==SQLITE_ROW ){
@@ -843,7 +843,7 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 ** "R" card near the end of the manifest.
 **
 ** In a well-formed manifest, the two checksums computed here, pOut and
-** pManOut, should be identical.  
+** pManOut, should be identical.
 */
 void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   int fid;

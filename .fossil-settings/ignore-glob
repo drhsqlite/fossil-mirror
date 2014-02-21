@@ -19,3 +19,4 @@ autoconfig.h
 config.log
 fossil
 fossil.exe
+win/fossil.exe

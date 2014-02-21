@@ -107,6 +107,7 @@ void delete_private_content(void){
 **
 ** Options:
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
+**    --once                     Don't save url.
 **    --private                  Also clone private branches 
 **    --ssl-identity=filename    Use the SSL identity if requested by the server
 **    --ssh-command|-c 'command' Use this SSH command
@@ -118,8 +119,11 @@ void clone_cmd(void){
   const char *zDefaultUser;   /* Optional name of the default user */
   int nErr = 0;
   int bPrivate = 0;           /* Also clone private branches */
+  int urlFlags = URL_PROMPT_PW | URL_REMEMBER;
 
   if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
+  if( find_option("once",0,0)!=0) urlFlags &= ~URL_REMEMBER;
+  zDefaultUser = find_option("admin-user","A",1);
   clone_ssh_find_options();
   url_proxy_options();
   if( g.argc < 4 ){
@@ -130,9 +134,7 @@ void clone_cmd(void){
     fossil_fatal("file already exists: %s", g.argv[3]);
   }
 
-  zDefaultUser = find_option("admin-user","A",1);
-
-  url_parse(g.argv[2], URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
+  url_parse(g.argv[2], urlFlags);
   if( zDefaultUser==0 && g.urlUser!=0 ) zDefaultUser = g.urlUser;
   if( g.urlIsFile ){
     file_copy(g.urlName, g.argv[3]);
@@ -158,6 +160,7 @@ void clone_cmd(void){
     user_select();
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA, 0);
+    db_set("rebuilt", get_version(), 0);
     url_remember();
     if( g.zSSLIdentity!=0 ){
       /* If the --ssl-identity option was specified, store it as a setting */

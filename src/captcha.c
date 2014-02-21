@@ -94,7 +94,7 @@ char *captcha_render(const char *zPw){
     z[k++] = '\n';
   }
   z[k] = 0;
-  return z;     
+  return z;
 }
 #endif /* CAPTCHA==1 */
 
@@ -150,7 +150,7 @@ static const char *const azFont2[] = {
  " /_/  ",
 
  /* 8 */
- " ___ ", 
+ " ___ ",
  "( _ )",
  "/ _ \\",
  "\\___/",
@@ -220,7 +220,7 @@ char *captcha_render(const char *zPw){
     z[k++] = '\n';
   }
   z[k] = 0;
-  return z;     
+  return z;
 }
 #endif /* CAPTCHA==2 */
 
@@ -233,7 +233,7 @@ static const char *const azFont3[] = {
   "| | | |",
   "| |_| |",
   " \\___/ ",
-                                                                                                               
+
   /* 1 */
   " __ ",
   "/_ |",
@@ -241,7 +241,7 @@ static const char *const azFont3[] = {
   " | |",
   " | |",
   " |_|",
-                                                                                                               
+
   /* 2 */
   " ___  ",
   "|__ \\ ",
@@ -249,7 +249,7 @@ static const char *const azFont3[] = {
   "  / / ",
   " / /_ ",
   "|____|",
-                                                                                                               
+
   /* 3 */
   " ____  ",
   "|___ \\ ",
@@ -257,7 +257,7 @@ static const char *const azFont3[] = {
   " |__ < ",
   " ___) |",
   "|____/ ",
-                                                                                                               
+
   /* 4 */
   " _  _   ",
   "| || |  ",
@@ -265,7 +265,7 @@ static const char *const azFont3[] = {
   "|__   _|",
   "   | |  ",
   "   |_|  ",
-                                                                                                               
+
   /* 5 */
   " _____ ",
   "| ____|",
@@ -273,7 +273,7 @@ static const char *const azFont3[] = {
   "|___ \\ ",
   " ___) |",
   "|____/ ",
-                                                                                                               
+
   /* 6 */
   "   __  ",
   "  / /  ",
@@ -281,7 +281,7 @@ static const char *const azFont3[] = {
   "| '_ \\ ",
   "| (_) |",
   " \\___/ ",
-                                                                                                               
+
   /* 7 */
   " ______ ",
   "|____  |",
@@ -289,7 +289,7 @@ static const char *const azFont3[] = {
   "   / /  ",
   "  / /   ",
   " /_/    ",
-                                                                                                               
+
   /* 8 */
   "  ___  ",
   " / _ \\ ",
@@ -297,7 +297,7 @@ static const char *const azFont3[] = {
   " > _ < ",
   "| (_) |",
   " \\___/ ",
-                                                                                                               
+
   /* 9 */
   "  ___  ",
   " / _ \\ ",
@@ -305,7 +305,7 @@ static const char *const azFont3[] = {
   " \\__, |",
   "   / / ",
   "  /_/  ",
-                                                                                                               
+
   /* A */
   "          ",
   "    /\\    ",
@@ -313,7 +313,7 @@ static const char *const azFont3[] = {
   "  / /\\ \\  ",
   " / ____ \\ ",
   "/_/    \\_\\",
-                                                                                                               
+
   /* B */
   " ____  ",
   "|  _ \\ ",
@@ -321,7 +321,7 @@ static const char *const azFont3[] = {
   "|  _ < ",
   "| |_) |",
   "|____/ ",
-                                                                                                               
+
   /* C */
   "  _____ ",
   " / ____|",
@@ -329,7 +329,7 @@ static const char *const azFont3[] = {
   "| |     ",
   "| |____ ",
   " \\_____|",
-                                                                                                               
+
   /* D */
   " _____  ",
   "|  __ \\ ",
@@ -337,7 +337,7 @@ static const char *const azFont3[] = {
   "| |  | |",
   "| |__| |",
   "|_____/ ",
-                                                                                                               
+
   /* E */
   " ______ ",
   "|  ____|",
@@ -345,7 +345,7 @@ static const char *const azFont3[] = {
   "|  __|  ",
   "| |____ ",
   "|______|",
-                                                                                                               
+
   /* F */
   " ______ ",
   "|  ____|",
@@ -410,7 +410,7 @@ char *captcha_render(const char *zPw){
     z[k++] = '\n';
   }
   z[k] = 0;
-  return z;     
+  return z;
 }
 #endif /* CAPTCHA==3 */
 
@@ -480,7 +480,7 @@ char const *captcha_decode(unsigned int seed){
 **
 ** A CAPTCHA is required in those cases if the user is not logged in (if they
 ** are user "nobody") and if the "require-captcha" setting is true.  The
-** "require-captcha" setting is controlled on the Admin/Access page.  It 
+** "require-captcha" setting is controlled on the Admin/Access page.  It
 ** defaults to true.
 */
 int captcha_needed(void){

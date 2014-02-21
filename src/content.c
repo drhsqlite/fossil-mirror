@@ -116,7 +116,7 @@ void content_clear_cache(void){
 }
 
 /*
-** Return the srcid associated with rid.  Or return 0 if rid is 
+** Return the srcid associated with rid.  Or return 0 if rid is
 ** original content and not a delta.
 */
 static int findSrcid(int rid){
@@ -156,7 +156,7 @@ int content_size(int rid, int dflt){
 int content_is_available(int rid){
   int srcid;
   int depth = 0;  /* Limit to recursion depth */
-  while( depth++ < 10000000 ){  
+  while( depth++ < 10000000 ){
     if( bag_find(&contentCache.missing, rid) ){
       return 0;
     }
@@ -390,7 +390,7 @@ void after_dephantomize(int rid, int linkFlag){
     /* Parse the object rid itself */
     if( linkFlag ){
       content_get(rid, &content);
-      manifest_crosslink(rid, &content);
+      manifest_crosslink(rid, &content, MC_NONE);
       assert( blob_is_reset(&content) );
     }
 
@@ -407,7 +407,7 @@ void after_dephantomize(int rid, int linkFlag){
     db_finalize(&q);
     for(i=0; i<nChildUsed; i++){
       content_get(aChild[i], &content);
-      manifest_crosslink(aChild[i], &content);
+      manifest_crosslink(aChild[i], &content, MC_NONE);
       assert( blob_is_reset(&content) );
     }
     if( nChildUsed ){
@@ -418,7 +418,7 @@ void after_dephantomize(int rid, int linkFlag){
     ** delta from artifact rid and which have not already been
     ** cross-linked.  */
     nChildUsed = 0;
-    db_prepare(&q, 
+    db_prepare(&q,
        "SELECT rid FROM delta"
        " WHERE srcid=%d"
        "   AND NOT EXISTS(SELECT 1 FROM mlink WHERE mid=delta.rid)",
@@ -457,7 +457,7 @@ void content_enable_dephantomize(int onoff){
 ** content is already in the database, just return the record ID.
 **
 ** If srcId is specified, then pBlob is delta content from
-** the srcId record.  srcId might be a phantom.  
+** the srcId record.  srcId might be a phantom.
 **
 ** pBlob is normally uncompressed text.  But if nBlob>0 then the
 ** pBlob value has already been compressed and nBlob is its uncompressed
@@ -488,7 +488,7 @@ int content_put_ex(
   Blob hash;
   int markAsUnclustered = 0;
   int isDephantomize = 0;
-  
+
   assert( g.repositoryOpen );
   assert( pBlob!=0 );
   assert( srcId==0 || zUuid!=0 );
@@ -582,14 +582,14 @@ int content_put_ex(
   if( srcId ){
     db_multi_exec("REPLACE INTO delta(rid,srcid) VALUES(%d,%d)", rid, srcId);
   }
-  if( !isDephantomize && bag_find(&contentCache.missing, rid) && 
+  if( !isDephantomize && bag_find(&contentCache.missing, rid) &&
       (srcId==0 || content_is_available(srcId)) ){
     content_mark_available(rid);
   }
   if( isDephantomize ){
     after_dephantomize(rid, 0);
   }
-  
+
   /* Add the element to the unclustered table if has never been
   ** previously seen.
   */
@@ -630,7 +630,7 @@ int content_put(Blob *pBlob){
 int content_new(const char *zUuid, int isPrivate){
   int rid;
   static Stmt s1, s2, s3;
-  
+
   assert( g.repositoryOpen );
   db_begin_transaction();
   if( uuid_is_shunned(zUuid) ){
@@ -729,11 +729,11 @@ int content_is_private(int rid){
   db_bind_int(&s1, ":rid", rid);
   rc = db_step(&s1);
   db_reset(&s1);
-  return rc==SQLITE_ROW;  
+  return rc==SQLITE_ROW;
 }
 
 /*
-** Make sure an artifact is public.  
+** Make sure an artifact is public.
 */
 void content_make_public(int rid){
   static Stmt s1;
@@ -760,7 +760,7 @@ void content_make_public(int rid){
 ** converted to undeltaed text.
 **
 ** If either rid or srcid contain less than 50 bytes, or if the
-** resulting delta does not achieve a compression of at least 25% 
+** resulting delta does not achieve a compression of at least 25%
 ** the rid is left untouched.
 **
 ** Return 1 if a delta is made and 0 if no delta occurs.
@@ -885,7 +885,7 @@ void test_integrity(void){
     nErr++;
   }
   db_finalize(&q);
-    
+
   db_prepare(&q, "SELECT rid, uuid, size FROM blob ORDER BY rid");
   total = db_int(0, "SELECT max(rid) FROM blob");
   while( db_step(&q)==SQLITE_ROW ){
@@ -947,8 +947,8 @@ void test_integrity(void){
   fossil_print("%d non-phantom blobs (out of %d total) checked:  %d errors\n",
                n2, n1, nErr);
   if( bParse ){
-    const char *azType[] = { 0, "manifest", "cluster", "control", "wiki",
-                             "ticket", "attachment", "event" };
+    static const char *const azType[] = { 0, "manifest", "cluster",
+        "control", "wiki", "ticket", "attachment", "event" };
     int i;
     fossil_print("%d total control artifacts\n", nCA);
     for(i=1; i<count(azType); i++){
@@ -1052,7 +1052,7 @@ static int check_exists(
     }
     fossil_free(zSrc);
     fossil_free(zDate);
-    rc = 1; 
+    rc = 1;
   }
   return rc;
 }
@@ -1099,7 +1099,7 @@ void test_missing(void){
       nErr += check_exists(p->zBaseline, flags, p, "baseline of", 0);
       nErr += check_exists(p->zAttachSrc, flags, p, "file of", 0);
       for(i=0; i<p->nFile; i++){
-        nErr += check_exists(p->aFile[i].zUuid, flags, p, "file of", 
+        nErr += check_exists(p->aFile[i].zUuid, flags, p, "file of",
                              p->aFile[i].zName);
       }
       for(i=0; i<p->nParent; i++){
@@ -1117,7 +1117,7 @@ void test_missing(void){
       for(i=0; i<p->nTag; i++){
         nErr += check_exists(p->aTag[i].zUuid, flags, p, "target of", 0);
       }
-      manifest_destroy(p);      
+      manifest_destroy(p);
     }
   }
   db_finalize(&q);
