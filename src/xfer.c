@@ -96,7 +96,7 @@ static void remote_has(int rid){
 }
 
 /*
-** The aToken[0..nToken-1] blob array is a parse of a "file" line 
+** The aToken[0..nToken-1] blob array is a parse of a "file" line
 ** message.  This routine finishes parsing that message and does
 ** a record insert of the file.
 **
@@ -121,10 +121,10 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
   int srcid = 0;
   Blob content, hash;
   int isPriv;
-  
+
   isPriv = pXfer->nextIsPrivate;
   pXfer->nextIsPrivate = 0;
-  if( pXfer->nToken<3 
+  if( pXfer->nToken<3
    || pXfer->nToken>4
    || !blob_is_uuid(&pXfer->aToken[1])
    || !blob_is_int(&pXfer->aToken[pXfer->nToken-1], &n)
@@ -193,14 +193,14 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
     blob_reset(&content);
   }else{
     if( !isPriv ) content_make_public(rid);
-    manifest_crosslink(rid, &content);
+    manifest_crosslink(rid, &content, MC_NONE);
   }
   assert( blob_is_reset(&content) );
   remote_has(rid);
 }
 
 /*
-** The aToken[0..nToken-1] blob array is a parse of a "cfile" line 
+** The aToken[0..nToken-1] blob array is a parse of a "cfile" line
 ** message.  This routine finishes parsing that message and does
 ** a record insert of the file.  The difference between "file" and
 ** "cfile" is that with "cfile" the content is already compressed.
@@ -229,10 +229,10 @@ static void xfer_accept_compressed_file(Xfer *pXfer){
   int srcid = 0;
   Blob content;
   int isPriv;
-  
+
   isPriv = pXfer->nextIsPrivate;
   pXfer->nextIsPrivate = 0;
-  if( pXfer->nToken<4 
+  if( pXfer->nToken<4
    || pXfer->nToken>5
    || !blob_is_uuid(&pXfer->aToken[1])
    || !blob_is_int(&pXfer->aToken[pXfer->nToken-2], &szU)
@@ -286,7 +286,7 @@ static int send_delta_parent(
     "SELECT pid FROM plink x"
     " WHERE cid=%d"
     "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)",
-    
+
     "SELECT pid, min(mtime) FROM mlink, event ON mlink.mid=event.objid"
     " WHERE fid=%d"
     "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)"
@@ -323,7 +323,7 @@ static int send_delta_parent(
 }
 
 /*
-** Try to send a file as a native delta.  
+** Try to send a file as a native delta.
 ** If successful, return the number of bytes in the delta.
 ** If we cannot generate an appropriate delta, then send
 ** nothing and return zero.
@@ -405,7 +405,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
     blob_reset(&uuid);
     return;
   }
-  if( (pXfer->maxTime != -1 && time(NULL) >= pXfer->maxTime) || 
+  if( (pXfer->maxTime != -1 && time(NULL) >= pXfer->maxTime) ||
        pXfer->mxSend<=blob_size(pXfer->pOut) ){
     const char *zFormat = isPriv ? "igot %b 1\n" : "igot %b\n";
     blob_appendf(pXfer->pOut, zFormat, pUuid);
@@ -447,7 +447,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
 
 /*
 ** Send the file identified by rid as a compressed artifact.  Basically,
-** send the content exactly as it appears in the BLOB table using 
+** send the content exactly as it appears in the BLOB table using
 ** a "cfile" card.
 */
 static void send_compressed_file(Xfer *pXfer, int rid){
@@ -517,7 +517,7 @@ static void send_compressed_file(Xfer *pXfer, int rid){
 */
 static void request_phantoms(Xfer *pXfer, int maxReq){
   Stmt q;
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT uuid FROM phantom JOIN blob USING(rid)"
     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid) %s",
     (pXfer->syncPrivate ? "" :
@@ -553,8 +553,8 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
 **
 **        login LOGIN NONCE SIGNATURE
 **
-** The NONCE is the SHA1 hash of the remainder of the input.  
-** SIGNATURE is the SHA1 checksum of the NONCE concatenated 
+** The NONCE is the SHA1 hash of the remainder of the input.
+** SIGNATURE is the SHA1 checksum of the NONCE concatenated
 ** with the users password.
 **
 ** The parameters to this routine are ephemeral blobs holding the
@@ -566,7 +566,7 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
 **
 ** If anything fails to check out, no changes are made to privileges.
 **
-** Signature generation on the client side is handled by the 
+** Signature generation on the client side is handled by the
 ** http_exchange() routine.
 **
 ** Return non-zero for a login failure and zero for success.
@@ -701,7 +701,7 @@ void create_cluster(void){
     }
     db_finalize(&q);
     db_multi_exec(
-      "DELETE FROM unclustered WHERE rid NOT IN (0 %s)", 
+      "DELETE FROM unclustered WHERE rid NOT IN (0 %s)",
       blob_str(&deleteWhere)
     );
     blob_reset(&deleteWhere);
@@ -740,7 +740,7 @@ static int send_unclustered(Xfer *pXfer){
   Stmt q;
   int cnt = 0;
   if( pXfer->resync ){
-    db_prepare(&q, 
+    db_prepare(&q,
       "SELECT uuid, rid FROM blob"
       " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
       "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
@@ -750,7 +750,7 @@ static int send_unclustered(Xfer *pXfer){
       pXfer->resync
     );
   }else{
-    db_prepare(&q, 
+    db_prepare(&q,
       "SELECT uuid FROM unclustered JOIN blob USING(rid)"
       " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
       "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
@@ -774,7 +774,7 @@ static int send_unclustered(Xfer *pXfer){
 */
 static void send_all(Xfer *pXfer){
   Stmt q;
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT uuid FROM blob "
     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
     "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
@@ -822,29 +822,68 @@ static void server_private_xfer_not_authorized(void){
 }
 
 /*
-** Run the specified TH1 script, if any, and returns the return code or TH_OK
-** when there is no script.
+** Return the common TH1 code to evaluate prior to evaluating any other
+** TH1 transfer notification scripts.
 */
-static int run_script(const char *zScript){
-  if( !zScript ){
-    return TH_OK; /* No script, return success. */
+const char *xfer_common_code(void){
+  return db_get("xfer-common-script", 0);
+}
+
+/*
+** Return the TH1 code to evaluate when a push is processed.
+*/
+const char *xfer_push_code(void){
+  return db_get("xfer-push-script", 0);
+}
+
+/*
+** Return the TH1 code to evaluate when a commit is processed.
+*/
+const char *xfer_commit_code(void){
+  return db_get("xfer-commit-script", 0);
+}
+
+/*
+** Return the TH1 code to evaluate when a ticket change is processed.
+*/
+const char *xfer_ticket_code(void){
+  return db_get("xfer-ticket-script", 0);
+}
+
+/*
+** Run the specified TH1 script, if any, and returns 1 on error.
+*/
+int xfer_run_script(const char *zScript, const char *zUuid){
+  int rc;
+  if( !zScript ) return TH_OK;
+  Th_FossilInit(TH_INIT_DEFAULT);
+  if( zUuid ){
+    rc = Th_SetVar(g.interp, "uuid", -1, zUuid, -1);
+    if( rc!=TH_OK ){
+      fossil_error(1, "%s", Th_GetResult(g.interp, 0));
+      return rc;
+    }
   }
-  Th_FossilInit(TH_INIT_DEFAULT); /* Make sure TH1 is ready. */
-  return Th_Eval(g.interp, 0, zScript, -1);
+  rc = Th_Eval(g.interp, 0, zScript, -1);
+  if( rc!=TH_OK ){
+    fossil_error(1, "%s", Th_GetResult(g.interp, 0));
+  }
+  return rc;
 }
 
 /*
-** Run the pre-transfer TH1 script, if any, and returns the return code.
+** Runs the pre-transfer TH1 script, if any, and returns its return code.
+** This script may be run multiple times.  If the script performs actions
+** that cannot be redone, it should use an internal [if] guard similar to
+** the following:
+**
+** if {![info exists common_done]} {
+**   # ... code here
+**   set common_done 1
+** }
 */
-static int run_common_script(void){
-  return run_script(db_get("xfer-common-script", 0));
-}
-
-/*
-** Run the post-push TH1 script, if any, and returns the return code.
-*/
-static int run_push_script(void){
-  return run_script(db_get("xfer-push-script", 0));
+int xfer_run_common_script(void){
+  return xfer_run_script(xfer_common_code(), 0);
 }
 
 /*
@@ -877,6 +916,7 @@ void page_xfer(void){
   int size;
   int recvConfig = 0;
   char *zNow;
+  int rc;
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -906,9 +946,10 @@ void page_xfer(void){
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
   manifest_crosslink_begin();
-  if( run_common_script()==TH_ERROR ){
+  rc = xfer_run_common_script();
+  if( rc==TH_ERROR ){
     cgi_reset_content();
-    @ error common\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
+    @ error common\sscript\sfailed:\s%F(g.zErrMsg)
     nErr++;
   }
   while( blob_line(xfer.pIn, &xfer.line) ){
@@ -994,8 +1035,8 @@ void page_xfer(void){
         }
       }
     }else
-  
-    
+
+
     /*    pull  SERVERCODE  PROJECTCODE
     **    push  SERVERCODE  PROJECTCODE
     **
@@ -1103,10 +1144,10 @@ void page_xfer(void){
           @ error login\sfailed
           nErr++;
           break;
-        }        
+        }
       }
     }else
-    
+
     /*    reqconfig  NAME
     **
     ** Request a configuration value
@@ -1128,7 +1169,7 @@ void page_xfer(void){
         }
       }
     }else
-    
+
     /*   config NAME SIZE \n CONTENT
     **
     ** Receive a configuration value from the client.  This is only
@@ -1155,7 +1196,7 @@ void page_xfer(void){
       blob_seek(xfer.pIn, 1, BLOB_SEEK_CUR);
     }else
 
-      
+
 
     /*    cookie TEXT
     **
@@ -1233,10 +1274,13 @@ void page_xfer(void){
     blob_reset(&xfer.line);
   }
   if( isPush ){
-    if( run_push_script()==TH_ERROR ){
-      cgi_reset_content();
-      @ error push\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
-      nErr++;
+    if( rc==TH_OK ){
+      rc = xfer_run_script(xfer_push_code(), 0);
+      if( rc==TH_ERROR ){
+        cgi_reset_content();
+        @ error push\sscript\sfailed:\s%F(g.zErrMsg)
+        nErr++;
+      }
     }
     request_phantoms(&xfer, 500);
   }
@@ -1259,7 +1303,7 @@ void page_xfer(void){
     configure_finalize_receive();
   }
   db_multi_exec("DROP TABLE onremote");
-  manifest_crosslink_end();
+  manifest_crosslink_end(MC_PERMIT_HOOKS);
 
   /* Send the server timestamp last, in case prior processing happened
   ** to use up a significant fraction of our time window.
@@ -1269,6 +1313,7 @@ void page_xfer(void){
   free(zNow);
 
   db_end_transaction(0);
+  configure_rebuild();
 }
 
 /*
@@ -1370,7 +1415,7 @@ int client_sync(
   double rSkew = 0.0;     /* Maximum time skew */
 
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
-  if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE))==0 
+  if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE))==0
      && configRcvMask==0 && configSendMask==0 ) return 0;
 
   transport_stats(0, 0, 1);
@@ -1444,7 +1489,7 @@ int client_sync(
     if( zCookie ){
       blob_appendf(&send, "cookie %s\n", zCookie);
     }
-    
+
     /* Generate gimme cards for phantoms and leaf cards
     ** for all leaves.
     */
@@ -1460,7 +1505,7 @@ int client_sync(
     }
 
     /* Send configuration parameter requests.  On a clone, delay sending
-    ** this until the second cycle since the login card might fail on 
+    ** this until the second cycle since the login card might fail on
     ** the first cycle.
     */
     if( configRcvMask && ((syncFlags & SYNC_CLONE)==0 || nCycle>0) ){
@@ -1620,7 +1665,7 @@ int client_sync(
           if( rid ) send_file(&xfer, rid, &xfer.aToken[1], 0);
         }
       }else
-  
+
       /*   igot UUID  ?PRIVATEFLAG?
       **
       ** Server announces that it has a particular file.  If this is
@@ -1629,7 +1674,7 @@ int client_sync(
       ** Always remember that the server has this file so that we do
       ** not transmit it by accident.
       **
-      ** If the PRIVATE argument exists and is 1, then the file is 
+      ** If the PRIVATE argument exists and is 1, then the file is
       ** private.  Pretend it does not exists if we are not pulling
       ** private files.
       */
@@ -1650,8 +1695,8 @@ int client_sync(
         }
         remote_has(rid);
       }else
-    
-      
+
+
       /*   push  SERVERCODE  PRODUCTCODE
       **
       ** Should only happen in response to a clone.  This message tells
@@ -1673,7 +1718,7 @@ int client_sync(
         if( cloneSeqno>0 ) blob_appendf(&send, "clone 3 %d\n", cloneSeqno);
         nCardSent++;
       }else
-      
+
       /*   config NAME SIZE \n CONTENT
       **
       ** Receive a configuration value from the server.
@@ -1695,7 +1740,7 @@ int client_sync(
         blob_seek(xfer.pIn, 1, BLOB_SEEK_CUR);
       }else
 
-      
+
       /*    cookie TEXT
       **
       ** The server might include a cookie in its reply.  The client
@@ -1737,7 +1782,7 @@ int client_sync(
       **
       ** If the "login failed" message is seen, clear the sync password prior
       ** to the next cycle.
-      */        
+      */
       if( blob_eq(&xfer.aToken[0],"message") && xfer.nToken==2 ){
         char *zMsg = blob_terminate(&xfer.aToken[1]);
         defossilize(zMsg);
@@ -1754,7 +1799,7 @@ int client_sync(
       /*    pragma NAME VALUE...
       **
       ** The server can send pragmas to try to convey meta-information to
-      ** the client.  These are informational only.  Unknown pragmas are 
+      ** the client.  These are informational only.  Unknown pragmas are
       ** silently ignored.
       */
       if( blob_eq(&xfer.aToken[0], "pragma") && xfer.nToken>=2 ){
@@ -1767,10 +1812,10 @@ int client_sync(
       ** Except, when cloning we will sometimes get an error on the
       ** first message exchange because the project-code is unknown
       ** and so the login card on the request was invalid.  The project-code
-      ** is returned in the reply before the error card, so second and 
+      ** is returned in the reply before the error card, so second and
       ** subsequent messages should be OK.  Nevertheless, we need to ignore
       ** the error card on the first message of a clone.
-      */        
+      */
       if( blob_eq(&xfer.aToken[0],"error") && xfer.nToken==2 ){
         if( (syncFlags & SYNC_CLONE)==0 || nCycle>0 ){
           char *zMsg = blob_terminate(&xfer.aToken[1]);
@@ -1783,7 +1828,9 @@ int client_sync(
               go = 1;
               if( g.cgiOutput==0 ){
                 g.urlFlags |= URL_PROMPT_PW;
+                g.urlFlags &= ~URL_PROMPTED;
                 url_prompt_for_password();
+                url_remember();
               }
             }
           }else{
@@ -1849,7 +1896,7 @@ int client_sync(
     xfer.nDanglingFile = 0;
 
     /* If we have one or more files queued to send, then go
-    ** another round 
+    ** another round
     */
     if( xfer.nFileSent+xfer.nDeltaSent>0 ){
       go = 1;
@@ -1863,7 +1910,7 @@ int client_sync(
     ** on a clone in order to be sure to retrieve the configuration
     ** information which is only sent on the second round.
     */
-    if( cloneSeqno<=0 && nCycle>1 ) go = 0;   
+    if( cloneSeqno<=0 && nCycle>1 ) go = 0;
   };
   transport_stats(&nSent, &nRcvd, 1);
   if( (rSkew*24.0*3600.0) > 10.0 ){
@@ -1880,10 +1927,10 @@ int client_sync(
   fossil_print(
      "%s finished with %lld bytes sent, %lld bytes received\n",
      zOpType, nSent, nRcvd);
-  transport_close();
-  transport_global_shutdown();
+  transport_close(GLOBAL_URL());
+  transport_global_shutdown(GLOBAL_URL());
   db_multi_exec("DROP TABLE onremote");
-  manifest_crosslink_end();
+  manifest_crosslink_end(MC_PERMIT_HOOKS);
   content_enable_dephantomize(1);
   db_end_transaction(0);
   return nErr;

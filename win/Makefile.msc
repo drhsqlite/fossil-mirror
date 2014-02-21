@@ -13,6 +13,7 @@ OBJDIR = .
 OX     = .
 O      = .obj
 E      = .exe
+P      = .pdb
 
 # Uncomment to enable debug symbols
 # DEBUG = 1
@@ -23,10 +24,19 @@ E      = .exe
 # Uncomment to enable SSL support
 # FOSSIL_ENABLE_SSL = 1
 
+# Uncomment to enable Tcl support
+# FOSSIL_ENABLE_TCL = 1
+
 !ifdef FOSSIL_ENABLE_SSL
-SSLINCDIR = $(B)\compat\openssl-1.0.1e\include
-SSLLIBDIR = $(B)\compat\openssl-1.0.1e\out32
+SSLINCDIR = $(B)\compat\openssl-1.0.1f\include
+SSLLIBDIR = $(B)\compat\openssl-1.0.1f\out32
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
+!endif
+
+!ifdef FOSSIL_ENABLE_TCL
+TCLDIR    = $(B)\compat\tcl-8.6
+TCLSRCDIR = $(TCLDIR)
+TCLINCDIR = $(TCLSRCDIR)\generic
 !endif
 
 # zlib options
@@ -34,45 +44,66 @@ ZINCDIR   = $(B)\compat\zlib
 ZLIBDIR   = $(B)\compat\zlib
 ZLIB      = zlib.lib
 
-INCL      = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
+INCL      = /I. /I$(SRCDIR) /I$B\win\include /I$(ZINCDIR)
 
 !ifdef FOSSIL_ENABLE_SSL
-INCL      = $(INCL) -I$(SSLINCDIR)
+INCL      = $(INCL) /I$(SSLINCDIR)
 !endif
 
-CFLAGS    = -nologo -MT -O2
-LDFLAGS   = /NODEFAULTLIB:msvcrt
+!ifdef FOSSIL_ENABLE_TCL
+INCL      = $(INCL) /I$(TCLINCDIR)
+!endif
+
+CFLAGS    = /nologo
+LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
 
 !ifdef DEBUG
-CFLAGS    = $(CFLAGS) -Zi
+CFLAGS    = $(CFLAGS) /Zi /MTd /Od
 LDFLAGS   = $(LDFLAGS) /DEBUG
+!else
+CFLAGS    = $(CFLAGS) /MT /O2
 !endif
 
 BCC       = $(CC) $(CFLAGS)
-TCC       = $(CC) -c $(CFLAGS) $(MSCDEF) $(INCL)
-RCC       = rc -D_WIN32 -D_MSC_VER $(MSCDEF) $(INCL)
+TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
+RCC       = rc /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
 LIBS      = $(ZLIB) ws2_32.lib advapi32.lib
-LIBDIR    = -LIBPATH:$(ZLIBDIR)
+LIBDIR    = /LIBPATH:$(ZLIBDIR)
 
 !ifdef FOSSIL_ENABLE_JSON
-TCC       = $(TCC) -DFOSSIL_ENABLE_JSON=1
-RCC       = $(RCC) -DFOSSIL_ENABLE_JSON=1
+TCC       = $(TCC) /DFOSSIL_ENABLE_JSON=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_JSON=1
 !endif
 
 !ifdef FOSSIL_ENABLE_SSL
-TCC       = $(TCC) -DFOSSIL_ENABLE_SSL=1
-RCC       = $(RCC) -DFOSSIL_ENABLE_SSL=1
+TCC       = $(TCC) /DFOSSIL_ENABLE_SSL=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_SSL=1
 LIBS      = $(LIBS) $(SSLLIB)
-LIBDIR    = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
+LIBDIR    = $(LIBDIR) /LIBPATH:$(SSLLIBDIR)
+!endif
+
+!ifdef FOSSIL_ENABLE_TCL
+TCC       = $(TCC) /DFOSSIL_ENABLE_TCL=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_TCL=1
+TCC       = $(TCC) /DFOSSIL_ENABLE_TCL_STUBS=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_TCL_STUBS=1
+TCC       = $(TCC) /DFOSSIL_ENABLE_TCL_PRIVATE_STUBS=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_TCL_PRIVATE_STUBS=1
+TCC       = $(TCC) /DUSE_TCL_STUBS=1
+RCC       = $(RCC) /DUSE_TCL_STUBS=1
 !endif
 
 SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                 /DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  /DSQLITE_THREADSAFE=0 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
-                 /DSQLITE_ENABLE_STAT3 \
-                 /Dlocaltime=fossil_localtime \
-                 /DSQLITE_ENABLE_LOCKING_STYLE=0 \
-                 /DSQLITE_WIN32_NO_ANSI
+                 /DSQLITE_OMIT_DEPRECATED \
+                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS
+
+SHELL_OPTIONS = /Dmain=sqlite3_shell \
+                /DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                /Dgetenv=fossil_getenv \
+                /Dfopen=fossil_fopen
 
 SRC   = add_.c \
         allrepo_.c \
@@ -176,6 +207,7 @@ SRC   = add_.c \
         vfile_.c \
         wiki_.c \
         wikiformat_.c \
+        winfile_.c \
         winhttp_.c \
         wysiwyg_.c \
         xfer_.c \
@@ -289,6 +321,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\vfile$O \
         $(OX)\wiki$O \
         $(OX)\wikiformat$O \
+        $(OX)\winfile$O \
         $(OX)\winhttp$O \
         $(OX)\wysiwyg$O \
         $(OX)\xfer$O \
@@ -296,7 +329,12 @@ OBJ   = $(OX)\add$O \
         $(OX)\zip$O \
         $(OX)\fossil.res
 
+!ifdef FOSSIL_ENABLE_TCL
+OBJ   = $(OBJ) $(OX)\th_tcl$O
+!endif
+
 APPNAME = $(OX)\fossil$(E)
+PDBNAME = $(OX)\fossil$(P)
 
 all: $(OX) $(APPNAME)
 
@@ -306,7 +344,7 @@ zlib:
 
 $(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
 	cd $(OX) 
-	link $(LDFLAGS) -OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
+	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\add.obj > $@
@@ -416,15 +454,16 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\vfile.obj >> $@
 	echo $(OX)\wiki.obj >> $@
 	echo $(OX)\wikiformat.obj >> $@
+	echo $(OX)\winfile.obj >> $@
 	echo $(OX)\winhttp.obj >> $@
 	echo $(OX)\wysiwyg.obj >> $@
 	echo $(OX)\xfer.obj >> $@
 	echo $(OX)\xfersetup.obj >> $@
 	echo $(OX)\zip.obj >> $@
+!ifdef FOSSIL_ENABLE_TCL
+	echo $(OX)\th_tcl.obj >> $@
+!endif
 	echo $(LIBS) >> $@
-
-
-
 
 $(OX):
 	@-mkdir $@
@@ -441,11 +480,11 @@ mkindex$E: $(SRCDIR)\mkindex.c
 mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
-$(OX)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) /Fo$@ /Dmain=sqlite3_shell $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
+$(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
+	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
 
-$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**
+$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c $B\win\Makefile.msc
+	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SRCDIR)\sqlite3.c
 
 $(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**
@@ -453,10 +492,15 @@ $(OX)\th$O : $(SRCDIR)\th.c
 $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) /Fo$@ -c $**
 
+!ifdef FOSSIL_ENABLE_TCL
+$(OX)\th_tcl$O : $(SRCDIR)\th_tcl.c
+	$(TCC) /Fo$@ -c $**
+!endif
+
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
 $(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
-	$(TCC) /Fo$@ -c $**
+	$(TCC) /Fo$@ /c $**
 
 page_index.h: mkindex$E $(SRC) 
 	$** > $@
@@ -467,13 +511,14 @@ clean:
 	-del *_.c
 	-del *.h
 	-del *.map
-	-del *.manifest
+	-del *.res
 	-del headers
 	-del linkopts
-	-del *.res
+	-del vc*.pdb
 
 realclean: clean
 	-del $(APPNAME)
+	-del $(PDBNAME)
 	-del translate$E
 	-del mkindex$E
 	-del makeheaders$E
@@ -494,7 +539,6 @@ $(OBJDIR)\json_tag$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_wiki$O : $(SRCDIR)\json_detail.h
-
 
 $(OX)\add$O : add_.c add.h
 	$(TCC) /Fo$@ -c add_.c
@@ -1108,6 +1152,12 @@ $(OX)\wikiformat$O : wikiformat_.c wikiformat.h
 wikiformat_.c : $(SRCDIR)\wikiformat.c
 	translate$E $** > $@
 
+$(OX)\winfile$O : winfile_.c winfile.h
+	$(TCC) /Fo$@ -c winfile_.c
+
+winfile_.c : $(SRCDIR)\winfile.c
+	translate$E $** > $@
+
 $(OX)\winhttp$O : winhttp_.c winhttp.h
 	$(TCC) /Fo$@ -c winhttp_.c
 
@@ -1139,7 +1189,8 @@ zip_.c : $(SRCDIR)\zip.c
 	translate$E $** > $@
 
 fossil.res : $B\win\fossil.rc
-	$(RCC)  -fo $@ $**
+	$(RCC)  /fo $@ $**
+
 headers: makeheaders$E page_index.h VERSION.h
 	makeheaders$E add_.c:add.h \
 			allrepo_.c:allrepo.h \
@@ -1243,6 +1294,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			vfile_.c:vfile.h \
 			wiki_.c:wiki.h \
 			wikiformat_.c:wikiformat.h \
+			winfile_.c:winfile.h \
 			winhttp_.c:winhttp.h \
 			wysiwyg_.c:wysiwyg.h \
 			xfer_.c:xfer.h \

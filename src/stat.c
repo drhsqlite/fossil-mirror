@@ -18,6 +18,7 @@
 ** This file contains code to implement the stat web page
 **
 */
+#include "VERSION.h"
 #include "config.h"
 #include <string.h>
 #include "stat.h"
@@ -57,6 +58,7 @@ void stat_page(void){
   style_header("Repository Statistics");
   if( g.perm.Admin ){
     style_submenu_element("URLs", "URLs and Checkouts", "urllist");
+    style_submenu_element("Schema", "Repository Schema", "repo_schema");
   }
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
@@ -124,8 +126,11 @@ void stat_page(void){
   @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
   @ (%h(RELEASE_VERSION)) [compiled using %h(COMPILER_NAME)]
   @ </td></tr>
-  @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(SQLITE_SOURCE_ID)
-  @ [%.10s(&SQLITE_SOURCE_ID[20])] (%s(SQLITE_VERSION))</td></tr>
+  @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
+  @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))</td></tr>
+  @ <tr><th>Repository Rebuilt:</th><td>
+  @ %h(db_get_mtime("rebuilt","%Y-%m-%d %H:%M:%S","Never"))
+  @ By Fossil %h(db_get("rebuilt","Unknown"))</td></tr>
   @ <tr><th>Database&nbsp;Stats:</th><td>
   zDb = db_name("repository");
   @ %d(db_int(0, "PRAGMA %s.page_count", zDb)) pages,
@@ -222,8 +227,8 @@ void dbstat_cmd(void){
                COMPILER_NAME);
   fossil_print("%*s%.19s [%.10s] (%s)\n",
                colWidth, "sqlite-version:",
-               SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20],
-               SQLITE_VERSION);
+               sqlite3_sourceid(), &sqlite3_sourceid()[20],
+               sqlite3_libversion());
   zDb = db_name("repository");
   fossil_print("%*s%d pages, %d bytes/pg, %d free pages, "
                "%s, %s mode\n",
@@ -235,8 +240,6 @@ void dbstat_cmd(void){
                db_text(0, "PRAGMA %s.journal_mode", zDb));
 
 }
-
-
 
 /*
 ** WEBPAGE: urllist
@@ -251,6 +254,7 @@ void urllist_page(void){
 
   style_header("URLs and Checkouts");
   style_submenu_element("Stat", "Repository Stats", "stat");
+  style_submenu_element("Schema", "Repository Schema", "repo_schema");
   @ <div class="section">URLs</div>
   @ <table border="0" width='100%%'>
   db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch')"
@@ -281,5 +285,29 @@ void urllist_page(void){
     @ <tr><td>(none)</td>
   }
   @ </table>
+  style_footer();
+}
+
+/*
+** WEBPAGE: repo_schema
+**
+** Show the repository schema
+*/
+void repo_schema_page(void){
+  Stmt q;
+  login_check_credentials();
+  if( !g.perm.Admin ){ login_needed(); return; }
+
+  style_header("Repository Schema");
+  style_submenu_element("Stat", "Repository Stats", "stat");
+  style_submenu_element("URLs", "URLs and Checkouts", "urllist");
+  db_prepare(&q, "SELECT sql FROM %s.sqlite_master WHERE sql IS NOT NULL",
+             db_name("repository"));
+  @ <pre>
+  while( db_step(&q)==SQLITE_ROW ){
+    @ %h(db_column_text(&q, 0));
+  }
+  @ </pre>
+  db_finalize(&q);
   style_footer();
 }

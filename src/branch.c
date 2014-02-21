@@ -53,7 +53,8 @@ void branch_new(void){
     usage("new BRANCH-NAME BASIS ?OPTIONS?");
   }
   db_find_and_open_repository(0, 0);
-  noSign = db_get_int("omitsign", 0)|noSign;
+  noSign = db_get_boolean("omitsign", 0)|noSign;
+  if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
 
   /* fossil branch new name */
   zBranch = g.argv[3];
@@ -141,7 +142,6 @@ void branch_new(void){
   if( !noSign && clearsign(&branch, &branch) ){
     Blob ans;
     char cReply;
-    blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y'){
@@ -155,8 +155,8 @@ void branch_new(void){
     fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
-  if( manifest_crosslink(brid, &branch)==0 ){
-    fossil_fatal("unable to install new manifest");
+  if( manifest_crosslink(brid, &branch, MC_PERMIT_HOOKS)==0 ){
+    fossil_fatal("%s\n", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
@@ -369,12 +369,6 @@ void brlist_page(void){
     @ </ul>
   }
   db_finalize(&q);
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }
 
@@ -424,11 +418,5 @@ void brtimeline_page(void){
   );
   www_print_timeline(&q, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }

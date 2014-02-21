@@ -372,7 +372,7 @@ void bisect_cmd(void){
       g.fNoSync = 1;
       update_cmd();
     }
-   
+
     if( strncmp(zDisplay,"chart",m)==0 ){
       bisect_chart(1);
     }else if( strncmp(zDisplay, "log", m)==0 ){

@@ -268,10 +268,20 @@ static int check_cache_control(void){
       if(zTok) return 1;
     }
   }
-  
+
   return 0;
 }
 #endif
+
+/*
+** Return true if the response should be sent with Content-Encoding: gzip.
+*/
+static int is_gzippable(void){
+  if( strstr(PD("HTTP_ACCEPT_ENCODING", ""), "gzip")==0 ) return 0;
+  return strncmp(zContentType, "text/", 5)==0
+    || strglob("application/*xml", zContentType)
+    || strglob("application/*javascript", zContentType);
+}
 
 /*
 ** Do a normal HTTP reply
@@ -350,6 +360,18 @@ void cgi_reply(void){
   }
 
   if( iReplyStatus != 304 ) {
+    if( is_gzippable() ){
+      int i;
+      gzip_begin(0);
+      for( i=0; i<2; i++ ){
+        int size = blob_size(&cgiContent[i]);
+        if( size>0 ) gzip_step(blob_buffer(&cgiContent[i]), size);
+        blob_reset(&cgiContent[i]);
+      }
+      gzip_finish(&cgiContent[0]);
+      fprintf(g.httpOut, "Content-Encoding: gzip\r\n");
+      fprintf(g.httpOut, "Vary: Accept-Encoding\r\n");
+    }
     total_size = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
     fprintf(g.httpOut, "Content-Length: %d\r\n", total_size);
   }else{
@@ -477,7 +499,7 @@ void cgi_replace_parameter(const char *zName, const char *zValue){
 void cgi_setenv(const char *zName, const char *zValue){
   cgi_set_parameter_nocopy(zName, mprintf("%s",zValue), 0);
 }
- 
+
 
 /*
 ** Add a list of query parameters or cookies to the parameter set.
@@ -595,7 +617,7 @@ static char *get_bounded_content(
   }
   *pz = &z[i];
   get_line_from_string(pz, pLen);
-  return z;      
+  return z;
 }
 
 /*
@@ -702,7 +724,7 @@ static void process_multipart_form_data(char *z, int len){
         }
       }
     }
-  }        
+  }
 }
 
 
@@ -883,7 +905,7 @@ void cgi_init(void){
     z = mprintf("%s",z);
     add_param_list(z, ';');
   }
-  
+
   z = (char*)P("QUERY_STRING");
   if( z ){
     z = mprintf("%s",z);
@@ -899,7 +921,7 @@ void cgi_init(void){
   g.zContentType = zType = P("CONTENT_TYPE");
   blob_zero(&g.cgiIn);
   if( len>0 && zType ){
-    if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0 
+    if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0
          || strncmp(zType,"multipart/form-data",19)==0 ){
       z = fossil_malloc( len+1 );
       len = fread(z, 1, len, g.httpIn);
@@ -929,7 +951,7 @@ void cgi_init(void){
       - See if fossil really needs g.cgiIn to be set for this purpose
       (i don't think it does). If it does then fill g.cgiIn and
       refactor to parse the JSON from there.
-      
+
       - After parsing POST JSON, copy the "first layer" of keys/values
       to cgi_setenv(), honoring the upper-case distinction used
       in add_param_list(). However...
@@ -1205,7 +1227,7 @@ NORETURN void cgi_panic(const char *zFormat, ...){
 static const char *cgi_accept_forwarded_for(const char *z){
   int i;
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")!=0 ) return 0;
-  
+
   i = strlen(z)-1;
   while( i>=0 && z[i]!=',' && !fossil_isspace(z[i]) ) i--;
   return &z[++i];
@@ -1277,16 +1299,16 @@ void cgi_handle_http_request(const char *zIpAddr){
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
   if( zIpAddr==0 &&
-        getpeername(fileno(g.httpIn), (struct sockaddr*)&remoteName, 
+        getpeername(fileno(g.httpIn), (struct sockaddr*)&remoteName,
                                 &size)>=0
   ){
     zIpAddr = inet_ntoa(remoteName.sin_addr);
   }
-  if( zIpAddr ){   
+  if( zIpAddr ){
     cgi_setenv("REMOTE_ADDR", zIpAddr);
     g.zIpAddr = mprintf("%s", zIpAddr);
   }
- 
+
   /* Get all the optional fields that follow the first line.
   */
   while( fgets(zLine,sizeof(zLine),g.httpIn) ){
@@ -1304,7 +1326,9 @@ void cgi_handle_http_request(const char *zIpAddr){
     for(i=0; zFieldName[i]; i++){
       zFieldName[i] = fossil_tolower(zFieldName[i]);
     }
-    if( fossil_strcmp(zFieldName,"content-length:")==0 ){
+    if( fossil_strcmp(zFieldName,"accept-encoding:")==0 ){
+      cgi_setenv("HTTP_ACCEPT_ENCODING", zVal);
+    }else if( fossil_strcmp(zFieldName,"content-length:")==0 ){
       cgi_setenv("CONTENT_LENGTH", zVal);
     }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
       cgi_setenv("CONTENT_TYPE", zVal);
@@ -1318,10 +1342,8 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
     }else if( fossil_strcmp(zFieldName,"if-modified-since:")==0 ){
       cgi_setenv("HTTP_IF_MODIFIED_SINCE", zVal);
-#if 0
     }else if( fossil_strcmp(zFieldName,"referer:")==0 ){
       cgi_setenv("HTTP_REFERER", zVal);
-#endif
     }else if( fossil_strcmp(zFieldName,"user-agent:")==0 ){
       cgi_setenv("HTTP_USER_AGENT", zVal);
     }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
@@ -1354,7 +1376,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   char zLine[2000];     /* A single line of input. */
 
   if( zIpAddr ){
-    if( nCycles==0 ){   
+    if( nCycles==0 ){
       cgi_setenv("REMOTE_ADDR", zIpAddr);
       g.zIpAddr = mprintf("%s", zIpAddr);
     }
@@ -1420,7 +1442,7 @@ void cgi_handle_ssh_http_request(const char *zIpAddr){
   }else{
     cgi_replace_parameter("PATH_INFO", mprintf("%s",zToken));
   }
- 
+
   /* Get all the optional fields that follow the first line.
   */
   while( fgets(zLine,sizeof(zLine),g.httpIn) ){
@@ -1601,7 +1623,7 @@ void cgi_handle_scgi_request(void){
 
 
 #if INTERFACE
-/* 
+/*
 ** Bitmap values for the flags parameter to cgi_http_server().
 */
 #define HTTP_SERVER_LOCALHOST      0x0001     /* Bind to 127.0.0.1 only */
@@ -1686,11 +1708,9 @@ int cgi_http_server(
   }
   if( iPort>mxPort ) return 1;
   listen(listener,10);
-  if( iPort>mnPort ){
-    fossil_print("Listening for %s requests on TCP port %d\n",
-       (flags & HTTP_SERVER_SCGI)!=0?"SCGI":"HTTP",  iPort);
-    fflush(stdout);
-  }
+  fossil_print("Listening for %s requests on TCP port %d\n",
+     (flags & HTTP_SERVER_SCGI)!=0?"SCGI":"HTTP",  iPort);
+  fflush(stdout);
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
 #if defined(__CYGWIN__)
@@ -1749,7 +1769,7 @@ int cgi_http_server(
       nchildren--;
     }
   }
-  /* NOT REACHED */  
+  /* NOT REACHED */
   fossil_exit(1);
 #endif
   /* NOT REACHED */
@@ -1837,7 +1857,7 @@ time_t mkgmtime(struct tm *p){
   isLeapYr = p->tm_year%4==0 && (p->tm_year%100!=0 || (p->tm_year+300)%400==0);
   p->tm_yday = priorDays[p->tm_mon] + p->tm_mday - 1;
   if( isLeapYr && p->tm_mon>1 ) p->tm_yday++;
-  nDay = (p->tm_year-70)*365 + (p->tm_year-69)/4 -p->tm_year/100 + 
+  nDay = (p->tm_year-70)*365 + (p->tm_year-69)/4 -p->tm_year/100 +
          (p->tm_year+300)/400 + p->tm_yday;
   t = ((nDay*24 + p->tm_hour)*60 + p->tm_min)*60 + p->tm_sec;
   return t;

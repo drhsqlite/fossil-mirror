@@ -42,12 +42,12 @@ void attachlist_page(void){
   if( zPage && zTkt ) zTkt = 0;
   login_check_credentials();
   blob_zero(&sql);
-  blob_append(&sql,
-     "SELECT datetime(mtime,'localtime'), src, target, filename,"
+  blob_appendf(&sql,
+     "SELECT datetime(mtime%s), src, target, filename,"
      "       comment, user,"
      "       (SELECT uuid FROM blob WHERE rid=attachid), attachid"
      "  FROM attachment",
-     -1
+     timeline_utc()
   );
   if( zPage ){
     if( g.perm.RdWiki==0 ) login_needed();
@@ -216,7 +216,7 @@ static void attach_put(
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
-  manifest_crosslink(rid, pAttach);
+  manifest_crosslink(rid, pAttach, MC_NONE);
 }
 
 
@@ -433,7 +433,7 @@ void ainfo_page(void){
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
     rid = content_put(&manifest);
-    manifest_crosslink(rid, &manifest);
+    manifest_crosslink(rid, &manifest, MC_NONE);
     db_end_transaction(0);
     @ <p>The attachment below has been deleted.</p>
   }
@@ -555,12 +555,12 @@ void attachment_list(
   int cnt = 0;
   Stmt q;
   db_prepare(&q,
-     "SELECT datetime(mtime,'localtime'), filename, user,"
+     "SELECT datetime(mtime%s), filename, user,"
      "       (SELECT uuid FROM blob WHERE rid=attachid), src"
      "  FROM attachment"
      " WHERE isLatest AND src!='' AND target=%Q"
      " ORDER BY mtime DESC", 
-     zTarget
+     timeline_utc(), zTarget
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);

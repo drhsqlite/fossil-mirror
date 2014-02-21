@@ -56,14 +56,18 @@ void fossil_mbcs_free(char *zOld){
 char *fossil_unicode_to_utf8(const void *zUnicode){
 #if defined(_WIN32) || defined(__CYGWIN__)
   int nByte = WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, 0, 0, 0, 0);
-  char *zUtf = sqlite3_malloc( nByte );
-  if( zUtf==0 ){
-    return 0;
-  }
+  char *zUtf = fossil_malloc( nByte );
   WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, zUtf, nByte, 0, 0);
   return zUtf;
 #else
-  return fossil_strdup(zUnicode);  /* TODO: implement for unix */
+  static Stmt q;
+  char *zUtf8;
+  db_static_prepare(&q, "SELECT :utf8");
+  db_bind_text16(&q, ":utf8", zUnicode);
+  db_step(&q);
+  zUtf8 = fossil_strdup(db_column_text(&q, 0));
+  db_reset(&q);
+  return zUtf8;
 #endif
 }
 
@@ -75,13 +79,11 @@ char *fossil_unicode_to_utf8(const void *zUnicode){
 void *fossil_utf8_to_unicode(const char *zUtf8){
 #if defined(_WIN32) || defined(__CYGWIN__)
   int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
-  wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
-  if( zUnicode==0 ){
-    return 0;
-  }
+  wchar_t *zUnicode = fossil_malloc( nByte * 2 );
   MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
   return zUnicode;
 #else
+  assert( 0 );  /* Never used in unix */
   return fossil_strdup(zUtf8);  /* TODO: implement for unix */
 #endif
 }
@@ -91,11 +93,7 @@ void *fossil_utf8_to_unicode(const char *zUtf8){
 ** fossil_unicode_to_utf8().
 */
 void fossil_unicode_free(void *pOld){
-#if defined(_WIN32) || defined(__CYGWIN__)
-  sqlite3_free(pOld);
-#else
   fossil_free(pOld);
-#endif
 }
 
 #if defined(__APPLE__) && !defined(WITHOUT_ICONV)
@@ -181,7 +179,8 @@ char *fossil_filename_to_utf8(const void *zFilename){
 **
 ** On Windows, characters in the range U+0001 to U+0031 and the
 ** characters '"', '*', ':', '<', '>', '?' and '|' are invalid
-** to be used. Therefore, translate those to characters in the
+** to be used, except in the 'extended path' prefix ('?') and
+** as drive specifier (':'). Therefore, translate those to characters
 ** in the range U+F001 - U+F07F (private use area), so those
 ** characters never arrive in any Windows API. The filenames might
 ** look strange in Windows explorer, but in the cygwin shell
@@ -199,12 +198,31 @@ void *fossil_utf8_to_filename(const char *zUtf8){
     return 0;
   }
   MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nChar);
-  /* If path starts with "<drive>:/" or "<drive>:\", don't translate the ':' */
+  /*
+  ** If path starts with "//?/" or "\\?\" (extended path), translate
+  ** any slashes to backslashes but leave the '?' intact
+  */
+  if( (zUtf8[0]=='\\' || zUtf8[0]=='/') && (zUtf8[1]=='\\' || zUtf8[1]=='/')
+           && zUtf8[2]=='?' && (zUtf8[3]=='\\' || zUtf8[3]=='/')) {
+    wUnicode[0] = wUnicode[1] = wUnicode[3] = '\\';
+    zUtf8 += 4;
+    wUnicode += 4;
+  }
+  /*
+  ** If (remainder of) path starts with "<drive>:/" or "<drive>:\",
+  ** leave the ':' intact
+  */
   if( fossil_isalpha(zUtf8[0]) && zUtf8[1]==':'
            && (zUtf8[2]=='\\' || zUtf8[2]=='/')) {
-    zUnicode[2] = '\\';
+    wUnicode[2] = '\\';
     wUnicode += 3;
   }
+  /*
+  ** In the remainder of the path, translate invalid characters to
+  ** characters in the Unicode private use area. This is what makes
+  ** Win32 fossil.exe work well in a Cygwin environment even when a
+  ** filename contains characters which are invalid for Win32.
+  */
   while( *wUnicode != '\0' ){
     if ( (*wUnicode < ' ') || wcschr(L"\"*:<>?|", *wUnicode) ){
       *wUnicode |= 0xF000;

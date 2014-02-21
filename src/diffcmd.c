@@ -601,7 +601,7 @@ const char *diff_command_external(int guiDiff){
 */
 static const char zDiffScript[] =
 @ package require Tk
-@ 
+@
 @ array set CFG {
 @   TITLE      {Fossil Diff}
 @   LN_COL_BG  #dddddd
@@ -624,26 +624,26 @@ static const char zDiffScript[] =
 @   HEIGHT     45
 @   LB_HEIGHT  25
 @ }
-@ 
+@
 @ if {![namespace exists ttk]} {
 @   interp alias {} ::ttk::scrollbar {} ::scrollbar
 @   interp alias {} ::ttk::menubutton {} ::menubutton
 @ }
-@ 
+@
 @ proc dehtml {x} {
 @   set x [regsub -all {<[^>]*>} $x {}]
 @   return [string map {&amp; & &lt; < &gt; > &#39; ' &quot; \"} $x]
 @ }
-@ 
+@
 @ proc cols {} {
 @   return [list .lnA .txtA .mkr .lnB .txtB]
 @ }
-@ 
+@
 @ proc colType {c} {
 @   regexp {[a-z]+} $c type
 @   return $type
 @ }
-@ 
+@
 @ proc readDiffs {fossilcmd} {
 @   set in [open $fossilcmd r]
 @   fconfigure $in -encoding utf-8
@@ -659,10 +659,10 @@ static const char zDiffScript[] =
 @     incr nDiffs
 @     set idx [expr {$nDiffs > 1 ? [.txtA index end] : "1.0"}]
 @     .wfiles.lb insert end $fn
-@     
+@
 @     foreach c [cols] {
 @       while {[gets $in] ne "<pre>"} continue
-@       
+@
 @       if {$nDiffs > 1} {
 @         $c insert end \n -
 @       }
@@ -672,7 +672,7 @@ static const char zDiffScript[] =
 @         $c insert end \n fn
 @       }
 @       $c insert end \n -
-@        
+@
 @       set type [colType $c]
 @       set str {}
 @       while {[set line [gets $in]] ne "</pre>"} {
@@ -682,7 +682,7 @@ static const char zDiffScript[] =
 @         }
 @         append str $line\n
 @       }
-@       
+@
 @       set re {<span class="diff([a-z]+)">([^<]*)</span>}
 @       # Use \r as separator since it can't appear in the diff output (it gets
 @       # converted to a space).
@@ -697,7 +697,7 @@ static const char zDiffScript[] =
 @     }
 @   }
 @   close $in
-@   
+@
 @   foreach c [cols] {
 @     set type [colType $c]
 @     if {$type ne "txt"} {
@@ -709,15 +709,15 @@ static const char zDiffScript[] =
 @     .wfiles.lb config -height $nDiffs
 @     grid remove .wfiles.sb
 @   }
-@   
+@
 @   return $nDiffs
 @ }
-@ 
+@
 @ proc viewDiff {idx} {
 @   .txtA yview $idx
 @   .txtA xview moveto 0
 @ }
-@ 
+@
 @ proc cycleDiffs {{reverse 0}} {
 @   if {$reverse} {
 @     set range [.txtA tag prevrange fn @0,0 1.0]
@@ -735,32 +735,32 @@ static const char zDiffScript[] =
 @     }
 @   }
 @ }
-@ 
+@
 @ proc xvis {col} {
 @   set view [$col xview]
 @   return [expr {[lindex $view 1]-[lindex $view 0]}]
 @ }
-@ 
+@
 @ proc scroll-x {args} {
 @   set c .txt[expr {[xvis .txtA] < [xvis .txtB] ? "A" : "B"}]
 @   eval $c xview $args
 @ }
-@ 
+@
 @ interp alias {} scroll-y {} .txtA yview
-@ 
+@
 @ proc noop {args} {}
-@ 
+@
 @ proc enableSync {axis} {
 @   update idletasks
 @   interp alias {} sync-$axis {}
 @   rename _sync-$axis sync-$axis
 @ }
-@ 
+@
 @ proc disableSync {axis} {
 @   rename sync-$axis _sync-$axis
 @   interp alias {} sync-$axis {} noop
 @ }
-@ 
+@
 @ proc sync-x {col first last} {
 @   disableSync x
 @   $col xview moveto [expr {$first*[xvis $col]/($last-$first)}]
@@ -776,7 +776,7 @@ static const char zDiffScript[] =
 @   }
 @   enableSync x
 @ }
-@ 
+@
 @ proc sync-y {first last} {
 @   disableSync y
 @   foreach c [cols] {
@@ -790,11 +790,12 @@ static const char zDiffScript[] =
 @   }
 @   enableSync y
 @ }
-@ 
+@
 @ wm withdraw .
 @ wm title . $CFG(TITLE)
 @ wm iconname . $CFG(TITLE)
 @ bind . <q> exit
+@ bind . <Destroy> {after 0 exit}
 @ bind . <Tab> {cycleDiffs; break}
 @ bind . <<PrevWindow>> {cycleDiffs 1; break}
 @ bind . <Return> {
@@ -815,7 +816,7 @@ static const char zDiffScript[] =
 @   bind . <$key> "scroll-$axis $args; break"
 @   bind . <Shift-$key> continue
 @ }
-@ 
+@
 @ ::ttk::menubutton .files -text "Files"
 @ toplevel .wfiles
 @ wm withdraw .wfiles
@@ -849,12 +850,12 @@ static const char zDiffScript[] =
 @   %W selection clear 0 end
 @   %W selection set @%x,%y
 @ }
-@ 
+@
 @ foreach {side syncCol} {A .txtB B .txtA} {
 @   set ln .ln$side
 @   text $ln
 @   $ln tag config - -justify right
-@   
+@
 @   set txt .txt$side
 @   text $txt -width $CFG(WIDTH) -height $CFG(HEIGHT) -wrap none \
 @     -xscroll "sync-x $syncCol"
@@ -867,7 +868,7 @@ static const char zDiffScript[] =
 @     -justify center
 @ }
 @ text .mkr
-@ 
+@
 @ foreach c [cols] {
 @   set keyPrefix [string toupper [colType $c]]_COL_
 @   if {[tk windowingsystem] eq "win32"} {$c config -font {courier 9}}
@@ -879,18 +880,18 @@ static const char zDiffScript[] =
 @   bindtags $c ". $c Text all"
 @   bind $c <1> {focus %W}
 @ }
-@ 
+@
 @ ::ttk::scrollbar .sby -command {.txtA yview} -orient vertical
 @ ::ttk::scrollbar .sbxA -command {.txtA xview} -orient horizontal
 @ ::ttk::scrollbar .sbxB -command {.txtB xview} -orient horizontal
 @ frame .spacer
-@ 
+@
 @ if {[readDiffs $fossilcmd] == 0} {
 @   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
 @   exit
 @ }
 @ update idletasks
-@ 
+@
 @ grid rowconfigure . 1 -weight 1
 @ grid columnconfigure . 1 -weight 1
 @ grid columnconfigure . 4 -weight 1
@@ -908,10 +909,12 @@ static const char zDiffScript[] =
 /*
 ** Show diff output in a Tcl/Tk window, in response to the --tk option
 ** to the diff command.
-** 
-** Steps:
+**
+** If fossil has direct access to a Tcl interpreter (either loaded
+** dynamically through stubs or linked in statically), we can use it
+** directly. Otherwise:
 ** (1) Write the Tcl/Tk script used for rendering into a temp file.
-** (2) Invoke "wish" on the temp file using fossil_system().
+** (2) Invoke "tclsh" on the temp file using fossil_system().
 ** (3) Delete the temp file.
 */
 void diff_tk(const char *zSubCmd, int firstArg){
@@ -945,6 +948,20 @@ void diff_tk(const char *zSubCmd, int firstArg){
     blob_write_to_file(&script, zTempFile);
     fossil_print("To see diff, run: tclsh \"%s\"\n", zTempFile);
   }else{
+#if defined(FOSSIL_ENABLE_TCL)
+    Th_FossilInit(TH_INIT_DEFAULT);
+    if( evaluateTclWithEvents(g.interp, &g.tcl, blob_str(&script),
+                              blob_size(&script), 1)==TCL_OK ){
+      blob_reset(&script);
+      return;
+    }
+    /*
+     * If evaluation of the Tcl script fails, the reason may be that Tk
+     * could not be found by the loaded Tcl, or that Tcl cannot be loaded
+     * dynamically (e.g. x64 Tcl with x86 Fossil).  Therefore, fallback
+     * to using the external "tclsh", if available.
+     */
+#endif
     zTempFile = write_blob_to_temp_file(&script);
     zCmd = mprintf("tclsh \"%s\"", zTempFile);
     fossil_system(zCmd);
@@ -990,7 +1007,7 @@ const char *diff_get_binary_glob(void){
 ** currently in the working check-out.
 **
 ** If the "--from VERSION" or "-r VERSION" option is used it specifies
-** the source check-in for the diff operation.  If not specified, the 
+** the source check-in for the diff operation.  If not specified, the
 ** source check-in is the base check-in for the current check-out.
 **
 ** If the "--to VERSION" option appears, it specifies the check-in from
@@ -1017,7 +1034,7 @@ const char *diff_get_binary_glob(void){
 **   --binary PATTERN    Treat files that match the glob PATTERN as binary
 **   --branch BRANCH     Show diff of all changes on BRANCH
 **   --brief             Show filenames only
-**   --context|-c N      Use N lines of context 
+**   --context|-c N      Use N lines of context
 **   --diff-binary BOOL  Include binary files when using external commands
 **   --from|-r VERSION   select VERSION as source for the diff
 **   --internal|-i       use internal diff logic

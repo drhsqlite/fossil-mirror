@@ -44,7 +44,7 @@ static void sqlcmd_content(
   rid = name_to_rid(zName);
   if( rid==0 ) return;
   if( content_get(rid, &cx) ){
-    sqlite3_result_blob(context, blob_buffer(&cx), blob_size(&cx), 
+    sqlite3_result_blob(context, blob_buffer(&cx), blob_size(&cx),
                                  SQLITE_TRANSIENT);
     blob_reset(&cx);
   }
@@ -126,7 +126,6 @@ static int sqlcmd_autoinit(
   return SQLITE_OK;
 }
 
-
 /*
 ** COMMAND: sqlite3
 **
@@ -140,7 +139,7 @@ static int sqlcmd_autoinit(
 ** in ways that are unrecoverable.  Be sure you know what you are doing before
 ** running any SQL commands that modifies the repository database.
 */
-void sqlite3_cmd(void){
+void cmd_sqlite3(void){
   extern int sqlite3_shell(int, char**);
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   db_close(1);

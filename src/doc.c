@@ -485,6 +485,7 @@ void doc_page(void){
     }
     db_end_transaction(0);
   }
+  blob_to_utf8_no_bom(&filebody, 0);
 
   /* The file is now contained in the filebody blob.  Deliver the
   ** file to the user 

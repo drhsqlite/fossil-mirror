@@ -139,8 +139,9 @@ static void initializeVariablesFromDb(void){
   int i, n, size, j;
 
   zName = PD("name","-none-");
-  db_prepare(&q, "SELECT datetime(tkt_mtime,'localtime') AS tkt_datetime, *"
-                 "  FROM ticket WHERE tkt_uuid GLOB '%q*'", zName);
+  db_prepare(&q, "SELECT datetime(tkt_mtime%s) AS tkt_datetime, *"
+                 "  FROM ticket WHERE tkt_uuid GLOB '%q*'",
+                 timeline_utc(), zName);
   if( db_step(&q)==SQLITE_ROW ){
     n = db_column_count(&q);
     for(i=0; i<n; i++){
@@ -515,11 +516,12 @@ static int appendRemarkCmd(
 /*
 ** Write a ticket into the repository.
 */
-static void ticket_put(
+static int ticket_put(
   Blob *pTicket,           /* The text of the ticket change record */
   const char *zTktId,      /* The ticket to which this change is applied */
   int needMod              /* True if moderation is needed */
 ){
+  int result;
   int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
   if( rid==0 ){
     fossil_fatal("trouble committing ticket: %s", g.zErrMsg);
@@ -535,9 +537,14 @@ static void ticket_put(
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   manifest_crosslink_begin();
-  manifest_crosslink(rid, pTicket);
+  result = (manifest_crosslink(rid, pTicket, MC_NONE)==0);
   assert( blob_is_reset(pTicket) );
-  manifest_crosslink_end();
+  if( !result ){
+    result = manifest_crosslink_end(MC_PERMIT_HOOKS);
+  }else{
+    manifest_crosslink_end(MC_NONE);
+  }
+  return result;
 }
 
 /*
@@ -905,17 +912,17 @@ void tkthistory_page(void){
     return;
   }
   db_prepare(&q,
-    "SELECT datetime(mtime,'localtime'), objid, uuid, NULL, NULL, NULL"
+    "SELECT datetime(mtime%s), objid, uuid, NULL, NULL, NULL"
     "  FROM event, blob"
     " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
     "   AND blob.rid=event.objid"
     " UNION "
-    "SELECT datetime(mtime,'localtime'), attachid, uuid, src, filename, user"
+    "SELECT datetime(mtime%s), attachid, uuid, src, filename, user"
     "  FROM attachment, blob"
     " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
     "   AND blob.rid=attachid"
     " ORDER BY 1",
-    tagid, tagid
+    timeline_utc(), tagid, timeline_utc(), tagid
   );
   while( db_step(&q)==SQLITE_ROW ){
     Manifest *pTicket;
@@ -1214,18 +1221,18 @@ void ticket_cmd(void){
           fossil_fatal("no such ticket %h", zTktUuid);
         }  
         db_prepare(&q,
-          "SELECT datetime(mtime,'localtime'), objid, uuid, NULL, NULL, NULL"
+          "SELECT datetime(mtime%s), objid, uuid, NULL, NULL, NULL"
           "  FROM event, blob"
           " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
           "   AND blob.rid=event.objid"
           " UNION "
-          "SELECT datetime(mtime,'localtime'), attachid, uuid, src, "
+          "SELECT datetime(mtime%s), attachid, uuid, src, "
           "       filename, user"
           "  FROM attachment, blob"
           " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
           "   AND blob.rid=attachid"
           " ORDER BY 1 DESC",
-          tagid, tagid
+          timeline_utc(), tagid, timeline_utc(), tagid
         );
         while( db_step(&q)==SQLITE_ROW ){
           Manifest *pTicket;
@@ -1259,12 +1266,12 @@ void ticket_cmd(void){
                 blob_set(&val, pTicket->aField[i].zValue);
                 if( z[0]=='+' ){
                   fossil_print("  Append to ");
-		    z++;
-		  }else{
-		    fossil_print("  Change ");
-                }
-		  fossil_print("%h: ",z);
-		  if( blob_size(&val)>50 || contains_newline(&val)) {
+            z++;
+          }else{
+            fossil_print("  Change ");
+          }
+          fossil_print("%h: ",z);
+          if( blob_size(&val)>50 || contains_newline(&val)) {
                   fossil_print("\n    ",blob_str(&val));
                   comment_print(blob_str(&val),4,79);
                 }else{
@@ -1346,9 +1353,12 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      ticket_put(&tktchng, zTktUuid, 0);
-      printf("ticket %s succeeded for %s\n",
+      if( ticket_put(&tktchng, zTktUuid, 0) ){
+        fossil_fatal("%s\n", g.zErrMsg);
+      }else{
+        fossil_print("ticket %s succeeded for %s\n",
              (eCmd==set?"set":"add"),zTktUuid);
+      }
     }
   }
 }

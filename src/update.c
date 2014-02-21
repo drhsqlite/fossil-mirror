@@ -355,7 +355,7 @@ void update_cmd(void){
     " WHERE id=:idt"
   );
   assert( g.zLocalRoot!=0 );
-  assert( strlen(g.zLocalRoot)>1 );
+  assert( strlen(g.zLocalRoot)>0 );
   assert( g.zLocalRoot[strlen(g.zLocalRoot)-1]=='/' );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);  /* The filename from root */
