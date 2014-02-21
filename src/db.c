@@ -717,7 +717,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
   sqlite3 *db;
 
-#if defined(__CYGWIN__)
+#if defined(__CYGWIN__) && !defined(USE_SYSTEM_SQLITE)
   zDbName = fossil_utf8_to_filename(zDbName);
 #endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
