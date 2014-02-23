@@ -719,12 +719,8 @@ void revert_cmd(void){
         "INSERT OR IGNORE INTO torevert"
         " SELECT pathname"
         "   FROM vfile"
-        "  WHERE origname IN(%B)"
-        " UNION ALL"
-        " SELECT origname"
-        "   FROM vfile"
-        "  WHERE pathname IN(%B) AND origname IS NOT NULL;",
-        &fname, &fname, &fname
+        "  WHERE origname=%B;",
+        &fname, &fname
       );
       blob_reset(&fname);
     }
@@ -737,13 +733,15 @@ void revert_cmd(void){
       "INSERT OR IGNORE INTO torevert "
       " SELECT pathname"
       "   FROM vfile "
-      "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname "
-      " UNION ALL "
-      " SELECT origname"
-      "   FROM vfile"
-      "  WHERE origname!=pathname;"
+      "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname;"
     );
   }
+  db_multi_exec(
+    "INSERT OR IGNORE INTO torevert"
+    " SELECT origname"
+    "   FROM vfile"
+    "  WHERE origname!=pathname AND pathname IN (SELECT name FROM torevert);"
+  );
   blob_zero(&record);
   db_prepare(&q, "SELECT name FROM torevert");
   if( zRevision==0 ){
@@ -770,7 +768,7 @@ void revert_cmd(void){
       db_multi_exec(
         "UPDATE vfile"
         "   SET pathname=origname, origname=NULL"
-        " WHERE pathname=%Q AND origname!=pathname AND origname IS NOT NULL;"
+        " WHERE pathname=%Q AND origname!=pathname;"
         "DELETE FROM vfile WHERE pathname=%Q",
         zFile, zFile
       );
