@@ -766,7 +766,7 @@ void revert_cmd(void){
         fossil_print("DELETE: %s\n", zFile);
       }
       db_multi_exec(
-        "UPDATE vfile"
+        "UPDATE OR REPLACE vfile"
         "   SET pathname=origname, origname=NULL"
         " WHERE pathname=%Q AND origname!=pathname;"
         "DELETE FROM vfile WHERE pathname=%Q",

@@ -136,3 +136,22 @@ revert-test 1-7 {f0 f2 f3n} {
 } -addremove {
   ADDED f0
 } -exists {f0 f2 f3} -notexists {f1 f3n}
+
+
+# Test reverting the combination of a renamed file and an added file that
+# uses the renamed file's original filename.
+#
+repo_init
+write_file f1 "f1"
+fossil add f1
+fossil commit -m "add f1"
+
+write_file f1n "f1n"
+fossil mv f1 f1n
+write_file f1 "f1b"
+fossil add f1
+
+revert-test 2-1 {} {
+  REVERTED: f1
+  DELETE: f1n
+} -exists {f1} -notexists {f1n}
