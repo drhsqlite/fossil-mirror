@@ -863,19 +863,20 @@ void recon_read_dir(char *zPath){
       fossil_filename_free(zUtf8Name);
       if( file_isdir(zSubpath)==1 ){
         recon_read_dir(zSubpath);
+      }else{
+        blob_init(&path, 0, 0);
+        blob_appendf(&path, "%s", zSubpath);
+        if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
+          fossil_fatal("some unknown error occurred while reading \"%s\"",
+                       blob_str(&path));
+        }
+        content_put(&aContent);
+        blob_reset(&path);
+        blob_reset(&aContent);
+        fossil_print("\r%d", ++nFileRead);
+        fflush(stdout);
       }
-      blob_init(&path, 0, 0);
-      blob_appendf(&path, "%s", zSubpath);
-      if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
-        fossil_fatal("some unknown error occurred while reading \"%s\"", 
-                     blob_str(&path));
-      }
-      content_put(&aContent);
-      blob_reset(&path);
-      blob_reset(&aContent);
       free(zSubpath);
-      fossil_print("\r%d", ++nFileRead);
-      fflush(stdout);
     }
     closedir(d);
   }else {
