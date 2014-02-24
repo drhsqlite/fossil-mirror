@@ -606,8 +606,8 @@ int vfile_dir_scan(
           glob_match(pIgnore3, &zPath[nPrefix+1]) ){
         /* do nothing */
 #ifdef _DIRENT_HAVE_D_TYPE
-      }else if( (pEntry->d_type==DT_UNKNOWN) ? (file_wd_isdir(zPath)==1)
-          : (pEntry->d_type==DT_DIR) ){
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isdir(zPath)==1) : (pEntry->d_type==DT_DIR) ){
 #else
       }else if( file_wd_isdir(zPath)==1 ){
 #endif
@@ -623,8 +623,8 @@ int vfile_dir_scan(
           result += count; /* found X normal files? */
         }
 #ifdef _DIRENT_HAVE_D_TYPE
-      }else if( (pEntry->d_type==DT_UNKNOWN) ? (file_wd_isfile_or_link(zPath))
-          : (pEntry->d_type==DT_REG||pEntry->d_type==DT_LNK) ){
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
 #else
       }else if( file_wd_isfile_or_link(zPath) ){
 #endif
