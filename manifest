@@ -1,5 +1,5 @@
-C Speedup\s"fossil\sextras"\sand\sother\scommands\swhich\straverse\sthe\slocal\sfilesystem.\sSee:\s[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg14697.html].\s\nThanks\sto\sSamuel\sDebionne\sfor\sthe\ssuggestion.
-D 2014-02-24T10:56:46.164
+C Documented\sthe\s'l'\sF-card\spermission\sand\sadded\sa\sminor\sclarification\sregarding\sF-card\sUUID\svalues\sfor\sremoved\sfiles.
+D 2014-02-24T18:38:48.100
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -594,7 +594,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
 F www/faq.tcl b9e03410240fcc3907848877a452f2883cda7e86
 F www/faq.wiki 281b387c178fd439a4d2f47856434dd2e54f566f
-F www/fileformat.wiki 5c944bb26530ec1d5284d39533428d902388b7a1
+F www/fileformat.wiki 078c8487ca5b0c5ce509058e355f4a5007798f81
 F www/fiveminutes.wiki f83379e169ba6f17066f2988ad3a4bbf27984748
 F www/foss-cklist.wiki 881f1c5f69f1880c756152cff7a6f9c78ce72d4f
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
@@ -641,8 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bd0b09e50b80461e13c6d2fbdf7d6b4aba128f98 e1bcc99da3684574332b489b9defc142a8d36a0e
-R 938120c54c1e6fbce86634dd398f9882
-T +closed e1bcc99da3684574332b489b9defc142a8d36a0e
-U jan.nijtmans
-Z fefb10f23807615f2e64ff48d0c662d6
+P 3fbdaa243d1832cedb542f68ec2e7558c281a484
+R 17e8779cc879607a908208afa093d90c
+U stephan
+Z 241cddc1f73cb0f792a21d2c893a74fc
