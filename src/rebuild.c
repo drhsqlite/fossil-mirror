@@ -860,7 +860,7 @@ void recon_read_dir(char *zPath){
       zUtf8Name = fossil_filename_to_utf8(pEntry->d_name);
       zSubpath = mprintf("%s/%s", zPath, zUtf8Name);
       fossil_filename_free(zUtf8Name);
-#ifdef XX_DIRENT_HAVE_D_TYPE
+#ifdef _DIRENT_HAVE_D_TYPE
       if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
           ? (file_isdir(zSubpath)==1) : (pEntry->d_type==DT_DIR) )
 #else
