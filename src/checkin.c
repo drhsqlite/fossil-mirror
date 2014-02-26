@@ -602,7 +602,6 @@ void clean_cmd(void){
         char cReply;
         char *prompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
                                zName+nRoot);
-        blob_zero(&ans);
         prompt_user(prompt, &ans);
         cReply = blob_str(&ans)[0];
         if( cReply=='a' || cReply=='A' ){
@@ -644,7 +643,6 @@ void clean_cmd(void){
         char cReply;
         char *prompt = mprintf("Remove empty directory \"%s\" (a=all/y/N)? ",
                                zName+nRoot);
-        blob_zero(&ans);
         prompt_user(prompt, &ans);
         cReply = blob_str(&ans)[0];
         if( cReply=='a' || cReply=='A' ){
@@ -1290,7 +1288,6 @@ static int commit_warning(
       zDisable = "\"encoding-glob\" setting";
     }
     file_relative_name(zFilename, &fname, 0);
-    blob_zero(&ans);
     zMsg = mprintf(
          "%s contains %s. Use --no-warnings or the %s to disable this warning.\n"
          "Commit anyhow (a=all/%sy/N)? ",
@@ -1522,7 +1519,9 @@ void commit_cmd(void){
 
   /* Get the ID of the parent manifest artifact */
   vid = db_lget_int("checkout", 0);
-  if( content_is_private(vid) ){
+  if( vid==0 ){
+    useCksum = 1;
+  }else if( content_is_private(vid) ){
     g.markPrivate = 1;
   }
 
@@ -1531,7 +1530,6 @@ void commit_cmd(void){
   */
   if( !g.markPrivate ){
     if( autosync(SYNC_PULL) ){
-      blob_zero(&ans);
       prompt_user("continue in spite of sync failure (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply!='y' && cReply!='Y' ){
@@ -1544,7 +1542,6 @@ void commit_cmd(void){
   ** clock skew
   */
   if( g.clockSkewSeen ){
-    blob_zero(&ans);
     prompt_user("continue in spite of time skew (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y' ){
@@ -1563,7 +1560,6 @@ void commit_cmd(void){
   ** should be committed.
   */
   if( select_commit_files() ){
-    blob_zero(&ans);
     prompt_user("continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
@@ -1664,7 +1660,6 @@ void commit_cmd(void){
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, &sCiInfo, vid);
     if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
-      blob_zero(&ans);
       prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
@@ -1673,7 +1668,6 @@ void commit_cmd(void){
   }
   if( blob_size(&comment)==0 ){
     if( !dryRunFlag ){
-      blob_zero(&ans);
       prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply!='y' && cReply!='Y' ){
@@ -1806,7 +1800,6 @@ void commit_cmd(void){
     }
   }
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
-    blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y' ){

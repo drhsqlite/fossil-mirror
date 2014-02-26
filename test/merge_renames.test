@@ -3,26 +3,12 @@
 # 
 #
 
-catch {exec $::fossilexe info} res
-puts res=$res
-if {![regexp {use --repository} $res]} {
-  puts stderr "Cannot run this test within an open checkout"
-  return
-}
-
-
-# Fossil will write data on $HOME, running 'fossil new' here.
-# We need not to clutter the $HOME of the test caller.
-set env(HOME) [pwd]
-
-
 ######################################
 #  Test 1                            #
 #  Reported: Ticket [554f44ee74e3d]  #
 ######################################
 
-fossil new rep.fossil
-fossil open rep.fossil
+repo_init
 
 write_file f1 "line"
 fossil add f1
@@ -75,16 +61,12 @@ if {$deletes!=0} {
     test merge_renames-1 1
 }
 
-fossil close -f
-file delete rep.fossil
-
 ######################################
 #  Test 2                            #
 #  Reported: Ticket [74413366fe5067] #
 ######################################
 
-fossil new rep.fossil
-fossil open rep.fossil
+repo_init
 
 write_file f1 "line"
 fossil add f1
@@ -126,17 +108,13 @@ if {$deletes!=0} {
 } else {
     test merge_renames-2 1
 }
-
-fossil close -f
-file delete rep.fossil
 
 ######################################
 #  Test 3                            #
 #  Reported: Ticket [30b28cf351]     #
 ######################################
 
-fossil new rep.fossil
-fossil open rep.fossil
+repo_init
 
 write_file f1 "line"
 fossil add f1
@@ -178,9 +156,6 @@ if {$deletes!=0} {
 } else {
     test merge_renames-2 1
 }
-
-fossil close -f
-file delete rep.fossil
 
 ######################################
 #  Test 4                            #

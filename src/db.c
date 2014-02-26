@@ -717,7 +717,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
   sqlite3 *db;
 
-#if defined(__CYGWIN__)
+#if defined(__CYGWIN__) && !defined(USE_SYSTEM_SQLITE)
   zDbName = fossil_utf8_to_filename(zDbName);
 #endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
@@ -1991,12 +1991,16 @@ void db_record_repository_filename(const char *zName){
 ** and "manifest.uuid" are modified if the --keep option is present.
 **
 ** Options:
+**   --empty    Initialize checkout as being empty, but still connected
+**              with the local repository. If you commit this checkout,
+**              it will become a new "initial" commit in the repository.
 **   --keep     Only modify the manifest and manifest.uuid files
 **   --nested   Allow opening a repository inside an opened checkout
 **
 ** See also: close
 */
 void cmd_open(void){
+  int emptyFlag;
   int keepFlag;
   int allowNested;
   char **oldArgv;
@@ -2004,6 +2008,7 @@ void cmd_open(void){
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0 };
 
   url_proxy_options();
+  emptyFlag = find_option("empty",0,0)!=0;
   keepFlag = find_option("keep",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
   if( g.argc!=3 && g.argc!=4 ){
@@ -2032,18 +2037,20 @@ void cmd_open(void){
   oldArgc = g.argc;
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
-  g.argc = 3;
-  if( oldArgc==4 ){
-    azNewArgv[g.argc-1] = oldArgv[3];
-  }else if( !db_exists("SELECT 1 FROM event WHERE type='ci'") ){
-    azNewArgv[g.argc-1] = "--latest";
-  }else{
-    azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
+  if( !emptyFlag){
+    g.argc = 3;
+    if( oldArgc==4 ){
+      azNewArgv[g.argc-1] = oldArgv[3];
+    }else if( !db_exists("SELECT 1 FROM event WHERE type='ci'") ){
+      azNewArgv[g.argc-1] = "--latest";
+    }else{
+      azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
+    }
+    if( keepFlag ){
+      azNewArgv[g.argc++] = "--keep";
+    }
+    checkout_cmd();
   }
-  if( keepFlag ){
-    azNewArgv[g.argc++] = "--keep";
-  }
-  checkout_cmd();
   g.argc = 2;
   info_cmd();
 }
@@ -2103,62 +2110,64 @@ static void print_setting(
 struct stControlSettings {
   char const *name;     /* Name of the setting */
   char const *var;      /* Internal variable name used by db_set() */
-  int width;            /* Width of display.  0 for boolean values */
+  int width;            /* Width of display.  0 for boolean values. */
   int versionable;      /* Is this setting versionable? */
+  int forceTextArea;    /* Force using a text area for display? */
   char const *def;      /* Default value */
 };
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
-  { "access-log",    0,                0, 0, "off"                 },
-  { "allow-symlinks",0,                0, 1, "off"                 },
-  { "auto-captcha",  "autocaptcha",    0, 0, "on"                  },
-  { "auto-hyperlink",0,                0, 0, "on",                 },
-  { "auto-shun",     0,                0, 0, "on"                  },
-  { "autosync",      0,                0, 0, "on"                  },
-  { "binary-glob",   0,               40, 1, ""                    },
-  { "clearsign",     0,                0, 0, "off"                 },
-#if defined(_WIN32) || defined(__CYGWIN__) || defined(__DARWIN__) || defined(__APPLE__)
-  { "case-sensitive",0,                0, 0, "off"                 },
+  { "access-log",       0,              0, 0, 0, "off"                 },
+  { "allow-symlinks",   0,              0, 1, 0, "off"                 },
+  { "auto-captcha",     "autocaptcha",  0, 0, 0, "on"                  },
+  { "auto-hyperlink",   0,              0, 0, 0, "on",                 },
+  { "auto-shun",        0,              0, 0, 0, "on"                  },
+  { "autosync",         0,              0, 0, 0, "on"                  },
+  { "binary-glob",      0,             40, 1, 0, ""                    },
+  { "clearsign",        0,              0, 0, 0, "off"                 },
+#if defined(_WIN32) || defined(__CYGWIN__) || defined(__DARWIN__) || \
+    defined(__APPLE__)
+  { "case-sensitive",   0,              0, 0, 0, "off"                 },
 #else
-  { "case-sensitive",0,                0, 0, "on"                  },
+  { "case-sensitive",   0,              0, 0, 0, "on"                  },
 #endif
-  { "clean-glob",    0,               40, 1, ""                    },
-  { "crnl-glob",     0,               40, 1, ""                    },
-  { "default-perms", 0,               16, 0, "u"                   },
-  { "diff-binary",   0,                0, 0, "on"                  },
-  { "diff-command",  0,               40, 0, ""                    },
-  { "dont-push",     0,                0, 0, "off"                 },
-  { "editor",        0,               32, 0, ""                    },
-  { "empty-dirs",    0,               40, 1, ""                    },
-  { "encoding-glob",  0,              40, 1, ""                    },
-  { "gdiff-command", 0,               40, 0, "gdiff"               },
-  { "gmerge-command",0,               40, 0, ""                    },
-  { "http-port",     0,               16, 0, "8080"                },
-  { "https-login",   0,                0, 0, "off"                 },
-  { "ignore-glob",   0,               40, 1, ""                    },
-  { "keep-glob",     0,               40, 1, ""                    },
-  { "localauth",     0,                0, 0, "off"                 },
-  { "main-branch",   0,               40, 0, "trunk"               },
-  { "manifest",      0,                0, 1, "off"                 },
-  { "max-upload",    0,               25, 0, "250000"              },
-  { "mtime-changes", 0,                0, 0, "on"                  },
-  { "pgp-command",   0,               40, 0, "gpg --clearsign -o " },
-  { "proxy",         0,               32, 0, "off"                 },
-  { "relative-paths",0,                0, 0, "on"                  },
-  { "repo-cksum",    0,                0, 0, "on"                  },
-  { "self-register", 0,                0, 0, "off"                 },
-  { "ssh-command",   0,               40, 0, ""                    },
-  { "ssl-ca-location",0,              40, 0, ""                    },
-  { "ssl-identity",  0,               40, 0, ""                    },
+  { "clean-glob",       0,             40, 1, 0, ""                    },
+  { "crnl-glob",        0,             40, 1, 0, ""                    },
+  { "default-perms",    0,             16, 0, 0, "u"                   },
+  { "diff-binary",      0,              0, 0, 0, "on"                  },
+  { "diff-command",     0,             40, 0, 0, ""                    },
+  { "dont-push",        0,              0, 0, 0, "off"                 },
+  { "editor",           0,             32, 0, 0, ""                    },
+  { "empty-dirs",       0,             40, 1, 0, ""                    },
+  { "encoding-glob",    0,             40, 1, 0, ""                    },
+  { "gdiff-command",    0,             40, 0, 0, "gdiff"               },
+  { "gmerge-command",   0,             40, 0, 0, ""                    },
+  { "http-port",        0,             16, 0, 0, "8080"                },
+  { "https-login",      0,              0, 0, 0, "off"                 },
+  { "ignore-glob",      0,             40, 1, 0, ""                    },
+  { "keep-glob",        0,             40, 1, 0, ""                    },
+  { "localauth",        0,              0, 0, 0, "off"                 },
+  { "main-branch",      0,             40, 0, 0, "trunk"               },
+  { "manifest",         0,              0, 1, 0, "off"                 },
+  { "max-upload",       0,             25, 0, 0, "250000"              },
+  { "mtime-changes",    0,              0, 0, 0, "on"                  },
+  { "pgp-command",      0,             40, 0, 0, "gpg --clearsign -o " },
+  { "proxy",            0,             32, 0, 0, "off"                 },
+  { "relative-paths",   0,              0, 0, 0, "on"                  },
+  { "repo-cksum",       0,              0, 0, 0, "on"                  },
+  { "self-register",    0,              0, 0, 0, "off"                 },
+  { "ssh-command",      0,             40, 0, 0, ""                    },
+  { "ssl-ca-location",  0,             40, 0, 0, ""                    },
+  { "ssl-identity",     0,             40, 0, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
-  { "tcl",           0,                0, 0, "off"                 },
-  { "tcl-setup",     0,               40, 0, ""                    },
+  { "tcl",              0,              0, 0, 0, "off"                 },
+  { "tcl-setup",        0,             40, 0, 1, ""                    },
 #endif
-  { "th1-setup",     0,               40, 0, ""                    },
-  { "th1-uri-regexp",0,               40, 0, ""                    },
-  { "web-browser",   0,               32, 0, ""                    },
-  { "white-foreground", 0,             0, 0, "off"                 },
-  { 0,0,0,0,0 }
+  { "th1-setup",        0,             40, 0, 1, ""                    },
+  { "th1-uri-regexp",   0,             40, 0, 0, ""                    },
+  { "web-browser",      0,             32, 0, 0, ""                    },
+  { "white-foreground", 0,              0, 0, 0, "off"                 },
+  { 0,0,0,0,0,0 }
 };
 
 /*

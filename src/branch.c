@@ -142,7 +142,6 @@ void branch_new(void){
   if( !noSign && clearsign(&branch, &branch) ){
     Blob ans;
     char cReply;
-    blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y'){
