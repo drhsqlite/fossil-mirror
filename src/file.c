@@ -646,6 +646,7 @@ static int backup_dir(const char *z, int *pJ){
 /*
 ** Simplify a filename by
 **
+**  * Remove extended path prefix on windows and cygwin
 **  * Convert all \ into / on windows and cygwin
 **  * removing any trailing and duplicate /
 **  * removing /./
@@ -666,8 +667,13 @@ int file_simplify_name(char *z, int n, int slash){
     if( z[j]=='\\' ) z[j] = '/';
   }
   if( n>3 && !memcmp(z, "//?/", 4) ){
-    i += 4;
-    z[0] = z[4];
+    if( fossil_strnicmp(z+4,"UNC", 3) ){
+      i += 4;
+      z[0] = z[4];
+    }else{
+      i += 6;
+      z[0] = '/';
+    }
   }
 #endif
 
