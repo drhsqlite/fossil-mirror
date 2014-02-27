@@ -734,9 +734,10 @@ const char *fileext_class(const char *zFilename){
 ** Look at all file containing in the version "vid".  Construct a
 ** temporary table named "fileage" that contains the file-id for each
 ** files, the pathname, the check-in where the file was added, and the
-** mtime on that checkin.
+** mtime on that checkin. If zGlob is not NULL then only files
+** matching the given glob are computed.
 */
-int compute_fileage(int vid){
+int compute_fileage(int vid, char const * zGlob){
   Manifest *pManifest;
   ManifestFile *pFile;
   int nFile = 0;
@@ -762,6 +763,7 @@ int compute_fileage(int vid){
      "  SELECT rid, :path FROM blob WHERE uuid=:uuid"
   );
   while( (pFile = manifest_file_next(pManifest, 0))!=0 ){
+    if(zGlob && !strglob(zGlob, pFile->zName)) continue;
     db_bind_text(&ins, ":uuid", pFile->zUuid);
     db_bind_text(&ins, ":path", pFile->zName);
     db_step(&ins);
@@ -809,16 +811,18 @@ int compute_fileage(int vid){
 ** WEBPAGE:  fileage
 **
 ** Parameters:
-**   name=VERSION
+**   name=VERSION   Selects the checkin version (default=tip).
+**   glob=STRING    Only shows files matching this glob pattern
+**                  (e.g. *.c or *.txt).
 */
 void fileage_page(void){
   int rid;
   const char *zName;
   char *zBaseTime;
+  char const * zGlob;
   Stmt q;
   double baseTime;
   int lastMid = -1;
-
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   zName = P("name");
@@ -829,7 +833,9 @@ void fileage_page(void){
   }
   style_submenu_element("Tree-View", "Tree-View", "%R/tree?ci=%T", zName);
   style_header("File Ages", zName);
-  compute_fileage(rid);
+  zGlob = P("glob");
+  if(zGlob && !*zGlob) zGlob = NULL;
+  compute_fileage(rid,zGlob);
   baseTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
   zBaseTime = db_text("","SELECT datetime(%.20g%s)", baseTime, timeline_utc());
   @ <h2>File Ages For Check-in
