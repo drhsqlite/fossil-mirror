@@ -927,7 +927,7 @@ static int db_exec_readonly(
     }
   }
   rc = sqlite3_finalize(pStmt);
-  fossil_free(azVals);
+  fossil_free((void *)azVals);
   return rc;
 }
 

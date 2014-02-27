@@ -313,7 +313,7 @@ static void stash_diff(
     const char *zOrig = db_column_text(&q, 4);
     const char *zNew = db_column_text(&q, 5);
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
-    Blob delta, a, b, disk;
+    Blob a, b;
     if( rid==0 ){
       db_ephemeral_blob(&q, 6, &a);
       fossil_print("ADDED %s\n", zNew);
@@ -339,6 +339,7 @@ static void stash_diff(
       diff_file_mem(&a, &empty, isBin1, isBin2, zOrig, zDiffCmd,
                     zBinGlob, fIncludeBinary, diffFlags);
     }else{
+      Blob delta, disk;
       int isOrigLink = file_wd_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
       if( fBaseline==0 ){
@@ -365,8 +366,8 @@ static void stash_diff(
         blob_reset(&b);
       }
       if( !fBaseline ) blob_reset(&disk);
+      blob_reset(&delta);
     }
-    blob_reset(&delta);
  }
   db_finalize(&q);
 }
@@ -570,7 +571,6 @@ void stash_cmd(void){
     if( allFlag ){
       Blob ans;
       char cReply;
-      blob_zero(&ans);
       prompt_user("This action is not undoable.  Continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply=='y' || cReply=='Y' ){

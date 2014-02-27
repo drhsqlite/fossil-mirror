@@ -54,6 +54,7 @@ set env(HOME) [pwd]
 exec sqlite3 m5.fossil <$testdir/${testfile}_repo.sql
 fossil rebuild m5.fossil
 fossil open m5.fossil
+fossil user default drh --user drh
 fossil update baseline
 checkout-test 10 {
   da5c8346496f3421cb58f84b6e59e9531d9d424d  one.txt
