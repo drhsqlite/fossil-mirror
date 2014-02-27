@@ -1342,10 +1342,8 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
     }else if( fossil_strcmp(zFieldName,"if-modified-since:")==0 ){
       cgi_setenv("HTTP_IF_MODIFIED_SINCE", zVal);
-#if 0
     }else if( fossil_strcmp(zFieldName,"referer:")==0 ){
       cgi_setenv("HTTP_REFERER", zVal);
-#endif
     }else if( fossil_strcmp(zFieldName,"user-agent:")==0 ){
       cgi_setenv("HTTP_USER_AGENT", zVal);
     }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){

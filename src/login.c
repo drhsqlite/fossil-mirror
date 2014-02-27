@@ -474,6 +474,7 @@ void login_page(void){
   int uid;                     /* User id logged in user */
   char *zSha1Pw;
   const char *zIpAddr;         /* IP address of requestor */
+  const char *zReferer;
 
   login_check_credentials();
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
@@ -534,6 +535,7 @@ void login_page(void){
     }
   }
   zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
+  zReferer = P("HTTP_REFERER");
   uid = login_is_valid_anonymous(zUsername, zPasswd, P("cs"));
   if( uid>0 ){
     login_set_anon_cookie(zIpAddr, NULL);
@@ -572,6 +574,8 @@ void login_page(void){
   form_begin(0, "%R/login");
   if( zGoto ){
     @ <input type="hidden" name="g" value="%h(zGoto)" />
+  }else if( zReferer && strncmp(g.zBaseURL, zReferer, strlen(g.zBaseURL))==0 ){
+    @ <input type="hidden" name="g" value="%h(zReferer)" />
   }
   @ <table class="login_out">
   @ <tr>
