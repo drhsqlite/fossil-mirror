@@ -734,8 +734,8 @@ const char *fileext_class(const char *zFilename){
 ** Look at all file containing in the version "vid".  Construct a
 ** temporary table named "fileage" that contains the file-id for each
 ** files, the pathname, the check-in where the file was added, and the
-** mtime on that checkin. If zGlob is not NULL then only files
-** matching the given glob are computed.
+** mtime on that checkin. If zGlob and *zGlob then only files matching
+** the given glob are computed.
 */
 int compute_fileage(int vid, char const * zGlob){
   Manifest *pManifest;
@@ -745,6 +745,7 @@ int compute_fileage(int vid, char const * zGlob){
   Stmt ins;
   Stmt q1, q2, q3;
   Stmt upd;
+  if(zGlob && !*zGlob) zGlob = NULL;
   db_multi_exec(
     /*"DROP TABLE IF EXISTS temp.fileage;"*/
     "CREATE TEMP TABLE fileage("
@@ -834,7 +835,6 @@ void fileage_page(void){
   style_submenu_element("Tree-View", "Tree-View", "%R/tree?ci=%T", zName);
   style_header("File Ages", zName);
   zGlob = P("glob");
-  if(zGlob && !*zGlob) zGlob = NULL;
   compute_fileage(rid,zGlob);
   baseTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
   zBaseTime = db_text("","SELECT datetime(%.20g%s)", baseTime, timeline_utc());
