@@ -912,8 +912,10 @@ static const char zDiffScript[] =
 @   set fn [tk_getSaveFile]
 @   set out [open $fn wb]
 @   puts $out "set fossilcmd {}"
-@   puts $out "set difftxt [list $::difftxt]"
 @   puts $out "set prog [list $::prog]"
+@   puts $out "set difftxt \173"
+@   foreach e $::difftxt {puts $out [list $e]}
+@   puts $out "\175"
 @   puts $out "eval \$prog"
 @   close $out
 @ }
