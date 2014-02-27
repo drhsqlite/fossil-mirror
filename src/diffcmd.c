@@ -51,11 +51,21 @@ void diff_print_filenames(const char *zLeft, const char *zRight, u64 diffFlags){
   }else if( diffFlags & DIFF_SIDEBYSIDE ){
     int w = diff_width(diffFlags);
     int n1 = strlen(zLeft);
-    int x;
-    if( n1>w*2 ) n1 = w*2;
-    x = w*2+17 - (n1+2);
-    z = mprintf("%.*c %.*s %.*c\n",
-                x/2, '=', n1, zLeft, (x+1)/2, '=');
+    int n2 = strlen(zRight);
+    int x, x2;
+    if( n1==n2 && fossil_strcmp(zLeft,zRight)==0 ){
+      if( n1>w*2 ) n1 = w*2;
+      x = w*2+17 - (n1+2);
+      z = mprintf("%.*c %.*s %.*c\n",
+                 x/2, '=', n1, zLeft, (x+1)/2, '=');
+    }else{
+      if( w<20 ) w = 20;
+      if( n1>w-10 ) n1 = w - 10;
+      if( n2>w-10 ) n2 = w - 10;
+      z = mprintf("%.*c %.*s %.*c versus %.*c %.*s %.*c\n",
+                  (w-n1+10)/2, '=', n1, zLeft, (w-n1+1)/2, '=',
+                  (w-n2)/2, '=', n2, zRight, (w-n2+1)/2, '=');
+    }
   }else{
     z = mprintf("--- %s\n+++ %s\n", zLeft, zRight);
   }
@@ -666,7 +676,10 @@ static const char zDiffScript[] =
 @   set nDiffs 0
 @   array set widths {txt 0 ln 0 mkr 0}
 @   while {[set line [getLine $difftxt $N ii]] != -1} {
-@     if {![regexp {^=+\s+(.*?)\s+=+$} $line all fn]} {
+@     set fn2 {}
+@     if {![regexp {^=+ (.*?) =+ versus =+ (.*?) =+$} $line all fn fn2]
+@      && ![regexp {^=+ (.*?) =+$} $line all fn]
+@     } {
 @       continue
 @     }
 @     if {[string compare -length 6 [getLine $difftxt $N ii] "<table"]} {
@@ -684,6 +697,7 @@ static const char zDiffScript[] =
 @       }
 @       if {[colType $c] eq "txt"} {
 @         $c insert end $fn\n fn
+@         if {$fn2!=""} {set fn $fn2}
 @       } else {
 @         $c insert end \n fn
 @       }
