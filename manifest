@@ -1,5 +1,5 @@
-C Fix\sthe\sfile_copy()\sprocedure\sso\sthat\sit\sautomatically\screates\sdirectories\nleading\sup\sto\sthe\sdestination\sfile.
-D 2014-02-27T23:20:15.807
+C Add\sthe\s"test-file-copy"\scommand\sfor\stesting\sthe\sfile_copy()\sprocedure.
+D 2014-02-27T23:27:52.777
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -339,7 +339,7 @@ F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 8746ce8c2e786d12123334667d047f94cd5c1d7e
 F src/export.c 026f3746292c9c5bddcd454591ff71fb6d846481
-F src/file.c ebd70f300f16a490d578e34d24f57905d8fcd5a9
+F src/file.c 2497b2e4132d61cac591d606c99fafa206d39f72
 F src/finfo.c 6bf9b48229f6e4fd44178b184f860364a000db73
 F src/glob.c aea01d383a35a38a48c5419ba2526ffa79b8c33b
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 59e26ebe94845245056ed07a50e338ed0fb1ce94
-R 65b373b9f85bd1a5e3858b2128adafbe
+P f991688730b21e4a8974bc169e3fe259efe41229
+R 5a8ee206bc3033491a6456845e1b766a
 U drh
-Z d9fcf8bdb79f62af13da771747e3b880
+Z 29dc01ef63eb3b4c5c1f0b7f9d269d0f

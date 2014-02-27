@@ -406,6 +406,22 @@ void file_copy(const char *zFrom, const char *zTo){
 }
 
 /*
+** COMMAND: test-file-copy
+**
+** Usage: %fossil test-file-copy SOURCE DESTINATION
+**
+** Make a copy of the file at SOURCE into a new name DESTINATION.  Any
+** directories in the path leading up to DESTINATION that do not already
+** exist are created automatically.
+*/
+void test_file_copy(void){
+  if( g.argc!=4 ){
+    fossil_fatal("Usage: %s test-file-copy SOURCE DESTINATION", g.argv[0]);
+  }
+  file_copy(g.argv[2], g.argv[3]);
+}
+
+/*
 ** Set or clear the execute bit on a file.  Return true if a change
 ** occurred and false if this routine is a no-op.
 */
