@@ -911,6 +911,8 @@ static const char zDiffScript[] =
 @ proc saveDiff {} {
 @   set fn [tk_getSaveFile]
 @   set out [open $fn wb]
+@   puts $out "#!/usr/bin/tclsh\n#\n# Run this script using 'tclsh' or 'wish'"
+@   puts $out "# to see the graphical diff.\n#"
 @   puts $out "set fossilcmd {}"
 @   puts $out "set prog [list $::prog]"
 @   puts $out "set difftxt \173"
@@ -922,7 +924,7 @@ static const char zDiffScript[] =
 @ ::ttk::button .bb.quit -text {Quit} -command exit
 @ ::ttk::button .bb.save -text {Save As...} -command saveDiff
 @ pack .bb.quit -side left
-@ pack .bb.save -side left
+@ if {$fossilcmd!=""} {pack .bb.save -side left}
 @ pack .bb.files -side left
 @ grid rowconfigure . 1 -weight 1
 @ grid columnconfigure . 1 -weight 1

@@ -3,6 +3,8 @@
 <h2>Changes For Version 1.29 (as yet unreleased)</h2>
   *  Add the ability to display content and diffs for UTF16 text files
      in the web interface.
+  *  Add the "SaveAs..." button to the graphical diff display that results
+     from using the --tk option with the [/help/diff | fossil diff] command.
   *  Honor timezones in imports from git.
   *  The [/reports] page now requires Read ("o") permissions. The "byweek"
      report now properly propagates the selected year through the event type

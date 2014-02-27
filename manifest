@@ -1,5 +1,5 @@
-C updated\sthe\schangelog.
-D 2014-02-27T17:24:38.621
+C Add\sa\sshebang\sand\san\sintroductory\scomment\sto\sthe\sscript\sgenerated\sby\sthe\nSaveAs\sbutton\sin\sthe\sgraphical\sdiff.\s\sUpdate\sthe\schange\slog\sto\smention\sthe\nSaveAs\sbutton.
+D 2014-02-27T17:51:40.261
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -334,7 +334,7 @@ F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
 F src/diff.c afd9c46410520e7f0612ab73dbbde02ea39b8b19
-F src/diffcmd.c 03f223a01cf478a034260e71a9df62324a893b02
+F src/diffcmd.c 8743e12ad1b44446cdeff12bf042c0dfa29cd03c
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 8746ce8c2e786d12123334667d047f94cd5c1d7e
@@ -561,7 +561,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki d4d05c1e0508ade7332024976831ad4dc87d93ae
-F www/changes.wiki db0e963dedd885a9ef389fc5e7010ca7d52f4ccf
+F www/changes.wiki b7adec117fbe7890973f07c1fec0cf761b820341
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b26e9c87995b7b7f63da1486f9d207af44a85258
-R e7cb977320b72c97a2eafeec4b85813b
-U stephan
-Z 912924ac48a5706c47800a37ab827963
+P 45fc909a30fdbd289e763b9f769fb2a9e754ba9b
+R eb8fc1be695833c58f2fa76960522e6a
+U drh
+Z 73cd9eca4e1796dde2c28b2e6ba8309f
