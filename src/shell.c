@@ -3548,11 +3548,13 @@ int main(int argc, char **argv){
   int rc = 0;
   int warnInmemoryDb = 0;
 
-  if( sqlite3_libversion_number()<3008003 ){
-    fprintf(stderr, "Unsuitable SQLite version %s, must be at least 3.8.3",
-            sqlite3_libversion());
+#if !defined(USE_SYSTEM_SQLITE) || USE_SYSTEM_SQLITE!=1
+  if( strcmp(sqlite3_sourceid(),SQLITE_SOURCE_ID)!=0 ){
+    fprintf(stderr, "SQLite header and source version mismatch\n%s\n%s\n",
+            sqlite3_sourceid(), SQLITE_SOURCE_ID);
     exit(1);
   }
+#endif
   Argv0 = argv[0];
   main_init(&data);
   stdin_is_interactive = isatty(0);
@@ -3646,13 +3648,11 @@ int main(int argc, char **argv){
     fprintf(stderr,"%s: Error: no database filename specified\n", Argv0);
     return 1;
 #endif
-    /***** Begin Fossil Patch *****/
-    {
-      extern void fossil_open(const char **);
-      fossil_open(&data.zDbFilename);
-      warnInmemoryDb = 0;
-    }
-    /***** End Fossil Patch *****/
+#ifdef SQLITE_SHELL_DBNAME_PROC
+    { extern void SQLITE_SHELL_DBNAME_PROC(const char**);
+      SQLITE_SHELL_DBNAME_PROC(&data.zDbFilename);
+      warnInmemoryDb = 0; }
+#endif
   }
   data.out = stdout;
 

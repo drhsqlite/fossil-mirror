@@ -148,6 +148,8 @@ set SQLITE_OPTIONS {
 set SHELL_OPTIONS {
   -Dmain=sqlite3_shell
   -DSQLITE_OMIT_LOAD_EXTENSION=1
+  -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE)
+  -DSQLITE_SHELL_DBNAME_PROC=fossil_open
 }
 
 # Options used to compile the included SQLite shell on Windows.
