@@ -159,7 +159,7 @@ void manifest_to_disk(int vid){
       free(zManFile);
     }
   }
-    
+
 }
 
 /*
@@ -177,7 +177,7 @@ void manifest_to_disk(int vid){
 **
 ** The --latest flag can be used in place of VERSION to checkout the
 ** latest version in the repository.
-** 
+**
 ** Options:
 **    --force   Ignore edited files in the current checkout
 **    --keep    Only update the manifest and manifest.uuid files
@@ -192,7 +192,7 @@ void checkout_cmd(void){
   int promptFlag;                /* True to prompt before overwriting */
   int vid, prior;
   Blob cksum1, cksum1b, cksum2;
-  
+
   db_must_be_within_tree();
   db_begin_transaction();
   forceFlag = find_option("force","f",0)!=0;

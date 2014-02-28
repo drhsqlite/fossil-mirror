@@ -1,5 +1,5 @@
-C Fix\suse\sof\sUTF-8\srepository\sfilename\sin\s"fossil\ssqlite3"\scommand.\s(Requires\sminor\schange\sin\sSQLite's\sshell.c)
-D 2014-02-28T08:53:45.664
+C Remove\sunnecessary\sspaces\sat\send-of-lines.\sNo\schange\sin\sfunctionality.
+D 2014-02-28T10:34:05.687
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -319,7 +319,7 @@ F src/browse.c e1adbc058353ca22f30782f6c96355094fefad52
 F src/captcha.c ae1acb833e37968ca23b546fb62f84b52b3e3747
 F src/cgi.c c31113fe7e9b1500340eb1223e34cd656e033f3a
 F src/checkin.c 7a3c8d845d91cc094cd842fe4a9c23d27f117d6e
-F src/checkout.c 42168fb4f49498acdf38a6889cd84c86ee8870db
+F src/checkout.c a584a28bf3eeda1fb36f04507afd9a70e597e9a0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 73486de219e964230427d3246f9625c693afc999
 F src/comformat.c ef14fd3e1d156cd0d30a039d76edc5ca97088d7b
@@ -333,11 +333,11 @@ F src/db.c b6ebe42c812477da45a9c720f0d57fddd3c18abb
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
-F src/diff.c afd9c46410520e7f0612ab73dbbde02ea39b8b19
-F src/diffcmd.c de5913c30c89ed462a9a1c596ca39f9fc2b45eb1
+F src/diff.c 7dee86b5c7654a6c9f6e06c171b2464bf95e1b86
+F src/diffcmd.c dafbc64f5ba7637adaf384f392865bb14ea771a2
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
-F src/event.c 8746ce8c2e786d12123334667d047f94cd5c1d7e
+F src/event.c 1dc85793c6ef93367c2f7087c37d4b2681c07c8e
 F src/export.c 026f3746292c9c5bddcd454591ff71fb6d846481
 F src/file.c 2497b2e4132d61cac591d606c99fafa206d39f72
 F src/finfo.c 6bf9b48229f6e4fd44178b184f860364a000db73
@@ -363,7 +363,7 @@ F src/json_query.c 017ab69953ee208381dc210ee01716585f1bac15
 F src/json_report.c 1bce5178ec70545ec16becdbaac22d785d1880ba
 F src/json_status.c c38b2e51815f2dacb1c48304d56ccb00a063183e
 F src/json_tag.c 70261471bbfe05f47af230561053a4fcbbeba5a9
-F src/json_timeline.c 8796261bcd284ac4f8eb7850f43612fa508ba791
+F src/json_timeline.c 4ba37f8d381b38424fb287969a2da3ea553aa228
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 3ef3369d9107698e407f917ab61be1abac73eef5
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
@@ -393,12 +393,12 @@ F src/rebuild.c 6b5a8f01f8a9c4162d1b5ffaf09bd5904ace390b
 F src/regexp.c 056d7e54c5a85247ee9d003ede339b07ae049a5f
 F src/report.c 88217d6cf9716cb8766abdf50c6477f8c355676d
 F src/rss.c 07012f9ef16e0d46a4ea87b466cb4e0f6798a81f
-F src/schema.c ab4ba29cfd02cfccfef3b3134c47ba018564ab64
+F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 6471b6201f6ea01f2528cbcd4455f990a5caecf6
 F src/setup.c c0e14c5602a604fc333ed5d2975d749d98757c6f
 F src/sha1.c 764d029cbe3704941a7db83c0d0b505f6cdb512f
 F src/shell.c e6d573326f12901df3801777831b48bd80c11dab
-F src/shun.c fb3df5e6017d43dc6589c305f186b9c97bccd307
+F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 6b4958b9250369d74a0cb0432fa46d4b41797c9a
 F src/sqlite3.c e956ce5457a71a45885125a2709bc98e130b0afc
@@ -415,8 +415,8 @@ F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 70a94282e2503ca027b89575d62169c16ccf4097
 F src/th_tcl.c 4cb7c0795483d23b84c082f454dec9cb124cdd32
 F src/timeline.c 865b0125b3d4aa49731dadc7642107e365b115f3
-F src/tkt.c 69f6fe7e18c10cd4a19b31ffcab4c68b284dd895
-F src/tktsetup.c fada8afa77cf96d41ae5c10c0078e64fad09a983
+F src/tkt.c ef0ed01162c8144c8d7d01aee07a79f25c0b6f6d
+F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 7b3ec02e5e293378c23f6a048c7beedcbb6e0ff0
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P af995cf7ea6b0e9422b6529125f4548be10a2a22
-R dac18347422740a7dc0927361fd42ce4
+P 81162e791fb31bc89880bad1536b6cd72512bf7a
+R 0bf4a6624a4aebabe4eff5065dd85513
 U jan.nijtmans
-Z fe1cd9f7e1337775fd4ea7efff02387c
+Z 2ded0b892474b7777803aa59d2c4c3a8

@@ -1307,7 +1307,7 @@ static void sbsDiff(
       sbsWriteText(&s, &B[b+j], SBS_TXTB);
     }
   }
-  
+
   if( s.escHtml && blob_size(s.apCols[SBS_LNA])>0 ){
     blob_append(pOut, "<table class=\"sbsdiffcols\"><tr>\n", -1);
     for(i=SBS_LNA; i<=SBS_TXTB; i++){
@@ -2142,7 +2142,7 @@ void annotation_page(void){
   int fnid;
   int i;
   int iLimit;            /* Depth limit */
-  int annFlags = ANN_FILE_ANCEST;  
+  int annFlags = ANN_FILE_ANCEST;
   int showLog = 0;       /* True to display the log */
   const char *zFilename; /* Name of file to annotate */
   const char *zCI;       /* The check-in containing zFilename */
@@ -2210,7 +2210,7 @@ void annotation_page(void){
   for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
     clr = gradient_color(clr1, clr2, ann.nVers-1, i);
     ann.aVers[i].zBgColor = mprintf("#%06x", clr);
-  }  
+  }
 
   if( showLog ){
     char *zLink = href("%R/finfo?name=%t&ci=%S",zFilename,zCI);
@@ -2240,7 +2240,7 @@ void annotation_page(void){
     @ <hr>
   }
   if( !ann.bLimit ){
-    @ <h2>Origin for each line in 
+    @ <h2>Origin for each line in
     @ %z(href("%R/finfo?name=%h&ci=%S", zFilename, zCI))%h(zFilename)</a>
     @ from check-in %z(href("%R/info/%S",zCI))%S(zCI)</a>:</h2>
     iLimit = ann.nVers+10;
