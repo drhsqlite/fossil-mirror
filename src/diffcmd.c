@@ -52,7 +52,7 @@ void diff_print_filenames(const char *zLeft, const char *zRight, u64 diffFlags){
     int w = diff_width(diffFlags);
     int n1 = strlen(zLeft);
     int n2 = strlen(zRight);
-    int x, x2;
+    int x;
     if( n1==n2 && fossil_strcmp(zLeft,zRight)==0 ){
       if( n1>w*2 ) n1 = w*2;
       x = w*2+17 - (n1+2);
