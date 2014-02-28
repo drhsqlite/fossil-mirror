@@ -192,7 +192,8 @@ char *fossil_filename_to_utf8(const void *zFilename){
 void *fossil_utf8_to_filename(const char *zUtf8){
 #ifdef _WIN32
   int nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
-  wchar_t *zUnicode = sqlite3_malloc( nChar * 2 );
+  /* Overallocate 6 chars, making some room for extended paths */
+  wchar_t *zUnicode = sqlite3_malloc( (nChar+6) * sizeof(wchar_t) );
   wchar_t *wUnicode = zUnicode;
   if( zUnicode==0 ){
     return 0;
@@ -209,13 +210,31 @@ void *fossil_utf8_to_filename(const char *zUtf8){
     wUnicode += 4;
   }
   /*
-  ** If (remainder of) path starts with "<drive>:/" or "<drive>:\",
-  ** leave the ':' intact
-  */
+  ** If there is no "\\?\" prefix but there is a drive or UNC
+  ** path prefix and the path is larger than MAX_PATH chars,
+  ** no Win32 API function can handle that unless it is
+  ** prefixed with the extended path prefix. See:
+  ** <http://msdn.microsoft.com/en-us/library/aa365247(VS.85).aspx#maxpath>
+  **/
   if( fossil_isalpha(zUtf8[0]) && zUtf8[1]==':'
-           && (zUtf8[2]=='\\' || zUtf8[2]=='/')) {
+           && (zUtf8[2]=='\\' || zUtf8[2]=='/') ){
+    if( wUnicode==zUnicode && nChar>MAX_PATH){
+      memmove(wUnicode+4, wUnicode, nChar*sizeof(wchar_t));
+      memcpy(wUnicode, L"\\\\?\\", 4*sizeof(wchar_t));
+      wUnicode += 4;
+    }
+    /*
+    ** If (remainder of) path starts with "<drive>:/" or "<drive>:\",
+    ** leave the ':' intact but translate the backslash to a slash.
+    */
     wUnicode[2] = '\\';
     wUnicode += 3;
+  }else if( wUnicode==zUnicode && nChar>MAX_PATH
+            && (zUtf8[0]=='\\' || zUtf8[0]=='/')
+            && (zUtf8[1]=='\\' || zUtf8[1]=='/') && zUtf8[2]!='?'){
+    memmove(wUnicode+6, wUnicode, nChar*sizeof(wchar_t));
+    memcpy(wUnicode, L"\\\\?\\UNC", 7*sizeof(wchar_t));
+    wUnicode += 7;
   }
   /*
   ** In the remainder of the path, translate invalid characters to

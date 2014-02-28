@@ -1,5 +1,5 @@
-C Remove\sunnecessary\sspaces\sat\send-of-lines.\sNo\schange\sin\sfunctionality.
-D 2014-02-28T10:34:05.687
+C Handle\swin32\sextended\spath\sprefix\severywhere:\sJust\sstrip\sit\sin\sthe\sfunction\sfile_simplify_name(),\sand\sonly\sadd\sit\sback\swhen\sneeded\s(just\sbefore\sfeeding\sit\sto\sa\swin32\sfunction\swhen\s>260\schars).\sIncludes\sadditional\stest-cases.
+D 2014-02-28T13:46:25.028
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -339,7 +339,7 @@ F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 1dc85793c6ef93367c2f7087c37d4b2681c07c8e
 F src/export.c 026f3746292c9c5bddcd454591ff71fb6d846481
-F src/file.c 2497b2e4132d61cac591d606c99fafa206d39f72
+F src/file.c 0c3c2d086a906bb05d18c8e0452750d6128b0028
 F src/finfo.c 6bf9b48229f6e4fd44178b184f860364a000db73
 F src/glob.c aea01d383a35a38a48c5419ba2526ffa79b8c33b
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
@@ -423,7 +423,7 @@ F src/unicode.c 7b3ec02e5e293378c23f6a048c7beedcbb6e0ff0
 F src/update.c c08d95755679485d8c4d196a6f6c7d4a51c73b99
 F src/url.c 2ec980a6a8418481974c664f5e5355f0a84fb179
 F src/user.c 1393a30a7a26a938a3ab7c3528a7b4e617339389
-F src/utf8.c fee86fccf9a04e58a81b28127271144050744f0f
+F src/utf8.c 76559aefffb4f90653eea15c3d68cb2c19834bf4
 F src/util.c 7054510104b0eb24815b856227807dd964115ebe
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
 F src/vfile.c 64d8e49634442edde612084f8b60f4185630d8be
@@ -440,7 +440,7 @@ F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki a789acd5523d840232fcb2164929592260af0743
-F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
+F test/file1.test 9341cfdf08b4ffc5f6e83594fb417267edea1e59
 F test/glob.test 027f2aa0b0c737a0f27d51800802a08f07561beb
 F test/graph-test-1.wiki bd31afde18724d6440846dfa6e1834685d89ba87
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
@@ -641,7 +641,8 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 81162e791fb31bc89880bad1536b6cd72512bf7a
-R 0bf4a6624a4aebabe4eff5065dd85513
+P 3df526ca41bde7564178db3a8ea408e50d631f36 ebb42b530e4c3dc9c8e5c5e8077617ed0590b813
+R 27b6831aa9c462f17bbcb30dd0ed071f
+T +closed ebb42b530e4c3dc9c8e5c5e8077617ed0590b813
 U jan.nijtmans
-Z 2ded0b892474b7777803aa59d2c4c3a8
+Z 3b3c2a110dad298cd79f3fd554914b8f

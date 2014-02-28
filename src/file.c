@@ -698,6 +698,7 @@ static int backup_dir(const char *z, int *pJ){
 /*
 ** Simplify a filename by
 **
+**  * Remove extended path prefix on windows and cygwin
 **  * Convert all \ into / on windows and cygwin
 **  * removing any trailing and duplicate /
 **  * removing /./
@@ -708,13 +709,23 @@ static int backup_dir(const char *z, int *pJ){
 ** is retained.
 */
 int file_simplify_name(char *z, int n, int slash){
-  int i, j;
+  int i = 1, j;
   if( n<0 ) n = strlen(z);
 
-  /* On windows and cygwin convert all \ characters to / */
+  /* On windows and cygwin convert all \ characters to /
+   * and remove extended path prefix if present */
 #if defined(_WIN32) || defined(__CYGWIN__)
-  for(i=0; i<n; i++){
-    if( z[i]=='\\' ) z[i] = '/';
+  for(j=0; j<n; j++){
+    if( z[j]=='\\' ) z[j] = '/';
+  }
+  if( n>3 && !memcmp(z, "//?/", 4) ){
+    if( fossil_strnicmp(z+4,"UNC", 3) ){
+      i += 4;
+      z[0] = z[4];
+    }else{
+      i += 6;
+      z[0] = '/';
+    }
   }
 #endif
 
@@ -725,7 +736,7 @@ int file_simplify_name(char *z, int n, int slash){
 
   /* Remove duplicate '/' characters.  Except, two // at the beginning
   ** of a pathname is allowed since this is important on windows. */
-  for(i=j=1; i<n; i++){
+  for(j=1; i<n; i++){
     z[j++] = z[i];
     while( z[i]=='/' && i<n-1 && z[i+1]=='/' ) i++;
   }
