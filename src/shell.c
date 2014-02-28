@@ -65,9 +65,7 @@
 #if defined(_WIN32) || defined(WIN32)
 # include <io.h>
 #define isatty(h) _isatty(h)
-#ifndef access
-# define access(f,m) _access((f),(m))
-#endif
+#define access(f,m) _access((f),(m))
 #undef popen
 #define popen _popen
 #undef pclose

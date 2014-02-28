@@ -1,5 +1,5 @@
-C Handle\swin32\sextended\spath\sprefix\severywhere:\sJust\sstrip\sit\sin\sthe\sfunction\sfile_simplify_name(),\sand\sonly\sadd\sit\sback\swhen\sneeded\s(just\sbefore\sfeeding\sit\sto\sa\swin32\sfunction\swhen\s>260\schars).\sIncludes\sadditional\stest-cases.
-D 2014-02-28T13:46:25.028
+C Fix\sto\scheck-in\s[81162e791f]\sso\sthat\sit\sdoes\snot\srequire\snon-standard\nmodifications\sto\sthe\sSQLite\s"shell.c"\ssource\sfile.
+D 2014-02-28T15:46:16.154
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -373,7 +373,7 @@ F src/main.c 4c789c29b5a009931c501f9131089a64e53ffa53
 F src/main.mk f1b6f06e097560c9ea9535717dba6fd9259d7bd4
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 91845bdf38e1b16b53db6bd70e915192ce5e4084
+F src/makemake.tcl 109e97524e28534397a5b05e4eb3f35451699d5b
 F src/manifest.c a3f27c6bc39104d4c122697b978b64b40b9dc446
 F src/markdown.c 717f7f14927414811b61475a6fb9edc34e6cf90b
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
@@ -397,7 +397,7 @@ F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 6471b6201f6ea01f2528cbcd4455f990a5caecf6
 F src/setup.c c0e14c5602a604fc333ed5d2975d749d98757c6f
 F src/sha1.c 764d029cbe3704941a7db83c0d0b505f6cdb512f
-F src/shell.c e6d573326f12901df3801777831b48bd80c11dab
+F src/shell.c bf75ce6bea4c8f56c1b46bee201c25acddffb675
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 6b4958b9250369d74a0cb0432fa46d4b41797c9a
@@ -531,7 +531,7 @@ F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake dadf59a2a71e1f7f35e1a1e4b6e154d86a130e60
 F win/Makefile.dmc f1622155f72dacb0b46db99ef5c0be48fbfb27b8
 F win/Makefile.mingw cd95c6ac56ed4428be7b70d825dfa1cedf35df67
-F win/Makefile.mingw.mistachkin 14b81dc44f4ab155acfadbde570de7fcb6776afa
+F win/Makefile.mingw.mistachkin 929e649c1e823d9a0a5a71e2e072af46c804f970
 F win/Makefile.msc ab457d0ca6fb484154f64ffaeeff288ddd8faf34
 F win/buildmsvc.bat 4621013bd2c253a7683d2542aa018c73c35c96a3
 F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
@@ -641,8 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3df526ca41bde7564178db3a8ea408e50d631f36 ebb42b530e4c3dc9c8e5c5e8077617ed0590b813
-R 27b6831aa9c462f17bbcb30dd0ed071f
-T +closed ebb42b530e4c3dc9c8e5c5e8077617ed0590b813
-U jan.nijtmans
-Z 3b3c2a110dad298cd79f3fd554914b8f
+P 95f004b1c535c545941ebe7512d7684f1250309b
+R 6c7f68e5ac64c7cd0081faf43b633408
+U drh
+Z f86abee1bb84fdbf54362be0b87b5d88
