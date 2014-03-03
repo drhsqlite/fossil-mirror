@@ -535,6 +535,9 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
         }
       }
     }
+    if( pLine->indent && i==0 ){
+      blob_appendf(pCol, "%*s", pLine->indent, " ");
+    }
     if( c=='\t' && !p->escHtml ){
       blob_append(pCol, " ", 1);
       while( (k&7)!=7 && (p->escHtml || k<w) ){
@@ -562,7 +565,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
   if( col==SBS_TXTB ){
     sbsWriteNewlines(p);
   }else if( !p->escHtml ){
-    sbsWriteSpace(p, w-k, SBS_TXTA);
+    sbsWriteSpace(p, w-k-pLine->indent, SBS_TXTA);
   }
 }
 
