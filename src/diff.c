@@ -57,8 +57,8 @@
 #define DIFF_TOO_MANY_CHANGES \
     "more than 10,000 changes\n"
 
-#define DIFF_EOLWS_ONLY \
-    "only end-of-line whitespace changed\n"
+#define DIFF_WHITESPACE_ONLY \
+    "whitespace changes only\n"
 
 /*
 ** Maximum length of a line in a text file, in bytes.  (2**13 = 8192 bytes)
@@ -79,6 +79,7 @@ typedef struct DLine DLine;
 struct DLine {
   const char *z;        /* The text of the line */
   unsigned int h;       /* Hash of the line */
+  unsigned int indent;  /* Indent of the line. Only !=0 with --ignore-space-at sol option */
   unsigned int iNext;   /* 1+(Index of next line with same the same hash) */
 
   /* an array of DLine elements serves two purposes.  The fields
@@ -132,7 +133,7 @@ struct DContext {
 ** the CPU time on a diff.
 */
 static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags){
-  int nLine, i, j, k, s, x;
+  int nLine, i, j, k, s, indent, x;
   unsigned int h, h2;
   DLine *a;
 
@@ -167,13 +168,20 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
     for(j=0; z[j] && z[j]!='\n'; j++){}
     k = j;
     s = 0;
+    indent = 0;
     if( diffFlags & DIFF_IGNORE_EOLWS ){
       while( k>0 && fossil_isspace(z[k-1]) ){ k--; }
     }
     if( diffFlags & DIFF_IGNORE_SOLWS ){
       while( s<k && fossil_isspace(z[s]) ){ s++; }
+      if( z[s]=='\t' ){
+        indent = ((indent+9)/8)*8;
+      }else if( z[s]==' ' ){
+        indent++;
+      }
     }
     a[i].z = z+s;
+    a[i].indent = s;
     for(h=0, x=s; x<k; x++){
       h = h ^ (h<<2) ^ z[x];
     }
@@ -233,11 +241,17 @@ static void appendDiffLine(
     }else if( cPrefix=='-' ){
       blob_append(pOut, "<span class=\"diffrm\">", -1);
     }
+    if( pLine->indent ){
+      blob_appendf(pOut, "%*s", pLine->indent, " ");
+    }
     htmlize_to_blob(pOut, pLine->z, (pLine->h & LENGTH_MASK));
     if( cPrefix!=' ' ){
       blob_append(pOut, "</span>", -1);
     }
   }else{
+    if( pLine->indent ){
+      blob_appendf(pOut, "%*s", pLine->indent, " ");
+    }
     blob_append(pOut, pLine->z, pLine->h & LENGTH_MASK);
   }
   blob_append(pOut, "\n", 1);
@@ -1765,7 +1779,7 @@ int *text_diff(
   ReCompiled *pRe, /* Only output changes where this Regexp matches */
   u64 diffFlags    /* DIFF_* flags defined above */
 ){
-  int ignoreEolWs; /* Ignore whitespace at the end of lines */
+  int ignoreWs; /* Ignore whitespace */
   DContext c;
 
   if( diffFlags & DIFF_INVERT ){
@@ -1773,7 +1787,7 @@ int *text_diff(
     pA_Blob = pB_Blob;
     pB_Blob = pTemp;
   }
-  ignoreEolWs = (diffFlags & DIFF_IGNORE_EOLWS)!=0;
+  ignoreWs = (diffFlags & (DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))!=0;
   blob_to_utf8_no_bom(pA_Blob, 0);
   blob_to_utf8_no_bom(pB_Blob, 0);
 
@@ -1794,11 +1808,11 @@ int *text_diff(
 
   /* Compute the difference */
   diff_all(&c);
-  if( ignoreEolWs && c.nEdit==6 && c.aEdit[1]==0 && c.aEdit[2]==0 ){
+  if( ignoreWs && c.nEdit==6 && c.aEdit[1]==0 && c.aEdit[2]==0 ){
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
     fossil_free(c.aEdit);
-    if( pOut ) diff_errmsg(pOut, DIFF_EOLWS_ONLY, diffFlags);
+    if( pOut ) diff_errmsg(pOut, DIFF_WHITESPACE_ONLY, diffFlags);
     return 0;
   }
   if( (diffFlags & DIFF_NOTTOOBIG)!=0 ){
