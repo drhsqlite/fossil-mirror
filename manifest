@@ -1,5 +1,5 @@
-C Rename\s--ignore-eolws\sback\sto\s--ignore-space-at-eol.\sChange\slast\sparameter\sof\sbreak_into_lines()\sto\shold\smultiple\sflags.\sThis\sopens\sthe\sway\sto\simplement\s--ignore-all-space"\sand\s"--ignore-space-at-sol"\sas\swell.
-D 2014-03-03T10:15:38.010
+C Wrong\sparameter\stype:\sshould\sbe\s64\sbits\sotherwise\sthe\sdiffFlags\sparameter\scannot\shold\sall\spossible\sbits.
+D 2014-03-03T10:28:06.348
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -333,7 +333,7 @@ F src/db.c b6ebe42c812477da45a9c720f0d57fddd3c18abb
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
-F src/diff.c e60c3a6989ff722aba424301b96ba3d97b9a8df2
+F src/diff.c 0cc3fb028ecf791bea006a24665b9d405c92ac1a
 F src/diffcmd.c d307ff3dfcc07588c75877863cfcc3f3cafcd5ee
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 31d25923bd1626fc1477ea108c68a6aff1febb76
-R 1e9728679b85c51b6ef74fc1c3d5c57b
+P 2dffb0e0262ace15f9a6d70ee80f10abc545d8f3
+R ebde0b9fd5f06009be5dcc87b100f19a
 U jan.nijtmans
-Z 441890161921833e7b4d7a97e96947d8
+Z 5bb815a3a2260985a587b02018d30981

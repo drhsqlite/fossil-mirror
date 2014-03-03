@@ -130,11 +130,11 @@ struct DContext {
 ** Profiling show that in most cases this routine consumes the bulk of
 ** the CPU time on a diff.
 */
-static DLine *break_into_lines(const char *z, int n, int *pnLine, int diffFlags){
+static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags){
   int nLine, i, j, k, x;
   unsigned int h, h2;
   DLine *a;
-  int ignoreWS = diffFlags & DIFF_IGNORE_EOLWS;
+  int ignoreWS = (diffFlags & DIFF_IGNORE_EOLWS)!=0;
 
   /* Count the number of lines.  Allocate space to hold
   ** the returned array.
