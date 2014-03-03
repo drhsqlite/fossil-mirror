@@ -1104,7 +1104,7 @@ void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
   int isInternDiff;          /* True for internal diff */
   int verboseFlag;           /* True if -v or --verbose flag is used */
-    const char *zFrom;         /* Source version number */
+  const char *zFrom;         /* Source version number */
   const char *zTo;           /* Target version number */
   const char *zBranch;       /* Branch to diff */
   const char *zDiffCmd = 0;  /* External diff command. NULL for internal diff */

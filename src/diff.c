@@ -1867,10 +1867,12 @@ int *text_diff(
 **   --html                 Format for HTML        DIFF_HTML
 **   --invert               Invert the diff        DIFF_INVERT
 **   --ignore-space-at-eol  Ignore eol-whitespaces DIFF_IGNORE_EOLWS
+**   --ignore-space-at-sol  Ignore sol-whitespaces DIFF_IGNORE_SOLWS
 **   --linenum|-n           Show line numbers      DIFF_LINENO
 **   --noopt                Disable optimization   DIFF_NOOPT
 **   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
 **   --unified              Unified diff.          ~DIFF_SIDEBYSIDE
+**   -w                     Ignore all whitespaces DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS
 **   --width|-W N           N character lines.     DIFF_WIDTH_MASK
 */
 u64 diff_options(void){
