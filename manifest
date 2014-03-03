@@ -1,5 +1,5 @@
-C re-generate\sother\smakefiles
-D 2014-02-28T20:00:02.711
+C Bug-fix:\scorrect\scalculation\sof\shash-value\sfor\slines\swith\sdifferent\seol-spacing.\sTaken\sfrom\s[8f885df209],\sbut\swithout\sthe\sother\senhancements.\s\nEliminate\ssome\sdouble\ssemicolons.
+D 2014-03-03T15:00:42.445
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -318,7 +318,7 @@ F src/branch.c 77f611a2b91f7dc54b7f0c7d985db21a9d254832
 F src/browse.c e1adbc058353ca22f30782f6c96355094fefad52
 F src/captcha.c ae1acb833e37968ca23b546fb62f84b52b3e3747
 F src/cgi.c c31113fe7e9b1500340eb1223e34cd656e033f3a
-F src/checkin.c 7a3c8d845d91cc094cd842fe4a9c23d27f117d6e
+F src/checkin.c 1fc3ebb7e77398ba3f67c5ed80511232d199dda8
 F src/checkout.c a584a28bf3eeda1fb36f04507afd9a70e597e9a0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 73486de219e964230427d3246f9625c693afc999
@@ -333,7 +333,7 @@ F src/db.c b6ebe42c812477da45a9c720f0d57fddd3c18abb
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
-F src/diff.c 7dee86b5c7654a6c9f6e06c171b2464bf95e1b86
+F src/diff.c 543f54ceb44fd45f8771d5223bd55c9af3d48dd2
 F src/diffcmd.c 9ad41c4b0455bb9cf853a3829385f60cdb824f24
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3d7eaeda866cc831d59abe2b1ddf15184aa14c4a
-R d945c507530a3b91f68281d5d6afe05c
+P d3b2dabaa5eb64e1f73595bbe9e42d9586d5ac9e
+R 4ae7eb29c453cd99c1ab721c0658c80c
 U jan.nijtmans
-Z 267fbf2e2483b9aaafdb81ecc6e3b156
+Z 770176270470e681c3f5ec1718e5859d

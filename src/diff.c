@@ -164,10 +164,10 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
     for(j=0; z[j] && z[j]!='\n'; j++){}
     k = j;
     while( ignoreWS && k>0 && fossil_isspace(z[k-1]) ){ k--; }
-    for(h=0, x=0; x<=k; x++){
+    for(h=0, x=0; x<k; x++){
       h = h ^ (h<<2) ^ z[x];
     }
-    a[i].h = h = (h<<LENGTH_MASK_SZ) | k;;
+    a[i].h = h = (h<<LENGTH_MASK_SZ) | k;
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
     a[h2].iHash = i+1;
