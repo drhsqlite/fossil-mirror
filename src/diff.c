@@ -173,11 +173,13 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
       while( k>0 && fossil_isspace(z[k-1]) ){ k--; }
     }
     if( diffFlags & DIFF_IGNORE_SOLWS ){
-      while( s<k && fossil_isspace(z[s]) ){ s++; }
-      if( z[s]=='\t' ){
-        indent = ((indent+9)/8)*8;
-      }else if( z[s]==' ' ){
-        indent++;
+      while( s<k && fossil_isspace(z[s]) ){
+        if( z[s]=='\t' ){
+          indent = ((indent+9)/8)*8;
+        }else if( z[s]==' ' ){
+          indent++;
+        }
+        s++;
       }
     }
     a[i].z = z+s;
