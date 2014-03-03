@@ -1787,19 +1787,23 @@ int *text_diff(
 
   /* Compute the difference */
   diff_all(&c);
+  if( ignoreEolWs && c.nEdit==6 && c.aEdit[1]==0 && c.aEdit[2]==0 ){
+    fossil_free(c.aFrom);
+    fossil_free(c.aTo);
+    fossil_free(c.aEdit);
+    if( pOut ) diff_errmsg(pOut, DIFF_EOLWS_ONLY, diffFlags);
+    return 0;
+  }
   if( (diffFlags & DIFF_NOTTOOBIG)!=0 ){
     int i, m, n;
     int *a = c.aEdit;
     int mx = c.nEdit;
     for(i=m=n=0; i<mx; i+=3){ m += a[i]; n += a[i+1]+a[i+2]; }
-    if( n==0 || n>10000 ){
+    if( n>10000 ){
       fossil_free(c.aFrom);
       fossil_free(c.aTo);
       fossil_free(c.aEdit);
-      if( pOut ) {
-        diff_errmsg(pOut, n==0 ? DIFF_EOLWS_ONLY : DIFF_TOO_MANY_CHANGES,
-                    diffFlags);
-      }
+      if( pOut ) diff_errmsg(pOut, DIFF_TOO_MANY_CHANGES, diffFlags);
       return 0;
     }
   }

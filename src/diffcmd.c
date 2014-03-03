@@ -1081,19 +1081,20 @@ const char *diff_get_binary_glob(void){
 ** This option overrides the "binary-glob" setting.
 **
 ** Options:
-**   --binary PATTERN    Treat files that match the glob PATTERN as binary
-**   --branch BRANCH     Show diff of all changes on BRANCH
-**   --brief             Show filenames only
-**   --context|-c N      Use N lines of context
-**   --diff-binary BOOL  Include binary files when using external commands
-**   --from|-r VERSION   select VERSION as source for the diff
-**   --internal|-i       use internal diff logic
-**   --side-by-side|-y   side-by-side diff
-**   --tk                Launch a Tcl/Tk GUI for display
-**   --to VERSION        select VERSION as target for the diff
-**   --unified           unified diff
-**   -v|--verbose        output complete text of added or deleted files
-**   -W|--width          Width of lines in side-by-side diff
+**   --binary PATTERN       Treat files that match the glob PATTERN as binary
+**   --branch BRANCH        Show diff of all changes on BRANCH
+**   --brief                Show filenames only
+**   --context|-c N         Use N lines of context
+**   --diff-binary BOOL     Include binary files when using external commands
+**   --from|-r VERSION      select VERSION as source for the diff
+**   --ignore-space-at-eol  Ignore changes to end-of-line whitespace
+**   --internal|-i          use internal diff logic
+**   --side-by-side|-y      side-by-side diff
+**   --tk                   Launch a Tcl/Tk GUI for display
+**   --to VERSION           select VERSION as target for the diff
+**   --unified              unified diff
+**   -v|--verbose           output complete text of added or deleted files
+**   -W|--width             Width of lines in side-by-side diff
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
@@ -1123,6 +1124,9 @@ void diff_cmd(void){
     verboseFlag = find_option("new-file","N",0)!=0; /* deprecated */
   }
   if( verboseFlag ) diffFlags |= DIFF_VERBOSE;
+  if( find_option("ignore-space-at-eol",0,0)!=0 ) {
+    diffFlags |= DIFF_IGNORE_EOLWS;
+  }
 
   if( zBranch ){
     if( zTo || zFrom ){
