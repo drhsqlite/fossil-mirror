@@ -1089,12 +1089,15 @@ const char *diff_get_binary_glob(void){
 **   --diff-binary BOOL     Include binary files when using external commands
 **   --from|-r VERSION      select VERSION as source for the diff
 **   --ignore-space-at-eol  Ignore changes to end-of-line whitespace
+**   --ignore-space-at-sol  Ignore changes to start-of-line whitespace
 **   --internal|-i          use internal diff logic
 **   --side-by-side|-y      side-by-side diff
 **   --tk                   Launch a Tcl/Tk GUI for display
 **   --to VERSION           select VERSION as target for the diff
 **   --unified              unified diff
 **   -v|--verbose           output complete text of added or deleted files
+**   -w                     Ignore changes to start-of-line and end-of-line
+**                          whitespace
 **   -W|--width             Width of lines in side-by-side diff
 */
 void diff_cmd(void){

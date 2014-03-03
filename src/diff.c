@@ -42,6 +42,7 @@
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
+#define DIFF_IGNORE_SOLWS (((u64)0x10)<<32) /* Ignore start-of-line whitespace */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -131,10 +132,9 @@ struct DContext {
 ** the CPU time on a diff.
 */
 static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags){
-  int nLine, i, j, k, x;
+  int nLine, i, j, k, s, x;
   unsigned int h, h2;
   DLine *a;
-  int ignoreWS = (diffFlags & DIFF_IGNORE_EOLWS)!=0;
 
   /* Count the number of lines.  Allocate space to hold
   ** the returned array.
@@ -164,14 +164,20 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
 
   /* Fill in the array */
   for(i=0; i<nLine; i++){
-    a[i].z = z;
     for(j=0; z[j] && z[j]!='\n'; j++){}
     k = j;
-    while( ignoreWS && k>0 && fossil_isspace(z[k-1]) ){ k--; }
-    for(h=0, x=0; x<k; x++){
+    s = 0;
+    if( diffFlags & DIFF_IGNORE_EOLWS ){
+      while( k>0 && fossil_isspace(z[k-1]) ){ k--; }
+    }
+    if( diffFlags & DIFF_IGNORE_SOLWS ){
+      while( s<k && fossil_isspace(z[s]) ){ s++; }
+    }
+    a[i].z = z+s;
+    for(h=0, x=s; x<k; x++){
       h = h ^ (h<<2) ^ z[x];
     }
-    a[i].h = h = (h<<LENGTH_MASK_SZ) | k;
+    a[i].h = h = (h<<LENGTH_MASK_SZ) | (k-s);
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
     a[h2].iHash = i+1;
@@ -1864,7 +1870,9 @@ u64 diff_options(void){
     diffFlags |= f;
   }
   if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
-  if( find_option("ignore-space-at-eol","w",0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
+  if( find_option("ignore-space-at-sol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_SOLWS;
+  if( find_option("ignore-space-at-eol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
+  if( find_option("w",0,0)!=0 ) diffFlags |= (DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS);
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
