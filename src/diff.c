@@ -56,6 +56,9 @@
 #define DIFF_TOO_MANY_CHANGES \
     "more than 10,000 changes\n"
 
+#define DIFF_EOLWS_ONLY \
+    "only end-of-line whitespace changed\n"
+
 /*
 ** Maximum length of a line in a text file, in bytes.  (2**13 = 8192 bytes)
 */
@@ -164,10 +167,10 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
     for(j=0; z[j] && z[j]!='\n'; j++){}
     k = j;
     while( ignoreWS && k>0 && fossil_isspace(z[k-1]) ){ k--; }
-    for(h=0, x=0; x<=k; x++){
+    for(h=0, x=0; x<k; x++){
       h = h ^ (h<<2) ^ z[x];
     }
-    a[i].h = h = (h<<LENGTH_MASK_SZ) | k;;
+    a[i].h = h = (h<<LENGTH_MASK_SZ) | k;
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
     a[h2].iHash = i+1;
@@ -1789,11 +1792,14 @@ int *text_diff(
     int *a = c.aEdit;
     int mx = c.nEdit;
     for(i=m=n=0; i<mx; i+=3){ m += a[i]; n += a[i+1]+a[i+2]; }
-    if( n>10000 ){
+    if( n==0 || n>10000 ){
       fossil_free(c.aFrom);
       fossil_free(c.aTo);
       fossil_free(c.aEdit);
-      diff_errmsg(pOut, DIFF_TOO_MANY_CHANGES, diffFlags);
+      if( pOut ) {
+        diff_errmsg(pOut, n==0 ? DIFF_EOLWS_ONLY : DIFF_TOO_MANY_CHANGES,
+                    diffFlags);
+      }
       return 0;
     }
   }
