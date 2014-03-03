@@ -1088,7 +1088,7 @@ const char *diff_get_binary_glob(void){
 **   --context|-c N         Use N lines of context
 **   --diff-binary BOOL     Include binary files when using external commands
 **   --from|-r VERSION      select VERSION as source for the diff
-**   --ignore-eolws|-w      Ignore changes to end-of-line whitespace
+**   --ignore-space-at-eol  Ignore changes to end-of-line whitespace
 **   --internal|-i          use internal diff logic
 **   --side-by-side|-y      side-by-side diff
 **   --tk                   Launch a Tcl/Tk GUI for display

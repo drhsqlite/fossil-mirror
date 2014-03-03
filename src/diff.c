@@ -130,10 +130,11 @@ struct DContext {
 ** Profiling show that in most cases this routine consumes the bulk of
 ** the CPU time on a diff.
 */
-static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
+static DLine *break_into_lines(const char *z, int n, int *pnLine, int diffFlags){
   int nLine, i, j, k, x;
   unsigned int h, h2;
   DLine *a;
+  int ignoreWS = diffFlags & DIFF_IGNORE_EOLWS;
 
   /* Count the number of lines.  Allocate space to hold
   ** the returned array.
@@ -1773,9 +1774,9 @@ int *text_diff(
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
   c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
-                             &c.nFrom, ignoreEolWs);
+                             &c.nFrom, diffFlags);
   c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
-                           &c.nTo, ignoreEolWs);
+                           &c.nTo, diffFlags);
   if( c.aFrom==0 || c.aTo==0 ){
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
@@ -1840,7 +1841,7 @@ int *text_diff(
 **   --context|-c N         N lines of context.    DIFF_CONTEXT_MASK
 **   --html                 Format for HTML        DIFF_HTML
 **   --invert               Invert the diff        DIFF_INVERT
-**   --ignore-eolws|-w      Ignore eol-whitespaces DIFF_IGNORE_EOLWS
+**   --ignore-space-at-eol  Ignore eol-whitespaces DIFF_IGNORE_EOLWS
 **   --linenum|-n           Show line numbers      DIFF_LINENO
 **   --noopt                Disable optimization   DIFF_NOOPT
 **   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
@@ -1863,7 +1864,7 @@ u64 diff_options(void){
     diffFlags |= f;
   }
   if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
-  if( find_option("ignore-eolws","w",0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
+  if( find_option("ignore-space-at-eol","w",0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
@@ -1970,7 +1971,7 @@ static int annotation_start(Annotator *p, Blob *pInput){
   int i;
 
   memset(p, 0, sizeof(*p));
-  p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,1);
+  p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,DIFF_IGNORE_EOLWS);
   if( p->c.aTo==0 ){
     return 1;
   }
@@ -1997,7 +1998,7 @@ static int annotation_step(Annotator *p, Blob *pParent, int iVers){
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
-                                &p->c.nFrom, 1);
+                                &p->c.nFrom, DIFF_IGNORE_EOLWS);
   if( p->c.aFrom==0 ){
     return 1;
   }
