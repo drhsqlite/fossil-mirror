@@ -973,7 +973,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
   char *zTempFile = 0;
   char *zCmd;
   blob_zero(&script);
-  blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v",
+  blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v -w",
                g.nameOfExe, zSubCmd);
   for(i=firstArg; i<g.argc; i++){
     const char *z = g.argv[i];
@@ -981,6 +981,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
       if( strglob("*-html",z) ) continue;
       if( strglob("*-y",z) ) continue;
       if( strglob("*-i",z) ) continue;
+      if( strglob("*-w",z) ) continue;
       /* The undocumented --script FILENAME option causes the Tk script to
       ** be written into the FILENAME instead of being run.  This is used
       ** for testing and debugging. */
@@ -1087,7 +1088,7 @@ const char *diff_get_binary_glob(void){
 **   --context|-c N         Use N lines of context
 **   --diff-binary BOOL     Include binary files when using external commands
 **   --from|-r VERSION      select VERSION as source for the diff
-**   --ignore-space-at-eol  Ignore changes to end-of-line whitespace
+**   --ignore-eolws|-w      Ignore changes to end-of-line whitespace
 **   --internal|-i          use internal diff logic
 **   --side-by-side|-y      side-by-side diff
 **   --tk                   Launch a Tcl/Tk GUI for display
@@ -1124,10 +1125,6 @@ void diff_cmd(void){
     verboseFlag = find_option("new-file","N",0)!=0; /* deprecated */
   }
   if( verboseFlag ) diffFlags |= DIFF_VERBOSE;
-  if( find_option("ignore-space-at-eol",0,0)!=0 ) {
-    diffFlags |= DIFF_IGNORE_EOLWS;
-  }
-
   if( zBranch ){
     if( zTo || zFrom ){
       fossil_fatal("cannot use --from or --to with --branch");

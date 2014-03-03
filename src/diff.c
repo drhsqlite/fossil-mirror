@@ -1840,6 +1840,7 @@ int *text_diff(
 **   --context|-c N         N lines of context.    DIFF_CONTEXT_MASK
 **   --html                 Format for HTML        DIFF_HTML
 **   --invert               Invert the diff        DIFF_INVERT
+**   --ignore-eolws|-w      Ignore eol-whitespaces DIFF_IGNORE_EOLWS
 **   --linenum|-n           Show line numbers      DIFF_LINENO
 **   --noopt                Disable optimization   DIFF_NOOPT
 **   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
@@ -1862,6 +1863,7 @@ u64 diff_options(void){
     diffFlags |= f;
   }
   if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
+  if( find_option("ignore-eolws","w",0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
