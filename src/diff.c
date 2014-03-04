@@ -2000,7 +2000,8 @@ static int annotation_start(Annotator *p, Blob *pInput){
   int i;
 
   memset(p, 0, sizeof(*p));
-  p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,DIFF_IGNORE_EOLWS);
+  p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,
+                              DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS);
   if( p->c.aTo==0 ){
     return 1;
   }
@@ -2027,7 +2028,7 @@ static int annotation_step(Annotator *p, Blob *pParent, int iVers){
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
-                                &p->c.nFrom, DIFF_IGNORE_EOLWS);
+                                &p->c.nFrom, DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS);
   if( p->c.aFrom==0 ){
     return 1;
   }

@@ -451,16 +451,19 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
   }else{
     int x;
     if( sideBySide ){
-      diffFlags = DIFF_SIDEBYSIDE | DIFF_IGNORE_EOLWS;
+      diffFlags = DIFF_SIDEBYSIDE;
 
       /* "dw" query parameter determines width of each column */
       x = atoi(PD("dw","80"))*(DIFF_CONTEXT_MASK+1);
       if( x<0 || x>DIFF_WIDTH_MASK ) x = DIFF_WIDTH_MASK;
       diffFlags += x;
     }else{
-      diffFlags = DIFF_INLINE | DIFF_IGNORE_EOLWS;
+      diffFlags = DIFF_INLINE;
     }
 
+    if( P("w") ){
+      diffFlags |= (DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS);
+    }
     /* "dc" query parameter determines lines of context */
     x = atoi(PD("dc","7"));
     if( x<0 || x>DIFF_CONTEXT_MASK ) x = DIFF_CONTEXT_MASK;

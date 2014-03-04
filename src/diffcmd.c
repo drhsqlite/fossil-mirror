@@ -983,7 +983,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
   char *zTempFile = 0;
   char *zCmd;
   blob_zero(&script);
-  blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v -w",
+  blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v",
                g.nameOfExe, zSubCmd);
   for(i=firstArg; i<g.argc; i++){
     const char *z = g.argv[i];
@@ -991,7 +991,6 @@ void diff_tk(const char *zSubCmd, int firstArg){
       if( strglob("*-html",z) ) continue;
       if( strglob("*-y",z) ) continue;
       if( strglob("*-i",z) ) continue;
-      if( strglob("*-w",z) ) continue;
       /* The undocumented --script FILENAME option causes the Tk script to
       ** be written into the FILENAME instead of being run.  This is used
       ** for testing and debugging. */
