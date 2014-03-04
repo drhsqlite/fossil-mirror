@@ -669,30 +669,42 @@ void ci_page(void){
   db_finalize(&q1);
   showTags(rid, "");
   if( zParent ){
+    const char *zW;
     @ <div class="section">Changes</div>
     @ <div class="sectionmenu">
     verboseFlag = g.zPath[0]!='c';
     if( db_get_boolean("show-version-diffs", 0)==0 ){
       verboseFlag = !verboseFlag;
+      diffFlags = construct_diff_flags(verboseFlag, sideBySide);
+      zW = (diffFlags&(DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))?"&w":"";
       if( verboseFlag ){
-        @ %z(xhref("class='button'","%R/vinfo/%T",zName))
+        @ %z(xhref("class='button'","%R/vinfo/%T%s",zName,zW))
         @ hide&nbsp;diffs</a>
         if( sideBySide ){
-          @ %z(xhref("class='button'","%R/ci/%T?sbs=0",zName))
+          @ %z(xhref("class='button'","%R/ci/%T?sbs=0%s",zName,zW))
           @ unified&nbsp;diffs</a>
         }else{
-          @ %z(xhref("class='button'","%R/ci/%T?sbs=1",zName))
+          @ %z(xhref("class='button'","%R/ci/%T?sbs=1%s",zName,zW))
           @ side-by-side&nbsp;diffs</a>
         }
+        if( *zW ){
+          @ %z(xhref("class='button'","%R/ci/%T?sbs=%s",zName,sideBySide?"1":"0"))
+          @ show&nbsp;whitespace&nbsp;differences</a>
+        }else{
+          @ %z(xhref("class='button'","%R/ci/%T?sbs=%s&w",zName,sideBySide?"1":"0"))
+          @ ignore&nbsp;whitespace</a>
+        }
       }else{
-        @ %z(xhref("class='button'","%R/ci/%T?sbs=0",zName))
+        @ %z(xhref("class='button'","%R/ci/%T?sbs=0%s",zName,zW))
         @ show&nbsp;unified&nbsp;diffs</a>
-        @ %z(xhref("class='button'","%R/ci/%T?sbs=1",zName))
+        @ %z(xhref("class='button'","%R/ci/%T?sbs=1%s",zName,zW))
         @ show&nbsp;side-by-side&nbsp;diffs</a>
       }
     }else{
+      diffFlags = construct_diff_flags(verboseFlag, sideBySide);
+      zW = (diffFlags&(DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))?"&w":"";
       if( verboseFlag ){
-        @ %z(xhref("class='button'","%R/ci/%T",zName))hide&nbsp;diffs</a>
+        @ %z(xhref("class='button'","%R/ci/%T%s",zName,zW))hide&nbsp;diffs</a>
         if( sideBySide ){
           @ %z(xhref("class='button'","%R/info/%T?sbs=0",zName))
           @ unified&nbsp;diffs</a>
@@ -726,7 +738,6 @@ void ci_page(void){
        " ORDER BY name /*sort*/",
        rid, rid
     );
-    diffFlags = construct_diff_flags(verboseFlag, sideBySide);
     while( db_step(&q3)==SQLITE_ROW ){
       const char *zName = db_column_text(&q3,0);
       int mperm = db_column_int(&q3, 1);

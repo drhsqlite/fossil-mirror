@@ -1,5 +1,5 @@
-C Add\s"Ignore\sWhitespace"\sbutton\sto\svdiff\spage.
-D 2014-03-04T13:26:45.436
+C Add\s"ignore\swhitespace"\sbutton\sto\sci\spage.
+D 2014-03-04T14:14:14.175
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -349,7 +349,7 @@ F src/http_socket.c 09d140a27eb27dbae0b8d494172f9c2a39baf9dd
 F src/http_ssl.c 8638fbf0fb6be81b617d4e851c676ef62fad8361
 F src/http_transport.c f6b79299ea197c26e9137a7b68b28885edb1b463
 F src/import.c be7a31538a60d2b1d89526862f75edfac74e6c3c
-F src/info.c 1286e1944092df946a269563f7c4cfce804533df
+F src/info.c dfcfd8c167bff5ad90d9725a226f6d470975a65b
 F src/json.c d3104315937aaa3508d9844d38f479725f66b400
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c aa922544841030c688df33aec81cca05577bbb7d
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 28b39cc516c759aae18036610db4ddc6ce593982
-R d367f50d30dccf1f135e31416a0b98f3
+P 56c7561e2b88995817fbb6214278bb2c752553ab
+R 995688f5486093bcb4fe191fa57f46dc
 U jan.nijtmans
-Z cd6131f3509b28e2d39c5cc594c213a8
+Z ed5f8a29403ddf45086070aef459fe3b
