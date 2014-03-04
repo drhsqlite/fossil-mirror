@@ -959,6 +959,7 @@ void vdiff_page(void){
   const char *zFrom;
   const char *zTo;
   const char *zRe;
+  const char *zW;
   const char *zVerbose;
   const char *zGlob;
   ReCompiled *pRe = 0;
@@ -992,35 +993,50 @@ void vdiff_page(void){
   if(zGlob && !*zGlob){
     zGlob = NULL;
   }
+  diffFlags = construct_diff_flags(verboseFlag, sideBySide);
+  zW = (diffFlags&(DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))?"&w":"";
   if( sideBySide || verboseFlag ){
     style_submenu_element("Hide Diff", "hidediff",
-                          "%R/vdiff?from=%T&to=%T&sbs=0%s%T",
+                          "%R/vdiff?from=%T&to=%T&sbs=0%s%T%s",
                           zFrom, zTo,
-                          zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( !sideBySide ){
     style_submenu_element("Side-by-side Diff", "sbsdiff",
-                          "%R/vdiff?from=%T&to=%T&sbs=1%s%T",
+                          "%R/vdiff?from=%T&to=%T&sbs=1%s%T%s",
                           zFrom, zTo,
-                          zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( sideBySide || !verboseFlag ) {
     style_submenu_element("Unified Diff", "udiff",
-                          "%R/vdiff?from=%T&to=%T&sbs=0&v%s%T",
+                          "%R/vdiff?from=%T&to=%T&sbs=0&v%s%T%s",
                           zFrom, zTo,
-                          zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   style_submenu_element("Invert", "invert",
-                        "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T", zTo, zFrom,
+                        "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T%s", zTo, zFrom,
                         sideBySide, (verboseFlag && !sideBySide)?"&v":"",
-                        zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+                        zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   if( zGlob ){
     style_submenu_element("Clear glob", "clearglob",
-                          "%R/vdiff?from=%T&to=%T&sbs=%d%s", zFrom, zTo,
-                          sideBySide, (verboseFlag && !sideBySide)?"&v":"");
+                          "%R/vdiff?from=%T&to=%T&sbs=%d%s%s", zFrom, zTo,
+                          sideBySide, (verboseFlag && !sideBySide)?"&v":"", zW);
   }else{
     style_submenu_element("Patch", "patch",
-                          "%R/vpatch?from=%T&to=%T", zFrom, zTo);
+                          "%R/vpatch?from=%T&to=%T%s", zFrom, zTo, zW);
+  }
+  if( sideBySide || verboseFlag ){
+    if( *zW ){
+      style_submenu_element("Show Whitespace Differences", "whitespace",
+                            "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T", zFrom, zTo,
+                            sideBySide, (verboseFlag && !sideBySide)?"&v":"",
+                            zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+    }else{
+      style_submenu_element("Ignore Whitespace", "ignorews",
+                            "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T&w", zFrom, zTo,
+                            sideBySide, (verboseFlag && !sideBySide)?"&v":"",
+                            zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+    }
   }
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
@@ -1041,7 +1057,6 @@ void vdiff_page(void){
   pFileFrom = manifest_file_next(pFrom, 0);
   manifest_file_rewind(pTo);
   pFileTo = manifest_file_next(pTo, 0);
-  diffFlags = construct_diff_flags(verboseFlag, sideBySide);
   while( pFileFrom || pFileTo ){
     int cmp;
     if( pFileFrom==0 ){
