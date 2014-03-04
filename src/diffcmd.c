@@ -630,6 +630,7 @@ static const char zDiffScript[] =
 @   FN_BG      #444444
 @   FN_FG      #ffffff
 @   FN_PAD     5
+@   ERR_FG     #ee0000
 @   PADX       5
 @   WIDTH      80
 @   HEIGHT     45
@@ -682,7 +683,10 @@ static const char zDiffScript[] =
 @     } {
 @       continue
 @     }
-@     if {[string compare -length 6 [getLine $difftxt $N ii] "<table"]} {
+@     set errMsg ""
+@     set line [getLine $difftxt $N ii]
+@     if {[string compare -length 6 $line "<table"]
+@      && ![regexp {<p[^>]*>(.+)} $line - errMsg]} {
 @       continue
 @     }
 @     incr nDiffs
@@ -690,8 +694,6 @@ static const char zDiffScript[] =
 @     .wfiles.lb insert end $fn
 @
 @     foreach c [cols] {
-@       while {[getLine $difftxt $N ii] ne "<pre>"} continue
-@
 @       if {$nDiffs > 1} {
 @         $c insert end \n -
 @       }
@@ -703,6 +705,8 @@ static const char zDiffScript[] =
 @       }
 @       $c insert end \n -
 @
+@       if {$errMsg ne ""} continue
+@       while {[getLine $difftxt $N ii] ne "<pre>"} continue
 @       set type [colType $c]
 @       set str {}
 @       while {[set line [getLine $difftxt $N ii]] ne "</pre>"} {
@@ -724,6 +728,11 @@ static const char zDiffScript[] =
 @           $c insert end [dehtml $pre] -
 @         }
 @       }
+@     }
+@
+@     if {$errMsg ne ""} {
+@       foreach c {.txtA .txtB} {$c insert end [string trim $errMsg] err}
+@       foreach c [cols] {$c insert end \n -}
 @     }
 @   }
 @
@@ -896,6 +905,7 @@ static const char zDiffScript[] =
 @   }
 @   $txt tag config fn -background $CFG(FN_BG) -foreground $CFG(FN_FG) \
 @     -justify center
+@   $txt tag config err -foreground $CFG(ERR_FG)
 @ }
 @ text .mkr
 @
