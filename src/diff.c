@@ -2174,7 +2174,11 @@ void annotation_page(void){
 
   /* generate the web page */
   style_header("Annotation For %h", zFilename);
-  url_initialize(&url, "annotate");
+  if( bBlame ){
+    url_initialize(&url, "blame");
+  }else{
+    url_initialize(&url, "annotate");
+  }
   url_add_parameter(&url, "checkin", P("checkin"));
   url_add_parameter(&url, "filename", zFilename);
   if( iLimit!=20 ){
