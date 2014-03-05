@@ -1,5 +1,5 @@
-C Merge\strunk.\s\nFix\sindenation\sin\sannotation/blame\scommands/pages,\swhich\swas\sbroken\ssince\s[28b39cc516].\s\nChangelog\sentry.
-D 2014-03-05T08:43:38.414
+C Revert\sdefault\sdiffFlags\sused\sfor\sannotation\sas\sit\sis\son\strunk.\sThis\sway,\sthe\sannotation\sbehavior\sis\sfully\sconfigurable\swith\sthe\sdiffFlags\s(0,\sDIFF_IGNORE_SOLWS,\sDIFF_IGNORE_EOLWS\sor\sboth\sflags,\sor\snewly-to-be-implemented\sflags).\s\nMerging\sof\sthe\s"diff-eolws"\sbranch\sto\strunk\scan\sbe\sconsidered\sindependant\sof\sthe\scurrent\sdiscussion\son\sthe\sML.
+D 2014-03-05T11:59:25.994
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -333,7 +333,7 @@ F src/db.c b6ebe42c812477da45a9c720f0d57fddd3c18abb
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
-F src/diff.c 9544fc3a3be274522415c2fc8102e3e35e0ba0e0
+F src/diff.c 9fe74dec985e502c5979185206ba43c88a0804ac
 F src/diffcmd.c b7959112734bdb3c8e648ee5683e88ecedc47c47
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0ec153a2a7b94523dd880ed08c689e581dbf915b 904ab4bbb844001a725a80d548f2c2f41db0a680
-R 638befeb4e2b0367e05ffcc0a2521c66
+P bcb22ce1b04b62bfaa61b8f9b082718b530522ef
+R 0159c4b19e0677a0e576d292bfcf2b45
 U jan.nijtmans
-Z 49c39ac7b54da61b9fd4ee08829df0be
+Z cdd3bb962334c4d46ef7fe8e996b8dc4

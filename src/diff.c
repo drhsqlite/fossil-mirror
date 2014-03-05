@@ -1974,8 +1974,10 @@ struct Annotator {
   DContext c;       /* The diff-engine context */
   struct AnnLine {  /* Lines of the original files... */
     const char *z;       /* The text of the line */
-    unsigned short n;    /* Number of bytes (omitting sol/eol spacing) */
-    unsigned short indent; /* Indenting (number of initial spaces) */
+    short int n;         /* Number of bytes. Whether this omits sol/eol spacing
+                            depends on the diffFlags) */
+    unsigned short indent; /* Indenting (number of initial spaces, only used
+                              if sol-spacing is ignored in the diffFlags) */
     short int iVers;     /* Level at which tag was set */
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
@@ -2002,7 +2004,7 @@ static int annotation_start(Annotator *p, Blob *pInput){
 
   memset(p, 0, sizeof(*p));
   p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,
-                              DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS);
+                              DIFF_IGNORE_EOLWS);
   if( p->c.aTo==0 ){
     return 1;
   }
@@ -2030,7 +2032,7 @@ static int annotation_step(Annotator *p, Blob *pParent, int iVers){
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
-                                &p->c.nFrom, DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS);
+                                &p->c.nFrom, DIFF_IGNORE_EOLWS);
   if( p->c.aFrom==0 ){
     return 1;
   }
