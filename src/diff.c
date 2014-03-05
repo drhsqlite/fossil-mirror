@@ -2235,15 +2235,15 @@ void annotation_page(void){
   if( iLimit!=20 ){
     url_add_parameter(&url, "limit", sqlite3_mprintf("%d", iLimit));
   }
-  url_add_parameter(&url, "w", ignoreWs ? "1" : "0");
+  url_add_parameter(&url, "log", showLog ? "1" : "0");
   if( ignoreWs ){
+    url_add_parameter(&url, "w", "");
     style_submenu_element("Show Whitespace Changes", "Show Whitespace Changes",
         "%s", url_render(&url, "w", 0, 0, 0));
   }else{
     style_submenu_element("Ignore Whitespace", "Ignore Whitespace",
         "%s", url_render(&url, "w", "", 0, 0));
   }
-  url_add_parameter(&url, "log", showLog ? "1" : "0");
   if( showLog ){
     style_submenu_element("Hide Log", "Hide Log",
        "%s", url_render(&url, "log", "0", 0, 0));
