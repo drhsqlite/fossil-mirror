@@ -668,7 +668,7 @@ void ci_page(void){
   db_finalize(&q1);
   showTags(rid, "");
   if( zParent ){
-    const char *zW;               /* URL param for hiding whitespace */
+    const char *zW;               /* URL param for ignoring whitespace */
     const char *zPage = "vinfo";  /* Page that shows diffs */
     const char *zPageHide = "ci"; /* Page that hides diffs */
     @ <div class="section">Changes</div>
@@ -1353,6 +1353,7 @@ void diff_page(void){
   char *zV1;
   char *zV2;
   const char *zRe;
+  const char *zW;      /* URL param for ignoring whitespace */
   ReCompiled *pRe = 0;
   u64 diffFlags;
 
@@ -1383,16 +1384,27 @@ void diff_page(void){
   diffFlags = construct_diff_flags(1, sideBySide) | DIFF_HTML;
 
   style_header("Diff");
+  zW = (diffFlags&(DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))?"&w":"";
+  if( *zW ){
+    diffFlags |= (DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS);
+    style_submenu_element("Show Whitespace Changes", "Show Whitespace Changes",
+                          "%s/fdiff?v1=%T&v2=%T&sbs=%d",
+                          g.zTop, P("v1"), P("v2"), sideBySide);
+  }else{
+    style_submenu_element("Ignore Whitespace", "Ignore Whitespace",
+                          "%s/fdiff?v1=%T&v2=%T&sbs=%d&w",
+                          g.zTop, P("v1"), P("v2"), sideBySide);
+  }
   style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
                         g.zTop, P("v1"), P("v2"));
   if( !sideBySide ){
     style_submenu_element("Side-by-Side Diff", "sbsdiff",
-                          "%s/fdiff?v1=%T&v2=%T&sbs=1",
-                          g.zTop, P("v1"), P("v2"));
+                          "%s/fdiff?v1=%T&v2=%T&sbs=1%s",
+                          g.zTop, P("v1"), P("v2"), zW);
   }else{
     style_submenu_element("Unified Diff", "udiff",
-                          "%s/fdiff?v1=%T&v2=%T&sbs=0",
-                          g.zTop, P("v1"), P("v2"));
+                          "%s/fdiff?v1=%T&v2=%T&sbs=0%s",
+                          g.zTop, P("v1"), P("v2"), zW);
   }
 
   if( P("smhdr")!=0 ){
