@@ -34,8 +34,8 @@
 #define DIFF_IGNORE_EOLWS ((u64)0x02000000) /* Ignore end-of-line whitespace */
 #define DIFF_SIDEBYSIDE   ((u64)0x04000000) /* Generate a side-by-side diff */
 #define DIFF_VERBOSE      ((u64)0x08000000) /* Missing shown as empty files */
-#define DIFF_BRIEF        ((u64)0x00000000) /* Show filenames only */
-#define DIFF_INLINE       ((u64)0x10000000) /* Inline (not side-by-side) diff */
+#define DIFF_INLINE       ((u64)0x00000000) /* Inline (not side-by-side) diff */
+#define DIFF_BRIEF        ((u64)0x10000000) /* Show filenames only */
 #define DIFF_HTML         ((u64)0x20000000) /* Render for HTML */
 #define DIFF_LINENO       ((u64)0x40000000) /* Show line numbers */
 #define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
