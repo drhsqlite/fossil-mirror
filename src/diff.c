@@ -42,6 +42,7 @@
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
+#define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -170,6 +171,8 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
     indent = 0;
     if( diffFlags & DIFF_IGNORE_EOLWS ){
       while( k>0 && fossil_isspace(z[k-1]) ){ k--; }
+    }else if( diffFlags & DIFF_STRIP_EOLCR ){
+      if( k>0 && z[k-1]=='\r' ){ k--; }
     }
     if( diffFlags & DIFF_IGNORE_SOLWS ){
       while( s<k && fossil_isspace(z[s]) ){
@@ -1870,6 +1873,7 @@ int *text_diff(
 **   --linenum|-n           Show line numbers      DIFF_LINENO
 **   --noopt                Disable optimization   DIFF_NOOPT
 **   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
+**   --strip-trailing-cr    Strip trailing CR      DIFF_IGNORE_EOLCR
 **   --unified              Unified diff.          ~DIFF_SIDEBYSIDE
 **   -w                     Ignore all whitespaces DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS
 **   --width|-W N           N character lines.     DIFF_WIDTH_MASK
@@ -1892,6 +1896,7 @@ u64 diff_options(void){
   if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
   if( find_option("ignore-space-at-sol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_SOLWS;
   if( find_option("ignore-space-at-eol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
+  if( find_option("strip-trailing-cr",0,0)!=0 ) diffFlags |= DIFF_STRIP_EOLCR;
   if( find_option("w",0,0)!=0 ) diffFlags |= (DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS);
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;

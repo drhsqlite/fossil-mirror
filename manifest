@@ -1,5 +1,5 @@
-C Flag\sDIFF_INLINE\swas\s0\sand\sthat\sshould\sstay\sso
-D 2014-03-05T22:06:37.465
+C Implement\s--strip-trailing-cr\soption
+D 2014-03-05T22:54:24.921
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -333,8 +333,8 @@ F src/db.c b6ebe42c812477da45a9c720f0d57fddd3c18abb
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
-F src/diff.c 5300d0df5db22eed916b824e27dae1bdffb81f3d
-F src/diffcmd.c b7959112734bdb3c8e648ee5683e88ecedc47c47
+F src/diff.c ca2e40252512fb2e467d7580433f4935ac1807fd
+F src/diffcmd.c c8dd3a63bc383d6c836d72d1a5b9d52ab9ab89e9
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 1dc85793c6ef93367c2f7087c37d4b2681c07c8e
@@ -641,7 +641,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e663d5e33099e21ce5f7aa752f2b6177e0515d5b
-R 480da47a50f1e41685ff167ab2b16401
+P 466f8de3c2cd734a9dc76c752da1e49d1dab77db
+R b7ce35d8bd385a839c1d644cc3538320
+T *branch * strip-trailing-cr
+T *sym-strip-trailing-cr *
+T -sym-trunk *
 U jan.nijtmans
-Z 9db53f325a3f44a0e4232ac1ccdc46db
+Z 3dc7a28c68a608693b7f07ee534eedb7

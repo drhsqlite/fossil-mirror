@@ -1101,6 +1101,7 @@ const char *diff_get_binary_glob(void){
 **   --ignore-space-at-sol  Ignore changes to start-of-line whitespace
 **   --internal|-i          use internal diff logic
 **   --side-by-side|-y      side-by-side diff
+**   --strip-trailing-cr    Strip trailing CR
 **   --tk                   Launch a Tcl/Tk GUI for display
 **   --to VERSION           select VERSION as target for the diff
 **   --unified              unified diff
