@@ -1996,12 +1996,12 @@ struct Annotator {
 ** to be annotated.  The annotator takes control of the input Blob and
 ** will release it when it is finished with it.
 */
-static int annotation_start(Annotator *p, Blob *pInput){
+static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
   int i;
 
   memset(p, 0, sizeof(*p));
   p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,
-                              DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS);
+                              diffFlags);
   if( p->c.aTo==0 ){
     return 1;
   }
@@ -2022,13 +2022,13 @@ static int annotation_start(Annotator *p, Blob *pInput){
 ** on each line of the file being annotated that was contributed by
 ** pParent.  Memory to hold zPName is leaked.
 */
-static int annotation_step(Annotator *p, Blob *pParent, int iVers){
+static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags){
   int i, j;
   int lnTo;
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
-                                &p->c.nFrom, DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS);
+                                &p->c.nFrom, diffFlags);
   if( p->c.aFrom==0 ){
     return 1;
   }
@@ -2079,7 +2079,8 @@ static void annotate_file(
   int fnid,            /* The name of the file to be annotated */
   int mid,             /* Use the version of the file in this check-in */
   int iLimit,          /* Limit the number of levels if greater than zero */
-  int annFlags         /* Flags to alter the annotation */
+  int annFlags,        /* Flags to alter the annotation */
+  u64 diffFlags        /* Flags to alter the whitespace handling */
 ){
   Blob toAnnotate;     /* Text of the final (mid) version of the file */
   Blob step;           /* Text of previous revision */
@@ -2097,7 +2098,7 @@ static void annotate_file(
     fossil_fatal("unable to retrieve content of artifact #%d", rid);
   }
   if( iLimit<=0 ) iLimit = 1000000000;
-  annotation_start(p, &toAnnotate);
+  annotation_start(p, &toAnnotate, diffFlags);
   db_begin_transaction();
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS vseen(rid INTEGER PRIMARY KEY);"
@@ -2131,7 +2132,7 @@ static void annotate_file(
     p->aVers[p->nVers].zUser = fossil_strdup(db_column_text(&q, 3));
     if( p->nVers ){
       content_get(rid, &step);
-      annotation_step(p, &step, p->nVers-1);
+      annotation_step(p, &step, p->nVers-1, diffFlags);
       blob_reset(&step);
     }
     p->nVers++;
@@ -2187,6 +2188,8 @@ void annotation_page(void){
   int iLimit;            /* Depth limit */
   int annFlags = ANN_FILE_ANCEST;
   int showLog = 0;       /* True to display the log */
+  int ignoreWs = 0;      /* Ignore whitespace */
+  u64 diffFlags = 0;     /* diff flags for ignore whitespace */
   const char *zFilename; /* Name of file to annotate */
   const char *zCI;       /* The check-in containing zFilename */
   Annotator ann;
@@ -2206,22 +2209,36 @@ void annotation_page(void){
   if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
   iLimit = atoi(PD("limit","20"));
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
+  ignoreWs = atoi(PD("w","0"))!=0;
+  if( ignoreWs ) diffFlags |= (DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS);
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
   }
 
   /* compute the annotation */
   compute_direct_ancestors(mid, 10000000);
-  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  annotate_file(&ann, fnid, mid, iLimit, annFlags, diffFlags);
   zCI = ann.aVers[0].zMUuid;
 
   /* generate the web page */
   style_header("Annotation For %h", zFilename);
-  url_initialize(&url, "annotate");
+  if( bBlame ){
+    url_initialize(&url, "blame");
+  }else{
+    url_initialize(&url, "annotate");
+  }
   url_add_parameter(&url, "checkin", P("checkin"));
   url_add_parameter(&url, "filename", zFilename);
   if( iLimit!=20 ){
     url_add_parameter(&url, "limit", sqlite3_mprintf("%d", iLimit));
+  }
+  url_add_parameter(&url, "w", ignoreWs ? "1" : "0");
+  if( ignoreWs ){
+    style_submenu_element("Show Whitespace Changes", "Show Whitespace Changes",
+        "%s", url_render(&url, "w", "0", 0, 0));
+  }else{
+    style_submenu_element("Ignore Whitespace", "Ignore Whitespace",
+        "%s", url_render(&url, "w", "1", 0, 0));
   }
   url_add_parameter(&url, "log", showLog ? "1" : "0");
   if( showLog ){
@@ -2363,6 +2380,7 @@ void annotate_cmd(void){
   const char *zLimit; /* The value to the -n|--limit option */
   int iLimit;       /* How far back in time to look */
   int showLog;      /* True to show the log */
+  u64 diffFlags = 0;/* Flags to control whitespace handling */
   int fileVers;     /* Show file version instead of check-in versions */
   int annFlags = 0; /* Flags to control annotation properties */
   int bBlame = 0;   /* True for BLAME output.  False for ANNOTATE. */
@@ -2372,6 +2390,7 @@ void annotate_cmd(void){
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
   showLog = find_option("log","l",0)!=0;
+  if( find_option("w",0,0)!=0 ) diffFlags |= (DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS);
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
   if( g.argc<3 ) {
@@ -2401,7 +2420,7 @@ void annotate_cmd(void){
     fossil_fatal("unable to find manifest");
   }
   annFlags |= ANN_FILE_ANCEST;
-  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  annotate_file(&ann, fnid, mid, iLimit, annFlags, diffFlags);
   if( showLog ){
     struct AnnVers *p;
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
