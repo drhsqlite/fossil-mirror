@@ -1,5 +1,5 @@
-C remember\s"log"\soption\swith\s"Ignore\swhitespace"\sbutton.
-D 2014-03-05T21:48:23.484
+C merge\strunk
+D 2014-03-05T22:13:47.616
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -333,7 +333,7 @@ F src/db.c b6ebe42c812477da45a9c720f0d57fddd3c18abb
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
-F src/diff.c 95a4f650da4a8cee04a2497490866a3c943c89b7
+F src/diff.c 96e879ccdcc96e43d2866b356dac5971e2481ede
 F src/diffcmd.c b7959112734bdb3c8e648ee5683e88ecedc47c47
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f4d98b2b9e345f72f951bdeb42339ae88ab5c0da
-R 1bfd4badefc003f12040293ebee4050e
+P e15c42390b9d6bb9d326c57638cf1d2e0d19db13 466f8de3c2cd734a9dc76c752da1e49d1dab77db
+R f1d694417f9bc9a3ed23a35ef5386538
 U jan.nijtmans
-Z eff045d0aef9ffef5750bedd363a0eaf
+Z 604eabdabe26526621defa7487ccc771
