@@ -475,7 +475,6 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
   return diffFlags;
 }
 
-
 /*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
@@ -669,55 +668,41 @@ void ci_page(void){
   db_finalize(&q1);
   showTags(rid, "");
   if( zParent ){
-    const char *zW;
+    const char *zW;               /* URL param for hiding whitespace */
+    const char *zPage = "vinfo";  /* Page that shows diffs */
+    const char *zPageHide = "ci"; /* Page that hides diffs */
     @ <div class="section">Changes</div>
     @ <div class="sectionmenu">
     verboseFlag = g.zPath[0]!='c';
     if( db_get_boolean("show-version-diffs", 0)==0 ){
       verboseFlag = !verboseFlag;
-      diffFlags = construct_diff_flags(verboseFlag, sideBySide);
-      zW = (diffFlags&(DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))?"&w":"";
-      if( verboseFlag ){
-        @ %z(xhref("class='button'","%R/vinfo/%T%s",zName,zW))
-        @ hide&nbsp;diffs</a>
-        if( sideBySide ){
-          @ %z(xhref("class='button'","%R/ci/%T?sbs=0%s",zName,zW))
-          @ unified&nbsp;diffs</a>
-        }else{
-          @ %z(xhref("class='button'","%R/ci/%T?sbs=1%s",zName,zW))
-          @ side-by-side&nbsp;diffs</a>
-        }
-        if( *zW ){
-          @ %z(xhref("class='button'","%R/ci/%T?sbs=%s",zName,sideBySide?"1":"0"))
-          @ show&nbsp;whitespace&nbsp;differences</a>
-        }else{
-          @ %z(xhref("class='button'","%R/ci/%T?sbs=%s&w",zName,sideBySide?"1":"0"))
-          @ ignore&nbsp;whitespace</a>
-        }
+      zPage = "ci";
+      zPageHide = "vinfo";
+    }
+    diffFlags = construct_diff_flags(verboseFlag, sideBySide);
+    zW = (diffFlags&(DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))?"&w":"";
+    if( verboseFlag ){
+      @ %z(xhref("class='button'","%R/%s/%T",zPageHide,zName))
+      @ hide&nbsp;diffs</a>
+      if( sideBySide ){
+        @ %z(xhref("class='button'","%R/%s/%T?sbs=0%s",zPage,zName,zW))
+        @ unified&nbsp;diffs</a>
       }else{
-        @ %z(xhref("class='button'","%R/ci/%T?sbs=0%s",zName,zW))
-        @ show&nbsp;unified&nbsp;diffs</a>
-        @ %z(xhref("class='button'","%R/ci/%T?sbs=1%s",zName,zW))
-        @ show&nbsp;side-by-side&nbsp;diffs</a>
+        @ %z(xhref("class='button'","%R/%s/%T?sbs=1%s",zPage,zName,zW))
+        @ side-by-side&nbsp;diffs</a>
+      }
+      if( *zW ){
+        @ %z(xhref("class='button'","%R/%s/%T?sbs=%d",zPage,zName,sideBySide))
+        @ show&nbsp;whitespace&nbsp;differences</a>
+      }else{
+        @ %z(xhref("class='button'","%R/%s/%T?sbs=%d&w",zPage,zName,sideBySide))
+        @ ignore&nbsp;whitespace</a>
       }
     }else{
-      diffFlags = construct_diff_flags(verboseFlag, sideBySide);
-      zW = (diffFlags&(DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))?"&w":"";
-      if( verboseFlag ){
-        @ %z(xhref("class='button'","%R/ci/%T%s",zName,zW))hide&nbsp;diffs</a>
-        if( sideBySide ){
-          @ %z(xhref("class='button'","%R/info/%T?sbs=0",zName))
-          @ unified&nbsp;diffs</a>
-        }else{
-          @ %z(xhref("class='button'","%R/info/%T?sbs=1",zName))
-          @ side-by-side&nbsp;diffs</a>
-        }
-      }else{
-        @ %z(xhref("class='button'","%R/vinfo/%T?sbs=0",zName))
-        @ show&nbsp;unified&nbsp;diffs</a>
-        @ %z(xhref("class='button'","%R/vinfo/%T?sbs=1",zName))
-        @ show&nbsp;side-by-side&nbsp;diffs</a>
-      }
+      @ %z(xhref("class='button'","%R/%s/%T?sbs=0",zPage,zName))
+      @ show&nbsp;unified&nbsp;diffs</a>
+      @ %z(xhref("class='button'","%R/%s/%T?sbs=1",zPage,zName))
+      @ show&nbsp;side-by-side&nbsp;diffs</a>
     }
     @ %z(xhref("class='button'","%R/vpatch?from=%S&to=%S",zParent,zUuid))
     @ patch</a></div>
