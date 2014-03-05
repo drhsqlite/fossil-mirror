@@ -30,19 +30,18 @@
 */
 #define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
 #define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
-#define DIFF_IGNORE_EOLWS ((u64)0x01000000) /* Ignore end-of-line whitespace */
-#define DIFF_SIDEBYSIDE   ((u64)0x02000000) /* Generate a side-by-side diff */
-#define DIFF_VERBOSE      ((u64)0x04000000) /* Missing shown as empty files */
-#define DIFF_BRIEF        ((u64)0x08000000) /* Show filenames only */
-#define DIFF_INLINE       ((u64)0x00000000) /* Inline (not side-by-side) diff */
-#define DIFF_HTML         ((u64)0x10000000) /* Render for HTML */
-#define DIFF_LINENO       ((u64)0x20000000) /* Show line numbers */
-#define DIFF_WS_WARNING   ((u64)0x40000000) /* Warn about whitespace */
+#define DIFF_IGNORE_SOLWS ((u64)0x01000000) /* Ignore start-of-line whitespace */
+#define DIFF_IGNORE_EOLWS ((u64)0x02000000) /* Ignore end-of-line whitespace */
+#define DIFF_SIDEBYSIDE   ((u64)0x04000000) /* Generate a side-by-side diff */
+#define DIFF_VERBOSE      ((u64)0x08000000) /* Missing shown as empty files */
+#define DIFF_BRIEF        ((u64)0x00000000) /* Show filenames only */
+#define DIFF_INLINE       ((u64)0x10000000) /* Inline (not side-by-side) diff */
+#define DIFF_HTML         ((u64)0x20000000) /* Render for HTML */
+#define DIFF_LINENO       ((u64)0x40000000) /* Show line numbers */
 #define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
-#define DIFF_IGNORE_SOLWS (((u64)0x10)<<32) /* Ignore start-of-line whitespace */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -2213,7 +2212,7 @@ void annotation_page(void){
   if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
   iLimit = atoi(PD("limit","20"));
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
-  ignoreWs = atoi(PD("w","0"))!=0;
+  ignoreWs = P("w")!=0;
   if( ignoreWs ) diffFlags |= (DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS);
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
@@ -2239,10 +2238,10 @@ void annotation_page(void){
   url_add_parameter(&url, "w", ignoreWs ? "1" : "0");
   if( ignoreWs ){
     style_submenu_element("Show Whitespace Changes", "Show Whitespace Changes",
-        "%s", url_render(&url, "w", "0", 0, 0));
+        "%s", url_render(&url, "w", 0, 0, 0));
   }else{
     style_submenu_element("Ignore Whitespace", "Ignore Whitespace",
-        "%s", url_render(&url, "w", "1", 0, 0));
+        "%s", url_render(&url, "w", "", 0, 0));
   }
   url_add_parameter(&url, "log", showLog ? "1" : "0");
   if( showLog ){
@@ -2367,9 +2366,12 @@ void annotation_page(void){
 ** checkin and omits the line number.
 **
 ** Options:
-**   --filevers      Show file version numbers rather than check-in versions
-**   -l|--log        List all versions analyzed
-**   -n|--limit N    Only look backwards in time by N versions
+**   --filevers             Show file version numbers rather than check-in versions
+**   -l|--log               List all versions analyzed
+**   -n|--limit N           Only look backwards in time by N versions
+**   --ignore-space-at-eol  Ignore eol-whitespaces
+**   --ignore-space-at-sol  Ignore sol-whitespaces
+**   -w                     Ignore all whitespaces
 **
 ** See also: info, finfo, timeline
 */
@@ -2395,6 +2397,8 @@ void annotate_cmd(void){
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
   showLog = find_option("log","l",0)!=0;
+  if( find_option("ignore-space-at-sol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_SOLWS;
+  if( find_option("ignore-space-at-eol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
   if( find_option("w",0,0)!=0 ) diffFlags |= (DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS);
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
