@@ -683,29 +683,29 @@ void ci_page(void){
     zW = (diffFlags&(DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))?"&w":"";
     if( verboseFlag ){
       @ %z(xhref("class='button'","%R/%s/%T",zPageHide,zName))
-      @ hide&nbsp;diffs</a>
+      @ Hide&nbsp;Diffs</a>
       if( sideBySide ){
         @ %z(xhref("class='button'","%R/%s/%T?sbs=0%s",zPage,zName,zW))
-        @ unified&nbsp;diffs</a>
+        @ Unified&nbsp;Diffs</a>
       }else{
         @ %z(xhref("class='button'","%R/%s/%T?sbs=1%s",zPage,zName,zW))
-        @ side-by-side&nbsp;diffs</a>
+        @ Side-by-Side&nbsp;Diffs</a>
       }
       if( *zW ){
         @ %z(xhref("class='button'","%R/%s/%T?sbs=%d",zPage,zName,sideBySide))
-        @ show&nbsp;whitespace&nbsp;differences</a>
+        @ Show&nbsp;Whitespace&nbsp;Changes</a>
       }else{
         @ %z(xhref("class='button'","%R/%s/%T?sbs=%d&w",zPage,zName,sideBySide))
-        @ ignore&nbsp;whitespace</a>
+        @ Ignore&nbsp;Whitespace</a>
       }
     }else{
       @ %z(xhref("class='button'","%R/%s/%T?sbs=0",zPage,zName))
-      @ show&nbsp;unified&nbsp;diffs</a>
+      @ Show&nbsp;Unified&nbsp;Diffs</a>
       @ %z(xhref("class='button'","%R/%s/%T?sbs=1",zPage,zName))
-      @ show&nbsp;side-by-side&nbsp;diffs</a>
+      @ Show&nbsp;Side-by-Side&nbsp;Diffs</a>
     }
     @ %z(xhref("class='button'","%R/vpatch?from=%S&to=%S",zParent,zUuid))
-    @ patch</a></div>
+    @ Patch</a></div>
     if( pRe ){
       @ <p><b>Only differences that match regular expression "%h(zRe)"
       @ are shown.</b></p>
@@ -998,7 +998,7 @@ void vdiff_page(void){
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( !sideBySide ){
-    style_submenu_element("Side-by-side Diff", "sbsdiff",
+    style_submenu_element("Side-by-Side Diff", "sbsdiff",
                           "%R/vdiff?from=%T&to=%T&sbs=1%s%T%s",
                           zFrom, zTo,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
@@ -1386,7 +1386,7 @@ void diff_page(void){
   style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
                         g.zTop, P("v1"), P("v2"));
   if( !sideBySide ){
-    style_submenu_element("Side-by-side Diff", "sbsdiff",
+    style_submenu_element("Side-by-Side Diff", "sbsdiff",
                           "%s/fdiff?v1=%T&v2=%T&sbs=1",
                           g.zTop, P("v1"), P("v2"));
   }else{
