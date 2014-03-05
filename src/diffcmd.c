@@ -630,6 +630,7 @@ static const char zDiffScript[] =
 @   FN_BG      #444444
 @   FN_FG      #ffffff
 @   FN_PAD     5
+@   ERR_FG     #ee0000
 @   PADX       5
 @   WIDTH      80
 @   HEIGHT     45
@@ -682,7 +683,10 @@ static const char zDiffScript[] =
 @     } {
 @       continue
 @     }
-@     if {[string compare -length 6 [getLine $difftxt $N ii] "<table"]} {
+@     set errMsg ""
+@     set line [getLine $difftxt $N ii]
+@     if {[string compare -length 6 $line "<table"]
+@      && ![regexp {<p[^>]*>(.+)} $line - errMsg]} {
 @       continue
 @     }
 @     incr nDiffs
@@ -690,8 +694,6 @@ static const char zDiffScript[] =
 @     .wfiles.lb insert end $fn
 @
 @     foreach c [cols] {
-@       while {[getLine $difftxt $N ii] ne "<pre>"} continue
-@
 @       if {$nDiffs > 1} {
 @         $c insert end \n -
 @       }
@@ -703,6 +705,8 @@ static const char zDiffScript[] =
 @       }
 @       $c insert end \n -
 @
+@       if {$errMsg ne ""} continue
+@       while {[getLine $difftxt $N ii] ne "<pre>"} continue
 @       set type [colType $c]
 @       set str {}
 @       while {[set line [getLine $difftxt $N ii]] ne "</pre>"} {
@@ -724,6 +728,11 @@ static const char zDiffScript[] =
 @           $c insert end [dehtml $pre] -
 @         }
 @       }
+@     }
+@
+@     if {$errMsg ne ""} {
+@       foreach c {.txtA .txtB} {$c insert end [string trim $errMsg] err}
+@       foreach c [cols] {$c insert end \n -}
 @     }
 @   }
 @
@@ -896,6 +905,7 @@ static const char zDiffScript[] =
 @   }
 @   $txt tag config fn -background $CFG(FN_BG) -foreground $CFG(FN_FG) \
 @     -justify center
+@   $txt tag config err -foreground $CFG(ERR_FG)
 @ }
 @ text .mkr
 @
@@ -1081,19 +1091,23 @@ const char *diff_get_binary_glob(void){
 ** This option overrides the "binary-glob" setting.
 **
 ** Options:
-**   --binary PATTERN    Treat files that match the glob PATTERN as binary
-**   --branch BRANCH     Show diff of all changes on BRANCH
-**   --brief             Show filenames only
-**   --context|-c N      Use N lines of context
-**   --diff-binary BOOL  Include binary files when using external commands
-**   --from|-r VERSION   select VERSION as source for the diff
-**   --internal|-i       use internal diff logic
-**   --side-by-side|-y   side-by-side diff
-**   --tk                Launch a Tcl/Tk GUI for display
-**   --to VERSION        select VERSION as target for the diff
-**   --unified           unified diff
-**   -v|--verbose        output complete text of added or deleted files
-**   -W|--width          Width of lines in side-by-side diff
+**   --binary PATTERN       Treat files that match the glob PATTERN as binary
+**   --branch BRANCH        Show diff of all changes on BRANCH
+**   --brief                Show filenames only
+**   --context|-c N         Use N lines of context
+**   --diff-binary BOOL     Include binary files when using external commands
+**   --from|-r VERSION      select VERSION as source for the diff
+**   --ignore-space-at-eol  Ignore changes to end-of-line whitespace
+**   --ignore-space-at-sol  Ignore changes to start-of-line whitespace
+**   --internal|-i          use internal diff logic
+**   --side-by-side|-y      side-by-side diff
+**   --tk                   Launch a Tcl/Tk GUI for display
+**   --to VERSION           select VERSION as target for the diff
+**   --unified              unified diff
+**   -v|--verbose           output complete text of added or deleted files
+**   -w                     Ignore changes to start-of-line and end-of-line
+**                          whitespace
+**   -W|--width             Width of lines in side-by-side diff
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
@@ -1123,7 +1137,6 @@ void diff_cmd(void){
     verboseFlag = find_option("new-file","N",0)!=0; /* deprecated */
   }
   if( verboseFlag ) diffFlags |= DIFF_VERBOSE;
-
   if( zBranch ){
     if( zTo || zFrom ){
       fossil_fatal("cannot use --from or --to with --branch");

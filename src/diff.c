@@ -30,14 +30,14 @@
 */
 #define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
 #define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
-#define DIFF_IGNORE_EOLWS ((u64)0x01000000) /* Ignore end-of-line whitespace */
-#define DIFF_SIDEBYSIDE   ((u64)0x02000000) /* Generate a side-by-side diff */
-#define DIFF_VERBOSE      ((u64)0x04000000) /* Missing shown as empty files */
-#define DIFF_BRIEF        ((u64)0x08000000) /* Show filenames only */
-#define DIFF_INLINE       ((u64)0x00000000) /* Inline (not side-by-side) diff */
-#define DIFF_HTML         ((u64)0x10000000) /* Render for HTML */
-#define DIFF_LINENO       ((u64)0x20000000) /* Show line numbers */
-#define DIFF_WS_WARNING   ((u64)0x40000000) /* Warn about whitespace */
+#define DIFF_IGNORE_SOLWS ((u64)0x01000000) /* Ignore start-of-line whitespace */
+#define DIFF_IGNORE_EOLWS ((u64)0x02000000) /* Ignore end-of-line whitespace */
+#define DIFF_SIDEBYSIDE   ((u64)0x04000000) /* Generate a side-by-side diff */
+#define DIFF_VERBOSE      ((u64)0x08000000) /* Missing shown as empty files */
+#define DIFF_BRIEF        ((u64)0x00000000) /* Show filenames only */
+#define DIFF_INLINE       ((u64)0x10000000) /* Inline (not side-by-side) diff */
+#define DIFF_HTML         ((u64)0x20000000) /* Render for HTML */
+#define DIFF_LINENO       ((u64)0x40000000) /* Show line numbers */
 #define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
@@ -55,6 +55,9 @@
 
 #define DIFF_TOO_MANY_CHANGES \
     "more than 10,000 changes\n"
+
+#define DIFF_WHITESPACE_ONLY \
+    "whitespace changes only\n"
 
 /*
 ** Maximum length of a line in a text file, in bytes.  (2**13 = 8192 bytes)
@@ -75,6 +78,7 @@ typedef struct DLine DLine;
 struct DLine {
   const char *z;        /* The text of the line */
   unsigned int h;       /* Hash of the line */
+  unsigned short indent;  /* Indent of the line. Only !=0 with --ignore-space-at sol option */
   unsigned int iNext;   /* 1+(Index of next line with same the same hash) */
 
   /* an array of DLine elements serves two purposes.  The fields
@@ -127,8 +131,8 @@ struct DContext {
 ** Profiling show that in most cases this routine consumes the bulk of
 ** the CPU time on a diff.
 */
-static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
-  int nLine, i, j, k, x;
+static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags){
+  int nLine, i, j, k, s, indent, x;
   unsigned int h, h2;
   DLine *a;
 
@@ -160,14 +164,29 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 
   /* Fill in the array */
   for(i=0; i<nLine; i++){
-    a[i].z = z;
     for(j=0; z[j] && z[j]!='\n'; j++){}
     k = j;
-    while( ignoreWS && k>0 && fossil_isspace(z[k-1]) ){ k--; }
-    for(h=0, x=0; x<k; x++){
+    s = 0;
+    indent = 0;
+    if( diffFlags & DIFF_IGNORE_EOLWS ){
+      while( k>0 && fossil_isspace(z[k-1]) ){ k--; }
+    }
+    if( diffFlags & DIFF_IGNORE_SOLWS ){
+      while( s<k && fossil_isspace(z[s]) ){
+        if( z[s]=='\t' ){
+          indent = ((indent+9)/8)*8;
+        }else if( z[s]==' ' ){
+          indent++;
+        }
+        s++;
+      }
+    }
+    a[i].z = z+s;
+    a[i].indent = s;
+    for(h=0, x=s; x<k; x++){
       h = h ^ (h<<2) ^ z[x];
     }
-    a[i].h = h = (h<<LENGTH_MASK_SZ) | k;
+    a[i].h = h = (h<<LENGTH_MASK_SZ) | (k-s);
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
     a[h2].iHash = i+1;
@@ -223,11 +242,17 @@ static void appendDiffLine(
     }else if( cPrefix=='-' ){
       blob_append(pOut, "<span class=\"diffrm\">", -1);
     }
+    if( pLine->indent ){
+      blob_appendf(pOut, "%*s", pLine->indent, " ");
+    }
     htmlize_to_blob(pOut, pLine->z, (pLine->h & LENGTH_MASK));
     if( cPrefix!=' ' ){
       blob_append(pOut, "</span>", -1);
     }
   }else{
+    if( pLine->indent ){
+      blob_appendf(pOut, "%*s", pLine->indent, " ");
+    }
     blob_append(pOut, pLine->z, pLine->h & LENGTH_MASK);
   }
   blob_append(pOut, "\n", 1);
@@ -509,6 +534,9 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
         }
       }
     }
+    if( pLine->indent && i==0 ){
+      blob_appendf(pCol, "%*s", pLine->indent, " ");
+    }
     if( c=='\t' && !p->escHtml ){
       blob_append(pCol, " ", 1);
       while( (k&7)!=7 && (p->escHtml || k<w) ){
@@ -536,7 +564,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
   if( col==SBS_TXTB ){
     sbsWriteNewlines(p);
   }else if( !p->escHtml ){
-    sbsWriteSpace(p, w-k, SBS_TXTA);
+    sbsWriteSpace(p, w-k-pLine->indent, SBS_TXTA);
   }
 }
 
@@ -1755,7 +1783,7 @@ int *text_diff(
   ReCompiled *pRe, /* Only output changes where this Regexp matches */
   u64 diffFlags    /* DIFF_* flags defined above */
 ){
-  int ignoreEolWs; /* Ignore whitespace at the end of lines */
+  int ignoreWs; /* Ignore whitespace */
   DContext c;
 
   if( diffFlags & DIFF_INVERT ){
@@ -1763,16 +1791,16 @@ int *text_diff(
     pA_Blob = pB_Blob;
     pB_Blob = pTemp;
   }
-  ignoreEolWs = (diffFlags & DIFF_IGNORE_EOLWS)!=0;
+  ignoreWs = (diffFlags & (DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))!=0;
   blob_to_utf8_no_bom(pA_Blob, 0);
   blob_to_utf8_no_bom(pB_Blob, 0);
 
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
   c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
-                             &c.nFrom, ignoreEolWs);
+                             &c.nFrom, diffFlags);
   c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
-                           &c.nTo, ignoreEolWs);
+                           &c.nTo, diffFlags);
   if( c.aFrom==0 || c.aTo==0 ){
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
@@ -1784,6 +1812,13 @@ int *text_diff(
 
   /* Compute the difference */
   diff_all(&c);
+  if( ignoreWs && c.nEdit==6 && c.aEdit[1]==0 && c.aEdit[2]==0 ){
+    fossil_free(c.aFrom);
+    fossil_free(c.aTo);
+    fossil_free(c.aEdit);
+    if( pOut ) diff_errmsg(pOut, DIFF_WHITESPACE_ONLY, diffFlags);
+    return 0;
+  }
   if( (diffFlags & DIFF_NOTTOOBIG)!=0 ){
     int i, m, n;
     int *a = c.aEdit;
@@ -1793,7 +1828,7 @@ int *text_diff(
       fossil_free(c.aFrom);
       fossil_free(c.aTo);
       fossil_free(c.aEdit);
-      diff_errmsg(pOut, DIFF_TOO_MANY_CHANGES, diffFlags);
+      if( pOut ) diff_errmsg(pOut, DIFF_TOO_MANY_CHANGES, diffFlags);
       return 0;
     }
   }
@@ -1830,10 +1865,13 @@ int *text_diff(
 **   --context|-c N         N lines of context.    DIFF_CONTEXT_MASK
 **   --html                 Format for HTML        DIFF_HTML
 **   --invert               Invert the diff        DIFF_INVERT
+**   --ignore-space-at-eol  Ignore eol-whitespaces DIFF_IGNORE_EOLWS
+**   --ignore-space-at-sol  Ignore sol-whitespaces DIFF_IGNORE_SOLWS
 **   --linenum|-n           Show line numbers      DIFF_LINENO
 **   --noopt                Disable optimization   DIFF_NOOPT
 **   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
 **   --unified              Unified diff.          ~DIFF_SIDEBYSIDE
+**   -w                     Ignore all whitespaces DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS
 **   --width|-W N           N character lines.     DIFF_WIDTH_MASK
 */
 u64 diff_options(void){
@@ -1852,6 +1890,9 @@ u64 diff_options(void){
     diffFlags |= f;
   }
   if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
+  if( find_option("ignore-space-at-sol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_SOLWS;
+  if( find_option("ignore-space-at-eol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
+  if( find_option("w",0,0)!=0 ) diffFlags |= (DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS);
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
@@ -1932,7 +1973,10 @@ struct Annotator {
   DContext c;       /* The diff-engine context */
   struct AnnLine {  /* Lines of the original files... */
     const char *z;       /* The text of the line */
-    short int n;         /* Number of bytes (omitting trailing space and \n) */
+    short int n;         /* Number of bytes. Whether this omits sol/eol spacing
+                            depends on the diffFlags) */
+    unsigned short indent; /* Indenting (number of initial spaces, only used
+                              if sol-spacing is ignored in the diffFlags) */
     short int iVers;     /* Level at which tag was set */
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
@@ -1958,7 +2002,8 @@ static int annotation_start(Annotator *p, Blob *pInput){
   int i;
 
   memset(p, 0, sizeof(*p));
-  p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,1);
+  p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,
+                              0);
   if( p->c.aTo==0 ){
     return 1;
   }
@@ -1966,6 +2011,7 @@ static int annotation_start(Annotator *p, Blob *pInput){
   for(i=0; i<p->c.nTo; i++){
     p->aOrig[i].z = p->c.aTo[i].z;
     p->aOrig[i].n = p->c.aTo[i].h & LENGTH_MASK;
+    p->aOrig[i].indent = p->c.aTo[i].indent;
     p->aOrig[i].iVers = -1;
   }
   p->nOrig = p->c.nTo;
@@ -1985,7 +2031,7 @@ static int annotation_step(Annotator *p, Blob *pParent, int iVers){
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
-                                &p->c.nFrom, 1);
+                                &p->c.nFrom, 0);
   if( p->c.aFrom==0 ){
     return 1;
   }
@@ -2258,6 +2304,7 @@ void annotation_page(void){
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
     int n = ann.aOrig[i].n;
+    int indent = ann.aOrig[i].indent+1;
     char zPrefix[300];
     z[n] = 0;
     if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
@@ -2272,7 +2319,7 @@ void annotation_page(void){
              p->zBgColor, zLink, p->zMUuid, p->zDate, p->zUser);
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s", "");
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s%*s", indent, " ");
       }
     }else{
       if( iVers>=0 ){
@@ -2280,14 +2327,14 @@ void annotation_page(void){
         char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
-             "%s%.10s</a> %s</span> %4d:",
-             p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
+             "%s%.10s</a> %s</span> %4d:%*s",
+             p->zBgColor, zLink, p->zMUuid, p->zDate, i+1, indent, " ");
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:%*s", "", i+1, indent, " ");
       }
     }
-    @ %s(zPrefix) %h(z)
+    @ %s(zPrefix)%h(z)
 
   }
   @ </pre>
@@ -2374,24 +2421,25 @@ void annotate_cmd(void){
   for(i=0; i<ann.nOrig; i++){
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
+    int indent = ann.aOrig[i].indent + 1;
     int n = ann.aOrig[i].n;
     struct AnnVers *p;
     if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
     p = ann.aVers + iVers;
     if( bBlame ){
       if( iVers>=0 ){
-        fossil_print("%.10s %s %13.13s: %.*s\n",
-             fileVers ? p->zFUuid : p->zMUuid, p->zDate, p->zUser, n, z);
+        fossil_print("%.10s %s %13.13s:%*s%.*s\n",
+             fileVers ? p->zFUuid : p->zMUuid, p->zDate, p->zUser, indent, " ", n, z);
       }else{
-        fossil_print("%35s  %.*s\n", "", n, z);
+        fossil_print("%35s %*s%.*s\n", "", indent, " ", n, z);
       }
     }else{
       if( iVers>=0 ){
-        fossil_print("%.10s %s %5d: %.*s\n",
-             fileVers ? p->zFUuid : p->zMUuid, p->zDate, i+1, n, z);
+        fossil_print("%.10s %s %5d:%*s%.*s\n",
+             fileVers ? p->zFUuid : p->zMUuid, p->zDate, i+1, indent, " ", n, z);
       }else{
-        fossil_print("%21s %5d: %.*s\n",
-             "", i+1, n, z);
+        fossil_print("%21s %5d:%*s%.*s\n",
+             "", i+1, indent, " ", n, z);
       }
     }
   }
