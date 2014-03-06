@@ -2175,6 +2175,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 /*
 ** WEBPAGE: annotate
 ** WEBPAGE: blame
+** WEBPAGE: praise
 **
 ** Query parameters:
 **
@@ -2199,7 +2200,7 @@ void annotation_page(void){
   HQuery url;
   struct AnnVers *p;
   unsigned clr1, clr2, clr;
-  int bBlame = g.zPath[0]=='b';/* True for BLAME output.  False for ANNOTATE. */
+  int bBlame = g.zPath[0]!='a';/* True for BLAME output.  False for ANNOTATE. */
 
   /* Gather query parameters */
   showLog = atoi(PD("log","1"));
@@ -2357,13 +2358,14 @@ void annotation_page(void){
 /*
 ** COMMAND: annotate
 ** COMMAND: blame
+** COMMAND: praise
 **
-** %fossil (annotate|blame) ?OPTIONS? FILENAME
+** %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
 **
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.  The "annotate" command shows line numbers
-** and omits the username.  The "blame" command shows the user who made each
-** checkin and omits the line number.
+** and omits the username.  The "blame" and "praise" commands show the user
+** who made each checkin and omits the line number.
 **
 ** Options:
 **   --filevers             Show file version numbers rather than check-in versions
@@ -2392,7 +2394,7 @@ void annotate_cmd(void){
   int annFlags = 0; /* Flags to control annotation properties */
   int bBlame = 0;   /* True for BLAME output.  False for ANNOTATE. */
 
-  bBlame = g.argv[1][0]=='b';
+  bBlame = g.argv[1][0]!='a';
   zLimit = find_option("limit","n",1);
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
