@@ -1706,7 +1706,7 @@ SQLITE_OPTIONS = -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_OMIT_DEPRECATED \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
-                 -D_HAVE_SQLITE_CONFIG_H \
+                 -D_HAVE__MINGW_H \
                  -DSQLITE_USE_MALLOC_H \
                  -DSQLITE_USE_MSIZE
 
