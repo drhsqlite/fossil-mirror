@@ -35,3 +35,8 @@ simplify-name 104 a/b/../c/ a/c /a/b/../c /a/c /a/b//../c /a/c /a/b/..///c /a/c
 simplify-name 105 a/b/../../x/y x/y /a/b/../../x/y /x/y
 simplify-name 106 a/b/../../../x/y ../x/y /a/b/../../../x/y /../x/y
 simplify-name 107 a/./b/.././../x/y x/y a//.//b//..//.//..//x//y/// x/y
+
+if {$::tcl_platform(os)=="Windows NT"} {
+  simplify-name 108 //?/a:/a/b a:/a/b //?/UNC/a/b //a/b //?/ {}
+  simplify-name 109 \\\\?\\a:\\a\\b a:/a/b \\\\?\\UNC\\a\\b //a/b \\\\?\\ {}
+}

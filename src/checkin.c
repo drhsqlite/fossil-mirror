@@ -1562,7 +1562,7 @@ void commit_cmd(void){
   if( select_commit_files() ){
     prompt_user("continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
-    if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
+    if( cReply!='y' && cReply!='Y' ) fossil_exit(1);
   }
   isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0 OR id<-2");
   if( g.aCommitFile && isAMerge ){
@@ -1662,7 +1662,7 @@ void commit_cmd(void){
     if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
       prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
+      if( cReply!='y' && cReply!='Y' ) fossil_exit(1);
     }
     free(zInit);
   }

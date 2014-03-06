@@ -51,11 +51,21 @@ void diff_print_filenames(const char *zLeft, const char *zRight, u64 diffFlags){
   }else if( diffFlags & DIFF_SIDEBYSIDE ){
     int w = diff_width(diffFlags);
     int n1 = strlen(zLeft);
+    int n2 = strlen(zRight);
     int x;
-    if( n1>w*2 ) n1 = w*2;
-    x = w*2+17 - (n1+2);
-    z = mprintf("%.*c %.*s %.*c\n",
-                x/2, '=', n1, zLeft, (x+1)/2, '=');
+    if( n1==n2 && fossil_strcmp(zLeft,zRight)==0 ){
+      if( n1>w*2 ) n1 = w*2;
+      x = w*2+17 - (n1+2);
+      z = mprintf("%.*c %.*s %.*c\n",
+                 x/2, '=', n1, zLeft, (x+1)/2, '=');
+    }else{
+      if( w<20 ) w = 20;
+      if( n1>w-10 ) n1 = w - 10;
+      if( n2>w-10 ) n2 = w - 10;
+      z = mprintf("%.*c %.*s %.*c versus %.*c %.*s %.*c\n",
+                  (w-n1+10)/2, '=', n1, zLeft, (w-n1+1)/2, '=',
+                  (w-n2)/2, '=', n2, zRight, (w-n2+1)/2, '=');
+    }
   }else{
     z = mprintf("--- %s\n+++ %s\n", zLeft, zRight);
   }
@@ -600,6 +610,7 @@ const char *diff_command_external(int guiDiff){
 /* A Tcl/Tk script used to render diff output.
 */
 static const char zDiffScript[] =
+@ set prog {
 @ package require Tk
 @
 @ array set CFG {
@@ -619,6 +630,7 @@ static const char zDiffScript[] =
 @   FN_BG      #444444
 @   FN_FG      #ffffff
 @   FN_PAD     5
+@   ERR_FG     #ee0000
 @   PADX       5
 @   WIDTH      80
 @   HEIGHT     45
@@ -644,16 +656,37 @@ static const char zDiffScript[] =
 @   return $type
 @ }
 @
+@ proc getLine {difftxt N iivar} {
+@   upvar $iivar ii
+@   if {$ii>=$N} {return -1}
+@   set x [lindex $difftxt $ii]
+@   incr ii
+@   return $x
+@ }
+@
 @ proc readDiffs {fossilcmd} {
-@   set in [open $fossilcmd r]
-@   fconfigure $in -encoding utf-8
+@   global difftxt
+@   if {![info exists difftxt]} {
+@     set in [open $fossilcmd r]
+@     fconfigure $in -encoding utf-8
+@     set difftxt [split [read $in] \n]
+@     close $in
+@   }
+@   set N [llength $difftxt]
+@   set ii 0
 @   set nDiffs 0
 @   array set widths {txt 0 ln 0 mkr 0}
-@   while {[gets $in line] != -1} {
-@     if {![regexp {^=+\s+(.*?)\s+=+$} $line all fn]} {
+@   while {[set line [getLine $difftxt $N ii]] != -1} {
+@     set fn2 {}
+@     if {![regexp {^=+ (.*?) =+ versus =+ (.*?) =+$} $line all fn fn2]
+@      && ![regexp {^=+ (.*?) =+$} $line all fn]
+@     } {
 @       continue
 @     }
-@     if {[string compare -length 6 [gets $in] "<table"]} {
+@     set errMsg ""
+@     set line [getLine $difftxt $N ii]
+@     if {[string compare -length 6 $line "<table"]
+@      && ![regexp {<p[^>]*>(.+)} $line - errMsg]} {
 @       continue
 @     }
 @     incr nDiffs
@@ -661,21 +694,22 @@ static const char zDiffScript[] =
 @     .wfiles.lb insert end $fn
 @
 @     foreach c [cols] {
-@       while {[gets $in] ne "<pre>"} continue
-@
 @       if {$nDiffs > 1} {
 @         $c insert end \n -
 @       }
 @       if {[colType $c] eq "txt"} {
 @         $c insert end $fn\n fn
+@         if {$fn2!=""} {set fn $fn2}
 @       } else {
 @         $c insert end \n fn
 @       }
 @       $c insert end \n -
 @
+@       if {$errMsg ne ""} continue
+@       while {[getLine $difftxt $N ii] ne "<pre>"} continue
 @       set type [colType $c]
 @       set str {}
-@       while {[set line [gets $in]] ne "</pre>"} {
+@       while {[set line [getLine $difftxt $N ii]] ne "</pre>"} {
 @         set len [string length [dehtml $line]]
 @         if {$len > $widths($type)} {
 @           set widths($type) $len
@@ -695,8 +729,12 @@ static const char zDiffScript[] =
 @         }
 @       }
 @     }
+@
+@     if {$errMsg ne ""} {
+@       foreach c {.txtA .txtB} {$c insert end [string trim $errMsg] err}
+@       foreach c [cols] {$c insert end \n -}
+@     }
 @   }
-@   close $in
 @
 @   foreach c [cols] {
 @     set type [colType $c]
@@ -799,8 +837,8 @@ static const char zDiffScript[] =
 @ bind . <Tab> {cycleDiffs; break}
 @ bind . <<PrevWindow>> {cycleDiffs 1; break}
 @ bind . <Return> {
-@   event generate .files <1>
-@   event generate .files <ButtonRelease-1>
+@   event generate .bb.files <1>
+@   event generate .bb.files <ButtonRelease-1>
 @   break
 @ }
 @ foreach {key axis args} {
@@ -817,7 +855,8 @@ static const char zDiffScript[] =
 @   bind . <Shift-$key> continue
 @ }
 @
-@ ::ttk::menubutton .files -text "Files"
+@ frame .bb
+@ ::ttk::menubutton .bb.files -text "Files"
 @ toplevel .wfiles
 @ wm withdraw .wfiles
 @ update idletasks
@@ -827,7 +866,7 @@ static const char zDiffScript[] =
 @   -yscroll {.wfiles.sb set}
 @ ::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
 @ grid .wfiles.lb .wfiles.sb -sticky ns
-@ bind .files <1> {
+@ bind .bb.files <1> {
 @   set x [winfo rootx %W]
 @   set y [expr {[winfo rooty %W]+[winfo height %W]}]
 @   wm geometry .wfiles +$x+$y
@@ -866,6 +905,7 @@ static const char zDiffScript[] =
 @   }
 @   $txt tag config fn -background $CFG(FN_BG) -foreground $CFG(FN_FG) \
 @     -justify center
+@   $txt tag config err -foreground $CFG(ERR_FG)
 @ }
 @ text .mkr
 @
@@ -892,10 +932,28 @@ static const char zDiffScript[] =
 @ }
 @ update idletasks
 @
+@ proc saveDiff {} {
+@   set fn [tk_getSaveFile]
+@   set out [open $fn wb]
+@   puts $out "#!/usr/bin/tclsh\n#\n# Run this script using 'tclsh' or 'wish'"
+@   puts $out "# to see the graphical diff.\n#"
+@   puts $out "set fossilcmd {}"
+@   puts $out "set prog [list $::prog]"
+@   puts $out "set difftxt \173"
+@   foreach e $::difftxt {puts $out [list $e]}
+@   puts $out "\175"
+@   puts $out "eval \$prog"
+@   close $out
+@ }
+@ ::ttk::button .bb.quit -text {Quit} -command exit
+@ ::ttk::button .bb.save -text {Save As...} -command saveDiff
+@ pack .bb.quit -side left
+@ if {$fossilcmd!=""} {pack .bb.save -side left}
+@ pack .bb.files -side left
 @ grid rowconfigure . 1 -weight 1
 @ grid columnconfigure . 1 -weight 1
 @ grid columnconfigure . 4 -weight 1
-@ grid .files -row 0 -columnspan 6
+@ grid .bb -row 0 -columnspan 6
 @ eval grid [cols] -row 1 -sticky nsew
 @ grid .sby -row 1 -column 5 -sticky ns
 @ grid .sbxA -row 2 -columnspan 2 -sticky ew
@@ -904,6 +962,8 @@ static const char zDiffScript[] =
 @
 @ .spacer config -height [winfo height .sbxA]
 @ wm deiconify .
+@ }
+@ eval $prog
 ;
 
 /*
@@ -1031,19 +1091,23 @@ const char *diff_get_binary_glob(void){
 ** This option overrides the "binary-glob" setting.
 **
 ** Options:
-**   --binary PATTERN    Treat files that match the glob PATTERN as binary
-**   --branch BRANCH     Show diff of all changes on BRANCH
-**   --brief             Show filenames only
-**   --context|-c N      Use N lines of context
-**   --diff-binary BOOL  Include binary files when using external commands
-**   --from|-r VERSION   select VERSION as source for the diff
-**   --internal|-i       use internal diff logic
-**   --side-by-side|-y   side-by-side diff
-**   --tk                Launch a Tcl/Tk GUI for display
-**   --to VERSION        select VERSION as target for the diff
-**   --unified           unified diff
-**   -v|--verbose        output complete text of added or deleted files
-**   -W|--width          Width of lines in side-by-side diff
+**   --binary PATTERN       Treat files that match the glob PATTERN as binary
+**   --branch BRANCH        Show diff of all changes on BRANCH
+**   --brief                Show filenames only
+**   --context|-c N         Use N lines of context
+**   --diff-binary BOOL     Include binary files when using external commands
+**   --from|-r VERSION      select VERSION as source for the diff
+**   --ignore-space-at-eol  Ignore changes to end-of-line whitespace
+**   --ignore-space-at-sol  Ignore changes to start-of-line whitespace
+**   --internal|-i          use internal diff logic
+**   --side-by-side|-y      side-by-side diff
+**   --tk                   Launch a Tcl/Tk GUI for display
+**   --to VERSION           select VERSION as target for the diff
+**   --unified              unified diff
+**   -v|--verbose           output complete text of added or deleted files
+**   -w                     Ignore changes to start-of-line and end-of-line
+**                          whitespace
+**   -W|--width             Width of lines in side-by-side diff
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
@@ -1073,7 +1137,6 @@ void diff_cmd(void){
     verboseFlag = find_option("new-file","N",0)!=0; /* deprecated */
   }
   if( verboseFlag ) diffFlags |= DIFF_VERBOSE;
-
   if( zBranch ){
     if( zTo || zFrom ){
       fossil_fatal("cannot use --from or --to with --branch");

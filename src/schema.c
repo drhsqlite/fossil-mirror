@@ -23,7 +23,7 @@
 /*
 ** The database schema for the ~/.fossil configuration database.
 */
-const char zConfigSchema[] = 
+const char zConfigSchema[] =
 @ -- This file contains the schema for the database that is kept in the
 @ -- ~/.fossil file and that stores information about the users setup.
 @ --
@@ -52,7 +52,7 @@ const char zConfigSchema[] =
 
 
 /*
-** The schema for a repository database.  
+** The schema for a repository database.
 **
 ** Schema1[] contains parts of the schema that are fixed and unchanging
 ** across versions.  Schema2[] contains parts of the schema that can
@@ -60,7 +60,7 @@ const char zConfigSchema[] =
 ** is reconstructed from the information in Schema1[] by the "rebuild"
 ** operation.
 */
-const char zRepositorySchema1[] = 
+const char zRepositorySchema1[] =
 @ -- The BLOB and DELTA tables contain all records held in the repository.
 @ --
 @ -- The BLOB.CONTENT column is always compressed using zlib.  This
@@ -71,7 +71,7 @@ const char zRepositorySchema1[] =
 @ -- entry that holds the source of the delta.  Deltas can be chained.
 @ --
 @ -- The blob and delta tables collectively hold the "global state" of
-@ -- a Fossil repository.  
+@ -- a Fossil repository.
 @ --
 @ CREATE TABLE blob(
 @   rid INTEGER PRIMARY KEY,        -- Record ID
@@ -91,7 +91,7 @@ const char zRepositorySchema1[] =
 @ -- The BLOB and DELTA tables above hold the "global state" of a Fossil
 @ -- project; the stuff that is normally exchanged during "sync".  The
 @ -- "local state" of a repository is contained in the remaining tables of
-@ -- the zRepositorySchema1 string.  
+@ -- the zRepositorySchema1 string.
 @ -------------------------------------------------------------------------
 @
 @ -- Whenever new blobs are received into the repository, an entry
@@ -174,7 +174,7 @@ const char zRepositorySchema1[] =
 @ -- Some ticket content (such as the originators email address or contact
 @ -- information) needs to be obscured to protect privacy.  This is achieved
 @ -- by storing an SHA1 hash of the content.  For display, the hash is
-@ -- mapped back into the original text using this table.  
+@ -- mapped back into the original text using this table.
 @ --
 @ -- This table contains sensitive information and should not be shared
 @ -- with unauthorized users.
@@ -195,7 +195,7 @@ const char zRepositorySchema1[] =
 ** script so that (configure reset) can install the default report.
 */
 const char zRepositorySchemaDefaultReports[] =
-@ INSERT INTO reportfmt(title,mtime,cols,sqlcode) 
+@ INSERT INTO reportfmt(title,mtime,cols,sqlcode)
 @ VALUES('All Tickets',julianday('1970-01-01'),'#ffffff Key:
 @ #f2dcdc Active
 @ #e8e8e8 Review
@@ -323,9 +323,9 @@ const char zRepositorySchema2[] =
 @
 @ -- Each baseline or manifest can have one or more tags.  A tag
 @ -- is defined by a row in the next table.
-@ -- 
+@ --
 @ -- Wiki pages are tagged with "wiki-NAME" where NAME is the name of
-@ -- the wiki page.  Tickets changes are tagged with "ticket-UUID" where 
+@ -- the wiki page.  Tickets changes are tagged with "ticket-UUID" where
 @ -- UUID is the indentifier of the ticket.  Tags used to assign symbolic
 @ -- names to baselines are branches are of the form "sym-NAME" where
 @ -- NAME is the symbolic name.
