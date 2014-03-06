@@ -1,5 +1,5 @@
-C Cherrypick\s[http://www.sqlite.org/src/info/170e058520|170e058520]:\sBetter\ssupport\sfor\sMinGW\s4.x.\sTogether\swith\sminor\sfossil\sbuild\sadaptations\ssuch\sthat\sa\sMinGW\s4.x\sbuild\sreports\sthe\sright\smingw\sversion.\s\nRemark:\sBuilding\sfossil\swith\sMinGW\s4.x\sstill\sdoesn't\sproduce\sa\sworking\sfossil.exe,\sunless\syou\spatch\sMinGW's\s<dirent.h>\sslightly.\sSee:\s[18cff45a4e]\sand\s[https://sourceforge.net/p/mingw/bugs/2106/].\sThis\sMinGW\s4.x\sbug\sis\salready\sopen\sfor\salmost\s5\smonths\snow.
-D 2014-03-06T09:42:57.578
+C Update\sthe\sbuilt-in\sSQLite\sto\sinclude\sthe\slatest\slast-minute\spatches\sfor\nversion\s3.8.4.
+D 2014-03-06T15:02:38.981
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -397,12 +397,12 @@ F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 6471b6201f6ea01f2528cbcd4455f990a5caecf6
 F src/setup.c c0e14c5602a604fc333ed5d2975d749d98757c6f
 F src/sha1.c 764d029cbe3704941a7db83c0d0b505f6cdb512f
-F src/shell.c 7bf07bcacb181ecc3fc3ccacfdfeb4084aee67ed
+F src/shell.c bab4de12b441369491812ecc93212ff4deda68fa
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 6b4958b9250369d74a0cb0432fa46d4b41797c9a
-F src/sqlite3.c 373b7b67a5696b1c05e0b8f52d1429f9a0245062
-F src/sqlite3.h c41f568297e68ed1120d7fc3e2e5aee14e0bae31
+F src/sqlite3.c 88a68a817edee5fd7e5695afe21860d4473fd09a
+F src/sqlite3.h a662c6f73e868ce9ef2c37e1cbcbdb4126431ab5
 F src/stash.c a6388394ee7d088757421ba474b0b02bd04019e0
 F src/stat.c 8b6946485253ea73fb3deee9fb742d794870e818
 F src/style.c 806530837482e77cd42dd9401d905fb23694e54e
@@ -641,8 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fb573e72030b574674e93e261deb199bc3f4a19c 645d57613d209d89b7d170b4353519c80326173d
-R c2840f495917379805bdf0e05dd6cd25
-T +closed 645d57613d209d89b7d170b4353519c80326173d
-U jan.nijtmans
-Z 6fc28b33eb1306c79bd7eaaacd72f19b
+P e68f528bfa690f3e2027c0b6b96f8153cf4a911e
+R 1aac9afe6c5684fb75164fbcebb52399
+U drh
+Z 71645099acf12e98c7638cff7f07ceb7
