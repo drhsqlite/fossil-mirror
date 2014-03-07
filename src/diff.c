@@ -429,7 +429,7 @@ static void contextDiff(
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
           if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-          appendDiffLine(pOut, ' ', &B[b+j], html, 0);
+          appendDiffLine(pOut, ' ', &A[a+j], html, 0);
         }
         b += m;
         a += m;
@@ -442,7 +442,7 @@ static void contextDiff(
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
       if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-      appendDiffLine(pOut, ' ', &B[b+j], html, 0);
+      appendDiffLine(pOut, ' ', &A[a+j], html, 0);
     }
   }
 }
