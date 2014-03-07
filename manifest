@@ -1,5 +1,5 @@
-C Fix\ssome\sspacing\sissues\s(blame\soutput\sshould\sbe\sexactly\sthe\ssame\sas\sFossil\s1.28)\s\nMake\sannotation\swork\swith\sUTF-16\sfiles.\s\nRemove\ssome\sunnecessary\send-of-line\sspaces\sin\stext\sfiles.
-D 2014-03-07T11:29:05.816
+C Combine\sANN\sflags\sand\sDIFF\sflags\sinto\sa\ssingle\s64-bit\svariable,\swhere\sappropriate.\s\nMake\sDIFF_STRIP_EOLCR\sa\sseparate\sflag,\sas\sthis\sflag\sdoes\smore\sthan\sthe\sother\swhitespace-related\sflags.\s\nMerge\strunk.
+D 2014-03-07T13:11:56.737
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -333,7 +333,7 @@ F src/db.c b6ebe42c812477da45a9c720f0d57fddd3c18abb
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
-F src/diff.c 92a71fb9d21130160839d86f7ab54019f121f8f7
+F src/diff.c 0383445e865138e573d1e09b47b419a00e060c75
 F src/diffcmd.c 1c671582accee7a1c80b6406402045a9ae62899f
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
@@ -365,7 +365,7 @@ F src/json_status.c c38b2e51815f2dacb1c48304d56ccb00a063183e
 F src/json_tag.c 70261471bbfe05f47af230561053a4fcbbeba5a9
 F src/json_timeline.c 4ba37f8d381b38424fb287969a2da3ea553aa228
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
-F src/json_wiki.c 3ef3369d9107698e407f917ab61be1abac73eef5
+F src/json_wiki.c ceb1fd69d1d78027688ba6b190a65961c575324f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c c25ebdded497e5f24101c01b53f7747257f16577
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
@@ -469,8 +469,8 @@ F test/th1.test d08b2848395080241a1cd47b94b51d7732c3054b
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 4ab7763cdb223c7801d1713922524a92f67ed412
-F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
-F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
+F test/utf16be.txt f285c46351c5a4b59fc15c968aec3718466be969
+F test/utf16le.txt ac2b4835103911d5e393f4b810aa77c1dbfa29f4
 F test/valgrind-www.tcl 1bd3f03f1c647e177cd1a9f1bb17c380388fc04b
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -561,7 +561,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki d4d05c1e0508ade7332024976831ad4dc87d93ae
-F www/changes.wiki 902a91f8287e11e0d4d36ca1c33138655af68944
+F www/changes.wiki 568a4bb83fcf211c9ee3d73c093ad8696441bcf3
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bb3388345d25eed7ae1dea0de629f7ee8f488ae5
-R c848594d9b48aa74aea831296dfbb560
+P 4514910a5f820e41fdd5c2685cf5f9ada6172660 46459fd92244555045631b47470116e7864c3bb1
+R b78d8adb7c50e6dcf03399c59af85f1d
 U jan.nijtmans
-Z 74184e6c6bd836602b4685eef1537d90
+Z 6e05e405eb567afa65feaf69605d879e
