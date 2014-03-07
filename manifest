@@ -1,5 +1,5 @@
-C Rename\s--ignore-space-at-eol\s(from\sGit)\sto\s-Z|--ignore-trailing-space\s(gnu\sdiff).\sAdd\s--ignore-all-space\sas\swell\s(doesn't\sbehave\sexactly\slike\sGNU's\soption\syet)
-D 2014-03-07T09:01:18.823
+C Fix\s-w|--ignore-all-space\soption\ssuch\sthat\sit\sdoes\sexactly\sthe\ssame\sas\sGNU\sdiff's\soption\swith\sthe\ssame\sname.
+D 2014-03-07T11:02:01.963
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -333,7 +333,7 @@ F src/db.c b6ebe42c812477da45a9c720f0d57fddd3c18abb
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
-F src/diff.c cffcca431804665fef2678728ad78004a2d297dd
+F src/diff.c 8ddd8e9dd5741e3cf793b609b55d40983b78a427
 F src/diffcmd.c 1c671582accee7a1c80b6406402045a9ae62899f
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4e6cfaf8f85c787e8f7dc84d4a9b326e853388a9 f00167e4e10009ea6c9bb8ab494a79b09449a35e
-R 2857a995cd2e9f8d010357e4df244a67
+P d9e79f685bf4c7c3d7c45c48bdb65a01497ff002
+R cf7e9d911a9f699dd48115fc122bd408
 U jan.nijtmans
-Z a5012c7fc20de9d9a9d5293edd1cb847
+Z c5557cd0312f697a078dd192ee2694dd
