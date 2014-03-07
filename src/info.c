@@ -462,7 +462,7 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
     }
 
     if( P("w") ){
-      diffFlags |= (DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS);
+      diffFlags |= DIFF_IGNORE_ALLWS;
     }
     /* "dc" query parameter determines lines of context */
     x = atoi(PD("dc","7"));
@@ -680,7 +680,7 @@ void ci_page(void){
       zPageHide = "vinfo";
     }
     diffFlags = construct_diff_flags(verboseFlag, sideBySide);
-    zW = (diffFlags&(DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))?"&w":"";
+    zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
     if( verboseFlag ){
       @ %z(xhref("class='button'","%R/%s/%T",zPageHide,zName))
       @ Hide&nbsp;Diffs</a>
@@ -990,7 +990,7 @@ void vdiff_page(void){
     zGlob = NULL;
   }
   diffFlags = construct_diff_flags(verboseFlag, sideBySide);
-  zW = (diffFlags&(DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))?"&w":"";
+  zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( sideBySide || verboseFlag ){
     style_submenu_element("Hide Diff", "hidediff",
                           "%R/vdiff?from=%T&to=%T&sbs=0%s%T%s",
@@ -1384,9 +1384,8 @@ void diff_page(void){
   diffFlags = construct_diff_flags(1, sideBySide) | DIFF_HTML;
 
   style_header("Diff");
-  zW = (diffFlags&(DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))?"&w":"";
+  zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( *zW ){
-    diffFlags |= (DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS);
     style_submenu_element("Show Whitespace Changes", "Show Whitespace Changes",
                           "%s/fdiff?v1=%T&v2=%T&sbs=%d",
                           g.zTop, P("v1"), P("v2"), sideBySide);

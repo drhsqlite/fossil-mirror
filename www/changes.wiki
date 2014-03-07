@@ -13,10 +13,9 @@
   *  Add support for tunneling https through a http proxy (Ticket [e854101c4f]).
   *  Add option --empty to the "[/help?cmd=open | fossil open]" command.
   *  Enhanced [/help?cmd=/fileage|the fileage page] to support a glob parameter.
-  *  Add --ignore-space-at-sol and --ignore-space-at-eol options to
+  *  Add -w|--ignore-all-space and -Z|--ignore-trailing-space options to
      [/help?cmd=annotate|fossil annotate], [/help?cmd=blame|fossil blame],
      [/help?cmd=diff|fossil (g)diff], [/help?cmd=stash|fossil stash diff].
-     The option -w activates both of them.
   *  Add button "Ignore Whitespace" to /annotate, /blame, /ci, /fdiff
      and /vdiff UI pages.
 

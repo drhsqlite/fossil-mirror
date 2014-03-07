@@ -30,8 +30,8 @@
 */
 #define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
 #define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
-#define DIFF_IGNORE_SOLWS ((u64)0x01000000) /* Ignore start-of-line whitespace */
-#define DIFF_IGNORE_EOLWS ((u64)0x02000000) /* Ignore end-of-line whitespace */
+#define DIFF_IGNORE_EOLWS ((u64)0x01000000) /* Ignore end-of-line whitespace */
+#define DIFF_IGNORE_ALLWS ((u64)0x03000000) /* Ignore all whitespace */
 #define DIFF_SIDEBYSIDE   ((u64)0x04000000) /* Generate a side-by-side diff */
 #define DIFF_VERBOSE      ((u64)0x08000000) /* Missing shown as empty files */
 #define DIFF_INLINE       ((u64)0x00000000) /* Inline (not side-by-side) diff */
@@ -171,7 +171,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
     if( diffFlags & DIFF_IGNORE_EOLWS ){
       while( k>0 && fossil_isspace(z[k-1]) ){ k--; }
     }
-    if( diffFlags & DIFF_IGNORE_SOLWS ){
+    if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
       while( s<k && fossil_isspace(z[s]) ){
         if( z[s]=='\t' ){
           indent = ((indent+9)/8)*8;
@@ -1791,7 +1791,7 @@ int *text_diff(
     pA_Blob = pB_Blob;
     pB_Blob = pTemp;
   }
-  ignoreWs = (diffFlags & (DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))!=0;
+  ignoreWs = (diffFlags & DIFF_IGNORE_ALLWS)!=0;
   blob_to_utf8_no_bom(pA_Blob, 0);
   blob_to_utf8_no_bom(pB_Blob, 0);
 
@@ -1861,18 +1861,17 @@ int *text_diff(
 ** Process diff-related command-line options and return an appropriate
 ** "diffFlags" integer.
 **
-**   --brief                Show filenames only    DIFF_BRIEF
-**   --context|-c N         N lines of context.    DIFF_CONTEXT_MASK
-**   --html                 Format for HTML        DIFF_HTML
-**   --invert               Invert the diff        DIFF_INVERT
-**   --ignore-space-at-eol  Ignore eol-whitespaces DIFF_IGNORE_EOLWS
-**   --ignore-space-at-sol  Ignore sol-whitespaces DIFF_IGNORE_SOLWS
-**   --linenum|-n           Show line numbers      DIFF_LINENO
-**   --noopt                Disable optimization   DIFF_NOOPT
-**   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
-**   --unified              Unified diff.          ~DIFF_SIDEBYSIDE
-**   -w                     Ignore all whitespaces DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS
-**   --width|-W N           N character lines.     DIFF_WIDTH_MASK
+**   --brief                    Show filenames only    DIFF_BRIEF
+**   -c|--context N             N lines of context.    DIFF_CONTEXT_MASK
+**   --html                     Format for HTML        DIFF_HTML
+**   --invert                   Invert the diff        DIFF_INVERT
+**   -n|--linenum               Show line numbers      DIFF_LINENO
+**   --noopt                    Disable optimization   DIFF_NOOPT
+**   --unified                  Unified diff.          ~DIFF_SIDEBYSIDE
+**   -w|--ignore-all-space      Ignore all whitespaces DIFF_IGNORE_ALLWS
+**   --width|-W N               N character lines.     DIFF_WIDTH_MASK
+**   -y|--side-by-side          Side-by-side diff.     DIFF_SIDEBYSIDE
+**   -Z|--ignore-trailing-space Ignore eol-whitespaces DIFF_IGNORE_EOLWS
 */
 u64 diff_options(void){
   u64 diffFlags = 0;
@@ -1890,9 +1889,8 @@ u64 diff_options(void){
     diffFlags |= f;
   }
   if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
-  if( find_option("ignore-space-at-sol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_SOLWS;
-  if( find_option("ignore-space-at-eol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
-  if( find_option("w",0,0)!=0 ) diffFlags |= (DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS);
+  if( find_option("ignore-trailing-space","Z",0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
+  if( find_option("ignore-all-space","w",0)!=0 ) diffFlags |= DIFF_IGNORE_ALLWS;
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
@@ -2216,7 +2214,7 @@ void annotation_page(void){
   iLimit = atoi(PD("limit","20"));
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
   ignoreWs = P("w")!=0;
-  if( ignoreWs ) diffFlags |= (DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS);
+  if( ignoreWs ) diffFlags |= DIFF_IGNORE_ALLWS;
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
   }
@@ -2370,12 +2368,11 @@ void annotation_page(void){
 ** who made each checkin and omits the line number.
 **
 ** Options:
-**   --filevers             Show file version numbers rather than check-in versions
-**   -l|--log               List all versions analyzed
-**   -n|--limit N           Only look backwards in time by N versions
-**   --ignore-space-at-eol  Ignore eol-whitespaces
-**   --ignore-space-at-sol  Ignore sol-whitespaces
-**   -w                     Ignore all whitespaces
+**   --filevers                 Show file version numbers rather than check-in versions
+**   -l|--log                   List all versions analyzed
+**   -n|--limit N               Only look backwards in time by N versions
+**   -Z|--ignore-trailing-space Ignore eol-whitespaces
+**   -w|--ignore-all-space      Ignore all whitespaces
 **
 ** See also: info, finfo, timeline
 */
@@ -2401,9 +2398,8 @@ void annotate_cmd(void){
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
   showLog = find_option("log","l",0)!=0;
-  if( find_option("ignore-space-at-sol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_SOLWS;
-  if( find_option("ignore-space-at-eol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
-  if( find_option("w",0,0)!=0 ) diffFlags |= (DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS);
+  if( find_option("ignore-trailing-space","Z",0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
+  if( find_option("ignore-all-space","w",0)!=0 ) diffFlags |= DIFF_IGNORE_ALLWS;
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
   if( g.argc<3 ) {
