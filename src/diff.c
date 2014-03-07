@@ -2101,6 +2101,7 @@ static void annotate_file(
     fossil_fatal("unable to retrieve content of artifact #%d", rid);
   }
   if( iLimit<=0 ) iLimit = 1000000000;
+  blob_to_utf8_no_bom(&toAnnotate, 0);
   annotation_start(p, &toAnnotate, diffFlags);
   db_begin_transaction();
   db_multi_exec(
@@ -2135,6 +2136,7 @@ static void annotate_file(
     p->aVers[p->nVers].zUser = fossil_strdup(db_column_text(&q, 3));
     if( p->nVers ){
       content_get(rid, &step);
+      blob_to_utf8_no_bom(&step, 0);
       annotation_step(p, &step, p->nVers-1, diffFlags);
       blob_reset(&step);
     }
