@@ -1091,6 +1091,7 @@ const char *diff_get_binary_glob(void){
 ** This option overrides the "binary-glob" setting.
 **
 ** Options:
+**   -b|--ignore-space-change   Ignore white space changes when comparing lines
 **   --binary PATTERN           Treat files that match the glob PATTERN as binary
 **   --branch BRANCH            Show diff of all changes on BRANCH
 **   --brief                    Show filenames only

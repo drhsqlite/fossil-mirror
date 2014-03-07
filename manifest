@@ -1,5 +1,5 @@
-C Combine\sANN\sflags\sand\sDIFF\sflags\sinto\sa\ssingle\s64-bit\svariable,\swhere\sappropriate.\s\nMake\sDIFF_STRIP_EOLCR\sa\sseparate\sflag,\sas\sthis\sflag\sdoes\smore\sthan\sthe\sother\swhitespace-related\sflags.\s\nMerge\strunk.
-D 2014-03-07T13:11:56.737
+C Implement\s-b|--ignore-space-change.\sDoesn't\swork\sright\syet\s(needs\sbetter\shash\sfunction)!
+D 2014-03-07T14:38:32.211
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -333,8 +333,8 @@ F src/db.c b6ebe42c812477da45a9c720f0d57fddd3c18abb
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
-F src/diff.c 0383445e865138e573d1e09b47b419a00e060c75
-F src/diffcmd.c 1c671582accee7a1c80b6406402045a9ae62899f
+F src/diff.c ebb0d6c69690aaf71d9f3fa2a354ddaec7ac93c1
+F src/diffcmd.c 7cfee8311fc6396ef776508c2f020fd9c2cb9b9f
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c 1dc85793c6ef93367c2f7087c37d4b2681c07c8e
@@ -561,7 +561,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki d4d05c1e0508ade7332024976831ad4dc87d93ae
-F www/changes.wiki 568a4bb83fcf211c9ee3d73c093ad8696441bcf3
+F www/changes.wiki 6186976608aa2896f131ca0cc2aa4c7d6cff4eb4
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4514910a5f820e41fdd5c2685cf5f9ada6172660 46459fd92244555045631b47470116e7864c3bb1
-R b78d8adb7c50e6dcf03399c59af85f1d
+P da205cf44b32d8253f8aeb970882906da6ad48f2
+R 73b9dd314ac1f387baf5a0aefd5eeab6
 U jan.nijtmans
-Z 6e05e405eb567afa65feaf69605d879e
+Z 7541b259bcd3c58606d7e0f6ff54b936

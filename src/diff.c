@@ -31,6 +31,7 @@
 #define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
 #define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
 #define DIFF_IGNORE_EOLWS ((u64)0x01000000) /* Ignore end-of-line whitespace */
+#define DIFF_IGNORE_WSCHG ((u64)0x02000000) /* Ignore whitespace changes */
 #define DIFF_IGNORE_ALLWS ((u64)0x03000000) /* Ignore all whitespace */
 #define DIFF_SIDEBYSIDE   ((u64)0x04000000) /* Generate a side-by-side diff */
 #define DIFF_VERBOSE      ((u64)0x08000000) /* Missing shown as empty files */
@@ -177,13 +178,27 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
     if( diffFlags & DIFF_IGNORE_ALLWS ){
       while( k>0 && fossil_isspace(z[k-1]) ){ k--; extent++;}
     }
-    if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
-      while( s<k && fossil_isspace(z[s]) ){s++; extent++;}
-      for(h=0, x=s; x<k; x++){
-        if( fossil_isspace(z[x]) ){
-          ++numws;
-        }else{
-          h = h ^ (h<<2) ^ z[x];
+    if( diffFlags & DIFF_IGNORE_WSCHG ){
+      if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
+        while( s<k && fossil_isspace(z[s]) ){s++; extent++;}
+        for(h=0, x=s; x<k; x++){
+          if( fossil_isspace(z[x]) ){
+            ++numws;
+          }else{
+            h = h ^ (h<<2) ^ z[x];
+          }
+        }
+      }else{
+        for(h=0, x=0; x<k; x++){
+          if( fossil_isspace(z[x]) ){
+            if( x>0 && !fossil_isspace(z[x-1]) ){
+              ++numws;
+            }else{
+              h = h ^ (h<<2) ^ ' ';
+            }
+          }else{
+            h = h ^ (h<<2) ^ z[x];
+          }
         }
       }
     }else{
@@ -209,7 +224,8 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
 ** Return true if two DLine elements are identical.
 */
 static int same_dline(DLine *pA, DLine *pB){
-  return pA->h==pB->h && memcmp(pA->z,pB->z,pA->h & LENGTH_MASK)==0;
+  return pA->h==pB->h; // TODO: not quite right, need better hash function.
+  //return pA->h==pB->h && memcmp(pA->z,pB->z,pA->h & LENGTH_MASK)==0;
 }
 
 /*
@@ -1859,17 +1875,18 @@ int *text_diff(
 ** Process diff-related command-line options and return an appropriate
 ** "diffFlags" integer.
 **
+**   -b|--ignore-space-change   Ignore space changes   DIFF_IGNORE_WSCHG
 **   --brief                    Show filenames only    DIFF_BRIEF
-**   --context|-c N             N lines of context.    DIFF_CONTEXT_MASK
+**   -c|--context N             N lines of context.    DIFF_CONTEXT_MASK
 **   --html                     Format for HTML        DIFF_HTML
 **   --invert                   Invert the diff        DIFF_INVERT
-**   --linenum|-n               Show line numbers      DIFF_LINENO
+**   -n|--linenum               Show line numbers      DIFF_LINENO
 **   --noopt                    Disable optimization   DIFF_NOOPT
-**   --side-by-side|-y          Side-by-side diff.     DIFF_SIDEBYSIDE
 **   --strip-trailing-cr        Strip trailing CR      DIFF_STRIP_EOLCR
 **   --unified                  Unified diff.          ~DIFF_SIDEBYSIDE
-**   --width|-W N               N character lines.     DIFF_WIDTH_MASK
+**   -W|--width N               N character lines.     DIFF_WIDTH_MASK
 **   -w|--ignore-all-space      Ignore all white space DIFF_IGNORE_ALLWS
+**   -y|--side-by-side          Side-by-side diff.     DIFF_SIDEBYSIDE
 **   -Z|--ignore-trailing-space Ignore eol-whitespaces DIFF_IGNORE_EOLWS
 */
 u64 diff_options(void){
@@ -1879,8 +1896,11 @@ u64 diff_options(void){
   if( find_option("ignore-trailing-space","Z",0)!=0 ){
     diffFlags = DIFF_IGNORE_EOLWS;
   }
+  if( find_option("ignore-space-change","b",0)!=0 ){
+    diffFlags = DIFF_IGNORE_WSCHG; /* stronger than DIFF_IGNORE_EOLWS */
+  }
   if( find_option("ignore-all-space","w",0)!=0 ){
-    diffFlags = DIFF_IGNORE_ALLWS; /* stronger than DIFF_IGNORE_EOLWS */
+    diffFlags = DIFF_IGNORE_ALLWS; /* stronger than DIFF_IGNORE_WSCHG */
   }
   if( find_option("strip-trailing-cr",0,0)!=0 ){
     diffFlags |= DIFF_STRIP_EOLCR;
@@ -2368,6 +2388,7 @@ void annotation_page(void){
 ** who made each checkin and omits the line number.
 **
 ** Options:
+**   -b|--ignore-space-change    Ignore white space changes when comparing lines
 **   --filevers                  Show file version numbers rather than check-in versions
 **   -l|--log                    List all versions analyzed
 **   -n|--limit N                Only look backwards in time by N versions
@@ -2398,10 +2419,13 @@ void annotate_cmd(void){
   iLimit = atoi(zLimit);
   showLog = find_option("log","l",0)!=0;
   if( find_option("ignore-trailing-space","Z",0)!=0 ){
-    flags |= DIFF_IGNORE_EOLWS;
+    flags = DIFF_IGNORE_EOLWS;
+  }
+  if( find_option("ignore-space-change","b",0)!=0 ){
+    flags = DIFF_IGNORE_WSCHG; /* stronger than DIFF_IGNORE_EOLWS */
   }
   if( find_option("ignore-all-space","w",0)!=0 ){
-    flags |= DIFF_IGNORE_ALLWS;
+    flags = DIFF_IGNORE_ALLWS; /* stronger than DIFF_IGNORE_WSCHG */
   }
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
