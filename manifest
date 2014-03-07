@@ -1,5 +1,5 @@
-C Rename\sthe\soptions\sfor\swhitespace\shandling\sin\sannotate/blame/diff\sfollowing\sGNU\sdiff,\snot\sfollowing\sGIT.\s\nSo\swhether\syour\sdiff\stool\sis\sconfigured\sbeing\sinternal\sor\sexternal,\sthe\ssame\soptions\scan\sbe\sused.
-D 2014-03-07T15:49:16.640
+C Convert\sutf-16\sfiles\sback\sto\sintended\sencoding.
+D 2014-03-07T16:48:53.327
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -469,8 +469,8 @@ F test/th1.test d08b2848395080241a1cd47b94b51d7732c3054b
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 4ab7763cdb223c7801d1713922524a92f67ed412
-F test/utf16be.txt f285c46351c5a4b59fc15c968aec3718466be969
-F test/utf16le.txt ac2b4835103911d5e393f4b810aa77c1dbfa29f4
+F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
+F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl 1bd3f03f1c647e177cd1a9f1bb17c380388fc04b
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 33dc7f31c1423965b448f10f018061feb6f59dd1
-R 418589030e3c0dfc8b95c1f5df17f3d6
+P 28234db8bc9605008c0326020eceb1efd56a7ce1
+R bb5e60222d60ddb48aa7854a57072551
 U jan.nijtmans
-Z e53ac32e13c07cbd230e47743f8e2043
+Z 5428d1c6d309785dc7630fca7ffa23c7
