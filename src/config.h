@@ -107,7 +107,17 @@
 #    endif
 #  elif defined(__MINGW32__)
 #    if !defined(COMPILER_VERSION)
-#      if defined(__MINGW32_VERSION)
+#      if defined(__MINGW_VERSION)
+#        if defined(__GNUC__)
+#          if defined(__VERSION__)
+#            define COMPILER_VERSION COMPILER_STRINGIFY(__MINGW_VERSION) "-gcc-" __VERSION__
+#          else
+#            define COMPILER_VERSION COMPILER_STRINGIFY(__MINGW_VERSION) "-gcc"
+#          endif
+#        else
+#          define COMPILER_VERSION COMPILER_STRINGIFY(__MINGW_VERSION)
+#        endif
+#      elif defined(__MINGW32_VERSION)
 #        if defined(__GNUC__)
 #          if defined(__VERSION__)
 #            define COMPILER_VERSION COMPILER_STRINGIFY(__MINGW32_VERSION) "-gcc-" __VERSION__

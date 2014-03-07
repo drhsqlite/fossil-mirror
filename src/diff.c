@@ -30,8 +30,9 @@
 */
 #define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
 #define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
-#define DIFF_IGNORE_SOLWS ((u64)0x01000000) /* Ignore start-of-line whitespace */
+#define DIFF_STRIP_EOLCR  ((u64)0x01000000) /* Strip trailing CR */
 #define DIFF_IGNORE_EOLWS ((u64)0x02000000) /* Ignore end-of-line whitespace */
+#define DIFF_IGNORE_ALLWS ((u64)0x03000000) /* Ignore all whitespace */
 #define DIFF_SIDEBYSIDE   ((u64)0x04000000) /* Generate a side-by-side diff */
 #define DIFF_VERBOSE      ((u64)0x08000000) /* Missing shown as empty files */
 #define DIFF_INLINE       ((u64)0x00000000) /* Inline (not side-by-side) diff */
@@ -42,7 +43,6 @@
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
-#define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -174,7 +174,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
     }else if( diffFlags & DIFF_STRIP_EOLCR ){
       if( k>0 && z[k-1]=='\r' ){ k--; }
     }
-    if( diffFlags & DIFF_IGNORE_SOLWS ){
+    if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
       while( s<k && fossil_isspace(z[s]) ){
         if( z[s]=='\t' ){
           indent = ((indent+9)/8)*8;
@@ -1794,7 +1794,7 @@ int *text_diff(
     pA_Blob = pB_Blob;
     pB_Blob = pTemp;
   }
-  ignoreWs = (diffFlags & (DIFF_IGNORE_SOLWS|DIFF_IGNORE_EOLWS))!=0;
+  ignoreWs = (diffFlags & DIFF_IGNORE_EOLWS)!=0;
   blob_to_utf8_no_bom(pA_Blob, 0);
   blob_to_utf8_no_bom(pB_Blob, 0);
 
@@ -1864,24 +1864,32 @@ int *text_diff(
 ** Process diff-related command-line options and return an appropriate
 ** "diffFlags" integer.
 **
-**   --brief                Show filenames only    DIFF_BRIEF
-**   --context|-c N         N lines of context.    DIFF_CONTEXT_MASK
-**   --html                 Format for HTML        DIFF_HTML
-**   --invert               Invert the diff        DIFF_INVERT
-**   --ignore-space-at-eol  Ignore eol-whitespaces DIFF_IGNORE_EOLWS
-**   --ignore-space-at-sol  Ignore sol-whitespaces DIFF_IGNORE_SOLWS
-**   --linenum|-n           Show line numbers      DIFF_LINENO
-**   --noopt                Disable optimization   DIFF_NOOPT
-**   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
-**   --strip-trailing-cr    Strip trailing CR      DIFF_IGNORE_EOLCR
-**   --unified              Unified diff.          ~DIFF_SIDEBYSIDE
-**   -w                     Ignore all whitespaces DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS
-**   --width|-W N           N character lines.     DIFF_WIDTH_MASK
+**   --brief                    Show filenames only    DIFF_BRIEF
+**   --context|-c N             N lines of context.    DIFF_CONTEXT_MASK
+**   --html                     Format for HTML        DIFF_HTML
+**   --invert                   Invert the diff        DIFF_INVERT
+**   --linenum|-n               Show line numbers      DIFF_LINENO
+**   --noopt                    Disable optimization   DIFF_NOOPT
+**   --side-by-side|-y          Side-by-side diff.     DIFF_SIDEBYSIDE
+**   --strip-trailing-cr        Strip trailing CR      DIFF_STRIP_EOLCR
+**   --unified                  Unified diff.          ~DIFF_SIDEBYSIDE
+**   --width|-W N               N character lines.     DIFF_WIDTH_MASK
+**   -w|--ignore-all-space      Ignore all white space DIFF_IGNORE_ALLWS
+**   -Z|--ignore-trailing-space Ignore eol-whitespaces DIFF_IGNORE_EOLWS
 */
 u64 diff_options(void){
   u64 diffFlags = 0;
   const char *z;
   int f;
+  if( find_option("strip-trailing-cr",0,0)!=0 ){
+    diffFlags = DIFF_STRIP_EOLCR;
+  }
+  if( find_option("ignore-trailing-space","Z",0)!=0 ){
+    diffFlags = DIFF_IGNORE_EOLWS; /* stronger than DIFF_STRIP_EOLCR */
+  }
+  if( find_option("ignore-all-space","w",0)!=0 ){
+    diffFlags = DIFF_IGNORE_ALLWS; /* stronger than DIFF_IGNORE_EOLWS */
+  }
   if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
   if( find_option("unified",0,0)!=0 ) diffFlags &= ~DIFF_SIDEBYSIDE;
   if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>=0 ){
@@ -1894,10 +1902,6 @@ u64 diff_options(void){
     diffFlags |= f;
   }
   if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
-  if( find_option("ignore-space-at-sol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_SOLWS;
-  if( find_option("ignore-space-at-eol",0,0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
-  if( find_option("strip-trailing-cr",0,0)!=0 ) diffFlags |= DIFF_STRIP_EOLCR;
-  if( find_option("w",0,0)!=0 ) diffFlags |= (DIFF_IGNORE_EOLWS|DIFF_IGNORE_SOLWS);
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
@@ -2003,12 +2007,12 @@ struct Annotator {
 ** to be annotated.  The annotator takes control of the input Blob and
 ** will release it when it is finished with it.
 */
-static int annotation_start(Annotator *p, Blob *pInput){
+static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
   int i;
 
   memset(p, 0, sizeof(*p));
   p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,
-                              0);
+                              diffFlags);
   if( p->c.aTo==0 ){
     return 1;
   }
@@ -2030,13 +2034,13 @@ static int annotation_start(Annotator *p, Blob *pInput){
 ** on each line of the file being annotated that was contributed by
 ** pParent.  Memory to hold zPName is leaked.
 */
-static int annotation_step(Annotator *p, Blob *pParent, int iVers){
+static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags){
   int i, j;
   int lnTo;
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
-                                &p->c.nFrom, 0);
+                                &p->c.nFrom, diffFlags);
   if( p->c.aFrom==0 ){
     return 1;
   }
@@ -2087,7 +2091,8 @@ static void annotate_file(
   int fnid,            /* The name of the file to be annotated */
   int mid,             /* Use the version of the file in this check-in */
   int iLimit,          /* Limit the number of levels if greater than zero */
-  int annFlags         /* Flags to alter the annotation */
+  int annFlags,        /* Flags to alter the annotation */
+  u64 diffFlags        /* Flags to alter the whitespace handling */
 ){
   Blob toAnnotate;     /* Text of the final (mid) version of the file */
   Blob step;           /* Text of previous revision */
@@ -2105,7 +2110,7 @@ static void annotate_file(
     fossil_fatal("unable to retrieve content of artifact #%d", rid);
   }
   if( iLimit<=0 ) iLimit = 1000000000;
-  annotation_start(p, &toAnnotate);
+  annotation_start(p, &toAnnotate, diffFlags);
   db_begin_transaction();
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS vseen(rid INTEGER PRIMARY KEY);"
@@ -2139,7 +2144,7 @@ static void annotate_file(
     p->aVers[p->nVers].zUser = fossil_strdup(db_column_text(&q, 3));
     if( p->nVers ){
       content_get(rid, &step);
-      annotation_step(p, &step, p->nVers-1);
+      annotation_step(p, &step, p->nVers-1, diffFlags);
       blob_reset(&step);
     }
     p->nVers++;
@@ -2179,6 +2184,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 /*
 ** WEBPAGE: annotate
 ** WEBPAGE: blame
+** WEBPAGE: praise
 **
 ** Query parameters:
 **
@@ -2195,13 +2201,15 @@ void annotation_page(void){
   int iLimit;            /* Depth limit */
   int annFlags = ANN_FILE_ANCEST;
   int showLog = 0;       /* True to display the log */
+  int ignoreWs = 0;      /* Ignore whitespace */
+  u64 diffFlags = DIFF_STRIP_EOLCR;     /* diff flags for ignore whitespace */
   const char *zFilename; /* Name of file to annotate */
   const char *zCI;       /* The check-in containing zFilename */
   Annotator ann;
   HQuery url;
   struct AnnVers *p;
   unsigned clr1, clr2, clr;
-  int bBlame = g.zPath[0]=='b';/* True for BLAME output.  False for ANNOTATE. */
+  int bBlame = g.zPath[0]!='a';/* True for BLAME output.  False for ANNOTATE. */
 
   /* Gather query parameters */
   showLog = atoi(PD("log","1"));
@@ -2214,13 +2222,15 @@ void annotation_page(void){
   if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
   iLimit = atoi(PD("limit","20"));
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
+  ignoreWs = P("w")!=0;
+  if( ignoreWs ) diffFlags |= DIFF_IGNORE_ALLWS;
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
   }
 
   /* compute the annotation */
   compute_direct_ancestors(mid, 10000000);
-  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  annotate_file(&ann, fnid, mid, iLimit, annFlags, diffFlags);
   zCI = ann.aVers[0].zMUuid;
 
   /* generate the web page */
@@ -2236,6 +2246,14 @@ void annotation_page(void){
     url_add_parameter(&url, "limit", sqlite3_mprintf("%d", iLimit));
   }
   url_add_parameter(&url, "log", showLog ? "1" : "0");
+  if( ignoreWs ){
+    url_add_parameter(&url, "w", "");
+    style_submenu_element("Show Whitespace Changes", "Show Whitespace Changes",
+        "%s", url_render(&url, "w", 0, 0, 0));
+  }else{
+    style_submenu_element("Ignore Whitespace", "Ignore Whitespace",
+        "%s", url_render(&url, "w", "", 0, 0));
+  }
   if( showLog ){
     style_submenu_element("Hide Log", "Hide Log",
        "%s", url_render(&url, "log", "0", 0, 0));
@@ -2349,18 +2367,21 @@ void annotation_page(void){
 /*
 ** COMMAND: annotate
 ** COMMAND: blame
+** COMMAND: praise
 **
-** %fossil (annotate|blame) ?OPTIONS? FILENAME
+** %fossil (annotate|blame|praise) ?OPTIONS? FILENAME
 **
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.  The "annotate" command shows line numbers
-** and omits the username.  The "blame" command shows the user who made each
-** checkin and omits the line number.
+** and omits the username.  The "blame" and "praise" commands show the user
+** who made each checkin and omits the line number.
 **
 ** Options:
-**   --filevers      Show file version numbers rather than check-in versions
-**   -l|--log        List all versions analyzed
-**   -n|--limit N    Only look backwards in time by N versions
+**   --filevers                  Show file version numbers rather than check-in versions
+**   -l|--log                    List all versions analyzed
+**   -n|--limit N                Only look backwards in time by N versions
+**   -w|--ignore-all-space       Ignore white space when comparing lines
+**   -Z|--ignore-trailing-space  Ignore whitespace at line end
 **
 ** See also: info, finfo, timeline
 */
@@ -2376,15 +2397,18 @@ void annotate_cmd(void){
   const char *zLimit; /* The value to the -n|--limit option */
   int iLimit;       /* How far back in time to look */
   int showLog;      /* True to show the log */
+  u64 diffFlags = DIFF_STRIP_EOLCR;/* Flags to control whitespace handling */
   int fileVers;     /* Show file version instead of check-in versions */
   int annFlags = 0; /* Flags to control annotation properties */
   int bBlame = 0;   /* True for BLAME output.  False for ANNOTATE. */
 
-  bBlame = g.argv[1][0]=='b';
+  bBlame = g.argv[1][0]!='a';
   zLimit = find_option("limit","n",1);
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
   showLog = find_option("log","l",0)!=0;
+  if( find_option("ignore-trailing-space","Z",0)!=0 ) diffFlags = DIFF_IGNORE_EOLWS;
+  if( find_option("w",0,0)!=0 ) diffFlags |= DIFF_IGNORE_ALLWS;
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
   if( g.argc<3 ) {
@@ -2414,7 +2438,7 @@ void annotate_cmd(void){
     fossil_fatal("unable to find manifest");
   }
   annFlags |= ANN_FILE_ANCEST;
-  annotate_file(&ann, fnid, mid, iLimit, annFlags);
+  annotate_file(&ann, fnid, mid, iLimit, annFlags, diffFlags);
   if( showLog ){
     struct AnnVers *p;
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){

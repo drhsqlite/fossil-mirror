@@ -1091,24 +1091,22 @@ const char *diff_get_binary_glob(void){
 ** This option overrides the "binary-glob" setting.
 **
 ** Options:
-**   --binary PATTERN       Treat files that match the glob PATTERN as binary
-**   --branch BRANCH        Show diff of all changes on BRANCH
-**   --brief                Show filenames only
-**   --context|-c N         Use N lines of context
-**   --diff-binary BOOL     Include binary files when using external commands
-**   --from|-r VERSION      select VERSION as source for the diff
-**   --ignore-space-at-eol  Ignore changes to end-of-line whitespace
-**   --ignore-space-at-sol  Ignore changes to start-of-line whitespace
-**   --internal|-i          use internal diff logic
-**   --side-by-side|-y      side-by-side diff
-**   --strip-trailing-cr    Strip trailing CR
-**   --tk                   Launch a Tcl/Tk GUI for display
-**   --to VERSION           select VERSION as target for the diff
-**   --unified              unified diff
-**   -v|--verbose           output complete text of added or deleted files
-**   -w                     Ignore changes to start-of-line and end-of-line
-**                          whitespace
-**   -W|--width             Width of lines in side-by-side diff
+**   --binary PATTERN           Treat files that match the glob PATTERN as binary
+**   --branch BRANCH            Show diff of all changes on BRANCH
+**   --brief                    Show filenames only
+**   --context|-c N             Use N lines of context
+**   --diff-binary BOOL         Include binary files when using external commands
+**   --from|-r VERSION          select VERSION as source for the diff
+**   --internal|-i              use internal diff logic
+**   --side-by-side|-y          side-by-side diff
+**   --strip-trailing-cr        Strip trailing CR
+**   --tk                       Launch a Tcl/Tk GUI for display
+**   --to VERSION               select VERSION as target for the diff
+**   --unified                  unified diff
+**   -v|--verbose               output complete text of added or deleted files
+**   -w|--ignore-all-space      Ignore white space when comparing lines
+**   -W|--width <num>           Width of lines in side-by-side diff
+**   -Z|--ignore-trailing-space Ignore whitespace at line end
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
