@@ -1,13 +1,13 @@
-C Fix\s-w|--ignore-all-space\soption\ssuch\sthat\sit\sdoes\sexactly\sthe\ssame\sas\sGNU\sdiff's\soption\swith\sthe\ssame\sname.
-D 2014-03-07T11:02:01.963
+C Fix\ssome\sspacing\sissues\s(blame\soutput\sshould\sbe\sexactly\sthe\ssame\sas\sFossil\s1.28)\s\nMake\sannotation\swork\swith\sUTF-16\sfiles.\s\nRemove\ssome\sunnecessary\send-of-line\sspaces\sin\stext\sfiles.
+D 2014-03-07T11:29:05.816
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
-F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
-F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
+F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
+F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Makefile.Cygwin.in 1072a9c499a08de085081f4ff72858e0f7429a82
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F Makefile.in 04d4b4d0b0481e76d537c1081142d8b7e6b34427
@@ -333,7 +333,7 @@ F src/db.c b6ebe42c812477da45a9c720f0d57fddd3c18abb
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
-F src/diff.c 8ddd8e9dd5741e3cf793b609b55d40983b78a427
+F src/diff.c 92a71fb9d21130160839d86f7ab54019f121f8f7
 F src/diffcmd.c 1c671582accee7a1c80b6406402045a9ae62899f
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
@@ -469,8 +469,8 @@ F test/th1.test d08b2848395080241a1cd47b94b51d7732c3054b
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 4ab7763cdb223c7801d1713922524a92f67ed412
-F test/utf16be.txt 952b0c4e08fb1cf873c9de703d9845a30683a104
-F test/utf16le.txt 2b03b0db49be61bb36c7fe18ce30829c067f482b
+F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
+F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl 1bd3f03f1c647e177cd1a9f1bb17c380388fc04b
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d9e79f685bf4c7c3d7c45c48bdb65a01497ff002
-R cf7e9d911a9f699dd48115fc122bd408
+P bb3388345d25eed7ae1dea0de629f7ee8f488ae5
+R c848594d9b48aa74aea831296dfbb560
 U jan.nijtmans
-Z c5557cd0312f697a078dd192ee2694dd
+Z 74184e6c6bd836602b4685eef1537d90

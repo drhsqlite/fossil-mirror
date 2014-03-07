@@ -178,11 +178,15 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
     }
     if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
       while( s<k && fossil_isspace(z[s]) ){s++; extent++;}
-    }
-    for(h=0, x=s; x<k; x++){
-      if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS && fossil_isspace(z[x]) ){
-        ++numws;
-      }else{
+      for(h=0, x=s; x<k; x++){
+        if( fossil_isspace(z[x]) ){
+          ++numws;
+        }else{
+          h = h ^ (h<<2) ^ z[x];
+        }
+      }
+    }else{
+      for(h=0, x=0; x<k; x++){
         h = h ^ (h<<2) ^ z[x];
       }
     }
@@ -2096,6 +2100,7 @@ static void annotate_file(
     fossil_fatal("unable to retrieve content of artifact #%d", rid);
   }
   if( iLimit<=0 ) iLimit = 1000000000;
+  blob_to_utf8_no_bom(&toAnnotate, 0);
   annotation_start(p, &toAnnotate, diffFlags);
   db_begin_transaction();
   db_multi_exec(
@@ -2130,6 +2135,7 @@ static void annotate_file(
     p->aVers[p->nVers].zUser = fossil_strdup(db_column_text(&q, 3));
     if( p->nVers ){
       content_get(rid, &step);
+      blob_to_utf8_no_bom(&step, 0);
       annotation_step(p, &step, p->nVers-1, diffFlags);
       blob_reset(&step);
     }
@@ -2327,7 +2333,7 @@ void annotation_page(void){
              p->zBgColor, zLink, p->zMUuid, p->zDate, p->zUser);
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s ", "");
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s", "");
       }
     }else{
       if( iVers>=0 ){
@@ -2335,14 +2341,14 @@ void annotation_page(void){
         char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
-             "%s%.10s</a> %s</span> %4d: ",
+             "%s%.10s</a> %s</span> %4d:",
              p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d: ", "", i+1);
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
       }
     }
-    @ %s(zPrefix)%h(z)
+    @ %s(zPrefix) %h(z)
 
   }
   @ </pre>
@@ -2450,7 +2456,7 @@ void annotate_cmd(void){
       if( iVers>=0 ){
         fossil_print("%.10s %s %5d: %.*s\n",
              fileVers ? p->zFUuid : p->zMUuid, p->zDate, i+1, n, z);
-      }else {
+      }else{
         fossil_print("%21s %5d: %.*s\n",
              "", i+1, n, z);
       }
