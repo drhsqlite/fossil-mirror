@@ -2066,9 +2066,9 @@ static int annotation_step(Annotator *p, Blob *pParent, int iVers, u64 diffFlags
 }
 
 
-/* Annotation flags */
-#define ANN_FILE_VERS    0x01   /* Show file vers rather than commit vers */
-#define ANN_FILE_ANCEST  0x02   /* Prefer check-ins in the ANCESTOR table */
+/* Annotation flags (any DIFF flag can be used as Annotation flag as well) */
+#define ANN_FILE_VERS   (((u64)0x20)<<32) /* Show file vers rather than commit vers */
+#define ANN_FILE_ANCEST (((u64)0x40)<<32) /* Prefer check-ins in the ANCESTOR table */
 
 /*
 ** Compute a complete annotation on a file.  The file is identified
@@ -2080,8 +2080,7 @@ static void annotate_file(
   int fnid,            /* The name of the file to be annotated */
   int mid,             /* Use the version of the file in this check-in */
   int iLimit,          /* Limit the number of levels if greater than zero */
-  int annFlags,        /* Flags to alter the annotation */
-  u64 diffFlags        /* Flags to alter the whitespace handling */
+  u64 annFlags         /* Flags to alter the annotation */
 ){
   Blob toAnnotate;     /* Text of the final (mid) version of the file */
   Blob step;           /* Text of previous revision */
@@ -2100,7 +2099,7 @@ static void annotate_file(
   }
   if( iLimit<=0 ) iLimit = 1000000000;
   blob_to_utf8_no_bom(&toAnnotate, 0);
-  annotation_start(p, &toAnnotate, diffFlags);
+  annotation_start(p, &toAnnotate, annFlags);
   db_begin_transaction();
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS vseen(rid INTEGER PRIMARY KEY);"
@@ -2135,7 +2134,7 @@ static void annotate_file(
     if( p->nVers ){
       content_get(rid, &step);
       blob_to_utf8_no_bom(&step, 0);
-      annotation_step(p, &step, p->nVers-1, diffFlags);
+      annotation_step(p, &step, p->nVers-1, annFlags);
       blob_reset(&step);
     }
     p->nVers++;
@@ -2190,10 +2189,9 @@ void annotation_page(void){
   int fnid;
   int i;
   int iLimit;            /* Depth limit */
-  int annFlags = ANN_FILE_ANCEST;
+  u64 annFlags = ANN_FILE_ANCEST;
   int showLog = 0;       /* True to display the log */
   int ignoreWs = 0;      /* Ignore whitespace */
-  u64 diffFlags = 0;     /* diff flags for ignore whitespace */
   const char *zFilename; /* Name of file to annotate */
   const char *zCI;       /* The check-in containing zFilename */
   Annotator ann;
@@ -2214,14 +2212,14 @@ void annotation_page(void){
   iLimit = atoi(PD("limit","20"));
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
   ignoreWs = P("w")!=0;
-  if( ignoreWs ) diffFlags |= DIFF_IGNORE_ALLWS;
+  if( ignoreWs ) annFlags |= DIFF_IGNORE_ALLWS;
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
   }
 
   /* compute the annotation */
   compute_direct_ancestors(mid, 10000000);
-  annotate_file(&ann, fnid, mid, iLimit, annFlags, diffFlags);
+  annotate_file(&ann, fnid, mid, iLimit, annFlags);
   zCI = ann.aVers[0].zMUuid;
 
   /* generate the web page */
@@ -2388,9 +2386,8 @@ void annotate_cmd(void){
   const char *zLimit; /* The value to the -n|--limit option */
   int iLimit;       /* How far back in time to look */
   int showLog;      /* True to show the log */
-  u64 diffFlags = 0;/* Flags to control whitespace handling */
   int fileVers;     /* Show file version instead of check-in versions */
-  int annFlags = 0; /* Flags to control annotation properties */
+  u64 annFlags = 0; /* Flags to control annotation properties */
   int bBlame = 0;   /* True for BLAME output.  False for ANNOTATE. */
 
   bBlame = g.argv[1][0]!='a';
@@ -2398,8 +2395,8 @@ void annotate_cmd(void){
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
   showLog = find_option("log","l",0)!=0;
-  if( find_option("ignore-trailing-space","Z",0)!=0 ) diffFlags |= DIFF_IGNORE_EOLWS;
-  if( find_option("ignore-all-space","w",0)!=0 ) diffFlags |= DIFF_IGNORE_ALLWS;
+  if( find_option("ignore-trailing-space","Z",0)!=0 ) annFlags |= DIFF_IGNORE_EOLWS;
+  if( find_option("ignore-all-space","w",0)!=0 ) annFlags |= DIFF_IGNORE_ALLWS;
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
   if( g.argc<3 ) {
@@ -2429,7 +2426,7 @@ void annotate_cmd(void){
     fossil_fatal("unable to find manifest");
   }
   annFlags |= ANN_FILE_ANCEST;
-  annotate_file(&ann, fnid, mid, iLimit, annFlags, diffFlags);
+  annotate_file(&ann, fnid, mid, iLimit, annFlags);
   if( showLog ){
     struct AnnVers *p;
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
