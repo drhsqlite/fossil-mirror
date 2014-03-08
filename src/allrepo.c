@@ -157,7 +157,7 @@ void all_cmd(void){
   db_open_config(1);
   blob_zero(&extra);
   zCmd = g.argv[2];
-  if( g.zLogin ) blob_appendf(&extra, " -U %s", g.zLogin);
+  if( !login_is_nobody() ) blob_appendf(&extra, " -U %s", g.zLogin);
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;

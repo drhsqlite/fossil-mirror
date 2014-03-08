@@ -484,8 +484,7 @@ char const *captcha_decode(unsigned int seed){
 ** defaults to true.
 */
 int captcha_needed(void){
-  if( g.zLogin!=0 ) return 0;
-  return db_get_boolean("require-captcha", 1);
+  return login_is_nobody() && db_get_boolean("require-captcha", 1);
 }
 
 /*

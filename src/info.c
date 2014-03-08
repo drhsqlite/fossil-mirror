@@ -1445,7 +1445,7 @@ void rawartifact_page(void){
   if( !g.perm.Read ){ login_needed(); return; }
   if( rid==0 ) fossil_redirect_home();
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  if( fossil_strcmp(P("name"), zUuid)==0 ){
+  if( fossil_strcmp(P("name"), zUuid)==0 && login_is_nobody() ){
     g.isConst = 1;
   }
   free(zUuid);
@@ -2264,7 +2264,7 @@ void ci_edit_page(void){
     if( nChng>0 ){
       int nrid;
       Blob cksum;
-      blob_appendf(&ctrl, "U %F\n", g.zLogin);
+      blob_appendf(&ctrl, "U %F\n", login_name());
       md5sum_blob(&ctrl, &cksum);
       blob_appendf(&ctrl, "Z %b\n", &cksum);
       db_begin_transaction();
