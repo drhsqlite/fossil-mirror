@@ -1,5 +1,5 @@
-C Minor\sbug-fix\swhen\susing\s-w\sor\s-Z\sflag\sin\sdiff\slogic.\sMake\ssure\sthat\sthe\scommon\slines\sprinted\sin\sa\sdiff\salways\scome\sfrom\sthe\sleft-side,\sit\smight\sbe\sthat\sthe\sright-side\sis\sdifferent\sby\swhite-space\sonly.
-D 2014-03-07T20:14:24.592
+C Turn\smtime-changes\soff\sin\srepo_init\stest\sproc.
+D 2014-03-08T04:05:40.401
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -454,7 +454,7 @@ F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge_renames.test 2e28af1b796d698ddad0430a878354cf3d6a9c5a
 F test/release-checklist.wiki f4f0e97da511a9c54cd6d49d8c6755d7e1f49d0f
 F test/revert.test 461b7af38ba0f569fab41154c93fbac36249bf3b
-F test/tester.tcl 051c24066cdc36e6dc31541312fb9ff19c866f07
+F test/tester.tcl e63f55ca2298af1ed7ee7dea29c76b98df152259
 F test/th1-tcl.test 0a784acfe60f26593e9cf1f63fda4c802e91c452
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
@@ -641,7 +641,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0bc584fe020fc430d122154fa5ab749c5b7759a6
-R 8bda04e4ecdfd91522bb131803058a62
-U jan.nijtmans
-Z e2d0c3e4e8a5dc682680a7d122b5760b
+P d38f0ce7597cc9afbf8dbd242fa07e0eec6f94a1
+R aa3289c7e2623ec7ee454cc4161d6a09
+U joel
+Z c6173007940c45d465b94b8d7aa8aa91

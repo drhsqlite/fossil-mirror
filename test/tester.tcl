@@ -141,6 +141,7 @@ proc repo_init {{filename ".rep.fossil"}} {
   exec $::fossilexe new $filename
   exec $::fossilexe open $filename
   exec $::fossilexe clean -f
+  exec $::fossilexe set mtime-changes off
 }
 
 # Normalize file status lists (like those returned by 'fossil changes')
