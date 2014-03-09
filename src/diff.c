@@ -2205,6 +2205,7 @@ void annotation_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   if( exclude_spiders("annotate") ) return;
+  load_control();
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
   zFilename = P("filename");
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
