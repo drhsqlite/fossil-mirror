@@ -67,6 +67,12 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
     }
   }
 }
+static void collect_argv(Blob *pExtra, int iStart){
+  int i;
+  for(i=iStart; i<g.argc; i++){
+    blob_appendf(pExtra, " %s", g.argv[i]);
+  }
+}
 
 
 /*
@@ -120,6 +126,11 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 **
 **    sync       Run a "sync" on all repositories.  Only the --verbose
 **               option is supported.
+**
+**    setting    Run the "setting", "set", or "unset" commands on all
+**    set        repositories.  These command are particularly useful in
+**    unset      conjunection with the "max-loadavg" setting which cannot
+**               otherwise be set globally.
 **
 ** Repositories are automatically added to the set of known repositories
 ** when one of the following commands are run against the repository:
@@ -203,6 +214,12 @@ void all_cmd(void){
     collect_argument(&extra, "analyze",0);
     collect_argument(&extra, "wal",0);
     collect_argument(&extra, "stats",0);
+  }else if( strncmp(zCmd, "setting", n)==0 ){
+    zCmd = "setting -R";
+    collect_argv(&extra, 3);
+  }else if( strncmp(zCmd, "unset", n)==0 ){
+    zCmd = "unset -R";
+    collect_argv(&extra, 3);
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
     collect_argument(&extra, "verbose","v");

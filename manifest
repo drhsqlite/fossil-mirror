@@ -1,5 +1,5 @@
-C If\sgetloadavg()\sfails,\sreturn\s0.0\sas\sfunction\sresult\sin\sstead\sof\sa\srandom\snumber
-D 2014-03-09T22:33:47.273
+C Add\sthe\s"max-loadavg"\ssetting\sto\sthe\s"setting"\scommand.\s\sAdd\s"setting"\sand\n"unset"\sto\sthe\s"all"\scommand\sso\sthat\smax-loadavg\scan\sbe\squickly\schanged\son\nall\srepos\sof\sa\slarge\sserver\sinstallation.
+D 2014-03-09T23:04:37.510
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -309,7 +309,7 @@ F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c f68c3c7dfe6e62e4bcd1359937abe61ba747cb54
-F src/allrepo.c ffe4570057e5b3aa355f4c86e27f8a5fe71c33e5
+F src/allrepo.c 4360cc9047884a426f150f2170eaf298748b853c
 F src/attach.c 57c8ef543ed6b5d77f6f5900120d96bd1a56e986
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 92f528d17141879562a6f585ec1fe36f19f4fd2f
@@ -329,7 +329,7 @@ F src/content.c 5a1a614acc062eef02563cf75746f34e77f7edb9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c b6ebe42c812477da45a9c720f0d57fddd3c18abb
+F src/db.c 2489ae95bb4cdba0dfb4410771eeb673ef9215eb
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
@@ -642,7 +642,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d0fa1578402362b61acd449a9d077544c8dc3d54
-R 567961c22e4ce331f56f7c5652f4a6e4
-U jan.nijtmans
-Z 2971e02c808381f411a40a980ba8f5dd
+P 1707129a8744a7d719ef69bcd6e08d1c98eb3c16
+R eefbc7e9af11fcc820976a5b1e2a8548
+U drh
+Z 440d7bc0dc84b1c8dd57f2fadf07a40b
