@@ -26,15 +26,13 @@
 ** Return the load average for the host processor
 */
 double load_average(void){
-#ifdef _WIN32
-  return 0.0;
-#elif defined(FOSSIL_OMIT_LOAD_AVERAGE)
-  return 0.0;
-#else
+#if !defined(_WIN32) && !defined(FOSSIL_OMIT_LOAD_AVERAGE)
   double a[3];
-  getloadavg(a, 3);
-  return a[0];
+  if( getloadavg(a, 3)>0 ){
+    return a[0];
+  }
 #endif
+  return 0.0;
 }
 
 /*
