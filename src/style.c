@@ -1302,7 +1302,8 @@ void page_test_env(void){
   @ g.zLogin = %h(g.zLogin)<br />
   @ g.isHuman = %d(g.isHuman)<br />
   @ capabilities = %s(zCap)<br />
-  @ host-load-avg = %f(load_average())<br />
+  @ g.zRepositoryName = %h(g.zRepositoryName)<br />
+  @ load_average() = %f(load_average())<br />
   @ <hr>
   P("HTTP_USER_AGENT");
   cgi_print_all(showAll);
