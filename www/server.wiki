@@ -243,4 +243,71 @@ For more information, see <a href="./ssl.wiki">Using SSL with Fossil</a>.
 </p>
 </blockquote>
 
+<a name="loadmgmt"></a>
+<h2>Managing Server Load</h2><blockquote>
+<p>
+A Fossil server is very efficient and normally presents a very light 
+load on the server.
+The Fossil [selfhost.wiki | self-host server] is a 1/24th slice VM at
+[http://www.linode.com | Linode.com] hosting 65 other repositories in
+addition to Fossil (and including some very high-traffic sites such
+as [http://www.sqlite.org] and [http://system.data.sqlite.org]) and
+it has a typical load of 0.05 to 0.1.  A single HTTP request to Fossil
+normally takes less than 10 milliseconds of CPU time to complete.  So
+requests can be arriving at a continuous rate of 10 or 20 per second 
+without significantly burdening the server.
+<p>
+However, there are some Fossil web pages that can consume large 
+amounts of CPU time, expecially on repositories with a large number
+of files or with long revision histories.  High CPU usage pages include
+[/help?cmd=/zip | /zip], [/help?cmd=/tarball | /tarball],
+[/help?cmd=/annotate | /annotate] and others.  On very large repositories,
+these commands can take 15 seconds or more of CPU time.  
+If these kinds of requests arrive too quickly, the load average on the
+server can grow dramatically, making the server unresponsive.
+<p>
+To help avoid problems, Fossil has the ability to fail CPU-intensive
+web page requests with a 
+[http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.3 | "503 Server Overload"]
+HTTP error if an expensive request is received while the host load 
+average is too high.  To activate this
+feature, visit the /Admin/Access setup page in the administrative web
+interface and in the "<b>Server Load Average Limit</b>" box
+enter the load average threshold above which "503 Server
+Overload" replies will be issued for expensive requests.  On the
+self-host Fossil server, that value is set to 1.5.  But you could easily
+set it higher on a multi-core server.
+<p>
+The maximum load average can also be set on the command line using
+commands like this:
+<blockquote><pre>
+fossil set max-loadavg 1.5
+fossil all set max-loadavg 1.5
+</pre></blockquote>
+The second form is especially useful for changing the maximum load average
+simultaneously on a large number of repositories.
+<p>
+Note that this load-average limiting feature is only available on operating
+systems that support the "getloadavg()" API.  Most modern unix systems have
+this interface, but Windows does not, so the feature will not work on Windows.
+Note also that Linux implements "getloadavg()" by accessing the "/proc/loadavg"
+file in the "proc" virtual filesystem.  If you are running a Fossil instance
+inside a chroot() jail on Linux, you will need to make the "/proc" file
+system available inside that jail in order for this feature to work.  On
+the self-hosting Fossil repository, this was accomplished by adding a line
+to the "/etc/mtab" file that looks like:
+<blockquote><pre>
+chroot_jail_proc /home/www/proc proc r 0 0
+</pre></blockquote>
+Pathnames should be adjusted for individual systems, of course.
+<p>
+To see if the load-average limiter is functional, visit the [/test_env] page
+of the server to view the current load average.  If the value for the load
+average is greater than zero, that means that it is possible to activate
+the load-average limiter on that repository.  If the load average shows
+exactly "0.0", then that means that Fossil is unable to find the load average
+(either because it is in a chroot() jail without /proc access, or because
+it is running on a system that does not support "getloadavg()") and so the
+load-average limiter will not function.
+
 </blockquote>
