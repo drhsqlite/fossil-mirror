@@ -248,14 +248,14 @@ For more information, see <a href="./ssl.wiki">Using SSL with Fossil</a>.
 <p>
 A Fossil server is very efficient and normally presents a very light 
 load on the server.
-The Fossil [selfhost.wiki | self-host server] is a 1/24th slice VM at
+The Fossil [./selfhost.wiki | self-host server] is a 1/24th slice VM at
 [http://www.linode.com | Linode.com] hosting 65 other repositories in
 addition to Fossil (and including some very high-traffic sites such
 as [http://www.sqlite.org] and [http://system.data.sqlite.org]) and
 it has a typical load of 0.05 to 0.1.  A single HTTP request to Fossil
 normally takes less than 10 milliseconds of CPU time to complete.  So
-requests can be arriving at a continuous rate of 10 or 20 per second 
-without significantly burdening the server.
+requests can be arriving at a continuous rate of 20 or more per second 
+and the CPU can still be mostly idle.
 <p>
 However, there are some Fossil web pages that can consume large 
 amounts of CPU time, expecially on repositories with a large number
