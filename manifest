@@ -1,5 +1,5 @@
-C GNU\sdiff\sdoesn't\stranslate\s\\t\sto\swhitespace\sand\sstrip\seol-spacing\sfrom\sdiff\soutput\s(when\susing\s-w/-Z\soptions),\sso\s"fossil\sdiff"\sshouldn't\sdo\sthat\seither.
-D 2014-03-10T08:49:45.149
+C Update\sSQLITE_SOURCE_ID\sto\sEXACT\s3.8.4\sversion;\schar()\sbugfix\swas\sstill\smissing
+D 2014-03-10T20:49:07.334
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -402,8 +402,8 @@ F src/shell.c bab4de12b441369491812ecc93212ff4deda68fa
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 6b4958b9250369d74a0cb0432fa46d4b41797c9a
-F src/sqlite3.c 5e21690d890baf0290e26969703502a308a228a7
-F src/sqlite3.h c6ae7948c1dc8786fb2c7db5cf3a52205bf1a21e
+F src/sqlite3.c b0c22e5f15f5ba2afd017ecd990ea507918afe1c
+F src/sqlite3.h 86ccd18d1bb6d9b10ccfadb2d6ae17363e123a9b
 F src/stash.c a6388394ee7d088757421ba474b0b02bd04019e0
 F src/stat.c 8b6946485253ea73fb3deee9fb742d794870e818
 F src/style.c 4bbe6624ac9c88107e3d1b3d526278d28906a068
@@ -642,7 +642,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bae235bf1a5dbcb7982148c326a5ce21c276a219
-R d1365308cf37d9eb85cff7bffd29cfd1
+P ac3fcebb192a6ba58f46748165cb50357a68b315
+R 921826b9ba9abf1fed9f0e51f9f90316
 U jan.nijtmans
-Z 305ae04dee7af2cef74787a9c4b099e3
+Z a2678adf49d2c8102a1e9629c06d9099
