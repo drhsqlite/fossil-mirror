@@ -148,11 +148,14 @@ set SQLITE_OPTIONS {
 set SHELL_OPTIONS {
   -Dmain=sqlite3_shell
   -DSQLITE_OMIT_LOAD_EXTENSION=1
+  -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE)
+  -DSQLITE_SHELL_DBNAME_PROC=fossil_open
 }
 
 # Options used to compile the included SQLite shell on Windows.
 #
 set SHELL_WIN32_OPTIONS $SHELL_OPTIONS
+lappend SHELL_WIN32_OPTIONS -Daccess=win32_access
 lappend SHELL_WIN32_OPTIONS -Dgetenv=fossil_getenv
 lappend SHELL_WIN32_OPTIONS -Dfopen=fossil_fopen
 
@@ -797,7 +800,7 @@ foreach s [lsort $src] {
 }
 
 set MINGW_SQLITE_OPTIONS $SQLITE_OPTIONS
-lappend MINGW_SQLITE_OPTIONS -D_HAVE_SQLITE_CONFIG_H
+lappend MINGW_SQLITE_OPTIONS -D_HAVE__MINGW_H
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MALLOC_H
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MSIZE
 
