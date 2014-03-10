@@ -1,5 +1,5 @@
-C Cygwin\sdoesn't\shave\sgetloadavg()
-D 2014-03-10T08:32:01.929
+C GNU\sdiff\sdoesn't\stranslate\s\\t\sto\swhitespace\sand\sstrip\seol-spacing\sfrom\sdiff\soutput\s(when\susing\s-w/-Z\soptions),\sso\s"fossil\sdiff"\sshouldn't\sdo\sthat\seither.
+D 2014-03-10T08:49:45.149
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -333,7 +333,7 @@ F src/db.c 2489ae95bb4cdba0dfb4410771eeb673ef9215eb
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
-F src/diff.c aa915f2d4478274c31764c705d6bf1184d88d56b
+F src/diff.c 9c0837cd56b51f66a190c5130bdacd6b985b18ad
 F src/diffcmd.c a755f774520e10c8d2b4d52dde9adf74e1c97fa3
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
@@ -642,7 +642,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 60774eb33fa1556c443c8c271444cb00a79df15e
-R 983ea84c8b46aed59ea84af0d3d652d5
+P bae235bf1a5dbcb7982148c326a5ce21c276a219
+R d1365308cf37d9eb85cff7bffd29cfd1
 U jan.nijtmans
-Z a0bf300d6ad51288b58e18bc4ef9c4c9
+Z 305ae04dee7af2cef74787a9c4b099e3

@@ -78,7 +78,8 @@ typedef struct DLine DLine;
 struct DLine {
   const char *z;        /* The text of the line */
   unsigned int h;       /* Hash of the line */
-  unsigned short indent;  /* Indent of the line. Only !=0 with --ignore-space-at sol option */
+  unsigned short indent;  /* Indent of the line. Only !=0 with -w/-Z option */
+  unsigned short n;     /* number of bytes */
   unsigned int iNext;   /* 1+(Index of next line with same the same hash) */
 
   /* an array of DLine elements serves two purposes.  The fields
@@ -132,7 +133,7 @@ struct DContext {
 ** the CPU time on a diff.
 */
 static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags){
-  int nLine, i, j, k, s, indent, x;
+  int nLine, i, j, k, s, x;
   unsigned int h, h2;
   DLine *a;
 
@@ -165,23 +166,15 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
   /* Fill in the array */
   for(i=0; i<nLine; i++){
     for(j=0; z[j] && z[j]!='\n'; j++){}
-    k = j;
+    a[i].z = z;
+    a[i].n = k = j;
     s = 0;
-    indent = 0;
     if( diffFlags & DIFF_IGNORE_EOLWS ){
       while( k>0 && fossil_isspace(z[k-1]) ){ k--; }
     }
     if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
-      while( s<k && fossil_isspace(z[s]) ){
-        if( z[s]=='\t' ){
-          indent = ((indent+9)/8)*8;
-        }else if( z[s]==' ' ){
-          indent++;
-        }
-        s++;
-      }
+      while( s<k && fossil_isspace(z[s]) ){ s++; }
     }
-    a[i].z = z+s;
     a[i].indent = s;
     for(h=0, x=s; x<k; x++){
       h = h ^ (h<<2) ^ z[x];
@@ -202,7 +195,8 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
 ** Return true if two DLine elements are identical.
 */
 static int same_dline(DLine *pA, DLine *pB){
-  return pA->h==pB->h && memcmp(pA->z,pB->z,pA->h & LENGTH_MASK)==0;
+  return pA->h==pB->h && memcmp(pA->z+pA->indent,pB->z+pB->indent,
+                                pA->h & LENGTH_MASK)==0;
 }
 
 /*
@@ -242,18 +236,12 @@ static void appendDiffLine(
     }else if( cPrefix=='-' ){
       blob_append(pOut, "<span class=\"diffrm\">", -1);
     }
-    if( pLine->indent ){
-      blob_appendf(pOut, "%*s", pLine->indent, " ");
-    }
-    htmlize_to_blob(pOut, pLine->z, (pLine->h & LENGTH_MASK));
+    htmlize_to_blob(pOut, pLine->z, pLine->n);
     if( cPrefix!=' ' ){
       blob_append(pOut, "</span>", -1);
     }
   }else{
-    if( pLine->indent ){
-      blob_appendf(pOut, "%*s", pLine->indent, " ");
-    }
-    blob_append(pOut, pLine->z, pLine->h & LENGTH_MASK);
+    blob_append(pOut, pLine->z, pLine->n);
   }
   blob_append(pOut, "\n", 1);
 }
@@ -503,7 +491,7 @@ static void sbsWriteSpace(SbsLine *p, int n, int col){
 */
 static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
   Blob *pCol = p->apCols[col];
-  int n = pLine->h & LENGTH_MASK;
+  int n = pLine->n;
   int i;   /* Number of input characters consumed */
   int k;   /* Cursor position */
   int needEndSpan = 0;
@@ -534,9 +522,6 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
         }
       }
     }
-    if( pLine->indent && i==0 ){
-      blob_appendf(pCol, "%*s", pLine->indent, " ");
-    }
     if( c=='\t' && !p->escHtml ){
       blob_append(pCol, " ", 1);
       while( (k&7)!=7 && (p->escHtml || k<w) ){
@@ -564,7 +549,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, int col){
   if( col==SBS_TXTB ){
     sbsWriteNewlines(p);
   }else if( !p->escHtml ){
-    sbsWriteSpace(p, w-k-pLine->indent, SBS_TXTA);
+    sbsWriteSpace(p, w-k, SBS_TXTA);
   }
 }
 
@@ -1971,10 +1956,7 @@ struct Annotator {
   DContext c;       /* The diff-engine context */
   struct AnnLine {  /* Lines of the original files... */
     const char *z;       /* The text of the line */
-    short int n;         /* Number of bytes. Whether this omits sol/eol spacing
-                            depends on the diffFlags) */
-    unsigned short indent; /* Indenting (number of initial spaces, only used
-                              if sol-spacing is ignored in the diffFlags) */
+    short int n;         /* Number of bytes (omitting trailing space and \n) */
     short int iVers;     /* Level at which tag was set */
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
@@ -2008,8 +1990,7 @@ static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
   p->aOrig = fossil_malloc( sizeof(p->aOrig[0])*p->c.nTo );
   for(i=0; i<p->c.nTo; i++){
     p->aOrig[i].z = p->c.aTo[i].z;
-    p->aOrig[i].n = p->c.aTo[i].h & LENGTH_MASK;
-    p->aOrig[i].indent = p->c.aTo[i].indent;
+    p->aOrig[i].n = p->c.aTo[i].n;
     p->aOrig[i].iVers = -1;
   }
   p->nOrig = p->c.nTo;
@@ -2317,7 +2298,6 @@ void annotation_page(void){
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
     int n = ann.aOrig[i].n;
-    int indent = ann.aOrig[i].indent+1;
     char zPrefix[300];
     z[n] = 0;
     if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
@@ -2332,7 +2312,7 @@ void annotation_page(void){
              p->zBgColor, zLink, p->zMUuid, p->zDate, p->zUser);
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s%*s", indent, " ");
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%36s", "");
       }
     }else{
       if( iVers>=0 ){
@@ -2340,14 +2320,14 @@ void annotation_page(void){
         char *zLink = xhref("target='infowindow'", "%R/info/%S", p->zMUuid);
         sqlite3_snprintf(sizeof(zPrefix), zPrefix,
              "<span style='background-color:%s'>"
-             "%s%.10s</a> %s</span> %4d:%*s",
-             p->zBgColor, zLink, p->zMUuid, p->zDate, i+1, indent, " ");
+             "%s%.10s</a> %s</span> %4d:",
+             p->zBgColor, zLink, p->zMUuid, p->zDate, i+1);
         fossil_free(zLink);
       }else{
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:%*s", "", i+1, indent, " ");
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "%22s%4d:", "", i+1);
       }
     }
-    @ %s(zPrefix)%h(z)
+    @ %s(zPrefix) %h(z)
 
   }
   @ </pre>
@@ -2439,25 +2419,24 @@ void annotate_cmd(void){
   for(i=0; i<ann.nOrig; i++){
     int iVers = ann.aOrig[i].iVers;
     char *z = (char*)ann.aOrig[i].z;
-    int indent = ann.aOrig[i].indent + 1;
     int n = ann.aOrig[i].n;
     struct AnnVers *p;
     if( iLimit>ann.nVers && iVers<0 ) iVers = ann.nVers-1;
     p = ann.aVers + iVers;
     if( bBlame ){
       if( iVers>=0 ){
-        fossil_print("%.10s %s %13.13s:%*s%.*s\n",
-             fileVers ? p->zFUuid : p->zMUuid, p->zDate, p->zUser, indent, " ", n, z);
+        fossil_print("%.10s %s %13.13s: %.*s\n",
+             fileVers ? p->zFUuid : p->zMUuid, p->zDate, p->zUser, n, z);
       }else{
-        fossil_print("%35s %*s%.*s\n", "", indent, " ", n, z);
+        fossil_print("%35s  %.*s\n", "", n, z);
       }
     }else{
       if( iVers>=0 ){
-        fossil_print("%.10s %s %5d:%*s%.*s\n",
-             fileVers ? p->zFUuid : p->zMUuid, p->zDate, i+1, indent, " ", n, z);
+        fossil_print("%.10s %s %5d: %.*s\n",
+             fileVers ? p->zFUuid : p->zMUuid, p->zDate, i+1, n, z);
       }else{
-        fossil_print("%21s %5d:%*s%.*s\n",
-             "", i+1, indent, " ", n, z);
+        fossil_print("%21s %5d: %.*s\n",
+             "", i+1, n, z);
       }
     }
   }
