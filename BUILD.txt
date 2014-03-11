@@ -24,7 +24,7 @@ If you have VC++ installed on your system, then consider:
 
 If you have trouble, or you want to do something fancy, just look at
 Makefile.classic. There are 6 configuration options that are all well
-commented. Instead of editing the Makefile.classic, consider copying 
+commented. Instead of editing the Makefile.classic, consider copying
 Makefile.classic to an alternative name such as "GNUMakefile",
 "BSDMakefile", or "makefile" and editing the copy.
 
@@ -63,7 +63,7 @@ Here are some notes on what is happening behind the scenes:
 
 * The *.h header files are automatically generated using a program
   called "makeheaders".  Source code to the makeheaders program is
-  found in src/makeheaders.c.  Documentation is found in 
+  found in src/makeheaders.c.  Documentation is found in
   src/makeheaders.html.
 
 * Most *.c source files are preprocessed using a program called

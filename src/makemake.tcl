@@ -71,6 +71,7 @@ set src {
   json_user
   json_wiki
   leaf
+  loadctrl
   login
   lookslike
   main

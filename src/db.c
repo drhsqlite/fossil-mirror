@@ -2149,6 +2149,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "localauth",        0,              0, 0, 0, "off"                 },
   { "main-branch",      0,             40, 0, 0, "trunk"               },
   { "manifest",         0,              0, 1, 0, "off"                 },
+  { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
   { "pgp-command",      0,             40, 0, 0, "gpg --clearsign -o " },
@@ -2298,6 +2299,13 @@ struct stControlSettings const ctrlSettings[] = {
 **    manifest         If enabled, automatically create files "manifest" and
 **     (versionable)   "manifest.uuid" in every checkout.  The SQLite and
 **                     Fossil repositories both require this.  Default: off.
+**
+**    max-loadavg      Some CPU-intensive web pages (ex: /zip, /tarball, /blame)
+**                     are disallowed if the system load average goes above this
+**                     value.  "0.0" means no limit.  This only works on unix.
+**                     Only local settings of this value make a difference since
+**                     when running as a web-server, Fossil does not open the
+**                     global configuration database.
 **
 **    max-upload       A limit on the size of uplink HTTP requests.  The
 **                     default is 250000 bytes.

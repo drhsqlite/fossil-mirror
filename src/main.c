@@ -123,7 +123,7 @@ struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
-  int isConst;            /* True if the output is unchanging */
+  int isConst;            /* True if the output is unchanging & cacheable */
   const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
@@ -196,7 +196,7 @@ struct Global {
   int useProxy;           /* Used to remember that a proxy is in use */
   char *proxyUrlPath;
   int proxyOrigPort;      /* Tunneled port number for https through proxy */
-  const char *zLogin;     /* Login name.  "" if not logged in. */
+  const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
   int useLocalauth;       /* No login required if from 127.0.0.1 */
@@ -1461,7 +1461,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
         }else{
           zUser = "nobody";
         }
-        if( g.zLogin==0 ) zUser = "nobody";
+        if( g.zLogin==0 || g.zLogin[0]==0 ) zUser = "nobody";
         if( zAltRepo[0]!='/' ){
           zAltRepo = mprintf("%s/../%s", g.zRepositoryName, zAltRepo);
           file_simplify_name(zAltRepo, -1, 0);

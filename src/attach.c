@@ -311,7 +311,7 @@ void attachadd_page(void){
     }
     zDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zDate);
-    blob_appendf(&manifest, "U %F\n", g.zLogin ? g.zLogin : "nobody");
+    blob_appendf(&manifest, "U %F\n", login_name());
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
     attach_put(&manifest, rid, needModerator);
@@ -429,7 +429,7 @@ void ainfo_page(void){
     blob_appendf(&manifest, "A %F %F\n", zFile, zTarget);
     zDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zDate);
-    blob_appendf(&manifest, "U %F\n", g.zLogin ? g.zLogin : "nobody");
+    blob_appendf(&manifest, "U %F\n", login_name());
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
     rid = content_put(&manifest);

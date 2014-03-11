@@ -344,8 +344,8 @@ void eventedit_page(void){
       }
       db_finalize(&q);
     }
-    if( g.zLogin ){
-      blob_appendf(&event, "U %F\n", g.zLogin);
+    if( !login_is_nobody() ){
+      blob_appendf(&event, "U %F\n", login_name());
     }
     blob_appendf(&event, "W %d\n%s\n", strlen(zBody), zBody);
     md5sum_blob(&event, &cksum);

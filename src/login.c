@@ -1146,6 +1146,20 @@ void login_as_user(const char *zUser){
 }
 
 /*
+** Return true if the user is "nobody"
+*/
+int login_is_nobody(void){
+  return g.zLogin==0 || g.zLogin[0]==0 || fossil_strcmp(g.zLogin,"nobody")==0;
+}
+
+/*
+** Return the login name.  If no login name is specified, return "nobody".
+*/
+const char *login_name(void){
+  return (g.zLogin && g.zLogin[0]) ? g.zLogin : "nobody";
+}
+
+/*
 ** Call this routine when the credential check fails.  It causes
 ** a redirect to the "login" page.
 */
