@@ -502,6 +502,9 @@ void ci_page(void){
   const char *zParent; /* UUID of the parent checkin (if any) */
   const char *zRe;     /* regex parameter */
   ReCompiled *pRe = 0; /* regex */
+  const char *zW;      /* URL param for ignoring whitespace */
+  const char *zPage = "vinfo";  /* Page that shows diffs */
+  const char *zPageHide = "ci"; /* Page that hides diffs */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -667,9 +670,6 @@ void ci_page(void){
   }
   db_finalize(&q1);
   showTags(rid, "");
-  const char *zW;               /* URL param for ignoring whitespace */
-  const char *zPage = "vinfo";  /* Page that shows diffs */
-  const char *zPageHide = "ci"; /* Page that hides diffs */
   @ <div class="section">Changes</div>
   @ <div class="sectionmenu">
   verboseFlag = g.zPath[0]!='c';
