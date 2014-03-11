@@ -2,7 +2,7 @@
 
 <h2>Changes For Version 1.28.1 (most likely never being released, those
 are candidate cherry-picks just in case)</h2>
-  *  Upgraded internal SQLite to version 3.8.4, which adds support for
+  *  Upgraded internal SQLite to version 3.8.4.1, which adds support for
      CTE and the WITH clause, and fixes various (minor) SQLite bugs.
   *  Relax minimum SQLite version check to 3.7.17, as Fossil 1.28
      actually works fine with "configure --disable-internal-sqlite"
