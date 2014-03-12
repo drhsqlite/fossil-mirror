@@ -232,7 +232,8 @@ static void stash_apply(int stashid, int nConflict){
       fossil_print("DELETE %s\n", zOrig);
       file_delete(zOPath);
     }else{
-      Blob a, b, out, disk; int isNewLink = file_wd_islink(zOPath);
+      Blob a, b, out, disk;
+      int isNewLink = file_wd_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
       if( isNewLink ){
         blob_read_link(&disk, zOPath);
