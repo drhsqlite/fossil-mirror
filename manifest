@@ -1,5 +1,5 @@
-C Fix\sthe\sstash\sso\sthat\sit\sremembers\sadded\sfiles\sand\sreadds\sthem\swhen\sthe\nstash\sis\sapplied.
-D 2014-03-13T11:58:22.810
+C Add\ssupport\sfor\sHTTP\sBasic\sAuthentication\sto\sclone\sand\ssync.
+D 2014-03-13T12:23:50.033
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -321,7 +321,7 @@ F src/cgi.c c31113fe7e9b1500340eb1223e34cd656e033f3a
 F src/checkin.c 303ade4abd271c83510a1d189442a4a090dd5e61
 F src/checkout.c a584a28bf3eeda1fb36f04507afd9a70e597e9a0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c 73486de219e964230427d3246f9625c693afc999
+F src/clone.c 83da9104f1a088fcdd6c1aef48250d8990b38d88
 F src/comformat.c ef14fd3e1d156cd0d30a039d76edc5ca97088d7b
 F src/config.h 06b47d703b770ccf06265dc4b52f5ece1a067a02
 F src/configure.c 3d6e23b7e4d8ba75737c60c78b6e36b594dc00fc
@@ -344,7 +344,7 @@ F src/finfo.c 6bf9b48229f6e4fd44178b184f860364a000db73
 F src/glob.c aea01d383a35a38a48c5419ba2526ffa79b8c33b
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
 F src/gzip.c 6166bf34729ac612c93c0274a1fbd021764c3ebf
-F src/http.c 2195ed5115282c0bf356d918d3adb7144bf78e8d
+F src/http.c 21860054ee454c871bed4b6304f91ebd24e312b0
 F src/http_socket.c 09d140a27eb27dbae0b8d494172f9c2a39baf9dd
 F src/http_ssl.c 8638fbf0fb6be81b617d4e851c676ef62fad8361
 F src/http_transport.c f6b79299ea197c26e9137a7b68b28885edb1b463
@@ -370,7 +370,7 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c cb003ce9fa53292be5c5aff524fc749aa672d462
 F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
-F src/main.c 9157d94200afde1df2a7a197703c73fd18f3e102
+F src/main.c 380d041f04d1a1bf49c80aeb9eba7a9b105863c0
 F src/main.mk e95d65f02765fb961fd3494115fa65230476ce54
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -407,7 +407,7 @@ F src/sqlite3.h df5a4608875ff83f7c3fa37c2169a55e5ba99a6e
 F src/stash.c 28c6feb8ff69f1007767c5a0ebfeea77a317e5f1
 F src/stat.c 8b6946485253ea73fb3deee9fb742d794870e818
 F src/style.c 4bbe6624ac9c88107e3d1b3d526278d28906a068
-F src/sync.c bb1f61e400aaa9daa59c6972b1fd987276bd6d80
+F src/sync.c 2d197d61e8328b430e315d3c7bac3634609fe4a5
 F src/tag.c 1b0ffe2e8e3753a93ea9381e1c9f1e5d1f0118ec
 F src/tar.c 5dec7d3f024012c6260fb1a3e37d52ec5a010feb
 F src/th.c 496a089a490f071301e9b149f4415b4d49a636a8
@@ -433,7 +433,7 @@ F src/wikiformat.c 79988cc4f0e118c0f1aeeba67c3f393c4d443f3c
 F src/winfile.c 99b3ce4828613d627bb442666ef74e1f3c7632c0
 F src/winhttp.c e6c2450741f2d500530d8d4ef4d4e7bdcc84c0b1
 F src/wysiwyg.c 04450602906b7d197b5edc467229844350d92857
-F src/xfer.c c2e77bcc470f38190313809dae8f770306180bae
+F src/xfer.c 9a94079a15174636b4bea3a33f66befacc8973f8
 F src/xfersetup.c 6be92485a853589fcc7caf61d4cce5d04adfac1e
 F src/zip.c f48cbf87a6fab9e75c1339e72c9942dd5a0a816f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -642,7 +642,8 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1c9e0233827299e10076dc1e5f2e318fa962cc7c ef27b0059a0af7fe568dbc8ee51e3860c07413bf
-R 469ec688479cc9e9795b344dd4e69997
+P db052aa4c6bc6c642c88edf714d086505945878e 75406df20739b152effdd507f88a5f08cce1f008
+R 8fd2a26a479b935f1608624e7e7538ca
+T +closed 75406df20739b152effdd507f88a5f08cce1f008
 U drh
-Z 929b42af1db59f12cfa9aa43ddbfa363
+Z 474b74ece469a8c28e10c0c9b7048785

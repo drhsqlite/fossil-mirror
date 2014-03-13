@@ -580,7 +580,8 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   if( fossil_strcmp(zLogin, "nobody")==0 || fossil_strcmp(zLogin,"anonymous")==0 ){
     return 0;   /* Anybody is allowed to sync as "nobody" or "anonymous" */
   }
-  if( fossil_strcmp(P("REMOTE_USER"), zLogin)==0 ){
+  if( fossil_strcmp(P("REMOTE_USER"), zLogin)==0
+      && db_get_boolean("remote_user_ok",0) ){
     return 0;   /* Accept Basic Authorization */
   }
   db_prepare(&q,
