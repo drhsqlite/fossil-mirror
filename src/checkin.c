@@ -602,7 +602,6 @@ void clean_cmd(void){
         char cReply;
         char *prompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
                                zName+nRoot);
-        blob_zero(&ans);
         prompt_user(prompt, &ans);
         cReply = blob_str(&ans)[0];
         if( cReply=='a' || cReply=='A' ){
@@ -644,7 +643,6 @@ void clean_cmd(void){
         char cReply;
         char *prompt = mprintf("Remove empty directory \"%s\" (a=all/y/N)? ",
                                zName+nRoot);
-        blob_zero(&ans);
         prompt_user(prompt, &ans);
         cReply = blob_str(&ans)[0];
         if( cReply=='a' || cReply=='A' ){
@@ -805,7 +803,7 @@ static void prepare_commit_comment(
     "# Enter commit message for this check-in. Lines beginning with # are ignored.\n"
     "#\n", -1
   );
-  blob_appendf(&prompt, "# user: %s\n", p->zUserOvrd ? p->zUserOvrd : g.zLogin);
+  blob_appendf(&prompt, "# user: %s\n", p->zUserOvrd ? p->zUserOvrd : login_name());
   if( p->zBranch && p->zBranch[0] ){
     blob_appendf(&prompt, "# tags: %s\n#\n", p->zBranch);
   }else{
@@ -967,7 +965,7 @@ struct CheckinInfo {
   int integrateFlag;          /* Close merged-in branches */
   Blob *pCksum;               /* Repository checksum.  May be 0 */
   const char *zDateOvrd;      /* Date override.  If 0 then use 'now' */
-  const char *zUserOvrd;      /* User override.  If 0 then use g.zLogin */
+  const char *zUserOvrd;      /* User override.  If 0 then use login_name() */
   const char *zBranch;        /* Branch name.  May be 0 */
   const char *zColor;         /* One-time background color.  May be 0 */
   const char *zBrClr;         /* Persistent branch color.  May be 0 */
@@ -1193,7 +1191,7 @@ static void create_manifest(
     }
     db_finalize(&q);
   }
-  blob_appendf(pOut, "U %F\n", p->zUserOvrd ? p->zUserOvrd : g.zLogin);
+  blob_appendf(pOut, "U %F\n", p->zUserOvrd ? p->zUserOvrd : login_name());
   md5sum_blob(pOut, &mcksum);
   blob_appendf(pOut, "Z %b\n", &mcksum);
   if( pnFBcard ) *pnFBcard = nFBcard;
@@ -1290,7 +1288,6 @@ static int commit_warning(
       zDisable = "\"encoding-glob\" setting";
     }
     file_relative_name(zFilename, &fname, 0);
-    blob_zero(&ans);
     zMsg = mprintf(
          "%s contains %s. Use --no-warnings or the %s to disable this warning.\n"
          "Commit anyhow (a=all/%sy/N)? ",
@@ -1522,7 +1519,9 @@ void commit_cmd(void){
 
   /* Get the ID of the parent manifest artifact */
   vid = db_lget_int("checkout", 0);
-  if( content_is_private(vid) ){
+  if( vid==0 ){
+    useCksum = 1;
+  }else if( content_is_private(vid) ){
     g.markPrivate = 1;
   }
 
@@ -1531,7 +1530,6 @@ void commit_cmd(void){
   */
   if( !g.markPrivate ){
     if( autosync(SYNC_PULL) ){
-      blob_zero(&ans);
       prompt_user("continue in spite of sync failure (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply!='y' && cReply!='Y' ){
@@ -1544,7 +1542,6 @@ void commit_cmd(void){
   ** clock skew
   */
   if( g.clockSkewSeen ){
-    blob_zero(&ans);
     prompt_user("continue in spite of time skew (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y' ){
@@ -1563,10 +1560,9 @@ void commit_cmd(void){
   ** should be committed.
   */
   if( select_commit_files() ){
-    blob_zero(&ans);
     prompt_user("continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
-    if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
+    if( cReply!='y' && cReply!='Y' ) fossil_exit(1);
   }
   isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0 OR id<-2");
   if( g.aCommitFile && isAMerge ){
@@ -1664,16 +1660,14 @@ void commit_cmd(void){
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, &sCiInfo, vid);
     if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
-      blob_zero(&ans);
       prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
+      if( cReply!='y' && cReply!='Y' ) fossil_exit(1);
     }
     free(zInit);
   }
   if( blob_size(&comment)==0 ){
     if( !dryRunFlag ){
-      blob_zero(&ans);
       prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply!='y' && cReply!='Y' ){
@@ -1806,7 +1800,6 @@ void commit_cmd(void){
     }
   }
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
-    blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y' ){

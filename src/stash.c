@@ -201,12 +201,16 @@ static int stash_create(void){
 ** Apply a stash to the current check-out.
 */
 static void stash_apply(int stashid, int nConflict){
+  int vid;
   Stmt q;
   db_prepare(&q,
      "SELECT rid, isRemoved, isExec, isLink, origname, newname, delta"
      "  FROM stashfile WHERE stashid=%d",
      stashid
   );
+  vid = db_lget_int("checkout",0);
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     int isRemoved = db_column_int(&q, 1);
@@ -220,10 +224,10 @@ static void stash_apply(int stashid, int nConflict){
     undo_save(zNew);
     blob_zero(&delta);
     if( rid==0 ){
+      db_multi_exec("INSERT OR IGNORE INTO sfile(x) VALUES(%Q)", zNew);
       db_ephemeral_blob(&q, 6, &delta);
       blob_write_to_file(&delta, zNPath);
       file_wd_setexe(zNPath, isExec);
-      fossil_print("ADD %s\n", zNew);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
       file_delete(zOPath);
@@ -278,6 +282,7 @@ static void stash_apply(int stashid, int nConflict){
       file_delete(zOPath);
     }
   }
+  stash_add_files_in_sfile(vid);
   db_finalize(&q);
   if( nConflict ){
     fossil_print(
@@ -313,7 +318,7 @@ static void stash_diff(
     const char *zOrig = db_column_text(&q, 4);
     const char *zNew = db_column_text(&q, 5);
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
-    Blob delta, a, b, disk;
+    Blob a, b;
     if( rid==0 ){
       db_ephemeral_blob(&q, 6, &a);
       fossil_print("ADDED %s\n", zNew);
@@ -339,6 +344,7 @@ static void stash_diff(
       diff_file_mem(&a, &empty, isBin1, isBin2, zOrig, zDiffCmd,
                     zBinGlob, fIncludeBinary, diffFlags);
     }else{
+      Blob delta, disk;
       int isOrigLink = file_wd_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
       if( fBaseline==0 ){
@@ -365,8 +371,8 @@ static void stash_diff(
         blob_reset(&b);
       }
       if( !fBaseline ) blob_reset(&disk);
+      blob_reset(&delta);
     }
-    blob_reset(&delta);
  }
   db_finalize(&q);
 }
@@ -570,7 +576,6 @@ void stash_cmd(void){
     if( allFlag ){
       Blob ans;
       char cReply;
-      blob_zero(&ans);
       prompt_user("This action is not undoable.  Continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply=='y' || cReply=='Y' ){

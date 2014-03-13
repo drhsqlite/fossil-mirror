@@ -15,10 +15,10 @@
 #### Select one of MinGW, MinGW-w64 (32-bit) or MinGW-w64 (64-bit) compilers.
 #    By default, this is an empty string (i.e. use the native compiler).
 #
-# PREFIX =
+PREFIX =
 # PREFIX = mingw32-
 # PREFIX = i686-pc-mingw32-
-PREFIX = i686-w64-mingw32-
+# PREFIX = i686-w64-mingw32-
 # PREFIX = x86_64-w64-mingw32-
 
 #### The toplevel directory of the source tree.  Fossil can be built
@@ -311,6 +311,7 @@ SRC = \
   $(SRCDIR)/json_user.c \
   $(SRCDIR)/json_wiki.c \
   $(SRCDIR)/leaf.c \
+  $(SRCDIR)/loadctrl.c \
   $(SRCDIR)/login.c \
   $(SRCDIR)/lookslike.c \
   $(SRCDIR)/main.c \
@@ -421,6 +422,7 @@ TRANS_SRC = \
   $(OBJDIR)/json_user_.c \
   $(OBJDIR)/json_wiki_.c \
   $(OBJDIR)/leaf_.c \
+  $(OBJDIR)/loadctrl_.c \
   $(OBJDIR)/login_.c \
   $(OBJDIR)/lookslike_.c \
   $(OBJDIR)/main_.c \
@@ -531,6 +533,7 @@ OBJ = \
  $(OBJDIR)/json_user.o \
  $(OBJDIR)/json_wiki.o \
  $(OBJDIR)/leaf.o \
+ $(OBJDIR)/loadctrl.o \
  $(OBJDIR)/login.o \
  $(OBJDIR)/lookslike.o \
  $(OBJDIR)/main.o \
@@ -773,6 +776,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/json_user_.c:$(OBJDIR)/json_user.h \
 		$(OBJDIR)/json_wiki_.c:$(OBJDIR)/json_wiki.h \
 		$(OBJDIR)/leaf_.c:$(OBJDIR)/leaf.h \
+		$(OBJDIR)/loadctrl_.c:$(OBJDIR)/loadctrl.h \
 		$(OBJDIR)/login_.c:$(OBJDIR)/login.h \
 		$(OBJDIR)/lookslike_.c:$(OBJDIR)/lookslike.h \
 		$(OBJDIR)/main_.c:$(OBJDIR)/main.h \
@@ -1268,6 +1272,14 @@ $(OBJDIR)/leaf.o:	$(OBJDIR)/leaf_.c $(OBJDIR)/leaf.h  $(SRCDIR)/config.h
 
 $(OBJDIR)/leaf.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/loadctrl_.c:	$(SRCDIR)/loadctrl.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/loadctrl.c >$(OBJDIR)/loadctrl_.c
+
+$(OBJDIR)/loadctrl.o:	$(OBJDIR)/loadctrl_.c $(OBJDIR)/loadctrl.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/loadctrl.o -c $(OBJDIR)/loadctrl_.c
+
+$(OBJDIR)/loadctrl.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/login_.c:	$(SRCDIR)/login.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/login.c >$(OBJDIR)/login_.c
 
@@ -1706,12 +1718,15 @@ SQLITE_OPTIONS = -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_OMIT_DEPRECATED \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
-                 -D_HAVE_SQLITE_CONFIG_H \
+                 -D_HAVE__MINGW_H \
                  -DSQLITE_USE_MALLOC_H \
                  -DSQLITE_USE_MSIZE
 
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
+                -DSQLITE_SHELL_DBNAME_PROC=fossil_open \
+                -Daccess=win32_access \
                 -Dgetenv=fossil_getenv \
                 -Dfopen=fossil_fopen
 

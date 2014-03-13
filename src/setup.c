@@ -965,6 +965,17 @@ void setup_access(void){
   @ to the download packet limit. 30s is a reasonable default.</p>
 
   @ <hr />
+  entry_attribute("Server Load Average Limit", 11, "max-loadavg", "mxldavg",
+                  "0.0", 0);
+  @ <p>Some expensive operations (such as computing tarballs, zip archives,
+  @ or annotation/blame pages) are prohibited if the load average on the host
+  @ computer is too large.  Set the threshold for disallowing expensive
+  @ computations here.  Set this to 0.0 to disable the load average limit.
+  @ This limit is only enforced on Unix servers.  On Linux systems,
+  @ access to the /proc virtual filesystem is required, which means this limit
+  @ might not work inside a chroot() jail.</p>
+
+  @ <hr />
   onoff_attribute(
       "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
       "auto-hyperlink", "autohyperlink", 1, 0);
@@ -975,7 +986,8 @@ void setup_access(void){
   @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
   @ and spiders can forge a User-Agent string that makes them seem to be a
   @ normal browser and they can run javascript just like browsers.  But most
-  @ bots do not go to that much trouble so this is normally an effective defense.</p>
+  @ bots do not go to that much trouble so this is normally an effective
+  @ defense.</p>
   @
   @ <p>You do not normally want a bot to walk your entire repository because
   @ if it does, your server will end up computing diffs and annotations for
@@ -1263,10 +1275,20 @@ void setup_settings(void){
       }
     }
   }
+  @ <br /><input type="submit"  name="submit" value="Apply Changes" />
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    if( pSet->width!=0 && !pSet->versionable){
+    if( pSet->width!=0 && !pSet->versionable && !pSet->forceTextArea ){
       entry_attribute(pSet->name, /*pSet->width*/ 25, pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name,
+                      (char*)pSet->def, 0);
+      @ <br />
+    }
+  }
+  for(pSet=ctrlSettings; pSet->name!=0; pSet++){
+    if( pSet->width!=0 && !pSet->versionable && pSet->forceTextArea ){
+      @<b>%s(pSet->name)</b><br />
+      textarea_attribute("", /*rows*/ 3, /*cols*/ 50, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def, 0);
       @ <br />
@@ -1274,8 +1296,8 @@ void setup_settings(void){
   }
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
-    if( pSet->width!=0 && pSet->versionable){
+    if( pSet->width!=0 && pSet->versionable ){
+      int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
       @<b>%s(pSet->name)</b> (v)<br />
       textarea_attribute("", /*rows*/ 3, /*cols*/ 20, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
@@ -1284,7 +1306,6 @@ void setup_settings(void){
     }
   }
   @ </td></tr></table>
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   @ <p>Settings marked with (v) are 'versionable' and will be overridden
   @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.
@@ -1471,7 +1492,7 @@ void setup_header(void){
   @ The default header is shown below for reference.  Other examples
   @ of headers can be seen on the <a href="setup_skin">skins page</a>.
   @ See also the <a href="setup_editcss">CSS</a> and
-  @ <a href="setup_footer">footer</a> editing screeens.
+  @ <a href="setup_footer">footer</a> editing screens.
   @ <blockquote><pre>
   @ %h(zDefaultHeader)
   @ </pre></blockquote>

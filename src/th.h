@@ -9,11 +9,11 @@
 ** populate an instance of the following structure. It must remain valid
 ** for the lifetime of the interpreter.
 */
+typedef struct Th_Vtab Th_Vtab;
 struct Th_Vtab {
   void *(*xMalloc)(unsigned int);
   void (*xFree)(void *);
 };
-typedef struct Th_Vtab Th_Vtab;
 
 /*
 ** Opaque handle for interpeter.

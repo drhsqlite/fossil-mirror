@@ -166,58 +166,64 @@ static int findAttr(const char *z){
 #define MARKUP_INVALID            0
 #define MARKUP_A                  1
 #define MARKUP_ADDRESS            2
-#define MARKUP_B                  3
-#define MARKUP_BIG                4
-#define MARKUP_BLOCKQUOTE         5
-#define MARKUP_BR                 6
-#define MARKUP_CENTER             7
-#define MARKUP_CITE               8
-#define MARKUP_CODE               9
-#define MARKUP_COL                10
-#define MARKUP_COLGROUP           11
-#define MARKUP_DD                 12
-#define MARKUP_DFN                13
-#define MARKUP_DIV                14
-#define MARKUP_DL                 15
-#define MARKUP_DT                 16
-#define MARKUP_EM                 17
-#define MARKUP_FONT               18
-#define MARKUP_H1                 19
-#define MARKUP_H2                 20
-#define MARKUP_H3                 21
-#define MARKUP_H4                 22
-#define MARKUP_H5                 23
-#define MARKUP_H6                 24
-#define MARKUP_HR                 25
-#define MARKUP_I                  26
-#define MARKUP_IMG                27
-#define MARKUP_KBD                28
-#define MARKUP_LI                 29
-#define MARKUP_NOBR               30
-#define MARKUP_NOWIKI             31
-#define MARKUP_OL                 32
-#define MARKUP_P                  33
-#define MARKUP_PRE                34
-#define MARKUP_S                  35
-#define MARKUP_SAMP               36
-#define MARKUP_SMALL              37
-#define MARKUP_SPAN               38
-#define MARKUP_STRIKE             39
-#define MARKUP_STRONG             40
-#define MARKUP_SUB                41
-#define MARKUP_SUP                42
-#define MARKUP_TABLE              43
-#define MARKUP_TBODY              44
-#define MARKUP_TD                 45
-#define MARKUP_TFOOT              46
-#define MARKUP_TH                 47
-#define MARKUP_THEAD              48
-#define MARKUP_TR                 49
-#define MARKUP_TT                 50
-#define MARKUP_U                  51
-#define MARKUP_UL                 52
-#define MARKUP_VAR                53
-#define MARKUP_VERBATIM           54
+#define MARKUP_HTML5_ARTICLE      3
+#define MARKUP_HTML5_ASIDE        4
+#define MARKUP_B                  5
+#define MARKUP_BIG                6
+#define MARKUP_BLOCKQUOTE         7
+#define MARKUP_BR                 8
+#define MARKUP_CENTER             9
+#define MARKUP_CITE               10
+#define MARKUP_CODE               11
+#define MARKUP_COL                12
+#define MARKUP_COLGROUP           13
+#define MARKUP_DD                 14
+#define MARKUP_DFN                15
+#define MARKUP_DIV                16
+#define MARKUP_DL                 17
+#define MARKUP_DT                 18
+#define MARKUP_EM                 19
+#define MARKUP_FONT               20
+#define MARKUP_HTML5_FOOTER       21
+#define MARKUP_H1                 22
+#define MARKUP_H2                 23
+#define MARKUP_H3                 24
+#define MARKUP_H4                 25
+#define MARKUP_H5                 26
+#define MARKUP_H6                 27
+#define MARKUP_HTML5_HEADER       28
+#define MARKUP_HR                 29
+#define MARKUP_I                  30
+#define MARKUP_IMG                31
+#define MARKUP_KBD                32
+#define MARKUP_LI                 33
+#define MARKUP_HTML5_NAV          34
+#define MARKUP_NOBR               35
+#define MARKUP_NOWIKI             36
+#define MARKUP_OL                 37
+#define MARKUP_P                  38
+#define MARKUP_PRE                39
+#define MARKUP_S                  40
+#define MARKUP_SAMP               41
+#define MARKUP_HTML5_SECTION      42
+#define MARKUP_SMALL              43
+#define MARKUP_SPAN               44
+#define MARKUP_STRIKE             45
+#define MARKUP_STRONG             46
+#define MARKUP_SUB                47
+#define MARKUP_SUP                48
+#define MARKUP_TABLE              49
+#define MARKUP_TBODY              50
+#define MARKUP_TD                 51
+#define MARKUP_TFOOT              52
+#define MARKUP_TH                 53
+#define MARKUP_THEAD              54
+#define MARKUP_TR                 55
+#define MARKUP_TT                 56
+#define MARKUP_U                  57
+#define MARKUP_UL                 58
+#define MARKUP_VAR                59
+#define MARKUP_VERBATIM           60
 
 /*
 ** The various markup is divided into the following types:
@@ -253,6 +259,11 @@ static const struct AllowedMarkup {
  { "a",             MARKUP_A,            MUTYPE_HYPERLINK,
                     AMSK_HREF|AMSK_NAME|AMSK_CLASS|AMSK_TARGET|AMSK_STYLE },
  { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         AMSK_STYLE },
+ { "article",       MARKUP_HTML5_ARTICLE, MUTYPE_BLOCK,
+                                            AMSK_ID|AMSK_CLASS|AMSK_STYLE },
+ { "aside",         MARKUP_HTML5_ASIDE,  MUTYPE_BLOCK,
+                                            AMSK_ID|AMSK_CLASS|AMSK_STYLE },
+
  { "b",             MARKUP_B,            MUTYPE_FONT,          AMSK_STYLE },
  { "big",           MARKUP_BIG,          MUTYPE_FONT,          AMSK_STYLE },
  { "blockquote",    MARKUP_BLOCKQUOTE,   MUTYPE_BLOCK,         AMSK_STYLE },
@@ -274,6 +285,9 @@ static const struct AllowedMarkup {
  { "em",            MARKUP_EM,           MUTYPE_FONT,          AMSK_STYLE },
  { "font",          MARKUP_FONT,         MUTYPE_FONT,
                     AMSK_COLOR|AMSK_FACE|AMSK_SIZE|AMSK_STYLE },
+ { "footer",        MARKUP_HTML5_FOOTER, MUTYPE_BLOCK,
+                                            AMSK_ID|AMSK_CLASS|AMSK_STYLE },
+
  { "h1",            MARKUP_H1,           MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "h2",            MARKUP_H2,           MUTYPE_BLOCK,
@@ -286,6 +300,10 @@ static const struct AllowedMarkup {
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "h6",            MARKUP_H6,           MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+
+ { "header",        MARKUP_HTML5_HEADER, MUTYPE_BLOCK,
+                                            AMSK_ID|AMSK_CLASS|AMSK_STYLE },
+
  { "hr",            MARKUP_HR,           MUTYPE_SINGLE,
                     AMSK_ALIGN|AMSK_COLOR|AMSK_SIZE|AMSK_WIDTH|
                     AMSK_STYLE|AMSK_CLASS  },
@@ -296,6 +314,8 @@ static const struct AllowedMarkup {
  { "kbd",           MARKUP_KBD,          MUTYPE_FONT,          AMSK_STYLE },
  { "li",            MARKUP_LI,           MUTYPE_LI,
                     AMSK_TYPE|AMSK_VALUE|AMSK_STYLE  },
+ { "nav",           MARKUP_HTML5_NAV,    MUTYPE_BLOCK,
+                                            AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "nobr",          MARKUP_NOBR,         MUTYPE_FONT,          0  },
  { "nowiki",        MARKUP_NOWIKI,       MUTYPE_SPECIAL,       0  },
  { "ol",            MARKUP_OL,           MUTYPE_LIST,
@@ -305,6 +325,8 @@ static const struct AllowedMarkup {
  { "pre",           MARKUP_PRE,          MUTYPE_BLOCK,         AMSK_STYLE },
  { "s",             MARKUP_S,            MUTYPE_FONT,          AMSK_STYLE },
  { "samp",          MARKUP_SAMP,         MUTYPE_FONT,          AMSK_STYLE },
+ { "section",       MARKUP_HTML5_SECTION, MUTYPE_BLOCK,
+                                            AMSK_ID|AMSK_CLASS|AMSK_STYLE },
  { "small",         MARKUP_SMALL,        MUTYPE_FONT,          AMSK_STYLE },
  { "span",          MARKUP_SPAN,         MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
@@ -341,7 +363,6 @@ static const struct AllowedMarkup {
 
 void show_allowed_wiki_markup( void ){
   int i; /* loop over allowedAttr */
-
   for( i=1 ; i<=sizeof(aMarkup)/sizeof(aMarkup[0]) - 1 ; i++ ){
     @ &lt;%s(aMarkup[i].zName)&gt;
   }
@@ -1720,10 +1741,18 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
   if( z[i]!='<' ) return 0;
   i++;
   if( strncmp(&z[i],"title>", 6)!=0 ) return 0;
-  iStart = i+6;
+  for(iStart=i+6; fossil_isspace(z[iStart]); iStart++){}
   for(i=iStart; z[i] && (z[i]!='<' || strncmp(&z[i],"</title>",8)!=0); i++){}
-  if( z[i]!='<' ) return 0;
-  blob_init(pTitle, &z[iStart], i-iStart);
+  if( strncmp(&z[i],"</title>",8)!=0 ){
+    blob_init(pTitle, 0, 0);
+    blob_init(pTail, &z[iStart], -1);
+    return 1;
+  }
+  if( i-iStart>0 ){
+    blob_init(pTitle, &z[iStart], i-iStart);
+  }else{
+    blob_init(pTitle, 0, 0);
+  }
   blob_init(pTail, &z[i+8], -1);
   return 1;
 }

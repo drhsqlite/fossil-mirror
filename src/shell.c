@@ -65,7 +65,9 @@
 #if defined(_WIN32) || defined(WIN32)
 # include <io.h>
 #define isatty(h) _isatty(h)
-#define access(f,m) _access((f),(m))
+#ifndef access
+# define access(f,m) _access((f),(m))
+#endif
 #undef popen
 #define popen _popen
 #undef pclose
@@ -444,6 +446,7 @@ struct previous_mode_data {
 struct callback_data {
   sqlite3 *db;           /* The database */
   int echoOn;            /* True to echo input commands */
+  int autoEQP;           /* Run EXPLAIN QUERY PLAN prior to seach SQL statement */
   int statsOn;           /* True to display memory stats before each finalize */
   int cnt;               /* Number of records displayed so far */
   FILE *out;             /* Write results here */
@@ -1181,6 +1184,7 @@ static int str_in_array(const char *zStr, const char **azArray){
 **     * For each "Goto", if the jump destination is earlier in the program
 **       and ends on one of:
 **          Yield  SeekGt  SeekLt  RowSetRead  Rewind
+**       or if the P1 parameter is one instead of zero,
 **       then indent all opcodes between the earlier instruction
 **       and "Goto" by 2 spaces.
 */
@@ -1228,7 +1232,9 @@ static void explain_data_prepare(struct callback_data *p, sqlite3_stmt *pSql){
     if( str_in_array(zOp, azNext) ){
       for(i=p2op; i<iOp; i++) p->aiIndent[i] += 2;
     }
-    if( str_in_array(zOp, azGoto) && p2op<p->nIndent && abYield[p2op] ){
+    if( str_in_array(zOp, azGoto) && p2op<p->nIndent
+     && (abYield[p2op] || sqlite3_column_int(pSql, 2))
+    ){
       for(i=p2op+1; i<iOp; i++) p->aiIndent[i] += 2;
     }
   }
@@ -1298,6 +1304,23 @@ static int shell_exec(
       if( pArg && pArg->echoOn ){
         const char *zStmtSql = sqlite3_sql(pStmt);
         fprintf(pArg->out, "%s\n", zStmtSql ? zStmtSql : zSql);
+      }
+
+      /* Show the EXPLAIN QUERY PLAN if .eqp is on */
+      if( pArg && pArg->autoEQP ){
+        sqlite3_stmt *pExplain;
+        char *zEQP = sqlite3_mprintf("EXPLAIN QUERY PLAN %s", sqlite3_sql(pStmt));
+        rc = sqlite3_prepare_v2(db, zEQP, -1, &pExplain, 0);
+        if( rc==SQLITE_OK ){
+          while( sqlite3_step(pExplain)==SQLITE_ROW ){
+            fprintf(pArg->out,"--EQP-- %d,", sqlite3_column_int(pExplain, 0));
+            fprintf(pArg->out,"%d,", sqlite3_column_int(pExplain, 1));
+            fprintf(pArg->out,"%d,", sqlite3_column_int(pExplain, 2));
+            fprintf(pArg->out,"%s\n", sqlite3_column_text(pExplain, 3));
+          }
+        }
+        sqlite3_finalize(pExplain);
+        sqlite3_free(zEQP);
       }
 
       /* Output TESTCTRL_EXPLAIN text of requested */
@@ -1893,7 +1916,7 @@ static char *csv_read_one_field(CSVReader *p){
     }
     if( c=='\n' ){
       p->nLine++;
-      if( p->n>1 && p->z[p->n-1]=='\r' ) p->n--;
+      if( p->n>0 && p->z[p->n-1]=='\r' ) p->n--;
     }
     p->cTerm = c;
   }
@@ -2297,6 +2320,10 @@ static int do_meta_command(char *zLine, struct callback_data *p){
 
   if( c=='e' && strncmp(azArg[0], "echo", n)==0 && nArg>1 && nArg<3 ){
     p->echoOn = booleanValue(azArg[1]);
+  }else
+
+  if( c=='e' && strncmp(azArg[0], "eqp", n)==0 && nArg>1 && nArg<3 ){
+    p->autoEQP = booleanValue(azArg[1]);
   }else
 
   if( c=='e' && strncmp(azArg[0], "exit", n)==0 ){
@@ -2871,6 +2898,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
   if( c=='s' && strncmp(azArg[0], "show", n)==0 && nArg==1 ){
     int i;
     fprintf(p->out,"%9.9s: %s\n","echo", p->echoOn ? "on" : "off");
+    fprintf(p->out,"%9.9s: %s\n","eqp", p->autoEQP ? "on" : "off");
     fprintf(p->out,"%9.9s: %s\n","explain", p->explainPrev.valid ? "on" :"off");
     fprintf(p->out,"%9.9s: %s\n","headers", p->showHeader ? "on" : "off");
     fprintf(p->out,"%9.9s: %s\n","mode", modeDescr[p->mode]);
@@ -3548,11 +3576,13 @@ int main(int argc, char **argv){
   int rc = 0;
   int warnInmemoryDb = 0;
 
-  if( sqlite3_libversion_number()<3008003 ){
-    fprintf(stderr, "Unsuitable SQLite version %s, must be at least 3.8.3",
-            sqlite3_libversion());
+#if USE_SYSTEM_SQLITE+0!=1
+  if( strcmp(sqlite3_sourceid(),SQLITE_SOURCE_ID)!=0 ){
+    fprintf(stderr, "SQLite header and source version mismatch\n%s\n%s\n",
+            sqlite3_sourceid(), SQLITE_SOURCE_ID);
     exit(1);
   }
+#endif
   Argv0 = argv[0];
   main_init(&data);
   stdin_is_interactive = isatty(0);
@@ -3646,13 +3676,11 @@ int main(int argc, char **argv){
     fprintf(stderr,"%s: Error: no database filename specified\n", Argv0);
     return 1;
 #endif
-    /***** Begin Fossil Patch *****/
-    {
-      extern void fossil_open(const char **);
-      fossil_open(&data.zDbFilename);
-      warnInmemoryDb = 0;
-    }
-    /***** End Fossil Patch *****/
+#ifdef SQLITE_SHELL_DBNAME_PROC
+    { extern void SQLITE_SHELL_DBNAME_PROC(const char**);
+      SQLITE_SHELL_DBNAME_PROC(&data.zDbFilename);
+      warnInmemoryDb = 0; }
+#endif
   }
   data.out = stdout;
 
@@ -3708,6 +3736,8 @@ int main(int argc, char **argv){
       data.showHeader = 0;
     }else if( strcmp(z,"-echo")==0 ){
       data.echoOn = 1;
+    }else if( strcmp(z,"-eqp")==0 ){
+      data.autoEQP = 1;
     }else if( strcmp(z,"-stats")==0 ){
       data.statsOn = 1;
     }else if( strcmp(z,"-bail")==0 ){
@@ -3790,8 +3820,8 @@ int main(int argc, char **argv){
       );
       if( warnInmemoryDb ){
         printf("Connected to a ");
-        printBold("transient in-memory database.");
-        printf("\nUse \".open FILENAME\" to reopen on a "
+        printBold("transient in-memory database");
+        printf(".\nUse \".open FILENAME\" to reopen on a "
                "persistent database.\n");
       }
       zHome = find_home_dir();

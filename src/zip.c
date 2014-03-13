@@ -83,7 +83,7 @@ void zip_set_timedate_from_str(const char *zDate){
 void zip_set_timedate(double rDate){
   char *zDate = db_text(0, "SELECT datetime(%.17g)", rDate);
   zip_set_timedate_from_str(zDate);
-  free(zDate);
+  fossil_free(zDate);
   unixTime = (rDate - 2440587.5)*86400.0;
 }
 
@@ -269,9 +269,9 @@ void zip_close(Blob *pZip){
   blob_zero(&body);
   nEntry = 0;
   for(i=0; i<nDir; i++){
-    free(azDir[i]);
+    fossil_free(azDir[i]);
   }
-  free(azDir);
+  fossil_free(azDir);
   nDir = 0;
   azDir = 0;
 }
@@ -429,6 +429,7 @@ void baseline_zip_page(void){
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(); return; }
+  load_control();
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid","trunk"));
@@ -446,8 +447,8 @@ void baseline_zip_page(void){
   }
   if( nRid==0 && nName>10 ) zName[10] = 0;
   zip_of_baseline(rid, &zip, zName);
-  free( zName );
-  free( zRid );
+  fossil_free( zName );
+  fossil_free( zRid );
   cgi_set_content(&zip);
   cgi_set_content_type("application/zip");
 }

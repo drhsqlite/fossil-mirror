@@ -18,6 +18,7 @@
 ** This file contains code to implement the basic web page look and feel.
 **
 */
+#include "VERSION.h"
 #include "config.h"
 #include "style.h"
 
@@ -309,7 +310,7 @@ void style_header(const char *zTitleFormat, ...){
   url_var("stylesheet", "css", "style.css");
   image_url_var("logo");
   image_url_var("background");
-  if( g.zLogin ){
+  if( !login_is_nobody() ){
     Th_Store("login", g.zLogin);
   }
   if( g.thTrace ) Th_Trace("BEGIN_HEADER_SCRIPT<br />\n", -1);
@@ -347,8 +348,10 @@ static void style_ad_unit(void){
   if( g.perm.Admin && db_get_boolean("adunit-omit-if-admin",0) ){
     return;
   }
-  if( g.zLogin && strcmp(g.zLogin,"anonymous")!=0
-      && db_get_boolean("adunit-omit-if-user",0) ){
+  if( !login_is_nobody()
+   && fossil_strcmp(g.zLogin,"anonymous")!=0
+   && db_get_boolean("adunit-omit-if-user",0)
+  ){
     return;
   }
   zAd = db_get("adunit", 0);
@@ -1299,6 +1302,8 @@ void page_test_env(void){
   @ g.zLogin = %h(g.zLogin)<br />
   @ g.isHuman = %d(g.isHuman)<br />
   @ capabilities = %s(zCap)<br />
+  @ g.zRepositoryName = %h(g.zRepositoryName)<br />
+  @ load_average() = %f(load_average())<br />
   @ <hr>
   P("HTTP_USER_AGENT");
   cgi_print_all(showAll);

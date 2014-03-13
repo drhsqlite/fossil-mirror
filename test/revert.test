@@ -3,61 +3,26 @@
 # 
 #
 
-catch {exec $::fossilexe info} res
-puts res=$res
-if {![regexp {use --repository} $res]} {
-  puts stderr "Cannot run this test within an open checkout"
-  return
-}
-
-# Fossil will write data on $HOME, running 'fossil new' here.
-# We need not to clutter the $HOME of the test caller.
-#
-set env(HOME) [pwd]
-
-
-# Normalize file status lists (like those returned by 'fossil changes')
-# so they can be compared using simple string comparison
-#
-proc normalize-status-list {list} {
-  set normalized [list]
-  set matches [regexp -all -inline -line {^\s*([A-Z]+)\s+(.*)$} $list]
-  foreach {_ status file} $matches {
-    lappend normalized [list $status [string trim $file]]
-  }
-  set normalized [lsort -index 1 $normalized]
-  return $normalized
-}
-
 # Test 'fossil revert' against expected results from 'fossil changes' and
-# 'fossil addremove --test', as well as by verifying the existence of files
+# 'fossil addremove -n', as well as by verifying the existence of files
 # on the file system. 'fossil undo' is called after each test
 #
-proc revert-test {testid args} {
+proc revert-test {testid revertArgs expectedRevertOutput args} {
   global RESULT
   set passed 1
   
-  if {[llength $args] % 2} {
-    set revertArgs [lindex $args 0]
-    set args [lrange $args 1 end]
-  } else {
-    set revertArgs {}
-  }
   set args [dict merge {
     -changes {} -addremove {} -exists {} -notexists {}
   } $args]
   
-  fossil revert {*}$revertArgs
+  set result [fossil revert {*}$revertArgs]
+  test_status_list revert-$testid $result $expectedRevertOutput
   
-  set statusListTests [list -changes changes -addremove {addremove --test}]
+  set statusListTests [list -changes changes -addremove {addremove -n}]
   foreach {key fossilArgs} $statusListTests {
-    set expected [normalize-status-list [dict get $args $key]]
-    set result [normalize-status-list [fossil {*}$fossilArgs]]
-    if {$result ne $expected} {
-      set passed 0
-      protOut "  Expected:\n    [join $expected "\n    "]"
-      protOut "  Got:\n    [join $result "\n    "]"
-    }
+    set expected [dict get $args $key]
+    set result [fossil {*}$fossilArgs] 
+    test_status_list revert-$testid$key $result $expected
   }
   
   set fileExistsTests [list -exists 1 does -notexists 0 should]
@@ -68,16 +33,13 @@ proc revert-test {testid args} {
         protOut "  Failure: File $verb not exist: $path"
       }
     }
+    test revert-$testid$key $passed
   }
   
   fossil undo
-  test revert-$testid $passed
 }
 
-# Create the repo
-#
-fossil new rep.fossil
-fossil open rep.fossil
+repo_init
 
 # Prepare first commit
 #
@@ -103,13 +65,21 @@ fossil mv f3 f3n
 
 # Test 'fossil revert' with no arguments
 #
-revert-test 1 -addremove {
+revert-test 1-1 {} {
+  UNMANAGE: f0
+  REVERTED: f1
+  REVERTED: f2
+  REVERTED: f3
+  DELETE: f3n
+} -addremove {
   ADDED f0
 } -exists {f0 f1 f2 f3} -notexists f3n
 
 # Test with a single filename argument
 #
-revert-test 2 f0 -changes {
+revert-test 1-2 f0 {
+  UNMANAGE: f0
+} -changes {
   DELETED f1
   EDITED f2
   RENAMED f3n
@@ -117,13 +87,17 @@ revert-test 2 f0 -changes {
   ADDED f0
 } -exists {f0 f2 f3n} -notexists f3
 
-revert-test 3 f1 -changes {
+revert-test 1-3 f1 {
+  REVERTED: f1
+} -changes {
   ADDED f0
   EDITED f2
   RENAMED f3n
 } -exists {f0 f1 f2 f3n} -notexists f3
 
-revert-test 4 f2 -changes {
+revert-test 1-4 f2 {
+  REVERTED: f2
+} -changes {
   ADDED f0
   DELETED f1
   RENAMED f3n
@@ -132,13 +106,19 @@ revert-test 4 f2 -changes {
 # Both files involved in a rename are reverted regardless of which filename
 # is used as an argument to 'fossil revert'
 #
-revert-test 5 f3 -changes {
+revert-test 1-5 f3 {
+  REVERTED: f3
+  DELETE: f3n
+} -changes {
   ADDED f0
   DELETED f1
   EDITED f2
 } -exists {f0 f2 f3} -notexists {f1 f3n}
 
-revert-test 6 f3n -changes {
+revert-test 1-6 f3n {
+  REVERTED: f3
+  DELETE: f3n
+} -changes {
   ADDED f0
   DELETED f1
   EDITED f2
@@ -146,8 +126,32 @@ revert-test 6 f3n -changes {
 
 # Test with multiple filename arguments
 #
-revert-test 7 {f0 f2 f3n} -changes {
+revert-test 1-7 {f0 f2 f3n} {
+  UNMANAGE: f0
+  REVERTED: f2
+  REVERTED: f3
+  DELETE: f3n
+} -changes {
   DELETED f1
 } -addremove {
   ADDED f0
 } -exists {f0 f2 f3} -notexists {f1 f3n}
+
+
+# Test reverting the combination of a renamed file and an added file that
+# uses the renamed file's original filename.
+#
+repo_init
+write_file f1 "f1"
+fossil add f1
+fossil commit -m "add f1"
+
+write_file f1n "f1n"
+fossil mv f1 f1n
+write_file f1 "f1b"
+fossil add f1
+
+revert-test 2-1 {} {
+  REVERTED: f1
+  DELETE: f1n
+} -exists {f1} -notexists {f1n}
