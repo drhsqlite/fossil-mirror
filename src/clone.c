@@ -111,18 +111,21 @@ void delete_private_content(void){
 **    --private                  Also clone private branches 
 **    --ssl-identity=filename    Use the SSL identity if requested by the server
 **    --ssh-command|-c 'command' Use this SSH command
+**    --httpauth|-B 'user:pass'  Add HTTP Basic Authorization to requests
 **
 ** See also: init
 */
 void clone_cmd(void){
   char *zPassword;
   const char *zDefaultUser;   /* Optional name of the default user */
+  const char *zHttpAuth;      /* HTTP Authorization user:pass information */
   int nErr = 0;
   int bPrivate = 0;           /* Also clone private branches */
   int urlFlags = URL_PROMPT_PW | URL_REMEMBER;
 
   if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
   if( find_option("once",0,0)!=0) urlFlags &= ~URL_REMEMBER;
+  zHttpAuth = find_option("httpauth","B",1);
   zDefaultUser = find_option("admin-user","A",1);
   clone_ssh_find_options();
   url_proxy_options();
@@ -161,6 +164,7 @@ void clone_cmd(void){
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA, 0);
     db_set("rebuilt", get_version(), 0);
+    remember_or_get_http_auth(zHttpAuth, urlFlags & URL_REMEMBER, g.argv[2]);
     url_remember();
     if( g.zSSLIdentity!=0 ){
       /* If the --ssl-identity option was specified, store it as a setting */
@@ -196,6 +200,53 @@ void clone_cmd(void){
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
   db_end_transaction(0);
+}
+
+/*
+** If user chooses to use HTTP Authentication over unencrypted HTTP,
+** remember decision.  Otherwise, if the URL is being changed and no 
+** preference has been indicated, err on the safe side and revert the
+** decision. Set the global preference if the URL is not being changed.
+*/
+void remember_or_get_http_auth(
+  const char *zHttpAuth,  /* Credentials in the form "user:password" */
+  int fRemember,          /* True to remember credentials for later reuse */
+  const char *zUrl        /* URL for which these credentials apply */
+){
+  char *zKey = mprintf("http-auth:%s", g.urlCanonical);
+  if( zHttpAuth && zHttpAuth[0] ){
+    g.zHttpAuth = mprintf("%s", zHttpAuth);
+  }
+  if( fRemember ){
+    if( g.zHttpAuth && g.zHttpAuth[0] ){
+      set_httpauth(g.zHttpAuth);
+    }else if( zUrl && zUrl[0] ){
+      db_unset(zKey, 0);
+    }else{
+      g.zHttpAuth = get_httpauth();
+    }
+  }else if( g.zHttpAuth==0 && zUrl==0 ){
+    g.zHttpAuth = get_httpauth();
+  }
+  free(zKey);
+}
+
+/*
+** Get the HTTP Authorization preference from db.
+*/
+char *get_httpauth(void){
+  char *zKey = mprintf("http-auth:%s", g.urlCanonical);
+  return unobscure(db_get(zKey, 0));
+  free(zKey);
+}
+
+/*
+** Set the HTTP Authorization preference in db.
+*/
+void set_httpauth(const char *zHttpAuth){
+  char *zKey = mprintf("http-auth:%s", g.urlCanonical);
+  db_set(zKey, obscure(zHttpAuth), 0);
+  free(zKey);
 }
 
 /*

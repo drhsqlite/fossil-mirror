@@ -117,6 +117,7 @@ struct DContext {
   int nFrom;         /* Number of lines in aFrom[] */
   DLine *aTo;        /* File on right side of the diff */
   int nTo;           /* Number of lines in aTo[] */
+  int (*same_fn)(DLine *, DLine *); /* Function to be used for comparing */
 };
 
 /*
@@ -200,8 +201,17 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
 ** Return true if two DLine elements are identical.
 */
 static int same_dline(DLine *pA, DLine *pB){
-  return pA->h==pB->h; // TODO: not quite right, need better hash function.
-  //return pA->h==pB->h && memcmp(pA->z,pB->z,pA->h & LENGTH_MASK)==0;
+  return pA->h==pB->h && memcmp(pA->z,pB->z, pA->n)==0;
+}
+
+static int same_dline_ignore_wschg(DLine *pA, DLine *pB){
+  return pA->h==pB->h && memcmp(pA->z+pA->indent,pB->z+pB->indent,
+                                pA->h & LENGTH_MASK)==0;
+}
+
+static int same_dline_ignore_allws(DLine *pA, DLine *pB){
+  return pA->h==pB->h && memcmp(pA->z+pA->indent,pB->z+pB->indent,
+                                pA->h & LENGTH_MASK)==0;
 }
 
 /*
@@ -1357,12 +1367,12 @@ static void optimalLCS(
 
   for(i=iS1; i<iE1-mxLength; i++){
     for(j=iS2; j<iE2-mxLength; j++){
-      if( !same_dline(&p->aFrom[i], &p->aTo[j]) ) continue;
-      if( mxLength && !same_dline(&p->aFrom[i+mxLength], &p->aTo[j+mxLength]) ){
+      if( !p->same_fn(&p->aFrom[i], &p->aTo[j]) ) continue;
+      if( mxLength && !p->same_fn(&p->aFrom[i+mxLength], &p->aTo[j+mxLength]) ){
         continue;
       }
       k = 1;
-      while( i+k<iE1 && j+k<iE2 && same_dline(&p->aFrom[i+k],&p->aTo[j+k]) ){
+      while( i+k<iE1 && j+k<iE2 && p->same_fn(&p->aFrom[i+k],&p->aTo[j+k]) ){
         k++;
       }
       if( k>mxLength ){
@@ -1428,7 +1438,7 @@ static void longestCommonSequence(
     int limit = 0;
     j = p->aTo[p->aFrom[i].h % p->nTo].iHash;
     while( j>0
-      && (j-1<iS2 || j>=iE2 || !same_dline(&p->aFrom[i], &p->aTo[j-1]))
+      && (j-1<iS2 || j>=iE2 || !p->same_fn(&p->aFrom[i], &p->aTo[j-1]))
     ){
       if( limit++ > 10 ){
         j = 0;
@@ -1445,7 +1455,7 @@ static void longestCommonSequence(
     pA = &p->aFrom[iSX-1];
     pB = &p->aTo[iSY-1];
     n = minInt(iSX-iS1, iSY-iS2);
-    for(k=0; k<n && same_dline(pA,pB); k++, pA--, pB--){}
+    for(k=0; k<n && p->same_fn(pA,pB); k++, pA--, pB--){}
     iSX -= k;
     iSY -= k;
     iEX = i+1;
@@ -1453,7 +1463,7 @@ static void longestCommonSequence(
     pA = &p->aFrom[iEX];
     pB = &p->aTo[iEY];
     n = minInt(iE1-iEX, iE2-iEY);
-    for(k=0; k<n && same_dline(pA,pB); k++, pA++, pB++){}
+    for(k=0; k<n && p->same_fn(pA,pB); k++, pA++, pB++){}
     iEX += k;
     iEY += k;
     skew = (iSX-iS1) - (iSY-iS2);
@@ -1594,12 +1604,12 @@ static void diff_all(DContext *p){
   /* Carve off the common header and footer */
   iE1 = p->nFrom;
   iE2 = p->nTo;
-  while( iE1>0 && iE2>0 && same_dline(&p->aFrom[iE1-1], &p->aTo[iE2-1]) ){
+  while( iE1>0 && iE2>0 && p->same_fn(&p->aFrom[iE1-1], &p->aTo[iE2-1]) ){
     iE1--;
     iE2--;
   }
   mnE = iE1<iE2 ? iE1 : iE2;
-  for(iS=0; iS<mnE && same_dline(&p->aFrom[iS],&p->aTo[iS]); iS++){}
+  for(iS=0; iS<mnE && p->same_fn(&p->aFrom[iS],&p->aTo[iS]); iS++){}
 
   /* do the difference */
   if( iS>0 ){
@@ -1668,7 +1678,7 @@ static void diff_optimize(DContext *p){
     while( cpy>0 && del==0 && ins>0 ){
       DLine *pTop = &p->aFrom[lnFrom-1];  /* Line before start of insert */
       DLine *pBtm = &p->aTo[lnTo+ins-1];  /* Last line inserted */
-      if( same_dline(pTop, pBtm)==0 ) break;
+      if( p->same_fn(pTop, pBtm)==0 ) break;
       if( LENGTH(pTop+1)+LENGTH(pBtm)<=LENGTH(pTop)+LENGTH(pBtm-1) ) break;
       lnFrom--;
       lnTo--;
@@ -1681,7 +1691,7 @@ static void diff_optimize(DContext *p){
     while( r+3<p->nEdit && p->aEdit[r+3]>0 && del==0 && ins>0 ){
       DLine *pTop = &p->aTo[lnTo];       /* First line inserted */
       DLine *pBtm = &p->aTo[lnTo+ins];   /* First line past end of insert */
-      if( same_dline(pTop, pBtm)==0 ) break;
+      if( p->same_fn(pTop, pBtm)==0 ) break;
       if( LENGTH(pTop)+LENGTH(pBtm-1)<=LENGTH(pTop+1)+LENGTH(pBtm) ) break;
       lnFrom++;
       lnTo++;
@@ -1694,7 +1704,7 @@ static void diff_optimize(DContext *p){
     while( cpy>0 && del>0 && ins==0 ){
       DLine *pTop = &p->aFrom[lnFrom-1];     /* Line before start of delete */
       DLine *pBtm = &p->aFrom[lnFrom+del-1]; /* Last line deleted */
-      if( same_dline(pTop, pBtm)==0 ) break;
+      if( p->same_fn(pTop, pBtm)==0 ) break;
       if( LENGTH(pTop+1)+LENGTH(pBtm)<=LENGTH(pTop)+LENGTH(pBtm-1) ) break;
       lnFrom--;
       lnTo--;
@@ -1707,7 +1717,7 @@ static void diff_optimize(DContext *p){
     while( r+3<p->nEdit && p->aEdit[r+3]>0 && del>0 && ins==0 ){
       DLine *pTop = &p->aFrom[lnFrom];     /* First line deleted */
       DLine *pBtm = &p->aFrom[lnFrom+del]; /* First line past end of delete */
-      if( same_dline(pTop, pBtm)==0 ) break;
+      if( p->same_fn(pTop, pBtm)==0 ) break;
       if( LENGTH(pTop)+LENGTH(pBtm-1)<=LENGTH(pTop)+LENGTH(pBtm) ) break;
       lnFrom++;
       lnTo++;
@@ -1787,6 +1797,15 @@ int *text_diff(
 
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
+  if( diffFlags & DIFF_IGNORE_WSCHG ){
+    if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
+      c.same_fn = same_dline_ignore_allws;
+    }else{
+      c.same_fn = same_dline_ignore_wschg;
+    }
+  }else{
+    c.same_fn = same_dline;
+  }
   c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
                              &c.nFrom, diffFlags);
   c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
@@ -1999,6 +2018,15 @@ static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
   int i;
 
   memset(p, 0, sizeof(*p));
+  if( diffFlags & DIFF_IGNORE_WSCHG ){
+    if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
+      p->c.same_fn = same_dline_ignore_allws;
+    }else{
+      p->c.same_fn = same_dline_ignore_wschg;
+    }
+  }else{
+    p->c.same_fn = same_dline;
+  }
   p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,
                               diffFlags);
   if( p->c.aTo==0 ){
