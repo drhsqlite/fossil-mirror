@@ -694,3 +694,11 @@ void mv_cmd(void){
   db_finalize(&q);
   db_end_transaction(0);
 }
+
+/*
+** Function for stash_apply to be able to restore a file and indicate
+** newly ADDED state.
+*/
+int stash_add_files_in_sfile(int vid){
+  return add_files_in_sfile(vid);
+}

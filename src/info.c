@@ -502,6 +502,9 @@ void ci_page(void){
   const char *zParent; /* UUID of the parent checkin (if any) */
   const char *zRe;     /* regex parameter */
   ReCompiled *pRe = 0; /* regex */
+  const char *zW;      /* URL param for ignoring whitespace */
+  const char *zPage = "vinfo";  /* Page that shows diffs */
+  const char *zPageHide = "ci"; /* Page that hides diffs */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -667,72 +670,70 @@ void ci_page(void){
   }
   db_finalize(&q1);
   showTags(rid, "");
-  if( zParent ){
-    const char *zW;               /* URL param for ignoring whitespace */
-    const char *zPage = "vinfo";  /* Page that shows diffs */
-    const char *zPageHide = "ci"; /* Page that hides diffs */
-    @ <div class="section">Changes</div>
-    @ <div class="sectionmenu">
-    verboseFlag = g.zPath[0]!='c';
-    if( db_get_boolean("show-version-diffs", 0)==0 ){
-      verboseFlag = !verboseFlag;
-      zPage = "ci";
-      zPageHide = "vinfo";
-    }
-    diffFlags = construct_diff_flags(verboseFlag, sideBySide);
-    zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
-    if( verboseFlag ){
-      @ %z(xhref("class='button'","%R/%s/%T",zPageHide,zName))
-      @ Hide&nbsp;Diffs</a>
-      if( sideBySide ){
-        @ %z(xhref("class='button'","%R/%s/%T?sbs=0%s",zPage,zName,zW))
-        @ Unified&nbsp;Diffs</a>
-      }else{
-        @ %z(xhref("class='button'","%R/%s/%T?sbs=1%s",zPage,zName,zW))
-        @ Side-by-Side&nbsp;Diffs</a>
-      }
-      if( *zW ){
-        @ %z(xhref("class='button'","%R/%s/%T?sbs=%d",zPage,zName,sideBySide))
-        @ Show&nbsp;Whitespace&nbsp;Changes</a>
-      }else{
-        @ %z(xhref("class='button'","%R/%s/%T?sbs=%d&w",zPage,zName,sideBySide))
-        @ Ignore&nbsp;Whitespace</a>
-      }
-    }else{
-      @ %z(xhref("class='button'","%R/%s/%T?sbs=0",zPage,zName))
-      @ Show&nbsp;Unified&nbsp;Diffs</a>
-      @ %z(xhref("class='button'","%R/%s/%T?sbs=1",zPage,zName))
-      @ Show&nbsp;Side-by-Side&nbsp;Diffs</a>
-    }
-    @ %z(xhref("class='button'","%R/vpatch?from=%S&to=%S",zParent,zUuid))
-    @ Patch</a></div>
-    if( pRe ){
-      @ <p><b>Only differences that match regular expression "%h(zRe)"
-      @ are shown.</b></p>
-    }
-    db_prepare(&q3,
-       "SELECT name,"
-       "       mperm,"
-       "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
-       "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
-       "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
-       "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
-       " WHERE mlink.mid=%d"
-       "   AND (mlink.fid>0"
-              " OR mlink.fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=%d))"
-       " ORDER BY name /*sort*/",
-       rid, rid
-    );
-    while( db_step(&q3)==SQLITE_ROW ){
-      const char *zName = db_column_text(&q3,0);
-      int mperm = db_column_int(&q3, 1);
-      const char *zOld = db_column_text(&q3,2);
-      const char *zNew = db_column_text(&q3,3);
-      const char *zOldName = db_column_text(&q3, 4);
-      append_file_change_line(zName, zOld, zNew, zOldName, diffFlags,pRe,mperm);
-    }
-    db_finalize(&q3);
+  @ <div class="section">Changes</div>
+  @ <div class="sectionmenu">
+  verboseFlag = g.zPath[0]!='c';
+  if( db_get_boolean("show-version-diffs", 0)==0 ){
+    verboseFlag = !verboseFlag;
+    zPage = "ci";
+    zPageHide = "vinfo";
   }
+  diffFlags = construct_diff_flags(verboseFlag, sideBySide);
+  zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  if( verboseFlag ){
+    @ %z(xhref("class='button'","%R/%s/%T",zPageHide,zName))
+    @ Hide&nbsp;Diffs</a>
+    if( sideBySide ){
+      @ %z(xhref("class='button'","%R/%s/%T?sbs=0%s",zPage,zName,zW))
+      @ Unified&nbsp;Diffs</a>
+    }else{
+      @ %z(xhref("class='button'","%R/%s/%T?sbs=1%s",zPage,zName,zW))
+      @ Side-by-Side&nbsp;Diffs</a>
+    }
+    if( *zW ){
+      @ %z(xhref("class='button'","%R/%s/%T?sbs=%d",zPage,zName,sideBySide))
+      @ Show&nbsp;Whitespace&nbsp;Changes</a>
+    }else{
+      @ %z(xhref("class='button'","%R/%s/%T?sbs=%d&w",zPage,zName,sideBySide))
+      @ Ignore&nbsp;Whitespace</a>
+    }
+  }else{
+    @ %z(xhref("class='button'","%R/%s/%T?sbs=0",zPage,zName))
+    @ Show&nbsp;Unified&nbsp;Diffs</a>
+    @ %z(xhref("class='button'","%R/%s/%T?sbs=1",zPage,zName))
+    @ Show&nbsp;Side-by-Side&nbsp;Diffs</a>
+  }
+  if( zParent ){
+    @ %z(xhref("class='button'","%R/vpatch?from=%S&to=%S",zParent,zUuid))
+    @ Patch</a>
+  }
+  @</div>
+  if( pRe ){
+    @ <p><b>Only differences that match regular expression "%h(zRe)"
+    @ are shown.</b></p>
+  }
+  db_prepare(&q3,
+    "SELECT name,"
+    "       mperm,"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+    "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
+    "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
+    " WHERE mlink.mid=%d"
+    "   AND (mlink.fid>0"
+           " OR mlink.fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=%d))"
+    " ORDER BY name /*sort*/",
+    rid, rid
+  );
+  while( db_step(&q3)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q3,0);
+    int mperm = db_column_int(&q3, 1);
+    const char *zOld = db_column_text(&q3,2);
+    const char *zNew = db_column_text(&q3,3);
+    const char *zOldName = db_column_text(&q3, 4);
+    append_file_change_line(zName, zOld, zNew, zOldName, diffFlags,pRe,mperm);
+  }
+  db_finalize(&q3);
   append_diff_javascript(sideBySide);
   style_footer();
 }
@@ -1386,7 +1387,6 @@ void diff_page(void){
   style_header("Diff");
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( *zW ){
-    diffFlags |= DIFF_IGNORE_ALLWS;
     style_submenu_element("Show Whitespace Changes", "Show Whitespace Changes",
                           "%s/fdiff?v1=%T&v2=%T&sbs=%d",
                           g.zTop, P("v1"), P("v2"), sideBySide);
@@ -1446,7 +1446,7 @@ void rawartifact_page(void){
   if( !g.perm.Read ){ login_needed(); return; }
   if( rid==0 ) fossil_redirect_home();
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  if( fossil_strcmp(P("name"), zUuid)==0 ){
+  if( fossil_strcmp(P("name"), zUuid)==0 && login_is_nobody() ){
     g.isConst = 1;
   }
   free(zUuid);
@@ -2265,7 +2265,7 @@ void ci_edit_page(void){
     if( nChng>0 ){
       int nrid;
       Blob cksum;
-      blob_appendf(&ctrl, "U %F\n", g.zLogin);
+      blob_appendf(&ctrl, "U %F\n", login_name());
       md5sum_blob(&ctrl, &cksum);
       blob_appendf(&ctrl, "Z %b\n", &cksum);
       db_begin_transaction();

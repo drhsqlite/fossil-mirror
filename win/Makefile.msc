@@ -162,6 +162,7 @@ SRC   = add_.c \
         json_user_.c \
         json_wiki_.c \
         leaf_.c \
+        loadctrl_.c \
         login_.c \
         lookslike_.c \
         main_.c \
@@ -272,6 +273,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\json_user$O \
         $(OX)\json_wiki$O \
         $(OX)\leaf$O \
+        $(OX)\loadctrl$O \
         $(OX)\login$O \
         $(OX)\lookslike$O \
         $(OX)\main$O \
@@ -405,6 +407,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\json_user.obj >> $@
 	echo $(OX)\json_wiki.obj >> $@
 	echo $(OX)\leaf.obj >> $@
+	echo $(OX)\loadctrl.obj >> $@
 	echo $(OX)\login.obj >> $@
 	echo $(OX)\lookslike.obj >> $@
 	echo $(OX)\main.obj >> $@
@@ -867,6 +870,12 @@ $(OX)\leaf$O : leaf_.c leaf.h
 leaf_.c : $(SRCDIR)\leaf.c
 	translate$E $** > $@
 
+$(OX)\loadctrl$O : loadctrl_.c loadctrl.h
+	$(TCC) /Fo$@ -c loadctrl_.c
+
+loadctrl_.c : $(SRCDIR)\loadctrl.c
+	translate$E $** > $@
+
 $(OX)\login$O : login_.c login.h
 	$(TCC) /Fo$@ -c login_.c
 
@@ -1249,6 +1258,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			json_user_.c:json_user.h \
 			json_wiki_.c:json_wiki.h \
 			leaf_.c:leaf.h \
+			loadctrl_.c:loadctrl.h \
 			login_.c:login.h \
 			lookslike_.c:lookslike.h \
 			main_.c:main.h \

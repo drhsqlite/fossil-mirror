@@ -965,6 +965,17 @@ void setup_access(void){
   @ to the download packet limit. 30s is a reasonable default.</p>
 
   @ <hr />
+  entry_attribute("Server Load Average Limit", 11, "max-loadavg", "mxldavg",
+                  "0.0", 0);
+  @ <p>Some expensive operations (such as computing tarballs, zip archives,
+  @ or annotation/blame pages) are prohibited if the load average on the host
+  @ computer is too large.  Set the threshold for disallowing expensive
+  @ computations here.  Set this to 0.0 to disable the load average limit.
+  @ This limit is only enforced on Unix servers.  On Linux systems,
+  @ access to the /proc virtual filesystem is required, which means this limit
+  @ might not work inside a chroot() jail.</p>
+
+  @ <hr />
   onoff_attribute(
       "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
       "auto-hyperlink", "autohyperlink", 1, 0);
@@ -975,7 +986,8 @@ void setup_access(void){
   @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
   @ and spiders can forge a User-Agent string that makes them seem to be a
   @ normal browser and they can run javascript just like browsers.  But most
-  @ bots do not go to that much trouble so this is normally an effective defense.</p>
+  @ bots do not go to that much trouble so this is normally an effective
+  @ defense.</p>
   @
   @ <p>You do not normally want a bot to walk your entire repository because
   @ if it does, your server will end up computing diffs and annotations for

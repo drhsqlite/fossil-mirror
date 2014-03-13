@@ -201,12 +201,16 @@ static int stash_create(void){
 ** Apply a stash to the current check-out.
 */
 static void stash_apply(int stashid, int nConflict){
+  int vid;
   Stmt q;
   db_prepare(&q,
      "SELECT rid, isRemoved, isExec, isLink, origname, newname, delta"
      "  FROM stashfile WHERE stashid=%d",
      stashid
   );
+  vid = db_lget_int("checkout",0);
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     int isRemoved = db_column_int(&q, 1);
@@ -220,10 +224,10 @@ static void stash_apply(int stashid, int nConflict){
     undo_save(zNew);
     blob_zero(&delta);
     if( rid==0 ){
+      db_multi_exec("INSERT OR IGNORE INTO sfile(x) VALUES(%Q)", zNew);
       db_ephemeral_blob(&q, 6, &delta);
       blob_write_to_file(&delta, zNPath);
       file_wd_setexe(zNPath, isExec);
-      fossil_print("ADD %s\n", zNew);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
       file_delete(zOPath);
@@ -278,6 +282,7 @@ static void stash_apply(int stashid, int nConflict){
       file_delete(zOPath);
     }
   }
+  stash_add_files_in_sfile(vid);
   db_finalize(&q);
   if( nConflict ){
     fossil_print(

@@ -616,7 +616,7 @@ static int submitTicketCmd(
   }
   *(const char**)pUuid = zUuid;
   blob_appendf(&tktchng, "K %s\n", zUuid);
-  blob_appendf(&tktchng, "U %F\n", g.zLogin ? g.zLogin : "");
+  blob_appendf(&tktchng, "U %F\n", login_name());
   md5sum_blob(&tktchng, &cksum);
   blob_appendf(&tktchng, "Z %b\n", &cksum);
   if( nJ==0 ){
@@ -677,7 +677,7 @@ void tktnew_page(void){
     @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
   }
   zScript = ticket_newpage_code();
-  Th_Store("login", g.zLogin ? g.zLogin : "nobody");
+  Th_Store("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
                    (void*)&zNewUuid, 0);
@@ -745,7 +745,7 @@ void tktedit_page(void){
   @ <input type="hidden" name="name" value="%s(zName)" />
   login_insert_csrf_secret();
   zScript = ticket_editpage_code();
-  Th_Store("login", g.zLogin ? g.zLogin : "nobody");
+  Th_Store("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
@@ -1104,7 +1104,7 @@ void ticket_cmd(void){
   user_select();
 
   zUser = find_option("user-override",0,1);
-  if( zUser==0 ) zUser = g.zLogin;
+  if( zUser==0 ) zUser = login_name();
   zDate = find_option("date-override",0,1);
   if( zDate==0 ) zDate = "now";
   zDate = date_in_standard_format(zDate);

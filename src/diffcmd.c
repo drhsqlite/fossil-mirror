@@ -1107,7 +1107,7 @@ const char *diff_get_binary_glob(void){
 **   -v|--verbose               output complete text of added or deleted files
 **   -w|--ignore-all-space      Ignore white space when comparing lines
 **   -W|--width <num>           Width of lines in side-by-side diff
-**   -Z|--ignore-trailing-space Ignore whitespace at line end
+**   -Z|--ignore-trailing-space Ignore changes to end-of-line whitespace
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
