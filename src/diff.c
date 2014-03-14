@@ -229,6 +229,7 @@ static void appendDiffLine(
 ){
   blob_append(pOut, &cPrefix, 1);
   if( html ){
+    int n;
     if( pRe && re_dline_match(pRe, pLine, 1)==0 ){
       cPrefix = ' ';
     }else if( cPrefix=='+' ){
@@ -236,7 +237,9 @@ static void appendDiffLine(
     }else if( cPrefix=='-' ){
       blob_append(pOut, "<span class=\"diffrm\">", -1);
     }
-    htmlize_to_blob(pOut, pLine->z, pLine->n);
+    n = pLine->n;
+    while( n>0 && (pLine->z[n-1]=='\n' || pLine->z[n-1]=='\r') ) n--;
+    htmlize_to_blob(pOut, pLine->z, n);
     if( cPrefix!=' ' ){
       blob_append(pOut, "</span>", -1);
     }
