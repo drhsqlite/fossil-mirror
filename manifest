@@ -1,5 +1,5 @@
-C Enhance\sthe\s"whatis"\scommand\sso\sthat\sif\sgiven\san\sambiguous\sSHA1\shash\nprefix\sit\sshows\s"what\sis"\sall\spossible\svalues\sfor\sthat\shash\sprefix.
-D 2014-03-14T12:30:59.757
+C Enhance\sthe\s"whatis"\scommand\sto\sreport\son\sattachments\sand\sto\sinclude\nraw\stags\sso\sthat\scluster\sartifacts\sare\sidentified.\s\sAdd\sthe\s"test-whatis-all"\ncommand\sto\srun\s"whatis"\son\severy\sartifact\sin\sthe\srepository.
+D 2014-03-14T13:57:21.392
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -322,7 +322,7 @@ F src/checkin.c 303ade4abd271c83510a1d189442a4a090dd5e61
 F src/checkout.c a584a28bf3eeda1fb36f04507afd9a70e597e9a0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 83da9104f1a088fcdd6c1aef48250d8990b38d88
-F src/comformat.c ef14fd3e1d156cd0d30a039d76edc5ca97088d7b
+F src/comformat.c e3d453354c4e4aa230c2c42f8e9bcb94ada3b3cb
 F src/config.h 06b47d703b770ccf06265dc4b52f5ece1a067a02
 F src/configure.c 3d6e23b7e4d8ba75737c60c78b6e36b594dc00fc
 F src/content.c 5a1a614acc062eef02563cf75746f34e77f7edb9
@@ -384,7 +384,7 @@ F src/merge3.c 74f9e253b9ca6ca31bc8d47eeed5e353472df3ca
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
 F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
 F src/moderate.c 5feb233fd9291b5b4f826d91e3fd987e082694e8
-F src/name.c 33cddc491324c1e7bf8b500872edc53774f449ff
+F src/name.c 8dd1af8c0339ae35dc68238f05baa97a89b177b8
 F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
 F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 354cc2734b18a7ff9a75dade86fd571a7010853c
@@ -642,7 +642,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a2400a0192ff3c7aaf74c9f4d331ad2659a34777
-R b7755cab239cdee4441ee5339c734a2a
+P 933904fe703a116c7b6775019fed5ee6cbbb0f12
+R bdca350e1c793c2bb6adcbd3fff4daf0
 U drh
-Z 4f6b819e99b9a7ccd0db715eb5530320
+Z 8a56784a207ec2ba9998375e12b4c84f

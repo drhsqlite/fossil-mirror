@@ -441,11 +441,11 @@ int name_to_rid_www(const char *zParamName){
 */
 static void whatis_rid(int rid, int verboseFlag){
   Stmt q;
+  int cnt;
+
+  /* Basic information about the object. */
   db_prepare(&q,
-     "SELECT uuid, size, datetime(mtime%s), ipaddr,"
-     "       (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
-     "         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
-     "           AND tagxref.rid=blob.rid AND tagxref.tagtype>0)"
+     "SELECT uuid, size, datetime(mtime%s), ipaddr"
      "  FROM blob, rcvfrom"
      " WHERE rid=%d"
      "   AND rcvfrom.rcvid=blob.rcvid",
@@ -453,20 +453,53 @@ static void whatis_rid(int rid, int verboseFlag){
   if( db_step(&q)==SQLITE_ROW ){
     const char *zTagList = db_column_text(&q, 4);
     if( verboseFlag ){
-      fossil_print("artifact: %s (%d)\n", db_column_text(&q,0), rid);
-      fossil_print("size:     %d bytes\n", db_column_int(&q,1));
-      fossil_print("received: %s from %s\n",
+      fossil_print("artifact:   %s (%d)\n", db_column_text(&q,0), rid);
+      fossil_print("size:       %d bytes\n", db_column_int(&q,1));
+      fossil_print("received:   %s from %s\n",
          db_column_text(&q, 2),
          db_column_text(&q, 3));
     }else{
-      fossil_print("artifact: %s\n", db_column_text(&q,0));
-      fossil_print("size:     %d bytes\n", db_column_int(&q,1));
-    }
-    if( zTagList && zTagList[0] ){
-      fossil_print("tags:     %s\n", zTagList);
+      fossil_print("artifact:   %s\n", db_column_text(&q,0));
+      fossil_print("size:       %d bytes\n", db_column_int(&q,1));
     }
   }
   db_finalize(&q);
+
+  /* Report any symbolic tags on this artifact */
+  db_prepare(&q,
+    "SELECT substr(tagname,5)"
+    "  FROM tag JOIN tagxref ON tag.tagid=tagxref.tagid"
+    " WHERE tagxref.rid=%d"
+    "   AND tagname GLOB 'sym-*'"
+    " ORDER BY 1",
+    rid
+  );
+  cnt = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zPrefix = cnt++ ? ", " : "tags:       ";
+    fossil_print("%s%s", zPrefix, db_column_text(&q,0));
+  }
+  if( cnt ) fossil_print("\n");
+  db_finalize(&q);
+
+  /* Report any HIDDEN, PRIVATE, CLUSTER, or CLOSED tags on this artifact */
+  db_prepare(&q,
+    "SELECT tagname"
+    "  FROM tag JOIN tagxref ON tag.tagid=tagxref.tagid"
+    " WHERE tagxref.rid=%d"
+    "   AND tag.tagid IN (5,6,7,9)"
+    " ORDER BY 1",
+    rid, rid
+  );
+  cnt = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zPrefix = cnt++ ? ", " : "raw-tags:   ";
+    fossil_print("%s%s", zPrefix, db_column_text(&q,0));
+  }
+  if( cnt ) fossil_print("\n");
+  db_finalize(&q);
+
+  /* Check for entries on the timeline that reference this object */
   db_prepare(&q,
      "SELECT type, datetime(mtime%s),"
      "       coalesce(euser,user), coalesce(ecomment,comment)"
@@ -481,12 +514,14 @@ static void whatis_rid(int rid, int verboseFlag){
       case 'g':  zType = "Tag-change";     break;
       default:   zType = "Unknown";        break;
     }
-    fossil_print("type:     %s by %s on %s\n", zType, db_column_text(&q,2),
+    fossil_print("type:       %s by %s on %s\n", zType, db_column_text(&q,2),
                  db_column_text(&q, 1));
-    fossil_print("comment:  ");
-    comment_print(db_column_text(&q,3), 10, 78);
+    fossil_print("comment:    ");
+    comment_print(db_column_text(&q,3), 12, 78);
   }
   db_finalize(&q);
+
+  /* Check to see if this object is used as a file in a check-in */
   db_prepare(&q,
     "SELECT filename.name, blob.uuid, datetime(event.mtime%s),"
     "       coalesce(euser,user), coalesce(ecomment,comment)"
@@ -498,13 +533,48 @@ static void whatis_rid(int rid, int verboseFlag){
     " ORDER BY event.mtime DESC /*sort*/",
     timeline_utc(), rid);
   while( db_step(&q)==SQLITE_ROW ){
-    fossil_print("file:     %s\n", db_column_text(&q,0));
-    fossil_print("          part of [%.10s] by %s on %s\n",
+    fossil_print("file:       %s\n", db_column_text(&q,0));
+    fossil_print("            part of [%.10s] by %s on %s\n",
       db_column_text(&q, 1),
       db_column_text(&q, 3),
       db_column_text(&q, 2));
-    fossil_print("          ");
-    comment_print(db_column_text(&q,4), 10, 78);
+    fossil_print("            ");
+    comment_print(db_column_text(&q,4), 12, 78);
+  }
+  db_finalize(&q);
+
+  /* Check to see if this object is used as an attachment */
+  db_prepare(&q,
+    "SELECT attachment.filename,"
+    "       attachment.comment,"
+    "       attachment.user,"
+    "       datetime(attachment.mtime%s),"
+    "       attachment.target,"
+    "       CASE WHEN EXISTS(SELECT 1 FROM tag WHERE tagname=('tkt-'||target))"
+    "            THEN 'ticket'"
+    "       WHEN EXISTS(SELECT 1 FROM tag WHERE tagname=('wiki-'||target))"
+    "            THEN 'wiki' END,"
+    "       attachment.attachid,"
+    "       (SELECT uuid FROM blob WHERE rid=attachid)"
+    "  FROM attachment JOIN blob ON attachment.src=blob.uuid"
+    " WHERE blob.rid=%d",
+    timeline_utc(), rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("attachment: %s\n", db_column_text(&q,0));
+    fossil_print("            attached to %s %s\n",
+                 db_column_text(&q,5), db_column_text(&q,4));
+    if( verboseFlag ){
+      fossil_print("            via %s (%d)\n",
+                   db_column_text(&q,7), db_column_int(&q,6));
+    }else{
+      fossil_print("            via %s\n",
+                   db_column_text(&q,7));
+    }
+    fossil_print("            by user %s on %s\n",
+                 db_column_text(&q,2), db_column_text(&q,3));
+    fossil_print("            ");
+    comment_print(db_column_text(&q,1), 12, 78);
   }
   db_finalize(&q);
 }
@@ -544,4 +614,22 @@ void whatis_cmd(void){
   }else{
     whatis_rid(rid, verboseFlag);
   }
+}
+
+/*
+** COMMAND: test-whatis-all
+** Usage: %fossil test-whatis-all
+**
+** Show "whatis" information about every artifact in the repository
+*/
+void test_whatis_all_cmd(void){
+  Stmt q;
+  int cnt = 0;
+  db_find_and_open_repository(0,0);
+  db_prepare(&q, "SELECT rid FROM blob ORDER BY rid");
+  while( db_step(&q)==SQLITE_ROW ){
+    if( cnt++ ) fossil_print("%.79c\n", '-');
+    whatis_rid(db_column_int(&q,0), 1);
+  }
+  db_finalize(&q);
 }
