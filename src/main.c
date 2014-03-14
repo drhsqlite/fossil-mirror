@@ -1072,7 +1072,7 @@ void help_page(void){
     }
     @ </tr></table>
 
-    @ <h1>Available pages:</h1>
+    @ <h1>Available web UI pages:</h1>
     @ (Only pages with help text are linked.)
     @ <table border="0"><tr>
     for(i=j=0; i<count(aCommand); i++){
