@@ -437,6 +437,79 @@ int name_to_rid_www(const char *zParamName){
 }
 
 /*
+** Generate a description of artifact "rid"
+*/
+static void whatis_rid(int rid, int verboseFlag){
+  Stmt q;
+  db_prepare(&q,
+     "SELECT uuid, size, datetime(mtime%s), ipaddr,"
+     "       (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
+     "         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
+     "           AND tagxref.rid=blob.rid AND tagxref.tagtype>0)"
+     "  FROM blob, rcvfrom"
+     " WHERE rid=%d"
+     "   AND rcvfrom.rcvid=blob.rcvid",
+     timeline_utc(), rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    const char *zTagList = db_column_text(&q, 4);
+    if( verboseFlag ){
+      fossil_print("artifact: %s (%d)\n", db_column_text(&q,0), rid);
+      fossil_print("size:     %d bytes\n", db_column_int(&q,1));
+      fossil_print("received: %s from %s\n",
+         db_column_text(&q, 2),
+         db_column_text(&q, 3));
+    }else{
+      fossil_print("artifact: %s\n", db_column_text(&q,0));
+      fossil_print("size:     %d bytes\n", db_column_int(&q,1));
+    }
+    if( zTagList && zTagList[0] ){
+      fossil_print("tags:     %s\n", zTagList);
+    }
+  }
+  db_finalize(&q);
+  db_prepare(&q,
+     "SELECT type, datetime(mtime%s),"
+     "       coalesce(euser,user), coalesce(ecomment,comment)"
+     "  FROM event WHERE objid=%d", timeline_utc(), rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    const char *zType;
+    switch( db_column_text(&q,0)[0] ){
+      case 'c':  zType = "Check-in";       break;
+      case 'w':  zType = "Wiki-edit";      break;
+      case 'e':  zType = "Event";          break;
+      case 't':  zType = "Ticket-change";  break;
+      case 'g':  zType = "Tag-change";     break;
+      default:   zType = "Unknown";        break;
+    }
+    fossil_print("type:     %s by %s on %s\n", zType, db_column_text(&q,2),
+                 db_column_text(&q, 1));
+    fossil_print("comment:  ");
+    comment_print(db_column_text(&q,3), 10, 78);
+  }
+  db_finalize(&q);
+  db_prepare(&q,
+    "SELECT filename.name, blob.uuid, datetime(event.mtime%s),"
+    "       coalesce(euser,user), coalesce(ecomment,comment)"
+    "  FROM mlink, filename, blob, event"
+    " WHERE mlink.fid=%d"
+    "   AND filename.fnid=mlink.fnid"
+    "   AND event.objid=mlink.mid"
+    "   AND blob.rid=mlink.mid"
+    " ORDER BY event.mtime DESC /*sort*/",
+    timeline_utc(), rid);
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("file:     %s\n", db_column_text(&q,0));
+    fossil_print("          part of [%.10s] by %s on %s\n",
+      db_column_text(&q, 1),
+      db_column_text(&q, 3),
+      db_column_text(&q, 2));
+    fossil_print("          ");
+    comment_print(db_column_text(&q,4), 10, 78);
+  }
+  db_finalize(&q);
+}
+
+/*
 ** COMMAND: whatis*
 ** Usage: %fossil whatis NAME
 **
@@ -454,76 +527,21 @@ void whatis_cmd(void){
   zName = g.argv[2];
   rid = symbolic_name_to_rid(zName, 0);
   if( rid<0 ){
+    Stmt q;
+    int cnt = 0;
     fossil_print("Ambiguous artifact name prefix: %s\n", zName);
+    db_prepare(&q, 
+       "SELECT rid FROM blob WHERE uuid>=lower(%Q) AND uuid<(lower(%Q)||'z')",
+       zName, zName
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      if( cnt++ ) fossil_print("%.79c\n", '-');
+      whatis_rid(db_column_int(&q, 0), verboseFlag);
+    }
+    db_finalize(&q);
   }else if( rid==0 ){
     fossil_print("Unknown artifact: %s\n", zName);
   }else{
-    Stmt q;
-    db_prepare(&q,
-       "SELECT uuid, size, datetime(mtime%s), ipaddr,"
-       "       (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
-       "         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
-       "           AND tagxref.rid=blob.rid AND tagxref.tagtype>0)"
-       "  FROM blob, rcvfrom"
-       " WHERE rid=%d"
-       "   AND rcvfrom.rcvid=blob.rcvid",
-       timeline_utc(), rid);
-    if( db_step(&q)==SQLITE_ROW ){
-      const char *zTagList = db_column_text(&q, 4);
-      if( verboseFlag ){
-        fossil_print("artifact: %s (%d)\n", db_column_text(&q,0), rid);
-        fossil_print("size:     %d bytes\n", db_column_int(&q,1));
-        fossil_print("received: %s from %s\n",
-           db_column_text(&q, 2),
-           db_column_text(&q, 3));
-      }else{
-        fossil_print("artifact: %s\n", db_column_text(&q,0));
-        fossil_print("size:     %d bytes\n", db_column_int(&q,1));
-      }
-      if( zTagList && zTagList[0] ){
-        fossil_print("tags:     %s\n", zTagList);
-      }
-    }
-    db_finalize(&q);
-    db_prepare(&q,
-       "SELECT type, datetime(mtime%s),"
-       "       coalesce(euser,user), coalesce(ecomment,comment)"
-       "  FROM event WHERE objid=%d", timeline_utc(), rid);
-    if( db_step(&q)==SQLITE_ROW ){
-      const char *zType;
-      switch( db_column_text(&q,0)[0] ){
-        case 'c':  zType = "Check-in";       break;
-        case 'w':  zType = "Wiki-edit";      break;
-        case 'e':  zType = "Event";          break;
-        case 't':  zType = "Ticket-change";  break;
-        case 'g':  zType = "Tag-change";     break;
-        default:   zType = "Unknown";        break;
-      }
-      fossil_print("type:     %s by %s on %s\n", zType, db_column_text(&q,2),
-                   db_column_text(&q, 1));
-      fossil_print("comment:  ");
-      comment_print(db_column_text(&q,3), 10, 78);
-    }
-    db_finalize(&q);
-    db_prepare(&q,
-      "SELECT filename.name, blob.uuid, datetime(event.mtime%s),"
-      "       coalesce(euser,user), coalesce(ecomment,comment)"
-      "  FROM mlink, filename, blob, event"
-      " WHERE mlink.fid=%d"
-      "   AND filename.fnid=mlink.fnid"
-      "   AND event.objid=mlink.mid"
-      "   AND blob.rid=mlink.mid"
-      " ORDER BY event.mtime DESC /*sort*/",
-      timeline_utc(), rid);
-    while( db_step(&q)==SQLITE_ROW ){
-      fossil_print("file:     %s\n", db_column_text(&q,0));
-      fossil_print("          part of [%.10s] by %s on %s\n",
-        db_column_text(&q, 1),
-        db_column_text(&q, 3),
-        db_column_text(&q, 2));
-      fossil_print("          ");
-      comment_print(db_column_text(&q,4), 10, 78);
-    }
-    db_finalize(&q);
+    whatis_rid(rid, verboseFlag);
   }
 }
