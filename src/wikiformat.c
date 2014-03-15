@@ -218,12 +218,13 @@ static int findAttr(const char *z){
 #define MARKUP_TFOOT              52
 #define MARKUP_TH                 53
 #define MARKUP_THEAD              54
-#define MARKUP_TR                 55
-#define MARKUP_TT                 56
-#define MARKUP_U                  57
-#define MARKUP_UL                 58
-#define MARKUP_VAR                59
-#define MARKUP_VERBATIM           60
+#define MARKUP_TITLE              55
+#define MARKUP_TR                 56
+#define MARKUP_TT                 57
+#define MARKUP_U                  58
+#define MARKUP_UL                 59
+#define MARKUP_VAR                60
+#define MARKUP_VERBATIM           61
 
 /*
 ** The various markup is divided into the following types:
@@ -350,6 +351,7 @@ static const struct AllowedMarkup {
                     AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "thead",         MARKUP_THEAD,        MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "title",         MARKUP_TITLE,        MUTYPE_BLOCK, 0 },
  { "tr",            MARKUP_TR,           MUTYPE_TR,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_VALIGN|AMSK_CLASS|AMSK_STYLE },
  { "tt",            MARKUP_TT,           MUTYPE_FONT,          AMSK_STYLE },
@@ -871,8 +873,10 @@ static void unparseMarkup(ParsedMarkup *p){
   for(i=0; i<p->nAttr; i++){
     char *z = p->aAttr[i].zValue;
     if( z==0 ) continue;
-    n = strlen(z);
-    z[n] = p->aAttr[i].cTerm;
+    if( p->aAttr[i].cTerm ){
+      n = strlen(z);
+      z[n] = p->aAttr[i].cTerm;
+    }
   }
 }
 
@@ -1470,6 +1474,15 @@ static void wiki_render(Renderer *p, char *z){
         const char *zId;
         int iDiv;
         parseMarkup(&markup, z);
+
+        /* Convert <title> to <h1 align='center'> */
+        if( markup.iCode==MARKUP_TITLE && !p->inVerbatim ){
+          markup.iCode = MARKUP_H1;
+          markup.nAttr = 1;
+          markup.aAttr[0].iACode = AMSK_ALIGN;
+          markup.aAttr[0].zValue = "center";
+          markup.aAttr[0].cTerm = 0;
+        }
 
         /* Markup of the form </div id=ID> where there is a matching
         ** ID somewhere on the stack.  Exit any contained verbatim.
