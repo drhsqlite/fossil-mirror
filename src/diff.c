@@ -42,6 +42,7 @@
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
+#define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -167,6 +168,9 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
   for(i=0; i<nLine; i++){
     for(j=0; z[j] && z[j]!='\n'; j++){}
     a[i].z = z;
+    if( diffFlags & DIFF_STRIP_EOLCR ){
+      if( k>0 && z[k-1]=='\r' ){ k--; }
+    }
     a[i].n = k = j;
     s = 0;
     if( diffFlags & DIFF_IGNORE_EOLWS ){
@@ -229,7 +233,6 @@ static void appendDiffLine(
 ){
   blob_append(pOut, &cPrefix, 1);
   if( html ){
-    int n;
     if( pRe && re_dline_match(pRe, pLine, 1)==0 ){
       cPrefix = ' ';
     }else if( cPrefix=='+' ){
@@ -237,9 +240,7 @@ static void appendDiffLine(
     }else if( cPrefix=='-' ){
       blob_append(pOut, "<span class=\"diffrm\">", -1);
     }
-    n = pLine->n;
-    while( n>0 && (pLine->z[n-1]=='\n' || pLine->z[n-1]=='\r') ) n--;
-    htmlize_to_blob(pOut, pLine->z, n);
+    htmlize_to_blob(pOut, pLine->z, pLine->n);
     if( cPrefix!=' ' ){
       blob_append(pOut, "</span>", -1);
     }
@@ -1959,7 +1960,7 @@ struct Annotator {
   DContext c;       /* The diff-engine context */
   struct AnnLine {  /* Lines of the original files... */
     const char *z;       /* The text of the line */
-    short int n;         /* Number of bytes (omitting trailing space and \n) */
+    short int n;         /* Number of bytes (omitting trailing \n) */
     short int iVers;     /* Level at which tag was set */
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
@@ -2173,7 +2174,7 @@ void annotation_page(void){
   int fnid;
   int i;
   int iLimit;            /* Depth limit */
-  u64 annFlags = ANN_FILE_ANCEST;
+  u64 annFlags = (ANN_FILE_ANCEST|DIFF_STRIP_EOLCR);
   int showLog = 0;       /* True to display the log */
   int ignoreWs = 0;      /* Ignore whitespace */
   const char *zFilename; /* Name of file to annotate */
@@ -2409,7 +2410,7 @@ void annotate_cmd(void){
   if( mid==0 ){
     fossil_fatal("unable to find manifest");
   }
-  annFlags |= ANN_FILE_ANCEST;
+  annFlags |= (ANN_FILE_ANCEST|DIFF_STRIP_EOLCR);
   annotate_file(&ann, fnid, mid, iLimit, annFlags);
   if( showLog ){
     struct AnnVers *p;
