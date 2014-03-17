@@ -471,8 +471,9 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
 
     /* The "noopt" parameter disables diff optimization */
     if( PD("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
+    diffFlags |= DIFF_STRIP_EOLCR;
   }
-  return diffFlags|DIFF_STRIP_EOLCR;
+  return diffFlags;
 }
 
 /*

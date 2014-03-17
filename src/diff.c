@@ -92,7 +92,7 @@ struct DLine {
 /*
 ** Length of a dline
 */
-#define LENGTH(X)   ((X)->h & LENGTH_MASK)
+#define LENGTH(X)   ((X)->n)
 
 /*
 ** A context for running a raw diff.
@@ -168,10 +168,11 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
   for(i=0; i<nLine; i++){
     for(j=0; z[j] && z[j]!='\n'; j++){}
     a[i].z = z;
+    k = j;
     if( diffFlags & DIFF_STRIP_EOLCR ){
       if( k>0 && z[k-1]=='\r' ){ k--; }
     }
-    a[i].n = k = j;
+    a[i].n = k;
     s = 0;
     if( diffFlags & DIFF_IGNORE_EOLWS ){
       while( k>0 && fossil_isspace(z[k-1]) ){ k--; }

@@ -1,5 +1,5 @@
-C Removed\ssome\sreport\sformat\shelp\stext\swhich\srefers\sto\snon-/no-longer\sexistent\sSQL\sfunctions\swiki()\sand\stkt().
-D 2014-03-16T17:06:23.403
+C Make\sstripping\sof\send-of-line\sCR\swork\scorrectly\snow\s(REALLY!)
+D 2014-03-17T12:47:34.799
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -333,7 +333,7 @@ F src/db.c 6435f40c33c7e2d3dc367eb15e7feabdb2d416bc
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
-F src/diff.c de96bb2b9b62012c5cbda5d5a4cebcbf3c703423
+F src/diff.c 246229ccd571ab35efbd724e0707ad51b28e73ac
 F src/diffcmd.c a755f774520e10c8d2b4d52dde9adf74e1c97fa3
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
@@ -349,7 +349,7 @@ F src/http_socket.c 09d140a27eb27dbae0b8d494172f9c2a39baf9dd
 F src/http_ssl.c 8638fbf0fb6be81b617d4e851c676ef62fad8361
 F src/http_transport.c f6b79299ea197c26e9137a7b68b28885edb1b463
 F src/import.c be7a31538a60d2b1d89526862f75edfac74e6c3c
-F src/info.c e6c82ab132506b197377ad4d034ff9252be93f5b
+F src/info.c cc7a3766ec7aba2cb7c820b9eaa823dc078deb38
 F src/json.c d3104315937aaa3508d9844d38f479725f66b400
 F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
 F src/json_branch.c aa922544841030c688df33aec81cca05577bbb7d
@@ -642,7 +642,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1472cd811f29b1a5ebd8050b2d135fa50208b59f
-R 1180eef423bff5eefaaacc2110b3e8af
-U stephan
-Z d63409f3b518ed2ecc6678cce8dd9000
+P 6bbcfec27b4ae8c8808da305d8703ffac63a1da4
+R 1cef531183049143f14cd40fda1a56cf
+U jan.nijtmans
+Z cbbf3c32a4fb4a60ed9cba04e34047fd
