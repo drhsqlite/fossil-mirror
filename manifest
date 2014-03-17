@@ -1,5 +1,5 @@
-C Eliminate\sDIFF_INLINE\sflag\s(which\sis\s0\sanyway,\sno\slonger\snecessary).\s\nStrip\send-of-line\sCR's\sin\sjson_wiki_diff\spage\sas\swell.
-D 2014-03-17T13:12:42.694
+C skip\ssome\stests\swhen\srunning\sinside\sof\san\sopen\scheckout.
+D 2014-03-17T14:15:27.012
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -452,9 +452,9 @@ F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
 F test/merge5.test 28cc9adf08343456fae9f2d9001c35ec62a78f31
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
-F test/merge_renames.test 2e28af1b796d698ddad0430a878354cf3d6a9c5a
+F test/merge_renames.test 8587eb2f8569dba26631ff46d9eb89fa275596c2
 F test/release-checklist.wiki f4f0e97da511a9c54cd6d49d8c6755d7e1f49d0f
-F test/revert.test 461b7af38ba0f569fab41154c93fbac36249bf3b
+F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
 F test/tester.tcl e63f55ca2298af1ed7ee7dea29c76b98df152259
 F test/th1-tcl.test 0a784acfe60f26593e9cf1f63fda4c802e91c452
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
@@ -642,7 +642,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 597d1101b48ca5d64f66bf401fcd3444a3d47d15
-R 0a28ac2c531d97d8549b658e3b6849e4
+P e6309e051b623b83462ccc1026c8689dcc03ca46
+R 02fb25891e0cfee440f65fb7b9dd0b93
 U jan.nijtmans
-Z 50fe9dbe295578e2e720e4231781daa4
+Z 72ddf0a5a4260d280b730b21415e52a5
