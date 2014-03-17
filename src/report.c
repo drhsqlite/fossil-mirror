@@ -616,19 +616,6 @@ static void report_format_hints(void){
   @  FROM ticket
   @ </pre></blockquote>
   @
-  @ <p>Or, to see part of the description on the same row, use the
-  @ <b>wiki()</b> function with some string manipulation. Using the
-  @ <b>tkt()</b> function on the ticket number will also generate a linked
-  @ field, but without the extra <i>edit</i> column:
-  @ </p>
-  @ <blockquote><pre>
-  @  SELECT
-  @    tkt(tn) AS '',
-  @    title AS 'Title',
-  @    wiki(substr(description,0,80)) AS 'Description'
-  @  FROM ticket
-  @ </pre></blockquote>
-  @
 }
 
 /*

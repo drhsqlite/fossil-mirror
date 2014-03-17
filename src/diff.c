@@ -31,7 +31,6 @@
 #define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
 #define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
 #define DIFF_IGNORE_EOLWS ((u64)0x01000000) /* Ignore end-of-line whitespace */
-#define DIFF_IGNORE_WSCHG ((u64)0x02000000) /* Ignore whitespace changes */
 #define DIFF_IGNORE_ALLWS ((u64)0x03000000) /* Ignore all whitespace */
 #define DIFF_SIDEBYSIDE   ((u64)0x04000000) /* Generate a side-by-side diff */
 #define DIFF_VERBOSE      ((u64)0x08000000) /* Missing shown as empty files */
@@ -93,7 +92,7 @@ struct DLine {
 /*
 ** Length of a dline
 */
-#define LENGTH(X)   ((X)->h & LENGTH_MASK)
+#define LENGTH(X)   ((X)->n)
 
 /*
 ** A context for running a raw diff.
@@ -179,12 +178,22 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
       while( k>0 && fossil_isspace(z[k-1]) ){ k--; }
     }
     if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
+      int numws = 0;
       while( s<k && fossil_isspace(z[s]) ){ s++; }
+      for(h=0, x=s; x<k; x++){
+        if( fossil_isspace(z[x]) ){
+          ++numws;
+        }else{
+          h = h ^ (h<<2) ^ z[x];
+        }
+      }
+      k -= numws;
+    }else{
+      for(h=0, x=s; x<k; x++){
+        h = h ^ (h<<2) ^ z[x];
+      }
     }
     a[i].indent = s;
-    for(h=0, x=s; x<k; x++){
-      h = h ^ (h<<2) ^ z[x];
-    }
     a[i].h = h = (h<<LENGTH_MASK_SZ) | (k-s);
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
@@ -201,17 +210,26 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
 ** Return true if two DLine elements are identical.
 */
 static int same_dline(DLine *pA, DLine *pB){
-  return pA->h==pB->h && memcmp(pA->z,pB->z, pA->n)==0;
+  return pA->h==pB->h && memcmp(pA->z,pB->z, pA->h&LENGTH_MASK)==0;
 }
 
-static int same_dline_ignore_wschg(DLine *pA, DLine *pB){
-  return pA->h==pB->h && memcmp(pA->z+pA->indent,pB->z+pB->indent,
-                                pA->h & LENGTH_MASK)==0;
-}
+/*
+** Return true if two DLine elements are identical, ignoring
+** all whitespace. The indent field of pA/pB already points
+** to the first non-space character in the string.
+*/
 
 static int same_dline_ignore_allws(DLine *pA, DLine *pB){
-  return pA->h==pB->h && memcmp(pA->z+pA->indent,pB->z+pB->indent,
-                                pA->h & LENGTH_MASK)==0;
+  int a = pA->indent, b = pB->indent;
+  if( pA->h==pB->h ){
+    while( a<pA->n && b<pB->n ){
+      if( pA->z[a++] != pB->z[b++] ) return 0;
+      while( a<pA->n && fossil_isspace(pA->z[a])) ++a;
+      while( b<pB->n && fossil_isspace(pB->z[b])) ++b;
+    }
+    return pA->n-a == b<pB->n-b;
+  }
+  return 0;
 }
 
 /*
@@ -1791,18 +1809,14 @@ int *text_diff(
     pA_Blob = pB_Blob;
     pB_Blob = pTemp;
   }
-  ignoreWs = (diffFlags & (DIFF_IGNORE_ALLWS|DIFF_STRIP_EOLCR))!=0;
+  ignoreWs = (diffFlags & DIFF_IGNORE_ALLWS)!=0;
   blob_to_utf8_no_bom(pA_Blob, 0);
   blob_to_utf8_no_bom(pB_Blob, 0);
 
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
-  if( diffFlags & DIFF_IGNORE_WSCHG ){
-    if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
-      c.same_fn = same_dline_ignore_allws;
-    }else{
-      c.same_fn = same_dline_ignore_wschg;
-    }
+  if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
+    c.same_fn = same_dline_ignore_allws;
   }else{
     c.same_fn = same_dline;
   }
@@ -1870,7 +1884,6 @@ int *text_diff(
 ** Process diff-related command-line options and return an appropriate
 ** "diffFlags" integer.
 **
-**   -b|--ignore-space-change   Ignore space changes   DIFF_IGNORE_WSCHG
 **   --brief                    Show filenames only    DIFF_BRIEF
 **   -c|--context N             N lines of context.    DIFF_CONTEXT_MASK
 **   --html                     Format for HTML        DIFF_HTML
@@ -1879,7 +1892,7 @@ int *text_diff(
 **   --noopt                    Disable optimization   DIFF_NOOPT
 **   --strip-trailing-cr        Strip trailing CR      DIFF_STRIP_EOLCR
 **   --unified                  Unified diff.          ~DIFF_SIDEBYSIDE
-**   -w|--ignore-all-space      Ignore all white space DIFF_IGNORE_ALLWS
+**   -w|--ignore-all-space      Ignore all whitespaces DIFF_IGNORE_ALLWS
 **   -W|--width N               N character lines.     DIFF_WIDTH_MASK
 **   -y|--side-by-side          Side-by-side diff.     DIFF_SIDEBYSIDE
 **   -Z|--ignore-trailing-space Ignore eol-whitespaces DIFF_IGNORE_EOLWS
@@ -1891,11 +1904,8 @@ u64 diff_options(void){
   if( find_option("ignore-trailing-space","Z",0)!=0 ){
     diffFlags = DIFF_IGNORE_EOLWS;
   }
-  if( find_option("ignore-space-change","b",0)!=0 ){
-    diffFlags = DIFF_IGNORE_WSCHG; /* stronger than DIFF_IGNORE_EOLWS */
-  }
   if( find_option("ignore-all-space","w",0)!=0 ){
-    diffFlags = DIFF_IGNORE_ALLWS; /* stronger than DIFF_IGNORE_WSCHG */
+    diffFlags = DIFF_IGNORE_ALLWS; /* stronger than DIFF_IGNORE_EOLWS */
   }
   if( find_option("strip-trailing-cr",0,0)!=0 ){
     diffFlags |= DIFF_STRIP_EOLCR;
@@ -2018,12 +2028,8 @@ static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
   int i;
 
   memset(p, 0, sizeof(*p));
-  if( diffFlags & DIFF_IGNORE_WSCHG ){
-    if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
-      p->c.same_fn = same_dline_ignore_allws;
-    }else{
-      p->c.same_fn = same_dline_ignore_wschg;
-    }
+  if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
+    p->c.same_fn = same_dline_ignore_allws;
   }else{
     p->c.same_fn = same_dline;
   }
@@ -2392,12 +2398,11 @@ void annotation_page(void){
 ** who made each checkin and omits the line number.
 **
 ** Options:
-**   -b|--ignore-space-change    Ignore white space changes when comparing lines
-**   --filevers                  Show file version numbers rather than check-in versions
-**   -l|--log                    List all versions analyzed
-**   -n|--limit N                Only look backwards in time by N versions
-**   -w|--ignore-all-space       Ignore white space when comparing lines
-**   -Z|--ignore-trailing-space  Ignore whitespace at line end
+**   --filevers                 Show file version numbers rather than check-in versions
+**   -l|--log                   List all versions analyzed
+**   -n|--limit N               Only look backwards in time by N versions
+**   -w|--ignore-all-space      Ignore white space when comparing lines
+**   -Z|--ignore-trailing-space Ignore whitespace at line end
 **
 ** See also: info, finfo, timeline
 */
@@ -2425,11 +2430,8 @@ void annotate_cmd(void){
   if( find_option("ignore-trailing-space","Z",0)!=0 ){
     annFlags = DIFF_IGNORE_EOLWS;
   }
-  if( find_option("ignore-space-change","b",0)!=0 ){
-    annFlags = DIFF_IGNORE_WSCHG; /* stronger than DIFF_IGNORE_EOLWS */
-  }
   if( find_option("ignore-all-space","w",0)!=0 ){
-    annFlags = DIFF_IGNORE_ALLWS; /* stronger than DIFF_IGNORE_WSCHG */
+    annFlags = DIFF_IGNORE_ALLWS; /* stronger than DIFF_IGNORE_EOLWS */
   }
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();

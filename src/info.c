@@ -472,7 +472,7 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
     /* The "noopt" parameter disables diff optimization */
     if( PD("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
   }
-  return diffFlags;
+  return diffFlags|DIFF_STRIP_EOLCR;
 }
 
 /*
@@ -1724,7 +1724,8 @@ void artifact_page(void){
         style_submenu_element("Text", "Text",
                               "%s/artifact/%s?txt=1", g.zTop, zUuid);
       }
-    }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
+    }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0
+           || fossil_strcmp(zMime, "text/x-markdown")==0 ){
       if( asText ){
         style_submenu_element("Wiki", "Wiki",
                               "%s/artifact/%s", g.zTop, zUuid);
@@ -1741,7 +1742,7 @@ void artifact_page(void){
   @ <hr />
   content_get(rid, &content);
   if( renderAsWiki ){
-    wiki_convert(&content, 0, 0);
+    wiki_render_by_mimetype(&content, zMime);
   }else if( renderAsHtml ){
     @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
     @   width="100%%" frameborder="0" marginwidth="0" marginheight="0"

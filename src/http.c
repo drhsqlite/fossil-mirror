@@ -149,7 +149,7 @@ static int use_fossil_creds_for_httpauth_prompt(void){
 static int save_httpauth_prompt(void){
   Blob x;
   char c;
-  if( (g.urlFlags & URL_REMEMBER)==0 ) return;
+  if( (g.urlFlags & URL_REMEMBER)==0 ) return 0;
   prompt_user("Remember Basic Authorization credentials (Y/n)? ", &x);
   c = blob_str(&x)[0];
   blob_reset(&x);

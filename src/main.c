@@ -606,7 +606,7 @@ int main(int argc, char **argv)
   g.zVfsName = find_option("vfs",0,1);
   if( g.zVfsName==0 ){
     g.zVfsName = fossil_getenv("FOSSIL_VFS");
-#if defined(__CYGWIN__)
+#if defined(__CYGWIN__) && USE_SYSTEM_SQLITE+0!=1
     if( g.zVfsName==0 ){
       g.zVfsName = "win32-longpath";
     }
@@ -1072,7 +1072,7 @@ void help_page(void){
     }
     @ </tr></table>
 
-    @ <h1>Available pages:</h1>
+    @ <h1>Available web UI pages:</h1>
     @ (Only pages with help text are linked.)
     @ <table border="0"><tr>
     for(i=j=0; i<count(aCommand); i++){
