@@ -34,7 +34,6 @@
 #define DIFF_IGNORE_ALLWS ((u64)0x03000000) /* Ignore all whitespace */
 #define DIFF_SIDEBYSIDE   ((u64)0x04000000) /* Generate a side-by-side diff */
 #define DIFF_VERBOSE      ((u64)0x08000000) /* Missing shown as empty files */
-#define DIFF_INLINE       ((u64)0x00000000) /* Inline (not side-by-side) diff */
 #define DIFF_BRIEF        ((u64)0x10000000) /* Show filenames only */
 #define DIFF_HTML         ((u64)0x20000000) /* Render for HTML */
 #define DIFF_LINENO       ((u64)0x40000000) /* Show line numbers */
@@ -116,7 +115,7 @@ struct DContext {
   int nFrom;         /* Number of lines in aFrom[] */
   DLine *aTo;        /* File on right side of the diff */
   int nTo;           /* Number of lines in aTo[] */
-  int (*same_fn)(DLine *, DLine *); /* Function to be used for comparing */
+  int (*same_fn)(const DLine *, const DLine *); /* Function to be used for comparing */
 };
 
 /*
@@ -169,10 +168,11 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
   for(i=0; i<nLine; i++){
     for(j=0; z[j] && z[j]!='\n'; j++){}
     a[i].z = z;
+    k = j;
     if( diffFlags & DIFF_STRIP_EOLCR ){
       if( k>0 && z[k-1]=='\r' ){ k--; }
     }
-    a[i].n = k = j;
+    a[i].n = k;
     s = 0;
     if( diffFlags & DIFF_IGNORE_EOLWS ){
       while( k>0 && fossil_isspace(z[k-1]) ){ k--; }
@@ -209,7 +209,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, u64 diffFlags)
 /*
 ** Return true if two DLine elements are identical.
 */
-static int same_dline(DLine *pA, DLine *pB){
+static int same_dline(const DLine *pA, const DLine *pB){
   return pA->h==pB->h && memcmp(pA->z,pB->z, pA->h&LENGTH_MASK)==0;
 }
 
@@ -219,7 +219,7 @@ static int same_dline(DLine *pA, DLine *pB){
 ** to the first non-space character in the string.
 */
 
-static int same_dline_ignore_allws(DLine *pA, DLine *pB){
+static int same_dline_ignore_allws(const DLine *pA, const DLine *pB){
   int a = pA->indent, b = pB->indent;
   if( pA->h==pB->h ){
     while( a<pA->n && b<pB->n ){
@@ -2191,6 +2191,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
   unsigned c;   /* Result color */
   unsigned x1, x2;
   if( i==0 || n==0 ) return c1;
+  else if(i>=n) return c2;
   x1 = (c1>>16)&0xff;
   x2 = (c2>>16)&0xff;
   c = (x1*(n-i) + x2*i)/n<<16 & 0xff0000;

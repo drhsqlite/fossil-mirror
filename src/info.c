@@ -445,10 +445,8 @@ void append_diff_javascript(int sideBySide){
 ** parameters and the to boolean arguments.
 */
 u64 construct_diff_flags(int verboseFlag, int sideBySide){
-  u64 diffFlags;
-  if( verboseFlag==0 ){
-    diffFlags = 0;  /* Zero means do not show any diff */
-  }else{
+  u64 diffFlags = 0;  /* Zero means do not show any diff */
+  if( verboseFlag!=0 ){
     int x;
     if( sideBySide ){
       diffFlags = DIFF_SIDEBYSIDE;
@@ -457,8 +455,6 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
       x = atoi(PD("dw","80"))*(DIFF_CONTEXT_MASK+1);
       if( x<0 || x>DIFF_WIDTH_MASK ) x = DIFF_WIDTH_MASK;
       diffFlags += x;
-    }else{
-      diffFlags = DIFF_INLINE;
     }
 
     if( P("w") ){
@@ -471,8 +467,9 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
 
     /* The "noopt" parameter disables diff optimization */
     if( PD("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
+    diffFlags |= DIFF_STRIP_EOLCR;
   }
-  return diffFlags|DIFF_STRIP_EOLCR;
+  return diffFlags;
 }
 
 /*
