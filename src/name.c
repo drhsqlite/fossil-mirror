@@ -451,7 +451,6 @@ static void whatis_rid(int rid, int verboseFlag){
      "   AND rcvfrom.rcvid=blob.rcvid",
      timeline_utc(), rid);
   if( db_step(&q)==SQLITE_ROW ){
-    const char *zTagList = db_column_text(&q, 4);
     if( verboseFlag ){
       fossil_print("artifact:   %s (%d)\n", db_column_text(&q,0), rid);
       fossil_print("size:       %d bytes\n", db_column_int(&q,1));
@@ -600,7 +599,7 @@ void whatis_cmd(void){
     Stmt q;
     int cnt = 0;
     fossil_print("Ambiguous artifact name prefix: %s\n", zName);
-    db_prepare(&q, 
+    db_prepare(&q,
        "SELECT rid FROM blob WHERE uuid>=lower(%Q) AND uuid<(lower(%Q)||'z')",
        zName, zName
     );
