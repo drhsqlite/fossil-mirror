@@ -1024,11 +1024,7 @@ void db_open_repository(const char *zDbName){
       fossil_panic("not a valid repository: %s", zDbName);
     }
   }
-#if defined(__CYGWIN__)
-  g.zRepositoryName = fossil_utf8_to_filename(zDbName);
-#else
   g.zRepositoryName = mprintf("%s", zDbName);
-#endif
   db_open_or_attach(g.zRepositoryName, "repository", 0);
   g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */

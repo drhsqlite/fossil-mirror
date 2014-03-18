@@ -1,5 +1,5 @@
-C remove\sunused\svariable
-D 2014-03-18T14:52:41.743
+C Since\sfile_simplify_name()\salready\swas\smodified\sto\shandle\sthe\sextended\spath\sprefix\scorrectly\s[95f004b1c535c545],\sthis\sspecial\sCygwin\shandling\sis\sno\slonger\snecessary.
+D 2014-03-18T15:59:29.427
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -329,7 +329,7 @@ F src/content.c 5a1a614acc062eef02563cf75746f34e77f7edb9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 6435f40c33c7e2d3dc367eb15e7feabdb2d416bc
+F src/db.c 17595c8a94256a4d48e5f4ecc3944b395d6564cb
 F src/delta.c 79c09586ab8b47981be31edf73b25c30fa928239
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 7af18663f37af7284f11a5a009898c0c57b68680
@@ -642,7 +642,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7413229200e8c816e0f31b8024944b1381909e1c
-R ef676c3e70811033599e3543e00a1220
+P dfca123729d3361198ef89ad307c733a12dba562
+R 47bf30a1cf4c2e8a66d93059e5c48570
 U jan.nijtmans
-Z 78a1caf37f3c63f5bd7bfaa75f8d5a8b
+Z 95105959d97180db9d5e81d1461163e2
