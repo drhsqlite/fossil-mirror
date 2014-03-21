@@ -123,7 +123,14 @@ and painlessly.</p>
     the same time without having to generate extra clones.</p>
 
     <p>To switch a checkout between different versions and branches,
-    use the [/help/checkout | checkout] or [/help/update | update]
+    use:</p>
+
+    <blockquote>
+    <b>[/help/update | fossil update]</b><br>
+    <b>[/help/checkout | fossil checkout]</b><br>
+    </blockquote>
+
+    <p>The [/help/checkout | checkout] or [/help/update | update]
     commands. [/help/update | update] honors the "autosync" option
     and does a "soft" switch, merging any local changes into the
     target version, whereas [/help/checkout | checkout] does not
@@ -236,6 +243,15 @@ and painlessly.</p>
     automatically after you [/help/commit|commit].  So in normal practice,
     the push, pull, and sync commands are rarely used.  But it is important
     to know about them, all the same.</p>
+
+    <blockquote>
+    <b>[/help/checkout | fossil checkout]</b> <i>VERSION</i>
+    </blockquote>
+
+    <p>Is similar to update except that it does not honor the autosync
+    setting, nor does it merge in local changes - it prefers to overwrite
+    them and fails if local changes exist unless the <tt>--force</tt>
+    flag is used.</p>
 
 <h2>Branching And Merging</h2>
 
