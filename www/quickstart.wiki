@@ -130,8 +130,7 @@ and painlessly.</p>
     <b>[/help/checkout | fossil checkout]</b><br>
     </blockquote>
 
-    <p>The [/help/checkout | checkout] or [/help/update | update]
-    commands. [/help/update | update] honors the "autosync" option and
+    <p>[/help/update | update] honors the "autosync" option and
     does a "soft" switch, merging any local changes into the target
     version, whereas [/help/checkout | checkout] does not
     automatically sync and does a "hard" switch, overwriting local
