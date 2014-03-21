@@ -122,6 +122,14 @@ and painlessly.</p>
     for example, to do builds from multiple branches or versions at 
     the same time without having to generate extra clones.</p>
 
+    <p>To switch a checkout between different versions and branches,
+    use the [/help/checkout | checkout] or [/help/update | update]
+    commands. [/help/update | update] honors the "autosync" option
+    and does a "soft" switch, merging any local changes into the
+    target version, whereas [/help/checkout | checkout] does not
+    sync and does a "hard" switch, potentially overwriting local
+    changes (after prompting).</p>
+
 <h2>Configuring Your Local Repository</h2>
     
     <p>When you create a new repository, either by cloning an existing
