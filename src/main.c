@@ -606,11 +606,6 @@ int main(int argc, char **argv)
   g.zVfsName = find_option("vfs",0,1);
   if( g.zVfsName==0 ){
     g.zVfsName = fossil_getenv("FOSSIL_VFS");
-#if defined(__CYGWIN__) && USE_SYSTEM_SQLITE+0!=1
-    if( g.zVfsName==0 ){
-      g.zVfsName = "win32-longpath";
-    }
-#endif
   }
   if( g.zVfsName ){
     sqlite3_vfs *pVfs = sqlite3_vfs_find(g.zVfsName);
