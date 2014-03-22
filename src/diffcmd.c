@@ -1099,13 +1099,13 @@ const char *diff_get_binary_glob(void){
 **   --from|-r VERSION          select VERSION as source for the diff
 **   --internal|-i              use internal diff logic
 **   --side-by-side|-y          side-by-side diff
+**   --strip-trailing-cr        Strip trailing CR
 **   --tk                       Launch a Tcl/Tk GUI for display
 **   --to VERSION               select VERSION as target for the diff
 **   --unified                  unified diff
 **   -v|--verbose               output complete text of added or deleted files
-**   -w|--ignore-all-space      Ignore changes to start-of-line and end-of-line
-**                              whitespace
-**   -W|--width                 Width of lines in side-by-side diff
+**   -w|--ignore-all-space      Ignore white space when comparing lines
+**   -W|--width <num>           Width of lines in side-by-side diff
 **   -Z|--ignore-trailing-space Ignore changes to end-of-line whitespace
 */
 void diff_cmd(void){

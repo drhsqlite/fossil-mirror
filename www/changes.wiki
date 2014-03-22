@@ -16,6 +16,8 @@
   *  Add -w|--ignore-all-space and -Z|--ignore-trailing-space options to
      [/help?cmd=annotate|fossil annotate], [/help?cmd=blame|fossil blame],
      [/help?cmd=diff|fossil (g)diff], [/help?cmd=stash|fossil stash diff].
+  *  Add --strip-trailing-cr option to [/help?cmd=diff|fossil (g)diff] and
+     [/help?cmd=stash|fossil stash diff].
   *  Add button "Ignore Whitespace" to /annotate, /blame, /ci, /fdiff
      and /vdiff UI pages.
 
