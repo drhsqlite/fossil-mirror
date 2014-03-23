@@ -632,12 +632,11 @@ void clean_cmd(void){
       if( !allFileFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
         Blob ans;
         char cReply;
-        int matchIgnore = glob_match(pIgnore, zName+nRoot);
-        int matchKeep = glob_match(pKeep, zName+nRoot);
+        int matchIgnore = extremeFlag && glob_match(pIgnore, zName+nRoot);
         char *prompt = mprintf("%sRemove %s file \"%s\" (a=all/y/N)? ",
-                               (matchIgnore || matchKeep) ? "WARNING: " : "",
-                               matchKeep ? "\"KEPT\"" : (matchIgnore ?
-                               "\"IGNORED\"" : "unmanaged"), zName+nRoot);
+                               matchIgnore ? "WARNING: " : "",
+                               matchIgnore ? "\"IGNORED\"" : "unmanaged",
+                               zName+nRoot);
         prompt_user(prompt, &ans);
         cReply = blob_str(&ans)[0];
         if( cReply=='a' || cReply=='A' ){
@@ -678,15 +677,14 @@ void clean_cmd(void){
       if( !allDirFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
         Blob ans;
         char cReply;
-        int matchIgnore = glob_match(pIgnore, zName+nRoot);
-        int matchKeep = glob_match(pKeep, zName+nRoot);
-        int matchEmpty = glob_match(pEmptyDirs, zName+nRoot);
+        int matchIgnore = extremeFlag && glob_match(pIgnore, zName+nRoot);
+        int matchEmpty = extremeFlag && glob_match(pEmptyDirs, zName+nRoot);
         char *prompt = mprintf("%sRemove %s empty directory \"%s\" "
                                "(a=all/y/N)? ",
-                               (matchEmpty || matchIgnore || matchKeep) ?
+                               (matchEmpty || matchIgnore) ?
                                "WARNING: " : "", matchEmpty ? "\"RESERVED\"" :
-                               matchKeep ? "\"KEPT\"" : (matchIgnore ?
-                               "\"IGNORED\"" : "unmanaged"), zName+nRoot);
+                               matchIgnore ? "\"IGNORED\"" : "unmanaged",
+                               zName+nRoot);
         prompt_user(prompt, &ans);
         cReply = blob_str(&ans)[0];
         if( cReply=='a' || cReply=='A' ){
