@@ -876,7 +876,7 @@ void cgi_init(void){
   int len;
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
   const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
-  const char *zPathInfo = cgi_parameter("PATH_INFO","");
+  const char *zPathInfo = cgi_parameter("PATH_INFO",0);
 
 #ifdef FOSSIL_ENABLE_JSON
   json_main_bootstrap();
