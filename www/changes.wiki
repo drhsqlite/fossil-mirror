@@ -11,6 +11,7 @@ are candidate cherry-picks just in case)</h2>
      when Activestate Tcl is installed.
   *  [d5d7e640d0]: After successful "login" return to web-page immediately
      before logging in.
+  *  [cec85224c1]: Make 'th1-setup' a textarea in settings UI.
   *  [d752140c7a]: RECONSTRUCT failure.
   *  [d8a588ba76]: Fix checking for "clearsign" option in "fossil branch"
      command.
@@ -19,6 +20,9 @@ are candidate cherry-picks just in case)</h2>
      during a pull.
   *  [3fbdaa243d]: Speedup "fossil extras" and other commands which traverse
      the local filesystem.
+  *  [bfdabaecc8]: Fix the EXPLAIN indenter in the command-line shell to
+     correctly handle NextIfOpen and PrevIfOpen opcodes.
+  *  [684eb478e7]: Fix the SCGI processing so that it works with Nginx.
   *  [fc6bb93689]: Add the "httpize" TH1 command.
 
 <h2>Changes For Version 1.28 (2014-01-27)</h2>
