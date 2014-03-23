@@ -582,6 +582,7 @@ void tarball_page(void){
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(); return; }
+  load_control();
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid","trunk"));

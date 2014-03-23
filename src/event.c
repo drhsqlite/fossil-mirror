@@ -187,7 +187,7 @@ void event_page(void){
     blob_reset(&comment);
     @ </div>
     @ </blockquote><hr />
-  }  
+  }
 
   wiki_convert(&tail, 0, 0);
   style_footer();
@@ -229,7 +229,7 @@ void eventedit_page(void){
     }
   }
   zTag = mprintf("event-%s", zEventId);
-  rid = db_int(0, 
+  rid = db_int(0,
     "SELECT rid FROM tagxref"
     " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
     " ORDER BY mtime DESC", zTag
@@ -314,7 +314,7 @@ void eventedit_page(void){
 
       /* Load the tags string into a blob */
       blob_zero(&tags);
-      blob_append(&tags, zTags, -1); 
+      blob_append(&tags, zTags, -1);
 
       /* Collapse all sequences of whitespace and "," characters into
       ** a single space character */
@@ -343,9 +343,9 @@ void eventedit_page(void){
         blob_appendf(&event, "T +sym-%F *\n", db_column_text(&q, 0));
       }
       db_finalize(&q);
-    }        
-    if( g.zLogin ){
-      blob_appendf(&event, "U %F\n", g.zLogin);
+    }
+    if( !login_is_nobody() ){
+      blob_appendf(&event, "U %F\n", login_name());
     }
     blob_appendf(&event, "W %d\n%s\n", strlen(zBody), zBody);
     md5sum_blob(&event, &cksum);
@@ -413,7 +413,7 @@ void eventedit_page(void){
 
   @ <tr><th align="right" valign="top">Timeline&nbsp;Comment:</th>
   @ <td valign="top">
-  @ <textarea name="c" class="eventedit" cols="80" 
+  @ <textarea name="c" class="eventedit" cols="80"
   @  rows="3" wrap="virtual">%h(zComment)</textarea>
   @ </td></tr>
 
@@ -421,15 +421,15 @@ void eventedit_page(void){
   @ <td valign="top">
   render_color_chooser(0, zClr, 0, "clr", "cclr");
   @ </td></tr>
-  
+
   @ <tr><th align="right" valign="top">Tags:</th>
   @ <td valign="top">
   @   <input type="text" name="g" size="40" value="%h(zTags)" />
   @ </td></tr>
-  
+
   @ <tr><th align="right" valign="top">Page&nbsp;Content:</th>
   @ <td valign="top">
-  @ <textarea name="w" class="eventedit" cols="80" 
+  @ <textarea name="w" class="eventedit" cols="80"
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
   @ </td></tr>
 

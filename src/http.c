@@ -21,6 +21,22 @@
 #include "http.h"
 #include <assert.h>
 
+#ifdef _WIN32
+#include <io.h>
+#ifndef isatty
+#define isatty(d) _isatty(d)
+#endif
+#ifndef fileno
+#define fileno(s) _fileno(s)
+#endif
+#endif
+
+/* Maximum number of HTTP Authorization attempts */
+#define MAX_HTTP_AUTH 2
+
+/* Keep track of HTTP Basic Authorization failures */
+static int fSeenHttpAuth = 0;
+
 /*
 ** Construct the "login" card with the client credentials.
 **
@@ -64,12 +80,6 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
     zPw = g.urlPasswd;
   }
 
-  /* If the first character of the password is "#", then that character is
-  ** not really part of the password - it is an indicator that we should
-  ** use Basic Authentication.  So skip that character.
-  */
-  if( zPw && zPw[0]=='#' ) zPw++;
-
   /* The login card wants the SHA1 hash of the password, so convert the
   ** password to its SHA1 hash it it isn't already a SHA1 hash.
   */
@@ -104,12 +114,11 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   if( g.urlProxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
   }
-  if( g.urlPasswd && g.urlUser && g.urlPasswd[0]=='#' ){
-    char *zCredentials = mprintf("%s:%s", g.urlUser, &g.urlPasswd[1]);
+  if( g.zHttpAuth && g.zHttpAuth[0] ){
+    const char *zCredentials = g.zHttpAuth;
     char *zEncoded = encode64(zCredentials, -1);
     blob_appendf(pHdr, "Authorization: Basic %s\r\n", zEncoded);
     fossil_free(zEncoded);
-    fossil_free(zCredentials);
   }
   blob_appendf(pHdr, "Host: %s\r\n", g.urlHostname);
   blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
@@ -120,6 +129,67 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
     blob_appendf(pHdr, "Content-Type: application/x-fossil\r\n");
   }
   blob_appendf(pHdr, "Content-Length: %d\r\n\r\n", blob_size(pPayload));
+}
+
+/*
+** Use Fossil credentials for HTTP Basic Authorization prompt
+*/
+static int use_fossil_creds_for_httpauth_prompt(void){
+  Blob x;
+  char c;
+  prompt_user("Use Fossil username and password (y/N)? ", &x);
+  c = blob_str(&x)[0];
+  blob_reset(&x);
+  return ( c=='y' || c=='Y' );
+}
+
+/*
+** Prompt to save HTTP Basic Authorization information
+*/
+static int save_httpauth_prompt(void){
+  Blob x;
+  char c;
+  if( (g.urlFlags & URL_REMEMBER)==0 ) return 0;
+  prompt_user("Remember Basic Authorization credentials (Y/n)? ", &x);
+  c = blob_str(&x)[0];
+  blob_reset(&x);
+  return ( c!='n' && c!='N' );
+}
+
+/*
+** Get the HTTP Basic Authorization credentials from the user 
+** when 401 is received.
+*/
+char *prompt_for_httpauth_creds(void){
+  Blob x;
+  char *zUser;
+  char *zPw;
+  char *zPrompt;
+  char *zHttpAuth = 0;
+  if( !isatty(fileno(stdin)) ) return 0;
+  zPrompt = mprintf("\n%s authorization required by\n%s\n",
+    g.urlIsHttps==1 ? "Encrypted HTTPS" : "Unencrypted HTTP", g.urlCanonical);
+  fossil_print(zPrompt);
+  free(zPrompt);
+  if ( g.urlUser && g.urlPasswd && use_fossil_creds_for_httpauth_prompt() ){
+    zHttpAuth = mprintf("%s:%s", g.urlUser, g.urlPasswd);
+  }else{
+    prompt_user("Basic Authorization user: ", &x);
+    zUser = mprintf("%b", &x);
+    zPrompt = mprintf("HTTP password for %b: ", &x);
+    blob_reset(&x);
+    prompt_for_password(zPrompt, &x, 1);
+    zPw = mprintf("%b", &x);
+    zHttpAuth = mprintf("%s:%s", zUser, zPw);
+    free(zUser);
+    free(zPw);
+    free(zPrompt);
+    blob_reset(&x);
+  }
+  if( save_httpauth_prompt() ){
+    set_httpauth(zHttpAuth);
+  }
+  return zHttpAuth;
 }
 
 /*
@@ -207,6 +277,16 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
     /* printf("[%s]\n", zLine); fflush(stdout); */
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
+      if( rc==401 ){
+        if( fSeenHttpAuth++ < MAX_HTTP_AUTH ){
+          if( g.zHttpAuth ){
+            if( g.zHttpAuth ) free(g.zHttpAuth);
+          }
+          g.zHttpAuth = prompt_for_httpauth_creds();
+          transport_close(GLOBAL_URL());
+          return http_exchange(pSend, pReply, useLogin, maxRedirect);
+        }
+      }
       if( rc!=200 && rc!=302 ){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
@@ -256,6 +336,9 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }
       fossil_print("redirect to %s\n", &zLine[i]);
       url_parse(&zLine[i], 0);
+      fSeenHttpAuth = 0;
+      if( g.zHttpAuth ) free(g.zHttpAuth);
+      g.zHttpAuth = get_httpauth();
       transport_close(GLOBAL_URL());
       return http_exchange(pSend, pReply, useLogin, maxRedirect);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){

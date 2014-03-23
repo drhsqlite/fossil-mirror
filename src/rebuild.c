@@ -860,7 +860,13 @@ void recon_read_dir(char *zPath){
       zUtf8Name = fossil_filename_to_utf8(pEntry->d_name);
       zSubpath = mprintf("%s/%s", zPath, zUtf8Name);
       fossil_filename_free(zUtf8Name);
-      if( file_isdir(zSubpath)==1 ){
+#ifdef _DIRENT_HAVE_D_TYPE
+      if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_isdir(zSubpath)==1) : (pEntry->d_type==DT_DIR) )
+#else
+      if( file_isdir(zSubpath)==1 )
+#endif
+      {
         recon_read_dir(zSubpath);
       }else{
         blob_init(&path, 0, 0);

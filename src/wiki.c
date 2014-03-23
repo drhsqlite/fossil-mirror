@@ -422,8 +422,8 @@ void wikiedit_page(void){
         blob_appendf(&wiki, "P %s\n", zUuid);
         free(zUuid);
       }
-      if( g.zLogin ){
-        blob_appendf(&wiki, "U %F\n", g.zLogin);
+      if( !login_is_nobody() ){
+        blob_appendf(&wiki, "U %F\n", login_name());
       }
       blob_appendf(&wiki, "W %d\n%s\n", strlen(zBody), zBody);
       md5sum_blob(&wiki, &cksum);
@@ -560,21 +560,21 @@ static void appendRemark(Blob *p, const char *zMimetype){
   if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
     zId = db_text(0, "SELECT lower(hex(randomblob(8)))");
     blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h",
-      zId, zDate, g.zLogin);
-    if( zUser[0] && fossil_strcmp(zUser,g.zLogin) ){
+      zId, zDate, login_name());
+    if( zUser[0] && fossil_strcmp(zUser,login_name()) ){
       blob_appendf(p, " (claiming to be %h)", zUser);
     }
     blob_appendf(p, " added:</i><br />\n%s</div id=\"%s\">", zRemark, zId);
   }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
-    blob_appendf(p, "\n\n------\n*On %s UTC %h", zDate, g.zLogin);
-    if( zUser[0] && fossil_strcmp(zUser,g.zLogin) ){
+    blob_appendf(p, "\n\n------\n*On %s UTC %h", zDate, login_name());
+    if( zUser[0] && fossil_strcmp(zUser,login_name()) ){
       blob_appendf(p, " (claiming to be %h)", zUser);
     }
     blob_appendf(p, " added:*\n\n%s\n", zRemark);
   }else{
     blob_appendf(p, "\n\n------------------------------------------------\n"
-                    "On %s UTC %s", zDate, g.zLogin);
-    if( zUser[0] && fossil_strcmp(zUser,g.zLogin) ){
+                    "On %s UTC %s", zDate, login_name());
+    if( zUser[0] && fossil_strcmp(zUser,login_name()) ){
       blob_appendf(p, " (claiming to be %s)", zUser);
     }
     blob_appendf(p, " added:\n\n%s\n", zRemark);
@@ -652,8 +652,8 @@ void wikiappend_page(void){
         blob_appendf(&wiki, "P %s\n", zUuid);
         free(zUuid);
       }
-      if( g.zLogin ){
-        blob_appendf(&wiki, "U %F\n", g.zLogin);
+      if( !login_is_nobody() ){
+        blob_appendf(&wiki, "U %F\n", login_name());
       }
       appendRemark(&body, zMimetype);
       blob_appendf(&wiki, "W %d\n%s\n", blob_size(&body), blob_str(&body));
@@ -995,8 +995,8 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
     free(zUuid);
   }
   user_select();
-  if( g.zLogin ){
-      blob_appendf(&wiki, "U %F\n", g.zLogin);
+  if( !login_is_nobody() ){
+      blob_appendf(&wiki, "U %F\n", login_name());
   }
   blob_appendf( &wiki, "W %d\n%s\n", blob_size(pContent),
                 blob_str(pContent) );

@@ -68,7 +68,7 @@ cson_value * json_page_timeline(){
 */
 static void json_timeline_temp_table(void){
   /* Field order MUST match that from json_timeline_query()!!! */
-  static const char zSql[] = 
+  static const char zSql[] =
     @ CREATE TEMP TABLE IF NOT EXISTS json_timeline(
     @   sortId INTEGER PRIMARY KEY,
     @   rid INTEGER,
@@ -111,7 +111,7 @@ char const * json_timeline_query(void){
     @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0) as tags,
     @   tagid as tagId,
     @   brief as brief
-    @  FROM event JOIN blob 
+    @  FROM event JOIN blob
     @ WHERE blob.rid=event.objid
   ;
   return zBaseSql;
@@ -318,7 +318,7 @@ cson_value * json_get_changed_files(int rid, int flags){
   cson_value * rowsV = NULL;
   cson_array * rows = NULL;
   Stmt q = empty_Stmt;
-  db_prepare(&q, 
+  db_prepare(&q,
            "SELECT (pid==0) AS isnew,"
            "       (fid==0) AS isdel,"
            "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"

@@ -206,7 +206,7 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
 
 /*
 ** Close the connection to a child process previously created using
-** popen2().  Kill off the child process, then close the pipes.
+** popen2().
 */
 void pclose2(int fdIn, FILE *pOut, int childPid){
 #ifdef _WIN32
@@ -216,7 +216,6 @@ void pclose2(int fdIn, FILE *pOut, int childPid){
 #else
   close(fdIn);
   fclose(pOut);
-  kill(childPid, SIGINT);
   while( waitpid(0, 0, WNOHANG)>0 ) {}
 #endif
 }

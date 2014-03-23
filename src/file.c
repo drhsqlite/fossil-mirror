@@ -395,6 +395,7 @@ void file_copy(const char *zFrom, const char *zTo){
   char zBuf[8192];
   in = fossil_fopen(zFrom, "rb");
   if( in==0 ) fossil_fatal("cannot open \"%s\" for reading", zFrom);
+  file_mkfolder(zTo, 0);
   out = fossil_fopen(zTo, "wb");
   if( out==0 ) fossil_fatal("cannot open \"%s\" for writing", zTo);
   while( (got=fread(zBuf, 1, sizeof(zBuf), in))>0 ){
@@ -402,6 +403,22 @@ void file_copy(const char *zFrom, const char *zTo){
   }
   fclose(in);
   fclose(out);
+}
+
+/*
+** COMMAND: test-file-copy
+**
+** Usage: %fossil test-file-copy SOURCE DESTINATION
+**
+** Make a copy of the file at SOURCE into a new name DESTINATION.  Any
+** directories in the path leading up to DESTINATION that do not already
+** exist are created automatically.
+*/
+void test_file_copy(void){
+  if( g.argc!=4 ){
+    fossil_fatal("Usage: %s test-file-copy SOURCE DESTINATION", g.argv[0]);
+  }
+  file_copy(g.argv[2], g.argv[3]);
 }
 
 /*
@@ -517,6 +534,41 @@ int file_mkdir(const char *zName, int forceFlag){
     return rc;
   }
   return 0;
+}
+
+/*
+** Create the tree of directories in which zFilename belongs, if that sequence
+** of directories does not already exist.
+*/
+void file_mkfolder(const char *zFilename, int forceFlag){
+  int i, nName;
+  char *zName;
+
+  nName = strlen(zFilename);
+  zName = mprintf("%s", zFilename);
+  nName = file_simplify_name(zName, nName, 0);
+  for(i=1; i<nName; i++){
+    if( zName[i]=='/' ){
+      zName[i] = 0;
+#if defined(_WIN32) || defined(__CYGWIN__)
+      /*
+      ** On Windows, local path looks like: C:/develop/project/file.txt
+      ** The if stops us from trying to create a directory of a drive letter
+      ** C: in this example.
+      */
+      if( !(i==2 && zName[1]==':') ){
+#endif
+        if( file_mkdir(zName, forceFlag) && file_isdir(zName)!=1 ){
+          fossil_fatal_recursive("unable to create directory %s", zName);
+          return;
+        }
+#if defined(_WIN32) || defined(__CYGWIN__)
+      }
+#endif
+      zName[i] = '/';
+    }
+  }
+  free(zName);
 }
 
 /*
@@ -646,6 +698,7 @@ static int backup_dir(const char *z, int *pJ){
 /*
 ** Simplify a filename by
 **
+**  * Remove extended path prefix on windows and cygwin
 **  * Convert all \ into / on windows and cygwin
 **  * removing any trailing and duplicate /
 **  * removing /./
@@ -656,13 +709,23 @@ static int backup_dir(const char *z, int *pJ){
 ** is retained.
 */
 int file_simplify_name(char *z, int n, int slash){
-  int i, j;
+  int i = 1, j;
   if( n<0 ) n = strlen(z);
 
-  /* On windows and cygwin convert all \ characters to / */
+  /* On windows and cygwin convert all \ characters to /
+   * and remove extended path prefix if present */
 #if defined(_WIN32) || defined(__CYGWIN__)
-  for(i=0; i<n; i++){
-    if( z[i]=='\\' ) z[i] = '/';
+  for(j=0; j<n; j++){
+    if( z[j]=='\\' ) z[j] = '/';
+  }
+  if( n>3 && !memcmp(z, "//?/", 4) ){
+    if( fossil_strnicmp(z+4,"UNC", 3) ){
+      i += 4;
+      z[0] = z[4];
+    }else{
+      i += 6;
+      z[0] = '/';
+    }
   }
 #endif
 
@@ -673,7 +736,7 @@ int file_simplify_name(char *z, int n, int slash){
 
   /* Remove duplicate '/' characters.  Except, two // at the beginning
   ** of a pathname is allowed since this is important on windows. */
-  for(i=j=1; i<n; i++){
+  for(j=1; i<n; i++){
     z[j++] = z[i];
     while( z[i]=='/' && i<n-1 && z[i+1]=='/' ) i++;
   }

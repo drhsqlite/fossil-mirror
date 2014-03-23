@@ -324,7 +324,7 @@ void tag_add_artifact(
   }else{
     blob_appendf(&ctrl, "\n");
   }
-  blob_appendf(&ctrl, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
+  blob_appendf(&ctrl, "U %F\n", zUserOvrd ? zUserOvrd : login_name());
   md5sum_blob(&ctrl, &cksum);
   blob_appendf(&ctrl, "Z %b\n", &cksum);
   nrid = content_put(&ctrl);

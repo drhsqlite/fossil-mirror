@@ -37,99 +37,108 @@
 /*
 ** These are the only markup attributes allowed.
 */
-#define ATTR_ALIGN              1
-#define ATTR_ALT                2
-#define ATTR_BGCOLOR            3
-#define ATTR_BORDER             4
-#define ATTR_CELLPADDING        5
-#define ATTR_CELLSPACING        6
-#define ATTR_CLASS              7
-#define ATTR_CLEAR              8
-#define ATTR_COLOR              9
-#define ATTR_COLSPAN            10
-#define ATTR_COMPACT            11
-#define ATTR_FACE               12
-#define ATTR_HEIGHT             13
-#define ATTR_HREF               14
-#define ATTR_HSPACE             15
-#define ATTR_ID                 16
-#define ATTR_LINKS              17
-#define ATTR_NAME               18
-#define ATTR_ROWSPAN            19
-#define ATTR_SIZE               20
-#define ATTR_SRC                21
-#define ATTR_START              22
-#define ATTR_STYLE              23
-#define ATTR_TARGET             24
-#define ATTR_TYPE               25
-#define ATTR_VALIGN             26
-#define ATTR_VALUE              27
-#define ATTR_VSPACE             28
-#define ATTR_WIDTH              29
-#define AMSK_ALIGN              0x00000001
-#define AMSK_ALT                0x00000002
-#define AMSK_BGCOLOR            0x00000004
-#define AMSK_BORDER             0x00000008
-#define AMSK_CELLPADDING        0x00000010
-#define AMSK_CELLSPACING        0x00000020
-#define AMSK_CLASS              0x00000040
-#define AMSK_CLEAR              0x00000080
-#define AMSK_COLOR              0x00000100
-#define AMSK_COLSPAN            0x00000200
-#define AMSK_COMPACT            0x00000400
-#define AMSK_FACE               0x00000800
-#define AMSK_HEIGHT             0x00001000
-#define AMSK_HREF               0x00002000
-#define AMSK_HSPACE             0x00004000
-#define AMSK_ID                 0x00008000
-#define AMSK_LINKS              0x00010000
-#define AMSK_NAME               0x00020000
-#define AMSK_ROWSPAN            0x00040000
-#define AMSK_SIZE               0x00080000
-#define AMSK_SRC                0x00100000
-#define AMSK_START              0x00200000
-#define AMSK_STYLE              0x00400000
-#define AMSK_TARGET             0x00800000
-#define AMSK_TYPE               0x01000000
-#define AMSK_VALIGN             0x02000000
-#define AMSK_VALUE              0x04000000
-#define AMSK_VSPACE             0x08000000
-#define AMSK_WIDTH              0x10000000
+enum allowed_attr_t {
+  ATTR_ALIGN = 1,
+  ATTR_ALT,
+  ATTR_BGCOLOR,
+  ATTR_BORDER,
+  ATTR_CELLPADDING,
+  ATTR_CELLSPACING,
+  ATTR_CLASS,
+  ATTR_CLEAR,
+  ATTR_COLOR,
+  ATTR_COLSPAN,
+  ATTR_COMPACT,
+  ATTR_FACE,
+  ATTR_HEIGHT,
+  ATTR_HREF,
+  ATTR_HSPACE,
+  ATTR_ID,
+  ATTR_LINKS,
+  ATTR_NAME,
+  ATTR_ROWSPAN,
+  ATTR_SIZE,
+  ATTR_SRC,
+  ATTR_START,
+  ATTR_STYLE,
+  ATTR_TARGET,
+  ATTR_TYPE,
+  ATTR_VALIGN,
+  ATTR_VALUE,
+  ATTR_VSPACE,
+  ATTR_WIDTH
+};
+
+enum amsk_t {
+  AMSK_ALIGN        = 0x00000001,
+  AMSK_ALT          = 0x00000002,
+  AMSK_BGCOLOR      = 0x00000004,
+  AMSK_BORDER       = 0x00000008,
+  AMSK_CELLPADDING  = 0x00000010,
+  AMSK_CELLSPACING  = 0x00000020,
+  AMSK_CLASS        = 0x00000040,
+  AMSK_CLEAR        = 0x00000080,
+  AMSK_COLOR        = 0x00000100,
+  AMSK_COLSPAN      = 0x00000200,
+  AMSK_COMPACT      = 0x00000400,
+  /* re-use         = 0x00000800, */
+  AMSK_FACE         = 0x00001000,
+  AMSK_HEIGHT       = 0x00002000,
+  AMSK_HREF         = 0x00004000,
+  AMSK_HSPACE       = 0x00008000,
+  AMSK_ID           = 0x00010000,
+  AMSK_LINKS        = 0x00020000,
+  AMSK_NAME         = 0x00040000,
+  AMSK_ROWSPAN      = 0x00080000,
+  AMSK_SIZE         = 0x00100000,
+  AMSK_SRC          = 0x00200000,
+  AMSK_START        = 0x00400000,
+  AMSK_STYLE        = 0x00800000,
+  AMSK_TARGET       = 0x01000000,
+  AMSK_TYPE         = 0x02000000,
+  AMSK_VALIGN       = 0x04000000,
+  AMSK_VALUE        = 0x08000000,
+  AMSK_VSPACE       = 0x10000000,
+  AMSK_WIDTH        = 0x20000000
+};
 
 static const struct AllowedAttribute {
   const char *zName;
   unsigned int iMask;
 } aAttribute[] = {
+  /* These indexes MUST line up with their
+     corresponding allowed_attr_t enum values.
+  */
   { 0, 0 },
-  { "align",         AMSK_ALIGN,          },
-  { "alt",           AMSK_ALT,            },
-  { "bgcolor",       AMSK_BGCOLOR,        },
-  { "border",        AMSK_BORDER,         },
-  { "cellpadding",   AMSK_CELLPADDING,    },
-  { "cellspacing",   AMSK_CELLSPACING,    },
-  { "class",         AMSK_CLASS,          },
-  { "clear",         AMSK_CLEAR,          },
-  { "color",         AMSK_COLOR,          },
-  { "colspan",       AMSK_COLSPAN,        },
-  { "compact",       AMSK_COMPACT,        },
-  { "face",          AMSK_FACE,           },
-  { "height",        AMSK_HEIGHT,         },
-  { "href",          AMSK_HREF,           },
-  { "hspace",        AMSK_HSPACE,         },
-  { "id",            AMSK_ID,             },
-  { "links",         AMSK_LINKS,          },
-  { "name",          AMSK_NAME,           },
-  { "rowspan",       AMSK_ROWSPAN,        },
-  { "size",          AMSK_SIZE,           },
-  { "src",           AMSK_SRC,            },
-  { "start",         AMSK_START,          },
-  { "style",         AMSK_STYLE,          },
-  { "target",        AMSK_TARGET,         },
-  { "type",          AMSK_TYPE,           },
-  { "valign",        AMSK_VALIGN,         },
-  { "value",         AMSK_VALUE,          },
-  { "vspace",        AMSK_VSPACE,         },
-  { "width",         AMSK_WIDTH,          },
+  { "align",         AMSK_ALIGN          },
+  { "alt",           AMSK_ALT            },
+  { "bgcolor",       AMSK_BGCOLOR        },
+  { "border",        AMSK_BORDER         },
+  { "cellpadding",   AMSK_CELLPADDING    },
+  { "cellspacing",   AMSK_CELLSPACING    },
+  { "class",         AMSK_CLASS          },
+  { "clear",         AMSK_CLEAR          },
+  { "color",         AMSK_COLOR          },
+  { "colspan",       AMSK_COLSPAN        },
+  { "compact",       AMSK_COMPACT        },
+  { "face",          AMSK_FACE           },
+  { "height",        AMSK_HEIGHT         },
+  { "href",          AMSK_HREF           },
+  { "hspace",        AMSK_HSPACE         },
+  { "id",            AMSK_ID             },
+  { "links",         AMSK_LINKS          },
+  { "name",          AMSK_NAME           },
+  { "rowspan",       AMSK_ROWSPAN        },
+  { "size",          AMSK_SIZE           },
+  { "src",           AMSK_SRC            },
+  { "start",         AMSK_START          },
+  { "style",         AMSK_STYLE          },
+  { "target",        AMSK_TARGET         },
+  { "type",          AMSK_TYPE           },
+  { "valign",        AMSK_VALIGN         },
+  { "value",         AMSK_VALUE          },
+  { "vspace",        AMSK_VSPACE         },
+  { "width",         AMSK_WIDTH          },
 };
 
 /*
@@ -218,12 +227,13 @@ static int findAttr(const char *z){
 #define MARKUP_TFOOT              52
 #define MARKUP_TH                 53
 #define MARKUP_THEAD              54
-#define MARKUP_TR                 55
-#define MARKUP_TT                 56
-#define MARKUP_U                  57
-#define MARKUP_UL                 58
-#define MARKUP_VAR                59
-#define MARKUP_VERBATIM           60
+#define MARKUP_TITLE              55
+#define MARKUP_TR                 56
+#define MARKUP_TT                 57
+#define MARKUP_U                  58
+#define MARKUP_UL                 59
+#define MARKUP_VAR                60
+#define MARKUP_VERBATIM           61
 
 /*
 ** The various markup is divided into the following types:
@@ -350,6 +360,7 @@ static const struct AllowedMarkup {
                     AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "thead",         MARKUP_THEAD,        MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "title",         MARKUP_TITLE,        MUTYPE_BLOCK, 0 },
  { "tr",            MARKUP_TR,           MUTYPE_TR,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_VALIGN|AMSK_CLASS|AMSK_STYLE },
  { "tt",            MARKUP_TT,           MUTYPE_FONT,          AMSK_STYLE },
@@ -789,7 +800,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
   }
   while( fossil_isspace(z[i]) ){ i++; }
   while( c!='>' && p->nAttr<8 && fossil_isalpha(z[i]) ){
-    int attrOk;    /* True to preserver attribute.  False to ignore it */
+    int attrOk;    /* True to preserve attribute.  False to ignore it */
     j = 0;
     while( fossil_isalnum(z[i]) ){
       if( j<sizeof(zTag)-1 ) zTag[j++] = fossil_tolower(z[i]);
@@ -871,8 +882,10 @@ static void unparseMarkup(ParsedMarkup *p){
   for(i=0; i<p->nAttr; i++){
     char *z = p->aAttr[i].zValue;
     if( z==0 ) continue;
-    n = strlen(z);
-    z[n] = p->aAttr[i].cTerm;
+    if( p->aAttr[i].cTerm ){
+      n = strlen(z);
+      z[n] = p->aAttr[i].cTerm;
+    }
   }
 }
 
@@ -1470,6 +1483,15 @@ static void wiki_render(Renderer *p, char *z){
         const char *zId;
         int iDiv;
         parseMarkup(&markup, z);
+
+        /* Convert <title> to <h1 align='center'> */
+        if( markup.iCode==MARKUP_TITLE && !p->inVerbatim ){
+          markup.iCode = MARKUP_H1;
+          markup.nAttr = 1;
+          markup.aAttr[0].iACode = AMSK_ALIGN;
+          markup.aAttr[0].zValue = "center";
+          markup.aAttr[0].cTerm = 0;
+        }
 
         /* Markup of the form </div id=ID> where there is a matching
         ** ID somewhere on the stack.  Exit any contained verbatim.
