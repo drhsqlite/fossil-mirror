@@ -497,8 +497,8 @@ void extra_cmd(void){
 ** WARNING:  Normally, only the files unknown to Fossil are removed;
 ** however, if the --extreme option is specified, all files that are
 ** not part of the current checkout will be removed as well, without
-** regard for the "ignore-glob" and "keep-glob" settings and their
-** associated command line options.
+** regard for the "ignore-glob" setting and the --ignore command line
+** option.
 **
 ** You will be prompted before removing each eligible file unless the
 ** --force flag is in use or it matches the --clean option.  The
@@ -545,8 +545,8 @@ void extra_cmd(void){
 **    -v|--verbose     Show all files as they are removed.
 **    -x|--extreme     Remove all files not part of the current
 **                     checkout, without taking into consideration
-**                     the "ignore-glob" and "keep-glob" settings
-**                     and their associated command line options.
+**                     the "ignore-glob" setting and the --ignore
+**                     command line option.
 **                     Compatibile with "git clean -x".
 **
 ** See also: addremove, extra, status
@@ -562,6 +562,9 @@ void clean_cmd(void){
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
+  }
+  if( !dryRunFlag ){
+    dryRunFlag = find_option("whatif",0,0)!=0;
   }
   extremeFlag = find_option("extreme","x",0)!=0;
   allFileFlag = allDirFlag = find_option("force","f",0)!=0;
@@ -591,12 +594,11 @@ void clean_cmd(void){
     char *extremePrompt =
       "\n\nWARNING: The --extreme option is enabled and all untracked files\n"
       "that would otherwise be left alone will be deleted (i.e. those\n"
-      "matching the \"ignore-glob\" and \"keep-glob\" settings and their\n"
-      "associated command line options).  As a precaution, in order to\n"
-      "proceed with this clean operation, the string \"YES\" must be\n"
-      "entered in all upper case; any other response will cancel the\n"
-      "clean operation.\n\nDo you still wish to proceed with the clean "
-      "operation? ";
+      "matching the \"ignore-glob\" setting and the --ignore command line\n"
+      "option).  As a precaution, in order to proceed with this clean\n"
+      "operation, the string \"YES\" must be entered in all upper case;\n"
+      "any other response will cancel the\nclean operation.\n\n"
+      "Do you still wish to proceed with the clean operation? ";
     blob_zero(&extremeAnswer);
     prompt_user(extremePrompt, &extremeAnswer);
     if( fossil_strcmp(blob_str(&extremeAnswer), "YES")!=0 ){
@@ -614,7 +616,7 @@ void clean_cmd(void){
     Stmt q;
     Blob repo;
     locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags,
-                           extremeFlag ? 0 : pIgnore, extremeFlag ? 0 : pKeep);
+                           extremeFlag ? 0 : pIgnore, pKeep);
     db_prepare(&q,
         "SELECT %Q || x FROM sfile"
         " WHERE x NOT IN (%s)"
@@ -627,7 +629,7 @@ void clean_cmd(void){
     db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
-      if( !allFileFlag && !glob_match(pClean, zName+nRoot) ){
+      if( !allFileFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
         Blob ans;
         char cReply;
         int matchIgnore = glob_match(pIgnore, zName+nRoot);
@@ -662,7 +664,7 @@ void clean_cmd(void){
     Blob root;
     blob_init(&root, g.zLocalRoot, nRoot - 1);
     vfile_dir_scan(&root, blob_size(&root), scanFlags,
-                   extremeFlag ? 0 : pIgnore, extremeFlag ? 0 : pKeep,
+                   extremeFlag ? 0 : pIgnore, pKeep,
                    extremeFlag ? 0 : pEmptyDirs);
     blob_reset(&root);
     db_prepare(&q,
@@ -673,7 +675,7 @@ void clean_cmd(void){
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
-      if( !allDirFlag && !glob_match(pClean, zName+nRoot) ){
+      if( !allDirFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
         Blob ans;
         char cReply;
         int matchIgnore = glob_match(pIgnore, zName+nRoot);
