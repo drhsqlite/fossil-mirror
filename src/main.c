@@ -123,7 +123,7 @@ struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
-  int isConst;            /* True if the output is unchanging */
+  int isConst;            /* True if the output is unchanging & cacheable */
   const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
@@ -142,6 +142,7 @@ struct Global {
   int fSqlPrint;          /* True if -sqlprint flag is present */
   int fQuiet;             /* True if -quiet flag is present */
   int fHttpTrace;         /* Trace outbound HTTP requests */
+  char *zHttpAuth;        /* HTTP Authorization user:pass information */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
   int fSshClient;         /* HTTP client flags for SSH client */
@@ -195,7 +196,7 @@ struct Global {
   int useProxy;           /* Used to remember that a proxy is in use */
   char *proxyUrlPath;
   int proxyOrigPort;      /* Tunneled port number for https through proxy */
-  const char *zLogin;     /* Login name.  "" if not logged in. */
+  const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
   int useLocalauth;       /* No login required if from 127.0.0.1 */
@@ -605,11 +606,6 @@ int main(int argc, char **argv)
   g.zVfsName = find_option("vfs",0,1);
   if( g.zVfsName==0 ){
     g.zVfsName = fossil_getenv("FOSSIL_VFS");
-#if defined(__CYGWIN__)
-    if( g.zVfsName==0 ){
-      g.zVfsName = "win32-longpath";
-    }
-#endif
   }
   if( g.zVfsName ){
     sqlite3_vfs *pVfs = sqlite3_vfs_find(g.zVfsName);
@@ -653,6 +649,7 @@ int main(int argc, char **argv)
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
+    g.zHttpAuth = 0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
     g.zErrlog = find_option("errorlog", 0, 1);
@@ -1070,7 +1067,7 @@ void help_page(void){
     }
     @ </tr></table>
 
-    @ <h1>Available pages:</h1>
+    @ <h1>Available web UI pages:</h1>
     @ (Only pages with help text are linked.)
     @ <table border="0"><tr>
     for(i=j=0; i<count(aCommand); i++){
@@ -1459,7 +1456,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
         }else{
           zUser = "nobody";
         }
-        if( g.zLogin==0 ) zUser = "nobody";
+        if( g.zLogin==0 || g.zLogin[0]==0 ) zUser = "nobody";
         if( zAltRepo[0]!='/' ){
           zAltRepo = mprintf("%s/../%s", g.zRepositoryName, zAltRepo);
           file_simplify_name(zAltRepo, -1, 0);

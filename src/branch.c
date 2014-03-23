@@ -136,7 +136,7 @@ void branch_new(void){
   }
   db_finalize(&q);
 
-  blob_appendf(&branch, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
+  blob_appendf(&branch, "U %F\n", zUserOvrd ? zUserOvrd : login_name());
   md5sum_blob(&branch, &mcksum);
   blob_appendf(&branch, "Z %b\n", &mcksum);
   if( !noSign && clearsign(&branch, &branch) ){

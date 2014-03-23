@@ -445,22 +445,21 @@ void append_diff_javascript(int sideBySide){
 ** parameters and the to boolean arguments.
 */
 u64 construct_diff_flags(int verboseFlag, int sideBySide){
-  u64 diffFlags;
-  if( verboseFlag==0 ){
-    diffFlags = 0;  /* Zero means do not show any diff */
-  }else{
+  u64 diffFlags = 0;  /* Zero means do not show any diff */
+  if( verboseFlag!=0 ){
     int x;
     if( sideBySide ){
-      diffFlags = DIFF_SIDEBYSIDE | DIFF_IGNORE_EOLWS;
+      diffFlags = DIFF_SIDEBYSIDE;
 
       /* "dw" query parameter determines width of each column */
       x = atoi(PD("dw","80"))*(DIFF_CONTEXT_MASK+1);
       if( x<0 || x>DIFF_WIDTH_MASK ) x = DIFF_WIDTH_MASK;
       diffFlags += x;
-    }else{
-      diffFlags = DIFF_INLINE | DIFF_IGNORE_EOLWS;
     }
 
+    if( P("w") ){
+      diffFlags |= DIFF_IGNORE_ALLWS;
+    }
     /* "dc" query parameter determines lines of context */
     x = atoi(PD("dc","7"));
     if( x<0 || x>DIFF_CONTEXT_MASK ) x = DIFF_CONTEXT_MASK;
@@ -468,10 +467,10 @@ u64 construct_diff_flags(int verboseFlag, int sideBySide){
 
     /* The "noopt" parameter disables diff optimization */
     if( PD("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
+    diffFlags |= DIFF_STRIP_EOLCR;
   }
   return diffFlags;
 }
-
 
 /*
 ** WEBPAGE: vinfo
@@ -500,6 +499,9 @@ void ci_page(void){
   const char *zParent; /* UUID of the parent checkin (if any) */
   const char *zRe;     /* regex parameter */
   ReCompiled *pRe = 0; /* regex */
+  const char *zW;      /* URL param for ignoring whitespace */
+  const char *zPage = "vinfo";  /* Page that shows diffs */
+  const char *zPageHide = "ci"; /* Page that hides diffs */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -665,75 +667,70 @@ void ci_page(void){
   }
   db_finalize(&q1);
   showTags(rid, "");
-  if( zParent ){
-    @ <div class="section">Changes</div>
-    @ <div class="sectionmenu">
-    verboseFlag = g.zPath[0]!='c';
-    if( db_get_boolean("show-version-diffs", 0)==0 ){
-      verboseFlag = !verboseFlag;
-      if( verboseFlag ){
-        @ %z(xhref("class='button'","%R/vinfo/%T",zName))
-        @ hide&nbsp;diffs</a>
-        if( sideBySide ){
-          @ %z(xhref("class='button'","%R/ci/%T?sbs=0",zName))
-          @ unified&nbsp;diffs</a>
-        }else{
-          @ %z(xhref("class='button'","%R/ci/%T?sbs=1",zName))
-          @ side-by-side&nbsp;diffs</a>
-        }
-      }else{
-        @ %z(xhref("class='button'","%R/ci/%T?sbs=0",zName))
-        @ show&nbsp;unified&nbsp;diffs</a>
-        @ %z(xhref("class='button'","%R/ci/%T?sbs=1",zName))
-        @ show&nbsp;side-by-side&nbsp;diffs</a>
-      }
-    }else{
-      if( verboseFlag ){
-        @ %z(xhref("class='button'","%R/ci/%T",zName))hide&nbsp;diffs</a>
-        if( sideBySide ){
-          @ %z(xhref("class='button'","%R/info/%T?sbs=0",zName))
-          @ unified&nbsp;diffs</a>
-        }else{
-          @ %z(xhref("class='button'","%R/info/%T?sbs=1",zName))
-          @ side-by-side&nbsp;diffs</a>
-        }
-      }else{
-        @ %z(xhref("class='button'","%R/vinfo/%T?sbs=0",zName))
-        @ show&nbsp;unified&nbsp;diffs</a>
-        @ %z(xhref("class='button'","%R/vinfo/%T?sbs=1",zName))
-        @ show&nbsp;side-by-side&nbsp;diffs</a>
-      }
-    }
-    @ %z(xhref("class='button'","%R/vpatch?from=%S&to=%S",zParent,zUuid))
-    @ patch</a></div>
-    if( pRe ){
-      @ <p><b>Only differences that match regular expression "%h(zRe)"
-      @ are shown.</b></p>
-    }
-    db_prepare(&q3,
-       "SELECT name,"
-       "       mperm,"
-       "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
-       "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
-       "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
-       "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
-       " WHERE mlink.mid=%d"
-       "   AND (mlink.fid>0"
-              " OR mlink.fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=%d))"
-       " ORDER BY name /*sort*/",
-       rid, rid
-    );
-    diffFlags = construct_diff_flags(verboseFlag, sideBySide);
-    while( db_step(&q3)==SQLITE_ROW ){
-      const char *zName = db_column_text(&q3,0);
-      int mperm = db_column_int(&q3, 1);
-      const char *zOld = db_column_text(&q3,2);
-      const char *zNew = db_column_text(&q3,3);
-      const char *zOldName = db_column_text(&q3, 4);
-      append_file_change_line(zName, zOld, zNew, zOldName, diffFlags,pRe,mperm);
-    }
-    db_finalize(&q3);
+  @ <div class="section">Changes</div>
+  @ <div class="sectionmenu">
+  verboseFlag = g.zPath[0]!='c';
+  if( db_get_boolean("show-version-diffs", 0)==0 ){
+    verboseFlag = !verboseFlag;
+    zPage = "ci";
+    zPageHide = "vinfo";
   }
+  diffFlags = construct_diff_flags(verboseFlag, sideBySide);
+  zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  if( verboseFlag ){
+    @ %z(xhref("class='button'","%R/%s/%T",zPageHide,zName))
+    @ Hide&nbsp;Diffs</a>
+    if( sideBySide ){
+      @ %z(xhref("class='button'","%R/%s/%T?sbs=0%s",zPage,zName,zW))
+      @ Unified&nbsp;Diffs</a>
+    }else{
+      @ %z(xhref("class='button'","%R/%s/%T?sbs=1%s",zPage,zName,zW))
+      @ Side-by-Side&nbsp;Diffs</a>
+    }
+    if( *zW ){
+      @ %z(xhref("class='button'","%R/%s/%T?sbs=%d",zPage,zName,sideBySide))
+      @ Show&nbsp;Whitespace&nbsp;Changes</a>
+    }else{
+      @ %z(xhref("class='button'","%R/%s/%T?sbs=%d&w",zPage,zName,sideBySide))
+      @ Ignore&nbsp;Whitespace</a>
+    }
+  }else{
+    @ %z(xhref("class='button'","%R/%s/%T?sbs=0",zPage,zName))
+    @ Show&nbsp;Unified&nbsp;Diffs</a>
+    @ %z(xhref("class='button'","%R/%s/%T?sbs=1",zPage,zName))
+    @ Show&nbsp;Side-by-Side&nbsp;Diffs</a>
+  }
+  if( zParent ){
+    @ %z(xhref("class='button'","%R/vpatch?from=%S&to=%S",zParent,zUuid))
+    @ Patch</a>
+  }
+  @</div>
+  if( pRe ){
+    @ <p><b>Only differences that match regular expression "%h(zRe)"
+    @ are shown.</b></p>
+  }
+  db_prepare(&q3,
+    "SELECT name,"
+    "       mperm,"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+    "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
+    "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
+    " WHERE mlink.mid=%d"
+    "   AND (mlink.fid>0"
+           " OR mlink.fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=%d))"
+    " ORDER BY name /*sort*/",
+    rid, rid
+  );
+  while( db_step(&q3)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q3,0);
+    int mperm = db_column_int(&q3, 1);
+    const char *zOld = db_column_text(&q3,2);
+    const char *zNew = db_column_text(&q3,3);
+    const char *zOldName = db_column_text(&q3, 4);
+    append_file_change_line(zName, zOld, zNew, zOldName, diffFlags,pRe,mperm);
+  }
+  db_finalize(&q3);
   append_diff_javascript(sideBySide);
   style_footer();
 }
@@ -956,6 +953,7 @@ void vdiff_page(void){
   const char *zFrom;
   const char *zTo;
   const char *zRe;
+  const char *zW;
   const char *zVerbose;
   const char *zGlob;
   ReCompiled *pRe = 0;
@@ -989,35 +987,50 @@ void vdiff_page(void){
   if(zGlob && !*zGlob){
     zGlob = NULL;
   }
+  diffFlags = construct_diff_flags(verboseFlag, sideBySide);
+  zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( sideBySide || verboseFlag ){
     style_submenu_element("Hide Diff", "hidediff",
-                          "%R/vdiff?from=%T&to=%T&sbs=0%s%T",
+                          "%R/vdiff?from=%T&to=%T&sbs=0%s%T%s",
                           zFrom, zTo,
-                          zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( !sideBySide ){
-    style_submenu_element("Side-by-side Diff", "sbsdiff",
-                          "%R/vdiff?from=%T&to=%T&sbs=1%s%T",
+    style_submenu_element("Side-by-Side Diff", "sbsdiff",
+                          "%R/vdiff?from=%T&to=%T&sbs=1%s%T%s",
                           zFrom, zTo,
-                          zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( sideBySide || !verboseFlag ) {
     style_submenu_element("Unified Diff", "udiff",
-                          "%R/vdiff?from=%T&to=%T&sbs=0&v%s%T",
+                          "%R/vdiff?from=%T&to=%T&sbs=0&v%s%T%s",
                           zFrom, zTo,
-                          zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   style_submenu_element("Invert", "invert",
-                        "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T", zTo, zFrom,
+                        "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T%s", zTo, zFrom,
                         sideBySide, (verboseFlag && !sideBySide)?"&v":"",
-                        zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+                        zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   if( zGlob ){
     style_submenu_element("Clear glob", "clearglob",
-                          "%R/vdiff?from=%T&to=%T&sbs=%d%s", zFrom, zTo,
-                          sideBySide, (verboseFlag && !sideBySide)?"&v":"");
+                          "%R/vdiff?from=%T&to=%T&sbs=%d%s%s", zFrom, zTo,
+                          sideBySide, (verboseFlag && !sideBySide)?"&v":"", zW);
   }else{
     style_submenu_element("Patch", "patch",
-                          "%R/vpatch?from=%T&to=%T", zFrom, zTo);
+                          "%R/vpatch?from=%T&to=%T%s", zFrom, zTo, zW);
+  }
+  if( sideBySide || verboseFlag ){
+    if( *zW ){
+      style_submenu_element("Show Whitespace Differences", "whitespace",
+                            "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T", zFrom, zTo,
+                            sideBySide, (verboseFlag && !sideBySide)?"&v":"",
+                            zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+    }else{
+      style_submenu_element("Ignore Whitespace", "ignorews",
+                            "%R/vdiff?from=%T&to=%T&sbs=%d%s%s%T&w", zFrom, zTo,
+                            sideBySide, (verboseFlag && !sideBySide)?"&v":"",
+                            zGlob ? "&glob=" : "", zGlob ? zGlob : "");
+    }
   }
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
@@ -1038,7 +1051,6 @@ void vdiff_page(void){
   pFileFrom = manifest_file_next(pFrom, 0);
   manifest_file_rewind(pTo);
   pFileTo = manifest_file_next(pTo, 0);
-  diffFlags = construct_diff_flags(verboseFlag, sideBySide);
   while( pFileFrom || pFileTo ){
     int cmp;
     if( pFileFrom==0 ){
@@ -1339,6 +1351,7 @@ void diff_page(void){
   char *zV1;
   char *zV2;
   const char *zRe;
+  const char *zW;      /* URL param for ignoring whitespace */
   ReCompiled *pRe = 0;
   u64 diffFlags;
 
@@ -1369,16 +1382,26 @@ void diff_page(void){
   diffFlags = construct_diff_flags(1, sideBySide) | DIFF_HTML;
 
   style_header("Diff");
+  zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  if( *zW ){
+    style_submenu_element("Show Whitespace Changes", "Show Whitespace Changes",
+                          "%s/fdiff?v1=%T&v2=%T&sbs=%d",
+                          g.zTop, P("v1"), P("v2"), sideBySide);
+  }else{
+    style_submenu_element("Ignore Whitespace", "Ignore Whitespace",
+                          "%s/fdiff?v1=%T&v2=%T&sbs=%d&w",
+                          g.zTop, P("v1"), P("v2"), sideBySide);
+  }
   style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
                         g.zTop, P("v1"), P("v2"));
   if( !sideBySide ){
-    style_submenu_element("Side-by-side Diff", "sbsdiff",
-                          "%s/fdiff?v1=%T&v2=%T&sbs=1",
-                          g.zTop, P("v1"), P("v2"));
+    style_submenu_element("Side-by-Side Diff", "sbsdiff",
+                          "%s/fdiff?v1=%T&v2=%T&sbs=1%s",
+                          g.zTop, P("v1"), P("v2"), zW);
   }else{
     style_submenu_element("Unified Diff", "udiff",
-                          "%s/fdiff?v1=%T&v2=%T&sbs=0",
-                          g.zTop, P("v1"), P("v2"));
+                          "%s/fdiff?v1=%T&v2=%T&sbs=0%s",
+                          g.zTop, P("v1"), P("v2"), zW);
   }
 
   if( P("smhdr")!=0 ){
@@ -1420,7 +1443,7 @@ void rawartifact_page(void){
   if( !g.perm.Read ){ login_needed(); return; }
   if( rid==0 ) fossil_redirect_home();
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  if( fossil_strcmp(P("name"), zUuid)==0 ){
+  if( fossil_strcmp(P("name"), zUuid)==0 && login_is_nobody() ){
     g.isConst = 1;
   }
   free(zUuid);
@@ -1698,7 +1721,8 @@ void artifact_page(void){
         style_submenu_element("Text", "Text",
                               "%s/artifact/%s?txt=1", g.zTop, zUuid);
       }
-    }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
+    }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0
+           || fossil_strcmp(zMime, "text/x-markdown")==0 ){
       if( asText ){
         style_submenu_element("Wiki", "Wiki",
                               "%s/artifact/%s", g.zTop, zUuid);
@@ -1715,7 +1739,7 @@ void artifact_page(void){
   @ <hr />
   content_get(rid, &content);
   if( renderAsWiki ){
-    wiki_convert(&content, 0, 0);
+    wiki_render_by_mimetype(&content, zMime);
   }else if( renderAsHtml ){
     @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
     @   width="100%%" frameborder="0" marginwidth="0" marginheight="0"
@@ -2239,7 +2263,7 @@ void ci_edit_page(void){
     if( nChng>0 ){
       int nrid;
       Blob cksum;
-      blob_appendf(&ctrl, "U %F\n", g.zLogin);
+      blob_appendf(&ctrl, "U %F\n", login_name());
       md5sum_blob(&ctrl, &cksum);
       blob_appendf(&ctrl, "Z %b\n", &cksum);
       db_begin_transaction();

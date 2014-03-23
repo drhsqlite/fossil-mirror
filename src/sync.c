@@ -56,6 +56,7 @@ int autosync(int flags){
     g.urlFlags |= URL_PROMPT_PW;
     url_prompt_for_password();
   }
+  g.zHttpAuth = get_httpauth();
   url_remember();
 #if 0 /* Disabled for now */
   if( (flags & AUTOSYNC_PULL)!=0 && db_get_boolean("auto-shun",1) ){
@@ -85,6 +86,7 @@ int autosync(int flags){
 */
 static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   const char *zUrl = 0;
+  const char *zHttpAuth = 0;
   unsigned configSync = 0;
   unsigned urlFlags = URL_REMEMBER | URL_PROMPT_PW;
   int urlOptional = 0;
@@ -92,6 +94,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
     urlOptional = 1;
     urlFlags = 0;
   }
+  zHttpAuth = find_option("httpauth","B",1);
   if( find_option("once",0,0)!=0 ) urlFlags &= ~URL_REMEMBER;
   if( find_option("private",0,0)!=0 ){
     *pSyncFlags |= SYNC_PRIVATE;
@@ -118,6 +121,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
     clone_ssh_db_set_options();
   }
   url_parse(zUrl, urlFlags);
+  remember_or_get_http_auth(zHttpAuth, urlFlags & URL_REMEMBER, zUrl);
   url_remember();
   if( g.urlProtocol==0 ){
     if( urlOptional ) fossil_exit(0);
@@ -265,6 +269,7 @@ void remote_url_cmd(void){
   if( g.argc==3 ){
     db_unset("last-sync-url", 0);
     db_unset("last-sync-pw", 0);
+    db_unset("http-auth", 0);
     if( is_false(g.argv[2]) ) return;
     url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
   }

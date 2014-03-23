@@ -496,7 +496,8 @@ void extra_cmd(void){
 ** WARNING:  Normally, only the files unknown to Fossil are removed;
 ** however, if the --extreme option is specified, all files that are
 ** not part of the current checkout will be removed as well, without
-** regard for the files which are normally ignored.
+** regard for the "ignore-glob" setting and the --ignore command line
+** option.
 **
 ** You will be prompted before removing each eligible file unless the
 ** --force flag is in use or it matches the --ignore option.  The
@@ -558,6 +559,9 @@ void clean_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
+  if( !dryRunFlag ){
+    dryRunFlag = find_option("whatif",0,0)!=0;
+  }
   extremeFlag = find_option("extreme","x",0)!=0;
   allFileFlag = allDirFlag = find_option("force","f",0)!=0;
   dirsOnlyFlag = find_option("dirsonly",0,0)!=0;
@@ -582,10 +586,10 @@ void clean_cmd(void){
     char *extremePrompt =
       "\n\nWARNING: The --extreme option is enabled and all untracked files\n"
       "that would otherwise be left alone will be deleted (i.e. those\n"
-      "matching the \"ignore-glob\" settings and the --ignore command\n"
-      "line option).  As a precaution, in order to proceed with this\n"
-      "clean operation, the string \"YES\" must be entered in all upper\n"
-      "case; any other response will cancel the clean operation.\n\n"
+      "matching the \"ignore-glob\" setting and the --ignore command line\n"
+      "option).  As a precaution, in order to proceed with this clean\n"
+      "operation, the string \"YES\" must be entered in all upper case;\n"
+      "any other response will cancel the\nclean operation.\n\n"
       "Do you still wish to proceed with the clean operation? ";
     blob_zero(&extremeAnswer);
     prompt_user(extremePrompt, &extremeAnswer);
@@ -620,10 +624,13 @@ void clean_cmd(void){
         fossil_print("WARNING: KEPT file \"%s\" not removed\n", zName+nRoot);
         continue;
       }
-      if( !allFileFlag && (!extremeFlag || !glob_match(pIgnore, zName+nRoot)) ){
+      if( !allFileFlag && !dryRunFlag && (!extremeFlag || !glob_match(pIgnore, zName+nRoot)) ){
         Blob ans;
         char cReply;
-        char *prompt = mprintf("Remove unmanaged file \"%s\" (a=all/y/N)? ",
+        int matchIgnore = extremeFlag && glob_match(pIgnore, zName+nRoot);
+        char *prompt = mprintf("%sRemove %s file \"%s\" (a=all/y/N)? ",
+                               matchIgnore ? "WARNING: " : "",
+                               matchIgnore ? "\"IGNORED\"" : "unmanaged",
                                zName+nRoot);
         prompt_user(prompt, &ans);
         cReply = blob_str(&ans)[0];
@@ -666,10 +673,16 @@ void clean_cmd(void){
         fossil_print("WARNING: KEPT directory \"%s\" not removed\n", zName+nRoot);
         continue;
       }
-      if( !allDirFlag && (!extremeFlag || !glob_match(pIgnore, zName+nRoot)) ){
+      if( !allDirFlag && !dryRunFlag && (!extremeFlag || !glob_match(pIgnore, zName+nRoot)) ){
         Blob ans;
         char cReply;
-        char *prompt = mprintf("Remove empty directory \"%s\" (a=all/y/N)? ",
+        int matchIgnore = extremeFlag && glob_match(pIgnore, zName+nRoot);
+        int matchEmpty = extremeFlag && glob_match(pEmptyDirs, zName+nRoot);
+        char *prompt = mprintf("%sRemove %s empty directory \"%s\" "
+                               "(a=all/y/N)? ",
+                               (matchEmpty || matchIgnore) ?
+                               "WARNING: " : "", matchEmpty ? "\"RESERVED\"" :
+                               matchIgnore ? "\"IGNORED\"" : "unmanaged",
                                zName+nRoot);
         prompt_user(prompt, &ans);
         cReply = blob_str(&ans)[0];
@@ -830,7 +843,7 @@ static void prepare_commit_comment(
     "# Enter commit message for this check-in. Lines beginning with # are ignored.\n"
     "#\n", -1
   );
-  blob_appendf(&prompt, "# user: %s\n", p->zUserOvrd ? p->zUserOvrd : g.zLogin);
+  blob_appendf(&prompt, "# user: %s\n", p->zUserOvrd ? p->zUserOvrd : login_name());
   if( p->zBranch && p->zBranch[0] ){
     blob_appendf(&prompt, "# tags: %s\n#\n", p->zBranch);
   }else{
@@ -992,7 +1005,7 @@ struct CheckinInfo {
   int integrateFlag;          /* Close merged-in branches */
   Blob *pCksum;               /* Repository checksum.  May be 0 */
   const char *zDateOvrd;      /* Date override.  If 0 then use 'now' */
-  const char *zUserOvrd;      /* User override.  If 0 then use g.zLogin */
+  const char *zUserOvrd;      /* User override.  If 0 then use login_name() */
   const char *zBranch;        /* Branch name.  May be 0 */
   const char *zColor;         /* One-time background color.  May be 0 */
   const char *zBrClr;         /* Persistent branch color.  May be 0 */
@@ -1218,7 +1231,7 @@ static void create_manifest(
     }
     db_finalize(&q);
   }
-  blob_appendf(pOut, "U %F\n", p->zUserOvrd ? p->zUserOvrd : g.zLogin);
+  blob_appendf(pOut, "U %F\n", p->zUserOvrd ? p->zUserOvrd : login_name());
   md5sum_blob(pOut, &mcksum);
   blob_appendf(pOut, "Z %b\n", &mcksum);
   if( pnFBcard ) *pnFBcard = nFBcard;
@@ -1589,7 +1602,7 @@ void commit_cmd(void){
   if( select_commit_files() ){
     prompt_user("continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
-    if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
+    if( cReply!='y' && cReply!='Y' ) fossil_exit(1);
   }
   isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0 OR id<-2");
   if( g.aCommitFile && isAMerge ){
@@ -1689,7 +1702,7 @@ void commit_cmd(void){
     if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
       prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
+      if( cReply!='y' && cReply!='Y' ) fossil_exit(1);
     }
     free(zInit);
   }

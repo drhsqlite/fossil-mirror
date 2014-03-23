@@ -485,11 +485,21 @@ void vfile_scan(
       zPath = blob_str(pPath);
       if( glob_match(pIgnore, &zPath[nPrefix+1]) ){
         /* do nothing */
+#ifdef _DIRENT_HAVE_D_TYPE
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isdir(zPath)==1) : (pEntry->d_type==DT_DIR) ){
+#else
       }else if( file_wd_isdir(zPath)==1 ){
+#endif
         if( !vfile_top_of_checkout(zPath) ){
           vfile_scan(pPath, nPrefix, scanFlags, pIgnore);
         }
+#ifdef _DIRENT_HAVE_D_TYPE
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
+#else
       }else if( file_wd_isfile_or_link(zPath) ){
+#endif
         if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(zUtf8) ){
           db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
           db_step(&ins);
@@ -589,7 +599,12 @@ int vfile_dir_scan(
       if( glob_match(pIgnore1, &zPath[nPrefix+1]) ||
           glob_match(pIgnore2, &zPath[nPrefix+1]) ){
         /* do nothing */
+#ifdef _DIRENT_HAVE_D_TYPE
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isdir(zPath)==1) : (pEntry->d_type==DT_DIR) ){
+#else
       }else if( file_wd_isdir(zPath)==1 ){
+#endif
         if( (scanFlags & SCAN_NESTED) || !vfile_top_of_checkout(zPath) ){
           char *zSavePath = mprintf("%s", zPath);
           int count = vfile_dir_scan(pPath, nPrefix, scanFlags, pIgnore1,
@@ -601,7 +616,12 @@ int vfile_dir_scan(
           fossil_free(zSavePath);
           result += count; /* found X normal files? */
         }
+#ifdef _DIRENT_HAVE_D_TYPE
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
+#else
       }else if( file_wd_isfile_or_link(zPath) ){
+#endif
         db_bind_text(&upd, ":file", zOrigPath);
         db_step(&upd);
         db_reset(&upd);

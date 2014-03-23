@@ -788,44 +788,13 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
 #endif
     fwrite(blob_buffer(pBlob), 1, nWrote, stdout);
   }else{
-    int i, nName;
-    char *zName, zBuf[1000];
-
-    nName = strlen(zFilename);
-    if( nName>=sizeof(zBuf) ){
-      zName = mprintf("%s", zFilename);
-    }else{
-      zName = zBuf;
-      memcpy(zName, zFilename, nName+1);
-    }
-    nName = file_simplify_name(zName, nName, 0);
-    for(i=1; i<nName; i++){
-      if( zName[i]=='/' ){
-        zName[i] = 0;
-#if defined(_WIN32) || defined(__CYGWIN__)
-        /*
-        ** On Windows, local path looks like: C:/develop/project/file.txt
-        ** The if stops us from trying to create a directory of a drive letter
-        ** C: in this example.
-        */
-        if( !(i==2 && zName[1]==':') ){
-#endif
-          if( file_mkdir(zName, 1) && file_isdir(zName)!=1 ){
-            fossil_fatal_recursive("unable to create directory %s", zName);
-            return 0;
-          }
-#if defined(_WIN32) || defined(__CYGWIN__)
-        }
-#endif
-        zName[i] = '/';
-      }
-    }
-    out = fossil_fopen(zName, "wb");
+    file_mkfolder(zFilename, 1);
+    out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
-      fossil_fatal_recursive("unable to open file \"%s\" for writing", zName);
+      fossil_fatal_recursive("unable to open file \"%s\" for writing",
+                             zFilename);
       return 0;
     }
-    if( zName!=zBuf ) free(zName);
     blob_is_init(pBlob);
     nWrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
     fclose(out);
