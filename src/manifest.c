@@ -1949,11 +1949,11 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       char *zComment;
       if( p->zAttachSrc && p->zAttachSrc[0] ){
         zComment = mprintf(
-             "Add attachment [/artifact/%S|%h] to ticket [%S]",
-             p->zAttachSrc, p->zAttachName, p->zAttachTarget);
+             "Add attachment [/artifact/%S|%h] to ticket [%s|%.10s]",
+             p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }else{
-        zComment = mprintf("Delete attachment \"%h\" from ticket [%.10s]",
-             p->zAttachName, p->zAttachTarget);
+        zComment = mprintf("Delete attachment \"%h\" from ticket [%s|%.10s]",
+             p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment)"
@@ -1981,8 +1981,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       if( !zTagUuid ) continue;
       if( i==0 || fossil_strcmp(zTagUuid, p->aTag[i-1].zUuid)!=0 ){
         blob_appendf(&comment,
-           " Edit [%S]:",
-           zTagUuid);
+           " Edit [%s|%.10s]:",
+           zTagUuid, zTagUuid);
         branchMove = 0;
         if( permitHooks && db_exists("SELECT 1 FROM event, blob"
             " WHERE event.type='ci' AND event.objid=blob.rid"
@@ -1995,7 +1995,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       zValue = p->aTag[i].zValue;
       if( strcmp(zName, "*branch")==0 ){
         blob_appendf(&comment,
-           " Move to branch [/timeline?r=%h&nd&dp=%S&unhide | %h].",
+           " Move to branch [/timeline?r=%h&nd&dp=%s&unhide | %h].",
            zValue, zTagUuid, zValue);
         branchMove = 1;
         continue;
