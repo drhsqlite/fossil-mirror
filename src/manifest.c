@@ -1591,36 +1591,37 @@ void manifest_ticket_event(
       }
     }
     if( zNewStatus ){
-      blob_appendf(&comment, "%h ticket [%.10s]: <i>%h</i>",
-         zNewStatus, pManifest->zTicketUuid, zTitle
+      blob_appendf(&comment, "%h ticket [%s|%.10s]: <i>%h</i>",
+         zNewStatus, pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle
       );
       if( pManifest->nField>1 ){
         blob_appendf(&comment, " plus %d other change%s",
           pManifest->nField-1, pManifest->nField==2 ? "" : "s");
       }
-      blob_appendf(&brief, "%h ticket [%.10s].",
-                   zNewStatus, pManifest->zTicketUuid);
+      blob_appendf(&brief, "%h ticket [%s|%.10s].",
+                   zNewStatus, pManifest->zTicketUuid, pManifest->zTicketUuid);
     }else{
       zNewStatus = db_text("unknown",
          "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
          zStatusColumn, pManifest->zTicketUuid
       );
-      blob_appendf(&comment, "Ticket [%.10s] <i>%h</i> status still %h with "
+      blob_appendf(&comment, "Ticket [%s|%.10s] <i>%h</i> status still %h with "
            "%d other change%s",
-           pManifest->zTicketUuid, zTitle, zNewStatus, pManifest->nField,
-           pManifest->nField==1 ? "" : "s"
+           pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle, zNewStatus,
+           pManifest->nField, pManifest->nField==1 ? "" : "s"
       );
       free(zNewStatus);
-      blob_appendf(&brief, "Ticket [%.10s]: %d change%s",
-           pManifest->zTicketUuid, pManifest->nField,
+      blob_appendf(&brief, "Ticket [%s|%.10s]: %d change%s",
+           pManifest->zTicketUuid, pManifest->zTicketUuid, pManifest->nField,
            pManifest->nField==1 ? "" : "s"
       );
     }
   }else{
-    blob_appendf(&comment, "New ticket [%.10s] <i>%h</i>.",
-      pManifest->zTicketUuid, zTitle
+    blob_appendf(&comment, "New ticket [%s|%.10s] <i>%h</i>.",
+      pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle
     );
-    blob_appendf(&brief, "New ticket [%.10s].", pManifest->zTicketUuid);
+    blob_appendf(&brief, "New ticket [%s|%.10s].", pManifest->zTicketUuid,
+        pManifest->zTicketUuid);
   }
   free(zTitle);
   db_multi_exec(

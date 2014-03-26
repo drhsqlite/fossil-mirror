@@ -50,7 +50,7 @@ void hyperlink_to_uuid(const char *zUuid){
   char z[UUID_SIZE+1];
   shorten_uuid(z, zUuid);
   if( g.perm.Hyperlink ){
-    @ %z(xhref("class='timelineHistLink'","%R/info/%s",z))[%s(z)]</a>
+    @ %z(xhref("class='timelineHistLink'","%R/info/%s",zUuid))[%s(z)]</a>
   }else{
     @ <span class="timelineHistDsp">[%s(z)]</span>
   }
