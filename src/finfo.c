@@ -239,7 +239,19 @@ void cat_cmd(void){
   db_find_and_open_repository(0, 0);
   zRev = find_option("r","r",1);
   for(i=2; i<g.argc; i++){
-    file_tree_name(g.argv[i], &fname, 1);
+    if( g.useRepositoryFromCmdArg ){
+      /* If specify -R <repository>, arguments should already be the tree-name */
+      blob_set(&fname, g.argv[i]);
+      /* 
+      ** if no rev specified, default to main-branch to don't let
+      ** historical_version_of_file() get local checkout revision
+      */
+      if( zRev==0 ){
+        zRev=db_get("main-branch", "trunk");
+      }
+    }else{
+      file_tree_name(g.argv[i], &fname, 1);
+    }
     blob_zero(&content);
     rc = historical_version_of_file(zRev, blob_str(&fname), &content, 0,0,0,0);
     if( rc==0 ){

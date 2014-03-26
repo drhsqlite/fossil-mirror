@@ -173,6 +173,7 @@ struct Global {
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
   Blob httpHeader;        /* Complete text of the HTTP request header */
+  int useRepositoryFromCmdArg; /* -R <repository> specified on command line */
 
   /*
   ** NOTE: These members MUST be kept in sync with those in the "UrlData"
