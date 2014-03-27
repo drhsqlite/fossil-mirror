@@ -544,9 +544,9 @@ void extra_cmd(void){
 **    --temp           Remove only Fossil-generated temporary files.
 **    -v|--verbose     Show all files as they are removed.
 **    -x|--extreme     Remove all files not part of the current
-**                     checkout, without taking into consideration
-**                     the "ignore-glob" setting and the --ignore
-**                     command line option.
+**                     checkout, except the ones matching --keep.
+**                     Files not matching any of --clean/--ignore/-keep,
+**                     will be prompted for.
 **                     Compatibile with "git clean -x".
 **
 ** See also: addremove, extra, status
@@ -629,7 +629,8 @@ void clean_cmd(void){
     db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
-      if( !allFileFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
+      if( !allFileFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot)
+          && !(extremeFlag && glob_match(pIgnore, zName+nRoot)) ){
         Blob ans;
         char cReply;
         int matchIgnore = extremeFlag && glob_match(pIgnore, zName+nRoot);
@@ -674,7 +675,8 @@ void clean_cmd(void){
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
-      if( !allDirFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
+      if( !allDirFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot)
+          && !(extremeFlag && glob_match(pIgnore, zName+nRoot)) ){
         Blob ans;
         char cReply;
         int matchIgnore = extremeFlag && glob_match(pIgnore, zName+nRoot);
