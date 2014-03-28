@@ -56,6 +56,9 @@ void hyperlink_to_uuid(const char *zUuid){
   }
 }
 
+/*
+** Generate a hyperlink to a date & time.
+*/
 void hyperlink_to_date(const char *zDate, const char *zSuffix){
   if( zSuffix==0 ) zSuffix = "";
   if( g.perm.Hyperlink ){
