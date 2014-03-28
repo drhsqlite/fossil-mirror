@@ -56,22 +56,6 @@ void hyperlink_to_uuid(const char *zUuid){
   }
 }
 
-/*
-** Generate a hyperlink to a diff between two versions.
-*/
-void hyperlink_to_diff(const char *zV1, const char *zV2){
-  if( g.perm.Hyperlink ){
-    if( zV2==0 ){
-      @ %z(href("%R/diff?v2=%s",zV1))[diff]</a>
-    }else{
-      @ %z(href("%R/diff?v1=%s&v2=%s",zV1,zV2))[diff]</a>
-    }
-  }
-}
-
-/*
-** Generate a hyperlink to a date & time.
-*/
 void hyperlink_to_date(const char *zDate, const char *zSuffix){
   if( zSuffix==0 ) zSuffix = "";
   if( g.perm.Hyperlink ){
@@ -450,7 +434,7 @@ void www_print_timeline(
 
     /* Generate a "detail" link for tags. */
     if( (zType[0]=='g' || zType[0]=='w' || zType[0]=='t') && g.perm.Hyperlink ){
-      @ [%z(href("%R/info/%S",zUuid))details</a>]
+      @ [%z(href("%R/info/%s",zUuid))details</a>]
     }
 
     /* Generate the "tags: TAGLIST" at the end of the comment, together
@@ -529,19 +513,19 @@ void www_print_timeline(
         }
         if( isNew ){
           @ <li> %h(zFilename) (new file) &nbsp;
-          @ %z(href("%R/artifact/%S",zNew))[view]</a></li>
+          @ %z(href("%R/artifact/%s",zNew))[view]</a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
           @ <li> %h(zOldName) &rarr; %h(zFilename)
-          @ %z(href("%R/artifact/%S",zNew))[view]</a></li>
+          @ %z(href("%R/artifact/%s",zNew))[view]</a></li>
         }else{
           if( zOldName!=0 ){
             @ <li> %h(zOldName) &rarr; %h(zFilename)
           }else{
             @ <li> %h(zFilename) &nbsp;
           }
-          @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zOld,zNew))[diff]</a></li>
+          @ %z(href("%R/fdiff?sbs=1&v1=%s&v2=%s",zOld,zNew))[diff]</a></li>
         }
       }
       db_reset(&fchngQuery);
@@ -1444,7 +1428,7 @@ void page_timeline(void){
     if( zUses ){
       char *zFilenames = names_of_file(zUses);
       blob_appendf(&desc, " using file %s version %z%S</a>", zFilenames,
-                   href("%R/artifact/%S",zUses), zUses);
+                   href("%R/artifact/%s",zUses), zUses);
       tmFlags |= TIMELINE_DISJOINT;
     }
     if( renameOnly ){
@@ -1965,7 +1949,7 @@ void test_timewarp_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     @ <li>
-    @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&amp;d=%S(zUuid)&amp;unhide">%S(zUuid)</a>
+    @ <a href="%s(g.zTop)/timeline?p=%s(zUuid)&amp;d=%s(zUuid)&amp;unhide">%S(zUuid)</a>
   }
   db_finalize(&q);
   style_footer();

@@ -1933,7 +1933,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       char *zComment;
       if( p->zAttachSrc && p->zAttachSrc[0] ){
         zComment = mprintf(
-             "Add attachment [/artifact/%S|%h] to wiki page [%h]",
+             "Add attachment [/artifact/%s|%h] to wiki page [%h]",
              p->zAttachSrc, p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
@@ -1949,7 +1949,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       char *zComment;
       if( p->zAttachSrc && p->zAttachSrc[0] ){
         zComment = mprintf(
-             "Add attachment [/artifact/%S|%h] to ticket [%s|%.10s]",
+             "Add attachment [/artifact/%s|%h] to ticket [%s|%.10s]",
              p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from ticket [%s|%.10s]",
