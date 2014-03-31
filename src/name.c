@@ -410,6 +410,7 @@ void ambiguous_page(void){
     @ </p></li>
   }
   @ </ol>
+  db_finalize(&q);
   style_footer();
 }
 

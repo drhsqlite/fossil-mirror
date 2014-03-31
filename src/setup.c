@@ -279,6 +279,7 @@ void setup_ulist(void){
   @ </ol>
   @ </td></tr></table>
   style_footer();
+  db_finalize(&s);
 }
 
 /*
