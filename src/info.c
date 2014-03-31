@@ -401,7 +401,7 @@ static void append_file_change_line(
       append_diff(zOld, zNew, diffFlags, pRe);
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
-      @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zOld,zNew))[diff]</a>
+      @ %z(href("%R/fdiff?v1=%s&v2=%s&sbs=1",zOld,zNew))[diff]</a>
     }
   }
 }
@@ -614,15 +614,15 @@ void ci_page(void){
         }
       }
       @ <tr><th>Timelines:</th><td>
-      @   %z(href("%R/timeline?f=%S&unhide",zUuid))family</a>
+      @   %z(href("%R/timeline?f=%s&unhide",zUuid))family</a>
       if( zParent ){
-        @ | %z(href("%R/timeline?p=%S&unhide",zUuid))ancestors</a>
+        @ | %z(href("%R/timeline?p=%s&unhide",zUuid))ancestors</a>
       }
       if( !isLeaf ){
-        @ | %z(href("%R/timeline?d=%S&unhide",zUuid))descendants</a>
+        @ | %z(href("%R/timeline?d=%s&unhide",zUuid))descendants</a>
       }
       if( zParent && !isLeaf ){
-        @ | %z(href("%R/timeline?dp=%S&unhide",zUuid))both</a>
+        @ | %z(href("%R/timeline?dp=%s&unhide",zUuid))both</a>
       }
       db_prepare(&q2,"SELECT substr(tag.tagname,5) FROM tagxref, tag "
                      " WHERE rid=%d AND tagtype>0 "
@@ -649,12 +649,12 @@ void ci_page(void){
       @ </td></tr>
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      @     %z(href("%R/tree?ci=%S",zUuid))files</a>
-      @   | %z(href("%R/fileage?name=%S",zUuid))file ages</a>
-      @   | %z(href("%R/tree?ci=%S&nofiles",zUuid))folders</a>
-      @   | %z(href("%R/artifact/%S",zUuid))manifest</a>
+      @     %z(href("%R/tree?ci=%s",zUuid))files</a>
+      @   | %z(href("%R/fileage?name=%s",zUuid))file ages</a>
+      @   | %z(href("%R/tree?ci=%s&nofiles",zUuid))folders</a>
+      @   | %z(href("%R/artifact/%s",zUuid))manifest</a>
       if( g.perm.Write ){
-        @   | %z(href("%R/ci_edit?r=%S",zUuid))edit</a>
+        @   | %z(href("%R/ci_edit?r=%s",zUuid))edit</a>
       }
       @   </td>
       @ </tr>
@@ -701,7 +701,7 @@ void ci_page(void){
     @ Show&nbsp;Side-by-Side&nbsp;Diffs</a>
   }
   if( zParent ){
-    @ %z(xhref("class='button'","%R/vpatch?from=%S&to=%S",zParent,zUuid))
+    @ %z(xhref("class='button'","%R/vpatch?from=%s&to=%s",zParent,zUuid))
     @ Patch</a>
   }
   @</div>
@@ -772,7 +772,7 @@ void winfo_page(void){
   style_header("Update of \"%h\"", pWiki->zWikiTitle);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zDate = db_text(0, "SELECT datetime(%.17g)", pWiki->rDate);
-  style_submenu_element("Raw", "Raw", "artifact/%S", zUuid);
+  style_submenu_element("Raw", "Raw", "artifact/%s", zUuid);
   style_submenu_element("History", "History", "whistory?name=%t",
                         pWiki->zWikiTitle);
   style_submenu_element("Page", "Page", "wiki?name=%t",
@@ -800,7 +800,7 @@ void winfo_page(void){
     @ <tr><th>Parent%s(pWiki->nParent==1?"":"s"):</th><td>
     for(i=0; i<pWiki->nParent; i++){
       char *zParent = pWiki->azParent[i];
-      @ %z(href("info/%S",zParent))%s(zParent)</a>
+      @ %z(href("info/%s",zParent))%s(zParent)</a>
     }
     @ </td></tr>
   }
@@ -1190,10 +1190,10 @@ int object_description(
     @ - %!w(zCom) (user:
     hyperlink_to_user(zUser,zDate,")");
     if( g.perm.Hyperlink ){
-      @ %z(href("%R/finfo?name=%T&ci=%S",zName,zVers))[ancestry]</a>
-      @ %z(href("%R/annotate?checkin=%S&filename=%T",zVers,zName))
+      @ %z(href("%R/finfo?name=%T&ci=%s",zName,zVers))[ancestry]</a>
+      @ %z(href("%R/annotate?checkin=%s&filename=%T",zVers,zName))
       @ [annotate]</a>
-      @ %z(href("%R/blame?checkin=%S&filename=%T",zVers,zName))
+      @ %z(href("%R/blame?filename=%T&checkin=%s",zName,zVers))
       @ [blame]</a>
     }
     cnt++;
@@ -1304,7 +1304,7 @@ int object_description(
     objType |= OBJTYPE_ATTACHMENT;
     if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
       if( g.perm.Hyperlink && g.perm.RdTkt ){
-        @ ticket [%z(href("%R/tktview?name=%S",zTarget))%S(zTarget)</a>]
+        @ ticket [%z(href("%R/tktview?name=%s",zTarget))%S(zTarget)</a>]
       }else{
         @ ticket [%S(zTarget)]
       }
@@ -1330,7 +1330,7 @@ int object_description(
       blob_appendf(pDownloadName, "%.10s.txt", zUuid);
     }
   }else if( linkToView && g.perm.Hyperlink ){
-    @ %z(href("%R/artifact/%S",zUuid))[view]</a>
+    @ %z(href("%R/artifact/%s",zUuid))[view]</a>
   }
   return objType;
 }
@@ -1406,13 +1406,13 @@ void diff_page(void){
 
   if( P("smhdr")!=0 ){
     @ <h2>Differences From Artifact
-    @ %z(href("%R/artifact/%S",zV1))[%S(zV1)]</a> To
-    @ %z(href("%R/artifact/%S",zV2))[%S(zV2)]</a>.</h2>
+    @ %z(href("%R/artifact/%s",zV1))[%S(zV1)]</a> To
+    @ %z(href("%R/artifact/%s",zV2))[%S(zV2)]</a>.</h2>
   }else{
     @ <h2>Differences From
-    @ Artifact %z(href("%R/artifact/%S",zV1))[%S(zV1)]</a>:</h2>
+    @ Artifact %z(href("%R/artifact/%s",zV1))[%S(zV1)]</a>:</h2>
     object_description(v1, 0, 0);
-    @ <h2>To Artifact %z(href("%R/artifact/%S",zV2))[%S(zV2)]</a>:</h2>
+    @ <h2>To Artifact %z(href("%R/artifact/%s",zV2))[%S(zV2)]</a>:</h2>
     object_description(v2, 0, 0);
   }
   if( pRe ){
@@ -1763,9 +1763,9 @@ void artifact_page(void){
         @ </pre>
       }
     }else if( strncmp(zMime, "image/", 6)==0 ){
-      @ <img src="%R/raw/%S(zUuid)?m=%s(zMime)" />
+      @ <img src="%R/raw/%s(zUuid)?m=%s(zMime)" />
       style_submenu_element("Image", "Image",
-                            "%R/raw/%S?m=%s", zUuid, zMime);
+                            "%R/raw/%s?m=%s", zUuid, zMime);
     }else{
       @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
     }
@@ -1821,15 +1821,15 @@ void tinfo_page(void){
       ? db_text("(No title)", "SELECT title FROM ticket WHERE tkt_uuid=%Q", zTktName)
       : 0;
   style_header("Ticket Change Details");
-  style_submenu_element("Raw", "Raw", "%R/artifact/%S", zUuid);
+  style_submenu_element("Raw", "Raw", "%R/artifact/%s", zUuid);
   style_submenu_element("History", "History", "%R/tkthistory/%s", zTktName);
   style_submenu_element("Page", "Page", "%R/tktview/%t", zTktName);
   style_submenu_element("Timeline", "Timeline", "%R/tkttimeline/%t", zTktName);
   if( P("plaintext") ){
-    style_submenu_element("Formatted", "Formatted", "%R/info/%S", zUuid);
+    style_submenu_element("Formatted", "Formatted", "%R/info/%s", zUuid);
   }else{
     style_submenu_element("Plaintext", "Plaintext",
-                          "%R/info/%S?plaintext", zUuid);
+                          "%R/info/%s?plaintext", zUuid);
   }
 
   @ <div class="section">Overview</div>
@@ -2343,7 +2343,7 @@ void ci_edit_page(void){
   @ [%z(href("%R/ci/%s",zUuid))%s(zUuid)</a>]:</p>
   form_begin(0, "%R/ci_edit");
   login_insert_csrf_secret();
-  @ <div><input type="hidden" name="r" value="%S(zUuid)" />
+  @ <div><input type="hidden" name="r" value="%s(zUuid)" />
   @ <table border="0" cellspacing="10">
 
   @ <tr><th align="right" valign="top">User:</th>
