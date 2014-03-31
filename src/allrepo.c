@@ -78,7 +78,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 /*
 ** COMMAND: all
 **
-** Usage: %fossil all (changes|clean|extra|ignore|list|ls|pull|push|rebuild|sync)
+** Usage: %fossil all (changes|clean|extras|ignore|list|ls|pull|push|rebuild|sync)
 **
 ** The ~/.fossil file records the location of all repositories for a
 ** user.  This command performs certain operations on all repositories
@@ -101,12 +101,12 @@ static void collect_argv(Blob *pExtra, int iStart){
 **               line options supported by the clean command itself, if any
 **               are present, are passed along verbatim.
 **
-**    extra      Shows extra files from all local checkouts.  The command
+**    extras     Shows "extra" files from all local checkouts.  The command
 **               line options supported by the extra command itself, if any
 **               are present, are passed along verbatim.
 **
 **    ignore     Arguments are repositories that should be ignored by
-**               subsequent clean, extra, list, pull, push, rebuild, and
+**               subsequent clean, extras, list, pull, push, rebuild, and
 **               sync operations.  The -c|--ckout option causes the listed
 **               local checkouts to be ignored instead.
 **
@@ -138,6 +138,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 ** are added back to the list of repositories by these commands.
 **
 ** Options:
+**   --showfile     Show the repository or checkout being operated upon.
 **   --dontstop     Continue with other repositories even after an error.
 **   --dry-run      If given, display instead of run actions.
 */
@@ -152,6 +153,7 @@ void all_cmd(void){
   int useCheckouts = 0;
   int quiet = 0;
   int dryRunFlag = 0;
+  int showFile = find_option("showfile",0,0)!=0;
   int stopOnError = find_option("dontstop",0,0)==0;
   int rc;
   int nToDel = 0;
@@ -162,7 +164,7 @@ void all_cmd(void){
   }
 
   if( g.argc<3 ){
-    usage("changes|clean|extra|ignore|list|ls|pull|push|rebuild|sync");
+    usage("changes|clean|extras|ignore|list|ls|pull|push|rebuild|sync");
   }
   n = strlen(g.argv[2]);
   db_open_config(1);
@@ -187,8 +189,8 @@ void all_cmd(void){
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "whatif",0);
     useCheckouts = 1;
-  }else if( strncmp(zCmd, "extra", n)==0 ){
-    zCmd = "extra --chdir";
+  }else if( strncmp(zCmd, "extras", n)==0 ){
+    zCmd = "extras --chdir";
     collect_argument(&extra, "abs-paths",0);
     collect_argument_value(&extra, "case-sensitive");
     collect_argument(&extra, "dotfiles",0);
@@ -256,7 +258,7 @@ void all_cmd(void){
     return;
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "changes clean extra ignore list ls push pull rebuild sync");
+                 "changes clean extras ignore list ls push pull rebuild sync");
   }
   verify_all_options();
   zFossil = quoteFilename(g.nameOfExe);
@@ -289,6 +291,9 @@ void all_cmd(void){
     if( zCmd[0]=='l' ){
       fossil_print("%s\n", zFilename);
       continue;
+    }else if( showFile ){
+      fossil_print("%s: %s\n", useCheckouts ? "checkout" : "repository",
+                   zFilename);
     }
     zQFilename = quoteFilename(zFilename);
     zSyscmd = mprintf("%s %s %s%s",

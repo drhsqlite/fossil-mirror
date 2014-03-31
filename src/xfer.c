@@ -1377,7 +1377,7 @@ static double fossil_fabs(double x){
 }
 
 /*
-** Sync to the host identified in g.urlName and g.urlPath.  This
+** Sync to the host identified in g.url.name and g.url.path.  This
 ** routine is called by the client.
 **
 ** Records are pushed to the server if pushFlag is true.  Records
@@ -1825,11 +1825,11 @@ int client_sync(
           fossil_print("Error: %s\n", zMsg);
           if( fossil_strcmp(zMsg, "login failed")==0 ){
             if( nCycle<2 ){
-              g.urlPasswd = 0;
+              g.url.passwd = 0;
               go = 1;
               if( g.cgiOutput==0 ){
-                g.urlFlags |= URL_PROMPT_PW;
-                g.urlFlags &= ~URL_PROMPTED;
+                g.url.flags |= URL_PROMPT_PW;
+                g.url.flags &= ~URL_PROMPTED;
                 url_prompt_for_password();
                 url_remember();
               }
@@ -1928,8 +1928,8 @@ int client_sync(
   fossil_print(
      "%s finished with %lld bytes sent, %lld bytes received\n",
      zOpType, nSent, nRcvd);
-  transport_close(GLOBAL_URL());
-  transport_global_shutdown(GLOBAL_URL());
+  transport_close(&g.url);
+  transport_global_shutdown(&g.url);
   db_multi_exec("DROP TABLE onremote");
   manifest_crosslink_end(MC_PERMIT_HOOKS);
   content_enable_dephantomize(1);

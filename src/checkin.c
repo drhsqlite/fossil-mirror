@@ -181,7 +181,7 @@ static int determine_cwd_relative_option()
 **    --header          Identify the repository if there are changes
 **    -v|--verbose      Say "(none)" if there are no changes
 **
-** See also: extra, ls, status
+** See also: extras, ls, status
 */
 void changes_cmd(void){
   Blob report;
@@ -225,7 +225,7 @@ void changes_cmd(void){
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
 **
-** See also: changes, extra, ls
+** See also: changes, extras, ls
 */
 void status_cmd(void){
   int vid;
@@ -257,7 +257,7 @@ void status_cmd(void){
 **   --age           Show when each file was committed
 **   -v|--verbose    Provide extra information about each file.
 **
-** See also: changes, extra, status
+** See also: changes, extras, status
 */
 void ls_cmd(void){
   int vid;
@@ -441,7 +441,7 @@ static void locate_unmanaged_files(
 **
 ** See also: changes, clean, status
 */
-void extra_cmd(void){
+void extras_cmd(void){
   Stmt q;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
@@ -538,7 +538,7 @@ void extra_cmd(void){
 **    --temp           Remove only Fossil-generated temporary files.
 **    -v|--verbose     Show all files as they are removed.
 **
-** See also: addremove, extra, status
+** See also: addremove, extras, status
 */
 void clean_cmd(void){
   int allFileFlag, allDirFlag, dryRunFlag, verboseFlag;
@@ -1410,7 +1410,7 @@ static int tagCmp(const void *a, const void *b){
 **                               than relying on file mtimes
 **    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
 **
-** See also: branch, changes, checkout, extra, sync
+** See also: branch, changes, checkout, extras, sync
 */
 void commit_cmd(void){
   int hasChanges;        /* True if unsaved changes exist */

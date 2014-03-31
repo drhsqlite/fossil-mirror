@@ -114,11 +114,6 @@ struct TclContext {
 };
 #endif
 
-/*
-** All global variables are in this structure.
-*/
-#define GLOBAL_URL()      ((UrlData *)(&g.urlIsFile))
-
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
@@ -174,7 +169,8 @@ struct Global {
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
   Blob httpHeader;        /* Complete text of the HTTP request header */
   int useRepositoryFromCmdArg; /* -R <repository> specified on command line */
-
+  UrlData url;            /* Information about current URL */
+#if 0
   /*
   ** NOTE: These members MUST be kept in sync with those in the "UrlData"
   **       structure defined in "url.c".
@@ -197,6 +193,8 @@ struct Global {
   int useProxy;           /* Used to remember that a proxy is in use */
   char *proxyUrlPath;
   int proxyOrigPort;      /* Tunneled port number for https through proxy */
+#endif
+
   const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */

@@ -227,7 +227,7 @@ static int same_dline_ignore_allws(const DLine *pA, const DLine *pB){
       while( a<pA->n && fossil_isspace(pA->z[a])) ++a;
       while( b<pB->n && fossil_isspace(pB->z[b])) ++b;
     }
-    return pA->n-a == b<pB->n-b;
+    return pA->n-a == pB->n-b;
   }
   return 0;
 }
