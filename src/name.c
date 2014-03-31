@@ -404,8 +404,8 @@ void ambiguous_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
-    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%S(zUuid)">
-    @ %S(zUuid)</a> -
+    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ %s(zUuid)</a> -
     object_description(rid, 0, 0);
     @ </p></li>
   }
