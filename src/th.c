@@ -1998,6 +1998,7 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
         case OP_LOGICAL_OR:   iRes = iLeft||iRight; break;
         case OP_UNARY_MINUS:  iRes = -iLeft;        break;
         case OP_UNARY_PLUS:   iRes = +iLeft;        break;
+        case OP_BITWISE_NOT:  iRes = ~iLeft;        break;
         case OP_LOGICAL_NOT:  iRes = !iLeft;        break;
         default: assert(!"Internal error");
       }
