@@ -945,9 +945,35 @@ static const char zDiffScript[] =
 @   puts $out "eval \$prog"
 @   close $out
 @ }
+@ proc invertDiff {} {
+@   global CFG
+@   array set x [grid info .txtA]
+@   if {$x(-column)==1} {
+@     grid config .lnB -column 0
+@     grid config .txtB -column 1
+@     .txtB tag config add -background $CFG(RM_BG)
+@     grid config .lnA -column 3
+@     grid config .txtA -column 4
+@     .txtA tag config rm -background $CFG(ADD_BG)
+@   } else {
+@     grid config .lnA -column 0
+@     grid config .txtA -column 1
+@     .txtA tag config rm -background $CFG(RM_BG)
+@     grid config .lnB -column 3
+@     grid config .txtB -column 4
+@     .txtB tag config add -background $CFG(ADD_BG)
+@   }
+@   .mkr config -state normal
+@   set clt [.mkr search -all < 1.0 end]
+@   set cgt [.mkr search -all > 1.0 end]
+@   foreach c $clt {.mkr replace $c "$c +1 chars" >}
+@   foreach c $cgt {.mkr replace $c "$c +1 chars" <}
+@   .mkr config -state disabled
+@ }
 @ ::ttk::button .bb.quit -text {Quit} -command exit
+@ ::ttk::button .bb.invert -text {Invert} -command invertDiff
 @ ::ttk::button .bb.save -text {Save As...} -command saveDiff
-@ pack .bb.quit -side left
+@ pack .bb.quit .bb.invert -side left
 @ if {$fossilcmd!=""} {pack .bb.save -side left}
 @ pack .bb.files -side left
 @ grid rowconfigure . 1 -weight 1
