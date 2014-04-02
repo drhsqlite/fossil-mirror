@@ -1303,6 +1303,9 @@ static int commit_warning(
       blob_write_to_file(p, zOrig);
       fossil_free(zOrig);
       f = fossil_fopen(zFilename, "wb");
+      if( f==0 ){
+        fossil_fatal("cannot open %s for writing", zFilename);
+      }
       if( fUnicode ) {
         int bomSize;
         const unsigned char *bom = get_utf8_bom(&bomSize);

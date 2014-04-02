@@ -1,5 +1,5 @@
-C Fix\susing\sthe\sunary\sbitwise\sNOT\soperator\sin\sTH1.
-D 2014-04-01T22:28:28.377
+C Call\sfossil_fatal()\swhen\sfossil_fopen\sfail\son\scommit_warning().\sThis\sfix\nSIGSEGV\swhen\sconverting\sCR/NL\swhere\sfiles\sare\sread-only.\s(reported\son\sML)
+D 2014-04-02T03:30:02.050
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -318,7 +318,7 @@ F src/branch.c b2e1600a9a7fa39d739042239325ae0f6b91a50c
 F src/browse.c e1adbc058353ca22f30782f6c96355094fefad52
 F src/captcha.c 765bb4af84144ec617cabb9c6b4a548bbc2e8b08
 F src/cgi.c 752925d4999d0a51723e2e19d6a5f71a90fdfc3a
-F src/checkin.c fea64cb746964053193c12937d90a7ba42b625fc
+F src/checkin.c a064f984e30d36d4f5bd63d70f830fefdf9090f7
 F src/checkout.c a584a28bf3eeda1fb36f04507afd9a70e597e9a0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 79eea7d1a72ddb5b62efb3b75a76791d485cf108
@@ -642,7 +642,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cf52a9ab7bbff4f36d5206596263691c6ee718d8
-R db26efeb54715aed8ef20b2cf63a69ee
-U mistachkin
-Z 16de790caaa724b59e940e94517729b9
+P ee1aa460a40e91f502f9540053612c64c78128bb
+R 8c21354c4705fcdbeb6c7d4f421bb33d
+U mgagnon
+Z 26f7a283cdc9e9d30facc1c301543929
