@@ -1,5 +1,5 @@
-C Call\sfossil_fatal()\swhen\sfossil_fopen\sfail\son\scommit_warning().\sThis\sfix\nSIGSEGV\swhen\sconverting\sCR/NL\swhere\sfiles\sare\sread-only.\s(reported\son\sML)
-D 2014-04-02T03:30:02.050
+C Remove\s@FOSSIL_ENABLE_TCL@\sreferences\sin\sMakefile*.in:\sIt\sdoesn't\swork\swhen\stcl\sis\snot\senabled,\sand\sit\shas\sno\sfunction\sanyway\sbecause\sthe\sdefinition\sin\sautoconfig.h\sis\sreally\swhat\smatters.
+D 2014-04-02T06:55:56.329
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -8,9 +8,9 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Makefile.Cygwin.in 94e83f7bca0f20a95f45f10d2a8a9bcf90591e0b
+F Makefile.Cygwin.in 86e289a8e1633a8af41db7ff654bbc51413ee64e
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
-F Makefile.in 04d4b4d0b0481e76d537c1081142d8b7e6b34427
+F Makefile.in ebe28abdc231e41a40b725c4b238cb47f1ae4a46
 F VERSION e35bcf2ce1473bfa1a2b22ad8442d68f39e543d8
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
@@ -642,7 +642,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ee1aa460a40e91f502f9540053612c64c78128bb
-R 8c21354c4705fcdbeb6c7d4f421bb33d
-U mgagnon
-Z 26f7a283cdc9e9d30facc1c301543929
+P c3d09540dd26883665bf856a6581b76a012034a7
+R c314cf4413471aa3ad3f90624c8ad6e6
+U jan.nijtmans
+Z b235ea386705a32ae8b928e515080b3d
