@@ -270,19 +270,12 @@ SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
-# The FOSSIL_ENABLE_TCL variable may be undefined, set to 0, or set to 1.
-# If it is set to 1, then we need to build the Tcl integration code and
-# link to the Tcl library.
-TCL_OBJ.0 = 
-TCL_OBJ.1 = $(OBJDIR)/th_tcl.o
-TCL_OBJ. = $(TCL_OBJ.0)
-
 EXTRAOBJ = \
   $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
   $(OBJDIR)/shell.o \
   $(OBJDIR)/th.o \
   $(OBJDIR)/th_lang.o \
-  $(TCL_OBJ.$(FOSSIL_ENABLE_TCL)) \
+  $(OBJDIR)/th_tcl.o \
   $(OBJDIR)/cson_amalgamation.o
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
@@ -726,11 +719,8 @@ EXTRAOBJ = \
   $(OBJDIR)/shell.o \
   $(OBJDIR)/th.o \
   $(OBJDIR)/th_lang.o \
+  $(OBJDIR)/th_tcl.o \
   $(OBJDIR)/cson_amalgamation.o
-
-ifdef FOSSIL_ENABLE_TCL
-EXTRAOBJ +=  $(OBJDIR)/th_tcl.o
-endif
 
 zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
@@ -826,10 +816,8 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
 writeln "\$(OBJDIR)/th_lang.o:\t\$(SRCDIR)/th_lang.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 
-writeln {ifdef FOSSIL_ENABLE_TCL
-$(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
-	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
-endif}
+writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
 
 close $output_file
 #
@@ -1109,7 +1097,7 @@ foreach s [lsort $src] {
   writeln -nonewline "${s}_.c"; incr i
 }
 writeln "\n"
-set AdditionalObj [list shell sqlite3 th th_lang cson_amalgamation]
+set AdditionalObj [list shell sqlite3 th th_lang th_tcl cson_amalgamation]
 writeln -nonewline "OBJ   = "
 set i 0
 foreach s [lsort [concat $src $AdditionalObj]] {
@@ -1121,9 +1109,6 @@ foreach s [lsort [concat $src $AdditionalObj]] {
 }
 writeln " \\"
 writeln -nonewline "        \$(OX)\\fossil.res\n\n"
-writeln "!ifdef FOSSIL_ENABLE_TCL"
-writeln "OBJ   = \$(OBJ) \$(OX)\\th_tcl\$O"
-writeln "!endif"
 writeln {
 APPNAME = $(OX)\fossil$(E)
 PDBNAME = $(OX)\fossil$(P)
@@ -1144,10 +1129,7 @@ foreach s [lsort [concat $src $AdditionalObj]] {
   writeln "\techo \$(OX)\\$s.obj $redir \$@"
   set redir {>>}
 }
-writeln "!ifdef FOSSIL_ENABLE_TCL"
-writeln "\techo \$(OX)\\th_tcl.obj $redir \$@"
 set redir {>>}
-writeln "!endif"
 writeln "\techo \$(LIBS) $redir \$@"
 writeln {
 $(OX):
@@ -1177,10 +1159,8 @@ $(OX)\th$O : $(SRCDIR)\th.c
 $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) /Fo$@ -c $**
 
-!ifdef FOSSIL_ENABLE_TCL
 $(OX)\th_tcl$O : $(SRCDIR)\th_tcl.c
 	$(TCC) /Fo$@ -c $**
-!endif
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@

@@ -312,6 +312,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\th$O \
         $(OX)\th_lang$O \
         $(OX)\th_main$O \
+        $(OX)\th_tcl$O \
         $(OX)\timeline$O \
         $(OX)\tkt$O \
         $(OX)\tktsetup$O \
@@ -334,9 +335,6 @@ OBJ   = $(OX)\add$O \
         $(OX)\zip$O \
         $(OX)\fossil.res
 
-!ifdef FOSSIL_ENABLE_TCL
-OBJ   = $(OBJ) $(OX)\th_tcl$O
-!endif
 
 APPNAME = $(OX)\fossil$(E)
 PDBNAME = $(OX)\fossil$(P)
@@ -446,6 +444,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\th.obj >> $@
 	echo $(OX)\th_lang.obj >> $@
 	echo $(OX)\th_main.obj >> $@
+	echo $(OX)\th_tcl.obj >> $@
 	echo $(OX)\timeline.obj >> $@
 	echo $(OX)\tkt.obj >> $@
 	echo $(OX)\tktsetup.obj >> $@
@@ -466,9 +465,6 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\xfer.obj >> $@
 	echo $(OX)\xfersetup.obj >> $@
 	echo $(OX)\zip.obj >> $@
-!ifdef FOSSIL_ENABLE_TCL
-	echo $(OX)\th_tcl.obj >> $@
-!endif
 	echo $(LIBS) >> $@
 
 $(OX):
@@ -498,10 +494,8 @@ $(OX)\th$O : $(SRCDIR)\th.c
 $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) /Fo$@ -c $**
 
-!ifdef FOSSIL_ENABLE_TCL
 $(OX)\th_tcl$O : $(SRCDIR)\th_tcl.c
 	$(TCC) /Fo$@ -c $**
-!endif
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@

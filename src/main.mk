@@ -402,14 +402,7 @@ SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
-# The FOSSIL_ENABLE_TCL variable may be undefined, set to 0, or set to 1.
-# If it is set to 1, then we need to build the Tcl integration code and
-# link to the Tcl library.
-TCL_OBJ.0 = 
-TCL_OBJ.1 = $(OBJDIR)/th_tcl.o
-TCL_OBJ. = $(TCL_OBJ.0)
-
-EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(TCL_OBJ.$(FOSSIL_ENABLE_TCL))  $(OBJDIR)/cson_amalgamation.o
+EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(OBJDIR)/th_tcl.o  $(OBJDIR)/cson_amalgamation.o
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
