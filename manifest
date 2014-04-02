@@ -1,5 +1,5 @@
-C Fix\sbuild\swith\sdefault\sMakefile\sfor\splatforms\swhich\sdon't\shave\sgetloadavg()\sfunction\s(e.g.\sHaiku/Cygwin).\sPatch\sprovided\sby\sJoseph\sProstko.
-D 2014-04-02T06:58:02.860
+C Change\sa\sfatal\sinto\sa\swarning,\sallowing\sto\scontinue\sfile\sconversion\sfor\sother\sfiles.\sAlso\sclean-up\sinternal\sblobs\swhen\sthis\shappens.
+D 2014-04-02T07:05:52.787
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -318,7 +318,7 @@ F src/branch.c b2e1600a9a7fa39d739042239325ae0f6b91a50c
 F src/browse.c e1adbc058353ca22f30782f6c96355094fefad52
 F src/captcha.c 765bb4af84144ec617cabb9c6b4a548bbc2e8b08
 F src/cgi.c 752925d4999d0a51723e2e19d6a5f71a90fdfc3a
-F src/checkin.c a064f984e30d36d4f5bd63d70f830fefdf9090f7
+F src/checkin.c cc62431cdeb5f337cffecf9243d8202b2a75427b
 F src/checkout.c a584a28bf3eeda1fb36f04507afd9a70e597e9a0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 79eea7d1a72ddb5b62efb3b75a76791d485cf108
@@ -642,7 +642,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d77b7ed1a0a83427fb8ac5b4b47caee11262f9a9
-R 543a821e65970734f56cc371b11a7aee
+P 7023de95044817c60504f093acb62c9a4fffa33b
+R 6fa7ff3d802b537d814c12a74be63825
 U jan.nijtmans
-Z 1f062d3636e156c6f8f2324789294ff7
+Z bfe17315806d0e239809185b14d8d868

@@ -1304,19 +1304,20 @@ static int commit_warning(
       fossil_free(zOrig);
       f = fossil_fopen(zFilename, "wb");
       if( f==0 ){
-        fossil_fatal("cannot open %s for writing", zFilename);
+        fossil_warning("cannot open %s for writing", zFilename);
+      }else{
+        if( fUnicode ) {
+          int bomSize;
+          const unsigned char *bom = get_utf8_bom(&bomSize);
+          fwrite(bom, 1, bomSize, f);
+          blob_to_utf8_no_bom(p, 0);
+        }
+        if( fHasAnyCr ){
+          blob_to_lf_only(p);
+        }
+        fwrite(blob_buffer(p), 1, blob_size(p), f);
+        fclose(f);
       }
-      if( fUnicode ) {
-        int bomSize;
-        const unsigned char *bom = get_utf8_bom(&bomSize);
-        fwrite(bom, 1, bomSize, f);
-        blob_to_utf8_no_bom(p, 0);
-      }
-      if( fHasAnyCr ){
-        blob_to_lf_only(p);
-      }
-      fwrite(blob_buffer(p), 1, blob_size(p), f);
-      fclose(f);
       return 1;
     }else if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
