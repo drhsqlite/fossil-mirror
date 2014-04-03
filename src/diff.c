@@ -768,9 +768,9 @@ static void sbsWriteLineChange(
   static const char zClassAdd[]  = "<span class=\"diffadd\">";
   static const char zClassChng[] = "<span class=\"diffchng\">";
 
-  nLeft = pLeft->h & LENGTH_MASK;
+  nLeft = pLeft->n;
   zLeft = pLeft->z;
-  nRight = pRight->h & LENGTH_MASK;
+  nRight = pRight->n;
   zRight = pRight->z;
   nShort = nLeft<nRight ? nLeft : nRight;
 
@@ -916,8 +916,8 @@ static int match_dline(DLine *pA, DLine *pB){
 
   zA = pA->z;
   zB = pB->z;
-  nA = pA->h & LENGTH_MASK;
-  nB = pB->h & LENGTH_MASK;
+  nA = pA->n;
+  nB = pB->n;
   while( nA>0 && fossil_isspace(zA[0]) ){ nA--; zA++; }
   while( nA>0 && fossil_isspace(zA[nA-1]) ){ nA--; }
   while( nB>0 && fossil_isspace(zB[0]) ){ nB--; zB++; }
