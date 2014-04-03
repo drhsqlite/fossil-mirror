@@ -1879,11 +1879,26 @@ static int thNextNumber(
   int nInput,
   int *pnLiteral
 ){
-  int i;
+  int i = 0;
   int seenDot = 0;
-  for(i=0; i<nInput; i++){
+  int (*isdigit)(char) = th_isdigit;
+  if( nInput>2 ){
+    if( zInput[0]=='0' && (zInput[1]=='x' || zInput[1]=='X') ){
+      i=2;
+      isdigit = th_ishexdig;
+    }
+    if( zInput[0]=='0' && (zInput[1]=='o' || zInput[1]=='O') ){
+      i=2;
+      isdigit = th_isoctdig;
+    }
+    if( zInput[0]=='0' && (zInput[1]=='b' || zInput[1]=='B') ){
+      i=2;
+      isdigit = th_isbindig;
+    }
+  }
+  for(; i<nInput; i++){
     char c = zInput[i];
-    if( (seenDot || c!='.') && !th_isdigit(c) ) break;
+    if( (seenDot || c!='.') && !isdigit(c) ) break;
     if( c=='.' ) seenDot = 1;
   }
   *pnLiteral = i;
@@ -2413,7 +2428,8 @@ int th_strlen(const char *zStr){
 **
 ** Whitespace characters have the 0x01 flag set. Decimal digits have the
 ** 0x2 flag set. Single byte printable characters have the 0x4 flag set.
-** Alphabet characters have the 0x8 bit set.
+** Alphabet characters have the 0x8 bit set. Hexadecimal digits have the
+** 0x20 flag set.
 **
 ** The special list characters have the 0x10 flag set
 **
@@ -2426,10 +2442,10 @@ static unsigned char aCharProp[256] = {
   0,  0,  0,  0,  0,  0,  0,  0,     0,  1,  1,  1,  1,  1,  0,  0,   /* 0x0. */
   0,  0,  1,  1,  0,  0,  0,  0,     0,  0,  0,  0,  0,  0,  0,  0,   /* 0x1. */
   5,  4, 20,  4,  4,  4,  4,  4,     4,  4,  4,  4,  4,  4,  4,  4,   /* 0x2. */
-  6,  6,  6,  6,  6,  6,  6,  6,     6,  6,  4, 20,  4,  4,  4,  4,   /* 0x3. */
-  4, 12, 12, 12, 12, 12, 12, 12,    12, 12, 12, 12, 12, 12, 12, 12,   /* 0x4. */
+ 38, 38, 38, 38, 38, 38, 38, 38,    38, 38,  4, 20,  4,  4,  4,  4,   /* 0x3. */
+  4, 44, 44, 44, 44, 44, 44, 12,    12, 12, 12, 12, 12, 12, 12, 12,   /* 0x4. */
  12, 12, 12, 12, 12, 12, 12, 12,    12, 12, 12, 20, 20, 20,  4,  4,   /* 0x5. */
-  4, 12, 12, 12, 12, 12, 12, 12,    12, 12, 12, 12, 12, 12, 12, 12,   /* 0x6. */
+  4, 44, 44, 44, 44, 44, 44, 12,    12, 12, 12, 12, 12, 12, 12, 12,   /* 0x6. */
  12, 12, 12, 12, 12, 12, 12, 12,    12, 12, 12, 20,  4, 20,  4,  4,   /* 0x7. */
 
   0,  0,  0,  0,  0,  0,  0,  0,     0,  0,  0,  0,  0,  0,  0,  0,   /* 0x8. */
@@ -2456,6 +2472,15 @@ int th_isspecial(char c){
 }
 int th_isalnum(char c){
   return (aCharProp[(unsigned char)c] & 0x0A);
+}
+int th_ishexdig(char c){
+  return (aCharProp[(unsigned char)c] & 0x20);
+}
+int th_isoctdig(char c){
+  return ((c|7) == '7');
+}
+int th_isbindig(char c){
+  return ((c|1) == '1');
 }
 
 #ifndef LONGDOUBLE_TYPE
@@ -2573,6 +2598,8 @@ static int sqlite3AtoF(const char *z, double *pResult){
 int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
   int i = 0;
   int iOut = 0;
+  int base = 10;
+  int (*isdigit)(char) = th_isdigit;
 
   if( n<0 ){
     n = th_strlen(z);
@@ -2581,12 +2608,39 @@ int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
   if( n>0 && (z[0]=='-' || z[0]=='+') ){
     i = 1;
   }
+  if( n>2 ){
+    if( z[i]=='0' ){
+      if( z[i+1]=='x' || z[i+1]=='X' ){
+        i += 2;
+        base = 16;
+        isdigit = th_ishexdig;
+      }
+      if( z[i+1]=='o' || z[i+1]=='O' ){
+        i += 2;
+        base = 8;
+        isdigit = th_isoctdig;
+      }
+      if( z[i+1]=='b' || z[i+1]=='B' ){
+        i += 2;
+        base = 2;
+        isdigit = th_isbindig;
+      }
+    }
+  }
   for(; i<n; i++){
-    if( !th_isdigit(z[i]) ){
+    int shift;
+    if( !isdigit(z[i]) ){
       Th_ErrorMessage(interp, "expected integer, got: \"", z, n);
       return TH_ERROR;
     }
-    iOut = iOut * 10 + (z[i] - 48);
+    if( z[i]>='a' ){
+      shift = 'a' - 10;
+    }else if( z[i]>='A' ){
+      shift = 'A' - 10;
+    }else{
+      shift = '0';
+    }
+    iOut = iOut * base + (z[i] - shift);
   }
 
   if( n>0 && z[0]=='-' ){
