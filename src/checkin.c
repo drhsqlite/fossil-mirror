@@ -435,6 +435,7 @@ static void locate_unmanaged_files(
 **    --abs-paths      Display absolute pathnames.
 **    --case-sensitive <BOOL> override case-sensitive setting
 **    --dotfiles       include files beginning with a dot (".")
+**    --header         Identify the repository if there are extras
 **    --ignore <CSG>   ignore files matching patterns from the argument
 **    --rel-paths      Display pathnames relative to the current working
 **                     directory.
@@ -445,6 +446,7 @@ void extras_cmd(void){
   Stmt q;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
+  int showHdr = find_option("header",0,0)!=0;
   int cwdRelative = 0;
   Glob *pIgnore;
   Blob rewrittenPathname;
@@ -478,6 +480,11 @@ void extras_cmd(void){
       if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
         zDisplayName += 2;  /* no unnecessary ./ prefix */
       }
+    }
+    if( showHdr ){
+      showHdr = 0;
+      fossil_print("Extras for %s at %s:\n", db_get("project-name","???"),
+                   g.zLocalRoot);
     }
     fossil_print("%s\n", zDisplayName);
   }

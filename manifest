@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\shex\s(0x),\soctal\s(0o)\sand\sbinary\s(0b)\sintegers,\sjust\sas\sTcl.\sAdapted\sfrom\spatch\sprovided\sby\sSergei\sGavrikov.
-D 2014-04-03T15:14:11.038
+C Enhance\sthe\s'fossil\sextras'\sand\s'fossil\sall\sextras'\scommands\susing\sthe\snew\s--header\soption\sto\sget\sthem\sto\sprint\sthe\sassociated\srepository\sfirst.
+D 2014-04-03T19:13:42.546
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -309,7 +309,7 @@ F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 487252044873ffa0df8f53bbb5603d8b1b76eca8
-F src/allrepo.c da5a84b86ee8722b54bb3d6b065c9a4124ad292e
+F src/allrepo.c d5e0c2dc931e3e550c7bac5e23c3fa4c544992e6
 F src/attach.c 238aa5c78204b0d89e0b646ff382f40fbd6d3b83
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 92f528d17141879562a6f585ec1fe36f19f4fd2f
@@ -318,7 +318,7 @@ F src/branch.c b2e1600a9a7fa39d739042239325ae0f6b91a50c
 F src/browse.c e1adbc058353ca22f30782f6c96355094fefad52
 F src/captcha.c 765bb4af84144ec617cabb9c6b4a548bbc2e8b08
 F src/cgi.c 752925d4999d0a51723e2e19d6a5f71a90fdfc3a
-F src/checkin.c cc62431cdeb5f337cffecf9243d8202b2a75427b
+F src/checkin.c b13349b28f4a1b73a2ca73c4d86b55aa58b5c4cd
 F src/checkout.c a584a28bf3eeda1fb36f04507afd9a70e597e9a0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 79eea7d1a72ddb5b62efb3b75a76791d485cf108
@@ -642,7 +642,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 544d22139da66d98f857dbd0149dff036b7dc213
-R 79f0c064b9042bb00edbfde145956964
-U jan.nijtmans
-Z 1fcd63e9724a2ea934688fdd64db3857
+P 1f6734c30b00fe070e6b14a04f80c4298c582f35
+R 05f511a0aa944923ec9991c2059a5867
+U mistachkin
+Z 38f7346a3ea63a15e6fa7561887373c4

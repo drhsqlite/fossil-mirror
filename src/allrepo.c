@@ -190,7 +190,11 @@ void all_cmd(void){
     collect_argument(&extra, "whatif",0);
     useCheckouts = 1;
   }else if( strncmp(zCmd, "extras", n)==0 ){
-    zCmd = "extras --chdir";
+    if( showFile ){
+      zCmd = "extras --chdir";
+    }else{
+      zCmd = "extras --header --chdir";
+    }
     collect_argument(&extra, "abs-paths",0);
     collect_argument_value(&extra, "case-sensitive");
     collect_argument(&extra, "dotfiles",0);
