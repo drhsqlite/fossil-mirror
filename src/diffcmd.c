@@ -1026,8 +1026,13 @@ void diff_tk(const char *zSubCmd, int firstArg){
         continue;
       }
     }
-    blob_append(&script, " ", 1);
-    shell_escape(&script, z);
+    if( sqlite3_strglob("*}*",z) ){
+      blob_appendf(&script, " {%/}", z);
+    }else{
+      int j;
+      blob_append(&script, " ", 1);
+      for(j=0; z[j]; j++) blob_appendf(&script, "\\%03o", (unsigned char)z[j]);
+    }
   }
   blob_appendf(&script, "}\n%s", zDiffScript);
   if( zTempFile ){
