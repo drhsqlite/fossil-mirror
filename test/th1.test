@@ -414,3 +414,48 @@ test th1-expr-22 {$RESULT eq {-2}}
 
 fossil test-th-eval "expr ~(+1)"
 test th1-expr-23 {$RESULT eq {-2}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0b11"
+test th1-expr-24 {$RESULT eq 3}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0o15"
+test th1-expr-25 {$RESULT eq 13}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0x15"
+test th1-expr-26 {$RESULT eq 21}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0b2"
+test th1-expr-26 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0b2"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0o8"
+test th1-expr-27 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0o8"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0xg"
+test th1-expr-28 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0xg"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0b1."
+test th1-expr-29 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0b1."}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0o1."
+test th1-expr-30 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0o1."}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0x1."
+test th1-expr-31 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0x1."}}
