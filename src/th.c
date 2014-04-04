@@ -1880,24 +1880,22 @@ static int thNextInteger(
   int nInput,
   int *pnLiteral
 ){
-  int i = 0;
+  int i;
   int seenDot = 0;
   int (*isdigit)(char) = th_isdigit;
-  if( nInput>2 ){
-    if( zInput[1]=='x' || zInput[1]=='X' ){
-      i=2;
-      isdigit = th_ishexdig;
-    }else if( zInput[1]=='o' || zInput[1]=='O' ){
-      i=2;
-    }else if( zInput[1]=='b' || zInput[1]=='B' ){
-      i=2;
-    }else{
-      *pnLiteral = 0;
-      return TH_OK;
-    }
+  char c;
+
+  if( nInput<3) return TH_ERROR;
+  assert(zInput[0]=='0');
+  c = zInput[1];
+  if( c>='A' && c<='Z' ) c += 'a' - 'A';
+  if( c=='x' ){
+    isdigit = th_ishexdig;
+  }else if( c!='o' && c!='b' ){
+    return TH_ERROR;
   }
-  for(; i<nInput; i++){
-    char c = zInput[i];
+  for(i=2; i<nInput; i++){
+    c = zInput[i];
     if( !isdigit(c) ){
       break;
     }
@@ -2195,9 +2193,8 @@ static int exprParse(
 
       switch (c) {
         case '0':
-          if( (i+2<nExpr) && th_isalpha(zExpr[i+1]) ){
-            thNextInteger(interp, z, nExpr-i, &pNew->nValue);
-            if(pNew->nValue) break;
+          if( thNextInteger(interp, z, nExpr-i, &pNew->nValue)==TH_OK ){
+            break;
           }
           /* fall through */
         case '1': case '2': case '3': case '4': case '5':
