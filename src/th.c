@@ -1881,7 +1881,6 @@ static int thNextInteger(
   int *pnLiteral
 ){
   int i;
-  int seenDot = 0;
   int (*isdigit)(char) = th_isdigit;
   char c;
 
