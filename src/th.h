@@ -147,6 +147,7 @@ int th_strlen(const char *);
 int th_isdigit(char);
 int th_isspace(char);
 int th_isalnum(char);
+int th_isalpha(char);
 int th_isspecial(char);
 int th_ishexdig(char);
 int th_isoctdig(char);

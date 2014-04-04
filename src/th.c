@@ -130,6 +130,7 @@ static int thNextCommand(Th_Interp*, const char *z, int n, int *pN);
 static int thNextEscape (Th_Interp*, const char *z, int n, int *pN);
 static int thNextVarname(Th_Interp*, const char *z, int n, int *pN);
 static int thNextNumber (Th_Interp*, const char *z, int n, int *pN);
+static int thNextInteger (Th_Interp*, const char *z, int n, int *pN);
 static int thNextSpace  (Th_Interp*, const char *z, int n, int *pN);
 
 /*
@@ -1870,6 +1871,42 @@ static Operator aOperator[] = {
 };
 
 /*
+** The first part of the string (zInput,nInput) contains an integer.
+** Set *pnVarname to the number of bytes in the numeric string.
+*/
+static int thNextInteger(
+  Th_Interp *interp,
+  const char *zInput,
+  int nInput,
+  int *pnLiteral
+){
+  int i = 0;
+  int seenDot = 0;
+  int (*isdigit)(char) = th_isdigit;
+  if( nInput>2 ){
+    if( zInput[1]=='x' || zInput[1]=='X' ){
+      i=2;
+      isdigit = th_ishexdig;
+    }else if( zInput[1]=='o' || zInput[1]=='O' ){
+      i=2;
+    }else if( zInput[1]=='b' || zInput[1]=='B' ){
+      i=2;
+    }else{
+      *pnLiteral = 0;
+      return TH_OK;
+    }
+  }
+  for(; i<nInput; i++){
+    char c = zInput[i];
+    if( !isdigit(c) ){
+      break;
+    }
+  }
+  *pnLiteral = i;
+  return TH_OK;
+}
+
+/*
 ** The first part of the string (zInput,nInput) contains a number.
 ** Set *pnVarname to the number of bytes in the numeric string.
 */
@@ -1881,24 +1918,9 @@ static int thNextNumber(
 ){
   int i = 0;
   int seenDot = 0;
-  int (*isdigit)(char) = th_isdigit;
-  if( nInput>2 ){
-    if( zInput[0]=='0' && (zInput[1]=='x' || zInput[1]=='X') ){
-      i=2;
-      isdigit = th_ishexdig;
-    }
-    if( zInput[0]=='0' && (zInput[1]=='o' || zInput[1]=='O') ){
-      i=2;
-      isdigit = th_isoctdig;
-    }
-    if( zInput[0]=='0' && (zInput[1]=='b' || zInput[1]=='B') ){
-      i=2;
-      isdigit = th_isbindig;
-    }
-  }
   for(; i<nInput; i++){
     char c = zInput[i];
-    if( (seenDot || c!='.') && !isdigit(c) ) break;
+    if( (seenDot || c!='.') && !th_isdigit(c) ) break;
     if( c=='.' ) seenDot = 1;
   }
   *pnLiteral = i;
@@ -2172,8 +2194,14 @@ static int exprParse(
       const char *z = &zExpr[i];
 
       switch (c) {
-        case '0': case '1': case '2': case '3': case '4':
-        case '5': case '6': case '7': case '8': case '9':
+        case '0':
+          if( (i+2<nExpr) && th_isalpha(zExpr[i+1]) ){
+            thNextInteger(interp, z, nExpr-i, &pNew->nValue);
+            if(pNew->nValue) break;
+          }
+          /* fall through */
+        case '1': case '2': case '3': case '4': case '5':
+        case '6': case '7': case '8': case '9':
           thNextNumber(interp, z, nExpr-i, &pNew->nValue);
           break;
 
@@ -2473,6 +2501,9 @@ int th_isspecial(char c){
 int th_isalnum(char c){
   return (aCharProp[(unsigned char)c] & 0x0A);
 }
+int th_isalpha(char c){
+  return (aCharProp[(unsigned char)c] & 0x08);
+}
 int th_ishexdig(char c){
   return (aCharProp[(unsigned char)c] & 0x20);
 }
@@ -2628,19 +2659,19 @@ int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
     }
   }
   for(; i<n; i++){
-    int shift;
-    if( !isdigit(z[i]) ){
+    char c = z[i];
+    if( !isdigit(c) ){
       Th_ErrorMessage(interp, "expected integer, got: \"", z, n);
       return TH_ERROR;
     }
-    if( z[i]>='a' ){
-      shift = 'a' - 10;
-    }else if( z[i]>='A' ){
-      shift = 'A' - 10;
+    if( c>='a' ){
+      c -= 'a'-10;
+    }else if( c>='A' ){
+      c -= 'A'-10;
     }else{
-      shift = '0';
+      c -= '0';
     }
-    iOut = iOut * base + (z[i] - shift);
+    iOut = iOut * base + c;
   }
 
   if( n>0 && z[0]=='-' ){
