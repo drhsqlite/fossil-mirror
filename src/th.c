@@ -2197,7 +2197,7 @@ static int exprParse(
         case '0':
           if( (i+2<nExpr) && th_isalpha(zExpr[i+1]) ){
             thNextInteger(interp, z, nExpr-i, &pNew->nValue);
-            break;
+            if(pNew->nValue) break;
           }
           /* fall through */
         case '1': case '2': case '3': case '4': case '5':
