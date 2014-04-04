@@ -1884,7 +1884,7 @@ static int thNextInteger(
   int (*isdigit)(char) = th_isdigit;
   char c;
 
-  if( nInput<3) return TH_ERROR;
+  if( nInput<2) return TH_ERROR;
   assert(zInput[0]=='0');
   c = zInput[1];
   if( c>='A' && c<='Z' ) c += 'a' - 'A';

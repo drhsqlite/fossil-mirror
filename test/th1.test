@@ -469,3 +469,11 @@ test th1-expr-33 {$RESULT eq {1}}
 
 fossil test-th-eval "expr 0b1+5"
 test th1-expr-34 {$RESULT eq {6}}
+
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0b"
+test th1-expr-35 {$RESULT eq {TH_ERROR: expected number, got: "0b"}}
+
+
