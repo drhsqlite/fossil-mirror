@@ -2,7 +2,7 @@
 
 <h2>Changes For Version 1.28.1 (most likely never being released, those
 are candidate cherry-picks just in case)</h2>
-  *  Upgraded internal SQLite to version 3.8.4.2, which adds support for
+  *  Upgraded internal SQLite to version 3.8.4.3, which adds support for
      CTE and the WITH clause, and fixes various (minor) SQLite bugs.
   *  Relax minimum SQLite version check to 3.7.17, as Fossil 1.28
      actually works fine with this version and higher, when configured
@@ -24,6 +24,7 @@ are candidate cherry-picks just in case)</h2>
   *  [bfdabaecc8]: Fix the EXPLAIN indenter in the command-line shell to
      correctly handle NextIfOpen and PrevIfOpen opcodes.
   *  [684eb478e7]: Fix the SCGI processing so that it works with Nginx.
+  *  [ee1aa460a4]: Fix using the unary bitwise NOT operator in TH1
   *  [fc6bb93689]: Add the "httpize" TH1 command.
 
 <h2>Changes For Version 1.28 (2014-01-27)</h2>
