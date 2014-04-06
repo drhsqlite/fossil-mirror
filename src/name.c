@@ -268,6 +268,26 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   return rid;
 }
 
+/*
+** Return the ticket id from the ticket table if found.  If more than one
+** is found, return -1 to indicate ambiguity.
+*/
+int symbolic_name_to_tktid(const char *zTag){
+  int tktid = 0;
+  Stmt q;
+
+  if( strlen(zTag)>=4 &&
+      strlen(zTag)<=UUID_SIZE && validate16(zTag, strlen(zTag)) ) {
+    db_prepare(&q, "SELECT tkt_id FROM ticket"
+                   " WHERE tkt_uuid GLOB '%s*'", zTag );
+    if( db_step(&q)==SQLITE_ROW ){
+      tktid = db_column_int(&q, 0);
+      if( db_step(&q)==SQLITE_ROW ) tktid = -1;
+    }
+    db_finalize(&q);
+  }
+  return tktid;
+}
 
 /*
 ** This routine takes a user-entered UUID which might be in mixed
@@ -320,7 +340,34 @@ int name_to_uuid2(char const *zName, const char *zType, char **pUuid){
   return rid;
 }
 
-
+/*
+** This routine is similar to name_to_uuid() except it also accounts for
+** collisions in tickets which don't have an entry in blob (only associated
+** ticket changes).
+** Return 0 if rid is found.  Return 1 if neither rid nor tkt_id is found.
+** Return 2 if name is ambiguous.  Return 3 if tkt_id is found.
+*/
+int name_to_uuid3(Blob *pName, int iErrPriority, const char *zType){
+  char *zName = blob_str(pName);
+  int tkt_id = 0;
+  int rid = symbolic_name_to_rid(zName, zType);
+  if( zType && zType[0]=='*' ){
+    tkt_id = symbolic_name_to_tktid(zName);
+  }
+  if( rid<0 || tkt_id<0 || (rid>0 && tkt_id>0) ){
+    fossil_error(iErrPriority, "ambiguous name: %s", zName);
+    return 2;
+  }else if( rid==0 && tkt_id==0 ){
+    fossil_error(iErrPriority, "not found: %s", zName);
+    return 1;
+  }else if( tkt_id>0 ){
+    return 3;
+  }else{
+    blob_reset(pName);
+    db_blob(pName, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    return 0;
+  }
+}
 
 /*
 ** COMMAND:  test-name-to-id
@@ -407,6 +454,28 @@ void ambiguous_page(void){
     @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
     @ %s(zUuid)</a> -
     object_description(rid, 0, 0);
+    @ </p></li>
+  }
+  db_finalize(&q);
+  db_prepare(&q, "   SELECT tkt_rid, tkt_uuid, title"
+                 "     FROM ticket, ticketchng"
+                 "    WHERE ticket.tkt_id = ticketchng.tkt_id"
+                 "      AND tkt_uuid GLOB '%q*'"
+                 " GROUP BY tkt_uuid"
+                 " ORDER BY tkt_ctime DESC", z);
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0); 
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zTitle = db_column_text(&q, 2);
+    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ %s(zUuid)</a> -
+    @ <ul></ul>
+    @ Ticket
+    hyperlink_to_uuid(zUuid);
+    @ - %s(zTitle).
+    @ <ul><li>
+    object_description(rid, 0, 0);
+    @ </li></ul>
     @ </p></li>
   }
   @ </ol>

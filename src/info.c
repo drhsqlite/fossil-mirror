@@ -1895,27 +1895,29 @@ void info_page(void){
 
   zName = P("name");
   if( zName==0 ) fossil_redirect_home();
-  if( validate16(zName, strlen(zName)) ){
-    if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
-      tktview_page();
-      return;
-    }
-    if( db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'event-%q*'", zName) ){
+  blob_set(&uuid, zName);
+  rc = name_to_uuid3(&uuid, -1, "*");
+  if( rc==1 ){
+    if( validate16(zName, strlen(zName)) &&
+        db_exists("SELECT 1 FROM tag"
+                  " WHERE tagname GLOB 'event-%q*'", zName) ){
       event_page();
       return;
+    }else{
+      style_header("No Such Object");
+      @ <p>No such object: %h(zName)</p>
+      style_footer();
+      return;
     }
-  }
-  blob_set(&uuid, zName);
-  rc = name_to_uuid(&uuid, -1, "*");
-  if( rc==1 ){
-    style_header("No Such Object");
-    @ <p>No such object: %h(zName)</p>
-    style_footer();
-    return;
   }else if( rc==2 ){
     cgi_set_parameter("src","info");
     ambiguous_page();
     return;
+  }else if( rc==3 && validate16(zName, strlen(zName)) ){
+    if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
+      tktview_page();
+      return;
+    }
   }
   zName = blob_str(&uuid);
   rid = db_int(0, "SELECT rid FROM blob WHERE uuid='%s'", zName);
