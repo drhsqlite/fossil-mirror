@@ -448,10 +448,10 @@ void tktview_page(void){
         g.zTop, zUuid, g.zTop, zUuid);
   }
   if( P("plaintext") ){
-    style_submenu_element("Formatted", "Formatted", "%R/tktview/%S", zUuid);
+    style_submenu_element("Formatted", "Formatted", "%R/tktview/%s", zUuid);
   }else{
     style_submenu_element("Plaintext", "Plaintext",
-                          "%R/tktview/%S?plaintext", zUuid);
+                          "%R/tktview/%s?plaintext", zUuid);
   }
   style_header("View Ticket");
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
@@ -897,10 +897,10 @@ void tkthistory_page(void){
     "%s/tkttimeline?name=%s", g.zTop, zUuid);
   if( P("plaintext")!=0 ){
     style_submenu_element("Formatted", "Formatted",
-                          "%R/tkthistory/%S", zUuid);
+                          "%R/tkthistory/%s", zUuid);
   }else{
     style_submenu_element("Plaintext", "Plaintext",
-                          "%R/tkthistory/%S?plaintext", zUuid);
+                          "%R/tkthistory/%s?plaintext", zUuid);
   }
   style_header(zTitle);
   free(zTitle);
@@ -946,7 +946,7 @@ void tkthistory_page(void){
       }else{
         @
         @ <li><p>Add attachment
-        @ "%z(href("%R/artifact/%S",zSrc))%s(zFile)</a>"
+        @ "%z(href("%R/artifact/%s",zSrc))%s(zFile)</a>"
       }
       @ [%z(href("%R/artifact/%T",zChngUuid))%s(zShort)</a>]
       @ (rid %d(rid)) by

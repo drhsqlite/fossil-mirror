@@ -243,7 +243,7 @@ void wiki_page(void){
                  "%R/wdiff?name=%T&a=%d", zPageName, rid);
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       style_submenu_element("Details", "Details",
-                   "%R/info/%S", zUuid);
+                   "%R/info/%s", zUuid);
     }
     if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
       if( db_get_boolean("wysiwyg-wiki", 0) ){

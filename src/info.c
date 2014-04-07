@@ -1191,7 +1191,7 @@ int object_description(
     hyperlink_to_user(zUser,zDate,")");
     if( g.perm.Hyperlink ){
       @ %z(href("%R/finfo?name=%T&ci=%s",zName,zVers))[ancestry]</a>
-      @ %z(href("%R/annotate?checkin=%s&filename=%T",zVers,zName))
+      @ %z(href("%R/annotate?filename=%T&checkin=%s",zName,zVers))
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%T&checkin=%s",zName,zVers))
       @ [blame]</a>
