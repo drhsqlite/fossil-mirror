@@ -1917,7 +1917,10 @@ void info_page(void){
       }
     }
     style_header("No Such Object");
-    @ <p>No such object of length %d(nLen): %h(zName)</p>
+    @ <p>No such object: %h(zName)</p>
+    if( nLen<4 ){
+      @ <p>Objects of length < 4 are too ambiguous to worry about</p>
+    }
     style_footer();
     return;
   }else if( rc==2 ){
