@@ -340,33 +340,35 @@ int name_to_uuid2(char const *zName, const char *zType, char **pUuid){
   return rid;
 }
 
+
 /*
-** This routine is similar to name_to_uuid() except it also accounts for
-** collisions in tickets which don't have an entry in blob (only associated
-** ticket changes).
-** Return 0 if rid is found.  Return 1 if neither rid nor tkt_id is found.
-** Return 2 if name is ambiguous.  Return 3 if tkt_id is found.
+** name_collisions searches through events, blobs, and tickets for
+** collisions of a given UUID based on its length on UUIDs no shorter
+** than 4 characters in length.
 */
-int name_to_uuid3(Blob *pName, int iErrPriority, const char *zType){
-  char *zName = blob_str(pName);
-  int tkt_id = 0;
-  int rid = symbolic_name_to_rid(zName, zType);
-  if( zType && zType[0]=='*' ){
-    tkt_id = symbolic_name_to_tktid(zName);
+int name_collisions(const char *zName){
+  Stmt q;
+  int c = 0;         /* count of collisions for zName */
+  int nLen;          /* length of zName */
+  nLen = strlen(zName);
+  if( nLen>=4 && nLen<=UUID_SIZE && validate16(zName, nLen) ){
+    db_prepare(&q,
+      "SELECT count(uuid) FROM"
+      "  (SELECT substr(tkt_uuid, 1, %d) AS uuid FROM ticket"
+      "   UNION ALL SELECT * FROM"
+      "     (SELECT substr(tagname, 7, %d) FROM"
+      "       tag WHERE tagname GLOB 'event-*')"
+      "   UNION ALL SELECT * FROM"
+      "     (SELECT substr(uuid, 1, %d) FROM blob))"
+      "  WHERE uuid GLOB '%q*'"
+      "  GROUP BY uuid HAVING count(uuid) > 1;",
+      nLen, nLen, nLen, zName);
+    if( db_step(&q)==SQLITE_ROW ){
+      c = db_column_int(&q, 0);
+    }
+    db_finalize(&q);
   }
-  if( rid<0 || tkt_id<0 || (rid>0 && tkt_id>0) ){
-    fossil_error(iErrPriority, "ambiguous name: %s", zName);
-    return 2;
-  }else if( rid==0 && tkt_id==0 ){
-    fossil_error(iErrPriority, "not found: %s", zName);
-    return 1;
-  }else if( tkt_id>0 ){
-    return 3;
-  }else{
-    blob_reset(pName);
-    db_blob(pName, "SELECT uuid FROM blob WHERE rid=%d", rid);
-    return 0;
-  }
+  return c;
 }
 
 /*
