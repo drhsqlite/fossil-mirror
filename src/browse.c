@@ -183,7 +183,7 @@ void page_dir(void){
   if( zCI ){
     @ <h2>Files of check-in [%z(href("vinfo?name=%s",zUuid))%.10s(zUuid)</a>]
     @ %s(blob_str(&dirname))</h2>
-    zSubdirLink = mprintf("%R/dir?name=%T&ci=%s", zPrefix, zUuid);
+    zSubdirLink = mprintf("%R/dir?ci=%s&name=%T", zUuid, zPrefix);
     if( nD==0 ){
       style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%s",
                             zUuid);
