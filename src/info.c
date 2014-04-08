@@ -1906,13 +1906,13 @@ void info_page(void){
   rc = name_to_uuid(&uuid, -1, "*");
   if( rc==1 ){
     if( validate16(zName, nLen) ){
+      if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
+        tktview_page();
+        return;
+      }
       if( db_exists("SELECT 1 FROM tag"
                     " WHERE tagname GLOB 'event-%q*'", zName) ){
         event_page();
-        return;
-      }
-      if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
-        tktview_page();
         return;
       }
     }
