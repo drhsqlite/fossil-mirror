@@ -269,27 +269,6 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 }
 
 /*
-** Return the ticket id from the ticket table if found.  If more than one
-** is found, return -1 to indicate ambiguity.
-*/
-int symbolic_name_to_tktid(const char *zTag){
-  int tktid = 0;
-  Stmt q;
-
-  if( strlen(zTag)>=4 &&
-      strlen(zTag)<=UUID_SIZE && validate16(zTag, strlen(zTag)) ) {
-    db_prepare(&q, "SELECT tkt_id FROM ticket"
-                   " WHERE tkt_uuid GLOB '%s*'", zTag );
-    if( db_step(&q)==SQLITE_ROW ){
-      tktid = db_column_int(&q, 0);
-      if( db_step(&q)==SQLITE_ROW ) tktid = -1;
-    }
-    db_finalize(&q);
-  }
-  return tktid;
-}
-
-/*
 ** This routine takes a user-entered UUID which might be in mixed
 ** case and might only be a prefix of the full UUID and converts it
 ** into the full-length UUID in canonical form.
