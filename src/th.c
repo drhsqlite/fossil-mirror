@@ -2641,13 +2641,11 @@ int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
         i += 2;
         base = 16;
         isdigit = th_ishexdig;
-      }
-      if( z[i+1]=='o' || z[i+1]=='O' ){
+      }else if( z[i+1]=='o' || z[i+1]=='O' ){
         i += 2;
         base = 8;
         isdigit = th_isoctdig;
-      }
-      if( z[i+1]=='b' || z[i+1]=='B' ){
+      }else if( z[i+1]=='b' || z[i+1]=='B' ){
         i += 2;
         base = 2;
         isdigit = th_isbindig;

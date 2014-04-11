@@ -979,6 +979,8 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
             blob_append(pOut, "/..", 3);
           }
         }
+        while( i>0 && (zPwd[i]!='/')) --i;
+        blob_append(pOut, zPath+i, j-i);
       }
       if( slash && i>0 && zPath[strlen(zPath)-1]=='/'){
         blob_append(pOut, "/", 1);
