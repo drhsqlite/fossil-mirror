@@ -314,3 +314,13 @@ int is_valid_fd(int fd){
   return fcntl(fd, F_GETFL)!=(-1) || errno!=EBADF;
 #endif
 }
+
+/*
+** Returns TRUE if zSym is exactly UUID_SIZE bytes long and contains
+** only lower-case ASCII hexadecimal values.
+*/
+int fossil_is_uuid(char const * zSym){
+  return zSym
+    && (UUID_SIZE==strlen(zSym))
+    && validate16(zSym, UUID_SIZE);
+}

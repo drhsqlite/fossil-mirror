@@ -137,12 +137,12 @@ static int manifest_crosslink_busy = 0;
 void manifest_destroy(Manifest *p){
   if( p ){
     blob_reset(&p->content);
-    free(p->aFile);
-    free(p->azParent);
-    free(p->azCChild);
-    free(p->aTag);
-    free(p->aField);
-    free(p->aCherrypick);
+    fossil_free(p->aFile);
+    fossil_free(p->azParent);
+    fossil_free(p->azCChild);
+    fossil_free(p->aTag);
+    fossil_free(p->aField);
+    fossil_free(p->aCherrypick);
     if( p->pBaseline ) manifest_destroy(p->pBaseline);
     memset(p, 0, sizeof(*p));
     fossil_free(p);
@@ -1610,7 +1610,7 @@ void manifest_ticket_event(
            pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle, zNewStatus,
            pManifest->nField, pManifest->nField==1 ? "" : "s"
       );
-      free(zNewStatus);
+      fossil_free(zNewStatus);
       blob_appendf(&brief, "Ticket [%s|%.10s]: %d change%s",
            pManifest->zTicketUuid, pManifest->zTicketUuid, pManifest->nField,
            pManifest->nField==1 ? "" : "s"
@@ -1623,7 +1623,7 @@ void manifest_ticket_event(
     blob_appendf(&brief, "New ticket [%s|%.10s].", pManifest->zTicketUuid,
         pManifest->zTicketUuid);
   }
-  free(zTitle);
+  fossil_free(zTitle);
   db_multi_exec(
     "REPLACE INTO event(type,tagid,mtime,objid,user,comment,brief)"
     "VALUES('t',%d,%.17g,%d,%Q,%Q,%Q)",
@@ -1755,7 +1755,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       zCom = db_text(0, "SELECT coalesce(ecomment, comment) FROM event"
                         " WHERE rowid=last_insert_rowid()");
       wiki_extract_links(zCom, rid, 0, p->rDate, 1, WIKI_INLINE);
-      free(zCom);
+      fossil_free(zCom);
 
       /* If this is a delta-manifest, record the fact that this repository
       ** contains delta manifests, to free the "commit" logic to generate
@@ -1824,7 +1824,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     nWiki = strlen(p->zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
-    free(zTag);
+    fossil_free(zTag);
     prior = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=%d AND mtime<%.17g"
@@ -1852,7 +1852,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       TAG_USER, rid,
       TAG_COMMENT, rid
     );
-    free(zComment);
+    fossil_free(zComment);
   }
   if( p->type==CFTYPE_EVENT ){
     char *zTag = mprintf("event-%s", p->zEventId);
@@ -1864,7 +1864,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     nWiki = strlen(p->zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
-    free(zTag);
+    fossil_free(zTag);
     prior = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=%d AND mtime<%.17g AND rid!=%d"
@@ -1903,18 +1903,22 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }
   if( p->type==CFTYPE_TICKET ){
     char *zTag;
-
     assert( manifest_crosslink_busy==1 );
     zTag = mprintf("tkt-%s", p->zTicketUuid);
     tag_insert(zTag, 1, 0, rid, p->rDate, rid);
-    free(zTag);
+    fossil_free(zTag);
     db_multi_exec("INSERT OR IGNORE INTO pending_tkt VALUES(%Q)",
                   p->zTicketUuid);
   }
   if( p->type==CFTYPE_ATTACHMENT ){
+    char *zComment = 0;
+    char const isAdd = (p->zAttachSrc && p->zAttachSrc[0]) ? 1 : 0;
+    char const attachToType = fossil_is_uuid(p->zAttachTarget)
+      ? 't' /* attach to ticket */
+      : 'w' /* attach to wiki page */;
     db_multi_exec(
        "INSERT INTO attachment(attachid, mtime, src, target,"
-                                        "filename, comment, user)"
+                              "filename, comment, user)"
        "VALUES(%d,%.17g,%Q,%Q,%Q,%Q,%Q);",
        rid, p->rDate, p->zAttachSrc, p->zAttachTarget, p->zAttachName,
        (p->zComment ? p->zComment : ""), p->zUser
@@ -1927,11 +1931,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
        p->zAttachTarget, p->zAttachName,
        p->zAttachTarget, p->zAttachName
     );
-    if( strlen(p->zAttachTarget)!=UUID_SIZE
-     || !validate16(p->zAttachTarget, UUID_SIZE)
-    ){
-      char *zComment;
-      if( p->zAttachSrc && p->zAttachSrc[0] ){
+    if( 'w' == attachToType ){
+      if( isAdd ){
         zComment = mprintf(
              "Add attachment [/artifact/%s|%h] to wiki page [%h]",
              p->zAttachSrc, p->zAttachName, p->zAttachTarget);
@@ -1939,15 +1940,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
              p->zAttachName, p->zAttachTarget);
       }
-      db_multi_exec(
-        "REPLACE INTO event(type,mtime,objid,user,comment)"
-        "VALUES('w',%.17g,%d,%Q,%Q)",
-        p->rDate, rid, p->zUser, zComment
-      );
-      free(zComment);
     }else{
-      char *zComment;
-      if( p->zAttachSrc && p->zAttachSrc[0] ){
+      if( isAdd ){
         zComment = mprintf(
              "Add attachment [/artifact/%s|%h] to ticket [%s|%.10s]",
              p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
@@ -1955,13 +1949,13 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         zComment = mprintf("Delete attachment \"%h\" from ticket [%s|%.10s]",
              p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }
-      db_multi_exec(
-        "REPLACE INTO event(type,mtime,objid,user,comment)"
-        "VALUES('t',%.17g,%d,%Q,%Q)",
-        p->rDate, rid, p->zUser, zComment
-      );
-      free(zComment);
     }
+    db_multi_exec(
+        "REPLACE INTO event(type,mtime,objid,user,comment)"
+        "VALUES('%c',%.17g,%d,%Q,%Q)",
+        attachToType, p->rDate, rid, p->zUser, zComment
+    );
+    fossil_free(zComment);
   }
   if( p->type==CFTYPE_CONTROL ){
     Blob comment;
