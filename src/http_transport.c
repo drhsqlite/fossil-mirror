@@ -140,11 +140,11 @@ int transport_ssh_open(UrlData *pUrlData){
 
 /*
 ** Open a connection to the server.  The server is defined by the following
-** global variables:
+** variables:
 **
-**   g.urlName        Name of the server.  Ex: www.fossil-scm.org
-**   g.urlPort        TCP/IP port.  Ex: 80
-**   g.urlIsHttps     Use TLS for the connection
+**   pUrlData->name        Name of the server.  Ex: www.fossil-scm.org
+**   pUrlData->port        TCP/IP port.  Ex: 80
+**   pUrlData->isHttps     Use TLS for the connection
 **
 ** Return the number of errors.
 */

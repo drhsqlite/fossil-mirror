@@ -260,7 +260,7 @@ void attachadd_page(void){
       if( zTkt==0 ) fossil_redirect_home();
     }
     zTarget = zTkt;
-    zTargetType = mprintf("Ticket <a href=\"%s/tktview/%S\">%S</a>",
+    zTargetType = mprintf("Ticket <a href=\"%s/tktview/%s\">%S</a>",
                           g.zTop, zTkt, zTkt);
   }
   if( zFrom==0 ) zFrom = mprintf("%s/home", g.zTop);
@@ -465,7 +465,7 @@ void ainfo_page(void){
     }
   }
   style_header("Attachment Details");
-  style_submenu_element("Raw", "Raw", "%R/artifact/%S", zUuid);
+  style_submenu_element("Raw", "Raw", "%R/artifact/%s", zUuid);
 
   @ <div class="section">Overview</div>
   @ <p><table class="label-value">
@@ -533,8 +533,8 @@ void ainfo_page(void){
       @ </pre>
     }
   }else if( strncmp(zMime, "image/", 6)==0 ){
-    @ <img src="%R/raw/%S(zSrc)?m=%s(zMime)"></img>
-    style_submenu_element("Image", "Image", "%R/raw/%S?m=%s", zSrc, zMime);
+    @ <img src="%R/raw/%s(zSrc)?m=%s(zMime)"></img>
+    style_submenu_element("Image", "Image", "%R/raw/%s?m=%s", zSrc, zMime);
   }else{
     int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
     @ <i>(file is %d(sz) bytes of binary data)</i>

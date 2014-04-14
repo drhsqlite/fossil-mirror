@@ -304,6 +304,7 @@ void view_see_sql(void){
   if( db_step(&q)!=SQLITE_ROW ){
     @ <p>Unknown report number: %d(rn)</p>
     style_footer();
+    db_finalize(&q);
     return;
   }
   zTitle = db_column_text(&q, 0);
@@ -325,6 +326,7 @@ void view_see_sql(void){
   @ </tr></table>
   report_format_hints();
   style_footer();
+  db_finalize(&q);
 }
 
 /*
@@ -613,19 +615,6 @@ static void report_format_hints(void){
   @    title AS 'Title',
   @    description AS '_Description',  -- When the column name begins with '_'
   @    remarks AS '_Remarks'           -- content is rendered as wiki
-  @  FROM ticket
-  @ </pre></blockquote>
-  @
-  @ <p>Or, to see part of the description on the same row, use the
-  @ <b>wiki()</b> function with some string manipulation. Using the
-  @ <b>tkt()</b> function on the ticket number will also generate a linked
-  @ field, but without the extra <i>edit</i> column:
-  @ </p>
-  @ <blockquote><pre>
-  @  SELECT
-  @    tkt(tn) AS '',
-  @    title AS 'Title',
-  @    wiki(substr(description,0,80)) AS 'Description'
   @  FROM ticket
   @ </pre></blockquote>
   @
@@ -1041,6 +1030,7 @@ void rptview_page(void){
     "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
   if( db_step(&q)!=SQLITE_ROW ){
     cgi_redirect("reportlist");
+    db_finalize(&q);
     return;
   }
   zTitle = db_column_malloc(&q, 0);

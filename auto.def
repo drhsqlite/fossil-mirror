@@ -251,6 +251,11 @@ if {![cc-check-function-in-lib socket {socket network}]} {
 }
 cc-check-function-in-lib iconv iconv
 
+# Check for getloadavg(), and if it doesn't exist, define FOSSIL_OMIT_LOAD_AVERAGE
+if {![cc-check-functions getloadavg]} {
+  define FOSSIL_OMIT_LOAD_AVERAGE 1
+}
+
 # Check for getpassphrase() for Solaris 10 where getpass() truncates to 10 chars
 if {![cc-check-functions getpassphrase]} {
     # Haiku needs this

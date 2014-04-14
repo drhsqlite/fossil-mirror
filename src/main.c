@@ -114,11 +114,6 @@ struct TclContext {
 };
 #endif
 
-/*
-** All global variables are in this structure.
-*/
-#define GLOBAL_URL()      ((UrlData *)(&g.urlIsFile))
-
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
@@ -173,7 +168,8 @@ struct Global {
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
   Blob httpHeader;        /* Complete text of the HTTP request header */
-
+  UrlData url;            /* Information about current URL */
+#if 0
   /*
   ** NOTE: These members MUST be kept in sync with those in the "UrlData"
   **       structure defined in "url.c".
@@ -196,6 +192,8 @@ struct Global {
   int useProxy;           /* Used to remember that a proxy is in use */
   char *proxyUrlPath;
   int proxyOrigPort;      /* Tunneled port number for https through proxy */
+#endif
+
   const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
@@ -606,11 +604,6 @@ int main(int argc, char **argv)
   g.zVfsName = find_option("vfs",0,1);
   if( g.zVfsName==0 ){
     g.zVfsName = fossil_getenv("FOSSIL_VFS");
-#if defined(__CYGWIN__)
-    if( g.zVfsName==0 ){
-      g.zVfsName = "win32-longpath";
-    }
-#endif
   }
   if( g.zVfsName ){
     sqlite3_vfs *pVfs = sqlite3_vfs_find(g.zVfsName);
@@ -1072,7 +1065,7 @@ void help_page(void){
     }
     @ </tr></table>
 
-    @ <h1>Available pages:</h1>
+    @ <h1>Available web UI pages:</h1>
     @ (Only pages with help text are linked.)
     @ <table border="0"><tr>
     for(i=j=0; i<count(aCommand); i++){

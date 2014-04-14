@@ -945,9 +945,35 @@ static const char zDiffScript[] =
 @   puts $out "eval \$prog"
 @   close $out
 @ }
+@ proc invertDiff {} {
+@   global CFG
+@   array set x [grid info .txtA]
+@   if {$x(-column)==1} {
+@     grid config .lnB -column 0
+@     grid config .txtB -column 1
+@     .txtB tag config add -background $CFG(RM_BG)
+@     grid config .lnA -column 3
+@     grid config .txtA -column 4
+@     .txtA tag config rm -background $CFG(ADD_BG)
+@   } else {
+@     grid config .lnA -column 0
+@     grid config .txtA -column 1
+@     .txtA tag config rm -background $CFG(RM_BG)
+@     grid config .lnB -column 3
+@     grid config .txtB -column 4
+@     .txtB tag config add -background $CFG(ADD_BG)
+@   }
+@   .mkr config -state normal
+@   set clt [.mkr search -all < 1.0 end]
+@   set cgt [.mkr search -all > 1.0 end]
+@   foreach c $clt {.mkr replace $c "$c +1 chars" >}
+@   foreach c $cgt {.mkr replace $c "$c +1 chars" <}
+@   .mkr config -state disabled
+@ }
 @ ::ttk::button .bb.quit -text {Quit} -command exit
+@ ::ttk::button .bb.invert -text {Invert} -command invertDiff
 @ ::ttk::button .bb.save -text {Save As...} -command saveDiff
-@ pack .bb.quit -side left
+@ pack .bb.quit .bb.invert -side left
 @ if {$fossilcmd!=""} {pack .bb.save -side left}
 @ pack .bb.files -side left
 @ grid rowconfigure . 1 -weight 1
@@ -1000,8 +1026,13 @@ void diff_tk(const char *zSubCmd, int firstArg){
         continue;
       }
     }
-    blob_append(&script, " ", 1);
-    shell_escape(&script, z);
+    if( sqlite3_strglob("*}*",z) ){
+      blob_appendf(&script, " {%/}", z);
+    }else{
+      int j;
+      blob_append(&script, " ", 1);
+      for(j=0; z[j]; j++) blob_appendf(&script, "\\%03o", (unsigned char)z[j]);
+    }
   }
   blob_appendf(&script, "}\n%s", zDiffScript);
   if( zTempFile ){
@@ -1099,13 +1130,13 @@ const char *diff_get_binary_glob(void){
 **   --from|-r VERSION          select VERSION as source for the diff
 **   --internal|-i              use internal diff logic
 **   --side-by-side|-y          side-by-side diff
+**   --strip-trailing-cr        Strip trailing CR
 **   --tk                       Launch a Tcl/Tk GUI for display
 **   --to VERSION               select VERSION as target for the diff
 **   --unified                  unified diff
 **   -v|--verbose               output complete text of added or deleted files
-**   -w|--ignore-all-space      Ignore changes to start-of-line and end-of-line
-**                              whitespace
-**   -W|--width                 Width of lines in side-by-side diff
+**   -w|--ignore-all-space      Ignore white space when comparing lines
+**   -W|--width <num>           Width of lines in side-by-side diff
 **   -Z|--ignore-trailing-space Ignore changes to end-of-line whitespace
 */
 void diff_cmd(void){

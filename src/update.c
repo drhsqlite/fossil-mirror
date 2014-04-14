@@ -627,6 +627,8 @@ int historical_version_of_file(
   
   if( revision ){
     rid = name_to_typed_rid(revision,"ci");
+  }else if( !g.localOpen ){
+    rid = name_to_typed_rid(db_get("main-branch","trunk"),"ci");
   }else{
     rid = db_lget_int("checkout", 0);
   }

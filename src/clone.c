@@ -138,9 +138,9 @@ void clone_cmd(void){
   }
 
   url_parse(g.argv[2], urlFlags);
-  if( zDefaultUser==0 && g.urlUser!=0 ) zDefaultUser = g.urlUser;
-  if( g.urlIsFile ){
-    file_copy(g.urlName, g.argv[3]);
+  if( zDefaultUser==0 && g.url.user!=0 ) zDefaultUser = g.url.user;
+  if( g.url.isFile ){
+    file_copy(g.url.name, g.argv[3]);
     db_close(1);
     db_open_repository(g.argv[3]);
     db_record_repository_filename(g.argv[3]);
@@ -213,7 +213,7 @@ void remember_or_get_http_auth(
   int fRemember,          /* True to remember credentials for later reuse */
   const char *zUrl        /* URL for which these credentials apply */
 ){
-  char *zKey = mprintf("http-auth:%s", g.urlCanonical);
+  char *zKey = mprintf("http-auth:%s", g.url.canonical);
   if( zHttpAuth && zHttpAuth[0] ){
     g.zHttpAuth = mprintf("%s", zHttpAuth);
   }
@@ -235,7 +235,7 @@ void remember_or_get_http_auth(
 ** Get the HTTP Authorization preference from db.
 */
 char *get_httpauth(void){
-  char *zKey = mprintf("http-auth:%s", g.urlCanonical);
+  char *zKey = mprintf("http-auth:%s", g.url.canonical);
   return unobscure(db_get(zKey, 0));
   free(zKey);
 }
@@ -244,7 +244,7 @@ char *get_httpauth(void){
 ** Set the HTTP Authorization preference in db.
 */
 void set_httpauth(const char *zHttpAuth){
-  char *zKey = mprintf("http-auth:%s", g.urlCanonical);
+  char *zKey = mprintf("http-auth:%s", g.url.canonical);
   db_set(zKey, obscure(zHttpAuth), 0);
   free(zKey);
 }
