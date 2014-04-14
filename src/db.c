@@ -2130,6 +2130,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "clean-glob",       0,             40, 1, 0, ""                    },
   { "crnl-glob",        0,             40, 1, 0, ""                    },
   { "default-perms",    0,             16, 0, 0, "u"                   },
+  { "default-user",     0,             40, 0, 0, ""                    },
   { "diff-binary",      0,              0, 0, 0, "on"                  },
   { "diff-command",     0,             40, 0, 0, ""                    },
   { "dont-push",        0,              0, 0, 0, "off"                 },
@@ -2237,6 +2238,8 @@ struct stControlSettings const ctrlSettings[] = {
 **    default-perms    Permissions given automatically to new users.  For more
 **                     information on permissions see Users page in Server
 **                     Administration of the HTTP UI. Default: u.
+**
+**    default-user     Default user created with each new repository.
 **
 **    diff-binary      If TRUE (the default), permit files that may be binary
 **                     or that match the "binary-glob" setting to be used with
