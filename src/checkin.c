@@ -1390,6 +1390,10 @@ static int tagCmp(const void *a, const void *b){
 ** reason, the --no-warnings option may be used.  A check-in is not
 ** allowed against a closed leaf.
 **
+** If a commit message is blank, you will be prompted:
+** ("continue (y/N)?") to confirm you really want to commit with a
+** blank commit message.  The default value is "N", do not commit.
+**
 ** The --private option creates a private check-in that is never synced.
 ** Children of private check-ins are automatically private.
 **
