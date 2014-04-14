@@ -138,6 +138,7 @@ void clone_cmd(void){
   }
 
   url_parse(g.argv[2], urlFlags);
+  if( zDefaultUser==0 ) zDefaultUser = db_get("default-user", 0);
   if( zDefaultUser==0 && g.url.user!=0 ) zDefaultUser = g.url.user;
   if( g.url.isFile ){
     file_copy(g.url.name, g.argv[3]);
