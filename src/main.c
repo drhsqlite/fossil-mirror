@@ -1844,6 +1844,7 @@ void cmd_http(void){
 ** Process all requests in a single SSH connection if possible.
 */
 void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
+  blob_zero(&g.cgiIn);
   do{
     cgi_handle_ssh_http_request(zIpAddr);
     process_one_web_page(0, FileGlob);
