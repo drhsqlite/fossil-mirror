@@ -893,7 +893,7 @@ void wikirules_page(void){
   @ line.</li>
   @ <li>Enumeration items are "#" surrounded by two spaces at the beginning of
   @ a line.</li>
-  @ <li>Indented pargraphs begin with a tab or two spaces.</li>
+  @ <li>Indented paragraphs begin with a tab or two spaces.</li>
   @ <li>Hyperlinks are contained with square brackets:  "[target]" or
   @ "[target|name]".</li>
   @ <li>Most ordinary HTML works.</li>
@@ -929,7 +929,7 @@ void wikirules_page(void){
   @ as the text of the hyperlink.  But you can specify alternative text
   @ after the target name separated by a "|" character.</p>
   @ <p>You can also link to internal anchor names using [#anchor-name], providing
-  @ you have added the necessary "&lt;a name="anchor-name"&gt;&lt;/a&gt;"
+  @ you have added the necessary "&lt;a name='anchor-name'&gt;&lt;/a&gt;"
   @ tag to your wiki page.</p></li>
   @ <li> <p><span class="wikiruleHead">HTML</span>.
   @ The following standard HTML elements may be used:
