@@ -807,12 +807,7 @@ static void prepare_commit_comment(
 #endif
   blob_append(&prompt,
     "\n"
-    "# Enter commit message for this check-in. Lines beginning with # are ignored.\n"
-    "#\n"
-    "# *******\n"
-    "# ** TIP: For opportunity to abort this commit,\n"
-    "# **            submit an empty commit message.\n"
-    "# *******\n"
+    "# Enter a commit message for this check-in. Lines beginning with # are ignored.\n"
     "#\n", -1
   );
   blob_appendf(&prompt, "# user: %s\n", p->zUserOvrd ? p->zUserOvrd : login_name());
