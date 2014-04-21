@@ -21,6 +21,15 @@
 #include "sync.h"
 #include <assert.h>
 
+#if defined(_WIN32)
+#  include <windows.h>           /* for Sleep */
+#  if defined(__MINGW32__) || defined(_MSC_VER)
+#    define sleep Sleep            /* windows does not have sleep, but Sleep */
+#  endif
+#endif
+
+#define AUTOSYNC_TRIES 3
+
 /*
 ** If the repository is configured for autosyncing, then do an
 ** autosync.  This will be a pull if the argument is true or a push
@@ -74,7 +83,21 @@ int autosync(int flags){
   fossil_print("Autosync:  %s\n", g.url.canonical);
   url_enable_proxy("via proxy: ");
   rc = client_sync(flags, configSync, 0);
-  if( rc ) fossil_warning("Autosync failed");
+  return rc;
+}
+
+/*
+** This routine will try a number of times to perform autosync with a
+** 1 second sleep between attempts; returning the last autosync status.
+*/
+int autosync_loop(int flags){
+  int n = 0;
+  int rc = 0;
+  while (n++ < AUTOSYNC_TRIES && (rc = autosync(flags))){
+    if( rc ) fossil_warning("Autosync failed%s",
+      n < AUTOSYNC_TRIES ? ", making another attempt." : ".");
+    sleep(1);
+  }
   return rc;
 }
 
