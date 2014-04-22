@@ -3029,6 +3029,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       { "optimizations",         SQLITE_TESTCTRL_OPTIMIZATIONS          },
       { "iskeyword",             SQLITE_TESTCTRL_ISKEYWORD              },
       { "scratchmalloc",         SQLITE_TESTCTRL_SCRATCHMALLOC          },
+      { "byteorder",             SQLITE_TESTCTRL_BYTEORDER              },
     };
     int testctrl = -1;
     int rc = 0;
