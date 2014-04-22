@@ -1919,7 +1919,8 @@ void info_page(void){
     style_header("No Such Object");
     @ <p>No such object: %h(zName)</p>
     if( nLen<4 ){
-      @ <p>Objects of length < 4 are too ambiguous to worry about</p>
+      @ <p>Object name should be no less than 4 characters.  Ten or more
+      @ characters are recommended.</p>
     }
     style_footer();
     return;
