@@ -708,7 +708,7 @@ static int login_transfer_credentials(
        g.zVfsName
   );
   if( rc==SQLITE_OK ){
-    sqlite3_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite3_create_function(pOther,"now",0,SQLITE_UTF8,0,db_now_function,0,0);
     sqlite3_create_function(pOther, "constant_time_cmp", 2, SQLITE_UTF8, 0,
                   constant_time_cmp_function, 0, 0);
     sqlite3_busy_timeout(pOther, 5000);
@@ -1411,7 +1411,7 @@ int login_group_sql(
     }
     sqlite3_create_function(pPeer, "shared_secret", 3, SQLITE_UTF8,
                             0, sha1_shared_secret_sql_function, 0, 0);
-    sqlite3_create_function(pPeer, "now", 0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite3_create_function(pPeer, "now", 0,SQLITE_UTF8,0,db_now_function,0,0);
     sqlite3_busy_timeout(pPeer, 5000);
     zErr = 0;
     rc = sqlite3_exec(pPeer, zSql, 0, 0, &zErr);
