@@ -1134,9 +1134,9 @@ int object_description(
   int nWiki = 0;
   int objType = 0;
   char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-
   char *prevName = 0;
 
+  if( P("nodesc")!=0 ) cgi_destination(CGI_OFF);
   db_prepare(&q,
     "SELECT filename.name, datetime(event.mtime),"
     "       coalesce(event.ecomment,event.comment),"
@@ -1332,6 +1332,7 @@ int object_description(
   }else if( linkToView && g.perm.Hyperlink ){
     @ %z(href("%R/artifact/%s",zUuid))[view]</a>
   }
+  if( P("nodesc")!=0 ) cgi_destination(CGI_BODY);
   return objType;
 }
 

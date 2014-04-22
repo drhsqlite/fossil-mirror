@@ -61,6 +61,7 @@
 */
 #define CGI_HEADER   0
 #define CGI_BODY     1
+#define CGI_OFF      2
 
 /*
 ** Flags for SSH HTTP clients
@@ -97,6 +98,10 @@ void cgi_destination(int dest){
       pContent = &cgiContent[1];
       break;
     }
+    case CGI_OFF: {
+      pContent = 0;
+      break;
+    }
     default: {
       cgi_panic("bad destination");
     }
@@ -115,7 +120,7 @@ int cgi_header_contains(const char *zNeedle){
 ** Append reply content to what already exists.
 */
 void cgi_append_content(const char *zData, int nAmt){
-  blob_append(pContent, zData, nAmt);
+  if( pContent ) blob_append(pContent, zData, nAmt);
 }
 
 /*
@@ -1161,10 +1166,12 @@ void cgi_query_parameters_to_hidden(void){
 ** extra formatting capabilities such as %h and %t.
 */
 void cgi_printf(const char *zFormat, ...){
-  va_list ap;
-  va_start(ap,zFormat);
-  vxprintf(pContent,zFormat,ap);
-  va_end(ap);
+  if( pContent ){
+    va_list ap;
+    va_start(ap,zFormat);
+    vxprintf(pContent,zFormat,ap);
+    va_end(ap);
+  }
 }
 
 /*
@@ -1172,7 +1179,7 @@ void cgi_printf(const char *zFormat, ...){
 ** extra formatting capabilities such as %h and %t.
 */
 void cgi_vprintf(const char *zFormat, va_list ap){
-  vxprintf(pContent,zFormat,ap);
+  if( pContent ) vxprintf(pContent,zFormat,ap);
 }
 
 
@@ -1212,7 +1219,7 @@ NORETURN void cgi_panic(const char *zFormat, ...){
                "<plaintext>"
                );
     va_start(ap, zFormat);
-    vxprintf(pContent,zFormat,ap);
+    if( pContent ) vxprintf(pContent,zFormat,ap);
     va_end(ap);
     cgi_reply();
     fossil_exit(1);
