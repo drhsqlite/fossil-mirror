@@ -21,10 +21,16 @@ are candidate cherry-picks just in case)</h2>
      during a pull.
   *  [3fbdaa243d]: Speedup "fossil extras" and other commands which traverse
      the local filesystem.
-  *  [bfdabaecc8]: Fix the EXPLAIN indenter in the command-line shell to
-     correctly handle NextIfOpen and PrevIfOpen opcodes.
   *  [684eb478e7]: Fix the SCGI processing so that it works with Nginx.
   *  [ee1aa460a4]: Fix using the unary bitwise NOT operator in TH1
+  *  [f2ebd7e52d]: Make use of a recursive query capability (if available) to
+     replace the compute_ancestors() function with a single query.
+  *  [a138dc97fc]: Fix a potential segfault when the SSH_CONNECTION environment
+     variable is defined.
+  *  [bfdabaecc8]: Fix the EXPLAIN indenter in the command-line shell to
+     correctly handle NextIfOpen and PrevIfOpen opcodes.
+  *  [http://www.sqlite.org/src/info/9d2ae6342c|9d2ae6342c]: In the command-line
+     shell, run set writable_schema before running the ".clone" command.
   *  [fc6bb93689]: Add the "httpize" TH1 command.
 
 <h2>Changes For Version 1.28 (2014-01-27)</h2>
