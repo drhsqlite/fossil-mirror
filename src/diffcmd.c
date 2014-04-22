@@ -934,6 +934,7 @@ static const char zDiffScript[] =
 @
 @ proc saveDiff {} {
 @   set fn [tk_getSaveFile]
+@   if {$fn==""} return
 @   set out [open $fn wb]
 @   puts $out "#!/usr/bin/tclsh\n#\n# Run this script using 'tclsh' or 'wish'"
 @   puts $out "# to see the graphical diff.\n#"
