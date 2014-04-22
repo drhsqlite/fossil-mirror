@@ -700,3 +700,52 @@ void test_whatis_all_cmd(void){
   }
   db_finalize(&q);
 }
+
+
+/*
+** COMMAND: test-ambiguous
+** Usage: %fossil test-ambiguous [--minsize N]
+**
+** Show a list of ambiguous SHA1-hash abbreviations of N characters or
+** more where N defaults to 4.  Change N to a different value using
+** the "--minsize N" command-line option.
+*/
+void test_ambiguous_cmd(void){
+  Stmt q, ins;
+  int i;
+  int minSize = 4;
+  const char *zMinsize;
+  char zPrev[100];
+  db_find_and_open_repository(0,0);
+  zMinsize = find_option("minsize",0,1);
+  if( zMinsize && atoi(zMinsize)>0 ) minSize = atoi(zMinsize);
+  db_multi_exec("CREATE TEMP TABLE dups(uuid, cnt)");
+  db_prepare(&ins,"INSERT INTO dups(uuid) VALUES(substr(:uuid,1,:cnt))");
+  db_prepare(&q,
+    "SELECT uuid FROM blob "
+    "UNION "
+    "SELECT substr(tagname,7) FROM tag WHERE tagname GLOB 'event-*' "
+    "UNION "
+    "SELECT tkt_uuid FROM ticket "
+    "ORDER BY 1"
+  );
+  zPrev[0] = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    for(i=0; zUuid[i]==zPrev[i] && zUuid[i]!=0; i++){}
+    if( i>=minSize ){
+      db_bind_int(&ins, ":cnt", i);
+      db_bind_text(&ins, ":uuid", zUuid);
+      db_step(&ins);
+      db_reset(&ins);
+    }
+    strcpy(zPrev, zUuid);
+  }
+  db_finalize(&ins);
+  db_finalize(&q);
+  db_prepare(&q, "SELECT uuid FROM dups ORDER BY length(uuid) DESC, uuid");
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("%s\n", db_column_text(&q, 0));
+  }
+  db_finalize(&q);
+}
