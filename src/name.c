@@ -739,7 +739,7 @@ void test_ambiguous_cmd(void){
       db_step(&ins);
       db_reset(&ins);
     }
-    strcpy(zPrev, zUuid);
+    sqlite3_snprintf(sizeof(zPrev), zPrev, "%s", zUuid);
   }
   db_finalize(&ins);
   db_finalize(&q);
