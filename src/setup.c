@@ -328,7 +328,7 @@ void user_edit(void){
   }
 
   if( P("can") ){
-    cgi_redirect("setup_ulist");
+    cgi_redirect("setup_ulist");  /* User pressed the Cancel button */
     return;
   }
 
@@ -365,9 +365,7 @@ void user_edit(void){
       zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
     }
     zOldLogin = db_text(0, "SELECT login FROM user WHERE uid=%d", uid);
-    if( uid>0 &&
-        db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid)
-    ){
+    if( db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid) ){
       style_header("User Creation Error");
       @ <span class="loginError">Login "%h(zLogin)" is already used by
       @ a different user.</span>
@@ -488,6 +486,11 @@ void user_edit(void){
   @ <div class="ueditCapBox">
   @ <form action="%s(g.zPath)" method="post"><div>
   login_insert_csrf_secret();
+  if( login_is_special(zLogin) ){
+    @ <input type="hidden" name="login" value="%s(zLogin)">
+    @ <input type="hidden" name="info" value="">
+    @ <input type="hidden" name="pw" value="*">
+  }
   @ <table>
   @ <tr>
   @   <td class="usetupEditLabel">User ID:</td>
@@ -499,11 +502,15 @@ void user_edit(void){
   @ </tr>
   @ <tr>
   @   <td class="usetupEditLabel">Login:</td>
-  @   <td><input type="text" name="login" value="%h(zLogin)" /></td>
-  @ </tr>
-  @ <tr>
-  @   <td class="usetupEditLabel">Contact&nbsp;Info:</td>
-  @   <td><input type="text" name="info" size="40" value="%h(zInfo)" /></td>
+  if( login_is_special(zLogin) ){
+    @    <td><b>%h(zLogin)</b></td>
+  }else{
+    @   <td><input type="text" name="login" value="%h(zLogin)" /></td>
+    @ </tr>
+    @ <tr>
+    @   <td class="usetupEditLabel">Contact&nbsp;Info:</td>
+    @   <td><textarea name="info" cols="40" rows="2">%h(zInfo)</textarea></td>
+  }
   @ </tr>
   @ <tr>
   @   <td class="usetupEditLabel">Capabilities:</td>
@@ -567,16 +574,18 @@ void user_edit(void){
   @ </td></tr></table>
   @   </td>
   @ </tr>
-  @ <tr>
-  @   <td align="right">Password:</td>
-  if( zPw[0] ){
-    /* Obscure the password for all users */
-    @   <td><input type="password" name="pw" value="**********" /></td>
-  }else{
-    /* Show an empty password as an empty input field */
-    @   <td><input type="password" name="pw" value="" /></td>
+  if( !login_is_special(zLogin) ){
+    @ <tr>
+    @   <td align="right">Password:</td>
+    if( zPw[0] ){
+      /* Obscure the password for all users */
+      @   <td><input type="password" name="pw" value="**********" /></td>
+    }else{
+      /* Show an empty password as an empty input field */
+      @   <td><input type="password" name="pw" value="" /></td>
+    }
+    @ </tr>
   }
-  @ </tr>
   zGroup = login_group_name();
   if( zGroup ){
     @ <tr>

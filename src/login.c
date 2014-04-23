@@ -741,6 +741,17 @@ static int login_transfer_credentials(
 }
 
 /*
+** Return TRUE if zLogin is one of the special usernames
+*/
+int login_is_special(const char *zLogin){
+  if( fossil_strcmp(zLogin, "anonymous")==0 ) return 1;
+  if( fossil_strcmp(zLogin, "nobody")==0 ) return 1;
+  if( fossil_strcmp(zLogin, "developer")==0 ) return 1;
+  if( fossil_strcmp(zLogin, "reader")==0 ) return 1;
+  return 0;
+}
+
+/*
 ** Lookup the uid for a non-built-in user with zLogin and zCookie and
 ** zRemoteAddr.  Return 0 if not found.
 **
@@ -754,10 +765,7 @@ static int login_find_user(
   const char *zRemoteAddr        /* Abbreviated IP address for valid login */
 ){
   int uid;
-  if( fossil_strcmp(zLogin, "anonymous")==0 ) return 0;
-  if( fossil_strcmp(zLogin, "nobody")==0 ) return 0;
-  if( fossil_strcmp(zLogin, "developer")==0 ) return 0;
-  if( fossil_strcmp(zLogin, "reader")==0 ) return 0;
+  if( login_is_special(zLogin) ) return 0;
   uid = db_int(0,
     "SELECT uid FROM user"
     " WHERE login=%Q"
