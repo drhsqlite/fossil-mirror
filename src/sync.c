@@ -21,13 +21,6 @@
 #include "sync.h"
 #include <assert.h>
 
-#if defined(_WIN32)
-#  include <windows.h>           /* for Sleep */
-#  if defined(__MINGW32__) || defined(_MSC_VER)
-#    define sleep Sleep            /* windows does not have sleep, but Sleep */
-#  endif
-#endif
-
 #define AUTOSYNC_TRIES 3
 
 /*
@@ -96,7 +89,7 @@ int autosync_loop(int flags){
   while (n++ < AUTOSYNC_TRIES && (rc = autosync(flags))){
     if( rc ) fossil_warning("Autosync failed%s",
       n < AUTOSYNC_TRIES ? ", making another attempt." : ".");
-    sleep(1);
+    sqlite3_sleep(500);
   }
   return rc;
 }
