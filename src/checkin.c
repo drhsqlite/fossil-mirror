@@ -181,7 +181,7 @@ static int determine_cwd_relative_option()
 **    --header          Identify the repository if there are changes
 **    -v|--verbose      Say "(none)" if there are no changes
 **
-** See also: extra, ls, status
+** See also: extras, ls, status
 */
 void changes_cmd(void){
   Blob report;
@@ -225,7 +225,7 @@ void changes_cmd(void){
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
 **
-** See also: changes, extra, ls
+** See also: changes, extras, ls
 */
 void status_cmd(void){
   int vid;
@@ -257,7 +257,7 @@ void status_cmd(void){
 **   --age           Show when each file was committed
 **   -v|--verbose    Provide extra information about each file.
 **
-** See also: changes, extra, status
+** See also: changes, extras, status
 */
 void ls_cmd(void){
   int vid;
@@ -434,16 +434,18 @@ static void locate_unmanaged_files(
 **    --abs-paths      Display absolute pathnames.
 **    --case-sensitive <BOOL> override case-sensitive setting
 **    --dotfiles       include files beginning with a dot (".")
+**    --header         Identify the repository if there are extras
 **    --ignore <CSG>   ignore files matching patterns from the argument
 **    --rel-paths      Display pathnames relative to the current working
 **                     directory.
 **
 ** See also: changes, clean, status
 */
-void extra_cmd(void){
+void extras_cmd(void){
   Stmt q;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
+  int showHdr = find_option("header",0,0)!=0;
   int cwdRelative = 0;
   Glob *pIgnore;
   Blob rewrittenPathname;
@@ -477,6 +479,11 @@ void extra_cmd(void){
       if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
         zDisplayName += 2;  /* no unnecessary ./ prefix */
       }
+    }
+    if( showHdr ){
+      showHdr = 0;
+      fossil_print("Extras for %s at %s:\n", db_get("project-name","???"),
+                   g.zLocalRoot);
     }
     fossil_print("%s\n", zDisplayName);
   }
@@ -540,12 +547,12 @@ void extra_cmd(void){
 **    --temp           Remove only Fossil-generated temporary files.
 **    -v|--verbose     Show all files as they are removed.
 **    -x|--extreme     Remove all files not part of the current
-**                     checkout, without taking into consideration
-**                     the "ignore-glob" setting and the --ignore
-**                     command line option.
+**                     checkout, except the ones matching --keep.
+**                     Files not matching any of --clean/--ignore/-keep,
+**                     will be prompted for.
 **                     Compatibile with "git clean -x".
 **
-** See also: addremove, extra, status
+** See also: addremove, extras, status
 */
 void clean_cmd(void){
   int allFileFlag, allDirFlag, dryRunFlag, verboseFlag, extremeFlag;
@@ -621,7 +628,10 @@ void clean_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( glob_match(pKeep, zName+nRoot) ){
-        fossil_print("WARNING: KEPT file \"%s\" not removed\n", zName+nRoot);
+        if( verboseFlag ){
+          fossil_print("KEPT file \"%s\" not removed (due to --keep"
+                       " or \"keep-glob\")\n", zName+nRoot);
+        }
         continue;
       }
       if( !allFileFlag && !dryRunFlag && (!extremeFlag || !glob_match(pIgnore, zName+nRoot)) ){
@@ -670,7 +680,10 @@ void clean_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( glob_match(pKeep, zName+nRoot) ){
-        fossil_print("WARNING: KEPT directory \"%s\" not removed\n", zName+nRoot);
+        if( verboseFlag ){
+          fossil_print("KEPT directory \"%s\" not removed (due to --keep"
+                       " or \"keep-glob\")\n", zName+nRoot);
+        }
         continue;
       }
       if( !allDirFlag && !dryRunFlag && (!extremeFlag || !glob_match(pIgnore, zName+nRoot)) ){
@@ -840,7 +853,7 @@ static void prepare_commit_comment(
 #endif
   blob_append(&prompt,
     "\n"
-    "# Enter commit message for this check-in. Lines beginning with # are ignored.\n"
+    "# Enter a commit message for this check-in. Lines beginning with # are ignored.\n"
     "#\n", -1
   );
   blob_appendf(&prompt, "# user: %s\n", p->zUserOvrd ? p->zUserOvrd : login_name());
@@ -1343,17 +1356,21 @@ static int commit_warning(
       blob_write_to_file(p, zOrig);
       fossil_free(zOrig);
       f = fossil_fopen(zFilename, "wb");
-      if( fUnicode ) {
-        int bomSize;
-        const unsigned char *bom = get_utf8_bom(&bomSize);
-        fwrite(bom, 1, bomSize, f);
-        blob_to_utf8_no_bom(p, 0);
+      if( f==0 ){
+        fossil_warning("cannot open %s for writing", zFilename);
+      }else{
+        if( fUnicode ) {
+          int bomSize;
+          const unsigned char *bom = get_utf8_bom(&bomSize);
+          fwrite(bom, 1, bomSize, f);
+          blob_to_utf8_no_bom(p, 0);
+        }
+        if( fHasAnyCr ){
+          blob_to_lf_only(p);
+        }
+        fwrite(blob_buffer(p), 1, blob_size(p), f);
+        fclose(f);
       }
-      if( fHasAnyCr ){
-        blob_to_lf_only(p);
-      }
-      fwrite(blob_buffer(p), 1, blob_size(p), f);
-      fclose(f);
       return 1;
     }else if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
@@ -1419,6 +1436,10 @@ static int tagCmp(const void *a, const void *b){
 ** reason, the --no-warnings option may be used.  A check-in is not
 ** allowed against a closed leaf.
 **
+** If a commit message is blank, you will be prompted:
+** ("continue (y/N)?") to confirm you really want to commit with a
+** blank commit message.  The default value is "N", do not commit.
+**
 ** The --private option creates a private check-in that is never synced.
 ** Children of private check-ins are automatically private.
 **
@@ -1450,7 +1471,7 @@ static int tagCmp(const void *a, const void *b){
 **                               than relying on file mtimes
 **    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
 **
-** See also: branch, changes, checkout, extra, sync
+** See also: branch, changes, checkout, extras, sync
 */
 void commit_cmd(void){
   int hasChanges;        /* True if unsaved changes exist */

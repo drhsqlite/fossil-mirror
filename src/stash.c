@@ -465,7 +465,7 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash
 **  fossil stash save ?-m|--comment COMMENT? ?FILES...?
 **  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
-**  fossil stash list|ls  ?-v|--verbose?
+**  fossil stash list|ls  ?-v|--verbose? ?-W|--width <num>?
 **  fossil stash show ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash pop
 **  fossil stash apply ?STASHID?
@@ -518,8 +518,18 @@ void stash_cmd(void){
   }else
   if( memcmp(zCmd, "list", nCmd)==0 || memcmp(zCmd, "ls", nCmd)==0 ){
     Stmt q, q2;
-    int n = 0;
+    int n = 0, width;
     int verboseFlag = find_option("verbose","v",0)!=0;
+    const char *zWidth = find_option("width","W",1);
+
+    if( zWidth ){
+      width = atoi(zWidth);
+      if( (width!=0) && (width<=46) ){
+        fossil_fatal("-W|--width value must be >46 or 0");
+      }
+    }else{
+      width = 79;
+    }
     if( !verboseFlag ){
       verboseFlag = find_option("detail","l",0)!=0; /* deprecated */
     }
@@ -545,7 +555,7 @@ void stash_cmd(void){
       zCom = db_column_text(&q, 2);
       if( zCom && zCom[0] ){
         fossil_print("       ");
-        comment_print(zCom, 7, 79);
+        comment_print(zCom, 7, width);
       }
       if( verboseFlag ){
         db_bind_int(&q2, "$id", stashid);

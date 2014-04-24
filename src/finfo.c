@@ -153,7 +153,7 @@ void finfo_cmd(void){
     iOffset = zOffset ? atoi(zOffset) : 0;
     iBrief = (find_option("brief","b",0) == 0);
     if( (iWidth!=0) && (iWidth<=22) ){
-      fossil_fatal("--width|-W value must be >22 or 0");
+      fossil_fatal("-W|--width value must be >22 or 0");
     }
     if( g.argc!=3 ){
       usage("?-l|--log? ?-b|--brief? FILENAME");
@@ -376,7 +376,7 @@ void finfo_page(void){
   blob_zero(&title);
   if( baseCheckin ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
-    char *zLink = href("%R/info/%S", zUuid);
+    char *zLink = href("%R/info/%s", zUuid);
     blob_appendf(&title, "Ancestors of file ");
     hyperlinked_path(zFilename, &title, zUuid, "tree", "");
     blob_appendf(&title, " from check-in %z%.10s</a>", zLink, zUuid);
@@ -406,8 +406,6 @@ void finfo_page(void){
     int pfnid = db_column_int(&q, 11);
     int gidx;
     char zTime[10];
-    char zShort[20];
-    char zShortCkin[20];
     if( zBr==0 ) zBr = "trunk";
     if( uBg ){
       zBgClr = hash_color(zUser);
@@ -432,8 +430,6 @@ void finfo_page(void){
     }else{
       @ <td class="timelineTableCell">
     }
-    sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zUuid);
-    sqlite3_snprintf(sizeof(zShortCkin), zShortCkin, "%.10s", zCkin);
     if( zUuid ){
       if( fpid==0 ){
         @ <b>Added</b>
@@ -460,19 +456,19 @@ void finfo_page(void){
         @ <b>Deleted</b> by check-in
       }
     }
-    hyperlink_to_uuid(zShortCkin);
+    hyperlink_to_uuid(zCkin);
     @ %w(zCom) (user:
     hyperlink_to_user(zUser, zDate, "");
     @ branch: %h(zBr))
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
-      @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
+      @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
       @ [annotate]</a>
-      @ %z(href("%R/blame?checkin=%S&filename=%h",zCkin,z))
+      @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
-      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
+      @ %z(href("%R/timeline?n=200&uf=%s",zUuid))[checkins&nbsp;using]</a>
       if( fpid ){
-        @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zPUuid,zUuid))[diff]</a>
+        @ %z(href("%R/fdiff?sbs=1&v1=%s&v2=%s",zPUuid,zUuid))[diff]</a>
       }
     }
     if( fDebug & FINFO_DEBUG_MLINK ){

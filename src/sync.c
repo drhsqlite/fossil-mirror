@@ -50,10 +50,10 @@ int autosync(int flags){
     /* Autosync defaults on.  To make it default off, "return" here. */
   }
   url_parse(0, URL_REMEMBER);
-  if( g.urlProtocol==0 ) return 0;  
-  if( g.urlUser!=0 && g.urlPasswd==0 ){
-    g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
-    g.urlFlags |= URL_PROMPT_PW;
+  if( g.url.protocol==0 ) return 0;  
+  if( g.url.user!=0 && g.url.passwd==0 ){
+    g.url.passwd = unobscure(db_get("last-sync-pw", 0));
+    g.url.flags |= URL_PROMPT_PW;
     url_prompt_for_password();
   }
   g.zHttpAuth = get_httpauth();
@@ -71,7 +71,7 @@ int autosync(int flags){
   }
 #endif
   if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
-  fossil_print("Autosync:  %s\n", g.urlCanonical);
+  fossil_print("Autosync:  %s\n", g.url.canonical);
   url_enable_proxy("via proxy: ");
   rc = client_sync(flags, configSync, 0);
   if( rc ) fossil_warning("Autosync failed");
@@ -123,18 +123,18 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   url_parse(zUrl, urlFlags);
   remember_or_get_http_auth(zHttpAuth, urlFlags & URL_REMEMBER, zUrl);
   url_remember();
-  if( g.urlProtocol==0 ){
+  if( g.url.protocol==0 ){
     if( urlOptional ) fossil_exit(0);
     usage("URL");
   }
   user_select();
   if( g.argc==2 ){
     if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
-      fossil_print("Sync with %s\n", g.urlCanonical);
+      fossil_print("Sync with %s\n", g.url.canonical);
     }else if( (*pSyncFlags) & SYNC_PUSH ){
-      fossil_print("Push to %s\n", g.urlCanonical);
+      fossil_print("Push to %s\n", g.url.canonical);
     }else if( (*pSyncFlags) & SYNC_PULL ){
-      fossil_print("Pull from %s\n", g.urlCanonical);
+      fossil_print("Pull from %s\n", g.url.canonical);
     }
   }
   url_enable_proxy("via proxy: ");
@@ -280,6 +280,6 @@ void remote_url_cmd(void){
     return;
   }else{
     url_parse(zUrl, 0);
-    fossil_print("%s\n", g.urlCanonical);
+    fossil_print("%s\n", g.url.canonical);
   }
 }

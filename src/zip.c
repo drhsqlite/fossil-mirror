@@ -420,6 +420,15 @@ void baseline_zip_cmd(void){
 **
 ** Generate a ZIP archive for the baseline.
 ** Return that ZIP archive as the HTTP reply content.
+**
+** Optional URL Parameters:
+**
+** - name=base name of the output file. Defaults to
+** something project/version-specific.
+**
+** - uuid=the version to zip (may be a tag/branch name).
+** Defaults to trunk.
+**
 */
 void baseline_zip_page(void){
   int rid;

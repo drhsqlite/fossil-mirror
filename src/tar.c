@@ -573,6 +573,15 @@ void tarball_cmd(void){
 **
 ** Generate a compressed tarball for a checkin.
 ** Return that tarball as the HTTP reply content.
+**
+** Optional URL Parameters:
+**
+** - name=base name of the output file. Defaults to
+** something project/version-specific.
+**
+** - uuid=the version to tar (may be a tag/branch name).
+** Defaults to trunk.
+**
 */
 void tarball_page(void){
   int rid;

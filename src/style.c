@@ -1154,7 +1154,7 @@ const struct strctCssDefaults {
     @   word-wrap: break-word;
     @   color: red;
   },
-  { "table.tale-value th",
+  { "table.label-value th",
     "The label/value pairs on (for example) the ci page",
     @   vertical-align: top;
     @   text-align: right;

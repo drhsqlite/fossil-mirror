@@ -226,9 +226,9 @@ static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
 
 /*
 ** Open an SSL connection.  The identify of the server is determined
-** by variables that are set using url_parse():
+** as follows:
 **
-**    pUrlData->name  Name of the server.  Ex: www.fossil-scm.org
+**    g.url.name      Name of the server.  Ex: www.fossil-scm.org
 **    pUrlData->port  TCP/IP port to use.  Ex: 80
 **
 ** Return the number of errors.
@@ -255,7 +255,7 @@ int ssl_open(UrlData *pUrlData){
     int rc;
     BIO *sBio;
     char *connStr;
-    connStr = mprintf("%s:%d", g.urlName, pUrlData->port);
+    connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
     sBio = BIO_new_connect(connStr);
     free(connStr);
     if( BIO_do_connect(sBio)<=0 ){
@@ -419,7 +419,7 @@ void ssl_save_certificate(UrlData *pUrlData, X509 *cert, int trusted){
 }
 
 /*
-** Get certificate for g.urlName from global config.
+** Get certificate for pUrlData->urlName from global config.
 ** Return NULL if no certificate found.
 */
 X509 *ssl_get_certificate(UrlData *pUrlData, int *pTrusted){
@@ -427,14 +427,16 @@ X509 *ssl_get_certificate(UrlData *pUrlData, int *pTrusted){
   BIO *mem;
   X509 *cert;
 
-  zHost = mprintf("cert:%s", pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
+  zHost = mprintf("cert:%s",
+      pUrlData->useProxy ? pUrlData->hostname : pUrlData->name);
   zCert = db_get(zHost, NULL);
   free(zHost);
   if ( zCert==NULL )
     return NULL;
 
   if ( pTrusted!=0 ){
-    zHost = mprintf("trusted:%s", pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
+    zHost = mprintf("trusted:%s",
+             pUrlData->useProxy ? pUrlData->hostname : pUrlData->name);
     *pTrusted = db_get_int(zHost, 0);
     free(zHost);
   }

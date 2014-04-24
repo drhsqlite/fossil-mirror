@@ -50,22 +50,9 @@ void hyperlink_to_uuid(const char *zUuid){
   char z[UUID_SIZE+1];
   shorten_uuid(z, zUuid);
   if( g.perm.Hyperlink ){
-    @ %z(xhref("class='timelineHistLink'","%R/info/%s",z))[%s(z)]</a>
+    @ %z(xhref("class='timelineHistLink'","%R/info/%s",zUuid))[%s(z)]</a>
   }else{
     @ <span class="timelineHistDsp">[%s(z)]</span>
-  }
-}
-
-/*
-** Generate a hyperlink to a diff between two versions.
-*/
-void hyperlink_to_diff(const char *zV1, const char *zV2){
-  if( g.perm.Hyperlink ){
-    if( zV2==0 ){
-      @ %z(href("%R/diff?v2=%s",zV1))[diff]</a>
-    }else{
-      @ %z(href("%R/diff?v1=%s&v2=%s",zV1,zV2))[diff]</a>
-    }
   }
 }
 
@@ -450,7 +437,7 @@ void www_print_timeline(
 
     /* Generate a "detail" link for tags. */
     if( (zType[0]=='g' || zType[0]=='w' || zType[0]=='t') && g.perm.Hyperlink ){
-      @ [%z(href("%R/info/%S",zUuid))details</a>]
+      @ [%z(href("%R/info/%s",zUuid))details</a>]
     }
 
     /* Generate the "tags: TAGLIST" at the end of the comment, together
@@ -529,19 +516,19 @@ void www_print_timeline(
         }
         if( isNew ){
           @ <li> %h(zFilename) (new file) &nbsp;
-          @ %z(href("%R/artifact/%S",zNew))[view]</a></li>
+          @ %z(href("%R/artifact/%s",zNew))[view]</a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
           @ <li> %h(zOldName) &rarr; %h(zFilename)
-          @ %z(href("%R/artifact/%S",zNew))[view]</a></li>
+          @ %z(href("%R/artifact/%s",zNew))[view]</a></li>
         }else{
           if( zOldName!=0 ){
             @ <li> %h(zOldName) &rarr; %h(zFilename)
           }else{
             @ <li> %h(zFilename) &nbsp;
           }
-          @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zOld,zNew))[diff]</a></li>
+          @ %z(href("%R/fdiff?sbs=1&v1=%s&v2=%s",zOld,zNew))[diff]</a></li>
         }
       }
       db_reset(&fchngQuery);
@@ -1444,7 +1431,7 @@ void page_timeline(void){
     if( zUses ){
       char *zFilenames = names_of_file(zUses);
       blob_appendf(&desc, " using file %s version %z%S</a>", zFilenames,
-                   href("%R/artifact/%S",zUses), zUses);
+                   href("%R/artifact/%s",zUses), zUses);
       tmFlags |= TIMELINE_DISJOINT;
     }
     if( renameOnly ){
@@ -1790,7 +1777,7 @@ void timeline_cmd(void){
   if( zWidth ){
     width = atoi(zWidth);
     if( (width!=0) && (width<=20) ){
-      fossil_fatal("--width|-W value must be >20 or 0");
+      fossil_fatal("-W|--width value must be >20 or 0");
     }
   }else{
     width = 79;
@@ -1965,7 +1952,7 @@ void test_timewarp_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     @ <li>
-    @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&amp;d=%S(zUuid)&amp;unhide">%S(zUuid)</a>
+    @ <a href="%s(g.zTop)/timeline?p=%s(zUuid)&amp;d=%s(zUuid)&amp;unhide">%S(zUuid)</a>
   }
   db_finalize(&q);
   style_footer();
@@ -2386,6 +2373,75 @@ static void stats_report_by_user(){
   output_table_sorting_javascript("statsTable","tnx");
 }
 
+/*
+** Implements the "byweekday" view for /reports.
+*/
+static void stats_report_day_of_week(){
+  Stmt query = empty_Stmt;
+  int nRowNumber = 0;                /* current TR number */
+  int nEventTotal = 0;               /* Total event count */
+  int rowClass = 0;                  /* counter for alternating
+                                        row colors */
+  Blob sql = empty_blob;             /* SQL */
+  int nMaxEvents = 1;                /* max number of events for
+                                        all rows. */
+  static char const * daysOfWeek[] = {
+  "Monday", "Tuesday", "Wednesday", "Thursday",
+  "Friday", "Saturday", "Sunday"
+  };
+      
+  stats_report_init_view();
+  stats_report_event_types_menu("byweekday", NULL);
+  blob_append(&sql,
+               "SELECT cast(mtime %% 7 AS INTEGER) dow, "
+               "COUNT(*) AS eventCount "
+               "FROM v_reports "
+               "GROUP BY dow ORDER BY dow",
+              -1);
+  db_prepare(&query, blob_str(&sql));
+  blob_reset(&sql);
+  @ <h1>Timeline Events
+  @ (%s(stats_report_label_for_type())) by Day of the Week</h1>
+  @ <table class='statistics-report-table-events' border='0'
+  @ cellpadding='2' cellspacing='0' id='statsTable'>
+  @ <thead><tr>
+  @ <th>DoW</th>
+  @ <th>Day</th>
+  @ <th>Events</th>
+  @ <th width='90%%'><!-- relative commits graph --></th>
+  @ </tr></thead><tbody>
+  while( SQLITE_ROW == db_step(&query) ){
+    const int nCount = db_column_int(&query, 1);
+    if(nCount>nMaxEvents){
+      nMaxEvents = nCount;
+    }
+  }
+  db_reset(&query);
+  while( SQLITE_ROW == db_step(&query) ){
+    int const dayNum =db_column_int(&query, 0);
+    const int nCount = db_column_int(&query, 1);
+    int nSize = nCount
+      ? (int)(100 * nCount / nMaxEvents)
+      : 0;
+    if(!nCount) continue /* arguable! Possible? */;
+    else if(!nSize) nSize = 1;
+    rowClass = ++nRowNumber % 2;
+    nEventTotal += nCount;
+    @<tr class='row%d(rowClass)'>
+    @ <td>%d(dayNum)</td>
+    @ <td>%s(daysOfWeek[dayNum])</td>
+    @ <td>%d(nCount)</td>
+    @ <td>
+    @ <div class='statistics-report-graph-line'
+    @  style='width:%d(nSize)%%;'>&nbsp;</div>
+    @ </td>
+    @</tr>
+  }
+  @ </tbody></table>
+  db_finalize(&query);
+  output_table_sorting_javascript("statsTable","ntnx");
+}
+
 
 /*
 ** Helper for stats_report_by_month_year(), which generates a list of
@@ -2556,6 +2612,7 @@ void stats_report_page(){
   timeline_submenu(&url, "By Year", "view", "byyear", 0);
   timeline_submenu(&url, "By Month", "view", "bymonth", 0);
   timeline_submenu(&url, "By Week", "view", "byweek", 0);
+  timeline_submenu(&url, "By Weekday", "view", "byweekday", 0);
   timeline_submenu(&url, "By User", "view", "byuser", "user");
   url_reset(&url);
   style_header("Activity Reports");
@@ -2567,12 +2624,15 @@ void stats_report_page(){
     stats_report_year_weeks(zUserName);
   }else if(0==fossil_strcmp(zView,"byuser")){
     stats_report_by_user();
+  }else if(0==fossil_strcmp(zView,"byweekday")){
+    stats_report_day_of_week();
   }else{
     @ <h1>Select a report to show:</h1>
     @ <ul>
     @ <li><a href='?view=byyear'>Events by year</a></li>
     @ <li><a href='?view=bymonth'>Events by month</a></li>
     @ <li><a href='?view=byweek'>Events by calendar week</a></li>
+    @ <li><a href='?view=byweekday'>Events by day of the week</a></li>
     @ <li><a href='?view=byuser'>Events by user</a></li>
     @ </ul>
   }

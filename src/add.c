@@ -27,7 +27,7 @@
 /*
 ** This routine returns the names of files in a working checkout that
 ** are created by Fossil itself, and hence should not be added, deleted,
-** or merge, and should be omitted from "clean" and "extra" lists.
+** or merge, and should be omitted from "clean" and "extras" lists.
 **
 ** Return the N-th name.  The first name has N==0.  When all names have
 ** been used, return 0.
@@ -453,7 +453,7 @@ const char *filename_collation(void){
 ** with the content of the working checkout:
 **
 **  *  All files in the checkout but not in the repository (that is,
-**     all files displayed using the "extra" command) are added as
+**     all files displayed using the "extras" command) are added as
 **     if by the "add" command.
 **
 **  *  All files in the repository but missing from the checkout (that is,

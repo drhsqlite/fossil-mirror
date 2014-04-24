@@ -87,7 +87,7 @@ void hyperlinked_path(
     for(j=i; zPath[j] && zPath[j]!='/'; j++){}
     if( zPath[j] && g.perm.Hyperlink ){
       if( zCI ){
-        char *zLink = href("%R/%s?ci=%S&name=%#T%s", zURI, zCI, j, zPath,zREx);
+        char *zLink = href("%R/%s?name=%#T%s&ci=%s", zURI, j, zPath, zREx, zCI);
         blob_appendf(pOut, "%s%z%#h</a>",
                      zSep, zLink, j-i, &zPath[i]);
       }else{
@@ -181,14 +181,11 @@ void page_dir(void){
                           url_render(&sURI, "ci", "tip", 0, 0));
   }
   if( zCI ){
-    char zShort[20];
-    memcpy(zShort, zUuid, 10);
-    zShort[10] = 0;
-    @ <h2>Files of check-in [%z(href("vinfo?name=%T",zUuid))%s(zShort)</a>]
+    @ <h2>Files of check-in [%z(href("vinfo?name=%s",zUuid))%.10s(zUuid)</a>]
     @ %s(blob_str(&dirname))</h2>
-    zSubdirLink = mprintf("%R/dir?ci=%S&name=%T", zUuid, zPrefix);
+    zSubdirLink = mprintf("%R/dir?ci=%s&name=%T", zUuid, zPrefix);
     if( nD==0 ){
-      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%S",
+      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%s",
                             zUuid);
     }
   }else{
@@ -492,7 +489,7 @@ void page_tree(void){
     style_submenu_element("All", "All", "%s",
                           url_render(&sURI, "ci", 0, 0, 0));
     if( nD==0 && !showDirOnly ){
-      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%S",
+      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%s",
                             zUuid);
     }
   }
@@ -576,7 +573,7 @@ void page_tree(void){
     if( sqlite3_strnicmp(zCI, zUuid, (int)strlen(zCI))!=0 ){
       @ "%h(zCI)"
     }
-    @ [%z(href("vinfo?name=%T",zUuid))%S(zUuid)</a>] %s(blob_str(&dirname))</h2>
+    @ [%z(href("vinfo?name=%s",zUuid))%S(zUuid)</a>] %s(blob_str(&dirname))</h2>
   }else{
     int n = db_int(0, "SELECT count(*) FROM plink");
     @ <h2>%d(nFile) %s(zObjType) from all %d(n) check-ins
@@ -619,7 +616,7 @@ void page_tree(void){
       const char *zFileClass = fileext_class(p->zName);
       char *zLink;
       if( zCI ){
-        zLink = href("%R/artifact/%S",p->zUuid);
+        zLink = href("%R/artifact/%s",p->zUuid);
       }else{
         zLink = href("%R/finfo?name=%T",p->zFullName);
       }
@@ -877,7 +874,7 @@ void fileage_page(void){
     @ <tr>
     @ <td>%s(zAge)
     @ <td width="25">
-    @ <td>%z(href("%R/artifact/%S?ln", zFUuid))%h(db_column_text(&q, 3))</a>
+    @ <td>%z(href("%R/artifact/%s?ln", zFUuid))%h(db_column_text(&q, 3))</a>
     @ </tr>
     @
   }

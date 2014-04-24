@@ -114,11 +114,6 @@ struct TclContext {
 };
 #endif
 
-/*
-** All global variables are in this structure.
-*/
-#define GLOBAL_URL()      ((UrlData *)(&g.urlIsFile))
-
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
@@ -173,7 +168,8 @@ struct Global {
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
   Blob httpHeader;        /* Complete text of the HTTP request header */
-
+  UrlData url;            /* Information about current URL */
+#if 0
   /*
   ** NOTE: These members MUST be kept in sync with those in the "UrlData"
   **       structure defined in "url.c".
@@ -196,6 +192,8 @@ struct Global {
   int useProxy;           /* Used to remember that a proxy is in use */
   char *proxyUrlPath;
   int proxyOrigPort;      /* Tunneled port number for https through proxy */
+#endif
+
   const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
@@ -1846,6 +1844,7 @@ void cmd_http(void){
 ** Process all requests in a single SSH connection if possible.
 */
 void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
+  blob_zero(&g.cgiIn);
   do{
     cgi_handle_ssh_http_request(zIpAddr);
     process_one_web_page(0, FileGlob);

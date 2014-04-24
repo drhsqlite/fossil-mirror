@@ -926,7 +926,7 @@ void configuration_cmd(void){
       zServer = g.argv[4];
     }
     url_parse(zServer, URL_PROMPT_PW);
-    if( g.urlProtocol==0 ) fossil_fatal("no server URL specified");
+    if( g.url.protocol==0 ) fossil_fatal("no server URL specified");
     user_select();
     url_enable_proxy("via proxy: ");
     if( legacyFlag ) mask |= CONFIGSET_OLDFORMAT;
