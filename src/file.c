@@ -979,6 +979,8 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
             blob_append(pOut, "/..", 3);
           }
         }
+        while( i>0 && (zPwd[i]!='/')) --i;
+        blob_append(pOut, zPath+i, j-i);
       }
       if( slash && i>0 && zPath[strlen(zPath)-1]=='/'){
         blob_append(pOut, "/", 1);
@@ -1046,7 +1048,10 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
   int (*xCmp)(const char*,const char*,int);
 
   blob_zero(pOut);
-  db_must_be_within_tree();
+  if( !g.localOpen ){
+    blob_appendf(pOut, "%s", zOrigName);
+    return 1;
+  }
   file_canonical_name(g.zLocalRoot, &localRoot, 1);
   nLocalRoot = blob_size(&localRoot);
   zLocalRoot = blob_buffer(&localRoot);
@@ -1095,6 +1100,7 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
 void cmd_test_tree_name(void){
   int i;
   Blob x;
+  db_find_and_open_repository(0,0);
   blob_zero(&x);
   capture_case_sensitive_option();
   for(i=2; i<g.argc; i++){

@@ -448,10 +448,10 @@ void tktview_page(void){
         g.zTop, zUuid, g.zTop, zUuid);
   }
   if( P("plaintext") ){
-    style_submenu_element("Formatted", "Formatted", "%R/tktview/%S", zUuid);
+    style_submenu_element("Formatted", "Formatted", "%R/tktview/%s", zUuid);
   }else{
     style_submenu_element("Plaintext", "Plaintext",
-                          "%R/tktview/%S?plaintext", zUuid);
+                          "%R/tktview/%s?plaintext", zUuid);
   }
   style_header("View Ticket");
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
@@ -897,10 +897,10 @@ void tkthistory_page(void){
     "%s/tkttimeline?name=%s", g.zTop, zUuid);
   if( P("plaintext")!=0 ){
     style_submenu_element("Formatted", "Formatted",
-                          "%R/tkthistory/%S", zUuid);
+                          "%R/tkthistory/%s", zUuid);
   }else{
     style_submenu_element("Plaintext", "Plaintext",
-                          "%R/tkthistory/%S?plaintext", zUuid);
+                          "%R/tkthistory/%s?plaintext", zUuid);
   }
   style_header(zTitle);
   free(zTitle);
@@ -926,13 +926,10 @@ void tkthistory_page(void){
   );
   while( db_step(&q)==SQLITE_ROW ){
     Manifest *pTicket;
-    char zShort[12];
     const char *zDate = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
     const char *zChngUuid = db_column_text(&q, 2);
     const char *zFile = db_column_text(&q, 4);
-    memcpy(zShort, zChngUuid, 10);
-    zShort[10] = 0;
     if( nChng==0 ){
       @ <ol>
     }
@@ -946,9 +943,9 @@ void tkthistory_page(void){
       }else{
         @
         @ <li><p>Add attachment
-        @ "%z(href("%R/artifact/%S",zSrc))%s(zFile)</a>"
+        @ "%z(href("%R/artifact/%s",zSrc))%s(zFile)</a>"
       }
-      @ [%z(href("%R/artifact/%T",zChngUuid))%s(zShort)</a>]
+      @ [%z(href("%R/artifact/%s",zChngUuid))%.10s(zChngUuid)</a>]
       @ (rid %d(rid)) by
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".</p>");
@@ -957,7 +954,7 @@ void tkthistory_page(void){
       if( pTicket ){
         @
         @ <li><p>Ticket change
-        @ [%z(href("%R/artifact/%T",zChngUuid))%s(zShort)</a>]
+        @ [%z(href("%R/artifact/%s",zChngUuid))%.10s(zChngUuid)</a>]
         @ (rid %d(rid)) by
         hyperlink_to_user(pTicket->zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
@@ -1221,13 +1218,13 @@ void ticket_cmd(void){
           fossil_fatal("no such ticket %h", zTktUuid);
         }
         db_prepare(&q,
-          "SELECT datetime(mtime%s), objid, uuid, NULL, NULL, NULL"
+          "SELECT datetime(mtime%s), objid, NULL, NULL, NULL"
           "  FROM event, blob"
           " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
           "   AND blob.rid=event.objid"
           " UNION "
-          "SELECT datetime(mtime%s), attachid, uuid, src, "
-          "       filename, user"
+          "SELECT datetime(mtime%s), attachid, filename, "
+          "       src, user"
           "  FROM attachment, blob"
           " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
           "   AND blob.rid=attachid"
@@ -1236,16 +1233,12 @@ void ticket_cmd(void){
         );
         while( db_step(&q)==SQLITE_ROW ){
           Manifest *pTicket;
-          char zShort[12];
           const char *zDate = db_column_text(&q, 0);
           int rid = db_column_int(&q, 1);
-          const char *zChngUuid = db_column_text(&q, 2);
-          const char *zFile = db_column_text(&q, 4);
-          memcpy(zShort, zChngUuid, 10);
-          zShort[10] = 0;
+          const char *zFile = db_column_text(&q, 2);
           if( zFile!=0 ){
             const char *zSrc = db_column_text(&q, 3);
-            const char *zUser = db_column_text(&q, 5);
+            const char *zUser = db_column_text(&q, 4);
             if( zSrc==0 || zSrc[0]==0 ){
               fossil_print("Delete attachment %s\n", zFile);
             }else{

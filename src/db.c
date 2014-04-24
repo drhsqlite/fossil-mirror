@@ -731,12 +731,12 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   }
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
-  sqlite3_create_function(db, "now", 0, SQLITE_ANY, 0, db_now_function, 0, 0);
-  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_ANY, 0,
+  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0, db_now_function, 0, 0);
+  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
                           db_checkin_mtime_function, 0, 0);
-  sqlite3_create_function(db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
-  sqlite3_create_function(db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
-  sqlite3_create_function(db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
+  sqlite3_create_function(db, "cgi", 1, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
+  sqlite3_create_function(db, "cgi", 2, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
   sqlite3_create_function(db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
   sqlite3_create_function(
     db, "is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0

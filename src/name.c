@@ -268,7 +268,6 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   return rid;
 }
 
-
 /*
 ** This routine takes a user-entered UUID which might be in mixed
 ** case and might only be a prefix of the full UUID and converts it
@@ -321,6 +320,35 @@ int name_to_uuid2(char const *zName, const char *zType, char **pUuid){
 }
 
 
+/*
+** name_collisions searches through events, blobs, and tickets for
+** collisions of a given UUID based on its length on UUIDs no shorter
+** than 4 characters in length.
+*/
+int name_collisions(const char *zName){
+  Stmt q;
+  int c = 0;         /* count of collisions for zName */
+  int nLen;          /* length of zName */
+  nLen = strlen(zName);
+  if( nLen>=4 && nLen<=UUID_SIZE && validate16(zName, nLen) ){
+    db_prepare(&q,
+      "SELECT count(uuid) FROM"
+      "  (SELECT substr(tkt_uuid, 1, %d) AS uuid FROM ticket"
+      "   UNION ALL SELECT * FROM"
+      "     (SELECT substr(tagname, 7, %d) FROM"
+      "       tag WHERE tagname GLOB 'event-*')"
+      "   UNION ALL SELECT * FROM"
+      "     (SELECT substr(uuid, 1, %d) FROM blob))"
+      "  WHERE uuid GLOB '%q*'"
+      "  GROUP BY uuid HAVING count(uuid) > 1;",
+      nLen, nLen, nLen, zName);
+    if( db_step(&q)==SQLITE_ROW ){
+      c = db_column_int(&q, 0);
+    }
+    db_finalize(&q);
+  }
+  return c;
+}
 
 /*
 ** COMMAND:  test-name-to-id
@@ -404,12 +432,52 @@ void ambiguous_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
-    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%S(zUuid)">
-    @ %S(zUuid)</a> -
+    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ %s(zUuid)</a> -
     object_description(rid, 0, 0);
     @ </p></li>
   }
+  db_finalize(&q);
+  db_prepare(&q,
+    "   SELECT tkt_rid, tkt_uuid, title"
+    "     FROM ticket, ticketchng"
+    "    WHERE ticket.tkt_id = ticketchng.tkt_id"
+    "      AND tkt_uuid GLOB '%q*'"
+    " GROUP BY tkt_uuid"
+    " ORDER BY tkt_ctime DESC", z);
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0); 
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zTitle = db_column_text(&q, 2);
+    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ %s(zUuid)</a> -
+    @ <ul></ul>
+    @ Ticket
+    hyperlink_to_uuid(zUuid);
+    @ - %s(zTitle).
+    @ <ul><li>
+    object_description(rid, 0, 0);
+    @ </li></ul>
+    @ </p></li>
+  }
+  db_finalize(&q);
+  db_prepare(&q,
+    "SELECT rid, uuid FROM"
+    "  (SELECT tagxref.rid AS rid, substr(tagname, 7) AS uuid"
+    "     FROM tagxref, tag WHERE tagxref.tagid = tag.tagid"
+    "      AND tagname GLOB 'event-%q*') GROUP BY uuid", z);
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0); 
+    const char* zUuid = db_column_text(&q, 1);
+    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ %s(zUuid)</a> -
+    @ <ul><li>
+    object_description(rid, 0, 0);
+    @ </li></ul>
+    @ </p></li>
+  }
   @ </ol>
+  db_finalize(&q);
   style_footer();
 }
 
@@ -629,6 +697,55 @@ void test_whatis_all_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     if( cnt++ ) fossil_print("%.79c\n", '-');
     whatis_rid(db_column_int(&q,0), 1);
+  }
+  db_finalize(&q);
+}
+
+
+/*
+** COMMAND: test-ambiguous
+** Usage: %fossil test-ambiguous [--minsize N]
+**
+** Show a list of ambiguous SHA1-hash abbreviations of N characters or
+** more where N defaults to 4.  Change N to a different value using
+** the "--minsize N" command-line option.
+*/
+void test_ambiguous_cmd(void){
+  Stmt q, ins;
+  int i;
+  int minSize = 4;
+  const char *zMinsize;
+  char zPrev[100];
+  db_find_and_open_repository(0,0);
+  zMinsize = find_option("minsize",0,1);
+  if( zMinsize && atoi(zMinsize)>0 ) minSize = atoi(zMinsize);
+  db_multi_exec("CREATE TEMP TABLE dups(uuid, cnt)");
+  db_prepare(&ins,"INSERT INTO dups(uuid) VALUES(substr(:uuid,1,:cnt))");
+  db_prepare(&q,
+    "SELECT uuid FROM blob "
+    "UNION "
+    "SELECT substr(tagname,7) FROM tag WHERE tagname GLOB 'event-*' "
+    "UNION "
+    "SELECT tkt_uuid FROM ticket "
+    "ORDER BY 1"
+  );
+  zPrev[0] = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    for(i=0; zUuid[i]==zPrev[i] && zUuid[i]!=0; i++){}
+    if( i>=minSize ){
+      db_bind_int(&ins, ":cnt", i);
+      db_bind_text(&ins, ":uuid", zUuid);
+      db_step(&ins);
+      db_reset(&ins);
+    }
+    sqlite3_snprintf(sizeof(zPrev), zPrev, "%s", zUuid);
+  }
+  db_finalize(&ins);
+  db_finalize(&q);
+  db_prepare(&q, "SELECT uuid FROM dups ORDER BY length(uuid) DESC, uuid");
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("%s\n", db_column_text(&q, 0));
   }
   db_finalize(&q);
 }

@@ -377,7 +377,7 @@ void user_select(void){
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
 
   url_parse(0, 0);
-  if( g.urlUser && attempt_user(g.urlUser) ) return;
+  if( g.url.user && attempt_user(g.url.user) ) return;
 
   fossil_print(
     "Cannot figure out who you are!  Consider using the --user\n"

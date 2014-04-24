@@ -304,6 +304,7 @@ void view_see_sql(void){
   if( db_step(&q)!=SQLITE_ROW ){
     @ <p>Unknown report number: %d(rn)</p>
     style_footer();
+    db_finalize(&q);
     return;
   }
   zTitle = db_column_text(&q, 0);
@@ -325,6 +326,7 @@ void view_see_sql(void){
   @ </tr></table>
   report_format_hints();
   style_footer();
+  db_finalize(&q);
 }
 
 /*
@@ -1028,6 +1030,7 @@ void rptview_page(void){
     "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
   if( db_step(&q)!=SQLITE_ROW ){
     cgi_redirect("reportlist");
+    db_finalize(&q);
     return;
   }
   zTitle = db_column_malloc(&q, 0);

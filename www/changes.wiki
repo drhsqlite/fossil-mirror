@@ -3,7 +3,8 @@
 <h2>Changes For Version 1.29 (as yet unreleased)</h2>
   *  Add the ability to display content, diffs and annotations for UTF16
      text files in the web interface.
-  *  Add the "SaveAs..." button to the graphical diff display that results
+  *  Add the "SaveAs..." and "Invert" buttons
+     to the graphical diff display that results
      from using the --tk option with the [/help/diff | fossil diff] command.
   *  Honor timezones in imports from git.
   *  The [/reports] page now requires Read ("o") permissions. The "byweek"
@@ -20,6 +21,32 @@
      [/help?cmd=stash|fossil stash diff].
   *  Add button "Ignore Whitespace" to /annotate, /blame, /ci, /fdiff
      and /vdiff UI pages.
+  *  Enhance [/reports?view=byweekday|/reports] with a "byweekday" view.
+  *  Enhance the [/help?cmd=cat|fossil cat] command so that it works outside
+     of a checkout when using the -R command-line option.
+  *  Use full-length SHA1 hashes, not abbreviations, in most hyperlinks.
+  *  Correctly render the &lt;title&gt; markup on wiki pages in the
+     [/help?cmd=/artifact|/artifact] webpage.
+  *  Enhance the [/help?cmd=whatis|fossil whatis] command to report on attachments
+     and cluster artifacts.  Added the [/help?cmd=test-whatis-all] command for
+     testing purposes.
+  *  Add support for HTTP Basic Authentication on [/help?cmd=clone|clone] and
+     [/help?cmd=sync|sync].
+  *  Fix the [/help?cmd=stash|stash] so that it remembers added files and re-adds
+     them when the stash is applied.
+  *  Fix the server so that it avoids writing to the database (and thus avoids
+     database locking issues) on a 
+     [/help?cmd=pull|pull] or [/help?cmd=clone|clone].
+  *  Add support for [./server.wiki#loadmgmt|server load management].
+  *  Add the [/help?cmd=praise|fossil praise] command as an alias for 
+     [/help?cmd=blame|fossil blame] for subversion compatibility.
+  *  Enhance the [/help?cmd=test-diff|fossil test-diff] command with -y or --tk
+     options so that it shows both filenames above their respective columns in
+     the side-by-side diff output.
+  *  Issue a warning if a [/help?cmd=add|fossil add] command tries to add a file
+     that matches the ignore-glob.
+  *  Add option -W|--width to "[/help?cmd=stash|fossil stash ls]"
+     and "[/help?cmd=leaves|fossil leaves]" commands.
 
 <h2>Changes For Version 1.28 (2014-01-27)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
