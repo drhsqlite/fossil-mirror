@@ -591,7 +591,7 @@ void clean_cmd(void){
   if( !dirsOnlyFlag ){
     Stmt q;
     Blob repo;
-    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, pKeep);
+    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, 0);
     db_prepare(&q,
         "SELECT %Q || x FROM sfile"
         " WHERE x NOT IN (%s)"
@@ -604,6 +604,13 @@ void clean_cmd(void){
     db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
+      if( glob_match(pKeep, zName+nRoot) ){
+        if( verboseFlag ){
+          fossil_print("KEPT file \"%s\" not removed (due to --keep"
+                       " or \"keep-glob\")\n", zName+nRoot);
+        }
+        continue;
+      }
       if( !allFileFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
         Blob ans;
         char cReply;
@@ -634,8 +641,8 @@ void clean_cmd(void){
     Stmt q;
     Blob root;
     blob_init(&root, g.zLocalRoot, nRoot - 1);
-    vfile_dir_scan(&root, blob_size(&root), scanFlags, pIgnore, pKeep,
-                   pEmptyDirs);
+    vfile_dir_scan(&root, blob_size(&root), scanFlags, pIgnore,
+                   pEmptyDirs, 0);
     blob_reset(&root);
     db_prepare(&q,
         "SELECT %Q || x FROM dscan_temp"
@@ -645,6 +652,13 @@ void clean_cmd(void){
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
+      if( glob_match(pKeep, zName+nRoot) ){
+        if( verboseFlag ){
+          fossil_print("KEPT directory \"%s\" not removed (due to --keep"
+                       " or \"keep-glob\")\n", zName+nRoot);
+        }
+        continue;
+      }
       if( !allDirFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
         Blob ans;
         char cReply;
