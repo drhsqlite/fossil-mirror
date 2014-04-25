@@ -136,6 +136,40 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 
 
 /*
+** Checks for proper UTF-8. It uses the method described in:
+**   http://en.wikipedia.org/wiki/UTF-8#Invalid_byte_sequences
+** except for the "overlong form" which is not considered invalid
+** here: Some languages like Java and Tcl use it. For UTF-8 characters
+** > 7f, the variable 'c2' not necessary means the previous character.
+** It's number of higher 1-bits indicate the number of continuation bytes
+** that are expected to be followed. E.g. when 'c2' has a value in the range
+** 0xc0..0xdf it means that 'c' is expected to contain the last continuation
+** byte of a UTF-8 character. A value 0xe0..0xef means that after 'c' one
+** more continuation byte is expected.
+*/
+
+int invalid_utf8(const Blob *pContent){
+  const unsigned char *z = (unsigned char *) blob_buffer(pContent);
+  unsigned int n = blob_size(pContent);
+  unsigned char c, c2;
+
+  if( n==0 ) return 0;  /* Empty file -> OK */
+  c = *z;
+  while( --n>0 ){
+    c2 = c;
+    c = *++z;
+    if( c2>=0x80 ){
+      if( (c2<0xC0) || (c2>=0xF8) || ((c&0xC0)!=0x80) ){
+   	    return 1; /* Invalid UTF-8 */
+      }
+      c = (c2 >= 0xE0) ? (c2<<1) : ' ';
+    }
+  }
+  return c>=0x80; /* Last byte must be ASCII. */
+}
+
+
+/*
 ** Define the type needed to represent a Unicode (UTF-16) character.
 */
 #ifndef WCHAR_T
@@ -358,8 +392,12 @@ void looks_like_utf_test_cmd(void){
   }else{
     fUnicode = could_be_utf16(&blob, &bRevUnicode) || fForceUtf16;
   }
-  lookFlags = fUnicode ? looks_like_utf16(&blob, bRevUnicode, 0) :
-                         looks_like_utf8(&blob, 0);
+  if( fUnicode ){
+    lookFlags = looks_like_utf16(&blob, bRevUnicode, 0);
+  }else{
+    lookFlags = looks_like_utf8(&blob, 0);
+    if (invalid_utf8(&blob)) lookFlags |= LOOK_INVALID;
+  }
   fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
   fossil_print("Starts with UTF-8 BOM: %s\n",fUtf8?"yes":"no");
   fossil_print("Starts with UTF-16 BOM: %s\n",
