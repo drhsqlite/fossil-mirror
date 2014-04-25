@@ -37,7 +37,10 @@
   *  Fix the server so that it avoids writing to the database (and thus avoids
      database locking issues) on a 
      [/help?cmd=pull|pull] or [/help?cmd=clone|clone].
-  *  Add support for [./server.wiki#loadmgmt|server load management].
+  *  Add support for [./server.wiki#loadmgmt|server load management] using both
+     a cache of expensive pages (the [/help?cmd=cache|fossil cache] command)
+     and by rejecting expensive page requests when the server load average is too
+     high.
   *  Add the [/help?cmd=praise|fossil praise] command as an alias for 
      [/help?cmd=blame|fossil blame] for subversion compatibility.
   *  Enhance the [/help?cmd=test-diff|fossil test-diff] command with -y or --tk
