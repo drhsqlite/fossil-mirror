@@ -138,7 +138,7 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 /*
 ** Checks for proper UTF-8. It uses the method described in:
 **   http://en.wikipedia.org/wiki/UTF-8#Invalid_byte_sequences
-** except for the "overlong form" which is not considered invalid
+** except for the "overlong form" of \u0000 which is not considered invalid
 ** here: Some languages like Java and Tcl use it. For UTF-8 characters
 ** > 7f, the variable 'c2' not necessary means the previous character.
 ** It's number of higher 1-bits indicate the number of continuation bytes
@@ -159,10 +159,13 @@ int invalid_utf8(const Blob *pContent){
     c2 = c;
     c = *++z;
     if( c2>=0x80 ){
-      if( (c2<0xC0) || (c2>=0xF8) || ((c&0xC0)!=0x80) ){
-   	    return 1; /* Invalid UTF-8 */
+      if( (c2!=0xc0) || (c!=0x80) ){
+        if( ((c2==0xf4) && (c>=0x90)) ||
+            (c2<0xc2) || (c2>0xf4) || ((c&0xc0)!=0x80) ){
+   	      return 1; /* Invalid UTF-8 */
+        }
       }
-      c = (c2 >= 0xE0) ? (c2<<1) : ' ';
+      c = (c2 >= 0xe0) ? (c2<<1)+1 : ' ';
     }
   }
   return c>=0x80; /* Last byte must be ASCII. */
@@ -192,7 +195,7 @@ int invalid_utf8(const Blob *pContent){
 ** This macro is used to swap the byte order of a UTF-16 character in the
 ** looks_like_utf16() function.
 */
-#define UTF16_SWAP(ch)         ((((ch) << 8) & 0xFF00) | (((ch) >> 8) & 0xFF))
+#define UTF16_SWAP(ch)         ((((ch) << 8) & 0xff00) | (((ch) >> 8) & 0xff))
 #define UTF16_SWAP_IF(expr,ch) ((expr) ? UTF16_SWAP((ch)) : (ch))
 
 /*
@@ -296,7 +299,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
 */
 const unsigned char *get_utf8_bom(int *pnByte){
   static const unsigned char bom[] = {
-    0xEF, 0xBB, 0xBF, 0x00, 0x00, 0x00
+    0xef, 0xbb, 0xbf, 0x00, 0x00, 0x00
   };
   if( pnByte ) *pnByte = 3;
   return bom;
