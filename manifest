@@ -1,5 +1,5 @@
-C Add\sa\smention\sof\sthe\s"fossil\scache"\scommand\sto\sthe\sserver\sload\smanagement\ndiscussion\son\sthe\s"server.wiki"\spage.\s\sAnd\smention\s"fossil\scache"\sin\sthe\nchange\slog.\s\sDocumentation\schanges\sonly.
-D 2014-04-25T21:34:08.619
+C Add\sa\sweb-page\sfor\sviewing\sthe\sstatus\sof\sthe\sweb\scache.\s\sAccessible\sas\sa\nsubmenu\soff\sof\sthe\sstat\spage.
+D 2014-04-25T21:56:41.143
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -316,7 +316,7 @@ F src/bisect.c 92f528d17141879562a6f585ec1fe36f19f4fd2f
 F src/blob.c e2ae70eff581c0463534a263487381213e02561d
 F src/branch.c b2e1600a9a7fa39d739042239325ae0f6b91a50c
 F src/browse.c 5f55f7fe046ad6050a539436ed741a250555914f
-F src/cache.c 49352a4a6236f502c075ad5041a6f97331c01c68
+F src/cache.c 28378b9f1732f34cc7340b27987e463dd6986255
 F src/captcha.c 765bb4af84144ec617cabb9c6b4a548bbc2e8b08
 F src/cgi.c 752925d4999d0a51723e2e19d6a5f71a90fdfc3a
 F src/checkin.c d1a1115f07a509403e4f0339d574baaa032fce34
@@ -406,7 +406,7 @@ F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
 F src/sqlite3.c 0e94baf1b84790924645f0fa4681487c50ac9306
 F src/sqlite3.h 8ca314f78343d21ec006653e5353b20bc172b9b9
 F src/stash.c a57e9f1d0b7d0faf2b9164e95945c8cf9bbe99bc
-F src/stat.c 8b6946485253ea73fb3deee9fb742d794870e818
+F src/stat.c fe03922a3f09bf56061ca709af93aaef44674a77
 F src/style.c 893da93a8631d377d5bfc7bb4a70846212fa0462
 F src/sync.c 912d6a207a3e070b3b2c1c46d2395ff3e4ec76c2
 F src/tag.c 1b0ffe2e8e3753a93ea9381e1c9f1e5d1f0118ec
@@ -643,7 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c7194b668b8ce417c6a84f8c285bc7b08c45d3fe
-R 26ff355f1f13a306d0d9fcc8bbe0baea
+P 34ea8daf905f6b7ac5847bfaf6438d1d05f9d795
+R 50310a1a524a185bd6e0c62e2acaaf1b
 U drh
-Z cd037a70f92f18dc1bc422532354d4d5
+Z ce6a74044394c4ab31b7c8e49d7d8750

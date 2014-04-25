@@ -318,3 +318,49 @@ void cache_cmd(void){
                  " Should be one of: clear init list status", zCmd);
   }
 }
+
+/*
+** WEBPAGE: cachestat
+**
+** Show information about the webpage cache
+*/
+void cache_page(void){
+  sqlite3 *db;
+  sqlite3_stmt *pStmt;
+  char *zDbName;
+  char zBuf[100];
+
+  login_check_credentials();
+  if( !g.perm.Setup ){ login_needed(); return; }
+  style_header("Web Cache Status");
+  db = cacheOpen(0);
+  if( db==0 ){
+    @ The web-page cache is disabled for this repository
+  }else{
+    char *zDbName = cacheName();
+    cache_register_sizename(db);
+    pStmt = cacheStmt(db, 
+         "SELECT key, sizename(sz), nRef, datetime(tm,'unixepoch')"
+         "  FROM cache"
+         " ORDER BY tm DESC"
+    );
+    if( pStmt ){
+      @ <ol>
+      while( sqlite3_step(pStmt)==SQLITE_ROW ){
+        @ <li><p>%h(sqlite3_column_text(pStmt,0))<br>
+        @ size: %s(sqlite3_column_text(pStmt,1))
+        @ hit-count: %d(sqlite3_column_int(pStmt,2))
+        @ last-access: %s(sqlite3_column_text(pStmt,3))</p></li>
+      }
+      sqlite3_finalize(pStmt);
+      @ </ol>
+    }
+    zDbName = cacheName();
+    bigSizeName(sizeof(zBuf), zBuf, file_size(zDbName));
+    @ <p>cache-file name: %h(zDbName)</p>
+    @ <p>cache-file size: %s(zBuf)</p>
+    fossil_free(zDbName);
+    sqlite3_close(db);
+  }
+  style_footer();
+}
