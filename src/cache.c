@@ -140,7 +140,6 @@ static void cache_register_sizename(sqlite3 *db){
 void cache_write(Blob *pContent, const char *zKey){
   sqlite3 *db;
   sqlite3_stmt *pStmt;
-  int blobId = 0;
   int rc = 0;
   int nKeep;
 
@@ -197,7 +196,6 @@ cache_write_end:
 int cache_read(Blob *pContent, const char *zKey){
   sqlite3 *db;
   sqlite3_stmt *pStmt;
-  int blobId = 0;
   int rc = 0;
 
   db = cacheOpen(0);
@@ -230,7 +228,7 @@ cache_read_done:
 }
 
 /*
-** COMMAND: cache
+** COMMAND: cache*
 ** Usage: %fossil cache SUBCOMMAND
 **
 ** Manage the cache used for potentially expensive web pages such as
