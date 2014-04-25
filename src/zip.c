@@ -435,6 +435,7 @@ void baseline_zip_page(void){
   char *zName, *zRid;
   int nName, nRid;
   Blob zip;
+  char *zKey;
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(); return; }
@@ -455,9 +456,15 @@ void baseline_zip_page(void){
     return;
   }
   if( nRid==0 && nName>10 ) zName[10] = 0;
-  zip_of_baseline(rid, &zip, zName);
+  zKey = db_text(0, "SELECT '/zip/'||uuid||'/%q' FROM blob WHERE rid=%d",zName,rid);
+  blob_zero(&zip);
+  if( cache_read(&zip, zKey)==0 ){
+    zip_of_baseline(rid, &zip, zName);
+    cache_write(&zip, zKey);
+  }
   fossil_free( zName );
   fossil_free( zRid );
+  fossil_free( zKey );
   cgi_set_content(&zip);
   cgi_set_content_type("application/zip");
 }

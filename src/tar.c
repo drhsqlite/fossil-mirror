@@ -585,7 +585,7 @@ void tarball_cmd(void){
 */
 void tarball_page(void){
   int rid;
-  char *zName, *zRid;
+  char *zName, *zRid, *zKey;
   int nName, nRid;
   Blob tarball;
 
@@ -616,9 +616,15 @@ void tarball_page(void){
     return;
   }
   if( nRid==0 && nName>10 ) zName[10] = 0;
-  tarball_of_checkin(rid, &tarball, zName);
+  zKey = db_text(0, "SELECT '/tarball/'||uuid||'/%q' FROM blob WHERE rid=%d",zName,rid);
+  blob_zero(&tarball);
+  if( cache_read(&tarball, zKey)==0 ){
+    tarball_of_checkin(rid, &tarball, zName);
+    cache_write(&tarball, zKey);
+  }
   free( zName );
   free( zRid );
+  free( zKey );
   cgi_set_content(&tarball);
   cgi_set_content_type("application/x-compressed");
 }
