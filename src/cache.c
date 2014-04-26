@@ -328,7 +328,6 @@ void cache_cmd(void){
 void cache_page(void){
   sqlite3 *db;
   sqlite3_stmt *pStmt;
-  char *zDbName;
   char zBuf[100];
 
   login_check_credentials();
