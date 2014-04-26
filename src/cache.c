@@ -108,9 +108,10 @@ static void cache_sizename(
   sqlite3_value **argv
 ){
   char zBuf[30];
+  double v, x;
   assert( argc==1 );
-  double v = sqlite3_value_double(argv[0]);
-  double x = v<0.0 ? -v : v;
+  v = sqlite3_value_double(argv[0]);
+  x = v<0.0 ? -v : v;
   if( x>=1e9 ){
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%.1fGB", v/1e9);
   }else if( x>=1e6 ){
