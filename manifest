@@ -1,5 +1,5 @@
-C Simplify\ssome\susage\sof\sif-statements.\sNo\schange\sof\sfunctionality.
-D 2014-04-28T09:25:52.809
+C Use\sfile_access(...,\sF_OK)\sin\sstead\sof\sfile_access(zFullName,\s0)\severywhere,\sin\scase\ssome\splatforms\sexist\swhere\sF_OK\s!=\s0.\s\nRemove\sa\sfew\send-of-line\sspaces.
+D 2014-04-28T10:26:24.096
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -309,7 +309,7 @@ F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 487252044873ffa0df8f53bbb5603d8b1b76eca8
-F src/allrepo.c d5e0c2dc931e3e550c7bac5e23c3fa4c544992e6
+F src/allrepo.c 7ee7dd0a427d4d3e7799f99126c10984cd124ea0
 F src/attach.c 238aa5c78204b0d89e0b646ff382f40fbd6d3b83
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 92f528d17141879562a6f585ec1fe36f19f4fd2f
@@ -319,7 +319,7 @@ F src/browse.c 5f55f7fe046ad6050a539436ed741a250555914f
 F src/cache.c 5d4821dfce8ce0d09aaa1e82c3c9d5693487bb48
 F src/captcha.c 765bb4af84144ec617cabb9c6b4a548bbc2e8b08
 F src/cgi.c 752925d4999d0a51723e2e19d6a5f71a90fdfc3a
-F src/checkin.c d1a1115f07a509403e4f0339d574baaa032fce34
+F src/checkin.c 312546f5cf598b575fdfc1293b4f966a5ddd05ac
 F src/checkout.c a584a28bf3eeda1fb36f04507afd9a70e597e9a0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 79eea7d1a72ddb5b62efb3b75a76791d485cf108
@@ -330,12 +330,12 @@ F src/content.c 5a1a614acc062eef02563cf75746f34e77f7edb9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 5f130acc35376d92e7be25926846b1b241b74861
+F src/db.c e2873b09884df34d2dc77f8257c463c4b8395835
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 21d39484ff6de8be189cf6978ca3f9870442a7ce
 F src/diff.c 2171544b2084f232101c6d820443ecda0064ca0d
-F src/diffcmd.c 5e69ba76ee2a5521c10d210e0190673fc1ee012f
+F src/diffcmd.c 28c75dcb48560607dbe952d13af653bc80966063
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c afe15eaf300e18c7d19a1e1fe3c4bda30bff4872
@@ -362,7 +362,7 @@ F src/json_finfo.c ad269583082f19e482a228460ffd736b392c9156
 F src/json_login.c d8daafbf01d285a7c64b9ef08c1e5875f8efa65f
 F src/json_query.c 017ab69953ee208381dc210ee01716585f1bac15
 F src/json_report.c 1bce5178ec70545ec16becdbaac22d785d1880ba
-F src/json_status.c c38b2e51815f2dacb1c48304d56ccb00a063183e
+F src/json_status.c 0a9f959d19f4b90c879ad50ef0cd376262d8247b
 F src/json_tag.c 70261471bbfe05f47af230561053a4fcbbeba5a9
 F src/json_timeline.c 4ba37f8d381b38424fb287969a2da3ea553aa228
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
@@ -643,7 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5f24da1360e65401224c38aa8dda8d690c9648b1
-R cfc76b51c6ad4e1b561c3c94ece399ac
+P 7458a18894b876573710690391a4c85c595e606f
+R 84e3f9b5feb2c592051cb1469ecb6c5f
 U jan.nijtmans
-Z 58b5913a372455e153f9b293962ecb78
+Z 4202ad47eb22d9f2fb5c360fdf111e03

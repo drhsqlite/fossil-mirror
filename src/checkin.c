@@ -88,7 +88,7 @@ static void status_report(
     if( isDeleted ){
       blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( !file_wd_isfile_or_link(zFullName) ){
-      if( file_access(zFullName, 0)==0 ){
+      if( file_access(zFullName, F_OK)==0 ){
         blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
         if( missingIsFatal ){
           fossil_warning("not a file: %s", zDisplayName);
@@ -329,7 +329,7 @@ void ls_cmd(void){
       }else if( isDeleted ){
         type = "DELETED    ";
       }else if( !file_wd_isfile_or_link(zFullName) ){
-        if( file_access(zFullName, 0)==0 ){
+        if( file_access(zFullName, F_OK)==0 ){
           type = "NOT_A_FILE ";
         }else{
           type = "MISSING    ";
