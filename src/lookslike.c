@@ -233,11 +233,10 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   unsigned int n = blob_size(pContent);
   int j, c, flags = LOOK_NONE;  /* Assume UTF-16 text, prove otherwise */
 
-  if( n==0 ) return flags;  /* Empty file -> text */
   if( n%sizeof(WCHAR_T) ){
     flags |= LOOK_ODD;  /* Odd number of bytes -> binary (UTF-8?) */
-    if( n<sizeof(WCHAR_T) ) return flags;  /* One byte -> binary (UTF-8?) */
   }
+  if( n<sizeof(WCHAR_T) ) return flags;  /* Zero or One byte -> binary (UTF-8?) */
   c = *z;
   if( bReverse ){
     c = UTF16_SWAP(c);
@@ -252,11 +251,8 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   }
   j = (c!='\n');
   if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
-  while( 1 ){
+  while( !(flags&stopFlags) && ((n-=sizeof(WCHAR_T))>=sizeof(WCHAR_T)) ){
     int c2 = c;
-    if( flags&stopFlags ) break;
-    n -= sizeof(WCHAR_T);
-    if( n<sizeof(WCHAR_T) ) break;
     c = *++z;
     if( bReverse ){
       c = UTF16_SWAP(c);
