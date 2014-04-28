@@ -1,5 +1,5 @@
-C Remove\san\sunused\svariable.
-D 2014-04-26T01:54:10.375
+C Implement\sdetermination\sof\sLOOK_INVALID\sflag\sfor\sUTF-8\sbyte\ssequences.\sNot\sused\sin\sfossil\syet.
+D 2014-04-28T07:47:45.980
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -370,7 +370,7 @@ F src/json_wiki.c 12bbe52fcec8932d88aa42fb0c549d7322dc192a
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 3b47e21ff322ffda6e79b0aac324b1a3b8946972
-F src/lookslike.c 2fbd8e1b7ed1556ae32874b2f64fb4bd7d36e228
+F src/lookslike.c d9b33ffd18814b4bf8f0c69adc91c982ddf6fe7f
 F src/main.c 2b4c706ab0a6a03694a6017733d53211d95d8c67
 F src/main.mk d890a7853d824e9c5152435dc0402d252db180a4
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
@@ -470,7 +470,7 @@ F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/th1.test ae9441923cd34e35ce3ae88f8f4cf6cfd9a4c6bd
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/utf.test d9f70000927c6a40c9ef1591ebf5970ff1eaaa33
+F test/utf.test db1a2d0b13fe65f6afbbf31c0f2528f1b583edcb
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl 1bd3f03f1c647e177cd1a9f1bb17c380388fc04b
@@ -643,7 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a050cd09e6763f6ca41aa5100e56f03227458a53
-R 4655481b2c06114a2eedd96d19a3a688
-U drh
-Z d9f50f7a7895ec7946183f0c350315e4
+P f1ed720a84fbfdb048d9e0a0c83e3fbd24628fb3
+R e315abc1520e2768df8f9aeac38e72b1
+U jan.nijtmans
+Z bf54e0fca18d8e25faf649c76eb881ce
