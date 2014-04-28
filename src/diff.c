@@ -222,8 +222,8 @@ static int same_dline(const DLine *pA, const DLine *pB){
 static int same_dline_ignore_allws(const DLine *pA, const DLine *pB){
   int a = pA->indent, b = pB->indent;
   if( pA->h==pB->h ){
-    while( a<pA->n && b<pB->n ){
-      if( pA->z[a++] != pB->z[b++] ) return 0;
+    while( a<pA->n || b<pB->n ){
+      if( a<pA->n && b<pB->n && pA->z[a++] != pB->z[b++] ) return 0;
       while( a<pA->n && fossil_isspace(pA->z[a])) ++a;
       while( b<pB->n && fossil_isspace(pB->z[b])) ++b;
     }
