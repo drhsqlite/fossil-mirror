@@ -379,7 +379,6 @@ void looks_like_utf_test_cmd(void){
   int fUnicode;  /* return value of could_be_utf16() */
   int lookFlags; /* output flags from looks_like_utf8/utf16() */
   int bRevUtf16 = 0; /* non-zero -> UTF-16 byte order reversed */
-  int bRevUnicode = 0; /* non-zero -> UTF-16 byte order reversed */
   int fForceUtf8 = find_option("utf8",0,0)!=0;
   int fForceUtf16 = find_option("utf16",0,0)!=0;
   const char *zCount = find_option("limit","n",1);
@@ -396,10 +395,10 @@ void looks_like_utf_test_cmd(void){
     if( fForceUtf8 ){
       fUnicode = 0;
     }else{
-      fUnicode = could_be_utf16(&blob, &bRevUnicode) || fForceUtf16;
+      fUnicode = could_be_utf16(&blob, 0) || fForceUtf16;
     }
     if( fUnicode ){
-      lookFlags = looks_like_utf16(&blob, bRevUnicode, 0);
+      lookFlags = looks_like_utf16(&blob, bRevUtf16, 0);
     }else{
       lookFlags = looks_like_utf8(&blob, 0)|invalid_utf8(&blob);
     }
