@@ -34,11 +34,9 @@
 ** lstat() is called on Unix if isWd is TRUE and allow-symlinks setting is on.
 **
 */
-int win32_stat(const char *zFilename, struct fossilStat *buf, int isWd){
+int win32_stat(const wchar_t *zFilename, struct fossilStat *buf, int isWd){
   WIN32_FILE_ATTRIBUTE_DATA attr;
-  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
-  int rc = GetFileAttributesExW(zMbcs, GetFileExInfoStandard, &attr);
-  fossil_filename_free(zMbcs);
+  int rc = GetFileAttributesExW(zFilename, GetFileExInfoStandard, &attr);
   if( rc ){
     ULARGE_INTEGER ull;
     ull.LowPart = attr.ftLastWriteTime.dwLowDateTime;
@@ -55,7 +53,7 @@ int win32_stat(const char *zFilename, struct fossilStat *buf, int isWd){
 ** Wrapper around the access() system call.  This code was copied from Tcl
 ** 8.6 and then modified.
 */
-int win32_access(const char *zFilename, int flags){
+int win32_access(const wchar_t *zFilename, int flags){
   int rc = 0;
   PSECURITY_DESCRIPTOR pSd = NULL;
   unsigned long size;
@@ -69,8 +67,7 @@ int win32_access(const char *zFilename, int flags){
   BOOL accessYesNo = FALSE;
   PRIVILEGE_SET privSet;
   DWORD privSetSize = sizeof(PRIVILEGE_SET);
-  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
-  DWORD attr = GetFileAttributesW(zMbcs);
+  DWORD attr = GetFileAttributesW(zFilename);
 
   if( attr==INVALID_FILE_ATTRIBUTES ){
     /*
@@ -116,7 +113,7 @@ int win32_access(const char *zFilename, int flags){
    */
 
   size = 0;
-  GetFileSecurityW(zMbcs,
+  GetFileSecurityW(zFilename,
       OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
       DACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION,
       0, 0, &size);
@@ -148,7 +145,7 @@ int win32_access(const char *zFilename, int flags){
    * Call GetFileSecurity() for real.
    */
 
-  if( !GetFileSecurityW(zMbcs,
+  if( !GetFileSecurityW(zFilename,
           OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
           DACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION,
           pSd, size, &size) ){
@@ -245,19 +242,14 @@ done:
   if( pSd!=NULL ){
     HeapFree(GetProcessHeap(), 0, pSd);
   }
-  fossil_filename_free(zMbcs);
   return rc;
 }
 
 /*
 ** Wrapper around the chdir() system call.
-** If bChroot=1, do a chroot to this dir as well
-** (UNIX only)
 */
-int win32_chdir(const char *zChDir, int bChroot){
-  wchar_t *zPath = fossil_utf8_to_filename(zChDir);
-  int rc = (int)!SetCurrentDirectoryW(zPath);
-  fossil_filename_free(zPath);
+int win32_chdir(const void *zChDir, int bChroot){
+  int rc = (int)!SetCurrentDirectoryW(zChDir);
   return rc;
 }
 
