@@ -157,7 +157,7 @@ set SHELL_OPTIONS {
 # Options used to compile the included SQLite shell on Windows.
 #
 set SHELL_WIN32_OPTIONS $SHELL_OPTIONS
-lappend SHELL_WIN32_OPTIONS -Daccess=win32_access
+lappend SHELL_WIN32_OPTIONS -Daccess=file_access
 lappend SHELL_WIN32_OPTIONS -Dgetenv=fossil_getenv
 lappend SHELL_WIN32_OPTIONS -Dfopen=fossil_fopen
 

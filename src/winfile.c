@@ -248,7 +248,7 @@ done:
 /*
 ** Wrapper around the chdir() system call.
 */
-int win32_chdir(const void *zChDir, int bChroot){
+int win32_chdir(const wchar_t *zChDir, int bChroot){
   int rc = (int)!SetCurrentDirectoryW(zChDir);
   return rc;
 }
@@ -257,8 +257,7 @@ int win32_chdir(const void *zChDir, int bChroot){
 ** Get the current working directory.
 **
 ** On windows, the name is converted from unicode to UTF8 and all '\\'
-** characters are converted to '/'.  No conversions are needed on
-** unix.
+** characters are converted to '/'.
 */
 void win32_getcwd(char *zBuf, int nBuf){
   int i;
