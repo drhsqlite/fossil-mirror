@@ -56,7 +56,7 @@ int win32_stat(const wchar_t *zFilename, struct fossilStat *buf, int isWd){
 int win32_access(const wchar_t *zFilename, int flags){
   int rc = 0;
   PSECURITY_DESCRIPTOR pSd = NULL;
-  unsigned long size;
+  unsigned long size = 0;
   PSID pSid = NULL;
   BOOL sidDefaulted;
   BOOL impersonated = FALSE;
@@ -65,8 +65,8 @@ int win32_access(const wchar_t *zFilename, int flags){
   HANDLE hToken = NULL;
   DWORD desiredAccess = 0, grantedAccess = 0;
   BOOL accessYesNo = FALSE;
-  PRIVILEGE_SET privSet;
-  DWORD privSetSize = sizeof(PRIVILEGE_SET);
+  PPRIVILEGE_SET pPrivSet = NULL;
+  DWORD privSetSize = 0;
   DWORD attr = GetFileAttributesW(zFilename);
 
   if( attr==INVALID_FILE_ATTRIBUTES ){
@@ -112,7 +112,6 @@ int win32_access(const wchar_t *zFilename, int flags){
    * First find out how big the buffer needs to be.
    */
 
-  size = 0;
   GetFileSecurityW(zFilename,
       OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
       DACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION,
@@ -216,11 +215,26 @@ int win32_access(const wchar_t *zFilename, int flags){
   genMap.GenericExecute = FILE_GENERIC_EXECUTE;
   genMap.GenericAll = FILE_ALL_ACCESS;
 
+  AccessCheck(pSd, hToken, desiredAccess, &genMap, 0,
+                   &privSetSize, &grantedAccess, &accessYesNo);
+  /*
+   * Should have failed with ERROR_INSUFFICIENT_BUFFER
+   */
+
+  if( GetLastError()!=ERROR_INSUFFICIENT_BUFFER ){
+    rc = -1; goto done;
+  }
+  pPrivSet = (PPRIVILEGE_SET)HeapAlloc(GetProcessHeap(), 0, privSetSize);
+
+  if( pPrivSet==NULL ){
+    rc = -1; goto done;
+  }
+
   /*
    * Perform access check using the token.
    */
 
-  if( !AccessCheck(pSd, hToken, desiredAccess, &genMap, &privSet,
+  if( !AccessCheck(pSd, hToken, desiredAccess, &genMap, pPrivSet,
                    &privSetSize, &grantedAccess, &accessYesNo) ){
     /*
      * Unable to perform access check.
@@ -238,6 +252,9 @@ done:
   if( impersonated ){
     RevertToSelf();
     impersonated = FALSE;
+  }
+  if( pPrivSet!=NULL ){
+    HeapFree(GetProcessHeap(), 0, pPrivSet);
   }
   if( pSd!=NULL ){
     HeapFree(GetProcessHeap(), 0, pSd);
