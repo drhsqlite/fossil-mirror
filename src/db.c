@@ -1006,7 +1006,7 @@ void db_open_repository(const char *zDbName){
     }
   }
   if( file_access(zDbName, R_OK) || file_size(zDbName)<1024 ){
-    if( file_access(zDbName, 0) ){
+    if( file_access(zDbName, F_OK) ){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
 #endif
@@ -1140,7 +1140,7 @@ void move_repo_cmd(void){
   }
   file_canonical_name(g.argv[2], &repo, 0);
   zRepo = blob_str(&repo);
-  if( file_access(zRepo, 0) ){
+  if( file_access(zRepo, F_OK) ){
     fossil_fatal("no such file: %s", zRepo);
   }
   if( db_open_local(zRepo)==0 ){
@@ -2515,7 +2515,7 @@ void test_without_rowid(void){
         }
       }
       blob_append(&newSql, zOrigSql, -1);
-      blob_appendf(&allSql, 
+      blob_appendf(&allSql,
          "ALTER TABLE %s RENAME TO x_%s;\n"
          "%s WITHOUT ROWID;\n"
          "INSERT INTO %s SELECT * FROM x_%s;\n"

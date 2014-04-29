@@ -27,7 +27,7 @@
 ** For a sufficiently large integer, provide an alternative
 ** representation as MB or GB or TB.
 */
-static void bigSizeName(int nOut, char *zOut, sqlite3_int64 v){
+void bigSizeName(int nOut, char *zOut, sqlite3_int64 v){
   if( v<100000 ){
     sqlite3_snprintf(nOut, zOut, "%lld bytes", v);
   }else if( v<1000000000 ){
@@ -59,6 +59,7 @@ void stat_page(void){
   if( g.perm.Admin ){
     style_submenu_element("URLs", "URLs and Checkouts", "urllist");
     style_submenu_element("Schema", "Repository Schema", "repo_schema");
+    style_submenu_element("Web-Cache", "Web-Cache Stats", "cachestat");
   }
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>

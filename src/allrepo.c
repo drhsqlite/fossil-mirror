@@ -157,7 +157,7 @@ void all_cmd(void){
   int stopOnError = find_option("dontstop",0,0)==0;
   int rc;
   int nToDel = 0;
-  
+
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
@@ -284,7 +284,7 @@ void all_cmd(void){
   db_multi_exec("CREATE TEMP TABLE todel(x TEXT)");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
-    if( file_access(zFilename, 0)
+    if( file_access(zFilename, F_OK)
      || !file_is_canonical(zFilename)
      || (useCheckouts && file_isdir(zFilename)!=1)
     ){
@@ -314,7 +314,7 @@ void all_cmd(void){
     }
   }
   db_finalize(&q);
-  
+
   /* If any repositories whose names appear in the ~/.fossil file could not
   ** be found, remove those names from the ~/.fossil file.
   */

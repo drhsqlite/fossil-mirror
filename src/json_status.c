@@ -71,7 +71,7 @@ cson_value * json_page_status(){
   free(zTmp);
 
   cson_object_set( tmpO, "tags", json_tags_for_checkin_rid(vid, 0) );
-  
+
   /* FIXME: optimize the datetime/timestamp queries into 1 query. */
   zTmp = db_text(0, "SELECT datetime(mtime) || "
                  "' UTC' FROM event WHERE objid=%d",
@@ -117,7 +117,7 @@ cson_value * json_page_status(){
     }else if( isRenamed ){
       zStatus = "renamed";
     }else if( !file_wd_isfile_or_link(zFullName) ){
-      if( file_access(zFullName, 0)==0 ){
+      if( file_access(zFullName, F_OK)==0 ){
         zStatus = "notAFile";
         ++nErr;
       }else{
@@ -139,7 +139,7 @@ cson_value * json_page_status(){
         zStatus = "edited";
       }
     }
-   
+
     oFile = cson_new_object();
     cson_array_append( aFiles, cson_object_value(oFile) );
     /* optimization potential: move these keys into cson_strings
