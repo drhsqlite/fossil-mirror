@@ -88,7 +88,7 @@ static void status_report(
     if( isDeleted ){
       blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( !file_wd_isfile_or_link(zFullName) ){
-      if( file_access(zFullName, 0)==0 ){
+      if( file_access(zFullName, F_OK)==0 ){
         blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
         if( missingIsFatal ){
           fossil_warning("not a file: %s", zDisplayName);
@@ -329,7 +329,7 @@ void ls_cmd(void){
       }else if( isDeleted ){
         type = "DELETED    ";
       }else if( !file_wd_isfile_or_link(zFullName) ){
-        if( file_access(zFullName, 0)==0 ){
+        if( file_access(zFullName, F_OK)==0 ){
           type = "NOT_A_FILE ";
         }else{
           type = "MISSING    ";
@@ -628,7 +628,7 @@ void clean_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( glob_match(pKeep, zName+nRoot) ){
-        if( verboseFlag ){
+        if( verboseFlag || extremeFlag ){
           fossil_print("KEPT file \"%s\" not removed (due to --keep"
                        " or \"keep-glob\")\n", zName+nRoot);
         }
@@ -680,7 +680,7 @@ void clean_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( glob_match(pKeep, zName+nRoot) ){
-        if( verboseFlag ){
+        if( verboseFlag || extremeFlag ){
           fossil_print("KEPT directory \"%s\" not removed (due to --keep"
                        " or \"keep-glob\")\n", zName+nRoot);
         }

@@ -173,7 +173,7 @@ void diff_file(
     do{
       blob_reset(&nameFile1);
       blob_appendf(&nameFile1, "%s~%d", zFile2, cnt++);
-    }while( file_access(blob_str(&nameFile1),0)==0 );
+    }while( file_access(blob_str(&nameFile1),F_OK)==0 );
     blob_write_to_file(pFile1, blob_str(&nameFile1));
 
     /* Construct the external diff command */
@@ -387,7 +387,7 @@ static void diff_all_against_disk(
     if( isDeleted ){
       fossil_print("DELETED  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; zFullName = NULL_DEVICE; }
-    }else if( file_access(zFullName, 0) ){
+    }else if( file_access(zFullName, F_OK) ){
       fossil_print("MISSING  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; }
     }else if( isNew ){

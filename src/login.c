@@ -1295,8 +1295,8 @@ void register_page(void){
         char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
         int uid;
         db_multi_exec(
-            "INSERT INTO user(login,pw,cap,info)"
-            "VALUES(%B,%Q,%B,%B)",
+            "INSERT INTO user(login,pw,cap,info,mtime)"
+            "VALUES(%B,%Q,%B,%B,strftime('%s','now'))",
             &login, zPw, &caps, &contact
             );
         free(zPw);
