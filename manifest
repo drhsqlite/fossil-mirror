@@ -1,5 +1,5 @@
-C Remove\sunneeded\svariable:\sSince\scould_be_utf16()\scalls\sstarts_with_utf16_bom()\sit\scan\sbe\sdeduced\sthat\sfor\sUnicode\stext,\sbRevUnicode\salways\shas\sthe\ssame\svalue\sas\sbRevUtf16.\sThe\scomments\son\sthe\svariables\salready\ssuggested\sthat.
-D 2014-04-28T12:24:17.579
+C Set\sthe\smtime\scolumn\sof\sthe\sUSER\stable\son\sa\sself-registration.
+D 2014-04-29T00:31:08.421
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -369,7 +369,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 12bbe52fcec8932d88aa42fb0c549d7322dc192a
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
-F src/login.c 3b47e21ff322ffda6e79b0aac324b1a3b8946972
+F src/login.c 2f101c5d42a9fe9e9419922ff42767a1a254feb2
 F src/lookslike.c 742ad8059a42e27bbaffed645a4fa155a766b77e
 F src/main.c 2b4c706ab0a6a03694a6017733d53211d95d8c67
 F src/main.mk d890a7853d824e9c5152435dc0402d252db180a4
@@ -643,7 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1274c97d700ed05fbb60d327fa758562824bc280
-R 4d94178d13f325f9da8a2dd20616cd3c
-U jan.nijtmans
-Z 2b350d9b54e12a217902348ee3139cb6
+P 09f23863286bdcf73f60d5b9d3d84adf496f36d3
+R accccc89e7a48052c5542bdc1759ebf6
+U drh
+Z c7848a0fe190654b880532f3cd36559c
