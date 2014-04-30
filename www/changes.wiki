@@ -50,6 +50,7 @@
      that matches the ignore-glob.
   *  Add option -W|--width to "[/help?cmd=stash|fossil stash ls]"
      and "[/help?cmd=leaves|fossil leaves]" commands.
+  *  Enchance support for running as the root user. Now works on Haiku.
 
 <h2>Changes For Version 1.28 (2014-01-27)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
