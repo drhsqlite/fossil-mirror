@@ -1231,7 +1231,7 @@ NORETURN void fossil_redirect_home(void){
 ** Assume the user-id and group-id of the repository, or if zRepo
 ** is a directory, of that directory.
 */
-static char *enter_chroot_jail(char *zRepo){
+static char *enter_chroot_jail(char *zRepo, int isUiCmd){
 #if !defined(_WIN32)
   if( getuid()==0 ){
     int i;
@@ -1268,6 +1268,9 @@ static char *enter_chroot_jail(char *zRepo){
     i = i || setuid(sStat.st_uid);
     if(i){
       fossil_fatal("setgid/uid() failed with errno %d", errno);
+    }
+    if( g.db==0 && isUiCmd){
+      db_open_repository(zRepo);
     }
   }
 #endif
@@ -1829,7 +1832,7 @@ void cmd_http(void){
     }
   }
   find_server_repository(0);
-  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName,0);
   if( useSCGI ){
     cgi_handle_scgi_request();
   }else if( g.fSshClient & CGI_SSH_CLIENT ){
@@ -2045,7 +2048,7 @@ void cmd_webserver(void){
   }
   g.cgiOutput = 1;
   find_server_repository(isUiCmd && zNotFound==0);
-  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName,isUiCmd);
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();
   }else{
