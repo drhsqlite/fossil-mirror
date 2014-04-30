@@ -1269,7 +1269,7 @@ static char *enter_chroot_jail(char *zRepo, int isUiCmd){
     if(i){
       fossil_fatal("setgid/uid() failed with errno %d", errno);
     }
-    if( g.db==0 && isUiCmd){
+    if( g.db==0 && isUiCmd ){
       db_open_repository(zRepo);
     }
   }
