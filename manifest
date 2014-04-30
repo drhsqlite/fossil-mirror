@@ -1,5 +1,5 @@
-C If\sOpenssl\sis\savailable,\suse\sits\sssh1\simplementation.\sSuggested\sby\sBaruch\sBurstein.
-D 2014-04-30T07:43:47.897
+C Merged\sin\sfix\sfrom\sAndy\sB.\swhich\sresolves\smis-resolution\sof\sdb\sfile\sname\swhen\sfossil\sis\srun\sas\sroot\s(chroot-related).\sHaiku\sOS\sruns\severything\sas\sroot.
+D 2014-04-30T16:35:21.493
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -371,7 +371,7 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 2f101c5d42a9fe9e9419922ff42767a1a254feb2
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 2b4c706ab0a6a03694a6017733d53211d95d8c67
+F src/main.c 858a18d9cfc96ea3388db0c19216caea1c20982d
 F src/main.mk d890a7853d824e9c5152435dc0402d252db180a4
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -643,7 +643,8 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d00f2cfa8069bc2326ebf8cea95a03003d6e7550
-R 8d0e00c2738adba1d77a15fa63ae8bc9
-U jan.nijtmans
-Z 7db43ac577f9f6a2f94b0cd894e01b11
+P 379309b6da2b73fddf4bb82204b935375a6d883f 644e78cc8973a20a6274901f0e90e430fce47c43
+R 504065832ed0e6ba121bbfe23ef43656
+T +closed 644e78cc8973a20a6274901f0e90e430fce47c43
+U stephan
+Z f547058662bca113c93f7b6145d9e544
