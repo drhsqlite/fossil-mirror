@@ -511,3 +511,56 @@ void test_name_change(void){
     g.argc -= 2;
   }
 }
+
+/* Query to extract all rename operations */
+static const char zRenameQuery[] = 
+@ SELECT
+@     datetime(event.mtime),
+@     F.name AS old_name,
+@     T.name AS new_name,
+@     blob.uuid
+@   FROM mlink, filename F, filename T, event, blob
+@  WHERE coalesce(mlink.pfnid,0)!=0 AND mlink.pfnid!=mlink.fnid
+@    AND F.fnid=mlink.pfnid
+@    AND T.fnid=mlink.fnid
+@    AND event.objid=mlink.mid
+@    AND event.type='ci'
+@    AND blob.rid=mlink.mid
+@  ORDER BY 1 DESC, 2;
+;
+  
+/*
+** WEBPAGE: test-rename-list
+**
+** Print a list of all file rename operations throughout history.
+** This page is intended for for testing purposes only and may change
+** or be discontinued without notice.
+*/
+void test_rename_list_page(void){
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(); return; }
+  style_header("List Of File Name Changes");
+  @ <h3>NB: Experimental Page</h3>
+  @ <table border="1" width="100%%">
+  @ <tr><th>Date &amp; Time</th>
+  @ <th>Old Name</th>
+  @ <th>New Name</th>
+  @ <th>Check-in</th></tr>
+  db_prepare(&q, zRenameQuery);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zDate = db_column_text(&q, 0);
+    const char *zOld = db_column_text(&q, 1);
+    const char *zNew = db_column_text(&q, 2);
+    const char *zUuid = db_column_text(&q, 3);
+    @ <tr>
+    @ <td>%z(href("%R/timeline?c=%t",zDate))%s(zDate)</a></td>
+    @ <td>%z(href("%R/finfo?name=%t",zOld))%h(zOld)</a></td>
+    @ <td>%z(href("%R/finfo?name=%t",zNew))%h(zNew)</a></td>
+    @ <td>%z(href("%R/info/%s",zUuid))%S(zUuid)</a></td></tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  style_footer();
+}

@@ -1269,6 +1269,9 @@ static char *enter_chroot_jail(char *zRepo){
     if(i){
       fossil_fatal("setgid/uid() failed with errno %d", errno);
     }
+    if( g.db==0 && file_isfile(zRepo) ){
+      db_open_repository(zRepo);
+    }
   }
 #endif
   return zRepo;
