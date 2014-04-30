@@ -384,6 +384,11 @@ void find_filename_changes(
 
   *pnChng = 0;
   *aiChng = 0;
+  if(0==iFrom){
+    fossil_fatal("Invalid 'from' RID: 0");
+  }else if(0==iTo){
+    fossil_fatal("Invalid 'to' RID: 0");
+  }
   if( iFrom==iTo ) return;
   path_reset();
   p = path_shortest(iFrom, iTo, 1, revOk==0);
