@@ -6,7 +6,6 @@
   *  Add the "SaveAs..." and "Invert" buttons
      to the graphical diff display that results
      from using the --tk option with the [/help/diff | fossil diff] command.
-  *  Honor timezones in imports from git.
   *  The [/reports] page now requires Read ("o") permissions. The "byweek"
      report now properly propagates the selected year through the event type
      filter links.
