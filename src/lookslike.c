@@ -159,16 +159,14 @@ int invalid_utf8(const Blob *pContent){
     c2 = c;
     c = *++z;
     if( c2>=0x80 ){
-      if( (c2!=0xc0) || (c!=0x80) ){
-        if( ((c2==0xf4) && (c>=0x90)) ||
-            (c2<0xc2) || (c2>0xf4) || ((c&0xc0)!=0x80) ){
-   	      return 1; /* Invalid UTF-8 */
-        }
+      if( ((c2<0xc2) || (c2>=0xf4) || ((c&0xc0)!=0x80)) &&
+          (((c2!=0xf4) || (c>=0x90)) && ((c2!=0xc0) || (c!=0x80))) ){
+        return LOOK_INVALID; /* Invalid UTF-8 */
       }
       c = (c2 >= 0xe0) ? (c2<<1)+1 : ' ';
     }
   }
-  return c>=0x80; /* Last byte must be ASCII. */
+  return (c>=0x80) ? LOOK_INVALID : 0; /* Last byte must be ASCII. */
 }
 
 
@@ -235,11 +233,10 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   unsigned int n = blob_size(pContent);
   int j, c, flags = LOOK_NONE;  /* Assume UTF-16 text, prove otherwise */
 
-  if( n==0 ) return flags;  /* Empty file -> text */
   if( n%sizeof(WCHAR_T) ){
     flags |= LOOK_ODD;  /* Odd number of bytes -> binary (UTF-8?) */
-    if( n<sizeof(WCHAR_T) ) return flags;  /* One byte -> binary (UTF-8?) */
   }
+  if( n<sizeof(WCHAR_T) ) return flags;  /* Zero or One byte -> binary (UTF-8?) */
   c = *z;
   if( bReverse ){
     c = UTF16_SWAP(c);
@@ -254,11 +251,8 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   }
   j = (c!='\n');
   if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
-  while( 1 ){
+  while( !(flags&stopFlags) && ((n-=sizeof(WCHAR_T))>=sizeof(WCHAR_T)) ){
     int c2 = c;
-    if( flags&stopFlags ) break;
-    n -= sizeof(WCHAR_T);
-    if( n<sizeof(WCHAR_T) ) break;
     c = *++z;
     if( bReverse ){
       c = UTF16_SWAP(c);
@@ -370,6 +364,8 @@ int could_be_utf16(const Blob *pContent, int *pbReverse){
 ** Usage:  %fossil test-looks-like-utf FILENAME
 **
 ** Options:
+**    -n|--limit <num> Repeat looks-like function <num> times, for
+**                     performance measurement. Default = 1;
 **    --utf8           Ignoring BOM and file size, force UTF-8 checking
 **    --utf16          Ignoring BOM and file size, force UTF-16 checking
 **
@@ -377,29 +373,35 @@ int could_be_utf16(const Blob *pContent, int *pbReverse){
 ** and/or UTF-16 encodings.
 */
 void looks_like_utf_test_cmd(void){
-  Blob blob;     /* the contents of the specified file */
-  int fUtf8;     /* return value of starts_with_utf8_bom() */
-  int fUtf16;    /* return value of starts_with_utf16_bom() */
-  int fUnicode;  /* return value of could_be_utf16() */
-  int lookFlags; /* output flags from looks_like_utf8/utf16() */
+  Blob blob;         /* the contents of the specified file */
+  int fUtf8 = 0;     /* return value of starts_with_utf8_bom() */
+  int fUtf16 = 0;    /* return value of starts_with_utf16_bom() */
+  int fUnicode = 0;  /* return value of could_be_utf16() */
+  int lookFlags = 0; /* output flags from looks_like_utf8/utf16() */
   int bRevUtf16 = 0; /* non-zero -> UTF-16 byte order reversed */
-  int bRevUnicode = 0; /* non-zero -> UTF-16 byte order reversed */
   int fForceUtf8 = find_option("utf8",0,0)!=0;
   int fForceUtf16 = find_option("utf16",0,0)!=0;
+  const char *zCount = find_option("limit","n",1);
+  int nRepeat = 1;
+
   if( g.argc!=3 ) usage("FILENAME");
-  blob_read_from_file(&blob, g.argv[2]);
-  fUtf8 = starts_with_utf8_bom(&blob, 0);
-  fUtf16 = starts_with_utf16_bom(&blob, 0, &bRevUtf16);
-  if( fForceUtf8 ){
-    fUnicode = 0;
-  }else{
-    fUnicode = could_be_utf16(&blob, &bRevUnicode) || fForceUtf16;
+  if( zCount ){
+    nRepeat = atoi(zCount);
   }
-  if( fUnicode ){
-    lookFlags = looks_like_utf16(&blob, bRevUnicode, 0);
-  }else{
-    lookFlags = looks_like_utf8(&blob, 0);
-    if (invalid_utf8(&blob)) lookFlags |= LOOK_INVALID;
+  blob_read_from_file(&blob, g.argv[2]);
+  while( --nRepeat >= 0 ){
+    fUtf8 = starts_with_utf8_bom(&blob, 0);
+    fUtf16 = starts_with_utf16_bom(&blob, 0, &bRevUtf16);
+    if( fForceUtf8 ){
+      fUnicode = 0;
+    }else{
+      fUnicode = could_be_utf16(&blob, 0) || fForceUtf16;
+    }
+    if( fUnicode ){
+      lookFlags = looks_like_utf16(&blob, bRevUtf16, 0);
+    }else{
+      lookFlags = looks_like_utf8(&blob, 0)|invalid_utf8(&blob);
+    }
   }
   fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
   fossil_print("Starts with UTF-8 BOM: %s\n",fUtf8?"yes":"no");

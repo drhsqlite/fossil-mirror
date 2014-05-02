@@ -372,6 +372,9 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   db_multi_exec(
     "DELETE FROM config WHERE name IN ('remote-code', 'remote-maxid')"
   );
+  db_multi_exec(
+    "UPDATE user SET mtime=strftime('%%s','now') WHERE mtime IS NULL"
+  );
 
   /* The following should be count(*) instead of max(rid). max(rid) is
   ** an adequate approximation, however, and is much faster for large

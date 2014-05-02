@@ -6,7 +6,6 @@
   *  Add the "SaveAs..." and "Invert" buttons
      to the graphical diff display that results
      from using the --tk option with the [/help/diff | fossil diff] command.
-  *  Honor timezones in imports from git.
   *  The [/reports] page now requires Read ("o") permissions. The "byweek"
      report now properly propagates the selected year through the event type
      filter links.
@@ -37,7 +36,10 @@
   *  Fix the server so that it avoids writing to the database (and thus avoids
      database locking issues) on a 
      [/help?cmd=pull|pull] or [/help?cmd=clone|clone].
-  *  Add support for [./server.wiki#loadmgmt|server load management].
+  *  Add support for [./server.wiki#loadmgmt|server load management] using both
+     a cache of expensive pages (the [/help?cmd=cache|fossil cache] command)
+     and by rejecting expensive page requests when the server load average is too
+     high.
   *  Add the [/help?cmd=praise|fossil praise] command as an alias for 
      [/help?cmd=blame|fossil blame] for subversion compatibility.
   *  Enhance the [/help?cmd=test-diff|fossil test-diff] command with -y or --tk
@@ -47,6 +49,7 @@
      that matches the ignore-glob.
   *  Add option -W|--width to "[/help?cmd=stash|fossil stash ls]"
      and "[/help?cmd=leaves|fossil leaves]" commands.
+  *  Enhance support for running as the root user. Now works on Haiku.
 
 <h2>Changes For Version 1.28 (2014-01-27)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
