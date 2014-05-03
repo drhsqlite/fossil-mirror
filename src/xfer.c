@@ -1431,11 +1431,6 @@ int client_sync(
     xfer.syncPrivate = 1;
   }
 
-  db_begin_transaction();
-  db_record_repository_filename(0);
-  db_multi_exec(
-    "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
-  );
   blobarray_zero(xfer.aToken, count(xfer.aToken));
   blob_zero(&send);
   blob_zero(&recv);
@@ -1474,12 +1469,17 @@ int client_sync(
     if( (syncFlags & SYNC_PULL)==0 ) zOpType = "Push";
     if( (syncFlags & SYNC_RESYNC)!=0 ) xfer.resync = 0x7fffffff;
   }
-  manifest_crosslink_begin();
   if( syncFlags & SYNC_VERBOSE ){
     fossil_print(zLabelFormat, "", "Bytes", "Cards", "Artifacts", "Deltas");
   }
 
   while( go ){
+    db_begin_transaction();
+    db_record_repository_filename(0);
+    db_multi_exec(
+      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
+    );
+    manifest_crosslink_begin();
     int newPhantom = 0;
     char *zRandomness;
 
@@ -1912,6 +1912,14 @@ int client_sync(
     ** information which is only sent on the second round.
     */
     if( cloneSeqno<=0 && nCycle>1 ) go = 0;
+    db_multi_exec("DROP TABLE onremote");
+    if( go ){
+      manifest_crosslink_end(0);
+    }else{
+      manifest_crosslink_end(MC_PERMIT_HOOKS);
+      content_enable_dephantomize(1);
+    }
+    db_end_transaction(0);
   };
   transport_stats(&nSent, &nRcvd, 1);
   if( (rSkew*24.0*3600.0) > 10.0 ){
@@ -1930,9 +1938,5 @@ int client_sync(
      zOpType, nSent, nRcvd);
   transport_close(&g.url);
   transport_global_shutdown(&g.url);
-  db_multi_exec("DROP TABLE onremote");
-  manifest_crosslink_end(MC_PERMIT_HOOKS);
-  content_enable_dephantomize(1);
-  db_end_transaction(0);
   return nErr;
 }
