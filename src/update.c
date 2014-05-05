@@ -129,7 +129,9 @@ void update_cmd(void){
   vid = db_lget_int("checkout", 0);
   user_select();
   if( !dryRunFlag && !internalUpdate ){
-    autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag);
+    if( autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag) ){
+      fossil_fatal("Autosync failed, cannot update");
+    }
   }
   
   /* Create any empty directories now, as well as after the update,

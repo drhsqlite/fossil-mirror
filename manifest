@@ -1,5 +1,5 @@
-C Restore\svariable\sdefinitions\sat\sthe\stop\sof\sthe\sblock.
-D 2014-05-05T04:50:04.366
+C Abort\sthe\supdate\sif\sautosync\sfails.
+D 2014-05-05T07:26:12.624
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -422,7 +422,7 @@ F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 7b3ec02e5e293378c23f6a048c7beedcbb6e0ff0
-F src/update.c f90dabeaf78a319b0b3b8791c0dded8d2f6170ec
+F src/update.c 383354ac698f1db76ec9b7de6836f63145078318
 F src/url.c 9271e7162cee3b952cc883a7c569adfc9d488763
 F src/user.c 58a793626f84fb38c0d198b7fe716205c0c9431e
 F src/utf8.c 76559aefffb4f90653eea15c3d68cb2c19834bf4
@@ -643,7 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1317331eed6480437748168b4164c9f32f4edec3
-R 605cf3a5e1b5902429e15b886ef2bd84
+P 21f6dc9571321ad2cbfa752cc3a8bc7386d57ae4
+R cbccd2c385c3e5a2320d33e4270fc845
 U andybradford
-Z 60a5ce0494e3c4cc4ad7c0852bc315ef
+Z 953ef1ddc12c98870c63710c3975ba97
