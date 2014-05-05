@@ -1474,14 +1474,14 @@ int client_sync(
   }
 
   while( go ){
+    int newPhantom = 0;
+    char *zRandomness;
     db_begin_transaction();
     db_record_repository_filename(0);
     db_multi_exec(
       "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
     );
     manifest_crosslink_begin();
-    int newPhantom = 0;
-    char *zRandomness;
 
     /* Send make the most recently received cookie.  Let the server
     ** figure out if this is a cookie that it cares about.
