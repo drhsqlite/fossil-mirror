@@ -1561,6 +1561,7 @@ int client_sync(
     if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0,
         MAX_REDIRECTS) ){
       nErr++;
+      go = 2;
       break;
     }
 
@@ -1938,5 +1939,11 @@ int client_sync(
      zOpType, nSent, nRcvd);
   transport_close(&g.url);
   transport_global_shutdown(&g.url);
+  if( nErr && go==2 ){
+    db_multi_exec("DROP TABLE onremote");
+    manifest_crosslink_end(MC_PERMIT_HOOKS);
+    content_enable_dephantomize(1);
+    db_end_transaction(0);
+  }
   return nErr;
 }
