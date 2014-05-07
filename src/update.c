@@ -130,7 +130,7 @@ void update_cmd(void){
   user_select();
   if( !dryRunFlag && !internalUpdate ){
     if( autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag) ){
-      fossil_fatal("Autosync failed, cannot update");
+      fossil_fatal("Cannot proceed with update");
     }
   }
   
