@@ -1,5 +1,5 @@
-C Make\serror\smessage\sless\sredundant.
-D 2014-05-07T04:00:56.374
+C Abort\supdate\sor\smerge\soperation\sif\sthere\sis\scontent\smissing\sfrom\sfiles.\sAdd\n--force-missing\soption\sto\sallow\soverride\sif\sdesired.
+D 2014-05-08T05:52:38.086
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -380,7 +380,7 @@ F src/manifest.c 05e0e4bec391ca300d1a6fc30fc19c0a12454be1
 F src/markdown.c 717f7f14927414811b61475a6fb9edc34e6cf90b
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
-F src/merge.c 8f32bbf06caf1227babc225dc2efd584467f9db4
+F src/merge.c a7465055e7bbaa18918acc3755a723bd57d0e763
 F src/merge3.c 74f9e253b9ca6ca31bc8d47eeed5e353472df3ca
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
 F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
@@ -422,13 +422,13 @@ F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 7b3ec02e5e293378c23f6a048c7beedcbb6e0ff0
-F src/update.c 514ca0e45dda23f22af58119c58e453ff3ffd059
+F src/update.c fbf294f38470f65e27c2fe22f386827b131095f1
 F src/url.c 9271e7162cee3b952cc883a7c569adfc9d488763
 F src/user.c 58a793626f84fb38c0d198b7fe716205c0c9431e
 F src/utf8.c 76559aefffb4f90653eea15c3d68cb2c19834bf4
 F src/util.c 369a0bac8492cd36e42fd215989cec34c83de8de
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
-F src/vfile.c 64d8e49634442edde612084f8b60f4185630d8be
+F src/vfile.c dc6e75df6a81e32b6ef5f731f2bcfc5ea1f4305d
 F src/wiki.c 1dda16919874c5610432092412af4e247b8365aa
 F src/wikiformat.c f897c6fc3888f9ea189adafb91a977faa892349c
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
@@ -643,7 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8478bfe27e7733053f324d8c21e0f6f635185277
-R b4af4379411c8808913f9affb54614dd
+P d02f144d708e89299ae28a2b99eeb829a6799c5f
+R 08d3c889d9f34d8a93f926fc1117a5f8
 U andybradford
-Z 84bf949cce9698a2bd50f1080a5632e4
+Z 862180a70a6b5921861615f8806d042a
