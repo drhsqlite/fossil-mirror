@@ -1443,6 +1443,7 @@ void db_initial_setup(
 **    --template      FILE      copy settings from repository file
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
+**                              (default: don't create initial checkin)
 **
 ** See also: clone
 */
@@ -1455,7 +1456,6 @@ void create_repository_cmd(void){
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  if( zDate==0 ) zDate = "now";
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
