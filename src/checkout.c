@@ -43,8 +43,9 @@ int unsaved_changes(unsigned int cksigFlags){
 ** Clear the VFILE table.
 */
 void uncheckout(int vid){
-  if( vid==0 ) return;
-  vfile_unlink(vid);
+  if( vid>0 ){
+    vfile_unlink(vid);
+  }
   db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
 }
 
