@@ -103,7 +103,7 @@ void update_cmd(void){
   int latestFlag;       /* --latest.  Pick the latest version if true */
   int dryRunFlag;       /* -n or --dry-run.  Do a dry run */
   int verboseFlag;      /* -v or --verbose.  Output extra information */
-  int forceMissingFlag; /* -f or --force.    Continue if missing content */
+  int forceMissingFlag; /* --force-missing.  Continue if missing content */
   int debugFlag;        /* --debug option */
   int setmtimeFlag;     /* --setmtime.  Set mtimes on files */
   int nChng;            /* Number of file renames */
