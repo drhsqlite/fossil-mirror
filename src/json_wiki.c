@@ -310,6 +310,7 @@ static cson_value * json_wiki_create_or_save(char createMode,
   cson_value * emptyContent = NULL;  /* placeholder for empty content. */
   cson_value * payV = NULL;   /* payload/return value */
   cson_string const * jstr = NULL;  /* temp for cson_value-to-cson_string conversions. */
+  char const * zMimeType = 0;
   unsigned int contentLen = 0;
   int rid;
   if( (createMode && !g.perm.NewWiki)
@@ -373,7 +374,10 @@ static cson_value * json_wiki_create_or_save(char createMode,
   if(contentLen){
     blob_append(&content, cson_string_cstr(jstr),contentLen);
   }
-  wiki_cmd_commit(zPageName, 0==rid, &content);
+
+  zMimeType = json_find_option_cstr("format","format","F");
+
+  wiki_cmd_commit(zPageName, 0==rid, &content, zMimeType);
   blob_reset(&content);
   /*
     Our return value here has a race condition: if this operation
