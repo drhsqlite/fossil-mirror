@@ -957,6 +957,10 @@ void wikirules_page(void){
 ** and isNew is false, then this routine throws an error.
 **
 ** The content of the new page is given by the blob pContent.
+**
+** zMimeType specifies the N-card for the wiki page. If it is 0,
+** empty, or "text/x-fossil-wiki" (the default format) then it is
+** ignored.
 */
 int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent,
                     char const * zMimeType){
