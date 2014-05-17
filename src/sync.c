@@ -81,7 +81,7 @@ int autosync(int flags){
 
 /*
 ** This routine will try a number of times to perform autosync with a
-** 1 second sleep between attempts; returning the last autosync status.
+** .5 second sleep between attempts; returning the last autosync status.
 */
 int autosync_loop(int flags){
   int n = 0;
