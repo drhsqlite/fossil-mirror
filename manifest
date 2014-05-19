@@ -1,5 +1,5 @@
-C [/help?cmd=new|fossil\snew]\sno\slonger\screates\san\sinitial\sempty\scommit\sby\sdefault\s(but\sit\sstill\sdoes\swhen\susing\s--date-override).\s\nThe\sfirst\scommit\safter\schecking\sout\sa\snew\sempty\srepository\swill\sbecome\sthe\sinitial\scommit.
-D 2014-05-19T07:38:04.865
+C Prevent\serror-message\sfor\s"fossil\sdiff\s--tk"\sin\scombination\swith\s-v/--verbose/--interactive/--side-by-side\s(which\sare\salready\simplied\sby\s--tk)
+D 2014-05-19T09:16:20.287
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -335,7 +335,7 @@ F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 21d39484ff6de8be189cf6978ca3f9870442a7ce
 F src/diff.c 0d33c3b047cb4fef06064ab179df5264f1cdd65e
-F src/diffcmd.c 28c75dcb48560607dbe952d13af653bc80966063
+F src/diffcmd.c 47bd95a62f4479840b498fb89dab2a5dbcef9459
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c afe15eaf300e18c7d19a1e1fe3c4bda30bff4872
@@ -643,8 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ec44f61a831e4225feff1d6f020c107842bd8475 0aa20efb9696a26e234e1d49f19c98a2f05aa259
-R 57371f4549fa0a9b7c2c1f2d3148fc72
-T +closed 0aa20efb9696a26e234e1d49f19c98a2f05aa259
+P cac91b6cd17ab74663d2876548c0d4856b08b6af
+R 1d62bd4c004d0762d247c2a28325997d
 U jan.nijtmans
-Z f12385248594eb1115a52395a716bf2d
+Z ceb0167bf9442605a831ee2e961c2fde

@@ -1012,21 +1012,16 @@ void diff_tk(const char *zSubCmd, int firstArg){
   blob_zero(&script);
   blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v",
                g.nameOfExe, zSubCmd);
+  find_option("html",0,0);
+  find_option("side-by-side","y",0);
+  find_option("internal","i",0);
+  find_option("verbose","v",0);
+  /* The undocumented --script FILENAME option causes the Tk script to
+  ** be written into the FILENAME instead of being run.  This is used
+  ** for testing and debugging. */
+  zTempFile = find_option("script",0,1);
   for(i=firstArg; i<g.argc; i++){
     const char *z = g.argv[i];
-    if( z[0]=='-' ){
-      if( strglob("*-html",z) ) continue;
-      if( strglob("*-y",z) ) continue;
-      if( strglob("*-i",z) ) continue;
-      /* The undocumented --script FILENAME option causes the Tk script to
-      ** be written into the FILENAME instead of being run.  This is used
-      ** for testing and debugging. */
-      if( strglob("*-script",z) && i<g.argc-1 ){
-        i++;
-        zTempFile = g.argv[i];
-        continue;
-      }
-    }
     if( sqlite3_strglob("*}*",z) ){
       blob_appendf(&script, " {%/}", z);
     }else{
