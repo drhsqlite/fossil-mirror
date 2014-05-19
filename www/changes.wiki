@@ -50,6 +50,9 @@
   *  Add option -W|--width to "[/help?cmd=stash|fossil stash ls]"
      and "[/help?cmd=leaves|fossil leaves]" commands.
   *  Enhance support for running as the root user. Now works on Haiku.
+  *  [/help?cmd=new|fossil new] no longer creates an initial empty commit by
+     default. The first commit after checking out a new empty repository will
+     become the initial commit.
 
 <h2>Changes For Version 1.28 (2014-01-27)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
