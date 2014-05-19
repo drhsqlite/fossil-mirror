@@ -1007,7 +1007,7 @@ static const char zDiffScript[] =
 void diff_tk(const char *zSubCmd, int firstArg){
   int i;
   Blob script;
-  char *zTempFile = 0;
+  const char *zTempFile = 0;
   char *zCmd;
   blob_zero(&script);
   blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v",
