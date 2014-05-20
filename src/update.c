@@ -90,6 +90,7 @@ int update_to(int vid){
 **   --case-sensitive <BOOL> override case-sensitive setting
 **   --debug          print debug information on stdout
 **   --latest         acceptable in place of VERSION, update to latest version
+**   --force-missing  force update if missing content after sync
 **   -n|--dry-run     If given, display instead of run actions
 **   -v|--verbose     print status information about all files
 **
@@ -102,6 +103,7 @@ void update_cmd(void){
   int latestFlag;       /* --latest.  Pick the latest version if true */
   int dryRunFlag;       /* -n or --dry-run.  Do a dry run */
   int verboseFlag;      /* -v or --verbose.  Output extra information */
+  int forceMissingFlag; /* --force-missing.  Continue if missing content */
   int debugFlag;        /* --debug option */
   int setmtimeFlag;     /* --setmtime.  Set mtimes on files */
   int nChng;            /* Number of file renames */
@@ -122,6 +124,7 @@ void update_cmd(void){
     dryRunFlag = find_option("nochange",0,0)!=0; /* deprecated */
   }
   verboseFlag = find_option("verbose","v",0)!=0;
+  forceMissingFlag = find_option("force-missing",0,0)!=0;
   debugFlag = find_option("debug",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
   capture_case_sensitive_option();
@@ -129,7 +132,9 @@ void update_cmd(void){
   vid = db_lget_int("checkout", 0);
   user_select();
   if( !dryRunFlag && !internalUpdate ){
-    autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag);
+    if( autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag) ){
+      fossil_fatal("Cannot proceed with update");
+    }
   }
   
   /* Create any empty directories now, as well as after the update,
@@ -205,7 +210,9 @@ void update_cmd(void){
   db_begin_transaction();
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   if( !dryRunFlag && !internalUpdate ) undo_begin();
-  load_vfile_from_rid(tid);
+  if( load_vfile_from_rid(tid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to update");
+  };
 
   /*
   ** The record.fn field is used to match files against each other.  The

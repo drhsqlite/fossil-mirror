@@ -325,10 +325,14 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       int i, j;
 
       if ( --maxRedirect == 0){
-        fossil_fatal("redirect limit exceeded");
+        fossil_warning("redirect limit exceeded");
+        goto write_err;
       }
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
-      if( zLine[i]==0 ) fossil_fatal("malformed redirect: %s", zLine);
+      if( zLine[i]==0 ){
+        fossil_warning("malformed redirect: %s", zLine);
+        goto write_err;
+      }
       j = strlen(zLine) - 1; 
       while( j>4 && fossil_strcmp(&zLine[j-4],"/xfer")==0 ){
          j -= 4;
@@ -353,7 +357,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
     }
   }
   if( iLength<0 ){
-    fossil_fatal("server did not reply");
+    fossil_warning("server did not reply");
     goto write_err;
   }
   if( rc!=200 ){
@@ -380,7 +384,8 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       z[j] = z[i];
     }
     z[j] = 0;
-    fossil_fatal("server sends error: %s", z);
+    fossil_warning("server sends error: %s", z);
+    goto write_err;
   }
   if( isCompressed ) blob_uncompress(pReply, pReply);
 
