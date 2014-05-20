@@ -275,8 +275,10 @@ void merge_cmd(void){
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   db_begin_transaction();
   if( !dryRunFlag ) undo_begin();
-  if( ( load_vfile_from_rid(mid) | load_vfile_from_rid(pid) )!=0
-        && !forceMissingFlag ){
+  if( load_vfile_from_rid(mid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to merge");
+  }
+  if( load_vfile_from_rid(pid) && !forceMissingFlag ){
     fossil_fatal("missing content, unable to merge");
   }
   if( debugFlag ){

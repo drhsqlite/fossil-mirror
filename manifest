@@ -1,5 +1,5 @@
-C Process\sxfer-ticket-script\sfor\seach\sround-trip\sto\savoid\slost\shook\sinvocations\n(thanks\sto\sJan\sNijtmans\sfor\scatching\sthis).
-D 2014-05-20T05:23:22.613
+C Avoid\smisinterpretation\sof\soperator.
+D 2014-05-20T05:47:46.115
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -380,7 +380,7 @@ F src/manifest.c 05e0e4bec391ca300d1a6fc30fc19c0a12454be1
 F src/markdown.c 717f7f14927414811b61475a6fb9edc34e6cf90b
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
-F src/merge.c a7465055e7bbaa18918acc3755a723bd57d0e763
+F src/merge.c 5225b9ddf4dcbe48f96d3c14594ef0589261f99d
 F src/merge3.c 74f9e253b9ca6ca31bc8d47eeed5e353472df3ca
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
 F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
@@ -643,7 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4cfe13e962a95fe972c3a783aa65f5f42d606269
-R b0b5a87abf9489d3e7d9ab15369c8508
+P 28a24c4ba6bdbec40dd47bd864beba25389aba39
+R 29f7b5b9ebb98aea280e7fd88df87958
 U andybradford
-Z 25b1267e7fd8ccb4a5b70e191262472c
+Z 94e40bf258562223b1f75aa766896d89
