@@ -1915,7 +1915,7 @@ int client_sync(
     if( cloneSeqno<=0 && nCycle>1 ) go = 0;
     db_multi_exec("DROP TABLE onremote");
     if( go ){
-      manifest_crosslink_end(MC_NONE);
+      manifest_crosslink_end(MC_PERMIT_HOOKS);
     }else{
       manifest_crosslink_end(MC_PERMIT_HOOKS);
       content_enable_dephantomize(1);
