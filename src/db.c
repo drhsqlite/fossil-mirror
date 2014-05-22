@@ -2003,7 +2003,7 @@ void cmd_open(void){
   int allowNested;
   char **oldArgv;
   int oldArgc;
-  static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0 };
+  static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
