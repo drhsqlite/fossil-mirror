@@ -478,7 +478,6 @@ void stash_cmd(void){
   const char *zCmd;
   int nCmd;
   int stashid = 0;
-
   undo_capture_command_line();
   db_must_be_within_tree();
   db_open_config(0);
@@ -626,7 +625,6 @@ void stash_cmd(void){
   if( memcmp(zCmd, "goto", nCmd)==0 ){
     int nConflict;
     int vid;
-
     if( g.argc>4 ) usage("apply STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     undo_begin();
@@ -653,7 +651,7 @@ void stash_cmd(void){
       return;
     }
     if( find_option("internal","i",0)==0 ){
-      zDiffCmd = diff_command_external(0);
+      zDiffCmd = diff_command_external(memcmp(zCmd, "gdiff", nCmd)==0);
     }
     diffFlags = diff_options();
     if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;

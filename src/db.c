@@ -1443,6 +1443,7 @@ void db_initial_setup(
 **    --template      FILE      copy settings from repository file
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
+**                              (default: don't create initial checkin)
 **
 ** See also: clone
 */
@@ -1455,7 +1456,6 @@ void create_repository_cmd(void){
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  if( zDate==0 ) zDate = "now";
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
@@ -1987,25 +1987,28 @@ void db_record_repository_filename(const char *zName){
 ** and "manifest.uuid" are modified if the --keep option is present.
 **
 ** Options:
-**   --empty    Initialize checkout as being empty, but still connected
-**              with the local repository. If you commit this checkout,
-**              it will become a new "initial" commit in the repository.
-**   --keep     Only modify the manifest and manifest.uuid files
-**   --nested   Allow opening a repository inside an opened checkout
+**   --empty           Initialize checkout as being empty, but still connected
+**                     with the local repository. If you commit this checkout,
+**                     it will become a new "initial" commit in the repository.
+**   --keep            Only modify the manifest and manifest.uuid files
+**   --nested          Allow opening a repository inside an opened checkout
+**   --force-missing   Force opening a repository with missing content
 **
 ** See also: close
 */
 void cmd_open(void){
   int emptyFlag;
   int keepFlag;
+  int forceMissingFlag;
   int allowNested;
   char **oldArgv;
   int oldArgc;
-  static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0 };
+  static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
   keepFlag = find_option("keep",0,0)!=0;
+  forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
@@ -2044,6 +2047,9 @@ void cmd_open(void){
     }
     if( keepFlag ){
       azNewArgv[g.argc++] = "--keep";
+    }
+    if( forceMissingFlag ){
+      azNewArgv[g.argc++] = "--force-missing";
     }
     checkout_cmd();
   }

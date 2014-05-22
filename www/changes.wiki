@@ -6,7 +6,6 @@
   *  Add the "SaveAs..." and "Invert" buttons
      to the graphical diff display that results
      from using the --tk option with the [/help/diff | fossil diff] command.
-  *  Honor timezones in imports from git.
   *  The [/reports] page now requires Read ("o") permissions. The "byweek"
      report now properly propagates the selected year through the event type
      filter links.
@@ -51,6 +50,13 @@
   *  Add option -W|--width to "[/help?cmd=stash|fossil stash ls]"
      and "[/help?cmd=leaves|fossil leaves]" commands.
   *  Enhance support for running as the root user. Now works on Haiku.
+  *  [/help?cmd=new|fossil new] no longer creates an initial empty commit by
+     default. The first commit after checking out a new empty repository will
+     become the initial commit.
+  *  Enhance sync operations by committing each round-trip to minimize number
+     of retransmits when autosync fails. Include option for
+     [/help?cmd=update| fossil update] and [/help?cmd=merge| fossil merge] to 
+     continue even if missing content.
 
 <h2>Changes For Version 1.28 (2014-01-27)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
