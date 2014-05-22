@@ -56,7 +56,7 @@ void uncheckout(int vid){
 **
 ** If anything goes wrong, panic.
 */
-int load_vfile(const char *zName){
+int load_vfile(const char *zName, int forceMissingFlag){
   Blob uuid;
   int vid;
 
@@ -71,7 +71,9 @@ int load_vfile(const char *zName){
   if( !is_a_version(vid) ){
     fossil_fatal("object [%.10s] is not a check-in", blob_str(&uuid));
   }
-  load_vfile_from_rid(vid);
+  if( load_vfile_from_rid(vid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to checkout");
+  };
   return vid;
 }
 
@@ -178,13 +180,15 @@ void manifest_to_disk(int vid){
 ** latest version in the repository.
 **
 ** Options:
-**    --force   Ignore edited files in the current checkout
-**    --keep    Only update the manifest and manifest.uuid files
+**    --force           Ignore edited files in the current checkout
+**    --keep            Only update the manifest and manifest.uuid files
+**    --force-missing   Force checkout even if content is missing
 **
 ** See also: update
 */
 void checkout_cmd(void){
   int forceFlag;                 /* Force checkout even if edits exist */
+  int forceMissingFlag;          /* Force checkout even if missing content */
   int keepFlag;                  /* Do not change any files on disk */
   int latestFlag;                /* Checkout the latest version */
   char *zVers;                   /* Version to checkout */
@@ -195,6 +199,7 @@ void checkout_cmd(void){
   db_must_be_within_tree();
   db_begin_transaction();
   forceFlag = find_option("force","f",0)!=0;
+  forceMissingFlag = find_option("force-missing",0,0)!=0;
   keepFlag = find_option("keep",0,0)!=0;
   latestFlag = find_option("latest",0,0)!=0;
   promptFlag = find_option("prompt",0,0)!=0 || forceFlag==0;
@@ -226,7 +231,7 @@ void checkout_cmd(void){
   }else{
     zVers = g.argv[2];
   }
-  vid = load_vfile(zVers);
+  vid = load_vfile(zVers, forceMissingFlag);
   if( prior==vid ){
     return;
   }

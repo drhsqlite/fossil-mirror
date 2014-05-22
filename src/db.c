@@ -1987,17 +1987,19 @@ void db_record_repository_filename(const char *zName){
 ** and "manifest.uuid" are modified if the --keep option is present.
 **
 ** Options:
-**   --empty    Initialize checkout as being empty, but still connected
-**              with the local repository. If you commit this checkout,
-**              it will become a new "initial" commit in the repository.
-**   --keep     Only modify the manifest and manifest.uuid files
-**   --nested   Allow opening a repository inside an opened checkout
+**   --empty           Initialize checkout as being empty, but still connected
+**                     with the local repository. If you commit this checkout,
+**                     it will become a new "initial" commit in the repository.
+**   --keep            Only modify the manifest and manifest.uuid files
+**   --nested          Allow opening a repository inside an opened checkout
+**   --force-missing   Force opening a repository with missing content
 **
 ** See also: close
 */
 void cmd_open(void){
   int emptyFlag;
   int keepFlag;
+  int forceMissingFlag;
   int allowNested;
   char **oldArgv;
   int oldArgc;
@@ -2006,6 +2008,7 @@ void cmd_open(void){
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
   keepFlag = find_option("keep",0,0)!=0;
+  forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
@@ -2044,6 +2047,9 @@ void cmd_open(void){
     }
     if( keepFlag ){
       azNewArgv[g.argc++] = "--keep";
+    }
+    if( forceMissingFlag ){
+      azNewArgv[g.argc++] = "--force-missing";
     }
     checkout_cmd();
   }
