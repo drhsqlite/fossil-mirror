@@ -1892,24 +1892,36 @@ void info_page(void){
   Blob uuid;
   int rid;
   int rc;
+  int nLen;
 
   zName = P("name");
   if( zName==0 ) fossil_redirect_home();
-  if( validate16(zName, strlen(zName)) ){
-    if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
-      tktview_page();
-      return;
-    }
-    if( db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'event-%q*'", zName) ){
-      event_page();
-      return;
-    }
-  }
+  nLen = strlen(zName);
   blob_set(&uuid, zName);
+  if( name_collisions(zName) ){
+    cgi_set_parameter("src","info");
+    ambiguous_page();
+    return;
+  }
   rc = name_to_uuid(&uuid, -1, "*");
   if( rc==1 ){
+    if( validate16(zName, nLen) ){
+      if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
+        tktview_page();
+        return;
+      }
+      if( db_exists("SELECT 1 FROM tag"
+                    " WHERE tagname GLOB 'event-%q*'", zName) ){
+        event_page();
+        return;
+      }
+    }
     style_header("No Such Object");
     @ <p>No such object: %h(zName)</p>
+    if( nLen<4 ){
+      @ <p>Object name should be no less than 4 characters.  Ten or more
+      @ characters are recommended.</p>
+    }
     style_footer();
     return;
   }else if( rc==2 ){

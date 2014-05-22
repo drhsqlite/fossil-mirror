@@ -173,7 +173,7 @@ void diff_file(
     do{
       blob_reset(&nameFile1);
       blob_appendf(&nameFile1, "%s~%d", zFile2, cnt++);
-    }while( file_access(blob_str(&nameFile1),0)==0 );
+    }while( file_access(blob_str(&nameFile1),F_OK)==0 );
     blob_write_to_file(pFile1, blob_str(&nameFile1));
 
     /* Construct the external diff command */
@@ -387,7 +387,7 @@ static void diff_all_against_disk(
     if( isDeleted ){
       fossil_print("DELETED  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; zFullName = NULL_DEVICE; }
-    }else if( file_access(zFullName, 0) ){
+    }else if( file_access(zFullName, F_OK) ){
       fossil_print("MISSING  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; }
     }else if( isNew ){
@@ -934,6 +934,7 @@ static const char zDiffScript[] =
 @
 @ proc saveDiff {} {
 @   set fn [tk_getSaveFile]
+@   if {$fn==""} return
 @   set out [open $fn wb]
 @   puts $out "#!/usr/bin/tclsh\n#\n# Run this script using 'tclsh' or 'wish'"
 @   puts $out "# to see the graphical diff.\n#"
@@ -1006,26 +1007,21 @@ static const char zDiffScript[] =
 void diff_tk(const char *zSubCmd, int firstArg){
   int i;
   Blob script;
-  char *zTempFile = 0;
+  const char *zTempFile = 0;
   char *zCmd;
   blob_zero(&script);
   blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v",
                g.nameOfExe, zSubCmd);
+  find_option("html",0,0);
+  find_option("side-by-side","y",0);
+  find_option("internal","i",0);
+  find_option("verbose","v",0);
+  /* The undocumented --script FILENAME option causes the Tk script to
+  ** be written into the FILENAME instead of being run.  This is used
+  ** for testing and debugging. */
+  zTempFile = find_option("script",0,1);
   for(i=firstArg; i<g.argc; i++){
     const char *z = g.argv[i];
-    if( z[0]=='-' ){
-      if( strglob("*-html",z) ) continue;
-      if( strglob("*-y",z) ) continue;
-      if( strglob("*-i",z) ) continue;
-      /* The undocumented --script FILENAME option causes the Tk script to
-      ** be written into the FILENAME instead of being run.  This is used
-      ** for testing and debugging. */
-      if( strglob("*-script",z) && i<g.argc-1 ){
-        i++;
-        zTempFile = g.argv[i];
-        continue;
-      }
-    }
     if( sqlite3_strglob("*}*",z) ){
       blob_appendf(&script, " {%/}", z);
     }else{

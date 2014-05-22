@@ -34,11 +34,9 @@
 ** lstat() is called on Unix if isWd is TRUE and allow-symlinks setting is on.
 **
 */
-int win32_stat(const char *zFilename, struct fossilStat *buf, int isWd){
+int win32_stat(const wchar_t *zFilename, struct fossilStat *buf, int isWd){
   WIN32_FILE_ATTRIBUTE_DATA attr;
-  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
-  int rc = GetFileAttributesExW(zMbcs, GetFileExInfoStandard, &attr);
-  fossil_filename_free(zMbcs);
+  int rc = GetFileAttributesExW(zFilename, GetFileExInfoStandard, &attr);
   if( rc ){
     ULARGE_INTEGER ull;
     ull.LowPart = attr.ftLastWriteTime.dwLowDateTime;
@@ -55,10 +53,10 @@ int win32_stat(const char *zFilename, struct fossilStat *buf, int isWd){
 ** Wrapper around the access() system call.  This code was copied from Tcl
 ** 8.6 and then modified.
 */
-int win32_access(const char *zFilename, int flags){
+int win32_access(const wchar_t *zFilename, int flags){
   int rc = 0;
   PSECURITY_DESCRIPTOR pSd = NULL;
-  unsigned long size;
+  unsigned long size = 0;
   PSID pSid = NULL;
   BOOL sidDefaulted;
   BOOL impersonated = FALSE;
@@ -67,10 +65,9 @@ int win32_access(const char *zFilename, int flags){
   HANDLE hToken = NULL;
   DWORD desiredAccess = 0, grantedAccess = 0;
   BOOL accessYesNo = FALSE;
-  PRIVILEGE_SET privSet;
-  DWORD privSetSize = sizeof(PRIVILEGE_SET);
-  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
-  DWORD attr = GetFileAttributesW(zMbcs);
+  PPRIVILEGE_SET pPrivSet = NULL;
+  DWORD privSetSize = 0;
+  DWORD attr = GetFileAttributesW(zFilename);
 
   if( attr==INVALID_FILE_ATTRIBUTES ){
     /*
@@ -115,8 +112,7 @@ int win32_access(const char *zFilename, int flags){
    * First find out how big the buffer needs to be.
    */
 
-  size = 0;
-  GetFileSecurityW(zMbcs,
+  GetFileSecurityW(zFilename,
       OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
       DACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION,
       0, 0, &size);
@@ -148,7 +144,7 @@ int win32_access(const char *zFilename, int flags){
    * Call GetFileSecurity() for real.
    */
 
-  if( !GetFileSecurityW(zMbcs,
+  if( !GetFileSecurityW(zFilename,
           OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
           DACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION,
           pSd, size, &size) ){
@@ -219,11 +215,26 @@ int win32_access(const char *zFilename, int flags){
   genMap.GenericExecute = FILE_GENERIC_EXECUTE;
   genMap.GenericAll = FILE_ALL_ACCESS;
 
+  AccessCheck(pSd, hToken, desiredAccess, &genMap, 0,
+                   &privSetSize, &grantedAccess, &accessYesNo);
+  /*
+   * Should have failed with ERROR_INSUFFICIENT_BUFFER
+   */
+
+  if( GetLastError()!=ERROR_INSUFFICIENT_BUFFER ){
+    rc = -1; goto done;
+  }
+  pPrivSet = (PPRIVILEGE_SET)HeapAlloc(GetProcessHeap(), 0, privSetSize);
+
+  if( pPrivSet==NULL ){
+    rc = -1; goto done;
+  }
+
   /*
    * Perform access check using the token.
    */
 
-  if( !AccessCheck(pSd, hToken, desiredAccess, &genMap, &privSet,
+  if( !AccessCheck(pSd, hToken, desiredAccess, &genMap, pPrivSet,
                    &privSetSize, &grantedAccess, &accessYesNo) ){
     /*
      * Unable to perform access check.
@@ -242,22 +253,20 @@ done:
     RevertToSelf();
     impersonated = FALSE;
   }
+  if( pPrivSet!=NULL ){
+    HeapFree(GetProcessHeap(), 0, pPrivSet);
+  }
   if( pSd!=NULL ){
     HeapFree(GetProcessHeap(), 0, pSd);
   }
-  fossil_filename_free(zMbcs);
   return rc;
 }
 
 /*
 ** Wrapper around the chdir() system call.
-** If bChroot=1, do a chroot to this dir as well
-** (UNIX only)
 */
-int win32_chdir(const char *zChDir, int bChroot){
-  wchar_t *zPath = fossil_utf8_to_filename(zChDir);
-  int rc = (int)!SetCurrentDirectoryW(zPath);
-  fossil_filename_free(zPath);
+int win32_chdir(const wchar_t *zChDir, int bChroot){
+  int rc = (int)!SetCurrentDirectoryW(zChDir);
   return rc;
 }
 
@@ -265,8 +274,7 @@ int win32_chdir(const char *zChDir, int bChroot){
 ** Get the current working directory.
 **
 ** On windows, the name is converted from unicode to UTF8 and all '\\'
-** characters are converted to '/'.  No conversions are needed on
-** unix.
+** characters are converted to '/'.
 */
 void win32_getcwd(char *zBuf, int nBuf){
   int i;

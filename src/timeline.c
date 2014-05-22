@@ -1777,7 +1777,7 @@ void timeline_cmd(void){
   if( zWidth ){
     width = atoi(zWidth);
     if( (width!=0) && (width<=20) ){
-      fossil_fatal("--width|-W value must be >20 or 0");
+      fossil_fatal("-W|--width value must be >20 or 0");
     }
   }else{
     width = 79;

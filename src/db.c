@@ -731,12 +731,12 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   }
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
-  sqlite3_create_function(db, "now", 0, SQLITE_ANY, 0, db_now_function, 0, 0);
-  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_ANY, 0,
+  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0, db_now_function, 0, 0);
+  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
                           db_checkin_mtime_function, 0, 0);
-  sqlite3_create_function(db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
-  sqlite3_create_function(db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
-  sqlite3_create_function(db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
+  sqlite3_create_function(db, "cgi", 1, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
+  sqlite3_create_function(db, "cgi", 2, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
   sqlite3_create_function(db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
   sqlite3_create_function(
     db, "is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
@@ -1006,7 +1006,7 @@ void db_open_repository(const char *zDbName){
     }
   }
   if( file_access(zDbName, R_OK) || file_size(zDbName)<1024 ){
-    if( file_access(zDbName, 0) ){
+    if( file_access(zDbName, F_OK) ){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
 #endif
@@ -1140,7 +1140,7 @@ void move_repo_cmd(void){
   }
   file_canonical_name(g.argv[2], &repo, 0);
   zRepo = blob_str(&repo);
-  if( file_access(zRepo, 0) ){
+  if( file_access(zRepo, F_OK) ){
     fossil_fatal("no such file: %s", zRepo);
   }
   if( db_open_local(zRepo)==0 ){
@@ -1443,6 +1443,7 @@ void db_initial_setup(
 **    --template      FILE      copy settings from repository file
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
+**                              (default: don't create initial checkin)
 **
 ** See also: clone
 */
@@ -1455,7 +1456,6 @@ void create_repository_cmd(void){
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  if( zDate==0 ) zDate = "now";
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
@@ -1987,25 +1987,28 @@ void db_record_repository_filename(const char *zName){
 ** and "manifest.uuid" are modified if the --keep option is present.
 **
 ** Options:
-**   --empty    Initialize checkout as being empty, but still connected
-**              with the local repository. If you commit this checkout,
-**              it will become a new "initial" commit in the repository.
-**   --keep     Only modify the manifest and manifest.uuid files
-**   --nested   Allow opening a repository inside an opened checkout
+**   --empty           Initialize checkout as being empty, but still connected
+**                     with the local repository. If you commit this checkout,
+**                     it will become a new "initial" commit in the repository.
+**   --keep            Only modify the manifest and manifest.uuid files
+**   --nested          Allow opening a repository inside an opened checkout
+**   --force-missing   Force opening a repository with missing content
 **
 ** See also: close
 */
 void cmd_open(void){
   int emptyFlag;
   int keepFlag;
+  int forceMissingFlag;
   int allowNested;
   char **oldArgv;
   int oldArgc;
-  static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0 };
+  static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
 
   url_proxy_options();
   emptyFlag = find_option("empty",0,0)!=0;
   keepFlag = find_option("keep",0,0)!=0;
+  forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
@@ -2044,6 +2047,9 @@ void cmd_open(void){
     }
     if( keepFlag ){
       azNewArgv[g.argc++] = "--keep";
+    }
+    if( forceMissingFlag ){
+      azNewArgv[g.argc++] = "--force-missing";
     }
     checkout_cmd();
   }
@@ -2515,7 +2521,7 @@ void test_without_rowid(void){
         }
       }
       blob_append(&newSql, zOrigSql, -1);
-      blob_appendf(&allSql, 
+      blob_appendf(&allSql,
          "ALTER TABLE %s RENAME TO x_%s;\n"
          "%s WITHOUT ROWID;\n"
          "INSERT INTO %s SELECT * FROM x_%s;\n"

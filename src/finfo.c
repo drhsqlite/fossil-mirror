@@ -153,7 +153,7 @@ void finfo_cmd(void){
     iOffset = zOffset ? atoi(zOffset) : 0;
     iBrief = (find_option("brief","b",0) == 0);
     if( (iWidth!=0) && (iWidth<=22) ){
-      fossil_fatal("--width|-W value must be >22 or 0");
+      fossil_fatal("-W|--width value must be >22 or 0");
     }
     if( g.argc!=3 ){
       usage("?-l|--log? ?-b|--brief? FILENAME");

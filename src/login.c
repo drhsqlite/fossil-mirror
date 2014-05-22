@@ -708,7 +708,7 @@ static int login_transfer_credentials(
        g.zVfsName
   );
   if( rc==SQLITE_OK ){
-    sqlite3_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite3_create_function(pOther,"now",0,SQLITE_UTF8,0,db_now_function,0,0);
     sqlite3_create_function(pOther, "constant_time_cmp", 2, SQLITE_UTF8, 0,
                   constant_time_cmp_function, 0, 0);
     sqlite3_busy_timeout(pOther, 5000);
@@ -741,6 +741,17 @@ static int login_transfer_credentials(
 }
 
 /*
+** Return TRUE if zLogin is one of the special usernames
+*/
+int login_is_special(const char *zLogin){
+  if( fossil_strcmp(zLogin, "anonymous")==0 ) return 1;
+  if( fossil_strcmp(zLogin, "nobody")==0 ) return 1;
+  if( fossil_strcmp(zLogin, "developer")==0 ) return 1;
+  if( fossil_strcmp(zLogin, "reader")==0 ) return 1;
+  return 0;
+}
+
+/*
 ** Lookup the uid for a non-built-in user with zLogin and zCookie and
 ** zRemoteAddr.  Return 0 if not found.
 **
@@ -754,10 +765,7 @@ static int login_find_user(
   const char *zRemoteAddr        /* Abbreviated IP address for valid login */
 ){
   int uid;
-  if( fossil_strcmp(zLogin, "anonymous")==0 ) return 0;
-  if( fossil_strcmp(zLogin, "nobody")==0 ) return 0;
-  if( fossil_strcmp(zLogin, "developer")==0 ) return 0;
-  if( fossil_strcmp(zLogin, "reader")==0 ) return 0;
+  if( login_is_special(zLogin) ) return 0;
   uid = db_int(0,
     "SELECT uid FROM user"
     " WHERE login=%Q"
@@ -1287,8 +1295,8 @@ void register_page(void){
         char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
         int uid;
         db_multi_exec(
-            "INSERT INTO user(login,pw,cap,info)"
-            "VALUES(%B,%Q,%B,%B)",
+            "INSERT INTO user(login,pw,cap,info,mtime)"
+            "VALUES(%B,%Q,%B,%B,strftime('%s','now'))",
             &login, zPw, &caps, &contact
             );
         free(zPw);
@@ -1411,7 +1419,7 @@ int login_group_sql(
     }
     sqlite3_create_function(pPeer, "shared_secret", 3, SQLITE_UTF8,
                             0, sha1_shared_secret_sql_function, 0, 0);
-    sqlite3_create_function(pPeer, "now", 0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite3_create_function(pPeer, "now", 0,SQLITE_UTF8,0,db_now_function,0,0);
     sqlite3_busy_timeout(pPeer, 5000);
     zErr = 0;
     rc = sqlite3_exec(pPeer, zSql, 0, 0, &zErr);

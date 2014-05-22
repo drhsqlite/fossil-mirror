@@ -62,6 +62,10 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_TCL_PRIVATE_STUBS = 1
 
+#### Use 'system' sqlite
+#
+# USE_SYSTEM_SQLITE = 1
+
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
 #
@@ -209,6 +213,10 @@ ifndef MINGW_IS_32BIT_ONLY
 LIB += -municode
 endif
 
+ifdef USE_SYSTEM_SQLITE
+LIB += -lsqlite3
+endif
+
 # OpenSSL: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
@@ -265,6 +273,7 @@ SRC = \
   $(SRCDIR)/blob.c \
   $(SRCDIR)/branch.c \
   $(SRCDIR)/browse.c \
+  $(SRCDIR)/cache.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
   $(SRCDIR)/checkin.c \
@@ -376,6 +385,7 @@ TRANS_SRC = \
   $(OBJDIR)/blob_.c \
   $(OBJDIR)/branch_.c \
   $(OBJDIR)/browse_.c \
+  $(OBJDIR)/cache_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
   $(OBJDIR)/checkin_.c \
@@ -487,6 +497,7 @@ OBJ = \
  $(OBJDIR)/blob.o \
  $(OBJDIR)/branch.o \
  $(OBJDIR)/browse.o \
+ $(OBJDIR)/cache.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
  $(OBJDIR)/checkin.o \
@@ -671,7 +682,15 @@ test:	$(OBJDIR) $(APPNAME)
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(VERSION)
 	$(VERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
-EXTRAOBJ =  $(OBJDIR)/sqlite3.o  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(OBJDIR)/th_tcl.o  $(OBJDIR)/cson_amalgamation.o
+# The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
+# to 1. If it is set to 1, then there is no need to build or link
+# the sqlite3.o object. Instead, the system sqlite will be linked
+# using -lsqlite3.
+SQLITE3_OBJ.1 =
+SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
+
+EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(OBJDIR)/th_tcl.o  $(OBJDIR)/cson_amalgamation.o
 
 zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
@@ -726,6 +745,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/blob_.c:$(OBJDIR)/blob.h \
 		$(OBJDIR)/branch_.c:$(OBJDIR)/branch.h \
 		$(OBJDIR)/browse_.c:$(OBJDIR)/browse.h \
+		$(OBJDIR)/cache_.c:$(OBJDIR)/cache.h \
 		$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 		$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
 		$(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h \
@@ -899,6 +919,14 @@ $(OBJDIR)/browse.o:	$(OBJDIR)/browse_.c $(OBJDIR)/browse.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/browse.o -c $(OBJDIR)/browse_.c
 
 $(OBJDIR)/browse.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/cache_.c:	$(SRCDIR)/cache.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/cache.c >$(OBJDIR)/cache_.c
+
+$(OBJDIR)/cache.o:	$(OBJDIR)/cache_.c $(OBJDIR)/cache.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/cache.o -c $(OBJDIR)/cache_.c
+
+$(OBJDIR)/cache.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/captcha_.c:	$(SRCDIR)/captcha.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/captcha.c >$(OBJDIR)/captcha_.c
@@ -1722,7 +1750,7 @@ SHELL_OPTIONS = -Dmain=sqlite3_shell \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 -DSQLITE_SHELL_DBNAME_PROC=fossil_open \
-                -Daccess=win32_access \
+                -Daccess=file_access \
                 -Dgetenv=fossil_getenv \
                 -Dfopen=fossil_fopen
 

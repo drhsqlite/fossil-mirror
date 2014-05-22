@@ -28,13 +28,11 @@
 **
 **     0:   There is an existing checkout but it is unmodified
 **     1:   There is a modified checkout - there are unsaved changes
-**     2:   There is no existing checkout
 */
 int unsaved_changes(unsigned int cksigFlags){
   int vid;
   db_must_be_within_tree();
   vid = db_lget_int("checkout",0);
-  if( vid==0 ) return 2;
   vfile_check_signature(vid, cksigFlags|CKSIG_ENOTFILE);
   return db_exists("SELECT 1 FROM vfile WHERE chnged"
                    " OR coalesce(origname!=pathname,0)");
@@ -45,8 +43,9 @@ int unsaved_changes(unsigned int cksigFlags){
 ** Clear the VFILE table.
 */
 void uncheckout(int vid){
-  if( vid==0 ) return;
-  vfile_unlink(vid);
+  if( vid>0 ){
+    vfile_unlink(vid);
+  }
   db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
 }
 
@@ -57,7 +56,7 @@ void uncheckout(int vid){
 **
 ** If anything goes wrong, panic.
 */
-int load_vfile(const char *zName){
+int load_vfile(const char *zName, int forceMissingFlag){
   Blob uuid;
   int vid;
 
@@ -72,7 +71,9 @@ int load_vfile(const char *zName){
   if( !is_a_version(vid) ){
     fossil_fatal("object [%.10s] is not a check-in", blob_str(&uuid));
   }
-  load_vfile_from_rid(vid);
+  if( load_vfile_from_rid(vid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to checkout");
+  };
   return vid;
 }
 
@@ -179,13 +180,15 @@ void manifest_to_disk(int vid){
 ** latest version in the repository.
 **
 ** Options:
-**    --force   Ignore edited files in the current checkout
-**    --keep    Only update the manifest and manifest.uuid files
+**    --force           Ignore edited files in the current checkout
+**    --keep            Only update the manifest and manifest.uuid files
+**    --force-missing   Force checkout even if content is missing
 **
 ** See also: update
 */
 void checkout_cmd(void){
   int forceFlag;                 /* Force checkout even if edits exist */
+  int forceMissingFlag;          /* Force checkout even if missing content */
   int keepFlag;                  /* Do not change any files on disk */
   int latestFlag;                /* Checkout the latest version */
   char *zVers;                   /* Version to checkout */
@@ -196,13 +199,14 @@ void checkout_cmd(void){
   db_must_be_within_tree();
   db_begin_transaction();
   forceFlag = find_option("force","f",0)!=0;
+  forceMissingFlag = find_option("force-missing",0,0)!=0;
   keepFlag = find_option("keep",0,0)!=0;
   latestFlag = find_option("latest",0,0)!=0;
   promptFlag = find_option("prompt",0,0)!=0 || forceFlag==0;
   if( (latestFlag!=0 && g.argc!=2) || (latestFlag==0 && g.argc!=3) ){
      usage("VERSION|--latest ?--force? ?--keep?");
   }
-  if( !forceFlag && unsaved_changes(0)==1 ){
+  if( !forceFlag && unsaved_changes(0) ){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
   if( forceFlag ){
@@ -227,7 +231,7 @@ void checkout_cmd(void){
   }else{
     zVers = g.argv[2];
   }
-  vid = load_vfile(zVers);
+  vid = load_vfile(zVers, forceMissingFlag);
   if( prior==vid ){
     return;
   }
@@ -290,7 +294,7 @@ static void unlink_local_database(int manifestOnly){
 void close_cmd(void){
   int forceFlag = find_option("force","f",0)!=0;
   db_must_be_within_tree();
-  if( !forceFlag && unsaved_changes(0)==1 ){
+  if( !forceFlag && unsaved_changes(0) ){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
   if( !forceFlag

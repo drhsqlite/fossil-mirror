@@ -70,23 +70,24 @@ int uuid_to_rid(const char *zUuid, int phantomize){
 
 
 /*
-** Load a vfile from a record ID.
+** Load a vfile from a record ID.  Return the number of files with
+** missing content.
 */
-void load_vfile_from_rid(int vid){
-  int rid, size;
+int load_vfile_from_rid(int vid){
+  int rid, size, nMissing;
   Stmt ins, ridq;
   Manifest *p;
   ManifestFile *pFile;
 
   if( db_exists("SELECT 1 FROM vfile WHERE vid=%d", vid) ){
-    return;
+    return 0;
   }
 
   db_begin_transaction();
   p = manifest_get(vid, CFTYPE_MANIFEST, 0);
   if( p==0 ) {
     db_end_transaction(1);
-    return;
+    return 0;
   }
   db_prepare(&ins,
     "INSERT INTO vfile(vid,isexe,islink,rid,mrid,pathname) "
@@ -94,6 +95,7 @@ void load_vfile_from_rid(int vid){
   db_prepare(&ridq, "SELECT rid,size FROM blob WHERE uuid=:uuid");
   db_bind_int(&ins, ":vid", vid);
   manifest_file_rewind(p);
+  nMissing = 0;
   while( (pFile = manifest_file_next(p,0))!=0 ){
     if( pFile->zUuid==0 || uuid_is_shunned(pFile->zUuid) ) continue;
     db_bind_text(&ridq, ":uuid", pFile->zUuid);
@@ -107,6 +109,7 @@ void load_vfile_from_rid(int vid){
     db_reset(&ridq);
     if( rid==0 || size<0 ){
       fossil_warning("content missing for %s", pFile->zName);
+      nMissing++;
       continue;
     }
     db_bind_int(&ins, ":isexe", ( manifest_file_mperm(pFile)==PERM_EXE ));
@@ -120,6 +123,7 @@ void load_vfile_from_rid(int vid){
   db_finalize(&ins);
   manifest_destroy(p);
   db_end_transaction(0);
+  return nMissing;
 }
 
 #if INTERFACE
