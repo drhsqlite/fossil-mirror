@@ -1,5 +1,5 @@
-C doc\simprovement.
-D 2014-05-14T16:53:06.083
+C pulled\sin\strunk.
+D 2014-05-23T11:01:14.370
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -320,7 +320,7 @@ F src/cache.c 5d4821dfce8ce0d09aaa1e82c3c9d5693487bb48
 F src/captcha.c 765bb4af84144ec617cabb9c6b4a548bbc2e8b08
 F src/cgi.c 752925d4999d0a51723e2e19d6a5f71a90fdfc3a
 F src/checkin.c 312546f5cf598b575fdfc1293b4f966a5ddd05ac
-F src/checkout.c 4a735575270aad98f365ad4bc4f8f16ce46927d9
+F src/checkout.c ecc2668f55bb7d67fdf5f47be38337628d5a3c10
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 79eea7d1a72ddb5b62efb3b75a76791d485cf108
 F src/comformat.c e3d453354c4e4aa230c2c42f8e9bcb94ada3b3cb
@@ -330,12 +330,12 @@ F src/content.c 5a1a614acc062eef02563cf75746f34e77f7edb9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c e2873b09884df34d2dc77f8257c463c4b8395835
+F src/db.c 23f796fda35de78e7292cf2b656b3c18647f8814
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 21d39484ff6de8be189cf6978ca3f9870442a7ce
 F src/diff.c 0d33c3b047cb4fef06064ab179df5264f1cdd65e
-F src/diffcmd.c 28c75dcb48560607dbe952d13af653bc80966063
+F src/diffcmd.c f80e1292966006d5716058950f50cbd5fcc55b23
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c afe15eaf300e18c7d19a1e1fe3c4bda30bff4872
@@ -345,7 +345,7 @@ F src/finfo.c 76cd756123cc0d077f275ae4853ff02fcb6aec47
 F src/glob.c aea01d383a35a38a48c5419ba2526ffa79b8c33b
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
 F src/gzip.c 6166bf34729ac612c93c0274a1fbd021764c3ebf
-F src/http.c 9a997856a54c466cbbd467603f07e14af6c25b8a
+F src/http.c 061752d44c21be846c3876f4f9d4b92aa3e5f177
 F src/http_socket.c 7d3cb5844c0dfc586f1c7d1d783b489a701b5b04
 F src/http_ssl.c 38675814850cdddbb8d5728d0c7a75bf8b1d462c
 F src/http_transport.c d1aef141c961172a1a32f619f339c641cdeaa674
@@ -380,7 +380,7 @@ F src/manifest.c 05e0e4bec391ca300d1a6fc30fc19c0a12454be1
 F src/markdown.c 717f7f14927414811b61475a6fb9edc34e6cf90b
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
-F src/merge.c 8f32bbf06caf1227babc225dc2efd584467f9db4
+F src/merge.c 5225b9ddf4dcbe48f96d3c14594ef0589261f99d
 F src/merge3.c 74f9e253b9ca6ca31bc8d47eeed5e353472df3ca
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
 F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
@@ -422,19 +422,19 @@ F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 7b3ec02e5e293378c23f6a048c7beedcbb6e0ff0
-F src/update.c f90dabeaf78a319b0b3b8791c0dded8d2f6170ec
+F src/update.c 68599beb9fd180b24bf094691d281375f411cea1
 F src/url.c 9271e7162cee3b952cc883a7c569adfc9d488763
 F src/user.c 58a793626f84fb38c0d198b7fe716205c0c9431e
 F src/utf8.c 76559aefffb4f90653eea15c3d68cb2c19834bf4
 F src/util.c 369a0bac8492cd36e42fd215989cec34c83de8de
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
-F src/vfile.c 64d8e49634442edde612084f8b60f4185630d8be
+F src/vfile.c dc6e75df6a81e32b6ef5f731f2bcfc5ea1f4305d
 F src/wiki.c b76d16988343fb99c25450da9202e3dcc4bd92a0
 F src/wikiformat.c f897c6fc3888f9ea189adafb91a977faa892349c
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c e6c2450741f2d500530d8d4ef4d4e7bdcc84c0b1
 F src/wysiwyg.c 04450602906b7d197b5edc467229844350d92857
-F src/xfer.c dace4194506b2ea732ca27f68300b156816e403a
+F src/xfer.c 37f2afbbd186bf5cef90c57b7fa1acd7097977cd
 F src/xfersetup.c c69c710fec70f76dac901a9181fe81be5dc316e7
 F src/zip.c febf7fff38bfed9ca2fbda0a28d75fe8e445dce5
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -563,7 +563,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki d4d05c1e0508ade7332024976831ad4dc87d93ae
-F www/changes.wiki 7b8ba6d3a403e8feae163342933994c9d294d2b3
+F www/changes.wiki eebf5a06ea2f37c2ce67203e546323e82e137c9e
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -632,7 +632,7 @@ F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
 F www/server.wiki f9792731489999e0932d3aedad3266e500a68836
 F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
-F www/shunning.wiki 716aa915e219fb4b881ba095c9dcd9e33b4016ab
+F www/shunning.wiki e04dc4800e4306611186b0216f6cf6e0781c9fed
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
 F www/style.wiki 92ede836b02fb8958e948b9df51f196e9ec95d68
@@ -643,7 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8f2d9e6923ed14ab6bd8a201c8db4da5592045a1
-R 66e05019633b80a71f0893233b498819
+P e1a0de75756eb10592a01cd166c22ac6256f78f8 b2a8924eb28f962597173e451d456734b94a71af
+R 35de4574c795c6012e602f262f3fb3fc
 U stephan
-Z b5a01563cea0c88e05bb7fb6a8a63104
+Z a8280cd0ecf954d5fc8e77b674bb26c3
