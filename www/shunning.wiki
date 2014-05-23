@@ -67,7 +67,7 @@ another repository that has not shunned the artifact.
 <h3>Managing the shunning list</h3>
 
 The complete shunning list for a repository can be viewed by a user
-with "admin" privilege on the "/shunned" URL of the web interface to Fossil.  
+with "admin" privilege on the "/shun" URL of the web interface to Fossil.  
 That URL is accessible under the "Admin" button on the default menu
 bar.  Items can be added to or removed from the shunning list.  "Sync"
 operations are inhibited as soon as the artifact is added to the
