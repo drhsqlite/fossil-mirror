@@ -1,5 +1,5 @@
-C Minor\scorrection\sto\sembedded\sdocument\slink\sto\sinclude\srelative\spath.
-D 2014-05-24T00:12:59.200
+C Clarify\sthe\sdocumentation\son\sshunning\shappening\sautomatically\sby\sdefault\non\sa\s"pull"\soperation.
+D 2014-05-24T02:23:19.809
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -632,7 +632,7 @@ F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
 F www/server.wiki f9792731489999e0932d3aedad3266e500a68836
 F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
-F www/shunning.wiki e04dc4800e4306611186b0216f6cf6e0781c9fed
+F www/shunning.wiki 72dbd35b86f8180debdff7f6d07fd4c1ab3d500f
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
 F www/style.wiki 92ede836b02fb8958e948b9df51f196e9ec95d68
@@ -643,7 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b2a8924eb28f962597173e451d456734b94a71af
-R 1295281d8e12b81e9c27052030ba041e
+P c11f57fa489e1b4a9a0feb2a524d3493a1f642c4
+R 6f957870eeb535672c74f24991bbb94a
 U andybradford
-Z 016f38a0d5f81ba7d85b41982d7de538
+Z 76e80441f3cc14e48adf2326a979e9b4

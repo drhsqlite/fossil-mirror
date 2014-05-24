@@ -36,8 +36,8 @@ repository whenever the repository is reconstructed using the
 <h3>Shunning lists are local state</h3>
 
 The shunning list is part of the local state of a Fossil repository.
-In other words, shunning does not propagate using the normal "sync"
-mechanism.  An artifact can be
+In other words, shunning does not propagate to a remote repository 
+using the normal "sync" mechanism.  An artifact can be
 shunned from one repository but be allowed to exist in another.  The fact that
 the shunning list does not propagate is a security feature.  If the
 shunning list propagated then a malicious user (or
@@ -47,7 +47,8 @@ destroy vital information.  By refusing to propagate the shunning list,
 Fossil insures that no remote user will ever be able to remove 
 information from your personal repositories without your permission.
 
-The shunning list does not propagate by the normal "sync" mechanism,
+The shunning list does not propagate to a remote repository 
+by the normal "sync" mechanism,
 but it is still possible to copy shuns from one repository to another
 using the "configuration" command:
 
@@ -57,7 +58,9 @@ using the "configuration" command:
 The two command above will pull or push shunning lists from or to
 the <i>remote-url</i> indicated and merge the lists on the receiving
 end.  "Admin" privilege on the remote server is required in order to
-push a shun list.  
+push a shun list.  In contrast, the shunning list will be automatically 
+received by default as part of a normal client "pull" operation unless 
+disabled by the "<tt>auto-shun</tt>" setting.
 
 Note that the shunning list remains in the repository even after the
 shunned artifact has been removed.  This is to prevent the artifact
