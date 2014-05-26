@@ -1241,6 +1241,7 @@ static int commit_warning(
   int fHasAnyCr;          /* the blob contains one or more CR chars */
   int fHasLoneCrOnly;     /* all detected line endings are CR only */
   int fHasCrLfOnly;       /* all detected line endings are CR/LF pairs */
+  int fHasInvalidUtf8 = 0;/* contains byte-sequence which is invalid for UTF-8 */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
@@ -1251,12 +1252,15 @@ static int commit_warning(
     lookFlags = looks_like_utf16(p, bReverse, LOOK_NUL);
   }else{
     lookFlags = looks_like_utf8(p, LOOK_NUL);
+    if( !(lookFlags & LOOK_BINARY) && invalid_utf8(p) ){
+      fHasInvalidUtf8 = 1;
+    }
   }
   fHasAnyCr = (lookFlags & LOOK_CR);
   fBinary = (lookFlags & LOOK_BINARY);
   fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
   fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
-  if( fUnicode || fHasAnyCr || fBinary ){
+  if( fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
@@ -1289,6 +1293,13 @@ static int commit_warning(
         zWarning = "mixed line endings and Unicode";
       }
       zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
+    }else if( fHasInvalidUtf8 ){
+      if( encodingOk ){
+        return 0; /* We don't want encoding warnings for this file. */
+      }
+      zWarning = "invalid UTF-8";
+      zConvert = ""; /* Possible conversion to UTF-8 not yet implemented. */
+      zDisable = "\"encoding-glob\" setting";
     }else if( fHasAnyCr ){
       if( crnlOk ){
         return 0; /* We don't want CR/NL warnings for this file. */
