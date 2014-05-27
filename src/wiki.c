@@ -271,7 +271,7 @@ void wiki_page(void){
            g.zTop, zPageName);
     }
   }
-  style_set_current_page("%s?name=%T", g.zPath, zPageName);
+  style_set_current_page("%T?name=%T", g.zPath, zPageName);
   style_header(zPageName);
   blob_init(&wiki, zBody, -1);
   wiki_render_by_mimetype(&wiki, zMimetype);
@@ -441,7 +441,7 @@ void wikiedit_page(void){
   if( zBody==0 ){
     zBody = mprintf("<i>Empty Page</i>");
   }
-  style_set_current_page("%s?name=%T", g.zPath, zPageName);
+  style_set_current_page("%T?name=%T", g.zPath, zPageName);
   style_header("Edit: %s", zPageName);
   if( !goodCaptcha ){
     @ <p class="generalError">Error:  Incorrect security code.</p>
@@ -669,7 +669,7 @@ void wikiappend_page(void){
     cgi_redirectf("wiki?name=%T", zPageName);
     return;
   }
-  style_set_current_page("%s?name=%T", g.zPath, zPageName);
+  style_set_current_page("%T?name=%T", g.zPath, zPageName);
   style_header("Append Comment To: %s", zPageName);
   if( !goodCaptcha ){
     @ <p class="generalError">Error: Incorrect security code.</p>
