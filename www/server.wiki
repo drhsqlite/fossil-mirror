@@ -200,7 +200,7 @@ be used in combination with a webserver (such as [http://nginx.org|Nginx])
 that does not support CGI.  A typical Nginx configuration to support SCGI
 with Fossil would look something like this:
 <blockquote><pre>
-location ~ ^/demo_project/ {
+location /demo_project/ {
     include scgi_params;
     scgi_pass localhost:9000;
     scgi_param SCRIPT_NAME "/demo_project";
@@ -218,6 +218,16 @@ All of the features of the stand-alone server mode described above,
 such as the ability to serve a directory full of Fossil repositories
 rather than just a single repository, work the same way in SCGI mode.
 </p>
+<p>
+For security, it is probably a good idea to add the --localhost option
+to the [/help/server|fossil server] command to prevent Fossil from accepting
+off-site connections.  Add one might want to specify the listening TCP port
+number, rather than letting Fossil choose one for itself, just to avoid
+ambiguity.  A typical command to start a Fossil SCGI server
+would be something like this:
+<blockquote><pre>
+fossil server $REPOSITORY --scgi --localhost --port 9000
+</pre></blockquote>
 </blockquote>
 
 <h2>Securing a repository with SSL</h2><blockquote>
