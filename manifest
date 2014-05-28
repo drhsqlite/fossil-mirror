@@ -1,5 +1,5 @@
-C Added\s-R\sREPO\sto\sthe\stimeline\sdocs,\sper\sML\srequest.
-D 2014-05-28T16:06:11.885
+C Update\sthe\sbuild-in\sSQLite\sfrom\supstream.\s\sThe\s"fossil\ssql"\scommand\snow\nsupports\sthe\s".shell"\smeta-command.
+D 2014-05-28T20:24:36.871
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -399,12 +399,12 @@ F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 0c467c67e8d679960884df57a000c4fce96022f1
 F src/setup.c a0e7ea3c57ab899abfece4f39b7a0d69d60d6f7e
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
-F src/shell.c bfac06fb15f3cd0d447e2e72ab3a283fac301813
+F src/shell.c 8a0f8f4cd354a1b9f8181d747943c86c678dccfc
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
-F src/sqlite3.c 332d156e5e5a30161de26a9cdba56836077d6b60
-F src/sqlite3.h e6fe6d4ccb97a09d1169f12443521de843187c56
+F src/sqlite3.c b6ae06bf30f9202e48240c1dbf9067d756185ad0
+F src/sqlite3.h 6855a7bab3498c73a8b400ac8dc3178f58d8afad
 F src/stash.c f26f656267480d51ece04fd980bfd93ef72d512b
 F src/stat.c fe03922a3f09bf56061ca709af93aaef44674a77
 F src/style.c 9c32e2d4b4e18e6b151132d729651a5211a4ca7e
@@ -644,7 +644,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P de1921bad3ce6b0a25d654b993fe3fc768139162
-R 703c6355b28f39a0cad086b7e8ac4e4d
-U stephan
-Z 2a5808a1033d51676dbba121acd09120
+P dadbf7825a6e10eddf0835f583a8ca384afbea58
+R 820426314b08bd37670f5ed340a2950d
+U drh
+Z 2985347f1de9db4c704255260fa45ddf
