@@ -221,7 +221,7 @@ rather than just a single repository, work the same way in SCGI mode.
 <p>
 For security, it is probably a good idea to add the --localhost option
 to the [/help/server|fossil server] command to prevent Fossil from accepting
-off-site connections.  Add one might want to specify the listening TCP port
+off-site connections.  And one might want to specify the listening TCP port
 number, rather than letting Fossil choose one for itself, just to avoid
 ambiguity.  A typical command to start a Fossil SCGI server
 would be something like this:
