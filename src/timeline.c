@@ -1741,6 +1741,8 @@ static int isIsoDate(const char *z){
 **                        etc.) after the checkin comment.
 **   -W|--width <num>     With of lines (default 79). Must be >20 or 0
 **                        (= no limit, resulting in a single line per entry).
+**   -R REPO_FILE         Specifies the repository db to use. Default is
+**                        the current checkout's repository.
 */
 void timeline_cmd(void){
   Stmt q;
