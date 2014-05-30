@@ -304,7 +304,7 @@ void close_cmd(void){
   ){
     fossil_fatal("closing the checkout will delete your stash");
   }
-  {
+  if( db_is_writeable("repository") ){
     char * zUnset = mprintf("ckout:%q", g.zLocalRoot);
     db_unset(zUnset, 1);
     fossil_free(zUnset);
