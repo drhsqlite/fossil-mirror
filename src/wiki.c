@@ -1029,14 +1029,14 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent,
 **        Sends the latest version of the PAGENAME wiki
 **        entry to the given file or standard output.
 **
-**     %fossil wiki commit PAGENAME ?FILE? [-format TEXT-FORMAT]
+**     %fossil wiki commit PAGENAME ?FILE? [-mimetype TEXT-FORMAT]
 **
 **        Commit changes to a wiki page from FILE or from standard
-**        input. The -format flag specifies the mime type, defaulting
-**        to the type used by the previous version of the page or
-**        (for new pages) text/x-fossil-wiki.
+**        input. The -mimetype (-M) flag specifies the mime type,
+**        defaulting to the type used by the previous version of
+**        the page or (for new pages) text/x-fossil-wiki.
 **
-**     %fossil wiki create PAGENAME ?FILE? [-format TEXT-FORMAT]
+**     %fossil wiki create PAGENAME ?FILE? [-mimetype TEXT-FORMAT]
 **
 **        Create a new wiki page with initial content taken from
 **        FILE or from standard input.
@@ -1096,9 +1096,9 @@ void wiki_cmd(void){
     Blob content;                 /* Input content */
     int rid;
     Manifest *pWiki = 0;          /* Parsed wiki page content */
-    char const * zMimeType = find_option("format", "F", 1);
+    char const * zMimeType = find_option("mimetype", "M", 1);
     if( g.argc!=4 && g.argc!=5 ){
-      usage("commit PAGENAME ?FILE? [-format TEXT-FORMAT]");
+      usage("commit PAGENAME ?FILE? [-mimetype TEXT-FORMAT]");
     }
     zPageName = g.argv[3];
     if( g.argc==4 ){
