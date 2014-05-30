@@ -304,8 +304,10 @@ void close_cmd(void){
   ){
     fossil_fatal("closing the checkout will delete your stash");
   }
-  if( db_is_writeable("repository") ){
-    db_multi_exec("DELETE FROM config WHERE name='ckout:%q'", g.zLocalRoot);
+  {
+    char * zUnset = mprintf("ckout:%q", g.zLocalRoot);
+    db_unset(zUnset, 1);
+    fossil_free(zUnset);
   }
   unlink_local_database(1);
   db_close(1);
