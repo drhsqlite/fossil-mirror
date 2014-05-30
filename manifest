@@ -1,5 +1,5 @@
-C Update\sthe\sbuild-in\sSQLite\sfrom\supstream.\s\sThe\s"fossil\ssql"\scommand\snow\nsupports\sthe\s".shell"\smeta-command.
-D 2014-05-28T20:24:36.871
+C integrated\swiki-keep-mimetype\sbranch.
+D 2014-05-30T18:12:29.652
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -352,7 +352,7 @@ F src/http_transport.c d1aef141c961172a1a32f619f339c641cdeaa674
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
 F src/info.c 6eb26bb7a64c6ffad03abe7a28640721d2679489
 F src/json.c 68917a4b8491740885158ef960ff77334c9c7adf
-F src/json_artifact.c 709321592ac59a8eb347e67536adb1fabe8e04a2
+F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c aa922544841030c688df33aec81cca05577bbb7d
 F src/json_config.c 1f45ed837ec55e0855c498eae38cc66d8da29e75
 F src/json_detail.h a5ef58bb4838f64de4fb3d95a7a561d89a92e127
@@ -366,7 +366,7 @@ F src/json_status.c 0a9f959d19f4b90c879ad50ef0cd376262d8247b
 F src/json_tag.c 70261471bbfe05f47af230561053a4fcbbeba5a9
 F src/json_timeline.c 4ba37f8d381b38424fb287969a2da3ea553aa228
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
-F src/json_wiki.c 12bbe52fcec8932d88aa42fb0c549d7322dc192a
+F src/json_wiki.c 7c3ea7255e88e57b2ec78e55561d9f94ec8a909e
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 2f101c5d42a9fe9e9419922ff42767a1a254feb2
@@ -429,7 +429,7 @@ F src/utf8.c 76559aefffb4f90653eea15c3d68cb2c19834bf4
 F src/util.c 369a0bac8492cd36e42fd215989cec34c83de8de
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
 F src/vfile.c dc6e75df6a81e32b6ef5f731f2bcfc5ea1f4305d
-F src/wiki.c 19530917b7d349a8b0f0abea978871a08a0db95d
+F src/wiki.c a8f722917b7f855bb9904b5d2b3e8fd22ee25e5b
 F src/wikiformat.c f897c6fc3888f9ea189adafb91a977faa892349c
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c e6c2450741f2d500530d8d4ef4d4e7bdcc84c0b1
@@ -644,7 +644,8 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dadbf7825a6e10eddf0835f583a8ca384afbea58
-R 820426314b08bd37670f5ed340a2950d
-U drh
-Z 2985347f1de9db4c704255260fa45ddf
+P f6d3b815136fc0f66c745982ec5a8681662e5812 918d07bface57b3cc27d9fd8862da8fd5d93ca9c
+R 6a88870fa2540978536728c92c11581a
+T +closed 918d07bface57b3cc27d9fd8862da8fd5d93ca9c
+U stephan
+Z fb9b32ae26d9d135ef03d0345f3ff3f4
