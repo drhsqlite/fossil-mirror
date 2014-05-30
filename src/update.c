@@ -132,7 +132,8 @@ void update_cmd(void){
   vid = db_lget_int("checkout", 0);
   user_select();
   if( !dryRunFlag && !internalUpdate ){
-    if( autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag) ){
+    if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag, 
+                      db_get_int("autosync-tries", 1)) ){
       fossil_fatal("Cannot proceed with update");
     }
   }
