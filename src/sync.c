@@ -21,8 +21,6 @@
 #include "sync.h"
 #include <assert.h>
 
-#define AUTOSYNC_TRIES 3
-
 /*
 ** If the repository is configured for autosyncing, then do an
 ** autosync.  This will be a pull if the argument is true or a push
@@ -83,12 +81,12 @@ int autosync(int flags){
 ** This routine will try a number of times to perform autosync with a
 ** .5 second sleep between attempts; returning the last autosync status.
 */
-int autosync_loop(int flags){
+int autosync_loop(int flags, int nTries){
   int n = 0;
   int rc = 0;
-  while (n++ < AUTOSYNC_TRIES && (rc = autosync(flags))){
+  while( (n==0 || n < nTries) && (rc = autosync(flags) )){
     if( rc ) fossil_warning("Autosync failed%s",
-      n < AUTOSYNC_TRIES ? ", making another attempt." : ".");
+      ++n < nTries ? ", making another attempt." : ".");
     sqlite3_sleep(500);
   }
   return rc;
