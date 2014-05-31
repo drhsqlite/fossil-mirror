@@ -1444,6 +1444,7 @@ void db_initial_setup(
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
 **                              (default: don't create initial checkin)
+**    --empty                   Do not create an initial empty checkin.
 **
 ** See also: clone
 */
