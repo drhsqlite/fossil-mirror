@@ -1,5 +1,5 @@
-C Backout\s[636982a564],\swhich\sincorrectly\scalculates\saggregate\sdisk\schecksums\nwhen\sselectively\scommitting\sfiles\sfor\sthe\sinitial\scheckin.
-D 2014-05-31T16:37:06.344
+C The\s'new'\sand\s'init'\scommands\sagain\screate\san\sinitial\scheckin\sunless\sthe\s(new)\s--empty\sflag\sis\sgiven\sor\s(as\sbefore)\s--date-override\sis\sused.
+D 2014-05-31T19:37:36.640
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -330,7 +330,7 @@ F src/content.c 5a1a614acc062eef02563cf75746f34e77f7edb9
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 23f796fda35de78e7292cf2b656b3c18647f8814
+F src/db.c 4e63e481953f01bb8cb6798eef084c2bd4e23f41
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 21d39484ff6de8be189cf6978ca3f9870442a7ce
@@ -644,8 +644,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7ff74b20d6620c5464db84745f1e474d7e103c37
-Q -636982a5641dde7310ad31bd3f80418e8c82ba5e
-R f449d7ea42430913558e053500983bb0
-U joel
-Z d1ff85a36f3b16ca10c03005dba8cdb6
+P 1a0179abd7d559cb386c571676ebba2bb00070f2
+R 10c3e6df661d6e6b7426fe2b66e855de
+U stephan
+Z ab7c223d20798f01d17d88d3db975697
