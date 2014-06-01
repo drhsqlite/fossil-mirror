@@ -301,7 +301,8 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
-  Th_Store("current_page", local_zCurrentPage ? local_zCurrentPage : g.zPath);
+  if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
+  Th_Store("current_page", local_zCurrentPage);
   Th_Store("csrf_token", g.zCsrfToken);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);

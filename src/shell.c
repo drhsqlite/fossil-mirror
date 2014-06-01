@@ -697,7 +697,8 @@ static void output_csv(struct callback_data *p, const char *z, int bSep){
 */
 static void interrupt_handler(int NotUsed){
   UNUSED_PARAMETER(NotUsed);
-  seenInterrupt = 1;
+  seenInterrupt++;
+  if( seenInterrupt>2 ) exit(1);
   if( db ) sqlite3_interrupt(db);
 }
 #endif
@@ -1579,7 +1580,7 @@ static char zHelp[] =
   ".exit                  Exit this program\n"
   ".explain ?ON|OFF?      Turn output mode suitable for EXPLAIN on or off.\n"
   "                         With no args, it turns EXPLAIN on.\n"
-  ".header(s) ON|OFF      Turn display of headers on or off\n"
+  ".headers ON|OFF        Turn display of headers on or off\n"
   ".help                  Show this message\n"
   ".import FILE TABLE     Import data from FILE into TABLE\n"
   ".indices ?TABLE?       Show names of all indices\n"
@@ -1615,8 +1616,10 @@ static char zHelp[] =
   "                         If TABLE specified, only show tables matching\n"
   "                         LIKE pattern TABLE.\n"
   ".separator STRING      Change separator used by output mode and .import\n"
+  ".shell CMD ARGS...     Run CMD ARGS... in a system shell\n"
   ".show                  Show the current values for various settings\n"
   ".stats ON|OFF          Turn stats on or off\n"
+  ".system CMD ARGS...    Run CMD ARGS... in a system shell\n"
   ".tables ?TABLE?        List names of tables\n"
   "                         If TABLE specified, only list tables matching\n"
   "                         LIKE pattern TABLE.\n"
@@ -1624,6 +1627,7 @@ static char zHelp[] =
   ".trace FILE|off        Output each SQL statement as it is run\n"
   ".vfsname ?AUX?         Print the name of the VFS stack\n"
   ".width NUM1 NUM2 ...   Set column widths for \"column\" mode\n"
+  "                         Negative values right-justify\n"
 ;
 
 static char zTimerHelp[] =
@@ -2430,6 +2434,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     }
     nByte = strlen30(zSql);
     rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
+    csv_append_char(&sCsv, 0);    /* To ensure sCsv.z is allocated */
     if( rc && sqlite3_strglob("no such table: *", sqlite3_errmsg(db))==0 ){
       char *zCreate = sqlite3_mprintf("CREATE TABLE %s", zTable);
       char cSep = '(';
@@ -2896,6 +2901,20 @@ static int do_meta_command(char *zLine, struct callback_data *p){
   if( c=='s' && strncmp(azArg[0], "separator", n)==0 && nArg==2 ){
     sqlite3_snprintf(sizeof(p->separator), p->separator,
                      "%.*s", (int)sizeof(p->separator)-1, azArg[1]);
+  }else
+
+  if( c=='s'
+   && (strncmp(azArg[0], "shell", n)==0 || strncmp(azArg[0],"system",n)==0)
+   && nArg>=2
+  ){
+    char *zCmd;
+    int i;
+    zCmd = sqlite3_mprintf("\"%s\"", azArg[1]);
+    for(i=2; i<nArg; i++){
+      zCmd = sqlite3_mprintf("%z \"%s\"", zCmd, azArg[i]);
+    }
+    system(zCmd);
+    sqlite3_free(zCmd);
   }else
 
   if( c=='s' && strncmp(azArg[0], "show", n)==0 && nArg==1 ){
