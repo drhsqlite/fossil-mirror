@@ -34,13 +34,13 @@
   *  Fix the [/help?cmd=stash|stash] so that it remembers added files and re-adds
      them when the stash is applied.
   *  Fix the server so that it avoids writing to the database (and thus avoids
-     database locking issues) on a 
+     database locking issues) on a
      [/help?cmd=pull|pull] or [/help?cmd=clone|clone].
   *  Add support for [./server.wiki#loadmgmt|server load management] using both
      a cache of expensive pages (the [/help?cmd=cache|fossil cache] command)
      and by rejecting expensive page requests when the server load average is too
      high.
-  *  Add the [/help?cmd=praise|fossil praise] command as an alias for 
+  *  Add the [/help?cmd=praise|fossil praise] command as an alias for
      [/help?cmd=blame|fossil blame] for subversion compatibility.
   *  Enhance the [/help?cmd=test-diff|fossil test-diff] command with -y or --tk
      options so that it shows both filenames above their respective columns in
@@ -55,9 +55,8 @@
      checking out a repo created this way will become the initial commit.
   *  Enhance sync operations by committing each round-trip to minimize number
      of retransmits when autosync fails. Include option for
-     [/help?cmd=update| fossil update] and [/help?cmd=merge| fossil merge] to 
+     [/help?cmd=update| fossil update] and [/help?cmd=merge| fossil merge] to
      continue even if missing content.
-
 
 <h2>Changes For Version 1.28 (2014-01-27)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
@@ -181,7 +180,6 @@
   *  Cherry-pick merges are recorded internally (though no yet displayed on the
      timeline graph.)
   *  Bring in the latest versions of SQLite, zlib, and autosetup from upstream.
-
 
 <h2>Changes For Version 1.25 (2013-02-16)</h2>
   *  Enhancements to ticket processing. There are now two tables: TICKET and
@@ -464,7 +462,6 @@
   *  Update the built-in SQLite to version 3.7.9 beta.
 
 <h2>Changes For Version 1.19 (2011-09-02)</h2>
-
   *  Added a ./configure script based on autosetup.
   *  Added the "[/help/winsrv | fossil winsrv]" command
      for creating a Fossil service on windows systems.
@@ -494,7 +491,6 @@
   *  Fix the tarball generator to work with very log pathnames
 
 <h2>Changes For Version 1.18 (2011-07-14)</h2>
-
   *  Added this Change Log
   *  Added sequential version numbering
   *  Added a optional configure script - the Makefile still works for most
