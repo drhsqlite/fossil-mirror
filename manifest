@@ -1,5 +1,5 @@
-C Fix\scomment,\ssome\sformatting.
-D 2014-06-02T09:39:35.226
+C Updates\sthe\sbuilt-in\sSQLite\ssources\sto\sthe\slatest\s3.8.5\sbeta.\s\sIn\sparticular,\nthis\supdate\sincludes\sthe\snew\s".system"\sand\s".once"\scommands\sto\sthe\sSQLite\ncommand-line\sutility\saccessed\svia\sthe\s"fossil\ssql"\scommand.
+D 2014-06-02T14:52:44.926
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -399,12 +399,12 @@ F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 0c467c67e8d679960884df57a000c4fce96022f1
 F src/setup.c a0e7ea3c57ab899abfece4f39b7a0d69d60d6f7e
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
-F src/shell.c 8a0f8f4cd354a1b9f8181d747943c86c678dccfc
+F src/shell.c 98ce7f52445aa0c2eac3d4553a4cdcbb6402a670
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
-F src/sqlite3.c b6ae06bf30f9202e48240c1dbf9067d756185ad0
-F src/sqlite3.h 6855a7bab3498c73a8b400ac8dc3178f58d8afad
+F src/sqlite3.c e8b0011fc7e4fa643e55e3735e8d15fb57c3a7e3
+F src/sqlite3.h c7ace862693bb6f94a4648424811d7728ca11308
 F src/stash.c f26f656267480d51ece04fd980bfd93ef72d512b
 F src/stat.c fe03922a3f09bf56061ca709af93aaef44674a77
 F src/style.c 9c32e2d4b4e18e6b151132d729651a5211a4ca7e
@@ -644,7 +644,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2a17ab66b2f20d9f83e8f354ce9faf0e4508709c
-R 4165c6e9d2d8ce60028fdeca181be181
-U jan.nijtmans
-Z d32e31524560398d281f96ca1d2712b2
+P 74640de96ed8cd55731aadace428c765d3b1c3ca
+R 9882bd965d454bd72ab15637af9dea8c
+U drh
+Z 70a70fa17a5dd2f96d9bc6d15f72fec9
