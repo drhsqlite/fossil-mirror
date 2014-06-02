@@ -1443,8 +1443,8 @@ void db_initial_setup(
 **    --template      FILE      copy settings from repository file
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
+**                              (overrides --empty as well)
 **    --empty                   Do not create an initial empty checkin.
-**                              (overrides --admin-user and --date-override)
 **
 ** See also: clone
 */
