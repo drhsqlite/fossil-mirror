@@ -1,5 +1,5 @@
-C actually,\s--date-override\soverrides\s--empty,\snot\sreverse
-D 2014-06-02T20:10:15.475
+C Merge\sin\srecent\spatches\sto\sthe\sSQLite\s3.8.5\sbeta.
+D 2014-06-03T15:17:22.123
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -403,8 +403,8 @@ F src/shell.c 98ce7f52445aa0c2eac3d4553a4cdcbb6402a670
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
-F src/sqlite3.c e8b0011fc7e4fa643e55e3735e8d15fb57c3a7e3
-F src/sqlite3.h c7ace862693bb6f94a4648424811d7728ca11308
+F src/sqlite3.c a74717a567aa67811ef830b13c94d700f7057712
+F src/sqlite3.h cd24c5f58e854d0f52551248fc29c12d80701d8c
 F src/stash.c f26f656267480d51ece04fd980bfd93ef72d512b
 F src/stat.c fe03922a3f09bf56061ca709af93aaef44674a77
 F src/style.c 9c32e2d4b4e18e6b151132d729651a5211a4ca7e
@@ -644,7 +644,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8bc47c1469ebe9361458e99a9fd20085028ac53f
-R 14aab3bd2b56846b27d43da52326af72
-U jan.nijtmans
-Z c2f3b5a1292e849faa99b7abf8e9a3cb
+P a01e2d147f15a6294166740457cf3f67d7a4b0ad
+R e173e136de165c15d6c5fd51988f03e5
+U drh
+Z f6b4787545c1621f148597b2147edea4
