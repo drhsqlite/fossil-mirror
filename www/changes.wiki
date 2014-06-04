@@ -57,6 +57,8 @@
      of retransmits when autosync fails. Include option for
      [/help?cmd=update| fossil update] and [/help?cmd=merge| fossil merge] to
      continue even if missing content.
+  *  Minor portability fixes for platforms where the char type is unsigned
+     by default.
 
 <h2>Changes For Version 1.28 (2014-01-27)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
