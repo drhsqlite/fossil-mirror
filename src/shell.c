@@ -1152,8 +1152,10 @@ static int display_stats(
     fprintf(pArg->out, "Sort Operations:                     %d\n", iCur);
     iCur = sqlite3_stmt_status(pArg->pStmt, SQLITE_STMTSTATUS_AUTOINDEX, bReset);
     fprintf(pArg->out, "Autoindex Inserts:                   %d\n", iCur);
-    iCur = sqlite3_stmt_status(pArg->pStmt, SQLITE_STMTSTATUS_VM_STEP, bReset);
-    fprintf(pArg->out, "Virtual Machine Steps:               %d\n", iCur);
+    if( sqlite3_libversion_number()>=3008000 ){
+      iCur = sqlite3_stmt_status(pArg->pStmt, SQLITE_STMTSTATUS_VM_STEP, bReset);
+      fprintf(pArg->out, "Virtual Machine Steps:               %d\n", iCur);
+    }
   }
 
   return 0;

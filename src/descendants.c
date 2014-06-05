@@ -159,6 +159,42 @@ void compute_leaves(int iBase, int closeMode){
 ** the "ok" table.
 */
 void compute_ancestors(int rid, int N, int directOnly){
+#if USE_SYSTEM_SQLITE+0==1
+  if( sqlite3_libversion_number()<3008003 ){
+    Bag seen;
+    PQueue queue;
+    Stmt ins;
+    Stmt q;
+    bag_init(&seen);
+    pqueuex_init(&queue);
+    bag_insert(&seen, rid);
+    pqueuex_insert(&queue, rid, 0.0, 0);
+    db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
+    db_prepare(&q,
+      "SELECT a.pid, b.mtime FROM plink a LEFT JOIN plink b ON b.cid=a.pid"
+      " WHERE a.cid=:rid %s",
+      directOnly ? " AND a.isprim" : ""
+    );
+    while( (N--)>0 && (rid = pqueuex_extract(&queue, 0))!=0 ){
+      db_bind_int(&ins, ":rid", rid);
+      db_step(&ins);
+      db_reset(&ins);
+      db_bind_int(&q, ":rid", rid);
+      while( db_step(&q)==SQLITE_ROW ){
+        int pid = db_column_int(&q, 0);
+        double mtime = db_column_double(&q, 1);
+        if( bag_insert(&seen, pid) ){
+          pqueuex_insert(&queue, pid, -mtime, 0);
+        }
+      }
+      db_reset(&q);
+    }
+    bag_clear(&seen);
+    pqueuex_clear(&queue);
+    db_finalize(&ins);
+    db_finalize(&q);
+  } else
+#endif
   db_multi_exec(
     "WITH RECURSIVE "
     "  ancestor(rid, mtime) AS ("
