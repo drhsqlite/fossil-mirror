@@ -1021,7 +1021,7 @@ static int check_exists(
     const char *zCFType = "control artifact";
     char *zSrc;
     char *zDate;
-    char *zErrType = "MISSING";
+    const char *zErrType = "MISSING";
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
       if( flags & MISSING_SHUNNED ) return 0;
       zErrType = "SHUNNED";

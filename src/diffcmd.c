@@ -381,8 +381,8 @@ static void diff_all_against_disk(
     int isNew = db_column_int(&q,3);
     int srcid = db_column_int(&q, 4);
     int isLink = db_column_int(&q, 5);
-    char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-    char *zToFree = zFullName;
+    char *zToFree = mprintf("%s%s", g.zLocalRoot, zPathname);
+    const char *zFullName = zToFree;
     int showDiff = 1;
     if( isDeleted ){
       fossil_print("DELETED  %s\n", zPathname);
