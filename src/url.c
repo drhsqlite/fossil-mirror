@@ -45,10 +45,6 @@
 ** The URL related data used with this subsystem.
 */
 struct UrlData {
-  /*
-  ** NOTE: These members MUST be kept in sync with the related ones in the
-  **       "Global" structure defined in "main.c".
-  */
   int isFile;      /* True if a "file:" url */
   int isHttps;     /* True if a "https:" url */
   int isSsh;       /* True if an "ssh:" url */
@@ -215,7 +211,7 @@ void url_parse_local(
     dehttpize(pUrlData->path);
     if( pUrlData->dfltPort==pUrlData->port ){
       pUrlData->canonical = mprintf(
-        "%s://%s%T%T%s", 
+        "%s://%s%T%T%s",
         pUrlData->protocol, zLogin, pUrlData->name, pUrlData->path, zExe
       );
     }else{
@@ -252,7 +248,7 @@ void url_parse_local(
   if( urlFlags ) pUrlData->flags = urlFlags;
   if( pUrlData->isFile ){
     Blob cfile;
-    dehttpize(zFile);  
+    dehttpize(zFile);
     file_canonical_name(zFile, &cfile, 0);
     free(zFile);
     pUrlData->protocol = "file";
@@ -274,11 +270,11 @@ void url_parse_local(
 }
 
 /*
-** Parse the given URL, which describes a sync server.  Populate variables 
+** Parse the given URL, which describes a sync server.  Populate variables
 ** in the global "g" structure as follows:
 **
 **      g.url.isFile      True if FILE:
-**      g.url.isHttps     True if HTTPS: 
+**      g.url.isHttps     True if HTTPS:
 **      g.url.isSsh       True if SSH:
 **      g.url.protocol    "http" or "https" or "file"
 **      g.url.name        Hostname for HTTP:, HTTPS:, SSH:.  Filename for FILE:
@@ -472,7 +468,7 @@ char *url_render(
 ){
   const char *zSep = "?";
   int i;
-  
+
   blob_reset(&p->url);
   blob_appendf(&p->url, "%s/%s", g.zTop, p->zBase);
   for(i=0; i<p->nParam; i++){
