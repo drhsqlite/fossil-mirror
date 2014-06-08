@@ -2385,15 +2385,15 @@ struct stControlSettings const ctrlSettings[] = {
 **                     expressions and scripts. Default: off.
 **
 **    tcl-setup        This is the setup script to be evaluated after creating
-**                     and initializing the Tcl interpreter.  By default, this
+**     (versionable)   and initializing the Tcl interpreter.  By default, this
 **                     is empty and no extra setup is performed.
 **
 **    th1-setup        This is the setup script to be evaluated after creating
-**                     and initializing the TH1 interpreter.  By default, this
+**     (versionable)   and initializing the TH1 interpreter.  By default, this
 **                     is empty and no extra setup is performed.
 **
 **    th1-uri-regexp   Specify which URI's are allowed in HTTP requests from
-**                     TH1 scripts.  If empty, no HTTP requests are allowed
+**     (versionable)   TH1 scripts.  If empty, no HTTP requests are allowed
 **                     whatsoever.  The default is an empty string.
 **
 **    web-browser      A shell command used to launch your preferred
