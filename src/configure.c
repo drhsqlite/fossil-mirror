@@ -43,6 +43,13 @@
 #define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
 #define CONFIGSET_OLDFORMAT 0x200000     /* Use the legacy format */
 
+/*
+** This mask is used for the common TH1 configuration settings (i.e. those
+** that are not specific to one particular subsystem, such as the transfer
+** subsystem).
+*/
+#define CONFIGSET_TH1       (CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER)
+
 #endif /* INTERFACE */
 
 /*
@@ -92,20 +99,24 @@ static struct {
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
-  { "th1-setup",              CONFIGSET_ALL },
+  { "th1-setup",              CONFIGSET_TH1 },
+  { "th1-uri-regexp",         CONFIGSET_TH1 },
 
 #ifdef FOSSIL_ENABLE_TCL
-  { "tcl",                    CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
-  { "tcl-setup",              CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
+  { "tcl",                    CONFIGSET_TH1 },
+  { "tcl-setup",              CONFIGSET_TH1 },
 #endif
 
   { "project-name",           CONFIGSET_PROJ },
+  { "short-project-name",     CONFIGSET_PROJ },
   { "project-description",    CONFIGSET_PROJ },
   { "manifest",               CONFIGSET_PROJ },
   { "binary-glob",            CONFIGSET_PROJ },
+  { "clean-glob",             CONFIGSET_PROJ },
   { "ignore-glob",            CONFIGSET_PROJ },
+  { "keep-glob",              CONFIGSET_PROJ },
   { "crnl-glob",              CONFIGSET_PROJ },
-  { "unicode-glob",           CONFIGSET_PROJ },
+  { "encoding-glob",          CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
   { "allow-symlinks",         CONFIGSET_PROJ },
 
@@ -130,6 +141,8 @@ static struct {
 
   { "xfer-common-script",     CONFIGSET_XFER },
   { "xfer-push-script",       CONFIGSET_XFER },
+  { "xfer-commit-script",     CONFIGSET_XFER },
+  { "xfer-ticket-script",     CONFIGSET_XFER },
 
 };
 static int iConfig = 0;
@@ -394,6 +407,21 @@ void configure_finalize_receive(void){
 }
 
 /*
+** Mask of modified configuration sets
+*/
+static int rebuildMask = 0;
+
+/*
+** Rebuild auxiliary tables as required by configuration changes.
+*/
+void configure_rebuild(void){
+  if( rebuildMask & CONFIGSET_TKT ){
+    ticket_rebuild();
+  }
+  rebuildMask = 0;
+}
+
+/*
 ** Return true if z[] is not a "safe" SQL token.  A safe token is one of:
 **
 **   *   A string literal
@@ -558,6 +586,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
       db_multi_exec("%s", blob_str(&sql));
     }
     blob_reset(&sql);
+    rebuildMask |= thisMask;
   }else{
     /* Otherwise, the old format */
     if( (configure_is_exportable(zName) & groupMask)==0 ) return;
@@ -880,32 +909,24 @@ void configuration_cmd(void){
    || strncmp(zMethod, "sync", n)==0
   ){
     int mask;
-    const char *zServer;
-    const char *zPw;
+    const char *zServer = 0;
     int legacyFlag = 0;
     int overwriteFlag = 0;
+
     if( zMethod[0]!='s' ) legacyFlag = find_option("legacy",0,0)!=0;
     if( strncmp(zMethod,"pull",n)==0 ){
       overwriteFlag = find_option("overwrite",0,0)!=0;
     }
     url_proxy_options();
     if( g.argc!=4 && g.argc!=5 ){
-      usage("pull AREA ?URL?");
+      usage(mprintf("%s AREA ?URL?", zMethod));
     }
     mask = configure_name_to_mask(g.argv[3], 1);
     if( g.argc==5 ){
       zServer = g.argv[4];
-      zPw = 0;
-      g.dontKeepUrl = 1;
-    }else{
-      zServer = db_get("last-sync-url", 0);
-      if( zServer==0 ){
-        fossil_fatal("no server specified");
-      }
-      zPw = unobscure(db_get("last-sync-pw", 0));
     }
-    url_parse(zServer);
-    if( g.urlPasswd==0 && zPw ) g.urlPasswd = mprintf("%s", zPw);
+    url_parse(zServer, URL_PROMPT_PW);
+    if( g.url.protocol==0 ) fossil_fatal("no server URL specified");
     user_select();
     url_enable_proxy("via proxy: ");
     if( legacyFlag ) mask |= CONFIGSET_OLDFORMAT;
@@ -941,15 +962,18 @@ void configuration_cmd(void){
         db_multi_exec("DELETE FROM shun");
       }else if( fossil_strcmp(zName,"@reportfmt")==0 ){
         db_multi_exec("DELETE FROM reportfmt");
+        db_multi_exec(zRepositorySchemaDefaultReports);
       }
     }
     db_end_transaction(0);
     fossil_print("Configuration reset to factory defaults.\n");
     fossil_print("To recover, use:  %s %s import %s\n",
             g.argv[0], g.argv[1], zBackup);
+    rebuildMask |= mask;
   }else
   {
     fossil_fatal("METHOD should be one of:"
                  " export import merge pull push reset");
   }
+  configure_rebuild();
 }

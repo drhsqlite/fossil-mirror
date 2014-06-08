@@ -124,7 +124,9 @@ const char *mimetype_from_name(const char *zName){
     { "dl",         2, "video/dl"                          },
     { "dms",        3, "application/octet-stream"          },
     { "doc",        3, "application/msword"                },
-    { "docx",       4, "application/msword"                },
+    { "docx",       4, "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+    { "dot",        3, "application/msword"                },
+    { "dotx",       4, "application/vnd.openxmlformats-officedocument.wordprocessingml.template"},
     { "drw",        3, "application/drafting"              },
     { "dvi",        3, "application/x-dvi"                 },
     { "dwg",        3, "application/acad"                  },
@@ -169,6 +171,7 @@ const char *mimetype_from_name(const char *zName){
     { "m3u",        3, "audio/x-mpegurl"                   },
     { "man",        3, "application/x-troff-man"           },
     { "markdown",   8, "text/x-markdown"                   },
+    { "md",         2, "text/x-markdown"                   },
     { "me",         2, "application/x-troff-me"            },
     { "mesh",       4, "model/mesh"                        },
     { "mid",        3, "audio/midi"                        },
@@ -180,6 +183,7 @@ const char *mimetype_from_name(const char *zName){
     { "movie",      5, "video/x-sgi-movie"                 },
     { "mp2",        3, "audio/mpeg"                        },
     { "mp3",        3, "audio/mpeg"                        },
+    { "mp4",        3, "video/mp4"                         },
     { "mpe",        3, "video/mpeg"                        },
     { "mpeg",       4, "video/mpeg"                        },
     { "mpg",        3, "video/mpeg"                        },
@@ -201,10 +205,12 @@ const char *mimetype_from_name(const char *zName){
     { "png",        3, "image/png"                         },
     { "pnm",        3, "image/x-portable-anymap"           },
     { "pot",        3, "application/mspowerpoint"          },
+    { "potx",       4, "application/vnd.openxmlformats-officedocument.presentationml.template"},
     { "ppm",        3, "image/x-portable-pixmap"           },
     { "pps",        3, "application/mspowerpoint"          },
+    { "ppsx",       4, "application/vnd.openxmlformats-officedocument.presentationml.slideshow"},
     { "ppt",        3, "application/mspowerpoint"          },
-    { "pptx",       4, "application/mspowerpoint"          },
+    { "pptx",       4, "application/vnd.openxmlformats-officedocument.presentationml.presentation"},
     { "ppz",        3, "application/mspowerpoint"          },
     { "pre",        3, "application/x-freelance"           },
     { "prt",        3, "application/pro_eng"               },
@@ -268,7 +274,7 @@ const char *mimetype_from_name(const char *zName){
     { "vrml",       4, "model/vrml"                        },
     { "wav",        3, "audio/x-wav"                       },
     { "wax",        3, "audio/x-ms-wax"                    },
-    { "wiki",       4, "application/x-fossil-wiki"         },
+    { "wiki",       4, "text/x-fossil-wiki"                },
     { "wma",        3, "audio/x-ms-wma"                    },
     { "wmv",        3, "video/x-ms-wmv"                    },
     { "wmx",        3, "video/x-ms-wmx"                    },
@@ -279,7 +285,7 @@ const char *mimetype_from_name(const char *zName){
     { "xll",        3, "application/vnd.ms-excel"          },
     { "xlm",        3, "application/vnd.ms-excel"          },
     { "xls",        3, "application/vnd.ms-excel"          },
-    { "xlsx",       4, "application/vnd.ms-excel"          },
+    { "xlsx",       4, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
     { "xlw",        3, "application/vnd.ms-excel"          },
     { "xml",        3, "text/xml"                          },
     { "xpm",        3, "image/x-xpixmap"                   },
@@ -312,7 +318,7 @@ const char *mimetype_from_name(const char *zName){
     sqlite3_snprintf(sizeof(zSuffix), zSuffix, "%s", z);
     for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     first = 0;
-    last = sizeof(aMime)/sizeof(aMime[0]);
+    last = sizeof(aMime)/sizeof(aMime[0]) - 1;
     while( first<=last ){
       int c;
       i = (first+last)/2;
@@ -393,7 +399,7 @@ void doc_page(void){
       goto doc_not_found;
     }
   }
-  if( fossil_strcmp(zBaseline,"ckout")==0 && db_open_local()==0 ){
+  if( fossil_strcmp(zBaseline,"ckout")==0 && db_open_local(0)==0 ){
     sqlite3_snprintf(sizeof(zBaseline), zBaseline, "tip");
   }
   if( fossil_strcmp(zBaseline,"ckout")==0 ){
@@ -445,7 +451,7 @@ void doc_page(void){
       if( db_int(0, "SELECT count(*) FROM vcache")>10000 ){
         db_multi_exec("DELETE FROM vcache");
       }
-      pM = manifest_get(vid, CFTYPE_MANIFEST);
+      pM = manifest_get(vid, CFTYPE_MANIFEST, 0);
       if( pM==0 ){
         goto doc_not_found;
       }
@@ -479,6 +485,7 @@ void doc_page(void){
     }
     db_end_transaction(0);
   }
+  blob_to_utf8_no_bom(&filebody, 0);
 
   /* The file is now contained in the filebody blob.  Deliver the
   ** file to the user 
@@ -492,7 +499,7 @@ void doc_page(void){
                                      "  FROM blob WHERE rid=%d", vid));
   Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
                                   " WHERE objid=%d AND type='ci'", vid));
-  if( fossil_strcmp(zMime, "application/x-fossil-wiki")==0 ){
+  if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
     Blob title, tail;
     if( wiki_find_title(&filebody, &title, &tail) ){
       style_header(blob_str(&title));
@@ -502,9 +509,7 @@ void doc_page(void){
       wiki_convert(&filebody, 0, WIKI_BUTTONS);
     }
     style_footer();
-#ifdef FOSSIL_ENABLE_MARKDOWN
-  }else if( fossil_strcmp(zMime, "text/x-markdown")==0
-         && db_get_boolean("markdown", 0) ){
+  }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
     Blob title = BLOB_INITIALIZER;
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(&filebody, &title, &tail);
@@ -515,7 +520,6 @@ void doc_page(void){
     }
     blob_append(cgi_output_blob(), blob_buffer(&tail), blob_size(&tail));
     style_footer();
-#endif
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("Documentation");
     @ <blockquote><pre>

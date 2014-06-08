@@ -21,6 +21,9 @@ Click on each of the links in in the
 rendered correctly.
 
 <li><p>
+Click on the following link to verify that it works: [./test-page%2b%2b.wiki | ./test-page++.wiki]
+
+<li><p>
 Verify correct name-change tracking behavior (no net changes) for:
 <blockquote><b>
 fossil test-name-changes --debug  b120bc8b262ac 374920b20944b
@@ -57,7 +60,8 @@ uninitialized value that occurs within zlib).
 </ol>
 
 <li><p>
-Inspect all code changes since the previous release, paying particular
+
+Inspect [http://www.fossil-scm.org/index.html/vdiff?from=release&to=trunk&sbs=1|all code changes since the previous release], paying particular
 attention to the following details:
 <ol type="a">
 <li> Can a malicious HTTP request cause a buffer overrun.

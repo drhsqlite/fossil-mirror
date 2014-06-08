@@ -358,14 +358,16 @@ following values:
 <ul></td><td valign="top"><ul>
 <li> timeline-block-markup
 <li> timeline-max-comment
+<li> timeline-plaintext
 <li> ticket-table
 <li> ticket-common
+<li> ticket-change
 <li> ticket-newpage
 <li> ticket-viewpage
 <li> ticket-editpage
+<ul></td><td valign="top"><ul>
 <li> ticket-reportlist
 <li> ticket-report-template
-<ul></td><td valign="top"><ul>
 <li> ticket-key-template
 <li> ticket-title-expr
 <li> ticket-closed-expr

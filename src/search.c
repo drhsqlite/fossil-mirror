@@ -108,6 +108,7 @@ int search_score(Search *p, const char *zDoc){
   unsigned char seen[8];
 
   memset(seen, 0, sizeof(seen));
+  if( zDoc==0 ) return score;
   for(i=0; zDoc[i]; i++){
     char c = zDoc[i];
     if( isBoundary[c&0xff] ) continue;
@@ -136,7 +137,7 @@ int search_score(Search *p, const char *zDoc){
   for(j=0; j<p->nTerm; j++){
     if( !seen[j] ) return 0;
   }
-      
+
   return score;
 }
 
@@ -168,16 +169,43 @@ void search_sql_setup(Search *p){
 ** Testing the search function.
 **
 ** COMMAND: search*
-** %fossil search pattern...
+** %fossil search [-all|-a] [-limit|-n #] [-width|-W #] pattern...
 **
-** Search for timeline entries matching the pattern.
+** Search for timeline entries matching all words
+** provided on the command line. Whole-word matches
+** scope more highly than partial matches.
+**
+** Outputs, by default, some top-N fraction of the
+** results. The -all option can be used to output
+** all matches, regardless of their search score.
+** The -limit option can be used to limit the number
+** of entries returned.  The -width option can be
+** used to set the output width used when printing
+** matches.
 */
 void search_cmd(void){
   Search *p;
   Blob pattern;
   int i;
+  Blob sql = empty_blob;
   Stmt q;
   int iBest;
+  char fAll = NULL != find_option("all", "a", 0); /* If set, do not lop
+                                                     off the end of the
+                                                     results. */
+  char const * zLimit = find_option("limit","n",1);
+  const char *zWidth = find_option("width","W",1);
+  int nLimit = zLimit ? atoi(zLimit) : -1000;   /* Max number of matching
+                                                   lines/entries to list */
+  int width;
+  if( zWidth ){
+    width = atoi(zWidth);
+    if( (width!=0) && (width<=20) ){
+      fossil_fatal("-W|--width value must be >20 or 0");
+    }
+  }else{
+    width = 79;
+  }
 
   db_must_be_within_tree();
   if( g.argc<2 ) return;
@@ -193,18 +221,23 @@ void search_cmd(void){
      "CREATE TEMP TABLE srch(rid,uuid,date,comment,x);"
      "CREATE INDEX srch_idx1 ON srch(x);"
      "INSERT INTO srch(rid,uuid,date,comment,x)"
-     "   SELECT blob.rid, uuid, datetime(event.mtime, 'localtime'),"
+     "   SELECT blob.rid, uuid, datetime(event.mtime%s),"
      "          coalesce(ecomment,comment),"
      "          score(coalesce(ecomment,comment)) AS y"
      "     FROM event, blob"
-     "    WHERE blob.rid=event.objid AND y>0;"
+     "    WHERE blob.rid=event.objid AND y>0;",
+     timeline_utc()
   );
   iBest = db_int(0, "SELECT max(x) FROM srch");
-  db_prepare(&q, 
-    "SELECT rid, uuid, date, comment, 0, 0 FROM srch"
-    " WHERE x>%d ORDER BY x DESC, date DESC",
-    iBest/3
-  );
-  print_timeline(&q, 1000, 0);
+  blob_append(&sql,
+              "SELECT rid, uuid, date, comment, 0, 0 FROM srch "
+              "WHERE 1 ", -1);
+  if(!fAll){
+    blob_appendf(&sql,"AND x>%d ", iBest/3);
+  }
+  blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
+  db_prepare(&q, blob_str(&sql));
+  blob_reset(&sql);
+  print_timeline(&q, nLimit, width, 0);
   db_finalize(&q);
 }

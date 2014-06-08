@@ -22,7 +22,11 @@
 #include "winresrc.h"
 #else
 #include "windows.h"
-#endif
+#endif /* !defined(_WIN32_WCE) */
+
+#if !defined(VS_FF_NONE)
+#  define VS_FF_NONE            0x00000000L
+#endif /* !defined(VS_FF_NONE) */
 
 #include "VERSION.h"
 #define _RC_COMPILE_
@@ -30,22 +34,26 @@
 #include "sqlite3.h"
 #include "zlib.h"
 
-#ifdef FOSSIL_ENABLE_SSL
+#if defined(FOSSIL_ENABLE_SSL)
 #include "openssl/opensslv.h"
-#endif
+#endif /* defined(FOSSIL_ENABLE_SSL) */
 
-#ifdef FOSSIL_ENABLE_TCL
+#if defined(FOSSIL_ENABLE_TCL)
 #include "tcl.h"
-#endif
+#endif /* defined(FOSSIL_ENABLE_TCL) */
+
+#if defined(FOSSIL_ENABLE_JSON)
+#include "json_detail.h"
+#endif /* defined(FOSSIL_ENABLE_JSON) */
 
 /*
  * English (U.S.) resources
  */
 
-#ifdef _WIN32
+#if defined(_WIN32)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif /* _WIN32 */
+#endif /* defined(_WIN32) */
 
 /*
  * Icon
@@ -62,19 +70,19 @@ IDI_FOSSIL ICON "fossil.ico"
 VS_VERSION_INFO VERSIONINFO
   FILEVERSION RELEASE_RESOURCE_VERSION
   PRODUCTVERSION RELEASE_RESOURCE_VERSION
-  FILEFLAGSMASK 0x3F
+  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 #if defined(_DEBUG)
-  FILEFLAGS 0x1L
+  FILEFLAGS VS_FF_DEBUG
 #else
-  FILEFLAGS 0x0L
-#endif
+  FILEFLAGS VS_FF_NONE
+#endif /* defined(_DEBUG) */
   FILEOS VOS__WINDOWS32
   FILETYPE VFT_APP
   FILESUBTYPE VFT2_UNKNOWN
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
-    BLOCK "040904B0"
+    BLOCK "040904b0"
     BEGIN
       VALUE "CompanyName", "Fossil Development Team\0"
       VALUE "FileDescription", "Simple, high-reliability, distributed software configuration management system.\0"
@@ -87,32 +95,54 @@ BEGIN
       VALUE "CompilerName", COMPILER_NAME "\0"
       VALUE "SQLiteVersion", "SQLite " SQLITE_VERSION " " SQLITE_SOURCE_ID "\0"
       VALUE "ZlibVersion", "zlib " ZLIB_VERSION "\0"
-#ifdef BROKEN_MINGW_CMDLINE
+#if defined(BROKEN_MINGW_CMDLINE)
       VALUE "CommandLineIsUnicode", "No\0"
 #else
       VALUE "CommandLineIsUnicode", "Yes\0"
-#endif
-#ifdef FOSSIL_ENABLE_SSL
+#endif /* defined(BROKEN_MINGW_CMDLINE) */
+#if defined(FOSSIL_ENABLE_SSL)
       VALUE "SslEnabled", "Yes, " OPENSSL_VERSION_TEXT "\0"
-#endif
-#ifdef FOSSIL_ENABLE_TCL
+#endif /* defined(FOSSIL_ENABLE_SSL) */
+#if defined(FOSSIL_ENABLE_TCL)
       VALUE "TclEnabled", "Yes, Tcl " TCL_PATCH_LEVEL "\0"
-#ifdef FOSSIL_ENABLE_TCL_STUBS
+#if defined(USE_TCL_STUBS)
+      VALUE "UseTclStubsEnabled", "Yes\0"
+#else
+      VALUE "UseTclStubsEnabled", "No\0"
+#endif /* defined(USE_TCL_STUBS) */
+#if defined(FOSSIL_ENABLE_TCL_STUBS)
       VALUE "TclStubsEnabled", "Yes\0"
 #else
       VALUE "TclStubsEnabled", "No\0"
-#endif
-#endif
-#ifdef FOSSIL_ENABLE_JSON
-      VALUE "JsonEnabled", "Yes, cson\0"
-#endif
-#ifdef FOSSIL_ENABLE_MARKDOWN
+#endif /* defined(FOSSIL_ENABLE_TCL_STUBS) */
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+      VALUE "TclPrivateStubsEnabled", "Yes\0"
+#else
+      VALUE "TclPrivateStubsEnabled", "No\0"
+#endif /* defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS) */
+#endif /* defined(FOSSIL_ENABLE_TCL) */
+#if defined(FOSSIL_ENABLE_JSON)
+      VALUE "JsonEnabled", "Yes, cson " FOSSIL_JSON_API_VERSION "\0"
+#endif /* defined(FOSSIL_ENABLE_JSON) */
       VALUE "MarkdownEnabled", "Yes\0"
-#endif
     END
   END
   BLOCK "VarFileInfo"
   BEGIN
-    VALUE "Translation", 0x409, 0x4B0
+    VALUE "Translation", 0x409, 0x4b0
   END
 END
+
+/*
+ * This embedded manifest is needed for Windows 8.1.
+ */
+
+#ifndef RT_MANIFEST
+#define RT_MANIFEST     24
+#endif
+
+#ifndef CREATEPROCESS_MANIFEST_RESOURCE_ID
+#define CREATEPROCESS_MANIFEST_RESOURCE_ID 1
+#endif
+
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "fossil.exe.manifest"

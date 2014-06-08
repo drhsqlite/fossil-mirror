@@ -4,8 +4,10 @@
   # The corresponding test file executes this file using the test-th-render
   # Fossil command.
   #
-  set channel stdout; tclInvoke set channel $channel
   proc doOut {msg} {puts $msg; puts \n}
+  doOut "tclReady(before) = [tclReady]"
+  set channel stdout; tclInvoke set channel $channel
+  doOut "tclReady(after) = [tclReady]"
   doOut [tclEval clock seconds]
   doOut [tclEval {set x [clock seconds]}]
   tclEval {puts $channel "[clock seconds]"}

@@ -1,0 +1,5 @@
+compat/openssl*
+compat/tcl*
+fossil
+fossil.exe
+win/fossil.exe

@@ -19,8 +19,6 @@
 ** using an external renderer.
 */
 
-#ifdef FOSSIL_ENABLE_MARKDOWN
-
 #include "config.h"
 #include "markdown.h"
 
@@ -165,7 +163,7 @@ struct render {
 
 /* html_tag -- structure for quick HTML tag search (inspired from discount) */
 struct html_tag {
-  char *text;
+  const char *text;
   int size;
 };
 
@@ -176,7 +174,7 @@ struct html_tag {
  ********************/
 
 /* block_tags -- recognised block tags, sorted by cmp_html_tag */
-static struct html_tag block_tags[] = {
+static const struct html_tag block_tags[] = {
   { "p",            1 },
   { "dl",           2 },
   { "h1",           2 },
@@ -280,7 +278,7 @@ static int cmp_html_tag(const void *a, const void *b){
 
 
 /* find_block_tag -- returns the current block tag */
-static struct html_tag *find_block_tag(char *data, size_t size){
+static const struct html_tag *find_block_tag(const char *data, size_t size){
   size_t i = 0;
   struct html_tag key;
 
@@ -961,7 +959,7 @@ static size_t char_link(
   struct Blob *content = 0;
   struct Blob *link = 0;
   struct Blob *title = 0;
-  int text_has_nl = 0, ret;
+  int ret;
 
   /* checking whether the correct renderer exists */
   if( (is_img && !rndr->make.image) || (!is_img && !rndr->make.link) ){
@@ -970,7 +968,7 @@ static size_t char_link(
 
   /* looking for the matching closing bracket */
   for(level=1; i<size; i++){
-    if( data[i]=='\n' )        text_has_nl = 1;
+    if( data[i]=='\n' )        /* do nothing */;
     else if( data[i-1]=='\\' ) continue;
     else if( data[i]=='[' )    level += 1;
     else if( data[i]==']' ){
@@ -1074,7 +1072,7 @@ char_link_cleanup:
  *********************************/
 
 /* is_empty -- returns the line length when it is empty, 0 otherwise */
-static size_t is_empty(char *data, size_t size){
+static size_t is_empty(const char *data, size_t size){
   size_t i;
   for(i=0; i<size && data[i]!='\n'; i++){
     if( data[i]!=' ' && data[i]!='\t' ) return 0;
@@ -1635,7 +1633,7 @@ static size_t parse_atxheader(
 
 /* htmlblock_end -- checking end of HTML block : </tag>[ \t]*\n[ \t*]\n */
 /*  returns the length on match, 0 otherwise */
-static size_t htmlblock_end(struct html_tag *tag, char *data, size_t size){
+static size_t htmlblock_end(const struct html_tag *tag, const char *data, size_t size){
   size_t i, w;
 
   /* assuming data[0]=='<' && data[1]=='/' already tested */
@@ -1672,7 +1670,7 @@ static size_t parse_htmlblock(
   size_t size
 ){
   size_t i, j = 0;
-  struct html_tag *curtag;
+  const struct html_tag *curtag;
   int found;
   size_t work_size = 0;
   struct Blob work = BLOB_INITIALIZER;
@@ -2240,5 +2238,3 @@ void markdown(
   blobarray_zero(rndr.work, rndr.make.max_work_stack);
   fossil_free(rndr.work);
 }
-
-#endif /* def FOSSIL_ENABLE_MARKDOWN */

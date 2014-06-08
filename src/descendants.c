@@ -73,7 +73,7 @@ void compute_leaves(int iBase, int closeMode){
 
     /* This query returns all non-branch-merge children of check-in :rid.
     **
-    ** If a child is a merge of a fork within the same branch, it is 
+    ** If a child is a merge of a fork within the same branch, it is
     ** returned.  Only merge children in different branches are excluded.
     */
     db_prepare(&q1,
@@ -86,21 +86,21 @@ void compute_leaves(int iBase, int closeMode){
                         "   WHERE tagid=%d AND rid=plink.cid), 'trunk'))",
       TAG_BRANCH, TAG_BRANCH
     );
-  
+
     /* This query returns a single row if check-in :rid is the first
     ** check-in of a new branch.
     */
-    db_prepare(&isBr, 
+    db_prepare(&isBr,
        "SELECT 1 FROM tagxref"
        " WHERE rid=:rid AND tagid=%d AND tagtype=2"
        "   AND srcid>0",
        TAG_BRANCH
     );
-  
+
     /* This statement inserts check-in :rid into the LEAVES table.
     */
     db_prepare(&ins, "INSERT OR IGNORE INTO leaves VALUES(:rid)");
-  
+
     while( bag_count(&pending) ){
       int rid = bag_first(&pending);
       int cnt = 0;
@@ -159,38 +159,21 @@ void compute_leaves(int iBase, int closeMode){
 ** the "ok" table.
 */
 void compute_ancestors(int rid, int N, int directOnly){
-  Bag seen;
-  PQueue queue;
-  Stmt ins;
-  Stmt q;
-  bag_init(&seen);
-  pqueuex_init(&queue);
-  bag_insert(&seen, rid);
-  pqueuex_insert(&queue, rid, 0.0, 0);
-  db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
-  db_prepare(&q,
-    "SELECT a.pid, b.mtime FROM plink a LEFT JOIN plink b ON b.cid=a.pid"
-    " WHERE a.cid=:rid %s",
-    directOnly ? " AND a.isprim" : ""
+  db_multi_exec(
+    "WITH RECURSIVE "
+    "  ancestor(rid, mtime) AS ("
+    "    SELECT %d, mtime FROM event WHERE objid=%d "
+    "    UNION "
+    "    SELECT plink.pid, event.mtime"
+    "      FROM ancestor, plink, event"
+    "     WHERE plink.cid=ancestor.rid"
+    "       AND event.objid=plink.pid %s"
+    "     ORDER BY mtime DESC LIMIT %d"
+    "  )"
+    "INSERT INTO ok"
+    "  SELECT rid FROM ancestor;",
+    rid, rid, directOnly ? "AND plink.isPrim" : "", N
   );
-  while( (N--)>0 && (rid = pqueuex_extract(&queue, 0))!=0 ){
-    db_bind_int(&ins, ":rid", rid);
-    db_step(&ins);
-    db_reset(&ins);
-    db_bind_int(&q, ":rid", rid);
-    while( db_step(&q)==SQLITE_ROW ){
-      int pid = db_column_int(&q, 0);
-      double mtime = db_column_double(&q, 1);
-      if( bag_insert(&seen, pid) ){
-        pqueuex_insert(&queue, pid, -mtime, 0);
-      }
-    }
-    db_reset(&q);
-  }
-  bag_clear(&seen);
-  pqueuex_clear(&queue);
-  db_finalize(&ins);
-  db_finalize(&q);
 }
 
 /*
@@ -205,13 +188,13 @@ void compute_direct_ancestors(int rid, int N){
   Stmt q;
   int gen = 0;
   db_multi_exec(
-    "CREATE TEMP TABLE IF NOT EXISTS ancestor(rid INTEGER,"
+    "CREATE TEMP TABLE IF NOT EXISTS ancestor(rid INTEGER UNIQUE NOT NULL,"
                                             " generation INTEGER PRIMARY KEY);"
     "DELETE FROM ancestor;"
     "INSERT INTO ancestor VALUES(%d, 0);", rid
   );
   db_prepare(&ins, "INSERT INTO ancestor VALUES(:rid, :gen)");
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT pid FROM plink"
     " WHERE cid=:rid AND isprim"
   );
@@ -331,7 +314,7 @@ void descendants_cmd(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_tty()
   );
-  print_timeline(&q, 20, 0);
+  print_timeline(&q, -20, 79, 0);
   db_finalize(&q);
 }
 
@@ -341,26 +324,42 @@ void descendants_cmd(void){
 ** Usage: %fossil leaves ?OPTIONS?
 **
 ** Find leaves of all branches.  By default show only open leaves.
-** The --all flag causes all leaves (closed and open) to be shown.
-** The --closed flag shows only closed leaves.
+** The -a|--all flag causes all leaves (closed and open) to be shown.
+** The -c|--closed flag shows only closed leaves.
 **
 ** The --recompute flag causes the content of the "leaf" table in the
 ** repository database to be recomputed.
 **
 ** Options:
-**   --all        show ALL leaves
-**   --closed     show only closed leaves
-**   --recompute  recompute the "leaf" table in the repository DB
+**   -a|--all         show ALL leaves
+**   -c|--closed      show only closed leaves
+**   --bybranch       order output by branch name
+**   --recompute      recompute the "leaf" table in the repository DB
+**   -W|--width <num> With of lines (default 79). Must be >39 or 0
+**                    (= no limit, resulting in a single line per entry).
 **
 ** See also: descendants, finfo, info, branch
 */
 void leaves_cmd(void){
   Stmt q;
   Blob sql;
-  int showAll = find_option("all", 0, 0)!=0;
-  int showClosed = find_option("closed", 0, 0)!=0;
+  int showAll = find_option("all", "a", 0)!=0;
+  int showClosed = find_option("closed", "c", 0)!=0;
   int recomputeFlag = find_option("recompute",0,0)!=0;
+  int byBranch = find_option("bybranch",0,0)!=0;
+  const char *zWidth = find_option("width","W",1);
+  char *zLastBr = 0;
+  int n, width;
+  char zLineNo[10];
 
+  if( zWidth ){
+    width = atoi(zWidth);
+    if( (width!=0) && (width<=39) ){
+      fossil_fatal("-W|--width value must be >39 or 0");
+    }
+  }else{
+    width = 79;
+  }
   db_find_and_open_repository(0,0);
   if( recomputeFlag ) leaf_rebuild();
   blob_zero(&sql);
@@ -371,9 +370,35 @@ void leaves_cmd(void){
   }else if( !showAll ){
     blob_appendf(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
   }
-  db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
+  if( byBranch ){
+    db_prepare(&q, "%s ORDER BY nullif(branch,'trunk') COLLATE nocase,"
+                   " event.mtime DESC",
+                   blob_str(&sql));
+  }else{
+    db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
+  }
   blob_reset(&sql);
-  print_timeline(&q, 2000, 0);
+  n = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zId = db_column_text(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    const char *zCom = db_column_text(&q, 3);
+    const char *zBr = db_column_text(&q, 7);
+    char *z;
+
+    if( byBranch && fossil_strcmp(zBr, zLastBr)!=0 ){
+      fossil_print("*** %s ***\n", zBr);
+      fossil_free(zLastBr);
+      zLastBr = fossil_strdup(zBr);
+    }
+    n++;
+    sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
+    fossil_print("%6s ", zLineNo);
+    z = mprintf("%s [%.10s] %s", zDate, zId, zCom);
+    comment_print(z, 7, width);
+    fossil_free(z);
+  }
+  fossil_free(zLastBr);
   db_finalize(&q);
 }
 
@@ -435,12 +460,6 @@ void leaves_page(void){
   www_print_timeline(&q, TIMELINE_LEAFONLY, 0, 0, 0);
   db_finalize(&q);
   @ <br />
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }
 
@@ -475,7 +494,7 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
     db_reset(&ins);
   }
   db_finalize(&q);
-  
+
   db_prepare(&q, "SELECT mid FROM mlink WHERE pid=%d", fid);
   while( db_step(&q)==SQLITE_ROW ){
     int mid = db_column_int(&q, 0);

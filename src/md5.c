@@ -18,6 +18,7 @@
  * needed on buffers full of bytes, and then call MD5Final, which
  * will fill a supplied 16-byte array with the digest.
  */
+#include "config.h"
 #include <string.h>
 #include <stdio.h>
 #include <sqlite3.h>
@@ -165,7 +166,7 @@ static void MD5Transform(uint32 buf[4], const uint32 in[16]){
  * initialization constants.
  */
 static void MD5Init(MD5Context *ctx){
-	ctx->isInit = 1;
+        ctx->isInit = 1;
         ctx->buf[0] = 0x67452301;
         ctx->buf[1] = 0xefcdab89;
         ctx->buf[2] = 0x98badcfe;
@@ -260,8 +261,7 @@ static void MD5Final(unsigned char digest[16], MD5Context *pCtx){
         byteReverse(ctx->in, 14);
 
         /* Append length in bits and transform */
-        ((uint32 *)ctx->in)[ 14 ] = ctx->bits[0];
-        ((uint32 *)ctx->in)[ 15 ] = ctx->bits[1];
+        memcpy(&ctx->in[14*sizeof(uint32)], ctx->bits, 2*sizeof(uint32));
 
         MD5Transform(ctx->buf, (uint32 *)ctx->in);
         byteReverse((unsigned char *)ctx->buf, 4);

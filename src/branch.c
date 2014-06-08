@@ -53,12 +53,13 @@ void branch_new(void){
     usage("new BRANCH-NAME BASIS ?OPTIONS?");
   }
   db_find_and_open_repository(0, 0);
-  noSign = db_get_int("omitsign", 0)|noSign;
+  noSign = db_get_boolean("omitsign", 0)|noSign;
+  if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
 
   /* fossil branch new name */
   zBranch = g.argv[3];
   if( zBranch==0 || zBranch[0]==0 ){
-    fossil_panic("branch name cannot be empty");
+    fossil_fatal("branch name cannot be empty");
   }
   if( db_exists(
         "SELECT 1 FROM tagxref"
@@ -75,7 +76,7 @@ void branch_new(void){
     fossil_fatal("unable to locate check-in off of which to branch");
   }
 
-  pParent = manifest_get(rootid, CFTYPE_MANIFEST);
+  pParent = manifest_get(rootid, CFTYPE_MANIFEST, 0);
   if( pParent==0 ){
     fossil_fatal("%s is not a valid check-in", g.argv[4]);
   }
@@ -135,13 +136,12 @@ void branch_new(void){
   }
   db_finalize(&q);
 
-  blob_appendf(&branch, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
+  blob_appendf(&branch, "U %F\n", zUserOvrd ? zUserOvrd : login_name());
   md5sum_blob(&branch, &mcksum);
   blob_appendf(&branch, "Z %b\n", &mcksum);
   if( !noSign && clearsign(&branch, &branch) ){
     Blob ans;
     char cReply;
-    blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y'){
@@ -152,11 +152,11 @@ void branch_new(void){
 
   brid = content_put_ex(&branch, 0, 0, 0, isPrivate);
   if( brid==0 ){
-    fossil_panic("trouble committing manifest: %s", g.zErrMsg);
+    fossil_fatal("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
-  if( manifest_crosslink(brid, &branch)==0 ){
-    fossil_panic("unable to install new manifest");
+  if( manifest_crosslink(brid, &branch, MC_PERMIT_HOOKS)==0 ){
+    fossil_fatal("%s\n", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
@@ -240,11 +240,12 @@ void branch_prepare_list_query(Stmt *pQuery, int which ){
 **        --date-override DATE  DATE to use instead of 'now'
 **        --user-override USER  USER to use instead of the current default
 **
-**    %fossil branch list ?--all | --closed?
-**    %fossil branch ls ?--all | --closed?
+**    %fossil branch list ?-a|--all|-c|--closed?
+**    %fossil branch ls ?-a|--all|-c|--closed?
 **
-**        List all branches.  Use --all or --closed to list all branches
-**        or closed branches.  The default is to show only open branches.
+**        List all branches.  Use -a or --all to list all branches and
+**        -c or --closed to list all closed branches.  The default is to
+**        show only open branches.
 **
 ** Options:
 **    -R|--repository FILE       Run commands on repository FILE
@@ -264,8 +265,8 @@ void branch_cmd(void){
     Stmt q;
     int vid;
     char *zCurrent = 0;
-    int showAll = find_option("all",0,0)!=0;
-    int showClosed = find_option("closed",0,0)!=0;
+    int showAll = find_option("all","a",0)!=0;
+    int showClosed = find_option("closed","c",0)!=0;
 
     if( g.localOpen ){
       vid = db_lget_int("checkout", 0);
@@ -280,7 +281,7 @@ void branch_cmd(void){
     }
     db_finalize(&q);
   }else{
-    fossil_panic("branch subcommand should be one of: "
+    fossil_fatal("branch subcommand should be one of: "
                  "new list ls");
   }
 }
@@ -326,8 +327,8 @@ void brlist_page(void){
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
   @ <li> An <div class="sideboxDescribed">%z(href("brlist"))
-  @ open branch</a></div> is a branch that has one or
-  @ more %z(href("leaves"))open leaves.</a>
+  @ open branch</a></div> is a branch that has one or more
+  @ <div class="sideboxDescribed">%z(href("leaves"))open leaves.</a></div>
   @ The presence of open leaves presumably means
   @ that the branch is still being extended with new check-ins.</li>
   @ <li> A <div class="sideboxDescribed">%z(href("brlist?closed"))
@@ -368,12 +369,6 @@ void brlist_page(void){
     @ </ul>
   }
   db_finalize(&q);
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }
 
@@ -423,11 +418,5 @@ void brtimeline_page(void){
   );
   www_print_timeline(&q, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }

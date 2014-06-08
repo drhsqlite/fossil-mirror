@@ -22,6 +22,7 @@ SRC = \
   $(SRCDIR)/blob.c \
   $(SRCDIR)/branch.c \
   $(SRCDIR)/browse.c \
+  $(SRCDIR)/cache.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
   $(SRCDIR)/checkin.c \
@@ -62,12 +63,15 @@ SRC = \
   $(SRCDIR)/json_login.c \
   $(SRCDIR)/json_query.c \
   $(SRCDIR)/json_report.c \
+  $(SRCDIR)/json_status.c \
   $(SRCDIR)/json_tag.c \
   $(SRCDIR)/json_timeline.c \
   $(SRCDIR)/json_user.c \
   $(SRCDIR)/json_wiki.c \
   $(SRCDIR)/leaf.c \
+  $(SRCDIR)/loadctrl.c \
   $(SRCDIR)/login.c \
+  $(SRCDIR)/lookslike.c \
   $(SRCDIR)/main.c \
   $(SRCDIR)/manifest.c \
   $(SRCDIR)/markdown.c \
@@ -109,10 +113,12 @@ SRC = \
   $(SRCDIR)/url.c \
   $(SRCDIR)/user.c \
   $(SRCDIR)/utf8.c \
+  $(SRCDIR)/util.c \
   $(SRCDIR)/verify.c \
   $(SRCDIR)/vfile.c \
   $(SRCDIR)/wiki.c \
   $(SRCDIR)/wikiformat.c \
+  $(SRCDIR)/winfile.c \
   $(SRCDIR)/winhttp.c \
   $(SRCDIR)/wysiwyg.c \
   $(SRCDIR)/xfer.c \
@@ -128,6 +134,7 @@ TRANS_SRC = \
   $(OBJDIR)/blob_.c \
   $(OBJDIR)/branch_.c \
   $(OBJDIR)/browse_.c \
+  $(OBJDIR)/cache_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
   $(OBJDIR)/checkin_.c \
@@ -168,12 +175,15 @@ TRANS_SRC = \
   $(OBJDIR)/json_login_.c \
   $(OBJDIR)/json_query_.c \
   $(OBJDIR)/json_report_.c \
+  $(OBJDIR)/json_status_.c \
   $(OBJDIR)/json_tag_.c \
   $(OBJDIR)/json_timeline_.c \
   $(OBJDIR)/json_user_.c \
   $(OBJDIR)/json_wiki_.c \
   $(OBJDIR)/leaf_.c \
+  $(OBJDIR)/loadctrl_.c \
   $(OBJDIR)/login_.c \
+  $(OBJDIR)/lookslike_.c \
   $(OBJDIR)/main_.c \
   $(OBJDIR)/manifest_.c \
   $(OBJDIR)/markdown_.c \
@@ -215,10 +225,12 @@ TRANS_SRC = \
   $(OBJDIR)/url_.c \
   $(OBJDIR)/user_.c \
   $(OBJDIR)/utf8_.c \
+  $(OBJDIR)/util_.c \
   $(OBJDIR)/verify_.c \
   $(OBJDIR)/vfile_.c \
   $(OBJDIR)/wiki_.c \
   $(OBJDIR)/wikiformat_.c \
+  $(OBJDIR)/winfile_.c \
   $(OBJDIR)/winhttp_.c \
   $(OBJDIR)/wysiwyg_.c \
   $(OBJDIR)/xfer_.c \
@@ -234,6 +246,7 @@ OBJ = \
  $(OBJDIR)/blob.o \
  $(OBJDIR)/branch.o \
  $(OBJDIR)/browse.o \
+ $(OBJDIR)/cache.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
  $(OBJDIR)/checkin.o \
@@ -274,12 +287,15 @@ OBJ = \
  $(OBJDIR)/json_login.o \
  $(OBJDIR)/json_query.o \
  $(OBJDIR)/json_report.o \
+ $(OBJDIR)/json_status.o \
  $(OBJDIR)/json_tag.o \
  $(OBJDIR)/json_timeline.o \
  $(OBJDIR)/json_user.o \
  $(OBJDIR)/json_wiki.o \
  $(OBJDIR)/leaf.o \
+ $(OBJDIR)/loadctrl.o \
  $(OBJDIR)/login.o \
+ $(OBJDIR)/lookslike.o \
  $(OBJDIR)/main.o \
  $(OBJDIR)/manifest.o \
  $(OBJDIR)/markdown.o \
@@ -321,10 +337,12 @@ OBJ = \
  $(OBJDIR)/url.o \
  $(OBJDIR)/user.o \
  $(OBJDIR)/utf8.o \
+ $(OBJDIR)/util.o \
  $(OBJDIR)/verify.o \
  $(OBJDIR)/vfile.o \
  $(OBJDIR)/wiki.o \
  $(OBJDIR)/wikiformat.o \
+ $(OBJDIR)/winfile.o \
  $(OBJDIR)/winhttp.o \
  $(OBJDIR)/wysiwyg.o \
  $(OBJDIR)/xfer.o \
@@ -365,6 +383,20 @@ test:	$(OBJDIR) $(APPNAME)
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
+# Setup the options used to compile the included SQLite library.
+SQLITE_OPTIONS = -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                 -DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                 -DSQLITE_THREADSAFE=0 \
+                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 -DSQLITE_OMIT_DEPRECATED \
+                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS
+
+# Setup the options used to compile the included SQLite shell.
+SHELL_OPTIONS = -Dmain=sqlite3_shell \
+                -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
+                -DSQLITE_SHELL_DBNAME_PROC=fossil_open
+
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system sqlite will be linked
@@ -373,14 +405,7 @@ SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
-# The FOSSIL_ENABLE_TCL variable may be undefined, set to 0, or set to 1.
-# If it is set to 1, then we need to build the Tcl integration code and
-# link to the Tcl library.
-TCL_OBJ.0 = 
-TCL_OBJ.1 = $(OBJDIR)/th_tcl.o
-TCL_OBJ. = $(TCL_OBJ.0)
-
-EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(TCL_OBJ.$(FOSSIL_ENABLE_TCL))  $(OBJDIR)/cson_amalgamation.o
+EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(OBJDIR)/th_tcl.o  $(OBJDIR)/cson_amalgamation.o
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
@@ -398,10 +423,10 @@ clean:
 $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 	$(OBJDIR)/mkindex $(TRANS_SRC) >$@
 $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
-	$(OBJDIR)/makeheaders  $(OBJDIR)/add_.c:$(OBJDIR)/add.h $(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h $(OBJDIR)/attach_.c:$(OBJDIR)/attach.h $(OBJDIR)/bag_.c:$(OBJDIR)/bag.h $(OBJDIR)/bisect_.c:$(OBJDIR)/bisect.h $(OBJDIR)/blob_.c:$(OBJDIR)/blob.h $(OBJDIR)/branch_.c:$(OBJDIR)/branch.h $(OBJDIR)/browse_.c:$(OBJDIR)/browse.h $(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h $(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h $(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h $(OBJDIR)/checkout_.c:$(OBJDIR)/checkout.h $(OBJDIR)/clearsign_.c:$(OBJDIR)/clearsign.h $(OBJDIR)/clone_.c:$(OBJDIR)/clone.h $(OBJDIR)/comformat_.c:$(OBJDIR)/comformat.h $(OBJDIR)/configure_.c:$(OBJDIR)/configure.h $(OBJDIR)/content_.c:$(OBJDIR)/content.h $(OBJDIR)/db_.c:$(OBJDIR)/db.h $(OBJDIR)/delta_.c:$(OBJDIR)/delta.h $(OBJDIR)/deltacmd_.c:$(OBJDIR)/deltacmd.h $(OBJDIR)/descendants_.c:$(OBJDIR)/descendants.h $(OBJDIR)/diff_.c:$(OBJDIR)/diff.h $(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h $(OBJDIR)/doc_.c:$(OBJDIR)/doc.h $(OBJDIR)/encode_.c:$(OBJDIR)/encode.h $(OBJDIR)/event_.c:$(OBJDIR)/event.h $(OBJDIR)/export_.c:$(OBJDIR)/export.h $(OBJDIR)/file_.c:$(OBJDIR)/file.h $(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h $(OBJDIR)/glob_.c:$(OBJDIR)/glob.h $(OBJDIR)/graph_.c:$(OBJDIR)/graph.h $(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h $(OBJDIR)/http_.c:$(OBJDIR)/http.h $(OBJDIR)/http_socket_.c:$(OBJDIR)/http_socket.h $(OBJDIR)/http_ssl_.c:$(OBJDIR)/http_ssl.h $(OBJDIR)/http_transport_.c:$(OBJDIR)/http_transport.h $(OBJDIR)/import_.c:$(OBJDIR)/import.h $(OBJDIR)/info_.c:$(OBJDIR)/info.h $(OBJDIR)/json_.c:$(OBJDIR)/json.h $(OBJDIR)/json_artifact_.c:$(OBJDIR)/json_artifact.h $(OBJDIR)/json_branch_.c:$(OBJDIR)/json_branch.h $(OBJDIR)/json_config_.c:$(OBJDIR)/json_config.h $(OBJDIR)/json_diff_.c:$(OBJDIR)/json_diff.h $(OBJDIR)/json_dir_.c:$(OBJDIR)/json_dir.h $(OBJDIR)/json_finfo_.c:$(OBJDIR)/json_finfo.h $(OBJDIR)/json_login_.c:$(OBJDIR)/json_login.h $(OBJDIR)/json_query_.c:$(OBJDIR)/json_query.h $(OBJDIR)/json_report_.c:$(OBJDIR)/json_report.h $(OBJDIR)/json_tag_.c:$(OBJDIR)/json_tag.h $(OBJDIR)/json_timeline_.c:$(OBJDIR)/json_timeline.h $(OBJDIR)/json_user_.c:$(OBJDIR)/json_user.h $(OBJDIR)/json_wiki_.c:$(OBJDIR)/json_wiki.h $(OBJDIR)/leaf_.c:$(OBJDIR)/leaf.h $(OBJDIR)/login_.c:$(OBJDIR)/login.h $(OBJDIR)/main_.c:$(OBJDIR)/main.h $(OBJDIR)/manifest_.c:$(OBJDIR)/manifest.h $(OBJDIR)/markdown_.c:$(OBJDIR)/markdown.h $(OBJDIR)/markdown_html_.c:$(OBJDIR)/markdown_html.h $(OBJDIR)/md5_.c:$(OBJDIR)/md5.h $(OBJDIR)/merge_.c:$(OBJDIR)/merge.h $(OBJDIR)/merge3_.c:$(OBJDIR)/merge3.h $(OBJDIR)/moderate_.c:$(OBJDIR)/moderate.h $(OBJDIR)/name_.c:$(OBJDIR)/name.h $(OBJDIR)/path_.c:$(OBJDIR)/path.h $(OBJDIR)/pivot_.c:$(OBJDIR)/pivot.h $(OBJDIR)/popen_.c:$(OBJDIR)/popen.h $(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h $(OBJDIR)/printf_.c:$(OBJDIR)/printf.h $(OBJDIR)/rebuild_.c:$(OBJDIR)/rebuild.h $(OBJDIR)/regexp_.c:$(OBJDIR)/regexp.h $(OBJDIR)/report_.c:$(OBJDIR)/report.h $(OBJDIR)/rss_.c:$(OBJDIR)/rss.h $(OBJDIR)/schema_.c:$(OBJDIR)/schema.h $(OBJDIR)/search_.c:$(OBJDIR)/search.h $(OBJDIR)/setup_.c:$(OBJDIR)/setup.h $(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h $(OBJDIR)/shun_.c:$(OBJDIR)/shun.h $(OBJDIR)/skins_.c:$(OBJDIR)/skins.h $(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h $(OBJDIR)/stash_.c:$(OBJDIR)/stash.h $(OBJDIR)/stat_.c:$(OBJDIR)/stat.h $(OBJDIR)/style_.c:$(OBJDIR)/style.h $(OBJDIR)/sync_.c:$(OBJDIR)/sync.h $(OBJDIR)/tag_.c:$(OBJDIR)/tag.h $(OBJDIR)/tar_.c:$(OBJDIR)/tar.h $(OBJDIR)/th_main_.c:$(OBJDIR)/th_main.h $(OBJDIR)/timeline_.c:$(OBJDIR)/timeline.h $(OBJDIR)/tkt_.c:$(OBJDIR)/tkt.h $(OBJDIR)/tktsetup_.c:$(OBJDIR)/tktsetup.h $(OBJDIR)/undo_.c:$(OBJDIR)/undo.h $(OBJDIR)/unicode_.c:$(OBJDIR)/unicode.h $(OBJDIR)/update_.c:$(OBJDIR)/update.h $(OBJDIR)/url_.c:$(OBJDIR)/url.h $(OBJDIR)/user_.c:$(OBJDIR)/user.h $(OBJDIR)/utf8_.c:$(OBJDIR)/utf8.h $(OBJDIR)/verify_.c:$(OBJDIR)/verify.h $(OBJDIR)/vfile_.c:$(OBJDIR)/vfile.h $(OBJDIR)/wiki_.c:$(OBJDIR)/wiki.h $(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h $(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h $(OBJDIR)/wysiwyg_.c:$(OBJDIR)/wysiwyg.h $(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h $(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h $(OBJDIR)/zip_.c:$(OBJDIR)/zip.h $(SRCDIR)/sqlite3.h $(SRCDIR)/th.h $(OBJDIR)/VERSION.h
+	$(OBJDIR)/makeheaders  $(OBJDIR)/add_.c:$(OBJDIR)/add.h $(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h $(OBJDIR)/attach_.c:$(OBJDIR)/attach.h $(OBJDIR)/bag_.c:$(OBJDIR)/bag.h $(OBJDIR)/bisect_.c:$(OBJDIR)/bisect.h $(OBJDIR)/blob_.c:$(OBJDIR)/blob.h $(OBJDIR)/branch_.c:$(OBJDIR)/branch.h $(OBJDIR)/browse_.c:$(OBJDIR)/browse.h $(OBJDIR)/cache_.c:$(OBJDIR)/cache.h $(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h $(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h $(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h $(OBJDIR)/checkout_.c:$(OBJDIR)/checkout.h $(OBJDIR)/clearsign_.c:$(OBJDIR)/clearsign.h $(OBJDIR)/clone_.c:$(OBJDIR)/clone.h $(OBJDIR)/comformat_.c:$(OBJDIR)/comformat.h $(OBJDIR)/configure_.c:$(OBJDIR)/configure.h $(OBJDIR)/content_.c:$(OBJDIR)/content.h $(OBJDIR)/db_.c:$(OBJDIR)/db.h $(OBJDIR)/delta_.c:$(OBJDIR)/delta.h $(OBJDIR)/deltacmd_.c:$(OBJDIR)/deltacmd.h $(OBJDIR)/descendants_.c:$(OBJDIR)/descendants.h $(OBJDIR)/diff_.c:$(OBJDIR)/diff.h $(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h $(OBJDIR)/doc_.c:$(OBJDIR)/doc.h $(OBJDIR)/encode_.c:$(OBJDIR)/encode.h $(OBJDIR)/event_.c:$(OBJDIR)/event.h $(OBJDIR)/export_.c:$(OBJDIR)/export.h $(OBJDIR)/file_.c:$(OBJDIR)/file.h $(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h $(OBJDIR)/glob_.c:$(OBJDIR)/glob.h $(OBJDIR)/graph_.c:$(OBJDIR)/graph.h $(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h $(OBJDIR)/http_.c:$(OBJDIR)/http.h $(OBJDIR)/http_socket_.c:$(OBJDIR)/http_socket.h $(OBJDIR)/http_ssl_.c:$(OBJDIR)/http_ssl.h $(OBJDIR)/http_transport_.c:$(OBJDIR)/http_transport.h $(OBJDIR)/import_.c:$(OBJDIR)/import.h $(OBJDIR)/info_.c:$(OBJDIR)/info.h $(OBJDIR)/json_.c:$(OBJDIR)/json.h $(OBJDIR)/json_artifact_.c:$(OBJDIR)/json_artifact.h $(OBJDIR)/json_branch_.c:$(OBJDIR)/json_branch.h $(OBJDIR)/json_config_.c:$(OBJDIR)/json_config.h $(OBJDIR)/json_diff_.c:$(OBJDIR)/json_diff.h $(OBJDIR)/json_dir_.c:$(OBJDIR)/json_dir.h $(OBJDIR)/json_finfo_.c:$(OBJDIR)/json_finfo.h $(OBJDIR)/json_login_.c:$(OBJDIR)/json_login.h $(OBJDIR)/json_query_.c:$(OBJDIR)/json_query.h $(OBJDIR)/json_report_.c:$(OBJDIR)/json_report.h $(OBJDIR)/json_status_.c:$(OBJDIR)/json_status.h $(OBJDIR)/json_tag_.c:$(OBJDIR)/json_tag.h $(OBJDIR)/json_timeline_.c:$(OBJDIR)/json_timeline.h $(OBJDIR)/json_user_.c:$(OBJDIR)/json_user.h $(OBJDIR)/json_wiki_.c:$(OBJDIR)/json_wiki.h $(OBJDIR)/leaf_.c:$(OBJDIR)/leaf.h $(OBJDIR)/loadctrl_.c:$(OBJDIR)/loadctrl.h $(OBJDIR)/login_.c:$(OBJDIR)/login.h $(OBJDIR)/lookslike_.c:$(OBJDIR)/lookslike.h $(OBJDIR)/main_.c:$(OBJDIR)/main.h $(OBJDIR)/manifest_.c:$(OBJDIR)/manifest.h $(OBJDIR)/markdown_.c:$(OBJDIR)/markdown.h $(OBJDIR)/markdown_html_.c:$(OBJDIR)/markdown_html.h $(OBJDIR)/md5_.c:$(OBJDIR)/md5.h $(OBJDIR)/merge_.c:$(OBJDIR)/merge.h $(OBJDIR)/merge3_.c:$(OBJDIR)/merge3.h $(OBJDIR)/moderate_.c:$(OBJDIR)/moderate.h $(OBJDIR)/name_.c:$(OBJDIR)/name.h $(OBJDIR)/path_.c:$(OBJDIR)/path.h $(OBJDIR)/pivot_.c:$(OBJDIR)/pivot.h $(OBJDIR)/popen_.c:$(OBJDIR)/popen.h $(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h $(OBJDIR)/printf_.c:$(OBJDIR)/printf.h $(OBJDIR)/rebuild_.c:$(OBJDIR)/rebuild.h $(OBJDIR)/regexp_.c:$(OBJDIR)/regexp.h $(OBJDIR)/report_.c:$(OBJDIR)/report.h $(OBJDIR)/rss_.c:$(OBJDIR)/rss.h $(OBJDIR)/schema_.c:$(OBJDIR)/schema.h $(OBJDIR)/search_.c:$(OBJDIR)/search.h $(OBJDIR)/setup_.c:$(OBJDIR)/setup.h $(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h $(OBJDIR)/shun_.c:$(OBJDIR)/shun.h $(OBJDIR)/skins_.c:$(OBJDIR)/skins.h $(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h $(OBJDIR)/stash_.c:$(OBJDIR)/stash.h $(OBJDIR)/stat_.c:$(OBJDIR)/stat.h $(OBJDIR)/style_.c:$(OBJDIR)/style.h $(OBJDIR)/sync_.c:$(OBJDIR)/sync.h $(OBJDIR)/tag_.c:$(OBJDIR)/tag.h $(OBJDIR)/tar_.c:$(OBJDIR)/tar.h $(OBJDIR)/th_main_.c:$(OBJDIR)/th_main.h $(OBJDIR)/timeline_.c:$(OBJDIR)/timeline.h $(OBJDIR)/tkt_.c:$(OBJDIR)/tkt.h $(OBJDIR)/tktsetup_.c:$(OBJDIR)/tktsetup.h $(OBJDIR)/undo_.c:$(OBJDIR)/undo.h $(OBJDIR)/unicode_.c:$(OBJDIR)/unicode.h $(OBJDIR)/update_.c:$(OBJDIR)/update.h $(OBJDIR)/url_.c:$(OBJDIR)/url.h $(OBJDIR)/user_.c:$(OBJDIR)/user.h $(OBJDIR)/utf8_.c:$(OBJDIR)/utf8.h $(OBJDIR)/util_.c:$(OBJDIR)/util.h $(OBJDIR)/verify_.c:$(OBJDIR)/verify.h $(OBJDIR)/vfile_.c:$(OBJDIR)/vfile.h $(OBJDIR)/wiki_.c:$(OBJDIR)/wiki.h $(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h $(OBJDIR)/winfile_.c:$(OBJDIR)/winfile.h $(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h $(OBJDIR)/wysiwyg_.c:$(OBJDIR)/wysiwyg.h $(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h $(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h $(OBJDIR)/zip_.c:$(OBJDIR)/zip.h $(SRCDIR)/sqlite3.h $(SRCDIR)/th.h $(OBJDIR)/VERSION.h
 	touch $(OBJDIR)/headers
 $(OBJDIR)/headers: Makefile
-$(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/json_config.o $(OBJDIR)/json_diff.o $(OBJDIR)/json_dir.o $(OBJDIR)/json_finfo.o $(OBJDIR)/json_login.o $(OBJDIR)/json_query.o $(OBJDIR)/json_report.o $(OBJDIR)/json_tag.o $(OBJDIR)/json_timeline.o $(OBJDIR)/json_user.o $(OBJDIR)/json_wiki.o : $(SRCDIR)/json_detail.h
+$(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/json_config.o $(OBJDIR)/json_diff.o $(OBJDIR)/json_dir.o $(OBJDIR)/json_finfo.o $(OBJDIR)/json_login.o $(OBJDIR)/json_query.o $(OBJDIR)/json_report.o $(OBJDIR)/json_status.o $(OBJDIR)/json_tag.o $(OBJDIR)/json_timeline.o $(OBJDIR)/json_user.o $(OBJDIR)/json_wiki.o : $(SRCDIR)/json_detail.h
 Makefile:
 $(OBJDIR)/add_.c:	$(SRCDIR)/add.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/add.c >$(OBJDIR)/add_.c
@@ -459,6 +484,13 @@ $(OBJDIR)/browse.o:	$(OBJDIR)/browse_.c $(OBJDIR)/browse.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/browse.o -c $(OBJDIR)/browse_.c
 
 $(OBJDIR)/browse.h:	$(OBJDIR)/headers
+$(OBJDIR)/cache_.c:	$(SRCDIR)/cache.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/cache.c >$(OBJDIR)/cache_.c
+
+$(OBJDIR)/cache.o:	$(OBJDIR)/cache_.c $(OBJDIR)/cache.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/cache.o -c $(OBJDIR)/cache_.c
+
+$(OBJDIR)/cache.h:	$(OBJDIR)/headers
 $(OBJDIR)/captcha_.c:	$(SRCDIR)/captcha.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/captcha.c >$(OBJDIR)/captcha_.c
 
@@ -739,6 +771,13 @@ $(OBJDIR)/json_report.o:	$(OBJDIR)/json_report_.c $(OBJDIR)/json_report.h  $(SRC
 	$(XTCC) -o $(OBJDIR)/json_report.o -c $(OBJDIR)/json_report_.c
 
 $(OBJDIR)/json_report.h:	$(OBJDIR)/headers
+$(OBJDIR)/json_status_.c:	$(SRCDIR)/json_status.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/json_status.c >$(OBJDIR)/json_status_.c
+
+$(OBJDIR)/json_status.o:	$(OBJDIR)/json_status_.c $(OBJDIR)/json_status.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/json_status.o -c $(OBJDIR)/json_status_.c
+
+$(OBJDIR)/json_status.h:	$(OBJDIR)/headers
 $(OBJDIR)/json_tag_.c:	$(SRCDIR)/json_tag.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/json_tag.c >$(OBJDIR)/json_tag_.c
 
@@ -774,6 +813,13 @@ $(OBJDIR)/leaf.o:	$(OBJDIR)/leaf_.c $(OBJDIR)/leaf.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/leaf.o -c $(OBJDIR)/leaf_.c
 
 $(OBJDIR)/leaf.h:	$(OBJDIR)/headers
+$(OBJDIR)/loadctrl_.c:	$(SRCDIR)/loadctrl.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/loadctrl.c >$(OBJDIR)/loadctrl_.c
+
+$(OBJDIR)/loadctrl.o:	$(OBJDIR)/loadctrl_.c $(OBJDIR)/loadctrl.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/loadctrl.o -c $(OBJDIR)/loadctrl_.c
+
+$(OBJDIR)/loadctrl.h:	$(OBJDIR)/headers
 $(OBJDIR)/login_.c:	$(SRCDIR)/login.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/login.c >$(OBJDIR)/login_.c
 
@@ -781,6 +827,13 @@ $(OBJDIR)/login.o:	$(OBJDIR)/login_.c $(OBJDIR)/login.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/login.o -c $(OBJDIR)/login_.c
 
 $(OBJDIR)/login.h:	$(OBJDIR)/headers
+$(OBJDIR)/lookslike_.c:	$(SRCDIR)/lookslike.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/lookslike.c >$(OBJDIR)/lookslike_.c
+
+$(OBJDIR)/lookslike.o:	$(OBJDIR)/lookslike_.c $(OBJDIR)/lookslike.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/lookslike.o -c $(OBJDIR)/lookslike_.c
+
+$(OBJDIR)/lookslike.h:	$(OBJDIR)/headers
 $(OBJDIR)/main_.c:	$(SRCDIR)/main.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/main.c >$(OBJDIR)/main_.c
 
@@ -1068,6 +1121,13 @@ $(OBJDIR)/utf8.o:	$(OBJDIR)/utf8_.c $(OBJDIR)/utf8.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/utf8.o -c $(OBJDIR)/utf8_.c
 
 $(OBJDIR)/utf8.h:	$(OBJDIR)/headers
+$(OBJDIR)/util_.c:	$(SRCDIR)/util.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/util.c >$(OBJDIR)/util_.c
+
+$(OBJDIR)/util.o:	$(OBJDIR)/util_.c $(OBJDIR)/util.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/util.o -c $(OBJDIR)/util_.c
+
+$(OBJDIR)/util.h:	$(OBJDIR)/headers
 $(OBJDIR)/verify_.c:	$(SRCDIR)/verify.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/verify.c >$(OBJDIR)/verify_.c
 
@@ -1096,6 +1156,13 @@ $(OBJDIR)/wikiformat.o:	$(OBJDIR)/wikiformat_.c $(OBJDIR)/wikiformat.h  $(SRCDIR
 	$(XTCC) -o $(OBJDIR)/wikiformat.o -c $(OBJDIR)/wikiformat_.c
 
 $(OBJDIR)/wikiformat.h:	$(OBJDIR)/headers
+$(OBJDIR)/winfile_.c:	$(SRCDIR)/winfile.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/winfile.c >$(OBJDIR)/winfile_.c
+
+$(OBJDIR)/winfile.o:	$(OBJDIR)/winfile_.c $(OBJDIR)/winfile.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/winfile.o -c $(OBJDIR)/winfile_.c
+
+$(OBJDIR)/winfile.h:	$(OBJDIR)/headers
 $(OBJDIR)/winhttp_.c:	$(SRCDIR)/winhttp.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/winhttp.c >$(OBJDIR)/winhttp_.c
 
@@ -1132,10 +1199,10 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h  $(SRCDIR)/config.h
 
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 $(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
-	$(XTCC) -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_ENABLE_STAT3 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
+	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
 
 $(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
-	$(XTCC) -Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
+	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 	$(XTCC) -c $(SRCDIR)/th.c -o $(OBJDIR)/th.o
@@ -1148,7 +1215,7 @@ $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 
 
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
-	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
+	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
 
 #
 # The list of all the targets that do not correspond to real files. This stops

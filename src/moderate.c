@@ -66,7 +66,7 @@ int moderation_pending(int rid){
 ** Check to see if the object identified by RID is used for anything.
 */
 static int object_used(int rid){
-  static const char *aTabField[] = {
+  static const char *const aTabField[] = {
      "modreq",     "attachRid",
      "mlink",      "mid",
      "mlink",      "fid",

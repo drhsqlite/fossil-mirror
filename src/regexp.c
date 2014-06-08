@@ -34,7 +34,7 @@
 **     \c      Character c where c is one of \{}()[]|*+?.
 **     \c      C-language escapes for c in afnrtv.  ex: \t or \n
 **     \uXXXX  Where XXXX is exactly 4 hex digits, unicode value XXXX
-**     \xXXX   Where XXX is any number of hex digits, unicode value XXX
+**     \xXX    Where XX is exactly 2 hex digits, unicode value XX
 **     [abc]   Any single character from the set abc
 **     [^abc]  Any single character not in the set abc
 **     [a-z]   Any single character in the range a-z
@@ -113,7 +113,7 @@ struct ReCompiled {
   char *aOp;                  /* Operators for the virtual machine */
   int *aArg;                  /* Arguments to each operator */
   unsigned (*xNextChar)(ReInput*);  /* Next character function */
-  char zInit[12];             /* Initial text to match */
+  unsigned char zInit[12];    /* Initial text to match */
   int nInit;                  /* Number of characters in zInit */
   unsigned nState;            /* Number of entries in aOp[] and aArg[] */
   unsigned nAlloc;            /* Slots allocated for aOp[] and aArg[] */
@@ -174,7 +174,7 @@ static int re_digit_char(int c){
 
 /* Return true if c is a perl "space" character:  [ \t\r\n\v\f] */
 static int re_space_char(int c){
-  return c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='\v' || c=='\f' ;
+  return c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='\v' || c=='\f';
 }
 
 /* Run a compiled regular expression on the zero-terminated input
@@ -199,7 +199,8 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
   if( pRe->nInit ){
     unsigned char x = pRe->zInit[0];
     while( in.i+pRe->nInit<=in.mx 
-        && (zIn[in.i]!=x || memcmp(zIn+in.i, pRe->zInit, pRe->nInit)!=0)
+     && (zIn[in.i]!=x ||
+         strncmp((const char*)zIn+in.i, (const char*)pRe->zInit, pRe->nInit)!=0)
     ){
       in.i++;
     }
@@ -383,7 +384,7 @@ static int re_hex(int c, int *pV){
 }
 
 /* A backslash character has been seen, read the next character and
-** return its intepretation.
+** return its interpretation.
 */
 static unsigned re_esc_char(ReCompiled *p){
   static const char zEsc[] = "afnrtv\\()*.+?[$^{|}]";
@@ -392,9 +393,8 @@ static unsigned re_esc_char(ReCompiled *p){
   char c;
   if( p->sIn.i>=p->sIn.mx ) return 0;
   c = p->sIn.z[p->sIn.i];
-  if( c=='u' && p->sIn.i+5<p->sIn.mx ){
+  if( c=='u' && p->sIn.i+4<p->sIn.mx ){
     const unsigned char *zIn = p->sIn.z + p->sIn.i;
-    v = 0;
     if( re_hex(zIn[1],&v)
      && re_hex(zIn[2],&v)
      && re_hex(zIn[3],&v)
@@ -404,11 +404,12 @@ static unsigned re_esc_char(ReCompiled *p){
       return v;
     }
   }
-  if( c=='x' ){
-    v = 0;
-    for(i=1; p->sIn.i<p->sIn.mx && re_hex(p->sIn.z[p->sIn.i+i], &v); i++){}
-    if( i>1 ){
-      p->sIn.i += i;
+  if( c=='x' && p->sIn.i+2<p->sIn.mx ){
+    const unsigned char *zIn = p->sIn.z + p->sIn.i;
+    if( re_hex(zIn[1],&v)
+     && re_hex(zIn[2],&v)
+    ){
+      p->sIn.i += 3;
       return v;
     }
   }

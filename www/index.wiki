@@ -22,9 +22,10 @@ cellpadding="2">
 <li> [../COPYRIGHT-BSD2.txt | License]
 <li> [/timeline | Recent changes]
 <li> [./faq.wiki | FAQ]
-<li> [./contribute.wiki | Contributing]
+<li> [./hacker-howto.wiki | Hacker How-To]
 <li> [./changes.wiki | Change Log]
-<li> [./permutedindex.wiki#pindex | Doc Index]
+<li> [./hints.wiki | Tip &amp; Hints]
+<li> [./permutedindex.wiki | Documentation Index]
 <li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
 <li> Mailing list
      <ul>
@@ -82,7 +83,7 @@ internet these days. What makes Fossil worthy of attention?
       for Linux, Mac, or Windows and put it on your $PATH.
       [./build.wiki | Easy-to-compile source code] is available for
       users on other platforms.  Fossil sources are also mostly self-contained,
-      requiring only the "zlib" library and the standard C library to build.
+      requiring only the standard C library to build.
 
   5.  <b>Simple Networking</b> -
       Fossil uses plain old HTTP (with
@@ -92,10 +93,10 @@ internet these days. What makes Fossil worthy of attention?
       [./stats.wiki | bandwidth efficient] to the point that Fossil can be
       used comfortably over a dial-up internet connection.
 
-  6.  <b>CGI Enabled</b> -
+  6.  <b>CGI/SCGI Enabled</b> -
       No server is required to use fossil.  But a
-      server does make collaboration easier.  Fossil supports three different
-      yet simple [./quickstart.wiki#serversetup | server configurations].
+      server does make collaboration easier.  Fossil supports four different
+      yet simple [./server.wiki | server configurations].
       The most popular is a 2-line CGI script.  This is the approach
       used by the [./selfhost.wiki | self-hosting fossil repositories].
 
@@ -104,7 +105,7 @@ internet these days. What makes Fossil worthy of attention?
       in an SQLite database so that transactions are
       atomic even if interrupted by a power loss or system crash.  Furthermore,
       automatic [./selfcheck.wiki | self-checks] verify that all aspects of
-      the repository are consistent prior to each commit.  In over three years
+      the repository are consistent prior to each commit.  In over six years
       of operation, no work has ever been lost after having been committed to
       a Fossil repository.
 
@@ -133,7 +134,8 @@ internet these days. What makes Fossil worthy of attention?
   *  [./settings.wiki | Settings] control the behaviour of fossil.
   *  [./ssl.wiki | Use SSL] to encrypt communication with the server.
   *  There is a
-    [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list] (with publicly readable
+     [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list]
+    (with publicly readable
      [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
      available for discussing fossil issues.
   *  [./stats.wiki | Performance statistics] taken from real-world projects
@@ -151,6 +153,9 @@ internet these days. What makes Fossil worthy of attention?
   *  Methods to [./checkin_names.wiki | identify a specific check-in].
   *  [./inout.wiki | Import and export] from and to Git.
   *  [./fossil-v-git.wiki | Fossil versus Git].
+  *  [./fiveminutes.wiki | Up and running in 5 minutes as a single user]
+     (contributed by Gilles Ganault on 2013-01-08).
+  *  [./antibot.wiki | How Fossil defends against abuse by spiders and bots].
 
 <h3>Links For Fossil Developer:</h3>
 

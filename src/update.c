@@ -79,7 +79,7 @@ int update_to(int vid){
 ** a directory name for one of the FILES arguments is the same as
 ** using every subdirectory and file beneath that directory.
 **
-** The -n or --nochange option causes this command to do a "dry run".  It
+** The -n or --dry-run option causes this command to do a "dry run".  It
 ** prints out what would have happened but does not actually make any
 ** changes to the current checkout or the repository.
 **
@@ -87,9 +87,11 @@ int update_to(int vid){
 ** files in addition to those file that actually do change.
 **
 ** Options:
+**   --case-sensitive <BOOL> override case-sensitive setting
 **   --debug          print debug information on stdout
 **   --latest         acceptable in place of VERSION, update to latest version
-**   -n|--nochange    do not perform changes but show what would be done
+**   --force-missing  force update if missing content after sync
+**   -n|--dry-run     If given, display instead of run actions
 **   -v|--verbose     print status information about all files
 **
 ** See also: revert
@@ -99,8 +101,9 @@ void update_cmd(void){
   int tid=0;            /* Target version - version we are changing to */
   Stmt q;
   int latestFlag;       /* --latest.  Pick the latest version if true */
-  int nochangeFlag;     /* -n or --nochange.  Do a dry run */
+  int dryRunFlag;       /* -n or --dry-run.  Do a dry run */
   int verboseFlag;      /* -v or --verbose.  Output extra information */
+  int forceMissingFlag; /* --force-missing.  Continue if missing content */
   int debugFlag;        /* --debug option */
   int setmtimeFlag;     /* --setmtime.  Set mtimes on files */
   int nChng;            /* Number of file renames */
@@ -116,22 +119,27 @@ void update_cmd(void){
     url_proxy_options();
   }
   latestFlag = find_option("latest",0, 0)!=0;
-  nochangeFlag = find_option("nochange","n",0)!=0;
+  dryRunFlag = find_option("dry-run","n",0)!=0;
+  if( !dryRunFlag ){
+    dryRunFlag = find_option("nochange",0,0)!=0; /* deprecated */
+  }
   verboseFlag = find_option("verbose","v",0)!=0;
+  forceMissingFlag = find_option("force-missing",0,0)!=0;
   debugFlag = find_option("debug",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
+  capture_case_sensitive_option();
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
-  if( vid==0 ){
-    fossil_fatal("cannot find current version");
-  }
-  if( !nochangeFlag && !internalUpdate ){
-    autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag);
+  user_select();
+  if( !dryRunFlag && !internalUpdate ){
+    if( autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag) ){
+      fossil_fatal("Cannot proceed with update");
+    }
   }
   
   /* Create any empty directories now, as well as after the update,
   ** so changes in settings are reflected now */
-  if( !nochangeFlag ) ensure_empty_dirs_created();
+  if( !dryRunFlag ) ensure_empty_dirs_created();
 
   if( internalUpdate ){
     tid = internalUpdate;
@@ -184,7 +192,7 @@ void update_cmd(void){
           " ORDER BY event.mtime DESC",
           timeline_query_for_tty()
         );
-        print_timeline(&q, 100, 0);
+        print_timeline(&q, -100, 79, 0);
         db_finalize(&q);
         fossil_fatal("Multiple descendants");
       }
@@ -196,13 +204,15 @@ void update_cmd(void){
   }
 
   if( tid==0 ){
-    fossil_panic("Internal Error: unable to find a version to update to.");
+    return;
   }
 
   db_begin_transaction();
   vfile_check_signature(vid, CKSIG_ENOTFILE);
-  if( !nochangeFlag && !internalUpdate ) undo_begin();
-  load_vfile_from_rid(tid);
+  if( !dryRunFlag && !internalUpdate ) undo_begin();
+  if( load_vfile_from_rid(tid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to update");
+  };
 
   /*
   ** The record.fn field is used to match files against each other.  The
@@ -212,7 +222,7 @@ void update_cmd(void){
   db_multi_exec(
     "DROP TABLE IF EXISTS fv;"
     "CREATE TEMP TABLE fv("
-    "  fn TEXT PRIMARY KEY,"      /* The filename relative to root */
+    "  fn TEXT %s PRIMARY KEY,"   /* The filename relative to root */
     "  idv INTEGER,"              /* VFILE entry for current version */
     "  idt INTEGER,"              /* VFILE entry for target version */
     "  chnged BOOLEAN,"           /* True if current version has been edited */
@@ -221,9 +231,10 @@ void update_cmd(void){
     "  ridv INTEGER,"             /* Record ID for current version */
     "  ridt INTEGER,"             /* Record ID for target */
     "  isexe BOOLEAN,"            /* Does target have execute permission? */
-    "  deleted BOOLEAN DEFAULT 0,"/* File marke by "rm" to become unmanaged */
-    "  fnt TEXT"                  /* Filename of same file on target version */
-    ");"
+    "  deleted BOOLEAN DEFAULT 0,"/* File marked by "rm" to become unmanaged */
+    "  fnt TEXT %s"               /* Filename of same file on target version */
+    ");",
+    filename_collation(), filename_collation()
   );
 
   /* Add files found in the current version
@@ -258,8 +269,8 @@ void update_cmd(void){
     "INSERT OR IGNORE INTO fv(fn,fnt,idv,idt,ridv,ridt,isexe,chnged)"
     " SELECT pathname, pathname, 0, 0, 0, 0, isexe, 0 FROM vfile"
     "  WHERE vid=%d"
-    "    AND pathname NOT IN (SELECT fnt FROM fv)",
-    tid
+    "    AND pathname %s NOT IN (SELECT fnt FROM fv)",
+    tid, filename_collation()
   );
 
   /*
@@ -267,8 +278,8 @@ void update_cmd(void){
   */
   db_multi_exec(
     "UPDATE fv SET"
-    " idt=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fnt),0),"
-    " ridt=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnt),0)",
+    " idt=coalesce((SELECT id FROM vfile WHERE vid=%d AND fnt=pathname),0),"
+    " ridt=coalesce((SELECT rid FROM vfile WHERE vid=%d AND fnt=pathname),0)",
     tid, tid
   );
 
@@ -278,9 +289,9 @@ void update_cmd(void){
   db_multi_exec(
     "UPDATE fv SET"
     " islinkv=coalesce((SELECT islink FROM vfile"
-                       " WHERE vid=%d AND pathname=fnt),0),"
+                       " WHERE vid=%d AND fnt=pathname),0),"
     " islinkt=coalesce((SELECT islink FROM vfile"
-                       " WHERE vid=%d AND pathname=fnt),0)",
+                       " WHERE vid=%d AND fnt=pathname),0)",
     vid, tid
   );
 
@@ -351,7 +362,7 @@ void update_cmd(void){
     " WHERE id=:idt"
   );
   assert( g.zLocalRoot!=0 );
-  assert( strlen(g.zLocalRoot)>1 );
+  assert( strlen(g.zLocalRoot)>0 );
   assert( g.zLocalRoot[strlen(g.zLocalRoot)-1]=='/' );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);  /* The filename from root */
@@ -391,23 +402,22 @@ void update_cmd(void){
         fossil_print("ADD %s\n", zName);
       }
       undo_save(zName);
-      if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
+      if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt>0 && idv>0 && ridt!=ridv && (chnged==0 || deleted) ){
       /* The file is unedited.  Change it to the target version */
       undo_save(zName);
       if( deleted ){
-        fossil_print("UPDATE %s - change to unmanged file\n", zName);
+        fossil_print("UPDATE %s - change to unmanaged file\n", zName);
       }else{
         fossil_print("UPDATE %s\n", zName);
       }
-      if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
-    }else if( idt>0 && idv>0 && file_wd_size(zFullPath)<0 ){
+      if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
+    }else if( idt>0 && idv>0 && !deleted && file_wd_size(zFullPath)<0 ){
       /* The file missing from the local check-out. Restore it to the
       ** version that appears in the target. */
-      fossil_print("UPDATE %s%s\n", zName,
-                    deleted?" - change to unmanaged file":"");
+      fossil_print("UPDATE %s\n", zName);
       undo_save(zName);
-      if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
+      if( !dryRunFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt==0 && idv>0 ){
       if( ridv==0 ){
         /* Added in current checkout.  Continue to hold the file as
@@ -422,7 +432,7 @@ void update_cmd(void){
       }else{
         fossil_print("REMOVE %s\n", zName);
         undo_save(zName);
-        if( !nochangeFlag ) file_delete(zFullPath);
+        if( !dryRunFlag ) file_delete(zFullPath);
       }
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
       /* Merge the changes in the current tree into the target version */
@@ -437,13 +447,13 @@ void update_cmd(void){
         fossil_print("***** Cannot merge symlink %s\n", zNewName);
         nConflict++;        
       }else{
-        unsigned mergeFlags = nochangeFlag ? MERGE_DRYRUN : 0;
+        unsigned mergeFlags = dryRunFlag ? MERGE_DRYRUN : 0;
         undo_save(zName);
         content_get(ridt, &t);
         content_get(ridv, &v);
         rc = merge_3way(&v, zFullPath, &t, &r, mergeFlags);
         if( rc>=0 ){
-          if( !nochangeFlag ){
+          if( !dryRunFlag ){
             blob_write_to_file(&r, zFullNewPath);
             file_wd_setexe(zFullNewPath, isexe);
           }
@@ -452,7 +462,7 @@ void update_cmd(void){
             nConflict++;
           }
         }else{
-          if( !nochangeFlag ){
+          if( !dryRunFlag ){
             blob_write_to_file(&t, zFullNewPath);
             file_wd_setexe(zFullNewPath, isexe);
           }
@@ -460,7 +470,7 @@ void update_cmd(void){
           nConflict++;
         }
       }
-      if( nameChng && !nochangeFlag ) file_delete(zFullPath);
+      if( nameChng && !dryRunFlag ) file_delete(zFullPath);
       blob_reset(&v);
       blob_reset(&t);
       blob_reset(&r);
@@ -493,7 +503,7 @@ void update_cmd(void){
 
   /* Report on conflicts
   */
-  if( !nochangeFlag ){
+  if( !dryRunFlag ){
     Stmt q;
     int nMerge = 0;
     db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
@@ -530,8 +540,8 @@ void update_cmd(void){
   /*
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.
   */
-  if( nochangeFlag ){
-    db_end_transaction(1);  /* With --nochange, rollback changes */
+  if( dryRunFlag ){
+    db_end_transaction(1);  /* With --dry-run, rollback changes */
   }else{
     ensure_empty_dirs_created();
     if( g.argc<=3 ){
@@ -624,6 +634,8 @@ int historical_version_of_file(
   
   if( revision ){
     rid = name_to_typed_rid(revision,"ci");
+  }else if( !g.localOpen ){
+    rid = name_to_typed_rid(db_get("main-branch","trunk"),"ci");
   }else{
     rid = db_lget_int("checkout", 0);
   }
@@ -631,7 +643,7 @@ int historical_version_of_file(
     if( errCode>0 ) return errCode;
     fossil_fatal("no such checkin: %s", revision);
   }
-  pManifest = manifest_get(rid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   
   if( pManifest ){
     pFile = manifest_file_find(pManifest, file);
@@ -655,7 +667,7 @@ int historical_version_of_file(
     if( revision==0 ){
       revision = db_text("current", "SELECT uuid FROM blob WHERE rid=%d", rid);
     }
-    fossil_panic("could not parse manifest for checkin: %s", revision);
+    fossil_fatal("could not parse manifest for checkin: %s", revision);
   }
   return errCode;
 }
@@ -669,6 +681,9 @@ int historical_version_of_file(
 ** Revert to the current repository version of FILE, or to
 ** the version associated with baseline REVISION if the -r flag
 ** appears.
+**
+** If FILE was part of a rename operation, both the original file
+** and the renamed file are reverted.
 **
 ** Revert all files if no file name is provided.
 **
@@ -708,7 +723,14 @@ void revert_cmd(void){
       Blob fname;
       zFile = mprintf("%/", g.argv[i]);
       file_tree_name(zFile, &fname, 1);
-      db_multi_exec("REPLACE INTO torevert VALUES(%B)", &fname);
+      db_multi_exec(
+        "REPLACE INTO torevert VALUES(%B);"
+        "INSERT OR IGNORE INTO torevert"
+        " SELECT pathname"
+        "   FROM vfile"
+        "  WHERE origname=%B;",
+        &fname, &fname
+      );
       blob_reset(&fname);
     }
   }else{
@@ -720,13 +742,15 @@ void revert_cmd(void){
       "INSERT OR IGNORE INTO torevert "
       " SELECT pathname"
       "   FROM vfile "
-      "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname "
-      " UNION ALL "
-      " SELECT origname"
-      "   FROM vfile"
-      "  WHERE origname!=pathname;"
+      "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname;"
     );
   }
+  db_multi_exec(
+    "INSERT OR IGNORE INTO torevert"
+    " SELECT origname"
+    "   FROM vfile"
+    "  WHERE origname!=pathname AND pathname IN (SELECT name FROM torevert);"
+  );
   blob_zero(&record);
   db_prepare(&q, "SELECT name FROM torevert");
   if( zRevision==0 ){
@@ -750,7 +774,13 @@ void revert_cmd(void){
         file_delete(zFull);
         fossil_print("DELETE: %s\n", zFile);
       }
-      db_multi_exec("DELETE FROM vfile WHERE pathname=%Q", zFile);
+      db_multi_exec(
+        "UPDATE OR REPLACE vfile"
+        "   SET pathname=origname, origname=NULL"
+        " WHERE pathname=%Q AND origname!=pathname;"
+        "DELETE FROM vfile WHERE pathname=%Q",
+        zFile, zFile
+      );
     }else{
       sqlite3_int64 mtime;
       undo_save(zFile);
@@ -767,10 +797,9 @@ void revert_cmd(void){
       mtime = file_wd_mtime(zFull);
       db_multi_exec(
          "UPDATE vfile"
-         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, islink=%d,mrid=rid,"
-         "       pathname=coalesce(origname,pathname), origname=NULL"     
-         " WHERE pathname=%Q",
-         mtime, isExe, isLink, zFile
+         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, islink=%d,mrid=rid"
+         " WHERE pathname=%Q OR origname=%Q",
+         mtime, isExe, isLink, zFile, zFile
       );
     }
     blob_reset(&record);

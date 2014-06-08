@@ -7,6 +7,9 @@
 #
 
 set doclist {
+  adding_code.wiki {Adding New Features To Fossil}
+  adding_code.wiki {Hacking Fossil}
+  antibot.wiki {Defense against Spiders and Bots}
   bugtheory.wiki {Bug Tracking In Fossil}
   branching.wiki {Branching, Forking, Merging, and Tagging}
   build.wiki {Compiling and Installing Fossil}
@@ -23,8 +26,12 @@ set doclist {
   event.wiki {Events}
   faq.wiki {Frequently Asked Questions}
   fileformat.wiki {Fossil File Format}
+  fiveminutes.wiki {Update and Running in 5 Minutes as a Single User}
   foss-cklist.wiki {Checklist For Successful Open-Source Projects}
+  fossil-from-msvc.wiki {Integrating Fossil in the Microsoft Express 2010 IDE}
   fossil-v-git.wiki {Fossil Versus Git}
+  hacker-howto.wiki {Hacker How-To}
+  hints.wiki {Fossil Tips And Usage Hints}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
   makefile.wiki {The Fossil Build Process}
@@ -50,6 +57,7 @@ set doclist {
   tech_overview.wiki {A Technical Overview Of The Design And Implementation
                       Of Fossil}
   tech_overview.wiki {SQLite Databases Used By Fossil}
+  tickets.wiki {The Fossil Ticket System}
   theory1.wiki {Thoughts On The Design Of The Fossil DVCS}
   webui.wiki {The Fossil Web Interface}
   wikitheory.wiki {Wiki In Fossil}

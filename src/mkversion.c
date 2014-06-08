@@ -71,5 +71,19 @@ int main(int argc, char *argv[]){
     printf("#define RELEASE_RESOURCE_VERSION %s", vx);
     while( d<3 ){ printf(",0"); d++; }
     printf("\n");
+#if defined(__DMC__)            /* e.g. 0x857 */
+    d = (__DMC__ & 0xF00) >> 8; /* major */
+    x = (__DMC__ & 0x0F0) >> 4; /* minor */
+    i = (__DMC__ & 0x00F);      /* revision */
+    printf("#define COMPILER_VERSION \"%d.%d.%d\"\n", d, x, i);
+#elif defined(__POCC__)   /* e.g. 700 */
+    d = (__POCC__ / 100); /* major */
+    x = (__POCC__ % 100); /* minor */
+    printf("#define COMPILER_VERSION \"%d.%02d\"\n", d, x);
+#elif defined(_MSC_VER)   /* e.g. 1800 */
+    d = (_MSC_VER / 100); /* major */
+    x = (_MSC_VER % 100); /* minor */
+    printf("#define COMPILER_VERSION \"%d.%02d\"\n", d, x);
+#endif
     return 0;
 }

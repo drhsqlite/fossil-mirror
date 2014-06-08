@@ -4,7 +4,7 @@ This page contains list of URLs of interesting diffs.
 Click on all URLs, one by one, to verify 
 the correct operation of the diff logic.
 
-  *  <a href="../../../info/030035345c#chunk59" target="testwindow">
+  *  <a href="../../../info/030035345c#chunk73" target="testwindow">
      Multiple edits on a single line.</a>  This is an SQLite version
      update diff.  It is a large diff and contains many other interesting
      features.  Scan the whole diff.
@@ -17,8 +17,8 @@ the correct operation of the diff logic.
      The edit of a line with multibyte characters is the first chunk.
   *  <a href="../../../fdiff?v1=57b0d8183cab0e3d&v2=37b3ef49d73cdfe6"
      target="testwindow">Large diff of sqlite3.c</a>.  This diff was very
-     slow prior to the preformance enhancement change [9e15437e97].
-  *  <a href="../../../info/bda00cbada#chunk42" target="testwindow">
+     slow prior to the performance enhancement change [9e15437e97].
+  *  <a href="../../../info/bda00cbada#chunk49" target="testwindow">
      A difficult indentation change.
   *  <a href="../../../fdiff?v1=955cc67ace8fb622&v2=e2e1c87b86664b45#chunk13"
       target="testwindow">Another tricky indentation.</a>  Notice especially
@@ -35,6 +35,10 @@ the correct operation of the diff logic.
       that are difficult to align.
   *  <a href="../../../fdiff?v2=21f9a00fe2fa4a17&v1=d5c4ff0532bd89c3#chunk5"
       target="testwindow">sqlite3.c changes inverted.</a>
+  *  <a href="../../../fdiff?v1=4f70c682e44f&v2=55659c6e062994f"
+      target="testwindow">Lorem Ipsum in Greek.</a>
+  *  <a href="../../../fdiff?v2=4f70c682e44f&v1=55659c6e062994f"
+      target="testwindow">Lorem Ipsum in Greek inverted.</a>
 
 External:
 

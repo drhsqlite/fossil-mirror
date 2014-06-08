@@ -112,7 +112,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     const char *zUser;
     const char *zComment;
     char * zEUser, * zEComment;
-    int mtime, omtime;
+    i64 mtime, omtime;
     v = cson_value_new_object();
     o = cson_value_get_object(v);
 #define SET(K,V) cson_object_set(o,(K), (V))
@@ -120,9 +120,9 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     SET("uuid",json_new_string(zUuid));
     SET("isLeaf", cson_value_new_bool(is_a_leaf(rid)));
 
-    mtime = db_column_int(&q,1);
+    mtime = db_column_int64(&q,1);
     SET("timestamp",json_new_int(mtime));
-    omtime = db_column_int(&q,2);
+    omtime = db_column_int64(&q,2);
     if(omtime && (omtime!=mtime)){
       SET("originTime",json_new_int(omtime));
     }
@@ -133,7 +133,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
                    TAG_USER, rid);
     if(zEUser){
       SET("user", json_new_string(zEUser));
-      if(0!=strcmp(zEUser,zUser)){
+      if(0!=fossil_strcmp(zEUser,zUser)){
         SET("originUser",json_new_string(zUser));
       }
       free(zEUser);
@@ -147,7 +147,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
                    TAG_COMMENT, rid);
     if(zEComment){
       SET("comment",json_new_string(zEComment));
-      if(0 != strcmp(zEComment,zComment)){
+      if(0 != fossil_strcmp(zEComment,zComment)){
         SET("originComment", json_new_string(zComment));
       }
       free(zEComment);
@@ -194,7 +194,7 @@ cson_value * json_artifact_ticket( cson_object * zParent, int rid ){
     json_gc_add("$EVENT_TYPE_LABEL(ticket)", eventTypeLabel);
   }
 
-  pTktChng = manifest_get(rid, CFTYPE_TICKET);
+  pTktChng = manifest_get(rid, CFTYPE_TICKET, 0);
   if( pTktChng==0 ){
     g.json.resultCode = FSL_JSON_E_MANIFEST_READ_FAILED;
     return NULL;
@@ -247,16 +247,16 @@ static ArtifactDispatchEntry ArtifactDispatchList[] = {
 ** if either the includeContent (HTTP) or -content|-c boolean flags
 ** (CLI) are set.
 */ 
-static char json_artifact_get_content_format_flag(){
+static int json_artifact_get_content_format_flag(){
   enum { MagicValue = -9 };
-  char contentFormat = json_wiki_get_content_format_flag(MagicValue);
+  int contentFormat = json_wiki_get_content_format_flag(MagicValue);
   if(MagicValue == contentFormat){
     contentFormat = json_find_option_bool("includeContent","content","c",0) /* deprecated */ ? -1 : 0;
   }
   return contentFormat;
 }
 
-extern char json_wiki_get_content_format_flag( char defaultValue ) /* json_wiki.c */;
+extern int json_wiki_get_content_format_flag( int defaultValue ) /* json_wiki.c */;
 
 cson_value * json_artifact_wiki(cson_object * zParent, int rid){
   if( ! g.perm.RdWiki ){
@@ -265,7 +265,7 @@ cson_value * json_artifact_wiki(cson_object * zParent, int rid){
     return NULL;
   }else{
     enum { MagicValue = -9 };
-    char const contentFormat = json_artifact_get_content_format_flag();
+    int const contentFormat = json_artifact_get_content_format_flag();
     return json_get_wiki_page_by_rid(rid, contentFormat);
   }
 }
@@ -291,7 +291,7 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
   cson_object * pay = NULL;
   Stmt q = empty_Stmt;
   cson_array * checkin_arr = NULL;
-  char contentFormat;
+  int contentFormat;
   i64 contentSize = -1;
   char * parentUuid;
   if( ! g.perm.Read ){
@@ -472,7 +472,7 @@ cson_value * json_page_artifact(){
   pay = cson_new_object();
   assert( (NULL != zType) && "Internal dispatching error." );
   for( ; dispatcher->name; ++dispatcher ){
-    if(0!=strcmp(dispatcher->name, zType)){
+    if(0!=fossil_strcmp(dispatcher->name, zType)){
       continue;
     }else{
       entry = (*dispatcher->func)(pay, rid);

@@ -1,4 +1,7 @@
 #ifdef FOSSIL_ENABLE_JSON
+#ifndef CSON_FOSSIL_MODE
+#define CSON_FOSSIL_MODE
+#endif
 /* auto-generated! Do not edit! */
 /* begin file include/wh/cson/cson.h */
 #if !defined(WANDERINGHORSE_NET_CSON_H_INCLUDED)
@@ -50,7 +53,11 @@ extern "C" {
 Typedef for JSON-like integer types. This is (long long) where feasible,
 otherwise (long).
 */
-#if (__STDC_VERSION__ >= 199901L) || (HAVE_LONG_LONG == 1)
+#ifdef _WIN32
+typedef __int64 cson_int_t;
+#define CSON_INT_T_SFMT "I64d"
+#define CSON_INT_T_PFMT "I64d"
+#elif (__STDC_VERSION__ >= 199901L) || (HAVE_LONG_LONG == 1)
 typedef long long cson_int_t;
 #define CSON_INT_T_SFMT "lld"
 #define CSON_INT_T_PFMT "lld"

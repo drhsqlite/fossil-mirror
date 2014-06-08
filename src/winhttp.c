@@ -63,17 +63,20 @@ static int find_content_length(const char *zHdr){
 /*
 ** Process a single incoming HTTP request.
 */
-static void win32_process_one_http_request(void *pAppData){
+static void win32_http_request(void *pAppData){
   HttpRequest *p = (HttpRequest*)pAppData;
   FILE *in = 0, *out = 0;
   int amt, got;
   int wanted = 0;
   char *z;
+  char zCmdFName[MAX_PATH];
   char zRequestFName[MAX_PATH];
   char zReplyFName[MAX_PATH];
   char zCmd[2000];          /* Command-line to process the request */
   char zHdr[2000];          /* The HTTP request header */
 
+  sqlite3_snprintf(MAX_PATH, zCmdFName,
+                   "%s_cmd%d.txt", zTempPrefix, p->id);
   sqlite3_snprintf(MAX_PATH, zRequestFName,
                    "%s_in%d.txt", zTempPrefix, p->id);
   sqlite3_snprintf(MAX_PATH, zReplyFName,
@@ -110,7 +113,77 @@ static void win32_process_one_http_request(void *pAppData){
   }
   fclose(out);
   out = 0;
-  sqlite3_snprintf(sizeof(zCmd), zCmd, "\"%s\" http \"%s\" %s %s %s --nossl%s",
+  sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s\n%s",
+    get_utf8_bom(0), g.zRepositoryName, zRequestFName, zReplyFName,
+    inet_ntoa(p->addr.sin_addr)
+  );
+  out = fossil_fopen(zCmdFName, "wb");
+  if( out==0 ) goto end_request;
+  fwrite(zCmd, 1, strlen(zCmd), out);
+  fclose(out);
+
+  sqlite3_snprintf(sizeof(zCmd), zCmd, "\"%s\" http -args \"%s\" --nossl%s",
+    g.nameOfExe, zCmdFName, p->zOptions
+  );
+  fossil_system(zCmd);
+  in = fossil_fopen(zReplyFName, "rb");
+  if( in ){
+    while( (got = fread(zHdr, 1, sizeof(zHdr), in))>0 ){
+      send(p->s, zHdr, got, 0);
+    }
+  }
+
+end_request:
+  if( out ) fclose(out);
+  if( in ) fclose(in);
+  closesocket(p->s);
+  file_delete(zRequestFName);
+  file_delete(zReplyFName);
+  file_delete(zCmdFName);
+  free(p);
+}
+
+/*
+** Process a single incoming SCGI request.
+*/
+static void win32_scgi_request(void *pAppData){
+  HttpRequest *p = (HttpRequest*)pAppData;
+  FILE *in = 0, *out = 0;
+  int amt, got, nHdr, i;
+  int wanted = 0;
+  char zRequestFName[MAX_PATH];
+  char zReplyFName[MAX_PATH];
+  char zCmd[2000];          /* Command-line to process the request */
+  char zHdr[2000];          /* The SCGI request header */
+
+  sqlite3_snprintf(MAX_PATH, zRequestFName,
+                   "%s_in%d.txt", zTempPrefix, p->id);
+  sqlite3_snprintf(MAX_PATH, zReplyFName,
+                   "%s_out%d.txt", zTempPrefix, p->id);
+  out = fossil_fopen(zRequestFName, "wb");
+  if( out==0 ) goto end_request;
+  amt = 0;
+  got = recv(p->s, zHdr, sizeof(zHdr), 0);
+  if( got==SOCKET_ERROR ) goto end_request;
+  amt = fwrite(zHdr, 1, got, out);
+  nHdr = 0;
+  for(i=0; zHdr[i]>='0' && zHdr[i]<='9'; i++){
+    nHdr = 10*nHdr + zHdr[i] - '0';
+  }
+  wanted = nHdr + i + 1;
+  if( strcmp(zHdr+i+1, "CONTENT_LENGTH")==0 ){
+    wanted += atoi(zHdr+i+15);
+  }
+  while( wanted>amt ){
+    got = recv(p->s, zHdr, wanted<sizeof(zHdr) ? wanted : sizeof(zHdr), 0);
+    if( got<=0 ) break;
+    fwrite(zHdr, 1, got, out);
+    wanted += got;
+  }
+  fclose(out);
+  out = 0;
+  sqlite3_snprintf(sizeof(zCmd), zCmd,
+    "\"%s\" http \"%s\" %s %s %s --scgi --nossl%s",
     g.nameOfExe, g.zRepositoryName, zRequestFName, zReplyFName,
     inet_ntoa(p->addr.sin_addr), p->zOptions
   );
@@ -131,6 +204,7 @@ end_request:
   free(p);
 }
 
+
 /*
 ** Start a listening socket and process incoming HTTP requests on
 ** that socket.
@@ -141,6 +215,7 @@ void win32_http_server(
   const char *zStopper,     /* Stop server when this file is exists (Or NULL) */
   const char *zNotFound,    /* The --notfound option, or NULL */
   const char *zFileGlob,    /* The --fileglob option, or NULL */
+  const char *zIpAddr,      /* Bind to this IP address, if not NULL */
   int flags                 /* One or more HTTP_SERVER_ flags */
 ){
   WSADATA wd;
@@ -149,7 +224,7 @@ void win32_http_server(
   int idCnt = 0;
   int iPort = mnPort;
   Blob options;
-  WCHAR zTmpPath[MAX_PATH];
+  wchar_t zTmpPath[MAX_PATH];
 
   if( zStopper ) file_delete(zStopper);
   blob_zero(&options);
@@ -172,7 +247,12 @@ void win32_http_server(
     }
     addr.sin_family = AF_INET;
     addr.sin_port = htons(iPort);
-    if( flags & HTTP_SERVER_LOCALHOST ){
+    if( zIpAddr ){
+      addr.sin_addr.s_addr = inet_addr(zIpAddr);
+      if( addr.sin_addr.s_addr == (-1) ){
+        fossil_fatal("not a valid IP address: %s", zIpAddr);
+      }
+    }else if( flags & HTTP_SERVER_LOCALHOST ){
       addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     }else{
       addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -200,8 +280,10 @@ void win32_http_server(
   if( !GetTempPathW(MAX_PATH, zTmpPath) ){
     fossil_fatal("unable to get path to the temporary directory.");
   }
-  zTempPrefix = mprintf("%sfossil_server_P%d_", fossil_unicode_to_utf8(zTmpPath), iPort);
-  fossil_print("Listening for HTTP requests on TCP port %d\n", iPort);
+  zTempPrefix = mprintf("%sfossil_server_P%d_",
+                        fossil_unicode_to_utf8(zTmpPath), iPort);
+  fossil_print("Listening for %s requests on TCP port %d\n",
+               (flags&HTTP_SERVER_SCGI)!=0?"SCGI":"HTTP", iPort);
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
     fossil_print("Launch webbrowser: %s\n", zBrowser);
@@ -239,7 +321,11 @@ void win32_http_server(
     p->s = client;
     p->addr = client_addr;
     p->zOptions = blob_str(&options);
-    _beginthread(win32_process_one_http_request, 0, (void*)p);
+    if( flags & HTTP_SERVER_SCGI ){
+      _beginthread(win32_scgi_request, 0, (void*)p);
+    }else{
+      _beginthread(win32_http_request, 0, (void*)p);
+    }
   }
   closesocket(s);
   WSACleanup();
@@ -256,7 +342,7 @@ struct HttpService {
   const char *zFileGlob;    /* The --files option, or NULL */
   int flags;                /* One or more HTTP_SERVER_ flags */
   int isRunningAsService;   /* Are we running as a service ? */
-  const WCHAR *zServiceName;/* Name of the service */
+  const wchar_t *zServiceName;/* Name of the service */
   SOCKET s;                 /* Socket on which the http server listens */
 };
 
@@ -404,7 +490,7 @@ static void WINAPI win32_http_service_main(
 
    /* Execute the http server */
   win32_http_server(hsData.port, hsData.port,
-                    NULL, NULL, hsData.zNotFound, hsData.zFileGlob,
+                    NULL, NULL, hsData.zNotFound, hsData.zFileGlob, 0,
                     hsData.flags);
 
   /* Service has stopped now. */
@@ -534,6 +620,10 @@ int win32_http_service(
 **              and the "localauth" setting is off and the connection is from
 **              localhost.
 **
+**         --scgi
+**
+**              Create an SCGI server instead of an HTTP server
+**
 **
 **    fossil winsrv delete ?SERVICE-NAME?
 **
@@ -587,6 +677,7 @@ void cmd_win32_service(void){
     const char *zFileGlob   = find_option("files", 0, 1);
     const char *zLocalAuth  = find_option("localauth", 0, 0);
     const char *zRepository = find_option("repository", "R", 1);
+    int useSCGI             = find_option("scgi", 0, 0)!=0;
     Blob binPath;
 
     verify_all_options();
@@ -627,6 +718,7 @@ void cmd_win32_service(void){
     blob_zero(&binPath);
     blob_appendf(&binPath, "\"%s\" server", g.nameOfExe);
     if( zPort ) blob_appendf(&binPath, " --port %s", zPort);
+    if( useSCGI ) blob_appendf(&binPath, " --scgi");
     if( zNotFound ) blob_appendf(&binPath, " --notfound \"%s\"", zNotFound);
     if( zFileGlob ) blob_appendf(&binPath, " --files-urlenc %T", zFileGlob);
     if( zLocalAuth ) blob_append(&binPath, " --localauth", -1);

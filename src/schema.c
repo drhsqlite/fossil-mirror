@@ -23,7 +23,7 @@
 /*
 ** The database schema for the ~/.fossil configuration database.
 */
-const char zConfigSchema[] = 
+const char zConfigSchema[] =
 @ -- This file contains the schema for the database that is kept in the
 @ -- ~/.fossil file and that stores information about the users setup.
 @ --
@@ -31,6 +31,10 @@ const char zConfigSchema[] =
 @   name TEXT PRIMARY KEY,
 @   value TEXT
 @ );
+@
+@ -- Identifier for this file type.
+@ -- The integer is the same as 'FSLG'.
+@ PRAGMA application_id=252006675;
 ;
 
 #if INTERFACE
@@ -48,7 +52,7 @@ const char zConfigSchema[] =
 
 
 /*
-** The schema for a repository database.  
+** The schema for a repository database.
 **
 ** Schema1[] contains parts of the schema that are fixed and unchanging
 ** across versions.  Schema2[] contains parts of the schema that can
@@ -56,7 +60,7 @@ const char zConfigSchema[] =
 ** is reconstructed from the information in Schema1[] by the "rebuild"
 ** operation.
 */
-const char zRepositorySchema1[] = 
+const char zRepositorySchema1[] =
 @ -- The BLOB and DELTA tables contain all records held in the repository.
 @ --
 @ -- The BLOB.CONTENT column is always compressed using zlib.  This
@@ -67,7 +71,7 @@ const char zRepositorySchema1[] =
 @ -- entry that holds the source of the delta.  Deltas can be chained.
 @ --
 @ -- The blob and delta tables collectively hold the "global state" of
-@ -- a Fossil repository.  
+@ -- a Fossil repository.
 @ --
 @ CREATE TABLE blob(
 @   rid INTEGER PRIMARY KEY,        -- Record ID
@@ -87,7 +91,7 @@ const char zRepositorySchema1[] =
 @ -- The BLOB and DELTA tables above hold the "global state" of a Fossil
 @ -- project; the stuff that is normally exchanged during "sync".  The
 @ -- "local state" of a repository is contained in the remaining tables of
-@ -- the zRepositorySchema1 string.  
+@ -- the zRepositorySchema1 string.
 @ -------------------------------------------------------------------------
 @
 @ -- Whenever new blobs are received into the repository, an entry
@@ -166,7 +170,32 @@ const char zRepositorySchema1[] =
 @    cols TEXT,               -- A color-key specification
 @    sqlcode TEXT             -- An SQL SELECT statement for this report
 @ );
-@ INSERT INTO reportfmt(title,mtime,cols,sqlcode) 
+@
+@ -- Some ticket content (such as the originators email address or contact
+@ -- information) needs to be obscured to protect privacy.  This is achieved
+@ -- by storing an SHA1 hash of the content.  For display, the hash is
+@ -- mapped back into the original text using this table.
+@ --
+@ -- This table contains sensitive information and should not be shared
+@ -- with unauthorized users.
+@ --
+@ CREATE TABLE concealed(
+@   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
+@   mtime DATE,               -- Time created.  Seconds since 1970
+@   content TEXT              -- Content intended to be concealed
+@ );
+@
+@ -- The application ID helps the unix "file" command to identify the
+@ -- database as a fossil repository.
+@ PRAGMA application_id=252006673;
+;
+
+/*
+** The default reportfmt entry for the schema. This is in an extra
+** script so that (configure reset) can install the default report.
+*/
+const char zRepositorySchemaDefaultReports[] =
+@ INSERT INTO reportfmt(title,mtime,cols,sqlcode)
 @ VALUES('All Tickets',julianday('1970-01-01'),'#ffffff Key:
 @ #f2dcdc Active
 @ #e8e8e8 Review
@@ -187,20 +216,6 @@ const char zRepositorySchema1[] =
 @   subsystem,
 @   title
 @ FROM ticket');
-@
-@ -- Some ticket content (such as the originators email address or contact
-@ -- information) needs to be obscured to protect privacy.  This is achieved
-@ -- by storing an SHA1 hash of the content.  For display, the hash is
-@ -- mapped back into the original text using this table.  
-@ --
-@ -- This table contains sensitive information and should not be shared
-@ -- with unauthorized users.
-@ --
-@ CREATE TABLE concealed(
-@   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
-@   mtime DATE,               -- Time created.  Seconds since 1970
-@   content TEXT              -- Content intended to be concealed
-@ );
 ;
 
 const char zRepositorySchema2[] =
@@ -308,9 +323,9 @@ const char zRepositorySchema2[] =
 @
 @ -- Each baseline or manifest can have one or more tags.  A tag
 @ -- is defined by a row in the next table.
-@ -- 
+@ --
 @ -- Wiki pages are tagged with "wiki-NAME" where NAME is the name of
-@ -- the wiki page.  Tickets changes are tagged with "ticket-UUID" where 
+@ -- the wiki page.  Tickets changes are tagged with "ticket-UUID" where
 @ -- UUID is the indentifier of the ticket.  Tags used to assign symbolic
 @ -- names to baselines are branches are of the form "sym-NAME" where
 @ -- NAME is the symbolic name.
@@ -387,6 +402,7 @@ const char zRepositorySchema2[] =
 @   tkt_id INTEGER PRIMARY KEY,
 @   tkt_uuid TEXT UNIQUE,
 @   tkt_mtime DATE,
+@   tkt_ctime DATE,
 @   -- Add as many field as required below this line
 @   type TEXT,
 @   status TEXT,
@@ -402,6 +418,7 @@ const char zRepositorySchema2[] =
 @ CREATE TABLE ticketchng(
 @   -- Do not change any column that begins with tkt_
 @   tkt_id INTEGER REFERENCES ticket,
+@   tkt_rid INTEGER REFERENCES blob,
 @   tkt_mtime DATE,
 @   -- Add as many fields as required below this line
 @   login TEXT,
@@ -420,8 +437,8 @@ const char zRepositorySchema2[] =
 # define TAG_COMMENT    2     /* The check-in comment */
 # define TAG_USER       3     /* User who made a checking */
 # define TAG_DATE       4     /* The date of a check-in */
-# define TAG_HIDDEN     5     /* Do not display or sync */
-# define TAG_PRIVATE    6     /* Display but do not sync */
+# define TAG_HIDDEN     5     /* Do not display in timeline */
+# define TAG_PRIVATE    6     /* Do not sync */
 # define TAG_CLUSTER    7     /* A cluster */
 # define TAG_BRANCH     8     /* Value is name of the current branch */
 # define TAG_CLOSED     9     /* Do not display this check-in as a leaf */
@@ -460,21 +477,21 @@ const char zLocalSchema[] =
 @ -- added but not yet committed.
 @ --
 @ -- Vfile.chnged is 0 for unmodified files, 1 for files that have
-@ -- been edited or which have been subjected to a 3-way merge.  
+@ -- been edited or which have been subjected to a 3-way merge.
 @ -- Vfile.chnged is 2 if the file has been replaced from a different
 @ -- version by the merge and 3 if the file has been added by a merge.
-@ -- The difference between vfile.chnged==2 and a regular add is that
-@ -- with vfile.chnged==2 we know that the current version of the file
-@ -- is already in the repository.
-@ -- 
+@ -- Vfile.chnged is 4|5 is the same as 2|3, but the operation has been
+@ -- done by an --integrate merge.  The difference between vfile.chnged==2|4
+@ -- and a regular add is that with vfile.chnged==2|4 we know that the
+@ -- current version of the file is already in the repository.
 @ --
 @ CREATE TABLE vfile(
 @   id INTEGER PRIMARY KEY,           -- ID of the checked out file
 @   vid INTEGER REFERENCES blob,      -- The baseline this file is part of.
-@   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add
-@   deleted BOOLEAN DEFAULT 0,        -- True if deleted 
+@   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add 4:i-chng 5:i-add
+@   deleted BOOLEAN DEFAULT 0,        -- True if deleted
 @   isexe BOOLEAN,                    -- True if file should be executable
-@   islink BOOLEAN,                    -- True if file should be symlink
+@   islink BOOLEAN,                   -- True if file should be symlink
 @   rid INTEGER,                      -- Originally from this repository record
 @   mrid INTEGER,                     -- Based on this record due to a merge
 @   mtime INTEGER,                    -- Mtime of file on disk. sec since 1970
@@ -487,13 +504,17 @@ const char zLocalSchema[] =
 @ -- file tree.  If a VFILE entry with id has merged with another
 @ -- record, there is an entry in this table with (id,merge) where
 @ -- merge is the RECORD table entry that the file merged against.
-@ -- An id of 0 here means the version record itself.  When id==(-1)
-@ -- that is a cherrypick merge and id==(-2) is a backout merge.
+@ -- An id of 0 or <-3 here means the version record itself.  When
+@ -- id==(-1) that is a cherrypick merge, id==(-2) that is a
+@ -- backout merge and id==(-4) is a integrate merge.
 @
 @ CREATE TABLE vmerge(
 @   id INTEGER REFERENCES vfile,      -- VFILE entry that has been merged
 @   merge INTEGER,                    -- Merged with this record
 @   UNIQUE(id, merge)
 @ );
-@   
+@
+@ -- Identifier for this file type.
+@ -- The integer is the same as 'FSLC'.
+@ PRAGMA application_id=252006674;
 ;

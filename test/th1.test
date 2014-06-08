@@ -1,0 +1,479 @@
+#
+# Copyright (c) 2011 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# TH1 Commands
+#
+
+fossil test-th-eval --th-open-config "setting abc"
+test th1-setting-1 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -- abc"
+test th1-setting-2 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -strict abc"
+test th1-setting-3 {$RESULT eq {TH_ERROR: no value for setting "abc"}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -strict -- abc"
+test th1-setting-4 {$RESULT eq {TH_ERROR: no value for setting "abc"}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting autosync"
+test th1-setting-5 {$RESULT eq 0 || $RESULT eq 1}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -strict autosync"
+test th1-setting-6 {$RESULT eq 0 || $RESULT eq 1}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting --"
+test th1-setting-7 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "setting ?-strict? ?--? name"}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -strict --"
+test th1-setting-8 {$RESULT eq \
+{TH_ERROR: wrong # args: should be "setting ?-strict? ?--? name"}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -- --"
+test th1-setting-9 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "setting -strict -- --"
+test th1-setting-10 {$RESULT eq {TH_ERROR: no value for setting "--"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42/0"
+test th1-divide-by-zero-1 {$RESULT eq {TH_ERROR: Divide by 0: 42}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42/0.0"
+test th1-divide-by-zero-2 {$RESULT eq {TH_ERROR: Divide by 0: 42}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42.0/0"
+test th1-divide-by-zero-3 {$RESULT eq {TH_ERROR: Divide by 0: 42.0}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42.0/0.0"
+test th1-divide-by-zero-4 {$RESULT eq {TH_ERROR: Divide by 0: 42.0}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42%0"
+test th1-modulus-by-zero-1 {$RESULT eq {TH_ERROR: Modulo by 0: 42}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42%0.0"
+test th1-modulus-by-zero-2 {$RESULT eq {TH_ERROR: expected integer, got: "0.0"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42.0%0"
+test th1-modulus-by-zero-3 {$RESULT eq \
+{TH_ERROR: expected integer, got: "42.0"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42.0%0.0"
+test th1-modulus-by-zero-4 {$RESULT eq \
+{TH_ERROR: expected integer, got: "42.0"}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; info exists var"
+test th1-info-exists-1 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var; info exists var"
+test th1-info-exists-2 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var; set var 2; info exists var"
+test th1-info-exists-3 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; expr {\$var+0}"
+test th1-info-exists-4 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var; expr {\$var+0}"
+test th1-info-exists-5 {$RESULT eq {TH_ERROR: no such variable: var}}
+
+###############################################################################
+
+fossil test-th-eval "catch {bad}; info exists var; set th_stack_trace"
+test th1-info-exists-6 {$RESULT eq {bad}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; info exists var"
+test th1-info-exists-7 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; unset var(1); info exists var"
+test th1-info-exists-8 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; unset var; info exists var"
+test th1-info-exists-9 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; info exists var(1)"
+test th1-info-exists-10 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; unset var(1); info exists var(1)"
+test th1-info-exists-11 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; unset var; info exists var(1)"
+test th1-info-exists-12 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var"
+test th1-unset-1 {$RESULT eq {var}}
+
+###############################################################################
+
+fossil test-th-eval "unset var"
+test th1-unset-2 {$RESULT eq {TH_ERROR: no such variable: var}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var; unset var"
+test th1-unset-3 {$RESULT eq {TH_ERROR: no such variable: var}}
+
+###############################################################################
+
+fossil test-th-eval "set gv 1; proc p {} {upvar 1 gv lv; unset lv}; p; unset gv"
+test th1-unset-4 {$RESULT eq {TH_ERROR: no such variable: gv}}
+
+###############################################################################
+
+fossil test-th-eval "set gv 1; upvar 0 gv gv2; info exists gv2"
+test th1-unset-5 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set gv 1; upvar 0 gv gv2; unset gv; unset gv2"
+test th1-unset-6 {$RESULT eq {TH_ERROR: no such variable: gv2}}
+
+###############################################################################
+
+fossil test-th-eval "set gv 1; upvar 0 gv gv2(1); unset gv; unset gv2(1)"
+test th1-unset-7 {$RESULT eq {TH_ERROR: no such variable: gv2(1)}}
+
+###############################################################################
+
+fossil test-th-eval "set gv(1) 1; upvar 0 gv(1) gv2; unset gv(1); unset gv2"
+test th1-unset-8 {$RESULT eq {TH_ERROR: no such variable: gv2}}
+
+###############################################################################
+
+fossil test-th-eval "string first {} {}"
+test th1-string-first-1 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {} {a}"
+test th1-string-first-2 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {a} {}"
+test th1-string-first-3 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {a} {a}"
+test th1-string-first-4 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string first {a} {aa}"
+test th1-string-first-5 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string first {aa} {a}"
+test th1-string-first-6 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {ab} {abc}"
+test th1-string-first-7 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string first {bc} {abc}"
+test th1-string-first-8 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {AB} {abc}"
+test th1-string-first-9 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {} {}"
+test th1-string-last-1 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {} {a}"
+test th1-string-last-2 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {a} {}"
+test th1-string-last-3 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {a} {a}"
+test th1-string-last-4 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string last {a} {aa}"
+test th1-string-last-5 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {aa} {a}"
+test th1-string-last-6 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {ab} {abc}"
+test th1-string-last-7 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string last {bc} {abc}"
+test th1-string-last-8 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {AB} {abc}"
+test th1-string-last-9 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr -2147483649.0"
+test th1-expr-1 {$RESULT eq {-2147483649.0}}
+
+###############################################################################
+
+fossil test-th-eval "expr -2147483649"
+test th1-expr-2 {$RESULT eq {2147483647}}
+
+###############################################################################
+
+fossil test-th-eval "expr -2147483648"
+test th1-expr-3 {$RESULT eq {-2147483648}}
+
+###############################################################################
+
+fossil test-th-eval "expr -2147483647"
+test th1-expr-4 {$RESULT eq {-2147483647}}
+
+###############################################################################
+
+fossil test-th-eval "expr -1"
+test th1-expr-5 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0"
+test th1-expr-6 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0.0"
+test th1-expr-7 {$RESULT eq {0.0}}
+
+###############################################################################
+
+fossil test-th-eval "expr 1"
+test th1-expr-8 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "expr 2147483647"
+test th1-expr-9 {$RESULT eq {2147483647}}
+
+###############################################################################
+
+fossil test-th-eval "expr 2147483648"
+test th1-expr-10 {$RESULT eq {2147483648}}
+
+###############################################################################
+
+fossil test-th-eval "expr 2147483649"
+test th1-expr-11 {$RESULT eq {2147483649}}
+
+###############################################################################
+
+fossil test-th-eval "expr +2147483649"
+test th1-expr-12 {$RESULT eq {-2147483647}}
+
+###############################################################################
+
+fossil test-th-eval "expr +2147483649.0"
+test th1-expr-13 {$RESULT eq {2147483649.0}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~(-1)"
+test th1-expr-14 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~-1"
+test th1-expr-15 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~0"
+test th1-expr-16 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~+0"
+test th1-expr-17 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~-0"
+test th1-expr-18 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~(+0)"
+test th1-expr-19 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~(-0)"
+test th1-expr-20 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~1"
+test th1-expr-21 {$RESULT eq {-2}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~+1"
+test th1-expr-22 {$RESULT eq {-2}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~(+1)"
+test th1-expr-23 {$RESULT eq {-2}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0b11"
+test th1-expr-24 {$RESULT eq 3}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0o15"
+test th1-expr-25 {$RESULT eq 13}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0x15"
+test th1-expr-26 {$RESULT eq 21}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0b2"
+test th1-expr-27 {$RESULT eq {TH_ERROR: expected number, got: "0b2"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0o8"
+test th1-expr-28 {$RESULT eq {TH_ERROR: expected number, got: "0o8"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0xg"
+test th1-expr-29 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0xg"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0b1."
+test th1-expr-30 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0b1."}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0o1."
+test th1-expr-31 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0o1."}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0x1."
+test th1-expr-32 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0x1."}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0ne5"
+test th1-expr-33 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0b1+5"
+test th1-expr-34 {$RESULT eq {6}}
+
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0b"
+test th1-expr-35 {$RESULT eq {TH_ERROR: expected number, got: "0b"}}
+
+

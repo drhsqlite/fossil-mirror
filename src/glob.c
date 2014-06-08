@@ -31,16 +31,17 @@
 **
 **    Result:     "(x GLOB '*.o' OR x GLOB '*.obj')"
 **
-** Each element of the GLOB list may optionally be enclosed in either '...'
-** or "...".  This allows commas in the expression.  Whitespace at the
-** beginning and end of each GLOB pattern is ignored, except when enclosed
-** within '...' or "...".
+** Commas and whitespace are considered to be element delimters.  Each
+** element of the GLOB list may optionally be enclosed in either '...' or
+** "...".  This allows commas and/or whitespace to be used in the elements
+** themselves.
 **
-** This routine makes no effort to free the memory space it uses.
+** This routine makes no effort to free the memory space it uses, which
+** currently consists of a blob object and its contents.
 */
 char *glob_expr(const char *zVal, const char *zGlobList){
   Blob expr;
-  char *zSep = "(";
+  const char *zSep = "(";
   int nTerm = 0;
   int i;
   int cTerm;
@@ -48,7 +49,9 @@ char *glob_expr(const char *zVal, const char *zGlobList){
   if( zGlobList==0 || zGlobList[0]==0 ) return "0";
   blob_zero(&expr);
   while( zGlobList[0] ){
-    while( fossil_isspace(zGlobList[0]) || zGlobList[0]==',' ) zGlobList++;
+    while( fossil_isspace(zGlobList[0]) || zGlobList[0]==',' ){
+      zGlobList++;  /* Skip leading commas, spaces, and newlines */
+    }
     if( zGlobList[0]==0 ) break;
     if( zGlobList[0]=='\'' || zGlobList[0]=='"' ){
       cTerm = zGlobList[0];
@@ -56,9 +59,10 @@ char *glob_expr(const char *zVal, const char *zGlobList){
     }else{
       cTerm = ',';
     }
-    for(i=0; zGlobList[i] && zGlobList[i]!=cTerm; i++){}
-    if( cTerm==',' ){
-      while( i>0 && fossil_isspace(zGlobList[i-1]) ){ i--; }
+    /* Find the next delimter (or the end of the string). */
+    for(i=0; zGlobList[i] && zGlobList[i]!=cTerm; i++){
+      if( cTerm!=',' ) continue; /* If quoted, keep going. */
+      if( fossil_isspace(zGlobList[i]) ) break; /* If space, stop. */
     }
     blob_appendf(&expr, "%s%s GLOB '%#q'", zSep, zVal, i, zGlobList);
     zSep = " OR ";
@@ -87,11 +91,11 @@ struct Glob {
 #endif /* INTERFACE */
 
 /*
-** zPatternList is a comma-separate list of glob patterns.  Parse up
+** zPatternList is a comma-separated list of glob patterns.  Parse up
 ** that list and use it to create a new Glob object.
 **
 ** Elements of the glob list may be optionally enclosed in single our
-** double-quotes.  This allows a comma to be part of a glob.
+** double-quotes.  This allows a comma to be part of a glob pattern.
 **
 ** Leading and trailing spaces on unquoted glob patterns are ignored.
 **
@@ -100,7 +104,7 @@ struct Glob {
 */
 Glob *glob_create(const char *zPatternList){
   int nList;         /* Size of zPatternList in bytes */
-  int i, j;          /* Loop counters */
+  int i;             /* Loop counters */
   Glob *p;           /* The glob being created */
   char *z;           /* Copy of the pattern list */
   char delimiter;    /* '\'' or '\"' or 0 */
@@ -112,23 +116,22 @@ Glob *glob_create(const char *zPatternList){
   z = (char*)&p[1];
   memcpy(z, zPatternList, nList+1);
   while( z[0] ){
-    while( z[0]==',' || z[0]==' ' || z[0]=='\n' || z[0]=='\r' ){
-      z++;  /* Skip leading spaces and newlines */
+    while( fossil_isspace(z[0]) || z[0]==',' ){
+      z++;  /* Skip leading commas, spaces, and newlines */
     }
+    if( z[0]==0 ) break;
     if( z[0]=='\'' || z[0]=='"' ){
       delimiter = z[0];
       z++;
     }else{
       delimiter = ',';
     }
-    if( z[0]==0 ) break;
     p->azPattern = fossil_realloc(p->azPattern, (p->nPattern+1)*sizeof(char*) );
     p->azPattern[p->nPattern++] = z;
-    for(i=0; z[i] && z[i]!=delimiter && z[i]!='\n' && z[i]!='\r'; i++){}
-    if( delimiter==',' ){
-      /* Remove trailing spaces / newlines on a comma-delimited pattern */
-      for(j=i; j>1 && (z[j-1]==' ' || z[j-1]=='\n' || z[j-1]=='\r'); j--){}
-      if( j<i ) z[j] = 0;
+    /* Find the next delimter (or the end of the string). */
+    for(i=0; z[i] && z[i]!=delimiter; i++){
+      if( delimiter!=',' ) continue; /* If quoted, keep going. */
+      if( fossil_isspace(z[i]) ) break; /* If space, stop. */
     }
     if( z[i]==0 ) break;
     z[i] = 0;
@@ -153,67 +156,7 @@ Glob *glob_create(const char *zPatternList){
 **     [^...]     Matches one character not in the enclosed list.
 */
 int strglob(const char *zGlob, const char *z){
-  int c, c2;
-  int invert;
-  int seen;
-
-  while( (c = (*(zGlob++)))!=0 ){
-    if( c=='*' ){
-      while( (c=(*(zGlob++))) == '*' || c=='?' ){
-        if( c=='?' && (*(z++))==0 ) return 0;
-      }
-      if( c==0 ){
-        return 1;
-      }else if( c=='[' ){
-        while( *z && strglob(zGlob-1,z)==0 ){
-          z++;
-        }
-        return (*z)!=0;
-      }
-      while( (c2 = (*(z++)))!=0 ){
-        while( c2!=c ){
-          c2 = *(z++);
-          if( c2==0 ) return 0;
-        }
-        if( strglob(zGlob,z) ) return 1;
-      }
-      return 0;
-    }else if( c=='?' ){
-      if( (*(z++))==0 ) return 0;
-    }else if( c=='[' ){
-      int prior_c = 0;
-      seen = 0;
-      invert = 0;
-      c = *(z++);
-      if( c==0 ) return 0;
-      c2 = *(zGlob++);
-      if( c2=='^' ){
-        invert = 1;
-        c2 = *(zGlob++);
-      }
-      if( c2==']' ){
-        if( c==']' ) seen = 1;
-        c2 = *(zGlob++);
-      }
-      while( c2 && c2!=']' ){
-        if( c2=='-' && zGlob[0]!=']' && zGlob[0]!=0 && prior_c>0 ){
-          c2 = *(zGlob++);
-          if( c>=prior_c && c<=c2 ) seen = 1;
-          prior_c = 0;
-        }else{
-          if( c==c2 ){
-            seen = 1;
-          }
-          prior_c = c2;
-        }
-        c2 = *(zGlob++);
-      }
-      if( c2==0 || (seen ^ invert)==0 ) return 0;
-    }else{
-      if( c!=(*(z++)) ) return 0;
-    }
-  }
-  return *z==0;
+  return sqlite3_strglob(zGlob, z)==0;
 }
 
 /*
@@ -227,7 +170,7 @@ int glob_match(Glob *pGlob, const char *zString){
   int i;
   if( pGlob==0 ) return 0;
   for(i=0; i<pGlob->nPattern; i++){
-    if( strglob(pGlob->azPattern[i], zString) ) return i+1;
+    if( sqlite3_strglob(pGlob->azPattern[i], zString)==0 ) return i+1;
   }
   return 0;
 }
@@ -247,15 +190,28 @@ void glob_free(Glob *pGlob){
 **
 ** Usage:  %fossil test-glob PATTERN STRING...
 **
-** PATTERN is a comma-separated list of glob patterns.  Show which of
-** the STRINGs that follow match the PATTERN.
+** PATTERN is a comma- and whitespace-separated list of optionally
+** quoted glob patterns.  Show which of the STRINGs that follow match
+** the PATTERN.
+**
+** If PATTERN begins with "@" the rest of the pattern is understood
+** to be a setting name (such as binary-glob, crln-glob, or encoding-glob)
+** and the value of that setting is used as the actually glob pattern.
 */
 void glob_test_cmd(void){
   Glob *pGlob;
   int i;
+  char *zPattern;
   if( g.argc<4 ) usage("PATTERN STRING ...");
-  fossil_print("SQL expression: %s\n", glob_expr("x", g.argv[2]));
-  pGlob = glob_create(g.argv[2]);
+  zPattern = g.argv[2];
+  if( zPattern[0]=='@' ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA,0);
+    zPattern = db_get(zPattern+1, 0);
+    if( zPattern==0 ) fossil_fatal("no such setting: %s", g.argv[2]+1);
+    fossil_print("GLOB pattern: %s\n", zPattern);
+  }
+  fossil_print("SQL expression: %s\n", glob_expr("x", zPattern));
+  pGlob = glob_create(zPattern);
   for(i=0; i<pGlob->nPattern; i++){
     fossil_print("pattern[%d] = [%s]\n", i, pGlob->azPattern[i]);
   }

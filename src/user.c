@@ -36,17 +36,17 @@ static void strip_string(Blob *pBlob, char *z){
        z[i] = 0;
        break;
     }
-    if( z[i]<' ' ) z[i] = ' ';
+    if( z[i]>0 && z[i]<' ' ) z[i] = ' ';
   }
   blob_append(pBlob, z, -1);
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__BIONIC__)
 #ifdef __MINGW32__
 #include <conio.h>
 #endif
 /*
-** getpass for Windows
+** getpass for Windows and Android
 */
 static char *getpass(const char *prompt){
   static char pwd[64];
@@ -55,7 +55,11 @@ static char *getpass(const char *prompt){
   fputs(prompt,stderr);
   fflush(stderr);
   for(i=0; i<sizeof(pwd)-1; ++i){
+#if defined(_WIN32)
     pwd[i] = _getch();
+#else
+    pwd[i] = getc(stdin);
+#endif
     if(pwd[i]=='\r' || pwd[i]=='\n'){
       break;
     }
@@ -128,6 +132,37 @@ void prompt_for_password(
 }
 
 /*
+** Prompt to save Fossil user password
+*/
+int save_password_prompt(const char *passwd){
+  Blob x;
+  char c;
+  const char *old = db_get("last-sync-pw", 0);
+  if( (old!=0) && fossil_strcmp(unobscure(old), passwd)==0 ){
+     return 0;
+  }
+  prompt_user("remember password (Y/n)? ", &x);
+  c = blob_str(&x)[0];
+  blob_reset(&x);
+  return ( c!='n' && c!='N' );
+}
+
+/*
+** Prompt for Fossil user password
+*/
+char *prompt_for_user_password(const char *zUser){
+  char *zPrompt = mprintf("\rpassword for %s: ", zUser);
+  char *zPw;
+  Blob x;
+  fossil_force_newline();
+  prompt_for_password(zPrompt, &x, 0);
+  free(zPrompt);
+  zPw = mprintf("%b", &x);
+  blob_reset(&x);
+  return zPw;
+}
+
+/*
 ** Prompt the user to enter a single line of text.
 */
 void prompt_user(const char *zPrompt, Blob *pIn){
@@ -139,6 +174,8 @@ void prompt_user(const char *zPrompt, Blob *pIn){
   fflush(stdout);
   z = fgets(zLine, sizeof(zLine), stdin);
   if( z ){
+    int n = (int)strlen(z);
+    if( n>0 && z[n-1]=='\n' ) fossil_new_line_started();
     strip_string(pIn, z);
   }
 }
@@ -213,8 +250,8 @@ void user_cmd(void){
     );
     free(zPw);
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
-    user_select();
     if( g.argc==3 ){
+      user_select();
       fossil_print("%s\n", g.zLogin);
     }else{
       if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.argv[3]) ){
@@ -259,7 +296,7 @@ void user_cmd(void){
   }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
     int uid;
     if( g.argc!=4 && g.argc!=5 ){
-      usage("user capabilities USERNAME ?PERMISSIONS?");
+      usage("capabilities USERNAME ?PERMISSIONS?");
     }
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.argv[3]);
     if( uid==0 ){
@@ -273,7 +310,7 @@ void user_cmd(void){
     }
     fossil_print("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
   }else{
-    fossil_panic("user subcommand should be one of: "
+    fossil_fatal("user subcommand should be one of: "
                  "capabilities default list new password");
   }
 }
@@ -309,15 +346,15 @@ static int attempt_user(const char *zLogin){
 **
 **   (5)  Try the USER environment variable.
 **
-**   (6)  Try the USERNAME environment variable.
+**   (6)  Try the LOGNAME environment variable.
 **
-**   (7)  Check if the user can be extracted from the remote URL.
+**   (7)  Try the USERNAME environment variable.
+**
+**   (8)  Check if the user can be extracted from the remote URL.
 **
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
 void user_select(void){
-  char *zUrl;
-
   if( g.userUid ) return;
   if( g.zLogin ){
     if( attempt_user(g.zLogin)==0 ){
@@ -335,13 +372,12 @@ void user_select(void){
 
   if( attempt_user(fossil_getenv("USER")) ) return;
 
+  if( attempt_user(fossil_getenv("LOGNAME")) ) return;
+
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
 
-  zUrl = db_get("last-sync-url", 0);
-  if( zUrl ){
-    url_parse(zUrl);
-    if( attempt_user(g.urlUser) ) return;
-  }
+  url_parse(0, 0);
+  if( g.url.user && attempt_user(g.url.user) ) return;
 
   fossil_print(
     "Cannot figure out who you are!  Consider using the --user\n"
@@ -416,9 +452,9 @@ void access_log_page(void){
   }
   style_header("Access Log");
   blob_zero(&sql);
-  blob_append(&sql, 
-    "SELECT uname, ipaddr, datetime(mtime, 'localtime'), success"
-    "  FROM accesslog", -1
+  blob_appendf(&sql,
+    "SELECT uname, ipaddr, datetime(mtime%s), success"
+    "  FROM accesslog", timeline_utc()
   );
   if( y==1 ){
     blob_append(&sql, "  WHERE success", -1);

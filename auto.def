@@ -7,13 +7,14 @@ options {
                          => {Look for openssl in the given path, or auto or none}
     with-zlib:path       => {Look for zlib in the given path}
     with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
-    with-tcl-stubs=0     => {Enable Tcl integration via stubs mechanism}
-    internal-sqlite=1    => {Don't use the internal sqlite, use the system one}
+    with-tcl-stubs=0     => {Enable Tcl integration via stubs library mechanism}
+    with-tcl-private-stubs=0
+                         => {Enable Tcl integration via private stubs mechanism}
+    internal-sqlite=1    => {Don't use the internal SQLite, use the system one}
     static=0             => {Link a static executable}
     lineedit=1           => {Disable line editing}
     fossil-debug=0       => {Build with fossil debugging enabled}
     json=0               => {Build with fossil JSON API enabled}
-    markdown=0           => {Build with markdown engine enabled}
 }
 
 # sqlite wants these types if possible
@@ -29,7 +30,7 @@ cc-check-progs tclsh
 
 define EXTRA_CFLAGS ""
 define EXTRA_LDFLAGS ""
-define USE_SYSTEM_SQLITE ""
+define USE_SYSTEM_SQLITE 0
 
 if {![opt-bool internal-sqlite]} {
   proc find_internal_sqlite {} {
@@ -42,13 +43,13 @@ if {![opt-bool internal-sqlite]} {
     foreach extralibs {{} {-ldl}} {
 
       # Locate the system SQLite by searching for sqlite3_open(). Then check
-      # if sqlite3_wal_checkpoint() can be found as well. If we can find
-      # open() but not wal_checkpoint(), then the system SQLite is too old
-      # to link against fossil.
+      # if sqlite3_strglob() can be found as well. If we can find open() but
+      # not strglob(), then the system SQLite is too old to link against
+      # fossil.
       #
       if {[cc-check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
-        if {![cc-check-function-in-lib sqlite3_wal_checkpoint sqlite3 $extralibs]} {
-          user-error "system sqlite3 too old (require >= 3.7.0)"
+        if {![cc-check-function-in-lib sqlite3_strglob sqlite3 $extralibs]} {
+          user-error "system sqlite3 too old (require >= 3.7.17)"
         }
 
         # Success. Update symbols and return.
@@ -64,6 +65,10 @@ if {![opt-bool internal-sqlite]} {
   find_internal_sqlite
 }
 
+if {[string match *-solaris* [get-define host]]} {
+    define-append EXTRA_CFLAGS -D_XOPEN_SOURCE=500
+}
+
 if {[opt-bool fossil-debug]} {
     define-append EXTRA_CFLAGS -DFOSSIL_DEBUG
 }
@@ -77,35 +82,33 @@ if {[opt-bool json]} {
     define FOSSIL_ENABLE_JSON
 }
 
-if {[opt-bool markdown]} {
-    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_MARKDOWN
-    define FOSSIL_ENABLE_MARKDOWN
-}
+#if {[opt-bool markdown]} {
+#    # no-op.  Markdown is now enabled by default.
+#}
 
 if {[opt-bool static]} {
     # XXX: This will not work on all systems.
     define-append EXTRA_LDFLAGS -static
 }
 
-# Check for zlib, using the given location if specified
-set zlibpath [opt-val with-zlib]
-if {$zlibpath ne ""} {
-    cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
-    define-append EXTRA_CFLAGS -I$zlibpath
-    define-append EXTRA_LDFLAGS -L$zlibpath
-}
-if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
-    user-error "zlib not found please install it or specify the location with --with-zlib"
-}
-
 set tclpath [opt-val with-tcl]
 if {$tclpath ne ""} {
+    set tclprivatestubs [opt-bool with-tcl-private-stubs]
     # Note parse-tclconfig-sh is in autosetup/local.tcl
     if {$tclpath eq "1"} {
-        # Use the system Tcl. Look in some likely places.
-        array set tclconfig [parse-tclconfig-sh \
-            /usr /usr/local /usr/share /opt/local]
-        set msg "on your system"
+        if {$tclprivatestubs} {
+            set tclconfig(TCL_INCLUDE_SPEC) -Icompat/tcl-8.6/generic
+            set tclconfig(TCL_VERSION) {Private Stubs}
+            set tclconfig(TCL_PATCH_LEVEL) {}
+            set tclconfig(TCL_PREFIX) {compat/tcl-8.6}
+            set tclconfig(TCL_LD_FLAGS) { }
+        } else {
+            # Use the system Tcl. Look in some likely places.
+            array set tclconfig [parse-tclconfig-sh \
+                compat/tcl-8.6/unix compat/tcl-8.6/win \
+                /usr /usr/local /usr/share /opt/local]
+            set msg "on your system"
+        }
     } else {
         array set tclconfig [parse-tclconfig-sh $tclpath]
         set msg "at $tclpath"
@@ -114,7 +117,10 @@ if {$tclpath ne ""} {
         user-error "Cannot find Tcl $msg"
     }
     set tclstubs [opt-bool with-tcl-stubs]
-    if {$tclstubs && $tclconfig(TCL_SUPPORTS_STUBS)} {
+    if {$tclprivatestubs} {
+        define FOSSIL_ENABLE_TCL_PRIVATE_STUBS
+        define USE_TCL_STUBS
+    } elseif {$tclstubs && $tclconfig(TCL_SUPPORTS_STUBS)} {
         set libs "$tclconfig(TCL_STUB_LIB_SPEC)"
         define FOSSIL_ENABLE_TCL_STUBS
         define USE_TCL_STUBS
@@ -122,20 +128,24 @@ if {$tclpath ne ""} {
         set libs "$tclconfig(TCL_LIB_SPEC) $tclconfig(TCL_LIBS)"
     }
     set cflags $tclconfig(TCL_INCLUDE_SPEC)
-    cc-with [list -cflags $cflags -libs $libs] {
-        if {$tclstubs} {
-            if {![cc-check-functions Tcl_InitStubs]} {
-                user-error "Cannot find a usable Tcl stubs library $msg"
-            }
-        } else {
-            if {![cc-check-functions Tcl_CreateInterp]} {
-                user-error "Cannot find a usable Tcl library $msg"
+    if {!$tclprivatestubs} {
+        cc-with [list -cflags $cflags -libs $libs] {
+            if {$tclstubs} {
+                if {![cc-check-functions Tcl_InitStubs]} {
+                    user-error "Cannot find a usable Tcl stubs library $msg"
+                }
+            } else {
+                if {![cc-check-functions Tcl_CreateInterp]} {
+                    user-error "Cannot find a usable Tcl library $msg"
+                }
             }
         }
     }
     set version $tclconfig(TCL_VERSION)$tclconfig(TCL_PATCH_LEVEL)
     msg-result "Found Tcl $version at $tclconfig(TCL_PREFIX)"
-    define-append LIBS $libs
+    if {!$tclprivatestubs} {
+        define-append LIBS $libs
+    }
     define-append EXTRA_CFLAGS $cflags
     define-append EXTRA_LDFLAGS $tclconfig(TCL_LD_FLAGS)
     define FOSSIL_ENABLE_TCL
@@ -195,7 +205,7 @@ if {$ssldirs ne "none"} {
         define-append EXTRA_CFLAGS $cflags
         define-append EXTRA_LDFLAGS $ldflags
         define-append LIBS -lssl -lcrypto
-        msg-result "HTTP support enabled"
+        msg-result "HTTPS support enabled"
 
         # Silence OpenSSL deprecation warnings on Mac OS X 10.7.
         if {[string match *-darwin* [get-define host]]} {
@@ -206,6 +216,17 @@ if {$ssldirs ne "none"} {
     } else {
         user-error "OpenSSL not found. Consider --with-openssl=none to disable HTTPS support"
     }
+}
+
+# Check for zlib, using the given location if specified
+set zlibpath [opt-val with-zlib]
+if {$zlibpath ne ""} {
+    cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
+    define-append EXTRA_CFLAGS -I$zlibpath
+    define-append EXTRA_LDFLAGS -L$zlibpath
+}
+if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
+    user-error "zlib not found please install it or specify the location with --with-zlib"
 }
 
 if {[opt-bool lineedit]} {
@@ -230,11 +251,17 @@ if {![cc-check-function-in-lib socket {socket network}]} {
 }
 cc-check-function-in-lib iconv iconv
 
+# Check for getloadavg(), and if it doesn't exist, define FOSSIL_OMIT_LOAD_AVERAGE
+if {![cc-check-functions getloadavg]} {
+  define FOSSIL_OMIT_LOAD_AVERAGE 1
+}
+
 # Check for getpassphrase() for Solaris 10 where getpass() truncates to 10 chars
 if {![cc-check-functions getpassphrase]} {
     # Haiku needs this
     cc-check-function-in-lib getpass bsd
 }
+cc-check-function-in-lib dlopen dl
 
 make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}

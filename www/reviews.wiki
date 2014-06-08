@@ -1,12 +1,8 @@
 <title>Reviews</title>
 <b>External links:</b>
  
-  *  [http://sheddingbikes.com/posts/1276624594.html | Why I Use Fossil]
-     by Zed A. Shaw.
   *  [http://nixtu.blogspot.com/2010/03/fossil-dvcs-on-go-first-impressions.html |
      Fossil DVCS on the Go - First Impressions]
-  *  [http://blog.fupps.com/2010/12/04/exploring-the-fossil-dvcs |
-     Exploring the Fossil DVCS] by Jan-Piet Mens.  <b>(Dead link)</b>
   *  [http://blog.mired.org/2011/02/fossil-sweet-spot-in-vcs-space.html |
      Fossil - a sweet spot in the VCS space] by Mike Meyer.
   *  [http://blog.s11n.net/?p=72|Four reasons to take a closer look at the Fossil SCM] by Stephan Beal

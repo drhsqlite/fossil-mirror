@@ -227,6 +227,15 @@ void blob_set(Blob *pBlob, const char *zStr){
 }
 
 /*
+** Initialize a blob to a nul-terminated string obtained from fossil_malloc().
+** The blob will take responsibility for freeing the string.
+*/
+void blob_set_dynamic(Blob *pBlob, char *zStr){
+  blob_init(pBlob, zStr, -1);
+  pBlob->xRealloc = blobReallocMalloc;
+}
+
+/*
 ** Initialize a blob to an empty string.
 */
 void blob_zero(Blob *pBlob){
@@ -381,7 +390,7 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
 
 /*
 ** Make sure a blob is nul-terminated and is not a pointer to unmanaged
-** space.  Return a pointer to the
+** space.  Return a pointer to the data.
 */
 char *blob_materialize(Blob *pBlob){
   blob_resize(pBlob, pBlob->nUsed);
@@ -702,7 +711,7 @@ int blob_read_from_channel(Blob *pBlob, FILE *in, int nToRead){
 **
 ** Any prior content of the blob is discarded, not freed.
 **
-** Return the number of bytes read. Calls fossil_panic() error (i.e.
+** Return the number of bytes read. Calls fossil_fatal() error (i.e.
 ** it exit()s and does not return).
 */
 int blob_read_from_file(Blob *pBlob, const char *zFilename){
@@ -723,7 +732,7 @@ int blob_read_from_file(Blob *pBlob, const char *zFilename){
   blob_resize(pBlob, size);
   in = fossil_fopen(zFilename, "rb");
   if( in==0 ){
-    fossil_panic("cannot open %s for reading", zFilename);
+    fossil_fatal("cannot open %s for reading", zFilename);
   }
   got = fread(blob_buffer(pBlob), 1, size, in);
   fclose(in);
@@ -746,7 +755,7 @@ int blob_read_link(Blob *pBlob, const char *zFilename){
   char zBuf[1024];
   ssize_t len = readlink(zFilename, zBuf, 1023);
   if( len < 0 ){
-    fossil_panic("cannot read symbolic link %s", zFilename);
+    fossil_fatal("cannot read symbolic link %s", zFilename);
   }
   zBuf[len] = 0;   /* null-terminate */
   blob_zero(pBlob);
@@ -768,65 +777,33 @@ int blob_read_link(Blob *pBlob, const char *zFilename){
 */
 int blob_write_to_file(Blob *pBlob, const char *zFilename){
   FILE *out;
-  int wrote;
+  int nWrote;
 
   if( zFilename[0]==0 || (zFilename[0]=='-' && zFilename[1]==0) ){
-    int n = blob_size(pBlob);
+    nWrote = blob_size(pBlob);
 #if defined(_WIN32)
-    if( fossil_utf8_to_console(blob_buffer(pBlob), n, 0) >= 0 ){
-      return n;
+    if( fossil_utf8_to_console(blob_buffer(pBlob), nWrote, 0) >= 0 ){
+      return nWrote;
     }
 #endif
-    fwrite(blob_buffer(pBlob), 1, n, stdout);
-    return n;
+    fwrite(blob_buffer(pBlob), 1, nWrote, stdout);
   }else{
-    int i, nName;
-    char *zName, zBuf[1000];
-
-    nName = strlen(zFilename);
-    if( nName>=sizeof(zBuf) ){
-      zName = mprintf("%s", zFilename);
-    }else{
-      zName = zBuf;
-      memcpy(zName, zFilename, nName+1);
-    }
-    nName = file_simplify_name(zName, nName, 0);
-    for(i=1; i<nName; i++){
-      if( zName[i]=='/' ){
-        zName[i] = 0;
-#if defined(_WIN32)
-        /*
-        ** On Windows, local path looks like: C:/develop/project/file.txt
-        ** The if stops us from trying to create a directory of a drive letter
-        ** C: in this example.
-        */
-        if( !(i==2 && zName[1]==':') ){
-#endif
-          if( file_mkdir(zName, 1) && file_isdir(zName)!=1 ){
-            fossil_fatal_recursive("unable to create directory %s", zName);
-            return 0;
-          }
-#if defined(_WIN32)
-        }
-#endif
-        zName[i] = '/';
-      }
-    }
-    out = fossil_fopen(zName, "wb");
+    file_mkfolder(zFilename, 1);
+    out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
-      fossil_fatal_recursive("unable to open file \"%s\" for writing", zName);
+      fossil_fatal_recursive("unable to open file \"%s\" for writing",
+                             zFilename);
       return 0;
     }
-    if( zName!=zBuf ) free(zName);
+    blob_is_init(pBlob);
+    nWrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
+    fclose(out);
+    if( nWrote!=blob_size(pBlob) ){
+      fossil_fatal_recursive("short write: %d of %d bytes to %s", nWrote,
+         blob_size(pBlob), zFilename);
+    }
   }
-  blob_is_init(pBlob);
-  wrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
-  fclose(out);
-  if( wrote!=blob_size(pBlob) && out!=stdout ){
-    fossil_fatal_recursive("short write: %d of %d bytes to %s", wrote,
-       blob_size(pBlob), zFilename);
-  }
-  return wrote;
+  return nWrote;
 }
 
 /*
@@ -980,7 +957,7 @@ void test_cycle_compress(void){
     blob_compress(&b1, &b2);
     blob_uncompress(&b2, &b3);
     if( blob_compare(&b1, &b3) ){
-      fossil_panic("compress/uncompress cycle failed for %s", g.argv[i]);
+      fossil_fatal("compress/uncompress cycle failed for %s", g.argv[i]);
     }
     blob_reset(&b1);
     blob_reset(&b2);
@@ -989,7 +966,7 @@ void test_cycle_compress(void){
   fossil_print("ok\n");
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
 /*
 ** Convert every \n character in the given blob into \r\n.
 */
@@ -1016,15 +993,15 @@ void blob_add_cr(Blob *p){
 #endif
 
 /*
-** Remove every \r character from the given blob.
+** Remove every \r character from the given blob, replacing each one with
+** a \n character if it was not already part of a \r\n pair.
 */
-void blob_remove_cr(Blob *p){
+void blob_to_lf_only(Blob *p){
   int i, j;
-  char *z;
-  blob_materialize(p);
-  z = p->aData;
+  char *z = blob_materialize(p);
   for(i=j=0; z[i]; i++){
     if( z[i]!='\r' ) z[j++] = z[i];
+    else if( z[i+1]!='\n' ) z[j++] = '\n';
   }
   z[j] = 0;
   p->nUsed = j;
@@ -1098,6 +1075,7 @@ void blob_swap( Blob *pLeft, Blob *pRight ){
 void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
   char *zUtf8;
   int bomSize = 0;
+  int bomReverse = 0;
   if( starts_with_utf8_bom(pBlob, &bomSize) ){
     struct Blob temp;
     zUtf8 = blob_str(pBlob) + bomSize;
@@ -1105,31 +1083,24 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     blob_append(&temp, zUtf8, -1);
     blob_swap(pBlob, &temp);
     blob_reset(&temp);
-#ifdef _WIN32
-  }else if( starts_with_utf16le_bom(pBlob, &bomSize) ){
-    /* Make sure the blob contains two terminating 0-bytes */
-    blob_append(pBlob, "", 1);
-    zUtf8 = blob_str(pBlob) + bomSize;
-    zUtf8 = fossil_unicode_to_utf8(zUtf8);
-    blob_zero(pBlob);
-    blob_append(pBlob, zUtf8, -1);
-    fossil_unicode_free(zUtf8);
-  }else if( starts_with_utf16be_bom(pBlob, &bomSize) ){
-    unsigned int i = blob_size(pBlob);
+  }else if( starts_with_utf16_bom(pBlob, &bomSize, &bomReverse) ){
     zUtf8 = blob_buffer(pBlob);
-    while( i > 0 ){
-      /* swap bytes of unicode representation */
-      char zTemp = zUtf8[--i];
-      zUtf8[i] = zUtf8[i-1];
-      zUtf8[--i] = zTemp;
+    if( bomReverse ){
+      /* Found BOM, but with reversed bytes */
+      unsigned int i = blob_size(pBlob);
+      while( i>0 ){
+        /* swap bytes of unicode representation */
+        char zTemp = zUtf8[--i];
+        zUtf8[i] = zUtf8[i-1];
+        zUtf8[--i] = zTemp;
+      }
     }
     /* Make sure the blob contains two terminating 0-bytes */
     blob_append(pBlob, "", 1);
     zUtf8 = blob_str(pBlob) + bomSize;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
-    blob_zero(pBlob);
-    blob_append(pBlob, zUtf8, -1);
-    fossil_unicode_free(zUtf8);
+    blob_set_dynamic(pBlob, zUtf8);
+#if defined(_WIN32)
   }else if( useMbcs ){
     zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
     blob_reset(pBlob);

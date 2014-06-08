@@ -28,13 +28,13 @@
 void print_checkin_description(int rid, int indent, const char *zLabel){
   Stmt q;
   db_prepare(&q,
-     "SELECT datetime(mtime,'localtime'),"
+     "SELECT datetime(mtime%s),"
      "       coalesce(euser,user), coalesce(ecomment,comment),"
      "       (SELECT uuid FROM blob WHERE rid=%d),"
      "       (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
      "         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
      "           AND tagxref.rid=%d AND tagxref.tagtype>0)"
-     "  FROM event WHERE objid=%d", rid, rid, rid);
+     "  FROM event WHERE objid=%d", timeline_utc(), rid, rid, rid);
   if( db_step(&q)==SQLITE_ROW ){
     const char *zTagList = db_column_text(&q, 4);
     char *zCom;
@@ -59,7 +59,7 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 /*
 ** COMMAND: merge
 **
-** Usage: %fossil merge ?OPTIONS? VERSION
+** Usage: %fossil merge ?OPTIONS? ?VERSION?
 **
 ** The argument VERSION is a version that should be merged into the
 ** current checkout.  All changes from VERSION back to the nearest
@@ -68,6 +68,9 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 ** single check-in VERSION are merged.  The --backout option causes
 ** the changes associated with VERSION to be removed from the current
 ** checkout rather than added.
+**
+** If the VERSION argument is omitted, then Fossil attempts to find
+** a recent fork on the current branch to merge.
 **
 ** Only file content is merged.  The result continues to use the
 ** file and directory names from the current checkout even if those
@@ -80,30 +83,35 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 **                           a sequence of changes in a branch to be merged
 **                           without having to merge the entire branch.
 **
-**   --detail                Show additional details of the merge
-**
 **   --binary GLOBPATTERN    Treat files that match GLOBPATTERN as binary
 **                           and do not try to merge parallel changes.  This
 **                           option overrides the "binary-glob" setting.
-**
-**   --nochange | -n         Dryrun:  do not actually make any changes; just
-**                           show what would have happened.
 **
 **   --case-sensitive BOOL   Override the case-sensitive setting.  If false,
 **                           files whose names differ only in case are taken
 **                           to be the same file.
 **
-**   --force | -f            Force the merge even if it would be a no-op.
+**   -f|--force              Force the merge even if it would be a no-op.
+**
+**   --force-missing         Force the merge even if there is missing content.
+**
+**   --integrate             Merged branch will be closed when committing.
+**
+**   -n|--dry-run            If given, display instead of run actions
+**
+**   -v|--verbose            Show additional details of the merge
 */
 void merge_cmd(void){
   int vid;              /* Current version "V" */
   int mid;              /* Version we are merging from "M" */
   int pid;              /* The pivot version - most recent common ancestor P */
-  int detailFlag;       /* True if the --detail option is present */
+  int verboseFlag;      /* True if the -v|--verbose option is present */
+  int integrateFlag;    /* True if the --integrate option is present */
   int pickFlag;         /* True if the --cherrypick option is present */
   int backoutFlag;      /* True if the --backout option is present */
-  int nochangeFlag;     /* True if the --nochange or -n option is present */
+  int dryRunFlag;       /* True if the --dry-run or -n option is present */
   int forceFlag;        /* True if the --force or -f option is present */
+  int forceMissingFlag; /* True if the --force-missing option is present */
   const char *zBinGlob; /* The value of --binary */
   const char *zPivot;   /* The value of --baseline */
   int debugFlag;        /* True if --debug is present */
@@ -112,7 +120,6 @@ void merge_cmd(void){
   int i;                /* Loop counter */
   int nConflict = 0;    /* Number of conflicts seen */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
-  int caseSensitive;    /* True for case-sensitive filenames */
   Stmt q;
 
 
@@ -124,29 +131,96 @@ void merge_cmd(void){
   */
 
   undo_capture_command_line();
-  detailFlag = find_option("detail",0,0)!=0;
+  verboseFlag = find_option("verbose","v",0)!=0;
+  forceMissingFlag = find_option("force-missing",0,0)!=0;
+  if( !verboseFlag ){
+    verboseFlag = find_option("detail",0,0)!=0; /* deprecated */
+  }
   pickFlag = find_option("cherrypick",0,0)!=0;
+  integrateFlag = find_option("integrate",0,0)!=0;
   backoutFlag = find_option("backout",0,0)!=0;
   debugFlag = find_option("debug",0,0)!=0;
   zBinGlob = find_option("binary",0,1);
-  nochangeFlag = find_option("nochange","n",0)!=0;
+  dryRunFlag = find_option("dry-run","n",0)!=0;
+  if( !dryRunFlag ){
+    dryRunFlag = find_option("nochange",0,0)!=0; /* deprecated */
+  }
   forceFlag = find_option("force","f",0)!=0;
   zPivot = find_option("baseline",0,1);
   capture_case_sensitive_option();
-  if( g.argc!=3 ){
-    usage("VERSION");
-  }
+  verify_all_options();
   db_must_be_within_tree();
-  caseSensitive = filenames_are_case_sensitive();
   if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     fossil_fatal("nothing is checked out");
   }
-  mid = name_to_typed_rid(g.argv[2], "ci");
-  if( mid==0 || !is_a_version(mid) ){
-    fossil_fatal("not a version: %s", g.argv[2]);
+
+  /* Find mid, the artifactID of the version to be merged into the current
+  ** check-out */
+  if( g.argc==3 ){
+    /* Mid is specified as an argument on the command-line */
+    mid = name_to_typed_rid(g.argv[2], "ci");
+    if( mid==0 || !is_a_version(mid) ){
+      fossil_fatal("not a version: %s", g.argv[2]);
+    }
+  }else if( g.argc==2 ){
+    /* No version specified on the command-line so pick the most recent
+    ** leaf that is (1) not the version currently checked out and (2)
+    ** has not already been merged into the current checkout and (3)
+    ** the leaf is not closed and (4) the leaf is in the same branch
+    ** as the current checkout. 
+    */
+    Stmt q;
+    if( pickFlag || backoutFlag || integrateFlag){
+      fossil_fatal("cannot use --backout, --cherrypick or --integrate with a fork merge");
+    }
+    mid = db_int(0,
+      "SELECT leaf.rid"
+      "  FROM leaf, event"
+      " WHERE leaf.rid=event.objid"
+      "   AND leaf.rid!=%d"                                /* Constraint (1) */
+      "   AND leaf.rid NOT IN (SELECT merge FROM vmerge)"  /* Constraint (2) */
+      "   AND NOT EXISTS(SELECT 1 FROM tagxref"            /* Constraint (3) */
+                    "     WHERE rid=leaf.rid"
+                    "       AND tagid=%d"
+                    "       AND tagtype>0)"
+      "   AND (SELECT value FROM tagxref"                  /* Constraint (4) */
+            "   WHERE tagid=%d AND rid=%d AND tagtype>0) ="
+            " (SELECT value FROM tagxref"
+            "   WHERE tagid=%d AND rid=leaf.rid AND tagtype>0)"
+      " ORDER BY event.mtime DESC LIMIT 1",
+      vid, TAG_CLOSED, TAG_BRANCH, vid, TAG_BRANCH
+    );
+    if( mid==0 ){
+      fossil_fatal("no unmerged forks of branch \"%s\"",
+        db_text(0, "SELECT value FROM tagxref"
+                   " WHERE tagid=%d AND rid=%d AND tagtype>0",
+                   TAG_BRANCH, vid)
+      );
+    }
+    db_prepare(&q,
+      "SELECT blob.uuid,"
+          "   datetime(event.mtime%s),"
+          "   coalesce(ecomment, comment),"
+          "   coalesce(euser, user)"
+      "  FROM event, blob"
+      " WHERE event.objid=%d AND blob.rid=%d",
+      timeline_utc(), mid, mid
+    );
+    if( db_step(&q)==SQLITE_ROW ){
+      char *zCom = mprintf("Merging fork [%S] at %s by %s: \"%s\"",
+            db_column_text(&q, 0), db_column_text(&q, 1),
+            db_column_text(&q, 3), db_column_text(&q, 2));
+      comment_print(zCom, 0, 79);
+      fossil_free(zCom);
+    }
+    db_finalize(&q);
+  }else{
+    usage("?OPTIONS? ?VERSION?");
+    return;
   }
+
   if( zPivot ){
     pid = name_to_typed_rid(zPivot, "ci");
     if( pid==0 || !is_a_version(pid) ){
@@ -156,6 +230,9 @@ void merge_cmd(void){
       fossil_fatal("incompatible options: --cherrypick & --baseline");
     }
   }else if( pickFlag || backoutFlag ){
+    if( integrateFlag ){
+      fossil_fatal("incompatible options: --integrate & --cherrypick or --backout");
+    }
     pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
     if( pid<=0 ){
       fossil_fatal("cannot find an ancestor for %s", g.argv[2]);
@@ -187,15 +264,23 @@ void merge_cmd(void){
                  " Use --force to override.\n");
     return;
   }
-  if( detailFlag ){
-    print_checkin_description(mid, 12, "merge-from:");
+  if( integrateFlag && !is_a_leaf(mid)){
+    fossil_warning("ignoring --integrate: %s is not a leaf", g.argv[2]);
+    integrateFlag = 0;
+  }
+  if( verboseFlag ){
+    print_checkin_description(mid, 12, integrateFlag?"integrate:":"merge-from:");
     print_checkin_description(pid, 12, "baseline:");
   }
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   db_begin_transaction();
-  if( !nochangeFlag ) undo_begin();
-  load_vfile_from_rid(mid);
-  load_vfile_from_rid(pid);
+  if( !dryRunFlag ) undo_begin();
+  if( load_vfile_from_rid(mid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to merge");
+  }
+  if( load_vfile_from_rid(pid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to merge");
+  }
   if( debugFlag ){
     char *z;
     z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", pid);
@@ -214,7 +299,7 @@ void merge_cmd(void){
   db_multi_exec(
     "DROP TABLE IF EXISTS fv;"
     "CREATE TEMP TABLE fv("
-    "  fn TEXT PRIMARY KEY COLLATE %s,"  /* The filename */
+    "  fn TEXT PRIMARY KEY %s,"   /* The filename */
     "  idv INTEGER,"              /* VFILE entry for current version */
     "  idp INTEGER,"              /* VFILE entry for the pivot */
     "  idm INTEGER,"              /* VFILE entry for version merging in */
@@ -223,12 +308,12 @@ void merge_cmd(void){
     "  ridp INTEGER,"             /* Record ID for pivot */
     "  ridm INTEGER,"             /* Record ID for merge */
     "  isexe BOOLEAN,"            /* Execute permission enabled */
-    "  fnp TEXT,"                 /* The filename in the pivot */
-    "  fnm TEXT,"                 /* the filename in the merged version */
+    "  fnp TEXT %s,"              /* The filename in the pivot */
+    "  fnm TEXT %s,"              /* the filename in the merged version */
     "  islinkv BOOLEAN,"          /* True if current version is a symlink */
     "  islinkm BOOLEAN"           /* True if merged version in is a symlink */
     ");",
-    caseSensitive ? "binary" : "nocase"
+    filename_collation(), filename_collation(), filename_collation()
   );
 
   /* Add files found in V
@@ -267,8 +352,8 @@ void merge_cmd(void){
     " INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,isexe,chnged)"
     " SELECT pathname, pathname, pathname, 0, 0, 0, 0, 0, 0, isexe, 0 "
     "   FROM vfile"
-    "  WHERE vid=%d AND pathname NOT IN (SELECT fnp FROM fv)",
-    pid
+    "  WHERE vid=%d AND pathname %s NOT IN (SELECT fnp FROM fv)",
+    pid, filename_collation()
   );
 
   /*
@@ -295,8 +380,8 @@ void merge_cmd(void){
     " SELECT pathname, pathname, pathname, 0, 0, 0, 0, 0, 0, isexe, 0 "
     "   FROM vfile"
     "  WHERE vid=%d"
-    "    AND pathname NOT IN (SELECT fnp FROM fv UNION SELECT fnm FROM fv)",
-    mid
+    "    AND pathname %s NOT IN (SELECT fnp FROM fv UNION SELECT fnm FROM fv)",
+    mid, filename_collation()
   );
 
   /*
@@ -304,14 +389,14 @@ void merge_cmd(void){
   */
   db_multi_exec(
     "UPDATE fv SET"
-    " idp=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fnp),0),"
-    " ridp=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnp),0),"
-    " idm=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fnm),0),"
-    " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnm),0),"
+    " idp=coalesce((SELECT id FROM vfile WHERE vid=%d AND fnp=pathname),0),"
+    " ridp=coalesce((SELECT rid FROM vfile WHERE vid=%d AND fnp=pathname),0),"
+    " idm=coalesce((SELECT id FROM vfile WHERE vid=%d AND fnm=pathname),0),"
+    " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND fnm=pathname),0),"
     " islinkv=coalesce((SELECT islink FROM vfile"
-                    " WHERE vid=%d AND pathname=fnm),0),"
+                    " WHERE vid=%d AND fnm=pathname),0),"
     " islinkm=coalesce((SELECT islink FROM vfile"
-                    " WHERE vid=%d AND pathname=fnm),0)",
+                    " WHERE vid=%d AND fnm=pathname),0)",
     pid, pid, mid, mid, vid, mid
   );
 
@@ -349,7 +434,7 @@ void merge_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     int idm = db_column_int(&q, 0);
     char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idm);
-    fossil_warning("WARNING - no common ancestor: %s\n", zName);
+    fossil_warning("WARNING - no common ancestor: %s", zName);
     free(zName);
     db_multi_exec("UPDATE fv SET idm=0 WHERE idm=%d", idm);
   }
@@ -370,8 +455,8 @@ void merge_cmd(void){
     char *zFullName;
     db_multi_exec(
       "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
-      "  SELECT %d,3,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
-      vid, idm
+      "  SELECT %d,%d,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
+      vid, integrateFlag?5:3, idm
     );
     idv = db_last_insert_rowid();
     db_multi_exec("UPDATE fv SET idv=%d WHERE rowid=%d", idv, rowid);
@@ -384,7 +469,7 @@ void merge_cmd(void){
       fossil_print("ADDED %s\n", zName);
     }
     fossil_free(zFullName);
-    if( !nochangeFlag ){
+    if( !dryRunFlag ){
       undo_save(zName);
       vfile_to_disk(0, idm, 0, 0);
     }
@@ -407,11 +492,11 @@ void merge_cmd(void){
     int islinkm = db_column_int(&q, 3);
     /* Copy content from idm over into idv.  Overwrite idv. */
     fossil_print("UPDATE %s\n", zName);
-    if( !nochangeFlag ){
+    if( !dryRunFlag ){
       undo_save(zName);
       db_multi_exec(
-        "UPDATE vfile SET mtime=0, mrid=%d, chnged=2, islink=%d "
-        " WHERE id=%d", ridm, islinkm, idv
+        "UPDATE vfile SET mtime=0, mrid=%d, chnged=%d, islink=%d "
+        " WHERE id=%d", ridm, integrateFlag?4:2, islinkm, idv
       );
       vfile_to_disk(0, idv, 0, 0);
     }
@@ -441,7 +526,7 @@ void merge_cmd(void){
     char *zFullPath;
     Blob m, p, r;
     /* Do a 3-way merge of idp->idm into idp->idv.  The results go into idv. */
-    if( detailFlag ){
+    if( verboseFlag ){
       fossil_print("MERGE %s  (pivot=%d v1=%d v2=%d)\n", 
                    zName, ridp, ridm, ridv);
     }else{
@@ -459,11 +544,11 @@ void merge_cmd(void){
         rc = -1;
         blob_zero(&r);
       }else{
-        unsigned mergeFlags = nochangeFlag ? MERGE_DRYRUN : 0;
+        unsigned mergeFlags = dryRunFlag ? MERGE_DRYRUN : 0;
         rc = merge_3way(&p, zFullPath, &m, &r, mergeFlags);
       }
       if( rc>=0 ){
-        if( !nochangeFlag ){
+        if( !dryRunFlag ){
           blob_write_to_file(&r, zFullPath);
           file_wd_setexe(zFullPath, isExe);
         }
@@ -506,7 +591,7 @@ void merge_cmd(void){
     db_multi_exec(
       "UPDATE vfile SET deleted=1 WHERE id=%d", idv
     );
-    if( !nochangeFlag ){
+    if( !dryRunFlag ){
       char *zFullPath = mprintf("%s%s", g.zLocalRoot, zName);
       file_delete(zFullPath);
       free(zFullPath);
@@ -534,7 +619,7 @@ void merge_cmd(void){
       "UPDATE vfile SET pathname=%Q, origname=coalesce(origname,pathname)"
       " WHERE id=%d AND vid=%d", zNewName, idv, vid
     );
-    if( !nochangeFlag ){
+    if( !dryRunFlag ){
       char *zFullOldPath = mprintf("%s%s", g.zLocalRoot, zOldName);
       char *zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
       if( file_wd_islink(zFullOldPath) ){
@@ -559,7 +644,7 @@ void merge_cmd(void){
     fossil_warning("WARNING: %d unmanaged files were overwritten",
                    nOverwrite);
   }
-  if( nochangeFlag ){
+  if( dryRunFlag ){
     fossil_warning("REMINDER: this was a dry run -"
                    " no file were actually changed.");
   }
@@ -568,9 +653,8 @@ void merge_cmd(void){
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.
   */
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
-  db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(%d,%d)",
-                pickFlag ? -1 : (backoutFlag ? -2 : 0), mid);
   if( pickFlag ){
+    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(-1,%d)",mid);
     /* For a cherry-pick merge, make the default check-in comment the same
     ** as the check-in comment on the check-in that is being merged in. */
     db_multi_exec(
@@ -579,7 +663,13 @@ void merge_cmd(void){
        "  WHERE type='ci' AND objid=%d",
        mid
     );
+  }else if( backoutFlag ){
+    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(-2,%d)",pid);
+  }else if( integrateFlag ){
+    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(-4,%d)",mid);
+  }else{
+    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
   }
   undo_finish();
-  db_end_transaction(nochangeFlag);
+  db_end_transaction(dryRunFlag);
 }
