@@ -411,6 +411,10 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_SSL = 1
 
+#### Enable hooks for commands and unknown web pages via TH1
+#
+# FOSSIL_ENABLE_TH1_HOOKS = 1
+
 #### Enable scripting support via Tcl/Tk
 #
 # FOSSIL_ENABLE_TCL = 1
@@ -538,6 +542,12 @@ endif
 ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
+endif
+
+# With TH1 hook support
+ifdef FOSSIL_ENABLE_TH1_HOOKS
+TCC += -DFOSSIL_ENABLE_TH1_HOOKS=1
+RCC += -DFOSSIL_ENABLE_TH1_HOOKS=1
 endif
 
 # With Tcl support
@@ -1027,6 +1037,9 @@ P      = .pdb
 # Uncomment to enable SSL support
 # FOSSIL_ENABLE_SSL = 1
 
+# Uncomment to enable TH1 hooks
+# FOSSIL_ENABLE_TH1_HOOKS = 1
+
 # Uncomment to enable Tcl support
 # FOSSIL_ENABLE_TCL = 1
 
@@ -1083,6 +1096,11 @@ TCC       = $(TCC) /DFOSSIL_ENABLE_SSL=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_SSL=1
 LIBS      = $(LIBS) $(SSLLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(SSLLIBDIR)
+!endif
+
+!ifdef FOSSIL_ENABLE_TH1_HOOKS
+TCC       = $(TCC) /DFOSSIL_ENABLE_TH1_HOOKS=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_TH1_HOOKS=1
 !endif
 
 !ifdef FOSSIL_ENABLE_TCL

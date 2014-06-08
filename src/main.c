@@ -196,7 +196,9 @@ struct Global {
 
   int parseCnt[10];       /* Counts of artifacts parsed */
   FILE *fDebug;           /* Write debug information here, if the file exists */
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
   int fNoThHook;          /* Disable all TH1 command/webpage hooks */
+#endif
   int thTrace;            /* True to enable TH1 debugging output */
   Blob thLog;             /* Text of the TH1 debugging output */
 
@@ -623,7 +625,9 @@ int main(int argc, char **argv)
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
     g.fNoThHook = find_option("no-th-hook", 0, 0)!=0;
+#endif
     g.zHttpAuth = 0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
@@ -653,6 +657,7 @@ int main(int argc, char **argv)
 #endif
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
   if( rc==1 ){
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
     if( !g.isHTTP && !g.fNoThHook ){
       rc = Th_CommandHook(zCmdName, 0);
     }else{
@@ -660,14 +665,17 @@ int main(int argc, char **argv)
     }
     if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
       if( rc==TH_OK || rc==TH_RETURN ){
+#endif
         fossil_fatal("%s: unknown command: %s\n"
                      "%s: use \"help\" for more information\n",
                      g.argv[0], zCmdName, g.argv[0]);
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
       }
       if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
         Th_CommandNotify(zCmdName, 0);
       }
     }
+#endif
     fossil_exit(0);
   }else if( rc==2 ){
     int i, n;
@@ -686,6 +694,7 @@ int main(int argc, char **argv)
     fossil_exit(1);
   }
   atexit( fossil_atexit );
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
   /*
   ** The TH1 return codes from the hook will be handled as follows:
   **
@@ -707,11 +716,16 @@ int main(int argc, char **argv)
     rc = TH_OK;
   }
   if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
-    if( rc==TH_OK || rc==TH_RETURN ){ aCommand[idx].xFunc(); }
+    if( rc==TH_OK || rc==TH_RETURN ){
+#endif
+      aCommand[idx].xFunc();
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+    }
     if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
       Th_CommandNotify(aCommand[idx].zName, aCommand[idx].cmdFlags);
     }
   }
+#endif
   fossil_exit(0);
   /*NOT_REACHED*/
   return 0;
@@ -903,6 +917,9 @@ void version_cmd(void){
     fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #if defined(FOSSIL_ENABLE_SSL)
     fossil_print("SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
+#endif
+#if defined(FOSSIL_ENABLE_TH1_HOOKS)
+    fossil_print("TH1_HOOKS\n");
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
     Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
@@ -1552,6 +1569,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
     /*
     ** The TH1 return codes from the hook will be handled as follows:
     **
@@ -1579,6 +1597,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
         Th_WebpageNotify(aWebpage[idx].zName, aWebpage[idx].cmdFlags);
       }
     }
+#endif
   }
 
   /* Return the result.

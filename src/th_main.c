@@ -33,9 +33,10 @@
 #define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH commands re-added? */
 #define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
 #define TH_INIT_DEFAULT     (TH_INIT_NONE)    /* Default flags. */
-#define TH_INIT_HOOK        (TH_INIT_NEED_CONFIG|TH_INIT_FORCE_SETUP)
+#define TH_INIT_HOOK        (TH_INIT_NEED_CONFIG | TH_INIT_FORCE_SETUP)
 #endif
 
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
 /*
 ** These are the "well-known" TH1 error messages that occur when no hook is
 ** registered to be called prior to executing a command or processing a web
@@ -44,6 +45,7 @@
 */
 #define NO_COMMAND_HOOK_ERROR "no such command:  command_hook"
 #define NO_WEBPAGE_HOOK_ERROR "no such command:  webpage_hook"
+#endif
 
 /*
 ** Global variable counting the number of outstanding calls to malloc()
@@ -1193,6 +1195,7 @@ static int validVarName(const char *z){
   return i;
 }
 
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
 /*
 ** This function is called by Fossil just prior to dispatching a command.
 ** Returning a value other than TH_OK from this function (i.e. via an
@@ -1318,6 +1321,7 @@ int Th_WebpageNotify(
   }
   return rc;
 }
+#endif
 
 /*
 ** The z[] input contains text mixed with TH1 scripts.
@@ -1421,6 +1425,7 @@ void test_th_eval(void){
   Th_PrintTraceLog();
 }
 
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
 /*
 ** COMMAND: test-th-hook
 */
@@ -1449,3 +1454,4 @@ void test_th_hook(void){
   sendText(zResult, nResult, 0);
   sendText("\n", -1, 0);
 }
+#endif
