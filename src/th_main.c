@@ -33,6 +33,7 @@
 #define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH commands re-added? */
 #define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
 #define TH_INIT_DEFAULT     (TH_INIT_NONE)    /* Default flags. */
+#define TH_INIT_HOOK        (TH_INIT_NEED_CONFIG|TH_INIT_FORCE_SETUP)
 #endif
 
 /*
@@ -1203,7 +1204,7 @@ int Th_CommandHook(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_FossilInit(1, 1);
+  Th_FossilInit(TH_INIT_HOOK);
   Th_Store("cmd_name", zName);
   Th_StoreInt("cmd_flags", cmdFlags);
   rc = Th_Eval(g.interp, 0, "command_hook", -1);
@@ -1227,7 +1228,7 @@ int Th_CommandHook(
   */
   if( g.thTrace ){
     Th_Trace("[command_hook {%h}] => %h<br />\n", zName,
-             Th_ReturnCodeName(rc));
+             Th_ReturnCodeName(rc, 0));
   }
   return (rc != TH_ERROR) ? rc : TH_OK;
 }
@@ -1244,13 +1245,13 @@ int Th_CommandNotify(
   char cmdFlags
 ){
   int rc;
-  Th_FossilInit(1, 1);
+  Th_FossilInit(TH_INIT_HOOK);
   Th_Store("cmd_name", zName);
   Th_StoreInt("cmd_flags", cmdFlags);
   rc = Th_Eval(g.interp, 0, "command_notify", -1);
   if( g.thTrace ){
     Th_Trace("[command_notify {%h}] => %h<br />\n", zName,
-             Th_ReturnCodeName(rc));
+             Th_ReturnCodeName(rc, 0));
   }
   return rc;
 }
@@ -1266,7 +1267,7 @@ int Th_WebpageHook(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_FossilInit(1, 1);
+  Th_FossilInit(TH_INIT_HOOK);
   Th_Store("web_name", zName);
   Th_StoreInt("web_flags", cmdFlags);
   rc = Th_Eval(g.interp, 0, "webpage_hook", -1);
@@ -1290,7 +1291,7 @@ int Th_WebpageHook(
   */
   if( g.thTrace ){
     Th_Trace("[webpage_hook {%h}] => %h<br />\n", zName,
-             Th_ReturnCodeName(rc));
+             Th_ReturnCodeName(rc, 0));
   }
   return (rc != TH_ERROR) ? rc : TH_OK;
 }
@@ -1307,13 +1308,13 @@ int Th_WebpageNotify(
   char cmdFlags
 ){
   int rc;
-  Th_FossilInit(1, 1);
+  Th_FossilInit(TH_INIT_HOOK);
   Th_Store("web_name", zName);
   Th_StoreInt("web_flags", cmdFlags);
   rc = Th_Eval(g.interp, 0, "webpage_notify", -1);
   if( g.thTrace ){
     Th_Trace("[webpage_notify {%h}] => %h<br />\n", zName,
-             Th_ReturnCodeName(rc));
+             Th_ReturnCodeName(rc, 0));
   }
   return rc;
 }
@@ -1443,7 +1444,7 @@ void test_th_hook(void){
   }
   zResult = (char*)Th_GetResult(g.interp, &nResult);
   sendText("RESULT (", -1, 0);
-  sendText(Th_ReturnCodeName(rc), -1, 0);
+  sendText(Th_ReturnCodeName(rc, 0), -1, 0);
   sendText("): ", -1, 0);
   sendText(zResult, nResult, 0);
   sendText("\n", -1, 0);

@@ -624,7 +624,6 @@ int main(int argc, char **argv)
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
     g.fNoThHook = find_option("no-th-hook", 0, 0)!=0;
-    g.zLogin = find_option("user", "U", 1);
     g.zHttpAuth = 0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);

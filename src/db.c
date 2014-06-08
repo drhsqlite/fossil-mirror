@@ -802,8 +802,8 @@ void db_open_or_attach(
 */
 void db_open_config(int useAttach){
   char *zDbName;
-  const char *zHome;
-  if( g.configOpen ){
+  char *zHome;
+  if( g.zConfigDbName ){
     if( useAttach==g.useAttach ) return;
     if( g.useAttach ){
       db_detach("configdb");
