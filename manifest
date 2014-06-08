@@ -1,5 +1,5 @@
-C Corrections\sto\s#ifdef\shandling\sand\scomments.
-D 2014-06-08T20:28:41.391
+C Include\sTH1\shooks\sfeature\sin\sthe\s'hasfeature'\sTH1\scommand.
+D 2014-06-08T21:39:25.077
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -413,7 +413,7 @@ F src/tar.c 21d0c0bc6321bdd1b64b9c8e0cb9ad40d6c2a154
 F src/th.c f456996ecfca2e4be5619c5b17143125544d04a4
 F src/th.h f55e2863d3df25e681d6acd39adbe6368182e83b
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
-F src/th_main.c c2200cba2a29e5749149ea2b94ed6a9f0c460aef
+F src/th_main.c 3211782103d050fb24729a148af4b70d289d0fef
 F src/th_tcl.c 4cb7c0795483d23b84c082f454dec9cb124cdd32
 F src/timeline.c 2cc270768aa48d3bdd435530b7037892c75344c5
 F src/tkt.c bc6f1960625bc0fdb20dc7179a683f8c801d09cd
@@ -643,7 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b3c40dd49ea8de84f15c2effbb5d212e037a557f
-R a6ada8de42f310362ac04165a2191e05
+P f605058514b8335f52648f6f771330b32f56418c
+R 990fcec8f3b309ebe5efbda1f14b3302
 U mistachkin
-Z 1156e9652a6ec95735fa0c152062d3c8
+Z 01d8a43236a004e290a7ec0fd22e4817
