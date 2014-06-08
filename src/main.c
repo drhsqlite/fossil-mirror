@@ -675,8 +675,8 @@ int main(int argc, char **argv)
         Th_CommandNotify(zCmdName, 0);
       }
     }
-#endif
     fossil_exit(0);
+#endif
   }else if( rc==2 ){
     int i, n;
     Blob couldbe;
@@ -1592,7 +1592,11 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
       rc = TH_OK;
     }
     if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
-      if( rc==TH_OK || rc==TH_RETURN ){ aWebpage[idx].xFunc(); }
+      if( rc==TH_OK || rc==TH_RETURN ){
+#endif
+        aWebpage[idx].xFunc();
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+      }
       if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
         Th_WebpageNotify(aWebpage[idx].zName, aWebpage[idx].cmdFlags);
       }

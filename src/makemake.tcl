@@ -411,7 +411,7 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_SSL = 1
 
-#### Enable hooks for commands and unknown web pages via TH1
+#### Enable hooks for commands and web pages via TH1
 #
 # FOSSIL_ENABLE_TH1_HOOKS = 1
 
