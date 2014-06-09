@@ -1545,17 +1545,33 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
   /* Locate the method specified by the path and execute the function
   ** that implements that method.
   */
-  if( name_search(g.zPath, aWebpage, count(aWebpage), &idx) &&
-      name_search("not_found", aWebpage, count(aWebpage), &idx) ){
+  if( name_search(g.zPath, aWebpage, count(aWebpage), &idx) ){
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,0);
     }else
 #endif
     {
-      cgi_set_status(404,"Not Found");
-      @ <h1>Not Found</h1>
-      @ <p>Page not found: %h(g.zPath)</p>
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+      int rc;
+      if( !g.fNoThHook ){
+        rc = Th_WebpageHook(g.zPath, 0);
+      }else{
+        rc = TH_OK;
+      }
+      if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+        if( rc==TH_OK || rc==TH_RETURN ){
+#endif
+          cgi_set_status(404,"Not Found");
+          @ <h1>Not Found</h1>
+          @ <p>Page not found: %h(g.zPath)</p>
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+        }
+        if( !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
+          Th_WebpageNotify(g.zPath, 0);
+        }
+      }
+#endif
     }
   }else if( aWebpage[idx].xFunc!=page_xfer && db_schema_is_outofdate() ){
 #ifdef FOSSIL_ENABLE_JSON
@@ -1586,7 +1602,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
     **              executed.
     */
     int rc;
-    if( !g.isHTTP && !g.fNoThHook ){
+    if( !g.fNoThHook ){
       rc = Th_WebpageHook(aWebpage[idx].zName, aWebpage[idx].cmdFlags);
     }else{
       rc = TH_OK;
@@ -1597,7 +1613,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
         aWebpage[idx].xFunc();
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
       }
-      if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
+      if( !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
         Th_WebpageNotify(aWebpage[idx].zName, aWebpage[idx].cmdFlags);
       }
     }
