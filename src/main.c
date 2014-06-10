@@ -700,7 +700,9 @@ int main(int argc, char **argv)
   **
   ** TH_OK: The xFunc() and the TH1 notification will both be executed.
   **
-  ** TH_ERROR: The xFunc() and the TH1 notification will both be skipped.
+  ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+  **           skipped.  If the xFunc() is being hooked, the error message
+  **           will be emitted.
   **
   ** TH_BREAK: The xFunc() and the TH1 notification will both be skipped.
   **
@@ -1591,7 +1593,9 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
     **
     ** TH_OK: The xFunc() and the TH1 notification will both be executed.
     **
-    ** TH_ERROR: The xFunc() and the TH1 notification will both be skipped.
+    ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+    **           skipped.  If the xFunc() is being hooked, the error message
+    **           will be emitted.
     **
     ** TH_BREAK: The xFunc() and the TH1 notification will both be skipped.
     **

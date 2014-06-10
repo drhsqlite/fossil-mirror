@@ -50,6 +50,13 @@ if {[llength $argv]==0} {
   }
 }
 
+set tempPath [expr {[info exists env(TEMP)] ? \
+    $env(TEMP) : [file dirname [info script]]}]
+
+if {$tcl_platform(platform) eq "windows"} then {
+  set tempPath [string map [list \\ /] $tempPath]
+}
+
 # start protocol
 #
 proc protInit {cmd} {
@@ -169,6 +176,68 @@ proc test_status_list {name result expected} {
     protOut "  Got:\n    [join $result "\n    "]"
     test $name 0
   } 
+}
+
+# Append all arguments into a single value and then returns it.
+#
+proc appendArgs {args} {
+  eval append result $args
+}
+
+# Return the name of the versioned settings file containing the TH1
+# setup script.
+#
+proc getTh1SetupFileName {} {
+  #
+  # NOTE: This uses the "testdir" global variable provided by the
+  #       test suite; alternatively, the root of the source tree
+  #       could be obtained directly from Fossil.
+  #
+  return [file normalize [file join [file dirname $::testdir] \
+      .fossil-settings th1-setup]]
+}
+
+# Return the saved name of the versioned settings file containing
+# the TH1 setup script.
+#
+proc getSavedTh1SetupFileName {} {
+  return [appendArgs [getTh1SetupFileName] . [pid]]
+}
+
+# Sets the TH1 setup script to the one provided.  Prior to calling
+# this, the [saveTh1SetupFile] procedure should be called in order to
+# preserve the existing TH1 setup script.  Prior to completing the test,
+# the [restoreTh1SetupFile] procedure should be called to restore the
+# original TH1 setup script.
+#
+proc writeTh1SetupFile { data } {
+  return [write_file [getTh1SetupFileName] $data]
+}
+
+# Saves the TH1 setup script file by renaming it, based on the current
+# process ID.
+#
+proc saveTh1SetupFile {} {
+  set oldFileName [getTh1SetupFileName]
+  if {[file exists $oldFileName]} then {
+    set newFileName [getSavedTh1SetupFileName]
+    catch {file delete $newFileName}
+    file rename $oldFileName $newFileName
+    file delete $oldFileName
+  }
+}
+
+# Restores the original TH1 setup script file by renaming it back, based
+# on the current process ID.
+#
+proc restoreTh1SetupFile {} {
+  set oldFileName [getSavedTh1SetupFileName]
+  if {[file exists $oldFileName]} then {
+    set newFileName [getTh1SetupFileName]
+    catch {file delete $newFileName}
+    file rename $oldFileName $newFileName
+    file delete $oldFileName
+  }
 }
 
 # Perform a test

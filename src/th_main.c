@@ -1105,6 +1105,30 @@ void Th_Store(const char *zName, const char *zValue){
 }
 
 /*
+** Store a list value in a variable in the interpreter.
+*/
+void Th_StoreList(
+  const char *zName,
+  char **pzList,
+  int nList
+){
+  Th_FossilInit(TH_INIT_DEFAULT);
+  if( pzList ){
+    char *zValue = 0;
+    int nValue = 0;
+    int i;
+    for(i=0; i<nList; i++){
+      Th_ListAppend(g.interp, &zValue, &nValue, pzList[i], -1);
+    }
+    if( g.thTrace ){
+      Th_Trace("set %h {%h}<br />\n", zName, zValue);
+    }
+    Th_SetVar(g.interp, zName, -1, zValue, nValue);
+    Th_Free(g.interp, zValue);
+  }
+}
+
+/*
 ** Store an integer value in a variable in the interpreter.
 */
 void Th_StoreInt(const char *zName, int iValue){
@@ -1215,6 +1239,7 @@ int Th_CommandHook(
   int rc = TH_OK;
   Th_FossilInit(TH_INIT_HOOK);
   Th_Store("cmd_name", zName);
+  Th_StoreList("cmd_args", g.argv, g.argc);
   Th_StoreInt("cmd_flags", cmdFlags);
   rc = Th_Eval(g.interp, 0, "command_hook", -1);
   if( rc==TH_ERROR ){
@@ -1256,6 +1281,7 @@ int Th_CommandNotify(
   int rc;
   Th_FossilInit(TH_INIT_HOOK);
   Th_Store("cmd_name", zName);
+  Th_StoreList("cmd_args", g.argv, g.argc);
   Th_StoreInt("cmd_flags", cmdFlags);
   rc = Th_Eval(g.interp, 0, "command_notify", -1);
   if( g.thTrace ){
@@ -1278,6 +1304,7 @@ int Th_WebpageHook(
   int rc = TH_OK;
   Th_FossilInit(TH_INIT_HOOK);
   Th_Store("web_name", zName);
+  Th_StoreList("web_args", g.argv, g.argc);
   Th_StoreInt("web_flags", cmdFlags);
   rc = Th_Eval(g.interp, 0, "webpage_hook", -1);
   if( rc==TH_ERROR ){
@@ -1319,6 +1346,7 @@ int Th_WebpageNotify(
   int rc;
   Th_FossilInit(TH_INIT_HOOK);
   Th_Store("web_name", zName);
+  Th_StoreList("web_args", g.argv, g.argc);
   Th_StoreInt("web_flags", cmdFlags);
   rc = Th_Eval(g.interp, 0, "webpage_notify", -1);
   if( g.thTrace ){
