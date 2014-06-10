@@ -1,5 +1,5 @@
-C When\sdoing\s"fossil\suser\sdefault\s<username>",\sdon't\stry\sto\scheck\sthe\scurrent\sdefault\suser\sfor\svalidity.
-D 2014-06-06T09:27:38.965
+C Modularization\sand\scleanup\sof\sseveral\stest\sfiles.
+D 2014-06-10T05:01:40.376
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -456,7 +456,7 @@ F test/merge_renames.test 8587eb2f8569dba26631ff46d9eb89fa275596c2
 F test/release-checklist.wiki 9439e56c72aaddbfeb1e8f01321396aa633c00d8
 F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl e63f55ca2298af1ed7ee7dea29c76b98df152259
+F test/tester.tcl 80188f35e6cdd48046be834691ab5a801e947214
 F test/th1-tcl.test 0a784acfe60f26593e9cf1f63fda4c802e91c452
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
@@ -467,10 +467,10 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test ae9441923cd34e35ce3ae88f8f4cf6cfd9a4c6bd
+F test/th1.test ecd6278a387475a119955f7f43367dba1fde9cfa
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/utf.test db1a2d0b13fe65f6afbbf31c0f2528f1b583edcb
+F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl 1bd3f03f1c647e177cd1a9f1bb17c380388fc04b
@@ -643,7 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0a754750ef9534859bb155b6353aee7ef6509146
-R 3e70aaa1b9216a76b3954bacbeda1e5d
-U jan.nijtmans
-Z 5a6b92d2b729df6b864df5655f7700cc
+P 4306f0f3d63454341268ecd9b9a76ab4fbc36840
+R a5d3a13ef16f70e01a5d6c2313695d79
+U mistachkin
+Z 8d0fbbd17340e64c427ac02097888ff2

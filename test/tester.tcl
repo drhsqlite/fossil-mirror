@@ -50,6 +50,13 @@ if {[llength $argv]==0} {
   }
 }
 
+set tempPath [expr {[info exists env(TEMP)] ? \
+    $env(TEMP) : [file dirname [info script]]}]
+
+if {$tcl_platform(platform) eq "windows"} then {
+  set tempPath [string map [list \\ /] $tempPath]
+}
+
 # start protocol
 #
 proc protInit {cmd} {
@@ -91,7 +98,7 @@ proc fossil {args} {
   set RESULT $result
 }
 
-# Read a file into memory. 
+# Read a file into memory.
 #
 proc read_file {filename} {
   set in [open $filename r]
@@ -168,7 +175,13 @@ proc test_status_list {name result expected} {
     protOut "  Expected:\n    [join $expected "\n    "]"
     protOut "  Got:\n    [join $result "\n    "]"
     test $name 0
-  } 
+  }
+}
+
+# Append all arguments into a single value and then returns it.
+#
+proc appendArgs {args} {
+  eval append result $args
 }
 
 # Perform a test
