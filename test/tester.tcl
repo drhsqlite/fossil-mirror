@@ -98,7 +98,7 @@ proc fossil {args} {
   set RESULT $result
 }
 
-# Read a file into memory. 
+# Read a file into memory.
 #
 proc read_file {filename} {
   set in [open $filename r]
@@ -175,7 +175,7 @@ proc test_status_list {name result expected} {
     protOut "  Expected:\n    [join $expected "\n    "]"
     protOut "  Got:\n    [join $result "\n    "]"
     test $name 0
-  } 
+  }
 }
 
 # Append all arguments into a single value and then returns it.
