@@ -591,5 +591,20 @@ test th1-set-parameter-3 {$RESULT eq {}}
 
 ###############################################################################
 
-fossil test-th-eval "setParameter test3 value3; getParameter test3 defValue3"
+fossil test-th-eval "setParameter test3 value3; getParameter test3"
 test th1-set-parameter-4 {$RESULT eq {value3}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test3 value3; getParameter test3 defValue3"
+test th1-set-parameter-5 {$RESULT eq {value3}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test4 value4; setParameter test4 value5; getParameter test4"
+test th1-set-parameter-6 {$RESULT eq {value5}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test4 value4; setParameter test4 value5; getParameter test4 defValue4"
+test th1-set-parameter-7 {$RESULT eq {value5}}

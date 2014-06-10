@@ -663,7 +663,7 @@ static int setParameterCmd(
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "setParameter NAME VALUE");
   }
-  cgi_set_parameter(argv[1], argv[2]);
+  cgi_replace_parameter(mprintf("%s", argv[1]), mprintf("%s", argv[2]));
   return TH_OK;
 }
 
