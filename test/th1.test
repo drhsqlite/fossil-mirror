@@ -556,3 +556,40 @@ test th1-footer-1 {$RESULT eq {TH_ERROR: configuration unavailable}}
 
 fossil test-th-eval --th-open-config "styleFooter"
 test th1-footer-2 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval "getParameter"
+test th1-get-parameter-1 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "getParameter NAME ?DEFAULT?"}}
+
+###############################################################################
+
+fossil test-th-eval "getParameter test1"
+test th1-get-parameter-2 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval "getParameter test1 defValue1"
+test th1-get-parameter-3 {$RESULT eq {defValue1}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter"
+test th1-set-parameter-1 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "setParameter NAME VALUE"}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test1 value1; getParameter test1"
+test th1-set-parameter-2 {$RESULT eq {value1}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test2 value2; getParameter test1"
+test th1-set-parameter-3 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test3 value3; getParameter test3 defValue3"
+test th1-set-parameter-4 {$RESULT eq {value3}}

@@ -625,6 +625,49 @@ static int traceCmd(
 }
 
 /*
+** TH1 command:     getParameter NAME ?DEFAULT?
+**
+** Return the value of the specified query parameter or the specified default
+** value when there is no matching query parameter.
+*/
+static int getParameterCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  const char *zDefault = 0;
+  if( argc!=2 && argc!=3 ){
+    return Th_WrongNumArgs(interp, "getParameter NAME ?DEFAULT?");
+  }
+  if( argc==3 ){
+    zDefault = argv[2];
+  }
+  Th_SetResult(interp, cgi_parameter(argv[1], zDefault), -1);
+  return TH_OK;
+}
+
+/*
+** TH1 command:     setParameter NAME VALUE
+**
+** Sets the value of the specified query parameter.
+*/
+static int setParameterCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "setParameter NAME VALUE");
+  }
+  cgi_set_parameter(argv[1], argv[2]);
+  return TH_OK;
+}
+
+/*
 ** TH1 command:     render STRING
 **
 ** Renders the template and writes the results.
@@ -1118,6 +1161,7 @@ void Th_FossilInit(u32 flags){
     {"date",          dateCmd,              0},
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"enable_output", enableOutputCmd,      0},
+    {"getParameter",  getParameterCmd,      0},
     {"httpize",       httpizeCmd,           0},
     {"hascap",        hascapCmd,            0},
     {"hasfeature",    hasfeatureCmd,        0},
@@ -1131,6 +1175,7 @@ void Th_FossilInit(u32 flags){
     {"regexp",        regexpCmd,            0},
     {"render",        renderCmd,            0},
     {"repository",    repositoryCmd,        0},
+    {"setParameter",  setParameterCmd,      0},
     {"setting",       settingCmd,           0},
     {"styleHeader",   styleHeaderCmd,       0},
     {"styleFooter",   styleFooterCmd,       0},
