@@ -975,6 +975,19 @@ static int httpCmd(
 }
 
 /*
+** Attempts to open the configuration ("user") database.  Optionally, also
+** attempts to try to find the repository and open it.
+*/
+void Th_OpenConfig(
+  int openRepository
+){
+  if( openRepository ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
+  }
+  db_open_config(0);
+}
+
+/*
 ** Make sure the interpreter has been initialized.  Initialize it if
 ** it has not been already.
 **
@@ -1023,8 +1036,7 @@ void Th_FossilInit(u32 flags){
     ** passed a non-zero value for the needConfig parameter, make sure
     ** the necessary database connections are open prior to continuing.
     */
-    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
-    db_open_config(0);
+    Th_OpenConfig(1);
   }
   if( forceReset || forceTcl || g.interp==0 ){
     int created = 0;
@@ -1252,8 +1264,7 @@ void test_th_render(void){
   Blob in;
   Th_InitTraceLog();
   if( find_option("th-open-config", 0, 0)!=0 ){
-    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
-    db_open_config(0);
+    Th_OpenConfig(1);
   }
   if( g.argc<3 ){
     usage("FILE");
@@ -1272,8 +1283,7 @@ void test_th_eval(void){
   const char *zRc;
   Th_InitTraceLog();
   if( find_option("th-open-config", 0, 0)!=0 ){
-    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
-    db_open_config(0);
+    Th_OpenConfig(1);
   }
   if( g.argc!=3 ){
     usage("script");
