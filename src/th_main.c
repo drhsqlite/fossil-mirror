@@ -1262,11 +1262,11 @@ int Th_CommandHook(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_OpenConfig(0); /* NOTE: Minimum needed to check "th1-hooks" setting. */
+  Th_OpenConfig(1);
   if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
     return rc;
   }
-  Th_CloseConfig(0);
+  Th_CloseConfig(1);
   Th_FossilInit(TH_INIT_HOOK);
   Th_Store("cmd_name", zName);
   Th_StoreList("cmd_args", g.argv, g.argc);
@@ -1309,11 +1309,11 @@ int Th_CommandNotify(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_OpenConfig(0); /* NOTE: Minimum needed to check "th1-hooks" setting. */
+  Th_OpenConfig(1);
   if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
     return rc;
   }
-  Th_CloseConfig(0);
+  Th_CloseConfig(1);
   Th_FossilInit(TH_INIT_HOOK);
   Th_Store("cmd_name", zName);
   Th_StoreList("cmd_args", g.argv, g.argc);
@@ -1337,11 +1337,11 @@ int Th_WebpageHook(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_OpenConfig(0); /* NOTE: Minimum needed to check "th1-hooks" setting. */
+  Th_OpenConfig(1);
   if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
     return rc;
   }
-  Th_CloseConfig(0);
+  Th_CloseConfig(1);
   Th_FossilInit(TH_INIT_HOOK);
   Th_Store("web_name", zName);
   Th_StoreList("web_args", g.argv, g.argc);
@@ -1384,11 +1384,11 @@ int Th_WebpageNotify(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_OpenConfig(0); /* NOTE: Minimum needed to check "th1-hooks" setting. */
+  Th_OpenConfig(1);
   if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
     return rc;
   }
-  Th_CloseConfig(0);
+  Th_CloseConfig(1);
   Th_FossilInit(TH_INIT_HOOK);
   Th_Store("web_name", zName);
   Th_StoreList("web_args", g.argv, g.argc);
