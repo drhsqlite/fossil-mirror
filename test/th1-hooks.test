@@ -26,6 +26,10 @@ if {$::RESULT ne "1"} then {
 
 ###############################################################################
 
+set env(TH1_ENABLE_HOOKS) 1; # TH1 hooks must be enabled for this test.
+
+###############################################################################
+
 proc fossil_th1_hook_http { repository url } {
   set suffix [appendArgs [pid] - [clock seconds] .txt]
   set inFileName [file join $::tempPath [appendArgs test-http-in- $suffix]]

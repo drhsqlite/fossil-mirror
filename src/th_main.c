@@ -1238,6 +1238,9 @@ int Th_CommandHook(
 ){
   int rc = TH_OK;
   Th_FossilInit(TH_INIT_HOOK);
+  if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
+    return rc;
+  }
   Th_Store("cmd_name", zName);
   Th_StoreList("cmd_args", g.argv, g.argc);
   Th_StoreInt("cmd_flags", cmdFlags);
@@ -1278,8 +1281,11 @@ int Th_CommandNotify(
   const char *zName,
   char cmdFlags
 ){
-  int rc;
+  int rc = TH_OK;
   Th_FossilInit(TH_INIT_HOOK);
+  if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
+    return rc;
+  }
   Th_Store("cmd_name", zName);
   Th_StoreList("cmd_args", g.argv, g.argc);
   Th_StoreInt("cmd_flags", cmdFlags);
@@ -1303,6 +1309,9 @@ int Th_WebpageHook(
 ){
   int rc = TH_OK;
   Th_FossilInit(TH_INIT_HOOK);
+  if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
+    return rc;
+  }
   Th_Store("web_name", zName);
   Th_StoreList("web_args", g.argv, g.argc);
   Th_StoreInt("web_flags", cmdFlags);
@@ -1343,8 +1352,11 @@ int Th_WebpageNotify(
   const char *zName,
   char cmdFlags
 ){
-  int rc;
+  int rc = TH_OK;
   Th_FossilInit(TH_INIT_HOOK);
+  if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
+    return rc;
+  }
   Th_Store("web_name", zName);
   Th_StoreList("web_args", g.argv, g.argc);
   Th_StoreInt("web_flags", cmdFlags);

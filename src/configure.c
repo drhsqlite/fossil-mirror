@@ -99,6 +99,7 @@ static struct {
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
+  { "th1-hooks",              CONFIGSET_TH1 },
   { "th1-setup",              CONFIGSET_TH1 },
   { "th1-uri-regexp",         CONFIGSET_TH1 },
 

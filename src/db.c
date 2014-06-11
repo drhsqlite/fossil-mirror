@@ -2186,6 +2186,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "tcl",              0,              0, 0, 0, "off"                 },
   { "tcl-setup",        0,             40, 1, 1, ""                    },
 #endif
+  { "th1-hooks",        0,              0, 0, 0, "off"                 },
   { "th1-setup",        0,             40, 1, 1, ""                    },
   { "th1-uri-regexp",   0,             40, 1, 0, ""                    },
   { "web-browser",      0,             32, 0, 0, ""                    },
@@ -2387,6 +2388,10 @@ struct stControlSettings const ctrlSettings[] = {
 **    tcl-setup        This is the setup script to be evaluated after creating
 **     (versionable)   and initializing the Tcl interpreter.  By default, this
 **                     is empty and no extra setup is performed.
+**
+**    th1-hooks        If enabled (and Fossil was compiled with support for TH1
+**                     hooks), special TH1 commands will be called before and
+**                     after any Fossil command or web page. Default: off.
 **
 **    th1-setup        This is the setup script to be evaluated after creating
 **     (versionable)   and initializing the TH1 interpreter.  By default, this
