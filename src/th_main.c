@@ -30,7 +30,7 @@
 #define TH_INIT_NONE        ((u32)0x00000000) /* No flags. */
 #define TH_INIT_NEED_CONFIG ((u32)0x00000001) /* Open configuration first? */
 #define TH_INIT_FORCE_TCL   ((u32)0x00000002) /* Force Tcl to be enabled? */
-#define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH commands re-added? */
+#define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH1 commands re-added? */
 #define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
 #define TH_INIT_DEFAULT     (TH_INIT_NONE)    /* Default flags. */
 #define TH_INIT_HOOK        (TH_INIT_NEED_CONFIG | TH_INIT_FORCE_SETUP)
@@ -113,7 +113,7 @@ void Th_PrintTraceLog(){
 }
 
 /*
-** TH command:      httpize STRING
+** TH1 command:      httpize STRING
 **
 ** Escape all characters of STRING which have special meaning in URI
 ** components. Return a new string result.
@@ -141,7 +141,7 @@ static int httpizeCmd(
 static int enableOutput = 1;
 
 /*
-** TH command:     enable_output BOOLEAN
+** TH1 command:     enable_output BOOLEAN
 **
 ** Enable or disable the puts and hputs commands.
 */
@@ -216,8 +216,8 @@ static void sendError(const char *z, int n, int forceCgi){
 }
 
 /*
-** TH command:     puts STRING
-** TH command:     html STRING
+** TH1 command:     puts STRING
+** TH1 command:     html STRING
 **
 ** Output STRING escaped for HTML (html) or unchanged (puts).  
 */
@@ -236,7 +236,7 @@ static int putsCmd(
 }
 
 /*
-** TH command:      wiki STRING
+** TH1 command:      wiki STRING
 **
 ** Render the input string as wiki.
 */
@@ -261,7 +261,7 @@ static int wikiCmd(
 }
 
 /*
-** TH command:      htmlize STRING
+** TH1 command:      htmlize STRING
 **
 ** Escape all characters of STRING which have special meaning in HTML.
 ** Return a new string result.
@@ -284,7 +284,7 @@ static int htmlizeCmd(
 }
 
 /*
-** TH command:      date
+** TH1 command:      date
 **
 ** Return a string which is the current time and date.  If the
 ** -local option is used, the date appears using localtime instead
@@ -309,7 +309,7 @@ static int dateCmd(
 }
 
 /*
-** TH command:     hascap STRING...
+** TH1 command:     hascap STRING...
 **
 ** Return true if the user has all of the capabilities listed in STRING.
 */
@@ -335,7 +335,7 @@ static int hascapCmd(
 }
 
 /*
-** TH command:     hasfeature STRING
+** TH1 command:     hasfeature STRING
 **
 ** Return true if the fossil binary has the given compile-time feature
 ** enabled. The set of features includes:
@@ -413,7 +413,7 @@ static int hasfeatureCmd(
 
 
 /*
-** TH command:     tclReady
+** TH1 command:     tclReady
 **
 ** Return true if the fossil binary has the Tcl integration feature
 ** enabled and it is currently available for use by TH1 scripts.
@@ -444,7 +444,7 @@ static int tclReadyCmd(
 
 
 /*
-** TH command:     anycap STRING
+** TH1 command:     anycap STRING
 **
 ** Return true if the user has any one of the capabilities listed in STRING.
 */
@@ -879,7 +879,7 @@ static int regexpCmd(
 }
 
 /*
-** TH command:      http ?-asynchronous? ?--? url ?payload?
+** TH1 command:      http ?-asynchronous? ?--? url ?payload?
 **
 ** Perform an HTTP or HTTPS request for the specified URL.  If a
 ** payload is present, it will be interpreted as text/plain and
