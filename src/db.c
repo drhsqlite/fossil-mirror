@@ -789,6 +789,27 @@ void db_open_or_attach(
 }
 
 /*
+** Close the user database.
+*/
+void db_close_config(){
+  if( g.useAttach ){
+    db_detach("configdb");
+    g.useAttach = 0;
+    g.zConfigDbName = 0;
+  }else if( g.dbConfig ){
+    sqlite3_close(g.dbConfig);
+    g.dbConfig = 0;
+    g.zConfigDbType = 0;
+    g.zConfigDbName = 0;
+  }else if( g.db && fossil_strcmp(g.zMainDbType, "configdb")==0 ){
+    sqlite3_close(g.db);
+    g.db = 0;
+    g.zMainDbType = 0;
+    g.zConfigDbName = 0;
+  }
+}
+
+/*
 ** Open the user database in "~/.fossil".  Create the database anew if
 ** it does not already exist.
 **
@@ -805,18 +826,7 @@ void db_open_config(int useAttach){
   char *zHome;
   if( g.zConfigDbName ){
     if( useAttach==g.useAttach ) return;
-    if( g.useAttach ){
-      db_detach("configdb");
-      g.useAttach = 0;
-    }else if( g.dbConfig ){
-      sqlite3_close(g.dbConfig);
-      g.dbConfig = 0;
-      g.zConfigDbType = 0;
-    }else if( g.db ){
-      sqlite3_close(g.db);
-      g.db = 0;
-      g.zMainDbType = 0;
-    }
+    db_close_config();
   }
 #if defined(_WIN32) || defined(__CYGWIN__)
   zHome = fossil_getenv("LOCALAPPDATA");

@@ -993,6 +993,32 @@ static int httpCmd(
 }
 
 /*
+** Attempts to open the configuration ("user") database.  Optionally, also
+** attempts to try to find the repository and open it.
+*/
+void Th_OpenConfig(
+  int openRepository
+){
+  if( openRepository ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
+  }
+  db_open_config(0);
+}
+
+/*
+** Attempts to close the configuration ("user") database.  Optionally, also
+** attempts to close the repository.
+*/
+void Th_CloseConfig(
+  int closeRepository
+){
+  db_close_config();
+  if( closeRepository ){
+    db_close(1);
+  }
+}
+
+/*
 ** Make sure the interpreter has been initialized.  Initialize it if
 ** it has not been already.
 **
@@ -1041,8 +1067,7 @@ void Th_FossilInit(u32 flags){
     ** passed a non-zero value for the needConfig parameter, make sure
     ** the necessary database connections are open prior to continuing.
     */
-    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
-    db_open_config(0);
+    Th_OpenConfig(1);
   }
   if( forceReset || forceTcl || g.interp==0 ){
     int created = 0;
@@ -1237,10 +1262,12 @@ int Th_CommandHook(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_FossilInit(TH_INIT_HOOK);
+  Th_OpenConfig(0); /* NOTE: Minimum needed to check "th1-hooks" setting. */
   if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
     return rc;
   }
+  Th_CloseConfig(0);
+  Th_FossilInit(TH_INIT_HOOK);
   Th_Store("cmd_name", zName);
   Th_StoreList("cmd_args", g.argv, g.argc);
   Th_StoreInt("cmd_flags", cmdFlags);
@@ -1282,10 +1309,12 @@ int Th_CommandNotify(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_FossilInit(TH_INIT_HOOK);
+  Th_OpenConfig(0); /* NOTE: Minimum needed to check "th1-hooks" setting. */
   if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
     return rc;
   }
+  Th_CloseConfig(0);
+  Th_FossilInit(TH_INIT_HOOK);
   Th_Store("cmd_name", zName);
   Th_StoreList("cmd_args", g.argv, g.argc);
   Th_StoreInt("cmd_flags", cmdFlags);
@@ -1308,10 +1337,12 @@ int Th_WebpageHook(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_FossilInit(TH_INIT_HOOK);
+  Th_OpenConfig(0); /* NOTE: Minimum needed to check "th1-hooks" setting. */
   if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
     return rc;
   }
+  Th_CloseConfig(0);
+  Th_FossilInit(TH_INIT_HOOK);
   Th_Store("web_name", zName);
   Th_StoreList("web_args", g.argv, g.argc);
   Th_StoreInt("web_flags", cmdFlags);
@@ -1353,10 +1384,12 @@ int Th_WebpageNotify(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_FossilInit(TH_INIT_HOOK);
+  Th_OpenConfig(0); /* NOTE: Minimum needed to check "th1-hooks" setting. */
   if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
     return rc;
   }
+  Th_CloseConfig(0);
+  Th_FossilInit(TH_INIT_HOOK);
   Th_Store("web_name", zName);
   Th_StoreList("web_args", g.argv, g.argc);
   Th_StoreInt("web_flags", cmdFlags);
@@ -1438,8 +1471,7 @@ void test_th_render(void){
   Blob in;
   Th_InitTraceLog();
   if( find_option("th-open-config", 0, 0)!=0 ){
-    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
-    db_open_config(0);
+    Th_OpenConfig(1);
   }
   if( g.argc<3 ){
     usage("FILE");
@@ -1458,8 +1490,7 @@ void test_th_eval(void){
   const char *zRc;
   Th_InitTraceLog();
   if( find_option("th-open-config", 0, 0)!=0 ){
-    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
-    db_open_config(0);
+    Th_OpenConfig(1);
   }
   if( g.argc!=3 ){
     usage("script");
