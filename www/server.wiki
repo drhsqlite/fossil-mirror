@@ -200,7 +200,7 @@ be used in combination with a webserver (such as [http://nginx.org|Nginx])
 that does not support CGI.  A typical Nginx configuration to support SCGI
 with Fossil would look something like this:
 <blockquote><pre>
-location ~ ^/demo_project/ {
+location /demo_project/ {
     include scgi_params;
     scgi_pass localhost:9000;
     scgi_param SCRIPT_NAME "/demo_project";
@@ -218,6 +218,16 @@ All of the features of the stand-alone server mode described above,
 such as the ability to serve a directory full of Fossil repositories
 rather than just a single repository, work the same way in SCGI mode.
 </p>
+<p>
+For security, it is probably a good idea to add the --localhost option
+to the [/help/server|fossil server] command to prevent Fossil from accepting
+off-site connections.  And one might want to specify the listening TCP port
+number, rather than letting Fossil choose one for itself, just to avoid
+ambiguity.  A typical command to start a Fossil SCGI server
+would be something like this:
+<blockquote><pre>
+fossil server $REPOSITORY --scgi --localhost --port 9000
+</pre></blockquote>
 </blockquote>
 
 <h2>Securing a repository with SSL</h2><blockquote>
@@ -248,7 +258,7 @@ For more information, see <a href="./ssl.wiki">Using SSL with Fossil</a>.
 <p>
 A Fossil server is very efficient and normally presents a very light 
 load on the server.
-The Fossil [./selfhost.wiki | self-host server] is a 1/24th slice VM at
+The Fossil [./selfhost.wiki | self-hosting server] is a 1/24th slice VM at
 [http://www.linode.com | Linode.com] hosting 65 other repositories in
 addition to Fossil (and including some very high-traffic sites such
 as [http://www.sqlite.org] and [http://system.data.sqlite.org]) and
@@ -266,12 +276,29 @@ these commands can take 15 seconds or more of CPU time.
 If these kinds of requests arrive too quickly, the load average on the
 server can grow dramatically, making the server unresponsive.
 <p>
-To help avoid problems, Fossil has the ability to fail CPU-intensive
-web page requests with a 
-[http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.3 | "503 Server Overload"]
-HTTP error if an expensive request is received while the host load 
-average is too high.  To activate this
-feature, visit the /Admin/Access setup page in the administrative web
+Fossil provides two capabilities to help avoid server overload problems
+due to excessive requests to expensive pages:
+<ol>
+<li><p>An optional cache is available that remembers the 10 most recently
+    requested /zip or /tarball pages and returns the precomputed answer
+    if the same page is requested again.
+<li><p>Page requests can be configured to fail with a
+    [http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.3 | "503 Server Overload"]
+    HTTP error if an expensive request is received while the host load 
+    average is too high.
+</ol>
+Both of these load-control mechanisms are turned off by default, but they
+are recommended for high-traffic sites.
+<p>
+The webpage cache is activated using the [/help?cmd=cache|fossil cache init]
+command-line on the server.  Add a -R option to specify the specific repository
+for which to enable caching.  If running this command as root, be sure to
+"chown" the cache database (which is a separate file in the same directory
+and with the same name as the repository but with the suffix changed to ".cache")
+to give it write permission for the userid of the webserver.
+<p>
+To activate the server load control feature
+visit the /Admin/Access setup page in the administrative web
 interface and in the "<b>Server Load Average Limit</b>" box
 enter the load average threshold above which "503 Server
 Overload" replies will be issued for expensive requests.  On the

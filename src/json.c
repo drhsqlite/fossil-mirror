@@ -1981,7 +1981,7 @@ cson_value * json_page_stat(){
   jv2 = cson_value_new_object();
   jo2 = cson_value_get_object(jv2);
   cson_object_set(jo, "sqlite", jv2);
-  sqlite3_snprintf(BufLen, zBuf, "%.19s [%.10s] (%s)",
+  sqlite3_snprintf(BufLen, zBuf, "%.19s [%.10s] (%s win32-longpath)",
                    sqlite3_sourceid(), &sqlite3_sourceid()[20], sqlite3_libversion());
   SETBUF(jo2, "version");
   zDb = db_name("repository");

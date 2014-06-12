@@ -58,7 +58,7 @@ attempt with a message "would fork." This allows Bob to do a "fossil
 update" which pulls in Alice's changes, merging them into his own 
 changes. After merging, Bob commits check-in 4 as a child of check-in 3. 
 The result is a linear graph as shown in figure 1. This is how CVS 
-works. This is also how fossil works in [concepts.wiki#workflow | 
+works. This is also how fossil works in [./concepts.wiki#workflow | 
 "autosync"] mode. 
 
 But perhaps Bob is off-network when he does his commit, so he

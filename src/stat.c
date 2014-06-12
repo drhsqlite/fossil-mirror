@@ -27,7 +27,7 @@
 ** For a sufficiently large integer, provide an alternative
 ** representation as MB or GB or TB.
 */
-static void bigSizeName(int nOut, char *zOut, sqlite3_int64 v){
+void bigSizeName(int nOut, char *zOut, sqlite3_int64 v){
   if( v<100000 ){
     sqlite3_snprintf(nOut, zOut, "%lld bytes", v);
   }else if( v<1000000000 ){
@@ -59,6 +59,7 @@ void stat_page(void){
   if( g.perm.Admin ){
     style_submenu_element("URLs", "URLs and Checkouts", "urllist");
     style_submenu_element("Schema", "Repository Schema", "repo_schema");
+    style_submenu_element("Web-Cache", "Web-Cache Stats", "cachestat");
   }
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
@@ -127,7 +128,7 @@ void stat_page(void){
   @ (%h(RELEASE_VERSION)) [compiled using %h(COMPILER_NAME)]
   @ </td></tr>
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
-  @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))</td></tr>
+  @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()) win32-longpath)</td></tr>
   @ <tr><th>Repository Rebuilt:</th><td>
   @ %h(db_get_mtime("rebuilt","%Y-%m-%d %H:%M:%S","Never"))
   @ By Fossil %h(db_get("rebuilt","Unknown"))</td></tr>
@@ -225,7 +226,7 @@ void dbstat_cmd(void){
                colWidth, "fossil-version:",
                MANIFEST_DATE, MANIFEST_VERSION, RELEASE_VERSION,
                COMPILER_NAME);
-  fossil_print("%*s%.19s [%.10s] (%s)\n",
+  fossil_print("%*s%.19s [%.10s] (%s win32-longpath)\n",
                colWidth, "sqlite-version:",
                sqlite3_sourceid(), &sqlite3_sourceid()[20],
                sqlite3_libversion());

@@ -28,8 +28,8 @@ P      = .pdb
 # FOSSIL_ENABLE_TCL = 1
 
 !ifdef FOSSIL_ENABLE_SSL
-SSLINCDIR = $(B)\compat\openssl-1.0.1g\include
-SSLLIBDIR = $(B)\compat\openssl-1.0.1g\out32
+SSLINCDIR = $(B)\compat\openssl-1.0.1h\include
+SSLLIBDIR = $(B)\compat\openssl-1.0.1h\out32
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !endif
 
@@ -104,7 +104,7 @@ SHELL_OPTIONS = /Dmain=sqlite3_shell \
                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 /DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 /DSQLITE_SHELL_DBNAME_PROC=fossil_open \
-                /Daccess=win32_access \
+                /Daccess=file_access \
                 /Dgetenv=fossil_getenv \
                 /Dfopen=fossil_fopen
 
@@ -116,6 +116,7 @@ SRC   = add_.c \
         blob_.c \
         branch_.c \
         browse_.c \
+        cache_.c \
         captcha_.c \
         cgi_.c \
         checkin_.c \
@@ -226,6 +227,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\blob$O \
         $(OX)\branch$O \
         $(OX)\browse$O \
+        $(OX)\cache$O \
         $(OX)\captcha$O \
         $(OX)\cgi$O \
         $(OX)\checkin$O \
@@ -358,6 +360,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\blob.obj >> $@
 	echo $(OX)\branch.obj >> $@
 	echo $(OX)\browse.obj >> $@
+	echo $(OX)\cache.obj >> $@
 	echo $(OX)\captcha.obj >> $@
 	echo $(OX)\cgi.obj >> $@
 	echo $(OX)\checkin.obj >> $@
@@ -586,6 +589,12 @@ $(OX)\browse$O : browse_.c browse.h
 	$(TCC) /Fo$@ -c browse_.c
 
 browse_.c : $(SRCDIR)\browse.c
+	translate$E $** > $@
+
+$(OX)\cache$O : cache_.c cache.h
+	$(TCC) /Fo$@ -c cache_.c
+
+cache_.c : $(SRCDIR)\cache.c
 	translate$E $** > $@
 
 $(OX)\captcha$O : captcha_.c captcha.h
@@ -1206,6 +1215,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			blob_.c:blob.h \
 			branch_.c:branch.h \
 			browse_.c:browse.h \
+			cache_.c:cache.h \
 			captcha_.c:captcha.h \
 			cgi_.c:cgi.h \
 			checkin_.c:checkin.h \

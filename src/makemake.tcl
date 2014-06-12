@@ -26,6 +26,7 @@ set src {
   blob
   branch
   browse
+  cache
   captcha
   cgi
   checkin
@@ -156,7 +157,7 @@ set SHELL_OPTIONS {
 # Options used to compile the included SQLite shell on Windows.
 #
 set SHELL_WIN32_OPTIONS $SHELL_OPTIONS
-lappend SHELL_WIN32_OPTIONS -Daccess=win32_access
+lappend SHELL_WIN32_OPTIONS -Daccess=file_access
 lappend SHELL_WIN32_OPTIONS -Dgetenv=fossil_getenv
 lappend SHELL_WIN32_OPTIONS -Dfopen=fossil_fopen
 
@@ -422,6 +423,10 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_TCL_PRIVATE_STUBS = 1
 
+#### Use 'system' sqlite
+#
+# USE_SYSTEM_SQLITE = 1
+
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
 #
@@ -446,8 +451,8 @@ ZLIBDIR = $(SRCDIR)/../compat/zlib
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1g/include
-OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1g
+OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1h/include
+OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1h
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -567,6 +572,10 @@ LIB = -static
 # MinGW: If available, use the Unicode capable runtime startup code.
 ifndef MINGW_IS_32BIT_ONLY
 LIB += -municode
+endif
+
+ifdef USE_SYSTEM_SQLITE
+LIB += -lsqlite3
 endif
 
 # OpenSSL: Add the necessary libraries required, if enabled.
@@ -714,8 +723,16 @@ test:	$(OBJDIR) $(APPNAME)
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(VERSION)
 	$(VERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
+# The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
+# to 1. If it is set to 1, then there is no need to build or link
+# the sqlite3.o object. Instead, the system sqlite will be linked
+# using -lsqlite3.
+SQLITE3_OBJ.1 =
+SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
+
 EXTRAOBJ = \
-  $(OBJDIR)/sqlite3.o \
+  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
   $(OBJDIR)/shell.o \
   $(OBJDIR)/th.o \
   $(OBJDIR)/th_lang.o \
@@ -1014,8 +1031,8 @@ P      = .pdb
 # FOSSIL_ENABLE_TCL = 1
 
 !ifdef FOSSIL_ENABLE_SSL
-SSLINCDIR = $(B)\compat\openssl-1.0.1g\include
-SSLLIBDIR = $(B)\compat\openssl-1.0.1g\out32
+SSLINCDIR = $(B)\compat\openssl-1.0.1h\include
+SSLLIBDIR = $(B)\compat\openssl-1.0.1h\out32
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !endif
 

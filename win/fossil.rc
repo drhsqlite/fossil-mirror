@@ -87,7 +87,7 @@ BEGIN
       VALUE "CompanyName", "Fossil Development Team\0"
       VALUE "FileDescription", "Simple, high-reliability, distributed software configuration management system.\0"
       VALUE "ProductName", "Fossil\0"
-      VALUE "ProductVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
+      VALUE "ProductVersion", "Fossil " RELEASE_VERSION " (win32-longpath) " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
       VALUE "FileVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
       VALUE "InternalName", "fossil\0"
       VALUE "LegalCopyright", "Copyright © " MANIFEST_YEAR " by D. Richard Hipp.  All rights reserved.\0"

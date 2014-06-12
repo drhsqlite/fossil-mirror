@@ -34,7 +34,7 @@
 #endif
 #include "zlib.h"
 #ifdef FOSSIL_ENABLE_SSL
-#  include "openssl/opensslv.h"
+#  include "openssl/crypto.h"
 #endif
 #if INTERFACE
 #ifdef FOSSIL_ENABLE_TCL
@@ -169,31 +169,6 @@ struct Global {
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
   Blob httpHeader;        /* Complete text of the HTTP request header */
   UrlData url;            /* Information about current URL */
-#if 0
-  /*
-  ** NOTE: These members MUST be kept in sync with those in the "UrlData"
-  **       structure defined in "url.c".
-  */
-  int urlIsFile;          /* True if a "file:" url */
-  int urlIsHttps;         /* True if a "https:" url */
-  int urlIsSsh;           /* True if an "ssh:" url */
-  char *urlName;          /* Hostname for http: or filename for file: */
-  char *urlHostname;      /* The HOST: parameter on http headers */
-  char *urlProtocol;      /* "http" or "https" */
-  int urlPort;            /* TCP port number for http: or https: */
-  int urlDfltPort;        /* The default port for the given protocol */
-  char *urlPath;          /* Pathname for http: */
-  char *urlUser;          /* User id for http: */
-  char *urlPasswd;        /* Password for http: */
-  char *urlCanonical;     /* Canonical representation of the URL */
-  char *urlProxyAuth;     /* Proxy-Authorizer: string */
-  char *urlFossil;        /* The fossil query parameter on ssh: */
-  unsigned urlFlags;      /* Boolean flags controlling URL processing */
-  int useProxy;           /* Used to remember that a proxy is in use */
-  char *proxyUrlPath;
-  int proxyOrigPort;      /* Tunneled port number for https through proxy */
-#endif
-
   const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
@@ -883,11 +858,11 @@ void version_cmd(void){
 #endif
     fossil_print("Compiled on %s %s using %s (%d-bit)\n",
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
-    fossil_print("SQLite %s %.30s\n", sqlite3_libversion(), sqlite3_sourceid());
+    fossil_print("SQLite %s (win32-longpath) %.30s\n", sqlite3_libversion(), sqlite3_sourceid());
     fossil_print("Schema version %s\n", AUX_SCHEMA);
     fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #if defined(FOSSIL_ENABLE_SSL)
-    fossil_print("SSL (%s)\n", OPENSSL_VERSION_TEXT);
+    fossil_print("SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
     Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
@@ -1268,6 +1243,9 @@ static char *enter_chroot_jail(char *zRepo){
     i = i || setuid(sStat.st_uid);
     if(i){
       fossil_fatal("setgid/uid() failed with errno %d", errno);
+    }
+    if( g.db==0 && file_isfile(zRepo) ){
+      db_open_repository(zRepo);
     }
   }
 #endif
@@ -1844,6 +1822,7 @@ void cmd_http(void){
 ** Process all requests in a single SSH connection if possible.
 */
 void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
+  blob_zero(&g.cgiIn);
   do{
     cgi_handle_ssh_http_request(zIpAddr);
     process_one_web_page(0, FileGlob);

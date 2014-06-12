@@ -88,7 +88,7 @@ static void status_report(
     if( isDeleted ){
       blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( !file_wd_isfile_or_link(zFullName) ){
-      if( file_access(zFullName, 0)==0 ){
+      if( file_access(zFullName, F_OK)==0 ){
         blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
         if( missingIsFatal ){
           fossil_warning("not a file: %s", zDisplayName);
@@ -329,7 +329,7 @@ void ls_cmd(void){
       }else if( isDeleted ){
         type = "DELETED    ";
       }else if( !file_wd_isfile_or_link(zFullName) ){
-        if( file_access(zFullName, 0)==0 ){
+        if( file_access(zFullName, F_OK)==0 ){
           type = "NOT_A_FILE ";
         }else{
           type = "MISSING    ";
@@ -591,7 +591,7 @@ void clean_cmd(void){
   if( !dirsOnlyFlag ){
     Stmt q;
     Blob repo;
-    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, pKeep);
+    locate_unmanaged_files(g.argc-2, g.argv+2, scanFlags, pIgnore, 0);
     db_prepare(&q,
         "SELECT %Q || x FROM sfile"
         " WHERE x NOT IN (%s)"
@@ -604,6 +604,13 @@ void clean_cmd(void){
     db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
+      if( glob_match(pKeep, zName+nRoot) ){
+        if( verboseFlag ){
+          fossil_print("KEPT file \"%s\" not removed (due to --keep"
+                       " or \"keep-glob\")\n", zName+nRoot);
+        }
+        continue;
+      }
       if( !allFileFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
         Blob ans;
         char cReply;
@@ -634,8 +641,8 @@ void clean_cmd(void){
     Stmt q;
     Blob root;
     blob_init(&root, g.zLocalRoot, nRoot - 1);
-    vfile_dir_scan(&root, blob_size(&root), scanFlags, pIgnore, pKeep,
-                   pEmptyDirs);
+    vfile_dir_scan(&root, blob_size(&root), scanFlags, pIgnore,
+                   pEmptyDirs, 0);
     blob_reset(&root);
     db_prepare(&q,
         "SELECT %Q || x FROM dscan_temp"
@@ -645,6 +652,13 @@ void clean_cmd(void){
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
+      if( glob_match(pKeep, zName+nRoot) ){
+        if( verboseFlag ){
+          fossil_print("KEPT directory \"%s\" not removed (due to --keep"
+                       " or \"keep-glob\")\n", zName+nRoot);
+        }
+        continue;
+      }
       if( !allDirFlag && !dryRunFlag && !glob_match(pClean, zName+nRoot) ){
         Blob ans;
         char cReply;
@@ -807,7 +821,7 @@ static void prepare_commit_comment(
 #endif
   blob_append(&prompt,
     "\n"
-    "# Enter commit message for this check-in. Lines beginning with # are ignored.\n"
+    "# Enter a commit message for this check-in. Lines beginning with # are ignored.\n"
     "#\n", -1
   );
   blob_appendf(&prompt, "# user: %s\n", p->zUserOvrd ? p->zUserOvrd : login_name());
@@ -1227,6 +1241,7 @@ static int commit_warning(
   int fHasAnyCr;          /* the blob contains one or more CR chars */
   int fHasLoneCrOnly;     /* all detected line endings are CR only */
   int fHasCrLfOnly;       /* all detected line endings are CR/LF pairs */
+  int fHasInvalidUtf8 = 0;/* contains byte-sequence which is invalid for UTF-8 */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
@@ -1237,12 +1252,15 @@ static int commit_warning(
     lookFlags = looks_like_utf16(p, bReverse, LOOK_NUL);
   }else{
     lookFlags = looks_like_utf8(p, LOOK_NUL);
+    if( !(lookFlags & LOOK_BINARY) && invalid_utf8(p) ){
+      fHasInvalidUtf8 = 1;
+    }
   }
   fHasAnyCr = (lookFlags & LOOK_CR);
   fBinary = (lookFlags & LOOK_BINARY);
   fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
   fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
-  if( fUnicode || fHasAnyCr || fBinary ){
+  if( fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
@@ -1275,6 +1293,13 @@ static int commit_warning(
         zWarning = "mixed line endings and Unicode";
       }
       zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
+    }else if( fHasInvalidUtf8 ){
+      if( encodingOk ){
+        return 0; /* We don't want encoding warnings for this file. */
+      }
+      zWarning = "invalid UTF-8";
+      zConvert = ""; /* Possible conversion to UTF-8 not yet implemented. */
+      zDisable = "\"encoding-glob\" setting";
     }else if( fHasAnyCr ){
       if( crnlOk ){
         return 0; /* We don't want CR/NL warnings for this file. */
@@ -1389,6 +1414,10 @@ static int tagCmp(const void *a, const void *b){
 ** interactive user or these warnings should be skipped for some other
 ** reason, the --no-warnings option may be used.  A check-in is not
 ** allowed against a closed leaf.
+**
+** If a commit message is blank, you will be prompted:
+** ("continue (y/N)?") to confirm you really want to commit with a
+** blank commit message.  The default value is "N", do not commit.
 **
 ** The --private option creates a private check-in that is never synced.
 ** Children of private check-ins are automatically private.

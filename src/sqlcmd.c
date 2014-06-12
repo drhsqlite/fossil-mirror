@@ -114,11 +114,11 @@ static int sqlcmd_autoinit(
   const char **pzErrMsg,
   const void *notUsed
 ){
-  sqlite3_create_function(db, "content", 1, SQLITE_ANY, 0,
+  sqlite3_create_function(db, "content", 1, SQLITE_UTF8, 0,
                           sqlcmd_content, 0, 0);
-  sqlite3_create_function(db, "compress", 1, SQLITE_ANY, 0,
+  sqlite3_create_function(db, "compress", 1, SQLITE_UTF8, 0,
                           sqlcmd_compress, 0, 0);
-  sqlite3_create_function(db, "decompress", 1, SQLITE_ANY, 0,
+  sqlite3_create_function(db, "decompress", 1, SQLITE_UTF8, 0,
                           sqlcmd_decompress, 0, 0);
   re_add_sql_func(db);
   g.repositoryOpen = 1;
