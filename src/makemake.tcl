@@ -778,7 +778,7 @@ else
 endif
 
 setup: $(OBJDIR) $(APPNAME)
-	$(MAKENSIS) ./fossil.nsi
+	$(MAKENSIS) ./setup/fossil.nsi
 }
 
 set mhargs {}

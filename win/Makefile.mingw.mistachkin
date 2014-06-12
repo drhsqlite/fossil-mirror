@@ -731,7 +731,7 @@ else
 endif
 
 setup: $(OBJDIR) $(APPNAME)
-	$(MAKENSIS) ./fossil.nsi
+	$(MAKENSIS) ./setup/fossil.nsi
 
 $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 	$(MKINDEX) $(TRANS_SRC) >$@

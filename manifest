@@ -1,5 +1,5 @@
-C Version\s1.29
-D 2014-06-12T17:25:56.824
+C Move\sFossil\sNSIS\ssetup\sfile\sto\sthe\s'setup'\sdirectory.
+D 2014-06-12T20:40:32.869
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -305,7 +305,7 @@ F compat/zlib/zutil.c e1af709bff21ae0d4331119a7fc4c19f82932043
 F compat/zlib/zutil.h b909d27ef9ce51639f76b7ea6b62721e7d1b6bf7
 F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
-F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
+F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab w fossil.nsi
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 487252044873ffa0df8f53bbb5603d8b1b76eca8
 F src/allrepo.c 7ee7dd0a427d4d3e7799f99126c10984cd124ea0
@@ -374,7 +374,7 @@ F src/main.c 8ba72d91dd33f34024bf22fd65df3824b0e35ebe
 F src/main.mk d890a7853d824e9c5152435dc0402d252db180a4
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 2c2d6f5f0edb4a694578ab351ace74650e5ad71a
+F src/makemake.tcl 7ffa79831975f24c69fdc5e134f5500eecc6c5d4
 F src/manifest.c 05e0e4bec391ca300d1a6fc30fc19c0a12454be1
 F src/markdown.c 717f7f14927414811b61475a6fb9edc34e6cf90b
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
@@ -532,8 +532,8 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 658c62395d1d1603bf269242b4e744fd6a383e72
 F win/Makefile.dmc 48d7b9c1096e74b416a4f693bdf561d715efb831
-F win/Makefile.mingw b29821c2d7f1165704fa4ee42270de6eada26ad5
-F win/Makefile.mingw.mistachkin dfc545cae6a9022f639ef7eb59f0ce3cb6f646ed
+F win/Makefile.mingw bbf66b67ef0cc29fd320bd94a27efe122eaae57c
+F win/Makefile.mingw.mistachkin a4b2395314eb51258a6b22d82c50fe8022b0a669
 F win/Makefile.msc 9d4f092587e58114cb5c3c641adc72c596416cb9
 F win/buildmsvc.bat 4621013bd2c253a7683d2542aa018c73c35c96a3
 F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
@@ -643,10 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4ec7e53a815528facc69c1b0a56284c4d2af59a4
-R f19f23fdf3d79caaf4918e4c5e4cd882
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-1.29 *
-U drh
-Z c294944fa568bba3d03e6fb9a68f0caf
+P 3e5ebe2b9027cde6416cebbb047571ec3c3fbe67
+R a1d690f6f4a9d7d83bbb47624baa754a
+U mistachkin
+Z a341f23a2bcdf1014b3ad62edd87938b
