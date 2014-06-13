@@ -178,7 +178,7 @@ void branch_new(void){
   db_end_transaction(0);
 
   /* Do an autosync push, if requested */
-  if( !isPrivate ) autosync_loop(SYNC_PUSH,db_get_int("autosync-tries", 1));
+  if( !isPrivate ) autosync_loop(SYNC_PUSH, db_get_int("autosync-tries", 1));
 }
 
 /*

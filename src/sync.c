@@ -79,14 +79,14 @@ int autosync(int flags){
 
 /*
 ** This routine will try a number of times to perform autosync with a
-** .5 second sleep between attempts; returning the last autosync status.
+** 0.5 second sleep between attempts; returning the last autosync status.
 */
 int autosync_loop(int flags, int nTries){
   int n = 0;
   int rc = 0;
-  while( (n==0 || n < nTries) && (rc = autosync(flags)) ){
+  while( (n==0 || n<nTries) && (rc=autosync(flags)) ){
     if( rc ){
-      if( ++n < nTries ){
+      if( ++n<nTries ){
         fossil_warning("Autosync failed, making another attempt.");
         sqlite3_sleep(500);
       }else{
