@@ -2131,6 +2131,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "auto-hyperlink",   0,              0, 0, 0, "on",                 },
   { "auto-shun",        0,              0, 0, 0, "on"                  },
   { "autosync",         0,              0, 0, 0, "on"                  },
+  { "autosync-tries",   0,              0, 0, 0, ""                    },
   { "binary-glob",      0,             40, 1, 0, ""                    },
   { "clearsign",        0,              0, 0, 0, "off"                 },
 #if defined(_WIN32) || defined(__CYGWIN__) || defined(__DARWIN__) || \
@@ -2223,6 +2224,11 @@ struct stControlSettings const ctrlSettings[] = {
 **                     tag or branch creation.  If the value is "pullonly"
 **                     then only pull operations occur automatically.
 **                     Default: on
+**
+**    autosync-tries   If autosync is enabled setting this to a value greater
+**                     than zero will cause autosync to try no more than this
+**                     number of attempts if there is a sync failure.
+**                     Default: 1
 **
 **    binary-glob      The VALUE is a comma or newline-separated list of
 **     (versionable)   GLOB patterns that should be treated as binary files
