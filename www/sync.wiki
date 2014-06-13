@@ -126,7 +126,7 @@ section details the "x-fossil" content type.</p>
 <h3>3.1 Line-oriented Format</h3>
 
 <p>The x-fossil content type consists of zero or more "cards".  Cards
-are separate by the newline character ("\n").  Leading and trailing
+are separated by the newline character ("\n").  Leading and trailing
 whitespace on a card is ignored.  Blank cards are ignored.</p>
 
 <p>Each card is divided into zero or more space separated tokens.
@@ -198,9 +198,9 @@ and be able to apply them when their source arrives.</p>
 
 <h3>3.4 Push and Pull Cards</h3>
 
-<p>Among of the first cards in a client-to-server message are
-the push and pull cards.  The push card tell the server that
-the client is pushing content.  The pull card tell the server
+<p>Among the first cards in a client-to-server message are
+the push and pull cards.  The push card tells the server that
+the client is pushing content.  The pull card tells the server
 that the client wants to pull content.  In the event of a sync,
 both cards are sent.  The format is as follows:</p>
 
@@ -240,7 +240,7 @@ two-argument format.</p>
 protocol version of "2".  (Future versions of Fossil might use larger
 protocol version numbers.)  The sequence-number sent is the number
 of artifacts received so far.  For the first clone message, the
-sequence number if 0.  The server will respond by sending file
+sequence number is 0.  The server will respond by sending file
 cards for some number of artifacts up to the maximum message size.
 
 <p>The server will also send a single "clone_seqno" card to the client
@@ -250,7 +250,7 @@ so that the client can know where the server left off.
 <b>clone_seqno</b>  <i>sequence-number</i>
 </blockquote>
 
-<p>The clone message in subquence HTTP requests for the same clone
+<p>The clone message in subsequent HTTP requests for the same clone
 operation will use the sequence-number from the
 clone_seqno of the previous reply.</p>
 

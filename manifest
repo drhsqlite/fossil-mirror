@@ -1,5 +1,5 @@
-C Move\sFossil\sNSIS\ssetup\sfile\sto\sthe\s'setup'\sdirectory.
-D 2014-06-12T20:40:32.869
+C Fix\sminor\stypos\sin\sdocumentation.
+D 2014-06-13T00:38:30.081
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -305,7 +305,7 @@ F compat/zlib/zutil.c e1af709bff21ae0d4331119a7fc4c19f82932043
 F compat/zlib/zutil.h b909d27ef9ce51639f76b7ea6b62721e7d1b6bf7
 F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
-F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab w fossil.nsi
+F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 487252044873ffa0df8f53bbb5603d8b1b76eca8
 F src/allrepo.c 7ee7dd0a427d4d3e7799f99126c10984cd124ea0
@@ -636,14 +636,14 @@ F www/shunning.wiki 72dbd35b86f8180debdff7f6d07fd4c1ab3d500f
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
 F www/style.wiki 92ede836b02fb8958e948b9df51f196e9ec95d68
-F www/sync.wiki 977b03dba39a69efef5a27bb7be4b004e3708dac
+F www/sync.wiki 33e2b8330768cf684d3246076f3e24f40ab82174
 F www/tech_overview.wiki 47bd3f7fa192bb99ff6b2063d7e4cac62786f96d
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3e5ebe2b9027cde6416cebbb047571ec3c3fbe67
-R a1d690f6f4a9d7d83bbb47624baa754a
-U mistachkin
-Z a341f23a2bcdf1014b3ad62edd87938b
+P 8b4aaef2f515b0e38b2001145885070f0e88a159
+R 23457b559cdf24beb9682d3e60e152fb
+U andybradford
+Z e8e8d72fc0d4bfc4851f66eafd2b6c44
