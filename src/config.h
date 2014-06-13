@@ -51,7 +51,7 @@
 
 #endif
 
-#if defined( __MINGW32__) ||  defined(__DMC__) || defined(_MSC_VER) || defined(__POCC__)
+#if defined(__MINGW32__) || defined(__DMC__) || defined(_MSC_VER) || defined(__POCC__)
 #  if defined(__DMC__)  || defined(_MSC_VER) || defined(__POCC__)
      typedef int socklen_t;
 #  endif
@@ -60,6 +60,7 @@
 #  endif
 #else
 # include <sys/types.h>
+# include <termios.h>
 # include <signal.h>
 # include <pwd.h>
 #endif

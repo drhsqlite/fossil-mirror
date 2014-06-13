@@ -527,7 +527,13 @@ void stash_cmd(void){
         fossil_fatal("-W|--width value must be >46 or 0");
       }
     }else{
-      width = 79;
+#ifdef TIOCGWINSZ
+    struct winsize w;
+    ioctl(0, TIOCGWINSZ, &w);
+    width = w.ws_col;
+#else
+    width = 79;
+#endif
     }
     if( !verboseFlag ){
       verboseFlag = find_option("detail","l",0)!=0; /* deprecated */
