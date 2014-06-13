@@ -84,10 +84,10 @@ int autosync(int flags){
 int autosync_loop(int flags, int nTries){
   int n = 0;
   int rc = 0;
-  while( (n==0 || n < nTries) && (rc = autosync(flags) )){
+  while( (n==0 || n < nTries) && (rc = autosync(flags)) ){
     if( rc ) fossil_warning("Autosync failed%s",
       ++n < nTries ? ", making another attempt." : ".");
-    sqlite3_sleep(500);
+    if( n < nTries ) sqlite3_sleep(500);
   }
   return rc;
 }
