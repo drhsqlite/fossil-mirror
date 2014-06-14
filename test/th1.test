@@ -474,3 +474,137 @@ test th1-expr-34 {$RESULT eq {6}}
 
 fossil test-th-eval "expr 0+0b"
 test th1-expr-35 {$RESULT eq {TH_ERROR: expected number, got: "0b"}}
+
+###############################################################################
+
+fossil test-th-eval "checkout 1"
+test th1-checkout-1 {[string length $RESULT] > 0}
+
+###############################################################################
+
+fossil test-th-eval "checkout"
+test th1-checkout-2 {[string length $RESULT] == 0}
+
+###############################################################################
+
+set savedPwd [pwd]; cd /
+fossil test-th-eval "checkout 1"
+cd $savedPwd; unset savedPwd
+test th1-checkout-3 {[string length $RESULT] == 0}
+
+###############################################################################
+
+set savedPwd [pwd]; cd /
+fossil test-th-eval "checkout"
+cd $savedPwd; unset savedPwd
+test th1-checkout-4 {[string length $RESULT] == 0}
+
+###############################################################################
+
+fossil test-th-eval "render {}"
+test th1-render-1 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval "render {$<x> before <th1>set x 123</th1> after $<x> }"
+test th1-render-2 {$RESULT eq {no such variable: x before  after 123 }}
+
+###############################################################################
+
+fossil test-th-eval "trace {}"
+test th1-trace-1 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval --th-trace "trace {}"
+test th1-trace-2 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+{------------------ BEGIN TRACE LOG ------------------
+th1-setup {} => TH_OK<br />
+
+------------------- END TRACE LOG -------------------}}
+
+###############################################################################
+
+fossil test-th-eval "trace {this is a trace message.}"
+test th1-trace-3 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval --th-trace "trace {this is a trace message.}"
+test th1-trace-4 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+{------------------ BEGIN TRACE LOG ------------------
+th1-setup {} => TH_OK<br />
+this is a trace message.
+------------------- END TRACE LOG -------------------}}
+
+###############################################################################
+
+fossil test-th-eval "styleHeader {Page Title Here}"
+test th1-header-1 {$RESULT eq {TH_ERROR: configuration unavailable}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "styleHeader {Page Title Here}"
+test th1-header-2 {[regexp -- {<title>Fossil: Page Title Here</title>} $RESULT]}
+
+###############################################################################
+
+fossil test-th-eval "styleFooter"
+test th1-footer-1 {$RESULT eq {TH_ERROR: configuration unavailable}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "styleFooter"
+test th1-footer-2 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval "getParameter"
+test th1-get-parameter-1 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "getParameter NAME ?DEFAULT?"}}
+
+###############################################################################
+
+fossil test-th-eval "getParameter test1"
+test th1-get-parameter-2 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval "getParameter test1 defValue1"
+test th1-get-parameter-3 {$RESULT eq {defValue1}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter"
+test th1-set-parameter-1 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "setParameter NAME VALUE"}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test1 value1; getParameter test1"
+test th1-set-parameter-2 {$RESULT eq {value1}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test2 value2; getParameter test1"
+test th1-set-parameter-3 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test3 value3; getParameter test3"
+test th1-set-parameter-4 {$RESULT eq {value3}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test3 value3; getParameter test3 defValue3"
+test th1-set-parameter-5 {$RESULT eq {value3}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test4 value4; setParameter test4 value5; getParameter test4"
+test th1-set-parameter-6 {$RESULT eq {value5}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test4 value4; setParameter test4 value5; getParameter test4 defValue4"
+test th1-set-parameter-7 {$RESULT eq {value5}}

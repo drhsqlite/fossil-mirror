@@ -575,6 +575,169 @@ static int repositoryCmd(
   return TH_OK;
 }
 
+/*
+** TH1 command:     checkout ?BOOLEAN?
+**
+** Return the fully qualified directory name of the current checkout or an
+** empty string if it is not available.
+*/
+static int checkoutCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 && argc!=2 ){
+    return Th_WrongNumArgs(interp, "checkout ?BOOLEAN?");
+  }
+  if( argc==2 ){
+    int openRepository = 0;
+    if( Th_ToInt(interp, argv[1], argl[1], &openRepository) ){
+      return TH_ERROR;
+    }
+    if( openRepository ) db_find_and_open_repository(OPEN_OK_NOT_FOUND, 0);
+  }
+  Th_SetResult(interp, g.zLocalRoot, -1);
+  return TH_OK;
+}
+
+/*
+** TH1 command:     trace STRING
+**
+** Generate a TH1 trace message if debugging is enabled.
+*/
+static int traceCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "trace STRING");
+  }
+  if( g.thTrace ){
+    Th_Trace("%s", argv[1]);
+  }
+  Th_SetResult(interp, 0, 0);
+  return TH_OK;
+}
+
+/*
+** TH1 command:     getParameter NAME ?DEFAULT?
+**
+** Return the value of the specified query parameter or the specified default
+** value when there is no matching query parameter.
+*/
+static int getParameterCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  const char *zDefault = 0;
+  if( argc!=2 && argc!=3 ){
+    return Th_WrongNumArgs(interp, "getParameter NAME ?DEFAULT?");
+  }
+  if( argc==3 ){
+    zDefault = argv[2];
+  }
+  Th_SetResult(interp, cgi_parameter(argv[1], zDefault), -1);
+  return TH_OK;
+}
+
+/*
+** TH1 command:     setParameter NAME VALUE
+**
+** Sets the value of the specified query parameter.
+*/
+static int setParameterCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "setParameter NAME VALUE");
+  }
+  cgi_replace_parameter(mprintf("%s", argv[1]), mprintf("%s", argv[2]));
+  return TH_OK;
+}
+
+/*
+** TH1 command:     render STRING
+**
+** Renders the template and writes the results.
+*/
+static int renderCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "render STRING");
+  }
+  rc = Th_Render(argv[1]);
+  Th_SetResult(interp, 0, 0);
+  return rc;
+}
+
+/*
+** TH1 command:     styleHeader TITLE
+**
+** Render the configured style header.
+*/
+static int styleHeaderCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "styleHeader TITLE");
+  }
+  if( g.zConfigDbName ){
+    style_header("%s", argv[1]);
+    Th_SetResult(interp, 0, 0);
+    return TH_OK;
+  }else{
+    Th_SetResult(interp, "configuration unavailable", -1);
+    return TH_ERROR;
+  }
+}
+
+/*
+** TH1 command:     styleFooter
+**
+** Render the configured style footer.
+*/
+static int styleFooterCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "styleFooter");
+  }
+  if( g.zConfigDbName ){
+    style_footer();
+    Th_SetResult(interp, 0, 0);
+    return TH_OK;
+  }else{
+    Th_SetResult(interp, "configuration unavailable", -1);
+    return TH_ERROR;
+  }
+}
+
 #ifdef _WIN32
 # include <windows.h>
 #else
@@ -1006,10 +1169,12 @@ void Th_FossilInit(u32 flags){
     void *pContext;
   } aCommand[] = {
     {"anycap",        anycapCmd,            0},
+    {"checkout",      checkoutCmd,          0},
     {"combobox",      comboboxCmd,          0},
     {"date",          dateCmd,              0},
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"enable_output", enableOutputCmd,      0},
+    {"getParameter",  getParameterCmd,      0},
     {"httpize",       httpizeCmd,           0},
     {"hascap",        hascapCmd,            0},
     {"hasfeature",    hasfeatureCmd,        0},
@@ -1021,9 +1186,14 @@ void Th_FossilInit(u32 flags){
     {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
     {"regexp",        regexpCmd,            0},
+    {"render",        renderCmd,            0},
     {"repository",    repositoryCmd,        0},
+    {"setParameter",  setParameterCmd,      0},
     {"setting",       settingCmd,           0},
+    {"styleHeader",   styleHeaderCmd,       0},
+    {"styleFooter",   styleFooterCmd,       0},
     {"tclReady",      tclReadyCmd,          0},
+    {"trace",         traceCmd,             0},
     {"stime",         stimeCmd,             0},
     {"utime",         utimeCmd,             0},
     {"wiki",          wikiCmd,              (void*)&aFlags[0]},
