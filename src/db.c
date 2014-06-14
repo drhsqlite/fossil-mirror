@@ -967,7 +967,7 @@ int db_open_local(const char *zDbName){
   char zPwd[2000];
   static const char aDbName[][10] = { "_FOSSIL_", ".fslckout", ".fos" };
 
-  if( g.localOpen) return 1;
+  if( g.localOpen ) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
   while( n>0 ){
@@ -1946,7 +1946,7 @@ int db_table_has_column( char const *zTableName, char const *zColName ){
   while(SQLITE_ROW == db_step(&q)){
     /* Columns: (cid, name, type, notnull, dflt_value, pk) */
     char const * zCol = db_column_text(&q, 1);
-    if(0==fossil_strcmp(zColName, zCol)){
+    if( 0==fossil_strcmp(zColName, zCol) ){
       rc = 1;
       break;
     }
@@ -2066,7 +2066,7 @@ void cmd_open(void){
   oldArgc = g.argc;
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
-  if( !emptyFlag){
+  if( !emptyFlag ){
     g.argc = 3;
     if( oldArgc==4 ){
       azNewArgv[g.argc-1] = oldArgv[3];
