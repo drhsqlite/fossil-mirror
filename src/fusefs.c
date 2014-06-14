@@ -247,6 +247,7 @@ static int fusefs_read(
   fusefs.pFile = manifest_file_seek(fusefs.pMan, fusefs.az[2], 0);
   if( fusefs.pFile==0 ) return -ENOENT;
   rid = uuid_to_rid(fusefs.pFile->zUuid, 0);
+  blob_reset(&fusefs.content);
   content_get(rid, &fusefs.content);
   if( offset>blob_size(&fusefs.content) ) return 0;
   if( offset+size>blob_size(&fusefs.content) ){
@@ -298,7 +299,9 @@ void fusefs_cmd(void){
 #else
   char *zMountPoint;
   char *azNewArgv[5];
+  int i;
   int doDebug = find_option("debug","d",0)!=0;
+
   db_find_and_open_repository(0,0);
   verify_all_options();
   blob_init(&fusefs.content, 0, 0);
@@ -314,5 +317,9 @@ void fusefs_cmd(void){
   azNewArgv[4] = 0;
   g.localOpen = 0;   /* Prevent tags like "current" and "prev" */
   fuse_main(4, azNewArgv, &fusefs_methods, NULL);
+  manifest_destroy(fusefs.pMan);
+  blob_reset(&fusefs.content);
+  for(i=0; i<count(fusefs.az); i++) fossil_free(fusefs.az[i]);
+  memset(&fusefs, 0, sizeof(fusefs));
 #endif
 }
