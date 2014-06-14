@@ -53,6 +53,17 @@ static struct sGlobal {
 } fusefs;
 
 /*
+** Clear the fusefs.sz[] array.
+*/
+static void fusefs_clear_path(void){
+  int i;
+  for(i=0; i<count(fusefs.az); i++){
+    fossil_free(fusefs.az[i]);
+    fusefs.az[i] = 0;
+  }
+}
+
+/*
 ** Split of the input path into 0, 1, 2, or 3 elements in fusefs.az[].
 ** Return the number of elements.
 **
@@ -60,10 +71,7 @@ static struct sGlobal {
 */
 static int fusefs_parse_path(const char *zPath){
   int i, j;
-  for(i=0; i<count(fusefs.az); i++){
-    fossil_free(fusefs.az[i]);
-    fusefs.az[i] = 0;
-  }
+  fusefs_clear_path();
   if( strcmp(zPath,"/")==0 ) return 0;
   for(i=0, j=1; i<2 && zPath[j]; i++){
     int jStart = j;
@@ -76,15 +84,24 @@ static int fusefs_parse_path(const char *zPath){
 }
 
 /*
+** Reclaim memory used by the fusefs local variable.
+*/
+static void fusefs_reset(void){
+  blob_reset(&fusefs.content);
+  manifest_destroy(fusefs.pMan);
+  fusefs.pMan = 0;
+  fossil_free(fusefs.zSymName);
+  fusefs.zSymName = 0;
+  fusefs.pFile = 0;
+}
+
+/*
 ** Load manifest rid into the cache.
 */
 static void fusefs_load_rid(int rid, const char *zSymName){
   if( fusefs.rid==rid && fusefs.pMan!=0 ) return;
-  blob_reset(&fusefs.content);
-  manifest_destroy(fusefs.pMan);
-  fossil_free(fusefs.zSymName);
+  fusefs_reset();
   fusefs.zSymName = fossil_strdup(zSymName);
-  fusefs.pFile = 0;
   fusefs.pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   fusefs.rid = rid;
 }
@@ -218,6 +235,7 @@ static int fusefs_readdir(
       }
       pFile = manifest_file_next(fusefs.pMan, 0);
     }
+    fossil_free(zBase);
   }
   return cnt>0 ? 0 : -ENOENT;
 }
@@ -317,9 +335,7 @@ void fusefs_cmd(void){
   azNewArgv[4] = 0;
   g.localOpen = 0;   /* Prevent tags like "current" and "prev" */
   fuse_main(4, azNewArgv, &fusefs_methods, NULL);
-  manifest_destroy(fusefs.pMan);
-  blob_reset(&fusefs.content);
-  for(i=0; i<count(fusefs.az); i++) fossil_free(fusefs.az[i]);
-  memset(&fusefs, 0, sizeof(fusefs));
+  fusefs_reset();
+  fusefs_clear_path();
 #endif
 }
