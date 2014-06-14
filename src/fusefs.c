@@ -134,11 +134,16 @@ static int fusefs_getattr(const char *zPath, struct stat *stbuf){
   if( pFile==0 ) return -ENOENT;
   stbuf->st_mtime = (fusefs.pMan->rDate - 2440587.5)*86400.0;
   if( strcmp(fusefs.az[2], pFile->zName)==0 ){
+    static Stmt q;
     stbuf->st_mode = S_IFREG |
               (manifest_file_mperm(pFile)==PERM_EXE ? 0555 : 0444);
     stbuf->st_nlink = 1;
-    stbuf->st_size = db_int(0, "SELECT size FROM blob WHERE uuid='%s'", 
-                               pFile->zUuid);
+    db_static_prepare(&q, "SELECT size FROM blob WHERE uuid=$uuid");
+    db_bind_text(&q, "$uuid", pFile->zUuid);
+    if( db_step(&q)==SQLITE_ROW ){
+      stbuf->st_size = db_column_int(&q, 0);
+    }
+    db_reset(&q);
     return 0;
   }
   n = (int)strlen(fusefs.az[2]);
@@ -307,6 +312,7 @@ void fusefs_cmd(void){
   azNewArgv[2] = "-s";
   azNewArgv[3] = zMountPoint;
   azNewArgv[4] = 0;
+  g.localOpen = 0;   /* Prevent tags like "current" and "prev" */
   fuse_main(4, azNewArgv, &fusefs_methods, NULL);
 #endif
 }
