@@ -1,5 +1,5 @@
-C Update\sthe\scustom\sMinGW\smakefile.
-D 2014-06-14T05:30:30.364
+C changelog\supdate
+D 2014-06-14T06:19:15.604
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -565,7 +565,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 0328fbb9d8500d1b5f0e87dcb9e696811a288164
-F www/changes.wiki 34a410f78a47ae50e5ee655aa245fc5a0b012942
+F www/changes.wiki 74836589ca73cd13d2e4f05986b7d4a5a3d6e36d
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -645,7 +645,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4bf670e612504ff89022aac2fcce5724b8ae2847
-R a33341faa2616bc4c08bc0761fe2937d
-U mistachkin
-Z 377a7f0847d1fa4a97ebd5fa291ee180
+P 7bdb6530cac6cae368b45f1ba4b3c9231387283d
+R 4782ee8e8d18081c064cabf985e45336
+U jan.nijtmans
+Z 50cf4407c13a0dd3c17efc38aea27746
