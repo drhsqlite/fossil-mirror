@@ -48,6 +48,7 @@ set src {
   export
   file
   finfo
+  fusefs
   glob
   graph
   gzip

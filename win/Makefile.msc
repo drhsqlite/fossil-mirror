@@ -138,6 +138,7 @@ SRC   = add_.c \
         export_.c \
         file_.c \
         finfo_.c \
+        fusefs_.c \
         glob_.c \
         graph_.c \
         gzip_.c \
@@ -250,6 +251,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\export$O \
         $(OX)\file$O \
         $(OX)\finfo$O \
+        $(OX)\fusefs$O \
         $(OX)\glob$O \
         $(OX)\graph$O \
         $(OX)\gzip$O \
@@ -383,6 +385,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\export.obj >> $@
 	echo $(OX)\file.obj >> $@
 	echo $(OX)\finfo.obj >> $@
+	echo $(OX)\fusefs.obj >> $@
 	echo $(OX)\glob.obj >> $@
 	echo $(OX)\graph.obj >> $@
 	echo $(OX)\gzip.obj >> $@
@@ -721,6 +724,12 @@ $(OX)\finfo$O : finfo_.c finfo.h
 	$(TCC) /Fo$@ -c finfo_.c
 
 finfo_.c : $(SRCDIR)\finfo.c
+	translate$E $** > $@
+
+$(OX)\fusefs$O : fusefs_.c fusefs.h
+	$(TCC) /Fo$@ -c fusefs_.c
+
+fusefs_.c : $(SRCDIR)\fusefs.c
 	translate$E $** > $@
 
 $(OX)\glob$O : glob_.c glob.h
@@ -1237,6 +1246,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			export_.c:export.h \
 			file_.c:file.h \
 			finfo_.c:finfo.h \
+			fusefs_.c:fusefs.h \
 			glob_.c:glob.h \
 			graph_.c:graph.h \
 			gzip_.c:gzip.h \
