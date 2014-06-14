@@ -6,6 +6,7 @@ options {
     with-openssl:path|auto|none
                          => {Look for openssl in the given path, or auto or none}
     with-zlib:path       => {Look for zlib in the given path}
+    with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
     with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
     with-tcl-stubs=0     => {Enable Tcl integration via stubs library mechanism}
     with-tcl-private-stubs=0
@@ -81,6 +82,11 @@ if {[opt-bool json]} {
     # reading config.h first.
     define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_JSON
     define FOSSIL_ENABLE_JSON
+}
+
+if {[opt-bool with-th1-hooks]} {
+    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_TH1_HOOKS
+    define FOSSIL_ENABLE_TH1_HOOKS
 }
 
 #if {[opt-bool markdown]} {

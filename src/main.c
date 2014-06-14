@@ -196,6 +196,9 @@ struct Global {
 
   int parseCnt[10];       /* Counts of artifacts parsed */
   FILE *fDebug;           /* Write debug information here, if the file exists */
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+  int fNoThHook;          /* Disable all TH1 command/webpage hooks */
+#endif
   int thTrace;            /* True to enable TH1 debugging output */
   Blob thLog;             /* Text of the TH1 debugging output */
 
@@ -622,6 +625,9 @@ int main(int argc, char **argv)
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+    g.fNoThHook = find_option("no-th-hook", 0, 0)!=0;
+#endif
     g.zHttpAuth = 0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
@@ -651,9 +657,26 @@ int main(int argc, char **argv)
 #endif
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
   if( rc==1 ){
-    fossil_fatal("%s: unknown command: %s\n"
-                 "%s: use \"help\" for more information\n",
-                   g.argv[0], zCmdName, g.argv[0]);
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+    if( !g.isHTTP && !g.fNoThHook ){
+      rc = Th_CommandHook(zCmdName, 0);
+    }else{
+      rc = TH_OK;
+    }
+    if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+      if( rc==TH_OK || rc==TH_RETURN ){
+#endif
+        fossil_fatal("%s: unknown command: %s\n"
+                     "%s: use \"help\" for more information\n",
+                     g.argv[0], zCmdName, g.argv[0]);
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+      }
+      if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
+        Th_CommandNotify(zCmdName, 0);
+      }
+    }
+    fossil_exit(0);
+#endif
   }else if( rc==2 ){
     int i, n;
     Blob couldbe;
@@ -671,7 +694,40 @@ int main(int argc, char **argv)
     fossil_exit(1);
   }
   atexit( fossil_atexit );
-  aCommand[idx].xFunc();
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+  /*
+  ** The TH1 return codes from the hook will be handled as follows:
+  **
+  ** TH_OK: The xFunc() and the TH1 notification will both be executed.
+  **
+  ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+  **           skipped.  If the xFunc() is being hooked, the error message
+  **           will be emitted.
+  **
+  ** TH_BREAK: The xFunc() and the TH1 notification will both be skipped.
+  **
+  ** TH_RETURN: The xFunc() will be executed, the TH1 notification will be
+  **            skipped.
+  **
+  ** TH_CONTINUE: The xFunc() will be skipped, the TH1 notification will be
+  **              executed.
+  */
+  if( !g.isHTTP && !g.fNoThHook ){
+    rc = Th_CommandHook(aCommand[idx].zName, aCommand[idx].cmdFlags);
+  }else{
+    rc = TH_OK;
+  }
+  if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+    if( rc==TH_OK || rc==TH_RETURN ){
+#endif
+      aCommand[idx].xFunc();
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+    }
+    if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
+      Th_CommandNotify(aCommand[idx].zName, aCommand[idx].cmdFlags);
+    }
+  }
+#endif
   fossil_exit(0);
   /*NOT_REACHED*/
   return 0;
@@ -863,6 +919,9 @@ void version_cmd(void){
     fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #if defined(FOSSIL_ENABLE_SSL)
     fossil_print("SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
+#endif
+#if defined(FOSSIL_ENABLE_TH1_HOOKS)
+    fossil_print("TH1_HOOKS\n");
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
     Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
@@ -1488,17 +1547,33 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
   /* Locate the method specified by the path and execute the function
   ** that implements that method.
   */
-  if( name_search(g.zPath, aWebpage, count(aWebpage), &idx) &&
-      name_search("not_found", aWebpage, count(aWebpage), &idx) ){
+  if( name_search(g.zPath, aWebpage, count(aWebpage), &idx) ){
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,0);
     }else
 #endif
     {
-      cgi_set_status(404,"Not Found");
-      @ <h1>Not Found</h1>
-      @ <p>Page not found: %h(g.zPath)</p>
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+      int rc;
+      if( !g.fNoThHook ){
+        rc = Th_WebpageHook(g.zPath, 0);
+      }else{
+        rc = TH_OK;
+      }
+      if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+        if( rc==TH_OK || rc==TH_RETURN ){
+#endif
+          cgi_set_status(404,"Not Found");
+          @ <h1>Not Found</h1>
+          @ <p>Page not found: %h(g.zPath)</p>
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+        }
+        if( !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
+          Th_WebpageNotify(g.zPath, 0);
+        }
+      }
+#endif
     }
   }else if( aWebpage[idx].xFunc!=page_xfer && db_schema_is_outofdate() ){
 #ifdef FOSSIL_ENABLE_JSON
@@ -1512,7 +1587,41 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
-    aWebpage[idx].xFunc();
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+    /*
+    ** The TH1 return codes from the hook will be handled as follows:
+    **
+    ** TH_OK: The xFunc() and the TH1 notification will both be executed.
+    **
+    ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+    **           skipped.  If the xFunc() is being hooked, the error message
+    **           will be emitted.
+    **
+    ** TH_BREAK: The xFunc() and the TH1 notification will both be skipped.
+    **
+    ** TH_RETURN: The xFunc() will be executed, the TH1 notification will be
+    **            skipped.
+    **
+    ** TH_CONTINUE: The xFunc() will be skipped, the TH1 notification will be
+    **              executed.
+    */
+    int rc;
+    if( !g.fNoThHook ){
+      rc = Th_WebpageHook(aWebpage[idx].zName, aWebpage[idx].cmdFlags);
+    }else{
+      rc = TH_OK;
+    }
+    if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+      if( rc==TH_OK || rc==TH_RETURN ){
+#endif
+        aWebpage[idx].xFunc();
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+      }
+      if( !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
+        Th_WebpageNotify(aWebpage[idx].zName, aWebpage[idx].cmdFlags);
+      }
+    }
+#endif
   }
 
   /* Return the result.
