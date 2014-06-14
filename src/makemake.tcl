@@ -615,7 +615,11 @@ TCLSH = tclsh
 
 #### Nullsoft installer MakeNSIS location
 #
-MAKENSIS = "$(ProgramFiles)\NSIS\MakeNSIS.exe"
+MAKENSIS = "$(PROGRAMFILES)\NSIS\MakeNSIS.exe"
+
+#### Inno Setup executable location
+#
+INNOSETUP = "$(PROGRAMFILES)\Inno Setup 5\ISCC.exe"
 
 #### Include a configuration file that can override any one of these settings.
 #
@@ -655,6 +659,7 @@ TRANSLATE   = $(subst /,\,$(OBJDIR)/translate)
 MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
 VERSION     = $(subst /,\,$(OBJDIR)/version)
+CAT         = type
 CP          = copy
 MV          = copy
 RM          = del /Q
@@ -665,6 +670,7 @@ TRANSLATE   = $(OBJDIR)/translate
 MAKEHEADERS = $(OBJDIR)/makeheaders
 MKINDEX     = $(OBJDIR)/mkindex
 VERSION     = $(OBJDIR)/version
+CAT         = cat
 CP          = cp
 MV          = mv
 RM          = rm -f
@@ -780,6 +786,9 @@ endif
 
 setup: $(OBJDIR) $(APPNAME)
 	$(MAKENSIS) ./setup/fossil.nsi
+
+innosetup: $(OBJDIR) $(APPNAME)
+	$(INNOSETUP) ./setup/fossil.iss -DAppVersion=$(shell $(CAT) ./VERSION)
 }
 
 set mhargs {}
