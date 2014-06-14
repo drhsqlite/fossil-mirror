@@ -597,7 +597,9 @@ static int repositoryCmd(
 ** TH1 command:     checkout ?BOOLEAN?
 **
 ** Return the fully qualified directory name of the current checkout or an
-** empty string if it is not available.
+** empty string if it is not available.  Optionally, it will attempt to find
+** the current checkout, opening the configuration ("user") database and the
+** repository as necessary, if the boolean argument is non-zero.
 */
 static int checkoutCmd(
   Th_Interp *interp,
@@ -610,11 +612,11 @@ static int checkoutCmd(
     return Th_WrongNumArgs(interp, "checkout ?BOOLEAN?");
   }
   if( argc==2 ){
-    int openRepository = 0;
-    if( Th_ToInt(interp, argv[1], argl[1], &openRepository) ){
+    int openCheckout = 0;
+    if( Th_ToInt(interp, argv[1], argl[1], &openCheckout) ){
       return TH_ERROR;
     }
-    if( openRepository ) db_find_and_open_repository(OPEN_OK_NOT_FOUND, 0);
+    if( openCheckout ) db_open_local(0);
   }
   Th_SetResult(interp, g.zLocalRoot, -1);
   return TH_OK;
