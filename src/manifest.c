@@ -1163,10 +1163,11 @@ static int filename_to_fnid(const char *zFilename){
 int manifest_file_mperm(ManifestFile *pFile){
   int mperm = PERM_REG;
   if( pFile && pFile->zPerm){
-    if( strstr(pFile->zPerm,"x")!=0 )
+    if( strstr(pFile->zPerm,"x")!=0 ){
       mperm = PERM_EXE;
-    else if( strstr(pFile->zPerm,"l")!=0 )
+    }else if( strstr(pFile->zPerm,"l")!=0 ){
       mperm = PERM_LNK;
+    }
   }
   return mperm;
 }

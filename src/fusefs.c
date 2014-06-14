@@ -134,7 +134,8 @@ static int fusefs_getattr(const char *zPath, struct stat *stbuf){
   if( pFile==0 ) return -ENOENT;
   stbuf->st_mtime = (fusefs.pMan->rDate - 2440587.5)*86400.0;
   if( strcmp(fusefs.az[2], pFile->zName)==0 ){
-    stbuf->st_mode = S_IFREG | 0444;
+    stbuf->st_mode = S_IFREG |
+              (manifest_file_mperm(pFile)==PERM_EXE ? 0555 : 0444);
     stbuf->st_nlink = 1;
     stbuf->st_size = db_int(0, "SELECT size FROM blob WHERE uuid='%s'", 
                                pFile->zUuid);
