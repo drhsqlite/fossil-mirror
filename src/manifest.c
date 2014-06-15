@@ -1262,7 +1262,11 @@ static ManifestFile *manifest_file_seek_base(
       return &p->aFile[i];
     }
   }
-  return bBest ? &p->aFile[lwr] : 0;
+  if( bBest ){
+    i = (int)strlen(zName);
+    if( strncmp(zName, p->aFile[lwr].zName, i)==0 ) return &p->aFile[lwr];
+  }
+  return 0;
 }
 
 /*

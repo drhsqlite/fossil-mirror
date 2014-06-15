@@ -124,6 +124,7 @@ static int fusefs_name_to_rid(const char *zSymName){
 static int fusefs_getattr(const char *zPath, struct stat *stbuf){
   int n, rid;
   ManifestFile *pFile;
+  char *zDir;
   stbuf->st_uid = getuid();
   stbuf->st_gid = getgid();
   n = fusefs_parse_path(zPath);
@@ -147,10 +148,9 @@ static int fusefs_getattr(const char *zPath, struct stat *stbuf){
   }
   fusefs_load_rid(rid, fusefs.az[1]);
   if( fusefs.pMan==0 ) return -ENOENT;
-  pFile = manifest_file_seek(fusefs.pMan, fusefs.az[2], 1);
-  if( pFile==0 ) return -ENOENT;
   stbuf->st_mtime = (fusefs.pMan->rDate - 2440587.5)*86400.0;
-  if( strcmp(fusefs.az[2], pFile->zName)==0 ){
+  pFile = manifest_file_seek(fusefs.pMan, fusefs.az[2], 0);
+  if( pFile ){
     static Stmt q;
     stbuf->st_mode = S_IFREG |
               (manifest_file_mperm(pFile)==PERM_EXE ? 0555 : 0444);
@@ -163,6 +163,10 @@ static int fusefs_getattr(const char *zPath, struct stat *stbuf){
     db_reset(&q);
     return 0;
   }
+  zDir = mprintf("%s/", fusefs.az[2]);
+  pFile = manifest_file_seek(fusefs.pMan, zDir, 1);
+  fossil_free(zDir);
+  if( pFile==0 ) return -ENOENT;
   n = (int)strlen(fusefs.az[2]);
   if( strncmp(fusefs.az[2], pFile->zName, n)!=0 ) return -ENOENT;
   if( pFile->zName[n]!='/' ) return -ENOENT;
