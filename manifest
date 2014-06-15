@@ -1,5 +1,5 @@
-C Corrections\sto\sthe\snew\sTH1\s'checkout'\scommand\sand\stests.
-D 2014-06-14T22:16:03.339
+C Handling\smissing\sth1-setup\sfile\sin\sthe\stest\ssuite\shelpers\ssaveTh1SetupFile\sand\srestoreTh1SetupFile.
+D 2014-06-15T00:37:03.652
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -459,7 +459,7 @@ F test/merge_renames.test 8587eb2f8569dba26631ff46d9eb89fa275596c2
 F test/release-checklist.wiki 9439e56c72aaddbfeb1e8f01321396aa633c00d8
 F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl a78131dc9cb9b584e651a030cc2d1d94d8442084
+F test/tester.tcl a851f5b92642fa570eb97232608bf2ad979c6f4f
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 7ffbd9a20c0380e1ae9f9ec3b00fab1512972da3
 F test/th1-tcl.test 0a784acfe60f26593e9cf1f63fda4c802e91c452
@@ -648,7 +648,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c7f5541b7d81015a64bd3a1fd78e5e7689f38874
-R 7943e83cb6611c4e1e9a8c7e4d6bf77b
+P 589b902edb5565fab257da1ec3d28e6bcfc75317
+R ad86eb35cb6aa4b02bca5e633393c433
 U mistachkin
-Z e863332c3426715bb252df32cfd786e9
+Z ef682598d0de2e50e9f0b0fcc159d752

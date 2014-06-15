@@ -223,7 +223,6 @@ proc saveTh1SetupFile {} {
     set newFileName [getSavedTh1SetupFileName]
     catch {file delete $newFileName}
     file rename $oldFileName $newFileName
-    file delete $oldFileName
   }
 }
 
@@ -232,11 +231,15 @@ proc saveTh1SetupFile {} {
 #
 proc restoreTh1SetupFile {} {
   set oldFileName [getSavedTh1SetupFileName]
+  set newFileName [getTh1SetupFileName]
   if {[file exists $oldFileName]} then {
-    set newFileName [getTh1SetupFileName]
     catch {file delete $newFileName}
     file rename $oldFileName $newFileName
-    file delete $oldFileName
+  } else {
+    #
+    # NOTE: There was no TH1 setup script file, delete the test one.
+    #
+    file delete $newFileName
   }
 }
 
