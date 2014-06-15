@@ -1220,6 +1220,7 @@ clean:
 	-del *.obj
 	-del *_.c
 	-del *.h
+	-del *.ilk
 	-del *.map
 	-del *.res
 	-del headers
@@ -1230,9 +1231,13 @@ realclean: clean
 	-del $(APPNAME)
 	-del $(PDBNAME)
 	-del translate$E
+	-del translate$P
 	-del mkindex$E
+	-del mkindex$P
 	-del makeheaders$E
+	-del makeheaders$P
 	-del mkversion$E
+	-del mkversion$P
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
