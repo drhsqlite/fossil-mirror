@@ -18,6 +18,11 @@
 # TH1 Commands
 #
 
+fossil test-th-eval --th-open-config "setting th1-hooks"
+set th1Hooks [expr {$RESULT eq "1"}]
+
+###############################################################################
+
 fossil test-th-eval --th-open-config "setting abc"
 test th1-setting-1 {$RESULT eq ""}
 
@@ -477,13 +482,13 @@ test th1-expr-35 {$RESULT eq {TH_ERROR: expected number, got: "0b"}}
 
 ###############################################################################
 
-fossil test-th-eval "checkout 1"
+fossil test-th-eval "checkout 1"; # NOTE: Assumes running "in tree".
 test th1-checkout-1 {[string length $RESULT] > 0}
 
 ###############################################################################
 
-fossil test-th-eval "checkout"
-test th1-checkout-2 {[string length $RESULT] == 0}
+fossil test-th-eval "checkout"; # NOTE: Assumes running "in tree".
+test th1-checkout-2 {[string length $RESULT] > 0}
 
 ###############################################################################
 
@@ -517,11 +522,18 @@ test th1-trace-1 {$RESULT eq {}}
 ###############################################################################
 
 fossil test-th-eval --th-trace "trace {}"
-test th1-trace-2 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+if {$th1Hooks} {
+  test th1-trace-2 {[string map [list \r\n \n] [string trim $RESULT]] eq \
 {------------------ BEGIN TRACE LOG ------------------
+
+------------------- END TRACE LOG -------------------}}
+} else {
+  test th1-trace-2 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+      {------------------ BEGIN TRACE LOG ------------------
 th1-setup {} => TH_OK<br />
 
 ------------------- END TRACE LOG -------------------}}
+}
 
 ###############################################################################
 
@@ -531,16 +543,23 @@ test th1-trace-3 {$RESULT eq {}}
 ###############################################################################
 
 fossil test-th-eval --th-trace "trace {this is a trace message.}"
-test th1-trace-4 {[string map [list \r\n \n] [string trim $RESULT]] eq \
-{------------------ BEGIN TRACE LOG ------------------
+if {$th1Hooks} {
+  test th1-trace-4 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+      {------------------ BEGIN TRACE LOG ------------------
+this is a trace message.
+------------------- END TRACE LOG -------------------}}
+} else {
+  test th1-trace-4 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+      {------------------ BEGIN TRACE LOG ------------------
 th1-setup {} => TH_OK<br />
 this is a trace message.
 ------------------- END TRACE LOG -------------------}}
+}
 
 ###############################################################################
 
 fossil test-th-eval "styleHeader {Page Title Here}"
-test th1-header-1 {$RESULT eq {TH_ERROR: configuration unavailable}}
+test th1-header-1 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
@@ -550,12 +569,17 @@ test th1-header-2 {[regexp -- {<title>Fossil: Page Title Here</title>} $RESULT]}
 ###############################################################################
 
 fossil test-th-eval "styleFooter"
-test th1-footer-1 {$RESULT eq {TH_ERROR: configuration unavailable}}
+test th1-footer-1 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
 fossil test-th-eval --th-open-config "styleFooter"
 test th1-footer-2 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "styleHeader {}; styleFooter"
+test th1-footer-3 {[regexp -- {</body></html>} $RESULT]}
 
 ###############################################################################
 
