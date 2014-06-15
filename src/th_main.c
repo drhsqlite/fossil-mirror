@@ -1470,6 +1470,25 @@ static int validVarName(const char *z){
 
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
 /*
+** This function determines if TH1 hooks are enabled for the repository.  It
+** may be necessary to open the repository and/or the configuration ("user")
+** database from within this function.  Before this function returns, any
+** database opened will be closed again.  This is very important because some
+** commands do not expect the repository and/or the configuration ("user")
+** database to be open prior to their own code doing so.
+*/
+int Th_AreHooksEnabled(void){
+  int rc;
+  if( fossil_getenv("TH1_ENABLE_HOOKS")!=0 ){
+    return 1;
+  }
+  Th_OpenConfig(1);
+  rc = db_get_boolean("th1-hooks", 0);
+  Th_CloseConfig(1);
+  return rc;
+}
+
+/*
 ** This function is called by Fossil just prior to dispatching a command.
 ** Returning a value other than TH_OK from this function (i.e. via an
 ** evaluated script raising an error or calling [break]/[continue]) will
@@ -1480,12 +1499,7 @@ int Th_CommandHook(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_OpenConfig(1);
-  if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
-    Th_CloseConfig(1);
-    return rc;
-  }
-  Th_CloseConfig(1);
+  if( !Th_AreHooksEnabled() ) return rc;
   Th_FossilInit(TH_INIT_HOOK);
   Th_Store("cmd_name", zName);
   Th_StoreList("cmd_args", g.argv, g.argc);
@@ -1513,6 +1527,13 @@ int Th_CommandHook(
     Th_Trace("[command_hook {%h}] => %h<br />\n", zName,
              Th_ReturnCodeName(rc, 0));
   }
+  /*
+  ** Does our call to Th_FossilInit() result in opening a database?  If so,
+  ** clean it up now.  This is very important because some commands do not
+  ** expect the repository and/or the configuration ("user") database to be
+  ** open prior to their own code doing so.
+  */
+  if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
   return (rc != TH_ERROR) ? rc : TH_OK;
 }
 
@@ -1528,12 +1549,7 @@ int Th_CommandNotify(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_OpenConfig(1);
-  if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
-    Th_CloseConfig(1);
-    return rc;
-  }
-  Th_CloseConfig(1);
+  if( !Th_AreHooksEnabled() ) return rc;
   Th_FossilInit(TH_INIT_HOOK);
   Th_Store("cmd_name", zName);
   Th_StoreList("cmd_args", g.argv, g.argc);
@@ -1543,6 +1559,13 @@ int Th_CommandNotify(
     Th_Trace("[command_notify {%h}] => %h<br />\n", zName,
              Th_ReturnCodeName(rc, 0));
   }
+  /*
+  ** Does our call to Th_FossilInit() result in opening a database?  If so,
+  ** clean it up now.  This is very important because some commands do not
+  ** expect the repository and/or the configuration ("user") database to be
+  ** open prior to their own code doing so.
+  */
+  if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
   return rc;
 }
 
@@ -1557,12 +1580,7 @@ int Th_WebpageHook(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_OpenConfig(1);
-  if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
-    Th_CloseConfig(1);
-    return rc;
-  }
-  Th_CloseConfig(1);
+  if( !Th_AreHooksEnabled() ) return rc;
   Th_FossilInit(TH_INIT_HOOK);
   Th_Store("web_name", zName);
   Th_StoreList("web_args", g.argv, g.argc);
@@ -1590,6 +1608,13 @@ int Th_WebpageHook(
     Th_Trace("[webpage_hook {%h}] => %h<br />\n", zName,
              Th_ReturnCodeName(rc, 0));
   }
+  /*
+  ** Does our call to Th_FossilInit() result in opening a database?  If so,
+  ** clean it up now.  This is very important because some commands do not
+  ** expect the repository and/or the configuration ("user") database to be
+  ** open prior to their own code doing so.
+  */
+  if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
   return (rc != TH_ERROR) ? rc : TH_OK;
 }
 
@@ -1605,12 +1630,7 @@ int Th_WebpageNotify(
   char cmdFlags
 ){
   int rc = TH_OK;
-  Th_OpenConfig(1);
-  if( fossil_getenv("TH1_ENABLE_HOOKS")==0 && !db_get_boolean("th1-hooks", 0) ){
-    Th_CloseConfig(1);
-    return rc;
-  }
-  Th_CloseConfig(1);
+  if( !Th_AreHooksEnabled() ) return rc;
   Th_FossilInit(TH_INIT_HOOK);
   Th_Store("web_name", zName);
   Th_StoreList("web_args", g.argv, g.argc);
@@ -1620,6 +1640,13 @@ int Th_WebpageNotify(
     Th_Trace("[webpage_notify {%h}] => %h<br />\n", zName,
              Th_ReturnCodeName(rc, 0));
   }
+  /*
+  ** Does our call to Th_FossilInit() result in opening a database?  If so,
+  ** clean it up now.  This is very important because some commands do not
+  ** expect the repository and/or the configuration ("user") database to be
+  ** open prior to their own code doing so.
+  */
+  if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
   return rc;
 }
 #endif
