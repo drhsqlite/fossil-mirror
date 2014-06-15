@@ -578,7 +578,7 @@ test th1-footer-2 {$RESULT eq {}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "styleHeader {}; styleFooter"
+fossil test-th-eval --th-open-config --th-force-cgi "styleHeader {}; styleFooter"
 test th1-footer-3 {[regexp -- {</body></html>} $RESULT]}
 
 ###############################################################################
