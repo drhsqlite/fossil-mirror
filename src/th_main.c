@@ -106,6 +106,18 @@ void Th_Trace(const char *zFormat, ...){
 }
 
 /*
+** Forces input and output to be done via the CGI subsystem.
+*/
+void Th_ForceCgi(int fullHttpReply){
+  g.httpOut = stdout;
+  g.httpIn = stdin;
+  fossil_binary_mode(g.httpOut);
+  fossil_binary_mode(g.httpIn);
+  g.cgiOutput = 1;
+  g.fullHttpReply = fullHttpReply;
+}
+
+/*
 ** Checks if the TH1 trace log needs to be enabled.  If so, prepares
 ** it for use.
 */
@@ -1678,8 +1690,12 @@ int Th_Render(const char *z){
 ** COMMAND: test-th-render
 */
 void test_th_render(void){
+  int forceCgi, fullHttpReply;
   Blob in;
   Th_InitTraceLog();
+  forceCgi = find_option("th-force-cgi", 0, 0)!=0;
+  fullHttpReply = find_option("th-full-http", 0, 0)!=0;
+  if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( find_option("th-open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
@@ -1690,6 +1706,7 @@ void test_th_render(void){
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));
   Th_PrintTraceLog();
+  if( forceCgi ) cgi_reply();
 }
 
 /*
@@ -1698,7 +1715,11 @@ void test_th_render(void){
 void test_th_eval(void){
   int rc;
   const char *zRc;
+  int forceCgi, fullHttpReply;
   Th_InitTraceLog();
+  forceCgi = find_option("th-force-cgi", 0, 0)!=0;
+  fullHttpReply = find_option("th-full-http", 0, 0)!=0;
+  if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( find_option("th-open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
@@ -1710,6 +1731,7 @@ void test_th_eval(void){
   zRc = Th_ReturnCodeName(rc, 1);
   fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
   Th_PrintTraceLog();
+  if( forceCgi ) cgi_reply();
 }
 
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
@@ -1720,7 +1742,11 @@ void test_th_hook(void){
   int rc = TH_OK;
   int nResult = 0;
   char *zResult;
+  int forceCgi, fullHttpReply;
   Th_InitTraceLog();
+  forceCgi = find_option("th-force-cgi", 0, 0)!=0;
+  fullHttpReply = find_option("th-full-http", 0, 0)!=0;
+  if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( g.argc<5 ){
     usage("TYPE NAME FLAGS");
   }
@@ -1742,5 +1768,6 @@ void test_th_hook(void){
   sendText(zResult, nResult, 0);
   sendText("\n", -1, 0);
   Th_PrintTraceLog();
+  if( forceCgi ) cgi_reply();
 }
 #endif
