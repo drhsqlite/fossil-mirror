@@ -676,7 +676,7 @@ void cmd_win32_service(void){
     const char *zNotFound   = find_option("notfound", 0, 1);
     const char *zFileGlob   = find_option("files", 0, 1);
     const char *zLocalAuth  = find_option("localauth", 0, 0);
-    const char *zRepository = find_option("repository", "R", 1);
+    const char *zRepository = find_repository_option();
     int useSCGI             = find_option("scgi", 0, 0)!=0;
     Blob binPath;
 

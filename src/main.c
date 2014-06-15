@@ -126,6 +126,7 @@ struct Global {
   const char *zConfigDbName;/* Path of the config database. NULL if not open */
   sqlite3_int64 now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
+  char *zRepositoryOption; /* Most recent cached repository option value */
   char *zRepositoryName;  /* Name of the repository database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
   const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
@@ -797,6 +798,20 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
     }
   }
   return zReturn;
+}
+
+/*
+** Look for a repository command-line option.  If present, [re-]cache it in
+** the global state and return the new pointer, freeing any previous value.
+** If absent and there is no cached value, return NULL.
+*/
+const char *find_repository_option(){
+  const char *zRepository = find_option("repository", "R", 1);
+  if( zRepository ){
+    if( g.zRepositoryOption ) fossil_free(g.zRepositoryOption);
+    g.zRepositoryOption = mprintf("%s", zRepository);
+  }
+  return g.zRepositoryOption;
 }
 
 /*
