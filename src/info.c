@@ -1564,10 +1564,37 @@ void hexdump_page(void){
 }
 
 /*
+** Attempt to lookup the specified checkin and file name into an rid.
+*/
+int artifact_from_ci_and_filename(
+  const char *zCI,
+  const char *zFilename
+){
+  int cirid;
+  Manifest *pManifest;
+  ManifestFile *pFile;
+
+  if( zCI==0 ) return 0;
+  if( zFilename==0 ) return 0;
+  cirid = name_to_rid(zCI);
+  pManifest = manifest_get(cirid, CFTYPE_MANIFEST, 0);
+  if( pManifest==0 ) return 0;
+  manifest_file_rewind(pManifest);
+  while( (pFile = manifest_file_next(pManifest,0))!=0 ){
+    if( fossil_strcmp(zFilename, pFile->zName)==0 ){
+      int rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", pFile->zUuid);
+      manifest_destroy(pManifest);
+      return rid;
+    }
+  }
+  return 0;
+}
+
+/*
 ** Look for "ci" and "filename" query parameters.  If found, try to
 ** use them to extract the record ID of an artifact for the file.
 */
-int artifact_from_ci_and_filename(void){
+int artifact_from_ci_and_filename_www(void){
   const char *zFilename;
   const char *zCI;
   int cirid;
@@ -1675,7 +1702,7 @@ void artifact_page(void){
   const char *zUuid;
 
   if( P("ci") && P("filename") ){
-    rid = artifact_from_ci_and_filename();
+    rid = artifact_from_ci_and_filename_www();
   }
   if( rid==0 ){
     rid = name_to_rid_www("name");

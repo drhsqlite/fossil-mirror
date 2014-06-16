@@ -637,7 +637,7 @@ test th1-set-parameter-7 {$RESULT eq {value5}}
 
 fossil test-th-eval "artifact"
 test th1-artifact-1 {$RESULT eq \
-    {TH_ERROR: wrong # args: should be "artifact ID"}}
+    {TH_ERROR: wrong # args: should be "artifact ID ?FILENAME?"}}
 
 ###############################################################################
 
@@ -658,3 +658,23 @@ test th1-artifact-4 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 fossil test-th-eval --th-open-config "artifact 0000000000"
 test th1-artifact-5 {$RESULT eq {TH_ERROR: artifact not found}}
+
+###############################################################################
+
+fossil test-th-eval "artifact tip test/th1.test"
+test th1-artifact-6 {$RESULT eq {TH_ERROR: repository unavailable}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "artifact tip test/th1.test"
+test th1-artifact-7 {[regexp -- {th1-artifact-7} $RESULT]}
+
+###############################################################################
+
+fossil test-th-eval "artifact 0000000000 test/th1.test"
+test th1-artifact-8 {$RESULT eq {TH_ERROR: repository unavailable}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "artifact 0000000000 test/th1.test"
+test th1-artifact-9 {$RESULT eq {TH_ERROR: artifact not found}}

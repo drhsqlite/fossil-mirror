@@ -787,7 +787,7 @@ static int styleFooterCmd(
 }
 
 /*
-** TH1 command: artifact ID
+** TH1 command: artifact ID ?FILENAME?
 **
 ** Attempts to locate the specified artifact and return its contents.  An
 ** error is generated if the repository is not open or the artifact cannot
@@ -800,13 +800,17 @@ static int artifactCmd(
   const char **argv,
   int *argl
 ){
-  if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "artifact ID");
+  if( argc!=2 && argc!=3 ){
+    return Th_WrongNumArgs(interp, "artifact ID ?FILENAME?");
   }
   if( Th_IsRepositoryOpen() ){
     int rid;
     Blob content;
-    rid = name_to_rid(argv[1]);
+    if( argc==3 ){
+      rid = artifact_from_ci_and_filename(argv[1], argv[2]);
+    }else{
+      rid = name_to_rid(argv[1]);
+    }
     if( rid!=0 && content_get(rid, &content) ){
       Th_SetResult(interp, blob_str(&content), blob_size(&content));
       blob_reset(&content);
