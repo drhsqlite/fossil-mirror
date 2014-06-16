@@ -48,7 +48,7 @@ int comment_print(const char *zText, int indent, int lineLength){
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     memset(&csbi, 0, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
     if( GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) ){
-      tlen = csbi.srWindow.Right - csbi.srWindow.Left - indent + 1;
+      tlen = csbi.srWindow.Right - csbi.srWindow.Left - indent;
     }
   }
 #elif defined(TIOCGWINSZ)
