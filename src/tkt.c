@@ -476,7 +476,7 @@ void tktview_page(void){
 }
 
 /*
-** TH1 command:   append_field FIELD STRING
+** TH1 command: append_field FIELD STRING
 **
 ** FIELD is the name of a database column to which we might want
 ** to append text.  STRING is the text to be appended to that

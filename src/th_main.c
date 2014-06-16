@@ -141,7 +141,7 @@ void Th_PrintTraceLog(){
 }
 
 /*
-** TH1 command:      httpize STRING
+** TH1 command: httpize STRING
 **
 ** Escape all characters of STRING which have special meaning in URI
 ** components. Return a new string result.
@@ -169,7 +169,7 @@ static int httpizeCmd(
 static int enableOutput = 1;
 
 /*
-** TH1 command:     enable_output BOOLEAN
+** TH1 command: enable_output BOOLEAN
 **
 ** Enable or disable the puts and hputs commands.
 */
@@ -244,8 +244,8 @@ static void sendError(const char *z, int n, int forceCgi){
 }
 
 /*
-** TH1 command:     puts STRING
-** TH1 command:     html STRING
+** TH1 command: puts STRING
+** TH1 command: html STRING
 **
 ** Output STRING escaped for HTML (html) or unchanged (puts).  
 */
@@ -264,7 +264,7 @@ static int putsCmd(
 }
 
 /*
-** TH1 command:      wiki STRING
+** TH1 command: wiki STRING
 **
 ** Render the input string as wiki.
 */
@@ -289,7 +289,7 @@ static int wikiCmd(
 }
 
 /*
-** TH1 command:      htmlize STRING
+** TH1 command: htmlize STRING
 **
 ** Escape all characters of STRING which have special meaning in HTML.
 ** Return a new string result.
@@ -312,7 +312,7 @@ static int htmlizeCmd(
 }
 
 /*
-** TH1 command:      date
+** TH1 command: date
 **
 ** Return a string which is the current time and date.  If the
 ** -local option is used, the date appears using localtime instead
@@ -337,7 +337,7 @@ static int dateCmd(
 }
 
 /*
-** TH1 command:     hascap STRING...
+** TH1 command: hascap STRING...
 **
 ** Return true if the user has all of the capabilities listed in STRING.
 */
@@ -363,7 +363,7 @@ static int hascapCmd(
 }
 
 /*
-** TH1 command:     hasfeature STRING
+** TH1 command: hasfeature STRING
 **
 ** Return true if the fossil binary has the given compile-time feature
 ** enabled. The set of features includes:
@@ -441,7 +441,7 @@ static int hasfeatureCmd(
 
 
 /*
-** TH1 command:     tclReady
+** TH1 command: tclReady
 **
 ** Return true if the fossil binary has the Tcl integration feature
 ** enabled and it is currently available for use by TH1 scripts.
@@ -472,7 +472,7 @@ static int tclReadyCmd(
 
 
 /*
-** TH1 command:     anycap STRING
+** TH1 command: anycap STRING
 **
 ** Return true if the user has any one of the capabilities listed in STRING.
 */
@@ -499,7 +499,7 @@ static int anycapCmd(
 }
 
 /*
-** TH1 command:  combobox NAME TEXT-LIST NUMLINES
+** TH1 command: combobox NAME TEXT-LIST NUMLINES
 **
 ** Generate an HTML combobox.  NAME is both the name of the
 ** CGI parameter and the name of a variable that contains the
@@ -559,7 +559,7 @@ static int comboboxCmd(
 }
 
 /*
-** TH1 command:     linecount STRING MAX MIN
+** TH1 command: linecount STRING MAX MIN
 **
 ** Return one more than the number of \n characters in STRING.  But
 ** never return less than MIN or more than MAX.
@@ -594,7 +594,7 @@ static int linecntCmd(
 }
 
 /*
-** TH1 command:     repository ?BOOLEAN?
+** TH1 command: repository ?BOOLEAN?
 **
 ** Return the fully qualified file name of the open repository or an empty
 ** string if one is not currently open.  Optionally, it will attempt to open
@@ -622,7 +622,7 @@ static int repositoryCmd(
 }
 
 /*
-** TH1 command:     checkout ?BOOLEAN?
+** TH1 command: checkout ?BOOLEAN?
 **
 ** Return the fully qualified directory name of the current checkout or an
 ** empty string if it is not available.  Optionally, it will attempt to find
@@ -651,7 +651,7 @@ static int checkoutCmd(
 }
 
 /*
-** TH1 command:     trace STRING
+** TH1 command: trace STRING
 **
 ** Generate a TH1 trace message if debugging is enabled.
 */
@@ -673,7 +673,7 @@ static int traceCmd(
 }
 
 /*
-** TH1 command:     getParameter NAME ?DEFAULT?
+** TH1 command: getParameter NAME ?DEFAULT?
 **
 ** Return the value of the specified query parameter or the specified default
 ** value when there is no matching query parameter.
@@ -697,7 +697,7 @@ static int getParameterCmd(
 }
 
 /*
-** TH1 command:     setParameter NAME VALUE
+** TH1 command: setParameter NAME VALUE
 **
 ** Sets the value of the specified query parameter.
 */
@@ -716,7 +716,7 @@ static int setParameterCmd(
 }
 
 /*
-** TH1 command:     render STRING
+** TH1 command: render STRING
 **
 ** Renders the template and writes the results.
 */
@@ -737,7 +737,7 @@ static int renderCmd(
 }
 
 /*
-** TH1 command:     styleHeader TITLE
+** TH1 command: styleHeader TITLE
 **
 ** Render the configured style header.
 */
@@ -762,7 +762,7 @@ static int styleHeaderCmd(
 }
 
 /*
-** TH1 command:     styleFooter
+** TH1 command: styleFooter
 **
 ** Render the configured style footer.
 */
@@ -780,6 +780,45 @@ static int styleFooterCmd(
     style_footer();
     Th_SetResult(interp, 0, 0);
     return TH_OK;
+  }else{
+    Th_SetResult(interp, "repository unavailable", -1);
+    return TH_ERROR;
+  }
+}
+
+/*
+** TH1 command: artifact ID ?FILENAME?
+**
+** Attempts to locate the specified artifact and return its contents.  An
+** error is generated if the repository is not open or the artifact cannot
+** be found.
+*/
+static int artifactCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 && argc!=3 ){
+    return Th_WrongNumArgs(interp, "artifact ID ?FILENAME?");
+  }
+  if( Th_IsRepositoryOpen() ){
+    int rid;
+    Blob content;
+    if( argc==3 ){
+      rid = artifact_from_ci_and_filename(argv[1], argv[2]);
+    }else{
+      rid = name_to_rid(argv[1]);
+    }
+    if( rid!=0 && content_get(rid, &content) ){
+      Th_SetResult(interp, blob_str(&content), blob_size(&content));
+      blob_reset(&content);
+      return TH_OK;
+    }else{
+      Th_SetResult(interp, "artifact not found", -1);
+      return TH_ERROR;
+    }
   }else{
     Th_SetResult(interp, "repository unavailable", -1);
     return TH_ERROR;
@@ -825,7 +864,7 @@ static void getCpuTimes(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
 }
 
 /*
-** TH1 command:     utime
+** TH1 command: utime
 **
 ** Return the number of microseconds of CPU time consumed by the current
 ** process in user space.
@@ -846,7 +885,7 @@ static int utimeCmd(
 }
 
 /*
-** TH1 command:     stime
+** TH1 command: stime
 **
 ** Return the number of microseconds of CPU time consumed by the current
 ** process in system space.
@@ -868,7 +907,7 @@ static int stimeCmd(
 
 
 /*
-** TH1 command:     randhex  N
+** TH1 command: randhex  N
 **
 ** Return N*2 random hexadecimal digits with N<50.  If N is omitted, 
 ** use a value of 10.
@@ -902,7 +941,7 @@ static int randhexCmd(
 }
 
 /*
-** TH1 command:     query SQL CODE
+** TH1 command: query SQL CODE
 **
 ** Run the SQL query given by the SQL argument.  For each row in the result
 ** set, run CODE.
@@ -984,7 +1023,7 @@ static int queryCmd(
 }
 
 /*
-** TH1 command:     setting name
+** TH1 command: setting name
 **
 ** Gets and returns the value of the specified Fossil setting.
 */
@@ -1029,7 +1068,7 @@ static int settingCmd(
 }
 
 /*
-** TH1 command:     regexp ?-nocase? ?--? exp string
+** TH1 command: regexp ?-nocase? ?--? exp string
 **
 ** Checks the string against the specified regular expression and returns
 ** non-zero if it matches.  If the regular expression is invalid or cannot
@@ -1072,7 +1111,7 @@ static int regexpCmd(
 }
 
 /*
-** TH1 command:      http ?-asynchronous? ?--? url ?payload?
+** TH1 command: http ?-asynchronous? ?--? url ?payload?
 **
 ** Perform an HTTP or HTTPS request for the specified URL.  If a
 ** payload is present, it will be interpreted as text/plain and
@@ -1246,6 +1285,7 @@ void Th_FossilInit(u32 flags){
     void *pContext;
   } aCommand[] = {
     {"anycap",        anycapCmd,            0},
+    {"artifact",      artifactCmd,          0},
     {"checkout",      checkoutCmd,          0},
     {"combobox",      comboboxCmd,          0},
     {"date",          dateCmd,              0},
