@@ -794,11 +794,13 @@ void db_close_config(){
     g.useAttach = 0;
     g.zConfigDbName = 0;
   }else if( g.dbConfig ){
+    sqlite3_wal_checkpoint(g.dbConfig, 0);
     sqlite3_close(g.dbConfig);
     g.dbConfig = 0;
     g.zConfigDbType = 0;
     g.zConfigDbName = 0;
   }else if( g.db && fossil_strcmp(g.zMainDbType, "configdb")==0 ){
+    sqlite3_wal_checkpoint(g.db, 0);
     sqlite3_close(g.db);
     g.db = 0;
     g.zMainDbType = 0;
@@ -1230,18 +1232,19 @@ void db_close(int reportErrors){
       fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
     }
   }
+  db_close_config();
+  if( g.db ){
+    sqlite3_wal_checkpoint(g.db, 0);
+    sqlite3_close(g.db);
+    g.db = 0;
+    g.zMainDbType = 0;
+  }
   g.repositoryOpen = 0;
   g.localOpen = 0;
-  g.zConfigDbName = NULL;
-  sqlite3_wal_checkpoint(g.db, 0);
-  sqlite3_close(g.db);
-  g.db = 0;
-  g.zMainDbType = 0;
-  if( g.dbConfig ){
-    sqlite3_close(g.dbConfig);
-    g.dbConfig = 0;
-    g.zConfigDbType = 0;
-  }
+  assert( g.dbConfig==0 );
+  assert( g.useAttach==0 );
+  assert( g.zConfigDbName==0 );
+  assert( g.zConfigDbType==0 );
 }
 
 
