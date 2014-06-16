@@ -358,13 +358,7 @@ void leaves_cmd(void){
       fossil_fatal("-W|--width value must be >39 or 0");
     }
   }else{
-#ifdef TIOCGWINSZ
-    struct winsize w;
-    ioctl(0, TIOCGWINSZ, &w);
-    width = w.ws_col;
-#else
-    width = 79;
-#endif
+    width = -1;
   }
   db_find_and_open_repository(0,0);
   if( recomputeFlag ) leaf_rebuild();

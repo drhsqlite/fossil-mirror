@@ -789,6 +789,27 @@ void db_open_or_attach(
 }
 
 /*
+** Close the user database.
+*/
+void db_close_config(){
+  if( g.useAttach ){
+    db_detach("configdb");
+    g.useAttach = 0;
+    g.zConfigDbName = 0;
+  }else if( g.dbConfig ){
+    sqlite3_close(g.dbConfig);
+    g.dbConfig = 0;
+    g.zConfigDbType = 0;
+    g.zConfigDbName = 0;
+  }else if( g.db && fossil_strcmp(g.zMainDbType, "configdb")==0 ){
+    sqlite3_close(g.db);
+    g.db = 0;
+    g.zMainDbType = 0;
+    g.zConfigDbName = 0;
+  }
+}
+
+/*
 ** Open the user database in "~/.fossil".  Create the database anew if
 ** it does not already exist.
 **
@@ -803,7 +824,10 @@ void db_open_or_attach(
 void db_open_config(int useAttach){
   char *zDbName;
   char *zHome;
-  if( g.zConfigDbName ) return;
+  if( g.zConfigDbName ){
+    if( useAttach==g.useAttach ) return;
+    db_close_config();
+  }
 #if defined(_WIN32) || defined(__CYGWIN__)
   zHome = fossil_getenv("LOCALAPPDATA");
   if( zHome==0 ){
@@ -943,7 +967,7 @@ int db_open_local(const char *zDbName){
   char zPwd[2000];
   static const char aDbName[][10] = { "_FOSSIL_", ".fslckout", ".fos" };
 
-  if( g.localOpen) return 1;
+  if( g.localOpen ) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
   while( n>0 ){
@@ -1047,7 +1071,7 @@ void db_open_repository(const char *zDbName){
 ** Error out if the repository cannot be opened.
 */
 void db_find_and_open_repository(int bFlags, int nArgUsed){
-  const char *zRep = find_option("repository", "R", 1);
+  const char *zRep = find_repository_option();
   if( zRep==0 && nArgUsed && g.argc==nArgUsed+1 ){
     zRep = g.argv[nArgUsed];
   }
@@ -1922,7 +1946,7 @@ int db_table_has_column( char const *zTableName, char const *zColName ){
   while(SQLITE_ROW == db_step(&q)){
     /* Columns: (cid, name, type, notnull, dflt_value, pk) */
     char const * zCol = db_column_text(&q, 1);
-    if(0==fossil_strcmp(zColName, zCol)){
+    if( 0==fossil_strcmp(zColName, zCol) ){
       rc = 1;
       break;
     }
@@ -2042,7 +2066,7 @@ void cmd_open(void){
   oldArgc = g.argc;
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
-  if( !emptyFlag){
+  if( !emptyFlag ){
     g.argc = 3;
     if( oldArgc==4 ){
       azNewArgv[g.argc-1] = oldArgv[3];
@@ -2171,10 +2195,11 @@ struct stControlSettings const ctrlSettings[] = {
   { "ssl-identity",     0,             40, 0, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",              0,              0, 0, 0, "off"                 },
-  { "tcl-setup",        0,             40, 0, 1, ""                    },
+  { "tcl-setup",        0,             40, 1, 1, ""                    },
 #endif
-  { "th1-setup",        0,             40, 0, 1, ""                    },
-  { "th1-uri-regexp",   0,             40, 0, 0, ""                    },
+  { "th1-hooks",        0,              0, 0, 0, "off"                 },
+  { "th1-setup",        0,             40, 1, 1, ""                    },
+  { "th1-uri-regexp",   0,             40, 1, 0, ""                    },
   { "web-browser",      0,             32, 0, 0, ""                    },
   { "white-foreground", 0,              0, 0, 0, "off"                 },
   { 0,0,0,0,0,0 }
@@ -2377,15 +2402,19 @@ struct stControlSettings const ctrlSettings[] = {
 **                     expressions and scripts. Default: off.
 **
 **    tcl-setup        This is the setup script to be evaluated after creating
-**                     and initializing the Tcl interpreter.  By default, this
+**     (versionable)   and initializing the Tcl interpreter.  By default, this
 **                     is empty and no extra setup is performed.
 **
+**    th1-hooks        If enabled (and Fossil was compiled with support for TH1
+**                     hooks), special TH1 commands will be called before and
+**                     after any Fossil command or web page. Default: off.
+**
 **    th1-setup        This is the setup script to be evaluated after creating
-**                     and initializing the TH1 interpreter.  By default, this
+**     (versionable)   and initializing the TH1 interpreter.  By default, this
 **                     is empty and no extra setup is performed.
 **
 **    th1-uri-regexp   Specify which URI's are allowed in HTTP requests from
-**                     TH1 scripts.  If empty, no HTTP requests are allowed
+**     (versionable)   TH1 scripts.  If empty, no HTTP requests are allowed
 **                     whatsoever.  The default is an empty string.
 **
 **    web-browser      A shell command used to launch your preferred

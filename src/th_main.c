@@ -32,8 +32,36 @@
 #define TH_INIT_FORCE_TCL   ((u32)0x00000002) /* Force Tcl to be enabled? */
 #define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH1 commands re-added? */
 #define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
+#define TH_INIT_MASK        ((u32)0x0000000F) /* All possible init flags. */
 #define TH_INIT_DEFAULT     (TH_INIT_NONE)    /* Default flags. */
+#define TH_INIT_HOOK        (TH_INIT_NEED_CONFIG | TH_INIT_FORCE_SETUP)
 #endif
+
+/*
+** Flags set by functions in this file to keep track of integration state
+** information.  These flags should not be used outside of this file.
+*/
+#define TH_STATE_CONFIG     ((u32)0x00000010) /* We opened the config. */
+#define TH_STATE_REPOSITORY ((u32)0x00000020) /* We opened the repository. */
+#define TH_STATE_MASK       ((u32)0x00000030) /* All possible state flags. */
+
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+/*
+** These are the "well-known" TH1 error messages that occur when no hook is
+** registered to be called prior to executing a command or processing a web
+** page, respectively.  If one of these errors is seen, it will not be sent
+** or displayed to the remote user or local interactive user, respectively.
+*/
+#define NO_COMMAND_HOOK_ERROR "no such command:  command_hook"
+#define NO_WEBPAGE_HOOK_ERROR "no such command:  webpage_hook"
+#endif
+
+/*
+** These macros are used within this file to detect if the repository and
+** configuration ("user") database are currently open.
+*/
+#define Th_IsRepositoryOpen()     (g.repositoryOpen)
+#define Th_IsConfigOpen()         (g.zConfigDbName!=0)
 
 /*
 ** Global variable counting the number of outstanding calls to malloc()
@@ -75,6 +103,18 @@ void Th_Trace(const char *zFormat, ...){
   va_start(ap, zFormat);
   blob_vappendf(&g.thLog, zFormat, ap);
   va_end(ap);
+}
+
+/*
+** Forces input and output to be done via the CGI subsystem.
+*/
+void Th_ForceCgi(int fullHttpReply){
+  g.httpOut = stdout;
+  g.httpIn = stdin;
+  fossil_binary_mode(g.httpOut);
+  fossil_binary_mode(g.httpIn);
+  g.cgiOutput = 1;
+  g.fullHttpReply = fullHttpReply;
 }
 
 /*
@@ -329,6 +369,7 @@ static int hascapCmd(
 ** enabled. The set of features includes:
 **
 ** "ssl"             = FOSSIL_ENABLE_SSL
+** "th1Hooks"        = FOSSIL_ENABLE_TH1_HOOKS
 ** "tcl"             = FOSSIL_ENABLE_TCL
 ** "useTclStubs"     = USE_TCL_STUBS
 ** "tclStubs"        = FOSSIL_ENABLE_TCL_STUBS
@@ -355,6 +396,11 @@ static int hasfeatureCmd(
   }
 #if defined(FOSSIL_ENABLE_SSL)
   else if( 0 == fossil_strnicmp( zArg, "ssl\0", 4 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_TH1_HOOKS)
+  else if( 0 == fossil_strnicmp( zArg, "th1Hooks\0", 9 ) ){
     rc = 1;
   }
 #endif
@@ -573,6 +619,171 @@ static int repositoryCmd(
   }
   Th_SetResult(interp, g.zRepositoryName, -1);
   return TH_OK;
+}
+
+/*
+** TH1 command:     checkout ?BOOLEAN?
+**
+** Return the fully qualified directory name of the current checkout or an
+** empty string if it is not available.  Optionally, it will attempt to find
+** the current checkout, opening the configuration ("user") database and the
+** repository as necessary, if the boolean argument is non-zero.
+*/
+static int checkoutCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 && argc!=2 ){
+    return Th_WrongNumArgs(interp, "checkout ?BOOLEAN?");
+  }
+  if( argc==2 ){
+    int openCheckout = 0;
+    if( Th_ToInt(interp, argv[1], argl[1], &openCheckout) ){
+      return TH_ERROR;
+    }
+    if( openCheckout ) db_open_local(0);
+  }
+  Th_SetResult(interp, g.zLocalRoot, -1);
+  return TH_OK;
+}
+
+/*
+** TH1 command:     trace STRING
+**
+** Generate a TH1 trace message if debugging is enabled.
+*/
+static int traceCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "trace STRING");
+  }
+  if( g.thTrace ){
+    Th_Trace("%s", argv[1]);
+  }
+  Th_SetResult(interp, 0, 0);
+  return TH_OK;
+}
+
+/*
+** TH1 command:     getParameter NAME ?DEFAULT?
+**
+** Return the value of the specified query parameter or the specified default
+** value when there is no matching query parameter.
+*/
+static int getParameterCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  const char *zDefault = 0;
+  if( argc!=2 && argc!=3 ){
+    return Th_WrongNumArgs(interp, "getParameter NAME ?DEFAULT?");
+  }
+  if( argc==3 ){
+    zDefault = argv[2];
+  }
+  Th_SetResult(interp, cgi_parameter(argv[1], zDefault), -1);
+  return TH_OK;
+}
+
+/*
+** TH1 command:     setParameter NAME VALUE
+**
+** Sets the value of the specified query parameter.
+*/
+static int setParameterCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "setParameter NAME VALUE");
+  }
+  cgi_replace_parameter(mprintf("%s", argv[1]), mprintf("%s", argv[2]));
+  return TH_OK;
+}
+
+/*
+** TH1 command:     render STRING
+**
+** Renders the template and writes the results.
+*/
+static int renderCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "render STRING");
+  }
+  rc = Th_Render(argv[1]);
+  Th_SetResult(interp, 0, 0);
+  return rc;
+}
+
+/*
+** TH1 command:     styleHeader TITLE
+**
+** Render the configured style header.
+*/
+static int styleHeaderCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "styleHeader TITLE");
+  }
+  if( Th_IsRepositoryOpen() ){
+    style_header("%s", argv[1]);
+    Th_SetResult(interp, 0, 0);
+    return TH_OK;
+  }else{
+    Th_SetResult(interp, "repository unavailable", -1);
+    return TH_ERROR;
+  }
+}
+
+/*
+** TH1 command:     styleFooter
+**
+** Render the configured style footer.
+*/
+static int styleFooterCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "styleFooter");
+  }
+  if( Th_IsRepositoryOpen() ){
+    style_footer();
+    Th_SetResult(interp, 0, 0);
+    return TH_OK;
+  }else{
+    Th_SetResult(interp, "repository unavailable", -1);
+    return TH_ERROR;
+  }
 }
 
 #ifdef _WIN32
@@ -981,10 +1192,39 @@ static int httpCmd(
 void Th_OpenConfig(
   int openRepository
 ){
-  if( openRepository ){
+  if( openRepository && !Th_IsRepositoryOpen() ){
     db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
+    if( Th_IsRepositoryOpen() ){
+      g.th1Flags |= TH_STATE_REPOSITORY;
+    }else{
+      g.th1Flags &= ~TH_STATE_REPOSITORY;
+    }
   }
-  db_open_config(0);
+  if( !Th_IsConfigOpen() ){
+    db_open_config(0);
+    if( Th_IsConfigOpen() ){
+      g.th1Flags |= TH_STATE_CONFIG;
+    }else{
+      g.th1Flags &= ~TH_STATE_CONFIG;
+    }
+  }
+}
+
+/*
+** Attempts to close the configuration ("user") database.  Optionally, also
+** attempts to close the repository.
+*/
+void Th_CloseConfig(
+  int closeRepository
+){
+  if( g.th1Flags & TH_STATE_CONFIG ){
+    db_close_config();
+    g.th1Flags &= ~TH_STATE_CONFIG;
+  }
+  if( closeRepository && (g.th1Flags & TH_STATE_REPOSITORY) ){
+    db_close(1);
+    g.th1Flags &= ~TH_STATE_REPOSITORY;
+  }
 }
 
 /*
@@ -1006,10 +1246,12 @@ void Th_FossilInit(u32 flags){
     void *pContext;
   } aCommand[] = {
     {"anycap",        anycapCmd,            0},
+    {"checkout",      checkoutCmd,          0},
     {"combobox",      comboboxCmd,          0},
     {"date",          dateCmd,              0},
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"enable_output", enableOutputCmd,      0},
+    {"getParameter",  getParameterCmd,      0},
     {"httpize",       httpizeCmd,           0},
     {"hascap",        hascapCmd,            0},
     {"hasfeature",    hasfeatureCmd,        0},
@@ -1021,9 +1263,14 @@ void Th_FossilInit(u32 flags){
     {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
     {"regexp",        regexpCmd,            0},
+    {"render",        renderCmd,            0},
     {"repository",    repositoryCmd,        0},
+    {"setParameter",  setParameterCmd,      0},
     {"setting",       settingCmd,           0},
+    {"styleHeader",   styleHeaderCmd,       0},
+    {"styleFooter",   styleFooterCmd,       0},
     {"tclReady",      tclReadyCmd,          0},
+    {"trace",         traceCmd,             0},
     {"stime",         stimeCmd,             0},
     {"utime",         utimeCmd,             0},
     {"wiki",          wikiCmd,              (void*)&aFlags[0]},
@@ -1083,6 +1330,8 @@ void Th_FossilInit(u32 flags){
                Th_ReturnCodeName(rc, 0));
     }
   }
+  g.th1Flags &= ~TH_INIT_MASK;
+  g.th1Flags |= (flags & TH_INIT_MASK);
 }
 
 /*
@@ -1095,6 +1344,30 @@ void Th_Store(const char *zName, const char *zValue){
       Th_Trace("set %h {%h}<br />\n", zName, zValue);
     }
     Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
+  }
+}
+
+/*
+** Store a list value in a variable in the interpreter.
+*/
+void Th_StoreList(
+  const char *zName,
+  char **pzList,
+  int nList
+){
+  Th_FossilInit(TH_INIT_DEFAULT);
+  if( pzList ){
+    char *zValue = 0;
+    int nValue = 0;
+    int i;
+    for(i=0; i<nList; i++){
+      Th_ListAppend(g.interp, &zValue, &nValue, pzList[i], -1);
+    }
+    if( g.thTrace ){
+      Th_Trace("set %h {%h}<br />\n", zName, zValue);
+    }
+    Th_SetVar(g.interp, zName, -1, zValue, nValue);
+    Th_Free(g.interp, zValue);
   }
 }
 
@@ -1195,6 +1468,189 @@ static int validVarName(const char *z){
   return i;
 }
 
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+/*
+** This function determines if TH1 hooks are enabled for the repository.  It
+** may be necessary to open the repository and/or the configuration ("user")
+** database from within this function.  Before this function returns, any
+** database opened will be closed again.  This is very important because some
+** commands do not expect the repository and/or the configuration ("user")
+** database to be open prior to their own code doing so.
+*/
+int Th_AreHooksEnabled(void){
+  int rc;
+  if( fossil_getenv("TH1_ENABLE_HOOKS")!=0 ){
+    return 1;
+  }
+  Th_OpenConfig(1);
+  rc = db_get_boolean("th1-hooks", 0);
+  Th_CloseConfig(1);
+  return rc;
+}
+
+/*
+** This function is called by Fossil just prior to dispatching a command.
+** Returning a value other than TH_OK from this function (i.e. via an
+** evaluated script raising an error or calling [break]/[continue]) will
+** cause the actual command execution to be skipped.
+*/
+int Th_CommandHook(
+  const char *zName,
+  char cmdFlags
+){
+  int rc = TH_OK;
+  if( !Th_AreHooksEnabled() ) return rc;
+  Th_FossilInit(TH_INIT_HOOK);
+  Th_Store("cmd_name", zName);
+  Th_StoreList("cmd_args", g.argv, g.argc);
+  Th_StoreInt("cmd_flags", cmdFlags);
+  rc = Th_Eval(g.interp, 0, "command_hook", -1);
+  if( rc==TH_ERROR ){
+    int nResult = 0;
+    char *zResult = (char*)Th_GetResult(g.interp, &nResult);
+    /*
+    ** Make sure that the TH1 script error was not caused by a "missing"
+    ** command hook handler as that is not actually an error condition.
+    */
+    if( memcmp(zResult, NO_COMMAND_HOOK_ERROR, nResult)!=0 ){
+      sendError(zResult, nResult, 0);
+    }
+  }
+  /*
+  ** If the script returned TH_ERROR (e.g. the "command_hook" TH1 command does
+  ** not exist because commands are not being hooked), return TH_OK because we
+  ** do not want to skip executing essential commands unless the called command
+  ** (i.e. "command_hook") explicitly forbids this by successfully returning
+  ** TH_BREAK or TH_CONTINUE.
+  */
+  if( g.thTrace ){
+    Th_Trace("[command_hook {%h}] => %h<br />\n", zName,
+             Th_ReturnCodeName(rc, 0));
+  }
+  /*
+  ** Does our call to Th_FossilInit() result in opening a database?  If so,
+  ** clean it up now.  This is very important because some commands do not
+  ** expect the repository and/or the configuration ("user") database to be
+  ** open prior to their own code doing so.
+  */
+  if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
+  return (rc != TH_ERROR) ? rc : TH_OK;
+}
+
+/*
+** This function is called by Fossil just after dispatching a command.
+** Returning a value other than TH_OK from this function (i.e. via an
+** evaluated script raising an error or calling [break]/[continue]) may
+** cause an error message to be displayed to the local interactive user.
+** Currently, TH1 error messages generated by this function are ignored.
+*/
+int Th_CommandNotify(
+  const char *zName,
+  char cmdFlags
+){
+  int rc = TH_OK;
+  if( !Th_AreHooksEnabled() ) return rc;
+  Th_FossilInit(TH_INIT_HOOK);
+  Th_Store("cmd_name", zName);
+  Th_StoreList("cmd_args", g.argv, g.argc);
+  Th_StoreInt("cmd_flags", cmdFlags);
+  rc = Th_Eval(g.interp, 0, "command_notify", -1);
+  if( g.thTrace ){
+    Th_Trace("[command_notify {%h}] => %h<br />\n", zName,
+             Th_ReturnCodeName(rc, 0));
+  }
+  /*
+  ** Does our call to Th_FossilInit() result in opening a database?  If so,
+  ** clean it up now.  This is very important because some commands do not
+  ** expect the repository and/or the configuration ("user") database to be
+  ** open prior to their own code doing so.
+  */
+  if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
+  return rc;
+}
+
+/*
+** This function is called by Fossil just prior to processing a web page.
+** Returning a value other than TH_OK from this function (i.e. via an
+** evaluated script raising an error or calling [break]/[continue]) will
+** cause the actual web page processing to be skipped.
+*/
+int Th_WebpageHook(
+  const char *zName,
+  char cmdFlags
+){
+  int rc = TH_OK;
+  if( !Th_AreHooksEnabled() ) return rc;
+  Th_FossilInit(TH_INIT_HOOK);
+  Th_Store("web_name", zName);
+  Th_StoreList("web_args", g.argv, g.argc);
+  Th_StoreInt("web_flags", cmdFlags);
+  rc = Th_Eval(g.interp, 0, "webpage_hook", -1);
+  if( rc==TH_ERROR ){
+    int nResult = 0;
+    char *zResult = (char*)Th_GetResult(g.interp, &nResult);
+    /*
+    ** Make sure that the TH1 script error was not caused by a "missing"
+    ** webpage hook handler as that is not actually an error condition.
+    */
+    if( memcmp(zResult, NO_WEBPAGE_HOOK_ERROR, nResult)!=0 ){
+      sendError(zResult, nResult, 1);
+    }
+  }
+  /*
+  ** If the script returned TH_ERROR (e.g. the "webpage_hook" TH1 command does
+  ** not exist because commands are not being hooked), return TH_OK because we
+  ** do not want to skip processing essential web pages unless the called
+  ** command (i.e. "webpage_hook") explicitly forbids this by successfully
+  ** returning TH_BREAK or TH_CONTINUE.
+  */
+  if( g.thTrace ){
+    Th_Trace("[webpage_hook {%h}] => %h<br />\n", zName,
+             Th_ReturnCodeName(rc, 0));
+  }
+  /*
+  ** Does our call to Th_FossilInit() result in opening a database?  If so,
+  ** clean it up now.  This is very important because some commands do not
+  ** expect the repository and/or the configuration ("user") database to be
+  ** open prior to their own code doing so.
+  */
+  if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
+  return (rc != TH_ERROR) ? rc : TH_OK;
+}
+
+/*
+** This function is called by Fossil just after processing a web page.
+** Returning a value other than TH_OK from this function (i.e. via an
+** evaluated script raising an error or calling [break]/[continue]) may
+** cause an error message to be displayed to the remote user.
+** Currently, TH1 error messages generated by this function are ignored.
+*/
+int Th_WebpageNotify(
+  const char *zName,
+  char cmdFlags
+){
+  int rc = TH_OK;
+  if( !Th_AreHooksEnabled() ) return rc;
+  Th_FossilInit(TH_INIT_HOOK);
+  Th_Store("web_name", zName);
+  Th_StoreList("web_args", g.argv, g.argc);
+  Th_StoreInt("web_flags", cmdFlags);
+  rc = Th_Eval(g.interp, 0, "webpage_notify", -1);
+  if( g.thTrace ){
+    Th_Trace("[webpage_notify {%h}] => %h<br />\n", zName,
+             Th_ReturnCodeName(rc, 0));
+  }
+  /*
+  ** Does our call to Th_FossilInit() result in opening a database?  If so,
+  ** clean it up now.  This is very important because some commands do not
+  ** expect the repository and/or the configuration ("user") database to be
+  ** open prior to their own code doing so.
+  */
+  if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
+  return rc;
+}
+#endif
+
 /*
 ** The z[] input contains text mixed with TH1 scripts.
 ** The TH1 scripts are contained within <th1>...</th1>. 
@@ -1261,8 +1717,12 @@ int Th_Render(const char *z){
 ** COMMAND: test-th-render
 */
 void test_th_render(void){
+  int forceCgi, fullHttpReply;
   Blob in;
   Th_InitTraceLog();
+  forceCgi = find_option("th-force-cgi", 0, 0)!=0;
+  fullHttpReply = find_option("th-full-http", 0, 0)!=0;
+  if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( find_option("th-open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
@@ -1273,6 +1733,7 @@ void test_th_render(void){
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));
   Th_PrintTraceLog();
+  if( forceCgi ) cgi_reply();
 }
 
 /*
@@ -1281,7 +1742,11 @@ void test_th_render(void){
 void test_th_eval(void){
   int rc;
   const char *zRc;
+  int forceCgi, fullHttpReply;
   Th_InitTraceLog();
+  forceCgi = find_option("th-force-cgi", 0, 0)!=0;
+  fullHttpReply = find_option("th-full-http", 0, 0)!=0;
+  if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( find_option("th-open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
@@ -1293,4 +1758,43 @@ void test_th_eval(void){
   zRc = Th_ReturnCodeName(rc, 1);
   fossil_print("%s%s%s\n", zRc, zRc ? ": " : "", Th_GetResult(g.interp, 0));
   Th_PrintTraceLog();
+  if( forceCgi ) cgi_reply();
 }
+
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+/*
+** COMMAND: test-th-hook
+*/
+void test_th_hook(void){
+  int rc = TH_OK;
+  int nResult = 0;
+  char *zResult;
+  int forceCgi, fullHttpReply;
+  Th_InitTraceLog();
+  forceCgi = find_option("th-force-cgi", 0, 0)!=0;
+  fullHttpReply = find_option("th-full-http", 0, 0)!=0;
+  if( forceCgi ) Th_ForceCgi(fullHttpReply);
+  if( g.argc<5 ){
+    usage("TYPE NAME FLAGS");
+  }
+  if( fossil_stricmp(g.argv[2], "cmdhook")==0 ){
+    rc = Th_CommandHook(g.argv[3], (char)atoi(g.argv[4]));
+  }else if( fossil_stricmp(g.argv[2], "cmdnotify")==0 ){
+    rc = Th_CommandNotify(g.argv[3], (char)atoi(g.argv[4]));
+  }else if( fossil_stricmp(g.argv[2], "webhook")==0 ){
+    rc = Th_WebpageHook(g.argv[3], (char)atoi(g.argv[4]));
+  }else if( fossil_stricmp(g.argv[2], "webnotify")==0 ){
+    rc = Th_WebpageNotify(g.argv[3], (char)atoi(g.argv[4]));
+  }else{
+    fossil_fatal("Unknown TH1 hook %s\n", g.argv[2]);
+  }
+  zResult = (char*)Th_GetResult(g.interp, &nResult);
+  sendText("RESULT (", -1, 0);
+  sendText(Th_ReturnCodeName(rc, 0), -1, 0);
+  sendText("): ", -1, 0);
+  sendText(zResult, nResult, 0);
+  sendText("\n", -1, 0);
+  Th_PrintTraceLog();
+  if( forceCgi ) cgi_reply();
+}
+#endif

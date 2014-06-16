@@ -1163,10 +1163,11 @@ static int filename_to_fnid(const char *zFilename){
 int manifest_file_mperm(ManifestFile *pFile){
   int mperm = PERM_REG;
   if( pFile && pFile->zPerm){
-    if( strstr(pFile->zPerm,"x")!=0 )
+    if( strstr(pFile->zPerm,"x")!=0 ){
       mperm = PERM_EXE;
-    else if( strstr(pFile->zPerm,"l")!=0 )
+    }else if( strstr(pFile->zPerm,"l")!=0 ){
       mperm = PERM_LNK;
+    }
   }
   return mperm;
 }
@@ -1229,7 +1230,11 @@ static void add_one_mlink(
 **
 ** Update p->iFile to be the index of the file that is found.
 */
-static ManifestFile *manifest_file_seek_base(Manifest *p, const char *zName){
+static ManifestFile *manifest_file_seek_base(
+  Manifest *p,             /* Manifest to search */
+  const char *zName,       /* Name of the file we are looking for */
+  int bBest                /* 0: exact match only.  1: closest match */
+){
   int lwr, upr;
   int c;
   int i;
@@ -1257,6 +1262,10 @@ static ManifestFile *manifest_file_seek_base(Manifest *p, const char *zName){
       return &p->aFile[i];
     }
   }
+  if( bBest ){
+    i = (int)strlen(zName);
+    if( strncmp(zName, p->aFile[lwr].zName, i)==0 ) return &p->aFile[lwr];
+  }
   return 0;
 }
 
@@ -1270,14 +1279,14 @@ static ManifestFile *manifest_file_seek_base(Manifest *p, const char *zName){
 **
 ** We assume that filenames are in sorted order and use a binary search.
 */
-ManifestFile *manifest_file_seek(Manifest *p, const char *zName){
+ManifestFile *manifest_file_seek(Manifest *p, const char *zName, int bBest){
   ManifestFile *pFile;
 
-  pFile = manifest_file_seek_base(p, zName);
+  pFile = manifest_file_seek_base(p, zName, p->zBaseline ? 0 : bBest);
   if( pFile && pFile->zUuid==0 ) return 0;
   if( pFile==0 && p->zBaseline ){
     fetch_baseline(p, 1);
-    pFile = manifest_file_seek_base(p->pBaseline, zName);
+    pFile = manifest_file_seek_base(p->pBaseline, zName,bBest);
   }
   return pFile;
 }
@@ -1291,7 +1300,7 @@ ManifestFile *manifest_file_find(Manifest *p, const char *zName){
   int i;
   Manifest *pBase;
   if( filenames_are_case_sensitive() ){
-    return manifest_file_seek(p, zName);
+    return manifest_file_seek(p, zName, 0);
   }
   for(i=0; i<p->nFile; i++){
     if( fossil_stricmp(zName, p->aFile[i].zName)==0 ){
@@ -1391,7 +1400,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   for(i=0, pChildFile=pChild->aFile; i<pChild->nFile; i++, pChildFile++){
     int mperm = manifest_file_mperm(pChildFile);
     if( pChildFile->zPrior ){
-       pParentFile = manifest_file_seek(pParent, pChildFile->zPrior);
+       pParentFile = manifest_file_seek(pParent, pChildFile->zPrior, 0);
        if( pParentFile ){
          /* File with name change */
          add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
@@ -1403,7 +1412,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
                        isPublic, mperm);
        }
     }else{
-       pParentFile = manifest_file_seek(pParent, pChildFile->zName);
+       pParentFile = manifest_file_seek(pParent, pChildFile->zName, 0);
        if( pParentFile==0 ){
          if( pChildFile->zUuid ){
            /* A new file */
@@ -1425,10 +1434,10 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     ** in the child. */
     for(i=0, pParentFile=pParent->aFile; i<pParent->nFile; i++, pParentFile++){
       if( pParentFile->zUuid ){
-        pChildFile = manifest_file_seek_base(pChild, pParentFile->zName);
+        pChildFile = manifest_file_seek_base(pChild, pParentFile->zName, 0);
         if( pChildFile==0 ){
           /* The child file reverts to baseline.  Show this as a change */
-          pChildFile = manifest_file_seek(pChild, pParentFile->zName);
+          pChildFile = manifest_file_seek(pChild, pParentFile->zName, 0);
           if( pChildFile ){
             add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
                           pChildFile->zName, 0, isPublic,
@@ -1436,7 +1445,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
           }
         }
       }else{
-        pChildFile = manifest_file_seek(pChild, pParentFile->zName);
+        pChildFile = manifest_file_seek(pChild, pParentFile->zName, 0);
         if( pChildFile ){
           /* File resurrected in the child after having been deleted in
           ** the parent.  Show this as an added file. */
@@ -1450,7 +1459,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     ** but are missing from pChild and mark them as having been deleted. */
     manifest_file_rewind(pParent);
     while( (pParentFile = manifest_file_next(pParent,0))!=0 ){
-      pChildFile = manifest_file_seek(pChild, pParentFile->zName);
+      pChildFile = manifest_file_seek(pChild, pParentFile->zName, 0);
       if( pChildFile==0 && pParentFile->zUuid!=0 ){
         add_one_mlink(cid, pParentFile->zUuid, 0, pParentFile->zName, 0,
                       isPublic, 0);

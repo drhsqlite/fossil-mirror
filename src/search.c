@@ -204,13 +204,7 @@ void search_cmd(void){
       fossil_fatal("-W|--width value must be >20 or 0");
     }
   }else{
-#ifdef TIOCGWINSZ
-    struct winsize w;
-    ioctl(0, TIOCGWINSZ, &w);
-    width = w.ws_col;
-#else
-    width = 79;
-#endif
+    width = -1;
   }
 
   db_must_be_within_tree();

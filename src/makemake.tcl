@@ -48,6 +48,7 @@ set src {
   export
   file
   finfo
+  fusefs
   glob
   graph
   gzip
@@ -411,6 +412,10 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_SSL = 1
 
+#### Enable hooks for commands and web pages via TH1
+#
+# FOSSIL_ENABLE_TH1_HOOKS = 1
+
 #### Enable scripting support via Tcl/Tk
 #
 # FOSSIL_ENABLE_TCL = 1
@@ -540,6 +545,12 @@ TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
+# With TH1 hook support
+ifdef FOSSIL_ENABLE_TH1_HOOKS
+TCC += -DFOSSIL_ENABLE_TH1_HOOKS=1
+RCC += -DFOSSIL_ENABLE_TH1_HOOKS=1
+endif
+
 # With Tcl support
 ifdef FOSSIL_ENABLE_TCL
 TCC += -DFOSSIL_ENABLE_TCL=1
@@ -614,7 +625,11 @@ TCLSH = tclsh
 
 #### Nullsoft installer MakeNSIS location
 #
-MAKENSIS = "$(ProgramFiles)\NSIS\MakeNSIS.exe"
+MAKENSIS = "$(PROGRAMFILES)\NSIS\MakeNSIS.exe"
+
+#### Inno Setup executable location
+#
+INNOSETUP = "$(PROGRAMFILES)\Inno Setup 5\ISCC.exe"
 
 #### Include a configuration file that can override any one of these settings.
 #
@@ -654,6 +669,7 @@ TRANSLATE   = $(subst /,\,$(OBJDIR)/translate)
 MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
 VERSION     = $(subst /,\,$(OBJDIR)/version)
+CAT         = type
 CP          = copy
 MV          = copy
 RM          = del /Q
@@ -664,6 +680,7 @@ TRANSLATE   = $(OBJDIR)/translate
 MAKEHEADERS = $(OBJDIR)/makeheaders
 MKINDEX     = $(OBJDIR)/mkindex
 VERSION     = $(OBJDIR)/version
+CAT         = cat
 CP          = cp
 MV          = mv
 RM          = rm -f
@@ -779,6 +796,9 @@ endif
 
 setup: $(OBJDIR) $(APPNAME)
 	$(MAKENSIS) ./setup/fossil.nsi
+
+innosetup: $(OBJDIR) $(APPNAME)
+	$(INNOSETUP) ./setup/fossil.iss -DAppVersion=$(shell $(CAT) ./VERSION)
 }
 
 set mhargs {}
@@ -1027,6 +1047,9 @@ P      = .pdb
 # Uncomment to enable SSL support
 # FOSSIL_ENABLE_SSL = 1
 
+# Uncomment to enable TH1 hooks
+# FOSSIL_ENABLE_TH1_HOOKS = 1
+
 # Uncomment to enable Tcl support
 # FOSSIL_ENABLE_TCL = 1
 
@@ -1083,6 +1106,11 @@ TCC       = $(TCC) /DFOSSIL_ENABLE_SSL=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_SSL=1
 LIBS      = $(LIBS) $(SSLLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(SSLLIBDIR)
+!endif
+
+!ifdef FOSSIL_ENABLE_TH1_HOOKS
+TCC       = $(TCC) /DFOSSIL_ENABLE_TH1_HOOKS=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_TH1_HOOKS=1
 !endif
 
 !ifdef FOSSIL_ENABLE_TCL
@@ -1192,6 +1220,7 @@ clean:
 	-del *.obj
 	-del *_.c
 	-del *.h
+	-del *.ilk
 	-del *.map
 	-del *.res
 	-del headers
@@ -1202,9 +1231,13 @@ realclean: clean
 	-del $(APPNAME)
 	-del $(PDBNAME)
 	-del translate$E
+	-del translate$P
 	-del mkindex$E
+	-del mkindex$P
 	-del makeheaders$E
+	-del makeheaders$P
 	-del mkversion$E
+	-del mkversion$P
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h

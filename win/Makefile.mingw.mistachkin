@@ -50,6 +50,10 @@ FOSSIL_ENABLE_JSON = 1
 #
 FOSSIL_ENABLE_SSL = 1
 
+#### Enable hooks for commands and web pages via TH1
+#
+FOSSIL_ENABLE_TH1_HOOKS = 1
+
 #### Enable scripting support via Tcl/Tk
 #
 FOSSIL_ENABLE_TCL = 1
@@ -179,6 +183,12 @@ TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
+# With TH1 hook support
+ifdef FOSSIL_ENABLE_TH1_HOOKS
+TCC += -DFOSSIL_ENABLE_TH1_HOOKS=1
+RCC += -DFOSSIL_ENABLE_TH1_HOOKS=1
+endif
+
 # With Tcl support
 ifdef FOSSIL_ENABLE_TCL
 TCC += -DFOSSIL_ENABLE_TCL=1
@@ -253,7 +263,11 @@ TCLSH = tclsh
 
 #### Nullsoft installer MakeNSIS location
 #
-MAKENSIS = "$(ProgramFiles)\NSIS\MakeNSIS.exe"
+MAKENSIS = "$(PROGRAMFILES)\NSIS\MakeNSIS.exe"
+
+#### Inno Setup executable location
+#
+INNOSETUP = "$(PROGRAMFILES)\Inno Setup 5\ISCC.exe"
 
 #### Include a configuration file that can override any one of these settings.
 #
@@ -295,6 +309,7 @@ SRC = \
   $(SRCDIR)/export.c \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
+  $(SRCDIR)/fusefs.c \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
   $(SRCDIR)/gzip.c \
@@ -407,6 +422,7 @@ TRANS_SRC = \
   $(OBJDIR)/export_.c \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
+  $(OBJDIR)/fusefs_.c \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
   $(OBJDIR)/gzip_.c \
@@ -519,6 +535,7 @@ OBJ = \
  $(OBJDIR)/export.o \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
+ $(OBJDIR)/fusefs.o \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
  $(OBJDIR)/gzip.o \
@@ -614,6 +631,7 @@ TRANSLATE   = $(subst /,\,$(OBJDIR)/translate)
 MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
 VERSION     = $(subst /,\,$(OBJDIR)/version)
+CAT         = type
 CP          = copy
 MV          = copy
 RM          = del /Q
@@ -624,6 +642,7 @@ TRANSLATE   = $(OBJDIR)/translate
 MAKEHEADERS = $(OBJDIR)/makeheaders
 MKINDEX     = $(OBJDIR)/mkindex
 VERSION     = $(OBJDIR)/version
+CAT         = cat
 CP          = cp
 MV          = mv
 RM          = rm -f
@@ -733,6 +752,9 @@ endif
 setup: $(OBJDIR) $(APPNAME)
 	$(MAKENSIS) ./setup/fossil.nsi
 
+innosetup: $(OBJDIR) $(APPNAME)
+	$(INNOSETUP) ./setup/fossil.iss -DAppVersion=$(shell $(CAT) ./VERSION)
+
 $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 	$(MKINDEX) $(TRANS_SRC) >$@
 
@@ -767,6 +789,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/export_.c:$(OBJDIR)/export.h \
 		$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 		$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
+		$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
 		$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 		$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
 		$(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h \
@@ -1095,6 +1118,14 @@ $(OBJDIR)/finfo.o:	$(OBJDIR)/finfo_.c $(OBJDIR)/finfo.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/finfo.o -c $(OBJDIR)/finfo_.c
 
 $(OBJDIR)/finfo.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/fusefs_.c:	$(SRCDIR)/fusefs.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/fusefs.c >$(OBJDIR)/fusefs_.c
+
+$(OBJDIR)/fusefs.o:	$(OBJDIR)/fusefs_.c $(OBJDIR)/fusefs.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/fusefs.o -c $(OBJDIR)/fusefs_.c
+
+$(OBJDIR)/fusefs.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/glob_.c:	$(SRCDIR)/glob.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/glob.c >$(OBJDIR)/glob_.c

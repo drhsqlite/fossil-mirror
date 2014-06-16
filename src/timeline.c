@@ -1782,13 +1782,7 @@ void timeline_cmd(void){
       fossil_fatal("-W|--width value must be >20 or 0");
     }
   }else{
-#ifdef TIOCGWINSZ
-    struct winsize w;
-    ioctl(0, TIOCGWINSZ, &w);
-    width = w.ws_col;
-#else
-    width = 79;
-#endif
+    width = -1;
   }
   zOffset = find_option("offset",0,1);
   iOffset = zOffset ? atoi(zOffset) : 0;
