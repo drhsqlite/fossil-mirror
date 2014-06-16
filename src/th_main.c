@@ -809,6 +809,7 @@ static int artifactCmd(
     rid = name_to_rid(argv[1]);
     if( rid!=0 && content_get(rid, &content) ){
       Th_SetResult(interp, blob_str(&content), blob_size(&content));
+      blob_reset(&content);
       return TH_OK;
     }else{
       Th_SetResult(interp, "artifact not found", -1);
