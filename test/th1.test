@@ -632,3 +632,29 @@ test th1-set-parameter-6 {$RESULT eq {value5}}
 
 fossil test-th-eval "setParameter test4 value4; setParameter test4 value5; getParameter test4 defValue4"
 test th1-set-parameter-7 {$RESULT eq {value5}}
+
+###############################################################################
+
+fossil test-th-eval "artifact"
+test th1-artifact-1 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "artifact ID"}}
+
+###############################################################################
+
+fossil test-th-eval "artifact tip"
+test th1-artifact-2 {$RESULT eq {TH_ERROR: repository unavailable}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "artifact tip"
+test th1-artifact-3 {[regexp -- {F test/th1\.test [0-9a-f]{40}} $RESULT]}
+
+###############################################################################
+
+fossil test-th-eval "artifact 0000000000"
+test th1-artifact-4 {$RESULT eq {TH_ERROR: repository unavailable}}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "artifact 0000000000"
+test th1-artifact-5 {$RESULT eq {TH_ERROR: artifact not found}}
