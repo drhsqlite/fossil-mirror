@@ -44,16 +44,20 @@ int comment_print(const char *zText, int indent, int lineLength){
   char zBuffer[400];
   int lineCnt = 0;
 #if defined(_WIN32)
-  if ( lineLength<0 ){
+  if( lineLength<0 ){
     CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-    tlen = csbi.srWindow.Right - csbi.srWindow.Left - indent + 1;
+    memset(&csbi, 0, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
+    if( GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) ){
+      tlen = csbi.srWindow.Right - csbi.srWindow.Left - indent + 1;
+    }
   }
 #elif defined(TIOCGWINSZ)
-  if ( lineLength<0 ){
+  if( lineLength<0 ){
     struct winsize w;
-    ioctl(0, TIOCGWINSZ, &w);
-    tlen = w.ws_col - indent;
+    memset(&w, 0, sizeof(struct winsize));
+    if( ioctl(0, TIOCGWINSZ, &w)!=-1 ){
+      tlen = w.ws_col - indent;
+    }
   }
 #endif
   if( zText==0 ) zText = "(NULL)";
