@@ -23,7 +23,6 @@
 #include <assert.h>
 #ifdef _WIN32
 # include <windows.h>
-# include <wincon.h>
 #else
 # include <termios.h>
 #endif
@@ -43,6 +42,7 @@ int comment_print(const char *zText, int indent, int lineLength){
   char *zBuf;
   char zBuffer[400];
   int lineCnt = 0;
+
 #if defined(_WIN32)
   if( lineLength<0 ){
     CONSOLE_SCREEN_BUFFER_INFO csbi;
