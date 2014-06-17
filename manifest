@@ -1,5 +1,5 @@
-C Enhance\sthe\snew\sTH1\sartifact\scommand\swith\smore\sflexible\slookup\ssemantics.
-D 2014-06-16T18:49:10.342
+C Add\sthe\s".eqp"\sdot-command\sto\sthe\s".help"\soutput\sin\sthe\scommand-line\sshell.\s\nFix\sCSV\simport\sissue,\sreported\svia\sthe\smailing\slist,\sin\sthe\sshell\swhen\sthe\sfile\sto\sbe\simported\sends\swith\san\sempty\sline.
+D 2014-06-17T11:51:20.137
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -401,7 +401,7 @@ F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 0c467c67e8d679960884df57a000c4fce96022f1
 F src/setup.c a0e7ea3c57ab899abfece4f39b7a0d69d60d6f7e
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
-F src/shell.c 98ce7f52445aa0c2eac3d4553a4cdcbb6402a670
+F src/shell.c 058940e8a7198ea15ae90f60ffb0e2d67287b46c
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
@@ -650,7 +650,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 74099a5c8dd5ef30a56d03e8070eaff92980526c
-R e269544a59db8394e044a6669bda01cf
-U mistachkin
-Z b581552d978605c1922f8c6e60677015
+P 00e4fedd85751b3fe08a188990b6dbebf1147be4
+R c24c9c1cb47d1cadc699d86337c235ec
+U jan.nijtmans
+Z 83f97ff56596cf1ac7c7d0007b4130bf
