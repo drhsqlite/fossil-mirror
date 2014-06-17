@@ -21,6 +21,11 @@
 #include "config.h"
 #include "comformat.h"
 #include <assert.h>
+#ifdef _WIN32
+# include <windows.h>
+#else
+# include <termios.h>
+#endif
 
 /*
 ** Given a comment string zText, format that string for printing
@@ -38,6 +43,23 @@ int comment_print(const char *zText, int indent, int lineLength){
   char zBuffer[400];
   int lineCnt = 0;
 
+#if defined(_WIN32)
+  if( lineLength<0 ){
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    memset(&csbi, 0, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
+    if( GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) ){
+      tlen = csbi.srWindow.Right - csbi.srWindow.Left - indent;
+    }
+  }
+#elif defined(TIOCGWINSZ)
+  if( lineLength<0 ){
+    struct winsize w;
+    memset(&w, 0, sizeof(struct winsize));
+    if( ioctl(0, TIOCGWINSZ, &w)!=-1 ){
+      tlen = w.ws_col - indent;
+    }
+  }
+#endif
   if( zText==0 ) zText = "(NULL)";
   if( tlen<=0 ){
     tlen = strlen(zText);

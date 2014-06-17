@@ -204,7 +204,7 @@ void search_cmd(void){
       fossil_fatal("-W|--width value must be >20 or 0");
     }
   }else{
-    width = 79;
+    width = -1;
   }
 
   db_must_be_within_tree();

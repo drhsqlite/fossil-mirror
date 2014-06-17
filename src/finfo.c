@@ -148,12 +148,16 @@ void finfo_cmd(void){
     zLimit = find_option("limit","n",1);
     zWidth = find_option("width","W",1);
     iLimit = zLimit ? atoi(zLimit) : -1;
-    iWidth = zWidth ? atoi(zWidth) : 79;
     zOffset = find_option("offset",0,1);
     iOffset = zOffset ? atoi(zOffset) : 0;
     iBrief = (find_option("brief","b",0) == 0);
-    if( (iWidth!=0) && (iWidth<=22) ){
-      fossil_fatal("-W|--width value must be >22 or 0");
+    if( zWidth ){
+      iWidth = atoi(zWidth);
+      if( (iWidth!=0) && (iWidth<=22) ){
+        fossil_fatal("-W|--width value must be >22 or 0");
+      }
+    }else{
+      iWidth = -1;
     }
     if( g.argc!=3 ){
       usage("?-l|--log? ?-b|--brief? FILENAME");

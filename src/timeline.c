@@ -1782,7 +1782,7 @@ void timeline_cmd(void){
       fossil_fatal("-W|--width value must be >20 or 0");
     }
   }else{
-    width = 79;
+    width = -1;
   }
   zOffset = find_option("offset",0,1);
   iOffset = zOffset ? atoi(zOffset) : 0;

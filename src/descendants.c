@@ -358,7 +358,7 @@ void leaves_cmd(void){
       fossil_fatal("-W|--width value must be >39 or 0");
     }
   }else{
-    width = 79;
+    width = -1;
   }
   db_find_and_open_repository(0,0);
   if( recomputeFlag ) leaf_rebuild();
