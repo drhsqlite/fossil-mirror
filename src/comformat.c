@@ -28,6 +28,15 @@
 #endif
 
 /*
+** This is the previous value used by most external callers when they
+** needed to specify a default maximum line length to be used with the
+** comment_print() function.
+*/
+#ifndef COMMENT_LEGACY_LINE_LENGTH
+# define COMMENT_LEGACY_LINE_LENGTH    (78)
+#endif
+
+/*
 ** Given a comment string zText, format that string for printing
 ** on a TTY.  Assume that the output cursors is indent spaces from
 ** the left margin and that a single line can contain no more than
@@ -58,6 +67,15 @@ int comment_print(const char *zText, int indent, int lineLength){
     if( ioctl(0, TIOCGWINSZ, &w)!=-1 ){
       tlen = w.ws_col - indent;
     }
+  }
+#else
+  if( lineLength<0 ){
+    /*
+    ** Fallback to using more-or-less the "legacy semantics" of hard-coding
+    ** the maximum line length to a value reasonable for the vast majority
+    ** of supported systems.
+    */
+    tlen = COMMENT_LEGACY_LINE_LENGTH - indent;
   }
 #endif
   if( zText==0 ) zText = "(NULL)";
