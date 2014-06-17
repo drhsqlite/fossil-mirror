@@ -1,5 +1,5 @@
-C Automatically\sadjust\sthe\swidth\sof\sprinted\scomments\saccording\sto\sthe\sdetected\sterminal\swidth.
-D 2014-06-17T20:54:20.886
+C Bump\sversion\snumber\sto\s1.30.
+D 2014-06-17T20:58:46.530
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -11,7 +11,7 @@ F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F Makefile.in ebe28abdc231e41a40b725c4b238cb47f1ae4a46
-F VERSION 799f728dceb2a4f7515b09aca853d0a1cedf4a07
+F VERSION 72867f32a368547eaf1e8b96c60e100001c7c9e1
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -650,7 +650,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3467da7901347838741eb1fec95c3826cc2d24cc 4c194957c8107d27d9845dbddc95ad71deb8c8bf
-R c78b48eb44d40b60a45cd33c347b3f2c
+P 0ff6a9e282cf83566d6563b3210aa74c7fb437bc
+R a15f0e555f330352f8eaaa4bfeb53f1c
 U mistachkin
-Z f36652eacc70fd28178f70e6ab816155
+Z f157f9f3bc4b727abdff7b739bcaf638
