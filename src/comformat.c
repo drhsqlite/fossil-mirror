@@ -89,32 +89,26 @@ int comment_print(const char *zText, int indent, int lineLength){
     }
     return lineCnt;
   }
-
   zBuf = zText;
   for(;;){
     if( zText[0]==0 ){
       if( doIndent ){
         fossil_print("%*s", indent, "");
       }
-      fossil_print("%.*s\n", zText -zBuf, zBuf);
+      fossil_print("%.*s\n", zText - zBuf, zBuf);
       lineCnt++;
       break;
     }
-
-    if( zText[0]=='\t' ){
-      len += 8;
-    }else{
-      len++;
-    }
-    if( (zText[0]=='\n') || len >= tlen ){
+    len += ((zText[0]=='\t') ? 8 : 1);
+    if( zText[0]=='\n' || len>=tlen ){
       while( !fossil_isspace(zText[0]) ){ zText--; }
       if( doIndent ){
-	      fossil_print("%*s", indent, "");
+        fossil_print("%*s", indent, "");
       }
       doIndent = 1;
-      fossil_print("%.*s\n", zText -zBuf, zBuf);
+      fossil_print("%.*s\n", zText - zBuf, zBuf);
       zBuf = zText;
-      len=0;
+      len = 0;
       lineCnt++;
       if( !zBuf++ ) break;
     }
