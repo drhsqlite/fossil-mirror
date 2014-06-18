@@ -46,10 +46,9 @@
 */
 int comment_print(const char *zText, int indent, int lineLength){
   int tlen = lineLength - indent;
-  int si, sk, i, k;
+  int len = 0;
   int doIndent = 0;
-  char *zBuf;
-  char zBuffer[400];
+  const char *zBuf;
   int lineCnt = 0;
 
 #if defined(_WIN32)
@@ -82,52 +81,46 @@ int comment_print(const char *zText, int indent, int lineLength){
   if( tlen<=0 ){
     tlen = strlen(zText);
   }
-  if( tlen >= (sizeof(zBuffer)) ){
-    zBuf = fossil_malloc(tlen+1);
-  }else{
-    zBuf = zBuffer;
+  while( fossil_isspace(zText[0]) ){ zText++; }
+  if( zText[0]==0 ){
+    if( doIndent==0 ){
+      fossil_print("\n");
+      lineCnt = 1;
+    }
+    return lineCnt;
   }
+
+  zBuf = zText;
   for(;;){
-    while( fossil_isspace(zText[0]) ){ zText++; }
     if( zText[0]==0 ){
-      if( doIndent==0 ){
-        fossil_print("\n");
-        lineCnt = 1;
+      if( doIndent ){
+        fossil_print("%*s", indent, "");
       }
-      if( zBuf!=zBuffer) fossil_free(zBuf);
-      return lineCnt;
+      fossil_print("%.*s\n", zText -zBuf, zBuf);
+      lineCnt++;
+      break;
     }
-    for(sk=si=i=k=0; zText[i] && k<tlen; i++){
-      char c = zText[i];
-      if( fossil_isspace(c) ){
-        si = i;
-        sk = k;
-        if( k==0 || zBuf[k-1]!=' ' ){
-          zBuf[k++] = ' ';
-        }
-      }else{
-        zBuf[k] = c;
-        if( c=='-' && k>0 && fossil_isalpha(zBuf[k-1]) ){
-          si = i+1;
-          sk = k+1;
-        }
-        k++;
-      }
-    }
-    if( doIndent ){
-      fossil_print("%*s", indent, "");
-    }
-    doIndent = 1;
-    if( sk>0 && zText[i] ){
-      zText += si;
-      zBuf[sk] = 0;
+
+    if( zText[0]=='\t' ){
+      len += 8;
     }else{
-      zText += i;
-      zBuf[k] = 0;
+      len++;
     }
-    fossil_print("%s\n", zBuf);
-    lineCnt++;
+    if( (zText[0]=='\n') || len >= tlen ){
+      while( !fossil_isspace(zText[0]) ){ zText--; }
+      if( doIndent ){
+	      fossil_print("%*s", indent, "");
+      }
+      doIndent = 1;
+      fossil_print("%.*s\n", zText -zBuf, zBuf);
+      zBuf = zText;
+      len=0;
+      lineCnt++;
+      if( !zBuf++ ) break;
+    }
+    zText++;
   }
+  return lineCnt;
 }
 
 /*

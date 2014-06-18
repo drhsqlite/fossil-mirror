@@ -1,5 +1,5 @@
-C On\snon-Windows\ssystems\sthat\sappear\sto\slack\sthe\sTIOCGWINSZ\sdefine,\sfallback\sto\susing\sthe\slegacy\sbehavior\sof\shard-coding\sa\sreasonable\sdefault\smaximum\sline\slength.
-D 2014-06-17T22:15:41.772
+C make\sfossil\stimeline\sto\srespect\sthe\slog\sformatting\saka\smultiline\slogs
+D 2014-06-18T15:07:43.696
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -324,7 +324,7 @@ F src/checkin.c 49fe435edaf94d3d95c501883d772efddb09e6a4
 F src/checkout.c f74f9a6f61df15aedc6374b2852674f848a03148
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 79eea7d1a72ddb5b62efb3b75a76791d485cf108
-F src/comformat.c 77af14c1425f09fc74663ead9555c90819485b81
+F src/comformat.c 9fe836e409ce0642fd53abe3e0d94e85e26d191f
 F src/config.h 06b47d703b770ccf06265dc4b52f5ece1a067a02
 F src/configure.c f269fd9da2b442fc409ad409661bb9d29a5d98cc
 F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
@@ -650,7 +650,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2d8f311cc0569006ee92507f5bc3d711fe81ade5
-R 70c7b8bcfefdd54e348f391558899496
-U mistachkin
-Z 7e56e575e31cc2006e40cdb9fc0a87a6
+P 54cc57e7a34785a9b71c03005b1c3749e733d9d9
+R 57c905d861fd13bff78894ea5c3d433f
+T *branch * respectformatting
+T *sym-respectformatting *
+T -sym-trunk *
+U jan.nijtmans
+Z 9236b231699838c17690ae7254360d9e
