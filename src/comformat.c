@@ -95,22 +95,22 @@ int comment_print(const char *zText, int indent, int lineLength){
       if( doIndent ){
         fossil_print("%*s", indent, "");
       }
-      fossil_print("%.*s\n", zText - zBuf, zBuf);
+      fossil_print("%.*s\n", (int)(zText - zBuf), zBuf);
       lineCnt++;
       break;
     }
     len += ((zText[0]=='\t') ? 8 : 1);
     if( zText[0]=='\n' || len>=tlen ){
-      while( !fossil_isspace(zText[0]) ){ zText--; }
       if( doIndent ){
         fossil_print("%*s", indent, "");
       }
       doIndent = 1;
-      fossil_print("%.*s\n", zText - zBuf, zBuf);
-      zBuf = zText;
-      len = 0;
+      while( !fossil_isspace(zText[0]) ){ zText--; }
+      fossil_print("%.*s\n", (int)(zText - zBuf), zBuf);
       lineCnt++;
+      zBuf = zText;
       if( !zBuf++ ) break;
+      len = 0;
     }
     zText++;
   }
