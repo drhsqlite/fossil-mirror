@@ -864,8 +864,12 @@ void fossil_puts(const char *z, int toStdErr){
 ** Force the standard output cursor to move to the beginning
 ** of a line, if it is not there already.
 */
-void fossil_force_newline(void){
-  if( g.cgiOutput==0 && stdoutAtBOL==0 ) fossil_puts("\n", 0);
+int fossil_force_newline(void){
+  if( g.cgiOutput==0 && stdoutAtBOL==0 ){
+    fossil_puts("\n", 0);
+    return 1;
+  }
+  return 0;
 }
 
 /*

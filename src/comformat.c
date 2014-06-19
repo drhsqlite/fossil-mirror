@@ -93,8 +93,10 @@ int comment_print(const char *zText, int indent, int lineLength){
       if( doIndent ){
         fossil_print("%*s", indent, "");
       }
-      fossil_print("%.*s\n", (int)(zText - zBuf), zBuf);
-      lineCnt++;
+      fossil_print("%.*s", (int)(zText - zBuf), zBuf);
+      if( fossil_force_newline() ){
+        lineCnt++;
+      }
       break;
     }
     len += ((zText[0]=='\t') ? 8 : 1);
@@ -103,9 +105,11 @@ int comment_print(const char *zText, int indent, int lineLength){
         fossil_print("%*s", indent, "");
       }
       doIndent = 1;
-      while( !fossil_isspace(zText[0]) ){ zText--; }
-      fossil_print("%.*s\n", (int)(zText - zBuf), zBuf);
-      lineCnt++;
+      while( zText>zBuf && !fossil_isspace(zText[0]) ){ zText--; }
+      fossil_print("%.*s", (int)(zText - zBuf), zBuf);
+      if( fossil_force_newline() ){
+        lineCnt++;
+      }
       zBuf = zText;
       if( !zBuf++ ) break;
       len = 0;
