@@ -1,0 +1,57 @@
+#
+# Copyright (c) 2014 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Test comment formatting and printing.
+#
+
+fossil test-comment-format "" ""
+test comment-1 {$RESULT eq "\n(1 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --decode "" ""
+test comment-2 {$RESULT eq "\n(1 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format " " "this is a short comment." 25
+test comment-3 {$RESULT eq " this is a short comment.\n(1 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --decode " " "this is a short comment." 25
+test comment-4 {$RESULT eq " this is a short comment.\n(1 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format "*PREFIX* " "this is a short comment." 25
+test comment-5 {$RESULT eq "*PREFIX* this is a short\n         comment.\n(2 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --decode "*PREFIX* " "this is a short comment." 25
+test comment-6 {$RESULT eq "*PREFIX* this is a short\n         comment.\n(2 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format "" "this\\sis\\sa\\sshort\\scomment."
+test comment-7 {$RESULT eq "this\\sis\\sa\\sshort\\scomment.\n(1 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --decode "" "this\\sis\\sa\\sshort\\scomment."
+test comment-8 {$RESULT eq "this is a short comment.\n(1 lines output)"}

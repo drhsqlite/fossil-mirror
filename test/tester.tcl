@@ -61,9 +61,9 @@ if {$tcl_platform(platform) eq "windows"} then {
 #
 proc protInit {cmd} {
   if {$::PROT} {
-    set out [open "prot" w]
+    set out [open [file join $::testdir prot] w]
     fconfigure $out -translation platform
-    puts $out "starting tests with:$cmd"
+    puts $out "starting tests with: $cmd"
     close $out
   }
 }
@@ -71,11 +71,11 @@ proc protInit {cmd} {
 # write protocol
 #
 proc protOut {msg} {
-  puts "$msg"
+  puts stdout $msg
   if {$::PROT} {
-    set out [open "prot" a]
+    set out [open [file join $::testdir prot] a]
     fconfigure $out -translation platform
-    puts $out "$msg"
+    puts $out $msg
     close $out
   }
 }
@@ -94,7 +94,7 @@ proc fossil {args} {
   set rc [catch {eval exec $cmd} result]
   global RESULT CODE
   set CODE $rc
-  if {$rc} {puts "ERROR: $result"}
+  if {$rc} {protOut "ERROR: $result"}
   set RESULT $result
 }
 
