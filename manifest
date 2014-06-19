@@ -1,5 +1,5 @@
-C Improve\sclarity\sof\spresentation\svia\sseveral\sstylistic\schanges.
-D 2014-06-18T23:30:26.346
+C Merge\supdates\sfrom\strunk.
+D 2014-06-19T00:48:55.370
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -324,7 +324,7 @@ F src/checkin.c 49fe435edaf94d3d95c501883d772efddb09e6a4
 F src/checkout.c f74f9a6f61df15aedc6374b2852674f848a03148
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 79eea7d1a72ddb5b62efb3b75a76791d485cf108
-F src/comformat.c 33208642d357b423320dd1af01bdad5cae096d84
+F src/comformat.c 5f650fc6d66e41014417dfe922fa67fcf6eb1c11
 F src/config.h 06b47d703b770ccf06265dc4b52f5ece1a067a02
 F src/configure.c f269fd9da2b442fc409ad409661bb9d29a5d98cc
 F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
@@ -650,7 +650,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 10eea3abd4fde97835380451336e9838cb92ae14
-R 0f39c55b5c6e5bd055fcfe803bd7942c
+P 41804ab1803ac3f754862de4902a930750ce4065 6a3b39a06be586f6881b79007738a04c9c27c2fe
+R 37c7b5732a74c2696dcd2ebf66c06216
 U mistachkin
-Z be9ba9ad35c7d442336e6f9e596e376e
+Z 72eba0dd008db4a2854fcb74c0163ecd

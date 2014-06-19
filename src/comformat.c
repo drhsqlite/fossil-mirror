@@ -123,11 +123,22 @@ int comment_print(const char *zText, int indent, int lineLength){
 ** COMMAND: test-comment-format
 */
 void test_comment_format(void){
-  int indent;
-  if( g.argc!=4 ){
-    usage("PREFIX TEXT");
+  const char *zPrefix;
+  const char *zText;
+  int indent, width;
+  if( g.argc!=4 && g.argc!=5 ){
+    usage("PREFIX TEXT ?WIDTH?");
   }
-  indent = strlen(g.argv[2]) + 1;
-  fossil_print("%s ", g.argv[2]);
-  fossil_print("(%d lines output)\n", comment_print(g.argv[3], indent, 79));
+  zPrefix = g.argv[2];
+  zText = g.argv[3];
+  indent = strlen(zPrefix);
+  if( g.argc==5 ){
+    width = atoi(g.argv[4]);
+  }else{
+    width = -1; /* automatic */
+  }
+  if( indent>0 ){
+    fossil_print("%s", zPrefix);
+  }
+  fossil_print("(%d lines output)\n", comment_print(zText, indent, width));
 }
