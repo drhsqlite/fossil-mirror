@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\sbranch.\s\sGracefully\shandle\sthe\scase\swhere\sthe\sfirst\sline\scontains\sno\sspaces.
-D 2014-06-19T05:43:18.017
+C Complete\sre-write\sof\sthe\scomment\sprinting\salgorithm,\staking\sthe\spreservation\sof\sany\spre-existing\sformatting\swithin\sthe\scomment\sinto\saccount.\s\sNo\sattempt\sis\smade\sto\savoid\sbreaking\sa\sline\sin\sthe\smiddle\sof\sa\sword.
+D 2014-06-19T21:25:17.905
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -324,7 +324,7 @@ F src/checkin.c 49fe435edaf94d3d95c501883d772efddb09e6a4
 F src/checkout.c f74f9a6f61df15aedc6374b2852674f848a03148
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 79eea7d1a72ddb5b62efb3b75a76791d485cf108
-F src/comformat.c 3b4fe0fa2dada9e3cfca7816af14f40a73d5f186
+F src/comformat.c c2ce9ab204fb0a808b979ed2026cfca4398da4d3
 F src/config.h 06b47d703b770ccf06265dc4b52f5ece1a067a02
 F src/configure.c f269fd9da2b442fc409ad409661bb9d29a5d98cc
 F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
@@ -651,7 +651,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 05ea665fef89ce4acfeced9b109266e063a6fe56 59d80134ff5d9e0cb7a1e4bb25b5d5d9cb1ca28d
-R bdeae4b006e885d31cf55bf75738534a
+P d54762928054fa44c6f184db87cef6b78a5c033b
+R d9b221aa5c0877c5d82068ec6bc5aef1
 U mistachkin
-Z b4568992daccd10c9fca519bdc25f4aa
+Z e0773901485201e0210b243701adc931

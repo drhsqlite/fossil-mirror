@@ -37,93 +37,140 @@
 #endif
 
 /*
+** This is the number of spaces to print when a tab character is seen.
+*/
+#ifndef COMMENT_TAB_WIDTH
+# define COMMENT_TAB_WIDTH             (8)
+#endif
+
+/*
 ** Given a comment string zText, format that string for printing
 ** on a TTY.  Assume that the output cursors is indent spaces from
 ** the left margin and that a single line can contain no more than
-** lineLength characters.  Indent all subsequent lines by indent.
+** width characters.  Indent all subsequent lines by indent.
 **
 ** Return the number of newlines that are output.
 */
-int comment_print(const char *zText, int indent, int lineLength){
-  int tlen = lineLength - indent;
-  int len = 0, doIndent = 0, lineCnt = 0;
+int comment_print(const char *zText, int indent, int width){
+  int maxChars = width - indent;
+  int lineCnt = 0;
   const char *zLine;
 
 #if defined(_WIN32)
-  if( lineLength<0 ){
+  if( width<0 ){
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     memset(&csbi, 0, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
     if( GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) ){
-      tlen = csbi.srWindow.Right - csbi.srWindow.Left - indent;
+      maxChars = csbi.srWindow.Right - csbi.srWindow.Left - indent;
     }
   }
 #elif defined(TIOCGWINSZ)
-  if( lineLength<0 ){
+  if( width<0 ){
     struct winsize w;
     memset(&w, 0, sizeof(struct winsize));
     if( ioctl(0, TIOCGWINSZ, &w)!=-1 ){
-      tlen = w.ws_col - indent;
+      maxChars = w.ws_col - indent;
     }
   }
 #else
-  if( lineLength<0 ){
+  if( width<0 ){
     /*
     ** Fallback to using more-or-less the "legacy semantics" of hard-coding
     ** the maximum line length to a value reasonable for the vast majority
     ** of supported systems.
     */
-    tlen = COMMENT_LEGACY_LINE_LENGTH - indent;
+    maxChars = COMMENT_LEGACY_LINE_LENGTH - indent;
   }
 #endif
   if( zText==0 ) zText = "(NULL)";
-  if( tlen<=0 ){
-    tlen = strlen(zText);
+  if( maxChars<=0 ){
+    maxChars = strlen(zText);
   }
   while( fossil_isspace(zText[0]) ){ zText++; }
   if( zText[0]==0 ){
-    if( !doIndent ){
-      fossil_print("\n");
-      lineCnt++;
-    }
+    fossil_print("\n");
+    lineCnt++;
     return lineCnt;
   }
   zLine = zText;
   for(;;){
-    if( zText[0]==0 ){
-      if( doIndent ){
-        fossil_print("%*s", indent, "");
-      }
-      fossil_print("%.*s", (int)(zText - zLine), zLine);
-      if( fossil_force_newline() ){
-        lineCnt++;
-      }
-      break;
-    }
-    len += ((zText[0]=='\t') ? 8 : 1);
-    if( zText[0]=='\n' || len>=tlen ){
-      const char *zNewLine;
-      if( doIndent ){
-        fossil_print("%*s", indent, "");
-      }
-      doIndent = 1;
-      zNewLine = zText + 1;
-      while( zText>zLine && !fossil_isspace(zText[0]) ){ zText--; }
-      if( zText>zLine ){
-        fossil_print("%.*s", (int)(zText - zLine), zLine);
-        zLine = zText;
-      }else{
-        fossil_print("%.*s", (int)(zNewLine - zLine), zLine);
-        zLine = zNewLine;
-      }
-      if( fossil_force_newline() ){
-        lineCnt++;
-      }
-      if( !zLine++ ) break;
-      len = 0;
-    }
-    zText++;
+    comment_print_line(zLine, zLine>zText ? indent : 0,
+                       maxChars, &lineCnt, &zLine);
+    if( !zLine || !zLine[0] ) break;
   }
   return lineCnt;
+}
+
+/*
+** This function prints one logical line of a comment, stopping when it hits
+** a new line -OR- runs out of space on the logical line.
+*/
+void comment_print_line(
+  const char *zLine,  /* [in] The comment line to print. */
+  int indent,         /* [in] Number of spaces to indent, zero for none. */
+  int lineChars,      /* [in] Maximum number of characters to print. */
+  int *pLineCnt,      /* [in/out] Pointer to the total line count. */
+  const char **pzLine /* [out] Pointer to the end of the logical line. */
+){
+  int index = 0, charCnt = 0, lineCnt = 0, maxChars;
+  if( !zLine ) return;
+  if( lineChars<=0 ) return;
+  comment_print_indent(zLine, indent, &index);
+  maxChars = lineChars;
+  for(;;){
+    char c = zLine[index];
+    if( c==0 ){
+      break;
+    }else{
+      index++;
+    }
+    if( c=='\n' ){
+      charCnt = 0;
+      lineCnt++;
+    }else if( c=='\t' ){
+      charCnt++;
+      if( maxChars<COMMENT_TAB_WIDTH ){
+        fossil_print(" ");
+        break;
+      }
+      maxChars -= COMMENT_TAB_WIDTH;
+    }else{
+      charCnt++;
+      maxChars--;
+    }
+    fossil_print("%c", c);
+    if( maxChars==0 ) break;
+    if( c=='\n' ) break;
+  }
+  if( charCnt>0 || lineCnt==0 ){
+    fossil_print("\n");
+    lineCnt++;
+  }
+  if( pLineCnt ){
+    *pLineCnt += lineCnt;
+  }
+  if( pzLine ){
+    *pzLine = zLine + index;
+  }
+}
+
+/*
+** This function is called when printing a logical comment line to perform
+** the necessary indenting.
+*/
+void comment_print_indent(
+  const char *zLine, /* [in] The comment line being printed. */
+  int indent,        /* [in] Number of spaces to indent, zero for none. */
+  int *piIndex       /* [in/out] Pointer to first non-space character. */
+){
+  if( indent>0 ){
+    fossil_print("%*s", indent, "");
+    if( zLine && piIndex ){
+      int index = *piIndex;
+      while( fossil_isspace(zLine[index]) ){ index++; }
+      *piIndex = index;
+    }
+  }
 }
 
 /*
