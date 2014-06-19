@@ -101,16 +101,23 @@ int comment_print(const char *zText, int indent, int lineLength){
     }
     len += ((zText[0]=='\t') ? 8 : 1);
     if( zText[0]=='\n' || len>=tlen ){
+      const char *zNewLine;
       if( doIndent ){
         fossil_print("%*s", indent, "");
       }
       doIndent = 1;
+      zNewLine = zText + 1;
       while( zText>zLine && !fossil_isspace(zText[0]) ){ zText--; }
-      fossil_print("%.*s", (int)(zText - zLine), zLine);
+      if( zText>zLine ){
+        fossil_print("%.*s", (int)(zText - zLine), zLine);
+        zLine = zText;
+      }else{
+        fossil_print("%.*s", (int)(zNewLine - zLine), zLine);
+        zLine = zNewLine;
+      }
       if( fossil_force_newline() ){
         lineCnt++;
       }
-      zLine = zText;
       if( !zLine++ ) break;
       len = 0;
     }
