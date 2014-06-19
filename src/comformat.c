@@ -118,19 +118,32 @@ int comment_print(const char *zText, int indent, int lineLength){
 }
 
 /*
-** Test the comment printing
 **
 ** COMMAND: test-comment-format
+**
+** Usage: %fossil test-comment-format ?OPTIONS? PREFIX TEXT ?WIDTH?
+**
+** Test comment formatting and printing.  Use for testing only.
+**
+** Options:
+**   --decode         Decode the text using the same method used when
+**                    handling the value of a C-card from a manifest.
 */
 void test_comment_format(void){
   const char *zPrefix;
-  const char *zText;
+  char *zText;
   int indent, width;
+  int decode = find_option("decode", 0, 0)!=0;
   if( g.argc!=4 && g.argc!=5 ){
     usage("PREFIX TEXT ?WIDTH?");
   }
   zPrefix = g.argv[2];
-  zText = g.argv[3];
+  if( decode ){
+    zText = mprintf("%s", g.argv[3]);
+    defossilize(zText);
+  }else{
+    zText = g.argv[3];
+  }
   indent = strlen(zPrefix);
   if( g.argc==5 ){
     width = atoi(g.argv[4]);
@@ -141,4 +154,5 @@ void test_comment_format(void){
     fossil_print("%s", zPrefix);
   }
   fossil_print("(%d lines output)\n", comment_print(zText, indent, width));
+  if( zText!=g.argv[3] ) fossil_free(zText);
 }
