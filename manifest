@@ -1,5 +1,5 @@
-C Fix\sthe\s"makefile.wiki"\sdocument\sto\sstate\sthat\sthe\s"shell.c"\sis\snow\san\nexact\scopy\sof\sthe\ssame\sfile\sfrom\sSQLite.
-D 2014-06-19T18:48:48.685
+C Support\sa\s-verbose\sargument\sto\sthe\stest\ssuite.
+D 2014-06-19T21:26:34.952
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -462,7 +462,7 @@ F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 9887a1db8d50a907afee81790dc09e41de748df2
+F test/tester.tcl db2311eb8a604c9ebee5e716645b304b5348bdac
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 7ffbd9a20c0380e1ae9f9ec3b00fab1512972da3
 F test/th1-tcl.test 0a784acfe60f26593e9cf1f63fda4c802e91c452
@@ -651,7 +651,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a675783882d629080b061bd488de1ba85c5ae7c8
-R a6c000286bfbeaf1bdf5ded1e3251a01
-U drh
-Z 748e83aa49fd629590ec7983581c7d8f
+P 9e1859606fc20f4b6c474e68723b4282833b7994
+R 239ce86743e41cd37a344cf12c62dd12
+U mistachkin
+Z 411c3b3f5481c36ee089071ce567925e
