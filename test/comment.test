@@ -56,3 +56,28 @@ test comment-7 {$RESULT eq "this\\sis\\sa\\sshort\\scomment.\n(1 lines output)"}
 
 fossil test-comment-format --decode "" "this\\sis\\sa\\sshort\\scomment." 26
 test comment-8 {$RESULT eq "this is a short comment.\n(1 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --decode "HH:MM:SS " "this is a long comment that should span multiple lines if the test is working correctly." 78
+test comment-9 {$RESULT eq "HH:MM:SS this is a long comment that should span multiple lines if the test is\n         working correctly.\n(2 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --decode "HH:MM:SS " "this is a long comment that should span multiple lines if the test is working correctly.  more text here describing the issue.\\nanother line here..................................................................................*" 78
+test comment-10 {$RESULT eq "HH:MM:SS this is a long comment that should span multiple lines if the test is\n         working correctly.  more text here describing the issue.\n         another line here....................................................\n         ..............................*\n(4 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format "HH:MM:SS " "....................................................................................*" 78
+test comment-11 {$RESULT eq "HH:MM:SS .....................................................................\n         ...............*\n(2 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format "HH:MM:SS " ".....................................................................*" 78
+test comment-12 {$RESULT eq "HH:MM:SS .....................................................................\n         *\n(2 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format "*TEST* " "this\tis a test." 26
+test comment-13 {$RESULT eq "*TEST* this\tis a te\n       st.\n(2 lines output)"}

@@ -44,6 +44,14 @@ if {$i>=0} {
   set PROT 0
 }
 
+set i [lsearch $argv -verbose]
+if {$i>=0} {
+  set VERBOSE 1
+  set argv [lreplace $argv $i $i]
+} else {
+  set VERBOSE 0
+}
+
 if {[llength $argv]==0} {
   foreach f [lsort [glob $testdir/*.test]] {
     set base [file root [file tail $f]]
@@ -95,7 +103,11 @@ proc fossil {args} {
   set rc [catch {eval exec $cmd} result]
   global RESULT CODE
   set CODE $rc
-  if {$rc} {protOut "ERROR: $result"}
+  if {$rc} {
+    protOut "ERROR: $result"
+  } elseif {$::VERBOSE} {
+    protOut "RESULT: $result"
+  }
   set RESULT $result
 }
 

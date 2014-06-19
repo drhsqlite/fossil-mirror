@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.\s\sAdjust\stests\sto\saccount\sfor\scomment\sformatting\schanges.\s\sOne\skey\stest\sis\sstill\sfailing.
-D 2014-06-19T04:21:54.362
+C Merge\supdates\sfrom\strunk.\s\sAdd\stests.
+D 2014-06-19T21:28:49.577
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -442,7 +442,7 @@ F src/zip.c febf7fff38bfed9ca2fbda0a28d75fe8e445dce5
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
-F test/comment.test d058bc3e25326d71b467acd430a070778386516d
+F test/comment.test 813e789463c14d82c2d16b5d56ecae4ab760ecfe
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki a789acd5523d840232fcb2164929592260af0743
 F test/file1.test 4a1009731c0959c46c228a9336df9da4a5da97f1
@@ -462,7 +462,7 @@ F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 9887a1db8d50a907afee81790dc09e41de748df2
+F test/tester.tcl db2311eb8a604c9ebee5e716645b304b5348bdac
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 7ffbd9a20c0380e1ae9f9ec3b00fab1512972da3
 F test/th1-tcl.test 0a784acfe60f26593e9cf1f63fda4c802e91c452
@@ -623,7 +623,7 @@ F www/hacker-howto.wiki 1b0b1fa68606bbad790b4100f1da62738d9c65e2
 F www/hints.wiki 2ed95a101dd4639232b40360dbf5d131d98b098c
 F www/index.wiki b34917e6eb240de3193da33160369f21a569f14c
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
-F www/makefile.wiki 4b85d484ab7285ece25acd00f638fe43d99f7fff
+F www/makefile.wiki bed5905017ce1a490e691e035db7267da3fdf607
 F www/mkdownload.tcl c313e4cab0609b19b030541af140d8bbfebfc0f4
 F www/mkindex.tcl c766a73aa93987f678c525c497e761704724903d
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
@@ -651,7 +651,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b68446e291d82d52b3618258370abb2358fd1c04 a675783882d629080b061bd488de1ba85c5ae7c8
-R ee65eca2a7544cfd28efed8d496826ac
+P 59d80134ff5d9e0cb7a1e4bb25b5d5d9cb1ca28d e02795056d3d01b7a3daf6f70f429eaeb057ce27
+R ab7e76189582b917f54af25b733e4f65
 U mistachkin
-Z 096e5e9fe7ce29a490fd05c0973d0f3c
+Z 34a14c58ca5ad3ed1ec016ba2a9c5f82
