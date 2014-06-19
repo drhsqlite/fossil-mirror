@@ -46,10 +46,8 @@
 */
 int comment_print(const char *zText, int indent, int lineLength){
   int tlen = lineLength - indent;
-  int len = 0;
-  int doIndent = 0;
+  int len = 0, doIndent = 0, lineCnt = 0;
   const char *zBuf;
-  int lineCnt = 0;
 
 #if defined(_WIN32)
   if( lineLength<0 ){
@@ -83,9 +81,9 @@ int comment_print(const char *zText, int indent, int lineLength){
   }
   while( fossil_isspace(zText[0]) ){ zText++; }
   if( zText[0]==0 ){
-    if( doIndent==0 ){
+    if( !doIndent ){
       fossil_print("\n");
-      lineCnt = 1;
+      lineCnt++;
     }
     return lineCnt;
   }
