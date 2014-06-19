@@ -23,6 +23,7 @@
 # is the name of the executable to be tested.
 #
 
+set testrundir [pwd]
 set testdir [file normalize [file dir $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
 set argv [lrange $argv 1 end]
@@ -61,7 +62,7 @@ if {$tcl_platform(platform) eq "windows"} then {
 #
 proc protInit {cmd} {
   if {$::PROT} {
-    set out [open [file join $::testdir prot] w]
+    set out [open [file join $::testrundir prot] w]
     fconfigure $out -translation platform
     puts $out "starting tests with: $cmd"
     close $out
@@ -73,7 +74,7 @@ proc protInit {cmd} {
 proc protOut {msg} {
   puts stdout $msg
   if {$::PROT} {
-    set out [open [file join $::testdir prot] a]
+    set out [open [file join $::testrundir prot] a]
     fconfigure $out -translation platform
     puts $out $msg
     close $out
