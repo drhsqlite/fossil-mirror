@@ -90,3 +90,33 @@ test comment-14 {$RESULT eq "*TEST* this is a test..............................
 
 fossil test-comment-format --wordbreak "*TEST* " "this is a test......................................................................................................................." 60
 test comment-15 {$RESULT eq "*TEST* this is a\n       test.................................................\n       .....................................................\n       .................\n(4 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format "*TEST* " "this	is	a	test......................................................................................................................." 60
+test comment-16 {$RESULT eq "*TEST* this	is	a\n       test.................................................\n       .....................................................\n       .................\n(4 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --wordbreak "*TEST* " "this	is	a	test......................................................................................................................." 60
+test comment-17 {$RESULT eq "*TEST* this	is	a\n       test.................................................\n       .....................................................\n       .................\n(4 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format "*TEST* " "one two three four five six seven eight nine ten eleven twelve" 60
+test comment-18 {$RESULT eq "*TEST* one two three four five six seven eight nine ten elev\n       en twelve\n(2 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --wordbreak "*TEST* " "one two three four five six seven eight nine ten eleven twelve" 60
+test comment-19 {$RESULT eq "*TEST* one two three four five six seven eight nine ten\n       eleven twelve\n(2 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format "*TEST* " "one	two	three	four	five	six	seven	eight	nine	ten	eleven	twelve" 60
+test comment-20 {$RESULT eq "*TEST* one	two	three	four	five\n       six	seven	eight	nine	ten\n       eleven	twelve\n(3 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --wordbreak "*TEST* " "one	two	three	four	five	six	seven	eight	nine	ten	eleven	twelve" 60
+test comment-21 {$RESULT eq "*TEST* one	two	three	four	five\n       six	seven	eight	nine	ten\n       eleven	twelve\n(3 lines output)"}

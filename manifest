@@ -1,5 +1,5 @@
-C Initial\sdraft\sof\sthe\sability\sto\sbreak\sa\smulti-line\scomment\son\sword\sboundaries\susing\sthe\snew\salgorithm.
-D 2014-06-20T03:56:04.865
+C Further\srefinements\sand\smore\stests.
+D 2014-06-20T18:31:00.659
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -324,7 +324,7 @@ F src/checkin.c 49fe435edaf94d3d95c501883d772efddb09e6a4
 F src/checkout.c f74f9a6f61df15aedc6374b2852674f848a03148
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 79eea7d1a72ddb5b62efb3b75a76791d485cf108
-F src/comformat.c 71deb666ce4a137ce53048221c0d4604fa7888d3
+F src/comformat.c f67f6c7be3821268740523d78d9686049c33a7ff
 F src/config.h 06b47d703b770ccf06265dc4b52f5ece1a067a02
 F src/configure.c f269fd9da2b442fc409ad409661bb9d29a5d98cc
 F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
@@ -442,7 +442,7 @@ F src/zip.c febf7fff38bfed9ca2fbda0a28d75fe8e445dce5
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
-F test/comment.test df222db8e2c2ea3ec5e0ba534980bbc7695f6052
+F test/comment.test 3385e33022a5b45cb63b95ca37e31cb5fe4dfa5a
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki a789acd5523d840232fcb2164929592260af0743
 F test/file1.test 4a1009731c0959c46c228a9336df9da4a5da97f1
@@ -651,7 +651,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5d2a7a0fa13d1052ca8f14ce15c9cb4038167f7c
-R c117c838dfa941dc093451c728eeb47a
+P 10b47cc35082b1a9102af5b6425e66e5b38dc54c
+R c4abd65599eea4b020ebe2c0bd800627
 U mistachkin
-Z cf06463571301363ac28d701be6feab0
+Z 47eac01220445ac638795c753acf3ecd

@@ -141,6 +141,10 @@ void comment_print_line(
       charCnt = 0;
       lineCnt++;
     }else if( c=='\t' ){
+      int nextIndex = comment_next_space(zLine, index);
+      if( nextIndex<=0 || (nextIndex-index)>maxChars ){
+        break;
+      }
       charCnt++;
       if( maxChars<COMMENT_TAB_WIDTH ){
         fossil_print(" ");
@@ -162,7 +166,7 @@ void comment_print_line(
     if( maxChars==0 ) break;
     if( c=='\n' ) break;
   }
-  if( charCnt>0 || lineCnt==0 ){
+  if( charCnt>0 ){
     fossil_print("\n");
     lineCnt++;
   }
@@ -196,7 +200,8 @@ void comment_print_indent(
 /*
 ** This function scans the specified comment line starting just after the
 ** initial index and returns the index of the next spacing character -OR-
-** zero if such a character cannot be found.
+** zero if such a character cannot be found.  For the purposes of this
+** algorithm, the NUL character is treated the same as a spacing character.
 */
 int comment_next_space(
   const char *zLine, /* [in] The comment line being printed. */
@@ -205,10 +210,7 @@ int comment_next_space(
   int nextIndex = index + 1;
   for(;;){
     char c = zLine[nextIndex];
-    if( c==0 ){
-      return 0;
-    }
-    if( fossil_isspace(c) ){
+    if( c==0 || fossil_isspace(c) ){
       return nextIndex;
     }
     nextIndex++;
