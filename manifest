@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2014-06-19T21:30:02.881
+C Initial\sdraft\sof\sthe\sability\sto\sbreak\sa\smulti-line\scomment\son\sword\sboundaries\susing\sthe\snew\salgorithm.
+D 2014-06-20T03:56:04.865
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -313,7 +313,7 @@ F src/add.c 487252044873ffa0df8f53bbb5603d8b1b76eca8
 F src/allrepo.c 7ee7dd0a427d4d3e7799f99126c10984cd124ea0
 F src/attach.c 238aa5c78204b0d89e0b646ff382f40fbd6d3b83
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
-F src/bisect.c 93f764ea21082f0926aa10b7f82a1ba3cd2d6079
+F src/bisect.c 66169b38164aebcd4ab4f77f50e9e2f4a3bc4a0b
 F src/blob.c e2ae70eff581c0463534a263487381213e02561d
 F src/branch.c 24cff03e9757e94afe5ebc7eda01c78b5c4fa991
 F src/browse.c 5f55f7fe046ad6050a539436ed741a250555914f
@@ -324,7 +324,7 @@ F src/checkin.c 49fe435edaf94d3d95c501883d772efddb09e6a4
 F src/checkout.c f74f9a6f61df15aedc6374b2852674f848a03148
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 79eea7d1a72ddb5b62efb3b75a76791d485cf108
-F src/comformat.c c2ce9ab204fb0a808b979ed2026cfca4398da4d3
+F src/comformat.c 71deb666ce4a137ce53048221c0d4604fa7888d3
 F src/config.h 06b47d703b770ccf06265dc4b52f5ece1a067a02
 F src/configure.c f269fd9da2b442fc409ad409661bb9d29a5d98cc
 F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
@@ -334,7 +334,7 @@ F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c bbe1421979a61cc0f14df17ef905d224b6d93884
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
-F src/descendants.c 019968d835a41003b0614074326662b35e658249
+F src/descendants.c 7c991ef5fe959544a0ce09ed248cc74cad3e83b9
 F src/diff.c 0d33c3b047cb4fef06064ab179df5264f1cdd65e
 F src/diffcmd.c 673923119b9e9019fda65bd9f4bd12e9f0295438
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
@@ -342,7 +342,7 @@ F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c afe15eaf300e18c7d19a1e1fe3c4bda30bff4872
 F src/export.c 70394a2d5c4058b89504a3720c40a09c917dbb91
 F src/file.c 8263f108df4f6966df3278c43665be324fadda17
-F src/finfo.c 46a46e240dd4a374894b0304d523839bebad07d0
+F src/finfo.c aafb0bfa9b309d362492c811b8105b0c12535c47
 F src/fusefs.c ff7316f3d33144e105e7db4937c857af85a40e95
 F src/glob.c 162eefbce151ba02dd67243d92633393c0aeb302
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
@@ -352,7 +352,7 @@ F src/http_socket.c 7d3cb5844c0dfc586f1c7d1d783b489a701b5b04
 F src/http_ssl.c 38675814850cdddbb8d5728d0c7a75bf8b1d462c
 F src/http_transport.c d1aef141c961172a1a32f619f339c641cdeaa674
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
-F src/info.c 017739f4f5c232ca7c62490341caa8109f4ffec5
+F src/info.c 3841ea21fdb158654ddb6a36ec0d9d891723f68b
 F src/json.c 68917a4b8491740885158ef960ff77334c9c7adf
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c aa922544841030c688df33aec81cca05577bbb7d
@@ -382,12 +382,12 @@ F src/manifest.c 19cfdde0fce0893176cceacd1294180653db0655
 F src/markdown.c 717f7f14927414811b61475a6fb9edc34e6cf90b
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
-F src/merge.c 100cf67b1691ff567e2cd001082ca83f9471fd87
+F src/merge.c 28eec0d23f753ebf271f8fa290cd9b69e26b377a
 F src/merge3.c 74f9e253b9ca6ca31bc8d47eeed5e353472df3ca
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
 F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
 F src/moderate.c 5feb233fd9291b5b4f826d91e3fd987e082694e8
-F src/name.c 41f0501bbf5147bc85963fe00aff35e12bb42ee7
+F src/name.c 6678888a23cda4c9702f52d82e480c7b4803bcd9
 F src/path.c 8a507a86c42c2e644abc047409a72f1c59607977
 F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
@@ -407,7 +407,7 @@ F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
 F src/sqlite3.c 7bc194957238c61b1a47f301270286be5bc5208c
 F src/sqlite3.h 28d8a99727a62cad6b955200c1f5d47616113300
-F src/stash.c 0b086a867bb58eb3dba49651bf859c98f5af61d8
+F src/stash.c 60a3a6268e742319d06e1117f7bd0fd47c1ef327
 F src/stat.c fe03922a3f09bf56061ca709af93aaef44674a77
 F src/style.c 9c32e2d4b4e18e6b151132d729651a5211a4ca7e
 F src/sync.c ce3d49dbe3952e82ca3b74b2a7f9ef85226f1664
@@ -418,8 +418,8 @@ F src/th.h f55e2863d3df25e681d6acd39adbe6368182e83b
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 4bfc2511181fd3a6beead2d42a87c71d0fa8b111
 F src/th_tcl.c 4cb7c0795483d23b84c082f454dec9cb124cdd32
-F src/timeline.c bc9029830992ea3af7a17641de5762663996f419
-F src/tkt.c c27101caa8efd49f6d2e70f8bccfe430f366f28b
+F src/timeline.c 35a73fc058b9c982e27588136db6d45e6d67610e
+F src/tkt.c d1f2be31c357b4f47045b2490a7a7b35b2014a91
 F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
@@ -442,7 +442,7 @@ F src/zip.c febf7fff38bfed9ca2fbda0a28d75fe8e445dce5
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
-F test/comment.test 1385326018604448b8f776fe14fefbf7a792992b
+F test/comment.test df222db8e2c2ea3ec5e0ba534980bbc7695f6052
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki a789acd5523d840232fcb2164929592260af0743
 F test/file1.test 4a1009731c0959c46c228a9336df9da4a5da97f1
@@ -651,7 +651,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bb1a191853f179d1f2b1f651f6fb617be0215391 334f518c5f58b0d5d2b9d5374e81c050fef20469
-R 883e9927a1431f73f9434037d5c2991b
+P 5d2a7a0fa13d1052ca8f14ce15c9cb4038167f7c
+R c117c838dfa941dc093451c728eeb47a
 U mistachkin
-Z e9dccf343e63cb2ed0b7a565145645ff
+Z cf06463571301363ac28d701be6feab0

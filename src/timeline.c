@@ -1612,7 +1612,8 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
       n += strlen(zPrefix);
     }
     zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
-    nLine += comment_print(zFree, 9, width); /* record another X lines */
+    /* record another X lines */
+    nLine += comment_print(zFree, 9, width, COMMENT_PRINT_DEFAULT);
     sqlite3_free(zFree);
 
     if(verboseFlag){

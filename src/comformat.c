@@ -27,6 +27,12 @@
 # include <termios.h>
 #endif
 
+#if INTERFACE
+#define COMMENT_PRINT_NONE       ((u32)0x00000000)  /* No flags. */
+#define COMMENT_PRINT_WORD_BREAK ((u32)0x00000001)  /* Break lines on words. */
+#define COMMENT_PRINT_DEFAULT    COMMENT_PRINT_NONE /* Default flags. */
+#endif
+
 /*
 ** This is the previous value used by most external callers when they
 ** needed to specify a default maximum line length to be used with the
@@ -51,7 +57,12 @@
 **
 ** Return the number of newlines that are output.
 */
-int comment_print(const char *zText, int indent, int width){
+int comment_print(
+  const char *zText, /* The comment text to be printed. */
+  int indent,        /* Number of spaces to indent each non-initial line. */
+  int width,         /* Maximum number of characters per line. */
+  int flags          /* Zero or more "COMMENT_PRINT_*" flags, see above. */
+){
   int maxChars = width - indent;
   int lineCnt = 0;
   const char *zLine;
@@ -94,8 +105,9 @@ int comment_print(const char *zText, int indent, int width){
   }
   zLine = zText;
   for(;;){
-    comment_print_line(zLine, zLine>zText ? indent : 0,
-                       maxChars, &lineCnt, &zLine);
+    comment_print_line(zLine, zLine>zText ? indent : 0, maxChars,
+                       flags & COMMENT_PRINT_WORD_BREAK, &lineCnt,
+                       &zLine);
     if( !zLine || !zLine[0] ) break;
   }
   return lineCnt;
@@ -109,6 +121,7 @@ void comment_print_line(
   const char *zLine,  /* [in] The comment line to print. */
   int indent,         /* [in] Number of spaces to indent, zero for none. */
   int lineChars,      /* [in] Maximum number of characters to print. */
+  int wordBreak,      /* [in] Non-zero to try breaking on word boundaries. */
   int *pLineCnt,      /* [in/out] Pointer to the total line count. */
   const char **pzLine /* [out] Pointer to the end of the logical line. */
 ){
@@ -134,6 +147,13 @@ void comment_print_line(
         break;
       }
       maxChars -= COMMENT_TAB_WIDTH;
+    }else if( wordBreak && fossil_isspace(c) ){
+      int nextIndex = comment_next_space(zLine, index);
+      if( nextIndex<=0 || (nextIndex-index)>maxChars ){
+        break;
+      }
+      charCnt++;
+      maxChars--;
     }else{
       charCnt++;
       maxChars--;
@@ -174,6 +194,29 @@ void comment_print_indent(
 }
 
 /*
+** This function scans the specified comment line starting just after the
+** initial index and returns the index of the next spacing character -OR-
+** zero if such a character cannot be found.
+*/
+int comment_next_space(
+  const char *zLine, /* [in] The comment line being printed. */
+  int index          /* [in] The current character index being handled. */
+){
+  int nextIndex = index + 1;
+  for(;;){
+    char c = zLine[nextIndex];
+    if( c==0 ){
+      return 0;
+    }
+    if( fossil_isspace(c) ){
+      return nextIndex;
+    }
+    nextIndex++;
+  }
+  return 0; /* NOT REACHED */
+}
+
+/*
 **
 ** COMMAND: test-comment-format
 **
@@ -184,12 +227,17 @@ void comment_print_indent(
 ** Options:
 **   --decode         Decode the text using the same method used when
 **                    handling the value of a C-card from a manifest.
+**   --wordbreak      Attempt to break lines on word boundaries.
 */
 void test_comment_format(void){
   const char *zPrefix;
   char *zText;
   int indent, width;
   int decode = find_option("decode", 0, 0)!=0;
+  int flags = COMMENT_PRINT_DEFAULT;
+  if( find_option("wordbreak", 0, 0) ){
+    flags |= COMMENT_PRINT_WORD_BREAK;
+  }
   if( g.argc!=4 && g.argc!=5 ){
     usage("PREFIX TEXT ?WIDTH?");
   }
@@ -209,6 +257,7 @@ void test_comment_format(void){
   if( indent>0 ){
     fossil_print("%s", zPrefix);
   }
-  fossil_print("(%d lines output)\n", comment_print(zText, indent, width));
+  fossil_print("(%d lines output)\n",
+               comment_print(zText, indent, width, flags));
   if( zText!=g.argv[3] ) fossil_free(zText);
 }
