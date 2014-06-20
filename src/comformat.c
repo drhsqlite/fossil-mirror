@@ -29,8 +29,9 @@
 
 #if INTERFACE
 #define COMMENT_PRINT_NONE       ((u32)0x00000000)  /* No flags. */
-#define COMMENT_PRINT_WORD_BREAK ((u32)0x00000001)  /* Break lines on words. */
-#define COMMENT_PRINT_DEFAULT    COMMENT_PRINT_NONE /* Default flags. */
+#define COMMENT_PRINT_TRIM_SPACE ((u32)0x00000001)  /* Trim leading/trailing. */
+#define COMMENT_PRINT_WORD_BREAK ((u32)0x00000002)  /* Break lines on words. */
+#define COMMENT_PRINT_DEFAULT    (COMMENT_PRINT_TRIM_SPACE) /* Defaults. */
 #endif
 
 /*
@@ -50,77 +51,55 @@
 #endif
 
 /*
-** Given a comment string zText, format that string for printing
-** on a TTY.  Assume that the output cursors is indent spaces from
-** the left margin and that a single line can contain no more than
-** width characters.  Indent all subsequent lines by indent.
-**
-** Return the number of newlines that are output.
+** This function scans the specified comment line starting just after the
+** initial index and returns the index of the next spacing character -OR-
+** zero if such a character cannot be found.  For the purposes of this
+** algorithm, the NUL character is treated the same as a spacing character.
 */
-int comment_print(
-  const char *zText, /* The comment text to be printed. */
-  int indent,        /* Number of spaces to indent each non-initial line. */
-  int width,         /* Maximum number of characters per line. */
-  int flags          /* Zero or more "COMMENT_PRINT_*" flags, see above. */
+static int comment_next_space(
+  const char *zLine, /* [in] The comment line being printed. */
+  int index          /* [in] The current character index being handled. */
 ){
-  int maxChars = width - indent;
-  int lineCnt = 0;
-  const char *zLine;
-
-#if defined(_WIN32)
-  if( width<0 ){
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    memset(&csbi, 0, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
-    if( GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) ){
-      maxChars = csbi.srWindow.Right - csbi.srWindow.Left - indent;
-    }
-  }
-#elif defined(TIOCGWINSZ)
-  if( width<0 ){
-    struct winsize w;
-    memset(&w, 0, sizeof(struct winsize));
-    if( ioctl(0, TIOCGWINSZ, &w)!=-1 ){
-      maxChars = w.ws_col - indent;
-    }
-  }
-#else
-  if( width<0 ){
-    /*
-    ** Fallback to using more-or-less the "legacy semantics" of hard-coding
-    ** the maximum line length to a value reasonable for the vast majority
-    ** of supported systems.
-    */
-    maxChars = COMMENT_LEGACY_LINE_LENGTH - indent;
-  }
-#endif
-  if( zText==0 ) zText = "(NULL)";
-  if( maxChars<=0 ){
-    maxChars = strlen(zText);
-  }
-  while( fossil_isspace(zText[0]) ){ zText++; }
-  if( zText[0]==0 ){
-    fossil_print("\n");
-    lineCnt++;
-    return lineCnt;
-  }
-  zLine = zText;
+  int nextIndex = index + 1;
   for(;;){
-    comment_print_line(zLine, zLine>zText ? indent : 0, maxChars,
-                       flags & COMMENT_PRINT_WORD_BREAK, &lineCnt,
-                       &zLine);
-    if( !zLine || !zLine[0] ) break;
+    char c = zLine[nextIndex];
+    if( c==0 || fossil_isspace(c) ){
+      return nextIndex;
+    }
+    nextIndex++;
   }
-  return lineCnt;
+  return 0; /* NOT REACHED */
+}
+
+/*
+** This function is called when printing a logical comment line to perform
+** the necessary indenting.
+*/
+static void comment_print_indent(
+  const char *zLine, /* [in] The comment line being printed. */
+  int indent,        /* [in] Number of spaces to indent, zero for none. */
+  int trimSpace,     /* [in] Non-zero to trim leading/trailing spaces. */
+  int *piIndex       /* [in/out] Pointer to first non-space character. */
+){
+  if( indent>0 ){
+    fossil_print("%*s", indent, "");
+    if( trimSpace && zLine && piIndex ){
+      int index = *piIndex;
+      while( fossil_isspace(zLine[index]) ){ index++; }
+      *piIndex = index;
+    }
+  }
 }
 
 /*
 ** This function prints one logical line of a comment, stopping when it hits
 ** a new line -OR- runs out of space on the logical line.
 */
-void comment_print_line(
+static void comment_print_line(
   const char *zLine,  /* [in] The comment line to print. */
   int indent,         /* [in] Number of spaces to indent, zero for none. */
   int lineChars,      /* [in] Maximum number of characters to print. */
+  int trimSpace,      /* [in] Non-zero to trim leading/trailing spaces. */
   int wordBreak,      /* [in] Non-zero to try breaking on word boundaries. */
   int *pLineCnt,      /* [in/out] Pointer to the total line count. */
   const char **pzLine /* [out] Pointer to the end of the logical line. */
@@ -128,7 +107,7 @@ void comment_print_line(
   int index = 0, charCnt = 0, lineCnt = 0, maxChars;
   if( !zLine ) return;
   if( lineChars<=0 ) return;
-  comment_print_indent(zLine, indent, &index);
+  comment_print_indent(zLine, indent, trimSpace, &index);
   maxChars = lineChars;
   for(;;){
     char c = zLine[index];
@@ -179,43 +158,70 @@ void comment_print_line(
 }
 
 /*
-** This function is called when printing a logical comment line to perform
-** the necessary indenting.
+** Given a comment string zText, format that string for printing
+** on a TTY.  Assume that the output cursors is indent spaces from
+** the left margin and that a single line can contain no more than
+** width characters.  Indent all subsequent lines by indent.
+**
+** Return the number of newlines that are output.
 */
-void comment_print_indent(
-  const char *zLine, /* [in] The comment line being printed. */
-  int indent,        /* [in] Number of spaces to indent, zero for none. */
-  int *piIndex       /* [in/out] Pointer to first non-space character. */
+int comment_print(
+  const char *zText, /* The comment text to be printed. */
+  int indent,        /* Number of spaces to indent each non-initial line. */
+  int width,         /* Maximum number of characters per line. */
+  int flags          /* Zero or more "COMMENT_PRINT_*" flags, see above. */
 ){
-  if( indent>0 ){
-    fossil_print("%*s", indent, "");
-    if( zLine && piIndex ){
-      int index = *piIndex;
-      while( fossil_isspace(zLine[index]) ){ index++; }
-      *piIndex = index;
-    }
-  }
-}
+  int maxChars = width - indent;
+  int trimSpace = flags & COMMENT_PRINT_TRIM_SPACE;
+  int wordBreak = flags & COMMENT_PRINT_WORD_BREAK;
+  int lineCnt = 0;
+  const char *zLine;
 
-/*
-** This function scans the specified comment line starting just after the
-** initial index and returns the index of the next spacing character -OR-
-** zero if such a character cannot be found.  For the purposes of this
-** algorithm, the NUL character is treated the same as a spacing character.
-*/
-int comment_next_space(
-  const char *zLine, /* [in] The comment line being printed. */
-  int index          /* [in] The current character index being handled. */
-){
-  int nextIndex = index + 1;
-  for(;;){
-    char c = zLine[nextIndex];
-    if( c==0 || fossil_isspace(c) ){
-      return nextIndex;
+#if defined(_WIN32)
+  if( width<0 ){
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    memset(&csbi, 0, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
+    if( GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) ){
+      maxChars = csbi.srWindow.Right - csbi.srWindow.Left - indent;
     }
-    nextIndex++;
   }
-  return 0; /* NOT REACHED */
+#elif defined(TIOCGWINSZ)
+  if( width<0 ){
+    struct winsize w;
+    memset(&w, 0, sizeof(struct winsize));
+    if( ioctl(0, TIOCGWINSZ, &w)!=-1 ){
+      maxChars = w.ws_col - indent;
+    }
+  }
+#else
+  if( width<0 ){
+    /*
+    ** Fallback to using more-or-less the "legacy semantics" of hard-coding
+    ** the maximum line length to a value reasonable for the vast majority
+    ** of supported systems.
+    */
+    maxChars = COMMENT_LEGACY_LINE_LENGTH - indent;
+  }
+#endif
+  if( zText==0 ) zText = "(NULL)";
+  if( maxChars<=0 ){
+    maxChars = strlen(zText);
+  }
+  if( trimSpace ){
+    while( fossil_isspace(zText[0]) ){ zText++; }
+  }
+  if( zText[0]==0 ){
+    fossil_print("\n");
+    lineCnt++;
+    return lineCnt;
+  }
+  zLine = zText;
+  for(;;){
+    comment_print_line(zLine, zLine>zText ? indent : 0, maxChars,
+                       trimSpace, wordBreak, &lineCnt, &zLine);
+    if( !zLine || !zLine[0] ) break;
+  }
+  return lineCnt;
 }
 
 /*
