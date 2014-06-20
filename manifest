@@ -1,5 +1,5 @@
-C Update\scomment\stests.
-D 2014-06-20T19:48:06.525
+C Merge\supdates\sfrom\strunk.
+D 2014-06-20T20:55:47.598
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -334,7 +334,7 @@ F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c bbe1421979a61cc0f14df17ef905d224b6d93884
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
-F src/descendants.c 019968d835a41003b0614074326662b35e658249
+F src/descendants.c 68ebc6d76316deacfacab21ddd989d30094487ef
 F src/diff.c 0d33c3b047cb4fef06064ab179df5264f1cdd65e
 F src/diffcmd.c 673923119b9e9019fda65bd9f4bd12e9f0295438
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
@@ -342,7 +342,7 @@ F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c afe15eaf300e18c7d19a1e1fe3c4bda30bff4872
 F src/export.c 70394a2d5c4058b89504a3720c40a09c917dbb91
 F src/file.c 8263f108df4f6966df3278c43665be324fadda17
-F src/finfo.c 46a46e240dd4a374894b0304d523839bebad07d0
+F src/finfo.c 35ae0705925a08f1a542d5a386b6171007027877
 F src/fusefs.c ff7316f3d33144e105e7db4937c857af85a40e95
 F src/glob.c 162eefbce151ba02dd67243d92633393c0aeb302
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
@@ -418,13 +418,13 @@ F src/th.h f55e2863d3df25e681d6acd39adbe6368182e83b
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 4bfc2511181fd3a6beead2d42a87c71d0fa8b111
 F src/th_tcl.c 4cb7c0795483d23b84c082f454dec9cb124cdd32
-F src/timeline.c bc9029830992ea3af7a17641de5762663996f419
+F src/timeline.c 599f4a764f55fd587d1ae9f2c031a2f83517f049
 F src/tkt.c c27101caa8efd49f6d2e70f8bccfe430f366f28b
 F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 7b3ec02e5e293378c23f6a048c7beedcbb6e0ff0
-F src/update.c 83bf95bd259f2feb59fe0f9a2d0f56b88107687d
+F src/update.c ac73ea5d017ea7495b5d78acef19494d166e6116
 F src/url.c 67ceb425c9e6de2f3dd108180add087c27f94c03
 F src/user.c 811c206e39131262dd12b441fbfe9cf8229b1cc5
 F src/utf8.c 76559aefffb4f90653eea15c3d68cb2c19834bf4
@@ -651,7 +651,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fc84a01a8b36bf9d6fd55ff9968de2dd0d1ea409
-R 55a084b0cf1485202e5738286586e8a5
+P fcbfd8b5a1c3ee862c84ed1063bbd22ae3e926fc e3df30f45c920682febe0e8ac886f434e5840898
+R 02fc4f1552b5f7ff71b521557e596c2b
 U mistachkin
-Z 1bfe4c61ddc09c61950433284bb55248
+Z 882e7ed0f1dc72794b7f7bd298b08985

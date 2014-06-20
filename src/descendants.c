@@ -293,14 +293,27 @@ void compute_descendants(int rid, int N){
 **
 ** Options:
 **    -R|--repository FILE       Extract info from repository FILE
+**    -W|--width <num>           Width of lines (default is to auto-detect).
+**                               Must be >20 or 0 (= no limit, resulting in a
+**                               single line per entry).
 **
 ** See also: finfo, info, leaves
 */
 void descendants_cmd(void){
   Stmt q;
-  int base;
+  int base, width;
+  const char *zWidth;
 
   db_find_and_open_repository(0,0);
+  zWidth = find_option("width","W",1);
+  if( zWidth ){
+    width = atoi(zWidth);
+    if( (width!=0) && (width<=20) ){
+      fossil_fatal("-W|--width value must be >20 or 0");
+    }
+  }else{
+    width = -1;
+  }
   if( g.argc==2 ){
     base = db_lget_int("checkout", 0);
   }else{
@@ -314,7 +327,7 @@ void descendants_cmd(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_tty()
   );
-  print_timeline(&q, -20, 79, 0);
+  print_timeline(&q, -20, width, 0);
   db_finalize(&q);
 }
 
@@ -335,8 +348,9 @@ void descendants_cmd(void){
 **   -c|--closed      show only closed leaves
 **   --bybranch       order output by branch name
 **   --recompute      recompute the "leaf" table in the repository DB
-**   -W|--width <num> With of lines (default 79). Must be >39 or 0
-**                    (= no limit, resulting in a single line per entry).
+**   -W|--width <num> Width of lines (default is to auto-detect). Must be
+**                    >39 or 0 (= no limit, resulting in a single line per
+**                    entry).
 **
 ** See also: descendants, finfo, info, branch
 */
