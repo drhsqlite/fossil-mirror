@@ -141,12 +141,14 @@ int comment_print(const char *zText, int indent, int lineLength){
 ** Options:
 **   --decode         Decode the text using the same method used when
 **                    handling the value of a C-card from a manifest.
+**   --wordbreak      This does nothing and is ignored.
 */
 void test_comment_format(void){
   const char *zPrefix;
   char *zText;
   int indent, width;
   int decode = find_option("decode", 0, 0)!=0;
+  find_option("wordbreak", 0, 0); /* NOT USED */
   if( g.argc!=4 && g.argc!=5 ){
     usage("PREFIX TEXT ?WIDTH?");
   }

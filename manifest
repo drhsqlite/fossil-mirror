@@ -1,5 +1,5 @@
-C Support\sa\s-verbose\sargument\sto\sthe\stest\ssuite.
-D 2014-06-19T21:26:34.952
+C Add\sand\sadjust\scomment\stests\sfrom\sthe\sexperimental\sbranch.
+D 2014-06-20T19:11:26.362
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -324,7 +324,7 @@ F src/checkin.c 49fe435edaf94d3d95c501883d772efddb09e6a4
 F src/checkout.c f74f9a6f61df15aedc6374b2852674f848a03148
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 79eea7d1a72ddb5b62efb3b75a76791d485cf108
-F src/comformat.c 4fdfe494439369fb3edb9d7bc9c9bf1633c25689
+F src/comformat.c 8af38bff094cbe3661ed09f73f2bbdf549629556
 F src/config.h 06b47d703b770ccf06265dc4b52f5ece1a067a02
 F src/configure.c f269fd9da2b442fc409ad409661bb9d29a5d98cc
 F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
@@ -442,7 +442,7 @@ F src/zip.c febf7fff38bfed9ca2fbda0a28d75fe8e445dce5
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
-F test/comment.test 288290f2d434c8348c9bddcac5c444aefb8a7173
+F test/comment.test 3d9fe0a4ba3104bccaea628e9109bf09b0c6b714
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki a789acd5523d840232fcb2164929592260af0743
 F test/file1.test 4a1009731c0959c46c228a9336df9da4a5da97f1
@@ -651,7 +651,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9e1859606fc20f4b6c474e68723b4282833b7994
-R 239ce86743e41cd37a344cf12c62dd12
+P e02795056d3d01b7a3daf6f70f429eaeb057ce27
+R da6ac4decd89b679e8a81a795961146a
 U mistachkin
-Z 411c3b3f5481c36ee089071ce567925e
+Z 0852b9d5bfc8d97d50c2a38819227309
