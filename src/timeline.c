@@ -1740,8 +1740,9 @@ static int isIsoDate(const char *z){
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the checkin comment.
-**   -W|--width <num>     With of lines (default 79). Must be >20 or 0
-**                        (= no limit, resulting in a single line per entry).
+**   -W|--width <num>     Width of lines (default is to auto-detect). Must be
+**                        >20 or 0 (= no limit, resulting in a single line per
+**                        entry).
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current checkout's repository.
 */

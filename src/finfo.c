@@ -51,8 +51,9 @@
 **   -r|--revision R      print the given revision (or ckout, if none is given)
 **                        to stdout (only in print mode)
 **   -s|--status          select status mode (print a status indicator for FILE)
-**   -W|--width <num>     With of lines (default 79). Must be >22 or 0
-**                        (= no limit, resulting in a single line per entry).
+**   -W|--width <num>     Width of lines (default is to auto-detect). Must be
+**                        >22 or 0 (= no limit, resulting in a single line per
+**                        entry).
 **
 ** See also: artifact, cat, descendants, info, leaves
 */
