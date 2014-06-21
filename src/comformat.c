@@ -28,9 +28,10 @@
 #endif
 
 #if INTERFACE
-#define COMMENT_PRINT_NONE       ((u32)0x00000000)  /* No flags. */
-#define COMMENT_PRINT_TRIM_SPACE ((u32)0x00000001)  /* Trim leading/trailing. */
-#define COMMENT_PRINT_WORD_BREAK ((u32)0x00000002)  /* Break lines on words. */
+#define COMMENT_PRINT_NONE       ((u32)0x00000000) /* No flags. */
+#define COMMENT_PRINT_LEGACY     ((u32)0x00000001) /* Use legacy algorithm. */
+#define COMMENT_PRINT_TRIM_SPACE ((u32)0x00000002) /* Trim leading/trailing. */
+#define COMMENT_PRINT_WORD_BREAK ((u32)0x00000004) /* Break lines on words. */
 #define COMMENT_PRINT_DEFAULT    (COMMENT_PRINT_TRIM_SPACE) /* Defaults. */
 #endif
 
@@ -158,12 +159,113 @@ static void comment_print_line(
 }
 
 /*
-** Given a comment string zText, format that string for printing
-** on a TTY.  Assume that the output cursors is indent spaces from
-** the left margin and that a single line can contain no more than
-** width characters.  Indent all subsequent lines by indent.
+** This is the legacy comment printing algorithm.  Currently, it is being
+** retained primarily for testing and comparison purposes.
 **
-** Return the number of newlines that are output.
+** Given a comment string, format that string for printing on a TTY.
+** Assume that the output cursors is indent spaces from the left margin
+** and that a single line can contain no more than width characters.
+** Indent all subsequent lines by indent.
+**
+** Returns the number of new lines emitted.
+*/
+static int comment_print_legacy(
+  const char *zText, /* The comment text to be printed. */
+  int indent,        /* Number of spaces to indent each non-initial line. */
+  int width          /* Maximum number of characters per line. */
+){
+  int tlen = width - indent;
+  int si, sk, i, k;
+  int doIndent = 0;
+  char *zBuf;
+  char zBuffer[400];
+  int lineCnt = 0;
+
+#if defined(_WIN32)
+  if( width<0 ){
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    memset(&csbi, 0, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
+    if( GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) ){
+      tlen = csbi.srWindow.Right - csbi.srWindow.Left - indent;
+    }
+  }
+#elif defined(TIOCGWINSZ)
+  if( width<0 ){
+    struct winsize w;
+    memset(&w, 0, sizeof(struct winsize));
+    if( ioctl(0, TIOCGWINSZ, &w)!=-1 ){
+      tlen = w.ws_col - indent;
+    }
+  }
+#else
+  if( width<0 ){
+    /*
+    ** Fallback to using more-or-less the "legacy semantics" of hard-coding
+    ** the maximum line length to a value reasonable for the vast majority
+    ** of supported systems.
+    */
+    tlen = COMMENT_LEGACY_LINE_LENGTH - indent;
+  }
+#endif
+  if( zText==0 ) zText = "(NULL)";
+  if( tlen<=0 ){
+    tlen = strlen(zText);
+  }
+  if( tlen >= (sizeof(zBuffer)) ){
+    zBuf = fossil_malloc(tlen+1);
+  }else{
+    zBuf = zBuffer;
+  }
+  for(;;){
+    while( fossil_isspace(zText[0]) ){ zText++; }
+    if( zText[0]==0 ){
+      if( doIndent==0 ){
+        fossil_print("\n");
+        lineCnt = 1;
+      }
+      if( zBuf!=zBuffer) fossil_free(zBuf);
+      return lineCnt;
+    }
+    for(sk=si=i=k=0; zText[i] && k<tlen; i++){
+      char c = zText[i];
+      if( fossil_isspace(c) ){
+        si = i;
+        sk = k;
+        if( k==0 || zBuf[k-1]!=' ' ){
+          zBuf[k++] = ' ';
+        }
+      }else{
+        zBuf[k] = c;
+        if( c=='-' && k>0 && fossil_isalpha(zBuf[k-1]) ){
+          si = i+1;
+          sk = k+1;
+        }
+        k++;
+      }
+    }
+    if( doIndent ){
+      fossil_print("%*s", indent, "");
+    }
+    doIndent = 1;
+    if( sk>0 && zText[i] ){
+      zText += si;
+      zBuf[sk] = 0;
+    }else{
+      zText += i;
+      zBuf[k] = 0;
+    }
+    fossil_print("%s\n", zBuf);
+    lineCnt++;
+  }
+}
+
+/*
+** Given a comment string, format that string for printing on a TTY.
+** Assume that the output cursors is indent spaces from the left margin
+** and that a single line can contain no more than width characters.
+** Indent all subsequent lines by indent.
+**
+** Returns the number of new lines emitted.
 */
 int comment_print(
   const char *zText, /* The comment text to be printed. */
@@ -172,11 +274,15 @@ int comment_print(
   int flags          /* Zero or more "COMMENT_PRINT_*" flags, see above. */
 ){
   int maxChars = width - indent;
+  int legacy = flags & COMMENT_PRINT_LEGACY;
   int trimSpace = flags & COMMENT_PRINT_TRIM_SPACE;
   int wordBreak = flags & COMMENT_PRINT_WORD_BREAK;
   int lineCnt = 0;
   const char *zLine;
 
+  if( legacy ){
+    return comment_print_legacy(zText, indent, width);
+  }
 #if defined(_WIN32)
   if( width<0 ){
     CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -235,6 +341,7 @@ int comment_print(
 ** Options:
 **   --decode         Decode the text using the same method used when
 **                    handling the value of a C-card from a manifest.
+**   --legacy         Use the legacy comment printing algorithm.
 **   --wordbreak      Attempt to break lines on word boundaries.
 */
 void test_comment_format(void){
@@ -243,6 +350,9 @@ void test_comment_format(void){
   int indent, width;
   int decode = find_option("decode", 0, 0)!=0;
   int flags = COMMENT_PRINT_DEFAULT;
+  if( find_option("legacy", 0, 0) ){
+    flags |= COMMENT_PRINT_LEGACY;
+  }
   if( find_option("wordbreak", 0, 0) ){
     flags |= COMMENT_PRINT_WORD_BREAK;
   }
