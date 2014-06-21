@@ -342,6 +342,7 @@ int comment_print(
 **   --decode         Decode the text using the same method used when
 **                    handling the value of a C-card from a manifest.
 **   --legacy         Use the legacy comment printing algorithm.
+**   --trimspace      Enable trimming of leading/trailing spaces.
 **   --wordbreak      Attempt to break lines on word boundaries.
 */
 void test_comment_format(void){
@@ -349,9 +350,12 @@ void test_comment_format(void){
   char *zText;
   int indent, width;
   int decode = find_option("decode", 0, 0)!=0;
-  int flags = COMMENT_PRINT_DEFAULT;
+  int flags = COMMENT_PRINT_NONE;
   if( find_option("legacy", 0, 0) ){
     flags |= COMMENT_PRINT_LEGACY;
+  }
+  if( find_option("trimspace", 0, 0) ){
+    flags |= COMMENT_PRINT_TRIM_SPACE;
   }
   if( find_option("wordbreak", 0, 0) ){
     flags |= COMMENT_PRINT_WORD_BREAK;
