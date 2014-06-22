@@ -207,6 +207,8 @@ void page_timeline_rss(void){
 /*
 ** COMMAND: rss
 **
+** Usage: %fossil rss ?OPTIONS?
+**
 ** The CLI variant of the /timeline.rss page, this produces an RSS
 ** feed of the timeline to stdout. Options:
 **
