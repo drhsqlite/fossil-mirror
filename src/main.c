@@ -32,10 +32,10 @@
 #else
 #  include <errno.h> /* errno global */
 #endif
-#include "zlib.h"
 #ifdef FOSSIL_ENABLE_SSL
 #  include "openssl/crypto.h"
 #endif
+#include "zlib.h"
 #if INTERFACE
 #ifdef FOSSIL_ENABLE_TCL
 #  include "tcl.h"
