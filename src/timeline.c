@@ -1973,7 +1973,7 @@ static int statsReportType = 0;
 ** Set by stats_report_init_view() to one of the y=XXXX values
 ** accepted by /timeline?y=XXXX.
 */
-static char const * statsReportTimelineYFlag = NULL;
+static const char * statsReportTimelineYFlag = NULL;
 
 /*
 ** Creates a TEMP VIEW named v_reports which is a wrapper around the
@@ -1994,8 +1994,8 @@ static char const * statsReportTimelineYFlag = NULL;
 ** used).
 */
 static int stats_report_init_view(){
-  char const * zType = PD("type","*");  /* analog to /timeline?y=... */
-  char const * zRealType = NULL;        /* normalized form of zType */
+  const char * zType = PD("type","*");  /* analog to /timeline?y=... */
+  const char * zRealType = NULL;        /* normalized form of zType */
   int rc = 0;                          /* result code */
   assert( !statsReportType && "Must not be called more than once." );
   switch( (zType && *zType) ? *zType : 0 ){
@@ -2048,7 +2048,7 @@ static int stats_report_init_view(){
 ** on the 'type' flag. See stats_report_init_view().
 ** The returned bytes are static.
 */
-static char const * stats_report_label_for_type(){
+static const char * stats_report_label_for_type(){
   assert( statsReportType && "Must call stats_report_init_view() first." );
   switch( statsReportType ){
     case 'c':
@@ -2073,8 +2073,8 @@ static char const * stats_report_label_for_type(){
 ** be added to the generated URLs should be passed in zParam. The
 ** caller is expected to have already encoded any zParam in the %T or
 ** %t encoding.  */
-static void stats_report_event_types_menu(char const * zCurrentViewName,
-                                          char const * zParam){
+static void stats_report_event_types_menu(const char * zCurrentViewName,
+                                          const char * zParam){
   char * zTop;
   if(zParam && !*zParam){
     zParam = NULL;
@@ -2298,7 +2298,7 @@ static void stats_report_by_month_year(char includeMonth,
   }
   @ </tbody></table>
   if(nEventTotal){
-    char const * zAvgLabel = includeMonth ? "month" : "year";
+    const char * zAvgLabel = includeMonth ? "month" : "year";
     int nAvg = iterations ? (nEventTotal/iterations) : 0;
     @ <br><div>Total events: %d(nEventTotal)
     @ <br>Average per active %s(zAvgLabel): %d(nAvg)
@@ -2388,11 +2388,11 @@ static void stats_report_day_of_week(){
   Blob sql = empty_blob;             /* SQL */
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
-  static char const * daysOfWeek[] = {
+  static const char * const daysOfWeek[] = {
   "Monday", "Tuesday", "Wednesday", "Thursday",
   "Friday", "Saturday", "Sunday"
   };
-      
+
   stats_report_init_view();
   stats_report_event_types_menu("byweekday", NULL);
   blob_append(&sql,
