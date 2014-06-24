@@ -1,5 +1,5 @@
-C Add\s--trimspace\soption\sto\sthe\s'test-comment-format'\stest\scommand.
-D 2014-06-21T01:38:04.459
+C Merge\supdates\sfrom\strunk.
+D 2014-06-24T00:40:13.583
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -373,7 +373,7 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 2f101c5d42a9fe9e9419922ff42767a1a254feb2
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c c231f4dcca3308650133d2bc4af3f2ef71c5adb9
+F src/main.c 21ca4d08499954075bcb3fc052942995b597ac12
 F src/main.mk f9effdb61f15ebb6db1b5b4ce3b1176e78bdc0b4
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -396,7 +396,7 @@ F src/printf.c 6e4566fb6524e41f9de4112f5356475d4566310d
 F src/rebuild.c 8b7e368fb07f4c660dbbaf6ada4a3354d7dfd483
 F src/regexp.c 056d7e54c5a85247ee9d003ede339b07ae049a5f
 F src/report.c 1a1c6a405c1de9c9d8cba7687a462824bc58f239
-F src/rss.c 07012f9ef16e0d46a4ea87b466cb4e0f6798a81f
+F src/rss.c d68b5a86ddd55804fd8d87a30dc62ffc2e8ecbe4
 F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 38681b8e9c25161585c52de6c6fe54cf9db79158
 F src/setup.c a0e7ea3c57ab899abfece4f39b7a0d69d60d6f7e
@@ -418,7 +418,7 @@ F src/th.h f55e2863d3df25e681d6acd39adbe6368182e83b
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 4bfc2511181fd3a6beead2d42a87c71d0fa8b111
 F src/th_tcl.c 4cb7c0795483d23b84c082f454dec9cb124cdd32
-F src/timeline.c 52c4f17e91eb02d833bcfc96a35d0fa472e5196e
+F src/timeline.c f6a6f4428c5a23a04803ff70d2f08930d6864e11
 F src/tkt.c d1f2be31c357b4f47045b2490a7a7b35b2014a91
 F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
@@ -651,7 +651,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0463c7bfb1a9980bb08681b9fef37a7d3a9b15c1
-R 7ca059a1eee07ad02ac19bd7a5823c01
+P 4e3f915c00e06b6c7d0566a24f140d567a4026f7 1d30672588ec8be510fcb8b46d2b7d783b50d31a
+R be940d77411348c8c24ba2614ef44abb
 U mistachkin
-Z b8280f431b9e8dee30780ec14ca55aa4
+Z 8d856984b9b82361d16dceb466a21cd2
