@@ -703,7 +703,7 @@ void create_cluster(void){
     db_finalize(&q);
     db_multi_exec(
       "DELETE FROM unclustered WHERE rid NOT IN (0 %s)"
-      "   AND rid NOT IN (SELECT rid FROM phantom)",
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=unclustered.rid)",
       blob_str(&deleteWhere)
     );
     blob_reset(&deleteWhere);
