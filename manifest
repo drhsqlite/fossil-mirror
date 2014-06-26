@@ -1,5 +1,5 @@
-C Make\s"fossil\sfusefs"\sentry\sin\schangelog\sa\shyperlink.\s\nUse\sa\s"T"\sin\sstead\sof\s"+"\sin\shyperlinks\scontaining\sdates,\sin\sorder\sto\sprevent\sambiugity.\s\nA\sfew\stypos\sin\swiki.
-D 2014-06-26T07:31:19.864
+C Make\sformat\sparameter\sin\ssocket_set_errmsg()\sand\sssl_set_errmsg()\sfunctions\sa\sconst.
+D 2014-06-26T07:40:11.930
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -348,8 +348,8 @@ F src/glob.c 162eefbce151ba02dd67243d92633393c0aeb302
 F src/graph.c 789ae491a6db21fb5804a5963f2e0239a0f93fbe
 F src/gzip.c 6166bf34729ac612c93c0274a1fbd021764c3ebf
 F src/http.c 061752d44c21be846c3876f4f9d4b92aa3e5f177
-F src/http_socket.c 7d3cb5844c0dfc586f1c7d1d783b489a701b5b04
-F src/http_ssl.c 38675814850cdddbb8d5728d0c7a75bf8b1d462c
+F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
+F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c d1aef141c961172a1a32f619f339c641cdeaa674
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
 F src/info.c 017739f4f5c232ca7c62490341caa8109f4ffec5
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7ba8311e5748985608c3a2481a91fb774fd83cba
-R 7c0b011648d8255be0f4c79c7125cde2
+P 68ce1305b106050d70b8fcac554125f368a5ab5a
+R 3f9243807b51fcc29f0c8c0efc1e5924
 U jan.nijtmans
-Z da8266cfe8ead914c7ad915ecd012000
+Z 4195b0c61b7031b8decf7cd3dfac1842
