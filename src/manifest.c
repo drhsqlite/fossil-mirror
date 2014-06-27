@@ -1263,6 +1263,7 @@ static ManifestFile *manifest_file_seek_base(
     }
   }
   if( bBest ){
+    if( lwr>=p->nFile ) lwr = p->nFile-1;
     i = (int)strlen(zName);
     if( strncmp(zName, p->aFile[lwr].zName, i)==0 ) return &p->aFile[lwr];
   }
