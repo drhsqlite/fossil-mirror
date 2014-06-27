@@ -170,6 +170,8 @@ void dbstat_cmd(void){
   int brief;
   char zBuf[100];
   const int colWidth = -19 /* printf alignment/width for left column */;
+  const char *p;
+
   brief = find_option("brief", "b",0)!=0;
   db_find_and_open_repository(0,0);
   fsize = file_size(g.zRepositoryName);
@@ -226,7 +228,11 @@ void dbstat_cmd(void){
                 " + 0.99");
   fossil_print("%*s%d days or approximately %.2f years.\n",
                colWidth, "project-age:", n, n/365.2425);
-  fossil_print("%*s%s\n", colWidth, "project-id:", db_get("project-code",""));
+  p = db_get("project-code", 0);
+  if( p ){
+    fossil_print("%*s%s\n", colWidth, "project-id:", p);
+  }
+  fossil_print("%*s%s\n", colWidth, "server-id:", db_get("server-code", 0));
   fossil_print("%*s%s %s [%s] (%s)\n",
                colWidth, "fossil-version:",
                MANIFEST_DATE, MANIFEST_VERSION, RELEASE_VERSION,

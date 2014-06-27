@@ -1,5 +1,5 @@
-C Print\sserver-id\safter\scloning\sand\sin\s/stat\spage.\sOnly\sprint\sProject-ID\sin\s/stat\spage\sif\sthere\sis\sone.
-D 2014-06-27T12:35:35.038
+C Add\s"server-id"\sprintout\sto\s"fossil\sdbstat".\sOnly\sprint\sproject-id\sif\sthere\sis\sone.
+D 2014-06-27T15:32:36.235
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -408,7 +408,7 @@ F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
 F src/sqlite3.c 7bc194957238c61b1a47f301270286be5bc5208c
 F src/sqlite3.h 28d8a99727a62cad6b955200c1f5d47616113300
 F src/stash.c 0b086a867bb58eb3dba49651bf859c98f5af61d8
-F src/stat.c 2a6263d96aa339f967c4a6cc7f0b793edd43eed8
+F src/stat.c 558659d5157d793409374e42bc2d3170a3fe0935
 F src/style.c 9c32e2d4b4e18e6b151132d729651a5211a4ca7e
 F src/sync.c ce3d49dbe3952e82ca3b74b2a7f9ef85226f1664
 F src/tag.c 1b0ffe2e8e3753a93ea9381e1c9f1e5d1f0118ec
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cfb8d6604f8a159e8a5c1fa8843be12060f0fff4
-R afd1ed6fb204b2ce78c6b8067bf9c9f5
+P 11ba4bd6cf0cb9c2116e3adcb47460930ccd44bd
+R 7d50f55156695900d980725b4055125c
 U jan.nijtmans
-Z d89397585d94f031334829ce7ac349e6
+Z bbc44d2c7817e52f5741e896afec9104
