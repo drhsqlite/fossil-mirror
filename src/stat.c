@@ -51,6 +51,7 @@ void stat_page(void){
   const char *zDb;
   int brief;
   char zBuf[100];
+  const char *p;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -122,7 +123,11 @@ void stat_page(void){
                 " + 0.99");
   @ %d(n) days or approximately %.2f(n/365.2425) years.
   @ </td></tr>
-  @ <tr><th>Project&nbsp;ID:</th><td>%h(db_get("project-code",""))</td></tr>
+  p = db_get("project-code", 0);
+  if( p ){
+    @ <tr><th>Project&nbsp;ID:</th><td>%h(p)</td></tr>
+  }
+  @ <tr><th>Server&nbsp;ID:</th><td>%h(db_get("server-code",""))</td></tr>
   @ <tr><th>Fossil&nbsp;Version:</th><td>
   @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
   @ (%h(RELEASE_VERSION)) [compiled using %h(COMPILER_NAME)]
