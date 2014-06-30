@@ -24,35 +24,13 @@
 #include "timeline.h"
 
 /*
-** Shorten a UUID so that is the minimum length needed to contain
-** at least one digit in the range 'a'..'f'.  The minimum length is 10.
-*/
-static void shorten_uuid(char *zDest, const char *zSrc){
-  int i;
-  for(i=0; i<10 && zSrc[i]<='9'; i++){}
-  memcpy(zDest, zSrc, 10);
-  if( i==10 && zSrc[i] ){
-    do{
-      zDest[i] = zSrc[i];
-      i++;
-    }while( zSrc[i-1]<='9' );
-  }else{
-    i = 10;
-  }
-  zDest[i] = 0;
-}
-
-
-/*
 ** Generate a hyperlink to a version.
 */
 void hyperlink_to_uuid(const char *zUuid){
-  char z[UUID_SIZE+1];
-  shorten_uuid(z, zUuid);
   if( g.perm.Hyperlink ){
-    @ %z(xhref("class='timelineHistLink'","%R/info/%s",zUuid))[%s(z)]</a>
+    @ %z(xhref("class='timelineHistLink'","%R/info/%s",zUuid))[%S(zUuid)]</a>
   }else{
-    @ <span class="timelineHistDsp">[%s(z)]</span>
+    @ <span class="timelineHistDsp">[%S(zUuid)]</span>
   }
 }
 

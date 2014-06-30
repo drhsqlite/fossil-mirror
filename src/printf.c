@@ -610,10 +610,7 @@ int vxprintf(
         length = (int)strlen(bufpt);
         break;
       }
-      case etSTRINGID: {
-        precision = 16;
-        /* Fall through */
-      }
+      case etSTRINGID:
       case etSTRING:
       case etDYNSTRING: {
         int limit = flag_alternateform ? va_arg(ap,int) : -1;
@@ -622,6 +619,10 @@ int vxprintf(
           bufpt = "";
         }else if( xtype==etDYNSTRING ){
           zExtra = bufpt;
+        }else if( xtype==etSTRINGID ){
+          precision = 0;
+          while( fossil_isdigit(bufpt[precision++]) ){};
+          if( precision<10 ) precision=10;
         }
         length = StrNLen32(bufpt, limit);
         if( precision>=0 && precision<length ) length = precision;
