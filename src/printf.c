@@ -621,7 +621,9 @@ int vxprintf(
           zExtra = bufpt;
         }else if( xtype==etSTRINGID ){
           precision = 0;
-          while( fossil_isdigit(bufpt[precision++]) ){};
+          while( bufpt[precision]>='0' && bufpt[precision]<='9' ){
+            precision++;
+          }
           if( precision<10 ) precision=10;
         }
         length = StrNLen32(bufpt, limit);
