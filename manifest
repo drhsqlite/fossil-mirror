@@ -1,5 +1,5 @@
-C Coding\sstyle\sadjustments.
-D 2014-06-30T19:07:35.473
+C Fix\soff-by-one\sissue\sin\sthe\sprevious\scheck-in.
+D 2014-07-01T22:27:21.322
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -392,7 +392,7 @@ F src/path.c 8a507a86c42c2e644abc047409a72f1c59607977
 F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c f75f22fed3797aab231908a0056e82c053e5f11a
+F src/printf.c d5e075f188c2bc9b6c86c33ff35f1b8f3ddcbe11
 F src/rebuild.c 8b7e368fb07f4c660dbbaf6ada4a3354d7dfd483
 F src/regexp.c 056d7e54c5a85247ee9d003ede339b07ae049a5f
 F src/report.c 1a1c6a405c1de9c9d8cba7687a462824bc58f239
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 734d4299401357a56768106350c6b766a1441524
-R fd51dd170007d8161d85f570266c7764
+P b6f137a01ebda84d0af6acf4f8d695fbe1aa4b80
+R 00316259297e45e2d59dbaf9d5e2040b
 U mistachkin
-Z e83c5a72794f85845ff0809d16bcba12
+Z d08afa84f889ea2db1679d9b1b454dac

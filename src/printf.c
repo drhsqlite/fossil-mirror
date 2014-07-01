@@ -624,6 +624,7 @@ int vxprintf(
           while( bufpt[precision]>='0' && bufpt[precision]<='9' ){
             precision++;
           }
+          if( bufpt[precision]!=0 ) precision++;
           if( precision<10 ) precision=10;
         }
         length = StrNLen32(bufpt, limit);
