@@ -69,7 +69,7 @@ int load_vfile(const char *zName, int forceMissingFlag){
     fossil_fatal("no such check-in: %s", g.argv[2]);
   }
   if( !is_a_version(vid) ){
-    fossil_fatal("object [%.10s] is not a check-in", blob_str(&uuid));
+    fossil_fatal("object [%S] is not a check-in", blob_str(&uuid));
   }
   if( load_vfile_from_rid(vid) && !forceMissingFlag ){
     fossil_fatal("missing content, unable to checkout");

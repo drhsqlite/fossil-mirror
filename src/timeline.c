@@ -1200,7 +1200,7 @@ void page_timeline(void){
       }
       if( d_rid==0 && useDividers ) timeline_add_dividers(0, p_rid);
     }
-    blob_appendf(&desc, " of %z[%.10s]</a>",
+    blob_appendf(&desc, " of %z[%S]</a>",
                    href("%R/info/%s", zUuid), zUuid);
     if( (tmFlags & TIMELINE_UNHIDE)==0 ){
       if( p_rid ){
@@ -1230,7 +1230,7 @@ void page_timeline(void){
     if( useDividers ) timeline_add_dividers(0, f_rid);
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
-    blob_appendf(&desc, "%z[%.10s]</a>", href("%R/info/%s", zUuid), zUuid);
+    blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%s", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
     if( (tmFlags & TIMELINE_UNHIDE)==0 ){
       url_add_parameter(&url, "f", zUuid);
@@ -1551,7 +1551,6 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     char *zFree = 0;
     int n = 0;
     char zPrefix[80];
-    char zUuid[UUID_SIZE+1];
 
     if( nAbsLimit!=0 ){
       if( nLimit<0 && nLine>=nAbsLimit ){
@@ -1562,7 +1561,6 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
         break; /* entry count limit hit, stop. */
       }
     }
-    sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
     if( fossil_strnicmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
@@ -1589,7 +1587,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*CURRENT* ");
       n += strlen(zPrefix);
     }
-    zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
+    zFree = sqlite3_mprintf("[%S] %s%s", zId, zPrefix, zCom);
     nLine += comment_print(zFree, 9, width); /* record another X lines */
     sqlite3_free(zFree);
 
