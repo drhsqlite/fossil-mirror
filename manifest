@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.6\salpha\sversion\sfrom\supstream.
-D 2014-07-01T12:40:10.259
+C Allow\srepository\spaths\sof\sup\sto\s4096\sbytes\sin\sstead\sof\sjust\s512\sbytes.\nThis\schange\sneeds\sa\sminor\schange\sin\sSQLite,\sallowing\sthe\smaximum\spath\slength\sno\slonger\sto\sbe\shardcoded,\sbut\sconfigurable\sat\scompile-time.\sSee:\s[http://www.sqlite.org/src/info/c060923a54]
+D 2014-07-06T07:05:35.795
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -374,10 +374,10 @@ F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 2f101c5d42a9fe9e9419922ff42767a1a254feb2
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c 21ca4d08499954075bcb3fc052942995b597ac12
-F src/main.mk f9effdb61f15ebb6db1b5b4ce3b1176e78bdc0b4
+F src/main.mk 0909962658fc47683c9e9ccfb7db043004058676
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 150256d170b44e538861539826b56b9504d30334
+F src/makemake.tcl ef3c0878e7c71adfed13298ebd21a6603a3ef10f
 F src/manifest.c 6c51474cb3f1c59e401080e862e3a5bc5717806f
 F src/markdown.c 717f7f14927414811b61475a6fb9edc34e6cf90b
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
@@ -405,7 +405,7 @@ F src/shell.c 56de2dfa3f25def4bf03098f7e2256fbb42f6e3c
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
-F src/sqlite3.c aeeb450fe4fbbaed24b164b0ac43ba9e9091eacb
+F src/sqlite3.c 4ea5844b2319166642e735248f2b843df73bb41f
 F src/sqlite3.h 00de792435466ea21cfdbd02da43a14578effc06
 F src/stash.c 0b086a867bb58eb3dba49651bf859c98f5af61d8
 F src/stat.c 558659d5157d793409374e42bc2d3170a3fe0935
@@ -538,11 +538,11 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
-F win/Makefile.PellesCGMake 658c62395d1d1603bf269242b4e744fd6a383e72
-F win/Makefile.dmc 233191cec2fe7c656544842d8d36815d1206df07
-F win/Makefile.mingw 3fdae4269db4eb00e2d7f88a0a74313161b91fb6
-F win/Makefile.mingw.mistachkin 43f5fb15a8b78c564eec3821e9da0dfba59b00dc
-F win/Makefile.msc 85d9e834da9c18334458b8edfc1e670caab3b681
+F win/Makefile.PellesCGMake f93f585c625fcd372ad18bd26ac328a7f47c1f00
+F win/Makefile.dmc b1dc8173745ad27b38ad7a793a70ed8cd25d3dc7
+F win/Makefile.mingw c49d32add5c5a15331e4b9f2b630d2bb8638731d
+F win/Makefile.mingw.mistachkin 08421b041f3026e2bae97289e809195b192f046b
+F win/Makefile.msc 4602d0e879f0701d295f09a68064f7b59b6955b4
 F win/buildmsvc.bat 4621013bd2c253a7683d2542aa018c73c35c96a3
 F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -651,7 +651,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e6d7b35a2469fba345255d06c877ea7923d6ff52
-R 66aad958cb5a59e8793c547d789fe228
-U drh
-Z fc61bb98c3f835c05f3ed427acfd089c
+P 6728a8bd08981237cf0f2e0a9427a3284b7a8c1b
+R 0826496ef775a6c16d7552b8ce4d1dee
+T *branch * longpath
+T *sym-longpath *
+T -sym-trunk *
+U jan.nijtmans
+Z f3cbe1c86a6af11582abe54662bfd5fd
