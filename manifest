@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.6\salpha\sversion\sfrom\supstream.
-D 2014-07-01T12:40:10.259
+C Update\s'config.guess'\sand\s'config.sub'\sfrom\supstream\sper\srequest\son\smailing\slist\sby\sJoe\sProstko.\s\sPlease\sreview\sfor\strunk.
+D 2014-07-07T20:59:21.389
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -52,8 +52,8 @@ F autosetup/cc-db.tcl 2789d831c2f4ac5364d6aaf0ea922b5fad382f4d
 F autosetup/cc-lib.tcl 3c6bbfcb75eacfd4d5b060b9da74bfbf6e932305
 F autosetup/cc-shared.tcl 6634fa62ced64692179819ef83eb0ade13f6f7d0
 F autosetup/cc.tcl 1a4ebad038952b8631efa8e76e788157c5a39517
-F autosetup/config.guess f498ef34dd548d5baf5a3f1b1567af389132d694 x
-F autosetup/config.sub 04506470134e1743c4fd52d49f44869fadb3ba63 x
+F autosetup/config.guess 3646b015d9a91423feaf2bac86fd2df7ab3564f6 x
+F autosetup/config.sub 0a7de3085aaa4ea3655c4221574dc9e503035428 x
 F autosetup/default.auto f78163e478676728918cbb7360abddb9c830e882
 F autosetup/find-tclsh f973558ad74bd8e4d55b677d9c166cbb35f34186 x
 F autosetup/jimsh0.c 4d0826f3662002c29d774c1b279375e85b6aa1ce
@@ -651,7 +651,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e6d7b35a2469fba345255d06c877ea7923d6ff52
-R 66aad958cb5a59e8793c547d789fe228
-U drh
-Z fc61bb98c3f835c05f3ed427acfd089c
+P 6728a8bd08981237cf0f2e0a9427a3284b7a8c1b
+R a0c152ac175303b02ed238d06e9e92ec
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U mistachkin
+Z e78bc7a5dbbe6f3bf976e2e6b0653a49
