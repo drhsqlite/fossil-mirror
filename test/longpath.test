@@ -4,6 +4,10 @@
 # This test should pass on any platform.
 #
 
+if {$::tcl_platform(platform)!="unix"} {
+  exit
+}
+
 # Fossil will write data on $HOME, running 'fossil new' here.
 # We need not to clutter the $HOME of the test caller.
 #
@@ -13,7 +17,6 @@ set env(HOME) [pwd]
 #
 set x [string repeat x 240]
 set longpath [pwd]/$x/$x
-file mkdir [pwd]/$x
 file mkdir $longpath
 
 test longpath-test.1 {
@@ -21,6 +24,5 @@ test longpath-test.1 {
 }
 
 catch {file delete $longpath/$x.fossil}
-catch {file delete [pwd]/$x/$x.fossil}
-catch {file delete [pwd]/$x}
-
+catch {file delete $longpath}
+catch {file delete [file dirname $longpath]}
