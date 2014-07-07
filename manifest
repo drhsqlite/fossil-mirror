@@ -1,5 +1,8 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.6\salpha\sversion\sfrom\supstream.
-D 2014-07-01T12:40:10.259
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C typo\s(found\sby\ss.beal)
+D 2014-07-07T20:21:07.314
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -640,7 +643,7 @@ F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
 F www/server.wiki 4fde3c24086ebdc254a7a6f9bf8f63e3f3815cc2
 F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
-F www/shunning.wiki 72dbd35b86f8180debdff7f6d07fd4c1ab3d500f
+F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
 F www/style.wiki 92ede836b02fb8958e948b9df51f196e9ec95d68
@@ -651,7 +654,14 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e6d7b35a2469fba345255d06c877ea7923d6ff52
-R 66aad958cb5a59e8793c547d789fe228
-U drh
-Z fc61bb98c3f835c05f3ed427acfd089c
+P 6728a8bd08981237cf0f2e0a9427a3284b7a8c1b
+R 564163cbcfb1583ed0da95f4fcc3e652
+U bch
+Z 8cc0f97c9189c2b8cb1f7eb266b63eab
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlO7ATMACgkQad0Kwpwugm+ETgCdEGBXFdXaHvi8zXj862iVzFPC
+3sIAn3b/USLjLBwR01W3W7o57e/YDhRS
+=7r2r
+-----END PGP SIGNATURE-----
