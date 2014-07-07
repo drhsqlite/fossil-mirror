@@ -3,9 +3,10 @@
 <h2>Changes For Version 1.30 (as yet unreleased)</h2>
   *  Add setting to control the number of times autosync will be tried before
      returning an error.
-  *  Add the "fossil fusefs DIRECTORY" command that mounts a Fuse Filesystem
-     at the given DIRECTORY and populates it with read-only copies of all
-     historical check-ins. This only works on systems that support FuseFS.
+  *  Add the [/help/fusefs|fossil fusefs DIRECTORY] command that mounts a
+     Fuse Filesystem at the given DIRECTORY and populates it with read-only
+     copies of all historical check-ins. This only works on systems that
+     support FuseFS.
   *  Support customization of commands and webpages, including the ability to
      add new ones, via the "TH1 hooks" feature.  Disabled by default. Enabled
      via a compile-time option.
