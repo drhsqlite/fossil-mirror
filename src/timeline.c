@@ -1224,17 +1224,28 @@ void page_timeline(void){
     }
     blob_appendf(&desc, " of %z[%.10s]</a>",
                    href("%R/info/%s", zUuid), zUuid);
-    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+    if( p_rid ){
+      url_add_parameter(&url, "p", zUuid);
+    }
+    if( d_rid ){
       if( p_rid ){
-        url_add_parameter(&url, "p", zUuid);
+        /* If both p= and d= are set, we don't have the uuid of d yet. */
+        zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
-      if( d_rid ){
-        if( p_rid ){
-          /* If both p= and d= are set, we don't have the uuid of d yet. */
-          zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
-        }
-        url_add_parameter(&url, "d", zUuid);
-      }
+      url_add_parameter(&url, "d", zUuid);
+    }
+    if( nEntry>20 ){
+      timeline_submenu(&url, "20 Entries", "n", "20", 0);
+    }
+    if( nEntry<200 ){
+      timeline_submenu(&url, "200 Entries", "n", "200", 0);
+    }
+    if( tmFlags & TIMELINE_FCHANGES ){
+      timeline_submenu(&url, "Hide Files", "v", 0, 0);
+    }else{
+      timeline_submenu(&url, "Show Files", "v", "", 0);
+    }
+    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
       timeline_submenu(&url, "Unhide", "unhide", "", 0);
     }
   }else if( f_rid && g.perm.Read ){
@@ -1254,8 +1265,13 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%.10s]</a>", href("%R/info/%s", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
+    url_add_parameter(&url, "f", zUuid);
+    if( tmFlags & TIMELINE_FCHANGES ){
+      timeline_submenu(&url, "Hide Files", "v", 0, 0);
+    }else{
+      timeline_submenu(&url, "Show Files", "v", "", 0);
+    }
     if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-      url_add_parameter(&url, "f", zUuid);
       timeline_submenu(&url, "Unhide", "unhide", "", 0);
     }
   }else{

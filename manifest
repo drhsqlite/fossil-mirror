@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.6\salpha\sversion\sfrom\supstream.
-D 2014-07-01T12:40:10.259
+C Add\s"Hide/Show\sFiles"\sbutton\sto\sParents\sand\schildren/Ascendants\sand\sDescendants\s/timeline\spages.\s\nAdd\s"20\sEntries"/"200\sEntries"\sbuttons\sto\sAscendants\sand\sDescendants\s/timeline\spage.
+D 2014-07-08T15:35:42.181
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -418,7 +418,7 @@ F src/th.h f55e2863d3df25e681d6acd39adbe6368182e83b
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 4bfc2511181fd3a6beead2d42a87c71d0fa8b111
 F src/th_tcl.c 4cb7c0795483d23b84c082f454dec9cb124cdd32
-F src/timeline.c 1b7a2151be35001f722f6ed9016fce66ea0e125b
+F src/timeline.c 038eeac54bab6b81e7e0c1fbf93d77e651320532
 F src/tkt.c c27101caa8efd49f6d2e70f8bccfe430f366f28b
 F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e6d7b35a2469fba345255d06c877ea7923d6ff52
-R 66aad958cb5a59e8793c547d789fe228
-U drh
-Z fc61bb98c3f835c05f3ed427acfd089c
+P 6728a8bd08981237cf0f2e0a9427a3284b7a8c1b
+R b954ecba584d11c719e683d419b2091d
+U jan.nijtmans
+Z 94f2deff80e11c25552fc324bb460d9a
