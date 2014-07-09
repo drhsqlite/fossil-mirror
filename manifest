@@ -1,5 +1,5 @@
-C Determine\svalue\sfor\sHAVE_UTIME,\snecessary\sfor\sVxWorks.
-D 2014-07-08T11:00:42.360
+C Merge\strunk.\s\nMake\sit\swork\swith\sSQLITE_ENABLE_LOCKING_STYLE=1,\sboth\son\sLinux\sand\sVxWorks.\s\nStill\sexperimental,\sas\sthe\sunlink\sissue\swhen\susing\sdosFs\sis\snot\shandled\syet.
+D 2014-07-09T11:17:44.530
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -10,7 +10,7 @@ F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b47
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
-F Makefile.in ebe28abdc231e41a40b725c4b238cb47f1ae4a46
+F Makefile.in 50b09b7b1124c39bd177fc514caa9266e018a571
 F VERSION 72867f32a368547eaf1e8b96c60e100001c7c9e1
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
@@ -44,7 +44,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 2aa7edd5805da5885425b8dbb8df7b40739961ee
+F auto.def 5167d6021a4106222a2d80f1953cc1666ba1b48a
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup f80eb8d3ebc34b06b08095daf8d964a898ea2777 x
@@ -405,7 +405,7 @@ F src/shell.c 56de2dfa3f25def4bf03098f7e2256fbb42f6e3c
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
-F src/sqlite3.c 8589453ffcba8006a1797233f9ca27fa7d45659d
+F src/sqlite3.c acb384247f2d11205a4a5257e958f8d45f4e8343
 F src/sqlite3.h 00de792435466ea21cfdbd02da43a14578effc06
 F src/stash.c 0b086a867bb58eb3dba49651bf859c98f5af61d8
 F src/stat.c 558659d5157d793409374e42bc2d3170a3fe0935
@@ -418,7 +418,7 @@ F src/th.h f55e2863d3df25e681d6acd39adbe6368182e83b
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 4bfc2511181fd3a6beead2d42a87c71d0fa8b111
 F src/th_tcl.c 4cb7c0795483d23b84c082f454dec9cb124cdd32
-F src/timeline.c 1b7a2151be35001f722f6ed9016fce66ea0e125b
+F src/timeline.c 038eeac54bab6b81e7e0c1fbf93d77e651320532
 F src/tkt.c c27101caa8efd49f6d2e70f8bccfe430f366f28b
 F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 18ae9fddb815e90bd5a8541fc7175af877ef9081
-R 985c8727be274c8df8f0dd2addefc5cf
+P 9d0bc3a83b431196079ec80798ae775eca15ad96 45feda65e9978b9ea2313d8201ec6dc2cce963a2
+R 7093039d094547367d02bff5eaf583fc
 U jan.nijtmans
-Z 248c4f2db95f987e1ef4bb6d4a8ecacf
+Z 534ae458c814b916021c303cde1ccb00

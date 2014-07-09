@@ -264,6 +264,7 @@ if {![cc-check-function-in-lib socket {socket network}]} {
 }
 cc-check-function-in-lib iconv iconv
 cc-check-functions utime
+cc-check-functions usleep
 
 # Check for getloadavg(), and if it doesn't exist, define FOSSIL_OMIT_LOAD_AVERAGE
 if {![cc-check-functions getloadavg]} {
