@@ -1,5 +1,5 @@
-C typo\s(found\sby\ss.beal)
-D 2014-07-09T20:44:21.028
+C If\sthe\ssystem\sknows\sabout\sutime()\sand/or\susleep(),\sallow\sthe\sbuilt-in\sSQLite\sto\suse\sthose\sfunctions.\se.g.\sfor\sexecuting\sdelays\swhich\sare\snot\sa\smultiple\sof\s1\ssecond.
+D 2014-07-09T21:04:38.373
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -10,7 +10,7 @@ F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b47
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
-F Makefile.in ebe28abdc231e41a40b725c4b238cb47f1ae4a46
+F Makefile.in 50b09b7b1124c39bd177fc514caa9266e018a571
 F VERSION 72867f32a368547eaf1e8b96c60e100001c7c9e1
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
@@ -44,7 +44,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 238100f5b1fea5cc09dfd1c9976f369a6ed4b2d8
+F auto.def 5167d6021a4106222a2d80f1953cc1666ba1b48a
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup f80eb8d3ebc34b06b08095daf8d964a898ea2777 x
@@ -325,7 +325,7 @@ F src/checkout.c f74f9a6f61df15aedc6374b2852674f848a03148
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 1272c49df0a59f0befadb10a5469b270d8320ba0
 F src/comformat.c 8af38bff094cbe3661ed09f73f2bbdf549629556
-F src/config.h 06b47d703b770ccf06265dc4b52f5ece1a067a02
+F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
 F src/configure.c f269fd9da2b442fc409ad409661bb9d29a5d98cc
 F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
@@ -651,8 +651,8 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P df3ada575c9e3f0cda7566c31772466b7dd22be7 b4a53ba45f34b0d9a1693c6686bbac571f6fbe98
-R 848bc1ac12b0aef77befd43593465dbd
-T +closed b4a53ba45f34b0d9a1693c6686bbac571f6fbe98
+P 92c2c1e5e18b19c5b05ea5684feb0bbeeb6670fd 37e42077c91796ac847494b7bf977c8d5b556ec1
+R ead29e9c29516a685f198b84f2cee6f1
+T +closed 37e42077c91796ac847494b7bf977c8d5b556ec1
 U jan.nijtmans
-Z c1c35099785d090c82a2514e7a1c1576
+Z 599d7193c840b65ab4ee3b1ffe7e864f
