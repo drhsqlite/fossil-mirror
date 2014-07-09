@@ -44,7 +44,7 @@ shunning list propagated then a malicious user (or
 a bug in the fossil code) might introduce a shun record that would
 propagate through all repositories in a network and permanently 
 destroy vital information.  By refusing to propagate the shunning list,
-Fossil insures that no remote user will ever be able to remove 
+Fossil ensures that no remote user will ever be able to remove 
 information from your personal repositories without your permission.
 
 The shunning list does not propagate to a remote repository 
