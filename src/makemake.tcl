@@ -133,6 +133,7 @@ set src {
 # Options used to compile the included SQLite library.
 #
 set SQLITE_OPTIONS {
+  -DNDEBUG=1
   -DSQLITE_OMIT_LOAD_EXTENSION=1
   -DSQLITE_ENABLE_LOCKING_STYLE=0
   -DSQLITE_THREADSAFE=0
