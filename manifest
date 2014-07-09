@@ -1,5 +1,5 @@
-C Merge\strunk.\s\nMake\sit\swork\swith\sSQLITE_ENABLE_LOCKING_STYLE=1,\sboth\son\sLinux\sand\sVxWorks.\s\nStill\sexperimental,\sas\sthe\sunlink\sissue\swhen\susing\sdosFs\sis\snot\shandled\syet.
-D 2014-07-09T11:17:44.530
+C check\sfor\sS_dosFsLib_FILE_NOT_FOUND\son\svxworks
+D 2014-07-09T12:54:33.506
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -405,7 +405,7 @@ F src/shell.c 56de2dfa3f25def4bf03098f7e2256fbb42f6e3c
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
-F src/sqlite3.c acb384247f2d11205a4a5257e958f8d45f4e8343
+F src/sqlite3.c 41362018ff45f874d9c86ee970cbd4ad46f7a98c
 F src/sqlite3.h 00de792435466ea21cfdbd02da43a14578effc06
 F src/stash.c 0b086a867bb58eb3dba49651bf859c98f5af61d8
 F src/stat.c 558659d5157d793409374e42bc2d3170a3fe0935
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9d0bc3a83b431196079ec80798ae775eca15ad96 45feda65e9978b9ea2313d8201ec6dc2cce963a2
-R 7093039d094547367d02bff5eaf583fc
+P 1cef35ba55f8d9880e857a80433c25320b3942f5
+R f62f898f8c175b859f774c71b51cc297
 U jan.nijtmans
-Z 534ae458c814b916021c303cde1ccb00
+Z 01bb8693d796dde903d140d5db809340
