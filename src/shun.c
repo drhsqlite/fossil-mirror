@@ -71,7 +71,7 @@ void shun_page(void){
     login_verify_csrf_secret();
     db_multi_exec("DELETE FROM shun WHERE uuid='%s'", zUuid);
     if( db_exists("SELECT 1 FROM blob WHERE uuid='%s'", zUuid) ){
-      @ <p class="noMoreShun">Artifact 
+      @ <p class="noMoreShun">Artifact
       @ <a href="%s(g.zTop)/artifact/%s(zUuid)">%s(zUuid)</a> is no
       @ longer being shunned.</p>
     }else{
@@ -109,7 +109,7 @@ void shun_page(void){
   @ artifact content will be purged from the repository the next time the
   @ repository is rebuilt.  A list of shunned artifacts can be seen at the
   @ bottom of this page.</p>
-  @ 
+  @
   @ <a name="addshun"></a>
   @ <p>To shun an artifact, enter its artifact ID (the 40-character SHA1
   @ hash of the artifact) in the
@@ -126,7 +126,7 @@ void shun_page(void){
   @ or artifacts that by design or accident interfere with the processing
   @ of the repository.  Do not shun artifacts merely to remove them from
   @ sight - set the "hidden" tag on such artifacts instead.</p>
-  @ 
+  @
   @ <blockquote>
   @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
@@ -135,6 +135,7 @@ void shun_page(void){
   @ </div></form>
   @ </blockquote>
   @
+  @ <a name="delshun"></a>
   @ <p>Enter the UUID of a previous shunned artifact to cause it to be
   @ accepted again in the repository.  The artifact content is not
   @ restored because the content is unknown.  The only change is that
@@ -144,7 +145,7 @@ void shun_page(void){
   @ <blockquote>
   @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <input type="text" name="uuid" size="50" />
+  @ <input type="text" name="uuid" value="%h(PD("accept", ""))" size="50" />
   @ <input type="submit" name="sub" value="Accept" />
   @ </div></form>
   @ </blockquote>
@@ -160,10 +161,10 @@ void shun_page(void){
   @ <input type="submit" name="rebuild" value="Rebuild" />
   @ </div></form>
   @ </blockquote>
-  @ 
+  @
   @ <hr /><p>Shunned Artifacts:</p>
   @ <blockquote><p>
-  db_prepare(&q, 
+  db_prepare(&q,
      "SELECT uuid, EXISTS(SELECT 1 FROM blob WHERE blob.uuid=shun.uuid)"
      "  FROM shun ORDER BY uuid");
   while( db_step(&q)==SQLITE_ROW ){
@@ -229,7 +230,7 @@ void rcvfromlist_page(void){
     style_submenu_element("Newer", "Newer", "rcvfromlist?ofst=%d",
                            ofst>30 ? ofst-30 : 0);
   }
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT rcvid, login, datetime(rcvfrom.mtime), rcvfrom.ipaddr"
     "  FROM rcvfrom LEFT JOIN user USING(uid)"
     " ORDER BY rcvid DESC LIMIT 31 OFFSET %d",
@@ -288,31 +289,31 @@ void rcvfrom_page(void){
     login_needed();
   }
   style_header("Content Source %d", rcvid);
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT login, datetime(rcvfrom.mtime), rcvfrom.ipaddr"
     "  FROM rcvfrom LEFT JOIN user USING(uid)"
     " WHERE rcvid=%d",
     rcvid
   );
   @ <table cellspacing="15" cellpadding="0" border="0">
-  @ <tr><td valign="top" align="right"><b>rcvid:</b></td>
+  @ <tr><th valign="top" align="right">rcvid:</th>
   @ <td valign="top">%d(rcvid)</td></tr>
   if( db_step(&q)==SQLITE_ROW ){
     const char *zUser = db_column_text(&q, 0);
     const char *zDate = db_column_text(&q, 1);
     const char *zIpAddr = db_column_text(&q, 2);
-    @ <tr><td valign="top" align="right"><b>User:</b></td>
+    @ <tr><th valign="top" align="right">User:</th>
     @ <td valign="top">%s(zUser)</td></tr>
-    @ <tr><td valign="top" align="right"><b>Date:</b></td>
+    @ <tr><th valign="top" align="right">Date:</th>
     @ <td valign="top">%s(zDate)</td></tr>
-    @ <tr><td valign="top" align="right"><b>IP&nbsp;Address:</b></td>
+    @ <tr><th valign="top" align="right">IP&nbsp;Address:</th>
     @ <td valign="top">%s(zIpAddr)</td></tr>
   }
   db_finalize(&q);
   db_prepare(&q,
     "SELECT rid, uuid, size FROM blob WHERE rcvid=%d", rcvid
   );
-  @ <tr><td valign="top" align="right"><b>Artifacts:</b></td>
+  @ <tr><th valign="top" align="right">Artifacts:</th>
   @ <td valign="top">
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);

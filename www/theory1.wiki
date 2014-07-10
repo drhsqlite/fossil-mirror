@@ -97,7 +97,7 @@ as its scripting language.
 This misunderstanding likely arises because people fail
 to appreciate that SQL is a programming language.  People are taught that SQL
 is a "query language" as if that were somehow different from a
-"programming language".  But they really are two different favors of the
+"programming language".  But they really are two different flavors of the
 same thing.  I find that people do better with SQL if they think of
 SQL as a programming language and each statement
 of SQL is a separate program.  SQL is a peculiar programming language

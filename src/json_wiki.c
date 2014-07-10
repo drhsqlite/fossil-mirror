@@ -82,9 +82,9 @@ char * json_wiki_get_uuid_for_rid( int rid )
 ** The returned value, if not NULL, is-a JSON Object owned by the
 ** caller. If it returns NULL then it may set g.json's error state.
 */
-cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
+cson_value * json_get_wiki_page_by_rid(int rid, int contentFormat){
   Manifest * pWiki = NULL;
-  if( NULL == (pWiki = manifest_get(rid, CFTYPE_WIKI)) ){
+  if( NULL == (pWiki = manifest_get(rid, CFTYPE_WIKI, 0)) ){
     json_set_err( FSL_JSON_E_UNKNOWN,
                   "Error reading wiki page from manifest (rid=%d).",
                   rid );
@@ -147,7 +147,7 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
 ** name. If found it behaves like json_get_wiki_page_by_rid(theRid,
 ** contentFormat), else it returns NULL.
 */
-cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentFormat){
+cson_value * json_get_wiki_page_by_name(char const * zPageName, int contentFormat){
   int rid;
   rid = db_int(0,
                "SELECT x.rid FROM tag t, tagxref x, blob b"
@@ -177,8 +177,8 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentForm
 ** The return value is intended for use with
 ** json_get_wiki_page_by_rid() and friends.
 */
-char json_wiki_get_content_format_flag( char defaultValue ){
-  char contentFormat = defaultValue;
+int json_wiki_get_content_format_flag( int defaultValue ){
+  int contentFormat = defaultValue;
   char const * zFormat = json_find_option_cstr("format",NULL,"f");
   if( !zFormat || !*zFormat ){
     return contentFormat;
@@ -205,7 +205,7 @@ char json_wiki_get_content_format_flag( char defaultValue ){
 */
 static cson_value * json_wiki_get_by_name_or_symname(char const * zPageName,
                                                      char const * zSymname,
-                                                     char contentFormat ){
+                                                     int contentFormat ){
   if(!zSymname || !*zSymname){
     return json_get_wiki_page_by_name(zPageName, contentFormat);
   }else{
@@ -231,7 +231,7 @@ static cson_value * json_wiki_get_by_name_or_symname(char const * zPageName,
 static cson_value * json_wiki_get(){
   char const * zPageName;
   char const * zSymName = NULL;
-  char contentFormat = -1;
+  int contentFormat = -1;
   if( !g.perm.RdWiki && !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' or 'j' access.");
@@ -310,6 +310,7 @@ static cson_value * json_wiki_create_or_save(char createMode,
   cson_value * emptyContent = NULL;  /* placeholder for empty content. */
   cson_value * payV = NULL;   /* payload/return value */
   cson_string const * jstr = NULL;  /* temp for cson_value-to-cson_string conversions. */
+  char const * zMimeType = 0;
   unsigned int contentLen = 0;
   int rid;
   if( (createMode && !g.perm.NewWiki)
@@ -373,7 +374,10 @@ static cson_value * json_wiki_create_or_save(char createMode,
   if(contentLen){
     blob_append(&content, cson_string_cstr(jstr),contentLen);
   }
-  wiki_cmd_commit(zPageName, 0==rid, &content);
+
+  zMimeType = json_find_option_cstr("mimetype","mimetype","M");
+
+  wiki_cmd_commit(zPageName, 0==rid, &content, zMimeType);
   blob_reset(&content);
   /*
     Our return value here has a race condition: if this operation
@@ -530,12 +534,12 @@ static cson_value * json_wiki_diff(){
   }
 
   zErrTag = zV1;
-  pW1 = manifest_get(r1, CFTYPE_WIKI);
+  pW1 = manifest_get(r1, CFTYPE_WIKI, 0);
   if( pW1==0 ) {
     goto manifest;
   }
   zErrTag = zV2;
-  pW2 = manifest_get(r2, CFTYPE_WIKI);
+  pW2 = manifest_get(r2, CFTYPE_WIKI, 0);
   if( pW2==0 ) {
     goto manifest;
   }
@@ -544,7 +548,7 @@ static cson_value * json_wiki_diff(){
   blob_zero(&w2);
   blob_init(&w2, pW2->zWiki, -1);
   blob_zero(&d);
-  diffFlags = DIFF_IGNORE_EOLWS | DIFF_INLINE;
+  diffFlags = DIFF_IGNORE_EOLWS | DIFF_STRIP_EOLCR;
   text_diff(&w2, &w1, &d, 0, diffFlags);
   blob_reset(&w1);
   blob_reset(&w2);

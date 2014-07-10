@@ -48,7 +48,7 @@ meaning to fossil.  Fossil recognizes:
 <li> [#event | Events] </li>
 </ul>
 
-These seven artifact types are described in the sequel.
+These seven artifact types are described in the following sections.
 
 In the current implementation (as of 2009-01-25) the artifacts that
 make up a fossil repository are stored in in as delta- and zlib-compressed
@@ -100,12 +100,12 @@ Allowed cards in the manifest are as follows:
 <b>B</b> <i>baseline-manifest</i><br>
 <b>C</b> <i>checkin-comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br>
-<b>F</b> <i>filename</i> <i>SHA1-hash</i> <i>permissions</i> <i>old-name</i><br>
+<b>F</b> <i>filename</i> ?<i>SHA1-hash</i>? ?<i>permissions</i>? ?<i>old-name</i>?<br>
 <b>N</b> <i>mimetype</i><br>
 <b>P</b> <i>SHA1-hash</i>+<br>
-<b>Q</b> (<b>+</b>|<b>-</b>)<i>SHA1-hash ?SHA1-hash?</i><br>
+<b>Q</b> (<b>+</b>|<b>-</b>)<i>SHA1-hash</i> ?<i>SHA1-hash</i>?<br>
 <b>R</b> <i>repository-checksum</i><br>
-<b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name  <b>*</b> ?value?</i><br>
+<b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name</i> <b>*</b> ?<i>value</i>?<br>
 <b>U</b> <i>user-login</i><br>
 <b>Z</b> <i>manifest-checksum</i>
 </blockquote>
@@ -140,27 +140,27 @@ The format one of:
 </blockquote>
 
 A manifest has zero or more F-cards.  Each F-card identifies a file
-that is part of the check-in.  There are one, two, three, or four arguments.
-The first argument
-is the pathname of the file in the check-in relative to the root
-of the project file hierarchy.  No ".." or "." directories are allowed
-within the filename.  Space characters are escaped as in C-card
-comment text.  Backslash characters and newlines are not allowed
-within filenames.  The directory separator character is a forward
-slash (ASCII 0x2F).  The second argument to the F-card is the
-full 40-character lower-case hexadecimal SHA1 hash of the content
-artifact.  The second argument is required for baseline manifests
-but is optional for delta manifests.  When the second argument to the
-F-card is omitted, it means that the file has been deleted relative
-to the baseline.  The optional 3rd argument defines any special access 
-permissions associated with the file.  The only special code currently
-defined is "x" which means that the file is executable.  All files are
-always readable and writable.  This can be expressed by "w" permission
-if desired but is optional.  The file format might be extended with
-new permission letters in the future.
-The optional 4th argument is the name of the same file as it existed in
-the parent check-in.  If the name of the file is unchanged from its
-parent, then the 4th argument is omitted.
+that is part of the check-in.  There are one, two, three, or four
+arguments.  The first argument is the pathname of the file in the
+check-in relative to the root of the project file hierarchy.  No ".."
+or "." directories are allowed within the filename.  Space characters
+are escaped as in C-card comment text.  Backslash characters and
+newlines are not allowed within filenames.  The directory separator
+character is a forward slash (ASCII 0x2F).  The second argument to the
+F-card is the full 40-character lower-case hexadecimal SHA1 hash of
+the content artifact.  The second argument is required for baseline
+manifests but is optional for delta manifests.  When the second
+argument to the F-card is omitted, it means that the file has been
+deleted relative to the baseline (files removed in baseline manifests
+versions are <em>not</em> added as F-cards). The optional 3rd argument
+defines any special access permissions associated with the file.  This
+can be defined as "x" to mean that the file is executable or "l"
+(small letter ell) to mean a symlink.  All files are always readable
+and writable.  This can be expressed by "w" permission if desired but
+is optional.  The file format might be extended with new permission
+letters in the future.  The optional 4th argument is the name of the
+same file as it existed in the parent check-in.  If the name of the
+file is unchanged from its parent, then the 4th argument is omitted.
 
 A manifest has zero or one N-cards.  The N-card specifies the mimetype for the
 text in the comment of the C-card.  If the N-card is omitted, a default mimetype
@@ -213,7 +213,7 @@ A manifest might contain one or more T-cards used to set
 [./branching.wiki#tags | tags or properties]
 on the check-in.  The format of the T-card is the same as
 described in <i>Control Artifacts</i> section below, except that the
-second argument is the single characcter "<b>*</b>" instead of an
+second argument is the single character "<b>*</b>" instead of an
 artifact ID.  The <b>*</b> in place of the artifact ID indicates that
 the tag or property applies to the current artifact.  It is not
 possible to encode the current artifact ID as part of an artifact,
@@ -293,12 +293,12 @@ Allowed cards in a control artifact are as follows:
 
 <blockquote>
 <b>D</b> <i>time-and-date-stamp</i><br />
-<b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name  artifact-id  ?value?</i><br />
+<b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name</i> <i>artifact-id</i> ?<i>value</i>?<br />
 <b>U</b> <i>user-name</i><br />
 <b>Z</b> <i>checksum</i><br />
 </blockquote>
 
-A control artifact must have one D card and one Z card and
+A control artifact must have one D card, one U card, one Z card and
 one or more T cards.  No other cards or other text is
 allowed in a control artifact.  Control artifacts might be PGP
 clearsigned.
@@ -361,7 +361,7 @@ The D card is the date and time when the wiki page was edited.
 The P card specifies the parent wiki pages, if any.  The L card
 gives the name of the wiki page.  The optional N card specifies
 the mimetype of the wiki text.  If the N card is omitted, the
-mimetype is assumed to be text/x-fossil.  
+mimetype is assumed to be text/x-fossil-wiki.  
 The U card specifies the login
 of the user who made this edit to the wiki page.  The Z card is
 the usual checksum over the either artifact and is required.
@@ -477,14 +477,14 @@ The following cards are allowed on an event artifact:
 <b>E</b> <i>event-time</i> <i>event-id</i><br />
 <b>N</b> <i>mimetype</i><br />
 <b>P</b> <i>parent-artifact-id</i>+<br />
-<b>T</b> <b>+</b><i>tag-name</i> <b>*</b> <i>value</i><br />
+<b>T</b> <b>+</b><i>tag-name</i> <b>*</b> ?<i>value</i>?<br />
 <b>U</b> <i>user-name</i><br />
 <b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
 <b>Z</b> <i>checksum</i>
 </blockquote>
 
 The C card contains text that is displayed on the timeline for the
-event.  Exactly one C card is required on an event artifact.
+event.  The C card is optional, but there can only be one.
 
 A single D card is required to give the date and time when the 
 event artifact was created.  This is different from the time at which
@@ -501,7 +501,7 @@ that is contained in the W card.  If the N card is omitted, then the
 W card text mimetype is assumed to be text/x-fossil, which is the
 Fossil wiki format.
 
-The option P card specifies a prior event with the same event-id from
+The optional P card specifies a prior event with the same event-id from
 which the current event is an edit.  The P card is a hint to the system
 that it might be space efficient to store one event as a delta of the
 other.
@@ -510,7 +510,7 @@ An event might contain one or more T-cards used to set
 [./branching.wiki#tags | tags or properties]
 on the event.  The format of the T-card is the same as
 described in [#ctrl | Control Artifacts] section above, except that the
-second argument is the single characcter "<b>*</b>" instead of an
+second argument is the single character "<b>*</b>" instead of an
 artifact ID and the name is always prefaced by "<b>+</b>".
 The <b>*</b> in place of the artifact ID indicates that
 the tag or property applies to the current artifact.  It is not
@@ -533,8 +533,12 @@ The Z card is the required checksum over the rest of the artifact.
 <a name="summary"></a>
 <h2>8.0 Card Summary</h2>
 
-The following table summaries the various kinds of cards that
-appear on Fossil artifacts:
+The following table summarizes the various kinds of cards that appear
+on Fossil artifacts. A blank entry means that combination of card and
+artifact is not legal. A number or range of numbers indicates the number
+of times a card may (or must) appear in the corresponding artifact type.
+e.g. a value of 1 indicates a required unique card and 1+ indicates that one
+or more such cards are required.
 
 <table border=1 width="100%">
 <tr>
@@ -551,18 +555,18 @@ appear on Fossil artifacts:
 <th>Event</th>
 </tr>
 <tr>
-<td><b>A</b> <i>filename target source</i></td>
+<td><b>A</b> <i>filename</i> <i>target</i> ?<i>source</i>?</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
-<td align=center><b>X</b></td>
+<td align=center><b>1</b></td>
 <td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>B</b> <i>baseline</i></td>
-<td align=center><b>X</b></td>
+<td align=center><b>0-1*</b></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -570,163 +574,210 @@ appear on Fossil artifacts:
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 </tr>
+<tr><td>&nbsp;</td><td colspan='7'>* = Required for delta manifests</td></tr>
 <tr>
 <td><b>C</b> <i>comment-text</i></td>
-<td align=center><b>X</b></td>
+<td align=center><b>1</b></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
+<td align=center><b>0-1</b></td>
+<td align=center><b>0-1</b></td>
 </tr>
 <tr>
 <td><b>D</b> <i>date-time-stamp</i></td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
+<td align=center><b>1</b></td>
+<td>&nbsp;</td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
 </tr>
 <tr>
 <td><b>E</b> <i>event-time event-id</i></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>1</b></td>
 </tr>
 <tr>
-<td><b>F</b> <i>filename uuid permissions oldname</i></td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td><b>F</b> <i>filename</i> ?<i>uuid</i>? ?<i>permissions</i>? ?<i>oldname</i>?</td>
+<td align=center><b>0+</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
-<td><b>J</b> <i>name value</i></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td><b>J</b> <i>name</i> ?<i>value</i>?</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>1+</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>K</b> <i>ticket-uuid</i></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>1</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>L</b> <i>wiki-title</i></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>1</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>M</b> <i>uuid</i></td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>1+</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>N</b> <i>mimetype</i></td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
+<td align=center><b>0-1</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>0-1</b></td>
+<td>&nbsp;</td>
+<td align=center><b>0-1</b></td>
+<td align=center><b>0-1</b></td>
 </tr>
 <tr>
 <td><b>P</b> <i>uuid ...</i></td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td align=center><b>0-1</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>0-1</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>0-1</b></td>
 </tr>
 <tr>
-<td><b>Q</b> (<b>+</b>|<b>-</b>)<i>uuid uuid</i></td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td><b>Q</b> (<b>+</b>|<b>-</b>)<i>uuid</i> ?<i>uuid</i>?</td>
+<td align=center><b>0+</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>R</b> <i>md5sum</i></td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td align=center><b>0-1</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <tr>
-<td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname uuid value</i></td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
+<td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname</i> <i>uuid</i> ?<i>value</i>?</td>
+<td align=center><b>0+</b></td>
+<td>&nbsp;</td>
+<td align=center><b>1+</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>0+</b></td>
 </tr>
 <tr>
 <td><b>U</b> <i>username</i></td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
+<td align=center><b>1</b></td>
+<td>&nbsp;</td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>0-1</b></td>
+<td align=center><b>0-1</b></td>
 </tr>
 <tr>
 <td><b>W</b> <i>size</i></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
-<td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
-<td align=center><b>X</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>1</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>1</b></td>
 </tr>
 <tr>
 <td><b>Z</b> <i>md5sum</i></td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
-<td align=center><b>X</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
 </tr>
 </table>
+
+
+<a name="addenda"></a>
+<h2>9.0 Addenda</h2>
+
+This section contains additional information which may be useful when
+implementing algorithms described above.
+
+<h3>R Card Hash Calculation</h3>
+
+Given a manifest file named <tt>MF</tt>, the following Bash shell code
+demonstrates how to compute the value of the R card in that manifest.
+This example uses manifest [28987096ac]. Lines starting with <tt>#</tt> are
+shell input and other lines are output. This demonstration assumes that the
+file versions represented by the input manifest are checked out
+under the current directory.
+
+<nowiki><pre>
+# head MF
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Make\sthe\s"clearsign"\sPGP\ssigning\sdefault\sto\soff.
+D 2010-02-23T15:33:14
+F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
+F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
+...
+
+# grep '^R ' MF
+R c0788982781981c96a0d81465fec7192
+
+# for i in $(awk '/^F /{print $2}' MF); do \
+  echo $i $(stat -c '%s' $i); \
+  cat $i; \
+done | md5sum
+c0788982781981c96a0d81465fec7192  -
+</pre></nowiki>
+
+Minor caveats: the above demonstration will work only when none of the
+filenames in the manifest are "fossilized" (encoded) because they contain
+spaces. In that case the shell-generated hash would differ because the
+<tt>stat</tt> calls will fail to find such files (which are output in encoded
+form here). That approach also won't work for delta manifests. Calculating
+the R-card for delta manifests requires traversing both the delta and its baseline in
+lexical order of the files, preferring the delta's copy if both contain
+a given file.

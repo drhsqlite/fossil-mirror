@@ -14,7 +14,9 @@ proc run_query {url} {
   set fd [open q.txt w]
   puts $fd "GET $url HTTP/1.0\r\n\r"
   close $fd
-  return [exec valgrind ./fossil test-http <q.txt 2>@ stderr]
+  set msg {}
+  catch {exec valgrind ./fossil test-http <q.txt 2>@ stderr} msg
+  return $msg
 }
 set todo {}
 foreach url {

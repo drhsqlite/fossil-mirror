@@ -68,7 +68,7 @@ cson_value * json_page_timeline(){
 */
 static void json_timeline_temp_table(void){
   /* Field order MUST match that from json_timeline_query()!!! */
-  static const char zSql[] = 
+  static const char zSql[] =
     @ CREATE TEMP TABLE IF NOT EXISTS json_timeline(
     @   sortId INTEGER PRIMARY KEY,
     @   rid INTEGER,
@@ -100,7 +100,7 @@ char const * json_timeline_query(void){
     @   blob.rid,
     @   uuid,
     @   CAST(strftime('%%s',event.mtime) AS INTEGER),
-    @   datetime(event.mtime,'utc'),
+    @   datetime(event.mtime),
     @   coalesce(ecomment, comment),
     @   coalesce(euser, user),
     @   blob.rid IN leaf,
@@ -111,7 +111,7 @@ char const * json_timeline_query(void){
     @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0) as tags,
     @   tagid as tagId,
     @   brief as brief
-    @  FROM event JOIN blob 
+    @  FROM event JOIN blob
     @ WHERE blob.rid=event.objid
   ;
   return zBaseSql;
@@ -126,7 +126,7 @@ char const * json_timeline_query(void){
 ** mode's "r" option. They are very similar, but subtly different -
 ** tag mode shows only entries with a given tag but branch mode can
 ** also reveal some with "related" tags (meaning they were merged into
-** the requested branch).
+** the requested branch, or back).
 **
 ** pSql is the target blob to append the query [subset]
 ** to.
@@ -146,6 +146,8 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
                                                 cson_object * pPayload){
   char const * zTag = NULL;
   char const * zBranch = NULL;
+  char const * zMiOnly = NULL;
+  char const * zUnhide = NULL;
   int tagid = 0;
   if(! g.perm.Read ){
     return 0;
@@ -157,7 +159,9 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
       return 0;
     }
     zTag = zBranch;
+    zMiOnly = json_find_option_cstr("mionly",NULL,NULL);
   }
+  zUnhide = json_find_option_cstr("unhide",NULL,NULL);
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
                  zTag);
   if(tagid<=0){
@@ -171,18 +175,36 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
                " EXISTS(SELECT 1 FROM tagxref"
                "        WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
                tagid);
+  if(!zUnhide){
+    blob_appendf(pSql,
+               " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=blob.rid"
+               "    WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
+               TAG_HIDDEN);
+  }
   if(zBranch){
     /* from "r" flag code in page_timeline().*/
     blob_appendf(pSql,
                  " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
                  "    WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
                  tagid);
-#if 0 /* from the undocumented "mionly" flag in page_timeline() */
-    blob_appendf(pSql,
+    if( !zUnhide ){
+      blob_appendf(pSql,
+                 " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
+                 "    WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
+                 TAG_HIDDEN);
+    }
+    if( zMiOnly==0 ){
+      blob_appendf(pSql,
                  " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
                  "    WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
                  tagid);
-#endif
+      if( !zUnhide ){
+        blob_appendf(pSql,
+                 " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+                 "    WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+                 TAG_HIDDEN);
+      }
+    }
   }
   blob_append(pSql," ) ",3);
   return 1;
@@ -296,7 +318,7 @@ cson_value * json_get_changed_files(int rid, int flags){
   cson_value * rowsV = NULL;
   cson_array * rows = NULL;
   Stmt q = empty_Stmt;
-  db_prepare(&q, 
+  db_prepare(&q,
            "SELECT (pid==0) AS isnew,"
            "       (fid==0) AS isdel,"
            "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
@@ -428,7 +450,7 @@ static cson_value * json_timeline_ci(){
   cson_value * listV = NULL;
   cson_array * list = NULL;
   int check = 0;
-  char showFiles = -1/*magic number*/;
+  char verboseFlag;
   Stmt q = empty_Stmt;
   char warnRowToJsonFailed = 0;
   Blob sql = empty_blob;
@@ -439,7 +461,10 @@ static cson_value * json_timeline_ci(){
     json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'h' access." );
     return NULL;
   }
-  showFiles = json_find_option_bool("files",NULL,"f",0);
+  verboseFlag = json_find_option_bool("verbose",NULL,"v",0);
+  if( !verboseFlag ){
+    verboseFlag = json_find_option_bool("files",NULL,"f",0);
+  }
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
   check = json_timeline_setup_sql( "ci", &sql, pay );
@@ -472,7 +497,7 @@ static cson_value * json_timeline_ci(){
   while( (SQLITE_ROW == db_step(&q) )){
     /* convert each row into a JSON object...*/
     int const rid = db_column_int(&q,0);
-    cson_value * rowV = json_artifact_for_ci(rid, showFiles);
+    cson_value * rowV = json_artifact_for_ci(rid, verboseFlag);
     cson_object * row = cson_value_get_object(rowV);
     if(!row){
       if( !warnRowToJsonFailed ){
@@ -629,7 +654,7 @@ static cson_value * json_timeline_ticket(){
     cson_value * rowV;
     cson_object * row;
     /*printf("rid=%d\n",rid);*/
-    pMan = manifest_get(rid, CFTYPE_TICKET);
+    pMan = manifest_get(rid, CFTYPE_TICKET, 0);
     if(!pMan){
       /* this might be an attachment? I'm seeing this with
          rid 15380, uuid [1292fef05f2472108].

@@ -81,7 +81,7 @@ information about the project.
 
 A particular version of a particular file is called an "artifact".
 Each artifact has a universally unique name which is the
-<a href="http://en.wikipedia.org/wiki/SHA">SHA1</a> hash of the content
+<a href="http://en.wikipedia.org/wiki/SHA1">SHA1</a> hash of the content
 of that file expressed as 40 characters of lower-case hexadecimal.  Such
 a hash is referred to as the Artifact Identifier or Artifact ID
 for the artifact.  The SHA1 algorithm is created with the purpose of
@@ -126,7 +126,8 @@ a software project.
 <h3>2.2 Manifests</h3>
 
 Associated with every check-in is a special file called the
-"manifest".  The manifest is a listing of all other files in
+[./fileformat.wiki#manifest| "manifest"].  The manifest is a
+listing of all other files in
 that source tree.  The manifest contains the (complete) artifact ID 
 of the file and the name of the file as it appears on disk,
 and thus serves as a mapping from artifact ID to disk name.  The artifact ID

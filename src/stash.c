@@ -160,7 +160,7 @@ static int stash_create(void){
   if( zComment==0 ){
     Blob prompt;                       /* Prompt for stash comment */
     Blob comment;                      /* User comment reply */
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
     int bomSize;
     const unsigned char *bom = get_utf8_bom(&bomSize);
     blob_init(&prompt, (const char *) bom, bomSize);
@@ -170,7 +170,7 @@ static int stash_create(void){
     blob_append(&prompt,
        "\n"
        "# Enter a description of what is being stashed.  Lines beginning\n"
-       "# with \"#\" are ignored.  Stash comments are plain text except.\n"
+       "# with \"#\" are ignored.  Stash comments are plain text except\n"
        "# newlines are not preserved.\n",
        -1);
     prompt_for_user_comment(&comment, &prompt);
@@ -201,12 +201,16 @@ static int stash_create(void){
 ** Apply a stash to the current check-out.
 */
 static void stash_apply(int stashid, int nConflict){
+  int vid;
   Stmt q;
   db_prepare(&q,
      "SELECT rid, isRemoved, isExec, isLink, origname, newname, delta"
      "  FROM stashfile WHERE stashid=%d",
      stashid
   );
+  vid = db_lget_int("checkout",0);
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     int isRemoved = db_column_int(&q, 1);
@@ -220,10 +224,10 @@ static void stash_apply(int stashid, int nConflict){
     undo_save(zNew, -1);
     blob_zero(&delta);
     if( rid==0 ){
+      db_multi_exec("INSERT OR IGNORE INTO sfile(x) VALUES(%Q)", zNew);
       db_ephemeral_blob(&q, 6, &delta);
       blob_write_to_file(&delta, zNPath);
       file_wd_setexe(zNPath, isExec);
-      fossil_print("ADD %s\n", zNew);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
       file_delete(zOPath);
@@ -278,6 +282,7 @@ static void stash_apply(int stashid, int nConflict){
       file_delete(zOPath);
     }
   }
+  stash_add_files_in_sfile(vid);
   db_finalize(&q);
   if( nConflict ){
     fossil_print(
@@ -313,7 +318,7 @@ static void stash_diff(
     const char *zOrig = db_column_text(&q, 4);
     const char *zNew = db_column_text(&q, 5);
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
-    Blob delta, a, b, disk;
+    Blob a, b;
     if( rid==0 ){
       db_ephemeral_blob(&q, 6, &a);
       fossil_print("ADDED %s\n", zNew);
@@ -339,6 +344,7 @@ static void stash_diff(
       diff_file_mem(&a, &empty, isBin1, isBin2, zOrig, zDiffCmd,
                     zBinGlob, fIncludeBinary, diffFlags);
     }else{
+      Blob delta, disk;
       int isOrigLink = file_wd_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
       if( fBaseline==0 ){
@@ -365,8 +371,8 @@ static void stash_diff(
         blob_reset(&b);
       }
       if( !fBaseline ) blob_reset(&disk);
+      blob_reset(&delta);
     }
-    blob_reset(&delta);
  }
   db_finalize(&q);
 }
@@ -459,7 +465,7 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash
 **  fossil stash save ?-m|--comment COMMENT? ?FILES...?
 **  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
-**  fossil stash list|ls  ?-v|--verbose?
+**  fossil stash list|ls  ?-v|--verbose? ?-W|--width <num>?
 **  fossil stash show ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash pop
 **  fossil stash apply ?STASHID?
@@ -472,7 +478,6 @@ void stash_cmd(void){
   const char *zCmd;
   int nCmd;
   int stashid = 0;
-
   undo_capture_command_line();
   db_must_be_within_tree();
   db_open_config(0);
@@ -512,8 +517,18 @@ void stash_cmd(void){
   }else
   if( memcmp(zCmd, "list", nCmd)==0 || memcmp(zCmd, "ls", nCmd)==0 ){
     Stmt q, q2;
-    int n = 0;
+    int n = 0, width;
     int verboseFlag = find_option("verbose","v",0)!=0;
+    const char *zWidth = find_option("width","W",1);
+
+    if( zWidth ){
+      width = atoi(zWidth);
+      if( (width!=0) && (width<=46) ){
+        fossil_fatal("-W|--width value must be >46 or 0");
+      }
+    }else{
+      width = -1;
+    }
     if( !verboseFlag ){
       verboseFlag = find_option("detail","l",0)!=0; /* deprecated */
     }
@@ -539,7 +554,7 @@ void stash_cmd(void){
       zCom = db_column_text(&q, 2);
       if( zCom && zCom[0] ){
         fossil_print("       ");
-        comment_print(zCom, 7, 79);
+        comment_print(zCom, 7, width);
       }
       if( verboseFlag ){
         db_bind_int(&q2, "$id", stashid);
@@ -570,7 +585,6 @@ void stash_cmd(void){
     if( allFlag ){
       Blob ans;
       char cReply;
-      blob_zero(&ans);
       prompt_user("This action is not undoable.  Continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply=='y' || cReply=='Y' ){
@@ -611,7 +625,6 @@ void stash_cmd(void){
   if( memcmp(zCmd, "goto", nCmd)==0 ){
     int nConflict;
     int vid;
-
     if( g.argc>4 ) usage("apply STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     undo_begin();
@@ -638,9 +651,10 @@ void stash_cmd(void){
       return;
     }
     if( find_option("internal","i",0)==0 ){
-      zDiffCmd = diff_command_external(0);
+      zDiffCmd = diff_command_external(memcmp(zCmd, "gdiff", nCmd)==0);
     }
     diffFlags = diff_options();
+    if( find_option("verbose","v",0)!=0 ) diffFlags |= DIFF_VERBOSE;
     if( g.argc>4 ) usage(mprintf("%s STASHID", zCmd));
     if( zDiffCmd ){
       zBinGlob = diff_get_binary_glob();

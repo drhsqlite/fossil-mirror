@@ -23,9 +23,9 @@
 **     Process checkpoints
 **     Announcements
 */
+#include "config.h"
 #include <assert.h>
 #include <ctype.h>
-#include "config.h"
 #include "event.h"
 
 /*
@@ -115,9 +115,9 @@ void event_page(void){
 
   /* Extract the event content.
   */
-  pEvent = manifest_get(rid, CFTYPE_EVENT);
+  pEvent = manifest_get(rid, CFTYPE_EVENT, 0);
   if( pEvent==0 ){
-    fossil_panic("Object #%d is not an event", rid);
+    fossil_fatal("Object #%d is not an event", rid);
   }
   blob_init(&fullbody, pEvent->zWiki, -1);
   if( wiki_find_title(&fullbody, &title, &tail) ){
@@ -187,7 +187,7 @@ void event_page(void){
     blob_reset(&comment);
     @ </div>
     @ </blockquote><hr />
-  }  
+  }
 
   wiki_convert(&tail, 0, 0);
   style_footer();
@@ -229,7 +229,7 @@ void eventedit_page(void){
     }
   }
   zTag = mprintf("event-%s", zEventId);
-  rid = db_int(0, 
+  rid = db_int(0,
     "SELECT rid FROM tagxref"
     " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
     " ORDER BY mtime DESC", zTag
@@ -259,7 +259,7 @@ void eventedit_page(void){
   */
   if( rid && (zBody==0 || zETime==0 || zComment==0 || zTags==0) ){
     Manifest *pEvent;
-    pEvent = manifest_get(rid, CFTYPE_EVENT);
+    pEvent = manifest_get(rid, CFTYPE_EVENT, 0);
     if( pEvent && pEvent->type==CFTYPE_EVENT ){
       if( zBody==0 ) zBody = pEvent->zWiki;
       if( zETime==0 ){
@@ -282,11 +282,16 @@ void eventedit_page(void){
   if( P("submit")!=0 && (zBody!=0 && zComment!=0) ){
     char *zDate;
     Blob cksum;
-    int nrid;
+    int nrid, n;
     blob_zero(&event);
     db_begin_transaction();
     login_verify_csrf_secret();
-    blob_appendf(&event, "C %F\n", zComment);
+    while( fossil_isspace(zComment[0]) ) zComment++;
+    n = strlen(zComment);
+    while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
+    if( n>0 ){
+      blob_appendf(&event, "C %#F\n", n, zComment);
+    }
     zDate = date_in_standard_format("now");
     blob_appendf(&event, "D %s\n", zDate);
     free(zDate);
@@ -309,7 +314,7 @@ void eventedit_page(void){
 
       /* Load the tags string into a blob */
       blob_zero(&tags);
-      blob_append(&tags, zTags, -1); 
+      blob_append(&tags, zTags, -1);
 
       /* Collapse all sequences of whitespace and "," characters into
       ** a single space character */
@@ -338,9 +343,9 @@ void eventedit_page(void){
         blob_appendf(&event, "T +sym-%F *\n", db_column_text(&q, 0));
       }
       db_finalize(&q);
-    }        
-    if( g.zLogin ){
-      blob_appendf(&event, "U %F\n", g.zLogin);
+    }
+    if( !login_is_nobody() ){
+      blob_appendf(&event, "U %F\n", login_name());
     }
     blob_appendf(&event, "W %d\n%s\n", strlen(zBody), zBody);
     md5sum_blob(&event, &cksum);
@@ -348,7 +353,7 @@ void eventedit_page(void){
     blob_reset(&cksum);
     nrid = content_put(&event);
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-    manifest_crosslink(nrid, &event);
+    manifest_crosslink(nrid, &event, MC_NONE);
     assert( blob_is_reset(&event) );
     content_deltify(rid, nrid, 0);
     db_end_transaction(0);
@@ -401,30 +406,30 @@ void eventedit_page(void){
   @ <input type="hidden" name="name" value="%h(zEventId)" />
   @ <table border="0" cellspacing="10">
 
-  @ <tr><td align="right" valign="top"><b>Event&nbsp;Time:</b></td>
+  @ <tr><th align="right" valign="top">Event&nbsp;Time (UTC):</th>
   @ <td valign="top">
   @   <input type="text" name="t" size="25" value="%h(zETime)" />
   @ </td></tr>
 
-  @ <tr><td align="right" valign="top"><b>Timeline&nbsp;Comment:</b></td>
+  @ <tr><th align="right" valign="top">Timeline&nbsp;Comment:</th>
   @ <td valign="top">
-  @ <textarea name="c" class="eventedit" cols="80" 
+  @ <textarea name="c" class="eventedit" cols="80"
   @  rows="3" wrap="virtual">%h(zComment)</textarea>
   @ </td></tr>
 
-  @ <tr><td align="right" valign="top"><b>Background&nbsp;Color:</b></td>
+  @ <tr><th align="right" valign="top">Background&nbsp;Color:</th>
   @ <td valign="top">
   render_color_chooser(0, zClr, 0, "clr", "cclr");
   @ </td></tr>
-  
-  @ <tr><td align="right" valign="top"><b>Tags:</b></td>
+
+  @ <tr><th align="right" valign="top">Tags:</th>
   @ <td valign="top">
   @   <input type="text" name="g" size="40" value="%h(zTags)" />
   @ </td></tr>
-  
-  @ <tr><td align="right" valign="top"><b>Page&nbsp;Content:</b></td>
+
+  @ <tr><th align="right" valign="top">Page&nbsp;Content:</th>
   @ <td valign="top">
-  @ <textarea name="w" class="eventedit" cols="80" 
+  @ <textarea name="w" class="eventedit" cols="80"
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
   @ </td></tr>
 

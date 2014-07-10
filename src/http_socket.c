@@ -22,7 +22,7 @@
 ** at a time.  State information is stored in static variables.  The identity
 ** of the server is held in global variables that are set by url_parse().
 **
-** Low-level sockets are abstracted out into this module because they 
+** Low-level sockets are abstracted out into this module because they
 ** are handled different on Unix and windows.
 */
 
@@ -65,7 +65,7 @@ static void socket_clear_errmsg(void){
 /*
 ** Set the socket error message.
 */
-void socket_set_errmsg(char *zFormat, ...){
+void socket_set_errmsg(const char *zFormat, ...){
   va_list ap;
   socket_clear_errmsg();
   va_start(ap, zFormat);
@@ -126,32 +126,32 @@ void socket_close(void){
 
 /*
 ** Open a socket connection.  The identify of the server is determined
-** by global variables that are set using url_parse():
+** by pUrlData
 **
-**    g.urlName       Name of the server.  Ex: www.fossil-scm.org
-**    g.urlPort       TCP/IP port to use.  Ex: 80
+**    pUrlDAta->name       Name of the server.  Ex: www.fossil-scm.org
+**    pUrlDAta->port       TCP/IP port to use.  Ex: 80
 **
 ** Return the number of errors.
 */
-int socket_open(void){
+int socket_open(UrlData *pUrlData){
   static struct sockaddr_in addr;  /* The server address */
   static int addrIsInit = 0;       /* True once addr is initialized */
 
   socket_global_init();
   if( !addrIsInit ){
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(g.urlPort);
-    *(int*)&addr.sin_addr = inet_addr(g.urlName);
+    addr.sin_port = htons(pUrlData->port);
+    *(int*)&addr.sin_addr = inet_addr(pUrlData->name);
     if( -1 == *(int*)&addr.sin_addr ){
 #ifndef FOSSIL_STATIC_LINK
       struct hostent *pHost;
-      pHost = gethostbyname(g.urlName);
+      pHost = gethostbyname(pUrlData->name);
       if( pHost!=0 ){
         memcpy(&addr.sin_addr,pHost->h_addr_list[0],pHost->h_length);
       }else
 #endif
       {
-        socket_set_errmsg("can't resolve host name: %s", g.urlName);
+        socket_set_errmsg("can't resolve host name: %s", pUrlData->name);
         return 1;
       }
     }
@@ -169,7 +169,8 @@ int socket_open(void){
     return 1;
   }
   if( connect(iSocket,(struct sockaddr*)&addr,sizeof(addr))<0 ){
-    socket_set_errmsg("cannot connect to host %s:%d", g.urlName, g.urlPort);
+    socket_set_errmsg("cannot connect to host %s:%d", pUrlData->name,
+                      pUrlData->port);
     socket_close();
     return 1;
   }
@@ -202,11 +203,30 @@ size_t socket_receive(void *NotUsed, void *pContent, size_t N){
   ssize_t got;
   size_t total = 0;
   while( N>0 ){
-    got = recv(iSocket, pContent, N, 0);
+    /* WinXP fails for large values of N.  So limit it to 64KiB. */
+    got = recv(iSocket, pContent, N>65536 ? 65536 : N, 0);
     if( got<=0 ) break;
     total += (size_t)got;
     N -= (size_t)got;
     pContent = (void*)&((char*)pContent)[got];
   }
   return total;
+}
+
+/*
+** Attempt to resolve pUrlData->name to an IP address and setup g.zIpAddr
+** so rcvfrom gets populated. For hostnames with more than one IP (or
+** if overridden in ~/.ssh/config) the rcvfrom may not match the host
+** to which we connect.
+*/
+void socket_ssh_resolve_addr(UrlData *pUrlData){
+  struct hostent *pHost;        /* Used to make best effort for rcvfrom */
+  struct sockaddr_in addr;
+
+  memset(&addr, 0, sizeof(addr));
+  pHost = gethostbyname(pUrlData->name);
+  if( pHost!=0 ){
+    memcpy(&addr.sin_addr,pHost->h_addr_list[0],pHost->h_length);
+    g.zIpAddr = mprintf("%s", inet_ntoa(addr.sin_addr));
+  }
 }

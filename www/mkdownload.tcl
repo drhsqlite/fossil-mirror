@@ -10,7 +10,7 @@ puts $out \
 {<!DOCTYPE html><html>
 <head>
 <base href="http://www.fossil-scm.org/" />
-<title>Fossil: Timeline</title>
+<title>Fossil: Downloads</title>
 <link rel="stylesheet" href="/fossil/style.css" type="text/css"
       media="screen">
 </head>
@@ -70,16 +70,16 @@ foreach datetime [lsort -decr [array names adate]] {
   append dt "[string range $datetime 8 9]:[string range $datetime 10 11]:"
   append dt "[string range $datetime 12 13]"
   set link [string map {{ } +} $dt]
-  set hr http://www.fossil-scm.org/fossil/timeline?c=$link&amp;y=ci
+  set hr "http://www.fossil-scm.org/fossil/timeline?c=$link&amp;y=ci"
   puts $out "<tr><td colspan=6 align=left><hr>"
   puts $out "<center><b><a href=\"$hr\">$dt</a></b></center>"
   puts $out "</td></tr>"
   puts $out "<tr>"
 
   foreach {prefix suffix img desc} {
-    fossil-linux-x86 zip linux.gif {Linux x86}
-    fossil-macosx-x86 zip mac.gif {Mac 10.5 x86}
-    fossil-openbsd-x86 zip openbsd.gif {OpenBSD 4.7 x86}
+    fossil-linux-x86 zip linux.gif {Linux 3.x x86}
+    fossil-macosx-x86 zip mac.gif {Mac 10.x x86}
+    fossil-openbsd-x86 zip openbsd.gif {OpenBSD 4.x x86}
     fossil-w32 zip win32.gif {Windows}
     fossil-src tar.gz src.gif {Source Tarball}
   } {
