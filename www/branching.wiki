@@ -65,9 +65,9 @@ But perhaps Bob is off-network when he does his commit, so he
 has no way of knowing that Alice has already committed her changes.
 Or, it could be that Bob has turned off "autosync" mode in Fossil.  Or,
 maybe Bob just doesn't want to merge in Alice's changes before he has
-saved his own, so he forces the commit to occur using the "--force" option
-to the fossil <b>commit</b> command.  For any of these reasons, two commits against
-check-in 2 have occurred and now the DAG has two leaves.
+saved his own, so he forces the commit to occur using the "--allow-fork"
+option to the fossil <b>commit</b> command.  For any of these reasons,
+two commits against check-in 2 have occurred and now the DAG has two leaves.
 
 So which version of the project is the "latest" in the sense of having
 the most features and the most bug fixes?  When there is more than
