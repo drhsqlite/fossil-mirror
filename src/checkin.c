@@ -1298,7 +1298,6 @@ static int commit_warning(
         return 0; /* We don't want encoding warnings for this file. */
       }
       zWarning = "invalid UTF-8";
-      zConvert = ""; /* Possible conversion to UTF-8 not yet implemented. */
       zDisable = "\"encoding-glob\" setting";
     }else if( fHasAnyCr ){
       if( crnlOk ){
@@ -1343,6 +1342,8 @@ static int commit_warning(
           const unsigned char *bom = get_utf8_bom(&bomSize);
           fwrite(bom, 1, bomSize, f);
           blob_to_utf8_no_bom(p, 0);
+        }else if( fHasInvalidUtf8 ){
+          blob_cp1252_to_utf8(p);
         }
         if( fHasAnyCr ){
           blob_to_lf_only(p);

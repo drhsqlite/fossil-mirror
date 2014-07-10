@@ -1,5 +1,5 @@
-C If\sthe\ssystem\sknows\sabout\sutime()\sand/or\susleep(),\sallow\sthe\sbuilt-in\sSQLite\sto\suse\sthose\sfunctions.\se.g.\sfor\sexecuting\sdelays\swhich\sare\snot\sa\smultiple\sof\s1\ssecond.
-D 2014-07-09T21:04:38.373
+C When\scommitting\sa\s(non-binary)\sfile\swhich\scontains\sbytes\sforming\san\sinvalid\sUTF-8\sstream,\sadd\sthe\spossibility\sto\sconvert\sit\sto\sa\svalid\sUTF-8\sstream\s('c')\sif\syou\slike.
+D 2014-07-10T07:36:51.752
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -314,13 +314,13 @@ F src/allrepo.c 7ee7dd0a427d4d3e7799f99126c10984cd124ea0
 F src/attach.c 238aa5c78204b0d89e0b646ff382f40fbd6d3b83
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 93f764ea21082f0926aa10b7f82a1ba3cd2d6079
-F src/blob.c e2ae70eff581c0463534a263487381213e02561d
+F src/blob.c 0578b205b06ebef0e5cea851b736466cc99c00c4
 F src/branch.c 24cff03e9757e94afe5ebc7eda01c78b5c4fa991
 F src/browse.c 5f55f7fe046ad6050a539436ed741a250555914f
 F src/cache.c 5d4821dfce8ce0d09aaa1e82c3c9d5693487bb48
 F src/captcha.c 765bb4af84144ec617cabb9c6b4a548bbc2e8b08
 F src/cgi.c 752925d4999d0a51723e2e19d6a5f71a90fdfc3a
-F src/checkin.c 49fe435edaf94d3d95c501883d772efddb09e6a4
+F src/checkin.c 2928076f952d03dc5ffc32bb8c6ba05e5b1acce8
 F src/checkout.c f74f9a6f61df15aedc6374b2852674f848a03148
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 1272c49df0a59f0befadb10a5469b270d8320ba0
@@ -571,7 +571,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 0328fbb9d8500d1b5f0e87dcb9e696811a288164
-F www/changes.wiki a4f693595651bb229a94a5e9a0ce56e5f8c1d49d
+F www/changes.wiki c458ba26538ac52afbedaa3aec2cfa1e4328682f
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -651,8 +651,8 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 92c2c1e5e18b19c5b05ea5684feb0bbeeb6670fd 37e42077c91796ac847494b7bf977c8d5b556ec1
-R ead29e9c29516a685f198b84f2cee6f1
-T +closed 37e42077c91796ac847494b7bf977c8d5b556ec1
+P 16f10763347f458e46fd5c3df19e407298fde947 81eeb6f5535ad358183c51bf79b2c17b034de629
+R 7f5d655eaedffb3b2fc6fa07a7638022
+T +closed 81eeb6f5535ad358183c51bf79b2c17b034de629
 U jan.nijtmans
-Z 599d7193c840b65ab4ee3b1ffe7e864f
+Z df7f28b4bf84fb0743edc4ce8628ba74
