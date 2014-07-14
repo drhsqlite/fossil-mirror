@@ -159,6 +159,7 @@ set SHELL_OPTIONS {
 #
 set SHELL_WIN32_OPTIONS $SHELL_OPTIONS
 lappend SHELL_WIN32_OPTIONS -Daccess=file_access
+lappend SHELL_WIN32_OPTIONS -Dsystem=fossil_system
 lappend SHELL_WIN32_OPTIONS -Dgetenv=fossil_getenv
 lappend SHELL_WIN32_OPTIONS -Dfopen=fossil_fopen
 

@@ -1,5 +1,5 @@
-C If\sthe\ssystem\sknows\sabout\sutime()\sand/or\susleep(),\sallow\sthe\sbuilt-in\sSQLite\sto\suse\sthose\sfunctions.\se.g.\sfor\sexecuting\sdelays\swhich\sare\snot\sa\smultiple\sof\s1\ssecond.
-D 2014-07-09T22:04:00.000
+C Make\sthe\s".system"\scommand\s(from\swithin\s"fossil\ssqlite3")\swork\son\swin32:\sOn\sWindows\sdouble-quotes\sare\sneeded\saround\sthe\swhole\sstring
+D 2014-07-14T08:22:00.000
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -374,7 +374,7 @@ F src/main.c 8ba72d91dd33f34024bf22fd65df3824b0e35ebe
 F src/main.mk 722d6958a6e0695fb7fe24b3788f7c0b9bee3c99
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 1a54659146f65cde2c10ec42be348a03abbeeabf
+F src/makemake.tcl b428a849bc5e2137c5a713cae553c5ae81ad8270
 F src/manifest.c 05e0e4bec391ca300d1a6fc30fc19c0a12454be1
 F src/markdown.c 717f7f14927414811b61475a6fb9edc34e6cf90b
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
@@ -530,11 +530,11 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
-F win/Makefile.PellesCGMake faf2903105e0f7453e2a5d55e8dcca2a7c7325ef
-F win/Makefile.dmc 31284f30af13517b967ca4f97ce03d929aa566f1
-F win/Makefile.mingw 6a6d6705f43c626971c12c0ac36421ef1e6699fb
-F win/Makefile.mingw.mistachkin 62437198b75dea413192733b56d056f1ed2c0a09
-F win/Makefile.msc 26f53f261fd4254eea3ef63510d88e92a2b5800b
+F win/Makefile.PellesCGMake ab1328c72a4d683ad7e09ae1418bf10af955eece
+F win/Makefile.dmc 6095059a392efeb59171dd725674e12ec6b27d1e
+F win/Makefile.mingw 9c3cc22e10ea594d4aba013cf509e8cee173c7a5
+F win/Makefile.mingw.mistachkin b30d24e9e832ce0549c8a04e7af4fca4ffad1ed9
+F win/Makefile.msc a241749c2e0526f0c8ddf9cdb7d044e16893385a
 F win/buildmsvc.bat 4621013bd2c253a7683d2542aa018c73c35c96a3
 F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -643,7 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4f62b6017b7e38b3d24ef7115a2c20195345d8e0 16f10763347f458e46fd5c3df19e407298fde947
-R d82daf6ca0286eee34b3baff4e4aa991
+P 1dc9b7cbb05f9e90d4f54d07cdf3a511f63a747a ec2061ce02115ecb903830229989055a5f03d3a1
+R 11664b41923e1203c05a5dd497cc9b5a
 U jan.nijtmans
-Z c4bbb54911354e942b20e014553f4834
+Z d6fadd1d7a40ebf41a2fa4416d526667
