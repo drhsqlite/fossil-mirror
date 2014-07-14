@@ -1,5 +1,5 @@
-C Make\sthe\s".system"\scommand\s(from\swithin\s"fossil\ssqlite3")\swork\son\swin32:\sOn\sWindows\sdouble-quotes\sare\sneeded\saround\sthe\swhole\sstring.
-D 2014-07-14T07:22:40.843
+C Fix\s"'syntax\serror\sin\smanifest'\swhen\scheckin\swould\sresult\sin\sempty\sworktree"\sproblem,\sreported\sby\sMichai\sRamakers\son\sthe\sML.
+D 2014-07-14T11:35:00.567
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -378,7 +378,7 @@ F src/main.mk f9effdb61f15ebb6db1b5b4ce3b1176e78bdc0b4
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 183821b846e6fc8550978f86bff66510c613e84c
-F src/manifest.c 6c51474cb3f1c59e401080e862e3a5bc5717806f
+F src/manifest.c fa82dffaefab64b99a1921d49e8d5924ed0b20d9
 F src/markdown.c 717f7f14927414811b61475a6fb9edc34e6cf90b
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 25fe7658eceee16ea7899d62b137b69d71c41e8a
-R 082a3da17063d64b5a0feac7c17013e5
+P ec2061ce02115ecb903830229989055a5f03d3a1
+R ed6eb3e00261a2ea3bc2272048e6b6e6
 U jan.nijtmans
-Z f728fc773e68c48dbea444e12ba63dea
+Z 1c7bd6ec54495ddac009ea3d2f8ac0f2
