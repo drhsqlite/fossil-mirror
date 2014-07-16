@@ -1,5 +1,5 @@
-C Detect\sinvalid\swiki\smanifests\scontaining\sJ\sand/or\sK\scards\s(missed\sthose\sin\sthe\sprevious\scommit).\nReport\scard\sproblems\sin\smanifests\sin\salphabetical\sorder.
-D 2014-07-14T12:09:54.898
+C Do\snot\sallow\swebpage\snames\sto\sbe\sused\sas\scommand-line\scommands.\s\sThis\nprevents\sdeferencing\sof\sthe\snull\s"g.db"\spointer\sfor\scommand-line\scommands.
+D 2014-07-16T04:02:26.330
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -373,7 +373,7 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 2f101c5d42a9fe9e9419922ff42767a1a254feb2
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 21ca4d08499954075bcb3fc052942995b597ac12
+F src/main.c f6b151457ee9d705c8ff72f9e3d1a326ce8f8552
 F src/main.mk f9effdb61f15ebb6db1b5b4ce3b1176e78bdc0b4
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 268ecf6ae97ec370fcaadb41dd1a7aeadd691937
-R 96cecd049172c3335f187de6d2d2a0de
-U jan.nijtmans
-Z e1aaac159cb30b3bf38214be8a9bb3ea
+P 313de568dcd03c7ebc23ada411e2d65676c5d5c3
+R bf9d0538b4c244b8aeb5cba4a79d909a
+U drh
+Z 45916f05697ddde88eff47b5be18a9c9

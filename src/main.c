@@ -657,7 +657,9 @@ int main(int argc, char **argv)
   if( !is_valid_fd(2) ) fossil_panic("file descriptor 2 not open");
   /* if( is_valid_fd(3) ) fossil_warning("file descriptor 3 is open"); */
 #endif
-  rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
+  rc = name_search(zCmdName, aCommand + count(aWebpage),
+                   count(aCommand) - count(aWebpage), &idx);
+  idx += count(aWebpage);
   if( rc==1 ){
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
     if( !g.isHTTP && !g.fNoThHook ){
