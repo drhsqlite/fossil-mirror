@@ -1601,36 +1601,36 @@ void manifest_ticket_event(
       }
     }
     if( zNewStatus ){
-      blob_appendf(&comment, "%h ticket [%s|%.10s]: <i>%h</i>",
+      blob_appendf(&comment, "%h ticket [%s|%S]: <i>%h</i>",
          zNewStatus, pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle
       );
       if( pManifest->nField>1 ){
         blob_appendf(&comment, " plus %d other change%s",
           pManifest->nField-1, pManifest->nField==2 ? "" : "s");
       }
-      blob_appendf(&brief, "%h ticket [%s|%.10s].",
+      blob_appendf(&brief, "%h ticket [%s|%S].",
                    zNewStatus, pManifest->zTicketUuid, pManifest->zTicketUuid);
     }else{
       zNewStatus = db_text("unknown",
          "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
          zStatusColumn, pManifest->zTicketUuid
       );
-      blob_appendf(&comment, "Ticket [%s|%.10s] <i>%h</i> status still %h with "
+      blob_appendf(&comment, "Ticket [%s|%S] <i>%h</i> status still %h with "
            "%d other change%s",
            pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle, zNewStatus,
            pManifest->nField, pManifest->nField==1 ? "" : "s"
       );
       fossil_free(zNewStatus);
-      blob_appendf(&brief, "Ticket [%s|%.10s]: %d change%s",
+      blob_appendf(&brief, "Ticket [%s|%S]: %d change%s",
            pManifest->zTicketUuid, pManifest->zTicketUuid, pManifest->nField,
            pManifest->nField==1 ? "" : "s"
       );
     }
   }else{
-    blob_appendf(&comment, "New ticket [%s|%.10s] <i>%h</i>.",
+    blob_appendf(&comment, "New ticket [%s|%S] <i>%h</i>.",
       pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle
     );
-    blob_appendf(&brief, "New ticket [%s|%.10s].", pManifest->zTicketUuid,
+    blob_appendf(&brief, "New ticket [%s|%S].", pManifest->zTicketUuid,
         pManifest->zTicketUuid);
   }
   fossil_free(zTitle);
@@ -1953,10 +1953,10 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }else{
       if( isAdd ){
         zComment = mprintf(
-             "Add attachment [/artifact/%s|%h] to ticket [%s|%.10s]",
+             "Add attachment [/artifact/%s|%h] to ticket [%s|%S]",
              p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }else{
-        zComment = mprintf("Delete attachment \"%h\" from ticket [%s|%.10s]",
+        zComment = mprintf("Delete attachment \"%h\" from ticket [%s|%S]",
              p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }
     }

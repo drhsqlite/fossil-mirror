@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sall\sinfo"\scommand.
-D 2014-07-16T23:01:54.363
+C Use\s"%S"\sformat\sin\sstead\sof\s"%.10s"\sin\smore\splaces,\swhere\sUUID's\sare\sreferenced.
+D 2014-07-17T07:04:35.741
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -311,7 +311,7 @@ F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 487252044873ffa0df8f53bbb5603d8b1b76eca8
 F src/allrepo.c b09e64990a1b648a052e83b04b3f1efcc3415042
-F src/attach.c 238aa5c78204b0d89e0b646ff382f40fbd6d3b83
+F src/attach.c 79f433085b57c262505cc30b5bc008a72a025959
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 93f764ea21082f0926aa10b7f82a1ba3cd2d6079
 F src/blob.c 0578b205b06ebef0e5cea851b736466cc99c00c4
@@ -335,7 +335,7 @@ F src/db.c e33eca8e011f9ed836ab4b0f340aaf4d74076eb0
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 41c4a500afe3c48d970ec8300da4cd1a13b42f6b
-F src/diff.c 0d33c3b047cb4fef06064ab179df5264f1cdd65e
+F src/diff.c e293be07cfa38fcf95be76186d44bb8b7cf43bdf
 F src/diffcmd.c 673923119b9e9019fda65bd9f4bd12e9f0295438
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
@@ -378,7 +378,7 @@ F src/main.mk f9effdb61f15ebb6db1b5b4ce3b1176e78bdc0b4
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 183821b846e6fc8550978f86bff66510c613e84c
-F src/manifest.c 74538bff8dfcc47888d0308f023b9c8f8ae76839
+F src/manifest.c e976e960e965f5f4eb20bbefbb2594bbe14300d8
 F src/markdown.c 717f7f14927414811b61475a6fb9edc34e6cf90b
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
@@ -419,7 +419,7 @@ F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 4bfc2511181fd3a6beead2d42a87c71d0fa8b111
 F src/th_tcl.c 4cb7c0795483d23b84c082f454dec9cb124cdd32
 F src/timeline.c 5260aa965edfbe2d213b018fec423dcfbb1a5d5f
-F src/tkt.c c27101caa8efd49f6d2e70f8bccfe430f366f28b
+F src/tkt.c bea38b1d5d30092f5661e2ced72d9170e9e83909
 F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bcb7c7a9b1e947035ca41469de37e93bc7595bb8
-R b261a2fd19d244dd302ccc99d1b9a850
-U drh
-Z ffa86efee176fc8bb8c7b2c27031de39
+P 3f9ff2a9fadf2a2e3d78a870c14859c8cba8f1ab
+R cd72b8ca85406ea086d775503c78220f
+U jan.nijtmans
+Z 9939d149e8a6039cf6a619c69130a141
