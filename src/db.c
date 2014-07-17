@@ -2150,7 +2150,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "auto-hyperlink",   0,              0, 0, 0, "on",                 },
   { "auto-shun",        0,              0, 0, 0, "on"                  },
   { "autosync",         0,              0, 0, 0, "on"                  },
-  { "autosync-tries",   0,              0, 0, 0, ""                    },
+  { "autosync-tries",   0,             16, 0, 0, "0"                   },
   { "binary-glob",      0,             40, 1, 0, ""                    },
   { "clearsign",        0,              0, 0, 0, "off"                 },
 #if defined(_WIN32) || defined(__CYGWIN__) || defined(__DARWIN__) || \

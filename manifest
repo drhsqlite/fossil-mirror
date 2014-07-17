@@ -1,5 +1,5 @@
-C Use\s"%S"\sformat\sin\sstead\sof\s"%.10s"\sin\smore\splaces,\swhere\sUUID's\sare\sreferenced.
-D 2014-07-17T07:04:35.741
+C The\s"autosync-tries"\ssetting\sis\san\sinteger,\snot\sa\sboolean
+D 2014-07-17T15:20:55.707
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -331,7 +331,7 @@ F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c e33eca8e011f9ed836ab4b0f340aaf4d74076eb0
+F src/db.c ac786e1e7ca4029a7ccd1a8727ce7b2290db8381
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 41c4a500afe3c48d970ec8300da4cd1a13b42f6b
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3f9ff2a9fadf2a2e3d78a870c14859c8cba8f1ab
-R cd72b8ca85406ea086d775503c78220f
+P 275457adf0461e6a5e593217e45c2b2199f0595d
+R 0083dcb4c3f19b539b5f9bc9d8f28b92
 U jan.nijtmans
-Z 9939d149e8a6039cf6a619c69130a141
+Z 0f09e2fa861ab7430f3fef53b7ea7b9a
