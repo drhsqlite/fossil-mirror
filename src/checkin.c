@@ -1679,9 +1679,9 @@ void commit_cmd(void){
   }
 
   /*
-  ** Do not allow a commit against a closed leaf
+  ** Do not allow a commit against a closed leaf on the same branch.
   */
-  if( db_exists("SELECT 1 FROM tagxref"
+  if( !sCiInfo.zBranch && db_exists("SELECT 1 FROM tagxref"
                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
                 TAG_CLOSED, vid) ){
     fossil_fatal("cannot commit against a closed leaf");
