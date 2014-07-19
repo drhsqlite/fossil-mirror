@@ -1,5 +1,5 @@
-C Update\sinternal\stables\s(used\sby\se.g.\sthe\s\\w\sand\s\\W\sspecifiers\sin\sregexp\sexpressions)\sto\sUnicode\s7.0.\sThis\sis\sfully\supwards\scompatible,\ssee\s[http://www.unicode.org/policies/stability_policy.html]
-D 2014-07-19T08:34:11.446
+C Add\smissing\speriod\sto\ssentence.
+D 2014-07-19T18:40:32.314
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -315,7 +315,7 @@ F src/attach.c 79f433085b57c262505cc30b5bc008a72a025959
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 93f764ea21082f0926aa10b7f82a1ba3cd2d6079
 F src/blob.c 0578b205b06ebef0e5cea851b736466cc99c00c4
-F src/branch.c 24cff03e9757e94afe5ebc7eda01c78b5c4fa991
+F src/branch.c a1848d70d82f70adf0c0fad04eea50daf053b6e9
 F src/browse.c b898ffe7e4a08f4b2e0425285397d28cf765ab6c
 F src/cache.c 5d4821dfce8ce0d09aaa1e82c3c9d5693487bb48
 F src/captcha.c 765bb4af84144ec617cabb9c6b4a548bbc2e8b08
@@ -651,8 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 13f8ba6ca89c8ae3398062162ad19e71f5d28571 e17f7304ddb7ace60c807a5a0a9d4fa587797b0b
-R 06b85c7e783799203f2fedd3ade15283
-T +closed e17f7304ddb7ace60c807a5a0a9d4fa587797b0b
-U jan.nijtmans
-Z 28360fc0289dd0c2c4b9a5015a4346e8
+P 3088939eb1397b8a6da80982e909d68b2abadcd8
+R ac8d0c38592b3d669230944cd9cb8aa8
+U andybradford
+Z 98e4f220a0c42fe6499178f48bd47b69
