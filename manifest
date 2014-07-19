@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s".fullschema"\scommand\sin\sthe\scommand-line\sshell.
-D 2014-07-18T22:03:48.709
+C Update\sinternal\stables\s(used\sby\se.g.\sthe\s\\w\sand\s\\W\sspecifiers\sin\sregexp\sexpressions)\sto\sUnicode\s7.0.\sThis\sis\sfully\supwards\scompatible,\ssee\s[http://www.unicode.org/policies/stability_policy.html]
+D 2014-07-19T08:34:11.446
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -423,7 +423,7 @@ F src/tkt.c bea38b1d5d30092f5661e2ced72d9170e9e83909
 F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
-F src/unicode.c 8e9e6c2fbabcfc90de78a2c57af3cb0784af753e
+F src/unicode.c 45b536803e254a50c73031db8d26d267a4db79ae
 F src/update.c ac73ea5d017ea7495b5d78acef19494d166e6116
 F src/url.c 67ceb425c9e6de2f3dd108180add087c27f94c03
 F src/user.c 811c206e39131262dd12b441fbfe9cf8229b1cc5
@@ -651,7 +651,8 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2b79c600d545e8c6685a8ae7ac8b951ead644c48
-R 6059081cb05dd11b16e19dd4c9bbd2d8
+P 13f8ba6ca89c8ae3398062162ad19e71f5d28571 e17f7304ddb7ace60c807a5a0a9d4fa587797b0b
+R 06b85c7e783799203f2fedd3ade15283
+T +closed e17f7304ddb7ace60c807a5a0a9d4fa587797b0b
 U jan.nijtmans
-Z ca83ca01af8a1a476d33f9079d2ebd2a
+Z 28360fc0289dd0c2c4b9a5015a4346e8
