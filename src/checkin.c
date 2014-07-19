@@ -1679,11 +1679,21 @@ void commit_cmd(void){
   }
 
   /*
-  ** Do not allow a commit against a closed leaf on the same branch.
+  ** Do not allow a commit against a closed leaf unless the commit
+  ** ends up on a different branch.
   */
-  if( !sCiInfo.zBranch && db_exists("SELECT 1 FROM tagxref"
+  if( 
+      /* parent checkin has the "closed" tag... */
+      db_exists("SELECT 1 FROM tagxref"
                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
-                TAG_CLOSED, vid) ){
+                TAG_CLOSED, vid)
+      /* ... and the new checkin has no --branch option or the --branch
+      ** option does not actually change the branch */
+   && (sCiInfo.zBranch==0
+       || db_exists("SELECT 1 FROM tagxref"
+                    " WHERE tagid=%d AND rid=%d AND tagtype>0"
+                    "   AND value=%Q", TAG_BRANCH, vid, sCiInfo.zBranch))
+  ){
     fossil_fatal("cannot commit against a closed leaf");
   }
 
