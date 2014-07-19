@@ -1,5 +1,5 @@
-C Update\sinternal\stables\s(used\sby\se.g.\sthe\s\\w\sand\s\\W\sspecifiers\sin\sregexp\sexpressions)\sto\sUnicode\s7.0.\sThis\sis\sfully\supwards\scompatible,\ssee\s[http://www.unicode.org/policies/stability_policy.html]
-D 2014-07-19T08:34:11.446
+C Only\sallow\sa\scheckin\sagainst\sa\sclosed\sleaf\sif\sit\sis\snot\sthe\ssame\sbranch.
+D 2014-07-19T16:29:56.492
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -320,7 +320,7 @@ F src/browse.c b898ffe7e4a08f4b2e0425285397d28cf765ab6c
 F src/cache.c 5d4821dfce8ce0d09aaa1e82c3c9d5693487bb48
 F src/captcha.c 765bb4af84144ec617cabb9c6b4a548bbc2e8b08
 F src/cgi.c 752925d4999d0a51723e2e19d6a5f71a90fdfc3a
-F src/checkin.c 5fa7c507a61ab6502a42de98d09a2aa613111be7
+F src/checkin.c c9462ab2c3899468d32ac6fdcd0e977c4e413837
 F src/checkout.c 4ca36989505eceddfab75a5cd13c89bb3c9cc5ce
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 1272c49df0a59f0befadb10a5469b270d8320ba0
@@ -651,8 +651,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 13f8ba6ca89c8ae3398062162ad19e71f5d28571 e17f7304ddb7ace60c807a5a0a9d4fa587797b0b
-R 06b85c7e783799203f2fedd3ade15283
-T +closed e17f7304ddb7ace60c807a5a0a9d4fa587797b0b
-U jan.nijtmans
-Z 28360fc0289dd0c2c4b9a5015a4346e8
+P 3088939eb1397b8a6da80982e909d68b2abadcd8
+R 40194667fdf43ba3d12f840940b25f69
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U andybradford
+Z cbf619b50c345c3cf1e5d4140e10b9c3
