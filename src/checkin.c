@@ -930,7 +930,7 @@ static void checkin_verify_younger(
     zDate, rid
   );
   if( b ){
-    fossil_fatal("ancestor check-in [%.10s] (%s) is not older (clock skew?)"
+    fossil_fatal("ancestor check-in [%S] (%s) is not older (clock skew?)"
                  " Use --allow-older to override.", zUuid, zDate);
   }
 #endif
@@ -1298,7 +1298,6 @@ static int commit_warning(
         return 0; /* We don't want encoding warnings for this file. */
       }
       zWarning = "invalid UTF-8";
-      zConvert = ""; /* Possible conversion to UTF-8 not yet implemented. */
       zDisable = "\"encoding-glob\" setting";
     }else if( fHasAnyCr ){
       if( crnlOk ){
@@ -1343,6 +1342,8 @@ static int commit_warning(
           const unsigned char *bom = get_utf8_bom(&bomSize);
           fwrite(bom, 1, bomSize, f);
           blob_to_utf8_no_bom(p, 0);
+        }else if( fHasInvalidUtf8 ){
+          blob_cp1252_to_utf8(p);
         }
         if( fHasAnyCr ){
           blob_to_lf_only(p);
@@ -1678,11 +1679,21 @@ void commit_cmd(void){
   }
 
   /*
-  ** Do not allow a commit against a closed leaf
+  ** Do not allow a commit against a closed leaf unless the commit
+  ** ends up on a different branch.
   */
-  if( db_exists("SELECT 1 FROM tagxref"
+  if( 
+      /* parent checkin has the "closed" tag... */
+      db_exists("SELECT 1 FROM tagxref"
                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
-                TAG_CLOSED, vid) ){
+                TAG_CLOSED, vid)
+      /* ... and the new checkin has no --branch option or the --branch
+      ** option does not actually change the branch */
+   && (sCiInfo.zBranch==0
+       || db_exists("SELECT 1 FROM tagxref"
+                    " WHERE tagid=%d AND rid=%d AND tagtype>0"
+                    "   AND value=%Q", TAG_BRANCH, vid, sCiInfo.zBranch))
+  ){
     fossil_fatal("cannot commit against a closed leaf");
   }
 

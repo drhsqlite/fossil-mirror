@@ -285,7 +285,7 @@ void build_table(void){
     const char *z = aEntry[i].zPath;
     int n = strlen(z);
     int cmdFlags = (1==aEntry[i].eType) ? 0x01 : 0x08;
-    if(0x01==cmdFlags){
+    if( 0x01==cmdFlags ){
       if( z[n-1]=='*' ){
         n--;
         cmdFlags = 0x02;
@@ -305,6 +305,7 @@ void build_table(void){
     if( aEntry[i].zIf ) printf("#endif\n");
   }
   printf("};\n");
+  printf("#define FOSSIL_FIRST_CMD (sizeof(aWebpage)/sizeof(aWebpage[0]))\n");
   for(i=0; i<nFixed; i++){
     char *z = aEntry[i].zHelp;
     if( z && z[0] ){

@@ -110,6 +110,8 @@ static void collect_argv(Blob *pExtra, int iStart){
 **               sync operations.  The -c|--ckout option causes the listed
 **               local checkouts to be ignored instead.
 **
+**    info       Run the "info" command on all repositories.
+**
 **    list | ls  Display the location of all repositories.  The -c|--ckout
 **               option causes all local checkouts to be listed instead.
 **
@@ -157,6 +159,7 @@ void all_cmd(void){
   int stopOnError = find_option("dontstop",0,0)==0;
   int rc;
   int nToDel = 0;
+  int showLabel = 0;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
@@ -260,21 +263,28 @@ void all_cmd(void){
     }
     db_end_transaction(0);
     return;
+  }else if( strncmp(zCmd, "info", n)==0 ){
+    zCmd = "info";
+    showLabel = 1;
+    quiet = 1;
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
                  "changes clean extras ignore list ls push pull rebuild sync");
   }
   verify_all_options();
   zFossil = quoteFilename(g.nameOfExe);
+  db_multi_exec("CREATE TEMP TABLE repolist(name,tag);");
   if( useCheckouts ){
-    db_prepare(&q,
+    db_multi_exec(
+       "INSERT INTO repolist "
        "SELECT DISTINCT substr(name, 7), name COLLATE nocase"
        "  FROM global_config"
        " WHERE substr(name, 1, 6)=='ckout:'"
        " ORDER BY 1"
     );
   }else{
-    db_prepare(&q,
+    db_multi_exec(
+       "INSERT INTO repolist "
        "SELECT DISTINCT substr(name, 6), name COLLATE nocase"
        "  FROM global_config"
        " WHERE substr(name, 1, 5)=='repo:'"
@@ -282,6 +292,7 @@ void all_cmd(void){
     );
   }
   db_multi_exec("CREATE TEMP TABLE todel(x TEXT)");
+  db_prepare(&q, "SELECT name, tag FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
     if( file_access(zFilename, F_OK)
@@ -302,6 +313,12 @@ void all_cmd(void){
     zQFilename = quoteFilename(zFilename);
     zSyscmd = mprintf("%s %s %s%s",
                       zFossil, zCmd, zQFilename, blob_str(&extra));
+    if( showLabel ){
+      int len = (int)strlen(zFilename);
+      int nStar = 80 - (len + 15);
+      if( nStar<2 ) nStar = 1;
+      fossil_print("%.13c %s %.*c\n", '*', zFilename, nStar, '*');
+    }
     if( !quiet || dryRunFlag ){
       fossil_print("%s\n", zSyscmd);
       fflush(stdout);

@@ -103,16 +103,16 @@ keys are for internal use only and may change when doing a "fossil rebuild".
 
 The <b>tkt_uuid</b> field is the unique hexadecimal identifier for the ticket.
 Ticket identifiers appear to be SHA1 hash strings, but they
-are not really the hash of any identifible artifact.  They are
+are not really the hash of any identifiable artifact.  They are
 just random hexadecimal numbers.  When creating a new ticket, Fossil uses
-a (high-quality) pseudo-random number generator to create the ticket 
+a (high-quality) pseudo-random number generator to create the ticket
 number.  The ticket numbers are large so that the chance of collision
 between any two tickets is vanishingly small.
 
 The <b>tkt_mtime</b> field of TICKET shows the time (as a Julian day number)
 of the most recent ticket change artifact for that ticket.  The
 <b>tkt_mtime</b> field of TICKETCHNG shows the timestamp on the ticket
-change artifact that the TICKETCHNG row refers to.  The 
+change artifact that the TICKETCHNG row refers to.  The
 <b>tkt_ctime</b> field of TICKET is the time of the oldest ticket change
 artifact for that ticket, thus holding the time that the ticket was
 created.
@@ -162,7 +162,7 @@ which the key is the same as a field in the TICKET table, the value
 of that pair either replaces or is appended to the previous value
 of the corresponding field in the TICKET table.  Whether a value is
 replaced or appended is determined by markings in the ticket change
-artifact itself.  Most fields are usually replaced. (For example, to change 
+artifact itself.  Most fields are usually replaced. (For example, to change
 the status from "Open" to "Fixed" would involve a key value pair
 "status/Fixed" with the replace attribute set).  The main exception
 is the "comment" field, which is usually appended with new comment
@@ -176,7 +176,7 @@ difference there.
 <h3>2.3 Old-Style versus New-Style Tickets</h3>
 
 Older versions of Fossil
-(before [/timeline?c=2012-11-27+16:26:29 | 2012-11-27]) 
+(before [/timeline?c=2012-11-27T16:26:29 | 2012-11-27])
 only supported the TICKET table.
 In this older style, new comments were added to tickets by using
 the append-value feature on the comment field.  Thus the TICKET.COMMENT
@@ -186,8 +186,8 @@ together and ready for display.
 A problem with the old approach is that all comment text had to
 be in the same format.  In other words, the all comment text had to be
 either plaintext or wiki or HTML.  It was not possible for some comments
-to be in HTML and others to be plaintext.  Some site adminstrators wanted the
-ability to mix plaintext, wiki, and HTML comments and display each 
+to be in HTML and others to be plaintext.  Some site administrators wanted the
+ability to mix plaintext, wiki, and HTML comments and display each
 comment according to its chosen format.  Hence, Fossil was enhanced to
 support the "new-style" tickets.
 

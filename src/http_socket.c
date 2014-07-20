@@ -22,7 +22,7 @@
 ** at a time.  State information is stored in static variables.  The identity
 ** of the server is held in global variables that are set by url_parse().
 **
-** Low-level sockets are abstracted out into this module because they 
+** Low-level sockets are abstracted out into this module because they
 ** are handled different on Unix and windows.
 */
 
@@ -65,7 +65,7 @@ static void socket_clear_errmsg(void){
 /*
 ** Set the socket error message.
 */
-void socket_set_errmsg(char *zFormat, ...){
+void socket_set_errmsg(const char *zFormat, ...){
   va_list ap;
   socket_clear_errmsg();
   va_start(ap, zFormat);

@@ -24,35 +24,13 @@
 #include "timeline.h"
 
 /*
-** Shorten a UUID so that is the minimum length needed to contain
-** at least one digit in the range 'a'..'f'.  The minimum length is 10.
-*/
-static void shorten_uuid(char *zDest, const char *zSrc){
-  int i;
-  for(i=0; i<10 && zSrc[i]<='9'; i++){}
-  memcpy(zDest, zSrc, 10);
-  if( i==10 && zSrc[i] ){
-    do{
-      zDest[i] = zSrc[i];
-      i++;
-    }while( zSrc[i-1]<='9' );
-  }else{
-    i = 10;
-  }
-  zDest[i] = 0;
-}
-
-
-/*
 ** Generate a hyperlink to a version.
 */
 void hyperlink_to_uuid(const char *zUuid){
-  char z[UUID_SIZE+1];
-  shorten_uuid(z, zUuid);
   if( g.perm.Hyperlink ){
-    @ %z(xhref("class='timelineHistLink'","%R/info/%s",zUuid))[%s(z)]</a>
+    @ %z(xhref("class='timelineHistLink'","%R/info/%s",zUuid))[%S(zUuid)]</a>
   }else{
-    @ <span class="timelineHistDsp">[%s(z)]</span>
+    @ <span class="timelineHistDsp">[%S(zUuid)]</span>
   }
 }
 
@@ -1222,19 +1200,30 @@ void page_timeline(void){
       }
       if( d_rid==0 && useDividers ) timeline_add_dividers(0, p_rid);
     }
-    blob_appendf(&desc, " of %z[%.10s]</a>",
+    blob_appendf(&desc, " of %z[%S]</a>",
                    href("%R/info/%s", zUuid), zUuid);
-    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+    if( p_rid ){
+      url_add_parameter(&url, "p", zUuid);
+    }
+    if( d_rid ){
       if( p_rid ){
-        url_add_parameter(&url, "p", zUuid);
+        /* If both p= and d= are set, we don't have the uuid of d yet. */
+        zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
-      if( d_rid ){
-        if( p_rid ){
-          /* If both p= and d= are set, we don't have the uuid of d yet. */
-          zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
-        }
-        url_add_parameter(&url, "d", zUuid);
-      }
+      url_add_parameter(&url, "d", zUuid);
+    }
+    if( nEntry>20 ){
+      timeline_submenu(&url, "20 Entries", "n", "20", 0);
+    }
+    if( nEntry<200 ){
+      timeline_submenu(&url, "200 Entries", "n", "200", 0);
+    }
+    if( tmFlags & TIMELINE_FCHANGES ){
+      timeline_submenu(&url, "Hide Files", "v", 0, 0);
+    }else{
+      timeline_submenu(&url, "Show Files", "v", "", 0);
+    }
+    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
       timeline_submenu(&url, "Unhide", "unhide", "", 0);
     }
   }else if( f_rid && g.perm.Read ){
@@ -1252,10 +1241,15 @@ void page_timeline(void){
     if( useDividers ) timeline_add_dividers(0, f_rid);
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
-    blob_appendf(&desc, "%z[%.10s]</a>", href("%R/info/%s", zUuid), zUuid);
+    blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%s", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
+    url_add_parameter(&url, "f", zUuid);
+    if( tmFlags & TIMELINE_FCHANGES ){
+      timeline_submenu(&url, "Hide Files", "v", 0, 0);
+    }else{
+      timeline_submenu(&url, "Show Files", "v", "", 0);
+    }
     if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-      url_add_parameter(&url, "f", zUuid);
       timeline_submenu(&url, "Unhide", "unhide", "", 0);
     }
   }else{
@@ -1573,7 +1567,6 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     char *zFree = 0;
     int n = 0;
     char zPrefix[80];
-    char zUuid[UUID_SIZE+1];
 
     if( nAbsLimit!=0 ){
       if( nLimit<0 && nLine>=nAbsLimit ){
@@ -1584,7 +1577,6 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
         break; /* entry count limit hit, stop. */
       }
     }
-    sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
     if( fossil_strnicmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
@@ -1611,10 +1603,10 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*CURRENT* ");
       n += strlen(zPrefix);
     }
-    zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
+    zFree = mprintf("[%S] %s%s", zId, zPrefix, zCom);
     /* record another X lines */
     nLine += comment_print(zFree, 9, width, COMMENT_PRINT_DEFAULT);
-    sqlite3_free(zFree);
+    fossil_free(zFree);
 
     if(verboseFlag){
       if( !fchngQueryInit ){
@@ -2054,6 +2046,8 @@ static const char * stats_report_label_for_type(){
   switch( statsReportType ){
     case 'c':
       return "checkins";
+    case 'e':
+      return "events";
     case 'w':
       return "wiki changes";
     case 't':
@@ -2083,7 +2077,7 @@ static void stats_report_event_types_menu(const char * zCurrentViewName,
   zTop = mprintf("%s/reports?view=%s%s%s", g.zTop, zCurrentViewName,
                  zParam ? "&" : "", zParam);
   cgi_printf("<div>");
-  cgi_printf("<span>Event types:</span> ");
+  cgi_printf("<span>Types:</span> ");
   if('*' == statsReportType){
     cgi_printf(" <strong>all</strong>", zTop);
   }else{
@@ -2093,6 +2087,11 @@ static void stats_report_event_types_menu(const char * zCurrentViewName,
     cgi_printf(" <strong>checkins</strong>", zTop);
   }else{
     cgi_printf(" <a href='%s&type=ci'>checkins</a>", zTop);
+  }
+  if('e' == statsReportType){
+    cgi_printf(" <strong>events</strong>", zTop);
+  }else{
+    cgi_printf(" <a href='%s&type=e'>events</a>", zTop);
   }
   if( 't' == statsReportType ){
     cgi_printf(" <strong>tickets</strong>", zTop);

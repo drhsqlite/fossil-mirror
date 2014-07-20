@@ -408,7 +408,7 @@ void leaves_cmd(void){
     n++;
     sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
     fossil_print("%6s ", zLineNo);
-    z = mprintf("%s [%.10s] %s", zDate, zId, zCom);
+    z = mprintf("%s [%S] %s", zDate, zId, zCom);
     comment_print(z, 7, width, COMMENT_PRINT_DEFAULT);
     fossil_free(z);
   }
