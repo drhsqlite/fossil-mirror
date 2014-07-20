@@ -388,7 +388,7 @@ void test_comment_format(void){
     flags |= COMMENT_PRINT_WORD_BREAK;
   }
   if( g.argc!=4 && g.argc!=5 ){
-    usage("PREFIX TEXT ?WIDTH?");
+    usage("?OPTIONS? PREFIX TEXT ?WIDTH?");
   }
   zPrefix = g.argv[2];
   if( decode ){
