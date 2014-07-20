@@ -35,7 +35,7 @@
 #define COMMENT_PRINT_LEGACY     ((u32)0x00000001) /* Use legacy algorithm. */
 #define COMMENT_PRINT_TRIM_SPACE ((u32)0x00000002) /* Trim leading/trailing. */
 #define COMMENT_PRINT_WORD_BREAK ((u32)0x00000004) /* Break lines on words. */
-#define COMMENT_PRINT_DEFAULT    (COMMENT_PRINT_TRIM_SPACE) /* Defaults. */
+#define COMMENT_PRINT_DEFAULT    (COMMENT_PRINT_LEGACY) /* Defaults. */
 #endif
 
 /*

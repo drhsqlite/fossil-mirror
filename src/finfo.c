@@ -204,7 +204,7 @@ void finfo_cmd(void){
         zOut = sqlite3_mprintf(
            "[%S] %s (user: %s, artifact: [%S], branch: %s)",
            zCiUuid, zCom, zUser, zFileUuid, zBr);
-        comment_print(zOut, 11, iWidth, COMMENT_PRINT_DEFAULT);
+        comment_print(zOut, 11, iWidth, g.comFmtFlags);
         sqlite3_free(zOut);
       }else{
         blob_reset(&line);
@@ -213,7 +213,7 @@ void finfo_cmd(void){
         blob_appendf(&line, "%8.8s ", zUser);
         blob_appendf(&line, "%8.8s ", zBr);
         blob_appendf(&line,"%-39.39s", zCom );
-        comment_print(blob_str(&line), 0, iWidth, COMMENT_PRINT_DEFAULT);
+        comment_print(blob_str(&line), 0, iWidth, g.comFmtFlags);
       }
     }
     db_finalize(&q);

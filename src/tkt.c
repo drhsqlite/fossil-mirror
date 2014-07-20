@@ -1266,7 +1266,7 @@ void ticket_cmd(void){
           fossil_print("%h: ",z);
           if( blob_size(&val)>50 || contains_newline(&val)) {
                   fossil_print("\n    ",blob_str(&val));
-                  comment_print(blob_str(&val),4,-1,COMMENT_PRINT_DEFAULT);
+                  comment_print(blob_str(&val),4,-1,g.comFmtFlags);
                 }else{
                   fossil_print("%s\n",blob_str(&val));
                 }
