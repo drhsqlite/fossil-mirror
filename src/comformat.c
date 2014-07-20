@@ -162,13 +162,13 @@ static void comment_print_line(
 }
 
 /*
-** This is the legacy comment printing algorithm.  Currently, it is being
-** retained primarily for testing and comparison purposes.
+** This is the legacy comment printing algorithm.  It is being retained
+** for backward compatibility.
 **
 ** Given a comment string, format that string for printing on a TTY.
 ** Assume that the output cursors is indent spaces from the left margin
-** and that a single line can contain no more than width characters.
-** Indent all subsequent lines by indent.
+** and that a single line can contain no more than 'width' characters.
+** Indent all subsequent lines by 'indent'.
 **
 ** Returns the number of new lines emitted.
 */
@@ -263,10 +263,34 @@ static int comment_print_legacy(
 }
 
 /*
+** This is the comment printing function.  The comment printing algorithm
+** contained within it attempts to preserve the formatting present within
+** the comment string itself while honoring line width limitations.  There
+** are several flags that modify the default behavior of this function:
+**
+**         COMMENT_PRINT_LEGACY: Forces use of the legacy comment printing
+**                               algorithm.  For backward compatibility,
+**                               this is the default.
+**
+**     COMMENT_PRINT_TRIM_SPACE: Trims leading and trailing spaces where
+**                               they do not materially impact formatting
+**                               (i.e. at the start of the comment string
+**                               -AND- right before each line indentation).
+**                               This flag does not apply to the legacy
+**                               comment printing algorithm.
+**
+**     COMMENT_PRINT_WORD_BREAK: Attempts to break lines on word boundaries
+**                               while honoring the logical line length.
+**                               If this flag is not specified, honoring the
+**                               logical line length may result in breaking
+**                               lines in the middle of words.  This flag
+**                               does not apply to the legacy comment
+**                               printing algorithm.
+**
 ** Given a comment string, format that string for printing on a TTY.
 ** Assume that the output cursors is indent spaces from the left margin
-** and that a single line can contain no more than width characters.
-** Indent all subsequent lines by indent.
+** and that a single line can contain no more than 'width' characters.
+** Indent all subsequent lines by 'indent'.
 **
 ** Returns the number of new lines emitted.
 */

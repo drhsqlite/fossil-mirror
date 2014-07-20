@@ -1,5 +1,5 @@
-C Add\s-comfmtflags\scommand\sline\soption\sto\sset\sthe\scomment\sprinting\sflags,\sdefaulting\sto\sthe\slegacy\scomment\sprinting\salgorithm.
-D 2014-07-20T02:35:02.401
+C Enhance\scomments\sthat\sdescribe\sthe\snew\scomment\sprinting\sfunction.
+D 2014-07-20T04:24:12.579
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -324,7 +324,7 @@ F src/checkin.c 86d2e5cd9f361c988d9c01a8dfc9d12466d15587
 F src/checkout.c 4ca36989505eceddfab75a5cd13c89bb3c9cc5ce
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 1272c49df0a59f0befadb10a5469b270d8320ba0
-F src/comformat.c 2961f12931a3fb2f14e81b0d34a8931893424514
+F src/comformat.c 2e2a786bce9acac55759646b2b5aee88a84ab6e3
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
 F src/configure.c f269fd9da2b442fc409ad409661bb9d29a5d98cc
 F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5ea6a95a7b1dddb9dbd9ab656a6398d434dcbef6
-R e989ab6314a8741d13261f085f8e6210
+P 18a97b3a8fed673514b5e64b445f2209b96fb81a
+R 908de0407dcc1321b02664d98bdf6fcf
 U mistachkin
-Z 41510f999693ab898741a2f67a1bfc47
+Z c002f7ccbb06cebeb68ff85fb1ad4d59
