@@ -372,7 +372,7 @@ void bisect_cmd(void){
       g.fNoSync = 1;
       update_cmd();
     }
-   
+
     if( strncmp(zDisplay,"chart",m)==0 ){
       bisect_chart(1);
     }else if( strncmp(zDisplay, "log", m)==0 ){
@@ -392,7 +392,7 @@ void bisect_cmd(void){
         fossil_print("  %-15s  %-6s  ", aBisectOption[i].zName,
                db_lget(z, (char*)aBisectOption[i].zDefault));
         fossil_free(z);
-        comment_print(aBisectOption[i].zDesc, 27, 79);
+        comment_print(aBisectOption[i].zDesc, 27, -1);
       }
     }else if( g.argc==4 || g.argc==5 ){
       unsigned int i;

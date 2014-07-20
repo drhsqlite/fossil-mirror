@@ -22,7 +22,7 @@
 ** at a time.  State information is stored in static variables.  The identity
 ** of the server is held in global variables that are set by url_parse().
 **
-** Low-level sockets are abstracted out into this module because they 
+** Low-level sockets are abstracted out into this module because they
 ** are handled different on Unix and windows.
 */
 
@@ -65,7 +65,7 @@ static void socket_clear_errmsg(void){
 /*
 ** Set the socket error message.
 */
-void socket_set_errmsg(char *zFormat, ...){
+void socket_set_errmsg(const char *zFormat, ...){
   va_list ap;
   socket_clear_errmsg();
   va_start(ap, zFormat);
@@ -126,10 +126,10 @@ void socket_close(void){
 
 /*
 ** Open a socket connection.  The identify of the server is determined
-** by global variables that are set using url_parse():
+** by pUrlData
 **
-**    g.urlName       Name of the server.  Ex: www.fossil-scm.org
-**    g.urlPort       TCP/IP port to use.  Ex: 80
+**    pUrlDAta->name       Name of the server.  Ex: www.fossil-scm.org
+**    pUrlDAta->port       TCP/IP port to use.  Ex: 80
 **
 ** Return the number of errors.
 */
@@ -153,10 +153,10 @@ int socket_open(UrlData *pUrlData){
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = IPPROTO_TCP;
 
-  sPort = mprintf("%d", g.urlPort);
+  sPort = mprintf("%d", pUrlData->port);
 
-  if(getaddrinfo(g.urlName, sPort, &hints, &res)) {
-    socket_set_errmsg("can't resolve host name: %s", g.urlName);
+  if(getaddrinfo(pUrlData->name, sPort, &hints, &res)) {
+    socket_set_errmsg("can't resolve host name: %s", pUrlData->name);
     free(sPort);
     return 1;
   }
@@ -176,7 +176,7 @@ int socket_open(UrlData *pUrlData){
     break;
   }
   if(iSocket == -1) {
-    socket_set_errmsg("cannot connect to host %s:%s", g.urlName, sPort);
+    socket_set_errmsg("cannot connect to host %s:%s", pUrlData->name, sPort);
     error = 1;
   }
   free(sPort);
@@ -264,9 +264,10 @@ size_t socket_receive(void *NotUsed, void *pContent, size_t N){
 }
 
 /*
-** Attempt to resolve g.urlName to IP and setup g.zIpAddr so rcvfrom gets
-** populated. For hostnames with more than one IP (or if overridden in
-** ~/.ssh/config) the rcvfrom may not match the host to which we connect.
+** Attempt to resolve pUrlData->name to an IP address and setup g.zIpAddr
+** so rcvfrom gets populated. For hostnames with more than one IP (or
+** if overridden in ~/.ssh/config) the rcvfrom may not match the host
+** to which we connect.
 */
 void socket_ssh_resolve_addr(UrlData *pUrlData){
   struct hostent *pHost;        /* Used to make best effort for rcvfrom */

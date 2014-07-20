@@ -79,8 +79,8 @@ void transport_stats(i64 *pnSent, i64 *pnRcvd, int resetFlag){
 /*
 ** Default SSH command
 */
-#ifdef __MINGW32__
-static char zDefaultSshCmd[] = "ssh -T";
+#ifdef _WIN32
+static char zDefaultSshCmd[] = "plink -ssh -T";
 #else
 static char zDefaultSshCmd[] = "ssh -e none -T";
 #endif
@@ -101,7 +101,7 @@ int transport_ssh_open(UrlData *pUrlData){
   zSsh = db_get("ssh-command", zDefaultSshCmd);
   blob_init(&zCmd, zSsh, -1);
   if( pUrlData->port!=pUrlData->dfltPort && pUrlData->port ){
-#ifdef __MINGW32__
+#ifdef _WIN32
     blob_appendf(&zCmd, " -P %d", pUrlData->port);
 #else
     blob_appendf(&zCmd, " -p %d", pUrlData->port);
@@ -140,11 +140,11 @@ int transport_ssh_open(UrlData *pUrlData){
 
 /*
 ** Open a connection to the server.  The server is defined by the following
-** global variables:
+** variables:
 **
-**   g.urlName        Name of the server.  Ex: www.fossil-scm.org
-**   g.urlPort        TCP/IP port.  Ex: 80
-**   g.urlIsHttps     Use TLS for the connection
+**   pUrlData->name        Name of the server.  Ex: www.fossil-scm.org
+**   pUrlData->port        TCP/IP port.  Ex: 80
+**   pUrlData->isHttps     Use TLS for the connection
 **
 ** Return the number of errors.
 */

@@ -50,12 +50,13 @@ int autosync(int flags){
     /* Autosync defaults on.  To make it default off, "return" here. */
   }
   url_parse(0, URL_REMEMBER);
-  if( g.urlProtocol==0 ) return 0;  
-  if( g.urlUser!=0 && g.urlPasswd==0 ){
-    g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
-    g.urlFlags |= URL_PROMPT_PW;
+  if( g.url.protocol==0 ) return 0;  
+  if( g.url.user!=0 && g.url.passwd==0 ){
+    g.url.passwd = unobscure(db_get("last-sync-pw", 0));
+    g.url.flags |= URL_PROMPT_PW;
     url_prompt_for_password();
   }
+  g.zHttpAuth = get_httpauth();
   url_remember();
 #if 0 /* Disabled for now */
   if( (flags & AUTOSYNC_PULL)!=0 && db_get_boolean("auto-shun",1) ){
@@ -70,10 +71,29 @@ int autosync(int flags){
   }
 #endif
   if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
-  fossil_print("Autosync:  %s\n", g.urlCanonical);
+  fossil_print("Autosync:  %s\n", g.url.canonical);
   url_enable_proxy("via proxy: ");
   rc = client_sync(flags, configSync, 0);
-  if( rc ) fossil_warning("Autosync failed");
+  return rc;
+}
+
+/*
+** This routine will try a number of times to perform autosync with a
+** 0.5 second sleep between attempts; returning the last autosync status.
+*/
+int autosync_loop(int flags, int nTries){
+  int n = 0;
+  int rc = 0;
+  while( (n==0 || n<nTries) && (rc=autosync(flags)) ){
+    if( rc ){
+      if( ++n<nTries ){
+        fossil_warning("Autosync failed, making another attempt.");
+        sqlite3_sleep(500);
+      }else{
+        fossil_warning("Autosync failed.");
+      }
+    }
+  }
   return rc;
 }
 
@@ -85,6 +105,7 @@ int autosync(int flags){
 */
 static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   const char *zUrl = 0;
+  const char *zHttpAuth = 0;
   unsigned configSync = 0;
   unsigned urlFlags = URL_REMEMBER | URL_PROMPT_PW;
   int urlOptional = 0;
@@ -92,6 +113,7 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
     urlOptional = 1;
     urlFlags = 0;
   }
+  zHttpAuth = find_option("httpauth","B",1);
   if( find_option("once",0,0)!=0 ) urlFlags &= ~URL_REMEMBER;
   if( find_option("private",0,0)!=0 ){
     *pSyncFlags |= SYNC_PRIVATE;
@@ -118,19 +140,20 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
     clone_ssh_db_set_options();
   }
   url_parse(zUrl, urlFlags);
+  remember_or_get_http_auth(zHttpAuth, urlFlags & URL_REMEMBER, zUrl);
   url_remember();
-  if( g.urlProtocol==0 ){
+  if( g.url.protocol==0 ){
     if( urlOptional ) fossil_exit(0);
     usage("URL");
   }
   user_select();
   if( g.argc==2 ){
     if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
-      fossil_print("Sync with %s\n", g.urlCanonical);
+      fossil_print("Sync with %s\n", g.url.canonical);
     }else if( (*pSyncFlags) & SYNC_PUSH ){
-      fossil_print("Push to %s\n", g.urlCanonical);
+      fossil_print("Push to %s\n", g.url.canonical);
     }else if( (*pSyncFlags) & SYNC_PULL ){
-      fossil_print("Pull from %s\n", g.urlCanonical);
+      fossil_print("Pull from %s\n", g.url.canonical);
     }
   }
   url_enable_proxy("via proxy: ");
@@ -265,6 +288,7 @@ void remote_url_cmd(void){
   if( g.argc==3 ){
     db_unset("last-sync-url", 0);
     db_unset("last-sync-pw", 0);
+    db_unset("http-auth", 0);
     if( is_false(g.argv[2]) ) return;
     url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW|URL_ASK_REMEMBER_PW);
   }
@@ -275,6 +299,6 @@ void remote_url_cmd(void){
     return;
   }else{
     url_parse(zUrl, 0);
-    fossil_print("%s\n", g.urlCanonical);
+    fossil_print("%s\n", g.url.canonical);
   }
 }

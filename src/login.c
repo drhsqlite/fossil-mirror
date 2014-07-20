@@ -43,7 +43,7 @@
 */
 #include "config.h"
 #include "login.h"
-#if defined(_WIN32)  
+#if defined(_WIN32)
 #  include <windows.h>           /* for Sleep */
 #  if defined(__MINGW32__) || defined(_MSC_VER)
 #    define sleep Sleep            /* windows does not have sleep, but Sleep */
@@ -114,9 +114,9 @@ static void redirect_to_g(void){
 
 /*
 ** The IP address of the client is stored as part of login cookies.
-** But some clients are behind firewalls that shift the IP address 
-** with each HTTP request.  To allow such (broken) clients to log in, 
-** extract just a prefix of the IP address.  
+** But some clients are behind firewalls that shift the IP address
+** with each HTTP request.  To allow such (broken) clients to log in,
+** extract just a prefix of the IP address.
 */
 static char *ipPrefix(const char *zIP){
   int i, j;
@@ -346,7 +346,7 @@ void login_clear_login_data(){
   if(!g.userUid){
     return;
   }else{
-    char const * cookie = login_cookie_name(); 
+    char const * cookie = login_cookie_name();
     /* To logout, change the cookie value to an empty string */
     cgi_set_cookie(cookie, "",
                    login_cookie_path(), -86400);
@@ -474,6 +474,7 @@ void login_page(void){
   int uid;                     /* User id logged in user */
   char *zSha1Pw;
   const char *zIpAddr;         /* IP address of requestor */
+  const char *zReferer;
 
   login_check_credentials();
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
@@ -493,17 +494,17 @@ void login_page(void){
     if( db_int(1, "SELECT 0 FROM user"
                   " WHERE uid=%d"
                   " AND (constant_time_cmp(pw,%Q)=0"
-                  "      OR constant_time_cmp(pw,%Q)=0)", 
+                  "      OR constant_time_cmp(pw,%Q)=0)",
                   g.userUid, zSha1Pw, zPasswd) ){
       sleep(1);
-      zErrMsg = 
+      zErrMsg =
          @ <p><span class="loginError">
          @ You entered an incorrect old password while attempting to change
          @ your password.  Your password is unchanged.
          @ </span></p>
       ;
     }else if( fossil_strcmp(zNew1,zNew2)!=0 ){
-      zErrMsg = 
+      zErrMsg =
          @ <p><span class="loginError">
          @ The two copies of your new passwords do not match.
          @ Your password is unchanged.
@@ -534,6 +535,7 @@ void login_page(void){
     }
   }
   zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
+  zReferer = P("HTTP_REFERER");
   uid = login_is_valid_anonymous(zUsername, zPasswd, P("cs"));
   if( uid>0 ){
     login_set_anon_cookie(zIpAddr, NULL);
@@ -546,7 +548,7 @@ void login_page(void){
     uid = login_search_uid(zUsername, zPasswd);
     if( uid<=0 ){
       sleep(1);
-      zErrMsg = 
+      zErrMsg =
          @ <p><span class="loginError">
          @ You entered an unknown user or an incorrect password.
          @ </span></p>
@@ -572,6 +574,8 @@ void login_page(void){
   form_begin(0, "%R/login");
   if( zGoto ){
     @ <input type="hidden" name="g" value="%h(zGoto)" />
+  }else if( zReferer && strncmp(g.zBaseURL, zReferer, strlen(g.zBaseURL))==0 ){
+    @ <input type="hidden" name="g" value="%h(zReferer)" />
   }
   @ <table class="login_out">
   @ <tr>
@@ -597,7 +601,7 @@ void login_page(void){
   @        onClick="chngAction(this.form)" /></td>
   @ </tr>
   @ </table>
-  @ <script type="text/JavaScript">
+  @ <script>
   @   gebi('u').focus()
   @   function chngAction(form){
   if( g.sslNotAvailable==0
@@ -622,7 +626,7 @@ void login_page(void){
   @ You must configure your web browser to accept cookies in order for
   @ the login to take.</p>
   if( db_get_boolean("self-register", 0) ){
-    @ <p>If you do not have an account, you can 
+    @ <p>If you do not have an account, you can
     @ <a href="%s(g.zTop)/register?g=%T(P("G"))">create one</a>.
   }
   if( zAnonPw ){
@@ -674,7 +678,7 @@ void login_page(void){
 
 /*
 ** Attempt to find login credentials for user zLogin on a peer repository
-** with project code zCode.  Transfer those credentials to the local 
+** with project code zCode.  Transfer those credentials to the local
 ** repository.
 **
 ** Return true if a transfer was made and false if not.
@@ -692,7 +696,7 @@ static int login_transfer_credentials(
   int rc;                      /* Result code from SQLite library functions */
   int nXfer = 0;               /* Number of credentials transferred */
 
-  zOtherRepo = db_text(0, 
+  zOtherRepo = db_text(0,
        "SELECT value FROM config WHERE name='peer-repo-%q'",
        zCode
   );
@@ -704,7 +708,7 @@ static int login_transfer_credentials(
        g.zVfsName
   );
   if( rc==SQLITE_OK ){
-    sqlite3_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite3_create_function(pOther,"now",0,SQLITE_UTF8,0,db_now_function,0,0);
     sqlite3_create_function(pOther, "constant_time_cmp", 2, SQLITE_UTF8, 0,
                   constant_time_cmp_function, 0, 0);
     sqlite3_busy_timeout(pOther, 5000);
@@ -737,6 +741,17 @@ static int login_transfer_credentials(
 }
 
 /*
+** Return TRUE if zLogin is one of the special usernames
+*/
+int login_is_special(const char *zLogin){
+  if( fossil_strcmp(zLogin, "anonymous")==0 ) return 1;
+  if( fossil_strcmp(zLogin, "nobody")==0 ) return 1;
+  if( fossil_strcmp(zLogin, "developer")==0 ) return 1;
+  if( fossil_strcmp(zLogin, "reader")==0 ) return 1;
+  return 0;
+}
+
+/*
 ** Lookup the uid for a non-built-in user with zLogin and zCookie and
 ** zRemoteAddr.  Return 0 if not found.
 **
@@ -750,11 +765,8 @@ static int login_find_user(
   const char *zRemoteAddr        /* Abbreviated IP address for valid login */
 ){
   int uid;
-  if( fossil_strcmp(zLogin, "anonymous")==0 ) return 0;
-  if( fossil_strcmp(zLogin, "nobody")==0 ) return 0;
-  if( fossil_strcmp(zLogin, "developer")==0 ) return 0;
-  if( fossil_strcmp(zLogin, "reader")==0 ) return 0;
-  uid = db_int(0, 
+  if( login_is_special(zLogin) ) return 0;
+  uid = db_int(0,
     "SELECT uid FROM user"
     " WHERE login=%Q"
     "   AND ipaddr=%Q"
@@ -794,7 +806,7 @@ void login_check_credentials(void){
                   constant_time_cmp_function, 0, 0);
 
   /* If the HTTP connection is coming over 127.0.0.1 and if
-  ** local login is disabled and if we are using HTTP and not HTTPS, 
+  ** local login is disabled and if we are using HTTP and not HTTPS,
   ** then there is no need to check user credentials.
   **
   ** This feature allows the "fossil ui" command to give the user
@@ -850,11 +862,11 @@ void login_check_credentials(void){
       double rTime = atof(zArg);
       Blob b;
       blob_zero(&b);
-      blob_appendf(&b, "%s/%s/%s", 
+      blob_appendf(&b, "%s/%s/%s",
                    zArg, zRemoteAddr, db_get("captcha-secret",""));
       sha1sum_blob(&b, &b);
       if( fossil_strcmp(zHash, blob_str(&b))==0 ){
-        uid = db_int(0, 
+        uid = db_int(0,
             "SELECT uid FROM user WHERE login='anonymous'"
             " AND length(cap)>0"
             " AND length(pw)>0"
@@ -1005,7 +1017,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 's':   g.perm.Setup = 1;  /* Fall thru into Admin */
       case 'a':   g.perm.Admin = g.perm.RdTkt = g.perm.WrTkt = g.perm.Zip =
                            g.perm.RdWiki = g.perm.WrWiki = g.perm.NewWiki =
-                           g.perm.ApndWiki = g.perm.Hyperlink = g.perm.Clone = 
+                           g.perm.ApndWiki = g.perm.Hyperlink = g.perm.Clone =
                            g.perm.NewTkt = g.perm.Password = g.perm.RdAddr =
                            g.perm.TktFmt = g.perm.Attach = g.perm.ApndTkt =
                            g.perm.ModWiki = g.perm.ModTkt = 1;
@@ -1028,7 +1040,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'e':   g.perm.RdAddr = 1;                               break;
       case 'r':   g.perm.RdTkt = 1;                                break;
       case 'n':   g.perm.NewTkt = 1;                               break;
-      case 'w':   g.perm.WrTkt = g.perm.RdTkt = g.perm.NewTkt = 
+      case 'w':   g.perm.WrTkt = g.perm.RdTkt = g.perm.NewTkt =
                   g.perm.ApndTkt = 1;                              break;
       case 'c':   g.perm.ApndTkt = 1;                              break;
       case 'q':   g.perm.ModTkt = 1;                               break;
@@ -1036,7 +1048,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'b':   g.perm.Attach = 1;                               break;
       case 'x':   g.perm.Private = 1;                              break;
 
-      /* The "u" privileges is a little different.  It recursively 
+      /* The "u" privileges is a little different.  It recursively
       ** inherits all privileges of the user named "reader" */
       case 'u': {
         if( (flags & LOGIN_IGNORE_UV)==0 ){
@@ -1047,7 +1059,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
         break;
       }
 
-      /* The "v" privileges is a little different.  It recursively 
+      /* The "v" privileges is a little different.  It recursively
       ** inherits all privileges of the user named "developer" */
       case 'v': {
         if( (flags & LOGIN_IGNORE_UV)==0 ){
@@ -1140,6 +1152,20 @@ void login_as_user(const char *zUser){
   login_set_capabilities(zCap, 0);
   login_anon_once = 1;
   login_set_anon_nobody_capabilities();
+}
+
+/*
+** Return true if the user is "nobody"
+*/
+int login_is_nobody(void){
+  return g.zLogin==0 || g.zLogin[0]==0 || fossil_strcmp(g.zLogin,"nobody")==0;
+}
+
+/*
+** Return the login name.  If no login name is specified, return "nobody".
+*/
+const char *login_name(void){
+  return (g.zLogin && g.zLogin[0]) ? g.zLogin : "nobody";
 }
 
 /*
@@ -1270,8 +1296,8 @@ void register_page(void){
         char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
         int uid;
         db_multi_exec(
-            "INSERT INTO user(login,pw,cap,info)"
-            "VALUES(%B,%Q,%B,%B)",
+            "INSERT INTO user(login,pw,cap,info,mtime)"
+            "VALUES(%B,%Q,%B,%B,strftime('%s','now'))",
             &login, zPw, &caps, &contact
             );
         free(zPw);
@@ -1362,7 +1388,7 @@ int login_group_sql(
   if( pzErrorMsg ) *pzErrorMsg = 0;
   zSelfCode = abbreviated_project_code(db_get("project-code", "x"));
   blob_zero(&err);
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT name, value FROM config"
     " WHERE name GLOB 'peer-repo-*'"
     "   AND name <> 'peer-repo-%q'"
@@ -1394,7 +1420,7 @@ int login_group_sql(
     }
     sqlite3_create_function(pPeer, "shared_secret", 3, SQLITE_UTF8,
                             0, sha1_shared_secret_sql_function, 0, 0);
-    sqlite3_create_function(pPeer, "now", 0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite3_create_function(pPeer, "now", 0,SQLITE_UTF8,0,db_now_function,0,0);
     sqlite3_busy_timeout(pPeer, 5000);
     zErr = 0;
     rc = sqlite3_exec(pPeer, zSql, 0, 0, &zErr);
@@ -1444,7 +1470,7 @@ void login_group_join(
   *pzErrMsg = 0;   /* Default to no errors */
   zSelf = db_name("repository");
 
-  /* Get the full pathname of the other repository */  
+  /* Get the full pathname of the other repository */
   file_canonical_name(zRepo, &fullName, 0);
   zRepo = mprintf(blob_str(&fullName));
   blob_reset(&fullName);

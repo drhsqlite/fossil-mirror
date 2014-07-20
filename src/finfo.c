@@ -51,8 +51,9 @@
 **   -r|--revision R      print the given revision (or ckout, if none is given)
 **                        to stdout (only in print mode)
 **   -s|--status          select status mode (print a status indicator for FILE)
-**   -W|--width <num>     With of lines (default 79). Must be >22 or 0
-**                        (= no limit, resulting in a single line per entry).
+**   -W|--width <num>     Width of lines (default is to auto-detect). Must be
+**                        >22 or 0 (= no limit, resulting in a single line per
+**                        entry).
 **
 ** See also: artifact, cat, descendants, info, leaves
 */
@@ -148,12 +149,16 @@ void finfo_cmd(void){
     zLimit = find_option("limit","n",1);
     zWidth = find_option("width","W",1);
     iLimit = zLimit ? atoi(zLimit) : -1;
-    iWidth = zWidth ? atoi(zWidth) : 79;
     zOffset = find_option("offset",0,1);
     iOffset = zOffset ? atoi(zOffset) : 0;
     iBrief = (find_option("brief","b",0) == 0);
-    if( (iWidth!=0) && (iWidth<=22) ){
-      fossil_fatal("--width|-W value must be >22 or 0");
+    if( zWidth ){
+      iWidth = atoi(zWidth);
+      if( (iWidth!=0) && (iWidth<=22) ){
+        fossil_fatal("-W|--width value must be >22 or 0");
+      }
+    }else{
+      iWidth = -1;
     }
     if( g.argc!=3 ){
       usage("?-l|--log? ?-b|--brief? FILENAME");
@@ -197,7 +202,7 @@ void finfo_cmd(void){
       if( iBrief ){
         fossil_print("%s ", zDate);
         zOut = sqlite3_mprintf(
-           "[%.10s] %s (user: %s, artifact: [%.10s], branch: %s)",
+           "[%S] %s (user: %s, artifact: [%S], branch: %s)",
            zCiUuid, zCom, zUser, zFileUuid, zBr);
         comment_print(zOut, 11, iWidth);
         sqlite3_free(zOut);
@@ -324,7 +329,7 @@ void finfo_page(void){
 #if 0
     blob_appendf(&sql, ", min(event.mtime)");
 #else
-    blob_appendf(&sql, 
+    blob_appendf(&sql,
         ", min(CASE (SELECT value FROM tagxref"
                     " WHERE tagtype>0 AND tagid=%d"
                     "   AND tagxref.rid=mlink.mid)"
@@ -376,10 +381,10 @@ void finfo_page(void){
   blob_zero(&title);
   if( baseCheckin ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
-    char *zLink = href("%R/info/%S", zUuid);
+    char *zLink = href("%R/info/%s", zUuid);
     blob_appendf(&title, "Ancestors of file ");
     hyperlinked_path(zFilename, &title, zUuid, "tree", "");
-    blob_appendf(&title, " from check-in %z%.10s</a>", zLink, zUuid);
+    blob_appendf(&title, " from check-in %z%S</a>", zLink, zUuid);
     fossil_free(zUuid);
   }else{
     blob_appendf(&title, "History of files named ");
@@ -406,8 +411,6 @@ void finfo_page(void){
     int pfnid = db_column_int(&q, 11);
     int gidx;
     char zTime[10];
-    char zShort[20];
-    char zShortCkin[20];
     if( zBr==0 ) zBr = "trunk";
     if( uBg ){
       zBgClr = hash_color(zUser);
@@ -432,8 +435,6 @@ void finfo_page(void){
     }else{
       @ <td class="timelineTableCell">
     }
-    sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zUuid);
-    sqlite3_snprintf(sizeof(zShortCkin), zShortCkin, "%.10s", zCkin);
     if( zUuid ){
       if( fpid==0 ){
         @ <b>Added</b>
@@ -460,19 +461,19 @@ void finfo_page(void){
         @ <b>Deleted</b> by check-in
       }
     }
-    hyperlink_to_uuid(zShortCkin);
+    hyperlink_to_uuid(zCkin);
     @ %w(zCom) (user:
     hyperlink_to_user(zUser, zDate, "");
     @ branch: %h(zBr))
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
-      @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
+      @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
       @ [annotate]</a>
-      @ %z(href("%R/blame?checkin=%S&filename=%h",zCkin,z))
+      @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
-      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
+      @ %z(href("%R/timeline?n=200&uf=%s",zUuid))[checkins&nbsp;using]</a>
       if( fpid ){
-        @ %z(href("%R/fdiff?v1=%S&v2=%S&sbs=1",zPUuid,zUuid))[diff]</a>
+        @ %z(href("%R/fdiff?sbs=1&v1=%s&v2=%s",zPUuid,zUuid))[diff]</a>
       }
     }
     if( fDebug & FINFO_DEBUG_MLINK ){

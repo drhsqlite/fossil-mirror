@@ -21,15 +21,15 @@ The arrows in figure 1 show the evolution of a project.  The initial
 check-in is 1.  Check-in 2 is derived from 1.  In other words, check-in 2
 was created by making edits to check-in 1 and then committing those edits.
 We say that 2 is a <i>child</i> of 1
-and that 1 is a <i>parent</i> of 2.  
+and that 1 is a <i>parent</i> of 2.
 Check-in 3 is derived from check-in 2, making
 3 a child of 2.  We say that 3 is a <i>descendant</i> of both 1 and 2 and that 1
-and 2 are both <i>ancestors</i> of 3.  
+and 2 are both <i>ancestors</i> of 3.
 
 <a name="dag"></a>
 <h2>DAGs</h2>
 
-The graph of check-ins is a 
+The graph of check-ins is a
 [http://en.wikipedia.org/wiki/Directed_acyclic_graph | directed acyclic graph]
 commonly shortened to <i>DAG</i>.  Check-in 1 is the <i>root</i> of the DAG
 since it has no ancestors.  Check-in 4 is a <i>leaf</i> of the DAG since
@@ -49,25 +49,25 @@ Figure 2
 The graph in figure 2 has two leaves: check-ins 3 and 4.  Check-in 2 has
 two children, check-ins 3 and 4.  We call this state a <i>fork</i>.
 
-Fossil tries to prevent forks. Suppose two programmers named Alice and 
-Bob are each editing check-in 2 separately. Alice finishes her edits 
-first and commits her changes, resulting in check-in 3. Later, when Bob 
-attempts to commit his changes, fossil verifies that check-in 2 is still 
-a leaf. Fossil sees that check-in 3 has occurred and aborts Bob's commit 
-attempt with a message "would fork." This allows Bob to do a "fossil 
-update" which pulls in Alice's changes, merging them into his own 
-changes. After merging, Bob commits check-in 4 as a child of check-in 3. 
-The result is a linear graph as shown in figure 1. This is how CVS 
-works. This is also how fossil works in [concepts.wiki#workflow | 
-"autosync"] mode. 
+Fossil tries to prevent forks. Suppose two programmers named Alice and
+Bob are each editing check-in 2 separately. Alice finishes her edits
+first and commits her changes, resulting in check-in 3. Later, when Bob
+attempts to commit his changes, fossil verifies that check-in 2 is still
+a leaf. Fossil sees that check-in 3 has occurred and aborts Bob's commit
+attempt with a message "would fork." This allows Bob to do a "fossil
+update" which pulls in Alice's changes, merging them into his own
+changes. After merging, Bob commits check-in 4 as a child of check-in 3.
+The result is a linear graph as shown in figure 1. This is how CVS
+works. This is also how fossil works in [./concepts.wiki#workflow |
+"autosync"] mode.
 
 But perhaps Bob is off-network when he does his commit, so he
 has no way of knowing that Alice has already committed her changes.
 Or, it could be that Bob has turned off "autosync" mode in Fossil.  Or,
 maybe Bob just doesn't want to merge in Alice's changes before he has
-saved his own, so he forces the commit to occur using the "--force" option
-to the fossil <b>commit</b> command.  For any of these reasons, two commits against
-check-in 2 have occurred and now the DAG has two leaves.
+saved his own, so he forces the commit to occur using the "--allow-fork"
+option to the fossil <b>commit</b> command.  For any of these reasons,
+two commits against check-in 2 have occurred and now the DAG has two leaves.
 
 So which version of the project is the "latest" in the sense of having
 the most features and the most bug fixes?  When there is more than
@@ -88,7 +88,7 @@ Figure 3
 Check-in 5 is a child of check-in 3 because it was created by editing
 check-in 3.  But check-in 5 also inherits the changes from check-in 4 by
 virtue of the merge.  So we say that check-in 5 is a <i>merge child</i>
-of check-in 4 and that it is a <i>direct child</i> of check-in 3.  
+of check-in 4 and that it is a <i>direct child</i> of check-in 3.
 The graph is now back to a single leaf (check-in 5).
 
 We have already seen that if fossil is in autosync mode then Bob would
@@ -114,7 +114,7 @@ debate.  We will simply point out that fossil enables you to do it either way.
 
 <h2>Forking Versus Branching</h2>
 
-Having more than one leaf in the check-in DAG is called a "fork." This 
+Having more than one leaf in the check-in DAG is called a "fork." This
 is usually undesirable and either avoided entirely,
 as in figure 1, or else quickly resolved as shown in figure 3.
 But sometimes, one does want to have multiple leaves.  For example, a project
@@ -133,7 +133,7 @@ Figure 4
 </td></tr></table></center>
 
 The hypothetical scenario of figure 4 is this:  The project starts and
-progresses to a point where (at check-in 2) 
+progresses to a point where (at check-in 2)
 it is ready to enter testing for its first release.
 In a real project, of course, there might be hundreds or thousands of
 check-ins before a project reaches this point, but for simplicity of
@@ -141,7 +141,7 @@ presentation we will say that the project is ready after check-in 2.
 The project then splits into two branches that are used by separate
 teams.  The testing team, using the blue branch, finds and fixes a few
 bugs.  This is shown by check-ins 6 and 9.  Meanwhile the development
-team, working on the top uncolored branch, 
+team, working on the top uncolored branch,
 is busy adding features for the second
 release.  Of course, the development team would like to take advantage of
 the bug fixes implemented by the testing team.  So periodically, the
@@ -176,9 +176,9 @@ A <i>tag</i> is a name that is attached to a check-in.  A
 <i>property</i> is a name/value pair.  Internally, fossil implements
 tags as properties with a NULL value.  So, tags and properties really
 are much the same thing, and henceforth we will use the word "tag"
-to mean either a tag or a property. 
+to mean either a tag or a property.
 
-A tag can be a one-time tag, a propagating tag or a cancellation tag. 
+A tag can be a one-time tag, a propagating tag or a cancellation tag.
 A one-time tag only applies to the check-in to which it is attached.  A
 propagating tag applies to the check-in to which it is attached and also
 to all direct descendants of that check-in.  A <i>direct descendant</i>
@@ -189,10 +189,9 @@ is attached to a single check-in in order to either override a one-time
 tag that was previously placed on that same check-in, or to block
 tag propagation from an ancestor.
 
-Every repository is created with a single empty check-in that has two
-propagating tags.  In figure 5, that initial empty check-in is check-in 1.
-The <b>branch</b> tag tells (by its value) 
-what branch the check-in is a member of.
+The initial checkin of every repository has two propagating tags.  In
+figure 5, that initial check-in is check-in 1.  The <b>branch</b> tag
+tells (by its value)  what branch the check-in is a member of.
 The default branch is called "trunk."  All tags that begin with "<b>sym-</b>"
 are symbolic name tags.  When a symbolic name tag is attached to a
 check-in, that allows you to refer to that check-in by its symbolic
@@ -214,8 +213,8 @@ Check-in 4 also has a <b>sym-test</b> tag, which gives the symbolic name
 "test" to check-ins 4, 6, and 9.  Because tags do not propagate across
 merges, check-ins 7, 8, and 10 do not inherit the <b>sym-test</b> tag and
 are hence not known by the name "test."
-To prevent the <b>sym-trunk</b> tag from propagating from check-in 1 
-into check-ins 4, 6, and 9, there is a cancellation tag for 
+To prevent the <b>sym-trunk</b> tag from propagating from check-in 1
+into check-ins 4, 6, and 9, there is a cancellation tag for
 <b>sym-trunk</b> on check-in 4.  The net effect is that
 check-ins on the trunk go by the symbolic name of "trunk" and check-ins
 on the test branch go by the symbolic name "test."
@@ -227,7 +226,7 @@ Figure 5 also shows two one-time tags on check-in 9.  (The diagram does
 not make a graphical distinction between one-time and propagating tags.)
 The <b>sym-release-1.0</b> tag means that check-in 9 can be referred to
 using the more meaningful name "release-1.0."  The <b>closed</b> tag means
-that check-in 9 is a "closed leaf."  A closed leaf is a leaf that should 
+that check-in 9 is a "closed leaf."  A closed leaf is a leaf that should
 never have direct children.
 
 <h2>Review Of Terminology</h2>

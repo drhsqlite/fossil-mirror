@@ -140,27 +140,27 @@ The format one of:
 </blockquote>
 
 A manifest has zero or more F-cards.  Each F-card identifies a file
-that is part of the check-in.  There are one, two, three, or four arguments.
-The first argument
-is the pathname of the file in the check-in relative to the root
-of the project file hierarchy.  No ".." or "." directories are allowed
-within the filename.  Space characters are escaped as in C-card
-comment text.  Backslash characters and newlines are not allowed
-within filenames.  The directory separator character is a forward
-slash (ASCII 0x2F).  The second argument to the F-card is the
-full 40-character lower-case hexadecimal SHA1 hash of the content
-artifact.  The second argument is required for baseline manifests
-but is optional for delta manifests.  When the second argument to the
-F-card is omitted, it means that the file has been deleted relative
-to the baseline.  The optional 3rd argument defines any special access 
-permissions associated with the file.  The only special code currently
-defined is "x" which means that the file is executable.  All files are
-always readable and writable.  This can be expressed by "w" permission
-if desired but is optional.  The file format might be extended with
-new permission letters in the future.
-The optional 4th argument is the name of the same file as it existed in
-the parent check-in.  If the name of the file is unchanged from its
-parent, then the 4th argument is omitted.
+that is part of the check-in.  There are one, two, three, or four
+arguments.  The first argument is the pathname of the file in the
+check-in relative to the root of the project file hierarchy.  No ".."
+or "." directories are allowed within the filename.  Space characters
+are escaped as in C-card comment text.  Backslash characters and
+newlines are not allowed within filenames.  The directory separator
+character is a forward slash (ASCII 0x2F).  The second argument to the
+F-card is the full 40-character lower-case hexadecimal SHA1 hash of
+the content artifact.  The second argument is required for baseline
+manifests but is optional for delta manifests.  When the second
+argument to the F-card is omitted, it means that the file has been
+deleted relative to the baseline (files removed in baseline manifests
+versions are <em>not</em> added as F-cards). The optional 3rd argument
+defines any special access permissions associated with the file.  This
+can be defined as "x" to mean that the file is executable or "l"
+(small letter ell) to mean a symlink.  All files are always readable
+and writable.  This can be expressed by "w" permission if desired but
+is optional.  The file format might be extended with new permission
+letters in the future.  The optional 4th argument is the name of the
+same file as it existed in the parent check-in.  If the name of the
+file is unchanged from its parent, then the 4th argument is omitted.
 
 A manifest has zero or one N-cards.  The N-card specifies the mimetype for the
 text in the comment of the C-card.  If the N-card is omitted, a default mimetype
@@ -361,7 +361,7 @@ The D card is the date and time when the wiki page was edited.
 The P card specifies the parent wiki pages, if any.  The L card
 gives the name of the wiki page.  The optional N card specifies
 the mimetype of the wiki text.  If the N card is omitted, the
-mimetype is assumed to be text/x-fossil.  
+mimetype is assumed to be text/x-fossil-wiki.  
 The U card specifies the login
 of the user who made this edit to the wiki page.  The Z card is
 the usual checksum over the either artifact and is required.

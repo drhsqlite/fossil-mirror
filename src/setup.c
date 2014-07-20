@@ -251,10 +251,7 @@ void setup_ulist(void){
      @ <tr><th valign="top">x</th>
      @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
      @ <tr><th valign="top">z</th>
-     @   <td><i>Zip download:</i> Download a baseline via the
-     @   <tt>/zip</tt> URL even without
-     @    check<span class="capability">o</span>ut
-     @    and <span class="capability">h</span>istory permissions</td></tr>
+     @   <td><i>Zip download:</i> Download a ZIP archive or tarball</td></tr>
   @ </table>
   @ </li>
   @
@@ -282,6 +279,7 @@ void setup_ulist(void){
   @ </ol>
   @ </td></tr></table>
   style_footer();
+  db_finalize(&s);
 }
 
 /*
@@ -330,7 +328,7 @@ void user_edit(void){
   }
 
   if( P("can") ){
-    cgi_redirect("setup_ulist");
+    cgi_redirect("setup_ulist");  /* User pressed the Cancel button */
     return;
   }
 
@@ -367,9 +365,7 @@ void user_edit(void){
       zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
     }
     zOldLogin = db_text(0, "SELECT login FROM user WHERE uid=%d", uid);
-    if( uid>0 &&
-        db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid)
-    ){
+    if( db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid) ){
       style_header("User Creation Error");
       @ <span class="loginError">Login "%h(zLogin)" is already used by
       @ a different user.</span>
@@ -490,6 +486,11 @@ void user_edit(void){
   @ <div class="ueditCapBox">
   @ <form action="%s(g.zPath)" method="post"><div>
   login_insert_csrf_secret();
+  if( login_is_special(zLogin) ){
+    @ <input type="hidden" name="login" value="%s(zLogin)">
+    @ <input type="hidden" name="info" value="">
+    @ <input type="hidden" name="pw" value="*">
+  }
   @ <table>
   @ <tr>
   @   <td class="usetupEditLabel">User ID:</td>
@@ -501,11 +502,15 @@ void user_edit(void){
   @ </tr>
   @ <tr>
   @   <td class="usetupEditLabel">Login:</td>
-  @   <td><input type="text" name="login" value="%h(zLogin)" /></td>
-  @ </tr>
-  @ <tr>
-  @   <td class="usetupEditLabel">Contact&nbsp;Info:</td>
-  @   <td><input type="text" name="info" size="40" value="%h(zInfo)" /></td>
+  if( login_is_special(zLogin) ){
+    @    <td><b>%h(zLogin)</b></td>
+  }else{
+    @   <td><input type="text" name="login" value="%h(zLogin)" /></td>
+    @ </tr>
+    @ <tr>
+    @   <td class="usetupEditLabel">Contact&nbsp;Info:</td>
+    @   <td><textarea name="info" cols="40" rows="2">%h(zInfo)</textarea></td>
+  }
   @ </tr>
   @ <tr>
   @   <td class="usetupEditLabel">Capabilities:</td>
@@ -569,16 +574,18 @@ void user_edit(void){
   @ </td></tr></table>
   @   </td>
   @ </tr>
-  @ <tr>
-  @   <td align="right">Password:</td>
-  if( zPw[0] ){
-    /* Obscure the password for all users */
-    @   <td><input type="password" name="pw" value="**********" /></td>
-  }else{
-    /* Show an empty password as an empty input field */
-    @   <td><input type="password" name="pw" value="" /></td>
+  if( !login_is_special(zLogin) ){
+    @ <tr>
+    @   <td align="right">Password:</td>
+    if( zPw[0] ){
+      /* Obscure the password for all users */
+      @   <td><input type="password" name="pw" value="**********" /></td>
+    }else{
+      /* Show an empty password as an empty input field */
+      @   <td><input type="password" name="pw" value="" /></td>
+    }
+    @ </tr>
   }
-  @ </tr>
   zGroup = login_group_name();
   if( zGroup ){
     @ <tr>
@@ -602,7 +609,7 @@ void user_edit(void){
   @ <h2>Privileges And Capabilities:</h2>
   @ <ul>
   if( higherUser ){
-    @ <li><p class=missingPriv">
+    @ <li><p class="missingPriv">
     @ User %h(zLogin) has Setup privileges and you only have Admin privileges
     @ so you are not permitted to make changes to %h(zLogin).
     @ </p></li>
@@ -861,7 +868,7 @@ static void multiple_choice_attribute(
   const char *zQP,      /* The query parameter */
   const char *zDflt,    /* Default value if VAR table entry does not exist */
   int nChoice,          /* Number of choices */
-  const char **azChoice /* Choices. 2 per choice: (VAR value, Display) */
+  const char *const *azChoice /* Choices. 2 per choice: (VAR value, Display) */
 ){
   const char *z = db_get(zVar, (char*)zDflt);
   const char *zQ = P(zQP);
@@ -876,7 +883,7 @@ static void multiple_choice_attribute(
     const char *zSel = fossil_strcmp(azChoice[i],z)==0 ? " selected" : "";
     @ <option value="%h(azChoice[i])"%s(zSel)>%h(azChoice[i+1])</option>
   }
-  @ </select>
+  @ </select> <b>%h(zLabel)</b>
 }
 
 
@@ -968,6 +975,17 @@ void setup_access(void){
   @ to the download packet limit. 30s is a reasonable default.</p>
 
   @ <hr />
+  entry_attribute("Server Load Average Limit", 11, "max-loadavg", "mxldavg",
+                  "0.0", 0);
+  @ <p>Some expensive operations (such as computing tarballs, zip archives,
+  @ or annotation/blame pages) are prohibited if the load average on the host
+  @ computer is too large.  Set the threshold for disallowing expensive
+  @ computations here.  Set this to 0.0 to disable the load average limit.
+  @ This limit is only enforced on Unix servers.  On Linux systems,
+  @ access to the /proc virtual filesystem is required, which means this limit
+  @ might not work inside a chroot() jail.</p>
+
+  @ <hr />
   onoff_attribute(
       "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
       "auto-hyperlink", "autohyperlink", 1, 0);
@@ -977,15 +995,16 @@ void setup_access(void){
   @ being and not a a robot or spider and (2) the user agent is able to
   @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
   @ and spiders can forge a User-Agent string that makes them seem to be a
-  @ normal browser and they can run javascript just like browsers.  But most 
-  @ bots do not go to that much trouble so this is normally an effective defense.</p>
+  @ normal browser and they can run javascript just like browsers.  But most
+  @ bots do not go to that much trouble so this is normally an effective
+  @ defense.</p>
   @
   @ <p>You do not normally want a bot to walk your entire repository because
   @ if it does, your server will end up computing diffs and annotations for
   @ every historical version of every file and creating ZIPs and tarballs of
   @ every historical check-in, which can use a lot of CPU and bandwidth
   @ even for relatively small projects.</p>
-  @ 
+  @
   @ <p>Additional parameters that control this behavior:</p>
   @ <blockquote>
   onoff_attribute("Require mouse movement before enabling hyperlinks",
@@ -1153,7 +1172,7 @@ void setup_login_group(void){
 void setup_timeline(void){
   double tmDiff;
   char zTmDiff[20];
-  static const char *azTimeFormats[] = {
+  static const char *const azTimeFormats[] = {
       "0", "HH:MM",
       "1", "HH:MM:SS",
       "2", "YYYY-MM-DD HH:MM",
@@ -1179,7 +1198,8 @@ void setup_timeline(void){
   onoff_attribute("Plaintext comments on timelines",
                   "timeline-plaintext", "tpt", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed literally,
-  @ without any wiki or HTML interpretation.</p>
+  @ without any wiki or HTML interpretation.  (Note: Use CSS to change
+  @ display formatting features such as fonts and line-wrapping behavior.)</p>
 
   @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",
@@ -1265,10 +1285,20 @@ void setup_settings(void){
       }
     }
   }
+  @ <br /><input type="submit"  name="submit" value="Apply Changes" />
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    if( pSet->width!=0 && !pSet->versionable){
+    if( pSet->width!=0 && !pSet->versionable && !pSet->forceTextArea ){
       entry_attribute(pSet->name, /*pSet->width*/ 25, pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name,
+                      (char*)pSet->def, 0);
+      @ <br />
+    }
+  }
+  for(pSet=ctrlSettings; pSet->name!=0; pSet++){
+    if( pSet->width!=0 && !pSet->versionable && pSet->forceTextArea ){
+      @<b>%s(pSet->name)</b><br />
+      textarea_attribute("", /*rows*/ 3, /*cols*/ 50, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def, 0);
       @ <br />
@@ -1276,8 +1306,8 @@ void setup_settings(void){
   }
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
-    if( pSet->width!=0 && pSet->versionable){
+    if( pSet->width!=0 && pSet->versionable ){
+      int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
       @<b>%s(pSet->name)</b> (v)<br />
       textarea_attribute("", /*rows*/ 3, /*cols*/ 20, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
@@ -1286,7 +1316,6 @@ void setup_settings(void){
     }
   }
   @ </td></tr></table>
-  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   @ <p>Settings marked with (v) are 'versionable' and will be overridden
   @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.
@@ -1473,7 +1502,7 @@ void setup_header(void){
   @ The default header is shown below for reference.  Other examples
   @ of headers can be seen on the <a href="setup_skin">skins page</a>.
   @ See also the <a href="setup_editcss">CSS</a> and
-  @ <a href="setup_footer">footer</a> editing screeens.
+  @ <a href="setup_footer">footer</a> editing screens.
   @ <blockquote><pre>
   @ %h(zDefaultHeader)
   @ </pre></blockquote>

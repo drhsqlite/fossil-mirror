@@ -9,11 +9,11 @@
 ** populate an instance of the following structure. It must remain valid
 ** for the lifetime of the interpreter.
 */
+typedef struct Th_Vtab Th_Vtab;
 struct Th_Vtab {
   void *(*xMalloc)(unsigned int);
   void (*xFree)(void *);
 };
-typedef struct Th_Vtab Th_Vtab;
 
 /*
 ** Opaque handle for interpeter.
@@ -147,7 +147,11 @@ int th_strlen(const char *);
 int th_isdigit(char);
 int th_isspace(char);
 int th_isalnum(char);
+int th_isalpha(char);
 int th_isspecial(char);
+int th_ishexdig(char);
+int th_isoctdig(char);
+int th_isbindig(char);
 char *th_strdup(Th_Interp *interp, const char *z, int n);
 
 /*
@@ -159,8 +163,12 @@ int th_register_vfs(Th_Interp *interp);                 /* th_vfs.c */
 int th_register_testvfs(Th_Interp *interp);             /* th_testvfs.c */
 
 #ifdef FOSSIL_ENABLE_TCL
-int th_register_tcl(Th_Interp *interp, void *pContext); /* th_tcl.c */
-int unloadTcl(Th_Interp *interp, void *pContext);       /* th_tcl.c */
+/*
+** Interfaces to the full Tcl core library from "th_tcl.c".
+*/
+int th_register_tcl(Th_Interp *, void *);
+int unloadTcl(Th_Interp *, void *);
+int evaluateTclWithEvents(Th_Interp *, void *, const char *, int, int);
 #endif
 
 /*
@@ -184,5 +192,5 @@ Th_HashEntry *Th_HashFind(Th_Interp*, Th_Hash*, const char*, int, int);
 */
 int Th_WrongNumArgs(Th_Interp *interp, const char *zMsg);
 
-typedef struct Th_SubCommand {char *zName; Th_CommandProc xProc;} Th_SubCommand;
-int Th_CallSubCommand(Th_Interp*,void*,int,const char**,int*,Th_SubCommand*);
+typedef struct Th_SubCommand {const char *zName; Th_CommandProc xProc;} Th_SubCommand;
+int Th_CallSubCommand(Th_Interp*,void*,int,const char**,int*,const Th_SubCommand*);

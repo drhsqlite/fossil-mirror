@@ -67,12 +67,18 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
     }
   }
 }
+static void collect_argv(Blob *pExtra, int iStart){
+  int i;
+  for(i=iStart; i<g.argc; i++){
+    blob_appendf(pExtra, " %s", g.argv[i]);
+  }
+}
 
 
 /*
 ** COMMAND: all
 **
-** Usage: %fossil all (changes|clean|extra|ignore|list|ls|pull|push|rebuild|sync)
+** Usage: %fossil all (changes|clean|extras|ignore|list|ls|pull|push|rebuild|sync)
 **
 ** The ~/.fossil file records the location of all repositories for a
 ** user.  This command performs certain operations on all repositories
@@ -95,14 +101,16 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 **               line options supported by the clean command itself, if any
 **               are present, are passed along verbatim.
 **
-**    extra      Shows extra files from all local checkouts.  The command
+**    extras     Shows "extra" files from all local checkouts.  The command
 **               line options supported by the extra command itself, if any
 **               are present, are passed along verbatim.
 **
 **    ignore     Arguments are repositories that should be ignored by
-**               subsequent clean, extra, list, pull, push, rebuild, and
+**               subsequent clean, extras, list, pull, push, rebuild, and
 **               sync operations.  The -c|--ckout option causes the listed
 **               local checkouts to be ignored instead.
+**
+**    info       Run the "info" command on all repositories.
 **
 **    list | ls  Display the location of all repositories.  The -c|--ckout
 **               option causes all local checkouts to be listed instead.
@@ -121,12 +129,18 @@ static void collect_argument_value(Blob *pExtra, const char *zArg){
 **    sync       Run a "sync" on all repositories.  Only the --verbose
 **               option is supported.
 **
+**    setting    Run the "setting", "set", or "unset" commands on all
+**    set        repositories.  These command are particularly useful in
+**    unset      conjunection with the "max-loadavg" setting which cannot
+**               otherwise be set globally.
+**
 ** Repositories are automatically added to the set of known repositories
 ** when one of the following commands are run against the repository:
 ** clone, info, pull, push, or sync.  Even previously ignored repositories
 ** are added back to the list of repositories by these commands.
 **
 ** Options:
+**   --showfile     Show the repository or checkout being operated upon.
 **   --dontstop     Continue with other repositories even after an error.
 **   --dry-run      If given, display instead of run actions.
 */
@@ -141,23 +155,25 @@ void all_cmd(void){
   int useCheckouts = 0;
   int quiet = 0;
   int dryRunFlag = 0;
+  int showFile = find_option("showfile",0,0)!=0;
   int stopOnError = find_option("dontstop",0,0)==0;
   int rc;
   int nToDel = 0;
-  
+  int showLabel = 0;
+
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
 
   if( g.argc<3 ){
-    usage("changes|clean|extra|ignore|list|ls|pull|push|rebuild|sync");
+    usage("changes|clean|extras|ignore|list|ls|pull|push|rebuild|sync");
   }
   n = strlen(g.argv[2]);
   db_open_config(1);
   blob_zero(&extra);
   zCmd = g.argv[2];
-  if( g.zLogin ) blob_appendf(&extra, " -U %s", g.zLogin);
+  if( !login_is_nobody() ) blob_appendf(&extra, " -U %s", g.zLogin);
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;
@@ -176,8 +192,12 @@ void all_cmd(void){
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "whatif",0);
     useCheckouts = 1;
-  }else if( strncmp(zCmd, "extra", n)==0 ){
-    zCmd = "extra --chdir";
+  }else if( strncmp(zCmd, "extras", n)==0 ){
+    if( showFile ){
+      zCmd = "extras --chdir";
+    }else{
+      zCmd = "extras --header --chdir";
+    }
     collect_argument(&extra, "abs-paths",0);
     collect_argument_value(&extra, "case-sensitive");
     collect_argument(&extra, "dotfiles",0);
@@ -203,6 +223,12 @@ void all_cmd(void){
     collect_argument(&extra, "analyze",0);
     collect_argument(&extra, "wal",0);
     collect_argument(&extra, "stats",0);
+  }else if( strncmp(zCmd, "setting", n)==0 ){
+    zCmd = "setting -R";
+    collect_argv(&extra, 3);
+  }else if( strncmp(zCmd, "unset", n)==0 ){
+    zCmd = "unset -R";
+    collect_argv(&extra, 3);
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
     collect_argument(&extra, "verbose","v");
@@ -237,21 +263,28 @@ void all_cmd(void){
     }
     db_end_transaction(0);
     return;
+  }else if( strncmp(zCmd, "info", n)==0 ){
+    zCmd = "info";
+    showLabel = 1;
+    quiet = 1;
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "changes clean extra ignore list ls push pull rebuild sync");
+                 "changes clean extras ignore list ls push pull rebuild sync");
   }
   verify_all_options();
   zFossil = quoteFilename(g.nameOfExe);
+  db_multi_exec("CREATE TEMP TABLE repolist(name,tag);");
   if( useCheckouts ){
-    db_prepare(&q,
+    db_multi_exec(
+       "INSERT INTO repolist "
        "SELECT DISTINCT substr(name, 7), name COLLATE nocase"
        "  FROM global_config"
        " WHERE substr(name, 1, 6)=='ckout:'"
        " ORDER BY 1"
     );
   }else{
-    db_prepare(&q,
+    db_multi_exec(
+       "INSERT INTO repolist "
        "SELECT DISTINCT substr(name, 6), name COLLATE nocase"
        "  FROM global_config"
        " WHERE substr(name, 1, 5)=='repo:'"
@@ -259,9 +292,10 @@ void all_cmd(void){
     );
   }
   db_multi_exec("CREATE TEMP TABLE todel(x TEXT)");
+  db_prepare(&q, "SELECT name, tag FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
-    if( file_access(zFilename, 0)
+    if( file_access(zFilename, F_OK)
      || !file_is_canonical(zFilename)
      || (useCheckouts && file_isdir(zFilename)!=1)
     ){
@@ -272,10 +306,19 @@ void all_cmd(void){
     if( zCmd[0]=='l' ){
       fossil_print("%s\n", zFilename);
       continue;
+    }else if( showFile ){
+      fossil_print("%s: %s\n", useCheckouts ? "checkout" : "repository",
+                   zFilename);
     }
     zQFilename = quoteFilename(zFilename);
     zSyscmd = mprintf("%s %s %s%s",
                       zFossil, zCmd, zQFilename, blob_str(&extra));
+    if( showLabel ){
+      int len = (int)strlen(zFilename);
+      int nStar = 80 - (len + 15);
+      if( nStar<2 ) nStar = 1;
+      fossil_print("%.13c %s %.*c\n", '*', zFilename, nStar, '*');
+    }
     if( !quiet || dryRunFlag ){
       fossil_print("%s\n", zSyscmd);
       fflush(stdout);
@@ -288,7 +331,7 @@ void all_cmd(void){
     }
   }
   db_finalize(&q);
-  
+
   /* If any repositories whose names appear in the ~/.fossil file could not
   ** be found, remove those names from the ~/.fossil file.
   */

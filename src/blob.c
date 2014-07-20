@@ -788,44 +788,13 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
 #endif
     fwrite(blob_buffer(pBlob), 1, nWrote, stdout);
   }else{
-    int i, nName;
-    char *zName, zBuf[1000];
-
-    nName = strlen(zFilename);
-    if( nName>=sizeof(zBuf) ){
-      zName = mprintf("%s", zFilename);
-    }else{
-      zName = zBuf;
-      memcpy(zName, zFilename, nName+1);
-    }
-    nName = file_simplify_name(zName, nName, 0);
-    for(i=1; i<nName; i++){
-      if( zName[i]=='/' ){
-        zName[i] = 0;
-#if defined(_WIN32) || defined(__CYGWIN__)
-        /*
-        ** On Windows, local path looks like: C:/develop/project/file.txt
-        ** The if stops us from trying to create a directory of a drive letter
-        ** C: in this example.
-        */
-        if( !(i==2 && zName[1]==':') ){
-#endif
-          if( file_mkdir(zName, 1) && file_isdir(zName)!=1 ){
-            fossil_fatal_recursive("unable to create directory %s", zName);
-            return 0;
-          }
-#if defined(_WIN32) || defined(__CYGWIN__)
-        }
-#endif
-        zName[i] = '/';
-      }
-    }
-    out = fossil_fopen(zName, "wb");
+    file_mkfolder(zFilename, 1);
+    out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
-      fossil_fatal_recursive("unable to open file \"%s\" for writing", zName);
+      fossil_fatal_recursive("unable to open file \"%s\" for writing",
+                             zFilename);
       return 0;
     }
-    if( zName!=zBuf ) free(zName);
     blob_is_init(pBlob);
     nWrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
     fclose(out);
@@ -1036,6 +1005,61 @@ void blob_to_lf_only(Blob *p){
   }
   z[j] = 0;
   p->nUsed = j;
+}
+
+/*
+** Convert blob from cp1252 to UTF-8. As cp1252 is a superset
+** of iso8859-1, this is useful on UNIX as well.
+**
+** This table contains the character translations for 0x80..0xA0.
+*/
+
+static const unsigned short cp1252[32] = {
+  0x20ac,   0x81, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
+  0x02C6, 0x2030, 0x0160, 0x2039, 0x0152,   0x8D, 0x017D,   0x8F,
+    0x90, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
+   0x2DC, 0x2122, 0x0161, 0x203A, 0x0153,   0x9D, 0x017E, 0x0178
+};
+
+void blob_cp1252_to_utf8(Blob *p){
+  unsigned char *z = (unsigned char *)p->aData;
+  int j   = p->nUsed;
+  int i, n;
+  for(i=n=0; i<j; i++){
+    if( z[i]>=0x80 ){
+      if( (z[i]<0xa0) && (cp1252[z[i]&0x1f]>=0x800) ){
+        n++;
+      }
+      n++;
+    }
+  }
+  j += n;
+  if( j>=p->nAlloc ){
+    blob_resize(p, j);
+    z = (unsigned char *)p->aData;
+  }
+  p->nUsed = j;
+  z[j] = 0;
+  while( j>i ){
+    if( z[--i]>=0x80 ){
+      if( z[i]<0xa0 ){
+        unsigned short sym = cp1252[z[i]&0x1f];
+        if( sym>=0x800 ){
+          z[--j] = 0x80 | (sym&0x3f);
+          z[--j] = 0x80 | ((sym>>6)&0x3f);
+          z[--j] = 0xe0 | (sym>>12);
+        }else{
+          z[--j] = 0x80 | (sym&0x3f);
+          z[--j] = 0xc0 | (sym>>6);
+        }
+      }else{
+        z[--j] = 0x80 | (z[i]&0x3f);
+        z[--j] = 0xC0 | (z[i]>>6);
+      }
+    }else{
+      z[--j] = z[i];
+    }
+  }
 }
 
 /*

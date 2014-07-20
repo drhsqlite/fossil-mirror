@@ -21,7 +21,6 @@
 ** to initialize the code in shell.c.
 */
 #include "config.h"
-#if !defined(USE_SYSTEM_SQLITE) || !USE_SYSTEM_SQLITE
 #include "sqlcmd.h"
 #include <zlib.h>
 
@@ -45,7 +44,7 @@ static void sqlcmd_content(
   rid = name_to_rid(zName);
   if( rid==0 ) return;
   if( content_get(rid, &cx) ){
-    sqlite3_result_blob(context, blob_buffer(&cx), blob_size(&cx), 
+    sqlite3_result_blob(context, blob_buffer(&cx), blob_size(&cx),
                                  SQLITE_TRANSIENT);
     blob_reset(&cx);
   }
@@ -115,11 +114,11 @@ static int sqlcmd_autoinit(
   const char **pzErrMsg,
   const void *notUsed
 ){
-  sqlite3_create_function(db, "content", 1, SQLITE_ANY, 0,
+  sqlite3_create_function(db, "content", 1, SQLITE_UTF8, 0,
                           sqlcmd_content, 0, 0);
-  sqlite3_create_function(db, "compress", 1, SQLITE_ANY, 0,
+  sqlite3_create_function(db, "compress", 1, SQLITE_UTF8, 0,
                           sqlcmd_compress, 0, 0);
-  sqlite3_create_function(db, "decompress", 1, SQLITE_ANY, 0,
+  sqlite3_create_function(db, "decompress", 1, SQLITE_UTF8, 0,
                           sqlcmd_decompress, 0, 0);
   re_add_sql_func(db);
   g.repositoryOpen = 1;
@@ -140,7 +139,7 @@ static int sqlcmd_autoinit(
 ** in ways that are unrecoverable.  Be sure you know what you are doing before
 ** running any SQL commands that modifies the repository database.
 */
-void sqlite3_cmd(void){
+void cmd_sqlite3(void){
   extern int sqlite3_shell(int, char**);
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   db_close(1);
@@ -157,5 +156,3 @@ void fossil_open(const char **pzRepoName){
   sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
   *pzRepoName = g.zRepositoryName;
 }
-
-#endif /* !USE_SYSTEM_SQLITE */

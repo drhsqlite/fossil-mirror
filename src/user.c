@@ -250,8 +250,8 @@ void user_cmd(void){
     );
     free(zPw);
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
-    user_select();
     if( g.argc==3 ){
+      user_select();
       fossil_print("%s\n", g.zLogin);
     }else{
       if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.argv[3]) ){
@@ -377,7 +377,7 @@ void user_select(void){
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
 
   url_parse(0, 0);
-  if( g.urlUser && attempt_user(g.urlUser) ) return;
+  if( g.url.user && attempt_user(g.url.user) ) return;
 
   fossil_print(
     "Cannot figure out who you are!  Consider using the --user\n"

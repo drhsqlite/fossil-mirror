@@ -224,7 +224,7 @@ void wiki_page(void){
     rid = 0;
   }else{
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -243,7 +243,7 @@ void wiki_page(void){
                  "%R/wdiff?name=%T&a=%d", zPageName, rid);
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       style_submenu_element("Details", "Details",
-                   "%R/info/%S", zUuid);
+                   "%R/info/%s", zUuid);
     }
     if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
       if( db_get_boolean("wysiwyg-wiki", 0) ){
@@ -262,7 +262,7 @@ void wiki_page(void){
            g.zTop, zPageName, g.zTop, zPageName);
     }
     if( rid && g.perm.ApndWiki ){
-      style_submenu_element("Append", "Add A Comment", 
+      style_submenu_element("Append", "Add A Comment",
            "%s/wikiappend?name=%T&mimetype=%s",
            g.zTop, zPageName, zMimetype);
     }
@@ -271,7 +271,7 @@ void wiki_page(void){
            g.zTop, zPageName);
     }
   }
-  style_set_current_page("%s?name=%T", g.zPath, zPageName);
+  style_set_current_page("%T?name=%T", g.zPath, zPageName);
   style_header(zPageName);
   blob_init(&wiki, zBody, -1);
   wiki_render_by_mimetype(&wiki, zMimetype);
@@ -302,7 +302,7 @@ static void wiki_put(Blob *pWiki, int parent){
 /*
 ** Formal names and common names for the various wiki styles.
 */
-static const char *azStyles[] = {
+static const char *const azStyles[] = {
   "text/x-fossil-wiki", "Fossil Wiki",
   "text/x-markdown",    "Markdown",
   "text/plain",         "Plain Text"
@@ -383,7 +383,7 @@ void wikiedit_page(void){
     }
   }else{
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -422,8 +422,8 @@ void wikiedit_page(void){
         blob_appendf(&wiki, "P %s\n", zUuid);
         free(zUuid);
       }
-      if( g.zLogin ){
-        blob_appendf(&wiki, "U %F\n", g.zLogin);
+      if( !login_is_nobody() ){
+        blob_appendf(&wiki, "U %F\n", login_name());
       }
       blob_appendf(&wiki, "W %d\n%s\n", strlen(zBody), zBody);
       md5sum_blob(&wiki, &cksum);
@@ -441,7 +441,7 @@ void wikiedit_page(void){
   if( zBody==0 ){
     zBody = mprintf("<i>Empty Page</i>");
   }
-  style_set_current_page("%s?name=%T", g.zPath, zPageName);
+  style_set_current_page("%T?name=%T", g.zPath, zPageName);
   style_header("Edit: %s", zPageName);
   if( !goodCaptcha ){
     @ <p class="generalError">Error:  Incorrect security code.</p>
@@ -464,7 +464,7 @@ void wikiedit_page(void){
     form_begin(0, "%R/wikiedit");
     @ <div>
     mimetype_option_menu(zMimetype);
-    @ <br /><textarea name="w" class="wikiedit" cols="80" 
+    @ <br /><textarea name="w" class="wikiedit" cols="80"
     @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
     @ <br />
     if( db_get_boolean("wysiwyg-wiki", 0) ){
@@ -516,7 +516,7 @@ void wikinew_page(void){
   if( !g.perm.NewWiki ){
     login_needed();
     return;
-  }  
+  }
   zName = PD("name","");
   zMimetype = wiki_filter_mimetypes(P("mimetype"));
   if( zName[0] && wiki_name_is_wellformed((const unsigned char *)zName) ){
@@ -559,22 +559,22 @@ static void appendRemark(Blob *p, const char *zMimetype){
   zUser = PD("u",g.zLogin);
   if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
     zId = db_text(0, "SELECT lower(hex(randomblob(8)))");
-    blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h", 
-      zId, zDate, g.zLogin);
-    if( zUser[0] && fossil_strcmp(zUser,g.zLogin) ){
+    blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h",
+      zId, zDate, login_name());
+    if( zUser[0] && fossil_strcmp(zUser,login_name()) ){
       blob_appendf(p, " (claiming to be %h)", zUser);
     }
     blob_appendf(p, " added:</i><br />\n%s</div id=\"%s\">", zRemark, zId);
   }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
-    blob_appendf(p, "\n\n------\n*On %s UTC %h", zDate, g.zLogin);
-    if( zUser[0] && fossil_strcmp(zUser,g.zLogin) ){
+    blob_appendf(p, "\n\n------\n*On %s UTC %h", zDate, login_name());
+    if( zUser[0] && fossil_strcmp(zUser,login_name()) ){
       blob_appendf(p, " (claiming to be %h)", zUser);
     }
     blob_appendf(p, " added:*\n\n%s\n", zRemark);
   }else{
     blob_appendf(p, "\n\n------------------------------------------------\n"
-                    "On %s UTC %s", zDate, g.zLogin);
-    if( zUser[0] && fossil_strcmp(zUser,g.zLogin) ){
+                    "On %s UTC %s", zDate, login_name());
+    if( zUser[0] && fossil_strcmp(zUser,login_name()) ){
       blob_appendf(p, " (claiming to be %s)", zUser);
     }
     blob_appendf(p, " added:\n\n%s\n", zRemark);
@@ -603,7 +603,7 @@ void wikiappend_page(void){
   isSandbox = is_sandbox(zPageName);
   if( !isSandbox ){
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -652,8 +652,8 @@ void wikiappend_page(void){
         blob_appendf(&wiki, "P %s\n", zUuid);
         free(zUuid);
       }
-      if( g.zLogin ){
-        blob_appendf(&wiki, "U %F\n", g.zLogin);
+      if( !login_is_nobody() ){
+        blob_appendf(&wiki, "U %F\n", login_name());
       }
       appendRemark(&body, zMimetype);
       blob_appendf(&wiki, "W %d\n%s\n", blob_size(&body), blob_str(&body));
@@ -669,7 +669,7 @@ void wikiappend_page(void){
     cgi_redirectf("wiki?name=%T", zPageName);
     return;
   }
-  style_set_current_page("%s?name=%T", g.zPath, zPageName);
+  style_set_current_page("%T?name=%T", g.zPath, zPageName);
   style_header("Append Comment To: %s", zPageName);
   if( !goodCaptcha ){
     @ <p class="generalError">Error: Incorrect security code.</p>
@@ -692,7 +692,7 @@ void wikiappend_page(void){
   @ <input type="text" name="u" size="20" value="%h(zUser)" /><br />
   zFormat = mimetype_common_name(zMimetype);
   @ Comment to append (formatted as %s(zFormat)):<br />
-  @ <textarea name="r" class="wikiedit" cols="80" 
+  @ <textarea name="r" class="wikiedit" cols="80"
   @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
   @ <br />
   @ <input type="submit" name="preview" value="Preview Your Comment" />
@@ -811,7 +811,7 @@ void wdiff_page(void){
 ** Used by wcontent_page() and the JSON wiki code.
 */
 void wiki_prepare_page_list( Stmt * pStmt ){
-  db_prepare(pStmt, 
+  db_prepare(pStmt,
     "SELECT"
     "  substr(tagname, 6) as name,"
     "  (SELECT value FROM tagxref WHERE tagid=tag.tagid ORDER BY mtime DESC) as tagXref"
@@ -868,7 +868,7 @@ void wfind_page(void){
   zTitle = PD("title","*");
   style_header("Wiki Pages Found");
   @ <ul>
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname like 'wiki-%%%q%%'"
     " ORDER BY lower(tagname) /*sort*/" ,
     zTitle);
@@ -893,7 +893,7 @@ void wikirules_page(void){
   @ line.</li>
   @ <li>Enumeration items are "#" surrounded by two spaces at the beginning of
   @ a line.</li>
-  @ <li>Indented pargraphs begin with a tab or two spaces.</li>
+  @ <li>Indented paragraphs begin with a tab or two spaces.</li>
   @ <li>Hyperlinks are contained with square brackets:  "[target]" or
   @ "[target|name]".</li>
   @ <li>Most ordinary HTML works.</li>
@@ -919,7 +919,7 @@ void wikirules_page(void){
   @ enumerations that count using letters or roman numerials, use HTML.</p></li>
   @ <li> <p><span class="wikiruleHead">Indented Paragraphs</span>.
   @ Any paragraph that begins with two or more spaces or a tab and
-  @ which is not a bullet or enumeration list item is rendered 
+  @ which is not a bullet or enumeration list item is rendered
   @ indented.  Only a single level of indentation is supported by wiki; use
   @ HTML for deeper indentation.</p></li>
   @ <li> <p><span class="wikiruleHead">Hyperlinks</span>.
@@ -929,7 +929,7 @@ void wikirules_page(void){
   @ as the text of the hyperlink.  But you can specify alternative text
   @ after the target name separated by a "|" character.</p>
   @ <p>You can also link to internal anchor names using [#anchor-name], providing
-  @ you have added the necessary "&lt;a name="anchor-name"&gt;&lt;/a&gt;"
+  @ you have added the necessary "&lt;a name='anchor-name'&gt;&lt;/a&gt;"
   @ tag to your wiki page.</p></li>
   @ <li> <p><span class="wikiruleHead">HTML</span>.
   @ The following standard HTML elements may be used:
@@ -957,14 +957,19 @@ void wikirules_page(void){
 ** and isNew is false, then this routine throws an error.
 **
 ** The content of the new page is given by the blob pContent.
+**
+** zMimeType specifies the N-card for the wiki page. If it is 0,
+** empty, or "text/x-fossil-wiki" (the default format) then it is
+** ignored.
 */
-int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
+int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent,
+                    char const * zMimeType){
   Blob wiki;              /* Wiki page content */
   Blob cksum;             /* wiki checksum */
   int rid;                /* artifact ID of parent page */
   char *zDate;            /* timestamp */
   char *zUuid;            /* uuid for rid */
-
+  
   rid = db_int(0,
      "SELECT x.rid FROM tag t, tagxref x"
      " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
@@ -989,14 +994,18 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   blob_appendf(&wiki, "D %s\n", zDate);
   free(zDate);
   blob_appendf(&wiki, "L %F\n", zPageName );
+  if( zMimeType && *zMimeType
+      && 0!=fossil_strcmp(zMimeType,"text/x-fossil-wiki") ){
+    blob_appendf(&wiki, "N %F\n", zMimeType);
+  }
   if( rid ){
     zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     blob_appendf(&wiki, "P %s\n", zUuid);
     free(zUuid);
   }
   user_select();
-  if( g.zLogin ){
-      blob_appendf(&wiki, "U %F\n", g.zLogin);
+  if( !login_is_nobody() ){
+      blob_appendf(&wiki, "U %F\n", login_name());
   }
   blob_appendf( &wiki, "W %d\n%s\n", blob_size(pContent),
                 blob_str(pContent) );
@@ -1021,12 +1030,14 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **        Sends the latest version of the PAGENAME wiki
 **        entry to the given file or standard output.
 **
-**     %fossil wiki commit PAGENAME ?FILE?
+**     %fossil wiki commit PAGENAME ?FILE? [-mimetype TEXT-FORMAT]
 **
 **        Commit changes to a wiki page from FILE or from standard
-**        input.
+**        input. The -mimetype (-M) flag specifies the mime type,
+**        defaulting to the type used by the previous version of
+**        the page or (for new pages) text/x-fossil-wiki.
 **
-**     %fossil wiki create PAGENAME ?FILE?
+**     %fossil wiki create PAGENAME ?FILE? [-mimetype TEXT-FORMAT]
 **
 **        Create a new wiki page with initial content taken from
 **        FILE or from standard input.
@@ -1056,7 +1067,6 @@ void wiki_cmd(void){
     char *zBody = 0;              /* Wiki page content */
     Blob body;                    /* Wiki page content */
     Manifest *pWiki = 0;          /* Parsed wiki page content */
-
     if( (g.argc!=4) && (g.argc!=5) ){
       usage("export PAGENAME ?FILE?");
     }
@@ -1064,7 +1074,7 @@ void wiki_cmd(void){
     rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
       " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
       " ORDER BY x.mtime DESC LIMIT 1",
-      zPageName 
+      zPageName
     );
     if( (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
       zBody = pWiki->zWiki;
@@ -1081,13 +1091,15 @@ void wiki_cmd(void){
     blob_reset(&body);
     manifest_destroy(pWiki);
     return;
-  }else
-  if( strncmp(g.argv[2],"commit",n)==0
-      || strncmp(g.argv[2],"create",n)==0 ){
-    char *zPageName;
-    Blob content;
+  }else if( strncmp(g.argv[2],"commit",n)==0
+            || strncmp(g.argv[2],"create",n)==0 ){
+    char const *zPageName;        /* page name */
+    Blob content;                 /* Input content */
+    int rid;
+    Manifest *pWiki = 0;          /* Parsed wiki page content */
+    char const * zMimeType = find_option("mimetype", "M", 1);
     if( g.argc!=4 && g.argc!=5 ){
-      usage("commit PAGENAME ?FILE?");
+      usage("commit|create PAGENAME ?FILE? [-mimetype TEXT-FORMAT]");
     }
     zPageName = g.argv[3];
     if( g.argc==4 ){
@@ -1095,24 +1107,35 @@ void wiki_cmd(void){
     }else{
       blob_read_from_file(&content, g.argv[4]);
     }
+    if(!zMimeType || !*zMimeType){
+      /* Try to deduce the mime type based on the prior version. */
+      rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
+                   " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+                   " ORDER BY x.mtime DESC LIMIT 1",
+                   zPageName
+                   );
+      if(rid>0 && (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0
+         && (pWiki->zMimetype && *pWiki->zMimetype)){
+        zMimeType = pWiki->zMimetype;
+      }
+    }
     if( g.argv[2][1]=='r' ){
-      wiki_cmd_commit(zPageName, 1, &content);
+      wiki_cmd_commit(zPageName, 1, &content, zMimeType);
       fossil_print("Created new wiki page %s.\n", zPageName);
     }else{
-      wiki_cmd_commit(zPageName, 0, &content);
+      wiki_cmd_commit(zPageName, 0, &content, zMimeType);
       fossil_print("Updated wiki page %s.\n", zPageName);
     }
+    manifest_destroy(pWiki);
     blob_reset(&content);
-  }else
-  if( strncmp(g.argv[2],"delete",n)==0 ){
+  }else if( strncmp(g.argv[2],"delete",n)==0 ){
     if( g.argc!=5 ){
       usage("delete PAGENAME");
     }
     fossil_fatal("delete not yet implemented.");
-  }else
-  if( strncmp(g.argv[2],"list",n)==0 ){
+  }else if( strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;
-    db_prepare(&q, 
+    db_prepare(&q,
       "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
       " ORDER BY lower(tagname) /*sort*/"
     );
@@ -1121,8 +1144,7 @@ void wiki_cmd(void){
       fossil_print( "%s\n",zName);
     }
     db_finalize(&q);
-  }else
-  {
+  }else{
     goto wiki_cmd_usage;
   }
   return;

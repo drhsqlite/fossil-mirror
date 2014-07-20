@@ -324,7 +324,7 @@ void tag_add_artifact(
   }else{
     blob_appendf(&ctrl, "\n");
   }
-  blob_appendf(&ctrl, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
+  blob_appendf(&ctrl, "U %F\n", zUserOvrd ? zUserOvrd : login_name());
   md5sum_blob(&ctrl, &cksum);
   blob_appendf(&ctrl, "Z %b\n", &cksum);
   nrid = content_put(&ctrl);
@@ -597,11 +597,5 @@ void tagtimeline_page(void){
   www_print_timeline(&q, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }

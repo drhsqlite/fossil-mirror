@@ -46,7 +46,7 @@ void xfersetup_page(void){
   @ </table>
 
   url_parse(0, 0);
-  if( g.urlProtocol ){
+  if( g.url.protocol ){
     unsigned syncFlags;
     const char *zButton;
     char *zWarning;
@@ -59,7 +59,7 @@ void xfersetup_page(void){
       syncFlags = SYNC_PUSH | SYNC_PULL;
       zButton = "Synchronize";
       zWarning = mprintf("WARNING: Pushing to \"%s\" is enabled.",
-                         g.urlCanonical);
+                         g.url.canonical);
     }
     if( P("sync") ){
       user_select();
@@ -67,7 +67,7 @@ void xfersetup_page(void){
       client_sync(syncFlags, 0, 0);
     }
     @ <p>Press the %h(zButton) button below to synchronize with the
-    @ "%h(g.urlCanonical)" repository now.  This may be useful when
+    @ "%h(g.url.canonical)" repository now.  This may be useful when
     @ testing the various transfer scripts.</p>
     @ <p>You can use the "http -async" command in your scripts, but
     @ make sure the "th1-uri-regexp" setting is set first.</p>

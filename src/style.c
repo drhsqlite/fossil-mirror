@@ -18,6 +18,7 @@
 ** This file contains code to implement the basic web page look and feel.
 **
 */
+#include "VERSION.h"
 #include "config.h"
 #include "style.h"
 
@@ -165,8 +166,7 @@ void style_resolve_href(void){
   int nDelay = db_get_int("auto-hyperlink-delay",10);
   if( !g.perm.Hyperlink ) return;
   if( nHref==0 && nFormAction==0 ) return;
-  @ <script type="text/JavaScript">
-  @ /* <![CDATA[ */
+  @ <script>
   @ function setAllHrefs(){
   if( g.javascriptHyperlink ){
     for(i=0; i<nHref; i++){
@@ -194,7 +194,6 @@ void style_resolve_href(void){
     /* Active hyperlinks right away */
     @ setTimeout("setAllHrefs();",%d(nDelay));
   }
-  @ /* ]]> */
   @ </script>
 }
 
@@ -302,7 +301,8 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
-  Th_Store("current_page", local_zCurrentPage ? local_zCurrentPage : g.zPath);
+  if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
+  Th_Store("current_page", local_zCurrentPage);
   Th_Store("csrf_token", g.zCsrfToken);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
@@ -311,7 +311,7 @@ void style_header(const char *zTitleFormat, ...){
   url_var("stylesheet", "css", "style.css");
   image_url_var("logo");
   image_url_var("background");
-  if( g.zLogin ){
+  if( !login_is_nobody() ){
     Th_Store("login", g.zLogin);
   }
   if( g.thTrace ) Th_Trace("BEGIN_HEADER_SCRIPT<br />\n", -1);
@@ -349,8 +349,10 @@ static void style_ad_unit(void){
   if( g.perm.Admin && db_get_boolean("adunit-omit-if-admin",0) ){
     return;
   }
-  if( g.zLogin && strcmp(g.zLogin,"anonymous")!=0
-      && db_get_boolean("adunit-omit-if-user",0) ){
+  if( !login_is_nobody()
+   && fossil_strcmp(g.zLogin,"anonymous")!=0
+   && db_get_boolean("adunit-omit-if-user",0)
+  ){
     return;
   }
   zAd = db_get("adunit", 0);
@@ -784,6 +786,10 @@ const struct strctCssDefaults {
     @   padding: 0;
     @   list-style: none;
   },
+  { ".filetree ul.collapsed",
+    "tree-view collapsed list",
+    @   display: none;
+  },
   { ".filetree ul ul",
     "tree-view lists below the root",
     @   position: relative;
@@ -792,6 +798,8 @@ const struct strctCssDefaults {
   { ".filetree li",
     "tree-view lists items",
     @   position: relative;
+    @   margin: 0;
+    @   padding: 0;
   },
   { ".filetree li li:before",
     "tree-view node lines",
@@ -804,7 +812,7 @@ const struct strctCssDefaults {
     @   border-left: 2px solid #aaa;
     @   border-bottom: 2px solid #aaa;
   },
-  { ".filetree ul ul:before",
+  { ".filetree li > ul:before",
     "tree-view directory lines",
     @   content: '';
     @   position: absolute;
@@ -813,7 +821,7 @@ const struct strctCssDefaults {
     @   left: -35px;
     @   border-left: 2px solid #aaa;
   },
-  { ".filetree li:last-child > ul:before",
+  { ".filetree li.last > ul:before",
     "hide lines for last-child directories",
     @   display: none;
   },
@@ -1147,14 +1155,14 @@ const struct strctCssDefaults {
     @   word-wrap: break-word;
     @   color: red;
   },
-  { "table.tale-value th",
+  { "table.label-value th",
     "The label/value pairs on (for example) the ci page",
     @   vertical-align: top;
     @   text-align: right;
     @   padding: 0.2ex 2ex;
   },
   { ".statistics-report-graph-line",
-    "for the /stats_report views",
+    "for the /reports views",
     @   background-color: #446979;
   },
   { ".statistics-report-table-events th",
@@ -1168,10 +1176,6 @@ const struct strctCssDefaults {
   { ".statistics-report-row-year",
     "",
     @   text-align: left;
-  },
-  { ".statistics-report-graph-line",
-    "for the /stats_report views",
-    @   background-color: #446979;
   },
   { ".statistics-report-week-number-label",
     "for the /stats_report views",
@@ -1262,7 +1266,7 @@ void page_test_env(void){
   int i;
   int showAll;
   char zCap[30];
-  static const char *azCgiVars[] = {
+  static const char *const azCgiVars[] = {
     "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",
     "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
     "HTTP_ACCEPT_LANGUAGE", "HTTP_CONNECTION", "HTTP_HOST",
@@ -1299,6 +1303,8 @@ void page_test_env(void){
   @ g.zLogin = %h(g.zLogin)<br />
   @ g.isHuman = %d(g.isHuman)<br />
   @ capabilities = %s(zCap)<br />
+  @ g.zRepositoryName = %h(g.zRepositoryName)<br />
+  @ load_average() = %f(load_average())<br />
   @ <hr>
   P("HTTP_USER_AGENT");
   cgi_print_all(showAll);

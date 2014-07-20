@@ -137,7 +137,7 @@ int search_score(Search *p, const char *zDoc){
   for(j=0; j<p->nTerm; j++){
     if( !seen[j] ) return 0;
   }
-      
+
   return score;
 }
 
@@ -201,10 +201,10 @@ void search_cmd(void){
   if( zWidth ){
     width = atoi(zWidth);
     if( (width!=0) && (width<=20) ){
-      fossil_fatal("--width|-W value must be >20 or 0");
+      fossil_fatal("-W|--width value must be >20 or 0");
     }
   }else{
-    width = 79;
+    width = -1;
   }
 
   db_must_be_within_tree();

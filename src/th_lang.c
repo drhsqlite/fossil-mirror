@@ -427,7 +427,7 @@ static int proc_command(
   int *argl
 ){
   int rc;
-  char *zName;
+  const char *zName;
 
   ProcDefn *p;
   int nByte;
@@ -523,7 +523,7 @@ static int proc_command(
   p->nUsage = nUsage;
 
   /* Register the new command with the th1 interpreter. */
-  zName = (char *)argv[1];
+  zName = argv[1];
   rc = Th_CreateCommand(interp, zName, proc_call1, (void *)p, proc_del);
   if( rc==TH_OK ){
     Th_SetResult(interp, 0, 0);
@@ -652,26 +652,27 @@ static int string_compare_command(
 static int string_first_command(
   Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
-  const char *zNeedle;
   int nNeedle;
-  const char *zHaystack;
   int nHaystack;
-  int i;
   int iRes = -1;
 
   if( argc!=4 ){
     return Th_WrongNumArgs(interp, "string first needle haystack");
   }
 
-  zNeedle = argv[2];
   nNeedle = argl[2];
-  zHaystack = argv[3];
   nHaystack = argl[3];
 
-  for(i=0; i<(nHaystack-nNeedle); i++){
-    if( 0==memcmp(zNeedle, &zHaystack[i], nNeedle) ){
-      iRes = i;
-      break;
+  if( nNeedle && nHaystack && nNeedle<=nHaystack ){
+    const char *zNeedle = argv[2];
+    const char *zHaystack = argv[3];
+    int i;
+
+    for(i=0; i<=(nHaystack-nNeedle); i++){
+      if( 0==memcmp(zNeedle, &zHaystack[i], nNeedle) ){
+        iRes = i;
+        break;
+      }
     }
   }
 
@@ -713,26 +714,27 @@ static int string_is_command(
 static int string_last_command(
   Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
-  const char *zNeedle;
   int nNeedle;
-  const char *zHaystack;
   int nHaystack;
-  int i;
   int iRes = -1;
 
   if( argc!=4 ){
-    return Th_WrongNumArgs(interp, "string first needle haystack");
+    return Th_WrongNumArgs(interp, "string last needle haystack");
   }
 
-  zNeedle = argv[2];
   nNeedle = argl[2];
-  zHaystack = argv[3];
   nHaystack = argl[3];
 
-  for(i=nHaystack-nNeedle-1; i>=0; i--){
-    if( 0==memcmp(zNeedle, &zHaystack[i], nNeedle) ){
-      iRes = i;
-      break;
+  if( nNeedle && nHaystack && nNeedle<=nHaystack ){
+    const char *zNeedle = argv[2];
+    const char *zHaystack = argv[3];
+    int i;
+
+    for(i=nHaystack-nNeedle; i>=0; i--){
+      if( 0==memcmp(zNeedle, &zHaystack[i], nNeedle) ){
+        iRes = i;
+        break;
+      }
     }
   }
 
@@ -887,12 +889,12 @@ int Th_CallSubCommand(
   int argc,
   const char **argv,
   int *argl,
-  Th_SubCommand *aSub
+  const Th_SubCommand *aSub
 ){
   if( argc>1 ){
     int i;
     for(i=0; aSub[i].zName; i++){
-      char *zName = (char *)aSub[i].zName;
+      const char *zName = aSub[i].zName;
       if( th_strlen(zName)==argl[1] && 0==memcmp(zName, argv[1], argl[1]) ){
         return aSub[i].xProc(interp, ctx, argc, argv, argl);
       }
@@ -924,7 +926,7 @@ static int string_command(
   const char **argv,
   int *argl
 ){
-  Th_SubCommand aSub[] = {
+  static const Th_SubCommand aSub[] = {
     { "compare", string_compare_command },
     { "first",   string_first_command },
     { "is",      string_is_command },
@@ -952,7 +954,7 @@ static int info_command(
   const char **argv,
   int *argl
 ){
-  Th_SubCommand aSub[] = {
+  static const Th_SubCommand aSub[] = {
     { "exists",  info_exists_command },
     { 0, 0 }
   };
@@ -1097,7 +1099,7 @@ int th_register_language(Th_Interp *interp){
 
     {0, 0, 0}
   };
-  int i;
+  size_t i;
 
   /* Add the language commands. */
   for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){

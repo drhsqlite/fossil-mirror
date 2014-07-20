@@ -31,7 +31,7 @@
 ** Either one of tkt= or page= are supplied or neither.  If neither
 ** are given, all attachments are listed.  If one is given, only
 ** attachments for the designated ticket or wiki page are shown.
-** TICKETUUID must be complete 
+** TICKETUUID must be complete
 */
 void attachlist_page(void){
   const char *zPage = P("page");
@@ -55,7 +55,7 @@ void attachlist_page(void){
     blob_appendf(&sql, " WHERE target=%Q", zPage);
   }else if( zTkt ){
     if( g.perm.RdTkt==0 ) login_needed();
-    style_header("Attachments To Ticket %.10s", zTkt);
+    style_header("Attachments To Ticket %S", zTkt);
     blob_appendf(&sql, " WHERE target GLOB '%q*'", zTkt);
   }else{
     if( g.perm.RdTkt==0 && g.perm.RdWiki==0 ) login_needed();
@@ -77,7 +77,7 @@ void attachlist_page(void){
     int i;
     char *zUrlTail;
     for(i=0; zFilename[i]; i++){
-      if( zFilename[i]=='/' && zFilename[i+1]!=0 ){ 
+      if( zFilename[i]=='/' && zFilename[i+1]!=0 ){
         zFilename = &zFilename[i+1];
         i = -1;
       }
@@ -255,12 +255,12 @@ void attachadd_page(void){
   }else{
     if( g.perm.ApndTkt==0 || g.perm.Attach==0 ) login_needed();
     if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'", zTkt) ){
-      zTkt = db_text(0, "SELECT substr(tagname,5) FROM tag" 
+      zTkt = db_text(0, "SELECT substr(tagname,5) FROM tag"
                         " WHERE tagname GLOB 'tkt-%q*'", zTkt);
       if( zTkt==0 ) fossil_redirect_home();
     }
     zTarget = zTkt;
-    zTargetType = mprintf("Ticket <a href=\"%s/tktview/%S\">%S</a>",
+    zTargetType = mprintf("Ticket <a href=\"%s/tktview/%s\">%S</a>",
                           g.zTop, zTkt, zTkt);
   }
   if( zFrom==0 ) zFrom = mprintf("%s/home", g.zTop);
@@ -311,7 +311,7 @@ void attachadd_page(void){
     }
     zDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zDate);
-    blob_appendf(&manifest, "U %F\n", g.zLogin ? g.zLogin : "nobody");
+    blob_appendf(&manifest, "U %F\n", login_name());
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
     attach_put(&manifest, rid, needModerator);
@@ -429,7 +429,7 @@ void ainfo_page(void){
     blob_appendf(&manifest, "A %F %F\n", zFile, zTarget);
     zDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zDate);
-    blob_appendf(&manifest, "U %F\n", g.zLogin ? g.zLogin : "nobody");
+    blob_appendf(&manifest, "U %F\n", login_name());
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
     rid = content_put(&manifest);
@@ -447,7 +447,7 @@ void ainfo_page(void){
     @ </form>
   }
 
-  isModerator = g.perm.Admin || 
+  isModerator = g.perm.Admin ||
                 (zTktUuid && g.perm.ModTkt) ||
                 (zWikiName && g.perm.ModWiki);
   if( isModerator && (zModAction = P("modaction"))!=0 ){
@@ -465,7 +465,7 @@ void ainfo_page(void){
     }
   }
   style_header("Attachment Details");
-  style_submenu_element("Raw", "Raw", "%R/artifact/%S", zUuid);
+  style_submenu_element("Raw", "Raw", "%R/artifact/%s", zUuid);
 
   @ <div class="section">Overview</div>
   @ <p><table class="label-value">
@@ -502,7 +502,7 @@ void ainfo_page(void){
   }
   @ <tr><th valign="top">Description:</th><td valign="top">%h(zDesc)</td></tr>
   @ </table>
-  
+
   if( isModerator && modPending ){
     @ <div class="section">Moderation</div>
     @ <blockquote>
@@ -533,8 +533,8 @@ void ainfo_page(void){
       @ </pre>
     }
   }else if( strncmp(zMime, "image/", 6)==0 ){
-    @ <img src="%R/raw/%S(zSrc)?m=%s(zMime)"></img>
-    style_submenu_element("Image", "Image", "%R/raw/%S?m=%s", zSrc, zMime);
+    @ <img src="%R/raw/%s(zSrc)?m=%s(zMime)"></img>
+    style_submenu_element("Image", "Image", "%R/raw/%s?m=%s", zSrc, zMime);
   }else{
     int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
     @ <i>(file is %d(sz) bytes of binary data)</i>
@@ -559,7 +559,7 @@ void attachment_list(
      "       (SELECT uuid FROM blob WHERE rid=attachid), src"
      "  FROM attachment"
      " WHERE isLatest AND src!='' AND target=%Q"
-     " ORDER BY mtime DESC", 
+     " ORDER BY mtime DESC",
      timeline_utc(), zTarget
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -584,5 +584,5 @@ void attachment_list(
     @ </ul>
   }
   db_finalize(&q);
-  
+
 }

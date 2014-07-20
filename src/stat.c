@@ -18,6 +18,7 @@
 ** This file contains code to implement the stat web page
 **
 */
+#include "VERSION.h"
 #include "config.h"
 #include <string.h>
 #include "stat.h"
@@ -26,7 +27,7 @@
 ** For a sufficiently large integer, provide an alternative
 ** representation as MB or GB or TB.
 */
-static void bigSizeName(int nOut, char *zOut, sqlite3_int64 v){
+void bigSizeName(int nOut, char *zOut, sqlite3_int64 v){
   if( v<100000 ){
     sqlite3_snprintf(nOut, zOut, "%lld bytes", v);
   }else if( v<1000000000 ){
@@ -50,6 +51,7 @@ void stat_page(void){
   const char *zDb;
   int brief;
   char zBuf[100];
+  const char *p;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -58,6 +60,7 @@ void stat_page(void){
   if( g.perm.Admin ){
     style_submenu_element("URLs", "URLs and Checkouts", "urllist");
     style_submenu_element("Schema", "Repository Schema", "repo_schema");
+    style_submenu_element("Web-Cache", "Web-Cache Stats", "cachestat");
   }
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
@@ -120,7 +123,11 @@ void stat_page(void){
                 " + 0.99");
   @ %d(n) days or approximately %.2f(n/365.2425) years.
   @ </td></tr>
-  @ <tr><th>Project&nbsp;ID:</th><td>%h(db_get("project-code",""))</td></tr>
+  p = db_get("project-code", 0);
+  if( p ){
+    @ <tr><th>Project&nbsp;ID:</th><td>%h(p)</td></tr>
+  }
+  @ <tr><th>Server&nbsp;ID:</th><td>%h(db_get("server-code",""))</td></tr>
   @ <tr><th>Fossil&nbsp;Version:</th><td>
   @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
   @ (%h(RELEASE_VERSION)) [compiled using %h(COMPILER_NAME)]
@@ -163,6 +170,8 @@ void dbstat_cmd(void){
   int brief;
   char zBuf[100];
   const int colWidth = -19 /* printf alignment/width for left column */;
+  const char *p;
+
   brief = find_option("brief", "b",0)!=0;
   db_find_and_open_repository(0,0);
   fsize = file_size(g.zRepositoryName);
@@ -219,7 +228,11 @@ void dbstat_cmd(void){
                 " + 0.99");
   fossil_print("%*s%d days or approximately %.2f years.\n",
                colWidth, "project-age:", n, n/365.2425);
-  fossil_print("%*s%s\n", colWidth, "project-id:", db_get("project-code",""));
+  p = db_get("project-code", 0);
+  if( p ){
+    fossil_print("%*s%s\n", colWidth, "project-id:", p);
+  }
+  fossil_print("%*s%s\n", colWidth, "server-id:", db_get("server-code", 0));
   fossil_print("%*s%s %s [%s] (%s)\n",
                colWidth, "fossil-version:",
                MANIFEST_DATE, MANIFEST_VERSION, RELEASE_VERSION,

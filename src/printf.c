@@ -610,10 +610,7 @@ int vxprintf(
         length = (int)strlen(bufpt);
         break;
       }
-      case etSTRINGID: {
-        precision = 16;
-        /* Fall through */
-      }
+      case etSTRINGID:
       case etSTRING:
       case etDYNSTRING: {
         int limit = flag_alternateform ? va_arg(ap,int) : -1;
@@ -622,6 +619,13 @@ int vxprintf(
           bufpt = "";
         }else if( xtype==etDYNSTRING ){
           zExtra = bufpt;
+        }else if( xtype==etSTRINGID ){
+          precision = 0;
+          while( bufpt[precision]>='0' && bufpt[precision]<='9' ){
+            precision++;
+          }
+          if( bufpt[precision]!=0 ) precision++;
+          if( precision<10 ) precision=10;
         }
         length = StrNLen32(bufpt, limit);
         if( precision>=0 && precision<length ) length = precision;
@@ -861,7 +865,7 @@ void fossil_puts(const char *z, int toStdErr){
 }
 
 /*
-** Force the standard output cursor to move to the beginning 
+** Force the standard output cursor to move to the beginning
 ** of a line, if it is not there already.
 */
 void fossil_force_newline(void){
@@ -920,7 +924,7 @@ static void fossil_errorlog(const char *zFormat, ...){
   const char *z;
   int i;
   va_list ap;
-  static const char *azEnv[] = { "HTTP_HOST", "HTTP_USER_AGENT",
+  static const char *const azEnv[] = { "HTTP_HOST", "HTTP_USER_AGENT",
       "PATH_INFO", "QUERY_STRING", "REMOTE_ADDR", "REQUEST_METHOD",
       "REQUEST_URI", "SCRIPT_NAME" };
   if( g.zErrlog==0 ) return;

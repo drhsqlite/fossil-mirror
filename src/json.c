@@ -32,8 +32,8 @@
 **
 **
 */
-#include "config.h"
 #include "VERSION.h"
+#include "config.h"
 #include "json.h"
 #include <assert.h>
 #include <time.h>
@@ -1277,11 +1277,11 @@ cson_value * json_g_to_json(){
   INT(g, markPrivate);
   INT(g, clockSkewSeen);
   INT(g, isHTTP);
-  INT(g, urlIsFile);
-  INT(g, urlIsHttps);
-  INT(g, urlIsSsh);
-  INT(g, urlPort);
-  INT(g, urlDfltPort);
+  INT(g.url, isFile);
+  INT(g.url, isHttps);
+  INT(g.url, isSsh);
+  INT(g.url, port);
+  INT(g.url, dfltPort);
   INT(g, useLocalauth);
   INT(g, noPswd);
   INT(g, userUid);
@@ -1301,15 +1301,15 @@ cson_value * json_g_to_json(){
   CSTR(g, zTop);
   CSTR(g, zContentType);
   CSTR(g, zErrMsg);
-  CSTR(g, urlName);
-  CSTR(g, urlHostname);
-  CSTR(g, urlProtocol);
-  CSTR(g, urlPath);
-  CSTR(g, urlUser);
-  CSTR(g, urlPasswd);
-  CSTR(g, urlCanonical);
-  CSTR(g, urlProxyAuth);
-  CSTR(g, urlFossil);
+  CSTR(g.url, name);
+  CSTR(g.url, hostname);
+  CSTR(g.url, protocol);
+  CSTR(g.url, path);
+  CSTR(g.url, user);
+  CSTR(g.url, passwd);
+  CSTR(g.url, canonical);
+  CSTR(g.url, proxyAuth);
+  CSTR(g.url, fossil);
   CSTR(g, zLogin);
   CSTR(g, zSSLIdentity);
   CSTR(g, zIpAddr);

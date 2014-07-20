@@ -770,6 +770,38 @@ static int setTclArguments(
 }
 
 /*
+** Evaluate a Tcl script, creating the Tcl interpreter if necessary. If the
+** Tcl script succeeds, start a Tcl event loop until there are no more events
+** remaining to process -OR- the script calls [exit].  If the bWait argument
+** is zero, only process events that are already in the queue; otherwise,
+** process events until the script terminates the Tcl event loop.
+*/
+int evaluateTclWithEvents(
+  Th_Interp *interp,
+  void *pContext,
+  const char *zScript,
+  int nScript,
+  int bWait
+){
+  struct TclContext *tclContext = (struct TclContext *)pContext;
+  Tcl_Interp *tclInterp;
+  int rc;
+  int flags = TCL_ALL_EVENTS;
+
+  if( createTclInterp(interp, pContext)!=TH_OK ){
+    return TH_ERROR;
+  }
+  tclInterp = tclContext->interp;
+  rc = Tcl_EvalEx(tclInterp, zScript, nScript, TCL_EVAL_GLOBAL);
+  if( rc!=TCL_OK ) return rc;
+  if( !bWait ) flags |= TCL_DONT_WAIT;
+  while( Tcl_DoOneEvent(flags) ){
+    /* do nothing */
+  }
+  return rc;
+}
+
+/*
 ** Creates and initializes a Tcl interpreter for use with the specified TH1
 ** interpreter.  Stores the created Tcl interpreter in the Tcl context supplied
 ** by the caller.

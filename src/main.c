@@ -18,6 +18,7 @@
 ** This module codes the main() procedure that runs first when the
 ** program is invoked.
 */
+#include "VERSION.h"
 #include "config.h"
 #include "main.h"
 #include <string.h>
@@ -31,10 +32,10 @@
 #else
 #  include <errno.h> /* errno global */
 #endif
-#include "zlib.h"
 #ifdef FOSSIL_ENABLE_SSL
-#  include "openssl/opensslv.h"
+#  include "openssl/crypto.h"
 #endif
+#include "zlib.h"
 #if INTERFACE
 #ifdef FOSSIL_ENABLE_TCL
 #  include "tcl.h"
@@ -113,16 +114,11 @@ struct TclContext {
 };
 #endif
 
-/*
-** All global variables are in this structure.
-*/
-#define GLOBAL_URL()      ((UrlData *)(&g.urlIsFile))
-
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
-  int isConst;            /* True if the output is unchanging */
+  int isConst;            /* True if the output is unchanging & cacheable */
   const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
@@ -130,6 +126,7 @@ struct Global {
   const char *zConfigDbName;/* Path of the config database. NULL if not open */
   sqlite3_int64 now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
+  char *zRepositoryOption; /* Most recent cached repository option value */
   char *zRepositoryName;  /* Name of the repository database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
   const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
@@ -141,6 +138,7 @@ struct Global {
   int fSqlPrint;          /* True if -sqlprint flag is present */
   int fQuiet;             /* True if -quiet flag is present */
   int fHttpTrace;         /* Trace outbound HTTP requests */
+  char *zHttpAuth;        /* HTTP Authorization user:pass information */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
   int fSshClient;         /* HTTP client flags for SSH client */
@@ -161,6 +159,7 @@ struct Global {
   int fullHttpReply;      /* True for full HTTP reply.  False for CGI reply */
   Th_Interp *interp;      /* The TH1 interpreter */
   char *th1Setup;         /* The TH1 post-creation setup script, if any */
+  int th1Flags;           /* The TH1 integration state flags */
   FILE *httpIn;           /* Accept HTTP input from here */
   FILE *httpOut;          /* Send HTTP output here */
   int xlinkClusterOnly;   /* Set when cloning.  Only process clusters */
@@ -172,28 +171,8 @@ struct Global {
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
   Blob httpHeader;        /* Complete text of the HTTP request header */
-
-  /*
-  ** NOTE: These members MUST be kept in sync with those in the "UrlData"
-  **       structure defined in "url.c".
-  */
-  int urlIsFile;          /* True if a "file:" url */
-  int urlIsHttps;         /* True if a "https:" url */
-  int urlIsSsh;           /* True if an "ssh:" url */
-  char *urlName;          /* Hostname for http: or filename for file: */
-  char *urlHostname;      /* The HOST: parameter on http headers */
-  char *urlProtocol;      /* "http" or "https" */
-  int urlPort;            /* TCP port number for http: or https: */
-  int urlDfltPort;        /* The default port for the given protocol */
-  char *urlPath;          /* Pathname for http: */
-  char *urlUser;          /* User id for http: */
-  char *urlPasswd;        /* Password for http: */
-  char *urlCanonical;     /* Canonical representation of the URL */
-  char *urlProxyAuth;     /* Proxy-Authorizer: string */
-  char *urlFossil;        /* The fossil query parameter on ssh: */
-  unsigned urlFlags;      /* Boolean flags controlling URL processing */
-
-  const char *zLogin;     /* Login name.  "" if not logged in. */
+  UrlData url;            /* Information about current URL */
+  const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
   int useLocalauth;       /* No login required if from 127.0.0.1 */
@@ -220,6 +199,9 @@ struct Global {
 
   int parseCnt[10];       /* Counts of artifacts parsed */
   FILE *fDebug;           /* Write debug information here, if the file exists */
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+  int fNoThHook;          /* Disable all TH1 command/webpage hooks */
+#endif
   int thTrace;            /* True to enable TH1 debugging output */
   Blob thLog;             /* Text of the TH1 debugging output */
 
@@ -319,11 +301,12 @@ static int name_search(
   const char *zName,       /* The name we are looking for */
   const NameMap *aMap,     /* Search in this array */
   int nMap,                /* Number of slots in aMap[] */
+  int iBegin,              /* Lower bound on the array search */
   int *pIndex              /* OUT: The index in aMap[] of the match */
 ){
   int upr, lwr, cnt, m, i;
   int n = strlen(zName);
-  lwr = 0;
+  lwr = iBegin;
   upr = nMap-1;
   while( lwr<=upr ){
     int mid, c;
@@ -339,7 +322,7 @@ static int name_search(
     }
   }
   for(m=cnt=0, i=upr-2; cnt<2 && i<=upr+3 && i<nMap; i++){
-    if( i<0 ) continue;
+    if( i<iBegin ) continue;
     if( strncmp(zName, aMap[i].zName, n)==0 ){
       m = i;
       cnt++;
@@ -571,8 +554,8 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
-  if( sqlite3_libversion_number()<3008002 ){
-    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.8.2",
+  if( sqlite3_libversion_number()<3008003 ){
+    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.8.3",
                  sqlite3_libversion());
   }
   sqlite3_config(SQLITE_CONFIG_SINGLETHREAD);
@@ -603,11 +586,6 @@ int main(int argc, char **argv)
   g.zVfsName = find_option("vfs",0,1);
   if( g.zVfsName==0 ){
     g.zVfsName = fossil_getenv("FOSSIL_VFS");
-#if defined(__CYGWIN__)
-    if( g.zVfsName==0 && sqlite3_libversion_number()>=3008001 ){
-      g.zVfsName = "win32-longpath";
-    }
-#endif
   }
   if( g.zVfsName ){
     sqlite3_vfs *pVfs = sqlite3_vfs_find(g.zVfsName);
@@ -651,6 +629,10 @@ int main(int argc, char **argv)
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+    g.fNoThHook = find_option("no-th-hook", 0, 0)!=0;
+#endif
+    g.zHttpAuth = 0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
     g.zErrlog = find_option("errorlog", 0, 1);
@@ -677,11 +659,28 @@ int main(int argc, char **argv)
   if( !is_valid_fd(2) ) fossil_panic("file descriptor 2 not open");
   /* if( is_valid_fd(3) ) fossil_warning("file descriptor 3 is open"); */
 #endif
-  rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
+  rc = name_search(zCmdName, aCommand, count(aCommand), FOSSIL_FIRST_CMD, &idx);
   if( rc==1 ){
-    fossil_fatal("%s: unknown command: %s\n"
-                 "%s: use \"help\" for more information\n",
-                   g.argv[0], zCmdName, g.argv[0]);
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+    if( !g.isHTTP && !g.fNoThHook ){
+      rc = Th_CommandHook(zCmdName, 0);
+    }else{
+      rc = TH_OK;
+    }
+    if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+      if( rc==TH_OK || rc==TH_RETURN ){
+#endif
+        fossil_fatal("%s: unknown command: %s\n"
+                     "%s: use \"help\" for more information\n",
+                     g.argv[0], zCmdName, g.argv[0]);
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+      }
+      if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
+        Th_CommandNotify(zCmdName, 0);
+      }
+    }
+    fossil_exit(0);
+#endif
   }else if( rc==2 ){
     int i, n;
     Blob couldbe;
@@ -699,7 +698,40 @@ int main(int argc, char **argv)
     fossil_exit(1);
   }
   atexit( fossil_atexit );
-  aCommand[idx].xFunc();
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+  /*
+  ** The TH1 return codes from the hook will be handled as follows:
+  **
+  ** TH_OK: The xFunc() and the TH1 notification will both be executed.
+  **
+  ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+  **           skipped.  If the xFunc() is being hooked, the error message
+  **           will be emitted.
+  **
+  ** TH_BREAK: The xFunc() and the TH1 notification will both be skipped.
+  **
+  ** TH_RETURN: The xFunc() will be executed, the TH1 notification will be
+  **            skipped.
+  **
+  ** TH_CONTINUE: The xFunc() will be skipped, the TH1 notification will be
+  **              executed.
+  */
+  if( !g.isHTTP && !g.fNoThHook ){
+    rc = Th_CommandHook(aCommand[idx].zName, aCommand[idx].cmdFlags);
+  }else{
+    rc = TH_OK;
+  }
+  if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+    if( rc==TH_OK || rc==TH_RETURN ){
+#endif
+      aCommand[idx].xFunc();
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+    }
+    if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
+      Th_CommandNotify(aCommand[idx].zName, aCommand[idx].cmdFlags);
+    }
+  }
+#endif
   fossil_exit(0);
   /*NOT_REACHED*/
   return 0;
@@ -768,6 +800,20 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
     }
   }
   return zReturn;
+}
+
+/*
+** Look for a repository command-line option.  If present, [re-]cache it in
+** the global state and return the new pointer, freeing any previous value.
+** If absent and there is no cached value, return NULL.
+*/
+const char *find_repository_option(){
+  const char *zRepository = find_option("repository", "R", 1);
+  if( zRepository ){
+    if( g.zRepositoryOption ) fossil_free(g.zRepositoryOption);
+    g.zRepositoryOption = mprintf("%s", zRepository);
+  }
+  return g.zRepositoryOption;
 }
 
 /*
@@ -890,7 +936,10 @@ void version_cmd(void){
     fossil_print("Schema version %s\n", AUX_SCHEMA);
     fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
 #if defined(FOSSIL_ENABLE_SSL)
-    fossil_print("SSL (%s)\n", OPENSSL_VERSION_TEXT);
+    fossil_print("SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
+#endif
+#if defined(FOSSIL_ENABLE_TH1_HOOKS)
+    fossil_print("TH1_HOOKS\n");
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
     Th_FossilInit(TH_INIT_DEFAULT | TH_INIT_FORCE_TCL);
@@ -970,7 +1019,7 @@ void help_cmd(void){
     zCmdOrPage = "command";
     zCmdOrPagePlural = "commands";
   }
-  rc = name_search(g.argv[2], aCommand, count(aCommand), &idx);
+  rc = name_search(g.argv[2], aCommand, count(aCommand), 0, &idx);
   if( rc==1 ){
     fossil_print("unknown %s: %s\nAvailable %s:\n",
                  zCmdOrPage, g.argv[2], zCmdOrPagePlural);
@@ -1014,7 +1063,7 @@ void help_page(void){
     char const * zCmdOrPage = ('/'==*zCmd) ? "page" : "command";
     style_submenu_element("Command-List", "Command-List", "%s/help", g.zTop);
     @ <h1>The "%s(zCmd)" %s(zCmdOrPage):</h1>
-    rc = name_search(zCmd, aCommand, count(aCommand), &idx);
+    rc = name_search(zCmd, aCommand, count(aCommand), 0, &idx);
     if( rc==1 ){
       @ unknown command: %s(zCmd)
     }else if( rc==2 ){
@@ -1068,7 +1117,7 @@ void help_page(void){
     }
     @ </tr></table>
 
-    @ <h1>Available pages:</h1>
+    @ <h1>Available web UI pages:</h1>
     @ (Only pages with help text are linked.)
     @ <table border="0"><tr>
     for(i=j=0; i<count(aCommand); i++){
@@ -1272,6 +1321,9 @@ static char *enter_chroot_jail(char *zRepo){
     if(i){
       fossil_fatal("setgid/uid() failed with errno %d", errno);
     }
+    if( g.db==0 && file_isfile(zRepo) ){
+      db_open_repository(zRepo);
+    }
   }
 #endif
   return zRepo;
@@ -1457,7 +1509,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
         }else{
           zUser = "nobody";
         }
-        if( g.zLogin==0 ) zUser = "nobody";
+        if( g.zLogin==0 || g.zLogin[0]==0 ) zUser = "nobody";
         if( zAltRepo[0]!='/' ){
           zAltRepo = mprintf("%s/../%s", g.zRepositoryName, zAltRepo);
           file_simplify_name(zAltRepo, -1, 0);
@@ -1513,17 +1565,33 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
   /* Locate the method specified by the path and execute the function
   ** that implements that method.
   */
-  if( name_search(g.zPath, aWebpage, count(aWebpage), &idx) &&
-      name_search("not_found", aWebpage, count(aWebpage), &idx) ){
+  if( name_search(g.zPath, aWebpage, count(aWebpage), 0, &idx) ){
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,0);
     }else
 #endif
     {
-      cgi_set_status(404,"Not Found");
-      @ <h1>Not Found</h1>
-      @ <p>Page not found: %h(g.zPath)</p>
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+      int rc;
+      if( !g.fNoThHook ){
+        rc = Th_WebpageHook(g.zPath, 0);
+      }else{
+        rc = TH_OK;
+      }
+      if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+        if( rc==TH_OK || rc==TH_RETURN ){
+#endif
+          cgi_set_status(404,"Not Found");
+          @ <h1>Not Found</h1>
+          @ <p>Page not found: %h(g.zPath)</p>
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+        }
+        if( !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
+          Th_WebpageNotify(g.zPath, 0);
+        }
+      }
+#endif
     }
   }else if( aWebpage[idx].xFunc!=page_xfer && db_schema_is_outofdate() ){
 #ifdef FOSSIL_ENABLE_JSON
@@ -1537,7 +1605,41 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
-    aWebpage[idx].xFunc();
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+    /*
+    ** The TH1 return codes from the hook will be handled as follows:
+    **
+    ** TH_OK: The xFunc() and the TH1 notification will both be executed.
+    **
+    ** TH_ERROR: The xFunc() will be executed, the TH1 notification will be
+    **           skipped.  If the xFunc() is being hooked, the error message
+    **           will be emitted.
+    **
+    ** TH_BREAK: The xFunc() and the TH1 notification will both be skipped.
+    **
+    ** TH_RETURN: The xFunc() will be executed, the TH1 notification will be
+    **            skipped.
+    **
+    ** TH_CONTINUE: The xFunc() will be skipped, the TH1 notification will be
+    **              executed.
+    */
+    int rc;
+    if( !g.fNoThHook ){
+      rc = Th_WebpageHook(aWebpage[idx].zName, aWebpage[idx].cmdFlags);
+    }else{
+      rc = TH_OK;
+    }
+    if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+      if( rc==TH_OK || rc==TH_RETURN ){
+#endif
+        aWebpage[idx].xFunc();
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+      }
+      if( !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
+        Th_WebpageNotify(aWebpage[idx].zName, aWebpage[idx].cmdFlags);
+      }
+    }
+#endif
   }
 
   /* Return the result.
@@ -1847,6 +1949,7 @@ void cmd_http(void){
 ** Process all requests in a single SSH connection if possible.
 */
 void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
+  blob_zero(&g.cgiIn);
   do{
     cgi_handle_ssh_http_request(zIpAddr);
     process_one_web_page(0, FileGlob);

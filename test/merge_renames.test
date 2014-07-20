@@ -1,6 +1,6 @@
 #
 # Tests for merging with renames
-# 
+#
 #
 
 catch {exec $::fossilexe info} res
@@ -10,19 +10,12 @@ if {![regexp {use --repository} $res]} {
   return
 }
 
-
-# Fossil will write data on $HOME, running 'fossil new' here.
-# We need not to clutter the $HOME of the test caller.
-set env(HOME) [pwd]
-
-
 ######################################
 #  Test 1                            #
 #  Reported: Ticket [554f44ee74e3d]  #
 ######################################
 
-fossil new rep.fossil
-fossil open rep.fossil
+repo_init
 
 write_file f1 "line"
 fossil add f1
@@ -46,7 +39,7 @@ fossil commit -m "c4"
 
 fossil update pivot
 fossil mv f1 f2
-exec mv f1 f2
+file rename -force f1 f2
 fossil commit -b rename -m "c5"
 
 fossil merge trunk
@@ -75,16 +68,12 @@ if {$deletes!=0} {
     test merge_renames-1 1
 }
 
-fossil close -f
-exec rm rep.fossil
-
 ######################################
 #  Test 2                            #
 #  Reported: Ticket [74413366fe5067] #
 ######################################
 
-fossil new rep.fossil
-fossil open rep.fossil
+repo_init
 
 write_file f1 "line"
 fossil add f1
@@ -96,7 +85,7 @@ fossil add f2
 fossil commit -m "newfile"
 
 fossil mv f2 f2new
-exec mv f2 f2new
+file rename -force f2 f2new
 fossil commit -m "rename"
 
 fossil update pivot
@@ -126,17 +115,13 @@ if {$deletes!=0} {
 } else {
     test merge_renames-2 1
 }
-
-fossil close -f
-exec rm rep.fossil
 
 ######################################
 #  Test 3                            #
 #  Reported: Ticket [30b28cf351]     #
 ######################################
 
-fossil new rep.fossil
-fossil open rep.fossil
+repo_init
 
 write_file f1 "line"
 fossil add f1
@@ -148,7 +133,7 @@ fossil add f2
 fossil commit -m "newfile"
 
 fossil mv f2 f2new
-exec mv f2 f2new
+file rename -force f2 f2new
 fossil commit -m "rename"
 
 fossil update pivot
@@ -178,9 +163,6 @@ if {$deletes!=0} {
 } else {
     test merge_renames-2 1
 }
-
-fossil close -f
-exec rm rep.fossil
 
 ######################################
 #  Test 4                            #
@@ -189,9 +171,42 @@ exec rm rep.fossil
 
 # TO BE WRITTEN.
 
+######################################
+#  Test 5                            #
+#  Handle Rename/Add via Merge       #
+######################################
 
+repo_init
+
+write_file f1 "old f1 line"
+fossil add f1
+fossil commit -m "base file"
+
+write_file f3 "f3 line"
+fossil add f3
+fossil commit -m "branch file" -b branch_for_f3
+
+fossil update trunk
+fossil mv f1 f2
+file rename -force f1 f2
+write_file f1 "new f1 line"
+fossil add f1
+fossil commit -m "rename and add file with old name"
+
+fossil update branch_for_f3
+fossil merge trunk
+fossil commit -m "trunk merged, should have 3 files"
+
+fossil ls
+
+test merge_renames-5 {[string map [list \r\n \n] [string trim $RESULT]] eq {f1
+f2
+f3}}
+
+######################################
+#
 # Tests for troubles not specifically linked with renames but that I'd like to
 # write:
 #  [c26c63eb1b] - 'merge --backout' does not handle conflicts properly
-#  [953031915f] - Lack of warning when overwriting extra files 
-#  [4df5f38f1e] - Troubles merging a file delete with a file change 
+#  [953031915f] - Lack of warning when overwriting extra files
+#  [4df5f38f1e] - Troubles merging a file delete with a file change

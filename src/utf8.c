@@ -179,7 +179,8 @@ char *fossil_filename_to_utf8(const void *zFilename){
 **
 ** On Windows, characters in the range U+0001 to U+0031 and the
 ** characters '"', '*', ':', '<', '>', '?' and '|' are invalid
-** to be used. Therefore, translate those to characters in the
+** to be used, except in the 'extended path' prefix ('?') and
+** as drive specifier (':'). Therefore, translate those to characters
 ** in the range U+F001 - U+F07F (private use area), so those
 ** characters never arrive in any Windows API. The filenames might
 ** look strange in Windows explorer, but in the cygwin shell
@@ -191,18 +192,56 @@ char *fossil_filename_to_utf8(const void *zFilename){
 void *fossil_utf8_to_filename(const char *zUtf8){
 #ifdef _WIN32
   int nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
-  wchar_t *zUnicode = sqlite3_malloc( nChar * 2 );
+  /* Overallocate 6 chars, making some room for extended paths */
+  wchar_t *zUnicode = sqlite3_malloc( (nChar+6) * sizeof(wchar_t) );
   wchar_t *wUnicode = zUnicode;
   if( zUnicode==0 ){
     return 0;
   }
   MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nChar);
-  /* If path starts with "<drive>:/" or "<drive>:\", don't translate the ':' */
-  if( fossil_isalpha(zUtf8[0]) && zUtf8[1]==':'
-           && (zUtf8[2]=='\\' || zUtf8[2]=='/')) {
-    zUnicode[2] = '\\';
-    wUnicode += 3;
+  /*
+  ** If path starts with "//?/" or "\\?\" (extended path), translate
+  ** any slashes to backslashes but leave the '?' intact
+  */
+  if( (zUtf8[0]=='\\' || zUtf8[0]=='/') && (zUtf8[1]=='\\' || zUtf8[1]=='/')
+           && zUtf8[2]=='?' && (zUtf8[3]=='\\' || zUtf8[3]=='/')) {
+    wUnicode[0] = wUnicode[1] = wUnicode[3] = '\\';
+    zUtf8 += 4;
+    wUnicode += 4;
   }
+  /*
+  ** If there is no "\\?\" prefix but there is a drive or UNC
+  ** path prefix and the path is larger than MAX_PATH chars,
+  ** no Win32 API function can handle that unless it is
+  ** prefixed with the extended path prefix. See:
+  ** <http://msdn.microsoft.com/en-us/library/aa365247(VS.85).aspx#maxpath>
+  **/
+  if( fossil_isalpha(zUtf8[0]) && zUtf8[1]==':'
+           && (zUtf8[2]=='\\' || zUtf8[2]=='/') ){
+    if( wUnicode==zUnicode && nChar>MAX_PATH){
+      memmove(wUnicode+4, wUnicode, nChar*sizeof(wchar_t));
+      memcpy(wUnicode, L"\\\\?\\", 4*sizeof(wchar_t));
+      wUnicode += 4;
+    }
+    /*
+    ** If (remainder of) path starts with "<drive>:/" or "<drive>:\",
+    ** leave the ':' intact but translate the backslash to a slash.
+    */
+    wUnicode[2] = '\\';
+    wUnicode += 3;
+  }else if( wUnicode==zUnicode && nChar>MAX_PATH
+            && (zUtf8[0]=='\\' || zUtf8[0]=='/')
+            && (zUtf8[1]=='\\' || zUtf8[1]=='/') && zUtf8[2]!='?'){
+    memmove(wUnicode+6, wUnicode, nChar*sizeof(wchar_t));
+    memcpy(wUnicode, L"\\\\?\\UNC", 7*sizeof(wchar_t));
+    wUnicode += 7;
+  }
+  /*
+  ** In the remainder of the path, translate invalid characters to
+  ** characters in the Unicode private use area. This is what makes
+  ** Win32 fossil.exe work well in a Cygwin environment even when a
+  ** filename contains characters which are invalid for Win32.
+  */
   while( *wUnicode != '\0' ){
     if ( (*wUnicode < ' ') || wcschr(L"\"*:<>?|", *wUnicode) ){
       *wUnicode |= 0xF000;

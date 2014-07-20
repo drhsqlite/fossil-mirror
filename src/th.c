@@ -130,6 +130,7 @@ static int thNextCommand(Th_Interp*, const char *z, int n, int *pN);
 static int thNextEscape (Th_Interp*, const char *z, int n, int *pN);
 static int thNextVarname(Th_Interp*, const char *z, int n, int *pN);
 static int thNextNumber (Th_Interp*, const char *z, int n, int *pN);
+static int thNextInteger (Th_Interp*, const char *z, int n, int *pN);
 static int thNextSpace  (Th_Interp*, const char *z, int n, int *pN);
 
 /*
@@ -1870,6 +1871,39 @@ static Operator aOperator[] = {
 };
 
 /*
+** The first part of the string (zInput,nInput) contains an integer.
+** Set *pnVarname to the number of bytes in the numeric string.
+*/
+static int thNextInteger(
+  Th_Interp *interp,
+  const char *zInput,
+  int nInput,
+  int *pnLiteral
+){
+  int i;
+  int (*isdigit)(char) = th_isdigit;
+  char c;
+
+  if( nInput<2) return TH_ERROR;
+  assert(zInput[0]=='0');
+  c = zInput[1];
+  if( c>='A' && c<='Z' ) c += 'a' - 'A';
+  if( c=='x' ){
+    isdigit = th_ishexdig;
+  }else if( c!='o' && c!='b' ){
+    return TH_ERROR;
+  }
+  for(i=2; i<nInput; i++){
+    c = zInput[i];
+    if( !isdigit(c) ){
+      break;
+    }
+  }
+  *pnLiteral = i;
+  return TH_OK;
+}
+
+/*
 ** The first part of the string (zInput,nInput) contains a number.
 ** Set *pnVarname to the number of bytes in the numeric string.
 */
@@ -1879,9 +1913,9 @@ static int thNextNumber(
   int nInput,
   int *pnLiteral
 ){
-  int i;
+  int i = 0;
   int seenDot = 0;
-  for(i=0; i<nInput; i++){
+  for(; i<nInput; i++){
     char c = zInput[i];
     if( (seenDot || c!='.') && !th_isdigit(c) ) break;
     if( c=='.' ) seenDot = 1;
@@ -1998,13 +2032,14 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
         case OP_LOGICAL_OR:   iRes = iLeft||iRight; break;
         case OP_UNARY_MINUS:  iRes = -iLeft;        break;
         case OP_UNARY_PLUS:   iRes = +iLeft;        break;
+        case OP_BITWISE_NOT:  iRes = ~iLeft;        break;
         case OP_LOGICAL_NOT:  iRes = !iLeft;        break;
         default: assert(!"Internal error");
       }
       Th_SetResultInt(interp, iRes);
     }else if( rc==TH_OK && eArgType==ARG_NUMBER ){
       switch( pExpr->pOp->eOp ) {
-        case OP_MULTIPLY: Th_SetResultDouble(interp, fLeft*fRight);  break;
+        case OP_MULTIPLY: Th_SetResultDouble(interp, fLeft*fRight);    break;
         case OP_DIVIDE:
           if( fRight==0.0 ){
             Th_ErrorMessage(interp, "Divide by 0:", zLeft, nLeft);
@@ -2013,14 +2048,16 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
           }
           Th_SetResultDouble(interp, fLeft/fRight);
           break;
-        case OP_ADD:      Th_SetResultDouble(interp, fLeft+fRight);  break;
-        case OP_SUBTRACT: Th_SetResultDouble(interp, fLeft-fRight);  break;
-        case OP_LT:       Th_SetResultInt(interp, fLeft<fRight);  break;
-        case OP_GT:       Th_SetResultInt(interp, fLeft>fRight);  break;
-        case OP_LE:       Th_SetResultInt(interp, fLeft<=fRight); break;
-        case OP_GE:       Th_SetResultInt(interp, fLeft>=fRight); break;
-        case OP_EQ:       Th_SetResultInt(interp, fLeft==fRight); break;
-        case OP_NE:       Th_SetResultInt(interp, fLeft!=fRight); break;
+        case OP_ADD:         Th_SetResultDouble(interp, fLeft+fRight); break;
+        case OP_SUBTRACT:    Th_SetResultDouble(interp, fLeft-fRight); break;
+        case OP_LT:          Th_SetResultInt(interp, fLeft<fRight);    break;
+        case OP_GT:          Th_SetResultInt(interp, fLeft>fRight);    break;
+        case OP_LE:          Th_SetResultInt(interp, fLeft<=fRight);   break;
+        case OP_GE:          Th_SetResultInt(interp, fLeft>=fRight);   break;
+        case OP_EQ:          Th_SetResultInt(interp, fLeft==fRight);   break;
+        case OP_NE:          Th_SetResultInt(interp, fLeft!=fRight);   break;
+        case OP_UNARY_MINUS: Th_SetResultDouble(interp, -fLeft);       break;
+        case OP_UNARY_PLUS:  Th_SetResultDouble(interp, +fLeft);       break;
         default: assert(!"Internal error");
       }
     }else if( rc==TH_OK ){
@@ -2154,8 +2191,13 @@ static int exprParse(
       const char *z = &zExpr[i];
 
       switch (c) {
-        case '0': case '1': case '2': case '3': case '4':
-        case '5': case '6': case '7': case '8': case '9':
+        case '0':
+          if( thNextInteger(interp, z, nExpr-i, &pNew->nValue)==TH_OK ){
+            break;
+          }
+          /* fall through */
+        case '1': case '2': case '3': case '4': case '5':
+        case '6': case '7': case '8': case '9':
           thNextNumber(interp, z, nExpr-i, &pNew->nValue);
           break;
 
@@ -2410,7 +2452,8 @@ int th_strlen(const char *zStr){
 **
 ** Whitespace characters have the 0x01 flag set. Decimal digits have the
 ** 0x2 flag set. Single byte printable characters have the 0x4 flag set.
-** Alphabet characters have the 0x8 bit set.
+** Alphabet characters have the 0x8 bit set. Hexadecimal digits have the
+** 0x20 flag set.
 **
 ** The special list characters have the 0x10 flag set
 **
@@ -2423,10 +2466,10 @@ static unsigned char aCharProp[256] = {
   0,  0,  0,  0,  0,  0,  0,  0,     0,  1,  1,  1,  1,  1,  0,  0,   /* 0x0. */
   0,  0,  1,  1,  0,  0,  0,  0,     0,  0,  0,  0,  0,  0,  0,  0,   /* 0x1. */
   5,  4, 20,  4,  4,  4,  4,  4,     4,  4,  4,  4,  4,  4,  4,  4,   /* 0x2. */
-  6,  6,  6,  6,  6,  6,  6,  6,     6,  6,  4, 20,  4,  4,  4,  4,   /* 0x3. */
-  4, 12, 12, 12, 12, 12, 12, 12,    12, 12, 12, 12, 12, 12, 12, 12,   /* 0x4. */
+ 38, 38, 38, 38, 38, 38, 38, 38,    38, 38,  4, 20,  4,  4,  4,  4,   /* 0x3. */
+  4, 44, 44, 44, 44, 44, 44, 12,    12, 12, 12, 12, 12, 12, 12, 12,   /* 0x4. */
  12, 12, 12, 12, 12, 12, 12, 12,    12, 12, 12, 20, 20, 20,  4,  4,   /* 0x5. */
-  4, 12, 12, 12, 12, 12, 12, 12,    12, 12, 12, 12, 12, 12, 12, 12,   /* 0x6. */
+  4, 44, 44, 44, 44, 44, 44, 12,    12, 12, 12, 12, 12, 12, 12, 12,   /* 0x6. */
  12, 12, 12, 12, 12, 12, 12, 12,    12, 12, 12, 20,  4, 20,  4,  4,   /* 0x7. */
 
   0,  0,  0,  0,  0,  0,  0,  0,     0,  0,  0,  0,  0,  0,  0,  0,   /* 0x8. */
@@ -2453,6 +2496,18 @@ int th_isspecial(char c){
 }
 int th_isalnum(char c){
   return (aCharProp[(unsigned char)c] & 0x0A);
+}
+int th_isalpha(char c){
+  return (aCharProp[(unsigned char)c] & 0x08);
+}
+int th_ishexdig(char c){
+  return (aCharProp[(unsigned char)c] & 0x20);
+}
+int th_isoctdig(char c){
+  return ((c|7) == '7');
+}
+int th_isbindig(char c){
+  return ((c|1) == '1');
 }
 
 #ifndef LONGDOUBLE_TYPE
@@ -2570,6 +2625,8 @@ static int sqlite3AtoF(const char *z, double *pResult){
 int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
   int i = 0;
   int iOut = 0;
+  int base = 10;
+  int (*isdigit)(char) = th_isdigit;
 
   if( n<0 ){
     n = th_strlen(z);
@@ -2578,12 +2635,37 @@ int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
   if( n>0 && (z[0]=='-' || z[0]=='+') ){
     i = 1;
   }
+  if( n>2 ){
+    if( z[i]=='0' ){
+      if( z[i+1]=='x' || z[i+1]=='X' ){
+        i += 2;
+        base = 16;
+        isdigit = th_ishexdig;
+      }else if( z[i+1]=='o' || z[i+1]=='O' ){
+        i += 2;
+        base = 8;
+        isdigit = th_isoctdig;
+      }else if( z[i+1]=='b' || z[i+1]=='B' ){
+        i += 2;
+        base = 2;
+        isdigit = th_isbindig;
+      }
+    }
+  }
   for(; i<n; i++){
-    if( !th_isdigit(z[i]) ){
+    char c = z[i];
+    if( !isdigit(c) ){
       Th_ErrorMessage(interp, "expected integer, got: \"", z, n);
       return TH_ERROR;
     }
-    iOut = iOut * 10 + (z[i] - 48);
+    if( c>='a' ){
+      c -= 'a'-10;
+    }else if( c>='A' ){
+      c -= 'A'-10;
+    }else{
+      c -= '0';
+    }
+    iOut = iOut * base + c;
   }
 
   if( n>0 && z[0]=='-' ){
@@ -2631,9 +2713,9 @@ int Th_SetResultInt(Th_Interp *interp, int iVal){
     iVal = iVal * -1;
   }
   *(--z) = '\0';
-  *(--z) = (char)(48+(iVal%10));
-  while( (iVal = (iVal/10))>0 ){
-    *(--z) = (char)(48+(iVal%10));
+  *(--z) = (char)(48+((unsigned)iVal%10));
+  while( (iVal = ((unsigned)iVal/10))>0 ){
+    *(--z) = (char)(48+((unsigned)iVal%10));
     assert(z>zBuf);
   }
   if( isNegative ){

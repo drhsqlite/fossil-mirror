@@ -50,6 +50,10 @@ FOSSIL_ENABLE_JSON = 1
 #
 FOSSIL_ENABLE_SSL = 1
 
+#### Enable hooks for commands and web pages via TH1
+#
+FOSSIL_ENABLE_TH1_HOOKS = 1
+
 #### Enable scripting support via Tcl/Tk
 #
 FOSSIL_ENABLE_TCL = 1
@@ -61,6 +65,10 @@ FOSSIL_ENABLE_TCL_STUBS = 1
 #### Load Tcl using the private stubs mechanism
 #
 FOSSIL_ENABLE_TCL_PRIVATE_STUBS = 1
+
+#### Use 'system' sqlite
+#
+# USE_SYSTEM_SQLITE = 1
 
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
@@ -86,8 +94,8 @@ ZLIBDIR = $(SRCDIR)/../compat/zlib
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1f/include
-OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1f
+OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1h/include
+OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1h
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -175,6 +183,12 @@ TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
+# With TH1 hook support
+ifdef FOSSIL_ENABLE_TH1_HOOKS
+TCC += -DFOSSIL_ENABLE_TH1_HOOKS=1
+RCC += -DFOSSIL_ENABLE_TH1_HOOKS=1
+endif
+
 # With Tcl support
 ifdef FOSSIL_ENABLE_TCL
 TCC += -DFOSSIL_ENABLE_TCL=1
@@ -207,6 +221,10 @@ LIB = -static
 # MinGW: If available, use the Unicode capable runtime startup code.
 ifndef MINGW_IS_32BIT_ONLY
 LIB += -municode
+endif
+
+ifdef USE_SYSTEM_SQLITE
+LIB += -lsqlite3
 endif
 
 # OpenSSL: Add the necessary libraries required, if enabled.
@@ -245,7 +263,11 @@ TCLSH = tclsh
 
 #### Nullsoft installer MakeNSIS location
 #
-MAKENSIS = "$(ProgramFiles)\NSIS\MakeNSIS.exe"
+MAKENSIS = "$(PROGRAMFILES)\NSIS\MakeNSIS.exe"
+
+#### Inno Setup executable location
+#
+INNOSETUP = "$(PROGRAMFILES)\Inno Setup 5\ISCC.exe"
 
 #### Include a configuration file that can override any one of these settings.
 #
@@ -265,6 +287,7 @@ SRC = \
   $(SRCDIR)/blob.c \
   $(SRCDIR)/branch.c \
   $(SRCDIR)/browse.c \
+  $(SRCDIR)/cache.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
   $(SRCDIR)/checkin.c \
@@ -286,6 +309,7 @@ SRC = \
   $(SRCDIR)/export.c \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
+  $(SRCDIR)/fusefs.c \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
   $(SRCDIR)/gzip.c \
@@ -311,6 +335,7 @@ SRC = \
   $(SRCDIR)/json_user.c \
   $(SRCDIR)/json_wiki.c \
   $(SRCDIR)/leaf.c \
+  $(SRCDIR)/loadctrl.c \
   $(SRCDIR)/login.c \
   $(SRCDIR)/lookslike.c \
   $(SRCDIR)/main.c \
@@ -375,6 +400,7 @@ TRANS_SRC = \
   $(OBJDIR)/blob_.c \
   $(OBJDIR)/branch_.c \
   $(OBJDIR)/browse_.c \
+  $(OBJDIR)/cache_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
   $(OBJDIR)/checkin_.c \
@@ -396,6 +422,7 @@ TRANS_SRC = \
   $(OBJDIR)/export_.c \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
+  $(OBJDIR)/fusefs_.c \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
   $(OBJDIR)/gzip_.c \
@@ -421,6 +448,7 @@ TRANS_SRC = \
   $(OBJDIR)/json_user_.c \
   $(OBJDIR)/json_wiki_.c \
   $(OBJDIR)/leaf_.c \
+  $(OBJDIR)/loadctrl_.c \
   $(OBJDIR)/login_.c \
   $(OBJDIR)/lookslike_.c \
   $(OBJDIR)/main_.c \
@@ -485,6 +513,7 @@ OBJ = \
  $(OBJDIR)/blob.o \
  $(OBJDIR)/branch.o \
  $(OBJDIR)/browse.o \
+ $(OBJDIR)/cache.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
  $(OBJDIR)/checkin.o \
@@ -506,6 +535,7 @@ OBJ = \
  $(OBJDIR)/export.o \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
+ $(OBJDIR)/fusefs.o \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
  $(OBJDIR)/gzip.o \
@@ -531,6 +561,7 @@ OBJ = \
  $(OBJDIR)/json_user.o \
  $(OBJDIR)/json_wiki.o \
  $(OBJDIR)/leaf.o \
+ $(OBJDIR)/loadctrl.o \
  $(OBJDIR)/login.o \
  $(OBJDIR)/lookslike.o \
  $(OBJDIR)/main.o \
@@ -600,6 +631,7 @@ TRANSLATE   = $(subst /,\,$(OBJDIR)/translate)
 MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
 VERSION     = $(subst /,\,$(OBJDIR)/version)
+CAT         = type
 CP          = copy
 MV          = copy
 RM          = del /Q
@@ -610,6 +642,7 @@ TRANSLATE   = $(OBJDIR)/translate
 MAKEHEADERS = $(OBJDIR)/makeheaders
 MKINDEX     = $(OBJDIR)/mkindex
 VERSION     = $(OBJDIR)/version
+CAT         = cat
 CP          = cp
 MV          = mv
 RM          = rm -f
@@ -668,11 +701,15 @@ test:	$(OBJDIR) $(APPNAME)
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(VERSION)
 	$(VERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
-EXTRAOBJ =  $(OBJDIR)/sqlite3.o  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(OBJDIR)/cson_amalgamation.o
+# The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
+# to 1. If it is set to 1, then there is no need to build or link
+# the sqlite3.o object. Instead, the system sqlite will be linked
+# using -lsqlite3.
+SQLITE3_OBJ.1 =
+SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
-ifdef FOSSIL_ENABLE_TCL
-EXTRAOBJ +=  $(OBJDIR)/th_tcl.o
-endif
+EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(OBJDIR)/th_tcl.o  $(OBJDIR)/cson_amalgamation.o
 
 zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
@@ -713,7 +750,10 @@ else
 endif
 
 setup: $(OBJDIR) $(APPNAME)
-	$(MAKENSIS) ./fossil.nsi
+	$(MAKENSIS) ./setup/fossil.nsi
+
+innosetup: $(OBJDIR) $(APPNAME)
+	$(INNOSETUP) ./setup/fossil.iss -DAppVersion=$(shell $(CAT) ./VERSION)
 
 $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 	$(MKINDEX) $(TRANS_SRC) >$@
@@ -727,6 +767,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/blob_.c:$(OBJDIR)/blob.h \
 		$(OBJDIR)/branch_.c:$(OBJDIR)/branch.h \
 		$(OBJDIR)/browse_.c:$(OBJDIR)/browse.h \
+		$(OBJDIR)/cache_.c:$(OBJDIR)/cache.h \
 		$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 		$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
 		$(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h \
@@ -748,6 +789,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/export_.c:$(OBJDIR)/export.h \
 		$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 		$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
+		$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
 		$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 		$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
 		$(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h \
@@ -773,6 +815,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/json_user_.c:$(OBJDIR)/json_user.h \
 		$(OBJDIR)/json_wiki_.c:$(OBJDIR)/json_wiki.h \
 		$(OBJDIR)/leaf_.c:$(OBJDIR)/leaf.h \
+		$(OBJDIR)/loadctrl_.c:$(OBJDIR)/loadctrl.h \
 		$(OBJDIR)/login_.c:$(OBJDIR)/login.h \
 		$(OBJDIR)/lookslike_.c:$(OBJDIR)/lookslike.h \
 		$(OBJDIR)/main_.c:$(OBJDIR)/main.h \
@@ -899,6 +942,14 @@ $(OBJDIR)/browse.o:	$(OBJDIR)/browse_.c $(OBJDIR)/browse.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/browse.o -c $(OBJDIR)/browse_.c
 
 $(OBJDIR)/browse.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/cache_.c:	$(SRCDIR)/cache.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/cache.c >$(OBJDIR)/cache_.c
+
+$(OBJDIR)/cache.o:	$(OBJDIR)/cache_.c $(OBJDIR)/cache.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/cache.o -c $(OBJDIR)/cache_.c
+
+$(OBJDIR)/cache.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/captcha_.c:	$(SRCDIR)/captcha.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/captcha.c >$(OBJDIR)/captcha_.c
@@ -1067,6 +1118,14 @@ $(OBJDIR)/finfo.o:	$(OBJDIR)/finfo_.c $(OBJDIR)/finfo.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/finfo.o -c $(OBJDIR)/finfo_.c
 
 $(OBJDIR)/finfo.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/fusefs_.c:	$(SRCDIR)/fusefs.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/fusefs.c >$(OBJDIR)/fusefs_.c
+
+$(OBJDIR)/fusefs.o:	$(OBJDIR)/fusefs_.c $(OBJDIR)/fusefs.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/fusefs.o -c $(OBJDIR)/fusefs_.c
+
+$(OBJDIR)/fusefs.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/glob_.c:	$(SRCDIR)/glob.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/glob.c >$(OBJDIR)/glob_.c
@@ -1267,6 +1326,14 @@ $(OBJDIR)/leaf.o:	$(OBJDIR)/leaf_.c $(OBJDIR)/leaf.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/leaf.o -c $(OBJDIR)/leaf_.c
 
 $(OBJDIR)/leaf.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/loadctrl_.c:	$(SRCDIR)/loadctrl.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/loadctrl.c >$(OBJDIR)/loadctrl_.c
+
+$(OBJDIR)/loadctrl.o:	$(OBJDIR)/loadctrl_.c $(OBJDIR)/loadctrl.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/loadctrl.o -c $(OBJDIR)/loadctrl_.c
+
+$(OBJDIR)/loadctrl.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/login_.c:	$(SRCDIR)/login.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/login.c >$(OBJDIR)/login_.c
@@ -1706,16 +1773,20 @@ SQLITE_OPTIONS = -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_OMIT_DEPRECATED \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
-                 -D_HAVE_SQLITE_CONFIG_H \
+                 -D_HAVE__MINGW_H \
                  -DSQLITE_USE_MALLOC_H \
                  -DSQLITE_USE_MSIZE
 
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
+                -DSQLITE_SHELL_DBNAME_PROC=fossil_open \
+                -Daccess=file_access \
+                -Dsystem=fossil_system \
                 -Dgetenv=fossil_getenv \
                 -Dfopen=fossil_fopen
 
-$(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c win/Makefile.mingw.mistachkin
+$(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c $(SRCDIR)/../win/Makefile.mingw.mistachkin
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
 
 $(OBJDIR)/cson_amalgamation.o:	$(SRCDIR)/cson_amalgamation.c
@@ -1723,7 +1794,7 @@ $(OBJDIR)/cson_amalgamation.o:	$(SRCDIR)/cson_amalgamation.c
 
 $(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/json_config.o $(OBJDIR)/json_diff.o $(OBJDIR)/json_dir.o $(OBJDIR)/jsos_finfo.o $(OBJDIR)/json_login.o $(OBJDIR)/json_query.o $(OBJDIR)/json_report.o $(OBJDIR)/json_status.o $(OBJDIR)/json_tag.o $(OBJDIR)/json_timeline.o $(OBJDIR)/json_user.o $(OBJDIR)/json_wiki.o : $(SRCDIR)/json_detail.h
 
-$(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h win/Makefile.mingw.mistachkin
+$(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h $(SRCDIR)/../win/Makefile.mingw.mistachkin
 	$(XTCC) $(SHELL_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
@@ -1732,7 +1803,6 @@ $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
 	$(XTCC) -c $(SRCDIR)/th_lang.c -o $(OBJDIR)/th_lang.o
 
-ifdef FOSSIL_ENABLE_TCL
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
-endif
+

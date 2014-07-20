@@ -573,15 +573,25 @@ void tarball_cmd(void){
 **
 ** Generate a compressed tarball for a checkin.
 ** Return that tarball as the HTTP reply content.
+**
+** Optional URL Parameters:
+**
+** - name=base name of the output file. Defaults to
+** something project/version-specific.
+**
+** - uuid=the version to tar (may be a tag/branch name).
+** Defaults to trunk.
+**
 */
 void tarball_page(void){
   int rid;
-  char *zName, *zRid;
+  char *zName, *zRid, *zKey;
   int nName, nRid;
   Blob tarball;
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(); return; }
+  load_control();
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid","trunk"));
@@ -606,9 +616,15 @@ void tarball_page(void){
     return;
   }
   if( nRid==0 && nName>10 ) zName[10] = 0;
-  tarball_of_checkin(rid, &tarball, zName);
+  zKey = db_text(0, "SELECT '/tarball/'||uuid||'/%q' FROM blob WHERE rid=%d",zName,rid);
+  blob_zero(&tarball);
+  if( cache_read(&tarball, zKey)==0 ){
+    tarball_of_checkin(rid, &tarball, zName);
+    cache_write(&tarball, zKey);
+  }
   free( zName );
   free( zRid );
+  free( zKey );
   cgi_set_content(&tarball);
   cgi_set_content_type("application/x-compressed");
 }

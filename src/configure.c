@@ -99,6 +99,7 @@ static struct {
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
+  { "th1-hooks",              CONFIGSET_TH1 },
   { "th1-setup",              CONFIGSET_TH1 },
   { "th1-uri-regexp",         CONFIGSET_TH1 },
 
@@ -926,7 +927,7 @@ void configuration_cmd(void){
       zServer = g.argv[4];
     }
     url_parse(zServer, URL_PROMPT_PW);
-    if( g.urlProtocol==0 ) fossil_fatal("no server URL specified");
+    if( g.url.protocol==0 ) fossil_fatal("no server URL specified");
     user_select();
     url_enable_proxy("via proxy: ");
     if( legacyFlag ) mask |= CONFIGSET_OLDFORMAT;

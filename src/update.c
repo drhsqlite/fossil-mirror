@@ -90,8 +90,11 @@ int update_to(int vid){
 **   --case-sensitive <BOOL> override case-sensitive setting
 **   --debug          print debug information on stdout
 **   --latest         acceptable in place of VERSION, update to latest version
+**   --force-missing  force update if missing content after sync
 **   -n|--dry-run     If given, display instead of run actions
 **   -v|--verbose     print status information about all files
+**   -W|--width <num> Width of lines (default is to auto-detect). Must be >20
+**                    or 0 (= no limit, resulting in a single line per entry).
 **
 ** See also: revert
 */
@@ -102,6 +105,7 @@ void update_cmd(void){
   int latestFlag;       /* --latest.  Pick the latest version if true */
   int dryRunFlag;       /* -n or --dry-run.  Do a dry run */
   int verboseFlag;      /* -v or --verbose.  Output extra information */
+  int forceMissingFlag; /* --force-missing.  Continue if missing content */
   int debugFlag;        /* --debug option */
   int setmtimeFlag;     /* --setmtime.  Set mtimes on files */
   int nChng;            /* Number of file renames */
@@ -110,11 +114,22 @@ void update_cmd(void){
   int nConflict = 0;    /* Number of merge conflicts */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
   int nUpdate = 0;      /* Number of changes of any kind */
+  int width;            /* Width of printed comment lines */
   Stmt mtimeXfer;       /* Statement to transfer mtimes */
+  const char *zWidth;   /* Width option string value */
 
   if( !internalUpdate ){
     undo_capture_command_line();
     url_proxy_options();
+  }
+  zWidth = find_option("width","W",1);
+  if( zWidth ){
+    width = atoi(zWidth);
+    if( (width!=0) && (width<=20) ){
+      fossil_fatal("-W|--width value must be >20 or 0");
+    }
+  }else{
+    width = -1;
   }
   latestFlag = find_option("latest",0, 0)!=0;
   dryRunFlag = find_option("dry-run","n",0)!=0;
@@ -122,6 +137,7 @@ void update_cmd(void){
     dryRunFlag = find_option("nochange",0,0)!=0; /* deprecated */
   }
   verboseFlag = find_option("verbose","v",0)!=0;
+  forceMissingFlag = find_option("force-missing",0,0)!=0;
   debugFlag = find_option("debug",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
   capture_case_sensitive_option();
@@ -129,7 +145,10 @@ void update_cmd(void){
   vid = db_lget_int("checkout", 0);
   user_select();
   if( !dryRunFlag && !internalUpdate ){
-    autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag);
+    if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag,
+                      db_get_int("autosync-tries", 1)) ){
+      fossil_fatal("Cannot proceed with update");
+    }
   }
   
   /* Create any empty directories now, as well as after the update,
@@ -187,7 +206,7 @@ void update_cmd(void){
           " ORDER BY event.mtime DESC",
           timeline_query_for_tty()
         );
-        print_timeline(&q, -100, 79, 0);
+        print_timeline(&q, -100, width, 0);
         db_finalize(&q);
         fossil_fatal("Multiple descendants");
       }
@@ -205,7 +224,9 @@ void update_cmd(void){
   db_begin_transaction();
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   if( !dryRunFlag && !internalUpdate ) undo_begin();
-  load_vfile_from_rid(tid);
+  if( load_vfile_from_rid(tid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to update");
+  };
 
   /*
   ** The record.fn field is used to match files against each other.  The
@@ -627,6 +648,8 @@ int historical_version_of_file(
   
   if( revision ){
     rid = name_to_typed_rid(revision,"ci");
+  }else if( !g.localOpen ){
+    rid = name_to_typed_rid(db_get("main-branch","trunk"),"ci");
   }else{
     rid = db_lget_int("checkout", 0);
   }
@@ -719,12 +742,8 @@ void revert_cmd(void){
         "INSERT OR IGNORE INTO torevert"
         " SELECT pathname"
         "   FROM vfile"
-        "  WHERE origname IN(%B)"
-        " UNION ALL"
-        " SELECT origname"
-        "   FROM vfile"
-        "  WHERE pathname IN(%B) AND origname IS NOT NULL;",
-        &fname, &fname, &fname
+        "  WHERE origname=%B;",
+        &fname, &fname
       );
       blob_reset(&fname);
     }
@@ -737,13 +756,15 @@ void revert_cmd(void){
       "INSERT OR IGNORE INTO torevert "
       " SELECT pathname"
       "   FROM vfile "
-      "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname "
-      " UNION ALL "
-      " SELECT origname"
-      "   FROM vfile"
-      "  WHERE origname!=pathname;"
+      "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname;"
     );
   }
+  db_multi_exec(
+    "INSERT OR IGNORE INTO torevert"
+    " SELECT origname"
+    "   FROM vfile"
+    "  WHERE origname!=pathname AND pathname IN (SELECT name FROM torevert);"
+  );
   blob_zero(&record);
   db_prepare(&q, "SELECT name FROM torevert");
   if( zRevision==0 ){
@@ -768,9 +789,9 @@ void revert_cmd(void){
         fossil_print("DELETE: %s\n", zFile);
       }
       db_multi_exec(
-        "UPDATE vfile"
+        "UPDATE OR REPLACE vfile"
         "   SET pathname=origname, origname=NULL"
-        " WHERE pathname=%Q AND origname!=pathname AND origname IS NOT NULL;"
+        " WHERE pathname=%Q AND origname!=pathname;"
         "DELETE FROM vfile WHERE pathname=%Q",
         zFile, zFile
       );
