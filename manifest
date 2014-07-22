@@ -1,5 +1,5 @@
-C Correct\susage\ssyntax\serror\smessage\sfor\sthe\s'test-comment-format'\scommand.
-D 2014-07-20T05:09:26.764
+C Add\stests\sfor\sthe\slegacy\scomment\sformatting\s(from\strunk).
+D 2014-07-22T19:56:25.493
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -442,7 +442,7 @@ F src/zip.c febf7fff38bfed9ca2fbda0a28d75fe8e445dce5
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
-F test/comment.test 8354cfa0e62c23e2d0c515e1fcde930c89c4a19a
+F test/comment.test 72460192f7bb9f7eb254fab52409752ce6f65625
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki a789acd5523d840232fcb2164929592260af0743
 F test/file1.test 4a1009731c0959c46c228a9336df9da4a5da97f1
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4a5352c25d787989751aa87cdf854eee17ee7698
-R a0e502c686451840fdbd64038a9b80ae
+P 68cd1f5b59119a70d83172f13e10b544c57e3961
+R e52596a2c748f28f3975e821d5e8426d
 U mistachkin
-Z 5aa9951bc03e8dc032ab2f9c76159bd3
+Z b9acbc5eb7b16e4c4a4a2dff7cbc23a0
