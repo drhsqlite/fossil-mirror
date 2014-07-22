@@ -49,7 +49,7 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
        db_column_text(&q, 1),
        db_column_text(&q, 0),
        indent, "");
-    comment_print(zCom, indent, -1);
+    comment_print(zCom, indent, -1, g.comFmtFlags);
     fossil_free(zCom);
   }
   db_finalize(&q);
@@ -212,7 +212,7 @@ void merge_cmd(void){
       char *zCom = mprintf("Merging fork [%S] at %s by %s: \"%s\"",
             db_column_text(&q, 0), db_column_text(&q, 1),
             db_column_text(&q, 3), db_column_text(&q, 2));
-      comment_print(zCom, 0, -1);
+      comment_print(zCom, 0, -1, g.comFmtFlags);
       fossil_free(zCom);
     }
     db_finalize(&q);

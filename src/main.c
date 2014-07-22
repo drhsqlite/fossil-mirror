@@ -178,6 +178,7 @@ struct Global {
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
   int isHuman;            /* True if access by a human, not a spider or bot */
+  int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags */
 
   /* Information used to populate the RCVFROM table */
   int rcvid;              /* The rcvid.  0 if not yet defined. */
@@ -538,6 +539,21 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 }
 
 /*
+** This function attempts to find command line options known to contain
+** bitwise flags and initializes the associated global variables.  After
+** this function executes, all global variables (i.e. in the "g" struct)
+** containing option-settable bitwise flag fields must be initialized.
+*/
+static void fossil_init_flags_from_options(void){
+  const char *zValue = find_option("comfmtflags", 0, 1);
+  if( zValue ){
+    g.comFmtFlags = atoi(zValue);
+  }else{
+    g.comFmtFlags = COMMENT_PRINT_DEFAULT;
+  }
+}
+
+/*
 ** This procedure runs first.
 */
 #if defined(_WIN32) && !defined(BROKEN_MINGW_CMDLINE)
@@ -635,6 +651,7 @@ int main(int argc, char **argv)
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
     g.zErrlog = find_option("errorlog", 0, 1);
+    fossil_init_flags_from_options();
     if( find_option("utc",0,0) ) g.fTimeFormat = 1;
     if( find_option("localtime",0,0) ) g.fTimeFormat = 2;
     if( zChdir && file_chdir(zChdir, 0) ){

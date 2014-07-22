@@ -554,7 +554,7 @@ void stash_cmd(void){
       zCom = db_column_text(&q, 2);
       if( zCom && zCom[0] ){
         fossil_print("       ");
-        comment_print(zCom, 7, width);
+        comment_print(zCom, 7, width, g.comFmtFlags);
       }
       if( verboseFlag ){
         db_bind_int(&q2, "$id", stashid);
