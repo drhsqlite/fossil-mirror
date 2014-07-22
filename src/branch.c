@@ -336,7 +336,7 @@ void brlist_page(void){
   @ <div class="sideboxDescribed">%z(href("leaves?closed"))
   @ closed leaves</a></div>.
   @ Closed branches are fixed and do not change (unless they are first
-  @ reopened)</li>
+  @ reopened).</li>
   @ </ol>
   style_sidebox_end();
 

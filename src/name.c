@@ -446,7 +446,7 @@ void ambiguous_page(void){
     " GROUP BY tkt_uuid"
     " ORDER BY tkt_ctime DESC", z);
   while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0); 
+    int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zTitle = db_column_text(&q, 2);
     @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
@@ -467,7 +467,7 @@ void ambiguous_page(void){
     "     FROM tagxref, tag WHERE tagxref.tagid = tag.tagid"
     "      AND tagname GLOB 'event-%q*') GROUP BY uuid", z);
   while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0); 
+    int rid = db_column_int(&q, 0);
     const char* zUuid = db_column_text(&q, 1);
     @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
     @ %s(zUuid)</a> -
@@ -601,7 +601,7 @@ static void whatis_rid(int rid, int verboseFlag){
     timeline_utc(), rid);
   while( db_step(&q)==SQLITE_ROW ){
     fossil_print("file:       %s\n", db_column_text(&q,0));
-    fossil_print("            part of [%.10s] by %s on %s\n",
+    fossil_print("            part of [%S] by %s on %s\n",
       db_column_text(&q, 1),
       db_column_text(&q, 3),
       db_column_text(&q, 2));

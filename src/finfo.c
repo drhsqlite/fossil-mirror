@@ -202,7 +202,7 @@ void finfo_cmd(void){
       if( iBrief ){
         fossil_print("%s ", zDate);
         zOut = sqlite3_mprintf(
-           "[%.10s] %s (user: %s, artifact: [%.10s], branch: %s)",
+           "[%S] %s (user: %s, artifact: [%S], branch: %s)",
            zCiUuid, zCom, zUser, zFileUuid, zBr);
         comment_print(zOut, 11, iWidth);
         sqlite3_free(zOut);
@@ -384,7 +384,7 @@ void finfo_page(void){
     char *zLink = href("%R/info/%s", zUuid);
     blob_appendf(&title, "Ancestors of file ");
     hyperlinked_path(zFilename, &title, zUuid, "tree", "");
-    blob_appendf(&title, " from check-in %z%.10s</a>", zLink, zUuid);
+    blob_appendf(&title, " from check-in %z%S</a>", zLink, zUuid);
     fossil_free(zUuid);
   }else{
     blob_appendf(&title, "History of files named ");

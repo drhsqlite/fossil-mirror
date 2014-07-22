@@ -533,7 +533,7 @@ void ci_page(void){
   sideBySide = !is_false(PD("sbs","1"));
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
-    char *zTitle = mprintf("Check-in [%.10s]", zUuid);
+    char *zTitle = mprintf("Check-in [%S]", zUuid);
     char *zEUser, *zEComment;
     const char *zUser;
     const char *zComment;

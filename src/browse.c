@@ -181,7 +181,7 @@ void page_dir(void){
                           url_render(&sURI, "ci", "tip", 0, 0));
   }
   if( zCI ){
-    @ <h2>Files of check-in [%z(href("vinfo?name=%s",zUuid))%.10s(zUuid)</a>]
+    @ <h2>Files of check-in [%z(href("vinfo?name=%s",zUuid))%S(zUuid)</a>]
     @ %s(blob_str(&dirname))</h2>
     zSubdirLink = mprintf("%R/dir?ci=%s&name=%T", zUuid, zPrefix);
     if( nD==0 ){

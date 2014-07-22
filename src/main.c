@@ -300,11 +300,12 @@ static int name_search(
   const char *zName,       /* The name we are looking for */
   const NameMap *aMap,     /* Search in this array */
   int nMap,                /* Number of slots in aMap[] */
+  int iBegin,              /* Lower bound on the array search */
   int *pIndex              /* OUT: The index in aMap[] of the match */
 ){
   int upr, lwr, cnt, m, i;
   int n = strlen(zName);
-  lwr = 0;
+  lwr = iBegin;
   upr = nMap-1;
   while( lwr<=upr ){
     int mid, c;
@@ -320,7 +321,7 @@ static int name_search(
     }
   }
   for(m=cnt=0, i=upr-2; cnt<2 && i<=upr+3 && i<nMap; i++){
-    if( i<0 ) continue;
+    if( i<iBegin ) continue;
     if( strncmp(zName, aMap[i].zName, n)==0 ){
       m = i;
       cnt++;
@@ -657,7 +658,7 @@ int main(int argc, char **argv)
   if( !is_valid_fd(2) ) fossil_panic("file descriptor 2 not open");
   /* if( is_valid_fd(3) ) fossil_warning("file descriptor 3 is open"); */
 #endif
-  rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
+  rc = name_search(zCmdName, aCommand, count(aCommand), FOSSIL_FIRST_CMD, &idx);
   if( rc==1 ){
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
     if( !g.isHTTP && !g.fNoThHook ){
@@ -1017,7 +1018,7 @@ void help_cmd(void){
     zCmdOrPage = "command";
     zCmdOrPagePlural = "commands";
   }
-  rc = name_search(g.argv[2], aCommand, count(aCommand), &idx);
+  rc = name_search(g.argv[2], aCommand, count(aCommand), 0, &idx);
   if( rc==1 ){
     fossil_print("unknown %s: %s\nAvailable %s:\n",
                  zCmdOrPage, g.argv[2], zCmdOrPagePlural);
@@ -1061,7 +1062,7 @@ void help_page(void){
     char const * zCmdOrPage = ('/'==*zCmd) ? "page" : "command";
     style_submenu_element("Command-List", "Command-List", "%s/help", g.zTop);
     @ <h1>The "%s(zCmd)" %s(zCmdOrPage):</h1>
-    rc = name_search(zCmd, aCommand, count(aCommand), &idx);
+    rc = name_search(zCmd, aCommand, count(aCommand), 0, &idx);
     if( rc==1 ){
       @ unknown command: %s(zCmd)
     }else if( rc==2 ){
@@ -1563,7 +1564,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
   /* Locate the method specified by the path and execute the function
   ** that implements that method.
   */
-  if( name_search(g.zPath, aWebpage, count(aWebpage), &idx) ){
+  if( name_search(g.zPath, aWebpage, count(aWebpage), 0, &idx) ){
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
       json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,0);
