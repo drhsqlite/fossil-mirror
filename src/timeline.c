@@ -1605,7 +1605,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     }
     zFree = mprintf("[%S] %s%s", zId, zPrefix, zCom);
     /* record another X lines */
-    nLine += comment_print(zFree, 9, width, g.comFmtFlags);
+    nLine += comment_print(zFree, zCom, 9, width, g.comFmtFlags);
     fossil_free(zFree);
 
     if(verboseFlag){

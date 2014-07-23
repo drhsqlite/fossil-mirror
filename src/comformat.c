@@ -35,6 +35,7 @@
 #define COMMENT_PRINT_LEGACY     ((u32)0x00000001) /* Use legacy algorithm. */
 #define COMMENT_PRINT_TRIM_SPACE ((u32)0x00000002) /* Trim leading/trailing. */
 #define COMMENT_PRINT_WORD_BREAK ((u32)0x00000004) /* Break lines on words. */
+#define COMMENT_PRINT_ORIG_BREAK ((u32)0x00000008) /* Break before original. */
 #define COMMENT_PRINT_DEFAULT    (COMMENT_PRINT_LEGACY) /* Defaults. */
 #endif
 
@@ -53,6 +54,26 @@
 #ifndef COMMENT_TAB_WIDTH
 # define COMMENT_TAB_WIDTH             (8)
 #endif
+
+/*
+** This function checks the current line being printed against the original
+** comment text.  Upon matching, it emits a new line and updates the provided
+** character and line counts, if applicable.
+*/
+static int comment_check_orig(
+  const char *zOrigText, /* [in] Original comment text ONLY, may be NULL. */
+  const char *zLine,     /* [in] The comment line to print. */
+  int *pCharCnt,         /* [in/out] Pointer to the line character count. */
+  int *pLineCnt          /* [in/out] Pointer to the total line count. */
+){
+  if( zOrigText && fossil_strcmp(zLine, zOrigText)==0 ){
+    fossil_print("\n");
+    if( pCharCnt ) *pCharCnt = 0;
+    if( pLineCnt ) (*pLineCnt)++;
+    return 1;
+  }
+  return 0;
+}
 
 /*
 ** This function scans the specified comment line starting just after the
@@ -100,13 +121,15 @@ static void comment_print_indent(
 ** a new line -OR- runs out of space on the logical line.
 */
 static void comment_print_line(
-  const char *zLine,  /* [in] The comment line to print. */
-  int indent,         /* [in] Number of spaces to indent, zero for none. */
-  int lineChars,      /* [in] Maximum number of characters to print. */
-  int trimSpace,      /* [in] Non-zero to trim leading/trailing spaces. */
-  int wordBreak,      /* [in] Non-zero to try breaking on word boundaries. */
-  int *pLineCnt,      /* [in/out] Pointer to the total line count. */
-  const char **pzLine /* [out] Pointer to the end of the logical line. */
+  const char *zOrigText, /* [in] Original comment text ONLY, may be NULL. */
+  const char *zLine,     /* [in] The comment line to print. */
+  int indent,            /* [in] Number of spaces to indent, zero for none. */
+  int lineChars,         /* [in] Maximum number of characters to print. */
+  int trimSpace,         /* [in] Non-zero to trim leading/trailing spaces. */
+  int wordBreak,         /* [in] Non-zero to try breaking on word boundaries. */
+  int origBreak,         /* [in] Non-zero to break before original comment. */
+  int *pLineCnt,         /* [in/out] Pointer to the total line count. */
+  const char **pzLine    /* [out] Pointer to the end of the logical line. */
 ){
   int index = 0, charCnt = 0, lineCnt = 0, maxChars;
   if( !zLine ) return;
@@ -118,6 +141,11 @@ static void comment_print_line(
     if( c==0 ){
       break;
     }else{
+      if( origBreak && index>0 ){
+        if( comment_check_orig(zOrigText, &zLine[index], &charCnt, &lineCnt) ){
+          maxChars = lineChars;
+        }
+      }
       index++;
     }
     if( c=='\n' ){
@@ -287,6 +315,11 @@ static int comment_print_legacy(
 **                               does not apply to the legacy comment
 **                               printing algorithm.
 **
+**     COMMENT_PRINT_ORIG_BREAK: Looks for the original comment text within
+**                               the text being printed.  Upon matching, a
+**                               new line will be emitted, thus preserving
+**                               more of the existing formatting.
+**
 ** Given a comment string, format that string for printing on a TTY.
 ** Assume that the output cursors is indent spaces from the left margin
 ** and that a single line can contain no more than 'width' characters.
@@ -295,15 +328,17 @@ static int comment_print_legacy(
 ** Returns the number of new lines emitted.
 */
 int comment_print(
-  const char *zText, /* The comment text to be printed. */
-  int indent,        /* Number of spaces to indent each non-initial line. */
-  int width,         /* Maximum number of characters per line. */
-  int flags          /* Zero or more "COMMENT_PRINT_*" flags, see above. */
+  const char *zText,     /* The comment text to be printed. */
+  const char *zOrigText, /* Original comment text ONLY, may be NULL. */
+  int indent,            /* Spaces to indent each non-initial line. */
+  int width,             /* Maximum number of characters per line. */
+  int flags              /* Zero or more "COMMENT_PRINT_*" flags. */
 ){
   int maxChars = width - indent;
   int legacy = flags & COMMENT_PRINT_LEGACY;
   int trimSpace = flags & COMMENT_PRINT_TRIM_SPACE;
   int wordBreak = flags & COMMENT_PRINT_WORD_BREAK;
+  int origBreak = flags & COMMENT_PRINT_ORIG_BREAK;
   int lineCnt = 0;
   const char *zLine;
 
@@ -350,8 +385,8 @@ int comment_print(
   }
   zLine = zText;
   for(;;){
-    comment_print_line(zLine, zLine>zText ? indent : 0, maxChars,
-                       trimSpace, wordBreak, &lineCnt, &zLine);
+    comment_print_line(zOrigText, zLine, zLine>zText ? indent : 0, maxChars,
+                       trimSpace, wordBreak, origBreak, &lineCnt, &zLine);
     if( !zLine || !zLine[0] ) break;
   }
   return lineCnt;
@@ -361,7 +396,7 @@ int comment_print(
 **
 ** COMMAND: test-comment-format
 **
-** Usage: %fossil test-comment-format ?OPTIONS? PREFIX TEXT ?WIDTH?
+** Usage: %fossil test-comment-format ?OPTIONS? PREFIX TEXT ?ORIGTEXT?
 **
 ** Test comment formatting and printing.  Use for testing only.
 **
@@ -373,10 +408,16 @@ int comment_print(
 **   --legacy         Use the legacy comment printing algorithm.
 **   --trimspace      Enable trimming of leading/trailing spaces.
 **   --wordbreak      Attempt to break lines on word boundaries.
+**   --origbreak      Attempt to break when the original comment text
+**                    is detected.
+**   -W|--width <num> Width of lines (default (-1) is to auto-detect).
+**                    Zero means no limit.
 */
 void test_comment_format(void){
+  const char *zWidth;
   const char *zPrefix;
   char *zText;
+  char *zOrigText;
   int indent, width;
   int fromFile = find_option("file", 0, 0)!=0;
   int decode = find_option("decode", 0, 0)!=0;
@@ -390,11 +431,25 @@ void test_comment_format(void){
   if( find_option("wordbreak", 0, 0) ){
     flags |= COMMENT_PRINT_WORD_BREAK;
   }
+  if( find_option("origbreak", 0, 0) ){
+    flags |= COMMENT_PRINT_ORIG_BREAK;
+  }
+  zWidth = find_option("width","W",1);
+  if( zWidth ){
+    width = atoi(zWidth);
+  }else{
+    width = -1; /* automatic */
+  }
   if( g.argc!=4 && g.argc!=5 ){
-    usage("?OPTIONS? PREFIX TEXT ?WIDTH?");
+    usage("?OPTIONS? PREFIX TEXT ?ORIGTEXT?");
   }
   zPrefix = g.argv[2];
   zText = g.argv[3];
+  if( g.argc==5 ){
+    zOrigText = g.argv[4];
+  }else{
+    zOrigText = 0;
+  }
   if( fromFile ){
     Blob fileData;
     blob_read_from_file(&fileData, zText);
@@ -404,17 +459,17 @@ void test_comment_format(void){
   if( decode ){
     zText = mprintf("%s", zText);
     defossilize(zText);
+    if( zOrigText ){
+      zOrigText = mprintf("%s", zOrigText);
+      defossilize(zOrigText);
+    }
   }
   indent = strlen(zPrefix);
-  if( g.argc==5 ){
-    width = atoi(g.argv[4]);
-  }else{
-    width = -1; /* automatic */
-  }
   if( indent>0 ){
     fossil_print("%s", zPrefix);
   }
   fossil_print("(%d lines output)\n",
-               comment_print(zText, indent, width, flags));
-  if( zText!=g.argv[3] ) fossil_free(zText);
+               comment_print(zText, zOrigText, indent, width, flags));
+  if( zOrigText && zOrigText!=g.argv[4] ) fossil_free(zOrigText);
+  if( zText && zText!=g.argv[3] ) fossil_free(zText);
 }

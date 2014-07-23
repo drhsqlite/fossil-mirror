@@ -392,7 +392,7 @@ void bisect_cmd(void){
         fossil_print("  %-15s  %-6s  ", aBisectOption[i].zName,
                db_lget(z, (char*)aBisectOption[i].zDefault));
         fossil_free(z);
-        comment_print(aBisectOption[i].zDesc, 27, -1, g.comFmtFlags);
+        comment_print(aBisectOption[i].zDesc, 0, 27, -1, g.comFmtFlags);
       }
     }else if( g.argc==4 || g.argc==5 ){
       unsigned int i;

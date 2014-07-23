@@ -28,97 +28,97 @@ test comment-2 {$RESULT eq "\n(1 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format " " "this is a short comment." 26
+fossil test-comment-format --width 26 " " "this is a short comment."
 test comment-3 {$RESULT eq " this is a short comment.\n(1 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --decode " " "this is a short comment." 26
+fossil test-comment-format --width 26 --decode " " "this is a short comment."
 test comment-4 {$RESULT eq " this is a short comment.\n(1 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format "*PREFIX* " "this is a short comment." 26
+fossil test-comment-format --width 26 "*PREFIX* " "this is a short comment."
 test comment-5 {$RESULT eq "*PREFIX* this is a short c\n         omment.\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --decode "*PREFIX* " "this is a short comment." 26
+fossil test-comment-format --width 26 --decode "*PREFIX* " "this is a short comment."
 test comment-6 {$RESULT eq "*PREFIX* this is a short c\n         omment.\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format "" "this\\sis\\sa\\sshort\\scomment." 26
+fossil test-comment-format --width 26 "" "this\\sis\\sa\\sshort\\scomment."
 test comment-7 {$RESULT eq "this\\sis\\sa\\sshort\\scommen\nt.\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --decode "" "this\\sis\\sa\\sshort\\scomment." 26
+fossil test-comment-format --width 26 --decode "" "this\\sis\\sa\\sshort\\scomment."
 test comment-8 {$RESULT eq "this is a short comment.\n(1 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --decode --trimspace "HH:MM:SS " "this is a long comment that should span multiple lines if the test is working correctly." 78
+fossil test-comment-format --width 78 --decode --trimspace "HH:MM:SS " "this is a long comment that should span multiple lines if the test is working correctly."
 test comment-9 {$RESULT eq "HH:MM:SS this is a long comment that should span multiple lines if the test is\n         working correctly.\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --decode --trimspace "HH:MM:SS " "this is a long comment that should span multiple lines if the test is working correctly.  more text here describing the issue.\\nanother line here..................................................................................*" 78
+fossil test-comment-format --width 78 --decode --trimspace "HH:MM:SS " "this is a long comment that should span multiple lines if the test is working correctly.  more text here describing the issue.\\nanother line here..................................................................................*"
 test comment-10 {$RESULT eq "HH:MM:SS this is a long comment that should span multiple lines if the test is\n         working correctly.  more text here describing the issue.\n         another line here....................................................\n         ..............................*\n(4 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format "HH:MM:SS " "....................................................................................*" 78
+fossil test-comment-format --width 78 "HH:MM:SS " "....................................................................................*"
 test comment-11 {$RESULT eq "HH:MM:SS .....................................................................\n         ...............*\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format "HH:MM:SS " ".....................................................................*" 78
+fossil test-comment-format --width 78 "HH:MM:SS " ".....................................................................*" 78
 test comment-12 {$RESULT eq "HH:MM:SS .....................................................................\n         *\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format "*TEST* " "this\tis a test." 26
+fossil test-comment-format --width 26 "*TEST* " "this\tis a test."
 test comment-13 {$RESULT eq "*TEST* this\tis a te\n       st.\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format "*TEST* " "this is a test......................................................................................................................." 60
+fossil test-comment-format --width 60 "*TEST* " "this is a test......................................................................................................................."
 test comment-14 {$RESULT eq "*TEST* this is a test.......................................\n       .....................................................\n       ...........................\n(3 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --wordbreak "*TEST* " "this is a test......................................................................................................................." 60
+fossil test-comment-format --width 60 --wordbreak "*TEST* " "this is a test......................................................................................................................."
 test comment-15 {$RESULT eq "*TEST* this is a\n       test.................................................\n       .....................................................\n       .................\n(4 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format "*TEST* " "this	is	a	test......................................................................................................................." 60
+fossil test-comment-format --width 60 "*TEST* " "this	is	a	test......................................................................................................................."
 test comment-16 {$RESULT eq "*TEST* this	is	a\n       test.................................................\n       .....................................................\n       .................\n(4 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --wordbreak "*TEST* " "this	is	a	test......................................................................................................................." 60
+fossil test-comment-format --width 60 --wordbreak "*TEST* " "this	is	a	test......................................................................................................................."
 test comment-17 {$RESULT eq "*TEST* this	is	a\n       test.................................................\n       .....................................................\n       .................\n(4 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format "*TEST* " "one two three four five six seven eight nine ten eleven twelve" 60
+fossil test-comment-format --width 60 "*TEST* " "one two three four five six seven eight nine ten eleven twelve"
 test comment-18 {$RESULT eq "*TEST* one two three four five six seven eight nine ten elev\n       en twelve\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --wordbreak "*TEST* " "one two three four five six seven eight nine ten eleven twelve" 60
+fossil test-comment-format --width 60 --wordbreak "*TEST* " "one two three four five six seven eight nine ten eleven twelve"
 test comment-19 {$RESULT eq "*TEST* one two three four five six seven eight nine ten\n       eleven twelve\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format "*TEST* " "one	two	three	four	five	six	seven	eight	nine	ten	eleven	twelve" 60
+fossil test-comment-format --width 60 "*TEST* " "one	two	three	four	five	six	seven	eight	nine	ten	eleven	twelve"
 test comment-20 {$RESULT eq "*TEST* one	two	three	four	five\n       six	seven	eight	nine	ten\n       eleven	twelve\n(3 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --wordbreak "*TEST* " "one	two	three	four	five	six	seven	eight	nine	ten	eleven	twelve" 60
+fossil test-comment-format --width 60 --wordbreak "*TEST* " "one	two	three	four	five	six	seven	eight	nine	ten	eleven	twelve"
 test comment-21 {$RESULT eq "*TEST* one	two	three	four	five\n       six	seven	eight	nine	ten\n       eleven	twelve\n(3 lines output)"}
 
 ###############################################################################
@@ -133,95 +133,106 @@ test comment-23 {$RESULT eq "\n(1 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy " " "this is a short comment." 26
+fossil test-comment-format --width 26 --legacy " " "this is a short comment."
 test comment-24 {$RESULT eq " this is a short comment.\n(1 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy --decode " " "this is a short comment." 26
+fossil test-comment-format --width 26 --legacy --decode " " "this is a short comment."
 test comment-25 {$RESULT eq " this is a short comment.\n(1 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy "*PREFIX* " "this is a short comment." 25
+fossil test-comment-format --width 25 --legacy "*PREFIX* " "this is a short comment."
 test comment-26 {$RESULT eq "*PREFIX* this is a short\n         comment.\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy --decode "*PREFIX* " "this is a short comment." 25
+fossil test-comment-format --width 25 --legacy --decode "*PREFIX* " "this is a short comment."
 test comment-27 {$RESULT eq "*PREFIX* this is a short\n         comment.\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy "" "this\\sis\\sa\\sshort\\scomment." 26
+fossil test-comment-format --width 26 --legacy "" "this\\sis\\sa\\sshort\\scomment."
 test comment-28 {$RESULT eq "this\\sis\\sa\\sshort\\scommen\nt.\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy --decode "" "this\\sis\\sa\\sshort\\scomment." 26
+fossil test-comment-format --width 26 --legacy --decode "" "this\\sis\\sa\\sshort\\scomment."
 test comment-29 {$RESULT eq "this is a short comment.\n(1 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy --decode "HH:MM:SS " "this is a long comment that should span multiple lines if the test is working correctly." 78
+fossil test-comment-format --width 78 --legacy --decode "HH:MM:SS " "this is a long comment that should span multiple lines if the test is working correctly."
 test comment-30 {$RESULT eq "HH:MM:SS this is a long comment that should span multiple lines if the test\n         is working correctly.\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy --decode "HH:MM:SS " "this is a long comment that should span multiple lines if the test is working correctly.  more text here describing the issue.\\nanother line here..................................................................................*" 78
+fossil test-comment-format --width 78 --legacy --decode "HH:MM:SS " "this is a long comment that should span multiple lines if the test is working correctly.  more text here describing the issue.\\nanother line here..................................................................................*"
 test comment-31 {$RESULT eq "HH:MM:SS this is a long comment that should span multiple lines if the test\n         is working correctly. more text here describing the issue. another\n         line\n         here.................................................................\n         .................*\n(5 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy "HH:MM:SS " "....................................................................................*" 78
+fossil test-comment-format --width 78 --legacy "HH:MM:SS " "....................................................................................*"
 test comment-32 {$RESULT eq "HH:MM:SS .....................................................................\n         ...............*\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy "HH:MM:SS " ".....................................................................*" 78
+fossil test-comment-format --width 78 --legacy "HH:MM:SS " ".....................................................................*"
 test comment-33 {$RESULT eq "HH:MM:SS .....................................................................\n         *\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy "*TEST* " "this\tis a test." 26
+fossil test-comment-format --width 26 --legacy "*TEST* " "this\tis a test."
 test comment-34 {$RESULT eq "*TEST* this is a test.\n(1 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy "*TEST* " "this is a test......................................................................................................................." 60
+fossil test-comment-format --width 60 --legacy "*TEST* " "this is a test......................................................................................................................."
 test comment-35 {$RESULT eq "*TEST* this is a\n       test.................................................\n       .....................................................\n       .................\n(4 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy --wordbreak "*TEST* " "this is a test......................................................................................................................." 60
+fossil test-comment-format --width 60 --legacy --wordbreak "*TEST* " "this is a test......................................................................................................................."
 test comment-36 {$RESULT eq "*TEST* this is a\n       test.................................................\n       .....................................................\n       .................\n(4 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy "*TEST* " "this	is	a	test......................................................................................................................." 60
+fossil test-comment-format --width 60 --legacy "*TEST* " "this	is	a	test......................................................................................................................."
 test comment-37 {$RESULT eq "*TEST* this is a\n       test.................................................\n       .....................................................\n       .................\n(4 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy --wordbreak "*TEST* " "this	is	a	test......................................................................................................................." 60
+fossil test-comment-format --width 60 --legacy --wordbreak "*TEST* " "this	is	a	test......................................................................................................................."
 test comment-38 {$RESULT eq "*TEST* this is a\n       test.................................................\n       .....................................................\n       .................\n(4 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy "*TEST* " "one two three four five six seven eight nine ten eleven twelve" 60
+fossil test-comment-format --width 60 --legacy "*TEST* " "one two three four five six seven eight nine ten eleven twelve"
 test comment-39 {$RESULT eq "*TEST* one two three four five six seven eight nine ten\n       eleven twelve\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy --wordbreak "*TEST* " "one two three four five six seven eight nine ten eleven twelve" 60
+fossil test-comment-format --width 60 --legacy --wordbreak "*TEST* " "one two three four five six seven eight nine ten eleven twelve"
 test comment-40 {$RESULT eq "*TEST* one two three four five six seven eight nine ten\n       eleven twelve\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy "*TEST* " "one	two	three	four	five	six	seven	eight	nine	ten	eleven	twelve" 60
+fossil test-comment-format --width 60 --legacy "*TEST* " "one	two	three	four	five	six	seven	eight	nine	ten	eleven	twelve"
 test comment-41 {$RESULT eq "*TEST* one two three four five six seven eight nine ten\n       eleven twelve\n(2 lines output)"}
 
 ###############################################################################
 
-fossil test-comment-format --legacy --wordbreak "*TEST* " "one	two	three	four	five	six	seven	eight	nine	ten	eleven	twelve" 60
+fossil test-comment-format --width 60 --legacy --wordbreak "*TEST* " "one	two	three	four	five	six	seven	eight	nine	ten	eleven	twelve"
 test comment-42 {$RESULT eq "*TEST* one two three four five six seven eight nine ten\n       eleven twelve\n(2 lines output)"}
+
+###############################################################################
+
+set orig "xxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxxxx, x xxxx xxxxxx xx xxxx xxxx\\nxxxxxxx xxxxx xxxx  xxxx xx xxxxxxx xxxxxxx (xxxxxx  xxxxxxxxx x xxxxx).\\nxxx'x xxx xxx xx  xxxxx xxxx xxx xxx --xxxxxxxxxxx xxxxxx  xx xx xxxx. x\\nxxxxx  x xxxxxx  xxxx xxxx  xxxx xxxx  xxxx x  xxxxx xx  xxx x  xxxxxxxx\\nxxxxxxx."
+fossil test-comment-format --width 73 --decode --origbreak "" $orig $orig
+test comment-43 {$RESULT eq "xxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxxxx, x xxxx xxxxxx xx xxxx xxxx\nxxxxxxx xxxxx xxxx  xxxx xx xxxxxxx xxxxxxx (xxxxxx  xxxxxxxxx x xxxxx).\nxxx'x xxx xxx xx  xxxxx xxxx xxx xxx --xxxxxxxxxxx xxxxxx  xx xx xxxx. x\nxxxxx  x xxxxxx  xxxx xxxx  xxxx xxxx  xxxx x  xxxxx xx  xxx x  xxxxxxxx\nxxxxxxx.\n(5 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --width 73 --decode --origbreak "" "00:00:00 \[0000000000\] *CURRENT* $orig" $orig
+test comment-44 {$RESULT eq "00:00:00 \[0000000000\] *CURRENT* \nxxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxxxx, x xxxx xxxxxx xx xxxx xxxx\nxxxxxxx xxxxx xxxx  xxxx xx xxxxxxx xxxxxxx (xxxxxx  xxxxxxxxx x xxxxx).\nxxx'x xxx xxx xx  xxxxx xxxx xxx xxx --xxxxxxxxxxx xxxxxx  xx xx xxxx. x\nxxxxx  x xxxxxx  xxxx xxxx  xxxx xxxx  xxxx x  xxxxx xx  xxx x  xxxxxxxx\nxxxxxxx.\n(6 lines output)"}
