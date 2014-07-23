@@ -449,10 +449,10 @@ described above, then it generates an error and aborts.</p>
 
 <h2>4.0 Phantoms And Clusters</h2>
 
-<p>When a repository knows that a artifact exists and knows the ID of
+<p>When a repository knows that an artifact exists and knows the ID of
 that artifact, but it does not know the artifact content, then it stores that
 artifact as a "phantom".  A repository will typically create a phantom when
-it receives an igot card for a artifact that it does not hold or when it
+it receives an igot card for an artifact that it does not hold or when it
 receives a file card that references a delta source that it does not
 hold.  When a server is generating its reply or when a client is
 generating a new request, it will usually send gimme cards for every
@@ -470,7 +470,7 @@ whitespace is allowed.  All cards in the cluster must occur in
 strict lexicographical order.</p>
 
 <p>A cluster consists of one or more "M" cards followed by a single
-"Z" card.  Each M card holds an argument which is a artifact ID for an
+"Z" card.  Each M card holds an argument which is an artifact ID for an
 artifact in the repository.  The Z card has a single argument which is the
 lower-case hexadecimal representation of the MD5 checksum of all
 preceding M cards up to and included the newline character that
