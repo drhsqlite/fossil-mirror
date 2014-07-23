@@ -455,12 +455,17 @@ void test_comment_format(void){
     blob_read_from_file(&fileData, zText);
     zText = mprintf("%s", blob_str(&fileData));
     blob_reset(&fileData);
+    if( zOrigText ){
+      blob_read_from_file(&fileData, zOrigText);
+      zOrigText = mprintf("%s", blob_str(&fileData));
+      blob_reset(&fileData);
+    }
   }
   if( decode ){
-    zText = mprintf("%s", zText);
+    zText = mprintf(fromFile ? "%z" : "%s", zText);
     defossilize(zText);
     if( zOrigText ){
-      zOrigText = mprintf("%s", zOrigText);
+      zOrigText = mprintf(fromFile ? "%z" : "%s", zOrigText);
       defossilize(zOrigText);
     }
   }

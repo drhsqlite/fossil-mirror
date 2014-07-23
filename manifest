@@ -1,5 +1,5 @@
-C When\savailable,\spass\sthe\soriginal\scomment\stext\sas\swell\sas\sthe\s(possibly\sprefixed)\scomment\sinto\scomment_print().\s\sAdd\sCOMMENT_PRINT_ORIG_BREAK\sflag\sto\sthe\snew\scomment\sprinting\salgorithm.\s\sChange\sthe\swidth\sargument\sfor\sthe\stest-comment-format\scommand\sinto\san\soption.\s\sAdd\s--origbreak\soption\sto\sthe\stest-comment-format\scommand.
-D 2014-07-23T21:37:50.749
+C For\sthe\stest-comment-format\scommand,\salso\streat\sthe\soriginal\scomment\stext\sargument\sas\sa\sfile\sname\swhen\sthe\s--file\soption\sis\sspecified.\s\sFix\smemory\sleaks\swhen\sthe\s--file\sand\s--decode\soptions\sare\sused\stogether.
+D 2014-07-23T21:52:52.981
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -324,7 +324,7 @@ F src/checkin.c 86d2e5cd9f361c988d9c01a8dfc9d12466d15587
 F src/checkout.c 4ca36989505eceddfab75a5cd13c89bb3c9cc5ce
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 1272c49df0a59f0befadb10a5469b270d8320ba0
-F src/comformat.c c438ef4aefb09756e482f3e450575cca479f4619
+F src/comformat.c 03330004245bd39e141a5bb0a57e6746068a2456
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
 F src/configure.c f269fd9da2b442fc409ad409661bb9d29a5d98cc
 F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b1b352e1cce404c84f8ec86b53d627823ad2f09b
-R 3313e8cc3be871355d4e9a6547e763e5
+P 0d0b80fd1cafff21194e6a7f953f006f616fb9ad
+R 35dbaa9742febf57f53c064485b521c6
 U mistachkin
-Z a4766a74aff63c233fb6589e9cb5997a
+Z 6fca2ead872e0535f149e25f0303e079
