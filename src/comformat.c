@@ -366,6 +366,8 @@ int comment_print(
 ** Test comment formatting and printing.  Use for testing only.
 **
 ** Options:
+**   --file           The comment text is really just a file name to
+**                    read it from.
 **   --decode         Decode the text using the same method used when
 **                    handling the value of a C-card from a manifest.
 **   --legacy         Use the legacy comment printing algorithm.
@@ -376,6 +378,7 @@ void test_comment_format(void){
   const char *zPrefix;
   char *zText;
   int indent, width;
+  int fromFile = find_option("file", 0, 0)!=0;
   int decode = find_option("decode", 0, 0)!=0;
   int flags = COMMENT_PRINT_NONE;
   if( find_option("legacy", 0, 0) ){
@@ -391,11 +394,16 @@ void test_comment_format(void){
     usage("?OPTIONS? PREFIX TEXT ?WIDTH?");
   }
   zPrefix = g.argv[2];
+  zText = g.argv[3];
+  if( fromFile ){
+    Blob fileData;
+    blob_read_from_file(&fileData, zText);
+    zText = mprintf("%s", blob_str(&fileData));
+    blob_reset(&fileData);
+  }
   if( decode ){
-    zText = mprintf("%s", g.argv[3]);
+    zText = mprintf("%s", zText);
     defossilize(zText);
-  }else{
-    zText = g.argv[3];
   }
   indent = strlen(zPrefix);
   if( g.argc==5 ){
