@@ -123,7 +123,10 @@ static void comment_print_indent(
 static void comment_print_line(
   const char *zOrigText, /* [in] Original comment text ONLY, may be NULL. */
   const char *zLine,     /* [in] The comment line to print. */
-  int indent,            /* [in] Number of spaces to indent, zero for none. */
+  int origIndent,        /* [in] Number of spaces to indent before the original
+                         **      comment. */
+  int indent,            /* [in] Number of spaces to indent, before the line
+                         **      to print. */
   int lineChars,         /* [in] Maximum number of characters to print. */
   int trimSpace,         /* [in] Non-zero to trim leading/trailing spaces. */
   int wordBreak,         /* [in] Non-zero to try breaking on word boundaries. */
@@ -142,7 +145,9 @@ static void comment_print_line(
       break;
     }else{
       if( origBreak && index>0 ){
-        if( comment_check_orig(zOrigText, &zLine[index], &charCnt, &lineCnt) ){
+        const char *zCurrent = &zLine[index];
+        if( comment_check_orig(zOrigText, zCurrent, &charCnt, &lineCnt) ){
+          comment_print_indent(zCurrent, origIndent, trimSpace, &index);
           maxChars = lineChars;
         }
       }
@@ -385,8 +390,9 @@ int comment_print(
   }
   zLine = zText;
   for(;;){
-    comment_print_line(zOrigText, zLine, zLine>zText ? indent : 0, maxChars,
-                       trimSpace, wordBreak, origBreak, &lineCnt, &zLine);
+    comment_print_line(zOrigText, zLine, indent, zLine>zText ? indent : 0,
+                       maxChars, trimSpace, wordBreak, origBreak, &lineCnt,
+                       &zLine);
     if( !zLine || !zLine[0] ) break;
   }
   return lineCnt;
@@ -410,11 +416,14 @@ int comment_print(
 **   --wordbreak      Attempt to break lines on word boundaries.
 **   --origbreak      Attempt to break when the original comment text
 **                    is detected.
+**   --indent         Number of spaces to indent (default (-1) is to
+**                    auto-detect).  Zero means no indent.
 **   -W|--width <num> Width of lines (default (-1) is to auto-detect).
 **                    Zero means no limit.
 */
 void test_comment_format(void){
   const char *zWidth;
+  const char *zIndent;
   const char *zPrefix;
   char *zText;
   char *zOrigText;
@@ -439,6 +448,12 @@ void test_comment_format(void){
     width = atoi(zWidth);
   }else{
     width = -1; /* automatic */
+  }
+  zIndent = find_option("indent",0,1);
+  if( zIndent ){
+    indent = atoi(zIndent);
+  }else{
+    indent = -1; /* automatic */
   }
   if( g.argc!=4 && g.argc!=5 ){
     usage("?OPTIONS? PREFIX TEXT ?ORIGTEXT?");
@@ -469,8 +484,10 @@ void test_comment_format(void){
       defossilize(zOrigText);
     }
   }
-  indent = strlen(zPrefix);
-  if( indent>0 ){
+  if( indent<0 ){
+    indent = strlen(zPrefix);
+  }
+  if( zPrefix && *zPrefix ){
     fossil_print("%s", zPrefix);
   }
   fossil_print("(%d lines output)\n",
