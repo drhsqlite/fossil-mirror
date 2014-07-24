@@ -147,10 +147,10 @@ void Th_PrintTraceLog(){
 ** components. Return a new string result.
 */
 static int httpizeCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   char *zOut;
@@ -174,10 +174,10 @@ static int enableOutput = 1;
 ** Enable or disable the puts and hputs commands.
 */
 static int enableOutputCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   int rc;
@@ -247,13 +247,13 @@ static void sendError(const char *z, int n, int forceCgi){
 ** TH1 command: puts STRING
 ** TH1 command: html STRING
 **
-** Output STRING escaped for HTML (html) or unchanged (puts).  
+** Output STRING escaped for HTML (html) or unchanged (puts).
 */
 static int putsCmd(
-  Th_Interp *interp, 
-  void *pConvert, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *pConvert,
+  int argc,
+  const char **argv,
   int *argl
 ){
   if( argc!=2 ){
@@ -269,10 +269,10 @@ static int putsCmd(
 ** Render the input string as wiki.
 */
 static int wikiCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   int flags = WIKI_INLINE | WIKI_NOBADLINKS | *(unsigned int*)p;
@@ -295,10 +295,10 @@ static int wikiCmd(
 ** Return a new string result.
 */
 static int htmlizeCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   char *zOut;
@@ -319,10 +319,10 @@ static int htmlizeCmd(
 ** of UTC.
 */
 static int dateCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   char *zOut;
@@ -342,10 +342,10 @@ static int dateCmd(
 ** Return true if the user has all of the capabilities listed in STRING.
 */
 static int hascapCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   int rc = 0, i;
@@ -379,10 +379,10 @@ static int hascapCmd(
 **
 */
 static int hasfeatureCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   int rc = 0;
@@ -477,10 +477,10 @@ static int tclReadyCmd(
 ** Return true if the user has any one of the capabilities listed in STRING.
 */
 static int anycapCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   int rc = 0;
@@ -510,9 +510,9 @@ static int anycapCmd(
 */
 static int comboboxCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   if( argc!=4 ){
@@ -541,7 +541,7 @@ static int comboboxCmd(
     blob_reset(&name);
     for(i=0; i<nElem; i++){
       zH = htmlize((char*)azElem[i], aszElem[i]);
-      if( zValue && aszElem[i]==nValue 
+      if( zValue && aszElem[i]==nValue
              && memcmp(zValue, azElem[i], nValue)==0 ){
         z = mprintf("<option value=\"%s\" selected=\"selected\">%s</option>",
                      zH, zH);
@@ -566,9 +566,9 @@ static int comboboxCmd(
 */
 static int linecntCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   const char *z;
@@ -602,9 +602,9 @@ static int linecntCmd(
 */
 static int repositoryCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   if( argc!=1 && argc!=2 ){
@@ -670,6 +670,75 @@ static int traceCmd(
   }
   Th_SetResult(interp, 0, 0);
   return TH_OK;
+}
+
+/*
+** TH1 command: globalState NAME ?DEFAULT?
+**
+** Returns a string containing the value of the specified global state
+** variable -OR- the specified default value.  Currently, the supported
+** items are:
+**
+** "checkout"        = The active local checkout directory, if any.
+** "configuration"   = The active configuration database file name,
+**                     if any.
+** "executable"      = The fully qualified executable file name.
+** "log"             = The error log file name, if any.
+** "repository"      = The active local repository file name, if
+**                     any.
+** "top"             = The base path for the active server instance,
+**                     if applicable.
+** "user"            = The active user name, if any.
+** "vfs"             = The SQLite VFS in use, if overridden.
+**
+** Attempts to query for unsupported global state variables will result
+** in a script error.  Additional global state variables may be exposed
+** in the future.
+**
+** See also: checkout, repository, setting
+*/
+static int globalStateCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  const char *zDefault = 0;
+  if( argc!=2 && argc!=3 ){
+    return Th_WrongNumArgs(interp, "globalState NAME ?DEFAULT?");
+  }
+  if( argc==3 ){
+    zDefault = argv[2];
+  }
+  if( fossil_strnicmp(argv[1], "checkout\0", 9)==0 ){
+    Th_SetResult(interp, g.zLocalRoot ? g.zLocalRoot : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "configuration\0", 14)==0 ){
+    Th_SetResult(interp, g.zConfigDbName ? g.zConfigDbName : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "executable\0", 11)==0 ){
+    Th_SetResult(interp, g.nameOfExe ? g.nameOfExe : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "log\0", 4)==0 ){
+    Th_SetResult(interp, g.zErrlog ? g.zErrlog : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "repository\0", 11)==0 ){
+    Th_SetResult(interp, g.zRepositoryName ? g.zRepositoryName : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "top\0", 4)==0 ){
+    Th_SetResult(interp, g.zTop ? g.zTop : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "user\0", 5)==0 ){
+    Th_SetResult(interp, g.zLogin ? g.zLogin : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "vfs\0", 4)==0 ){
+    Th_SetResult(interp, g.zVfsName ? g.zVfsName : zDefault, -1);
+    return TH_OK;
+  }else{
+    Th_ErrorMessage(interp, "unsupported global state:", argv[1], argl[1]);
+    return TH_ERROR;
+  }
 }
 
 /*
@@ -857,7 +926,7 @@ static void getCpuTimes(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
     *piUser = ((sqlite3_uint64)s.ru_utime.tv_sec)*1000000 + s.ru_utime.tv_usec;
   }
   if( piKernel ){
-    *piKernel = 
+    *piKernel =
               ((sqlite3_uint64)s.ru_stime.tv_sec)*1000000 + s.ru_stime.tv_usec;
   }
 #endif
@@ -871,9 +940,9 @@ static void getCpuTimes(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
 */
 static int utimeCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   sqlite3_uint64 x;
@@ -892,9 +961,9 @@ static int utimeCmd(
 */
 static int stimeCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   sqlite3_uint64 x;
@@ -909,14 +978,14 @@ static int stimeCmd(
 /*
 ** TH1 command: randhex  N
 **
-** Return N*2 random hexadecimal digits with N<50.  If N is omitted, 
+** Return N*2 random hexadecimal digits with N<50.  If N is omitted,
 ** use a value of 10.
 */
 static int randhexCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   int n;
@@ -952,9 +1021,9 @@ static int randhexCmd(
 */
 static int queryCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   sqlite3_stmt *pStmt;
@@ -1018,7 +1087,7 @@ static int queryCmd(
       Th_ErrorMessage(interp, "SQL error: ", sqlite3_errmsg(g.db), -1);
       return TH_ERROR;
     }
-  } 
+  }
   return res;
 }
 
@@ -1292,6 +1361,7 @@ void Th_FossilInit(u32 flags){
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"enable_output", enableOutputCmd,      0},
     {"getParameter",  getParameterCmd,      0},
+    {"globalState",   globalStateCmd,       0},
     {"httpize",       httpizeCmd,           0},
     {"hascap",        hascapCmd,            0},
     {"hasfeature",    hasfeatureCmd,        0},
@@ -1693,7 +1763,7 @@ int Th_WebpageNotify(
 
 /*
 ** The z[] input contains text mixed with TH1 scripts.
-** The TH1 scripts are contained within <th1>...</th1>. 
+** The TH1 scripts are contained within <th1>...</th1>.
 ** TH1 variables are $aaa or $<aaa>.  The first form of
 ** variable is literal.  The second is run through htmlize
 ** before being inserted.

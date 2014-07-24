@@ -1,5 +1,5 @@
-C For\sthe\stest-comment-format\scommand,\salso\streat\sthe\soriginal\scomment\stext\sargument\sas\sa\sfile\sname\swhen\sthe\s--file\soption\sis\sspecified.\s\sFix\smemory\sleaks\swhen\sthe\s--file\sand\s--decode\soptions\sare\sused\stogether.
-D 2014-07-23T21:52:52.981
+C Add\snew\sglobalState\scommand\sto\sTH1,\swith\stests.
+D 2014-07-24T03:12:49.564
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -416,7 +416,7 @@ F src/tar.c 21d0c0bc6321bdd1b64b9c8e0cb9ad40d6c2a154
 F src/th.c f456996ecfca2e4be5619c5b17143125544d04a4
 F src/th.h f55e2863d3df25e681d6acd39adbe6368182e83b
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
-F src/th_main.c 4bfc2511181fd3a6beead2d42a87c71d0fa8b111
+F src/th_main.c 64eb601d2a62da89abd4a7af078ca76c4851a970
 F src/th_tcl.c 4cb7c0795483d23b84c082f454dec9cb124cdd32
 F src/timeline.c ee79f7ec5da7fd35f5902d47704d94d3849fc8a4
 F src/tkt.c d8705474df602501d0dc5506d05127a91b2e5ade
@@ -475,7 +475,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 247968bab41b2cace91100304b8201d3b1dd5e27
+F test/th1.test bd9fedf9026fbc0c4a75f4e5b7c927fbfc1ce3e2
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
@@ -651,7 +651,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0d0b80fd1cafff21194e6a7f953f006f616fb9ad
-R 35dbaa9742febf57f53c064485b521c6
+P 378dad36ba266cac134b135da6923432eb1725cc
+R 08ae25de24110a76c72e409f817bced8
+T *branch * globalStateCmd
+T *sym-globalStateCmd *
+T -sym-trunk *
 U mistachkin
-Z 6fca2ead872e0535f149e25f0303e079
+Z d211113ae5929c3f6f137b362790ce08
