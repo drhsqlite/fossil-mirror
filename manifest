@@ -1,5 +1,5 @@
-C Add\snew\sglobalState\scommand\sto\sTH1,\swith\stests.
-D 2014-07-24T03:12:49.564
+C Merge\sfrom\strunk.
+D 2014-07-24T03:15:25.236
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -651,10 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 378dad36ba266cac134b135da6923432eb1725cc
+P 995173d05138837af9de5ed5bde4d708999566e8 b000db4752f9145cb34c2d19921e3083426586b6
 R 08ae25de24110a76c72e409f817bced8
-T *branch * globalStateCmd
-T *sym-globalStateCmd *
-T -sym-trunk *
 U mistachkin
-Z d211113ae5929c3f6f137b362790ce08
+Z 3ba2eed9c9572c2f3d25a450d18d6b96
