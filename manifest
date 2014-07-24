@@ -1,5 +1,5 @@
-C For\sthe\snew\scomment\sprinting\salgorithm,\smake\ssure\sto\sindent\safter\sforcing\sa\sline\sbreak\sdue\sto\sthe\soriginal\scomment\stext\sbeing\sdetected.
-D 2014-07-24T03:52:34.970
+C Factor\sout\sthe\scommon\sterminal\swidth\sdetection\scode\sfor\scomment\sprinting\sinto\sa\snew\sfunction.
+D 2014-07-24T05:05:59.924
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -324,7 +324,7 @@ F src/checkin.c 86d2e5cd9f361c988d9c01a8dfc9d12466d15587
 F src/checkout.c 4ca36989505eceddfab75a5cd13c89bb3c9cc5ce
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 1272c49df0a59f0befadb10a5469b270d8320ba0
-F src/comformat.c 5cb5620841e3eb9a6abf270f05f1ea769f65068a
+F src/comformat.c 339895f0e8bd4aa3d2dde00e52e48f21e7341c9d
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
 F src/configure.c f269fd9da2b442fc409ad409661bb9d29a5d98cc
 F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b000db4752f9145cb34c2d19921e3083426586b6
-R fad440125c6ffd4e70635fbee2ffd174
+P 856c60611ff37bdbb1899ecd746d4ab16998f807
+R 932bc0488bf95199dca69329d6404071
 U mistachkin
-Z 7dd963ef15152f9ab2cb2e59c5b9dd32
+Z e15a987c9e2329db18ca15494cd54f50

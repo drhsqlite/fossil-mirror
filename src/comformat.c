@@ -56,6 +56,47 @@
 #endif
 
 /*
+** This function sets the maximum number of characters to print per line
+** based on the detected terminal line width, if available; otherwise, it
+** uses the legacy default terminal line width minus the amount to indent.
+**
+** Zero is returned to indicate any failure.  One is returned to indicate
+** the successful detection of the terminal line width.  Negative one is
+** returned to indicate the terminal line width is using the hard-coded
+** legacy default value.
+*/
+static int comment_set_maxchars(
+  int indent,
+  int *pMaxChars
+){
+#if defined(_WIN32)
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  memset(&csbi, 0, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
+  if( GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) ){
+    *pMaxChars = csbi.srWindow.Right - csbi.srWindow.Left - indent;
+    return 1;
+  }
+  return 0;
+#elif defined(TIOCGWINSZ)
+  struct winsize w;
+  memset(&w, 0, sizeof(struct winsize));
+  if( ioctl(0, TIOCGWINSZ, &w)!=-1 ){
+    *pMaxChars = w.ws_col - indent;
+    return 1;
+  }
+  return 0;
+#else
+  /*
+  ** Fallback to using more-or-less the "legacy semantics" of hard-coding
+  ** the maximum line length to a value reasonable for the vast majority
+  ** of supported systems.
+  */
+  *pMaxChars = COMMENT_LEGACY_LINE_LENGTH - indent;
+  return -1;
+#endif
+}
+
+/*
 ** This function checks the current line being printed against the original
 ** comment text.  Upon matching, it emits a new line and updates the provided
 ** character and line counts, if applicable.
@@ -210,45 +251,22 @@ static int comment_print_legacy(
   int indent,        /* Number of spaces to indent each non-initial line. */
   int width          /* Maximum number of characters per line. */
 ){
-  int tlen = width - indent;
+  int maxChars = width - indent;
   int si, sk, i, k;
   int doIndent = 0;
   char *zBuf;
   char zBuffer[400];
   int lineCnt = 0;
 
-#if defined(_WIN32)
   if( width<0 ){
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    memset(&csbi, 0, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
-    if( GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) ){
-      tlen = csbi.srWindow.Right - csbi.srWindow.Left - indent;
-    }
+    comment_set_maxchars(indent, &maxChars);
   }
-#elif defined(TIOCGWINSZ)
-  if( width<0 ){
-    struct winsize w;
-    memset(&w, 0, sizeof(struct winsize));
-    if( ioctl(0, TIOCGWINSZ, &w)!=-1 ){
-      tlen = w.ws_col - indent;
-    }
-  }
-#else
-  if( width<0 ){
-    /*
-    ** Fallback to using more-or-less the "legacy semantics" of hard-coding
-    ** the maximum line length to a value reasonable for the vast majority
-    ** of supported systems.
-    */
-    tlen = COMMENT_LEGACY_LINE_LENGTH - indent;
-  }
-#endif
   if( zText==0 ) zText = "(NULL)";
-  if( tlen<=0 ){
-    tlen = strlen(zText);
+  if( maxChars<=0 ){
+    maxChars = strlen(zText);
   }
-  if( tlen >= (sizeof(zBuffer)) ){
-    zBuf = fossil_malloc(tlen+1);
+  if( maxChars >= (sizeof(zBuffer)) ){
+    zBuf = fossil_malloc(maxChars+1);
   }else{
     zBuf = zBuffer;
   }
@@ -262,7 +280,7 @@ static int comment_print_legacy(
       if( zBuf!=zBuffer) fossil_free(zBuf);
       return lineCnt;
     }
-    for(sk=si=i=k=0; zText[i] && k<tlen; i++){
+    for(sk=si=i=k=0; zText[i] && k<maxChars; i++){
       char c = zText[i];
       if( fossil_isspace(c) ){
         si = i;
@@ -350,32 +368,9 @@ int comment_print(
   if( legacy ){
     return comment_print_legacy(zText, indent, width);
   }
-#if defined(_WIN32)
   if( width<0 ){
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    memset(&csbi, 0, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
-    if( GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) ){
-      maxChars = csbi.srWindow.Right - csbi.srWindow.Left - indent;
-    }
+    comment_set_maxchars(indent, &maxChars);
   }
-#elif defined(TIOCGWINSZ)
-  if( width<0 ){
-    struct winsize w;
-    memset(&w, 0, sizeof(struct winsize));
-    if( ioctl(0, TIOCGWINSZ, &w)!=-1 ){
-      maxChars = w.ws_col - indent;
-    }
-  }
-#else
-  if( width<0 ){
-    /*
-    ** Fallback to using more-or-less the "legacy semantics" of hard-coding
-    ** the maximum line length to a value reasonable for the vast majority
-    ** of supported systems.
-    */
-    maxChars = COMMENT_LEGACY_LINE_LENGTH - indent;
-  }
-#endif
   if( zText==0 ) zText = "(NULL)";
   if( maxChars<=0 ){
     maxChars = strlen(zText);
