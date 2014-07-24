@@ -270,7 +270,6 @@ test comment-50 {$RESULT eq "xxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxxxx, x xxx
 ###############################################################################
 
 fossil test-comment-format --width 72 --decode --trimspace --origbreak "" "00:00:00 \[0000000000\] *CURRENT* $orig" $orig
-puts $RESULT
 test comment-51 {$RESULT eq "00:00:00 \[0000000000\] *CURRENT* \nxxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxxxx, x xxxx xxxxxx xx xxxx xxxx\nxxxxxxx xxxxx xxxx  xxxx xx xxxxxxx xxxxxxx (xxxxxx  xxxxxxxxx x xxxxx).\nxxx'x xxx xxx xx  xxxxx xxxx xxx xxx --xxxxxxxxxxx xxxxxx  xx xx xxxx. x\nxxxxx  x xxxxxx  xxxx xxxx  xxxx xxxx  xxxx x  xxxxx xx  xxx x  xxxxxxxx\nxxxxxxx.\n(6 lines output)"}
 
 ###############################################################################
@@ -287,3 +286,33 @@ test comment-53 {$RESULT eq "         xxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxx
 
 fossil test-comment-format --width 81 --indent 9 --decode --trimspace --origbreak "00:00:00 " "\[0000000000\] *CURRENT* $orig" $orig
 test comment-54 {$RESULT eq "00:00:00 \[0000000000\] *CURRENT* \n         xxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxxxx, x xxxx xxxxxx xx xxxx xxxx\n         xxxxxxx xxxxx xxxx  xxxx xx xxxxxxx xxxxxxx (xxxxxx  xxxxxxxxx x xxxxx).\n         xxx'x xxx xxx xx  xxxxx xxxx xxx xxx --xxxxxxxxxxx xxxxxx  xx xx xxxx. x\n         xxxxx  x xxxxxx  xxxx xxxx  xxxx xxxx  xxxx x  xxxxx xx  xxx x  xxxxxxxx\n         xxxxxxx.\n(6 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --width 72 --decode --trimcrlf --origbreak "" $orig
+test comment-55 {$RESULT eq "xxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxxxx, x xxxx xxxxxx xx xxxx xxxx\nxxxxxxx xxxxx xxxx  xxxx xx xxxxxxx xxxxxxx (xxxxxx  xxxxxxxxx x xxxxx).\nxxx'x xxx xxx xx  xxxxx xxxx xxx xxx --xxxxxxxxxxx xxxxxx  xx xx xxxx. x\nxxxxx  x xxxxxx  xxxx xxxx  xxxx xxxx  xxxx x  xxxxx xx  xxx x  xxxxxxxx\nxxxxxxx.\n(5 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --width 72 --decode --trimcrlf --origbreak "" $orig $orig
+test comment-56 {$RESULT eq "xxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxxxx, x xxxx xxxxxx xx xxxx xxxx\nxxxxxxx xxxxx xxxx  xxxx xx xxxxxxx xxxxxxx (xxxxxx  xxxxxxxxx x xxxxx).\nxxx'x xxx xxx xx  xxxxx xxxx xxx xxx --xxxxxxxxxxx xxxxxx  xx xx xxxx. x\nxxxxx  x xxxxxx  xxxx xxxx  xxxx xxxx  xxxx x  xxxxx xx  xxx x  xxxxxxxx\nxxxxxxx.\n(5 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --width 72 --decode --trimcrlf --origbreak "" "00:00:00 \[0000000000\] *CURRENT* $orig" $orig
+test comment-57 {$RESULT eq "00:00:00 \[0000000000\] *CURRENT* \nxxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxxxx, x xxxx xxxxxx xx xxxx xxxx\nxxxxxxx xxxxx xxxx  xxxx xx xxxxxxx xxxxxxx (xxxxxx  xxxxxxxxx x xxxxx).\nxxx'x xxx xxx xx  xxxxx xxxx xxx xxx --xxxxxxxxxxx xxxxxx  xx xx xxxx. x\nxxxxx  x xxxxxx  xxxx xxxx  xxxx xxxx  xxxx x  xxxxx xx  xxx x  xxxxxxxx\nxxxxxxx.\n(6 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --width 81 --indent 9 --decode --trimcrlf --origbreak "         " $orig
+test comment-58 {$RESULT eq "         xxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxxxx, x xxxx xxxxxx xx xxxx xxxx\n         xxxxxxx xxxxx xxxx  xxxx xx xxxxxxx xxxxxxx (xxxxxx  xxxxxxxxx x xxxxx).\n         xxx'x xxx xxx xx  xxxxx xxxx xxx xxx --xxxxxxxxxxx xxxxxx  xx xx xxxx. x\n         xxxxx  x xxxxxx  xxxx xxxx  xxxx xxxx  xxxx x  xxxxx xx  xxx x  xxxxxxxx\n         xxxxxxx.\n(5 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --width 81 --indent 9 --decode --trimcrlf --origbreak "         " $orig $orig
+test comment-59 {$RESULT eq "         xxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxxxx, x xxxx xxxxxx xx xxxx xxxx\n         xxxxxxx xxxxx xxxx  xxxx xx xxxxxxx xxxxxxx (xxxxxx  xxxxxxxxx x xxxxx).\n         xxx'x xxx xxx xx  xxxxx xxxx xxx xxx --xxxxxxxxxxx xxxxxx  xx xx xxxx. x\n         xxxxx  x xxxxxx  xxxx xxxx  xxxx xxxx  xxxx x  xxxxx xx  xxx x  xxxxxxxx\n         xxxxxxx.\n(5 lines output)"}
+
+###############################################################################
+
+fossil test-comment-format --width 81 --indent 9 --decode --trimcrlf --origbreak "00:00:00 " "\[0000000000\] *CURRENT* $orig" $orig
+test comment-60 {$RESULT eq "00:00:00 \[0000000000\] *CURRENT* \n         xxxx xx xxxxxxx xxxx xxxxxx xxxxxxx, xxxxxxx, x xxxx xxxxxx xx xxxx xxxx\n         xxxxxxx xxxxx xxxx  xxxx xx xxxxxxx xxxxxxx (xxxxxx  xxxxxxxxx x xxxxx).\n         xxx'x xxx xxx xx  xxxxx xxxx xxx xxx --xxxxxxxxxxx xxxxxx  xx xx xxxx. x\n         xxxxx  x xxxxxx  xxxx xxxx  xxxx xxxx  xxxx x  xxxxx xx  xxx x  xxxxxxxx\n         xxxxxxx.\n(6 lines output)"}

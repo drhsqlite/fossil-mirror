@@ -33,9 +33,10 @@
 #if INTERFACE
 #define COMMENT_PRINT_NONE       ((u32)0x00000000) /* No flags. */
 #define COMMENT_PRINT_LEGACY     ((u32)0x00000001) /* Use legacy algorithm. */
-#define COMMENT_PRINT_TRIM_SPACE ((u32)0x00000002) /* Trim leading/trailing. */
-#define COMMENT_PRINT_WORD_BREAK ((u32)0x00000004) /* Break lines on words. */
-#define COMMENT_PRINT_ORIG_BREAK ((u32)0x00000008) /* Break before original. */
+#define COMMENT_PRINT_TRIM_CRLF  ((u32)0x00000002) /* Trim leading CR/LF. */
+#define COMMENT_PRINT_TRIM_SPACE ((u32)0x00000004) /* Trim leading/trailing. */
+#define COMMENT_PRINT_WORD_BREAK ((u32)0x00000008) /* Break lines on words. */
+#define COMMENT_PRINT_ORIG_BREAK ((u32)0x00000010) /* Break before original. */
 #define COMMENT_PRINT_DEFAULT    (COMMENT_PRINT_LEGACY) /* Defaults. */
 #endif
 
@@ -144,15 +145,21 @@ static int comment_next_space(
 static void comment_print_indent(
   const char *zLine, /* [in] The comment line being printed. */
   int indent,        /* [in] Number of spaces to indent, zero for none. */
+  int trimCrLf,      /* [in] Non-zero to trim leading/trailing CR/LF. */
   int trimSpace,     /* [in] Non-zero to trim leading/trailing spaces. */
   int *piIndex       /* [in/out] Pointer to first non-space character. */
 ){
   if( indent>0 ){
     fossil_print("%*s", indent, "");
   }
-  if( trimSpace && zLine && piIndex ){
+  if( zLine && piIndex ){
     int index = *piIndex;
-    while( fossil_isspace(zLine[index]) ){ index++; }
+    if( trimCrLf ){
+      while( zLine[index]=='\r' || zLine[index]=='\n' ){ index++; }
+    }
+    if( trimSpace ){
+      while( fossil_isspace(zLine[index]) ){ index++; }
+    }
     *piIndex = index;
   }
 }
@@ -169,6 +176,7 @@ static void comment_print_line(
   int indent,            /* [in] Number of spaces to indent, before the line
                          **      to print. */
   int lineChars,         /* [in] Maximum number of characters to print. */
+  int trimCrLf,          /* [in] Non-zero to trim leading/trailing CR/LF. */
   int trimSpace,         /* [in] Non-zero to trim leading/trailing spaces. */
   int wordBreak,         /* [in] Non-zero to try breaking on word boundaries. */
   int origBreak,         /* [in] Non-zero to break before original comment. */
@@ -178,7 +186,7 @@ static void comment_print_line(
   int index = 0, charCnt = 0, lineCnt = 0, maxChars;
   if( !zLine ) return;
   if( lineChars<=0 ) return;
-  comment_print_indent(zLine, indent, trimSpace, &index);
+  comment_print_indent(zLine, indent, trimCrLf, trimSpace, &index);
   maxChars = lineChars;
   for(;;){
     int useChars = 1;
@@ -189,7 +197,8 @@ static void comment_print_line(
       if( origBreak && index>0 ){
         const char *zCurrent = &zLine[index];
         if( comment_check_orig(zOrigText, zCurrent, &charCnt, &lineCnt) ){
-          comment_print_indent(zCurrent, origIndent, trimSpace, &index);
+          comment_print_indent(zCurrent, origIndent, trimCrLf, trimSpace,
+                               &index);
           maxChars = lineChars;
         }
       }
@@ -326,12 +335,22 @@ static int comment_print_legacy(
 **                               algorithm.  For backward compatibility,
 **                               this is the default.
 **
-**     COMMENT_PRINT_TRIM_SPACE: Trims leading and trailing spaces where
-**                               they do not materially impact formatting
-**                               (i.e. at the start of the comment string
-**                               -AND- right before each line indentation).
+**      COMMENT_PRINT_TRIM_CRLF: Trims leading and trailing carriage-returns
+**                               and line-feeds where they do not materially
+**                               impact pre-existing formatting (i.e. at the
+**                               start of the comment string -AND- right
+**                               before line indentation).  This flag does
+**                               not apply to the legacy comment printing
+**                               algorithm.  This flag may be combined with
+**                               COMMENT_PRINT_TRIM_SPACE.
+**
+**     COMMENT_PRINT_TRIM_SPACE: Trims leading and trailing spaces where they
+**                               do not materially impact the pre-existing
+**                               formatting (i.e. at the start of the comment
+**                               string -AND- right before line indentation).
 **                               This flag does not apply to the legacy
-**                               comment printing algorithm.
+**                               comment printing algorithm.  This flag may
+**                               be combined with COMMENT_PRINT_TRIM_CRLF.
 **
 **     COMMENT_PRINT_WORD_BREAK: Attempts to break lines on word boundaries
 **                               while honoring the logical line length.
@@ -344,7 +363,7 @@ static int comment_print_legacy(
 **     COMMENT_PRINT_ORIG_BREAK: Looks for the original comment text within
 **                               the text being printed.  Upon matching, a
 **                               new line will be emitted, thus preserving
-**                               more of the existing formatting.
+**                               more of the pre-existing formatting.
 **
 ** Given a comment string, format that string for printing on a TTY.
 ** Assume that the output cursors is indent spaces from the left margin
@@ -362,6 +381,7 @@ int comment_print(
 ){
   int maxChars = width - indent;
   int legacy = flags & COMMENT_PRINT_LEGACY;
+  int trimCrLf = flags & COMMENT_PRINT_TRIM_CRLF;
   int trimSpace = flags & COMMENT_PRINT_TRIM_SPACE;
   int wordBreak = flags & COMMENT_PRINT_WORD_BREAK;
   int origBreak = flags & COMMENT_PRINT_ORIG_BREAK;
@@ -389,8 +409,8 @@ int comment_print(
   zLine = zText;
   for(;;){
     comment_print_line(zOrigText, zLine, indent, zLine>zText ? indent : 0,
-                       maxChars, trimSpace, wordBreak, origBreak, &lineCnt,
-                       &zLine);
+                       maxChars, trimCrLf, trimSpace, wordBreak, origBreak,
+                       &lineCnt, &zLine);
     if( !zLine || !zLine[0] ) break;
   }
   return lineCnt;
@@ -410,6 +430,7 @@ int comment_print(
 **   --decode         Decode the text using the same method used when
 **                    handling the value of a C-card from a manifest.
 **   --legacy         Use the legacy comment printing algorithm.
+**   --trimcrlf       Enable trimming of leading/trailing CR/LF.
 **   --trimspace      Enable trimming of leading/trailing spaces.
 **   --wordbreak      Attempt to break lines on word boundaries.
 **   --origbreak      Attempt to break when the original comment text
@@ -431,6 +452,9 @@ void test_comment_format(void){
   int flags = COMMENT_PRINT_NONE;
   if( find_option("legacy", 0, 0) ){
     flags |= COMMENT_PRINT_LEGACY;
+  }
+  if( find_option("trimcrlf", 0, 0) ){
+    flags |= COMMENT_PRINT_TRIM_CRLF;
   }
   if( find_option("trimspace", 0, 0) ){
     flags |= COMMENT_PRINT_TRIM_SPACE;

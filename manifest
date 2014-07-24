@@ -1,5 +1,5 @@
-C Fix\sboundary\scase\sin\sthe\snew\scomment\sprinting\salgorithm\sthat\ssometimes\sresults\sin\sextra\snew\slines.
-D 2014-07-24T20:54:18.669
+C Add\sanother\sflag\sto\sthe\snew\scomment\sprinting\salgorithm\scapable\sof\sstripping\ssuperfluous\sCR/LFs\swhile\spreserving\sother\sspacing.
+D 2014-07-24T21:27:08.899
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -324,7 +324,7 @@ F src/checkin.c 86d2e5cd9f361c988d9c01a8dfc9d12466d15587
 F src/checkout.c 4ca36989505eceddfab75a5cd13c89bb3c9cc5ce
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 1272c49df0a59f0befadb10a5469b270d8320ba0
-F src/comformat.c 13e999b153774480e4ac183fa4a1904924c34157
+F src/comformat.c 8847b181ba0261b6e0c7051b72d703e9fbaa70f9
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
 F src/configure.c f269fd9da2b442fc409ad409661bb9d29a5d98cc
 F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
@@ -442,7 +442,7 @@ F src/zip.c febf7fff38bfed9ca2fbda0a28d75fe8e445dce5
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
-F test/comment.test 69494450554a12a70b5c56b9fbaeb0f26b2cd3ae
+F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki a789acd5523d840232fcb2164929592260af0743
 F test/file1.test 4a1009731c0959c46c228a9336df9da4a5da97f1
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f39d8a3d24a2d07b75348751ce5d2531ae34bc5d
-R 31235a36f2f16e0140b49ae85465414b
+P 4532733830d26f524b3ec7a6ee431ac1b44cce38
+R f2266b0a13ff49d7e92204afb6213fac
 U mistachkin
-Z 8738d5a884d6be687b257d5ba685b9e6
+Z bb5d23ac7ccb74ad1a8826667e990ff9
