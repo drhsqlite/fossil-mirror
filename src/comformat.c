@@ -181,6 +181,7 @@ static void comment_print_line(
   comment_print_indent(zLine, indent, trimSpace, &index);
   maxChars = lineChars;
   for(;;){
+    int useChars = 1;
     char c = zLine[index];
     if( c==0 ){
       break;
@@ -195,32 +196,34 @@ static void comment_print_line(
       index++;
     }
     if( c=='\n' ){
-      charCnt = 0;
       lineCnt++;
+      charCnt = 0;
+      useChars = 0;
     }else if( c=='\t' ){
       int nextIndex = comment_next_space(zLine, index);
       if( nextIndex<=0 || (nextIndex-index)>maxChars ){
         break;
       }
       charCnt++;
-      if( maxChars<COMMENT_TAB_WIDTH ){
+      useChars = COMMENT_TAB_WIDTH;
+      if( maxChars<useChars ){
         fossil_print(" ");
         break;
       }
-      maxChars -= COMMENT_TAB_WIDTH;
     }else if( wordBreak && fossil_isspace(c) ){
       int nextIndex = comment_next_space(zLine, index);
       if( nextIndex<=0 || (nextIndex-index)>maxChars ){
         break;
       }
       charCnt++;
-      maxChars--;
     }else{
       charCnt++;
-      maxChars--;
     }
+    assert( c!='\n' || charCnt==0 );
     fossil_print("%c", c);
+    maxChars -= useChars;
     if( maxChars==0 ) break;
+    assert( maxChars>0 );
     if( c=='\n' ) break;
   }
   if( charCnt>0 ){
