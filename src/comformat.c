@@ -149,11 +149,11 @@ static void comment_print_indent(
 ){
   if( indent>0 ){
     fossil_print("%*s", indent, "");
-    if( trimSpace && zLine && piIndex ){
-      int index = *piIndex;
-      while( fossil_isspace(zLine[index]) ){ index++; }
-      *piIndex = index;
-    }
+  }
+  if( trimSpace && zLine && piIndex ){
+    int index = *piIndex;
+    while( fossil_isspace(zLine[index]) ){ index++; }
+    *piIndex = index;
   }
 }
 
