@@ -1,5 +1,5 @@
-C Add\sanother\sflag\sto\sthe\snew\scomment\sprinting\salgorithm\scapable\sof\sstripping\ssuperfluous\sCR/LFs\swhile\spreserving\sother\sspacing.
-D 2014-07-24T21:27:08.899
+C Update\sthe\srelease-test\sdescription\sof\sthe\sURL\scontaining\s++\sto\sexplain\nthat\sit\sonly\sworks\sfor\s"fossil\sui".
+D 2014-07-25T13:12:52.956
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -457,7 +457,7 @@ F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
 F test/merge5.test 28cc9adf08343456fae9f2d9001c35ec62a78f31
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge_renames.test 23036947380c8c2268761cf606063cbad51bb747
-F test/release-checklist.wiki 9439e56c72aaddbfeb1e8f01321396aa633c00d8
+F test/release-checklist.wiki bf02d4180bd66fbc3d2a11b97310557cd8484107
 F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4532733830d26f524b3ec7a6ee431ac1b44cce38
-R f2266b0a13ff49d7e92204afb6213fac
-U mistachkin
-Z bb5d23ac7ccb74ad1a8826667e990ff9
+P d7d265502a660e1dc5ef41fbe6978f32f507a00e
+R 5800ffc6f8ab271cb8b9887de9704d95
+U drh
+Z 24a83861722802d55e67c5030d4c0550
