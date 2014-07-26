@@ -1,5 +1,5 @@
-C Update\sthe\srelease-test\sdescription\sof\sthe\sURL\scontaining\s++\sto\sexplain\nthat\sit\sonly\sworks\sfor\s"fossil\sui".
-D 2014-07-25T13:12:52.956
+C Add\sJoe\sProstko's\squote\son\sFossil\sto\sthe\s"quotes.wiki"\spage.
+D 2014-07-26T20:17:24.282
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -633,7 +633,7 @@ F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
 F www/quickstart.wiki e58da3550b57620f703c248b92ba545622948909
-F www/quotes.wiki 4c947905c8316189465855c2d6c56ac6606a91c8
+F www/quotes.wiki 5ccf3d9414adbc2504a04e71d983977829dee551
 F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 23fd916be2143ac1026fcbea2fbea1373bf68876
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d7d265502a660e1dc5ef41fbe6978f32f507a00e
-R 5800ffc6f8ab271cb8b9887de9704d95
+P ffef4edceb42bf2db849bef3a76a848d461355bf
+R 8384965cc404695b7c9c394bb49dac5f
 U drh
-Z 24a83861722802d55e67c5030d4c0550
+Z 8eba3e54aa3b505ed8e2f953c459da65
