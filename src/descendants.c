@@ -132,6 +132,11 @@ void compute_leaves(int iBase, int closeMode){
     db_finalize(&q1);
     bag_clear(&pending);
     bag_clear(&seen);
+  }else{
+    db_multi_exec(
+      "INSERT INTO leaves"
+      "  SELECT leaf.rid FROM leaf"
+    );
   }
   if( closeMode==1 ){
     db_multi_exec(
