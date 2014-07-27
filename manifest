@@ -1,5 +1,5 @@
-C Fix\s[http://permalink.gmane.org/gmane.comp.version-control.fossil-scm.user/17346]
-D 2014-07-27T19:15:13.850
+C Fix\s[http://permalink.gmane.org/gmane.comp.version-control.fossil-scm.user/17266]
+D 2014-07-27T23:18:05.863
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -334,7 +334,7 @@ F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 3a5948513eddb7bc3fe79e29884fa206ed4078e7
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
-F src/descendants.c b14705f2dc13b3e5e17b007a16b3b47d94301411
+F src/descendants.c 9acbeb451dd9c0b51756b146d7702008c6c30d76
 F src/diff.c e293be07cfa38fcf95be76186d44bb8b7cf43bdf
 F src/diffcmd.c 673923119b9e9019fda65bd9f4bd12e9f0295438
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
@@ -424,7 +424,7 @@ F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 45b536803e254a50c73031db8d26d267a4db79ae
-F src/update.c ac73ea5d017ea7495b5d78acef19494d166e6116
+F src/update.c 57a8410c8dc103576e603c391ef3559603999513
 F src/url.c 67ceb425c9e6de2f3dd108180add087c27f94c03
 F src/user.c 811c206e39131262dd12b441fbfe9cf8229b1cc5
 F src/utf8.c 76559aefffb4f90653eea15c3d68cb2c19834bf4
@@ -651,7 +651,8 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dcb60765724a6c2cb52b1ce059235800cde5dd63
-R 24fde4166c9d6f5004fd577d26c65372
+P 14aea4f883c7ed309cb17f72691744ff96b49f1b 0d8cb8e30a8896579c8ccc917c8d3f1e3d1155fa
+R dd72f78ca2973a551d216992656b3dbb
+T +closed 0d8cb8e30a8896579c8ccc917c8d3f1e3d1155fa
 U jan.nijtmans
-Z 36f857a6373abe32e9b1206c1d8fba27
+Z 16877a5dcdd91cf807c325be7e7948b9

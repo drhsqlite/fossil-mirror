@@ -263,17 +263,19 @@ void update_cmd(void){
   /* Compute file name changes on V->T.  Record name changes in files that
   ** have changed locally.
   */
-  find_filename_changes(vid, tid, 1, &nChng, &aChng, debugFlag ? "V->T": 0);
-  if( nChng ){
-    for(i=0; i<nChng; i++){
-      db_multi_exec(
-        "UPDATE fv"
-        "   SET fnt=(SELECT name FROM filename WHERE fnid=%d)"
-        " WHERE fn=(SELECT name FROM filename WHERE fnid=%d) AND chnged",
-        aChng[i*2+1], aChng[i*2]
-      );
+  if( vid ){
+    find_filename_changes(vid, tid, 1, &nChng, &aChng, debugFlag ? "V->T": 0);
+    if( nChng ){
+      for(i=0; i<nChng; i++){
+        db_multi_exec(
+          "UPDATE fv"
+          "   SET fnt=(SELECT name FROM filename WHERE fnid=%d)"
+          " WHERE fn=(SELECT name FROM filename WHERE fnid=%d) AND chnged",
+          aChng[i*2+1], aChng[i*2]
+        );
+      }
+      fossil_free(aChng);
     }
-    fossil_free(aChng);
   }
 
   /* Add files found in the target version T but missing from the current
