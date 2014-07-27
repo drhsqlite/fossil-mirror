@@ -201,11 +201,11 @@ void finfo_cmd(void){
       if( zBr==0 ) zBr = "trunk";
       if( iBrief ){
         fossil_print("%s ", zDate);
-        zOut = sqlite3_mprintf(
+        zOut = mprintf(
            "[%S] %s (user: %s, artifact: [%S], branch: %s)",
            zCiUuid, zCom, zUser, zFileUuid, zBr);
         comment_print(zOut, zCom, 11, iWidth, g.comFmtFlags);
-        sqlite3_free(zOut);
+        fossil_free(zOut);
       }else{
         blob_reset(&line);
         blob_appendf(&line, "%.10s ", zCiUuid);
