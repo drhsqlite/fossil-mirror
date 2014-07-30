@@ -141,6 +141,10 @@ void update_cmd(void){
   debugFlag = find_option("debug",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
   capture_case_sensitive_option();
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   user_select();

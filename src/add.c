@@ -125,6 +125,10 @@ void test_reserved_names(void){
   int i;
   const char *z;
   int omitRepo = find_option("omitrepo",0,0)!=0;
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   for(i=0; (z = fossil_reserved_name(i, omitRepo))!=0; i++){
     fossil_print("%3d: %s\n", i, z);
@@ -259,6 +263,10 @@ void add_cmd(void){
   forceFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   capture_case_sensitive_option();
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   if( zCleanFlag==0 ){
     zCleanFlag = db_get("clean-glob", 0);
@@ -348,6 +356,10 @@ void delete_cmd(void){
   Stmt loop;
 
   capture_case_sensitive_option();
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
@@ -513,6 +525,10 @@ void addremove_cmd(void){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
   capture_case_sensitive_option();
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   if( zCleanFlag==0 ){
     zCleanFlag = db_get("clean-glob", 0);
@@ -622,6 +638,10 @@ void mv_cmd(void){
 
   capture_case_sensitive_option();
   db_must_be_within_tree();
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     fossil_fatal("no checkout rename files in");

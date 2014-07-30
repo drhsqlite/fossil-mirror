@@ -1781,6 +1781,10 @@ void timeline_cmd(void){
   }
   zOffset = find_option("offset",0,1);
   iOffset = zOffset ? atoi(zOffset) : 0;
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc>=4 ){
     k = strlen(g.argv[2]);
     if( strncmp(g.argv[2],"before",k)==0 ){

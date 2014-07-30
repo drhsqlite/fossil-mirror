@@ -199,6 +199,10 @@ void info_cmd(void){
   if( !verboseFlag ){
     verboseFlag = find_option("detail","l",0)!=0; /* deprecated */
   }
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc==3 && (fsize = file_size(g.argv[2]))>0 && (fsize&0x1ff)==0 ){
     db_open_config(0);
     db_record_repository_filename(g.argv[2]);

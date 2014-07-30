@@ -174,6 +174,10 @@ void dbstat_cmd(void){
 
   brief = find_option("brief", "b",0)!=0;
   db_find_and_open_repository(0,0);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   fsize = file_size(g.zRepositoryName);
   bigSizeName(sizeof(zBuf), zBuf, fsize);
   fossil_print( "%*s%s\n", colWidth, "repository-size:", zBuf );

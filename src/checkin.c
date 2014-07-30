@@ -162,6 +162,31 @@ static int determine_cwd_relative_option()
   return relativePaths;
 }
 
+void print_changes(
+  int useSha1sum,     /* Verify file status using SHA1 hashing rather
+                         than relying on file mtimes. */
+  int showHdr,        /* Identify the repository if there are changes */
+  int verboseFlag,    /* Say "(none)" if there are no changes */
+  int cwdRelative     /* Report relative to the current working dir */
+){
+  Blob report;
+  int vid;
+  blob_zero(&report);
+
+  vid = db_lget_int("checkout", 0);
+  vfile_check_signature(vid, useSha1sum ? CKSIG_SHA1 : 0);
+  status_report(&report, "", 0, cwdRelative);
+  if( verboseFlag && blob_size(&report)==0 ){
+    blob_append(&report, "  (none)\n", -1);
+  }
+  if( showHdr && blob_size(&report)>0 ){
+    fossil_print("Changes for %s at %s:\n", db_get("project-name","???"),
+                 g.zLocalRoot);
+  }
+  blob_write_to_file(&report, "-");
+  blob_reset(&report);
+}
+
 /*
 ** COMMAND: changes
 **
@@ -184,27 +209,17 @@ static int determine_cwd_relative_option()
 ** See also: extras, ls, status
 */
 void changes_cmd(void){
-  Blob report;
-  int vid;
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
   int showHdr = find_option("header",0,0)!=0;
   int verboseFlag = find_option("verbose","v",0)!=0;
   int cwdRelative = 0;
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
-  blob_zero(&report);
-  vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid, useSha1sum ? CKSIG_SHA1 : 0);
-  status_report(&report, "", 0, cwdRelative);
-  if( verboseFlag && blob_size(&report)==0 ){
-    blob_append(&report, "  (none)\n", -1);
-  }
-  if( showHdr && blob_size(&report)>0 ){
-    fossil_print("Changes for %s at %s:\n", db_get("project-name","???"),
-                 g.zLocalRoot);
-  }
-  blob_write_to_file(&report, "-");
-  blob_reset(&report);
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
+  print_changes(useSha1sum, showHdr, verboseFlag, cwdRelative);
 }
 
 /*
@@ -229,8 +244,17 @@ void changes_cmd(void){
 */
 void status_cmd(void){
   int vid;
+  int useSha1sum = find_option("sha1sum", 0, 0)!=0;
+  int showHdr = find_option("header",0,0)!=0;
+  int verboseFlag = find_option("verbose","v",0)!=0;
+  int cwdRelative = 0;
   db_must_be_within_tree();
        /* 012345678901234 */
+  cwdRelative = determine_cwd_relative_option();
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   fossil_print("repository:   %s\n", db_repository_filename());
   fossil_print("local-root:   %s\n", g.zLocalRoot);
   if( g.zConfigDbName ){
@@ -240,8 +264,8 @@ void status_cmd(void){
   if( vid ){
     show_common_info(vid, "checkout:", 1, 1);
   }
-  db_record_repository_filename(0);
-  changes_cmd();
+  db_record_repository_filename(0); 
+  print_changes(useSha1sum, showHdr, verboseFlag, cwdRelative);
 }
 
 /*
@@ -456,6 +480,10 @@ void extras_cmd(void){
   capture_case_sensitive_option();
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }

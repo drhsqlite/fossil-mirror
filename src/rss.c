@@ -270,6 +270,9 @@ void cmd_timeline_rss(void){
 
   db_find_and_open_repository(0, 0);
 
+  /* We should be done with options.. */
+    verify_all_options();
+
   blob_zero(&bSQL);
   blob_append( &bSQL, zSQL1, -1 );
 

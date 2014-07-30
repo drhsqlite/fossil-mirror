@@ -66,6 +66,9 @@ void finfo_cmd(void){
     Blob fname;
     int vid;
 
+    /* We should be done with options.. */
+    verify_all_options();
+
     if( g.argc!=3 ) usage("-s|--status FILENAME");
     vid = db_lget_int("checkout", 0);
     if( vid==0 ){
@@ -118,6 +121,9 @@ void finfo_cmd(void){
     Blob fname;
     const char *zRevision = find_option("revision", "r", 1);
 
+    /* We should be done with options.. */
+    verify_all_options();
+
     file_tree_name(g.argv[2], &fname, 1);
     if( zRevision ){
       historical_version_of_file(zRevision, blob_str(&fname), &record, 0,0,0,0);
@@ -160,6 +166,10 @@ void finfo_cmd(void){
     }else{
       iWidth = -1;
     }
+
+    /* We should be done with options.. */
+    verify_all_options();
+
     if( g.argc!=3 ){
       usage("?-l|--log? ?-b|--brief? FILENAME");
     }
@@ -243,6 +253,10 @@ void cat_cmd(void){
   const char *zRev;
   db_find_and_open_repository(0, 0);
   zRev = find_option("r","r",1);
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   for(i=2; i<g.argc; i++){
     file_tree_name(g.argv[i], &fname, 1);
     blob_zero(&content);

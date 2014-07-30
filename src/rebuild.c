@@ -580,6 +580,10 @@ void rebuild_database(void){
     db_close(1);
     db_open_repository(g.zRepositoryName);
   }
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_begin_transaction();
   ttyOutput = 1;
   errCnt = rebuild_db(randomizeFlag, 1, doClustering);
@@ -795,6 +799,10 @@ void scrub_cmd(void){
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
   db_close(1);
   db_open_repository(g.zRepositoryName);
+    
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( !bForce ){
     Blob ans;
     char cReply;
@@ -917,6 +925,10 @@ void reconstruct_cmd(void) {
   }
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_open_config(0);
   db_begin_transaction();
   db_initial_setup(0, 0, 0, 1);
