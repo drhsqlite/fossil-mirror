@@ -1,5 +1,5 @@
-C Fix\s[http://permalink.gmane.org/gmane.comp.version-control.fossil-scm.user/17266]
-D 2014-07-27T23:18:05.863
+C Update\sclone\sdocumentation\sfor\sclone\sprotocol\s3\sand\scfile\scards.
+D 2014-07-30T06:47:43.757
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -644,15 +644,17 @@ F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
 F www/style.wiki 92ede836b02fb8958e948b9df51f196e9ec95d68
-F www/sync.wiki 1a4da7a7cd5fc40c9536eb448340bd506855c303
+F www/sync.wiki aca075f40f7019142c583b494609060240a2e71e
 F www/tech_overview.wiki 47bd3f7fa192bb99ff6b2063d7e4cac62786f96d
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 14aea4f883c7ed309cb17f72691744ff96b49f1b 0d8cb8e30a8896579c8ccc917c8d3f1e3d1155fa
-R dd72f78ca2973a551d216992656b3dbb
-T +closed 0d8cb8e30a8896579c8ccc917c8d3f1e3d1155fa
-U jan.nijtmans
-Z 16877a5dcdd91cf807c325be7e7948b9
+P c6c05c82fdefa1d26c56600d971e12a85820cf48
+R 4ee4ac97aa62fdc50ed681456a5054cb
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U andybradford
+Z a4facc9a3951a738465e9a07ca2d63fb
