@@ -1,5 +1,5 @@
-C Add\sthe\s"Path"\ssubmenu\slink\son\sthe\s"/vdiff"\sweb\spage.
-D 2014-07-30T11:45:43.237
+C Update\sthe\sclone\sdocumentation\sfor\sprotocol\s3\sand\sthe\s'cfile'\scard\sformat.
+D 2014-07-30T11:52:20.329
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -644,14 +644,15 @@ F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
 F www/style.wiki 92ede836b02fb8958e948b9df51f196e9ec95d68
-F www/sync.wiki 1a4da7a7cd5fc40c9536eb448340bd506855c303
+F www/sync.wiki aca075f40f7019142c583b494609060240a2e71e
 F www/tech_overview.wiki 47bd3f7fa192bb99ff6b2063d7e4cac62786f96d
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c6c05c82fdefa1d26c56600d971e12a85820cf48
-R 5a3aa694f0a0cd20048c6d99b684ff80
+P ef6f7dee43779e16ceb8e4277d7d7d8ee7f0ddf5 9a697867023589c0333bf49d875713987b36e446
+R c05752a751770229aa6880f69b8e17aa
+T +closed 9a697867023589c0333bf49d875713987b36e446
 U drh
-Z 35a63f0329049a0446964f37fe981fa4
+Z 7ca80ecb506d7828be46c250bf8585d0
