@@ -1776,7 +1776,8 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  -D_HAVE__MINGW_H \
                  -DSQLITE_USE_MALLOC_H \
-                 -DSQLITE_USE_MSIZE
+                 -DSQLITE_USE_MSIZE \
+                 -DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
