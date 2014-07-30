@@ -989,6 +989,8 @@ void vdiff_page(void){
   }
   diffFlags = construct_diff_flags(verboseFlag, sideBySide);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  style_submenu_element("Path","path",
+                        "%R/timeline?me=%T&you=%T", zFrom, zTo);
   if( sideBySide || verboseFlag ){
     style_submenu_element("Hide Diff", "hidediff",
                           "%R/vdiff?from=%T&to=%T&sbs=0%s%T%s",
