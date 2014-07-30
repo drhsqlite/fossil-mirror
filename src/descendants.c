@@ -319,6 +319,10 @@ void descendants_cmd(void){
   }else{
     width = -1;
   }
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc==2 ){
     base = db_lget_int("checkout", 0);
   }else{
@@ -380,6 +384,10 @@ void leaves_cmd(void){
     width = -1;
   }
   db_find_and_open_repository(0,0);
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( recomputeFlag ) leaf_rebuild();
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(), -1);

@@ -770,7 +770,6 @@ void re_test_grep(void){
   ReCompiled *pRe;
   const char *zErr;
   int ignoreCase = find_option("ignore-case","i",0)!=0;
-
   if( g.argc<3 ){
     usage("REGEXP [FILE...]");
   }

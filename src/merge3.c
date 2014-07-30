@@ -370,6 +370,10 @@ int file_contains_merge_marker(const char *zFullpath){
 */
 void delta_3waymerge_cmd(void){
   Blob pivot, v1, v2, merged;
+    
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=6 ){
     usage("PIVOT V1 V2 MERGED");
   }

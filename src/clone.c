@@ -129,6 +129,10 @@ void clone_cmd(void){
   zDefaultUser = find_option("admin-user","A",1);
   clone_ssh_find_options();
   url_proxy_options();
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
   }

@@ -1481,6 +1481,10 @@ void create_repository_cmd(void){
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
   find_option("empty", 0, 0); /* deprecated */
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
@@ -2035,6 +2039,10 @@ void cmd_open(void){
   keepFlag = find_option("keep",0,0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }

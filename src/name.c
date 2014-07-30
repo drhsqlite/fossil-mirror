@@ -661,6 +661,10 @@ void whatis_cmd(void){
   int i;
   db_find_and_open_repository(0,0);
   verboseFlag = find_option("verbose","v",0)!=0;
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc<3 ) usage("whatis NAME ...");
   for(i=2; i<g.argc; i++){
     zName = g.argv[i];

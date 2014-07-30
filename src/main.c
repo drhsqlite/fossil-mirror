@@ -938,8 +938,15 @@ const char *get_user_agent(){
 ** with
 */
 void version_cmd(void){
+  int verboseFlag = 0;
+
   fossil_print("This is fossil version %s\n", get_version());
-  if(!find_option("verbose","v",0)){
+  verboseFlag = find_option("verbose","v",0)!=0;
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
+  if(!verboseFlag){
     return;
   }else{
 #if defined(FOSSIL_ENABLE_TCL)
@@ -1930,6 +1937,10 @@ void cmd_http(void){
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
   g.cgiOutput = 1;
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
     fossil_fatal("no repository specified");
   }
@@ -2109,6 +2120,10 @@ void cmd_webserver(void){
   if ( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
   }
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
