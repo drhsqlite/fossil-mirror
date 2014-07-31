@@ -64,27 +64,33 @@ int update_to(int vid){
 **
 ** Usage: %fossil update ?OPTIONS? ?VERSION? ?FILES...?
 **
-** Change the version of the current checkout to VERSION.  Any uncommitted
-** changes are retained and applied to the new checkout.
+** Change the version of the current checkout to VERSION.  Any
+** uncommitted changes are retained and applied to the new checkout.
 **
-** The VERSION argument can be a specific version or tag or branch name.
-** If the VERSION argument is omitted, then the leaf of the subtree
-** that begins at the current version is used, if there is only a single
-** leaf.  VERSION can also be "current" to select the leaf of the current
-** version or "latest" to select the most recent check-in.
+** The VERSION argument can be a specific version or tag or branch
+** name.  If the VERSION argument is omitted, then the leaf of the
+** subtree that begins at the current version is used, if there is
+** only a single leaf.  VERSION can also be "current" to select the
+** leaf of the current version or "latest" to select the most recent
+** check-in.
 **
 ** If one or more FILES are listed after the VERSION then only the
-** named files are candidates to be updated.  If FILES is omitted, all
-** files in the current checkout are subject to be updated.  Using
-** a directory name for one of the FILES arguments is the same as
-** using every subdirectory and file beneath that directory.
+** named files are candidates to be updated, and any updates to them
+** will be treated as edits to the current version. Using a directory
+** name for one of the FILES arguments is the same as using every
+** subdirectory and file beneath that directory.
 **
-** The -n or --dry-run option causes this command to do a "dry run".  It
-** prints out what would have happened but does not actually make any
-** changes to the current checkout or the repository.
+** If FILES is omitted, all files in the current checkout are subject
+** to being updated and the version of the current checkout is changed
+** to VERSION. Any uncommitted changes are retained and applied to the
+** new checkout.
 **
-** The -v or --verbose option prints status information about unchanged
-** files in addition to those file that actually do change.
+** The -n or --dry-run option causes this command to do a "dry run".
+** It prints out what would have happened but does not actually make
+** any changes to the current checkout or the repository.
+**
+** The -v or --verbose option prints status information about
+** unchanged files in addition to those file that actually do change.
 **
 ** Options:
 **   --case-sensitive <BOOL> override case-sensitive setting
