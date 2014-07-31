@@ -427,11 +427,13 @@ void baseline_zip_cmd(void){
 **
 ** Optional URL Parameters:
 **
-** - name=base name of the output file. Defaults to
-** something project/version-specific.
+** - name=NAME[.zip] is the name of the output file. Defaults to
+** something project/version-specific. The base part of the
+** name, up to the last dot, is used as the top-most directory
+** name in the output file.
 **
 ** - uuid=the version to zip (may be a tag/branch name).
-** Defaults to trunk.
+** Defaults to "trunk".
 **
 */
 void baseline_zip_page(void){
@@ -448,10 +450,18 @@ void baseline_zip_page(void){
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid","trunk"));
   nRid = strlen(zRid);
-  for(nName=strlen(zName)-1; nName>5; nName--){
-    if( zName[nName]=='.' ){
-      zName[nName] = 0;
-      break;
+  if( nName>4 && fossil_strcmp(&zName[nName-4], ".zip")==0 ){
+    /* Special case:  Remove the ".zip" suffix.  */
+    nName -= 4;
+    zName[nName] = 0;
+  }else{
+    /* If the file suffix is not ".zip" then just remove the
+    ** suffix up to and including the last "." */
+    for(nName=strlen(zName)-1; nName>5; nName--){
+      if( zName[nName]=='.' ){
+        zName[nName] = 0;
+        break;
+      }
     }
   }
   rid = name_to_typed_rid(nRid?zRid:zName,"ci");

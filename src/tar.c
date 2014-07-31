@@ -580,11 +580,13 @@ void tarball_cmd(void){
 **
 ** Optional URL Parameters:
 **
-** - name=base name of the output file. Defaults to
-** something project/version-specific.
+** - name=NAME[.tar.gz] is base name of the output file. Defaults to
+** something project/version-specific. The prefix of the name, up to
+** the last '.', are used as the top-most directory name in the tar
+** output. 
 **
 ** - uuid=the version to tar (may be a tag/branch name).
-** Defaults to trunk.
+** Defaults to "trunk".
 **
 */
 void tarball_page(void){
