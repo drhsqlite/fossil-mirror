@@ -29,7 +29,9 @@
 ** Produce an RSS feed of the timeline.
 **
 ** TYPE may be: all, ci (show checkins only), t (show tickets only),
-** w (show wiki only). LIMIT is the number of items to show.
+** w (show wiki only).
+**
+** LIMIT is the number of items to show.
 **
 ** tkt=UUID filters for only those events for the specified ticket. tag=TAG
 ** filters for a tag, and wiki=NAME for a wiki page. Only one may be used.
@@ -214,7 +216,10 @@ void page_timeline_rss(void){
 **
 ** -type|y FLAG
 **    may be: all (default), ci (show checkins only), t (show tickets only),
-**    w (show wiki only). LIMIT is the number of items to show.
+**    w (show wiki only).
+**
+** -limit|n LIMIT
+**   The maximum number of items to show.
 **
 ** -tkt UUID
 **    Filters for only those events for the specified ticket.
