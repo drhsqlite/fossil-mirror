@@ -1,5 +1,5 @@
-C For\smost\scommands,\sprint\san\serror\sif\sunknown\scommand-line\soptions\sare\sincluded\non\sthe\scommand-line.
-D 2014-07-30T16:43:59.937
+C Upgrade\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.6\salpha\sfrom\supstream.
+D 2014-07-31T19:02:36.515
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -405,8 +405,8 @@ F src/shell.c 191129c3f7a9cf241aea90ff6a6be3e74d3767f0
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
-F src/sqlite3.c 39bbd7cb84beb0d80b0bd45f4d5bcfcf32cb7773
-F src/sqlite3.h 6b95b7126f3f55c758cd8f6a47d17d76feed2063
+F src/sqlite3.c 0347f85edd3486410ec94ce16309f6bb96bf5a07
+F src/sqlite3.h bf386d79227978a9b9a7abc9c774e4620664030c
 F src/stash.c 4fcd200867fec73b3d57b9b99203afd0a5d7148e
 F src/stat.c a0e29e09e2635f397e2a7543cd12443fe66f24b7
 F src/style.c 9c32e2d4b4e18e6b151132d729651a5211a4ca7e
@@ -651,8 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d16018c8e19195881c861415cd18140d0a5783b5 a426154b3e6bdeb81c8dd696bfcc58f2ffab2c82
-R fcfbdbf82a162a934467bc8a1b55257a
-T +closed a426154b3e6bdeb81c8dd696bfcc58f2ffab2c82
-U drh
-Z 672be579c9747037f409251f4ade21df
+P 74ac0c925a98ee60e6ae4d905690856640651edd
+R ce3d5c4f22138311c53d666e559d5bc3
+U mistachkin
+Z fb11ea3f2624d55233307af5ac1f8498
