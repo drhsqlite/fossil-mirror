@@ -1071,6 +1071,9 @@ void db_open_repository(const char *zDbName){
 */
 void db_find_and_open_repository(int bFlags, int nArgUsed){
   const char *zRep = find_repository_option();
+  if( zRep && file_isdir(zRep)==1 ){
+    goto rep_not_found;
+  }
   if( zRep==0 && nArgUsed && g.argc==nArgUsed+1 ){
     zRep = g.argv[nArgUsed];
   }
