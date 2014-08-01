@@ -690,6 +690,11 @@ void cmd_win32_service(void){
     if( !zDisplay ){
       zDisplay = zSvcName;
     }
+    /* Per MSDN, the password parameter cannot be NULL.  Must use empty
+    ** string instead (i.e. in the call to CreateServiceW). */
+    if( !zPassword ){
+      zPassword = "";
+    }
     if( zStart ){
       if( strncmp(zStart, "auto", strlen(zStart))==0 ){
         dwStartType = SERVICE_AUTO_START;
@@ -738,7 +743,7 @@ void cmd_win32_service(void){
              NULL,                                    /* Load ordering group */
              NULL,                                    /* Tag value */
              NULL,                                    /* Service dependencies */
-             fossil_utf8_to_unicode(zUsername),       /* Service account */
+             zUsername ? fossil_utf8_to_unicode(zUsername) : 0, /* Account */
              fossil_utf8_to_unicode(zPassword)        /* Account password */
            );
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());

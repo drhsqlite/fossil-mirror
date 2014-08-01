@@ -1,5 +1,5 @@
-C /zip\snow\signores\sthe\s.zip\sextension,\sanalog\sto\show\s/tar\sdoes.\sMinor\sdoc\simprovements\sin\s/zip\sand\s/tar\sfrom\sthe\sML.
-D 2014-07-31T21:13:24.415
+C Correct\soption\shandling\sfor\sthe\s'winsrv\screate'\scommand\sso\sthat\sthe\sdefault\suser\sname\sis\sNULL\sand\sthe\sdefault\spassword\sis\san\sempty\sstring\swhen\spassed\sto\sthe\sWin32\sCreateServiceW\sAPI.
+D 2014-08-01T06:13:03.797
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -434,7 +434,7 @@ F src/vfile.c 33ddafa3850ae2cd6e35f1b47aa84cb0bbc92a4d
 F src/wiki.c a8f722917b7f855bb9904b5d2b3e8fd22ee25e5b
 F src/wikiformat.c f897c6fc3888f9ea189adafb91a977faa892349c
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
-F src/winhttp.c 66f700f9a909a62abf3f64e043c8210bcae3f521
+F src/winhttp.c 9139c702d8e729348580ae9f1489bfcf564689ee
 F src/wysiwyg.c 04450602906b7d197b5edc467229844350d92857
 F src/xfer.c e13c824b1e1307723c783ee9ccae3a15edfc648d
 F src/xfersetup.c c69c710fec70f76dac901a9181fe81be5dc316e7
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8ab520c5896c8ff3b75c63407a78c1e502c4e767
-R af43e4c87dac43fb8bb3899fb7378f8c
-U stephan
-Z b783e24b7328c3c72953603761730d1d
+P e0199bfc4339226e8e6170a19c48f820089f3d61
+R 0fe5568daacf6d06d0bb3782da1d647a
+U mistachkin
+Z 27049cdaa342fa639f5d29428814a66a
