@@ -684,7 +684,7 @@ void cmd_win32_service(void){
     if( g.argc==4 ){
       zSvcName = g.argv[3];
     }else if( g.argc>4 ){
-      fossil_fatal("to much arguments for create method.");
+      fossil_fatal("too many arguments for create method.");
     }
     /* Process service creation specific options. */
     if( !zDisplay ){
