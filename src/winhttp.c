@@ -763,7 +763,7 @@ void cmd_win32_service(void){
     if( g.argc==4 ){
       zSvcName = g.argv[3];
     }else if( g.argc>4 ){
-      fossil_fatal("to much arguments for delete method.");
+      fossil_fatal("too many arguments for delete method.");
     }
     hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
@@ -832,7 +832,7 @@ void cmd_win32_service(void){
     if( g.argc==4 ){
       zSvcName = g.argv[3];
     }else if( g.argc>4 ){
-      fossil_fatal("to much arguments for show method.");
+      fossil_fatal("too many arguments for show method.");
     }
     hScm = OpenSCManagerW(NULL, NULL, GENERIC_READ);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
@@ -914,7 +914,7 @@ void cmd_win32_service(void){
     if( g.argc==4 ){
       zSvcName = g.argv[3];
     }else if( g.argc>4 ){
-      fossil_fatal("to much arguments for start method.");
+      fossil_fatal("too many arguments for start method.");
     }
     hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
@@ -951,7 +951,7 @@ void cmd_win32_service(void){
     if( g.argc==4 ){
       zSvcName = g.argv[3];
     }else if( g.argc>4 ){
-      fossil_fatal("to much arguments for stop method.");
+      fossil_fatal("too many arguments for stop method.");
     }
     hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
