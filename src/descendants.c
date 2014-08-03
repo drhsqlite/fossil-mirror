@@ -132,6 +132,11 @@ void compute_leaves(int iBase, int closeMode){
     db_finalize(&q1);
     bag_clear(&pending);
     bag_clear(&seen);
+  }else{
+    db_multi_exec(
+      "INSERT INTO leaves"
+      "  SELECT leaf.rid FROM leaf"
+    );
   }
   if( closeMode==1 ){
     db_multi_exec(
@@ -314,6 +319,10 @@ void descendants_cmd(void){
   }else{
     width = -1;
   }
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc==2 ){
     base = db_lget_int("checkout", 0);
   }else{
@@ -375,6 +384,10 @@ void leaves_cmd(void){
     width = -1;
   }
   db_find_and_open_repository(0,0);
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( recomputeFlag ) leaf_rebuild();
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(), -1);
@@ -408,8 +421,8 @@ void leaves_cmd(void){
     n++;
     sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
     fossil_print("%6s ", zLineNo);
-    z = mprintf("%s [%.10s] %s", zDate, zId, zCom);
-    comment_print(z, 7, width);
+    z = mprintf("%s [%S] %s", zDate, zId, zCom);
+    comment_print(z, zCom, 7, width, g.comFmtFlags);
     fossil_free(z);
   }
   fossil_free(zLastBr);

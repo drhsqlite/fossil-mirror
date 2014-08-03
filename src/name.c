@@ -446,7 +446,7 @@ void ambiguous_page(void){
     " GROUP BY tkt_uuid"
     " ORDER BY tkt_ctime DESC", z);
   while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0); 
+    int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zTitle = db_column_text(&q, 2);
     @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
@@ -467,7 +467,7 @@ void ambiguous_page(void){
     "     FROM tagxref, tag WHERE tagxref.tagid = tag.tagid"
     "      AND tagname GLOB 'event-%q*') GROUP BY uuid", z);
   while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0); 
+    int rid = db_column_int(&q, 0);
     const char* zUuid = db_column_text(&q, 1);
     @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
     @ %s(zUuid)</a> -
@@ -584,7 +584,7 @@ static void whatis_rid(int rid, int verboseFlag){
     fossil_print("type:       %s by %s on %s\n", zType, db_column_text(&q,2),
                  db_column_text(&q, 1));
     fossil_print("comment:    ");
-    comment_print(db_column_text(&q,3), 12, -1);
+    comment_print(db_column_text(&q,3), 0, 12, -1, g.comFmtFlags);
   }
   db_finalize(&q);
 
@@ -601,12 +601,12 @@ static void whatis_rid(int rid, int verboseFlag){
     timeline_utc(), rid);
   while( db_step(&q)==SQLITE_ROW ){
     fossil_print("file:       %s\n", db_column_text(&q,0));
-    fossil_print("            part of [%.10s] by %s on %s\n",
+    fossil_print("            part of [%S] by %s on %s\n",
       db_column_text(&q, 1),
       db_column_text(&q, 3),
       db_column_text(&q, 2));
     fossil_print("            ");
-    comment_print(db_column_text(&q,4), 12, -1);
+    comment_print(db_column_text(&q,4), 0, 12, -1, g.comFmtFlags);
   }
   db_finalize(&q);
 
@@ -641,7 +641,7 @@ static void whatis_rid(int rid, int verboseFlag){
     fossil_print("            by user %s on %s\n",
                  db_column_text(&q,2), db_column_text(&q,3));
     fossil_print("            ");
-    comment_print(db_column_text(&q,1), 12, -1);
+    comment_print(db_column_text(&q,1), 0, 12, -1, g.comFmtFlags);
   }
   db_finalize(&q);
 }
@@ -661,6 +661,10 @@ void whatis_cmd(void){
   int i;
   db_find_and_open_repository(0,0);
   verboseFlag = find_option("verbose","v",0)!=0;
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc<3 ) usage("whatis NAME ...");
   for(i=2; i<g.argc; i++){
     zName = g.argv[i];

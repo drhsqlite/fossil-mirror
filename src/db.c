@@ -1071,6 +1071,9 @@ void db_open_repository(const char *zDbName){
 */
 void db_find_and_open_repository(int bFlags, int nArgUsed){
   const char *zRep = find_repository_option();
+  if( zRep && file_isdir(zRep)==1 ){
+    goto rep_not_found;
+  }
   if( zRep==0 && nArgUsed && g.argc==nArgUsed+1 ){
     zRep = g.argv[nArgUsed];
   }
@@ -1467,8 +1470,7 @@ void db_initial_setup(
 **    --template      FILE      copy settings from repository file
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
-**                              (overrides --empty as well)
-**    --empty                   Do not create an initial empty checkin.
+**                              (default: do not create an initial checkin)
 **
 ** See also: clone
 */
@@ -1477,15 +1479,15 @@ void create_repository_cmd(void){
   const char *zTemplate;      /* Repository from which to copy settings */
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
-  char const *zCreateEmpty;   /* --empty flag set? */
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  zCreateEmpty = find_option("empty", 0, 0);
-  if( !zDate && !zCreateEmpty ){
-    zDate = "now";
-  }
+  find_option("empty", 0, 0); /* deprecated */
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
@@ -2040,6 +2042,10 @@ void cmd_open(void){
   keepFlag = find_option("keep",0,0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
@@ -2155,7 +2161,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "auto-hyperlink",   0,              0, 0, 0, "on",                 },
   { "auto-shun",        0,              0, 0, 0, "on"                  },
   { "autosync",         0,              0, 0, 0, "on"                  },
-  { "autosync-tries",   0,              0, 0, 0, ""                    },
+  { "autosync-tries",   0,             16, 0, 0, "1"                   },
   { "binary-glob",      0,             40, 1, 0, ""                    },
   { "clearsign",        0,              0, 0, 0, "off"                 },
 #if defined(_WIN32) || defined(__CYGWIN__) || defined(__DARWIN__) || \

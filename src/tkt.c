@@ -945,7 +945,7 @@ void tkthistory_page(void){
         @ <li><p>Add attachment
         @ "%z(href("%R/artifact/%s",zSrc))%s(zFile)</a>"
       }
-      @ [%z(href("%R/artifact/%s",zChngUuid))%.10s(zChngUuid)</a>]
+      @ [%z(href("%R/artifact/%s",zChngUuid))%S(zChngUuid)</a>]
       @ (rid %d(rid)) by
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".</p>");
@@ -954,7 +954,7 @@ void tkthistory_page(void){
       if( pTicket ){
         @
         @ <li><p>Ticket change
-        @ [%z(href("%R/artifact/%s",zChngUuid))%.10s(zChngUuid)</a>]
+        @ [%z(href("%R/artifact/%s",zChngUuid))%S(zChngUuid)</a>]
         @ (rid %d(rid)) by
         hyperlink_to_user(pTicket->zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
@@ -1266,7 +1266,7 @@ void ticket_cmd(void){
           fossil_print("%h: ",z);
           if( blob_size(&val)>50 || contains_newline(&val)) {
                   fossil_print("\n    ",blob_str(&val));
-                  comment_print(blob_str(&val),4,-1);
+                  comment_print(blob_str(&val),0,4,-1,g.comFmtFlags);
                 }else{
                   fossil_print("%s\n",blob_str(&val));
                 }

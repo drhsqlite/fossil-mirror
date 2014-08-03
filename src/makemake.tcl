@@ -134,6 +134,7 @@ set src {
 # Options used to compile the included SQLite library.
 #
 set SQLITE_OPTIONS {
+  -DNDEBUG=1
   -DSQLITE_OMIT_LOAD_EXTENSION=1
   -DSQLITE_ENABLE_LOCKING_STYLE=0
   -DSQLITE_THREADSAFE=0
@@ -159,6 +160,7 @@ set SHELL_OPTIONS {
 #
 set SHELL_WIN32_OPTIONS $SHELL_OPTIONS
 lappend SHELL_WIN32_OPTIONS -Daccess=file_access
+lappend SHELL_WIN32_OPTIONS -Dsystem=fossil_system
 lappend SHELL_WIN32_OPTIONS -Dgetenv=fossil_getenv
 lappend SHELL_WIN32_OPTIONS -Dfopen=fossil_fopen
 

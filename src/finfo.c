@@ -66,6 +66,9 @@ void finfo_cmd(void){
     Blob fname;
     int vid;
 
+    /* We should be done with options.. */
+    verify_all_options();
+
     if( g.argc!=3 ) usage("-s|--status FILENAME");
     vid = db_lget_int("checkout", 0);
     if( vid==0 ){
@@ -118,6 +121,9 @@ void finfo_cmd(void){
     Blob fname;
     const char *zRevision = find_option("revision", "r", 1);
 
+    /* We should be done with options.. */
+    verify_all_options();
+
     file_tree_name(g.argv[2], &fname, 1);
     if( zRevision ){
       historical_version_of_file(zRevision, blob_str(&fname), &record, 0,0,0,0);
@@ -160,6 +166,10 @@ void finfo_cmd(void){
     }else{
       iWidth = -1;
     }
+
+    /* We should be done with options.. */
+    verify_all_options();
+
     if( g.argc!=3 ){
       usage("?-l|--log? ?-b|--brief? FILENAME");
     }
@@ -201,11 +211,11 @@ void finfo_cmd(void){
       if( zBr==0 ) zBr = "trunk";
       if( iBrief ){
         fossil_print("%s ", zDate);
-        zOut = sqlite3_mprintf(
-           "[%.10s] %s (user: %s, artifact: [%.10s], branch: %s)",
+        zOut = mprintf(
+           "[%S] %s (user: %s, artifact: [%S], branch: %s)",
            zCiUuid, zCom, zUser, zFileUuid, zBr);
-        comment_print(zOut, 11, iWidth);
-        sqlite3_free(zOut);
+        comment_print(zOut, zCom, 11, iWidth, g.comFmtFlags);
+        fossil_free(zOut);
       }else{
         blob_reset(&line);
         blob_appendf(&line, "%.10s ", zCiUuid);
@@ -213,7 +223,7 @@ void finfo_cmd(void){
         blob_appendf(&line, "%8.8s ", zUser);
         blob_appendf(&line, "%8.8s ", zBr);
         blob_appendf(&line,"%-39.39s", zCom );
-        comment_print(blob_str(&line), 0, iWidth);
+        comment_print(blob_str(&line), zCom, 0, iWidth, g.comFmtFlags);
       }
     }
     db_finalize(&q);
@@ -243,6 +253,10 @@ void cat_cmd(void){
   const char *zRev;
   db_find_and_open_repository(0, 0);
   zRev = find_option("r","r",1);
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   for(i=2; i<g.argc; i++){
     file_tree_name(g.argv[i], &fname, 1);
     blob_zero(&content);
@@ -384,7 +398,7 @@ void finfo_page(void){
     char *zLink = href("%R/info/%s", zUuid);
     blob_appendf(&title, "Ancestors of file ");
     hyperlinked_path(zFilename, &title, zUuid, "tree", "");
-    blob_appendf(&title, " from check-in %z%.10s</a>", zLink, zUuid);
+    blob_appendf(&title, " from check-in %z%S</a>", zLink, zUuid);
     fossil_free(zUuid);
   }else{
     blob_appendf(&title, "History of files named ");

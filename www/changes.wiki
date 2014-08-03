@@ -14,6 +14,14 @@
      [trace], [getParameter], [setParameter], and [artifact]</nowiki> commands
      to TH1, primarily for use by TH1 hooks.
   *  Bring in the latest version of autosetup from upstream.
+  *  When committing a (non-binary) file which contains bytes forming an
+     invalid UTF-8 stream, fossil now adds the possibility to convert it
+     to a valid UTF-8 stream ('c') if you like.
+  *  Let [/help?cmd=new|fossil new] no longer create an initial empty commit
+     by default. The first commit after checking out an empty repository will
+     become the initial commit. (NOT PLANNED FOR 1.30, BUT DONE TO EXPOSE
+     [/help?cmd=new|fossil new --empty] TO MORE FIELD TESTING BEFORE
+     MAKING ANY DECISION ON IT!)
 
 <h2>Changes For Version 1.29 (2014-06-12)</h2>
   *  Add the ability to display content, diffs and annotations for UTF16

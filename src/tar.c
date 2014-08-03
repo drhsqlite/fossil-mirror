@@ -542,6 +542,10 @@ void tarball_cmd(void){
   const char *zName;
   zName = find_option("name", 0, 1);
   db_find_and_open_repository(0, 0);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
@@ -576,11 +580,13 @@ void tarball_cmd(void){
 **
 ** Optional URL Parameters:
 **
-** - name=base name of the output file. Defaults to
-** something project/version-specific.
+** - name=NAME[.tar.gz] is base name of the output file. Defaults to
+** something project/version-specific. The prefix of the name, up to
+** the last '.', are used as the top-most directory name in the tar
+** output. 
 **
 ** - uuid=the version to tar (may be a tag/branch name).
-** Defaults to trunk.
+** Defaults to "trunk".
 **
 */
 void tarball_page(void){

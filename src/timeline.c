@@ -24,35 +24,13 @@
 #include "timeline.h"
 
 /*
-** Shorten a UUID so that is the minimum length needed to contain
-** at least one digit in the range 'a'..'f'.  The minimum length is 10.
-*/
-static void shorten_uuid(char *zDest, const char *zSrc){
-  int i;
-  for(i=0; i<10 && zSrc[i]<='9'; i++){}
-  memcpy(zDest, zSrc, 10);
-  if( i==10 && zSrc[i] ){
-    do{
-      zDest[i] = zSrc[i];
-      i++;
-    }while( zSrc[i-1]<='9' );
-  }else{
-    i = 10;
-  }
-  zDest[i] = 0;
-}
-
-
-/*
 ** Generate a hyperlink to a version.
 */
 void hyperlink_to_uuid(const char *zUuid){
-  char z[UUID_SIZE+1];
-  shorten_uuid(z, zUuid);
   if( g.perm.Hyperlink ){
-    @ %z(xhref("class='timelineHistLink'","%R/info/%s",zUuid))[%s(z)]</a>
+    @ %z(xhref("class='timelineHistLink'","%R/info/%s",zUuid))[%S(zUuid)]</a>
   }else{
-    @ <span class="timelineHistDsp">[%s(z)]</span>
+    @ <span class="timelineHistDsp">[%S(zUuid)]</span>
   }
 }
 
@@ -1020,7 +998,7 @@ char *names_of_file(const char *zUuid){
 **    t=TAGID        show only check-ins with the given tagid
 **    r=TAGID        show check-ins related to tagid
 **    u=USER         only if belonging to this user
-**    y=TYPE         'ci', 'w', 't', 'e'
+**    y=TYPE         'ci', 'w', 't', 'e', or (default) 'all'
 **    s=TEXT         string search (comment and brief)
 **    ng             Suppress the graph if present
 **    nd             Suppress "divider" lines
@@ -1029,6 +1007,7 @@ char *names_of_file(const char *zUuid){
 **    from=UUID      Path from...
 **    to=UUID          ... to this
 **    nomerge          ... avoid merge links on the path
+**    shortest         ... show only the shortest path
 **    uf=FUUID       Show only checkins that use given file version
 **    brbg           Background color from branch name
 **    ubg            Background color from user
@@ -1222,7 +1201,7 @@ void page_timeline(void){
       }
       if( d_rid==0 && useDividers ) timeline_add_dividers(0, p_rid);
     }
-    blob_appendf(&desc, " of %z[%.10s]</a>",
+    blob_appendf(&desc, " of %z[%S]</a>",
                    href("%R/info/%s", zUuid), zUuid);
     if( p_rid ){
       url_add_parameter(&url, "p", zUuid);
@@ -1263,7 +1242,7 @@ void page_timeline(void){
     if( useDividers ) timeline_add_dividers(0, f_rid);
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
-    blob_appendf(&desc, "%z[%.10s]</a>", href("%R/info/%s", zUuid), zUuid);
+    blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%s", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
     url_add_parameter(&url, "f", zUuid);
     if( tmFlags & TIMELINE_FCHANGES ){
@@ -1589,7 +1568,6 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     char *zFree = 0;
     int n = 0;
     char zPrefix[80];
-    char zUuid[UUID_SIZE+1];
 
     if( nAbsLimit!=0 ){
       if( nLimit<0 && nLine>=nAbsLimit ){
@@ -1600,7 +1578,6 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
         break; /* entry count limit hit, stop. */
       }
     }
-    sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
     if( fossil_strnicmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
@@ -1627,9 +1604,10 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*CURRENT* ");
       n += strlen(zPrefix);
     }
-    zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
-    nLine += comment_print(zFree, 9, width); /* record another X lines */
-    sqlite3_free(zFree);
+    zFree = mprintf("[%S] %s%s", zId, zPrefix, zCom);
+    /* record another X lines */
+    nLine += comment_print(zFree, zCom, 9, width, g.comFmtFlags);
+    fossil_free(zFree);
 
     if(verboseFlag){
       if( !fchngQueryInit ){
@@ -1803,6 +1781,10 @@ void timeline_cmd(void){
   }
   zOffset = find_option("offset",0,1);
   iOffset = zOffset ? atoi(zOffset) : 0;
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc>=4 ){
     k = strlen(g.argv[2]);
     if( strncmp(g.argv[2],"before",k)==0 ){
@@ -2069,6 +2051,8 @@ static const char * stats_report_label_for_type(){
   switch( statsReportType ){
     case 'c':
       return "checkins";
+    case 'e':
+      return "events";
     case 'w':
       return "wiki changes";
     case 't':
@@ -2098,7 +2082,7 @@ static void stats_report_event_types_menu(const char * zCurrentViewName,
   zTop = mprintf("%s/reports?view=%s%s%s", g.zTop, zCurrentViewName,
                  zParam ? "&" : "", zParam);
   cgi_printf("<div>");
-  cgi_printf("<span>Event types:</span> ");
+  cgi_printf("<span>Types:</span> ");
   if('*' == statsReportType){
     cgi_printf(" <strong>all</strong>", zTop);
   }else{
@@ -2108,6 +2092,11 @@ static void stats_report_event_types_menu(const char * zCurrentViewName,
     cgi_printf(" <strong>checkins</strong>", zTop);
   }else{
     cgi_printf(" <a href='%s&type=ci'>checkins</a>", zTop);
+  }
+  if('e' == statsReportType){
+    cgi_printf(" <strong>events</strong>", zTop);
+  }else{
+    cgi_printf(" <a href='%s&type=e'>events</a>", zTop);
   }
   if( 't' == statsReportType ){
     cgi_printf(" <strong>tickets</strong>", zTop);

@@ -610,10 +610,7 @@ int vxprintf(
         length = (int)strlen(bufpt);
         break;
       }
-      case etSTRINGID: {
-        precision = 16;
-        /* Fall through */
-      }
+      case etSTRINGID:
       case etSTRING:
       case etDYNSTRING: {
         int limit = flag_alternateform ? va_arg(ap,int) : -1;
@@ -622,6 +619,13 @@ int vxprintf(
           bufpt = "";
         }else if( xtype==etDYNSTRING ){
           zExtra = bufpt;
+        }else if( xtype==etSTRINGID ){
+          precision = 0;
+          while( bufpt[precision]>='0' && bufpt[precision]<='9' ){
+            precision++;
+          }
+          if( bufpt[precision]!=0 ) precision++;
+          if( precision<10 ) precision=10;
         }
         length = StrNLen32(bufpt, limit);
         if( precision>=0 && precision<length ) length = precision;
@@ -864,8 +868,12 @@ void fossil_puts(const char *z, int toStdErr){
 ** Force the standard output cursor to move to the beginning
 ** of a line, if it is not there already.
 */
-void fossil_force_newline(void){
-  if( g.cgiOutput==0 && stdoutAtBOL==0 ) fossil_puts("\n", 0);
+int fossil_force_newline(void){
+  if( g.cgiOutput==0 && stdoutAtBOL==0 ){
+    fossil_puts("\n", 0);
+    return 1;
+  }
+  return 0;
 }
 
 /*

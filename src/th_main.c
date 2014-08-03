@@ -147,10 +147,10 @@ void Th_PrintTraceLog(){
 ** components. Return a new string result.
 */
 static int httpizeCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   char *zOut;
@@ -174,10 +174,10 @@ static int enableOutput = 1;
 ** Enable or disable the puts and hputs commands.
 */
 static int enableOutputCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   int rc;
@@ -247,13 +247,13 @@ static void sendError(const char *z, int n, int forceCgi){
 ** TH1 command: puts STRING
 ** TH1 command: html STRING
 **
-** Output STRING escaped for HTML (html) or unchanged (puts).  
+** Output STRING escaped for HTML (html) or unchanged (puts).
 */
 static int putsCmd(
-  Th_Interp *interp, 
-  void *pConvert, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *pConvert,
+  int argc,
+  const char **argv,
   int *argl
 ){
   if( argc!=2 ){
@@ -269,10 +269,10 @@ static int putsCmd(
 ** Render the input string as wiki.
 */
 static int wikiCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   int flags = WIKI_INLINE | WIKI_NOBADLINKS | *(unsigned int*)p;
@@ -295,10 +295,10 @@ static int wikiCmd(
 ** Return a new string result.
 */
 static int htmlizeCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   char *zOut;
@@ -319,10 +319,10 @@ static int htmlizeCmd(
 ** of UTC.
 */
 static int dateCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   char *zOut;
@@ -342,10 +342,10 @@ static int dateCmd(
 ** Return true if the user has all of the capabilities listed in STRING.
 */
 static int hascapCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   int rc = 0, i;
@@ -379,10 +379,10 @@ static int hascapCmd(
 **
 */
 static int hasfeatureCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   int rc = 0;
@@ -477,10 +477,10 @@ static int tclReadyCmd(
 ** Return true if the user has any one of the capabilities listed in STRING.
 */
 static int anycapCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   int rc = 0;
@@ -510,9 +510,9 @@ static int anycapCmd(
 */
 static int comboboxCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   if( argc!=4 ){
@@ -541,7 +541,7 @@ static int comboboxCmd(
     blob_reset(&name);
     for(i=0; i<nElem; i++){
       zH = htmlize((char*)azElem[i], aszElem[i]);
-      if( zValue && aszElem[i]==nValue 
+      if( zValue && aszElem[i]==nValue
              && memcmp(zValue, azElem[i], nValue)==0 ){
         z = mprintf("<option value=\"%s\" selected=\"selected\">%s</option>",
                      zH, zH);
@@ -566,9 +566,9 @@ static int comboboxCmd(
 */
 static int linecntCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   const char *z;
@@ -602,9 +602,9 @@ static int linecntCmd(
 */
 static int repositoryCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   if( argc!=1 && argc!=2 ){
@@ -857,7 +857,7 @@ static void getCpuTimes(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
     *piUser = ((sqlite3_uint64)s.ru_utime.tv_sec)*1000000 + s.ru_utime.tv_usec;
   }
   if( piKernel ){
-    *piKernel = 
+    *piKernel =
               ((sqlite3_uint64)s.ru_stime.tv_sec)*1000000 + s.ru_stime.tv_usec;
   }
 #endif
@@ -871,9 +871,9 @@ static void getCpuTimes(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
 */
 static int utimeCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   sqlite3_uint64 x;
@@ -892,9 +892,9 @@ static int utimeCmd(
 */
 static int stimeCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   sqlite3_uint64 x;
@@ -909,14 +909,14 @@ static int stimeCmd(
 /*
 ** TH1 command: randhex  N
 **
-** Return N*2 random hexadecimal digits with N<50.  If N is omitted, 
+** Return N*2 random hexadecimal digits with N<50.  If N is omitted,
 ** use a value of 10.
 */
 static int randhexCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   int n;
@@ -952,9 +952,9 @@ static int randhexCmd(
 */
 static int queryCmd(
   Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   sqlite3_stmt *pStmt;
@@ -1018,7 +1018,7 @@ static int queryCmd(
       Th_ErrorMessage(interp, "SQL error: ", sqlite3_errmsg(g.db), -1);
       return TH_ERROR;
     }
-  } 
+  }
   return res;
 }
 
@@ -1693,7 +1693,7 @@ int Th_WebpageNotify(
 
 /*
 ** The z[] input contains text mixed with TH1 scripts.
-** The TH1 scripts are contained within <th1>...</th1>. 
+** The TH1 scripts are contained within <th1>...</th1>.
 ** TH1 variables are $aaa or $<aaa>.  The first form of
 ** variable is literal.  The second is run through htmlize
 ** before being inserted.
