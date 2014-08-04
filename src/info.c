@@ -2108,7 +2108,9 @@ void render_color_chooser(
   @ <input type="text" name="%s(zIdCustom)"
   @  id="%s(zIdCustom)" class="checkinUserColor"
   @  value="%h(stdClrFound?"":zDefaultColor)"
-  @  onfocus="this.form.elements['%s(zId)'][%d(nColor)].checked = true;" />
+  @  onfocus="this.form.elements['%s(zId)'][%d(nColor)].checked = true;"
+  @  onload="this.blur();"
+  @  onblur="this.parentElement.style.backgroundColor = this.value ? ('#'+this.value.replace('#','')) : '';" />
   @ </td>
   @ </tr>
   @ </table>
