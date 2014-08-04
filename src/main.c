@@ -1953,7 +1953,14 @@ void cmd_webserver(void){
   zStopperFile = find_option("stopper", 0, 1);
 #endif
 
-  zFileGlob = find_option("files", 0, 1);
+  zFileGlob = find_option("files-urlenc",0,1);
+  if( zFileGlob ){
+    char *z = mprintf("%s", zFileGlob);
+    dehttpize(z);
+    zFileGlob = z;
+  }else{
+    zFileGlob = find_option("files",0,1);
+  }
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   Th_InitTraceLog();
   zPort = find_option("port", "P", 1);
