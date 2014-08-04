@@ -1,5 +1,5 @@
-C Make\ssure\sthe\s'server'\scommand\schecks\sfor\sand\sprocesses\sthe\s--files-urlenc\soption.
-D 2014-08-04T03:40:33.957
+C minor\sverbiage\spatch\sfrom\sChristopher\sM.\sFuhrman.
+D 2014-08-04T18:29:10.804
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -382,7 +382,7 @@ F src/manifest.c e976e960e965f5f4eb20bbefbb2594bbe14300d8
 F src/markdown.c 717f7f14927414811b61475a6fb9edc34e6cf90b
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
-F src/merge.c bca84f99ac4ab099288285660b60a5864ddfe209
+F src/merge.c 91c9732417173610f8a47db3abe6013d23a8cc5e
 F src/merge3.c 2c986dc9e68b398983c277413f8e2fb1624d894c
 F src/mkindex.c 69da20a8f44b1ebbb0223bf3d712b4a9d4c99238
 F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dd5743a8239d1ce947d7206e14fb86f27f5ef2dc d53a7528b57e9a036c1b442ec97a2eb5d6a346e1
-R 866e230761e249655bee9b4b7f797464
-U mistachkin
-Z 639d76e7bde9a12f0451744199192641
+P 608f0b2371667fd62e93ddcd6988351a5db510cd
+R 4c8ee2f4f07f880b7021139f956c2353
+U stephan
+Z 30297a9212989a8a19f873892df391ad
