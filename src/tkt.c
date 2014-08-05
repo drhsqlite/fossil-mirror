@@ -1209,7 +1209,7 @@ void ticket_cmd(void){
         Stmt q;
         int tagid;
 
-        if ( i != g.argc ){
+        if( i != g.argc ){
           fossil_fatal("no other parameters expected to %s!",g.argv[2]);
         }
         tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",
@@ -1301,16 +1301,16 @@ void ticket_cmd(void){
           defossilize(zFValue);
         }
         append = (zFName[0] == '+');
-        if (append){
+        if( append ){
           zFName++;
         }
         j = fieldId(zFName);
         if( j == -1 ){
           fossil_fatal("unknown field name '%s'!",zFName);
         }else{
-          if (append) {
+          if( append ){
             aField[j].zAppend = zFValue;
-          } else {
+          }else{
             aField[j].zValue = zFValue;
           }
         }
@@ -1325,13 +1325,13 @@ void ticket_cmd(void){
         char *zValue = 0;
         char *zPfx;
 
-        if (aField[i].zAppend && aField[i].zAppend[0] ){
+        if( aField[i].zAppend && aField[i].zAppend[0] ){
           zPfx = " +";
           zValue = aField[i].zAppend;
-        } else if( aField[i].zValue && aField[i].zValue[0] ){
+        }else if( aField[i].zValue && aField[i].zValue[0] ){
           zPfx = " ";
           zValue = aField[i].zValue;
-        } else {
+        }else{
           continue;
         }
         if( memcmp(aField[i].zName, "private_", 8)==0 ){

@@ -497,7 +497,7 @@ void page_tree(void){
     style_submenu_element("Trunk", "Trunk", "%s",
                           url_render(&sURI, "ci", "trunk", 0, 0));
   }
-  if ( linkTip ){
+  if( linkTip ){
     style_submenu_element("Tip", "Tip", "%s",
                           url_render(&sURI, "ci", "tip", 0, 0));
   }
@@ -720,7 +720,7 @@ const char *fileext_class(const char *zFilename){
   for( i=1; isExt && zExt[i]; i++ ) isExt &= fossil_isalnum(zExt[i]);
   if( isExt ){
     zClass = mprintf("file file-%s", zExt+1);
-    for ( i=5; zClass[i]; i++ ) zClass[i] = fossil_tolower(zClass[i]);
+    for( i=5; zClass[i]; i++ ) zClass[i] = fossil_tolower(zClass[i]);
   }else{
     zClass = mprintf("file");
   }

@@ -752,7 +752,7 @@ static int cson_data_source_FILE_n( void * state,
       if( st->pos >= st->len ){
         *n = 0;
         return 0;
-      } else if( !*n || ((st->pos + *n) > st->len) ){
+      }else if( !*n || ((st->pos + *n) > st->len) ){
         return cson_rc.RangeError;
       }else{
         unsigned int rsz = (unsigned int)fread( dest, 1, *n, st->fh );
@@ -1559,7 +1559,7 @@ void cgi_handle_ssh_transport(const char *zCmd){
   if( zToken && strlen(zToken)==0 ){
     /* look for path to fossil */
     if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
-      if ( zCmd==0 ){
+      if( zCmd==0 ){
         malformed_request("missing fossil command");
       }else{
         /* no new command so exit */

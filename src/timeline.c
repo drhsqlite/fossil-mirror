@@ -1363,7 +1363,7 @@ void page_timeline(void){
       url_add_parameter(&url, "u", zUser);
       zThisUser = zUser;
     }
-    if ( zSearch ){
+    if( zSearch ){
       blob_appendf(&sql,
         " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
         zSearch, zSearch);
@@ -1763,7 +1763,7 @@ void timeline_cmd(void){
   zLimit = find_option("limit","n",1);
   zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
-  if ( !zLimit ){
+  if( !zLimit ){
     zLimit = find_option("count",0,1);
   }
   if( zLimit ){
@@ -1781,7 +1781,7 @@ void timeline_cmd(void){
   }
   zOffset = find_option("offset",0,1);
   iOffset = zOffset ? atoi(zOffset) : 0;
-  
+
   /* We should be done with options.. */
   verify_all_options();
 

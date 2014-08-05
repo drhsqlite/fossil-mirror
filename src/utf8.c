@@ -129,7 +129,7 @@ char *fossil_filename_to_utf8(const void *zFilename){
     if( *pUtf == (char)0xef ){
       wchar_t c = ((pUtf[1]&0x3f)<<6)|(pUtf[2]&0x3f);
       /* Only really convert it when the resulting char is in range. */
-      if ( c && ((c < ' ') || wcschr(L"\"*:<>?|", c)) ){
+      if( c && ((c < ' ') || wcschr(L"\"*:<>?|", c)) ){
         *qUtf++ = c; pUtf+=3; continue;
       }
     }
@@ -243,7 +243,7 @@ void *fossil_utf8_to_filename(const char *zUtf8){
   ** filename contains characters which are invalid for Win32.
   */
   while( *wUnicode != '\0' ){
-    if ( (*wUnicode < ' ') || wcschr(L"\"*:<>?|", *wUnicode) ){
+    if( (*wUnicode < ' ') || wcschr(L"\"*:<>?|", *wUnicode) ){
       *wUnicode |= 0xF000;
     }else if( *wUnicode == '/' ){
       *wUnicode = '\\';

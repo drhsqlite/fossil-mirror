@@ -661,7 +661,7 @@ void whatis_cmd(void){
   int i;
   db_find_and_open_repository(0,0);
   verboseFlag = find_option("verbose","v",0)!=0;
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
