@@ -1,5 +1,5 @@
-C Some\scode\sformatting.\sNo\schange\sin\sfunctionality.
-D 2014-08-05T10:52:57.499
+C Updates\sto\sthe\s"help"\stext\sfor\sthe\starball\scommand.\s\sAdd\shyperlinks\sfor\naccessing\scontent\son\sthe\s/cachestat\swebpage.
+D 2014-08-05T17:27:43.695
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -317,7 +317,7 @@ F src/bisect.c ea81a8e467c8d17fc727b23b08643ed65f6f81b3
 F src/blob.c 0578b205b06ebef0e5cea851b736466cc99c00c4
 F src/branch.c a1848d70d82f70adf0c0fad04eea50daf053b6e9
 F src/browse.c d83565d824a08bebdcbe61e3dd62887e18caf823
-F src/cache.c 5d4821dfce8ce0d09aaa1e82c3c9d5693487bb48
+F src/cache.c 795ddd1878a5b4316dff5a7ec71419f79b389979
 F src/captcha.c 765bb4af84144ec617cabb9c6b4a548bbc2e8b08
 F src/cgi.c 1f97bc10525c8ef17b376e966b798cb61b4dd400
 F src/checkin.c 42f1c69a176be684aba57bce88dae73b6600f2aa
@@ -412,7 +412,7 @@ F src/stat.c a0e29e09e2635f397e2a7543cd12443fe66f24b7
 F src/style.c 9c32e2d4b4e18e6b151132d729651a5211a4ca7e
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 1b0ffe2e8e3753a93ea9381e1c9f1e5d1f0118ec
-F src/tar.c 0b574a48836ab66dca3520c18fbe1c4cf5340d39
+F src/tar.c 15033d1cad09b193ba67fdd37743c75cb154a84f
 F src/th.c 3a7a898e8232a472700275aee7d0c584f450288d
 F src/th.h f55e2863d3df25e681d6acd39adbe6368182e83b
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 855b1a5037a7125ca544b4ddad1552fcfb398b87
-R 56f6b3c065e40b2942479ab008166a0a
-U jan.nijtmans
-Z f9625744ebdd90c3374d94c3d55e3a56
+P b9b3ce3b3907823d298816149c83b3e3f88c812b
+R 3fe1cabf14adab435b2d1db19e9f6bb9
+U drh
+Z 6b84eda2a8ce1d688d4f38ea21ca8e12
