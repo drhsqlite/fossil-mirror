@@ -1,5 +1,5 @@
-C Use\sfull\sUUID's\sfor\s/vdiff\spages\saccessed\sby\sclicking\son\stwo\sdifferent\scheck-ins\sfrom\sthe\stimeline.
-D 2014-08-06T08:07:02.095
+C Update\sthe\sbuilt-in\sSQLite\swith\sthe\sInterlockedCompareExchange\sfix\sfor\nWin64.
+D 2014-08-06T14:06:50.870
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -405,8 +405,8 @@ F src/shell.c 191129c3f7a9cf241aea90ff6a6be3e74d3767f0
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
-F src/sqlite3.c 2ad648d976fbabe4645bd093e0183c3efb8d2a96
-F src/sqlite3.h fb6cb589abf93a55b2447396cfd37c5c02c83ac1
+F src/sqlite3.c b9c31c1c8b4583574f65b3bae45d893dbf0c2945
+F src/sqlite3.h 766db6d6b35576ab79cbb42806138ec391cb4588
 F src/stash.c 4fcd200867fec73b3d57b9b99203afd0a5d7148e
 F src/stat.c a0e29e09e2635f397e2a7543cd12443fe66f24b7
 F src/style.c 9c32e2d4b4e18e6b151132d729651a5211a4ca7e
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3ba28b23a4d7626691b56debae4add06cd24d4ca
-R 746e4f9094aa94743192dc7e60b0bc13
-U jan.nijtmans
-Z 23e672c0a6caaffe04f7b7f90f477484
+P 78fdf9f5b2fa1f128715fb2dc6e367ea22c5acd9
+R 8def759a0b06c8874063cd194277871d
+U drh
+Z 77a8461ff1f80ff5d6ad7d444436e718
