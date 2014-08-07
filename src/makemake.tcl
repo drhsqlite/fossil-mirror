@@ -829,11 +829,13 @@ foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}.h:\t\$(OBJDIR)/headers\n"
 }
 
-set MINGW_SQLITE_OPTIONS $SQLITE_OPTIONS
+set SQLITE_WIN32_OPTIONS $SQLITE_OPTIONS
+lappend SQLITE_WIN32_OPTIONS -DSQLITE_WIN32_NO_ANSI
+
+set MINGW_SQLITE_OPTIONS $SQLITE_WIN32_OPTIONS
 lappend MINGW_SQLITE_OPTIONS -D_HAVE__MINGW_H
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MALLOC_H
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MSIZE
-lappend MINGW_SQLITE_OPTIONS -DSQLITE_WIN32_NO_ANSI
 
 set j " \\\n                 "
 writeln "SQLITE_OPTIONS = [join $MINGW_SQLITE_OPTIONS $j]\n"
@@ -1127,7 +1129,7 @@ TCC       = $(TCC) /DUSE_TCL_STUBS=1
 RCC       = $(RCC) /DUSE_TCL_STUBS=1
 !endif
 }
-regsub -all {[-]D} [join $SQLITE_OPTIONS { }] {/D} MSC_SQLITE_OPTIONS
+regsub -all {[-]D} [join $SQLITE_WIN32_OPTIONS { }] {/D} MSC_SQLITE_OPTIONS
 set j " \\\n                 "
 writeln "SQLITE_OPTIONS = [join $MSC_SQLITE_OPTIONS $j]\n"
 
@@ -1298,7 +1300,7 @@ set output_file [open ../win/Makefile.PellesCGMake w]
 fconfigure $output_file -translation binary
 
 writeln [string map [list \
-    <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS { }] \
+    <<<SQLITE_OPTIONS>>> [join $SQLITE_WIN32_OPTIONS { }] \
     <<<SHELL_OPTIONS>>> [join $SHELL_WIN32_OPTIONS { }]] {#
 ##############################################################################
 # WARNING: DO NOT EDIT, AUTOMATICALLY GENERATED FILE (SEE "src/makemake.tcl")
