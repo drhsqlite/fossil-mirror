@@ -1114,7 +1114,7 @@ static const char zFullTicketRptTitle[] = "full ticket export";
 */
 void rpt_list_reports(void){
   Stmt q;
-  char const aRptOutFrmt[] = "%s\t%s\n";
+  const char aRptOutFrmt[] = "%s\t%s\n";
 
   fossil_print("Available reports:\n");
   fossil_print(aRptOutFrmt,"report number","report title");
@@ -1219,7 +1219,7 @@ void rptshow(
   int count = 0;
   int rn;
 
-  if (!zRep || !strcmp(zRep,zFullTicketRptRn) || !strcmp(zRep,zFullTicketRptTitle) ){
+  if( !zRep || !strcmp(zRep,zFullTicketRptRn) || !strcmp(zRep,zFullTicketRptTitle) ){
     zSql = "SELECT * FROM ticket";
   }else{
     rn = atoi(zRep);

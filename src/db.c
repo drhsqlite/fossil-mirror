@@ -630,7 +630,7 @@ void db_blob(Blob *pResult, const char *zSql, ...){
 ** obtained from malloc().  If the result set is empty, return
 ** zDefault instead.
 */
-char *db_text(char const *zDefault, const char *zSql, ...){
+char *db_text(const char *zDefault, const char *zSql, ...){
   va_list ap;
   Stmt s;
   char *z;
@@ -1484,7 +1484,7 @@ void create_repository_cmd(void){
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
   find_option("empty", 0, 0); /* deprecated */
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -1941,13 +1941,13 @@ void db_lset_int(const char *zName, int value){
 ** by zTableName has a column named zColName (case-sensitive), else
 ** returns 0.
 */
-int db_table_has_column( char const *zTableName, char const *zColName ){
+int db_table_has_column(const char *zTableName, const char *zColName){
   Stmt q = empty_Stmt;
   int rc = 0;
   db_prepare( &q, "PRAGMA table_info(%Q)", zTableName );
   while(SQLITE_ROW == db_step(&q)){
     /* Columns: (cid, name, type, notnull, dflt_value, pk) */
-    char const * zCol = db_column_text(&q, 1);
+    const char *zCol = db_column_text(&q, 1);
     if( 0==fossil_strcmp(zColName, zCol) ){
       rc = 1;
       break;
@@ -2042,7 +2042,7 @@ void cmd_open(void){
   keepFlag = find_option("keep",0,0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -2146,12 +2146,12 @@ static void print_setting(
 */
 #if INTERFACE
 struct stControlSettings {
-  char const *name;     /* Name of the setting */
-  char const *var;      /* Internal variable name used by db_set() */
+  const char *name;     /* Name of the setting */
+  const char *var;      /* Internal variable name used by db_set() */
   int width;            /* Width of display.  0 for boolean values. */
   int versionable;      /* Is this setting versionable? */
   int forceTextArea;    /* Force using a text area for display? */
-  char const *def;      /* Default value */
+  const char *def;      /* Default value */
 };
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {

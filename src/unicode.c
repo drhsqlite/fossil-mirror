@@ -210,7 +210,7 @@ static int unicode_remove_diacritic(int c){
   }
   assert( key>=aDia[iRes] );
   return ((c > (aDia[iRes]>>3) + (aDia[iRes]&0x07)) ? c : (int)aChar[iRes]);
-};
+}
 
 
 /*

@@ -138,7 +138,7 @@ static int output_one_side(
 /*
 ** Text of boundary markers for merge conflicts.
 */
-static char const * const mergeMarker[] = {
+static const char *const mergeMarker[] = {
  /*123456789 123456789 123456789 123456789 123456789 123456789 123456789*/
   "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<\n",
   "======= COMMON ANCESTOR content follows ============================\n",
@@ -370,7 +370,7 @@ int file_contains_merge_marker(const char *zFullpath){
 */
 void delta_3waymerge_cmd(void){
   Blob pivot, v1, v2, merged;
-    
+
   /* We should be done with options.. */
   verify_all_options();
 

@@ -231,41 +231,41 @@ struct Global {
                                ** from /json callbacks. */
     int errorDetailParanoia;   /* 0=full error codes, 1=%10, 2=%100, 3=%1000 */
     cson_output_opt outOpt;    /* formatting options for JSON mode. */
-    cson_value * authToken;    /* authentication token */
-    char const * jsonp;        /* Name of JSONP function wrapper. */
+    cson_value *authToken;     /* authentication token */
+    const char *jsonp;         /* Name of JSONP function wrapper. */
     unsigned char dispatchDepth /* Tells JSON command dispatching
                                    which argument we are currently
                                    working on. For this purpose, arg#0
                                    is the "json" path/CLI arg.
                                 */;
     struct {                   /* "garbage collector" */
-      cson_value * v;
-      cson_array * a;
+      cson_value *v;
+      cson_array *a;
     } gc;
     struct {                   /* JSON POST data. */
-      cson_value * v;
-      cson_array * a;
+      cson_value *v;
+      cson_array *a;
       int offset;              /* Tells us which PATH_INFO/CLI args
                                   part holds the "json" command, so
                                   that we can account for sub-repos
                                   and path prefixes.  This is handled
                                   differently for CLI and CGI modes.
                                */
-      char const * commandStr  /*"command" request param.*/;
+      const char *commandStr   /*"command" request param.*/;
     } cmd;
     struct {                   /* JSON POST data. */
-      cson_value * v;
-      cson_object * o;
+      cson_value *v;
+      cson_object *o;
     } post;
     struct {                   /* GET/COOKIE params in JSON mode. */
-      cson_value * v;
-      cson_object * o;
+      cson_value *v;
+      cson_object *o;
     } param;
     struct {
-      cson_value * v;
-      cson_object * o;
+      cson_value *v;
+      cson_object *o;
     } reqPayload;              /* request payload object (if any) */
-    cson_array * warnings;     /* response warnings */
+    cson_array *warnings;      /* response warnings */
     int timerId;               /* fetched from fossil_timer_start() */
   } json;
 #endif /* FOSSIL_ENABLE_JSON */
@@ -393,7 +393,7 @@ static void expand_args_option(int argc, void *argv){
   int n;                    /* Number of bytes in one line */
   char *z;                  /* General use string pointer */
   char **newArgv;           /* New expanded g.argv under construction */
-  char const * zFileName;   /* input file name */
+  const char *zFileName;    /* input file name */
   FILE *inFile;             /* input FILE */
 #if defined(_WIN32)
   wchar_t buf[MAX_PATH];
@@ -1006,8 +1006,8 @@ void version_cmd(void){
 void help_cmd(void){
   int rc, idx, isPage = 0;
   const char *z;
-  char const * zCmdOrPage;
-  char const * zCmdOrPagePlural;
+  const char *zCmdOrPage;
+  const char *zCmdOrPagePlural;
   if( g.argc<3 ){
     z = g.argv[0];
     fossil_print(
@@ -1076,14 +1076,14 @@ void help_cmd(void){
 ** URL: /help/CMD
 */
 void help_page(void){
-  const char * zCmd = P("cmd");
+  const char *zCmd = P("cmd");
 
   if( zCmd==0 ) zCmd = P("name");
   style_header("Command-line Help");
   if( zCmd ){
     int rc, idx;
     char *z, *s, *d;
-    char const * zCmdOrPage = ('/'==*zCmd) ? "page" : "command";
+    const char *zCmdOrPage = ('/'==*zCmd) ? "page" : "command";
     style_submenu_element("Command-List", "Command-List", "%s/help", g.zTop);
     @ <h1>The "%s(zCmd)" %s(zCmdOrPage):</h1>
     rc = name_search(zCmd, aCommand, count(aCommand), 0, &idx);
@@ -2124,7 +2124,7 @@ void cmd_webserver(void){
   if( zAltBase ){
     set_base_url(zAltBase);
   }
-  if ( find_option("localhost", 0, 0)!=0 ){
+  if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
   }
   

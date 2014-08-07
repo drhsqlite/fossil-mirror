@@ -862,7 +862,7 @@ void wcontent_page(void){
 */
 void wfind_page(void){
   Stmt q;
-  const char * zTitle;
+  const char *zTitle;
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(); return; }
   zTitle = PD("title","*");
@@ -962,14 +962,14 @@ void wikirules_page(void){
 ** empty, or "text/x-fossil-wiki" (the default format) then it is
 ** ignored.
 */
-int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent,
-                    char const * zMimeType){
+int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
+                    const char *zMimeType){
   Blob wiki;              /* Wiki page content */
   Blob cksum;             /* wiki checksum */
   int rid;                /* artifact ID of parent page */
   char *zDate;            /* timestamp */
   char *zUuid;            /* uuid for rid */
-  
+
   rid = db_int(0,
      "SELECT x.rid FROM tag t, tagxref x"
      " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
@@ -1060,8 +1060,8 @@ void wiki_cmd(void){
   }
 
   if( strncmp(g.argv[2],"export",n)==0 ){
-    char const *zPageName;        /* Name of the wiki page to export */
-    char const *zFile;            /* Name of the output file (0=stdout) */
+    const char *zPageName;        /* Name of the wiki page to export */
+    const char *zFile;            /* Name of the output file (0=stdout) */
     int rid;                      /* Artifact ID of the wiki page */
     int i;                        /* Loop counter */
     char *zBody = 0;              /* Wiki page content */
@@ -1093,11 +1093,11 @@ void wiki_cmd(void){
     return;
   }else if( strncmp(g.argv[2],"commit",n)==0
             || strncmp(g.argv[2],"create",n)==0 ){
-    char const *zPageName;        /* page name */
+    const char *zPageName;        /* page name */
     Blob content;                 /* Input content */
     int rid;
     Manifest *pWiki = 0;          /* Parsed wiki page content */
-    char const * zMimeType = find_option("mimetype", "M", 1);
+    const char *zMimeType = find_option("mimetype", "M", 1);
     if( g.argc!=4 && g.argc!=5 ){
       usage("commit|create PAGENAME ?FILE? [-mimetype TEXT-FORMAT]");
     }
