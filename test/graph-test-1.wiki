@@ -1,7 +1,7 @@
 <title>Graph Test One</title>
 
 This page contains examples a list of URLs of timelines with
-interesting graphs.  Click on all URLs, one by one, to verify 
+interesting graphs.  Click on all URLs, one by one, to verify
 the correct operation of the graph drawing logic.
 
   *  <a href="../../../timeline?n=20&y=ci&b=2010-11-08" target="testwindow">
@@ -14,9 +14,9 @@ the correct operation of the graph drawing logic.
      40-element timeline, check-ins only, before 2010-11-08</a>
   *  <a href="../../../timeline?n=1000&y=ci&b=2010-11-08" target="testwindow">
      1000-element timeline, check-ins only, before 2010-11-08</a>
-  *  <a href="../../../timeline?n=10&c=2010-11-07+10:23:00" target="testwindow">
+  *  <a href="../../../timeline?n=10&c=2010-11-07T10:23:00" target="testwindow">
      10-elements circa 2010-11-07 10:23:00, with dividers</a>
-  *  <a href="../../../timeline?n=10&c=2010-11-07+10:23:00&nd" 
+  *  <a href="../../../timeline?n=10&c=2010-11-07T10:23:00&nd"
      target="testwindow">
      10-elements circa 2010-11-07 10:23:00, without dividers</a>
   *  <a href="../../../timeline?f=3ea66260b5555" target="testwindow">
@@ -51,7 +51,7 @@ the correct operation of the graph drawing logic.
   *  <a href="../../../timeline?n=100000000&y=ci" target="testwindow">
      All check-ins - a huge graph.</a>
   *  <a href="../../../timeline?f=8dfed953f7530442" target="testwindow">
-     This malformed commit has a 
+     This malformed commit has a
      merge parent which is not a valid checkin.</a>
   *  <a href="../../../timeline?from=e663bac6f7&to=a298a0e2f9"
      target="testwindow">

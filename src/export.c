@@ -55,21 +55,37 @@ static void print_person(const char *zUser){
     free(zName);
     return;
   }
+  /*
+  ** We have contact information.
+  ** It may or may not contain an email address.
+   */
   zContact = db_column_text(&q, 0);
   for(i=0; zContact[i] && zContact[i]!='>' && zContact[i]!='<'; i++){}
   if( zContact[i]==0 ){
+    /* No email address found. Take as user info if not empty */
     printf(" %s <%s>", zContact[0] ? zContact : zUser, zUser);
     db_reset(&q);
     return;
   }
   if( zContact[i]=='<' ){
+    /*
+    ** Found beginning of email address. Look for the end and extract
+    ** the part.
+     */
     zEmail = mprintf("%s", &zContact[i]);
     for(i=0; zEmail[i] && zEmail[i]!='>'; i++){}
     if( zEmail[i]=='>' ) zEmail[i+1] = 0;
   }else{
+    /*
+    ** Found an end marker for email, but nothing else.
+     */
     zEmail = mprintf("<%s>", zUser);
   }
-  zName = mprintf("%.*s", i, zContact);
+  /*
+  ** Here zContact[i] either '<' or '>'. Extract the string _before_
+  ** either as user name.
+  */
+  zName = mprintf("%.*s", i-1, zContact);
   for(i=j=0; zName[i]; i++){
     if( zName[i]!='"' ) zName[j++] = zName[i];
   }
@@ -140,7 +156,7 @@ void export_cmd(void){
 
     f = fossil_fopen(markfile_in, "r");
     if( f==0 ){
-      fossil_panic("cannot open %s for reading", markfile_in);
+      fossil_fatal("cannot open %s for reading", markfile_in);
     }
     db_prepare(&qb, "INSERT OR IGNORE INTO oldblob VALUES (:rid)");
     db_prepare(&qc, "INSERT OR IGNORE INTO oldcommit VALUES (:rid)");
@@ -156,7 +172,7 @@ void export_cmd(void){
         db_reset(&qc);
         bag_insert(&vers, atoi(line + 1));
       }else{
-        fossil_panic("bad input from %s: %s", markfile_in, line);
+        fossil_fatal("bad input from %s: %s", markfile_in, line);
       }
     }
     db_finalize(&qb);
@@ -337,7 +353,7 @@ void export_cmd(void){
     FILE *f;
     f = fossil_fopen(markfile_out, "w");
     if( f == 0 ){
-      fossil_panic("cannot open %s for writing", markfile_out);
+      fossil_fatal("cannot open %s for writing", markfile_out);
     }
     db_prepare(&q, "SELECT rid FROM oldblob");
     while( db_step(&q)==SQLITE_ROW ){
@@ -350,7 +366,7 @@ void export_cmd(void){
     }
     db_finalize(&q);
     if( ferror(f)!=0 || fclose(f)!=0 ) {
-      fossil_panic("error while writing %s", markfile_out);
+      fossil_fatal("error while writing %s", markfile_out);
     }
   }
 }

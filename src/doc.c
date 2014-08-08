@@ -183,6 +183,7 @@ const char *mimetype_from_name(const char *zName){
     { "movie",      5, "video/x-sgi-movie"                 },
     { "mp2",        3, "audio/mpeg"                        },
     { "mp3",        3, "audio/mpeg"                        },
+    { "mp4",        3, "video/mp4"                         },
     { "mpe",        3, "video/mpeg"                        },
     { "mpeg",       4, "video/mpeg"                        },
     { "mpg",        3, "video/mpeg"                        },
@@ -273,7 +274,7 @@ const char *mimetype_from_name(const char *zName){
     { "vrml",       4, "model/vrml"                        },
     { "wav",        3, "audio/x-wav"                       },
     { "wax",        3, "audio/x-ms-wax"                    },
-    { "wiki",       4, "application/x-fossil-wiki"         },
+    { "wiki",       4, "text/x-fossil-wiki"                },
     { "wma",        3, "audio/x-ms-wma"                    },
     { "wmv",        3, "video/x-ms-wmv"                    },
     { "wmx",        3, "video/x-ms-wmx"                    },
@@ -317,7 +318,7 @@ const char *mimetype_from_name(const char *zName){
     sqlite3_snprintf(sizeof(zSuffix), zSuffix, "%s", z);
     for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     first = 0;
-    last = sizeof(aMime)/sizeof(aMime[0]);
+    last = sizeof(aMime)/sizeof(aMime[0]) - 1;
     while( first<=last ){
       int c;
       i = (first+last)/2;
@@ -450,7 +451,7 @@ void doc_page(void){
       if( db_int(0, "SELECT count(*) FROM vcache")>10000 ){
         db_multi_exec("DELETE FROM vcache");
       }
-      pM = manifest_get(vid, CFTYPE_MANIFEST);
+      pM = manifest_get(vid, CFTYPE_MANIFEST, 0);
       if( pM==0 ){
         goto doc_not_found;
       }
@@ -484,6 +485,7 @@ void doc_page(void){
     }
     db_end_transaction(0);
   }
+  blob_to_utf8_no_bom(&filebody, 0);
 
   /* The file is now contained in the filebody blob.  Deliver the
   ** file to the user 
@@ -497,7 +499,7 @@ void doc_page(void){
                                      "  FROM blob WHERE rid=%d", vid));
   Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
                                   " WHERE objid=%d AND type='ci'", vid));
-  if( fossil_strcmp(zMime, "application/x-fossil-wiki")==0 ){
+  if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
     Blob title, tail;
     if( wiki_find_title(&filebody, &title, &tail) ){
       style_header(blob_str(&title));

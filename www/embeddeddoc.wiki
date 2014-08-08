@@ -65,16 +65,21 @@ pathname of the documentation file relative to the root of the source
 tree.
 
 The mimetype (and thus the rendering) of documentation files is 
-determined by the file suffix.  Fossil currently understands 192
+determined by the file suffix.  Fossil currently understands 197
 different file suffixes, including all the popular ones such as
 ".css", ".gif", ".htm", ".html", ".jpg", ".jpeg", ".png", and ".txt".
 
 Documentation files whose names end in ".wiki" use the 
 [/wiki_rules | same markup as wiki pages] -
 a safe subset of HTML together with some wiki rules for paragraph
-breaks, lists, and hyperlinks.  The ".wiki" and ".txt" pages
+breaks, lists, and hyperlinks. 
+Documentation files ending in ".md" or ".markdown" use the
+Markdown markup langauge.
+Documentation files ending in ".txt" are plain text.
+Wiki, markdown, and plain text documentation files
 are rendered with the standard fossil header and footer added.
-All other mimetypes are delivered directly to the requesting
+All other mimetypes (including ".html" files)
+are delivered directly to the requesting
 web browser without interpretation, additions, or changes.
 
 <h2>Examples</h2>
@@ -85,7 +90,7 @@ source tree is "<b>www/embeddeddoc.wiki</b>".
 You are perhaps looking at this
 file using the URL:
 
-   [http://www.fossil-scm.org/index.html/doc/tip/www/embeddeddoc.wiki].
+   [http://www.fossil-scm.org/index.html/doc/trunk/www/embeddeddoc.wiki].
 
 The first part of this path, the "[http://www.fossil-scm.org/index.html]",
 is the base URL.  You might have originally typed:
@@ -100,19 +105,19 @@ CGI mode.  The "index.html" CGI script looks like this:
 repository: /fossil/fossil.fossil
 </pre></blockquote>
 
-This is one of three ways to set up a 
-<a href="quickstart.wiki#serversetup">fossil web server</a>.
+This is one of four ways to set up a 
+<a href="./server.wiki">fossil web server</a>.
 
-The "<b>/tip/</b>" part of the URL tells fossil to use
-the documentation files from the check-in that was checked in most
-recently.  If you wanted to see an historical version of this document,
-you could substitute the name of a check-in for "<b>/tip/</b>".
+The "<b>/trunk/</b>" part of the URL tells fossil to use
+the documentation files from the most recent trunk check-in.
+If you wanted to see an historical version of this document,
+you could substitute the name of a check-in for "<b>/trunk/</b>".
 For example, to see the version of this document associated with
-check-in [9be1b00392], simply replace the "<b>/tip/</b>" with
+check-in [9be1b00392], simply replace the "<b>/trunk/</b>" with
 "<b>/9be1b00392/</b>".  You can also substitute the symbolic name
 for a particular version or branch.  For example, you might
-replace "<b>/tip/</b>" with "<b>/trunk/</b>" to get the latest
-version of this document in the "trunk" branch.  The symbolic name
+replace "<b>/trunk/</b>" with "<b>/experimental/</b>" to get the latest
+version of this document in the "experimental" branch.  The symbolic name
 can also be a date and time string in any of the following formats:</p>
 
 <ul>
@@ -137,7 +142,7 @@ the name "<b>www/embeddeddoc.wiki</b>" and so that name forms the
 last part of the URL for this document.
 
 As I sit writing this documentation file, I am testing my work by
-running the "<b>fossil server</b>" command line and viewing
+running the "<b>fossil ui</b>" command line and viewing
 <b>http://localhost:8080/doc/ckout/www/embeddeddoc.wiki</b> in
 Firefox.  I am doing this even though I have not yet checked in
 the "<b>www/embeddeddoc.wiki</b>" file for the first time.  Using

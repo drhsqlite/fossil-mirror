@@ -52,7 +52,7 @@ static void tag_propagate(
   ** Three returns:  (1) rid of the child.  (2) timestamp of child.
   ** (3) True to propagate or false to block.
   */
-  db_prepare(&s, 
+  db_prepare(&s,
      "SELECT cid, plink.mtime,"
      "       coalesce(srcid=0 AND tagxref.mtime<:mtime, %d) AS doit"
      "  FROM plink LEFT JOIN tagxref ON cid=rid AND tagid=%d"
@@ -181,7 +181,7 @@ int tag_insert(
     /* Another entry that is more recent already exists.  Do nothing */
     return tagid;
   }
-  db_prepare(&s, 
+  db_prepare(&s,
     "REPLACE INTO tagxref(tagid,tagtype,srcId,origid,value,mtime,rid)"
     " VALUES(%d,%d,%d,%d,%Q,:mtime,%d)",
     tagid, tagtype, srcId, rid, zValue, rid
@@ -258,7 +258,7 @@ void testtag_cmd(void){
     case '+':  tagtype = 1;  break;
     case '*':  tagtype = 2;  break;
     case '-':  tagtype = 0;  break;
-    default:   
+    default:
       fossil_fatal("tag should begin with '+', '*', or '-'");
       return;
   }
@@ -324,11 +324,11 @@ void tag_add_artifact(
   }else{
     blob_appendf(&ctrl, "\n");
   }
-  blob_appendf(&ctrl, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
+  blob_appendf(&ctrl, "U %F\n", zUserOvrd ? zUserOvrd : login_name());
   md5sum_blob(&ctrl, &cksum);
   blob_appendf(&ctrl, "Z %b\n", &cksum);
   nrid = content_put(&ctrl);
-  manifest_crosslink(nrid, &ctrl);
+  manifest_crosslink(nrid, &ctrl, MC_PERMIT_HOOKS);
   assert( blob_is_reset(&ctrl) );
 }
 
@@ -350,10 +350,11 @@ void tag_add_artifact(
 **         Remove the tag TAGNAME from CHECK-IN, and also remove
 **         the propagation of the tag to any descendants.
 **
-**     %fossil tag find ?--raw? ?--type TYPE? TAGNAME
+**     %fossil tag find ?--raw? ?-t|--type TYPE? ?-n|--limit #? TAGNAME
 **
 **         List all objects that use TAGNAME.  TYPE can be "ci" for
-**         checkins or "e" for events.
+**         checkins or "e" for events. The limit option limits the number
+**         of results to the given value.
 **
 **     %fossil tag list ?--raw? ?CHECK-IN?
 **
@@ -379,9 +380,9 @@ void tag_add_artifact(
 **
 ** will assume that "decaf" is a tag/branch name.
 **
-** only allow --date-override and --user-override in 
+** only allow --date-override and --user-override in
 **   %fossil tag add --date-override 'YYYY-MMM-DD HH:MM:SS' \\
-**                   --user-override user 
+**                   --user-override user
 ** in order to import history from other scm systems
 */
 void tag_cmd(void){
@@ -389,6 +390,8 @@ void tag_cmd(void){
   int fRaw = find_option("raw","",0)!=0;
   int fPropagate = find_option("propagate","",0)!=0;
   const char *zPrefix = fRaw ? "" : "sym-";
+  const char *zFindLimit = find_option("limit","n",1);
+  const int nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
 
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
@@ -430,18 +433,24 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"find",n)==0 ){
     Stmt q;
     const char *zType = find_option("type","t",1);
+    Blob sql = empty_blob;
     if( zType==0 || zType[0]==0 ) zType = "*";
     if( g.argc!=4 ){
-      usage("find ?--raw? TAGNAME");
+      usage("find ?--raw? ?-t|--type TYPE? ?-n|--limit #? TAGNAME");
     }
     if( fRaw ){
-      db_prepare(&q,
+      blob_appendf(&sql,
         "SELECT blob.uuid FROM tagxref, blob"
         " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
         "   AND tagxref.tagtype>0"
         "   AND blob.rid=tagxref.rid",
         g.argv[3]
       );
+      if( nFindLimit>0 ){
+        blob_appendf(&sql, " LIMIT %d", nFindLimit);
+      }
+      db_prepare(&q, "%s", blob_str(&sql));
+      blob_reset(&sql);
       while( db_step(&q)==SQLITE_ROW ){
         fossil_print("%s\n", db_column_text(&q, 0));
       }
@@ -450,7 +459,7 @@ void tag_cmd(void){
       int tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
                          g.argv[3]);
       if( tagid>0 ){
-        db_prepare(&q,
+        blob_appendf(&sql,
           "%s"
           "  AND event.type GLOB '%q'"
           "  AND blob.rid IN ("
@@ -460,7 +469,9 @@ void tag_cmd(void){
           " ORDER BY event.mtime DESC",
           timeline_query_for_tty(), zType, tagid
         );
-        print_timeline(&q, 2000, 0);
+        db_prepare(&q, "%s", blob_str(&sql));
+        blob_reset(&sql);
+        print_timeline(&q, nFindLimit, 79, 0);
         db_finalize(&q);
       }
     }
@@ -469,7 +480,7 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;
     if( g.argc==3 ){
-      db_prepare(&q, 
+      db_prepare(&q,
         "SELECT tagname FROM tag"
         " WHERE EXISTS(SELECT 1 FROM tagxref"
         "               WHERE tagid=tag.tagid"
@@ -586,11 +597,5 @@ void tagtimeline_page(void){
   www_print_timeline(&q, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }

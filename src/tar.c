@@ -17,9 +17,9 @@
 **
 ** This file contains code used to generate tarballs.
 */
+#include "config.h"
 #include <assert.h>
 #include <zlib.h>
-#include "config.h"
 #include "tar.h"
 
 /*
@@ -338,8 +338,9 @@ static void tar_add_directory_of(
   int i;
   for(i=nName-1; i>0 && zName[i]!='/'; i--){}
   if( i<=0 ) return;
-  if( i < tball.nPrevDirAlloc && tball.zPrevDir[i]==0 &&
-        memcmp(tball.zPrevDir, zName, i)==0 ) return;
+  if( i<tball.nPrevDirAlloc 
+   && strncmp(tball.zPrevDir, zName, i)==0
+   && tball.zPrevDir[i]==0 ) return;
   db_multi_exec("INSERT OR IGNORE INTO dir VALUES('%#q')", i, zName);
   if( sqlite3_changes(g.db)==0 ) return;
   tar_add_directory_of(zName, i-1, mTime);
@@ -429,7 +430,7 @@ void test_tarball_cmd(void){
     usage("ARCHIVE FILE....");
   }
   sqlite3_open(":memory:", &g.db);
-  tar_begin(0);
+  tar_begin(-1);
   for(i=3; i<g.argc; i++){
     blob_zero(&file);
     blob_read_from_file(&file, g.argv[i]);
@@ -481,7 +482,7 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
   }
   nPrefix = blob_size(&filename);
 
-  pManifest = manifest_get(rid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pManifest ){
     mTime = (pManifest->rDate - 2440587.5)*86400.0;
     tar_begin(mTime);
@@ -527,13 +528,17 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
 /*
 ** COMMAND: tarball*
 **
-** Usage: %fossil tarball VERSION OUTPUTFILE [--name DIRECTORYNAME] [-R|--repository REPO]
+** Usage: %fossil tarball VERSION OUTPUTFILE
 **
 ** Generate a compressed tarball for a specified version.  If the --name
 ** option is used, its argument becomes the name of the top-level directory
 ** in the resulting tarball.  If --name is omitted, the top-level directory
 ** named is derived from the project name, the check-in date and time, and
 ** the artifact ID of the check-in.
+**
+** Options:
+**   --name DIRECTORYNAME   The name of the top-level directory in the archive
+**   -R REPOSITORY          Specify a Fossil repository
 */
 void tarball_cmd(void){
   int rid;
@@ -541,6 +546,10 @@ void tarball_cmd(void){
   const char *zName;
   zName = find_option("name", 0, 1);
   db_find_and_open_repository(0, 0);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
@@ -572,15 +581,27 @@ void tarball_cmd(void){
 **
 ** Generate a compressed tarball for a checkin.
 ** Return that tarball as the HTTP reply content.
+**
+** Optional URL Parameters:
+**
+** - name=NAME[.tar.gz] is base name of the output file. Defaults to
+** something project/version-specific. The prefix of the name, up to
+** the last '.', are used as the top-most directory name in the tar
+** output. 
+**
+** - uuid=the version to tar (may be a tag/branch name).
+** Defaults to "trunk".
+**
 */
 void tarball_page(void){
   int rid;
-  char *zName, *zRid;
+  char *zName, *zRid, *zKey;
   int nName, nRid;
   Blob tarball;
 
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(); return; }
+  load_control();
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid","trunk"));
@@ -605,9 +626,24 @@ void tarball_page(void){
     return;
   }
   if( nRid==0 && nName>10 ) zName[10] = 0;
-  tarball_of_checkin(rid, &tarball, zName);
+  zKey = db_text(0, "SELECT '/tarball/'||uuid||'/%q'"
+                    "  FROM blob WHERE rid=%d",zName,rid);
+  if( P("debug")!=0 ){
+    style_header("Tarball Generator Debug Screen");
+    @ zName = "%h(zName)"<br>
+    @ rid = %d(rid)<br>
+    @ zKey = "%h(zKey)"
+    style_footer();
+    return;
+  }
+  blob_zero(&tarball);
+  if( cache_read(&tarball, zKey)==0 ){
+    tarball_of_checkin(rid, &tarball, zName);
+    cache_write(&tarball, zKey);
+  }
   free( zName );
   free( zRid );
+  free( zKey );
   cgi_set_content(&tarball);
   cgi_set_content_type("application/x-compressed");
 }

@@ -47,14 +47,14 @@ int fast_uuid_to_rid(const char *zUuid){
 ** For this routine, the UUID must be exact.  For a match against
 ** user input with mixed case, use resolve_uuid().
 **
-** If the UUID is not found and phantomize is 1 or 2, then attempt to 
+** If the UUID is not found and phantomize is 1 or 2, then attempt to
 ** create a phantom record.  A private phantom is created for 2 and
 ** a public phantom is created for 1.
 */
 int uuid_to_rid(const char *zUuid, int phantomize){
   int rid, sz;
   char z[UUID_SIZE+1];
-  
+
   sz = strlen(zUuid);
   if( sz!=UUID_SIZE || !validate16(zUuid, sz) ){
     return 0;
@@ -70,34 +70,38 @@ int uuid_to_rid(const char *zUuid, int phantomize){
 
 
 /*
-** Load a vfile from a record ID.
+** Load a vfile from a record ID.  Return the number of files with
+** missing content.
 */
-void load_vfile_from_rid(int vid){
-  int rid, size;
+int load_vfile_from_rid(int vid){
+  int rid, size, nMissing;
   Stmt ins, ridq;
   Manifest *p;
   ManifestFile *pFile;
 
   if( db_exists("SELECT 1 FROM vfile WHERE vid=%d", vid) ){
-    return;
+    return 0;
   }
 
   db_begin_transaction();
-  p = manifest_get(vid, CFTYPE_MANIFEST);
-  if( p==0 ) return;
-  db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
+  p = manifest_get(vid, CFTYPE_MANIFEST, 0);
+  if( p==0 ) {
+    db_end_transaction(1);
+    return 0;
+  }
   db_prepare(&ins,
     "INSERT INTO vfile(vid,isexe,islink,rid,mrid,pathname) "
     " VALUES(:vid,:isexe,:islink,:id,:id,:name)");
   db_prepare(&ridq, "SELECT rid,size FROM blob WHERE uuid=:uuid");
   db_bind_int(&ins, ":vid", vid);
   manifest_file_rewind(p);
+  nMissing = 0;
   while( (pFile = manifest_file_next(p,0))!=0 ){
     if( pFile->zUuid==0 || uuid_is_shunned(pFile->zUuid) ) continue;
     db_bind_text(&ridq, ":uuid", pFile->zUuid);
     if( db_step(&ridq)==SQLITE_ROW ){
       rid = db_column_int(&ridq, 0);
-      size = db_column_int(&ridq, 0);
+      size = db_column_int(&ridq, 1);
     }else{
       rid = 0;
       size = 0;
@@ -105,6 +109,7 @@ void load_vfile_from_rid(int vid){
     db_reset(&ridq);
     if( rid==0 || size<0 ){
       fossil_warning("content missing for %s", pFile->zName);
+      nMissing++;
       continue;
     }
     db_bind_int(&ins, ":isexe", ( manifest_file_mperm(pFile)==PERM_EXE ));
@@ -118,6 +123,7 @@ void load_vfile_from_rid(int vid){
   db_finalize(&ins);
   manifest_destroy(p);
   db_end_transaction(0);
+  return nMissing;
 }
 
 #if INTERFACE
@@ -140,7 +146,7 @@ void load_vfile_from_rid(int vid){
 **
 ** If VFILE.DELETED is true or if VFILE.RID is zero, then the file was either
 ** removed from configuration management via "fossil rm" or added via
-** "fossil add", respectively, and in both cases we always know that 
+** "fossil add", respectively, and in both cases we always know that
 ** the file has changed without having the check the size, mtime,
 ** or on-disk content.
 **
@@ -215,7 +221,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       if( blob_compare(&fileCksum, &origCksum)==0 ) chnged = 0;
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
-    }else if( (chnged==0 || chnged==2)
+    }else if( (chnged==0 || chnged==2 || chnged==4)
            && (useMtime==0 || currentMtime!=oldMtime) ){
       /* For files that were formerly believed to be unchanged or that were
       ** changed by merging, if their mtime changes, or unconditionally
@@ -232,7 +238,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
     }
-    if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2) ){
+    if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2 || chnged==4) ){
       i64 desiredMtime;
       if( mtime_of_manifest_file(vid,rid,&desiredMtime)==0 ){
         if( currentMtime!=desiredMtime ){
@@ -315,7 +321,7 @@ void vfile_to_disk(
     if( file_wd_isdir(zName) == 1 ){
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite\n", zName);
-    }    
+    }
     if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(zName)) ){
       file_delete(zName);
     }
@@ -392,7 +398,7 @@ static int is_temporary_file(const char *zName){
      "output",
   };
   int i, j, n;
-  
+
   if( strglob("ci-comment-????????????.txt", zName) ) return 1;
   for(; zName[0]!=0; zName++){
     if( zName[0]=='/' && strglob("/ci-comment-????????????.txt", zName) ){
@@ -407,7 +413,7 @@ static int is_temporary_file(const char *zName){
         for(j=n+2; zName[j] && fossil_isdigit(zName[j]); j++){}
         if( zName[j]==0 ) return 1;
       }
-    }      
+    }
   }
   return 0;
 }
@@ -418,6 +424,7 @@ static int is_temporary_file(const char *zName){
 */
 #define SCAN_ALL    0x001    /* Includes files that begin with "." */
 #define SCAN_TEMP   0x002    /* Only Fossil-generated files like *-baseline */
+#define SCAN_NESTED 0x004    /* Scan for empty dirs in nested checkouts */
 #endif /* INTERFACE */
 
 /*
@@ -428,16 +435,22 @@ static int is_temporary_file(const char *zName){
 ** Subdirectories are scanned recursively.
 ** Omit files named in VFILE.
 **
-** Files whose names begin with "." are omitted unless allFlag is true.
+** Files whose names begin with "." are omitted unless the SCAN_ALL
+** flag is set.
 **
-** Any files or directories that match the glob pattern pIgnore are 
-** excluded from the scan.  Name matching occurs after the first
-** nPrefix characters are elided from the filename.
+** Any files or directories that match the glob patterns pIgnore*
+** are excluded from the scan.  Name matching occurs after the
+** first nPrefix characters are elided from the filename.
 */
-void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
+void vfile_scan(
+  Blob *pPath,           /* Directory to be scanned */
+  int nPrefix,           /* Number of bytes in directory name */
+  unsigned scanFlags,    /* Zero or more SCAN_xxx flags */
+  Glob *pIgnore1,        /* Do not add files that match this GLOB */
+  Glob *pIgnore2         /* Omit files matching this GLOB too */
+){
   DIR *d;
   int origSize;
-  const char *zDir;
   struct dirent *pEntry;
   int skipAll = 0;
   static Stmt ins;
@@ -445,9 +458,10 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
   void *zNative;
 
   origSize = blob_size(pPath);
-  if( pIgnore ){
+  if( pIgnore1 || pIgnore2 ){
     blob_appendf(pPath, "/");
-    if( glob_match(pIgnore, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
+    if( glob_match(pIgnore1, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
+    if( glob_match(pIgnore2, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
     blob_resize(pPath, origSize);
   }
   if( skipAll ) return;
@@ -455,13 +469,13 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
   if( depth==0 ){
     db_prepare(&ins,
        "INSERT OR IGNORE INTO sfile(x) SELECT :file"
-       "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE pathname=:file)"
+       "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
+       " pathname=:file %s)", filename_collation()
     );
   }
   depth++;
 
-  zDir = blob_str(pPath);
-  zNative = fossil_utf8_to_filename(zDir);
+  zNative = fossil_utf8_to_filename(blob_str(pPath));
   d = opendir(zNative);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
@@ -475,13 +489,24 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
       zUtf8 = fossil_filename_to_utf8(pEntry->d_name);
       blob_appendf(pPath, "/%s", zUtf8);
       zPath = blob_str(pPath);
-      if( glob_match(pIgnore, &zPath[nPrefix+1]) ){
+      if( glob_match(pIgnore1, &zPath[nPrefix+1]) ||
+          glob_match(pIgnore2, &zPath[nPrefix+1]) ){
         /* do nothing */
+#ifdef _DIRENT_HAVE_D_TYPE
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isdir(zPath)==1) : (pEntry->d_type==DT_DIR) ){
+#else
       }else if( file_wd_isdir(zPath)==1 ){
+#endif
         if( !vfile_top_of_checkout(zPath) ){
-          vfile_scan(pPath, nPrefix, scanFlags, pIgnore);
+          vfile_scan(pPath, nPrefix, scanFlags, pIgnore1, pIgnore2);
         }
+#ifdef _DIRENT_HAVE_D_TYPE
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
+#else
       }else if( file_wd_isfile_or_link(zPath) ){
+#endif
         if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(zUtf8) ){
           db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
           db_step(&ins);
@@ -499,6 +524,133 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
   if( depth==0 ){
     db_finalize(&ins);
   }
+}
+
+/*
+** Scans the specified base directory for any directories within it, while
+** keeping a count of how many files they each contains, either directly or
+** indirectly.
+**
+** Subdirectories are scanned recursively.
+** Omit files named in VFILE.
+**
+** Directories whose names begin with "." are omitted unless the SCAN_ALL
+** flag is set.
+**
+** Any directories that match the glob patterns pIgnore* are excluded from
+** the scan.  Name matching occurs after the first nPrefix characters are
+** elided from the filename.
+**
+** Returns the total number of files found.
+*/
+int vfile_dir_scan(
+  Blob *pPath,           /* Base directory to be scanned */
+  int nPrefix,           /* Number of bytes in base directory name */
+  unsigned scanFlags,    /* Zero or more SCAN_xxx flags */
+  Glob *pIgnore1,        /* Do not add directories that match this GLOB */
+  Glob *pIgnore2,        /* Omit directories matching this GLOB too */
+  Glob *pIgnore3         /* Omit directories matching this GLOB too */
+){
+  int result = 0;
+  DIR *d;
+  int origSize;
+  struct dirent *pEntry;
+  int skipAll = 0;
+  static Stmt ins;
+  static Stmt upd;
+  static int depth = 0;
+  void *zNative;
+
+  origSize = blob_size(pPath);
+  if( pIgnore1 || pIgnore2 || pIgnore3 ){
+    blob_appendf(pPath, "/");
+    if( glob_match(pIgnore1, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
+    if( glob_match(pIgnore2, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
+    if( glob_match(pIgnore3, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
+    blob_resize(pPath, origSize);
+  }
+  if( skipAll ) return result;
+
+  if( depth==0 ){
+    db_multi_exec("DROP TABLE IF EXISTS dscan_temp;"
+                  "CREATE TEMP TABLE dscan_temp("
+                  "  x TEXT PRIMARY KEY %s, y INTEGER)",
+                  filename_collation());
+    db_prepare(&ins,
+       "INSERT OR IGNORE INTO dscan_temp(x, y) SELECT :file, :count"
+       "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
+       " pathname GLOB :file || '/*' %s)", filename_collation()
+    );
+    db_prepare(&upd,
+       "UPDATE OR IGNORE dscan_temp SET y = coalesce(y, 0) + 1"
+       "  WHERE x=:file %s",
+       filename_collation()
+    );
+  }
+  depth++;
+
+  zNative = fossil_utf8_to_filename(blob_str(pPath));
+  d = opendir(zNative);
+  if( d ){
+    while( (pEntry=readdir(d))!=0 ){
+      char *zOrigPath;
+      char *zPath;
+      char *zUtf8;
+      if( pEntry->d_name[0]=='.' ){
+        if( (scanFlags & SCAN_ALL)==0 ) continue;
+        if( pEntry->d_name[1]==0 ) continue;
+        if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
+      }
+      zOrigPath = mprintf("%s", blob_str(pPath));
+      zUtf8 = fossil_filename_to_utf8(pEntry->d_name);
+      blob_appendf(pPath, "/%s", zUtf8);
+      zPath = blob_str(pPath);
+      if( glob_match(pIgnore1, &zPath[nPrefix+1]) ||
+          glob_match(pIgnore2, &zPath[nPrefix+1]) ||
+          glob_match(pIgnore3, &zPath[nPrefix+1]) ){
+        /* do nothing */
+#ifdef _DIRENT_HAVE_D_TYPE
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isdir(zPath)==1) : (pEntry->d_type==DT_DIR) ){
+#else
+      }else if( file_wd_isdir(zPath)==1 ){
+#endif
+        if( (scanFlags & SCAN_NESTED) || !vfile_top_of_checkout(zPath) ){
+          char *zSavePath = mprintf("%s", zPath);
+          int count = vfile_dir_scan(pPath, nPrefix, scanFlags, pIgnore1,
+                                     pIgnore2, pIgnore3);
+          db_bind_text(&ins, ":file", &zSavePath[nPrefix+1]);
+          db_bind_int(&ins, ":count", count);
+          db_step(&ins);
+          db_reset(&ins);
+          fossil_free(zSavePath);
+          result += count; /* found X normal files? */
+        }
+#ifdef _DIRENT_HAVE_D_TYPE
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
+#else
+      }else if( file_wd_isfile_or_link(zPath) ){
+#endif
+        db_bind_text(&upd, ":file", zOrigPath);
+        db_step(&upd);
+        db_reset(&upd);
+        result++; /* found 1 normal file */
+      }
+      fossil_filename_free(zUtf8);
+      blob_resize(pPath, origSize);
+      fossil_free(zOrigPath);
+    }
+    closedir(d);
+  }
+  fossil_filename_free(zNative);
+
+  depth--;
+  if( depth==0 ){
+    db_finalize(&upd);
+    db_finalize(&ins);
+  }
+  return result;
 }
 
 /*
@@ -528,7 +680,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
   char zBuf[4096];
 
   db_must_be_within_tree();
-  db_prepare(&q, 
+  db_prepare(&q,
       "SELECT %Q || pathname, pathname, origname, is_selected(id), rid"
       "  FROM vfile"
       " WHERE (NOT deleted OR NOT is_selected(id)) AND vid=%d"
@@ -547,7 +699,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
         /* Instead of file content, use link destination path */
         Blob pathBuf;
 
-        sqlite3_snprintf(sizeof(zBuf), zBuf, " %ld\n", 
+        sqlite3_snprintf(sizeof(zBuf), zBuf, " %ld\n",
                          blob_read_link(&pathBuf, zFullpath));
         md5sum_step_text(zBuf, -1);
         md5sum_step_text(blob_str(&pathBuf), -1);
@@ -617,9 +769,9 @@ void vfile_compare_repository_to_disk(int vid){
   Stmt q;
   Blob disk, repo;
   char *zOut;
-  
+
   db_must_be_within_tree();
-  db_prepare(&q, 
+  db_prepare(&q,
       "SELECT %Q || pathname, pathname, rid FROM vfile"
       " WHERE NOT deleted AND vid=%d AND is_selected(id)"
       " ORDER BY if_selected(id, pathname, origname) /*scan*/",
@@ -683,7 +835,7 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
   char zBuf[100];
 
   db_must_be_within_tree();
- 
+
   db_prepare(&q, "SELECT pathname, origname, rid, is_selected(id)"
                  " FROM vfile"
                  " WHERE (NOT deleted OR NOT is_selected(id))"
@@ -721,23 +873,26 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 ** "R" card near the end of the manifest.
 **
 ** In a well-formed manifest, the two checksums computed here, pOut and
-** pManOut, should be identical.  
+** pManOut, should be identical.
 */
 void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   int fid;
   Blob file;
+  Blob err;
   Manifest *pManifest;
   ManifestFile *pFile;
   char zBuf[100];
 
   blob_zero(pOut);
+  blob_zero(&err);
   if( pManOut ){
     blob_zero(pManOut);
   }
   db_must_be_within_tree();
-  pManifest = manifest_get(vid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(vid, CFTYPE_MANIFEST, &err);
   if( pManifest==0 ){
-    fossil_panic("manifest file (%d) is malformed", vid);
+    fossil_fatal("manifest file (%d) is malformed:\n%s\n",
+                 vid, blob_str(&err));
   }
   manifest_file_rewind(pManifest);
   while( (pFile = manifest_file_next(pManifest,0))!=0 ){

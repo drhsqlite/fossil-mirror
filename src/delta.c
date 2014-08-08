@@ -22,6 +22,7 @@
 ** fossil source code base.  Nothing in this file depends on anything
 ** else in fossil.
 */
+#include "config.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -468,7 +469,7 @@ int delta_create(
   /* Output the final checksum record. */
   putInt(checksum(zOut, lenOut), &zDelta);
   *(zDelta++) = ';';
-  free(collide);
+  fossil_free(collide);
   return zDelta - zOrigDelta; 
 }
 

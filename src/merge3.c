@@ -138,7 +138,7 @@ static int output_one_side(
 /*
 ** Text of boundary markers for merge conflicts.
 */
-static char const * const mergeMarker[] = {
+static const char *const mergeMarker[] = {
  /*123456789 123456789 123456789 123456789 123456789 123456789 123456789*/
   "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<\n",
   "======= COMMON ANCESTOR content follows ============================\n",
@@ -342,15 +342,38 @@ int file_contains_merge_marker(const char *zFullpath){
 }
 
 /*
-** COMMAND:  test-3-way-merge
+** COMMAND:  3-way-merge*
 **
-** Usage: %fossil test-3-way-merge PIVOT V1 V2 MERGED
+** Usage: %fossil 3-way-merge BASELINE V1 V2 MERGED
 **
-** Combine change in going from PIVOT->VERSION1 with the change going
-** from PIVOT->VERSION2 and write the combined changes into MERGED.
+** Inputs are files BASELINE, V1, and V2.  The file MERGED is generated
+** as output.
+**
+** BASELINE is a common ancestor of two files V1 and V2 that have diverging
+** edits.  The generated output file MERGED is the combination of all
+** changes in both V1 and V2.
+**
+** This command has no effect on the Fossil repository.  It is a utility
+** command made available for the convenience of users.  This command can
+** be used, for example, to help import changes from an upstream project.
+**
+** Suppose an upstream project has a file named "Xup.c" which is imported
+** with modifications to the local project as "Xlocal.c".  Suppose further
+** that the "Xbase.c" is an exact copy of the last imported "Xup.c".
+** Then to import the latest "Xup.c" while preserving all the local changes:
+**
+**      fossil 3-way-merge Xbase.c Xlocal.c Xup.c Xlocal.c
+**      cp Xup.c Xbase.c
+**      # Verify that everything still works
+**      fossil commit
+**
 */
 void delta_3waymerge_cmd(void){
   Blob pivot, v1, v2, merged;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=6 ){
     usage("PIVOT V1 V2 MERGED");
   }

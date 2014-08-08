@@ -28,14 +28,12 @@
 **
 **     0:   There is an existing checkout but it is unmodified
 **     1:   There is a modified checkout - there are unsaved changes
-**     2:   There is no existing checkout
 */
-int unsaved_changes(void){
+int unsaved_changes(unsigned int cksigFlags){
   int vid;
   db_must_be_within_tree();
   vid = db_lget_int("checkout",0);
-  if( vid==0 ) return 2;
-  vfile_check_signature(vid, CKSIG_ENOTFILE);
+  vfile_check_signature(vid, cksigFlags|CKSIG_ENOTFILE);
   return db_exists("SELECT 1 FROM vfile WHERE chnged"
                    " OR coalesce(origname!=pathname,0)");
 }
@@ -45,8 +43,9 @@ int unsaved_changes(void){
 ** Clear the VFILE table.
 */
 void uncheckout(int vid){
-  if( vid==0 ) return;
-  vfile_unlink(vid);
+  if( vid>0 ){
+    vfile_unlink(vid);
+  }
   db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
 }
 
@@ -57,22 +56,24 @@ void uncheckout(int vid){
 **
 ** If anything goes wrong, panic.
 */
-int load_vfile(const char *zName){
+int load_vfile(const char *zName, int forceMissingFlag){
   Blob uuid;
   int vid;
 
   blob_init(&uuid, zName, -1);
   if( name_to_uuid(&uuid, 1, "ci") ){
-    fossil_panic(g.zErrMsg);
+    fossil_fatal(g.zErrMsg);
   }
   vid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
   if( vid==0 ){
     fossil_fatal("no such check-in: %s", g.argv[2]);
   }
   if( !is_a_version(vid) ){
-    fossil_fatal("object [%.10s] is not a check-in", blob_str(&uuid));
+    fossil_fatal("object [%S] is not a check-in", blob_str(&uuid));
   }
-  load_vfile_from_rid(vid);
+  if( load_vfile_from_rid(vid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to checkout");
+  };
   return vid;
 }
 
@@ -105,7 +106,7 @@ void checkout_set_all_exe(int vid){
 
   /* Check the EXE permission status of all files
   */
-  pManifest = manifest_get(vid, CFTYPE_MANIFEST);
+  pManifest = manifest_get(vid, CFTYPE_MANIFEST, 0);
   if( pManifest==0 ) return;
   blob_zero(&filename);
   blob_appendf(&filename, "%s", g.zLocalRoot);
@@ -159,7 +160,7 @@ void manifest_to_disk(int vid){
       free(zManFile);
     }
   }
-    
+
 }
 
 /*
@@ -177,32 +178,39 @@ void manifest_to_disk(int vid){
 **
 ** The --latest flag can be used in place of VERSION to checkout the
 ** latest version in the repository.
-** 
+**
 ** Options:
-**    --force   Ignore edited files in the current checkout
-**    --keep    Only update the manifest and manifest.uuid files
+**    --force           Ignore edited files in the current checkout
+**    --keep            Only update the manifest and manifest.uuid files
+**    --force-missing   Force checkout even if content is missing
 **
 ** See also: update
 */
 void checkout_cmd(void){
   int forceFlag;                 /* Force checkout even if edits exist */
+  int forceMissingFlag;          /* Force checkout even if missing content */
   int keepFlag;                  /* Do not change any files on disk */
   int latestFlag;                /* Checkout the latest version */
   char *zVers;                   /* Version to checkout */
   int promptFlag;                /* True to prompt before overwriting */
   int vid, prior;
   Blob cksum1, cksum1b, cksum2;
-  
+
   db_must_be_within_tree();
   db_begin_transaction();
   forceFlag = find_option("force","f",0)!=0;
+  forceMissingFlag = find_option("force-missing",0,0)!=0;
   keepFlag = find_option("keep",0,0)!=0;
   latestFlag = find_option("latest",0,0)!=0;
   promptFlag = find_option("prompt",0,0)!=0 || forceFlag==0;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( (latestFlag!=0 && g.argc!=2) || (latestFlag==0 && g.argc!=3) ){
      usage("VERSION|--latest ?--force? ?--keep?");
   }
-  if( !forceFlag && unsaved_changes()==1 ){
+  if( !forceFlag && unsaved_changes(0) ){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
   if( forceFlag ){
@@ -222,12 +230,12 @@ void checkout_cmd(void){
                          " ORDER BY event.mtime DESC");
     }
     if( zVers==0 ){
-      fossil_fatal("cannot locate \"latest\" checkout");
+      return;
     }
   }else{
     zVers = g.argv[2];
   }
-  vid = load_vfile(zVers);
+  vid = load_vfile(zVers, forceMissingFlag);
   if( prior==vid ){
     return;
   }
@@ -280,7 +288,7 @@ static void unlink_local_database(int manifestOnly){
 **
 ** The opposite of "open".  Close the current database connection.
 ** Require a -f or --force flag if there are unsaved changed in the
-** current check-out.
+** current check-out or if there is non-empty stash.
 **
 ** Options:
 **   --force|-f  necessary to close a check out with uncommitted changes
@@ -290,11 +298,24 @@ static void unlink_local_database(int manifestOnly){
 void close_cmd(void){
   int forceFlag = find_option("force","f",0)!=0;
   db_must_be_within_tree();
-  if( !forceFlag && unsaved_changes()==1 ){
+
+  /* We should be done with options.. */
+  verify_all_options();
+
+  if( !forceFlag && unsaved_changes(0) ){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
+  if( !forceFlag
+   && db_exists("SELECT 1 FROM %s.sqlite_master WHERE name='stash'",
+                db_name("localdb"))
+   && db_exists("SELECT 1 FROM %s.stash", db_name("localdb"))
+  ){
+    fossil_fatal("closing the checkout will delete your stash");
+  }
   if( db_is_writeable("repository") ){
-    db_multi_exec("DELETE FROM config WHERE name='ckout:%q'", g.zLocalRoot);
+    char *zUnset = mprintf("ckout:%q", g.zLocalRoot);
+    db_unset(zUnset, 1);
+    fossil_free(zUnset);
   }
   unlink_local_database(1);
   db_close(1);

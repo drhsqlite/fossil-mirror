@@ -36,7 +36,7 @@ struct GraphRow {
   int *aParent;               /* Array of parents.  0 element is primary .*/
   char *zBranch;              /* Branch name */
   char *zBgClr;               /* Background Color */
-  char zUuid[17];             /* Check-in for file ID */
+  char zUuid[41];             /* Check-in for file ID */
 
   GraphRow *pNext;            /* Next row down in the list of all rows */
   GraphRow *pPrev;            /* Previous row */
@@ -200,7 +200,7 @@ int graph_add_row(
   sqlite3_snprintf(sizeof(pRow->zUuid), pRow->zUuid, "%s", zUuid);
   pRow->isLeaf = isLeaf;
   memset(pRow->aiRiser, -1, sizeof(pRow->aiRiser));
-  if( zBgClr==0 || zBgClr[0]==0 ) zBgClr = "white";
+  if( zBgClr==0 ) zBgClr = "";
   pRow->zBgClr = persistBranchName(p, zBgClr);
   memcpy(pRow->aParent, aParent, sizeof(aParent[0])*nParent);
   if( p->pFirst==0 ){
