@@ -1,5 +1,5 @@
-C In\sthe\scommand-line\sshell,\sreport\sif\sthe\s".system"\scommand\sreturns\sa\snon-zero\sresult
-D 2014-08-07T10:59:19.544
+C Merge\sthe\slatest\sJim\sTcl\scode\sto\strunk,\spost-0.75\swith\sthe\s'glob.tcl'\sfix\sincluded.\s\sApproved\sby\sJim\sTcl\srelease\smanager\sSteve\sBennett.
+D 2014-08-08T19:07:41.576
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -56,7 +56,7 @@ F autosetup/config.guess 3646b015d9a91423feaf2bac86fd2df7ab3564f6 x
 F autosetup/config.sub 0a7de3085aaa4ea3655c4221574dc9e503035428 x
 F autosetup/default.auto f78163e478676728918cbb7360abddb9c830e882
 F autosetup/find-tclsh f973558ad74bd8e4d55b677d9c166cbb35f34186 x
-F autosetup/jimsh0.c 4d0826f3662002c29d774c1b279375e85b6aa1ce
+F autosetup/jimsh0.c f4303d6fb27969ce5170d2e50f862401c521e349
 F autosetup/local.tcl 3a6a7704f546f0863f86f69df7af1858de9c41c9
 F autosetup/system.tcl 9e878fb45e32f6a2790ac82b84f9c9d951e15c68
 F autosetup/test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3a934617388aa515d85f92745636c94f213c132e
-R a25cc56d5ba1677b7f3b487c7f5a4eca
-U jan.nijtmans
-Z 5b5a2de9bc20da1917ce7b7e1f296944
+P bfacd6df6df60640af84e7809cfa1fc2fca73c7b 1b35c8023ac98213960681ff99f76b6d5b740edf
+R d6f65faa9f130555d03387fb69e34d46
+U mistachkin
+Z 309cc167f34caa808510d527243c4c00
