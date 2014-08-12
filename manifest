@@ -1,5 +1,5 @@
-C Make\ssure\sthe\s'server'\scommand\schecks\sfor\sand\sprocesses\sthe\s--files-urlenc\soption
-D 2014-08-04T04:40:00.000
+C X-UA-Compatible\s(MSIE)\sHTTP\sheader\spatch\sfrom\sWarren\sYoung
+D 2014-08-12T15:48:31.000
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
 F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -317,7 +317,7 @@ F src/branch.c b2e1600a9a7fa39d739042239325ae0f6b91a50c
 F src/browse.c 5f55f7fe046ad6050a539436ed741a250555914f
 F src/cache.c 5d4821dfce8ce0d09aaa1e82c3c9d5693487bb48
 F src/captcha.c 765bb4af84144ec617cabb9c6b4a548bbc2e8b08
-F src/cgi.c 752925d4999d0a51723e2e19d6a5f71a90fdfc3a
+F src/cgi.c 9681dc449047f4f215ae45165e4166044e7dc89d
 F src/checkin.c 9a4bff10fd285430362384f17ec1875846ba5193
 F src/checkout.c f74f9a6f61df15aedc6374b2852674f848a03148
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -643,8 +643,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4a1188d56992f14d9945a088350958115b3ea4d5 608f0b2371667fd62e93ddcd6988351a5db510cd
-Q +9c2a5c097b7718f010032388013b05adeea4940a
-R 875fe1fd7264170fce36d9242a0b2f8f
+P eed3946bd92a499ed81c790e161d9e7c20ecd037 b7bebbe44f92bb6d48b8688af61f874a584300b1
+R bec85a6800e78ef265438d4320402114
 U jan.nijtmans
-Z 16387ca24777c9417756e52ca112a9d6
+Z 149d8def7e39d022006b21945a8dda4a
