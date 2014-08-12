@@ -1419,7 +1419,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
         if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
         szFile = file_size(zRepo);
       }
-      if( szFile<0 ){
+      if( szFile<0 && i>0 ){
         const char *zMimetype;
         assert( fossil_strcmp(&zRepo[j], ".fossil")==0 );
         zRepo[j] = 0;

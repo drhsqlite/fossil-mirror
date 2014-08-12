@@ -1,5 +1,5 @@
-C X-UA-Compatible\s(MSIE)\sHTTP\sheader\spatch\sfrom\sWarren\sYoung.
-D 2014-08-12T14:48:31.408
+C Issue\sa\snot-found\serror\sin\sCGI\sif\susing\sthe\s"directory:"\sconfiguration\nand\sthere\sis\snot\sPATH_INFO.\s\sTicket\s[c481aa2fdbc67b7]
+D 2014-08-12T19:35:03.636
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -373,7 +373,7 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 8a8077139db4a01b8c9eb22aab452236331b7c8c
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c ba77b0d1d0b8d61830fda3d956992396091ca9ef
+F src/main.c 4170e6e5914b0ef661d387a0ca9aea9cfcd2555b
 F src/main.mk e4cdb126972b81362488c6a4a6cc95552b37c14d
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 981e853f6c95923a38c2163d2e09e4a4d3fd853a
-R 4c50681a20d5dad863ac1d08dfe60a9f
-U stephan
-Z 13c6796fc51ebd9e42623ace8b1473c4
+P b7bebbe44f92bb6d48b8688af61f874a584300b1
+R e17df08b421ac5d12c900a6fc5d41167
+U drh
+Z 2134f9b5c32f82389085f126a2f2d4f1
