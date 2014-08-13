@@ -254,12 +254,17 @@ void wysiwygEditor(
   @ function formatDoc(sCmd, sValue) {
   @   if (isWysiwyg()){
   @     try {
-  @       // First try the draft standard W3C way, which works on non-IE
-  @       // for a long time, and now finally supported in IE11+.
+  @       // First, try the W3C draft standard way, which has
+  @       // been working on all non-IE browsers for a while.
+  @       // It is also supported by IE11 and higher.
   @       document.execCommand("styleWithCSS", false, false);
   @     } catch (e) {
-  @       try { document.execCommand("useCSS", 0, true); }     // IE9/10
-  @       catch (e) { }                                                       // old IE
+  @       try {
+  @         // For IE9 or IE10, this should work.
+  @         document.execCommand("useCSS", 0, true);
+  @       } catch (e) {
+  @         // Ok, that apparently did not work, do nothing.
+  @       }
   @     }
   @     document.execCommand(sCmd, false, sValue);
   @     oDoc.focus();
