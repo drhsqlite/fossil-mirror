@@ -253,7 +253,14 @@ void wysiwygEditor(
   @ /* Run the editing command if in WYSIWYG mode */
   @ function formatDoc(sCmd, sValue) {
   @   if (isWysiwyg()){
-  @     document.execCommand("styleWithCSS", false, false);
+  @     try {
+  @       // First try the draft standard W3C way, which works on non-IE
+  @       // for a long time, and now finally supported in IE11+.
+  @       document.execCommand("styleWithCSS", false, false);
+  @     } catch (e) {
+  @       try { document.execCommand("useCSS", 0, true); }     // IE9/10
+  @       catch (e) { }                                                       // old IE
+  @     }
   @     document.execCommand(sCmd, false, sValue);
   @     oDoc.focus();
   @   }
