@@ -646,7 +646,7 @@ void merge_cmd(void){
   }
   if( dryRunFlag ){
     fossil_warning("REMINDER: this was a dry run -"
-                   " no file were actually changed.");
+                   " no files were actually changed.");
   }
 
   /*

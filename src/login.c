@@ -210,8 +210,8 @@ static void record_login_attempt(
 ** zPassword may be either the plain-text form or the encrypted
 ** form of the user's password.
 */
-int login_search_uid(char const *zUsername, char const *zPasswd){
-  char * zSha1Pw = sha1_shared_secret(zPasswd, zUsername, 0);
+int login_search_uid(const char *zUsername, const char *zPasswd){
+  char *zSha1Pw = sha1_shared_secret(zPasswd, zUsername, 0);
   int const uid =
       db_int(0,
              "SELECT uid FROM user"
@@ -233,8 +233,8 @@ int login_search_uid(char const *zUsername, char const *zPasswd){
 **
 ** The returned memory should be free()d after use.
 */
-char * login_gen_user_cookie_value(char const *zUsername, char const * zHash){
-  char * zProjCode = db_get("project-code",NULL);
+char *login_gen_user_cookie_value(const char *zUsername, const char *zHash){
+  char *zProjCode = db_get("project-code",NULL);
   char *zCode = abbreviated_project_code(zProjCode);
   free(zProjCode);
   assert((zUsername && *zUsername) && "Invalid user data.");
@@ -254,16 +254,16 @@ char * login_gen_user_cookie_value(char const *zUsername, char const * zHash){
 ** eventually pass it to free()).
 */
 void login_set_user_cookie(
-  char const * zUsername, /* User's name */
+  const char *zUsername,  /* User's name */
   int uid,                /* User's ID */
-  char ** zDest           /* Optional: store generated cookie value. */
+  char **zDest            /* Optional: store generated cookie value. */
 ){
   const char *zCookieName = login_cookie_name();
   const char *zExpire = db_get("cookie-expire","8766");
   int expires = atoi(zExpire)*3600;
   char *zHash;
   char *zCookie;
-  char const *zIpAddr = PD("REMOTE_ADDR","nil"); /* IP address of user */
+  const char *zIpAddr = PD("REMOTE_ADDR","nil"); /* IP address of user */
   char *zRemoteAddr = ipPrefix(zIpAddr);         /* Abbreviated IP address */
 
   assert((zUsername && *zUsername) && (uid > 0) && "Invalid user data.");
@@ -305,12 +305,12 @@ void login_set_user_cookie(
 ** If zCookieDest is not NULL then the generated cookie is assigned to
 ** *zCookieDest and the caller must eventually free() it.
 */
-void login_set_anon_cookie(char const * zIpAddr, char ** zCookieDest ){
-  char const *zNow;            /* Current time (julian day number) */
+void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest ){
+  const char *zNow;            /* Current time (julian day number) */
   char *zCookie;               /* The login cookie */
-  char const *zCookieName;     /* Name of the login cookie */
+  const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
-  char * zRemoteAddr;     /* Abbreviated IP address */
+  char *zRemoteAddr;           /* Abbreviated IP address */
   if(!zIpAddr){
     zIpAddr = PD("REMOTE_ADDR","nil");
   }
@@ -346,7 +346,7 @@ void login_clear_login_data(){
   if(!g.userUid){
     return;
   }else{
-    char const * cookie = login_cookie_name();
+    const char *cookie = login_cookie_name();
     /* To logout, change the cookie value to an empty string */
     cgi_set_cookie(cookie, "",
                    login_cookie_path(), -86400);
@@ -631,7 +631,7 @@ void login_page(void){
   }
   if( zAnonPw ){
     unsigned int uSeed = captcha_seed();
-    char const *zDecoded = captcha_decode(uSeed);
+    const char *zDecoded = captcha_decode(uSeed);
     int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
     char *zCaptcha = captcha_render(zDecoded);
 
@@ -1238,7 +1238,7 @@ void login_verify_csrf_secret(void){
 void register_page(void){
   const char *zUsername, *zPasswd, *zConfirm, *zContact, *zCS, *zPw, *zCap;
   unsigned int uSeed;
-  char const *zDecoded;
+  const char *zDecoded;
   char *zCaptcha;
   if( !db_get_boolean("self-register", 0) ){
     style_header("Registration not possible");

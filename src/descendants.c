@@ -132,6 +132,11 @@ void compute_leaves(int iBase, int closeMode){
     db_finalize(&q1);
     bag_clear(&pending);
     bag_clear(&seen);
+  }else{
+    db_multi_exec(
+      "INSERT INTO leaves"
+      "  SELECT leaf.rid FROM leaf"
+    );
   }
   if( closeMode==1 ){
     db_multi_exec(
@@ -314,6 +319,10 @@ void descendants_cmd(void){
   }else{
     width = -1;
   }
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc==2 ){
     base = db_lget_int("checkout", 0);
   }else{
@@ -375,6 +384,10 @@ void leaves_cmd(void){
     width = -1;
   }
   db_find_and_open_repository(0,0);
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( recomputeFlag ) leaf_rebuild();
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(), -1);

@@ -52,7 +52,7 @@ static void tag_propagate(
   ** Three returns:  (1) rid of the child.  (2) timestamp of child.
   ** (3) True to propagate or false to block.
   */
-  db_prepare(&s, 
+  db_prepare(&s,
      "SELECT cid, plink.mtime,"
      "       coalesce(srcid=0 AND tagxref.mtime<:mtime, %d) AS doit"
      "  FROM plink LEFT JOIN tagxref ON cid=rid AND tagid=%d"
@@ -181,7 +181,7 @@ int tag_insert(
     /* Another entry that is more recent already exists.  Do nothing */
     return tagid;
   }
-  db_prepare(&s, 
+  db_prepare(&s,
     "REPLACE INTO tagxref(tagid,tagtype,srcId,origid,value,mtime,rid)"
     " VALUES(%d,%d,%d,%d,%Q,:mtime,%d)",
     tagid, tagtype, srcId, rid, zValue, rid
@@ -258,7 +258,7 @@ void testtag_cmd(void){
     case '+':  tagtype = 1;  break;
     case '*':  tagtype = 2;  break;
     case '-':  tagtype = 0;  break;
-    default:   
+    default:
       fossil_fatal("tag should begin with '+', '*', or '-'");
       return;
   }
@@ -380,9 +380,9 @@ void tag_add_artifact(
 **
 ** will assume that "decaf" is a tag/branch name.
 **
-** only allow --date-override and --user-override in 
+** only allow --date-override and --user-override in
 **   %fossil tag add --date-override 'YYYY-MMM-DD HH:MM:SS' \\
-**                   --user-override user 
+**                   --user-override user
 ** in order to import history from other scm systems
 */
 void tag_cmd(void){
@@ -390,8 +390,8 @@ void tag_cmd(void){
   int fRaw = find_option("raw","",0)!=0;
   int fPropagate = find_option("propagate","",0)!=0;
   const char *zPrefix = fRaw ? "" : "sym-";
-  char const * zFindLimit = find_option("limit","n",1);
-  int const nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
+  const char *zFindLimit = find_option("limit","n",1);
+  const int nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
 
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
@@ -480,7 +480,7 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;
     if( g.argc==3 ){
-      db_prepare(&q, 
+      db_prepare(&q,
         "SELECT tagname FROM tag"
         " WHERE EXISTS(SELECT 1 FROM tagxref"
         "               WHERE tagid=tag.tagid"

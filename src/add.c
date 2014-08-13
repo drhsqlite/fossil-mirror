@@ -46,7 +46,7 @@ const char *fossil_reserved_name(int N, int omitRepo){
      ".fslckout-wal",
      ".fslckout-shm",
 
-     /* The use of ".fos" as the name of the checkout database is 
+     /* The use of ".fos" as the name of the checkout database is
      ** deprecated.  Use ".fslckout" instead.  At some point, the following
      ** entries should be removed.  2012-02-04 */
      ".fos",
@@ -125,6 +125,10 @@ void test_reserved_names(void){
   int i;
   const char *z;
   int omitRepo = find_option("omitrepo",0,0)!=0;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   for(i=0; (z = fossil_reserved_name(i, omitRepo))!=0; i++){
     fossil_print("%3d: %s\n", i, z);
@@ -179,7 +183,7 @@ static int add_files_in_sfile(int vid){
   Blob repoName;            /* Treename of the repository */
   Stmt loop;                /* SQL to loop over all files to add */
   int (*xCmp)(const char*,const char*);
- 
+
   if( !file_tree_name(g.zRepositoryName, &repoName, 0) ){
     blob_zero(&repoName);
     zRepo = "";
@@ -235,13 +239,13 @@ static int add_files_in_sfile(int vid){
 ** Options:
 **
 **    --case-sensitive <BOOL> override case-sensitive setting
-**    --dotfiles              include files beginning with a dot (".")   
+**    --dotfiles              include files beginning with a dot (".")
 **    -f|--force              Add files without prompting
-**    --ignore <CSG>          ignore files matching patterns from the 
+**    --ignore <CSG>          ignore files matching patterns from the
 **                            comma separated list of glob patterns.
 **    --clean <CSG>           also ignore files matching patterns from
 **                            the comma separated list of glob patterns.
-** 
+**
 ** See also: addremove, rm
 */
 void add_cmd(void){
@@ -259,6 +263,10 @@ void add_cmd(void){
   forceFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   capture_case_sensitive_option();
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   if( zCleanFlag==0 ){
     zCleanFlag = db_get("clean-glob", 0);
@@ -273,7 +281,7 @@ void add_cmd(void){
   pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
   nRoot = strlen(g.zLocalRoot);
-  
+
   /* Load the names of all files that are to be added into sfile temp table */
   for(i=2; i<g.argc; i++){
     char *zName;
@@ -348,6 +356,10 @@ void delete_cmd(void){
   Stmt loop;
 
   capture_case_sensitive_option();
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
@@ -369,7 +381,7 @@ void delete_cmd(void){
     );
     blob_reset(&treeName);
   }
-  
+
   db_prepare(&loop, "SELECT x FROM sfile");
   while( db_step(&loop)==SQLITE_ROW ){
     fossil_print("DELETED %s\n", db_column_text(&loop, 0));
@@ -484,8 +496,8 @@ const char *filename_collation(void){
 ** The -n|--dry-run option shows what would happen without actually doing anything.
 **
 ** This command can be used to track third party software.
-** 
-** Options: 
+**
+** Options:
 **   --case-sensitive <BOOL> override case-sensitive setting
 **   --dotfiles              include files beginning with a dot (".")
 **   --ignore <CSG>          ignore files matching patterns from the
@@ -513,6 +525,10 @@ void addremove_cmd(void){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
   capture_case_sensitive_option();
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   if( zCleanFlag==0 ){
     zCleanFlag = db_get("clean-glob", 0);
@@ -523,7 +539,7 @@ void addremove_cmd(void){
   vid = db_lget_int("checkout",0);
   db_begin_transaction();
 
-  /* step 1:  
+  /* step 1:
   ** Populate the temp table "sfile" with the names of all unmanaged
   ** files currently in the check-out, except for files that match the
   ** --ignore or ignore-glob patterns and dot-files.  Then add all of
@@ -549,8 +565,8 @@ void addremove_cmd(void){
       g.zLocalRoot
   );
   while( db_step(&q)==SQLITE_ROW ){
-    const char * zFile;
-    const char * zPath;
+    const char *zFile;
+    const char *zPath;
 
     zFile = db_column_text(&q, 0);
     zPath = db_column_text(&q, 1);
@@ -581,7 +597,7 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
   if( x>=0 ){
     if( x==0 ){
       fossil_fatal("cannot rename '%s' to '%s' since another file named '%s'"
-                   " is currently under management", zOrig, zNew, zNew); 
+                   " is currently under management", zOrig, zNew, zNew);
     }else{
       fossil_fatal("cannot rename '%s' to '%s' since the delete of '%s' has "
                    "not yet been committed", zOrig, zNew, zNew);
@@ -622,6 +638,10 @@ void mv_cmd(void){
 
   capture_case_sensitive_option();
   db_must_be_within_tree();
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     fossil_fatal("no checkout rename files in");

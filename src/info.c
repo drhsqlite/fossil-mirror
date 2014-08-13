@@ -199,6 +199,10 @@ void info_cmd(void){
   if( !verboseFlag ){
     verboseFlag = find_option("detail","l",0)!=0; /* deprecated */
   }
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc==3 && (fsize = file_size(g.argv[2]))>0 && (fsize&0x1ff)==0 ){
     db_open_config(0);
     db_record_repository_filename(g.argv[2]);
@@ -989,6 +993,8 @@ void vdiff_page(void){
   }
   diffFlags = construct_diff_flags(verboseFlag, sideBySide);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  style_submenu_element("Path","path",
+                        "%R/timeline?me=%T&you=%T", zFrom, zTo);
   if( sideBySide || verboseFlag ){
     style_submenu_element("Hide Diff", "hidediff",
                           "%R/vdiff?from=%T&to=%T&sbs=0%s%T%s",
@@ -2102,7 +2108,9 @@ void render_color_chooser(
   @ <input type="text" name="%s(zIdCustom)"
   @  id="%s(zIdCustom)" class="checkinUserColor"
   @  value="%h(stdClrFound?"":zDefaultColor)"
-  @  onfocus="this.form.elements['%s(zId)'][%d(nColor)].checked = true;" />
+  @  onfocus="this.form.elements['%s(zId)'][%d(nColor)].checked = true;"
+  @  onload="this.blur();"
+  @  onblur="this.parentElement.style.backgroundColor = this.value ? ('#'+this.value.replace('#','')) : '';" />
   @ </td>
   @ </tr>
   @ </table>

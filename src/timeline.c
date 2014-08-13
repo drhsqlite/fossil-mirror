@@ -998,7 +998,7 @@ char *names_of_file(const char *zUuid){
 **    t=TAGID        show only check-ins with the given tagid
 **    r=TAGID        show check-ins related to tagid
 **    u=USER         only if belonging to this user
-**    y=TYPE         'ci', 'w', 't', 'e'
+**    y=TYPE         'ci', 'w', 't', 'e', or (default) 'all'
 **    s=TEXT         string search (comment and brief)
 **    ng             Suppress the graph if present
 **    nd             Suppress "divider" lines
@@ -1007,6 +1007,7 @@ char *names_of_file(const char *zUuid){
 **    from=UUID      Path from...
 **    to=UUID          ... to this
 **    nomerge          ... avoid merge links on the path
+**    shortest         ... show only the shortest path
 **    uf=FUUID       Show only checkins that use given file version
 **    brbg           Background color from branch name
 **    ubg            Background color from user
@@ -1362,7 +1363,7 @@ void page_timeline(void){
       url_add_parameter(&url, "u", zUser);
       zThisUser = zUser;
     }
-    if ( zSearch ){
+    if( zSearch ){
       blob_appendf(&sql,
         " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
         zSearch, zSearch);
@@ -1762,7 +1763,7 @@ void timeline_cmd(void){
   zLimit = find_option("limit","n",1);
   zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
-  if ( !zLimit ){
+  if( !zLimit ){
     zLimit = find_option("count",0,1);
   }
   if( zLimit ){
@@ -1780,6 +1781,10 @@ void timeline_cmd(void){
   }
   zOffset = find_option("offset",0,1);
   iOffset = zOffset ? atoi(zOffset) : 0;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc>=4 ){
     k = strlen(g.argv[2]);
     if( strncmp(g.argv[2],"before",k)==0 ){
@@ -1966,7 +1971,7 @@ static int statsReportType = 0;
 ** Set by stats_report_init_view() to one of the y=XXXX values
 ** accepted by /timeline?y=XXXX.
 */
-static const char * statsReportTimelineYFlag = NULL;
+static const char *statsReportTimelineYFlag = NULL;
 
 /*
 ** Creates a TEMP VIEW named v_reports which is a wrapper around the
@@ -1987,8 +1992,8 @@ static const char * statsReportTimelineYFlag = NULL;
 ** used).
 */
 static int stats_report_init_view(){
-  const char * zType = PD("type","*");  /* analog to /timeline?y=... */
-  const char * zRealType = NULL;        /* normalized form of zType */
+  const char *zType = PD("type","*");  /* analog to /timeline?y=... */
+  const char *zRealType = NULL;        /* normalized form of zType */
   int rc = 0;                          /* result code */
   assert( !statsReportType && "Must not be called more than once." );
   switch( (zType && *zType) ? *zType : 0 ){
@@ -2041,7 +2046,7 @@ static int stats_report_init_view(){
 ** on the 'type' flag. See stats_report_init_view().
 ** The returned bytes are static.
 */
-static const char * stats_report_label_for_type(){
+static const char *stats_report_label_for_type(){
   assert( statsReportType && "Must call stats_report_init_view() first." );
   switch( statsReportType ){
     case 'c':
@@ -2068,9 +2073,9 @@ static const char * stats_report_label_for_type(){
 ** be added to the generated URLs should be passed in zParam. The
 ** caller is expected to have already encoded any zParam in the %T or
 ** %t encoding.  */
-static void stats_report_event_types_menu(const char * zCurrentViewName,
-                                          const char * zParam){
-  char * zTop;
+static void stats_report_event_types_menu(const char *zCurrentViewName,
+                                          const char *zParam){
+  char *zTop;
   if(zParam && !*zParam){
     zParam = NULL;
   }
@@ -2118,7 +2123,7 @@ static void stats_report_event_types_menu(const char * zCurrentViewName,
 ** week numbers. zTimeframe should be either a timeframe in the form YYYY
 ** or YYYY-MM.
 */
-static void stats_report_output_week_links(const char * zTimeframe){
+static void stats_report_output_week_links(const char *zTimeframe){
   Stmt stWeek = empty_Stmt;
   char yearPart[5] = {0,0,0,0,0};
   memcpy(yearPart, zTimeframe, 4);
@@ -2132,7 +2137,7 @@ static void stats_report_output_week_links(const char * zTimeframe){
              strlen(zTimeframe),
              zTimeframe);
   while( SQLITE_ROW == db_step(&stWeek) ){
-    const char * zWeek = db_column_text(&stWeek,0);
+    const char *zWeek = db_column_text(&stWeek,0);
     const int nCount = db_column_int(&stWeek,1);
     cgi_printf("<a href='%s/timeline?"
                "yw=%t-%t&n=%d&y=%s'>%s</a>",
@@ -2151,14 +2156,14 @@ static void stats_report_output_week_links(const char * zTimeframe){
 */
 static void stats_report_by_month_year(char includeMonth,
                                        char includeWeeks,
-                                       const char * zUserName){
+                                       const char *zUserName){
   Stmt query = empty_Stmt;
   int nRowNumber = 0;                /* current TR number */
   int nEventTotal = 0;               /* Total event count */
   int rowClass = 0;                  /* counter for alternating
                                         row colors */
   Blob sql = empty_blob;             /* SQL */
-  const char * zTimeLabel = includeMonth ? "Year/Month" : "Year";
+  const char *zTimeLabel = includeMonth ? "Year/Month" : "Year";
   char zPrevYear[5] = {0};           /* For keeping track of when
                                         we change years while looping */
   int nEventsPerYear = 0;            /* Total event count for the
@@ -2213,7 +2218,7 @@ static void stats_report_by_month_year(char includeMonth,
   }
   db_reset(&query);
   while( SQLITE_ROW == db_step(&query) ){
-    const char * zTimeframe = db_column_text(&query, 0);
+    const char *zTimeframe = db_column_text(&query, 0);
     const int nCount = db_column_int(&query, 1);
     int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
@@ -2298,7 +2303,7 @@ static void stats_report_by_month_year(char includeMonth,
   }
   @ </tbody></table>
   if(nEventTotal){
-    const char * zAvgLabel = includeMonth ? "month" : "year";
+    const char *zAvgLabel = includeMonth ? "month" : "year";
     int nAvg = iterations ? (nEventTotal/iterations) : 0;
     @ <br><div>Total events: %d(nEventTotal)
     @ <br>Average per active %s(zAvgLabel): %d(nAvg)
@@ -2348,7 +2353,7 @@ static void stats_report_by_user(){
   }
   db_reset(&query);
   while( SQLITE_ROW == db_step(&query) ){
-    const char * zUser = db_column_text(&query, 0);
+    const char *zUser = db_column_text(&query, 0);
     const int nCount = db_column_int(&query, 1);
     int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
@@ -2388,7 +2393,7 @@ static void stats_report_day_of_week(){
   Blob sql = empty_blob;             /* SQL */
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
-  static const char * const daysOfWeek[] = {
+  static const char *const daysOfWeek[] = {
   "Monday", "Tuesday", "Wednesday", "Thursday",
   "Friday", "Saturday", "Sunday"
   };
@@ -2421,7 +2426,7 @@ static void stats_report_day_of_week(){
   }
   db_reset(&query);
   while( SQLITE_ROW == db_step(&query) ){
-    int const dayNum =db_column_int(&query, 0);
+    const int dayNum =db_column_int(&query, 0);
     const int nCount = db_column_int(&query, 1);
     int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
@@ -2451,12 +2456,12 @@ static void stats_report_day_of_week(){
 ** week numbers. zTimeframe should be either a timeframe in the form YYYY
 ** or YYYY-MM.
 */
-static void stats_report_year_weeks(const char * zUserName){
-  const char * zYear = P("y");
+static void stats_report_year_weeks(const char *zUserName){
+  const char *zYear = P("y");
   int nYear = zYear ? strlen(zYear) : 0;
   int i = 0;
   Stmt qYears = empty_Stmt;
-  char * zDefaultYear = NULL;
+  char *zDefaultYear = NULL;
   Blob sql = empty_blob;
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
@@ -2481,7 +2486,7 @@ static void stats_report_year_weeks(const char * zUserName){
   blob_reset(&sql);
   cgi_printf("Select year: ");
   while( SQLITE_ROW == db_step(&qYears) ){
-    const char * zT = db_column_text(&qYears, 0);
+    const char *zT = db_column_text(&qYears, 0);
     if( i++ ){
       cgi_printf(" ");
     }
@@ -2541,7 +2546,7 @@ static void stats_report_year_weeks(const char * zUserName){
     }
     db_reset(&stWeek);
     while( SQLITE_ROW == db_step(&stWeek) ){
-      const char * zWeek = db_column_text(&stWeek,0);
+      const char *zWeek = db_column_text(&stWeek,0);
       const int nCount = db_column_int(&stWeek,1);
       int nSize = nCount
         ? (int)(100 * nCount / nMaxEvents)
@@ -2601,7 +2606,7 @@ static void stats_report_year_weeks(const char * zUserName){
 */
 void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
-  const char * zView = P("view");    /* Which view/report to show. */
+  const char *zView = P("view");    /* Which view/report to show. */
   const char *zUserName = P("user");
 
   login_check_credentials();

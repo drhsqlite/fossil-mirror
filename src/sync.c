@@ -188,6 +188,10 @@ void pull_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PULL;
   process_sync_args(&configFlags, &syncFlags);
+ 
+  /* We should be done with options.. */
+  verify_all_options();
+
   client_sync(syncFlags, configFlags, 0);
 }
 
@@ -219,6 +223,10 @@ void push_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH;
   process_sync_args(&configFlags, &syncFlags);
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( db_get_boolean("dont-push",0) ){
     fossil_fatal("pushing is prohibited: the 'dont-push' option is set");
   }
@@ -255,6 +263,10 @@ void sync_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH|SYNC_PULL;
   process_sync_args(&configFlags, &syncFlags);
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( db_get_boolean("dont-push",0) ) syncFlags &= ~SYNC_PUSH;
   client_sync(syncFlags, configFlags, 0);
   if( (syncFlags & SYNC_PUSH)==0 ){
@@ -282,6 +294,10 @@ void sync_cmd(void){
 void remote_url_cmd(void){
   char *zUrl;
   db_find_and_open_repository(0, 0);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=2 && g.argc!=3 ){
     usage("remote-url ?URL|off?");
   }

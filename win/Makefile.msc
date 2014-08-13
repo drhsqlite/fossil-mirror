@@ -31,8 +31,8 @@ P      = .pdb
 # FOSSIL_ENABLE_TCL = 1
 
 !ifdef FOSSIL_ENABLE_SSL
-SSLINCDIR = $(B)\compat\openssl-1.0.1h\include
-SSLLIBDIR = $(B)\compat\openssl-1.0.1h\out32
+SSLINCDIR = $(B)\compat\openssl-1.0.1i\include
+SSLLIBDIR = $(B)\compat\openssl-1.0.1i\out32
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !endif
 
@@ -101,12 +101,14 @@ TCC       = $(TCC) /DUSE_TCL_STUBS=1
 RCC       = $(RCC) /DUSE_TCL_STUBS=1
 !endif
 
-SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 \
+SQLITE_OPTIONS = /DNDEBUG=1 \
+                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  /DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  /DSQLITE_THREADSAFE=0 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  /DSQLITE_OMIT_DEPRECATED \
-                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS
+                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
+                 /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /Dmain=sqlite3_shell \
                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \

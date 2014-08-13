@@ -134,6 +134,7 @@ set src {
 # Options used to compile the included SQLite library.
 #
 set SQLITE_OPTIONS {
+  -DNDEBUG=1
   -DSQLITE_OMIT_LOAD_EXTENSION=1
   -DSQLITE_ENABLE_LOCKING_STYLE=0
   -DSQLITE_THREADSAFE=0
@@ -457,8 +458,8 @@ ZLIBDIR = $(SRCDIR)/../compat/zlib
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1h/include
-OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1h
+OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1i/include
+OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1i
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -828,7 +829,10 @@ foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}.h:\t\$(OBJDIR)/headers\n"
 }
 
-set MINGW_SQLITE_OPTIONS $SQLITE_OPTIONS
+set SQLITE_WIN32_OPTIONS $SQLITE_OPTIONS
+lappend SQLITE_WIN32_OPTIONS -DSQLITE_WIN32_NO_ANSI
+
+set MINGW_SQLITE_OPTIONS $SQLITE_WIN32_OPTIONS
 lappend MINGW_SQLITE_OPTIONS -D_HAVE__MINGW_H
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MALLOC_H
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MSIZE
@@ -1055,8 +1059,8 @@ P      = .pdb
 # FOSSIL_ENABLE_TCL = 1
 
 !ifdef FOSSIL_ENABLE_SSL
-SSLINCDIR = $(B)\compat\openssl-1.0.1h\include
-SSLLIBDIR = $(B)\compat\openssl-1.0.1h\out32
+SSLINCDIR = $(B)\compat\openssl-1.0.1i\include
+SSLLIBDIR = $(B)\compat\openssl-1.0.1i\out32
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !endif
 
@@ -1125,7 +1129,7 @@ TCC       = $(TCC) /DUSE_TCL_STUBS=1
 RCC       = $(RCC) /DUSE_TCL_STUBS=1
 !endif
 }
-regsub -all {[-]D} [join $SQLITE_OPTIONS { }] {/D} MSC_SQLITE_OPTIONS
+regsub -all {[-]D} [join $SQLITE_WIN32_OPTIONS { }] {/D} MSC_SQLITE_OPTIONS
 set j " \\\n                 "
 writeln "SQLITE_OPTIONS = [join $MSC_SQLITE_OPTIONS $j]\n"
 
@@ -1296,7 +1300,7 @@ set output_file [open ../win/Makefile.PellesCGMake w]
 fconfigure $output_file -translation binary
 
 writeln [string map [list \
-    <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS { }] \
+    <<<SQLITE_OPTIONS>>> [join $SQLITE_WIN32_OPTIONS { }] \
     <<<SHELL_OPTIONS>>> [join $SHELL_WIN32_OPTIONS { }]] {#
 ##############################################################################
 # WARNING: DO NOT EDIT, AUTOMATICALLY GENERATED FILE (SEE "src/makemake.tcl")

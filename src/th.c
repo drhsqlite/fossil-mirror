@@ -513,12 +513,14 @@ static int thNextWord(
     }
     if( nBrace>0 || nSq>0 ){
       /* Parse error */
+      Th_SetResult(interp, "parse error", -1);
       return TH_ERROR;
     }
   }
 
   if( iEnd>nInput ){
     /* Parse error */
+    Th_SetResult(interp, "parse error", -1);
     return TH_ERROR;
   }
   *pnWord = iEnd;

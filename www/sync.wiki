@@ -161,11 +161,17 @@ specified user.</p>
 login cards.  The session privileges are the bit-wise OR of the
 privileges of each individual login.</p>
 
-<h3>3.3 File Cards</h3>
+<h3>3.3 File and Compressed File Cards</h3>
 
-<p>Artifacts are transferred using "file" cards.  (The name "file"
-card comes from the fact that most artifacts correspond to files.)
-File cards come in two different formats depending
+<p>Artifacts are transferred using either "file" cards, or "cfile" cards.
+(The name "file" card comes from the fact that most artifacts correspond to 
+files, and "cfile" is just a compressed file.)
+</p>
+
+<h4>3.3.1 File Cards</h4>
+
+<p>For sync protocols, artifacts are transferred using "file"
+cards.  File cards come in two different formats depending
 on whether the artifact is sent directly or as a delta from some
 other artifact.</p>
 
@@ -178,7 +184,7 @@ other artifact.</p>
 followed by in-line "payload" data.  The content of the artifact
 or the artifact delta consists of the first <i>size</i> bytes of the
 x-fossil content that immediately follow the newline that
-terminates the file card.  No other cards have this characteristic.
+terminates the file card.  Only file and cfile cards have this characteristic.
 </p>
 
 <p>The first argument of a file card is the ID of the artifact that
@@ -195,6 +201,39 @@ the ID of another artifact that is the source of the delta.</p>
 server to client.  A delta might be sent before the source of
 the delta, so both client and server should remember deltas
 and be able to apply them when their source arrives.</p>
+
+<h4>3.3.2 Compressed File Cards</h4>
+
+<p>A client that sends a clone protocol version "3" or greater will
+receive artifacts as "cfile" cards while cloning.  This card was
+introduced to improve the speed of the transfer of content by sending the
+compressed artifact directly from the server database to the client.</p>
+
+<p>Compressed File cards are similar to File cards, sharing the same
+in-line "payload" data characteristics and also the same treatment of
+direct content or delta content.  It comes in two different formats
+depending on whether the artifact is sent directly or as a delta from
+some other artifact.</p>
+
+<blockquote>
+<b>cfile</b> <i>artifact-id usize csize</i> <b>\n</b> <i>content</i><br>
+<b>cfile</b> <i>artifact-id delta-artifact-id usize csize</i> <b>\n</b> <i>content</i><br>
+</blockquote>
+
+<p>The first argument of the cfile card is the ID of the artifact that
+is being transferred.  The artifact ID is the lower-case hexadecimal
+representation of the SHA1 hash of the artifact.  The second argument of
+the cfile card is the original size in bytes of the artifact.  The last
+argument of the cfile card is the number of compressed bytes of payload
+that immediately follow the cfile card.  If the cfile card has only
+three arguments, that means the payload is the complete content of the
+artifact.  If the cfile card has four arguments, then the payload is a
+delta and the second argument is the ID of another artifact that is the
+source of the delta and the third argument is the original size of the
+delta artifact.</p>
+
+<p>Unlike file cards, cfile cards are only sent in one direction during a 
+clone from server to client for clone protocol version "3" or greater.</p>
 
 <h3>3.4 Push and Pull Cards</h3>
 
@@ -234,11 +273,18 @@ two-argument format.</p>
 <b>clone</b> <i>protocol-version sequence-number</i>
 </blockquote>
 
-<h4>3.5.1 Protocol 2</h4>
+<h4>3.5.1 Protocol 3</h4>
 
 <p>The latest clients send a two-argument clone message with a
-protocol version of "2".  (Future versions of Fossil might use larger
-protocol version numbers.)  The sequence-number sent is the number
+protocol version of "3".   (Future versions of Fossil might use larger
+protocol version numbers.)  Version "3" of the protocol enhanced version
+"2" by introducing the "cfile" card which is intended to speed up clone
+operations.  Instead of sending "file" cards, the server will send "cfile"
+cards</p>
+
+<h4>3.5.2 Protocol 2</h4>
+
+<p>The sequence-number sent is the number
 of artifacts received so far.  For the first clone message, the
 sequence number is 0.  The server will respond by sending file
 cards for some number of artifacts up to the maximum message size.
@@ -258,7 +304,7 @@ clone_seqno of the previous reply.</p>
 a push message so that the client can discover the projectcode for
 this project.</p>
 
-<h4>3.5.2 Legacy Protocol</h4>
+<h4>3.5.3 Legacy Protocol</h4>
 
 <p>Older clients send a clone card with no argument.  The server responds
 to a blank clone card by sending an "igot" card for every artifact in the
