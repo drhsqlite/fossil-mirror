@@ -1,5 +1,5 @@
-C Code\sstyling\sand\scomment\stweaks.
-D 2014-08-13T19:50:16.397
+C Cherry-pick\s[http://www.sqlite.org/src/info/f01d42cc8b00d2b7c4f14defcb05fdc493cf1bfd|f01d42cc8b]:\sMinor\schange\sto\sunixDelete\sfor\sVxWorks\swith\sa\sDOS\sfilesystem.
+D 2014-08-14T07:06:52.357
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -405,7 +405,7 @@ F src/shell.c 75bb7bd2c80bb44861598f322a417c4bafe98fd7
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
-F src/sqlite3.c fff815333a1507f8dd2b7c3c8cbd205c52f185b8
+F src/sqlite3.c 9f3d22320379914c47d39c56ca576e021f638e83
 F src/sqlite3.h 2f653248ab56a8a978a0223847230a3a2a904923
 F src/stash.c 4fcd200867fec73b3d57b9b99203afd0a5d7148e
 F src/stat.c a0e29e09e2635f397e2a7543cd12443fe66f24b7
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a374824d923b2cef454a2dd0af923449c58d015b
-R aae71db2b9bd48b45140c7debfce9e1c
-U mistachkin
-Z f4690f175c2f3836817620ba34ada1bc
+P a3cf0e3390e23fc3ed2f58b7b28bdb99da9d71da c2d4bd73657709eb5e9acbe453a7bcc4fc65a6ff
+R 660a3ecfe764178685a64a0d661536e4
+U jan.nijtmans
+Z c7249181d88ca0e14a21fafa004a42a2
