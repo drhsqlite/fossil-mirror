@@ -1118,7 +1118,7 @@ void vdiff_page(void){
 ** Possible flags for the second parameter to
 ** object_description()
 */
-#define OBJDESC_BRIEF      0x0001   /* Less detail */
+#define OBJDESC_DETAIL      0x0001   /* more detail */
 #endif
 
 /*
@@ -1146,7 +1146,7 @@ int object_description(
   int nWiki = 0;
   int objType = 0;
   char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  int isBrief = (objdescFlags & OBJDESC_BRIEF)!=0;
+  int showDetail = (objdescFlags & OBJDESC_DETAIL)!=0;
   char *prevName = 0;
 
   db_prepare(&q,
@@ -1175,7 +1175,13 @@ int object_description(
     int mPerm = db_column_int(&q, 5);
     const char *zBr = db_column_text(&q, 6);
     int sameFilename = prevName!=0 && fossil_strcmp(zName,prevName)==0;
-    if( sameFilename && isBrief ) continue;
+    if( sameFilename && !showDetail ){
+      if( cnt==1 ){
+        @ %z(href("%R/whatis/%s",zUuid))[more...]</a>
+      }
+      cnt++;
+      continue;
+    }
     if( !sameFilename ){
       if( prevName ) {
         @ </ul>
@@ -1191,21 +1197,21 @@ int object_description(
       }
       objType |= OBJTYPE_CONTENT;
       @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
-      if( !isBrief ){
+      if( showDetail ){
         @ <ul>
       }
       prevName = fossil_strdup(zName);
     }
-    if( isBrief ){
-      @ &mdash; from checkin
-      hyperlink_to_uuid(zVers);
-      @ at
-      hyperlink_to_date(zDate,"");
-    }else{
+    if( showDetail ){
       @ <li>
       hyperlink_to_date(zDate,"");
       @ &mdash; part of check-in
       hyperlink_to_uuid(zVers);
+    }else{
+      @ &mdash; part of checkin
+      hyperlink_to_uuid(zVers);
+      @ at
+      hyperlink_to_date(zDate,"");
     }
     if( zBr && zBr[0] ){
       @ on branch %z(href("%R/timeline?r=%T",zBr))%h(zBr)</a>
@@ -1224,7 +1230,7 @@ int object_description(
       blob_append(pDownloadName, zName, -1);
     }
   }
-  if( prevName && !isBrief ){
+  if( prevName && showDetail ){
     @ </ul>
   }
   @ </ul>
@@ -1367,7 +1373,7 @@ int object_description(
 **
 ** Additional parameters:
 **
-**      brief      Show less detail when describing artifacts
+**      verbose      Show more detail when describing artifacts
 */
 void diff_page(void){
   int v1, v2;
@@ -1388,7 +1394,7 @@ void diff_page(void){
   if( v1==0 || v2==0 ) fossil_redirect_home();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
-  if( P("brief")!=0 ) objdescFlags |= OBJDESC_BRIEF;
+  if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
   isPatch = P("patch")!=0;
   if( isPatch ){
     Blob c1, c2, *pOut;
@@ -1553,7 +1559,7 @@ static void hexdump(Blob *pBlob){
 **
 ** Other parameters:
 **
-**     brief              Show less detail when describing the object
+**     verbose              Show more detail when describing the object
 */
 void hexdump_page(void){
   int rid;
@@ -1584,7 +1590,7 @@ void hexdump_page(void){
     @ <h2>Artifact %s(zUuid):</h2>
   }
   blob_zero(&downloadName);
-  if( P("brief")!=0 ) objdescFlags |= OBJDESC_BRIEF;
+  if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
   object_description(rid, objdescFlags, &downloadName);
   style_submenu_element("Download", "Download",
         "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
@@ -1710,19 +1716,23 @@ void output_text_with_line_numbers(
 
 
 /*
+** WEBPAGE: whatis
 ** WEBPAGE: artifact
-** URL: /artifact/ARTIFACTID
+**
+** URL: /artifact/SHA1HASH
 ** URL: /artifact?ci=CHECKIN&filename=PATH
+** URL: /whatis/SHA1HASH
 **
 ** Additional query parameters:
 **
 **   ln              - show line numbers
 **   ln=N            - highlight line number N
 **   ln=M-N          - highlight lines M through N inclusive
-**   brief           - show less detail in the description
+**   verbose         - show more detail in the description
 **
-** Show the complete content of a file identified by ARTIFACTID
-** as preformatted text.
+** The /artifact page show the complete content of a file
+** identified by SHA1HASH as preformatted text.  The
+** /whatis page shows only a description of the file.
 */
 void artifact_page(void){
   int rid = 0;
@@ -1735,6 +1745,7 @@ void artifact_page(void){
   int asText;
   const char *zUuid;
   u32 objdescFlags = 0;
+  int descOnly = fossil_strcmp(g.zPath,"whatis")==0;
 
   if( P("ci") && P("filename") ){
     rid = artifact_from_ci_and_filename_www();
@@ -1756,8 +1767,8 @@ void artifact_page(void){
             g.zTop, zUuid);
     }
   }
-  if( P("brief")!=0 ) objdescFlags |= OBJDESC_BRIEF;
-  style_header("Artifact Content");
+  if( descOnly || P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
+  style_header(descOnly ? "Artifact Description" : "Artifact Content");
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Setup ){
     @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
@@ -1799,40 +1810,44 @@ void artifact_page(void){
   if( (objType & (OBJTYPE_WIKI|OBJTYPE_TICKET))!=0 ){
     style_submenu_element("Parsed", "Parsed", "%R/info/%s", zUuid);
   }
-  @ <hr />
-  content_get(rid, &content);
-  if( renderAsWiki ){
-    wiki_render_by_mimetype(&content, zMime);
-  }else if( renderAsHtml ){
-    @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
-    @   width="100%%" frameborder="0" marginwidth="0" marginheight="0"
-    @   sandbox="allow-same-origin"
-    @   onload="this.height = this.contentDocument.documentElement.scrollHeight;">
-    @ </iframe>
+  if( descOnly ){
+    style_submenu_element("Content", "Content", "%R/artifact/%s", zUuid);
   }else{
-    style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
-    blob_to_utf8_no_bom(&content, 0);
-    zMime = mimetype_from_content(&content);
-    @ <blockquote>
-    if( zMime==0 ){
-      const char *zLn = P("ln");
-      const char *z;
-      z = blob_str(&content);
-      if( zLn ){
-        output_text_with_line_numbers(z, zLn);
-      }else{
-        @ <pre>
-        @ %h(z)
-        @ </pre>
-      }
-    }else if( strncmp(zMime, "image/", 6)==0 ){
-      @ <img src="%R/raw/%s(zUuid)?m=%s(zMime)" />
-      style_submenu_element("Image", "Image",
-                            "%R/raw/%s?m=%s", zUuid, zMime);
+    @ <hr />
+    content_get(rid, &content);
+    if( renderAsWiki ){
+      wiki_render_by_mimetype(&content, zMime);
+    }else if( renderAsHtml ){
+      @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
+      @   width="100%%" frameborder="0" marginwidth="0" marginheight="0"
+      @   sandbox="allow-same-origin"
+      @   onload="this.height = this.contentDocument.documentElement.scrollHeight;">
+      @ </iframe>
     }else{
-      @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
+      style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
+      blob_to_utf8_no_bom(&content, 0);
+      zMime = mimetype_from_content(&content);
+      @ <blockquote>
+      if( zMime==0 ){
+        const char *zLn = P("ln");
+        const char *z;
+        z = blob_str(&content);
+        if( zLn ){
+          output_text_with_line_numbers(z, zLn);
+        }else{
+          @ <pre>
+          @ %h(z)
+          @ </pre>
+        }
+      }else if( strncmp(zMime, "image/", 6)==0 ){
+        @ <img src="%R/raw/%s(zUuid)?m=%s(zMime)" />
+        style_submenu_element("Image", "Image",
+                              "%R/raw/%s?m=%s", zUuid, zMime);
+      }else{
+        @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
+      }
+      @ </blockquote>
     }
-    @ </blockquote>
   }
   style_footer();
 }
