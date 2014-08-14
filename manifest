@@ -1,5 +1,5 @@
-C Cherry-pick\s[http://www.sqlite.org/src/info/f01d42cc8b00d2b7c4f14defcb05fdc493cf1bfd|f01d42cc8b]:\sMinor\schange\sto\sunixDelete\sfor\sVxWorks\swith\sa\sDOS\sfilesystem.
-D 2014-08-14T07:06:52.357
+C Add\sthe\s"brief"\squery\sparameter\sto\sthe\s"artifact"\spage,\sto\sshorten\ssometimes\nlengthy\sdescriptions\sof\sthe\sartifact.
+D 2014-08-14T16:01:38.315
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -352,7 +352,7 @@ F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
 F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c b42daab8684ab57bc72a05636e54ee1e494416ed
 F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
-F src/info.c 0d12b92117b1c8db06607fcb5bd5bb571bbfca18
+F src/info.c 2d518d01c24eaa84121aaf0472836c427deba8c5
 F src/json.c 68917a4b8491740885158ef960ff77334c9c7adf
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c aa922544841030c688df33aec81cca05577bbb7d
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a3cf0e3390e23fc3ed2f58b7b28bdb99da9d71da c2d4bd73657709eb5e9acbe453a7bcc4fc65a6ff
-R 660a3ecfe764178685a64a0d661536e4
-U jan.nijtmans
-Z c7249181d88ca0e14a21fafa004a42a2
+P 119cc97040a4e3da0a7f8fa31d9cd6b116aa22a7
+R c9c7807e405d15af45de1568281eaae7
+U drh
+Z 9fa50a91edac695a0985773fb3be6c5e

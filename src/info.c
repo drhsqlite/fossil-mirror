@@ -1113,6 +1113,12 @@ void vdiff_page(void){
 #define OBJTYPE_TAG        0x0040
 #define OBJTYPE_SYMLINK    0x0080
 #define OBJTYPE_EXE        0x0100
+
+/*
+** Possible flags for the second parameter to
+** object_description()
+*/
+#define OBJDESC_BRIEF      0x0001   /* Less detail */
 #endif
 
 /*
@@ -1132,7 +1138,7 @@ void vdiff_page(void){
 */
 int object_description(
   int rid,                 /* The artifact ID */
-  int linkToView,          /* Add viewer link if true */
+  u32 objdescFlags,        /* Flags to control display */
   Blob *pDownloadName      /* Fill with an appropriate download name */
 ){
   Stmt q;
@@ -1140,7 +1146,7 @@ int object_description(
   int nWiki = 0;
   int objType = 0;
   char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-
+  int isBrief = (objdescFlags & OBJDESC_BRIEF)!=0;
   char *prevName = 0;
 
   db_prepare(&q,
@@ -1168,7 +1174,9 @@ int object_description(
     const char *zVers = db_column_text(&q, 4);
     int mPerm = db_column_int(&q, 5);
     const char *zBr = db_column_text(&q, 6);
-    if( !prevName || fossil_strcmp(zName, prevName) ) {
+    int sameFilename = prevName!=0 && fossil_strcmp(zName,prevName)==0;
+    if( sameFilename && isBrief ) continue;
+    if( !sameFilename ){
       if( prevName ) {
         @ </ul>
       }
@@ -1183,17 +1191,26 @@ int object_description(
       }
       objType |= OBJTYPE_CONTENT;
       @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
-      @ <ul>
+      if( !isBrief ){
+        @ <ul>
+      }
       prevName = fossil_strdup(zName);
     }
-    @ <li>
-    hyperlink_to_date(zDate,"");
-    @ - part of checkin
-    hyperlink_to_uuid(zVers);
+    if( isBrief ){
+      @ &mdash; from checkin
+      hyperlink_to_uuid(zVers);
+      @ at
+      hyperlink_to_date(zDate,"");
+    }else{
+      @ <li>
+      hyperlink_to_date(zDate,"");
+      @ &mdash; part of check-in
+      hyperlink_to_uuid(zVers);
+    }
     if( zBr && zBr[0] ){
       @ on branch %z(href("%R/timeline?r=%T",zBr))%h(zBr)</a>
     }
-    @ - %!w(zCom) (user:
+    @ &mdash; %!w(zCom) (user:
     hyperlink_to_user(zUser,zDate,")");
     if( g.perm.Hyperlink ){
       @ %z(href("%R/finfo?name=%T&ci=%s",zName,zVers))[ancestry]</a>
@@ -1207,7 +1224,7 @@ int object_description(
       blob_append(pDownloadName, zName, -1);
     }
   }
-  if( prevName ){
+  if( prevName && !isBrief ){
     @ </ul>
   }
   @ </ul>
@@ -1335,8 +1352,6 @@ int object_description(
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_appendf(pDownloadName, "%.10s.txt", zUuid);
     }
-  }else if( linkToView && g.perm.Hyperlink ){
-    @ %z(href("%R/artifact/%s",zUuid))[view]</a>
   }
   return objType;
 }
@@ -1349,6 +1364,10 @@ int object_description(
 ** Two arguments, v1 and v2, identify the files to be diffed.  Show the
 ** difference between the two artifacts.  Show diff side by side unless sbs
 ** is 0.  Generate plaintext if "patch" is present.
+**
+** Additional parameters:
+**
+**      brief      Show less detail when describing artifacts
 */
 void diff_page(void){
   int v1, v2;
@@ -1360,6 +1379,7 @@ void diff_page(void){
   const char *zW;      /* URL param for ignoring whitespace */
   ReCompiled *pRe = 0;
   u64 diffFlags;
+  u32 objdescFlags = 0;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -1368,6 +1388,7 @@ void diff_page(void){
   if( v1==0 || v2==0 ) fossil_redirect_home();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
+  if( P("brief")!=0 ) objdescFlags |= OBJDESC_BRIEF;
   isPatch = P("patch")!=0;
   if( isPatch ){
     Blob c1, c2, *pOut;
@@ -1417,9 +1438,9 @@ void diff_page(void){
   }else{
     @ <h2>Differences From
     @ Artifact %z(href("%R/artifact/%s",zV1))[%S(zV1)]</a>:</h2>
-    object_description(v1, 0, 0);
+    object_description(v1, objdescFlags, 0);
     @ <h2>To Artifact %z(href("%R/artifact/%s",zV2))[%S(zV2)]</a>:</h2>
-    object_description(v2, 0, 0);
+    object_description(v2, objdescFlags, 0);
   }
   if( pRe ){
     @ <b>Only differences that match regular expression "%h(zRe)"
@@ -1529,12 +1550,17 @@ static void hexdump(Blob *pBlob){
 **
 ** Show the complete content of a file identified by ARTIFACTID
 ** as preformatted text.
+**
+** Other parameters:
+**
+**     brief              Show less detail when describing the object
 */
 void hexdump_page(void){
   int rid;
   Blob content;
   Blob downloadName;
   char *zUuid;
+  u32 objdescFlags = 0;
 
   rid = name_to_rid_www("name");
   login_check_credentials();
@@ -1558,7 +1584,8 @@ void hexdump_page(void){
     @ <h2>Artifact %s(zUuid):</h2>
   }
   blob_zero(&downloadName);
-  object_description(rid, 0, &downloadName);
+  if( P("brief")!=0 ) objdescFlags |= OBJDESC_BRIEF;
+  object_description(rid, objdescFlags, &downloadName);
   style_submenu_element("Download", "Download",
         "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
   @ <hr />
@@ -1692,6 +1719,7 @@ void output_text_with_line_numbers(
 **   ln              - show line numbers
 **   ln=N            - highlight line number N
 **   ln=M-N          - highlight lines M through N inclusive
+**   brief           - show less detail in the description
 **
 ** Show the complete content of a file identified by ARTIFACTID
 ** as preformatted text.
@@ -1706,6 +1734,7 @@ void artifact_page(void){
   int objType;
   int asText;
   const char *zUuid;
+  u32 objdescFlags = 0;
 
   if( P("ci") && P("filename") ){
     rid = artifact_from_ci_and_filename_www();
@@ -1727,6 +1756,7 @@ void artifact_page(void){
             g.zTop, zUuid);
     }
   }
+  if( P("brief")!=0 ) objdescFlags |= OBJDESC_BRIEF;
   style_header("Artifact Content");
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Setup ){
@@ -1735,7 +1765,7 @@ void artifact_page(void){
     @ <h2>Artifact %s(zUuid):</h2>
   }
   blob_zero(&downloadName);
-  objType = object_description(rid, 0, &downloadName);
+  objType = object_description(rid, objdescFlags, &downloadName);
   style_submenu_element("Download", "Download",
           "%R/raw/%T?name=%s", blob_str(&downloadName), zUuid);
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
