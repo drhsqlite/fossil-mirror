@@ -1,5 +1,5 @@
-C Use\sthe\sabbreviated\sobject\sdescription\sby\sdefault.\s\sBut\sprovide\sa\shyperlink\nto\sa\sdetailed\sdescription\s(using\sthe\snew\s/whatis\sweb\spage)\sif\sdetails\sare\nomitted.
-D 2014-08-14T16:36:30.038
+C Fix\sgcc\swarning:\spointer\stargets\sin\sinitialization\sdiffer\sin\ssignedness
+D 2014-08-15T07:31:59.596
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -317,7 +317,7 @@ F src/bisect.c ea81a8e467c8d17fc727b23b08643ed65f6f81b3
 F src/blob.c 0578b205b06ebef0e5cea851b736466cc99c00c4
 F src/branch.c a1848d70d82f70adf0c0fad04eea50daf053b6e9
 F src/browse.c d83565d824a08bebdcbe61e3dd62887e18caf823
-F src/cache.c 795ddd1878a5b4316dff5a7ec71419f79b389979
+F src/cache.c 01ee11eca9e7099e8b82b42e6615f68eb9062814
 F src/captcha.c 765bb4af84144ec617cabb9c6b4a548bbc2e8b08
 F src/cgi.c 3b327dea848d75a83c922af40ec89202fe7a6ec7
 F src/checkin.c 42f1c69a176be684aba57bce88dae73b6600f2aa
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0ac4cead8d55805b73751e67fb9eb5f4e6ecfa9b
-R c462971a07314a0cce6affb403d90deb
-U drh
-Z 83829f4bafa7ebd39467bce863a77b92
+P 3c2d418b600a81d7234335063c8d5b8fc0f59d26
+R cd6c42895b9144f4ce9df019f4f5a0ca
+U jan.nijtmans
+Z 72371775fea32189dfdb50a780c18936

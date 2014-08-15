@@ -348,7 +348,7 @@ void cache_page(void){
     if( pStmt ){
       @ <ol>
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
-        const char *zName = sqlite3_column_text(pStmt,0);
+        const unsigned char *zName = sqlite3_column_text(pStmt,0);
         @ <li><p>%z(href("%R/cacheget?key=%T",zName))%h(zName)</a><br>
         @ size: %s(sqlite3_column_text(pStmt,1))
         @ hit-count: %d(sqlite3_column_int(pStmt,2))
