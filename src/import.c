@@ -216,8 +216,8 @@ static int mfile_cmp(const void *pLeft, const void *pRight){
 ** Compare two strings for sorting.
 */
 static int string_cmp(const void *pLeft, const void *pRight){
-  const char *zLeft = *(char const **)pLeft;
-  const char *zRight = *(char const **)pRight;
+  const char *zLeft = *(const char **)pLeft;
+  const char *zRight = *(const char **)pRight;
   return fossil_strcmp(zLeft, zRight);
 }
 

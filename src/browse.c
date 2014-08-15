@@ -734,7 +734,7 @@ const char *fileext_class(const char *zFilename){
 ** mtime on that checkin. If zGlob and *zGlob then only files matching
 ** the given glob are computed.
 */
-int compute_fileage(int vid, char const * zGlob){
+int compute_fileage(int vid, const char* zGlob){
   Manifest *pManifest;
   ManifestFile *pFile;
   int nFile = 0;
@@ -817,7 +817,7 @@ void fileage_page(void){
   int rid;
   const char *zName;
   char *zBaseTime;
-  char const * zGlob;
+  const char *zGlob;
   Stmt q;
   double baseTime;
   int lastMid = -1;

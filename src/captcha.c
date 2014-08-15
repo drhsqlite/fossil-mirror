@@ -450,7 +450,7 @@ unsigned int captcha_seed(void){
 ** The returned string is static and overwritten on each call to
 ** this function.
 */
-char const *captcha_decode(unsigned int seed){
+const char *captcha_decode(unsigned int seed){
   const char *zSecret;
   const char *z;
   Blob b;

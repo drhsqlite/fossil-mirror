@@ -1922,8 +1922,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }
   if( p->type==CFTYPE_ATTACHMENT ){
     char *zComment = 0;
-    char const isAdd = (p->zAttachSrc && p->zAttachSrc[0]) ? 1 : 0;
-    char const attachToType = fossil_is_uuid(p->zAttachTarget)
+    const char isAdd = (p->zAttachSrc && p->zAttachSrc[0]) ? 1 : 0;
+    const char attachToType = fossil_is_uuid(p->zAttachTarget)
       ? 't' /* attach to ticket */
       : 'w' /* attach to wiki page */;
     db_multi_exec(

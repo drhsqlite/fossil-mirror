@@ -1,5 +1,5 @@
-C Fix\sgcc\swarning:\spointer\stargets\sin\sinitialization\sdiffer\sin\ssignedness
-D 2014-08-15T07:31:59.596
+C More\sstyle\sfixes,\se.g.\sc/char\sconst/const\schar/
+D 2014-08-15T09:24:43.938
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -316,9 +316,9 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c ea81a8e467c8d17fc727b23b08643ed65f6f81b3
 F src/blob.c 0578b205b06ebef0e5cea851b736466cc99c00c4
 F src/branch.c a1848d70d82f70adf0c0fad04eea50daf053b6e9
-F src/browse.c d83565d824a08bebdcbe61e3dd62887e18caf823
+F src/browse.c ec8073c7f561fe403814c1717d8ba9289c5f605d
 F src/cache.c 01ee11eca9e7099e8b82b42e6615f68eb9062814
-F src/captcha.c 765bb4af84144ec617cabb9c6b4a548bbc2e8b08
+F src/captcha.c fea6cab111fb55e09bdae82e841e1c04c62dd846
 F src/cgi.c 3b327dea848d75a83c922af40ec89202fe7a6ec7
 F src/checkin.c 42f1c69a176be684aba57bce88dae73b6600f2aa
 F src/checkout.c f24af5f425ed7dcd92b0d003a0979dc79808d674
@@ -351,7 +351,7 @@ F src/http.c 061752d44c21be846c3876f4f9d4b92aa3e5f177
 F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
 F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c b42daab8684ab57bc72a05636e54ee1e494416ed
-F src/import.c e1b4641cbf24acca1e88f45bba80fe9f1154bf73
+F src/import.c f115df2302a00a0a65e7a18ba6bd42d2863e0872
 F src/info.c 64ce51d148442140da68c7cfb8c38df8fbb36ef9
 F src/json.c 68917a4b8491740885158ef960ff77334c9c7adf
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
@@ -378,7 +378,7 @@ F src/main.mk e4cdb126972b81362488c6a4a6cc95552b37c14d
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl ebddf3437f6b57a1a43f5ad8fcc3af889b241a31
-F src/manifest.c e976e960e965f5f4eb20bbefbb2594bbe14300d8
+F src/manifest.c 2d34121c1d718979a706be48d59a67d8ab6e5406
 F src/markdown.c 717f7f14927414811b61475a6fb9edc34e6cf90b
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
@@ -387,7 +387,7 @@ F src/merge3.c d07e371cc8ad34dff8ced94f2f4bd89eb18903b9
 F src/mkindex.c 69da20a8f44b1ebbb0223bf3d712b4a9d4c99238
 F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
 F src/moderate.c 5feb233fd9291b5b4f826d91e3fd987e082694e8
-F src/name.c 62ec61a19d989844729bb88ca892d1bc43aa8885
+F src/name.c 70e469c451b1ed0b063d8a633118774a172c5c96
 F src/path.c 8a507a86c42c2e644abc047409a72f1c59607977
 F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
@@ -398,7 +398,7 @@ F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c cd6230b34ec2e2262f37ec75e722ba186c3cdaf5
 F src/rss.c e7861c726638f78b93ac6e7d8b987d538660b42e
 F src/schema.c bed561078af53700180540bc6e41d7364037c635
-F src/search.c 38681b8e9c25161585c52de6c6fe54cf9db79158
+F src/search.c 7226c2f96000a73753b36efb65b149466ede6164
 F src/setup.c a0e7ea3c57ab899abfece4f39b7a0d69d60d6f7e
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
 F src/shell.c 75bb7bd2c80bb44861598f322a417c4bafe98fd7
@@ -409,7 +409,7 @@ F src/sqlite3.c 9f3d22320379914c47d39c56ca576e021f638e83
 F src/sqlite3.h 2f653248ab56a8a978a0223847230a3a2a904923
 F src/stash.c 4fcd200867fec73b3d57b9b99203afd0a5d7148e
 F src/stat.c a0e29e09e2635f397e2a7543cd12443fe66f24b7
-F src/style.c 9c32e2d4b4e18e6b151132d729651a5211a4ca7e
+F src/style.c 1fda3f962cc0e9b6f6f12f34a857f89a99571113
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 2877da112f93a98e17eedcd033e9ecb94c9c7721
 F src/tar.c 15033d1cad09b193ba67fdd37743c75cb154a84f
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3c2d418b600a81d7234335063c8d5b8fc0f59d26
-R cd6c42895b9144f4ce9df019f4f5a0ca
+P 25d6a5f2b39666b8ed2594f73a356b3d1c2b1d6e
+R 862d0c54677b340846bf3f918ae2180f
 U jan.nijtmans
-Z 72371775fea32189dfdb50a780c18936
+Z 85101248846bcf1f8b14ef10973fd47d
