@@ -551,7 +551,7 @@ int main(int argc, char **argv)
     fossil_fatal("Unsuitable SQLite version %s, must be at least 3.8.3",
                  sqlite3_libversion());
   }
-  sqlite3_config(SQLITE_CONFIG_SINGLETHREAD);
+  sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);
