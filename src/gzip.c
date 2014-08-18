@@ -23,7 +23,7 @@
 */
 #include "config.h"
 #include <assert.h>
-#include <zlib.h>
+#include "zlib.h"
 #include "gzip.h"
 
 /*

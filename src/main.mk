@@ -409,7 +409,7 @@ SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
-EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(OBJDIR)/th_tcl.o  $(OBJDIR)/cson_amalgamation.o
+EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(OBJDIR)/th_tcl.o  $(OBJDIR)/cson_amalgamation.o  $(OBJDIR)/miniz.o
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
@@ -1227,6 +1227,9 @@ $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
+
+$(OBJDIR)/miniz.o: $(SRCDIR)/miniz.c
+	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR)/miniz.c -o $(OBJDIR)/miniz.o
 
 #
 # The list of all the targets that do not correspond to real files. This stops

@@ -101,7 +101,8 @@ THOBJ=$(foreach sf,$(THSRC),$(sf:.c=.obj))
 # define the zlib files, needed by this compile
 ZLIBSRC=adler32.c compress.c crc32.c deflate.c gzclose.c gzlib.c gzread.c gzwrite.c infback.c inffast.c inflate.c inftrees.c trees.c uncompr.c zutil.c
 ORIGZLIBSRC=$(foreach sf,$(ZLIBSRC),$(ZLIBSRCDIR)$(sf))
-ZLIBOBJ=$(foreach sf,$(ZLIBSRC),$(sf:.c=.obj))
+ZLIBOBJ=$(OBJDIR)/miniz.o
+#$(foreach sf,$(ZLIBSRC),$(sf:.c=.obj))
 
 # define all fossil sources, using the standard compile and
 # source generation. These are all files in SRCDIR, which are not
@@ -165,8 +166,8 @@ $(SQLITESHELLOBJ):	%.obj:	$(SRCDIR)%.c
 $(THOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)th.h
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
-$(ZLIBOBJ):	%.obj:	$(ZLIBSRCDIR)%.c
-	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
+#$(ZLIBOBJ):	%.obj:	$(ZLIBSRCDIR)%.c
+#	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
 # create the windows resource with icon and version info
 $(RESOURCE):	%.res:	../win/%.rc ../win/*.ico

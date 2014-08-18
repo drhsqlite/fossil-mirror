@@ -1,0 +1,10 @@
+#define MINIZ_HEADER_FILE_ONLY
+
+#define MINIZ_USE_UNALIGNED_LOADS_AND_STORES 1
+#define MINIZ_LITTLE_ENDIAN 1
+
+#define MINIZ_NO_STDIO
+#define MINIZ_NO_TIME
+#define MINIZ_NO_ARCHIVE_APIS
+
+#include "miniz.c"

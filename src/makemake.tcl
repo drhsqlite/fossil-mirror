@@ -156,6 +156,16 @@ set SHELL_OPTIONS {
   -DSQLITE_SHELL_DBNAME_PROC=fossil_open
 }
 
+# miniz (libz drop-in alternative) precompiler flags.
+# FIXME: MINIZ_LITTLE_ENDIAN needs to be determined by the platform.
+set MINIZ_OPTIONS {
+ -DMINIZ_NO_STDIO
+ -DMINIZ_NO_TIME
+ -DMINIZ_NO_ARCHIVE_APIS
+ -DMINIZ_USE_UNALIGNED_LOADS_AND_STORES=1
+ -DMINIZ_LITTLE_ENDIAN=1
+}
+
 # Options used to compile the included SQLite shell on Windows.
 #
 set SHELL_WIN32_OPTIONS $SHELL_OPTIONS
@@ -280,7 +290,8 @@ EXTRAOBJ = \
   $(OBJDIR)/th.o \
   $(OBJDIR)/th_lang.o \
   $(OBJDIR)/th_tcl.o \
-  $(OBJDIR)/cson_amalgamation.o
+  $(OBJDIR)/cson_amalgamation.o \
+  $(OBJDIR)/miniz.o
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
@@ -338,9 +349,13 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
 
+
 writeln {
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
+
+$(OBJDIR)/miniz.o: $(SRCDIR)/miniz.c
+	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR)/miniz.c -o $(OBJDIR)/miniz.o
 
 #
 # The list of all the targets that do not correspond to real files. This stops
@@ -605,7 +620,7 @@ endif
 #    to link against the Z-Lib compression library.  There are no
 #    other mandatory dependencies.
 #
-LIB += -lmingwex -lz
+LIB += -lmingwex
 
 #### These libraries MUST appear in the same order as they do for Tcl
 #    or linking with it will not work (exact reason unknown).
@@ -756,7 +771,8 @@ EXTRAOBJ = \
   $(OBJDIR)/th.o \
   $(OBJDIR)/th_lang.o \
   $(OBJDIR)/th_tcl.o \
-  $(OBJDIR)/cson_amalgamation.o
+  $(OBJDIR)/cson_amalgamation.o \
+  $(OBJDIR)/miniz.o
 
 zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
@@ -1404,7 +1420,8 @@ THOBJ=$(foreach sf,$(THSRC),$(sf:.c=.obj))
 # define the zlib files, needed by this compile
 ZLIBSRC=adler32.c compress.c crc32.c deflate.c gzclose.c gzlib.c gzread.c gzwrite.c infback.c inffast.c inflate.c inftrees.c trees.c uncompr.c zutil.c
 ORIGZLIBSRC=$(foreach sf,$(ZLIBSRC),$(ZLIBSRCDIR)$(sf))
-ZLIBOBJ=$(foreach sf,$(ZLIBSRC),$(sf:.c=.obj))
+ZLIBOBJ=$(OBJDIR)/miniz.o
+#$(foreach sf,$(ZLIBSRC),$(sf:.c=.obj))
 
 # define all fossil sources, using the standard compile and
 # source generation. These are all files in SRCDIR, which are not
@@ -1468,8 +1485,8 @@ $(SQLITESHELLOBJ):	%.obj:	$(SRCDIR)%.c
 $(THOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)th.h
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
-$(ZLIBOBJ):	%.obj:	$(ZLIBSRCDIR)%.c
-	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
+#$(ZLIBOBJ):	%.obj:	$(ZLIBSRCDIR)%.c
+#	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
 # create the windows resource with icon and version info
 $(RESOURCE):	%.res:	../win/%.rc ../win/*.ico

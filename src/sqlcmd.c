@@ -22,7 +22,7 @@
 */
 #include "config.h"
 #include "sqlcmd.h"
-#include <zlib.h>
+#include "zlib.h"
 
 /*
 ** Implementation of the "content(X)" SQL function.  Return the complete

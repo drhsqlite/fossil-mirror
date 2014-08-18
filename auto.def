@@ -231,16 +231,16 @@ if {$ssldirs ne "none"} {
 }
 
 # Check for zlib, using the given location if specified
-set zlibpath [opt-val with-zlib]
-if {$zlibpath ne ""} {
-    cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
-    define-append EXTRA_CFLAGS -I$zlibpath
-    define-append EXTRA_LDFLAGS -L$zlibpath
-    msg-result "Using zlib from $zlibpath"
-}
-if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
-    user-error "zlib not found please install it or specify the location with --with-zlib"
-}
+#set zlibpath [opt-val with-zlib]
+#if {$zlibpath ne ""} {
+#    cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
+#    define-append EXTRA_CFLAGS -I$zlibpath
+#    define-append EXTRA_LDFLAGS -L$zlibpath
+#    msg-result "Using zlib from $zlibpath"
+#}
+#if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
+#    user-error "zlib not found please install it or specify the location with --with-zlib"
+#}
 
 if {[opt-bool lineedit]} {
     # Need readline-compatible line editing
