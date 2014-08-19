@@ -1,5 +1,5 @@
-C "the\szip\sfile\spatch"\sfrom\sBaruch.
-D 2014-08-19T16:52:48.051
+C Got\sthe\slast\sbit\sof\sBaruch's\spatch\sin.
+D 2014-08-19T17:26:16.157
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -9,7 +9,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
+F Makefile.classic 13d57e86324677d915acae6461b2475177c7a868
 F Makefile.in 50b09b7b1124c39bd177fc514caa9266e018a571
 F VERSION 72867f32a368547eaf1e8b96c60e100001c7c9e1
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
@@ -373,7 +373,7 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 8a8077139db4a01b8c9eb22aab452236331b7c8c
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c ba6f69fb4f2609ad3787b3b7bc7e1efa6481f2f8
+F src/main.c 9e066fcfdaddb2f3d89434211f71910511761a7d
 F src/main.mk 7c53f68f1a188a342f60b89d172e29312529e51b
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 579ae389cef4cd6390f0d93a26229c4419c2f03a
-R 468d50c0ede3bd3f5046fb74f182131d
+P 26ecec6c2c7d955ffcbce32c0628482efc167183
+R ecc087ba4a802e9f0e25ff9429efad16
 U stephan
-Z 2ec2ee03f03f1081b480d8a2dbb7d153
+Z 7c93dfc156ca564b826e1b50ac8cf1c8

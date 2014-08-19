@@ -46,7 +46,7 @@ TCC += -DFOSSIL_ENABLE_SSL
 #    so that we can build a static executable that will run in a
 #    chroot jail.
 #
-LIB = -lz $(LDFLAGS)
+LIB = $(LDFLAGS)
 
 # If using HTTPS:
 LIB += -lcrypto -lssl
