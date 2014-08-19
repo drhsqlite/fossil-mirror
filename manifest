@@ -1,5 +1,5 @@
-C Got\sthe\slast\sbit\sof\sBaruch's\spatch\sin.
-D 2014-08-19T17:26:16.157
+C addremove\stwo\sfiles\snot\shandled\sby\sthe\sprevious\spatch\sfile.
+D 2014-08-19T18:49:44.284
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -385,6 +385,7 @@ F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
 F src/merge.c 91c9732417173610f8a47db3abe6013d23a8cc5e
 F src/merge3.c d07e371cc8ad34dff8ced94f2f4bd89eb18903b9
 F src/miniz.c 24a425000951ba42f2f7271b157b422f14574893
+F src/miniz.h efc663a0d2c245810bab7305e15bccd4c75fea8d
 F src/mkindex.c 69da20a8f44b1ebbb0223bf3d712b4a9d4c99238
 F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
 F src/moderate.c 5feb233fd9291b5b4f826d91e3fd987e082694e8
@@ -440,7 +441,6 @@ F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c e13c824b1e1307723c783ee9ccae3a15edfc648d
 F src/xfersetup.c c69c710fec70f76dac901a9181fe81be5dc316e7
 F src/zip.c bc0146409363e7e38a751ee104c941c1ec1bab6b
-F src/zlib.h da39a3ee5e6b4b0d3255bfef95601890afd80709
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 26ecec6c2c7d955ffcbce32c0628482efc167183
-R ecc087ba4a802e9f0e25ff9429efad16
+P d8902124d481ced2a800fc3ec4d3212640c25563
+R 4e12957e8d426816abeff0733891ff96
 U stephan
-Z 7c93dfc156ca564b826e1b50ac8cf1c8
+Z 601d70da22fde5777b3d96e7475ee26a
