@@ -19,7 +19,7 @@
 ** or binary data.
 */
 #include "config.h"
-#include "zlib.h"
+#include "miniz.h"
 #include "blob.h"
 
 #if INTERFACE

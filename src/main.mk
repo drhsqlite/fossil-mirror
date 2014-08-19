@@ -401,6 +401,11 @@ SHELL_OPTIONS = -Dmain=sqlite3_shell \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 -DSQLITE_SHELL_DBNAME_PROC=fossil_open
 
+# Setup the options used to compile the included miniz library.
+MINIZ_OPTIONS = -DMINIZ_NO_STDIO \
+                -DMINIZ_NO_TIME \
+                -DMINIZ_NO_ARCHIVE_APIS
+
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system sqlite will be linked
@@ -1224,12 +1229,12 @@ $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
 
+$(OBJDIR)/miniz.o:	$(SRCDIR)/miniz.c
+	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR)/miniz.c -o $(OBJDIR)/miniz.o
+
 
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
-
-$(OBJDIR)/miniz.o: $(SRCDIR)/miniz.c
-	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR)/miniz.c -o $(OBJDIR)/miniz.o
 
 #
 # The list of all the targets that do not correspond to real files. This stops

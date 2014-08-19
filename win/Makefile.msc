@@ -42,12 +42,7 @@ TCLSRCDIR = $(TCLDIR)
 TCLINCDIR = $(TCLSRCDIR)\generic
 !endif
 
-# zlib options
-ZINCDIR   = $(B)\compat\zlib
-ZLIBDIR   = $(B)\compat\zlib
-ZLIB      = zlib.lib
-
-INCL      = /I. /I$(SRCDIR) /I$B\win\include /I$(ZINCDIR)
+INCL      = /I. /I$(SRCDIR) /I$B\win\include
 
 !ifdef FOSSIL_ENABLE_SSL
 INCL      = $(INCL) /I$(SSLINCDIR)
@@ -70,8 +65,8 @@ CFLAGS    = $(CFLAGS) /MT /O2
 BCC       = $(CC) $(CFLAGS)
 TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
 RCC       = rc /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
-LIBS      = $(ZLIB) ws2_32.lib advapi32.lib
-LIBDIR    = /LIBPATH:$(ZLIBDIR)
+LIBS      = ws2_32.lib advapi32.lib
+LIBDIR    = 
 
 !ifdef FOSSIL_ENABLE_JSON
 TCC       = $(TCC) /DFOSSIL_ENABLE_JSON=1
@@ -118,6 +113,10 @@ SHELL_OPTIONS = /Dmain=sqlite3_shell \
                 /Dsystem=fossil_system \
                 /Dgetenv=fossil_getenv \
                 /Dfopen=fossil_fopen
+
+MINIZ_OPTIONS = /DMINIZ_NO_STDIO \
+                /DMINIZ_NO_TIME \
+                /DMINIZ_NO_ARCHIVE_APIS
 
 SRC   = add_.c \
         allrepo_.c \
@@ -298,6 +297,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\md5$O \
         $(OX)\merge$O \
         $(OX)\merge3$O \
+        $(OX)\miniz$O \
         $(OX)\moderate$O \
         $(OX)\name$O \
         $(OX)\path$O \
@@ -356,11 +356,7 @@ PDBNAME = $(OX)\fossil$(P)
 
 all: $(OX) $(APPNAME)
 
-zlib:
-	@echo Building zlib from "$(ZLIBDIR)"...
-	@pushd "$(ZLIBDIR)" && nmake /f win32\Makefile.msc $(ZLIB) && popd
-
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
 	cd $(OX) 
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
@@ -432,6 +428,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\md5.obj >> $@
 	echo $(OX)\merge.obj >> $@
 	echo $(OX)\merge3.obj >> $@
+	echo $(OX)\miniz.obj >> $@
 	echo $(OX)\moderate.obj >> $@
 	echo $(OX)\name.obj >> $@
 	echo $(OX)\path.obj >> $@
@@ -513,6 +510,9 @@ $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 
 $(OX)\th_tcl$O : $(SRCDIR)\th_tcl.c
 	$(TCC) /Fo$@ -c $**
+
+$(OX)\miniz$O : $(SRCDIR)\miniz.c
+	$(TCC) /Fo$@ -c $(MINIZ_OPTIONS) $(SRCDIR)\miniz.c
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@

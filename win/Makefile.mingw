@@ -84,11 +84,6 @@ MINGW_IS_32BIT_ONLY = 1
 endif
 endif
 
-#### The directories where the zlib include and library files are located.
-#
-ZINCDIR = $(SRCDIR)/../compat/zlib
-ZLIBDIR = $(SRCDIR)/../compat/zlib
-
 #### The directories where the OpenSSL include and library files are located.
 #    The recommended usage here is to use the Sysinternals junction tool
 #    to create a hard link between an "openssl-1.x" sub-directory of the
@@ -140,7 +135,7 @@ endif
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
+TCC = $(PREFIX)gcc -Os -Wall
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
@@ -152,7 +147,7 @@ endif
 #### Compile resources for use in building executables that will run
 #    on the target platform.
 #
-RCC = $(PREFIX)windres -I$(SRCDIR) -I$(ZINCDIR)
+RCC = $(PREFIX)windres -I$(SRCDIR)
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
@@ -711,12 +706,6 @@ SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(OBJDIR)/th_tcl.o  $(OBJDIR)/cson_amalgamation.o  $(OBJDIR)/miniz.o
 
-zlib:
-	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
-
-clean-zlib:
-	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
-
 openssl:	zlib
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib mingw
 	$(MAKE) -C $(OPENSSLLIBDIR) build_libs
@@ -731,7 +720,7 @@ tcl:
 clean-tcl:
 	$(MAKE) -C $(TCLSRCDIR)/win distclean
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build
@@ -1788,6 +1777,10 @@ SHELL_OPTIONS = -Dmain=sqlite3_shell \
                 -Dgetenv=fossil_getenv \
                 -Dfopen=fossil_fopen
 
+MINIZ_OPTIONS = -DMINIZ_NO_STDIO \
+                -DMINIZ_NO_TIME \
+                -DMINIZ_NO_ARCHIVE_APIS
+
 $(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c $(SRCDIR)/../win/Makefile.mingw
 	$(XTCC) $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
 
@@ -1807,4 +1800,7 @@ $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
 
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
+
+$(OBJDIR)/miniz.o:	$(SRCDIR)/miniz.c
+	$(XTCC) -c $(SRCDIR)/miniz.c -o $(OBJDIR)/miniz.o
 

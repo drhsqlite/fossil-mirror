@@ -19,7 +19,7 @@
 */
 #include "config.h"
 #include <assert.h>
-#include "zlib.h"
+#include "miniz.h"
 #include "zip.h"
 
 /*

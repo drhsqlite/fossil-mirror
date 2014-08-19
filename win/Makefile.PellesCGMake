@@ -15,22 +15,19 @@
 # In addition to the Compiler envrionment, you need
 #  gmake from http://sourceforge.net/projects/unxutils/, Pelles make version
 #        couldn't handle the complex dependencies in this build
-#  zlib sources
 # Then you do
 # 1. create a directory PellesC in the project root directory
-# 2. Change the variables PellesCDir/ZLIBSRCDIR to the path of your installation
+# 2. Change the variables PellesCDir to the path of your installation
 # 3. open a dos prompt window and change working directory into PellesC (step 1)
 # 4. run gmake -f ..\win\Makefile.PellesCGMake
 #
 # this file is tested with
 #   PellesC         5.00.13
 #   gmake           3.80
-#   zlib sources    1.2.5
 #   Windows XP SP 2
 # and
 #   PellesC         6.00.4
 #   gmake           3.80
-#   zlib sources    1.2.5
 #   Windows 7 Home Premium
 #  
 
@@ -56,7 +53,6 @@ endif
 B=..
 SRCDIR=$(B)/src/
 WINDIR=$(B)/win/
-ZLIBSRCDIR=../../zlib/
 
 # define linker command and options
 LINK=$(PellesCDir)/bin/polink.exe
@@ -68,7 +64,7 @@ LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)
 CC=$(PellesCDir)\bin\pocc.exe
 DEFINES=-D_pgmptr=g.argv[0]
 CCFLAGS=-T$(TARGETMACHINE_CC)-coff -Ot -W2 -Gd -Go -Ze -MT $(DEFINES)
-INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR)
+INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I /I $(SRCDIR)
 
 # define commands for building the windows resource files
 RESOURCE=fossil.res
@@ -98,11 +94,11 @@ THSRC=th.c th_lang.c
 ORIGTHSRC=$(foreach sf,$(THSRC),$(SRCDIR)$(sf))
 THOBJ=$(foreach sf,$(THSRC),$(sf:.c=.obj))
 
-# define the zlib files, needed by this compile
-ZLIBSRC=adler32.c compress.c crc32.c deflate.c gzclose.c gzlib.c gzread.c gzwrite.c infback.c inffast.c inflate.c inftrees.c trees.c uncompr.c zutil.c
-ORIGZLIBSRC=$(foreach sf,$(ZLIBSRC),$(ZLIBSRCDIR)$(sf))
-ZLIBOBJ=$(OBJDIR)/miniz.o
-#$(foreach sf,$(ZLIBSRC),$(sf:.c=.obj))
+# define the miniz files, which need special flags on compile
+MINIZSRC=miniz.c
+ORIGMINIZSRC=$(foreach sf,$(MINIZSRC),$(SRCDIR)$(sf))
+MINIZOBJ=$(foreach sf,$(MINIZSRC),$(sf:.c=.obj))
+MINIZDEFINES=-DMINIZ_NO_STDIO -DMINIZ_NO_TIME -DMINIZ_NO_ARCHIVE_APIS
 
 # define all fossil sources, using the standard compile and
 # source generation. These are all files in SRCDIR, which are not
@@ -166,22 +162,22 @@ $(SQLITESHELLOBJ):	%.obj:	$(SRCDIR)%.c
 $(THOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)th.h
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
-#$(ZLIBOBJ):	%.obj:	$(ZLIBSRCDIR)%.c
-#	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
+$(MINIZOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)%.h
+	$(CC) $(CCFLAGS) $(MINIZDEFINES) $(INCLUDE) "$<" -Fo"$@"
 
 # create the windows resource with icon and version info
 $(RESOURCE):	%.res:	../win/%.rc ../win/*.ico
 	$(RC) $(RCFLAGS) $< -Fo"$@"
 
 # link the application
-$(APPLICATION):	$(TRANSLATEDOBJ) $(SQLITEOBJ) $(SQLITESHELLOBJ) $(THOBJ) $(ZLIBOBJ) headers $(RESOURCE)
-	$(LINK) $(LINKFLAGS) -out:"$@" $(TRANSLATEDOBJ) $(SQLITEOBJ) $(SQLITESHELLOBJ) $(THOBJ) $(ZLIBOBJ) $(RESOURCE)
+$(APPLICATION):	$(TRANSLATEDOBJ) $(SQLITEOBJ) $(SQLITESHELLOBJ) $(THOBJ) $(MINIZOBJ) headers $(RESOURCE)
+	$(LINK) $(LINKFLAGS) -out:"$@" $(TRANSLATEDOBJ) $(SQLITEOBJ) $(SQLITESHELLOBJ) $(THOBJ) $(MINIZOBJ) $(RESOURCE)
 
 # cleanup
 
 .PHONY: clean
 clean:
-	del /F $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) $(UTILS_OBJ) version.obj
+	del /F $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(MINIZOBJ) $(UTILS_OBJ) version.obj
 	del /F $(TRANSLATEDSRC)
 	del /F *.h headers
 	del /F $(RESOURCE)

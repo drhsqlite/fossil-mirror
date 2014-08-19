@@ -157,13 +157,11 @@ set SHELL_OPTIONS {
 }
 
 # miniz (libz drop-in alternative) precompiler flags.
-# FIXME: MINIZ_LITTLE_ENDIAN needs to be determined by the platform.
+#
 set MINIZ_OPTIONS {
  -DMINIZ_NO_STDIO
  -DMINIZ_NO_TIME
  -DMINIZ_NO_ARCHIVE_APIS
- -DMINIZ_USE_UNALIGNED_LOADS_AND_STORES=1
- -DMINIZ_LITTLE_ENDIAN=1
 }
 
 # Options used to compile the included SQLite shell on Windows.
@@ -237,7 +235,8 @@ writeln "\n"
 
 writeln [string map [list \
     <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS " \\\n                 "] \
-    <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "]] {
+    <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "] \
+    <<<MINIZ_OPTIONS>>> [join $MINIZ_OPTIONS " \\\n                "]] {
 all:	$(OBJDIR) $(APPNAME)
 
 install:	$(APPNAME)
@@ -275,6 +274,9 @@ SQLITE_OPTIONS = <<<SQLITE_OPTIONS>>>
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = <<<SHELL_OPTIONS>>>
+
+# Setup the options used to compile the included miniz library.
+MINIZ_OPTIONS = <<<MINIZ_OPTIONS>>>
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
@@ -349,13 +351,13 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
 
+writeln "\$(OBJDIR)/miniz.o:\t\$(SRCDIR)/miniz.c"
+writeln "\t\$(XTCC) \$(MINIZ_OPTIONS) -c \$(SRCDIR)/miniz.c -o \$(OBJDIR)/miniz.o\n"
+
 
 writeln {
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
-
-$(OBJDIR)/miniz.o: $(SRCDIR)/miniz.c
-	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR)/miniz.c -o $(OBJDIR)/miniz.o
 
 #
 # The list of all the targets that do not correspond to real files. This stops
@@ -463,11 +465,6 @@ MINGW_IS_32BIT_ONLY = 1
 endif
 endif
 
-#### The directories where the zlib include and library files are located.
-#
-ZINCDIR = $(SRCDIR)/../compat/zlib
-ZLIBDIR = $(SRCDIR)/../compat/zlib
-
 #### The directories where the OpenSSL include and library files are located.
 #    The recommended usage here is to use the Sysinternals junction tool
 #    to create a hard link between an "openssl-1.x" sub-directory of the
@@ -519,7 +516,7 @@ endif
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
+TCC = $(PREFIX)gcc -Os -Wall
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
@@ -531,7 +528,7 @@ endif
 #### Compile resources for use in building executables that will run
 #    on the target platform.
 #
-RCC = $(PREFIX)windres -I$(SRCDIR) -I$(ZINCDIR)
+RCC = $(PREFIX)windres -I$(SRCDIR)
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
@@ -774,12 +771,6 @@ EXTRAOBJ = \
   $(OBJDIR)/cson_amalgamation.o \
   $(OBJDIR)/miniz.o
 
-zlib:
-	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
-
-clean-zlib:
-	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
-
 openssl:	zlib
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib mingw
 	$(MAKE) -C $(OPENSSLLIBDIR) build_libs
@@ -794,7 +785,7 @@ tcl:
 clean-tcl:
 	$(MAKE) -C $(TCLSRCDIR)/win distclean
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build
@@ -857,6 +848,8 @@ set j " \\\n                 "
 writeln "SQLITE_OPTIONS = [join $MINGW_SQLITE_OPTIONS $j]\n"
 set j " \\\n                "
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS $j]\n"
+set j " \\\n                "
+writeln "MINIZ_OPTIONS = [join $MINIZ_OPTIONS $j]\n"
 
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c \$(SRCDIR)/../win/Makefile.mingw"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
@@ -876,6 +869,9 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
+
+writeln "\$(OBJDIR)/miniz.o:\t\$(SRCDIR)/miniz.c"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/miniz.c -o \$(OBJDIR)/miniz.o\n"
 
 close $output_file
 #
@@ -915,10 +911,11 @@ SSL    =
 CFLAGS = -o
 BCC    = $(DMDIR)\bin\dmc $(CFLAGS)
 TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(SSL) $(INCL)
-LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32
+LIBS   = $(DMDIR)\extra\lib\ wsock32 advapi32
 }
 writeln "SQLITE_OPTIONS = [join $SQLITE_OPTIONS { }]\n"
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS { }]\n"
+writeln "MINIZ_OPTIONS = [join $MINIZ_OPTIONS { }]\n"
 writeln -nonewline "SRC   = "
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c "
@@ -928,7 +925,7 @@ writeln -nonewline "OBJ   = "
 foreach s [lsort $src] {
   writeln -nonewline "\$(OBJDIR)\\$s\$O "
 }
-writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
+writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O \$(OBJDIR)\\miniz\$O "
 writeln {
 
 RC=$(DMDIR)\bin\rcc
@@ -950,7 +947,7 @@ writeln -nonewline "\t+echo "
 foreach s [lsort $src] {
   writeln -nonewline "$s "
 }
-writeln "shell sqlite3 th th_lang > \$@"
+writeln "shell sqlite3 th th_lang miniz > \$@"
 writeln "\t+echo fossil >> \$@"
 writeln "\t+echo fossil >> \$@"
 writeln "\t+echo \$(LIBS) >> \$@"
@@ -980,6 +977,9 @@ $(OBJDIR)\th$O : $(SRCDIR)\th.c
 	$(TCC) -o$@ -c $**
 
 $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
+	$(TCC) -o$@ -c $**
+
+$(OBJDIR)\miniz$O : $(SRCDIR)\miniz.c
 	$(TCC) -o$@ -c $**
 
 $(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
@@ -1086,12 +1086,7 @@ TCLSRCDIR = $(TCLDIR)
 TCLINCDIR = $(TCLSRCDIR)\generic
 !endif
 
-# zlib options
-ZINCDIR   = $(B)\compat\zlib
-ZLIBDIR   = $(B)\compat\zlib
-ZLIB      = zlib.lib
-
-INCL      = /I. /I$(SRCDIR) /I$B\win\include /I$(ZINCDIR)
+INCL      = /I. /I$(SRCDIR) /I$B\win\include
 
 !ifdef FOSSIL_ENABLE_SSL
 INCL      = $(INCL) /I$(SSLINCDIR)
@@ -1114,8 +1109,8 @@ CFLAGS    = $(CFLAGS) /MT /O2
 BCC       = $(CC) $(CFLAGS)
 TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
 RCC       = rc /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
-LIBS      = $(ZLIB) ws2_32.lib advapi32.lib
-LIBDIR    = /LIBPATH:$(ZLIBDIR)
+LIBS      = ws2_32.lib advapi32.lib
+LIBDIR    = 
 
 !ifdef FOSSIL_ENABLE_JSON
 TCC       = $(TCC) /DFOSSIL_ENABLE_JSON=1
@@ -1153,6 +1148,10 @@ regsub -all {[-]D} [join $SHELL_WIN32_OPTIONS { }] {/D} MSC_SHELL_OPTIONS
 set j " \\\n                "
 writeln "SHELL_OPTIONS = [join $MSC_SHELL_OPTIONS $j]\n"
 
+regsub -all {[-]D} [join $MINIZ_OPTIONS { }] {/D} MSC_MINIZ_OPTIONS
+set j " \\\n                "
+writeln "MINIZ_OPTIONS = [join $MSC_MINIZ_OPTIONS $j]\n"
+
 writeln -nonewline "SRC   = "
 set i 0
 foreach s [lsort $src] {
@@ -1163,7 +1162,7 @@ foreach s [lsort $src] {
   writeln -nonewline "${s}_.c"; incr i
 }
 writeln "\n"
-set AdditionalObj [list shell sqlite3 th th_lang th_tcl cson_amalgamation]
+set AdditionalObj [list shell sqlite3 th th_lang th_tcl cson_amalgamation miniz]
 writeln -nonewline "OBJ   = "
 set i 0
 foreach s [lsort [concat $src $AdditionalObj]] {
@@ -1181,11 +1180,7 @@ PDBNAME = $(OX)\fossil$(P)
 
 all: $(OX) $(APPNAME)
 
-zlib:
-	@echo Building zlib from "$(ZLIBDIR)"...
-	@pushd "$(ZLIBDIR)" && nmake /f win32\Makefile.msc $(ZLIB) && popd
-
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
 	cd $(OX) 
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
@@ -1227,6 +1222,9 @@ $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 
 $(OX)\th_tcl$O : $(SRCDIR)\th_tcl.c
 	$(TCC) /Fo$@ -c $**
+
+$(OX)\miniz$O : $(SRCDIR)\miniz.c
+	$(TCC) /Fo$@ -c $(MINIZ_OPTIONS) $(SRCDIR)\miniz.c
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
@@ -1317,7 +1315,8 @@ fconfigure $output_file -translation binary
 
 writeln [string map [list \
     <<<SQLITE_OPTIONS>>> [join $SQLITE_WIN32_OPTIONS { }] \
-    <<<SHELL_OPTIONS>>> [join $SHELL_WIN32_OPTIONS { }]] {#
+    <<<SHELL_OPTIONS>>> [join $SHELL_WIN32_OPTIONS { }] \
+    <<<MINIZ_OPTIONS>>> [join $MINIZ_OPTIONS { }]] {#
 ##############################################################################
 # WARNING: DO NOT EDIT, AUTOMATICALLY GENERATED FILE (SEE "src/makemake.tcl")
 ##############################################################################
@@ -1334,22 +1333,19 @@ writeln [string map [list \
 # In addition to the Compiler envrionment, you need
 #  gmake from http://sourceforge.net/projects/unxutils/, Pelles make version
 #        couldn't handle the complex dependencies in this build
-#  zlib sources
 # Then you do
 # 1. create a directory PellesC in the project root directory
-# 2. Change the variables PellesCDir/ZLIBSRCDIR to the path of your installation
+# 2. Change the variables PellesCDir to the path of your installation
 # 3. open a dos prompt window and change working directory into PellesC (step 1)
 # 4. run gmake -f ..\win\Makefile.PellesCGMake
 #
 # this file is tested with
 #   PellesC         5.00.13
 #   gmake           3.80
-#   zlib sources    1.2.5
 #   Windows XP SP 2
 # and
 #   PellesC         6.00.4
 #   gmake           3.80
-#   zlib sources    1.2.5
 #   Windows 7 Home Premium
 #  
 
@@ -1375,7 +1371,6 @@ endif
 B=..
 SRCDIR=$(B)/src/
 WINDIR=$(B)/win/
-ZLIBSRCDIR=../../zlib/
 
 # define linker command and options
 LINK=$(PellesCDir)/bin/polink.exe
@@ -1387,7 +1382,7 @@ LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)
 CC=$(PellesCDir)\bin\pocc.exe
 DEFINES=-D_pgmptr=g.argv[0]
 CCFLAGS=-T$(TARGETMACHINE_CC)-coff -Ot -W2 -Gd -Go -Ze -MT $(DEFINES)
-INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR)
+INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I /I $(SRCDIR)
 
 # define commands for building the windows resource files
 RESOURCE=fossil.res
@@ -1417,11 +1412,11 @@ THSRC=th.c th_lang.c
 ORIGTHSRC=$(foreach sf,$(THSRC),$(SRCDIR)$(sf))
 THOBJ=$(foreach sf,$(THSRC),$(sf:.c=.obj))
 
-# define the zlib files, needed by this compile
-ZLIBSRC=adler32.c compress.c crc32.c deflate.c gzclose.c gzlib.c gzread.c gzwrite.c infback.c inffast.c inflate.c inftrees.c trees.c uncompr.c zutil.c
-ORIGZLIBSRC=$(foreach sf,$(ZLIBSRC),$(ZLIBSRCDIR)$(sf))
-ZLIBOBJ=$(OBJDIR)/miniz.o
-#$(foreach sf,$(ZLIBSRC),$(sf:.c=.obj))
+# define the miniz files, which need special flags on compile
+MINIZSRC=miniz.c
+ORIGMINIZSRC=$(foreach sf,$(MINIZSRC),$(SRCDIR)$(sf))
+MINIZOBJ=$(foreach sf,$(MINIZSRC),$(sf:.c=.obj))
+MINIZDEFINES=<<<MINIZ_OPTIONS>>>
 
 # define all fossil sources, using the standard compile and
 # source generation. These are all files in SRCDIR, which are not
@@ -1485,22 +1480,22 @@ $(SQLITESHELLOBJ):	%.obj:	$(SRCDIR)%.c
 $(THOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)th.h
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
-#$(ZLIBOBJ):	%.obj:	$(ZLIBSRCDIR)%.c
-#	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
+$(MINIZOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)%.h
+	$(CC) $(CCFLAGS) $(MINIZDEFINES) $(INCLUDE) "$<" -Fo"$@"
 
 # create the windows resource with icon and version info
 $(RESOURCE):	%.res:	../win/%.rc ../win/*.ico
 	$(RC) $(RCFLAGS) $< -Fo"$@"
 
 # link the application
-$(APPLICATION):	$(TRANSLATEDOBJ) $(SQLITEOBJ) $(SQLITESHELLOBJ) $(THOBJ) $(ZLIBOBJ) headers $(RESOURCE)
-	$(LINK) $(LINKFLAGS) -out:"$@" $(TRANSLATEDOBJ) $(SQLITEOBJ) $(SQLITESHELLOBJ) $(THOBJ) $(ZLIBOBJ) $(RESOURCE)
+$(APPLICATION):	$(TRANSLATEDOBJ) $(SQLITEOBJ) $(SQLITESHELLOBJ) $(THOBJ) $(MINIZOBJ) headers $(RESOURCE)
+	$(LINK) $(LINKFLAGS) -out:"$@" $(TRANSLATEDOBJ) $(SQLITEOBJ) $(SQLITESHELLOBJ) $(THOBJ) $(MINIZOBJ) $(RESOURCE)
 
 # cleanup
 
 .PHONY: clean
 clean:
-	del /F $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) $(UTILS_OBJ) version.obj
+	del /F $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(MINIZOBJ) $(UTILS_OBJ) version.obj
 	del /F $(TRANSLATEDSRC)
 	del /F *.h headers
 	del /F $(RESOURCE)

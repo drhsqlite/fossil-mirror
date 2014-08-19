@@ -32,7 +32,7 @@
 #define _RC_COMPILE_
 #include "config.h"
 #include "sqlite3.h"
-#include "zlib.h"
+#include "miniz.h"
 
 #if defined(FOSSIL_ENABLE_SSL)
 #include "openssl/opensslv.h"
@@ -94,7 +94,7 @@ BEGIN
       VALUE "OriginalFilename", "fossil.exe\0"
       VALUE "CompilerName", COMPILER_NAME "\0"
       VALUE "SQLiteVersion", "SQLite " SQLITE_VERSION " " SQLITE_SOURCE_ID "\0"
-      VALUE "ZlibVersion", "zlib " ZLIB_VERSION "\0"
+      VALUE "MinizVersion", "miniz " MZ_VERSION "\0"
 #if defined(BROKEN_MINGW_CMDLINE)
       VALUE "CommandLineIsUnicode", "No\0"
 #else
