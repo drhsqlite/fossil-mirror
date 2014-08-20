@@ -1,5 +1,5 @@
-C addremove\stwo\sfiles\snot\shandled\sby\sthe\sprevious\spatch\sfile.
-D 2014-08-19T18:49:44.284
+C removed\sdouble-application\sof\sminiz.h\spatch\s(doubled\sthe\scontent).
+D 2014-08-20T14:54:03.663
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -385,7 +385,7 @@ F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
 F src/merge.c 91c9732417173610f8a47db3abe6013d23a8cc5e
 F src/merge3.c d07e371cc8ad34dff8ced94f2f4bd89eb18903b9
 F src/miniz.c 24a425000951ba42f2f7271b157b422f14574893
-F src/miniz.h efc663a0d2c245810bab7305e15bccd4c75fea8d
+F src/miniz.h 6de0083b19291262eb61a5c74a0e1748bed37876
 F src/mkindex.c 69da20a8f44b1ebbb0223bf3d712b4a9d4c99238
 F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
 F src/moderate.c 5feb233fd9291b5b4f826d91e3fd987e082694e8
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d8902124d481ced2a800fc3ec4d3212640c25563
-R 4e12957e8d426816abeff0733891ff96
+P ca5d6f2b482bd08c58886b0fd4a96aaffc56f893
+R 66b9e667fd7541c5f6edd7b57d86ff3c
 U stephan
-Z 601d70da22fde5777b3d96e7475ee26a
+Z c5e6f7ef92c499eb3aeab1feb1ffa37d
