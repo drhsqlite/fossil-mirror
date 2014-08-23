@@ -21,6 +21,9 @@ P      = .pdb
 # Uncomment to enable JSON API
 # FOSSIL_ENABLE_JSON = 1
 
+# Uncomment to enable miniz usage
+# FOSSIL_ENABLE_MINIZ = 1
+
 # Uncomment to enable SSL support
 # FOSSIL_ENABLE_SSL = 1
 
@@ -47,7 +50,11 @@ ZINCDIR   = $(B)\compat\zlib
 ZLIBDIR   = $(B)\compat\zlib
 ZLIB      = zlib.lib
 
-INCL      = /I. /I$(SRCDIR) /I$B\win\include /I$(ZINCDIR)
+INCL      = /I. /I$(SRCDIR) /I$B\win\include
+
+!ifndef FOSSIL_ENABLE_MINIZ
+INCL      = $(INCL) /I$(ZINCDIR)
+!endif
 
 !ifdef FOSSIL_ENABLE_SSL
 INCL      = $(INCL) /I$(SSLINCDIR)
@@ -70,8 +77,18 @@ CFLAGS    = $(CFLAGS) /MT /O2
 BCC       = $(CC) $(CFLAGS)
 TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
 RCC       = rc /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
-LIBS      = $(ZLIB) ws2_32.lib advapi32.lib
-LIBDIR    = /LIBPATH:$(ZLIBDIR)
+LIBS      = ws2_32.lib advapi32.lib
+LIBDIR    =
+
+!ifndef FOSSIL_ENABLE_MINIZ
+LIBS      = $(LIBS) $(ZLIB)
+LIBDIR    = $(LIBDIR) /LIBPATH:$(ZLIBDIR)
+!endif
+
+!ifdef FOSSIL_ENABLE_MINIZ
+TCC       = $(TCC) /DFOSSIL_ENABLE_MINIZ=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_MINIZ=1
+!endif
 
 !ifdef FOSSIL_ENABLE_JSON
 TCC       = $(TCC) /DFOSSIL_ENABLE_JSON=1
@@ -118,6 +135,10 @@ SHELL_OPTIONS = /Dmain=sqlite3_shell \
                 /Dsystem=fossil_system \
                 /Dgetenv=fossil_getenv \
                 /Dfopen=fossil_fopen
+
+MINIZ_OPTIONS = /DMINIZ_NO_STDIO \
+                /DMINIZ_NO_TIME \
+                /DMINIZ_NO_ARCHIVE_APIS
 
 SRC   = add_.c \
         allrepo_.c \
@@ -348,6 +369,9 @@ OBJ   = $(OX)\add$O \
         $(OX)\xfer$O \
         $(OX)\xfersetup$O \
         $(OX)\zip$O \
+!ifdef FOSSIL_ENABLE_MINIZ
+        $(OX)\miniz$O \
+!endif
         $(OX)\fossil.res
 
 
@@ -358,10 +382,16 @@ all: $(OX) $(APPNAME)
 
 zlib:
 	@echo Building zlib from "$(ZLIBDIR)"...
-	@pushd "$(ZLIBDIR)" && nmake /f win32\Makefile.msc $(ZLIB) && popd
+	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) && popd
 
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
-	cd $(OX) 
+EXTRATARGET =
+
+!ifndef FOSSIL_ENABLE_MINIZ
+EXTRATARGET = $(EXTRATARGET) zlib
+!endif
+
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts $(EXTRATARGET)
+	cd $(OX)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc
@@ -482,6 +512,9 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\xfer.obj >> $@
 	echo $(OX)\xfersetup.obj >> $@
 	echo $(OX)\zip.obj >> $@
+!ifdef FOSSIL_ENABLE_MINIZ
+	echo $(OX)\miniz.obj >> $@
+!endif
 	echo $(LIBS) >> $@
 
 $(OX):
@@ -514,12 +547,15 @@ $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 $(OX)\th_tcl$O : $(SRCDIR)\th_tcl.c
 	$(TCC) /Fo$@ -c $**
 
+$(OX)\miniz$O : $(SRCDIR)\miniz.c
+	$(TCC) /Fo$@ -c $(MINIZ_OPTIONS) $(SRCDIR)\miniz.c
+
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
 $(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
 	$(TCC) /Fo$@ /c $**
 
-page_index.h: mkindex$E $(SRC) 
+page_index.h: mkindex$E $(SRC)
 	$** > $@
 
 clean:

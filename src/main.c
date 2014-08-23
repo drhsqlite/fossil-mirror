@@ -35,7 +35,12 @@
 #ifdef FOSSIL_ENABLE_SSL
 #  include "openssl/crypto.h"
 #endif
-#include "zlib.h"
+#if defined(FOSSIL_ENABLE_MINIZ)
+#  define MINIZ_HEADER_FILE_ONLY
+#  include "miniz.c"
+#else
+#  include <zlib.h>
+#endif
 #if INTERFACE
 #ifdef FOSSIL_ENABLE_TCL
 #  include "tcl.h"
@@ -957,7 +962,11 @@ void version_cmd(void){
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
     fossil_print("SQLite %s %.30s\n", sqlite3_libversion(), sqlite3_sourceid());
     fossil_print("Schema version %s\n", AUX_SCHEMA);
+#if defined(FOSSIL_ENABLE_MINIZ)
+    fossil_print("miniz %s, loaded %s\n", MZ_VERSION, mz_version());
+#else
     fossil_print("zlib %s, loaded %s\n", ZLIB_VERSION, zlibVersion());
+#endif
 #if defined(FOSSIL_ENABLE_SSL)
     fossil_print("SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
 #endif

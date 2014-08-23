@@ -19,7 +19,12 @@
 ** or binary data.
 */
 #include "config.h"
-#include <zlib.h>
+#if defined(FOSSIL_ENABLE_MINIZ)
+#  define MINIZ_HEADER_FILE_ONLY
+#  include "miniz.c"
+#else
+#  include <zlib.h>
+#endif
 #include "blob.h"
 
 #if INTERFACE
