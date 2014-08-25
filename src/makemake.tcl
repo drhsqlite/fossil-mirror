@@ -1035,13 +1035,15 @@ writeln {#
 # file, edit "makemake.tcl" then run "tclsh makemake.tcl"
 # to regenerate this file.
 #
-B      = ..
-SRCDIR = $B\src
-OBJDIR = .
-OX     = .
-O      = .obj
-E      = .exe
-P      = .pdb
+B       = ..
+SRCDIR  = $B\src
+OBJDIR  = .
+OX      = .
+O       = .obj
+E       = .exe
+P       = .pdb
+PERLDIR =
+PERL    = perl.exe
 
 # Uncomment to enable debug symbols
 # DEBUG = 1
@@ -1059,8 +1061,9 @@ P      = .pdb
 # FOSSIL_ENABLE_TCL = 1
 
 !ifdef FOSSIL_ENABLE_SSL
-SSLINCDIR = $(B)\compat\openssl-1.0.1i\include
-SSLLIBDIR = $(B)\compat\openssl-1.0.1i\out32
+SSLDIR    = $(B)\compat\openssl-1.0.1i
+SSLINCDIR = $(SSLDIR)\include
+SSLLIBDIR = $(SSLDIR)\out32
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !endif
 
@@ -1169,7 +1172,24 @@ zlib:
 	@echo Building zlib from "$(ZLIBDIR)"...
 	@pushd "$(ZLIBDIR)" && nmake /f win32\Makefile.msc $(ZLIB) && popd
 
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
+!ifdef FOSSIL_ENABLE_SSL
+openssl:
+	@echo Building OpenSSL from "$(SSLDIR)"...
+!if "$(PERLDIR)" != ""
+	@set PATH=$(PERLDIR);$(PATH)
+!endif
+	@pushd "$(SSLDIR)" && $(PERL) Configure VC-WIN32 no-asm && popd
+	@pushd "$(SSLDIR)" && call ms\do_ms.bat && popd
+	@pushd "$(SSLDIR)" && $(MAKE) -f ms\nt.mak all && popd
+!endif
+
+EXTRATARGETS = $(EXTRATARGETS) zlib
+
+!ifdef FOSSIL_ENABLE_SSL
+EXTRATARGETS = $(EXTRATARGETS) openssl
+!endif
+
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts $(EXTRATARGETS)
 	cd $(OX) 
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 

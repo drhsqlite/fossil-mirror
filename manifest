@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.8.6
-D 2014-08-15T12:46:27.625
+C When\scompiling\swith\sMSVC,\senable\sbuilding\sof\sOpenSSL\sautomatically\swhen\sSSL\sis\senabled.
+D 2014-08-25T20:38:20.947
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -377,7 +377,7 @@ F src/main.c 4170e6e5914b0ef661d387a0ca9aea9cfcd2555b
 F src/main.mk e4cdb126972b81362488c6a4a6cc95552b37c14d
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl ebddf3437f6b57a1a43f5ad8fcc3af889b241a31
+F src/makemake.tcl 1ee320f0c7433c9994832d5d4b5f147e94a2b1fd
 F src/manifest.c 2d34121c1d718979a706be48d59a67d8ab6e5406
 F src/markdown.c 717f7f14927414811b61475a6fb9edc34e6cf90b
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
@@ -542,7 +542,7 @@ F win/Makefile.PellesCGMake 739ede0fd2ba3d8ed69dddb3776ea08c79a9d0ab
 F win/Makefile.dmc 2e7267e8b81e8d4a8fed3d96c31bb46001523bdf
 F win/Makefile.mingw f758e52812b5628185b291cf6f4c4559587d42c2
 F win/Makefile.mingw.mistachkin 89665852809f4e63b812089e107f069dcad97271
-F win/Makefile.msc 271f9006302fcbe1389f1d7860fe4544e2eca2ae
+F win/Makefile.msc 40596a934c1bc45eabb63449e6ddda6e3da552e2
 F win/buildmsvc.bat 4621013bd2c253a7683d2542aa018c73c35c96a3
 F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 38421a9c998347c4d3f821ae90a94e2a21e11a73
-R ac72114b0ffb399784904f368ade5b6a
-U jan.nijtmans
-Z 211c0d549705fe12fd133ccd1159c430
+P ee46563cbdc28face0215bc1a5cf81f0b589d88a
+R 50b1eda518934f7aad65e89909732c5f
+U mistachkin
+Z 7d5a2f610454bd22054bf7540c8e860f
