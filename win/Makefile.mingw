@@ -648,7 +648,9 @@ OBJ = \
  $(OBJDIR)/xfersetup.o \
  $(OBJDIR)/zip.o
 
-APPNAME = fossil.exe
+APPNAME    = fossil.exe
+APPTARGETS =
+LIBTARGETS =
 
 #### If the USE_WINDOWS variable exists, it is assumed that we are building
 #    inside of a Windows-style shell; otherwise, it is assumed that we are
@@ -768,13 +770,11 @@ zlib:
 clean-zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
 
-EXTRATARGET =
-
 ifndef FOSSIL_ENABLE_MINIZ
-EXTRATARGET += zlib
+LIBTARGETS += zlib
 endif
 
-openssl:	$(EXTRATARGET)
+openssl:	$(LIBTARGETS)
 ifndef FOSSIL_ENABLE_MINIZ
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib mingw
 else
@@ -792,7 +792,13 @@ tcl:
 clean-tcl:
 	$(MAKE) -C $(TCLSRCDIR)/win distclean
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(EXTRATARGET)
+APPTARGETS += $(LIBTARGETS)
+
+ifdef FOSSIL_ENABLE_SSL
+APPTARGETS += openssl
+endif
+
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build

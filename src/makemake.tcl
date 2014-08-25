@@ -715,7 +715,9 @@ foreach s [lsort $src] {
   writeln -nonewline " \\\n \$(OBJDIR)/$s.o"
 }
 writeln "\n"
-writeln "APPNAME = ${name}.exe"
+writeln "APPNAME    = ${name}.exe"
+writeln "APPTARGETS ="
+writeln "LIBTARGETS ="
 writeln {
 #### If the USE_WINDOWS variable exists, it is assumed that we are building
 #    inside of a Windows-style shell; otherwise, it is assumed that we are
@@ -838,13 +840,11 @@ zlib:
 clean-zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
 
-EXTRATARGET =
-
 ifndef FOSSIL_ENABLE_MINIZ
-EXTRATARGET += zlib
+LIBTARGETS += zlib
 endif
 
-openssl:	$(EXTRATARGET)
+openssl:	$(LIBTARGETS)
 ifndef FOSSIL_ENABLE_MINIZ
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib mingw
 else
@@ -862,7 +862,13 @@ tcl:
 clean-tcl:
 	$(MAKE) -C $(TCLSRCDIR)/win distclean
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(EXTRATARGET)
+APPTARGETS += $(LIBTARGETS)
+
+ifdef FOSSIL_ENABLE_SSL
+APPTARGETS += openssl
+endif
+
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build
@@ -1281,8 +1287,9 @@ writeln "\$(OX)\\miniz\$O \\"; incr i
 writeln "!endif"
 writeln -nonewline "        \$(OX)\\fossil.res\n\n"
 writeln {
-APPNAME = $(OX)\fossil$(E)
-PDBNAME = $(OX)\fossil$(P)
+APPNAME    = $(OX)\fossil$(E)
+PDBNAME    = $(OX)\fossil$(P)
+APPTARGETS =
 
 all: $(OX) $(APPNAME)
 
@@ -1302,14 +1309,14 @@ openssl:
 !endif
 
 !ifndef FOSSIL_ENABLE_MINIZ
-EXTRATARGETS = $(EXTRATARGETS) zlib
+APPTARGETS = $(APPTARGETS) zlib
 !endif
 
 !ifdef FOSSIL_ENABLE_SSL
-EXTRATARGETS = $(EXTRATARGETS) openssl
+APPTARGETS = $(APPTARGETS) openssl
 !endif
 
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts $(EXTRATARGETS)
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts $(APPTARGETS)
 	cd $(OX)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
