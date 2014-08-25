@@ -395,7 +395,7 @@ openssl:
 !endif
 	@pushd "$(SSLDIR)" && $(PERL) Configure VC-WIN32 no-asm && popd
 	@pushd "$(SSLDIR)" && call ms\do_ms.bat && popd
-	@pushd "$(SSLDIR)" && $(MAKE) -f ms\nt.mak all && popd
+	@pushd "$(SSLDIR)" && $(MAKE) /f ms\nt.mak all && popd
 !endif
 
 !ifndef FOSSIL_ENABLE_MINIZ
