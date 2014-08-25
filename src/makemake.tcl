@@ -553,7 +553,11 @@ endif
 #### Compile resources for use in building executables that will run
 #    on the target platform.
 #
-RCC = $(PREFIX)windres -I$(SRCDIR) -I$(ZINCDIR)
+RCC = $(PREFIX)windres -I$(SRCDIR)
+
+ifndef FOSSIL_ENABLE_MINIZ
+RCC += -I$(ZINCDIR)
+endif
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
@@ -727,6 +731,7 @@ MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
 VERSION     = $(subst /,\,$(OBJDIR)/version)
 CAT         = type
 CP          = copy
+GREP        = find
 MV          = copy
 RM          = del /Q
 MKDIR       = -mkdir
@@ -738,6 +743,7 @@ MKINDEX     = $(OBJDIR)/mkindex
 VERSION     = $(OBJDIR)/version
 CAT         = cat
 CP          = cp
+GREP        = grep
 MV          = mv
 RM          = rm -f
 MKDIR       = -mkdir -p
@@ -749,10 +755,12 @@ all:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 ifdef USE_WINDOWS
+	$(CAT) $(subst /,\,$(SRCDIR)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.ico) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.exe.manifest) $(subst /,\,$(OBJDIR))
 else
+	$(CAT) $(SRCDIR)/miniz.c | $(GREP) "define MZ_VERSION" > $(OBJDIR)/minizver.h
 	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.exe.manifest $(OBJDIR)
