@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.8.6
-D 2014-08-15T12:46:27.625
+C Fix\sassert\sin\sthe\sTH1\sexpression\sparser\sreported\son\sthe\smailing\slist.
+D 2014-08-25T17:52:41.938
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -413,7 +413,7 @@ F src/style.c 1fda3f962cc0e9b6f6f12f34a857f89a99571113
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 2877da112f93a98e17eedcd033e9ecb94c9c7721
 F src/tar.c 15033d1cad09b193ba67fdd37743c75cb154a84f
-F src/th.c 3a7a898e8232a472700275aee7d0c584f450288d
+F src/th.c a777ad6840721baca09a73e3d45f9d1c292c9c05
 F src/th.h f55e2863d3df25e681d6acd39adbe6368182e83b
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c a489030215395736b2328295da6b95ba692298cb
@@ -475,7 +475,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 247968bab41b2cace91100304b8201d3b1dd5e27
+F test/th1.test a03f8b2313b583c971829d89992692b076a47336
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
@@ -651,7 +651,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 38421a9c998347c4d3f821ae90a94e2a21e11a73
-R ac72114b0ffb399784904f368ade5b6a
-U jan.nijtmans
-Z 211c0d549705fe12fd133ccd1159c430
+P ee46563cbdc28face0215bc1a5cf81f0b589d88a
+R ee466dfd25078b409d7e93e74faaf782
+T *branch * th1ExprFix
+T *sym-th1ExprFix *
+T -sym-trunk *
+U mistachkin
+Z 10defdb0500045a72a8761ae838e3933

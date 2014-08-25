@@ -2125,7 +2125,8 @@ int exprMakeTree(Th_Interp *interp, Expr **apToken, int nToken){
   iLeft = 0;
   for(jj=nToken-1; jj>=0; jj--){
     if( apToken[jj] ){
-      if( apToken[jj]->pOp && apToken[jj]->pOp->iPrecedence==1 && iLeft>0 ){
+      if( apToken[jj]->pOp && apToken[jj]->pOp->iPrecedence==1
+       && iLeft>0 && ISTERM(iLeft) ){
         apToken[jj]->pLeft = apToken[iLeft];
         apToken[jj]->pLeft->pParent = apToken[jj];
         apToken[iLeft] = 0;
@@ -2140,9 +2141,7 @@ int exprMakeTree(Th_Interp *interp, Expr **apToken, int nToken){
       if( apToken[jj] ){
         if( pToken->pOp && !pToken->pLeft && pToken->pOp->iPrecedence==i ){
           int iRight = jj+1;
-
-          iRight = jj+1;
-          for(iRight=jj+1; !apToken[iRight] && iRight<nToken; iRight++);
+          for(; !apToken[iRight] && iRight<nToken; iRight++);
           if( iRight==nToken || iLeft<0 || !ISTERM(iRight) || !ISTERM(iLeft) ){
             return TH_ERROR;
           }
