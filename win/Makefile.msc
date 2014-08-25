@@ -361,7 +361,7 @@ all: $(OX) $(APPNAME)
 
 zlib:
 	@echo Building zlib from "$(ZLIBDIR)"...
-	@pushd "$(ZLIBDIR)" && nmake /f win32\Makefile.msc $(ZLIB) && popd
+	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) && popd
 
 !ifdef FOSSIL_ENABLE_SSL
 openssl:
@@ -371,7 +371,7 @@ openssl:
 !endif
 	@pushd "$(SSLDIR)" && $(PERL) Configure VC-WIN32 no-asm && popd
 	@pushd "$(SSLDIR)" && call ms\do_ms.bat && popd
-	@pushd "$(SSLDIR)" && $(MAKE) -f ms\nt.mak all && popd
+	@pushd "$(SSLDIR)" && $(MAKE) /f ms\nt.mak all && popd
 !endif
 
 EXTRATARGETS = $(EXTRATARGETS) zlib
@@ -381,7 +381,7 @@ EXTRATARGETS = $(EXTRATARGETS) openssl
 !endif
 
 $(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts $(EXTRATARGETS)
-	cd $(OX) 
+	cd $(OX)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc
@@ -539,7 +539,7 @@ VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 $(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
 	$(TCC) /Fo$@ /c $**
 
-page_index.h: mkindex$E $(SRC) 
+page_index.h: mkindex$E $(SRC)
 	$** > $@
 
 clean:

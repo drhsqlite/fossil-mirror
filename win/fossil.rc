@@ -107,7 +107,7 @@ BEGIN
       VALUE "Th1Hooks", "Yes\0"
 #else
       VALUE "Th1Hooks", "No\0"
-#endif
+#endif /* defined(FOSSIL_ENABLE_TH1_HOOKS) */
 #if defined(FOSSIL_ENABLE_TCL)
       VALUE "TclEnabled", "Yes, Tcl " TCL_PATCH_LEVEL "\0"
 #if defined(USE_TCL_STUBS)
@@ -144,10 +144,10 @@ END
 
 #ifndef RT_MANIFEST
 #define RT_MANIFEST     24
-#endif
+#endif /* RT_MANIFEST */
 
 #ifndef CREATEPROCESS_MANIFEST_RESOURCE_ID
 #define CREATEPROCESS_MANIFEST_RESOURCE_ID 1
-#endif
+#endif /* CREATEPROCESS_MANIFEST_RESOURCE_ID */
 
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "fossil.exe.manifest"
