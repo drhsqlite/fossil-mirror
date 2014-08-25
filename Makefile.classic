@@ -27,7 +27,7 @@ BCC = gcc
 #
 E =
 
-#### C Compile and options for use in building executables that 
+#### C Compile and options for use in building executables that
 #    will run on the target platform.  This is usually the same
 #    as BCC, unless you are cross-compiling.  This C compiler builds
 #    the finished binary for fossil.  The BCC compiler above is used

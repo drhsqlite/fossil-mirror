@@ -1168,8 +1168,9 @@ foreach s [lsort [concat $src $AdditionalObj]] {
 writeln " \\"
 writeln -nonewline "        \$(OX)\\fossil.res\n\n"
 writeln {
-APPNAME = $(OX)\fossil$(E)
-PDBNAME = $(OX)\fossil$(P)
+APPNAME    = $(OX)\fossil$(E)
+PDBNAME    = $(OX)\fossil$(P)
+APPTARGETS =
 
 all: $(OX) $(APPNAME)
 
@@ -1188,13 +1189,13 @@ openssl:
 	@pushd "$(SSLDIR)" && $(MAKE) /f ms\nt.mak all && popd
 !endif
 
-EXTRATARGETS = $(EXTRATARGETS) zlib
+APPTARGETS = $(APPTARGETS) zlib
 
 !ifdef FOSSIL_ENABLE_SSL
-EXTRATARGETS = $(EXTRATARGETS) openssl
+APPTARGETS = $(APPTARGETS) openssl
 !endif
 
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts $(EXTRATARGETS)
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts $(APPTARGETS)
 	cd $(OX)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
