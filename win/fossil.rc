@@ -34,7 +34,12 @@
 #include "sqlite3.h"
 
 #if defined(FOSSIL_ENABLE_MINIZ)
+#if defined(__MINGW32__)
 #include "minizver.h"
+#else
+#define MINIZ_HEADER_FILE_ONLY
+#include "miniz.c"
+#endif /* defined(__MINGW32__) */
 #else
 #include "zlib.h"
 #endif /* defined(FOSSIL_ENABLE_MINIZ) */
