@@ -114,11 +114,19 @@ need either Cygwin or Msys as build environment. On Cygwin, Linux
 or Darwin you may want to make minor edits to win/Makefile.mingw
 to configure the cross-compile environment.
 
-<li><p><i>MSVC</i> → Use the msc makefile.  First
+<li><p><i>MSVC</i> → Use the MSVC makefile.  First
 change to the "win/" subdirectory ("<b>cd win</b>") then run
-"<b>nmake /f Makefile.msc</b>".  Alternatively, the batch file
-"<b>win\buildmsvc.bat</b>" may be used and it will attempt to
-detect and use the latest installed version of MSVC.
+"<b>nmake /f Makefile.msc</b>".<br><br>Alternatively, the batch
+file "<b>win\buildmsvc.bat</b>" may be used and it will attempt to
+detect and use the latest installed version of MSVC.  To enable
+the optional <a href="http://www.openssl.org/">OpenSSL</a> support,
+first make sure that some recent <a href="http://www.perl.org/">Perl</a>
+binaries are installed locally and then run one of the following commands:
+<blockquote><pre>
+nmake /f Makefile.msc FOSSIL_ENABLE_SSL=1 PERLDIR=C:\full\path\to\Perl\bin
+
+buildmsvc.bat FOSSIL_ENABLE_SSL=1 PERLDIR=C:\full\path\to\Perl\bin
+</pre></blockquote>
 
 <li><p><i>Cygwin</i> → The same as other unix-like systems. It is
 recommended to configure using: "<b>configure --disable-internal-sqlite</b>",

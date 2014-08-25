@@ -1,5 +1,5 @@
-C Cleanup\sand\sunify\sthe\s'extra\stargets'\shandling.
-D 2014-08-25T22:25:24.891
+C Merge\supdates\sfrom\strunk.
+D 2014-08-25T22:29:15.751
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -571,7 +571,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 0328fbb9d8500d1b5f0e87dcb9e696811a288164
+F www/build.wiki 758ecf54847667e26e4bf8eff4e6d0a8aaaaebdf
 F www/changes.wiki 3b1828d0df91559269483409093de15086d8d3ab
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
@@ -652,7 +652,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5735181c4db4330796248ce15a769a9f2ecf535b
-R b87899c07b05823325a371ae7544dfff
+P 6c6f83c4fd58a99efa39e182cb0993a3d631ae7c b575811affe45a4874eb690a9f2818a9b5df5b89
+R 95c5fc0ecd795abab08f0c4c73110c13
 U mistachkin
-Z 2cf6779ef829eb05cd0a786904e1e2bb
+Z eb3781083423c392da793c33c3b91123
