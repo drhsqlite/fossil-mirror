@@ -118,7 +118,7 @@ to configure the cross-compile environment.
 change to the "win/" subdirectory ("<b>cd win</b>") then run
 "<b>nmake /f Makefile.msc</b>".<br><br>Alternatively, the batch
 file "<b>win\buildmsvc.bat</b>" may be used and it will attempt to
-detect and use the latest installed version of MSVC.  To enable
+detect and use the latest installed version of MSVC.<br><br>To enable
 the optional <a href="https://www.openssl.org/">OpenSSL</a> support,
 first <a href="https://www.openssl.org/source/">download the official
 source code for OpenSSL</a> and extract it to an appropriately named
