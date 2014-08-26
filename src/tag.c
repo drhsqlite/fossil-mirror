@@ -356,7 +356,7 @@ void tag_add_artifact(
 **         checkins or "e" for events. The limit option limits the number
 **         of results to the given value.
 **
-**     %fossil tag list ?--raw? ?CHECK-IN?
+**     %fossil tag list|ls ?--raw? ?CHECK-IN?
 **
 **         List all tags, or if CHECK-IN is supplied, list
 **         all tags and their values for CHECK-IN.
@@ -477,7 +477,7 @@ void tag_cmd(void){
     }
   }else
 
-  if( strncmp(g.argv[2],"list",n)==0 ){
+  if(( strncmp(g.argv[2],"list",n)==0 )||( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
     if( g.argc==3 ){
       db_prepare(&q,
