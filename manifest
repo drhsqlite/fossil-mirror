@@ -1,5 +1,5 @@
-C Rename\sEXTRATARGETS\sto\sAPPTARGETS\sin\sthe\sMSVC\smakefile.
-D 2014-08-25T22:28:15.602
+C Further\senhancements\sto\sthe\sbuild\sdocs.
+D 2014-08-26T00:41:25.015
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -570,7 +570,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 758ecf54847667e26e4bf8eff4e6d0a8aaaaebdf
+F www/build.wiki 487bc2c4028bba3e06949c59763f4b08ce5f54e7
 F www/changes.wiki 3b1828d0df91559269483409093de15086d8d3ab
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
@@ -651,7 +651,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P aea5e3d9cae982546c686c1bb88a44107c3b55fa
-R 1327cda33bc4e17f38ec3b274285e8ac
+P b575811affe45a4874eb690a9f2818a9b5df5b89
+R c2f71a7db25a6484171e281f835aa78d
 U mistachkin
-Z 035a2f6bf1664b1d5ce45a801afd8c46
+Z 854fa3f65e0cb5c274c9f29bdc5ad2ff
