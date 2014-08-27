@@ -22,6 +22,8 @@
      become the initial commit. (NOT PLANNED FOR 1.30, BUT DONE TO EXPOSE
      [/help?cmd=new|fossil new --empty] TO MORE FIELD TESTING BEFORE
      MAKING ANY DECISION ON IT!)
+  *  Added a line-number toggle option to the [/help?cmd=/info|/info]
+     and [/help?cmd=/artifact|/artifact] pages.
 
 <h2>Changes For Version 1.29 (2014-06-12)</h2>
   *  Add the ability to display content, diffs and annotations for UTF16
