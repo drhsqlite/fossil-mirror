@@ -1,5 +1,5 @@
-C Updated\schangelog\sfor\sprevious\scommit.
-D 2014-08-27T18:40:43.605
+C Add\sanother\smerge\stest\scase.
+D 2014-08-27T22:52:57.455
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -456,6 +456,7 @@ F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
 F test/merge5.test 28cc9adf08343456fae9f2d9001c35ec62a78f31
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
+F test/merge6.test ed766d924a9cb87249bbe7f84e093135f088a2b3
 F test/merge_renames.test 23036947380c8c2268761cf606063cbad51bb747
 F test/release-checklist.wiki bf02d4180bd66fbc3d2a11b97310557cd8484107
 F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
@@ -651,7 +652,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a5b1bef9cfd605df57788c5459252fa02f4dc18b
-R 63a036b9b056edc9fee6889106eeb743
-U stephan
-Z f3604af5ca39f28b53509e14e8b64229
+P 8b4bcd9d1f211261dde8f12045d94ee4b365a4f3
+R 3c93da81f2c9298404454fbf9694fb3a
+U mistachkin
+Z 8710039b9ef47f2f573e94923a83d38e
