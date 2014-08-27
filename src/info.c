@@ -199,7 +199,7 @@ void info_cmd(void){
   if( !verboseFlag ){
     verboseFlag = find_option("detail","l",0)!=0; /* deprecated */
   }
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -1067,13 +1067,13 @@ void vdiff_page(void){
       cmp = fossil_strcmp(pFileFrom->zName, pFileTo->zName);
     }
     if( cmp<0 ){
-      if(!zGlob || strglob(zGlob, pFileFrom->zName)){
+      if( !zGlob || sqlite3_strglob(zGlob, pFileFrom->zName)==0 ){
         append_file_change_line(pFileFrom->zName,
                                 pFileFrom->zUuid, 0, 0, diffFlags, pRe, 0);
       }
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
-      if(!zGlob || strglob(zGlob, pFileTo->zName)){
+      if( !zGlob || sqlite3_strglob(zGlob, pFileTo->zName)==0 ){
         append_file_change_line(pFileTo->zName,
                                 0, pFileTo->zUuid, 0, diffFlags, pRe,
                                 manifest_file_mperm(pFileTo));
@@ -1083,8 +1083,8 @@ void vdiff_page(void){
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
     }else{
-      if(!zGlob || (strglob(zGlob, pFileFrom->zName)
-                || strglob(zGlob, pFileTo->zName))){
+      if(!zGlob || (sqlite3_strglob(zGlob, pFileFrom->zName)==0
+                || sqlite3_strglob(zGlob, pFileTo->zName)==0) ){
         append_file_change_line(pFileFrom->zName,
                                 pFileFrom->zUuid,
                                 pFileTo->zUuid, 0, diffFlags, pRe,
