@@ -367,6 +367,8 @@ void ainfo_page(void){
   int isModerator;               /* TRUE if user is the moderator */
   const char *zMime;             /* MIME Type */
   Blob attach;                   /* Content of the attachment */
+  int fShowContent = 0;
+  const char *zLn = P("ln");
 
   login_check_credentials();
   if( !g.perm.RdTkt && !g.perm.RdWiki ){ login_needed(); return; }
@@ -393,6 +395,8 @@ void ainfo_page(void){
   ridSrc = db_int(0,"SELECT rid FROM blob WHERE uuid='%s'", zSrc);
   zName = pAttach->zAttachName;
   zDesc = pAttach->zComment;
+  zMime = mimetype_from_name(zName);
+  fShowContent = zMime ? strncmp(zMime,"text/", 5)==0 : 0;
   if( validate16(zTarget, strlen(zTarget))
    && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid='%s'", zTarget)
   ){
@@ -466,6 +470,11 @@ void ainfo_page(void){
   }
   style_header("Attachment Details");
   style_submenu_element("Raw", "Raw", "%R/artifact/%s", zUuid);
+  if(fShowContent){
+    style_submenu_element("Line Numbers", "Line Numbers",
+                          "%R/ainfo/%s%s",zUuid,
+                          ((zLn&&*zLn) ? "" : "?ln=0"));
+  }
 
   @ <div class="section">Overview</div>
   @ <p><table class="label-value">
@@ -496,7 +505,6 @@ void ainfo_page(void){
     @ (%d(ridSrc))
   }
   @ <tr><th>Filename:</th><td>%h(zName)</td></tr>
-  zMime = mimetype_from_name(zName);
   if( g.perm.Setup ){
     @ <tr><th>MIME-Type:</th><td>%h(zMime)</td></tr>
   }
@@ -519,9 +527,8 @@ void ainfo_page(void){
   @ <div class="section">Content Appended</div>
   @ <blockquote>
   blob_zero(&attach);
-  if( zMime==0 || strncmp(zMime,"text/", 5)==0 ){
+  if( fShowContent ){
     const char *z;
-    const char *zLn = P("ln");
     content_get(ridSrc, &attach);
     blob_to_utf8_no_bom(&attach, 0);
     z = blob_str(&attach);

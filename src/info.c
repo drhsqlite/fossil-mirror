@@ -1746,6 +1746,7 @@ void artifact_page(void){
   const char *zUuid;
   u32 objdescFlags = 0;
   int descOnly = fossil_strcmp(g.zPath,"whatis")==0;
+  const char *zLn = P("ln");
 
   if( P("ci") && P("filename") ){
     rid = artifact_from_ci_and_filename_www();
@@ -1813,6 +1814,9 @@ void artifact_page(void){
   if( descOnly ){
     style_submenu_element("Content", "Content", "%R/artifact/%s", zUuid);
   }else{
+    style_submenu_element("Line Numbers", "Line Numbers",
+                          "%R/info/%s%s",zUuid,
+                          ((zLn&&*zLn) ? "" : "?ln=0"));
     @ <hr />
     content_get(rid, &content);
     if( renderAsWiki ){
@@ -1829,7 +1833,6 @@ void artifact_page(void){
       zMime = mimetype_from_content(&content);
       @ <blockquote>
       if( zMime==0 ){
-        const char *zLn = P("ln");
         const char *z;
         z = blob_str(&content);
         if( zLn ){
