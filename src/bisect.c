@@ -208,8 +208,8 @@ static void bisect_chart(int sortByCkinTime){
     "  FROM bilog, blob, event"
     " WHERE blob.rid=bilog.rid AND event.objid=bilog.rid"
     "   AND event.type='ci'"
-    " ORDER BY %s",
-    (sortByCkinTime ? "event.mtime DESC" : "bilog.rowid ASC")
+    " ORDER BY %s bilog.rowid ASC",
+    (sortByCkinTime ? "event.mtime DESC, " : "")
   );
   while( db_step(&q)==SQLITE_ROW ){
     fossil_print("%3d %-7s %s %s\n",
