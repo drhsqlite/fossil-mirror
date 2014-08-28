@@ -193,7 +193,7 @@ void search_cmd(void){
   char fAll = NULL != find_option("all", "a", 0); /* If set, do not lop
                                                      off the end of the
                                                      results. */
-  char const * zLimit = find_option("limit","n",1);
+  const char *zLimit = find_option("limit","n",1);
   const char *zWidth = find_option("width","W",1);
   int nLimit = zLimit ? atoi(zLimit) : -1000;   /* Max number of matching
                                                    lines/entries to list */

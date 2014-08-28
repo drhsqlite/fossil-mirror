@@ -311,7 +311,7 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
 ** pUuid (if it is not NULL) is set to the a newly-allocated string,
 ** the full UUID, which must eventually be free()d by the caller.
 */
-int name_to_uuid2(char const *zName, const char *zType, char **pUuid){
+int name_to_uuid2(const char *zName, const char *zType, char **pUuid){
   int rid = symbolic_name_to_rid(zName, zType);
   if((rid>0) && pUuid){
     *pUuid = db_text(NULL, "SELECT uuid FROM blob WHERE rid=%d", rid);

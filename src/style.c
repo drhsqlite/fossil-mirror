@@ -390,7 +390,7 @@ void style_footer(void){
   @ <div class="content">
   cgi_destination(CGI_BODY);
 
-  if (sideboxUsed) {
+  if( sideboxUsed ){
     /* Put the footer at the bottom of the page.
     ** the additional clear/both is needed to extend the content
     ** part to the end of an optional sidebox.
@@ -659,9 +659,9 @@ const char zDefaultCSS[] =
 ** CSS.
 */
 const struct strctCssDefaults {
-  char const * const elementClass;  /* Name of element needed */
-  char const * const comment;       /* Comment text */
-  char const * const value;         /* CSS text */
+  const char *elementClass;  /* Name of element needed */
+  const char *comment;       /* Comment text */
+  const char *value;         /* CSS text */
 } cssDefaultList[] = {
   { "",
     "",
@@ -1210,8 +1210,8 @@ const struct strctCssDefaults {
 void cgi_append_default_css(void) {
   int i;
 
-  for (i=0;cssDefaultList[i].elementClass;i++){
-    if (cssDefaultList[i].elementClass[0]){
+  for( i=0; cssDefaultList[i].elementClass; i++ ){
+    if( cssDefaultList[i].elementClass[0] ){
       cgi_printf("/* %s */\n%s {\n%s\n}\n\n",
                  cssDefaultList[i].comment,
                  cssDefaultList[i].elementClass,

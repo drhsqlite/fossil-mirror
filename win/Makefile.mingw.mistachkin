@@ -218,21 +218,26 @@ endif
 #
 LIB = -static
 
-# MinGW: If available, use the Unicode capable runtime startup code.
+#### MinGW: If available, use the Unicode capable runtime startup code.
+#
 ifndef MINGW_IS_32BIT_ONLY
 LIB += -municode
 endif
 
+#### SQLite: If enabled, use the system SQLite library.
+#
 ifdef USE_SYSTEM_SQLITE
 LIB += -lsqlite3
 endif
 
-# OpenSSL: Add the necessary libraries required, if enabled.
+#### OpenSSL: Add the necessary libraries required, if enabled.
+#
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
 endif
 
-# Tcl: Add the necessary libraries required, if enabled.
+#### Tcl: Add the necessary libraries required, if enabled.
+#
 ifdef FOSSIL_ENABLE_TCL
 LIB += $(LIBTCL)
 endif
