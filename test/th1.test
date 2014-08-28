@@ -487,6 +487,31 @@ test th1-expr-36 {$RESULT eq {0}}
 
 ###############################################################################
 
+fossil test-th-eval "expr (((-1)))"
+test th1-expr-37 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr (((1)))"
+test th1-expr-38 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "expr (((1))"
+test th1-expr-39 {$RESULT eq {TH_ERROR: syntax error in expression: "(((1))"}}
+
+###############################################################################
+
+fossil test-th-eval "expr ((1)))"
+test th1-expr-40 {$RESULT eq {TH_ERROR: syntax error in expression: "((1)))"}}
+
+###############################################################################
+
+fossil test-th-eval "expr (((1)*2)*2)"
+test th1-expr-41 {$RESULT eq {4}}
+
+###############################################################################
+
 fossil test-th-eval "checkout 1"; # NOTE: Assumes running "in tree".
 test th1-checkout-1 {[string length $RESULT] > 0}
 

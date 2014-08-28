@@ -1776,6 +1776,7 @@ Th_Interp * Th_CreateInterp(Th_Vtab *pVtab){
 typedef struct Operator Operator;
 struct Operator {
   const char *zOp;
+  int nOp;
   int eOp;
   int iPrecedence;
   int eArgType;
@@ -1833,43 +1834,43 @@ struct Expr {
 
 static Operator aOperator[] = {
 
-  {"(",  OP_OPEN_BRACKET,   -1, 0},
-  {")",  OP_CLOSE_BRACKET, -1, 0},
+  {"(",  1, OP_OPEN_BRACKET,   -1, 0},
+  {")",  1, OP_CLOSE_BRACKET, -1, 0},
 
   /* Note: all unary operators have (iPrecedence==1) */
-  {"-",  OP_UNARY_MINUS,    1, ARG_NUMBER},
-  {"+",  OP_UNARY_PLUS,     1, ARG_NUMBER},
-  {"~",  OP_BITWISE_NOT,    1, ARG_INTEGER},
-  {"!",  OP_LOGICAL_NOT,    1, ARG_INTEGER},
+  {"-",  1, OP_UNARY_MINUS,    1, ARG_NUMBER},
+  {"+",  1, OP_UNARY_PLUS,     1, ARG_NUMBER},
+  {"~",  1, OP_BITWISE_NOT,    1, ARG_INTEGER},
+  {"!",  1, OP_LOGICAL_NOT,    1, ARG_INTEGER},
 
   /* Binary operators. It is important to the parsing in Th_Expr() that
    * the two-character symbols ("==") appear before the one-character
    * ones ("="). And that the priorities of all binary operators are
    * integers between 2 and 12.
    */
-  {"<<", OP_LEFTSHIFT,      4, ARG_INTEGER},
-  {">>", OP_RIGHTSHIFT,     4, ARG_INTEGER},
-  {"<=", OP_LE,             5, ARG_NUMBER},
-  {">=", OP_GE,             5, ARG_NUMBER},
-  {"==", OP_EQ,             6, ARG_NUMBER},
-  {"!=", OP_NE,             6, ARG_NUMBER},
-  {"eq", OP_SEQ,            7, ARG_STRING},
-  {"ne", OP_SNE,            7, ARG_STRING},
-  {"&&", OP_LOGICAL_AND,   11, ARG_INTEGER},
-  {"||", OP_LOGICAL_OR,    12, ARG_INTEGER},
+  {"<<", 2, OP_LEFTSHIFT,      4, ARG_INTEGER},
+  {">>", 2, OP_RIGHTSHIFT,     4, ARG_INTEGER},
+  {"<=", 2, OP_LE,             5, ARG_NUMBER},
+  {">=", 2, OP_GE,             5, ARG_NUMBER},
+  {"==", 2, OP_EQ,             6, ARG_NUMBER},
+  {"!=", 2, OP_NE,             6, ARG_NUMBER},
+  {"eq", 2, OP_SEQ,            7, ARG_STRING},
+  {"ne", 2, OP_SNE,            7, ARG_STRING},
+  {"&&", 2, OP_LOGICAL_AND,   11, ARG_INTEGER},
+  {"||", 2, OP_LOGICAL_OR,    12, ARG_INTEGER},
 
-  {"*",  OP_MULTIPLY,       2, ARG_NUMBER},
-  {"/",  OP_DIVIDE,         2, ARG_NUMBER},
-  {"%",  OP_MODULUS,        2, ARG_INTEGER},
-  {"+",  OP_ADD,            3, ARG_NUMBER},
-  {"-",  OP_SUBTRACT,       3, ARG_NUMBER},
-  {"<",  OP_LT,             5, ARG_NUMBER},
-  {">",  OP_GT,             5, ARG_NUMBER},
-  {"&",  OP_BITWISE_AND,    8, ARG_INTEGER},
-  {"^",  OP_BITWISE_XOR,    9, ARG_INTEGER},
-  {"|",  OP_BITWISE_OR,    10, ARG_INTEGER},
+  {"*",  1, OP_MULTIPLY,       2, ARG_NUMBER},
+  {"/",  1, OP_DIVIDE,         2, ARG_NUMBER},
+  {"%",  1, OP_MODULUS,        2, ARG_INTEGER},
+  {"+",  1, OP_ADD,            3, ARG_NUMBER},
+  {"-",  1, OP_SUBTRACT,       3, ARG_NUMBER},
+  {"<",  1, OP_LT,             5, ARG_NUMBER},
+  {">",  1, OP_GT,             5, ARG_NUMBER},
+  {"&",  1, OP_BITWISE_AND,    8, ARG_INTEGER},
+  {"^",  1, OP_BITWISE_XOR,    9, ARG_INTEGER},
+  {"|",  1, OP_BITWISE_OR,    10, ARG_INTEGER},
 
-  {0,0,0,0}
+  {0,0,0,0,0}
 };
 
 /*
@@ -2180,6 +2181,7 @@ static int exprParse(
   int i;
 
   int rc = TH_OK;
+  int nNest = 0;
   int nToken = 0;
   Expr **apToken = 0;
 
@@ -2224,16 +2226,25 @@ static int exprParse(
 
         default: {
           int j;
-          for(j=0; aOperator[j].zOp; j++){
-            int nOp;
-            if( aOperator[j].iPrecedence==1 && nToken>0 ){
+          const char *zOp;
+          for(j=0; (zOp=aOperator[j].zOp); j++){
+            int nOp = aOperator[j].nOp;
+            int isMatch = 0;
+            if( (nExpr-i)>=nOp && 0==memcmp(zOp, &zExpr[i], nOp) ){
+              isMatch = 1;
+            }
+            if( isMatch && aOperator[j].eOp==OP_OPEN_BRACKET ){
+              nNest++;
+            }else if( isMatch && aOperator[j].eOp==OP_CLOSE_BRACKET ){
+              nNest--;
+            }
+            if( nToken>0 && aOperator[j].iPrecedence==1 ){
               Expr *pPrev = apToken[nToken-1];
               if( !pPrev->pOp || pPrev->pOp->eOp==OP_CLOSE_BRACKET ){
                 continue;
               }
             }
-            nOp = th_strlen((const char *)aOperator[j].zOp);
-            if( (nExpr-i)>=nOp && 0==memcmp(aOperator[j].zOp, &zExpr[i], nOp) ){
+            if( isMatch ){
               pNew->pOp = &aOperator[j];
               i += nOp;
               break;
@@ -2265,6 +2276,10 @@ static int exprParse(
         rc = TH_ERROR;
       }
     }
+  }
+
+  if( nNest!=0 ){
+    rc = TH_ERROR;
   }
 
   *papToken = apToken;
