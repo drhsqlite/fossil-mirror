@@ -1,5 +1,5 @@
 C Merge\supdates\sfrom\strunk.
-D 2014-08-25T22:29:15.751
+D 2014-08-28T05:54:29.408
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -311,7 +311,7 @@ F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 00dd110cc42a94f071d41c62235b9cc48f422b33
 F src/allrepo.c b09e64990a1b648a052e83b04b3f1efcc3415042
-F src/attach.c 79f433085b57c262505cc30b5bc008a72a025959
+F src/attach.c 82ab7ae8506cdc97d162f4528d8d916ab6655d01
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c ea81a8e467c8d17fc727b23b08643ed65f6f81b3
 F src/blob.c 1f1efeeadb6b303a6cc692f9829e2012dbbce468
@@ -352,7 +352,7 @@ F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
 F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c b42daab8684ab57bc72a05636e54ee1e494416ed
 F src/import.c f115df2302a00a0a65e7a18ba6bd42d2863e0872
-F src/info.c 64ce51d148442140da68c7cfb8c38df8fbb36ef9
+F src/info.c 3b28ce524a41bd95cdedae259140e4909dea8731
 F src/json.c 68917a4b8491740885158ef960ff77334c9c7adf
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c aa922544841030c688df33aec81cca05577bbb7d
@@ -373,7 +373,7 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 8a8077139db4a01b8c9eb22aab452236331b7c8c
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c d42edb73eb99bef546f5f377e3a788b5700e005b
+F src/main.c 6847aac2a237be5fe129bd76a5a0348c80a7dd26
 F src/main.mk 6b2b29f6ba9a4c04c36039a0a805e03e8ffe509a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -412,7 +412,7 @@ F src/stash.c 4fcd200867fec73b3d57b9b99203afd0a5d7148e
 F src/stat.c a0e29e09e2635f397e2a7543cd12443fe66f24b7
 F src/style.c 1fda3f962cc0e9b6f6f12f34a857f89a99571113
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
-F src/tag.c 2877da112f93a98e17eedcd033e9ecb94c9c7721
+F src/tag.c 1301dff0c04b00e66d2d6d0dedf9999b426e439c
 F src/tar.c fea3c7f9e5ee4da4d2d0f3799aed86a6ced85f77
 F src/th.c 3a7a898e8232a472700275aee7d0c584f450288d
 F src/th.h f55e2863d3df25e681d6acd39adbe6368182e83b
@@ -457,6 +457,7 @@ F test/merge3.test 637ad5275604c7fe17340b32338aadf2a1f27c07
 F test/merge4.test e9b9b3826dc271ae75523a5fa0a08fe17b0cd722
 F test/merge5.test 28cc9adf08343456fae9f2d9001c35ec62a78f31
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
+F test/merge6.test ed766d924a9cb87249bbe7f84e093135f088a2b3
 F test/merge_renames.test 23036947380c8c2268761cf606063cbad51bb747
 F test/release-checklist.wiki bf02d4180bd66fbc3d2a11b97310557cd8484107
 F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
@@ -571,8 +572,8 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 758ecf54847667e26e4bf8eff4e6d0a8aaaaebdf
-F www/changes.wiki 3b1828d0df91559269483409093de15086d8d3ab
+F www/build.wiki ebac2e6d42b1fdd2c7976e4ccfcd94123dd9994b
+F www/changes.wiki d55d1ee4591bffcf4cf8399759caf6c32b7cb486
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -652,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6c6f83c4fd58a99efa39e182cb0993a3d631ae7c b575811affe45a4874eb690a9f2818a9b5df5b89
-R 95c5fc0ecd795abab08f0c4c73110c13
+P 70ea8c4f48979ea949393e37ee0517daa7b077bb df9880287f0ce7daa4df6132b5b1e7fd00690168
+R 3ee90e635866b21bbd9dbf8c4d32f660
 U mistachkin
-Z eb3781083423c392da793c33c3b91123
+Z 02433187f0665f117eb941a412f7d28d

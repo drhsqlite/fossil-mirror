@@ -947,7 +947,7 @@ void version_cmd(void){
 
   fossil_print("This is fossil version %s\n", get_version());
   verboseFlag = find_option("verbose","v",0)!=0;
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -1440,7 +1440,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
         if( pFileGlob!=0
          && file_isfile(zRepo)
          && glob_match(pFileGlob, zRepo)
-         && strglob("*.fossil*",zRepo)==0
+         && sqlite3_strglob("*.fossil*",zRepo)!=0
          && (zMimetype = mimetype_from_name(zRepo))!=0
          && strcmp(zMimetype, "application/x-fossil-artifact")!=0
         ){
@@ -1946,7 +1946,7 @@ void cmd_http(void){
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
   g.cgiOutput = 1;
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -2136,7 +2136,7 @@ void cmd_webserver(void){
   if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
   }
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
