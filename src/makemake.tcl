@@ -270,7 +270,7 @@ SHELL_OPTIONS = <<<SHELL_OPTIONS>>>
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system sqlite will be linked
 # using -lsqlite3.
-SQLITE3_OBJ.1 = 
+SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
@@ -288,10 +288,10 @@ $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
 #
-$(SRCDIR)/../manifest:	
+$(SRCDIR)/../manifest:
 	# noop
 
-clean:	
+clean:
 	rm -rf $(OBJDIR)/* $(APPNAME)
 
 }]
@@ -582,21 +582,26 @@ endif
 #
 LIB = -static
 
-# MinGW: If available, use the Unicode capable runtime startup code.
+#### MinGW: If available, use the Unicode capable runtime startup code.
+#
 ifndef MINGW_IS_32BIT_ONLY
 LIB += -municode
 endif
 
+#### SQLite: If enabled, use the system SQLite library.
+#
 ifdef USE_SYSTEM_SQLITE
 LIB += -lsqlite3
 endif
 
-# OpenSSL: Add the necessary libraries required, if enabled.
+#### OpenSSL: Add the necessary libraries required, if enabled.
+#
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
 endif
 
-# Tcl: Add the necessary libraries required, if enabled.
+#### Tcl: Add the necessary libraries required, if enabled.
+#
 ifdef FOSSIL_ENABLE_TCL
 LIB += $(LIBTCL)
 endif
@@ -923,7 +928,7 @@ APPNAME = $(OBJDIR)\fossil$(E)
 all: $(APPNAME)
 
 $(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
-	cd $(OBJDIR) 
+	cd $(OBJDIR)
 	$(DMDIR)\bin\link @link
 
 $(OBJDIR)\fossil.res:	$B\win\fossil.rc
@@ -972,7 +977,7 @@ $(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
 VERSION.h : version$E $B\manifest.uuid $B\manifest $B\VERSION
 	+$** > $@
 
-page_index.h: mkindex$E $(SRC) 
+page_index.h: mkindex$E $(SRC)
 	+$** > $@
 
 clean:
@@ -1035,13 +1040,15 @@ writeln {#
 # file, edit "makemake.tcl" then run "tclsh makemake.tcl"
 # to regenerate this file.
 #
-B      = ..
-SRCDIR = $B\src
-OBJDIR = .
-OX     = .
-O      = .obj
-E      = .exe
-P      = .pdb
+B       = ..
+SRCDIR  = $B\src
+OBJDIR  = .
+OX      = .
+O       = .obj
+E       = .exe
+P       = .pdb
+PERLDIR =
+PERL    = perl.exe
 
 # Uncomment to enable debug symbols
 # DEBUG = 1
@@ -1059,8 +1066,9 @@ P      = .pdb
 # FOSSIL_ENABLE_TCL = 1
 
 !ifdef FOSSIL_ENABLE_SSL
-SSLINCDIR = $(B)\compat\openssl-1.0.1i\include
-SSLLIBDIR = $(B)\compat\openssl-1.0.1i\out32
+SSLDIR    = $(B)\compat\openssl-1.0.1i
+SSLINCDIR = $(SSLDIR)\include
+SSLLIBDIR = $(SSLDIR)\out32
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !endif
 
@@ -1160,17 +1168,35 @@ foreach s [lsort [concat $src $AdditionalObj]] {
 writeln " \\"
 writeln -nonewline "        \$(OX)\\fossil.res\n\n"
 writeln {
-APPNAME = $(OX)\fossil$(E)
-PDBNAME = $(OX)\fossil$(P)
+APPNAME    = $(OX)\fossil$(E)
+PDBNAME    = $(OX)\fossil$(P)
+APPTARGETS =
 
 all: $(OX) $(APPNAME)
 
 zlib:
 	@echo Building zlib from "$(ZLIBDIR)"...
-	@pushd "$(ZLIBDIR)" && nmake /f win32\Makefile.msc $(ZLIB) && popd
+	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) && popd
 
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
-	cd $(OX) 
+!ifdef FOSSIL_ENABLE_SSL
+openssl:
+	@echo Building OpenSSL from "$(SSLDIR)"...
+!if "$(PERLDIR)" != ""
+	@set PATH=$(PERLDIR);$(PATH)
+!endif
+	@pushd "$(SSLDIR)" && $(PERL) Configure VC-WIN32 no-asm && popd
+	@pushd "$(SSLDIR)" && call ms\do_ms.bat && popd
+	@pushd "$(SSLDIR)" && $(MAKE) /f ms\nt.mak all && popd
+!endif
+
+APPTARGETS = $(APPTARGETS) zlib
+
+!ifdef FOSSIL_ENABLE_SSL
+APPTARGETS = $(APPTARGETS) openssl
+!endif
+
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts $(APPTARGETS)
+	cd $(OX)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
@@ -1217,7 +1243,7 @@ VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 $(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
 	$(TCC) /Fo$@ /c $**
 
-page_index.h: mkindex$E $(SRC) 
+page_index.h: mkindex$E $(SRC)
 	$** > $@
 
 clean:
@@ -1335,9 +1361,9 @@ writeln [string map [list \
 #   gmake           3.80
 #   zlib sources    1.2.5
 #   Windows 7 Home Premium
-#  
+#
 
-#  
+#
 PellesCDir=c:\Programme\PellesC
 
 # Select between 32/64 bit code, default is 32 bit

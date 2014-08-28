@@ -4,7 +4,7 @@ use cc cc-lib
 
 options {
     with-openssl:path|auto|none
-                         => {Look for openssl in the given path, or auto or none}
+                         => {Look for OpenSSL in the given path, or auto or none}
     with-zlib:path       => {Look for zlib in the given path}
     with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
     with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
@@ -163,7 +163,7 @@ if {$tclpath ne ""} {
     define FOSSIL_ENABLE_TCL
 }
 
-# Helper for openssl checking
+# Helper for OpenSSL checking
 proc check-for-openssl {msg {cflags {}}} {
     msg-checking "Checking for $msg..."
     set rc 0
