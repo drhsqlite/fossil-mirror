@@ -443,8 +443,8 @@
   *  Added the "whatis" command.
   *  Stop showing the server-code in status outputs - it is no longer used
      for anything.
-  *  Added a compile-time option (--with-tcl) to build in the full
-     TCL interpreter to augment TH1.
+  *  Added a compile-time option (--with-tcl) to build in full Tcl scripting
+     support via integration with TH1.
   *  Merged the JSON branch into trunk.  Disabled by default.  Enabled
      by a compile-time option.  Probably it will be enabled by default
      in some future release.
