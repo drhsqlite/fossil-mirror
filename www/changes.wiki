@@ -11,8 +11,8 @@
      add new ones, via the "TH1 hooks" feature.  Disabled by default. Enabled
      via a compile-time option.
   *  Add the <nowiki>[checkout], [render], [styleHeader], [styleFooter],
-     [trace], [getParameter], [setParameter], and [artifact]</nowiki> commands
-     to TH1, primarily for use by TH1 hooks.
+     [trace], [getParameter], [setParameter], [artifact], and
+     [globalState]</nowiki> commands to TH1, primarily for use by TH1 hooks.
   *  Bring in the latest version of autosetup from upstream.
   *  When committing a (non-binary) file which contains bytes forming an
      invalid UTF-8 stream, fossil now adds the possibility to convert it
