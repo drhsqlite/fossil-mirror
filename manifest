@@ -1,5 +1,5 @@
-C Minor\scorrection\sto\sthe\schange\slog\sentry\sdescribing\sTcl\sintegration.
-D 2014-08-29T02:36:15.615
+C Cherry-pick\s[http://www.sqlite.org/src/info/11a70e1ae7f05d06e4e09c9d20db0444b8881584|11a70e1ae7]:\sRefactor\sthe\snames\sof\sstate\sobjects\sin\sthe\scommand-line\sshell\simplementation
+D 2014-08-30T09:03:26.442
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -401,7 +401,7 @@ F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 7226c2f96000a73753b36efb65b149466ede6164
 F src/setup.c a0e7ea3c57ab899abfece4f39b7a0d69d60d6f7e
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
-F src/shell.c 75bb7bd2c80bb44861598f322a417c4bafe98fd7
+F src/shell.c 728d2226594d356bf4fbdbdfd08538fd78fd06f3
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
@@ -652,7 +652,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 36d63c67d2e546a78157ed3a49f8a0e48c481270
-R e1bffbf39ffef0bac6427c838dff85c1
-U mistachkin
-Z a1c112a3f7175bbd72484a32612a97ea
+P bb5fa492744aec6f425ec85483caf7ca9e879441
+R db1b3f6eb280acd94ddedcc544a593d7
+U jan.nijtmans
+Z a916ba57f248e338d06c4be42e2cc061
