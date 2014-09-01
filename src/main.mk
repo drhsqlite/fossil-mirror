@@ -401,6 +401,11 @@ SHELL_OPTIONS = -Dmain=sqlite3_shell \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
                 -DSQLITE_SHELL_DBNAME_PROC=fossil_open
 
+# Setup the options used to compile the included miniz library.
+MINIZ_OPTIONS = -DMINIZ_NO_STDIO \
+                -DMINIZ_NO_TIME \
+                -DMINIZ_NO_ARCHIVE_APIS
+
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system sqlite will be linked
@@ -409,7 +414,23 @@ SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
-EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(OBJDIR)/th_tcl.o  $(OBJDIR)/cson_amalgamation.o
+# The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
+# set to 1.  If it is set to 1, the miniz library included in the
+# source tree should be used; otherwise, it should not.
+MINIZ_OBJ.0 =
+MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
+MINIZ_OBJ.  = $(MINIZ_OBJ.0)
+
+
+EXTRAOBJ = \
+ $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
+ $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) \
+ $(OBJDIR)/shell.o \
+ $(OBJDIR)/th.o \
+ $(OBJDIR)/th_lang.o \
+ $(OBJDIR)/th_tcl.o \
+ $(OBJDIR)/cson_amalgamation.o
+
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
@@ -1224,6 +1245,9 @@ $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
 
+
+$(OBJDIR)/miniz.o:	$(SRCDIR)/miniz.c
+	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR)/miniz.c -o $(OBJDIR)/miniz.o
 
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o

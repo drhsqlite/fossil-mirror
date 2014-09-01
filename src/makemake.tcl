@@ -156,6 +156,14 @@ set SHELL_OPTIONS {
   -DSQLITE_SHELL_DBNAME_PROC=fossil_open
 }
 
+# miniz (libz drop-in alternative) precompiler flags.
+#
+set MINIZ_OPTIONS {
+  -DMINIZ_NO_STDIO
+  -DMINIZ_NO_TIME
+  -DMINIZ_NO_ARCHIVE_APIS
+}
+
 # Options used to compile the included SQLite shell on Windows.
 #
 set SHELL_WIN32_OPTIONS $SHELL_OPTIONS
@@ -227,7 +235,8 @@ writeln "\n"
 
 writeln [string map [list \
     <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS " \\\n                 "] \
-    <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "]] {
+    <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "] \
+    <<<MINIZ_OPTIONS>>> [join $MINIZ_OPTIONS " \\\n                "]] {
 all:	$(OBJDIR) $(APPNAME)
 
 install:	$(APPNAME)
@@ -266,6 +275,9 @@ SQLITE_OPTIONS = <<<SQLITE_OPTIONS>>>
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = <<<SHELL_OPTIONS>>>
 
+# Setup the options used to compile the included miniz library.
+MINIZ_OPTIONS = <<<MINIZ_OPTIONS>>>
+
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
 # the sqlite3.o object. Instead, the system sqlite will be linked
@@ -274,14 +286,26 @@ SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
-EXTRAOBJ = \
-  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
-  $(OBJDIR)/shell.o \
-  $(OBJDIR)/th.o \
-  $(OBJDIR)/th_lang.o \
-  $(OBJDIR)/th_tcl.o \
-  $(OBJDIR)/cson_amalgamation.o
+# The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
+# set to 1.  If it is set to 1, the miniz library included in the
+# source tree should be used; otherwise, it should not.
+MINIZ_OBJ.0 =
+MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
+MINIZ_OBJ.  = $(MINIZ_OBJ.0)
+}]
 
+writeln [string map [list <<<NEXT_LINE>>> \\] {
+EXTRAOBJ = <<<NEXT_LINE>>>
+ $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) <<<NEXT_LINE>>>
+ $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) <<<NEXT_LINE>>>
+ $(OBJDIR)/shell.o <<<NEXT_LINE>>>
+ $(OBJDIR)/th.o <<<NEXT_LINE>>>
+ $(OBJDIR)/th_lang.o <<<NEXT_LINE>>>
+ $(OBJDIR)/th_tcl.o <<<NEXT_LINE>>>
+ $(OBJDIR)/cson_amalgamation.o
+}]
+
+writeln {
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
 
@@ -294,7 +318,7 @@ $(SRCDIR)/../manifest:
 clean:
 	rm -rf $(OBJDIR)/* $(APPNAME)
 
-}]
+}
 
 set mhargs {}
 foreach s [lsort $src] {
@@ -339,6 +363,9 @@ writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
 
 writeln {
+$(OBJDIR)/miniz.o:	$(SRCDIR)/miniz.c
+	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR)/miniz.c -o $(OBJDIR)/miniz.o
+
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
 
@@ -434,6 +461,10 @@ BCC = gcc
 #
 # USE_SYSTEM_SQLITE = 1
 
+#### Use the miniz compression library
+#
+# FOSSIL_ENABLE_MINIZ = 1
+
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
 #
@@ -504,7 +535,13 @@ endif
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
+TCC = $(PREFIX)gcc -Os -Wall
+
+#### When not using the miniz compression library, zlib is required.
+#
+ifndef FOSSIL_ENABLE_MINIZ
+TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
+endif
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
@@ -516,7 +553,11 @@ endif
 #### Compile resources for use in building executables that will run
 #    on the target platform.
 #
-RCC = $(PREFIX)windres -I$(SRCDIR) -I$(ZINCDIR)
+RCC = $(PREFIX)windres -I$(SRCDIR)
+
+ifndef FOSSIL_ENABLE_MINIZ
+RCC += -I$(ZINCDIR)
+endif
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
@@ -533,6 +574,12 @@ else
 TCC += -L$(TCLLIBDIR) -I$(TCLINCDIR)
 RCC += -I$(TCLINCDIR)
 endif
+endif
+
+# With miniz (i.e. instead of zlib)
+ifdef FOSSIL_ENABLE_MINIZ
+TCC += -DFOSSIL_ENABLE_MINIZ=1
+RCC += -DFOSSIL_ENABLE_MINIZ=1
 endif
 
 # With MinGW command line handling workaround
@@ -610,7 +657,13 @@ endif
 #    to link against the Z-Lib compression library.  There are no
 #    other mandatory dependencies.
 #
-LIB += -lmingwex -lz
+LIB += -lmingwex
+
+#### When not using the miniz compression library, zlib is required.
+#
+ifndef FOSSIL_ENABLE_MINIZ
+LIB += -lz
+endif
 
 #### These libraries MUST appear in the same order as they do for Tcl
 #    or linking with it will not work (exact reason unknown).
@@ -662,7 +715,9 @@ foreach s [lsort $src] {
   writeln -nonewline " \\\n \$(OBJDIR)/$s.o"
 }
 writeln "\n"
-writeln "APPNAME = ${name}.exe"
+writeln "APPNAME    = ${name}.exe"
+writeln "APPTARGETS ="
+writeln "LIBTARGETS ="
 writeln {
 #### If the USE_WINDOWS variable exists, it is assumed that we are building
 #    inside of a Windows-style shell; otherwise, it is assumed that we are
@@ -678,6 +733,7 @@ MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
 VERSION     = $(subst /,\,$(OBJDIR)/version)
 CAT         = type
 CP          = copy
+GREP        = find
 MV          = copy
 RM          = del /Q
 MKDIR       = -mkdir
@@ -689,6 +745,7 @@ MKINDEX     = $(OBJDIR)/mkindex
 VERSION     = $(OBJDIR)/version
 CAT         = cat
 CP          = cp
+GREP        = grep
 MV          = mv
 RM          = rm -f
 MKDIR       = -mkdir -p
@@ -700,10 +757,12 @@ all:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 ifdef USE_WINDOWS
+	$(CAT) $(subst /,\,$(SRCDIR)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.ico) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.exe.manifest) $(subst /,\,$(OBJDIR))
 else
+	$(CAT) $(SRCDIR)/miniz.c | $(GREP) "define MZ_VERSION" > $(OBJDIR)/minizver.h
 	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.exe.manifest $(OBJDIR)
@@ -755,22 +814,42 @@ SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
-EXTRAOBJ = \
-  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
-  $(OBJDIR)/shell.o \
-  $(OBJDIR)/th.o \
-  $(OBJDIR)/th_lang.o \
-  $(OBJDIR)/th_tcl.o \
-  $(OBJDIR)/cson_amalgamation.o
+# The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
+# set to 1.  If it is set to 1, the miniz library included in the
+# source tree should be used; otherwise, it should not.
+MINIZ_OBJ.0 =
+MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
+MINIZ_OBJ.  = $(MINIZ_OBJ.0)
+}
 
+writeln [string map [list <<<NEXT_LINE>>> \\] {
+EXTRAOBJ = <<<NEXT_LINE>>>
+ $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) <<<NEXT_LINE>>>
+ $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) <<<NEXT_LINE>>>
+ $(OBJDIR)/shell.o <<<NEXT_LINE>>>
+ $(OBJDIR)/th.o <<<NEXT_LINE>>>
+ $(OBJDIR)/th_lang.o <<<NEXT_LINE>>>
+ $(OBJDIR)/th_tcl.o <<<NEXT_LINE>>>
+ $(OBJDIR)/cson_amalgamation.o
+}]
+
+writeln {
 zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
 
 clean-zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
 
-openssl:	zlib
+ifndef FOSSIL_ENABLE_MINIZ
+LIBTARGETS += zlib
+endif
+
+openssl:	$(LIBTARGETS)
+ifndef FOSSIL_ENABLE_MINIZ
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib mingw
+else
+	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) mingw
+endif
 	$(MAKE) -C $(OPENSSLLIBDIR) build_libs
 
 clean-openssl:
@@ -783,7 +862,13 @@ tcl:
 clean-tcl:
 	$(MAKE) -C $(TCLSRCDIR)/win distclean
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
+APPTARGETS += $(LIBTARGETS)
+
+ifdef FOSSIL_ENABLE_SSL
+APPTARGETS += openssl
+endif
+
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build
@@ -842,10 +927,14 @@ lappend MINGW_SQLITE_OPTIONS -D_HAVE__MINGW_H
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MALLOC_H
 lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MSIZE
 
+set MINIZ_WIN32_OPTIONS $MINIZ_OPTIONS
+
 set j " \\\n                 "
 writeln "SQLITE_OPTIONS = [join $MINGW_SQLITE_OPTIONS $j]\n"
 set j " \\\n                "
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS $j]\n"
+set j " \\\n                "
+writeln "MINIZ_OPTIONS = [join $MINIZ_WIN32_OPTIONS $j]\n"
 
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c \$(SRCDIR)/../win/Makefile.mingw"
 writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
@@ -865,6 +954,9 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
+
+writeln "\$(OBJDIR)/miniz.o:\t\$(SRCDIR)/miniz.c"
+writeln "\t\$(XTCC) \$(MINIZ_OPTIONS) -c \$(SRCDIR)/miniz.c -o \$(OBJDIR)/miniz.o\n"
 
 close $output_file
 #
@@ -1056,6 +1148,9 @@ PERL    = perl.exe
 # Uncomment to enable JSON API
 # FOSSIL_ENABLE_JSON = 1
 
+# Uncomment to enable miniz usage
+# FOSSIL_ENABLE_MINIZ = 1
+
 # Uncomment to enable SSL support
 # FOSSIL_ENABLE_SSL = 1
 
@@ -1083,7 +1178,11 @@ ZINCDIR   = $(B)\compat\zlib
 ZLIBDIR   = $(B)\compat\zlib
 ZLIB      = zlib.lib
 
-INCL      = /I. /I$(SRCDIR) /I$B\win\include /I$(ZINCDIR)
+INCL      = /I. /I$(SRCDIR) /I$B\win\include
+
+!ifndef FOSSIL_ENABLE_MINIZ
+INCL      = $(INCL) /I$(ZINCDIR)
+!endif
 
 !ifdef FOSSIL_ENABLE_SSL
 INCL      = $(INCL) /I$(SSLINCDIR)
@@ -1106,8 +1205,18 @@ CFLAGS    = $(CFLAGS) /MT /O2
 BCC       = $(CC) $(CFLAGS)
 TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
 RCC       = rc /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
-LIBS      = $(ZLIB) ws2_32.lib advapi32.lib
-LIBDIR    = /LIBPATH:$(ZLIBDIR)
+LIBS      = ws2_32.lib advapi32.lib
+LIBDIR    =
+
+!ifndef FOSSIL_ENABLE_MINIZ
+LIBS      = $(LIBS) $(ZLIB)
+LIBDIR    = $(LIBDIR) /LIBPATH:$(ZLIBDIR)
+!endif
+
+!ifdef FOSSIL_ENABLE_MINIZ
+TCC       = $(TCC) /DFOSSIL_ENABLE_MINIZ=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_MINIZ=1
+!endif
 
 !ifdef FOSSIL_ENABLE_JSON
 TCC       = $(TCC) /DFOSSIL_ENABLE_JSON=1
@@ -1145,6 +1254,10 @@ regsub -all {[-]D} [join $SHELL_WIN32_OPTIONS { }] {/D} MSC_SHELL_OPTIONS
 set j " \\\n                "
 writeln "SHELL_OPTIONS = [join $MSC_SHELL_OPTIONS $j]\n"
 
+regsub -all {[-]D} [join $MINIZ_WIN32_OPTIONS { }] {/D} MSC_MINIZ_OPTIONS
+set j " \\\n                "
+writeln "MINIZ_OPTIONS = [join $MSC_MINIZ_OPTIONS $j]\n"
+
 writeln -nonewline "SRC   = "
 set i 0
 foreach s [lsort $src] {
@@ -1165,7 +1278,13 @@ foreach s [lsort [concat $src $AdditionalObj]] {
   }
   writeln -nonewline "\$(OX)\\$s\$O"; incr i
 }
-writeln " \\"
+if {$i > 0} {
+  writeln " \\"
+}
+writeln "!ifdef FOSSIL_ENABLE_MINIZ"
+writeln -nonewline "        "
+writeln "\$(OX)\\miniz\$O \\"; incr i
+writeln "!endif"
 writeln -nonewline "        \$(OX)\\fossil.res\n\n"
 writeln {
 APPNAME    = $(OX)\fossil$(E)
@@ -1189,7 +1308,9 @@ openssl:
 	@pushd "$(SSLDIR)" && $(MAKE) /f ms\nt.mak all && popd
 !endif
 
+!ifndef FOSSIL_ENABLE_MINIZ
 APPTARGETS = $(APPTARGETS) zlib
+!endif
 
 !ifdef FOSSIL_ENABLE_SSL
 APPTARGETS = $(APPTARGETS) openssl
@@ -1206,6 +1327,9 @@ foreach s [lsort [concat $src $AdditionalObj]] {
   set redir {>>}
 }
 set redir {>>}
+writeln "!ifdef FOSSIL_ENABLE_MINIZ"
+writeln "\techo \$(OX)\\miniz.obj $redir \$@"
+writeln "!endif"
 writeln "\techo \$(LIBS) $redir \$@"
 writeln {
 $(OX):
@@ -1237,6 +1361,9 @@ $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 
 $(OX)\th_tcl$O : $(SRCDIR)\th_tcl.c
 	$(TCC) /Fo$@ -c $**
+
+$(OX)\miniz$O : $(SRCDIR)\miniz.c
+	$(TCC) /Fo$@ -c $(MINIZ_OPTIONS) $(SRCDIR)\miniz.c
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@

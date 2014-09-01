@@ -482,6 +482,36 @@ test th1-expr-35 {$RESULT eq {TH_ERROR: expected number, got: "0b"}}
 
 ###############################################################################
 
+fossil test-th-eval "expr (-1)+1"
+test th1-expr-36 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "expr (((-1)))"
+test th1-expr-37 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr (((1)))"
+test th1-expr-38 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "expr (((1))"
+test th1-expr-39 {$RESULT eq {TH_ERROR: syntax error in expression: "(((1))"}}
+
+###############################################################################
+
+fossil test-th-eval "expr ((1)))"
+test th1-expr-40 {$RESULT eq {TH_ERROR: syntax error in expression: "((1)))"}}
+
+###############################################################################
+
+fossil test-th-eval "expr (((1)*2)*2)"
+test th1-expr-41 {$RESULT eq {4}}
+
+###############################################################################
+
 fossil test-th-eval "checkout 1"; # NOTE: Assumes running "in tree".
 test th1-checkout-1 {[string length $RESULT] > 0}
 
@@ -678,3 +708,86 @@ test th1-artifact-8 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 fossil test-th-eval --th-open-config "artifact 0000000000 test/th1.test"
 test th1-artifact-9 {$RESULT eq {TH_ERROR: artifact not found}}
+
+###############################################################################
+
+fossil test-th-eval "globalState checkout"
+test th1-globalState-1 {[string length $RESULT] > 0}
+
+###############################################################################
+
+fossil test-th-eval "globalState checkout"
+test th1-globalState-2 {$RESULT eq [fossil test-th-eval checkout]}
+
+###############################################################################
+
+fossil test-th-eval "globalState configuration"
+test th1-globalState-3 {[string length $RESULT] == 0}
+
+###############################################################################
+
+fossil test-th-eval --th-open-config "globalState configuration"
+test th1-globalState-4 {[string length $RESULT] > 0}
+
+###############################################################################
+
+fossil test-th-eval "globalState executable"
+test th1-globalState-5 {[file rootname [file tail $RESULT]] eq "fossil"}
+
+###############################################################################
+
+fossil test-th-eval "globalState log"
+test th1-globalState-6 {[string length $RESULT] == 0}
+
+###############################################################################
+
+fossil test-th-eval --errorlog foserrors.log "globalState log"
+test th1-globalState-7 {$RESULT eq "foserrors.log"}
+
+###############################################################################
+
+fossil test-th-eval "globalState repository"
+test th1-globalState-8 {[string length $RESULT] > 0}
+
+###############################################################################
+
+fossil test-th-eval "globalState repository"
+test th1-globalState-9 {$RESULT eq [fossil test-th-eval repository]}
+
+###############################################################################
+
+fossil test-th-eval "globalState top"
+test th1-globalState-10 {[string length $RESULT] == 0}
+
+###############################################################################
+
+fossil test-th-eval "globalState user"
+test th1-globalState-11 {[string length $RESULT] == 0}
+
+###############################################################################
+
+fossil test-th-eval --user fossil-th1-test "globalState user"
+test th1-globalState-12 {$RESULT eq "fossil-th1-test"}
+
+###############################################################################
+
+fossil test-th-eval "globalState vfs"
+test th1-globalState-13 {[string length $RESULT] == 0}
+
+###############################################################################
+
+fossil test-th-eval "globalState vfs"
+test th1-globalState-14 {[string length $RESULT] == 0}
+
+###############################################################################
+
+if {$tcl_platform(platform) eq "windows"} then {
+  set altVfs win32-longpath
+} else {
+  set altVfs unix-dotfile
+}
+
+###############################################################################
+
+fossil test-th-eval --vfs $altVfs "globalState vfs"
+test th1-globalState-15 {$RESULT eq $altVfs}

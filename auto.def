@@ -5,6 +5,7 @@ use cc cc-lib
 options {
     with-openssl:path|auto|none
                          => {Look for OpenSSL in the given path, or auto or none}
+    with-miniz=0         => {Use miniz from the source tree}
     with-zlib:path       => {Look for zlib in the given path}
     with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
     with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
@@ -230,16 +231,21 @@ if {$ssldirs ne "none"} {
     }
 }
 
-# Check for zlib, using the given location if specified
-set zlibpath [opt-val with-zlib]
-if {$zlibpath ne ""} {
-    cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
-    define-append EXTRA_CFLAGS -I$zlibpath
-    define-append EXTRA_LDFLAGS -L$zlibpath
-    msg-result "Using zlib from $zlibpath"
-}
-if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
-    user-error "zlib not found please install it or specify the location with --with-zlib"
+if {[opt-bool with-miniz]} {
+  define FOSSIL_ENABLE_MINIZ 1
+  msg-result "Using miniz for compression"
+} else {
+  # Check for zlib, using the given location if specified
+  set zlibpath [opt-val with-zlib]
+  if {$zlibpath ne ""} {
+      cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
+      define-append EXTRA_CFLAGS -I$zlibpath
+      define-append EXTRA_LDFLAGS -L$zlibpath
+      msg-result "Using zlib from $zlibpath"
+  }
+  if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
+      user-error "zlib not found please install it or specify the location with --with-zlib"
+  }
 }
 
 if {[opt-bool lineedit]} {

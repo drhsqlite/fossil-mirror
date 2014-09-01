@@ -673,6 +673,75 @@ static int traceCmd(
 }
 
 /*
+** TH1 command: globalState NAME ?DEFAULT?
+**
+** Returns a string containing the value of the specified global state
+** variable -OR- the specified default value.  Currently, the supported
+** items are:
+**
+** "checkout"        = The active local checkout directory, if any.
+** "configuration"   = The active configuration database file name,
+**                     if any.
+** "executable"      = The fully qualified executable file name.
+** "log"             = The error log file name, if any.
+** "repository"      = The active local repository file name, if
+**                     any.
+** "top"             = The base path for the active server instance,
+**                     if applicable.
+** "user"            = The active user name, if any.
+** "vfs"             = The SQLite VFS in use, if overridden.
+**
+** Attempts to query for unsupported global state variables will result
+** in a script error.  Additional global state variables may be exposed
+** in the future.
+**
+** See also: checkout, repository, setting
+*/
+static int globalStateCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  const char *zDefault = 0;
+  if( argc!=2 && argc!=3 ){
+    return Th_WrongNumArgs(interp, "globalState NAME ?DEFAULT?");
+  }
+  if( argc==3 ){
+    zDefault = argv[2];
+  }
+  if( fossil_strnicmp(argv[1], "checkout\0", 9)==0 ){
+    Th_SetResult(interp, g.zLocalRoot ? g.zLocalRoot : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "configuration\0", 14)==0 ){
+    Th_SetResult(interp, g.zConfigDbName ? g.zConfigDbName : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "executable\0", 11)==0 ){
+    Th_SetResult(interp, g.nameOfExe ? g.nameOfExe : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "log\0", 4)==0 ){
+    Th_SetResult(interp, g.zErrlog ? g.zErrlog : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "repository\0", 11)==0 ){
+    Th_SetResult(interp, g.zRepositoryName ? g.zRepositoryName : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "top\0", 4)==0 ){
+    Th_SetResult(interp, g.zTop ? g.zTop : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "user\0", 5)==0 ){
+    Th_SetResult(interp, g.zLogin ? g.zLogin : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "vfs\0", 4)==0 ){
+    Th_SetResult(interp, g.zVfsName ? g.zVfsName : zDefault, -1);
+    return TH_OK;
+  }else{
+    Th_ErrorMessage(interp, "unsupported global state:", argv[1], argl[1]);
+    return TH_ERROR;
+  }
+}
+
+/*
 ** TH1 command: getParameter NAME ?DEFAULT?
 **
 ** Return the value of the specified query parameter or the specified default
@@ -1292,6 +1361,7 @@ void Th_FossilInit(u32 flags){
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"enable_output", enableOutputCmd,      0},
     {"getParameter",  getParameterCmd,      0},
+    {"globalState",   globalStateCmd,       0},
     {"httpize",       httpizeCmd,           0},
     {"hascap",        hascapCmd,            0},
     {"hasfeature",    hasfeatureCmd,        0},
