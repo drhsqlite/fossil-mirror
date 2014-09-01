@@ -1,5 +1,5 @@
-C Cherry-pick\s[http://www.sqlite.org/src/info/f61db04be4d7fb21b7f721647c37c45e283ffbea|f61db04be4]:\sIn\sthe\scommand-line\sshell,\sadded\soptions\s--lookaside,\s--pagecache,\sand\s--scratch\sused\sto\sconfigure\sauxiliary\smemories\s(except\sfrom\sthe\schange\sfrom\sSQLITE_CONFIG_SINGLETHREAD\s->\sSQLITE_CONFIG_MULTITHREAD,\sbecause\sfossil\sdoesn't\suse\smultiple\sthreads)
-D 2014-08-31T08:42:10.728
+C Incorporation\sthe\slatest\sSQLite\s3.8.7\salpha\sfrom\supstream,\sfor\stesting.
+D 2014-09-01T18:42:30.122
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -401,12 +401,12 @@ F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 7226c2f96000a73753b36efb65b149466ede6164
 F src/setup.c a0e7ea3c57ab899abfece4f39b7a0d69d60d6f7e
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
-F src/shell.c 96513c1e05b75c03552ed76cd00e94f1f26a6ce0
+F src/shell.c 713cef4d73c05fc8e12f4960072329d767a05d50
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
 F src/sqlcmd.c 2226df2d08a4ba921f5e0681371e388b48e48804
-F src/sqlite3.c 72c64f05cd9babb9c0f9b3c82536d83be7804b1c
-F src/sqlite3.h d74e0d7d695c8c73b997df81bf6ef9acf9d6feef
+F src/sqlite3.c 7284f9c2419ea1c5402fbebc82b57d83d39a14ea
+F src/sqlite3.h 23cb67b1acf2c9d50f241db321f547732488d64d
 F src/stash.c 4fcd200867fec73b3d57b9b99203afd0a5d7148e
 F src/stat.c a0e29e09e2635f397e2a7543cd12443fe66f24b7
 F src/style.c 1fda3f962cc0e9b6f6f12f34a857f89a99571113
@@ -652,7 +652,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e4bc6f12ead5d4056325291d112388203af19cb6
-R fd111a8f23a98b823ce635a2ff465bc8
-U jan.nijtmans
-Z 646c5ba6143ee7a9b1bdda73471e32ae
+P 75dcdd0bdb6b235f1b73b4032f408e4f4f99ab62
+R ec3368e8132f8290234ba2bb046ddc52
+U drh
+Z 07d2e42474c1c1de8c04680b4899161f
