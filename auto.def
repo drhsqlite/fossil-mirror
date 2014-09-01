@@ -294,5 +294,9 @@ if {[opt-bool fusefs]} {
   }
 }
 
+if {[cc-check-function-in-lib pthread_create pthread]} {
+   define-append LIBS -lpthread
+}
+
 make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}
