@@ -1,5 +1,5 @@
-C Add\sthe\s--with-miniz\sconfiguration\soption\s(with\sthe\scomplete\sminiz\ssource\ncode.)\s\sAdd\sthe\sglobalState\sTH1\scommand\sand\sfixes\sto\sthe\sTH1\sexpr\scommand.
-D 2014-09-01T18:51:35.895
+C Add\stwo\snew\squotes\sto\sthe\s"quotes.wiki"\spage.
+D 2014-09-01T19:01:51.690
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -635,7 +635,7 @@ F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
 F www/quickstart.wiki e58da3550b57620f703c248b92ba545622948909
-F www/quotes.wiki 5ccf3d9414adbc2504a04e71d983977829dee551
+F www/quotes.wiki f5011126eb9abfd5d4f7e2eb483d3cbe73c1c0ef
 F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 23fd916be2143ac1026fcbea2fbea1373bf68876
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fc8d8546ffabbdc5282b64fad3606d4246e1adb5 3e60428c4c1201c4e60aaf4d62959172aeba4a26 57b1290be3db85cc9a6dc91c132df5a8862e7107 7e955147a16f9bcb854cc20cbee62114c11b4951
-R 969f58db095ea7e70aa4ba3a527d7512
+P 66ae70a54b206566a331efc2f11007306dbf5f7e
+R a135fd72291ad92bfbf61bf717c2616c
 U drh
-Z a09ceda8635391dbb42501d7837bfb92
+Z 24bad0b269f9682d0d6609a33a29c7e8
