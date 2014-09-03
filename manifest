@@ -1,5 +1,5 @@
-C If\sfossil\sis\sconfigured\swith\s--disable-internal-sqlite\sand\sthe\ssystem\sSQLite\sis\sSQLite\s3.8.7\s(not\scompiled\swith\sSQLITE_THREADSAFE=0),\sallow\sfossil\sto\suse\sthe\sfaster\ssorting\susing\smultiple\sthreads.
-D 2014-09-03T08:09:43.051
+C Refine\sthe\sbatch\sfile\sused\sto\sbuild\swith\sMSVC\sto\spermit\suse\sof\sa\spre-existing\sbuild\senvironment.
+D 2014-09-03T18:02:14.922
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -545,7 +545,7 @@ F win/Makefile.dmc db781be43581f5dc81b0be9cdfcae986daacad84
 F win/Makefile.mingw ccd090b8594a39852e2187fe55bc33a0b33236a5
 F win/Makefile.mingw.mistachkin 5f3b7b0e74dfee3973078410dc8febbdc4f5b70d
 F win/Makefile.msc 091b74e3b47a0b15e37a12319d1d4434a10161e9
-F win/buildmsvc.bat 4621013bd2c253a7683d2542aa018c73c35c96a3
+F win/buildmsvc.bat bff32737fe1270faa7fafcea5f091779ec74de8a
 F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 9fbd4f68724e20491ae2b8ae8fb93dc4ab309409
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9f0686c314d536e52fe76a111bc229bcbee896bf
-R 8b718c7b75f56ba51e6955a15dab2c05
-U jan.nijtmans
-Z c7eebf5af58a8a39407c8dffa546c702
+P d4044fe220f66a9e26c710bb48feeff8fb278b50
+R 6faa6ca13575ad91dab001af2d98f7e5
+U mistachkin
+Z f23edce73d8e9d1d488f9f8752a99a8c
