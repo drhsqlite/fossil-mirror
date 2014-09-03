@@ -1043,6 +1043,7 @@ int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
 **        FILE or from standard input.
 **
 **     %fossil wiki list
+**     %fossil wiki ls
 **
 **        Lists all wiki entries, one per line, ordered
 **        case-insensitively by name.
@@ -1133,7 +1134,7 @@ void wiki_cmd(void){
       usage("delete PAGENAME");
     }
     fossil_fatal("delete not yet implemented.");
-  }else if( strncmp(g.argv[2],"list",n)==0 ){
+  }else if(( strncmp(g.argv[2],"list",n)==0 ) || ( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
     db_prepare(&q,
       "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"

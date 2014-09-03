@@ -240,7 +240,7 @@ cache_read_done:
 **
 **    init         Create the cache file it it does not already exists.
 **
-**    list         List the keys and content sizes and other stats for
+**    list|ls      List the keys and content sizes and other stats for
 **                 all entries currently in the cache
 **
 **    status       Show a summary of cache status.
@@ -284,7 +284,7 @@ void cache_cmd(void){
     }else{
       fossil_print("nothing to clear; cache does not exist\n");
     }
-  }else if( strncmp(zCmd, "list", nCmd)==0 ){
+  }else if(( strncmp(zCmd, "list", nCmd)==0 ) || ( strncmp(zCmd, "ls", nCmd)==0 )){
     db = cacheOpen(0);
     if( db==0 ){
       fossil_print("cache does not exist\n");
