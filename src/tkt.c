@@ -1055,10 +1055,12 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
 **     defined in the ticket table.
 **
 **   %fossil ticket list fields
+**   %fossil ticket ls fields
 **
 **     list all fields, defined for ticket in the fossil repository
 **
 **   %fossil ticket list reports
+**   %fossil ticket ls reports
 **
 **     list all ticket reports, defined in the fossil repository
 **
@@ -1125,7 +1127,7 @@ void ticket_cmd(void){
     /* set/show cannot be distinguished, so show the usage */
     usage("add|change|list|set|show|history");
   }
-  if( strncmp(g.argv[2],"list",n)==0 ){
+  if(( strncmp(g.argv[2],"list",n)==0 ) || ( strncmp(g.argv[2],"ls",n)==0 )){
     if( g.argc==3 ){
       usage("list fields|reports");
     }else{
