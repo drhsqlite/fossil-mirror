@@ -743,6 +743,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   );
   if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
   re_add_sql_func(db);
+  sqlite3_limit(db, SQLITE_LIMIT_WORKER_THREADS, g.iMaxWorkerThreads);
   sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
   return db;
 }
@@ -1052,6 +1053,7 @@ void db_open_repository(const char *zDbName){
   g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
   g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  g.iMaxWorkerThreads = db_get_int("max-worker-threads", 0);
 }
 
 /*
@@ -2190,6 +2192,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "manifest",         0,              0, 1, 0, "off"                 },
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
+  { "max-worker-threads",   0,         16, 0, 0, "0"                   },
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
   { "pgp-command",      0,             40, 0, 0, "gpg --clearsign -o " },
   { "proxy",            0,             32, 0, 0, "off"                 },
@@ -2354,6 +2357,9 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    max-upload       A limit on the size of uplink HTTP requests.  The
 **                     default is 250000 bytes.
+**
+**    max-worker-threads The maximum number of auxiliary worker threads that a
+**                     single prepared statement may start.
 **
 **    mtime-changes    Use file modification times (mtimes) to detect when
 **                     files have been modified.  (Default "on".)

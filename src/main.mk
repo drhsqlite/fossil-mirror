@@ -393,7 +393,6 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_THREADSAFE=2 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_OMIT_DEPRECATED \
-                 -DSQLITE_DEFAULT_WORKER_THREADS=1 \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS
 
 # Setup the options used to compile the included SQLite shell.

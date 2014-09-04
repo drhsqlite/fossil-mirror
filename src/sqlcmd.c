@@ -126,6 +126,7 @@ static int sqlcmd_autoinit(
   sqlite3_create_function(db, "decompress", 1, SQLITE_UTF8, 0,
                           sqlcmd_decompress, 0, 0);
   re_add_sql_func(db);
+  sqlite3_limit(db, SQLITE_LIMIT_WORKER_THREADS, g.iMaxWorkerThreads);
   g.repositoryOpen = 1;
   g.db = db;
   return SQLITE_OK;
