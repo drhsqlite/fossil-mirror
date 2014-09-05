@@ -1,5 +1,5 @@
-C Style\scleanup\sfor\sreturn\scode\sto\sname\smappings.
-D 2014-09-05T06:12:44.550
+C Minor\senhancements\sto\sthe\sTcl\sintegration\ssubsystem.
+D 2014-09-05T06:23:32.019
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -336,7 +336,7 @@ F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 21aaf2b0b3ecfebceeaa548239279f5be97724cf
 F src/diff.c 523bf0582c542d74b850daa597a0c169c7073095
-F src/diffcmd.c 673923119b9e9019fda65bd9f4bd12e9f0295438
+F src/diffcmd.c ddd84312a85d850d9e67e4d3a446224f5a398f17
 F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c afe15eaf300e18c7d19a1e1fe3c4bda30bff4872
@@ -415,10 +415,10 @@ F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 1301dff0c04b00e66d2d6d0dedf9999b426e439c
 F src/tar.c fea3c7f9e5ee4da4d2d0f3799aed86a6ced85f77
 F src/th.c f3e2d60ea44acd118e8462d48c0865c496f89e6f
-F src/th.h f55e2863d3df25e681d6acd39adbe6368182e83b
+F src/th.h 3d96cf226cbdb8f68a7b3e554c17e069eaace860
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c bb3f70cebae6d09987c7d4b378c1ae096af29cd9
-F src/th_tcl.c 4cb7c0795483d23b84c082f454dec9cb124cdd32
+F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
 F src/timeline.c bc5cfb09b4546788be455a2d85a02ccb4c3c3fd7
 F src/tkt.c 35e61711b5d066fa091a9d17b59249f8225eb4f9
 F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 06e5595a06a62fd5e9ef8a65653abb7146f1879a
-R 490afc42cb3b63737d89f28c165856d1
+P 2212ac40a8d4e2f8f5f86debc44a96ae877b4f99
+R 546fc6f6f683d1c93ef6fa2caf65e1ae
 U mistachkin
-Z 35f41a59be20773dae9870b4b5cd8daf
+Z 6ad66f3a97aba9186ce49f2231b4e7aa

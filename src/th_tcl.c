@@ -22,6 +22,7 @@
 
 #ifdef FOSSIL_ENABLE_TCL
 
+#include "sqlite3.h"
 #include "th.h"
 #include "tcl.h"
 
@@ -167,7 +168,8 @@ typedef int (tcl_NotifyProc) (
 **       the Tcl API calls [found within this file] to the function pointers
 **       that will be contained in our private Tcl stubs table.  This takes
 **       advantage of the fact that the Tcl headers always define the Tcl API
-**       functions in terms of the "tclStubsPtr" variable.
+**       functions in terms of the "tclStubsPtr" variable when the define
+**       USE_TCL_STUBS is present during compilation.
 */
 #define tclStubsPtr privateTclStubsPtr
 static const TclStubs *tclStubsPtr = NULL;
@@ -250,6 +252,28 @@ static int canUseObjProc(){
 ** this file need to use it before it can be defined.
 */
 static int createTclInterp(Th_Interp *interp, void *pContext);
+
+/*
+** Returns a name for a Tcl return code.
+*/
+static const char *getTclReturnCodeName(
+  int rc,
+  int nullIfOk
+){
+  static char zRc[32];
+
+  switch( rc ){
+    case TCL_OK:       return nullIfOk ? 0 : "TCL_OK";
+    case TCL_ERROR:    return "TCL_ERROR";
+    case TCL_BREAK:    return "TCL_BREAK";
+    case TCL_RETURN:   return "TCL_RETURN";
+    case TCL_CONTINUE: return "TCL_CONTINUE";
+    default: {
+      sqlite3_snprintf(sizeof(zRc), zRc, "Tcl return code %d", rc);
+    }
+  }
+  return zRc;
+}
 
 /*
 ** Returns the Tcl interpreter result as a string with the associated length.
@@ -776,12 +800,15 @@ static int setTclArguments(
 ** is zero, only process events that are already in the queue; otherwise,
 ** process events until the script terminates the Tcl event loop.
 */
+void fossil_print(const char *zFormat, ...); /* printf.h */
+
 int evaluateTclWithEvents(
   Th_Interp *interp,
   void *pContext,
   const char *zScript,
   int nScript,
-  int bWait
+  int bWait,
+  int bVerbose
 ){
   struct TclContext *tclContext = (struct TclContext *)pContext;
   Tcl_Interp *tclInterp;
@@ -793,7 +820,14 @@ int evaluateTclWithEvents(
   }
   tclInterp = tclContext->interp;
   rc = Tcl_EvalEx(tclInterp, zScript, nScript, TCL_EVAL_GLOBAL);
-  if( rc!=TCL_OK ) return rc;
+  if( rc!=TCL_OK ){
+    if( bVerbose ){
+      const char *zResult = getTclResult(tclInterp, 0);
+      fossil_print("%s: ", getTclReturnCodeName(rc, 0));
+      fossil_print("%s\n", zResult);
+    }
+    return rc;
+  }
   if( !bWait ) flags |= TCL_DONT_WAIT;
   while( Tcl_DoOneEvent(flags) ){
     /* do nothing */
