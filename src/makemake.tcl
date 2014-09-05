@@ -442,6 +442,11 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_SSL = 1
 
+#### Automatically build OpenSSL when building Fossil (causes rebuild
+#    issues when building incrementally).
+#
+# FOSSIL_BUILD_SSL = 1
+
 #### Enable hooks for commands and web pages via TH1
 #
 # FOSSIL_ENABLE_TH1_HOOKS = 1
@@ -865,7 +870,7 @@ clean-tcl:
 
 APPTARGETS += $(LIBTARGETS)
 
-ifdef FOSSIL_ENABLE_SSL
+ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
 endif
 
