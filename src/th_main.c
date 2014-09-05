@@ -192,10 +192,11 @@ static int enableOutputCmd(
 }
 
 /*
-** Return a name for a TH1 return code.
+** Returns a name for a TH1 return code.
 */
 const char *Th_ReturnCodeName(int rc, int nullIfOk){
   static char zRc[32];
+
   switch( rc ){
     case TH_OK:       return nullIfOk ? 0 : "TH_OK";
     case TH_ERROR:    return "TH_ERROR";
@@ -203,7 +204,7 @@ const char *Th_ReturnCodeName(int rc, int nullIfOk){
     case TH_RETURN:   return "TH_RETURN";
     case TH_CONTINUE: return "TH_CONTINUE";
     default: {
-      sqlite3_snprintf(sizeof(zRc),zRc,"return code %d",rc);
+      sqlite3_snprintf(sizeof(zRc), zRc, "TH1 return code %d", rc);
     }
   }
   return zRc;
