@@ -1,5 +1,5 @@
-C Fix\sa\sc99-ism\s(non-constant\sinitializer).
-D 2014-09-07T03:41:00.207
+C When\susing\s$EDITOR\sto\senter\sa\scommit\smessage,\stags\sprovided\svia\sthe\s--tag\sflag\sare\snow\slisted,\sper\sML\srequest.
+D 2014-09-07T08:52:35.809
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -320,7 +320,7 @@ F src/browse.c ec8073c7f561fe403814c1717d8ba9289c5f605d
 F src/cache.c ec022ed2f98f20200a008c180be15bf88a90c7d1
 F src/captcha.c fea6cab111fb55e09bdae82e841e1c04c62dd846
 F src/cgi.c 3b327dea848d75a83c922af40ec89202fe7a6ec7
-F src/checkin.c 42f1c69a176be684aba57bce88dae73b6600f2aa
+F src/checkin.c 74ea64f995657a11d8b1b06568f5dbfb49469a1e
 F src/checkout.c f24af5f425ed7dcd92b0d003a0979dc79808d674
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 15b121a04352bc2e5b6382923d0394f2f6674e14
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 946c3eb6400263c6b407fa735368a67fd3656733
-R 8cce2f4f4a4891a2cc447723ded412aa
-U edward
-Z bf86e129629e8eb995f5bf0d00ce2396
+P 128f606fdaa94638b5cc8295c8db47cbede79aa7
+R b7d7cf6490b68290a53a623dace2d0ea
+U stephan
+Z bd3c9f5ecd6c44b8115172b0b53c7d0b

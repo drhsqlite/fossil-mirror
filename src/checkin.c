@@ -857,7 +857,20 @@ static void prepare_commit_comment(
     blob_appendf(&prompt, "# tags: %s\n#\n", p->zBranch);
   }else{
     char *zTags = info_tags_of_checkin(parent_rid, 1);
-    if( zTags )  blob_appendf(&prompt, "# tags: %z\n#\n", zTags);
+    if( zTags || p->azTag ){
+      blob_append(&prompt, "# tags: ", 8);
+      if(zTags){
+        blob_appendf(&prompt, "%z%s", zTags, p->azTag ? ", " : "");
+      }
+      if(p->azTag){
+        int i = 0;
+        for( ; p->azTag[i]; ++i ){
+          blob_appendf(&prompt, "%s%s", p->azTag[i],
+                       p->azTag[i+1] ? ", " : "");
+        }
+      }
+      blob_appendf(&prompt, "\n#\n");
+    }
   }
   status_report(&prompt, "# ", 1, 0);
   if( g.markPrivate ){
