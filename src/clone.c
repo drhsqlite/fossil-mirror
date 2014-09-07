@@ -241,8 +241,9 @@ void remember_or_get_http_auth(
 */
 char *get_httpauth(void){
   char *zKey = mprintf("http-auth:%s", g.url.canonical);
-  return unobscure(db_get(zKey, 0));
+  char * rc = unobscure(db_get(zKey, 0));
   free(zKey);
+  return rc;
 }
 
 /*

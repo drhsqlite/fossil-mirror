@@ -85,9 +85,7 @@ static void status_report(
       }
     }
     blob_append(report, zPrefix, nPrefix);
-    if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zDisplayName);
-    }else if( !file_wd_isfile_or_link(zFullName) ){
+    if( !file_wd_isfile_or_link(zFullName) ){
       if( file_access(zFullName, F_OK)==0 ){
         blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
         if( missingIsFatal ){
