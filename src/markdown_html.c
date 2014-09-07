@@ -399,8 +399,9 @@ void markdown_to_html(
     /* misc. parameters */
     64, /* maximum stack */
     "*_", /* emphasis characters */
-    output_title /* opaque data */
+    0 /* opaque data */
   };
+  html_renderer.opaque = output_title;
   blob_reset(output_title);
   blob_reset(output_body);
   markdown(output_body, input_markdown, &html_renderer);
