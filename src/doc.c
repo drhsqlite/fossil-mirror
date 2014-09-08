@@ -529,9 +529,11 @@ void doc_page(void){
     style_footer();
   }else if( db_get_boolean("th1-docs", 0) &&
             fossil_strcmp(zMime, "application/x-th1")==0 ){
-    style_header("Documentation");
+    char *zHtml = htmlize(zName, -1);
+    style_header(zHtml);
     Th_Render(blob_str(&filebody));
     style_footer();
+    fossil_free(zHtml);
   }else{
     cgi_set_content_type(zMime);
     cgi_set_content(&filebody);

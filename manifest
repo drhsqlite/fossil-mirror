@@ -1,5 +1,5 @@
-C Add\s'th1-docs'\ssetting\sto\scontrol\swhether\sor\snot\sTH1\sscripts\sare\sallowed\sin\sembedded\sdocumentation\sfiles.
-D 2014-09-08T18:13:56.243
+C Improve\spage\stitle\shandling.
+D 2014-09-08T18:23:59.313
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -337,7 +337,7 @@ F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 21aaf2b0b3ecfebceeaa548239279f5be97724cf
 F src/diff.c 523bf0582c542d74b850daa597a0c169c7073095
 F src/diffcmd.c ddd84312a85d850d9e67e4d3a446224f5a398f17
-F src/doc.c 67db21d08afd7775f1ee43cbfd7af68324e9f54e
+F src/doc.c 2ba1a437678152e3a2ccda603df8527991d0cd95
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c afe15eaf300e18c7d19a1e1fe3c4bda30bff4872
 F src/export.c 70394a2d5c4058b89504a3720c40a09c917dbb91
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5ce57f21bd993c6bdb881c7ed169a1ca195e6868
-R d8ffcb614b78493ad883aac97ee2bea5
+P 4f0b0a6af275977612a6ab7a246d7f1d391cfbaa
+R 59f65999bfe7f8601fb431261feb3749
 U mistachkin
-Z 171cbb8eb69e8ddde66edfef83b741fc
+Z 1e115603adca421617b9450ac697fc60
