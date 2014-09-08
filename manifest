@@ -1,5 +1,5 @@
-C Highly\sexperimental\schanges\sto\senable\sTH1\susage\sin\sembedded\sdocs.\s\sDo\snot\smerge.
-D 2014-09-08T08:08:27.857
+C Add\s'th1-docs'\ssetting\sto\scontrol\swhether\sor\snot\sTH1\sscripts\sare\sallowed\sin\sembedded\sdocumentation\sfiles.
+D 2014-09-08T18:13:56.243
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -326,18 +326,18 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 3fb02ec34bf2a2c464c83b486a0c8ef2cb6ec051
 F src/comformat.c 8847b181ba0261b6e0c7051b72d703e9fbaa70f9
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
-F src/configure.c f269fd9da2b442fc409ad409661bb9d29a5d98cc
+F src/configure.c 933d830f698348448fa007784011fb680d96b94f
 F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 460d428fdd2e16d5b681176a2997a2e17d4e1a89
+F src/db.c 770777a925ad0ccc9eccb28a63ffde259fb74127
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 21aaf2b0b3ecfebceeaa548239279f5be97724cf
 F src/diff.c 523bf0582c542d74b850daa597a0c169c7073095
 F src/diffcmd.c ddd84312a85d850d9e67e4d3a446224f5a398f17
-F src/doc.c 73a69a70bb45cbbdff56011e0f9ac62286a99630
+F src/doc.c 67db21d08afd7775f1ee43cbfd7af68324e9f54e
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c afe15eaf300e18c7d19a1e1fe3c4bda30bff4872
 F src/export.c 70394a2d5c4058b89504a3720c40a09c917dbb91
@@ -653,10 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3fc62dde2cc56831a6766f4310532ab5fb020f80
-R a504a06dbe4d00e954570144d9a126ba
-T *branch * dynamicTh1Docs
-T *sym-dynamicTh1Docs *
-T -sym-trunk *
+P 5ce57f21bd993c6bdb881c7ed169a1ca195e6868
+R d8ffcb614b78493ad883aac97ee2bea5
 U mistachkin
-Z 88061c2e8cda79c9f7e7a0552bd39125
+Z 171cbb8eb69e8ddde66edfef83b741fc

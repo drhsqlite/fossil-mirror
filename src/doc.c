@@ -527,7 +527,8 @@ void doc_page(void){
     @ %h(blob_str(&filebody))
     @ </pre></blockquote>
     style_footer();
-  }else if( fossil_strcmp(zMime, "application/x-th1")==0 ){
+  }else if( db_get_boolean("th1-docs", 0) &&
+            fossil_strcmp(zMime, "application/x-th1")==0 ){
     style_header("Documentation");
     Th_Render(blob_str(&filebody));
     style_footer();
