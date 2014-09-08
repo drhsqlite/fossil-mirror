@@ -1,5 +1,5 @@
-C removed\sa\sduplicated\sif()\sblock,\smoved\sa\sfree()-after-return,\sboth\sreported\sby\sEdward\sBerner.
-D 2014-09-07T09:49:12.551
+C Highly\sexperimental\schanges\sto\senable\sTH1\susage\sin\sembedded\sdocs.\s\sDo\snot\smerge.
+D 2014-09-08T08:08:27.857
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -337,7 +337,7 @@ F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 21aaf2b0b3ecfebceeaa548239279f5be97724cf
 F src/diff.c 523bf0582c542d74b850daa597a0c169c7073095
 F src/diffcmd.c ddd84312a85d850d9e67e4d3a446224f5a398f17
-F src/doc.c 30f854b9d921f39a8df1112aaf6163b1f9def4e1
+F src/doc.c 73a69a70bb45cbbdff56011e0f9ac62286a99630
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c afe15eaf300e18c7d19a1e1fe3c4bda30bff4872
 F src/export.c 70394a2d5c4058b89504a3720c40a09c917dbb91
@@ -653,7 +653,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ae00c6310943d1470536b3ce14f373ffd90b6ec7
-R c66e3ea17e6df3813313945f26cfd756
-U stephan
-Z a27979decfcb2a7cb85a6a218afb3e7c
+P 3fc62dde2cc56831a6766f4310532ab5fb020f80
+R a504a06dbe4d00e954570144d9a126ba
+T *branch * dynamicTh1Docs
+T *sym-dynamicTh1Docs *
+T -sym-trunk *
+U mistachkin
+Z 88061c2e8cda79c9f7e7a0552bd39125
