@@ -1501,7 +1501,27 @@ void Th_Store(const char *zName, const char *zValue){
 }
 
 /*
-** Store a list value in a variable in the interpreter.
+** Appends an element to a TH1 list value.  This function is called by the
+** transfer subsystem; therefore, it must be very careful to avoid doing
+** any unnecessary work.  To that end, the TH1 subsystem will not be called
+** or initialized if the list pointer is zero (i.e. which will be the case
+** when TH1 transfer hooks are disabled).
+*/
+void Th_AppendToList(
+  char **pzList,
+  int *pnList,
+  const char *zElem,
+  int nElem
+){
+  if( pzList && zElem ){
+    Th_FossilInit(TH_INIT_DEFAULT);
+    Th_ListAppend(g.interp, pzList, pnList, zElem, nElem);
+  }
+}
+
+/*
+** Stores a list value in the specified TH1 variable using the specified
+** array of strings as the source of the element values.
 */
 void Th_StoreList(
   const char *zName,
