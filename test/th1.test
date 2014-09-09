@@ -555,11 +555,13 @@ fossil test-th-eval --th-trace "trace {}"
 if {$th1Hooks} {
   test th1-trace-2 {[string map [list \r\n \n] [string trim $RESULT]] eq \
 {------------------ BEGIN TRACE LOG ------------------
+th1-init 0x0 => 0x0<br />
 
 ------------------- END TRACE LOG -------------------}}
 } else {
   test th1-trace-2 {[string map [list \r\n \n] [string trim $RESULT]] eq \
       {------------------ BEGIN TRACE LOG ------------------
+th1-init 0x0 => 0x0<br />
 th1-setup {} => TH_OK<br />
 
 ------------------- END TRACE LOG -------------------}}
@@ -576,11 +578,13 @@ fossil test-th-eval --th-trace "trace {this is a trace message.}"
 if {$th1Hooks} {
   test th1-trace-4 {[string map [list \r\n \n] [string trim $RESULT]] eq \
       {------------------ BEGIN TRACE LOG ------------------
+th1-init 0x0 => 0x0<br />
 this is a trace message.
 ------------------- END TRACE LOG -------------------}}
 } else {
   test th1-trace-4 {[string map [list \r\n \n] [string trim $RESULT]] eq \
       {------------------ BEGIN TRACE LOG ------------------
+th1-init 0x0 => 0x0<br />
 th1-setup {} => TH_OK<br />
 this is a trace message.
 ------------------- END TRACE LOG -------------------}}
@@ -791,3 +795,18 @@ if {$tcl_platform(platform) eq "windows"} then {
 
 fossil test-th-eval --vfs $altVfs "globalState vfs"
 test th1-globalState-15 {$RESULT eq $altVfs}
+
+###############################################################################
+
+fossil test-th-eval "globalState flags"
+test th1-globalState-16 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval "reinitialize; globalState configuration"
+test th1-reinitialize-1 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval "reinitialize 1; globalState configuration"
+test th1-reinitialize-2 {$RESULT ne ""}
