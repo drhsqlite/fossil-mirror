@@ -31,6 +31,11 @@
 #endif
 
 /*
+** Used when the name for the diff is unknown.
+*/
+#define DIFF_NO_NAME  "(unknown)"
+
+/*
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, u64 diffFlags){
@@ -491,7 +496,14 @@ static void diff_manifest_entry(
   Blob f1, f2;
   int isBin1, isBin2;
   int rid;
-  const char *zName =  pFrom ? pFrom->zName : pTo->zName;
+  const char *zName;
+  if( pFrom ){
+    zName = pFrom->zName;
+  }else if( pTo ){
+    zName = pTo->zName;
+  }else{
+    zName = DIFF_NO_NAME;
+  }
   if( diffFlags & DIFF_BRIEF ) return;
   diff_print_index(zName, diffFlags);
   if( pFrom ){

@@ -1598,11 +1598,10 @@ void cgi_handle_scgi_request(void){
   char *zToFree;
   int nHdr = 0;
   int nRead;
-  int n, m;
-  char c;
+  int c, n, m;
 
-  while( (c = fgetc(g.httpIn))!=EOF && fossil_isdigit(c) ){
-    nHdr = nHdr*10 + c - '0';
+  while( (c = fgetc(g.httpIn))!=EOF && fossil_isdigit((char)c) ){
+    nHdr = nHdr*10 + (char)c - '0';
   }
   if( nHdr<16 ) malformed_request("SCGI header too short");
   zToFree = zHdr = fossil_malloc(nHdr);

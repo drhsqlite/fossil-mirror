@@ -324,9 +324,10 @@ void ticket_init(void){
 /*
 ** Create the TH1 interpreter and load the "change" code.
 */
-int ticket_change(void){
+int ticket_change(const char *zUuid){
   const char *zConfig;
   Th_FossilInit(TH_INIT_DEFAULT);
+  Th_Store("uuid", zUuid);
   zConfig = ticket_change_code();
   return Th_Eval(g.interp, 0, zConfig, -1);
 }
@@ -639,7 +640,7 @@ static int submitTicketCmd(
     ticket_put(&tktchng, zUuid,
                (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
   }
-  return ticket_change();
+  return ticket_change(zUuid);
 }
 
 

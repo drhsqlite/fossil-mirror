@@ -115,7 +115,12 @@ static void remote_has(int rid){
 ** Any artifact successfully received by this routine is considered to
 ** be public and is therefore removed from the "private" table.
 */
-static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
+static void xfer_accept_file(
+  Xfer *pXfer,
+  int cloneFlag,
+  char **pzUuidList,
+  int *pnUuidList
+){
   int n;
   int rid;
   int srcid = 0;
@@ -157,6 +162,8 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
     }
     rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid,
                          0, isPriv);
+    Th_AppendToList(pzUuidList, pnUuidList, blob_str(&pXfer->aToken[1]),
+                    blob_size(&pXfer->aToken[1]));
     remote_has(rid);
     blob_reset(&content);
     return;
@@ -167,6 +174,8 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
     if( content_get(srcid, &src)==0 ){
       rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid,
                            0, isPriv);
+      Th_AppendToList(pzUuidList, pnUuidList, blob_str(&pXfer->aToken[1]),
+                      blob_size(&pXfer->aToken[1]));
       pXfer->nDanglingFile++;
       db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
       if( !isPriv ) content_make_public(rid);
@@ -187,6 +196,7 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
     blob_appendf(&pXfer->err, "content does not match sha1 hash");
   }
   rid = content_put_ex(&content, blob_str(&hash), 0, 0, isPriv);
+  Th_AppendToList(pzUuidList, pnUuidList, blob_str(&hash), blob_size(&hash));
   blob_reset(&hash);
   if( rid==0 ){
     blob_appendf(&pXfer->err, "%s", g.zErrMsg);
@@ -222,7 +232,11 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
 ** Any artifact successfully received by this routine is considered to
 ** be public and is therefore removed from the "private" table.
 */
-static void xfer_accept_compressed_file(Xfer *pXfer){
+static void xfer_accept_compressed_file(
+  Xfer *pXfer,
+  char **pzUuidList,
+  int *pnUuidList
+){
   int szC;   /* CSIZE */
   int szU;   /* USIZE */
   int rid;
@@ -263,6 +277,8 @@ static void xfer_accept_compressed_file(Xfer *pXfer){
   }
   rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid,
                        szC, isPriv);
+  Th_AppendToList(pzUuidList, pnUuidList, blob_str(&pXfer->aToken[1]),
+                  blob_size(&pXfer->aToken[1]));
   remote_has(rid);
   blob_reset(&content);
 }
@@ -855,17 +871,15 @@ const char *xfer_ticket_code(void){
 /*
 ** Run the specified TH1 script, if any, and returns 1 on error.
 */
-int xfer_run_script(const char *zScript, const char *zUuid){
-  int rc;
-  if( !zScript ) return TH_OK;
+int xfer_run_script(
+  const char *zScript,
+  const char *zUuidOrList,
+  int bIsList
+){
+  int rc = TH_OK;
+  if( !zScript ) return rc;
   Th_FossilInit(TH_INIT_DEFAULT);
-  if( zUuid ){
-    rc = Th_SetVar(g.interp, "uuid", -1, zUuid, -1);
-    if( rc!=TH_OK ){
-      fossil_error(1, "%s", Th_GetResult(g.interp, 0));
-      return rc;
-    }
-  }
+  Th_Store(bIsList ? "uuids" : "uuid", zUuidOrList ? zUuidOrList : "");
   rc = Th_Eval(g.interp, 0, zScript, -1);
   if( rc!=TH_OK ){
     fossil_error(1, "%s", Th_GetResult(g.interp, 0));
@@ -885,7 +899,7 @@ int xfer_run_script(const char *zScript, const char *zUuid){
 ** }
 */
 int xfer_run_common_script(void){
-  return xfer_run_script(xfer_common_code(), 0);
+  return xfer_run_script(xfer_common_code(), 0, 0);
 }
 
 /*
@@ -919,6 +933,11 @@ void page_xfer(void){
   int recvConfig = 0;
   char *zNow;
   int rc;
+  const char *zScript = 0;
+  char *zUuidList = 0;
+  int nUuidList = 0;
+  char **pzUuidList = 0;
+  int *pnUuidList = 0;
 
   if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -954,6 +973,11 @@ void page_xfer(void){
     @ error common\sscript\sfailed:\s%F(g.zErrMsg)
     nErr++;
   }
+  zScript = xfer_push_code();
+  if( zScript ){ /* NOTE: Are TH1 transfer hooks enabled? */
+    pzUuidList = &zUuidList;
+    pnUuidList = &nUuidList;
+  }
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
     if( blob_size(&xfer.line)==0 ) continue;
@@ -971,7 +995,7 @@ void page_xfer(void){
         nErr++;
         break;
       }
-      xfer_accept_file(&xfer, 0);
+      xfer_accept_file(&xfer, 0, pzUuidList, pnUuidList);
       if( blob_size(&xfer.err) ){
         cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
@@ -992,7 +1016,7 @@ void page_xfer(void){
         nErr++;
         break;
       }
-      xfer_accept_compressed_file(&xfer);
+      xfer_accept_compressed_file(&xfer, pzUuidList, pnUuidList);
       if( blob_size(&xfer.err) ){
         cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
@@ -1277,7 +1301,7 @@ void page_xfer(void){
   }
   if( isPush ){
     if( rc==TH_OK ){
-      rc = xfer_run_script(xfer_push_code(), 0);
+      rc = xfer_run_script(zScript, zUuidList, 1);
       if( rc==TH_ERROR ){
         cgi_reset_content();
         @ error push\sscript\sfailed:\s%F(g.zErrMsg)
@@ -1285,6 +1309,9 @@ void page_xfer(void){
       }
     }
     request_phantoms(&xfer, 500);
+  }
+  if( zUuidList ){
+    Th_Free(g.interp, zUuidList);
   }
   if( isClone && nGimme==0 ){
     /* The initial "clone" message from client to server contains no
@@ -1639,7 +1666,7 @@ int client_sync(
       ** Receive a file transmitted from the server.
       */
       if( blob_eq(&xfer.aToken[0],"file") ){
-        xfer_accept_file(&xfer, (syncFlags & SYNC_CLONE)!=0);
+        xfer_accept_file(&xfer, (syncFlags & SYNC_CLONE)!=0, 0, 0);
         nArtifactRcvd++;
       }else
 
@@ -1649,7 +1676,7 @@ int client_sync(
       ** Receive a compressed file transmitted from the server.
       */
       if( blob_eq(&xfer.aToken[0],"cfile") ){
-        xfer_accept_compressed_file(&xfer);
+        xfer_accept_compressed_file(&xfer, 0, 0);
         nArtifactRcvd++;
       }else
 

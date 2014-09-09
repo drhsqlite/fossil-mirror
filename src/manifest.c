@@ -1524,7 +1524,7 @@ int manifest_crosslink_end(int flags){
     const char *zUuid = db_column_text(&q, 0);
     ticket_rebuild_entry(zUuid);
     if( permitHooks && rc==TH_OK ){
-      rc = xfer_run_script(zScript, zUuid);
+      rc = xfer_run_script(zScript, zUuid, 0);
     }
   }
   db_finalize(&q);
@@ -2068,7 +2068,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( permitHooks ){
     rc = xfer_run_common_script();
     if( rc==TH_OK ){
-      rc = xfer_run_script(zScript, zUuid);
+      rc = xfer_run_script(zScript, zUuid, 0);
     }
   }
   if( p->type==CFTYPE_MANIFEST ){

@@ -733,10 +733,10 @@ writeln {
 #    recognized internally by make.
 #
 ifdef USE_WINDOWS
-TRANSLATE   = $(subst /,\,$(OBJDIR)/translate)
-MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders)
-MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
-VERSION     = $(subst /,\,$(OBJDIR)/version)
+TRANSLATE   = $(subst /,\,$(OBJDIR)/translate.exe)
+MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
+MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
+VERSION     = $(subst /,\,$(OBJDIR)/version.exe)
 CAT         = type
 CP          = copy
 GREP        = find
@@ -745,10 +745,10 @@ RM          = del /Q
 MKDIR       = -mkdir
 RMDIR       = rmdir /S /Q
 else
-TRANSLATE   = $(OBJDIR)/translate
-MAKEHEADERS = $(OBJDIR)/makeheaders
-MKINDEX     = $(OBJDIR)/mkindex
-VERSION     = $(OBJDIR)/version
+TRANSLATE   = $(OBJDIR)/translate.exe
+MAKEHEADERS = $(OBJDIR)/makeheaders.exe
+MKINDEX     = $(OBJDIR)/mkindex.exe
+VERSION     = $(OBJDIR)/version.exe
 CAT         = cat
 CP          = cp
 GREP        = grep
@@ -791,17 +791,17 @@ else
 	$(MKDIR) $(OBJDIR)
 endif
 
-$(OBJDIR)/translate:	$(SRCDIR)/translate.c
-	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
+$(TRANSLATE):	$(SRCDIR)/translate.c
+	$(BCC) -o $(TRANSLATE) $(SRCDIR)/translate.c
 
-$(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
+$(MAKEHEADERS):	$(SRCDIR)/makeheaders.c
+	$(BCC) -o $(MAKEHEADERS) $(SRCDIR)/makeheaders.c
 
-$(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
-	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
+$(MKINDEX):	$(SRCDIR)/mkindex.c
+	$(BCC) -o $(MKINDEX) $(SRCDIR)/mkindex.c
 
 $(VERSION): $(SRCDIR)/mkversion.c
-	$(BCC) -o $(OBJDIR)/version $(SRCDIR)/mkversion.c
+	$(BCC) -o $(VERSION) $(SRCDIR)/mkversion.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -908,9 +908,9 @@ foreach s [lsort $src] {
 append mhargs " \\\n\t\t\$(SRCDIR)/sqlite3.h"
 append mhargs " \\\n\t\t\$(SRCDIR)/th.h"
 append mhargs " \\\n\t\t\$(OBJDIR)/VERSION.h"
-writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
+writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(MKINDEX)"
 writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@\n"
-writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
+writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(MAKEHEADERS) \$(OBJDIR)/VERSION.h"
 writeln "\t\$(MAKEHEADERS) $mhargs"
 writeln "\techo Done >\$(OBJDIR)/headers\n"
 writeln "\$(OBJDIR)/headers: Makefile\n"
@@ -918,7 +918,7 @@ writeln "Makefile:\n"
 set extra_h(main) " \$(OBJDIR)/page_index.h "
 
 foreach s [lsort $src] {
-  writeln "\$(OBJDIR)/${s}_.c:\t\$(SRCDIR)/$s.c \$(OBJDIR)/translate"
+  writeln "\$(OBJDIR)/${s}_.c:\t\$(SRCDIR)/$s.c \$(TRANSLATE)"
   writeln "\t\$(TRANSLATE) \$(SRCDIR)/$s.c >\$(OBJDIR)/${s}_.c\n"
   writeln "\$(OBJDIR)/$s.o:\t\$(OBJDIR)/${s}_.c \$(OBJDIR)/$s.h$extra_h($s)\$(SRCDIR)/config.h"
   writeln "\t\$(XTCC) -o \$(OBJDIR)/$s.o -c \$(OBJDIR)/${s}_.c\n"
