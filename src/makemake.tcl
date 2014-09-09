@@ -447,6 +447,10 @@ BCC = gcc
 #
 # FOSSIL_BUILD_SSL = 1
 
+#### Enable TH1 scripts in embedded documentation files
+#
+# FOSSIL_ENABLE_TH1_DOCS = 1
+
 #### Enable hooks for commands and web pages via TH1
 #
 # FOSSIL_ENABLE_TH1_HOOKS = 1
@@ -598,6 +602,12 @@ endif
 ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
+endif
+
+# With TH1 embedded docs support
+ifdef FOSSIL_ENABLE_TH1_DOCS
+TCC += -DFOSSIL_ENABLE_TH1_DOCS=1
+RCC += -DFOSSIL_ENABLE_TH1_DOCS=1
 endif
 
 # With TH1 hook support
@@ -1160,6 +1170,9 @@ PERL    = perl.exe
 # Uncomment to enable SSL support
 # FOSSIL_ENABLE_SSL = 1
 
+# Uncomment to enable TH1 scripts in embedded documentation files
+# FOSSIL_ENABLE_TH1_DOCS = 1
+
 # Uncomment to enable TH1 hooks
 # FOSSIL_ENABLE_TH1_HOOKS = 1
 
@@ -1234,6 +1247,11 @@ TCC       = $(TCC) /DFOSSIL_ENABLE_SSL=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_SSL=1
 LIBS      = $(LIBS) $(SSLLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(SSLLIBDIR)
+!endif
+
+!ifdef FOSSIL_ENABLE_TH1_DOCS
+TCC       = $(TCC) /DFOSSIL_ENABLE_TH1_DOCS=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_TH1_DOCS=1
 !endif
 
 !ifdef FOSSIL_ENABLE_TH1_HOOKS

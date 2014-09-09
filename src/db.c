@@ -2203,8 +2203,12 @@ struct stControlSettings const ctrlSettings[] = {
   { "tcl",              0,              0, 0, 0, "off"                 },
   { "tcl-setup",        0,             40, 1, 1, ""                    },
 #endif
+#ifdef FOSSIL_ENABLE_TH1_DOCS
   { "th1-docs",         0,              0, 0, 0, "off"                 },
+#endif
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
   { "th1-hooks",        0,              0, 0, 0, "off"                 },
+#endif
   { "th1-setup",        0,             40, 1, 1, ""                    },
   { "th1-uri-regexp",   0,             40, 1, 0, ""                    },
   { "web-browser",      0,             32, 0, 0, ""                    },

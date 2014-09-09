@@ -527,6 +527,7 @@ void doc_page(void){
     @ %h(blob_str(&filebody))
     @ </pre></blockquote>
     style_footer();
+#ifdef FOSSIL_ENABLE_TH1_DOCS
   }else if( db_get_boolean("th1-docs", 0) &&
             fossil_strcmp(zMime, "application/x-th1")==0 ){
     char *zHtml = htmlize(zName, -1);
@@ -534,6 +535,7 @@ void doc_page(void){
     Th_Render(blob_str(&filebody));
     style_footer();
     fossil_free(zHtml);
+#endif
   }else{
     cgi_set_content_type(zMime);
     cgi_set_content(&filebody);

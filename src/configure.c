@@ -99,8 +99,12 @@ static struct {
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
+#ifdef FOSSIL_ENABLE_TH1_DOCS
   { "th1-docs",               CONFIGSET_TH1 },
+#endif
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
   { "th1-hooks",              CONFIGSET_TH1 },
+#endif
   { "th1-setup",              CONFIGSET_TH1 },
   { "th1-uri-regexp",         CONFIGSET_TH1 },
 

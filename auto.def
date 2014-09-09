@@ -7,6 +7,7 @@ options {
                          => {Look for OpenSSL in the given path, or auto or none}
     with-miniz=0         => {Use miniz from the source tree}
     with-zlib:path       => {Look for zlib in the given path}
+    with-th1-docs=0      => {Enable TH1 for embedded documentation pages}
     with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
     with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
     with-tcl-stubs=0     => {Enable Tcl integration via stubs library mechanism}
@@ -85,6 +86,12 @@ if {[opt-bool json]} {
     define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_JSON
     define FOSSIL_ENABLE_JSON
     msg-result "JSON support enabled"
+}
+
+if {[opt-bool with-th1-docs]} {
+    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_TH1_DOCS
+    define FOSSIL_ENABLE_TH1_DOCS
+    msg-result "TH1 embedded documentation support enabled"
 }
 
 if {[opt-bool with-th1-hooks]} {
