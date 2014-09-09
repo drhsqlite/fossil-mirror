@@ -240,6 +240,7 @@ void url_parse_local(
       pUrlData->isFile = 1;
     }else{
       free(zFile);
+      zFile = 0;
       fossil_fatal("unknown repository: %s", zUrl);
     }
   }else{
@@ -251,6 +252,7 @@ void url_parse_local(
     dehttpize(zFile);
     file_canonical_name(zFile, &cfile, 0);
     free(zFile);
+    zFile = 0;
     pUrlData->protocol = "file";
     pUrlData->path = "";
     pUrlData->name = mprintf("%b", &cfile);
