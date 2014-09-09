@@ -44,7 +44,10 @@ void shun_page(void){
   const char *zUuid = P("uuid");
   const char *zShun = P("shun");
   const char *zAccept = P("accept");
+  const char *zRcvid = P("rcvid");
+  int nRcvid;
   int nUuid;
+  int numRows = 3;
   char *zCanonical = 0;
 
   login_check_credentials();
@@ -149,6 +152,10 @@ void shun_page(void){
     @ They will be removed from the repository the next time the repository
     @ is rebuilt using the <b>fossil rebuild</b> command-line</p>
   }
+  if( zRcvid ){
+    nRcvid = atoi(zRcvid);
+    numRows = db_int(0, "SELECT min(count(), 10) FROM blob WHERE rcvid=%d", nRcvid);
+  }
   @ <p>A shunned artifact will not be pushed nor accepted in a pull and the
   @ artifact content will be purged from the repository the next time the
   @ repository is rebuilt.  A list of shunned artifacts can be seen at the
@@ -174,9 +181,17 @@ void shun_page(void){
   @ <blockquote>
   @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <textarea class="fullsize-text" cols="50" rows="3" name="uuid">
+  @ <textarea class="fullsize-text" cols="50" rows="%d(numRows)" name="uuid">
   if( zShun ){
-    @ %h(zShun)
+    if( strlen(zShun) ){
+      @ %h(zShun)
+    }else if( zRcvid ){
+      db_prepare(&q, "SELECT uuid FROM blob WHERE rcvid=%d", nRcvid);
+      while( db_step(&q)==SQLITE_ROW ){
+        @ %s(db_column_text(&q, 0))
+      }
+      db_finalize(&q);
+    }
   }
   @ </textarea>
   @ <input type="submit" name="add" value="Shun" />
@@ -193,9 +208,17 @@ void shun_page(void){
   @ <blockquote>
   @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <textarea class="fullsize-text" cols="50" rows="3" name="uuid">
+  @ <textarea class="fullsize-text" cols="50" rows="%d(numRows)" name="uuid">
   if( zAccept ){
-    @ %h(zAccept)
+    if( strlen(zAccept) ){
+      @ %h(zAccept)
+    }else if( zRcvid ){
+      db_prepare(&q, "SELECT uuid FROM blob WHERE rcvid=%d", nRcvid);
+      while( db_step(&q)==SQLITE_ROW ){
+        @ %s(db_column_text(&q, 0))
+      }
+      db_finalize(&q);
+    }
   }
   @ </textarea>
   @ <input type="submit" name="sub" value="Accept" />
@@ -342,6 +365,18 @@ void rcvfrom_page(void){
     login_needed();
   }
   style_header("Content Source %d", rcvid);
+  if( db_exists(
+    "SELECT 1 FROM blob WHERE rcvid=%d AND"
+    " NOT EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
+  ){
+    style_submenu_element("Shun All", "Shun All", "shun?shun&rcvid=%d#addshun", rcvid);
+  }
+  if( db_exists(
+    "SELECT 1 FROM blob WHERE rcvid=%d AND"
+    " EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
+  ){
+    style_submenu_element("Unshun All", "Unshun All", "shun?accept&rcvid=%d#delshun", rcvid);
+  }
   db_prepare(&q,
     "SELECT login, datetime(rcvfrom.mtime), rcvfrom.ipaddr"
     "  FROM rcvfrom LEFT JOIN user USING(uid)"
