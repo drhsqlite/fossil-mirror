@@ -1,5 +1,5 @@
-C Omit\sTH1\shooks\ssetting\swhen\sit\sis\snot\senabled.
-D 2014-09-09T21:24:38.633
+C Fix\sa\stypo\sin\shelp\stext.
+D 2014-09-10T01:39:06.550
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -320,7 +320,7 @@ F src/browse.c ec8073c7f561fe403814c1717d8ba9289c5f605d
 F src/cache.c ec022ed2f98f20200a008c180be15bf88a90c7d1
 F src/captcha.c fea6cab111fb55e09bdae82e841e1c04c62dd846
 F src/cgi.c 6939e61cacaf4f54e21123ec5f2849a70c016115
-F src/checkin.c 9c962d6971b7b92374b0159e5c3068a7bc8f8797
+F src/checkin.c a2c132a5fdb47f5013c6f20b7b05f2cf62aa09d7
 F src/checkout.c f24af5f425ed7dcd92b0d003a0979dc79808d674
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 3fb02ec34bf2a2c464c83b486a0c8ef2cb6ec051
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5fc4366ca6dbc06d4d02359a6dbb99a5bbd5ac1c
-R a7baf8e9fd2964152affdff7a2a5dad6
-U mistachkin
-Z 184adc71ac59622d650c6ad25189e1a6
+P ff8ac8db0aea46b3e49fad088b77ad28bd76c884
+R b3f8307f046184f6a01f4102ce6314dd
+U drh
+Z 802a1f5b0d5f4a78d6d4179cd7f2d412

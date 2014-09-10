@@ -1434,7 +1434,7 @@ static int tagCmp(const void *a, const void *b){
 ** Use the --branchcolor option followed by a color name (ex:
 ** '#ffc0c0') to specify the background color of entries in the new
 ** branch when shown in the web timeline interface.  The use of
-** the --branchcolor option is not recommend.  Instead, let Fossil
+** the --branchcolor option is not recommended.  Instead, let Fossil
 ** choose the branch color automatically.
 **
 ** The --bgcolor option works like --branchcolor but only sets the
