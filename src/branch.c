@@ -254,9 +254,6 @@ void branch_cmd(void){
   int n;
   const char *zCmd = "list";
   db_find_and_open_repository(0, 0);
-  if( g.argc<2 ){
-    usage("new|list|ls ...");
-  }
   if( g.argc>=3 ) zCmd = g.argv[2];
   n = strlen(zCmd);
   if( strncmp(zCmd,"new",n)==0 ){
