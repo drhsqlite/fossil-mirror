@@ -324,9 +324,10 @@ void ticket_init(void){
 /*
 ** Create the TH1 interpreter and load the "change" code.
 */
-int ticket_change(void){
+int ticket_change(const char *zUuid){
   const char *zConfig;
   Th_FossilInit(TH_INIT_DEFAULT);
+  Th_Store("uuid", zUuid);
   zConfig = ticket_change_code();
   return Th_Eval(g.interp, 0, zConfig, -1);
 }
@@ -639,7 +640,7 @@ static int submitTicketCmd(
     ticket_put(&tktchng, zUuid,
                (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
   }
-  return ticket_change();
+  return ticket_change(zUuid);
 }
 
 
@@ -1055,10 +1056,12 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
 **     defined in the ticket table.
 **
 **   %fossil ticket list fields
+**   %fossil ticket ls fields
 **
 **     list all fields, defined for ticket in the fossil repository
 **
 **   %fossil ticket list reports
+**   %fossil ticket ls reports
 **
 **     list all ticket reports, defined in the fossil repository
 **
@@ -1125,7 +1128,7 @@ void ticket_cmd(void){
     /* set/show cannot be distinguished, so show the usage */
     usage("add|change|list|set|show|history");
   }
-  if( strncmp(g.argv[2],"list",n)==0 ){
+  if(( strncmp(g.argv[2],"list",n)==0 ) || ( strncmp(g.argv[2],"ls",n)==0 )){
     if( g.argc==3 ){
       usage("list fields|reports");
     }else{

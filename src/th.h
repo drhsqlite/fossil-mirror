@@ -168,7 +168,7 @@ int th_register_testvfs(Th_Interp *interp);             /* th_testvfs.c */
 */
 int th_register_tcl(Th_Interp *, void *);
 int unloadTcl(Th_Interp *, void *);
-int evaluateTclWithEvents(Th_Interp *, void *, const char *, int, int);
+int evaluateTclWithEvents(Th_Interp *, void *, const char *, int, int, int);
 #endif
 
 /*

@@ -33,8 +33,13 @@
 #define TH_INIT_FORCE_RESET ((u32)0x00000004) /* Force TH1 commands re-added? */
 #define TH_INIT_FORCE_SETUP ((u32)0x00000008) /* Force eval of setup script? */
 #define TH_INIT_MASK        ((u32)0x0000000F) /* All possible init flags. */
-#define TH_INIT_DEFAULT     (TH_INIT_NONE)    /* Default flags. */
+
+/*
+** Useful and/or "well-known" combinations of flag values.
+*/
+#define TH_INIT_DEFAULT     (TH_INIT_NONE)      /* Default flags. */
 #define TH_INIT_HOOK        (TH_INIT_NEED_CONFIG | TH_INIT_FORCE_SETUP)
+#define TH_INIT_FORBID_MASK (TH_INIT_FORCE_TCL) /* Illegal from a script. */
 #endif
 
 /*
@@ -192,10 +197,11 @@ static int enableOutputCmd(
 }
 
 /*
-** Return a name for a TH1 return code.
+** Returns a name for a TH1 return code.
 */
 const char *Th_ReturnCodeName(int rc, int nullIfOk){
   static char zRc[32];
+
   switch( rc ){
     case TH_OK:       return nullIfOk ? 0 : "TH_OK";
     case TH_ERROR:    return "TH_ERROR";
@@ -203,7 +209,7 @@ const char *Th_ReturnCodeName(int rc, int nullIfOk){
     case TH_RETURN:   return "TH_RETURN";
     case TH_CONTINUE: return "TH_CONTINUE";
     default: {
-      sqlite3_snprintf(sizeof(zRc),zRc,"return code %d",rc);
+      sqlite3_snprintf(sizeof(zRc), zRc, "TH1 return code %d", rc);
     }
   }
   return zRc;
@@ -683,6 +689,7 @@ static int traceCmd(
 ** "configuration"   = The active configuration database file name,
 **                     if any.
 ** "executable"      = The fully qualified executable file name.
+** "flags"           = The TH1 initialization flags.
 ** "log"             = The error log file name, if any.
 ** "repository"      = The active local repository file name, if
 **                     any.
@@ -719,6 +726,9 @@ static int globalStateCmd(
     return TH_OK;
   }else if( fossil_strnicmp(argv[1], "executable\0", 11)==0 ){
     Th_SetResult(interp, g.nameOfExe ? g.nameOfExe : zDefault, -1);
+    return TH_OK;
+  }else if( fossil_strnicmp(argv[1], "flags\0", 6)==0 ){
+    Th_SetResultInt(interp, g.th1Flags);
     return TH_OK;
   }else if( fossil_strnicmp(argv[1], "log\0", 4)==0 ){
     Th_SetResult(interp, g.zErrlog ? g.zErrlog : zDefault, -1);
@@ -781,6 +791,35 @@ static int setParameterCmd(
     return Th_WrongNumArgs(interp, "setParameter NAME VALUE");
   }
   cgi_replace_parameter(mprintf("%s", argv[1]), mprintf("%s", argv[2]));
+  return TH_OK;
+}
+
+/*
+** TH1 command: reinitialize ?FLAGS?
+**
+** Reinitializes the TH1 interpreter using the specified flags.
+*/
+static int reinitializeCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  u32 flags = TH_INIT_DEFAULT;
+  if( argc!=1 && argc!=2 ){
+    return Th_WrongNumArgs(interp, "reinitialize ?FLAGS?");
+  }
+  if( argc==2 ){
+    int iFlags;
+    if( Th_ToInt(interp, argv[1], argl[1], &iFlags) ){
+      return TH_ERROR;
+    }else{
+      flags = (u32)iFlags;
+    }
+  }
+  Th_FossilInit(flags & ~TH_INIT_FORBID_MASK);
+  Th_SetResult(interp, 0, 0);
   return TH_OK;
 }
 
@@ -1373,6 +1412,7 @@ void Th_FossilInit(u32 flags){
     {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
     {"regexp",        regexpCmd,            0},
+    {"reinitialize",  reinitializeCmd,      0},
     {"render",        renderCmd,            0},
     {"repository",    repositoryCmd,        0},
     {"setParameter",  setParameterCmd,      0},
@@ -1386,6 +1426,9 @@ void Th_FossilInit(u32 flags){
     {"wiki",          wikiCmd,              (void*)&aFlags[0]},
     {0, 0, 0}
   };
+  if( g.thTrace ){
+    Th_Trace("th1-init 0x%x => 0x%x<br />\n", g.th1Flags, flags);
+  }
   if( needConfig ){
     /*
     ** This function uses several settings which may be defined in the
@@ -1458,7 +1501,27 @@ void Th_Store(const char *zName, const char *zValue){
 }
 
 /*
-** Store a list value in a variable in the interpreter.
+** Appends an element to a TH1 list value.  This function is called by the
+** transfer subsystem; therefore, it must be very careful to avoid doing
+** any unnecessary work.  To that end, the TH1 subsystem will not be called
+** or initialized if the list pointer is zero (i.e. which will be the case
+** when TH1 transfer hooks are disabled).
+*/
+void Th_AppendToList(
+  char **pzList,
+  int *pnList,
+  const char *zElem,
+  int nElem
+){
+  if( pzList && zElem ){
+    Th_FossilInit(TH_INIT_DEFAULT);
+    Th_ListAppend(g.interp, pzList, pnList, zElem, nElem);
+  }
+}
+
+/*
+** Stores a list value in the specified TH1 variable using the specified
+** array of strings as the source of the element values.
 */
 void Th_StoreList(
   const char *zName,

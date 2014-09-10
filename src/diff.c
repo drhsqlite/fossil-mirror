@@ -596,7 +596,7 @@ static void sbsWriteColumn(Blob *pOut, Blob *pCol, int col){
     "%s"
     "</pre>\n"
     "</div></td>\n",
-    col % 3 ? (col == SBS_MKR ? "mkr" : "txt") : "ln",
+    (col % 3) ? (col == SBS_MKR ? "mkr" : "txt") : "ln",
     blob_str(pCol)
   );
 }

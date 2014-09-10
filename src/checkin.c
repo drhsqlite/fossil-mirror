@@ -85,9 +85,7 @@ static void status_report(
       }
     }
     blob_append(report, zPrefix, nPrefix);
-    if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zDisplayName);
-    }else if( !file_wd_isfile_or_link(zFullName) ){
+    if( !file_wd_isfile_or_link(zFullName) ){
       if( file_access(zFullName, F_OK)==0 ){
         blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
         if( missingIsFatal ){
@@ -857,7 +855,20 @@ static void prepare_commit_comment(
     blob_appendf(&prompt, "# tags: %s\n#\n", p->zBranch);
   }else{
     char *zTags = info_tags_of_checkin(parent_rid, 1);
-    if( zTags )  blob_appendf(&prompt, "# tags: %z\n#\n", zTags);
+    if( zTags || p->azTag ){
+      blob_append(&prompt, "# tags: ", 8);
+      if(zTags){
+        blob_appendf(&prompt, "%z%s", zTags, p->azTag ? ", " : "");
+      }
+      if(p->azTag){
+        int i = 0;
+        for( ; p->azTag[i]; ++i ){
+          blob_appendf(&prompt, "%s%s", p->azTag[i],
+                       p->azTag[i+1] ? ", " : "");
+        }
+      }
+      blob_appendf(&prompt, "\n#\n");
+    }
   }
   status_report(&prompt, "# ", 1, 0);
   if( g.markPrivate ){
@@ -1423,7 +1434,7 @@ static int tagCmp(const void *a, const void *b){
 ** Use the --branchcolor option followed by a color name (ex:
 ** '#ffc0c0') to specify the background color of entries in the new
 ** branch when shown in the web timeline interface.  The use of
-** the --branchcolor option is not recommend.  Instead, let Fossil
+** the --branchcolor option is not recommended.  Instead, let Fossil
 ** choose the branch color automatically.
 **
 ** The --bgcolor option works like --branchcolor but only sets the

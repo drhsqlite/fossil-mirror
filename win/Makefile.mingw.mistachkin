@@ -50,6 +50,11 @@ FOSSIL_ENABLE_JSON = 1
 #
 FOSSIL_ENABLE_SSL = 1
 
+#### Automatically build OpenSSL when building Fossil (causes rebuild
+#    issues when building incrementally).
+#
+# FOSSIL_BUILD_SSL = 1
+
 #### Enable hooks for commands and web pages via TH1
 #
 FOSSIL_ENABLE_TH1_HOOKS = 1
@@ -660,10 +665,10 @@ LIBTARGETS =
 #    recognized internally by make.
 #
 ifdef USE_WINDOWS
-TRANSLATE   = $(subst /,\,$(OBJDIR)/translate)
-MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders)
-MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
-VERSION     = $(subst /,\,$(OBJDIR)/version)
+TRANSLATE   = $(subst /,\,$(OBJDIR)/translate.exe)
+MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
+MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
+VERSION     = $(subst /,\,$(OBJDIR)/version.exe)
 CAT         = type
 CP          = copy
 GREP        = find
@@ -672,10 +677,10 @@ RM          = del /Q
 MKDIR       = -mkdir
 RMDIR       = rmdir /S /Q
 else
-TRANSLATE   = $(OBJDIR)/translate
-MAKEHEADERS = $(OBJDIR)/makeheaders
-MKINDEX     = $(OBJDIR)/mkindex
-VERSION     = $(OBJDIR)/version
+TRANSLATE   = $(OBJDIR)/translate.exe
+MAKEHEADERS = $(OBJDIR)/makeheaders.exe
+MKINDEX     = $(OBJDIR)/mkindex.exe
+VERSION     = $(OBJDIR)/version.exe
 CAT         = cat
 CP          = cp
 GREP        = grep
@@ -717,17 +722,17 @@ else
 	$(MKDIR) $(OBJDIR)
 endif
 
-$(OBJDIR)/translate:	$(SRCDIR)/translate.c
-	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
+$(TRANSLATE):	$(SRCDIR)/translate.c
+	$(BCC) -o $(TRANSLATE) $(SRCDIR)/translate.c
 
-$(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
+$(MAKEHEADERS):	$(SRCDIR)/makeheaders.c
+	$(BCC) -o $(MAKEHEADERS) $(SRCDIR)/makeheaders.c
 
-$(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
-	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
+$(MKINDEX):	$(SRCDIR)/mkindex.c
+	$(BCC) -o $(MKINDEX) $(SRCDIR)/mkindex.c
 
 $(VERSION): $(SRCDIR)/mkversion.c
-	$(BCC) -o $(OBJDIR)/version $(SRCDIR)/mkversion.c
+	$(BCC) -o $(VERSION) $(SRCDIR)/mkversion.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -794,7 +799,7 @@ clean-tcl:
 
 APPTARGETS += $(LIBTARGETS)
 
-ifdef FOSSIL_ENABLE_SSL
+ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
 endif
 
@@ -822,10 +827,10 @@ setup: $(OBJDIR) $(APPNAME)
 innosetup: $(OBJDIR) $(APPNAME)
 	$(INNOSETUP) ./setup/fossil.iss -DAppVersion=$(shell $(CAT) ./VERSION)
 
-$(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
+$(OBJDIR)/page_index.h: $(TRANS_SRC) $(MKINDEX)
 	$(MKINDEX) $(TRANS_SRC) >$@
 
-$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
+$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(MAKEHEADERS) $(OBJDIR)/VERSION.h
 	$(MAKEHEADERS) $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
 		$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 		$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
@@ -946,7 +951,7 @@ $(OBJDIR)/headers: Makefile
 
 Makefile:
 
-$(OBJDIR)/add_.c:	$(SRCDIR)/add.c $(OBJDIR)/translate
+$(OBJDIR)/add_.c:	$(SRCDIR)/add.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/add.c >$(OBJDIR)/add_.c
 
 $(OBJDIR)/add.o:	$(OBJDIR)/add_.c $(OBJDIR)/add.h $(SRCDIR)/config.h
@@ -954,7 +959,7 @@ $(OBJDIR)/add.o:	$(OBJDIR)/add_.c $(OBJDIR)/add.h $(SRCDIR)/config.h
 
 $(OBJDIR)/add.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/allrepo_.c:	$(SRCDIR)/allrepo.c $(OBJDIR)/translate
+$(OBJDIR)/allrepo_.c:	$(SRCDIR)/allrepo.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/allrepo.c >$(OBJDIR)/allrepo_.c
 
 $(OBJDIR)/allrepo.o:	$(OBJDIR)/allrepo_.c $(OBJDIR)/allrepo.h $(SRCDIR)/config.h
@@ -962,7 +967,7 @@ $(OBJDIR)/allrepo.o:	$(OBJDIR)/allrepo_.c $(OBJDIR)/allrepo.h $(SRCDIR)/config.h
 
 $(OBJDIR)/allrepo.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/attach_.c:	$(SRCDIR)/attach.c $(OBJDIR)/translate
+$(OBJDIR)/attach_.c:	$(SRCDIR)/attach.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/attach.c >$(OBJDIR)/attach_.c
 
 $(OBJDIR)/attach.o:	$(OBJDIR)/attach_.c $(OBJDIR)/attach.h $(SRCDIR)/config.h
@@ -970,7 +975,7 @@ $(OBJDIR)/attach.o:	$(OBJDIR)/attach_.c $(OBJDIR)/attach.h $(SRCDIR)/config.h
 
 $(OBJDIR)/attach.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/bag_.c:	$(SRCDIR)/bag.c $(OBJDIR)/translate
+$(OBJDIR)/bag_.c:	$(SRCDIR)/bag.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/bag.c >$(OBJDIR)/bag_.c
 
 $(OBJDIR)/bag.o:	$(OBJDIR)/bag_.c $(OBJDIR)/bag.h $(SRCDIR)/config.h
@@ -978,7 +983,7 @@ $(OBJDIR)/bag.o:	$(OBJDIR)/bag_.c $(OBJDIR)/bag.h $(SRCDIR)/config.h
 
 $(OBJDIR)/bag.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/bisect_.c:	$(SRCDIR)/bisect.c $(OBJDIR)/translate
+$(OBJDIR)/bisect_.c:	$(SRCDIR)/bisect.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/bisect.c >$(OBJDIR)/bisect_.c
 
 $(OBJDIR)/bisect.o:	$(OBJDIR)/bisect_.c $(OBJDIR)/bisect.h $(SRCDIR)/config.h
@@ -986,7 +991,7 @@ $(OBJDIR)/bisect.o:	$(OBJDIR)/bisect_.c $(OBJDIR)/bisect.h $(SRCDIR)/config.h
 
 $(OBJDIR)/bisect.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/blob_.c:	$(SRCDIR)/blob.c $(OBJDIR)/translate
+$(OBJDIR)/blob_.c:	$(SRCDIR)/blob.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/blob.c >$(OBJDIR)/blob_.c
 
 $(OBJDIR)/blob.o:	$(OBJDIR)/blob_.c $(OBJDIR)/blob.h $(SRCDIR)/config.h
@@ -994,7 +999,7 @@ $(OBJDIR)/blob.o:	$(OBJDIR)/blob_.c $(OBJDIR)/blob.h $(SRCDIR)/config.h
 
 $(OBJDIR)/blob.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/branch_.c:	$(SRCDIR)/branch.c $(OBJDIR)/translate
+$(OBJDIR)/branch_.c:	$(SRCDIR)/branch.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/branch.c >$(OBJDIR)/branch_.c
 
 $(OBJDIR)/branch.o:	$(OBJDIR)/branch_.c $(OBJDIR)/branch.h $(SRCDIR)/config.h
@@ -1002,7 +1007,7 @@ $(OBJDIR)/branch.o:	$(OBJDIR)/branch_.c $(OBJDIR)/branch.h $(SRCDIR)/config.h
 
 $(OBJDIR)/branch.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/browse_.c:	$(SRCDIR)/browse.c $(OBJDIR)/translate
+$(OBJDIR)/browse_.c:	$(SRCDIR)/browse.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/browse.c >$(OBJDIR)/browse_.c
 
 $(OBJDIR)/browse.o:	$(OBJDIR)/browse_.c $(OBJDIR)/browse.h $(SRCDIR)/config.h
@@ -1010,7 +1015,7 @@ $(OBJDIR)/browse.o:	$(OBJDIR)/browse_.c $(OBJDIR)/browse.h $(SRCDIR)/config.h
 
 $(OBJDIR)/browse.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/cache_.c:	$(SRCDIR)/cache.c $(OBJDIR)/translate
+$(OBJDIR)/cache_.c:	$(SRCDIR)/cache.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/cache.c >$(OBJDIR)/cache_.c
 
 $(OBJDIR)/cache.o:	$(OBJDIR)/cache_.c $(OBJDIR)/cache.h $(SRCDIR)/config.h
@@ -1018,7 +1023,7 @@ $(OBJDIR)/cache.o:	$(OBJDIR)/cache_.c $(OBJDIR)/cache.h $(SRCDIR)/config.h
 
 $(OBJDIR)/cache.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/captcha_.c:	$(SRCDIR)/captcha.c $(OBJDIR)/translate
+$(OBJDIR)/captcha_.c:	$(SRCDIR)/captcha.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/captcha.c >$(OBJDIR)/captcha_.c
 
 $(OBJDIR)/captcha.o:	$(OBJDIR)/captcha_.c $(OBJDIR)/captcha.h $(SRCDIR)/config.h
@@ -1026,7 +1031,7 @@ $(OBJDIR)/captcha.o:	$(OBJDIR)/captcha_.c $(OBJDIR)/captcha.h $(SRCDIR)/config.h
 
 $(OBJDIR)/captcha.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/cgi_.c:	$(SRCDIR)/cgi.c $(OBJDIR)/translate
+$(OBJDIR)/cgi_.c:	$(SRCDIR)/cgi.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/cgi.c >$(OBJDIR)/cgi_.c
 
 $(OBJDIR)/cgi.o:	$(OBJDIR)/cgi_.c $(OBJDIR)/cgi.h $(SRCDIR)/config.h
@@ -1034,7 +1039,7 @@ $(OBJDIR)/cgi.o:	$(OBJDIR)/cgi_.c $(OBJDIR)/cgi.h $(SRCDIR)/config.h
 
 $(OBJDIR)/cgi.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/checkin_.c:	$(SRCDIR)/checkin.c $(OBJDIR)/translate
+$(OBJDIR)/checkin_.c:	$(SRCDIR)/checkin.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/checkin.c >$(OBJDIR)/checkin_.c
 
 $(OBJDIR)/checkin.o:	$(OBJDIR)/checkin_.c $(OBJDIR)/checkin.h $(SRCDIR)/config.h
@@ -1042,7 +1047,7 @@ $(OBJDIR)/checkin.o:	$(OBJDIR)/checkin_.c $(OBJDIR)/checkin.h $(SRCDIR)/config.h
 
 $(OBJDIR)/checkin.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/checkout_.c:	$(SRCDIR)/checkout.c $(OBJDIR)/translate
+$(OBJDIR)/checkout_.c:	$(SRCDIR)/checkout.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/checkout.c >$(OBJDIR)/checkout_.c
 
 $(OBJDIR)/checkout.o:	$(OBJDIR)/checkout_.c $(OBJDIR)/checkout.h $(SRCDIR)/config.h
@@ -1050,7 +1055,7 @@ $(OBJDIR)/checkout.o:	$(OBJDIR)/checkout_.c $(OBJDIR)/checkout.h $(SRCDIR)/confi
 
 $(OBJDIR)/checkout.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/clearsign_.c:	$(SRCDIR)/clearsign.c $(OBJDIR)/translate
+$(OBJDIR)/clearsign_.c:	$(SRCDIR)/clearsign.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/clearsign.c >$(OBJDIR)/clearsign_.c
 
 $(OBJDIR)/clearsign.o:	$(OBJDIR)/clearsign_.c $(OBJDIR)/clearsign.h $(SRCDIR)/config.h
@@ -1058,7 +1063,7 @@ $(OBJDIR)/clearsign.o:	$(OBJDIR)/clearsign_.c $(OBJDIR)/clearsign.h $(SRCDIR)/co
 
 $(OBJDIR)/clearsign.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/clone_.c:	$(SRCDIR)/clone.c $(OBJDIR)/translate
+$(OBJDIR)/clone_.c:	$(SRCDIR)/clone.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/clone.c >$(OBJDIR)/clone_.c
 
 $(OBJDIR)/clone.o:	$(OBJDIR)/clone_.c $(OBJDIR)/clone.h $(SRCDIR)/config.h
@@ -1066,7 +1071,7 @@ $(OBJDIR)/clone.o:	$(OBJDIR)/clone_.c $(OBJDIR)/clone.h $(SRCDIR)/config.h
 
 $(OBJDIR)/clone.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/comformat_.c:	$(SRCDIR)/comformat.c $(OBJDIR)/translate
+$(OBJDIR)/comformat_.c:	$(SRCDIR)/comformat.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/comformat.c >$(OBJDIR)/comformat_.c
 
 $(OBJDIR)/comformat.o:	$(OBJDIR)/comformat_.c $(OBJDIR)/comformat.h $(SRCDIR)/config.h
@@ -1074,7 +1079,7 @@ $(OBJDIR)/comformat.o:	$(OBJDIR)/comformat_.c $(OBJDIR)/comformat.h $(SRCDIR)/co
 
 $(OBJDIR)/comformat.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/configure_.c:	$(SRCDIR)/configure.c $(OBJDIR)/translate
+$(OBJDIR)/configure_.c:	$(SRCDIR)/configure.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/configure.c >$(OBJDIR)/configure_.c
 
 $(OBJDIR)/configure.o:	$(OBJDIR)/configure_.c $(OBJDIR)/configure.h $(SRCDIR)/config.h
@@ -1082,7 +1087,7 @@ $(OBJDIR)/configure.o:	$(OBJDIR)/configure_.c $(OBJDIR)/configure.h $(SRCDIR)/co
 
 $(OBJDIR)/configure.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/content_.c:	$(SRCDIR)/content.c $(OBJDIR)/translate
+$(OBJDIR)/content_.c:	$(SRCDIR)/content.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/content.c >$(OBJDIR)/content_.c
 
 $(OBJDIR)/content.o:	$(OBJDIR)/content_.c $(OBJDIR)/content.h $(SRCDIR)/config.h
@@ -1090,7 +1095,7 @@ $(OBJDIR)/content.o:	$(OBJDIR)/content_.c $(OBJDIR)/content.h $(SRCDIR)/config.h
 
 $(OBJDIR)/content.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/db_.c:	$(SRCDIR)/db.c $(OBJDIR)/translate
+$(OBJDIR)/db_.c:	$(SRCDIR)/db.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/db.c >$(OBJDIR)/db_.c
 
 $(OBJDIR)/db.o:	$(OBJDIR)/db_.c $(OBJDIR)/db.h $(SRCDIR)/config.h
@@ -1098,7 +1103,7 @@ $(OBJDIR)/db.o:	$(OBJDIR)/db_.c $(OBJDIR)/db.h $(SRCDIR)/config.h
 
 $(OBJDIR)/db.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/delta_.c:	$(SRCDIR)/delta.c $(OBJDIR)/translate
+$(OBJDIR)/delta_.c:	$(SRCDIR)/delta.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/delta.c >$(OBJDIR)/delta_.c
 
 $(OBJDIR)/delta.o:	$(OBJDIR)/delta_.c $(OBJDIR)/delta.h $(SRCDIR)/config.h
@@ -1106,7 +1111,7 @@ $(OBJDIR)/delta.o:	$(OBJDIR)/delta_.c $(OBJDIR)/delta.h $(SRCDIR)/config.h
 
 $(OBJDIR)/delta.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/deltacmd_.c:	$(SRCDIR)/deltacmd.c $(OBJDIR)/translate
+$(OBJDIR)/deltacmd_.c:	$(SRCDIR)/deltacmd.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/deltacmd.c >$(OBJDIR)/deltacmd_.c
 
 $(OBJDIR)/deltacmd.o:	$(OBJDIR)/deltacmd_.c $(OBJDIR)/deltacmd.h $(SRCDIR)/config.h
@@ -1114,7 +1119,7 @@ $(OBJDIR)/deltacmd.o:	$(OBJDIR)/deltacmd_.c $(OBJDIR)/deltacmd.h $(SRCDIR)/confi
 
 $(OBJDIR)/deltacmd.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/descendants_.c:	$(SRCDIR)/descendants.c $(OBJDIR)/translate
+$(OBJDIR)/descendants_.c:	$(SRCDIR)/descendants.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/descendants.c >$(OBJDIR)/descendants_.c
 
 $(OBJDIR)/descendants.o:	$(OBJDIR)/descendants_.c $(OBJDIR)/descendants.h $(SRCDIR)/config.h
@@ -1122,7 +1127,7 @@ $(OBJDIR)/descendants.o:	$(OBJDIR)/descendants_.c $(OBJDIR)/descendants.h $(SRCD
 
 $(OBJDIR)/descendants.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/diff_.c:	$(SRCDIR)/diff.c $(OBJDIR)/translate
+$(OBJDIR)/diff_.c:	$(SRCDIR)/diff.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/diff.c >$(OBJDIR)/diff_.c
 
 $(OBJDIR)/diff.o:	$(OBJDIR)/diff_.c $(OBJDIR)/diff.h $(SRCDIR)/config.h
@@ -1130,7 +1135,7 @@ $(OBJDIR)/diff.o:	$(OBJDIR)/diff_.c $(OBJDIR)/diff.h $(SRCDIR)/config.h
 
 $(OBJDIR)/diff.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/diffcmd_.c:	$(SRCDIR)/diffcmd.c $(OBJDIR)/translate
+$(OBJDIR)/diffcmd_.c:	$(SRCDIR)/diffcmd.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/diffcmd.c >$(OBJDIR)/diffcmd_.c
 
 $(OBJDIR)/diffcmd.o:	$(OBJDIR)/diffcmd_.c $(OBJDIR)/diffcmd.h $(SRCDIR)/config.h
@@ -1138,7 +1143,7 @@ $(OBJDIR)/diffcmd.o:	$(OBJDIR)/diffcmd_.c $(OBJDIR)/diffcmd.h $(SRCDIR)/config.h
 
 $(OBJDIR)/diffcmd.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/doc_.c:	$(SRCDIR)/doc.c $(OBJDIR)/translate
+$(OBJDIR)/doc_.c:	$(SRCDIR)/doc.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/doc.c >$(OBJDIR)/doc_.c
 
 $(OBJDIR)/doc.o:	$(OBJDIR)/doc_.c $(OBJDIR)/doc.h $(SRCDIR)/config.h
@@ -1146,7 +1151,7 @@ $(OBJDIR)/doc.o:	$(OBJDIR)/doc_.c $(OBJDIR)/doc.h $(SRCDIR)/config.h
 
 $(OBJDIR)/doc.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/encode_.c:	$(SRCDIR)/encode.c $(OBJDIR)/translate
+$(OBJDIR)/encode_.c:	$(SRCDIR)/encode.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/encode.c >$(OBJDIR)/encode_.c
 
 $(OBJDIR)/encode.o:	$(OBJDIR)/encode_.c $(OBJDIR)/encode.h $(SRCDIR)/config.h
@@ -1154,7 +1159,7 @@ $(OBJDIR)/encode.o:	$(OBJDIR)/encode_.c $(OBJDIR)/encode.h $(SRCDIR)/config.h
 
 $(OBJDIR)/encode.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/event_.c:	$(SRCDIR)/event.c $(OBJDIR)/translate
+$(OBJDIR)/event_.c:	$(SRCDIR)/event.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/event.c >$(OBJDIR)/event_.c
 
 $(OBJDIR)/event.o:	$(OBJDIR)/event_.c $(OBJDIR)/event.h $(SRCDIR)/config.h
@@ -1162,7 +1167,7 @@ $(OBJDIR)/event.o:	$(OBJDIR)/event_.c $(OBJDIR)/event.h $(SRCDIR)/config.h
 
 $(OBJDIR)/event.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/export_.c:	$(SRCDIR)/export.c $(OBJDIR)/translate
+$(OBJDIR)/export_.c:	$(SRCDIR)/export.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/export.c >$(OBJDIR)/export_.c
 
 $(OBJDIR)/export.o:	$(OBJDIR)/export_.c $(OBJDIR)/export.h $(SRCDIR)/config.h
@@ -1170,7 +1175,7 @@ $(OBJDIR)/export.o:	$(OBJDIR)/export_.c $(OBJDIR)/export.h $(SRCDIR)/config.h
 
 $(OBJDIR)/export.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/file_.c:	$(SRCDIR)/file.c $(OBJDIR)/translate
+$(OBJDIR)/file_.c:	$(SRCDIR)/file.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/file.c >$(OBJDIR)/file_.c
 
 $(OBJDIR)/file.o:	$(OBJDIR)/file_.c $(OBJDIR)/file.h $(SRCDIR)/config.h
@@ -1178,7 +1183,7 @@ $(OBJDIR)/file.o:	$(OBJDIR)/file_.c $(OBJDIR)/file.h $(SRCDIR)/config.h
 
 $(OBJDIR)/file.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/finfo_.c:	$(SRCDIR)/finfo.c $(OBJDIR)/translate
+$(OBJDIR)/finfo_.c:	$(SRCDIR)/finfo.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/finfo.c >$(OBJDIR)/finfo_.c
 
 $(OBJDIR)/finfo.o:	$(OBJDIR)/finfo_.c $(OBJDIR)/finfo.h $(SRCDIR)/config.h
@@ -1186,7 +1191,7 @@ $(OBJDIR)/finfo.o:	$(OBJDIR)/finfo_.c $(OBJDIR)/finfo.h $(SRCDIR)/config.h
 
 $(OBJDIR)/finfo.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/fusefs_.c:	$(SRCDIR)/fusefs.c $(OBJDIR)/translate
+$(OBJDIR)/fusefs_.c:	$(SRCDIR)/fusefs.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/fusefs.c >$(OBJDIR)/fusefs_.c
 
 $(OBJDIR)/fusefs.o:	$(OBJDIR)/fusefs_.c $(OBJDIR)/fusefs.h $(SRCDIR)/config.h
@@ -1194,7 +1199,7 @@ $(OBJDIR)/fusefs.o:	$(OBJDIR)/fusefs_.c $(OBJDIR)/fusefs.h $(SRCDIR)/config.h
 
 $(OBJDIR)/fusefs.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/glob_.c:	$(SRCDIR)/glob.c $(OBJDIR)/translate
+$(OBJDIR)/glob_.c:	$(SRCDIR)/glob.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/glob.c >$(OBJDIR)/glob_.c
 
 $(OBJDIR)/glob.o:	$(OBJDIR)/glob_.c $(OBJDIR)/glob.h $(SRCDIR)/config.h
@@ -1202,7 +1207,7 @@ $(OBJDIR)/glob.o:	$(OBJDIR)/glob_.c $(OBJDIR)/glob.h $(SRCDIR)/config.h
 
 $(OBJDIR)/glob.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/graph_.c:	$(SRCDIR)/graph.c $(OBJDIR)/translate
+$(OBJDIR)/graph_.c:	$(SRCDIR)/graph.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/graph.c >$(OBJDIR)/graph_.c
 
 $(OBJDIR)/graph.o:	$(OBJDIR)/graph_.c $(OBJDIR)/graph.h $(SRCDIR)/config.h
@@ -1210,7 +1215,7 @@ $(OBJDIR)/graph.o:	$(OBJDIR)/graph_.c $(OBJDIR)/graph.h $(SRCDIR)/config.h
 
 $(OBJDIR)/graph.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/gzip_.c:	$(SRCDIR)/gzip.c $(OBJDIR)/translate
+$(OBJDIR)/gzip_.c:	$(SRCDIR)/gzip.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/gzip.c >$(OBJDIR)/gzip_.c
 
 $(OBJDIR)/gzip.o:	$(OBJDIR)/gzip_.c $(OBJDIR)/gzip.h $(SRCDIR)/config.h
@@ -1218,7 +1223,7 @@ $(OBJDIR)/gzip.o:	$(OBJDIR)/gzip_.c $(OBJDIR)/gzip.h $(SRCDIR)/config.h
 
 $(OBJDIR)/gzip.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/http_.c:	$(SRCDIR)/http.c $(OBJDIR)/translate
+$(OBJDIR)/http_.c:	$(SRCDIR)/http.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/http.c >$(OBJDIR)/http_.c
 
 $(OBJDIR)/http.o:	$(OBJDIR)/http_.c $(OBJDIR)/http.h $(SRCDIR)/config.h
@@ -1226,7 +1231,7 @@ $(OBJDIR)/http.o:	$(OBJDIR)/http_.c $(OBJDIR)/http.h $(SRCDIR)/config.h
 
 $(OBJDIR)/http.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/http_socket_.c:	$(SRCDIR)/http_socket.c $(OBJDIR)/translate
+$(OBJDIR)/http_socket_.c:	$(SRCDIR)/http_socket.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/http_socket.c >$(OBJDIR)/http_socket_.c
 
 $(OBJDIR)/http_socket.o:	$(OBJDIR)/http_socket_.c $(OBJDIR)/http_socket.h $(SRCDIR)/config.h
@@ -1234,7 +1239,7 @@ $(OBJDIR)/http_socket.o:	$(OBJDIR)/http_socket_.c $(OBJDIR)/http_socket.h $(SRCD
 
 $(OBJDIR)/http_socket.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/http_ssl_.c:	$(SRCDIR)/http_ssl.c $(OBJDIR)/translate
+$(OBJDIR)/http_ssl_.c:	$(SRCDIR)/http_ssl.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/http_ssl.c >$(OBJDIR)/http_ssl_.c
 
 $(OBJDIR)/http_ssl.o:	$(OBJDIR)/http_ssl_.c $(OBJDIR)/http_ssl.h $(SRCDIR)/config.h
@@ -1242,7 +1247,7 @@ $(OBJDIR)/http_ssl.o:	$(OBJDIR)/http_ssl_.c $(OBJDIR)/http_ssl.h $(SRCDIR)/confi
 
 $(OBJDIR)/http_ssl.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/http_transport_.c:	$(SRCDIR)/http_transport.c $(OBJDIR)/translate
+$(OBJDIR)/http_transport_.c:	$(SRCDIR)/http_transport.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/http_transport.c >$(OBJDIR)/http_transport_.c
 
 $(OBJDIR)/http_transport.o:	$(OBJDIR)/http_transport_.c $(OBJDIR)/http_transport.h $(SRCDIR)/config.h
@@ -1250,7 +1255,7 @@ $(OBJDIR)/http_transport.o:	$(OBJDIR)/http_transport_.c $(OBJDIR)/http_transport
 
 $(OBJDIR)/http_transport.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/import_.c:	$(SRCDIR)/import.c $(OBJDIR)/translate
+$(OBJDIR)/import_.c:	$(SRCDIR)/import.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/import.c >$(OBJDIR)/import_.c
 
 $(OBJDIR)/import.o:	$(OBJDIR)/import_.c $(OBJDIR)/import.h $(SRCDIR)/config.h
@@ -1258,7 +1263,7 @@ $(OBJDIR)/import.o:	$(OBJDIR)/import_.c $(OBJDIR)/import.h $(SRCDIR)/config.h
 
 $(OBJDIR)/import.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/info_.c:	$(SRCDIR)/info.c $(OBJDIR)/translate
+$(OBJDIR)/info_.c:	$(SRCDIR)/info.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/info.c >$(OBJDIR)/info_.c
 
 $(OBJDIR)/info.o:	$(OBJDIR)/info_.c $(OBJDIR)/info.h $(SRCDIR)/config.h
@@ -1266,7 +1271,7 @@ $(OBJDIR)/info.o:	$(OBJDIR)/info_.c $(OBJDIR)/info.h $(SRCDIR)/config.h
 
 $(OBJDIR)/info.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_.c:	$(SRCDIR)/json.c $(OBJDIR)/translate
+$(OBJDIR)/json_.c:	$(SRCDIR)/json.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json.c >$(OBJDIR)/json_.c
 
 $(OBJDIR)/json.o:	$(OBJDIR)/json_.c $(OBJDIR)/json.h $(SRCDIR)/config.h
@@ -1274,7 +1279,7 @@ $(OBJDIR)/json.o:	$(OBJDIR)/json_.c $(OBJDIR)/json.h $(SRCDIR)/config.h
 
 $(OBJDIR)/json.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_artifact_.c:	$(SRCDIR)/json_artifact.c $(OBJDIR)/translate
+$(OBJDIR)/json_artifact_.c:	$(SRCDIR)/json_artifact.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_artifact.c >$(OBJDIR)/json_artifact_.c
 
 $(OBJDIR)/json_artifact.o:	$(OBJDIR)/json_artifact_.c $(OBJDIR)/json_artifact.h $(SRCDIR)/config.h
@@ -1282,7 +1287,7 @@ $(OBJDIR)/json_artifact.o:	$(OBJDIR)/json_artifact_.c $(OBJDIR)/json_artifact.h 
 
 $(OBJDIR)/json_artifact.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_branch_.c:	$(SRCDIR)/json_branch.c $(OBJDIR)/translate
+$(OBJDIR)/json_branch_.c:	$(SRCDIR)/json_branch.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_branch.c >$(OBJDIR)/json_branch_.c
 
 $(OBJDIR)/json_branch.o:	$(OBJDIR)/json_branch_.c $(OBJDIR)/json_branch.h $(SRCDIR)/config.h
@@ -1290,7 +1295,7 @@ $(OBJDIR)/json_branch.o:	$(OBJDIR)/json_branch_.c $(OBJDIR)/json_branch.h $(SRCD
 
 $(OBJDIR)/json_branch.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_config_.c:	$(SRCDIR)/json_config.c $(OBJDIR)/translate
+$(OBJDIR)/json_config_.c:	$(SRCDIR)/json_config.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_config.c >$(OBJDIR)/json_config_.c
 
 $(OBJDIR)/json_config.o:	$(OBJDIR)/json_config_.c $(OBJDIR)/json_config.h $(SRCDIR)/config.h
@@ -1298,7 +1303,7 @@ $(OBJDIR)/json_config.o:	$(OBJDIR)/json_config_.c $(OBJDIR)/json_config.h $(SRCD
 
 $(OBJDIR)/json_config.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_diff_.c:	$(SRCDIR)/json_diff.c $(OBJDIR)/translate
+$(OBJDIR)/json_diff_.c:	$(SRCDIR)/json_diff.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_diff.c >$(OBJDIR)/json_diff_.c
 
 $(OBJDIR)/json_diff.o:	$(OBJDIR)/json_diff_.c $(OBJDIR)/json_diff.h $(SRCDIR)/config.h
@@ -1306,7 +1311,7 @@ $(OBJDIR)/json_diff.o:	$(OBJDIR)/json_diff_.c $(OBJDIR)/json_diff.h $(SRCDIR)/co
 
 $(OBJDIR)/json_diff.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_dir_.c:	$(SRCDIR)/json_dir.c $(OBJDIR)/translate
+$(OBJDIR)/json_dir_.c:	$(SRCDIR)/json_dir.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_dir.c >$(OBJDIR)/json_dir_.c
 
 $(OBJDIR)/json_dir.o:	$(OBJDIR)/json_dir_.c $(OBJDIR)/json_dir.h $(SRCDIR)/config.h
@@ -1314,7 +1319,7 @@ $(OBJDIR)/json_dir.o:	$(OBJDIR)/json_dir_.c $(OBJDIR)/json_dir.h $(SRCDIR)/confi
 
 $(OBJDIR)/json_dir.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_finfo_.c:	$(SRCDIR)/json_finfo.c $(OBJDIR)/translate
+$(OBJDIR)/json_finfo_.c:	$(SRCDIR)/json_finfo.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_finfo.c >$(OBJDIR)/json_finfo_.c
 
 $(OBJDIR)/json_finfo.o:	$(OBJDIR)/json_finfo_.c $(OBJDIR)/json_finfo.h $(SRCDIR)/config.h
@@ -1322,7 +1327,7 @@ $(OBJDIR)/json_finfo.o:	$(OBJDIR)/json_finfo_.c $(OBJDIR)/json_finfo.h $(SRCDIR)
 
 $(OBJDIR)/json_finfo.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_login_.c:	$(SRCDIR)/json_login.c $(OBJDIR)/translate
+$(OBJDIR)/json_login_.c:	$(SRCDIR)/json_login.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_login.c >$(OBJDIR)/json_login_.c
 
 $(OBJDIR)/json_login.o:	$(OBJDIR)/json_login_.c $(OBJDIR)/json_login.h $(SRCDIR)/config.h
@@ -1330,7 +1335,7 @@ $(OBJDIR)/json_login.o:	$(OBJDIR)/json_login_.c $(OBJDIR)/json_login.h $(SRCDIR)
 
 $(OBJDIR)/json_login.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_query_.c:	$(SRCDIR)/json_query.c $(OBJDIR)/translate
+$(OBJDIR)/json_query_.c:	$(SRCDIR)/json_query.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_query.c >$(OBJDIR)/json_query_.c
 
 $(OBJDIR)/json_query.o:	$(OBJDIR)/json_query_.c $(OBJDIR)/json_query.h $(SRCDIR)/config.h
@@ -1338,7 +1343,7 @@ $(OBJDIR)/json_query.o:	$(OBJDIR)/json_query_.c $(OBJDIR)/json_query.h $(SRCDIR)
 
 $(OBJDIR)/json_query.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_report_.c:	$(SRCDIR)/json_report.c $(OBJDIR)/translate
+$(OBJDIR)/json_report_.c:	$(SRCDIR)/json_report.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_report.c >$(OBJDIR)/json_report_.c
 
 $(OBJDIR)/json_report.o:	$(OBJDIR)/json_report_.c $(OBJDIR)/json_report.h $(SRCDIR)/config.h
@@ -1346,7 +1351,7 @@ $(OBJDIR)/json_report.o:	$(OBJDIR)/json_report_.c $(OBJDIR)/json_report.h $(SRCD
 
 $(OBJDIR)/json_report.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_status_.c:	$(SRCDIR)/json_status.c $(OBJDIR)/translate
+$(OBJDIR)/json_status_.c:	$(SRCDIR)/json_status.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_status.c >$(OBJDIR)/json_status_.c
 
 $(OBJDIR)/json_status.o:	$(OBJDIR)/json_status_.c $(OBJDIR)/json_status.h $(SRCDIR)/config.h
@@ -1354,7 +1359,7 @@ $(OBJDIR)/json_status.o:	$(OBJDIR)/json_status_.c $(OBJDIR)/json_status.h $(SRCD
 
 $(OBJDIR)/json_status.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_tag_.c:	$(SRCDIR)/json_tag.c $(OBJDIR)/translate
+$(OBJDIR)/json_tag_.c:	$(SRCDIR)/json_tag.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_tag.c >$(OBJDIR)/json_tag_.c
 
 $(OBJDIR)/json_tag.o:	$(OBJDIR)/json_tag_.c $(OBJDIR)/json_tag.h $(SRCDIR)/config.h
@@ -1362,7 +1367,7 @@ $(OBJDIR)/json_tag.o:	$(OBJDIR)/json_tag_.c $(OBJDIR)/json_tag.h $(SRCDIR)/confi
 
 $(OBJDIR)/json_tag.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_timeline_.c:	$(SRCDIR)/json_timeline.c $(OBJDIR)/translate
+$(OBJDIR)/json_timeline_.c:	$(SRCDIR)/json_timeline.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_timeline.c >$(OBJDIR)/json_timeline_.c
 
 $(OBJDIR)/json_timeline.o:	$(OBJDIR)/json_timeline_.c $(OBJDIR)/json_timeline.h $(SRCDIR)/config.h
@@ -1370,7 +1375,7 @@ $(OBJDIR)/json_timeline.o:	$(OBJDIR)/json_timeline_.c $(OBJDIR)/json_timeline.h 
 
 $(OBJDIR)/json_timeline.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_user_.c:	$(SRCDIR)/json_user.c $(OBJDIR)/translate
+$(OBJDIR)/json_user_.c:	$(SRCDIR)/json_user.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_user.c >$(OBJDIR)/json_user_.c
 
 $(OBJDIR)/json_user.o:	$(OBJDIR)/json_user_.c $(OBJDIR)/json_user.h $(SRCDIR)/config.h
@@ -1378,7 +1383,7 @@ $(OBJDIR)/json_user.o:	$(OBJDIR)/json_user_.c $(OBJDIR)/json_user.h $(SRCDIR)/co
 
 $(OBJDIR)/json_user.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/json_wiki_.c:	$(SRCDIR)/json_wiki.c $(OBJDIR)/translate
+$(OBJDIR)/json_wiki_.c:	$(SRCDIR)/json_wiki.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/json_wiki.c >$(OBJDIR)/json_wiki_.c
 
 $(OBJDIR)/json_wiki.o:	$(OBJDIR)/json_wiki_.c $(OBJDIR)/json_wiki.h $(SRCDIR)/config.h
@@ -1386,7 +1391,7 @@ $(OBJDIR)/json_wiki.o:	$(OBJDIR)/json_wiki_.c $(OBJDIR)/json_wiki.h $(SRCDIR)/co
 
 $(OBJDIR)/json_wiki.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/leaf_.c:	$(SRCDIR)/leaf.c $(OBJDIR)/translate
+$(OBJDIR)/leaf_.c:	$(SRCDIR)/leaf.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/leaf.c >$(OBJDIR)/leaf_.c
 
 $(OBJDIR)/leaf.o:	$(OBJDIR)/leaf_.c $(OBJDIR)/leaf.h $(SRCDIR)/config.h
@@ -1394,7 +1399,7 @@ $(OBJDIR)/leaf.o:	$(OBJDIR)/leaf_.c $(OBJDIR)/leaf.h $(SRCDIR)/config.h
 
 $(OBJDIR)/leaf.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/loadctrl_.c:	$(SRCDIR)/loadctrl.c $(OBJDIR)/translate
+$(OBJDIR)/loadctrl_.c:	$(SRCDIR)/loadctrl.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/loadctrl.c >$(OBJDIR)/loadctrl_.c
 
 $(OBJDIR)/loadctrl.o:	$(OBJDIR)/loadctrl_.c $(OBJDIR)/loadctrl.h $(SRCDIR)/config.h
@@ -1402,7 +1407,7 @@ $(OBJDIR)/loadctrl.o:	$(OBJDIR)/loadctrl_.c $(OBJDIR)/loadctrl.h $(SRCDIR)/confi
 
 $(OBJDIR)/loadctrl.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/login_.c:	$(SRCDIR)/login.c $(OBJDIR)/translate
+$(OBJDIR)/login_.c:	$(SRCDIR)/login.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/login.c >$(OBJDIR)/login_.c
 
 $(OBJDIR)/login.o:	$(OBJDIR)/login_.c $(OBJDIR)/login.h $(SRCDIR)/config.h
@@ -1410,7 +1415,7 @@ $(OBJDIR)/login.o:	$(OBJDIR)/login_.c $(OBJDIR)/login.h $(SRCDIR)/config.h
 
 $(OBJDIR)/login.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/lookslike_.c:	$(SRCDIR)/lookslike.c $(OBJDIR)/translate
+$(OBJDIR)/lookslike_.c:	$(SRCDIR)/lookslike.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/lookslike.c >$(OBJDIR)/lookslike_.c
 
 $(OBJDIR)/lookslike.o:	$(OBJDIR)/lookslike_.c $(OBJDIR)/lookslike.h $(SRCDIR)/config.h
@@ -1418,7 +1423,7 @@ $(OBJDIR)/lookslike.o:	$(OBJDIR)/lookslike_.c $(OBJDIR)/lookslike.h $(SRCDIR)/co
 
 $(OBJDIR)/lookslike.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/main_.c:	$(SRCDIR)/main.c $(OBJDIR)/translate
+$(OBJDIR)/main_.c:	$(SRCDIR)/main.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/main.c >$(OBJDIR)/main_.c
 
 $(OBJDIR)/main.o:	$(OBJDIR)/main_.c $(OBJDIR)/main.h $(OBJDIR)/page_index.h $(SRCDIR)/config.h
@@ -1426,7 +1431,7 @@ $(OBJDIR)/main.o:	$(OBJDIR)/main_.c $(OBJDIR)/main.h $(OBJDIR)/page_index.h $(SR
 
 $(OBJDIR)/main.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/manifest_.c:	$(SRCDIR)/manifest.c $(OBJDIR)/translate
+$(OBJDIR)/manifest_.c:	$(SRCDIR)/manifest.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/manifest.c >$(OBJDIR)/manifest_.c
 
 $(OBJDIR)/manifest.o:	$(OBJDIR)/manifest_.c $(OBJDIR)/manifest.h $(SRCDIR)/config.h
@@ -1434,7 +1439,7 @@ $(OBJDIR)/manifest.o:	$(OBJDIR)/manifest_.c $(OBJDIR)/manifest.h $(SRCDIR)/confi
 
 $(OBJDIR)/manifest.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/markdown_.c:	$(SRCDIR)/markdown.c $(OBJDIR)/translate
+$(OBJDIR)/markdown_.c:	$(SRCDIR)/markdown.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/markdown.c >$(OBJDIR)/markdown_.c
 
 $(OBJDIR)/markdown.o:	$(OBJDIR)/markdown_.c $(OBJDIR)/markdown.h $(SRCDIR)/config.h
@@ -1442,7 +1447,7 @@ $(OBJDIR)/markdown.o:	$(OBJDIR)/markdown_.c $(OBJDIR)/markdown.h $(SRCDIR)/confi
 
 $(OBJDIR)/markdown.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/markdown_html_.c:	$(SRCDIR)/markdown_html.c $(OBJDIR)/translate
+$(OBJDIR)/markdown_html_.c:	$(SRCDIR)/markdown_html.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/markdown_html.c >$(OBJDIR)/markdown_html_.c
 
 $(OBJDIR)/markdown_html.o:	$(OBJDIR)/markdown_html_.c $(OBJDIR)/markdown_html.h $(SRCDIR)/config.h
@@ -1450,7 +1455,7 @@ $(OBJDIR)/markdown_html.o:	$(OBJDIR)/markdown_html_.c $(OBJDIR)/markdown_html.h 
 
 $(OBJDIR)/markdown_html.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/md5_.c:	$(SRCDIR)/md5.c $(OBJDIR)/translate
+$(OBJDIR)/md5_.c:	$(SRCDIR)/md5.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/md5.c >$(OBJDIR)/md5_.c
 
 $(OBJDIR)/md5.o:	$(OBJDIR)/md5_.c $(OBJDIR)/md5.h $(SRCDIR)/config.h
@@ -1458,7 +1463,7 @@ $(OBJDIR)/md5.o:	$(OBJDIR)/md5_.c $(OBJDIR)/md5.h $(SRCDIR)/config.h
 
 $(OBJDIR)/md5.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/merge_.c:	$(SRCDIR)/merge.c $(OBJDIR)/translate
+$(OBJDIR)/merge_.c:	$(SRCDIR)/merge.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/merge.c >$(OBJDIR)/merge_.c
 
 $(OBJDIR)/merge.o:	$(OBJDIR)/merge_.c $(OBJDIR)/merge.h $(SRCDIR)/config.h
@@ -1466,7 +1471,7 @@ $(OBJDIR)/merge.o:	$(OBJDIR)/merge_.c $(OBJDIR)/merge.h $(SRCDIR)/config.h
 
 $(OBJDIR)/merge.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/merge3_.c:	$(SRCDIR)/merge3.c $(OBJDIR)/translate
+$(OBJDIR)/merge3_.c:	$(SRCDIR)/merge3.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/merge3.c >$(OBJDIR)/merge3_.c
 
 $(OBJDIR)/merge3.o:	$(OBJDIR)/merge3_.c $(OBJDIR)/merge3.h $(SRCDIR)/config.h
@@ -1474,7 +1479,7 @@ $(OBJDIR)/merge3.o:	$(OBJDIR)/merge3_.c $(OBJDIR)/merge3.h $(SRCDIR)/config.h
 
 $(OBJDIR)/merge3.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/moderate_.c:	$(SRCDIR)/moderate.c $(OBJDIR)/translate
+$(OBJDIR)/moderate_.c:	$(SRCDIR)/moderate.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/moderate.c >$(OBJDIR)/moderate_.c
 
 $(OBJDIR)/moderate.o:	$(OBJDIR)/moderate_.c $(OBJDIR)/moderate.h $(SRCDIR)/config.h
@@ -1482,7 +1487,7 @@ $(OBJDIR)/moderate.o:	$(OBJDIR)/moderate_.c $(OBJDIR)/moderate.h $(SRCDIR)/confi
 
 $(OBJDIR)/moderate.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/name_.c:	$(SRCDIR)/name.c $(OBJDIR)/translate
+$(OBJDIR)/name_.c:	$(SRCDIR)/name.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/name.c >$(OBJDIR)/name_.c
 
 $(OBJDIR)/name.o:	$(OBJDIR)/name_.c $(OBJDIR)/name.h $(SRCDIR)/config.h
@@ -1490,7 +1495,7 @@ $(OBJDIR)/name.o:	$(OBJDIR)/name_.c $(OBJDIR)/name.h $(SRCDIR)/config.h
 
 $(OBJDIR)/name.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/path_.c:	$(SRCDIR)/path.c $(OBJDIR)/translate
+$(OBJDIR)/path_.c:	$(SRCDIR)/path.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/path.c >$(OBJDIR)/path_.c
 
 $(OBJDIR)/path.o:	$(OBJDIR)/path_.c $(OBJDIR)/path.h $(SRCDIR)/config.h
@@ -1498,7 +1503,7 @@ $(OBJDIR)/path.o:	$(OBJDIR)/path_.c $(OBJDIR)/path.h $(SRCDIR)/config.h
 
 $(OBJDIR)/path.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/pivot_.c:	$(SRCDIR)/pivot.c $(OBJDIR)/translate
+$(OBJDIR)/pivot_.c:	$(SRCDIR)/pivot.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/pivot.c >$(OBJDIR)/pivot_.c
 
 $(OBJDIR)/pivot.o:	$(OBJDIR)/pivot_.c $(OBJDIR)/pivot.h $(SRCDIR)/config.h
@@ -1506,7 +1511,7 @@ $(OBJDIR)/pivot.o:	$(OBJDIR)/pivot_.c $(OBJDIR)/pivot.h $(SRCDIR)/config.h
 
 $(OBJDIR)/pivot.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/popen_.c:	$(SRCDIR)/popen.c $(OBJDIR)/translate
+$(OBJDIR)/popen_.c:	$(SRCDIR)/popen.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/popen.c >$(OBJDIR)/popen_.c
 
 $(OBJDIR)/popen.o:	$(OBJDIR)/popen_.c $(OBJDIR)/popen.h $(SRCDIR)/config.h
@@ -1514,7 +1519,7 @@ $(OBJDIR)/popen.o:	$(OBJDIR)/popen_.c $(OBJDIR)/popen.h $(SRCDIR)/config.h
 
 $(OBJDIR)/popen.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/pqueue_.c:	$(SRCDIR)/pqueue.c $(OBJDIR)/translate
+$(OBJDIR)/pqueue_.c:	$(SRCDIR)/pqueue.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/pqueue.c >$(OBJDIR)/pqueue_.c
 
 $(OBJDIR)/pqueue.o:	$(OBJDIR)/pqueue_.c $(OBJDIR)/pqueue.h $(SRCDIR)/config.h
@@ -1522,7 +1527,7 @@ $(OBJDIR)/pqueue.o:	$(OBJDIR)/pqueue_.c $(OBJDIR)/pqueue.h $(SRCDIR)/config.h
 
 $(OBJDIR)/pqueue.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/printf_.c:	$(SRCDIR)/printf.c $(OBJDIR)/translate
+$(OBJDIR)/printf_.c:	$(SRCDIR)/printf.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/printf.c >$(OBJDIR)/printf_.c
 
 $(OBJDIR)/printf.o:	$(OBJDIR)/printf_.c $(OBJDIR)/printf.h $(SRCDIR)/config.h
@@ -1530,7 +1535,7 @@ $(OBJDIR)/printf.o:	$(OBJDIR)/printf_.c $(OBJDIR)/printf.h $(SRCDIR)/config.h
 
 $(OBJDIR)/printf.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/rebuild_.c:	$(SRCDIR)/rebuild.c $(OBJDIR)/translate
+$(OBJDIR)/rebuild_.c:	$(SRCDIR)/rebuild.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/rebuild.c >$(OBJDIR)/rebuild_.c
 
 $(OBJDIR)/rebuild.o:	$(OBJDIR)/rebuild_.c $(OBJDIR)/rebuild.h $(SRCDIR)/config.h
@@ -1538,7 +1543,7 @@ $(OBJDIR)/rebuild.o:	$(OBJDIR)/rebuild_.c $(OBJDIR)/rebuild.h $(SRCDIR)/config.h
 
 $(OBJDIR)/rebuild.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/regexp_.c:	$(SRCDIR)/regexp.c $(OBJDIR)/translate
+$(OBJDIR)/regexp_.c:	$(SRCDIR)/regexp.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/regexp.c >$(OBJDIR)/regexp_.c
 
 $(OBJDIR)/regexp.o:	$(OBJDIR)/regexp_.c $(OBJDIR)/regexp.h $(SRCDIR)/config.h
@@ -1546,7 +1551,7 @@ $(OBJDIR)/regexp.o:	$(OBJDIR)/regexp_.c $(OBJDIR)/regexp.h $(SRCDIR)/config.h
 
 $(OBJDIR)/regexp.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/report_.c:	$(SRCDIR)/report.c $(OBJDIR)/translate
+$(OBJDIR)/report_.c:	$(SRCDIR)/report.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/report.c >$(OBJDIR)/report_.c
 
 $(OBJDIR)/report.o:	$(OBJDIR)/report_.c $(OBJDIR)/report.h $(SRCDIR)/config.h
@@ -1554,7 +1559,7 @@ $(OBJDIR)/report.o:	$(OBJDIR)/report_.c $(OBJDIR)/report.h $(SRCDIR)/config.h
 
 $(OBJDIR)/report.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/rss_.c:	$(SRCDIR)/rss.c $(OBJDIR)/translate
+$(OBJDIR)/rss_.c:	$(SRCDIR)/rss.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/rss.c >$(OBJDIR)/rss_.c
 
 $(OBJDIR)/rss.o:	$(OBJDIR)/rss_.c $(OBJDIR)/rss.h $(SRCDIR)/config.h
@@ -1562,7 +1567,7 @@ $(OBJDIR)/rss.o:	$(OBJDIR)/rss_.c $(OBJDIR)/rss.h $(SRCDIR)/config.h
 
 $(OBJDIR)/rss.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/schema_.c:	$(SRCDIR)/schema.c $(OBJDIR)/translate
+$(OBJDIR)/schema_.c:	$(SRCDIR)/schema.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/schema.c >$(OBJDIR)/schema_.c
 
 $(OBJDIR)/schema.o:	$(OBJDIR)/schema_.c $(OBJDIR)/schema.h $(SRCDIR)/config.h
@@ -1570,7 +1575,7 @@ $(OBJDIR)/schema.o:	$(OBJDIR)/schema_.c $(OBJDIR)/schema.h $(SRCDIR)/config.h
 
 $(OBJDIR)/schema.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/search_.c:	$(SRCDIR)/search.c $(OBJDIR)/translate
+$(OBJDIR)/search_.c:	$(SRCDIR)/search.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/search.c >$(OBJDIR)/search_.c
 
 $(OBJDIR)/search.o:	$(OBJDIR)/search_.c $(OBJDIR)/search.h $(SRCDIR)/config.h
@@ -1578,7 +1583,7 @@ $(OBJDIR)/search.o:	$(OBJDIR)/search_.c $(OBJDIR)/search.h $(SRCDIR)/config.h
 
 $(OBJDIR)/search.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/setup_.c:	$(SRCDIR)/setup.c $(OBJDIR)/translate
+$(OBJDIR)/setup_.c:	$(SRCDIR)/setup.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/setup.c >$(OBJDIR)/setup_.c
 
 $(OBJDIR)/setup.o:	$(OBJDIR)/setup_.c $(OBJDIR)/setup.h $(SRCDIR)/config.h
@@ -1586,7 +1591,7 @@ $(OBJDIR)/setup.o:	$(OBJDIR)/setup_.c $(OBJDIR)/setup.h $(SRCDIR)/config.h
 
 $(OBJDIR)/setup.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/sha1_.c:	$(SRCDIR)/sha1.c $(OBJDIR)/translate
+$(OBJDIR)/sha1_.c:	$(SRCDIR)/sha1.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/sha1.c >$(OBJDIR)/sha1_.c
 
 $(OBJDIR)/sha1.o:	$(OBJDIR)/sha1_.c $(OBJDIR)/sha1.h $(SRCDIR)/config.h
@@ -1594,7 +1599,7 @@ $(OBJDIR)/sha1.o:	$(OBJDIR)/sha1_.c $(OBJDIR)/sha1.h $(SRCDIR)/config.h
 
 $(OBJDIR)/sha1.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/shun_.c:	$(SRCDIR)/shun.c $(OBJDIR)/translate
+$(OBJDIR)/shun_.c:	$(SRCDIR)/shun.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/shun.c >$(OBJDIR)/shun_.c
 
 $(OBJDIR)/shun.o:	$(OBJDIR)/shun_.c $(OBJDIR)/shun.h $(SRCDIR)/config.h
@@ -1602,7 +1607,7 @@ $(OBJDIR)/shun.o:	$(OBJDIR)/shun_.c $(OBJDIR)/shun.h $(SRCDIR)/config.h
 
 $(OBJDIR)/shun.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/skins_.c:	$(SRCDIR)/skins.c $(OBJDIR)/translate
+$(OBJDIR)/skins_.c:	$(SRCDIR)/skins.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/skins.c >$(OBJDIR)/skins_.c
 
 $(OBJDIR)/skins.o:	$(OBJDIR)/skins_.c $(OBJDIR)/skins.h $(SRCDIR)/config.h
@@ -1610,7 +1615,7 @@ $(OBJDIR)/skins.o:	$(OBJDIR)/skins_.c $(OBJDIR)/skins.h $(SRCDIR)/config.h
 
 $(OBJDIR)/skins.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/sqlcmd_.c:	$(SRCDIR)/sqlcmd.c $(OBJDIR)/translate
+$(OBJDIR)/sqlcmd_.c:	$(SRCDIR)/sqlcmd.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/sqlcmd.c >$(OBJDIR)/sqlcmd_.c
 
 $(OBJDIR)/sqlcmd.o:	$(OBJDIR)/sqlcmd_.c $(OBJDIR)/sqlcmd.h $(SRCDIR)/config.h
@@ -1618,7 +1623,7 @@ $(OBJDIR)/sqlcmd.o:	$(OBJDIR)/sqlcmd_.c $(OBJDIR)/sqlcmd.h $(SRCDIR)/config.h
 
 $(OBJDIR)/sqlcmd.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/stash_.c:	$(SRCDIR)/stash.c $(OBJDIR)/translate
+$(OBJDIR)/stash_.c:	$(SRCDIR)/stash.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/stash.c >$(OBJDIR)/stash_.c
 
 $(OBJDIR)/stash.o:	$(OBJDIR)/stash_.c $(OBJDIR)/stash.h $(SRCDIR)/config.h
@@ -1626,7 +1631,7 @@ $(OBJDIR)/stash.o:	$(OBJDIR)/stash_.c $(OBJDIR)/stash.h $(SRCDIR)/config.h
 
 $(OBJDIR)/stash.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/stat_.c:	$(SRCDIR)/stat.c $(OBJDIR)/translate
+$(OBJDIR)/stat_.c:	$(SRCDIR)/stat.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/stat.c >$(OBJDIR)/stat_.c
 
 $(OBJDIR)/stat.o:	$(OBJDIR)/stat_.c $(OBJDIR)/stat.h $(SRCDIR)/config.h
@@ -1634,7 +1639,7 @@ $(OBJDIR)/stat.o:	$(OBJDIR)/stat_.c $(OBJDIR)/stat.h $(SRCDIR)/config.h
 
 $(OBJDIR)/stat.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/style_.c:	$(SRCDIR)/style.c $(OBJDIR)/translate
+$(OBJDIR)/style_.c:	$(SRCDIR)/style.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/style.c >$(OBJDIR)/style_.c
 
 $(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(SRCDIR)/config.h
@@ -1642,7 +1647,7 @@ $(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(SRCDIR)/config.h
 
 $(OBJDIR)/style.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/sync_.c:	$(SRCDIR)/sync.c $(OBJDIR)/translate
+$(OBJDIR)/sync_.c:	$(SRCDIR)/sync.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/sync.c >$(OBJDIR)/sync_.c
 
 $(OBJDIR)/sync.o:	$(OBJDIR)/sync_.c $(OBJDIR)/sync.h $(SRCDIR)/config.h
@@ -1650,7 +1655,7 @@ $(OBJDIR)/sync.o:	$(OBJDIR)/sync_.c $(OBJDIR)/sync.h $(SRCDIR)/config.h
 
 $(OBJDIR)/sync.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/tag_.c:	$(SRCDIR)/tag.c $(OBJDIR)/translate
+$(OBJDIR)/tag_.c:	$(SRCDIR)/tag.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/tag.c >$(OBJDIR)/tag_.c
 
 $(OBJDIR)/tag.o:	$(OBJDIR)/tag_.c $(OBJDIR)/tag.h $(SRCDIR)/config.h
@@ -1658,7 +1663,7 @@ $(OBJDIR)/tag.o:	$(OBJDIR)/tag_.c $(OBJDIR)/tag.h $(SRCDIR)/config.h
 
 $(OBJDIR)/tag.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/tar_.c:	$(SRCDIR)/tar.c $(OBJDIR)/translate
+$(OBJDIR)/tar_.c:	$(SRCDIR)/tar.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/tar.c >$(OBJDIR)/tar_.c
 
 $(OBJDIR)/tar.o:	$(OBJDIR)/tar_.c $(OBJDIR)/tar.h $(SRCDIR)/config.h
@@ -1666,7 +1671,7 @@ $(OBJDIR)/tar.o:	$(OBJDIR)/tar_.c $(OBJDIR)/tar.h $(SRCDIR)/config.h
 
 $(OBJDIR)/tar.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/th_main_.c:	$(SRCDIR)/th_main.c $(OBJDIR)/translate
+$(OBJDIR)/th_main_.c:	$(SRCDIR)/th_main.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/th_main.c >$(OBJDIR)/th_main_.c
 
 $(OBJDIR)/th_main.o:	$(OBJDIR)/th_main_.c $(OBJDIR)/th_main.h $(SRCDIR)/config.h
@@ -1674,7 +1679,7 @@ $(OBJDIR)/th_main.o:	$(OBJDIR)/th_main_.c $(OBJDIR)/th_main.h $(SRCDIR)/config.h
 
 $(OBJDIR)/th_main.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/timeline_.c:	$(SRCDIR)/timeline.c $(OBJDIR)/translate
+$(OBJDIR)/timeline_.c:	$(SRCDIR)/timeline.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/timeline.c >$(OBJDIR)/timeline_.c
 
 $(OBJDIR)/timeline.o:	$(OBJDIR)/timeline_.c $(OBJDIR)/timeline.h $(SRCDIR)/config.h
@@ -1682,7 +1687,7 @@ $(OBJDIR)/timeline.o:	$(OBJDIR)/timeline_.c $(OBJDIR)/timeline.h $(SRCDIR)/confi
 
 $(OBJDIR)/timeline.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/tkt_.c:	$(SRCDIR)/tkt.c $(OBJDIR)/translate
+$(OBJDIR)/tkt_.c:	$(SRCDIR)/tkt.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/tkt.c >$(OBJDIR)/tkt_.c
 
 $(OBJDIR)/tkt.o:	$(OBJDIR)/tkt_.c $(OBJDIR)/tkt.h $(SRCDIR)/config.h
@@ -1690,7 +1695,7 @@ $(OBJDIR)/tkt.o:	$(OBJDIR)/tkt_.c $(OBJDIR)/tkt.h $(SRCDIR)/config.h
 
 $(OBJDIR)/tkt.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/tktsetup_.c:	$(SRCDIR)/tktsetup.c $(OBJDIR)/translate
+$(OBJDIR)/tktsetup_.c:	$(SRCDIR)/tktsetup.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/tktsetup.c >$(OBJDIR)/tktsetup_.c
 
 $(OBJDIR)/tktsetup.o:	$(OBJDIR)/tktsetup_.c $(OBJDIR)/tktsetup.h $(SRCDIR)/config.h
@@ -1698,7 +1703,7 @@ $(OBJDIR)/tktsetup.o:	$(OBJDIR)/tktsetup_.c $(OBJDIR)/tktsetup.h $(SRCDIR)/confi
 
 $(OBJDIR)/tktsetup.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/undo_.c:	$(SRCDIR)/undo.c $(OBJDIR)/translate
+$(OBJDIR)/undo_.c:	$(SRCDIR)/undo.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/undo.c >$(OBJDIR)/undo_.c
 
 $(OBJDIR)/undo.o:	$(OBJDIR)/undo_.c $(OBJDIR)/undo.h $(SRCDIR)/config.h
@@ -1706,7 +1711,7 @@ $(OBJDIR)/undo.o:	$(OBJDIR)/undo_.c $(OBJDIR)/undo.h $(SRCDIR)/config.h
 
 $(OBJDIR)/undo.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/unicode_.c:	$(SRCDIR)/unicode.c $(OBJDIR)/translate
+$(OBJDIR)/unicode_.c:	$(SRCDIR)/unicode.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/unicode.c >$(OBJDIR)/unicode_.c
 
 $(OBJDIR)/unicode.o:	$(OBJDIR)/unicode_.c $(OBJDIR)/unicode.h $(SRCDIR)/config.h
@@ -1714,7 +1719,7 @@ $(OBJDIR)/unicode.o:	$(OBJDIR)/unicode_.c $(OBJDIR)/unicode.h $(SRCDIR)/config.h
 
 $(OBJDIR)/unicode.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/update_.c:	$(SRCDIR)/update.c $(OBJDIR)/translate
+$(OBJDIR)/update_.c:	$(SRCDIR)/update.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/update.c >$(OBJDIR)/update_.c
 
 $(OBJDIR)/update.o:	$(OBJDIR)/update_.c $(OBJDIR)/update.h $(SRCDIR)/config.h
@@ -1722,7 +1727,7 @@ $(OBJDIR)/update.o:	$(OBJDIR)/update_.c $(OBJDIR)/update.h $(SRCDIR)/config.h
 
 $(OBJDIR)/update.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/url_.c:	$(SRCDIR)/url.c $(OBJDIR)/translate
+$(OBJDIR)/url_.c:	$(SRCDIR)/url.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/url.c >$(OBJDIR)/url_.c
 
 $(OBJDIR)/url.o:	$(OBJDIR)/url_.c $(OBJDIR)/url.h $(SRCDIR)/config.h
@@ -1730,7 +1735,7 @@ $(OBJDIR)/url.o:	$(OBJDIR)/url_.c $(OBJDIR)/url.h $(SRCDIR)/config.h
 
 $(OBJDIR)/url.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/user_.c:	$(SRCDIR)/user.c $(OBJDIR)/translate
+$(OBJDIR)/user_.c:	$(SRCDIR)/user.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/user.c >$(OBJDIR)/user_.c
 
 $(OBJDIR)/user.o:	$(OBJDIR)/user_.c $(OBJDIR)/user.h $(SRCDIR)/config.h
@@ -1738,7 +1743,7 @@ $(OBJDIR)/user.o:	$(OBJDIR)/user_.c $(OBJDIR)/user.h $(SRCDIR)/config.h
 
 $(OBJDIR)/user.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/utf8_.c:	$(SRCDIR)/utf8.c $(OBJDIR)/translate
+$(OBJDIR)/utf8_.c:	$(SRCDIR)/utf8.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/utf8.c >$(OBJDIR)/utf8_.c
 
 $(OBJDIR)/utf8.o:	$(OBJDIR)/utf8_.c $(OBJDIR)/utf8.h $(SRCDIR)/config.h
@@ -1746,7 +1751,7 @@ $(OBJDIR)/utf8.o:	$(OBJDIR)/utf8_.c $(OBJDIR)/utf8.h $(SRCDIR)/config.h
 
 $(OBJDIR)/utf8.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/util_.c:	$(SRCDIR)/util.c $(OBJDIR)/translate
+$(OBJDIR)/util_.c:	$(SRCDIR)/util.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/util.c >$(OBJDIR)/util_.c
 
 $(OBJDIR)/util.o:	$(OBJDIR)/util_.c $(OBJDIR)/util.h $(SRCDIR)/config.h
@@ -1754,7 +1759,7 @@ $(OBJDIR)/util.o:	$(OBJDIR)/util_.c $(OBJDIR)/util.h $(SRCDIR)/config.h
 
 $(OBJDIR)/util.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/verify_.c:	$(SRCDIR)/verify.c $(OBJDIR)/translate
+$(OBJDIR)/verify_.c:	$(SRCDIR)/verify.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/verify.c >$(OBJDIR)/verify_.c
 
 $(OBJDIR)/verify.o:	$(OBJDIR)/verify_.c $(OBJDIR)/verify.h $(SRCDIR)/config.h
@@ -1762,7 +1767,7 @@ $(OBJDIR)/verify.o:	$(OBJDIR)/verify_.c $(OBJDIR)/verify.h $(SRCDIR)/config.h
 
 $(OBJDIR)/verify.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/vfile_.c:	$(SRCDIR)/vfile.c $(OBJDIR)/translate
+$(OBJDIR)/vfile_.c:	$(SRCDIR)/vfile.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/vfile.c >$(OBJDIR)/vfile_.c
 
 $(OBJDIR)/vfile.o:	$(OBJDIR)/vfile_.c $(OBJDIR)/vfile.h $(SRCDIR)/config.h
@@ -1770,7 +1775,7 @@ $(OBJDIR)/vfile.o:	$(OBJDIR)/vfile_.c $(OBJDIR)/vfile.h $(SRCDIR)/config.h
 
 $(OBJDIR)/vfile.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/wiki_.c:	$(SRCDIR)/wiki.c $(OBJDIR)/translate
+$(OBJDIR)/wiki_.c:	$(SRCDIR)/wiki.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/wiki.c >$(OBJDIR)/wiki_.c
 
 $(OBJDIR)/wiki.o:	$(OBJDIR)/wiki_.c $(OBJDIR)/wiki.h $(SRCDIR)/config.h
@@ -1778,7 +1783,7 @@ $(OBJDIR)/wiki.o:	$(OBJDIR)/wiki_.c $(OBJDIR)/wiki.h $(SRCDIR)/config.h
 
 $(OBJDIR)/wiki.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/wikiformat_.c:	$(SRCDIR)/wikiformat.c $(OBJDIR)/translate
+$(OBJDIR)/wikiformat_.c:	$(SRCDIR)/wikiformat.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/wikiformat.c >$(OBJDIR)/wikiformat_.c
 
 $(OBJDIR)/wikiformat.o:	$(OBJDIR)/wikiformat_.c $(OBJDIR)/wikiformat.h $(SRCDIR)/config.h
@@ -1786,7 +1791,7 @@ $(OBJDIR)/wikiformat.o:	$(OBJDIR)/wikiformat_.c $(OBJDIR)/wikiformat.h $(SRCDIR)
 
 $(OBJDIR)/wikiformat.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/winfile_.c:	$(SRCDIR)/winfile.c $(OBJDIR)/translate
+$(OBJDIR)/winfile_.c:	$(SRCDIR)/winfile.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/winfile.c >$(OBJDIR)/winfile_.c
 
 $(OBJDIR)/winfile.o:	$(OBJDIR)/winfile_.c $(OBJDIR)/winfile.h $(SRCDIR)/config.h
@@ -1794,7 +1799,7 @@ $(OBJDIR)/winfile.o:	$(OBJDIR)/winfile_.c $(OBJDIR)/winfile.h $(SRCDIR)/config.h
 
 $(OBJDIR)/winfile.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/winhttp_.c:	$(SRCDIR)/winhttp.c $(OBJDIR)/translate
+$(OBJDIR)/winhttp_.c:	$(SRCDIR)/winhttp.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/winhttp.c >$(OBJDIR)/winhttp_.c
 
 $(OBJDIR)/winhttp.o:	$(OBJDIR)/winhttp_.c $(OBJDIR)/winhttp.h $(SRCDIR)/config.h
@@ -1802,7 +1807,7 @@ $(OBJDIR)/winhttp.o:	$(OBJDIR)/winhttp_.c $(OBJDIR)/winhttp.h $(SRCDIR)/config.h
 
 $(OBJDIR)/winhttp.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/wysiwyg_.c:	$(SRCDIR)/wysiwyg.c $(OBJDIR)/translate
+$(OBJDIR)/wysiwyg_.c:	$(SRCDIR)/wysiwyg.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/wysiwyg.c >$(OBJDIR)/wysiwyg_.c
 
 $(OBJDIR)/wysiwyg.o:	$(OBJDIR)/wysiwyg_.c $(OBJDIR)/wysiwyg.h $(SRCDIR)/config.h
@@ -1810,7 +1815,7 @@ $(OBJDIR)/wysiwyg.o:	$(OBJDIR)/wysiwyg_.c $(OBJDIR)/wysiwyg.h $(SRCDIR)/config.h
 
 $(OBJDIR)/wysiwyg.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/xfer_.c:	$(SRCDIR)/xfer.c $(OBJDIR)/translate
+$(OBJDIR)/xfer_.c:	$(SRCDIR)/xfer.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/xfer.c >$(OBJDIR)/xfer_.c
 
 $(OBJDIR)/xfer.o:	$(OBJDIR)/xfer_.c $(OBJDIR)/xfer.h $(SRCDIR)/config.h
@@ -1818,7 +1823,7 @@ $(OBJDIR)/xfer.o:	$(OBJDIR)/xfer_.c $(OBJDIR)/xfer.h $(SRCDIR)/config.h
 
 $(OBJDIR)/xfer.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/xfersetup_.c:	$(SRCDIR)/xfersetup.c $(OBJDIR)/translate
+$(OBJDIR)/xfersetup_.c:	$(SRCDIR)/xfersetup.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/xfersetup.c >$(OBJDIR)/xfersetup_.c
 
 $(OBJDIR)/xfersetup.o:	$(OBJDIR)/xfersetup_.c $(OBJDIR)/xfersetup.h $(SRCDIR)/config.h
@@ -1826,7 +1831,7 @@ $(OBJDIR)/xfersetup.o:	$(OBJDIR)/xfersetup_.c $(OBJDIR)/xfersetup.h $(SRCDIR)/co
 
 $(OBJDIR)/xfersetup.h:	$(OBJDIR)/headers
 
-$(OBJDIR)/zip_.c:	$(SRCDIR)/zip.c $(OBJDIR)/translate
+$(OBJDIR)/zip_.c:	$(SRCDIR)/zip.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/zip.c >$(OBJDIR)/zip_.c
 
 $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h $(SRCDIR)/config.h
