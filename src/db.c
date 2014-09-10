@@ -2203,6 +2203,9 @@ struct stControlSettings const ctrlSettings[] = {
   { "tcl",              0,              0, 0, 0, "off"                 },
   { "tcl-setup",        0,             40, 1, 1, ""                    },
 #endif
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+  { "th1-docs",         0,              0, 0, 0, "off"                 },
+#endif
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
   { "th1-hooks",        0,              0, 0, 0, "off"                 },
 #endif
@@ -2412,6 +2415,16 @@ struct stControlSettings const ctrlSettings[] = {
 **    tcl-setup        This is the setup script to be evaluated after creating
 **     (versionable)   and initializing the Tcl interpreter.  By default, this
 **                     is empty and no extra setup is performed.
+**
+**    th1-docs         WARNING: If enabled (and Fossil was compiled with TH1
+**                     support for embedded documentation files), this allows
+**                     embedded documentation files to contain arbitrary TH1
+**                     scripts that are evaluated on the server.  If native
+**                     Tcl integration is also enabled, this setting has the
+**                     potential to allow anybody with check-in privileges to
+**                     do almost anything that the associated operating system
+**                     user account could do.  Extreme caution should be used
+**                     when enabling this setting.  Default: off.
 **
 **    th1-hooks        If enabled (and Fossil was compiled with support for TH1
 **                     hooks), special TH1 commands will be called before and
