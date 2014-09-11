@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\susing\sTH1\sfor\sembedded\sdocumentation\sfiles.\s\sDisabled\sby\sdefault\sat\scompile-time\sand\sat\sruntime.
-D 2014-09-10T18:37:43.762
+C char-vs-int\sfixes\sin\sthe\sJSON\sAPI:\scaused\sunderflow\s(and\sthus\sincorrect\sis-flag-set\sresults)\son\splatforms\swhere\schar\sis\sunsigned\s(Linux/ARM).
+D 2014-09-11T17:25:48.531
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -353,11 +353,11 @@ F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c b42daab8684ab57bc72a05636e54ee1e494416ed
 F src/import.c f115df2302a00a0a65e7a18ba6bd42d2863e0872
 F src/info.c 3b28ce524a41bd95cdedae259140e4909dea8731
-F src/json.c 68917a4b8491740885158ef960ff77334c9c7adf
+F src/json.c 9b2f51d1d9e44a4cb299641f4b11ebd6716d7486
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c aa922544841030c688df33aec81cca05577bbb7d
 F src/json_config.c 1f45ed837ec55e0855c498eae38cc66d8da29e75
-F src/json_detail.h a5ef58bb4838f64de4fb3d95a7a561d89a92e127
+F src/json_detail.h 7d9cdc126617216623145aaea42a914a93cf983c
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
 F src/json_dir.c a76008c3fbf13ff3edcfa07edaf8fa7e60a678c0
 F src/json_finfo.c ad269583082f19e482a228460ffd736b392c9156
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 90e75800c1149a4750db6b4517f050968d00f069 42c9718f93213dec39c1709bb42cb46a783b4ff9
-R f946d63f40d8d5481c8b0cdd0c603637
-U mistachkin
-Z d0580b4e79cae3c2da4875b314e241fb
+P c91bafccb5ee558095d53b9d95afbfc9359e22e4
+R 734845ec1556556e75cb48561c7b5292
+U stephan
+Z 5697f6da3b5b85f3e056d97d1aa893d2

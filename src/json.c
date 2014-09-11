@@ -20,7 +20,7 @@
 **
 ** For notes regarding the public JSON interface, please see:
 **
-** https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/edit
+** https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/view
 **
 **
 ** Notes for hackers...
@@ -59,7 +59,7 @@ const FossilJsonKeys_ FossilJsonKeys = {
 /*
 ** Returns true (non-0) if fossil appears to be running in JSON mode.
 */
-char fossil_has_json(){
+int fossil_has_json(){
   return g.json.isJsonMode && (g.isHTTP || g.json.post.o);
 }
 
@@ -386,7 +386,7 @@ int json_getenv_int(char const * pKey, int dflt ){
 ** whether or not this function found a match (it will return -1 in
 ** that case).
 */
-char json_getenv_bool(char const * pKey, char dflt ){
+int json_getenv_bool(char const * pKey, int dflt ){
   cson_value const * v = json_getenv(pKey);
   const cson_type_id type = v ? cson_value_type_id(v) : CSON_TYPE_UNDEF;
   switch(type){
@@ -477,11 +477,11 @@ char const * json_find_option_cstr(char const * zKey,
 ** The boolean equivalent of json_find_option_cstr().
 ** If the option is not found, dftl is returned.
 */
-char json_find_option_bool(char const * zKey,
-                           char const * zCLILong,
-                           char const * zCLIShort,
-                           char dflt ){
-  char rc = -1;
+int json_find_option_bool(char const * zKey,
+                          char const * zCLILong,
+                          char const * zCLIShort,
+                          char dflt ){
+  int rc = -1;
   if(!g.isHTTP){
     if(NULL != find_option(zCLILong ? zCLILong : zKey,
                            zCLIShort, 0)){
