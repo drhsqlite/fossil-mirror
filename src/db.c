@@ -1974,32 +1974,52 @@ int db_table_has_column(const char *zTableName, const char *zColName){
 ** Where %s is the checkout root.  The value is the repository file.
 */
 void db_record_repository_filename(const char *zName){
+  const char *zCollation;
+  char *zRepoSetting;
+  char *zCkoutSetting;
   Blob full;
   if( zName==0 ){
     if( !g.localOpen ) return;
     zName = db_repository_filename();
   }
   file_canonical_name(zName, &full, 0);
+  zCollation = filename_collation();
   db_swap_connections();
+  zRepoSetting = mprintf("repo:%q", blob_str(&full));
+  db_multi_exec(
+     "DELETE FROM global_config WHERE name %s = '%s';",
+     zCollation, zRepoSetting
+  );
   db_multi_exec(
      "INSERT OR IGNORE INTO global_config(name,value)"
-     "VALUES('repo:%q',1)",
-     blob_str(&full)
+     "VALUES('%s',1);",
+     zRepoSetting
   );
+  fossil_free(zRepoSetting);
   if( g.localOpen && g.zLocalRoot && g.zLocalRoot[0] ){
     Blob localRoot;
     file_canonical_name(g.zLocalRoot, &localRoot, 1);
+    zCkoutSetting = mprintf("ckout:%q", blob_str(&localRoot));
+    db_multi_exec(
+       "DELETE FROM global_config WHERE name %s = '%s';",
+       zCollation, zCkoutSetting
+    );
     db_multi_exec(
       "REPLACE INTO global_config(name, value)"
-      "VALUES('ckout:%q','%q');",
-      blob_str(&localRoot), blob_str(&full)
+      "VALUES('%s','%q');",
+      zCkoutSetting, blob_str(&full)
     );
     db_swap_connections();
+    db_multi_exec(
+       "DELETE FROM config WHERE name %s = '%s';",
+       zCollation, zCkoutSetting
+    );
     db_optional_sql("repository",
         "REPLACE INTO config(name,value,mtime)"
-        "VALUES('ckout:%q',1,now())",
-        blob_str(&localRoot)
+        "VALUES('%s',1,now());",
+        zCkoutSetting
     );
+    fossil_free(zCkoutSetting);
     blob_reset(&localRoot);
   }else{
     db_swap_connections();
