@@ -375,6 +375,7 @@ static int hascapCmd(
 ** enabled. The set of features includes:
 **
 ** "ssl"             = FOSSIL_ENABLE_SSL
+** "th1Docs"         = FOSSIL_ENABLE_TH1_DOCS
 ** "th1Hooks"        = FOSSIL_ENABLE_TH1_HOOKS
 ** "tcl"             = FOSSIL_ENABLE_TCL
 ** "useTclStubs"     = USE_TCL_STUBS
@@ -402,6 +403,11 @@ static int hasfeatureCmd(
   }
 #if defined(FOSSIL_ENABLE_SSL)
   else if( 0 == fossil_strnicmp( zArg, "ssl\0", 4 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_TH1_DOCS)
+  else if( 0 == fossil_strnicmp( zArg, "th1Docs\0", 8 ) ){
     rc = 1;
   }
 #endif

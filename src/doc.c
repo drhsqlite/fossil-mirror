@@ -258,6 +258,7 @@ const char *mimetype_from_name(const char *zName){
     { "texi",       4, "application/x-texinfo"             },
     { "texinfo",    7, "application/x-texinfo"             },
     { "tgz",        3, "application/x-tar-gz"              },
+    { "th1",        3, "application/x-th1"                 },
     { "tif",        3, "image/tiff"                        },
     { "tiff",       4, "image/tiff"                        },
     { "tr",         2, "application/x-troff"               },
@@ -526,6 +527,15 @@ void doc_page(void){
     @ %h(blob_str(&filebody))
     @ </pre></blockquote>
     style_footer();
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+  }else if( db_get_boolean("th1-docs", 0) &&
+            fossil_strcmp(zMime, "application/x-th1")==0 ){
+    char *zHtml = htmlize(zName, -1);
+    style_header(zHtml);
+    Th_Render(blob_str(&filebody));
+    style_footer();
+    fossil_free(zHtml);
+#endif
   }else{
     cgi_set_content_type(zMime);
     cgi_set_content(&filebody);

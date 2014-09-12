@@ -259,7 +259,7 @@ cson_value * json_new_string_f( char const * fmt, ... );
 ** difference in argument/parameter handling in many JSON routines,
 ** and thus this distinction.
 */
-char fossil_has_json();
+int fossil_has_json();
 
 enum json_get_changed_files_flags {
     json_get_changed_files_ELIDE_PARENT = 1 << 0

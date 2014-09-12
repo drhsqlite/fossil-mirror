@@ -2192,7 +2192,9 @@ struct stControlSettings const ctrlSettings[] = {
   { "manifest",         0,              0, 1, 0, "off"                 },
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
+#if USE_SYSTEM_SQLITE+0==1
   { "max-worker-threads",   0,         16, 0, 0, "0"                   },
+#endif
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
   { "pgp-command",      0,             40, 0, 0, "gpg --clearsign -o " },
   { "proxy",            0,             32, 0, 0, "off"                 },
@@ -2205,6 +2207,9 @@ struct stControlSettings const ctrlSettings[] = {
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",              0,              0, 0, 0, "off"                 },
   { "tcl-setup",        0,             40, 1, 1, ""                    },
+#endif
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+  { "th1-docs",         0,              0, 0, 0, "off"                 },
 #endif
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
   { "th1-hooks",        0,              0, 0, 0, "off"                 },
@@ -2361,7 +2366,8 @@ struct stControlSettings const ctrlSettings[] = {
 **                     default is 250000 bytes.
 **
 **    max-worker-threads The maximum number of auxiliary worker threads that a
-**                     single prepared statement may start.
+**                     single prepared statement may start. Only works when
+**                     SQLite is compiled with multi-thread support.
 **
 **    mtime-changes    Use file modification times (mtimes) to detect when
 **                     files have been modified.  (Default "on".)
@@ -2418,6 +2424,16 @@ struct stControlSettings const ctrlSettings[] = {
 **    tcl-setup        This is the setup script to be evaluated after creating
 **     (versionable)   and initializing the Tcl interpreter.  By default, this
 **                     is empty and no extra setup is performed.
+**
+**    th1-docs         WARNING: If enabled (and Fossil was compiled with TH1
+**                     support for embedded documentation files), this allows
+**                     embedded documentation files to contain arbitrary TH1
+**                     scripts that are evaluated on the server.  If native
+**                     Tcl integration is also enabled, this setting has the
+**                     potential to allow anybody with check-in privileges to
+**                     do almost anything that the associated operating system
+**                     user account could do.  Extreme caution should be used
+**                     when enabling this setting.  Default: off.
 **
 **    th1-hooks        If enabled (and Fossil was compiled with support for TH1
 **                     hooks), special TH1 commands will be called before and
