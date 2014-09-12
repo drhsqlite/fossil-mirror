@@ -2010,9 +2010,9 @@ void db_record_repository_filename(const char *zName){
       zCkoutSetting, blob_str(&full)
     );
     db_swap_connections();
-    db_multi_exec(
-       "DELETE FROM config WHERE name %s = '%s';",
-       zCollation, zCkoutSetting
+    db_optional_sql("repository",
+        "DELETE FROM config WHERE name %s = '%s';",
+        zCollation, zCkoutSetting
     );
     db_optional_sql("repository",
         "REPLACE INTO config(name,value,mtime)"
