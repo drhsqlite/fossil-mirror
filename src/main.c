@@ -223,7 +223,11 @@ struct Global {
   int allowSymlinks;             /* Cached "allow-symlinks" option */
 
   int mainTimerId;               /* Set to fossil_timer_start() */
-  int iMaxWorkerThreads  ;       /* Store "max-worker-threads" setting */
+
+#if USE_SYSTEM_SQLITE+0==1
+  int maxWorkerThreads;          /* Cached "max-wthreads" option */
+#endif
+
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
     int isJsonMode;            /* True if running in JSON mode, else

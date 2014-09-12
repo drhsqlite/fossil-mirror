@@ -743,7 +743,9 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   );
   if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
   re_add_sql_func(db);
-  sqlite3_limit(db, SQLITE_LIMIT_WORKER_THREADS, g.iMaxWorkerThreads);
+#if USE_SYSTEM_SQLITE+0==1
+  sqlite3_limit(db, SQLITE_LIMIT_WORKER_THREADS, g.maxWorkerThreads);
+#endif
   sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
   return db;
 }
@@ -1053,7 +1055,9 @@ void db_open_repository(const char *zDbName){
   g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
   g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
-  g.iMaxWorkerThreads = db_get_int("max-worker-threads", 0);
+#if USE_SYSTEM_SQLITE+0==1
+  g.maxWorkerThreads = db_get_int("max-wthreads", 0);
+#endif
 }
 
 /*
@@ -2193,7 +2197,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
 #if USE_SYSTEM_SQLITE+0==1
-  { "max-worker-threads",   0,         16, 0, 0, "0"                   },
+  { "max-wthreads",     0,             16, 0, 0, "0"                   },
 #endif
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
   { "pgp-command",      0,             40, 0, 0, "gpg --clearsign -o " },
@@ -2365,9 +2369,10 @@ struct stControlSettings const ctrlSettings[] = {
 **    max-upload       A limit on the size of uplink HTTP requests.  The
 **                     default is 250000 bytes.
 **
-**    max-worker-threads The maximum number of auxiliary worker threads that a
-**                     single prepared statement may start. Only works when
-**                     SQLite is compiled with multi-thread support.
+**    max-wthreads     The maximum number of auxiliary worker threads that a
+**                     single prepared statement may start.  Only works when
+**                     using the system SQLite library and when that library
+**                     was compiled with support for threading.
 **
 **    mtime-changes    Use file modification times (mtimes) to detect when
 **                     files have been modified.  (Default "on".)

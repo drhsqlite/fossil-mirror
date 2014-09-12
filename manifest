@@ -1,5 +1,5 @@
-C Merge\strunk.\s\nOnly\senable\smax-worker-threads\ssetting\swhen\sfossil\sis\scompiled\swith\s--disable-internal-sqlite\sand\sSQLite\sis\scompiled\swith\smulti-thread\ssupport
-D 2014-09-12T21:18:39.014
+C Rename\snew\ssetting\sto\s'max-wthreads'.\s\sMake\ssure\sall\snew\scode\srelies\supon\sUSE_SYSTEM_SQLITE.\s\sStyle\scleanup.
+D 2014-09-12T21:43:23.037
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -331,7 +331,7 @@ F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c abf92d8201a4a12e3bbec7ae6e623ec887fdbe9d
+F src/db.c 03fa79d059bff7632ea97ce08154a41b09e65894
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 21aaf2b0b3ecfebceeaa548239279f5be97724cf
@@ -373,7 +373,7 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 8a8077139db4a01b8c9eb22aab452236331b7c8c
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c bc893fdff9d862da1fc1131d662bee0bc33d8a03
+F src/main.c 852d2c53718b8de604f29fdadc468bf081a5bc5f
 F src/main.mk 59955abbacba625f88fcb790f47005fd40053c09
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -405,7 +405,7 @@ F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
 F src/shell.c 713cef4d73c05fc8e12f4960072329d767a05d50
 F src/shun.c e71e693b5e4e15703d25b1bcd9bf6d0945a9fee6
 F src/skins.c dfa80a4f5af95d146a1bdcdf49458680a4b0548a
-F src/sqlcmd.c 486ecd1413f3c52b0ad556b7f75b5d69d7954a95
+F src/sqlcmd.c 8bf0ab6d5c2886cb386159a8bbdad694ad2e6324
 F src/sqlite3.c 7284f9c2419ea1c5402fbebc82b57d83d39a14ea
 F src/sqlite3.h 23cb67b1acf2c9d50f241db321f547732488d64d
 F src/stash.c 4fcd200867fec73b3d57b9b99203afd0a5d7148e
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d5a00a15218ce37d152ede76ba5e11c2bf4f329d 57f0bb98c6cc0e02d9f6c99cc5afb76a3c3084e2
-R d146b390f208f153c48397589d0892d9
-U jan.nijtmans
-Z 6a4d0adf25a9baf1b685409d6280be3f
+P c5ec6abdba5ac76166a5514edc71a8f9e5c612b4
+R cb3dc8723b4d9d1cffddeffe2b383e13
+U mistachkin
+Z d23566b49c916167e2c3babbcf70b63c
