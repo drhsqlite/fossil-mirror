@@ -280,7 +280,7 @@ MINIZ_OPTIONS = <<<MINIZ_OPTIONS>>>
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
-# the sqlite3.o object. Instead, the system sqlite will be linked
+# the sqlite3.o object. Instead, the system SQLite will be linked
 # using -lsqlite3.
 SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
@@ -467,7 +467,7 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_TCL_PRIVATE_STUBS = 1
 
-#### Use 'system' sqlite
+#### Use 'system' SQLite
 #
 # USE_SYSTEM_SQLITE = 1
 
@@ -824,7 +824,7 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(VERSION)
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
-# the sqlite3.o object. Instead, the system sqlite will be linked
+# the sqlite3.o object. Instead, the system SQLite will be linked
 # using -lsqlite3.
 SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
@@ -1561,13 +1561,13 @@ UTILS=translate.exe mkindex.exe makeheaders.exe
 UTILS_OBJ=$(UTILS:.exe=.obj)
 UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 
-# define the sqlite files, which need special flags on compile
+# define the SQLite files, which need special flags on compile
 SQLITESRC=sqlite3.c
 ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
 SQLITEDEFINES=<<<SQLITE_OPTIONS>>>
 
-# define the sqlite shell files, which need special flags on compile
+# define the SQLite shell files, which need special flags on compile
 SQLITESHELLSRC=shell.c
 ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
