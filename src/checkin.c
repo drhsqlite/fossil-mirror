@@ -85,7 +85,9 @@ static void status_report(
       }
     }
     blob_append(report, zPrefix, nPrefix);
-    if( !file_wd_isfile_or_link(zFullName) ){
+    if( isDeleted ){
+      blob_appendf(report, "DELETED    %s\n", zDisplayName);
+    }else if( !file_wd_isfile_or_link(zFullName) ){
       if( file_access(zFullName, F_OK)==0 ){
         blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
         if( missingIsFatal ){
@@ -101,8 +103,6 @@ static void status_report(
       }
     }else if( isNew ){
       blob_appendf(report, "ADDED      %s\n", zDisplayName);
-    }else if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( isChnged ){
       if( isChnged==2 ){
         blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
