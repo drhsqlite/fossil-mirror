@@ -876,6 +876,10 @@ static const char zBuiltinSkin4[] =
 @
 @ textarea {
 @   font-size: 1em;
+@ }
+@
+@ .fullsize-text {
+@   font-size: 1.25em;
 @ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
