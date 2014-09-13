@@ -1185,7 +1185,7 @@ PERL    = perl.exe
 
 !ifdef FOSSIL_ENABLE_SSL
 SSLDIR    = $(B)\compat\openssl-1.0.1i
-SSLINCDIR = $(SSLDIR)\include
+SSLINCDIR = $(SSLDIR)\inc32
 SSLLIBDIR = $(SSLDIR)\out32
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !endif
