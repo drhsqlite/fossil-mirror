@@ -113,10 +113,14 @@ static void win32_http_request(void *pAppData){
   }
   fclose(out);
   out = 0;
-  sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s\n%s",
-    get_utf8_bom(0), g.zRepositoryName, zRequestFName, zReplyFName,
-    inet_ntoa(p->addr.sin_addr)
+  sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s",
+    get_utf8_bom(0), zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr)
   );
+  /* if g.zLocalRoot is set, then we are in a checkout directory,
+  ** even if the db handle is now closed */
+  if( !g.zLocalRoot || !g.zLocalRoot[0] ){
+    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s\n%s", zCmd, g.zRepositoryName);
+  }
   out = fossil_fopen(zCmdFName, "wb");
   if( out==0 ) goto end_request;
   fwrite(zCmd, 1, strlen(zCmd), out);

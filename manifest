@@ -1,5 +1,5 @@
-C Provide\sthe\sability\sto\sshun\san\sentire\sRCVID\sin\sa\ssingle\sclick.
-D 2014-09-13T15:54:35.851
+C Make\s"fossil\sui"\son\sWindows\saware\sof\scurrent\scheckout.\nAllows\susing\sspecial\snames\sprev/next/current\sin\sui
+D 2014-09-13T16:04:27.083
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -373,7 +373,7 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 8a8077139db4a01b8c9eb22aab452236331b7c8c
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 74e9a4f314d05e7b2c92394a4fd4a817dcac3fa2
+F src/main.c 8263ce14df8fd9e9e10a6d8dd38791695dc3904a
 F src/main.mk 8a61014e8f6768cde4ea1d6c3c31906e6d9d3646
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -435,7 +435,7 @@ F src/vfile.c 33ddafa3850ae2cd6e35f1b47aa84cb0bbc92a4d
 F src/wiki.c c6430c8730e9eca1e0af80ff5b388748ab0ace81
 F src/wikiformat.c f897c6fc3888f9ea189adafb91a977faa892349c
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
-F src/winhttp.c c3831c4d5089fe62e0edf983d86b8530512389fe
+F src/winhttp.c 75b3075c2b08f83c0a512e3b02bf73932226a957
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 801d4f3143a9fe29c8b7025a08cf7d845cfdced3
 F src/xfersetup.c c69c710fec70f76dac901a9181fe81be5dc316e7
@@ -653,8 +653,8 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f163faf128d36c7f1f59ca77c62207c12046e792 66b5647af70be55fd14370dcbeb89d6955764fc0
-R 900ec3246d66d2e162ccf88469fea667
-T +closed 66b5647af70be55fd14370dcbeb89d6955764fc0
+P 9b30c01e8b5af03c4e25616315ff0e970b5e76fe aead49f36a78dd76b883437106178eac434afd97
+R e03334ed4ffd08cd546df3e16bcdfa24
+T +closed aead49f36a78dd76b883437106178eac434afd97
 U drh
-Z 5b1458e518c8e93990ed8b4dc091bd9b
+Z c594a01f75ebc7f48fdc54f115dc0b07
