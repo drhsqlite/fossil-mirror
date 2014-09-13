@@ -1155,7 +1155,11 @@ OX      = .
 O       = .obj
 E       = .exe
 P       = .pdb
-PERLDIR =
+
+# Perl is only necessary if OpenSSL support is enabled and it must
+# be built from source code.  The PERLDIR variable should point to
+# the directory containing the main Perl binary (i.e. "perl.exe").
+PERLDIR = C:\Perl\bin
 PERL    = perl.exe
 
 # Uncomment to enable debug symbols
@@ -1340,7 +1344,7 @@ APPTARGETS = $(APPTARGETS) zlib
 APPTARGETS = $(APPTARGETS) openssl
 !endif
 
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts $(APPTARGETS)
+$(APPNAME) : $(APPTARGETS) translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
 	cd $(OX)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
