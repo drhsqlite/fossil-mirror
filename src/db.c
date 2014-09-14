@@ -2502,13 +2502,35 @@ void setting_cmd(void){
     if( isManifest && globalFlag ){
       fossil_fatal("cannot set 'manifest' globally");
     }
-    if( unsetFlag ){
-      db_unset(ctrlSettings[i].name, globalFlag);
-    }else if( g.argc==4 ){
-      db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
+    if( unsetFlag || g.argc==4 ){
+      if( ctrlSettings[i+1].name
+       && strncmp(ctrlSettings[i+1].name, zName, n)==0
+       && n!=strlen(ctrlSettings[i].name)
+      ){
+        fossil_print("ambiguous property prefix: %s\nMatching properties:\n",
+                     zName);
+        while( ctrlSettings[i].name
+            && strncmp(ctrlSettings[i].name, zName, n)==0
+        ){
+          fossil_print("%s\n", ctrlSettings[i].name);
+          i++;
+        }
+        fossil_exit(1);
+      }else{
+        if( unsetFlag ){
+          db_unset(ctrlSettings[i].name, globalFlag);
+        }else{
+          db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
+        }
+      }
     }else{
       isManifest = 0;
-      print_setting(&ctrlSettings[i], db_open_local(0));
+      while( ctrlSettings[i].name
+            && strncmp(ctrlSettings[i].name, zName, n)==0
+      ){
+        print_setting(&ctrlSettings[i], db_open_local(0));
+        i++;
+      }
     }
     if( isManifest && g.localOpen ){
       manifest_to_disk(db_lget_int("checkout", 0));
