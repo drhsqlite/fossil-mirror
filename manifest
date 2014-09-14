@@ -1,5 +1,5 @@
-C Automatically\sremove\s"all"\sentries\sthat\sdiffer\sonly\sin\scase\son\scase-insensitive\sfilesystems.
-D 2014-09-13T16:10:52.751
+C Disallow\s"fossil\sset"\sand\s"fossil\sunset"\son\san\sambiguous\sprefix.
+D 2014-09-14T21:05:22.043
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -331,7 +331,7 @@ F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c ce43dc4d3691e8a5c0c608b22db5d7dad4b17e88
+F src/db.c 72fe8597482cc51d39d5f9c252390281bd12ceae
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 21aaf2b0b3ecfebceeaa548239279f5be97724cf
@@ -653,8 +653,8 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f62bedf1efe98e60100f2aa094e741b3a89f79a2 e2ff0cc2482243dc924a7685e91227b06864dd6f
-R 7054bcd2429a873c8fb229a9f260a76e
-T +closed e2ff0cc2482243dc924a7685e91227b06864dd6f
+P c6079d148eb13b16265a6ec7c2f44abcf2fe2c33 c3fee15bd4ea15dac9ee2eaf6ca990a94e1ff340
+R f120b5352fa55425ee5443904419f3af
+T +closed c3fee15bd4ea15dac9ee2eaf6ca990a94e1ff340
 U drh
-Z 186c04f4a67eb834570290ccab32e823
+Z c75fdb3b919fcaaaef0224206a6a9926
