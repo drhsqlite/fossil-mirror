@@ -1,5 +1,5 @@
-C For\sthe\s3-argument\sversion\sof\sthe\s'info'\scommand,\sopen\sthe\srepository\sprior\sto\srecording\sit.
-D 2014-09-15T02:32:35.353
+C Merge\schanges\sfor\sthe\scapture_case_sensitive_option()\sfunction.
+D 2014-09-15T18:01:56.311
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -309,7 +309,7 @@ F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F setup/fossil.iss c9ad92c989eecde15b2b01cd69eadc74de7a8d33
 F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 62de4c868559d7092fa693f19f6ff3a9d2fa53b9
+F src/add.c a66548627cf802196c54c1200780f2bd37a503bb
 F src/allrepo.c b09e64990a1b648a052e83b04b3f1efcc3415042
 F src/attach.c 82ab7ae8506cdc97d162f4528d8d916ab6655d01
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -320,7 +320,7 @@ F src/browse.c ec8073c7f561fe403814c1717d8ba9289c5f605d
 F src/cache.c ec022ed2f98f20200a008c180be15bf88a90c7d1
 F src/captcha.c fea6cab111fb55e09bdae82e841e1c04c62dd846
 F src/cgi.c 6939e61cacaf4f54e21123ec5f2849a70c016115
-F src/checkin.c 8fa2bbf620cd04689051a83d598f18e5c20218a2
+F src/checkin.c 4ce53ca97c99353bb29fa5bb65c81165d48fba69
 F src/checkout.c f24af5f425ed7dcd92b0d003a0979dc79808d674
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 3fb02ec34bf2a2c464c83b486a0c8ef2cb6ec051
@@ -341,8 +341,8 @@ F src/doc.c 30adc8a4b74d9bdff9906d53ed66a6216571efea
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c afe15eaf300e18c7d19a1e1fe3c4bda30bff4872
 F src/export.c 70394a2d5c4058b89504a3720c40a09c917dbb91
-F src/file.c 8263f108df4f6966df3278c43665be324fadda17
-F src/finfo.c c972467105be14d6632946d6e45fd9f8226f3b54
+F src/file.c a653b0a67def52ee6facbef9d8f44697160e4994
+F src/finfo.c d7264af59298a0f3d4f70c0586773994d0be97d4
 F src/fusefs.c ff7316f3d33144e105e7db4937c857af85a40e95
 F src/glob.c 162eefbce151ba02dd67243d92633393c0aeb302
 F src/graph.c 57ddf309e5bf7be4f88b6ec36eb6296f6c278153
@@ -373,7 +373,7 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 8a8077139db4a01b8c9eb22aab452236331b7c8c
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 8263ce14df8fd9e9e10a6d8dd38791695dc3904a
+F src/main.c f4e7aee523b830010dddca48f63fa27d18b0113b
 F src/main.mk 8a61014e8f6768cde4ea1d6c3c31906e6d9d3646
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -382,7 +382,7 @@ F src/manifest.c 4b3dc7c7ff5382e7c14f0e6a7e9119ab40ac0605
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 02457a989a13d50499f326e800fff993ef84f4b7
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
-F src/merge.c 91c9732417173610f8a47db3abe6013d23a8cc5e
+F src/merge.c c04a12cdcb97e617887beaa481b828c70e9a3632
 F src/merge3.c d07e371cc8ad34dff8ced94f2f4bd89eb18903b9
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkindex.c 69da20a8f44b1ebbb0223bf3d712b4a9d4c99238
@@ -425,7 +425,7 @@ F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
-F src/update.c e8dc2b97533a7bb1d5aae2ccc3e5f70aecebe88a
+F src/update.c f4a971b4720ad027e45a96df9cf2e44b7bc9e261
 F src/url.c b7743600119e97d34f96aea8996b9a4caad4bdc0
 F src/user.c 609b489ac17b5dd35c1a8676d85cb1196c07d43e
 F src/utf8.c eab5cc0060d893b3a5079ee4f5957f222392a179
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 42b97c229664fefe9538fa99be3c4621b8a29d44
-R 31b08e85892ba6347f884c6c7a1535b6
+P b98681739da3ba1cedbead56a60f9f93ddb3935b 96dc84077f2c7fa9d0dcaac0d47ffd9ce7d46b19
+R 908dbe5dbfc05f486b8d2b93c1117cac
 U mistachkin
-Z 204e0b4e3733dca36efb175892ba736e
+Z 728072943dff2a761522150c9fd9ca2c
