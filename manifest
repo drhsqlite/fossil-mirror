@@ -1,5 +1,5 @@
-C Disallow\s"fossil\sset"\sand\s"fossil\sunset"\son\san\sambiguous\sprefix.
-D 2014-09-14T21:05:22.043
+C prepare\sfor\sinput\sfrom\ssvn\sdumps
+D 2014-09-15T11:52:25.946
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -331,7 +331,7 @@ F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 72fe8597482cc51d39d5f9c252390281bd12ceae
+F src/db.c 28429d231a7e891caba927d40d0157a0ca6363bd
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 21aaf2b0b3ecfebceeaa548239279f5be97724cf
@@ -351,7 +351,7 @@ F src/http.c 061752d44c21be846c3876f4f9d4b92aa3e5f177
 F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
 F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c b42daab8684ab57bc72a05636e54ee1e494416ed
-F src/import.c f115df2302a00a0a65e7a18ba6bd42d2863e0872
+F src/import.c 80e9d2b5818661e8f857b660d920d74a3ada4033
 F src/info.c 3b28ce524a41bd95cdedae259140e4909dea8731
 F src/json.c 9b2f51d1d9e44a4cb299641f4b11ebd6716d7486
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
@@ -653,8 +653,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c6079d148eb13b16265a6ec7c2f44abcf2fe2c33 c3fee15bd4ea15dac9ee2eaf6ca990a94e1ff340
-R f120b5352fa55425ee5443904419f3af
-T +closed c3fee15bd4ea15dac9ee2eaf6ca990a94e1ff340
-U drh
-Z c75fdb3b919fcaaaef0224206a6a9926
+P 3b990b5203c7262f89580a2c41d57cc42ec71768
+R 1e893078226916569f423076b9f34acd
+T *branch * svn-import
+T *sym-svn-import *
+T -sym-trunk *
+U baruch
+Z 5857121f55aa7845aa4b166fbd9f21d2
