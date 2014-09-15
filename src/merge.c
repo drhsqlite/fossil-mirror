@@ -147,7 +147,6 @@ void merge_cmd(void){
   }
   forceFlag = find_option("force","f",0)!=0;
   zPivot = find_option("baseline",0,1);
-  capture_case_sensitive_option();
   verify_all_options();
   db_must_be_within_tree();
   if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);

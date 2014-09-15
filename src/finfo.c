@@ -58,7 +58,6 @@
 ** See also: artifact, cat, descendants, info, leaves
 */
 void finfo_cmd(void){
-  capture_case_sensitive_option();
   db_must_be_within_tree();
   if( find_option("status","s",0) ){
     Stmt q;
