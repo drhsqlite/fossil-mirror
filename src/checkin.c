@@ -1108,10 +1108,8 @@ static void create_manifest(
     blob_resize(&filename, nBasename);
     blob_append(&filename, zName, -1);
 
-#if !defined(_WIN32)
-    /* For unix, extract the "executable" and "symlink" permissions
-    ** directly from the filesystem.  On windows, permissions are
-    ** unchanged from the original.  However, only do this if the file
+    /* Extract the "executable" and "symlink" permissions
+    ** directly from the filesystem.  However, only do this if the file
     ** itself is actually selected to be part of this check-in.
     */
     if( isSelected ){
@@ -1121,7 +1119,7 @@ static void create_manifest(
       isExe = ( mPerm==PERM_EXE );
       isLink = ( mPerm==PERM_LNK );
     }
-#endif
+
     if( isExe ){
       zPerm = " x";
     }else if( isLink ){

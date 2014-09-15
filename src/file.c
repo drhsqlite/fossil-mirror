@@ -67,10 +67,10 @@ struct fossilStat {
 #endif
 
 /*
-** On Windows S_ISLNK always returns FALSE.
+** On Windows S_ISLNK can be true or false.
 */
 #if !defined(S_ISLNK)
-# define S_ISLNK(x) (0)
+# define S_ISLNK(x) ((x)==S_IFLNK)
 #endif
 static int fileStatValid = 0;
 static struct fossilStat fileStat;
@@ -90,7 +90,11 @@ static int fossil_stat(const char *zFilename, struct fossilStat *buf, int isWd){
     rc = stat(zMbcs, buf);
   }
 #else
-  rc = win32_stat(zMbcs, buf, isWd);
+  if( isWd && g.allowSymlinks ){
+    rc = win32_lstat(zMbcs, buf);
+  }else{
+    rc = win32_stat(zMbcs, buf);
+  }
 #endif
   fossil_filename_free(zMbcs);
   return rc;
@@ -186,7 +190,11 @@ int file_wd_isfile(const char *zFilename){
 **/
 void symlink_create(const char *zTargetFile, const char *zLinkFile){
 #if !defined(_WIN32)
-  if( g.allowSymlinks ){
+  int symlinks_supported = 1;
+#else
+  int symlinks_supported = win32_symlinks_supported(zLinkFile);
+#endif
+  if( symlinks_supported && g.allowSymlinks ){
     int i, nName;
     char *zName, zBuf[1000];
 
@@ -208,13 +216,16 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
         zName[i] = '/';
       }
     }
-    if( symlink(zTargetFile, zName)!=0 ){
+#if !defined(_WIN32)
+    if( symlink(zTargetFile, zName)!=0 )
+#else
+    if( win32_symlink(zTargetFile, zName)!=0 )
+#endif
+    {
       fossil_fatal_recursive("unable to create symlink \"%s\"", zName);
     }
     if( zName!=zBuf ) free(zName);
-  }else
-#endif
-  {
+  }else{
     Blob content;
     blob_set(&content, zTargetFile);
     blob_write_to_file(&content, zLinkFile);
@@ -245,18 +256,15 @@ int file_wd_perm(const char *zFilename){
 #    define S_IXUSR  _S_IEXEC
 #  endif
   if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
-    return PERM_EXE;
-  else
-    return PERM_REG;
 #else
   if( S_ISREG(fileStat.st_mode) &&
       ((S_IXUSR|S_IXGRP|S_IXOTH)&fileStat.st_mode)!=0 )
+#endif
     return PERM_EXE;
   else if( g.allowSymlinks && S_ISLNK(fileStat.st_mode) )
     return PERM_LNK;
   else
     return PERM_REG;
-#endif
 }
 
 /*
