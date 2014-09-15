@@ -1,5 +1,5 @@
-C Restore\sspecial\shandling\sof\sthe\sdatabase\sname\sfrom\s[17885b90c8]\sin\sfilenames_are_case_sensitive()\sas\sit\smay\sbe\sneeded\sin\ssome\scases.
-D 2014-09-15T01:54:09.434
+C For\sthe\s3-argument\sversion\sof\sthe\s'info'\scommand,\sopen\sthe\srepository\sprior\sto\srecording\sit.
+D 2014-09-15T02:32:35.353
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -352,7 +352,7 @@ F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
 F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c b42daab8684ab57bc72a05636e54ee1e494416ed
 F src/import.c f115df2302a00a0a65e7a18ba6bd42d2863e0872
-F src/info.c 3b28ce524a41bd95cdedae259140e4909dea8731
+F src/info.c 30a0c7a7d2d8956a200f0b25359481a5985099fa
 F src/json.c 9b2f51d1d9e44a4cb299641f4b11ebd6716d7486
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c aa922544841030c688df33aec81cca05577bbb7d
@@ -653,10 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3b990b5203c7262f89580a2c41d57cc42ec71768
-R d291d2d9dfff6f5cf6dafa257c58ffb7
-T *branch * dbRecordRepoFix
-T *sym-dbRecordRepoFix *
-T -sym-trunk *
+P 42b97c229664fefe9538fa99be3c4621b8a29d44
+R 31b08e85892ba6347f884c6c7a1535b6
 U mistachkin
-Z 2892f6c6abc62f2775468f3cd7136045
+Z 204e0b4e3733dca36efb175892ba736e
