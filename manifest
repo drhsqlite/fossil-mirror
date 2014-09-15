@@ -1,5 +1,5 @@
-C Disallow\s"fossil\sset"\sand\s"fossil\sunset"\son\san\sambiguous\sprefix.
-D 2014-09-14T21:05:22.043
+C Restore\sspecial\shandling\sof\sthe\sdatabase\sname\sfrom\s[17885b90c8]\sin\sfilenames_are_case_sensitive()\sas\sit\smay\sbe\sneeded\sin\ssome\scases.
+D 2014-09-15T01:54:09.434
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -309,7 +309,7 @@ F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F setup/fossil.iss c9ad92c989eecde15b2b01cd69eadc74de7a8d33
 F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 00dd110cc42a94f071d41c62235b9cc48f422b33
+F src/add.c 62de4c868559d7092fa693f19f6ff3a9d2fa53b9
 F src/allrepo.c b09e64990a1b648a052e83b04b3f1efcc3415042
 F src/attach.c 82ab7ae8506cdc97d162f4528d8d916ab6655d01
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -653,8 +653,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c6079d148eb13b16265a6ec7c2f44abcf2fe2c33 c3fee15bd4ea15dac9ee2eaf6ca990a94e1ff340
-R f120b5352fa55425ee5443904419f3af
-T +closed c3fee15bd4ea15dac9ee2eaf6ca990a94e1ff340
-U drh
-Z c75fdb3b919fcaaaef0224206a6a9926
+P 3b990b5203c7262f89580a2c41d57cc42ec71768
+R d291d2d9dfff6f5cf6dafa257c58ffb7
+T *branch * dbRecordRepoFix
+T *sym-dbRecordRepoFix *
+T -sym-trunk *
+U mistachkin
+Z 2892f6c6abc62f2775468f3cd7136045

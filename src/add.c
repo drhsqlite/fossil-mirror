@@ -447,8 +447,9 @@ int filenames_are_case_sensitive(void){
     }
     if( !caseSensitive && g.localOpen ){
       db_multi_exec(
-         "CREATE INDEX IF NOT EXISTS vfile_nocase"
-         "  ON vfile(pathname COLLATE nocase)"
+         "CREATE INDEX IF NOT EXISTS %s.vfile_nocase"
+         "  ON vfile(pathname COLLATE nocase)",
+         db_name("localdb")
       );
     }
   }
