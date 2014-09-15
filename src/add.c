@@ -262,7 +262,6 @@ void add_cmd(void){
   zIgnoreFlag = find_option("ignore",0,1);
   forceFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
-  capture_case_sensitive_option();
 
   /* We should be done with options.. */
   verify_all_options();
@@ -354,8 +353,6 @@ void add_cmd(void){
 void delete_cmd(void){
   int i;
   Stmt loop;
-
-  capture_case_sensitive_option();
 
   /* We should be done with options.. */
   verify_all_options();
@@ -525,7 +522,6 @@ void addremove_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
-  capture_case_sensitive_option();
 
   /* We should be done with options.. */
   verify_all_options();
@@ -637,7 +633,6 @@ void mv_cmd(void){
   Blob dest;
   Stmt q;
 
-  capture_case_sensitive_option();
   db_must_be_within_tree();
 
   /* We should be done with options.. */
