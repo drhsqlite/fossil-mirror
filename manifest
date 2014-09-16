@@ -1,5 +1,5 @@
-C Simplify\sthe\schanges\sin\sthe\sprevious\scheck-in\sslightly\sand\sadd\ssome\scalls\sto\sassert().
-D 2014-09-16T05:28:35.829
+C Make\sreadline/editline\ssupport\sactually\swork\s(HAVE_READLINE/HAVE_EDITLINE\sdefines\swere\smissing)
+D 2014-09-16T13:16:37.599
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -44,7 +44,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 2f8697bf8b3fffab95e5a88206cee5635bd99750
+F auto.def 3f11ffba8ad577f48ac55b753d1cde05bb5fd118
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup f80eb8d3ebc34b06b08095daf8d964a898ea2777 x
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1f8a4ecdb77e123ab75678d344e39c28e4849737
-R f47d7918333fa3e879298e02a8dbe9c4
-U mistachkin
-Z fcf9a0c2f31c5983e1c6213a83f92b9f
+P 134f7fd1ce88721e5e9ed46547b7fac8f7de0986
+R 3ff8bc5b78f6f438d22f38da6539b44d
+U jan.nijtmans
+Z ad12d11337161bca2bf9b3c6d04289b0
