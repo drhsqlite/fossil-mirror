@@ -2197,6 +2197,8 @@ void cmd_webserver(void){
     }else{
       zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
     }
+    if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
+    if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   }
   db_close(1);
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
@@ -2226,6 +2228,8 @@ void cmd_webserver(void){
     }else{
       zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
     }
+    if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
+    if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   }
   db_close(1);
   if( win32_http_service(iPort, zNotFound, zFileGlob, flags) ){
