@@ -119,7 +119,8 @@ static void win32_http_request(void *pAppData){
   ** is designed to allow the open checkout for the interactive user to work
   ** with the local Fossil server started via the "ui" command.
   */
-  if( g.zRepositoryName && (p->flags&HTTP_SERVER_HAD_CHECKOUT)==0 ){
+  if( (p->flags & HTTP_SERVER_HAD_CHECKOUT)==0 ){
+    assert( g.zRepositoryName && g.zRepositoryName[0] );
     sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s\n%s",
       get_utf8_bom(0), zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr),
       g.zRepositoryName
@@ -194,6 +195,7 @@ static void win32_scgi_request(void *pAppData){
   }
   fclose(out);
   out = 0;
+  assert( g.zRepositoryName && g.zRepositoryName[0] );
   sqlite3_snprintf(sizeof(zCmd), zCmd,
     "\"%s\" http \"%s\" \"%s\" %s \"%s\" --scgi --nossl%s",
     g.nameOfExe, zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr),
