@@ -437,11 +437,20 @@ static const char zDefaultView[] =
 @ <table cellpadding="5">
 @ <tr><td class="tktDspLabel">Ticket&nbsp;UUID:</td>
 @ <th1>
-@ if {[hascap s]} {
-@   html "<td class='tktDspValue' colspan='3'>$tkt_uuid "
-@   html "($tkt_id)</td></tr>\n"
+@ if {[info exists tkt_uuid]} {
+@   if {[hascap s]} {
+@     html "<td class='tktDspValue' colspan='3'>$tkt_uuid "
+@     html "($tkt_id)</td></tr>\n"
+@   } else {
+@     html "<td class='tktDspValue' colspan='3'>$tkt_uuid</td></tr>\n"
+@   }
 @ } else {
-@   html "<td class='tktDspValue' colspan='3'>$tkt_uuid</td></tr>\n"
+@   if {[hascap s]} {
+@     html "<td class='tktDspValue' colspan='3'>Deleted "
+@     html "(0)</td></tr>\n"
+@   } else {
+@     html "<td class='tktDspValue' colspan='3'>Deleted</td></tr>\n"
+@   }
 @ }
 @ </th1>
 @ <tr><td class="tktDspLabel">Title:</td>
