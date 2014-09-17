@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sCSS.
-D 2014-09-16T20:50:58.513
+C fix\sissue\swhen\sshowing\scheckins\susing\sa\sfile\sincorrect\scheckins\sshown\safter\smerge
+D 2014-09-17T14:41:17.577
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -334,7 +334,7 @@ F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 72fe8597482cc51d39d5f9c252390281bd12ceae
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
-F src/descendants.c 21aaf2b0b3ecfebceeaa548239279f5be97724cf
+F src/descendants.c aa22ca67ab417d0e854778f9d5c172b6d2f2c938
 F src/diff.c 26603debe5f78ec79aa42349765441097ce3ff64
 F src/diffcmd.c 5456dfddc2d575a9c589696e306dda58e20f6038
 F src/doc.c 30adc8a4b74d9bdff9906d53ed66a6216571efea
@@ -653,7 +653,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 23c54c0106761ab02ba80845320d1d9cc301ca9c
-R 7bf3c59275153d2d1d8fb1d70a94f820
-U mistachkin
-Z 074c99f814dfb63683e3a9c1ec3fd74e
+P 3d2690a9761fe54580ac75e7c88a07da30abc463
+R 6a5f30181de503428ff43c8ec348b07e
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U baruch
+Z 6a1f40ddb0ee8c8954b2ff339091e169
