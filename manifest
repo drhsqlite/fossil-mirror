@@ -1,5 +1,5 @@
-C Add\sthe\ssame\shandling\sfor\sthe\s'$tkt_datetime'\svariable.\s\sAlso,\sTH1\sdoes\snot\sshort-circuit\sthe\s'&&'\soperator.
-D 2014-09-17T06:24:22.879
+C Further\simprovements:\sif\sthe\sticket\s(or\swiki\spage)\swas\sdeleted\svia\smoderation,\sdo\snot\stry\sto\sredirect\sto\sit.
+D 2014-09-17T17:14:58.307
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -352,7 +352,7 @@ F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
 F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
 F src/import.c f115df2302a00a0a65e7a18ba6bd42d2863e0872
-F src/info.c 30a0c7a7d2d8956a200f0b25359481a5985099fa
+F src/info.c ad657acf65c11afde90ed27668475b25bb870d6f
 F src/json.c 9b2f51d1d9e44a4cb299641f4b11ebd6716d7486
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c aa922544841030c688df33aec81cca05577bbb7d
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a21d475e014893cd9335c5ffc9bf1178338bd135
-R 0a007d0a70ecd75deac7b44f8b726a07
+P b84b8865a02d6a4748ffebe63c80bfff8d195030
+R 1ce7f58f17d0ed8bcb6c1992f206d827
 U mistachkin
-Z e48519d413f6af86a4a755715f1c38b5
+Z db508211337f62b6bf5db3e25e421653
