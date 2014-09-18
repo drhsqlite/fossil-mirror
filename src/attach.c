@@ -290,8 +290,8 @@ void attachadd_page(void){
       addCompress = 1;
     }
     needModerator =
-         (zTkt!=0 && g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1) ||
-         (zPage!=0 && g.perm.ModWiki==0 && db_get_boolean("modreq-wiki",0)==1);
+         (zTkt!=0 && ticket_need_moderation(0)) ||
+         (zPage!=0 && wiki_need_moderation(0));
     rid = content_put_ex(&content, 0, 0, 0, needModerator);
     zUUID = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     blob_zero(&manifest);

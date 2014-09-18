@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2014-09-17T17:49:41.714
+C Experimental\schanges\sto\spermit\seasier\sdebugging\sof\sthe\smoderation\ssubsystem.
+D 2014-09-18T22:02:05.943
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -311,7 +311,7 @@ F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c a66548627cf802196c54c1200780f2bd37a503bb
 F src/allrepo.c b09e64990a1b648a052e83b04b3f1efcc3415042
-F src/attach.c 82ab7ae8506cdc97d162f4528d8d916ab6655d01
+F src/attach.c 6e597747741d0a82dd71ca250a13655b15bcac36
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c a396adcf4003c4c670af1f57d905d140629ac644
 F src/blob.c 1f1efeeadb6b303a6cc692f9829e2012dbbce468
@@ -368,7 +368,7 @@ F src/json_status.c 0a9f959d19f4b90c879ad50ef0cd376262d8247b
 F src/json_tag.c 70261471bbfe05f47af230561053a4fcbbeba5a9
 F src/json_timeline.c 4ba37f8d381b38424fb287969a2da3ea553aa228
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
-F src/json_wiki.c 7c3ea7255e88e57b2ec78e55561d9f94ec8a909e
+F src/json_wiki.c afd597bc0a8101285845749ceaa129689912ec51
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 8a8077139db4a01b8c9eb22aab452236331b7c8c
@@ -420,7 +420,7 @@ F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 38a77d04427296f65729de869316c5cc0606f6d7
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
 F src/timeline.c bc5cfb09b4546788be455a2d85a02ccb4c3c3fd7
-F src/tkt.c 782d6087293186a3e816f336e20a23f232ac6554
+F src/tkt.c d01e3510a1b1de5776f8a3ce243852867e0994f0
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
@@ -432,7 +432,7 @@ F src/utf8.c eab5cc0060d893b3a5079ee4f5957f222392a179
 F src/util.c d776ecabc6cb879ee2c8a577bde1da468288d6cf
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
 F src/vfile.c 33ddafa3850ae2cd6e35f1b47aa84cb0bbc92a4d
-F src/wiki.c c6430c8730e9eca1e0af80ff5b388748ab0ace81
+F src/wiki.c 0bebbdaf90b537888e24f262a3d2953ce4c1dbc8
 F src/wikiformat.c f897c6fc3888f9ea189adafb91a977faa892349c
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c 1064c420e51118abef94def5df394829f8df652d
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 13448d3cc3945532dddf513ef53d6f77ad227c82 d81c42d9eda6bc80bceeae797c28fbe1540bef7c
-R 5284cbfe5fb3c3a40a958bb948dc2476
+P 8ff50dd7e26db6d8a69834636921710df30d045c
+R 27307b3934fcad6f9ad3b9830559b82e
 U mistachkin
-Z 0815e8595caf9e95d20f1919940150fb
+Z 1dc62b5b77cde178e77fe7b536773064

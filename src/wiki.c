@@ -158,6 +158,21 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
   }
 }
 
+/*
+** Returns non-zero if moderation is required for wiki changes and wiki
+** attachments.
+*/
+int wiki_need_moderation(
+  int localUser /* Are we being called for a local interactive user? */
+){
+  if( fossil_getenv("FOSSIL_FORCE_WIKI_MODERATION")!=0 ){
+    return 1;
+  }
+  if( localUser ){
+    return 0;
+  }
+  return g.perm.ModWiki==0 && db_get_boolean("modreq-wiki",0)==1;
+}
 
 /*
 ** WEBPAGE: wiki
@@ -284,9 +299,9 @@ void wiki_page(void){
 /*
 ** Write a wiki artifact into the repository
 */
-static void wiki_put(Blob *pWiki, int parent){
+static void wiki_put(Blob *pWiki, int parent, int needMod){
   int nrid;
-  if( g.perm.ModWiki || db_get_boolean("modreq-wiki",0)==0 ){
+  if( !needMod ){
     nrid = content_put_ex(pWiki, 0, 0, 0, 0);
     if( parent) content_deltify(parent, nrid, 0);
   }else{
@@ -429,7 +444,7 @@ void wikiedit_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      wiki_put(&wiki, 0);
+      wiki_put(&wiki, 0, wiki_need_moderation(0));
     }
     db_end_transaction(0);
     cgi_redirectf("wiki?name=%T", zPageName);
@@ -660,7 +675,7 @@ void wikiappend_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      wiki_put(&wiki, rid);
+      wiki_put(&wiki, rid, wiki_need_moderation(0));
       db_end_transaction(0);
     }
     cgi_redirectf("wiki?name=%T", zPageName);
@@ -963,7 +978,7 @@ void wikirules_page(void){
 ** ignored.
 */
 int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
-                    const char *zMimeType){
+                    const char *zMimeType, int localUser){
   Blob wiki;              /* Wiki page content */
   Blob cksum;             /* wiki checksum */
   int rid;                /* artifact ID of parent page */
@@ -1013,7 +1028,7 @@ int wiki_cmd_commit(const char *zPageName, int isNew, Blob *pContent,
   blob_appendf(&wiki, "Z %b\n", &cksum);
   blob_reset(&cksum);
   db_begin_transaction();
-  wiki_put(&wiki, 0);
+  wiki_put(&wiki, 0, wiki_need_moderation(localUser));
   db_end_transaction(0);
   return 1;
 }
@@ -1121,10 +1136,10 @@ void wiki_cmd(void){
       }
     }
     if( g.argv[2][1]=='r' ){
-      wiki_cmd_commit(zPageName, 1, &content, zMimeType);
+      wiki_cmd_commit(zPageName, 1, &content, zMimeType, 1);
       fossil_print("Created new wiki page %s.\n", zPageName);
     }else{
-      wiki_cmd_commit(zPageName, 0, &content, zMimeType);
+      wiki_cmd_commit(zPageName, 0, &content, zMimeType, 1);
       fossil_print("Updated wiki page %s.\n", zPageName);
     }
     manifest_destroy(pWiki);
