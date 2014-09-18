@@ -766,8 +766,18 @@ void winfo_page(void){
   if( g.perm.ModWiki && (zModAction = P("modaction"))!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
       moderation_disapprove(rid);
-      cgi_redirectf("%R/wiki?name=%T", pWiki->zWikiTitle);
-      /*NOTREACHED*/
+      /*
+      ** Next, check if the wiki page still exists; if not, we cannot
+      ** redirect to it.
+      */
+      if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
+                    " WHERE rid=%d AND tagname LIKE 'wiki-%%'", rid) ){
+        cgi_redirectf("%R/wiki?name=%T", pWiki->zWikiTitle);
+        /*NOTREACHED*/
+      }else{
+        cgi_redirectf("%R/modreq");
+        /*NOTREACHED*/
+      }
     }
     if( strcmp(zModAction,"approve")==0 ){
       moderation_approve(rid);
@@ -1891,8 +1901,18 @@ void tinfo_page(void){
   if( g.perm.ModTkt && (zModAction = P("modaction"))!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
       moderation_disapprove(rid);
-      cgi_redirectf("%R/tktview/%s", zTktName);
-      /*NOTREACHED*/
+      /*
+      ** Next, check if the ticket still exists; if not, we cannot
+      ** redirect to it.
+      */
+      if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'",
+                    zTktName) ){
+        cgi_redirectf("%R/tktview/%s", zTktName);
+        /*NOTREACHED*/
+      }else{
+        cgi_redirectf("%R/modreq");
+        /*NOTREACHED*/
+      }
     }
     if( strcmp(zModAction,"approve")==0 ){
       moderation_approve(rid);

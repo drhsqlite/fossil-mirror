@@ -277,6 +277,29 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
 }
 
 /*
+** Returns non-zero if moderation is required for ticket changes and ticket
+** attachments.
+*/
+int ticket_need_moderation(
+  int localUser /* Are we being called for a local interactive user? */
+){
+  /*
+  ** If the FOSSIL_FORCE_TICKET_MODERATION variable is set, *ALL* changes for
+  ** tickets will be required to go through moderation (even those performed
+  ** by the local interactive user via the command line).  This can be useful
+  ** for local (or remote) testing of the moderation subsystem and its impact
+  ** on the contents and status of tickets.
+  */
+  if( fossil_getenv("FOSSIL_FORCE_TICKET_MODERATION")!=0 ){
+    return 1;
+  }
+  if( localUser ){
+    return 0;
+  }
+  return g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1;
+}
+
+/*
 ** Rebuild an entire entry in the TICKET table
 */
 void ticket_rebuild_entry(const char *zTktUuid){
@@ -569,6 +592,7 @@ static int submitTicketCmd(
   int i;
   int nJ = 0;
   Blob tktchng, cksum;
+  int needMod;
 
   login_verify_csrf_secret();
   if( !captcha_is_correct() ){
@@ -624,11 +648,14 @@ static int submitTicketCmd(
     blob_reset(&tktchng);
     return TH_OK;
   }
+  needMod = ticket_need_moderation(0);
   if( g.zPath[0]=='d' ){
+    const char *zNeedMod = needMod ? "required" : "skipped";
     /* If called from /debug_tktnew or /debug_tktedit... */
     @ <font color="blue">
     @ <p>Ticket artifact that would have been submitted:</p>
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
+    @ <blockquote><pre>Moderation would be %h(zNeedMod).</pre></blockquote>
     @ <hr /></font>
     return TH_OK;
   }else{
@@ -637,8 +664,7 @@ static int submitTicketCmd(
                "}<br />\n",
          blob_str(&tktchng));
     }
-    ticket_put(&tktchng, zUuid,
-               (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
+    ticket_put(&tktchng, zUuid, needMod);
   }
   return ticket_change(zUuid);
 }
@@ -1349,7 +1375,7 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      if( ticket_put(&tktchng, zTktUuid, 0) ){
+      if( ticket_put(&tktchng, zTktUuid, ticket_need_moderation(1)) ){
         fossil_fatal("%s\n", g.zErrMsg);
       }else{
         fossil_print("ticket %s succeeded for %s\n",
