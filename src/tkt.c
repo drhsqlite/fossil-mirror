@@ -283,6 +283,13 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
 int ticket_need_moderation(
   int localUser /* Are we being called for a local interactive user? */
 ){
+  /*
+  ** If the FOSSIL_FORCE_TICKET_MODERATION variable is set, *ALL* changes for
+  ** tickets will be required to go through moderation (even those performed
+  ** by the local interactive user via the command line).  This can be useful
+  ** for local (or remote) testing of the moderation subsystem and its impact
+  ** on the contents and status of tickets.
+  */
   if( fossil_getenv("FOSSIL_FORCE_TICKET_MODERATION")!=0 ){
     return 1;
   }
