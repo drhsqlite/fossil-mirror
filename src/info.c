@@ -775,7 +775,7 @@ void winfo_page(void){
         cgi_redirectf("%R/wiki?name=%T", pWiki->zWikiTitle);
         /*NOTREACHED*/
       }else{
-        cgi_redirectf("%R/wiki");
+        cgi_redirectf("%R/modreq");
         /*NOTREACHED*/
       }
     }
@@ -1910,7 +1910,7 @@ void tinfo_page(void){
         cgi_redirectf("%R/tktview/%s", zTktName);
         /*NOTREACHED*/
       }else{
-        cgi_redirectf("%R/timeline");
+        cgi_redirectf("%R/modreq");
         /*NOTREACHED*/
       }
     }
