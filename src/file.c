@@ -531,6 +531,24 @@ int file_delete(const char *zFilename){
 }
 
 /*
+** Delete a link.
+**
+** Returns zero upon success.
+*/
+int link_delete(const char *zFilename){
+  int rc;
+#ifdef _WIN32
+  wchar_t *z = fossil_utf8_to_filename(zFilename);
+  rc = win32_unlink_rmdir(z);
+#else
+  char *z = fossil_utf8_to_filename(zFilename);
+  rc = unlink(zFilename);
+#endif
+  fossil_filename_free(z);
+  return rc;
+}
+
+/*
 ** Create the directory named in the argument, if it does not already
 ** exist.  If forceFlag is 1, delete any prior non-directory object
 ** with the same name.

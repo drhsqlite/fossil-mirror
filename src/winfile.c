@@ -178,6 +178,18 @@ ssize_t win32_readlink(const char *path, char *buf, size_t bufsiz){
   return rv;
 }
 
+int win32_unlink_rmdir(const wchar_t *zFilename){
+  int rc = -1;
+  fossilStat stat;
+  if (win32_stat(zFilename, &stat) == 0){
+    if (stat.st_mode == S_IFDIR)
+      rc = RemoveDirectoryW(zFilename) ? 0 : -1;
+    else
+      rc = DeleteFileW(zFilename) ? 0 : -1;
+  }
+  return rc;
+}
+
 int win32_symlink(const char *oldpath, const char *newpath){
   fossilStat stat;
   int created = 0;
@@ -194,12 +206,7 @@ int win32_symlink(const char *oldpath, const char *newpath){
 
   /* remove newpath before creating the symlink */
   zMbcs = fossil_utf8_to_filename(newpath);
-  if (win32_stat(zMbcs, &stat) == 0){
-    if (stat.st_mode == S_IFDIR)
-      RemoveDirectory(newpath);
-    else
-      DeleteFile(newpath);
-  }
+  win32_unlink_rmdir(zMbcs);
   fossil_filename_free(zMbcs);
 
   if (CreateSymbolicLink(newpath, oldpath, flags))

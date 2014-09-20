@@ -323,7 +323,7 @@ void vfile_to_disk(
       fossil_fatal("%s is directory, cannot overwrite\n", zName);
     }
     if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(zName)) ){
-      file_delete(zName);
+      link_delete(zName);
     }
     if( isLink ){
       symlink_create(blob_str(&content), zName);

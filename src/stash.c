@@ -244,7 +244,7 @@ static void stash_apply(int stashid, int nConflict){
       blob_delta_apply(&a, &delta, &b);
       if( isLink == isNewLink && blob_compare(&disk, &a)==0 ){
         if( isLink || isNewLink ){
-          file_delete(zNPath);
+          link_delete(zNPath);
         }
         if( isLink ){
           symlink_create(blob_str(&b), zNPath);
