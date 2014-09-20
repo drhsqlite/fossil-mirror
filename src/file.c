@@ -244,6 +244,15 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
   }
 }
 
+void checked_symlink_create(int needDelete, int needLink, int maybeLink, Blob* blob, const char* zName){
+  if (needDelete && (needLink || maybeLink))
+    link_delete(zName);
+  if (needLink)
+    symlink_create(blog_str(blob), zName);
+  else
+    blog_write_to_file(blob, zName);
+}
+
 /*
 ** Copy symbolic link from zFrom to zTo.
 */

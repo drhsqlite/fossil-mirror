@@ -1,5 +1,5 @@
-C Modified\srevert\sto\salways\sprocess\ssymbolic\slinks.\sAlso\sadded\slink_delete\sto\scomplement\sfile_delete,\sas\swindows\sneeds\sspecial\sdelete\shandling\sfor\ssymbolic\slinks\sas\sthey\smight\sbe\sdirectory\ssymlinks.
-D 2014-09-20T18:11:06.604
+C Refactored\ssymlink_create\srepeated\sblock\sof\scode\sinto\sa\schecked_symlink_create\sfunction.
+D 2014-09-20T18:32:44.272
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -341,7 +341,7 @@ F src/doc.c 30adc8a4b74d9bdff9906d53ed66a6216571efea
 F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c afe15eaf300e18c7d19a1e1fe3c4bda30bff4872
 F src/export.c 70394a2d5c4058b89504a3720c40a09c917dbb91
-F src/file.c 6faa6e4cc22c76558f9d5a39117b60d9060248ea
+F src/file.c 87a3c9b52149c22569104841953da28480779b4a
 F src/finfo.c c972467105be14d6632946d6e45fd9f8226f3b54
 F src/fusefs.c ff7316f3d33144e105e7db4937c857af85a40e95
 F src/glob.c 162eefbce151ba02dd67243d92633393c0aeb302
@@ -408,7 +408,7 @@ F src/skins.c 7cd2de6d769715abd0e8e8284db5d1d29658ef7b
 F src/sqlcmd.c c81155ddf8865c49bedeb771e051df0ca5dd2c9d
 F src/sqlite3.c 7284f9c2419ea1c5402fbebc82b57d83d39a14ea
 F src/sqlite3.h 23cb67b1acf2c9d50f241db321f547732488d64d
-F src/stash.c afe706809315a14ebb8d7657ae41e0276e75e7c4
+F src/stash.c 4bb5b5405e871ec85ccbdbd6c310f9411392e3b3
 F src/stat.c a0e29e09e2635f397e2a7543cd12443fe66f24b7
 F src/style.c 1fda3f962cc0e9b6f6f12f34a857f89a99571113
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
@@ -423,15 +423,15 @@ F src/timeline.c bc5cfb09b4546788be455a2d85a02ccb4c3c3fd7
 F src/tkt.c 782d6087293186a3e816f336e20a23f232ac6554
 F src/tktsetup.c 7102241789e93cb8a7281e7ed8983ac2125f6250
 F src/translate.c df3f955467ec98870b95188b4aa1400af6ff7a1e
-F src/undo.c aaf128b2704eb0fb6ac14d751646b4d1987fb526
+F src/undo.c 332ae7c2d9955c637d307cbdab87c1684e248782
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
-F src/update.c 682331e19f3d8e9b947c480cdcfe35a9a33220bd
+F src/update.c db6619c6c584a4d53b67585b098c783ff4de5526
 F src/url.c b7743600119e97d34f96aea8996b9a4caad4bdc0
 F src/user.c 609b489ac17b5dd35c1a8676d85cb1196c07d43e
 F src/utf8.c eab5cc0060d893b3a5079ee4f5957f222392a179
 F src/util.c d776ecabc6cb879ee2c8a577bde1da468288d6cf
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
-F src/vfile.c d4dec0b07caf7692f9243e1898273a6cfe05d16e
+F src/vfile.c ae50248dbe655c9f54deb28f70cec1a373623807
 F src/wiki.c c6430c8730e9eca1e0af80ff5b388748ab0ace81
 F src/wikiformat.c f897c6fc3888f9ea189adafb91a977faa892349c
 F src/winfile.c 0ab8fce870b91135e76b57b664813eb33a33aae5
@@ -653,7 +653,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1f1f75066a2e4a3dd24d97d4f5e3493dd751fde1
-R 65dc1a12ea3b93cd6a4350d28def4b97
+P 9e0ba1215daee4b01519077878c7b515e6c6786b
+R 9476294d18308d50c0cd5cbeb4d3b77c
 U sdr
-Z 0b889a759e8ac0f83b273bfb69d9b356
+Z 196b8702dcf980ec137592a38d53529d
