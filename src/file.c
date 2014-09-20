@@ -209,10 +209,21 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;
+#if defined(_WIN32) || defined(__CYGWIN__)
+        /*
+        ** On Windows, local path looks like: C:/develop/project/file.txt
+        ** The if stops us from trying to create a directory of a drive letter
+        ** C: in this example.
+        */
+        if (!(i == 2 && zName[1] == ':')){
+#endif
           if( file_mkdir(zName, 1) ){
             fossil_fatal_recursive("unable to create directory %s", zName);
             return;
           }
+#if defined(_WIN32) || defined(__CYGWIN__)
+        }
+#endif
         zName[i] = '/';
       }
     }

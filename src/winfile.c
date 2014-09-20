@@ -189,11 +189,21 @@ int win32_symlink(const char *oldpath, const char *newpath){
   if (win32_stat(zMbcs, &stat) == 0){
     if (stat.st_mode == S_IFDIR)
       flags = SYMBOLIC_LINK_FLAG_DIRECTORY;
-    DeleteFile(newpath);
-    if (CreateSymbolicLink(newpath, oldpath, flags))
-      created = 1;
   }
   fossil_filename_free(zMbcs);
+
+  /* remove newpath before creating the symlink */
+  zMbcs = fossil_utf8_to_filename(newpath);
+  if (win32_stat(zMbcs, &stat) == 0){
+    if (stat.st_mode == S_IFDIR)
+      RemoveDirectory(newpath);
+    else
+      DeleteFile(newpath);
+  }
+  fossil_filename_free(zMbcs);
+
+  if (CreateSymbolicLink(newpath, oldpath, flags))
+    created = 1;
 
   /* if the symlink was not created, create a plain text file */
   if (!created){
