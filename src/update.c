@@ -810,7 +810,7 @@ void revert_cmd(void){
     }else{
       sqlite3_int64 mtime;
       undo_save(zFile);
-      checked_symlink_create(file_wd_size(zFull)>=0, isLink, file_wd_islink(zFull), &record, zFull);
+      create_symlink_or_file(file_wd_size(zFull)>=0, isLink, file_wd_islink(zFull), &record, zFull);
       file_wd_setexe(zFull, isExe);
       fossil_print("REVERTED: %s\n", zFile);
       mtime = file_wd_mtime(zFull);

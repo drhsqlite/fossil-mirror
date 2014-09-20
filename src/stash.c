@@ -243,7 +243,7 @@ static void stash_apply(int stashid, int nConflict){
       content_get(rid, &a);
       blob_delta_apply(&a, &delta, &b);
       if( isLink == isNewLink && blob_compare(&disk, &a)==0 ){
-        checked_symlink_create(1, isLink, isNewLink, &b, zNPath);
+        create_symlink_or_file(1, isLink, isNewLink, &b, zNPath);
         file_wd_setexe(zNPath, isExec);
         fossil_print("UPDATE %s\n", zNew);
       }else{

@@ -244,13 +244,13 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
   }
 }
 
-void checked_symlink_create(int needDelete, int needLink, int maybeLink, Blob* blob, const char* zName){
-  if (needDelete && (needLink || maybeLink))
+void create_symlink_or_file(int mayNeedDelete, int needLink, int mayBeLink, Blob* blob, const char* zName){
+  if (mayNeedDelete && (needLink || mayBeLink))
     link_delete(zName);
   if (needLink)
-    symlink_create(blog_str(blob), zName);
+    symlink_create(blob_str(blob), zName);
   else
-    blog_write_to_file(blob, zName);
+    blob_write_to_file(blob, zName);
 }
 
 /*

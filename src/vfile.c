@@ -322,7 +322,7 @@ void vfile_to_disk(
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite\n", zName);
     }
-    checked_symlink_create(file_wd_size(zName)>=0, isLink, file_wd_islink(zName), &content, zName);
+    create_symlink_or_file(file_wd_size(zName)>=0, isLink, file_wd_islink(zName), &content, zName);
     file_wd_setexe(zName, isExe);
     blob_reset(&content);
     db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
