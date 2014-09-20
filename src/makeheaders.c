@@ -44,6 +44,8 @@
 #    define WIN32
 #  endif
 # include <string.h>
+#elif defined(__sun) && defined(__SVR4)
+# include <string.h>
 #else
 # include <unistd.h>
 #endif
