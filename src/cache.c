@@ -238,7 +238,7 @@ cache_read_done:
 **
 **    clear        Remove all entries from the cache.
 **
-**    init         Create the cache file it it does not already exists.
+**    init         Create the cache file if it does not already exists.
 **
 **    list|ls      List the keys and content sizes and other stats for
 **                 all entries currently in the cache
