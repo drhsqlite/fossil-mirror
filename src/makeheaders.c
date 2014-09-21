@@ -39,11 +39,12 @@
 #include <memory.h>
 #include <sys/stat.h>
 #include <assert.h>
+#include <string.h>
+
 #if defined( __MINGW32__) ||  defined(__DMC__) || defined(_MSC_VER) || defined(__POCC__)
 #  ifndef WIN32
 #    define WIN32
 #  endif
-# include <string.h>
 #else
 # include <unistd.h>
 #endif
