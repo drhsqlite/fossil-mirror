@@ -244,6 +244,18 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
   }
 }
 
+/*
+** This code is used in multiple places around fossil. Rather than having
+** four or five slightly different cut & paste chunks of code, this function
+** does the task of deleting a (possible) link (if necessary) and then
+** either creating a link or a file based on input parameters.
+** mayNeedDelete is true if we might need to call link_delete, false otherwise.
+** needLink is true if we need to create a symlink, false otherwise.
+** mayBeLink is true if zName might be a symlink based on the state of the
+** checkout and/or file system, false otherwise.
+** blob is the binary data to either write as a symlink or as a file.
+** zName is the name of the file or symlink to write.
+*/
 void create_symlink_or_file(int mayNeedDelete, int needLink, int mayBeLink, Blob* blob, const char* zName){
   if (mayNeedDelete && (needLink || mayBeLink))
     link_delete(zName);
