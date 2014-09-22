@@ -85,6 +85,16 @@ static void html_escape(struct Blob *ob, const char *data, size_t size){
 
 /* HTML block tags */
 
+static void html_prolog(struct Blob *ob, void *opaque){
+  INTER_BLOCK(ob);
+  BLOB_APPEND_LITTERAL(ob, "<div class=\"markdown\">\n");
+}
+
+static void html_epilog(struct Blob *ob, void *opaque){
+  INTER_BLOCK(ob);
+  BLOB_APPEND_LITTERAL(ob, "</div>\n");
+}
+
 static void html_raw_block(struct Blob *ob, struct Blob *text, void *opaque){
   char *data = blob_buffer(text);
   size_t first = 0, size = blob_size(text);
@@ -366,7 +376,9 @@ void markdown_to_html(
   struct Blob *output_body
 ){
   struct mkd_renderer html_renderer = {
-    0, 0,  /* no prolog or epilog */
+    /* prolog and epilog */
+    html_prolog,
+    html_epilog,
 
     /* block level elements */
     html_blockcode,

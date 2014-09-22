@@ -1,5 +1,5 @@
-C typos
-D 2014-09-21T19:40:45.230
+C Wrap\smarkdown\scontent\sin\san\sHTML\s'div'\sblock\sof\sthe\s'markdown'\sclass.
+D 2014-09-22T19:56:28.198
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -380,7 +380,7 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl e562e306eb791c686e1dc02aab7357da53096f0a
 F src/manifest.c 4b3dc7c7ff5382e7c14f0e6a7e9119ab40ac0605
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
-F src/markdown_html.c 02457a989a13d50499f326e800fff993ef84f4b7
+F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
 F src/merge.c c04a12cdcb97e617887beaa481b828c70e9a3632
 F src/merge3.c d07e371cc8ad34dff8ced94f2f4bd89eb18903b9
@@ -653,7 +653,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 51937b72826092ce995e01f40265e6b0bc9d6866
-R a8f79b6dc6068e75a7768939216e67fa
-U jan.nijtmans
-Z abd4a585efea9a3e013c94c95809cd72
+P b2a4b66f4bc4ac46dbb8dec5c4eae06e8be896bf
+R f8c8e9521a0c6ee945e3ed88a2916945
+T *branch * markdownDivWrapper
+T *sym-markdownDivWrapper *
+T -sym-trunk *
+U mistachkin
+Z be2767908a45f616b01c7a66248e49ff
