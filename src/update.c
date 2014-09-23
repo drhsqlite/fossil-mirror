@@ -768,7 +768,7 @@ void revert_cmd(void){
       "INSERT OR IGNORE INTO torevert "
       " SELECT pathname"
       "   FROM vfile "
-      "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname;"
+      "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname OR islink;"
     );
   }
   db_multi_exec(
@@ -810,14 +810,7 @@ void revert_cmd(void){
     }else{
       sqlite3_int64 mtime;
       undo_save(zFile);
-      if( file_wd_size(zFull)>=0 && (isLink || file_wd_islink(zFull)) ){
-        file_delete(zFull);
-      }
-      if( isLink ){
-        symlink_create(blob_str(&record), zFull);
-      }else{
-        blob_write_to_file(&record, zFull);
-      }
+      create_symlink_or_file(file_wd_size(zFull)>=0, isLink, file_wd_islink(zFull), &record, zFull);
       file_wd_setexe(zFull, isExe);
       fossil_print("REVERTED: %s\n", zFile);
       mtime = file_wd_mtime(zFull);

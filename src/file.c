@@ -209,10 +209,21 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;
+#if defined(_WIN32) || defined(__CYGWIN__)
+        /*
+        ** On Windows, local path looks like: C:/develop/project/file.txt
+        ** The if stops us from trying to create a directory of a drive letter
+        ** C: in this example.
+        */
+        if (!(i == 2 && zName[1] == ':')){
+#endif
           if( file_mkdir(zName, 1) ){
             fossil_fatal_recursive("unable to create directory %s", zName);
             return;
           }
+#if defined(_WIN32) || defined(__CYGWIN__)
+        }
+#endif
         zName[i] = '/';
       }
     }
@@ -231,6 +242,27 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
     blob_write_to_file(&content, zLinkFile);
     blob_reset(&content);
   }
+}
+
+/*
+** This code is used in multiple places around fossil. Rather than having
+** four or five slightly different cut & paste chunks of code, this function
+** does the task of deleting a (possible) link (if necessary) and then
+** either creating a link or a file based on input parameters.
+** mayNeedDelete is true if we might need to call link_delete, false otherwise.
+** needLink is true if we need to create a symlink, false otherwise.
+** mayBeLink is true if zName might be a symlink based on the state of the
+** checkout and/or file system, false otherwise.
+** blob is the binary data to either write as a symlink or as a file.
+** zName is the name of the file or symlink to write.
+*/
+void create_symlink_or_file(int mayNeedDelete, int needLink, int mayBeLink, Blob* blob, const char* zName){
+  if (mayNeedDelete && (needLink || mayBeLink))
+    link_delete(zName);
+  if (needLink)
+    symlink_create(blob_str(blob), zName);
+  else
+    blob_write_to_file(blob, zName);
 }
 
 /*
@@ -511,6 +543,24 @@ int file_delete(const char *zFilename){
 #ifdef _WIN32
   wchar_t *z = fossil_utf8_to_filename(zFilename);
   rc = _wunlink(z);
+#else
+  char *z = fossil_utf8_to_filename(zFilename);
+  rc = unlink(zFilename);
+#endif
+  fossil_filename_free(z);
+  return rc;
+}
+
+/*
+** Delete a link.
+**
+** Returns zero upon success.
+*/
+int link_delete(const char *zFilename){
+  int rc;
+#ifdef _WIN32
+  wchar_t *z = fossil_utf8_to_filename(zFilename);
+  rc = win32_unlink_rmdir(z);
 #else
   char *z = fossil_utf8_to_filename(zFilename);
   rc = unlink(zFilename);

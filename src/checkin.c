@@ -1116,8 +1116,13 @@ static void create_manifest(
       int mPerm;
 
       mPerm = file_wd_perm(blob_str(&filename));
+#if !defined(_WIN32)
       isExe = ( mPerm==PERM_EXE );
-      isLink = ( mPerm==PERM_LNK );
+#endif
+#if defined(_WIN32)
+      if (win32_symlinks_supported())
+#endif
+        isLink = ( mPerm==PERM_LNK );
     }
 
     if( isExe ){

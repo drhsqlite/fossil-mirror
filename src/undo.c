@@ -72,14 +72,7 @@ static void undo_one(const char *zPathname, int redoFlag){
       }else{
         fossil_print("NEW %s\n", zPathname);
       }
-      if( new_exists && (new_link || old_link) ){
-        file_delete(zFullname);
-      }
-      if( old_link ){
-        symlink_create(blob_str(&new), zFullname);
-      }else{
-        blob_write_to_file(&new, zFullname);
-      }
+      create_symlink_or_file(new_exists, old_link, new_link, &new, zFullname);
       file_wd_setexe(zFullname, old_exe);
     }else{
       fossil_print("DELETE %s\n", zPathname);
