@@ -2199,13 +2199,8 @@ void cmd_webserver(void){
     }
     if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
     if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
-  }else if( db_get("server-code", 0)==0 ){
-    db_multi_exec(
-      "INSERT INTO config(name,value,mtime)"
-      " VALUES('server-code', lower(hex(randomblob(20))),now());"
-      "INSERT INTO config(name,value,mtime)"
-      " VALUES('project-code', lower(hex(randomblob(20))),now());"
-    );
+  }else if( db_get("server-code", 0)==0 || db_get("project-code", 0)==0 ){
+    db_setup_server_and_project_codes(1);
   }
   db_close(1);
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){

@@ -9,9 +9,9 @@ RUN yum install -y gcc make zlib-devel openssl-devel tcl-devel && yum clean all
 RUN groupadd -r fossil -g 433 && useradd -u 431 -r -g fossil -d /opt/fossil -s /sbin/nologin -c "Fossil user" fossil
 
 ### If you want to build "release", change the next line accordingly.
-ENV VERSION trunk
+ENV FOSSIL_INSTALL_VERSION trunk
 
-RUN curl "http://www.fossil-scm.org/index.html/tarball/fossil-src.tar.gz?name=fossil-src&uuid=${VERSION}"  | tar zx
+RUN curl "http://www.fossil-scm.org/index.html/tarball/fossil-src.tar.gz?name=fossil-src&uuid=${FOSSIL_INSTALL_VERSION}" | tar zx
 RUN cd fossil-src && ./configure --lineedit=0 --json --with-tcl --with-tcl-stubs --with-tcl-private-stubs && make;
 RUN cp fossil-src/fossil /usr/bin
 RUN rm -rf fossil-src
