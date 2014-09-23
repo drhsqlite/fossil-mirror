@@ -1471,6 +1471,7 @@ void db_initial_setup(
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
 **                              (default: do not create an initial checkin)
+**    --empty                   create repository without project-id/server-id
 **
 ** See also: clone
 */
@@ -1479,11 +1480,12 @@ void create_repository_cmd(void){
   const char *zTemplate;      /* Repository from which to copy settings */
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
+  int makeServerCodes;
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  find_option("empty", 0, 0); /* deprecated */
+  makeServerCodes = find_option("empty", 0, 0)==0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -1496,11 +1498,13 @@ void create_repository_cmd(void){
   db_open_config(0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
-  db_initial_setup(zTemplate, zDate, zDefaultUser, 1);
+  db_initial_setup(zTemplate, zDate, zDefaultUser, makeServerCodes);
   db_end_transaction(0);
   if( zTemplate ) db_detach("settingSrc");
-  fossil_print("project-id: %s\n", db_get("project-code", 0));
-  fossil_print("server-id:  %s\n", db_get("server-code", 0));
+  if( makeServerCodes ){
+    fossil_print("project-id: %s\n", db_get("project-code", 0));
+    fossil_print("server-id:  %s\n", db_get("server-code", 0));
+  }
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (initial password is \"%s\")\n",
                g.zLogin, zPassword);
