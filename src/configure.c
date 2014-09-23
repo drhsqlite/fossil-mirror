@@ -224,7 +224,7 @@ int configure_is_exportable(const char *zName){
     n -= 2;
   }
   for(i=0; i<count(aConfig); i++){
-    if( memcmp(zName, aConfig[i].zName, n)==0 && aConfig[i].zName[n]==0 ){
+    if( strncmp(zName, aConfig[i].zName, n)==0 && aConfig[i].zName[n]==0 ){
       int m = aConfig[i].groupMask;
       if( !g.perm.Admin ){
         m &= ~CONFIGSET_USER;

@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sDocker\s[http://www.docker.com/]
-D 2014-09-23T12:15:42.182
+C Use\sstrncmp()\sinstead\sof\smemcmp()\swhen\scomparing\sstrings\ssince\smemcmp()\sis\nnot\sguaranteed\sto\sread\sbytes\sin\sorder\sand\shence\smight\sread\spast\sthe\nzero-terminator\sof\sa\sstring.
+D 2014-09-23T15:21:08.499
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -314,20 +314,20 @@ F src/add.c a66548627cf802196c54c1200780f2bd37a503bb
 F src/allrepo.c b09e64990a1b648a052e83b04b3f1efcc3415042
 F src/attach.c 6e597747741d0a82dd71ca250a13655b15bcac36
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
-F src/bisect.c a396adcf4003c4c670af1f57d905d140629ac644
+F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 1f1efeeadb6b303a6cc692f9829e2012dbbce468
 F src/branch.c 47faf59a704731b1faf1b275fd2ed66573911219
 F src/browse.c ec8073c7f561fe403814c1717d8ba9289c5f605d
 F src/cache.c d319f58c63ccaa172b423f6ae675b93768d589f4
-F src/captcha.c fea6cab111fb55e09bdae82e841e1c04c62dd846
-F src/cgi.c 0fda09f5a5655c86b0a82fc5ef4a296b83a390f3
+F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
+F src/cgi.c d0e91de12fab7b8bc8f8b4a672c694da96653cc5
 F src/checkin.c 4ce53ca97c99353bb29fa5bb65c81165d48fba69
 F src/checkout.c f24af5f425ed7dcd92b0d003a0979dc79808d674
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 3fb02ec34bf2a2c464c83b486a0c8ef2cb6ec051
 F src/comformat.c 8847b181ba0261b6e0c7051b72d703e9fbaa70f9
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
-F src/configure.c 1e609c006f31d7f5587ca8c323ea66787653f7f4
+F src/configure.c 2674156940f93fb130d3e23afde4e06c9c698e48
 F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
@@ -343,7 +343,7 @@ F src/encode.c c7e78efef459aa5e594924bba4d6ccbf98c9ac88
 F src/event.c afe15eaf300e18c7d19a1e1fe3c4bda30bff4872
 F src/export.c 70394a2d5c4058b89504a3720c40a09c917dbb91
 F src/file.c a653b0a67def52ee6facbef9d8f44697160e4994
-F src/finfo.c d7264af59298a0f3d4f70c0586773994d0be97d4
+F src/finfo.c cd760ae4e7d0d4c9adb96f77f98299fd4e593e65
 F src/fusefs.c ff7316f3d33144e105e7db4937c857af85a40e95
 F src/glob.c 162eefbce151ba02dd67243d92633393c0aeb302
 F src/graph.c 57ddf309e5bf7be4f88b6ec36eb6296f6c278153
@@ -352,7 +352,7 @@ F src/http.c 8fef56c0b40c54bbeeccf4d0513d67b04df33327
 F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
 F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
-F src/import.c f115df2302a00a0a65e7a18ba6bd42d2863e0872
+F src/import.c 065b6bcb8bfefbf15f8eb0bcbc4e915e3418aa72
 F src/info.c 73d80b3dcd80000d8d20c9933fd3729f28164c8e
 F src/json.c 9b2f51d1d9e44a4cb299641f4b11ebd6716d7486
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
@@ -379,7 +379,7 @@ F src/main.mk 8a61014e8f6768cde4ea1d6c3c31906e6d9d3646
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl e562e306eb791c686e1dc02aab7357da53096f0a
-F src/manifest.c 4b3dc7c7ff5382e7c14f0e6a7e9119ab40ac0605
+F src/manifest.c 75f7912e45bd4b552aa4718ee7c4db6590d0e490
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 02457a989a13d50499f326e800fff993ef84f4b7
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
@@ -654,8 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b2a4b66f4bc4ac46dbb8dec5c4eae06e8be896bf 3cdf0112df64f7b96b2ede4a256db9bf89a1f9dc
-R 98070fb1aaf741f5b0b41144e1d63575
-T +closed 3cdf0112df64f7b96b2ede4a256db9bf89a1f9dc
-U jan.nijtmans
-Z f06fe1364a6be2e7257e3476827945da
+P 7aced530234a04e17a64a3b995a6e12886e5e9b5
+R 07b72635332566f7799e129746441dd2
+U drh
+Z 95d7335712c56131e3bf7fb93128b7cd

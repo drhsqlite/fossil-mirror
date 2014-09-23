@@ -231,14 +231,14 @@ static void remove_pgp_signature(char **pz, int *pn){
   char *z = *pz;
   int n = *pn;
   int i;
-  if( memcmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)!=0 ) return;
+  if( strncmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)!=0 ) return;
   for(i=34; i<n && !after_blank_line(z+i); i++){}
   if( i>=n ) return;
   z += i;
   n -= i;
   *pz = z;
   for(i=n-1; i>=0; i--){
-    if( z[i]=='\n' && memcmp(&z[i],"\n-----BEGIN PGP SIGNATURE-", 25)==0 ){
+    if( z[i]=='\n' && strncmp(&z[i],"\n-----BEGIN PGP SIGNATURE-", 25)==0 ){
       n = i+1;
       break;
     }
