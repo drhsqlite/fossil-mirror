@@ -533,7 +533,7 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
     }
   }
   db_finalize(&q);
-  db_prepare(&q, "SELECT cid FROM plink WHERE pid=:rid");
+  db_prepare(&q, "SELECT cid FROM plink WHERE pid=:rid AND isprim");
 
   while( (rid = bag_first(&pending))!=0 ){
     bag_remove(&pending, rid);

@@ -1162,7 +1162,6 @@ void cmd_test_tree_name(void){
   Blob x;
   db_find_and_open_repository(0,0);
   blob_zero(&x);
-  capture_case_sensitive_option();
   for(i=2; i<g.argc; i++){
     if( file_tree_name(g.argv[i], &x, 1) ){
       fossil_print("%s\n", blob_buffer(&x));

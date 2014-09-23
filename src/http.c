@@ -81,7 +81,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   }
 
   /* The login card wants the SHA1 hash of the password, so convert the
-  ** password to its SHA1 hash it it isn't already a SHA1 hash.
+  ** password to its SHA1 hash if it isn't already a SHA1 hash.
   */
   /* fossil_print("\nzPw=[%s]\n", zPw); // TESTING ONLY */
   if( zPw && zPw[0] ) zPw = sha1_shared_secret(zPw, zLogin, 0);

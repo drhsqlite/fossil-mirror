@@ -1974,32 +1974,52 @@ int db_table_has_column(const char *zTableName, const char *zColName){
 ** Where %s is the checkout root.  The value is the repository file.
 */
 void db_record_repository_filename(const char *zName){
+  const char *zCollation;
+  char *zRepoSetting;
+  char *zCkoutSetting;
   Blob full;
   if( zName==0 ){
     if( !g.localOpen ) return;
     zName = db_repository_filename();
   }
   file_canonical_name(zName, &full, 0);
+  zCollation = filename_collation();
   db_swap_connections();
+  zRepoSetting = mprintf("repo:%q", blob_str(&full));
+  db_multi_exec(
+     "DELETE FROM global_config WHERE name %s = '%s';",
+     zCollation, zRepoSetting
+  );
   db_multi_exec(
      "INSERT OR IGNORE INTO global_config(name,value)"
-     "VALUES('repo:%q',1)",
-     blob_str(&full)
+     "VALUES('%s',1);",
+     zRepoSetting
   );
+  fossil_free(zRepoSetting);
   if( g.localOpen && g.zLocalRoot && g.zLocalRoot[0] ){
     Blob localRoot;
     file_canonical_name(g.zLocalRoot, &localRoot, 1);
+    zCkoutSetting = mprintf("ckout:%q", blob_str(&localRoot));
+    db_multi_exec(
+       "DELETE FROM global_config WHERE name %s = '%s';",
+       zCollation, zCkoutSetting
+    );
     db_multi_exec(
       "REPLACE INTO global_config(name, value)"
-      "VALUES('ckout:%q','%q');",
-      blob_str(&localRoot), blob_str(&full)
+      "VALUES('%s','%q');",
+      zCkoutSetting, blob_str(&full)
     );
     db_swap_connections();
     db_optional_sql("repository",
-        "REPLACE INTO config(name,value,mtime)"
-        "VALUES('ckout:%q',1,now())",
-        blob_str(&localRoot)
+        "DELETE FROM config WHERE name %s = '%s';",
+        zCollation, zCkoutSetting
     );
+    db_optional_sql("repository",
+        "REPLACE INTO config(name,value,mtime)"
+        "VALUES('%s',1,now());",
+        zCkoutSetting
+    );
+    fossil_free(zCkoutSetting);
     blob_reset(&localRoot);
   }else{
     db_swap_connections();
@@ -2482,13 +2502,35 @@ void setting_cmd(void){
     if( isManifest && globalFlag ){
       fossil_fatal("cannot set 'manifest' globally");
     }
-    if( unsetFlag ){
-      db_unset(ctrlSettings[i].name, globalFlag);
-    }else if( g.argc==4 ){
-      db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
+    if( unsetFlag || g.argc==4 ){
+      if( ctrlSettings[i+1].name
+       && strncmp(ctrlSettings[i+1].name, zName, n)==0
+       && ctrlSettings[i].name[n]!=0
+      ){
+        fossil_print("ambiguous property prefix: %s\nMatching properties:\n",
+                     zName);
+        while( ctrlSettings[i].name
+            && strncmp(ctrlSettings[i].name, zName, n)==0
+        ){
+          fossil_print("%s\n", ctrlSettings[i].name);
+          i++;
+        }
+        fossil_exit(1);
+      }else{
+        if( unsetFlag ){
+          db_unset(ctrlSettings[i].name, globalFlag);
+        }else{
+          db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
+        }
+      }
     }else{
       isManifest = 0;
-      print_setting(&ctrlSettings[i], db_open_local(0));
+      while( ctrlSettings[i].name
+            && strncmp(ctrlSettings[i].name, zName, n)==0
+      ){
+        print_setting(&ctrlSettings[i], db_open_local(0));
+        i++;
+      }
     }
     if( isManifest && g.localOpen ){
       manifest_to_disk(db_lget_int("checkout", 0));
