@@ -1,10 +1,5 @@
 ###
 #   (experimental) Dockerfile for Fossil
-#
-#   Although it works fine, there is a one little thing which is not 100%
-#   correct: the fossil repository is created at Docker image creation time,
-#   which means everyone using the same docker image will have the same
-#   server ID and project ID.
 ###
 FROM fedora:21
 
