@@ -1,5 +1,5 @@
-C Modularize\sserver/project\scode\shandling.\s\sSmall\sstyle\sfix\sto\sthe\sDockerfile.
-D 2014-09-23T15:33:58.330
+C When\sgenerating\sthe\s"manifest"\sfile\sin\sa\scheckout\sbecause\s\n"fossil\ssetting\smanifest"\sis\sturned\son,\sadd\san\sextra\sline\sof\stext\sto\sthe\nend\sof\sthe\sfile\sto\sprevent\sthe\sfile\sfrom\sbeing\sinterpreted\sas\sa\svalid\ncontrol\sartifact\sin\scase\sthe\scomplete\ssource\stree\sis\simported\sinto\sanother\nunrelated\sFossil\sproject.
+D 2014-09-23T16:02:59.451
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -322,7 +322,7 @@ F src/cache.c d319f58c63ccaa172b423f6ae675b93768d589f4
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c d0e91de12fab7b8bc8f8b4a672c694da96653cc5
 F src/checkin.c 4ce53ca97c99353bb29fa5bb65c81165d48fba69
-F src/checkout.c f24af5f425ed7dcd92b0d003a0979dc79808d674
+F src/checkout.c b4f2d1cff580f95218034aaea310d15b83fa2771
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 3fb02ec34bf2a2c464c83b486a0c8ef2cb6ec051
 F src/comformat.c 8847b181ba0261b6e0c7051b72d703e9fbaa70f9
@@ -379,7 +379,7 @@ F src/main.mk 8a61014e8f6768cde4ea1d6c3c31906e6d9d3646
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl e562e306eb791c686e1dc02aab7357da53096f0a
-F src/manifest.c 75f7912e45bd4b552aa4718ee7c4db6590d0e490
+F src/manifest.c bfd3b0bd215ec9c522e26a9f07d19194455e5d14
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 02457a989a13d50499f326e800fff993ef84f4b7
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
@@ -414,7 +414,7 @@ F src/stat.c a0e29e09e2635f397e2a7543cd12443fe66f24b7
 F src/style.c 1fda3f962cc0e9b6f6f12f34a857f89a99571113
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 1301dff0c04b00e66d2d6d0dedf9999b426e439c
-F src/tar.c fea3c7f9e5ee4da4d2d0f3799aed86a6ced85f77
+F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
 F src/th.c f3e2d60ea44acd118e8462d48c0865c496f89e6f
 F src/th.h 3d96cf226cbdb8f68a7b3e554c17e069eaace860
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
@@ -440,7 +440,7 @@ F src/winhttp.c 1064c420e51118abef94def5df394829f8df652d
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 801d4f3143a9fe29c8b7025a08cf7d845cfdced3
 F src/xfersetup.c c69c710fec70f76dac901a9181fe81be5dc316e7
-F src/zip.c 1b220e9601b2b40b226a0c8be5e1ef4fcc5bcb87
+F src/zip.c 957e6e17944e026605072b460f75d970c188e0d5
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 52cb24042504c636ae616aa5c80a06191d78493f
-R f9a97b2e3514457e5d2f7577e220af07
-U mistachkin
-Z 2bdc5e173346b80fcb49263c49550da1
+P 1cf47285854253cdd2b7b7615bdcb1309df779b9
+R 329991b8eadf43bfcd7c2539d57d4075
+U drh
+Z 1217099aae788286651d4a7e9f878809

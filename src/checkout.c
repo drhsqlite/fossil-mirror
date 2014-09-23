@@ -139,10 +139,11 @@ void manifest_to_disk(int vid){
     blob_zero(&manifest);
     content_get(vid, &manifest);
     zManFile = mprintf("%smanifest", g.zLocalRoot);
-    blob_write_to_file(&manifest, zManFile);
-    free(zManFile);
     blob_zero(&hash);
     sha1sum_blob(&manifest, &hash);
+    sterilize_manifest(&manifest);
+    blob_write_to_file(&manifest, zManFile);
+    free(zManFile);
     zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
     blob_append(&hash, "\n", 1);
     blob_write_to_file(&hash, zManFile);

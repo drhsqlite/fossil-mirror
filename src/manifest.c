@@ -1645,6 +1645,44 @@ void manifest_ticket_event(
 }
 
 /*
+** Add an extra line of text to the end of a manifest to prevent it being
+** recognized as a valid manifest.
+**
+** This routine is called prior to writing out the text of a manifest as
+** the "manifest" file in the root of a repository when
+** "fossil setting manifest on" is enabled.  That way, if the files of
+** the project are imported into a different Fossil project, the manifest
+** file will not be interpreted as a control artifact in that other project.
+**
+** Normally it is sufficient to simply append the extra line of text.
+** However, if the manifest is PGP signed then the extra line has to be
+** inserted before the PGP signature (thus invalidating the signature).
+*/
+void sterilize_manifest(Blob *p){
+  char *z, *zOrig;
+  int n, nOrig;
+  static const char zExtraLine[] =
+      "# Remove this line to create a well-formed manifest.\n";
+
+  z = zOrig = blob_materialize(p);
+  n = nOrig = blob_size(p);
+  remove_pgp_signature(&z, &n);
+  if( z==zOrig ){
+    blob_append(p, zExtraLine, -1);
+  }else{
+    int iEnd;
+    Blob copy;
+    memcpy(&copy, p, sizeof(copy));
+    blob_init(p, 0, 0);
+    iEnd = (int)(&z[n] - zOrig);
+    blob_append(p, zOrig, iEnd);
+    blob_append(p, zExtraLine, -1);
+    blob_append(p, &zOrig[iEnd], -1);
+    blob_zero(&copy);
+  }
+}
+
+/*
 ** This is the comparison function used to sort the tag array.
 */
 static int tag_compare(const void *a, const void *b){
