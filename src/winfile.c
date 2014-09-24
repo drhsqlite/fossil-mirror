@@ -278,18 +278,24 @@ int win32_symlink(const char *oldpath, const char *newpath){
 }
 
 /*
-** Check if symlinks are potentially supported on the current OS.
+** Check if symlinks are potentially supported on the current OS for the given file.
 ** Theoretically this code should work on any NT based version of windows
 ** but I have no way of testing that. The initial check for
 ** IsWindowsVistaOrGreater() should in theory eliminate any system prior to
 ** Windows Vista, but I have no way to test that at this time.
 ** Return 1 if supported, 0 if not.
 */
-int win32_symlinks_supported(){
+int win32_symlinks_supported(const char* zFilename){
   TOKEN_PRIVILEGES tp;
   LUID luid;
   HANDLE process, token;
   DWORD status;
+  int success;
+  wchar_t *pFilename;
+  wchar_t fullName[MAX_PATH+1];
+  DWORD fullLength;
+  wchar_t volName[MAX_PATH+1];
+  DWORD fsFlags;
 
   /* symlinks only supported on vista or greater */
   if (!IsWindowsVistaOrGreater())
@@ -321,9 +327,32 @@ int win32_symlinks_supported(){
   /* any error means we failed to enable the privilege, symlinks not supported */
   if (status != ERROR_SUCCESS)
     return 0;
+
+  /* assume no support for symlinks */
+  success = 0;
+    
+  pFilename = fossil_utf8_to_filename(zFilename);
+
+  /* given the filename we're interested in, symlinks are supported if */
+  /* 1. we can get the full name of the path from the given path */
+  fullLength = GetFullPathNameW(pFilename, sizeof(fullName), fullName, NULL);
+  if ((fullLength > 0) && (fullLength < sizeof(fullName))){
+    /* 2. we can get the volume path name from the full name */
+    if (GetVolumePathNameW(fullName, volName, sizeof(volName))){
+      /* 3. we can get volume information from the volume path name */
+      if (GetVolumeInformationW(volName, NULL, 0, NULL, NULL, &fsFlags, NULL, 0)){
+        /* 4. the given volume support reparse points */
+        if (fsFlags & FILE_SUPPORTS_REPARSE_POINTS){
+          /* all four conditions were true, so we support symlinks; success! */
+          success = 1;
+        }
+      }
+    }
+  }
   
-  /* we made it this far, symlinks must be supported */
-  return 1;  
+  fossil_filename_free(pFilename);
+    
+  return success;  
 }
 
 /*
