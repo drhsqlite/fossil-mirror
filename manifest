@@ -1,5 +1,5 @@
-C When\sgenerating\sthe\s"manifest"\sfile\sin\sa\scheckout\sbecause\s\n"fossil\ssetting\smanifest"\sis\sturned\son,\sadd\san\sextra\sline\sof\stext\sto\sthe\nend\sof\sthe\sfile\sto\sprevent\sthe\sfile\sfrom\sbeing\sinterpreted\sas\sa\svalid\ncontrol\sartifact\sin\scase\sthe\scomplete\ssource\stree\sis\simported\sinto\sanother\nunrelated\sFossil\sproject.
-D 2014-09-23T16:02:59.451
+C Move\sthe\scheck\sfor\s"server-code"/"project-code"\sinto\sthe\sfunction\sdb_setup_server_and_project_codes()
+D 2014-09-24T09:01:03.547
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -332,7 +332,7 @@ F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 454f8901819fa1549b962c36931894cb2be3798b
+F src/db.c c4aa4cec42b705f598aff0276f099e4cebff7f0e
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c aa22ca67ab417d0e854778f9d5c172b6d2f2c938
@@ -374,7 +374,7 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
 F src/login.c 8a8077139db4a01b8c9eb22aab452236331b7c8c
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 24525e9b24add66cacf6bbc3ae3d6bfb35b78562
+F src/main.c a3843140db960c805edb94c6a6e4af7588ed9533
 F src/main.mk 8a61014e8f6768cde4ea1d6c3c31906e6d9d3646
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1cf47285854253cdd2b7b7615bdcb1309df779b9
-R 329991b8eadf43bfcd7c2539d57d4075
-U drh
-Z 1217099aae788286651d4a7e9f878809
+P 1dd4be80ca809afacbd4ddac15b69a2d41464b9f
+R d8d9a1d806c7e228036dc6a0d4f5d3bb
+U jan.nijtmans
+Z 69382bf16fd4bb5b226a562d0f5c88fa

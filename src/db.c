@@ -1331,14 +1331,18 @@ void db_setup_server_and_project_codes(
         " VALUES('project-code', lower(hex(randomblob(20))),now());"
     );
   }else{
-    db_optional_sql("repository",
-        "INSERT INTO config(name,value,mtime)"
-        " VALUES('server-code', lower(hex(randomblob(20))),now());"
-    );
-    db_optional_sql("repository",
-        "INSERT INTO config(name,value,mtime)"
-        " VALUES('project-code', lower(hex(randomblob(20))),now());"
-    );
+    if( db_get("server-code", 0)==0 ) {
+      db_optional_sql("repository",
+          "INSERT INTO config(name,value,mtime)"
+          " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      );
+    }
+    if( db_get("project-code", 0)==0 ) {
+      db_optional_sql("repository",
+          "INSERT INTO config(name,value,mtime)"
+          " VALUES('project-code', lower(hex(randomblob(20))),now());"
+      );
+    }
   }
 }
 
