@@ -836,3 +836,4 @@ dirent_set_errno(
 #endif
 #endif /*DIRENT_H*/
 
+#undef _DIRENT_HAVE_D_TYPE
