@@ -1315,6 +1315,38 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
 }
 
 /*
+** This function sets the server and project codes if they do not already
+** exist.  Currently, it should be called only by the db_initial_setup()
+** or cmd_webserver() functions, the latter being used to facilitate more
+** robust integration with "canned image" environments (e.g. Docker).
+*/
+void db_setup_server_and_project_codes(
+  int optional
+){
+  if( !optional ){
+    db_multi_exec(
+        "INSERT INTO config(name,value,mtime)"
+        " VALUES('server-code', lower(hex(randomblob(20))),now());"
+        "INSERT INTO config(name,value,mtime)"
+        " VALUES('project-code', lower(hex(randomblob(20))),now());"
+    );
+  }else{
+    if( db_get("server-code", 0)==0 ) {
+      db_optional_sql("repository",
+          "INSERT INTO config(name,value,mtime)"
+          " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      );
+    }
+    if( db_get("project-code", 0)==0 ) {
+      db_optional_sql("repository",
+          "INSERT INTO config(name,value,mtime)"
+          " VALUES('project-code', lower(hex(randomblob(20))),now());"
+      );
+    }
+  }
+}
+
+/*
 ** Return a pointer to a string that contains the RHS of an IN operator
 ** that will select CONFIG table names that are in the list of control
 ** settings.
@@ -1366,12 +1398,7 @@ void db_initial_setup(
   db_set("aux-schema", AUX_SCHEMA, 0);
   db_set("rebuilt", get_version(), 0);
   if( makeServerCodes ){
-    db_multi_exec(
-      "INSERT INTO config(name,value,mtime)"
-      " VALUES('server-code', lower(hex(randomblob(20))),now());"
-      "INSERT INTO config(name,value,mtime)"
-      " VALUES('project-code', lower(hex(randomblob(20))),now());"
-    );
+    db_setup_server_and_project_codes(0);
   }
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
@@ -1471,6 +1498,7 @@ void db_initial_setup(
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
 **                              (default: do not create an initial checkin)
+**    --empty                   create repository without project-id/server-id
 **
 ** See also: clone
 */
@@ -1479,11 +1507,12 @@ void create_repository_cmd(void){
   const char *zTemplate;      /* Repository from which to copy settings */
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
+  int makeServerCodes;
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  find_option("empty", 0, 0); /* deprecated */
+  makeServerCodes = find_option("empty", 0, 0)==0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -1496,11 +1525,13 @@ void create_repository_cmd(void){
   db_open_config(0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
-  db_initial_setup(zTemplate, zDate, zDefaultUser, 1);
+  db_initial_setup(zTemplate, zDate, zDefaultUser, makeServerCodes);
   db_end_transaction(0);
   if( zTemplate ) db_detach("settingSrc");
-  fossil_print("project-id: %s\n", db_get("project-code", 0));
-  fossil_print("server-id:  %s\n", db_get("server-code", 0));
+  if( makeServerCodes ){
+    fossil_print("project-id: %s\n", db_get("project-code", 0));
+    fossil_print("server-id:  %s\n", db_get("server-code", 0));
+  }
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (initial password is \"%s\")\n",
                g.zLogin, zPassword);

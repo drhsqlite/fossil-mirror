@@ -398,7 +398,7 @@ void bisect_cmd(void){
       unsigned int i;
       n = strlen(g.argv[3]);
       for(i=0; i<sizeof(aBisectOption)/sizeof(aBisectOption[0]); i++){
-        if( memcmp(g.argv[3], aBisectOption[i].zName, n)==0 ){
+        if( strncmp(g.argv[3], aBisectOption[i].zName, n)==0 ){
           char *z = mprintf("bisect-%s", aBisectOption[i].zName);
           if( g.argc==5 ){
             db_lset(z, g.argv[4]);

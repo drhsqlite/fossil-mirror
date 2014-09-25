@@ -352,8 +352,9 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
       blob_append(&filename, "manifest", -1);
       zName = blob_str(&filename);
       zip_add_folders(zName);
-      zip_add_file(zName, &mfile, 0);
       sha1sum_blob(&mfile, &hash);
+      sterilize_manifest(&mfile);
+      zip_add_file(zName, &mfile, 0);
       blob_reset(&mfile);
       blob_append(&hash, "\n", 1);
       blob_resize(&filename, nPrefix);
