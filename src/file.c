@@ -66,12 +66,19 @@ struct fossilStat {
 # define fossilStat stat
 #endif
 
+#if defined(_WIN32)
 /*
 ** On Windows S_ISLNK can be true or false.
 */
+/* the S_ISLNK provided by dirent.h for windows is inadequate, so fix it */
+#if defined(S_ISLNK)
+# undef S_ISLNK
+#endif
 #if !defined(S_ISLNK)
 # define S_ISLNK(x) ((x)==S_IFLNK)
 #endif
+#endif
+
 static int fileStatValid = 0;
 static struct fossilStat fileStat;
 

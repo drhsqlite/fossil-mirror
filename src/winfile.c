@@ -92,11 +92,15 @@ int win32_lstat(const wchar_t *zFilename, struct fossilStat *buf){
     ULARGE_INTEGER ull;
 
     /* if a link was retrieved, it is a symlink, otherwise a dir or file */
-    buf->st_mode = (tlen > 0) ? S_IFLNK :
-                   ((attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ?
-                     S_IFDIR : S_IFREG);
+    if (tlen == 0){
+      buf->st_mode = ((attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ?
+                       S_IFDIR : S_IFREG);
     
-    buf->st_size = (((i64)attr.nFileSizeHigh)<<32) | attr.nFileSizeLow;
+      buf->st_size = (((i64)attr.nFileSizeHigh)<<32) | attr.nFileSizeLow;
+    }else{
+      buf->st_mode = S_IFLNK;
+      buf->st_size = tlen;
+    }
     
     ull.LowPart = attr.ftLastWriteTime.dwLowDateTime;
     ull.HighPart = attr.ftLastWriteTime.dwHighDateTime;
@@ -130,7 +134,7 @@ int win32_stat(const wchar_t *zFilename, struct fossilStat *buf){
       break;
 
     /* it is a link, so open the linked file */      
-    file = CreateFileW(zFilename, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+    file = CreateFileW(zFilename, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
     if ((file == NULL) || (file == INVALID_HANDLE_VALUE)){
       rc = 1;
       break;
@@ -169,8 +173,8 @@ ssize_t win32_readlink(const char *path, char *buf, size_t bufsiz){
   if (rc && (attr.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)){
   
     /* since it is a reparse point, open it */
-    HANDLE file = CreateFile(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, 
-      FILE_FLAG_OPEN_REPARSE_POINT, NULL);      
+    HANDLE file = CreateFile(path, FILE_READ_EA, 0, NULL, OPEN_EXISTING, 
+      FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, NULL);      
     if ((file != NULL) && (file != INVALID_HANDLE_VALUE)){
 
       /* use DeviceIoControl to get the reparse point data */
@@ -225,9 +229,9 @@ ssize_t win32_readlink(const char *path, char *buf, size_t bufsiz){
 */
 int win32_unlink_rmdir(const wchar_t *zFilename){
   int rc = 0;
-  fossilStat stat;
-  if (win32_stat(zFilename, &stat) == 0){
-    if (stat.st_mode == S_IFDIR)
+  WIN32_FILE_ATTRIBUTE_DATA attr;
+  if (GetFileAttributesExW(zFilename, GetFileExInfoStandard, &attr)){
+    if ((attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
       rc = RemoveDirectoryW(zFilename);
     else
       rc = DeleteFileW(zFilename);
@@ -275,6 +279,30 @@ int win32_symlink(const char *oldpath, const char *newpath){
   }
   
   return !created;
+}
+
+/*
+** Given a pathname to a file, return true if:
+**   1. the file exists
+**   2. the file is a symbolic link
+**   3. the symbolic link's attributes can be acquired
+**   4. the symbolic link type is different than the target type
+*/
+int win32_check_symlink_type_changed(const char* zName){
+  int changed = 0;
+  wchar_t* zMbcs;
+  fossilStat lstat_buf, stat_buf;
+  WIN32_FILE_ATTRIBUTE_DATA lstat_attr;
+  zMbcs = fossil_utf8_to_filename(zName);
+  if (win32_stat(zMbcs, &stat_buf) != 0)
+    stat_buf.st_mode = S_IFREG;
+  changed =
+    (win32_lstat(zMbcs, &lstat_buf) == 0) &&
+    (lstat_buf.st_mode == S_IFLNK) &&
+    GetFileAttributesExW(zMbcs, GetFileExInfoStandard, &lstat_attr) &&
+    ((stat_buf.st_mode == S_IFDIR) != ((lstat_attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY));
+  fossil_filename_free(zMbcs);
+  return changed;
 }
 
 /*

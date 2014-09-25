@@ -767,7 +767,7 @@ void revert_cmd(void){
       "INSERT OR IGNORE INTO torevert "
       " SELECT pathname"
       "   FROM vfile "
-      "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname OR islink;"
+      "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname;"
     );
   }
   db_multi_exec(

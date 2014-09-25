@@ -204,6 +204,13 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       }
       chnged = 1;
     }
+#if defined(_WIN32)
+    if (win32_check_symlink_type_changed(zName)){
+      if( chnged!=1 ){
+        chnged = 1;
+      }
+    }else /* make the following if an else if */
+#endif
     if( origSize!=currentSize ){
       if( chnged!=1 ){
         /* A file size change is definitive - the file has changed.  No

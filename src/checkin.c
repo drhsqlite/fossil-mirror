@@ -62,7 +62,7 @@ static void status_report(
   }
 
   db_prepare(&q,
-    "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
+    "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0), islink"
     "  FROM vfile "
     " WHERE is_selected(id) %s"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1",
@@ -76,6 +76,7 @@ static void status_report(
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3)==0;
     int isRenamed = db_column_int(&q,4);
+    int isLink = db_column_int(&q,5);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     if( cwdRelative ){
       file_relative_name(zFullName, &rewrittenPathname, 0);
@@ -112,7 +113,7 @@ static void status_report(
         blob_appendf(report, "UPDATED_BY_INTEGRATE %s\n", zDisplayName);
       }else if( isChnged==5 ){
         blob_appendf(report, "ADDED_BY_INTEGRATE %s\n", zDisplayName);
-      }else if( file_contains_merge_marker(zFullName) ){
+      }else if( !isLink && file_contains_merge_marker(zFullName) ){
         blob_appendf(report, "CONFLICT   %s\n", zDisplayName);
       }else{
         blob_appendf(report, "EDITED     %s\n", zDisplayName);
@@ -331,7 +332,7 @@ void ls_cmd(void){
     );
   }else{
     db_prepare(&q,
-       "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
+       "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0), islink"
        "  FROM vfile %s"
        " ORDER BY %s", blob_str(&where), zOrderBy
     );
@@ -343,6 +344,7 @@ void ls_cmd(void){
     int isNew = db_column_int(&q,2)==0;
     int chnged = db_column_int(&q,3);
     int renamed = db_column_int(&q,4);
+    int isLink = db_column_int(&q,5);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     const char *type = "";
     if( verboseFlag ){
@@ -365,7 +367,7 @@ void ls_cmd(void){
           type = "UPDATED_BY_INTEGRATE ";
         }else if( chnged==5 ){
           type = "ADDED_BY_INTEGRATE ";
-        }else if( file_contains_merge_marker(zFullName) ){
+        }else if( !isLink && file_contains_merge_marker(zFullName) ){
           type = "CONFLICT   ";
         }else{
           type = "EDITED     ";
