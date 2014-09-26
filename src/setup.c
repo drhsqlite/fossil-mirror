@@ -443,7 +443,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-         "<span class=\"ueditInheritDeveloper\">&bull;</span>";
+         "<span class=\"ueditInheritDeveloper\"><sub>D</sub></span>";
     }
     free(z2);
   }
@@ -452,7 +452,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='reader'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-          "<span class=\"ueditInheritReader\">&bull;</span>";
+          "<span class=\"ueditInheritReader\"><sub>R</sub></span>";
     }
     free(z2);
   }
@@ -461,7 +461,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='anonymous'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-           "<span class=\"ueditInheritAnonymous\">&bull;</span>";
+           "<span class=\"ueditInheritAnonymous\"><sub>A</sub></span>";
     }
     free(z2);
   }
@@ -470,7 +470,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='nobody'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-           "<span class=\"ueditInheritNobody\">&bull;</span>";
+           "<span class=\"ueditInheritNobody\"><sub>N</sub></span>";
     }
     free(z2);
   }
@@ -518,59 +518,59 @@ void user_edit(void){
 #define B(x) inherit[x]
   @ <table border=0><tr><td valign="top">
   if( g.perm.Setup ){
-    @  <label><input type="checkbox" name="as"%s(oa['s']) />%s(B('s'))Setup
-    @  </label><br />
+    @  <label><input type="checkbox" name="as"%s(oa['s']) />
+    @  Setup%s(B('s'))</label><br />
   }
-  @  <label><input type="checkbox" name="aa"%s(oa['a']) />%s(B('a'))Admin
-  @  </label><br />
-  @  <label><input type="checkbox" name="ad"%s(oa['d']) />%s(B('d'))Delete
-  @  </label><br />
-  @  <label><input type="checkbox" name="ae"%s(oa['e']) />%s(B('e'))Email
-  @  </label><br />
-  @  <label><input type="checkbox" name="ap"%s(oa['p']) />%s(B('p'))Password
-  @  </label><br />
-  @  <label><input type="checkbox" name="ai"%s(oa['i']) />%s(B('i'))Check-In
-  @  </label><br />
-  @  <label><input type="checkbox" name="ao"%s(oa['o']) />%s(B('o'))Check-Out
-  @  </label><br />
-  @  <label><input type="checkbox" name="ah"%s(oa['h']) />%s(B('h'))Hyperlinks
-  @  </label><br />
-  @  <label><input type="checkbox" name="ab"%s(oa['b']) />%s(B('b'))Attachments
-  @  </label><br />
+  @  <label><input type="checkbox" name="aa"%s(oa['a']) />
+  @  Admin%s(B('a'))</label><br />
+  @  <label><input type="checkbox" name="ad"%s(oa['d']) />
+  @  Delete%s(B('d'))</label><br />
+  @  <label><input type="checkbox" name="ae"%s(oa['e']) />
+  @  Email%s(B('e'))</label><br />
+  @  <label><input type="checkbox" name="ap"%s(oa['p']) />
+  @  Password%s(B('p'))</label><br />
+  @  <label><input type="checkbox" name="ai"%s(oa['i']) />
+  @  Check-In%s(B('i'))</label><br />
+  @  <label><input type="checkbox" name="ao"%s(oa['o']) />
+  @  Check-Out%s(B('o'))</label><br />
+  @  <label><input type="checkbox" name="ah"%s(oa['h']) />
+  @  Hyperlinks%s(B('h'))</label><br />
+  @  <label><input type="checkbox" name="ab"%s(oa['b']) />
+  @  Attachments%s(B('b'))</label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="au"%s(oa['u']) />%s(B('u'))Reader
-  @  </label><br />
-  @  <label><input type="checkbox" name="av"%s(oa['v']) />%s(B('v'))Developer
-  @  </label><br />
-  @  <label><input type="checkbox" name="ag"%s(oa['g']) />%s(B('g'))Clone
-  @  </label><br />
-  @  <label><input type="checkbox" name="aj"%s(oa['j']) />%s(B('j'))Read Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="af"%s(oa['f']) />%s(B('f'))New Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="am"%s(oa['m']) />%s(B('m'))Append Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="ak"%s(oa['k']) />%s(B('k'))Write Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="al"%s(oa['l']) />%s(B('l'))Moderate
-  @  Wiki</label><br />
+  @  <label><input type="checkbox" name="au"%s(oa['u']) />
+  @  Reader%s(B('u'))</label><br />
+  @  <label><input type="checkbox" name="av"%s(oa['v']) />
+  @  Developer%s(B('v'))</label><br />
+  @  <label><input type="checkbox" name="ag"%s(oa['g']) />
+  @  Clone%s(B('g'))</label><br />
+  @  <label><input type="checkbox" name="aj"%s(oa['j']) />
+  @  Read Wiki%s(B('j'))</label><br />
+  @  <label><input type="checkbox" name="af"%s(oa['f']) />
+  @  New Wiki%s(B('f'))</label><br />
+  @  <label><input type="checkbox" name="am"%s(oa['m']) />
+  @  Append Wiki%s(B('m'))</label><br />
+  @  <label><input type="checkbox" name="ak"%s(oa['k']) />
+  @  Write Wiki%s(B('k'))</label><br />
+  @  <label><input type="checkbox" name="al"%s(oa['l']) />
+  @  Moderate Wiki%s(B('l'))</label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="ar"%s(oa['r']) />%s(B('r'))Read Ticket
-  @  </label><br />
-  @  <label><input type="checkbox" name="an"%s(oa['n']) />%s(B('n'))New Tickets
-  @  </label><br />
-  @  <label><input type="checkbox" name="ac"%s(oa['c']) />%s(B('c'))Append
-  @  To Ticket </label><br />
-  @  <label><input type="checkbox" name="aw"%s(oa['w']) />%s(B('w'))Write
-  @  Tickets </label><br />
-  @  <label><input type="checkbox" name="aq"%s(oa['q']) />%s(B('q'))Moderate
-  @  Tickets </label><br />
-  @  <label><input type="checkbox" name="at"%s(oa['t']) />%s(B('t'))Ticket
-  @  Report </label><br />
-  @  <label><input type="checkbox" name="ax"%s(oa['x']) />%s(B('x'))Private
-  @  </label><br />
-  @  <label><input type="checkbox" name="az"%s(oa['z']) />%s(B('z'))Download
-  @  Zip </label>
+  @  <label><input type="checkbox" name="ar"%s(oa['r']) />
+  @  Read Ticket%s(B('r'))</label><br />
+  @  <label><input type="checkbox" name="an"%s(oa['n']) />
+  @  New Tickets%s(B('n'))</label><br />
+  @  <label><input type="checkbox" name="ac"%s(oa['c']) />
+  @  Append To Ticket%s(B('c'))</label><br />
+  @  <label><input type="checkbox" name="aw"%s(oa['w']) />
+  @  Write Tickets%s(B('w'))</label><br />
+  @  <label><input type="checkbox" name="aq"%s(oa['q']) />
+  @  Moderate Tickets%s(B('q'))</label><br />
+  @  <label><input type="checkbox" name="at"%s(oa['t']) />
+  @  Ticket Report%s(B('t'))</label><br />
+  @  <label><input type="checkbox" name="ax"%s(oa['x']) />
+  @  Private%s(B('x'))</label><br />
+  @  <label><input type="checkbox" name="az"%s(oa['z']) />
+  @  Download Zip%s(B('z'))</label>
   @ </td></tr></table>
   @   </td>
   @ </tr>
@@ -624,26 +624,26 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritNobody"><big>&bull;</big></span>" mark
+  @ The "<span class="ueditInheritNobody"><sub>N</sub></span>" subscript suffix
   @ indicates the privileges of <span class="usertype">nobody</span> that
   @ are available to all users regardless of whether or not they are logged in.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritAnonymous"><big>&bull;</big></span>" mark
+  @ The "<span class="ueditInheritAnonymous"><sub>A</sub></span>" subscript suffix
   @ indicates the privileges of <span class="usertype">anonymous</span> that
   @ are inherited by all logged-in users.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritDeveloper"><big>&bull;</big></span>" mark
+  @ The "<span class="ueditInheritDeveloper"><sub>D</sub></span>" subscript suffix
   @ indicates the privileges of <span class="usertype">developer</span> that
   @ are inherited by all users with the
   @ <span class="capability">Developer</span> privilege.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritReader"><big>&bull;</big></span>" mark
+  @ The "<span class="ueditInheritReader"><sub>R</sub></span>" subscript suffix
   @ indicates the privileges of <span class="usertype">reader</span> that
   @ are inherited by all users with the <span class="capability">Reader</span>
   @ privilege.
