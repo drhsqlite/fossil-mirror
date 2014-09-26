@@ -74,6 +74,9 @@ struct fossilStat {
 #if defined(S_ISLNK)
 # undef S_ISLNK
 #endif
+#if !defined(S_IFLNK)
+# define S_IFLNK 0120000
+#endif
 #if !defined(S_ISLNK)
 # define S_ISLNK(x) ((x)==S_IFLNK)
 #endif

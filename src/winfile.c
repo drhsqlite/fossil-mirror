@@ -23,15 +23,29 @@
 /* This code is for win32 only */
 #include <sys/stat.h>
 #include <windows.h>
-#include <versionhelpers.h>
 #include "winfile.h"
+
+#if !defined(S_IFLNK)
+# define S_IFLNK 0120000
+#endif
+#if !defined(SYMBOLIC_LINK_FLAG_DIRECTORY)
+# define SYMBOLIC_LINK_FLAG_DIRECTORY (0x1)
+#endif
 
 #ifndef LABEL_SECURITY_INFORMATION
 #   define LABEL_SECURITY_INFORMATION (0x00000010L)
 #endif
 
+#if defined(__MSVCRT__)
+/* TODO: determine those dynamically. */
+WINBASEAPI DWORD WINAPI GetFinalPathNameByHandleW (HANDLE hFile, LPWSTR lpszFilePath, DWORD cchFilePath, DWORD dwFlags);
+WINBASEAPI BOOLEAN APIENTRY CreateSymbolicLinkW (LPCWSTR lpSymlinkFileName, LPCWSTR lpTargetFileName, DWORD dwFlags);
+#endif
+
 /* a couple defines to make the borrowed struct below compile */
-#define _ANONYMOUS_UNION
+#ifndef _ANONYMOUS_UNION
+# define _ANONYMOUS_UNION
+#endif
 #define DUMMYUNIONNAME
 
 /*
@@ -252,22 +266,21 @@ int win32_symlink(const char *oldpath, const char *newpath){
   fossilStat stat;
   int created = 0;
   DWORD flags = 0;
-  wchar_t *zMbcs;
+  wchar_t *zMbcs, *zMbcsOld;
 
   /* does oldpath exist? is it a dir or a file? */  
-  zMbcs = fossil_utf8_to_filename(oldpath);
-  if (win32_stat(zMbcs, &stat) == 0){
+  zMbcsOld = fossil_utf8_to_filename(oldpath);
+  if (win32_stat(zMbcsOld, &stat) == 0){
     if (stat.st_mode == S_IFDIR)
       flags = SYMBOLIC_LINK_FLAG_DIRECTORY;
   }
-  fossil_filename_free(zMbcs);
 
   /* remove newpath before creating the symlink */
   zMbcs = fossil_utf8_to_filename(newpath);
   win32_unlink_rmdir(zMbcs);
+  created = CreateSymbolicLinkW(zMbcs, zMbcsOld, flags);
   fossil_filename_free(zMbcs);
-
-  created = CreateSymbolicLink(newpath, oldpath, flags);
+  fossil_filename_free(zMbcsOld);
 
   /* if the symlink was not created, create a plain text file */
   if (!created){
@@ -326,9 +339,9 @@ int win32_symlinks_supported(const char* zFilename){
   DWORD fsFlags;
 
   /* symlinks only supported on vista or greater */
-  if (!IsWindowsVistaOrGreater())
-    return 0;
-  
+  /* if (!IsWindowsVistaOrGreater())  //  TODO: make it work on MinGW
+    return 0; */
+
   /* next we need to check to see if the privilege is available */
   
   /* can't check privilege if we can't lookup its value */
