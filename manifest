@@ -1,5 +1,5 @@
-C Merged\sin\sinherit-priv-mark-sub\sbranch\s(readability\simprovements\sfor\suser\sadministration\spage).
-D 2014-09-26T16:35:18.826
+C Wrap\smarkdown\scontent\sin\san\sHTML\s'div'\sblock\sof\sthe\s'markdown'\sclass.
+D 2014-09-26T21:02:03.058
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -381,7 +381,7 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl e562e306eb791c686e1dc02aab7357da53096f0a
 F src/manifest.c bfd3b0bd215ec9c522e26a9f07d19194455e5d14
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
-F src/markdown_html.c 02457a989a13d50499f326e800fff993ef84f4b7
+F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
 F src/merge.c c04a12cdcb97e617887beaa481b828c70e9a3632
 F src/merge3.c d07e371cc8ad34dff8ced94f2f4bd89eb18903b9
@@ -654,8 +654,8 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 35bf2173367c9adbb650464602229a32897daadb 7b00cd77a0ae84edadc8275600fd19f4d47f8996
-R bedde876af0782e239889473c2eaefd8
-T +closed 7b00cd77a0ae84edadc8275600fd19f4d47f8996
-U stephan
-Z d4a0fd04315b6eedb23c33248d7fa3ea
+P 4bba5e1ca4a0d34d1bab620916a8a5973cd6ea28 8478033670354ecd86ba637178929bafc16ce42b
+R 23d9288a333909e130eece2bd8c04b0e
+T +closed 8478033670354ecd86ba637178929bafc16ce42b
+U mistachkin
+Z 8fd80b636e97fdefb8b081ae3a4d6074
