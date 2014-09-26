@@ -14,7 +14,11 @@ OX      = .
 O       = .obj
 E       = .exe
 P       = .pdb
-PERLDIR =
+
+# Perl is only necessary if OpenSSL support is enabled and it must
+# be built from source code.  The PERLDIR variable should point to
+# the directory containing the main Perl binary (i.e. "perl.exe").
+PERLDIR = C:\Perl\bin
 PERL    = perl.exe
 
 # Uncomment to enable debug symbols
@@ -40,7 +44,7 @@ PERL    = perl.exe
 
 !ifdef FOSSIL_ENABLE_SSL
 SSLDIR    = $(B)\compat\openssl-1.0.1i
-SSLINCDIR = $(SSLDIR)\include
+SSLINCDIR = $(SSLDIR)\inc32
 SSLLIBDIR = $(SSLDIR)\out32
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !endif
@@ -415,7 +419,7 @@ APPTARGETS = $(APPTARGETS) zlib
 APPTARGETS = $(APPTARGETS) openssl
 !endif
 
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts $(APPTARGETS)
+$(APPNAME) : $(APPTARGETS) translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
 	cd $(OX)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 

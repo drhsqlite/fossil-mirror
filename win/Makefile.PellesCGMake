@@ -81,13 +81,13 @@ UTILS=translate.exe mkindex.exe makeheaders.exe
 UTILS_OBJ=$(UTILS:.exe=.obj)
 UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 
-# define the sqlite files, which need special flags on compile
+# define the SQLite files, which need special flags on compile
 SQLITESRC=sqlite3.c
 ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
 SQLITEDEFINES=-DNDEBUG=1 -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_OMIT_DEPRECATED -DSQLITE_ENABLE_EXPLAIN_COMMENTS -DSQLITE_WIN32_NO_ANSI
 
-# define the sqlite shell files, which need special flags on compile
+# define the SQLite shell files, which need special flags on compile
 SQLITESHELLSRC=shell.c
 ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))

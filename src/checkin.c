@@ -85,7 +85,9 @@ static void status_report(
       }
     }
     blob_append(report, zPrefix, nPrefix);
-    if( !file_wd_isfile_or_link(zFullName) ){
+    if( isDeleted ){
+      blob_appendf(report, "DELETED    %s\n", zDisplayName);
+    }else if( !file_wd_isfile_or_link(zFullName) ){
       if( file_access(zFullName, F_OK)==0 ){
         blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
         if( missingIsFatal ){
@@ -101,8 +103,6 @@ static void status_report(
       }
     }else if( isNew ){
       blob_appendf(report, "ADDED      %s\n", zDisplayName);
-    }else if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( isChnged ){
       if( isChnged==2 ){
         blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
@@ -475,7 +475,6 @@ void extras_cmd(void){
   const char *zPathname, *zDisplayName;
 
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
-  capture_case_sensitive_option();
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
   
@@ -598,7 +597,6 @@ void clean_cmd(void){
   verboseFlag = find_option("verbose","v",0)!=0;
   zKeepFlag = find_option("keep",0,1);
   zCleanFlag = find_option("clean",0,1);
-  capture_case_sensitive_option();
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);

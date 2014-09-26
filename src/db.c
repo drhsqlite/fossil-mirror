@@ -1321,6 +1321,38 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
 }
 
 /*
+** This function sets the server and project codes if they do not already
+** exist.  Currently, it should be called only by the db_initial_setup()
+** or cmd_webserver() functions, the latter being used to facilitate more
+** robust integration with "canned image" environments (e.g. Docker).
+*/
+void db_setup_server_and_project_codes(
+  int optional
+){
+  if( !optional ){
+    db_multi_exec(
+        "INSERT INTO config(name,value,mtime)"
+        " VALUES('server-code', lower(hex(randomblob(20))),now());"
+        "INSERT INTO config(name,value,mtime)"
+        " VALUES('project-code', lower(hex(randomblob(20))),now());"
+    );
+  }else{
+    if( db_get("server-code", 0)==0 ) {
+      db_optional_sql("repository",
+          "INSERT INTO config(name,value,mtime)"
+          " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      );
+    }
+    if( db_get("project-code", 0)==0 ) {
+      db_optional_sql("repository",
+          "INSERT INTO config(name,value,mtime)"
+          " VALUES('project-code', lower(hex(randomblob(20))),now());"
+      );
+    }
+  }
+}
+
+/*
 ** Return a pointer to a string that contains the RHS of an IN operator
 ** that will select CONFIG table names that are in the list of control
 ** settings.
@@ -1372,12 +1404,7 @@ void db_initial_setup(
   db_set("aux-schema", AUX_SCHEMA, 0);
   db_set("rebuilt", get_version(), 0);
   if( makeServerCodes ){
-    db_multi_exec(
-      "INSERT INTO config(name,value,mtime)"
-      " VALUES('server-code', lower(hex(randomblob(20))),now());"
-      "INSERT INTO config(name,value,mtime)"
-      " VALUES('project-code', lower(hex(randomblob(20))),now());"
-    );
+    db_setup_server_and_project_codes(0);
   }
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
@@ -1477,6 +1504,7 @@ void db_initial_setup(
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
 **                              (default: do not create an initial checkin)
+**    --empty                   create repository without project-id/server-id
 **
 ** See also: clone
 */
@@ -1485,11 +1513,12 @@ void create_repository_cmd(void){
   const char *zTemplate;      /* Repository from which to copy settings */
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
+  int makeServerCodes;
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  find_option("empty", 0, 0); /* deprecated */
+  makeServerCodes = find_option("empty", 0, 0)==0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -1502,11 +1531,13 @@ void create_repository_cmd(void){
   db_open_config(0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
-  db_initial_setup(zTemplate, zDate, zDefaultUser, 1);
+  db_initial_setup(zTemplate, zDate, zDefaultUser, makeServerCodes);
   db_end_transaction(0);
   if( zTemplate ) db_detach("settingSrc");
-  fossil_print("project-id: %s\n", db_get("project-code", 0));
-  fossil_print("server-id:  %s\n", db_get("server-code", 0));
+  if( makeServerCodes ){
+    fossil_print("project-id: %s\n", db_get("project-code", 0));
+    fossil_print("server-id:  %s\n", db_get("server-code", 0));
+  }
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (initial password is \"%s\")\n",
                g.zLogin, zPassword);
@@ -1980,32 +2011,52 @@ int db_table_has_column(const char *zTableName, const char *zColName){
 ** Where %s is the checkout root.  The value is the repository file.
 */
 void db_record_repository_filename(const char *zName){
+  const char *zCollation;
+  char *zRepoSetting;
+  char *zCkoutSetting;
   Blob full;
   if( zName==0 ){
     if( !g.localOpen ) return;
     zName = db_repository_filename();
   }
   file_canonical_name(zName, &full, 0);
+  zCollation = filename_collation();
   db_swap_connections();
+  zRepoSetting = mprintf("repo:%q", blob_str(&full));
+  db_multi_exec(
+     "DELETE FROM global_config WHERE name %s = '%s';",
+     zCollation, zRepoSetting
+  );
   db_multi_exec(
      "INSERT OR IGNORE INTO global_config(name,value)"
-     "VALUES('repo:%q',1)",
-     blob_str(&full)
+     "VALUES('%s',1);",
+     zRepoSetting
   );
+  fossil_free(zRepoSetting);
   if( g.localOpen && g.zLocalRoot && g.zLocalRoot[0] ){
     Blob localRoot;
     file_canonical_name(g.zLocalRoot, &localRoot, 1);
+    zCkoutSetting = mprintf("ckout:%q", blob_str(&localRoot));
+    db_multi_exec(
+       "DELETE FROM global_config WHERE name %s = '%s';",
+       zCollation, zCkoutSetting
+    );
     db_multi_exec(
       "REPLACE INTO global_config(name, value)"
-      "VALUES('ckout:%q','%q');",
-      blob_str(&localRoot), blob_str(&full)
+      "VALUES('%s','%q');",
+      zCkoutSetting, blob_str(&full)
     );
     db_swap_connections();
     db_optional_sql("repository",
-        "REPLACE INTO config(name,value,mtime)"
-        "VALUES('ckout:%q',1,now())",
-        blob_str(&localRoot)
+        "DELETE FROM config WHERE name %s = '%s';",
+        zCollation, zCkoutSetting
     );
+    db_optional_sql("repository",
+        "REPLACE INTO config(name,value,mtime)"
+        "VALUES('%s',1,now());",
+        zCkoutSetting
+    );
+    fossil_free(zCkoutSetting);
     blob_reset(&localRoot);
   }else{
     db_swap_connections();
@@ -2496,13 +2547,35 @@ void setting_cmd(void){
     if( isManifest && globalFlag ){
       fossil_fatal("cannot set 'manifest' globally");
     }
-    if( unsetFlag ){
-      db_unset(ctrlSettings[i].name, globalFlag);
-    }else if( g.argc==4 ){
-      db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
+    if( unsetFlag || g.argc==4 ){
+      if( ctrlSettings[i+1].name
+       && strncmp(ctrlSettings[i+1].name, zName, n)==0
+       && ctrlSettings[i].name[n]!=0
+      ){
+        fossil_print("ambiguous property prefix: %s\nMatching properties:\n",
+                     zName);
+        while( ctrlSettings[i].name
+            && strncmp(ctrlSettings[i].name, zName, n)==0
+        ){
+          fossil_print("%s\n", ctrlSettings[i].name);
+          i++;
+        }
+        fossil_exit(1);
+      }else{
+        if( unsetFlag ){
+          db_unset(ctrlSettings[i].name, globalFlag);
+        }else{
+          db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
+        }
+      }
     }else{
       isManifest = 0;
-      print_setting(&ctrlSettings[i], db_open_local(0));
+      while( ctrlSettings[i].name
+            && strncmp(ctrlSettings[i].name, zName, n)==0
+      ){
+        print_setting(&ctrlSettings[i], db_open_local(0));
+        i++;
+      }
     }
     if( isManifest && g.localOpen ){
       manifest_to_disk(db_lget_int("checkout", 0));

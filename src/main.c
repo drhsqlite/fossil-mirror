@@ -616,6 +616,7 @@ int main(int argc, char **argv)
   g.tcl.argv = copy_args(g.argc, g.argv); /* save full arguments */
 #endif
   g.mainTimerId = fossil_timer_start();
+  capture_case_sensitive_option();
   g.zVfsName = find_option("vfs",0,1);
   if( g.zVfsName==0 ){
     g.zVfsName = fossil_getenv("FOSSIL_VFS");
@@ -1850,15 +1851,15 @@ void cmd_cgi(void){
 }
 
 /*
-** If g.argv[2] exists then it is either the name of a repository
+** If g.argv[arg] exists then it is either the name of a repository
 ** that will be used by a server, or else it is a directory that
-** contains multiple repositories that can be served.  If g.argv[2]
+** contains multiple repositories that can be served.  If g.argv[arg]
 ** is a directory, the repositories it contains must be named
-** "*.fossil".  If g.argv[2] does not exists, then we must be within
+** "*.fossil".  If g.argv[arg] does not exists, then we must be within
 ** a check-out and the repository to be served is the repository of
 ** that check-out.
 **
-** Open the repository to be served if it is known.  If g.argv[2] is
+** Open the repository to be served if it is known.  If g.argv[arg] is
 ** a directory full of repositories, then set g.zRepositoryName to
 ** the name of that directory and the specific repository will be
 ** opened later by process_one_web_page() based on the content of
@@ -1867,31 +1868,31 @@ void cmd_cgi(void){
 ** If disallowDir is set, then the directory full of repositories method
 ** is disallowed.
 */
-static void find_server_repository(int disallowDir){
-  if( g.argc<3 ){
+static void find_server_repository(int disallowDir, int arg){
+  if( g.argc<=arg ){
     db_must_be_within_tree();
-  }else if( file_isdir(g.argv[2])==1 ){
+  }else if( file_isdir(g.argv[arg])==1 ){
     if( disallowDir ){
-      fossil_fatal("\"%s\" is a directory, not a repository file", g.argv[2]);
+      fossil_fatal("\"%s\" is a directory, not a repository file", g.argv[arg]);
     }else{
-      g.zRepositoryName = mprintf("%s", g.argv[2]);
+      g.zRepositoryName = mprintf("%s", g.argv[arg]);
       file_simplify_name(g.zRepositoryName, -1, 0);
     }
   }else{
-    db_open_repository(g.argv[2]);
+    db_open_repository(g.argv[arg]);
   }
 }
 
 /*
 ** undocumented format:
 **
-**        fossil http REPOSITORY INFILE OUTFILE IPADDR
+**        fossil http INFILE OUTFILE IPADDR ?REPOSITORY?
 **
 ** The argv==6 form is used by the win32 server only.
 **
 ** COMMAND: http*
 **
-** Usage: %fossil http REPOSITORY ?OPTIONS?
+** Usage: %fossil http ?REPOSITORY? ?OPTIONS?
 **
 ** Handle a single HTTP request appearing on stdin.  The resulting webpage
 ** is delivered on stdout.  This method is used to launch an HTTP request
@@ -1966,18 +1967,20 @@ void cmd_http(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
+  if( g.argc!=2 && g.argc!=3 && g.argc!=5 && g.argc!=6 ){
     fossil_fatal("no repository specified");
   }
   g.fullHttpReply = 1;
-  if( g.argc==6 ){
-    g.httpIn = fossil_fopen(g.argv[3], "rb");
-    g.httpOut = fossil_fopen(g.argv[4], "wb");
-    zIpAddr = g.argv[5];
+  if( g.argc>=5 ){
+    g.httpIn = fossil_fopen(g.argv[2], "rb");
+    g.httpOut = fossil_fopen(g.argv[3], "wb");
+    zIpAddr = g.argv[4];
+    find_server_repository(0, 5);
   }else{
     g.httpIn = stdin;
     g.httpOut = stdout;
     zIpAddr = 0;
+    find_server_repository(0, 2);
   }
   if( zIpAddr==0 ){
     zIpAddr = cgi_ssh_remote_addr(0);
@@ -1985,7 +1988,6 @@ void cmd_http(void){
       g.fSshClient |= CGI_SSH_CLIENT;
     }
   }
-  find_server_repository(0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   if( useSCGI ){
     cgi_handle_scgi_request();
@@ -2025,7 +2027,7 @@ void cmd_test_http(void){
   g.useLocalauth = 1;
   g.httpIn = stdin;
   g.httpOut = stdout;
-  find_server_repository(0);
+  find_server_repository(0, 2);
   g.cgiOutput = 1;
   g.fullHttpReply = 1;
   zIpAddr = cgi_ssh_remote_addr(0);
@@ -2162,7 +2164,7 @@ void cmd_webserver(void){
     flags |= HTTP_SERVER_LOCALHOST;
     g.useLocalauth = 1;
   }
-  find_server_repository(isUiCmd && zNotFound==0);
+  find_server_repository(isUiCmd && zNotFound==0, 2);
   if( zPort ){
     int i;
     for(i=strlen(zPort)-1; i>=0 && zPort[i]!=':'; i--){}
@@ -2200,6 +2202,10 @@ void cmd_webserver(void){
     }else{
       zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
     }
+    if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
+    if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
+  }else{
+    db_setup_server_and_project_codes(1);
   }
   db_close(1);
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
@@ -2212,7 +2218,7 @@ void cmd_webserver(void){
     fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
   }
   g.cgiOutput = 1;
-  find_server_repository(isUiCmd && zNotFound==0);
+  find_server_repository(isUiCmd && zNotFound==0, 2);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();
@@ -2229,6 +2235,8 @@ void cmd_webserver(void){
     }else{
       zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
     }
+    if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
+    if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   }
   db_close(1);
   if( win32_http_service(iPort, zNotFound, zFileGlob, flags) ){

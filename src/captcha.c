@@ -519,7 +519,7 @@ int captcha_is_correct(void){
     if( c=='O' ) c = '0';
     z[i] = c;
   }
-  if( memcmp(zDecode,z,8)!=0 ) return 0;
+  if( strncmp(zDecode,z,8)!=0 ) return 0;
   return 1;
 }
 
