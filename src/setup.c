@@ -494,6 +494,7 @@ void user_edit(void){
   @ <script type='text/javascript'>
   @ function fossilUpdatePermissionsList(){
   @   /* updates #currentPermissionsString with current permissions string based on checkboxes */
+  @ try {
   @   var inputs = document.getElementsByTagName('input'),  i, x = 0, e, checkboxes = [], permsIds = [];
   @   if(inputs && inputs.length){
   @     for( i = 0; i < inputs.length; ++i ){
@@ -509,6 +510,7 @@ void user_edit(void){
   @   }
   @  permsIds.sort();
   @  document.getElementById('currentPermissionsString').innerHTML = permsIds.join('');  
+  @ }catch(e){/*ignore errors*/}
   @ }</script>
   @ <table>
   @ <tr>
