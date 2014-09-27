@@ -443,7 +443,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-         "<span class=\"ueditInheritDeveloper\"><sub>D</sub></span>";
+         "<span class=\"ueditInheritDeveloper\"><sub>[D]</sub></span>";
     }
     free(z2);
   }
@@ -452,7 +452,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='reader'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-          "<span class=\"ueditInheritReader\"><sub>R</sub></span>";
+          "<span class=\"ueditInheritReader\"><sub>[R]</sub></span>";
     }
     free(z2);
   }
@@ -461,7 +461,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='anonymous'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-           "<span class=\"ueditInheritAnonymous\"><sub>A</sub></span>";
+           "<span class=\"ueditInheritAnonymous\"><sub>[A]</sub></span>";
     }
     free(z2);
   }
@@ -470,7 +470,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='nobody'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-           "<span class=\"ueditInheritNobody\"><sub>N</sub></span>";
+           "<span class=\"ueditInheritNobody\"><sub>[N]</sub></span>";
     }
     free(z2);
   }
