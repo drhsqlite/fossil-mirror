@@ -1198,6 +1198,10 @@ const struct strctCssDefaults {
     "odd table row color",
     @ /* Use default */
   },
+  { "#usetupEditCapability",
+    "format for capabilities string, mentioned on the user edit page",
+    @ font-weight: bold;
+  },
   { "#canvas", "timeline graph node colors",
     @ color: black;
     @ background-color: white;

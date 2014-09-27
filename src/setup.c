@@ -493,7 +493,7 @@ void user_edit(void){
   }
   @ <script type='text/javascript'>
   @ function fossilUpdatePermissionsList(){
-  @   /* updates #currentPermissionsString with current permissions string based on checkboxes */
+  @   /* updates #usetupEditCapability with current permissions string based on checkboxes */
   @ try {
   @   var inputs = document.getElementsByTagName('input'),  i, x = 0, e, permsIds = [];
   @   if(inputs && inputs.length){
@@ -508,7 +508,7 @@ void user_edit(void){
   @     }
   @   }
   @  permsIds.sort();
-  @  document.getElementById('currentPermissionsString').innerHTML = permsIds.join('');  
+  @  document.getElementById('usetupEditCapability').innerHTML = permsIds.join('');  
   @ }catch(e){/*ignore errors*/}
   @ }</script>
   @ <table>
@@ -592,8 +592,13 @@ void user_edit(void){
   @  <label><input type="checkbox" name="az"%s(oa['z']) onchange="fossilUpdatePermissionsList()" />
   @  Download Zip%s(B('z'))</label>
   @ </td></tr>
-  @ <tr><td colspan='7'>Selected capabilities: <span id="currentPermissionsString">(missing JS?)</span></td></tr>
   @ </table>
+  @   </td>
+  @ </tr>
+  @ <tr>
+  @   <td class="usetupEditLabel">Selected Capabilities:</td>
+  @   <td>
+  @     <span id="usetupEditCapability">(missing JS?)</span>
   @   </td>
   @ </tr>
   if( !login_is_special(zLogin) ){
