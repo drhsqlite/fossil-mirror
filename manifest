@@ -1,5 +1,5 @@
-C Wrap\smarkdown\scontent\sin\san\sHTML\s'div'\sblock\sof\sthe\s'markdown'\sclass.
-D 2014-09-26T21:02:03.058
+C Add\ssome\spadding\saround\ssubscripted\sinherited\sprivilege\smarkers\sto\simprove\sreadability.
+D 2014-09-27T05:54:47.484
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -411,7 +411,7 @@ F src/sqlite3.c e6ed7ce22d0820e8b298493f84aba9a565eef3b8
 F src/sqlite3.h 50ed41c391f5b425ec00b56329b0cfd9a8c5197b
 F src/stash.c 4fcd200867fec73b3d57b9b99203afd0a5d7148e
 F src/stat.c a0e29e09e2635f397e2a7543cd12443fe66f24b7
-F src/style.c 1fda3f962cc0e9b6f6f12f34a857f89a99571113
+F src/style.c 3a849ddab70d166bf9b89f0a19cd0d45254047bd
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 1301dff0c04b00e66d2d6d0dedf9999b426e439c
 F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
@@ -654,8 +654,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4bba5e1ca4a0d34d1bab620916a8a5973cd6ea28 8478033670354ecd86ba637178929bafc16ce42b
-R 23d9288a333909e130eece2bd8c04b0e
-T +closed 8478033670354ecd86ba637178929bafc16ce42b
-U mistachkin
-Z 8fd80b636e97fdefb8b081ae3a4d6074
+P e061a675e69cf8eb35872f46ca4ae31e5f19bb7e
+R a3d6ac414b25c031e64b14a8c6ce03ee
+T *branch * pending-review
+T *sym-pending-review *
+T -sym-trunk *
+U andybradford
+Z 1156162cf1b72d9cb4ba749c8d4fa7d7

@@ -936,18 +936,22 @@ const struct strctCssDefaults {
   { "span.ueditInheritNobody",
     "color for capabilities, inherited by nobody",
     @   color: green;
+    @   padding: .2em;
   },
   { "span.ueditInheritDeveloper",
     "color for capabilities, inherited by developer",
     @   color: red;
+    @   padding: .2em;
   },
   { "span.ueditInheritReader",
     "color for capabilities, inherited by reader",
     @   color: black;
+    @   padding: .2em;
   },
   { "span.ueditInheritAnonymous",
     "color for capabilities, inherited by anonymous",
     @   color: blue;
+    @   padding: .2em;
   },
   { "span.capability",
     "format for capabilities, mentioned on the user edit page",
