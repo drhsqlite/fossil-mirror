@@ -309,7 +309,7 @@ void user_edit(void){
                        /* user doing the editing is ADMIN.  Disallow editing */
   char *inherit[128];
   int a[128];
-  char *oa[128];
+  const char *oa[128];
 
   /* Must have ADMIN privileges to access this page
   */
@@ -491,6 +491,25 @@ void user_edit(void){
     @ <input type="hidden" name="info" value="">
     @ <input type="hidden" name="pw" value="*">
   }
+  @ <script type='text/javascript'>
+  @ function fossilUpdatePermissionsList(){
+  @   /* updates #currentPermissionsString with current permissions string based on checkboxes */
+  @   var inputs = document.getElementsByTagName('input'),  i, x = 0, e, checkboxes = [], permsIds = [];
+  @   if(inputs && inputs.length){
+  @     for( i = 0; i < inputs.length; ++i ){
+  @      e = inputs[i];
+  @      if(e.name && e.type && ('checkbox' === e.type.toLowerCase()) && 2===e.name.length && 'a'===e.name[0]){
+  @       // looks like a permissions checkbox
+  @       if(e.checked){
+  @         permsIds[x] = e.name[1];
+  @         checkboxes[x++] = e;
+  @       }
+  @      }
+  @     }
+  @   }
+  @  permsIds.sort();
+  @  document.getElementById('currentPermissionsString').innerHTML = permsIds.join('');  
+  @ }</script>
   @ <table>
   @ <tr>
   @   <td class="usetupEditLabel">User ID:</td>
@@ -518,60 +537,62 @@ void user_edit(void){
 #define B(x) inherit[x]
   @ <table border=0><tr><td valign="top">
   if( g.perm.Setup ){
-    @  <label><input type="checkbox" name="as"%s(oa['s']) />
+    @  <label><input type="checkbox" name="as"%s(oa['s']) onchange="fossilUpdatePermissionsList()"/>
     @  Setup%s(B('s'))</label><br />
   }
-  @  <label><input type="checkbox" name="aa"%s(oa['a']) />
+  @  <label><input type="checkbox" name="aa"%s(oa['a']) onchange="fossilUpdatePermissionsList()" />
   @  Admin%s(B('a'))</label><br />
-  @  <label><input type="checkbox" name="ad"%s(oa['d']) />
+  @  <label><input type="checkbox" name="ad"%s(oa['d']) onchange="fossilUpdatePermissionsList()" />
   @  Delete%s(B('d'))</label><br />
-  @  <label><input type="checkbox" name="ae"%s(oa['e']) />
+  @  <label><input type="checkbox" name="ae"%s(oa['e']) onchange="fossilUpdatePermissionsList()" />
   @  Email%s(B('e'))</label><br />
-  @  <label><input type="checkbox" name="ap"%s(oa['p']) />
+  @  <label><input type="checkbox" name="ap"%s(oa['p']) onchange="fossilUpdatePermissionsList()" />
   @  Password%s(B('p'))</label><br />
-  @  <label><input type="checkbox" name="ai"%s(oa['i']) />
+  @  <label><input type="checkbox" name="ai"%s(oa['i']) onchange="fossilUpdatePermissionsList()" />
   @  Check-In%s(B('i'))</label><br />
-  @  <label><input type="checkbox" name="ao"%s(oa['o']) />
+  @  <label><input type="checkbox" name="ao"%s(oa['o']) onchange="fossilUpdatePermissionsList()" />
   @  Check-Out%s(B('o'))</label><br />
-  @  <label><input type="checkbox" name="ah"%s(oa['h']) />
+  @  <label><input type="checkbox" name="ah"%s(oa['h']) onchange="fossilUpdatePermissionsList()" />
   @  Hyperlinks%s(B('h'))</label><br />
-  @  <label><input type="checkbox" name="ab"%s(oa['b']) />
+  @  <label><input type="checkbox" name="ab"%s(oa['b']) onchange="fossilUpdatePermissionsList()" />
   @  Attachments%s(B('b'))</label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="au"%s(oa['u']) />
+  @  <label><input type="checkbox" name="au"%s(oa['u']) onchange="fossilUpdatePermissionsList()" />
   @  Reader%s(B('u'))</label><br />
-  @  <label><input type="checkbox" name="av"%s(oa['v']) />
+  @  <label><input type="checkbox" name="av"%s(oa['v']) onchange="fossilUpdatePermissionsList()" />
   @  Developer%s(B('v'))</label><br />
-  @  <label><input type="checkbox" name="ag"%s(oa['g']) />
+  @  <label><input type="checkbox" name="ag"%s(oa['g']) onchange="fossilUpdatePermissionsList()" />
   @  Clone%s(B('g'))</label><br />
-  @  <label><input type="checkbox" name="aj"%s(oa['j']) />
+  @  <label><input type="checkbox" name="aj"%s(oa['j']) onchange="fossilUpdatePermissionsList()" />
   @  Read Wiki%s(B('j'))</label><br />
-  @  <label><input type="checkbox" name="af"%s(oa['f']) />
+  @  <label><input type="checkbox" name="af"%s(oa['f']) onchange="fossilUpdatePermissionsList()" />
   @  New Wiki%s(B('f'))</label><br />
-  @  <label><input type="checkbox" name="am"%s(oa['m']) />
+  @  <label><input type="checkbox" name="am"%s(oa['m']) onchange="fossilUpdatePermissionsList()" />
   @  Append Wiki%s(B('m'))</label><br />
-  @  <label><input type="checkbox" name="ak"%s(oa['k']) />
+  @  <label><input type="checkbox" name="ak"%s(oa['k']) onchange="fossilUpdatePermissionsList()" />
   @  Write Wiki%s(B('k'))</label><br />
-  @  <label><input type="checkbox" name="al"%s(oa['l']) />
+  @  <label><input type="checkbox" name="al"%s(oa['l']) onchange="fossilUpdatePermissionsList()" />
   @  Moderate Wiki%s(B('l'))</label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="ar"%s(oa['r']) />
+  @  <label><input type="checkbox" name="ar"%s(oa['r']) onchange="fossilUpdatePermissionsList()" />
   @  Read Ticket%s(B('r'))</label><br />
-  @  <label><input type="checkbox" name="an"%s(oa['n']) />
+  @  <label><input type="checkbox" name="an"%s(oa['n']) onchange="fossilUpdatePermissionsList()" />
   @  New Tickets%s(B('n'))</label><br />
-  @  <label><input type="checkbox" name="ac"%s(oa['c']) />
+  @  <label><input type="checkbox" name="ac"%s(oa['c']) onchange="fossilUpdatePermissionsList()" />
   @  Append To Ticket%s(B('c'))</label><br />
-  @  <label><input type="checkbox" name="aw"%s(oa['w']) />
+  @  <label><input type="checkbox" name="aw"%s(oa['w']) onchange="fossilUpdatePermissionsList()" />
   @  Write Tickets%s(B('w'))</label><br />
-  @  <label><input type="checkbox" name="aq"%s(oa['q']) />
+  @  <label><input type="checkbox" name="aq"%s(oa['q']) onchange="fossilUpdatePermissionsList()" />
   @  Moderate Tickets%s(B('q'))</label><br />
-  @  <label><input type="checkbox" name="at"%s(oa['t']) />
+  @  <label><input type="checkbox" name="at"%s(oa['t']) onchange="fossilUpdatePermissionsList()" />
   @  Ticket Report%s(B('t'))</label><br />
-  @  <label><input type="checkbox" name="ax"%s(oa['x']) />
+  @  <label><input type="checkbox" name="ax"%s(oa['x']) onchange="fossilUpdatePermissionsList()" />
   @  Private%s(B('x'))</label><br />
-  @  <label><input type="checkbox" name="az"%s(oa['z']) />
+  @  <label><input type="checkbox" name="az"%s(oa['z']) onchange="fossilUpdatePermissionsList()" />
   @  Download Zip%s(B('z'))</label>
-  @ </td></tr></table>
+  @ </td></tr>
+  @ <tr><td colspan='7'>Selected capabilities: <span id="currentPermissionsString">(missing JS?)</span></td></tr>
+  @ </table>
   @   </td>
   @ </tr>
   if( !login_is_special(zLogin) ){
@@ -606,6 +627,7 @@ void user_edit(void){
   @ </table>
   @ </div></form>
   @ </div>
+  @ <script type='text/javascript'>fossilUpdatePermissionsList();</script>
   @ <h2>Privileges And Capabilities:</h2>
   @ <ul>
   if( higherUser ){
