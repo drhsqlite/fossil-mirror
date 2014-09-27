@@ -1,5 +1,5 @@
-C Added\stry/catch\sso\sthat\sincompatible\sbrowsers\s(if\sany)\sdo\snot\sbreak\sthe\swhole\spage\sif\supdating\sthe\spermissions\sstring\sfails.
-D 2014-09-27T19:29:29.366
+C removed\san\sunused\sJS\svar.
+D 2014-09-27T20:11:48.227
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -401,7 +401,7 @@ F src/report.c cd6230b34ec2e2262f37ec75e722ba186c3cdaf5
 F src/rss.c e7861c726638f78b93ac6e7d8b987d538660b42e
 F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 7226c2f96000a73753b36efb65b149466ede6164
-F src/setup.c 55c8295a77d326eaeeda47afe1ef640950db3454
+F src/setup.c af6eb3641f81888b337156c83923e15d0a8a4407
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
 F src/shell.c c00220cdd7f2027780bc25b78376c16dc24e4b7d
 F src/shun.c 123f0542db2b51c73ca10a0652bb5fe2e5e476fa
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d02d620c4df6b9013d4f19b0d639b6b05a1fb68d
-R 56f5498e20abf48b160c1d64aa40c68a
+P 4c4a69ed9969620c930de4a8be99ea0bbd59d8bc
+R 1a0171d21265f6af81db637fb475e0d3
 U stephan
-Z 6b2d1354ed32364d515b3a47a89f9bda
+Z 9999cd7844c99d2f356bfe7af239a979

@@ -495,15 +495,14 @@ void user_edit(void){
   @ function fossilUpdatePermissionsList(){
   @   /* updates #currentPermissionsString with current permissions string based on checkboxes */
   @ try {
-  @   var inputs = document.getElementsByTagName('input'),  i, x = 0, e, checkboxes = [], permsIds = [];
+  @   var inputs = document.getElementsByTagName('input'),  i, x = 0, e, permsIds = [];
   @   if(inputs && inputs.length){
   @     for( i = 0; i < inputs.length; ++i ){
   @      e = inputs[i];
   @      if(e.name && e.type && ('checkbox' === e.type.toLowerCase()) && 2===e.name.length && 'a'===e.name[0]){
   @       // looks like a permissions checkbox
   @       if(e.checked){
-  @         permsIds[x] = e.name[1];
-  @         checkboxes[x++] = e;
+  @         permsIds[x++] = e.name[1];
   @       }
   @      }
   @     }
