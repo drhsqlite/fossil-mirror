@@ -1188,6 +1188,22 @@ SSLDIR    = $(B)\compat\openssl-1.0.1i
 SSLINCDIR = $(SSLDIR)\inc32
 SSLLIBDIR = $(SSLDIR)\out32
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
+!if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
+!message Using 'x64' platform for OpenSSL...
+SSLCONFIG = VC-WIN64A
+SSLSETUP  = ms\do_win64a.bat
+SSLNMAKE  = ms\nt.mak
+!elseif "$(PLATFORM)"=="ia64"
+!message Using 'ia64' platform for OpenSSL...
+SSLCONFIG = VC-WIN64I
+SSLSETUP  = ms\do_win64i.bat
+SSLNMAKE  = ms\nt.mak
+!else
+!message Assuming 'x86' platform for OpenSSL...
+SSLCONFIG = VC-WIN32
+SSLSETUP  = ms\do_ms.bat
+SSLNMAKE  = ms\nt.mak
+!endif
 !endif
 
 !ifdef FOSSIL_ENABLE_TCL
@@ -1331,9 +1347,9 @@ openssl:
 !if "$(PERLDIR)" != ""
 	@set PATH=$(PERLDIR);$(PATH)
 !endif
-	@pushd "$(SSLDIR)" && $(PERL) Configure VC-WIN32 no-asm && popd
-	@pushd "$(SSLDIR)" && call ms\do_ms.bat && popd
-	@pushd "$(SSLDIR)" && $(MAKE) /f ms\nt.mak all && popd
+	@pushd "$(SSLDIR)" && $(PERL) Configure $(SSLCONFIG) no-asm && popd
+	@pushd "$(SSLDIR)" && call $(SSLSETUP) && popd
+	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) all && popd
 !endif
 
 !ifndef FOSSIL_ENABLE_MINIZ
