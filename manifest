@@ -1,5 +1,5 @@
-C Better\smodularization\sof\sarguments\sfor\sthe\sOpenSSL\sconfiguration\sused\sby\sthe\sMSVC\smakefile.
-D 2014-09-28T20:44:29.477
+C Add\sFOSSIL_BUILD_SSL\smacro\sto\sthe\sMSVC\smakefile\sto\scontrol\swhether\sOpenSSL\sis\sbuilt\sduring\sthe\sbuild\sprocess.\s\sBy\sdefault,\sbuilding\sOpenSSL\sduring\sthe\sFossil\sbuild\sis\soff.
+D 2014-09-28T20:54:20.757
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -378,7 +378,7 @@ F src/main.c a3843140db960c805edb94c6a6e4af7588ed9533
 F src/main.mk 8a61014e8f6768cde4ea1d6c3c31906e6d9d3646
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl e471c4738e732fb23074bd6748d026f065e04b57
+F src/makemake.tcl fa7738793092d33d79803a9c984437fbb076744c
 F src/manifest.c bfd3b0bd215ec9c522e26a9f07d19194455e5d14
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
@@ -545,7 +545,7 @@ F win/Makefile.PellesCGMake 11974d1b5453eb4bb9756b48f384d610dd6e817a
 F win/Makefile.dmc db781be43581f5dc81b0be9cdfcae986daacad84
 F win/Makefile.mingw e530bd752e416c5e46e05af736a6785858b1f503
 F win/Makefile.mingw.mistachkin 3a14fe911cb2f9765a65a263430d2be73e325526
-F win/Makefile.msc f27edb23c52faf40642875aff836228d3655d3d3
+F win/Makefile.msc 71be6c4e7adb09016b2e3ff65133b41b36a683ad
 F win/buildmsvc.bat bff32737fe1270faa7fafcea5f091779ec74de8a
 F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -573,7 +573,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki ebac2e6d42b1fdd2c7976e4ccfcd94123dd9994b
+F www/build.wiki 552e2b57c33a5f7e1c6bd84bfaaf796e357d2d28
 F www/changes.wiki 493c4a8e85b11dd73e871ea55a5c3a76d2578f16
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 89d9baa3e241ee19a5469b93eb95066ecede147b
-R e5c0b0c1c4a591a98c372b51eb2cbf6d
+P 20af0a8e5c5cbb4be365b61b413ffaf024dc364c
+R cc06ae0bc22caf8fc8d978216bb82af7
 U mistachkin
-Z 78b2e74dccf54805fce95fd767b8647a
+Z dd4a8c5ac58a8468cd2539e45763dcd2

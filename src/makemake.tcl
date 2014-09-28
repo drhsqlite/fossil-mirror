@@ -1174,6 +1174,9 @@ PERL    = perl.exe
 # Uncomment to enable SSL support
 # FOSSIL_ENABLE_SSL = 1
 
+# Uncomment to build SSL libraries
+# FOSSIL_BUILD_SSL = 1
+
 # Uncomment to enable TH1 scripts in embedded documentation files
 # FOSSIL_ENABLE_TH1_DOCS = 1
 
@@ -1357,7 +1360,9 @@ APPTARGETS = $(APPTARGETS) zlib
 !endif
 
 !ifdef FOSSIL_ENABLE_SSL
+!ifdef FOSSIL_BUILD_SSL
 APPTARGETS = $(APPTARGETS) openssl
+!endif
 !endif
 
 $(APPNAME) : $(APPTARGETS) translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
