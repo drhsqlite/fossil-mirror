@@ -37,9 +37,9 @@
 #endif
 
 #if defined(__MSVCRT__)
-/* TODO: determine those dynamically. */
-WINBASEAPI DWORD WINAPI GetFinalPathNameByHandleW (HANDLE hFile, LPWSTR lpszFilePath, DWORD cchFilePath, DWORD dwFlags);
-WINBASEAPI BOOLEAN APIENTRY CreateSymbolicLinkW (LPCWSTR lpSymlinkFileName, LPCWSTR lpTargetFileName, DWORD dwFlags);
+static HANDLE dllhandle = NULL;
+static DWORD WINAPI (*getFinalPathNameByHandleW) (HANDLE, LPWSTR, DWORD, DWORD) = NULL;
+static BOOLEAN APIENTRY (*createSymbolicLinkW) (LPCWSTR, LPCWSTR, DWORD) = NULL;
 #endif
 
 /* a couple defines to make the borrowed struct below compile */
@@ -82,6 +82,16 @@ typedef struct _REPARSE_DATA_BUFFER {
 
 #define LINK_BUFFER_SIZE 1024
 
+static int isVistaOrLater(){
+    if( !dllhandle ){
+        HANDLE h = LoadLibraryW(L"KERNEL32");
+        createSymbolicLinkW = (BOOLEAN APIENTRY (*) (LPCWSTR, LPCWSTR, DWORD)) GetProcAddress(h, "CreateSymbolicLinkW");
+        getFinalPathNameByHandleW = (DWORD WINAPI (*) (HANDLE, LPWSTR, DWORD, DWORD)) GetProcAddress(h, "GetFinalPathNameByHandleW");
+        dllhandle = h;
+    }
+    return createSymbolicLinkW != NULL;
+}
+
 /*
 ** Fill stat buf with information received from GetFileAttributesExW().
 ** Does not follow symbolic links, returning instead information about
@@ -93,29 +103,29 @@ int win32_lstat(const wchar_t *zFilename, struct fossilStat *buf){
   int rc = GetFileAttributesExW(zFilename, GetFileExInfoStandard, &attr);
   if( rc ){
     ssize_t tlen = 0; /* assume it is not a symbolic link */
-    
+
     /* if it is a reparse point it *might* be a symbolic link */
     /* so defer to win32_readlink to actually check */
-    if (attr.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT){
+    if( attr.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT ){
       char *tname = fossil_filename_to_utf8(zFilename);
       char tlink[LINK_BUFFER_SIZE];
       tlen = win32_readlink(tname, tlink, sizeof(tlink));
       fossil_filename_free(tname);
     }
-    
+
     ULARGE_INTEGER ull;
 
     /* if a link was retrieved, it is a symlink, otherwise a dir or file */
-    if (tlen == 0){
+    if( tlen == 0 ){
       buf->st_mode = ((attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ?
                        S_IFDIR : S_IFREG);
-    
+
       buf->st_size = (((i64)attr.nFileSizeHigh)<<32) | attr.nFileSizeLow;
     }else{
       buf->st_mode = S_IFLNK;
       buf->st_size = tlen;
     }
-    
+
     ull.LowPart = attr.ftLastWriteTime.dwLowDateTime;
     ull.HighPart = attr.ftLastWriteTime.dwHighDateTime;
     buf->st_mtime = ull.QuadPart / 10000000ULL - 11644473600ULL;
@@ -128,7 +138,7 @@ int win32_lstat(const wchar_t *zFilename, struct fossilStat *buf){
 ** If a symbolic link is found, follow it and return information about
 ** the target, repeating until an actual target is found.
 ** Limit the number of loop iterations so as to avoid an infinite loop
-** due to circular links. This should never happen because 
+** due to circular links. This should never happen because
 ** GetFinalPathNameByHandleW() should always preclude that need, but being
 ** prepared to loop seems prudent, or at least not harmful.
 ** Returns 0 on success, 1 on failure.
@@ -139,36 +149,40 @@ int win32_stat(const wchar_t *zFilename, struct fossilStat *buf){
   wchar_t nextFilename[LINK_BUFFER_SIZE];
   DWORD len;
   int iterationsRemaining = 8; /* 8 is arbitrary, can be modified as needed */
-  
+
   while (iterationsRemaining-- > 0){
     rc = win32_lstat(zFilename, buf);
 
     /* exit on error or not link */
-    if ((rc != 0) || (buf->st_mode != S_IFLNK))
+    if( (rc != 0) || (buf->st_mode != S_IFLNK) )
       break;
 
-    /* it is a link, so open the linked file */      
+    /* it is a link, so open the linked file */
     file = CreateFileW(zFilename, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-    if ((file == NULL) || (file == INVALID_HANDLE_VALUE)){
+    if( (file == NULL) || (file == INVALID_HANDLE_VALUE) ){
       rc = 1;
       break;
     }
 
     /* get the final path name and close the handle */
-    len = GetFinalPathNameByHandleW(file, nextFilename, LINK_BUFFER_SIZE - 1, 0);
+    if( isVistaOrLater() ){
+      len = getFinalPathNameByHandleW(file, nextFilename, LINK_BUFFER_SIZE - 1, 0);
+    }else{
+      len = -1;
+    }
     CloseHandle(file);
-    
+
     /* if any problems getting the final path name error so exit */
-    if ((len <= 0) || (len > LINK_BUFFER_SIZE - 1)){
+    if( (len <= 0) || (len > LINK_BUFFER_SIZE - 1) ){
       rc = 1;
       break;
     }
-    
+
     /* prepare to try again just in case we have a chain to follow */
     /* this shouldn't happen, but just trying to be safe */
     zFilename = nextFilename;
   }
-  
+
   return rc;
 }
 
@@ -180,32 +194,32 @@ int win32_stat(const wchar_t *zFilename, struct fossilStat *buf){
 ssize_t win32_readlink(const char *path, char *buf, size_t bufsiz){
   /* assume we're going to fail */
   ssize_t rv = -1;
-  
+
   /* does path reference a reparse point? */
   WIN32_FILE_ATTRIBUTE_DATA attr;
   int rc = GetFileAttributesEx(path, GetFileExInfoStandard, &attr);
-  if (rc && (attr.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)){
-  
+  if( rc && (attr.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) ){
+
     /* since it is a reparse point, open it */
-    HANDLE file = CreateFile(path, FILE_READ_EA, 0, NULL, OPEN_EXISTING, 
-      FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, NULL);      
-    if ((file != NULL) && (file != INVALID_HANDLE_VALUE)){
+    HANDLE file = CreateFile(path, FILE_READ_EA, 0, NULL, OPEN_EXISTING,
+      FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, NULL);
+    if( (file != NULL) && (file != INVALID_HANDLE_VALUE) ){
 
       /* use DeviceIoControl to get the reparse point data */
-    
+
       int data_size = sizeof(REPARSE_DATA_BUFFER) + LINK_BUFFER_SIZE * sizeof(wchar_t);
       REPARSE_DATA_BUFFER* data = fossil_malloc(data_size);
       DWORD data_used;
-    
+
       data->ReparseTag = IO_REPARSE_TAG_SYMLINK;
       data->ReparseDataLength = 0;
       data->Reserved = 0;
-    
+
       int rc = DeviceIoControl(file, FSCTL_GET_REPARSE_POINT, NULL, 0,
         data, data_size, &data_used, NULL);
 
       /* did the reparse point data fit into the desired buffer? */
-      if (rc && (data_used < data_size)){
+      if( rc && (data_used < data_size) ){
         /* it fit, so setup the print name for further processing */
         USHORT
           offset = data->SymbolicLinkReparseBuffer.PrintNameOffset / sizeof(wchar_t),
@@ -216,14 +230,14 @@ ssize_t win32_readlink(const char *path, char *buf, size_t bufsiz){
         /* convert the filename to utf8, copy it, and discard the converted copy */
         temp = fossil_filename_to_utf8(data->SymbolicLinkReparseBuffer.PathBuffer + offset);
         rv = strlen(temp);
-        if (rv >= bufsiz)
+        if( rv >= bufsiz )
           rv = bufsiz;
         memcpy(buf, temp, rv);
         fossil_filename_free(temp);
       }
-      
+
       fossil_free(data);
-      
+
       /* all done, close the reparse point */
       CloseHandle(file);
     }
@@ -244,8 +258,8 @@ ssize_t win32_readlink(const char *path, char *buf, size_t bufsiz){
 int win32_unlink_rmdir(const wchar_t *zFilename){
   int rc = 0;
   WIN32_FILE_ATTRIBUTE_DATA attr;
-  if (GetFileAttributesExW(zFilename, GetFileExInfoStandard, &attr)){
-    if ((attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
+  if( GetFileAttributesExW(zFilename, GetFileExInfoStandard, &attr) ){
+    if( (attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY )
       rc = RemoveDirectoryW(zFilename);
     else
       rc = DeleteFileW(zFilename);
@@ -268,29 +282,32 @@ int win32_symlink(const char *oldpath, const char *newpath){
   DWORD flags = 0;
   wchar_t *zMbcs, *zMbcsOld;
 
-  /* does oldpath exist? is it a dir or a file? */  
+  /* does oldpath exist? is it a dir or a file? */
   zMbcsOld = fossil_utf8_to_filename(oldpath);
-  if (win32_stat(zMbcsOld, &stat) == 0){
-    if (stat.st_mode == S_IFDIR)
+  if( win32_stat(zMbcsOld, &stat) == 0 ){
+    if( stat.st_mode == S_IFDIR ){
       flags = SYMBOLIC_LINK_FLAG_DIRECTORY;
+    }
   }
 
   /* remove newpath before creating the symlink */
   zMbcs = fossil_utf8_to_filename(newpath);
   win32_unlink_rmdir(zMbcs);
-  created = CreateSymbolicLinkW(zMbcs, zMbcsOld, flags);
+  if( isVistaOrLater() ){
+    created = createSymbolicLinkW(zMbcs, zMbcsOld, flags);
+  }
   fossil_filename_free(zMbcs);
   fossil_filename_free(zMbcsOld);
 
   /* if the symlink was not created, create a plain text file */
-  if (!created){
+  if( !created ){
     Blob content;
     blob_set(&content, oldpath);
     blob_write_to_file(&content, newpath);
     blob_reset(&content);
     created = 1;
   }
-  
+
   return !created;
 }
 
@@ -307,8 +324,9 @@ int win32_check_symlink_type_changed(const char* zName){
   fossilStat lstat_buf, stat_buf;
   WIN32_FILE_ATTRIBUTE_DATA lstat_attr;
   zMbcs = fossil_utf8_to_filename(zName);
-  if (win32_stat(zMbcs, &stat_buf) != 0)
+  if( win32_stat(zMbcs, &stat_buf) != 0 ){
     stat_buf.st_mode = S_IFREG;
+  }
   changed =
     (win32_lstat(zMbcs, &lstat_buf) == 0) &&
     (lstat_buf.st_mode == S_IFLNK) &&
@@ -339,61 +357,65 @@ int win32_symlinks_supported(const char* zFilename){
   DWORD fsFlags;
 
   /* symlinks only supported on vista or greater */
-  /* if (!IsWindowsVistaOrGreater())  //  TODO: make it work on MinGW
-    return 0; */
+  if( !isVistaOrLater() ){
+    return 0;
+  }
 
   /* next we need to check to see if the privilege is available */
-  
+
   /* can't check privilege if we can't lookup its value */
-  if (!LookupPrivilegeValue(NULL, SE_CREATE_SYMBOLIC_LINK_NAME, &luid))
+  if( !LookupPrivilegeValue(NULL, SE_CREATE_SYMBOLIC_LINK_NAME, &luid) ){
     return 0;
-  
+  }
+
   /* can't check privilege if we can't open the process token */
   process = GetCurrentProcess();
-  if (!OpenProcessToken(process, TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY, &token))
+  if( !OpenProcessToken(process, TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY, &token) ){
     return 0;
-  
+  }
+
   /* by this point, we have a process token and the privilege value */
   /* try to enable the privilege then close the token */
-  
+
   tp.PrivilegeCount = 1;
   tp.Privileges[0].Luid = luid;
   tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-  
+
   AdjustTokenPrivileges(token, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), NULL, NULL);
   status = GetLastError();
-  
+
   CloseHandle(token);
 
   /* any error means we failed to enable the privilege, symlinks not supported */
-  if (status != ERROR_SUCCESS)
+  if( status != ERROR_SUCCESS ){
     return 0;
+  }
 
   /* assume no support for symlinks */
   success = 0;
-    
+
   pFilename = fossil_utf8_to_filename(zFilename);
 
   /* given the filename we're interested in, symlinks are supported if */
   /* 1. we can get the full name of the path from the given path */
   fullLength = GetFullPathNameW(pFilename, sizeof(fullName), fullName, NULL);
-  if ((fullLength > 0) && (fullLength < sizeof(fullName))){
+  if( (fullLength > 0) && (fullLength < sizeof(fullName)) ){
     /* 2. we can get the volume path name from the full name */
-    if (GetVolumePathNameW(fullName, volName, sizeof(volName))){
+    if( GetVolumePathNameW(fullName, volName, sizeof(volName)) ){
       /* 3. we can get volume information from the volume path name */
-      if (GetVolumeInformationW(volName, NULL, 0, NULL, NULL, &fsFlags, NULL, 0)){
+      if( GetVolumeInformationW(volName, NULL, 0, NULL, NULL, &fsFlags, NULL, 0) ){
         /* 4. the given volume support reparse points */
-        if (fsFlags & FILE_SUPPORTS_REPARSE_POINTS){
+        if( fsFlags & FILE_SUPPORTS_REPARSE_POINTS ){
           /* all four conditions were true, so we support symlinks; success! */
           success = 1;
         }
       }
     }
   }
-  
+
   fossil_filename_free(pFilename);
-    
-  return success;  
+
+  return success;
 }
 
 /*
@@ -589,7 +611,9 @@ int win32_access(const wchar_t *zFilename, int flags){
 
     rc = -1; goto done;
   }
-  if( !accessYesNo ) rc = -1;
+  if( !accessYesNo ){
+    rc = -1;
+  }
 
 done:
 
