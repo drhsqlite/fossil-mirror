@@ -3,11 +3,10 @@
 # WARNING: DO NOT EDIT, AUTOMATICALLY GENERATED FILE (SEE "src/makemake.tcl")
 ##############################################################################
 #
-# This Makefile will only function correctly if used from the directory it
-# is contained in.  Therefore, attempt to detect when that is not the case
-# and issue an error message.
+# This Makefile will only function correctly if used from a sub-directory
+# that is a direct child of the top-level directory for this project.
 #
-!if !exist("Makefile.msc")
+!if !exist("..\.fossil-settings")
 !error "Please change the current directory to the one containing this file."
 !endif
 
