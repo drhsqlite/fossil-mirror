@@ -488,6 +488,14 @@ ifeq (,$(findstring w64-mingw32,$(PREFIX)))
 MINGW_IS_32BIT_ONLY = 1
 endif
 endif
+ifeq (,$(findstring x86_64-w64-mingw32,$(PREFIX)))
+SSLCONFIG = mingw
+else
+SSLCONFIG = mingw64
+endif
+ifndef FOSSIL_ENABLE_MINIZ
+SSLCONFIG +=  --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib
+endif
 
 #### The directories where the zlib include and library files are located.
 #
@@ -861,11 +869,7 @@ LIBTARGETS += zlib
 endif
 
 openssl:	$(LIBTARGETS)
-ifndef FOSSIL_ENABLE_MINIZ
-	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib mingw
-else
-	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) mingw
-endif
+	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) $(SSLCONFIG)
 	$(MAKE) -C $(OPENSSLLIBDIR) build_libs
 
 clean-openssl:
