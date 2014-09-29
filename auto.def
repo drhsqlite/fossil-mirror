@@ -259,9 +259,11 @@ if {[opt-bool lineedit]} {
     # Need readline-compatible line editing
     cc-with {-includes stdio.h} {
         if {[cc-check-includes readline/readline.h] && [cc-check-function-in-lib readline readline]} {
+            define-append EXTRA_CFLAGS -DHAVE_READLINE
             msg-result "Using readline for line editing"
         } elseif {[cc-check-includes editline/readline.h] && [cc-check-function-in-lib readline edit]} {
             define-feature editline
+            define-append EXTRA_CFLAGS -DHAVE_EDITLINE
             msg-result "Using editline for line editing"
         }
     }

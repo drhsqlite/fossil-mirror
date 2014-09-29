@@ -28,11 +28,11 @@
 */
 void moderation_table_create(void){
   db_multi_exec(
-     "CREATE TABLE IF NOT EXISTS modreq(\n"
+     "CREATE TABLE IF NOT EXISTS %s.modreq(\n"
      "  objid INTEGER PRIMARY KEY,\n"        /* Record pending approval */
      "  attachRid INT,\n"                    /* Object attached */
      "  tktid TEXT\n"                        /* Associated ticket id */
-     ");\n"
+     ");\n", db_name("repository")
   );
 }
 

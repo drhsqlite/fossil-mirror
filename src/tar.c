@@ -494,8 +494,9 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
     if( db_get_boolean("manifest", 0) ){
       blob_append(&filename, "manifest", -1);
       zName = blob_str(&filename);
-      tar_add_file(zName, &mfile, 0, mTime);
       sha1sum_blob(&mfile, &hash);
+      sterilize_manifest(&mfile);
+      tar_add_file(zName, &mfile, 0, mTime);
       blob_reset(&mfile);
       blob_append(&hash, "\n", 1);
       blob_resize(&filename, nPrefix);

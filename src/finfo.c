@@ -58,7 +58,6 @@
 ** See also: artifact, cat, descendants, info, leaves
 */
 void finfo_cmd(void){
-  capture_case_sensitive_option();
   db_must_be_within_tree();
   if( find_option("status","s",0) ){
     Stmt q;
@@ -433,7 +432,7 @@ void finfo_page(void){
     }
     gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr,
                          zUuid, 0);
-    if( memcmp(zDate, zPrevDate, 10) ){
+    if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
       @   <div class="divider">%s(zPrevDate)</div>

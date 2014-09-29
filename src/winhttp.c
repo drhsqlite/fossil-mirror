@@ -34,6 +34,7 @@ struct HttpRequest {
   int id;                /* ID counter */
   SOCKET s;              /* Socket on which to receive data */
   SOCKADDR_IN addr;      /* Address from which data is coming */
+  int flags;             /* Flags passed to win32_http_server() */
   const char *zOptions;  /* --notfound and/or --localauth options */
 };
 
@@ -113,13 +114,21 @@ static void win32_http_request(void *pAppData){
   }
   fclose(out);
   out = 0;
-  sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s",
-    get_utf8_bom(0), zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr)
-  );
-  /* if g.zLocalRoot is set, then we are in a checkout directory,
-  ** even if the db handle is now closed */
-  if( !g.zLocalRoot || !g.zLocalRoot[0] ){
-    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s\n%s", zCmd, g.zRepositoryName);
+  /*
+  ** The repository name is only needed if there was no open checkout.  This
+  ** is designed to allow the open checkout for the interactive user to work
+  ** with the local Fossil server started via the "ui" command.
+  */
+  if( (p->flags & HTTP_SERVER_HAD_CHECKOUT)==0 ){
+    assert( g.zRepositoryName && g.zRepositoryName[0] );
+    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s\n%s",
+      get_utf8_bom(0), zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr),
+      g.zRepositoryName
+    );
+  }else{
+    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s",
+      get_utf8_bom(0), zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr)
+    );
   }
   out = fossil_fopen(zCmdFName, "wb");
   if( out==0 ) goto end_request;
@@ -186,10 +195,11 @@ static void win32_scgi_request(void *pAppData){
   }
   fclose(out);
   out = 0;
+  assert( g.zRepositoryName && g.zRepositoryName[0] );
   sqlite3_snprintf(sizeof(zCmd), zCmd,
-    "\"%s\" http \"%s\" %s %s %s --scgi --nossl%s",
-    g.nameOfExe, g.zRepositoryName, zRequestFName, zReplyFName,
-    inet_ntoa(p->addr.sin_addr), p->zOptions
+    "\"%s\" http \"%s\" \"%s\" %s \"%s\" --scgi --nossl%s",
+    g.nameOfExe, zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr),
+    g.zRepositoryName, p->zOptions
   );
   fossil_system(zCmd);
   in = fossil_fopen(zReplyFName, "rb");
@@ -324,6 +334,7 @@ void win32_http_server(
     p->id = ++idCnt;
     p->s = client;
     p->addr = client_addr;
+    p->flags = flags;
     p->zOptions = blob_str(&options);
     if( flags & HTTP_SERVER_SCGI ){
       _beginthread(win32_scgi_request, 0, (void*)p);

@@ -445,7 +445,7 @@ static ImportFile *import_find_file(const char *zName, int *pI, int mx){
   int nName = strlen(zName);
   while( i<mx ){
     const char *z = gg.aFile[i].zName;
-    if( memcmp(zName, z, nName)==0 && (z[nName]==0 || z[nName]=='/') ){
+    if( strncmp(zName, z, nName)==0 && (z[nName]==0 || z[nName]=='/') ){
       *pI = i+1;
       return &gg.aFile[i];
     }
@@ -490,11 +490,11 @@ static void git_fast_import(FILE *pIn){
   gg.xFinish = finish_noop;
   while( fgets(zLine, sizeof(zLine), pIn) ){
     if( zLine[0]=='\n' || zLine[0]=='#' ) continue;
-    if( memcmp(zLine, "blob", 4)==0 ){
+    if( strncmp(zLine, "blob", 4)==0 ){
       gg.xFinish();
       gg.xFinish = finish_blob;
     }else
-    if( memcmp(zLine, "commit ", 7)==0 ){
+    if( strncmp(zLine, "commit ", 7)==0 ){
       gg.xFinish();
       gg.xFinish = finish_commit;
       trim_newline(&zLine[7]);
@@ -519,37 +519,37 @@ static void git_fast_import(FILE *pIn){
       ** documentation.  We had to figure it out via trial and error.
       */
       for(i=strlen(z)-1; i>=0 && z[i]!='/'; i--){}
-      gg.tagCommit = memcmp(&z[i-4], "tags", 4)==0;  /* True for pattern B */
+      gg.tagCommit = strncmp(&z[i-4], "tags", 4)==0;  /* True for pattern B */
       if( z[i+1]!=0 ) z += i+1;
       if( fossil_strcmp(z, "master")==0 ) z = "trunk";
       gg.zBranch = fossil_strdup(z);
       gg.fromLoaded = 0;
     }else
-    if( memcmp(zLine, "tag ", 4)==0 ){
+    if( strncmp(zLine, "tag ", 4)==0 ){
       gg.xFinish();
       gg.xFinish = finish_tag;
       trim_newline(&zLine[4]);
       gg.zTag = fossil_strdup(&zLine[4]);
     }else
-    if( memcmp(zLine, "reset ", 4)==0 ){
+    if( strncmp(zLine, "reset ", 4)==0 ){
       gg.xFinish();
     }else
-    if( memcmp(zLine, "checkpoint", 10)==0 ){
+    if( strncmp(zLine, "checkpoint", 10)==0 ){
       gg.xFinish();
     }else
-    if( memcmp(zLine, "feature", 7)==0 ){
+    if( strncmp(zLine, "feature", 7)==0 ){
       gg.xFinish();
     }else
-    if( memcmp(zLine, "option", 6)==0 ){
+    if( strncmp(zLine, "option", 6)==0 ){
       gg.xFinish();
     }else
-    if( memcmp(zLine, "progress ", 9)==0 ){
+    if( strncmp(zLine, "progress ", 9)==0 ){
       gg.xFinish();
       trim_newline(&zLine[9]);
       fossil_print("%s\n", &zLine[9]);
       fflush(stdout);
     }else
-    if( memcmp(zLine, "data ", 5)==0 ){
+    if( strncmp(zLine, "data ", 5)==0 ){
       fossil_free(gg.aData); gg.aData = 0;
       gg.nData = atoi(&zLine[5]);
       if( gg.nData ){
@@ -567,15 +567,15 @@ static void git_fast_import(FILE *pIn){
         }
       }
     }else
-    if( memcmp(zLine, "author ", 7)==0 ){
+    if( strncmp(zLine, "author ", 7)==0 ){
       /* No-op */
     }else
-    if( memcmp(zLine, "mark ", 5)==0 ){
+    if( strncmp(zLine, "mark ", 5)==0 ){
       trim_newline(&zLine[5]);
       fossil_free(gg.zMark);
       gg.zMark = fossil_strdup(&zLine[5]);
     }else
-    if( memcmp(zLine, "tagger ", 7)==0 || memcmp(zLine, "committer ",10)==0 ){
+    if( strncmp(zLine, "tagger ", 7)==0 || strncmp(zLine, "committer ",10)==0 ){
       sqlite3_int64 secSince1970;
       for(i=0; zLine[i] && zLine[i]!='<'; i++){}
       if( zLine[i]==0 ) goto malformed_line;
@@ -593,14 +593,14 @@ static void git_fast_import(FILE *pIn){
       gg.zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')", secSince1970);
       gg.zDate[10] = 'T';
     }else
-    if( memcmp(zLine, "from ", 5)==0 ){
+    if( strncmp(zLine, "from ", 5)==0 ){
       trim_newline(&zLine[5]);
       fossil_free(gg.zFromMark);
       gg.zFromMark = fossil_strdup(&zLine[5]);
       fossil_free(gg.zFrom);
       gg.zFrom = resolve_committish(&zLine[5]);
     }else
-    if( memcmp(zLine, "merge ", 6)==0 ){
+    if( strncmp(zLine, "merge ", 6)==0 ){
       trim_newline(&zLine[6]);
       if( gg.nMerge>=gg.nMergeAlloc ){
         gg.nMergeAlloc = gg.nMergeAlloc*2 + 10;
@@ -609,7 +609,7 @@ static void git_fast_import(FILE *pIn){
       gg.azMerge[gg.nMerge] = resolve_committish(&zLine[6]);
       if( gg.azMerge[gg.nMerge] ) gg.nMerge++;
     }else
-    if( memcmp(zLine, "M ", 2)==0 ){
+    if( strncmp(zLine, "M ", 2)==0 ){
       import_prior_files();
       z = &zLine[2];
       zPerm = next_token(&z);
@@ -628,7 +628,7 @@ static void git_fast_import(FILE *pIn){
       pFile->zUuid = resolve_committish(zUuid);
       pFile->isFrom = 0;
     }else
-    if( memcmp(zLine, "D ", 2)==0 ){
+    if( strncmp(zLine, "D ", 2)==0 ){
       import_prior_files();
       z = &zLine[2];
       zName = rest_of_line(&z);
@@ -643,7 +643,7 @@ static void git_fast_import(FILE *pIn){
         i--;
       }
     }else
-    if( memcmp(zLine, "C ", 2)==0 ){
+    if( strncmp(zLine, "C ", 2)==0 ){
       int nFrom;
       import_prior_files();
       z = &zLine[2];
@@ -667,7 +667,7 @@ static void git_fast_import(FILE *pIn){
         pNew->isFrom = 0;
       }
     }else
-    if( memcmp(zLine, "R ", 2)==0 ){
+    if( strncmp(zLine, "R ", 2)==0 ){
       int nFrom;
       import_prior_files();
       z = &zLine[2];
@@ -695,10 +695,10 @@ static void git_fast_import(FILE *pIn){
       }
       fossil_fatal("cannot handle R records, use --full-tree");
     }else
-    if( memcmp(zLine, "deleteall", 9)==0 ){
+    if( strncmp(zLine, "deleteall", 9)==0 ){
       gg.fromLoaded = 1;
     }else
-    if( memcmp(zLine, "N ", 2)==0 ){
+    if( strncmp(zLine, "N ", 2)==0 ){
       /* No-op */
     }else
 

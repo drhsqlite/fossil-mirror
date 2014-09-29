@@ -259,8 +259,8 @@ void transport_flip(UrlData *pUrlData){
   if( pUrlData->isFile ){
     char *zCmd;
     fclose(transport.pFile);
-    zCmd = mprintf("\"%s\" http \"%s\" \"%s\" \"%s\" 127.0.0.1 --localauth",
-       g.nameOfExe, pUrlData->name, transport.zOutFile, transport.zInFile
+    zCmd = mprintf("\"%s\" http \"%s\" \"%s\" 127.0.0.1 \"%s\" --localauth",
+       g.nameOfExe, transport.zOutFile, transport.zInFile, pUrlData->name
     );
     fossil_system(zCmd);
     free(zCmd);

@@ -1628,6 +1628,8 @@ void cgi_handle_scgi_request(void){
 */
 #define HTTP_SERVER_LOCALHOST      0x0001     /* Bind to 127.0.0.1 only */
 #define HTTP_SERVER_SCGI           0x0002     /* SCGI instead of HTTP */
+#define HTTP_SERVER_HAD_REPOSITORY 0x0004     /* Was the repository open? */
+#define HTTP_SERVER_HAD_CHECKOUT   0x0008     /* Was a checkout open? */
 
 #endif /* INTERFACE */
 
@@ -1715,7 +1717,7 @@ int cgi_http_server(
     zBrowser = mprintf(zBrowser, iPort);
 #if defined(__CYGWIN__)
     /* On Cygwin, we can do better than "echo" */
-    if( memcmp(zBrowser, "echo ", 5)==0 ){
+    if( strncmp(zBrowser, "echo ", 5)==0 ){
       wchar_t *wUrl = fossil_utf8_to_unicode(zBrowser+5);
       wUrl[wcslen(wUrl)-2] = 0; /* Strip terminating " &" */
       if( (size_t)ShellExecuteW(0, L"open", wUrl, 0, 0, 1)<33 ){
