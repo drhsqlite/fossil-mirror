@@ -1,5 +1,5 @@
-C Some\sJavaScript\scoding\sstyle\supdates.
-D 2014-09-27T22:03:27.404
+C Merge\supdates\sfrom\strunk.
+D 2014-09-30T15:13:19.366
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -378,7 +378,7 @@ F src/main.c a3843140db960c805edb94c6a6e4af7588ed9533
 F src/main.mk 8a61014e8f6768cde4ea1d6c3c31906e6d9d3646
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl e562e306eb791c686e1dc02aab7357da53096f0a
+F src/makemake.tcl e9b476c6e053ce4b03f0408fd836ef4b96799fd6
 F src/manifest.c bfd3b0bd215ec9c522e26a9f07d19194455e5d14
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
@@ -543,9 +543,9 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 11974d1b5453eb4bb9756b48f384d610dd6e817a
 F win/Makefile.dmc db781be43581f5dc81b0be9cdfcae986daacad84
-F win/Makefile.mingw e530bd752e416c5e46e05af736a6785858b1f503
-F win/Makefile.mingw.mistachkin 3a14fe911cb2f9765a65a263430d2be73e325526
-F win/Makefile.msc 031b0c09d19a034de75a7273d7c1f99c83e26b79
+F win/Makefile.mingw 503d32cefb17f3163601b05e7a06270035b9f259
+F win/Makefile.mingw.mistachkin c74b955e0a60b5fea57bb1538aee2ca91db63d4d
+F win/Makefile.msc 09430c7f0b21bb9d92b2119301cdec0ccc148aed
 F win/buildmsvc.bat bff32737fe1270faa7fafcea5f091779ec74de8a
 F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -573,7 +573,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki ebac2e6d42b1fdd2c7976e4ccfcd94123dd9994b
+F www/build.wiki 552e2b57c33a5f7e1c6bd84bfaaf796e357d2d28
 F www/changes.wiki 493c4a8e85b11dd73e871ea55a5c3a76d2578f16
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bdf233a7147d0c35c38d23a3f83476e8a14e7d4d
-R 7facebb9b07083fd13cf088b0f5c8fee
+P df0e48e0ab0badf2451d09d8242ea04f56caaf65 a072137b03e3dc1c78f912b998a9cd9ba1667942
+R d43de7c62f4bb110eaadcba24e7d183a
 U mistachkin
-Z adfc02150d1e3796935fbf4906c163f7
+Z b3d5b4ca2e8c9d1644f6799fc4e6b632
