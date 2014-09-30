@@ -555,58 +555,83 @@ void user_edit(void){
 #define B(x) inherit[x]
   @ <table border=0><tr><td valign="top">
   if( g.perm.Setup ){
-    @  <label><input type="checkbox" name="as"%s(oa['s']) onchange="updateCapabilityString()"/>
+    @  <label><input type="checkbox" name="as"%s(oa['s'])
+    @                onchange="updateCapabilityString()"/>
     @  Setup%s(B('s'))</label><br />
   }
-  @  <label><input type="checkbox" name="aa"%s(oa['a']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="aa"%s(oa['a'])
+  @                onchange="updateCapabilityString()" />
   @  Admin%s(B('a'))</label><br />
-  @  <label><input type="checkbox" name="ad"%s(oa['d']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ad"%s(oa['d'])
+  @                onchange="updateCapabilityString()" />
   @  Delete%s(B('d'))</label><br />
-  @  <label><input type="checkbox" name="ae"%s(oa['e']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ae"%s(oa['e'])
+  @                onchange="updateCapabilityString()" />
   @  Email%s(B('e'))</label><br />
-  @  <label><input type="checkbox" name="ap"%s(oa['p']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ap"%s(oa['p'])
+  @                onchange="updateCapabilityString()" />
   @  Password%s(B('p'))</label><br />
-  @  <label><input type="checkbox" name="ai"%s(oa['i']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ai"%s(oa['i'])
+  @                onchange="updateCapabilityString()" />
   @  Check-In%s(B('i'))</label><br />
-  @  <label><input type="checkbox" name="ao"%s(oa['o']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ao"%s(oa['o'])
+  @                onchange="updateCapabilityString()" />
   @  Check-Out%s(B('o'))</label><br />
-  @  <label><input type="checkbox" name="ah"%s(oa['h']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ah"%s(oa['h'])
+  @                onchange="updateCapabilityString()" />
   @  Hyperlinks%s(B('h'))</label><br />
-  @  <label><input type="checkbox" name="ab"%s(oa['b']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ab"%s(oa['b'])
+  @                onchange="updateCapabilityString()" />
   @  Attachments%s(B('b'))</label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="au"%s(oa['u']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="au"%s(oa['u'])
+  @                onchange="updateCapabilityString()" />
   @  Reader%s(B('u'))</label><br />
-  @  <label><input type="checkbox" name="av"%s(oa['v']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="av"%s(oa['v'])
+  @                onchange="updateCapabilityString()" />
   @  Developer%s(B('v'))</label><br />
-  @  <label><input type="checkbox" name="ag"%s(oa['g']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ag"%s(oa['g'])
+  @                onchange="updateCapabilityString()" />
   @  Clone%s(B('g'))</label><br />
-  @  <label><input type="checkbox" name="aj"%s(oa['j']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="aj"%s(oa['j'])
+  @                onchange="updateCapabilityString()" />
   @  Read Wiki%s(B('j'))</label><br />
-  @  <label><input type="checkbox" name="af"%s(oa['f']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="af"%s(oa['f'])
+  @                onchange="updateCapabilityString()" />
   @  New Wiki%s(B('f'))</label><br />
-  @  <label><input type="checkbox" name="am"%s(oa['m']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="am"%s(oa['m'])
+  @                onchange="updateCapabilityString()" />
   @  Append Wiki%s(B('m'))</label><br />
-  @  <label><input type="checkbox" name="ak"%s(oa['k']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ak"%s(oa['k'])
+  @                onchange="updateCapabilityString()" />
   @  Write Wiki%s(B('k'))</label><br />
-  @  <label><input type="checkbox" name="al"%s(oa['l']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="al"%s(oa['l'])
+  @                onchange="updateCapabilityString()" />
   @  Moderate Wiki%s(B('l'))</label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="ar"%s(oa['r']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ar"%s(oa['r'])
+  @                onchange="updateCapabilityString()" />
   @  Read Ticket%s(B('r'))</label><br />
-  @  <label><input type="checkbox" name="an"%s(oa['n']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="an"%s(oa['n'])
+  @                onchange="updateCapabilityString()" />
   @  New Tickets%s(B('n'))</label><br />
-  @  <label><input type="checkbox" name="ac"%s(oa['c']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ac"%s(oa['c'])
+  @                onchange="updateCapabilityString()" />
   @  Append To Ticket%s(B('c'))</label><br />
-  @  <label><input type="checkbox" name="aw"%s(oa['w']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="aw"%s(oa['w'])
+  @                onchange="updateCapabilityString()" />
   @  Write Tickets%s(B('w'))</label><br />
-  @  <label><input type="checkbox" name="aq"%s(oa['q']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="aq"%s(oa['q'])
+  @                onchange="updateCapabilityString()" />
   @  Moderate Tickets%s(B('q'))</label><br />
-  @  <label><input type="checkbox" name="at"%s(oa['t']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="at"%s(oa['t'])
+  @                onchange="updateCapabilityString()" />
   @  Ticket Report%s(B('t'))</label><br />
-  @  <label><input type="checkbox" name="ax"%s(oa['x']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ax"%s(oa['x'])
+  @                onchange="updateCapabilityString()" />
   @  Private%s(B('x'))</label><br />
-  @  <label><input type="checkbox" name="az"%s(oa['z']) onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="az"%s(oa['z'])
+  @                onchange="updateCapabilityString()" />
   @  Download Zip%s(B('z'))</label>
   @ </td></tr>
   @ </table>
