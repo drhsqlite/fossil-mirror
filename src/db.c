@@ -1332,13 +1332,13 @@ void db_setup_server_and_project_codes(
     );
   }else{
     if( db_get("server-code", 0)==0 ) {
-      db_optional_sql("repository",
+      db_multi_exec(
           "INSERT INTO config(name,value,mtime)"
           " VALUES('server-code', lower(hex(randomblob(20))),now());"
       );
     }
     if( db_get("project-code", 0)==0 ) {
-      db_optional_sql("repository",
+      db_multi_exec(
           "INSERT INTO config(name,value,mtime)"
           " VALUES('project-code', lower(hex(randomblob(20))),now());"
       );

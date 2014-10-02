@@ -1,5 +1,5 @@
-C Correct\sdirectory\sdetection\sin\sthe\sMSVC\smakefile\sto\spermit\sthe\sbatch\sbuilding\stool\sto\sfunction\sproperly.
-D 2014-09-29T19:59:25.192
+C After\stesting\sin\sa\sreal\sdocker\scontainer,\sit\sturns\sout\sthat\s"db_optional_sql()"\sdoesn't\sdo\sanything\shere.\sNo\sidea\swhy,\sbut\s"db_multi_exec()"\sworks\sfine.
+D 2014-10-02T13:45:07.329
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -332,7 +332,7 @@ F src/content.c ef8da0287cc50af631daec6886f56b458aa1e4fc
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c c4aa4cec42b705f598aff0276f099e4cebff7f0e
+F src/db.c c53c28ffcd555ba1c9a320d6d6c529ccf4441815
 F src/delta.c d1b0598adcd650b3551f63b17dfc864e73775c3d
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c aa22ca67ab417d0e854778f9d5c172b6d2f2c938
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 86de8cbeb505eda64453138fdf6876f9cff520ba
-R 904b5f363ea3ff16671a04aa5ec4e923
-U mistachkin
-Z 27d27c50d48eafe200138ec756b51d26
+P a072137b03e3dc1c78f912b998a9cd9ba1667942
+R 116687308e3505da4b8aec5ac21294d2
+U jan.nijtmans
+Z 58433c577797e65c791d9a2ebf994b0d
