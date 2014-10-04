@@ -1862,6 +1862,8 @@ int client_sync(
                 url_prompt_for_password();
                 url_remember();
               }
+            }else{
+              nErr++;
             }
           }else{
             blob_appendf(&xfer.err, "server says: %s\n", zMsg);
