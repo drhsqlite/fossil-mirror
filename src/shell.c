@@ -1178,8 +1178,10 @@ static int display_stats(
     fprintf(pArg->out, "Sort Operations:                     %d\n", iCur);
     iCur = sqlite3_stmt_status(pArg->pStmt, SQLITE_STMTSTATUS_AUTOINDEX, bReset);
     fprintf(pArg->out, "Autoindex Inserts:                   %d\n", iCur);
-    iCur = sqlite3_stmt_status(pArg->pStmt, SQLITE_STMTSTATUS_VM_STEP, bReset);
-    fprintf(pArg->out, "Virtual Machine Steps:               %d\n", iCur);
+    if( sqlite3_libversion_number()>=3008000 ){
+      iCur = sqlite3_stmt_status(pArg->pStmt, SQLITE_STMTSTATUS_VM_STEP, bReset);
+      fprintf(pArg->out, "Virtual Machine Steps:               %d\n", iCur);
+    }
   }
 
   return 0;
@@ -1352,6 +1354,17 @@ static int shell_exec(
         sqlite3_finalize(pExplain);
         sqlite3_free(zEQP);
       }
+
+#if USE_SYSTEM_SQLITE+0==1
+      /* Output TESTCTRL_EXPLAIN text of requested */
+      if( pArg && pArg->mode==MODE_Explain && sqlite3_libversion_number()<3008007 ){
+        const char *zExplain = 0;
+        sqlite3_test_control(SQLITE_TESTCTRL_EXPLAIN_STMT, pStmt, &zExplain);
+        if( zExplain && zExplain[0] ){
+          fprintf(pArg->out, "%s", zExplain);
+        }
+      }
+#endif
 
       /* If the shell is currently in ".explain" mode, gather the extra
       ** data required to add indents to the output.*/
@@ -3725,7 +3738,6 @@ static int process_input(ShellState *p, FILE *in){
   if( nSql ){
     if( !_all_whitespace(zSql) ){
       fprintf(stderr, "Error: incomplete SQL: %s\n", zSql);
-      errCnt++;
     }
     free(zSql);
   }
