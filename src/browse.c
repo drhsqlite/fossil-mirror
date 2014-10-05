@@ -181,7 +181,7 @@ void page_dir(void){
                           url_render(&sURI, "ci", "tip", 0, 0));
   }
   if( zCI ){
-    @ <h2>Files of check-in [%z(href("vinfo?name=%s",zUuid))%.10s(zUuid)</a>]
+    @ <h2>Files of check-in [%z(href("vinfo?name=%s",zUuid))%S(zUuid)</a>]
     @ %s(blob_str(&dirname))</h2>
     zSubdirLink = mprintf("%R/dir?ci=%s&name=%T", zUuid, zPrefix);
     if( nD==0 ){
@@ -497,7 +497,7 @@ void page_tree(void){
     style_submenu_element("Trunk", "Trunk", "%s",
                           url_render(&sURI, "ci", "trunk", 0, 0));
   }
-  if ( linkTip ){
+  if( linkTip ){
     style_submenu_element("Tip", "Tip", "%s",
                           url_render(&sURI, "ci", "tip", 0, 0));
   }
@@ -722,7 +722,7 @@ const char *fileext_class(const char *zFilename){
   for( i=1; isExt && zExt[i]; i++ ) isExt &= fossil_isalnum(zExt[i]);
   if( isExt ){
     zClass = mprintf("file file-%s", zExt+1);
-    for ( i=5; zClass[i]; i++ ) zClass[i] = fossil_tolower(zClass[i]);
+    for( i=5; zClass[i]; i++ ) zClass[i] = fossil_tolower(zClass[i]);
   }else{
     zClass = mprintf("file");
   }
@@ -736,7 +736,7 @@ const char *fileext_class(const char *zFilename){
 ** mtime on that checkin. If zGlob and *zGlob then only files matching
 ** the given glob are computed.
 */
-int compute_fileage(int vid, char const * zGlob){
+int compute_fileage(int vid, const char* zGlob){
   Manifest *pManifest;
   ManifestFile *pFile;
   int nFile = 0;
@@ -819,7 +819,7 @@ void fileage_page(void){
   int rid;
   const char *zName;
   char *zBaseTime;
-  char const * zGlob;
+  const char *zGlob;
   Stmt q;
   double baseTime;
   int lastMid = -1;

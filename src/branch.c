@@ -178,7 +178,7 @@ void branch_new(void){
   db_end_transaction(0);
 
   /* Do an autosync push, if requested */
-  if( !isPrivate ) autosync(SYNC_PUSH);
+  if( !isPrivate ) autosync_loop(SYNC_PUSH, db_get_int("autosync-tries", 1));
 }
 
 /*
@@ -254,9 +254,6 @@ void branch_cmd(void){
   int n;
   const char *zCmd = "list";
   db_find_and_open_repository(0, 0);
-  if( g.argc<2 ){
-    usage("new|list|ls ...");
-  }
   if( g.argc>=3 ) zCmd = g.argv[2];
   n = strlen(zCmd);
   if( strncmp(zCmd,"new",n)==0 ){
@@ -336,7 +333,7 @@ void brlist_page(void){
   @ <div class="sideboxDescribed">%z(href("leaves?closed"))
   @ closed leaves</a></div>.
   @ Closed branches are fixed and do not change (unless they are first
-  @ reopened)</li>
+  @ reopened).</li>
   @ </ol>
   style_sidebox_end();
 

@@ -44,9 +44,8 @@ standard [http://www.sqlite.org/amalgamation.html | amalgamation].
 The shell.c source file is code for the SQLite
 [http://www.sqlite.org/sqlite.html | command-line shell] that is used
 to help implement the [/help/sqlite3 | fossil sql] command.  The
-shell.c source file has been modified slightly from the standard
-shell.c file in the SQLite release.  Search for "Fossil Patch" in
-the shell.c source file of Fossil to see the changes.
+shell.c source file is also a byte-for-byte copy of the
+shell.c file from the SQLite release.
 
 The TH1 script engine is implemented using files:
 

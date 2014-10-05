@@ -129,6 +129,10 @@ void clone_cmd(void){
   zDefaultUser = find_option("admin-user","A",1);
   clone_ssh_find_options();
   url_proxy_options();
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
   }
@@ -197,6 +201,7 @@ void clone_cmd(void){
   fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(0, 1, 0);
   fossil_print("project-id: %s\n", db_get("project-code", 0));
+  fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
   db_end_transaction(0);
@@ -236,8 +241,9 @@ void remember_or_get_http_auth(
 */
 char *get_httpauth(void){
   char *zKey = mprintf("http-auth:%s", g.url.canonical);
-  return unobscure(db_get(zKey, 0));
+  char * rc = unobscure(db_get(zKey, 0));
   free(zKey);
+  return rc;
 }
 
 /*

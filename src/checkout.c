@@ -69,7 +69,7 @@ int load_vfile(const char *zName, int forceMissingFlag){
     fossil_fatal("no such check-in: %s", g.argv[2]);
   }
   if( !is_a_version(vid) ){
-    fossil_fatal("object [%.10s] is not a check-in", blob_str(&uuid));
+    fossil_fatal("object [%S] is not a check-in", blob_str(&uuid));
   }
   if( load_vfile_from_rid(vid) && !forceMissingFlag ){
     fossil_fatal("missing content, unable to checkout");
@@ -139,10 +139,11 @@ void manifest_to_disk(int vid){
     blob_zero(&manifest);
     content_get(vid, &manifest);
     zManFile = mprintf("%smanifest", g.zLocalRoot);
-    blob_write_to_file(&manifest, zManFile);
-    free(zManFile);
     blob_zero(&hash);
     sha1sum_blob(&manifest, &hash);
+    sterilize_manifest(&manifest);
+    blob_write_to_file(&manifest, zManFile);
+    free(zManFile);
     zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
     blob_append(&hash, "\n", 1);
     blob_write_to_file(&hash, zManFile);
@@ -203,6 +204,10 @@ void checkout_cmd(void){
   keepFlag = find_option("keep",0,0)!=0;
   latestFlag = find_option("latest",0,0)!=0;
   promptFlag = find_option("prompt",0,0)!=0 || forceFlag==0;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( (latestFlag!=0 && g.argc!=2) || (latestFlag==0 && g.argc!=3) ){
      usage("VERSION|--latest ?--force? ?--keep?");
   }
@@ -294,6 +299,10 @@ static void unlink_local_database(int manifestOnly){
 void close_cmd(void){
   int forceFlag = find_option("force","f",0)!=0;
   db_must_be_within_tree();
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( !forceFlag && unsaved_changes(0) ){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
@@ -305,7 +314,7 @@ void close_cmd(void){
     fossil_fatal("closing the checkout will delete your stash");
   }
   if( db_is_writeable("repository") ){
-    char * zUnset = mprintf("ckout:%q", g.zLocalRoot);
+    char *zUnset = mprintf("ckout:%q", g.zLocalRoot);
     db_unset(zUnset, 1);
     fossil_free(zUnset);
   }

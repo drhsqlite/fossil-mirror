@@ -390,7 +390,7 @@ void style_footer(void){
   @ <div class="content">
   cgi_destination(CGI_BODY);
 
-  if (sideboxUsed) {
+  if( sideboxUsed ){
     /* Put the footer at the bottom of the page.
     ** the additional clear/both is needed to extend the content
     ** part to the end of an optional sidebox.
@@ -659,9 +659,9 @@ const char zDefaultCSS[] =
 ** CSS.
 */
 const struct strctCssDefaults {
-  char const * const elementClass;  /* Name of element needed */
-  char const * const comment;       /* Comment text */
-  char const * const value;         /* CSS text */
+  const char *elementClass;  /* Name of element needed */
+  const char *comment;       /* Comment text */
+  const char *value;         /* CSS text */
 } cssDefaultList[] = {
   { "",
     "",
@@ -936,18 +936,22 @@ const struct strctCssDefaults {
   { "span.ueditInheritNobody",
     "color for capabilities, inherited by nobody",
     @   color: green;
+    @   padding: .2em;
   },
   { "span.ueditInheritDeveloper",
     "color for capabilities, inherited by developer",
     @   color: red;
+    @   padding: .2em;
   },
   { "span.ueditInheritReader",
     "color for capabilities, inherited by reader",
     @   color: black;
+    @   padding: .2em;
   },
   { "span.ueditInheritAnonymous",
     "color for capabilities, inherited by anonymous",
     @   color: blue;
+    @   padding: .2em;
   },
   { "span.capability",
     "format for capabilities, mentioned on the user edit page",
@@ -1194,6 +1198,10 @@ const struct strctCssDefaults {
     "odd table row color",
     @ /* Use default */
   },
+  { "#usetupEditCapability",
+    "format for capabilities string, mentioned on the user edit page",
+    @ font-weight: bold;
+  },
   { "#canvas", "timeline graph node colors",
     @ color: black;
     @ background-color: white;
@@ -1210,8 +1218,8 @@ const struct strctCssDefaults {
 void cgi_append_default_css(void) {
   int i;
 
-  for (i=0;cssDefaultList[i].elementClass;i++){
-    if (cssDefaultList[i].elementClass[0]){
+  for( i=0; cssDefaultList[i].elementClass; i++ ){
+    if( cssDefaultList[i].elementClass[0] ){
       cgi_printf("/* %s */\n%s {\n%s\n}\n\n",
                  cssDefaultList[i].comment,
                  cssDefaultList[i].elementClass,

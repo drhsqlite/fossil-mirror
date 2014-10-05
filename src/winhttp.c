@@ -34,6 +34,7 @@ struct HttpRequest {
   int id;                /* ID counter */
   SOCKET s;              /* Socket on which to receive data */
   SOCKADDR_IN addr;      /* Address from which data is coming */
+  int flags;             /* Flags passed to win32_http_server() */
   const char *zOptions;  /* --notfound and/or --localauth options */
 };
 
@@ -113,10 +114,22 @@ static void win32_http_request(void *pAppData){
   }
   fclose(out);
   out = 0;
-  sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s\n%s",
-    get_utf8_bom(0), g.zRepositoryName, zRequestFName, zReplyFName,
-    inet_ntoa(p->addr.sin_addr)
-  );
+  /*
+  ** The repository name is only needed if there was no open checkout.  This
+  ** is designed to allow the open checkout for the interactive user to work
+  ** with the local Fossil server started via the "ui" command.
+  */
+  if( (p->flags & HTTP_SERVER_HAD_CHECKOUT)==0 ){
+    assert( g.zRepositoryName && g.zRepositoryName[0] );
+    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s\n%s",
+      get_utf8_bom(0), zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr),
+      g.zRepositoryName
+    );
+  }else{
+    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s",
+      get_utf8_bom(0), zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr)
+    );
+  }
   out = fossil_fopen(zCmdFName, "wb");
   if( out==0 ) goto end_request;
   fwrite(zCmd, 1, strlen(zCmd), out);
@@ -182,10 +195,11 @@ static void win32_scgi_request(void *pAppData){
   }
   fclose(out);
   out = 0;
+  assert( g.zRepositoryName && g.zRepositoryName[0] );
   sqlite3_snprintf(sizeof(zCmd), zCmd,
-    "\"%s\" http \"%s\" %s %s %s --scgi --nossl%s",
-    g.nameOfExe, g.zRepositoryName, zRequestFName, zReplyFName,
-    inet_ntoa(p->addr.sin_addr), p->zOptions
+    "\"%s\" http \"%s\" \"%s\" %s \"%s\" --scgi --nossl%s",
+    g.nameOfExe, zRequestFName, zReplyFName, inet_ntoa(p->addr.sin_addr),
+    g.zRepositoryName, p->zOptions
   );
   fossil_system(zCmd);
   in = fossil_fopen(zReplyFName, "rb");
@@ -320,6 +334,7 @@ void win32_http_server(
     p->id = ++idCnt;
     p->s = client;
     p->addr = client_addr;
+    p->flags = flags;
     p->zOptions = blob_str(&options);
     if( flags & HTTP_SERVER_SCGI ){
       _beginthread(win32_scgi_request, 0, (void*)p);
@@ -676,7 +691,7 @@ void cmd_win32_service(void){
     const char *zNotFound   = find_option("notfound", 0, 1);
     const char *zFileGlob   = find_option("files", 0, 1);
     const char *zLocalAuth  = find_option("localauth", 0, 0);
-    const char *zRepository = find_option("repository", "R", 1);
+    const char *zRepository = find_repository_option();
     int useSCGI             = find_option("scgi", 0, 0)!=0;
     Blob binPath;
 
@@ -684,11 +699,16 @@ void cmd_win32_service(void){
     if( g.argc==4 ){
       zSvcName = g.argv[3];
     }else if( g.argc>4 ){
-      fossil_fatal("to much arguments for create method.");
+      fossil_fatal("too many arguments for create method.");
     }
     /* Process service creation specific options. */
     if( !zDisplay ){
       zDisplay = zSvcName;
+    }
+    /* Per MSDN, the password parameter cannot be NULL.  Must use empty
+    ** string instead (i.e. in the call to CreateServiceW). */
+    if( !zPassword ){
+      zPassword = "";
     }
     if( zStart ){
       if( strncmp(zStart, "auto", strlen(zStart))==0 ){
@@ -738,7 +758,7 @@ void cmd_win32_service(void){
              NULL,                                    /* Load ordering group */
              NULL,                                    /* Tag value */
              NULL,                                    /* Service dependencies */
-             fossil_utf8_to_unicode(zUsername),       /* Service account */
+             zUsername ? fossil_utf8_to_unicode(zUsername) : 0, /* Account */
              fossil_utf8_to_unicode(zPassword)        /* Account password */
            );
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
@@ -758,7 +778,7 @@ void cmd_win32_service(void){
     if( g.argc==4 ){
       zSvcName = g.argv[3];
     }else if( g.argc>4 ){
-      fossil_fatal("to much arguments for delete method.");
+      fossil_fatal("too many arguments for delete method.");
     }
     hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
@@ -827,7 +847,7 @@ void cmd_win32_service(void){
     if( g.argc==4 ){
       zSvcName = g.argv[3];
     }else if( g.argc>4 ){
-      fossil_fatal("to much arguments for show method.");
+      fossil_fatal("too many arguments for show method.");
     }
     hScm = OpenSCManagerW(NULL, NULL, GENERIC_READ);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
@@ -909,7 +929,7 @@ void cmd_win32_service(void){
     if( g.argc==4 ){
       zSvcName = g.argv[3];
     }else if( g.argc>4 ){
-      fossil_fatal("to much arguments for start method.");
+      fossil_fatal("too many arguments for start method.");
     }
     hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
@@ -946,7 +966,7 @@ void cmd_win32_service(void){
     if( g.argc==4 ){
       zSvcName = g.argv[3];
     }else if( g.argc>4 ){
-      fossil_fatal("to much arguments for stop method.");
+      fossil_fatal("too many arguments for stop method.");
     }
     hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());

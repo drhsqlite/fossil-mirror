@@ -126,7 +126,7 @@ section details the "x-fossil" content type.</p>
 <h3>3.1 Line-oriented Format</h3>
 
 <p>The x-fossil content type consists of zero or more "cards".  Cards
-are separate by the newline character ("\n").  Leading and trailing
+are separated by the newline character ("\n").  Leading and trailing
 whitespace on a card is ignored.  Blank cards are ignored.</p>
 
 <p>Each card is divided into zero or more space separated tokens.
@@ -161,11 +161,17 @@ specified user.</p>
 login cards.  The session privileges are the bit-wise OR of the
 privileges of each individual login.</p>
 
-<h3>3.3 File Cards</h3>
+<h3>3.3 File and Compressed File Cards</h3>
 
-<p>Artifacts are transferred using "file" cards.  (The name "file"
-card comes from the fact that most artifacts correspond to files.)
-File cards come in two different formats depending
+<p>Artifacts are transferred using either "file" cards, or "cfile" cards.
+(The name "file" card comes from the fact that most artifacts correspond to 
+files, and "cfile" is just a compressed file.)
+</p>
+
+<h4>3.3.1 File Cards</h4>
+
+<p>For sync protocols, artifacts are transferred using "file"
+cards.  File cards come in two different formats depending
 on whether the artifact is sent directly or as a delta from some
 other artifact.</p>
 
@@ -178,7 +184,7 @@ other artifact.</p>
 followed by in-line "payload" data.  The content of the artifact
 or the artifact delta consists of the first <i>size</i> bytes of the
 x-fossil content that immediately follow the newline that
-terminates the file card.  No other cards have this characteristic.
+terminates the file card.  Only file and cfile cards have this characteristic.
 </p>
 
 <p>The first argument of a file card is the ID of the artifact that
@@ -196,11 +202,44 @@ server to client.  A delta might be sent before the source of
 the delta, so both client and server should remember deltas
 and be able to apply them when their source arrives.</p>
 
+<h4>3.3.2 Compressed File Cards</h4>
+
+<p>A client that sends a clone protocol version "3" or greater will
+receive artifacts as "cfile" cards while cloning.  This card was
+introduced to improve the speed of the transfer of content by sending the
+compressed artifact directly from the server database to the client.</p>
+
+<p>Compressed File cards are similar to File cards, sharing the same
+in-line "payload" data characteristics and also the same treatment of
+direct content or delta content.  It comes in two different formats
+depending on whether the artifact is sent directly or as a delta from
+some other artifact.</p>
+
+<blockquote>
+<b>cfile</b> <i>artifact-id usize csize</i> <b>\n</b> <i>content</i><br>
+<b>cfile</b> <i>artifact-id delta-artifact-id usize csize</i> <b>\n</b> <i>content</i><br>
+</blockquote>
+
+<p>The first argument of the cfile card is the ID of the artifact that
+is being transferred.  The artifact ID is the lower-case hexadecimal
+representation of the SHA1 hash of the artifact.  The second argument of
+the cfile card is the original size in bytes of the artifact.  The last
+argument of the cfile card is the number of compressed bytes of payload
+that immediately follow the cfile card.  If the cfile card has only
+three arguments, that means the payload is the complete content of the
+artifact.  If the cfile card has four arguments, then the payload is a
+delta and the second argument is the ID of another artifact that is the
+source of the delta and the third argument is the original size of the
+delta artifact.</p>
+
+<p>Unlike file cards, cfile cards are only sent in one direction during a 
+clone from server to client for clone protocol version "3" or greater.</p>
+
 <h3>3.4 Push and Pull Cards</h3>
 
-<p>Among of the first cards in a client-to-server message are
-the push and pull cards.  The push card tell the server that
-the client is pushing content.  The pull card tell the server
+<p>Among the first cards in a client-to-server message are
+the push and pull cards.  The push card tells the server that
+the client is pushing content.  The pull card tells the server
 that the client wants to pull content.  In the event of a sync,
 both cards are sent.  The format is as follows:</p>
 
@@ -234,13 +273,20 @@ two-argument format.</p>
 <b>clone</b> <i>protocol-version sequence-number</i>
 </blockquote>
 
-<h4>3.5.1 Protocol 2</h4>
+<h4>3.5.1 Protocol 3</h4>
 
 <p>The latest clients send a two-argument clone message with a
-protocol version of "2".  (Future versions of Fossil might use larger
-protocol version numbers.)  The sequence-number sent is the number
+protocol version of "3".   (Future versions of Fossil might use larger
+protocol version numbers.)  Version "3" of the protocol enhanced version
+"2" by introducing the "cfile" card which is intended to speed up clone
+operations.  Instead of sending "file" cards, the server will send "cfile"
+cards</p>
+
+<h4>3.5.2 Protocol 2</h4>
+
+<p>The sequence-number sent is the number
 of artifacts received so far.  For the first clone message, the
-sequence number if 0.  The server will respond by sending file
+sequence number is 0.  The server will respond by sending file
 cards for some number of artifacts up to the maximum message size.
 
 <p>The server will also send a single "clone_seqno" card to the client
@@ -250,7 +296,7 @@ so that the client can know where the server left off.
 <b>clone_seqno</b>  <i>sequence-number</i>
 </blockquote>
 
-<p>The clone message in subquence HTTP requests for the same clone
+<p>The clone message in subsequent HTTP requests for the same clone
 operation will use the sequence-number from the
 clone_seqno of the previous reply.</p>
 
@@ -258,7 +304,7 @@ clone_seqno of the previous reply.</p>
 a push message so that the client can discover the projectcode for
 this project.</p>
 
-<h4>3.5.2 Legacy Protocol</h4>
+<h4>3.5.3 Legacy Protocol</h4>
 
 <p>Older clients send a clone card with no argument.  The server responds
 to a blank clone card by sending an "igot" card for every artifact in the
@@ -449,10 +495,10 @@ described above, then it generates an error and aborts.</p>
 
 <h2>4.0 Phantoms And Clusters</h2>
 
-<p>When a repository knows that a artifact exists and knows the ID of
+<p>When a repository knows that an artifact exists and knows the ID of
 that artifact, but it does not know the artifact content, then it stores that
 artifact as a "phantom".  A repository will typically create a phantom when
-it receives an igot card for a artifact that it does not hold or when it
+it receives an igot card for an artifact that it does not hold or when it
 receives a file card that references a delta source that it does not
 hold.  When a server is generating its reply or when a client is
 generating a new request, it will usually send gimme cards for every
@@ -470,7 +516,7 @@ whitespace is allowed.  All cards in the cluster must occur in
 strict lexicographical order.</p>
 
 <p>A cluster consists of one or more "M" cards followed by a single
-"Z" card.  Each M card holds an argument which is a artifact ID for an
+"Z" card.  Each M card holds an argument which is an artifact ID for an
 artifact in the repository.  The Z card has a single argument which is the
 lower-case hexadecimal representation of the MD5 checksum of all
 preceding M cards up to and included the newline character that

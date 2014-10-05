@@ -31,7 +31,7 @@
 ** Either one of tkt= or page= are supplied or neither.  If neither
 ** are given, all attachments are listed.  If one is given, only
 ** attachments for the designated ticket or wiki page are shown.
-** TICKETUUID must be complete 
+** TICKETUUID must be complete
 */
 void attachlist_page(void){
   const char *zPage = P("page");
@@ -55,7 +55,7 @@ void attachlist_page(void){
     blob_appendf(&sql, " WHERE target=%Q", zPage);
   }else if( zTkt ){
     if( g.perm.RdTkt==0 ) login_needed();
-    style_header("Attachments To Ticket %.10s", zTkt);
+    style_header("Attachments To Ticket %S", zTkt);
     blob_appendf(&sql, " WHERE target GLOB '%q*'", zTkt);
   }else{
     if( g.perm.RdTkt==0 && g.perm.RdWiki==0 ) login_needed();
@@ -77,7 +77,7 @@ void attachlist_page(void){
     int i;
     char *zUrlTail;
     for(i=0; zFilename[i]; i++){
-      if( zFilename[i]=='/' && zFilename[i+1]!=0 ){ 
+      if( zFilename[i]=='/' && zFilename[i+1]!=0 ){
         zFilename = &zFilename[i+1];
         i = -1;
       }
@@ -255,7 +255,7 @@ void attachadd_page(void){
   }else{
     if( g.perm.ApndTkt==0 || g.perm.Attach==0 ) login_needed();
     if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'", zTkt) ){
-      zTkt = db_text(0, "SELECT substr(tagname,5) FROM tag" 
+      zTkt = db_text(0, "SELECT substr(tagname,5) FROM tag"
                         " WHERE tagname GLOB 'tkt-%q*'", zTkt);
       if( zTkt==0 ) fossil_redirect_home();
     }
@@ -290,8 +290,8 @@ void attachadd_page(void){
       addCompress = 1;
     }
     needModerator =
-         (zTkt!=0 && g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1) ||
-         (zPage!=0 && g.perm.ModWiki==0 && db_get_boolean("modreq-wiki",0)==1);
+         (zTkt!=0 && ticket_need_moderation(0)) ||
+         (zPage!=0 && wiki_need_moderation(0));
     rid = content_put_ex(&content, 0, 0, 0, needModerator);
     zUUID = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     blob_zero(&manifest);
@@ -367,6 +367,8 @@ void ainfo_page(void){
   int isModerator;               /* TRUE if user is the moderator */
   const char *zMime;             /* MIME Type */
   Blob attach;                   /* Content of the attachment */
+  int fShowContent = 0;
+  const char *zLn = P("ln");
 
   login_check_credentials();
   if( !g.perm.RdTkt && !g.perm.RdWiki ){ login_needed(); return; }
@@ -393,6 +395,8 @@ void ainfo_page(void){
   ridSrc = db_int(0,"SELECT rid FROM blob WHERE uuid='%s'", zSrc);
   zName = pAttach->zAttachName;
   zDesc = pAttach->zComment;
+  zMime = mimetype_from_name(zName);
+  fShowContent = zMime ? strncmp(zMime,"text/", 5)==0 : 0;
   if( validate16(zTarget, strlen(zTarget))
    && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid='%s'", zTarget)
   ){
@@ -447,7 +451,7 @@ void ainfo_page(void){
     @ </form>
   }
 
-  isModerator = g.perm.Admin || 
+  isModerator = g.perm.Admin ||
                 (zTktUuid && g.perm.ModTkt) ||
                 (zWikiName && g.perm.ModWiki);
   if( isModerator && (zModAction = P("modaction"))!=0 ){
@@ -466,6 +470,11 @@ void ainfo_page(void){
   }
   style_header("Attachment Details");
   style_submenu_element("Raw", "Raw", "%R/artifact/%s", zUuid);
+  if(fShowContent){
+    style_submenu_element("Line Numbers", "Line Numbers",
+                          "%R/ainfo/%s%s",zUuid,
+                          ((zLn&&*zLn) ? "" : "?ln=0"));
+  }
 
   @ <div class="section">Overview</div>
   @ <p><table class="label-value">
@@ -496,13 +505,12 @@ void ainfo_page(void){
     @ (%d(ridSrc))
   }
   @ <tr><th>Filename:</th><td>%h(zName)</td></tr>
-  zMime = mimetype_from_name(zName);
   if( g.perm.Setup ){
     @ <tr><th>MIME-Type:</th><td>%h(zMime)</td></tr>
   }
   @ <tr><th valign="top">Description:</th><td valign="top">%h(zDesc)</td></tr>
   @ </table>
-  
+
   if( isModerator && modPending ){
     @ <div class="section">Moderation</div>
     @ <blockquote>
@@ -519,9 +527,8 @@ void ainfo_page(void){
   @ <div class="section">Content Appended</div>
   @ <blockquote>
   blob_zero(&attach);
-  if( zMime==0 || strncmp(zMime,"text/", 5)==0 ){
+  if( fShowContent ){
     const char *z;
-    const char *zLn = P("ln");
     content_get(ridSrc, &attach);
     blob_to_utf8_no_bom(&attach, 0);
     z = blob_str(&attach);
@@ -559,7 +566,7 @@ void attachment_list(
      "       (SELECT uuid FROM blob WHERE rid=attachid), src"
      "  FROM attachment"
      " WHERE isLatest AND src!='' AND target=%Q"
-     " ORDER BY mtime DESC", 
+     " ORDER BY mtime DESC",
      timeline_utc(), zTarget
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -584,5 +591,5 @@ void attachment_list(
     @ </ul>
   }
   db_finalize(&q);
-  
+
 }

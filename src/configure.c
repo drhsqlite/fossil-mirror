@@ -99,6 +99,12 @@ static struct {
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+  { "th1-docs",               CONFIGSET_TH1 },
+#endif
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+  { "th1-hooks",              CONFIGSET_TH1 },
+#endif
   { "th1-setup",              CONFIGSET_TH1 },
   { "th1-uri-regexp",         CONFIGSET_TH1 },
 
@@ -218,7 +224,7 @@ int configure_is_exportable(const char *zName){
     n -= 2;
   }
   for(i=0; i<count(aConfig); i++){
-    if( memcmp(zName, aConfig[i].zName, n)==0 && aConfig[i].zName[n]==0 ){
+    if( strncmp(zName, aConfig[i].zName, n)==0 && aConfig[i].zName[n]==0 ){
       int m = aConfig[i].groupMask;
       if( !g.perm.Admin ){
         m &= ~CONFIGSET_USER;

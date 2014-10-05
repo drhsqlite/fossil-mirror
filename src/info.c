@@ -134,7 +134,7 @@ void show_common_info(
   free(zTags);
   if( zComment ){
     fossil_print("comment:      ");
-    comment_print(zComment, 14, 79);
+    comment_print(zComment, 0, 14, -1, g.comFmtFlags);
     free(zComment);
   }
 }
@@ -199,10 +199,14 @@ void info_cmd(void){
   if( !verboseFlag ){
     verboseFlag = find_option("detail","l",0)!=0; /* deprecated */
   }
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc==3 && (fsize = file_size(g.argv[2]))>0 && (fsize&0x1ff)==0 ){
     db_open_config(0);
-    db_record_repository_filename(g.argv[2]);
     db_open_repository(g.argv[2]);
+    db_record_repository_filename(g.argv[2]);
     fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
     fossil_print("project-code: %s\n", db_get("project-code", "<none>"));
     extraRepoInfo();
@@ -533,7 +537,7 @@ void ci_page(void){
   sideBySide = !is_false(PD("sbs","1"));
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
-    char *zTitle = mprintf("Check-in [%.10s]", zUuid);
+    char *zTitle = mprintf("Check-in [%S]", zUuid);
     char *zEUser, *zEComment;
     const char *zUser;
     const char *zComment;
@@ -762,8 +766,18 @@ void winfo_page(void){
   if( g.perm.ModWiki && (zModAction = P("modaction"))!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
       moderation_disapprove(rid);
-      cgi_redirectf("%R/wiki?name=%T", pWiki->zWikiTitle);
-      /*NOTREACHED*/
+      /*
+      ** Next, check if the wiki page still exists; if not, we cannot
+      ** redirect to it.
+      */
+      if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
+                    " WHERE rid=%d AND tagname LIKE 'wiki-%%'", rid) ){
+        cgi_redirectf("%R/wiki?name=%T", pWiki->zWikiTitle);
+        /*NOTREACHED*/
+      }else{
+        cgi_redirectf("%R/modreq");
+        /*NOTREACHED*/
+      }
     }
     if( strcmp(zModAction,"approve")==0 ){
       moderation_approve(rid);
@@ -989,6 +1003,8 @@ void vdiff_page(void){
   }
   diffFlags = construct_diff_flags(verboseFlag, sideBySide);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
+  style_submenu_element("Path","path",
+                        "%R/timeline?me=%T&you=%T", zFrom, zTo);
   if( sideBySide || verboseFlag ){
     style_submenu_element("Hide Diff", "hidediff",
                           "%R/vdiff?from=%T&to=%T&sbs=0%s%T%s",
@@ -1061,13 +1077,13 @@ void vdiff_page(void){
       cmp = fossil_strcmp(pFileFrom->zName, pFileTo->zName);
     }
     if( cmp<0 ){
-      if(!zGlob || strglob(zGlob, pFileFrom->zName)){
+      if( !zGlob || sqlite3_strglob(zGlob, pFileFrom->zName)==0 ){
         append_file_change_line(pFileFrom->zName,
                                 pFileFrom->zUuid, 0, 0, diffFlags, pRe, 0);
       }
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
-      if(!zGlob || strglob(zGlob, pFileTo->zName)){
+      if( !zGlob || sqlite3_strglob(zGlob, pFileTo->zName)==0 ){
         append_file_change_line(pFileTo->zName,
                                 0, pFileTo->zUuid, 0, diffFlags, pRe,
                                 manifest_file_mperm(pFileTo));
@@ -1077,8 +1093,8 @@ void vdiff_page(void){
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
     }else{
-      if(!zGlob || (strglob(zGlob, pFileFrom->zName)
-                || strglob(zGlob, pFileTo->zName))){
+      if(!zGlob || (sqlite3_strglob(zGlob, pFileFrom->zName)==0
+                || sqlite3_strglob(zGlob, pFileTo->zName)==0) ){
         append_file_change_line(pFileFrom->zName,
                                 pFileFrom->zUuid,
                                 pFileTo->zUuid, 0, diffFlags, pRe,
@@ -1107,6 +1123,12 @@ void vdiff_page(void){
 #define OBJTYPE_TAG        0x0040
 #define OBJTYPE_SYMLINK    0x0080
 #define OBJTYPE_EXE        0x0100
+
+/*
+** Possible flags for the second parameter to
+** object_description()
+*/
+#define OBJDESC_DETAIL      0x0001   /* more detail */
 #endif
 
 /*
@@ -1126,7 +1148,7 @@ void vdiff_page(void){
 */
 int object_description(
   int rid,                 /* The artifact ID */
-  int linkToView,          /* Add viewer link if true */
+  u32 objdescFlags,        /* Flags to control display */
   Blob *pDownloadName      /* Fill with an appropriate download name */
 ){
   Stmt q;
@@ -1134,7 +1156,7 @@ int object_description(
   int nWiki = 0;
   int objType = 0;
   char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-
+  int showDetail = (objdescFlags & OBJDESC_DETAIL)!=0;
   char *prevName = 0;
 
   db_prepare(&q,
@@ -1162,7 +1184,15 @@ int object_description(
     const char *zVers = db_column_text(&q, 4);
     int mPerm = db_column_int(&q, 5);
     const char *zBr = db_column_text(&q, 6);
-    if( !prevName || fossil_strcmp(zName, prevName) ) {
+    int sameFilename = prevName!=0 && fossil_strcmp(zName,prevName)==0;
+    if( sameFilename && !showDetail ){
+      if( cnt==1 ){
+        @ %z(href("%R/whatis/%s",zUuid))[more...]</a>
+      }
+      cnt++;
+      continue;
+    }
+    if( !sameFilename ){
       if( prevName ) {
         @ </ul>
       }
@@ -1177,17 +1207,26 @@ int object_description(
       }
       objType |= OBJTYPE_CONTENT;
       @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
-      @ <ul>
+      if( showDetail ){
+        @ <ul>
+      }
       prevName = fossil_strdup(zName);
     }
-    @ <li>
-    hyperlink_to_date(zDate,"");
-    @ - part of checkin
-    hyperlink_to_uuid(zVers);
+    if( showDetail ){
+      @ <li>
+      hyperlink_to_date(zDate,"");
+      @ &mdash; part of check-in
+      hyperlink_to_uuid(zVers);
+    }else{
+      @ &mdash; part of checkin
+      hyperlink_to_uuid(zVers);
+      @ at
+      hyperlink_to_date(zDate,"");
+    }
     if( zBr && zBr[0] ){
       @ on branch %z(href("%R/timeline?r=%T",zBr))%h(zBr)</a>
     }
-    @ - %!w(zCom) (user:
+    @ &mdash; %!w(zCom) (user:
     hyperlink_to_user(zUser,zDate,")");
     if( g.perm.Hyperlink ){
       @ %z(href("%R/finfo?name=%T&ci=%s",zName,zVers))[ancestry]</a>
@@ -1201,7 +1240,7 @@ int object_description(
       blob_append(pDownloadName, zName, -1);
     }
   }
-  if( prevName ){
+  if( prevName && showDetail ){
     @ </ul>
   }
   @ </ul>
@@ -1329,8 +1368,6 @@ int object_description(
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_appendf(pDownloadName, "%.10s.txt", zUuid);
     }
-  }else if( linkToView && g.perm.Hyperlink ){
-    @ %z(href("%R/artifact/%s",zUuid))[view]</a>
   }
   return objType;
 }
@@ -1343,6 +1380,10 @@ int object_description(
 ** Two arguments, v1 and v2, identify the files to be diffed.  Show the
 ** difference between the two artifacts.  Show diff side by side unless sbs
 ** is 0.  Generate plaintext if "patch" is present.
+**
+** Additional parameters:
+**
+**      verbose      Show more detail when describing artifacts
 */
 void diff_page(void){
   int v1, v2;
@@ -1354,6 +1395,7 @@ void diff_page(void){
   const char *zW;      /* URL param for ignoring whitespace */
   ReCompiled *pRe = 0;
   u64 diffFlags;
+  u32 objdescFlags = 0;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -1362,6 +1404,7 @@ void diff_page(void){
   if( v1==0 || v2==0 ) fossil_redirect_home();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
+  if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
   isPatch = P("patch")!=0;
   if( isPatch ){
     Blob c1, c2, *pOut;
@@ -1411,9 +1454,9 @@ void diff_page(void){
   }else{
     @ <h2>Differences From
     @ Artifact %z(href("%R/artifact/%s",zV1))[%S(zV1)]</a>:</h2>
-    object_description(v1, 0, 0);
+    object_description(v1, objdescFlags, 0);
     @ <h2>To Artifact %z(href("%R/artifact/%s",zV2))[%S(zV2)]</a>:</h2>
-    object_description(v2, 0, 0);
+    object_description(v2, objdescFlags, 0);
   }
   if( pRe ){
     @ <b>Only differences that match regular expression "%h(zRe)"
@@ -1523,12 +1566,17 @@ static void hexdump(Blob *pBlob){
 **
 ** Show the complete content of a file identified by ARTIFACTID
 ** as preformatted text.
+**
+** Other parameters:
+**
+**     verbose              Show more detail when describing the object
 */
 void hexdump_page(void){
   int rid;
   Blob content;
   Blob downloadName;
   char *zUuid;
+  u32 objdescFlags = 0;
 
   rid = name_to_rid_www("name");
   login_check_credentials();
@@ -1552,7 +1600,8 @@ void hexdump_page(void){
     @ <h2>Artifact %s(zUuid):</h2>
   }
   blob_zero(&downloadName);
-  object_description(rid, 0, &downloadName);
+  if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
+  object_description(rid, objdescFlags, &downloadName);
   style_submenu_element("Download", "Download",
         "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
   @ <hr />
@@ -1564,10 +1613,37 @@ void hexdump_page(void){
 }
 
 /*
+** Attempt to lookup the specified checkin and file name into an rid.
+*/
+int artifact_from_ci_and_filename(
+  const char *zCI,
+  const char *zFilename
+){
+  int cirid;
+  Manifest *pManifest;
+  ManifestFile *pFile;
+
+  if( zCI==0 ) return 0;
+  if( zFilename==0 ) return 0;
+  cirid = name_to_rid(zCI);
+  pManifest = manifest_get(cirid, CFTYPE_MANIFEST, 0);
+  if( pManifest==0 ) return 0;
+  manifest_file_rewind(pManifest);
+  while( (pFile = manifest_file_next(pManifest,0))!=0 ){
+    if( fossil_strcmp(zFilename, pFile->zName)==0 ){
+      int rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", pFile->zUuid);
+      manifest_destroy(pManifest);
+      return rid;
+    }
+  }
+  return 0;
+}
+
+/*
 ** Look for "ci" and "filename" query parameters.  If found, try to
 ** use them to extract the record ID of an artifact for the file.
 */
-int artifact_from_ci_and_filename(void){
+int artifact_from_ci_and_filename_www(void){
   const char *zFilename;
   const char *zCI;
   int cirid;
@@ -1650,18 +1726,23 @@ void output_text_with_line_numbers(
 
 
 /*
+** WEBPAGE: whatis
 ** WEBPAGE: artifact
-** URL: /artifact/ARTIFACTID
+**
+** URL: /artifact/SHA1HASH
 ** URL: /artifact?ci=CHECKIN&filename=PATH
+** URL: /whatis/SHA1HASH
 **
 ** Additional query parameters:
 **
 **   ln              - show line numbers
 **   ln=N            - highlight line number N
 **   ln=M-N          - highlight lines M through N inclusive
+**   verbose         - show more detail in the description
 **
-** Show the complete content of a file identified by ARTIFACTID
-** as preformatted text.
+** The /artifact page show the complete content of a file
+** identified by SHA1HASH as preformatted text.  The
+** /whatis page shows only a description of the file.
 */
 void artifact_page(void){
   int rid = 0;
@@ -1673,9 +1754,12 @@ void artifact_page(void){
   int objType;
   int asText;
   const char *zUuid;
+  u32 objdescFlags = 0;
+  int descOnly = fossil_strcmp(g.zPath,"whatis")==0;
+  const char *zLn = P("ln");
 
   if( P("ci") && P("filename") ){
-    rid = artifact_from_ci_and_filename();
+    rid = artifact_from_ci_and_filename_www();
   }
   if( rid==0 ){
     rid = name_to_rid_www("name");
@@ -1694,7 +1778,8 @@ void artifact_page(void){
             g.zTop, zUuid);
     }
   }
-  style_header("Artifact Content");
+  if( descOnly || P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
+  style_header(descOnly ? "Artifact Description" : "Artifact Content");
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Setup ){
     @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
@@ -1702,7 +1787,7 @@ void artifact_page(void){
     @ <h2>Artifact %s(zUuid):</h2>
   }
   blob_zero(&downloadName);
-  objType = object_description(rid, 0, &downloadName);
+  objType = object_description(rid, objdescFlags, &downloadName);
   style_submenu_element("Download", "Download",
           "%R/raw/%T?name=%s", blob_str(&downloadName), zUuid);
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
@@ -1736,40 +1821,46 @@ void artifact_page(void){
   if( (objType & (OBJTYPE_WIKI|OBJTYPE_TICKET))!=0 ){
     style_submenu_element("Parsed", "Parsed", "%R/info/%s", zUuid);
   }
-  @ <hr />
-  content_get(rid, &content);
-  if( renderAsWiki ){
-    wiki_render_by_mimetype(&content, zMime);
-  }else if( renderAsHtml ){
-    @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
-    @   width="100%%" frameborder="0" marginwidth="0" marginheight="0"
-    @   sandbox="allow-same-origin"
-    @   onload="this.height = this.contentDocument.documentElement.scrollHeight;">
-    @ </iframe>
+  if( descOnly ){
+    style_submenu_element("Content", "Content", "%R/artifact/%s", zUuid);
   }else{
-    style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
-    blob_to_utf8_no_bom(&content, 0);
-    zMime = mimetype_from_content(&content);
-    @ <blockquote>
-    if( zMime==0 ){
-      const char *zLn = P("ln");
-      const char *z;
-      z = blob_str(&content);
-      if( zLn ){
-        output_text_with_line_numbers(z, zLn);
-      }else{
-        @ <pre>
-        @ %h(z)
-        @ </pre>
-      }
-    }else if( strncmp(zMime, "image/", 6)==0 ){
-      @ <img src="%R/raw/%s(zUuid)?m=%s(zMime)" />
-      style_submenu_element("Image", "Image",
-                            "%R/raw/%s?m=%s", zUuid, zMime);
+    style_submenu_element("Line Numbers", "Line Numbers",
+                          "%R/info/%s%s",zUuid,
+                          ((zLn&&*zLn) ? "" : "?ln=0"));
+    @ <hr />
+    content_get(rid, &content);
+    if( renderAsWiki ){
+      wiki_render_by_mimetype(&content, zMime);
+    }else if( renderAsHtml ){
+      @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
+      @   width="100%%" frameborder="0" marginwidth="0" marginheight="0"
+      @   sandbox="allow-same-origin"
+      @   onload="this.height = this.contentDocument.documentElement.scrollHeight;">
+      @ </iframe>
     }else{
-      @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
+      style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
+      blob_to_utf8_no_bom(&content, 0);
+      zMime = mimetype_from_content(&content);
+      @ <blockquote>
+      if( zMime==0 ){
+        const char *z;
+        z = blob_str(&content);
+        if( zLn ){
+          output_text_with_line_numbers(z, zLn);
+        }else{
+          @ <pre>
+          @ %h(z)
+          @ </pre>
+        }
+      }else if( strncmp(zMime, "image/", 6)==0 ){
+        @ <img src="%R/raw/%s(zUuid)?m=%s(zMime)" />
+        style_submenu_element("Image", "Image",
+                              "%R/raw/%s?m=%s", zUuid, zMime);
+      }else{
+        @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
+      }
+      @ </blockquote>
     }
-    @ </blockquote>
   }
   style_footer();
 }
@@ -1810,8 +1901,18 @@ void tinfo_page(void){
   if( g.perm.ModTkt && (zModAction = P("modaction"))!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
       moderation_disapprove(rid);
-      cgi_redirectf("%R/tktview/%s", zTktName);
-      /*NOTREACHED*/
+      /*
+      ** Next, check if the ticket still exists; if not, we cannot
+      ** redirect to it.
+      */
+      if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'",
+                    zTktName) ){
+        cgi_redirectf("%R/tktview/%s", zTktName);
+        /*NOTREACHED*/
+      }else{
+        cgi_redirectf("%R/modreq");
+        /*NOTREACHED*/
+      }
     }
     if( strcmp(zModAction,"approve")==0 ){
       moderation_approve(rid);
@@ -2075,7 +2176,9 @@ void render_color_chooser(
   @ <input type="text" name="%s(zIdCustom)"
   @  id="%s(zIdCustom)" class="checkinUserColor"
   @  value="%h(stdClrFound?"":zDefaultColor)"
-  @  onfocus="this.form.elements['%s(zId)'][%d(nColor)].checked = true;" />
+  @  onfocus="this.form.elements['%s(zId)'][%d(nColor)].checked = true;"
+  @  onload="this.blur();"
+  @  onblur="this.parentElement.style.backgroundColor = this.value ? ('#'+this.value.replace('#','')) : '';" />
   @ </td>
   @ </tr>
   @ </table>

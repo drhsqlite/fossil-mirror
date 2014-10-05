@@ -277,6 +277,29 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
 }
 
 /*
+** Returns non-zero if moderation is required for ticket changes and ticket
+** attachments.
+*/
+int ticket_need_moderation(
+  int localUser /* Are we being called for a local interactive user? */
+){
+  /*
+  ** If the FOSSIL_FORCE_TICKET_MODERATION variable is set, *ALL* changes for
+  ** tickets will be required to go through moderation (even those performed
+  ** by the local interactive user via the command line).  This can be useful
+  ** for local (or remote) testing of the moderation subsystem and its impact
+  ** on the contents and status of tickets.
+  */
+  if( fossil_getenv("FOSSIL_FORCE_TICKET_MODERATION")!=0 ){
+    return 1;
+  }
+  if( localUser ){
+    return 0;
+  }
+  return g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1;
+}
+
+/*
 ** Rebuild an entire entry in the TICKET table
 */
 void ticket_rebuild_entry(const char *zTktUuid){
@@ -324,9 +347,10 @@ void ticket_init(void){
 /*
 ** Create the TH1 interpreter and load the "change" code.
 */
-int ticket_change(void){
+int ticket_change(const char *zUuid){
   const char *zConfig;
   Th_FossilInit(TH_INIT_DEFAULT);
+  Th_Store("uuid", zUuid);
   zConfig = ticket_change_code();
   return Th_Eval(g.interp, 0, zConfig, -1);
 }
@@ -476,7 +500,7 @@ void tktview_page(void){
 }
 
 /*
-** TH command:   append_field FIELD STRING
+** TH1 command: append_field FIELD STRING
 **
 ** FIELD is the name of a database column to which we might want
 ** to append text.  STRING is the text to be appended to that
@@ -568,6 +592,7 @@ static int submitTicketCmd(
   int i;
   int nJ = 0;
   Blob tktchng, cksum;
+  int needMod;
 
   login_verify_csrf_secret();
   if( !captcha_is_correct() ){
@@ -623,11 +648,14 @@ static int submitTicketCmd(
     blob_reset(&tktchng);
     return TH_OK;
   }
+  needMod = ticket_need_moderation(0);
   if( g.zPath[0]=='d' ){
+    const char *zNeedMod = needMod ? "required" : "skipped";
     /* If called from /debug_tktnew or /debug_tktedit... */
     @ <font color="blue">
     @ <p>Ticket artifact that would have been submitted:</p>
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
+    @ <blockquote><pre>Moderation would be %h(zNeedMod).</pre></blockquote>
     @ <hr /></font>
     return TH_OK;
   }else{
@@ -636,10 +664,9 @@ static int submitTicketCmd(
                "}<br />\n",
          blob_str(&tktchng));
     }
-    ticket_put(&tktchng, zUuid,
-               (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
+    ticket_put(&tktchng, zUuid, needMod);
   }
-  return ticket_change();
+  return ticket_change(zUuid);
 }
 
 
@@ -945,7 +972,7 @@ void tkthistory_page(void){
         @ <li><p>Add attachment
         @ "%z(href("%R/artifact/%s",zSrc))%s(zFile)</a>"
       }
-      @ [%z(href("%R/artifact/%s",zChngUuid))%.10s(zChngUuid)</a>]
+      @ [%z(href("%R/artifact/%s",zChngUuid))%S(zChngUuid)</a>]
       @ (rid %d(rid)) by
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".</p>");
@@ -954,7 +981,7 @@ void tkthistory_page(void){
       if( pTicket ){
         @
         @ <li><p>Ticket change
-        @ [%z(href("%R/artifact/%s",zChngUuid))%.10s(zChngUuid)</a>]
+        @ [%z(href("%R/artifact/%s",zChngUuid))%S(zChngUuid)</a>]
         @ (rid %d(rid)) by
         hyperlink_to_user(pTicket->zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
@@ -1055,10 +1082,12 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
 **     defined in the ticket table.
 **
 **   %fossil ticket list fields
+**   %fossil ticket ls fields
 **
 **     list all fields, defined for ticket in the fossil repository
 **
 **   %fossil ticket list reports
+**   %fossil ticket ls reports
 **
 **     list all ticket reports, defined in the fossil repository
 **
@@ -1125,7 +1154,7 @@ void ticket_cmd(void){
     /* set/show cannot be distinguished, so show the usage */
     usage("add|change|list|set|show|history");
   }
-  if( strncmp(g.argv[2],"list",n)==0 ){
+  if(( strncmp(g.argv[2],"list",n)==0 ) || ( strncmp(g.argv[2],"ls",n)==0 )){
     if( g.argc==3 ){
       usage("list fields|reports");
     }else{
@@ -1209,7 +1238,7 @@ void ticket_cmd(void){
         Stmt q;
         int tagid;
 
-        if ( i != g.argc ){
+        if( i != g.argc ){
           fossil_fatal("no other parameters expected to %s!",g.argv[2]);
         }
         tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",
@@ -1266,7 +1295,7 @@ void ticket_cmd(void){
           fossil_print("%h: ",z);
           if( blob_size(&val)>50 || contains_newline(&val)) {
                   fossil_print("\n    ",blob_str(&val));
-                  comment_print(blob_str(&val),4,79);
+                  comment_print(blob_str(&val),0,4,-1,g.comFmtFlags);
                 }else{
                   fossil_print("%s\n",blob_str(&val));
                 }
@@ -1301,16 +1330,16 @@ void ticket_cmd(void){
           defossilize(zFValue);
         }
         append = (zFName[0] == '+');
-        if (append){
+        if( append ){
           zFName++;
         }
         j = fieldId(zFName);
         if( j == -1 ){
           fossil_fatal("unknown field name '%s'!",zFName);
         }else{
-          if (append) {
+          if( append ){
             aField[j].zAppend = zFValue;
-          } else {
+          }else{
             aField[j].zValue = zFValue;
           }
         }
@@ -1325,13 +1354,13 @@ void ticket_cmd(void){
         char *zValue = 0;
         char *zPfx;
 
-        if (aField[i].zAppend && aField[i].zAppend[0] ){
+        if( aField[i].zAppend && aField[i].zAppend[0] ){
           zPfx = " +";
           zValue = aField[i].zAppend;
-        } else if( aField[i].zValue && aField[i].zValue[0] ){
+        }else if( aField[i].zValue && aField[i].zValue[0] ){
           zPfx = " ";
           zValue = aField[i].zValue;
-        } else {
+        }else{
           continue;
         }
         if( memcmp(aField[i].zName, "private_", 8)==0 ){
@@ -1346,7 +1375,7 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      if( ticket_put(&tktchng, zTktUuid, 0) ){
+      if( ticket_put(&tktchng, zTktUuid, ticket_need_moderation(1)) ){
         fossil_fatal("%s\n", g.zErrMsg);
       }else{
         fossil_print("ticket %s succeeded for %s\n",

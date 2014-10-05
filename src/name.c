@@ -311,7 +311,7 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
 ** pUuid (if it is not NULL) is set to the a newly-allocated string,
 ** the full UUID, which must eventually be free()d by the caller.
 */
-int name_to_uuid2(char const *zName, const char *zType, char **pUuid){
+int name_to_uuid2(const char *zName, const char *zType, char **pUuid){
   int rid = symbolic_name_to_rid(zName, zType);
   if((rid>0) && pUuid){
     *pUuid = db_text(NULL, "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -446,7 +446,7 @@ void ambiguous_page(void){
     " GROUP BY tkt_uuid"
     " ORDER BY tkt_ctime DESC", z);
   while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0); 
+    int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zTitle = db_column_text(&q, 2);
     @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
@@ -467,7 +467,7 @@ void ambiguous_page(void){
     "     FROM tagxref, tag WHERE tagxref.tagid = tag.tagid"
     "      AND tagname GLOB 'event-%q*') GROUP BY uuid", z);
   while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0); 
+    int rid = db_column_int(&q, 0);
     const char* zUuid = db_column_text(&q, 1);
     @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
     @ %s(zUuid)</a> -
@@ -584,7 +584,7 @@ static void whatis_rid(int rid, int verboseFlag){
     fossil_print("type:       %s by %s on %s\n", zType, db_column_text(&q,2),
                  db_column_text(&q, 1));
     fossil_print("comment:    ");
-    comment_print(db_column_text(&q,3), 12, 78);
+    comment_print(db_column_text(&q,3), 0, 12, -1, g.comFmtFlags);
   }
   db_finalize(&q);
 
@@ -601,12 +601,12 @@ static void whatis_rid(int rid, int verboseFlag){
     timeline_utc(), rid);
   while( db_step(&q)==SQLITE_ROW ){
     fossil_print("file:       %s\n", db_column_text(&q,0));
-    fossil_print("            part of [%.10s] by %s on %s\n",
+    fossil_print("            part of [%S] by %s on %s\n",
       db_column_text(&q, 1),
       db_column_text(&q, 3),
       db_column_text(&q, 2));
     fossil_print("            ");
-    comment_print(db_column_text(&q,4), 12, 78);
+    comment_print(db_column_text(&q,4), 0, 12, -1, g.comFmtFlags);
   }
   db_finalize(&q);
 
@@ -641,7 +641,7 @@ static void whatis_rid(int rid, int verboseFlag){
     fossil_print("            by user %s on %s\n",
                  db_column_text(&q,2), db_column_text(&q,3));
     fossil_print("            ");
-    comment_print(db_column_text(&q,1), 12, 78);
+    comment_print(db_column_text(&q,1), 0, 12, -1, g.comFmtFlags);
   }
   db_finalize(&q);
 }
@@ -658,28 +658,38 @@ void whatis_cmd(void){
   int rid;
   const char *zName;
   int verboseFlag;
+  int i;
   db_find_and_open_repository(0,0);
   verboseFlag = find_option("verbose","v",0)!=0;
-  if( g.argc!=3 ) usage("whatis NAME");
-  zName = g.argv[2];
-  rid = symbolic_name_to_rid(zName, 0);
-  if( rid<0 ){
-    Stmt q;
-    int cnt = 0;
-    fossil_print("Ambiguous artifact name prefix: %s\n", zName);
-    db_prepare(&q,
-       "SELECT rid FROM blob WHERE uuid>=lower(%Q) AND uuid<(lower(%Q)||'z')",
-       zName, zName
-    );
-    while( db_step(&q)==SQLITE_ROW ){
-      if( cnt++ ) fossil_print("%.79c\n", '-');
-      whatis_rid(db_column_int(&q, 0), verboseFlag);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
+  if( g.argc<3 ) usage("whatis NAME ...");
+  for(i=2; i<g.argc; i++){
+    zName = g.argv[i];
+    if( i>2 ) fossil_print("%.79c\n",'-');
+    rid = symbolic_name_to_rid(zName, 0);
+    if( rid<0 ){
+      Stmt q;
+      int cnt = 0;
+      fossil_print("name:       %s (ambiguous)\n", zName);
+      db_prepare(&q,
+         "SELECT rid FROM blob WHERE uuid>=lower(%Q) AND uuid<(lower(%Q)||'z')",
+         zName, zName
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        if( cnt++ ) fossil_print("%12s---- meaning #%d ----\n", " ", cnt);
+        whatis_rid(db_column_int(&q, 0), verboseFlag);
+      }
+      db_finalize(&q);
+    }else if( rid==0 ){
+                 /* 0123456789 12 */
+      fossil_print("unknown:    %s\n", zName);
+    }else{
+      fossil_print("name:       %s\n", zName);
+      whatis_rid(rid, verboseFlag);
     }
-    db_finalize(&q);
-  }else if( rid==0 ){
-    fossil_print("Unknown artifact: %s\n", zName);
-  }else{
-    whatis_rid(rid, verboseFlag);
   }
 }
 

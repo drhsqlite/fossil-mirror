@@ -49,7 +49,7 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
        db_column_text(&q, 1),
        db_column_text(&q, 0),
        indent, "");
-    comment_print(zCom, indent, 78);
+    comment_print(zCom, db_column_text(&q,2), indent, -1, g.comFmtFlags);
     fossil_free(zCom);
   }
   db_finalize(&q);
@@ -147,7 +147,6 @@ void merge_cmd(void){
   }
   forceFlag = find_option("force","f",0)!=0;
   zPivot = find_option("baseline",0,1);
-  capture_case_sensitive_option();
   verify_all_options();
   db_must_be_within_tree();
   if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);
@@ -212,7 +211,7 @@ void merge_cmd(void){
       char *zCom = mprintf("Merging fork [%S] at %s by %s: \"%s\"",
             db_column_text(&q, 0), db_column_text(&q, 1),
             db_column_text(&q, 3), db_column_text(&q, 2));
-      comment_print(zCom, 0, 79);
+      comment_print(zCom, db_column_text(&q,2), 0, -1, g.comFmtFlags);
       fossil_free(zCom);
     }
     db_finalize(&q);
@@ -646,7 +645,7 @@ void merge_cmd(void){
   }
   if( dryRunFlag ){
     fossil_warning("REMINDER: this was a dry run -"
-                   " no file were actually changed.");
+                   " no files were actually changed.");
   }
 
   /*

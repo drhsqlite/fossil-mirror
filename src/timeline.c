@@ -24,35 +24,13 @@
 #include "timeline.h"
 
 /*
-** Shorten a UUID so that is the minimum length needed to contain
-** at least one digit in the range 'a'..'f'.  The minimum length is 10.
-*/
-static void shorten_uuid(char *zDest, const char *zSrc){
-  int i;
-  for(i=0; i<10 && zSrc[i]<='9'; i++){}
-  memcpy(zDest, zSrc, 10);
-  if( i==10 && zSrc[i] ){
-    do{
-      zDest[i] = zSrc[i];
-      i++;
-    }while( zSrc[i-1]<='9' );
-  }else{
-    i = 10;
-  }
-  zDest[i] = 0;
-}
-
-
-/*
 ** Generate a hyperlink to a version.
 */
 void hyperlink_to_uuid(const char *zUuid){
-  char z[UUID_SIZE+1];
-  shorten_uuid(z, zUuid);
   if( g.perm.Hyperlink ){
-    @ %z(xhref("class='timelineHistLink'","%R/info/%s",zUuid))[%s(z)]</a>
+    @ %z(xhref("class='timelineHistLink'","%R/info/%s",zUuid))[%S(zUuid)]</a>
   }else{
-    @ <span class="timelineHistDsp">[%s(z)]</span>
+    @ <span class="timelineHistDsp">[%S(zUuid)]</span>
   }
 }
 
@@ -1020,7 +998,7 @@ char *names_of_file(const char *zUuid){
 **    t=TAGID        show only check-ins with the given tagid
 **    r=TAGID        show check-ins related to tagid
 **    u=USER         only if belonging to this user
-**    y=TYPE         'ci', 'w', 't', 'e'
+**    y=TYPE         'ci', 'w', 't', 'e', or (default) 'all'
 **    s=TEXT         string search (comment and brief)
 **    ng             Suppress the graph if present
 **    nd             Suppress "divider" lines
@@ -1029,6 +1007,7 @@ char *names_of_file(const char *zUuid){
 **    from=UUID      Path from...
 **    to=UUID          ... to this
 **    nomerge          ... avoid merge links on the path
+**    shortest         ... show only the shortest path
 **    uf=FUUID       Show only checkins that use given file version
 **    brbg           Background color from branch name
 **    ubg            Background color from user
@@ -1222,19 +1201,30 @@ void page_timeline(void){
       }
       if( d_rid==0 && useDividers ) timeline_add_dividers(0, p_rid);
     }
-    blob_appendf(&desc, " of %z[%.10s]</a>",
+    blob_appendf(&desc, " of %z[%S]</a>",
                    href("%R/info/%s", zUuid), zUuid);
-    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
+    if( p_rid ){
+      url_add_parameter(&url, "p", zUuid);
+    }
+    if( d_rid ){
       if( p_rid ){
-        url_add_parameter(&url, "p", zUuid);
+        /* If both p= and d= are set, we don't have the uuid of d yet. */
+        zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
-      if( d_rid ){
-        if( p_rid ){
-          /* If both p= and d= are set, we don't have the uuid of d yet. */
-          zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
-        }
-        url_add_parameter(&url, "d", zUuid);
-      }
+      url_add_parameter(&url, "d", zUuid);
+    }
+    if( nEntry>20 ){
+      timeline_submenu(&url, "20 Entries", "n", "20", 0);
+    }
+    if( nEntry<200 ){
+      timeline_submenu(&url, "200 Entries", "n", "200", 0);
+    }
+    if( tmFlags & TIMELINE_FCHANGES ){
+      timeline_submenu(&url, "Hide Files", "v", 0, 0);
+    }else{
+      timeline_submenu(&url, "Show Files", "v", "", 0);
+    }
+    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
       timeline_submenu(&url, "Unhide", "unhide", "", 0);
     }
   }else if( f_rid && g.perm.Read ){
@@ -1252,10 +1242,15 @@ void page_timeline(void){
     if( useDividers ) timeline_add_dividers(0, f_rid);
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
-    blob_appendf(&desc, "%z[%.10s]</a>", href("%R/info/%s", zUuid), zUuid);
+    blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%s", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
+    url_add_parameter(&url, "f", zUuid);
+    if( tmFlags & TIMELINE_FCHANGES ){
+      timeline_submenu(&url, "Hide Files", "v", 0, 0);
+    }else{
+      timeline_submenu(&url, "Show Files", "v", "", 0);
+    }
     if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-      url_add_parameter(&url, "f", zUuid);
       timeline_submenu(&url, "Unhide", "unhide", "", 0);
     }
   }else{
@@ -1368,7 +1363,7 @@ void page_timeline(void){
       url_add_parameter(&url, "u", zUser);
       zThisUser = zUser;
     }
-    if ( zSearch ){
+    if( zSearch ){
       blob_appendf(&sql,
         " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
         zSearch, zSearch);
@@ -1573,7 +1568,6 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     char *zFree = 0;
     int n = 0;
     char zPrefix[80];
-    char zUuid[UUID_SIZE+1];
 
     if( nAbsLimit!=0 ){
       if( nLimit<0 && nLine>=nAbsLimit ){
@@ -1584,7 +1578,6 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
         break; /* entry count limit hit, stop. */
       }
     }
-    sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
     if( fossil_strnicmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
@@ -1611,9 +1604,10 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*CURRENT* ");
       n += strlen(zPrefix);
     }
-    zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
-    nLine += comment_print(zFree, 9, width); /* record another X lines */
-    sqlite3_free(zFree);
+    zFree = mprintf("[%S] %s%s", zId, zPrefix, zCom);
+    /* record another X lines */
+    nLine += comment_print(zFree, zCom, 9, width, g.comFmtFlags);
+    fossil_free(zFree);
 
     if(verboseFlag){
       if( !fchngQueryInit ){
@@ -1739,8 +1733,9 @@ static int isIsoDate(const char *z){
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
 **                        etc.) after the checkin comment.
-**   -W|--width <num>     With of lines (default 79). Must be >20 or 0
-**                        (= no limit, resulting in a single line per entry).
+**   -W|--width <num>     Width of lines (default is to auto-detect). Must be
+**                        >20 or 0 (= no limit, resulting in a single line per
+**                        entry).
 **   -R REPO_FILE         Specifies the repository db to use. Default is
 **                        the current checkout's repository.
 */
@@ -1768,7 +1763,7 @@ void timeline_cmd(void){
   zLimit = find_option("limit","n",1);
   zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
-  if ( !zLimit ){
+  if( !zLimit ){
     zLimit = find_option("count",0,1);
   }
   if( zLimit ){
@@ -1782,10 +1777,14 @@ void timeline_cmd(void){
       fossil_fatal("-W|--width value must be >20 or 0");
     }
   }else{
-    width = 79;
+    width = -1;
   }
   zOffset = find_option("offset",0,1);
   iOffset = zOffset ? atoi(zOffset) : 0;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc>=4 ){
     k = strlen(g.argv[2]);
     if( strncmp(g.argv[2],"before",k)==0 ){
@@ -1972,7 +1971,7 @@ static int statsReportType = 0;
 ** Set by stats_report_init_view() to one of the y=XXXX values
 ** accepted by /timeline?y=XXXX.
 */
-static char const * statsReportTimelineYFlag = NULL;
+static const char *statsReportTimelineYFlag = NULL;
 
 /*
 ** Creates a TEMP VIEW named v_reports which is a wrapper around the
@@ -1993,8 +1992,8 @@ static char const * statsReportTimelineYFlag = NULL;
 ** used).
 */
 static int stats_report_init_view(){
-  char const * zType = PD("type","*");  /* analog to /timeline?y=... */
-  char const * zRealType = NULL;        /* normalized form of zType */
+  const char *zType = PD("type","*");  /* analog to /timeline?y=... */
+  const char *zRealType = NULL;        /* normalized form of zType */
   int rc = 0;                          /* result code */
   assert( !statsReportType && "Must not be called more than once." );
   switch( (zType && *zType) ? *zType : 0 ){
@@ -2047,11 +2046,13 @@ static int stats_report_init_view(){
 ** on the 'type' flag. See stats_report_init_view().
 ** The returned bytes are static.
 */
-static char const * stats_report_label_for_type(){
+static const char *stats_report_label_for_type(){
   assert( statsReportType && "Must call stats_report_init_view() first." );
   switch( statsReportType ){
     case 'c':
       return "checkins";
+    case 'e':
+      return "events";
     case 'w':
       return "wiki changes";
     case 't':
@@ -2072,16 +2073,16 @@ static char const * stats_report_label_for_type(){
 ** be added to the generated URLs should be passed in zParam. The
 ** caller is expected to have already encoded any zParam in the %T or
 ** %t encoding.  */
-static void stats_report_event_types_menu(char const * zCurrentViewName,
-                                          char const * zParam){
-  char * zTop;
+static void stats_report_event_types_menu(const char *zCurrentViewName,
+                                          const char *zParam){
+  char *zTop;
   if(zParam && !*zParam){
     zParam = NULL;
   }
   zTop = mprintf("%s/reports?view=%s%s%s", g.zTop, zCurrentViewName,
                  zParam ? "&" : "", zParam);
   cgi_printf("<div>");
-  cgi_printf("<span>Event types:</span> ");
+  cgi_printf("<span>Types:</span> ");
   if('*' == statsReportType){
     cgi_printf(" <strong>all</strong>", zTop);
   }else{
@@ -2091,6 +2092,11 @@ static void stats_report_event_types_menu(char const * zCurrentViewName,
     cgi_printf(" <strong>checkins</strong>", zTop);
   }else{
     cgi_printf(" <a href='%s&type=ci'>checkins</a>", zTop);
+  }
+  if('e' == statsReportType){
+    cgi_printf(" <strong>events</strong>", zTop);
+  }else{
+    cgi_printf(" <a href='%s&type=e'>events</a>", zTop);
   }
   if( 't' == statsReportType ){
     cgi_printf(" <strong>tickets</strong>", zTop);
@@ -2117,7 +2123,7 @@ static void stats_report_event_types_menu(char const * zCurrentViewName,
 ** week numbers. zTimeframe should be either a timeframe in the form YYYY
 ** or YYYY-MM.
 */
-static void stats_report_output_week_links(const char * zTimeframe){
+static void stats_report_output_week_links(const char *zTimeframe){
   Stmt stWeek = empty_Stmt;
   char yearPart[5] = {0,0,0,0,0};
   memcpy(yearPart, zTimeframe, 4);
@@ -2131,7 +2137,7 @@ static void stats_report_output_week_links(const char * zTimeframe){
              strlen(zTimeframe),
              zTimeframe);
   while( SQLITE_ROW == db_step(&stWeek) ){
-    const char * zWeek = db_column_text(&stWeek,0);
+    const char *zWeek = db_column_text(&stWeek,0);
     const int nCount = db_column_int(&stWeek,1);
     cgi_printf("<a href='%s/timeline?"
                "yw=%t-%t&n=%d&y=%s'>%s</a>",
@@ -2150,14 +2156,14 @@ static void stats_report_output_week_links(const char * zTimeframe){
 */
 static void stats_report_by_month_year(char includeMonth,
                                        char includeWeeks,
-                                       const char * zUserName){
+                                       const char *zUserName){
   Stmt query = empty_Stmt;
   int nRowNumber = 0;                /* current TR number */
   int nEventTotal = 0;               /* Total event count */
   int rowClass = 0;                  /* counter for alternating
                                         row colors */
   Blob sql = empty_blob;             /* SQL */
-  const char * zTimeLabel = includeMonth ? "Year/Month" : "Year";
+  const char *zTimeLabel = includeMonth ? "Year/Month" : "Year";
   char zPrevYear[5] = {0};           /* For keeping track of when
                                         we change years while looping */
   int nEventsPerYear = 0;            /* Total event count for the
@@ -2212,7 +2218,7 @@ static void stats_report_by_month_year(char includeMonth,
   }
   db_reset(&query);
   while( SQLITE_ROW == db_step(&query) ){
-    const char * zTimeframe = db_column_text(&query, 0);
+    const char *zTimeframe = db_column_text(&query, 0);
     const int nCount = db_column_int(&query, 1);
     int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
@@ -2297,7 +2303,7 @@ static void stats_report_by_month_year(char includeMonth,
   }
   @ </tbody></table>
   if(nEventTotal){
-    char const * zAvgLabel = includeMonth ? "month" : "year";
+    const char *zAvgLabel = includeMonth ? "month" : "year";
     int nAvg = iterations ? (nEventTotal/iterations) : 0;
     @ <br><div>Total events: %d(nEventTotal)
     @ <br>Average per active %s(zAvgLabel): %d(nAvg)
@@ -2347,7 +2353,7 @@ static void stats_report_by_user(){
   }
   db_reset(&query);
   while( SQLITE_ROW == db_step(&query) ){
-    const char * zUser = db_column_text(&query, 0);
+    const char *zUser = db_column_text(&query, 0);
     const int nCount = db_column_int(&query, 1);
     int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
@@ -2387,11 +2393,11 @@ static void stats_report_day_of_week(){
   Blob sql = empty_blob;             /* SQL */
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
-  static char const * daysOfWeek[] = {
+  static const char *const daysOfWeek[] = {
   "Monday", "Tuesday", "Wednesday", "Thursday",
   "Friday", "Saturday", "Sunday"
   };
-      
+
   stats_report_init_view();
   stats_report_event_types_menu("byweekday", NULL);
   blob_append(&sql,
@@ -2420,7 +2426,7 @@ static void stats_report_day_of_week(){
   }
   db_reset(&query);
   while( SQLITE_ROW == db_step(&query) ){
-    int const dayNum =db_column_int(&query, 0);
+    const int dayNum =db_column_int(&query, 0);
     const int nCount = db_column_int(&query, 1);
     int nSize = nCount
       ? (int)(100 * nCount / nMaxEvents)
@@ -2450,12 +2456,12 @@ static void stats_report_day_of_week(){
 ** week numbers. zTimeframe should be either a timeframe in the form YYYY
 ** or YYYY-MM.
 */
-static void stats_report_year_weeks(const char * zUserName){
-  const char * zYear = P("y");
+static void stats_report_year_weeks(const char *zUserName){
+  const char *zYear = P("y");
   int nYear = zYear ? strlen(zYear) : 0;
   int i = 0;
   Stmt qYears = empty_Stmt;
-  char * zDefaultYear = NULL;
+  char *zDefaultYear = NULL;
   Blob sql = empty_blob;
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
@@ -2480,7 +2486,7 @@ static void stats_report_year_weeks(const char * zUserName){
   blob_reset(&sql);
   cgi_printf("Select year: ");
   while( SQLITE_ROW == db_step(&qYears) ){
-    const char * zT = db_column_text(&qYears, 0);
+    const char *zT = db_column_text(&qYears, 0);
     if( i++ ){
       cgi_printf(" ");
     }
@@ -2540,7 +2546,7 @@ static void stats_report_year_weeks(const char * zUserName){
     }
     db_reset(&stWeek);
     while( SQLITE_ROW == db_step(&stWeek) ){
-      const char * zWeek = db_column_text(&stWeek,0);
+      const char *zWeek = db_column_text(&stWeek,0);
       const int nCount = db_column_int(&stWeek,1);
       int nSize = nCount
         ? (int)(100 * nCount / nMaxEvents)
@@ -2600,7 +2606,7 @@ static void stats_report_year_weeks(const char * zUserName){
 */
 void stats_report_page(){
   HQuery url;                        /* URL for various branch links */
-  const char * zView = P("view");    /* Which view/report to show. */
+  const char *zView = P("view");    /* Which view/report to show. */
   const char *zUserName = P("user");
 
   login_check_credentials();

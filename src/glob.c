@@ -41,7 +41,7 @@
 */
 char *glob_expr(const char *zVal, const char *zGlobList){
   Blob expr;
-  char *zSep = "(";
+  const char *zSep = "(";
   int nTerm = 0;
   int i;
   int cTerm;

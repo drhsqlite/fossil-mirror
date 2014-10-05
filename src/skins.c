@@ -772,7 +772,7 @@ static const char zBuiltinSkin4[] =
 @   text-decoration: none;
 @ }
 @ div.submenu a, div.submenu a:visited, a.button,
-@ div.sectionmenu>a.button:link, div.sectinmenu>a.button:visited {
+@ div.sectionmenu>a.button:link, div.sectionmenu>a.button:visited {
 @   padding: 2px 8px;
 @   color: #000;
 @   font-family: Arial;
@@ -876,6 +876,10 @@ static const char zBuiltinSkin4[] =
 @
 @ textarea {
 @   font-size: 1em;
+@ }
+@
+@ .fullsize-text {
+@   font-size: 1.25em;
 @ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>

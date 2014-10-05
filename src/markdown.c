@@ -392,7 +392,7 @@ static size_t tag_length(char *data, size_t size, enum mkd_autolink *autolink){
      && data[i]!='"'
      && data[i]!=' '
      && data[i]!='\t'
-     && data[i]!='\t'
+     && data[i]!='\n'
     ){
       i++;
     }

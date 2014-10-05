@@ -28,7 +28,7 @@ Section "Fossil (required)"
   ; Set output path to the installation directory.
   SetOutPath $INSTDIR
   ; Put file there
-  File ".\fossil.exe"
+  File "..\fossil.exe"
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\Fossil "Install_Dir" "$INSTDIR"
   ; Write the uninstall keys for Windows

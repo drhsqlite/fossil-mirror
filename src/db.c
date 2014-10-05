@@ -630,7 +630,7 @@ void db_blob(Blob *pResult, const char *zSql, ...){
 ** obtained from malloc().  If the result set is empty, return
 ** zDefault instead.
 */
-char *db_text(char const *zDefault, const char *zSql, ...){
+char *db_text(const char *zDefault, const char *zSql, ...){
   va_list ap;
   Stmt s;
   char *z;
@@ -717,9 +717,6 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
   sqlite3 *db;
 
-#if defined(__CYGWIN__) && USE_SYSTEM_SQLITE+0!=1
-  zDbName = fossil_utf8_to_filename(zDbName);
-#endif
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   rc = sqlite3_open_v2(
        zDbName, &db,
@@ -789,6 +786,29 @@ void db_open_or_attach(
 }
 
 /*
+** Close the user database.
+*/
+void db_close_config(){
+  if( g.useAttach ){
+    db_detach("configdb");
+    g.useAttach = 0;
+    g.zConfigDbName = 0;
+  }else if( g.dbConfig ){
+    sqlite3_wal_checkpoint(g.dbConfig, 0);
+    sqlite3_close(g.dbConfig);
+    g.dbConfig = 0;
+    g.zConfigDbType = 0;
+    g.zConfigDbName = 0;
+  }else if( g.db && fossil_strcmp(g.zMainDbType, "configdb")==0 ){
+    sqlite3_wal_checkpoint(g.db, 0);
+    sqlite3_close(g.db);
+    g.db = 0;
+    g.zMainDbType = 0;
+    g.zConfigDbName = 0;
+  }
+}
+
+/*
 ** Open the user database in "~/.fossil".  Create the database anew if
 ** it does not already exist.
 **
@@ -803,7 +823,10 @@ void db_open_or_attach(
 void db_open_config(int useAttach){
   char *zDbName;
   char *zHome;
-  if( g.zConfigDbName ) return;
+  if( g.zConfigDbName ){
+    if( useAttach==g.useAttach ) return;
+    db_close_config();
+  }
 #if defined(_WIN32) || defined(__CYGWIN__)
   zHome = fossil_getenv("LOCALAPPDATA");
   if( zHome==0 ){
@@ -943,7 +966,7 @@ int db_open_local(const char *zDbName){
   char zPwd[2000];
   static const char aDbName[][10] = { "_FOSSIL_", ".fslckout", ".fos" };
 
-  if( g.localOpen) return 1;
+  if( g.localOpen ) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
   while( n>0 ){
@@ -1047,7 +1070,10 @@ void db_open_repository(const char *zDbName){
 ** Error out if the repository cannot be opened.
 */
 void db_find_and_open_repository(int bFlags, int nArgUsed){
-  const char *zRep = find_option("repository", "R", 1);
+  const char *zRep = find_repository_option();
+  if( zRep && file_isdir(zRep)==1 ){
+    goto rep_not_found;
+  }
   if( zRep==0 && nArgUsed && g.argc==nArgUsed+1 ){
     zRep = g.argv[nArgUsed];
   }
@@ -1209,18 +1235,19 @@ void db_close(int reportErrors){
       fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
     }
   }
+  db_close_config();
+  if( g.db ){
+    sqlite3_wal_checkpoint(g.db, 0);
+    sqlite3_close(g.db);
+    g.db = 0;
+    g.zMainDbType = 0;
+  }
   g.repositoryOpen = 0;
   g.localOpen = 0;
-  g.zConfigDbName = NULL;
-  sqlite3_wal_checkpoint(g.db, 0);
-  sqlite3_close(g.db);
-  g.db = 0;
-  g.zMainDbType = 0;
-  if( g.dbConfig ){
-    sqlite3_close(g.dbConfig);
-    g.dbConfig = 0;
-    g.zConfigDbType = 0;
-  }
+  assert( g.dbConfig==0 );
+  assert( g.useAttach==0 );
+  assert( g.zConfigDbName==0 );
+  assert( g.zConfigDbType==0 );
 }
 
 
@@ -1288,6 +1315,38 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
 }
 
 /*
+** This function sets the server and project codes if they do not already
+** exist.  Currently, it should be called only by the db_initial_setup()
+** or cmd_webserver() functions, the latter being used to facilitate more
+** robust integration with "canned image" environments (e.g. Docker).
+*/
+void db_setup_server_and_project_codes(
+  int optional
+){
+  if( !optional ){
+    db_multi_exec(
+        "INSERT INTO config(name,value,mtime)"
+        " VALUES('server-code', lower(hex(randomblob(20))),now());"
+        "INSERT INTO config(name,value,mtime)"
+        " VALUES('project-code', lower(hex(randomblob(20))),now());"
+    );
+  }else{
+    if( db_get("server-code", 0)==0 ) {
+      db_multi_exec(
+          "INSERT INTO config(name,value,mtime)"
+          " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      );
+    }
+    if( db_get("project-code", 0)==0 ) {
+      db_multi_exec(
+          "INSERT INTO config(name,value,mtime)"
+          " VALUES('project-code', lower(hex(randomblob(20))),now());"
+      );
+    }
+  }
+}
+
+/*
 ** Return a pointer to a string that contains the RHS of an IN operator
 ** that will select CONFIG table names that are in the list of control
 ** settings.
@@ -1339,12 +1398,7 @@ void db_initial_setup(
   db_set("aux-schema", AUX_SCHEMA, 0);
   db_set("rebuilt", get_version(), 0);
   if( makeServerCodes ){
-    db_multi_exec(
-      "INSERT INTO config(name,value,mtime)"
-      " VALUES('server-code', lower(hex(randomblob(20))),now());"
-      "INSERT INTO config(name,value,mtime)"
-      " VALUES('project-code', lower(hex(randomblob(20))),now());"
-    );
+    db_setup_server_and_project_codes(0);
   }
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
@@ -1443,8 +1497,8 @@ void db_initial_setup(
 **    --template      FILE      copy settings from repository file
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
-**                              (overrides --empty as well)
-**    --empty                   Do not create an initial empty checkin.
+**                              (default: do not create an initial checkin)
+**    --empty                   create repository without project-id/server-id
 **
 ** See also: clone
 */
@@ -1453,15 +1507,16 @@ void create_repository_cmd(void){
   const char *zTemplate;      /* Repository from which to copy settings */
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
-  char const *zCreateEmpty;   /* --empty flag set? */
+  int makeServerCodes;
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  zCreateEmpty = find_option("empty", 0, 0);
-  if( !zDate && !zCreateEmpty ){
-    zDate = "now";
-  }
+  makeServerCodes = find_option("empty", 0, 0)==0;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
@@ -1470,11 +1525,13 @@ void create_repository_cmd(void){
   db_open_config(0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
-  db_initial_setup(zTemplate, zDate, zDefaultUser, 1);
+  db_initial_setup(zTemplate, zDate, zDefaultUser, makeServerCodes);
   db_end_transaction(0);
   if( zTemplate ) db_detach("settingSrc");
-  fossil_print("project-id: %s\n", db_get("project-code", 0));
-  fossil_print("server-id:  %s\n", db_get("server-code", 0));
+  if( makeServerCodes ){
+    fossil_print("project-id: %s\n", db_get("project-code", 0));
+    fossil_print("server-id:  %s\n", db_get("server-code", 0));
+  }
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (initial password is \"%s\")\n",
                g.zLogin, zPassword);
@@ -1915,14 +1972,14 @@ void db_lset_int(const char *zName, int value){
 ** by zTableName has a column named zColName (case-sensitive), else
 ** returns 0.
 */
-int db_table_has_column( char const *zTableName, char const *zColName ){
+int db_table_has_column(const char *zTableName, const char *zColName){
   Stmt q = empty_Stmt;
   int rc = 0;
   db_prepare( &q, "PRAGMA table_info(%Q)", zTableName );
   while(SQLITE_ROW == db_step(&q)){
     /* Columns: (cid, name, type, notnull, dflt_value, pk) */
-    char const * zCol = db_column_text(&q, 1);
-    if(0==fossil_strcmp(zColName, zCol)){
+    const char *zCol = db_column_text(&q, 1);
+    if( 0==fossil_strcmp(zColName, zCol) ){
       rc = 1;
       break;
     }
@@ -1948,32 +2005,52 @@ int db_table_has_column( char const *zTableName, char const *zColName ){
 ** Where %s is the checkout root.  The value is the repository file.
 */
 void db_record_repository_filename(const char *zName){
+  const char *zCollation;
+  char *zRepoSetting;
+  char *zCkoutSetting;
   Blob full;
   if( zName==0 ){
     if( !g.localOpen ) return;
     zName = db_repository_filename();
   }
   file_canonical_name(zName, &full, 0);
+  zCollation = filename_collation();
   db_swap_connections();
+  zRepoSetting = mprintf("repo:%q", blob_str(&full));
+  db_multi_exec(
+     "DELETE FROM global_config WHERE name %s = '%s';",
+     zCollation, zRepoSetting
+  );
   db_multi_exec(
      "INSERT OR IGNORE INTO global_config(name,value)"
-     "VALUES('repo:%q',1)",
-     blob_str(&full)
+     "VALUES('%s',1);",
+     zRepoSetting
   );
+  fossil_free(zRepoSetting);
   if( g.localOpen && g.zLocalRoot && g.zLocalRoot[0] ){
     Blob localRoot;
     file_canonical_name(g.zLocalRoot, &localRoot, 1);
+    zCkoutSetting = mprintf("ckout:%q", blob_str(&localRoot));
+    db_multi_exec(
+       "DELETE FROM global_config WHERE name %s = '%s';",
+       zCollation, zCkoutSetting
+    );
     db_multi_exec(
       "REPLACE INTO global_config(name, value)"
-      "VALUES('ckout:%q','%q');",
-      blob_str(&localRoot), blob_str(&full)
+      "VALUES('%s','%q');",
+      zCkoutSetting, blob_str(&full)
     );
     db_swap_connections();
     db_optional_sql("repository",
-        "REPLACE INTO config(name,value,mtime)"
-        "VALUES('ckout:%q',1,now())",
-        blob_str(&localRoot)
+        "DELETE FROM config WHERE name %s = '%s';",
+        zCollation, zCkoutSetting
     );
+    db_optional_sql("repository",
+        "REPLACE INTO config(name,value,mtime)"
+        "VALUES('%s',1,now());",
+        zCkoutSetting
+    );
+    fossil_free(zCkoutSetting);
     blob_reset(&localRoot);
   }else{
     db_swap_connections();
@@ -2016,6 +2093,10 @@ void cmd_open(void){
   keepFlag = find_option("keep",0,0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
@@ -2042,7 +2123,7 @@ void cmd_open(void){
   oldArgc = g.argc;
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
-  if( !emptyFlag){
+  if( !emptyFlag ){
     g.argc = 3;
     if( oldArgc==4 ){
       azNewArgv[g.argc-1] = oldArgv[3];
@@ -2116,12 +2197,12 @@ static void print_setting(
 */
 #if INTERFACE
 struct stControlSettings {
-  char const *name;     /* Name of the setting */
-  char const *var;      /* Internal variable name used by db_set() */
+  const char *name;     /* Name of the setting */
+  const char *var;      /* Internal variable name used by db_set() */
   int width;            /* Width of display.  0 for boolean values. */
   int versionable;      /* Is this setting versionable? */
   int forceTextArea;    /* Force using a text area for display? */
-  char const *def;      /* Default value */
+  const char *def;      /* Default value */
 };
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
@@ -2131,6 +2212,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "auto-hyperlink",   0,              0, 0, 0, "on",                 },
   { "auto-shun",        0,              0, 0, 0, "on"                  },
   { "autosync",         0,              0, 0, 0, "on"                  },
+  { "autosync-tries",   0,             16, 0, 0, "1"                   },
   { "binary-glob",      0,             40, 1, 0, ""                    },
   { "clearsign",        0,              0, 0, 0, "off"                 },
 #if defined(_WIN32) || defined(__CYGWIN__) || defined(__DARWIN__) || \
@@ -2170,10 +2252,16 @@ struct stControlSettings const ctrlSettings[] = {
   { "ssl-identity",     0,             40, 0, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",              0,              0, 0, 0, "off"                 },
-  { "tcl-setup",        0,             40, 0, 1, ""                    },
+  { "tcl-setup",        0,             40, 1, 1, ""                    },
 #endif
-  { "th1-setup",        0,             40, 0, 1, ""                    },
-  { "th1-uri-regexp",   0,             40, 0, 0, ""                    },
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+  { "th1-docs",         0,              0, 0, 0, "off"                 },
+#endif
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+  { "th1-hooks",        0,              0, 0, 0, "off"                 },
+#endif
+  { "th1-setup",        0,             40, 1, 1, ""                    },
+  { "th1-uri-regexp",   0,             40, 1, 0, ""                    },
   { "web-browser",      0,             32, 0, 0, ""                    },
   { "white-foreground", 0,              0, 0, 0, "off"                 },
   { 0,0,0,0,0,0 }
@@ -2223,6 +2311,11 @@ struct stControlSettings const ctrlSettings[] = {
 **                     tag or branch creation.  If the value is "pullonly"
 **                     then only pull operations occur automatically.
 **                     Default: on
+**
+**    autosync-tries   If autosync is enabled setting this to a value greater
+**                     than zero will cause autosync to try no more than this
+**                     number of attempts if there is a sync failure.
+**                     Default: 1
 **
 **    binary-glob      The VALUE is a comma or newline-separated list of
 **     (versionable)   GLOB patterns that should be treated as binary files
@@ -2371,15 +2464,29 @@ struct stControlSettings const ctrlSettings[] = {
 **                     expressions and scripts. Default: off.
 **
 **    tcl-setup        This is the setup script to be evaluated after creating
-**                     and initializing the Tcl interpreter.  By default, this
+**     (versionable)   and initializing the Tcl interpreter.  By default, this
 **                     is empty and no extra setup is performed.
 **
+**    th1-docs         WARNING: If enabled (and Fossil was compiled with TH1
+**                     support for embedded documentation files), this allows
+**                     embedded documentation files to contain arbitrary TH1
+**                     scripts that are evaluated on the server.  If native
+**                     Tcl integration is also enabled, this setting has the
+**                     potential to allow anybody with check-in privileges to
+**                     do almost anything that the associated operating system
+**                     user account could do.  Extreme caution should be used
+**                     when enabling this setting.  Default: off.
+**
+**    th1-hooks        If enabled (and Fossil was compiled with support for TH1
+**                     hooks), special TH1 commands will be called before and
+**                     after any Fossil command or web page. Default: off.
+**
 **    th1-setup        This is the setup script to be evaluated after creating
-**                     and initializing the TH1 interpreter.  By default, this
+**     (versionable)   and initializing the TH1 interpreter.  By default, this
 **                     is empty and no extra setup is performed.
 **
 **    th1-uri-regexp   Specify which URI's are allowed in HTTP requests from
-**                     TH1 scripts.  If empty, no HTTP requests are allowed
+**     (versionable)   TH1 scripts.  If empty, no HTTP requests are allowed
 **                     whatsoever.  The default is an empty string.
 **
 **    web-browser      A shell command used to launch your preferred
@@ -2426,13 +2533,35 @@ void setting_cmd(void){
     if( isManifest && globalFlag ){
       fossil_fatal("cannot set 'manifest' globally");
     }
-    if( unsetFlag ){
-      db_unset(ctrlSettings[i].name, globalFlag);
-    }else if( g.argc==4 ){
-      db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
+    if( unsetFlag || g.argc==4 ){
+      if( ctrlSettings[i+1].name
+       && strncmp(ctrlSettings[i+1].name, zName, n)==0
+       && ctrlSettings[i].name[n]!=0
+      ){
+        fossil_print("ambiguous property prefix: %s\nMatching properties:\n",
+                     zName);
+        while( ctrlSettings[i].name
+            && strncmp(ctrlSettings[i].name, zName, n)==0
+        ){
+          fossil_print("%s\n", ctrlSettings[i].name);
+          i++;
+        }
+        fossil_exit(1);
+      }else{
+        if( unsetFlag ){
+          db_unset(ctrlSettings[i].name, globalFlag);
+        }else{
+          db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
+        }
+      }
     }else{
       isManifest = 0;
-      print_setting(&ctrlSettings[i], db_open_local(0));
+      while( ctrlSettings[i].name
+            && strncmp(ctrlSettings[i].name, zName, n)==0
+      ){
+        print_setting(&ctrlSettings[i], db_open_local(0));
+        i++;
+      }
     }
     if( isManifest && g.localOpen ){
       manifest_to_disk(db_lget_int("checkout", 0));

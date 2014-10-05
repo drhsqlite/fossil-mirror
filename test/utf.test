@@ -18,10 +18,6 @@
 # Test UTF-8/UTF-16 detection
 #
 
-proc appendArgs {args} {
-  eval append result $args
-}
-
 proc swap_byte_order {str} {
   set result ""
   for {set i 0} {$i < [string length $str]} {incr i} {
@@ -315,13 +311,6 @@ proc createTestResults {path num} {
     }
   }
   flush $f; close $f
-}
-
-set tempPath [expr {[info exists env(TEMP)] ? \
-    $env(TEMP) : [file dirname [info script]]}]
-
-if {$tcl_platform(platform) eq "windows"} then {
-  set tempPath [string map [list \\ /] $tempPath]
 }
 
 createTestFiles $tempPath 100

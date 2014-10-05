@@ -308,6 +308,7 @@ void cgi_reply(void){
     fprintf(g.httpOut, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
     fprintf(g.httpOut, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
     fprintf(g.httpOut, "Connection: close\r\n");
+    fprintf(g.httpOut, "X-UA-Compatible: IE=edge\r\n");
   }else{
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
@@ -752,7 +753,7 @@ static int cson_data_source_FILE_n( void * state,
       if( st->pos >= st->len ){
         *n = 0;
         return 0;
-      } else if( !*n || ((st->pos + *n) > st->len) ){
+      }else if( !*n || ((st->pos + *n) > st->len) ){
         return cson_rc.RangeError;
       }else{
         unsigned int rsz = (unsigned int)fread( dest, 1, *n, st->fh );
@@ -1559,7 +1560,7 @@ void cgi_handle_ssh_transport(const char *zCmd){
   if( zToken && strlen(zToken)==0 ){
     /* look for path to fossil */
     if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
-      if ( zCmd==0 ){
+      if( zCmd==0 ){
         malformed_request("missing fossil command");
       }else{
         /* no new command so exit */
@@ -1597,11 +1598,10 @@ void cgi_handle_scgi_request(void){
   char *zToFree;
   int nHdr = 0;
   int nRead;
-  int n, m;
-  char c;
+  int c, n, m;
 
-  while( (c = fgetc(g.httpIn))!=EOF && fossil_isdigit(c) ){
-    nHdr = nHdr*10 + c - '0';
+  while( (c = fgetc(g.httpIn))!=EOF && fossil_isdigit((char)c) ){
+    nHdr = nHdr*10 + (char)c - '0';
   }
   if( nHdr<16 ) malformed_request("SCGI header too short");
   zToFree = zHdr = fossil_malloc(nHdr);
@@ -1628,6 +1628,8 @@ void cgi_handle_scgi_request(void){
 */
 #define HTTP_SERVER_LOCALHOST      0x0001     /* Bind to 127.0.0.1 only */
 #define HTTP_SERVER_SCGI           0x0002     /* SCGI instead of HTTP */
+#define HTTP_SERVER_HAD_REPOSITORY 0x0004     /* Was the repository open? */
+#define HTTP_SERVER_HAD_CHECKOUT   0x0008     /* Was a checkout open? */
 
 #endif /* INTERFACE */
 
@@ -1715,7 +1717,7 @@ int cgi_http_server(
     zBrowser = mprintf(zBrowser, iPort);
 #if defined(__CYGWIN__)
     /* On Cygwin, we can do better than "echo" */
-    if( memcmp(zBrowser, "echo ", 5)==0 ){
+    if( strncmp(zBrowser, "echo ", 5)==0 ){
       wchar_t *wUrl = fossil_utf8_to_unicode(zBrowser+5);
       wUrl[wcslen(wUrl)-2] = 0; /* Strip terminating " &" */
       if( (size_t)ShellExecuteW(0, L"open", wUrl, 0, 0, 1)<33 ){

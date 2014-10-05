@@ -4,8 +4,11 @@ use cc cc-lib
 
 options {
     with-openssl:path|auto|none
-                         => {Look for openssl in the given path, or auto or none}
+                         => {Look for OpenSSL in the given path, or auto or none}
+    with-miniz=0         => {Use miniz from the source tree}
     with-zlib:path       => {Look for zlib in the given path}
+    with-th1-docs=0      => {Enable TH1 for embedded documentation pages}
+    with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
     with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
     with-tcl-stubs=0     => {Enable Tcl integration via stubs library mechanism}
     with-tcl-private-stubs=0
@@ -13,6 +16,7 @@ options {
     internal-sqlite=1    => {Don't use the internal SQLite, use the system one}
     static=0             => {Link a static executable}
     lineedit=1           => {Disable line editing}
+    fusefs=1             => {Disable the Fuse Filesystem}
     fossil-debug=0       => {Build with fossil debugging enabled}
     json=0               => {Build with fossil JSON API enabled}
 }
@@ -71,6 +75,7 @@ if {[string match *-solaris* [get-define host]]} {
 
 if {[opt-bool fossil-debug]} {
     define-append EXTRA_CFLAGS -DFOSSIL_DEBUG
+    msg-result "Debugging support enabled"
 }
 
 if {[opt-bool json]} {
@@ -80,15 +85,30 @@ if {[opt-bool json]} {
     # reading config.h first.
     define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_JSON
     define FOSSIL_ENABLE_JSON
+    msg-result "JSON support enabled"
+}
+
+if {[opt-bool with-th1-docs]} {
+    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_TH1_DOCS
+    define FOSSIL_ENABLE_TH1_DOCS
+    msg-result "TH1 embedded documentation support enabled"
+}
+
+if {[opt-bool with-th1-hooks]} {
+    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_TH1_HOOKS
+    define FOSSIL_ENABLE_TH1_HOOKS
+    msg-result "TH1 hooks support enabled"
 }
 
 #if {[opt-bool markdown]} {
 #    # no-op.  Markdown is now enabled by default.
+#    msg-result "Markdown support enabled"
 #}
 
 if {[opt-bool static]} {
     # XXX: This will not work on all systems.
     define-append EXTRA_LDFLAGS -static
+    msg-result "Trying to link statically"
 }
 
 set tclpath [opt-val with-tcl]
@@ -151,7 +171,7 @@ if {$tclpath ne ""} {
     define FOSSIL_ENABLE_TCL
 }
 
-# Helper for openssl checking
+# Helper for OpenSSL checking
 proc check-for-openssl {msg {cflags {}}} {
     msg-checking "Checking for $msg..."
     set rc 0
@@ -218,24 +238,32 @@ if {$ssldirs ne "none"} {
     }
 }
 
-# Check for zlib, using the given location if specified
-set zlibpath [opt-val with-zlib]
-if {$zlibpath ne ""} {
-    cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
-    define-append EXTRA_CFLAGS -I$zlibpath
-    define-append EXTRA_LDFLAGS -L$zlibpath
-}
-if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
-    user-error "zlib not found please install it or specify the location with --with-zlib"
+if {[opt-bool with-miniz]} {
+  define FOSSIL_ENABLE_MINIZ 1
+  msg-result "Using miniz for compression"
+} else {
+  # Check for zlib, using the given location if specified
+  set zlibpath [opt-val with-zlib]
+  if {$zlibpath ne ""} {
+      cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
+      define-append EXTRA_CFLAGS -I$zlibpath
+      define-append EXTRA_LDFLAGS -L$zlibpath
+      msg-result "Using zlib from $zlibpath"
+  }
+  if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
+      user-error "zlib not found please install it or specify the location with --with-zlib"
+  }
 }
 
 if {[opt-bool lineedit]} {
     # Need readline-compatible line editing
     cc-with {-includes stdio.h} {
         if {[cc-check-includes readline/readline.h] && [cc-check-function-in-lib readline readline]} {
+            define-append EXTRA_CFLAGS -DHAVE_READLINE
             msg-result "Using readline for line editing"
         } elseif {[cc-check-includes editline/readline.h] && [cc-check-function-in-lib readline edit]} {
             define-feature editline
+            define-append EXTRA_CFLAGS -DHAVE_EDITLINE
             msg-result "Using editline for line editing"
         }
     }
@@ -250,10 +278,13 @@ if {![cc-check-function-in-lib socket {socket network}]} {
     }
 }
 cc-check-function-in-lib iconv iconv
+cc-check-functions utime
+cc-check-functions usleep
 
 # Check for getloadavg(), and if it doesn't exist, define FOSSIL_OMIT_LOAD_AVERAGE
 if {![cc-check-functions getloadavg]} {
   define FOSSIL_OMIT_LOAD_AVERAGE 1
+  msg-result "Load average support unavailable"
 }
 
 # Check for getpassphrase() for Solaris 10 where getpass() truncates to 10 chars
@@ -262,6 +293,15 @@ if {![cc-check-functions getpassphrase]} {
     cc-check-function-in-lib getpass bsd
 }
 cc-check-function-in-lib dlopen dl
+
+# Check for the FuseFS library
+if {[opt-bool fusefs]} {
+  if {[cc-check-function-in-lib fuse_mount fuse]} {
+     define FOSSIL_HAVE_FUSEFS 1
+     define-append LIBS -lfuse
+     msg-result "FuseFS support enabled"
+  }
+}
 
 make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}

@@ -437,11 +437,20 @@ static const char zDefaultView[] =
 @ <table cellpadding="5">
 @ <tr><td class="tktDspLabel">Ticket&nbsp;UUID:</td>
 @ <th1>
-@ if {[hascap s]} {
-@   html "<td class='tktDspValue' colspan='3'>$tkt_uuid "
-@   html "($tkt_id)</td></tr>\n"
+@ if {[info exists tkt_uuid]} {
+@   if {[hascap s]} {
+@     html "<td class='tktDspValue' colspan='3'>$tkt_uuid "
+@     html "($tkt_id)</td></tr>\n"
+@   } else {
+@     html "<td class='tktDspValue' colspan='3'>$tkt_uuid</td></tr>\n"
+@   }
 @ } else {
-@   html "<td class='tktDspValue' colspan='3'>$tkt_uuid</td></tr>\n"
+@   if {[hascap s]} {
+@     html "<td class='tktDspValue' colspan='3'>Deleted "
+@     html "(0)</td></tr>\n"
+@   } else {
+@     html "<td class='tktDspValue' colspan='3'>Deleted</td></tr>\n"
+@   }
 @ }
 @ </th1>
 @ <tr><td class="tktDspLabel">Title:</td>
@@ -467,7 +476,11 @@ static const char zDefaultView[] =
 @ $<resolution>
 @ </td></tr>
 @ <tr><td class="tktDspLabel">Last&nbsp;Modified:</td><td class="tktDspValue">
-@ $<tkt_datetime>
+@ <th1>
+@ if {[info exists tkt_datetime]} {
+@   html $tkt_datetime
+@ }
+@ </th1>
 @ </td>
 @ <th1>enable_output [hascap e]</th1>
 @   <td class="tktDspLabel">Contact:</td><td class="tktDspValue">
@@ -481,16 +494,18 @@ static const char zDefaultView[] =
 @ </td></tr>
 @
 @ <th1>
-@ if {[info exists comment] && [string length $comment]>10} {
-@   html {
-@     <tr><td class="tktDspLabel">Description:</td></tr>
-@     <tr><td colspan="5" class="tktDspValue">
-@   }
-@   if {[info exists plaintext]} {
-@     set r [randhex]
-@     wiki "<verbatim-$r links>\n$comment\n</verbatim-$r>"
-@   } else {
-@     wiki $comment
+@ if {[info exists comment]} {
+@   if {[string length $comment]>10} {
+@     html {
+@       <tr><td class="tktDspLabel">Description:</td></tr>
+@       <tr><td colspan="5" class="tktDspValue">
+@     }
+@     if {[info exists plaintext]} {
+@       set r [randhex]
+@       wiki "<verbatim-$r links>\n$comment\n</verbatim-$r>"
+@     } else {
+@       wiki $comment
+@     }
 @   }
 @ }
 @ set seenRow 0

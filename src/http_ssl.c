@@ -60,7 +60,7 @@ static void ssl_clear_errmsg(void){
 /*
 ** Set the SSL error message.
 */
-void ssl_set_errmsg(char *zFormat, ...){
+void ssl_set_errmsg(const char *zFormat, ...){
   va_list ap;
   ssl_clear_errmsg();
   va_start(ap, zFormat);
@@ -84,7 +84,7 @@ static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
     "authentication. Specify the pathname to a file containing the PEM "
     "encoded certificate and private key with the --ssl-identity option "
     "or the ssl-identity setting.");
-  return 0; /* no cert available */    
+  return 0; /* no cert available */
 }
 
 /*
@@ -94,16 +94,16 @@ static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
 void ssl_global_init(void){
   const char *zCaSetting = 0, *zCaFile = 0, *zCaDirectory = 0;
   const char *identityFile;
-  
+
   if( sslIsInit==0 ){
     SSL_library_init();
     SSL_load_error_strings();
     ERR_load_BIO_strings();
-    OpenSSL_add_all_algorithms();    
+    OpenSSL_add_all_algorithms();
     sslCtx = SSL_CTX_new(SSLv23_client_method());
     /* Disable SSLv2 */
     SSL_CTX_set_options(sslCtx, SSL_OP_NO_SSLv2);
-    
+
     /* Set up acceptable CA root certificates */
     zCaSetting = db_get("ssl-ca-location", 0);
     if( zCaSetting==0 || zCaSetting[0]=='\0' ){
@@ -131,7 +131,7 @@ void ssl_global_init(void){
           "ssl-ca-location '%s'", zCaSetting);
       }
     }
-    
+
     /* Load client SSL identity, preferring the filename specified on the
     ** command line */
     if( g.zSSLIdentity!=0 ){
@@ -166,7 +166,7 @@ void ssl_global_shutdown(void){
 }
 
 /*
-** Close the currently open SSL connection.  If no connection is open, 
+** Close the currently open SSL connection.  If no connection is open,
 ** this routine is a no-op.
 */
 void ssl_close(void){
@@ -278,7 +278,7 @@ int ssl_open(UrlData *pUrlData){
     iBio = BIO_new_ssl_connect(sslCtx);
   }
   if( iBio==NULL ) {
-    ssl_set_errmsg("SSL: cannot open SSL (%s)", 
+    ssl_set_errmsg("SSL: cannot open SSL (%s)",
                     ERR_reason_error_string(ERR_get_error()));
     return 1;
   }
@@ -297,15 +297,15 @@ int ssl_open(UrlData *pUrlData){
     BIO_set_conn_hostname(iBio, pUrlData->name);
     BIO_set_conn_int_port(iBio, &pUrlData->port);
     if( BIO_do_connect(iBio)<=0 ){
-      ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)", 
+      ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)",
           pUrlData->name, pUrlData->port, ERR_reason_error_string(ERR_get_error()));
       ssl_close();
       return 1;
     }
   }
-  
+
   if( BIO_do_handshake(iBio)<=0 ) {
-    ssl_set_errmsg("Error establishing SSL connection %s:%d (%s)", 
+    ssl_set_errmsg("Error establishing SSL connection %s:%d (%s)",
         pUrlData->useProxy?pUrlData->hostname:pUrlData->name,
         pUrlData->useProxy?pUrlData->proxyOrigPort:pUrlData->port,
         ERR_reason_error_string(ERR_get_error()));
@@ -323,13 +323,13 @@ int ssl_open(UrlData *pUrlData){
 
   if( trusted<=0 && (e = SSL_get_verify_result(ssl)) != X509_V_OK ){
     char *desc, *prompt;
-    char *warning = "";
+    const char *warning = "";
     Blob ans;
     char cReply;
     BIO *mem;
     unsigned char md[32];
     unsigned int mdLength = 31;
-    
+
     mem = BIO_new(BIO_s_mem());
     X509_NAME_print_ex(mem, X509_get_subject_name(cert), 2, XN_FLAG_MULTILINE);
     BIO_puts(mem, "\n\nIssued By:\n\n");
@@ -343,7 +343,7 @@ int ssl_open(UrlData *pUrlData){
     }
     BIO_write(mem, "", 1); /* nul-terminate mem buffer */
     BIO_get_mem_data(mem, &desc);
-    
+
     if( hasSavedCertificate ){
       warning = "WARNING: Certificate doesn't match the "
                 "saved certificate for this host!";
@@ -415,7 +415,7 @@ void ssl_save_certificate(UrlData *pUrlData, X509 *cert, int trusted){
   zHost = mprintf("trusted:%s", pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
   db_set_int(zHost, trusted, 1);
   free(zHost);
-  BIO_free(mem);  
+  BIO_free(mem);
 }
 
 /*
@@ -445,7 +445,7 @@ X509 *ssl_get_certificate(UrlData *pUrlData, int *pTrusted){
   BIO_puts(mem, zCert);
   cert = PEM_read_bio_X509(mem, NULL, 0, NULL);
   free(zCert);
-  BIO_free(mem);  
+  BIO_free(mem);
   return cert;
 }
 

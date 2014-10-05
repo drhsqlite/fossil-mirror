@@ -31,6 +31,11 @@
 #endif
 
 /*
+** Used when the name for the diff is unknown.
+*/
+#define DIFF_NO_NAME  "(unknown)"
+
+/*
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, u64 diffFlags){
@@ -381,8 +386,8 @@ static void diff_all_against_disk(
     int isNew = db_column_int(&q,3);
     int srcid = db_column_int(&q, 4);
     int isLink = db_column_int(&q, 5);
-    char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-    char *zToFree = zFullName;
+    char *zToFree = mprintf("%s%s", g.zLocalRoot, zPathname);
+    const char *zFullName = zToFree;
     int showDiff = 1;
     if( isDeleted ){
       fossil_print("DELETED  %s\n", zPathname);
@@ -491,7 +496,14 @@ static void diff_manifest_entry(
   Blob f1, f2;
   int isBin1, isBin2;
   int rid;
-  const char *zName =  pFrom ? pFrom->zName : pTo->zName;
+  const char *zName;
+  if( pFrom ){
+    zName = pFrom->zName;
+  }else if( pTo ){
+    zName = pTo->zName;
+  }else{
+    zName = DIFF_NO_NAME;
+  }
   if( diffFlags & DIFF_BRIEF ) return;
   diff_print_index(zName, diffFlags);
   if( pFrom ){
@@ -1038,7 +1050,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
 #if defined(FOSSIL_ENABLE_TCL)
     Th_FossilInit(TH_INIT_DEFAULT);
     if( evaluateTclWithEvents(g.interp, &g.tcl, blob_str(&script),
-                              blob_size(&script), 1)==TCL_OK ){
+                              blob_size(&script), 1, 0)==TCL_OK ){
       blob_reset(&script);
       return;
     }

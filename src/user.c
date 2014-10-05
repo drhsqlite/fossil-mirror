@@ -199,6 +199,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 **        user for command-line interaction.
 **
 **    %fossil user list
+**    %fossil user ls
 **
 **        List all users known to the repository
 **
@@ -250,8 +251,8 @@ void user_cmd(void){
     );
     free(zPw);
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
-    user_select();
     if( g.argc==3 ){
+      user_select();
       fossil_print("%s\n", g.zLogin);
     }else{
       if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.argv[3]) ){
@@ -263,7 +264,7 @@ void user_cmd(void){
         db_set("default-user", g.argv[3], 0);
       }
     }
-  }else if( n>=2 && strncmp(g.argv[2],"list",n)==0 ){
+  }else if(( n>=2 && strncmp(g.argv[2],"list",n)==0 ) || ( n>=2 && strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
     db_prepare(&q, "SELECT login, info FROM user ORDER BY login");
     while( db_step(&q)==SQLITE_ROW ){

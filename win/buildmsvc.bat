@@ -17,6 +17,29 @@ IF NOT DEFINED _CECHO (SET _CECHO=REM)
 IF NOT DEFINED _VECHO (SET _VECHO=REM)
 
 REM
+REM NOTE: Setup local environment variables that point to the root directory
+REM       of the Fossil source checkout and to the directory containing this
+REM       build tool.
+REM
+SET ROOT=%~dp0\..
+SET ROOT=%ROOT:\\=\%
+
+%_VECHO% Root = '%ROOT%'
+
+SET TOOLS=%~dp0
+SET TOOLS=%TOOLS:~0,-1%
+
+%_VECHO% Tools = '%TOOLS%'
+
+REM
+REM Visual C++ ????
+REM
+IF DEFINED VCINSTALLDIR IF EXIST "%VCINSTALLDIR%" (
+  %_AECHO% Build environment appears to be setup.
+  GOTO skip_setupVisualStudio
+)
+
+REM
 REM Visual Studio ????
 REM
 IF DEFINED VSVARS32 IF EXIST "%VSVARS32%" (
@@ -124,20 +147,6 @@ SET VSVARS32=%VSVARS32:\\=\%
 %_VECHO% VsVars32 = '%VSVARS32%'
 
 REM
-REM NOTE: Setup local environment variables that point to the root directory
-REM       of the Fossil source checkout and to the directory containing this
-REM       build tool.
-REM
-SET ROOT=%~dp0\..
-SET ROOT=%ROOT:\\=\%
-
-SET TOOLS=%~dp0
-SET TOOLS=%TOOLS:~0,-1%
-
-%_VECHO% Root = '%ROOT%'
-%_VECHO% Tools = '%TOOLS%'
-
-REM
 REM NOTE: After this point, a clean ERRORLEVEL is required; therefore, make
 REM       sure it is reset now.
 REM
@@ -153,6 +162,14 @@ IF ERRORLEVEL 1 (
   ECHO Visual Studio build environment batch file "%VSVARS32%" failed.
   GOTO errors
 )
+
+REM
+REM NOTE: After this point, the environment should already be setup for
+REM       building with MSVC.
+REM
+:skip_setupVisualStudio
+
+%_VECHO% VcInstallDir = '%VCINSTALLDIR%'
 
 REM
 REM NOTE: Attempt to create the build output directory, if necessary.

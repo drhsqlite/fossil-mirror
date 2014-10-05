@@ -79,8 +79,8 @@ void transport_stats(i64 *pnSent, i64 *pnRcvd, int resetFlag){
 /*
 ** Default SSH command
 */
-#ifdef __MINGW32__
-static char zDefaultSshCmd[] = "ssh -T";
+#ifdef _WIN32
+static char zDefaultSshCmd[] = "plink -ssh -T";
 #else
 static char zDefaultSshCmd[] = "ssh -e none -T";
 #endif
@@ -101,7 +101,7 @@ int transport_ssh_open(UrlData *pUrlData){
   zSsh = db_get("ssh-command", zDefaultSshCmd);
   blob_init(&zCmd, zSsh, -1);
   if( pUrlData->port!=pUrlData->dfltPort && pUrlData->port ){
-#ifdef __MINGW32__
+#ifdef _WIN32
     blob_appendf(&zCmd, " -P %d", pUrlData->port);
 #else
     blob_appendf(&zCmd, " -p %d", pUrlData->port);
@@ -259,8 +259,8 @@ void transport_flip(UrlData *pUrlData){
   if( pUrlData->isFile ){
     char *zCmd;
     fclose(transport.pFile);
-    zCmd = mprintf("\"%s\" http \"%s\" \"%s\" \"%s\" 127.0.0.1 --localauth",
-       g.nameOfExe, pUrlData->name, transport.zOutFile, transport.zInFile
+    zCmd = mprintf("\"%s\" http \"%s\" \"%s\" 127.0.0.1 \"%s\" --localauth",
+       g.nameOfExe, transport.zOutFile, transport.zInFile, pUrlData->name
     );
     fossil_system(zCmd);
     free(zCmd);

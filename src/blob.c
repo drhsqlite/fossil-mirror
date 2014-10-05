@@ -19,7 +19,12 @@
 ** or binary data.
 */
 #include "config.h"
-#include <zlib.h>
+#if defined(FOSSIL_ENABLE_MINIZ)
+#  define MINIZ_HEADER_FILE_ONLY
+#  include "miniz.c"
+#else
+#  include <zlib.h>
+#endif
 #include "blob.h"
 
 #if INTERFACE
@@ -1005,6 +1010,61 @@ void blob_to_lf_only(Blob *p){
   }
   z[j] = 0;
   p->nUsed = j;
+}
+
+/*
+** Convert blob from cp1252 to UTF-8. As cp1252 is a superset
+** of iso8859-1, this is useful on UNIX as well.
+**
+** This table contains the character translations for 0x80..0xA0.
+*/
+
+static const unsigned short cp1252[32] = {
+  0x20ac,   0x81, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
+  0x02C6, 0x2030, 0x0160, 0x2039, 0x0152,   0x8D, 0x017D,   0x8F,
+    0x90, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
+   0x2DC, 0x2122, 0x0161, 0x203A, 0x0153,   0x9D, 0x017E, 0x0178
+};
+
+void blob_cp1252_to_utf8(Blob *p){
+  unsigned char *z = (unsigned char *)p->aData;
+  int j   = p->nUsed;
+  int i, n;
+  for(i=n=0; i<j; i++){
+    if( z[i]>=0x80 ){
+      if( (z[i]<0xa0) && (cp1252[z[i]&0x1f]>=0x800) ){
+        n++;
+      }
+      n++;
+    }
+  }
+  j += n;
+  if( j>=p->nAlloc ){
+    blob_resize(p, j);
+    z = (unsigned char *)p->aData;
+  }
+  p->nUsed = j;
+  z[j] = 0;
+  while( j>i ){
+    if( z[--i]>=0x80 ){
+      if( z[i]<0xa0 ){
+        unsigned short sym = cp1252[z[i]&0x1f];
+        if( sym>=0x800 ){
+          z[--j] = 0x80 | (sym&0x3f);
+          z[--j] = 0x80 | ((sym>>6)&0x3f);
+          z[--j] = 0xe0 | (sym>>12);
+        }else{
+          z[--j] = 0x80 | (sym&0x3f);
+          z[--j] = 0xc0 | (sym>>6);
+        }
+      }else{
+        z[--j] = 0x80 | (z[i]&0x3f);
+        z[--j] = 0xC0 | (z[i]>>6);
+      }
+    }else{
+      z[--j] = z[i];
+    }
+  }
 }
 
 /*
