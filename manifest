@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.7\sbeta\sfrom\supstream.
-D 2014-10-05T20:11:01.723
+C Add\san\sassert()\sto\sprove\sthat\sFossil\sserver\sinstances\sare\snot\svulnerable\s\nto\sthe\sShellShock\sbug\sbecause\sit\snever\sshells-out\swhile\sprocessing\s\nan\sHTTP\srequest.
+D 2014-10-06T00:58:44.123
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -430,7 +430,7 @@ F src/update.c f4a971b4720ad027e45a96df9cf2e44b7bc9e261
 F src/url.c b7743600119e97d34f96aea8996b9a4caad4bdc0
 F src/user.c 609b489ac17b5dd35c1a8676d85cb1196c07d43e
 F src/utf8.c eab5cc0060d893b3a5079ee4f5957f222392a179
-F src/util.c d776ecabc6cb879ee2c8a577bde1da468288d6cf
+F src/util.c 227890c094477666f208c710453f4bfae0a8a52e
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
 F src/vfile.c 33ddafa3850ae2cd6e35f1b47aa84cb0bbc92a4d
 F src/wiki.c 4fe4a158888bd4a8948b8798db6663759cf85905
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 334d7744021dba7be0a34d88aacb32a9a4860291
-R 81613c815167323827ffc7394dcabefa
+P c001fa0edfc412aea5e8ca8d5a45680c0296b92e
+R befc4987a690299af85f4c7a6a69e43d
 U drh
-Z 3ac5683eae1b90232c408d2d1a6a5da8
+Z 95979ce40f853468f255991a2e1b3136
