@@ -1929,7 +1929,7 @@ static void find_server_repository(int disallowDir, int arg){
 ** See also: cgi, server, winsrv
 */
 void cmd_http(void){
-  const char *zIpAddr;
+  const char *zIpAddr = 0;
   const char *zNotFound;
   const char *zHost;
   const char *zAltBase;
@@ -1954,7 +1954,10 @@ void cmd_http(void){
   useSCGI = find_option("scgi", 0, 0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
   if( zAltBase ) set_base_url(zAltBase);
-  if( find_option("https",0,0)!=0 ) cgi_replace_parameter("HTTPS","on");
+  if( find_option("https",0,0)!=0 ){
+    zIpAddr = fossil_getenv("REMOTE_HOST"); /* From stunnel */
+    cgi_replace_parameter("HTTPS","on");
+  }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
   g.cgiOutput = 1;
@@ -1974,7 +1977,6 @@ void cmd_http(void){
   }else{
     g.httpIn = stdin;
     g.httpOut = stdout;
-    zIpAddr = 0;
     find_server_repository(0, 2);
   }
   if( zIpAddr==0 ){
