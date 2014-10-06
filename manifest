@@ -1,5 +1,5 @@
-C For\sthe\s"fossil\shttp"\scommand\swith\sthe\s--https\soption,\stry\sto\sget\sthe\nremove\sIP\saddress\sfrom\sthe\sREMOTE_HOST\senvironment\svariable,\sit\sit\sexists.\nThis\swill\smean\sthat\sthe\scorrect\sremote\sIP\saddress\sis\sobtained\swhen\sstunnel\nprovides\sSSL\sdecoding\sfor\sFossil.
-D 2014-10-06T03:19:26.097
+C If\sthe\sgetloadavg()\sfunction\sexists\sand\sreturns\swithout\serror,\sthen\salways\nreport\sa\sload\saverage\sof\sat\sleast\s0.000001\seven\sif\sthe\sload\saverage\scomes\nback\sas\szero.\s\sThis\sallows\sus\sto\sdistinguish\sbetween\sa\snon-working\sload\saverage\nand\sa\svery\slow\sload\saverage.
+D 2014-10-06T13:37:30.795
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -371,7 +371,7 @@ F src/json_timeline.c 4ba37f8d381b38424fb287969a2da3ea553aa228
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c afd597bc0a8101285845749ceaa129689912ec51
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/loadctrl.c 4227f5e1476df3cc62f95afbb1bf0c30b1d41d13
+F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 8a8077139db4a01b8c9eb22aab452236331b7c8c
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c 394258fc8108f16ca99a8bac1a04fab209d53e7d
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 82e30c0000dfe41b4ded9ce51b9864826bc0b827
-R 70890ee8baed2747ab25e5e2a00f59d8
+P afc2f5e661266b4aff3d3ec0264d4a99c768a14b
+R 441e75e2af69c4ae32dd184a7cedd0dd
 U drh
-Z d94c9a60baef070ee013d66b9094a289
+Z 7c6a3afebaeb023f47513436de0d76e8
