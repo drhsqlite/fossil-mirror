@@ -1178,10 +1178,8 @@ static int display_stats(
     fprintf(pArg->out, "Sort Operations:                     %d\n", iCur);
     iCur = sqlite3_stmt_status(pArg->pStmt, SQLITE_STMTSTATUS_AUTOINDEX, bReset);
     fprintf(pArg->out, "Autoindex Inserts:                   %d\n", iCur);
-    if( sqlite3_libversion_number()>=3008000 ){
-      iCur = sqlite3_stmt_status(pArg->pStmt, SQLITE_STMTSTATUS_VM_STEP, bReset);
-      fprintf(pArg->out, "Virtual Machine Steps:               %d\n", iCur);
-    }
+    iCur = sqlite3_stmt_status(pArg->pStmt, SQLITE_STMTSTATUS_VM_STEP, bReset);
+    fprintf(pArg->out, "Virtual Machine Steps:               %d\n", iCur);
   }
 
   return 0;
@@ -1354,17 +1352,6 @@ static int shell_exec(
         sqlite3_finalize(pExplain);
         sqlite3_free(zEQP);
       }
-
-#if USE_SYSTEM_SQLITE+0==1
-      /* Output TESTCTRL_EXPLAIN text of requested */
-      if( pArg && pArg->mode==MODE_Explain && sqlite3_libversion_number()<3008007 ){
-        const char *zExplain = 0;
-        sqlite3_test_control(SQLITE_TESTCTRL_EXPLAIN_STMT, pStmt, &zExplain);
-        if( zExplain && zExplain[0] ){
-          fprintf(pArg->out, "%s", zExplain);
-        }
-      }
-#endif
 
       /* If the shell is currently in ".explain" mode, gather the extra
       ** data required to add indents to the output.*/
@@ -3911,7 +3898,6 @@ static void main_init(ShellState *data) {
   sqlite3_config(SQLITE_CONFIG_URI, 1);
   sqlite3_config(SQLITE_CONFIG_LOG, shellLog, data);
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
-  sqlite3_config(32); /* SQLITE_CONFIG_EXPLAIN_COMMENTS (old) */
   sqlite3_config(64); /* SQLITE_CONFIG_EXPLAIN_COMMENTS */
   sqlite3_snprintf(sizeof(mainPrompt), mainPrompt,"sqlite> ");
   sqlite3_snprintf(sizeof(continuePrompt), continuePrompt,"   ...> ");
