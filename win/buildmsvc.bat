@@ -207,6 +207,7 @@ IF DEFINED USE_V110SDK71A (
 %_VECHO% Path = '%PATH%'
 %_VECHO% Include = '%INCLUDE%'
 %_VECHO% Lib = '%LIB%'
+%_VECHO% NmakeArgs = '%NMAKE_ARGS%'
 
 REM
 REM NOTE: Attempt to execute NMAKE for the Fossil MSVC makefile, passing
