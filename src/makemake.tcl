@@ -1177,6 +1177,9 @@ PERL    = perl.exe
 # Uncomment to enable debug symbols
 # DEBUG = 1
 
+# Uncomment to support Windows XP with Visual Studio 201x
+# FOSSIL_ENABLE_WINXP = 1
+
 # Uncomment to enable JSON API
 # FOSSIL_ENABLE_JSON = 1
 
@@ -1248,6 +1251,15 @@ INCL      = $(INCL) /I$(TCLINCDIR)
 
 CFLAGS    = /nologo
 LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
+
+!ifdef FOSSIL_ENABLE_WINXP
+CFLAGS    = $(CFLAGS) /D_USING_V110_SDK71_=1
+!if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
+LDFLAGS   = $(LDFLAGS) /SUBSYSTEM:CONSOLE,5.02
+!else
+LDFLAGS   = $(LDFLAGS) /SUBSYSTEM:CONSOLE,5.01
+!endif
+!endif
 
 !ifdef DEBUG
 CFLAGS    = $(CFLAGS) /Zi /MTd /Od
