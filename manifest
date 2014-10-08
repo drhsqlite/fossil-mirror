@@ -1,5 +1,5 @@
-C Modify\sthe\sMSVC\smakefile\sand\sbuild\stool\sto\ssupport\sbuilding\sbinaries\sthat\swork\son\sWindows\sXP\susing\sVisual\sStudio\s201x.
-D 2014-10-08T22:21:11.526
+C Fix\stypo\sin\sprevious\scheck-in.
+D 2014-10-08T23:01:00.537
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -546,7 +546,7 @@ F win/Makefile.dmc db781be43581f5dc81b0be9cdfcae986daacad84
 F win/Makefile.mingw 503d32cefb17f3163601b05e7a06270035b9f259
 F win/Makefile.mingw.mistachkin c74b955e0a60b5fea57bb1538aee2ca91db63d4d
 F win/Makefile.msc 081b9ae3b42e0533796fa27042c06250dff20dd2
-F win/buildmsvc.bat 79d97691aabb0500fb424056b49c7b12cca340cc
+F win/buildmsvc.bat e52e269711ca19e3ec23bd903d876b6302e16ca9
 F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc ed58e45cbc54a6274fa6de052c3ff44c5ed76c3e
@@ -654,10 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 83e4f8660ccf5a770a4647eb4abd347bd31bdca7
-R 3a50b5966f784df63ae27168a39329da
-T *branch * winXpVs201x
-T *sym-winXpVs201x *
-T -sym-trunk *
+P afe765c0b855ee549c4bb2e9cf02b73ad7dd8295
+R ebac98cc13e15f19de6b87227bc6463b
 U mistachkin
-Z ba19ab75a341ec40cd0189998eed5d03
+Z 2f9cdf47b225ebfaae155957ad59b1a4
