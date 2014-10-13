@@ -1,5 +1,5 @@
-C Prefer\sthe\seditted\scomment\sand\seditted\suser\sover\sthe\soriginals\swhen\sdoing\nan\sexport\sto\sgit.
-D 2014-10-06T17:34:25.703
+C Modify\sthe\sMSVC\smakefile\sand\sbuild\stool\sto\ssupport\sbuilding\sbinaries\sthat\swork\son\sWindows\sXP\susing\sVisual\sStudio\s201x.
+D 2014-10-13T02:51:27.076
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -378,7 +378,7 @@ F src/main.c 394258fc8108f16ca99a8bac1a04fab209d53e7d
 F src/main.mk 8a61014e8f6768cde4ea1d6c3c31906e6d9d3646
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl e9b476c6e053ce4b03f0408fd836ef4b96799fd6
+F src/makemake.tcl 1380fd60cd096c2a6baaa557d1bbdbf72906b750
 F src/manifest.c bfd3b0bd215ec9c522e26a9f07d19194455e5d14
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
@@ -545,8 +545,8 @@ F win/Makefile.PellesCGMake 11974d1b5453eb4bb9756b48f384d610dd6e817a
 F win/Makefile.dmc db781be43581f5dc81b0be9cdfcae986daacad84
 F win/Makefile.mingw 503d32cefb17f3163601b05e7a06270035b9f259
 F win/Makefile.mingw.mistachkin c74b955e0a60b5fea57bb1538aee2ca91db63d4d
-F win/Makefile.msc 09430c7f0b21bb9d92b2119301cdec0ccc148aed
-F win/buildmsvc.bat bff32737fe1270faa7fafcea5f091779ec74de8a
+F win/Makefile.msc f12ceab02be1debfdca8be4e0e011e7d771e401e
+F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc ed58e45cbc54a6274fa6de052c3ff44c5ed76c3e
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dede23732aa7725c97c4673afc406c73ebfa209c
-R 788b6406f345e7890b86d926aa0eb114
-U drh
-Z ffb566f57c932d43f5bc3eb1fb14e4a4
+P 83e4f8660ccf5a770a4647eb4abd347bd31bdca7 c0beb5323cf973649cc6d9d0cac314369d6e91ef
+R 226eb482dc9bff4df0855112c18c1efd
+U mistachkin
+Z 1438ffad748febc17077660fca35432f
