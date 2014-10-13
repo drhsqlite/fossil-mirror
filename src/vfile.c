@@ -492,7 +492,7 @@ void vfile_scan(
       if( glob_match(pIgnore1, &zPath[nPrefix+1]) ||
           glob_match(pIgnore2, &zPath[nPrefix+1]) ){
         /* do nothing */
-#ifdef _DIRENT_HAVE_D_TYPE
+#if defined(_DIRENT_HAVE_D_TYPE) && !defined(_WIN32)
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
           ? (file_wd_isdir(zPath)==1) : (pEntry->d_type==DT_DIR) ){
 #else
@@ -501,7 +501,7 @@ void vfile_scan(
         if( !vfile_top_of_checkout(zPath) ){
           vfile_scan(pPath, nPrefix, scanFlags, pIgnore1, pIgnore2);
         }
-#ifdef _DIRENT_HAVE_D_TYPE
+#if defined(_DIRENT_HAVE_D_TYPE) && !defined(_WIN32)
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
           ? (file_wd_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
 #else
@@ -609,7 +609,7 @@ int vfile_dir_scan(
           glob_match(pIgnore2, &zPath[nPrefix+1]) ||
           glob_match(pIgnore3, &zPath[nPrefix+1]) ){
         /* do nothing */
-#ifdef _DIRENT_HAVE_D_TYPE
+#if defined(_DIRENT_HAVE_D_TYPE) && !defined(_WIN32)
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
           ? (file_wd_isdir(zPath)==1) : (pEntry->d_type==DT_DIR) ){
 #else
@@ -626,7 +626,7 @@ int vfile_dir_scan(
           fossil_free(zSavePath);
           result += count; /* found X normal files? */
         }
-#ifdef _DIRENT_HAVE_D_TYPE
+#if defined(_DIRENT_HAVE_D_TYPE) && !defined(_WIN32)
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
           ? (file_wd_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
 #else

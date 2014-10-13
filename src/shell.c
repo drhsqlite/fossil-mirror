@@ -1353,15 +1353,6 @@ static int shell_exec(
         sqlite3_free(zEQP);
       }
 
-      /* Output TESTCTRL_EXPLAIN text of requested */
-      if( pArg && pArg->mode==MODE_Explain ){
-        const char *zExplain = 0;
-        sqlite3_test_control(SQLITE_TESTCTRL_EXPLAIN_STMT, pStmt, &zExplain);
-        if( zExplain && zExplain[0] ){
-          fprintf(pArg->out, "%s", zExplain);
-        }
-      }
-
       /* If the shell is currently in ".explain" mode, gather the extra
       ** data required to add indents to the output.*/
       if( pArg && pArg->mode==MODE_Explain ){
@@ -3100,6 +3091,15 @@ static int do_meta_command(char *zLine, ShellState *p){
       rc = 0;
     }
   }else
+
+
+#if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_SELECTTRACE)
+  if( c=='s' && n==11 && strncmp(azArg[0], "selecttrace", n)==0 ){
+    extern int sqlite3SelectTrace;
+    sqlite3SelectTrace = nArg>=2 ? booleanValue(azArg[1]) : 0xff;
+  }else
+#endif
+
 
 #ifdef SQLITE_DEBUG
   /* Undocumented commands for internal testing.  Subject to change

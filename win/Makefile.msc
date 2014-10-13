@@ -32,6 +32,9 @@ PERL    = perl.exe
 # Uncomment to enable debug symbols
 # DEBUG = 1
 
+# Uncomment to support Windows XP with Visual Studio 201x
+# FOSSIL_ENABLE_WINXP = 1
+
 # Uncomment to enable JSON API
 # FOSSIL_ENABLE_JSON = 1
 
@@ -57,6 +60,7 @@ PERL    = perl.exe
 SSLDIR    = $(B)\compat\openssl-1.0.1i
 SSLINCDIR = $(SSLDIR)\inc32
 SSLLIBDIR = $(SSLDIR)\out32
+SSLLFLAGS = /nologo /opt:ref /debug
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
@@ -103,6 +107,17 @@ INCL      = $(INCL) /I$(TCLINCDIR)
 
 CFLAGS    = /nologo
 LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
+
+!ifdef FOSSIL_ENABLE_WINXP
+XPCFLAGS  = $(XPCFLAGS) /D_USING_V110_SDK71_=1
+CFLAGS    = $(CFLAGS) $(XPCFLAGS)
+!if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
+XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.02
+!else
+XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.01
+!endif
+LDFLAGS   = $(LDFLAGS) $(XPLDFLAGS)
+!endif
 
 !ifdef DEBUG
 CFLAGS    = $(CFLAGS) /Zi /MTd /Od
@@ -425,7 +440,11 @@ all: $(OX) $(APPNAME)
 
 zlib:
 	@echo Building zlib from "$(ZLIBDIR)"...
+!ifdef FOSSIL_ENABLE_WINXP
+	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) "CC=cl $(XPCFLAGS)" "LD=link $(XPLDFLAGS)" && popd
+!else
 	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) && popd
+!endif
 
 !ifdef FOSSIL_ENABLE_SSL
 openssl:
@@ -435,7 +454,11 @@ openssl:
 !endif
 	@pushd "$(SSLDIR)" && $(PERL) Configure $(SSLCONFIG) && popd
 	@pushd "$(SSLDIR)" && call $(SSLSETUP) && popd
+!ifdef FOSSIL_ENABLE_WINXP
+	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(XPCFLAGS)" "LFLAGS=$(SSLLFLAGS) $(XPLDFLAGS)" && popd
+!else
 	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) && popd
+!endif
 !endif
 
 !ifndef FOSSIL_ENABLE_MINIZ

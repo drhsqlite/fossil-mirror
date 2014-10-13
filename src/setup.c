@@ -309,7 +309,7 @@ void user_edit(void){
                        /* user doing the editing is ADMIN.  Disallow editing */
   char *inherit[128];
   int a[128];
-  char *oa[128];
+  const char *oa[128];
 
   /* Must have ADMIN privileges to access this page
   */
@@ -443,7 +443,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-         "<span class=\"ueditInheritDeveloper\"><sub>D</sub></span>";
+         "<span class=\"ueditInheritDeveloper\"><sub>[D]</sub></span>";
     }
     free(z2);
   }
@@ -452,7 +452,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='reader'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-          "<span class=\"ueditInheritReader\"><sub>R</sub></span>";
+          "<span class=\"ueditInheritReader\"><sub>[R]</sub></span>";
     }
     free(z2);
   }
@@ -461,7 +461,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='anonymous'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-           "<span class=\"ueditInheritAnonymous\"><sub>A</sub></span>";
+           "<span class=\"ueditInheritAnonymous\"><sub>[A]</sub></span>";
     }
     free(z2);
   }
@@ -470,7 +470,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='nobody'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-           "<span class=\"ueditInheritNobody\"><sub>N</sub></span>";
+           "<span class=\"ueditInheritNobody\"><sub>[N]</sub></span>";
     }
     free(z2);
   }
@@ -491,6 +491,43 @@ void user_edit(void){
     @ <input type="hidden" name="info" value="">
     @ <input type="hidden" name="pw" value="*">
   }
+  @ <script type='text/javascript'>
+  @ function updateCapabilityString(){
+  @   /*
+  @   ** This function updates the "#usetupEditCapability" span content
+  @   ** with the capabilities selected by the interactive user, based
+  @   ** upon the state of the capability checkboxes.
+  @   */
+  @   try {
+  @     var inputs = document.getElementsByTagName('input');
+  @     if( inputs && inputs.length ){
+  @       var output = document.getElementById('usetupEditCapability');
+  @       if( output ){
+  @         var permsIds = [], x = 0;
+  @         for(var i = 0; i < inputs.length; i++){
+  @           var e = inputs[i];
+  @           if( !e.name || !e.type ) continue;
+  @           if( e.type.toLowerCase()!=='checkbox' ) continue;
+  @           if( e.name.length===2 && e.name[0]==='a' ){
+  @             // looks like a capability checkbox
+  @             if( e.checked ){
+  @               // grab the second character of the element
+  @               // name, which is the textual flag for this
+  @               // capability, and then add it to the result
+  @               // array.
+  @               permsIds[x++] = e.name[1];
+  @             }
+  @           }
+  @         }
+  @         permsIds.sort();
+  @         output.innerHTML = permsIds.join('');
+  @       }
+  @     }
+  @   } catch (e) {
+  @     /* ignore errors */
+  @   }
+  @ }
+  @ </script>
   @ <table>
   @ <tr>
   @   <td class="usetupEditLabel">User ID:</td>
@@ -518,60 +555,92 @@ void user_edit(void){
 #define B(x) inherit[x]
   @ <table border=0><tr><td valign="top">
   if( g.perm.Setup ){
-    @  <label><input type="checkbox" name="as"%s(oa['s']) />
+    @  <label><input type="checkbox" name="as"%s(oa['s'])
+    @                onchange="updateCapabilityString()"/>
     @  Setup%s(B('s'))</label><br />
   }
-  @  <label><input type="checkbox" name="aa"%s(oa['a']) />
+  @  <label><input type="checkbox" name="aa"%s(oa['a'])
+  @                onchange="updateCapabilityString()" />
   @  Admin%s(B('a'))</label><br />
-  @  <label><input type="checkbox" name="ad"%s(oa['d']) />
+  @  <label><input type="checkbox" name="ad"%s(oa['d'])
+  @                onchange="updateCapabilityString()" />
   @  Delete%s(B('d'))</label><br />
-  @  <label><input type="checkbox" name="ae"%s(oa['e']) />
+  @  <label><input type="checkbox" name="ae"%s(oa['e'])
+  @                onchange="updateCapabilityString()" />
   @  Email%s(B('e'))</label><br />
-  @  <label><input type="checkbox" name="ap"%s(oa['p']) />
+  @  <label><input type="checkbox" name="ap"%s(oa['p'])
+  @                onchange="updateCapabilityString()" />
   @  Password%s(B('p'))</label><br />
-  @  <label><input type="checkbox" name="ai"%s(oa['i']) />
+  @  <label><input type="checkbox" name="ai"%s(oa['i'])
+  @                onchange="updateCapabilityString()" />
   @  Check-In%s(B('i'))</label><br />
-  @  <label><input type="checkbox" name="ao"%s(oa['o']) />
+  @  <label><input type="checkbox" name="ao"%s(oa['o'])
+  @                onchange="updateCapabilityString()" />
   @  Check-Out%s(B('o'))</label><br />
-  @  <label><input type="checkbox" name="ah"%s(oa['h']) />
+  @  <label><input type="checkbox" name="ah"%s(oa['h'])
+  @                onchange="updateCapabilityString()" />
   @  Hyperlinks%s(B('h'))</label><br />
-  @  <label><input type="checkbox" name="ab"%s(oa['b']) />
+  @  <label><input type="checkbox" name="ab"%s(oa['b'])
+  @                onchange="updateCapabilityString()" />
   @  Attachments%s(B('b'))</label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="au"%s(oa['u']) />
+  @  <label><input type="checkbox" name="au"%s(oa['u'])
+  @                onchange="updateCapabilityString()" />
   @  Reader%s(B('u'))</label><br />
-  @  <label><input type="checkbox" name="av"%s(oa['v']) />
+  @  <label><input type="checkbox" name="av"%s(oa['v'])
+  @                onchange="updateCapabilityString()" />
   @  Developer%s(B('v'))</label><br />
-  @  <label><input type="checkbox" name="ag"%s(oa['g']) />
+  @  <label><input type="checkbox" name="ag"%s(oa['g'])
+  @                onchange="updateCapabilityString()" />
   @  Clone%s(B('g'))</label><br />
-  @  <label><input type="checkbox" name="aj"%s(oa['j']) />
+  @  <label><input type="checkbox" name="aj"%s(oa['j'])
+  @                onchange="updateCapabilityString()" />
   @  Read Wiki%s(B('j'))</label><br />
-  @  <label><input type="checkbox" name="af"%s(oa['f']) />
+  @  <label><input type="checkbox" name="af"%s(oa['f'])
+  @                onchange="updateCapabilityString()" />
   @  New Wiki%s(B('f'))</label><br />
-  @  <label><input type="checkbox" name="am"%s(oa['m']) />
+  @  <label><input type="checkbox" name="am"%s(oa['m'])
+  @                onchange="updateCapabilityString()" />
   @  Append Wiki%s(B('m'))</label><br />
-  @  <label><input type="checkbox" name="ak"%s(oa['k']) />
+  @  <label><input type="checkbox" name="ak"%s(oa['k'])
+  @                onchange="updateCapabilityString()" />
   @  Write Wiki%s(B('k'))</label><br />
-  @  <label><input type="checkbox" name="al"%s(oa['l']) />
+  @  <label><input type="checkbox" name="al"%s(oa['l'])
+  @                onchange="updateCapabilityString()" />
   @  Moderate Wiki%s(B('l'))</label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="ar"%s(oa['r']) />
+  @  <label><input type="checkbox" name="ar"%s(oa['r'])
+  @                onchange="updateCapabilityString()" />
   @  Read Ticket%s(B('r'))</label><br />
-  @  <label><input type="checkbox" name="an"%s(oa['n']) />
+  @  <label><input type="checkbox" name="an"%s(oa['n'])
+  @                onchange="updateCapabilityString()" />
   @  New Tickets%s(B('n'))</label><br />
-  @  <label><input type="checkbox" name="ac"%s(oa['c']) />
+  @  <label><input type="checkbox" name="ac"%s(oa['c'])
+  @                onchange="updateCapabilityString()" />
   @  Append To Ticket%s(B('c'))</label><br />
-  @  <label><input type="checkbox" name="aw"%s(oa['w']) />
+  @  <label><input type="checkbox" name="aw"%s(oa['w'])
+  @                onchange="updateCapabilityString()" />
   @  Write Tickets%s(B('w'))</label><br />
-  @  <label><input type="checkbox" name="aq"%s(oa['q']) />
+  @  <label><input type="checkbox" name="aq"%s(oa['q'])
+  @                onchange="updateCapabilityString()" />
   @  Moderate Tickets%s(B('q'))</label><br />
-  @  <label><input type="checkbox" name="at"%s(oa['t']) />
+  @  <label><input type="checkbox" name="at"%s(oa['t'])
+  @                onchange="updateCapabilityString()" />
   @  Ticket Report%s(B('t'))</label><br />
-  @  <label><input type="checkbox" name="ax"%s(oa['x']) />
+  @  <label><input type="checkbox" name="ax"%s(oa['x'])
+  @                onchange="updateCapabilityString()" />
   @  Private%s(B('x'))</label><br />
-  @  <label><input type="checkbox" name="az"%s(oa['z']) />
+  @  <label><input type="checkbox" name="az"%s(oa['z'])
+  @                onchange="updateCapabilityString()" />
   @  Download Zip%s(B('z'))</label>
-  @ </td></tr></table>
+  @ </td></tr>
+  @ </table>
+  @   </td>
+  @ </tr>
+  @ <tr>
+  @   <td class="usetupEditLabel">Selected Cap.:</td>
+  @   <td>
+  @     <span id="usetupEditCapability">(missing JS?)</span>
   @   </td>
   @ </tr>
   if( !login_is_special(zLogin) ){
@@ -606,6 +675,7 @@ void user_edit(void){
   @ </table>
   @ </div></form>
   @ </div>
+  @ <script type='text/javascript'>updateCapabilityString();</script>
   @ <h2>Privileges And Capabilities:</h2>
   @ <ul>
   if( higherUser ){
