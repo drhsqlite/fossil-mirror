@@ -1,5 +1,5 @@
-C Add\sthe\s"dbstat"\scommand\sto\s"fossil\sall".
-D 2014-10-14T17:01:39.714
+C Improvements\sto\sthe\sinformation\sprovided\sby\s"fossil\sdbstat".\s\sBetter\sformatting\nfor\sthe\s"fossil\sall\sdbstat"\scommand.
+D 2014-10-14T17:49:02.794
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -311,7 +311,7 @@ F setup/fossil.iss c9ad92c989eecde15b2b01cd69eadc74de7a8d33
 F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c a66548627cf802196c54c1200780f2bd37a503bb
-F src/allrepo.c c31bee797b0047fde577188e9d8eec0ec08bc049
+F src/allrepo.c 9a142f83cc7ba9f6b95f8add81bbf88654f64667
 F src/attach.c 6e597747741d0a82dd71ca250a13655b15bcac36
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
@@ -410,7 +410,7 @@ F src/sqlcmd.c c81155ddf8865c49bedeb771e051df0ca5dd2c9d
 F src/sqlite3.c 862d8a98e997da9eaa3a8430bcbb842cea7c378e
 F src/sqlite3.h 0722ea2bd2ae067e6908115e8f2052d4075a5a59
 F src/stash.c 4fcd200867fec73b3d57b9b99203afd0a5d7148e
-F src/stat.c d20741d310c52a0cbfddfa72d17b2d53531b4ff4
+F src/stat.c 22ca440ecfc3bfe7cbf63833d4179c38e91be757
 F src/style.c e763677210601a956b7e6a0ae34b5769083dc1b1
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 1301dff0c04b00e66d2d6d0dedf9999b426e439c
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2271ea42fe35fee4afbc1980c5811c8d2c71c531
-R 2003ea98ad60294f13786ef2cc5f98c0
+P c6d9b0a06c7980cb8520772949ebed2720576642
+R 34122ea3e76fe3c2ff7f20f2f9e813ba
 U drh
-Z 5004914577c976353eb0c97cc979880e
+Z 7ab6b3173d4361a1bce11541ddfb70e3

@@ -195,7 +195,9 @@ void all_cmd(void){
     collect_argument(&extra, "whatif",0);
     useCheckouts = 1;
   }else if( strncmp(zCmd, "dbstat", n)==0 ){
-    zCmd = "dbstat -R";
+    zCmd = "dbstat --omit-version-info -R";
+    showLabel = 1;
+    quiet = 1;
     collect_argument(&extra, "brief", "b");
   }else if( strncmp(zCmd, "extras", n)==0 ){
     if( showFile ){

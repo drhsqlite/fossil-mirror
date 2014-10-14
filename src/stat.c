@@ -168,18 +168,24 @@ void dbstat_cmd(void){
   int szMax, szAvg;
   const char *zDb;
   int brief;
+  int omitVers;            /* Omit Fossil and SQLite version information */
   char zBuf[100];
   const int colWidth = -19 /* printf alignment/width for left column */;
-  const char *p;
+  const char *p, *z;
 
   brief = find_option("brief", "b",0)!=0;
+  omitVers = find_option("omit-version-info", 0, 0)!=0;
   db_find_and_open_repository(0,0);
 
   /* We should be done with options.. */
   verify_all_options();
 
+  if( (z = db_get("project-name",0))!=0
+   || (z = db_get("short-project-name",0))!=0
+  ){
+    fossil_print("%*s%s\n", colWidth, "project-name:", z);
+  }
   fsize = file_size(g.zRepositoryName);
-  fossil_print("%*s%s\n", colWidth, "repository-file:", g.zRepositoryName);
   bigSizeName(sizeof(zBuf), zBuf, fsize);
   fossil_print( "%*s%s\n", colWidth, "repository-size:", zBuf );
   if( !brief ){
@@ -228,6 +234,11 @@ void dbstat_cmd(void){
     fossil_print("%*s%d\n", colWidth, "events:", n);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
     fossil_print("%*s%d\n", colWidth, "tagchanges:", n);
+    z = db_text(0, "SELECT datetime(mtime) ||"
+                   " printf(' - about %%d days ago ',julianday('now') - mtime)"
+                   " FROM event "
+                   " ORDER BY mtime DESC LIMIT 1");
+    fossil_print("%*s%s\n", colWidth, "latest-change:", z);
   }
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
@@ -237,15 +248,20 @@ void dbstat_cmd(void){
   if( p ){
     fossil_print("%*s%s\n", colWidth, "project-id:", p);
   }
+#if 0
+  /* Server-id is not useful information any more */
   fossil_print("%*s%s\n", colWidth, "server-id:", db_get("server-code", 0));
-  fossil_print("%*s%s %s [%s] (%s)\n",
-               colWidth, "fossil-version:",
-               MANIFEST_DATE, MANIFEST_VERSION, RELEASE_VERSION,
-               COMPILER_NAME);
-  fossil_print("%*s%.19s [%.10s] (%s)\n",
-               colWidth, "sqlite-version:",
-               sqlite3_sourceid(), &sqlite3_sourceid()[20],
-               sqlite3_libversion());
+#endif
+  if( !omitVers ){
+    fossil_print("%*s%s %s [%s] (%s)\n",
+                 colWidth, "fossil-version:",
+                 MANIFEST_DATE, MANIFEST_VERSION, RELEASE_VERSION,
+                 COMPILER_NAME);
+    fossil_print("%*s%.19s [%.10s] (%s)\n",
+                 colWidth, "sqlite-version:",
+                 sqlite3_sourceid(), &sqlite3_sourceid()[20],
+                 sqlite3_libversion());
+  }
   zDb = db_name("repository");
   fossil_print("%*s%d pages, %d bytes/pg, %d free pages, "
                "%s, %s mode\n",
