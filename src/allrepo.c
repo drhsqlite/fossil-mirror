@@ -101,6 +101,8 @@ static void collect_argv(Blob *pExtra, int iStart){
 **               line options supported by the clean command itself, if any
 **               are present, are passed along verbatim.
 **
+**    dbstat     Run the "dbstat" command on all repositories.
+**
 **    extras     Shows "extra" files from all local checkouts.  The command
 **               line options supported by the extra command itself, if any
 **               are present, are passed along verbatim.
@@ -192,6 +194,9 @@ void all_cmd(void){
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "whatif",0);
     useCheckouts = 1;
+  }else if( strncmp(zCmd, "dbstat", n)==0 ){
+    zCmd = "dbstat -R";
+    collect_argument(&extra, "brief", "b");
   }else if( strncmp(zCmd, "extras", n)==0 ){
     if( showFile ){
       zCmd = "extras --chdir";

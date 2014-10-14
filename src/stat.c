@@ -179,6 +179,7 @@ void dbstat_cmd(void){
   verify_all_options();
 
   fsize = file_size(g.zRepositoryName);
+  fossil_print("%*s%s\n", colWidth, "repository-file:", g.zRepositoryName);
   bigSizeName(sizeof(zBuf), zBuf, fsize);
   fossil_print( "%*s%s\n", colWidth, "repository-size:", zBuf );
   if( !brief ){
