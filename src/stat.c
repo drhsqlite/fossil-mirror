@@ -153,14 +153,15 @@ void stat_page(void){
 /*
 ** COMMAND: dbstat*
 **
-** Usage: %fossil dbstat ?-brief | -b?
+** Usage: %fossil dbstat OPTIONS
 **
 ** Shows statistics and global information about the repository.
 **
-** The (-brief|-b) option removes any "long-running" statistics, namely
-** those whose calculations are known to slow down as the repository
-** grows.
+** Options:
 **
+**   --brief|-b           Only show essential elements
+**   --db-check           Run a PRAGMA quick_check on the repository database
+**   --omit-version-info  Omit the SQLite and Fossil version information
 */
 void dbstat_cmd(void){
   i64 t, fsize;
@@ -169,12 +170,14 @@ void dbstat_cmd(void){
   const char *zDb;
   int brief;
   int omitVers;            /* Omit Fossil and SQLite version information */
+  int dbCheck;             /* True for the --db-check option */
   char zBuf[100];
   const int colWidth = -19 /* printf alignment/width for left column */;
   const char *p, *z;
 
   brief = find_option("brief", "b",0)!=0;
   omitVers = find_option("omit-version-info", 0, 0)!=0;
+  dbCheck = find_option("db-check",0,0)!=0;
   db_find_and_open_repository(0,0);
 
   /* We should be done with options.. */
@@ -271,7 +274,10 @@ void dbstat_cmd(void){
                db_int(0, "PRAGMA %s.freelist_count", zDb),
                db_text(0, "PRAGMA %s.encoding", zDb),
                db_text(0, "PRAGMA %s.journal_mode", zDb));
-
+  if( dbCheck ){
+    fossil_print("%*s%s\n", colWidth, "database-check:",
+                 db_text(0, "PRAGMA quick_check(1)"));
+  }
 }
 
 /*

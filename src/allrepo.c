@@ -199,6 +199,7 @@ void all_cmd(void){
     showLabel = 1;
     quiet = 1;
     collect_argument(&extra, "brief", "b");
+    collect_argument(&extra, "db-check", 0);
   }else if( strncmp(zCmd, "extras", n)==0 ){
     if( showFile ){
       zCmd = "extras --chdir";
