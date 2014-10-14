@@ -1816,7 +1816,7 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0],"message") && xfer.nToken==2 ){
         char *zMsg = blob_terminate(&xfer.aToken[1]);
         defossilize(zMsg);
-        if( (syncFlags & SYNC_PUSH) && zMsg && strglob("pull only *", zMsg) ){
+        if( (syncFlags & SYNC_PUSH) && zMsg && sqlite3_strglob("pull only *", zMsg)==0 ){
           syncFlags &= ~SYNC_PUSH;
           zMsg = 0;
         }
