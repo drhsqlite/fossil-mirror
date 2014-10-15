@@ -1,5 +1,5 @@
-C Update\sreferenced\sOpenSSL\sversion.
-D 2014-10-15T17:06:41.512
+C Try\sto\sprovide\sbetter\sinformation\son\smanifest\serrors.
+D 2014-10-15T18:18:56.679
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -379,7 +379,7 @@ F src/main.mk 8a61014e8f6768cde4ea1d6c3c31906e6d9d3646
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 3f016c9c895a731ec46f950403eb6f3f520d0a14
-F src/manifest.c bfd3b0bd215ec9c522e26a9f07d19194455e5d14
+F src/manifest.c ba4c4a4f1f7f52122280ac6a69853ec17cded627
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
@@ -654,7 +654,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c9a20b617480dce909133ecaad3ef6185816192d
-R b909341049113a2a86cbd630fbd95ae6
-U mistachkin
-Z d9865f9a0e61539f184108a02696cd5f
+P f60f9cddbab15b098afee07e5cb7d74496ce298c
+R 26143d3b2c9e3d31e703c89eff83b914
+T *branch * better-error-msgs
+T *sym-better-error-msgs *
+T -sym-trunk *
+U drh
+Z a7a2f1f2c7dc99cf166e58bcc358d0d4

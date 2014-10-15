@@ -1735,7 +1735,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     blob_reset(pContent);
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
     assert( blob_is_reset(pContent) || pContent==0 );
-    fossil_error(1, "syntax error in manifest");
+    fossil_error(1, "syntax error in manifest [%s]",
+                 db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid));
     return 0;
   }
   if( g.xlinkClusterOnly && p->type!=CFTYPE_CLUSTER ){
@@ -1747,7 +1748,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( p->type==CFTYPE_MANIFEST && fetch_baseline(p, 0) ){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
-    fossil_error(1, "cannot fetch baseline manifest");
+    fossil_error(1, "cannot fetch baseline for manifest [%s]",
+                 db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
     return 0;
   }
   db_begin_transaction();
