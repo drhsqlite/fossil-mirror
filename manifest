@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\s3.8.7\sbeta\s3.
-D 2014-10-14T21:04:26.071
+C Somewhat\ssimpler\sSELECT\sexpression\swhich\sworks\swith\solder\sSQLite\sversions\sas\swell\s(and\sgives\sexactly\sthe\ssame\soutput).\s\nTypo.
+D 2014-10-15T07:16:25.531
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -311,7 +311,7 @@ F setup/fossil.iss c9ad92c989eecde15b2b01cd69eadc74de7a8d33
 F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c a66548627cf802196c54c1200780f2bd37a503bb
-F src/allrepo.c 36bbcf86fa5a413f16f9e65f5ac98d04f72ba09c
+F src/allrepo.c 676dd2346469b3b5620deb918907780b7f73fa26
 F src/attach.c 6e597747741d0a82dd71ca250a13655b15bcac36
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
@@ -410,7 +410,7 @@ F src/sqlcmd.c c81155ddf8865c49bedeb771e051df0ca5dd2c9d
 F src/sqlite3.c 0fa88769e680f0c546c28aa7c109851743ead652
 F src/sqlite3.h 89bc306993b73a9789f7f7958315d1dc01cd113d
 F src/stash.c 4fcd200867fec73b3d57b9b99203afd0a5d7148e
-F src/stat.c 867ca445a0c8798e7d2c0d3c242287cfa10af6b3
+F src/stat.c 6e17be9deabc47d31e9bf7e176809fbd00030a21
 F src/style.c e763677210601a956b7e6a0ae34b5769083dc1b1
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 1301dff0c04b00e66d2d6d0dedf9999b426e439c
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d4e3f4c33d4904fdea32a40218cd003b0839e081
-R 9d558850fc132b86d52cf5903b3f9cbc
-U drh
-Z 6615f3253169166d0e2b44fc72824102
+P 3c6f20370a580d89625cf00b02a0fc11c07e1c65
+R e19aaac8fe12a1bfc3654b0b2d6b883a
+U jan.nijtmans
+Z c9facb928730e19aefe398ac11911ef2

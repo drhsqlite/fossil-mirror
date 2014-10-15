@@ -237,9 +237,9 @@ void dbstat_cmd(void){
     fossil_print("%*s%d\n", colWidth, "events:", n);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
     fossil_print("%*s%d\n", colWidth, "tagchanges:", n);
-    z = db_text(0, "SELECT datetime(mtime) ||"
-                   " printf(' - about %%d days ago ',julianday('now') - mtime)"
-                   " FROM event "
+    z = db_text(0, "SELECT datetime(mtime) || ' - about ' ||"
+                   " CAST(julianday('now') - mtime AS INTEGER)"
+                   " || ' days ago' FROM event "
                    " ORDER BY mtime DESC LIMIT 1");
     fossil_print("%*s%s\n", colWidth, "latest-change:", z);
   }
