@@ -256,7 +256,7 @@ static void remove_pgp_signature(char **pz, int *pn){
 **   0123456789 123456789 123456789 123456789
 **   Z aea84f4f863865a8d59d0384e4d2a41c
 */
-static int verify_z_card(const char *z, int n){
+static int verify_z_card(const char *z, int n ){
   if( n<35 ) return 0;
   if( z[n-35]!='Z' || z[n-34]!=' ' ) return 0;
   md5sum_init();
@@ -362,9 +362,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   char *zUuid;
   int sz = 0;
   int isRepeat, hasSelfRefTag = 0;
+  Blob bUuid = BLOB_INITIALIZER;
   static Bag seen;
   const char *zErr = 0;
-
   if( rid==0 ){
     isRepeat = 1;
   }else if( bag_find(&seen, rid) ){
@@ -405,6 +405,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     blob_appendf(pErr, "incorrect Z-card cksum");
     return 0;
   }
+
+  /* Store the UUID (before modifying the blob) only for error
+  ** reporting purposes.
+  */
+  sha1sum_blob(pContent, &bUuid);
 
   /* Allocate a Manifest object to hold the parsed control artifact.
   */
@@ -946,9 +951,15 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   }
   md5sum_init();
   if( !isRepeat ) g.parseCnt[p->type]++;
+  blob_reset(&bUuid);
   return p;
 
 manifest_syntax_error:
+  if(bUuid.nUsed){
+    blob_appendf(pErr, "manifest UUID %.40s ",
+                 blob_str(&bUuid));
+    blob_reset(&bUuid);
+  }
   if( zErr ){
     blob_appendf(pErr, "line %d: %s", lineNo, zErr);
   }else{
