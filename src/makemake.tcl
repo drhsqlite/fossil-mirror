@@ -507,8 +507,8 @@ ZLIBDIR = $(SRCDIR)/../compat/zlib
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1i/include
-OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1i
+OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1j/include
+OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1j
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -1202,7 +1202,7 @@ PERL    = perl.exe
 # FOSSIL_ENABLE_TCL = 1
 
 !ifdef FOSSIL_ENABLE_SSL
-SSLDIR    = $(B)\compat\openssl-1.0.1i
+SSLDIR    = $(B)\compat\openssl-1.0.1j
 SSLINCDIR = $(SSLDIR)\inc32
 SSLLIBDIR = $(SSLDIR)\out32
 SSLLFLAGS = /nologo /opt:ref /debug
