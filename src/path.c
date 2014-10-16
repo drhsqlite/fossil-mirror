@@ -114,7 +114,7 @@ static void path_reverse_path(void){
 ** If directOnly is true, then use only the "primary" links from parent to
 ** child.  In other words, ignore merges.
 **
-** Return a pointer to the beginning of the path (the iFrom node).  
+** Return a pointer to the beginning of the path (the iFrom node).
 ** Elements of the path can be traversed by following the PathNode.u.pTo
 ** pointer chain.
 **
@@ -137,21 +137,21 @@ PathNode *path_shortest(
     return path.pStart;
   }
   if( oneWayOnly && directOnly ){
-    db_prepare(&s, 
+    db_prepare(&s,
         "SELECT cid, 1 FROM plink WHERE pid=:pid AND isprim"
     );
   }else if( oneWayOnly ){
-    db_prepare(&s, 
+    db_prepare(&s,
         "SELECT cid, 1 FROM plink WHERE pid=:pid "
     );
   }else if( directOnly ){
-    db_prepare(&s, 
+    db_prepare(&s,
         "SELECT cid, 1 FROM plink WHERE pid=:pid AND isprim "
         "UNION ALL "
         "SELECT pid, 0 FROM plink WHERE cid=:pid AND isprim"
     );
   }else{
-    db_prepare(&s, 
+    db_prepare(&s,
         "SELECT cid, 1 FROM plink WHERE pid=:pid "
         "UNION ALL "
         "SELECT pid, 0 FROM plink WHERE cid=:pid"
@@ -232,7 +232,7 @@ void shortest_path_test_cmd(void){
     fossil_print("%4d: %5d %s", n, p->rid, z);
     fossil_free(z);
     if( p->u.pTo ){
-      fossil_print(" is a %s of\n", 
+      fossil_print(" is a %s of\n",
                    p->u.pTo->fromIsParent ? "parent" : "child");
     }else{
       fossil_print("\n");
@@ -355,7 +355,7 @@ struct NameChange {
 ** to checkin iTo.
 **
 ** The number of name changes is written into *pnChng.  For each name
-** change, two integers are allocated for *piChng.  The first is the 
+** change, two integers are allocated for *piChng.  The first is the
 ** filename.fnid for the original name as seen in check-in iFrom and
 ** the second is for new name as it is used in check-in iTo.
 **
@@ -518,7 +518,7 @@ void test_name_change(void){
 }
 
 /* Query to extract all rename operations */
-static const char zRenameQuery[] = 
+static const char zRenameQuery[] =
 @ SELECT
 @     datetime(event.mtime),
 @     F.name AS old_name,
@@ -533,7 +533,7 @@ static const char zRenameQuery[] =
 @    AND blob.rid=mlink.mid
 @  ORDER BY 1 DESC, 2;
 ;
-  
+
 /*
 ** WEBPAGE: test-rename-list
 **
