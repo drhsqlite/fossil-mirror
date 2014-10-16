@@ -894,7 +894,7 @@ static int db_local_table_exists_but_lacks_column(
   int rc = 0;
   if( zDef ){
     char *zPattern = mprintf("* %s *", zColumn);
-    rc = strglob(zPattern, zDef)==0;
+    rc = sqlite3_strglob(zPattern, zDef)!=0;
     fossil_free(zPattern);
     fossil_free(zDef);
   }
@@ -921,7 +921,7 @@ static int isValidLocalDb(const char *zDbName){
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted.
   */
-  if( !strglob("* isexe *", zVFileDef) ){
+  if( sqlite3_strglob("* isexe *", zVFileDef)!=0 ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
   }
 
@@ -929,7 +929,7 @@ static int isValidLocalDb(const char *zDbName){
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
   ** After all users have upgraded, this code can be safely deleted.
   */
-  if( !strglob("* islink *", zVFileDef) ){
+  if( sqlite3_strglob("* islink *", zVFileDef)!=0 ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
     if( db_local_table_exists_but_lacks_column("stashfile", "isLink") ){
       db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOL DEFAULT 0");
@@ -1332,13 +1332,13 @@ void db_setup_server_and_project_codes(
     );
   }else{
     if( db_get("server-code", 0)==0 ) {
-      db_optional_sql("repository",
+      db_multi_exec(
           "INSERT INTO config(name,value,mtime)"
           " VALUES('server-code', lower(hex(randomblob(20))),now());"
       );
     }
     if( db_get("project-code", 0)==0 ) {
-      db_optional_sql("repository",
+      db_multi_exec(
           "INSERT INTO config(name,value,mtime)"
           " VALUES('project-code', lower(hex(randomblob(20))),now());"
       );

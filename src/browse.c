@@ -761,7 +761,7 @@ int compute_fileage(int vid, const char* zGlob){
      "  SELECT rid, :path FROM blob WHERE uuid=:uuid"
   );
   while( (pFile = manifest_file_next(pManifest, 0))!=0 ){
-    if(zGlob && !strglob(zGlob, pFile->zName)) continue;
+    if( zGlob && sqlite3_strglob(zGlob, pFile->zName)!=0 ) continue;
     db_bind_text(&ins, ":uuid", pFile->zUuid);
     db_bind_text(&ins, ":path", pFile->zName);
     db_step(&ins);
