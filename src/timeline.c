@@ -1658,7 +1658,7 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
 */
 const char *timeline_query_for_tty(int mlinkFlag){
   static const char zBaseSql[] =
-    @ SELECT
+    @ SELECT DISTINCT
     @   blob.rid AS rid,
     @   uuid,
     @   datetime(event.mtime%s) AS mDateTime,
