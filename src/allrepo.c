@@ -133,7 +133,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 **    setting    Run the "setting", "set", or "unset" commands on all
 **    set        repositories.  These command are particularly useful in
-**    unset      conjunection with the "max-loadavg" setting which cannot
+**    unset      conjunction with the "max-loadavg" setting which cannot
 **               otherwise be set globally.
 **
 ** Repositories are automatically added to the set of known repositories

@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** SYNOPSIS: 
+** SYNOPSIS:
 **
 ** Input lines that begin with the "@" character are translated into
 ** either cgi_printf() statements or string literals and the
@@ -36,18 +36,18 @@
 ** Enhancement #1:
 **
 ** If the last non-whitespace character prior to the first "@" of a
-** @-block is "=" or "," then the @-block is a string literal initializer 
+** @-block is "=" or "," then the @-block is a string literal initializer
 ** rather than text that is to be output via cgi_printf().  Render it
 ** as such.
 **
 ** Enhancement #2:
 **
-** Comments of the form:  "/* @-comment: CC" cause CC to become a 
+** Comments of the form:  "/* @-comment: CC" cause CC to become a
 ** comment character for the @-substitution.  Typical values for CC are
 ** "--" (for SQL text) or "#" (for TCL script) or "//" (for C++ code).
 ** Lines of subsequent @-blocks that begin with CC are omitted from the
 ** output.
-** 
+**
 */
 #include <stdio.h>
 #include <ctype.h>
@@ -124,7 +124,7 @@ static void trans(FILE *in, FILE *out){
       omitline = 0;
       for(j=0; zLine[i] && zLine[i]!='\r' && zLine[i]!='\n'; i++){
         if( zLine[i]==c1 && (c2==' ' || zLine[i+1]==c2) ){
-           omitline = 1; break; 
+           omitline = 1; break;
         }
         if( zLine[i]=='"' || zLine[i]=='\\' ){ zOut[j++] = '\\'; }
         zOut[j++] = zLine[i];
@@ -139,7 +139,7 @@ static void trans(FILE *in, FILE *out){
     }else{
       /* Otherwise (if the last non-whitespace was not '=') then generate
       ** a cgi_printf() statement whose format is the text following the '@'.
-      ** Substrings of the form "%C(...)" (where C is any sequence of 
+      ** Substrings of the form "%C(...)" (where C is any sequence of
       ** characters other than \000 and '(') will put "%C" in the
       ** format and add the "(...)" as an argument to the cgi_printf call.
       */
@@ -176,7 +176,7 @@ static void trans(FILE *in, FILE *out){
       }else{
         fprintf(out,"\n%*s\"%s\\n\"",indent+5, "", zOut);
       }
-    }      
+    }
   }
 }
 

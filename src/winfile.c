@@ -33,7 +33,11 @@
 #endif
 
 #ifndef LABEL_SECURITY_INFORMATION
-#   define LABEL_SECURITY_INFORMATION (0x00000010L)
+# define LABEL_SECURITY_INFORMATION (0x00000010L)
+#endif
+
+#ifndef FSCTL_GET_REPARSE_POINT
+# define FSCTL_GET_REPARSE_POINT (((0x00000009) << 16) | ((0x00000000) << 14) | ((42) << 2) | (0)) 
 #endif
 
 #if defined(__MSVCRT__)
@@ -54,7 +58,7 @@ static BOOLEAN APIENTRY (*createSymbolicLinkW) (LPCWSTR, LPCWSTR, DWORD) = NULL;
 ** which is a public domain file from the ReactOS DDK package.
 */
 
-typedef struct _REPARSE_DATA_BUFFER {
+typedef struct {
   ULONG ReparseTag;
   USHORT ReparseDataLength;
   USHORT Reserved;
@@ -78,7 +82,7 @@ typedef struct _REPARSE_DATA_BUFFER {
       UCHAR DataBuffer[1];
     } GenericReparseBuffer;
   } DUMMYUNIONNAME;
-} REPARSE_DATA_BUFFER, *PREPARSE_DATA_BUFFER;
+} FOSSIL_REPARSE_DATA_BUFFER;
 
 #define LINK_BUFFER_SIZE 1024
 
@@ -207,8 +211,8 @@ ssize_t win32_readlink(const char *path, char *buf, size_t bufsiz){
 
       /* use DeviceIoControl to get the reparse point data */
 
-      int data_size = sizeof(REPARSE_DATA_BUFFER) + LINK_BUFFER_SIZE * sizeof(wchar_t);
-      REPARSE_DATA_BUFFER* data = fossil_malloc(data_size);
+      int data_size = sizeof(FOSSIL_REPARSE_DATA_BUFFER) + LINK_BUFFER_SIZE * sizeof(wchar_t);
+      FOSSIL_REPARSE_DATA_BUFFER* data = fossil_malloc(data_size);
       DWORD data_used;
 
       data->ReparseTag = IO_REPARSE_TAG_SYMLINK;

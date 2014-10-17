@@ -63,7 +63,7 @@ static sqlite3 *cacheOpen(int bForce){
     sqlite3_close(db);
     return 0;
   }
-  rc = sqlite3_exec(db, 
+  rc = sqlite3_exec(db,
      "PRAGMA page_size=8192;"
      "CREATE TABLE IF NOT EXISTS blob(id INTEGER PRIMARY KEY, data BLOB);"
      "CREATE TABLE IF NOT EXISTS cache("
@@ -96,7 +96,7 @@ static sqlite3_stmt *cacheStmt(sqlite3 *db, const char *zSql){
     sqlite3_finalize(pStmt);
     pStmt = 0;
   }
-  return pStmt;  
+  return pStmt;
 }
 
 /*
@@ -155,7 +155,7 @@ void cache_write(Blob *pContent, const char *zKey){
                     SQLITE_STATIC);
   if( sqlite3_step(pStmt)!=SQLITE_DONE ) goto cache_write_end;
   sqlite3_finalize(pStmt);
-  pStmt = cacheStmt(db, 
+  pStmt = cacheStmt(db,
       "INSERT OR IGNORE INTO cache(key,sz,tm,nref,id)"
       "VALUES(?1,?2,strftime('%s','now'),1,?3)"
   );
@@ -204,7 +204,7 @@ int cache_read(Blob *pContent, const char *zKey){
   if( db==0 ) return 0;
   sqlite3_busy_timeout(db, 10000);
   sqlite3_exec(db, "BEGIN IMMEDIATE", 0, 0, 0);
-  pStmt = cacheStmt(db, 
+  pStmt = cacheStmt(db,
     "SELECT blob.data FROM cache, blob"
     " WHERE cache.key=?1 AND cache.id=blob.id");
   if( pStmt==0 ) goto cache_read_done;
@@ -214,13 +214,13 @@ int cache_read(Blob *pContent, const char *zKey){
                           sqlite3_column_bytes(pStmt, 0));
     rc = 1;
     sqlite3_reset(pStmt);
-    pStmt = cacheStmt(db, 
+    pStmt = cacheStmt(db,
               "UPDATE cache SET nref=nref+1, tm=strftime('%s','now')"
               " WHERE key=?1");
     if( pStmt ){
       sqlite3_bind_text(pStmt, 1, zKey, -1, SQLITE_STATIC);
       sqlite3_step(pStmt);
-    }  
+    }
   }
   sqlite3_finalize(pStmt);
 cache_read_done:
@@ -258,7 +258,7 @@ void cache_cmd(void){
   db_find_and_open_repository(0,0);
   zCmd = g.argc>=3 ? g.argv[2] : "";
   nCmd = (int)strlen(zCmd);
-  if( nCmd<=1 ){ 
+  if( nCmd<=1 ){
     fossil_fatal("Usage: %s cache SUBCOMMAND", g.argv[0]);
   }
   if( strncmp(zCmd, "init", nCmd)==0 ){
@@ -292,7 +292,7 @@ void cache_cmd(void){
       int nEntry = 0;
       char *zDbName = cacheName();
       cache_register_sizename(db);
-      pStmt = cacheStmt(db, 
+      pStmt = cacheStmt(db,
            "SELECT key, sizename(sz), nRef, datetime(tm,'unixepoch')"
            "  FROM cache"
            " ORDER BY tm DESC"
@@ -340,7 +340,7 @@ void cache_page(void){
   }else{
     char *zDbName = cacheName();
     cache_register_sizename(db);
-    pStmt = cacheStmt(db, 
+    pStmt = cacheStmt(db,
          "SELECT key, sizename(sz), nRef, datetime(tm,'unixepoch')"
          "  FROM cache"
          " ORDER BY tm DESC"
