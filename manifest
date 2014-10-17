@@ -1,5 +1,5 @@
-C Incorporate\sSQLite\s3.8.7\sfinal\sfrom\supstream.
-D 2014-10-17T11:38:29.937
+C Enchance\sthe\scommand-line\stimeline\sto\saccept\sthe\sname\sof\sa\sfile\sor\sdirectory\nas\san\sargument\sand\sthen\sonly\sshow\sthe\sentries\sthat\shave\schanges\sto\sthat\nfile\sor\sdirectory.
+D 2014-10-17T15:31:48.808
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -335,7 +335,7 @@ F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 6d415762f40c757eb1ba6e18a3283639a7d05ab2
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
-F src/descendants.c aa22ca67ab417d0e854778f9d5c172b6d2f2c938
+F src/descendants.c 28c6a793c20aea90dc06e357d87bb29c20dd73c3
 F src/diff.c 26603debe5f78ec79aa42349765441097ce3ff64
 F src/diffcmd.c 5456dfddc2d575a9c589696e306dda58e20f6038
 F src/doc.c e7e4034f04d4fa27d2febe5a739191f3c646849f
@@ -413,20 +413,20 @@ F src/stash.c 4fcd200867fec73b3d57b9b99203afd0a5d7148e
 F src/stat.c 6e17be9deabc47d31e9bf7e176809fbd00030a21
 F src/style.c e763677210601a956b7e6a0ae34b5769083dc1b1
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
-F src/tag.c 1301dff0c04b00e66d2d6d0dedf9999b426e439c
+F src/tag.c a7f46e52d6011f977f40a9a504f12fcb6183f5a8
 F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
 F src/th.c f3e2d60ea44acd118e8462d48c0865c496f89e6f
 F src/th.h 3d96cf226cbdb8f68a7b3e554c17e069eaace860
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 38a77d04427296f65729de869316c5cc0606f6d7
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c bc5cfb09b4546788be455a2d85a02ccb4c3c3fd7
+F src/timeline.c 564fbf0604dd091254796e54f522e0e7560c5d86
 F src/tkt.c eb753bb0db206a6b0d90e0bf01193defbcb67591
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c 09c23a40506a4ceff1e9c254938b25e42d69cf4e
 F src/undo.c 265d7e23ce7c99c21359fa1d6b2520a6af21258e
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
-F src/update.c f4a971b4720ad027e45a96df9cf2e44b7bc9e261
+F src/update.c 0a59d9c7cb1c0b1828bec2739d0e68d7a8e86fc2
 F src/url.c b7743600119e97d34f96aea8996b9a4caad4bdc0
 F src/user.c 609b489ac17b5dd35c1a8676d85cb1196c07d43e
 F src/utf8.c eab5cc0060d893b3a5079ee4f5957f222392a179
@@ -654,7 +654,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 20d02ab7502e662fa955bde0f6456dda5c02a3bf
-R 43fdd413a2efbf67009c5b14b63f2635
+P 5a2b7356b4af9c9d2f824d0b6a02e90ea9151f47
+R 6098b6e407200731afc1d2997c8d85d5
+T *branch * cmdline-timeline-enhancement
+T *sym-cmdline-timeline-enhancement *
+T -sym-trunk *
 U drh
-Z 5a44dac08b5faae782075ddb07bb18fc
+Z 0eb684740638e600edf68b4d5f9d473d

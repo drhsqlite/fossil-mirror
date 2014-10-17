@@ -213,7 +213,7 @@ void update_cmd(void){
           "%s "
           "   AND event.objid IN leaves"
           " ORDER BY event.mtime DESC",
-          timeline_query_for_tty()
+          timeline_query_for_tty(0)
         );
         print_timeline(&q, -100, width, 0);
         db_finalize(&q);
