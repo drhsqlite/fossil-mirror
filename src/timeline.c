@@ -1873,8 +1873,8 @@ void timeline_cmd(void){
   if( zFilePattern ){
     blob_append(&sql, "\n  AND mlink.mid=event.objid", -1);
     blob_appendf(&sql, "\n  AND mlink.fnid IN (SELECT fnid FROM filename WHERE"
-        " name=%Q OR name GLOB '%q/*')", blob_str(&treeName),
-        blob_str(&treeName));
+        " name=%Q %s OR name GLOB '%q/*' %s)", blob_str(&treeName), 
+        filename_collation(), blob_str(&treeName), filename_collation());
   }
   blob_appendf(&sql, "\nORDER BY event.mtime DESC");
   if( iOffset>0 ){
