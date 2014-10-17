@@ -1,5 +1,5 @@
-C Honor\scase-sensitive\ssetting\swhen\sspecifying\spath\sto\sthe\stimeline\scommand.
-D 2014-10-17T21:12:27.075
+C When\sspecifying\sa\spath\sand\stype\s(-t)\sis\snot\sspecified\son\sthe\stimeline\scommand,\nforce\sthe\stype\sto\s"ci".\sIf\ssomeone\sspecify\sa\spath,\swe\scan\sassume\she\swant\sto\nsee\sonly\sfile\scheckins.
+D 2014-10-17T21:57:35.317
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -420,7 +420,7 @@ F src/th.h 3d96cf226cbdb8f68a7b3e554c17e069eaace860
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 38a77d04427296f65729de869316c5cc0606f6d7
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c 3cc73e1b6875f0c4e118e7cf4317a68f18f72b66
+F src/timeline.c f122bba86cebd5bda3523a1d1b3eefce048842b4
 F src/tkt.c eb753bb0db206a6b0d90e0bf01193defbcb67591
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c 09c23a40506a4ceff1e9c254938b25e42d69cf4e
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3706dcb696b2d0670292e23634d7150ff274ac6d
-R 17edeb6d9262deb4df83b3ced9e65e2b
+P 5eeb870d1810113ca1249c26fcb72d527cb85b1c
+R 2e392b20d652afc422ead66e169003a7
 U mgagnon
-Z fe2ff43dae6554b322a3cdd637a62031
+Z 21fe3d28fb9e97d1f8a89c7d40ea6c82

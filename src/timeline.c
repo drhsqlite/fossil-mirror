@@ -1842,10 +1842,15 @@ void timeline_cmd(void){
   }
   
   if( zFilePattern ){
+    if( zType==0 ){
+      /* When zFilePattern is specified and type is not specified, only show
+       * file checkins */
+      zType="ci";
+    }
     file_tree_name(zFilePattern, &treeName, 1);
     if( fossil_strcmp(blob_str(&treeName), ".")==0 ){
       /* When zTreeName refers to g.zLocalRoot, it's like not specifying
-       * zFilePattern */
+       * zFilePattern. */
       zFilePattern = 0;
     }
   }
