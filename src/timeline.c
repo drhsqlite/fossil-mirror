@@ -1751,6 +1751,7 @@ void timeline_cmd(void){
   int verboseFlag = 0 ;
   int iOffset;
   const char *zFilePattern = 0;
+  Blob treeName;
 
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag){
@@ -1839,6 +1840,16 @@ void timeline_cmd(void){
     }
     zDate = mprintf("(SELECT julianday(%Q%s, 'utc'))", zOrigin, zShift);
   }
+  
+  if( zFilePattern ){
+    file_tree_name(zFilePattern, &treeName, 1);
+    if( fossil_strcmp(blob_str(&treeName), ".")==0 ){
+      /* When zTreeName refers to g.zLocalRoot, it's like not specifying
+       * zFilePattern */
+      zFilePattern = 0;
+    }
+  }
+
   if( mode==0 ) mode = 1;
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(zFilePattern!=0), -1);
@@ -1860,12 +1871,10 @@ void timeline_cmd(void){
     blob_appendf(&sql, "\n  AND event.type=%Q ", zType);
   }
   if( zFilePattern ){
-    Blob treeName;
-    file_tree_name(zFilePattern, &treeName, 1);
     blob_append(&sql, "\n  AND mlink.mid=event.objid", -1);
     blob_appendf(&sql, "\n  AND mlink.fnid IN (SELECT fnid FROM filename WHERE"
-                       " name=%Q OR name GLOB '%q/*')", blob_str(&treeName),
-                       blob_str(&treeName));
+        " name=%Q OR name GLOB '%q/*')", blob_str(&treeName),
+        blob_str(&treeName));
   }
   blob_appendf(&sql, "\nORDER BY event.mtime DESC");
   if( iOffset>0 ){
