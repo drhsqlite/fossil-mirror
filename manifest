@@ -1,5 +1,5 @@
-C Use\smore\saggressive\scleanup\swhen\scoming\sback\sfrom\sthe\s'sqlite'\scommand,\sto\spermit\sTH1\shooks\sto\sexit\scleanly.
-D 2014-10-17T23:51:38.867
+C Enhance\sthe\s"fossil\stimeline"\scommand\sso\sthat\sone\scan\sspecify\sa\sfile\sor\ndirectory\sas\sa\scommand-line\sargument\sand\sthe\stimeline\sonly\sshows\scheck-ins\nthat\sinvolve\sthat\sparticular\sfile\sor\sany\sof\sthe\sfiles\sin\sthe\snamed\sdirectory.
+D 2014-10-18T19:18:18.638
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -420,7 +420,7 @@ F src/th.h 3d96cf226cbdb8f68a7b3e554c17e069eaace860
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 38a77d04427296f65729de869316c5cc0606f6d7
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c bc5cfb09b4546788be455a2d85a02ccb4c3c3fd7
+F src/timeline.c ce98131a796f5d645fd6063a809b87351bb950d9
 F src/tkt.c eb753bb0db206a6b0d90e0bf01193defbcb67591
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c 09c23a40506a4ceff1e9c254938b25e42d69cf4e
@@ -654,7 +654,8 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5a2b7356b4af9c9d2f824d0b6a02e90ea9151f47
-R 3122739454a53e8c8160f15430fe9d58
-U mistachkin
-Z e2b8c8d2461e2a8578973968a0841446
+P b8b037610f7f717471200ad93a9d603bf9a49f0a 8af7f6185a2a92433f4ababb80563637e7ad05f0
+R e949b49f2656e26ae273d6eddb44cd75
+T +closed 8af7f6185a2a92433f4ababb80563637e7ad05f0
+U drh
+Z d23e3257077c926c893bea6811c37fee

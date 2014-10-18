@@ -1657,7 +1657,6 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
 ** a timeline query for display on a TTY.
 */
 const char *timeline_query_for_tty(void){
-  static const char *zBase = 0;
   static const char zBaseSql[] =
     @ SELECT
     @   blob.rid AS rid,
@@ -1677,16 +1676,13 @@ const char *timeline_query_for_tty(void){
     @   event.mtime AS mtime,
     @   tagxref.value AS branch
     @ FROM tag CROSS JOIN event CROSS JOIN blob
-    @ LEFT JOIN tagxref ON tagxref.tagid=tag.tagid
+    @      LEFT JOIN tagxref ON tagxref.tagid=tag.tagid
     @   AND tagxref.tagtype>0
     @   AND tagxref.rid=blob.rid
     @ WHERE blob.rid=event.objid
     @   AND tag.tagname='branch'
   ;
-  if( zBase==0 ){
-    zBase = mprintf(zBaseSql, timeline_utc());
-  }
-  return zBase;
+  return mprintf(zBaseSql, timeline_utc());
 }
 
 /*
@@ -1741,7 +1737,7 @@ static int isIsoDate(const char *z){
 */
 void timeline_cmd(void){
   Stmt q;
-  int n, k, width;
+  int n, k, width, i;
   const char *zLimit;
   const char *zWidth;
   const char *zOffset;
@@ -1754,6 +1750,8 @@ void timeline_cmd(void){
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
   int verboseFlag = 0 ;
   int iOffset;
+  const char *zFilePattern = 0;
+  Blob treeName;
 
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag){
@@ -1785,33 +1783,35 @@ void timeline_cmd(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  if( g.argc>=4 ){
-    k = strlen(g.argv[2]);
-    if( strncmp(g.argv[2],"before",k)==0 ){
-      mode = 1;
-    }else if( strncmp(g.argv[2],"after",k)==0 && k>1 ){
-      mode = 2;
-    }else if( strncmp(g.argv[2],"descendants",k)==0 ){
-      mode = 3;
-    }else if( strncmp(g.argv[2],"children",k)==0 ){
-      mode = 3;
-    }else if( strncmp(g.argv[2],"ancestors",k)==0 && k>1 ){
-      mode = 4;
-    }else if( strncmp(g.argv[2],"parents",k)==0 ){
-      mode = 4;
-    }else if(!zType && !zLimit){
-      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--limit #? ?-t|--type TYPE? "
-            "?-W|--width WIDTH?");
+  zOrigin = "now";
+  zFilePattern = 0;
+  for(i=2; i<g.argc; i++){
+    char *zArg = g.argv[i];
+    k = strlen(zArg);
+    if( mode==0 ){
+      if( strncmp(zArg,"before",k)==0 ){
+        mode = 1;
+      }else if( strncmp(zArg,"after",k)==0 && k>1 ){
+        mode = 2;
+      }else if( strncmp(zArg,"descendants",k)==0 ){
+        mode = 3;
+      }else if( strncmp(zArg,"children",k)==0 ){
+        mode = 3;
+      }else if( strncmp(zArg,"ancestors",k)==0 && k>1 ){
+        mode = 4;
+      }else if( strncmp(zArg,"parents",k)==0 ){
+        mode = 4;
+      }
+      if( mode ){
+        if( i<g.argc-1 ) zOrigin = g.argv[++i];
+        continue;
+      }
     }
-    if( '-' != *g.argv[3] ){
-      zOrigin = g.argv[3];
+    if( zFilePattern==0 ){
+      zFilePattern = zArg;
     }else{
-      zOrigin = "now";
+      usage("?WHEN? ?CHECKIN|DATETIME? ?FILE? ?OPTIONS?");
     }
-  }else if( g.argc==3 ){
-    zOrigin = g.argv[2];
-  }else{
-    zOrigin = "now";
   }
   k = strlen(zOrigin);
   blob_zero(&uuid);
@@ -1840,6 +1840,21 @@ void timeline_cmd(void){
     }
     zDate = mprintf("(SELECT julianday(%Q%s, 'utc'))", zOrigin, zShift);
   }
+  
+  if( zFilePattern ){
+    if( zType==0 ){
+      /* When zFilePattern is specified and type is not specified, only show
+       * file checkins */
+      zType="ci";
+    }
+    file_tree_name(zFilePattern, &treeName, 1);
+    if( fossil_strcmp(blob_str(&treeName), ".")==0 ){
+      /* When zTreeName refers to g.zLocalRoot, it's like not specifying
+       * zFilePattern. */
+      zFilePattern = 0;
+    }
+  }
+
   if( mode==0 ) mode = 1;
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(), -1);
@@ -1855,18 +1870,38 @@ void timeline_cmd(void){
     }else{
       compute_ancestors(objid, n, 0);
     }
-    blob_appendf(&sql, " AND blob.rid IN ok");
+    blob_appendf(&sql, "\n  AND blob.rid IN ok");
   }
   if( zType && (zType[0]!='a') ){
-    blob_appendf(&sql, " AND event.type=%Q ", zType);
+    blob_appendf(&sql, "\n  AND event.type=%Q ", zType);
   }
-  blob_appendf(&sql, " ORDER BY event.mtime DESC");
+  if( zFilePattern ){
+    blob_append(&sql,
+       "\n  AND EXISTS(SELECT 1 FROM mlink\n"
+         "              WHERE mlink.mid=event.objid\n"
+         "                AND mlink.fnid IN ", -1);
+    if( filenames_are_case_sensitive() ){
+      blob_appendf(&sql,
+        "(SELECT fnid FROM filename"
+        " WHERE name=%Q"
+        " OR name GLOB '%q/*')",
+        blob_str(&treeName), blob_str(&treeName));
+    }else{
+      blob_appendf(&sql,
+        "(SELECT fnid FROM filename"
+        " WHERE name=%Q COLLATE nocase"
+        " OR lower(name) GLOB lower('%q/*'))",
+        blob_str(&treeName), blob_str(&treeName));
+    }
+    blob_append(&sql, ")", -1);
+  }
+  blob_appendf(&sql, "\nORDER BY event.mtime DESC");
   if( iOffset>0 ){
     /* Don't handle LIMIT here, otherwise print_timeline()
      * will not determine the end-marker correctly! */
-    blob_appendf(&sql, " LIMIT -1 OFFSET %d", iOffset);
+    blob_appendf(&sql, "\n LIMIT -1 OFFSET %d", iOffset);
   }
-  db_prepare(&q, blob_str(&sql));
+  db_prepare(&q, "%s", blob_str(&sql));
   blob_reset(&sql);
   print_timeline(&q, n, width, verboseFlag);
   db_finalize(&q);
