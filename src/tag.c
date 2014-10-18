@@ -467,7 +467,7 @@ void tag_cmd(void){
                     "  WHERE tagtype>0 AND tagid=%d"
                     ")"
           " ORDER BY event.mtime DESC",
-          timeline_query_for_tty(0), zType, tagid
+          timeline_query_for_tty(), zType, tagid
         );
         db_prepare(&q, "%s", blob_str(&sql));
         blob_reset(&sql);

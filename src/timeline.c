@@ -1656,9 +1656,9 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
 ** Return a pointer to a static string that forms the basis for
 ** a timeline query for display on a TTY.
 */
-const char *timeline_query_for_tty(int mlinkFlag){
+const char *timeline_query_for_tty(void){
   static const char zBaseSql[] =
-    @ SELECT DISTINCT
+    @ SELECT
     @   blob.rid AS rid,
     @   uuid,
     @   datetime(event.mtime%s) AS mDateTime,
@@ -1675,14 +1675,14 @@ const char *timeline_query_for_tty(int mlinkFlag){
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid) AS plinkCount,
     @   event.mtime AS mtime,
     @   tagxref.value AS branch
-    @ FROM tag CROSS JOIN event CROSS JOIN blob %s
+    @ FROM tag CROSS JOIN event CROSS JOIN blob
     @      LEFT JOIN tagxref ON tagxref.tagid=tag.tagid
     @   AND tagxref.tagtype>0
     @   AND tagxref.rid=blob.rid
     @ WHERE blob.rid=event.objid
     @   AND tag.tagname='branch'
   ;
-  return mprintf(zBaseSql, timeline_utc(), mlinkFlag ? "CROSS JOIN mlink" : "");
+  return mprintf(zBaseSql, timeline_utc());
 }
 
 /*
@@ -1857,7 +1857,7 @@ void timeline_cmd(void){
 
   if( mode==0 ) mode = 1;
   blob_zero(&sql);
-  blob_append(&sql, timeline_query_for_tty(zFilePattern!=0), -1);
+  blob_append(&sql, timeline_query_for_tty(), -1);
   blob_appendf(&sql, "  AND event.mtime %s %s",
      (mode==1 || mode==4) ? "<=" : ">=",
      zDate
@@ -1876,10 +1876,24 @@ void timeline_cmd(void){
     blob_appendf(&sql, "\n  AND event.type=%Q ", zType);
   }
   if( zFilePattern ){
-    blob_append(&sql, "\n  AND mlink.mid=event.objid", -1);
-    blob_appendf(&sql, "\n  AND mlink.fnid IN (SELECT fnid FROM filename WHERE"
-        " name=%Q %s OR name GLOB '%q/*' %s)", blob_str(&treeName), 
-        filename_collation(), blob_str(&treeName), filename_collation());
+    blob_append(&sql,
+       "\n  AND EXISTS(SELECT 1 FROM mlink\n"
+         "              WHERE mlink.mid=event.objid\n"
+         "                AND mlink.fnid IN ", -1);
+    if( filenames_are_case_sensitive() ){
+      blob_appendf(&sql,
+        "(SELECT fnid FROM filename"
+        " WHERE name=%Q"
+        " OR name GLOB '%q/*')",
+        blob_str(&treeName), blob_str(&treeName));
+    }else{
+      blob_appendf(&sql,
+        "(SELECT fnid FROM filename"
+        " WHERE name=%Q COLLATE nocase"
+        " OR lower(name) GLOB lower('%q/*'))",
+        blob_str(&treeName), blob_str(&treeName));
+    }
+    blob_append(&sql, ")", -1);
   }
   blob_appendf(&sql, "\nORDER BY event.mtime DESC");
   if( iOffset>0 ){
@@ -1887,7 +1901,7 @@ void timeline_cmd(void){
      * will not determine the end-marker correctly! */
     blob_appendf(&sql, "\n LIMIT -1 OFFSET %d", iOffset);
   }
-  db_prepare(&q, blob_str(&sql));
+  db_prepare(&q, "%s", blob_str(&sql));
   blob_reset(&sql);
   print_timeline(&q, n, width, verboseFlag);
   db_finalize(&q);

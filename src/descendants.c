@@ -334,7 +334,7 @@ void descendants_cmd(void){
     "%s"
     "   AND event.objid IN (SELECT rid FROM leaves)"
     " ORDER BY event.mtime DESC",
-    timeline_query_for_tty(0)
+    timeline_query_for_tty()
   );
   print_timeline(&q, -20, width, 0);
   db_finalize(&q);
@@ -390,7 +390,7 @@ void leaves_cmd(void){
 
   if( recomputeFlag ) leaf_rebuild();
   blob_zero(&sql);
-  blob_append(&sql, timeline_query_for_tty(0), -1);
+  blob_append(&sql, timeline_query_for_tty(), -1);
   blob_appendf(&sql, " AND blob.rid IN leaf");
   if( showClosed ){
     blob_appendf(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
