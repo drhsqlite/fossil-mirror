@@ -9,6 +9,9 @@
 # of NEW.fossil to figure out what checkins are necessary to reproduce X;
 # then it removes all the checkins which are present in OLD.fossil; then
 # it emits the bundle.
+#
+# To import, simple clone oldrepo (or not, if you're feeling brave);
+# then fossil import --incremental the bundle.
 
 set -e
 
@@ -83,7 +86,7 @@ CREATE TEMPORARY VIEW newfiles AS
 		(checkin.rid = mlink.mid)
 		AND (file.rid = mlink.fid);
 
--- Walk the tree and figure out all the ancestors of the desired artifact.
+-- Walk the tree and figure out what checkins need to go into the bundle.
 
 CREATE TEMPORARY VIEW desiredcheckins AS
 	WITH RECURSIVE
@@ -96,42 +99,34 @@ CREATE TEMPORARY VIEW desiredcheckins AS
 				newcheckinmap.parent AS id,
 				newcheckinmap.mtime
 			FROM
-				newcheckinmap INNER JOIN ancestors
+				newcheckinmap, ancestors
 			ON
 				newcheckinmap.child = ancestors.id
+			WHERE
+				-- Filter to include checkins which *aren't* in oldrepo.
+				NOT EXISTS(SELECT * FROM oldcheckinmap WHERE
+					oldcheckinmap.child = newcheckinmap.parent)
 			ORDER BY
 				newcheckinmap.mtime DESC
 	  )
 	SELECT * FROM ancestors;
 
--- The set of checkins and files for newrepo's artifact which *aren't* in oldrepo.
+-- Now we know what checkins are going in the bundle, figure out which
+-- files get included.
 
-CREATE TEMPORARY VIEW checkinsnotinnew AS
+CREATE TEMPORARY VIEW desiredfiles AS
 	SELECT
-		desiredcheckins.id
-	FROM
-		desiredcheckins LEFT JOIN oldcheckins
-	ON
-		desiredcheckins.id = oldcheckins.id
-	WHERE
-		oldcheckins.id IS NULL;
-
-CREATE TEMPORARY VIEW checkinsforbundle AS
-	SELECT * FROM checkinsnotinnew;
-
-CREATE TEMPORARY VIEW filesforbundle AS
-	SELECT
-		newfiles.file
+		newfiles.file AS id
 	FROM
 		newfiles,
-		checkinsforbundle
+		desiredcheckins
 	WHERE
-		newfiles.checkin = checkinsforbundle.id;
+		newfiles.checkin = desiredcheckins.id;
 
--- Because this prototype is using the exporter to create bundles, and the
--- exporter's ability to select artifacts is based on having a list of rids
--- to ignore, we have to emit a list of all rids in newrepo which don't
--- correspond to the list above.
+-- Because this prototype is using the git exporter to create bundles, and the
+-- exporter's ability to select artifacts is based on having a list of rids to
+-- ignore, we have to emit a list of all rids in newrepo which don't correspond
+-- to the list above.
 
 CREATE TEMPORARY VIEW skipcheckinrids AS
 	SELECT
@@ -139,11 +134,11 @@ CREATE TEMPORARY VIEW skipcheckinrids AS
 		oldcheckins.rid AS rid,
 		oldcheckins.id AS id
 	FROM
-		oldcheckins LEFT JOIN checkinsforbundle
+		oldcheckins LEFT JOIN desiredcheckins
 	ON
-		checkinsforbundle.id = oldcheckins.id
+		desiredcheckins.id = oldcheckins.id
 	WHERE
-		checkinsforbundle.id IS NULL
+		desiredcheckins.id IS NULL
 	ORDER BY
 		rid ASC;
 
