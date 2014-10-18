@@ -1,5 +1,5 @@
-C Enhance\sthe\s"fossil\stimeline"\scommand\sso\sthat\sone\scan\sspecify\sa\sfile\sor\ndirectory\sas\sa\scommand-line\sargument\sand\sthe\stimeline\sonly\sshows\scheck-ins\nthat\sinvolve\sthat\sparticular\sfile\sor\sany\sof\sthe\sfiles\sin\sthe\snamed\sdirectory.
-D 2014-10-18T19:18:18.638
+C First\smostly-working\sversion\sof\sthe\sbundle\sproof-of-concept;\strees\scan\sbe\nexported\sand\simported,\salthough\safter\simport\sthey\sdon't\shook\sup\swith\stheir\nancestors.
+D 2014-10-18T19:26:29.446
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -450,6 +450,7 @@ F test/diff-test-1.wiki a789acd5523d840232fcb2164929592260af0743
 F test/file1.test 4a1009731c0959c46c228a9336df9da4a5da97f1
 F test/glob.test 027f2aa0b0c737a0f27d51800802a08f07561beb
 F test/graph-test-1.wiki 518f814b5c860c5cc04a6d07f5dd2dddba472dda
+F test/make-bundle-data.sh fe01ccb82f444a3b7b18f4fa5c0f5ba448a63ffa x
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
@@ -538,9 +539,11 @@ F tools/cvs2fossil/lodtree eadeb78341c0c59f1dec0f0db0383bf797f5ca8f
 F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
+F tools/exportbundle.sh 0fc08e3b4a6dc5f7f004777db62d526789f034bf x
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
+F tools/importbundle.sh 5ce60bed4fec29b5c3f74652bac0f94b7650cb33 x
 F win/Makefile.PellesCGMake 11974d1b5453eb4bb9756b48f384d610dd6e817a
 F win/Makefile.dmc db781be43581f5dc81b0be9cdfcae986daacad84
 F win/Makefile.mingw dadd6751b8824cd6b6933ced485aca84feaf5159
@@ -654,8 +657,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b8b037610f7f717471200ad93a9d603bf9a49f0a 8af7f6185a2a92433f4ababb80563637e7ad05f0
-R e949b49f2656e26ae273d6eddb44cd75
-T +closed 8af7f6185a2a92433f4ababb80563637e7ad05f0
-U drh
-Z d23e3257077c926c893bea6811c37fee
+P e05a74f1f471272261a0ffde7f463f5aa39e0878
+R 44813f5aad0dd3385073341a0e579a7f
+U dg
+Z 30bf360b51234fde697c69d45040e02b
