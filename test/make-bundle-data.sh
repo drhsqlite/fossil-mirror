@@ -23,5 +23,8 @@ rm -rf $tmpdir
 mkdir $tmpdir
 (cd $tmpdir && fossil open $newrepo && fossil settings -R $oldrepo autosync off)
 (cd $tmpdir && echo "even more data" >> 1 && fossil commit -m "Clone, add: even more data")
+(cd $tmpdir && fossil tag add branchpoint tip)
 (cd $tmpdir && echo "new file" > 2 && fossil add 2 && fossil commit -m "New file")
+(cd $tmpdir && fossil update branchpoint)
+(cd $tmpdir && echo "branched data" >> 1 && fossil commit -b branch -m "Branch, add: branched data")
 

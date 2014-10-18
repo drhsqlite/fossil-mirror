@@ -58,18 +58,29 @@ CREATE TEMPORARY VIEW oldcheckinmap AS
 		(child.rid = plink.cid)
 		AND (parent.rid = plink.pid);
 	
--- Create sets of all checkins (unordered). We construct these from the graph
--- so we get only checkin artifacts.
+-- Create sets of all checkins.
 
 CREATE TEMPORARY VIEW newcheckins AS
-	SELECT parent AS id, parentrid AS rid FROM newcheckinmap
-	UNION
-	SELECT child AS id, rid AS rid FROM newcheckinmap;
+	SELECT
+		blob.uuid AS id,
+		blob.rid AS rid
+	FROM
+		new.blob, new.event
+	ON
+		blob.rid = event.objid
+	WHERE
+		event.type = "ci";
 
 CREATE TEMPORARY VIEW oldcheckins AS
-	SELECT parent AS id, parentrid AS rid FROM oldcheckinmap
-	UNION
-	SELECT child AS id, rid AS rid FROM oldcheckinmap;
+	SELECT
+		blob.uuid AS id,
+		blob.rid AS rid
+	FROM
+		old.blob, old.event
+	ON
+		blob.rid = event.objid
+	WHERE
+		event.type = "ci";
 
 -- Now create maps of checkin->file artifacts.
 
@@ -103,7 +114,7 @@ CREATE TEMPORARY VIEW desiredcheckins AS
 			ON
 				newcheckinmap.child = ancestors.id
 			WHERE
-				-- Filter to include checkins which *aren't* in oldrepo.
+				-- Filter to only include checkins which *aren't* in oldrepo.
 				NOT EXISTS(SELECT * FROM oldcheckinmap WHERE
 					oldcheckinmap.child = newcheckinmap.parent)
 			ORDER BY
@@ -130,13 +141,13 @@ CREATE TEMPORARY VIEW desiredfiles AS
 
 CREATE TEMPORARY VIEW skipcheckinrids AS
 	SELECT
-		"c" || oldcheckins.rid AS msg,
-		oldcheckins.rid AS rid,
-		oldcheckins.id AS id
+		"c" || newcheckins.rid AS msg,
+		newcheckins.rid AS rid,
+		newcheckins.id AS id
 	FROM
-		oldcheckins LEFT JOIN desiredcheckins
+		newcheckins LEFT JOIN desiredcheckins
 	ON
-		desiredcheckins.id = oldcheckins.id
+		desiredcheckins.id = newcheckins.id
 	WHERE
 		desiredcheckins.id IS NULL
 	ORDER BY
@@ -160,5 +171,6 @@ SELECT msg FROM skipcheckinrids;
 
 EOF
 
+#cat $ridlist
 fossil export --git --import-marks $ridlist $newrepo
 
