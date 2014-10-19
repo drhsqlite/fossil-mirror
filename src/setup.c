@@ -1333,7 +1333,11 @@ void setup_settings(void){
 
   (void) aCmdHelp; /* NOTE: Silence compiler warning. */
   style_header("Settings");
-  db_open_local(0);
+  if(!g.repositoryOpen){
+    /* Provide read-only access to versioned settings,
+       but only if no repo file was explicitly provided. */
+    db_open_local(0);
+  }
   db_begin_transaction();
   @ <p>This page provides a simple interface to the "fossil setting" command.
   @ See the "fossil help setting" output below for further information on

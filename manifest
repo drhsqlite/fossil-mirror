@@ -1,5 +1,5 @@
-C Enhance\sthe\s"fossil\stimeline"\scommand\sso\sthat\sone\scan\sspecify\sa\sfile\sor\ndirectory\sas\sa\scommand-line\sargument\sand\sthe\stimeline\sonly\sshows\scheck-ins\nthat\sinvolve\sthat\sparticular\sfile\sor\sany\sof\sthe\sfiles\sin\sthe\snamed\sdirectory.
-D 2014-10-18T19:18:18.638
+C The\ssetup_settings\spage\snow\sonly\sopens\sa\scheckout\sif\sno\sexplicit\srepo\swas\sprovided,\sto\savoid\sit\sshowing\sversioned\sproperties\sfrom\sa\sdifferent\srepo.\sProblem\sreported\son\sthe\sML.
+D 2014-10-19T10:28:47.042
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -401,7 +401,7 @@ F src/report.c cd6230b34ec2e2262f37ec75e722ba186c3cdaf5
 F src/rss.c e7861c726638f78b93ac6e7d8b987d538660b42e
 F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 7226c2f96000a73753b36efb65b149466ede6164
-F src/setup.c 7b71d8564392950bc544394882e93f0625ec1e90
+F src/setup.c 6a3f77462317e9130f1c33befef9ce4eef269998
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
 F src/shell.c 18ee8bbe9502d8848072dc2eddd1ea09254ba494
 F src/shun.c 123f0542db2b51c73ca10a0652bb5fe2e5e476fa
@@ -654,8 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b8b037610f7f717471200ad93a9d603bf9a49f0a 8af7f6185a2a92433f4ababb80563637e7ad05f0
-R e949b49f2656e26ae273d6eddb44cd75
-T +closed 8af7f6185a2a92433f4ababb80563637e7ad05f0
-U drh
-Z d23e3257077c926c893bea6811c37fee
+P e05a74f1f471272261a0ffde7f463f5aa39e0878
+R 2b25a6b0f73d0c83cdb9435ea37bd2e7
+U stephan
+Z 05379fb0c7223ae757154aa777722fad
