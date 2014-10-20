@@ -975,16 +975,16 @@ void cmd_win32_service(void){
       fossil_fatal("too many arguments for stop method.");
     }
     hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    if( !hScm ) winhttp_fatal("stop",, zSvcName, win32_get_last_errmsg());
+    if( !hScm ) winhttp_fatal("stop", zSvcName, win32_get_last_errmsg());
     hSvc = OpenServiceW(hScm, fossil_utf8_to_unicode(zSvcName),
                         SERVICE_ALL_ACCESS);
-    if( !hSvc ) winhttp_fatal("stop",, zSvcName, win32_get_last_errmsg());
+    if( !hSvc ) winhttp_fatal("stop", zSvcName, win32_get_last_errmsg());
     QueryServiceStatus(hSvc, &sstat);
     if( sstat.dwCurrentState!=SERVICE_STOPPED ){
       fossil_print("Stopping service '%s'", zSvcName);
       if( sstat.dwCurrentState!=SERVICE_STOP_PENDING ){
         if( !ControlService(hSvc, SERVICE_CONTROL_STOP, &sstat) ){
-          winhttp_fatal("stop",, zSvcName, win32_get_last_errmsg());
+          winhttp_fatal("stop", zSvcName, win32_get_last_errmsg());
         }
       }
       while( sstat.dwCurrentState!=SERVICE_STOPPED ){
