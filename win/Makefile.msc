@@ -666,6 +666,7 @@ realclean: clean
 	-del mkversion$E
 	-del mkversion$P
 	-del codecheck1$E
+	-del codecheck1$P
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h

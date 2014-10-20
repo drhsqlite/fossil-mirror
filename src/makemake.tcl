@@ -761,6 +761,7 @@ TRANSLATE   = $(subst /,\,$(OBJDIR)/translate.exe)
 MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
 VERSION     = $(subst /,\,$(OBJDIR)/version.exe)
+CODECHECK1  = $(subst /,\,$(OBJDIR)/codecheck1.exe)
 CAT         = type
 CP          = copy
 GREP        = find
@@ -1497,6 +1498,7 @@ realclean: clean
 	-del mkversion$E
 	-del mkversion$P
 	-del codecheck1$E
+	-del codecheck1$P
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h

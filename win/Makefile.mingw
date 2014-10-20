@@ -687,6 +687,7 @@ TRANSLATE   = $(subst /,\,$(OBJDIR)/translate.exe)
 MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
 VERSION     = $(subst /,\,$(OBJDIR)/version.exe)
+CODECHECK1  = $(subst /,\,$(OBJDIR)/codecheck1.exe)
 CAT         = type
 CP          = copy
 GREP        = find
