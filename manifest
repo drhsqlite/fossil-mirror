@@ -1,5 +1,5 @@
-C In\sthe\sbuilt-in\scustomized\sprintf(),\schange\sthe\swiki\sconversion\sformat\scharacter\nfrom\s"%w"\sto\s"%W".\s\sThen\sadd\s"%w"\sto\sfor\sSQL\sidentifiers\swithin\sdouble-quotes,\nthe\ssame\sas\sused\sfor\sSQLite.
-D 2014-10-20T10:07:37.640
+C Reverse\sthe\soutput\sorder\sfor\sthe\s"fossil\sstash\slist"\scommand\sso\sthat\sthe\nmost\sresent\sstashes\sare\snear\sthe\sbottom,\srather\sthan\sscrolling\soff\sthe\ntop\sof\sthe\sscreen.
+D 2014-10-20T16:31:30.134
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -409,7 +409,7 @@ F src/skins.c 6376e6ed48a41a15b34b96afdc58bc9c39bcf639
 F src/sqlcmd.c 221f08cdc7bec44bf2ffcf85612aca764d1c4a75
 F src/sqlite3.c 56dcf5e931a9e1fa12fc2d600cd91d3bf9b639cd
 F src/sqlite3.h ef097074faf3bd4ad121bab992f9433d3c5b26b3
-F src/stash.c 4fcd200867fec73b3d57b9b99203afd0a5d7148e
+F src/stash.c 129fbd2efe41a1b17afce2980616501df7eeb947
 F src/stat.c 6e17be9deabc47d31e9bf7e176809fbd00030a21
 F src/style.c e763677210601a956b7e6a0ae34b5769083dc1b1
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f6b69db3c88cb96e25fac3bfda4baad56760e717
-R e90800d8d9f248ad4988e438dd318666
+P 43b30dcfc330ba9fae27401ef8f90184c3c98585
+R 27fea42353a17ec3943c5dc6683a352a
 U drh
-Z b6e5e2c73fbb19062116641e7f9591de
+Z 098c1ed62cfee1359e657614914506e3

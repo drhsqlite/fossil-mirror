@@ -536,7 +536,7 @@ void stash_cmd(void){
     db_prepare(&q,
        "SELECT stashid, (SELECT uuid FROM blob WHERE rid=vid),"
        "       comment, datetime(ctime) FROM stash"
-       " ORDER BY ctime DESC"
+       " ORDER BY ctime"
     );
     if( verboseFlag ){
       db_prepare(&q2, "SELECT isAdded, isRemoved, origname, newname"
