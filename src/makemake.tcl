@@ -787,7 +787,7 @@ endif}
 writeln {
 all:	$(OBJDIR) $(APPNAME)
 
-$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h $(OBJDIR)/CODECHECK.txt
+$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 ifdef USE_WINDOWS
 	$(CAT) $(subst /,\,$(SRCDIR)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
@@ -840,9 +840,6 @@ test:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(VERSION)
 	$(VERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
-
-$(OBJDIR)/CODECHECK.txt:	$(TRANS_SRC) $(CODECHECK1)
-	$(CODECHECK1) $(TRANS_SRC) >$(OBJDIR)/CODECHECK.txt
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
@@ -903,6 +900,7 @@ APPTARGETS += openssl
 endif
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
+	$(CODECHECK1) $(TRANS_SRC)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build
@@ -1053,8 +1051,9 @@ APPNAME = $(OBJDIR)\fossil$(E)
 
 all: $(APPNAME)
 
-$(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
+$(APPNAME) : translate$E mkindex$E codecheck1$E headers  $(OBJ) $(OBJDIR)\link
 	cd $(OBJDIR)
+	codecheck1$E $(SRC)
 	$(DMDIR)\bin\link @link
 
 $(OBJDIR)\fossil.res:	$B\win\fossil.rc
@@ -1082,7 +1081,7 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) -o$@ $**
 
-version$E: $B\src\mkversion.c
+mkversion$E: $(SRCDIR)\mkversion.c
 	$(BCC) -o$@ $**
 
 codecheck1$E: $(SRCDIR)\codecheck1.c
@@ -1103,7 +1102,7 @@ $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 $(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
 	cp $@ $@
 
-VERSION.h : version$E $B\manifest.uuid $B\manifest $B\VERSION
+VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	+$** > $@
 
 page_index.h: mkindex$E $(SRC)
@@ -1417,8 +1416,9 @@ APPTARGETS = $(APPTARGETS) openssl
 !endif
 !endif
 
-$(APPNAME) : $(APPTARGETS) translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
+$(APPNAME) : $(APPTARGETS) translate$E mkindex$E codecheck1$E headers $(OBJ) $(OX)\linkopts
 	cd $(OX)
+	codecheck1$E $(SRC)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
@@ -1445,7 +1445,7 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) $**
 
-mkversion$E: $B\src\mkversion.c
+mkversion$E: $(SRCDIR)\mkversion.c
 	$(BCC) $**
 
 codecheck1$E: $(SRCDIR)\codecheck1.c
