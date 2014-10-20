@@ -435,7 +435,7 @@ static int checkFormatFunc(
   char *z;
   char *zCopy;
   int nArg = 0;
-  const char **azArg = 0;
+  char **azArg = 0;
   int i, k;
   int nErr = 0;
   char *acType;
