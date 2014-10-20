@@ -1700,7 +1700,7 @@ static int isIsoDate(const char *z){
 /*
 ** COMMAND: timeline
 **
-** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?OPTIONS?
+** Usage: %fossil timeline ?WHEN? ?CHECKIN|DATETIME? ?OPTIONS?
 **
 ** Print a summary of activity going backwards in date and time
 ** specified or from the current date and time if no arguments
@@ -1720,6 +1720,8 @@ static int isIsoDate(const char *z){
 ** Options:
 **   -n|--limit N         Output the first N entries (default 20 lines).
 **                        N=0 means no limit.
+**   -p|--path PATH       Output items affecting PATH only. 
+**                        PATH can be a file or a sub directory.
 **   --offset P           skip P changes
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
@@ -1761,6 +1763,8 @@ void timeline_cmd(void){
   zLimit = find_option("limit","n",1);
   zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
+  zFilePattern = find_option("path","p",1);
+
   if( !zLimit ){
     zLimit = find_option("count",0,1);
   }
@@ -1783,35 +1787,33 @@ void timeline_cmd(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  zOrigin = "now";
-  zFilePattern = 0;
-  for(i=2; i<g.argc; i++){
-    char *zArg = g.argv[i];
-    k = strlen(zArg);
-    if( mode==0 ){
-      if( strncmp(zArg,"before",k)==0 ){
-        mode = 1;
-      }else if( strncmp(zArg,"after",k)==0 && k>1 ){
-        mode = 2;
-      }else if( strncmp(zArg,"descendants",k)==0 ){
-        mode = 3;
-      }else if( strncmp(zArg,"children",k)==0 ){
-        mode = 3;
-      }else if( strncmp(zArg,"ancestors",k)==0 && k>1 ){
-        mode = 4;
-      }else if( strncmp(zArg,"parents",k)==0 ){
-        mode = 4;
-      }
-      if( mode ){
-        if( i<g.argc-1 ) zOrigin = g.argv[++i];
-        continue;
-      }
+  if( g.argc>=4 ){
+    k = strlen(g.argv[2]);
+    if( strncmp(g.argv[2],"before",k)==0 ){
+      mode = 1;
+    }else if( strncmp(g.argv[2],"after",k)==0 && k>1 ){
+      mode = 2;
+    }else if( strncmp(g.argv[2],"descendants",k)==0 ){
+      mode = 3;
+    }else if( strncmp(g.argv[2],"children",k)==0 ){
+      mode = 3;
+    }else if( strncmp(g.argv[2],"ancestors",k)==0 && k>1 ){
+      mode = 4;
+    }else if( strncmp(g.argv[2],"parents",k)==0 ){
+      mode = 4;
+    }else if(!zType && !zLimit){
+      usage("?WHEN? ?CHECKIN|DATETIME? ?-n|--limit #? ?-t|--type TYPE? "
+            "?-W|--width WIDTH? ?-p|--path PATH");
     }
-    if( zFilePattern==0 ){
-      zFilePattern = zArg;
+    if( '-' != *g.argv[3] ){
+      zOrigin = g.argv[3];
     }else{
-      usage("?WHEN? ?CHECKIN|DATETIME? ?FILE? ?OPTIONS?");
+      zOrigin = "now";
     }
+  }else if( g.argc==3 ){
+    zOrigin = g.argv[2];
+  }else{
+    zOrigin = "now";
   }
   k = strlen(zOrigin);
   blob_zero(&uuid);
