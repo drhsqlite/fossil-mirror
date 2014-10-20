@@ -1,5 +1,5 @@
-C Fix\sthe\sbuild\sfor\swindows.
-D 2014-10-20T15:14:34.655
+C added\sjson_new_string_f()\sto\scodecheck1's\slist.
+D 2014-10-20T16:45:06.350
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -325,7 +325,7 @@ F src/checkin.c cbd7a598c8da5bd3076d729a15a63c9a72bf193f
 F src/checkout.c 6eb33a11814e9d67fe547378a541cb74c48728ef
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 3fb02ec34bf2a2c464c83b486a0c8ef2cb6ec051
-F src/codecheck1.c 56a116ebb6dfe7dbd515c55d488985aa9b85ed45
+F src/codecheck1.c 3b701d87610d9d9b726e9a98922d991f17e59787
 F src/comformat.c 24b2de2bad5e8e6da966586c68d6505ea08df8e7
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
 F src/configure.c 192f2cafaddd1cfb3a13243cdf3f6f72bb3d4adc
@@ -655,7 +655,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0a7e326fa48fd874c35fe4d14fa872bee3e5d9b6
-R 06771be8d76b547d300e7471b75315ea
-U drh
-Z 158cfadf96a5ed258b0979be29024c38
+P 467eae24252d81a11eeddb018881089447123ea9
+R 1a0ac7865e67b32415282c232ddaeb4f
+U stephan
+Z b400e99bff55a39c5c09122849b4c65d

@@ -337,6 +337,7 @@ struct {
   { "fossil_trace",            1, 0 },
   { "fossil_warning",          1, 0 },
   { "href",                    1, 0 },
+  { "json_new_string_f",       1, 0 },
   { "mprintf",                 1, 0 },
   { "socket_set_errmsg",       1, 0 },
   { "ssl_set_errmsg",          1, 0 },
