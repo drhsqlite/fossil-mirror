@@ -243,6 +243,9 @@ install:	$(APPNAME)
 	mkdir -p $(INSTALLDIR)
 	mv $(APPNAME) $(INSTALLDIR)
 
+codecheck:	$(APPNAME) $(OBJDIR)/codecheck1
+	$(OBJDIR)/codecheck1 $(TRANS_SRC)
+
 $(OBJDIR):
 	-mkdir $(OBJDIR)
 
@@ -257,6 +260,9 @@ $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
+
+$(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
+	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -767,6 +773,7 @@ TRANSLATE   = $(OBJDIR)/translate.exe
 MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
 VERSION     = $(OBJDIR)/version.exe
+CODECHECK1  = $(OBJDIR)/codecheck1.exe
 CAT         = cat
 CP          = cp
 GREP        = grep
@@ -820,6 +827,9 @@ $(MKINDEX):	$(SRCDIR)/mkindex.c
 
 $(VERSION): $(SRCDIR)/mkversion.c
 	$(BCC) -o $(VERSION) $(SRCDIR)/mkversion.c
+
+$(CODECHECK1):	$(SRCDIR)/codecheck1.c
+	$(BCC) -o $(CODECHECK1) $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -1071,6 +1081,9 @@ mkindex$E: $(SRCDIR)\mkindex.c
 version$E: $B\src\mkversion.c
 	$(BCC) -o$@ $**
 
+codecheck1$E: $(SRCDIR)\codecheck1.c
+	$(BCC) -o$@ $**
+
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
 	$(TCC) -o$@ -c $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $**
 
@@ -1097,7 +1110,7 @@ clean:
 	-del *.obj *_.c *.h *.map
 
 realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
+	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E codecheck1$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -1431,6 +1444,9 @@ mkindex$E: $(SRCDIR)\mkindex.c
 mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
+codecheck1$E: $(SRCDIR)\codecheck1.c
+	$(BCC) $**
+
 $(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
 	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
 
@@ -1480,6 +1496,7 @@ realclean: clean
 	-del makeheaders$P
 	-del mkversion$E
 	-del mkversion$P
+	-del codecheck1$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h

@@ -830,7 +830,7 @@ void fileage_page(void){
     fossil_fatal("not a valid check-in: %s", zName);
   }
   style_submenu_element("Tree-View", "Tree-View", "%R/tree?ci=%T", zName);
-  style_header("File Ages", zName);
+  style_header("File Ages");
   zGlob = P("glob");
   compute_fileage(rid,zGlob);
   baseTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);

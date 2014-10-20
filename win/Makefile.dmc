@@ -69,6 +69,9 @@ mkindex$E: $(SRCDIR)\mkindex.c
 version$E: $B\src\mkversion.c
 	$(BCC) -o$@ $**
 
+codecheck1$E: $(SRCDIR)\codecheck1.c
+	$(BCC) -o$@ $**
+
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
 	$(TCC) -o$@ -c $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $**
 
@@ -95,7 +98,7 @@ clean:
 	-del *.obj *_.c *.h *.map
 
 realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
+	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E codecheck1$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h

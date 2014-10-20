@@ -196,15 +196,15 @@ const char *configure_inop_rhs(int iMask){
   const char *zSep = "";
 
   blob_zero(&x);
-  blob_append(&x, "(", 1);
+  blob_append_sql(&x, "(");
   for(i=0; i<count(aConfig); i++){
     if( (aConfig[i].groupMask & iMask)==0 ) continue;
     if( aConfig[i].zName[0]=='@' ) continue;
-    blob_appendf(&x, "%s'%s'", zSep, aConfig[i].zName);
+    blob_append_sql(&x, "%s'%q'", zSep/*safe-for-%s*/, aConfig[i].zName);
     zSep = ",";
   }
-  blob_append(&x, ")", 1);
-  return blob_str(&x);
+  blob_append_sql(&x, ")");
+  return blob_sql_text(&x);
 }
 
 /*
@@ -363,7 +363,8 @@ void configure_prepare_to_receive(int replaceFlag){
     @ INSERT INTO _xfer_user
     @    SELECT uid,login,pw,cap,cookie,ipaddr,cexpire,info,photo FROM user;
   ;
-  db_multi_exec(zSQL1);
+  assert( strchr(zSQL1,'%')==0 );
+  db_multi_exec(zSQL1 /*works-like:""*/);
 
   /* When the replace flag is set, add triggers that run the first time
   ** that new data is seen.  The triggers run only once and delete all the
@@ -392,7 +393,8 @@ void configure_prepare_to_receive(int replaceFlag){
     sqlite3_create_function(g.db, "config_reset", 1, SQLITE_UTF8, 0,
          config_reset_function, 0, 0);
     configHasBeenReset = 0;
-    db_multi_exec(zSQL2);
+    assert( strchr(zSQL2,'%')==0 );
+    db_multi_exec(zSQL2 /*works-like:""*/);
   }
 }
 
@@ -409,7 +411,8 @@ void configure_finalize_receive(void){
     @ DROP TABLE _xfer_user;
     @ DROP TABLE _xfer_reportfmt;
   ;
-  db_multi_exec(zSQL);
+  assert( strchr(zSQL,'%')==0 );
+  db_multi_exec(zSQL /*works-like:""*/);
 }
 
 /*
@@ -565,31 +568,35 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     blob_zero(&sql);
     if( groupMask & CONFIGSET_OVERWRITE ){
       if( (thisMask & configHasBeenReset)==0 && aType[ii].zName[0]!='/' ){
-        db_multi_exec("DELETE FROM %s", &aType[ii].zName[1]);
+        db_multi_exec("DELETE FROM \"%w\"", &aType[ii].zName[1]);
         configHasBeenReset |= thisMask;
       }
-      blob_append(&sql, "REPLACE INTO ", -1);
+      blob_append_sql(&sql, "REPLACE INTO ");
     }else{
-      blob_append(&sql, "INSERT OR IGNORE INTO ", -1);
+      blob_append_sql(&sql, "INSERT OR IGNORE INTO ");
     }
-    blob_appendf(&sql, "%s(%s, mtime", &zName[1], aType[ii].zPrimKey);
+    blob_append_sql(&sql, "\"%w\"(\"%w\", mtime", &zName[1], aType[ii].zPrimKey);
     for(jj=2; jj<nToken; jj+=2){
-       blob_appendf(&sql, ",%s", azToken[jj]);
+       blob_append_sql(&sql, ",\"%w\"", azToken[jj]);
     }
-    blob_appendf(&sql,") VALUES(%s,%s", azToken[1], azToken[0]);
+    blob_append_sql(&sql,") VALUES(%s,%s",
+       azToken[1] /*safe-for-%s*/, azToken[0] /*safe-for-%s*/);
     for(jj=2; jj<nToken; jj+=2){
-       blob_appendf(&sql, ",%s", azToken[jj+1]);
+       blob_append_sql(&sql, ",%s", azToken[jj+1] /*safe-for-%s*/);
     }
-    db_multi_exec("%s)", blob_str(&sql));
+    db_multi_exec("%s)", blob_sql_text(&sql));
     if( db_changes()==0 ){
       blob_reset(&sql);
-      blob_appendf(&sql, "UPDATE %s SET mtime=%s", &zName[1], azToken[0]);
+      blob_append_sql(&sql, "UPDATE \"%w\" SET mtime=%s",
+                      &zName[1], azToken[0]/*safe-for-%s*/);
       for(jj=2; jj<nToken; jj+=2){
-        blob_appendf(&sql, ", %s=%s", azToken[jj], azToken[jj+1]);
+        blob_append_sql(&sql, ", \"%w\"=%s",
+                        azToken[jj], azToken[jj+1]/*safe-for-%s*/);
       }
-      blob_appendf(&sql, " WHERE %s=%s AND mtime<%s",
-                   aType[ii].zPrimKey, azToken[1], azToken[0]);
-      db_multi_exec("%s", blob_str(&sql));
+      blob_append_sql(&sql, " WHERE \"%w\"=%s AND mtime<%s",
+                   aType[ii].zPrimKey, azToken[1]/*safe-for-%s*/,
+                   azToken[0]/*safe-for-%s*/);
+      db_multi_exec("%s", blob_sql_text(&sql));
     }
     blob_reset(&sql);
     rebuildMask |= thisMask;
@@ -611,7 +618,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
       ** as an administrator, so presumably we trust the client at this
       ** point.
       */
-      db_multi_exec("%s", blob_str(pContent));
+      db_multi_exec("%s", blob_str(pContent) /*safe-for-%s*/);
     }else{
       db_multi_exec(
          "REPLACE INTO config(name,value,mtime) VALUES(%Q,%Q,now())",
@@ -968,7 +975,8 @@ void configuration_cmd(void){
         db_multi_exec("DELETE FROM shun");
       }else if( fossil_strcmp(zName,"@reportfmt")==0 ){
         db_multi_exec("DELETE FROM reportfmt");
-        db_multi_exec(zRepositorySchemaDefaultReports);
+        assert( strchr(zRepositorySchemaDefaultReports,'%')==0 );
+        db_multi_exec(zRepositorySchemaDefaultReports /*works-like:""*/);
       }
     }
     db_end_transaction(0);

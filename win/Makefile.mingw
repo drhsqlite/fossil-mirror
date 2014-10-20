@@ -699,6 +699,7 @@ TRANSLATE   = $(OBJDIR)/translate.exe
 MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
 VERSION     = $(OBJDIR)/version.exe
+CODECHECK1  = $(OBJDIR)/codecheck1.exe
 CAT         = cat
 CP          = cp
 GREP        = grep
@@ -751,6 +752,9 @@ $(MKINDEX):	$(SRCDIR)/mkindex.c
 
 $(VERSION): $(SRCDIR)/mkversion.c
 	$(BCC) -o $(VERSION) $(SRCDIR)/mkversion.c
+
+$(CODECHECK1):	$(SRCDIR)/codecheck1.c
+	$(BCC) -o $(CODECHECK1) $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push

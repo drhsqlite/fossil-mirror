@@ -218,12 +218,12 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     canonical16(zUuid, nTag);
     rid = 0;
     if( zType[0]=='*' ){
-      db_prepare(&q, "SELECT rid FROM blob WHERE uuid GLOB '%s*'", zUuid);
+      db_prepare(&q, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUuid);
     }else{
       db_prepare(&q,
         "SELECT blob.rid"
         "  FROM blob, event"
-        " WHERE blob.uuid GLOB '%s*'"
+        " WHERE blob.uuid GLOB '%q*'"
         "   AND event.objid=blob.rid"
         "   AND event.type GLOB '%q'",
         zUuid, zType
@@ -261,7 +261,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
           "SELECT event.objid"
           "  FROM event"
           " WHERE event.objid=%s"
-          "   AND event.type GLOB '%q'", zTag, zType);
+          "   AND event.type GLOB '%q'", zTag /*safe-for-%s*/, zType);
       }
     }
   }
@@ -556,7 +556,7 @@ static void whatis_rid(int rid, int verboseFlag){
     " WHERE tagxref.rid=%d"
     "   AND tag.tagid IN (5,6,7,9)"
     " ORDER BY 1",
-    rid, rid
+    rid
   );
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){

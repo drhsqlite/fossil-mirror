@@ -259,15 +259,18 @@ void all_cmd(void){
     verify_all_options();
     db_begin_transaction();
     for(j=3; j<g.argc; j++){
-      char *zSql = mprintf("DELETE FROM global_config"
-                           " WHERE name GLOB '%s:%q'",
-                           useCheckouts?"ckout":"repo", g.argv[j]);
+      Blob sql;
+      blob_zero(&sql);
+      blob_append_sql(&sql, 
+         "DELETE FROM global_config WHERE name GLOB '%s:%q'",
+         useCheckouts?"ckout":"repo", g.argv[j]
+      );
       if( dryRunFlag ){
-        fossil_print("%s\n", zSql);
+        fossil_print("%s\n", blob_sql_text(&sql));
       }else{
-        db_multi_exec("%s", zSql);
+        db_multi_exec("%s", blob_sql_text(&sql));
       }
-      fossil_free(zSql);
+      blob_reset(&sql);
     }
     db_end_transaction(0);
     return;
@@ -348,7 +351,7 @@ void all_cmd(void){
     if( dryRunFlag ){
       fossil_print("%s\n", zSql);
     }else{
-      db_multi_exec(zSql);
+      db_multi_exec("%s", zSql /*safe-for-%s*/ );
     }
   }
 }

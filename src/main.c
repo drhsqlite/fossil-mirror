@@ -1723,15 +1723,15 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
         continue;
       }
       db_open_repository(azRedirect[i*2]);
-      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%s*'", zName) ){
-        cgi_redirectf(azRedirect[i*2+1], zName);
+      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'", zName) ){
+        cgi_redirectf(azRedirect[i*2+1] /*works-like:"%s"*/, zName);
         return;
       }
       db_close(1);
     }
   }
   if( zNotFound ){
-    cgi_redirectf(zNotFound, zName);
+    cgi_redirectf(zNotFound /*works-like:"%s"*/, zName);
   }else{
     @ <html>
     @ <head><title>No Such Object</title></head>

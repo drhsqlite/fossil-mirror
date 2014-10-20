@@ -613,6 +613,9 @@ mkindex$E: $(SRCDIR)\mkindex.c
 mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
+codecheck1$E: $(SRCDIR)\codecheck1.c
+	$(BCC) $**
+
 $(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
 	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
 
@@ -662,6 +665,7 @@ realclean: clean
 	-del makeheaders$P
 	-del mkversion$E
 	-del mkversion$P
+	-del codecheck1$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h

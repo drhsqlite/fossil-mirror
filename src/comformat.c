@@ -499,10 +499,10 @@ void test_comment_format(void){
     }
   }
   if( decode ){
-    zText = mprintf(fromFile ? "%z" : "%s", zText);
+    zText = mprintf(fromFile?"%z":"%s" /*works-like:"%s"*/, zText);
     defossilize(zText);
     if( zOrigText ){
-      zOrigText = mprintf(fromFile ? "%z" : "%s", zOrigText);
+      zOrigText = mprintf(fromFile?"%z":"%s" /*works-like:"%s"*/, zOrigText);
       defossilize(zOrigText);
     }
   }

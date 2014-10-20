@@ -362,6 +362,9 @@ install:	$(APPNAME)
 	mkdir -p $(INSTALLDIR)
 	mv $(APPNAME) $(INSTALLDIR)
 
+codecheck:	$(APPNAME) $(OBJDIR)/codecheck1
+	$(OBJDIR)/codecheck1 $(TRANS_SRC)
+
 $(OBJDIR):
 	-mkdir $(OBJDIR)
 
@@ -376,6 +379,9 @@ $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
+
+$(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
+	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push

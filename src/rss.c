@@ -78,7 +78,7 @@ void page_timeline_rss(void){
     if( zType[0]=='c' && !g.perm.Read ) zType = "x";
     if( zType[0]=='w' && !g.perm.RdWiki ) zType = "x";
     if( zType[0]=='t' && !g.perm.RdTkt ) zType = "x";
-    blob_appendf(&bSQL, " AND event.type=%Q", zType);
+    blob_append_sql(&bSQL, " AND event.type=%Q", zType);
   }else{
     if( !g.perm.Read ){
       if( g.perm.RdTkt && g.perm.RdWiki ){
@@ -124,14 +124,14 @@ void page_timeline_rss(void){
   }
 
   if( nTagId==-1 ){
-    blob_appendf(&bSQL, " AND 0");
+    blob_append_sql(&bSQL, " AND 0");
   }else if( nTagId!=0 ){
-    blob_appendf(&bSQL, " AND (EXISTS(SELECT 1 FROM tagxref"
+    blob_append_sql(&bSQL, " AND (EXISTS(SELECT 1 FROM tagxref"
       " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid))", nTagId);
   }
 
   if( zFilename ){
-    blob_appendf(&bSQL,
+    blob_append_sql(&bSQL,
       " AND (SELECT mlink.fnid FROM mlink WHERE event.objid=mlink.mid) IN (SELECT fnid FROM filename WHERE name=%Q %s)",
         zFilename, filename_collation()
     );
@@ -162,7 +162,7 @@ void page_timeline_rss(void){
   @     <pubDate>%s(zPubDate)</pubDate>
   @     <generator>Fossil version %s(MANIFEST_VERSION) %s(MANIFEST_DATE)</generator>
   free(zPubDate);
-  db_prepare(&q, blob_str(&bSQL));
+  db_prepare(&q, "%s", blob_sql_text(&bSQL));
   blob_reset( &bSQL );
   while( db_step(&q)==SQLITE_ROW && nLine<nLimit ){
     const char *zId = db_column_text(&q, 1);
@@ -282,7 +282,7 @@ void cmd_timeline_rss(void){
   blob_append( &bSQL, zSQL1, -1 );
 
   if( zType[0]!='a' ){
-    blob_appendf(&bSQL, " AND event.type=%Q", zType);
+    blob_append_sql(&bSQL, " AND event.type=%Q", zType);
   }
 
   if( zTicketUuid ){
@@ -308,14 +308,14 @@ void cmd_timeline_rss(void){
   }
 
   if( nTagId==-1 ){
-    blob_appendf(&bSQL, " AND 0");
+    blob_append_sql(&bSQL, " AND 0");
   }else if( nTagId!=0 ){
-    blob_appendf(&bSQL, " AND (EXISTS(SELECT 1 FROM tagxref"
+    blob_append_sql(&bSQL, " AND (EXISTS(SELECT 1 FROM tagxref"
       " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid))", nTagId);
   }
 
   if( zFilename ){
-    blob_appendf(&bSQL,
+    blob_append_sql(&bSQL,
       " AND (SELECT mlink.fnid FROM mlink WHERE event.objid=mlink.mid) IN (SELECT fnid FROM filename WHERE name=%Q %s)",
         zFilename, filename_collation()
     );
@@ -345,7 +345,7 @@ void cmd_timeline_rss(void){
   fossil_print("<generator>Fossil version %s %s</generator>\n",
                MANIFEST_VERSION, MANIFEST_DATE);
   free(zPubDate);
-  db_prepare(&q, blob_str(&bSQL));
+  db_prepare(&q, "%s", blob_sql_text(&bSQL));
   blob_reset( &bSQL );
   while( db_step(&q)==SQLITE_ROW && nLine<nLimit ){
     const char *zId = db_column_text(&q, 1);
