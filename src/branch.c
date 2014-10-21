@@ -302,8 +302,8 @@ void brlist_page(void){
     showAll = 1;
   }
 
-  style_header(showClosed ? "Closed Branches" :
-                  showAll ? "All Branches" : "Open Branches");
+  style_header("%s", showClosed ? "Closed Branches" :
+                        showAll ? "All Branches" : "Open Branches");
   style_submenu_element("Timeline", "Timeline", "brtimeline");
   if( showClosed ){
     style_submenu_element("All", "All", "brlist?all");

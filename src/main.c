@@ -171,7 +171,7 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
-  int wikiFlags;          /* Wiki conversion flags applied to %w and %W */
+  int wikiFlags;          /* Wiki conversion flags applied to %W */
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
   Blob httpHeader;        /* Complete text of the HTTP request header */
@@ -1723,15 +1723,15 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
         continue;
       }
       db_open_repository(azRedirect[i*2]);
-      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%s*'", zName) ){
-        cgi_redirectf(azRedirect[i*2+1], zName);
+      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'", zName) ){
+        cgi_redirectf(azRedirect[i*2+1] /*works-like:"%s"*/, zName);
         return;
       }
       db_close(1);
     }
   }
   if( zNotFound ){
-    cgi_redirectf(zNotFound, zName);
+    cgi_redirectf(zNotFound /*works-like:"%s"*/, zName);
   }else{
     @ <html>
     @ <head><title>No Such Object</title></head>
@@ -1929,7 +1929,7 @@ static void find_server_repository(int disallowDir, int arg){
 ** See also: cgi, server, winsrv
 */
 void cmd_http(void){
-  const char *zIpAddr;
+  const char *zIpAddr = 0;
   const char *zNotFound;
   const char *zHost;
   const char *zAltBase;
@@ -1954,7 +1954,10 @@ void cmd_http(void){
   useSCGI = find_option("scgi", 0, 0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
   if( zAltBase ) set_base_url(zAltBase);
-  if( find_option("https",0,0)!=0 ) cgi_replace_parameter("HTTPS","on");
+  if( find_option("https",0,0)!=0 ){
+    zIpAddr = fossil_getenv("REMOTE_HOST"); /* From stunnel */
+    cgi_replace_parameter("HTTPS","on");
+  }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
   g.cgiOutput = 1;
@@ -1974,7 +1977,6 @@ void cmd_http(void){
   }else{
     g.httpIn = stdin;
     g.httpOut = stdout;
-    zIpAddr = 0;
     find_server_repository(0, 2);
   }
   if( zIpAddr==0 ){

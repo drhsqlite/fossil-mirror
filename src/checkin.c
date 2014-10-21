@@ -54,11 +54,13 @@ static void status_report(
       blob_reset(&where);
       break;
     }
-    blob_appendf(&where, " %s (pathname=%Q %s) "
-                 "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
-                 (blob_size(&where)>0) ? "OR" : "AND", zName,
-                 filename_collation(), zName, filename_collation(),
-                 zName, filename_collation());
+    blob_append_sql(&where,
+      " %s (pathname=%Q %s) "
+      "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+      (blob_size(&where)>0) ? "OR" : "AND", zName,
+      filename_collation(), zName, filename_collation(),
+      zName, filename_collation()
+    );
   }
 
   db_prepare(&q,
@@ -66,7 +68,7 @@ static void status_report(
     "  FROM vfile "
     " WHERE is_selected(id) %s"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1",
-    blob_str(&where)
+    blob_sql_text(&where)
   );
   blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
@@ -315,11 +317,13 @@ void ls_cmd(void){
       blob_reset(&where);
       break;
     }
-    blob_appendf(&where, " %s (pathname=%Q %s) "
-                 "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
-                 (blob_size(&where)>0) ? "OR" : "WHERE", zName,
-                 filename_collation(), zName, filename_collation(),
-                 zName, filename_collation());
+    blob_append_sql(&where,
+       " %s (pathname=%Q %s) "
+       "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+       (blob_size(&where)>0) ? "OR" : "WHERE", zName,
+       filename_collation(), zName, filename_collation(),
+       zName, filename_collation()
+    );
   }
   vfile_check_signature(vid, 0);
   if( showAge ){
@@ -327,13 +331,14 @@ void ls_cmd(void){
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
        "       datetime(checkin_mtime(%d,rid),'unixepoch'%s)"
        "  FROM vfile %s"
-       " ORDER BY %s", vid, timeline_utc(), blob_str(&where), zOrderBy
+       " ORDER BY %s",
+       vid, timeline_utc(), blob_sql_text(&where), zOrderBy /*safe-for-%s*/
     );
   }else{
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
        "  FROM vfile %s"
-       " ORDER BY %s", blob_str(&where), zOrderBy
+       " ORDER BY %s", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
     );
   }
   blob_reset(&where);
@@ -910,10 +915,8 @@ int select_commit_files(void){
     int ii, jj=0;
     Blob fname;
     Stmt q;
-    const char *zCollate;
     Bag toCommit;
 
-    zCollate = filename_collation();
     blob_zero(&fname);
     bag_init(&toCommit);
     for(ii=2; ii<g.argc; ii++){
@@ -926,8 +929,8 @@ int select_commit_files(void){
       db_prepare(&q,
         "SELECT id FROM vfile WHERE pathname=%Q %s"
         " OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
-        blob_str(&fname), zCollate, blob_str(&fname),
-        zCollate, blob_str(&fname), zCollate);
+        blob_str(&fname), filename_collation(), blob_str(&fname),
+        filename_collation(), blob_str(&fname), filename_collation());
       while( db_step(&q)==SQLITE_ROW ){
         cnt++;
         bag_insert(&toCommit, db_column_int(&q, 0));

@@ -115,8 +115,8 @@ ZLIBDIR = $(SRCDIR)/../compat/zlib
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1i/include
-OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1i
+OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1j/include
+OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1j
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -687,6 +687,7 @@ TRANSLATE   = $(subst /,\,$(OBJDIR)/translate.exe)
 MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
 VERSION     = $(subst /,\,$(OBJDIR)/version.exe)
+CODECHECK1  = $(subst /,\,$(OBJDIR)/codecheck1.exe)
 CAT         = type
 CP          = copy
 GREP        = find
@@ -699,6 +700,7 @@ TRANSLATE   = $(OBJDIR)/translate.exe
 MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
 VERSION     = $(OBJDIR)/version.exe
+CODECHECK1  = $(OBJDIR)/codecheck1.exe
 CAT         = cat
 CP          = cp
 GREP        = grep
@@ -751,6 +753,9 @@ $(MKINDEX):	$(SRCDIR)/mkindex.c
 
 $(VERSION): $(SRCDIR)/mkversion.c
 	$(BCC) -o $(VERSION) $(SRCDIR)/mkversion.c
+
+$(CODECHECK1):	$(SRCDIR)/codecheck1.c
+	$(BCC) -o $(CODECHECK1) $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -817,7 +822,8 @@ ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
 endif
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
+$(APPNAME):	$(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
+	$(CODECHECK1) $(TRANS_SRC)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build

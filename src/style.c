@@ -177,7 +177,7 @@ void style_resolve_href(void){
     @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
   }
   @ }
-  if( strglob("*Opera Mini/[1-9]*", P("HTTP_USER_AGENT")) ){
+  if( sqlite3_strglob("*Opera Mini/[1-9]*", P("HTTP_USER_AGENT"))==0 ){
     /* Special case for Opera Mini, which executes JS server-side */
     @ var isOperaMini = Object.prototype.toString.call(window.operamini)
     @                   === "[object OperaMini]";
@@ -936,18 +936,22 @@ const struct strctCssDefaults {
   { "span.ueditInheritNobody",
     "color for capabilities, inherited by nobody",
     @   color: green;
+    @   padding: .2em;
   },
   { "span.ueditInheritDeveloper",
     "color for capabilities, inherited by developer",
     @   color: red;
+    @   padding: .2em;
   },
   { "span.ueditInheritReader",
     "color for capabilities, inherited by reader",
     @   color: black;
+    @   padding: .2em;
   },
   { "span.ueditInheritAnonymous",
     "color for capabilities, inherited by anonymous",
     @   color: blue;
+    @   padding: .2em;
   },
   { "span.capability",
     "format for capabilities, mentioned on the user edit page",
@@ -1193,6 +1197,10 @@ const struct strctCssDefaults {
   { "tr.row1",
     "odd table row color",
     @ /* Use default */
+  },
+  { "#usetupEditCapability",
+    "format for capabilities string, mentioned on the user edit page",
+    @ font-weight: bold;
   },
   { "#canvas", "timeline graph node colors",
     @ color: black;

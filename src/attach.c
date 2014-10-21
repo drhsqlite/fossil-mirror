@@ -42,7 +42,7 @@ void attachlist_page(void){
   if( zPage && zTkt ) zTkt = 0;
   login_check_credentials();
   blob_zero(&sql);
-  blob_appendf(&sql,
+  blob_append_sql(&sql,
      "SELECT datetime(mtime%s), src, target, filename,"
      "       comment, user,"
      "       (SELECT uuid FROM blob WHERE rid=attachid), attachid"
@@ -52,17 +52,17 @@ void attachlist_page(void){
   if( zPage ){
     if( g.perm.RdWiki==0 ) login_needed();
     style_header("Attachments To %h", zPage);
-    blob_appendf(&sql, " WHERE target=%Q", zPage);
+    blob_append_sql(&sql, " WHERE target=%Q", zPage);
   }else if( zTkt ){
     if( g.perm.RdTkt==0 ) login_needed();
     style_header("Attachments To Ticket %S", zTkt);
-    blob_appendf(&sql, " WHERE target GLOB '%q*'", zTkt);
+    blob_append_sql(&sql, " WHERE target GLOB '%q*'", zTkt);
   }else{
     if( g.perm.RdTkt==0 && g.perm.RdWiki==0 ) login_needed();
     style_header("All Attachments");
   }
-  blob_appendf(&sql, " ORDER BY mtime DESC");
-  db_prepare(&q, "%s", blob_str(&sql));
+  blob_append_sql(&sql, " ORDER BY mtime DESC");
+  db_prepare(&q, "%s", blob_sql_text(&sql));
   @ <ol>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
@@ -379,7 +379,7 @@ void ainfo_page(void){
   /* Shunning here needs to get both the attachment control artifact and
   ** the object that is attached. */
   if( g.perm.Admin ){
-    if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
+    if( db_exists("SELECT 1 FROM shun WHERE uuid='%q'", zUuid) ){
       style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
             g.zTop, zUuid);
     }else{
@@ -392,13 +392,13 @@ void ainfo_page(void){
   if( pAttach==0 ) fossil_redirect_home();
   zTarget = pAttach->zAttachTarget;
   zSrc = pAttach->zAttachSrc;
-  ridSrc = db_int(0,"SELECT rid FROM blob WHERE uuid='%s'", zSrc);
+  ridSrc = db_int(0,"SELECT rid FROM blob WHERE uuid='%q'", zSrc);
   zName = pAttach->zAttachName;
   zDesc = pAttach->zComment;
   zMime = mimetype_from_name(zName);
   fShowContent = zMime ? strncmp(zMime,"text/", 5)==0 : 0;
   if( validate16(zTarget, strlen(zTarget))
-   && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid='%s'", zTarget)
+   && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid='%q'", zTarget)
   ){
     zTktUuid = zTarget;
     if( !g.perm.RdTkt ){ login_needed(); return; }

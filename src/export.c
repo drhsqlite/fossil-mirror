@@ -234,8 +234,8 @@ void export_cmd(void){
   /* Output the commit records.
   */
   db_prepare(&q,
-    "SELECT strftime('%%s',mtime), objid, coalesce(comment,ecomment),"
-    "       coalesce(user,euser),"
+    "SELECT strftime('%%s',mtime), objid, coalesce(ecomment,comment),"
+    "       coalesce(euser,user),"
     "       (SELECT value FROM tagxref WHERE rid=objid AND tagid=%d)"
     "  FROM event"
     " WHERE type='ci' AND NOT EXISTS (SELECT 1 FROM oldcommit WHERE objid=rid)"

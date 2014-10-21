@@ -761,7 +761,7 @@ int compute_fileage(int vid, const char* zGlob){
      "  SELECT rid, :path FROM blob WHERE uuid=:uuid"
   );
   while( (pFile = manifest_file_next(pManifest, 0))!=0 ){
-    if(zGlob && !strglob(zGlob, pFile->zName)) continue;
+    if( zGlob && sqlite3_strglob(zGlob, pFile->zName)!=0 ) continue;
     db_bind_text(&ins, ":uuid", pFile->zUuid);
     db_bind_text(&ins, ":path", pFile->zName);
     db_step(&ins);
@@ -830,7 +830,7 @@ void fileage_page(void){
     fossil_fatal("not a valid check-in: %s", zName);
   }
   style_submenu_element("Tree-View", "Tree-View", "%R/tree?ci=%T", zName);
-  style_header("File Ages", zName);
+  style_header("File Ages");
   zGlob = P("glob");
   compute_fileage(rid,zGlob);
   baseTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);

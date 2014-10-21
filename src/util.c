@@ -80,6 +80,15 @@ int fossil_system(const char *zOrigCmd){
   /* On unix, evaluate the command directly.
   */
   if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zOrigCmd);
+
+  /* Unix systems should never shell-out while processing an HTTP request,
+  ** either via CGI, SCGI, or direct HTTP.  The following assert verifies
+  ** this.  And the following assert proves that Fossil is not vulnerable
+  ** to the ShellShock or BashDoor bug.
+  */
+  assert( g.cgiOutput==0 );
+
+  /* The regular system() call works to get a shell on unix */
   rc = system(zOrigCmd);
 #endif
   return rc;

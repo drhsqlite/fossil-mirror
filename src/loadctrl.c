@@ -29,7 +29,7 @@ double load_average(void){
 #if !defined(_WIN32) && !defined(FOSSIL_OMIT_LOAD_AVERAGE)
   double a[3];
   if( getloadavg(a, 3)>0 ){
-    return a[0];
+    return a[0]>=0.000001 ? a[0] : 0.000001;
   }
 #endif
   return 0.0;

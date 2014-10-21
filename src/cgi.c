@@ -279,8 +279,8 @@ static int check_cache_control(void){
 static int is_gzippable(void){
   if( strstr(PD("HTTP_ACCEPT_ENCODING", ""), "gzip")==0 ) return 0;
   return strncmp(zContentType, "text/", 5)==0
-    || strglob("application/*xml", zContentType)
-    || strglob("application/*javascript", zContentType);
+    || sqlite3_strglob("application/*xml", zContentType)==0
+    || sqlite3_strglob("application/*javascript", zContentType)==0;
 }
 
 /*
@@ -1714,7 +1714,8 @@ int cgi_http_server(
      (flags & HTTP_SERVER_SCGI)!=0?"SCGI":"HTTP",  iPort);
   fflush(stdout);
   if( zBrowser ){
-    zBrowser = mprintf(zBrowser, iPort);
+    assert( strstr(zBrowser,"%d")!=0 );
+    zBrowser = mprintf(zBrowser /*works-like:"%d"*/, iPort);
 #if defined(__CYGWIN__)
     /* On Cygwin, we can do better than "echo" */
     if( strncmp(zBrowser, "echo ", 5)==0 ){

@@ -882,7 +882,7 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
         }
         fprintf(p->out,"%s",p->newline);
       }
-      if( azArg>0 ){
+      if( nArg>0 ){
         for(i=0; i<nArg; i++){
           output_csv(p, azArg[i], i<nArg-1);
         }
@@ -1353,14 +1353,16 @@ static int shell_exec(
         sqlite3_free(zEQP);
       }
 
+#if USE_SYSTEM_SQLITE+0==1
       /* Output TESTCTRL_EXPLAIN text of requested */
-      if( pArg && pArg->mode==MODE_Explain ){
+      if( pArg && pArg->mode==MODE_Explain && sqlite3_libversion_number()<3008007 ){
         const char *zExplain = 0;
         sqlite3_test_control(SQLITE_TESTCTRL_EXPLAIN_STMT, pStmt, &zExplain);
         if( zExplain && zExplain[0] ){
           fprintf(pArg->out, "%s", zExplain);
         }
       }
+#endif
 
       /* If the shell is currently in ".explain" mode, gather the extra
       ** data required to add indents to the output.*/
@@ -3101,6 +3103,15 @@ static int do_meta_command(char *zLine, ShellState *p){
     }
   }else
 
+
+#if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_SELECTTRACE)
+  if( c=='s' && n==11 && strncmp(azArg[0], "selecttrace", n)==0 ){
+    extern int sqlite3SelectTrace;
+    sqlite3SelectTrace = nArg>=2 ? booleanValue(azArg[1]) : 0xff;
+  }else
+#endif
+
+
 #ifdef SQLITE_DEBUG
   /* Undocumented commands for internal testing.  Subject to change
   ** without notice. */
@@ -3725,6 +3736,7 @@ static int process_input(ShellState *p, FILE *in){
   if( nSql ){
     if( !_all_whitespace(zSql) ){
       fprintf(stderr, "Error: incomplete SQL: %s\n", zSql);
+      errCnt++;
     }
     free(zSql);
   }

@@ -391,18 +391,18 @@ void leaves_cmd(void){
   if( recomputeFlag ) leaf_rebuild();
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(), -1);
-  blob_appendf(&sql, " AND blob.rid IN leaf");
+  blob_append_sql(&sql, " AND blob.rid IN leaf");
   if( showClosed ){
-    blob_appendf(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
+    blob_append_sql(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
   }else if( !showAll ){
-    blob_appendf(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
+    blob_append_sql(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
   }
   if( byBranch ){
     db_prepare(&q, "%s ORDER BY nullif(branch,'trunk') COLLATE nocase,"
                    " event.mtime DESC",
-                   blob_str(&sql));
+                   blob_sql_text(&sql));
   }else{
-    db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
+    db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
   }
   blob_reset(&sql);
   n = 0;
@@ -476,13 +476,13 @@ void leaves_page(void){
   }
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
-  blob_appendf(&sql, " AND blob.rid IN leaf");
+  blob_append_sql(&sql, " AND blob.rid IN leaf");
   if( showClosed ){
-    blob_appendf(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
+    blob_append_sql(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
   }else if( !showAll ){
-    blob_appendf(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
+    blob_append_sql(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
   }
-  db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
+  db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
   blob_reset(&sql);
   www_print_timeline(&q, TIMELINE_LEAFONLY, 0, 0, 0);
   db_finalize(&q);
@@ -510,7 +510,7 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
 
   bag_init(&seen);
   bag_init(&pending);
-  db_prepare(&ins, "INSERT OR IGNORE INTO \"%s\" VALUES(:rid)", zTab);
+  db_prepare(&ins, "INSERT OR IGNORE INTO \"%w\" VALUES(:rid)", zTab);
   db_prepare(&q, "SELECT mid FROM mlink WHERE fid=%d", fid);
   while( db_step(&q)==SQLITE_ROW ){
     int mid = db_column_int(&q, 0);

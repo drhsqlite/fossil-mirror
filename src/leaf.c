@@ -41,7 +41,8 @@ int is_a_leaf(int rid){
     @       =coalesce((SELECT value FROM tagxref
     @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
   ;
-  rc = db_int(0, zSql, rid, TAG_BRANCH, TAG_BRANCH);
+  rc = db_int(0, zSql /*works-like:"%d,%d,%d"*/,
+              rid, TAG_BRANCH, TAG_BRANCH);
   return rc==0;
 }
 
@@ -65,7 +66,7 @@ int count_nonbranch_children(int pid){
     @       =coalesce((SELECT value FROM tagxref
     @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
   ;
-  db_static_prepare(&q, zSql, TAG_BRANCH, TAG_BRANCH);
+  db_static_prepare(&q, zSql /*works-like: "%d,%d"*/, TAG_BRANCH, TAG_BRANCH);
   db_bind_int(&q, ":pid", pid);
   if( db_step(&q)==SQLITE_ROW ){
     nNonBranch = db_column_int(&q, 0);

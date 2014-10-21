@@ -313,7 +313,7 @@ static int send_delta_parent(
   int srcId = 0;
 
   for(i=0; srcId==0 && i<count(azQuery); i++){
-    srcId = db_int(0, azQuery[i], rid);
+    srcId = db_int(0, azQuery[i] /*works-like:"%d"*/, rid);
   }
   if( srcId>0
    && (pXfer->syncPrivate || !content_is_private(srcId))
@@ -424,7 +424,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   if( (pXfer->maxTime != -1 && time(NULL) >= pXfer->maxTime) ||
        pXfer->mxSend<=blob_size(pXfer->pOut) ){
     const char *zFormat = isPriv ? "igot %b 1\n" : "igot %b\n";
-    blob_appendf(pXfer->pOut, zFormat, pUuid);
+    blob_appendf(pXfer->pOut, zFormat /*works-like:"%b"*/, pUuid);
     pXfer->nIGotSent++;
     blob_reset(&uuid);
     return;
@@ -456,7 +456,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   blob_reset(&uuid);
 #if 0
   if( blob_buffer(pXfer->pOut)[blob_size(pXfer->pOut)-1]!='\n' ){
-    blob_appendf(pXfer->pOut, "\n", 1);
+    blob_append(pXfer->pOut, "\n", 1);
   }
 #endif
 }
@@ -516,7 +516,7 @@ static void send_compressed_file(Xfer *pXfer, int rid){
     blob_appendf(pXfer->pOut, "%d %d\n", szU, szC);
     blob_append(pXfer->pOut, zContent, szC);
     if( blob_buffer(pXfer->pOut)[blob_size(pXfer->pOut)-1]!='\n' ){
-      blob_appendf(pXfer->pOut, "\n", 1);
+      blob_append(pXfer->pOut, "\n", 1);
     }
     if( !isPrivate && srcIsPrivate ){
       blob_reset(&fullContent);
@@ -713,14 +713,14 @@ void create_cluster(void){
         blob_reset(&cluster);
         nUncl -= nRow;
         nRow = 0;
-        blob_appendf(&deleteWhere, ",%d", rid);
+        blob_append_sql(&deleteWhere, ",%d", rid);
       }
     }
     db_finalize(&q);
     db_multi_exec(
       "DELETE FROM unclustered WHERE rid NOT IN (0 %s)"
       "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=unclustered.rid)",
-      blob_str(&deleteWhere)
+      blob_sql_text(&deleteWhere)
     );
     blob_reset(&deleteWhere);
     if( nRow>0 ){
@@ -1498,7 +1498,8 @@ int client_sync(
     if( (syncFlags & SYNC_RESYNC)!=0 ) xfer.resync = 0x7fffffff;
   }
   if( syncFlags & SYNC_VERBOSE ){
-    fossil_print(zLabelFormat, "", "Bytes", "Cards", "Artifacts", "Deltas");
+    fossil_print(zLabelFormat /*works-like:"%s%s%s%s%d"*/,
+                 "", "Bytes", "Cards", "Artifacts", "Deltas");
   }
 
   while( go ){
@@ -1595,13 +1596,14 @@ int client_sync(
 
     /* Output current stats */
     if( syncFlags & SYNC_VERBOSE ){
-      fossil_print(zValueFormat, "Sent:",
+      fossil_print(zValueFormat /*works-like:"%s%d%d%d%d"*/, "Sent:",
                    blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
                    xfer.nFileSent, xfer.nDeltaSent);
     }else{
       nRoundtrip++;
       nArtifactSent += xfer.nFileSent + xfer.nDeltaSent;
-      fossil_print(zBriefFormat, nRoundtrip, nArtifactSent, nArtifactRcvd);
+      fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
+                   nRoundtrip, nArtifactSent, nArtifactRcvd);
     }
     nCardSent = 0;
     nCardRcvd = 0;
@@ -1816,7 +1818,7 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0],"message") && xfer.nToken==2 ){
         char *zMsg = blob_terminate(&xfer.aToken[1]);
         defossilize(zMsg);
-        if( (syncFlags & SYNC_PUSH) && zMsg && strglob("pull only *", zMsg) ){
+        if( (syncFlags & SYNC_PUSH) && zMsg && sqlite3_strglob("pull only *", zMsg)==0 ){
           syncFlags &= ~SYNC_PUSH;
           zMsg = 0;
         }
@@ -1862,6 +1864,8 @@ int client_sync(
                 url_prompt_for_password();
                 url_remember();
               }
+            }else{
+              nErr++;
             }
           }else{
             blob_appendf(&xfer.err, "server says: %s\n", zMsg);
@@ -1900,11 +1904,12 @@ int client_sync(
     }
     origConfigRcvMask = 0;
     if( nCardRcvd>0 && (syncFlags & SYNC_VERBOSE) ){
-      fossil_print(zValueFormat, "Received:",
+      fossil_print(zValueFormat /*works-like:"%s%d%d%d%d"*/, "Received:",
                    blob_size(&recv), nCardRcvd,
                    xfer.nFileRcvd, xfer.nDeltaRcvd + xfer.nDanglingFile);
     }else{
-      fossil_print(zBriefFormat, nRoundtrip, nArtifactSent, nArtifactRcvd);
+      fossil_print(zBriefFormat /*works-like:"%d%d%d"*/,
+                   nRoundtrip, nArtifactSent, nArtifactRcvd);
     }
     blob_reset(&recv);
     nCycle++;
