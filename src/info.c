@@ -537,16 +537,14 @@ void ci_page(void){
   sideBySide = !is_false(PD("sbs","1"));
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
-    char *zTitle = mprintf("Check-in [%S]", zUuid);
     char *zEUser, *zEComment;
     const char *zUser;
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
 
-    style_header(zTitle);
+    style_header("Check-in [%s]", zUuid);
     login_anonymous_available();
-    free(zTitle);
     zEUser = db_text(0,
                    "SELECT value FROM tagxref"
                    " WHERE tagid=%d AND rid=%d AND tagtype>0",
@@ -1584,7 +1582,7 @@ void hexdump_page(void){
   if( rid==0 ) fossil_redirect_home();
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
-    if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
+    if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
       style_submenu_element("Unshun","Unshun", "%s/shun?accept=%s&sub=1#delshun",
             g.zTop, zUuid);
     }else{
@@ -1770,7 +1768,7 @@ void artifact_page(void){
   if( rid==0 ) fossil_redirect_home();
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
-    if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
+    if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
       style_submenu_element("Unshun","Unshun", "%s/shun?accept=%s&sub=1#accshun",
             g.zTop, zUuid);
     }else{
@@ -1779,7 +1777,7 @@ void artifact_page(void){
     }
   }
   if( descOnly || P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
-  style_header(descOnly ? "Artifact Description" : "Artifact Content");
+  style_header("%s", descOnly ? "Artifact Description" : "Artifact Content");
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Setup ){
     @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
@@ -1886,7 +1884,7 @@ void tinfo_page(void){
   if( rid==0 ){ fossil_redirect_home(); }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Admin ){
-    if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
+    if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
       style_submenu_element("Unshun","Unshun", "%s/shun?accept=%s&sub=1#accshun",
             g.zTop, zUuid);
     }else{
@@ -2031,7 +2029,7 @@ void info_page(void){
     return;
   }
   zName = blob_str(&uuid);
-  rid = db_int(0, "SELECT rid FROM blob WHERE uuid='%s'", zName);
+  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
   if( rid==0 ){
     style_header("Broken Link");
     @ <p>No such object: %h(zName)</p>

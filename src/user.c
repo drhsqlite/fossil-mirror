@@ -453,7 +453,7 @@ void access_log_page(void){
   }
   style_header("Access Log");
   blob_zero(&sql);
-  blob_appendf(&sql,
+  blob_append_sql(&sql,
     "SELECT uname, ipaddr, datetime(mtime%s), success"
     "  FROM accesslog", timeline_utc()
   );
@@ -462,13 +462,13 @@ void access_log_page(void){
   }else if( y==2 ){
     blob_append(&sql, "  WHERE NOT success", -1);
   }
-  blob_appendf(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
+  blob_append_sql(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
   if( skip ){
     style_submenu_element("Newer", "Newer entries",
               "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip>=n ? skip-n : 0,
               n, y);
   }
-  rc = db_prepare_ignore_error(&q, blob_str(&sql));
+  rc = db_prepare_ignore_error(&q, "%s", blob_sql_text(&sql));
   @ <center><table border="1" cellpadding="5">
   @ <tr><th width="33%%">Date</th><th width="34%%">User</th>
   @ <th width="33%%">IP Address</th></tr>

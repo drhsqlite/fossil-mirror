@@ -66,7 +66,7 @@ cson_value * json_page_query(){
 
   zFmt = json_find_option_cstr2("format",NULL,"f",3);
   if(!zFmt) zFmt = "o";
-  db_prepare(&q,"%s", zSql);
+  db_prepare(&q,"%s", zSql/*safe-for-%s*/);
   if( 0 == sqlite3_column_count( q.pStmt ) ){
       json_set_err(FSL_JSON_E_USAGE,
                    "Input query has no result columns. "

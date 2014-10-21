@@ -169,7 +169,7 @@ char *prompt_for_httpauth_creds(void){
   if( !isatty(fileno(stdin)) ) return 0;
   zPrompt = mprintf("\n%s authorization required by\n%s\n",
     g.url.isHttps==1 ? "Encrypted HTTPS" : "Unencrypted HTTP", g.url.canonical);
-  fossil_print(zPrompt);
+  fossil_print("%s", zPrompt);
   free(zPrompt);
   if ( g.url.user && g.url.passwd && use_fossil_creds_for_httpauth_prompt() ){
     zHttpAuth = mprintf("%s:%s", g.url.user, g.url.passwd);
@@ -216,7 +216,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   int isCompressed = 1; /* True if the reply is compressed */
 
   if( transport_open(&g.url) ){
-    fossil_warning(transport_errmsg(&g.url));
+    fossil_warning("%s", transport_errmsg(&g.url));
     return 1;
   }
 

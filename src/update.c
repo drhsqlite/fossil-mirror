@@ -359,18 +359,20 @@ void update_cmd(void){
       file_tree_name(g.argv[i], &treename, 1);
       if( file_wd_isdir(g.argv[i])==1 ){
         if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
-          blob_appendf(&sql, "%sfn NOT GLOB '%b/*' ", zSep, &treename);
+          blob_append_sql(&sql, "%sfn NOT GLOB '%q/*' ", 
+                         zSep /*safe-for-%s*/, blob_str(&treename));
         }else{
           blob_reset(&sql);
           break;
         }
       }else{
-        blob_appendf(&sql, "%sfn<>%B ", zSep, &treename);
+        blob_append_sql(&sql, "%sfn<>%Q ",
+                        zSep /*safe-for-%s*/, blob_str(&treename));
       }
       zSep = "AND ";
       blob_reset(&treename);
     }
-    db_multi_exec(blob_str(&sql));
+    db_multi_exec("%s", blob_sql_text(&sql));
     blob_reset(&sql);
   }
 
