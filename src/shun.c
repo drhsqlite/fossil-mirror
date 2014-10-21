@@ -45,8 +45,7 @@ void shun_page(void){
   const char *zShun = P("shun");
   const char *zAccept = P("accept");
   const char *zRcvid = P("rcvid");
-  int nRcvid;
-  int nUuid;
+  int nRcvid = 0;
   int numRows = 3;
   char *zCanonical = 0;
 
@@ -81,7 +80,7 @@ void shun_page(void){
     zCanonical[j+1] = zCanonical[j] = 0;
     p = zCanonical;
     while( *p ){
-      nUuid = strlen(p);
+      int nUuid = strlen(p);
       if( nUuid!=UUID_SIZE || !validate16(p, nUuid) ){
         @ <p class="generalError">Error: Bad artifact IDs.</p>
         fossil_free(zCanonical);
@@ -154,7 +153,8 @@ void shun_page(void){
   }
   if( zRcvid ){
     nRcvid = atoi(zRcvid);
-    numRows = db_int(0, "SELECT min(count(), 10) FROM blob WHERE rcvid=%d", nRcvid);
+    numRows = db_int(0, "SELECT min(count(), 10) FROM blob WHERE rcvid=%d",
+                     nRcvid);
   }
   @ <p>A shunned artifact will not be pushed nor accepted in a pull and the
   @ artifact content will be purged from the repository the next time the
@@ -185,7 +185,7 @@ void shun_page(void){
   if( zShun ){
     if( strlen(zShun) ){
       @ %h(zShun)
-    }else if( zRcvid ){
+    }else if( nRcvid ){
       db_prepare(&q, "SELECT uuid FROM blob WHERE rcvid=%d", nRcvid);
       while( db_step(&q)==SQLITE_ROW ){
         @ %s(db_column_text(&q, 0))
@@ -212,7 +212,7 @@ void shun_page(void){
   if( zAccept ){
     if( strlen(zAccept) ){
       @ %h(zAccept)
-    }else if( zRcvid ){
+    }else if( nRcvid ){
       db_prepare(&q, "SELECT uuid FROM blob WHERE rcvid=%d", nRcvid);
       while( db_step(&q)==SQLITE_ROW ){
         @ %s(db_column_text(&q, 0))

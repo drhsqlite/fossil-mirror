@@ -1,5 +1,5 @@
-C Add\sthe\scodecheck1\sprogram\sto\sthe\sbuild\stools.\s\sThis\sprogram\svalidates\sthe\nformat\sstrings\son\sprintf-style\sinternal\sinterfaces,\sverifying\sthat\sthe\ncorrect\snumber\sof\sarguments\sfollow\sand\sthat\sSQL\sis\sprotected\sfrom\sinjection\nattacks.
-D 2014-10-21T02:52:25.761
+C Fix\scompiler\swarning\sand\sclarify\suse\sof\slocal\svariables.
+D 2014-10-21T03:05:38.256
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -405,7 +405,7 @@ F src/search.c 76f0639e7bfe4e07dfac1234c421caab12452ff7
 F src/setup.c 52fbc7118b88626c8ac3980a2f15261226100c38
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
 F src/shell.c 1f2b68379b82caceec3f904b71a57a4df750eef5
-F src/shun.c 19c0d5094f666e1753c93bee907bd67b25e20198
+F src/shun.c 57f609c7cd56b7169e7aa81c2d23c6d8094be5ae
 F src/skins.c 810054ea1343bc1b78c2f4b9b0d8a9145fd4ae39
 F src/sqlcmd.c 221f08cdc7bec44bf2ffcf85612aca764d1c4a75
 F src/sqlite3.c 56dcf5e931a9e1fa12fc2d600cd91d3bf9b639cd
@@ -655,8 +655,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cf9eac3929ff5e8b10ddb6b29d64720e27517205 5ea84522ec867b34af8fe091170be4409ea8a363
-R e180a3673831de9b5e70981787db5d5c
-T +closed 5ea84522ec867b34af8fe091170be4409ea8a363
-U drh
-Z 865b92641cee5a2b5154f5e24cb34f3e
+P 49b0ff15922674c30d9d3ccf576ae904b00a3991 d1983dd24ccb0c1c2ecbc5d9332374e05aa55ca3
+R e5f7974d9d1cbf8172c0c9f9e7c4a6ec
+U mistachkin
+Z 99d7bcb81fde2cfd4e62363839fb3086
