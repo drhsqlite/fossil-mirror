@@ -150,7 +150,11 @@ void cmd_sqlite3(void){
   db_close(1);
   sqlite3_shutdown();
   sqlite3_shell(g.argc-1, g.argv+1);
+  sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
   g.db = 0;
+  g.zMainDbType = 0;
+  g.repositoryOpen = 0;
+  g.localOpen = 0;
 }
 
 /*

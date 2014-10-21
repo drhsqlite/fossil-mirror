@@ -294,7 +294,7 @@ void wiki_page(void){
     }
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
-  style_header(zPageName);
+  style_header("%s", zPageName);
   blob_init(&wiki, zBody, -1);
   wiki_render_by_mimetype(&wiki, zMimetype);
   blob_reset(&wiki);
@@ -651,7 +651,7 @@ void wikiappend_page(void){
 
     blob_zero(&body);
     if( isSandbox ){
-      blob_appendf(&body, db_get("sandbox",""));
+      blob_append(&body, db_get("sandbox",""), -1);
       appendRemark(&body, zMimetype);
       db_set("sandbox", blob_str(&body), 0);
     }else{
@@ -748,25 +748,19 @@ static void wiki_history_extra(int rid){
 */
 void whistory_page(void){
   Stmt q;
-  char *zTitle;
-  char *zSQL;
   const char *zPageName;
   login_check_credentials();
   if( !g.perm.Hyperlink ){ login_needed(); return; }
   zPageName = PD("name","");
-  zTitle = mprintf("History Of %s", zPageName);
-  style_header(zTitle);
-  free(zTitle);
+  style_header("History Of %s", zPageName);
 
-  zSQL = mprintf("%s AND event.objid IN "
+  db_prepare(&q, "%s AND event.objid IN "
                  "  (SELECT rid FROM tagxref WHERE tagid="
                        "(SELECT tagid FROM tag WHERE tagname='wiki-%q')"
                  "   UNION SELECT attachid FROM attachment"
                           " WHERE target=%Q)"
                  "ORDER BY mtime DESC",
                  timeline_query_for_www(), zPageName, zPageName);
-  db_prepare(&q, zSQL);
-  free(zSQL);
   zWikiPageName = zPageName;
   www_print_timeline(&q, TIMELINE_ARTID, 0, 0, wiki_history_extra);
   db_finalize(&q);
@@ -780,7 +774,6 @@ void whistory_page(void){
 ** Show the difference between two wiki pages.
 */
 void wdiff_page(void){
-  char *zTitle;
   int rid1, rid2;
   const char *zPageName;
   Manifest *pW1, *pW2 = 0;
@@ -793,9 +786,7 @@ void wdiff_page(void){
   if( rid1==0 ) fossil_redirect_home();
   rid2 = atoi(PD("b","0"));
   zPageName = PD("name","");
-  zTitle = mprintf("Changes To %s", zPageName);
-  style_header(zTitle);
-  free(zTitle);
+  style_header("Changes To %s", zPageName);
 
   if( rid2==0 ){
     rid2 = db_int(0,

@@ -288,7 +288,7 @@ int json_user_update_from_json( cson_object * pUser ){
            invalidates any login token because the old name
            is part of the token hash.
         */;
-      blob_appendf(&sql, ", login=%Q", zNameNew);
+      blob_append_sql(&sql, ", login=%Q", zNameNew);
       ++gotFields;
     }
   }
@@ -300,7 +300,7 @@ int json_user_update_from_json( cson_object * pUser ){
                    "Changing capabilities requires 'a' or 's' privileges.");
       goto error;
     }
-    blob_appendf(&sql, ", cap=%Q", zCap);
+    blob_append_sql(&sql, ", cap=%Q", zCap);
     ++gotFields;
   }
 
@@ -316,11 +316,11 @@ int json_user_update_from_json( cson_object * pUser ){
       char * zPWHash = NULL;
       ++gotFields;
       zPWHash = sha1_shared_secret(zPW, zNameNew ? zNameNew : zName, NULL);
-      blob_appendf(&sql, ", pw=%Q", zPWHash);
+      blob_append_sql(&sql, ", pw=%Q", zPWHash);
       free(zPWHash);
 #else
       ++gotFields;
-      blob_appendf(&sql, ", pw=coalesce(shared_secret(%Q,%Q,"
+      blob_append_sql(&sql, ", pw=coalesce(shared_secret(%Q,%Q,"
                    "(SELECT value FROM config WHERE name='project-code')))",
                    zPW, zNameNew ? zNameNew : zName);
       /* shared_secret() func is undefined? */
@@ -329,7 +329,7 @@ int json_user_update_from_json( cson_object * pUser ){
   }
 
   if( zInfo ){
-    blob_appendf(&sql, ", info=%Q", zInfo);
+    blob_append_sql(&sql, ", info=%Q", zInfo);
     ++gotFields;
   }
 
@@ -346,22 +346,22 @@ int json_user_update_from_json( cson_object * pUser ){
   }
   assert(uid>0);
 #if !TRY_LOGIN_GROUP
-  blob_appendf(&sql, " WHERE uid=%d", uid);
+  blob_append_sql(&sql, " WHERE uid=%d", uid);
 #else /* need name for login group support :/ */
-  blob_appendf(&sql, " WHERE login=%Q", zName);
+  blob_append_sql(&sql, " WHERE login=%Q", zName);
 #endif
 #if 0
   puts(blob_str(&sql));
   cson_output_FILE( cson_object_value(pUser), stdout, NULL );
 #endif
-  db_prepare(&q, "%s", blob_str(&sql));
+  db_prepare(&q, "%s", blob_sql_text(&sql));
   db_exec(&q);
   db_finalize(&q);
 #if TRY_LOGIN_GROUP
   if( zPW || cson_value_get_bool(forceLogout) ){
     Blob groupSql = empty_blob;
     char * zErr = NULL;
-    blob_appendf(&groupSql,
+    blob_append_sql(&groupSql,
       "INSERT INTO user(login)"
       "  SELECT %Q WHERE NOT EXISTS(SELECT 1 FROM user WHERE login=%Q);",
       zName, zName

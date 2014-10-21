@@ -42,8 +42,9 @@ APPNAME = $(OBJDIR)\fossil$(E)
 
 all: $(APPNAME)
 
-$(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
+$(APPNAME) : translate$E mkindex$E codecheck1$E headers  $(OBJ) $(OBJDIR)\link
 	cd $(OBJDIR)
+	codecheck1$E $(SRC)
 	$(DMDIR)\bin\link @link
 
 $(OBJDIR)\fossil.res:	$B\win\fossil.rc
@@ -66,7 +67,10 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) -o$@ $**
 
-version$E: $B\src\mkversion.c
+mkversion$E: $(SRCDIR)\mkversion.c
+	$(BCC) -o$@ $**
+
+codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
@@ -84,7 +88,7 @@ $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 $(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
 	cp $@ $@
 
-VERSION.h : version$E $B\manifest.uuid $B\manifest $B\VERSION
+VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	+$** > $@
 
 page_index.h: mkindex$E $(SRC)
@@ -95,7 +99,7 @@ clean:
 	-del *.obj *_.c *.h *.map
 
 realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
+	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E codecheck1$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
