@@ -139,11 +139,11 @@ void stat_page(void){
   @ By Fossil %h(db_get("rebuilt","Unknown"))</td></tr>
   @ <tr><th>Database&nbsp;Stats:</th><td>
   zDb = db_name("repository");
-  @ %d(db_int(0, "PRAGMA %s.page_count", zDb)) pages,
-  @ %d(db_int(0, "PRAGMA %s.page_size", zDb)) bytes/page,
-  @ %d(db_int(0, "PRAGMA %s.freelist_count", zDb)) free pages,
-  @ %s(db_text(0, "PRAGMA %s.encoding", zDb)),
-  @ %s(db_text(0, "PRAGMA %s.journal_mode", zDb)) mode
+  @ %d(db_int(0, "PRAGMA \"%w\".page_count", zDb)) pages,
+  @ %d(db_int(0, "PRAGMA \"%w\".page_size", zDb)) bytes/page,
+  @ %d(db_int(0, "PRAGMA \"%w\".freelist_count", zDb)) free pages,
+  @ %s(db_text(0, "PRAGMA \"%w\".encoding", zDb)),
+  @ %s(db_text(0, "PRAGMA \"%w\".journal_mode", zDb)) mode
   @ </td></tr>
 
   @ </table>
@@ -269,11 +269,11 @@ void dbstat_cmd(void){
   fossil_print("%*s%d pages, %d bytes/pg, %d free pages, "
                "%s, %s mode\n",
                colWidth, "database-stats:",
-               db_int(0, "PRAGMA %s.page_count", zDb),
-               db_int(0, "PRAGMA %s.page_size", zDb),
-               db_int(0, "PRAGMA %s.freelist_count", zDb),
-               db_text(0, "PRAGMA %s.encoding", zDb),
-               db_text(0, "PRAGMA %s.journal_mode", zDb));
+               db_int(0, "PRAGMA \"%w\".page_count", zDb),
+               db_int(0, "PRAGMA \"%w\".page_size", zDb),
+               db_int(0, "PRAGMA \"%w\".freelist_count", zDb),
+               db_text(0, "PRAGMA \"%w\".encoding", zDb),
+               db_text(0, "PRAGMA \"%w\".journal_mode", zDb));
   if( dbCheck ){
     fossil_print("%*s%s\n", colWidth, "database-check:",
                  db_text(0, "PRAGMA quick_check(1)"));

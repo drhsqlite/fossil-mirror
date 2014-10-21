@@ -471,8 +471,9 @@ APPTARGETS = $(APPTARGETS) openssl
 !endif
 !endif
 
-$(APPNAME) : $(APPTARGETS) translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
+$(APPNAME) : $(APPTARGETS) translate$E mkindex$E codecheck1$E headers $(OBJ) $(OX)\linkopts
 	cd $(OX)
+	codecheck1$E $(SRC)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc
@@ -610,7 +611,10 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) $**
 
-mkversion$E: $B\src\mkversion.c
+mkversion$E: $(SRCDIR)\mkversion.c
+	$(BCC) $**
+
+codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) $**
 
 $(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
@@ -662,6 +666,8 @@ realclean: clean
 	-del makeheaders$P
 	-del mkversion$E
 	-del mkversion$P
+	-del codecheck1$E
+	-del codecheck1$P
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h

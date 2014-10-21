@@ -377,7 +377,7 @@ void user_edit(void){
     login_verify_csrf_secret();
     db_multi_exec(
        "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
-       "VALUES(nullif(%d,0),%Q,%Q,%Q,'%s',now())",
+       "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
       uid, P("login"), P("info"), zPw, zCap
     );
     if( atoi(PD("all","0"))>0 ){
@@ -479,7 +479,7 @@ void user_edit(void){
   */
   style_submenu_element("Cancel", "Cancel", "setup_ulist");
   if( uid ){
-    style_header(mprintf("Edit User %h", zLogin));
+    style_header("Edit User %h", zLogin);
   }else{
     style_header("Add A New User");
   }
@@ -1159,7 +1159,7 @@ void setup_login_group(void){
     login_needed();
   }
   file_canonical_name(g.zRepositoryName, &fullName, 0);
-  zSelfRepo = mprintf(blob_str(&fullName));
+  zSelfRepo = fossil_strdup(blob_str(&fullName));
   blob_reset(&fullName);
   if( P("join")!=0 ){
     login_group_join(zRepo, zLogin, zPw, zNewName, &zErrMsg);
@@ -1333,7 +1333,11 @@ void setup_settings(void){
 
   (void) aCmdHelp; /* NOTE: Silence compiler warning. */
   style_header("Settings");
-  db_open_local(0);
+  if(!g.repositoryOpen){
+    /* Provide read-only access to versioned settings,
+       but only if no repo file was explicitly provided. */
+    db_open_local(0);
+  }
   db_begin_transaction();
   @ <p>This page provides a simple interface to the "fossil setting" command.
   @ See the "fossil help setting" output below for further information on

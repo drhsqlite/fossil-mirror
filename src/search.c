@@ -233,10 +233,10 @@ void search_cmd(void){
               "SELECT rid, uuid, date, comment, 0, 0 FROM srch "
               "WHERE 1 ", -1);
   if(!fAll){
-    blob_appendf(&sql,"AND x>%d ", iBest/3);
+    blob_append_sql(&sql,"AND x>%d ", iBest/3);
   }
   blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
-  db_prepare(&q, blob_str(&sql));
+  db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   print_timeline(&q, nLimit, width, 0);
   db_finalize(&q);

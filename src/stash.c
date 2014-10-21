@@ -25,13 +25,13 @@
 ** SQL code to implement the tables needed by the stash.
 */
 static const char zStashInit[] =
-@ CREATE TABLE IF NOT EXISTS %s.stash(
+@ CREATE TABLE IF NOT EXISTS "%w".stash(
 @   stashid INTEGER PRIMARY KEY,     -- Unique stash identifier
 @   vid INTEGER,                     -- The baseline check-out for this stash
 @   comment TEXT,                    -- Comment for this stash.  Or NULL
 @   ctime TIMESTAMP                  -- When the stash was created
 @ );
-@ CREATE TABLE IF NOT EXISTS %s.stashfile(
+@ CREATE TABLE IF NOT EXISTS "%w".stashfile(
 @   stashid INTEGER REFERENCES stash,  -- Stash that contains this file
 @   rid INTEGER,                       -- Baseline content in BLOB table or 0.
 @   isAdded BOOLEAN,                   -- True if this is an added file
@@ -63,20 +63,20 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
   file_tree_name(zFile, &fname, 1);
   zTreename = blob_str(&fname);
   blob_zero(&sql);
-  blob_appendf(&sql,
+  blob_append_sql(&sql,
     "SELECT deleted, isexe, islink, mrid, pathname, coalesce(origname,pathname)"
     "  FROM vfile"
     " WHERE vid=%d AND (chnged OR deleted OR origname NOT NULL OR mrid==0)",
     vid
   );
   if( fossil_strcmp(zTreename,".")!=0 ){
-    blob_appendf(&sql,
+    blob_append_sql(&sql,
       "   AND (pathname GLOB '%q/*' OR origname GLOB '%q/*'"
             "  OR pathname=%Q OR origname=%Q)",
       zTreename, zTreename, zTreename, zTreename
     );
   }
-  db_prepare(&q, blob_str(&sql));
+  db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   db_prepare(&ins,
      "INSERT INTO stashfile(stashid, rid, isAdded, isRemoved, isExec, isLink,"
@@ -476,7 +476,7 @@ void stash_cmd(void){
   db_open_config(0);
   db_begin_transaction();
   zDb = db_name("localdb");
-  db_multi_exec(zStashInit, zDb, zDb);
+  db_multi_exec(zStashInit /*works-like:"%w,%w"*/, zDb, zDb);
   if( g.argc<=2 ){
     zCmd = "save";
   }else{
@@ -529,7 +529,7 @@ void stash_cmd(void){
     db_prepare(&q,
        "SELECT stashid, (SELECT uuid FROM blob WHERE rid=vid),"
        "       comment, datetime(ctime) FROM stash"
-       " ORDER BY ctime DESC"
+       " ORDER BY ctime"
     );
     if( verboseFlag ){
       db_prepare(&q2, "SELECT isAdded, isRemoved, origname, newname"

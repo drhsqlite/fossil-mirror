@@ -553,7 +553,7 @@ void test_rename_list_page(void){
   @ <th>Old Name</th>
   @ <th>New Name</th>
   @ <th>Check-in</th></tr>
-  db_prepare(&q, zRenameQuery);
+  db_prepare(&q, "%s", zRenameQuery/*safe-for-%s*/);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zOld = db_column_text(&q, 1);

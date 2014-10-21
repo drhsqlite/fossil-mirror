@@ -243,6 +243,9 @@ install:	$(APPNAME)
 	mkdir -p $(INSTALLDIR)
 	mv $(APPNAME) $(INSTALLDIR)
 
+codecheck:	$(TRANS_SRC) $(OBJDIR)/codecheck1
+	$(OBJDIR)/codecheck1 $(TRANS_SRC)
+
 $(OBJDIR):
 	-mkdir $(OBJDIR)
 
@@ -257,6 +260,9 @@ $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
+
+$(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
+	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -306,7 +312,8 @@ EXTRAOBJ = <<<NEXT_LINE>>>
 }]
 
 writeln {
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
+$(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(OBJ) $(EXTRAOBJ)
+	$(OBJDIR)/codecheck1 $(TRANS_SRC)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
@@ -755,6 +762,7 @@ TRANSLATE   = $(subst /,\,$(OBJDIR)/translate.exe)
 MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
 VERSION     = $(subst /,\,$(OBJDIR)/version.exe)
+CODECHECK1  = $(subst /,\,$(OBJDIR)/codecheck1.exe)
 CAT         = type
 CP          = copy
 GREP        = find
@@ -767,6 +775,7 @@ TRANSLATE   = $(OBJDIR)/translate.exe
 MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
 VERSION     = $(OBJDIR)/version.exe
+CODECHECK1  = $(OBJDIR)/codecheck1.exe
 CAT         = cat
 CP          = cp
 GREP        = grep
@@ -820,6 +829,9 @@ $(MKINDEX):	$(SRCDIR)/mkindex.c
 
 $(VERSION): $(SRCDIR)/mkversion.c
 	$(BCC) -o $(VERSION) $(SRCDIR)/mkversion.c
+
+$(CODECHECK1):	$(SRCDIR)/codecheck1.c
+	$(BCC) -o $(CODECHECK1) $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -888,7 +900,8 @@ ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
 endif
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(CODECHECK1) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
+	$(CODECHECK1) $(TRANS_SRC)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build
@@ -1039,8 +1052,9 @@ APPNAME = $(OBJDIR)\fossil$(E)
 
 all: $(APPNAME)
 
-$(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
+$(APPNAME) : translate$E mkindex$E codecheck1$E headers  $(OBJ) $(OBJDIR)\link
 	cd $(OBJDIR)
+	codecheck1$E $(SRC)
 	$(DMDIR)\bin\link @link
 
 $(OBJDIR)\fossil.res:	$B\win\fossil.rc
@@ -1068,7 +1082,10 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) -o$@ $**
 
-version$E: $B\src\mkversion.c
+mkversion$E: $(SRCDIR)\mkversion.c
+	$(BCC) -o$@ $**
+
+codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
@@ -1086,7 +1103,7 @@ $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 $(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
 	cp $@ $@
 
-VERSION.h : version$E $B\manifest.uuid $B\manifest $B\VERSION
+VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	+$** > $@
 
 page_index.h: mkindex$E $(SRC)
@@ -1097,7 +1114,7 @@ clean:
 	-del *.obj *_.c *.h *.map
 
 realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
+	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E codecheck1$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -1400,8 +1417,9 @@ APPTARGETS = $(APPTARGETS) openssl
 !endif
 !endif
 
-$(APPNAME) : $(APPTARGETS) translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
+$(APPNAME) : $(APPTARGETS) translate$E mkindex$E codecheck1$E headers $(OBJ) $(OX)\linkopts
 	cd $(OX)
+	codecheck1$E $(SRC)
 	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
@@ -1428,7 +1446,10 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) $**
 
-mkversion$E: $B\src\mkversion.c
+mkversion$E: $(SRCDIR)\mkversion.c
+	$(BCC) $**
+
+codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) $**
 
 $(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
@@ -1480,6 +1501,8 @@ realclean: clean
 	-del makeheaders$P
 	-del mkversion$E
 	-del mkversion$P
+	-del codecheck1$E
+	-del codecheck1$P
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h

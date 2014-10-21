@@ -1714,7 +1714,8 @@ int cgi_http_server(
      (flags & HTTP_SERVER_SCGI)!=0?"SCGI":"HTTP",  iPort);
   fflush(stdout);
   if( zBrowser ){
-    zBrowser = mprintf(zBrowser, iPort);
+    assert( strstr(zBrowser,"%d")!=0 );
+    zBrowser = mprintf(zBrowser /*works-like:"%d"*/, iPort);
 #if defined(__CYGWIN__)
     /* On Cygwin, we can do better than "echo" */
     if( strncmp(zBrowser, "echo ", 5)==0 ){

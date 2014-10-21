@@ -75,7 +75,7 @@ static int object_used(int rid){
   };
   int i;
   for(i=0; i<sizeof(aTabField)/sizeof(aTabField[0]); i+=2){
-    if( db_exists("SELECT 1 FROM %s WHERE %s=%d",
+    if( db_exists("SELECT 1 FROM \"%w\" WHERE \"%w\"=%d",
                   aTabField[i], aTabField[i+1], rid) ) return 1;
   }
   return 0;
@@ -154,11 +154,11 @@ void modreq_page(void){
   @ <h2>All Pending Moderation Requests</h2>
   if( moderation_table_exists() ){
     blob_init(&sql, timeline_query_for_www(), -1);
-    blob_appendf(&sql,
+    blob_append_sql(&sql,
         " AND event.objid IN (SELECT objid FROM modreq)"
         " ORDER BY event.mtime DESC"
     );
-    db_prepare(&q, blob_str(&sql));
+    db_prepare(&q, "%s", blob_sql_text(&sql));
     www_print_timeline(&q, 0, 0, 0, 0);
     db_finalize(&q);
   }

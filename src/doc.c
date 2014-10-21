@@ -503,7 +503,7 @@ void doc_page(void){
   if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
     Blob title, tail;
     if( wiki_find_title(&filebody, &title, &tail) ){
-      style_header(blob_str(&title));
+      style_header("%s", blob_str(&title));
       wiki_convert(&tail, 0, WIKI_BUTTONS);
     }else{
       style_header("Documentation");
@@ -515,7 +515,7 @@ void doc_page(void){
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(&filebody, &title, &tail);
     if( blob_size(&title)>0 ){
-      style_header(blob_str(&title));
+      style_header("%s", blob_str(&title));
     }else{
       style_header("Documentation");
     }
@@ -530,11 +530,9 @@ void doc_page(void){
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   }else if( db_get_boolean("th1-docs", 0) &&
             fossil_strcmp(zMime, "application/x-th1")==0 ){
-    char *zHtml = htmlize(zName, -1);
-    style_header(zHtml);
+    style_header("%h", zName);
     Th_Render(blob_str(&filebody));
     style_footer();
-    fossil_free(zHtml);
 #endif
   }else{
     cgi_set_content_type(zMime);

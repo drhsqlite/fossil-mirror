@@ -270,13 +270,13 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
         sz++;
       }
       DEBUG( printf("CONFLICT %d\n", sz); )
-      blob_appendf(pOut, mergeMarker[0]);
+      blob_append(pOut, mergeMarker[0], -1);
       i1 = output_one_side(pOut, pV1, aC1, i1, sz);
-      blob_appendf(pOut, mergeMarker[1]);
+      blob_append(pOut, mergeMarker[1], -1);
       blob_copy_lines(pOut, pPivot, sz);
-      blob_appendf(pOut, mergeMarker[2]);
+      blob_append(pOut, mergeMarker[2], -1);
       i2 = output_one_side(pOut, pV2, aC2, i2, sz);
-      blob_appendf(pOut, mergeMarker[3]);
+      blob_append(pOut, mergeMarker[3], -1);
    }
 
     /* If we are finished with an edit triple, advance to the next

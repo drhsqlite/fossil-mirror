@@ -380,9 +380,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   if( !isRepeat ) g.parseCnt[0]++;
   z = blob_materialize(pContent);
   n = blob_size(pContent);
-  if( n<=0 || z[n-1]!='\n' ){
+  if( pErr && (n<=0 || z[n-1]!='\n') ){
     blob_reset(pContent);
-    blob_appendf(pErr, n ? "not terminated with \\n" : "zero-length");
+    blob_append(pErr, n ? "not terminated with \\n" : "zero-length", -1);
     return 0;
   }
 
@@ -1591,7 +1591,7 @@ void manifest_ticket_event(
     zStatusColumn = db_get("ticket-status-column", "status");
   }
   zTitle = db_text("unknown",
-    "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
+    "SELECT \"%w\" FROM ticket WHERE tkt_uuid=%Q",
     zTitleExpr, pManifest->zTicketUuid
   );
   if( !isNew ){
@@ -1612,7 +1612,7 @@ void manifest_ticket_event(
                    zNewStatus, pManifest->zTicketUuid, pManifest->zTicketUuid);
     }else{
       zNewStatus = db_text("unknown",
-         "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
+         "SELECT \"%w\" FROM ticket WHERE tkt_uuid=%Q",
          zStatusColumn, pManifest->zTicketUuid
       );
       blob_appendf(&comment, "Ticket [%s|%S] <i>%h</i> status still %h with "
@@ -1896,7 +1896,6 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
       p->rDate, rid, p->zUser, zComment,
       TAG_BGCOLOR, rid,
-      TAG_BGCOLOR, rid,
       TAG_USER, rid,
       TAG_COMMENT, rid
     );
@@ -2028,7 +2027,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         branchMove = 0;
         if( permitHooks && db_exists("SELECT 1 FROM event, blob"
             " WHERE event.type='ci' AND event.objid=blob.rid"
-            " AND blob.uuid='%s'", zTagUuid) ){
+            " AND blob.uuid=%Q", zTagUuid) ){
           zScript = xfer_commit_code();
           zUuid = zTagUuid;
         }
