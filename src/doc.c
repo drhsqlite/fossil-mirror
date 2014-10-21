@@ -533,7 +533,6 @@ void doc_page(void){
     style_header("%h", zName);
     Th_Render(blob_str(&filebody));
     style_footer();
-    fossil_free(zHtml);
 #endif
   }else{
     cgi_set_content_type(zMime);
