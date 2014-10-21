@@ -256,7 +256,7 @@ static void remove_pgp_signature(char **pz, int *pn){
 **   0123456789 123456789 123456789 123456789
 **   Z aea84f4f863865a8d59d0384e4d2a41c
 */
-static int verify_z_card(const char *z, int n ){
+static int verify_z_card(const char *z, int n){
   if( n<35 ) return 0;
   if( z[n-35]!='Z' || z[n-34]!=' ' ) return 0;
   md5sum_init();
@@ -956,8 +956,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
 
 manifest_syntax_error:
   if(bUuid.nUsed){
-    blob_appendf(pErr, "manifest UUID %.40s ",
-                 blob_str(&bUuid));
+    blob_appendf(pErr, "manifest UUID %.40s ", blob_str(&bUuid));
     blob_reset(&bUuid);
   }
   if( zErr ){
