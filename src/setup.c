@@ -377,7 +377,7 @@ void user_edit(void){
     login_verify_csrf_secret();
     db_multi_exec(
        "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
-       "VALUES(nullif(%d,0),%Q,%Q,%Q,'%s',now())",
+       "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
       uid, P("login"), P("info"), zPw, zCap
     );
     if( atoi(PD("all","0"))>0 ){
@@ -479,7 +479,7 @@ void user_edit(void){
   */
   style_submenu_element("Cancel", "Cancel", "setup_ulist");
   if( uid ){
-    style_header(mprintf("Edit User %h", zLogin));
+    style_header("Edit User %h", zLogin);
   }else{
     style_header("Add A New User");
   }
@@ -1159,7 +1159,7 @@ void setup_login_group(void){
     login_needed();
   }
   file_canonical_name(g.zRepositoryName, &fullName, 0);
-  zSelfRepo = mprintf(blob_str(&fullName));
+  zSelfRepo = fossil_strdup(blob_str(&fullName));
   blob_reset(&fullName);
   if( P("join")!=0 ){
     login_group_join(zRepo, zLogin, zPw, zNewName, &zErrMsg);

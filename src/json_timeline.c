@@ -85,7 +85,7 @@ static void json_timeline_temp_table(void){
     @   brief TEXT
     @ )
   ;
-  db_multi_exec(zSql);
+  db_multi_exec("%s", zSql /*safe-for-%s*/);
 }
 
 /*
@@ -386,7 +386,7 @@ static cson_value * json_timeline_branch(){
               " WHERE blob.rid=event.objid",
               -1);
 
-  blob_appendf(&sql,
+  blob_append_sql(&sql,
                " AND event.type='ci'"
                " AND blob.rid IN (SELECT rid FROM tagxref"
                "  WHERE tagtype>0 AND tagid=%d AND srcid!=0)"
@@ -394,9 +394,9 @@ static cson_value * json_timeline_branch(){
                TAG_BRANCH);
   limit = json_timeline_limit(20);
   if(limit>0){
-    blob_appendf(&sql," LIMIT %d ",limit);
+    blob_append_sql(&sql," LIMIT %d ",limit);
   }
-  db_prepare(&q,"%s", blob_str(&sql));
+  db_prepare(&q,"%s", blob_sql_text(&sql));
   blob_reset(&sql);
   pay = json_stmt_to_array_of_obj(&q, NULL);
   db_finalize(&q);
@@ -484,7 +484,7 @@ static cson_value * json_timeline_ci(){
   tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
   SET("timelineSql");
 #endif
-  db_multi_exec(blob_buffer(&sql));
+  db_multi_exec("%s", blob_buffer(&sql)/*safe-for-%s*/);
   blob_reset(&sql);
   db_prepare(&q, "SELECT "
              " rid AS rid"
@@ -549,7 +549,7 @@ cson_value * json_timeline_wiki(){
   tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
   SET("timelineSql");
 #endif
-  db_multi_exec(blob_buffer(&sql));
+  db_multi_exec("%s", blob_buffer(&sql) /*safe-for-%s*/);
   blob_reset(&sql);
   db_prepare(&q, "SELECT"
              " uuid AS uuid,"
@@ -567,8 +567,7 @@ cson_value * json_timeline_wiki(){
              " tagId AS tagId,"
 #endif
              " FROM json_timeline"
-             " ORDER BY rowid",
-             -1);
+             " ORDER BY rowid");
   list = cson_new_array();
   json_stmt_to_array_of_obj(&q, list);
   cson_object_set(pay, "timeline", cson_array_value(list));
@@ -609,7 +608,7 @@ static cson_value * json_timeline_ticket(){
     goto error;
   }
 
-  db_multi_exec(blob_buffer(&sql));
+  db_multi_exec("%s", blob_buffer(&sql) /*safe-for-%s*/);
 #define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
     json_set_err((cson_rc.AllocError==check)        \
                  ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN,      \
@@ -640,8 +639,7 @@ static cson_value * json_timeline_ticket(){
              " comment AS comment,"
              " brief AS briefComment"
              " FROM json_timeline"
-             " ORDER BY rowid",
-             -1);
+             " ORDER BY rowid");
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   tmp = listV;

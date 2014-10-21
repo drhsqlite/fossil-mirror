@@ -862,7 +862,7 @@ static void timeline_temp_table(void){
     @   sortby REAL
     @ )
   ;
-  db_multi_exec(zSql);
+  db_multi_exec("%s", zSql/*safe-for-%s*/);
 }
 
 /*
@@ -891,7 +891,7 @@ const char *timeline_query_for_www(void){
     @ WHERE blob.rid=event.objid
   ;
   if( zBase==0 ){
-    zBase = mprintf(zBaseSql, timeline_utc());
+    zBase = mprintf(zBaseSql /*works-like: "%s"*/, timeline_utc());
   }
   return zBase;
 }
@@ -967,7 +967,7 @@ char *names_of_file(const char *zUuid){
   const char *zSep = "";
   db_prepare(&q,
     "SELECT DISTINCT filename.name FROM mlink, filename"
-    " WHERE mlink.fid=(SELECT rid FROM blob WHERE uuid='%s')"
+    " WHERE mlink.fid=(SELECT rid FROM blob WHERE uuid=%Q)"
     "   AND filename.fnid=mlink.fnid",
     zUuid
   );
@@ -1131,9 +1131,11 @@ void page_timeline(void){
     url_add_parameter(&url, "v", 0);
   }
   if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-    blob_appendf(&sql, " AND NOT EXISTS(SELECT 1 FROM tagxref"
-                 "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
-                 TAG_HIDDEN);
+    blob_append_sql(&sql,
+      " AND NOT EXISTS(SELECT 1 FROM tagxref"
+      "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
+      TAG_HIDDEN
+    );
   }
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
@@ -1156,7 +1158,7 @@ void page_timeline(void){
     }
     blob_append(&sql, " AND event.objid IN (0", -1);
     while( p ){
-      blob_appendf(&sql, ",%d", p->rid);
+      blob_append_sql(&sql, ",%d", p->rid);
       p = p->u.pTo;
     }
     blob_append(&sql, ")", -1);
@@ -1166,7 +1168,7 @@ void page_timeline(void){
     blob_append(&desc, " to ", -1);
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h",zTo), zTo);
     tmFlags |= TIMELINE_DISJOINT;
-    db_multi_exec("%s", blob_str(&sql));
+    db_multi_exec("%s", blob_sql_text(&sql));
   }else if( (p_rid || d_rid) && g.perm.Read ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1181,12 +1183,12 @@ void page_timeline(void){
     );
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d",
                          p_rid ? p_rid : d_rid);
-    blob_appendf(&sql, " AND event.objid IN ok");
+    blob_append_sql(&sql, " AND event.objid IN ok");
     nd = 0;
     if( d_rid ){
       compute_descendants(d_rid, nEntry+1);
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
-      if( nd>=0 ) db_multi_exec("%s", blob_str(&sql));
+      if( nd>=0 ) db_multi_exec("%s", blob_sql_text(&sql));
       if( nd>0 ) blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
       if( useDividers ) timeline_add_dividers(0, d_rid);
       db_multi_exec("DELETE FROM ok");
@@ -1197,7 +1199,7 @@ void page_timeline(void){
       if( np>0 ){
         if( nd>0 ) blob_appendf(&desc, " and ");
         blob_appendf(&desc, "%d ancestors", np);
-        db_multi_exec("%s", blob_str(&sql));
+        db_multi_exec("%s", blob_sql_text(&sql));
       }
       if( d_rid==0 && useDividers ) timeline_add_dividers(0, p_rid);
     }
@@ -1237,8 +1239,8 @@ void page_timeline(void){
        "INSERT OR IGNORE INTO ok SELECT cid FROM plink WHERE pid=%d;",
        f_rid, f_rid, f_rid
     );
-    blob_appendf(&sql, " AND event.objid IN ok");
-    db_multi_exec("%s", blob_str(&sql));
+    blob_append_sql(&sql, " AND event.objid IN ok");
+    db_multi_exec("%s", blob_sql_text(&sql));
     if( useDividers ) timeline_add_dividers(0, f_rid);
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
@@ -1259,21 +1261,21 @@ void page_timeline(void){
     const char *zEType = "timeline item";
     char *zDate;
     if( zUses ){
-      blob_appendf(&sql, " AND event.objid IN usesfile ");
+      blob_append_sql(&sql, " AND event.objid IN usesfile ");
     }
     if( renameOnly ){
-      blob_appendf(&sql, " AND event.objid IN rnfile ");
+      blob_append_sql(&sql, " AND event.objid IN rnfile ");
     }
     if( zYearMonth ){
-      blob_appendf(&sql, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
+      blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
                    zYearMonth);
     }
     else if( zYearWeek ){
-      blob_appendf(&sql, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
+      blob_append_sql(&sql, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
                    zYearWeek);
     }
     if( tagid>0 ){
-      blob_appendf(&sql,
+      blob_append_sql(&sql,
         "AND (EXISTS(SELECT 1 FROM tagxref"
                     " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)", tagid);
 
@@ -1285,28 +1287,30 @@ void page_timeline(void){
         ** useful in helping to visualize what has happened on a quiescent
         ** branch that is infrequently merged with a much more activate branch.
         */
-        blob_appendf(&sql,
+        blob_append_sql(&sql,
           " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=cid"
                      " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
            tagid
         );
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-          blob_appendf(&sql,
+          blob_append_sql(&sql,
             " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
                        " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
             TAG_HIDDEN
           );
         }
         if( P("mionly")==0 ){
-          blob_appendf(&sql,
+          blob_append_sql(&sql,
             " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=pid"
                        " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
             tagid
           );
           if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-            blob_appendf(&sql, " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
-                       " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
-                         TAG_HIDDEN);
+            blob_append_sql(&sql, 
+              " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+              " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+              TAG_HIDDEN
+            );
           }
         }else{
           url_add_parameter(&url, "mionly", "1");
@@ -1314,7 +1318,7 @@ void page_timeline(void){
       }else{
         url_add_parameter(&url, "t", zTagName);
       }
-      blob_appendf(&sql, ")");
+      blob_append_sql(&sql, ")");
     }
     if( (zType[0]=='w' && !g.perm.RdWiki)
      || (zType[0]=='t' && !g.perm.RdTkt)
@@ -1327,23 +1331,23 @@ void page_timeline(void){
     if( zType[0]=='a' ){
       if( !g.perm.Read || !g.perm.RdWiki || !g.perm.RdTkt ){
         char cSep = '(';
-        blob_appendf(&sql, " AND event.type IN ");
+        blob_append_sql(&sql, " AND event.type IN ");
         if( g.perm.Read ){
-          blob_appendf(&sql, "%c'ci','g'", cSep);
+          blob_append_sql(&sql, "%c'ci','g'", cSep);
           cSep = ',';
         }
         if( g.perm.RdWiki ){
-          blob_appendf(&sql, "%c'w','e'", cSep);
+          blob_append_sql(&sql, "%c'w','e'", cSep);
           cSep = ',';
         }
         if( g.perm.RdTkt ){
-          blob_appendf(&sql, "%c't'", cSep);
+          blob_append_sql(&sql, "%c't'", cSep);
           cSep = ',';
         }
-        blob_appendf(&sql, ")");
+        blob_append_sql(&sql, ")");
       }
     }else{ /* zType!="all" */
-      blob_appendf(&sql, " AND event.type=%Q", zType);
+      blob_append_sql(&sql, " AND event.type=%Q", zType);
       url_add_parameter(&url, "y", zType);
       if( zType[0]=='c' ){
         zEType = "checkin";
@@ -1358,13 +1362,13 @@ void page_timeline(void){
       }
     }
     if( zUser ){
-      blob_appendf(&sql, " AND (event.user=%Q OR event.euser=%Q)",
+      blob_append_sql(&sql, " AND (event.user=%Q OR event.euser=%Q)",
                    zUser, zUser);
       url_add_parameter(&url, "u", zUser);
       zThisUser = zUser;
     }
     if( zSearch ){
-      blob_appendf(&sql,
+      blob_append_sql(&sql,
         " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
         zSearch, zSearch);
       url_add_parameter(&url, "s", zSearch);
@@ -1374,33 +1378,33 @@ void page_timeline(void){
     rCirca = symbolic_name_to_mtime(zCirca);
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
-        blob_appendf(&sql,
+        blob_append_sql(&sql,
            " AND event.mtime>=%.17g AND event.mtime<=%.17g"
            " ORDER BY event.mtime ASC", rAfter-ONE_SECOND, rBefore+ONE_SECOND);
         url_add_parameter(&url, "a", zAfter);
         url_add_parameter(&url, "b", zBefore);
         nEntry = 1000000;
       }else{
-        blob_appendf(&sql,
+        blob_append_sql(&sql,
            " AND event.mtime>=%.17g  ORDER BY event.mtime ASC",
            rAfter-ONE_SECOND);
         url_add_parameter(&url, "a", zAfter);
       }
     }else if( rBefore>0.0 ){
-      blob_appendf(&sql,
+      blob_append_sql(&sql,
          " AND event.mtime<=%.17g ORDER BY event.mtime DESC",
          rBefore+ONE_SECOND);
       url_add_parameter(&url, "b", zBefore);
     }else if( rCirca>0.0 ){
       Blob sql2;
-      blob_init(&sql2, blob_str(&sql), -1);
-      blob_appendf(&sql2,
+      blob_init(&sql2, blob_sql_text(&sql), -1);
+      blob_append_sql(&sql2,
           " AND event.mtime<=%f ORDER BY event.mtime DESC LIMIT %d",
           rCirca, (nEntry+1)/2
       );
-      db_multi_exec("%s", blob_str(&sql2));
+      db_multi_exec("%s", blob_sql_text(&sql2));
       blob_reset(&sql2);
-      blob_appendf(&sql,
+      blob_append_sql(&sql,
           " AND event.mtime>=%f ORDER BY event.mtime ASC",
           rCirca
       );
@@ -1408,10 +1412,10 @@ void page_timeline(void){
       if( useDividers ) timeline_add_dividers(rCirca, 0);
       url_add_parameter(&url, "c", zCirca);
     }else{
-      blob_appendf(&sql, " ORDER BY event.mtime DESC");
+      blob_append_sql(&sql, " ORDER BY event.mtime DESC");
     }
-    blob_appendf(&sql, " LIMIT %d", nEntry);
-    db_multi_exec("%s", blob_str(&sql));
+    blob_append_sql(&sql, " LIMIT %d", nEntry);
+    db_multi_exec("%s", blob_sql_text(&sql));
 
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
     if( zYearMonth ){
@@ -1508,7 +1512,7 @@ void page_timeline(void){
     }
   }
   if( P("showsql") ){
-    @ <blockquote>%h(blob_str(&sql))</blockquote>
+    @ <blockquote>%h(blob_sql_text(&sql))</blockquote>
   }
   blob_zero(&sql);
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
@@ -1682,7 +1686,7 @@ const char *timeline_query_for_tty(void){
     @ WHERE blob.rid=event.objid
     @   AND tag.tagname='branch'
   ;
-  return mprintf(zBaseSql, timeline_utc());
+  return mprintf(zBaseSql /*works-like: "%s"*/, timeline_utc());
 }
 
 /*
@@ -1860,9 +1864,9 @@ void timeline_cmd(void){
   if( mode==0 ) mode = 1;
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(), -1);
-  blob_appendf(&sql, "  AND event.mtime %s %s",
+  blob_append_sql(&sql, "  AND event.mtime %s %s",
      (mode==1 || mode==4) ? "<=" : ">=",
-     zDate
+     zDate /*safe-for-%s*/
   );
 
   if( mode==3 || mode==4 ){
@@ -1872,10 +1876,10 @@ void timeline_cmd(void){
     }else{
       compute_ancestors(objid, n, 0);
     }
-    blob_appendf(&sql, "\n  AND blob.rid IN ok");
+    blob_append_sql(&sql, "\n  AND blob.rid IN ok");
   }
   if( zType && (zType[0]!='a') ){
-    blob_appendf(&sql, "\n  AND event.type=%Q ", zType);
+    blob_append_sql(&sql, "\n  AND event.type=%Q ", zType);
   }
   if( zFilePattern ){
     blob_append(&sql,
@@ -1883,13 +1887,13 @@ void timeline_cmd(void){
          "              WHERE mlink.mid=event.objid\n"
          "                AND mlink.fnid IN ", -1);
     if( filenames_are_case_sensitive() ){
-      blob_appendf(&sql,
+      blob_append_sql(&sql,
         "(SELECT fnid FROM filename"
         " WHERE name=%Q"
         " OR name GLOB '%q/*')",
         blob_str(&treeName), blob_str(&treeName));
     }else{
-      blob_appendf(&sql,
+      blob_append_sql(&sql,
         "(SELECT fnid FROM filename"
         " WHERE name=%Q COLLATE nocase"
         " OR lower(name) GLOB lower('%q/*'))",
@@ -1897,13 +1901,13 @@ void timeline_cmd(void){
     }
     blob_append(&sql, ")", -1);
   }
-  blob_appendf(&sql, "\nORDER BY event.mtime DESC");
+  blob_append_sql(&sql, "\nORDER BY event.mtime DESC");
   if( iOffset>0 ){
     /* Don't handle LIMIT here, otherwise print_timeline()
      * will not determine the end-marker correctly! */
-    blob_appendf(&sql, "\n LIMIT -1 OFFSET %d", iOffset);
+    blob_append_sql(&sql, "\n LIMIT -1 OFFSET %d", iOffset);
   }
-  db_prepare(&q, "%s", blob_str(&sql));
+  db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   print_timeline(&q, n, width, verboseFlag);
   db_finalize(&q);
@@ -2217,20 +2221,20 @@ static void stats_report_by_month_year(char includeMonth,
   blob_appendf(&header, "Timeline Events (%s) by year%s",
                stats_report_label_for_type(),
                (includeMonth ? "/month" : ""));
-  blob_appendf(&sql,
+  blob_append_sql(&sql,
                "SELECT substr(date(mtime),1,%d) AS timeframe, "
                "count(*) AS eventCount "
                "FROM v_reports ",
                includeMonth ? 7 : 4);
   if(zUserName&&*zUserName){
-    blob_appendf(&sql, " WHERE user=%Q ", zUserName);
+    blob_append_sql(&sql, " WHERE user=%Q ", zUserName);
     blob_appendf(&header," for user %q", zUserName);
   }
   blob_append(&sql,
               " GROUP BY timeframe"
               " ORDER BY timeframe DESC",
               -1);
-  db_prepare(&query, blob_str(&sql));
+  db_prepare(&query, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   @ <h1>%b(&header)</h1>
   @ <table class='statistics-report-table-events' border='0' cellpadding='2'
@@ -2360,19 +2364,15 @@ static void stats_report_by_user(){
   int nEventTotal = 0;               /* Total event count */
   int rowClass = 0;                  /* counter for alternating
                                         row colors */
-  Blob sql = empty_blob;             /* SQL */
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
   stats_report_init_view();
   stats_report_event_types_menu("byuser", NULL);
-  blob_append(&sql,
+  db_prepare(&query,
                "SELECT user, "
                "COUNT(*) AS eventCount "
                "FROM v_reports "
-               "GROUP BY user ORDER BY eventCount DESC",
-              -1);
-  db_prepare(&query, blob_str(&sql));
-  blob_reset(&sql);
+               "GROUP BY user ORDER BY eventCount DESC");
   @ <h1>Timeline Events
   @ (%s(stats_report_label_for_type())) by User</h1>
   @ <table class='statistics-report-table-events' border='0'
@@ -2427,7 +2427,6 @@ static void stats_report_day_of_week(){
   int nEventTotal = 0;               /* Total event count */
   int rowClass = 0;                  /* counter for alternating
                                         row colors */
-  Blob sql = empty_blob;             /* SQL */
   int nMaxEvents = 1;                /* max number of events for
                                         all rows. */
   static const char *const daysOfWeek[] = {
@@ -2437,14 +2436,11 @@ static void stats_report_day_of_week(){
 
   stats_report_init_view();
   stats_report_event_types_menu("byweekday", NULL);
-  blob_append(&sql,
+  db_prepare(&query,
                "SELECT cast(mtime %% 7 AS INTEGER) dow, "
                "COUNT(*) AS eventCount "
                "FROM v_reports "
-               "GROUP BY dow ORDER BY dow",
-              -1);
-  db_prepare(&query, blob_str(&sql));
-  blob_reset(&sql);
+               "GROUP BY dow ORDER BY dow");
   @ <h1>Timeline Events
   @ (%s(stats_report_label_for_type())) by Day of the Week</h1>
   @ <table class='statistics-report-table-events' border='0'
@@ -2516,10 +2512,10 @@ static void stats_report_year_weeks(const char *zUserName){
               "SELECT DISTINCT substr(date(mtime),1,4) AS y "
               "FROM v_reports WHERE 1 ", -1);
   if(zUserName&&*zUserName){
-    blob_appendf(&sql,"AND user=%Q ", zUserName);
+    blob_append_sql(&sql,"AND user=%Q ", zUserName);
   }
   blob_append(&sql,"GROUP BY y ORDER BY y", -1);
-  db_prepare(&qYears, blob_str(&sql));
+  db_prepare(&qYears, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   cgi_printf("Select year: ");
   while( SQLITE_ROW == db_step(&qYears) ){
@@ -2549,7 +2545,7 @@ static void stats_report_year_weeks(const char *zUserName){
     blob_appendf(&header, "Timeline events (%s) for the calendar weeks "
                  "of %h", stats_report_label_for_type(),
                  zYear);
-    blob_appendf(&sql,
+    blob_append_sql(&sql,
                  "SELECT DISTINCT strftime('%%%%W',mtime) AS wk, "
                  "count(*) AS n "
                  "FROM v_reports "
@@ -2557,10 +2553,10 @@ static void stats_report_year_weeks(const char *zUserName){
                  "AND mtime < current_timestamp ",
                  zYear);
     if(zUserName&&*zUserName){
-      blob_appendf(&sql, " AND user=%Q ", zUserName);
+      blob_append_sql(&sql, " AND user=%Q ", zUserName);
       blob_appendf(&header," for user %h", zUserName);
     }
-    blob_appendf(&sql, "GROUP BY wk ORDER BY wk DESC");
+    blob_append_sql(&sql, "GROUP BY wk ORDER BY wk DESC");
     cgi_printf("<h1>%h</h1>", blob_str(&header));
     blob_reset(&header);
     cgi_printf("<table class='statistics-report-table-events' "
@@ -2572,7 +2568,7 @@ static void stats_report_year_weeks(const char *zUserName){
                "<th width='90%%'><!-- relative commits graph --></th>"
                "</tr></thead>"
                "<tbody>");
-    db_prepare(&stWeek, blob_str(&sql));
+    db_prepare(&stWeek, "%s", blob_sql_text(&sql));
     blob_reset(&sql);
     while( SQLITE_ROW == db_step(&stWeek) ){
       const int nCount = db_column_int(&stWeek, 1);
