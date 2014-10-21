@@ -956,7 +956,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
 
 manifest_syntax_error:
   if(bUuid.nUsed){
-    blob_appendf(pErr, "manifest UUID %.40s ", blob_str(&bUuid));
+    blob_appendf(pErr, "manifest [%.40s] ", blob_str(&bUuid));
     blob_reset(&bUuid);
   }
   if( zErr ){
@@ -1746,7 +1746,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
     assert( blob_is_reset(pContent) || pContent==0 );
     fossil_error(1, "syntax error in manifest [%s]",
-                 db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid));
+                 db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
     return 0;
   }
   if( g.xlinkClusterOnly && p->type!=CFTYPE_CLUSTER ){

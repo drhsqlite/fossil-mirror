@@ -1,5 +1,5 @@
-C Style\stweaks.
-D 2014-10-21T03:53:48.679
+C Improve\serror\smessage\sconsistency.
+D 2014-10-21T03:57:14.113
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -380,7 +380,7 @@ F src/main.mk c5fe8945f132231435438b5334982a2028e3e1c5
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 48c2ce8413bd3da69307ff2958d004522e46ec92
-F src/manifest.c 71e5ddcead20912a609f85cfcf68793619042ab1
+F src/manifest.c 811a2ced058248026ccd0560c8c25c7454a03d32
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
@@ -655,7 +655,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a4e0d959db38af95fb465c5101d388460eee4dbe
-R 4ae160afa11d798a3f8dcd7060d2f260
+P 46d74582d2223c9a2f46a213831de9def5f4cf60
+R 9ab332a16fec0c10d847ad4f2337e640
 U mistachkin
-Z f87bad8f6609e9e6de025cdaa3f50db5
+Z 557c79fad798fa75b251b8b817ba4c1c
