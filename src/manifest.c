@@ -365,6 +365,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   Blob bUuid = BLOB_INITIALIZER;
   static Bag seen;
   const char *zErr = 0;
+
   if( rid==0 ){
     isRepeat = 1;
   }else if( bag_find(&seen, rid) ){
