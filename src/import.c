@@ -1053,8 +1053,12 @@ static void svn_dump_import(FILE *pIn){
 **
 ** The following formats are currently understood by this command
 **
-**   --git          Import from the git-fast-export file format
-**   --svn          Import from the svnadmin-dump file format
+**   git          Import from the git-fast-export file format
+**
+**   svn          Import from the svnadmin-dump file format
+**                Options:
+**                  --flat  The whole dump is a single branch. The default
+**                          is to use the trunk/branches/tags svn layout
 **
 ** The --incremental option allows an existing repository to be extended
 ** with new content.
@@ -1070,30 +1074,28 @@ void git_import_cmd(void){
   Stmt q;
   int forceFlag = find_option("force", "f", 0)!=0;
   int incrFlag = find_option("incremental", "i", 0)!=0;
-  int gitFlag = find_option("git",0,0)!=0;
-  int svnFlag = find_option("svn",0,0)!=0;
 
   verify_all_options();
-  if( g.argc!=3  && g.argc!=4 ){
+  if( g.argc!=4  && g.argc!=5 ){
     usage("FORMAT REPOSITORY-NAME");
   }
-  if( g.argc==4 ){
-    pIn = fossil_fopen(g.argv[3], "rb");
+  if( g.argc==5 ){
+    pIn = fossil_fopen(g.argv[4], "rb");
   }else{
     pIn = stdin;
     fossil_binary_mode(pIn);
   }
   if( !incrFlag ){
-    if( forceFlag ) file_delete(g.argv[2]);
-    db_create_repository(g.argv[2]);
+    if( forceFlag ) file_delete(g.argv[3]);
+    db_create_repository(g.argv[3]);
   }
-  db_open_repository(g.argv[2]);
+  db_open_repository(g.argv[3]);
   db_open_config(0);
 
   db_begin_transaction();
   if( !incrFlag ) db_initial_setup(0, 0, 0, 1);
 
-  if( gitFlag ){
+  if( strncmp(g.argv[2], "git", 3)==0 ){
     /* The following temp-tables are used to hold information needed for
     ** the import.
     **
@@ -1129,7 +1131,7 @@ void git_import_cmd(void){
     }
     db_finalize(&q);
   }else
-  if( svnFlag ){
+  if( strncmp(g.argv[2], "svn", 3)==0 ){
     db_multi_exec(
        "CREATE TEMP TABLE xrevisions("
        " trev INT, tuser TEXT, tmsg TEXT, ttime DATETIME"
