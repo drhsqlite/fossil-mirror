@@ -144,13 +144,13 @@ void diff_file(
     if( !fIncludeBinary ){
       Blob file2;
       if( isBin1 ){
-        fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
+        fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
         return;
       }
       if( zBinGlob ){
         Glob *pBinary = glob_create(zBinGlob);
         if( glob_match(pBinary, zName) ){
-          fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
+          fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
           glob_free(pBinary);
           return;
         }
@@ -165,7 +165,7 @@ void diff_file(
         }
       }
       if( looks_like_binary(&file2) ){
-        fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
+        fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
         blob_reset(&file2);
         return;
       }
@@ -240,13 +240,13 @@ void diff_file_mem(
 
     if( !fIncludeBinary ){
       if( isBin1 || isBin2 ){
-        fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
+        fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
         return;
       }
       if( zBinGlob ){
         Glob *pBinary = glob_create(zBinGlob);
         if( glob_match(pBinary, zName) ){
-          fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
+          fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
           glob_free(pBinary);
           return;
         }
@@ -304,7 +304,7 @@ static void diff_one_against_disk(
   historical_version_of_file(zFrom, blob_str(&fname), &content, &isLink, 0,
                              fIncludeBinary ? 0 : &isBin, 0);
   if( !isLink != !file_wd_islink(zFrom) ){
-    fossil_print(DIFF_CANNOT_COMPUTE_SYMLINK);
+    fossil_print("%s",DIFF_CANNOT_COMPUTE_SYMLINK);
   }else{
     diff_file(&content, isBin, zFileTreeName, zFileTreeName,
               zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
@@ -348,7 +348,7 @@ static void diff_all_against_disk(
       fossil_fatal("no such check-in: %s", zFrom);
     }
     load_vfile_from_rid(rid);
-    blob_appendf(&sql,
+    blob_append_sql(&sql,
       "SELECT v2.pathname, v2.deleted, v2.chnged, v2.rid==0, v1.rid, v1.islink"
       "  FROM vfile v1, vfile v2 "
       " WHERE v1.pathname=v2.pathname AND v1.vid=%d AND v2.vid=%d"
@@ -369,7 +369,7 @@ static void diff_all_against_disk(
       rid, vid, rid, vid, vid, rid
     );
   }else{
-    blob_appendf(&sql,
+    blob_append_sql(&sql,
       "SELECT pathname, deleted, chnged , rid==0, rid, islink"
       "  FROM vfile"
       " WHERE vid=%d"
@@ -378,7 +378,7 @@ static void diff_all_against_disk(
       vid
     );
   }
-  db_prepare(&q, blob_str(&sql));
+  db_prepare(&q, "%s", blob_sql_text(&sql));
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
     int isDeleted = db_column_int(&q, 1);
@@ -410,7 +410,7 @@ static void diff_all_against_disk(
       if( !isLink != !file_wd_islink(zFullName) ){
         diff_print_index(zPathname, diffFlags);
         diff_print_filenames(zPathname, zPathname, diffFlags);
-        fossil_print(DIFF_CANNOT_COMPUTE_SYMLINK);
+        fossil_print("%s",DIFF_CANNOT_COMPUTE_SYMLINK);
         continue;
       }
       if( srcid>0 ){
@@ -464,7 +464,7 @@ static void diff_one_two_versions(
                              fIncludeBinary ? 0 : &isBin2, 0);
   if( isLink1 != isLink2 ){
     diff_print_filenames(zName, zName, diffFlags);
-    fossil_print(DIFF_CANNOT_COMPUTE_SYMLINK);
+    fossil_print("%s",DIFF_CANNOT_COMPUTE_SYMLINK);
   }else{
     diff_file_mem(&v1, &v2, isBin1, isBin2, zName, zDiffCmd,
                   zBinGlob, fIncludeBinary, diffFlags);

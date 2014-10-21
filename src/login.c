@@ -1296,7 +1296,7 @@ void register_page(void){
         int uid;
         db_multi_exec(
             "INSERT INTO user(login,pw,cap,info,mtime)"
-            "VALUES(%B,%Q,%B,%B,strftime('%s','now'))",
+            "VALUES(%B,%Q,%B,%B,strftime('%%s','now'))",
             &login, zPw, &caps, &contact
             );
         free(zPw);
@@ -1471,13 +1471,13 @@ void login_group_join(
 
   /* Get the full pathname of the other repository */
   file_canonical_name(zRepo, &fullName, 0);
-  zRepo = mprintf(blob_str(&fullName));
+  zRepo = fossil_strdup(blob_str(&fullName));
   blob_reset(&fullName);
 
   /* Get the full pathname for our repository.  Also the project code
   ** and project name for ourself. */
   file_canonical_name(g.zRepositoryName, &fullName, 0);
-  zSelfRepo = mprintf(blob_str(&fullName));
+  zSelfRepo = fossil_strdup(blob_str(&fullName));
   blob_reset(&fullName);
   zSelfProjCode = db_get("project-code", "unknown");
   zSelfLabel = db_get("project-name", 0);
@@ -1502,7 +1502,7 @@ void login_group_join(
        g.zVfsName
   );
   if( rc!=SQLITE_OK ){
-    *pzErrMsg = mprintf(sqlite3_errmsg(pOther));
+    *pzErrMsg = fossil_strdup(sqlite3_errmsg(pOther));
   }else{
     rc = sqlite3_exec(pOther, "SELECT count(*) FROM user", 0, 0, pzErrMsg);
   }
@@ -1535,9 +1535,9 @@ void login_group_join(
   zOtherProjCode = abbreviated_project_code(zOtherProjCode);
   db_begin_transaction();
   db_multi_exec(
-    "DELETE FROM %s.config WHERE name GLOB 'peer-*';"
-    "INSERT INTO %s.config(name,value) VALUES('peer-repo-%s',%Q);"
-    "INSERT INTO %s.config(name,value) "
+    "DELETE FROM \"%w\".config WHERE name GLOB 'peer-*';"
+    "INSERT INTO \"%w\".config(name,value) VALUES('peer-repo-%q',%Q);"
+    "INSERT INTO \"%w\".config(name,value) "
     "  SELECT 'peer-name-%q', value FROM other.config"
     "   WHERE name='project-name';",
     zSelf,
@@ -1552,7 +1552,7 @@ void login_group_join(
     zNewName
   );
   db_multi_exec(
-    "REPLACE INTO %s.config(name,value)"
+    "REPLACE INTO \"%w\".config(name,value)"
     "  SELECT name, value FROM other.config"
     "   WHERE name GLOB 'peer-*' OR name GLOB 'login-group-*'",
     zSelf

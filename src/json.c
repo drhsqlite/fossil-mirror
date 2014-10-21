@@ -1667,7 +1667,7 @@ cson_value * json_sql_to_array_of_obj(Blob * pSql, cson_array * pTgt,
   Stmt q = empty_Stmt;
   cson_value * pay = NULL;
   assert( blob_size(pSql) > 0 );
-  db_prepare(&q, "%s", blob_str(pSql));
+  db_prepare(&q, "%s", blob_str(pSql) /*safe-for-%s*/);
   if(resetBlob){
     blob_reset(pSql);
   }
@@ -1985,12 +1985,12 @@ cson_value * json_page_stat(){
                    sqlite3_sourceid(), &sqlite3_sourceid()[20], sqlite3_libversion());
   SETBUF(jo2, "version");
   zDb = db_name("repository");
-  cson_object_set(jo2, "pageCount", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA %s.page_count", zDb)));
-  cson_object_set(jo2, "pageSize", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA %s.page_size", zDb)));
-  cson_object_set(jo2, "freeList", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA %s.freelist_count", zDb)));
-  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA %s.encoding", zDb));
+  cson_object_set(jo2, "pageCount", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA \"%w\".page_count", zDb)));
+  cson_object_set(jo2, "pageSize", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA \"%w\".page_size", zDb)));
+  cson_object_set(jo2, "freeList", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA \"%w\".freelist_count", zDb)));
+  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA \"%w\".encoding", zDb));
   SETBUF(jo2, "encoding");
-  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA %s.journal_mode", zDb));
+  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA \"%w\".journal_mode", zDb));
   cson_object_set(jo2, "journalMode", *zBuf ? cson_value_new_string(zBuf, strlen(zBuf)) : cson_value_null());
   return jv;
 #undef SETBUF
@@ -2018,7 +2018,7 @@ static int json_pagedefs_to_string(JsonPageDef const * zPages,
       if(g.isHTTP && zPages->runMode < 0) continue;
       else if(zPages->runMode > 0) continue;
     }
-    blob_appendf(pOut, zPages->name, -1);
+    blob_append(pOut, zPages->name, -1);
     if((zPages+1)->name){
       blob_append(pOut, ", ",2);
     }

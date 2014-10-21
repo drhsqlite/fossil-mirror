@@ -36,9 +36,15 @@ struct Blob {
   unsigned int nUsed;            /* Number of bytes used in aData[] */
   unsigned int nAlloc;           /* Number of bytes allocated for aData[] */
   unsigned int iCursor;          /* Next character of input to parse */
+  unsigned int blobFlags;        /* One or more BLOBFLAG_* bits */
   char *aData;                   /* Where the information is stored */
   void (*xRealloc)(Blob*, unsigned int); /* Function to reallocate the buffer */
 };
+
+/*
+** Allowed values for Blob.blobFlags
+*/
+#define BLOBFLAG_NotSQL  0x0001      /* Non-SQL text */
 
 /*
 ** The current size of a Blob
@@ -150,6 +156,7 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
     pBlob->nAlloc = 0;
     pBlob->nUsed = 0;
     pBlob->iCursor = 0;
+    pBlob->blobFlags = 0;
   }else if( newSize>pBlob->nAlloc || newSize<pBlob->nAlloc-4000 ){
     char *pNew = fossil_realloc(pBlob->aData, newSize);
     pBlob->aData = pNew;
@@ -164,7 +171,7 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
 ** An initializer for Blobs
 */
 #if INTERFACE
-#define BLOB_INITIALIZER  {0,0,0,0,blobReallocMalloc}
+#define BLOB_INITIALIZER  {0,0,0,0,0,blobReallocMalloc}
 #endif
 const Blob empty_blob = BLOB_INITIALIZER;
 
@@ -219,6 +226,7 @@ void blob_init(Blob *pBlob, const char *zData, int size){
     pBlob->nUsed = pBlob->nAlloc = size;
     pBlob->aData = (char*)zData;
     pBlob->iCursor = 0;
+    pBlob->blobFlags = 0;
     pBlob->xRealloc = blobReallocStatic;
   }
 }
@@ -250,6 +258,7 @@ void blob_zero(Blob *pBlob){
   pBlob->nAlloc = 1;
   pBlob->aData = (char*)zEmpty;
   pBlob->iCursor = 0;
+  pBlob->blobFlags = 0;
   pBlob->xRealloc = blobReallocStatic;
 }
 
@@ -294,6 +303,20 @@ char *blob_str(Blob *p){
   }
   return p->aData;
 }
+
+/*
+** Return a pointer to a null-terminated string for a blob that has
+** been created using blob_append_sql() and not blob_appendf().  If
+** text was ever added using blob_appendf() then throw an error.
+*/
+char *blob_sql_text(Blob *p){
+  blob_is_init(p);
+  if( (p->blobFlags & BLOBFLAG_NotSQL) ){
+    fossil_fatal("Internal error: Use of blob_appendf() to construct SQL text");
+  }
+  return blob_str(p);
+}
+
 
 /*
 ** Return a pointer to a null-terminated string for a blob.
@@ -673,8 +696,20 @@ int blob_tokenize(Blob *pIn, Blob *aToken, int nToken){
 
 /*
 ** Do printf-style string rendering and append the results to a blob.
+**
+** The blob_appendf() version sets the BLOBFLAG_NotSQL bit in Blob.blobFlags
+** whereas blob_append_sql() does not.
 */
 void blob_appendf(Blob *pBlob, const char *zFormat, ...){
+  if( pBlob ){
+    va_list ap;
+    va_start(ap, zFormat);
+    vxprintf(pBlob, zFormat, ap);
+    va_end(ap);
+    pBlob->blobFlags |= BLOBFLAG_NotSQL;
+  }
+}
+void blob_append_sql(Blob *pBlob, const char *zFormat, ...){
   if( pBlob ){
     va_list ap;
     va_start(ap, zFormat);

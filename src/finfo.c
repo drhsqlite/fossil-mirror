@@ -321,7 +321,7 @@ void finfo_page(void){
   zFilename = PD("name","");
   url_add_parameter(&url, "name", zFilename);
   blob_zero(&sql);
-  blob_appendf(&sql,
+  blob_append_sql(&sql,
     "SELECT"
     " datetime(event.mtime%s),"                      /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
@@ -340,9 +340,9 @@ void finfo_page(void){
   );
   if( firstChngOnly ){
 #if 0
-    blob_appendf(&sql, ", min(event.mtime)");
+    blob_append_sql(&sql, ", min(event.mtime)");
 #else
-    blob_appendf(&sql,
+    blob_append_sql(&sql,
         ", min(CASE (SELECT value FROM tagxref"
                     " WHERE tagtype>0 AND tagid=%d"
                     "   AND tagxref.rid=mlink.mid)"
@@ -350,7 +350,7 @@ void finfo_page(void){
     TAG_BRANCH);
 #endif
   }
-  blob_appendf(&sql,
+  blob_append_sql(&sql,
     "  FROM mlink, event"
     " WHERE mlink.fnid IN (SELECT fnid FROM filename WHERE name=%Q)"
     "   AND event.objid=mlink.mid",
@@ -358,22 +358,22 @@ void finfo_page(void){
   );
   if( baseCheckin ){
     compute_direct_ancestors(baseCheckin, 10000000);
-    blob_appendf(&sql,"  AND mlink.mid IN (SELECT rid FROM ancestor)");
+    blob_append_sql(&sql,"  AND mlink.mid IN (SELECT rid FROM ancestor)");
   }
   if( (zA = P("a"))!=0 ){
-    blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zA);
+    blob_append_sql(&sql, " AND event.mtime>=julianday('%q')", zA);
     url_add_parameter(&url, "a", zA);
   }
   if( (zB = P("b"))!=0 ){
-    blob_appendf(&sql, " AND event.mtime<=julianday('%q')", zB);
+    blob_append_sql(&sql, " AND event.mtime<=julianday('%q')", zB);
     url_add_parameter(&url, "b", zB);
   }
   if( firstChngOnly ){
-    blob_appendf(&sql, " GROUP BY mlink.fid");
+    blob_append_sql(&sql, " GROUP BY mlink.fid");
   }
-  blob_appendf(&sql," ORDER BY event.mtime DESC /*sort*/");
+  blob_append_sql(&sql," ORDER BY event.mtime DESC /*sort*/");
   if( (n = atoi(PD("n","0")))>0 ){
-    blob_appendf(&sql, " LIMIT %d", n);
+    blob_append_sql(&sql, " LIMIT %d", n);
     url_add_parameter(&url, "n", P("n"));
   }
   if( baseCheckin==0 ){
@@ -386,7 +386,7 @@ void finfo_page(void){
                             url_render(&url, "fco", 0, 0, 0));
     }
   }
-  db_prepare(&q, blob_str(&sql));
+  db_prepare(&q, "%s", blob_sql_text(&sql));
   if( P("showsql")!=0 ){
     @ <p>SQL: %h(blob_str(&sql))</p>
   }
@@ -475,7 +475,7 @@ void finfo_page(void){
       }
     }
     hyperlink_to_uuid(zCkin);
-    @ %w(zCom) (user:
+    @ %W(zCom) (user:
     hyperlink_to_user(zUser, zDate, "");
     @ branch: %h(zBr))
     if( g.perm.Hyperlink && zUuid ){
