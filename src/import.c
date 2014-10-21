@@ -951,6 +951,7 @@ static void svn_dump_import(FILE *pIn){
   const char *zUuid;
   Stmt insRev;
   Stmt insFile;
+  Stmt delFile;
   int rev = 0;
 
   /* version */
@@ -971,12 +972,16 @@ static void svn_dump_import(FILE *pIn){
   svn_free_rec(&rec);
   /* content */
   db_prepare(&insRev,
-      "INSERT INTO xrevisions (trev, tuser, tmsg, ttime)"
+      "INSERT INTO xrevisions (trev, tuser, tmsg, ttime) "
       "VALUES(:rev, :user, :msg, :time)"
   );
   db_prepare(&insFile,
-      "INSERT INTO xfiles (trev, tpath, trid, tperm)"
+      "INSERT INTO xfiles (trev, tpath, trid, tperm) "
       "VALUES(:rev, :path, :rid, :perm)"
+  );
+  db_prepare(&delFile,
+      "DELETE FROM xfiles "
+      "WHERE trev=:rev AND (tpath=:path OR tpath GLOB :path || '/*')"
   );
   while( svn_read_rec(pIn, &rec) ){
     if( zTemp = svn_find_header(rec, "Revision-number") ){
@@ -992,6 +997,11 @@ static void svn_dump_import(FILE *pIn){
       db_step(&insRev);
       db_reset(&insRev);
       fossil_free(zDate);
+      if( rev>0 ){
+        db_multi_exec("INSERT INTO xfiles (trev, tpath, trid, tperm) "
+                      "SELECT %d, tpath, trid, tperm FROM xfiles "
+                      "WHERE trev=%d", rev, rev-1);
+      }
     }else
     if( zTemp = svn_find_header(rec, "Node-path") ){
       const char *zPath = zTemp;
@@ -1005,9 +1015,13 @@ static void svn_dump_import(FILE *pIn){
         svn_free_rec(&rec);
         continue;
       }
-      zTemp = svn_find_header(rec, "Node-copyfrom-rev");
-      if( zTemp ){
-        srcRev = atoi(zTemp);
+      if( zSrcPath ){
+        zTemp = svn_find_header(rec, "Node-copyfrom-rev");
+        if( zTemp ){
+          srcRev = atoi(zTemp);
+        }else{
+          fossil_fatal("Missing copyfrom-rev");
+        }
       }
       rid = content_put(&rec.content);
       if( strncmp(zAction, "add", 3)==0 ){
@@ -1027,6 +1041,10 @@ static void svn_dump_import(FILE *pIn){
         db_reset(&insFile);
       }else
       if( strncmp(zAction, "delete", 6)==0 ){
+        db_bind_int(&delFile, ":rev", rev);
+        db_bind_text(&delFile, ":path", zPath);
+        db_step(&delFile);
+        db_reset(&delFile);
       }else
       if( strncmp(zAction, "replace", 7)==0 ){
       }else{
@@ -1039,6 +1057,7 @@ static void svn_dump_import(FILE *pIn){
   svn_create_manifests();
   db_finalize(&insRev);
   db_finalize(&insFile);
+  db_finalize(&delFile);
 }
 
 /*
@@ -1137,7 +1156,8 @@ void git_import_cmd(void){
        " trev INT, tuser TEXT, tmsg TEXT, ttime DATETIME"
        ");"
        "CREATE TEMP TABLE xfiles("
-       " trev INT, tpath TEXT, trid TEXT, tperm TEXT"
+       " trev INT, tpath TEXT, trid TEXT, tperm TEXT,"
+       " UNIQUE (trev, tpath) ON CONFLICT REPLACE"
        ");"
     );
 
