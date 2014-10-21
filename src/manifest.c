@@ -596,7 +596,6 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         break;
       }
 
-
       /*
       **    K <uuid>
       **
@@ -842,7 +841,6 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         x.z++;
         break;
       }
-
 
       /*
       **     Z <md5sum>

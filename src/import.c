@@ -885,6 +885,7 @@ static void svn_create_manifests(){
   Blob manifest;
   Stmt qRev;
   Stmt qFiles;
+  int parentRid = 0;
 
   blob_zero(&manifest);
   db_prepare(&qRev, "SELECT trev, tuser, tmsg, ttime FROM xrevisions"
@@ -897,7 +898,6 @@ static void svn_create_manifests(){
     const char *zUser = db_column_text(&qRev, 1);
     const char *zMsg = db_column_text(&qRev, 2);
     const char *zTime = db_column_text(&qRev, 3);
-    int parentRid = 0;
     Blob mcksum;
     blob_reset(&manifest);
     if( zMsg ){
@@ -916,9 +916,13 @@ static void svn_create_manifests(){
     db_reset(&qFiles);
     if( parentRid>0 ){
       const char *zParent;
-      zParent = db_text(0, "SELECT uuid FROM blob WEHRE rid=%d", parentRid);
-      blob_appendf(&manifest, "P %s", zParent);
+      zParent = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", parentRid);
+      blob_appendf(&manifest, "P %s\n", zParent);
       fossil_free(zParent);
+    }else{
+      blob_appendf(&manifest, "R d41d8cd98f00b204e9800998ecf8427e\n");
+      blob_appendf(&manifest, "T *branch * trunk\n");
+      blob_appendf(&manifest, "T *sym-trunk *\n");
     }
     if( zUser ){
       blob_appendf(&manifest, "U %F\n", zUser);
