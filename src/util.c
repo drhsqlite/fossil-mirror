@@ -50,8 +50,8 @@ void *fossil_malloc(size_t n){
   if( p==0 ) fossil_panic("out of memory");
   return p;
 }
-void fossil_free(void *p){
-  free(p);
+void fossil_free(const void *p){
+  free((void*)p);
 }
 void *fossil_realloc(void *p, size_t n){
   p = realloc(p, n);

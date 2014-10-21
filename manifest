@@ -1,5 +1,5 @@
-C merge\strunk
-D 2014-09-29T14:41:27.166
+C Very\svery\sbasic\ssvn-dump\simport.\sCan\snot\shandle\sanything\srealistic\syet
+D 2014-10-21T09:22:56.790
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -321,7 +321,7 @@ F src/browse.c ec8073c7f561fe403814c1717d8ba9289c5f605d
 F src/cache.c d319f58c63ccaa172b423f6ae675b93768d589f4
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c d0e91de12fab7b8bc8f8b4a672c694da96653cc5
-F src/checkin.c 4ce53ca97c99353bb29fa5bb65c81165d48fba69
+F src/checkin.c 2229f3b37cb463f015d1b83008f686c9c503f544
 F src/checkout.c b4f2d1cff580f95218034aaea310d15b83fa2771
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 3fb02ec34bf2a2c464c83b486a0c8ef2cb6ec051
@@ -352,7 +352,7 @@ F src/http.c 8fef56c0b40c54bbeeccf4d0513d67b04df33327
 F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
 F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
-F src/import.c 5c93be3bc9c0589618ee85fd59af87a83920e96b
+F src/import.c b5e95aec3902569a77ea70c44186197d3d241ad9
 F src/info.c 73d80b3dcd80000d8d20c9933fd3729f28164c8e
 F src/json.c 9b2f51d1d9e44a4cb299641f4b11ebd6716d7486
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
@@ -399,7 +399,7 @@ F src/rebuild.c f7c408b545168df5dce04d79a3118214b5caea65
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c cd6230b34ec2e2262f37ec75e722ba186c3cdaf5
 F src/rss.c e7861c726638f78b93ac6e7d8b987d538660b42e
-F src/schema.c bed561078af53700180540bc6e41d7364037c635
+F src/schema.c 08c447f2a8c49f14b04d327923c9a0f21edaed58
 F src/search.c 7226c2f96000a73753b36efb65b149466ede6164
 F src/setup.c 21f510904034c850147cdc21a9efdaeb91a4d60a
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
@@ -430,7 +430,7 @@ F src/update.c f4a971b4720ad027e45a96df9cf2e44b7bc9e261
 F src/url.c b7743600119e97d34f96aea8996b9a4caad4bdc0
 F src/user.c 609b489ac17b5dd35c1a8676d85cb1196c07d43e
 F src/utf8.c eab5cc0060d893b3a5079ee4f5957f222392a179
-F src/util.c d776ecabc6cb879ee2c8a577bde1da468288d6cf
+F src/util.c 8c956791043d13c4cc219ea4ea6978ea75490a43
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
 F src/vfile.c 33ddafa3850ae2cd6e35f1b47aa84cb0bbc92a4d
 F src/wiki.c 4fe4a158888bd4a8948b8798db6663759cf85905
@@ -654,7 +654,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6def3251d45ebe6f5847068ff8182cf797aa4d30 67356700e000fee900d6090934da8e4f9a0513b1
-R f92973bd8c192fef15dd976c3b52f47b
+P 2bd0ed05a3d39dc3b0131b52811e03844bca5fca
+R 927afc13e4e773019e40612e69684451
 U baruch
-Z df9c39db0bf8680ebc2237518e87af16
+Z 16fcf262315b507ae723336143bf24c3

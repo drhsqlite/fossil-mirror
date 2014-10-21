@@ -719,6 +719,324 @@ malformed_line:
   return;
 }
 
+typedef struct {
+  const char *zKey;
+  const char *zVal;
+} KeyVal;
+typedef struct {
+  KeyVal *aHeaders;
+  int nHeaders;
+  char *pRawProps;
+  KeyVal *aProps;
+  int nProps;
+  Blob content;
+  int nContent;
+} SvnRecord;
+
+#define svn_find_header(rec, zHeader) \
+  svn_find_keyval((rec).aHeaders, (rec).nHeaders, (zHeader))
+#define svn_find_prop(rec, zProp) \
+  svn_find_keyval((rec).aProps, (rec).nProps, (zProp))
+static const char *svn_find_keyval(
+  KeyVal *aKeyVal,
+  int nKeyVal,
+  const char *zKey
+){
+  int i;
+  for(i=0; i<nKeyVal; i++){
+    if( fossil_strcmp(aKeyVal[i].zKey, zKey)==0 ){
+      return aKeyVal[i].zVal;
+    }
+  }
+  return 0;
+}
+
+static void svn_free_rec(SvnRecord *rec){
+  int i;
+  for(i=0; i<rec->nHeaders; i++){
+    fossil_free(rec->aHeaders[i].zKey);
+  }
+  fossil_free(rec->aHeaders);
+  fossil_free(rec->aProps);
+  fossil_free(rec->pRawProps);
+  blob_reset(&rec->content);  
+}
+
+static int svn_read_headers(FILE *pIn, SvnRecord *rec){
+  char zLine[1000];
+
+  rec->aHeaders = 0;
+  rec->nHeaders = 0;
+  while( fgets(zLine, sizeof(zLine), pIn) ){
+    if( zLine[0]!='\n' ) break;
+  }
+  if( feof(pIn) ) return 0;
+  do{
+    char *sep;
+    if( zLine[0]=='\n' ) break;
+    rec->nHeaders += 1;
+    rec->aHeaders = fossil_realloc(rec->aHeaders,
+      sizeof(rec->aHeaders[0])*rec->nHeaders);
+    rec->aHeaders[rec->nHeaders-1].zKey = mprintf("%s", zLine);
+    sep = strchr(rec->aHeaders[rec->nHeaders-1].zKey, ':');
+    if( !sep ){
+      trim_newline(zLine);
+      fossil_fatal("bad header line: [%s]", zLine);
+    }
+    *sep = 0;
+    rec->aHeaders[rec->nHeaders-1].zVal = sep+1;
+    sep = strchr(rec->aHeaders[rec->nHeaders-1].zVal, '\n');
+    *sep = 0;
+    while(rec->aHeaders[rec->nHeaders-1].zVal
+       && fossil_isspace(*(rec->aHeaders[rec->nHeaders-1].zVal)) )
+    {
+      rec->aHeaders[rec->nHeaders-1].zVal++;
+    }
+  }while( fgets(zLine, sizeof(zLine), pIn) );
+  if( zLine[0]!='\n' ){
+      trim_newline(zLine);
+      fossil_fatal("svn-dump data ended unexpectedly");
+  }
+  return 1;
+}
+
+static void svn_read_props(FILE *pIn, SvnRecord *rec){
+  int nRawProps = 0;
+  char *pRawProps;
+  const char *zLen;
+
+  rec->pRawProps = 0;
+  rec->aProps = 0;
+  rec->nProps = 0;
+  zLen = svn_find_header(*rec, "Prop-content-length");
+  if( zLen ){
+    nRawProps = atoi(zLen);
+  }
+  if( nRawProps ){
+    int got;
+    char *zLine;
+    rec->pRawProps = pRawProps = fossil_malloc( nRawProps );
+    got = fread(rec->pRawProps, 1, nRawProps, pIn);
+    if( got!=nRawProps ){
+      fossil_fatal("short read: got %d of %d bytes", got, nRawProps);
+    }
+    if( memcmp(&pRawProps[got-10], "PROPS-END\n", 10)!=0 ){
+      fossil_fatal("svn-dump data ended unexpectedly");
+    }
+    zLine = pRawProps;
+    while( zLine<(pRawProps+nRawProps-10) ){
+      char *eol;
+      int propLen;
+      if( zLine[0]!='K' ){
+        fossil_fatal("svn-dump data format broken");
+      }
+      propLen = atoi(&zLine[2]);
+      eol = strchr(zLine, '\n');
+      zLine = eol+1;
+      eol = zLine+propLen;
+      if( *eol!='\n' ){
+        fossil_fatal("svn-dump data format broken");
+      }
+      *eol = 0;
+      rec->nProps += 1;
+      rec->aProps = fossil_realloc(rec->aProps,
+        sizeof(rec->aProps[0])*rec->nProps);
+      rec->aProps[rec->nProps-1].zKey = zLine;
+      zLine = eol+1;
+      if( zLine[0]!='V' ){
+        fossil_fatal("svn-dump data format broken");
+      }
+      propLen = atoi(&zLine[2]);
+      eol = strchr(zLine, '\n');
+      zLine = eol+1;
+      eol = zLine+propLen;
+      if( *eol!='\n' ){
+        fossil_fatal("svn-dump data format broken");
+      }
+      *eol = 0;
+      rec->aProps[rec->nProps-1].zVal = zLine;
+      zLine = eol+1;
+    }
+  }
+}
+
+static int svn_read_rec(FILE *pIn, SvnRecord *rec){
+  const char *zLen;
+  int nLen = 0;
+  if( svn_read_headers(pIn, rec)==0 ) return 0;
+  svn_read_props(pIn, rec);
+  blob_zero(&rec->content);
+  zLen = svn_find_header(*rec, "Text-content-length");
+  if( zLen ){
+    nLen = atoi(zLen);
+  }
+  if( nLen>=0 ){
+    blob_read_from_channel(&rec->content, pIn, nLen);
+    if( blob_size(&rec->content)!=nLen ){
+      fossil_fatal("short read: got %d of %d bytes",
+        blob_size(&rec->content), nLen
+      );
+    }
+  }
+  return 1;
+}
+
+static void svn_create_manifests(){
+  Blob manifest;
+  Stmt qRev;
+  Stmt qFiles;
+
+  blob_zero(&manifest);
+  db_prepare(&qRev, "SELECT trev, tuser, tmsg, ttime FROM xrevisions"
+                    " ORDER BY trev");
+  db_prepare(&qFiles, "SELECT tpath, uuid, tperm"
+                      " FROM xfiles JOIN blob ON xfiles.trid=blob.rid"
+                      " WHERE trev=:rev ORDER BY tpath");
+  while( db_step(&qRev)==SQLITE_ROW ){
+    int rev = db_column_int(&qRev, 0);
+    const char *zUser = db_column_text(&qRev, 1);
+    const char *zMsg = db_column_text(&qRev, 2);
+    const char *zTime = db_column_text(&qRev, 3);
+    int parentRid = 0;
+    Blob mcksum;
+    blob_reset(&manifest);
+    if( zMsg ){
+      blob_appendf(&manifest, "C %F\n", zMsg);
+    }else{
+      blob_append(&manifest, "C (no\\scomment)\n", 16);
+    }
+    blob_appendf(&manifest, "D %s\n", zTime);
+    db_bind_int(&qFiles, ":rev", rev);
+    while( db_step(&qFiles)==SQLITE_ROW ){
+      const char *zFile = db_column_text(&qFiles, 0);
+      const char *zUuid = db_column_text(&qFiles, 1);
+      const char *zPerm = db_column_text(&qFiles, 2);
+      blob_appendf(&manifest, "F %F %s %s\n", zFile, zUuid, zPerm);
+    }
+    db_reset(&qFiles);
+    if( parentRid>0 ){
+      const char *zParent;
+      zParent = db_text(0, "SELECT uuid FROM blob WEHRE rid=%d", parentRid);
+      blob_appendf(&manifest, "P %s", zParent);
+      fossil_free(zParent);
+    }
+    if( zUser ){
+      blob_appendf(&manifest, "U %F\n", zUser);
+    }else{
+      const char *zUserOvrd = find_option("user-override",0,1);
+      blob_appendf(&manifest, "U %F\n",
+        zUserOvrd ? zUserOvrd : login_name());
+    }
+    md5sum_blob(&manifest, &mcksum);
+    blob_appendf(&manifest, "Z %b\n", &mcksum);
+    blob_reset(&mcksum);
+
+    parentRid = content_put(&manifest);
+  }
+  db_finalize(&qRev);
+  db_finalize(&qFiles);
+}
+/*
+** Read the svn-dump format from pIn and insert the corresponding
+** content into the database.
+*/
+static void svn_dump_import(FILE *pIn){
+  SvnRecord rec;
+  int ver;
+  const char *zTemp;
+  const char *zUuid;
+  Stmt insRev;
+  Stmt insFile;
+  int rev = 0;
+
+  /* version */
+  if( svn_read_rec(pIn, &rec)
+   && (zTemp = svn_find_header(rec, "SVN-fs-dump-format-version")) ){
+    ver = atoi(zTemp);
+    if( ver!=2 ){
+      fossil_fatal("Unknown svn-dump format version: %d", ver);
+    }
+  }else{
+    fossil_fatal("Input is not an svn-dump!");
+  }
+  svn_free_rec(&rec);
+  /* UUID */
+  if( !svn_read_rec(pIn, &rec) || !(zUuid = svn_find_header(rec, "UUID")) ){
+    fossil_fatal("Missing UUID!");
+  }
+  svn_free_rec(&rec);
+  /* content */
+  db_prepare(&insRev,
+      "INSERT INTO xrevisions (trev, tuser, tmsg, ttime)"
+      "VALUES(:rev, :user, :msg, :time)"
+  );
+  db_prepare(&insFile,
+      "INSERT INTO xfiles (trev, tpath, trid, tperm)"
+      "VALUES(:rev, :path, :rid, :perm)"
+  );
+  while( svn_read_rec(pIn, &rec) ){
+    if( zTemp = svn_find_header(rec, "Revision-number") ){
+      const char *zUser = svn_find_prop(rec, "svn:author");
+      const char *zLog = svn_find_prop(rec, "svn:log");
+      const char *zDate = svn_find_prop(rec, "svn:date");
+      zDate = date_in_standard_format(zDate);
+      rev = atoi(zTemp);
+      db_bind_int(&insRev, ":rev", rev);
+      db_bind_text(&insRev, ":user", zUser);
+      db_bind_text(&insRev, ":msg", zLog);
+      db_bind_text(&insRev, ":time", zDate);
+      db_step(&insRev);
+      db_reset(&insRev);
+      fossil_free(zDate);
+    }else
+    if( zTemp = svn_find_header(rec, "Node-path") ){
+      const char *zPath = zTemp;
+      const char *zAction = svn_find_header(rec, "Node-action");
+      const char *zKind = svn_find_header(rec, "Node-kind");
+      const char *zSrcPath = svn_find_header(rec, "Node-copyfrom-path");
+      const char *zPerm = svn_find_prop(rec, "svn:executable") ? "x" : 0;
+      int srcRev = -1;
+      int rid = 0;
+      if( zKind && strncmp(zKind, "dir", 3)==0 ){
+        svn_free_rec(&rec);
+        continue;
+      }
+      zTemp = svn_find_header(rec, "Node-copyfrom-rev");
+      if( zTemp ){
+        srcRev = atoi(zTemp);
+      }
+      rid = content_put(&rec.content);
+      if( strncmp(zAction, "add", 3)==0 ){
+        db_bind_int(&insFile, ":rev", rev);
+        db_bind_int(&insFile, ":rid", rid);
+        db_bind_text(&insFile, ":path", zPath);
+        db_bind_text(&insFile, ":perm", zPerm);
+        db_step(&insFile);
+        db_reset(&insFile);
+      }else
+      if( strncmp(zAction, "change", 6)==0 ){
+        db_bind_int(&insFile, ":rev", rev);
+        db_bind_int(&insFile, ":rid", rid);
+        db_bind_text(&insFile, ":path", zPath);
+        db_bind_text(&insFile, ":perm", zPerm);
+        db_step(&insFile);
+        db_reset(&insFile);
+      }else
+      if( strncmp(zAction, "delete", 6)==0 ){
+      }else
+      if( strncmp(zAction, "replace", 7)==0 ){
+      }else{
+      }
+    }else{
+      fossil_fatal("Unknown record type");
+    }
+    svn_free_rec(&rec);
+  }
+  svn_create_manifests();
+  db_finalize(&insRev);
+  db_finalize(&insFile);
+}
+
 /*
 ** COMMAND: import
 **
@@ -806,7 +1124,18 @@ void git_import_cmd(void){
       import_reset(0);
     }
     db_finalize(&q);
-  }else if( svnFlag ){
+  }else
+  if( svnFlag ){
+    db_multi_exec(
+       "CREATE TEMP TABLE xrevisions("
+       " trev INT, tuser TEXT, tmsg TEXT, ttime DATETIME"
+       ");"
+       "CREATE TEMP TABLE xfiles("
+       " trev INT, tpath TEXT, trid TEXT, tperm TEXT"
+       ");"
+    );
+
+    svn_dump_import(pIn);
   }
 
   db_end_transaction(0);

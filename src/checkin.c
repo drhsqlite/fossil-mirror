@@ -1178,7 +1178,7 @@ static void create_manifest(
     db_finalize(&q);
     blob_appendf(pOut, "\n");
   }
-  free(zDate);
+  fossil_free(zDate);
 
   db_prepare(&q,
     "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid, merge"
