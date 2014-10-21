@@ -870,13 +870,11 @@ static int svn_read_rec(FILE *pIn, SvnRecord *rec){
   if( zLen ){
     nLen = atoi(zLen);
   }
-  if( nLen>=0 ){
-    blob_read_from_channel(&rec->content, pIn, nLen);
-    if( blob_size(&rec->content)!=nLen ){
-      fossil_fatal("short read: got %d of %d bytes",
-        blob_size(&rec->content), nLen
-      );
-    }
+  blob_read_from_channel(&rec->content, pIn, nLen);
+  if( blob_size(&rec->content)!=nLen ){
+    fossil_fatal("short read: got %d of %d bytes",
+      blob_size(&rec->content), nLen
+    );
   }
   return 1;
 }
@@ -1025,6 +1023,11 @@ static void svn_dump_import(FILE *pIn){
       }
       rid = content_put(&rec.content);
       if( strncmp(zAction, "add", 3)==0 ){
+        if( blob_size(&rec.content)>0 && zSrcPath!=0 ){
+          rid = db_int(rid,
+                       "SELECT trid FROM xfiles WHERE trev=%d AND tpath=%Q",
+                       srcRev, zSrcPath);
+        }
         db_bind_int(&insFile, ":rev", rev);
         db_bind_int(&insFile, ":rid", rid);
         db_bind_text(&insFile, ":path", zPath);
