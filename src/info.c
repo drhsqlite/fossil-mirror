@@ -543,7 +543,7 @@ void ci_page(void){
     const char *zDate;
     const char *zOrigDate;
 
-    style_header("Check-in [%s]", zUuid);
+    style_header("Check-in [%S]", zUuid);
     login_anonymous_available();
     zEUser = db_text(0,
                    "SELECT value FROM tagxref"

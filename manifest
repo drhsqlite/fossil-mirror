@@ -1,5 +1,5 @@
-C Fix\scompiler\swarning\sand\sclarify\suse\sof\slocal\svariables.
-D 2014-10-21T03:05:38.256
+C Restore\suse\sof\sshort\sstring\sidentifiers\sin\stitles\son\sthe\scheck-in\sinfo\spage.
+D 2014-10-21T03:19:24.350
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -354,7 +354,7 @@ F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
 F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
 F src/import.c 065b6bcb8bfefbf15f8eb0bcbc4e915e3418aa72
-F src/info.c c3f950f0fb8c7210a172d7ac15958430999c1a31
+F src/info.c 6a56755bfb6f3b5b2aa277314951a72266cff029
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c aa922544841030c688df33aec81cca05577bbb7d
@@ -655,7 +655,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 49b0ff15922674c30d9d3ccf576ae904b00a3991 d1983dd24ccb0c1c2ecbc5d9332374e05aa55ca3
-R e5f7974d9d1cbf8172c0c9f9e7c4a6ec
+P e7518b44ebebf7852b9d953e820291bf51dee2a6
+R 20e9d39210232d3e9e69c36cd0982249
 U mistachkin
-Z 99d7bcb81fde2cfd4e62363839fb3086
+Z 403b8d1333d4d23a2584a25fda8209f6
