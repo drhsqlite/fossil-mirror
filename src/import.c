@@ -979,7 +979,8 @@ static void svn_dump_import(FILE *pIn){
   );
   db_prepare(&delFile,
       "DELETE FROM xfiles "
-      "WHERE trev=:rev AND (tpath=:path OR tpath GLOB :path || '/*')"
+      "WHERE trev=:rev "
+      "  AND (tpath=:path OR (tpath>:path||'/' AND tpath<:path||'0'))"
   );
   while( svn_read_rec(pIn, &rec) ){
     if( zTemp = svn_find_header(rec, "Revision-number") ){
@@ -1009,10 +1010,6 @@ static void svn_dump_import(FILE *pIn){
       const char *zPerm = svn_find_prop(rec, "svn:executable") ? "x" : 0;
       int srcRev = -1;
       int rid = 0;
-      if( zKind && strncmp(zKind, "dir", 3)==0 ){
-        svn_free_rec(&rec);
-        continue;
-      }
       if( zSrcPath ){
         zTemp = svn_find_header(rec, "Node-copyfrom-rev");
         if( zTemp ){
@@ -1021,36 +1018,57 @@ static void svn_dump_import(FILE *pIn){
           fossil_fatal("Missing copyfrom-rev");
         }
       }
-      rid = content_put(&rec.content);
-      if( strncmp(zAction, "add", 3)==0 ){
-        if( blob_size(&rec.content)>0 && zSrcPath!=0 ){
-          rid = db_int(rid,
-                       "SELECT trid FROM xfiles WHERE trev=%d AND tpath=%Q",
-                       srcRev, zSrcPath);
-        }
-        db_bind_int(&insFile, ":rev", rev);
-        db_bind_int(&insFile, ":rid", rid);
-        db_bind_text(&insFile, ":path", zPath);
-        db_bind_text(&insFile, ":perm", zPerm);
-        db_step(&insFile);
-        db_reset(&insFile);
-      }else
-      if( strncmp(zAction, "change", 6)==0 ){
-        db_bind_int(&insFile, ":rev", rev);
-        db_bind_int(&insFile, ":rid", rid);
-        db_bind_text(&insFile, ":path", zPath);
-        db_bind_text(&insFile, ":perm", zPerm);
-        db_step(&insFile);
-        db_reset(&insFile);
-      }else
-      if( strncmp(zAction, "delete", 6)==0 ){
+      if( strncmp(zAction, "delete", 6)==0
+       || strncmp(zAction, "replace", 7)==0 )
+      {
         db_bind_int(&delFile, ":rev", rev);
         db_bind_text(&delFile, ":path", zPath);
         db_step(&delFile);
         db_reset(&delFile);
+      } /* no 'else' here since 'replace' does both a 'delete' and an 'add' */
+      if( strncmp(zAction, "add", 3)==0
+       || strncmp(zAction, "replace", 7)==0 )
+      {
+        if( zKind==0 ){
+          fossil_fatal("Missing Node-kind");
+        }else if( strncmp(zKind, "dir", 3)==0 ){
+          if( zSrcPath ){
+            db_multi_exec(
+              "INSERT INTO xfiles (trev, tpath, trid, tperm) "
+              " SELECT %d, %Q||substr(tpath, length(%Q)+1), trid, tperm "
+              " FROM xfiles "
+              " WHERE trev=%d AND tpath GLOB '%q/*'",
+              rev, zPath, zSrcPath, srcRev, zSrcPath
+            );
+          }
+        }else{
+          if( blob_size(&rec.content)==0 && zSrcPath ){
+            rid = db_int(rid,
+                         "SELECT trid FROM xfiles WHERE trev=%d AND tpath=%Q",
+                         srcRev, zSrcPath);
+          }else{
+            rid = content_put(&rec.content);
+          }
+          db_bind_int(&insFile, ":rev", rev);
+          db_bind_int(&insFile, ":rid", rid);
+          db_bind_text(&insFile, ":path", zPath);
+          db_bind_text(&insFile, ":perm", zPerm);
+          db_step(&insFile);
+          db_reset(&insFile);
+        }
       }else
-      if( strncmp(zAction, "replace", 7)==0 ){
+      if( strncmp(zAction, "change", 6)==0 ){
+        rid = content_put(&rec.content);
+        db_bind_int(&insFile, ":rev", rev);
+        db_bind_int(&insFile, ":rid", rid);
+        db_bind_text(&insFile, ":path", zPath);
+        db_bind_text(&insFile, ":perm", zPerm);
+        db_step(&insFile);
+        db_reset(&insFile);
+      }else
+      if( strncmp(zAction, "delete", 6)==0){ /* already did this above */
       }else{
+        fossil_fatal("Unknown Node-action");
       }
     }else{
       fossil_fatal("Unknown record type");
