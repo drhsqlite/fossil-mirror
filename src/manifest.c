@@ -49,6 +49,7 @@
 */
 #define MC_NONE           0  /*  default handling           */
 #define MC_PERMIT_HOOKS   1  /*  permit hooks to execute    */
+#define MC_NO_ERRORS      2  /*  do not issue errors for a bad parse */
 
 /*
 ** A single F-card within a manifest
@@ -1746,21 +1747,25 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     blob_reset(pContent);
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
     assert( blob_is_reset(pContent) || pContent==0 );
-    fossil_error(1, "syntax error in manifest [%s]",
-                 db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
+    if( (flags & MC_NO_ERRORS)==0 ){
+      fossil_error(1, "syntax error in manifest [%s]",
+                   db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
+    }
     return 0;
   }
   if( g.xlinkClusterOnly && p->type!=CFTYPE_CLUSTER ){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
-    fossil_error(1, "no manifest");
+    if( (flags & MC_NO_ERRORS)==0 ) fossil_error(1, "no manifest");
     return 0;
   }
   if( p->type==CFTYPE_MANIFEST && fetch_baseline(p, 0) ){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
-    fossil_error(1, "cannot fetch baseline for manifest [%s]",
-                 db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
+    if( (flags & MC_NO_ERRORS)==0 ){
+      fossil_error(1, "cannot fetch baseline for manifest [%s]",
+                   db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
+    }
     return 0;
   }
   db_begin_transaction();
