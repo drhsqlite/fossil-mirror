@@ -363,6 +363,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   char *zUuid;
   int sz = 0;
   int isRepeat, hasSelfRefTag = 0;
+  Blob bUuid = BLOB_INITIALIZER;
   static Bag seen;
   const char *zErr = 0;
 
@@ -406,6 +407,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     blob_appendf(pErr, "incorrect Z-card cksum");
     return 0;
   }
+
+  /* Store the UUID (before modifying the blob) only for error
+  ** reporting purposes.
+  */
+  sha1sum_blob(pContent, &bUuid);
 
   /* Allocate a Manifest object to hold the parsed control artifact.
   */
@@ -947,9 +953,14 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   }
   md5sum_init();
   if( !isRepeat ) g.parseCnt[p->type]++;
+  blob_reset(&bUuid);
   return p;
 
 manifest_syntax_error:
+  if(bUuid.nUsed){
+    blob_appendf(pErr, "manifest [%.40s] ", blob_str(&bUuid));
+    blob_reset(&bUuid);
+  }
   if( zErr ){
     blob_appendf(pErr, "line %d: %s", lineNo, zErr);
   }else{
@@ -1736,7 +1747,10 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     blob_reset(pContent);
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
     assert( blob_is_reset(pContent) || pContent==0 );
-    if( (flags & MC_NO_ERRORS)==0 ) fossil_error(1, "syntax error in manifest");
+    if( (flags & MC_NO_ERRORS)==0 ){
+      fossil_error(1, "syntax error in manifest [%s]",
+                   db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
+    }
     return 0;
   }
   if( g.xlinkClusterOnly && p->type!=CFTYPE_CLUSTER ){
@@ -1749,7 +1763,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
     if( (flags & MC_NO_ERRORS)==0 ){
-      fossil_error(1, "cannot fetch baseline manifest");
+      fossil_error(1, "cannot fetch baseline for manifest [%s]",
+                   db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
     }
     return 0;
   }
