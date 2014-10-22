@@ -786,6 +786,295 @@ static const char zDiffScript[] =
 @   }
 @ }
 @
+@ proc prev_next_diff { prev_next } {
+@   set range [.txtA tag nextrange active 1.0 end]
+@   if {$prev_next eq "prev"} {
+@     set idx0 [lindex $range 0]
+@     if {$idx0 eq ""} {set idx0 end}
+@     if {[.txtA compare $idx0 > @0,[winfo height .txtA]]} {
+@       set idx0 [.txtA index @0,[winfo height .txtA]]
+@     }
+@     set idx ""
+@     foreach tag [list add rm chng fn] {
+@       foreach w [list  .txtA .txtB] {
+@         lassign [$w tag prevrange $tag $idx0 1.0] a b
+@         if { $idx eq "" || ($a ne "" && [$w compare $a > $idx]) } {
+@           set idx $a
+@           set idx_end $b
+@           set tagB $tag
+@           set wB $w
+@         }
+@       }
+@     }
+@     if {$idx ne ""} {
+@       while 1 {
+@         lassign [$wB tag prevrange $tagB $idx 1.0] a b
+@         if {$b ne "" && [$wB compare $b == "$idx - 1 l lineend"]} {
+@           set idx $a
+@         } else {
+@           break
+@         }
+@       }
+@     }
+@   } else {
+@     set idx0 [lindex $range 1]
+@     if { $idx0 eq "" } { set idx0 1.0 }
+@     if { [.txtA compare $idx0 < @0,0] } {
+@       set idx0 [.txtA index @0,0]
+@     }
+@     set idx ""
+@     foreach tag [list add rm chng fn] {
+@       foreach w [list  .txtA .txtB] {
+@         lassign [$w tag nextrange $tag $idx0 end] a b
+@         if { $idx eq "" || ($a ne "" && [$w compare $a < $idx]) } {
+@           set idx $a
+@           set idx_end $b
+@           set tagB $tag
+@           set wB $w
+@         }
+@       }
+@     }
+@     if { $idx ne "" } {
+@       while 1 {
+@         lassign [$wB tag nextrange $tagB $idx_end end] a b
+@         if { $a ne "" && [$wB compare $a == "$idx_end + 1 l linestart"] } {
+@           set idx_end $b
+@         } else {
+@           break
+@         }
+@       }
+@     }
+@   }
+@   if { $idx eq "" } {
+@     bell
+@     return
+@   }
+@   set idx [.txtA index "$idx linestart"]
+@   if { $tagB ne "fn" } {
+@     set idx_end [.txtA index "$idx_end +1l linestart"]
+@   }
+@   .txtA tag remove active 1.0 end
+@   .txtA tag add active $idx $idx_end
+@   .txtA tag configure active -borderwidth 2 -relief raised\
+@                      -background #eeeeee -foreground black
+@   if { $tagB ne "fn" } {
+@     .txtA tag lower active
+@   } else {
+@     .txtA tag raise active
+@   }
+@   .txtA see 1.0
+@   .txtA see $idx
+@ }
+@
+@ proc searchText {} {
+@   set rangeA [.txtA tag nextrange search 1.0 end]
+@   set rangeB [.txtB tag nextrange search 1.0 end]
+@   set idx0 [lindex $rangeA 1]
+@   if { $idx0 eq "" } { set idx0 [lindex $rangeB 1] }
+@   if { $idx0 eq "" } { set idx0 1.0 }
+@   set word [.bb.search get]
+@   if { [.txtA compare $idx0 < @0,0] } {
+@     set idx0 [.txtA index @0,0]
+@   }
+@   if { [info exists ::this_does_not_find] } {
+@     if { $::this_does_not_find eq  [list $idx0 $word] } {
+@       set idx0 1.0
+@     }
+@     unset ::this_does_not_find
+@   }
+@   set idx ""
+@   foreach w [list  .txtA .txtB] {
+@     foreach regexp [list 0 1] {
+@       switch $regexp {
+@         0 { set rexFlag "-exact" }
+@         1 { set rexFlag "-regexp" }
+@       }
+@       set err [catch {
+@         $w search -nocase $rexFlag -count count $word $idx0 end 
+@       } idx_i]
+@       if {!$err && $idx_i ne ""
+@            && ($idx eq "" || [$w compare $idx_i < $idx])} {
+@         set idx $idx_i
+@         set countB $count
+@         set wB $w
+@       }
+@     }
+@   }
+@   .txtA  tag remove search 1.0 end
+@   .txtB  tag remove search 1.0 end
+@   if { $idx eq "" } {
+@     bell
+@     set ::this_does_not_find [list $idx0 $word]
+@     return
+@   }
+@   set idx_end [$wB index "$idx + $countB c"]
+@   $wB tag add search $idx $idx_end
+@   $wB tag configure search -borderwidth 2 -relief raised\
+@                     -background orange -foreground black
+@   $wB tag raise search
+@   $wB see 1.0
+@   $wB see $idx
+@ }
+@ 
+@ proc reopen { action } {
+@   if { ![regexp {[|]\s*(.*)} $::fossilcmd {} cmdList] } { return }
+@   set f [lindex $cmdList 0]
+@   set args_with_arg \
+@      [list binary branch context c diff-binary from r to W width]
+@   set skip_args [list html internal i side-by-side y tk]
+@   lassign "" argsDict files
+@   for { set i 2 } { $i < [llength $cmdList] } { incr i } {
+@     if { [string match "-*" [lindex $cmdList $i]] } {
+@       set n [string trimleft [lindex $cmdList $i] "-"]
+@       if { $n in $args_with_arg } {
+@         dict set argsDict $n [lindex $cmdList $i+1]
+@         incr i
+@       } elseif { $n ni $skip_args } {
+@         dict set argsDict $n 1
+@       }
+@     } else {
+@       lappend files [lindex $cmdList $i]
+@     }
+@   }
+@   switch $action {
+@     togglewhitespace {
+@       if { [dict exists $argsDict w]
+@            || [dict exists $argsDict ignore-all-space] } {
+@         dict unset argsDict w
+@         dict unset argsDict ignore-all-space
+@       } else {
+@         dict set argsDict w 1
+@       }
+@     }
+@     onefile {
+@       set range [.txtA tag nextrange fn "@0,0" "@0,[winfo height .txtA] +1l"]
+@       if { $range eq "" } { return }
+@       set file [string trim [.txtA get {*}$range]]
+@       set files [list $file]
+@       regexp -line {local-root:\s+(.*)} [exec $f info] {} dir
+@       cd $dir
+@     }
+@     allfiles {
+@       set files ""
+@     }
+@     prev -
+@     next {
+@       set widget [focus]
+@       if { $widget eq ".txtA" } {
+@         set from_to from
+@         if { ![dict exists $argsDict from] } {
+@           dict set argsDict from current
+@         }
+@       } elseif { $widget eq ".txtB" } {
+@         set from_to to
+@         if { ![dict exists $argsDict to] } {
+@           dict set argsDict to ckout
+@         }
+@       } else {
+@         tk_messageBox -message "Click on one of the panes to select it"
+@         return
+@       }
+@       lassign "" parent child current tag
+@       set err [catch { exec $f info [dict get $argsDict $from_to] } info]
+@       if { $err } {
+@         if { [dict get $argsDict $from_to] eq "ckout" } {
+@           set err [catch { exec $f info } info]
+@           if { !$err } { regexp {checkout:\s+(\S+)} $info {} parent }
+@         } else {
+@           bell
+@           return
+@         }
+@       } else {
+@         regexp {uuid:\s+(\S+)\s+(\S+)} $info {} current date
+@         regexp {parent:\s+(\S+)} $info {} parent
+@         regexp {child:\s+(\S+)} $info {} child
+@       }
+@       if { [llength $files] == 1 } {
+@         set file [lindex $files 0]
+@         set err [catch { exec $f finfo -b -limit 100 $file } info]
+@         if { $err } {
+@           bell
+@           return
+@         }
+@         if { $current eq "" } {
+@           if { $action eq "prev" } {
+@             regexp {^\S+} $info tag
+@           }
+@         } else {
+@           set current [string range $current 0 9]
+@           set prev ""
+@           set found 0
+@           foreach line [split $info \n] {
+@             regexp {(\S+)\s+(\S+)} $line {} currentL dateL
+@             if { $found } {
+@               set tag $currentL
+@               break
+@             } elseif { $currentL eq $current || $dateL < $date } {
+@               if { $action eq "next" } {
+@                 set tag $prev
+@                 break
+@               }
+@               set found 1
+@             }
+@             set prev $currentL  
+@           }
+@         }
+@       } else {
+@         if { $action eq "prev" } {
+@           set tag $parent
+@         } else {
+@           set tag $child
+@         }
+@       }
+@       if { $tag eq "" && $action eq "prev" } {
+@         bell
+@         return
+@       }
+@       if { $tag ne "" } {
+@         dict set argsDict $from_to $tag
+@       } else {
+@         dict unset argsDict $from_to
+@       }
+@       if { $from_to eq "to" && ![dict exists $argsDict from] } {
+@         dict set argsDict from current
+@       }
+@     }
+@   }
+@
+@   set f_args ""
+@   dict for "n v" $argsDict {
+@     if { $n in $args_with_arg } {
+@       lappend f_args -$n $v
+@     } else {
+@       lappend f_args -$n
+@     }
+@   }
+@   lappend f_args {*}$files
+@
+@   # note: trying to put two contiguous "-" gives an error
+@   exec $f diff -tk {*}$f_args &
+@   exit        
+@ }
+@
+@ proc fossil_ui {} {
+@   if { ![regexp {[|]\s*(.*)} $::fossilcmd {} cmdList] } { return }
+@   set f [lindex $cmdList 0]
+@   exec $f ui &
+@ }
+@
+@ proc searchToggle {} {
+@   set err [catch { pack info .bb.search }]
+@   if { $err } {
+@     pack .bb.search -side left -padx 5 -after .bb.files
+@     tk::TabToWindow .bb.search
+@   } else {
+@     .txtA  tag remove search 1.0 end
+@     .txtB  tag remove search 1.0 end
+@     pack  forget .bb.search
+@     focus .
+@   }
+@ }
+@
 @ proc xvis {col} {
 @   set view [$col xview]
 @   return [expr {[lindex $view 1]-[lindex $view 0]}]
@@ -940,7 +1229,7 @@ static const char zDiffScript[] =
 @
 @ if {[readDiffs $fossilcmd] == 0} {
 @   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
-@   exit
+@   #exit
 @ }
 @ update idletasks
 @
@@ -983,16 +1272,73 @@ static const char zDiffScript[] =
 @   foreach c $cgt {.mkr replace $c "$c +1 chars" <}
 @   .mkr config -state disabled
 @ }
+@ proc bind_key_do { cmd } {
+@   if { [focus] eq ".bb.search" } { return -code continue }
+@   uplevel #0 $cmd
+@   return -code break
+@ }
+@ ::ttk::menubutton .bb.actions -text "Actions" -menu  .bb.actions.m
+@ menu .bb.actions.m -tearoff 0
+@ .bb.actions.m add command -label "Go to previous diff" -acc "p" -command "prev_next_diff prev"
+@ .bb.actions.m add command -label "Go to next diff" -acc "n" -command "prev_next_diff next"
+@ .bb.actions.m add separator
+@ .bb.actions.m add command -label "Search" -acc "f" -command "searchToggle;"
+@ .bb.actions.m add command -label "Toggle whitespace" -acc "w" -command "reopen togglewhitespace"
+@ .bb.actions.m add separator
+@ .bb.actions.m add command -label "View one file" -acc "1" -command "reopen onefile"
+@ .bb.actions.m add command -label "View all files" -acc "a" -command "reopen allfiles"
+@ .bb.actions.m add separator
+@ .bb.actions.m add command -label "Older version" -acc "Shift-P" -command "reopen prev"
+@ .bb.actions.m add command -label "Newer version" -acc "Shift-N" -command "reopen next"
+@ .bb.actions.m add command -label "Fossil ui" -acc "u" -command "fossil_ui"
 @ ::ttk::button .bb.quit -text {Quit} -command exit
 @ ::ttk::button .bb.invert -text {Invert} -command invertDiff
 @ ::ttk::button .bb.save -text {Save As...} -command saveDiff
+@ ::ttk::entry .bb.search -width 12
+@ 
+@ bind  .bb.search <Return> "searchText; break"
+@ bind  .bb.search <Escape> "searchToggle; break"
+@
+@ bind  . <Key-f> [list bind_key_do "searchToggle"]
+@ bind  . <Key-w> [list bind_key_do "reopen togglewhitespace"]
+@ bind  . <Key-1> [list bind_key_do "reopen onefile"]
+@ bind  . <Key-a> [list bind_key_do "reopen allfiles"]
+@ bind  . <Key-P> [list bind_key_do "reopen prev"]
+@ bind  . <Key-N> [list bind_key_do "reopen next"]  
+@ bind  . <Key-u> [list bind_key_do "fossil_ui"]  
+@
+@ lassign [list "(current)" "(ckout)"] from to
+@ if { [regexp {[|]\s*(.*)} $::fossilcmd {} cmdList] } {
+@   set f [lindex $cmdList 0]
+@   if { [regexp {([-][-]?from|-r)\s+(\S+)} [join $cmdList " "] {} {} from] } {
+@     set err [catch { exec $f info $from } info]
+@     if { !$err } {
+@       regexp {uuid:\s+(\S+)\s+(\S+)\s+(\S+)} $info {} from date time
+@       set from "\[[string range $from 0 9]\] $date $time"
+@     }
+@   }
+@   if { [regexp {([-][-]?to)\s+(\S+)} [join $cmdList " "] {} {} to] } {
+@     set err [catch { exec $f info $to } info]
+@     if { !$err } {
+@       regexp {uuid:\s+(\S+)\s+(\S+)\s+(\S+)} $info {} to date time
+@       set to "\[[string range $to 0 9]\] $date $time"
+@     }
+@   }
+@ }
+@    
+@ ttk::label .bb.from -text $from
+@ ttk::label .bb.to -text $to
+@    
+@ pack .bb.from -side left -padx "2 25"
 @ pack .bb.quit .bb.invert -side left
 @ if {$fossilcmd!=""} {pack .bb.save -side left}
 @ pack .bb.files -side left
+@ pack .bb.actions -side left
+@ pack .bb.to -side left -padx "25 2"
 @ grid rowconfigure . 1 -weight 1
 @ grid columnconfigure . 1 -weight 1
 @ grid columnconfigure . 4 -weight 1
-@ grid .bb -row 0 -columnspan 6
+@ grid .bb -row 0 -columnspan 7
 @ eval grid [cols] -row 1 -sticky nsew
 @ grid .sby -row 1 -column 5 -sticky ns
 @ grid .sbxA -row 2 -columnspan 2 -sticky ew
