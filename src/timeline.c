@@ -1743,7 +1743,7 @@ static int isIsoDate(const char *z){
 */
 void timeline_cmd(void){
   Stmt q;
-  int n, k, width, i;
+  int n, k, width;
   const char *zLimit;
   const char *zWidth;
   const char *zOffset;
