@@ -184,14 +184,18 @@ void style_resolve_href(void){
     @ if( isOperaMini ){
     @   setTimeout("setAllHrefs();",%d(nDelay));
     @ }
+  }else if( db_get_boolean("auto-hyperlink-ishuman",0) && g.isHuman ){
+    /* Active hyperlinks after a delay */
+    @ setTimeout("setAllHrefs();",%d(nDelay));
   }else if( db_get_boolean("auto-hyperlink-mouseover",0) ){
-    /* Require mouse movement prior to activating hyperlinks */
+    /* Require mouse movement before starting the teim that will
+    ** activating hyperlinks */
     @ document.getElementsByTagName("body")[0].onmousemove=function(){
     @   setTimeout("setAllHrefs();",%d(nDelay));
     @   this.onmousemove = null;
     @ }
   }else{
-    /* Active hyperlinks right away */
+    /* Active hyperlinks after a delay */
     @ setTimeout("setAllHrefs();",%d(nDelay));
   }
   @ </script>
