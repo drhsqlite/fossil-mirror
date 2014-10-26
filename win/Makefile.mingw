@@ -161,7 +161,8 @@ endif
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall
+#BB: TCC = $(PREFIX)gcc -Os -Wall
+TCC = $(PREFIX)gcc -g -Wall
 
 #### When not using the miniz compression library, zlib is required.
 #

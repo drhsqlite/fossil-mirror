@@ -1077,6 +1077,10 @@ void setup_access(void){
   @
   @ <p>Additional parameters that control this behavior:</p>
   @ <blockquote>
+  onoff_attribute("Enable hyperlinks for humans (as deduced from the UserAgent "
+                  " HTTP header string)",
+                  "auto-hyperlink-ishuman", "ahis", 0, 0);
+  @ <br>
   onoff_attribute("Require mouse movement before enabling hyperlinks",
                   "auto-hyperlink-mouseover", "ahmo", 0, 0);
   @ <br>
