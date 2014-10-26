@@ -1,5 +1,5 @@
-C Add\sa\snew\s"auto-hyperlink"\ssetting\soption\sthat\senables\shyperlinks\safter\na\sdelay\sonly\sif\srequest\sis\sfrom\sa\shuman\s(as\sdeduced\sfrom\sthe\sUserAgent\nstring).
-D 2014-10-25T01:01:31.400
+C Windows\s10\scompatibility
+D 2014-10-26T08:12:53.676
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -548,7 +548,7 @@ F win/Makefile.mingw 115ce15c1fd2a06f6bdd44674977d4df119c1339
 F win/Makefile.mingw.mistachkin 364b1766bafb13bbb636b269519cd710f887f436
 F win/Makefile.msc f2429154854c154eed992e6d160341493f84a5ea
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
-F win/fossil.exe.manifest f5d3fa0633f7d9ccbfc590026127ab2949d92722
+F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc ed58e45cbc54a6274fa6de052c3ff44c5ed76c3e
 F win/include/dirent.h 0e00ac29eb8c2e237bc460ae4481cc74a1bf9e00
@@ -655,7 +655,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ab9b49820edec8a48df68add48f84a7cb600a3fd
-R 52e44e144749a8fc364d12f6d70dfacb
-U drh
-Z 791cd06fce71f9a440e55795db15a861
+P b9a1beda9e2587cf06de96d47207329e444c1b6a
+R 140786bfd8fdd8b301dce1d65c3c2d92
+U jan.nijtmans
+Z 9dc4ad332f7a7775d713705d89f77da4
