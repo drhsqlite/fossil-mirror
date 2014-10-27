@@ -310,6 +310,8 @@ SRC   = add_.c \
         xfersetup_.c \
         zip_.c
 
+EXTRA_FILES   = $(SRCDIR)\diff.tcl
+
 OBJ   = $(OX)\add$O \
         $(OX)\allrepo$O \
         $(OX)\attach$O \

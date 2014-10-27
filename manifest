@@ -1,5 +1,5 @@
-C Add\sa\smechanism\sto\sallow\sresource\sfiles\s(such\sas\sthe\sTCL\sscript\sused\sto\nimplement\sthe\s--tk\soption)\sto\sbe\sstored\sseparately\sin\sthe\ssource\stree\sbut\nthen\sautomatically\scompiled\sinto\sbyte-arrays\sin\sthe\sexecutable.
-D 2014-10-27T15:41:08.968
+C Get\sthe\srevised\smakefile\sworking\swith\sMSVC.
+D 2014-10-27T17:21:27.462
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -381,7 +381,7 @@ F src/main.c 5e888fc2d2e7cc57172701dc949f5532fcc5a190
 F src/main.mk 8eb7c31974e9739679af6587178996a1c9292eaa
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 8f1c8504c782a5038c226af7039c31be77c6344f
+F src/makemake.tcl cc749cafb5a57ab363d8df76074da34139d652c2
 F src/manifest.c 0396f22dd097a9e6a1d480a0a928725a3b0bd3ec
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
@@ -549,7 +549,7 @@ F win/Makefile.PellesCGMake 6f99cda61cf5c5314eff79b3bdaafefe223bdd92
 F win/Makefile.dmc 2e6ccd8d5ea84e91e3ea1c8bd744af0f1253feb0
 F win/Makefile.mingw 392ad6379a19971b572cd41bf03df2e6902ac658
 F win/Makefile.mingw.mistachkin 364b1766bafb13bbb636b269519cd710f887f436
-F win/Makefile.msc d500f9b2c2ff5155ef1df101c1d2f6fb92ccf569
+F win/Makefile.msc e14bf361521491f35a3990a9e9a02925bd88a2f6
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -658,10 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 476f812e185015cc639c4dae517af129853fe84e
-R ca6280f51b66588473b32d4d926d3fbd
-T *branch * separate-resource-files
-T *sym-separate-resource-files *
-T -sym-trunk *
+P d93d92eb5ac2a7e063b1e0fdb2f25f69f6bb762c
+R 2d58b4f9f1497d925a9bb438e07bbb43
 U drh
-Z 65403f6c77039d6a0f2f34f27c6dd32a
+Z 7b6ac1b09e9486ff76499551b005b6fd

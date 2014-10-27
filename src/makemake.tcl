@@ -14,8 +14,11 @@
 #############################################################################
 
 # Basenames of all source files that get preprocessed using
-# "translate" and "makeheaders".  To add new source files to the
+# "translate" and "makeheaders".  To add new C-language source files to the
 # project, simply add the basename to this list and rerun this script.
+#
+# Set the separate extra_files variable further down for how to add non-C
+# files, such as string and BLOB resources.
 #
 set src {
   add
@@ -1401,6 +1404,16 @@ foreach s [lsort $src] {
     writeln -nonewline "        "
   }
   writeln -nonewline "${s}_.c"; incr i
+}
+writeln "\n"
+writeln -nonewline "EXTRA_FILES   = "
+set i 0
+foreach s [lsort $extra_files] {
+  if {$i > 0} {
+    writeln " \\"
+    writeln -nonewline "        "
+  }
+  writeln -nonewline "\$(SRCDIR)\\${s}"; incr i
 }
 writeln "\n"
 set AdditionalObj [list shell sqlite3 th th_lang th_tcl cson_amalgamation]
