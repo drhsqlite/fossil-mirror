@@ -205,6 +205,7 @@ SRC   = add_.c \
         blob_.c \
         branch_.c \
         browse_.c \
+        builtin_.c \
         cache_.c \
         captcha_.c \
         cgi_.c \
@@ -317,6 +318,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\blob$O \
         $(OX)\branch$O \
         $(OX)\browse$O \
+        $(OX)\builtin$O \
         $(OX)\cache$O \
         $(OX)\captcha$O \
         $(OX)\cgi$O \
@@ -485,6 +487,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\blob.obj >> $@
 	echo $(OX)\branch.obj >> $@
 	echo $(OX)\browse.obj >> $@
+	echo $(OX)\builtin.obj >> $@
 	echo $(OX)\cache.obj >> $@
 	echo $(OX)\captcha.obj >> $@
 	echo $(OX)\cgi.obj >> $@
@@ -611,6 +614,9 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) $**
 
+mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
+	$(BCC) $**
+
 mkversion$E: $(SRCDIR)\mkversion.c
 	$(BCC) $**
 
@@ -643,6 +649,9 @@ $(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
 page_index.h: mkindex$E $(SRC)
 	$** > $@
 
+builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
+	$** > $@
+
 clean:
 	-del $(OX)\*.obj
 	-del *.obj
@@ -668,6 +677,8 @@ realclean: clean
 	-del mkversion$P
 	-del codecheck1$E
 	-del codecheck1$P
+	-del mkbuiltin$E
+	-del mkbuiltin$P
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -731,6 +742,12 @@ $(OX)\browse$O : browse_.c browse.h
 	$(TCC) /Fo$@ -c browse_.c
 
 browse_.c : $(SRCDIR)\browse.c
+	translate$E $** > $@
+
+$(OX)\builtin$O : builtin_.c builtin.h
+	$(TCC) /Fo$@ -c builtin_.c
+
+builtin_.c : $(SRCDIR)\builtin.c
 	translate$E $** > $@
 
 $(OX)\cache$O : cache_.c cache.h
@@ -1354,7 +1371,7 @@ zip_.c : $(SRCDIR)\zip.c
 fossil.res : $B\win\fossil.rc
 	$(RCC)  /fo $@ $**
 
-headers: makeheaders$E page_index.h VERSION.h
+headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 	makeheaders$E add_.c:add.h \
 			allrepo_.c:allrepo.h \
 			attach_.c:attach.h \
@@ -1363,6 +1380,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			blob_.c:blob.h \
 			branch_.c:branch.h \
 			browse_.c:browse.h \
+			builtin_.c:builtin.h \
 			cache_.c:cache.h \
 			captcha_.c:captcha.h \
 			cgi_.c:cgi.h \

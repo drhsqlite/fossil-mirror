@@ -26,6 +26,7 @@ set src {
   blob
   branch
   browse
+  builtin
   cache
   captcha
   cgi
@@ -131,6 +132,12 @@ set src {
   http_ssl
 }
 
+# Additional resource files that get built into the executable.
+#
+set extra_files {
+  diff.tcl
+}
+
 # Options used to compile the included SQLite library.
 #
 set SQLITE_OPTIONS {
@@ -220,6 +227,11 @@ foreach s [lsort $src] {
   writeln -nonewline " \\\n  \$(SRCDIR)/$s.c"
 }
 writeln "\n"
+writeln -nonewline "EXTRA_FILES ="
+foreach s [lsort $extra_files] {
+  writeln -nonewline " \\\n  \$(SRCDIR)/$s"
+}
+writeln "\n"
 writeln -nonewline "TRANS_SRC ="
 foreach s [lsort $src] {
   writeln -nonewline " \\\n  \$(OBJDIR)/${s}_.c"
@@ -257,6 +269,9 @@ $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
 
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
 	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
+
+$(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
+	$(BCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
 
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
@@ -338,14 +353,19 @@ append mhargs "\$(SRCDIR)/th.h <<<NEXT_LINE>>>"
 append mhargs "\$(OBJDIR)/VERSION.h"
 set mhargs [string map [list <<<NEXT_LINE>>> \\\n\t] $mhargs]
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
-writeln "\t\$(OBJDIR)/mkindex \$(TRANS_SRC) >$@"
-writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
+writeln "\t\$(OBJDIR)/mkindex \$(TRANS_SRC) >$@\n"
+
+writeln "\$(OBJDIR)/builtin_data.h: \$(OBJDIR)/mkbuiltin \$(EXTRA_FILES)"
+writeln "\t\$(OBJDIR)/mkbuiltin \$(EXTRA_FILES) >$@\n"
+
+writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
 writeln "\t\$(OBJDIR)/makeheaders $mhargs"
 writeln "\ttouch \$(OBJDIR)/headers"
 writeln "\$(OBJDIR)/headers: Makefile"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/json_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h"
 writeln "Makefile:"
 set extra_h(main) " \$(OBJDIR)/page_index.h "
+set extra_h(builtin) " \$(OBJDIR)/builtin_data.h "
 
 foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}_.c:\t\$(SRCDIR)/$s.c \$(OBJDIR)/translate"
@@ -736,6 +756,11 @@ foreach s [lsort $src] {
   writeln -nonewline " \\\n  \$(SRCDIR)/$s.c"
 }
 writeln "\n"
+writeln -nonewline "EXTRA_FILES ="
+foreach s [lsort $extra_files] {
+  writeln -nonewline " \\\n  \$(SRCDIR)/$s"
+}
+writeln "\n"
 writeln -nonewline "TRANS_SRC ="
 foreach s [lsort $src] {
   writeln -nonewline " \\\n  \$(OBJDIR)/${s}_.c"
@@ -761,6 +786,7 @@ ifdef USE_WINDOWS
 TRANSLATE   = $(subst /,\,$(OBJDIR)/translate.exe)
 MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
+MKBUILTIN   = $(subst /,\,$(OBJDIR)/mkbuiltin.exe)
 VERSION     = $(subst /,\,$(OBJDIR)/version.exe)
 CODECHECK1  = $(subst /,\,$(OBJDIR)/codecheck1.exe)
 CAT         = type
@@ -774,6 +800,7 @@ else
 TRANSLATE   = $(OBJDIR)/translate.exe
 MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
+MKBUILTIN   = $(OBJDIR)/mkbuiltin.exe
 VERSION     = $(OBJDIR)/version.exe
 CODECHECK1  = $(OBJDIR)/codecheck1.exe
 CAT         = cat
@@ -826,6 +853,9 @@ $(MAKEHEADERS):	$(SRCDIR)/makeheaders.c
 
 $(MKINDEX):	$(SRCDIR)/mkindex.c
 	$(BCC) -o $(MKINDEX) $(SRCDIR)/mkindex.c
+
+$(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
+	$(BCC) -o $(MKBUILTIN) $(SRCDIR)/mkbuiltin.c
 
 $(VERSION): $(SRCDIR)/mkversion.c
 	$(BCC) -o $(VERSION) $(SRCDIR)/mkversion.c
@@ -937,12 +967,20 @@ append mhargs " \\\n\t\t\$(SRCDIR)/th.h"
 append mhargs " \\\n\t\t\$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(MKINDEX)"
 writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@\n"
-writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(MAKEHEADERS) \$(OBJDIR)/VERSION.h"
+
+writeln "\$(OBJDIR)/builtin_data.h:\t\$(MKBUILTIN) \$(EXTRA_FILES)"
+writeln "\t\$(MKBUILTIN) \$(EXTRA_FILES) >$@\n"
+
+writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(MAKEHEADERS) \$(OBJDIR)/VERSION.h"
 writeln "\t\$(MAKEHEADERS) $mhargs"
 writeln "\techo Done >\$(OBJDIR)/headers\n"
 writeln "\$(OBJDIR)/headers: Makefile\n"
 writeln "Makefile:\n"
 set extra_h(main) " \$(OBJDIR)/page_index.h "
+set extra_h(builtin) " \$(OBJDIR)/builtin_data.h "
+
+writeln "\$(OBJDIR)/builtin_data.h:\t\$(MKBUILTIN) \$(EXTRA_FILES)"
+writeln "\t\$(MKBUILTIN) \$(EXTRA_FILES) >\$(OBJDIR)/builtin_data.h\n"
 
 foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}_.c:\t\$(SRCDIR)/$s.c \$(TRANSLATE)"
@@ -1082,6 +1120,9 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) -o$@ $**
 
+mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
+	$(BCC) -o$@ $**
+
 mkversion$E: $(SRCDIR)\mkversion.c
 	$(BCC) -o$@ $**
 
@@ -1109,12 +1150,15 @@ VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 page_index.h: mkindex$E $(SRC)
 	+$** > $@
 
+builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
+	+$** > $@
+
 clean:
 	-del $(OBJDIR)\*.obj
 	-del *.obj *_.c *.h *.map
 
 realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E codecheck1$E
+	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E codecheck1$E mkbuiltin$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -1141,7 +1185,7 @@ foreach s [lsort $src] {
   writeln "\t+translate\$E \$** > \$@\n"
 }
 
-writeln -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\t +makeheaders\$E "
+writeln -nonewline "headers: makeheaders\$E page_index.h builtin_data.h VERSION.h\n\t +makeheaders\$E "
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
@@ -1446,6 +1490,9 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) $**
 
+mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
+	$(BCC) $**
+
 mkversion$E: $(SRCDIR)\mkversion.c
 	$(BCC) $**
 
@@ -1478,6 +1525,9 @@ $(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
 page_index.h: mkindex$E $(SRC)
 	$** > $@
 
+builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
+	$** > $@
+
 clean:
 	-del $(OX)\*.obj
 	-del *.obj
@@ -1503,6 +1553,8 @@ realclean: clean
 	-del mkversion$P
 	-del codecheck1$E
 	-del codecheck1$P
+	-del mkbuiltin$E
+	-del mkbuiltin$P
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -1530,7 +1582,7 @@ foreach s [lsort $src] {
 writeln "fossil.res : \$B\\win\\fossil.rc"
 writeln "\t\$(RCC)  /fo \$@ \$**\n"
 
-writeln "headers: makeheaders\$E page_index.h VERSION.h"
+writeln "headers: makeheaders\$E page_index.h builtin_data.h VERSION.h"
 writeln -nonewline "\tmakeheaders\$E "
 set i 0
 foreach s [lsort $src] {
@@ -1640,7 +1692,7 @@ RCFLAGS=$(INCLUDE) -D__POCC__=1 -D_M_X$(TARGETVERSION)
 
 # define the special utilities files, needed to generate
 # the automatically generated source files
-UTILS=translate.exe mkindex.exe makeheaders.exe
+UTILS=translate.exe mkindex.exe makeheaders.exe mkbuiltin.exe
 UTILS_OBJ=$(UTILS:.exe=.obj)
 UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 
@@ -1679,7 +1731,7 @@ APPLICATION=fossil.exe
 
 # define the standard make target
 .PHONY:	default
-default:	page_index.h headers $(APPLICATION)
+default:	page_index.h builtin_data.h headers $(APPLICATION)
 
 # symbolic target to generate the source generate utils
 .PHONY:	utils
@@ -1705,12 +1757,15 @@ $(TRANSLATEDSRC):	%_.c:	$(SRCDIR)%.c translate.exe
 page_index.h:	$(TRANSLATEDSRC) mkindex.exe
 	mkindex.exe $(TRANSLATEDSRC) >$@
 
+builtin_data.h:	$(EXTRA_FILES) mkbuiltin.exe
+	mkbuiltin.exe $(EXTRA_FILES) >$@
+
 # extracting version info from manifest
 VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
 	version.exe ..\manifest.uuid ..\manifest ..\VERSION  > $@
 
 # generate the simplified headers
-headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h
+headers: makeheaders.exe page_index.h builtin_data.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h
 	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite3.h ../src/th.h VERSION.h
 	echo Done >$@
 
