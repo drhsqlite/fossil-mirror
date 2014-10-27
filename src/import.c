@@ -884,30 +884,30 @@ static void svn_create_manifests(int flatFlag){
   Stmt qRev;
   Stmt qParent;
   Stmt qFiles;
+  Stmt qTags;
   Stmt setUuid;
 
   if( !flatFlag ){
     db_multi_exec("DELETE FROM xrevisions WHERE tbranch ISNULL;"
-                  ""
-                  " WITH xprefix AS ( "
+                  "UPDATE xrevisions SET tparent=("
+                  "  SELECT ifnull(max(trev),-1) FROM xrevisions t"
+                  "  WHERE t.trev<xrevisions.trev"
+                  "    AND t.tbranch=xrevisions.tbranch"
+                  " )"
+                  " WHERE tparent ISNULL;"
+                  "WITH xprefix AS ( "
                   "  SELECT trev, CASE tbranch WHEN 'trunk' THEN 'trunk/'"
                   "  ELSE 'branches/'||tbranch||'/' END xpref"
                   "  FROM xrevisions"
                   " ), "
                   " x AS (SELECT trev xrev, xpref, length(xpref) xlen "
                   " FROM xprefix) "
-                  "UPDATE xfiles SET tpath= "
+                  " UPDATE xfiles SET tpath= "
                   " CASE substr(tpath,1,(SELECT xlen FROM x WHERE xrev=trev))"
                   " WHEN (SELECT xpref FROM x WHERE xrev=trev)"
                   "  THEN substr(tpath,(SELECT xlen FROM x WHERE xrev=trev)+1)"
                   " END;"
-                  "DELETE FROM xfiles WHERE tpath ISNULL;"
-                  "UPDATE xrevisions SET tparent=("
-                  "  SELECT ifnull(max(trev),-1) FROM xrevisions t"
-                  "  WHERE t.trev<xrevisions.trev"
-                  "    AND t.tbranch=xrevisions.tbranch"
-                  " )"
-                  " WHERE tparent ISNULL");
+                  "DELETE FROM xfiles WHERE tpath ISNULL");
   }else{
     db_multi_exec("UPDATE xrevisions SET tparent=trev-1");
   }
@@ -918,6 +918,7 @@ static void svn_create_manifests(int flatFlag){
   db_prepare(&qFiles, "SELECT tpath, uuid, tperm"
                       " FROM xfiles JOIN blob ON xfiles.trid=blob.rid"
                       " WHERE trev=:rev ORDER BY tpath");
+  db_prepare(&qTags, "SELECT ttag FROM xtags WHERE trev=:rev");
   db_prepare(&setUuid, "UPDATE xrevisions"
                        " SET tuuid=(SELECT uuid FROM blob WHERE rid=:rid)"
                        " WHERE trev=:rev");
@@ -930,9 +931,8 @@ static void svn_create_manifests(int flatFlag){
     int parentRev = db_column_int(&qRev, 4);
     const char *zBranch = db_column_text(&qRev, 5);
     int rid;
-    Blob mcksum;
-    const char *zParentUuid = 0;
     const char *zParentBranch = 0;
+    Blob mcksum;
     blob_reset(&manifest);
     if( zMsg ){
       blob_appendf(&manifest, "C %F\n", zMsg);
@@ -949,6 +949,7 @@ static void svn_create_manifests(int flatFlag){
     }
     db_reset(&qFiles);
     if( parentRev>=0 ){
+      const char *zParentUuid;
       db_bind_int(&qParent, ":rev", parentRev);
       db_step(&qParent);
       zParentUuid = db_column_text(&qParent, 0);
@@ -958,6 +959,9 @@ static void svn_create_manifests(int flatFlag){
         if( strcmp(zBranch, zParentBranch)!=0 ){
           blob_appendf(&manifest, "T *branch * %s\n", zBranch);
           blob_appendf(&manifest, "T *sym-%s *\n", zBranch);
+          zParentBranch = mprintf("%s", zParentBranch);
+        }else{
+          zParentBranch = 0;
         }
       }
       db_reset(&qParent);
@@ -965,7 +969,16 @@ static void svn_create_manifests(int flatFlag){
       blob_appendf(&manifest, "T *branch * trunk\n");
       blob_appendf(&manifest, "T *sym-trunk *\n");
     }
+    db_bind_int(&qTags, ":rev", rev);
+    while( db_step(&qTags)==SQLITE_ROW ){
+      const char *zTag = db_column_text(&qTags, 0);
+      blob_appendf(&manifest, "T +sym-%s *\n", zTag);
+    }
+    db_reset(&qTags);
     blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", rev);
+    if( zParentBranch ) {
+      blob_appendf(&manifest, "T -sym-%s *\n", zParentBranch);
+    }
     if( zUser ){
       blob_appendf(&manifest, "U %F\n", zUser);
     }else{
@@ -986,6 +999,7 @@ static void svn_create_manifests(int flatFlag){
   db_finalize(&qRev);
   db_finalize(&qParent);
   db_finalize(&qFiles);
+  db_finalize(&qTags);
   db_finalize(&setUuid);
 }
 /*
@@ -1000,6 +1014,7 @@ static void svn_dump_import(FILE *pIn, int flatFlag){
   char zBranch[200] = {0};
   Stmt insRev;
   Stmt insFile;
+  Stmt insTag;
   Stmt delFile;
   Stmt setBranch;
   Stmt setParent;
@@ -1030,6 +1045,7 @@ static void svn_dump_import(FILE *pIn, int flatFlag){
       "INSERT INTO xfiles (trev, tpath, trid, tperm) "
       "VALUES(:rev, :path, :rid, :perm)"
   );
+  db_prepare(&insTag, "INSERT INTO xtags (trev, ttag) VALUES(:rev, :tag)");
   db_prepare(&delFile,
       "DELETE FROM xfiles "
       "WHERE trev=:rev "
@@ -1122,14 +1138,22 @@ static void svn_dump_import(FILE *pIn, int flatFlag){
               " WHERE trev=%d AND tpath GLOB '%q/*'",
               rev, zPath, zSrcPath, srcRev, zSrcPath
             );
-            if( !flatFlag && strncmp(zPath, "branches/", 9)==0 ){
-              zTemp = zPath+9;
-              while( *zTemp && *zTemp!='/' ){ zTemp++; }
-              if( *zTemp==0 ){
-                db_bind_int(&setParent, ":parent", srcRev);
-                db_bind_int(&setParent, ":rev", rev);
-                db_step(&setParent);
-                db_reset(&setParent);
+            if( !flatFlag ){
+              if( strncmp(zPath, "branches/", 9)==0 ){
+                zTemp = zPath+9;
+                while( *zTemp && *zTemp!='/' ){ zTemp++; }
+                if( *zTemp==0 ){
+                  db_bind_int(&setParent, ":parent", srcRev);
+                  db_bind_int(&setParent, ":rev", rev);
+                  db_step(&setParent);
+                  db_reset(&setParent);
+                }
+              }else if( strncmp(zPath, "tags/", 5)==0 ){
+                zTemp = zPath+5;
+                db_bind_int(&insTag, ":rev", srcRev);
+                db_bind_text(&insTag, ":tag", zTemp);
+                db_step(&insTag);
+                db_reset(&insTag);
               }
             }
           }
@@ -1176,6 +1200,7 @@ static void svn_dump_import(FILE *pIn, int flatFlag){
   }
   db_finalize(&insRev);
   db_finalize(&insFile);
+  db_finalize(&insTag);
   db_finalize(&delFile);
   db_finalize(&setBranch);
   db_finalize(&setParent);
@@ -1276,12 +1301,15 @@ void import_cmd(void){
   if( strncmp(g.argv[2], "svn", 3)==0 ){
     db_multi_exec(
        "CREATE TEMP TABLE xrevisions("
-       " trev INT, tuser TEXT, tmsg TEXT, ttime DATETIME, tparent INT,"
-       " tbranch TEXT, tuuid TEXT"
+       " trev INTEGER PRIMARY KEY, tuser TEXT, tmsg TEXT, ttime DATETIME,"
+       " tparent INT, tbranch TEXT, tuuid TEXT"
        ");"
        "CREATE TEMP TABLE xfiles("
        " trev INT, tpath TEXT, trid TEXT, tperm TEXT,"
        " UNIQUE (trev, tpath) ON CONFLICT REPLACE"
+       ");"
+       "CREATE TEMP TABLE xtags("
+       " trev INT, ttag TEXT"
        ");"
     );
     svn_dump_import(pIn, flatFlag);
