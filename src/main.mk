@@ -22,6 +22,7 @@ SRC = \
   $(SRCDIR)/blob.c \
   $(SRCDIR)/branch.c \
   $(SRCDIR)/browse.c \
+  $(SRCDIR)/builtin.c \
   $(SRCDIR)/cache.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
@@ -126,6 +127,9 @@ SRC = \
   $(SRCDIR)/xfersetup.c \
   $(SRCDIR)/zip.c
 
+EXTRA_FILES = \
+  $(SRCDIR)/diff.tcl
+
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
   $(OBJDIR)/allrepo_.c \
@@ -135,6 +139,7 @@ TRANS_SRC = \
   $(OBJDIR)/blob_.c \
   $(OBJDIR)/branch_.c \
   $(OBJDIR)/browse_.c \
+  $(OBJDIR)/builtin_.c \
   $(OBJDIR)/cache_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
@@ -248,6 +253,7 @@ OBJ = \
  $(OBJDIR)/blob.o \
  $(OBJDIR)/branch.o \
  $(OBJDIR)/browse.o \
+ $(OBJDIR)/builtin.o \
  $(OBJDIR)/cache.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
@@ -377,6 +383,9 @@ $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
 	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
+$(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
+	$(BCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
+
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
@@ -454,7 +463,11 @@ clean:
 
 $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 	$(OBJDIR)/mkindex $(TRANS_SRC) >$@
-$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
+
+$(OBJDIR)/builtin_data.h: $(OBJDIR)/mkbuiltin $(EXTRA_FILES)
+	$(OBJDIR)/mkbuiltin $(EXTRA_FILES) >$@
+
+$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
 	$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 	$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
@@ -463,6 +476,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 	$(OBJDIR)/blob_.c:$(OBJDIR)/blob.h \
 	$(OBJDIR)/branch_.c:$(OBJDIR)/branch.h \
 	$(OBJDIR)/browse_.c:$(OBJDIR)/browse.h \
+	$(OBJDIR)/builtin_.c:$(OBJDIR)/builtin.h \
 	$(OBJDIR)/cache_.c:$(OBJDIR)/cache.h \
 	$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 	$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
@@ -629,6 +643,13 @@ $(OBJDIR)/browse.o:	$(OBJDIR)/browse_.c $(OBJDIR)/browse.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/browse.o -c $(OBJDIR)/browse_.c
 
 $(OBJDIR)/browse.h:	$(OBJDIR)/headers
+$(OBJDIR)/builtin_.c:	$(SRCDIR)/builtin.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/builtin.c >$(OBJDIR)/builtin_.c
+
+$(OBJDIR)/builtin.o:	$(OBJDIR)/builtin_.c $(OBJDIR)/builtin.h $(OBJDIR)/builtin_data.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/builtin.o -c $(OBJDIR)/builtin_.c
+
+$(OBJDIR)/builtin.h:	$(OBJDIR)/headers
 $(OBJDIR)/cache_.c:	$(SRCDIR)/cache.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/cache.c >$(OBJDIR)/cache_.c
 
