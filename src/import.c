@@ -1032,8 +1032,8 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
     const char *zInst = zDiff;
     const char *zData = zInst+lenInst;
     u64 lenOld = blob_size(pOut);
-    blob_resize(pOut, lenOut);
-    zOut = blob_buffer(pOut) + lenOld;
+    blob_resize(pOut, lenOut+lenOld);
+    zOut = blob_buffer(pOut)+lenOld;
     while( zDiff<zInst+lenInst ){
       u64 lenCpy = (*zDiff)&0x3f;
       const char *zCpy;
@@ -1145,7 +1145,6 @@ static void svn_dump_import(FILE *pIn, int flatFlag){
                       "SELECT %d, tpath, trid, tperm FROM xfiles "
                       "WHERE trev=%d", rev, rev-1);
       }
-fossil_print("rev: %d\n", rev);
     }else
     if( zTemp = svn_find_header(rec, "Node-path") ){
       const char *zPath = zTemp;
@@ -1156,7 +1155,6 @@ fossil_print("rev: %d\n", rev);
       int deltaFlag = 0;
       int srcRev = -1;
       int rid = 0;
-fossil_print("file: %s ...", zPath);
       if( zTemp = svn_find_header(rec, "Text-delta") ){
         deltaFlag = strncmp(zTemp, "true", 4)==0;
       }
@@ -1230,20 +1228,16 @@ fossil_print("file: %s ...", zPath);
           if( deltaFlag ){
             Blob deltaSrc;
             Blob target;
-fossil_print("diff-size: %d ", blob_size(&rec.content));
             if( rid!=0 ){
               content_get(rid, &deltaSrc);
             }else{
               blob_zero(&deltaSrc);
             }
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
-fossil_print("real-size: %d ", blob_size(&target));
             rid = content_put(&target);
           }else if( rec.contentFlag ){
-fossil_print("size: %d ", blob_size(&rec.content));
             rid = content_put(&rec.content);
           }
-fossil_print("rid: %d ", rid);
           db_bind_int(&insFile, ":rev", rev);
           db_bind_int(&insFile, ":rid", rid);
           db_bind_text(&insFile, ":path", zPath);
@@ -1283,7 +1277,6 @@ fossil_print("rid: %d ", rid);
       fossil_fatal("Unknown record type");
     }
     svn_free_rec(&rec);
-fossil_print("done\n");
   }
   if( !flatFlag ){
     if( *zBranch ){
