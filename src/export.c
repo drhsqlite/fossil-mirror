@@ -73,8 +73,8 @@ static void print_person(const char *zUser){
     ** the part.
      */
     zEmail = mprintf("%s", &zContact[i]);
-    for(i=0; zEmail[i] && zEmail[i]!='>'; i++){}
-    if( zEmail[i]=='>' ) zEmail[i+1] = 0;
+    for(j=0; zEmail[j] && zEmail[j]!='>'; j++){}
+    if( zEmail[j]=='>' ) zEmail[j+1] = 0;
   }else{
     /*
     ** Found an end marker for email, but nothing else.

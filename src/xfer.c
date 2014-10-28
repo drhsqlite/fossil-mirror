@@ -203,7 +203,7 @@ static void xfer_accept_file(
     blob_reset(&content);
   }else{
     if( !isPriv ) content_make_public(rid);
-    manifest_crosslink(rid, &content, MC_NONE|MC_NO_ERRORS);
+    manifest_crosslink(rid, &content, MC_NO_ERRORS);
   }
   assert( blob_is_reset(&content) );
   remote_has(rid);
