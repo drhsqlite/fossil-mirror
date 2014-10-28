@@ -730,7 +730,7 @@ typedef struct {
   KeyVal *aProps;
   int nProps;
   Blob content;
-  int nContent;
+  int contentFlag;
 } SvnRecord;
 
 #define svn_find_header(rec, zHeader) \
@@ -868,13 +868,16 @@ static int svn_read_rec(FILE *pIn, SvnRecord *rec){
   blob_zero(&rec->content);
   zLen = svn_find_header(*rec, "Text-content-length");
   if( zLen ){
+    rec->contentFlag = 1;
     nLen = atoi(zLen);
-  }
-  blob_read_from_channel(&rec->content, pIn, nLen);
-  if( blob_size(&rec->content)!=nLen ){
-    fossil_fatal("short read: got %d of %d bytes",
-      blob_size(&rec->content), nLen
-    );
+    blob_read_from_channel(&rec->content, pIn, nLen);
+    if( blob_size(&rec->content)!=nLen ){
+      fossil_fatal("short read: got %d of %d bytes",
+        blob_size(&rec->content), nLen
+      );
+    }
+  }else{
+    rec->contentFlag = 0;
   }
   return 1;
 }
@@ -978,6 +981,7 @@ static void svn_create_manifests(int flatFlag){
     blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", rev);
     if( zParentBranch ) {
       blob_appendf(&manifest, "T -sym-%s *\n", zParentBranch);
+      zParentBranch = 0;
     }
     if( zUser ){
       blob_appendf(&manifest, "U %F\n", zUser);
@@ -1002,6 +1006,60 @@ static void svn_create_manifests(int flatFlag){
   db_finalize(&qTags);
   db_finalize(&setUuid);
 }
+
+static u64 svn_get_varint(const char **pz){
+  unsigned int v = 0;
+  do{
+    v = (v<<7) | ((*pz)[0]&0x7f);
+  }while( (*pz)++[0]&0x80 );
+  return v;
+}
+
+static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
+  const char *zDiff = blob_buffer(pDiff);
+  char *zOut;
+  if( blob_size(pDiff)<4 || memcmp(zDiff, "SVN", 4)!=0 ){
+    fossil_fatal("Invalid svndiff0 format");
+  }
+  zDiff += 4;
+  blob_zero(pOut);
+  while( zDiff<(blob_buffer(pDiff)+blob_size(pDiff)) ){
+    u64 offSrc = svn_get_varint(&zDiff);
+    u64 lenSrc = svn_get_varint(&zDiff);
+    u64 lenOut = svn_get_varint(&zDiff);
+    u64 lenInst = svn_get_varint(&zDiff);
+    u64 lenData = svn_get_varint(&zDiff);
+    const char *zInst = zDiff;
+    const char *zData = zInst+lenInst;
+    u64 lenOld = blob_size(pOut);
+    blob_resize(pOut, lenOut);
+    zOut = blob_buffer(pOut) + lenOld;
+    while( zDiff<zInst+lenInst ){
+      u64 lenCpy = (*zDiff)&0x3f;
+      const char *zCpy;
+      switch( (*zDiff)&0xC0 ){
+        case 0x00: zCpy = blob_buffer(pSrc)+offSrc; break;
+        case 0x40: zCpy = blob_buffer(pOut); break;
+        case 0x80: zCpy = zData; break;
+        default: fossil_fatal("Invalid svndiff0 instruction");
+      }
+      zDiff++;
+      if( lenCpy==0 ){
+        lenCpy = svn_get_varint(&zDiff);
+      }
+      if( zCpy!=zData ){
+        zCpy += svn_get_varint(&zDiff);
+      }else{
+        zData += lenCpy;
+      }
+      while( lenCpy-- > 0 ){
+        *zOut++ = *zCpy++;
+      }
+    }
+    zDiff += lenData;
+  }
+}
+
 /*
 ** Read the svn-dump format from pIn and insert the corresponding
 ** content into the database.
@@ -1024,7 +1082,7 @@ static void svn_dump_import(FILE *pIn, int flatFlag){
   if( svn_read_rec(pIn, &rec)
    && (zTemp = svn_find_header(rec, "SVN-fs-dump-format-version")) ){
     ver = atoi(zTemp);
-    if( ver!=2 ){
+    if( ver!=2 && ver!=3 ){
       fossil_fatal("Unknown svn-dump format version: %d", ver);
     }
   }else{
@@ -1087,6 +1145,7 @@ static void svn_dump_import(FILE *pIn, int flatFlag){
                       "SELECT %d, tpath, trid, tperm FROM xfiles "
                       "WHERE trev=%d", rev, rev-1);
       }
+fossil_print("rev: %d\n", rev);
     }else
     if( zTemp = svn_find_header(rec, "Node-path") ){
       const char *zPath = zTemp;
@@ -1094,8 +1153,13 @@ static void svn_dump_import(FILE *pIn, int flatFlag){
       const char *zKind = svn_find_header(rec, "Node-kind");
       const char *zSrcPath = svn_find_header(rec, "Node-copyfrom-path");
       const char *zPerm = svn_find_prop(rec, "svn:executable") ? "x" : 0;
+      int deltaFlag = 0;
       int srcRev = -1;
       int rid = 0;
+fossil_print("file: %s ...", zPath);
+      if( zTemp = svn_find_header(rec, "Text-delta") ){
+        deltaFlag = strncmp(zTemp, "true", 4)==0;
+      }
       if( zSrcPath ){
         zTemp = svn_find_header(rec, "Node-copyfrom-rev");
         if( zTemp ){
@@ -1158,13 +1222,28 @@ static void svn_dump_import(FILE *pIn, int flatFlag){
             }
           }
         }else{
-          if( blob_size(&rec.content)==0 && zSrcPath ){
+          if( zSrcPath ){
             rid = db_int(0,
                          "SELECT trid FROM xfiles WHERE trev=%d AND tpath=%Q",
                          srcRev, zSrcPath);
-          }else{
+          }
+          if( deltaFlag ){
+            Blob deltaSrc;
+            Blob target;
+fossil_print("diff-size: %d ", blob_size(&rec.content));
+            if( rid!=0 ){
+              content_get(rid, &deltaSrc);
+            }else{
+              blob_zero(&deltaSrc);
+            }
+            svn_apply_svndiff(&rec.content, &deltaSrc, &target);
+fossil_print("real-size: %d ", blob_size(&target));
+            rid = content_put(&target);
+          }else if( rec.contentFlag ){
+fossil_print("size: %d ", blob_size(&rec.content));
             rid = content_put(&rec.content);
           }
+fossil_print("rid: %d ", rid);
           db_bind_int(&insFile, ":rev", rev);
           db_bind_int(&insFile, ":rid", rid);
           db_bind_text(&insFile, ":path", zPath);
@@ -1174,7 +1253,21 @@ static void svn_dump_import(FILE *pIn, int flatFlag){
         }
       }else
       if( strncmp(zAction, "change", 6)==0 ){
-        rid = content_put(&rec.content);
+        if( zKind==0 ){
+          fossil_fatal("Missing Node-kind");
+        }
+        if( strncmp(zKind, "dir", 3)==0 ) continue;
+        if( deltaFlag ){
+          Blob deltaSrc;
+          Blob target;
+          rid = db_int(0, "SELECT trid FROM xfiles WHERE tpath=%Q AND trev=%d",
+                       zPath, rev-1);
+          content_get(rid, &deltaSrc);
+          svn_apply_svndiff(&rec.content, &deltaSrc, &target);
+          rid = content_put(&target);
+        }else{
+          rid = content_put(&rec.content);
+        }
         db_bind_int(&insFile, ":rev", rev);
         db_bind_int(&insFile, ":rid", rid);
         db_bind_text(&insFile, ":path", zPath);
@@ -1190,6 +1283,7 @@ static void svn_dump_import(FILE *pIn, int flatFlag){
       fossil_fatal("Unknown record type");
     }
     svn_free_rec(&rec);
+fossil_print("done\n");
   }
   if( !flatFlag ){
     if( *zBranch ){
