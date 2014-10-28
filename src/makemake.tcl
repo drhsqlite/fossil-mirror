@@ -790,7 +790,7 @@ TRANSLATE   = $(subst /,\,$(OBJDIR)/translate.exe)
 MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
 MKBUILTIN   = $(subst /,\,$(OBJDIR)/mkbuiltin.exe)
-VERSION     = $(subst /,\,$(OBJDIR)/version.exe)
+MKVERSION   = $(subst /,\,$(OBJDIR)/mkversion.exe)
 CODECHECK1  = $(subst /,\,$(OBJDIR)/codecheck1.exe)
 CAT         = type
 CP          = copy
@@ -804,7 +804,7 @@ TRANSLATE   = $(OBJDIR)/translate.exe
 MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
 MKBUILTIN   = $(OBJDIR)/mkbuiltin.exe
-VERSION     = $(OBJDIR)/version.exe
+MKVERSION   = $(OBJDIR)/mkversion.exe
 CODECHECK1  = $(OBJDIR)/codecheck1.exe
 CAT         = cat
 CP          = cp
@@ -860,8 +860,8 @@ $(MKINDEX):	$(SRCDIR)/mkindex.c
 $(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
 	$(BCC) -o $(MKBUILTIN) $(SRCDIR)/mkbuiltin.c
 
-$(VERSION): $(SRCDIR)/mkversion.c
-	$(BCC) -o $(VERSION) $(SRCDIR)/mkversion.c
+$(MKVERSION): $(SRCDIR)/mkversion.c
+	$(BCC) -o $(MKVERSION) $(SRCDIR)/mkversion.c
 
 $(CODECHECK1):	$(SRCDIR)/codecheck1.c
 	$(BCC) -o $(CODECHECK1) $(SRCDIR)/codecheck1.c
@@ -872,8 +872,8 @@ $(CODECHECK1):	$(SRCDIR)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(VERSION)
-	$(VERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION)
+	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
