@@ -435,7 +435,7 @@ static int checkFormatFunc(
   char *z;
   char *zCopy;
   int nArg = 0;
-  char const **azArg = 0;
+  const char **azArg = 0;
   int i, k;
   int nErr = 0;
   char *acType;
@@ -452,7 +452,7 @@ static int checkFormatFunc(
   z = zCopy;
   while( z[0] ){
     len = distance_to(z, ',');
-    azArg = safe_realloc(azArg, (sizeof(azArg[0])+1)*(nArg+1));
+    azArg = safe_realloc((char*)azArg, (sizeof(azArg[0])+1)*(nArg+1));
     azArg[nArg++] = skip_space(z);
     if( z[len]==0 ) break;
     z[len] = 0;
@@ -497,7 +497,7 @@ static int checkFormatFunc(
     }
   }
 
-  free(azArg);
+  free((char*)azArg);
   free(zCopy);
   return nErr;
 }

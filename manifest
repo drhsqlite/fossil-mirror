@@ -1,5 +1,5 @@
-C Fix\sthe\sformatting\sof\sthe\s"committer"\slines\son\sGit\sexport.
-D 2014-10-27T18:44:49.629
+C Fix\scompiler\swarning\swith\sMSVC.
+D 2014-10-28T04:02:28.196
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -326,7 +326,7 @@ F src/checkin.c cbd7a598c8da5bd3076d729a15a63c9a72bf193f
 F src/checkout.c 6eb33a11814e9d67fe547378a541cb74c48728ef
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 3fb02ec34bf2a2c464c83b486a0c8ef2cb6ec051
-F src/codecheck1.c f0c1330bdedf7c8b5e880523a6b4cdf8486689fa
+F src/codecheck1.c 141caa31ad847f898cac31f9148224105da7e7e0
 F src/comformat.c 24b2de2bad5e8e6da966586c68d6505ea08df8e7
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
 F src/configure.c 192f2cafaddd1cfb3a13243cdf3f6f72bb3d4adc
@@ -658,7 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P db6a8e8d3c9882efe3c8d85b12f43142f0e0da17
-R 042201eef7942555a4abe6447b6bd549
-U drh
-Z 98cfd7b274afecf0eaf8d246d804c5e0
+P 36731ca5bdabc8f7ef7a7520ea7b63f99e665552
+R 06a73dd3d86f2eec967729263e309e8e
+U mistachkin
+Z cfc1f30b9321255a4ed5702b71f524e0
