@@ -161,7 +161,7 @@ endif
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall
+TCC = $(PREFIX)gcc -g -Wall
 
 #### When not using the miniz compression library, zlib is required.
 #
@@ -341,6 +341,7 @@ SRC = \
   $(SRCDIR)/blob.c \
   $(SRCDIR)/branch.c \
   $(SRCDIR)/browse.c \
+  $(SRCDIR)/builtin.c \
   $(SRCDIR)/cache.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
@@ -445,6 +446,9 @@ SRC = \
   $(SRCDIR)/xfersetup.c \
   $(SRCDIR)/zip.c
 
+EXTRA_FILES = \
+  $(SRCDIR)/diff.tcl
+
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
   $(OBJDIR)/allrepo_.c \
@@ -454,6 +458,7 @@ TRANS_SRC = \
   $(OBJDIR)/blob_.c \
   $(OBJDIR)/branch_.c \
   $(OBJDIR)/browse_.c \
+  $(OBJDIR)/builtin_.c \
   $(OBJDIR)/cache_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
@@ -567,6 +572,7 @@ OBJ = \
  $(OBJDIR)/blob.o \
  $(OBJDIR)/branch.o \
  $(OBJDIR)/browse.o \
+ $(OBJDIR)/builtin.o \
  $(OBJDIR)/cache.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
@@ -686,7 +692,8 @@ ifdef USE_WINDOWS
 TRANSLATE   = $(subst /,\,$(OBJDIR)/translate.exe)
 MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
-VERSION     = $(subst /,\,$(OBJDIR)/version.exe)
+MKBUILTIN   = $(subst /,\,$(OBJDIR)/mkbuiltin.exe)
+MKVERSION   = $(subst /,\,$(OBJDIR)/mkversion.exe)
 CODECHECK1  = $(subst /,\,$(OBJDIR)/codecheck1.exe)
 CAT         = type
 CP          = copy
@@ -699,7 +706,8 @@ else
 TRANSLATE   = $(OBJDIR)/translate.exe
 MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
-VERSION     = $(OBJDIR)/version.exe
+MKBUILTIN   = $(OBJDIR)/mkbuiltin.exe
+MKVERSION   = $(OBJDIR)/mkversion.exe
 CODECHECK1  = $(OBJDIR)/codecheck1.exe
 CAT         = cat
 CP          = cp
@@ -751,8 +759,11 @@ $(MAKEHEADERS):	$(SRCDIR)/makeheaders.c
 $(MKINDEX):	$(SRCDIR)/mkindex.c
 	$(BCC) -o $(MKINDEX) $(SRCDIR)/mkindex.c
 
-$(VERSION): $(SRCDIR)/mkversion.c
-	$(BCC) -o $(VERSION) $(SRCDIR)/mkversion.c
+$(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
+	$(BCC) -o $(MKBUILTIN) $(SRCDIR)/mkbuiltin.c
+
+$(MKVERSION): $(SRCDIR)/mkversion.c
+	$(BCC) -o $(MKVERSION) $(SRCDIR)/mkversion.c
 
 $(CODECHECK1):	$(SRCDIR)/codecheck1.c
 	$(BCC) -o $(CODECHECK1) $(SRCDIR)/codecheck1.c
@@ -763,8 +774,8 @@ $(CODECHECK1):	$(SRCDIR)/codecheck1.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(VERSION)
-	$(VERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION)
+	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
@@ -822,7 +833,7 @@ ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
 endif
 
-$(APPNAME):	$(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(CODECHECK1) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
 	$(CODECHECK1) $(TRANS_SRC)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
@@ -850,7 +861,10 @@ innosetup: $(OBJDIR) $(APPNAME)
 $(OBJDIR)/page_index.h: $(TRANS_SRC) $(MKINDEX)
 	$(MKINDEX) $(TRANS_SRC) >$@
 
-$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(MAKEHEADERS) $(OBJDIR)/VERSION.h
+$(OBJDIR)/builtin_data.h:	$(MKBUILTIN) $(EXTRA_FILES)
+	$(MKBUILTIN) $(EXTRA_FILES) >$@
+
+$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS) $(OBJDIR)/VERSION.h
 	$(MAKEHEADERS) $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
 		$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 		$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
@@ -859,6 +873,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(MAKEHEADERS) $(OBJDIR)/VERSION.h
 		$(OBJDIR)/blob_.c:$(OBJDIR)/blob.h \
 		$(OBJDIR)/branch_.c:$(OBJDIR)/branch.h \
 		$(OBJDIR)/browse_.c:$(OBJDIR)/browse.h \
+		$(OBJDIR)/builtin_.c:$(OBJDIR)/builtin.h \
 		$(OBJDIR)/cache_.c:$(OBJDIR)/cache.h \
 		$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 		$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
@@ -971,6 +986,9 @@ $(OBJDIR)/headers: Makefile
 
 Makefile:
 
+$(OBJDIR)/builtin_data.h:	$(MKBUILTIN) $(EXTRA_FILES)
+	$(MKBUILTIN) $(EXTRA_FILES) >$(OBJDIR)/builtin_data.h
+
 $(OBJDIR)/add_.c:	$(SRCDIR)/add.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/add.c >$(OBJDIR)/add_.c
 
@@ -1034,6 +1052,14 @@ $(OBJDIR)/browse.o:	$(OBJDIR)/browse_.c $(OBJDIR)/browse.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/browse.o -c $(OBJDIR)/browse_.c
 
 $(OBJDIR)/browse.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/builtin_.c:	$(SRCDIR)/builtin.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/builtin.c >$(OBJDIR)/builtin_.c
+
+$(OBJDIR)/builtin.o:	$(OBJDIR)/builtin_.c $(OBJDIR)/builtin.h $(OBJDIR)/builtin_data.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/builtin.o -c $(OBJDIR)/builtin_.c
+
+$(OBJDIR)/builtin.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/cache_.c:	$(SRCDIR)/cache.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/cache.c >$(OBJDIR)/cache_.c

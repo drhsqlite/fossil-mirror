@@ -77,7 +77,7 @@ RCFLAGS=$(INCLUDE) -D__POCC__=1 -D_M_X$(TARGETVERSION)
 
 # define the special utilities files, needed to generate
 # the automatically generated source files
-UTILS=translate.exe mkindex.exe makeheaders.exe
+UTILS=translate.exe mkindex.exe makeheaders.exe mkbuiltin.exe
 UTILS_OBJ=$(UTILS:.exe=.obj)
 UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 
@@ -116,7 +116,7 @@ APPLICATION=fossil.exe
 
 # define the standard make target
 .PHONY:	default
-default:	page_index.h headers $(APPLICATION)
+default:	page_index.h builtin_data.h headers $(APPLICATION)
 
 # symbolic target to generate the source generate utils
 .PHONY:	utils
@@ -142,12 +142,15 @@ $(TRANSLATEDSRC):	%_.c:	$(SRCDIR)%.c translate.exe
 page_index.h:	$(TRANSLATEDSRC) mkindex.exe
 	mkindex.exe $(TRANSLATEDSRC) >$@
 
+builtin_data.h:	$(EXTRA_FILES) mkbuiltin.exe
+	mkbuiltin.exe $(EXTRA_FILES) >$@
+
 # extracting version info from manifest
 VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
 	version.exe ..\manifest.uuid ..\manifest ..\VERSION  > $@
 
 # generate the simplified headers
-headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h
+headers: makeheaders.exe page_index.h builtin_data.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h
 	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite3.h ../src/th.h VERSION.h
 	echo Done >$@
 
