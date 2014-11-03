@@ -1260,7 +1260,7 @@ static void svn_dump_import(FILE *pIn){
           Blob deltaSrc;
           Blob target;
           rid = db_int(0, "SELECT trid, max(trev) FROM xhist"
-                          " WHERE trev<=%d AND tpath=%Q", gsvn.rev-1, zPath);
+                          " WHERE trev<=%d AND tpath=%Q", gsvn.rev, zPath);
           content_get(rid, &deltaSrc);
           svn_apply_svndiff(&rec.content, &deltaSrc, &target);
           rid = content_put(&target);
@@ -1332,6 +1332,7 @@ void import_cmd(void){
   FILE *pIn;
   Stmt q;
   const char *zFilter = find_option("filter", 0, 1);
+  int lenFilter;
   int forceFlag = find_option("force", "f", 0)!=0;
   int incrFlag = find_option("incremental", "i", 0)!=0;
   gsvn.zTrunk = find_option("trunk", 0, 1);
@@ -1437,8 +1438,12 @@ void import_cmd(void){
       gsvn.lenTags++;
     }
     if( zFilter==0 ){ zFilter = ""; }
+    lenFilter = strlen(zFilter);
     blob_zero(&gsvn.filter);
     blob_set(&gsvn.filter, zFilter);
+    if( lenFilter>0 && zFilter[lenFilter-1]!='/' ){
+      blob_append(&gsvn.filter, "/", 1);
+    }
     svn_dump_import(pIn);
   }
 
