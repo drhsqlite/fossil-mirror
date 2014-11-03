@@ -923,6 +923,9 @@ static void svn_create_manifest(
     if( gsvn.parent<0 ){
       gsvn.parent = db_int(-1, "SELECT ifnull(max(trev),-1) FROM xrevisions "
                                "WHERE tbranch=%Q", gsvn.zBranch);
+      if( gsvn.parent<0 ){
+        gsvn.parent = db_int(-1, "SELECT ifnull(max(trev),-1) FROM xrevisions");
+      }
     }
     db_bind_int(&insRev, ":rev", gsvn.rev);
     db_bind_text(&insRev, ":branch", gsvn.zBranch);
@@ -942,13 +945,13 @@ static void svn_create_manifest(
   }
   blob_appendf(&manifest, "D %s\n", gsvn.zDate);
   nBaseFilter = blob_size(&gsvn.filter);
-  if( strcmp(gsvn.zBranch, gsvn.zTrunk)==0 ){
+  if( strncmp(gsvn.zBranch, gsvn.zTrunk, gsvn.lenTrunk-1)==0 ){
     blob_appendf(&gsvn.filter, "%s*", gsvn.zTrunk);
   }else{
     blob_appendf(&gsvn.filter, "%s%s/*", gsvn.zBranches, gsvn.zBranch);
   }
   db_bind_text(&qFiles, ":filter", blob_str(&gsvn.filter));
-  nFilter = blob_size(&gsvn.filter);
+  nFilter = blob_size(&gsvn.filter)-1;
   while( db_step(&qFiles)==SQLITE_ROW ){
     const char *zFile = db_column_text(&qFiles, 0);
     int rid = db_column_int(&qFiles, 1);
@@ -968,9 +971,9 @@ static void svn_create_manifest(
     if( !gsvn.flatFlag ){
       zParentBranch = db_column_text(&qParent, 1);
       if( strcmp(gsvn.zBranch, zParentBranch)!=0 ){
-        blob_appendf(&manifest, "T *branch * %s\n", gsvn.zBranch);
-        blob_appendf(&manifest, "T *sym-%s *\n", gsvn.zBranch);
-        zParentBranch = mprintf("%s", zParentBranch);
+        blob_appendf(&manifest, "T *branch * %F\n", gsvn.zBranch);
+        blob_appendf(&manifest, "T *sym-%F *\n", gsvn.zBranch);
+        zParentBranch = mprintf("%F", zParentBranch);
       }else{
         zParentBranch = 0;
       }
@@ -1071,6 +1074,7 @@ static void svn_dump_import(FILE *pIn){
   Stmt addHist;
   Stmt insTag;
   Stmt cpyPath;
+  Stmt delPath;
   int bHasFiles;
 
   /* version */
@@ -1102,7 +1106,12 @@ static void svn_dump_import(FILE *pIn){
     " ) WHERE trid NOTNULL)"
     "INSERT INTO xhist (trev, tpath, trid, tperm)"
     " SELECT :rev, :path||substr(tpath, length(:srcpath)+1), trid, tperm"
-    " FROM xsrc WHERE tpath>:srcpath||'/' AND tpath<:srcpath||0"
+    " FROM xsrc WHERE tpath>:srcpath||'/' AND tpath<:srcpath||'0'"
+  );
+  db_prepare(&delPath,
+    "INSERT INTO xhist (trev, tpath, trid, tperm)"
+    " SELECT :rev, tpath, NULL, NULL"
+    " FROM xfiles WHERE (tpath>:path||'/' AND tpath<:path||'0') OR tpath=:path"
   );
   gsvn.rev = -1;
   while( svn_read_rec(pIn, &rec) ){
@@ -1126,6 +1135,7 @@ static void svn_dump_import(FILE *pIn){
       fossil_print("\rImporting SVN revision: %d", gsvn.rev);
       db_bind_int(&addHist, ":rev", gsvn.rev);
       db_bind_int(&cpyPath, ":rev", gsvn.rev);
+      db_bind_int(&delPath, ":rev", gsvn.rev);
     }else
     if( (zTemp = svn_find_header(rec, "Node-path")) ){ /* file/dir node */
       const char *zPath = zTemp;
@@ -1180,11 +1190,9 @@ static void svn_dump_import(FILE *pIn){
       if( strncmp(zAction, "delete", 6)==0
        || strncmp(zAction, "replace", 7)==0 )
       {
-        db_bind_null(&addHist, ":rid");
-        db_bind_text(&addHist, ":path", zPath);
-        db_bind_null(&addHist, ":perm");
-        db_step(&addHist);
-        db_reset(&addHist);
+        db_bind_text(&delPath, ":path", zPath);
+        db_step(&delPath);
+        db_reset(&delPath);
       } /* no 'else' here since 'replace' does both a 'delete' and an 'add' */
       if( strncmp(zAction, "add", 3)==0
        || strncmp(zAction, "replace", 7)==0 )
@@ -1273,7 +1281,7 @@ static void svn_dump_import(FILE *pIn){
     }
     svn_free_rec(&rec);
   }
-  if( gsvn.rev>0 ){
+  if( bHasFiles ){
     svn_create_manifest();
   }
   fossil_free(gsvn.zUser);
@@ -1282,6 +1290,7 @@ static void svn_dump_import(FILE *pIn){
   db_finalize(&addHist);
   db_finalize(&insTag);
   db_finalize(&cpyPath);
+  db_finalize(&delPath);
   fossil_print(" Done!\n");
 }
 
