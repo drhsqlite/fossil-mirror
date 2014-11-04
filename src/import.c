@@ -945,10 +945,14 @@ static void svn_create_manifest(
   }
   blob_appendf(&manifest, "D %s\n", gsvn.zDate);
   nBaseFilter = blob_size(&gsvn.filter);
-  if( strncmp(gsvn.zBranch, gsvn.zTrunk, gsvn.lenTrunk-1)==0 ){
-    blob_appendf(&gsvn.filter, "%s*", gsvn.zTrunk);
+  if( !gsvn.flatFlag ){
+    if( strncmp(gsvn.zBranch, gsvn.zTrunk, gsvn.lenTrunk-1)==0 ){
+      blob_appendf(&gsvn.filter, "%s*", gsvn.zTrunk);
+    }else{
+      blob_appendf(&gsvn.filter, "%s%s/*", gsvn.zBranches, gsvn.zBranch);
+    }
   }else{
-    blob_appendf(&gsvn.filter, "%s%s/*", gsvn.zBranches, gsvn.zBranch);
+    blob_append(&gsvn.filter, "*", 1);
   }
   db_bind_text(&qFiles, ":filter", blob_str(&gsvn.filter));
   nFilter = blob_size(&gsvn.filter)-1;
@@ -1171,7 +1175,6 @@ static void svn_dump_import(FILE *pIn){
             gsvn.zBranch = fossil_malloc(lenBranch+1);
             memcpy(gsvn.zBranch, zTemp, lenBranch);
             gsvn.zBranch[lenBranch] = '\0';
-            bHasFiles = 1;
           }
         }else
         if( strncmp(zPath, gsvn.zTrunk, gsvn.lenTrunk)==0 ){
@@ -1183,7 +1186,6 @@ static void svn_dump_import(FILE *pIn){
             gsvn.zBranch = fossil_malloc(gsvn.lenTrunk);
             memcpy(gsvn.zBranch, gsvn.zTrunk, gsvn.lenTrunk-1);
             gsvn.zBranch[gsvn.lenTrunk-1] = '\0';
-            bHasFiles = 1;
           }
         }
       }
@@ -1193,6 +1195,7 @@ static void svn_dump_import(FILE *pIn){
         db_bind_text(&delPath, ":path", zPath);
         db_step(&delPath);
         db_reset(&delPath);
+        bHasFiles = 1;
       } /* no 'else' here since 'replace' does both a 'delete' and an 'add' */
       if( strncmp(zAction, "add", 3)==0
        || strncmp(zAction, "replace", 7)==0 )
@@ -1206,6 +1209,7 @@ static void svn_dump_import(FILE *pIn){
             db_bind_text(&cpyPath, ":srcpath", zSrcPath);
             db_step(&cpyPath);
             db_reset(&cpyPath);
+            bHasFiles = 1;
             if( !gsvn.flatFlag ){
               if( strncmp(zPath, gsvn.zBranches, gsvn.lenBranches)==0 ){
                 zTemp = zPath+gsvn.lenBranches+strlen(gsvn.zBranch);
@@ -1248,6 +1252,7 @@ static void svn_dump_import(FILE *pIn){
           db_bind_text(&addHist, ":perm", zPerm);
           db_step(&addHist);
           db_reset(&addHist);
+          bHasFiles = 1;
         }
       }else
       if( strncmp(zAction, "change", 6)==0 ){
@@ -1272,6 +1277,7 @@ static void svn_dump_import(FILE *pIn){
         db_bind_text(&addHist, ":perm", zPerm);
         db_step(&addHist);
         db_reset(&addHist);
+        bHasFiles = 1;
       }else
       if( strncmp(zAction, "delete", 6)!=0 ){ /* already did this above */
         fossil_fatal("Unknown Node-action");
