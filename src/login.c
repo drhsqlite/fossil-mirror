@@ -96,7 +96,7 @@ char *login_cookie_name(void){
        " ORDER BY name /*sort*/"
     );
   }
-  return zCookieName;
+  return zCookieName ? zCookieName : "unknown";
 }
 
 /*
