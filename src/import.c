@@ -911,6 +911,22 @@ static void svn_create_manifest(
   const char *zParentBranch = 0;
   Blob mcksum;
 
+  nBaseFilter = blob_size(&gsvn.filter);
+  if( !gsvn.flatFlag ){
+    if( strncmp(gsvn.zBranch, gsvn.zTrunk, gsvn.lenTrunk-1)==0 ){
+      blob_appendf(&gsvn.filter, "%s*", gsvn.zTrunk);
+    }else{
+      blob_appendf(&gsvn.filter, "%s%s/*", gsvn.zBranches, gsvn.zBranch);
+    }
+  }else{
+    blob_append(&gsvn.filter, "*", 1);
+  }
+  if( db_int(0, "SELECT 1 FROM xhist WHERE trev=%d AND tpath GLOB %Q LIMIT 1",
+             gsvn.rev, blob_str(&gsvn.filter))==0
+  ){
+    blob_resize(&gsvn.filter, nBaseFilter);
+    return;
+  }
   db_static_prepare(&insRev, "REPLACE INTO xrevisions (trev, tbranch, tuuid) "
                              "VALUES(:rev, :branch, "
                              " (SELECT uuid FROM blob WHERE rid=:rid))");
@@ -944,18 +960,8 @@ static void svn_create_manifest(
     blob_append(&manifest, "C (no\\scomment)\n", 16);
   }
   blob_appendf(&manifest, "D %s\n", gsvn.zDate);
-  nBaseFilter = blob_size(&gsvn.filter);
-  if( !gsvn.flatFlag ){
-    if( strncmp(gsvn.zBranch, gsvn.zTrunk, gsvn.lenTrunk-1)==0 ){
-      blob_appendf(&gsvn.filter, "%s*", gsvn.zTrunk);
-    }else{
-      blob_appendf(&gsvn.filter, "%s%s/*", gsvn.zBranches, gsvn.zBranch);
-    }
-  }else{
-    blob_append(&gsvn.filter, "*", 1);
-  }
-  db_bind_text(&qFiles, ":filter", blob_str(&gsvn.filter));
   nFilter = blob_size(&gsvn.filter)-1;
+  db_bind_text(&qFiles, ":filter", blob_str(&gsvn.filter));
   while( db_step(&qFiles)==SQLITE_ROW ){
     const char *zFile = db_column_text(&qFiles, 0);
     int rid = db_column_int(&qFiles, 1);
@@ -1006,11 +1012,11 @@ static void svn_create_manifest(
   blob_reset(&mcksum);
 
   rid = content_put(&manifest);
-  blob_reset(&manifest);
   db_bind_int(&insRev, ":rev", gsvn.rev);
   db_bind_text(&insRev, ":branch", gsvn.zBranch);
   db_bind_int(&insRev, ":rid", rid);
   db_step(&insRev);
+  blob_reset(&manifest);
 }
 
 static u64 svn_get_varint(const char **pz){
@@ -1322,7 +1328,7 @@ static void svn_dump_import(FILE *pIn){
 **                  --trunk FOLDER     Name of trunk folder
 **                  --branches FOLDER  Name of branches folder
 **                  --tags FOLDER      Name of tags folder
-**                  --fiter PATH       Path to project root in repository
+**                  --filter PATH      Path to project root in repository
 **                  --flat             The whole dump is a single branch
 **
 ** The --incremental option allows an existing repository to be extended

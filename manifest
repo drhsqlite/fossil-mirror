@@ -1,5 +1,5 @@
-C Fix\s--flat\soption
-D 2014-11-04T10:36:33.252
+C Fix\s--filter\soption
+D 2014-11-04T12:29:57.573
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -355,7 +355,7 @@ F src/http.c 2bdf374282852ce5f9185c85b21959506dc0afb4
 F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
 F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
-F src/import.c c3c6963f3c115b482f9d40e2142390bb0bd96415
+F src/import.c 47b489380d3f1c7ce4fd05107d32aaee2ca53b23
 F src/info.c 6a56755bfb6f3b5b2aa277314951a72266cff029
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
@@ -658,7 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 65dc40a1edeab13ae4f00994934f5a0a87500d38
-R 1d1946628f6b7098dcc27e9e9692445b
+P 57fa3896f3b489cda51748e1ed834d2ebf1f2215
+R 63a432e41393b79ceafc5ce79e56345a
 U baruch
-Z e8f283c4fb6f326721016e2c4c9198e1
+Z b52f844dcaa03b5b1015837d795e158b
