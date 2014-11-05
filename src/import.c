@@ -721,11 +721,12 @@ malformed_line:
 
 static struct{
   int rev;                    /* SVN revision number */
-  int parent;                 /* SVN revision number of parent check-in */
-  char *zBranch;              /* Name of a branch for a commit */
-  char *zDate;                /* Date/time stamp */
-  char *zUser;                /* User name */
-  char *zComment;             /* Comment of a commit */
+  int parentRev;              /* SVN revision number of parent check-in */
+  const char *zParentBranch;  /* Name of branch of parent check-in */
+  const char *zBranch;        /* Name of a branch for a commit */
+  const char *zDate;          /* Date/time stamp */
+  const char *zUser;          /* User name */
+  const char *zComment;       /* Comment of a commit */
   int flatFlag;               /* True if whole repo is a single file tree */
   const char *zTrunk;         /* Name of trunk folder in repo root */
   int lenTrunk;               /* String length of zTrunk */
@@ -903,6 +904,7 @@ static void svn_create_manifest(
   Blob manifest;
   static Stmt insRev;
   static Stmt qParent;
+  static Stmt qParent2;
   static Stmt qFiles;
   static Stmt qTags;
   int nBaseFilter;
@@ -913,6 +915,7 @@ static void svn_create_manifest(
 
   nBaseFilter = blob_size(&gsvn.filter);
   if( !gsvn.flatFlag ){
+    if( gsvn.zBranch==0 ){ return; }
     if( strncmp(gsvn.zBranch, gsvn.zTrunk, gsvn.lenTrunk-1)==0 ){
       blob_appendf(&gsvn.filter, "%s*", gsvn.zTrunk);
     }else{
@@ -930,18 +933,22 @@ static void svn_create_manifest(
   db_static_prepare(&insRev, "REPLACE INTO xrevisions (trev, tbranch, tuuid) "
                              "VALUES(:rev, :branch, "
                              " (SELECT uuid FROM blob WHERE rid=:rid))");
-  db_static_prepare(&qParent, "SELECT tuuid, tbranch FROM xrevisions "
-                              "WHERE trev=:rev");
+  db_static_prepare(&qParent, "SELECT tuuid, max(trev) FROM xrevisions "
+                              "WHERE trev<=:rev AND tbranch=:branch");
+  db_static_prepare(&qParent2, "SELECT tuuid, min(trev) "
+                               "FROM xrevisions WHERE tbranch=:branch");
   db_static_prepare(&qFiles, "SELECT tpath, trid, tperm FROM xfiles "
                              "WHERE tpath GLOB :filter ORDER BY tpath");
   db_static_prepare(&qTags, "SELECT ttag FROM xtags WHERE trev=:rev");
   if( !gsvn.flatFlag ){
-    if( gsvn.parent<0 ){
-      gsvn.parent = db_int(-1, "SELECT ifnull(max(trev),-1) FROM xrevisions "
-                               "WHERE tbranch=%Q", gsvn.zBranch);
-      if( gsvn.parent<0 ){
-        gsvn.parent = db_int(-1, "SELECT ifnull(max(trev),-1) FROM xrevisions");
+    if( gsvn.parentRev<0 ){
+      gsvn.parentRev = db_int(-1, "SELECT ifnull(max(trev),-1) FROM xrevisions "
+                                  "WHERE tbranch=%Q", gsvn.zBranch);
+      if( gsvn.parentRev<0 ){
+        gsvn.parentRev =
+            db_int(-1, "SELECT ifnull(max(trev),-1) FROM xrevisions");
       }
+      gsvn.zParentBranch = gsvn.zBranch;
     }
     db_bind_int(&insRev, ":rev", gsvn.rev);
     db_bind_text(&insRev, ":branch", gsvn.zBranch);
@@ -950,7 +957,8 @@ static void svn_create_manifest(
     db_reset(&insRev);
   }else{
     static int prevRev = -1;
-    gsvn.parent = prevRev;
+    gsvn.parentRev = prevRev;
+    gsvn.zParentBranch = gsvn.zBranch = "";
     prevRev = gsvn.rev;
   }
   blob_zero(&manifest);
@@ -972,18 +980,23 @@ static void svn_create_manifest(
     fossil_free(zUuid);
   }
   blob_resize(&gsvn.filter, nBaseFilter);
-  if( gsvn.parent>=0 ){
+  if( gsvn.parentRev>=0 ){
     const char *zParentUuid;
-    db_bind_int(&qParent, ":rev", gsvn.parent);
+    db_bind_int(&qParent, ":rev", gsvn.parentRev);
+    db_bind_text(&qParent, ":branch", gsvn.zParentBranch);
     db_step(&qParent);
     zParentUuid = db_column_text(&qParent, 0);
+    if( zParentUuid==0 ){
+      db_bind_text(&qParent2, ":branch", gsvn.zParentBranch);
+      db_step(&qParent2);
+      zParentUuid = db_column_text(&qParent2, 0);
+    }
     blob_appendf(&manifest, "P %s\n", zParentUuid);
     if( !gsvn.flatFlag ){
-      zParentBranch = db_column_text(&qParent, 1);
-      if( strcmp(gsvn.zBranch, zParentBranch)!=0 ){
+      if( strcmp(gsvn.zBranch, gsvn.zParentBranch)!=0 ){
         blob_appendf(&manifest, "T *branch * %F\n", gsvn.zBranch);
         blob_appendf(&manifest, "T *sym-%F *\n", gsvn.zBranch);
-        zParentBranch = mprintf("%F", zParentBranch);
+        zParentBranch = mprintf("%F", gsvn.zParentBranch);
       }else{
         zParentBranch = 0;
       }
@@ -1000,6 +1013,7 @@ static void svn_create_manifest(
   blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
   if( zParentBranch ) {
     blob_appendf(&manifest, "T -sym-%s *\n", zParentBranch);
+    fossil_free(zParentBranch);
   }
   if( gsvn.zUser ){
     blob_appendf(&manifest, "U %F\n", gsvn.zUser);
@@ -1016,6 +1030,12 @@ static void svn_create_manifest(
   db_bind_text(&insRev, ":branch", gsvn.zBranch);
   db_bind_int(&insRev, ":rid", rid);
   db_step(&insRev);
+  if( gsvn.zParentBranch == gsvn.zBranch ){
+    gsvn.zParentBranch = 0;
+  }
+  if( gsvn.flatFlag ){
+    gsvn.zBranch = 0;
+  }
   blob_reset(&manifest);
 }
 
@@ -1072,6 +1092,29 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
   }
 }
 
+static char *svn_extract_branch(const char *zPath){
+  int nFilter = blob_size(&gsvn.filter);
+  char *zBranch = 0;
+  if( strncmp(zPath, blob_str(&gsvn.filter), nFilter)==0 ){
+    if( strncmp(zPath+nFilter, gsvn.zBranches, gsvn.lenBranches)==0 ){
+      int lenBranch;
+      const char *zTemp = zPath+nFilter+gsvn.lenBranches;
+      while( *zTemp && *zTemp!='/' ){ zTemp++; }
+      lenBranch = zTemp-(zPath+nFilter+gsvn.lenBranches);
+      zTemp = zPath+nFilter+gsvn.lenBranches;
+      zBranch = fossil_malloc(lenBranch+1);
+      memcpy(zBranch, zTemp, lenBranch);
+      zBranch[lenBranch] = '\0';
+    }else
+    if( strncmp(zPath+nFilter, gsvn.zTrunk, gsvn.lenTrunk-1)==0 ){
+      zBranch = fossil_malloc(gsvn.lenTrunk);
+      memcpy(zBranch, gsvn.zTrunk, gsvn.lenTrunk-1);
+      zBranch[gsvn.lenTrunk-1] = '\0';
+    }
+  }
+  return zBranch;
+}
+
 /*
 ** Read the svn-dump format from pIn and insert the corresponding
 ** content into the database.
@@ -1085,7 +1128,8 @@ static void svn_dump_import(FILE *pIn){
   Stmt insTag;
   Stmt cpyPath;
   Stmt delPath;
-  int bHasFiles;
+  int bHasFiles = 0;
+  int nFilter = blob_size(&gsvn.filter);
 
   /* version */
   if( svn_read_rec(pIn, &rec)
@@ -1133,13 +1177,15 @@ static void svn_dump_import(FILE *pIn){
         fossil_free(gsvn.zComment);
         fossil_free(gsvn.zDate);
         fossil_free(gsvn.zBranch);
+        fossil_free(gsvn.zParentBranch);
       }
       /* start new revision */
       gsvn.rev = atoi(zTemp);
       gsvn.zUser = mprintf("%s", svn_find_prop(rec, "svn:author"));
       gsvn.zComment = mprintf("%s", svn_find_prop(rec, "svn:log"));
       gsvn.zDate = date_in_standard_format(svn_find_prop(rec, "svn:date"));
-      gsvn.parent = -1;
+      gsvn.parentRev = -1;
+      gsvn.zParentBranch = 0;
       gsvn.zBranch = 0;
       bHasFiles = 0;
       fossil_print("\rImporting SVN revision: %d", gsvn.rev);
@@ -1167,31 +1213,14 @@ static void svn_dump_import(FILE *pIn){
         }
       }
       if( !gsvn.flatFlag ){
-        if( strncmp(zPath, gsvn.zBranches, gsvn.lenBranches)==0 ){
-          int lenBranch;
-          zTemp = zPath+gsvn.lenBranches;
-          while( *zTemp && *zTemp!='/' ){ zTemp++; }
-          lenBranch = zTemp-zPath-gsvn.lenBranches;
-          zTemp = zPath+gsvn.lenBranches;
+        if( (zTemp=svn_extract_branch(zPath))!=0 ){
           if( gsvn.zBranch!=0 ){
-            if( strncmp(zTemp, gsvn.zBranch, lenBranch)!=0 ){
+            if( strcmp(zTemp, gsvn.zBranch)!=0 ){
               fossil_fatal("Commit to multiple branches");
             }
+            fossil_free(zTemp);
           }else{
-            gsvn.zBranch = fossil_malloc(lenBranch+1);
-            memcpy(gsvn.zBranch, zTemp, lenBranch);
-            gsvn.zBranch[lenBranch] = '\0';
-          }
-        }else
-        if( strncmp(zPath, gsvn.zTrunk, gsvn.lenTrunk)==0 ){
-          if( gsvn.zBranch!=0 ){
-            if( strncmp(gsvn.zTrunk, gsvn.zBranch, gsvn.lenTrunk-1)!=0 ){
-              fossil_fatal("Commit to multiple branches");
-            }
-          }else{
-            gsvn.zBranch = fossil_malloc(gsvn.lenTrunk);
-            memcpy(gsvn.zBranch, gsvn.zTrunk, gsvn.lenTrunk-1);
-            gsvn.zBranch[gsvn.lenTrunk-1] = '\0';
+            gsvn.zBranch = zTemp;
           }
         }
       }
@@ -1217,13 +1246,14 @@ static void svn_dump_import(FILE *pIn){
             db_reset(&cpyPath);
             bHasFiles = 1;
             if( !gsvn.flatFlag ){
-              if( strncmp(zPath, gsvn.zBranches, gsvn.lenBranches)==0 ){
-                zTemp = zPath+gsvn.lenBranches+strlen(gsvn.zBranch);
+              if( strncmp(zPath+nFilter, gsvn.zBranches, gsvn.lenBranches)==0 ){
+                zTemp = zPath+nFilter+gsvn.lenBranches+strlen(gsvn.zBranch);
                 if( *zTemp==0 ){
-                  gsvn.parent = srcRev;
+                  gsvn.parentRev = srcRev;
+                  gsvn.zParentBranch = svn_extract_branch(zSrcPath);
                 }
-              }else if( strncmp(zPath, gsvn.zTags, gsvn.lenTags)==0 ){
-                zTemp = zPath+gsvn.lenTags;
+              }else if( strncmp(zPath+nFilter, gsvn.zTags, gsvn.lenTags)==0 ){
+                zTemp = zPath+nFilter+gsvn.lenTags;
                 db_bind_int(&insTag, ":rev", srcRev);
                 db_bind_text(&insTag, ":tag", zTemp);
                 db_step(&insTag);
