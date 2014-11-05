@@ -2546,7 +2546,7 @@ static void stats_report_year_weeks(const char *zUserName){
                  "of %h", stats_report_label_for_type(),
                  zYear);
     blob_append_sql(&sql,
-                 "SELECT DISTINCT strftime('%%%%W',mtime) AS wk, "
+                 "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
                  "count(*) AS n "
                  "FROM v_reports "
                  "WHERE %Q=substr(date(mtime),1,4) "
