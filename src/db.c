@@ -1500,7 +1500,6 @@ void db_initial_setup(
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
 **                              (default: do not create an initial checkin)
-**    --empty                   create repository without project-id/server-id
 **
 ** See also: clone
 */
@@ -1514,8 +1513,9 @@ void create_repository_cmd(void){
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  makeServerCodes = find_option("empty", 0, 0)==0;
+  makeServerCodes = find_option("docker", 0, 0)==0;
 
+  find_option("empty", 0, 0); /* deprecated */
   /* We should be done with options.. */
   verify_all_options();
 
