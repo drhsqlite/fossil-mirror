@@ -1107,9 +1107,7 @@ static char *svn_extract_branch(const char *zPath){
       zBranch[lenBranch] = '\0';
     }else
     if( strncmp(zPath+nFilter, gsvn.zTrunk, gsvn.lenTrunk-1)==0 ){
-      zBranch = fossil_malloc(gsvn.lenTrunk);
-      memcpy(zBranch, gsvn.zTrunk, gsvn.lenTrunk-1);
-      zBranch[gsvn.lenTrunk-1] = '\0';
+      zBranch = mprintf("trunk");
     }
   }
   return zBranch;
