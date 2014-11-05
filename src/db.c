@@ -1330,7 +1330,7 @@ void db_setup_server_and_project_codes(
         "INSERT INTO config(name,value,mtime)"
         " VALUES('project-code', lower(hex(randomblob(20))),now());"
     );
-  }else{
+  }else if( db_is_writeable("repository") ){
     if( db_get("server-code", 0)==0 ) {
       db_multi_exec(
           "INSERT INTO config(name,value,mtime)"
