@@ -844,35 +844,41 @@ static void svn_read_props(FILE *pIn, SvnRecord *rec){
     while( zLine<(pRawProps+nRawProps-10) ){
       char *eol;
       int propLen;
-      if( zLine[0]!='K' ){
-        fossil_fatal("svn-dump data format broken");
+      if( zLine[0]=='D' ){
+        propLen = atoi(&zLine[2]);
+        eol = strchr(zLine, '\n');
+        zLine = eol+1+propLen+1;
+      }else{
+        if( zLine[0]!='K' ){
+          fossil_fatal("svn-dump data format broken");
+        }
+        propLen = atoi(&zLine[2]);
+        eol = strchr(zLine, '\n');
+        zLine = eol+1;
+        eol = zLine+propLen;
+        if( *eol!='\n' ){
+          fossil_fatal("svn-dump data format broken");
+        }
+        *eol = 0;
+        rec->nProps += 1;
+        rec->aProps = fossil_realloc(rec->aProps,
+          sizeof(rec->aProps[0])*rec->nProps);
+        rec->aProps[rec->nProps-1].zKey = zLine;
+        zLine = eol+1;
+        if( zLine[0]!='V' ){
+          fossil_fatal("svn-dump data format broken");
+        }
+        propLen = atoi(&zLine[2]);
+        eol = strchr(zLine, '\n');
+        zLine = eol+1;
+        eol = zLine+propLen;
+        if( *eol!='\n' ){
+          fossil_fatal("svn-dump data format broken");
+        }
+        *eol = 0;
+        rec->aProps[rec->nProps-1].zVal = zLine;
+        zLine = eol+1;
       }
-      propLen = atoi(&zLine[2]);
-      eol = strchr(zLine, '\n');
-      zLine = eol+1;
-      eol = zLine+propLen;
-      if( *eol!='\n' ){
-        fossil_fatal("svn-dump data format broken");
-      }
-      *eol = 0;
-      rec->nProps += 1;
-      rec->aProps = fossil_realloc(rec->aProps,
-        sizeof(rec->aProps[0])*rec->nProps);
-      rec->aProps[rec->nProps-1].zKey = zLine;
-      zLine = eol+1;
-      if( zLine[0]!='V' ){
-        fossil_fatal("svn-dump data format broken");
-      }
-      propLen = atoi(&zLine[2]);
-      eol = strchr(zLine, '\n');
-      zLine = eol+1;
-      eol = zLine+propLen;
-      if( *eol!='\n' ){
-        fossil_fatal("svn-dump data format broken");
-      }
-      *eol = 0;
-      rec->aProps[rec->nProps-1].zVal = zLine;
-      zLine = eol+1;
     }
   }
 }
@@ -913,6 +919,7 @@ static void svn_create_manifest(
   const char *zParentBranch = 0;
   Blob mcksum;
 
+  blob_zero(&manifest);
   nBaseFilter = blob_size(&gsvn.filter);
   if( !gsvn.flatFlag ){
     if( gsvn.zBranch==0 ){ return; }
@@ -927,8 +934,7 @@ static void svn_create_manifest(
   if( db_int(0, "SELECT 1 FROM xhist WHERE trev=%d AND tpath GLOB %Q LIMIT 1",
              gsvn.rev, blob_str(&gsvn.filter))==0
   ){
-    blob_resize(&gsvn.filter, nBaseFilter);
-    return;
+    goto skip_revision;
   }
   db_static_prepare(&insRev, "REPLACE INTO xrevisions (trev, tbranch, tuuid) "
                              "VALUES(:rev, :branch, "
@@ -949,25 +955,31 @@ static void svn_create_manifest(
             db_int(-1, "SELECT ifnull(max(trev),-1) FROM xrevisions");
       }
       gsvn.zParentBranch = gsvn.zBranch;
+    }else if( gsvn.zParentBranch==0 ){
+      gsvn.zParentBranch = mprintf("trunk");
     }
-    db_bind_int(&insRev, ":rev", gsvn.rev);
+    /*db_bind_int(&insRev, ":rev", gsvn.rev);
     db_bind_text(&insRev, ":branch", gsvn.zBranch);
     db_bind_int(&insRev, ":rid", 0);
     db_step(&insRev);
-    db_reset(&insRev);
+    db_reset(&insRev);*/
   }else{
     static int prevRev = -1;
     gsvn.parentRev = prevRev;
     gsvn.zParentBranch = gsvn.zBranch = "";
     prevRev = gsvn.rev;
   }
-  blob_zero(&manifest);
+
   if( gsvn.zComment ){
     blob_appendf(&manifest, "C %F\n", gsvn.zComment);
   }else{
     blob_append(&manifest, "C (no\\scomment)\n", 16);
   }
-  blob_appendf(&manifest, "D %s\n", gsvn.zDate);
+  if( gsvn.zDate ){
+    blob_appendf(&manifest, "D %s\n", gsvn.zDate);
+  }else{
+    goto skip_revision;
+  }
   nFilter = blob_size(&gsvn.filter)-1;
   db_bind_text(&qFiles, ":filter", blob_str(&gsvn.filter));
   while( db_step(&qFiles)==SQLITE_ROW ){
@@ -979,7 +991,7 @@ static void svn_create_manifest(
     blob_appendf(&manifest, "F %F %s %s\n", zFile+nFilter, zUuid, zPerm);
     fossil_free(zUuid);
   }
-  blob_resize(&gsvn.filter, nBaseFilter);
+  db_reset(&qFiles);
   if( gsvn.parentRev>=0 ){
     const char *zParentUuid;
     db_bind_int(&qParent, ":rev", gsvn.parentRev);
@@ -1001,6 +1013,8 @@ static void svn_create_manifest(
         zParentBranch = 0;
       }
     }
+    db_reset(&qParent);
+    db_reset(&qParent2);
   }else{
     blob_appendf(&manifest, "T *branch * trunk\n");
     blob_appendf(&manifest, "T *sym-trunk *\n");
@@ -1010,6 +1024,7 @@ static void svn_create_manifest(
     const char *zTag = db_column_text(&qTags, 0);
     blob_appendf(&manifest, "T +sym-%s *\n", zTag);
   }
+  db_reset(&qTags);
   blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
   if( zParentBranch ) {
     blob_appendf(&manifest, "T -sym-%s *\n", zParentBranch);
@@ -1030,6 +1045,10 @@ static void svn_create_manifest(
   db_bind_text(&insRev, ":branch", gsvn.zBranch);
   db_bind_int(&insRev, ":rid", rid);
   db_step(&insRev);
+  db_reset(&insRev);
+
+skip_revision:
+  blob_resize(&gsvn.filter, nBaseFilter);
   if( gsvn.zParentBranch == gsvn.zBranch ){
     gsvn.zParentBranch = 0;
   }
@@ -1181,7 +1200,10 @@ static void svn_dump_import(FILE *pIn){
       gsvn.rev = atoi(zTemp);
       gsvn.zUser = mprintf("%s", svn_find_prop(rec, "svn:author"));
       gsvn.zComment = mprintf("%s", svn_find_prop(rec, "svn:log"));
-      gsvn.zDate = date_in_standard_format(svn_find_prop(rec, "svn:date"));
+      gsvn.zDate = svn_find_prop(rec, "svn:date");
+      if( gsvn.zDate ){
+        gsvn.zDate = date_in_standard_format(gsvn.zDate);
+      }
       gsvn.parentRev = -1;
       gsvn.zParentBranch = 0;
       gsvn.zBranch = 0;
@@ -1213,7 +1235,9 @@ static void svn_dump_import(FILE *pIn){
       if( !gsvn.flatFlag ){
         if( (zTemp=svn_extract_branch(zPath))!=0 ){
           if( gsvn.zBranch!=0 ){
-            if( strcmp(zTemp, gsvn.zBranch)!=0 ){
+            if( strcmp(zTemp, gsvn.zBranch)!=0
+             && strncmp(zAction, "delete", 6)!=0)
+            {
               fossil_fatal("Commit to multiple branches");
             }
             fossil_free(zTemp);

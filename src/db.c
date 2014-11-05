@@ -288,8 +288,6 @@ int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
     if( db.pAllStmt ) db.pAllStmt->pPrev = pStmt;
     db.pAllStmt = pStmt;
     va_end(ap);
-  }else{
-    db_reset(pStmt);
   }
   return rc;
 }
