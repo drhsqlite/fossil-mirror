@@ -933,7 +933,7 @@ ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
 endif
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(CODECHECK1) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
+$(APPNAME):	$(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
 	$(CODECHECK1) $(TRANS_SRC)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
@@ -981,9 +981,6 @@ writeln "\$(OBJDIR)/headers: Makefile\n"
 writeln "Makefile:\n"
 set extra_h(main) " \$(OBJDIR)/page_index.h "
 set extra_h(builtin) " \$(OBJDIR)/builtin_data.h "
-
-writeln "\$(OBJDIR)/builtin_data.h:\t\$(MKBUILTIN) \$(EXTRA_FILES)"
-writeln "\t\$(MKBUILTIN) \$(EXTRA_FILES) >\$(OBJDIR)/builtin_data.h\n"
 
 foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}_.c:\t\$(SRCDIR)/$s.c \$(TRANSLATE)"
