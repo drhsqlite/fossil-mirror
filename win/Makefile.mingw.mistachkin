@@ -986,9 +986,6 @@ $(OBJDIR)/headers: Makefile
 
 Makefile:
 
-$(OBJDIR)/builtin_data.h:	$(MKBUILTIN) $(EXTRA_FILES)
-	$(MKBUILTIN) $(EXTRA_FILES) >$(OBJDIR)/builtin_data.h
-
 $(OBJDIR)/add_.c:	$(SRCDIR)/add.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/add.c >$(OBJDIR)/add_.c
 
