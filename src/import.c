@@ -1190,12 +1190,12 @@ static void svn_dump_import(FILE *pIn){
       /* finish previous revision */
       if( bHasFiles ){
         svn_create_manifest();
-        fossil_free(gsvn.zUser);
-        fossil_free(gsvn.zComment);
-        fossil_free(gsvn.zDate);
-        fossil_free(gsvn.zBranch);
-        fossil_free(gsvn.zParentBranch);
       }
+      fossil_free(gsvn.zUser);
+      fossil_free(gsvn.zComment);
+      fossil_free(gsvn.zDate);
+      fossil_free(gsvn.zBranch);
+      fossil_free(gsvn.zParentBranch);
       /* start new revision */
       gsvn.rev = atoi(zTemp);
       gsvn.zUser = mprintf("%s", svn_find_prop(rec, "svn:author"));
@@ -1318,24 +1318,25 @@ static void svn_dump_import(FILE *pIn){
         if( zKind==0 ){
           fossil_fatal("Missing Node-kind");
         }
-        if( strncmp(zKind, "dir", 3)==0 ) continue;
-        if( deltaFlag ){
-          Blob deltaSrc;
-          Blob target;
-          rid = db_int(0, "SELECT trid, max(trev) FROM xhist"
-                          " WHERE trev<=%d AND tpath=%Q", gsvn.rev, zPath);
-          content_get(rid, &deltaSrc);
-          svn_apply_svndiff(&rec.content, &deltaSrc, &target);
-          rid = content_put(&target);
-        }else{
-          rid = content_put(&rec.content);
+        if( strncmp(zKind, "dir", 3)!=0 ){
+          if( deltaFlag ){
+            Blob deltaSrc;
+            Blob target;
+            rid = db_int(0, "SELECT trid, max(trev) FROM xhist"
+                            " WHERE trev<=%d AND tpath=%Q", gsvn.rev, zPath);
+            content_get(rid, &deltaSrc);
+            svn_apply_svndiff(&rec.content, &deltaSrc, &target);
+            rid = content_put(&target);
+          }else{
+            rid = content_put(&rec.content);
+          }
+          db_bind_int(&addHist, ":rid", rid);
+          db_bind_text(&addHist, ":path", zPath);
+          db_bind_text(&addHist, ":perm", zPerm);
+          db_step(&addHist);
+          db_reset(&addHist);
+          bHasFiles = 1;
         }
-        db_bind_int(&addHist, ":rid", rid);
-        db_bind_text(&addHist, ":path", zPath);
-        db_bind_text(&addHist, ":perm", zPerm);
-        db_step(&addHist);
-        db_reset(&addHist);
-        bHasFiles = 1;
       }else
       if( strncmp(zAction, "delete", 6)!=0 ){ /* already did this above */
         fossil_fatal("Unknown Node-action");

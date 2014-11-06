@@ -1,5 +1,5 @@
-C merge\strunk
-D 2014-11-06T07:50:44.681
+C fix\ssome\smemory\sleaks
+D 2014-11-06T15:38:32.020
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -355,7 +355,7 @@ F src/http.c 2bdf374282852ce5f9185c85b21959506dc0afb4
 F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
 F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
-F src/import.c ed8d250f26efd6d37dcf81395efc1723bcead841
+F src/import.c 247bfab84ffacfb4e4a538936cb432e3d6e8588b
 F src/info.c 6a56755bfb6f3b5b2aa277314951a72266cff029
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
@@ -658,7 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c9fb495e3d22433766aea793585877afbc40256b 1b9672ae941b1049d06ecd5f8dcc7677c7806074
-R 1a7dfcbc163803d5c2484d447336b73c
+P a4b654ec6c39b45ebf975f801c45cca23e0a6f2a
+R 7ae974a6ac4395f1372bcd00ee842b2f
 U baruch
-Z dfc7004496bca0652d5cdb6b84e925f1
+Z 6473d1d07516c1c11858cf30929d18e7
