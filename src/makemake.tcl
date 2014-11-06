@@ -518,19 +518,24 @@ ifeq (,$(findstring w64-mingw32,$(PREFIX)))
 MINGW_IS_32BIT_ONLY = 1
 endif
 endif
-ifeq (,$(findstring x86_64-w64-mingw32,$(PREFIX)))
-SSLCONFIG = mingw
-else
-SSLCONFIG = mingw64
-endif
-ifndef FOSSIL_ENABLE_MINIZ
-SSLCONFIG +=  --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib
-endif
 
 #### The directories where the zlib include and library files are located.
 #
 ZINCDIR = $(SRCDIR)/../compat/zlib
 ZLIBDIR = $(SRCDIR)/../compat/zlib
+
+ifeq (,$(findstring x86_64-w64-mingw32,$(PREFIX)))
+SSLCONFIG = mingw
+ZLIBCONFIG = LOC="-DASMV -DASMINF" OBJA="inffas86.o match.o"
+LIBTARGETS = $(ZLIBDIR)/inffas86.o $(ZLIBDIR)/match.o
+else
+SSLCONFIG = mingw64
+ZLIBCONFIG = 
+LIBTARGETS =
+endif
+ifndef FOSSIL_ENABLE_MINIZ
+SSLCONFIG +=  --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib
+endif
 
 #### The directories where the OpenSSL include and library files are located.
 #    The recommended usage here is to use the Sysinternals junction tool
@@ -776,7 +781,6 @@ foreach s [lsort $src] {
 writeln "\n"
 writeln "APPNAME    = ${name}.exe"
 writeln "APPTARGETS ="
-writeln "LIBTARGETS ="
 writeln {
 #### If the USE_WINDOWS variable exists, it is assumed that we are building
 #    inside of a Windows-style shell; otherwise, it is assumed that we are
@@ -904,10 +908,17 @@ EXTRAOBJ = <<<NEXT_LINE>>>
 
 writeln {
 zlib:
-	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) $(ZLIBCONFIG) -f win32/Makefile.gcc libz.a
 
 clean-zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
+
+$(ZLIBDIR)/inffas86.o:
+	$(TCC) -c -o $@ -DASMINF -I$(ZLIBDIR) -O3 $(ZLIBDIR)/contrib/inflate86/inffas86.c
+
+$(ZLIBDIR)/match.o:
+	$(TCC) -c -o $@ -DASMV $(ZLIBDIR)/contrib/asm686/match.S
+
 
 ifndef FOSSIL_ENABLE_MINIZ
 LIBTARGETS += zlib
