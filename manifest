@@ -1,5 +1,5 @@
-C simplyfy\smany\smakefile\srules\susing\sthe\s$@\sconstruct
-D 2014-11-06T10:10:51.104
+C Change\sback\sMingw\sdefault\splatform
+D 2014-11-06T10:16:14.041
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -547,7 +547,7 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake ae6cd880ccef86d97e9d7e2c494d37c77cd4a28a
 F win/Makefile.dmc 2e6ccd8d5ea84e91e3ea1c8bd744af0f1253feb0
-F win/Makefile.mingw 4fd0af559db2d1927579bcdd3fdb1c339b53a7ad
+F win/Makefile.mingw b0e56d573bf57b9ab9f1f36de78aa856092422b3
 F win/Makefile.mingw.mistachkin 2c4af621a1fb64649d295373bd63744d129c62a6
 F win/Makefile.msc e14bf361521491f35a3990a9e9a02925bd88a2f6
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
@@ -658,7 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1b9672ae941b1049d06ecd5f8dcc7677c7806074
-R 43ebe6c74e9bcdde2fce2ca8c820e5dc
+P b5d21285eb7ae34694c4cf3730e06bc69d1dd6a2
+R 30816afeeb48ccafc4c687673b0b9331
 U jan.nijtmans
-Z d844005e74b3227f194910556d326731
+Z ef6367ef6e33c9f3f7a2414b912d2182
