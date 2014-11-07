@@ -1,5 +1,5 @@
-C fix\ssome\smemory\sleaks
-D 2014-11-06T15:38:32.020
+C Proposed\sfix\sfor\scompiler\swarning:\spassing\sargument\s4\sof\s‘sqlite3_result_text’\sfrom\sincompatible\spointer\stype
+D 2014-11-07T11:52:56.600
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -355,7 +355,7 @@ F src/http.c 2bdf374282852ce5f9185c85b21959506dc0afb4
 F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
 F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
-F src/import.c 247bfab84ffacfb4e4a538936cb432e3d6e8588b
+F src/import.c 661095385b9ef72c57be206103a88a2d92570220
 F src/info.c 6a56755bfb6f3b5b2aa277314951a72266cff029
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
@@ -434,7 +434,7 @@ F src/update.c 2f69d6a50355f0b0b13430e0ddc0a4cabe8d51a8
 F src/url.c b7743600119e97d34f96aea8996b9a4caad4bdc0
 F src/user.c 1160e782d0da7e29e714a500bafbbac3ce8f70e1
 F src/utf8.c eab5cc0060d893b3a5079ee4f5957f222392a179
-F src/util.c e515fb3284a25fcef516119d4ddb6e1d19253889
+F src/util.c 227890c094477666f208c710453f4bfae0a8a52e
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
 F src/vfile.c 448fd883b6f413118a1d69bf6eab19d8bb132e46
 F src/wiki.c f1cd04f79d0494fc360cd3c7dd103b9be81beadb
@@ -658,7 +658,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a4b654ec6c39b45ebf975f801c45cca23e0a6f2a
-R 7ae974a6ac4395f1372bcd00ee842b2f
-U baruch
-Z 6473d1d07516c1c11858cf30929d18e7
+P 412030b14500d714a27be85670ac7a358143c869
+R d5caf04277deb856c90ecba88c293b95
+T *branch * svn-import-nowarning
+T *sym-svn-import-nowarning *
+T -sym-svn-import *
+U jan.nijtmans
+Z 33c1a93beeeb0839a36d632ef85f9d73

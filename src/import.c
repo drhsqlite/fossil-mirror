@@ -722,11 +722,11 @@ malformed_line:
 static struct{
   int rev;                    /* SVN revision number */
   int parentRev;              /* SVN revision number of parent check-in */
-  const char *zParentBranch;  /* Name of branch of parent check-in */
-  const char *zBranch;        /* Name of a branch for a commit */
-  const char *zDate;          /* Date/time stamp */
-  const char *zUser;          /* User name */
-  const char *zComment;       /* Comment of a commit */
+  char *zParentBranch;        /* Name of branch of parent check-in */
+  char *zBranch;              /* Name of a branch for a commit */
+  char *zDate;                /* Date/time stamp */
+  char *zUser;                /* User name */
+  char *zComment;             /* Comment of a commit */
   int flatFlag;               /* True if whole repo is a single file tree */
   const char *zTrunk;         /* Name of trunk folder in repo root */
   int lenTrunk;               /* String length of zTrunk */
@@ -737,7 +737,7 @@ static struct{
   Blob filter;                /* Path to repo root */
 } gsvn;
 typedef struct {
-  const char *zKey;
+  char *zKey;
   const char *zVal;
 } KeyVal;
 typedef struct {
@@ -916,7 +916,7 @@ static void svn_create_manifest(
   int nBaseFilter;
   int nFilter;
   int rid;
-  const char *zParentBranch = 0;
+  char *zParentBranch = 0;
   Blob mcksum;
 
   blob_zero(&manifest);
@@ -986,7 +986,7 @@ static void svn_create_manifest(
     const char *zFile = db_column_text(&qFiles, 0);
     int rid = db_column_int(&qFiles, 1);
     const char *zPerm = db_column_text(&qFiles, 2);
-    const char *zUuid;
+    char *zUuid;
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     blob_appendf(&manifest, "F %F %s %s\n", zFile+nFilter, zUuid, zPerm);
     fossil_free(zUuid);
@@ -1188,6 +1188,7 @@ static void svn_dump_import(FILE *pIn){
   while( svn_read_rec(pIn, &rec) ){
     if( (zTemp = svn_find_header(rec, "Revision-number")) ){ /* revision node */
       /* finish previous revision */
+      const char *zDate = NULL;
       if( bHasFiles ){
         svn_create_manifest();
       }
@@ -1200,9 +1201,9 @@ static void svn_dump_import(FILE *pIn){
       gsvn.rev = atoi(zTemp);
       gsvn.zUser = mprintf("%s", svn_find_prop(rec, "svn:author"));
       gsvn.zComment = mprintf("%s", svn_find_prop(rec, "svn:log"));
-      gsvn.zDate = svn_find_prop(rec, "svn:date");
-      if( gsvn.zDate ){
-        gsvn.zDate = date_in_standard_format(gsvn.zDate);
+      zDate = svn_find_prop(rec, "svn:date");
+      if( zDate ){
+        gsvn.zDate = date_in_standard_format(zDate);
       }
       gsvn.parentRev = -1;
       gsvn.zParentBranch = 0;
@@ -1233,16 +1234,17 @@ static void svn_dump_import(FILE *pIn){
         }
       }
       if( !gsvn.flatFlag ){
-        if( (zTemp=svn_extract_branch(zPath))!=0 ){
+        char *zBranch;
+        if( (zBranch=svn_extract_branch(zPath))!=0 ){
           if( gsvn.zBranch!=0 ){
-            if( strcmp(zTemp, gsvn.zBranch)!=0
+            if( strcmp(zBranch, gsvn.zBranch)!=0
              && strncmp(zAction, "delete", 6)!=0)
             {
               fossil_fatal("Commit to multiple branches");
             }
-            fossil_free(zTemp);
+            fossil_free(zBranch);
           }else{
-            gsvn.zBranch = zTemp;
+            gsvn.zBranch = zBranch;
           }
         }
       }
