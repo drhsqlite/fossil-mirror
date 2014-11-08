@@ -214,9 +214,7 @@ void www_print_timeline(
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current checkout version */
-  int dateFormat = 0;         /* 0: HH:MM  1: HH:MM:SS
-                                 2: YYYY-MM-DD HH:MM
-                                 3: YYMMDD HH:MM */
+  int dateFormat = 0;         /* 0: HH:MM (default) */
 
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
@@ -287,6 +285,13 @@ void www_print_timeline(
       continue;
     }
     prevWasDivider = 0;
+    /* Date format codes:
+    **   (0)  HH:MM
+    **   (1)  HH:MM:SS
+    **   (2)  YYYY-MM-DD HH:MM
+    **   (3)  YYMMDD HH:MM
+    **   (4)  (off)
+    */
     if( dateFormat<2 ){
       if( fossil_strnicmp(zDate, zPrevDate, 10) ){
         sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
@@ -296,7 +301,10 @@ void www_print_timeline(
       }
       memcpy(zTime, &zDate[11], 5+dateFormat*3);
       zTime[5+dateFormat*3] = 0;
-    }else if(3==dateFormat){
+    }else if( 2==dateFormat ){
+      /* YYYY-MM-DD HH:MM */
+      sqlite3_snprintf(sizeof(zTime), zTime, "%.16s", zDate);
+    }else if( 3==dateFormat ){
       /* YYMMDD HH:MM */
       int pos = 0;
       zTime[pos++] = zDate[2]; zTime[pos++] = zDate[3]; /* YY */
@@ -308,8 +316,7 @@ void www_print_timeline(
       zTime[pos++] = zDate[14]; zTime[pos++] = zDate[15]; /* MM */
       zTime[pos++] = 0;
     }else{
-      /* YYYY-MM-DD HH:MM */
-      sqlite3_snprintf(sizeof(zTime), zTime, "%.16s", zDate);
+      zTime[0] = 0;
     }
     if( rid == vid ){
       @ <tr class="timelineCurrent">

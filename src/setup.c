@@ -21,6 +21,10 @@
 #include <assert.h>
 #include "setup.h"
 
+#if INTERFACE
+#define ArraySize(x) (sizeof(x)/sizeof(x[0]))
+#endif
+
 /*
 ** The table of web pages supported by this application is generated
 ** automatically by the "mkindex" program and written into a file
@@ -1250,7 +1254,8 @@ void setup_timeline(void){
       "0", "HH:MM",
       "1", "HH:MM:SS",
       "2", "YYYY-MM-DD HH:MM",
-      "3", "YYMMDD HH:MM"
+      "3", "YYMMDD HH:MM",
+      "4", "(off)"
   };
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -1296,8 +1301,8 @@ void setup_timeline(void){
   }
 
   @ <hr />
-  multiple_choice_attribute("Per-Item Time Format", "timeline-date-format", "tdf", "0",
-                            4, azTimeFormats);
+  multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
+            "tdf", "0", ArraySize(azTimeFormats)/2, azTimeFormats);
   @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
   @ in a separate box (using CSS class "timelineDate") whenever the date changes.
   @ With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats, the complete date
