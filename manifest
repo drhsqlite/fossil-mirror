@@ -1,5 +1,5 @@
-C re-enable\sSSL\sin\scustom\sMinGW\smakefile
-D 2014-11-06T22:43:36.659
+C Add\sthe\s"notime"\squery\sparameter\sto\sthe\swww\stimeline\sdisplay.
+D 2014-11-08T18:58:20.677
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -424,7 +424,7 @@ F src/th.h 3d96cf226cbdb8f68a7b3e554c17e069eaace860
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 38a77d04427296f65729de869316c5cc0606f6d7
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c d57ff727c5f8b5948742d0f5821ea6200b7d5196
+F src/timeline.c fc945e5e53bccb8607d0664b84f9425a87bcb585
 F src/tkt.c 37c7a5d99ab5ed542af2378b6971bbb9e115ca05
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c 09c23a40506a4ceff1e9c254938b25e42d69cf4e
@@ -630,7 +630,7 @@ F www/hacker-howto.wiki 1b0b1fa68606bbad790b4100f1da62738d9c65e2
 F www/hints.wiki 2ed95a101dd4639232b40360dbf5d131d98b098c
 F www/index.wiki b34917e6eb240de3193da33160369f21a569f14c
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
-F www/makefile.wiki bed5905017ce1a490e691e035db7267da3fdf607
+F www/makefile.wiki d6a17541407bf197644c468c374faa1ce99594a5
 F www/mkdownload.tcl c313e4cab0609b19b030541af140d8bbfebfc0f4
 F www/mkindex.tcl c766a73aa93987f678c525c497e761704724903d
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
@@ -658,7 +658,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 270897a3011424cfef1bd5d78dcc92d651131e49
-R e25c208d6f1028d9d906cd5cda22c7a6
-U jan.nijtmans
-Z ae6dabd92c8e17f25cc61aee4aa7341b
+P 346c05fbddb3987b0d064fe4d6375bdd92c5755d
+R 34faed65047bfc04c34b81f9d64d8568
+T *branch * notime-option
+T *sym-notime-option *
+T -sym-trunk *
+U drh
+Z c15385b98e80ab439fc403646e8eb93c

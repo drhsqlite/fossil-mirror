@@ -79,6 +79,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_UCOLOR   0x0080  /* Background color by user */
 #define TIMELINE_FRENAMES 0x0100  /* Detail only file name changes */
 #define TIMELINE_UNHIDE   0x0200  /* Unhide check-ins with "hidden" tag */
+#define TIMELINE_OMITTIME 0x0400  /* Omit all date and time marks */
 #endif
 
 /*
@@ -287,7 +288,9 @@ void www_print_timeline(
       continue;
     }
     prevWasDivider = 0;
-    if( dateFormat<2 ){
+    if( tmFlags & TIMELINE_OMITTIME ){
+      zTime[0] = 0;
+    }else if( dateFormat<2 ){
       if( fossil_strnicmp(zDate, zPrevDate, 10) ){
         sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
         @ <tr><td>
@@ -1013,6 +1016,7 @@ char *names_of_file(const char *zUuid){
 **    ubg            Background color from user
 **    namechng       Show only checkins that filename changes
 **    ym=YYYY-MM     Shown only events for the given year/month.
+**    notime         Omit timestamps from the display
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -1081,6 +1085,10 @@ void page_timeline(void){
     tmFlags = TIMELINE_BRIEF | TIMELINE_GRAPH;
   }else{
     tmFlags = TIMELINE_GRAPH;
+  }
+  if( P("notime")!=0 ){
+    tmFlags |= TIMELINE_OMITTIME;
+    url_add_parameter(&url, "notime", "1");
   }
   url_add_parameter(&url, "n", mprintf("%d", nEntry));
   if( P("ng")!=0 || zSearch!=0 ){
