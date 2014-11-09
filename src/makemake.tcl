@@ -524,7 +524,13 @@ endif
 ZINCDIR = $(SRCDIR)/../compat/zlib
 ZLIBDIR = $(SRCDIR)/../compat/zlib
 
-ifeq (,$(findstring x86_64-w64-mingw32,$(PREFIX)))
+ifndef X64
+ifneq (,$(findstring x86_64-w64-mingw32,$(PREFIX)))
+X64 = 1
+endif
+endif
+
+ifndef X64
 SSLCONFIG = mingw
 ZLIBCONFIG = LOC="-DASMV -DASMINF" OBJA="inffas86.o match.o"
 LIBTARGETS = $(ZLIBDIR)/inffas86.o $(ZLIBDIR)/match.o
@@ -533,6 +539,7 @@ SSLCONFIG = mingw64
 ZLIBCONFIG = 
 LIBTARGETS =
 endif
+
 ifndef FOSSIL_ENABLE_MINIZ
 SSLCONFIG +=  --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib
 endif
