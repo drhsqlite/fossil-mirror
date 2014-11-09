@@ -215,6 +215,7 @@ void www_print_timeline(
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current checkout version */
   int dateFormat = 0;         /* 0: HH:MM (default) */
+  char *zDateFmt;
 
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
@@ -222,6 +223,8 @@ void www_print_timeline(
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
+  zDateFmt = P("datefmt");
+  if( zDateFmt ) dateFormat = atoi(zDateFmt);
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
     /* style is not moved to css, because this is
@@ -254,7 +257,9 @@ void www_print_timeline(
     int modPending;           /* Pending moderation */
     char zTime[20];
 
-    if( zDate==0 ) zDate = "YYYY-MM-DD HH:MM:SS";  /* Something wrong with the repo */
+    if( zDate==0 ){
+      zDate = "YYYY-MM-DD HH:MM:SS";  /* Something wrong with the repo */
+    }
     modPending =  moderation_pending(rid);
     if( tagid ){
       if( modPending ) tagid = -tagid;
@@ -1020,6 +1025,7 @@ char *names_of_file(const char *zUuid){
 **    ubg            Background color from user
 **    namechng       Show only checkins that filename changes
 **    ym=YYYY-MM     Shown only events for the given year/month.
+**    datefmt=N      Override the date format
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -1047,7 +1053,7 @@ void page_timeline(void){
   const char *zSearch = P("s");      /* Search string */
   const char *zUses = P("uf");       /* Only show checkins hold this file */
   const char *zYearMonth = P("ym");  /* Show checkins for the given YYYY-MM */
-  const char *zYearWeek = P("yw");   /* Show checkins for the given YYYY-WW (weak-of-year) */
+  const char *zYearWeek = P("yw");   /* Show checkins for the given YYYY-WW (week-of-year)*/
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only checkins that rename files */
   int tagid;                         /* Tag ID */
