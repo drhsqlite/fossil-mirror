@@ -1,5 +1,5 @@
-C Same\schange\sa\sprevious\scommit,\sbut\sfor\scustom\smakefile
-D 2014-11-09T20:04:13.121
+C Update\sthe\smakefile.wiki\sdocumentation\spage\sto\stalk\sabout\sthe\smkbuiltin.exe\nprogram\sused\sfor\sgenerating\sthe\sbuiltin_data.h\sheader\sfile.
+D 2014-11-10T02:41:17.107
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -630,7 +630,7 @@ F www/hacker-howto.wiki 1b0b1fa68606bbad790b4100f1da62738d9c65e2
 F www/hints.wiki 2ed95a101dd4639232b40360dbf5d131d98b098c
 F www/index.wiki b34917e6eb240de3193da33160369f21a569f14c
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
-F www/makefile.wiki bed5905017ce1a490e691e035db7267da3fdf607
+F www/makefile.wiki fe8b297ccaf413262502996ab9673059037078bf
 F www/mkdownload.tcl c313e4cab0609b19b030541af140d8bbfebfc0f4
 F www/mkindex.tcl c766a73aa93987f678c525c497e761704724903d
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
@@ -658,7 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3616b7489bcff723a0ed6497597e30fb6cf8ae85
-R 401928169fe742856afd7705375101ac
-U jan.nijtmans
-Z eaa24be83402b9a958721cd08c16df19
+P ee5b8648987d93cdddf24de09e93a54b86b48011
+R 6d976f6239f60578badbceffdd0a81b7
+U drh
+Z 0d0c3201caba7b1ac0f8a12efd709b3e
