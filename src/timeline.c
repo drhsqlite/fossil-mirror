@@ -214,9 +214,8 @@ void www_print_timeline(
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current checkout version */
-  int dateFormat = 0;         /* 0: HH:MM  1: HH:MM:SS
-                                 2: YYYY-MM-DD HH:MM
-                                 3: YYMMDD HH:MM */
+  int dateFormat = 0;         /* 0: HH:MM (default) */
+  char *zDateFmt;
 
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
@@ -224,6 +223,8 @@ void www_print_timeline(
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
+  zDateFmt = P("datefmt");
+  if( zDateFmt ) dateFormat = atoi(zDateFmt);
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
     /* style is not moved to css, because this is
@@ -256,7 +257,9 @@ void www_print_timeline(
     int modPending;           /* Pending moderation */
     char zTime[20];
 
-    if( zDate==0 ) zDate = "YYYY-MM-DD HH:MM:SS";  /* Something wrong with the repo */
+    if( zDate==0 ){
+      zDate = "YYYY-MM-DD HH:MM:SS";  /* Something wrong with the repo */
+    }
     modPending =  moderation_pending(rid);
     if( tagid ){
       if( modPending ) tagid = -tagid;
@@ -287,6 +290,13 @@ void www_print_timeline(
       continue;
     }
     prevWasDivider = 0;
+    /* Date format codes:
+    **   (0)  HH:MM
+    **   (1)  HH:MM:SS
+    **   (2)  YYYY-MM-DD HH:MM
+    **   (3)  YYMMDD HH:MM
+    **   (4)  (off)
+    */
     if( dateFormat<2 ){
       if( fossil_strnicmp(zDate, zPrevDate, 10) ){
         sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
@@ -296,7 +306,10 @@ void www_print_timeline(
       }
       memcpy(zTime, &zDate[11], 5+dateFormat*3);
       zTime[5+dateFormat*3] = 0;
-    }else if(3==dateFormat){
+    }else if( 2==dateFormat ){
+      /* YYYY-MM-DD HH:MM */
+      sqlite3_snprintf(sizeof(zTime), zTime, "%.16s", zDate);
+    }else if( 3==dateFormat ){
       /* YYMMDD HH:MM */
       int pos = 0;
       zTime[pos++] = zDate[2]; zTime[pos++] = zDate[3]; /* YY */
@@ -308,8 +321,7 @@ void www_print_timeline(
       zTime[pos++] = zDate[14]; zTime[pos++] = zDate[15]; /* MM */
       zTime[pos++] = 0;
     }else{
-      /* YYYY-MM-DD HH:MM */
-      sqlite3_snprintf(sizeof(zTime), zTime, "%.16s", zDate);
+      zTime[0] = 0;
     }
     if( rid == vid ){
       @ <tr class="timelineCurrent">
@@ -1013,6 +1025,7 @@ char *names_of_file(const char *zUuid){
 **    ubg            Background color from user
 **    namechng       Show only checkins that filename changes
 **    ym=YYYY-MM     Shown only events for the given year/month.
+**    datefmt=N      Override the date format
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -1040,7 +1053,7 @@ void page_timeline(void){
   const char *zSearch = P("s");      /* Search string */
   const char *zUses = P("uf");       /* Only show checkins hold this file */
   const char *zYearMonth = P("ym");  /* Show checkins for the given YYYY-MM */
-  const char *zYearWeek = P("yw");   /* Show checkins for the given YYYY-WW (weak-of-year) */
+  const char *zYearWeek = P("yw");   /* Show checkins for the given YYYY-WW (week-of-year)*/
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only checkins that rename files */
   int tagid;                         /* Tag ID */
@@ -2546,7 +2559,7 @@ static void stats_report_year_weeks(const char *zUserName){
                  "of %h", stats_report_label_for_type(),
                  zYear);
     blob_append_sql(&sql,
-                 "SELECT DISTINCT strftime('%%%%W',mtime) AS wk, "
+                 "SELECT DISTINCT strftime('%%W',mtime) AS wk, "
                  "count(*) AS n "
                  "FROM v_reports "
                  "WHERE %Q=substr(date(mtime),1,4) "

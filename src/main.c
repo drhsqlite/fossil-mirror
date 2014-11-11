@@ -1696,9 +1696,9 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
 **    redirect:  repository-filename  http://hostname/path/%s
 **
 ** then control jumps here.  Search each repository for an artifact ID
-** that matches the "name" CGI parameter and for the first match,
-** redirect to the corresponding URL with the "name" CGI parameter
-** inserted.  Paint an error page if no match is found.
+** or ticket ID that matches the "name" CGI parameter and for the
+** first match, redirect to the corresponding URL with the "name" CGI
+** parameter inserted.  Paint an error page if no match is found.
 **
 ** If there is a line of the form:
 **
@@ -1723,7 +1723,8 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
         continue;
       }
       db_open_repository(azRedirect[i*2]);
-      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'", zName) ){
+      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'", zName) ||
+	  db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
         cgi_redirectf(azRedirect[i*2+1] /*works-like:"%s"*/, zName);
         return;
       }

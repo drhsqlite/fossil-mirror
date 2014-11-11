@@ -26,10 +26,11 @@ USER fossil
 
 ENV HOME /opt/fossil
 
-RUN fossil new --empty -A admin /opt/fossil/repository.fossil
+RUN fossil new --docker -A admin /opt/fossil/repository.fossil
 RUN fossil user password -R /opt/fossil/repository.fossil admin admin
 RUN fossil cache init -R /opt/fossil/repository.fossil
 
 EXPOSE 8080
 
 CMD ["/usr/bin/fossil", "server", "/opt/fossil/repository.fossil"]
+
