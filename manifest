@@ -1,5 +1,5 @@
-C re-apply\s[963c950cd6ac8cc8b9503f20a90ffac8e383c1de|963c950cd6]:\sfor\spre-3.8.7\scompatibility\s(needed\swith\sconfigure\s--disable-internal-sqlite)
-D 2014-11-12T14:16:48.638
+C Fix\s[5a0a33f31a]:\sChinese\scommit\smessage\sFile\sin\scode\sUTF-8\swhen\susing\scommit\s-M\sunder\sWINDOWS\sGarbled.\sWhen\sthe\sfile\sis\salready\sdetected\sto\sbe\svalid\sUTF-8,\sdon't\stry\sto\sdo\sany\sconversion.
+D 2014-11-12T14:37:42.820
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -315,7 +315,7 @@ F src/allrepo.c 74c8e1fa61918ec4ae1f4c22adec20ad8b9f411c
 F src/attach.c e92ad3e5f4efd1269185a215a94558f362e34bdd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
-F src/blob.c 675829054e4911f597c70e95ba615e783d2f639a
+F src/blob.c 7e823211e427218df8b34236e4774a7f2abc3640
 F src/branch.c 981eefb8d583787eb679eee529b9ae9f89a5d691
 F src/browse.c 7e802de8f55afa35b5075d3db67ffaae3028f464
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
@@ -433,7 +433,7 @@ F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
 F src/update.c 2f69d6a50355f0b0b13430e0ddc0a4cabe8d51a8
 F src/url.c b7743600119e97d34f96aea8996b9a4caad4bdc0
 F src/user.c 1160e782d0da7e29e714a500bafbbac3ce8f70e1
-F src/utf8.c eab5cc0060d893b3a5079ee4f5957f222392a179
+F src/utf8.c 29dbb74ed5e3b1fd0846d5358f01dc2839106cf9
 F src/util.c 227890c094477666f208c710453f4bfae0a8a52e
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
 F src/vfile.c 448fd883b6f413118a1d69bf6eab19d8bb132e46
@@ -658,7 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6b2f0b209f9988153cfaf0ac5d5930bfa8d139fe 963c950cd6ac8cc8b9503f20a90ffac8e383c1de
-R 34d673fa8267cc8db144266f86c0f50b
+P 3f5defebebdecedea6d1848d81d418cb7f55a0ab
+R 876de02e1dbf1995ad65bea8aa89d981
 U jan.nijtmans
-Z f0abd6f93677a188461bf84a34ab2d37
+Z e1ac5b6d1696cbc4f14e6e7b6d635c69

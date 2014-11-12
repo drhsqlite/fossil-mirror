@@ -27,7 +27,7 @@
 #endif
 #include "cygsup.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
 /*
 ** Translate MBCS to UTF-8.  Return a pointer to the translated text.
 ** Call fossil_mbcs_free() to deallocate any memory used to store the
