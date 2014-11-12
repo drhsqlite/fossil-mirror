@@ -1,5 +1,5 @@
-C Update\sto\sthe\s3.8.8\salpha\sof\sSQLite\sfor\stesting\s(of\sSQLite).
-D 2014-11-11T20:25:28.569
+C re-apply\s[963c950cd6ac8cc8b9503f20a90ffac8e383c1de|963c950cd6]:\sfor\spre-3.8.7\scompatibility\s(needed\swith\sconfigure\s--disable-internal-sqlite)
+D 2014-11-12T14:16:48.638
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -407,7 +407,7 @@ F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 76f0639e7bfe4e07dfac1234c421caab12452ff7
 F src/setup.c 24e3844ff8d42710f4bb8c88890952f7febf64a2
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
-F src/shell.c bc28d5992109717c87804e2eb1a08a7c8cc7a2fd
+F src/shell.c b249f0a9b9ef49e0a7400f018a600c56b6c8e59b
 F src/shun.c 57f609c7cd56b7169e7aa81c2d23c6d8094be5ae
 F src/skins.c 810054ea1343bc1b78c2f4b9b0d8a9145fd4ae39
 F src/sqlcmd.c 221f08cdc7bec44bf2ffcf85612aca764d1c4a75
@@ -658,7 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8a8177071f861b49589d1aa61000ab5465ddeded
-R b54d5296a0cfffe7724d513f2879d7e0
-U drh
-Z 82c7f8a77bf6fb15858fecdd55ea2fb3
+P 6b2f0b209f9988153cfaf0ac5d5930bfa8d139fe 963c950cd6ac8cc8b9503f20a90ffac8e383c1de
+R 34d673fa8267cc8db144266f86c0f50b
+U jan.nijtmans
+Z f0abd6f93677a188461bf84a34ab2d37
