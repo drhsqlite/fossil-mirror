@@ -68,7 +68,7 @@ void setup_page(void){
   ** if it does not. */
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError"><b>Configuration Error:</b> Please add
-    @ <tt>&lt;base href="$baseurl/$current_page"&gt;</tt> after
+    @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the <a href="setup_header">HTML header</a>!</p>
   }
 
@@ -975,6 +975,14 @@ void setup_access(void){
   @ <form action="%s(g.zTop)/setup_access" method="post"><div>
   login_insert_csrf_secret();
   @ <hr />
+  onoff_attribute("Redirect to HTTPS on the Login page",
+     "redirect-to-https", "redirhttps", 0, 0);
+  @ <p>When selected, force the use of HTTPS for the Login page.
+  @ <p>Details:  When enabled, this option causes the $secureurl TH1 
+  @ variable is set to an "https:" variant of $baseurl.  Otherwise,
+  @ $secureurl is just an alias for $baseurl.  Also when enabled, the
+  @ Login page redirects to https if accessed via http.
+  @ <hr />
   onoff_attribute("Require password for local access",
      "localauth", "localauth", 0, 0);
   @ <p>When enabled, the password sign-in is always required for
@@ -1553,7 +1561,7 @@ void setup_header(void){
       char *zNew;
       char *zTail = &zHead[6];
       while( fossil_isspace(zTail[0]) ) zTail++;
-      zNew = mprintf("%.*s\n<base href=\"$baseurl/$current_page\" />\n%s",
+      zNew = mprintf("%.*s\n<base href=\"$secureurl/$current_page\" />\n%s",
                      zHead+6-z, z, zTail);
       cgi_replace_parameter("header", zNew);
       db_set("header", zNew, 0);
@@ -1567,7 +1575,7 @@ void setup_header(void){
   ** if it does not. */
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError">Please add
-    @ <tt>&lt;base href="$baseurl/$current_page"&gt;</tt> after
+    @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the header!
     @ <input type="submit" name="fixbase" value="Add &lt;base&gt; Now"></p>
   }

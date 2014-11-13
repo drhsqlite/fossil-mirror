@@ -1,5 +1,5 @@
-C Fix\s[5a0a33f31a]:\sChinese\scommit\smessage\sFile\sin\scode\sUTF-8\swhen\susing\scommit\s-M\sunder\sWINDOWS\sGarbled.\sWhen\sthe\sfile\sis\salready\sdetected\sto\sbe\svalid\sUTF-8,\sdon't\stry\sto\sdo\sany\sconversion.
-D 2014-11-12T14:37:42.820
+C Add\sa\ssetup\soption\sthat\sautomatically\sredirects\sfrom\sHTTP\sto\sHTTPS\son\sthe\nlogin\spage,\sto\sprevent\spasswords\sfrom\sbeing\ssent\sin\sthe\sclear\sover\sthe\ninternet.\s\sOff\sby\sdefault,\sfor\sthe\ssake\sof\sinstallations\sthat\sdo\snot\ssupport\nHTTPS.\s\sAlso\soff\sfor\sthe\s"fossil\sui"\sand\s"fossil\sserver"\scommands.
+D 2014-11-13T16:09:33.280
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -375,9 +375,9 @@ F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
 F src/json_wiki.c fca83828f069a0964f7b5e72dc4e8793e8571707
 F src/leaf.c 59c3308977e0f3f264a75c8c772d18be4df30615
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
-F src/login.c d62495a9a86edd4d94c4278f9efb985211f1916d
+F src/login.c 5873cbbaff7c021b50b49b6708f00b33aa268130
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 0c8673ba9f94e126b51ab71b70f4febe68bbf586
+F src/main.c 4b7c62982889abad9a19f70ad80ee6d2b7358b8b
 F src/main.mk 08c0c40236688f39d1f59e7320b6883fa90e3ad3
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -405,7 +405,7 @@ F src/report.c 0c3d2aa5c686c213d454a553bd3d8529ca054be5
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
 F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 76f0639e7bfe4e07dfac1234c421caab12452ff7
-F src/setup.c 24e3844ff8d42710f4bb8c88890952f7febf64a2
+F src/setup.c 1b3a7720220bc008b66df11c10e570e63d629d42
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
 F src/shell.c b249f0a9b9ef49e0a7400f018a600c56b6c8e59b
 F src/shun.c 57f609c7cd56b7169e7aa81c2d23c6d8094be5ae
@@ -415,7 +415,7 @@ F src/sqlite3.c 6f3d33aec444550ce187e7f1cde78a2430371568
 F src/sqlite3.h b59914ee54e8e9d22e3f7baab829651d1eab87ca
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 842683346b6def34cc739fbd10eec57a24d44957
-F src/style.c ce7841d9dddeec49a5039e0062f70c14bbfe3f68
+F src/style.c 9149667f1f2ddb3dcd9a772dd7d944e4340958ae
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 2afe841ebde31296bdbef5c45d534bcad1280024
 F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
@@ -658,7 +658,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3f5defebebdecedea6d1848d81d418cb7f55a0ab
-R 876de02e1dbf1995ad65bea8aa89d981
-U jan.nijtmans
-Z e1ac5b6d1696cbc4f14e6e7b6d635c69
+P 5960016a3d8f1f3278a30bc5a505ba273d0f024d
+R 236184e9d5e79822e12ec213aa6c4ea6
+T *branch * auto-https-redirect
+T *sym-auto-https-redirect *
+T -sym-trunk *
+U drh
+Z 62405745a8684fbd585afee4cf703718
