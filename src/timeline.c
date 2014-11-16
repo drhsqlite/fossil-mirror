@@ -215,7 +215,7 @@ void www_print_timeline(
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current checkout version */
   int dateFormat = 0;         /* 0: HH:MM (default) */
-  char *zDateFmt;
+  const char *zDateFmt;
 
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
