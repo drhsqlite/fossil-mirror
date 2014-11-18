@@ -1,5 +1,5 @@
-C Fix\scompiler\swarning:\s./src/timeline.c:\sIn\sfunction\s‘www_print_timeline’:\n./src/timeline.c:226:12:\swarning:\sassignment\sdiscards\s‘const’\squalifier\sfrom\spointer\starget\stype\s[enabled\sby\sdefault]\n\s\s\szDateFmt\s=\sP("datefmt");
-D 2014-11-16T21:32:57.188
+C Change\sthe\sbuilt-in\sSQLite\sto\sthe\s3.8.7.2\sbeta\sfor\stesting.
+D 2014-11-18T13:52:46.099
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -407,12 +407,12 @@ F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 76f0639e7bfe4e07dfac1234c421caab12452ff7
 F src/setup.c 24e3844ff8d42710f4bb8c88890952f7febf64a2
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
-F src/shell.c b249f0a9b9ef49e0a7400f018a600c56b6c8e59b
+F src/shell.c 18ee8bbe9502d8848072dc2eddd1ea09254ba494
 F src/shun.c 57f609c7cd56b7169e7aa81c2d23c6d8094be5ae
 F src/skins.c 810054ea1343bc1b78c2f4b9b0d8a9145fd4ae39
 F src/sqlcmd.c 221f08cdc7bec44bf2ffcf85612aca764d1c4a75
-F src/sqlite3.c 6f3d33aec444550ce187e7f1cde78a2430371568
-F src/sqlite3.h b59914ee54e8e9d22e3f7baab829651d1eab87ca
+F src/sqlite3.c 687a18970c4a420f98ee138b93e99bdaacadf525
+F src/sqlite3.h 10594b50adadce48993530aad6ab5410e98b576f
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 842683346b6def34cc739fbd10eec57a24d44957
 F src/style.c ce7841d9dddeec49a5039e0062f70c14bbfe3f68
@@ -658,7 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 331204dc9305d9b201053f8f84e6f4aa6115f6dd
-R 63db63da03da3e35d8178fa9b1e69922
-U jan.nijtmans
-Z 7f511076271b4897cde086a1498aac7a
+P 45a366a0a0f6f75ae75e0bf8df5f268ffdd8fc1d
+R e78758e1533dbfa02ef26768e83f6847
+U drh
+Z 2599f190ae0b2b4888a187abb323996d
