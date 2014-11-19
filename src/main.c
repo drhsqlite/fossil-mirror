@@ -152,6 +152,7 @@ struct Global {
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
+  char *zHttpsURL;        /* zBaseURL translated to https: */
   char *zTop;             /* Parent directory of zPath */
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
@@ -1291,9 +1292,11 @@ static void set_base_url(const char *zAltBase){
     if( fossil_stricmp(zMode,"on")==0 ){
       g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
       g.zTop = &g.zBaseURL[8+strlen(zHost)];
+      g.zHttpsURL = g.zBaseURL;
     }else{
       g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
       g.zTop = &g.zBaseURL[7+strlen(zHost)];
+      g.zHttpsURL = mprintf("https://%s%.*s", zHost, i, zCur);
     }
   }
   if( db_is_writeable("repository") ){
