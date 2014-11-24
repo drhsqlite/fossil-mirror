@@ -1776,10 +1776,19 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
+      char zBaseId[30];
+      if( p->zBaseline ){
+        sqlite3_snprintf(sizeof(zBaseId), zBaseId, "%d",
+                         uuid_to_rid(p->zBaseline,1));
+      }else{
+        sqlite3_snprintf(sizeof(zBaseId), zBaseId, "NULL");
+      }
       for(i=0; i<p->nParent; i++){
         int pid = uuid_to_rid(p->azParent[i], 1);
-        db_multi_exec("INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
-                      "VALUES(%d, %d, %d, %.17g)", pid, rid, i==0, p->rDate);
+        db_multi_exec(
+           "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime, baseid)"
+           "VALUES(%d, %d, %d, %.17g, %s)",
+           pid, rid, i==0, p->rDate, zBaseId/*safe-for-%s*/);
         if( i==0 ){
           add_mlink(pid, 0, rid, p);
           parentid = pid;

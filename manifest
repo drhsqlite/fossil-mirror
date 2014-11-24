@@ -1,5 +1,5 @@
-C More\scode\sfor\sthe\spurge\scommand.\s\sThe\spurge\scommand\sstill\sdoes\snot\swork.\nThis\sis\sjust\san\sincremental\scheck-in.
-D 2014-11-24T20:33:00.935
+C Merge\sthe\sPLINK\stable\senhancement\sinto\sthe\sDBP-workflow\sbranch.
+D 2014-11-24T21:11:08.856
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -383,7 +383,7 @@ F src/main.mk 6f5dc6967f13b316eb07a3c36dd53a1653ef0868
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 35b053135e17113670404608c75a7b9d68148bfa
-F src/manifest.c 0396f22dd097a9e6a1d480a0a928725a3b0bd3ec
+F src/manifest.c 136665cbfbd448c128a50d0d5f2c41221910a69a
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
@@ -405,7 +405,7 @@ F src/rebuild.c 6575a99a720c1002efab74d761c2befe76ae7e41
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c 0c3d2aa5c686c213d454a553bd3d8529ca054be5
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
-F src/schema.c 224c01157270b39cbc4b23b7d03b2f5aed398f34
+F src/schema.c 09cc50b3c3695c40d4756defcc948ae972db875d
 F src/search.c 76f0639e7bfe4e07dfac1234c421caab12452ff7
 F src/setup.c 1b3a7720220bc008b66df11c10e570e63d629d42
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
@@ -660,7 +660,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 53b35da3e0d7154ee279dd0e37b7e25c88e2fb75
-R cfd4ab7fb369065c9592451a1c2f50d6
+P 21113220be534b8cf71b7561ba25eeb9665cce39 f36ac49ddcf8d48c32494026ba0ee52c9891e6df
+R 91addc57f555a16380d7e18acd68502c
 U drh
-Z 67f9ded6e5f00b7eb0c4b86294850f02
+Z 1b59099fd54aa39c8ab8c18df5900eed

@@ -46,7 +46,7 @@ const char zConfigSchema[] =
 ** the aux schema changes, all we need to do is rebuild the database.
 */
 #define CONTENT_SCHEMA  "2"
-#define AUX_SCHEMA      "2011-04-25 19:50"
+#define AUX_SCHEMA      "2014-11-24 20:35"
 
 #endif /* INTERFACE */
 
@@ -252,6 +252,7 @@ const char zRepositorySchema2[] =
 @   cid INTEGER REFERENCES blob,    -- Child manifest
 @   isprim BOOLEAN,                 -- pid is the primary parent of cid
 @   mtime DATETIME,                 -- the date/time stamp on cid.  Julian day.
+@   baseid INTEGER REFERENCES blob, -- Baseline if child is a delta manifest
 @   UNIQUE(pid, cid)
 @ );
 @ CREATE INDEX plink_i2 ON plink(cid,pid);
