@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.8\salpha.
-D 2014-11-19T13:19:05.340
+C Keep\strack\sof\sthe\sbaseline\sfor\sdelta\smanifests\sin\sthe\sPLINK\stable.\s\sThis\sis\na\sschema\schange\sand\srequires\sa\s"fossil\srebuild".
+D 2014-11-24T21:04:47.551
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -382,7 +382,7 @@ F src/main.mk 08c0c40236688f39d1f59e7320b6883fa90e3ad3
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 8181e89d8e10a15ac54fe85b24fb5fe7711af314
-F src/manifest.c 0396f22dd097a9e6a1d480a0a928725a3b0bd3ec
+F src/manifest.c 136665cbfbd448c128a50d0d5f2c41221910a69a
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
@@ -403,7 +403,7 @@ F src/rebuild.c 6575a99a720c1002efab74d761c2befe76ae7e41
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c 0c3d2aa5c686c213d454a553bd3d8529ca054be5
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
-F src/schema.c bed561078af53700180540bc6e41d7364037c635
+F src/schema.c 0ef0b9a5812eebec224c55870d5be0edf46ceb6f
 F src/search.c 76f0639e7bfe4e07dfac1234c421caab12452ff7
 F src/setup.c 1b3a7720220bc008b66df11c10e570e63d629d42
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
@@ -658,7 +658,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a4e7b8629db81ecfe9f722d7fb92fea6cc7f9046
-R bef0ec73b65385994cbcdf791f7cf5c5
+P fd1a2921995a38ef5d22609c1d6ebfb1f72431f9
+R 90ecdd9ab70759c1ea87773d2988684f
+T *branch * baseline-in-plink
+T *sym-baseline-in-plink *
+T -sym-trunk *
 U drh
-Z d1c56e742de178a4f03a0778f76cf0ff
+Z 4636a2514ce3be92ca3353b178f31a68
