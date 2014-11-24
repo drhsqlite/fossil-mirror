@@ -1,5 +1,5 @@
-C Begin\sadding\scode\sto\sremove\scheckins\sand\sbranches\s(purge).\s\sThis\sis\san\nincomplete,\sincremental\scheckin\sbecause\sI\shave\sto\sstop\sto\swork\son\ssomething\nelse...\s\s:-(
-D 2014-11-24T14:43:46.712
+C More\scode\sfor\sthe\spurge\scommand.\s\sThe\spurge\scommand\sstill\sdoes\snot\swork.\nThis\sis\sjust\san\sincremental\scheck-in.
+D 2014-11-24T20:33:00.935
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -400,7 +400,7 @@ F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 98dae687a6c785877897b4062281a5bac002b338
-F src/purge.c df9eb1533eb019ff220a3e9a243d5550d9a2f0dc
+F src/purge.c bbee34b8bf2bc7a0da2f226977ebc388b2f66850
 F src/rebuild.c 6575a99a720c1002efab74d761c2befe76ae7e41
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c 0c3d2aa5c686c213d454a553bd3d8529ca054be5
@@ -660,7 +660,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6dc0b3b6f423f7ce5b6dd35427e5f472b52d2718
-R 86ce29dd145e27b322124b5a53285c54
+P 53b35da3e0d7154ee279dd0e37b7e25c88e2fb75
+R cfd4ab7fb369065c9592451a1c2f50d6
 U drh
-Z 75ce52fc328c2360eeb1cc0f47135169
+Z 67f9ded6e5f00b7eb0c4b86294850f02

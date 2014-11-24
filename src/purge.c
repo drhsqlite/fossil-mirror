@@ -86,6 +86,7 @@ void purge_artifact_list(
   Stmt q;                       /* General-use prepared statement */
 
   assert( g.repositoryOpen );   /* Main database must already be open */
+  db_begin_transaction();
   db_multi_exec(zPurgeInit /*works-like:"%w%w"*/, 
                 db_name("repository"), db_name("repository"));
   db_multi_exec(
@@ -98,11 +99,52 @@ void purge_artifact_list(
     content_undelta(rid);
     verify_before_commit(rid);
   }
+  db_finalize(&q);
   db_multi_exec(
     "INSERT INTO purgeitem(peid,uuid,sz,data)"
     "  SELECT %d, uuid, size, compress(content(uuid))"
     "    FROM blob WHERE rid IN \"%w\"",
     peid, zTab
   );
+  db_multi_exec("DELETE FROM blob WHERE rid IN \"%w\"", zTab);
+  db_multi_exec("DELETE FROM event WHERE objid IN \"%w\"", zTab);
+  db_multi_exec("DELETE FROM private WHERE rid IN \"%w\"", zTab);
+  db_multi_exec("DELETE FROM mlink WHERE mid IN \"%w\"", zTab);
+  db_multi_exec("DELETE FROM plink WHERE pid IN \"%w\"", zTab);
+  db_multi_exec("DELETE FROM plink WHERE cid IN \"%w\"", zTab);
+  db_multi_exec("DELETE FROM leaf WHERE rid IN \"%w\"", zTab);
+  db_multi_exec("DELETE FROM phantom WHERE rid IN \"%w\"", zTab);
+  db_multi_exec("DELETE FROM unclustered WHERE rid IN \"%w\"", zTab);
+  db_multi_exec("DELETE FROM unsent WHERE rid IN \"%w\"", zTab);
+  db_multi_exec("DELETE FROM tagxref"
+                " WHERE rid IN \"%w\""
+                "    OR srcid IN \"%w\""
+                "    OR origid IN \"%w\"", zTab, zTab, zTab);
+  db_multi_exec("DELETE FROM backlink WHERE srctype=0 AND srcid IN \"%w\"",
+                zTab);
+  db_multi_exec(
+    "CREATE TEMP TABLE \"%w_tickets\" AS"
+    " SELECT DISTINCT tkt_uuid FROM ticket WHERE tkt_id IN"
+    "    (SELECT tkt_id FROM ticketchng WHERE tkt_rid IN \"%w\")",
+    zTab, zTab);
+  db_multi_exec("DELETE FROM ticketchng WHERE tkt_rid IN \"%w\"", zTab);
+  db_prepare(&q, "SELECT tkt_uuid FROM \"%w_tickets\"", zTab);
+  while( db_step(&q)==SQLITE_ROW ){
+    ticket_rebuild_entry(db_column_text(&q, 0));
+  }
+  db_finalize(&q);
+  db_multi_exec("DROP TABLE \"%w_tickets\"", zTab);
+  db_end_transaction(0);
+}
+
+/*
+** The TEMP table named zTab contains the RIDs for a set of checkin
+** artifacts.  Expand this set (by adding new entries to zTab) to include
+** all other facts that are used exclusively by the set of checkins in
+** the original list.
+*/
+void purge_checkin_associates(const char *zTab){
+  db_begin_transaction();
   
+  db_end_transaction(0);
 }
