@@ -206,6 +206,7 @@ SRC   = add_.c \
         branch_.c \
         browse_.c \
         builtin_.c \
+        bundle_.c \
         cache_.c \
         captcha_.c \
         cgi_.c \
@@ -321,6 +322,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\branch$O \
         $(OX)\browse$O \
         $(OX)\builtin$O \
+        $(OX)\bundle$O \
         $(OX)\cache$O \
         $(OX)\captcha$O \
         $(OX)\cgi$O \
@@ -490,6 +492,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\branch.obj >> $@
 	echo $(OX)\browse.obj >> $@
 	echo $(OX)\builtin.obj >> $@
+	echo $(OX)\bundle.obj >> $@
 	echo $(OX)\cache.obj >> $@
 	echo $(OX)\captcha.obj >> $@
 	echo $(OX)\cgi.obj >> $@
@@ -750,6 +753,12 @@ $(OX)\builtin$O : builtin_.c builtin.h
 	$(TCC) /Fo$@ -c builtin_.c
 
 builtin_.c : $(SRCDIR)\builtin.c
+	translate$E $** > $@
+
+$(OX)\bundle$O : bundle_.c bundle.h
+	$(TCC) /Fo$@ -c bundle_.c
+
+bundle_.c : $(SRCDIR)\bundle.c
 	translate$E $** > $@
 
 $(OX)\cache$O : cache_.c cache.h
@@ -1383,6 +1392,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			branch_.c:branch.h \
 			browse_.c:browse.h \
 			builtin_.c:builtin.h \
+			bundle_.c:bundle.h \
 			cache_.c:cache.h \
 			captcha_.c:captcha.h \
 			cgi_.c:cgi.h \

@@ -30,6 +30,7 @@ set src {
   branch
   browse
   builtin
+  bundle
   cache
   captcha
   cgi

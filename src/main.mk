@@ -23,6 +23,7 @@ SRC = \
   $(SRCDIR)/branch.c \
   $(SRCDIR)/browse.c \
   $(SRCDIR)/builtin.c \
+  $(SRCDIR)/bundle.c \
   $(SRCDIR)/cache.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
@@ -140,6 +141,7 @@ TRANS_SRC = \
   $(OBJDIR)/branch_.c \
   $(OBJDIR)/browse_.c \
   $(OBJDIR)/builtin_.c \
+  $(OBJDIR)/bundle_.c \
   $(OBJDIR)/cache_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
@@ -254,6 +256,7 @@ OBJ = \
  $(OBJDIR)/branch.o \
  $(OBJDIR)/browse.o \
  $(OBJDIR)/builtin.o \
+ $(OBJDIR)/bundle.o \
  $(OBJDIR)/cache.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
@@ -477,6 +480,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/branch_.c:$(OBJDIR)/branch.h \
 	$(OBJDIR)/browse_.c:$(OBJDIR)/browse.h \
 	$(OBJDIR)/builtin_.c:$(OBJDIR)/builtin.h \
+	$(OBJDIR)/bundle_.c:$(OBJDIR)/bundle.h \
 	$(OBJDIR)/cache_.c:$(OBJDIR)/cache.h \
 	$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 	$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
@@ -658,6 +662,14 @@ $(OBJDIR)/builtin.o:	$(OBJDIR)/builtin_.c $(OBJDIR)/builtin.h $(OBJDIR)/builtin_
 	$(XTCC) -o $(OBJDIR)/builtin.o -c $(OBJDIR)/builtin_.c
 
 $(OBJDIR)/builtin.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/bundle_.c:	$(SRCDIR)/bundle.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/bundle.c >$@
+
+$(OBJDIR)/bundle.o:	$(OBJDIR)/bundle_.c $(OBJDIR)/bundle.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/bundle.o -c $(OBJDIR)/bundle_.c
+
+$(OBJDIR)/bundle.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/cache_.c:	$(SRCDIR)/cache.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/cache.c >$@

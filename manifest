@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.8\salpha.
-D 2014-11-19T13:19:05.340
+C Infrastructure\sfor\sthe\s"fossil\sbundle"\scommand.\s\sThis\sis\sa\sskeleton\sonly\sand\nis\snot\syet\sfunctional.
+D 2014-11-24T12:05:39.720
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -319,6 +319,7 @@ F src/blob.c 5b0eca90820d6c4a55eed9036d4527b50b0aaba4
 F src/branch.c 981eefb8d583787eb679eee529b9ae9f89a5d691
 F src/browse.c 7e802de8f55afa35b5075d3db67ffaae3028f464
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
+F src/bundle.c 36ef24a94e3e512299f9a6df1878d36d7c876201
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 259725db75a53752aef97d99c38cbfd0e86e43ec
@@ -378,10 +379,10 @@ F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 5873cbbaff7c021b50b49b6708f00b33aa268130
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c 4b7c62982889abad9a19f70ad80ee6d2b7358b8b
-F src/main.mk 08c0c40236688f39d1f59e7320b6883fa90e3ad3
+F src/main.mk e090e309a5872f35d9a79fd7643811b647f65277
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 8181e89d8e10a15ac54fe85b24fb5fe7711af314
+F src/makemake.tcl ee931f34749eba16dd4cd124058ac464f972d587
 F src/manifest.c 0396f22dd097a9e6a1d480a0a928725a3b0bd3ec
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
@@ -546,10 +547,10 @@ F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake ae6cd880ccef86d97e9d7e2c494d37c77cd4a28a
-F win/Makefile.dmc 2e6ccd8d5ea84e91e3ea1c8bd744af0f1253feb0
-F win/Makefile.mingw 8515ef7873f6a0bc5173b0a47a8368ac539fc42f
+F win/Makefile.dmc a755a14bcda643a04bcfac3d0c1a0c53334a4091
+F win/Makefile.mingw 7cd0494e0f8fac07771318f0b9a10e84620e8e00
 F win/Makefile.mingw.mistachkin 1448becd41856e1f10008b9a4aefd854cf26073c
-F win/Makefile.msc e14bf361521491f35a3990a9e9a02925bd88a2f6
+F win/Makefile.msc cbba2c900c4331f76d485243b64663ae252972f3
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -658,7 +659,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a4e7b8629db81ecfe9f722d7fb92fea6cc7f9046
-R bef0ec73b65385994cbcdf791f7cf5c5
+P fd1a2921995a38ef5d22609c1d6ebfb1f72431f9
+R b571103cc7977e79facddf9065a366ec
+T *branch * DBP-workflow
+T *sym-DBP-workflow *
+T -sym-trunk *
 U drh
-Z d1c56e742de178a4f03a0778f76cf0ff
+Z c5705d3efcdbb00946d2c8159a52caec
