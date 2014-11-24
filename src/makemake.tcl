@@ -95,6 +95,7 @@ set src {
   popen
   pqueue
   printf
+  purge
   rebuild
   regexp
   report

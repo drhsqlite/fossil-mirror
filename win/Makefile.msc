@@ -272,6 +272,7 @@ SRC   = add_.c \
         popen_.c \
         pqueue_.c \
         printf_.c \
+        purge_.c \
         rebuild_.c \
         regexp_.c \
         report_.c \
@@ -389,6 +390,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\popen$O \
         $(OX)\pqueue$O \
         $(OX)\printf$O \
+        $(OX)\purge$O \
         $(OX)\rebuild$O \
         $(OX)\regexp$O \
         $(OX)\report$O \
@@ -559,6 +561,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\popen.obj >> $@
 	echo $(OX)\pqueue.obj >> $@
 	echo $(OX)\printf.obj >> $@
+	echo $(OX)\purge.obj >> $@
 	echo $(OX)\rebuild.obj >> $@
 	echo $(OX)\regexp.obj >> $@
 	echo $(OX)\report.obj >> $@
@@ -1151,6 +1154,12 @@ $(OX)\printf$O : printf_.c printf.h
 printf_.c : $(SRCDIR)\printf.c
 	translate$E $** > $@
 
+$(OX)\purge$O : purge_.c purge.h
+	$(TCC) /Fo$@ -c purge_.c
+
+purge_.c : $(SRCDIR)\purge.c
+	translate$E $** > $@
+
 $(OX)\rebuild$O : rebuild_.c rebuild.h
 	$(TCC) /Fo$@ -c rebuild_.c
 
@@ -1458,6 +1467,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			popen_.c:popen.h \
 			pqueue_.c:pqueue.h \
 			printf_.c:printf.h \
+			purge_.c:purge.h \
 			rebuild_.c:rebuild.h \
 			regexp_.c:regexp.h \
 			report_.c:report.h \

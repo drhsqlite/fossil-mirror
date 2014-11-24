@@ -82,8 +82,8 @@ const char zRepositorySchema1[] =
 @   CHECK( length(uuid)==40 AND rid>0 )
 @ );
 @ CREATE TABLE delta(
-@   rid INTEGER PRIMARY KEY,                 -- Record ID
-@   srcid INTEGER NOT NULL REFERENCES blob   -- Record holding source document
+@   rid INTEGER PRIMARY KEY,                 -- BLOB entry where content is delta-compressed
+@   srcid INTEGER NOT NULL REFERENCES blob   -- BLOB entry holding delta baseline
 @ );
 @ CREATE INDEX delta_i1 ON delta(srcid);
 @
