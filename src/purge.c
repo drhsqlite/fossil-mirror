@@ -39,7 +39,7 @@ static const char zPurgeInit[] =
 @ CREATE TABLE IF NOT EXISTS "%w".purgeevent(
 @   peid INTEGER PRIMARY KEY,  -- Unique ID for the purge event
 @   ctime DATETIME,            -- Julian day number when purge occurred
-@   pnotes TEXT,               -- Human-readable notes about the purge event
+@   pnotes TEXT                -- Human-readable notes about the purge event
 @ );
 @ CREATE TABLE IF NOT EXISTS "%w".purgeitem(
 @   peid INTEGER REFERENCES purgeevent ON DELETE CASCADE, -- Purge event
@@ -78,7 +78,7 @@ static const char zPurgeInit[] =
 **        corresponding ticket entries.  Possibly remove entries from
 **        the ticket table.
 */
-void purge_artifact_list(
+int purge_artifact_list(
   const char *zTab,       /* TEMP table containing list of RIDS to be purged */
   const char *zNote       /* Text of the purgeevent.pnotes field */
 ){
@@ -86,14 +86,20 @@ void purge_artifact_list(
   Stmt q;                       /* General-use prepared statement */
 
   assert( g.repositoryOpen );   /* Main database must already be open */
+  add_content_sql_commands(g.db);
   db_begin_transaction();
+  if( purge_baseline_out_from_under_delta(zTab) ){
+    fossil_fatal("attempt to purge a baseline manifest without also purging "
+                 "all of its deltas");
+  }
   db_multi_exec(zPurgeInit /*works-like:"%w%w"*/, 
                 db_name("repository"), db_name("repository"));
   db_multi_exec(
     "INSERT INTO purgeevent(ctime,pnotes) VALUES(now(),%Q)", zNote
   );
   peid = db_last_insert_rowid();
-  db_prepare(&q, "SELECT rid FROM delta WHERE srcid IN \"%w\"", zTab);
+  db_prepare(&q, "SELECT rid FROM delta WHERE srcid IN \"%w\""
+                 " AND rid NOT IN \"%w\"", zTab, zTab);
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     content_undelta(rid);
@@ -135,16 +141,198 @@ void purge_artifact_list(
   db_finalize(&q);
   db_multi_exec("DROP TABLE \"%w_tickets\"", zTab);
   db_end_transaction(0);
+  return peid;
 }
+
+/*
+** The TEMP table named zTab contains RIDs for a set of checkins.  
+**
+** Check to see if any checkin in zTab is a baseline manifest for some
+** delta manifest that is not in zTab.  Return true if zTab contains a
+** baseline for a delta that is not in zTab.
+**
+** This is a database integrity preservation check.  The checkins in zTab
+** are about to be deleted or otherwise made inaccessible.  This routine
+** is checking to ensure that purging the checkins in zTab will not delete
+** a baseline manifest out from under a delta.
+*/
+int purge_baseline_out_from_under_delta(const char *zTab){
+  return db_int(0,
+    "SELECT 1 FROM plink WHERE baseid IN \"%w\" AND cid NOT IN \"%w\"",
+    zTab, zTab);
+}
+
 
 /*
 ** The TEMP table named zTab contains the RIDs for a set of checkin
 ** artifacts.  Expand this set (by adding new entries to zTab) to include
-** all other facts that are used exclusively by the set of checkins in
+** all other artifacts that are used exclusively by the set of checkins in
 ** the original list.
 */
-void purge_checkin_associates(const char *zTab){
+void find_checkin_associates(const char *zTab){
   db_begin_transaction();
-  
+
+  /* Compute the set of files that need to be added to zTab */
+  db_multi_exec("CREATE TEMP TABLE \"%w_files\"(fid INTEGER PRIMARY KEY)",zTab);
+  db_multi_exec(
+    "INSERT OR IGNORE INTO \"%w_files\"(fid)"
+    "  SELECT fid FROM mlink WHERE fid!=0 AND mid IN \"%w\"",
+    zTab, zTab
+  );
+  /* But take out all files that are referenced by check-ins not in zTab */
+  db_multi_exec(
+    "DELETE FROM \"%w_files\""
+    " WHERE fid IN (SELECT fid FROM mlink"
+                   " WHERE fid IN \"%w_files\""
+                   "   AND mid NOT IN \"%w\")",
+    zTab, zTab, zTab
+  );
+
+  /* Compute the set of tags that need to be added to zTag */
+  db_multi_exec("CREATE TEMP TABLE \"%w_tags\"(tid INTEGER PRIMARY KEY)",zTab);
+  db_multi_exec(
+    "INSERT OR IGNORE INTO \"%w_tags\"(tid)"
+    "  SELECT DISTINCT srcid FROM tagxref WHERE rid in \"%w\" AND srcid!=0",
+    zTab, zTab
+  );
+  /* But take out tags that references some check-ins in zTab and other
+  ** check-ins not in zTab.  The current Fossil implementation never creates
+  ** such tags, so the following should usually be a no-op.  But the file
+  ** format specification allows such tags, so we should check for them.
+  */
+  db_multi_exec(
+    "DELETE FROM \"%w_tags\""
+    " WHERE tid IN (SELECT srcid FROM tagxref"
+                   " WHERE srcid IN \"%w_tags\""
+                   "   AND rid NOT IN \"%w\")",
+    zTab, zTab, zTab
+  );
+
+  /* Transfer the extra artifacts into zTab */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO \"%w\" SELECT fid FROM \"%w_files\";"
+    "INSERT OR IGNORE INTO \"%w\" SELECT tid FROM \"%w_tags\";"
+    "DROP TABLE \"%w_files\";"
+    "DROP TABLE \"%w_tags\";",
+    zTab, zTab, zTab, zTab, zTab, zTab
+  );
+
   db_end_transaction(0);
+}
+
+/*
+** Display the content of a single purge event.
+*/
+static void purge_event_content(int peid){
+  Stmt q;
+  sqlite3_int64 sz1 = 0;
+  sqlite3_int64 sz2 = 0;
+  db_prepare(&q, "SELECT uuid, sz, length(data) FROM purgeitem WHERE peid=%d",
+             peid);
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("  %s %10d %10d\n",
+                 db_column_text(&q,0),
+                 db_column_int(&q,1),
+                 db_column_int(&q,2));
+    sz1 += db_column_int(&q,1);
+    sz2 += db_column_int(&q,2);
+  }
+  db_finalize(&q);
+  fossil_print("  %40s %10lld %10lld\n", "", sz1, sz2);
+}
+
+/*
+** COMMAND: purge
+**
+** The purge command is used to remove content from a repository into a
+** "graveyard" and also to show manage the graveyard and optionally restored
+** content into the repository from the graveyard.
+**
+**   fossil purge list|ls [-l]
+**
+**      Show the graveyard of prior purges.
+**
+**   fossil purge undo ID
+**
+**      Restore the content previously removed by purge ID.
+**
+**   fossil purge [checkin] TAGS... [--explain]
+**
+**      Move the checkins identified by TAGS and all of their descendants
+**      out of the repository and into the graveyard.  If the --explain option
+**      is included, then the repository and graveyard are unchanged and
+**      an explaination of what would have happened is shown instead.
+**
+** SUMMARY:
+**   fossil purge [checkin] TAGS... [--explain]
+**   fossil purge list
+**   fossil purge undo ID
+*/
+void purge_cmd(void){
+  const char *zSubcmd;
+  int n;
+  Stmt q;
+  if( g.argc<3 ) usage("SUBCOMMAND ?ARGS?");
+  zSubcmd = g.argv[2];
+  db_find_and_open_repository(0,0);
+  n = (int)strlen(zSubcmd);
+  if( strncmp(zSubcmd, "list", n)==0 || strcmp(zSubcmd,"ls")==0 ){
+    int showDetail = find_option("l","l",0)!=0;
+    if( db_int(-1,"PRAGMA table_info('purgeevent')")<0 ) return;
+    db_prepare(&q, "SELECT peid, datetime(ctime) FROM purgeevent");
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%4d on %s\n", db_column_int(&q,0), db_column_text(&q,1));
+      if( showDetail ){
+        purge_event_content(db_column_int(&q,0));
+      }
+    }
+    db_finalize(&q);
+  }else if( strncmp(zSubcmd, "undo", n)==0 ){
+    fossil_print("Not yet implemented...\n");
+  }else{
+    int explainOnly = find_option("explain",0,0)!=0;
+    int dryRun = find_option("dry-run",0,0)!=0;
+    const char *zTag;
+    int i;
+    int vid;
+    int nCkin;
+    int nArtifact;
+    verify_all_options();
+    db_begin_transaction();
+    i = strncmp(zSubcmd,"checkin",n)==0 ? 3 : 2;
+    if( i>=g.argc ) usage("[checkin] TAGS... [--explain]");
+    db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
+    for(; i<g.argc; i++){
+      int r = symbolic_name_to_rid(g.argv[i], "ci");
+      if( r>0 ){
+        compute_descendants(r, 1000000000);
+      }else if( r==0 ){
+        fossil_fatal("not found: %s", g.argv[i]);
+      }else{
+        fossil_fatal("ambiguous: %s\n", g.argv[i]);
+      }
+    }
+    vid = db_lget_int("checkout",0);
+    if( db_exists("SELECT 1 FROM ok WHERE rid=%d",vid) ){
+      fossil_fatal("cannot purge the current checkout");
+    }
+    nCkin = db_int(0, "SELECT count(*) FROM ok");
+    find_checkin_associates("ok");
+    nArtifact = db_int(0, "SELECT count(*) FROM ok");
+    if( explainOnly ){
+      i = 0;
+      db_prepare(&q, "SELECT rid FROM ok");
+      while( db_step(&q)==SQLITE_ROW ){
+        if( i++ > 0 ) fossil_print("%.78c\n",'-');
+        whatis_rid(db_column_int(&q,0), 0);
+      }
+      db_finalize(&q);
+    }else{
+      int peid = purge_artifact_list("ok","");
+      fossil_print("%d checkins and %d artifacts purged.\n", nCkin, nArtifact);
+      fossil_print("undoable using \"%s purge undo %d\".\n",
+                    g.nameOfExe, peid);
+    }
+    db_end_transaction(explainOnly||dryRun);
+  }
 }

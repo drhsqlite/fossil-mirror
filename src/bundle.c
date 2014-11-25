@@ -146,7 +146,7 @@ void bundle_cmd(void){
   const char *zSubcmd;
   const char *zBundleFile;
   int n;
-  if( g.argc<4 ) usage("bundle SUBCOMMAND BUNDLE ?ARGUMENTS?");
+  if( g.argc<4 ) usage("SUBCOMMAND BUNDLE ?ARGUMENTS?");
   zSubcmd = g.argv[2];
   db_find_and_open_repository(0,0);
   zBundleFile = g.argv[3];

@@ -507,7 +507,7 @@ int name_to_rid_www(const char *zParamName){
 /*
 ** Generate a description of artifact "rid"
 */
-static void whatis_rid(int rid, int verboseFlag){
+void whatis_rid(int rid, int verboseFlag){
   Stmt q;
   int cnt;
 
