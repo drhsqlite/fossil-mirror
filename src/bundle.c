@@ -23,6 +23,12 @@
 
 /*
 ** SQL code used to initialize the schema of a bundle.
+**
+** The bblob.delta field can be an integer, a text string, or NULL.
+** If an integer, then the corresponding blobid is the delta basis.
+** If a text string, then that string is a SHA1 hash for the delta
+** basis, which is presumably in the master repository.  If NULL, then
+** data contains contain without delta compression.
 */
 static const char zBundleInit[] = 
 @ CREATE TABLE IF NOT EXISTS "%w".bconfig(
@@ -33,7 +39,7 @@ static const char zBundleInit[] =
 @   blobid INTEGER PRIMARY KEY,      -- Blob ID
 @   uuid TEXT NOT NULL,              -- SHA1 hash of expanded blob
 @   sz INT NOT NULL,                 -- Size of blob after expansion
-@   delta INT REFERENCES bblob,      -- Delta compression basis, or NULL
+@   delta ANY,                       -- Delta compression basis, or NULL
 @   data BLOB                        -- compressed content
 @ );
 ;
@@ -52,14 +58,38 @@ static void bundle_attach_file(
 }
 
 /*
-** List the content of a bundle
+**  fossil bundle ls BUNDLE ?OPTIONS?
+**
+** Display the content of a bundle in human-readable form.
 */
 static void bundle_ls(void){
-  
+  Stmt q;
+  sqlite3_int64 sumSz = 0;
+  sqlite3_int64 sumLen = 0;
+  bundle_attach_file(g.argv[3], "b1", 0);
+  db_prepare(&q,
+    "SELECT blobid, substr(uuid,1,16), coalesce(substr(delta,1,16),''),"
+   "        sz, length(data)"
+    "  FROM bblob"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("%4d %16s %16s %10d %10d\n",
+      db_column_int(&q,0),
+      db_column_text(&q,1),
+      db_column_text(&q,2),
+      db_column_int(&q,3),
+      db_column_int(&q,4));
+    sumSz += db_column_int(&q,3);
+    sumLen += db_column_int(&q,4);
+  }
+  db_finalize(&q);
+  fossil_print("%38s %10lld %10lld\n", "Total:", sumSz, sumLen);
 }
 
 /*
-** Implement the "fossil bundle append BUNDLE FILE..." command.
+** Implement the "fossil bundle append BUNDLE FILE..." command.  Add
+** the named files into the BUNDLE.  Create the BUNDLE if it does not
+** alraedy exist.
 */
 static void bundle_append(void){
   char *zFilename;
@@ -68,6 +98,7 @@ static void bundle_append(void){
   Stmt q;
 
   verify_all_options();
+  bundle_attach_file(g.argv[3], "b1", 1);
   db_prepare(&q, 
     "INSERT INTO bblob(blobid, uuid, sz, delta, data) "
     "VALUES(NULL, $uuid, $sz, NULL, $data)");
@@ -256,8 +287,6 @@ void bundle_cmd(void){
   if( g.argc<4 ) usage("SUBCOMMAND BUNDLE ?ARGUMENTS?");
   zSubcmd = g.argv[2];
   db_find_and_open_repository(0,0);
-  zBundleFile = g.argv[3];
-  bundle_attach_file(zBundleFile, "b1", 1);
   n = (int)strlen(zSubcmd);
   if( strncmp(zSubcmd, "export", n)==0 ){
     fossil_print("Not yet implemented...\n");
