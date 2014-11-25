@@ -62,14 +62,23 @@ static void bundle_attach_file(
 **
 ** Display the content of a bundle in human-readable form.
 */
-static void bundle_ls(void){
+static void bundle_ls_cmd(void){
   Stmt q;
   sqlite3_int64 sumSz = 0;
   sqlite3_int64 sumLen = 0;
   bundle_attach_file(g.argv[3], "b1", 0);
   db_prepare(&q,
+    "SELECT bcname, bcvalue FROM bconfig"
+    " WHERE typeof(bcvalue)='text'"
+    "   AND bcvalue NOT GLOB char(0x2a,0x0a,0x2a);"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("%s: %s\n", db_column_text(&q,0), db_column_text(&q,1));
+  }
+  db_finalize(&q);
+  db_prepare(&q,
     "SELECT blobid, substr(uuid,1,16), coalesce(substr(delta,1,16),''),"
-   "        sz, length(data)"
+    "       sz, length(data)"
     "  FROM bblob"
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -83,7 +92,7 @@ static void bundle_ls(void){
     sumLen += db_column_int(&q,4);
   }
   db_finalize(&q);
-  fossil_print("%38s %10lld %10lld\n", "Total:", sumSz, sumLen);
+  fossil_print("%39s %10lld %10lld\n", "Total:", sumSz, sumLen);
 }
 
 /*
@@ -91,7 +100,7 @@ static void bundle_ls(void){
 ** the named files into the BUNDLE.  Create the BUNDLE if it does not
 ** alraedy exist.
 */
-static void bundle_append(void){
+static void bundle_append_cmd(void){
   char *zFilename;
   Blob content, hash;
   int i;
@@ -183,7 +192,7 @@ void subtree_from_arguments(const char *zTab){
       blob_appendf(&sql,
          "     AND EXISTS(SELECT 1 FROM tagxref"
                         "  WHERE tagid=%d AND tagtype>0"
-                        "    AND value=%Q and rid=plink.cid))",
+                        "    AND value=%Q and rid=plink.cid)",
          TAG_BRANCH, zBr);
     }
     blob_appendf(&sql, ") INSERT OR IGNORE INTO \"%w\" SELECT rid FROM child;",
@@ -229,6 +238,47 @@ void test_subtree_cmd(void){
   }
   db_finalize(&q);
   db_end_transaction(1);
+}
+
+/* fossil bundle export BUNDLE ?OPTIONS?
+**
+** OPTIONS:
+**   --branch BRANCH
+**   --from TAG
+**   --to TAG
+**   --checkin TAG
+*/
+static void bundle_export_cmd(void){
+  db_multi_exec("CREATE TEMP TABLE tobundle(rid INTEGER PRIMARY KEY);");
+  subtree_from_arguments("tobundle");
+  verify_all_options();
+  bundle_attach_file(g.argv[3], "b1", 1);
+  find_checkin_associates("tobundle");
+  db_begin_transaction();
+  db_multi_exec(
+    "REPLACE INTO bblob(blobid,uuid,sz,delta,data) "
+    " SELECT"
+    "   tobundle.rid,"
+    "   b1.uuid,"
+    "   b1.size,"
+    "   CASE WHEN delta.srcid NOT IN tobundle"
+    "        THEN (SELECT uuid FROM blob WHERE rid=delta.srcid)"
+    "        ELSE delta.srcid END,"
+    "   b1.content"
+    " FROM tobundle"
+    "      JOIN blob AS b1 ON b1.rid=tobundle.rid"
+    "      LEFT JOIN delta ON delta.rid=tobundle.rid"
+  );
+  db_multi_exec(
+    "INSERT INTO bconfig(bcname,bcvalue)"
+    " VALUES('mtime',datetime('now'));"
+  );
+  db_multi_exec(
+    "INSERT INTO bconfig(bcname,bcvalue)"
+    " SELECT name, value FROM config"
+    "  WHERE name IN ('project-code');"
+  );
+  db_end_transaction(0);
 }
 
 /*
@@ -289,13 +339,13 @@ void bundle_cmd(void){
   db_find_and_open_repository(0,0);
   n = (int)strlen(zSubcmd);
   if( strncmp(zSubcmd, "export", n)==0 ){
-    fossil_print("Not yet implemented...\n");
+    bundle_export_cmd();
   }else if( strncmp(zSubcmd, "import", n)==0 ){
     fossil_print("Not yet implemented...\n");
   }else if( strncmp(zSubcmd, "ls", n)==0 ){
-    bundle_ls();
+    bundle_ls_cmd();
   }else if( strncmp(zSubcmd, "append", n)==0 ){
-    bundle_append();
+    bundle_append_cmd();
   }else if( strncmp(zSubcmd, "extract", n)==0 ){
     fossil_print("Not yet implemented...\n");
   }else{
