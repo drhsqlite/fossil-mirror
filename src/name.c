@@ -46,6 +46,40 @@ int fossil_isdate(const char *z){
 }
 
 /*
+** Return the RID that is the "root" of the branch that contains
+** check-in "rid" if inBranch==0 or the first check-in in the branch
+** if inBranch==1.
+*/
+int start_of_branch(int rid, int inBranch){
+  Stmt q;
+  int rc;
+  char *zBr;
+  zBr = db_text("trunk","SELECT value FROM tagxref"
+                        " WHERE rid=%d AND tagid=%d"
+                        " AND tagtype>0",
+                        rid, TAG_BRANCH);
+  db_prepare(&q,
+    "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
+                       " WHERE tagid=%d AND tagtype>0"
+                       "   AND value=%Q AND rid=plink.pid)"
+    "  FROM plink"
+    " WHERE cid=:cid AND isprim",
+    TAG_BRANCH, zBr
+  );
+  fossil_free(zBr);
+  do{
+    db_reset(&q);
+    db_bind_int(&q, ":cid", rid);
+    rc = db_step(&q);
+    if( rc!=SQLITE_ROW ) break;
+    if( inBranch && db_column_int(&q,1)==0 ) break;
+    rid = db_column_int(&q, 0);
+  }while( db_column_int(&q, 1)==1 && rid>0 );
+  db_finalize(&q);
+  return rid;
+}
+
+/*
 ** Convert a symbolic name into a RID.  Acceptable forms:
 **
 **   *  SHA1 hash
@@ -68,6 +102,8 @@ int fossil_isdate(const char *z){
 **
 ** The zType parameter specifies the type of artifact: ci, t, w, e, g.
 ** If zType is NULL or "" or "*" then any type of artifact will serve.
+** If zType is "br" then find the first check-in of the named branch
+** rather than the last.
 ** zType is "ci" in most use cases since we are usually searching for
 ** a check-in.
 */
@@ -76,8 +112,14 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   int rid = 0;
   int nTag;
   int i;
+  int startOfBranch = 0;
 
-  if( zType==0 || zType[0]==0 ) zType = "*";
+  if( zType==0 || zType[0]==0 ){
+    zType = "*";
+  }else if( zType[0]=='b' ){
+    zType = "ci";
+    startOfBranch = 1;
+  }
   if( zTag==0 || zTag[0]==0 ) return 0;
 
   /* special keyword: "tip" */
@@ -153,37 +195,14 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
        "   AND event.type GLOB '%q'",
        &zTag[4], zType
     );
+    if( startOfBranch ) rid = start_of_branch(rid,1);
     return rid;
   }
 
   /* root:TAG -> The origin of the branch */
   if( memcmp(zTag, "root:", 5)==0 ){
-    Stmt q;
-    int rc;
-    char *zBr;
     rid = symbolic_name_to_rid(zTag+5, zType);
-    zBr = db_text("trunk","SELECT value FROM tagxref"
-                          " WHERE rid=%d AND tagid=%d"
-                          " AND tagtype>0",
-                          rid, TAG_BRANCH);
-    db_prepare(&q,
-      "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
-                         " WHERE tagid=%d AND tagtype>0"
-                         "   AND value=%Q AND rid=plink.pid)"
-      "  FROM plink"
-      " WHERE cid=:cid AND isprim",
-      TAG_BRANCH, zBr
-    );
-    fossil_free(zBr);
-    do{
-      db_reset(&q);
-      db_bind_int(&q, ":cid", rid);
-      rc = db_step(&q);
-      if( rc!=SQLITE_ROW ) break;
-      rid = db_column_int(&q, 0);
-    }while( db_column_int(&q, 1)==1 && rid>0 );
-    db_finalize(&q);
-    return rid;
+    return start_of_branch(rid, 0);
   }
 
   /* symbolic-name ":" date-time */
@@ -247,7 +266,10 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     "   AND event.type GLOB '%q'",
     zTag, zType
   );
-  if( rid>0 ) return rid;
+  if( rid>0 ){
+    if( startOfBranch ) rid = start_of_branch(rid,1);
+    return rid;
+  }
 
   /* Undocumented:  numeric tags get translated directly into the RID */
   if( memcmp(zTag, "rid:", 4)==0 ){
@@ -659,8 +681,10 @@ void whatis_cmd(void){
   const char *zName;
   int verboseFlag;
   int i;
+  const char *zType = 0;
   db_find_and_open_repository(0,0);
   verboseFlag = find_option("verbose","v",0)!=0;
+  zType = find_option("type",0,1);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -669,7 +693,7 @@ void whatis_cmd(void){
   for(i=2; i<g.argc; i++){
     zName = g.argv[i];
     if( i>2 ) fossil_print("%.79c\n",'-');
-    rid = symbolic_name_to_rid(zName, 0);
+    rid = symbolic_name_to_rid(zName, zType);
     if( rid<0 ){
       Stmt q;
       int cnt = 0;

@@ -117,6 +117,27 @@ The "tag:deed2" name will refer to the most recent check-in
 tagged with "deed2" not to the
 check-in whose canonical name begins with "deed2".
 
+<h2>Whole Branches</h2>
+
+Usually whan a branch name is specified, it means the latest checkin on
+that branch.  But for some commands (ex: [/help/purge|purge]) a branch name
+on the argument means the earliest connected checkin on the branch.  This
+seems confusing when being explained here, but it works out to be intuitive
+in practice.
+
+For example, the command "fossil purge XYZ" means to purge the checkin XYZ
+and all of its descendents.  But when XYZ is in the form of a branch name, one
+generally wants to purge the entire branch, not just the last checkin on the
+branch.  And so for this reason, commands like purge will interpret a branch
+name to be the first checkin of the branch rather than the last.  If there
+are two or more branches with the same name, then these commands will select
+the first check-in of the branch that has the most recent checkin.  What
+happens is that Fossil searches for the most recent checkin with the given
+tag, just as it always does.  But if that tag is a branch name, it then walks
+back down the branch looking for the first check-in of that branch.
+
+Again, this behavior only occurs on a few commands where it make sense.
+
 <h2>Timestamps</h2>
 
 A timestamp in one of the formats shown below means the most recent

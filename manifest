@@ -1,5 +1,5 @@
-C Formatting\sfixes\son\sthe\s"purge\slist"\scommand.
-D 2014-11-25T03:30:57.212
+C In\sthe\s"fossil\spurge\sBRANCHNAME"\scommand,\spurge\sthe\sentire\sbranch,\snot\sjust\nthe\slast\scheckin\sof\sthe\sbranch.
+D 2014-11-25T04:19:34.346
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -394,13 +394,13 @@ F src/mkbuiltin.c 5cb95655247988d16b40dbfd2d10ec25b935ab62
 F src/mkindex.c 69da20a8f44b1ebbb0223bf3d712b4a9d4c99238
 F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
 F src/moderate.c 359e96692bcbe1a48c368c56cf57f485c48d0115
-F src/name.c 1756544f7f9cb81ab6eda24d37e29e6e6ea51918
+F src/name.c dfb51b233655e92c883bced2230b70a9b902c616
 F src/path.c 9b8e8497847a691d1a3b58e367cd53534704e267
 F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 98dae687a6c785877897b4062281a5bac002b338
-F src/purge.c 3576851e479b39a930197d73283939bddb301e6c
+F src/purge.c a76b07dc3c66cae7fb5d3e4b151353904c74a60a
 F src/rebuild.c 6575a99a720c1002efab74d761c2befe76ae7e41
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c 0c3d2aa5c686c213d454a553bd3d8529ca054be5
@@ -582,7 +582,7 @@ F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki c4263e1f2d36673fcb6c5c4cf84a8593a51c841b
 F www/changes.wiki 493c4a8e85b11dd73e871ea55a5c3a76d2578f16
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
+F www/checkin_names.wiki 80d94f4d8d893e7ba3f0bb261986e6f7a003cd41
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -660,7 +660,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 92de66d2199ce302553c245f03a6c4815d284d56
-R 87f9354ac3b8f142dc33c969d6742514
+P 4130b9a6e3f2d34240cdadc4ab983ce75a534cfc
+R 98499532cb714c74b6bf6e975fdb6e70
 U drh
-Z 6c83fa067ab5197e1fa4138bddba760e
+Z 47110b159d9e1156263c24ad8ac577ce

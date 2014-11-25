@@ -250,7 +250,8 @@ static void purge_event_content(int peid){
 **
 **   fossil purge list|ls [-l]
 **
-**      Show the graveyard of prior purges.
+**      Show the graveyard of prior purges.  The -l option gives more
+**      detail in the output.
 **
 **   fossil purge undo ID
 **
@@ -259,8 +260,9 @@ static void purge_event_content(int peid){
 **   fossil purge [checkin] TAGS... [--explain]
 **
 **      Move the checkins identified by TAGS and all of their descendants
-**      out of the repository and into the graveyard.  If the --explain option
-**      is included, then the repository and graveyard are unchanged and
+**      out of the repository and into the graveyard.  If a TAG is a branch
+        name then it means all the checkins on that branch.  If the --explain
+        option appears, then the repository and graveyard are unchanged and
 **      an explaination of what would have happened is shown instead.
 **
 ** SUMMARY:
@@ -304,7 +306,7 @@ void purge_cmd(void){
     if( i>=g.argc ) usage("[checkin] TAGS... [--explain]");
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
     for(; i<g.argc; i++){
-      int r = symbolic_name_to_rid(g.argv[i], "ci");
+      int r = symbolic_name_to_rid(g.argv[i], "br");
       if( r>0 ){
         compute_descendants(r, 1000000000);
       }else if( r==0 ){
