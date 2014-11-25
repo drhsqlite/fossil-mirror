@@ -245,7 +245,7 @@ void find_checkin_associates(const char *zTab){
 /*
 ** Display the content of a single purge event.
 */
-static void purge_event_content(int peid){
+static void purge_list_event_content(int peid){
   Stmt q;
   sqlite3_int64 sz1 = 0;
   sqlite3_int64 sz2 = 0;
@@ -268,6 +268,63 @@ static void purge_event_content(int peid){
 }
 
 /*
+** Extract the content for purgeitem number piid into a Blob.  Return
+** the number of errors.
+*/
+static int purge_extract_item(
+  int piid,            /* ID of the item to extract */
+  Blob *pOut,          /* Write the content into this blob */
+  Blob *pHash,         /* If not NULL, write the hash into this blob */
+  int *pIsPrivate      /* If not NULL, write the isPrivate flag here */
+){
+  Stmt q;
+  int srcid;
+  Blob h1, h2, x;
+  static Bag busy;
+
+  db_prepare(&q, "SELECT uuid, srcid, isPrivate, data FROM purgeitem"
+                 " WHERE piid=%d", piid);
+  if( db_step(&q)!=SQLITE_ROW ){
+    db_finalize(&q);
+    fossil_fatal("missing purge-item %d", piid);
+  }
+  if( bag_find(&busy, piid) ) return 1;
+  if( pIsPrivate ) *pIsPrivate = db_column_int(&q, 2);
+  srcid = db_column_int(&q, 1);
+  blob_zero(pOut);
+  blob_zero(&x);
+  db_column_blob(&q, 3, &x);
+  blob_uncompress(&x, pOut);
+  blob_reset(&x);
+  if( srcid>0 ){
+    Blob baseline, out;
+    bag_insert(&busy, piid);
+    purge_extract_item(srcid, &baseline, 0, 0);
+    blob_zero(&out);
+    blob_delta_apply(&baseline, pOut, &out);
+    blob_reset(pOut);
+    *pOut = out;
+    blob_reset(&baseline);
+  }
+  bag_remove(&busy, piid);
+  blob_zero(&h1);
+  db_column_blob(&q, 0, &h1);
+  sha1sum_blob(pOut, &h2);
+  if( blob_compare(&h1, &h2)!=0 ){
+    fossil_fatal("SHA1 hash mismatch - wanted %s, got %s",
+                 blob_str(&h1), blob_str(&h2));
+  }
+  if( pHash ){
+    *pHash = h1;
+  }else{
+    blob_reset(&h1);
+  }
+  blob_reset(&h2);
+  db_finalize(&q);
+  return 0;
+}
+
+/*
 ** COMMAND: purge
 **
 ** The purge command is used to remove content from a repository into a
@@ -283,6 +340,10 @@ static void purge_event_content(int peid){
 **
 **      Restore the content previously removed by purge ID.
 **
+**   fossil purge cat UUID ?FILENAME?
+**
+**      Whow the content of artifact UUID from the graveyard
+**
 **   fossil purge [checkin] TAGS... [--explain]
 **
 **      Move the checkins identified by TAGS and all of their descendants
@@ -295,6 +356,7 @@ static void purge_event_content(int peid){
 **   fossil purge [checkin] TAGS... [--explain]
 **   fossil purge list
 **   fossil purge undo ID
+**   fossil purge cat UUID [FILENAME]
 */
 void purge_cmd(void){
   const char *zSubcmd;
@@ -312,12 +374,24 @@ void purge_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       fossil_print("%4d on %s\n", db_column_int(&q,0), db_column_text(&q,1));
       if( showDetail ){
-        purge_event_content(db_column_int(&q,0));
+        purge_list_event_content(db_column_int(&q,0));
       }
     }
     db_finalize(&q);
   }else if( strncmp(zSubcmd, "undo", n)==0 ){
     fossil_print("Not yet implemented...\n");
+  }else if( strncmp(zSubcmd, "cat", n)==0 ){
+    const char *zOutFile;
+    int piid;
+    Blob content;
+    if( g.argc!=4 && g.argc!=5 ) usage("cat UUID [FILENAME]");
+    zOutFile = g.argc==5 ? g.argv[4] : "-";
+    piid = db_int(0, "SELECT piid FROM purgeitem WHERE uuid LIKE '%q%%'",
+                     g.argv[3]);
+    if( piid==0 ) fossil_fatal("no such item: %s", g.argv[3]);
+    purge_extract_item(piid, &content, 0, 0);
+    blob_write_to_file(&content, zOutFile);
+    blob_reset(&content);
   }else{
     int explainOnly = find_option("explain",0,0)!=0;
     int dryRun = find_option("dry-run",0,0)!=0;
