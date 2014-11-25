@@ -38,7 +38,7 @@
 static const char zPurgeInit[] = 
 @ CREATE TABLE IF NOT EXISTS "%w".purgeevent(
 @   peid INTEGER PRIMARY KEY,  -- Unique ID for the purge event
-@   ctime DATETIME,            -- Julian day number when purge occurred
+@   ctime DATETIME,            -- When purge occurred.  Seconds since 1970.
 @   pnotes TEXT                -- Human-readable notes about the purge event
 @ );
 @ CREATE TABLE IF NOT EXISTS "%w".purgeitem(
@@ -238,7 +238,7 @@ static void purge_event_content(int peid){
     sz2 += db_column_int(&q,2);
   }
   db_finalize(&q);
-  fossil_print("  %40s %10lld %10lld\n", "", sz1, sz2);
+  fossil_print("  %40s %10lld %10lld\n", "Total:", sz1, sz2);
 }
 
 /*
@@ -279,7 +279,8 @@ void purge_cmd(void){
   if( strncmp(zSubcmd, "list", n)==0 || strcmp(zSubcmd,"ls")==0 ){
     int showDetail = find_option("l","l",0)!=0;
     if( db_int(-1,"PRAGMA table_info('purgeevent')")<0 ) return;
-    db_prepare(&q, "SELECT peid, datetime(ctime) FROM purgeevent");
+    db_prepare(&q, "SELECT peid, datetime(ctime,'unixepoch','localtime')"
+                   " FROM purgeevent");
     while( db_step(&q)==SQLITE_ROW ){
       fossil_print("%4d on %s\n", db_column_int(&q,0), db_column_text(&q,1));
       if( showDetail ){

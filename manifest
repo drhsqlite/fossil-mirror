@@ -1,5 +1,5 @@
-C The\s"purge"\sand\s"purge\slist"\scommands\sappear\sto\sbe\sworking.
-D 2014-11-25T01:33:05.547
+C Formatting\sfixes\son\sthe\s"purge\slist"\scommand.
+D 2014-11-25T03:30:57.212
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -400,7 +400,7 @@ F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 98dae687a6c785877897b4062281a5bac002b338
-F src/purge.c dc135fb1271102e28fdfa5852c64fdc9181ec61f
+F src/purge.c 3576851e479b39a930197d73283939bddb301e6c
 F src/rebuild.c 6575a99a720c1002efab74d761c2befe76ae7e41
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c 0c3d2aa5c686c213d454a553bd3d8529ca054be5
@@ -660,7 +660,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cd4fdbed05d9d583d48fca4441d6c37183f15811
-R e86731a3b97e51c74f2a643a6affbfae
+P 92de66d2199ce302553c245f03a6c4815d284d56
+R 87f9354ac3b8f142dc33c969d6742514
 U drh
-Z c0c136cf5ec25d242ee32f28008cfa9a
+Z 6c83fa067ab5197e1fa4138bddba760e
