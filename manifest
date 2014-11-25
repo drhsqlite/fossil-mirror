@@ -1,5 +1,5 @@
-C In\sthe\s"fossil\spurge\sBRANCHNAME"\scommand,\spurge\sthe\sentire\sbranch,\snot\sjust\nthe\slast\scheckin\sof\sthe\sbranch.
-D 2014-11-25T04:19:34.346
+C Use\sdelta\scompression\son\selements\sof\sa\ssingle\spurgeevent\sin\sthe\sgraveyard.\nRecord\swhether\sor\snot\selements\swere\soriginally\sprivate\swhen\smoving\sthem\ninto\sthe\sgraveyard.
+D 2014-11-25T12:37:14.811
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -400,12 +400,12 @@ F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 98dae687a6c785877897b4062281a5bac002b338
-F src/purge.c a76b07dc3c66cae7fb5d3e4b151353904c74a60a
+F src/purge.c dc9737d6598779f9dad8212b4d5e04fb36247933
 F src/rebuild.c 6575a99a720c1002efab74d761c2befe76ae7e41
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c 0c3d2aa5c686c213d454a553bd3d8529ca054be5
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
-F src/schema.c 09cc50b3c3695c40d4756defcc948ae972db875d
+F src/schema.c f48e4957d363287a1cab5055cab483d08ef2956e
 F src/search.c 76f0639e7bfe4e07dfac1234c421caab12452ff7
 F src/setup.c 1b3a7720220bc008b66df11c10e570e63d629d42
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
@@ -660,7 +660,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4130b9a6e3f2d34240cdadc4ab983ce75a534cfc
-R 98499532cb714c74b6bf6e975fdb6e70
+P cbe1fa51097d2ea3c974fd74566f9e12b2b44446
+R 9d9727d36abe84c23faeb4b1042d1759
 U drh
-Z 47110b159d9e1156263c24ad8ac577ce
+Z 13924ed23b9cbaff8b652e654f28fb80

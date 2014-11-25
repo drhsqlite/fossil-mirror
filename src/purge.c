@@ -42,8 +42,12 @@ static const char zPurgeInit[] =
 @   pnotes TEXT                -- Human-readable notes about the purge event
 @ );
 @ CREATE TABLE IF NOT EXISTS "%w".purgeitem(
+@   piid INTEGER PRIMARY KEY,  -- ID for the purge item
 @   peid INTEGER REFERENCES purgeevent ON DELETE CASCADE, -- Purge event
+@   orid INTEGER,              -- Original RID before purged 
 @   uuid TEXT NOT NULL,        -- SHA1 hash of the purged artifact
+@   srcid INTEGER,             -- Basis purgeitem for delta compression
+@   isPrivate BOOLEAN,         -- True if artifact was originally private
 @   sz INT NOT NULL,           -- Uncompressed size of the purged artifact
 @   data BLOB                  -- Compressed artifact content
 @ );
@@ -86,7 +90,6 @@ int purge_artifact_list(
   Stmt q;                       /* General-use prepared statement */
 
   assert( g.repositoryOpen );   /* Main database must already be open */
-  add_content_sql_commands(g.db);
   db_begin_transaction();
   if( purge_baseline_out_from_under_delta(zTab) ){
     fossil_fatal("attempt to purge a baseline manifest without also purging "
@@ -106,13 +109,32 @@ int purge_artifact_list(
     verify_before_commit(rid);
   }
   db_finalize(&q);
+  db_prepare(&q, "SELECT rid FROM delta WHERE rid IN \"%w\""
+                 " AND srcid NOT IN \"%w\"", zTab, zTab);
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    content_undelta(rid);
+  }
+  db_finalize(&q);
   db_multi_exec(
-    "INSERT INTO purgeitem(peid,uuid,sz,data)"
-    "  SELECT %d, uuid, size, compress(content(uuid))"
+    "INSERT INTO purgeitem(peid,orid,uuid,sz,isPrivate,data)"
+    "  SELECT %d, rid, uuid, size,"
+    "    EXISTS(SELECT 1 FROM private WHERE private.rid=blob.rid),"
+    "    content"
     "    FROM blob WHERE rid IN \"%w\"",
     peid, zTab
   );
+  db_multi_exec(
+    "UPDATE purgeitem"
+    "   SET srcid=(SELECT piid FROM purgeitem px, delta"
+                  " WHERE px.orid=delta.srcid"
+                  "   AND delta.rid=purgeitem.orid)"
+    " WHERE peid=%d",
+    peid
+  );
   db_multi_exec("DELETE FROM blob WHERE rid IN \"%w\"", zTab);
+  db_multi_exec("DELETE FROM delta WHERE rid IN \"%w\"", zTab);
+  db_multi_exec("DELETE FROM delta WHERE srcid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM event WHERE objid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM private WHERE rid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM mlink WHERE mid IN \"%w\"", zTab);
@@ -227,18 +249,22 @@ static void purge_event_content(int peid){
   Stmt q;
   sqlite3_int64 sz1 = 0;
   sqlite3_int64 sz2 = 0;
-  db_prepare(&q, "SELECT uuid, sz, length(data) FROM purgeitem WHERE peid=%d",
-             peid);
+  db_prepare(&q, "SELECT piid, substr(uuid,1,16), srcid, isPrivate,"
+                 "       sz, length(data)"
+                 " FROM purgeitem WHERE peid=%d", peid);
   while( db_step(&q)==SQLITE_ROW ){
-    fossil_print("  %s %10d %10d\n",
-                 db_column_text(&q,0),
-                 db_column_int(&q,1),
-                 db_column_int(&q,2));
-    sz1 += db_column_int(&q,1);
-    sz2 += db_column_int(&q,2);
+    fossil_print("     %5d %s %4s %c %10d %10d\n",
+       db_column_int(&q,0),
+       db_column_text(&q,1),
+       db_column_text(&q,2),
+       db_column_int(&q,3) ? 'P' : ' ',
+       db_column_int(&q,4),
+       db_column_int(&q,5));
+    sz1 += db_column_int(&q,4);
+    sz2 += db_column_int(&q,5);
   }
   db_finalize(&q);
-  fossil_print("  %40s %10lld %10lld\n", "Total:", sz1, sz2);
+  fossil_print("%.11c%16s%.8c%10lld %10lld\n", ' ', "Total:", ' ', sz1, sz2);
 }
 
 /*
@@ -261,8 +287,8 @@ static void purge_event_content(int peid){
 **
 **      Move the checkins identified by TAGS and all of their descendants
 **      out of the repository and into the graveyard.  If a TAG is a branch
-        name then it means all the checkins on that branch.  If the --explain
-        option appears, then the repository and graveyard are unchanged and
+**      name then it means all the checkins on that branch.  If the --explain
+**      option appears, then the repository and graveyard are unchanged and
 **      an explaination of what would have happened is shown instead.
 **
 ** SUMMARY:
