@@ -30,11 +30,11 @@ static const char zBundleInit[] =
 @   bcvalue ANY
 @ );
 @ CREATE TABLE IF NOT EXISTS "%w".bblob(
-@   blobid INTEGER PRIMARY KEY,
-@   uuid TEXT NOT NULL,
-@   sz INT NOT NULL,
-@   delta ANY,
-@   data BLOB
+@   blobid INTEGER PRIMARY KEY,      -- Blob ID
+@   uuid TEXT NOT NULL,              -- SHA1 hash of expanded blob
+@   sz INT NOT NULL,                 -- Size of blob after expansion
+@   delta INT REFERENCES bblob,      -- Delta compression basis, or NULL
+@   data BLOB                        -- compressed content
 @ );
 ;
 
@@ -89,7 +89,116 @@ static void bundle_append(void){
   db_end_transaction(0);
   db_finalize(&q);
 }
-  
+
+/*
+** Identify a subsection of the checkin tree using command-line switches.
+** There must be one of the following switch available:
+**
+**     --branch BRANCHNAME          All checkins on the most recent
+**                                  instance of BRANCHNAME
+**     --from TAG1 [--to TAG2]      Checkin TAG1 and all primary descendants
+**                                  up to and including TAG2
+**     --checkin TAG                Checkin TAG only
+**
+** Store the RIDs for all applicable checkins in the zTab table that 
+** should already exist.  Invoke fossil_fatal() if any kind of error is
+** seen.
+*/
+void subtree_from_arguments(const char *zTab){
+  const char *zBr;
+  const char *zFrom;
+  const char *zTo;
+  const char *zCkin;
+  int rid, endRid;
+
+  zBr = find_option("branch",0,1);
+  zFrom = find_option("from",0,1);
+  zTo = find_option("to",0,1);
+  zCkin = find_option("checkin",0,1);
+  if( zCkin ){
+    if( zFrom ) fossil_fatal("cannot use both --checkin and --from");
+    if( zBr ) fossil_fatal("cannot use both --checkin and --branch");
+    rid = symbolic_name_to_rid(zCkin, "ci");
+    endRid = rid;
+  }else{
+    endRid = zTo ? name_to_typed_rid(zTo, "ci") : 0;
+  }
+  if( zFrom ){
+    rid = name_to_typed_rid(zFrom, "ci");
+  }else if( zBr ){
+    rid = name_to_typed_rid(zBr, "br");
+  }else if( zCkin==0 ){
+    fossil_fatal("need on of: --branch, --from, --checkin");
+  }
+  db_multi_exec("INSERT OR IGNORE INTO \"%w\" VALUES(%d)", zTab, rid);
+  if( rid!=endRid ){
+    Blob sql;
+    blob_zero(&sql);
+    blob_appendf(&sql,
+       "WITH RECURSIVE child(rid) AS (VALUES(%d) UNION ALL "
+       "  SELECT cid FROM plink, child"
+       "   WHERE plink.pid=child.rid"
+       "     AND plink.isPrim", rid);
+    if( endRid>0 ){
+      double endTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d",
+                                 endRid);
+      blob_appendf(&sql,
+        "    AND child.rid!=%d"
+        "    AND (SELECT mtime FROM event WHERE objid=plink.cid)<=%.17g",
+        endRid, endTime
+      );
+    }
+    if( zBr ){
+      blob_appendf(&sql,
+         "     AND EXISTS(SELECT 1 FROM tagxref"
+                        "  WHERE tagid=%d AND tagtype>0"
+                        "    AND value=%Q and rid=plink.cid))",
+         TAG_BRANCH, zBr);
+    }
+    blob_appendf(&sql, ") INSERT OR IGNORE INTO \"%w\" SELECT rid FROM child;",
+                 zTab);
+    db_multi_exec("%s", blob_str(&sql)/*safe-for-%s*/);
+  }
+}
+
+/*
+** COMMAND: test-subtree
+**
+** Usage: %fossil test-subtree ?OPTIONS?
+**
+** Show the subset of checkins that match the supplied options.  This
+** command is used to test the subtree_from_options() subroutine in the
+** implementation and does not really have any other practical use that
+** we know of.
+**
+** Options:
+**    --branch BRANCH           Include only checkins on BRANCH
+**    --from TAG                Start the subtree at TAG
+**    --to TAG                  End the subtree at TAG
+**    --checkin TAG             The subtree is the single checkin TAG
+*/
+void test_subtree_cmd(void){
+  Stmt q;
+  db_find_and_open_repository(0,0);
+  db_begin_transaction();
+  db_multi_exec("CREATE TEMP TABLE tobundle(rid INTEGER PRIMARY KEY);");
+  subtree_from_arguments("tobundle");
+  db_prepare(&q,
+    "SELECT "
+    "  (SELECT substr(uuid,1,10) FROM blob WHERE rid=tobundle.rid),"
+    "  (SELECT substr(comment,1,30) FROM event WHERE objid=tobundle.rid),"
+    "  tobundle.rid"
+    " FROM tobundle;"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+     fossil_print("%5d %s %s\n", 
+        db_column_int(&q, 2),
+        db_column_text(&q, 0),
+        db_column_text(&q, 1));
+  }
+  db_finalize(&q);
+  db_end_transaction(1);
+}
 
 /*
 ** COMMAND: bundle
@@ -105,8 +214,6 @@ static void bundle_append(void){
 **         --branch BRANCH            Package all check-ins on BRANCH.
 **         --from TAG1 --to TAG2      Package check-ins between TAG1 and TAG2.
 **         --m COMMENT                Add the comment to the bundle.
-**         --standalone               The bundle will not include any deltas
-**                                       against files not in the bundle.
 **         --explain                  Just explain what would have happened.
 **
 **   fossil bundle import BUNDLE ?--publish? ?--explain?

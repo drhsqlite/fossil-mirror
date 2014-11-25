@@ -81,26 +81,32 @@ static const char zPurgeInit[] =
 **    (7) If any ticket artifacts were removed (6j) then rebuild the
 **        corresponding ticket entries.  Possibly remove entries from
 **        the ticket table.
+**
+** Stops 1-4 (saving the purged artifacts into the graveyard) are only
+** undertaken if the moveToGraveyard flag is true.
 */
 int purge_artifact_list(
   const char *zTab,       /* TEMP table containing list of RIDS to be purged */
-  const char *zNote       /* Text of the purgeevent.pnotes field */
+  const char *zNote,      /* Text of the purgeevent.pnotes field */
+  int moveToGraveyard     /* Move purged artifacts into the graveyard */
 ){
   int peid = 0;                 /* New purgeevent ID */
   Stmt q;                       /* General-use prepared statement */
 
   assert( g.repositoryOpen );   /* Main database must already be open */
   db_begin_transaction();
+
+  /* Make sure we are not removing a manifest that is the baseline of some
+  ** manifest that is being left behind.  This step is not strictly necessary.
+  ** is is just a safety check. */
   if( purge_baseline_out_from_under_delta(zTab) ){
     fossil_fatal("attempt to purge a baseline manifest without also purging "
                  "all of its deltas");
   }
-  db_multi_exec(zPurgeInit /*works-like:"%w%w"*/, 
-                db_name("repository"), db_name("repository"));
-  db_multi_exec(
-    "INSERT INTO purgeevent(ctime,pnotes) VALUES(now(),%Q)", zNote
-  );
-  peid = db_last_insert_rowid();
+
+  /* Make sure that no delta that is left behind requires a purged artifact
+  ** as its basis.  If such artifacts exist, go ahead and undelta them now.
+  */
   db_prepare(&q, "SELECT rid FROM delta WHERE srcid IN \"%w\""
                  " AND rid NOT IN \"%w\"", zTab, zTab);
   while( db_step(&q)==SQLITE_ROW ){
@@ -109,29 +115,43 @@ int purge_artifact_list(
     verify_before_commit(rid);
   }
   db_finalize(&q);
-  db_prepare(&q, "SELECT rid FROM delta WHERE rid IN \"%w\""
-                 " AND srcid NOT IN \"%w\"", zTab, zTab);
-  while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0);
-    content_undelta(rid);
+
+  /* Construct the graveyard and copy the artifacts to be purged into the
+  ** graveyard */
+  if( moveToGraveyard ){
+    db_multi_exec(zPurgeInit /*works-like:"%w%w"*/, 
+                  db_name("repository"), db_name("repository"));
+    db_multi_exec(
+      "INSERT INTO purgeevent(ctime,pnotes) VALUES(now(),%Q)", zNote
+    );
+    peid = db_last_insert_rowid();
+    db_prepare(&q, "SELECT rid FROM delta WHERE rid IN \"%w\""
+                   " AND srcid NOT IN \"%w\"", zTab, zTab);
+    while( db_step(&q)==SQLITE_ROW ){
+      int rid = db_column_int(&q, 0);
+      content_undelta(rid);
+    }
+    db_finalize(&q);
+    db_multi_exec(
+      "INSERT INTO purgeitem(peid,orid,uuid,sz,isPrivate,data)"
+      "  SELECT %d, rid, uuid, size,"
+      "    EXISTS(SELECT 1 FROM private WHERE private.rid=blob.rid),"
+      "    content"
+      "    FROM blob WHERE rid IN \"%w\"",
+      peid, zTab
+    );
+    db_multi_exec(
+      "UPDATE purgeitem"
+      "   SET srcid=(SELECT piid FROM purgeitem px, delta"
+                    " WHERE px.orid=delta.srcid"
+                    "   AND delta.rid=purgeitem.orid)"
+      " WHERE peid=%d",
+      peid
+    );
   }
-  db_finalize(&q);
-  db_multi_exec(
-    "INSERT INTO purgeitem(peid,orid,uuid,sz,isPrivate,data)"
-    "  SELECT %d, rid, uuid, size,"
-    "    EXISTS(SELECT 1 FROM private WHERE private.rid=blob.rid),"
-    "    content"
-    "    FROM blob WHERE rid IN \"%w\"",
-    peid, zTab
-  );
-  db_multi_exec(
-    "UPDATE purgeitem"
-    "   SET srcid=(SELECT piid FROM purgeitem px, delta"
-                  " WHERE px.orid=delta.srcid"
-                  "   AND delta.rid=purgeitem.orid)"
-    " WHERE peid=%d",
-    peid
-  );
+
+  /* Remove the artifacts being purged.  Also remove all references to those
+  ** artifacts from the secondary tables. */
   db_multi_exec("DELETE FROM blob WHERE rid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM delta WHERE rid IN \"%w\"", zTab);
   db_multi_exec("DELETE FROM delta WHERE srcid IN \"%w\"", zTab);
@@ -162,6 +182,8 @@ int purge_artifact_list(
   }
   db_finalize(&q);
   db_multi_exec("DROP TABLE \"%w_tickets\"", zTab);
+
+  /* Mission accomplished */
   db_end_transaction(0);
   return peid;
 }
@@ -478,14 +500,8 @@ void purge_cmd(void){
     if( i>=g.argc ) usage("[checkin] TAGS... [--explain]");
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
     for(; i<g.argc; i++){
-      int r = symbolic_name_to_rid(g.argv[i], "br");
-      if( r>0 ){
-        compute_descendants(r, 1000000000);
-      }else if( r==0 ){
-        fossil_fatal("not found: %s", g.argv[i]);
-      }else{
-        fossil_fatal("ambiguous: %s\n", g.argv[i]);
-      }
+      int r = name_to_typed_rid(g.argv[i], "br");
+      compute_descendants(r, 1000000000);
     }
     vid = db_lget_int("checkout",0);
     if( db_exists("SELECT 1 FROM ok WHERE rid=%d",vid) ){
@@ -503,7 +519,7 @@ void purge_cmd(void){
       }
       db_finalize(&q);
     }else{
-      int peid = purge_artifact_list("ok","");
+      int peid = purge_artifact_list("ok","",1);
       fossil_print("%d checkins and %d artifacts purged.\n", nCkin, nArtifact);
       fossil_print("undoable using \"%s purge undo %d\".\n",
                     g.nameOfExe, peid);
