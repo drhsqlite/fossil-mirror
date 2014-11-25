@@ -273,33 +273,30 @@ static void purge_list_event_content(int peid){
 */
 static int purge_extract_item(
   int piid,            /* ID of the item to extract */
-  Blob *pOut,          /* Write the content into this blob */
-  Blob *pHash,         /* If not NULL, write the hash into this blob */
-  int *pIsPrivate      /* If not NULL, write the isPrivate flag here */
+  Blob *pOut           /* Write the content into this blob */
 ){
   Stmt q;
   int srcid;
   Blob h1, h2, x;
   static Bag busy;
 
-  db_prepare(&q, "SELECT uuid, srcid, isPrivate, data FROM purgeitem"
+  db_prepare(&q, "SELECT uuid, srcid, data FROM purgeitem"
                  " WHERE piid=%d", piid);
   if( db_step(&q)!=SQLITE_ROW ){
     db_finalize(&q);
     fossil_fatal("missing purge-item %d", piid);
   }
   if( bag_find(&busy, piid) ) return 1;
-  if( pIsPrivate ) *pIsPrivate = db_column_int(&q, 2);
   srcid = db_column_int(&q, 1);
   blob_zero(pOut);
   blob_zero(&x);
-  db_column_blob(&q, 3, &x);
+  db_column_blob(&q, 2, &x);
   blob_uncompress(&x, pOut);
   blob_reset(&x);
   if( srcid>0 ){
     Blob baseline, out;
     bag_insert(&busy, piid);
-    purge_extract_item(srcid, &baseline, 0, 0);
+    purge_extract_item(srcid, &baseline);
     blob_zero(&out);
     blob_delta_apply(&baseline, pOut, &out);
     blob_reset(pOut);
@@ -314,14 +311,70 @@ static int purge_extract_item(
     fossil_fatal("SHA1 hash mismatch - wanted %s, got %s",
                  blob_str(&h1), blob_str(&h2));
   }
-  if( pHash ){
-    *pHash = h1;
-  }else{
-    blob_reset(&h1);
-  }
+  blob_reset(&h1);
   blob_reset(&h2);
   db_finalize(&q);
   return 0;
+}
+
+/*
+** There is a TEMP table ix(piid,srcid) containing a set of purgeitems
+** that need to be transferred to the BLOB table.  This routine does
+** all items that have srcid=iSrc.  The pBasis blob holds the content
+** of the source document if iSrc>0.
+*/
+static void purge_item_resurrect(int iSrc, Blob *pBasis){
+  Stmt q;
+  static Bag busy;
+  assert( pBasis!=0 || iSrc==0 );
+  if( iSrc>0 ){
+    if( bag_find(&busy, iSrc) ){
+      fossil_fatal("delta loop while uncompressing purged artifacts");
+    }
+    bag_insert(&busy, iSrc);
+  }
+  db_prepare(&q, 
+     "SELECT uuid, data, isPrivate, ix.piid"
+     "  FROM ix, purgeitem"
+     " WHERE ix.srcid=%d"
+     "   AND ix.piid=purgeitem.piid;",
+     iSrc
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    Blob h1, h2, c1, c2;
+    int isPriv, rid;
+    blob_zero(&h1);
+    db_column_blob(&q, 0, &h1);
+    blob_zero(&c1);
+    db_column_blob(&q, 1, &c1);
+    blob_uncompress(&c1, &c1);
+    blob_zero(&c2);
+    if( pBasis ){
+      blob_delta_apply(pBasis, &c1, &c2);
+      blob_reset(&c1);
+    }else{
+      c2 = c1;
+    }
+    sha1sum_blob(&c2, &h2);
+    if( blob_compare(&h1, &h2)!=0 ){
+      fossil_fatal("SHA1 hash mismatch - wanted %s, got %s",
+                   blob_str(&h1), blob_str(&h2));
+    }
+    blob_reset(&h2);
+    isPriv = db_column_int(&q, 2);
+    rid = content_put_ex(&c2, blob_str(&h1), 0, 0, isPriv);
+    if( rid==0 ){
+      fossil_fatal("%s", g.zErrMsg);
+    }else{
+      if( !isPriv ) content_make_public(rid);
+      content_get(rid, &c1);
+      manifest_crosslink(rid, &c1, MC_NO_ERRORS);
+    }
+    purge_item_resurrect(db_column_int(&q,3), &c2);
+    blob_reset(&c2);
+  }
+  db_finalize(&q);
+  if( iSrc>0 ) bag_remove(&busy, iSrc);
 }
 
 /*
@@ -379,7 +432,26 @@ void purge_cmd(void){
     }
     db_finalize(&q);
   }else if( strncmp(zSubcmd, "undo", n)==0 ){
-    fossil_print("Not yet implemented...\n");
+    int peid;
+    if( g.argc!=4 ) usage("undo ID");
+    peid = atoi(g.argv[3]);
+    db_begin_transaction();
+    db_multi_exec(
+      "CREATE TEMP TABLE ix("
+      "  piid INTEGER PRIMARY KEY,"
+      "  srcid INTEGER"
+      ");"
+      "CREATE INDEX ixsrcid ON ix(srcid);"
+      "INSERT INTO ix(piid,srcid) "
+      "  SELECT piid, coalesce(srcid,0) FROM purgeitem WHERE peid=%d;",
+      peid
+    );
+    manifest_crosslink_begin();
+    purge_item_resurrect(0, 0);
+    manifest_crosslink_end(0);
+    db_multi_exec("DELETE FROM purgeevent WHERE peid=%d", peid);
+    db_multi_exec("DELETE FROM purgeitem WHERE peid=%d", peid);
+    db_end_transaction(0);
   }else if( strncmp(zSubcmd, "cat", n)==0 ){
     const char *zOutFile;
     int piid;
@@ -389,7 +461,7 @@ void purge_cmd(void){
     piid = db_int(0, "SELECT piid FROM purgeitem WHERE uuid LIKE '%q%%'",
                      g.argv[3]);
     if( piid==0 ) fossil_fatal("no such item: %s", g.argv[3]);
-    purge_extract_item(piid, &content, 0, 0);
+    purge_extract_item(piid, &content);
     blob_write_to_file(&content, zOutFile);
     blob_reset(&content);
   }else{
