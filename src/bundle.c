@@ -437,6 +437,82 @@ static void bundle_import_elements(int iSrc, Blob *pBasis, int isPriv){
   if( iSrc>0 ) bag_remove(&busy, iSrc);
 }
 
+/*
+** Extract an item from content from the bundle
+*/
+static void bundle_extract_item(
+  int blobid,          /* ID of the item to extract */
+  Blob *pOut           /* Write the content into this blob */
+){
+  Stmt q;
+  Blob x, basis, h1, h2;
+  static Bag busy;
+
+  db_prepare(&q, "SELECT uuid, delta, data FROM bblob"
+                 " WHERE blobid=%d", blobid);
+  if( db_step(&q)!=SQLITE_ROW ){
+    db_finalize(&q);
+    fossil_fatal("no such item: %d", blobid);
+  }
+  if( bag_find(&busy, blobid) ) fossil_fatal("delta loop");
+  blob_zero(&x);
+  db_column_blob(&q, 2, &x);
+  blob_uncompress(&x, &x);
+  if( db_column_type(&q,1)==SQLITE_INTEGER ){
+    bundle_extract_item(db_column_int(&q,1), &basis);
+    blob_delta_apply(&basis, &x, pOut);
+    blob_reset(&basis);
+    blob_reset(&x);
+  }else if( db_column_type(&q,1)==SQLITE_TEXT ){
+    int rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q",
+                     db_column_text(&q,1));
+    if( rid==0 ){
+      fossil_fatal("cannot find delta basis %s", db_column_text(&q,1));
+    }
+    content_get(rid, &basis);
+    db_column_blob(&q, 2, &x);
+    blob_delta_apply(&basis, &x, pOut);
+    blob_reset(&basis);
+    blob_reset(&x);
+  }else{
+    *pOut = x;
+  }
+  blob_zero(&h1);
+  db_column_blob(&q, 0, &h1);
+  sha1sum_blob(pOut, &h2);
+  if( blob_compare(&h1, &h2)!=0 ){
+    fossil_fatal("SHA1 hash mismatch - wanted %s, got %s",
+                 blob_str(&h1), blob_str(&h2));
+  }
+  blob_reset(&h1);
+  blob_reset(&h2);
+  bag_remove(&busy, blobid);
+  db_finalize(&q);
+}
+
+/* fossil bundle cat BUNDLE UUID...
+**
+** Write elements of a bundle on standard output
+*/
+static void bundle_cat_cmd(void){
+  int i;
+  Blob x;
+  if( g.argc<5 ) usage("cat BUNDLE UUID...");
+  verify_all_options();
+  bundle_attach_file(g.argv[3], "b1", 1);
+  blob_zero(&x);
+  for(i=4; i<g.argc; i++){
+    int blobid = db_int(0,"SELECT blobid FROM bblob WHERE uuid LIKE '%q%%'",
+                        g.argv[i]);
+    if( blobid==0 ){
+      fossil_fatal("no such artifact in bundle: %s", g.argv[i]);
+    }
+    bundle_extract_item(blobid, &x);
+    blob_write_to_file(&x, "-");
+    blob_reset(&x);
+  }
+}
+
 
 /* fossil bundle import BUNDLE ?OPTIONS?
 **
@@ -570,7 +646,7 @@ void bundle_cmd(void){
   if( strncmp(zSubcmd, "append", n)==0 ){
     bundle_append_cmd();
   }else if( strncmp(zSubcmd, "cat", n)==0 ){
-    fossil_print("Not yet implemented...\n");
+    bundle_cat_cmd();
   }else if( strncmp(zSubcmd, "export", n)==0 ){
     bundle_export_cmd();
   }else if( strncmp(zSubcmd, "import", n)==0 ){
