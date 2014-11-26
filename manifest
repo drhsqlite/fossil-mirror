@@ -1,5 +1,5 @@
-C Fix\srelated\sto\sprevious\sone:\sprevent\sto\sconvert\sfrom\sUTF-8\sto\sUnicode\sbefore\swriting\sto\sthe\s(non-redirected)\swindows\sconsole.\sStrange\seffects\scould\shappen.
-D 2014-11-26T14:53:41.483
+C Revert\sthe\sbuilt-in\sSQLite\sto\sversion\s3.8.7.2\suntil\sa\sbtree\sproblem\sin\n3.8.8\sis\sfixed.
+D 2014-11-26T19:15:05.801
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -411,8 +411,8 @@ F src/shell.c bc28d5992109717c87804e2eb1a08a7c8cc7a2fd
 F src/shun.c 57f609c7cd56b7169e7aa81c2d23c6d8094be5ae
 F src/skins.c 810054ea1343bc1b78c2f4b9b0d8a9145fd4ae39
 F src/sqlcmd.c 221f08cdc7bec44bf2ffcf85612aca764d1c4a75
-F src/sqlite3.c 8d881ac69cb8aef47b716f79087ce65b53919b67
-F src/sqlite3.h cc72102c07838b85b89892529b5650879a91449d
+F src/sqlite3.c b2a68d5783f48dba6a8cb50d8bf69b238c5ec53a
+F src/sqlite3.h 27d5349c315d2b041dd5758651deaaaa6306383a
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 842683346b6def34cc739fbd10eec57a24d44957
 F src/style.c 3da9f511ffca45a6af76b506e8ec12ed4f7ee1b7
@@ -658,7 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f2fc37c063af9fae4fac87d754ba7448ddc7ef8c
-R 2565065f64e684db81dcb86974495d3e
-U jan.nijtmans
-Z ff99d8d77ebe931427a2ca29ca8f9c3f
+P 156ef9ec06a069f3791c4fba8e3972a1099bad7b
+R c5bb1876433cc61e14e8635eb8abdecd
+U drh
+Z 17f057c97177b919a6843126dfc4b499
