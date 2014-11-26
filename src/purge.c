@@ -210,10 +210,20 @@ int purge_baseline_out_from_under_delta(const char *zTab){
 /*
 ** The TEMP table named zTab contains the RIDs for a set of checkin
 ** artifacts.  Expand this set (by adding new entries to zTab) to include
-** all other artifacts that are used exclusively by the set of checkins in
+** all other artifacts that are used the set of checkins in
 ** the original list.
+**
+** If the bExclusive flag is true, then the set is only expanded by
+** artifacts that are used exclusively by the checkins in the set.
+** When bExclusive is false, then all artifacts used by the checkins
+** are added even if those artifacts are also used by other checkins
+** not in the set.
+**
+** The "fossil publish" command with the (undocumented) --test and
+** --exclusive options can be used for interactiving testing of this
+** function.
 */
-void find_checkin_associates(const char *zTab){
+void find_checkin_associates(const char *zTab, int bExclusive){
   db_begin_transaction();
 
   /* Compute the set of files that need to be added to zTab */
@@ -223,14 +233,16 @@ void find_checkin_associates(const char *zTab){
     "  SELECT fid FROM mlink WHERE fid!=0 AND mid IN \"%w\"",
     zTab, zTab
   );
-  /* But take out all files that are referenced by check-ins not in zTab */
-  db_multi_exec(
-    "DELETE FROM \"%w_files\""
-    " WHERE fid IN (SELECT fid FROM mlink"
-                   " WHERE fid IN \"%w_files\""
-                   "   AND mid NOT IN \"%w\")",
-    zTab, zTab, zTab
-  );
+  if( bExclusive ){
+    /* But take out all files that are referenced by check-ins not in zTab */
+    db_multi_exec(
+      "DELETE FROM \"%w_files\""
+      " WHERE fid IN (SELECT fid FROM mlink"
+                     " WHERE fid IN \"%w_files\""
+                     "   AND mid NOT IN \"%w\")",
+      zTab, zTab, zTab
+    );
+  }
 
   /* Compute the set of tags that need to be added to zTag */
   db_multi_exec("CREATE TEMP TABLE \"%w_tags\"(tid INTEGER PRIMARY KEY)",zTab);
@@ -239,19 +251,21 @@ void find_checkin_associates(const char *zTab){
     "  SELECT DISTINCT srcid FROM tagxref WHERE rid in \"%w\" AND srcid!=0",
     zTab, zTab
   );
-  /* But take out tags that references some check-ins in zTab and other
-  ** check-ins not in zTab.  The current Fossil implementation never creates
-  ** such tags, so the following should usually be a no-op.  But the file
-  ** format specification allows such tags, so we should check for them.
-  */
-  db_multi_exec(
-    "DELETE FROM \"%w_tags\""
-    " WHERE tid IN (SELECT srcid FROM tagxref"
-                   " WHERE srcid IN \"%w_tags\""
-                   "   AND rid NOT IN \"%w\")",
-    zTab, zTab, zTab
-  );
-
+  if( bExclusive ){
+    /* But take out tags that references some check-ins in zTab and other
+    ** check-ins not in zTab.  The current Fossil implementation never creates
+    ** such tags, so the following should usually be a no-op.  But the file
+    ** format specification allows such tags, so we should check for them.
+    */
+    db_multi_exec(
+      "DELETE FROM \"%w_tags\""
+      " WHERE tid IN (SELECT srcid FROM tagxref"
+                     " WHERE srcid IN \"%w_tags\""
+                     "   AND rid NOT IN \"%w\")",
+      zTab, zTab, zTab
+    );
+  }
+  
   /* Transfer the extra artifacts into zTab */
   db_multi_exec(
     "INSERT OR IGNORE INTO \"%w\" SELECT fid FROM \"%w_files\";"
@@ -545,7 +559,7 @@ void purge_cmd(void){
       fossil_fatal("cannot purge the current checkout");
     }
     nCkin = db_int(0, "SELECT count(*) FROM ok");
-    find_checkin_associates("ok");
+    find_checkin_associates("ok", 1);
     nArtifact = db_int(0, "SELECT count(*) FROM ok");
     if( explainOnly ){
       i = 0;

@@ -256,7 +256,7 @@ static void bundle_export_cmd(void){
   ** should be in the bundle */
   db_multi_exec("CREATE TEMP TABLE tobundle(rid INTEGER PRIMARY KEY);");
   subtree_from_arguments("tobundle");
-  find_checkin_associates("tobundle");
+  find_checkin_associates("tobundle", !bStandalone);
   verify_all_options();
 
   /* Create the new bundle */

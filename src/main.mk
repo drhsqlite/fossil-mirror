@@ -89,6 +89,7 @@ SRC = \
   $(SRCDIR)/popen.c \
   $(SRCDIR)/pqueue.c \
   $(SRCDIR)/printf.c \
+  $(SRCDIR)/publish.c \
   $(SRCDIR)/purge.c \
   $(SRCDIR)/rebuild.c \
   $(SRCDIR)/regexp.c \
@@ -208,6 +209,7 @@ TRANS_SRC = \
   $(OBJDIR)/popen_.c \
   $(OBJDIR)/pqueue_.c \
   $(OBJDIR)/printf_.c \
+  $(OBJDIR)/publish_.c \
   $(OBJDIR)/purge_.c \
   $(OBJDIR)/rebuild_.c \
   $(OBJDIR)/regexp_.c \
@@ -324,6 +326,7 @@ OBJ = \
  $(OBJDIR)/popen.o \
  $(OBJDIR)/pqueue.o \
  $(OBJDIR)/printf.o \
+ $(OBJDIR)/publish.o \
  $(OBJDIR)/purge.o \
  $(OBJDIR)/rebuild.o \
  $(OBJDIR)/regexp.o \
@@ -549,6 +552,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/popen_.c:$(OBJDIR)/popen.h \
 	$(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h \
 	$(OBJDIR)/printf_.c:$(OBJDIR)/printf.h \
+	$(OBJDIR)/publish_.c:$(OBJDIR)/publish.h \
 	$(OBJDIR)/purge_.c:$(OBJDIR)/purge.h \
 	$(OBJDIR)/rebuild_.c:$(OBJDIR)/rebuild.h \
 	$(OBJDIR)/regexp_.c:$(OBJDIR)/regexp.h \
@@ -1194,6 +1198,14 @@ $(OBJDIR)/printf.o:	$(OBJDIR)/printf_.c $(OBJDIR)/printf.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/printf.o -c $(OBJDIR)/printf_.c
 
 $(OBJDIR)/printf.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/publish_.c:	$(SRCDIR)/publish.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/publish.c >$@
+
+$(OBJDIR)/publish.o:	$(OBJDIR)/publish_.c $(OBJDIR)/publish.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/publish.o -c $(OBJDIR)/publish_.c
+
+$(OBJDIR)/publish.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/purge_.c:	$(SRCDIR)/purge.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/purge.c >$@
