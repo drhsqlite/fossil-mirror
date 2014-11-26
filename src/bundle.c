@@ -243,32 +243,27 @@ void test_subtree_cmd(void){
 /* fossil bundle export BUNDLE ?OPTIONS?
 **
 ** OPTIONS:
-**   --branch BRANCH
-**   --from TAG
-**   --to TAG
+**   --branch BRANCH --from TAG --to TAG
 **   --checkin TAG
+**   --standalone
 */
 static void bundle_export_cmd(void){
+  int bStandalone = find_option("standalone",0,0)!=0;
+  int mnToBundle;   /* Minimum RID in the bundle */
+  Stmt q;
+
+  /* Decode the arguments (like --branch) that specify which artifacts
+  ** should be in the bundle */
   db_multi_exec("CREATE TEMP TABLE tobundle(rid INTEGER PRIMARY KEY);");
   subtree_from_arguments("tobundle");
-  verify_all_options();
-  bundle_attach_file(g.argv[3], "b1", 1);
   find_checkin_associates("tobundle");
+  verify_all_options();
+
+  /* Create the new bundle */
+  bundle_attach_file(g.argv[3], "b1", 1);
   db_begin_transaction();
-  db_multi_exec(
-    "REPLACE INTO bblob(blobid,uuid,sz,delta,data) "
-    " SELECT"
-    "   tobundle.rid,"
-    "   b1.uuid,"
-    "   b1.size,"
-    "   CASE WHEN delta.srcid NOT IN tobundle"
-    "        THEN (SELECT uuid FROM blob WHERE rid=delta.srcid)"
-    "        ELSE delta.srcid END,"
-    "   b1.content"
-    " FROM tobundle"
-    "      JOIN blob AS b1 ON b1.rid=tobundle.rid"
-    "      LEFT JOIN delta ON delta.rid=tobundle.rid"
-  );
+
+  /* Add 'mtime' and 'project-code' entries to the bconfig table */
   db_multi_exec(
     "INSERT INTO bconfig(bcname,bcvalue)"
     " VALUES('mtime',datetime('now'));"
@@ -278,6 +273,99 @@ static void bundle_export_cmd(void){
     " SELECT name, value FROM config"
     "  WHERE name IN ('project-code');"
   );
+
+  /* Directly copy content from the repository into the bundle as long
+  ** as the repository content is a delta from some other artifact that
+  ** is also in the bundle.
+  */
+  db_multi_exec(
+    "REPLACE INTO bblob(blobid,uuid,sz,delta,data) "
+    " SELECT"
+    "   tobundle.rid,"
+    "   blob.uuid,"
+    "   blob.size,"
+    "   delta.srcid,"
+    "   blob.content"
+    " FROM tobundle, blob, delta"
+    " WHERE blob.rid=tobundle.rid"
+    "   AND delta.rid=tobundle.rid;"
+  );
+
+  /* For all the remaining artifacts, we need to construct their deltas
+  ** manually.
+  */
+  mnToBundle = db_int(0,"SELECT min(rid) FROM tobundle");
+  db_prepare(&q,
+     "SELECT rid FROM tobundle"
+     " WHERE rid NOT IN (SELECT blobid FROM bblob)"
+     " ORDER BY +rid;"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    Blob content;
+    int rid = db_column_int(&q,0);
+    int deltaFrom = 0;
+
+    /* Get the raw, uncompressed content of the artifact into content */
+    content_get(rid, &content);
+
+    /* Try to find another artifact, not within the bundle, that is a
+    ** plausible candidate for being a delta basis for the content.  Set
+    ** deltaFrom to the RID of that other artifact.  Leave deltaFrom set
+    ** to zero if the content should not be delta-compressed
+    */
+    if( !bStandalone ){
+      if( db_exists("SELECT 1 FROM plink WHERE cid=%d",rid) ){
+        deltaFrom = db_int(0,
+           "SELECT max(cid) FROM plink"
+           " WHERE cid<%d", mnToBundle);
+      }else{
+        deltaFrom = db_int(0,
+           "SELECT max(fid) FROM mlink"
+           " WHERE fnid=(SELECT fnid FROM mlink WHERE fid=%d)"
+           "   AND fid<%d", rid, mnToBundle);
+      }
+    }
+
+    /* Try to insert the insert the artifact as a delta
+    */
+    if( deltaFrom ){
+      Blob basis, delta;
+      content_get(deltaFrom, &basis);
+      blob_delta_create(&basis, &content, &delta);
+      if( blob_size(&delta)>0.9*blob_size(&content) ){
+        deltaFrom = 0;
+      }else{
+        Stmt ins;
+        blob_compress(&delta, &delta);
+        db_prepare(&ins,
+          "REPLACE INTO bblob(blobid,uuid,sz,delta,data)"
+          " SELECT %d, uuid, size, (SELECT uuid FROM blob WHERE rid=%d),"
+          "  :delta FROM blob WHERE rid=%d", rid, deltaFrom, rid);
+        db_bind_blob(&ins, ":delta", &delta);
+        db_step(&ins);
+        db_finalize(&ins);
+      }
+      blob_reset(&basis);
+      blob_reset(&delta);
+    }
+
+    /* If unable to insert the artifact as a delta, insert full-text */
+    if( deltaFrom==0 ){
+      Stmt ins;
+      blob_compress(&content, &content);
+      db_prepare(&ins,
+        "REPLACE INTO bblob(blobid,uuid,sz,delta,data)"
+        " SELECT rid, uuid, size, NULL, :content"
+          " FROM blob WHERE rid=%d", rid);
+      db_bind_blob(&ins, ":content", &content);
+      db_step(&ins);
+      db_finalize(&ins);
+    }
+    blob_reset(&content);
+  }
+  db_finalize(&q);
+
+
   db_end_transaction(0);
 }
 
@@ -419,46 +507,57 @@ static void bundle_import_cmd(void){
 **
 ** Usage: %fossil bundle SUBCOMMAND ARGS...
 **
-**   fossil bundle export BUNDLE ?OPTIONS?
-**
-**      Generate a new bundle, in the file named BUNDLE, that constains a
-**      subset of the check-ins in the repository (usually a single branch)
-**      as determined by OPTIONS.  OPTIONS include:
-**
-**         --branch BRANCH            Package all check-ins on BRANCH.
-**         --from TAG1 --to TAG2      Package check-ins between TAG1 and TAG2.
-**         --m COMMENT                Add the comment to the bundle.
-**         --explain                  Just explain what would have happened.
-**
-**   fossil bundle import BUNDLE ?--publish?
-**
-**      Import the bundle in file BUNDLE into the repository.  The --publish
-**      option makes the import public.  The --explain option makes no changes
-**      to the repository but rather explains what would have happened.
-**
-**   fossil bundle ls BUNDLE
-**
-**      List the contents of BUNDLE on standard output
-**
 **   fossil bundle append BUNDLE FILE...
 **
 **      Add files named on the command line to BUNDLE.  This subcommand has
 **      little practical use and is mostly intended for testing.
 **
-**   fossil bundle cat BUNDLE UUID ?FILE?
+**   fossil bundle cat BUNDLE UUID...
 **
-**      Extract an artifact from the bundle.  Write it into FILE, or onto
-**      standard output if FILE is omitted.
+**      Extract one or more artifacts from the bundle and write them
+**      consecutively on standard output.
+**
+**   fossil bundle export BUNDLE ?OPTIONS?
+**
+**      Generate a new bundle, in the file named BUNDLE, that constains a
+**      subset of the check-ins in the repository (usually a single branch)
+**      described by the --branch, --from, --to, and/or --checkin options,
+**      at least one of which is required.  If BUNDLE already exists, the
+**      specified content is added to the bundle.
+**
+**         --branch BRANCH            Package all check-ins on BRANCH.
+**         --from TAG1 --to TAG2      Package checkins between TAG1 and TAG2.
+**         --checkin TAG              Package the single checkin TAG
+**         --standalone               Do no use delta-encoding against
+**                                      artifacts not in the bundle
+**
+**   fossil bundle import BUNDLE ?--publish?
+**
+**      Import the bundle in file BUNDLE into the repository.  By default, the
+**      imported files are private and will not sync.  Use the --publish
+**      option makes the import public.
+**
+**   fossil bundle ls BUNDLE
+**
+**      List the contents of BUNDLE on standard output
+**
+**   fossil bundle purge BUNDLE
+**
+**      Remove all files found in BUNDLE from the repository.  This has
+**      the effect of undoing a "fossil bundle import".
 **
 ** SUMMARY:
-**   fossil bundle export BUNDLEFILE ?OPTIONS?
-**          --branch BRANCH
-**          --from TAG1 --to TAG2
-**          --explain
-**   fossil bundle import BUNDLEFILE ?OPTIONS?
-**          --publish
-**          --explain
-**   fossil bundle ls BUNDLEFILE
+**   fossil bundle append BUNDLE FILE...              Add files to BUNDLE
+**   fossil bundle cat BUNDLE UUID...                 Extract file from BUNDLE
+**   fossil bundle export BUNDLE ?OPTIONS?            Create a new BUNDLE
+**          --branch BRANCH --from TAG1 --to TAG2       Checkins to include
+**          --checkin TAG                               Use only checkin TAG
+**          --standalone                                Omit dependencies
+**   fossil bundle import BUNDLE ?OPTIONS?            Import a bundle
+**          --publish                                   Publish the import
+**          --force                                     Cross-repo import
+**   fossil bundle ls BUNDLE                          List content of a bundle
+**   fossil bundle purge BUNDLE                       Undo an import
 */
 void bundle_cmd(void){
   const char *zSubcmd;
@@ -468,15 +567,17 @@ void bundle_cmd(void){
   zSubcmd = g.argv[2];
   db_find_and_open_repository(0,0);
   n = (int)strlen(zSubcmd);
-  if( strncmp(zSubcmd, "export", n)==0 ){
+  if( strncmp(zSubcmd, "append", n)==0 ){
+    bundle_append_cmd();
+  }else if( strncmp(zSubcmd, "cat", n)==0 ){
+    fossil_print("Not yet implemented...\n");
+  }else if( strncmp(zSubcmd, "export", n)==0 ){
     bundle_export_cmd();
   }else if( strncmp(zSubcmd, "import", n)==0 ){
     bundle_import_cmd();
   }else if( strncmp(zSubcmd, "ls", n)==0 ){
     bundle_ls_cmd();
-  }else if( strncmp(zSubcmd, "append", n)==0 ){
-    bundle_append_cmd();
-  }else if( strncmp(zSubcmd, "extract", n)==0 ){
+  }else if( strncmp(zSubcmd, "purge", n)==0 ){
     fossil_print("Not yet implemented...\n");
   }else{
     fossil_fatal("unknown subcommand for bundle: %s", zSubcmd);

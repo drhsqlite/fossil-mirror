@@ -1,5 +1,5 @@
-C Initial\simplementation\sof\sthe\s"bundle\simport"\scommand.\s\sAlso\sadded\sthe\n"db_debug()"\sfunction\sfor\suse\sin\sdebugging.
-D 2014-11-26T01:40:35.588
+C Improved\sselect\sof\sdelta\sbasis\sfiles\sfor\s"bundle\sexport".\s\sAdded\nthe\s--standalone\soption\sto\s"bundle\sexport".\s\sImproved\shelp\smessages\sfor\nboth\sthe\sbundle\sand\spurge\scommands.
+D 2014-11-26T14:26:15.280
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -319,7 +319,7 @@ F src/blob.c 5b0eca90820d6c4a55eed9036d4527b50b0aaba4
 F src/branch.c 981eefb8d583787eb679eee529b9ae9f89a5d691
 F src/browse.c 7e802de8f55afa35b5075d3db67ffaae3028f464
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
-F src/bundle.c e217fef6388137f292b9be5339a8b6b355b5163e
+F src/bundle.c b225e390923808947f45f61df39bad228cf4add8
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 259725db75a53752aef97d99c38cbfd0e86e43ec
@@ -400,7 +400,7 @@ F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 98dae687a6c785877897b4062281a5bac002b338
-F src/purge.c 95aaa35fcab9dad37f1dd0ed0b5daafc645ac332
+F src/purge.c 015b73f1ba9f8c3fd5b0eaad6778bdf78dbe8869
 F src/rebuild.c 6575a99a720c1002efab74d761c2befe76ae7e41
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c 0c3d2aa5c686c213d454a553bd3d8529ca054be5
@@ -660,7 +660,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a2f04d81735d49b67d68480551aaff4751a3098b
-R 479d8c3cfa05fe5dc68c47b26f0351bc
+P 8abe20a137fa953f8c761dabd7e96f47ba65aa2a
+R 98a20d15d9a985365998374d2df24e48
 U drh
-Z a4697230308cd753eba6c5c2a4ee93b7
+Z 8d48a6106db06cf353cec3f3b8f3d1c2

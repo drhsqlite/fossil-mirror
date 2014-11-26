@@ -402,9 +402,24 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 /*
 ** COMMAND: purge
 **
-** The purge command is used to remove content from a repository into a
-** "graveyard" and also to show manage the graveyard and optionally restored
-** content into the repository from the graveyard.
+** The purge command removes content from a repository and stores that content
+** in a "graveyard".  The graveyard exists so that content can be recovered
+** using the "fossil purge undo" command.
+**
+**   fossil purge cat UUID...
+**
+**      Write the content of one or more artifacts in the graveyard onto
+**      standard output.
+**
+**   fossil purge [checkin] TAGS... [--explain]
+**
+**      Move the checkins identified by TAGS and all of their descendants
+**      out of the repository and into the graveyard.  If a TAG is a branch
+**      name then it means all the checkins on that branch.  If the --explain
+**      option appears, then the repository and graveyard are unchanged and
+**      an explaination of what would have happened is shown instead.  The
+**      "checkin" subcommand keyword is only required if TAGS would be
+**      ambiguous with one of the other subcommands.
 **
 **   fossil purge list|ls [-l]
 **
@@ -415,23 +430,11 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **
 **      Restore the content previously removed by purge ID.
 **
-**   fossil purge cat UUID ?FILENAME?
-**
-**      Whow the content of artifact UUID from the graveyard
-**
-**   fossil purge [checkin] TAGS... [--explain]
-**
-**      Move the checkins identified by TAGS and all of their descendants
-**      out of the repository and into the graveyard.  If a TAG is a branch
-**      name then it means all the checkins on that branch.  If the --explain
-**      option appears, then the repository and graveyard are unchanged and
-**      an explaination of what would have happened is shown instead.
-**
 ** SUMMARY:
+**   fossil purge cat UUID...
 **   fossil purge [checkin] TAGS... [--explain]
 **   fossil purge list
 **   fossil purge undo ID
-**   fossil purge cat UUID [FILENAME]
 */
 void purge_cmd(void){
   const char *zSubcmd;
