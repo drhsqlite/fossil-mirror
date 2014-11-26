@@ -24,6 +24,16 @@
 #include "timeline.h"
 
 /*
+** Add an appropriate tag to the output if "rid" is unpublished (private)
+*/
+#define UNPUB_TAG "<em>(unpublished)</em>"
+void tag_private_status(int rid){
+  if( content_is_private(rid) ){
+    cgi_printf("%s", UNPUB_TAG);
+  }
+}
+
+/*
 ** Generate a hyperlink to a version.
 */
 void hyperlink_to_uuid(const char *zUuid){
@@ -458,7 +468,7 @@ void www_print_timeline(
         @ tags: %h(zTagList))
       }
     }
-
+    tag_private_status(rid);
 
     /* Generate extra hyperlinks at the end of the comment */
     if( xExtra ){
@@ -473,7 +483,7 @@ void www_print_timeline(
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery,
           "SELECT (pid==0) AS isnew,"
-          "       (fid==0) AS isdel,"
+          "       fid,"
           "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
           "       (SELECT uuid FROM blob WHERE rid=fid),"
           "       (SELECT uuid FROM blob WHERE rid=pid),"
@@ -490,10 +500,12 @@ void www_print_timeline(
       while( db_step(&fchngQuery)==SQLITE_ROW ){
         const char *zFilename = db_column_text(&fchngQuery, 2);
         int isNew = db_column_int(&fchngQuery, 0);
-        int isDel = db_column_int(&fchngQuery, 1);
+        int fid = db_column_int(&fchngQuery, 1);
+        int isDel = fid==0;
         const char *zOldName = db_column_text(&fchngQuery, 5);
         const char *zOld = db_column_text(&fchngQuery, 4);
         const char *zNew = db_column_text(&fchngQuery, 3);
+        const char *zUnpubTag = "";
         if( !inUl ){
           @ <ul class="filelist">
           inUl = 1;
@@ -504,19 +516,22 @@ void www_print_timeline(
           }
           continue;
         }
+        if( content_is_private(fid) ){
+          zUnpubTag =  UNPUB_TAG;
+        }
         if( isNew ){
-          @ <li> %h(zFilename) (new file) &nbsp;
+          @ <li> %h(zFilename) %s(zUnpubTag) (new file) &nbsp;
           @ %z(href("%R/artifact/%s",zNew))[view]</a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
-          @ <li> %h(zOldName) &rarr; %h(zFilename)
+          @ <li> %h(zOldName) &rarr; %h(zFilename) %s(zUnpubTag)
           @ %z(href("%R/artifact/%s",zNew))[view]</a></li>
         }else{
           if( zOldName!=0 ){
-            @ <li> %h(zOldName) &rarr; %h(zFilename)
+            @ <li> %h(zOldName) &rarr; %h(zFilename) %s(zUnpubTag)
           }else{
-            @ <li> %h(zFilename) &nbsp;
+            @ <li> %h(zFilename) &nbsp; %s(zUnpubTag)
           }
           @ %z(href("%R/fdiff?sbs=1&v1=%s&v2=%s",zOld,zNew))[diff]</a></li>
         }
@@ -1619,7 +1634,11 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     }
     if( fossil_strcmp(zCurrentUuid,zId)==0 ){
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*CURRENT* ");
-      n += strlen(zPrefix);
+      n += strlen(zPrefix+n);
+    }
+    if( content_is_private(rid) ){
+      sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*UNPUBLISHED* ");
+      n += strlen(zPrefix+n);
     }
     zFree = mprintf("[%S] %s%s", zId, zPrefix, zCom);
     /* record another X lines */
