@@ -1,5 +1,5 @@
-C Fix\sthe\s"purge\scat"\scommand\sto\swork\sas\sdocumented.\s\sAdd\sthe\n"purge\sobliterate"\scommand.
-D 2014-11-26T14:58:37.641
+C When\sundoing\sa\spurge,\smake\ssure\sto\salso\sunshun\sall\sresurrected\selements.
+D 2014-11-26T15:11:15.016
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -400,7 +400,7 @@ F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 98dae687a6c785877897b4062281a5bac002b338
-F src/purge.c 36aa080359520dac7847cb51cddbf5dab6ea121e
+F src/purge.c 74a7265daeeeb474485295040cf7be0bcb245b6f
 F src/rebuild.c 6575a99a720c1002efab74d761c2befe76ae7e41
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c 0c3d2aa5c686c213d454a553bd3d8529ca054be5
@@ -660,7 +660,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P eb3ae3d619cfb00c55321045d6dae668fc4ee6bc
-R e284d0a1d90f9765ffb3e25e4fb3e38c
+P 353bfbacb9d20c3db3dca4f2ea0d4ce4985a8200
+R 3cd763e42b0af0a0ad82c9962b550882
 U drh
-Z 1de56e5df4f3226da16d01e078ce8ef3
+Z 9f737a59c135de343ef57cf14133a3d7

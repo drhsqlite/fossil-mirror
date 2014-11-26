@@ -511,6 +511,11 @@ void purge_cmd(void){
       "  SELECT piid, coalesce(srcid,0) FROM purgeitem WHERE peid=%d;",
       peid
     );
+    db_multi_exec(
+      "DELETE FROM shun"
+      " WHERE uuid IN (SELECT uuid FROM purgeitem WHERE peid=%d);",
+      peid
+    );
     manifest_crosslink_begin();
     purge_item_resurrect(0, 0);
     manifest_crosslink_end(0);
