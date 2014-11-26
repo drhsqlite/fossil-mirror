@@ -281,6 +281,139 @@ static void bundle_export_cmd(void){
   db_end_transaction(0);
 }
 
+
+/*
+** There is a TEMP table bix(blobid,delta) containing a set of purgeitems
+** that need to be transferred to the BLOB table.  This routine does
+** all items that have srcid=iSrc.  The pBasis blob holds the content
+** of the source document if iSrc>0.
+*/
+static void bundle_import_elements(int iSrc, Blob *pBasis, int isPriv){
+  Stmt q;
+  static Bag busy;
+  assert( pBasis!=0 || iSrc==0 );
+  if( iSrc>0 ){
+    if( bag_find(&busy, iSrc) ){
+      fossil_fatal("delta loop while uncompressing bundle artifacts");
+    }
+    bag_insert(&busy, iSrc);
+  }
+  db_prepare(&q, 
+     "SELECT uuid, data, bblob.delta, bix.blobid"
+     "  FROM bix, bblob"
+     " WHERE bix.delta=%d"
+     "   AND bix.blobid=bblob.blobid;",
+     iSrc
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    Blob h1, h2, c1, c2;
+    int rid;
+    blob_zero(&h1);
+    db_column_blob(&q, 0, &h1);
+    blob_zero(&c1);
+    db_column_blob(&q, 1, &c1);
+    blob_uncompress(&c1, &c1);
+    blob_zero(&c2);
+    if( db_column_type(&q,2)==SQLITE_TEXT && db_column_bytes(&q,2)==40 ){
+      Blob basis;
+      rid = db_int(0,"SELECT rid FROM blob WHERE uuid=%Q",
+                   db_column_text(&q,2));
+      content_get(rid, &basis);
+      blob_delta_apply(&basis, &c1, &c2);
+      blob_reset(&basis);
+      blob_reset(&c1);
+    }else if( pBasis ){
+      blob_delta_apply(pBasis, &c1, &c2);
+      blob_reset(&c1);
+    }else{
+      c2 = c1;
+    }
+    sha1sum_blob(&c2, &h2);
+    if( blob_compare(&h1, &h2)!=0 ){
+      fossil_fatal("SHA1 hash mismatch - wanted %s, got %s",
+                   blob_str(&h1), blob_str(&h2));
+    }
+    blob_reset(&h2);
+    rid = content_put_ex(&c2, blob_str(&h1), 0, 0, isPriv);
+    if( rid==0 ){
+      fossil_fatal("%s", g.zErrMsg);
+    }else{
+      if( !isPriv ) content_make_public(rid);
+      content_get(rid, &c1);
+      manifest_crosslink(rid, &c1, MC_NO_ERRORS);
+    }
+    bundle_import_elements(db_column_int(&q,3), &c2, isPriv);
+    blob_reset(&c2);
+  }
+  db_finalize(&q);
+  if( iSrc>0 ) bag_remove(&busy, iSrc);
+}
+
+
+/* fossil bundle import BUNDLE ?OPTIONS?
+**
+** Attempt to import the changes contained in BUNDLE.  Make the change
+** private so that they do not sync.
+**
+** OPTIONS:
+**    --force           Import even if the project-code does not match
+**    --publish         Imported changes are not private
+*/
+static void bundle_import_cmd(void){
+  int forceFlag = find_option("force","f",0)!=0;
+  int isPriv = find_option("publish",0,0)==0;
+  char *zMissingDeltas;
+  Stmt q;
+  verify_all_options();
+  bundle_attach_file(g.argv[3], "b1", 1);
+
+  /* Only import a bundle that was generated from a repo with the same
+  ** project code, unless the --force flag is true */
+  if( !forceFlag ){
+    if( !db_exists("SELECT 1 FROM config, bconfig"
+                  " WHERE config.name='project-code'"
+                  "   AND bconfig.bcname='project-code'"
+                  "   AND config.value=bconfig.bcvalue;")
+    ){
+      fossil_fatal("project-code in the bundle does not match the "
+                   "repository project code.  (override with --force).");
+    }
+  }
+
+  /* If the bundle contains deltas with a basis that is external to the
+  ** bundle and those external basis files are missing from the local
+  ** repo, then the delta encodings cannot be decoded and the bundle cannot
+  ** be extracted. */
+  zMissingDeltas = db_text(0,
+      "SELECT group_concat(substr(delta,1,10),' ')"
+      "  FROM bblob"
+      " WHERE typeof(delta)='text' AND length(delta)=40"
+      "   AND NOT EXISTS(SELECT 1 FROM blob WHERE uuid=bblob.delta)");
+  if( zMissingDeltas && zMissingDeltas[0] ){
+    fossil_fatal("delta basis artifacts not found in repository: %s",
+                 zMissingDeltas);
+  }
+
+  db_begin_transaction();
+  db_multi_exec(
+    "CREATE TEMP TABLE bix("
+    "  blobid INTEGER PRIMARY KEY,"
+    "  delta INTEGER"
+    ");"
+    "CREATE INDEX bixdelta ON bix(delta);"
+    "INSERT INTO bix(blobid,delta)"
+    "  SELECT blobid,"
+    "         CASE WHEN typeof(delta)=='integer'"
+    "              THEN delta ELSE 0 END"
+    "    FROM bblob"
+    "   WHERE NOT EXISTS(SELECT 1 FROM blob WHERE uuid=bblob.uuid);"
+  );
+  manifest_crosslink_begin();
+  bundle_import_elements(0, 0, isPriv);
+  manifest_crosslink_end(0);
+  db_end_transaction(0);    
+}
+
 /*
 ** COMMAND: bundle
 **
@@ -297,7 +430,7 @@ static void bundle_export_cmd(void){
 **         --m COMMENT                Add the comment to the bundle.
 **         --explain                  Just explain what would have happened.
 **
-**   fossil bundle import BUNDLE ?--publish? ?--explain?
+**   fossil bundle import BUNDLE ?--publish?
 **
 **      Import the bundle in file BUNDLE into the repository.  The --publish
 **      option makes the import public.  The --explain option makes no changes
@@ -312,13 +445,10 @@ static void bundle_export_cmd(void){
 **      Add files named on the command line to BUNDLE.  This subcommand has
 **      little practical use and is mostly intended for testing.
 **
-**   fossil bundle extract BUNDLE ?UUID? ?FILE?
+**   fossil bundle cat BUNDLE UUID ?FILE?
 **
-**      Extract artifacts from the bundle.  With no arguments, all artifacts
-**      are extracted into files named by the UUID.  If a specific UUID is
-**      specified, then only that one artifact is extracted.  If a FILE
-**      argument is also given, then the artifact is extracted into that
-**      particular file.
+**      Extract an artifact from the bundle.  Write it into FILE, or onto
+**      standard output if FILE is omitted.
 **
 ** SUMMARY:
 **   fossil bundle export BUNDLEFILE ?OPTIONS?
@@ -341,7 +471,7 @@ void bundle_cmd(void){
   if( strncmp(zSubcmd, "export", n)==0 ){
     bundle_export_cmd();
   }else if( strncmp(zSubcmd, "import", n)==0 ){
-    fossil_print("Not yet implemented...\n");
+    bundle_import_cmd();
   }else if( strncmp(zSubcmd, "ls", n)==0 ){
     bundle_ls_cmd();
   }else if( strncmp(zSubcmd, "append", n)==0 ){

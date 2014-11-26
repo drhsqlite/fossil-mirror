@@ -426,6 +426,9 @@ int db_changes(void){
 ** Extract text, integer, or blob values from the N-th column of the
 ** current row.
 */
+int db_column_type(Stmt *pStmt, int N){
+  return sqlite3_column_type(pStmt->pStmt, N);
+}
 int db_column_bytes(Stmt *pStmt, int N){
   return sqlite3_column_bytes(pStmt->pStmt, N);
 }
@@ -486,6 +489,46 @@ int db_exec(Stmt *pStmt){
   while( (rc = db_step(pStmt))==SQLITE_ROW ){}
   rc = db_reset(pStmt);
   db_check_result(rc);
+  return rc;
+}
+
+/*
+** Print the output of one or more SQL queries on standard output.
+** This routine is used for debugging purposes only.
+*/
+int db_debug(const char *zSql, ...){
+  Blob sql;
+  int rc = SQLITE_OK;
+  va_list ap;
+  const char *z, *zEnd;
+  sqlite3_stmt *pStmt;
+  blob_init(&sql, 0, 0);
+  va_start(ap, zSql);
+  blob_vappendf(&sql, zSql, ap);
+  va_end(ap);
+  z = blob_str(&sql);
+  while( rc==SQLITE_OK && z[0] ){
+    pStmt = 0;
+    rc = sqlite3_prepare_v2(g.db, z, -1, &pStmt, &zEnd);
+    if( rc!=SQLITE_OK ) break;
+    if( pStmt ){
+      int nRow = 0;
+      db.nPrepare++;
+      while( sqlite3_step(pStmt)==SQLITE_ROW ){
+        int i, n;
+        if( nRow++ > 0 ) fossil_print("\n");
+        n = sqlite3_column_count(pStmt);
+        for(i=0; i<n; i++){
+          fossil_print("%s = %s\n", sqlite3_column_name(pStmt, i),
+                       sqlite3_column_text(pStmt,i));
+        }
+      }
+      rc = sqlite3_finalize(pStmt);
+      if( rc ) db_err("%s: {%.*s}", sqlite3_errmsg(g.db), (int)(zEnd-z), z);
+    }
+    z = zEnd;
+  }
+  blob_reset(&sql);
   return rc;
 }
 
