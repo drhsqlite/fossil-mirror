@@ -1,5 +1,5 @@
-C Fix\s"Corrupt\sline\sendings\sin\scat/finfo\son\sWindows\swith\sCR+LF\sfiles",\sreported\son\sML.
-D 2014-11-26T10:13:24.085
+C Fix\srelated\sto\sprevious\sone:\sprevent\sto\sconvert\sfrom\sUTF-8\sto\sUnicode\sbefore\swriting\sto\sthe\s(non-redirected)\swindows\sconsole.\sStrange\seffects\scould\shappen.
+D 2014-11-26T14:53:41.483
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -433,7 +433,7 @@ F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
 F src/update.c 2f69d6a50355f0b0b13430e0ddc0a4cabe8d51a8
 F src/url.c b7743600119e97d34f96aea8996b9a4caad4bdc0
 F src/user.c 1160e782d0da7e29e714a500bafbbac3ce8f70e1
-F src/utf8.c 29dbb74ed5e3b1fd0846d5358f01dc2839106cf9
+F src/utf8.c cb3a7d214d1eea0919fc68b0683388d1cf61c78b
 F src/util.c 227890c094477666f208c710453f4bfae0a8a52e
 F src/verify.c 615e25ed6d43420dd14d550158bb2a9444ca1d8c
 F src/vfile.c 448fd883b6f413118a1d69bf6eab19d8bb132e46
@@ -658,7 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fd1a2921995a38ef5d22609c1d6ebfb1f72431f9
-R a38fb11f0c44952323e73dd8d0f9515c
+P f2fc37c063af9fae4fac87d754ba7448ddc7ef8c
+R 2565065f64e684db81dcb86974495d3e
 U jan.nijtmans
-Z 1fe81d77a1519d53ddbd00aee1105e1b
+Z ff99d8d77ebe931427a2ca29ca8f9c3f
