@@ -411,20 +411,28 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **      Write the content of one or more artifacts in the graveyard onto
 **      standard output.
 **
-**   fossil purge [checkin] TAGS... [--explain]
+**   fossil purge ?checkins? TAGS... ?OPTIONS?
 **
 **      Move the checkins identified by TAGS and all of their descendants
-**      out of the repository and into the graveyard.  If a TAG is a branch
-**      name then it means all the checkins on that branch.  If the --explain
-**      option appears, then the repository and graveyard are unchanged and
-**      an explaination of what would have happened is shown instead.  The
-**      "checkin" subcommand keyword is only required if TAGS would be
-**      ambiguous with one of the other subcommands.
+**      out of the repository and into the graveyard.  The "checkins" 
+**      subcommand keyword is option and can be omitted as long as TAGS
+**      does not conflict with any other subcommand.
 **
-**   fossil purge list|ls [-l]
+**      If a TAGS includes a branch name then it means all the checkins
+**      on the most recent occurrance of that branch.
+**
+**           --explain         Make no changes, but show what would happen.
+**           --dry-run         Make no chances.
+**
+**   fossil purge list|ls ?-l?
 **
 **      Show the graveyard of prior purges.  The -l option gives more
 **      detail in the output.
+**
+**   fossil purge obliterate ID...
+**
+**      Remove one or more purge events from the graveyard.  Once a purge
+**      event is obliterated, it can no longer be undone.
 **
 **   fossil purge undo ID
 **
@@ -432,8 +440,9 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **
 ** SUMMARY:
 **   fossil purge cat UUID...
-**   fossil purge [checkin] TAGS... [--explain]
+**   fossil purge [checkins] TAGS... [--explain]
 **   fossil purge list
+**   fossil purge obliterate ID...
 **   fossil purge undo ID
 */
 void purge_cmd(void){
@@ -444,7 +453,22 @@ void purge_cmd(void){
   zSubcmd = g.argv[2];
   db_find_and_open_repository(0,0);
   n = (int)strlen(zSubcmd);
-  if( strncmp(zSubcmd, "list", n)==0 || strcmp(zSubcmd,"ls")==0 ){
+  if( strncmp(zSubcmd, "cat", n)==0 ){
+    const char *zOutFile;
+    int i, piid;
+    Blob content;
+    if( g.argc<4 ) usage("cat UUID...");
+    for(i=3; i<g.argc; i++){
+      piid = db_int(0, "SELECT piid FROM purgeitem WHERE uuid LIKE '%q%%'",
+                       g.argv[i]);
+      if( piid==0 ) fossil_fatal("no such item: %s", g.argv[3]);
+      purge_extract_item(piid, &content);
+      blob_write_to_file(&content, "-");
+      blob_reset(&content);
+    }
+  /* The "checkins" subcommand goes here in alphabetical order, but it must
+  ** be moved to the end since it is the default case */
+  }else if( strncmp(zSubcmd, "list", n)==0 || strcmp(zSubcmd,"ls")==0 ){
     int showDetail = find_option("l","l",0)!=0;
     if( db_int(-1,"PRAGMA table_info('purgeevent')")<0 ) return;
     db_prepare(&q, "SELECT peid, datetime(ctime,'unixepoch','localtime')"
@@ -456,6 +480,22 @@ void purge_cmd(void){
       }
     }
     db_finalize(&q);
+  }else if( strncmp(zSubcmd, "obliterate", n)==0 ){
+    int i;
+    if( g.argc<4 ) usage("obliterate ID...");
+    db_begin_transaction();
+    for(i=3; i<g.argc; i++){
+      int peid = atoi(g.argv[i]);
+      if( !db_exists("SELECT 1 FROM purgeevent WHERE peid=%d",peid) ){
+        fossil_fatal("no such purge event: %s", g.argv[i]);
+      }
+      db_multi_exec(
+        "DELETE FROM purgeevent WHERE peid=%d;"
+        "DELETE FROM purgeitem WHERE peid=%d;",
+        peid, peid
+      );
+    }
+    db_end_transaction(0);
   }else if( strncmp(zSubcmd, "undo", n)==0 ){
     int peid;
     if( g.argc!=4 ) usage("undo ID");
@@ -477,19 +517,8 @@ void purge_cmd(void){
     db_multi_exec("DELETE FROM purgeevent WHERE peid=%d", peid);
     db_multi_exec("DELETE FROM purgeitem WHERE peid=%d", peid);
     db_end_transaction(0);
-  }else if( strncmp(zSubcmd, "cat", n)==0 ){
-    const char *zOutFile;
-    int piid;
-    Blob content;
-    if( g.argc!=4 && g.argc!=5 ) usage("cat UUID [FILENAME]");
-    zOutFile = g.argc==5 ? g.argv[4] : "-";
-    piid = db_int(0, "SELECT piid FROM purgeitem WHERE uuid LIKE '%q%%'",
-                     g.argv[3]);
-    if( piid==0 ) fossil_fatal("no such item: %s", g.argv[3]);
-    purge_extract_item(piid, &content);
-    blob_write_to_file(&content, zOutFile);
-    blob_reset(&content);
   }else{
+    /* The "checkins" command is the default and so must occur last */
     int explainOnly = find_option("explain",0,0)!=0;
     int dryRun = find_option("dry-run",0,0)!=0;
     const char *zTag;
@@ -499,7 +528,7 @@ void purge_cmd(void){
     int nArtifact;
     verify_all_options();
     db_begin_transaction();
-    i = strncmp(zSubcmd,"checkin",n)==0 ? 3 : 2;
+    i = strncmp(zSubcmd,"checkins",n)==0 ? 3 : 2;
     if( i>=g.argc ) usage("[checkin] TAGS... [--explain]");
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
     for(; i<g.argc; i++){
