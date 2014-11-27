@@ -2678,3 +2678,34 @@ void test_without_rowid(void){
     db_close(1);
   }
 }
+
+
+void admin_log(const char *zFormat, ...){
+  static int once = 0;
+  char * zUserName = g.userUid>0
+    ? db_text(0, "select login from user where uid=%d", g.userUid)
+    : 0;
+  Blob what = empty_blob;
+  va_list ap;
+  int rc;
+  if(!once){
+    once = 1;
+    rc = db_multi_exec("CREATE TABLE IF NOT EXISTS aevent("
+                       "id INTEGER PRIMARY KEY, "
+                       "time FLOAT /* Julian time */, "
+                       "page TEXT /* path of page */,"
+                       "who TEXT /* user name */, "
+                       "what TEXT /* descr. of event. */ "
+                       ")");
+    fossil_trace("created aevent. rc=%d\n", rc);
+  }
+  va_start(ap,zFormat);
+  blob_vappendf( &what, zFormat, ap );
+  va_end(ap);
+  fossil_trace("what==%B rc=%d\n", &what, rc);
+  db_multi_exec("INSERT INTO aevent(id,time,page,who,what) VALUES("
+                "NULL, cast(strftime('%%J') AS FLOAT), %Q, %Q, %B"
+                ")", g.zPath, zUserName, &what);
+  fossil_free(zUserName);
+  blob_reset(&what);
+}

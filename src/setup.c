@@ -382,8 +382,9 @@ void user_edit(void){
     db_multi_exec(
        "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
        "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
-      uid, P("login"), P("info"), zPw, zCap
+      uid, zLogin, P("info"), zPw, zCap
     );
+    admin_log( "Updated user %Q with capapbilities [%q].", zLogin, zCap );
     if( atoi(PD("all","0"))>0 ){
       Blob sql;
       char *zErr = 0;
@@ -409,8 +410,10 @@ void user_edit(void){
       );
       login_group_sql(blob_str(&sql), "<li> ", " </li>\n", &zErr);
       blob_reset(&sql);
+      admin_log( "Updated user '%q' with capapbilities.", zLogin, zCap );
       if( zErr ){
         style_header("User Change Error");
+        admin_log( "Error updating user '%q': %s'.", zLogin, zErr );
         @ <span class="loginError">%s(zErr)</span>
         @
         @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
