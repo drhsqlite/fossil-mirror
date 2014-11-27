@@ -1,5 +1,5 @@
-C Revert\sthe\sbuilt-in\sSQLite\sto\sversion\s3.8.7.2\suntil\sa\sbtree\sproblem\sin\n3.8.8\sis\sfixed.
-D 2014-11-26T19:15:05.801
+C applied\spatch\sfrom\sSteve\sBennett\sfor\sticket\s[1d6a4c423bc8b116464].
+D 2014-11-27T17:37:41.593
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -11,7 +11,7 @@ F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 6efab82a7c5c4f23afc442b6d82fecda7572f874
 F Makefile.classic 8860fc8763421cb968e05bdd361311f9a443fc07
-F Makefile.in d1d8241e791dca1b62ed54e8294a1d8296f221af
+F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
 F VERSION 72867f32a368547eaf1e8b96c60e100001c7c9e1
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
@@ -378,10 +378,10 @@ F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 5873cbbaff7c021b50b49b6708f00b33aa268130
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c 4b7c62982889abad9a19f70ad80ee6d2b7358b8b
-F src/main.mk 08c0c40236688f39d1f59e7320b6883fa90e3ad3
+F src/main.mk f8fdc50a9041f71925c63a39acfd144db85cdc7e
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 8181e89d8e10a15ac54fe85b24fb5fe7711af314
+F src/makemake.tcl a741e50609b346ce1d34029ee191e610761822ec
 F src/manifest.c 0396f22dd097a9e6a1d480a0a928725a3b0bd3ec
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
@@ -658,7 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 156ef9ec06a069f3791c4fba8e3972a1099bad7b
-R c5bb1876433cc61e14e8635eb8abdecd
-U drh
-Z 17f057c97177b919a6843126dfc4b499
+P 194c3ff362a92432ba47177c86a5c9bf67ed5bf1
+R 4973f8d2e2514f3e95e026ac7f6eca4e
+U stephan
+Z 43d9ec80d186237e3e3c806d767f7681
