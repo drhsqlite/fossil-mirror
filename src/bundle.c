@@ -578,6 +578,129 @@ static void bundle_import_cmd(void){
   db_end_transaction(0);    
 }
 
+/* fossil bundle purge BUNDLE
+**
+** Try to undo a prior "bundle import BUNDLE".
+**
+** If the --force option is omitted, then this will only work if
+** there have been no checkins or tags added that use the import.
+**
+** This routine never removes content that is not already in the bundle
+** so the bundle serves as a backup.  The purge can be undone using
+** "fossil bundle import BUNDLE".
+*/
+static void bundle_purge_cmd(void){
+  int bForce = find_option("force",0,0)!=0;
+  int bTest = find_option("test",0,0)!=0;  /* Undocumented --test option */
+  const char *zFile = g.argv[3];
+  verify_all_options();
+  bundle_attach_file(zFile, "b1", 0);
+  db_begin_transaction();
+
+  /* Find all checkins of the bundle */
+  db_multi_exec(
+    "CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY);"
+    "INSERT INTO ok SELECT blob.rid FROM bblob, blob, plink"
+    " WHERE bblob.uuid=blob.uuid"
+    "   AND plink.cid=blob.rid;"
+  );
+
+  /* Check to see if new checkins have been committed to checkins in
+  ** the bundle.  Do not allow the purge if that is true and if --force
+  ** is omitted.
+  */
+  if( !bForce ){
+    Stmt q;
+    int n = 0;
+    db_prepare(&q,
+      "SELECT cid FROM plink WHERE pid IN ok AND cid NOT IN ok"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      whatis_rid(db_column_int(&q,0),0);
+      fossil_print("%.78c\n", '-');
+      n++;
+    }
+    db_finalize(&q);
+    if( n>0 ){
+      fossil_fatal("checkins above are derived from checkins in the bundle.");
+    }
+  }
+
+  /* Find all files associated with those check-ins that are used
+  ** nowhere else. */
+  find_checkin_associates("ok", 1);
+
+  /* Check to see if any associated files are not in the bundle.  Issue
+  ** an error if there are any, unless --force is used.
+  */
+  if( !bForce ){
+    Stmt q;
+    int n = 0;
+    db_prepare(&q,
+       "SELECT rid FROM ok, blob"
+       " WHERE blob.rid=ok.rid"
+       "   AND blob.uuid NOT IN (SELECT uuid FROM bblob)"
+    );
+    while( db_step(&q)==SQLITE_OK ){
+      whatis_rid(db_column_int(&q,0),0);
+      fossil_print("%.78c\n", '-');
+      n++;
+    }
+    if( n>0 ){
+      fossil_fatal("artifacts above associated with bundle checkins "
+                   " are not in the bundle");
+    }
+  }
+
+  if( bTest ){
+    const char *zBanner = "Artifacts purged that are found in %s:\n";
+    Stmt q;
+    db_prepare(&q,"SELECT blob.uuid FROM ok, blob, bblob"
+                  " WHERE blob.rid=ok.rid AND blob.uuid=bblob.uuid"
+                  " ORDER BY 1"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      if( zBanner ){
+        fossil_print(zBanner/*works-like:"%s"*/,zFile);
+        zBanner = 0;
+      }
+      fossil_print("    %s\n", db_column_text(&q,0));
+    }
+    db_finalize(&q);
+    zBanner = "Artifacts purged that are NOT found in %s:\n";
+    db_prepare(&q,"SELECT blob.uuid FROM ok, blob"
+                  " WHERE blob.rid=ok.rid"
+                  "   AND blob.uuid NOT IN (SELECT uuid FROM bblob)"
+                  " ORDER BY 1"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      if( zBanner ){
+        fossil_print(zBanner/*works-like:"%s"*/,zFile);
+        zBanner = 0;
+      }
+      fossil_print("    %s\n", db_column_text(&q,0));
+    }
+    db_finalize(&q);
+    zBanner = "Artifacts in %s that are not purged:\n";
+    db_prepare(&q,"SELECT bblob.uuid FROM bblob, blob"
+                  " WHERE blob.uuid=bblob.uuid"
+                  "   AND blob.rid NOT IN ok"
+                  " ORDER BY 1"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      if( zBanner ){
+        fossil_print(zBanner/*works-like:"%s"*/,zFile);
+        zBanner = 0;
+      }
+      fossil_print("    %s\n", db_column_text(&q,0));
+    }
+    db_finalize(&q);
+  }else{
+    purge_artifact_list("ok",0,0);
+  }
+  db_end_transaction(0);
+}
+
 /*
 ** COMMAND: bundle
 **
@@ -591,12 +714,14 @@ static void bundle_import_cmd(void){
 **   fossil bundle cat BUNDLE UUID...
 **
 **      Extract one or more artifacts from the bundle and write them
-**      consecutively on standard output.
+**      consecutively on standard output.  This subcommand was designed
+**      for testing and introspection of bundles and is not something
+**      commonly used.
 **
 **   fossil bundle export BUNDLE ?OPTIONS?
 **
-**      Generate a new bundle, in the file named BUNDLE, that constains a
-**      subset of the check-ins in the repository (usually a single branch)
+**      Generate a new bundle, in the file named BUNDLE, that contains a
+**      subset of the checkins in the repository (usually a single branch)
 **      described by the --branch, --from, --to, and/or --checkin options,
 **      at least one of which is required.  If BUNDLE already exists, the
 **      specified content is added to the bundle.
@@ -607,9 +732,15 @@ static void bundle_import_cmd(void){
 **         --standalone               Do no use delta-encoding against
 **                                      artifacts not in the bundle
 **
+**   fossil bundle extend BUNDLE
+**
+**      The BUNDLE must already exist.  This subcommand adds to the bundle
+**      any checkins that are descendants of checkins already in the bundle,
+**      and any tags that apply to artifacts in the bundle.
+**
 **   fossil bundle import BUNDLE ?--publish?
 **
-**      Import the bundle in file BUNDLE into the repository.  By default, the
+**      Import all content from BUNDLE into the repository.  By default, the
 **      imported files are private and will not sync.  Use the --publish
 **      option makes the import public.
 **
@@ -619,8 +750,9 @@ static void bundle_import_cmd(void){
 **
 **   fossil bundle purge BUNDLE
 **
-**      Remove all files found in BUNDLE from the repository.  This has
-**      the effect of undoing a "fossil bundle import".
+**      Remove from the repository all files that are used exclusively 
+**      by checkins in BUNDLE.  This has the effect of undoing a
+**      "fossil bundle import".
 **
 ** SUMMARY:
 **   fossil bundle append BUNDLE FILE...              Add files to BUNDLE
@@ -629,6 +761,7 @@ static void bundle_import_cmd(void){
 **          --branch BRANCH --from TAG1 --to TAG2       Checkins to include
 **          --checkin TAG                               Use only checkin TAG
 **          --standalone                                Omit dependencies
+**   fossil bundle extend BUNDLE                      Update with newer content
 **   fossil bundle import BUNDLE ?OPTIONS?            Import a bundle
 **          --publish                                   Publish the import
 **          --force                                     Cross-repo import
@@ -649,12 +782,14 @@ void bundle_cmd(void){
     bundle_cat_cmd();
   }else if( strncmp(zSubcmd, "export", n)==0 ){
     bundle_export_cmd();
+  }else if( strncmp(zSubcmd, "extend", n)==0 ){
+    fossil_fatal("not yet implemented");
   }else if( strncmp(zSubcmd, "import", n)==0 ){
     bundle_import_cmd();
   }else if( strncmp(zSubcmd, "ls", n)==0 ){
     bundle_ls_cmd();
   }else if( strncmp(zSubcmd, "purge", n)==0 ){
-    fossil_print("Not yet implemented...\n");
+    bundle_purge_cmd();
   }else{
     fossil_fatal("unknown subcommand for bundle: %s", zSubcmd);
   }

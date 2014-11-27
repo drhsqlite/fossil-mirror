@@ -1,5 +1,5 @@
-C Go\sback\sto\susing\sSQLite\s3.8.8\safter\sfixing\sthe\scorruption\sbug\sin\sthe\sb-tree\nbalancer.
-D 2014-11-27T12:30:02.698
+C Initial\simplementation\sof\s"fossil\sbundle\spurge".\s\sNeeds\sfurther\stesting\sand\nrefinement.
+D 2014-11-27T14:13:04.868
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -319,7 +319,7 @@ F src/blob.c 5b0eca90820d6c4a55eed9036d4527b50b0aaba4
 F src/branch.c 981eefb8d583787eb679eee529b9ae9f89a5d691
 F src/browse.c 7e802de8f55afa35b5075d3db67ffaae3028f464
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
-F src/bundle.c cba8f23ee340a1f9d3baaa44244d631e6c8e21d5
+F src/bundle.c 95d24c59358e96da67e52fb821410358643d4d12
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 259725db75a53752aef97d99c38cbfd0e86e43ec
@@ -661,7 +661,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b543373febb6b35fc466c7948ca3083b363402be
-R a54dd28ed5107f4df2536eab74637adb
+P eaefb1809c1cf3f2bf97a739b1a592776b06a242
+R bebbdb61fea78224ac08a79c2b105238
 U drh
-Z 8a2e60e9108569bf22b896cdaa5ddba9
+Z c7db9ffe580423c6974efab780a9223c
