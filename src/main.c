@@ -133,6 +133,7 @@ struct Global {
   int repositoryOpen;     /* True if the main repository database is open */
   char *zRepositoryOption; /* Most recent cached repository option value */
   char *zRepositoryName;  /* Name of the repository database */
+  char *zLocalDbName;     /* Name of the local database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
   const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
   int localOpen;          /* True if the local database is open */

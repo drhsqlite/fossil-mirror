@@ -964,7 +964,7 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(const char *zDbName){
   int i, n;
   char zPwd[2000];
-  static const char aDbName[][10] = { "_FOSSIL_", ".fslckout", ".fos" };
+  static const char *(aDbName[]) = { "_FOSSIL_", ".fslckout", ".fos" };
 
   if( g.localOpen ) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
@@ -974,6 +974,7 @@ int db_open_local(const char *zDbName){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
+        g.zLocalDbName = mprintf("%s", zPwd);
         zPwd[n] = 0;
         while( n>0 && zPwd[n-1]=='/' ){
           n--;
