@@ -781,3 +781,165 @@ void test_ambiguous_cmd(void){
   }
   db_finalize(&q);
 }
+
+/*
+** Schema for the description table
+*/
+static const char zDescTab[] = 
+@ CREATE TEMP TABLE IF NOT EXISTS description(
+@   rid INTEGER PRIMARY KEY,
+@   uuid TEXT,           -- SHA1 hash of the object 
+@   ctime DATETIME,      -- Time of creation 
+@   type TEXT,           -- file, checkin, wiki, ticket-change, etc.
+@   detail TEXT          -- filename, checkin comment, etc
+@ );
+;
+
+/*
+** Create the description table if it does not already exists.
+** Populate fields of this table with descriptions for all artifacts
+** whose RID matches the SQL expression in zWhere.
+*/
+void describe_artifacts(const char *zWhere){
+  Stmt q;
+  Stmt ins;
+
+  db_multi_exec("%s", zDescTab/*safe-for-%s*/);
+
+  /* Describe checkins */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type)\n"
+    "SELECT blob.rid, blob.uuid, event.mtime, 'checkin'\n"
+    "  FROM event, blob\n"
+    " WHERE event.objid %s AND event.type='ci'\n"
+    "   AND event.objid=blob.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Describe files */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
+    "SELECT blob.rid, blob.uuid, event.mtime, 'file', filename.name\n"
+    "  FROM mlink, blob, event, filename\n"
+    " WHERE mlink.fid %s\n"
+    "   AND mlink.mid=event.objid\n"
+    "   AND filename.fnid=mlink.fnid\n"
+    "   AND mlink.fid=blob.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Describe tags */
+  db_multi_exec(
+   "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'tag',\n"
+    "       substr((SELECT uuid FROM blob WHERE rid=tagxref.rid),1,16)\n"
+    "  FROM tagxref, blob\n"
+    " WHERE tagxref.srcid %s AND tagxref.srcid!=tagxref.rid\n"
+    "   AND tagxref.srcid=blob.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Cluster artifacts */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'cluster'\n"
+    "  FROM tagxref, blob\n"
+    " WHERE tagxref.rid %s\n"
+    "   AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='cluster')\n"
+    "   AND blob.rid=tagxref.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Ticket change artifacts */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'ticket',\n"
+    "       substr(tag.tagname,5)\n"
+    "  FROM tagxref, tag, blob\n"
+    " WHERE tagxref.rid %s\n"
+    "   AND tag.tagid=tagxref.tagid\n"
+    "   AND tag.tagname GLOB 'tkt-*'"
+    "   AND blob.rid=tagxref.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Wiki edit artifacts */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'wiki',\n"
+    "       printf('\"%%s\"',substr(tag.tagname,6))\n"
+    "  FROM tagxref, tag, blob\n"
+    " WHERE tagxref.rid %s\n"
+    "   AND tag.tagid=tagxref.tagid\n"
+    "   AND tag.tagname GLOB 'wiki-*'"
+    "   AND blob.rid=tagxref.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Event edit artifacts */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'event',\n"
+    "       substr(tag.tagname,7)\n"
+    "  FROM tagxref, tag, blob\n"
+    " WHERE tagxref.rid %s\n"
+    "   AND tag.tagid=tagxref.tagid\n"
+    "   AND tag.tagname GLOB 'event-*'"
+    "   AND blob.rid=tagxref.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Attachments */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
+    "SELECT blob.rid, blob.uuid, attachment.mtime, 'attachment',\n"
+    "       attachment.filename\n"
+    "  FROM attachment, blob\n"
+    " WHERE attachment.src %s\n"
+    "   AND blob.rid=attachment.src;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Everything else */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,type)\n"
+    "SELECT blob.rid, blob.uuid, 'unknown'\n"
+    "  FROM blob WHERE blob.rid %s;",
+    zWhere /*safe-for-%s*/
+  );
+}
+
+/*
+** COMMAND: test-describe-artifacts
+**
+** Usage: %fossil test-describe-artifacts
+**
+** Display a one-line description of every artifact.
+*/
+void test_describe_artifacts_cmd(void){
+  Stmt q;
+  db_find_and_open_repository(0,0);
+  describe_artifacts("IN (SELECT rid FROM blob)");
+  db_prepare(&q,
+    "SELECT rid, uuid, datetime(ctime,'localtime'), type, detail\n"
+    "  FROM description\n"
+    " ORDER BY rid;"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zType = db_column_text(&q,3);
+    fossil_print("%6d %.16s %s", db_column_int(&q,0),
+                 db_column_text(&q,1), db_column_text(&q,3));
+    if( db_column_bytes(&q,4)>0 ){
+      fossil_print(" %s", db_column_text(&q,4));
+    }
+    if( db_column_bytes(&q,2)>0
+     && fossil_strcmp(zType,"file")!=0
+     && fossil_strcmp(zType,"ticket")!=0
+     && fossil_strcmp(zType,"event")!=0
+    ){
+      fossil_print(" %s", db_column_text(&q,2));
+    }
+    fossil_print("\n");
+  }
+  db_finalize(&q);
+}
