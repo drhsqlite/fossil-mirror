@@ -205,9 +205,9 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   blob_zero(&sql1);
   blob_zero(&sql2);
   blob_zero(&sql3);
-  blob_appendf(&sql1, "UPDATE OR REPLACE ticket SET tkt_mtime=:mtime");
+  blob_append_sql(&sql1, "UPDATE OR REPLACE ticket SET tkt_mtime=:mtime");
   if( haveTicketCTime ){
-    blob_appendf(&sql1, ", tkt_ctime=coalesce(tkt_ctime,:mtime)");
+    blob_append_sql(&sql1, ", tkt_ctime=coalesce(tkt_ctime,:mtime)");
   }
   aUsed = fossil_malloc( nField );
   memset(aUsed, 0, nField);
@@ -220,22 +220,22 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
     if( aField[j].mUsed & USEDBY_TICKET ){
       if( zName[0]=='+' ){
         zName++;
-        blob_appendf(&sql1,", %s=coalesce(%s,'') || %Q",
+        blob_append_sql(&sql1,", \"%w\"=coalesce(\"%w\",'') || %Q",
                      zName, zName, p->aField[i].zValue);
       }else{
-        blob_appendf(&sql1,", %s=%Q", zName, p->aField[i].zValue);
+        blob_append_sql(&sql1,", \"%w\"=%Q", zName, p->aField[i].zValue);
       }
     }
     if( aField[j].mUsed & USEDBY_TICKETCHNG ){
-      blob_appendf(&sql2, ",%s", zName);
-      blob_appendf(&sql3, ",%Q", p->aField[i].zValue);
+      blob_append_sql(&sql2, ",\"%w\"", zName);
+      blob_append_sql(&sql3, ",%Q", p->aField[i].zValue);
     }
     if( rid>0 ){
       wiki_extract_links(p->aField[i].zValue, rid, 1, p->rDate, i==0, 0);
     }
   }
-  blob_appendf(&sql1, " WHERE tkt_id=%d", tktid);
-  db_prepare(&q, "%s", blob_str(&sql1));
+  blob_append_sql(&sql1, " WHERE tkt_id=%d", tktid);
+  db_prepare(&q, "%s", blob_sql_text(&sql1));
   db_bind_double(&q, ":mtime", p->rDate);
   db_step(&q);
   db_finalize(&q);
@@ -244,7 +244,7 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
     int fromTkt = 0;
     if( haveTicketChngRid ){
       blob_append(&sql2, ",tkt_rid", -1);
-      blob_appendf(&sql3, ",%d", rid);
+      blob_append_sql(&sql3, ",%d", rid);
     }
     for(i=0; i<nField; i++){
       if( aUsed[i]==0
@@ -253,18 +253,19 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
         const char *z = aField[i].zName;
         if( z[0]=='+' ) z++;
         fromTkt = 1;
-        blob_appendf(&sql2, ",%s", z);
-        blob_appendf(&sql3, ",%s", z);
+        blob_append_sql(&sql2, ",\"%w\"", z);
+        blob_append_sql(&sql3, ",\"%w\"", z);
       }
     }
     if( fromTkt ){
       db_prepare(&q, "INSERT INTO ticketchng(tkt_id,tkt_mtime%s)"
                      "SELECT %d,:mtime%s FROM ticket WHERE tkt_id=%d",
-                     blob_str(&sql2), tktid, blob_str(&sql3), tktid);
+                     blob_sql_text(&sql2), tktid,
+                     blob_sql_text(&sql3), tktid);
     }else{
       db_prepare(&q, "INSERT INTO ticketchng(tkt_id,tkt_mtime%s)"
                      "VALUES(%d,:mtime%s)",
-                     blob_str(&sql2), tktid, blob_str(&sql3));
+                     blob_sql_text(&sql2), tktid, blob_sql_text(&sql3));
     }
     db_bind_double(&q, ":mtime", p->rDate);
     db_step(&q);
@@ -370,7 +371,7 @@ void ticket_create_table(int separateConnection){
     db_end_transaction(0);
     db_init_database(g.zRepositoryName, zSql, 0);
   }else{
-    db_multi_exec("%s", zSql);
+    db_multi_exec("%s", zSql/*safe-for-%s*/);
   }
 }
 
@@ -553,7 +554,7 @@ static int ticket_put(
   if( needMod ){
     moderation_table_create();
     db_multi_exec(
-      "INSERT INTO modreq(objid, tktid) VALUES(%d,'%s')",
+      "INSERT INTO modreq(objid, tktid) VALUES(%d,%Q)",
       rid, zTktId
     );
   }else{
@@ -857,8 +858,7 @@ void tkttimeline_page(void){
   }else{
     zTitle = mprintf("Timeline Of Ticket %h", zUuid);
   }
-  style_header(zTitle);
-  free(zTitle);
+  style_header("%z", zTitle);
 
   sqlite3_snprintf(6, zGlobPattern, "%s", zUuid);
   canonical16(zGlobPattern, strlen(zGlobPattern));
@@ -891,8 +891,7 @@ void tkttimeline_page(void){
          timeline_query_for_www(), tagid, zFullUuid, zFullUuid, zFullUuid
     );
   }
-  db_prepare(&q, zSQL);
-  free(zSQL);
+  db_prepare(&q, "%z", zSQL/*safe-for-%s*/);
   www_print_timeline(&q, TIMELINE_ARTID|TIMELINE_DISJOINT|TIMELINE_GRAPH,
                      0, 0, 0);
   db_finalize(&q);
@@ -929,8 +928,7 @@ void tkthistory_page(void){
     style_submenu_element("Plaintext", "Plaintext",
                           "%R/tkthistory/%s?plaintext", zUuid);
   }
-  style_header(zTitle);
-  free(zTitle);
+  style_header("%z", zTitle);
 
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zUuid);
   if( tagid==0 ){
@@ -1215,7 +1213,7 @@ void ticket_cmd(void){
           usage("set|change|history TICKETUUID");
         }
         zTktUuid = db_text(0,
-          "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'", g.argv[3]
+          "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%q*'", g.argv[3]
         );
         if( !zTktUuid ){
           fossil_fatal("unknown ticket: '%s'!",g.argv[3]);
@@ -1294,7 +1292,7 @@ void ticket_cmd(void){
           }
           fossil_print("%h: ",z);
           if( blob_size(&val)>50 || contains_newline(&val)) {
-                  fossil_print("\n    ",blob_str(&val));
+                  fossil_print("\n    ");
                   comment_print(blob_str(&val),0,4,-1,g.comFmtFlags);
                 }else{
                   fossil_print("%s\n",blob_str(&val));

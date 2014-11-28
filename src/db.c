@@ -179,7 +179,7 @@ void db_end_transaction(int rollbackFlag){
     while( db.pAllStmt ){
       db_finalize(db.pAllStmt);
     }
-    db_multi_exec(db.doRollback ? "ROLLBACK" : "COMMIT");
+    db_multi_exec("%s", db.doRollback ? "ROLLBACK" : "COMMIT");
     db.doRollback = 0;
   }
 }
@@ -666,13 +666,13 @@ void db_init_database(
   sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
   rc = sqlite3_exec(db, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
-    db_err(sqlite3_errmsg(db));
+    db_err("%s", sqlite3_errmsg(db));
   }
   va_start(ap, zSchema);
   while( (zSql = va_arg(ap, const char*))!=0 ){
     rc = sqlite3_exec(db, zSql, 0, 0, 0);
     if( rc!=SQLITE_OK ){
-      db_err(sqlite3_errmsg(db));
+      db_err("%s", sqlite3_errmsg(db));
     }
   }
   va_end(ap);
@@ -755,7 +755,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
 ** Detaches the zLabel database.
 */
 void db_detach(const char *zLabel){
-  db_multi_exec("DETACH DATABASE %s", zLabel);
+  db_multi_exec("DETACH DATABASE %Q", zLabel);
 }
 
 /*
@@ -763,7 +763,7 @@ void db_detach(const char *zLabel){
 ** the name zLabel.
 */
 void db_attach(const char *zDbName, const char *zLabel){
-  db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
+  db_multi_exec("ATTACH DATABASE %Q AS %Q", zDbName, zLabel);
 }
 
 /*
@@ -892,12 +892,12 @@ static int db_local_table_exists_but_lacks_column(
   const char *zColumn
 ){
   char *zDef = db_text(0, "SELECT sql FROM %s.sqlite_master"
-                   " WHERE name=='%s' /*scan*/",
+                   " WHERE name==%Q /*scan*/",
                    db_name("localdb"), zTable);
   int rc = 0;
   if( zDef ){
     char *zPattern = mprintf("* %s *", zColumn);
-    rc = strglob(zPattern, zDef)==0;
+    rc = sqlite3_strglob(zPattern, zDef)!=0;
     fossil_free(zPattern);
     fossil_free(zDef);
   }
@@ -924,7 +924,7 @@ static int isValidLocalDb(const char *zDbName){
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted.
   */
-  if( !strglob("* isexe *", zVFileDef) ){
+  if( sqlite3_strglob("* isexe *", zVFileDef)!=0 ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
   }
 
@@ -932,7 +932,7 @@ static int isValidLocalDb(const char *zDbName){
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
   ** After all users have upgraded, this code can be safely deleted.
   */
-  if( !strglob("* islink *", zVFileDef) ){
+  if( sqlite3_strglob("* islink *", zVFileDef)!=0 ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
     if( db_local_table_exists_but_lacks_column("stashfile", "isLink") ){
       db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOL DEFAULT 0");
@@ -967,7 +967,7 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(const char *zDbName){
   int i, n;
   char zPwd[2000];
-  static const char aDbName[][10] = { "_FOSSIL_", ".fslckout", ".fos" };
+  static const char *(aDbName[]) = { "_FOSSIL_", ".fslckout", ".fos" };
 
   if( g.localOpen ) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
@@ -977,6 +977,7 @@ int db_open_local(const char *zDbName){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
+        g.zLocalDbName = mprintf("%s", zPwd);
         zPwd[n] = 0;
         while( n>0 && zPwd[n-1]=='/' ){
           n--;
@@ -1127,7 +1128,7 @@ const char *db_name(const char *zDb){
 int db_schema_is_outofdate(void){
   return db_exists("SELECT 1 FROM config"
                    " WHERE name='aux-schema'"
-                   "   AND value<>'%s'", AUX_SCHEMA);
+                   "   AND value<>%Q", AUX_SCHEMA);
 }
 
 /*
@@ -1336,15 +1337,15 @@ void db_setup_server_and_project_codes(
         "INSERT INTO config(name,value,mtime)"
         " VALUES('project-code', lower(hex(randomblob(20))),now());"
     );
-  }else{
+  }else if( db_is_writeable("repository") ){
     if( db_get("server-code", 0)==0 ) {
-      db_optional_sql("repository",
+      db_multi_exec(
           "INSERT INTO config(name,value,mtime)"
           " VALUES('server-code', lower(hex(randomblob(20))),now());"
       );
     }
     if( db_get("project-code", 0)==0 ) {
-      db_optional_sql("repository",
+      db_multi_exec(
           "INSERT INTO config(name,value,mtime)"
           " VALUES('project-code', lower(hex(randomblob(20))),now());"
       );
@@ -1363,13 +1364,13 @@ const char *db_setting_inop_rhs(){
   const char *zSep = "";
 
   blob_zero(&x);
-  blob_append(&x, "(", 1);
+  blob_append_sql(&x, "(");
   for(i=0; ctrlSettings[i].name; i++){
-    blob_appendf(&x, "%s'%s'", zSep, ctrlSettings[i].name);
+    blob_append_sql(&x, "%s%Q", zSep/*safe-for-%s*/, ctrlSettings[i].name);
     zSep = ",";
   }
-  blob_append(&x, ")", 1);
-  return blob_str(&x);
+  blob_append_sql(&x, ")");
+  return blob_sql_text(&x);
 }
 
 /*
@@ -1504,7 +1505,6 @@ void db_initial_setup(
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
 **                              (default: do not create an initial checkin)
-**    --empty                   create repository without project-id/server-id
 **
 ** See also: clone
 */
@@ -1518,8 +1518,9 @@ void create_repository_cmd(void){
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  makeServerCodes = find_option("empty", 0, 0)==0;
+  makeServerCodes = find_option("docker", 0, 0)==0;
 
+  find_option("empty", 0, 0); /* deprecated */
   /* We should be done with options.. */
   verify_all_options();
 
@@ -2011,7 +2012,6 @@ int db_table_has_column(const char *zTableName, const char *zColName){
 ** Where %s is the checkout root.  The value is the repository file.
 */
 void db_record_repository_filename(const char *zName){
-  const char *zCollation;
   char *zRepoSetting;
   char *zCkoutSetting;
   Blob full;
@@ -2020,16 +2020,16 @@ void db_record_repository_filename(const char *zName){
     zName = db_repository_filename();
   }
   file_canonical_name(zName, &full, 0);
-  zCollation = filename_collation();
+  (void)filename_collation();  /* Initialize before connection swap */
   db_swap_connections();
   zRepoSetting = mprintf("repo:%q", blob_str(&full));
   db_multi_exec(
-     "DELETE FROM global_config WHERE name %s = '%s';",
-     zCollation, zRepoSetting
+     "DELETE FROM global_config WHERE name %s = %Q;",
+     filename_collation(), zRepoSetting
   );
   db_multi_exec(
      "INSERT OR IGNORE INTO global_config(name,value)"
-     "VALUES('%s',1);",
+     "VALUES(%Q,1);",
      zRepoSetting
   );
   fossil_free(zRepoSetting);
@@ -2038,22 +2038,22 @@ void db_record_repository_filename(const char *zName){
     file_canonical_name(g.zLocalRoot, &localRoot, 1);
     zCkoutSetting = mprintf("ckout:%q", blob_str(&localRoot));
     db_multi_exec(
-       "DELETE FROM global_config WHERE name %s = '%s';",
-       zCollation, zCkoutSetting
+       "DELETE FROM global_config WHERE name %s = %Q;",
+       filename_collation(), zCkoutSetting
     );
     db_multi_exec(
       "REPLACE INTO global_config(name, value)"
-      "VALUES('%s','%q');",
+      "VALUES(%Q,%Q);",
       zCkoutSetting, blob_str(&full)
     );
     db_swap_connections();
     db_optional_sql("repository",
-        "DELETE FROM config WHERE name %s = '%s';",
-        zCollation, zCkoutSetting
+        "DELETE FROM config WHERE name %s = %Q;",
+        filename_collation(), zCkoutSetting
     );
     db_optional_sql("repository",
         "REPLACE INTO config(name,value,mtime)"
-        "VALUES('%s',1,now());",
+        "VALUES(%Q,1,now());",
         zCkoutSetting
     );
     fossil_free(zCkoutSetting);
@@ -2670,24 +2670,24 @@ void test_without_rowid(void){
         }
       }
       blob_append(&newSql, zOrigSql, -1);
-      blob_appendf(&allSql,
-         "ALTER TABLE %s RENAME TO x_%s;\n"
+      blob_append_sql(&allSql,
+         "ALTER TABLE \"%w\" RENAME TO \"x_%w\";\n"
          "%s WITHOUT ROWID;\n"
-         "INSERT INTO %s SELECT * FROM x_%s;\n"
-         "DROP TABLE x_%s;\n",
-         zTName, zTName, blob_str(&newSql), zTName, zTName, zTName
+         "INSERT INTO \"%w\" SELECT * FROM \"x_%w\";\n"
+         "DROP TABLE \"x_%w\";\n",
+         zTName, zTName, blob_sql_text(&newSql), zTName, zTName, zTName
       );
       fossil_print("Converting table %s of %s to WITHOUT ROWID.\n", zTName, g.argv[i]);
       blob_reset(&newSql);
     }
-    blob_appendf(&allSql, "COMMIT;\n");
+    blob_append_sql(&allSql, "COMMIT;\n");
     db_finalize(&q);
     if( dryRun ){
       fossil_print("SQL that would have been evaluated:\n");
       fossil_print("-------------------------------------------------------------\n");
-      fossil_print("%s", blob_str(&allSql));
+      fossil_print("%s", blob_sql_text(&allSql));
     }else{
-      db_multi_exec("%s", blob_str(&allSql));
+      db_multi_exec("%s", blob_sql_text(&allSql));
     }
     blob_reset(&allSql);
     db_close(1);

@@ -438,7 +438,7 @@ void view_edit(void){
   if( rn>0 ){
     style_submenu_element("Delete", "Delete", "rptedit?rn=%d&del1=1", rn);
   }
-  style_header(rn>0 ? "Edit Report Format":"Create New Report Format");
+  style_header("%s", rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
     @ <blockquote class="reportError">%h(zErr)</blockquote>
   }
@@ -1072,7 +1072,7 @@ void rptview_page(void){
       style_submenu_element("New Ticket", "Create a new ticket",
         "%s/tktnew", g.zTop);
     }
-    style_header(zTitle);
+    style_header("%s", zTitle);
     output_color_key(zClrKey, 1,
         "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
     @ <table border="1" cellpadding="2" cellspacing="0" class="report"
@@ -1114,17 +1114,15 @@ static const char zFullTicketRptTitle[] = "full ticket export";
 */
 void rpt_list_reports(void){
   Stmt q;
-  const char aRptOutFrmt[] = "%s\t%s\n";
-
   fossil_print("Available reports:\n");
-  fossil_print(aRptOutFrmt,"report number","report title");
-  fossil_print(aRptOutFrmt,zFullTicketRptRn,zFullTicketRptTitle);
+  fossil_print("%s\t%s\n","report number","report title");
+  fossil_print("%s\t%s\n",zFullTicketRptRn,zFullTicketRptTitle);
   db_prepare(&q,"SELECT rn,title FROM reportfmt ORDER BY rn");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zRn = db_column_text(&q, 0);
     const char *zTitle = db_column_text(&q, 1);
 
-    fossil_print(aRptOutFrmt,zRn,zTitle);
+    fossil_print("%s\t%s\n",zRn,zTitle);
   }
   db_finalize(&q);
 }

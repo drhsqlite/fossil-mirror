@@ -21,6 +21,10 @@
 #include <assert.h>
 #include "setup.h"
 
+#if INTERFACE
+#define ArraySize(x) (sizeof(x)/sizeof(x[0]))
+#endif
+
 /*
 ** The table of web pages supported by this application is generated
 ** automatically by the "mkindex" program and written into a file
@@ -64,7 +68,7 @@ void setup_page(void){
   ** if it does not. */
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError"><b>Configuration Error:</b> Please add
-    @ <tt>&lt;base href="$baseurl/$current_page"&gt;</tt> after
+    @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the <a href="setup_header">HTML header</a>!</p>
   }
 
@@ -309,7 +313,7 @@ void user_edit(void){
                        /* user doing the editing is ADMIN.  Disallow editing */
   char *inherit[128];
   int a[128];
-  char *oa[128];
+  const char *oa[128];
 
   /* Must have ADMIN privileges to access this page
   */
@@ -377,7 +381,7 @@ void user_edit(void){
     login_verify_csrf_secret();
     db_multi_exec(
        "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
-       "VALUES(nullif(%d,0),%Q,%Q,%Q,'%s',now())",
+       "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
       uid, P("login"), P("info"), zPw, zCap
     );
     if( atoi(PD("all","0"))>0 ){
@@ -443,7 +447,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-         "<span class=\"ueditInheritDeveloper\">&bull;</span>";
+         "<span class=\"ueditInheritDeveloper\"><sub>[D]</sub></span>";
     }
     free(z2);
   }
@@ -452,7 +456,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='reader'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-          "<span class=\"ueditInheritReader\">&bull;</span>";
+          "<span class=\"ueditInheritReader\"><sub>[R]</sub></span>";
     }
     free(z2);
   }
@@ -461,7 +465,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='anonymous'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-           "<span class=\"ueditInheritAnonymous\">&bull;</span>";
+           "<span class=\"ueditInheritAnonymous\"><sub>[A]</sub></span>";
     }
     free(z2);
   }
@@ -470,7 +474,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='nobody'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-           "<span class=\"ueditInheritNobody\">&bull;</span>";
+           "<span class=\"ueditInheritNobody\"><sub>[N]</sub></span>";
     }
     free(z2);
   }
@@ -479,7 +483,7 @@ void user_edit(void){
   */
   style_submenu_element("Cancel", "Cancel", "setup_ulist");
   if( uid ){
-    style_header(mprintf("Edit User %h", zLogin));
+    style_header("Edit User %h", zLogin);
   }else{
     style_header("Add A New User");
   }
@@ -491,6 +495,43 @@ void user_edit(void){
     @ <input type="hidden" name="info" value="">
     @ <input type="hidden" name="pw" value="*">
   }
+  @ <script type='text/javascript'>
+  @ function updateCapabilityString(){
+  @   /*
+  @   ** This function updates the "#usetupEditCapability" span content
+  @   ** with the capabilities selected by the interactive user, based
+  @   ** upon the state of the capability checkboxes.
+  @   */
+  @   try {
+  @     var inputs = document.getElementsByTagName('input');
+  @     if( inputs && inputs.length ){
+  @       var output = document.getElementById('usetupEditCapability');
+  @       if( output ){
+  @         var permsIds = [], x = 0;
+  @         for(var i = 0; i < inputs.length; i++){
+  @           var e = inputs[i];
+  @           if( !e.name || !e.type ) continue;
+  @           if( e.type.toLowerCase()!=='checkbox' ) continue;
+  @           if( e.name.length===2 && e.name[0]==='a' ){
+  @             // looks like a capability checkbox
+  @             if( e.checked ){
+  @               // grab the second character of the element
+  @               // name, which is the textual flag for this
+  @               // capability, and then add it to the result
+  @               // array.
+  @               permsIds[x++] = e.name[1];
+  @             }
+  @           }
+  @         }
+  @         permsIds.sort();
+  @         output.innerHTML = permsIds.join('');
+  @       }
+  @     }
+  @   } catch (e) {
+  @     /* ignore errors */
+  @   }
+  @ }
+  @ </script>
   @ <table>
   @ <tr>
   @   <td class="usetupEditLabel">User ID:</td>
@@ -518,60 +559,92 @@ void user_edit(void){
 #define B(x) inherit[x]
   @ <table border=0><tr><td valign="top">
   if( g.perm.Setup ){
-    @  <label><input type="checkbox" name="as"%s(oa['s']) />%s(B('s'))Setup
-    @  </label><br />
+    @  <label><input type="checkbox" name="as"%s(oa['s'])
+    @                onchange="updateCapabilityString()"/>
+    @  Setup%s(B('s'))</label><br />
   }
-  @  <label><input type="checkbox" name="aa"%s(oa['a']) />%s(B('a'))Admin
-  @  </label><br />
-  @  <label><input type="checkbox" name="ad"%s(oa['d']) />%s(B('d'))Delete
-  @  </label><br />
-  @  <label><input type="checkbox" name="ae"%s(oa['e']) />%s(B('e'))Email
-  @  </label><br />
-  @  <label><input type="checkbox" name="ap"%s(oa['p']) />%s(B('p'))Password
-  @  </label><br />
-  @  <label><input type="checkbox" name="ai"%s(oa['i']) />%s(B('i'))Check-In
-  @  </label><br />
-  @  <label><input type="checkbox" name="ao"%s(oa['o']) />%s(B('o'))Check-Out
-  @  </label><br />
-  @  <label><input type="checkbox" name="ah"%s(oa['h']) />%s(B('h'))Hyperlinks
-  @  </label><br />
-  @  <label><input type="checkbox" name="ab"%s(oa['b']) />%s(B('b'))Attachments
-  @  </label><br />
+  @  <label><input type="checkbox" name="aa"%s(oa['a'])
+  @                onchange="updateCapabilityString()" />
+  @  Admin%s(B('a'))</label><br />
+  @  <label><input type="checkbox" name="ad"%s(oa['d'])
+  @                onchange="updateCapabilityString()" />
+  @  Delete%s(B('d'))</label><br />
+  @  <label><input type="checkbox" name="ae"%s(oa['e'])
+  @                onchange="updateCapabilityString()" />
+  @  Email%s(B('e'))</label><br />
+  @  <label><input type="checkbox" name="ap"%s(oa['p'])
+  @                onchange="updateCapabilityString()" />
+  @  Password%s(B('p'))</label><br />
+  @  <label><input type="checkbox" name="ai"%s(oa['i'])
+  @                onchange="updateCapabilityString()" />
+  @  Check-In%s(B('i'))</label><br />
+  @  <label><input type="checkbox" name="ao"%s(oa['o'])
+  @                onchange="updateCapabilityString()" />
+  @  Check-Out%s(B('o'))</label><br />
+  @  <label><input type="checkbox" name="ah"%s(oa['h'])
+  @                onchange="updateCapabilityString()" />
+  @  Hyperlinks%s(B('h'))</label><br />
+  @  <label><input type="checkbox" name="ab"%s(oa['b'])
+  @                onchange="updateCapabilityString()" />
+  @  Attachments%s(B('b'))</label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="au"%s(oa['u']) />%s(B('u'))Reader
-  @  </label><br />
-  @  <label><input type="checkbox" name="av"%s(oa['v']) />%s(B('v'))Developer
-  @  </label><br />
-  @  <label><input type="checkbox" name="ag"%s(oa['g']) />%s(B('g'))Clone
-  @  </label><br />
-  @  <label><input type="checkbox" name="aj"%s(oa['j']) />%s(B('j'))Read Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="af"%s(oa['f']) />%s(B('f'))New Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="am"%s(oa['m']) />%s(B('m'))Append Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="ak"%s(oa['k']) />%s(B('k'))Write Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="al"%s(oa['l']) />%s(B('l'))Moderate
-  @  Wiki</label><br />
+  @  <label><input type="checkbox" name="au"%s(oa['u'])
+  @                onchange="updateCapabilityString()" />
+  @  Reader%s(B('u'))</label><br />
+  @  <label><input type="checkbox" name="av"%s(oa['v'])
+  @                onchange="updateCapabilityString()" />
+  @  Developer%s(B('v'))</label><br />
+  @  <label><input type="checkbox" name="ag"%s(oa['g'])
+  @                onchange="updateCapabilityString()" />
+  @  Clone%s(B('g'))</label><br />
+  @  <label><input type="checkbox" name="aj"%s(oa['j'])
+  @                onchange="updateCapabilityString()" />
+  @  Read Wiki%s(B('j'))</label><br />
+  @  <label><input type="checkbox" name="af"%s(oa['f'])
+  @                onchange="updateCapabilityString()" />
+  @  New Wiki%s(B('f'))</label><br />
+  @  <label><input type="checkbox" name="am"%s(oa['m'])
+  @                onchange="updateCapabilityString()" />
+  @  Append Wiki%s(B('m'))</label><br />
+  @  <label><input type="checkbox" name="ak"%s(oa['k'])
+  @                onchange="updateCapabilityString()" />
+  @  Write Wiki%s(B('k'))</label><br />
+  @  <label><input type="checkbox" name="al"%s(oa['l'])
+  @                onchange="updateCapabilityString()" />
+  @  Moderate Wiki%s(B('l'))</label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="ar"%s(oa['r']) />%s(B('r'))Read Ticket
-  @  </label><br />
-  @  <label><input type="checkbox" name="an"%s(oa['n']) />%s(B('n'))New Tickets
-  @  </label><br />
-  @  <label><input type="checkbox" name="ac"%s(oa['c']) />%s(B('c'))Append
-  @  To Ticket </label><br />
-  @  <label><input type="checkbox" name="aw"%s(oa['w']) />%s(B('w'))Write
-  @  Tickets </label><br />
-  @  <label><input type="checkbox" name="aq"%s(oa['q']) />%s(B('q'))Moderate
-  @  Tickets </label><br />
-  @  <label><input type="checkbox" name="at"%s(oa['t']) />%s(B('t'))Ticket
-  @  Report </label><br />
-  @  <label><input type="checkbox" name="ax"%s(oa['x']) />%s(B('x'))Private
-  @  </label><br />
-  @  <label><input type="checkbox" name="az"%s(oa['z']) />%s(B('z'))Download
-  @  Zip </label>
-  @ </td></tr></table>
+  @  <label><input type="checkbox" name="ar"%s(oa['r'])
+  @                onchange="updateCapabilityString()" />
+  @  Read Ticket%s(B('r'))</label><br />
+  @  <label><input type="checkbox" name="an"%s(oa['n'])
+  @                onchange="updateCapabilityString()" />
+  @  New Tickets%s(B('n'))</label><br />
+  @  <label><input type="checkbox" name="ac"%s(oa['c'])
+  @                onchange="updateCapabilityString()" />
+  @  Append To Ticket%s(B('c'))</label><br />
+  @  <label><input type="checkbox" name="aw"%s(oa['w'])
+  @                onchange="updateCapabilityString()" />
+  @  Write Tickets%s(B('w'))</label><br />
+  @  <label><input type="checkbox" name="aq"%s(oa['q'])
+  @                onchange="updateCapabilityString()" />
+  @  Moderate Tickets%s(B('q'))</label><br />
+  @  <label><input type="checkbox" name="at"%s(oa['t'])
+  @                onchange="updateCapabilityString()" />
+  @  Ticket Report%s(B('t'))</label><br />
+  @  <label><input type="checkbox" name="ax"%s(oa['x'])
+  @                onchange="updateCapabilityString()" />
+  @  Private%s(B('x'))</label><br />
+  @  <label><input type="checkbox" name="az"%s(oa['z'])
+  @                onchange="updateCapabilityString()" />
+  @  Download Zip%s(B('z'))</label>
+  @ </td></tr>
+  @ </table>
+  @   </td>
+  @ </tr>
+  @ <tr>
+  @   <td class="usetupEditLabel">Selected Cap.:</td>
+  @   <td>
+  @     <span id="usetupEditCapability">(missing JS?)</span>
   @   </td>
   @ </tr>
   if( !login_is_special(zLogin) ){
@@ -606,6 +679,7 @@ void user_edit(void){
   @ </table>
   @ </div></form>
   @ </div>
+  @ <script type='text/javascript'>updateCapabilityString();</script>
   @ <h2>Privileges And Capabilities:</h2>
   @ <ul>
   if( higherUser ){
@@ -624,26 +698,26 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritNobody"><big>&bull;</big></span>" mark
+  @ The "<span class="ueditInheritNobody"><sub>N</sub></span>" subscript suffix
   @ indicates the privileges of <span class="usertype">nobody</span> that
   @ are available to all users regardless of whether or not they are logged in.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritAnonymous"><big>&bull;</big></span>" mark
+  @ The "<span class="ueditInheritAnonymous"><sub>A</sub></span>" subscript suffix
   @ indicates the privileges of <span class="usertype">anonymous</span> that
   @ are inherited by all logged-in users.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritDeveloper"><big>&bull;</big></span>" mark
+  @ The "<span class="ueditInheritDeveloper"><sub>D</sub></span>" subscript suffix
   @ indicates the privileges of <span class="usertype">developer</span> that
   @ are inherited by all users with the
   @ <span class="capability">Developer</span> privilege.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritReader"><big>&bull;</big></span>" mark
+  @ The "<span class="ueditInheritReader"><sub>R</sub></span>" subscript suffix
   @ indicates the privileges of <span class="usertype">reader</span> that
   @ are inherited by all users with the <span class="capability">Reader</span>
   @ privilege.
@@ -901,6 +975,14 @@ void setup_access(void){
   @ <form action="%s(g.zTop)/setup_access" method="post"><div>
   login_insert_csrf_secret();
   @ <hr />
+  onoff_attribute("Redirect to HTTPS on the Login page",
+     "redirect-to-https", "redirhttps", 0, 0);
+  @ <p>When selected, force the use of HTTPS for the Login page.
+  @ <p>Details:  When enabled, this option causes the $secureurl TH1 
+  @ variable is set to an "https:" variant of $baseurl.  Otherwise,
+  @ $secureurl is just an alias for $baseurl.  Also when enabled, the
+  @ Login page redirects to https if accessed via http.
+  @ <hr />
   onoff_attribute("Require password for local access",
      "localauth", "localauth", 0, 0);
   @ <p>When enabled, the password sign-in is always required for
@@ -1007,6 +1089,10 @@ void setup_access(void){
   @
   @ <p>Additional parameters that control this behavior:</p>
   @ <blockquote>
+  onoff_attribute("Enable hyperlinks for humans (as deduced from the UserAgent "
+                  " HTTP header string)",
+                  "auto-hyperlink-ishuman", "ahis", 0, 0);
+  @ <br>
   onoff_attribute("Require mouse movement before enabling hyperlinks",
                   "auto-hyperlink-mouseover", "ahmo", 0, 0);
   @ <br>
@@ -1089,7 +1175,7 @@ void setup_login_group(void){
     login_needed();
   }
   file_canonical_name(g.zRepositoryName, &fullName, 0);
-  zSelfRepo = mprintf(blob_str(&fullName));
+  zSelfRepo = fossil_strdup(blob_str(&fullName));
   blob_reset(&fullName);
   if( P("join")!=0 ){
     login_group_join(zRepo, zLogin, zPw, zNewName, &zErrMsg);
@@ -1176,7 +1262,8 @@ void setup_timeline(void){
       "0", "HH:MM",
       "1", "HH:MM:SS",
       "2", "YYYY-MM-DD HH:MM",
-      "3", "YYMMDD HH:MM"
+      "3", "YYMMDD HH:MM",
+      "4", "(off)"
   };
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -1222,8 +1309,8 @@ void setup_timeline(void){
   }
 
   @ <hr />
-  multiple_choice_attribute("Per-Item Time Format", "timeline-date-format", "tdf", "0",
-                            4, azTimeFormats);
+  multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
+            "tdf", "0", ArraySize(azTimeFormats)/2, azTimeFormats);
   @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
   @ in a separate box (using CSS class "timelineDate") whenever the date changes.
   @ With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats, the complete date
@@ -1263,7 +1350,11 @@ void setup_settings(void){
 
   (void) aCmdHelp; /* NOTE: Silence compiler warning. */
   style_header("Settings");
-  db_open_local(0);
+  if(!g.repositoryOpen){
+    /* Provide read-only access to versioned settings,
+       but only if no repo file was explicitly provided. */
+    db_open_local(0);
+  }
   db_begin_transaction();
   @ <p>This page provides a simple interface to the "fossil setting" command.
   @ See the "fossil help setting" output below for further information on
@@ -1470,7 +1561,7 @@ void setup_header(void){
       char *zNew;
       char *zTail = &zHead[6];
       while( fossil_isspace(zTail[0]) ) zTail++;
-      zNew = mprintf("%.*s\n<base href=\"$baseurl/$current_page\" />\n%s",
+      zNew = mprintf("%.*s\n<base href=\"$secureurl/$current_page\" />\n%s",
                      zHead+6-z, z, zTail);
       cgi_replace_parameter("header", zNew);
       db_set("header", zNew, 0);
@@ -1484,7 +1575,7 @@ void setup_header(void){
   ** if it does not. */
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError">Please add
-    @ <tt>&lt;base href="$baseurl/$current_page"&gt;</tt> after
+    @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the header!
     @ <input type="submit" name="fixbase" value="Add &lt;base&gt; Now"></p>
   }

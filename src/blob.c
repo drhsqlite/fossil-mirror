@@ -26,6 +26,10 @@
 #  include <zlib.h>
 #endif
 #include "blob.h"
+#if defined(_WIN32)
+#include <fcntl.h>
+#include <io.h>
+#endif
 
 #if INTERFACE
 /*
@@ -36,9 +40,15 @@ struct Blob {
   unsigned int nUsed;            /* Number of bytes used in aData[] */
   unsigned int nAlloc;           /* Number of bytes allocated for aData[] */
   unsigned int iCursor;          /* Next character of input to parse */
+  unsigned int blobFlags;        /* One or more BLOBFLAG_* bits */
   char *aData;                   /* Where the information is stored */
   void (*xRealloc)(Blob*, unsigned int); /* Function to reallocate the buffer */
 };
+
+/*
+** Allowed values for Blob.blobFlags
+*/
+#define BLOBFLAG_NotSQL  0x0001      /* Non-SQL text */
 
 /*
 ** The current size of a Blob
@@ -150,6 +160,7 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
     pBlob->nAlloc = 0;
     pBlob->nUsed = 0;
     pBlob->iCursor = 0;
+    pBlob->blobFlags = 0;
   }else if( newSize>pBlob->nAlloc || newSize<pBlob->nAlloc-4000 ){
     char *pNew = fossil_realloc(pBlob->aData, newSize);
     pBlob->aData = pNew;
@@ -164,7 +175,7 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
 ** An initializer for Blobs
 */
 #if INTERFACE
-#define BLOB_INITIALIZER  {0,0,0,0,blobReallocMalloc}
+#define BLOB_INITIALIZER  {0,0,0,0,0,blobReallocMalloc}
 #endif
 const Blob empty_blob = BLOB_INITIALIZER;
 
@@ -219,6 +230,7 @@ void blob_init(Blob *pBlob, const char *zData, int size){
     pBlob->nUsed = pBlob->nAlloc = size;
     pBlob->aData = (char*)zData;
     pBlob->iCursor = 0;
+    pBlob->blobFlags = 0;
     pBlob->xRealloc = blobReallocStatic;
   }
 }
@@ -250,6 +262,7 @@ void blob_zero(Blob *pBlob){
   pBlob->nAlloc = 1;
   pBlob->aData = (char*)zEmpty;
   pBlob->iCursor = 0;
+  pBlob->blobFlags = 0;
   pBlob->xRealloc = blobReallocStatic;
 }
 
@@ -294,6 +307,20 @@ char *blob_str(Blob *p){
   }
   return p->aData;
 }
+
+/*
+** Return a pointer to a null-terminated string for a blob that has
+** been created using blob_append_sql() and not blob_appendf().  If
+** text was ever added using blob_appendf() then throw an error.
+*/
+char *blob_sql_text(Blob *p){
+  blob_is_init(p);
+  if( (p->blobFlags & BLOBFLAG_NotSQL) ){
+    fossil_fatal("Internal error: Use of blob_appendf() to construct SQL text");
+  }
+  return blob_str(p);
+}
+
 
 /*
 ** Return a pointer to a null-terminated string for a blob.
@@ -673,8 +700,20 @@ int blob_tokenize(Blob *pIn, Blob *aToken, int nToken){
 
 /*
 ** Do printf-style string rendering and append the results to a blob.
+**
+** The blob_appendf() version sets the BLOBFLAG_NotSQL bit in Blob.blobFlags
+** whereas blob_append_sql() does not.
 */
 void blob_appendf(Blob *pBlob, const char *zFormat, ...){
+  if( pBlob ){
+    va_list ap;
+    va_start(ap, zFormat);
+    vxprintf(pBlob, zFormat, ap);
+    va_end(ap);
+    pBlob->blobFlags |= BLOBFLAG_NotSQL;
+  }
+}
+void blob_append_sql(Blob *pBlob, const char *zFormat, ...){
   if( pBlob ){
     va_list ap;
     va_start(ap, zFormat);
@@ -790,8 +829,14 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     if( fossil_utf8_to_console(blob_buffer(pBlob), nWrote, 0) >= 0 ){
       return nWrote;
     }
+    fflush(stdout);
+    _setmode(_fileno(stdout), _O_BINARY);
 #endif
     fwrite(blob_buffer(pBlob), 1, nWrote, stdout);
+#if defined(_WIN32)
+    fflush(stdout);
+    _setmode(_fileno(stdout), _O_TEXT);
+#endif
   }else{
     file_mkfolder(zFilename, 1);
     out = fossil_fopen(zFilename, "wb");
@@ -1160,12 +1205,14 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     zUtf8 = blob_str(pBlob) + bomSize;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
     blob_set_dynamic(pBlob, zUtf8);
-#if defined(_WIN32)
-  }else if( useMbcs ){
+  }else if( useMbcs && invalid_utf8(pBlob) ){
+#if defined(_WIN32) || defined(__CYGWIN__)
     zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
     blob_reset(pBlob);
     blob_append(pBlob, zUtf8, -1);
     fossil_mbcs_free(zUtf8);
+#else
+    blob_cp1252_to_utf8(pBlob);
 #endif /* _WIN32 */
   }
 }

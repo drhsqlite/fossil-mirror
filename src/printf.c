@@ -46,15 +46,16 @@
 #define etSQLESCAPE  13 /* Strings with '\'' doubled.  %q */
 #define etSQLESCAPE2 14 /* Strings with '\'' doubled and enclosed in '',
                           NULL pointers replaced by SQL NULL.  %Q */
-#define etPOINTER    15 /* The %p conversion */
-#define etHTMLIZE    16 /* Make text safe for HTML */
-#define etHTTPIZE    17 /* Make text safe for HTTP.  "/" encoded as %2f */
-#define etURLIZE     18 /* Make text safe for HTTP.  "/" not encoded */
-#define etFOSSILIZE  19 /* The fossil header encoding format. */
-#define etPATH       20 /* Path type */
-#define etWIKISTR    21 /* Timeline comment text rendered from a char*: %w */
+#define etSQLESCAPE3 15 /* Double '"' characters within an indentifier.  %w */
+#define etPOINTER    16 /* The %p conversion */
+#define etHTMLIZE    17 /* Make text safe for HTML */
+#define etHTTPIZE    18 /* Make text safe for HTTP.  "/" encoded as %2f */
+#define etURLIZE     19 /* Make text safe for HTTP.  "/" not encoded */
+#define etFOSSILIZE  20 /* The fossil header encoding format. */
+#define etPATH       21 /* Path type */
+#define etWIKISTR    22 /* Timeline comment text rendered from a char*: %W */
 #define etSTRINGID   23 /* String with length limit for a UUID prefix: %S */
-#define etROOT       24 /* String value of g.zTop: % */
+#define etROOT       24 /* String value of g.zTop: %R */
 
 
 /*
@@ -98,11 +99,12 @@ static const et_info fmtinfo[] = {
   {  'Q',  0, 4, etSQLESCAPE2, 0,  0 },
   {  'b',  0, 2, etBLOB,       0,  0 },
   {  'B',  0, 2, etBLOBSQL,    0,  0 },
-  {  'w',  0, 2, etWIKISTR,    0,  0 },
+  {  'W',  0, 2, etWIKISTR,    0,  0 },
   {  'h',  0, 4, etHTMLIZE,    0,  0 },
   {  'R',  0, 0, etROOT,       0,  0 },
   {  't',  0, 4, etHTTPIZE,    0,  0 },  /* "/" -> "%2F" */
   {  'T',  0, 4, etURLIZE,     0,  0 },  /* "/" unchanged */
+  {  'w',  0, 4, etSQLESCAPE3, 0,  0 },
   {  'F',  0, 4, etFOSSILIZE,  0,  0 },
   {  'S',  0, 4, etSTRINGID,   0,  0 },
   {  'c',  0, 0, etCHARX,      0,  0 },
@@ -663,16 +665,18 @@ int vxprintf(
         break;
       }
       case etSQLESCAPE:
-      case etSQLESCAPE2: {
+      case etSQLESCAPE2:
+      case etSQLESCAPE3: {
         int i, j, n, ch, isnull;
         int needQuote;
         int limit = flag_alternateform ? va_arg(ap,int) : -1;
+        char q = ((xtype==etSQLESCAPE3)?'"':'\'');  /* Quote characters */
         char *escarg = va_arg(ap,char*);
         isnull = escarg==0;
         if( isnull ) escarg = (xtype==etSQLESCAPE2 ? "NULL" : "(NULL)");
         if( limit<0 ) limit = strlen(escarg);
         for(i=n=0; i<limit; i++){
-          if( escarg[i]=='\'' )  n++;
+          if( escarg[i]==q )  n++;
         }
         needQuote = !isnull && xtype==etSQLESCAPE2;
         n += i + 1 + needQuote*2;
@@ -682,12 +686,12 @@ int vxprintf(
           bufpt = buf;
         }
         j = 0;
-        if( needQuote ) bufpt[j++] = '\'';
+        if( needQuote ) bufpt[j++] = q;
         for(i=0; i<limit; i++){
           bufpt[j++] = ch = escarg[i];
-          if( ch=='\'' ) bufpt[j++] = ch;
+          if( ch==q ) bufpt[j++] = ch;
         }
-        if( needQuote ) bufpt[j++] = '\'';
+        if( needQuote ) bufpt[j++] = q;
         bufpt[j] = 0;
         length = j;
         if( precision>=0 && precision<length ) length = precision;

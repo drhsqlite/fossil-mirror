@@ -73,8 +73,8 @@ static void print_person(const char *zUser){
     ** the part.
      */
     zEmail = mprintf("%s", &zContact[i]);
-    for(i=0; zEmail[i] && zEmail[i]!='>'; i++){}
-    if( zEmail[i]=='>' ) zEmail[i+1] = 0;
+    for(j=0; zEmail[j] && zEmail[j]!='>'; j++){}
+    if( zEmail[j]=='>' ) zEmail[j+1] = 0;
   }else{
     /*
     ** Found an end marker for email, but nothing else.
@@ -234,8 +234,8 @@ void export_cmd(void){
   /* Output the commit records.
   */
   db_prepare(&q,
-    "SELECT strftime('%%s',mtime), objid, coalesce(comment,ecomment),"
-    "       coalesce(user,euser),"
+    "SELECT strftime('%%s',mtime), objid, coalesce(ecomment,comment),"
+    "       coalesce(euser,user),"
     "       (SELECT value FROM tagxref WHERE rid=objid AND tagid=%d)"
     "  FROM event"
     " WHERE type='ci' AND NOT EXISTS (SELECT 1 FROM oldcommit WHERE objid=rid)"

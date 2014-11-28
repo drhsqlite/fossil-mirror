@@ -1394,14 +1394,14 @@ void setup_skin(void){
       if( fossil_strcmp(aBuiltinSkin[i].zName, z)==0 ){
         seen = 1;
         zCurrent = aBuiltinSkin[i].zValue;
-        db_multi_exec("%s", zCurrent);
+        db_multi_exec("%s", zCurrent/*safe-for-%s*/);
         break;
       }
     }
     if( !seen ){
       zName = skinVarName(z,0);
       zCurrent = db_get(zName, 0);
-      db_multi_exec("%s", zCurrent);
+      db_multi_exec("%s", zCurrent/*safe-for-%s*/);
     }
   }
 

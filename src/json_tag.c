@@ -303,7 +303,7 @@ static cson_value * json_tag_find(){
                "  )"
                " ORDER BY event.mtime DESC"
                "%s LIMIT %d",
-               zSqlBase, zType, tagid,
+               zSqlBase /*safe-for-%s*/, zType, tagid,
                (limit>0)?"":"--", limit
                );
     listV = json_stmt_to_array_of_obj(&q, NULL);
@@ -444,7 +444,7 @@ static cson_value * json_tag_list(){
     }
     blob_append(&sql,
                 " ORDER BY tagname", -1);
-    db_prepare(&q, blob_buffer(&sql));
+    db_prepare(&q, "%s", blob_sql_text(&sql));
     blob_reset(&sql);
     cson_object_set(pay, "includeTickets", cson_value_new_bool(fTicket) );
     while( SQLITE_ROW == db_step(&q) ){
