@@ -593,7 +593,7 @@ void rebuild_database(void){
     "REPLACE INTO config(name,value,mtime) VALUES('content-schema',%Q,now());"
     "REPLACE INTO config(name,value,mtime) VALUES('aux-schema',%Q,now());"
     "REPLACE INTO config(name,value,mtime) VALUES('rebuilt',%Q,now());",
-    CONTENT_SCHEMA, AUX_SCHEMA, get_version()
+    CONTENT_SCHEMA, AUX_SCHEMA_MAX, get_version()
   );
   if( errCnt && !forceFlag ){
     fossil_print(

@@ -52,6 +52,7 @@ set src {
   export
   file
   finfo
+  foci
   fusefs
   glob
   graph
