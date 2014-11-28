@@ -743,6 +743,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   );
   if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
   re_add_sql_func(db);
+  foci_register(db);
   sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
   return db;
 }
