@@ -1783,6 +1783,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       }else{
         sqlite3_snprintf(sizeof(zBaseId), zBaseId, "NULL");
       }
+      if( g.zAuxSchema==0 ) (void)db_schema_is_outofdate();
       for(i=0; i<p->nParent; i++){
         int pid = uuid_to_rid(p->azParent[i], 1);
         if( strcmp(g.zAuxSchema,"2014-11-24 20:35")>=0 ){

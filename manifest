@@ -1,5 +1,5 @@
-C Enhance\sthe\sdatabase\saux-schema\sversion\schecking\sso\sthat\sit\swill\saccept\sa\nrange\sof\sschema\sversions.\s\sFix\sthe\scurrent\simplementation\sto\swork\swith\nor\swithout\sthe\sPLINK.BASEID\senhancement.
-D 2014-11-28T14:29:49.026
+C Make\ssure\sthe\sg.zAuxSchema\svalue\sis\sinitialized\sbefore\strying\sto\suse\sit\nwhen\sdoing\sa\srebuild.
+D 2014-11-28T14:41:50.739
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -382,7 +382,7 @@ F src/main.mk 08c0c40236688f39d1f59e7320b6883fa90e3ad3
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 8181e89d8e10a15ac54fe85b24fb5fe7711af314
-F src/manifest.c d9221efc97d358e3aac77c3e937dab2eb158d8bf
+F src/manifest.c 133e8d045ac12c1177cb08bf4e0e1b9ac6f24bd4
 F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
@@ -658,7 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f36ac49ddcf8d48c32494026ba0ee52c9891e6df
-R 0947ff70768e7725e1c1ff6c3aaee8af
+P 0d4b33d3a410d9f754db7858566e5c085bd22c77
+R ae8a079bdcc880f067b2a64fa275e15f
 U drh
-Z 7fac531bba2234253477e9252eeefb47
+Z 0c5ffe16b21ba57dbbf97d3679772a78
