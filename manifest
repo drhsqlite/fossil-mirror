@@ -1,5 +1,5 @@
-C Enhance\sthe\s"fossil\ssql"\scommand\sso\sthat\sone\sor\smore\sSQL\sstatements\sand/or\ndot-commands\scan\sbe\sentered\son\sthe\scommand-line.\s\sAlso\sautomatically\sATTACH\nthe\slocal\sdatabase\sand\sthe\sconfig\sdatabase,\sif\sthey\sare\savailable.
-D 2014-11-28T14:07:35.852
+C Restore\sthe\sbuilt-in\sSQLite\sto\sversion\s3.8.8\safter\sfixing\sthe\sfragmentation\s\nsize\scorruption\sproblem.
+D 2014-11-28T15:11:00.079
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -407,12 +407,12 @@ F src/schema.c bed561078af53700180540bc6e41d7364037c635
 F src/search.c 76f0639e7bfe4e07dfac1234c421caab12452ff7
 F src/setup.c 1b3a7720220bc008b66df11c10e570e63d629d42
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
-F src/shell.c bfc1282b446ef6ac10742daeff94f72428abf25b
+F src/shell.c 45d9c9bd7cde07845af957f2d849933b990773cf
 F src/shun.c 57f609c7cd56b7169e7aa81c2d23c6d8094be5ae
 F src/skins.c 810054ea1343bc1b78c2f4b9b0d8a9145fd4ae39
 F src/sqlcmd.c 444eff2fa6dd06478fb5a345d6878b6f9f4be930
-F src/sqlite3.c b2a68d5783f48dba6a8cb50d8bf69b238c5ec53a
-F src/sqlite3.h 27d5349c315d2b041dd5758651deaaaa6306383a
+F src/sqlite3.c 28909596ccee18bc36f25a6abfcef21c2c613262
+F src/sqlite3.h 2c298b78391fe667fc7fc6e51f1c4e8c28987d26
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 842683346b6def34cc739fbd10eec57a24d44957
 F src/style.c 3da9f511ffca45a6af76b506e8ec12ed4f7ee1b7
@@ -658,7 +658,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 40f1b288cfa130e2bb3eaacf60076f347e25d278
-R bc3cf473be8701f9e4cff25abdaeed6e
+P f922f4e3cca0da7b36a4fc807b5d98353257371e
+R aae30c40ef7820c8c80e0e4c7cb49f4b
 U drh
-Z 4bd63eed996b1ace6a1579a14101178c
+Z cb053cef78afb2ce7f9ff62e6cdac700

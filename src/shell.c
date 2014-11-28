@@ -4209,18 +4209,6 @@ int main(int argc, char **argv){
     return rc;
   }
 
-#ifdef SQLITE_SHELL_INIT_PROC
-  {
-    /* The SQLITE_SHELL_INIT_PROC is an application-defined function
-    ** that can do additional initialization on the database connection
-    ** after it has opened.
-    */
-    extern int SQLITE_SHELL_INIT_PROC(sqlite3*);
-    rc = SQLITE_SHELL_INIT_PROC(data.db);
-    if( rc ) return rc;
-  }
-#endif
-
   /* Make a second pass through the command-line argument and set
   ** options.  This second pass is delayed until after the initialization
   ** file is processed so that the command-line arguments will override
