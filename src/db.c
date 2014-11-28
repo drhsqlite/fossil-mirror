@@ -2694,7 +2694,7 @@ void create_admin_log_table(void){
   db_multi_exec(
     "CREATE TABLE IF NOT EXISTS \"%w\".admin_log(\n"
     " id INTEGER PRIMARY KEY,\n"
-    " time FLOAT,   -- Seconds since 1970\n"
+    " time INTEGER, -- Seconds since 1970\n"
     " page TEXT,    -- path of page\n"
     " who TEXT,     -- User who made the change\n "
     " what TEXT     -- What changed\n"
@@ -2704,13 +2704,17 @@ void create_admin_log_table(void){
 
 /*
 ** Write a message into the admin_event table, if admin logging is
-** enabled
+** enabled via the admin-log configuration option.
 */
 void admin_log(const char *zFormat, ...){
   Blob what = empty_blob;
   va_list ap;
-  int rc;
-  if( !db_get_boolean("admin-log", 0) ) return;
+  if( !db_get_boolean("admin-log", 0) ){
+      /* Potential leak here (on %z params) but
+         the alternative is to let blob_vappendf()
+         do it below. */
+      return;
+  }
   create_admin_log_table();
   va_start(ap,zFormat);
   blob_vappendf( &what, zFormat, ap );

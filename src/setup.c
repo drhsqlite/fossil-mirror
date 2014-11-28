@@ -111,6 +111,8 @@ void setup_page(void){
     "A record of received artifacts and their sources");
   setup_menu_entry("User-Log", "access_log",
     "A record of login attempts");
+  setup_menu_entry("Admin-Log", "admin_log",
+    "View the admin_log entries");
   setup_menu_entry("Stats", "stat",
     "Display repository statistics");
   setup_menu_entry("SQL", "admin_sql",
@@ -384,7 +386,8 @@ void user_edit(void){
        "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
       uid, zLogin, P("info"), zPw, zCap
     );
-    admin_log( "Updated user %Q with capapbilities [%q].", zLogin, zCap );
+    admin_log( "Updated user [%q] with capabilities [%q].",
+               zLogin, zCap );
     if( atoi(PD("all","0"))>0 ){
       Blob sql;
       char *zErr = 0;
@@ -410,7 +413,9 @@ void user_edit(void){
       );
       login_group_sql(blob_str(&sql), "<li> ", " </li>\n", &zErr);
       blob_reset(&sql);
-      admin_log( "Updated user '%q' with capapbilities.", zLogin, zCap );
+      admin_log( "Updated user [%q] in all login groups "
+                 "with capabilities [%q].",
+                 zLogin, zCap );
       if( zErr ){
         style_header("User Change Error");
         admin_log( "Error updating user '%q': %s'.", zLogin, zErr );
@@ -867,6 +872,8 @@ static void onoff_attribute(
     if( iQ!=iVal ){
       login_verify_csrf_secret();
       db_set(zVar, iQ ? "1" : "0", 0);
+      admin_log("Set option [%q] to [%q].",
+                zVar, iQ ? "on" : "off");
       iVal = iQ;
     }
   }
@@ -2026,5 +2033,59 @@ void th1_page(void){
       @ <pre class="th1error">%h(zR)</pre>
     }
   }
+  style_footer();
+}
+
+/*
+** WEBPAGE: admin_log
+**
+*/
+void page_admin_log(){
+  Stmt stLog = empty_Stmt;
+  Blob qLog = empty_blob;
+  int limit;
+  int fLogEnabled;
+  int counter = 0;
+  login_check_credentials();
+  if( !g.perm.Setup && !g.perm.Admin ){
+    login_needed();
+  }
+  style_header("Admin Log");
+  create_admin_log_table();
+  limit = atoi(PD("n","20"));
+  fLogEnabled = db_get_boolean("admin-log", 0);
+  @ Admin logging is %s(fLogEnabled?"on":"off").
+
+  blob_append_sql(&qLog,
+               "SELECT datetime(time,'unixepoch'), who, page, what "
+               "FROM admin_log "
+               "ORDER BY time DESC ");
+  if(limit>0){
+    @ %d(limit) Most recent entries:
+    blob_append_sql(&qLog, "LIMIT %d", limit);
+  }
+
+  db_prepare(&stLog, "%s", blob_sql_text(&qLog));
+  blob_reset(&qLog);
+  @ <table id="adminLogTable" class="adminLogTable" width="100%%">
+  @ <thead>
+  @ <th>Time</th>
+  @ <th>User</th>
+  @ <th>Page</th>
+  @ <th width="60%%">Message</th>
+  @ </thead><tbody>
+  while( SQLITE_ROW == db_step(&stLog) ){
+    char const * zTime = db_column_text(&stLog, 0);
+    char const * zUser = db_column_text(&stLog, 1);
+    char const * zPage = db_column_text(&stLog, 2);
+    char const * zMessage = db_column_text(&stLog, 3);
+    @ <tr class="row%d(counter++%2)">
+    @ <td class="adminTime">%s(zTime)</td>
+    @ <td>%s(zUser)</td>
+    @ <td>%s(zPage)</td>
+    @ <td>%s(zMessage)</td>
+    @ </tr>
+  }
+  @ </tbody></table>
   style_footer();
 }
