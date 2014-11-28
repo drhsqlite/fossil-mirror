@@ -132,7 +132,12 @@ void publish_cmd(void){
   }else{
     /* Standard behavior is simply to remove the published documents from
     ** the PRIVATE table */
-    db_multi_exec("DELETE FROM private WHERE rid IN ok");
+    db_multi_exec(
+      "DELETE FROM ok WHERE rid NOT IN private;"
+      "DELETE FROM private WHERE rid IN ok;"
+      "INSERT OR IGNORE INTO unsent SELECT rid FROM ok;"
+      "INSERT OR IGNORE INTO unclustered SELECT rid FROM ok;"
+    );
   }
   db_end_transaction(0);
 }
