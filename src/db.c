@@ -2206,6 +2206,7 @@ struct stControlSettings {
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
   { "access-log",       0,              0, 0, 0, "off"                 },
+  { "admin-log",        0,              0, 0, 0, "off"                 },
   { "allow-symlinks",   0,              0, 1, 0, "off"                 },
   { "auto-captcha",     "autocaptcha",  0, 0, 0, "on"                  },
   { "auto-hyperlink",   0,              0, 0, 0, "on",                 },
@@ -2286,6 +2287,9 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    access-log       If enabled, record successful and failed login attempts
 **                     in the "accesslog" table.  Default: off
+**
+**    admin-log        If enabled, record configuration changes in the
+**                     "admin_log" table.  Default: off
 **
 **    allow-symlinks   If enabled, don't follow symlinks, and instead treat
 **     (versionable)   them as symlinks on Unix. Has no effect on Windows
@@ -2662,14 +2666,15 @@ void test_without_rowid(void){
          "DROP TABLE \"x_%w\";\n",
          zTName, zTName, blob_sql_text(&newSql), zTName, zTName, zTName
       );
-      fossil_print("Converting table %s of %s to WITHOUT ROWID.\n", zTName, g.argv[i]);
+      fossil_print("Converting table %s of %s to WITHOUT ROWID.\n",
+                    zTName, g.argv[i]);
       blob_reset(&newSql);
     }
     blob_append_sql(&allSql, "COMMIT;\n");
     db_finalize(&q);
     if( dryRun ){
       fossil_print("SQL that would have been evaluated:\n");
-      fossil_print("-------------------------------------------------------------\n");
+      fossil_print("%.78c\n", '-');
       fossil_print("%s", blob_sql_text(&allSql));
     }else{
       db_multi_exec("%s", blob_sql_text(&allSql));
@@ -2679,33 +2684,39 @@ void test_without_rowid(void){
   }
 }
 
-
-void admin_log(const char *zFormat, ...){
+/*
+** Make sure the adminlog table exists.  Create it if it does not
+*/
+void create_admin_log_table(void){
   static int once = 0;
-  char * zUserName = g.userUid>0
-    ? db_text(0, "select login from user where uid=%d", g.userUid)
-    : 0;
+  if( once ) return;
+  once = 1;
+  db_multi_exec(
+    "CREATE TABLE IF NOT EXISTS \"%w\".admin_log(\n"
+    " id INTEGER PRIMARY KEY,\n"
+    " time FLOAT,   -- Seconds since 1970\n"
+    " page TEXT,    -- path of page\n"
+    " who TEXT,     -- User who made the change\n "
+    " what TEXT     -- What changed\n"
+    ")", db_name("repository")
+  );
+}
+
+/*
+** Write a message into the admin_event table, if admin logging is
+** enabled
+*/
+void admin_log(const char *zFormat, ...){
   Blob what = empty_blob;
   va_list ap;
   int rc;
-  if(!once){
-    once = 1;
-    rc = db_multi_exec("CREATE TABLE IF NOT EXISTS aevent("
-                       "id INTEGER PRIMARY KEY, "
-                       "time FLOAT /* Julian time */, "
-                       "page TEXT /* path of page */,"
-                       "who TEXT /* user name */, "
-                       "what TEXT /* descr. of event. */ "
-                       ")");
-    fossil_trace("created aevent. rc=%d\n", rc);
-  }
+  if( !db_get_boolean("admin-log", 0) ) return;
+  create_admin_log_table();
   va_start(ap,zFormat);
   blob_vappendf( &what, zFormat, ap );
   va_end(ap);
-  fossil_trace("what==%B rc=%d\n", &what, rc);
-  db_multi_exec("INSERT INTO aevent(id,time,page,who,what) VALUES("
-                "NULL, cast(strftime('%%J') AS FLOAT), %Q, %Q, %B"
-                ")", g.zPath, zUserName, &what);
-  fossil_free(zUserName);
+  db_multi_exec("INSERT INTO admin_log(time,page,who,what)"
+                " VALUES(now(), %Q, %Q, %B)",
+                g.zPath, g.zLogin, &what);
   blob_reset(&what);
 }
