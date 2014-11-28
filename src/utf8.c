@@ -311,6 +311,7 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
   int nChar, written = 0;
   wchar_t *zUnicode; /* Unicode version of zUtf8 */
   DWORD dummy;
+  Blob blob;
 
   static int istty[2] = { -1, -1 };
   if( istty[toStdErr] == -1 ){
@@ -321,12 +322,20 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
     return -1;
   }
 
-  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, nByte, NULL, 0);
+  /* If blob to be written to the Windows console is not
+   * UTF-8, convert it to UTF-8 first.
+   */
+  blob_init(&blob, zUtf8, nByte); 
+  blob_to_utf8_no_bom(&blob, 1);
+  nChar = MultiByteToWideChar(CP_UTF8, 0, blob_buffer(&blob),
+      blob_size(&blob), NULL, 0);
   zUnicode = malloc( (nChar + 1) *sizeof(zUnicode[0]) );
   if( zUnicode==0 ){
     return 0;
   }
-  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, nByte, zUnicode, nChar);
+  nChar = MultiByteToWideChar(CP_UTF8, 0, blob_buffer(&blob),
+      blob_size(&blob), zUnicode, nChar);
+  blob_reset(&blob);
   /* Split WriteConsoleW call into multiple chunks, if necessary. See:
    * <https://connect.microsoft.com/VisualStudio/feedback/details/635230> */
   while( written < nChar ){

@@ -201,9 +201,16 @@ int purge_artifact_list(
 ** a baseline manifest out from under a delta.
 */
 int purge_baseline_out_from_under_delta(const char *zTab){
-  return db_int(0,
-    "SELECT 1 FROM plink WHERE baseid IN \"%w\" AND cid NOT IN \"%w\"",
-    zTab, zTab);
+  if( !db_exists("SELECT 1 FROM %s.sqlite_master WHERE name='plink'"
+                 " AND sql GLOB '* baseid *'", db_name("repository")) ){
+    /* Skip this check if the current database is an older schema that
+    ** does not contain the PLINK.BASEID field. */
+    return 0;
+  }else{
+    return db_int(0,
+      "SELECT 1 FROM plink WHERE baseid IN \"%w\" AND cid NOT IN \"%w\"",
+      zTab, zTab);
+  }
 }
 
 

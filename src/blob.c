@@ -26,6 +26,10 @@
 #  include <zlib.h>
 #endif
 #include "blob.h"
+#if defined(_WIN32)
+#include <fcntl.h>
+#include <io.h>
+#endif
 
 #if INTERFACE
 /*
@@ -825,8 +829,14 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     if( fossil_utf8_to_console(blob_buffer(pBlob), nWrote, 0) >= 0 ){
       return nWrote;
     }
+    fflush(stdout);
+    _setmode(_fileno(stdout), _O_BINARY);
 #endif
     fwrite(blob_buffer(pBlob), 1, nWrote, stdout);
+#if defined(_WIN32)
+    fflush(stdout);
+    _setmode(_fileno(stdout), _O_TEXT);
+#endif
   }else{
     file_mkfolder(zFilename, 1);
     out = fossil_fopen(zFilename, "wb");
