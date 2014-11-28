@@ -216,27 +216,19 @@ void subtree_from_arguments(const char *zTab){
 **    --from TAG                Start the subtree at TAG
 **    --to TAG                  End the subtree at TAG
 **    --checkin TAG             The subtree is the single checkin TAG
+**    --all                     Include FILE and TAG artifacts
+**    --exclusive               Include FILES exclusively on checkins
 */
 void test_subtree_cmd(void){
-  Stmt q;
+  int bAll = find_option("all",0,0)!=0;
+  int bExcl = find_option("exclusive",0,0)!=0;
   db_find_and_open_repository(0,0);
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE tobundle(rid INTEGER PRIMARY KEY);");
   subtree_from_arguments("tobundle");
-  db_prepare(&q,
-    "SELECT "
-    "  (SELECT substr(uuid,1,10) FROM blob WHERE rid=tobundle.rid),"
-    "  (SELECT substr(comment,1,30) FROM event WHERE objid=tobundle.rid),"
-    "  tobundle.rid"
-    " FROM tobundle;"
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-     fossil_print("%5d %s %s\n", 
-        db_column_int(&q, 2),
-        db_column_text(&q, 0),
-        db_column_text(&q, 1));
-  }
-  db_finalize(&q);
+  verify_all_options();
+  if( bAll ) find_checkin_associates("tobundle",bExcl);
+  describe_artifacts_to_stdout("IN tobundle");
   db_end_transaction(1);
 }
 

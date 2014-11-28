@@ -1,5 +1,5 @@
-C Add\sthe\sdescribe_artifacts()\sutility\sprocedure\sand\sthe\stest-describe-artifacts\ncommand\sfor\stesting\sit.
-D 2014-11-28T22:31:41.869
+C Begin\smaking\suse\sof\sthe\snew\sdescribe_artifacts()\sutility,\sfor\sexample\sin\nthe\s--explain\soutput\sof\s"bundle\sexport"\sand\s"purge".
+D 2014-11-28T23:18:06.136
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -319,7 +319,7 @@ F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
 F src/branch.c 981eefb8d583787eb679eee529b9ae9f89a5d691
 F src/browse.c 7e802de8f55afa35b5075d3db67ffaae3028f464
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
-F src/bundle.c 95d24c59358e96da67e52fb821410358643d4d12
+F src/bundle.c 57681827ce21b3d797b2eff78d83234e250ee1db
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 259725db75a53752aef97d99c38cbfd0e86e43ec
@@ -394,14 +394,14 @@ F src/mkbuiltin.c 5cb95655247988d16b40dbfd2d10ec25b935ab62
 F src/mkindex.c 69da20a8f44b1ebbb0223bf3d712b4a9d4c99238
 F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
 F src/moderate.c 359e96692bcbe1a48c368c56cf57f485c48d0115
-F src/name.c a2ecbeece8836210eb1ebaf3b7185ec0727258e3
+F src/name.c 0c82858c64456a7d0325b54bba9314cc4e0d690e
 F src/path.c 9b8e8497847a691d1a3b58e367cd53534704e267
 F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 98dae687a6c785877897b4062281a5bac002b338
 F src/publish.c 5f135a287c2f566ec32fb82684404c0c14220ae9
-F src/purge.c 04ff4129a055f7ab3b7066820b6b85a19e224fbc
+F src/purge.c 1844baeb48c1c02baf073f332d3c3386d5157e58
 F src/rebuild.c 5200536562dee9b85b378476b8045b5b87c21fa8
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c 0c3d2aa5c686c213d454a553bd3d8529ca054be5
@@ -661,7 +661,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 85f239f1f7af9390e1adbd13287e49f2dc6e0145
-R e8a81db6c6e5c9b7c3945a2d9207ddde
+P 47115adec54bbfb3dcd971ac9a341f115e21e49e
+R 7788b63eb77936beeba49da8fa126b6a
 U drh
-Z 55e8707ddee28dbb710a07733e53479d
+Z a5865a21e59eb97c98005e9a26024366

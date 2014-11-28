@@ -569,13 +569,7 @@ void purge_cmd(void){
     find_checkin_associates("ok", 1);
     nArtifact = db_int(0, "SELECT count(*) FROM ok");
     if( explainOnly ){
-      i = 0;
-      db_prepare(&q, "SELECT rid FROM ok");
-      while( db_step(&q)==SQLITE_ROW ){
-        if( i++ > 0 ) fossil_print("%.78c\n",'-');
-        whatis_rid(db_column_int(&q,0), 0);
-      }
-      db_finalize(&q);
+      describe_artifacts_to_stdout("IN ok");
     }else{
       int peid = purge_artifact_list("ok","",1);
       fossil_print("%d checkins and %d artifacts purged.\n", nCkin, nArtifact);

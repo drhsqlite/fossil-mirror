@@ -910,16 +910,11 @@ void describe_artifacts(const char *zWhere){
 }
 
 /*
-** COMMAND: test-describe-artifacts
-**
-** Usage: %fossil test-describe-artifacts
-**
-** Display a one-line description of every artifact.
+** Print the content of the description table on stdout
 */
-void test_describe_artifacts_cmd(void){
+void describe_artifacts_to_stdout(const char *zWhere){
   Stmt q;
-  db_find_and_open_repository(0,0);
-  describe_artifacts("IN (SELECT rid FROM blob)");
+  describe_artifacts(zWhere);
   db_prepare(&q,
     "SELECT rid, uuid, datetime(ctime,'localtime'), type, detail\n"
     "  FROM description\n"
@@ -933,13 +928,24 @@ void test_describe_artifacts_cmd(void){
       fossil_print(" %s", db_column_text(&q,4));
     }
     if( db_column_bytes(&q,2)>0
-     && fossil_strcmp(zType,"file")!=0
-     && fossil_strcmp(zType,"ticket")!=0
-     && fossil_strcmp(zType,"event")!=0
+     && fossil_strcmp(zType,"checkin")==0
     ){
       fossil_print(" %s", db_column_text(&q,2));
     }
     fossil_print("\n");
   }
   db_finalize(&q);
+  
+}
+
+/*
+** COMMAND: test-describe-artifacts
+**
+** Usage: %fossil test-describe-artifacts
+**
+** Display a one-line description of every artifact.
+*/
+void test_describe_artifacts_cmd(void){
+  db_find_and_open_repository(0,0);
+  describe_artifacts_to_stdout("IN (SELECT rid FROM blob)");
 }
