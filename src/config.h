@@ -27,6 +27,11 @@
 #endif
 #define _LARGEFILE_SOURCE 1
 
+/* Needed for various definitions... */
+#ifndef _GNU_SOURCE
+# define _GNU_SOURCE
+#endif
+
 /* Make sure that in Win32 MinGW builds, _USE_32BIT_TIME_T is always defined. */
 #if defined(_WIN32) && !defined(_WIN64) && !defined(_MSC_VER) && !defined(_USE_32BIT_TIME_T)
 #  define _USE_32BIT_TIME_T

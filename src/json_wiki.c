@@ -82,7 +82,7 @@ char * json_wiki_get_uuid_for_rid( int rid )
 ** The returned value, if not NULL, is-a JSON Object owned by the
 ** caller. If it returns NULL then it may set g.json's error state.
 */
-cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
+cson_value * json_get_wiki_page_by_rid(int rid, int contentFormat){
   Manifest * pWiki = NULL;
   if( NULL == (pWiki = manifest_get(rid, CFTYPE_WIKI, 0)) ){
     json_set_err( FSL_JSON_E_UNKNOWN,
@@ -147,7 +147,7 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
 ** name. If found it behaves like json_get_wiki_page_by_rid(theRid,
 ** contentFormat), else it returns NULL.
 */
-cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentFormat){
+cson_value * json_get_wiki_page_by_name(char const * zPageName, int contentFormat){
   int rid;
   rid = db_int(0,
                "SELECT x.rid FROM tag t, tagxref x, blob b"
@@ -177,8 +177,8 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentForm
 ** The return value is intended for use with
 ** json_get_wiki_page_by_rid() and friends.
 */
-char json_wiki_get_content_format_flag( char defaultValue ){
-  char contentFormat = defaultValue;
+int json_wiki_get_content_format_flag( int defaultValue ){
+  int contentFormat = defaultValue;
   char const * zFormat = json_find_option_cstr("format",NULL,"f");
   if( !zFormat || !*zFormat ){
     return contentFormat;
@@ -205,7 +205,7 @@ char json_wiki_get_content_format_flag( char defaultValue ){
 */
 static cson_value * json_wiki_get_by_name_or_symname(char const * zPageName,
                                                      char const * zSymname,
-                                                     char contentFormat ){
+                                                     int contentFormat ){
   if(!zSymname || !*zSymname){
     return json_get_wiki_page_by_name(zPageName, contentFormat);
   }else{
@@ -231,7 +231,7 @@ static cson_value * json_wiki_get_by_name_or_symname(char const * zPageName,
 static cson_value * json_wiki_get(){
   char const * zPageName;
   char const * zSymName = NULL;
-  char contentFormat = -1;
+  int contentFormat = -1;
   if( !g.perm.RdWiki && !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' or 'j' access.");
@@ -310,6 +310,7 @@ static cson_value * json_wiki_create_or_save(char createMode,
   cson_value * emptyContent = NULL;  /* placeholder for empty content. */
   cson_value * payV = NULL;   /* payload/return value */
   cson_string const * jstr = NULL;  /* temp for cson_value-to-cson_string conversions. */
+  char const * zMimeType = 0;
   unsigned int contentLen = 0;
   int rid;
   if( (createMode && !g.perm.NewWiki)
@@ -373,7 +374,10 @@ static cson_value * json_wiki_create_or_save(char createMode,
   if(contentLen){
     blob_append(&content, cson_string_cstr(jstr),contentLen);
   }
-  wiki_cmd_commit(zPageName, 0==rid, &content);
+
+  zMimeType = json_find_option_cstr("mimetype","mimetype","M");
+
+  wiki_cmd_commit(zPageName, 0==rid, &content, zMimeType, 0);
   blob_reset(&content);
   /*
     Our return value here has a race condition: if this operation
@@ -442,18 +446,17 @@ static cson_value * json_wiki_list(){
               -1);
   zGlob = json_find_option_cstr("glob",NULL,"g");
   if(zGlob && *zGlob){
-    blob_appendf(&sql," AND name %s GLOB %Q",
-                 fInvert ? "NOT" : "", zGlob);
+    blob_append_sql(&sql," AND name %s GLOB %Q",
+                    fInvert ? "NOT" : "", zGlob);
   }else{
     zGlob = json_find_option_cstr("like",NULL,"l");
     if(zGlob && *zGlob){
-      blob_appendf(&sql," AND name %s LIKE %Q",
-                   fInvert ? "NOT" : "",
-                   zGlob);
+      blob_append_sql(&sql," AND name %s LIKE %Q",
+                      fInvert ? "NOT" : "", zGlob);
     }
   }
   blob_append(&sql," ORDER BY lower(name)", -1);
-  db_prepare(&q,"%s", blob_str(&sql));
+  db_prepare(&q,"%s", blob_sql_text(&sql));
   blob_reset(&sql);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);

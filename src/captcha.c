@@ -450,7 +450,7 @@ unsigned int captcha_seed(void){
 ** The returned string is static and overwritten on each call to
 ** this function.
 */
-char const *captcha_decode(unsigned int seed){
+const char *captcha_decode(unsigned int seed){
   const char *zSecret;
   const char *z;
   Blob b;
@@ -519,7 +519,7 @@ int captcha_is_correct(void){
     if( c=='O' ) c = '0';
     z[i] = c;
   }
-  if( memcmp(zDecode,z,8)!=0 ) return 0;
+  if( strncmp(zDecode,z,8)!=0 ) return 0;
   return 1;
 }
 

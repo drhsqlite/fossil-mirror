@@ -22,7 +22,12 @@
 */
 #include "config.h"
 #include "sqlcmd.h"
-#include <zlib.h>
+#if defined(FOSSIL_ENABLE_MINIZ)
+#  define MINIZ_HEADER_FILE_ONLY
+#  include "miniz.c"
+#else
+#  include <zlib.h>
+#endif
 
 /*
 ** Implementation of the "content(X)" SQL function.  Return the complete
@@ -114,6 +119,8 @@ static int sqlcmd_autoinit(
   const char **pzErrMsg,
   const void *notUsed
 ){
+  char *zSql;
+  int rc = SQLITE_OK;
   sqlite3_create_function(db, "content", 1, SQLITE_UTF8, 0,
                           sqlcmd_content, 0, 0);
   sqlite3_create_function(db, "compress", 1, SQLITE_UTF8, 0,
@@ -121,19 +128,27 @@ static int sqlcmd_autoinit(
   sqlite3_create_function(db, "decompress", 1, SQLITE_UTF8, 0,
                           sqlcmd_decompress, 0, 0);
   re_add_sql_func(db);
+  foci_register(db);
+  g.zMainDbType = "repository";
   g.repositoryOpen = 1;
   g.db = db;
-  return SQLITE_OK;
+  db_open_config(1);
+  if( g.zLocalDbName ){
+    zSql = sqlite3_mprintf("ATTACH %Q AS localdb;", g.zLocalDbName);
+    rc = sqlite3_exec(db, zSql, 0, 0, 0);
+    sqlite3_free(zSql);
+  }
+  return rc;
 }
 
 /*
 ** COMMAND: sqlite3
 **
-** Usage: %fossil sqlite3 ?DATABASE? ?OPTIONS?
+** Usage: %fossil sqlite3 ?SQL-COMMANDS? ?OPTIONS?
 **
-** Run the standalone sqlite3 command-line shell on DATABASE with OPTIONS.
-** If DATABASE is omitted, then the repository that serves the working
-** directory is opened.
+** Run the standalone sqlite3 command-line shell on the repository database
+** for the current checkout, or whatever repository is specified by the
+** -R command-line option.
 **
 ** WARNING:  Careless use of this command can corrupt a Fossil repository
 ** in ways that are unrecoverable.  Be sure you know what you are doing before
@@ -145,7 +160,11 @@ void cmd_sqlite3(void){
   db_close(1);
   sqlite3_shutdown();
   sqlite3_shell(g.argc-1, g.argv+1);
+  sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
   g.db = 0;
+  g.zMainDbType = 0;
+  g.repositoryOpen = 0;
+  g.localOpen = 0;
 }
 
 /*

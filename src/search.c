@@ -193,7 +193,7 @@ void search_cmd(void){
   char fAll = NULL != find_option("all", "a", 0); /* If set, do not lop
                                                      off the end of the
                                                      results. */
-  char const * zLimit = find_option("limit","n",1);
+  const char *zLimit = find_option("limit","n",1);
   const char *zWidth = find_option("width","W",1);
   int nLimit = zLimit ? atoi(zLimit) : -1000;   /* Max number of matching
                                                    lines/entries to list */
@@ -204,7 +204,7 @@ void search_cmd(void){
       fossil_fatal("-W|--width value must be >20 or 0");
     }
   }else{
-    width = 79;
+    width = -1;
   }
 
   db_must_be_within_tree();
@@ -233,10 +233,10 @@ void search_cmd(void){
               "SELECT rid, uuid, date, comment, 0, 0 FROM srch "
               "WHERE 1 ", -1);
   if(!fAll){
-    blob_appendf(&sql,"AND x>%d ", iBest/3);
+    blob_append_sql(&sql,"AND x>%d ", iBest/3);
   }
   blob_append(&sql, "ORDER BY x DESC, date DESC ", -1);
-  db_prepare(&q, blob_str(&sql));
+  db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   print_timeline(&q, nLimit, width, 0);
   db_finalize(&q);

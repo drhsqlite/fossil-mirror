@@ -399,9 +399,9 @@ static int is_temporary_file(const char *zName){
   };
   int i, j, n;
 
-  if( strglob("ci-comment-????????????.txt", zName) ) return 1;
+  if( sqlite3_strglob("ci-comment-????????????.txt", zName)==0 ) return 1;
   for(; zName[0]!=0; zName++){
-    if( zName[0]=='/' && strglob("/ci-comment-????????????.txt", zName) ){
+    if( zName[0]=='/' && sqlite3_strglob("/ci-comment-????????????.txt", zName)==0 ){
       return 1;
     }
     if( zName[0]!='-' ) continue;
@@ -730,7 +730,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
       Blob file;
 
       if( zOrigName ) zName = zOrigName;
-      if( rid>0 || vid==0 ){
+      if( rid>0 ){
         md5sum_step_text(zName, -1);
         blob_zero(&file);
         content_get(rid, &file);
@@ -839,9 +839,9 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
   db_prepare(&q, "SELECT pathname, origname, rid, is_selected(id)"
                  " FROM vfile"
                  " WHERE (NOT deleted OR NOT is_selected(id))"
-                 "   %s AND vid=%d"
+                 "   AND rid>0 AND vid=%d"
                  " ORDER BY if_selected(id,pathname,origname) /*scan*/",
-                 (vid ? "AND rid>0" : ""), vid);
+                 vid);
   blob_zero(&file);
   md5sum_init();
   while( db_step(&q)==SQLITE_ROW ){

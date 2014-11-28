@@ -81,7 +81,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   }
 
   /* The login card wants the SHA1 hash of the password, so convert the
-  ** password to its SHA1 hash it it isn't already a SHA1 hash.
+  ** password to its SHA1 hash if it isn't already a SHA1 hash.
   */
   /* fossil_print("\nzPw=[%s]\n", zPw); // TESTING ONLY */
   if( zPw && zPw[0] ) zPw = sha1_shared_secret(zPw, zLogin, 0);
@@ -169,7 +169,7 @@ char *prompt_for_httpauth_creds(void){
   if( !isatty(fileno(stdin)) ) return 0;
   zPrompt = mprintf("\n%s authorization required by\n%s\n",
     g.url.isHttps==1 ? "Encrypted HTTPS" : "Unencrypted HTTP", g.url.canonical);
-  fossil_print(zPrompt);
+  fossil_print("%s", zPrompt);
   free(zPrompt);
   if ( g.url.user && g.url.passwd && use_fossil_creds_for_httpauth_prompt() ){
     zHttpAuth = mprintf("%s:%s", g.url.user, g.url.passwd);
@@ -216,7 +216,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   int isCompressed = 1; /* True if the reply is compressed */
 
   if( transport_open(&g.url) ){
-    fossil_warning(transport_errmsg(&g.url));
+    fossil_warning("%s", transport_errmsg(&g.url));
     return 1;
   }
 

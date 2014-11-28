@@ -19,7 +19,12 @@
 */
 #include "config.h"
 #include <assert.h>
-#include <zlib.h>
+#if defined(FOSSIL_ENABLE_MINIZ)
+#  define MINIZ_HEADER_FILE_ONLY
+#  include "miniz.c"
+#else
+#  include <zlib.h>
+#endif
 #include "tar.h"
 
 /*
@@ -489,8 +494,9 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
     if( db_get_boolean("manifest", 0) ){
       blob_append(&filename, "manifest", -1);
       zName = blob_str(&filename);
-      tar_add_file(zName, &mfile, 0, mTime);
       sha1sum_blob(&mfile, &hash);
+      sterilize_manifest(&mfile);
+      tar_add_file(zName, &mfile, 0, mTime);
       blob_reset(&mfile);
       blob_append(&hash, "\n", 1);
       blob_resize(&filename, nPrefix);
@@ -528,13 +534,17 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
 /*
 ** COMMAND: tarball*
 **
-** Usage: %fossil tarball VERSION OUTPUTFILE [--name DIRECTORYNAME] [-R|--repository REPO]
+** Usage: %fossil tarball VERSION OUTPUTFILE
 **
 ** Generate a compressed tarball for a specified version.  If the --name
 ** option is used, its argument becomes the name of the top-level directory
 ** in the resulting tarball.  If --name is omitted, the top-level directory
 ** named is derived from the project name, the check-in date and time, and
 ** the artifact ID of the check-in.
+**
+** Options:
+**   --name DIRECTORYNAME   The name of the top-level directory in the archive
+**   -R REPOSITORY          Specify a Fossil repository
 */
 void tarball_cmd(void){
   int rid;
@@ -542,6 +552,10 @@ void tarball_cmd(void){
   const char *zName;
   zName = find_option("name", 0, 1);
   db_find_and_open_repository(0, 0);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
@@ -576,11 +590,13 @@ void tarball_cmd(void){
 **
 ** Optional URL Parameters:
 **
-** - name=base name of the output file. Defaults to
-** something project/version-specific.
+** - name=NAME[.tar.gz] is base name of the output file. Defaults to
+** something project/version-specific. The prefix of the name, up to
+** the last '.', are used as the top-most directory name in the tar
+** output. 
 **
 ** - uuid=the version to tar (may be a tag/branch name).
-** Defaults to trunk.
+** Defaults to "trunk".
 **
 */
 void tarball_page(void){
@@ -616,7 +632,16 @@ void tarball_page(void){
     return;
   }
   if( nRid==0 && nName>10 ) zName[10] = 0;
-  zKey = db_text(0, "SELECT '/tarball/'||uuid||'/%q' FROM blob WHERE rid=%d",zName,rid);
+  zKey = db_text(0, "SELECT '/tarball/'||uuid||'/%q'"
+                    "  FROM blob WHERE rid=%d",zName,rid);
+  if( P("debug")!=0 ){
+    style_header("Tarball Generator Debug Screen");
+    @ zName = "%h(zName)"<br>
+    @ rid = %d(rid)<br>
+    @ zKey = "%h(zKey)"
+    style_footer();
+    return;
+  }
   blob_zero(&tarball);
   if( cache_read(&tarball, zKey)==0 ){
     tarball_of_checkin(rid, &tarball, zName);

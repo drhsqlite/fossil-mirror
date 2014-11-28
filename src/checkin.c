@@ -54,11 +54,13 @@ static void status_report(
       blob_reset(&where);
       break;
     }
-    blob_appendf(&where, " %s (pathname=%Q %s) "
-                 "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
-                 (blob_size(&where)>0) ? "OR" : "AND", zName,
-                 filename_collation(), zName, filename_collation(),
-                 zName, filename_collation());
+    blob_append_sql(&where,
+      " %s (pathname=%Q %s) "
+      "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+      (blob_size(&where)>0) ? "OR" : "AND", zName,
+      filename_collation(), zName, filename_collation(),
+      zName, filename_collation()
+    );
   }
 
   db_prepare(&q,
@@ -66,7 +68,7 @@ static void status_report(
     "  FROM vfile "
     " WHERE is_selected(id) %s"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1",
-    blob_str(&where)
+    blob_sql_text(&where)
   );
   blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
@@ -103,8 +105,6 @@ static void status_report(
       }
     }else if( isNew ){
       blob_appendf(report, "ADDED      %s\n", zDisplayName);
-    }else if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( isChnged ){
       if( isChnged==2 ){
         blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
@@ -162,6 +162,31 @@ static int determine_cwd_relative_option()
   return relativePaths;
 }
 
+void print_changes(
+  int useSha1sum,     /* Verify file status using SHA1 hashing rather
+                         than relying on file mtimes. */
+  int showHdr,        /* Identify the repository if there are changes */
+  int verboseFlag,    /* Say "(none)" if there are no changes */
+  int cwdRelative     /* Report relative to the current working dir */
+){
+  Blob report;
+  int vid;
+  blob_zero(&report);
+
+  vid = db_lget_int("checkout", 0);
+  vfile_check_signature(vid, useSha1sum ? CKSIG_SHA1 : 0);
+  status_report(&report, "", 0, cwdRelative);
+  if( verboseFlag && blob_size(&report)==0 ){
+    blob_append(&report, "  (none)\n", -1);
+  }
+  if( showHdr && blob_size(&report)>0 ){
+    fossil_print("Changes for %s at %s:\n", db_get("project-name","???"),
+                 g.zLocalRoot);
+  }
+  blob_write_to_file(&report, "-");
+  blob_reset(&report);
+}
+
 /*
 ** COMMAND: changes
 **
@@ -184,27 +209,17 @@ static int determine_cwd_relative_option()
 ** See also: extras, ls, status
 */
 void changes_cmd(void){
-  Blob report;
-  int vid;
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
   int showHdr = find_option("header",0,0)!=0;
   int verboseFlag = find_option("verbose","v",0)!=0;
   int cwdRelative = 0;
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
-  blob_zero(&report);
-  vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid, useSha1sum ? CKSIG_SHA1 : 0);
-  status_report(&report, "", 0, cwdRelative);
-  if( verboseFlag && blob_size(&report)==0 ){
-    blob_append(&report, "  (none)\n", -1);
-  }
-  if( showHdr && blob_size(&report)>0 ){
-    fossil_print("Changes for %s at %s:\n", db_get("project-name","???"),
-                 g.zLocalRoot);
-  }
-  blob_write_to_file(&report, "-");
-  blob_reset(&report);
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
+  print_changes(useSha1sum, showHdr, verboseFlag, cwdRelative);
 }
 
 /*
@@ -229,8 +244,17 @@ void changes_cmd(void){
 */
 void status_cmd(void){
   int vid;
+  int useSha1sum = find_option("sha1sum", 0, 0)!=0;
+  int showHdr = find_option("header",0,0)!=0;
+  int verboseFlag = find_option("verbose","v",0)!=0;
+  int cwdRelative = 0;
   db_must_be_within_tree();
        /* 012345678901234 */
+  cwdRelative = determine_cwd_relative_option();
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   fossil_print("repository:   %s\n", db_repository_filename());
   fossil_print("local-root:   %s\n", g.zLocalRoot);
   if( g.zConfigDbName ){
@@ -240,8 +264,8 @@ void status_cmd(void){
   if( vid ){
     show_common_info(vid, "checkout:", 1, 1);
   }
-  db_record_repository_filename(0);
-  changes_cmd();
+  db_record_repository_filename(0); 
+  print_changes(useSha1sum, showHdr, verboseFlag, cwdRelative);
 }
 
 /*
@@ -293,11 +317,13 @@ void ls_cmd(void){
       blob_reset(&where);
       break;
     }
-    blob_appendf(&where, " %s (pathname=%Q %s) "
-                 "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
-                 (blob_size(&where)>0) ? "OR" : "WHERE", zName,
-                 filename_collation(), zName, filename_collation(),
-                 zName, filename_collation());
+    blob_append_sql(&where,
+       " %s (pathname=%Q %s) "
+       "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+       (blob_size(&where)>0) ? "OR" : "WHERE", zName,
+       filename_collation(), zName, filename_collation(),
+       zName, filename_collation()
+    );
   }
   vfile_check_signature(vid, 0);
   if( showAge ){
@@ -305,13 +331,14 @@ void ls_cmd(void){
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
        "       datetime(checkin_mtime(%d,rid),'unixepoch'%s)"
        "  FROM vfile %s"
-       " ORDER BY %s", vid, timeline_utc(), blob_str(&where), zOrderBy
+       " ORDER BY %s",
+       vid, timeline_utc(), blob_sql_text(&where), zOrderBy /*safe-for-%s*/
     );
   }else{
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
        "  FROM vfile %s"
-       " ORDER BY %s", blob_str(&where), zOrderBy
+       " ORDER BY %s", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
     );
   }
   blob_reset(&where);
@@ -453,9 +480,12 @@ void extras_cmd(void){
   const char *zPathname, *zDisplayName;
 
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
-  capture_case_sensitive_option();
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
@@ -584,7 +614,6 @@ void clean_cmd(void){
   verboseFlag = find_option("verbose","v",0)!=0;
   zKeepFlag = find_option("keep",0,1);
   zCleanFlag = find_option("clean",0,1);
-  capture_case_sensitive_option();
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
@@ -873,7 +902,20 @@ static void prepare_commit_comment(
     blob_appendf(&prompt, "# tags: %s\n#\n", p->zBranch);
   }else{
     char *zTags = info_tags_of_checkin(parent_rid, 1);
-    if( zTags )  blob_appendf(&prompt, "# tags: %z\n#\n", zTags);
+    if( zTags || p->azTag ){
+      blob_append(&prompt, "# tags: ", 8);
+      if(zTags){
+        blob_appendf(&prompt, "%z%s", zTags, p->azTag ? ", " : "");
+      }
+      if(p->azTag){
+        int i = 0;
+        for( ; p->azTag[i]; ++i ){
+          blob_appendf(&prompt, "%s%s", p->azTag[i],
+                       p->azTag[i+1] ? ", " : "");
+        }
+      }
+      blob_appendf(&prompt, "\n#\n");
+    }
   }
   status_report(&prompt, "# ", 1, 0);
   if( g.markPrivate ){
@@ -917,10 +959,8 @@ int select_commit_files(void){
     int ii, jj=0;
     Blob fname;
     Stmt q;
-    const char *zCollate;
     Bag toCommit;
 
-    zCollate = filename_collation();
     blob_zero(&fname);
     bag_init(&toCommit);
     for(ii=2; ii<g.argc; ii++){
@@ -933,8 +973,8 @@ int select_commit_files(void){
       db_prepare(&q,
         "SELECT id FROM vfile WHERE pathname=%Q %s"
         " OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
-        blob_str(&fname), zCollate, blob_str(&fname),
-        zCollate, blob_str(&fname), zCollate);
+        blob_str(&fname), filename_collation(), blob_str(&fname),
+        filename_collation(), blob_str(&fname), filename_collation());
       while( db_step(&q)==SQLITE_ROW ){
         cnt++;
         bag_insert(&toCommit, db_column_int(&q, 0));
@@ -974,7 +1014,7 @@ static void checkin_verify_younger(
     zDate, rid
   );
   if( b ){
-    fossil_fatal("ancestor check-in [%.10s] (%s) is not older (clock skew?)"
+    fossil_fatal("ancestor check-in [%S] (%s) is not older (clock skew?)"
                  " Use --allow-older to override.", zUuid, zDate);
   }
 #endif
@@ -1285,6 +1325,7 @@ static int commit_warning(
   int fHasAnyCr;          /* the blob contains one or more CR chars */
   int fHasLoneCrOnly;     /* all detected line endings are CR only */
   int fHasCrLfOnly;       /* all detected line endings are CR/LF pairs */
+  int fHasInvalidUtf8 = 0;/* contains byte-sequence which is invalid for UTF-8 */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
@@ -1295,12 +1336,15 @@ static int commit_warning(
     lookFlags = looks_like_utf16(p, bReverse, LOOK_NUL);
   }else{
     lookFlags = looks_like_utf8(p, LOOK_NUL);
+    if( !(lookFlags & LOOK_BINARY) && invalid_utf8(p) ){
+      fHasInvalidUtf8 = 1;
+    }
   }
   fHasAnyCr = (lookFlags & LOOK_CR);
   fBinary = (lookFlags & LOOK_BINARY);
   fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
   fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
-  if( fUnicode || fHasAnyCr || fBinary ){
+  if( fUnicode || fHasAnyCr || fBinary || fHasInvalidUtf8){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
@@ -1333,6 +1377,12 @@ static int commit_warning(
         zWarning = "mixed line endings and Unicode";
       }
       zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
+    }else if( fHasInvalidUtf8 ){
+      if( encodingOk ){
+        return 0; /* We don't want encoding warnings for this file. */
+      }
+      zWarning = "invalid UTF-8";
+      zDisable = "\"encoding-glob\" setting";
     }else if( fHasAnyCr ){
       if( crnlOk ){
         return 0; /* We don't want CR/NL warnings for this file. */
@@ -1376,6 +1426,8 @@ static int commit_warning(
           const unsigned char *bom = get_utf8_bom(&bomSize);
           fwrite(bom, 1, bomSize, f);
           blob_to_utf8_no_bom(p, 0);
+        }else if( fHasInvalidUtf8 ){
+          blob_cp1252_to_utf8(p);
         }
         if( fHasAnyCr ){
           blob_to_lf_only(p);
@@ -1427,7 +1479,7 @@ static int tagCmp(const void *a, const void *b){
 ** Use the --branchcolor option followed by a color name (ex:
 ** '#ffc0c0') to specify the background color of entries in the new
 ** branch when shown in the web timeline interface.  The use of
-** the --branchcolor option is not recommend.  Instead, let Fossil
+** the --branchcolor option is not recommended.  Instead, let Fossil
 ** choose the branch color automatically.
 **
 ** The --bgcolor option works like --branchcolor but only sets the
@@ -1602,7 +1654,7 @@ void commit_cmd(void){
   ** Autosync if autosync is enabled and this is not a private check-in.
   */
   if( !g.markPrivate ){
-    if( autosync(SYNC_PULL) ){
+    if( autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1)) ){
       prompt_user("continue in spite of sync failure (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
       if( cReply!='y' && cReply!='Y' ){
@@ -1711,11 +1763,21 @@ void commit_cmd(void){
   }
 
   /*
-  ** Do not allow a commit against a closed leaf
+  ** Do not allow a commit against a closed leaf unless the commit
+  ** ends up on a different branch.
   */
-  if( db_exists("SELECT 1 FROM tagxref"
+  if( 
+      /* parent checkin has the "closed" tag... */
+      db_exists("SELECT 1 FROM tagxref"
                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
-                TAG_CLOSED, vid) ){
+                TAG_CLOSED, vid)
+      /* ... and the new checkin has no --branch option or the --branch
+      ** option does not actually change the branch */
+   && (sCiInfo.zBranch==0
+       || db_exists("SELECT 1 FROM tagxref"
+                    " WHERE tagid=%d AND rid=%d AND tagtype>0"
+                    "   AND value=%Q", TAG_BRANCH, vid, sCiInfo.zBranch))
+  ){
     fossil_fatal("cannot commit against a closed leaf");
   }
 
@@ -1987,7 +2049,7 @@ void commit_cmd(void){
   db_end_transaction(0);
 
   if( !g.markPrivate ){
-    autosync(SYNC_PUSH|SYNC_PULL);
+    autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1));
   }
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");

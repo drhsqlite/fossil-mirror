@@ -132,6 +132,11 @@ void compute_leaves(int iBase, int closeMode){
     db_finalize(&q1);
     bag_clear(&pending);
     bag_clear(&seen);
+  }else{
+    db_multi_exec(
+      "INSERT INTO leaves"
+      "  SELECT leaf.rid FROM leaf"
+    );
   }
   if( closeMode==1 ){
     db_multi_exec(
@@ -293,14 +298,31 @@ void compute_descendants(int rid, int N){
 **
 ** Options:
 **    -R|--repository FILE       Extract info from repository FILE
+**    -W|--width <num>           Width of lines (default is to auto-detect).
+**                               Must be >20 or 0 (= no limit, resulting in a
+**                               single line per entry).
 **
 ** See also: finfo, info, leaves
 */
 void descendants_cmd(void){
   Stmt q;
-  int base;
+  int base, width;
+  const char *zWidth;
 
   db_find_and_open_repository(0,0);
+  zWidth = find_option("width","W",1);
+  if( zWidth ){
+    width = atoi(zWidth);
+    if( (width!=0) && (width<=20) ){
+      fossil_fatal("-W|--width value must be >20 or 0");
+    }
+  }else{
+    width = -1;
+  }
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc==2 ){
     base = db_lget_int("checkout", 0);
   }else{
@@ -314,7 +336,7 @@ void descendants_cmd(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_tty()
   );
-  print_timeline(&q, -20, 79, 0);
+  print_timeline(&q, -20, width, 0);
   db_finalize(&q);
 }
 
@@ -335,8 +357,9 @@ void descendants_cmd(void){
 **   -c|--closed      show only closed leaves
 **   --bybranch       order output by branch name
 **   --recompute      recompute the "leaf" table in the repository DB
-**   -W|--width <num> With of lines (default 79). Must be >39 or 0
-**                    (= no limit, resulting in a single line per entry).
+**   -W|--width <num> Width of lines (default is to auto-detect). Must be
+**                    >39 or 0 (= no limit, resulting in a single line per
+**                    entry).
 **
 ** See also: descendants, finfo, info, branch
 */
@@ -358,24 +381,28 @@ void leaves_cmd(void){
       fossil_fatal("-W|--width value must be >39 or 0");
     }
   }else{
-    width = 79;
+    width = -1;
   }
   db_find_and_open_repository(0,0);
+  
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( recomputeFlag ) leaf_rebuild();
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(), -1);
-  blob_appendf(&sql, " AND blob.rid IN leaf");
+  blob_append_sql(&sql, " AND blob.rid IN leaf");
   if( showClosed ){
-    blob_appendf(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
+    blob_append_sql(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
   }else if( !showAll ){
-    blob_appendf(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
+    blob_append_sql(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
   }
   if( byBranch ){
     db_prepare(&q, "%s ORDER BY nullif(branch,'trunk') COLLATE nocase,"
                    " event.mtime DESC",
-                   blob_str(&sql));
+                   blob_sql_text(&sql));
   }else{
-    db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
+    db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
   }
   blob_reset(&sql);
   n = 0;
@@ -394,8 +421,8 @@ void leaves_cmd(void){
     n++;
     sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
     fossil_print("%6s ", zLineNo);
-    z = mprintf("%s [%.10s] %s", zDate, zId, zCom);
-    comment_print(z, 7, width);
+    z = mprintf("%s [%S] %s", zDate, zId, zCom);
+    comment_print(z, zCom, 7, width, g.comFmtFlags);
     fossil_free(z);
   }
   fossil_free(zLastBr);
@@ -449,13 +476,13 @@ void leaves_page(void){
   }
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
-  blob_appendf(&sql, " AND blob.rid IN leaf");
+  blob_append_sql(&sql, " AND blob.rid IN leaf");
   if( showClosed ){
-    blob_appendf(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
+    blob_append_sql(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
   }else if( !showAll ){
-    blob_appendf(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
+    blob_append_sql(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
   }
-  db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
+  db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
   blob_reset(&sql);
   www_print_timeline(&q, TIMELINE_LEAFONLY, 0, 0, 0);
   db_finalize(&q);
@@ -483,7 +510,7 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
 
   bag_init(&seen);
   bag_init(&pending);
-  db_prepare(&ins, "INSERT OR IGNORE INTO \"%s\" VALUES(:rid)", zTab);
+  db_prepare(&ins, "INSERT OR IGNORE INTO \"%w\" VALUES(:rid)", zTab);
   db_prepare(&q, "SELECT mid FROM mlink WHERE fid=%d", fid);
   while( db_step(&q)==SQLITE_ROW ){
     int mid = db_column_int(&q, 0);
@@ -506,7 +533,7 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
     }
   }
   db_finalize(&q);
-  db_prepare(&q, "SELECT cid FROM plink WHERE pid=:rid");
+  db_prepare(&q, "SELECT cid FROM plink WHERE pid=:rid AND isprim");
 
   while( (rid = bag_first(&pending))!=0 ){
     bag_remove(&pending, rid);
