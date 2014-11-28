@@ -1119,7 +1119,7 @@ const char *db_name(const char *zDb){
 ** Return TRUE if the schema is out-of-date
 */
 int db_schema_is_outofdate(void){
-  g.zAuxSchema = db_text(0, "SELECT value FROM config WHERE name='aux-schema'");
+  if( g.zAuxSchema==0 ) g.zAuxSchema = db_get("aux-schema","");
   return strcmp(g.zAuxSchema,AUX_SCHEMA_MIN)<0
       || strcmp(g.zAuxSchema,AUX_SCHEMA_MAX)>0;
 }
@@ -1143,7 +1143,7 @@ void db_verify_schema(void){
     fossil_warning("incorrect repository schema version: "
           "current repository schema version is \"%s\" "
           "but need versions between \"%s\" and \"%s\".",
-          db_get("aux-schema",0), AUX_SCHEMA_MIN, AUX_SCHEMA_MAX);
+          g.zAuxSchema, AUX_SCHEMA_MIN, AUX_SCHEMA_MAX);
     fossil_fatal("run \"fossil rebuild\" to fix this problem");
   }
 }
