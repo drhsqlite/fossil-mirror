@@ -166,7 +166,7 @@ void clone_cmd(void){
     db_initial_setup(0, 0, zDefaultUser, 0);
     user_select();
     db_set("content-schema", CONTENT_SCHEMA, 0);
-    db_set("aux-schema", AUX_SCHEMA, 0);
+    db_set("aux-schema", AUX_SCHEMA_MAX, 0);
     db_set("rebuilt", get_version(), 0);
     remember_or_get_http_auth(zHttpAuth, urlFlags & URL_REMEMBER, g.argv[2]);
     url_remember();
