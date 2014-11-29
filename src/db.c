@@ -708,6 +708,35 @@ void db_checkin_mtime_function(
   }
 }
 
+void db_sym2rid_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  char const * arg;
+  char const * type;
+  if(1 != argc && 2 != argc){
+    sqlite3_result_error(context, "Expecting one or two arguments", -1);
+    return;
+  }
+  arg = (const char*)sqlite3_value_text(argv[0]);
+  if(!arg){
+    sqlite3_result_error(context, "Expecting a STRING argument", -1);
+  }else{
+    int rid;
+    type = (2==argc) ? sqlite3_value_text(argv[1]) : 0;
+    if(!type) type = "ci";
+    rid = symbolic_name_to_rid( arg, type );
+    if(rid<0){
+      sqlite3_result_error(context, "Symbolic name is ambiguous.", -1);
+    }else if(0==rid){
+      sqlite3_result_null(context);
+    }else{
+      sqlite3_result_int64(context, rid);
+    }
+  }
+}
+
 
 /*
 ** Open a database file.  Return a pointer to the new database
@@ -740,6 +769,14 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   );
   sqlite3_create_function(
     db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
+  );
+  sqlite3_create_function(
+    db, "symbolic_name_to_rid", 1, SQLITE_UTF8, 0, db_sym2rid_function,
+    0, 0
+  );
+  sqlite3_create_function(
+    db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0, db_sym2rid_function,
+    0, 0
   );
   if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
   re_add_sql_func(db);
