@@ -35,38 +35,22 @@
 **
 ** OPTIONS:
 **     --all                   Show all artifacts, not just checkins
-**     --brief                 Show just the SHA1 hashes, not details
 */
 void unpublished_cmd(void){
   int bAll = find_option("all",0,0)!=0;
-  int bBrief = find_option("brief",0,0)!=0;
   const char *zCols;
   int n = 0;
-  Stmt q;
 
   db_find_and_open_repository(0,0);
   verify_all_options();
-  if( bBrief ){
-    zCols = "(SELECT uuid FROM blob WHERE rid=private.rid)";
-  }else{
-    zCols = "private.rid";
-  }
   if( bAll ){
-    db_prepare(&q, "SELECT %s FROM private", zCols/*safe-for-%s*/);
+    describe_artifacts_to_stdout("IN private", 0);
   }else{
-    db_prepare(&q, "SELECT %s FROM private, event"
+    describe_artifacts_to_stdout(
+      "IN (SELECT rid FROM private CROSS JOIN event"
                    " WHERE private.rid=event.objid"
-                   "   AND event.type='ci';", zCols/*safe-for-%s*/);
+                   "   AND event.type='ci')", 0);
   }
-  while( db_step(&q)==SQLITE_ROW ){
-    if( bBrief ){
-      fossil_print("%s\n", db_column_text(&q,0));
-    }else{
-      if( n++ > 0 ) fossil_print("%.78c\n",'-');
-      whatis_rid(db_column_int(&q,0),0);
-    }
-  }
-  db_finalize(&q);
 }
 
 /*
@@ -119,16 +103,9 @@ void publish_cmd(void){
     ** artifacts.  Instead, just list the artifact information on standard
     ** output.  The --test option is useful for verifying correct operation
     ** of the logic that figures out which artifacts to publish, such as
-    ** the find_checkin_associates() routine */
-    Stmt q;
-    int i = 0;
-    db_prepare(&q, "SELECT rid FROM ok");
-    while( db_step(&q)==SQLITE_ROW ){
-      int rid = db_column_int(&q,0);
-      if( i++ > 0 ) fossil_print("%.78c\n", '-');
-      whatis_rid(rid, 0);
-    }
-    db_finalize(&q);
+    ** the find_checkin_associates() routine 
+    */
+    describe_artifacts_to_stdout("IN ok", 0);
   }else{
     /* Standard behavior is simply to remove the published documents from
     ** the PRIVATE table */
