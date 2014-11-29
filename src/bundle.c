@@ -422,6 +422,7 @@ static void bundle_import_elements(int iSrc, Blob *pBasis, int isPriv){
       if( !isPriv ) content_make_public(rid);
       content_get(rid, &c1);
       manifest_crosslink(rid, &c1, MC_NO_ERRORS);
+      db_multi_exec("INSERT INTO got(rid) VALUES(%d)",rid);
     }
     bundle_import_elements(db_column_int(&q,3), &c2, isPriv);
     blob_reset(&c2);
@@ -564,10 +565,12 @@ static void bundle_import_cmd(void){
     "              THEN delta ELSE 0 END"
     "    FROM bblob"
     "   WHERE NOT EXISTS(SELECT 1 FROM blob WHERE uuid=bblob.uuid AND size>=0);"
+    "CREATE TEMP TABLE got(rid INTEGER PRIMARY KEY ON CONFLICT IGNORE);"
   );
   manifest_crosslink_begin();
   bundle_import_elements(0, 0, isPriv);
   manifest_crosslink_end(0);
+  describe_artifacts_to_stdout("IN got", "Imported content:");
   db_end_transaction(0);    
 }
 

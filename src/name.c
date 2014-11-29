@@ -787,11 +787,12 @@ void test_ambiguous_cmd(void){
 */
 static const char zDescTab[] = 
 @ CREATE TEMP TABLE IF NOT EXISTS description(
-@   rid INTEGER PRIMARY KEY,
-@   uuid TEXT,           -- SHA1 hash of the object 
-@   ctime DATETIME,      -- Time of creation 
-@   type TEXT,           -- file, checkin, wiki, ticket-change, etc.
-@   detail TEXT          -- filename, checkin comment, etc
+@   rid INTEGER PRIMARY KEY,       -- RID of the object 
+@   uuid TEXT,                     -- SHA1 hash of the object 
+@   ctime DATETIME,                -- Time of creation 
+@   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
+@   type TEXT,                     -- file, checkin, wiki, ticket, etc.
+@   detail TEXT                    -- filename, checkin comment, etc
 @ );
 ;
 
@@ -903,9 +904,15 @@ void describe_artifacts(const char *zWhere){
   /* Everything else */
   db_multi_exec(
     "INSERT OR IGNORE INTO description(rid,uuid,type)\n"
-    "SELECT blob.rid, blob.uuid, ''\n"
+    "SELECT blob.rid, blob.uuid,"
+    "       CASE WHEN blob.size<0 THEN 'phantom' ELSE '' END\n"
     "  FROM blob WHERE blob.rid %s;",
     zWhere /*safe-for-%s*/
+  );
+
+  /* Mark private elements */
+  db_multi_exec(
+   "UPDATE description SET isPrivate=1 WHERE rid IN private"
   );
 }
 
@@ -917,15 +924,17 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
   int cnt = 0;
   describe_artifacts(zWhere);
   db_prepare(&q,
-    "SELECT rid, uuid, datetime(ctime,'localtime'), type, detail\n"
+    "SELECT rid, uuid, datetime(ctime,'localtime'), type, detail, isPrivate\n"
     "  FROM description\n"
     " ORDER BY rid;"
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zType = db_column_text(&q,3);
+    const char *zPrivate = db_column_int(&q,5) ? "(U) " : "";
     if( zLabel ){ fossil_print("%s\n", zLabel); zLabel = 0; }
-    fossil_print("%6d %.16s %s", db_column_int(&q,0),
-                 db_column_text(&q,1), db_column_text(&q,3));
+    fossil_print("%6d %.16s %s%s",
+                 db_column_int(&q,0), db_column_text(&q,1), zPrivate,
+                 db_column_text(&q,3));
     if( db_column_bytes(&q,4)>0 ){
       fossil_print(" %s", db_column_text(&q,4));
     }
@@ -976,4 +985,16 @@ void test_unsent_cmd(void){
 void test_unclusterd_cmd(void){
   db_find_and_open_repository(0,0);
   describe_artifacts_to_stdout("IN unclustered", 0);
+}
+
+/*
+** COMMAND: test-phantoms
+**
+** Usage: %fossil test-phantoms
+**
+** Show all phantom artifacts
+*/
+void test_phatoms_cmd(void){
+  db_find_and_open_repository(0,0);
+  describe_artifacts_to_stdout("IN (SELECT rid FROM blob WHERE size<0)", 0);
 }
