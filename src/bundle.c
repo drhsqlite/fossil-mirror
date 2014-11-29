@@ -248,7 +248,7 @@ static void bundle_export_cmd(void){
   ** should be in the bundle */
   db_multi_exec("CREATE TEMP TABLE tobundle(rid INTEGER PRIMARY KEY);");
   subtree_from_arguments("tobundle");
-  find_checkin_associates("tobundle", !bStandalone);
+  find_checkin_associates("tobundle", 0);
   verify_all_options();
 
   /* Create the new bundle */
@@ -280,7 +280,8 @@ static void bundle_export_cmd(void){
     "   blob.content"
     " FROM tobundle, blob, delta"
     " WHERE blob.rid=tobundle.rid"
-    "   AND delta.rid=tobundle.rid;"
+    "   AND delta.rid=tobundle.rid"
+    "   AND delta.srcid IN tobundle;"
   );
 
   /* For all the remaining artifacts, we need to construct their deltas
@@ -562,7 +563,7 @@ static void bundle_import_cmd(void){
     "         CASE WHEN typeof(delta)=='integer'"
     "              THEN delta ELSE 0 END"
     "    FROM bblob"
-    "   WHERE NOT EXISTS(SELECT 1 FROM blob WHERE uuid=bblob.uuid);"
+    "   WHERE NOT EXISTS(SELECT 1 FROM blob WHERE uuid=bblob.uuid AND size>=0);"
   );
   manifest_crosslink_begin();
   bundle_import_elements(0, 0, isPriv);
