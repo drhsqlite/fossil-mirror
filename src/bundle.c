@@ -228,7 +228,7 @@ void test_subtree_cmd(void){
   subtree_from_arguments("tobundle");
   verify_all_options();
   if( bAll ) find_checkin_associates("tobundle",bExcl);
-  describe_artifacts_to_stdout("IN tobundle");
+  describe_artifacts_to_stdout("IN tobundle", 0);
   db_end_transaction(1);
 }
 
@@ -592,7 +592,7 @@ static void bundle_purge_cmd(void){
   /* Find all checkins of the bundle */
   db_multi_exec(
     "CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY);"
-    "INSERT INTO ok SELECT blob.rid FROM bblob, blob, plink"
+    "INSERT OR IGNORE INTO ok SELECT blob.rid FROM bblob, blob, plink"
     " WHERE bblob.uuid=blob.uuid"
     "   AND plink.cid=blob.rid;"
   );
@@ -626,67 +626,37 @@ static void bundle_purge_cmd(void){
   ** an error if there are any, unless --force is used.
   */
   if( !bForce ){
-    Stmt q;
-    int n = 0;
-    db_prepare(&q,
-       "SELECT rid FROM ok, blob"
-       " WHERE blob.rid=ok.rid"
-       "   AND blob.uuid NOT IN (SELECT uuid FROM bblob)"
+    db_multi_exec(
+       "CREATE TEMP TABLE err1(rid INTEGER PRIMARY KEY);"
+       "INSERT INTO err1 "
+       " SELECT blob.rid FROM ok CROSS JOIN blob"
+       "     WHERE blob.rid=ok.rid"
+       "       AND blob.uuid NOT IN (SELECT uuid FROM bblob);"
     );
-    while( db_step(&q)==SQLITE_OK ){
-      whatis_rid(db_column_int(&q,0),0);
-      fossil_print("%.78c\n", '-');
-      n++;
-    }
-    if( n>0 ){
+    if( db_changes() ){
+      describe_artifacts_to_stdout("IN err1", 0);
       fossil_fatal("artifacts above associated with bundle checkins "
                    " are not in the bundle");
+    }else{
+      db_multi_exec("DROP TABLE err1;");
     }
   }
 
   if( bTest ){
-    const char *zBanner = "Artifacts purged that are found in %s:\n";
-    Stmt q;
-    db_prepare(&q,"SELECT blob.uuid FROM ok, blob, bblob"
-                  " WHERE blob.rid=ok.rid AND blob.uuid=bblob.uuid"
-                  " ORDER BY 1"
-    );
-    while( db_step(&q)==SQLITE_ROW ){
-      if( zBanner ){
-        fossil_print(zBanner/*works-like:"%s"*/,zFile);
-        zBanner = 0;
-      }
-      fossil_print("    %s\n", db_column_text(&q,0));
-    }
-    db_finalize(&q);
-    zBanner = "Artifacts purged that are NOT found in %s:\n";
-    db_prepare(&q,"SELECT blob.uuid FROM ok, blob"
-                  " WHERE blob.rid=ok.rid"
-                  "   AND blob.uuid NOT IN (SELECT uuid FROM bblob)"
-                  " ORDER BY 1"
-    );
-    while( db_step(&q)==SQLITE_ROW ){
-      if( zBanner ){
-        fossil_print(zBanner/*works-like:"%s"*/,zFile);
-        zBanner = 0;
-      }
-      fossil_print("    %s\n", db_column_text(&q,0));
-    }
-    db_finalize(&q);
-    zBanner = "Artifacts in %s that are not purged:\n";
-    db_prepare(&q,"SELECT bblob.uuid FROM bblob, blob"
-                  " WHERE blob.uuid=bblob.uuid"
-                  "   AND blob.rid NOT IN ok"
-                  " ORDER BY 1"
-    );
-    while( db_step(&q)==SQLITE_ROW ){
-      if( zBanner ){
-        fossil_print(zBanner/*works-like:"%s"*/,zFile);
-        zBanner = 0;
-      }
-      fossil_print("    %s\n", db_column_text(&q,0));
-    }
-    db_finalize(&q);
+    describe_artifacts_to_stdout(
+      "IN (SELECT blob.rid FROM ok, blob, bblob"
+      "     WHERE blob.rid=ok.rid AND blob.uuid=bblob.uuid)",
+      "Purged artifacts found in the bundle:");
+    describe_artifacts_to_stdout(
+      "IN (SELECT blob.rid FROM ok, blob"
+      "     WHERE blob.rid=ok.rid "
+      "       AND blob.uuid NOT IN (SELECT uuid FROM bblob))",
+      "Purged artifacts NOT in the bundle:");
+    describe_artifacts_to_stdout(
+      "IN (SELECT blob.rid FROM bblob, blob"
+      "     WHERE blob.uuid=bblob.uuid "
+      "       AND blob.rid NOT IN ok)",
+      "Artifacts in the bundle but not purged:");
   }else{
     purge_artifact_list("ok",0,0);
   }

@@ -181,7 +181,7 @@ int purge_artifact_list(
     ticket_rebuild_entry(db_column_text(&q, 0));
   }
   db_finalize(&q);
-  db_multi_exec("DROP TABLE \"%w_tickets\"", zTab);
+  /* db_multi_exec("DROP TABLE \"%w_tickets\"", zTab); */
 
   /* Mission accomplished */
   db_end_transaction(0);
@@ -569,7 +569,7 @@ void purge_cmd(void){
     find_checkin_associates("ok", 1);
     nArtifact = db_int(0, "SELECT count(*) FROM ok");
     if( explainOnly ){
-      describe_artifacts_to_stdout("IN ok");
+      describe_artifacts_to_stdout("IN ok", 0);
     }else{
       int peid = purge_artifact_list("ok","",1);
       fossil_print("%d checkins and %d artifacts purged.\n", nCkin, nArtifact);

@@ -903,7 +903,7 @@ void describe_artifacts(const char *zWhere){
   /* Everything else */
   db_multi_exec(
     "INSERT OR IGNORE INTO description(rid,uuid,type)\n"
-    "SELECT blob.rid, blob.uuid, 'unknown'\n"
+    "SELECT blob.rid, blob.uuid, ''\n"
     "  FROM blob WHERE blob.rid %s;",
     zWhere /*safe-for-%s*/
   );
@@ -912,8 +912,9 @@ void describe_artifacts(const char *zWhere){
 /*
 ** Print the content of the description table on stdout
 */
-void describe_artifacts_to_stdout(const char *zWhere){
+int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
   Stmt q;
+  int cnt = 0;
   describe_artifacts(zWhere);
   db_prepare(&q,
     "SELECT rid, uuid, datetime(ctime,'localtime'), type, detail\n"
@@ -922,6 +923,7 @@ void describe_artifacts_to_stdout(const char *zWhere){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zType = db_column_text(&q,3);
+    if( zLabel ){ fossil_print("%s\n", zLabel); zLabel = 0; }
     fossil_print("%6d %.16s %s", db_column_int(&q,0),
                  db_column_text(&q,1), db_column_text(&q,3));
     if( db_column_bytes(&q,4)>0 ){
@@ -933,9 +935,11 @@ void describe_artifacts_to_stdout(const char *zWhere){
       fossil_print(" %s", db_column_text(&q,2));
     }
     fossil_print("\n");
+    cnt++;
   }
   db_finalize(&q);
-  
+  db_multi_exec("DELETE FROM description;");
+  return cnt;
 }
 
 /*
@@ -947,5 +951,29 @@ void describe_artifacts_to_stdout(const char *zWhere){
 */
 void test_describe_artifacts_cmd(void){
   db_find_and_open_repository(0,0);
-  describe_artifacts_to_stdout("IN (SELECT rid FROM blob)");
+  describe_artifacts_to_stdout("IN (SELECT rid FROM blob)", 0);
+}
+
+/*
+** COMMAND: test-unsent
+**
+** Usage: %fossil test-unsent
+**
+** Show all artifacts in the unsent table
+*/
+void test_unsent_cmd(void){
+  db_find_and_open_repository(0,0);
+  describe_artifacts_to_stdout("IN unsent", 0);
+}
+
+/*
+** COMMAND: test-unclustered
+**
+** Usage: %fossil test-unclustered
+**
+** Show all artifacts in the unclustered table
+*/
+void test_unclusterd_cmd(void){
+  db_find_and_open_repository(0,0);
+  describe_artifacts_to_stdout("IN unclustered", 0);
 }
