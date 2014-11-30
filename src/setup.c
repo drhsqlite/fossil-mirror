@@ -901,8 +901,11 @@ void entry_attribute(
   const char *zVal = db_get(zVar, zDflt);
   const char *zQ = P(zQParm);
   if( zQ && fossil_strcmp(zQ,zVal)!=0 ){
+    const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
+    admin_log("Set entry_attribute %Q to: %.*s%s",
+              zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     zVal = zQ;
   }
   @ <input type="text" id="%s(zQParm)" name="%s(zQParm)" value="%h(zVal)" size="%d(width)"
@@ -927,8 +930,11 @@ static void textarea_attribute(
   const char *z = db_get(zVar, (char*)zDflt);
   const char *zQ = P(zQP);
   if( zQ && !disabled && fossil_strcmp(zQ,z)!=0){
+    const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
+    admin_log("Set textarea_attribute %Q to: %.*s%s",
+              zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
   }
   if( rows>0 && cols>0 ){
@@ -958,8 +964,11 @@ static void multiple_choice_attribute(
   const char *zQ = P(zQP);
   int i;
   if( zQ && fossil_strcmp(zQ,z)!=0){
+    const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
+    admin_log("Set multiple_choice_attribute %Q to: %.*s%s",
+              zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
   }
   @ <select size="1" name="%s(zQP)" id="id%s(zQP)">
@@ -2083,7 +2092,7 @@ void page_admin_log(){
     @ <td class="adminTime">%s(zTime)</td>
     @ <td>%s(zUser)</td>
     @ <td>%s(zPage)</td>
-    @ <td>%s(zMessage)</td>
+    @ <td>%h(zMessage)</td>
     @ </tr>
   }
   @ </tbody></table>
