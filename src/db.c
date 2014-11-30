@@ -708,6 +708,35 @@ void db_checkin_mtime_function(
   }
 }
 
+void db_sym2rid_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  char const * arg;
+  char const * type;
+  if(1 != argc && 2 != argc){
+    sqlite3_result_error(context, "Expecting one or two arguments", -1);
+    return;
+  }
+  arg = (const char*)sqlite3_value_text(argv[0]);
+  if(!arg){
+    sqlite3_result_error(context, "Expecting a STRING argument", -1);
+  }else{
+    int rid;
+    type = (2==argc) ? sqlite3_value_text(argv[1]) : 0;
+    if(!type) type = "ci";
+    rid = symbolic_name_to_rid( arg, type );
+    if(rid<0){
+      sqlite3_result_error(context, "Symbolic name is ambiguous.", -1);
+    }else if(0==rid){
+      sqlite3_result_null(context);
+    }else{
+      sqlite3_result_int64(context, rid);
+    }
+  }
+}
+
 
 /*
 ** Open a database file.  Return a pointer to the new database
@@ -741,8 +770,17 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   sqlite3_create_function(
     db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
   );
+  sqlite3_create_function(
+    db, "symbolic_name_to_rid", 1, SQLITE_UTF8, 0, db_sym2rid_function,
+    0, 0
+  );
+  sqlite3_create_function(
+    db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0, db_sym2rid_function,
+    0, 0
+  );
   if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
   re_add_sql_func(db);
+  foci_register(db);
   sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
   return db;
 }
@@ -964,7 +1002,7 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(const char *zDbName){
   int i, n;
   char zPwd[2000];
-  static const char aDbName[][10] = { "_FOSSIL_", ".fslckout", ".fos" };
+  static const char *(aDbName[]) = { "_FOSSIL_", ".fslckout", ".fos" };
 
   if( g.localOpen ) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
@@ -974,6 +1012,7 @@ int db_open_local(const char *zDbName){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
+        g.zLocalDbName = mprintf("%s", zPwd);
         zPwd[n] = 0;
         while( n>0 && zPwd[n-1]=='/' ){
           n--;
@@ -1119,9 +1158,9 @@ const char *db_name(const char *zDb){
 ** Return TRUE if the schema is out-of-date
 */
 int db_schema_is_outofdate(void){
-  return db_exists("SELECT 1 FROM config"
-                   " WHERE name='aux-schema'"
-                   "   AND value<>%Q", AUX_SCHEMA);
+  if( g.zAuxSchema==0 ) g.zAuxSchema = db_get("aux-schema","");
+  return strcmp(g.zAuxSchema,AUX_SCHEMA_MIN)<0
+      || strcmp(g.zAuxSchema,AUX_SCHEMA_MAX)>0;
 }
 
 /*
@@ -1140,10 +1179,10 @@ void db_verify_schema(void){
 #ifdef FOSSIL_ENABLE_JSON
     g.json.resultCode = FSL_JSON_E_DB_NEEDS_REBUILD;
 #endif
-    fossil_warning("incorrect repository schema version");
-    fossil_warning("your repository has schema version \"%s\" "
-          "but this binary expects version \"%s\"",
-          db_get("aux-schema",0), AUX_SCHEMA);
+    fossil_warning("incorrect repository schema version: "
+          "current repository schema version is \"%s\" "
+          "but need versions between \"%s\" and \"%s\".",
+          g.zAuxSchema, AUX_SCHEMA_MIN, AUX_SCHEMA_MAX);
     fossil_fatal("run \"fossil rebuild\" to fix this problem");
   }
 }
@@ -1395,7 +1434,7 @@ void db_initial_setup(
   Blob manifest;
 
   db_set("content-schema", CONTENT_SCHEMA, 0);
-  db_set("aux-schema", AUX_SCHEMA, 0);
+  db_set("aux-schema", AUX_SCHEMA_MAX, 0);
   db_set("rebuilt", get_version(), 0);
   if( makeServerCodes ){
     db_setup_server_and_project_codes(0);
