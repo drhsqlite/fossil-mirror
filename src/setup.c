@@ -2045,9 +2045,26 @@ void th1_page(void){
   style_footer();
 }
 
+static void admin_log_render_limits(){
+  int const count = db_int(0,"SELECT COUNT(*) FROM admin_log");
+  int i;
+  int limits[] = {
+  10, 20, 50, 100, 250, 500, 0
+  };
+  for(i = 0; limits[i]; ++i ){
+    cgi_printf("%s<a href='?n=%d'>%d</a>",
+               i ? " " : "",
+               limits[i], limits[i]);
+    if(limits[i]>count) break;
+  }
+}
+
 /*
 ** WEBPAGE: admin_log
 **
+** Shows the contents of the admin_log table, which is only created if
+** the admin-log setting is enabled. Requires Admin or Setup ('a' or
+** 's') permissions.
 */
 void page_admin_log(){
   Stmt stLog = empty_Stmt;
@@ -2063,7 +2080,12 @@ void page_admin_log(){
   create_admin_log_table();
   limit = atoi(PD("n","20"));
   fLogEnabled = db_get_boolean("admin-log", 0);
-  @ Admin logging is %s(fLogEnabled?"on":"off").
+  @ <div>Admin logging is %s(fLogEnabled?"on":"off").</div>
+
+
+  @ <div>Limit results to: <span>
+  admin_log_render_limits();
+  @ </span></div>
 
   blob_append_sql(&qLog,
                "SELECT datetime(time,'unixepoch'), who, page, what "
@@ -2073,7 +2095,6 @@ void page_admin_log(){
     @ %d(limit) Most recent entries:
     blob_append_sql(&qLog, "LIMIT %d", limit);
   }
-
   db_prepare(&stLog, "%s", blob_sql_text(&qLog));
   blob_reset(&qLog);
   @ <table id="adminLogTable" class="adminLogTable" width="100%%">
@@ -2096,5 +2117,8 @@ void page_admin_log(){
     @ </tr>
   }
   @ </tbody></table>
+  if(limit>0 && counter<limit){
+    @ <div>%d(counter) entries shown.</div>
+  }
   style_footer();
 }
