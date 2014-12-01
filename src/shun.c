@@ -58,6 +58,7 @@ void shun_page(void){
     db_open_repository(g.zRepositoryName);
     db_begin_transaction();
     rebuild_db(0, 0, 0);
+    admin_log("Rebuilt database.");
     db_end_transaction(0);
   }
   if( zUuid ){
@@ -103,6 +104,7 @@ void shun_page(void){
       if( !db_exists("SELECT 1 FROM blob WHERE uuid=%Q", p) ){
         allExist = 0;
       }
+      admin_log("Unshunned %Q", p);
       p += UUID_SIZE+1;
     }
     if( allExist ){
@@ -141,6 +143,7 @@ void shun_page(void){
         db_multi_exec("DELETE FROM tag WHERE tagid=%d", tagid);
         db_multi_exec("DELETE FROM tagxref WHERE tagid=%d", tagid);
       }
+      admin_log("Shunned %Q", p);
       p += UUID_SIZE+1;
     }
     @ <p class="shunned">Artifact(s)<br />

@@ -311,6 +311,7 @@ struct {
   int iFmtArg;           /* Index of format argument.  Leftmost is 1. */
   unsigned fmtFlags;     /* Processing flags */
 } aFmtFunc[] = {
+  { "admin_log",               1, 0 },
   { "blob_append_sql",         2, FMT_NO_S },
   { "blob_appendf",            2, 0 },
   { "cgi_panic",               1, 0 },
