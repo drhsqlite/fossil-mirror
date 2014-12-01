@@ -803,9 +803,6 @@ static const char zDescTab[] =
 ** whose RID matches the SQL expression in zWhere.
 */
 void describe_artifacts(const char *zWhere){
-  Stmt q;
-  Stmt ins;
-
   db_multi_exec("%s", zDescTab/*safe-for-%s*/);
 
   /* Describe checkins */

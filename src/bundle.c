@@ -117,7 +117,6 @@ static void bundle_ls_cmd(void){
 ** alraedy exist.
 */
 static void bundle_append_cmd(void){
-  char *zFilename;
   Blob content, hash;
   int i;
   Stmt q;
@@ -166,7 +165,7 @@ void subtree_from_arguments(const char *zTab){
   const char *zFrom;
   const char *zTo;
   const char *zCkin;
-  int rid, endRid;
+  int rid = 0, endRid;
 
   zBr = find_option("branch",0,1);
   zFrom = find_option("from",0,1);
@@ -541,7 +540,6 @@ static void bundle_import_cmd(void){
   int forceFlag = find_option("force","f",0)!=0;
   int isPriv = find_option("publish",0,0)==0;
   char *zMissingDeltas;
-  Stmt q;
   verify_all_options();
   bundle_attach_file(g.argv[3], "b1", 1);
 
@@ -756,7 +754,6 @@ static void bundle_purge_cmd(void){
 */
 void bundle_cmd(void){
   const char *zSubcmd;
-  const char *zBundleFile;
   int n;
   if( g.argc<4 ) usage("SUBCOMMAND BUNDLE ?ARGUMENTS?");
   zSubcmd = g.argv[2];

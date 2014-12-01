@@ -434,7 +434,6 @@ void rcvfrom_page(void){
   @ <tr><th valign="top" align="right">Artifacts:</th>
   @ <td valign="top">
   while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     int size = db_column_int(&q, 2);
     const char *zDesc = db_column_text(&q, 3);

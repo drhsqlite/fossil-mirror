@@ -479,7 +479,6 @@ void purge_cmd(void){
   db_find_and_open_repository(0,0);
   n = (int)strlen(zSubcmd);
   if( strncmp(zSubcmd, "cat", n)==0 ){
-    const char *zOutFile;
     int i, piid;
     Blob content;
     if( g.argc<4 ) usage("cat UUID...");
@@ -551,7 +550,6 @@ void purge_cmd(void){
     /* The "checkins" command is the default and so must occur last */
     int explainOnly = find_option("explain",0,0)!=0;
     int dryRun = find_option("dry-run",0,0)!=0;
-    const char *zTag;
     int i;
     int vid;
     int nCkin;
