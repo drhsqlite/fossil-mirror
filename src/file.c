@@ -81,19 +81,19 @@ static struct fossilStat fileStat;
 **
 */
 static int fossil_stat(const char *zFilename, struct fossilStat *buf, int isWd){
-#if !defined(_WIN32)
   int rc;
-  char *zMbcs = fossil_utf8_to_filename(zFilename);
+  void *zMbcs = fossil_utf8_to_filename(zFilename);
+#if !defined(_WIN32)
   if( isWd && g.allowSymlinks ){
     rc = lstat(zMbcs, buf);
   }else{
     rc = stat(zMbcs, buf);
   }
+#else
+  rc = win32_stat(zMbcs, buf, isWd);
+#endif
   fossil_filename_free(zMbcs);
   return rc;
-#else
-  return win32_stat(zFilename, buf, isWd);
-#endif
 }
 
 /*
@@ -318,14 +318,15 @@ int file_wd_isdir(const char *zFilename){
 ** Wrapper around the access() system call.
 */
 int file_access(const char *zFilename, int flags){
+  int rc;
+  void *zMbcs = fossil_utf8_to_filename(zFilename);
 #ifdef _WIN32
-  return win32_access(zFilename, flags);
+  rc = win32_access(zMbcs, flags);
 #else
-  char *zMbcs = fossil_utf8_to_filename(zFilename);
-  int rc = access(zMbcs, flags);
+  rc = access(zMbcs, flags);
+#endif
   fossil_filename_free(zMbcs);
   return rc;
-#endif
 }
 
 /*
@@ -334,18 +335,19 @@ int file_access(const char *zFilename, int flags){
 ** (UNIX only)
 */
 int file_chdir(const char *zChDir, int bChroot){
+  int rc;
+  void *zPath = fossil_utf8_to_filename(zChDir);
 #ifdef _WIN32
-  return win32_chdir(zChDir, bChroot);
+  rc = win32_chdir(zPath, bChroot);
 #else
-  char *zPath = fossil_utf8_to_filename(zChDir);
-  int rc = chdir(zPath);
+  rc = chdir(zPath);
   if( !rc && bChroot ){
     rc = chroot(zPath);
     if( !rc ) rc = chdir("/");
   }
+#endif
   fossil_filename_free(zPath);
   return rc;
-#endif
 }
 
 /*
@@ -1102,7 +1104,6 @@ void cmd_test_tree_name(void){
   Blob x;
   db_find_and_open_repository(0,0);
   blob_zero(&x);
-  capture_case_sensitive_option();
   for(i=2; i<g.argc; i++){
     if( file_tree_name(g.argv[i], &x, 1) ){
       fossil_print("%s\n", blob_buffer(&x));

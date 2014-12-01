@@ -560,8 +560,8 @@ int content_put_ex(
     /* We are creating a new entry */
     db_prepare(&s1,
       "INSERT INTO blob(rcvid,size,uuid,content)"
-      "VALUES(%d,%d,'%b',:data)",
-       g.rcvid, size, &hash
+      "VALUES(%d,%d,'%q',:data)",
+       g.rcvid, size, blob_str(&hash)
     );
     db_bind_blob(&s1, ":data", &cmpr);
     db_exec(&s1);
@@ -1021,7 +1021,7 @@ static int check_exists(
     const char *zCFType = "control artifact";
     char *zSrc;
     char *zDate;
-    char *zErrType = "MISSING";
+    const char *zErrType = "MISSING";
     if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
       if( flags & MISSING_SHUNNED ) return 0;
       zErrType = "SHUNNED";

@@ -42,8 +42,12 @@ void shun_page(void){
   Stmt q;
   int cnt = 0;
   const char *zUuid = P("uuid");
-  int nUuid;
-  char zCanonical[UUID_SIZE+1];
+  const char *zShun = P("shun");
+  const char *zAccept = P("accept");
+  const char *zRcvid = P("rcvid");
+  int nRcvid = 0;
+  int numRows = 3;
+  char *zCanonical = 0;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -54,56 +58,106 @@ void shun_page(void){
     db_open_repository(g.zRepositoryName);
     db_begin_transaction();
     rebuild_db(0, 0, 0);
+    admin_log("Rebuilt database.");
     db_end_transaction(0);
   }
   if( zUuid ){
-    nUuid = strlen(zUuid);
-    if( nUuid!=40 || !validate16(zUuid, nUuid) ){
-      zUuid = 0;
-    }else{
-      memcpy(zCanonical, zUuid, UUID_SIZE+1);
-      canonical16(zCanonical, UUID_SIZE);
-      zUuid = zCanonical;
+    char *p;
+    int i = 0;
+    int j = 0;
+    zCanonical = fossil_malloc(strlen(zUuid)+2);
+    while( zUuid[i] ){
+      if( fossil_isspace(zUuid[i]) ){
+        if( j && zCanonical[j-1] ){
+          zCanonical[j] = 0;
+          j++;
+        }
+      }else{
+        zCanonical[j] = zUuid[i];
+        j++;
+      }
+      i++;
     }
+    zCanonical[j+1] = zCanonical[j] = 0;
+    p = zCanonical;
+    while( *p ){
+      int nUuid = strlen(p);
+      if( nUuid!=UUID_SIZE || !validate16(p, nUuid) ){
+        @ <p class="generalError">Error: Bad artifact IDs.</p>
+        fossil_free(zCanonical);
+        zCanonical = 0;
+        break;
+      }else{
+        canonical16(p, UUID_SIZE);
+        p += UUID_SIZE+1;
+      }
+    }
+    zUuid = zCanonical;
   }
   style_header("Shunned Artifacts");
   if( zUuid && P("sub") ){
+    const char *p = zUuid;
+    int allExist = 1;
     login_verify_csrf_secret();
-    db_multi_exec("DELETE FROM shun WHERE uuid='%s'", zUuid);
-    if( db_exists("SELECT 1 FROM blob WHERE uuid='%s'", zUuid) ){
-      @ <p class="noMoreShun">Artifact
-      @ <a href="%s(g.zTop)/artifact/%s(zUuid)">%s(zUuid)</a> is no
-      @ longer being shunned.</p>
+    while( *p ){
+      db_multi_exec("DELETE FROM shun WHERE uuid=%Q", p);
+      if( !db_exists("SELECT 1 FROM blob WHERE uuid=%Q", p) ){
+        allExist = 0;
+      }
+      admin_log("Unshunned %Q", p);
+      p += UUID_SIZE+1;
+    }
+    if( allExist ){
+      @ <p class="noMoreShun">Artifact(s)<br />
+      for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+        @ <a href="%s(g.zTop)/artifact/%s(p)">%s(p)</a><br />
+      }
+      @ are no longer being shunned.</p>
     }else{
-      @ <p class="noMoreShun">Artifact %s(zUuid) will no longer
-      @ be shunned.  But it does not exist in the repository.  It
-      @ may be necessary to rebuild the repository using the
+      @ <p class="noMoreShun">Artifact(s)<br />
+      for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+        @ %s(p)<br />
+      }
+      @ will no longer be shunned.  But they may not exist in the repository.
+      @ It may be necessary to rebuild the repository using the
       @ <b>fossil rebuild</b> command-line before the artifact content
       @ can pulled in from other repositories.</p>
     }
   }
   if( zUuid && P("add") ){
+    const char *p = zUuid;
     int rid, tagid;
     login_verify_csrf_secret();
-    db_multi_exec(
-      "INSERT OR IGNORE INTO shun(uuid,mtime)"
-      " VALUES('%s', now())", zUuid);
-    @ <p class="shunned">Artifact
-    @ <a href="%s(g.zTop)/artifact/%s(zUuid)">%s(zUuid)</a> has been
-    @ shunned.  It will no longer be pushed.
-    @ It will be removed from the repository the next time the repository
+    while( *p ){
+      db_multi_exec(
+        "INSERT OR IGNORE INTO shun(uuid,mtime)"
+        " VALUES(%Q, now())", p);
+      db_multi_exec("DELETE FROM attachment WHERE src=%Q", p);
+      rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", p);
+      if( rid ){
+        db_multi_exec("DELETE FROM event WHERE objid=%d", rid);
+      }
+      tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='tkt-%q'", p);
+      if( tagid ){
+        db_multi_exec("DELETE FROM ticket WHERE tkt_uuid=%Q", p);
+        db_multi_exec("DELETE FROM tag WHERE tagid=%d", tagid);
+        db_multi_exec("DELETE FROM tagxref WHERE tagid=%d", tagid);
+      }
+      admin_log("Shunned %Q", p);
+      p += UUID_SIZE+1;
+    }
+    @ <p class="shunned">Artifact(s)<br />
+    for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
+      @ <a href="%s(g.zTop)/artifact/%s(p)">%s(p)</a><br />
+    }
+    @ have been shunned.  They will no longer be pushed.
+    @ They will be removed from the repository the next time the repository
     @ is rebuilt using the <b>fossil rebuild</b> command-line</p>
-    db_multi_exec("DELETE FROM attachment WHERE src=%Q", zUuid);
-    rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zUuid);
-    if( rid ){
-      db_multi_exec("DELETE FROM event WHERE objid=%d", rid);
-    }
-    tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='tkt-%q'", zUuid);
-    if( tagid ){
-      db_multi_exec("DELETE FROM ticket WHERE tkt_uuid=%Q", zUuid);
-      db_multi_exec("DELETE FROM tag WHERE tagid=%d", tagid);
-      db_multi_exec("DELETE FROM tagxref WHERE tagid=%d", tagid);
-    }
+  }
+  if( zRcvid ){
+    nRcvid = atoi(zRcvid);
+    numRows = db_int(0, "SELECT min(count(), 10) FROM blob WHERE rcvid=%d",
+                     nRcvid);
   }
   @ <p>A shunned artifact will not be pushed nor accepted in a pull and the
   @ artifact content will be purged from the repository the next time the
@@ -111,13 +165,13 @@ void shun_page(void){
   @ bottom of this page.</p>
   @
   @ <a name="addshun"></a>
-  @ <p>To shun an artifact, enter its artifact ID (the 40-character SHA1
-  @ hash of the artifact) in the
-  @ following box and press the "Shun" button.  This will cause the artifact
-  @ to be removed from the repository and will prevent the artifact from being
+  @ <p>To shun artifacts, enter their artifact IDs (the 40-character SHA1
+  @ hash of the artifacts) in the
+  @ following box and press the "Shun" button.  This will cause the artifacts
+  @ to be removed from the repository and will prevent the artifacts from being
   @ readded to the repository by subsequent sync operation.</p>
   @
-  @ <p>Note that you must enter the full 40-character artifact ID, not
+  @ <p>Note that you must enter the full 40-character artifact IDs, not
   @ an abbreviation or a symbolic tag.</p>
   @
   @ <p>Warning:  Shunning should only be used to remove inappropriate content
@@ -130,22 +184,46 @@ void shun_page(void){
   @ <blockquote>
   @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <input type="text" name="uuid" value="%h(PD("shun",""))" size="50" />
+  @ <textarea class="fullsize-text" cols="50" rows="%d(numRows)" name="uuid">
+  if( zShun ){
+    if( strlen(zShun) ){
+      @ %h(zShun)
+    }else if( nRcvid ){
+      db_prepare(&q, "SELECT uuid FROM blob WHERE rcvid=%d", nRcvid);
+      while( db_step(&q)==SQLITE_ROW ){
+        @ %s(db_column_text(&q, 0))
+      }
+      db_finalize(&q);
+    }
+  }
+  @ </textarea>
   @ <input type="submit" name="add" value="Shun" />
   @ </div></form>
   @ </blockquote>
   @
   @ <a name="delshun"></a>
-  @ <p>Enter the UUID of a previous shunned artifact to cause it to be
-  @ accepted again in the repository.  The artifact content is not
+  @ <p>Enter the UUIDs of previously shunned artifacts to cause them to be
+  @ accepted again in the repository.  The artifacts content is not
   @ restored because the content is unknown.  The only change is that
-  @ the formerly shunned artifact will be accepted on subsequent sync
+  @ the formerly shunned artifacts will be accepted on subsequent sync
   @ operations.</p>
   @
   @ <blockquote>
   @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <input type="text" name="uuid" value="%h(PD("accept", ""))" size="50" />
+  @ <textarea class="fullsize-text" cols="50" rows="%d(numRows)" name="uuid">
+  if( zAccept ){
+    if( strlen(zAccept) ){
+      @ %h(zAccept)
+    }else if( nRcvid ){
+      db_prepare(&q, "SELECT uuid FROM blob WHERE rcvid=%d", nRcvid);
+      while( db_step(&q)==SQLITE_ROW ){
+        @ %s(db_column_text(&q, 0))
+      }
+      db_finalize(&q);
+    }
+  }
+  @ </textarea>
   @ <input type="submit" name="sub" value="Accept" />
   @ </div></form>
   @ </blockquote>
@@ -183,6 +261,7 @@ void shun_page(void){
   db_finalize(&q);
   @ </p></blockquote>
   style_footer();
+  fossil_free(zCanonical);
 }
 
 /*
@@ -289,6 +368,18 @@ void rcvfrom_page(void){
     login_needed();
   }
   style_header("Content Source %d", rcvid);
+  if( db_exists(
+    "SELECT 1 FROM blob WHERE rcvid=%d AND"
+    " NOT EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
+  ){
+    style_submenu_element("Shun All", "Shun All", "shun?shun&rcvid=%d#addshun", rcvid);
+  }
+  if( db_exists(
+    "SELECT 1 FROM blob WHERE rcvid=%d AND"
+    " EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
+  ){
+    style_submenu_element("Unshun All", "Unshun All", "shun?accept&rcvid=%d#delshun", rcvid);
+  }
   db_prepare(&q,
     "SELECT login, datetime(rcvfrom.mtime), rcvfrom.ipaddr"
     "  FROM rcvfrom LEFT JOIN user USING(uid)"

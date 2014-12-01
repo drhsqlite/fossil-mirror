@@ -373,11 +373,11 @@ int could_be_utf16(const Blob *pContent, int *pbReverse){
 ** and/or UTF-16 encodings.
 */
 void looks_like_utf_test_cmd(void){
-  Blob blob;     /* the contents of the specified file */
-  int fUtf8;     /* return value of starts_with_utf8_bom() */
-  int fUtf16;    /* return value of starts_with_utf16_bom() */
-  int fUnicode;  /* return value of could_be_utf16() */
-  int lookFlags; /* output flags from looks_like_utf8/utf16() */
+  Blob blob;         /* the contents of the specified file */
+  int fUtf8 = 0;     /* return value of starts_with_utf8_bom() */
+  int fUtf16 = 0;    /* return value of starts_with_utf16_bom() */
+  int fUnicode = 0;  /* return value of could_be_utf16() */
+  int lookFlags = 0; /* output flags from looks_like_utf8/utf16() */
   int bRevUtf16 = 0; /* non-zero -> UTF-16 byte order reversed */
   int fForceUtf8 = find_option("utf8",0,0)!=0;
   int fForceUtf16 = find_option("utf16",0,0)!=0;

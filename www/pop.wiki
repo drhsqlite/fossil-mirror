@@ -33,7 +33,7 @@ abbreviated to a unique prefix.  A five- or six-character
 prefix usually suffices to uniquely identify a file.</p></li>
 
 <li><p>Because artifacts are named by their SHA1 hash, all artifacts
-are immutable.  Any change to the content of a artifact also 
+are immutable.  Any change to the content of an artifact also 
 changes the hash that forms the artifacts name, thus
 creating a new artifact.  Both the old original version of the
 artifact and the new change are preserved under different names.</p></li>

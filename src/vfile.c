@@ -70,23 +70,24 @@ int uuid_to_rid(const char *zUuid, int phantomize){
 
 
 /*
-** Load a vfile from a record ID.
+** Load a vfile from a record ID.  Return the number of files with
+** missing content.
 */
-void load_vfile_from_rid(int vid){
-  int rid, size;
+int load_vfile_from_rid(int vid){
+  int rid, size, nMissing;
   Stmt ins, ridq;
   Manifest *p;
   ManifestFile *pFile;
 
   if( db_exists("SELECT 1 FROM vfile WHERE vid=%d", vid) ){
-    return;
+    return 0;
   }
 
   db_begin_transaction();
   p = manifest_get(vid, CFTYPE_MANIFEST, 0);
   if( p==0 ) {
     db_end_transaction(1);
-    return;
+    return 0;
   }
   db_prepare(&ins,
     "INSERT INTO vfile(vid,isexe,islink,rid,mrid,pathname) "
@@ -94,6 +95,7 @@ void load_vfile_from_rid(int vid){
   db_prepare(&ridq, "SELECT rid,size FROM blob WHERE uuid=:uuid");
   db_bind_int(&ins, ":vid", vid);
   manifest_file_rewind(p);
+  nMissing = 0;
   while( (pFile = manifest_file_next(p,0))!=0 ){
     if( pFile->zUuid==0 || uuid_is_shunned(pFile->zUuid) ) continue;
     db_bind_text(&ridq, ":uuid", pFile->zUuid);
@@ -107,6 +109,7 @@ void load_vfile_from_rid(int vid){
     db_reset(&ridq);
     if( rid==0 || size<0 ){
       fossil_warning("content missing for %s", pFile->zName);
+      nMissing++;
       continue;
     }
     db_bind_int(&ins, ":isexe", ( manifest_file_mperm(pFile)==PERM_EXE ));
@@ -120,6 +123,7 @@ void load_vfile_from_rid(int vid){
   db_finalize(&ins);
   manifest_destroy(p);
   db_end_transaction(0);
+  return nMissing;
 }
 
 #if INTERFACE
@@ -395,9 +399,9 @@ static int is_temporary_file(const char *zName){
   };
   int i, j, n;
 
-  if( strglob("ci-comment-????????????.txt", zName) ) return 1;
+  if( sqlite3_strglob("ci-comment-????????????.txt", zName)==0 ) return 1;
   for(; zName[0]!=0; zName++){
-    if( zName[0]=='/' && strglob("/ci-comment-????????????.txt", zName) ){
+    if( zName[0]=='/' && sqlite3_strglob("/ci-comment-????????????.txt", zName)==0 ){
       return 1;
     }
     if( zName[0]!='-' ) continue;
@@ -720,7 +724,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
       Blob file;
 
       if( zOrigName ) zName = zOrigName;
-      if( rid>0 || vid==0 ){
+      if( rid>0 ){
         md5sum_step_text(zName, -1);
         blob_zero(&file);
         content_get(rid, &file);
@@ -829,9 +833,9 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
   db_prepare(&q, "SELECT pathname, origname, rid, is_selected(id)"
                  " FROM vfile"
                  " WHERE (NOT deleted OR NOT is_selected(id))"
-                 "   %s AND vid=%d"
+                 "   AND rid>0 AND vid=%d"
                  " ORDER BY if_selected(id,pathname,origname) /*scan*/",
-                 (vid ? "AND rid>0" : ""), vid);
+                 vid);
   blob_zero(&file);
   md5sum_init();
   while( db_step(&q)==SQLITE_ROW ){

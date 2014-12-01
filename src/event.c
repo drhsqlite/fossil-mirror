@@ -121,7 +121,7 @@ void event_page(void){
   }
   blob_init(&fullbody, pEvent->zWiki, -1);
   if( wiki_find_title(&fullbody, &title, &tail) ){
-    style_header(blob_str(&title));
+    style_header("%s", blob_str(&title));
   }else{
     style_header("Event %S", zEventId);
     tail = fullbody;
@@ -205,7 +205,6 @@ void eventedit_page(void){
   int rid = 0;
   Blob event;
   const char *zEventId;
-  char *zHtmlPageName;
   int n;
   const char *z;
   char *zBody = (char*)P("w");
@@ -366,8 +365,7 @@ void eventedit_page(void){
   if( zBody==0 ){
     zBody = mprintf("<i>Event Text</i>");
   }
-  zHtmlPageName = mprintf("Edit Event %S", zEventId);
-  style_header(zHtmlPageName);
+  style_header("Edit Event %S", zEventId);
   if( P("preview")!=0 ){
     Blob title, tail, com;
     @ <p><b>Timeline comment preview:</b></p>

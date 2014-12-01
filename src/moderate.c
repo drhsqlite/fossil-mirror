@@ -28,11 +28,11 @@
 */
 void moderation_table_create(void){
   db_multi_exec(
-     "CREATE TABLE IF NOT EXISTS modreq(\n"
+     "CREATE TABLE IF NOT EXISTS %s.modreq(\n"
      "  objid INTEGER PRIMARY KEY,\n"        /* Record pending approval */
      "  attachRid INT,\n"                    /* Object attached */
      "  tktid TEXT\n"                        /* Associated ticket id */
-     ");\n"
+     ");\n", db_name("repository")
   );
 }
 
@@ -75,7 +75,7 @@ static int object_used(int rid){
   };
   int i;
   for(i=0; i<sizeof(aTabField)/sizeof(aTabField[0]); i+=2){
-    if( db_exists("SELECT 1 FROM %s WHERE %s=%d",
+    if( db_exists("SELECT 1 FROM \"%w\" WHERE \"%w\"=%d",
                   aTabField[i], aTabField[i+1], rid) ) return 1;
   }
   return 0;
@@ -118,6 +118,7 @@ void moderation_disapprove(int objid){
       db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
     }
     if( attachRid && object_used(attachRid) ) attachRid = 0;
+    admin_log("Disapproved moderation of rid %d.", rid);
     rid = attachRid;
   }
   db_end_transaction(0);
@@ -136,6 +137,7 @@ void moderation_approve(int rid){
     rid, rid, rid
   );
   db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
+  admin_log("Approved moderation of rid %d.", rid);
   db_end_transaction(0);
 }
 
@@ -154,11 +156,11 @@ void modreq_page(void){
   @ <h2>All Pending Moderation Requests</h2>
   if( moderation_table_exists() ){
     blob_init(&sql, timeline_query_for_www(), -1);
-    blob_appendf(&sql,
+    blob_append_sql(&sql,
         " AND event.objid IN (SELECT objid FROM modreq)"
         " ORDER BY event.mtime DESC"
     );
-    db_prepare(&q, blob_str(&sql));
+    db_prepare(&q, "%s", blob_sql_text(&sql));
     www_print_timeline(&q, 0, 0, 0, 0);
     db_finalize(&q);
   }

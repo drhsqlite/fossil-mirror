@@ -147,7 +147,7 @@ static cson_value * json_config_get(){
         if( i++ ){
           blob_append(&sql,",",1);
         }
-        blob_appendf(&sql, "%Q", prop->name);
+        blob_append_sql(&sql, "%Q", prop->name);
       }
     }
     blob_append(&sql,") ", -1);
@@ -158,7 +158,7 @@ static cson_value * json_config_get(){
     blob_append(&sql, " OR name GLOB 'skin:*'", -1);
   }
   blob_append(&sql," ORDER BY name", -1);
-  db_prepare(&q, blob_str(&sql));
+  db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   pay = cson_new_object();
   while( (SQLITE_ROW==db_step(&q)) ){

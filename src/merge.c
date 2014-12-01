@@ -49,7 +49,7 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
        db_column_text(&q, 1),
        db_column_text(&q, 0),
        indent, "");
-    comment_print(zCom, indent, 78);
+    comment_print(zCom, db_column_text(&q,2), indent, -1, g.comFmtFlags);
     fossil_free(zCom);
   }
   db_finalize(&q);
@@ -93,6 +93,8 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 **
 **   -f|--force              Force the merge even if it would be a no-op.
 **
+**   --force-missing         Force the merge even if there is missing content.
+**
 **   --integrate             Merged branch will be closed when committing.
 **
 **   -n|--dry-run            If given, display instead of run actions
@@ -109,6 +111,7 @@ void merge_cmd(void){
   int backoutFlag;      /* True if the --backout option is present */
   int dryRunFlag;       /* True if the --dry-run or -n option is present */
   int forceFlag;        /* True if the --force or -f option is present */
+  int forceMissingFlag; /* True if the --force-missing option is present */
   const char *zBinGlob; /* The value of --binary */
   const char *zPivot;   /* The value of --baseline */
   int debugFlag;        /* True if --debug is present */
@@ -129,6 +132,7 @@ void merge_cmd(void){
 
   undo_capture_command_line();
   verboseFlag = find_option("verbose","v",0)!=0;
+  forceMissingFlag = find_option("force-missing",0,0)!=0;
   if( !verboseFlag ){
     verboseFlag = find_option("detail",0,0)!=0; /* deprecated */
   }
@@ -143,7 +147,6 @@ void merge_cmd(void){
   }
   forceFlag = find_option("force","f",0)!=0;
   zPivot = find_option("baseline",0,1);
-  capture_case_sensitive_option();
   verify_all_options();
   db_must_be_within_tree();
   if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);
@@ -208,7 +211,7 @@ void merge_cmd(void){
       char *zCom = mprintf("Merging fork [%S] at %s by %s: \"%s\"",
             db_column_text(&q, 0), db_column_text(&q, 1),
             db_column_text(&q, 3), db_column_text(&q, 2));
-      comment_print(zCom, 0, 79);
+      comment_print(zCom, db_column_text(&q,2), 0, -1, g.comFmtFlags);
       fossil_free(zCom);
     }
     db_finalize(&q);
@@ -271,8 +274,12 @@ void merge_cmd(void){
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   db_begin_transaction();
   if( !dryRunFlag ) undo_begin();
-  load_vfile_from_rid(mid);
-  load_vfile_from_rid(pid);
+  if( load_vfile_from_rid(mid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to merge");
+  }
+  if( load_vfile_from_rid(pid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to merge");
+  }
   if( debugFlag ){
     char *z;
     z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", pid);
@@ -638,7 +645,7 @@ void merge_cmd(void){
   }
   if( dryRunFlag ){
     fossil_warning("REMINDER: this was a dry run -"
-                   " no file were actually changed.");
+                   " no files were actually changed.");
   }
 
   /*

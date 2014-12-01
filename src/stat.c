@@ -51,6 +51,7 @@ void stat_page(void){
   const char *zDb;
   int brief;
   char zBuf[100];
+  const char *p;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -122,7 +123,11 @@ void stat_page(void){
                 " + 0.99");
   @ %d(n) days or approximately %.2f(n/365.2425) years.
   @ </td></tr>
-  @ <tr><th>Project&nbsp;ID:</th><td>%h(db_get("project-code",""))</td></tr>
+  p = db_get("project-code", 0);
+  if( p ){
+    @ <tr><th>Project&nbsp;ID:</th><td>%h(p)</td></tr>
+  }
+  @ <tr><th>Server&nbsp;ID:</th><td>%h(db_get("server-code",""))</td></tr>
   @ <tr><th>Fossil&nbsp;Version:</th><td>
   @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
   @ (%h(RELEASE_VERSION)) [compiled using %h(COMPILER_NAME)]
@@ -134,11 +139,11 @@ void stat_page(void){
   @ By Fossil %h(db_get("rebuilt","Unknown"))</td></tr>
   @ <tr><th>Database&nbsp;Stats:</th><td>
   zDb = db_name("repository");
-  @ %d(db_int(0, "PRAGMA %s.page_count", zDb)) pages,
-  @ %d(db_int(0, "PRAGMA %s.page_size", zDb)) bytes/page,
-  @ %d(db_int(0, "PRAGMA %s.freelist_count", zDb)) free pages,
-  @ %s(db_text(0, "PRAGMA %s.encoding", zDb)),
-  @ %s(db_text(0, "PRAGMA %s.journal_mode", zDb)) mode
+  @ %d(db_int(0, "PRAGMA \"%w\".page_count", zDb)) pages,
+  @ %d(db_int(0, "PRAGMA \"%w\".page_size", zDb)) bytes/page,
+  @ %d(db_int(0, "PRAGMA \"%w\".freelist_count", zDb)) free pages,
+  @ %s(db_text(0, "PRAGMA \"%w\".encoding", zDb)),
+  @ %s(db_text(0, "PRAGMA \"%w\".journal_mode", zDb)) mode
   @ </td></tr>
 
   @ </table>
@@ -148,14 +153,15 @@ void stat_page(void){
 /*
 ** COMMAND: dbstat*
 **
-** Usage: %fossil dbstat ?-brief | -b?
+** Usage: %fossil dbstat OPTIONS
 **
 ** Shows statistics and global information about the repository.
 **
-** The (-brief|-b) option removes any "long-running" statistics, namely
-** those whose calculations are known to slow down as the repository
-** grows.
+** Options:
 **
+**   --brief|-b           Only show essential elements
+**   --db-check           Run a PRAGMA quick_check on the repository database
+**   --omit-version-info  Omit the SQLite and Fossil version information
 */
 void dbstat_cmd(void){
   i64 t, fsize;
@@ -163,10 +169,25 @@ void dbstat_cmd(void){
   int szMax, szAvg;
   const char *zDb;
   int brief;
+  int omitVers;            /* Omit Fossil and SQLite version information */
+  int dbCheck;             /* True for the --db-check option */
   char zBuf[100];
   const int colWidth = -19 /* printf alignment/width for left column */;
+  const char *p, *z;
+
   brief = find_option("brief", "b",0)!=0;
+  omitVers = find_option("omit-version-info", 0, 0)!=0;
+  dbCheck = find_option("db-check",0,0)!=0;
   db_find_and_open_repository(0,0);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
+  if( (z = db_get("project-name",0))!=0
+   || (z = db_get("short-project-name",0))!=0
+  ){
+    fossil_print("%*s%s\n", colWidth, "project-name:", z);
+  }
   fsize = file_size(g.zRepositoryName);
   bigSizeName(sizeof(zBuf), zBuf, fsize);
   fossil_print( "%*s%s\n", colWidth, "repository-size:", zBuf );
@@ -216,30 +237,47 @@ void dbstat_cmd(void){
     fossil_print("%*s%d\n", colWidth, "events:", n);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
     fossil_print("%*s%d\n", colWidth, "tagchanges:", n);
+    z = db_text(0, "SELECT datetime(mtime) || ' - about ' ||"
+                   " CAST(julianday('now') - mtime AS INTEGER)"
+                   " || ' days ago' FROM event "
+                   " ORDER BY mtime DESC LIMIT 1");
+    fossil_print("%*s%s\n", colWidth, "latest-change:", z);
   }
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
   fossil_print("%*s%d days or approximately %.2f years.\n",
                colWidth, "project-age:", n, n/365.2425);
-  fossil_print("%*s%s\n", colWidth, "project-id:", db_get("project-code",""));
-  fossil_print("%*s%s %s [%s] (%s)\n",
-               colWidth, "fossil-version:",
-               MANIFEST_DATE, MANIFEST_VERSION, RELEASE_VERSION,
-               COMPILER_NAME);
-  fossil_print("%*s%.19s [%.10s] (%s)\n",
-               colWidth, "sqlite-version:",
-               sqlite3_sourceid(), &sqlite3_sourceid()[20],
-               sqlite3_libversion());
+  p = db_get("project-code", 0);
+  if( p ){
+    fossil_print("%*s%s\n", colWidth, "project-id:", p);
+  }
+#if 0
+  /* Server-id is not useful information any more */
+  fossil_print("%*s%s\n", colWidth, "server-id:", db_get("server-code", 0));
+#endif
+  if( !omitVers ){
+    fossil_print("%*s%s %s [%s] (%s)\n",
+                 colWidth, "fossil-version:",
+                 MANIFEST_DATE, MANIFEST_VERSION, RELEASE_VERSION,
+                 COMPILER_NAME);
+    fossil_print("%*s%.19s [%.10s] (%s)\n",
+                 colWidth, "sqlite-version:",
+                 sqlite3_sourceid(), &sqlite3_sourceid()[20],
+                 sqlite3_libversion());
+  }
   zDb = db_name("repository");
   fossil_print("%*s%d pages, %d bytes/pg, %d free pages, "
                "%s, %s mode\n",
                colWidth, "database-stats:",
-               db_int(0, "PRAGMA %s.page_count", zDb),
-               db_int(0, "PRAGMA %s.page_size", zDb),
-               db_int(0, "PRAGMA %s.freelist_count", zDb),
-               db_text(0, "PRAGMA %s.encoding", zDb),
-               db_text(0, "PRAGMA %s.journal_mode", zDb));
-
+               db_int(0, "PRAGMA \"%w\".page_count", zDb),
+               db_int(0, "PRAGMA \"%w\".page_size", zDb),
+               db_int(0, "PRAGMA \"%w\".freelist_count", zDb),
+               db_text(0, "PRAGMA \"%w\".encoding", zDb),
+               db_text(0, "PRAGMA \"%w\".journal_mode", zDb));
+  if( dbCheck ){
+    fossil_print("%*s%s\n", colWidth, "database-check:",
+                 db_text(0, "PRAGMA quick_check(1)"));
+  }
 }
 
 /*

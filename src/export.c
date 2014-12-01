@@ -55,21 +55,37 @@ static void print_person(const char *zUser){
     free(zName);
     return;
   }
+  /*
+  ** We have contact information.
+  ** It may or may not contain an email address.
+   */
   zContact = db_column_text(&q, 0);
   for(i=0; zContact[i] && zContact[i]!='>' && zContact[i]!='<'; i++){}
   if( zContact[i]==0 ){
+    /* No email address found. Take as user info if not empty */
     printf(" %s <%s>", zContact[0] ? zContact : zUser, zUser);
     db_reset(&q);
     return;
   }
   if( zContact[i]=='<' ){
+    /*
+    ** Found beginning of email address. Look for the end and extract
+    ** the part.
+     */
     zEmail = mprintf("%s", &zContact[i]);
-    for(i=0; zEmail[i] && zEmail[i]!='>'; i++){}
-    if( zEmail[i]=='>' ) zEmail[i+1] = 0;
+    for(j=0; zEmail[j] && zEmail[j]!='>'; j++){}
+    if( zEmail[j]=='>' ) zEmail[j+1] = 0;
   }else{
+    /*
+    ** Found an end marker for email, but nothing else.
+     */
     zEmail = mprintf("<%s>", zUser);
   }
-  zName = mprintf("%.*s", i, zContact);
+  /*
+  ** Here zContact[i] either '<' or '>'. Extract the string _before_
+  ** either as user name.
+  */
+  zName = mprintf("%.*s", i-1, zContact);
   for(i=j=0; zName[i]; i++){
     if( zName[i]!='"' ) zName[j++] = zName[i];
   }
@@ -218,8 +234,8 @@ void export_cmd(void){
   /* Output the commit records.
   */
   db_prepare(&q,
-    "SELECT strftime('%%s',mtime), objid, coalesce(comment,ecomment),"
-    "       coalesce(user,euser),"
+    "SELECT strftime('%%s',mtime), objid, coalesce(ecomment,comment),"
+    "       coalesce(euser,user),"
     "       (SELECT value FROM tagxref WHERE rid=objid AND tagid=%d)"
     "  FROM event"
     " WHERE type='ci' AND NOT EXISTS (SELECT 1 FROM oldcommit WHERE objid=rid)"

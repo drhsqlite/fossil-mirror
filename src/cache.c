@@ -63,7 +63,8 @@ static sqlite3 *cacheOpen(int bForce){
     sqlite3_close(db);
     return 0;
   }
-  rc = sqlite3_exec(db, 
+  rc = sqlite3_exec(db,
+     "PRAGMA page_size=8192;"
      "CREATE TABLE IF NOT EXISTS blob(id INTEGER PRIMARY KEY, data BLOB);"
      "CREATE TABLE IF NOT EXISTS cache("
        "key TEXT PRIMARY KEY,"     /* Key used to access the cache */
@@ -95,7 +96,7 @@ static sqlite3_stmt *cacheStmt(sqlite3 *db, const char *zSql){
     sqlite3_finalize(pStmt);
     pStmt = 0;
   }
-  return pStmt;  
+  return pStmt;
 }
 
 /*
@@ -154,7 +155,7 @@ void cache_write(Blob *pContent, const char *zKey){
                     SQLITE_STATIC);
   if( sqlite3_step(pStmt)!=SQLITE_DONE ) goto cache_write_end;
   sqlite3_finalize(pStmt);
-  pStmt = cacheStmt(db, 
+  pStmt = cacheStmt(db,
       "INSERT OR IGNORE INTO cache(key,sz,tm,nref,id)"
       "VALUES(?1,?2,strftime('%s','now'),1,?3)"
   );
@@ -203,7 +204,7 @@ int cache_read(Blob *pContent, const char *zKey){
   if( db==0 ) return 0;
   sqlite3_busy_timeout(db, 10000);
   sqlite3_exec(db, "BEGIN IMMEDIATE", 0, 0, 0);
-  pStmt = cacheStmt(db, 
+  pStmt = cacheStmt(db,
     "SELECT blob.data FROM cache, blob"
     " WHERE cache.key=?1 AND cache.id=blob.id");
   if( pStmt==0 ) goto cache_read_done;
@@ -213,13 +214,13 @@ int cache_read(Blob *pContent, const char *zKey){
                           sqlite3_column_bytes(pStmt, 0));
     rc = 1;
     sqlite3_reset(pStmt);
-    pStmt = cacheStmt(db, 
+    pStmt = cacheStmt(db,
               "UPDATE cache SET nref=nref+1, tm=strftime('%s','now')"
               " WHERE key=?1");
     if( pStmt ){
       sqlite3_bind_text(pStmt, 1, zKey, -1, SQLITE_STATIC);
       sqlite3_step(pStmt);
-    }  
+    }
   }
   sqlite3_finalize(pStmt);
 cache_read_done:
@@ -237,9 +238,9 @@ cache_read_done:
 **
 **    clear        Remove all entries from the cache.
 **
-**    init         Create the cache file it it does not already exists.
+**    init         Create the cache file if it does not already exists.
 **
-**    list         List the keys and content sizes and other stats for
+**    list|ls      List the keys and content sizes and other stats for
 **                 all entries currently in the cache
 **
 **    status       Show a summary of cache status.
@@ -257,7 +258,7 @@ void cache_cmd(void){
   db_find_and_open_repository(0,0);
   zCmd = g.argc>=3 ? g.argv[2] : "";
   nCmd = (int)strlen(zCmd);
-  if( nCmd<=1 ){ 
+  if( nCmd<=1 ){
     fossil_fatal("Usage: %s cache SUBCOMMAND", g.argv[0]);
   }
   if( strncmp(zCmd, "init", nCmd)==0 ){
@@ -283,7 +284,7 @@ void cache_cmd(void){
     }else{
       fossil_print("nothing to clear; cache does not exist\n");
     }
-  }else if( strncmp(zCmd, "list", nCmd)==0 ){
+  }else if(( strncmp(zCmd, "list", nCmd)==0 ) || ( strncmp(zCmd, "ls", nCmd)==0 )){
     db = cacheOpen(0);
     if( db==0 ){
       fossil_print("cache does not exist\n");
@@ -291,7 +292,7 @@ void cache_cmd(void){
       int nEntry = 0;
       char *zDbName = cacheName();
       cache_register_sizename(db);
-      pStmt = cacheStmt(db, 
+      pStmt = cacheStmt(db,
            "SELECT key, sizename(sz), nRef, datetime(tm,'unixepoch')"
            "  FROM cache"
            " ORDER BY tm DESC"
@@ -339,7 +340,7 @@ void cache_page(void){
   }else{
     char *zDbName = cacheName();
     cache_register_sizename(db);
-    pStmt = cacheStmt(db, 
+    pStmt = cacheStmt(db,
          "SELECT key, sizename(sz), nRef, datetime(tm,'unixepoch')"
          "  FROM cache"
          " ORDER BY tm DESC"
@@ -347,7 +348,8 @@ void cache_page(void){
     if( pStmt ){
       @ <ol>
       while( sqlite3_step(pStmt)==SQLITE_ROW ){
-        @ <li><p>%h(sqlite3_column_text(pStmt,0))<br>
+        const unsigned char *zName = sqlite3_column_text(pStmt,0);
+        @ <li><p>%z(href("%R/cacheget?key=%T",zName))%h(zName)</a><br>
         @ size: %s(sqlite3_column_text(pStmt,1))
         @ hit-count: %d(sqlite3_column_int(pStmt,2))
         @ last-access: %s(sqlite3_column_text(pStmt,3))</p></li>
@@ -363,4 +365,30 @@ void cache_page(void){
     sqlite3_close(db);
   }
   style_footer();
+}
+
+/*
+** WEBPAGE: cacheget
+**
+** Usage:  /cacheget?key=KEY
+**
+** Download a single entry for the cache, identified by KEY.
+** This page is normally a hyperlink from the /cachestat page.
+*/
+void cache_getpage(void){
+  const char *zKey;
+  Blob content;
+
+  login_check_credentials();
+  if( !g.perm.Setup ){ login_needed(); return; }
+  zKey = PD("key","");
+  blob_zero(&content);
+  if( cache_read(&content, zKey)==0 ){
+    style_header("Cache Download Error");
+    @ The cache does not contain any entry with this key: "%h(zKey)"
+    style_footer();
+    return;
+  }
+  cgi_set_content(&content);
+  cgi_set_content_type("application/x-compressed");
 }

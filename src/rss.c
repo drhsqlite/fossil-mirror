@@ -29,7 +29,9 @@
 ** Produce an RSS feed of the timeline.
 **
 ** TYPE may be: all, ci (show checkins only), t (show tickets only),
-** w (show wiki only). LIMIT is the number of items to show.
+** w (show wiki only).
+**
+** LIMIT is the number of items to show.
 **
 ** tkt=UUID filters for only those events for the specified ticket. tag=TAG
 ** filters for a tag, and wiki=NAME for a wiki page. Only one may be used.
@@ -76,7 +78,7 @@ void page_timeline_rss(void){
     if( zType[0]=='c' && !g.perm.Read ) zType = "x";
     if( zType[0]=='w' && !g.perm.RdWiki ) zType = "x";
     if( zType[0]=='t' && !g.perm.RdTkt ) zType = "x";
-    blob_appendf(&bSQL, " AND event.type=%Q", zType);
+    blob_append_sql(&bSQL, " AND event.type=%Q", zType);
   }else{
     if( !g.perm.Read ){
       if( g.perm.RdTkt && g.perm.RdWiki ){
@@ -122,14 +124,14 @@ void page_timeline_rss(void){
   }
 
   if( nTagId==-1 ){
-    blob_appendf(&bSQL, " AND 0");
+    blob_append_sql(&bSQL, " AND 0");
   }else if( nTagId!=0 ){
-    blob_appendf(&bSQL, " AND (EXISTS(SELECT 1 FROM tagxref"
+    blob_append_sql(&bSQL, " AND (EXISTS(SELECT 1 FROM tagxref"
       " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid))", nTagId);
   }
 
   if( zFilename ){
-    blob_appendf(&bSQL,
+    blob_append_sql(&bSQL,
       " AND (SELECT mlink.fnid FROM mlink WHERE event.objid=mlink.mid) IN (SELECT fnid FROM filename WHERE name=%Q %s)",
         zFilename, filename_collation()
     );
@@ -160,7 +162,7 @@ void page_timeline_rss(void){
   @     <pubDate>%s(zPubDate)</pubDate>
   @     <generator>Fossil version %s(MANIFEST_VERSION) %s(MANIFEST_DATE)</generator>
   free(zPubDate);
-  db_prepare(&q, blob_str(&bSQL));
+  db_prepare(&q, "%s", blob_sql_text(&bSQL));
   blob_reset( &bSQL );
   while( db_step(&q)==SQLITE_ROW && nLine<nLimit ){
     const char *zId = db_column_text(&q, 1);
@@ -207,12 +209,17 @@ void page_timeline_rss(void){
 /*
 ** COMMAND: rss
 **
+** Usage: %fossil rss ?OPTIONS?
+**
 ** The CLI variant of the /timeline.rss page, this produces an RSS
 ** feed of the timeline to stdout. Options:
 **
 ** -type|y FLAG
 **    may be: all (default), ci (show checkins only), t (show tickets only),
-**    w (show wiki only). LIMIT is the number of items to show.
+**    w (show wiki only).
+**
+** -limit|n LIMIT
+**   The maximum number of items to show.
 **
 ** -tkt UUID
 **    Filters for only those events for the specified ticket.
@@ -268,11 +275,14 @@ void cmd_timeline_rss(void){
 
   db_find_and_open_repository(0, 0);
 
+  /* We should be done with options.. */
+    verify_all_options();
+
   blob_zero(&bSQL);
   blob_append( &bSQL, zSQL1, -1 );
 
   if( zType[0]!='a' ){
-    blob_appendf(&bSQL, " AND event.type=%Q", zType);
+    blob_append_sql(&bSQL, " AND event.type=%Q", zType);
   }
 
   if( zTicketUuid ){
@@ -298,14 +308,14 @@ void cmd_timeline_rss(void){
   }
 
   if( nTagId==-1 ){
-    blob_appendf(&bSQL, " AND 0");
+    blob_append_sql(&bSQL, " AND 0");
   }else if( nTagId!=0 ){
-    blob_appendf(&bSQL, " AND (EXISTS(SELECT 1 FROM tagxref"
+    blob_append_sql(&bSQL, " AND (EXISTS(SELECT 1 FROM tagxref"
       " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid))", nTagId);
   }
 
   if( zFilename ){
-    blob_appendf(&bSQL,
+    blob_append_sql(&bSQL,
       " AND (SELECT mlink.fnid FROM mlink WHERE event.objid=mlink.mid) IN (SELECT fnid FROM filename WHERE name=%Q %s)",
         zFilename, filename_collation()
     );
@@ -335,7 +345,7 @@ void cmd_timeline_rss(void){
   fossil_print("<generator>Fossil version %s %s</generator>\n",
                MANIFEST_VERSION, MANIFEST_DATE);
   free(zPubDate);
-  db_prepare(&q, blob_str(&bSQL));
+  db_prepare(&q, "%s", blob_sql_text(&bSQL));
   blob_reset( &bSQL );
   while( db_step(&q)==SQLITE_ROW && nLine<nLimit ){
     const char *zId = db_column_text(&q, 1);

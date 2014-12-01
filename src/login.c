@@ -210,8 +210,8 @@ static void record_login_attempt(
 ** zPassword may be either the plain-text form or the encrypted
 ** form of the user's password.
 */
-int login_search_uid(char const *zUsername, char const *zPasswd){
-  char * zSha1Pw = sha1_shared_secret(zPasswd, zUsername, 0);
+int login_search_uid(const char *zUsername, const char *zPasswd){
+  char *zSha1Pw = sha1_shared_secret(zPasswd, zUsername, 0);
   int const uid =
       db_int(0,
              "SELECT uid FROM user"
@@ -233,8 +233,8 @@ int login_search_uid(char const *zUsername, char const *zPasswd){
 **
 ** The returned memory should be free()d after use.
 */
-char * login_gen_user_cookie_value(char const *zUsername, char const * zHash){
-  char * zProjCode = db_get("project-code",NULL);
+char *login_gen_user_cookie_value(const char *zUsername, const char *zHash){
+  char *zProjCode = db_get("project-code",NULL);
   char *zCode = abbreviated_project_code(zProjCode);
   free(zProjCode);
   assert((zUsername && *zUsername) && "Invalid user data.");
@@ -254,16 +254,16 @@ char * login_gen_user_cookie_value(char const *zUsername, char const * zHash){
 ** eventually pass it to free()).
 */
 void login_set_user_cookie(
-  char const * zUsername, /* User's name */
+  const char *zUsername,  /* User's name */
   int uid,                /* User's ID */
-  char ** zDest           /* Optional: store generated cookie value. */
+  char **zDest            /* Optional: store generated cookie value. */
 ){
   const char *zCookieName = login_cookie_name();
   const char *zExpire = db_get("cookie-expire","8766");
   int expires = atoi(zExpire)*3600;
   char *zHash;
   char *zCookie;
-  char const *zIpAddr = PD("REMOTE_ADDR","nil"); /* IP address of user */
+  const char *zIpAddr = PD("REMOTE_ADDR","nil"); /* IP address of user */
   char *zRemoteAddr = ipPrefix(zIpAddr);         /* Abbreviated IP address */
 
   assert((zUsername && *zUsername) && (uid > 0) && "Invalid user data.");
@@ -305,12 +305,12 @@ void login_set_user_cookie(
 ** If zCookieDest is not NULL then the generated cookie is assigned to
 ** *zCookieDest and the caller must eventually free() it.
 */
-void login_set_anon_cookie(char const * zIpAddr, char ** zCookieDest ){
-  char const *zNow;            /* Current time (julian day number) */
+void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest ){
+  const char *zNow;            /* Current time (julian day number) */
   char *zCookie;               /* The login cookie */
-  char const *zCookieName;     /* Name of the login cookie */
+  const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
-  char * zRemoteAddr;     /* Abbreviated IP address */
+  char *zRemoteAddr;           /* Abbreviated IP address */
   if(!zIpAddr){
     zIpAddr = PD("REMOTE_ADDR","nil");
   }
@@ -346,7 +346,7 @@ void login_clear_login_data(){
   if(!g.userUid){
     return;
   }else{
-    char const * cookie = login_cookie_name();
+    const char *cookie = login_cookie_name();
     /* To logout, change the cookie value to an empty string */
     cgi_set_cookie(cookie, "",
                    login_cookie_path(), -86400);
@@ -397,11 +397,11 @@ static int isHuman(const char *zAgent){
   }
   if( strncmp(zAgent, "Mozilla/", 8)==0 ){
     if( atoi(&zAgent[8])<4 ) return 0;  /* Many bots advertise as Mozilla/3 */
-    if( strglob("*Firefox/[1-9]*", zAgent) ) return 1;
-    if( strglob("*Chrome/[1-9]*", zAgent) ) return 1;
-    if( strglob("*(compatible;?MSIE?[1789]*", zAgent) ) return 1;
-    if( strglob("*Trident/[1-9]*;?rv:[1-9]*", zAgent) ) return 1; /* IE11+ */
-    if( strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent) ) return 1;
+    if( sqlite3_strglob("*Firefox/[1-9]*", zAgent)==0 ) return 1;
+    if( sqlite3_strglob("*Chrome/[1-9]*", zAgent)==0 ) return 1;
+    if( sqlite3_strglob("*(compatible;?MSIE?[1789]*", zAgent)==0 ) return 1;
+    if( sqlite3_strglob("*Trident/[1-9]*;?rv:[1-9]*", zAgent)==0 ) return 1; /* IE11+ */
+    if( sqlite3_strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent)==0 ) return 1;
     return 0;
   }
   if( strncmp(zAgent, "Opera/", 6)==0 ) return 1;
@@ -477,6 +477,16 @@ void login_page(void){
   const char *zReferer;
 
   login_check_credentials();
+  if( login_wants_https_redirect() ){
+    const char *zQS = P("QUERY_STRING");
+    if( zQS==0 ){
+      zQS = "";
+    }else if( zQS[0]!=0 ){
+      zQS = mprintf("?%s", zQS);
+    }
+    cgi_redirectf("%s%s%s", g.zHttpsURL, P("PATH_INFO"), zQS);
+    return;    
+  }
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
                   constant_time_cmp_function, 0, 0);
   zUsername = P("u");
@@ -631,7 +641,7 @@ void login_page(void){
   }
   if( zAnonPw ){
     unsigned int uSeed = captcha_seed();
-    char const *zDecoded = captcha_decode(uSeed);
+    const char *zDecoded = captcha_decode(uSeed);
     int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
     char *zCaptcha = captcha_render(zDecoded);
 
@@ -780,6 +790,21 @@ static int login_find_user(
 }
 
 /*
+** Return true if it is appropriate to redirect login requests to HTTPS.
+**
+** Redirect to https is appropriate if all of the above are true:
+**    (1) The redirect-to-https flag is set
+**    (2) The current connection is http, not https or ssh
+**    (3) The sslNotAvailable flag is clear
+*/
+int login_wants_https_redirect(void){
+  if( g.sslNotAvailable ) return 0;
+  if( db_get_boolean("redirect-to-https",0)==0 ) return 0;
+  if( P("HTTPS")!=0 ) return 0;
+  return 1;
+}
+
+/*
 ** This routine examines the login cookie to see if it exists and
 ** is valid.  If the login cookie checks out, it then sets global
 ** variables appropriately.
@@ -814,7 +839,7 @@ void login_check_credentials(void){
   */
   zRemoteAddr = ipPrefix(zIpAddr = PD("REMOTE_ADDR","nil"));
   if( ( fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
-        g.fSshClient & CGI_SSH_CLIENT )
+        (g.fSshClient & CGI_SSH_CLIENT)!=0 )
    && g.useLocalauth
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0
@@ -1238,7 +1263,7 @@ void login_verify_csrf_secret(void){
 void register_page(void){
   const char *zUsername, *zPasswd, *zConfirm, *zContact, *zCS, *zPw, *zCap;
   unsigned int uSeed;
-  char const *zDecoded;
+  const char *zDecoded;
   char *zCaptcha;
   if( !db_get_boolean("self-register", 0) ){
     style_header("Registration not possible");
@@ -1296,7 +1321,7 @@ void register_page(void){
         int uid;
         db_multi_exec(
             "INSERT INTO user(login,pw,cap,info,mtime)"
-            "VALUES(%B,%Q,%B,%B,strftime('%s','now'))",
+            "VALUES(%B,%Q,%B,%B,strftime('%%s','now'))",
             &login, zPw, &caps, &contact
             );
         free(zPw);
@@ -1471,13 +1496,13 @@ void login_group_join(
 
   /* Get the full pathname of the other repository */
   file_canonical_name(zRepo, &fullName, 0);
-  zRepo = mprintf(blob_str(&fullName));
+  zRepo = fossil_strdup(blob_str(&fullName));
   blob_reset(&fullName);
 
   /* Get the full pathname for our repository.  Also the project code
   ** and project name for ourself. */
   file_canonical_name(g.zRepositoryName, &fullName, 0);
-  zSelfRepo = mprintf(blob_str(&fullName));
+  zSelfRepo = fossil_strdup(blob_str(&fullName));
   blob_reset(&fullName);
   zSelfProjCode = db_get("project-code", "unknown");
   zSelfLabel = db_get("project-name", 0);
@@ -1502,7 +1527,7 @@ void login_group_join(
        g.zVfsName
   );
   if( rc!=SQLITE_OK ){
-    *pzErrMsg = mprintf(sqlite3_errmsg(pOther));
+    *pzErrMsg = fossil_strdup(sqlite3_errmsg(pOther));
   }else{
     rc = sqlite3_exec(pOther, "SELECT count(*) FROM user", 0, 0, pzErrMsg);
   }
@@ -1535,9 +1560,9 @@ void login_group_join(
   zOtherProjCode = abbreviated_project_code(zOtherProjCode);
   db_begin_transaction();
   db_multi_exec(
-    "DELETE FROM %s.config WHERE name GLOB 'peer-*';"
-    "INSERT INTO %s.config(name,value) VALUES('peer-repo-%s',%Q);"
-    "INSERT INTO %s.config(name,value) "
+    "DELETE FROM \"%w\".config WHERE name GLOB 'peer-*';"
+    "INSERT INTO \"%w\".config(name,value) VALUES('peer-repo-%q',%Q);"
+    "INSERT INTO \"%w\".config(name,value) "
     "  SELECT 'peer-name-%q', value FROM other.config"
     "   WHERE name='project-name';",
     zSelf,
@@ -1552,7 +1577,7 @@ void login_group_join(
     zNewName
   );
   db_multi_exec(
-    "REPLACE INTO %s.config(name,value)"
+    "REPLACE INTO \"%w\".config(name,value)"
     "  SELECT name, value FROM other.config"
     "   WHERE name GLOB 'peer-*' OR name GLOB 'login-group-*'",
     zSelf

@@ -596,7 +596,7 @@ static void sbsWriteColumn(Blob *pOut, Blob *pCol, int col){
     "%s"
     "</pre>\n"
     "</div></td>\n",
-    col % 3 ? (col == SBS_MKR ? "mkr" : "txt") : "ln",
+    (col % 3) ? (col == SBS_MKR ? "mkr" : "txt") : "ln",
     blob_str(pCol)
   );
 }
@@ -2314,8 +2314,8 @@ void annotation_page(void){
     @ <ol>
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
       @ <li><span style='background-color:%s(p->zBgColor);'>%s(p->zDate)
-      @ check-in %z(href("%R/info/%s",p->zMUuid))%.10s(p->zMUuid)</a>
-      @ artifact %z(href("%R/artifact/%s",p->zFUuid))%.10s(p->zFUuid)</a>
+      @ check-in %z(href("%R/info/%s",p->zMUuid))%S(p->zMUuid)</a>
+      @ artifact %z(href("%R/artifact/%s",p->zFUuid))%S(p->zFUuid)</a>
       @ </span>
 #if 0
       if( i>0 ){
@@ -2436,6 +2436,10 @@ void annotate_cmd(void){
   }
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
+ 
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc<3 ) {
     usage("FILENAME");
   }
@@ -2467,7 +2471,7 @@ void annotate_cmd(void){
   if( showLog ){
     struct AnnVers *p;
     for(p=ann.aVers, i=0; i<ann.nVers; i++, p++){
-      fossil_print("version %3d: %s %.10s file %.10s\n",
+      fossil_print("version %3d: %s %S file %S\n",
                    i+1, p->zDate, p->zMUuid, p->zFUuid);
     }
     fossil_print("---------------------------------------------------\n");
@@ -2481,14 +2485,14 @@ void annotate_cmd(void){
     p = ann.aVers + iVers;
     if( bBlame ){
       if( iVers>=0 ){
-        fossil_print("%.10s %s %13.13s: %.*s\n",
+        fossil_print("%S %s %13.13s: %.*s\n",
              fileVers ? p->zFUuid : p->zMUuid, p->zDate, p->zUser, n, z);
       }else{
         fossil_print("%35s  %.*s\n", "", n, z);
       }
     }else{
       if( iVers>=0 ){
-        fossil_print("%.10s %s %5d: %.*s\n",
+        fossil_print("%S %s %5d: %.*s\n",
              fileVers ? p->zFUuid : p->zMUuid, p->zDate, i+1, n, z);
       }else{
         fossil_print("%21s %5d: %.*s\n",

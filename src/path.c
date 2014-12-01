@@ -114,7 +114,7 @@ static void path_reverse_path(void){
 ** If directOnly is true, then use only the "primary" links from parent to
 ** child.  In other words, ignore merges.
 **
-** Return a pointer to the beginning of the path (the iFrom node).  
+** Return a pointer to the beginning of the path (the iFrom node).
 ** Elements of the path can be traversed by following the PathNode.u.pTo
 ** pointer chain.
 **
@@ -137,21 +137,21 @@ PathNode *path_shortest(
     return path.pStart;
   }
   if( oneWayOnly && directOnly ){
-    db_prepare(&s, 
+    db_prepare(&s,
         "SELECT cid, 1 FROM plink WHERE pid=:pid AND isprim"
     );
   }else if( oneWayOnly ){
-    db_prepare(&s, 
+    db_prepare(&s,
         "SELECT cid, 1 FROM plink WHERE pid=:pid "
     );
   }else if( directOnly ){
-    db_prepare(&s, 
+    db_prepare(&s,
         "SELECT cid, 1 FROM plink WHERE pid=:pid AND isprim "
         "UNION ALL "
         "SELECT pid, 0 FROM plink WHERE cid=:pid AND isprim"
     );
   }else{
-    db_prepare(&s, 
+    db_prepare(&s,
         "SELECT cid, 1 FROM plink WHERE pid=:pid "
         "UNION ALL "
         "SELECT pid, 0 FROM plink WHERE cid=:pid"
@@ -232,7 +232,7 @@ void shortest_path_test_cmd(void){
     fossil_print("%4d: %5d %s", n, p->rid, z);
     fossil_free(z);
     if( p->u.pTo ){
-      fossil_print(" is a %s of\n", 
+      fossil_print(" is a %s of\n",
                    p->u.pTo->fromIsParent ? "parent" : "child");
     }else{
       fossil_print("\n");
@@ -355,7 +355,7 @@ struct NameChange {
 ** to checkin iTo.
 **
 ** The number of name changes is written into *pnChng.  For each name
-** change, two integers are allocated for *piChng.  The first is the 
+** change, two integers are allocated for *piChng.  The first is the
 ** filename.fnid for the original name as seen in check-in iFrom and
 ** the second is for new name as it is used in check-in iTo.
 **
@@ -384,6 +384,11 @@ void find_filename_changes(
 
   *pnChng = 0;
   *aiChng = 0;
+  if(0==iFrom){
+    fossil_fatal("Invalid 'from' RID: 0");
+  }else if(0==iTo){
+    fossil_fatal("Invalid 'to' RID: 0");
+  }
   if( iFrom==iTo ) return;
   path_reset();
   p = path_shortest(iFrom, iTo, 1, revOk==0);
@@ -510,4 +515,57 @@ void test_name_change(void){
     g.argv += 2;
     g.argc -= 2;
   }
+}
+
+/* Query to extract all rename operations */
+static const char zRenameQuery[] =
+@ SELECT
+@     datetime(event.mtime),
+@     F.name AS old_name,
+@     T.name AS new_name,
+@     blob.uuid
+@   FROM mlink, filename F, filename T, event, blob
+@  WHERE coalesce(mlink.pfnid,0)!=0 AND mlink.pfnid!=mlink.fnid
+@    AND F.fnid=mlink.pfnid
+@    AND T.fnid=mlink.fnid
+@    AND event.objid=mlink.mid
+@    AND event.type='ci'
+@    AND blob.rid=mlink.mid
+@  ORDER BY 1 DESC, 2;
+;
+
+/*
+** WEBPAGE: test-rename-list
+**
+** Print a list of all file rename operations throughout history.
+** This page is intended for for testing purposes only and may change
+** or be discontinued without notice.
+*/
+void test_rename_list_page(void){
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(); return; }
+  style_header("List Of File Name Changes");
+  @ <h3>NB: Experimental Page</h3>
+  @ <table border="1" width="100%%">
+  @ <tr><th>Date &amp; Time</th>
+  @ <th>Old Name</th>
+  @ <th>New Name</th>
+  @ <th>Check-in</th></tr>
+  db_prepare(&q, "%s", zRenameQuery/*safe-for-%s*/);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zDate = db_column_text(&q, 0);
+    const char *zOld = db_column_text(&q, 1);
+    const char *zNew = db_column_text(&q, 2);
+    const char *zUuid = db_column_text(&q, 3);
+    @ <tr>
+    @ <td>%z(href("%R/timeline?c=%t",zDate))%s(zDate)</a></td>
+    @ <td>%z(href("%R/finfo?name=%t",zOld))%h(zOld)</a></td>
+    @ <td>%z(href("%R/finfo?name=%t",zNew))%h(zNew)</a></td>
+    @ <td>%z(href("%R/info/%s",zUuid))%S(zUuid)</a></td></tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  style_footer();
 }

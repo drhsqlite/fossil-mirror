@@ -1,12 +1,39 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.29 (as yet unreleased)</h2>
+<h2>Changes For Version 1.30 (as yet unreleased)</h2>
+  *  Add setting to control the number of times autosync will be tried before
+     returning an error.
+  *  Add the [/help/fusefs|fossil fusefs DIRECTORY] command that mounts a
+     Fuse Filesystem at the given DIRECTORY and populates it with read-only
+     copies of all historical check-ins. This only works on systems that
+     support FuseFS.
+  *  Added a compile-time option (--with-miniz) to build using miniz instead
+     of zlib.  Disabled by default.
+  *  Several fixes to the TH1 expression parser.
+  *  Support customization of commands and webpages, including the ability to
+     add new ones, via the "TH1 hooks" feature.  Disabled by default. Enabled
+     via a compile-time option.
+  *  Add the <nowiki>[checkout], [render], [styleHeader], [styleFooter],
+     [trace], [getParameter], [setParameter], [artifact], and
+     [globalState]</nowiki> commands to TH1, primarily for use by TH1 hooks.
+  *  Bring in the latest version of autosetup from upstream.
+  *  When committing a (non-binary) file which contains bytes forming an
+     invalid UTF-8 stream, fossil now adds the possibility to convert it
+     to a valid UTF-8 stream ('c') if you like.
+  *  Let [/help?cmd=new|fossil new] no longer create an initial empty commit
+     by default. The first commit after checking out an empty repository will
+     become the initial commit. (NOT PLANNED FOR 1.30, BUT DONE TO EXPOSE
+     [/help?cmd=new|fossil new --empty] TO MORE FIELD TESTING BEFORE
+     MAKING ANY DECISION ON IT!)
+  *  Added a line-number toggle option to the [/help?cmd=/info|/info]
+     and [/help?cmd=/artifact|/artifact] pages.
+
+<h2>Changes For Version 1.29 (2014-06-12)</h2>
   *  Add the ability to display content, diffs and annotations for UTF16
      text files in the web interface.
   *  Add the "SaveAs..." and "Invert" buttons
      to the graphical diff display that results
      from using the --tk option with the [/help/diff | fossil diff] command.
-  *  Honor timezones in imports from git.
   *  The [/reports] page now requires Read ("o") permissions. The "byweek"
      report now properly propagates the selected year through the event type
      filter links.
@@ -35,13 +62,13 @@
   *  Fix the [/help?cmd=stash|stash] so that it remembers added files and re-adds
      them when the stash is applied.
   *  Fix the server so that it avoids writing to the database (and thus avoids
-     database locking issues) on a 
+     database locking issues) on a
      [/help?cmd=pull|pull] or [/help?cmd=clone|clone].
   *  Add support for [./server.wiki#loadmgmt|server load management] using both
      a cache of expensive pages (the [/help?cmd=cache|fossil cache] command)
      and by rejecting expensive page requests when the server load average is too
      high.
-  *  Add the [/help?cmd=praise|fossil praise] command as an alias for 
+  *  Add the [/help?cmd=praise|fossil praise] command as an alias for
      [/help?cmd=blame|fossil blame] for subversion compatibility.
   *  Enhance the [/help?cmd=test-diff|fossil test-diff] command with -y or --tk
      options so that it shows both filenames above their respective columns in
@@ -50,6 +77,16 @@
      that matches the ignore-glob.
   *  Add option -W|--width to "[/help?cmd=stash|fossil stash ls]"
      and "[/help?cmd=leaves|fossil leaves]" commands.
+  *  Enhance support for running as the root user. Now works on Haiku.
+  *  Added the <tt>-empty</tt> option to [/help?cmd=new|fossil new], which
+     causes it to not create an initial empty commit. The first commit after
+     checking out a repo created this way will become the initial commit.
+  *  Enhance sync operations by committing each round-trip to minimize number
+     of retransmits when autosync fails. Include option for
+     [/help?cmd=update| fossil update] and [/help?cmd=merge| fossil merge] to
+     continue even if missing content.
+  *  Minor portability fixes for platforms where the char type is unsigned
+     by default.
 
 <h2>Changes For Version 1.28 (2014-01-27)</h2>
   *  Enhance [/help?cmd=/reports | /reports] to support event type filtering.
@@ -173,7 +210,6 @@
   *  Cherry-pick merges are recorded internally (though no yet displayed on the
      timeline graph.)
   *  Bring in the latest versions of SQLite, zlib, and autosetup from upstream.
-
 
 <h2>Changes For Version 1.25 (2013-02-16)</h2>
   *  Enhancements to ticket processing. There are now two tables: TICKET and
@@ -410,8 +446,8 @@
   *  Added the "whatis" command.
   *  Stop showing the server-code in status outputs - it is no longer used
      for anything.
-  *  Added a compile-time option (--with-tcl) to build in the full
-     TCL interpreter to augment TH1.
+  *  Added a compile-time option (--with-tcl) to build in full Tcl scripting
+     support via integration with TH1.
   *  Merged the JSON branch into trunk.  Disabled by default.  Enabled
      by a compile-time option.  Probably it will be enabled by default
      in some future release.
@@ -456,7 +492,6 @@
   *  Update the built-in SQLite to version 3.7.9 beta.
 
 <h2>Changes For Version 1.19 (2011-09-02)</h2>
-
   *  Added a ./configure script based on autosetup.
   *  Added the "[/help/winsrv | fossil winsrv]" command
      for creating a Fossil service on windows systems.
@@ -486,7 +521,6 @@
   *  Fix the tarball generator to work with very log pathnames
 
 <h2>Changes For Version 1.18 (2011-07-14)</h2>
-
   *  Added this Change Log
   *  Added sequential version numbering
   *  Added a optional configure script - the Makefile still works for most

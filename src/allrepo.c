@@ -101,6 +101,8 @@ static void collect_argv(Blob *pExtra, int iStart){
 **               line options supported by the clean command itself, if any
 **               are present, are passed along verbatim.
 **
+**    dbstat     Run the "dbstat" command on all repositories.
+**
 **    extras     Shows "extra" files from all local checkouts.  The command
 **               line options supported by the extra command itself, if any
 **               are present, are passed along verbatim.
@@ -109,6 +111,8 @@ static void collect_argv(Blob *pExtra, int iStart){
 **               subsequent clean, extras, list, pull, push, rebuild, and
 **               sync operations.  The -c|--ckout option causes the listed
 **               local checkouts to be ignored instead.
+**
+**    info       Run the "info" command on all repositories.
 **
 **    list | ls  Display the location of all repositories.  The -c|--ckout
 **               option causes all local checkouts to be listed instead.
@@ -129,7 +133,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 **    setting    Run the "setting", "set", or "unset" commands on all
 **    set        repositories.  These command are particularly useful in
-**    unset      conjunection with the "max-loadavg" setting which cannot
+**    unset      conjunction with the "max-loadavg" setting which cannot
 **               otherwise be set globally.
 **
 ** Repositories are automatically added to the set of known repositories
@@ -157,6 +161,7 @@ void all_cmd(void){
   int stopOnError = find_option("dontstop",0,0)==0;
   int rc;
   int nToDel = 0;
+  int showLabel = 0;
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
@@ -189,6 +194,12 @@ void all_cmd(void){
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "whatif",0);
     useCheckouts = 1;
+  }else if( strncmp(zCmd, "dbstat", n)==0 ){
+    zCmd = "dbstat --omit-version-info -R";
+    showLabel = 1;
+    quiet = 1;
+    collect_argument(&extra, "brief", "b");
+    collect_argument(&extra, "db-check", 0);
   }else if( strncmp(zCmd, "extras", n)==0 ){
     if( showFile ){
       zCmd = "extras --chdir";
@@ -248,33 +259,43 @@ void all_cmd(void){
     verify_all_options();
     db_begin_transaction();
     for(j=3; j<g.argc; j++){
-      char *zSql = mprintf("DELETE FROM global_config"
-                           " WHERE name GLOB '%s:%q'",
-                           useCheckouts?"ckout":"repo", g.argv[j]);
+      Blob sql;
+      blob_zero(&sql);
+      blob_append_sql(&sql, 
+         "DELETE FROM global_config WHERE name GLOB '%s:%q'",
+         useCheckouts?"ckout":"repo", g.argv[j]
+      );
       if( dryRunFlag ){
-        fossil_print("%s\n", zSql);
+        fossil_print("%s\n", blob_sql_text(&sql));
       }else{
-        db_multi_exec("%s", zSql);
+        db_multi_exec("%s", blob_sql_text(&sql));
       }
-      fossil_free(zSql);
+      blob_reset(&sql);
     }
     db_end_transaction(0);
     return;
+  }else if( strncmp(zCmd, "info", n)==0 ){
+    zCmd = "info";
+    showLabel = 1;
+    quiet = 1;
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
                  "changes clean extras ignore list ls push pull rebuild sync");
   }
   verify_all_options();
   zFossil = quoteFilename(g.nameOfExe);
+  db_multi_exec("CREATE TEMP TABLE repolist(name,tag);");
   if( useCheckouts ){
-    db_prepare(&q,
+    db_multi_exec(
+       "INSERT INTO repolist "
        "SELECT DISTINCT substr(name, 7), name COLLATE nocase"
        "  FROM global_config"
        " WHERE substr(name, 1, 6)=='ckout:'"
        " ORDER BY 1"
     );
   }else{
-    db_prepare(&q,
+    db_multi_exec(
+       "INSERT INTO repolist "
        "SELECT DISTINCT substr(name, 6), name COLLATE nocase"
        "  FROM global_config"
        " WHERE substr(name, 1, 5)=='repo:'"
@@ -282,6 +303,7 @@ void all_cmd(void){
     );
   }
   db_multi_exec("CREATE TEMP TABLE todel(x TEXT)");
+  db_prepare(&q, "SELECT name, tag FROM repolist ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
     if( file_access(zFilename, F_OK)
@@ -302,6 +324,12 @@ void all_cmd(void){
     zQFilename = quoteFilename(zFilename);
     zSyscmd = mprintf("%s %s %s%s",
                       zFossil, zCmd, zQFilename, blob_str(&extra));
+    if( showLabel ){
+      int len = (int)strlen(zFilename);
+      int nStar = 80 - (len + 15);
+      if( nStar<2 ) nStar = 1;
+      fossil_print("%.13c %s %.*c\n", '*', zFilename, nStar, '*');
+    }
     if( !quiet || dryRunFlag ){
       fossil_print("%s\n", zSyscmd);
       fflush(stdout);
@@ -323,7 +351,7 @@ void all_cmd(void){
     if( dryRunFlag ){
       fossil_print("%s\n", zSql);
     }else{
-      db_multi_exec(zSql);
+      db_multi_exec("%s", zSql /*safe-for-%s*/ );
     }
   }
 }

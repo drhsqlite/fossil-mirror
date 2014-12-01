@@ -145,7 +145,8 @@ static void undo_all(int redoFlag){
     "INSERT INTO undo_vmerge SELECT * FROM undo_vmerge_2;"
     "DROP TABLE undo_vmerge_2;"
   );
-  if(db_exists("SELECT 1 FROM %s.sqlite_master WHERE name='undo_stash'", zDb) ){
+  if(db_exists("SELECT 1 FROM \"%w\".sqlite_master"
+               " WHERE name='undo_stash'", zDb) ){
     if( redoFlag ){
       db_multi_exec(
         "DELETE FROM stash WHERE stashid IN (SELECT stashid FROM undo_stash);"
@@ -176,7 +177,7 @@ void undo_reset(void){
     @ DROP TABLE IF EXISTS undo_stash;
     @ DROP TABLE IF EXISTS undo_stashfile;
     ;
-  db_multi_exec(zSql);
+  db_multi_exec(zSql /*works-like:""*/);
   db_lset_int("undo_available", 0);
   db_lset_int("undo_checkout", 0);
 }
@@ -221,7 +222,7 @@ void undo_begin(void){
   int cid;
   const char *zDb = db_name("localdb");
   static const char zSql[] = 
-    @ CREATE TABLE %s.undo(
+    @ CREATE TABLE "%w".undo(
     @   pathname TEXT UNIQUE,             -- Name of the file
     @   redoflag BOOLEAN,                 -- 0 for undoable.  1 for redoable
     @   existsflag BOOLEAN,               -- True if the file exists
@@ -229,12 +230,12 @@ void undo_begin(void){
     @   isLink BOOLEAN,                   -- True if the file is symlink
     @   content BLOB                      -- Saved content
     @ );
-    @ CREATE TABLE %s.undo_vfile AS SELECT * FROM vfile;
-    @ CREATE TABLE %s.undo_vmerge AS SELECT * FROM vmerge;
+    @ CREATE TABLE "%w".undo_vfile AS SELECT * FROM vfile;
+    @ CREATE TABLE "%w".undo_vmerge AS SELECT * FROM vmerge;
   ;
   if( undoDisable ) return;
   undo_reset();
-  db_multi_exec(zSql, zDb, zDb, zDb);
+  db_multi_exec(zSql/*works-like:"%w,%w,%w"*/, zDb, zDb, zDb);
   cid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", cid);
   db_lset_int("undo_available", 1);
@@ -303,14 +304,14 @@ void undo_save(const char *zPathname){
 void undo_save_stash(int stashid){
   const char *zDb = db_name("localdb");
   db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS %s.undo_stash"
+    "CREATE TABLE IF NOT EXISTS \"%w\".undo_stash"
     "  AS SELECT * FROM stash WHERE 0;"
     "INSERT INTO undo_stash"
     " SELECT * FROM stash WHERE stashid=%d;",
     zDb, stashid
   );
   db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS %s.undo_stashfile"
+    "CREATE TABLE IF NOT EXISTS \"%w\".undo_stashfile"
     "  AS SELECT * FROM stashfile WHERE 0;"
     "INSERT INTO undo_stashfile"
     " SELECT * FROM stashfile WHERE stashid=%d;",

@@ -64,34 +64,43 @@ int update_to(int vid){
 **
 ** Usage: %fossil update ?OPTIONS? ?VERSION? ?FILES...?
 **
-** Change the version of the current checkout to VERSION.  Any uncommitted
-** changes are retained and applied to the new checkout.
+** Change the version of the current checkout to VERSION.  Any
+** uncommitted changes are retained and applied to the new checkout.
 **
-** The VERSION argument can be a specific version or tag or branch name.
-** If the VERSION argument is omitted, then the leaf of the subtree
-** that begins at the current version is used, if there is only a single
-** leaf.  VERSION can also be "current" to select the leaf of the current
-** version or "latest" to select the most recent check-in.
+** The VERSION argument can be a specific version or tag or branch
+** name.  If the VERSION argument is omitted, then the leaf of the
+** subtree that begins at the current version is used, if there is
+** only a single leaf.  VERSION can also be "current" to select the
+** leaf of the current version or "latest" to select the most recent
+** check-in.
 **
 ** If one or more FILES are listed after the VERSION then only the
-** named files are candidates to be updated.  If FILES is omitted, all
-** files in the current checkout are subject to be updated.  Using
-** a directory name for one of the FILES arguments is the same as
-** using every subdirectory and file beneath that directory.
+** named files are candidates to be updated, and any updates to them
+** will be treated as edits to the current version. Using a directory
+** name for one of the FILES arguments is the same as using every
+** subdirectory and file beneath that directory.
 **
-** The -n or --dry-run option causes this command to do a "dry run".  It
-** prints out what would have happened but does not actually make any
-** changes to the current checkout or the repository.
+** If FILES is omitted, all files in the current checkout are subject
+** to being updated and the version of the current checkout is changed
+** to VERSION. Any uncommitted changes are retained and applied to the
+** new checkout.
 **
-** The -v or --verbose option prints status information about unchanged
-** files in addition to those file that actually do change.
+** The -n or --dry-run option causes this command to do a "dry run".
+** It prints out what would have happened but does not actually make
+** any changes to the current checkout or the repository.
+**
+** The -v or --verbose option prints status information about
+** unchanged files in addition to those file that actually do change.
 **
 ** Options:
 **   --case-sensitive <BOOL> override case-sensitive setting
 **   --debug          print debug information on stdout
 **   --latest         acceptable in place of VERSION, update to latest version
+**   --force-missing  force update if missing content after sync
 **   -n|--dry-run     If given, display instead of run actions
 **   -v|--verbose     print status information about all files
+**   -W|--width <num> Width of lines (default is to auto-detect). Must be >20
+**                    or 0 (= no limit, resulting in a single line per entry).
 **
 ** See also: revert
 */
@@ -102,6 +111,7 @@ void update_cmd(void){
   int latestFlag;       /* --latest.  Pick the latest version if true */
   int dryRunFlag;       /* -n or --dry-run.  Do a dry run */
   int verboseFlag;      /* -v or --verbose.  Output extra information */
+  int forceMissingFlag; /* --force-missing.  Continue if missing content */
   int debugFlag;        /* --debug option */
   int setmtimeFlag;     /* --setmtime.  Set mtimes on files */
   int nChng;            /* Number of file renames */
@@ -110,11 +120,22 @@ void update_cmd(void){
   int nConflict = 0;    /* Number of merge conflicts */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
   int nUpdate = 0;      /* Number of changes of any kind */
+  int width;            /* Width of printed comment lines */
   Stmt mtimeXfer;       /* Statement to transfer mtimes */
+  const char *zWidth;   /* Width option string value */
 
   if( !internalUpdate ){
     undo_capture_command_line();
     url_proxy_options();
+  }
+  zWidth = find_option("width","W",1);
+  if( zWidth ){
+    width = atoi(zWidth);
+    if( (width!=0) && (width<=20) ){
+      fossil_fatal("-W|--width value must be >20 or 0");
+    }
+  }else{
+    width = -1;
   }
   latestFlag = find_option("latest",0, 0)!=0;
   dryRunFlag = find_option("dry-run","n",0)!=0;
@@ -122,14 +143,21 @@ void update_cmd(void){
     dryRunFlag = find_option("nochange",0,0)!=0; /* deprecated */
   }
   verboseFlag = find_option("verbose","v",0)!=0;
+  forceMissingFlag = find_option("force-missing",0,0)!=0;
   debugFlag = find_option("debug",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
-  capture_case_sensitive_option();
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   user_select();
   if( !dryRunFlag && !internalUpdate ){
-    autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag);
+    if( autosync_loop(SYNC_PULL + SYNC_VERBOSE*verboseFlag,
+                      db_get_int("autosync-tries", 1)) ){
+      fossil_fatal("Cannot proceed with update");
+    }
   }
   
   /* Create any empty directories now, as well as after the update,
@@ -187,7 +215,7 @@ void update_cmd(void){
           " ORDER BY event.mtime DESC",
           timeline_query_for_tty()
         );
-        print_timeline(&q, -100, 79, 0);
+        print_timeline(&q, -100, width, 0);
         db_finalize(&q);
         fossil_fatal("Multiple descendants");
       }
@@ -205,7 +233,9 @@ void update_cmd(void){
   db_begin_transaction();
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   if( !dryRunFlag && !internalUpdate ) undo_begin();
-  load_vfile_from_rid(tid);
+  if( load_vfile_from_rid(tid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to update");
+  };
 
   /*
   ** The record.fn field is used to match files against each other.  The
@@ -242,17 +272,19 @@ void update_cmd(void){
   /* Compute file name changes on V->T.  Record name changes in files that
   ** have changed locally.
   */
-  find_filename_changes(vid, tid, 1, &nChng, &aChng, debugFlag ? "V->T": 0);
-  if( nChng ){
-    for(i=0; i<nChng; i++){
-      db_multi_exec(
-        "UPDATE fv"
-        "   SET fnt=(SELECT name FROM filename WHERE fnid=%d)"
-        " WHERE fn=(SELECT name FROM filename WHERE fnid=%d) AND chnged",
-        aChng[i*2+1], aChng[i*2]
-      );
+  if( vid ){
+    find_filename_changes(vid, tid, 1, &nChng, &aChng, debugFlag ? "V->T": 0);
+    if( nChng ){
+      for(i=0; i<nChng; i++){
+        db_multi_exec(
+          "UPDATE fv"
+          "   SET fnt=(SELECT name FROM filename WHERE fnid=%d)"
+          " WHERE fn=(SELECT name FROM filename WHERE fnid=%d) AND chnged",
+          aChng[i*2+1], aChng[i*2]
+        );
+      }
+      fossil_free(aChng);
     }
-    fossil_free(aChng);
   }
 
   /* Add files found in the target version T but missing from the current
@@ -327,18 +359,20 @@ void update_cmd(void){
       file_tree_name(g.argv[i], &treename, 1);
       if( file_wd_isdir(g.argv[i])==1 ){
         if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
-          blob_appendf(&sql, "%sfn NOT GLOB '%b/*' ", zSep, &treename);
+          blob_append_sql(&sql, "%sfn NOT GLOB '%q/*' ", 
+                         zSep /*safe-for-%s*/, blob_str(&treename));
         }else{
           blob_reset(&sql);
           break;
         }
       }else{
-        blob_appendf(&sql, "%sfn<>%B ", zSep, &treename);
+        blob_append_sql(&sql, "%sfn<>%Q ",
+                        zSep /*safe-for-%s*/, blob_str(&treename));
       }
       zSep = "AND ";
       blob_reset(&treename);
     }
-    db_multi_exec(blob_str(&sql));
+    db_multi_exec("%s", blob_sql_text(&sql));
     blob_reset(&sql);
   }
 

@@ -17,6 +17,29 @@ IF NOT DEFINED _CECHO (SET _CECHO=REM)
 IF NOT DEFINED _VECHO (SET _VECHO=REM)
 
 REM
+REM NOTE: Setup local environment variables that point to the root directory
+REM       of the Fossil source checkout and to the directory containing this
+REM       build tool.
+REM
+SET ROOT=%~dp0\..
+SET ROOT=%ROOT:\\=\%
+
+%_VECHO% Root = '%ROOT%'
+
+SET TOOLS=%~dp0
+SET TOOLS=%TOOLS:~0,-1%
+
+%_VECHO% Tools = '%TOOLS%'
+
+REM
+REM Visual C++ ????
+REM
+IF DEFINED VCINSTALLDIR IF EXIST "%VCINSTALLDIR%" (
+  %_AECHO% Build environment appears to be setup.
+  GOTO skip_setupVisualStudio
+)
+
+REM
 REM Visual Studio ????
 REM
 IF DEFINED VSVARS32 IF EXIST "%VSVARS32%" (
@@ -124,20 +147,6 @@ SET VSVARS32=%VSVARS32:\\=\%
 %_VECHO% VsVars32 = '%VSVARS32%'
 
 REM
-REM NOTE: Setup local environment variables that point to the root directory
-REM       of the Fossil source checkout and to the directory containing this
-REM       build tool.
-REM
-SET ROOT=%~dp0\..
-SET ROOT=%ROOT:\\=\%
-
-SET TOOLS=%~dp0
-SET TOOLS=%TOOLS:~0,-1%
-
-%_VECHO% Root = '%ROOT%'
-%_VECHO% Tools = '%TOOLS%'
-
-REM
 REM NOTE: After this point, a clean ERRORLEVEL is required; therefore, make
 REM       sure it is reset now.
 REM
@@ -153,6 +162,14 @@ IF ERRORLEVEL 1 (
   ECHO Visual Studio build environment batch file "%VSVARS32%" failed.
   GOTO errors
 )
+
+REM
+REM NOTE: After this point, the environment should already be setup for
+REM       building with MSVC.
+REM
+:skip_setupVisualStudio
+
+%_VECHO% VcInstallDir = '%VCINSTALLDIR%'
 
 REM
 REM NOTE: Attempt to create the build output directory, if necessary.
@@ -178,10 +195,25 @@ IF ERRORLEVEL 1 (
 )
 
 REM
+REM NOTE: If requested, setup the build environment to refer to the Windows
+REM       SDK v7.1A, which is required if the binaries are being built with
+REM       Visual Studio 201x and need to work on Windows XP.
+REM
+IF DEFINED USE_V110SDK71A (
+  %_AECHO% Forcing use of the Windows SDK v7.1A...
+  CALL :fn_UseV110Sdk71A
+)
+
+%_VECHO% Path = '%PATH%'
+%_VECHO% Include = '%INCLUDE%'
+%_VECHO% Lib = '%LIB%'
+%_VECHO% NmakeArgs = '%NMAKE_ARGS%'
+
+REM
 REM NOTE: Attempt to execute NMAKE for the Fossil MSVC makefile, passing
 REM       anything extra from our command line along (e.g. extra options).
 REM
-%__ECHO% nmake /f "%TOOLS%\Makefile.msc" %*
+%__ECHO% nmake /f "%TOOLS%\Makefile.msc" %NMAKE_ARGS% %*
 
 IF ERRORLEVEL 1 (
   GOTO errors
@@ -198,6 +230,31 @@ IF ERRORLEVEL 1 (
 )
 
 GOTO no_errors
+
+:fn_UseV110Sdk71A
+  IF "%PROCESSOR_ARCHITECTURE%" == "x86" GOTO set_v110Sdk71A_x86
+  SET PFILES_SDK71A=%ProgramFiles(x86)%
+  GOTO set_v110Sdk71A_done
+  :set_v110Sdk71A_x86
+  SET PFILES_SDK71A=%ProgramFiles%
+  :set_v110Sdk71A_done
+  SET PATH=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Bin;%PATH%
+  SET INCLUDE=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Include;%INCLUDE%
+  IF "%PLATFORM%" == "x64" (
+    SET LIB=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Lib\x64;%LIB%
+  ) ELSE (
+    SET LIB=%PFILES_SDK71A%\Microsoft SDKs\Windows\7.1A\Lib;%LIB%
+  )
+  CALL :fn_UnsetVariable PFILES_SDK71A
+  SET NMAKE_ARGS=%NMAKE_ARGS% FOSSIL_ENABLE_WINXP=1
+  GOTO :EOF
+
+:fn_UnsetVariable
+  IF NOT "%1" == "" (
+    SET %1=
+    CALL :fn_ResetErrorLevel
+  )
+  GOTO :EOF
 
 :fn_ResetErrorLevel
   VERIFY > NUL

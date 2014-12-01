@@ -5,6 +5,15 @@
 #include <sys/types.h>
 #include "sha1.h"
 
+#ifdef FOSSIL_ENABLE_SSL
+
+# include <openssl/sha.h>
+# define SHA1Context SHA_CTX
+# define SHA1Init SHA1_Init
+# define SHA1Update SHA1_Update
+# define SHA1Final(a,b) SHA1_Final(b,a)
+
+#else
 
 /*
 ** The SHA1 implementation below is adapted from:
@@ -200,6 +209,7 @@ static void SHA1Final(SHA1Context *context, unsigned char digest[20]){
                 ((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
     }
 }
+#endif
 
 
 /*

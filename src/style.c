@@ -177,21 +177,25 @@ void style_resolve_href(void){
     @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
   }
   @ }
-  if( strglob("*Opera Mini/[1-9]*", P("HTTP_USER_AGENT")) ){
+  if( sqlite3_strglob("*Opera Mini/[1-9]*", P("HTTP_USER_AGENT"))==0 ){
     /* Special case for Opera Mini, which executes JS server-side */
     @ var isOperaMini = Object.prototype.toString.call(window.operamini)
     @                   === "[object OperaMini]";
     @ if( isOperaMini ){
     @   setTimeout("setAllHrefs();",%d(nDelay));
     @ }
+  }else if( db_get_boolean("auto-hyperlink-ishuman",0) && g.isHuman ){
+    /* Active hyperlinks after a delay */
+    @ setTimeout("setAllHrefs();",%d(nDelay));
   }else if( db_get_boolean("auto-hyperlink-mouseover",0) ){
-    /* Require mouse movement prior to activating hyperlinks */
+    /* Require mouse movement before starting the teim that will
+    ** activating hyperlinks */
     @ document.getElementsByTagName("body")[0].onmousemove=function(){
     @   setTimeout("setAllHrefs();",%d(nDelay));
     @   this.onmousemove = null;
     @ }
   }else{
-    /* Active hyperlinks right away */
+    /* Active hyperlinks after a delay */
     @ setTimeout("setAllHrefs();",%d(nDelay));
   }
   @ </script>
@@ -299,9 +303,11 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("title", zTitle);
   Th_Store("baseurl", g.zBaseURL);
+  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
-  Th_Store("current_page", local_zCurrentPage ? local_zCurrentPage : g.zPath);
+  if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
+  Th_Store("current_page", local_zCurrentPage);
   Th_Store("csrf_token", g.zCsrfToken);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
@@ -389,7 +395,7 @@ void style_footer(void){
   @ <div class="content">
   cgi_destination(CGI_BODY);
 
-  if (sideboxUsed) {
+  if( sideboxUsed ){
     /* Put the footer at the bottom of the page.
     ** the additional clear/both is needed to extend the content
     ** part to the end of an optional sidebox.
@@ -658,9 +664,9 @@ const char zDefaultCSS[] =
 ** CSS.
 */
 const struct strctCssDefaults {
-  char const * const elementClass;  /* Name of element needed */
-  char const * const comment;       /* Comment text */
-  char const * const value;         /* CSS text */
+  const char *elementClass;  /* Name of element needed */
+  const char *comment;       /* Comment text */
+  const char *value;         /* CSS text */
 } cssDefaultList[] = {
   { "",
     "",
@@ -935,18 +941,22 @@ const struct strctCssDefaults {
   { "span.ueditInheritNobody",
     "color for capabilities, inherited by nobody",
     @   color: green;
+    @   padding: .2em;
   },
   { "span.ueditInheritDeveloper",
     "color for capabilities, inherited by developer",
     @   color: red;
+    @   padding: .2em;
   },
   { "span.ueditInheritReader",
     "color for capabilities, inherited by reader",
     @   color: black;
+    @   padding: .2em;
   },
   { "span.ueditInheritAnonymous",
     "color for capabilities, inherited by anonymous",
     @   color: blue;
+    @   padding: .2em;
   },
   { "span.capability",
     "format for capabilities, mentioned on the user edit page",
@@ -1193,9 +1203,23 @@ const struct strctCssDefaults {
     "odd table row color",
     @ /* Use default */
   },
+  { "#usetupEditCapability",
+    "format for capabilities string, mentioned on the user edit page",
+    @ font-weight: bold;
+  },
   { "#canvas", "timeline graph node colors",
     @ color: black;
     @ background-color: white;
+  },
+  { "table.adminLogTable",
+    "Class for the /admin_log table",
+    @ text-align: left
+  },
+  { ".adminLogTable .adminTime",
+    "Class for the /admin_log table",
+    @ text-align: left
+    @ vertical-align: top;
+    @ white-space: nowrap;
   },
   { 0,
     0,
@@ -1209,8 +1233,8 @@ const struct strctCssDefaults {
 void cgi_append_default_css(void) {
   int i;
 
-  for (i=0;cssDefaultList[i].elementClass;i++){
-    if (cssDefaultList[i].elementClass[0]){
+  for( i=0; cssDefaultList[i].elementClass; i++ ){
+    if( cssDefaultList[i].elementClass[0] ){
       cgi_printf("/* %s */\n%s {\n%s\n}\n\n",
                  cssDefaultList[i].comment,
                  cssDefaultList[i].elementClass,
@@ -1248,6 +1272,7 @@ void page_style_css(void){
   ** variables such as $baseurl.
   */
   Th_Store("baseurl", g.zBaseURL);
+  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
   image_url_var("logo");
   image_url_var("background");
@@ -1293,6 +1318,7 @@ void page_test_env(void){
   @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif
   @ g.zBaseURL = %h(g.zBaseURL)<br />
+  @ g.zHttpsURL = %h(g.zHttpsURL)<br />
   @ g.zTop = %h(g.zTop)<br />
   for(i=0, c='a'; c<='z'; c++){
     if( login_has_capability(&c, 1) ) zCap[i++] = c;
