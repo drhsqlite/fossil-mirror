@@ -134,6 +134,8 @@ static int sqlcmd_autoinit(
 ){
   add_content_sql_commands(db);
   re_add_sql_func(db);
+  g.zMainDbType = "repository";
+  foci_register(db);
   g.repositoryOpen = 1;
   g.db = db;
   return SQLITE_OK;

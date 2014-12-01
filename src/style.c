@@ -1211,6 +1211,16 @@ const struct strctCssDefaults {
     @ color: black;
     @ background-color: white;
   },
+  { "table.adminLogTable",
+    "Class for the /admin_log table",
+    @ text-align: left
+  },
+  { ".adminLogTable .adminTime",
+    "Class for the /admin_log table",
+    @ text-align: left
+    @ vertical-align: top;
+    @ white-space: nowrap;
+  },
   { 0,
     0,
     0
