@@ -418,9 +418,8 @@ int name_to_typed_rid(const char *zName, const char *zType){
     fossil_fatal("ambiguous name: %s", zName);
   }else if( rid==0 ){
     fossil_fatal("not found: %s", zName);
-  }else{
-    return rid;
   }
+  return rid;
 }
 int name_to_rid(const char *zName){
   return name_to_typed_rid(zName, "*");
