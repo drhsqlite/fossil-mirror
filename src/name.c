@@ -924,25 +924,23 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
   int cnt = 0;
   describe_artifacts(zWhere);
   db_prepare(&q,
-    "SELECT rid, uuid, datetime(ctime,'localtime'), type, detail, isPrivate\n"
+    "SELECT uuid, datetime(ctime,'localtime'), type, detail, isPrivate\n"
     "  FROM description\n"
-    " ORDER BY rid;"
+    " ORDER BY ctime, type;"
   );
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zType = db_column_text(&q,3);
-    const char *zPrivate = db_column_int(&q,5) ? "(U) " : "";
+    const char *zType = db_column_text(&q,2);
     if( zLabel ){ fossil_print("%s\n", zLabel); zLabel = 0; }
-    fossil_print("%6d %.16s %s%s",
-                 db_column_int(&q,0), db_column_text(&q,1), zPrivate,
-                 db_column_text(&q,3));
-    if( db_column_bytes(&q,4)>0 ){
-      fossil_print(" %s", db_column_text(&q,4));
+    fossil_print("  %.16s %s", db_column_text(&q,0), db_column_text(&q,2));
+    if( db_column_bytes(&q,3)>0 ){
+      fossil_print(" %s", db_column_text(&q,3));
     }
-    if( db_column_bytes(&q,2)>0
+    if( db_column_bytes(&q,1)>0
      && fossil_strcmp(zType,"checkin")==0
     ){
-      fossil_print(" %s", db_column_text(&q,2));
+      fossil_print(" %s", db_column_text(&q,1));
     }
+    if( db_column_int(&q,4) ) fossil_print(" (unpublished)");
     fossil_print("\n");
     cnt++;
   }

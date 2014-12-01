@@ -1,5 +1,5 @@
-C Always\sshow\sa\slisting\sof\simported\scontent\son\s"fossil\sbundle\simport".\nAdded\sthe\s"fossil\stest-phantoms"\scommand.
-D 2014-11-29T14:16:55.752
+C Change\soutput\sformatting\sof\sdescribe_artifact_to_stdout()\sto\somit\sthe\sRID.\nMake\ssure\sthe\spurgeevent\sand\spurgeitem\stables\sare\snot\sdeleted\sby\sa\srebuild.
+D 2014-12-01T17:17:32.234
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -394,7 +394,7 @@ F src/mkbuiltin.c 5cb95655247988d16b40dbfd2d10ec25b935ab62
 F src/mkindex.c 69da20a8f44b1ebbb0223bf3d712b4a9d4c99238
 F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
 F src/moderate.c 359e96692bcbe1a48c368c56cf57f485c48d0115
-F src/name.c 1c8eff199556f1345ecf86ec11ac5891650dd94d
+F src/name.c 110a68917b0fb53dceac7af08b8bf67f382bc8ab
 F src/path.c 9b8e8497847a691d1a3b58e367cd53534704e267
 F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
@@ -402,7 +402,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 98dae687a6c785877897b4062281a5bac002b338
 F src/publish.c bc66657345e515aaf3c6cac976fad950634dbbf2
 F src/purge.c 33729434cf1a0761d34cfa589819024a94a3747c
-F src/rebuild.c 5200536562dee9b85b378476b8045b5b87c21fa8
+F src/rebuild.c a28ccc0e6e1aacb9bfc3496154ae37c3fd1e1c66
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c 0c3d2aa5c686c213d454a553bd3d8529ca054be5
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
@@ -661,7 +661,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8d94eab98a742e658ef8b44490789769796bdb70
-R be89b6fa053cfe93bb651c64e176c33c
+P dd5635561a77e7f545d39e424e0066d3c74ca573
+R 64742df3dcfb5f56511218b975409843
 U drh
-Z 26b04922d5205250ec7507e72425a841
+Z f5eebde5fffed0b1c9f755d7c3143dda
