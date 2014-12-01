@@ -348,7 +348,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     zTable = db_text(0,
        "SELECT name FROM sqlite_master /*scan*/"
        " WHERE type='table'"
-       " AND name NOT IN ('blob','delta','rcvfrom','user',"
+       " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user',"
                          "'config','shun','private','reportfmt',"
                          "'concealed','accesslog','modreq')"
        " AND name NOT GLOB 'sqlite_*'"
