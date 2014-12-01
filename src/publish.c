@@ -38,8 +38,6 @@
 */
 void unpublished_cmd(void){
   int bAll = find_option("all",0,0)!=0;
-  const char *zCols;
-  int n = 0;
 
   db_find_and_open_repository(0,0);
   verify_all_options();

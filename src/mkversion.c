@@ -19,7 +19,10 @@ int main(int argc, char *argv[]){
     memset(b,0,sizeof(b));
     memset(vx,0,sizeof(vx));
     u = fopen(argv[1],"r");
-    fgets(b, sizeof(b)-1,u);
+    if( fgets(b, sizeof(b)-1,u)==0 ){
+      fprintf(stderr, "malformed manifest.uuid file: %s\n", argv[1]);
+      exit(1);
+    }
     fclose(u);
     for(z=b; z[0] && z[0]!='\r' && z[0]!='\n'; z++){}
     *z = 0;
@@ -34,7 +37,10 @@ int main(int argc, char *argv[]){
     }
     fclose(m);
     v = fopen(argv[3],"r");
-    fgets(b, sizeof(b)-1,v);
+    if( fgets(b, sizeof(b)-1,v)==0 ){
+      fprintf(stderr, "malformed VERSION file: %s\n", argv[3]);
+      exit(1);
+    }
     fclose(v);
     for(z=b; z[0] && z[0]!='\r' && z[0]!='\n'; z++){}
     *z = 0;

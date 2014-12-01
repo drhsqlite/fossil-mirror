@@ -767,7 +767,7 @@ void db_sym2rid_function(
     sqlite3_result_error(context, "Expecting a STRING argument", -1);
   }else{
     int rid;
-    type = (2==argc) ? sqlite3_value_text(argv[1]) : 0;
+    type = (2==argc) ? (const char*)sqlite3_value_text(argv[1]) : 0;
     if(!type) type = "ci";
     rid = symbolic_name_to_rid( arg, type );
     if(rid<0){

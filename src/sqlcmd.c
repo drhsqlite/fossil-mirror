@@ -120,6 +120,7 @@ int add_content_sql_commands(sqlite3 *db){
                           sqlcmd_compress, 0, 0);
   sqlite3_create_function(db, "decompress", 1, SQLITE_UTF8, 0,
                           sqlcmd_decompress, 0, 0);
+  return SQLITE_OK;
 }
 
 /*
