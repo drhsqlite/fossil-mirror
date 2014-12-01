@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\strunk\senhancements\sinto\sDBP-workflow\sbranch.
-D 2014-12-01T17:26:02.179
+C Store\sa\sshort\sdescription\sof\sartifacts\sin\sbundles\sand\sin\spurgeitem\sentries.\nUse\sthat\sshort\sdescription\son\slistings.
+D 2014-12-01T20:26:39.183
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -319,7 +319,7 @@ F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
 F src/branch.c 981eefb8d583787eb679eee529b9ae9f89a5d691
 F src/browse.c 7e802de8f55afa35b5075d3db67ffaae3028f464
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
-F src/bundle.c c55a0f48359372e0107b8384c4e6a51ba30224fc
+F src/bundle.c 1b1681b4720b1ad85c219540dd0108f5fc4bc7f0
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 259725db75a53752aef97d99c38cbfd0e86e43ec
@@ -395,14 +395,14 @@ F src/mkbuiltin.c 5cb95655247988d16b40dbfd2d10ec25b935ab62
 F src/mkindex.c 69da20a8f44b1ebbb0223bf3d712b4a9d4c99238
 F src/mkversion.c 4162912ffff683fe4e6b31e487cf666541ab1179
 F src/moderate.c 2f12e29956d0c78bf66f33458626e6533d38400b
-F src/name.c 110a68917b0fb53dceac7af08b8bf67f382bc8ab
+F src/name.c f6172aebd44bcb7c75510e259ffe63e363570c55
 F src/path.c 9b8e8497847a691d1a3b58e367cd53534704e267
 F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 98dae687a6c785877897b4062281a5bac002b338
 F src/publish.c bc66657345e515aaf3c6cac976fad950634dbbf2
-F src/purge.c 33729434cf1a0761d34cfa589819024a94a3747c
+F src/purge.c 969f68b759f3afea9b060cb188e05c2e7807fec3
 F src/rebuild.c c4a46ef92b38613de39888ac19b14cd55852c8a3
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c 0c3d2aa5c686c213d454a553bd3d8529ca054be5
@@ -662,7 +662,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1c7dd7949e43001acd309506838bbc2ffa6b91b8 f3455a56eef0f73036eda651ddf0b036b833deb0
-R d93641e5d6df32a98efb73e206fb8887
+P ab188badcd08b8835c21f2b6d463b068387a4a47
+R c2be66283d82dbe22994a15013692d58
 U drh
-Z 334add41edbd6a7421f342afa67ecd84
+Z c8fd741ac828729651778a8baa4383ac

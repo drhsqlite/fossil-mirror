@@ -49,6 +49,7 @@ static const char zPurgeInit[] =
 @   srcid INTEGER,             -- Basis purgeitem for delta compression
 @   isPrivate BOOLEAN,         -- True if artifact was originally private
 @   sz INT NOT NULL,           -- Uncompressed size of the purged artifact
+@   desc TEXT,                 -- Brief description of this artifact
 @   data BLOB                  -- Compressed artifact content
 @ );
 ;
@@ -92,9 +93,13 @@ int purge_artifact_list(
 ){
   int peid = 0;                 /* New purgeevent ID */
   Stmt q;                       /* General-use prepared statement */
+  char *z;
 
   assert( g.repositoryOpen );   /* Main database must already be open */
   db_begin_transaction();
+  z = sqlite3_mprintf("IN \"%w\"", zTab);
+  describe_artifacts(z);
+  sqlite3_free(z);
 
   /* Make sure we are not removing a manifest that is the baseline of some
   ** manifest that is being left behind.  This step is not strictly necessary.
@@ -133,9 +138,10 @@ int purge_artifact_list(
     }
     db_finalize(&q);
     db_multi_exec(
-      "INSERT INTO purgeitem(peid,orid,uuid,sz,isPrivate,data)"
+      "INSERT INTO purgeitem(peid,orid,uuid,sz,isPrivate,desc,data)"
       "  SELECT %d, rid, uuid, size,"
       "    EXISTS(SELECT 1 FROM private WHERE private.rid=blob.rid),"
+      "    (SELECT summary FROM description WHERE rid=blob.rid),"
       "    content"
       "    FROM blob WHERE rid IN \"%w\"",
       peid, zTab
@@ -290,24 +296,22 @@ void find_checkin_associates(const char *zTab, int bExclusive){
 */
 static void purge_list_event_content(int peid){
   Stmt q;
-  sqlite3_int64 sz1 = 0;
-  sqlite3_int64 sz2 = 0;
+  sqlite3_int64 sz = 0;
   db_prepare(&q, "SELECT piid, substr(uuid,1,16), srcid, isPrivate,"
-                 "       sz, length(data)"
+                 "       length(data), desc"
                  " FROM purgeitem WHERE peid=%d", peid);
   while( db_step(&q)==SQLITE_ROW ){
-    fossil_print("     %5d %s %4s %c %10d %10d\n",
+    fossil_print("     %5d %s %4s %c %10d %s\n",
        db_column_int(&q,0),
        db_column_text(&q,1),
        db_column_text(&q,2),
        db_column_int(&q,3) ? 'P' : ' ',
        db_column_int(&q,4),
-       db_column_int(&q,5));
-    sz1 += db_column_int(&q,4);
-    sz2 += db_column_int(&q,5);
+       db_column_text(&q,5));
+    sz += db_column_int(&q,4);
   }
   db_finalize(&q);
-  fossil_print("%.11c%16s%.8c%10lld %10lld\n", ' ', "Total:", ' ', sz1, sz2);
+  fossil_print("%.11c%16s%.8c%10lld\n", ' ', "Total:", ' ', sz);
 }
 
 /*

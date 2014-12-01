@@ -40,6 +40,7 @@ static const char zBundleInit[] =
 @   uuid TEXT NOT NULL,              -- SHA1 hash of expanded blob
 @   sz INT NOT NULL,                 -- Size of blob after expansion
 @   delta ANY,                       -- Delta compression basis, or NULL
+@   notes TEXT,                      -- Description of content
 @   data BLOB                        -- compressed content
 @ );
 ;
@@ -66,6 +67,7 @@ static void bundle_ls_cmd(void){
   Stmt q;
   sqlite3_int64 sumSz = 0;
   sqlite3_int64 sumLen = 0;
+  int bDetails = find_option("details","l",0)!=0;
   bundle_attach_file(g.argv[3], "b1", 0);
   db_prepare(&q,
     "SELECT bcname, bcvalue FROM bconfig"
@@ -76,23 +78,37 @@ static void bundle_ls_cmd(void){
     fossil_print("%s: %s\n", db_column_text(&q,0), db_column_text(&q,1));
   }
   db_finalize(&q);
-  db_prepare(&q,
-    "SELECT blobid, substr(uuid,1,16), coalesce(substr(delta,1,16),''),"
-    "       sz, length(data)"
-    "  FROM bblob"
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    fossil_print("%4d %16s %16s %10d %10d\n",
-      db_column_int(&q,0),
-      db_column_text(&q,1),
-      db_column_text(&q,2),
-      db_column_int(&q,3),
-      db_column_int(&q,4));
-    sumSz += db_column_int(&q,3);
-    sumLen += db_column_int(&q,4);
+  fossil_print("%.78c\n",'-');
+  if( bDetails ){
+    db_prepare(&q,
+      "SELECT blobid, substr(uuid,1,10), coalesce(substr(delta,1,10),''),"
+      "       sz, length(data), notes"
+      "  FROM bblob"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%4d %10s %10s %8d %8d %s\n",
+        db_column_int(&q,0),
+        db_column_text(&q,1),
+        db_column_text(&q,2),
+        db_column_int(&q,3),
+        db_column_int(&q,4),
+        db_column_text(&q,5));
+      sumSz += db_column_int(&q,3);
+      sumLen += db_column_int(&q,4);
+    }
+    db_finalize(&q);
+    fossil_print("%27s %8lld %8lld\n", "Total:", sumSz, sumLen);
+  }else{
+    db_prepare(&q,
+      "SELECT substr(uuid,1,16), notes FROM bblob"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%16s %s\n",
+        db_column_text(&q,0),
+        db_column_text(&q,1));
+    }
+    db_finalize(&q);
   }
-  db_finalize(&q);
-  fossil_print("%39s %10lld %10lld\n", "Total:", sumSz, sumLen);
 }
 
 /*
@@ -109,8 +125,8 @@ static void bundle_append_cmd(void){
   verify_all_options();
   bundle_attach_file(g.argv[3], "b1", 1);
   db_prepare(&q, 
-    "INSERT INTO bblob(blobid, uuid, sz, delta, data) "
-    "VALUES(NULL, $uuid, $sz, NULL, $data)");
+    "INSERT INTO bblob(blobid, uuid, sz, delta, data, notes) "
+    "VALUES(NULL, $uuid, $sz, NULL, $data, $filename)");
   db_begin_transaction();
   for(i=4; i<g.argc; i++){
     int sz;
@@ -121,6 +137,7 @@ static void bundle_append_cmd(void){
     db_bind_text(&q, "$uuid", blob_str(&hash));
     db_bind_int(&q, "$sz", sz);
     db_bind_blob(&q, "$data", &content);
+    db_bind_text(&q, "$filename", g.argv[i]);
     db_step(&q);
     db_reset(&q);
     blob_reset(&content);
@@ -250,6 +267,7 @@ static void bundle_export_cmd(void){
   subtree_from_arguments("tobundle");
   find_checkin_associates("tobundle", 0);
   verify_all_options();
+  describe_artifacts("IN tobundle");
 
   /* Create the new bundle */
   bundle_attach_file(g.argv[3], "b1", 1);
@@ -271,13 +289,14 @@ static void bundle_export_cmd(void){
   ** is also in the bundle.
   */
   db_multi_exec(
-    "REPLACE INTO bblob(blobid,uuid,sz,delta,data) "
+    "REPLACE INTO bblob(blobid,uuid,sz,delta,data,notes) "
     " SELECT"
     "   tobundle.rid,"
     "   blob.uuid,"
     "   blob.size,"
     "   delta.srcid,"
-    "   blob.content"
+    "   blob.content,"
+    "   (SELECT summary FROM description WHERE rid=blob.rid)"
     " FROM tobundle, blob, delta"
     " WHERE blob.rid=tobundle.rid"
     "   AND delta.rid=tobundle.rid"
@@ -331,9 +350,10 @@ static void bundle_export_cmd(void){
         Stmt ins;
         blob_compress(&delta, &delta);
         db_prepare(&ins,
-          "REPLACE INTO bblob(blobid,uuid,sz,delta,data)"
+          "REPLACE INTO bblob(blobid,uuid,sz,delta,data,notes)"
           " SELECT %d, uuid, size, (SELECT uuid FROM blob WHERE rid=%d),"
-          "  :delta FROM blob WHERE rid=%d", rid, deltaFrom, rid);
+          "  :delta, (SELECT summary FROM description WHERE rid=blob.rid)"
+          "  FROM blob WHERE rid=%d", rid, deltaFrom, rid);
         db_bind_blob(&ins, ":delta", &delta);
         db_step(&ins);
         db_finalize(&ins);
@@ -347,8 +367,9 @@ static void bundle_export_cmd(void){
       Stmt ins;
       blob_compress(&content, &content);
       db_prepare(&ins,
-        "REPLACE INTO bblob(blobid,uuid,sz,delta,data)"
-        " SELECT rid, uuid, size, NULL, :content"
+        "REPLACE INTO bblob(blobid,uuid,sz,delta,data,notes)"
+        " SELECT rid, uuid, size, NULL, :content,"
+        "        (SELECT summary FROM description WHERE rid=blob.rid)"
           " FROM blob WHERE rid=%d", rid);
       db_bind_blob(&ins, ":content", &content);
       db_step(&ins);
@@ -357,7 +378,6 @@ static void bundle_export_cmd(void){
     blob_reset(&content);
   }
   db_finalize(&q);
-
 
   db_end_transaction(0);
 }

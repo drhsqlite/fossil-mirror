@@ -792,6 +792,7 @@ static const char zDescTab[] =
 @   ctime DATETIME,                -- Time of creation 
 @   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
 @   type TEXT,                     -- file, checkin, wiki, ticket, etc.
+@   summary TEXT,                  -- Summary comment for the object 
 @   detail TEXT                    -- filename, checkin comment, etc
 @ );
 ;
@@ -809,8 +810,9 @@ void describe_artifacts(const char *zWhere){
 
   /* Describe checkins */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type)\n"
-    "SELECT blob.rid, blob.uuid, event.mtime, 'checkin'\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, event.mtime, 'checkin',\n"
+    "       'checkin on ' || strftime('%%Y-%%m-%%d %%H:%%M',event.mtime)\n"
     "  FROM event, blob\n"
     " WHERE event.objid %s AND event.type='ci'\n"
     "   AND event.objid=blob.rid;",
@@ -819,8 +821,8 @@ void describe_artifacts(const char *zWhere){
 
   /* Describe files */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
-    "SELECT blob.rid, blob.uuid, event.mtime, 'file', filename.name\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, event.mtime, 'file', 'file '||filename.name\n"
     "  FROM mlink, blob, event, filename\n"
     " WHERE mlink.fid %s\n"
     "   AND mlink.mid=event.objid\n"
@@ -831,9 +833,9 @@ void describe_artifacts(const char *zWhere){
 
   /* Describe tags */
   db_multi_exec(
-   "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
+   "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'tag',\n"
-    "       substr((SELECT uuid FROM blob WHERE rid=tagxref.rid),1,16)\n"
+    "     'tag '||substr((SELECT uuid FROM blob WHERE rid=tagxref.rid),1,16)\n"
     "  FROM tagxref, blob\n"
     " WHERE tagxref.srcid %s AND tagxref.srcid!=tagxref.rid\n"
     "   AND tagxref.srcid=blob.rid;",
@@ -842,8 +844,8 @@ void describe_artifacts(const char *zWhere){
 
   /* Cluster artifacts */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type)\n"
-    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'cluster'\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'cluster', 'cluster'\n"
     "  FROM tagxref, blob\n"
     " WHERE tagxref.rid %s\n"
     "   AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='cluster')\n"
@@ -853,9 +855,9 @@ void describe_artifacts(const char *zWhere){
 
   /* Ticket change artifacts */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'ticket',\n"
-    "       substr(tag.tagname,5)\n"
+    "       'ticket '||substr(tag.tagname,5,21)\n"
     "  FROM tagxref, tag, blob\n"
     " WHERE tagxref.rid %s\n"
     "   AND tag.tagid=tagxref.tagid\n"
@@ -866,9 +868,9 @@ void describe_artifacts(const char *zWhere){
 
   /* Wiki edit artifacts */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'wiki',\n"
-    "       printf('\"%%s\"',substr(tag.tagname,6))\n"
+    "       printf('wiki \"%%s\"',substr(tag.tagname,6))\n"
     "  FROM tagxref, tag, blob\n"
     " WHERE tagxref.rid %s\n"
     "   AND tag.tagid=tagxref.tagid\n"
@@ -879,9 +881,9 @@ void describe_artifacts(const char *zWhere){
 
   /* Event edit artifacts */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'event',\n"
-    "       substr(tag.tagname,7)\n"
+    "       'event '||substr(tag.tagname,7)\n"
     "  FROM tagxref, tag, blob\n"
     " WHERE tagxref.rid %s\n"
     "   AND tag.tagid=tagxref.tagid\n"
@@ -894,7 +896,7 @@ void describe_artifacts(const char *zWhere){
   db_multi_exec(
     "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
     "SELECT blob.rid, blob.uuid, attachment.mtime, 'attachment',\n"
-    "       attachment.filename\n"
+    "       'attachment '||attachment.filename\n"
     "  FROM attachment, blob\n"
     " WHERE attachment.src %s\n"
     "   AND blob.rid=attachment.src;",
@@ -903,9 +905,10 @@ void describe_artifacts(const char *zWhere){
 
   /* Everything else */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,type)\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,type,summary)\n"
     "SELECT blob.rid, blob.uuid,"
-    "       CASE WHEN blob.size<0 THEN 'phantom' ELSE '' END\n"
+    "       CASE WHEN blob.size<0 THEN 'phantom' ELSE '' END,\n"
+    "       'unknown'\n"
     "  FROM blob WHERE blob.rid %s;",
     zWhere /*safe-for-%s*/
   );
@@ -924,23 +927,17 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
   int cnt = 0;
   describe_artifacts(zWhere);
   db_prepare(&q,
-    "SELECT uuid, datetime(ctime,'localtime'), type, detail, isPrivate\n"
+    "SELECT uuid, summary, isPrivate\n"
     "  FROM description\n"
     " ORDER BY ctime, type;"
   );
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zType = db_column_text(&q,2);
-    if( zLabel ){ fossil_print("%s\n", zLabel); zLabel = 0; }
-    fossil_print("  %.16s %s", db_column_text(&q,0), db_column_text(&q,2));
-    if( db_column_bytes(&q,3)>0 ){
-      fossil_print(" %s", db_column_text(&q,3));
+    if( zLabel ){
+      fossil_print("%s\n", zLabel);
+      zLabel = 0;
     }
-    if( db_column_bytes(&q,1)>0
-     && fossil_strcmp(zType,"checkin")==0
-    ){
-      fossil_print(" %s", db_column_text(&q,1));
-    }
-    if( db_column_int(&q,4) ) fossil_print(" (unpublished)");
+    fossil_print("  %.16s %s", db_column_text(&q,0), db_column_text(&q,1));
+    if( db_column_int(&q,2) ) fossil_print(" (unpublished)");
     fossil_print("\n");
     cnt++;
   }
