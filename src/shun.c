@@ -372,13 +372,15 @@ void rcvfrom_page(void){
     "SELECT 1 FROM blob WHERE rcvid=%d AND"
     " NOT EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
   ){
-    style_submenu_element("Shun All", "Shun All", "shun?shun&rcvid=%d#addshun", rcvid);
+    style_submenu_element("Shun All", "Shun All",
+                          "shun?shun&rcvid=%d#addshun", rcvid);
   }
   if( db_exists(
     "SELECT 1 FROM blob WHERE rcvid=%d AND"
     " EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
   ){
-    style_submenu_element("Unshun All", "Unshun All", "shun?accept&rcvid=%d#delshun", rcvid);
+    style_submenu_element("Unshun All", "Unshun All",
+                          "shun?accept&rcvid=%d#delshun", rcvid);
   }
   db_prepare(&q,
     "SELECT login, datetime(rcvfrom.mtime), rcvfrom.ipaddr"
@@ -401,8 +403,15 @@ void rcvfrom_page(void){
     @ <td valign="top">%s(zIpAddr)</td></tr>
   }
   db_finalize(&q);
+  db_multi_exec(
+    "CREATE TEMP TABLE toshow(rid INTEGER PRIMARY KEY);"
+    "INSERT INTO toshow SELECT rid FROM blob WHERE rcvid=%d", rcvid
+  );
+  describe_artifacts("IN toshow");
   db_prepare(&q,
-    "SELECT rid, uuid, size FROM blob WHERE rcvid=%d", rcvid
+    "SELECT blob.rid, blob.uuid, blob.size, description.summary\n"
+    "  FROM blob LEFT JOIN description ON (blob.rid=description.rid)"
+    " WHERE blob.rcvid=%d", rcvid
   );
   @ <tr><th valign="top" align="right">Artifacts:</th>
   @ <td valign="top">
@@ -410,8 +419,10 @@ void rcvfrom_page(void){
     int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     int size = db_column_int(&q, 2);
+    const char *zDesc = db_column_text(&q, 3);
+    if( zDesc==0 ) zDesc = "";
     @ <a href="%s(g.zTop)/info/%s(zUuid)">%s(zUuid)</a>
-    @ (rid: %d(rid), size: %d(size))<br />
+    @ %h(zDesc) (size: %d(size))<br />
   }
   @ </td></tr>
   @ </table>
