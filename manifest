@@ -1,5 +1,5 @@
-C Still\smore\sfixes\sfor\sharmless\scompiler\swarnings.
-D 2014-12-01T21:36:32.029
+C Try\sto\savoid\screating\sfiles\swith\snames\sof\sunrecognized\s--options\sby\schecking\nfor\sexplicit\sargument\scount\swhere\sa\sfile\sis\srequired.\s\sCorrect\sminor\stypo\sin\nerror\soutput.
+D 2014-12-02T05:50:53.478
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -319,7 +319,7 @@ F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
 F src/branch.c 981eefb8d583787eb679eee529b9ae9f89a5d691
 F src/browse.c 7e802de8f55afa35b5075d3db67ffaae3028f464
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
-F src/bundle.c ce6ca619540fc1bd3639bd0cd9b540278859bcd4
+F src/bundle.c 2147bffe4484d19ae34e28b208c2037b233b6167
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 259725db75a53752aef97d99c38cbfd0e86e43ec
@@ -662,7 +662,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 155c8b64ac314edb1ade8bb987a98f6dde74018c
-R 575b08497ab27dcbbef3e4d177d7035d
-U drh
-Z f1a993db199aad9e572c6edccebf46b4
+P 3753b87d949a77f14e731df1709abe2828b67279
+R f827a033c1022af26b755e6825a1cf8d
+U andybradford
+Z cf8907eb4439db14df749c0a48f5a2f1

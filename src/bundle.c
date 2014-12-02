@@ -68,6 +68,8 @@ static void bundle_ls_cmd(void){
   sqlite3_int64 sumSz = 0;
   sqlite3_int64 sumLen = 0;
   int bDetails = find_option("details","l",0)!=0;
+  verify_all_options();
+  if( g.argc!=4 ) usage("ls BUNDLE ?OPTIONS?");
   bundle_attach_file(g.argv[3], "b1", 0);
   db_prepare(&q,
     "SELECT bcname, bcvalue FROM bconfig"
@@ -184,7 +186,7 @@ void subtree_from_arguments(const char *zTab){
   }else if( zBr ){
     rid = name_to_typed_rid(zBr, "br");
   }else if( zCkin==0 ){
-    fossil_fatal("need on of: --branch, --from, --checkin");
+    fossil_fatal("need one of: --branch, --from, --checkin");
   }
   db_multi_exec("INSERT OR IGNORE INTO \"%w\" VALUES(%d)", zTab, rid);
   if( rid!=endRid ){
@@ -268,6 +270,7 @@ static void bundle_export_cmd(void){
   verify_all_options();
   describe_artifacts("IN tobundle");
 
+  if( g.argc!=4 ) usage("export BUNDLE ?OPTIONS?");
   /* Create the new bundle */
   bundle_attach_file(g.argv[3], "b1", 1);
   db_begin_transaction();
@@ -510,8 +513,8 @@ static void bundle_extract_item(
 static void bundle_cat_cmd(void){
   int i;
   Blob x;
-  if( g.argc<5 ) usage("cat BUNDLE UUID...");
   verify_all_options();
+  if( g.argc<5 ) usage("cat BUNDLE UUID...");
   bundle_attach_file(g.argv[3], "b1", 1);
   blob_zero(&x);
   for(i=4; i<g.argc; i++){
@@ -541,6 +544,7 @@ static void bundle_import_cmd(void){
   int isPriv = find_option("publish",0,0)==0;
   char *zMissingDeltas;
   verify_all_options();
+  if ( g.argc!=4 ) usage("import BUNDLE ?OPTIONS?");
   bundle_attach_file(g.argv[3], "b1", 1);
 
   /* Only import a bundle that was generated from a repo with the same
@@ -608,6 +612,7 @@ static void bundle_purge_cmd(void){
   int bTest = find_option("test",0,0)!=0;  /* Undocumented --test option */
   const char *zFile = g.argv[3];
   verify_all_options();
+  if ( g.argc!=4 ) usage("purge BUNDLE ?OPTIONS?");
   bundle_attach_file(zFile, "b1", 0);
   db_begin_transaction();
 
@@ -755,7 +760,7 @@ static void bundle_purge_cmd(void){
 void bundle_cmd(void){
   const char *zSubcmd;
   int n;
-  if( g.argc<4 ) usage("SUBCOMMAND BUNDLE ?ARGUMENTS?");
+  if( g.argc<4 ) usage("SUBCOMMAND BUNDLE ?OPTIONS?");
   zSubcmd = g.argv[2];
   db_find_and_open_repository(0,0);
   n = (int)strlen(zSubcmd);
