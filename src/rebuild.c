@@ -832,10 +832,14 @@ void scrub_cmd(void){
     );
     if( bVerily ){
       db_multi_exec(
-        "DELETE FROM concealed;"
-        "UPDATE rcvfrom SET ipaddr='unknown';"
-        "DROP TABLE IF EXISTS accesslog;"
-        "UPDATE user SET photo=NULL, info='';"
+        "DELETE FROM concealed;\n"
+        "UPDATE rcvfrom SET ipaddr='unknown';\n"
+        "DROP TABLE IF EXISTS accesslog;\n"
+        "UPDATE user SET photo=NULL, info='';\n"
+        "DROP TABLE IF EXISTS purgeevent;\n"
+        "DROP TABLE IF EXISTS purgeitem;\n"
+        "DROP TABLE IF EXISTS admin_log;\n"
+        "DROP TABLE IF EXISTS vcache;\n"
       );
     }
   }
