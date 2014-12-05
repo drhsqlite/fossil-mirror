@@ -77,6 +77,7 @@ static const struct JsonConfigProperty {
 { "keep-glob",              CONFIGSET_PROJ },
 { "crnl-glob",              CONFIGSET_PROJ },
 { "empty-dirs",             CONFIGSET_PROJ },
+{ "allow-clean-x",          CONFIGSET_PROJ },
 { "allow-symlinks",         CONFIGSET_PROJ },
 
 { "ticket-table",           CONFIGSET_TKT  },

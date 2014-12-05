@@ -625,7 +625,7 @@ void clean_cmd(void){
     zCleanFlag = db_get("clean-glob", 0);
   }
   verify_all_options();
-  if( extremeFlag ){
+  if( extremeFlag && !dryRunFlag && db_get_boolean("allow-clean-x", 0)==0){
     Blob extremeAnswer;
     char *extremePrompt =
       "\n\nWARNING: The --extreme option is enabled and all untracked files\n"

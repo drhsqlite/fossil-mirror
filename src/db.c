@@ -2246,6 +2246,7 @@ struct stControlSettings {
 struct stControlSettings const ctrlSettings[] = {
   { "access-log",       0,              0, 0, 0, "off"                 },
   { "admin-log",        0,              0, 0, 0, "off"                 },
+  { "allow-clean-x",    0,              0, 0, 0, "off"                 },
   { "allow-symlinks",   0,              0, 1, 0, "off"                 },
   { "auto-captcha",     "autocaptcha",  0, 0, 0, "on"                  },
   { "auto-hyperlink",   0,              0, 0, 0, "on",                 },
@@ -2334,6 +2335,10 @@ struct stControlSettings const ctrlSettings[] = {
 **     (versionable)   them as symlinks on Unix. Has no effect on Windows
 **                     (existing links in repository created on Unix become
 **                     plain-text files with link destination path inside).
+**                     Default: off
+**
+**    allow-clean-x    If enabled, allow the --extreme option to be used in
+**                     the clean command.
 **                     Default: off
 **
 **    auto-captcha     If enabled, the Login page provides a button to

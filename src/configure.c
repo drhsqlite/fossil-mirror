@@ -124,6 +124,7 @@ static struct {
   { "crnl-glob",              CONFIGSET_PROJ },
   { "encoding-glob",          CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
+  { "allow-clean-x",          CONFIGSET_PROJ },
   { "allow-symlinks",         CONFIGSET_PROJ },
 
   { "ticket-table",           CONFIGSET_TKT  },
