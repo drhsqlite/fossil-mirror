@@ -1,5 +1,5 @@
-C Don't\scompile\ssome\szlib\soptimized\sassembler\ssources\swhen\scompiled\swith\nFOSSIL_ENABLE_MINIZ.
-D 2014-12-06T14:24:21.656
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.8\salpha.
+D 2014-12-06T15:44:36.140
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -412,8 +412,8 @@ F src/shell.c 45d9c9bd7cde07845af957f2d849933b990773cf
 F src/shun.c 2956fa27200742d28be1c5429175260474f90485
 F src/skins.c 810054ea1343bc1b78c2f4b9b0d8a9145fd4ae39
 F src/sqlcmd.c 5076b91de79e92e0511d17b191a607d18fef6fee
-F src/sqlite3.c 28909596ccee18bc36f25a6abfcef21c2c613262
-F src/sqlite3.h 2c298b78391fe667fc7fc6e51f1c4e8c28987d26
+F src/sqlite3.c 17969c5feb50d854fa432ddc733393da81cf6dc0
+F src/sqlite3.h bbb128965026927f562676229fdfe68e69c293d0
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 842683346b6def34cc739fbd10eec57a24d44957
 F src/style.c bc8a2fd81b23b6f446d5d93d9f86fbc2d6c5b719
@@ -659,7 +659,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f3455a56eef0f73036eda651ddf0b036b833deb0
-R 9bfec04e56f57f2d6d2641628a5e154b
-U mgagnon
-Z 386ba141b5ef90296bee5b44b3ceb774
+P 8a5c394ba4c5da8e76f7be360b0c794b2f249df7
+R d5166554dacea5d7519bdae16443d25a
+U drh
+Z 429cefb663b1dbcc13782730e104e49f
