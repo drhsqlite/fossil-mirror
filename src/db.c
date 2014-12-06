@@ -1135,11 +1135,11 @@ void db_open_repository(const char *zDbName){
   g.zRepositoryName = mprintf("%s", zDbName);
   db_open_or_attach(g.zRepositoryName, "repository", 0);
   g.repositoryOpen = 1;
-  /* Cache "allow-symlinks" option, because we'll need it on every stat call */
-  g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
 #if USE_SYSTEM_SQLITE+0==1
   g.maxWorkerThreads = db_get_int("max-wthreads", 0);
 #endif
+  /* Cache "allow-symlinks" option, because we'll need it on every stat call */
+  g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
 }
 
 /*
