@@ -291,10 +291,10 @@ void compute_descendants(int rid, int N){
 /*
 ** COMMAND: descendants*
 **
-** Usage: %fossil descendants ?BASELINE-ID? ?OPTIONS?
+** Usage: %fossil descendants ?CHECKIN? ?OPTIONS?
 **
-** Find all leaf descendants of the baseline specified or if the argument
-** is omitted, of the baseline currently checked out.
+** Find all leaf descendants of the checkin specified or if the argument
+** is omitted, of the checkin currently checked out.
 **
 ** Options:
 **    -R|--repository FILE       Extract info from repository FILE
@@ -336,7 +336,7 @@ void descendants_cmd(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_tty()
   );
-  print_timeline(&q, -20, width, 0);
+  print_timeline(&q, 0, width, 0);
   db_finalize(&q);
 }
 
