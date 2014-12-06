@@ -66,7 +66,7 @@ static void bundle_attach_file(
   rc = sqlite3_exec(g.db, zSql, 0, 0, &zErrMsg);
   sqlite3_free(zSql);
   if( rc!=SQLITE_OK || zErrMsg ){
-    if( zErrMsg==0 ) zErrMsg = sqlite3_errmsg(g.db);
+    if( zErrMsg==0 ) zErrMsg = (char*)sqlite3_errmsg(g.db);
     fossil_fatal("not a valid bundle: %s", zFile);
   }
   if( doInit ){
