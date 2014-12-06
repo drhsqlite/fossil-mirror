@@ -933,6 +933,7 @@ static void checkin_description(int rid){
     }
     @ date:
     hyperlink_to_date(zDate, ")");
+    tag_private_status(rid);
   }
   db_finalize(&q);
 }
@@ -1205,6 +1206,7 @@ int object_description(
       }
       objType |= OBJTYPE_CONTENT;
       @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+      tag_private_status(rid);
       if( showDetail ){
         @ <ul>
       }
@@ -1213,7 +1215,7 @@ int object_description(
     if( showDetail ){
       @ <li>
       hyperlink_to_date(zDate,"");
-      @ &mdash; part of check-in
+      @ &mdash; part of checkin
       hyperlink_to_uuid(zVers);
     }else{
       @ &mdash; part of checkin
@@ -1316,6 +1318,7 @@ int object_description(
       if( pDownloadName && blob_size(pDownloadName)==0 ){
         blob_appendf(pDownloadName, "%.10s.txt", zUuid);
       }
+      tag_private_status(rid);
       cnt++;
     }
     db_finalize(&q);
@@ -1359,6 +1362,7 @@ int object_description(
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_append(pDownloadName, zFilename, -1);
     }
+    tag_private_status(rid);
   }
   db_finalize(&q);
   if( cnt==0 ){
@@ -1366,6 +1370,7 @@ int object_description(
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_appendf(pDownloadName, "%.10s.txt", zUuid);
     }
+    tag_private_status(rid);
   }
   return objType;
 }

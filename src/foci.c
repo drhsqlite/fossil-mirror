@@ -106,10 +106,7 @@ static int fociBestIndex(sqlite3_vtab *tab, sqlite3_index_info *pIdxInfo){
 ** Open a new focivfs cursor.
 */
 static int fociOpen(sqlite3_vtab *pVTab, sqlite3_vtab_cursor **ppCursor){
-  FociTable *pTab = (FociTable *)pVTab;
   FociCursor *pCsr;
-  int rc;
-
   pCsr = (FociCursor *)sqlite3_malloc(sizeof(FociCursor));
   memset(pCsr, 0, sizeof(FociCursor));
   pCsr->base.pVtab = pVTab;

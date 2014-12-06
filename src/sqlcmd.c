@@ -110,6 +110,20 @@ static void sqlcmd_decompress(
 }
 
 /*
+** Add the content(), compress(), and decompress() SQL functions to 
+** database connection db.
+*/
+int add_content_sql_commands(sqlite3 *db){
+  sqlite3_create_function(db, "content", 1, SQLITE_UTF8, 0,
+                          sqlcmd_content, 0, 0);
+  sqlite3_create_function(db, "compress", 1, SQLITE_UTF8, 0,
+                          sqlcmd_compress, 0, 0);
+  sqlite3_create_function(db, "decompress", 1, SQLITE_UTF8, 0,
+                          sqlcmd_decompress, 0, 0);
+  return SQLITE_OK;
+}
+
+/*
 ** This is the "automatic extension" initializer that runs right after
 ** the connection to the repository database is opened.  Set up the
 ** database connection to be more useful to the human operator.
@@ -119,39 +133,26 @@ static int sqlcmd_autoinit(
   const char **pzErrMsg,
   const void *notUsed
 ){
-  char *zSql;
-  int rc = SQLITE_OK;
-  sqlite3_create_function(db, "content", 1, SQLITE_UTF8, 0,
-                          sqlcmd_content, 0, 0);
-  sqlite3_create_function(db, "compress", 1, SQLITE_UTF8, 0,
-                          sqlcmd_compress, 0, 0);
-  sqlite3_create_function(db, "decompress", 1, SQLITE_UTF8, 0,
-                          sqlcmd_decompress, 0, 0);
-  re_add_sql_func(db);
-  foci_register(db);
-  g.zMainDbType = "repository";
-  g.repositoryOpen = 1;
-  g.db = db;
 #if USE_SYSTEM_SQLITE+0==1
   sqlite3_limit(db, SQLITE_LIMIT_WORKER_THREADS, g.maxWorkerThreads);
 #endif
-  db_open_config(1);
-  if( g.zLocalDbName ){
-    zSql = sqlite3_mprintf("ATTACH %Q AS localdb;", g.zLocalDbName);
-    rc = sqlite3_exec(db, zSql, 0, 0, 0);
-    sqlite3_free(zSql);
-  }
-  return rc;
+  add_content_sql_commands(db);
+  re_add_sql_func(db);
+  g.zMainDbType = "repository";
+  foci_register(db);
+  g.repositoryOpen = 1;
+  g.db = db;
+  return SQLITE_OK;
 }
 
 /*
 ** COMMAND: sqlite3
 **
-** Usage: %fossil sqlite3 ?SQL-COMMANDS? ?OPTIONS?
+** Usage: %fossil sqlite3 ?DATABASE? ?OPTIONS?
 **
-** Run the standalone sqlite3 command-line shell on the repository database
-** for the current checkout, or whatever repository is specified by the
-** -R command-line option.
+** Run the standalone sqlite3 command-line shell on DATABASE with OPTIONS.
+** If DATABASE is omitted, then the repository that serves the working
+** directory is opened.
 **
 ** WARNING:  Careless use of this command can corrupt a Fossil repository
 ** in ways that are unrecoverable.  Be sure you know what you are doing before

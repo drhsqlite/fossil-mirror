@@ -569,10 +569,10 @@ int content_put_ex(
     if( !pBlob ){
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
     }
-    if( g.markPrivate || isPrivate ){
-      db_multi_exec("INSERT INTO private VALUES(%d)", rid);
-      markAsUnclustered = 0;
-    }
+  }
+  if( g.markPrivate || isPrivate ){
+    db_multi_exec("INSERT INTO private VALUES(%d)", rid);
+    markAsUnclustered = 0;
   }
   if( nBlob==0 ) blob_reset(&cmpr);
 

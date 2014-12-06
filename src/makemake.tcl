@@ -30,6 +30,7 @@ set src {
   branch
   browse
   builtin
+  bundle
   cache
   captcha
   cgi
@@ -95,6 +96,8 @@ set src {
   popen
   pqueue
   printf
+  publish
+  purge
   rebuild
   regexp
   report
