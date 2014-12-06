@@ -1,5 +1,5 @@
-C fix\sa\sharmless\scompiler\swarning.
-D 2014-12-06T16:58:47.541
+C Improved\shandling\sof\shyperlinks\sfrom\sthe\stimeline\sto\sspecific\sbranches\sand\nusers.
+D 2014-12-06T19:03:41.755
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -316,7 +316,7 @@ F src/attach.c e92ad3e5f4efd1269185a215a94558f362e34bdd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
-F src/branch.c 981eefb8d583787eb679eee529b9ae9f89a5d691
+F src/branch.c 224c454d1a14c5879586596ada1d5d5db4be0d3f
 F src/browse.c 7e802de8f55afa35b5075d3db67ffaae3028f464
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
@@ -421,14 +421,14 @@ F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c e3d838f66ac3373f6fddf30d848aabdd53cdc938
 F src/style.c bc8a2fd81b23b6f446d5d93d9f86fbc2d6c5b719
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
-F src/tag.c 2afe841ebde31296bdbef5c45d534bcad1280024
+F src/tag.c 3e5c18658ada7bc2bfe21eea4ec47eaa89776e6e
 F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
 F src/th.c f3e2d60ea44acd118e8462d48c0865c496f89e6f
 F src/th.h 3d96cf226cbdb8f68a7b3e554c17e069eaace860
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 38a77d04427296f65729de869316c5cc0606f6d7
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c 077dae8a08f2480ce5ad98c9c8ee7514622dce33
+F src/timeline.c 9dbaef3f34530830ab7caf116b32138e5a770031
 F src/tkt.c 37c7a5d99ab5ed542af2378b6971bbb9e115ca05
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c 09c23a40506a4ceff1e9c254938b25e42d69cf4e
@@ -662,7 +662,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9b21984c4a2b9f03d327ea30bd6d20851a37067f
-R 875fc50c84e45997dcdc15d442a211af
+P 0e3f0cadc462d917e0ec776e2bdc3592d3637747
+R 3596c249c51c76fa6065ceb9dd0b1876
 U drh
-Z ea16297e4300df643ad878ff66bc401d
+Z d1528aecf97f1969f0a1eae709d60106
