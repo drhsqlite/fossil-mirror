@@ -773,7 +773,7 @@ int compute_fileage(int vid, const char* zGlob){
   db_prepare(&q1,"SELECT fid FROM mlink WHERE mid=:mid");
   db_prepare(&upd, "UPDATE fileage SET mid=:mid, mtime=:vmtime"
                       " WHERE fid=:fid AND mid IS NULL");
-  db_prepare(&q2,"SELECT pid FROM plink WHERE cid=:vid AND isprim");
+  db_prepare(&q2,"SELECT pid FROM plink WHERE cid=:vid AND mseq=0");
   db_prepare(&q3,"SELECT mtime FROM event WHERE objid=:vid");
   while( nFile>0 && vid>0 ){
     db_bind_int(&q3, ":vid", vid);

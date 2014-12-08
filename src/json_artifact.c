@@ -67,7 +67,7 @@ cson_value * json_parent_uuids_for_ci( int rid ){
   db_prepare( &q,
               "SELECT uuid FROM plink, blob"
               " WHERE plink.cid=%d AND blob.rid=plink.pid"
-              " ORDER BY plink.isprim DESC",
+              " ORDER BY plink.mseq>0",
               rid );
   while( SQLITE_ROW==db_step(&q) ){
     if(!pParents) {

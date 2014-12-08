@@ -63,7 +63,7 @@ int start_of_branch(int rid, int inBranch){
                        " WHERE tagid=%d AND tagtype>0"
                        "   AND value=%Q AND rid=plink.pid)"
     "  FROM plink"
-    " WHERE cid=:cid AND isprim",
+    " WHERE cid=:cid AND mseq=0",
     TAG_BRANCH, zBr
   );
   fossil_free(zBr);
@@ -139,10 +139,10 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
       rid = vid;
     }else if( fossil_strcmp(zTag, "prev")==0
               || fossil_strcmp(zTag, "previous")==0 ){
-      rid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", vid);
+      rid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND mseq=0", vid);
     }else if( fossil_strcmp(zTag, "next")==0 ){
       rid = db_int(0, "SELECT cid FROM plink WHERE pid=%d"
-                      "  ORDER BY isprim DESC, mtime DESC", vid);
+                      "  ORDER BY mseq>0, mtime DESC", vid);
     }
     if( rid ) return rid;
   }

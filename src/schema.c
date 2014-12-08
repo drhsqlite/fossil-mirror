@@ -46,8 +46,8 @@ const char zConfigSchema[] =
 ** the aux schema changes, all we need to do is rebuild the database.
 */
 #define CONTENT_SCHEMA  "2"
-#define AUX_SCHEMA_MIN  "2011-04-25 19:50"
-#define AUX_SCHEMA_MAX  "2014-11-24 20:35"
+#define AUX_SCHEMA_MIN  "2014-12-08 14:36"
+#define AUX_SCHEMA_MAX  "2014-12-08 14:36"
 
 #endif /* INTERFACE */
 
@@ -239,9 +239,10 @@ const char zRepositorySchema2[] =
 @   fid INTEGER REFERENCES blob,        -- Changed file ID in this manifest
 @   fnid INTEGER REFERENCES filename,   -- Name of the file
 @   pfnid INTEGER REFERENCES filename,  -- Previous name. 0 if unchanged
+@   mseq INTEGER,                       -- 0 for primary parent. 1 or more for merges
 @   mperm INTEGER                       -- File permissions.  1==exec
 @ );
-@ CREATE INDEX mlink_i1 ON mlink(mid);
+@ CREATE INDEX mlink_i1 ON mlink(mid,fid);
 @ CREATE INDEX mlink_i2 ON mlink(fnid);
 @ CREATE INDEX mlink_i3 ON mlink(fid);
 @ CREATE INDEX mlink_i4 ON mlink(pid);
@@ -251,7 +252,7 @@ const char zRepositorySchema2[] =
 @ CREATE TABLE plink(
 @   pid INTEGER REFERENCES blob,    -- Parent manifest
 @   cid INTEGER REFERENCES blob,    -- Child manifest
-@   isprim BOOLEAN,                 -- pid is the primary parent of cid
+@   mseq INTEGER,                   -- 0 if pid is primary, 1 or more for merges
 @   mtime DATETIME,                 -- the date/time stamp on cid.  Julian day.
 @   baseid INTEGER REFERENCES blob, -- Baseline if child is a delta manifest
 @   UNIQUE(pid, cid)

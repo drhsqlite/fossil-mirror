@@ -56,7 +56,7 @@ static void tag_propagate(
      "SELECT cid, plink.mtime,"
      "       coalesce(srcid=0 AND tagxref.mtime<:mtime, %d) AS doit"
      "  FROM plink LEFT JOIN tagxref ON cid=rid AND tagid=%d"
-     " WHERE pid=:pid AND isprim",
+     " WHERE pid=:pid AND mseq=0",
      tagType==2, tagid
   );
   db_bind_double(&s, ":mtime", mtime);

@@ -60,7 +60,7 @@ int count_nonbranch_children(int pid){
   static Stmt q;
   static const char zSql[] = 
     @ SELECT count(*) FROM plink
-    @  WHERE pid=:pid AND isprim
+    @  WHERE pid=:pid AND mseq=0
     @    AND coalesce((SELECT value FROM tagxref
     @                   WHERE tagid=%d AND rid=plink.pid), 'trunk')
     @       =coalesce((SELECT value FROM tagxref

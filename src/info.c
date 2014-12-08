@@ -82,12 +82,12 @@ void show_common_info(
     );
   }
   if( showFamily ){
-    db_prepare(&q, "SELECT uuid, pid, isprim FROM plink JOIN blob ON pid=rid "
+    db_prepare(&q, "SELECT uuid, pid, mseq FROM plink JOIN blob ON pid=rid "
                    " WHERE cid=%d"
-                   " ORDER BY isprim DESC, mtime DESC /*sort*/", rid);
+                   " ORDER BY mseq>0, mtime DESC /*sort*/", rid);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zUuid = db_column_text(&q, 0);
-      const char *zType = db_column_int(&q, 2) ? "parent:" : "merged-from:";
+      const char *zType = db_column_int(&q, 2) ? "merged-from:" : "parent:";
       zDate = db_text("",
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
@@ -96,12 +96,12 @@ void show_common_info(
       free(zDate);
     }
     db_finalize(&q);
-    db_prepare(&q, "SELECT uuid, cid, isprim FROM plink JOIN blob ON cid=rid "
+    db_prepare(&q, "SELECT uuid, cid, mseq FROM plink JOIN blob ON cid=rid "
                    " WHERE pid=%d"
-                   " ORDER BY isprim DESC, mtime DESC /*sort*/", rid);
+                   " ORDER BY mseq>0, mtime DESC /*sort*/", rid);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zUuid = db_column_text(&q, 0);
-      const char *zType = db_column_int(&q, 2) ? "child:" : "merged-into:";
+      const char *zType = db_column_int(&q, 2) ? "merged-into:" : "child:";
       zDate = db_text("",
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
@@ -522,7 +522,7 @@ void ci_page(void){
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zParent = db_text(0,
     "SELECT uuid FROM plink, blob"
-    " WHERE plink.cid=%d AND blob.rid=plink.pid AND plink.isprim",
+    " WHERE plink.cid=%d AND blob.rid=plink.pid AND plink.mseq=0",
     rid
   );
   isLeaf = is_a_leaf(rid);

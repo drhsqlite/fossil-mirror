@@ -270,7 +270,7 @@ void export_cmd(void){
     printf("data %d\n%s\n", (int)strlen(zComment), zComment);
     db_prepare(&q3,
       "SELECT pid FROM plink"
-      " WHERE cid=%d AND isprim"
+      " WHERE cid=%d AND mseq=0"
       "   AND pid IN (SELECT objid FROM event)",
       ckinId
     );
@@ -278,7 +278,7 @@ void export_cmd(void){
       printf("from :%d\n", COMMITMARK(db_column_int(&q3, 0)));
       db_prepare(&q4,
         "SELECT pid FROM plink"
-        " WHERE cid=%d AND NOT isprim"
+        " WHERE cid=%d AND mseq>0"
         "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)"
         " ORDER BY pid",
         ckinId);

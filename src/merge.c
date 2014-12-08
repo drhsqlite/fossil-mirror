@@ -232,7 +232,7 @@ void merge_cmd(void){
     if( integrateFlag ){
       fossil_fatal("incompatible options: --integrate & --cherrypick or --backout");
     }
-    pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
+    pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND mseq=0", mid);
     if( pid<=0 ){
       fossil_fatal("cannot find an ancestor for %s", g.argv[2]);
     }

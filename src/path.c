@@ -138,7 +138,7 @@ PathNode *path_shortest(
   }
   if( oneWayOnly && directOnly ){
     db_prepare(&s,
-        "SELECT cid, 1 FROM plink WHERE pid=:pid AND isprim"
+        "SELECT cid, 1 FROM plink WHERE pid=:pid AND mseq=0"
     );
   }else if( oneWayOnly ){
     db_prepare(&s,
@@ -146,9 +146,9 @@ PathNode *path_shortest(
     );
   }else if( directOnly ){
     db_prepare(&s,
-        "SELECT cid, 1 FROM plink WHERE pid=:pid AND isprim "
+        "SELECT cid, 1 FROM plink WHERE pid=:pid AND mseq=0 "
         "UNION ALL "
-        "SELECT pid, 0 FROM plink WHERE cid=:pid AND isprim"
+        "SELECT pid, 0 FROM plink WHERE cid=:pid AND mseq=0"
     );
   }else{
     db_prepare(&s,

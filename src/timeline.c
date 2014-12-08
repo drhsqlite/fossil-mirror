@@ -367,7 +367,7 @@ void www_print_timeline(
       db_static_prepare(&qparent,
         "SELECT pid FROM plink"
         " WHERE cid=:rid AND pid NOT IN phantom"
-        " ORDER BY isprim DESC /*sort*/"
+        " ORDER BY mseq>0 /*sort*/"
       );
       db_bind_int(&qparent, ":rid", rid);
       while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
@@ -1718,7 +1718,7 @@ const char *timeline_query_for_tty(void){
     @                  WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
     @                    AND tagxref.rid=blob.rid AND tagxref.tagtype>0))
     @     || ')' as comment,
-    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim)
+    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND mseq=0)
     @        AS primPlinkCount,
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid) AS plinkCount,
     @   event.mtime AS mtime,

@@ -79,7 +79,7 @@ void compute_leaves(int iBase, int closeMode){
     db_prepare(&q1,
       "SELECT cid FROM plink"
       " WHERE pid=:rid"
-      "   AND (isprim"
+      "   AND (mseq=0"
       "        OR coalesce((SELECT value FROM tagxref"
                         "   WHERE tagid=%d AND rid=plink.pid), 'trunk')"
                  "=coalesce((SELECT value FROM tagxref"
@@ -201,7 +201,7 @@ void compute_direct_ancestors(int rid, int N){
   db_prepare(&ins, "INSERT INTO ancestor VALUES(:rid, :gen)");
   db_prepare(&q,
     "SELECT pid FROM plink"
-    " WHERE cid=:rid AND isprim"
+    " WHERE cid=:rid AND mseq=0"
   );
   while( (N--)>0 ){
     db_bind_int(&q, ":rid", rid);
@@ -533,7 +533,7 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
     }
   }
   db_finalize(&q);
-  db_prepare(&q, "SELECT cid FROM plink WHERE pid=:rid AND isprim");
+  db_prepare(&q, "SELECT cid FROM plink WHERE pid=:rid AND mseq=0");
 
   while( (rid = bag_first(&pending))!=0 ){
     bag_remove(&pending, rid);

@@ -1190,6 +1190,7 @@ int manifest_file_mperm(ManifestFile *pFile){
 */
 static void add_one_mlink(
   int mid,                  /* The record ID of the manifest */
+  int mseq,                 /* 0 for primary parent, 1 or more for merges */
   const char *zFromUuid,    /* UUID for the mlink.pid. "" to add file */
   const char *zToUuid,      /* UUID for the mlink.fid. "" to delete */
   const char *zFilename,    /* Filename */
@@ -1218,10 +1219,11 @@ static void add_one_mlink(
     if( isPublic ) content_make_public(fid);
   }
   db_static_prepare(&s1,
-    "INSERT INTO mlink(mid,pid,fid,fnid,pfnid,mperm)"
-    "VALUES(:m,:p,:f,:n,:pfn,:mp)"
+    "INSERT INTO mlink(mid,mseq,pid,fid,fnid,pfnid,mperm)"
+    "VALUES(:m,:s,:p,:f,:n,:pfn,:mp)"
   );
   db_bind_int(&s1, ":m", mid);
+  db_bind_int(&s1, ":s", mseq);
   db_bind_int(&s1, ":p", pid);
   db_bind_int(&s1, ":f", fid);
   db_bind_int(&s1, ":n", fnid);
@@ -1344,7 +1346,11 @@ ManifestFile *manifest_file_find(Manifest *p, const char *zName){
 ** Added files have mlink.pid=0.
 ** Edited files have both mlink.pid!=0 and mlink.fid!=0
 */
-static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
+static void add_mlink(
+  int pid, Manifest *pParent,    /* Parent checkin */
+  int cid, Manifest *pChild,     /* Child checkin */
+  int mseq                       /* 0 for primary parent, 1 or more for merges */
+){
   Blob otherContent;
   int otherRid;
   int i, rc;
@@ -1356,8 +1362,9 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   /* If mlink table entires are already set for cid, then abort early
   ** doing no work.
   */
-  db_static_prepare(&eq, "SELECT 1 FROM mlink WHERE mid=:mid");
+  db_static_prepare(&eq, "SELECT 1 FROM mlink WHERE mid=:mid AND mseq=:mseq");
   db_bind_int(&eq, ":mid", cid);
+  db_bind_int(&eq, ":mseq", mseq);
   rc = db_step(&eq);
   db_reset(&eq);
   if( rc==SQLITE_ROW ) return;
@@ -1416,12 +1423,12 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
        pParentFile = manifest_file_seek(pParent, pChildFile->zPrior, 0);
        if( pParentFile ){
          /* File with name change */
-         add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
+         add_one_mlink(cid, mseq, pParentFile->zUuid, pChildFile->zUuid,
                        pChildFile->zName, pChildFile->zPrior, isPublic, mperm);
        }else{
          /* File name changed, but the old name is not found in the parent!
          ** Treat this like a new file. */
-         add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
+         add_one_mlink(cid, mseq, 0, pChildFile->zUuid, pChildFile->zName, 0,
                        isPublic, mperm);
        }
     }else{
@@ -1429,13 +1436,13 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
        if( pParentFile==0 ){
          if( pChildFile->zUuid ){
            /* A new file */
-           add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
+           add_one_mlink(cid, mseq, 0, pChildFile->zUuid, pChildFile->zName, 0,
                          isPublic, mperm);
          }
        }else if( fossil_strcmp(pChildFile->zUuid, pParentFile->zUuid)!=0
               || manifest_file_mperm(pParentFile)!=mperm ){
          /* Changes in file content or permissions */
-         add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
+         add_one_mlink(cid, mseq, pParentFile->zUuid, pChildFile->zUuid,
                        pChildFile->zName, 0, isPublic, mperm);
        }
     }
@@ -1452,7 +1459,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
           /* The child file reverts to baseline.  Show this as a change */
           pChildFile = manifest_file_seek(pChild, pParentFile->zName, 0);
           if( pChildFile ){
-            add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
+            add_one_mlink(cid, mseq, pParentFile->zUuid, pChildFile->zUuid,
                           pChildFile->zName, 0, isPublic,
                           manifest_file_mperm(pChildFile));
           }
@@ -1462,7 +1469,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
         if( pChildFile ){
           /* File resurrected in the child after having been deleted in
           ** the parent.  Show this as an added file. */
-          add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
+          add_one_mlink(cid, mseq, 0, pChildFile->zUuid, pChildFile->zName, 0,
                         isPublic, manifest_file_mperm(pChildFile));
         }
       }
@@ -1474,7 +1481,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     while( (pParentFile = manifest_file_next(pParent,0))!=0 ){
       pChildFile = manifest_file_seek(pChild, pParentFile->zName, 0);
       if( pChildFile==0 && pParentFile->zUuid!=0 ){
-        add_one_mlink(cid, pParentFile->zUuid, 0, pParentFile->zName, 0,
+        add_one_mlink(cid, mseq, pParentFile->zUuid, 0, pParentFile->zName, 0,
                       isPublic, 0);
       }
     }
@@ -1786,29 +1793,17 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       (void)db_schema_is_outofdate(); /* Make sure g.zAuxSchema is initialized */
       for(i=0; i<p->nParent; i++){
         int pid = uuid_to_rid(p->azParent[i], 1);
-        if( strcmp(g.zAuxSchema,"2014-11-24 20:35")>=0 ){
-          /* Support for PLINK.BASEID added on 2014-11-24 */
-          db_multi_exec(
-             "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime, baseid)"
-             "VALUES(%d, %d, %d, %.17g, %s)",
-             pid, rid, i==0, p->rDate, zBaseId/*safe-for-%s*/);
-        }else{
-          /* Continue to work with older schema to avoid an unnecessary
-          ** rebuild */
-          db_multi_exec(
-             "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
-             "VALUES(%d, %d, %d, %.17g)",
-             pid, rid, i==0, p->rDate);
-        }
-        if( i==0 ){
-          add_mlink(pid, 0, rid, p);
-          parentid = pid;
-        }
+        db_multi_exec(
+           "INSERT OR IGNORE INTO plink(pid, cid, mseq, mtime, baseid)"
+           "VALUES(%d, %d, %d, %.17g, %s)",
+           pid, rid, i, p->rDate, zBaseId/*safe-for-%s*/);
+        if( i==0 ) parentid = pid;
+        add_mlink(pid, 0, rid, p, i);
       }
-      db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d AND isprim", rid);
+      db_prepare(&q, "SELECT cid, mseq FROM plink WHERE pid=%d", rid);
       while( db_step(&q)==SQLITE_ROW ){
         int cid = db_column_int(&q, 0);
-        add_mlink(rid, p, cid, 0);
+        add_mlink(rid, p, cid, 0, db_column_int(&q,1));
       }
       db_finalize(&q);
       if( p->nParent==0 ){
@@ -1816,7 +1811,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         ** showing all content as new. */
         int isPublic = !content_is_private(rid);
         for(i=0; i<p->nFile; i++){
-          add_one_mlink(rid, 0, p->aFile[i].zUuid, p->aFile[i].zName, 0,
+          add_one_mlink(rid, 0, 0, p->aFile[i].zUuid, p->aFile[i].zName, 0,
                         isPublic, manifest_file_mperm(&p->aFile[i]));
         }
       }

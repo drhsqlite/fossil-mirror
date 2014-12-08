@@ -60,7 +60,7 @@ void page_timeline_rss(void){
     @   event.mtime,
     @   coalesce(ecomment,comment),
     @   coalesce(euser,user),
-    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
+    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND mseq=0),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid)
     @ FROM event, blob
     @ WHERE blob.rid=event.objid
@@ -261,7 +261,7 @@ void cmd_timeline_rss(void){
     @   event.mtime,
     @   coalesce(ecomment,comment),
     @   coalesce(euser,user),
-    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
+    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND mseq=0),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid)
     @ FROM event, blob
     @ WHERE blob.rid=event.objid

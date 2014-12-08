@@ -352,7 +352,8 @@ void finfo_page(void){
   }
   blob_append_sql(&sql,
     "  FROM mlink, event"
-    " WHERE mlink.fnid IN (SELECT fnid FROM filename WHERE name=%Q)"
+    " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
+    "   AND mlink.mseq=0"
     "   AND event.objid=mlink.mid",
     zFilename
   );
@@ -424,13 +425,31 @@ void finfo_page(void){
     int pfnid = db_column_int(&q, 11);
     int gidx;
     char zTime[10];
+    int nParent;
+    int aParent[32];
+    static Stmt qpx;
     if( zBr==0 ) zBr = "trunk";
     if( uBg ){
       zBgClr = hash_color(zUser);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
-    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr,
+    if( fpid>0 ){
+      db_static_prepare(&qpx, "SELECT DISTINCT pid FROM mlink"
+                            " WHERE mid=:mid AND fid=:fid AND mseq>0");
+      db_bind_int(&qpx, ":mid", fmid);
+      db_bind_int(&qpx, ":fid", frid);
+      nParent = 1;
+      aParent[0] = fpid;
+      while( nParent<32 && db_step(&qpx)==SQLITE_ROW ){
+        int x = db_column_int(&qpx, 0);
+        if( x!=fpid ) aParent[nParent++] = x;
+      }
+      db_reset(&qpx);
+    }else{
+      nParent = 0;
+    }
+    gidx = graph_add_row(pGraph, frid, nParent, aParent, zBr, zBgClr,
                          zUuid, 0);
     if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
@@ -477,7 +496,7 @@ void finfo_page(void){
     hyperlink_to_uuid(zCkin);
     @ %W(zCom) (user:
     hyperlink_to_user(zUser, zDate, "");
-    @ branch: %h(zBr))
+    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
