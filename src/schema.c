@@ -46,7 +46,8 @@ const char zConfigSchema[] =
 ** the aux schema changes, all we need to do is rebuild the database.
 */
 #define CONTENT_SCHEMA  "2"
-#define AUX_SCHEMA      "2011-04-25 19:50"
+#define AUX_SCHEMA_MIN  "2011-04-25 19:50"
+#define AUX_SCHEMA_MAX  "2014-11-24 20:35"
 
 #endif /* INTERFACE */
 
@@ -82,8 +83,8 @@ const char zRepositorySchema1[] =
 @   CHECK( length(uuid)==40 AND rid>0 )
 @ );
 @ CREATE TABLE delta(
-@   rid INTEGER PRIMARY KEY,                 -- Record ID
-@   srcid INTEGER NOT NULL REFERENCES blob   -- Record holding source document
+@   rid INTEGER PRIMARY KEY,                 -- BLOB that is delta-compressed 
+@   srcid INTEGER NOT NULL REFERENCES blob   -- Baseline for delta-compression
 @ );
 @ CREATE INDEX delta_i1 ON delta(srcid);
 @
@@ -252,6 +253,7 @@ const char zRepositorySchema2[] =
 @   cid INTEGER REFERENCES blob,    -- Child manifest
 @   isprim BOOLEAN,                 -- pid is the primary parent of cid
 @   mtime DATETIME,                 -- the date/time stamp on cid.  Julian day.
+@   baseid INTEGER REFERENCES blob, -- Baseline if child is a delta manifest
 @   UNIQUE(pid, cid)
 @ );
 @ CREATE INDEX plink_i2 ON plink(cid,pid);

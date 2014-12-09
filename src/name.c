@@ -46,6 +46,40 @@ int fossil_isdate(const char *z){
 }
 
 /*
+** Return the RID that is the "root" of the branch that contains
+** check-in "rid" if inBranch==0 or the first check-in in the branch
+** if inBranch==1.
+*/
+int start_of_branch(int rid, int inBranch){
+  Stmt q;
+  int rc;
+  char *zBr;
+  zBr = db_text("trunk","SELECT value FROM tagxref"
+                        " WHERE rid=%d AND tagid=%d"
+                        " AND tagtype>0",
+                        rid, TAG_BRANCH);
+  db_prepare(&q,
+    "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
+                       " WHERE tagid=%d AND tagtype>0"
+                       "   AND value=%Q AND rid=plink.pid)"
+    "  FROM plink"
+    " WHERE cid=:cid AND isprim",
+    TAG_BRANCH, zBr
+  );
+  fossil_free(zBr);
+  do{
+    db_reset(&q);
+    db_bind_int(&q, ":cid", rid);
+    rc = db_step(&q);
+    if( rc!=SQLITE_ROW ) break;
+    if( inBranch && db_column_int(&q,1)==0 ) break;
+    rid = db_column_int(&q, 0);
+  }while( db_column_int(&q, 1)==1 && rid>0 );
+  db_finalize(&q);
+  return rid;
+}
+
+/*
 ** Convert a symbolic name into a RID.  Acceptable forms:
 **
 **   *  SHA1 hash
@@ -68,6 +102,8 @@ int fossil_isdate(const char *z){
 **
 ** The zType parameter specifies the type of artifact: ci, t, w, e, g.
 ** If zType is NULL or "" or "*" then any type of artifact will serve.
+** If zType is "br" then find the first check-in of the named branch
+** rather than the last.
 ** zType is "ci" in most use cases since we are usually searching for
 ** a check-in.
 */
@@ -76,8 +112,14 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   int rid = 0;
   int nTag;
   int i;
+  int startOfBranch = 0;
 
-  if( zType==0 || zType[0]==0 ) zType = "*";
+  if( zType==0 || zType[0]==0 ){
+    zType = "*";
+  }else if( zType[0]=='b' ){
+    zType = "ci";
+    startOfBranch = 1;
+  }
   if( zTag==0 || zTag[0]==0 ) return 0;
 
   /* special keyword: "tip" */
@@ -153,37 +195,14 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
        "   AND event.type GLOB '%q'",
        &zTag[4], zType
     );
+    if( startOfBranch ) rid = start_of_branch(rid,1);
     return rid;
   }
 
   /* root:TAG -> The origin of the branch */
   if( memcmp(zTag, "root:", 5)==0 ){
-    Stmt q;
-    int rc;
-    char *zBr;
     rid = symbolic_name_to_rid(zTag+5, zType);
-    zBr = db_text("trunk","SELECT value FROM tagxref"
-                          " WHERE rid=%d AND tagid=%d"
-                          " AND tagtype>0",
-                          rid, TAG_BRANCH);
-    db_prepare(&q,
-      "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
-                         " WHERE tagid=%d AND tagtype>0"
-                         "   AND value=%Q AND rid=plink.pid)"
-      "  FROM plink"
-      " WHERE cid=:cid AND isprim",
-      TAG_BRANCH, zBr
-    );
-    fossil_free(zBr);
-    do{
-      db_reset(&q);
-      db_bind_int(&q, ":cid", rid);
-      rc = db_step(&q);
-      if( rc!=SQLITE_ROW ) break;
-      rid = db_column_int(&q, 0);
-    }while( db_column_int(&q, 1)==1 && rid>0 );
-    db_finalize(&q);
-    return rid;
+    return start_of_branch(rid, 0);
   }
 
   /* symbolic-name ":" date-time */
@@ -247,7 +266,10 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     "   AND event.type GLOB '%q'",
     zTag, zType
   );
-  if( rid>0 ) return rid;
+  if( rid>0 ){
+    if( startOfBranch ) rid = start_of_branch(rid,1);
+    return rid;
+  }
 
   /* Undocumented:  numeric tags get translated directly into the RID */
   if( memcmp(zTag, "rid:", 4)==0 ){
@@ -393,14 +415,11 @@ int name_to_typed_rid(const char *zName, const char *zType){
   if( zName==0 || zName[0]==0 ) return 0;
   rid = symbolic_name_to_rid(zName, zType);
   if( rid<0 ){
-    fossil_error(1, "ambiguous name: %s", zName);
-    return 0;
+    fossil_fatal("ambiguous name: %s", zName);
   }else if( rid==0 ){
-    fossil_error(1, "not found: %s", zName);
-    return 0;
-  }else{
-    return rid;
+    fossil_fatal("not found: %s", zName);
   }
+  return rid;
 }
 int name_to_rid(const char *zName){
   return name_to_typed_rid(zName, "*");
@@ -507,7 +526,7 @@ int name_to_rid_www(const char *zParamName){
 /*
 ** Generate a description of artifact "rid"
 */
-static void whatis_rid(int rid, int verboseFlag){
+void whatis_rid(int rid, int verboseFlag){
   Stmt q;
   int cnt;
 
@@ -659,8 +678,10 @@ void whatis_cmd(void){
   const char *zName;
   int verboseFlag;
   int i;
+  const char *zType = 0;
   db_find_and_open_repository(0,0);
   verboseFlag = find_option("verbose","v",0)!=0;
+  zType = find_option("type",0,1);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -669,7 +690,7 @@ void whatis_cmd(void){
   for(i=2; i<g.argc; i++){
     zName = g.argv[i];
     if( i>2 ) fossil_print("%.79c\n",'-');
-    rid = symbolic_name_to_rid(zName, 0);
+    rid = symbolic_name_to_rid(zName, zType);
     if( rid<0 ){
       Stmt q;
       int cnt = 0;
@@ -758,4 +779,213 @@ void test_ambiguous_cmd(void){
     fossil_print("%s\n", db_column_text(&q, 0));
   }
   db_finalize(&q);
+}
+
+/*
+** Schema for the description table
+*/
+static const char zDescTab[] = 
+@ CREATE TEMP TABLE IF NOT EXISTS description(
+@   rid INTEGER PRIMARY KEY,       -- RID of the object 
+@   uuid TEXT,                     -- SHA1 hash of the object 
+@   ctime DATETIME,                -- Time of creation 
+@   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
+@   type TEXT,                     -- file, checkin, wiki, ticket, etc.
+@   summary TEXT,                  -- Summary comment for the object 
+@   detail TEXT                    -- filename, checkin comment, etc
+@ );
+;
+
+/*
+** Create the description table if it does not already exists.
+** Populate fields of this table with descriptions for all artifacts
+** whose RID matches the SQL expression in zWhere.
+*/
+void describe_artifacts(const char *zWhere){
+  db_multi_exec("%s", zDescTab/*safe-for-%s*/);
+
+  /* Describe checkins */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, event.mtime, 'checkin',\n"
+    "       'checkin on ' || strftime('%%Y-%%m-%%d %%H:%%M',event.mtime)\n"
+    "  FROM event, blob\n"
+    " WHERE event.objid %s AND event.type='ci'\n"
+    "   AND event.objid=blob.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Describe files */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, event.mtime, 'file', 'file '||filename.name\n"
+    "  FROM mlink, blob, event, filename\n"
+    " WHERE mlink.fid %s\n"
+    "   AND mlink.mid=event.objid\n"
+    "   AND filename.fnid=mlink.fnid\n"
+    "   AND mlink.fid=blob.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Describe tags */
+  db_multi_exec(
+   "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'tag',\n"
+    "     'tag '||substr((SELECT uuid FROM blob WHERE rid=tagxref.rid),1,16)\n"
+    "  FROM tagxref, blob\n"
+    " WHERE tagxref.srcid %s AND tagxref.srcid!=tagxref.rid\n"
+    "   AND tagxref.srcid=blob.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Cluster artifacts */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'cluster', 'cluster'\n"
+    "  FROM tagxref, blob\n"
+    " WHERE tagxref.rid %s\n"
+    "   AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='cluster')\n"
+    "   AND blob.rid=tagxref.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Ticket change artifacts */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'ticket',\n"
+    "       'ticket '||substr(tag.tagname,5,21)\n"
+    "  FROM tagxref, tag, blob\n"
+    " WHERE tagxref.rid %s\n"
+    "   AND tag.tagid=tagxref.tagid\n"
+    "   AND tag.tagname GLOB 'tkt-*'"
+    "   AND blob.rid=tagxref.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Wiki edit artifacts */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'wiki',\n"
+    "       printf('wiki \"%%s\"',substr(tag.tagname,6))\n"
+    "  FROM tagxref, tag, blob\n"
+    " WHERE tagxref.rid %s\n"
+    "   AND tag.tagid=tagxref.tagid\n"
+    "   AND tag.tagname GLOB 'wiki-*'"
+    "   AND blob.rid=tagxref.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Event edit artifacts */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'event',\n"
+    "       'event '||substr(tag.tagname,7)\n"
+    "  FROM tagxref, tag, blob\n"
+    " WHERE tagxref.rid %s\n"
+    "   AND tag.tagid=tagxref.tagid\n"
+    "   AND tag.tagname GLOB 'event-*'"
+    "   AND blob.rid=tagxref.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Attachments */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
+    "SELECT blob.rid, blob.uuid, attachment.mtime, 'attachment',\n"
+    "       'attachment '||attachment.filename\n"
+    "  FROM attachment, blob\n"
+    " WHERE attachment.src %s\n"
+    "   AND blob.rid=attachment.src;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Everything else */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,type,summary)\n"
+    "SELECT blob.rid, blob.uuid,"
+    "       CASE WHEN blob.size<0 THEN 'phantom' ELSE '' END,\n"
+    "       'unknown'\n"
+    "  FROM blob WHERE blob.rid %s;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Mark private elements */
+  db_multi_exec(
+   "UPDATE description SET isPrivate=1 WHERE rid IN private"
+  );
+}
+
+/*
+** Print the content of the description table on stdout
+*/
+int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
+  Stmt q;
+  int cnt = 0;
+  describe_artifacts(zWhere);
+  db_prepare(&q,
+    "SELECT uuid, summary, isPrivate\n"
+    "  FROM description\n"
+    " ORDER BY ctime, type;"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    if( zLabel ){
+      fossil_print("%s\n", zLabel);
+      zLabel = 0;
+    }
+    fossil_print("  %.16s %s", db_column_text(&q,0), db_column_text(&q,1));
+    if( db_column_int(&q,2) ) fossil_print(" (unpublished)");
+    fossil_print("\n");
+    cnt++;
+  }
+  db_finalize(&q);
+  db_multi_exec("DELETE FROM description;");
+  return cnt;
+}
+
+/*
+** COMMAND: test-describe-artifacts
+**
+** Usage: %fossil test-describe-artifacts
+**
+** Display a one-line description of every artifact.
+*/
+void test_describe_artifacts_cmd(void){
+  db_find_and_open_repository(0,0);
+  describe_artifacts_to_stdout("IN (SELECT rid FROM blob)", 0);
+}
+
+/*
+** COMMAND: test-unsent
+**
+** Usage: %fossil test-unsent
+**
+** Show all artifacts in the unsent table
+*/
+void test_unsent_cmd(void){
+  db_find_and_open_repository(0,0);
+  describe_artifacts_to_stdout("IN unsent", 0);
+}
+
+/*
+** COMMAND: test-unclustered
+**
+** Usage: %fossil test-unclustered
+**
+** Show all artifacts in the unclustered table
+*/
+void test_unclusterd_cmd(void){
+  db_find_and_open_repository(0,0);
+  describe_artifacts_to_stdout("IN unclustered", 0);
+}
+
+/*
+** COMMAND: test-phantoms
+**
+** Usage: %fossil test-phantoms
+**
+** Show all phantom artifacts
+*/
+void test_phatoms_cmd(void){
+  db_find_and_open_repository(0,0);
+  describe_artifacts_to_stdout("IN (SELECT rid FROM blob WHERE size<0)", 0);
 }

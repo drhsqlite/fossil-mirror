@@ -21,6 +21,10 @@
 #include <assert.h>
 #include "setup.h"
 
+#if INTERFACE
+#define ArraySize(x) (sizeof(x)/sizeof(x[0]))
+#endif
+
 /*
 ** The table of web pages supported by this application is generated
 ** automatically by the "mkindex" program and written into a file
@@ -64,7 +68,7 @@ void setup_page(void){
   ** if it does not. */
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError"><b>Configuration Error:</b> Please add
-    @ <tt>&lt;base href="$baseurl/$current_page"&gt;</tt> after
+    @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the <a href="setup_header">HTML header</a>!</p>
   }
 
@@ -103,10 +107,12 @@ void setup_page(void){
     "Change the logo and background images for the server");
   setup_menu_entry("Shunned", "shun",
     "Show artifacts that are shunned by this repository");
-  setup_menu_entry("Log", "rcvfromlist",
+  setup_menu_entry("Artifact Receipts Log", "rcvfromlist",
     "A record of received artifacts and their sources");
-  setup_menu_entry("User-Log", "access_log",
+  setup_menu_entry("User Log", "access_log",
     "A record of login attempts");
+  setup_menu_entry("Administrative Log", "admin_log",
+    "View the admin_log entries");
   setup_menu_entry("Stats", "stat",
     "Display repository statistics");
   setup_menu_entry("SQL", "admin_sql",
@@ -378,8 +384,10 @@ void user_edit(void){
     db_multi_exec(
        "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
        "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
-      uid, P("login"), P("info"), zPw, zCap
+      uid, zLogin, P("info"), zPw, zCap
     );
+    admin_log( "Updated user [%q] with capabilities [%q].",
+               zLogin, zCap );
     if( atoi(PD("all","0"))>0 ){
       Blob sql;
       char *zErr = 0;
@@ -405,8 +413,12 @@ void user_edit(void){
       );
       login_group_sql(blob_str(&sql), "<li> ", " </li>\n", &zErr);
       blob_reset(&sql);
+      admin_log( "Updated user [%q] in all login groups "
+                 "with capabilities [%q].",
+                 zLogin, zCap );
       if( zErr ){
         style_header("User Change Error");
+        admin_log( "Error updating user '%q': %s'.", zLogin, zErr );
         @ <span class="loginError">%s(zErr)</span>
         @
         @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
@@ -860,6 +872,8 @@ static void onoff_attribute(
     if( iQ!=iVal ){
       login_verify_csrf_secret();
       db_set(zVar, iQ ? "1" : "0", 0);
+      admin_log("Set option [%q] to [%q].",
+                zVar, iQ ? "on" : "off");
       iVal = iQ;
     }
   }
@@ -887,8 +901,11 @@ void entry_attribute(
   const char *zVal = db_get(zVar, zDflt);
   const char *zQ = P(zQParm);
   if( zQ && fossil_strcmp(zQ,zVal)!=0 ){
+    const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
+    admin_log("Set entry_attribute %Q to: %.*s%s",
+              zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     zVal = zQ;
   }
   @ <input type="text" id="%s(zQParm)" name="%s(zQParm)" value="%h(zVal)" size="%d(width)"
@@ -913,8 +930,11 @@ static void textarea_attribute(
   const char *z = db_get(zVar, (char*)zDflt);
   const char *zQ = P(zQP);
   if( zQ && !disabled && fossil_strcmp(zQ,z)!=0){
+    const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
+    admin_log("Set textarea_attribute %Q to: %.*s%s",
+              zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
   }
   if( rows>0 && cols>0 ){
@@ -944,8 +964,11 @@ static void multiple_choice_attribute(
   const char *zQ = P(zQP);
   int i;
   if( zQ && fossil_strcmp(zQ,z)!=0){
+    const int nZQ = (int)strlen(zQ);
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
+    admin_log("Set multiple_choice_attribute %Q to: %.*s%s",
+              zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     z = zQ;
   }
   @ <select size="1" name="%s(zQP)" id="id%s(zQP)">
@@ -970,6 +993,14 @@ void setup_access(void){
   db_begin_transaction();
   @ <form action="%s(g.zTop)/setup_access" method="post"><div>
   login_insert_csrf_secret();
+  @ <hr />
+  onoff_attribute("Redirect to HTTPS on the Login page",
+     "redirect-to-https", "redirhttps", 0, 0);
+  @ <p>When selected, force the use of HTTPS for the Login page.
+  @ <p>Details:  When enabled, this option causes the $secureurl TH1 
+  @ variable is set to an "https:" variant of $baseurl.  Otherwise,
+  @ $secureurl is just an alias for $baseurl.  Also when enabled, the
+  @ Login page redirects to https if accessed via http.
   @ <hr />
   onoff_attribute("Require password for local access",
      "localauth", "localauth", 0, 0);
@@ -1250,7 +1281,8 @@ void setup_timeline(void){
       "0", "HH:MM",
       "1", "HH:MM:SS",
       "2", "YYYY-MM-DD HH:MM",
-      "3", "YYMMDD HH:MM"
+      "3", "YYMMDD HH:MM",
+      "4", "(off)"
   };
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -1296,8 +1328,8 @@ void setup_timeline(void){
   }
 
   @ <hr />
-  multiple_choice_attribute("Per-Item Time Format", "timeline-date-format", "tdf", "0",
-                            4, azTimeFormats);
+  multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
+            "tdf", "0", ArraySize(azTimeFormats)/2, azTimeFormats);
   @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
   @ in a separate box (using CSS class "timelineDate") whenever the date changes.
   @ With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats, the complete date
@@ -1548,7 +1580,7 @@ void setup_header(void){
       char *zNew;
       char *zTail = &zHead[6];
       while( fossil_isspace(zTail[0]) ) zTail++;
-      zNew = mprintf("%.*s\n<base href=\"$baseurl/$current_page\" />\n%s",
+      zNew = mprintf("%.*s\n<base href=\"$secureurl/$current_page\" />\n%s",
                      zHead+6-z, z, zTail);
       cgi_replace_parameter("header", zNew);
       db_set("header", zNew, 0);
@@ -1562,7 +1594,7 @@ void setup_header(void){
   ** if it does not. */
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError">Please add
-    @ <tt>&lt;base href="$baseurl/$current_page"&gt;</tt> after
+    @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the header!
     @ <input type="submit" name="fixbase" value="Add &lt;base&gt; Now"></p>
   }
@@ -2009,6 +2041,84 @@ void th1_page(void){
     }else{
       @ <pre class="th1error">%h(zR)</pre>
     }
+  }
+  style_footer();
+}
+
+static void admin_log_render_limits(){
+  int const count = db_int(0,"SELECT COUNT(*) FROM admin_log");
+  int i;
+  int limits[] = {
+  10, 20, 50, 100, 250, 500, 0
+  };
+  for(i = 0; limits[i]; ++i ){
+    cgi_printf("%s<a href='?n=%d'>%d</a>",
+               i ? " " : "",
+               limits[i], limits[i]);
+    if(limits[i]>count) break;
+  }
+}
+
+/*
+** WEBPAGE: admin_log
+**
+** Shows the contents of the admin_log table, which is only created if
+** the admin-log setting is enabled. Requires Admin or Setup ('a' or
+** 's') permissions.
+*/
+void page_admin_log(){
+  Stmt stLog = empty_Stmt;
+  Blob qLog = empty_blob;
+  int limit;
+  int fLogEnabled;
+  int counter = 0;
+  login_check_credentials();
+  if( !g.perm.Setup && !g.perm.Admin ){
+    login_needed();
+  }
+  style_header("Admin Log");
+  create_admin_log_table();
+  limit = atoi(PD("n","20"));
+  fLogEnabled = db_get_boolean("admin-log", 0);
+  @ <div>Admin logging is %s(fLogEnabled?"on":"off").</div>
+
+
+  @ <div>Limit results to: <span>
+  admin_log_render_limits();
+  @ </span></div>
+
+  blob_append_sql(&qLog,
+               "SELECT datetime(time,'unixepoch'), who, page, what "
+               "FROM admin_log "
+               "ORDER BY time DESC ");
+  if(limit>0){
+    @ %d(limit) Most recent entries:
+    blob_append_sql(&qLog, "LIMIT %d", limit);
+  }
+  db_prepare(&stLog, "%s", blob_sql_text(&qLog));
+  blob_reset(&qLog);
+  @ <table id="adminLogTable" class="adminLogTable" width="100%%">
+  @ <thead>
+  @ <th>Time</th>
+  @ <th>User</th>
+  @ <th>Page</th>
+  @ <th width="60%%">Message</th>
+  @ </thead><tbody>
+  while( SQLITE_ROW == db_step(&stLog) ){
+    char const * zTime = db_column_text(&stLog, 0);
+    char const * zUser = db_column_text(&stLog, 1);
+    char const * zPage = db_column_text(&stLog, 2);
+    char const * zMessage = db_column_text(&stLog, 3);
+    @ <tr class="row%d(counter++%2)">
+    @ <td class="adminTime">%s(zTime)</td>
+    @ <td>%s(zUser)</td>
+    @ <td>%s(zPage)</td>
+    @ <td>%h(zMessage)</td>
+    @ </tr>
+  }
+  @ </tbody></table>
+  if(limit>0 && counter<limit){
+    @ <div>%d(counter) entries shown.</div>
   }
   style_footer();
 }

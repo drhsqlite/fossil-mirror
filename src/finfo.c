@@ -497,6 +497,7 @@ void finfo_page(void){
         @ srcid=%d(srcid)
       }
     }
+    tag_private_status(frid);
     @ </td></tr>
   }
   db_finalize(&q);

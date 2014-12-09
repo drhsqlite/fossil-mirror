@@ -359,7 +359,7 @@ void brlist_page(void){
       @ <li><span style="background-color: %s(zColor)">
       @ %h(zBr) &rarr; %s(zColor)</span></li>
     }else{
-      @ <li>%z(href("%R/timeline?r=%T",zBr))%h(zBr)</a></li>
+      @ <li>%z(href("%R/timeline?r=%T&n=200",zBr))%h(zBr)</a></li>
     }
   }
   if( cnt ){
@@ -387,7 +387,7 @@ static void brtimeline_extra(int rid){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
-    @ %z(href("%R/timeline?r=%T",zTagName))[timeline]</a>
+    @ %z(href("%R/timeline?r=%T&n=200",zTagName))[timeline]</a>
   }
   db_finalize(&q);
 }

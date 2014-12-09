@@ -118,6 +118,7 @@ void moderation_disapprove(int objid){
       db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
     }
     if( attachRid && object_used(attachRid) ) attachRid = 0;
+    admin_log("Disapproved moderation of rid %d.", rid);
     rid = attachRid;
   }
   db_end_transaction(0);
@@ -136,6 +137,7 @@ void moderation_approve(int rid){
     rid, rid, rid
   );
   db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
+  admin_log("Approved moderation of rid %d.", rid);
   db_end_transaction(0);
 }
 

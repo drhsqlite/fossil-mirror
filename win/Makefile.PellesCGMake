@@ -147,7 +147,7 @@ builtin_data.h:	$(EXTRA_FILES) mkbuiltin.exe
 
 # extracting version info from manifest
 VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
-	version.exe ..\manifest.uuid ..\manifest ..\VERSION  > $@
+	version.exe ..\manifest.uuid ..\manifest ..\VERSION  >$@
 
 # generate the simplified headers
 headers: makeheaders.exe page_index.h builtin_data.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h

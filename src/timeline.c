@@ -24,6 +24,16 @@
 #include "timeline.h"
 
 /*
+** Add an appropriate tag to the output if "rid" is unpublished (private)
+*/
+#define UNPUB_TAG "<em>(unpublished)</em>"
+void tag_private_status(int rid){
+  if( content_is_private(rid) ){
+    cgi_printf("%s", UNPUB_TAG);
+  }
+}
+
+/*
 ** Generate a hyperlink to a version.
 */
 void hyperlink_to_uuid(const char *zUuid){
@@ -214,9 +224,8 @@ void www_print_timeline(
   static Stmt qbranch;
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
   int vid = 0;                /* Current checkout version */
-  int dateFormat = 0;         /* 0: HH:MM  1: HH:MM:SS
-                                 2: YYYY-MM-DD HH:MM
-                                 3: YYMMDD HH:MM */
+  int dateFormat = 0;         /* 0: HH:MM (default) */
+  const char *zDateFmt;
 
   if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
@@ -224,6 +233,8 @@ void www_print_timeline(
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
+  zDateFmt = P("datefmt");
+  if( zDateFmt ) dateFormat = atoi(zDateFmt);
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
     /* style is not moved to css, because this is
@@ -256,7 +267,9 @@ void www_print_timeline(
     int modPending;           /* Pending moderation */
     char zTime[20];
 
-    if( zDate==0 ) zDate = "YYYY-MM-DD HH:MM:SS";  /* Something wrong with the repo */
+    if( zDate==0 ){
+      zDate = "YYYY-MM-DD HH:MM:SS";  /* Something wrong with the repo */
+    }
     modPending =  moderation_pending(rid);
     if( tagid ){
       if( modPending ) tagid = -tagid;
@@ -287,6 +300,13 @@ void www_print_timeline(
       continue;
     }
     prevWasDivider = 0;
+    /* Date format codes:
+    **   (0)  HH:MM
+    **   (1)  HH:MM:SS
+    **   (2)  YYYY-MM-DD HH:MM
+    **   (3)  YYMMDD HH:MM
+    **   (4)  (off)
+    */
     if( dateFormat<2 ){
       if( fossil_strnicmp(zDate, zPrevDate, 10) ){
         sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
@@ -296,7 +316,10 @@ void www_print_timeline(
       }
       memcpy(zTime, &zDate[11], 5+dateFormat*3);
       zTime[5+dateFormat*3] = 0;
-    }else if(3==dateFormat){
+    }else if( 2==dateFormat ){
+      /* YYYY-MM-DD HH:MM */
+      sqlite3_snprintf(sizeof(zTime), zTime, "%.16s", zDate);
+    }else if( 3==dateFormat ){
       /* YYMMDD HH:MM */
       int pos = 0;
       zTime[pos++] = zDate[2]; zTime[pos++] = zDate[3]; /* YY */
@@ -308,8 +331,7 @@ void www_print_timeline(
       zTime[pos++] = zDate[14]; zTime[pos++] = zDate[15]; /* MM */
       zTime[pos++] = 0;
     }else{
-      /* YYYY-MM-DD HH:MM */
-      sqlite3_snprintf(sizeof(zTime), zTime, "%.16s", zDate);
+      zTime[0] = 0;
     }
     if( rid == vid ){
       @ <tr class="timelineCurrent">
@@ -407,7 +429,7 @@ void www_print_timeline(
     */
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
     if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
-      char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd", zDispUser, zDate);
+      char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd&n=200", zDispUser, zDate);
       @ (user: %z(href("%z",zLink))%h(zDispUser)</a>%s(zTagList?",":"\051")
     }else{
       @ (user: %h(zDispUser)%s(zTagList?",":"\051")
@@ -432,7 +454,7 @@ void www_print_timeline(
           if( zThisTag==0 || memcmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
             blob_appendf(&links,
                   "%z%#h</a>%.2s",
-                  href("%R/timeline?r=%#t&nd&c=%t",i,z,zDate), i,z, &z[i]
+                  href("%R/timeline?r=%#t&nd&c=%t&n=200",i,z,zDate), i,z, &z[i]
             );
           }else{
             blob_appendf(&links, "%#h", i+2, z);
@@ -446,7 +468,7 @@ void www_print_timeline(
         @ tags: %h(zTagList))
       }
     }
-
+    tag_private_status(rid);
 
     /* Generate extra hyperlinks at the end of the comment */
     if( xExtra ){
@@ -461,7 +483,7 @@ void www_print_timeline(
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery,
           "SELECT (pid==0) AS isnew,"
-          "       (fid==0) AS isdel,"
+          "       fid,"
           "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
           "       (SELECT uuid FROM blob WHERE rid=fid),"
           "       (SELECT uuid FROM blob WHERE rid=pid),"
@@ -478,10 +500,12 @@ void www_print_timeline(
       while( db_step(&fchngQuery)==SQLITE_ROW ){
         const char *zFilename = db_column_text(&fchngQuery, 2);
         int isNew = db_column_int(&fchngQuery, 0);
-        int isDel = db_column_int(&fchngQuery, 1);
+        int fid = db_column_int(&fchngQuery, 1);
+        int isDel = fid==0;
         const char *zOldName = db_column_text(&fchngQuery, 5);
         const char *zOld = db_column_text(&fchngQuery, 4);
         const char *zNew = db_column_text(&fchngQuery, 3);
+        const char *zUnpubTag = "";
         if( !inUl ){
           @ <ul class="filelist">
           inUl = 1;
@@ -492,19 +516,22 @@ void www_print_timeline(
           }
           continue;
         }
+        if( content_is_private(fid) ){
+          zUnpubTag =  UNPUB_TAG;
+        }
         if( isNew ){
-          @ <li> %h(zFilename) (new file) &nbsp;
+          @ <li> %h(zFilename) %s(zUnpubTag) (new file) &nbsp;
           @ %z(href("%R/artifact/%s",zNew))[view]</a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
-          @ <li> %h(zOldName) &rarr; %h(zFilename)
+          @ <li> %h(zOldName) &rarr; %h(zFilename) %s(zUnpubTag)
           @ %z(href("%R/artifact/%s",zNew))[view]</a></li>
         }else{
           if( zOldName!=0 ){
-            @ <li> %h(zOldName) &rarr; %h(zFilename)
+            @ <li> %h(zOldName) &rarr; %h(zFilename) %s(zUnpubTag)
           }else{
-            @ <li> %h(zFilename) &nbsp;
+            @ <li> %h(zFilename) &nbsp; %s(zUnpubTag)
           }
           @ %z(href("%R/fdiff?sbs=1&v1=%s&v2=%s",zOld,zNew))[diff]</a></li>
         }
@@ -1013,6 +1040,7 @@ char *names_of_file(const char *zUuid){
 **    ubg            Background color from user
 **    namechng       Show only checkins that filename changes
 **    ym=YYYY-MM     Shown only events for the given year/month.
+**    datefmt=N      Override the date format
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -1040,7 +1068,7 @@ void page_timeline(void){
   const char *zSearch = P("s");      /* Search string */
   const char *zUses = P("uf");       /* Only show checkins hold this file */
   const char *zYearMonth = P("ym");  /* Show checkins for the given YYYY-MM */
-  const char *zYearWeek = P("yw");   /* Show checkins for the given YYYY-WW (weak-of-year) */
+  const char *zYearWeek = P("yw");   /* Show checkins for the given YYYY-WW (week-of-year)*/
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only checkins that rename files */
   int tagid;                         /* Tag ID */
@@ -1077,12 +1105,18 @@ void page_timeline(void){
   }else{
     tagid = 0;
   }
+  if( tagid>0 
+   && db_int(0,"SELECT count(*) FROM tagxref WHERE tagid=%d",tagid)<=nEntry
+  ){
+    zCirca = zBefore = zAfter = 0;
+    nEntry = -1;
+  }
   if( zType[0]=='a' ){
     tmFlags = TIMELINE_BRIEF | TIMELINE_GRAPH;
   }else{
     tmFlags = TIMELINE_GRAPH;
   }
-  url_add_parameter(&url, "n", mprintf("%d", nEntry));
+  if( nEntry>0 ) url_add_parameter(&url, "n", mprintf("%d", nEntry));
   if( P("ng")!=0 || zSearch!=0 ){
     tmFlags &= ~TIMELINE_GRAPH;
     url_add_parameter(&url, "ng", 0);
@@ -1218,7 +1252,7 @@ void page_timeline(void){
     if( nEntry>20 ){
       timeline_submenu(&url, "20 Entries", "n", "20", 0);
     }
-    if( nEntry<200 ){
+    if( nEntry<200 && nEntry>0 ){
       timeline_submenu(&url, "200 Entries", "n", "200", 0);
     }
     if( tmFlags & TIMELINE_FCHANGES ){
@@ -1362,6 +1396,12 @@ void page_timeline(void){
       }
     }
     if( zUser ){
+      int n = db_int(0,"SELECT count(*) FROM event"
+                       " WHERE user=%Q OR euser=%Q", zUser, zUser);
+      if( n<=nEntry ){
+        zCirca = zBefore = zAfter = 0;
+        nEntry = -1;
+      }
       blob_append_sql(&sql, " AND (event.user=%Q OR event.euser=%Q)",
                    zUser, zUser);
       url_add_parameter(&url, "u", zUser);
@@ -1383,7 +1423,7 @@ void page_timeline(void){
            " ORDER BY event.mtime ASC", rAfter-ONE_SECOND, rBefore+ONE_SECOND);
         url_add_parameter(&url, "a", zAfter);
         url_add_parameter(&url, "b", zBefore);
-        nEntry = 1000000;
+        nEntry = -1;
       }else{
         blob_append_sql(&sql,
            " AND event.mtime>=%.17g  ORDER BY event.mtime ASC",
@@ -1414,7 +1454,7 @@ void page_timeline(void){
     }else{
       blob_append_sql(&sql, " ORDER BY event.mtime DESC");
     }
-    blob_append_sql(&sql, " LIMIT %d", nEntry);
+    if( nEntry>0 ) blob_append_sql(&sql, " LIMIT %d", nEntry);
     db_multi_exec("%s", blob_sql_text(&sql));
 
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
@@ -1422,7 +1462,7 @@ void page_timeline(void){
       blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
     }else if( zYearWeek ){
       blob_appendf(&desc, "%s events for year/week %h", zEType, zYearWeek);
-    }else if( zAfter==0 && zBefore==0 && zCirca==0 ){
+    }else if( zAfter==0 && zBefore==0 && zCirca==0 && nEntry>0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
       blob_appendf(&desc, "%d %ss", n, zEType);
@@ -1496,7 +1536,7 @@ void page_timeline(void){
       if( nEntry>20 ){
         timeline_submenu(&url, "20 Entries", "n", "20", 0);
       }
-      if( nEntry<200 ){
+      if( nEntry<200 && nEntry>0 ){
         timeline_submenu(&url, "200 Entries", "n", "200", 0);
       }
       if( zType[0]=='a' || zType[0]=='c' ){
@@ -1606,7 +1646,11 @@ void print_timeline(Stmt *q, int nLimit, int width, int verboseFlag){
     }
     if( fossil_strcmp(zCurrentUuid,zId)==0 ){
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*CURRENT* ");
-      n += strlen(zPrefix);
+      n += strlen(zPrefix+n);
+    }
+    if( content_is_private(rid) ){
+      sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*UNPUBLISHED* ");
+      n += strlen(zPrefix+n);
     }
     zFree = mprintf("[%S] %s%s", zId, zPrefix, zCom);
     /* record another X lines */

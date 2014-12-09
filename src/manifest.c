@@ -1774,10 +1774,30 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
+      char zBaseId[30];
+      if( p->zBaseline ){
+        sqlite3_snprintf(sizeof(zBaseId), zBaseId, "%d",
+                         uuid_to_rid(p->zBaseline,1));
+      }else{
+        sqlite3_snprintf(sizeof(zBaseId), zBaseId, "NULL");
+      }
+      (void)db_schema_is_outofdate(); /* Make sure g.zAuxSchema is initialized */
       for(i=0; i<p->nParent; i++){
         int pid = uuid_to_rid(p->azParent[i], 1);
-        db_multi_exec("INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
-                      "VALUES(%d, %d, %d, %.17g)", pid, rid, i==0, p->rDate);
+        if( strcmp(g.zAuxSchema,"2014-11-24 20:35")>=0 ){
+          /* Support for PLINK.BASEID added on 2014-11-24 */
+          db_multi_exec(
+             "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime, baseid)"
+             "VALUES(%d, %d, %d, %.17g, %s)",
+             pid, rid, i==0, p->rDate, zBaseId/*safe-for-%s*/);
+        }else{
+          /* Continue to work with older schema to avoid an unnecessary
+          ** rebuild */
+          db_multi_exec(
+             "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
+             "VALUES(%d, %d, %d, %.17g)",
+             pid, rid, i==0, p->rDate);
+        }
         if( i==0 ){
           add_mlink(pid, 0, rid, p);
           parentid = pid;

@@ -303,6 +303,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("title", zTitle);
   Th_Store("baseurl", g.zBaseURL);
+  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
@@ -1210,6 +1211,16 @@ const struct strctCssDefaults {
     @ color: black;
     @ background-color: white;
   },
+  { "table.adminLogTable",
+    "Class for the /admin_log table",
+    @ text-align: left
+  },
+  { ".adminLogTable .adminTime",
+    "Class for the /admin_log table",
+    @ text-align: left
+    @ vertical-align: top;
+    @ white-space: nowrap;
+  },
   { 0,
     0,
     0
@@ -1261,6 +1272,7 @@ void page_style_css(void){
   ** variables such as $baseurl.
   */
   Th_Store("baseurl", g.zBaseURL);
+  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
   image_url_var("logo");
   image_url_var("background");
@@ -1306,6 +1318,7 @@ void page_test_env(void){
   @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif
   @ g.zBaseURL = %h(g.zBaseURL)<br />
+  @ g.zHttpsURL = %h(g.zHttpsURL)<br />
   @ g.zTop = %h(g.zTop)<br />
   for(i=0, c='a'; c<='z'; c++){
     if( login_has_capability(&c, 1) ) zCap[i++] = c;

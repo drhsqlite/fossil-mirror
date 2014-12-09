@@ -127,12 +127,14 @@ struct Global {
   const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
+  char *zAuxSchema;       /* Main repository aux-schema */
   int useAttach;          /* True if global_config is attached to repository */
   const char *zConfigDbName;/* Path of the config database. NULL if not open */
   sqlite3_int64 now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
   char *zRepositoryOption; /* Most recent cached repository option value */
   char *zRepositoryName;  /* Name of the repository database */
+  char *zLocalDbName;     /* Name of the local database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
   const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
   int localOpen;          /* True if the local database is open */
@@ -152,6 +154,7 @@ struct Global {
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
+  char *zHttpsURL;        /* zBaseURL translated to https: */
   char *zTop;             /* Parent directory of zPath */
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
@@ -970,7 +973,7 @@ void version_cmd(void){
     fossil_print("Compiled on %s %s using %s (%d-bit)\n",
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
     fossil_print("SQLite %s %.30s\n", sqlite3_libversion(), sqlite3_sourceid());
-    fossil_print("Schema version %s\n", AUX_SCHEMA);
+    fossil_print("Schema version %s\n", AUX_SCHEMA_MAX);
 #if defined(FOSSIL_ENABLE_MINIZ)
     fossil_print("miniz %s, loaded %s\n", MZ_VERSION, mz_version());
 #else
@@ -1291,9 +1294,11 @@ static void set_base_url(const char *zAltBase){
     if( fossil_stricmp(zMode,"on")==0 ){
       g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
       g.zTop = &g.zBaseURL[8+strlen(zHost)];
+      g.zHttpsURL = g.zBaseURL;
     }else{
       g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
       g.zTop = &g.zBaseURL[7+strlen(zHost)];
+      g.zHttpsURL = mprintf("https://%s%.*s", zHost, i, zCur);
     }
   }
   if( db_is_writeable("repository") ){
