@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\swarning.
-D 2014-12-08T17:12:03.481
+C Improvements\sto\stimeline\ssubmenu\sand\stitle\sgeneration.\s\sFaster\sambiguous\nname\sdetection\squery.
+D 2014-12-09T16:25:15.484
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -323,7 +323,7 @@ F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 259725db75a53752aef97d99c38cbfd0e86e43ec
-F src/checkin.c cbd7a598c8da5bd3076d729a15a63c9a72bf193f
+F src/checkin.c 3115c18a923bf22f5177335071c9e5d8562fbed5
 F src/checkout.c 6eb33a11814e9d67fe547378a541cb74c48728ef
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 53b4acae6d1df719e290c7823362f69890743687
@@ -341,7 +341,7 @@ F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 393ebd57f83ff9f2f87df9572430f399ecc95d47
 F src/diff.c 26603debe5f78ec79aa42349765441097ce3ff64
 F src/diff.tcl c9d5f806624c151b437e30b3b0daba0f2a281d6c
-F src/diffcmd.c 3a9853d70f5050fe272ac67ad428180f5bf24f9b
+F src/diffcmd.c 9391a8baf1927201f957d95c6a7d72bb2ff13cd3
 F src/doc.c 64209642ecdaa5cadd09d34bbf8a488a646d778b
 F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 26fd16a9f3fe9f88edd233e39cf4051a0398eb29
@@ -394,8 +394,8 @@ F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 5cb95655247988d16b40dbfd2d10ec25b935ab62
 F src/mkindex.c 69da20a8f44b1ebbb0223bf3d712b4a9d4c99238
 F src/mkversion.c b6f63fc1a223629cabbe1ac8344241bbad18b352
-F src/moderate.c 2f12e29956d0c78bf66f33458626e6533d38400b
-F src/name.c a5a9761d847b673efd855a6b4cd9f26403647830
+F src/moderate.c 619be2f972aead859d1fe85f41ec04c17bab3540
+F src/name.c 1a734037e4836e5b66df5dc9a7ad5941d77d0ecb
 F src/path.c 9b8e8497847a691d1a3b58e367cd53534704e267
 F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
@@ -418,7 +418,7 @@ F src/sqlcmd.c 33672640d42e08a9561aa5238f42326522d191aa
 F src/sqlite3.c 17969c5feb50d854fa432ddc733393da81cf6dc0
 F src/sqlite3.h bbb128965026927f562676229fdfe68e69c293d0
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
-F src/stat.c e3d838f66ac3373f6fddf30d848aabdd53cdc938
+F src/stat.c d058aef03224498f96facc0ffcdebce34952970e
 F src/style.c bc8a2fd81b23b6f446d5d93d9f86fbc2d6c5b719
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 3e5c18658ada7bc2bfe21eea4ec47eaa89776e6e
@@ -428,7 +428,7 @@ F src/th.h 3d96cf226cbdb8f68a7b3e554c17e069eaace860
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 38a77d04427296f65729de869316c5cc0606f6d7
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c 9dbaef3f34530830ab7caf116b32138e5a770031
+F src/timeline.c 7181850ccba0cbaf3197aa55158fe311a70f3557
 F src/tkt.c 37c7a5d99ab5ed542af2378b6971bbb9e115ca05
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c 09c23a40506a4ceff1e9c254938b25e42d69cf4e
@@ -446,7 +446,7 @@ F src/wikiformat.c fc6a1e15a1733e49c7fc188931cec748d3ead074
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c 55e7d4f21887561faea665fc3f6c15e5f511792e
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 7ac08dba3cd51620415bb6229b36fc4014e23885
+F src/xfer.c ec848a186fd950f2975fc4e6771ddc6799fd719a
 F src/xfersetup.c c69c710fec70f76dac901a9181fe81be5dc316e7
 F src/zip.c 957e6e17944e026605072b460f75d970c188e0d5
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -662,7 +662,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 494b2a4c9202007fe93646eda7ba753c318915dc
-R d3e65769836acc3dfe85ee9f78c418a5
+P 276ae463839cfdb90ae9963a18688a3dab8b68b0
+R 014cdfa93e1e69ca35f520c4326d38b6
 U drh
-Z 69048f844192b1584dc9797d05823445
+Z c048f0f6ca247abda51eccdebe6c5c31

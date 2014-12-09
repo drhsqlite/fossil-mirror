@@ -534,7 +534,7 @@ static void send_compressed_file(Xfer *pXfer, int rid){
 static void request_phantoms(Xfer *pXfer, int maxReq){
   Stmt q;
   db_prepare(&q,
-    "SELECT uuid FROM phantom JOIN blob USING(rid)"
+    "SELECT uuid FROM phantom CROSS JOIN blob USING(rid) /*scan*/"
     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid) %s",
     (pXfer->syncPrivate ? "" :
          "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)")

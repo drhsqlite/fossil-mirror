@@ -348,26 +348,21 @@ int name_to_uuid2(const char *zName, const char *zType, char **pUuid){
 ** than 4 characters in length.
 */
 int name_collisions(const char *zName){
-  Stmt q;
   int c = 0;         /* count of collisions for zName */
   int nLen;          /* length of zName */
   nLen = strlen(zName);
   if( nLen>=4 && nLen<=UUID_SIZE && validate16(zName, nLen) ){
-    db_prepare(&q,
-      "SELECT count(uuid) FROM"
-      "  (SELECT substr(tkt_uuid, 1, %d) AS uuid FROM ticket"
-      "   UNION ALL SELECT * FROM"
-      "     (SELECT substr(tagname, 7, %d) FROM"
-      "       tag WHERE tagname GLOB 'event-*')"
-      "   UNION ALL SELECT * FROM"
-      "     (SELECT substr(uuid, 1, %d) FROM blob))"
-      "  WHERE uuid GLOB '%q*'"
-      "  GROUP BY uuid HAVING count(uuid) > 1;",
-      nLen, nLen, nLen, zName);
-    if( db_step(&q)==SQLITE_ROW ){
-      c = db_column_int(&q, 0);
-    }
-    db_finalize(&q);
+    c = db_int(0,
+      "SELECT"
+      " (SELECT count(*) FROM ticket"
+      "   WHERE tkt_uuid GLOB '%q*') +"
+      " (SELECT count(*) FROM tag"
+      "   WHERE tagname GLOB 'event-%q*') +"
+      " (SELECT count(*) FROM blob"
+      "   WHERE uuid GLOB '%q*');",
+      zName, zName, zName
+    );
+    if( c<2 ) c = 0;
   }
   return c;
 }

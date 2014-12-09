@@ -42,7 +42,7 @@ void moderation_table_create(void){
 int moderation_table_exists(void){
   static int modreqExists = -1;
   if( modreqExists<0 ){
-    modreqExists = db_exists("SELECT 1 FROM %s.sqlite_master"
+    modreqExists = db_exists("SELECT 1 FROM %s.sqlite_master /*scan*/"
                              " WHERE name='modreq'", db_name("repository"));
   }
   return modreqExists;
