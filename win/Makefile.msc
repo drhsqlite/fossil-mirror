@@ -206,6 +206,7 @@ SRC   = add_.c \
         branch_.c \
         browse_.c \
         builtin_.c \
+        bundle_.c \
         cache_.c \
         captcha_.c \
         cgi_.c \
@@ -272,6 +273,8 @@ SRC   = add_.c \
         popen_.c \
         pqueue_.c \
         printf_.c \
+        publish_.c \
+        purge_.c \
         rebuild_.c \
         regexp_.c \
         report_.c \
@@ -322,6 +325,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\branch$O \
         $(OX)\browse$O \
         $(OX)\builtin$O \
+        $(OX)\bundle$O \
         $(OX)\cache$O \
         $(OX)\captcha$O \
         $(OX)\cgi$O \
@@ -389,6 +393,8 @@ OBJ   = $(OX)\add$O \
         $(OX)\popen$O \
         $(OX)\pqueue$O \
         $(OX)\printf$O \
+        $(OX)\publish$O \
+        $(OX)\purge$O \
         $(OX)\rebuild$O \
         $(OX)\regexp$O \
         $(OX)\report$O \
@@ -492,6 +498,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\branch.obj >> $@
 	echo $(OX)\browse.obj >> $@
 	echo $(OX)\builtin.obj >> $@
+	echo $(OX)\bundle.obj >> $@
 	echo $(OX)\cache.obj >> $@
 	echo $(OX)\captcha.obj >> $@
 	echo $(OX)\cgi.obj >> $@
@@ -559,6 +566,8 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\popen.obj >> $@
 	echo $(OX)\pqueue.obj >> $@
 	echo $(OX)\printf.obj >> $@
+	echo $(OX)\publish.obj >> $@
+	echo $(OX)\purge.obj >> $@
 	echo $(OX)\rebuild.obj >> $@
 	echo $(OX)\regexp.obj >> $@
 	echo $(OX)\report.obj >> $@
@@ -753,6 +762,12 @@ $(OX)\builtin$O : builtin_.c builtin.h
 	$(TCC) /Fo$@ -c builtin_.c
 
 builtin_.c : $(SRCDIR)\builtin.c
+	translate$E $** > $@
+
+$(OX)\bundle$O : bundle_.c bundle.h
+	$(TCC) /Fo$@ -c bundle_.c
+
+bundle_.c : $(SRCDIR)\bundle.c
 	translate$E $** > $@
 
 $(OX)\cache$O : cache_.c cache.h
@@ -1151,6 +1166,18 @@ $(OX)\printf$O : printf_.c printf.h
 printf_.c : $(SRCDIR)\printf.c
 	translate$E $** > $@
 
+$(OX)\publish$O : publish_.c publish.h
+	$(TCC) /Fo$@ -c publish_.c
+
+publish_.c : $(SRCDIR)\publish.c
+	translate$E $** > $@
+
+$(OX)\purge$O : purge_.c purge.h
+	$(TCC) /Fo$@ -c purge_.c
+
+purge_.c : $(SRCDIR)\purge.c
+	translate$E $** > $@
+
 $(OX)\rebuild$O : rebuild_.c rebuild.h
 	$(TCC) /Fo$@ -c rebuild_.c
 
@@ -1392,6 +1419,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			branch_.c:branch.h \
 			browse_.c:browse.h \
 			builtin_.c:builtin.h \
+			bundle_.c:bundle.h \
 			cache_.c:cache.h \
 			captcha_.c:captcha.h \
 			cgi_.c:cgi.h \
@@ -1458,6 +1486,8 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			popen_.c:popen.h \
 			pqueue_.c:pqueue.h \
 			printf_.c:printf.h \
+			publish_.c:publish.h \
+			purge_.c:purge.h \
 			rebuild_.c:rebuild.h \
 			regexp_.c:regexp.h \
 			report_.c:report.h \

@@ -23,6 +23,7 @@ SRC = \
   $(SRCDIR)/branch.c \
   $(SRCDIR)/browse.c \
   $(SRCDIR)/builtin.c \
+  $(SRCDIR)/bundle.c \
   $(SRCDIR)/cache.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
@@ -89,6 +90,8 @@ SRC = \
   $(SRCDIR)/popen.c \
   $(SRCDIR)/pqueue.c \
   $(SRCDIR)/printf.c \
+  $(SRCDIR)/publish.c \
+  $(SRCDIR)/purge.c \
   $(SRCDIR)/rebuild.c \
   $(SRCDIR)/regexp.c \
   $(SRCDIR)/report.c \
@@ -141,6 +144,7 @@ TRANS_SRC = \
   $(OBJDIR)/branch_.c \
   $(OBJDIR)/browse_.c \
   $(OBJDIR)/builtin_.c \
+  $(OBJDIR)/bundle_.c \
   $(OBJDIR)/cache_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
@@ -207,6 +211,8 @@ TRANS_SRC = \
   $(OBJDIR)/popen_.c \
   $(OBJDIR)/pqueue_.c \
   $(OBJDIR)/printf_.c \
+  $(OBJDIR)/publish_.c \
+  $(OBJDIR)/purge_.c \
   $(OBJDIR)/rebuild_.c \
   $(OBJDIR)/regexp_.c \
   $(OBJDIR)/report_.c \
@@ -256,6 +262,7 @@ OBJ = \
  $(OBJDIR)/branch.o \
  $(OBJDIR)/browse.o \
  $(OBJDIR)/builtin.o \
+ $(OBJDIR)/bundle.o \
  $(OBJDIR)/cache.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
@@ -322,6 +329,8 @@ OBJ = \
  $(OBJDIR)/popen.o \
  $(OBJDIR)/pqueue.o \
  $(OBJDIR)/printf.o \
+ $(OBJDIR)/publish.o \
+ $(OBJDIR)/purge.o \
  $(OBJDIR)/rebuild.o \
  $(OBJDIR)/regexp.o \
  $(OBJDIR)/report.o \
@@ -480,6 +489,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/branch_.c:$(OBJDIR)/branch.h \
 	$(OBJDIR)/browse_.c:$(OBJDIR)/browse.h \
 	$(OBJDIR)/builtin_.c:$(OBJDIR)/builtin.h \
+	$(OBJDIR)/bundle_.c:$(OBJDIR)/bundle.h \
 	$(OBJDIR)/cache_.c:$(OBJDIR)/cache.h \
 	$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 	$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
@@ -546,6 +556,8 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/popen_.c:$(OBJDIR)/popen.h \
 	$(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h \
 	$(OBJDIR)/printf_.c:$(OBJDIR)/printf.h \
+	$(OBJDIR)/publish_.c:$(OBJDIR)/publish.h \
+	$(OBJDIR)/purge_.c:$(OBJDIR)/purge.h \
 	$(OBJDIR)/rebuild_.c:$(OBJDIR)/rebuild.h \
 	$(OBJDIR)/regexp_.c:$(OBJDIR)/regexp.h \
 	$(OBJDIR)/report_.c:$(OBJDIR)/report.h \
@@ -662,6 +674,14 @@ $(OBJDIR)/builtin.o:	$(OBJDIR)/builtin_.c $(OBJDIR)/builtin.h $(OBJDIR)/builtin_
 	$(XTCC) -o $(OBJDIR)/builtin.o -c $(OBJDIR)/builtin_.c
 
 $(OBJDIR)/builtin.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/bundle_.c:	$(SRCDIR)/bundle.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/bundle.c >$@
+
+$(OBJDIR)/bundle.o:	$(OBJDIR)/bundle_.c $(OBJDIR)/bundle.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/bundle.o -c $(OBJDIR)/bundle_.c
+
+$(OBJDIR)/bundle.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/cache_.c:	$(SRCDIR)/cache.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/cache.c >$@
@@ -1190,6 +1210,22 @@ $(OBJDIR)/printf.o:	$(OBJDIR)/printf_.c $(OBJDIR)/printf.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/printf.o -c $(OBJDIR)/printf_.c
 
 $(OBJDIR)/printf.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/publish_.c:	$(SRCDIR)/publish.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/publish.c >$@
+
+$(OBJDIR)/publish.o:	$(OBJDIR)/publish_.c $(OBJDIR)/publish.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/publish.o -c $(OBJDIR)/publish_.c
+
+$(OBJDIR)/publish.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/purge_.c:	$(SRCDIR)/purge.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/purge.c >$@
+
+$(OBJDIR)/purge.o:	$(OBJDIR)/purge_.c $(OBJDIR)/purge.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/purge.o -c $(OBJDIR)/purge_.c
+
+$(OBJDIR)/purge.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/rebuild_.c:	$(SRCDIR)/rebuild.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/rebuild.c >$@

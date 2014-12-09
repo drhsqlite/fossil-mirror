@@ -107,11 +107,11 @@ void setup_page(void){
     "Change the logo and background images for the server");
   setup_menu_entry("Shunned", "shun",
     "Show artifacts that are shunned by this repository");
-  setup_menu_entry("Log", "rcvfromlist",
+  setup_menu_entry("Artifact Receipts Log", "rcvfromlist",
     "A record of received artifacts and their sources");
-  setup_menu_entry("User-Log", "access_log",
+  setup_menu_entry("User Log", "access_log",
     "A record of login attempts");
-  setup_menu_entry("Admin-Log", "admin_log",
+  setup_menu_entry("Administrative Log", "admin_log",
     "View the admin_log entries");
   setup_menu_entry("Stats", "stat",
     "Display repository statistics");
