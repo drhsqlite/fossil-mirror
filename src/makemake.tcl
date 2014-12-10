@@ -536,11 +536,16 @@ endif
 
 ifndef X64
 SSLCONFIG = mingw
+ifndef FOSSIL_ENABLE_MINIZ
 ZLIBCONFIG = LOC="-DASMV -DASMINF" OBJA="inffas86.o match.o"
 LIBTARGETS = $(ZLIBDIR)/inffas86.o $(ZLIBDIR)/match.o
 else
+ZLIBCONFIG =
+LIBTARGETS =
+endif
+else
 SSLCONFIG = mingw64
-ZLIBCONFIG = 
+ZLIBCONFIG =
 LIBTARGETS =
 endif
 
