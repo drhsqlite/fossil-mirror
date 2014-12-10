@@ -946,7 +946,61 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
 */
 void test_describe_artifacts_cmd(void){
   db_find_and_open_repository(0,0);
-  describe_artifacts_to_stdout("IN (SELECT rid FROM blob)", 0);
+  describe_artifacts_to_stdout(">0", 0);
+}
+
+/*
+** WEBPAGE: test-describe-artifacts
+**
+** Return a page showing all artifacts in the repository
+*/
+void test_describe_artifacts_page(void){
+  Stmt q;
+  int s = atoi(PD("s","0"));
+  int n = atoi(PD("n","5000"));
+  int mx = db_int(0, "SELECT max(rid) FROM blob");
+  char *zRange;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(); return; }
+  style_header("List Of Artifacts");
+  if( mx>n && P("s")==0 ){
+    int i;
+    @ <p>Select a range of artifacts to view:</p>
+    @ <ul>
+    for(i=1; i<=mx; i+=n){
+      @ <li> %z(href("%R/test-describe-artifacts?s=%d&n=%d",i,n))
+      @ %d(i)..%d(i+n-1<mx?i+n-1:mx)</a>
+    }
+    @ </ul>
+    style_footer();
+    return;
+  }
+  if( mx>n ){
+    style_submenu_element("Index", "Index", "test-describe-artifacts");
+  }
+  zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
+  describe_artifacts(zRange);
+  db_prepare(&q,
+    "SELECT rid, uuid, summary, isPrivate FROM description ORDER BY rid"
+  );
+  @ <table cellpadding="0" cellspacing="0">
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q,0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDesc = db_column_text(&q, 2);
+    int isPriv = db_column_int(&q,2);
+    @ <tr><td align="right">%d(rid)</td>
+    @ <td>&nbsp;%z(href("%R/info/%s",zUuid))%s(zUuid)</a>&nbsp;</td>
+    @ <td align="left">%h(zDesc)</td>
+    if( isPriv ){
+      @ <td>(unpublished)</td>
+    }
+    @ </tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  style_footer();
 }
 
 /*

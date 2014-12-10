@@ -60,6 +60,7 @@ void sitemap_page(void){
   @   <ul>
   @   <li>%z(href("%R/stat"))Status Summary</a>
   @   <li>%z(href("%R/urllist"))List of URLs used to access this repository</a>
+  @   <li>%z(href("%R/test-describe-artifacts"))List of Artifacts</a>
   @   </ul>
   @ <li>On-line Documentation
   @   <ul>
