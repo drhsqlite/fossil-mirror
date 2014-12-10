@@ -805,7 +805,7 @@ void describe_artifacts(const char *zWhere){
     "SELECT blob.rid, blob.uuid, event.mtime, 'checkin',\n"
     "       'checkin on ' || strftime('%%Y-%%m-%%d %%H:%%M',event.mtime)\n"
     "  FROM event, blob\n"
-    " WHERE event.objid %s AND event.type='ci'\n"
+    " WHERE (event.objid %s) AND event.type='ci'\n"
     "   AND event.objid=blob.rid;",
     zWhere /*safe-for-%s*/
   );
@@ -815,7 +815,7 @@ void describe_artifacts(const char *zWhere){
     "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, event.mtime, 'file', 'file '||filename.name\n"
     "  FROM mlink, blob, event, filename\n"
-    " WHERE mlink.fid %s\n"
+    " WHERE (mlink.fid %s)\n"
     "   AND mlink.mid=event.objid\n"
     "   AND filename.fnid=mlink.fnid\n"
     "   AND mlink.fid=blob.rid;",
@@ -828,7 +828,7 @@ void describe_artifacts(const char *zWhere){
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'tag',\n"
     "     'tag '||substr((SELECT uuid FROM blob WHERE rid=tagxref.rid),1,16)\n"
     "  FROM tagxref, blob\n"
-    " WHERE tagxref.srcid %s AND tagxref.srcid!=tagxref.rid\n"
+    " WHERE (tagxref.srcid %s) AND tagxref.srcid!=tagxref.rid\n"
     "   AND tagxref.srcid=blob.rid;",
     zWhere /*safe-for-%s*/
   );
@@ -838,7 +838,7 @@ void describe_artifacts(const char *zWhere){
     "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'cluster', 'cluster'\n"
     "  FROM tagxref, blob\n"
-    " WHERE tagxref.rid %s\n"
+    " WHERE (tagxref.rid %s)\n"
     "   AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='cluster')\n"
     "   AND blob.rid=tagxref.rid;",
     zWhere /*safe-for-%s*/
@@ -850,7 +850,7 @@ void describe_artifacts(const char *zWhere){
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'ticket',\n"
     "       'ticket '||substr(tag.tagname,5,21)\n"
     "  FROM tagxref, tag, blob\n"
-    " WHERE tagxref.rid %s\n"
+    " WHERE (tagxref.rid %s)\n"
     "   AND tag.tagid=tagxref.tagid\n"
     "   AND tag.tagname GLOB 'tkt-*'"
     "   AND blob.rid=tagxref.rid;",
@@ -863,7 +863,7 @@ void describe_artifacts(const char *zWhere){
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'wiki',\n"
     "       printf('wiki \"%%s\"',substr(tag.tagname,6))\n"
     "  FROM tagxref, tag, blob\n"
-    " WHERE tagxref.rid %s\n"
+    " WHERE (tagxref.rid %s)\n"
     "   AND tag.tagid=tagxref.tagid\n"
     "   AND tag.tagname GLOB 'wiki-*'"
     "   AND blob.rid=tagxref.rid;",
@@ -876,7 +876,7 @@ void describe_artifacts(const char *zWhere){
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'event',\n"
     "       'event '||substr(tag.tagname,7)\n"
     "  FROM tagxref, tag, blob\n"
-    " WHERE tagxref.rid %s\n"
+    " WHERE (tagxref.rid %s)\n"
     "   AND tag.tagid=tagxref.tagid\n"
     "   AND tag.tagname GLOB 'event-*'"
     "   AND blob.rid=tagxref.rid;",
@@ -885,12 +885,22 @@ void describe_artifacts(const char *zWhere){
 
   /* Attachments */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, attachment.mtime, 'attach-control',\n"
+    "       'attachment-control for '||attachment.filename\n"
+    "  FROM attachment, blob\n"
+    " WHERE (attachment.attachid %s)\n"
+    "   AND blob.rid=attachment.attachid",
+    zWhere /*safe-for-%s*/
+  );
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, attachment.mtime, 'attachment',\n"
     "       'attachment '||attachment.filename\n"
     "  FROM attachment, blob\n"
-    " WHERE attachment.src %s\n"
-    "   AND blob.rid=attachment.src;",
+    " WHERE (blob.rid %s)\n"
+    "   AND blob.rid NOT IN (SELECT rid FROM description)\n"
+    "   AND blob.uuid=attachment.src",
     zWhere /*safe-for-%s*/
   );
 
@@ -900,7 +910,7 @@ void describe_artifacts(const char *zWhere){
     "SELECT blob.rid, blob.uuid,"
     "       CASE WHEN blob.size<0 THEN 'phantom' ELSE '' END,\n"
     "       'unknown'\n"
-    "  FROM blob WHERE blob.rid %s;",
+    "  FROM blob WHERE (blob.rid %s);",
     zWhere /*safe-for-%s*/
   );
 
@@ -940,17 +950,26 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
 /*
 ** COMMAND: test-describe-artifacts
 **
-** Usage: %fossil test-describe-artifacts
+** Usage: %fossil test-describe-artifacts [--from S] [--count N]
 **
 ** Display a one-line description of every artifact.
 */
 void test_describe_artifacts_cmd(void){
+  int iFrom = 0;
+  int iCnt = 1000000;
+  const char *z;
+  char *zRange;
   db_find_and_open_repository(0,0);
-  describe_artifacts_to_stdout(">0", 0);
+  z = find_option("from",0,1);
+  if( z ) iFrom = atoi(z);
+  z = find_option("count",0,1);
+  if( z ) iCnt = atoi(z);
+  zRange = mprintf("BETWEEN %d AND %d", iFrom, iFrom+iCnt-1);
+  describe_artifacts_to_stdout(zRange, 0);
 }
 
 /*
-** WEBPAGE: test-describe-artifacts
+** WEBPAGE: bloblist
 **
 ** Return a page showing all artifacts in the repository
 */
@@ -969,7 +988,7 @@ void test_describe_artifacts_page(void){
     @ <p>Select a range of artifacts to view:</p>
     @ <ul>
     for(i=1; i<=mx; i+=n){
-      @ <li> %z(href("%R/test-describe-artifacts?s=%d&n=%d",i,n))
+      @ <li> %z(href("%R/bloblist?s=%d&n=%d",i,n))
       @ %d(i)..%d(i+n-1<mx?i+n-1:mx)</a>
     }
     @ </ul>
@@ -977,7 +996,7 @@ void test_describe_artifacts_page(void){
     return;
   }
   if( mx>n ){
-    style_submenu_element("Index", "Index", "test-describe-artifacts");
+    style_submenu_element("Index", "Index", "bloblist");
   }
   zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
   describe_artifacts(zRange);
