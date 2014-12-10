@@ -960,6 +960,32 @@ void db_open_config(int useAttach){
   g.zConfigDbName = zDbName;
 }
 
+/*
+** Return TRUE if zTable exists.
+*/
+int db_table_exists(
+  const char *zDb,      /* One of: NULL, "configdb", "localdb", "repository" */
+  const char *zTable    /* Name of table */
+){
+  return sqlite3_table_column_metadata(g.db,
+              zDb ? db_name(zDb) : 0, zTable, 0,
+              0, 0, 0, 0, 0)==SQLITE_OK;
+}
+
+/*
+** Return TRUE if zTable exists and contains column zColumn.
+** Return FALSE if zTable does not exist or if zTable exists
+** but lacks zColumn.
+*/
+int db_table_has_column(
+  const char *zDb,       /* One of: NULL, "config", "localdb", "repository" */
+  const char *zTable,    /* Name of table */
+  const char *zColumn    /* Name of column in table */
+){
+  return sqlite3_table_column_metadata(g.db,
+              zDb ? db_name(zDb) : 0, zTable, zColumn,
+              0, 0, 0, 0, 0)==SQLITE_OK;
+}
 
 /*
 ** Returns TRUE if zTable exists in the local database but lacks column
@@ -969,17 +995,8 @@ static int db_local_table_exists_but_lacks_column(
   const char *zTable,
   const char *zColumn
 ){
-  char *zDef = db_text(0, "SELECT sql FROM %s.sqlite_master"
-                   " WHERE name==%Q /*scan*/",
-                   db_name("localdb"), zTable);
-  int rc = 0;
-  if( zDef ){
-    char *zPattern = mprintf("* %s *", zColumn);
-    rc = sqlite3_strglob(zPattern, zDef)!=0;
-    fossil_free(zPattern);
-    fossil_free(zDef);
-  }
-  return rc;
+  return db_table_exists(db_name("localdb"), zTable)
+      && !db_table_has_column(db_name("localdb"), zTable, zColumn);
 }
 
 /*
@@ -2047,27 +2064,6 @@ int db_lget_int(const char *zName, int dflt){
 }
 void db_lset_int(const char *zName, int value){
   db_multi_exec("REPLACE INTO vvar(name,value) VALUES(%Q,%d)", zName, value);
-}
-
-/*
-** Returns non-0 if the database (which must be open) table identified
-** by zTableName has a column named zColName (case-sensitive), else
-** returns 0.
-*/
-int db_table_has_column(const char *zTableName, const char *zColName){
-  Stmt q = empty_Stmt;
-  int rc = 0;
-  db_prepare( &q, "PRAGMA table_info(%Q)", zTableName );
-  while(SQLITE_ROW == db_step(&q)){
-    /* Columns: (cid, name, type, notnull, dflt_value, pk) */
-    const char *zCol = db_column_text(&q, 1);
-    if( 0==fossil_strcmp(zColName, zCol) ){
-      rc = 1;
-      break;
-    }
-  }
-  db_finalize(&q);
-  return rc;
 }
 
 /*

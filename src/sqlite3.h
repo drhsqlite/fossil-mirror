@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.8"
 #define SQLITE_VERSION_NUMBER 3008008
-#define SQLITE_SOURCE_ID      "2014-12-06 14:56:49 6aeece19a235344be2537e66a3fe08b1febfb5a0"
+#define SQLITE_SOURCE_ID      "2014-12-10 04:58:43 3528f8dd39acace8eeb7337994c8617313f4b04b"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -5157,20 +5157,27 @@ SQLITE_API SQLITE_DEPRECATED void sqlite3_soft_heap_limit(int N);
 /*
 ** CAPI3REF: Extract Metadata About A Column Of A Table
 **
-** ^This routine returns metadata about a specific column of a specific
-** database table accessible using the [database connection] handle
-** passed as the first function argument.
+** ^(The sqlite3_table_column_metadata(X,D,T,C,....) routine returns
+** information about column C of table T in database D
+** on [database connection] X.)^  ^The sqlite3_table_column_metadata()
+** interface returns SQLITE_OK and fills in the non-NULL pointers in
+** the final five arguments with appropriate values if the specified
+** column exists.  ^The sqlite3_table_column_metadata() interface returns
+** SQLITE_ERROR and if the specified column does not exist.
+** ^If the column-name parameter to sqlite3_table_column_metadata() is a
+** NULL pointer, then this routine simply checks for the existance of the
+** table and returns SQLITE_OK if the table exists and SQLITE_ERROR if it
+** does not.
 **
 ** ^The column is identified by the second, third and fourth parameters to
-** this function. ^The second parameter is either the name of the database
+** this function. ^(The second parameter is either the name of the database
 ** (i.e. "main", "temp", or an attached database) containing the specified
-** table or NULL. ^If it is NULL, then all attached databases are searched
+** table or NULL.)^ ^If it is NULL, then all attached databases are searched
 ** for the table using the same algorithm used by the database engine to
 ** resolve unqualified table references.
 **
 ** ^The third and fourth parameters to this function are the table and column
-** name of the desired column, respectively. Neither of these parameters
-** may be NULL.
+** name of the desired column, respectively.
 **
 ** ^Metadata is returned by writing to the memory locations passed as the 5th
 ** and subsequent parameters to this function. ^Any of these arguments may be
@@ -5189,16 +5196,17 @@ SQLITE_API SQLITE_DEPRECATED void sqlite3_soft_heap_limit(int N);
 ** </blockquote>)^
 **
 ** ^The memory pointed to by the character pointers returned for the
-** declaration type and collation sequence is valid only until the next
+** declaration type and collation sequence is valid until the next
 ** call to any SQLite API function.
 **
 ** ^If the specified table is actually a view, an [error code] is returned.
 **
-** ^If the specified column is "rowid", "oid" or "_rowid_" and an
+** ^If the specified column is "rowid", "oid" or "_rowid_" and the table 
+** is not a [WITHOUT ROWID] table and an
 ** [INTEGER PRIMARY KEY] column has been explicitly declared, then the output
 ** parameters are set for the explicitly declared column. ^(If there is no
-** explicitly declared [INTEGER PRIMARY KEY] column, then the output
-** parameters are set as follows:
+** [INTEGER PRIMARY KEY] column, then the outputs
+** for the [rowid] are set as follows:
 **
 ** <pre>
 **     data type: "INTEGER"
@@ -5208,13 +5216,9 @@ SQLITE_API SQLITE_DEPRECATED void sqlite3_soft_heap_limit(int N);
 **     auto increment: 0
 ** </pre>)^
 **
-** ^(This function may load one or more schemas from database files. If an
-** error occurs during this process, or if the requested table or column
-** cannot be found, an [error code] is returned and an error message left
-** in the [database connection] (to be retrieved using sqlite3_errmsg()).)^
-**
-** ^This API is only available if the library was compiled with the
-** [SQLITE_ENABLE_COLUMN_METADATA] C-preprocessor symbol defined.
+** ^This function causes all database schemas to be read from disk and
+** parsed, if that has not already been done, and returns an error if
+** any errors are encountered while loading the schema.
 */
 SQLITE_API int sqlite3_table_column_metadata(
   sqlite3 *db,                /* Connection handle */

@@ -207,8 +207,7 @@ int purge_artifact_list(
 ** a baseline manifest out from under a delta.
 */
 int purge_baseline_out_from_under_delta(const char *zTab){
-  if( !db_exists("SELECT 1 FROM %s.sqlite_master WHERE name='plink'"
-                 " AND sql GLOB '* baseid *'", db_name("repository")) ){
+  if( !db_table_has_column("repository","plink","baseid") ){
     /* Skip this check if the current database is an older schema that
     ** does not contain the PLINK.BASEID field. */
     return 0;
@@ -494,7 +493,7 @@ void purge_cmd(void){
   ** be moved to the end since it is the default case */
   }else if( strncmp(zSubcmd, "list", n)==0 || strcmp(zSubcmd,"ls")==0 ){
     int showDetail = find_option("l","l",0)!=0;
-    if( db_int(-1,"PRAGMA table_info('purgeevent')")<0 ) return;
+    if( !db_table_exists("repository","purgeevent") ) return;
     db_prepare(&q, "SELECT peid, datetime(ctime,'unixepoch','localtime')"
                    " FROM purgeevent");
     while( db_step(&q)==SQLITE_ROW ){

@@ -145,8 +145,7 @@ static void undo_all(int redoFlag){
     "INSERT INTO undo_vmerge SELECT * FROM undo_vmerge_2;"
     "DROP TABLE undo_vmerge_2;"
   );
-  if(db_exists("SELECT 1 FROM \"%w\".sqlite_master"
-               " WHERE name='undo_stash'", zDb) ){
+  if( db_table_exists(zDb, "undo_stash") ){
     if( redoFlag ){
       db_multi_exec(
         "DELETE FROM stash WHERE stashid IN (SELECT stashid FROM undo_stash);"
