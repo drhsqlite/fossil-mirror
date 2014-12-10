@@ -284,6 +284,7 @@ SRC   = add_.c \
         setup_.c \
         sha1_.c \
         shun_.c \
+        sitemap_.c \
         skins_.c \
         sqlcmd_.c \
         stash_.c \
@@ -405,6 +406,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\sha1$O \
         $(OX)\shell$O \
         $(OX)\shun$O \
+        $(OX)\sitemap$O \
         $(OX)\skins$O \
         $(OX)\sqlcmd$O \
         $(OX)\sqlite3$O \
@@ -578,6 +580,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\sha1.obj >> $@
 	echo $(OX)\shell.obj >> $@
 	echo $(OX)\shun.obj >> $@
+	echo $(OX)\sitemap.obj >> $@
 	echo $(OX)\skins.obj >> $@
 	echo $(OX)\sqlcmd.obj >> $@
 	echo $(OX)\sqlite3.obj >> $@
@@ -1232,6 +1235,12 @@ $(OX)\shun$O : shun_.c shun.h
 shun_.c : $(SRCDIR)\shun.c
 	translate$E $** > $@
 
+$(OX)\sitemap$O : sitemap_.c sitemap.h
+	$(TCC) /Fo$@ -c sitemap_.c
+
+sitemap_.c : $(SRCDIR)\sitemap.c
+	translate$E $** > $@
+
 $(OX)\skins$O : skins_.c skins.h
 	$(TCC) /Fo$@ -c skins_.c
 
@@ -1497,6 +1506,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			setup_.c:setup.h \
 			sha1_.c:sha1.h \
 			shun_.c:shun.h \
+			sitemap_.c:sitemap.h \
 			skins_.c:skins.h \
 			sqlcmd_.c:sqlcmd.h \
 			stash_.c:stash.h \

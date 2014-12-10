@@ -107,6 +107,7 @@ set src {
   setup
   sha1
   shun
+  sitemap
   skins
   sqlcmd
   stash

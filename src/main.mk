@@ -101,6 +101,7 @@ SRC = \
   $(SRCDIR)/setup.c \
   $(SRCDIR)/sha1.c \
   $(SRCDIR)/shun.c \
+  $(SRCDIR)/sitemap.c \
   $(SRCDIR)/skins.c \
   $(SRCDIR)/sqlcmd.c \
   $(SRCDIR)/stash.c \
@@ -222,6 +223,7 @@ TRANS_SRC = \
   $(OBJDIR)/setup_.c \
   $(OBJDIR)/sha1_.c \
   $(OBJDIR)/shun_.c \
+  $(OBJDIR)/sitemap_.c \
   $(OBJDIR)/skins_.c \
   $(OBJDIR)/sqlcmd_.c \
   $(OBJDIR)/stash_.c \
@@ -340,6 +342,7 @@ OBJ = \
  $(OBJDIR)/setup.o \
  $(OBJDIR)/sha1.o \
  $(OBJDIR)/shun.o \
+ $(OBJDIR)/sitemap.o \
  $(OBJDIR)/skins.o \
  $(OBJDIR)/sqlcmd.o \
  $(OBJDIR)/stash.o \
@@ -567,6 +570,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
 	$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
 	$(OBJDIR)/shun_.c:$(OBJDIR)/shun.h \
+	$(OBJDIR)/sitemap_.c:$(OBJDIR)/sitemap.h \
 	$(OBJDIR)/skins_.c:$(OBJDIR)/skins.h \
 	$(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h \
 	$(OBJDIR)/stash_.c:$(OBJDIR)/stash.h \
@@ -1298,6 +1302,14 @@ $(OBJDIR)/shun.o:	$(OBJDIR)/shun_.c $(OBJDIR)/shun.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/shun.o -c $(OBJDIR)/shun_.c
 
 $(OBJDIR)/shun.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/sitemap_.c:	$(SRCDIR)/sitemap.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/sitemap.c >$@
+
+$(OBJDIR)/sitemap.o:	$(OBJDIR)/sitemap_.c $(OBJDIR)/sitemap.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/sitemap.o -c $(OBJDIR)/sitemap_.c
+
+$(OBJDIR)/sitemap.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/skins_.c:	$(SRCDIR)/skins.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/skins.c >$@
