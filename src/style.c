@@ -1213,11 +1213,11 @@ const struct strctCssDefaults {
   },
   { "table.adminLogTable",
     "Class for the /admin_log table",
-    @ text-align: left
+    @ text-align: left;
   },
   { ".adminLogTable .adminTime",
     "Class for the /admin_log table",
-    @ text-align: left
+    @ text-align: left;
     @ vertical-align: top;
     @ white-space: nowrap;
   },
