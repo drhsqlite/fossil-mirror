@@ -1,5 +1,8 @@
-C Add\sa\slink\sto\sthe\s[http://fuelscm.org/]\sproject\son\sthe\sFossil\shomepage.
-D 2014-12-11T14:59:39.126
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C "const"\sthe\sconts\s(typo)
+D 2014-12-11T22:23:10.191
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -408,7 +411,7 @@ F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c 0c3d2aa5c686c213d454a553bd3d8529ca054be5
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
 F src/schema.c 6aa448a328fef31516933b763985247add80292b
-F src/search.c 458d2db76e4d59e448f3230a4031dc1085b07477
+F src/search.c ba6851ec9758fd80df427008c2e4f0b9e0f857db
 F src/setup.c c06b72a7ad2b4e89eb18d6e651ccec5c15339205
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
 F src/shell.c 45d9c9bd7cde07845af957f2d849933b990773cf
@@ -663,7 +666,14 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3e3bb5f71a61fa4881d5293b6923c26d8bc089df
-R c6aacbd12ce632b0508d73f0947ee711
-U drh
-Z e5b950325ba37fce63277367a31250d1
+P 85f265625bc7653657139e3125a2c6d8be2ba497
+R 244ef9a510d3e7b3a6783544fd05fdb2
+U bch
+Z 52dc7fcf6f2e1d723a805739f832cd86
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlSKGU4ACgkQad0Kwpwugm/h+wCfaBLdh4I++PxrqhD1u8LEcAh2
+YXEAnRAHxjb0mf32o+wAgjlzh1FdZ5D5
+=y1PQ
+-----END PGP SIGNATURE-----

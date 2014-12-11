@@ -160,7 +160,7 @@ static void search_score_sqlfunc(
   sqlite3_value **argv
 ){
   Search *p = (Search*)sqlite3_user_data(context);
-  conts char **azDoc;
+  const char **azDoc;
   int score;
   int i;
 
