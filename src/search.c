@@ -15,8 +15,13 @@
 **
 *******************************************************************************
 **
-** This file contains code to implement the "/doc" web page and related
-** pages.
+** This file contains code to implement a very simple search function
+** against timeline comments, checkin content, wiki pages, and/or tickets.
+**
+** The search is full-text like in that it is looking for words and ignores
+** punctuation and capitalization.  But it is more akin to "grep" in that
+** it scans the entire corpus for the search, and it does not support the
+** full functionality of FTS4.
 */
 #include "config.h"
 #include "search.h"
@@ -24,14 +29,14 @@
 
 #if INTERFACE
 /*
-** A compiled search patter
+** A compiled search pattern
 */
 struct Search {
-  int nTerm;
-  struct srchTerm {
-    char *z;
-    int n;
-  } a[8];
+  int nTerm;            /* Number of search terms */
+  struct srchTerm {     /* For each search term */
+    char *z;               /* Text */
+    int n;                 /* length */
+  } a[8];               
 };
 #endif
 
@@ -100,39 +105,43 @@ static const char isBoundary[] = {
 **   *  Extra points of two consecutive words of the pattern are consecutive
 **      in the document
 */
-int search_score(Search *p, const char *zDoc){
+int search_score(Search *p, int nDoc, const char **azDoc){
   int iPrev = 999;
   int score = 10;
   int iBonus = 0;
-  int i, j;
+  int i, j, k;
+  const char *zDoc;
   unsigned char seen[8];
 
   memset(seen, 0, sizeof(seen));
-  if( zDoc==0 ) return score;
-  for(i=0; zDoc[i]; i++){
-    char c = zDoc[i];
-    if( isBoundary[c&0xff] ) continue;
-    for(j=0; j<p->nTerm; j++){
-      int n = p->a[j].n;
-      if( sqlite3_strnicmp(p->a[j].z, &zDoc[i], n)==0 ){
-        score += 1;
-        if( !seen[j] ){
-          if( isBoundary[zDoc[i+n]&0xff] ) score += 10;
-          seen[j] = 1;
+  for(k=0; k<nDoc; k++){
+    zDoc = azDoc[k];
+    if( zDoc==0 ) continue;
+    for(i=0; zDoc[i]; i++){
+      char c = zDoc[i];
+      if( isBoundary[c&0xff] ) continue;
+      for(j=0; j<p->nTerm; j++){
+        int n = p->a[j].n;
+        if( sqlite3_strnicmp(p->a[j].z, &zDoc[i], n)==0 ){
+          score += 1;
+          if( !seen[j] ){
+            if( isBoundary[zDoc[i+n]&0xff] ) score += 10;
+            seen[j] = 1;
+          }
+          if( j==iPrev+1 ){
+            score += iBonus;
+          }
+          i += n-1;
+          iPrev = j;
+          iBonus = 50;
+          break;
         }
-        if( j==iPrev+1 ){
-          score += iBonus;
-        }
-        i += n-1;
-        iPrev = j;
-        iBonus = 50;
-        break;
       }
+      iBonus /= 2;
+      while( !isBoundary[zDoc[i]&0xff] ){ i++; }
     }
-    iBonus /= 2;
-    while( !isBoundary[zDoc[i]&0xff] ){ i++; }
   }
-
+  
   /* Every term must be seen or else the score is zero */
   for(j=0; j<p->nTerm; j++){
     if( !seen[j] ) return 0;
@@ -151,7 +160,14 @@ static void search_score_sqlfunc(
   sqlite3_value **argv
 ){
   Search *p = (Search*)sqlite3_user_data(context);
-  int score = search_score(p, (const char*)sqlite3_value_text(argv[0]));
+  conts char **azDoc;
+  int score;
+  int i;
+
+  azDoc = fossil_malloc( sizeof(const char*)*(argc+1) );
+  for(i=0; i<argc; i++) azDoc[i] = (const char*)sqlite3_value_text(argv[i]);
+  score = search_score(p, argc, azDoc);
+  fossil_free(azDoc);
   sqlite3_result_int(context, score);
 }
 
@@ -161,7 +177,7 @@ static void search_score_sqlfunc(
 ** do not delete the Search object.
 */
 void search_sql_setup(Search *p){
-  sqlite3_create_function(g.db, "score", 1, SQLITE_UTF8, p,
+  sqlite3_create_function(g.db, "score", -1, SQLITE_UTF8, p,
      search_score_sqlfunc, 0, 0);
 }
 
