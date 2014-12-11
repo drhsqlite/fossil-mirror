@@ -971,9 +971,12 @@ void test_describe_artifacts_cmd(void){
 /*
 ** WEBPAGE: bloblist
 **
-** Return a page showing all artifacts in the repository
+** Return a page showing all artifacts in the repository.  Query parameters:
+**
+**   n=N         Show N artifacts
+**   s=S         Start with artifact number S
 */
-void test_describe_artifacts_page(void){
+void bloblist_page(void){
   Stmt q;
   int s = atoi(PD("s","0"));
   int n = atoi(PD("n","5000"));
