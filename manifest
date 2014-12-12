@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C "const"\sthe\sconts\s(typo)
-D 2014-12-11T22:23:10.191
+C On\s302\sredirects,\scause\saddr\sand\s\ssocket\sreinitialize\sso\sit\shas\sthe\sinfo\nfor\sthe\snew\slocation\sand\snot\sthe\sold.\sThis\smay\saddress\sa\sbug\sreported\son\nthe\s\sML\sby\s\sAshwin\sHirschi\s\sin\swhich\s\sa\sredirect\s\swas\scausing\s\sFossil\sto\nsegfault,\slikely\sdue\sto\sredirecting\s\sto\sthe\ssame\ssite\srepeatedly\sbecause\naddr\swas\sremaining\sunchanged.
+D 2014-12-12T06:30:43.888
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -356,8 +353,8 @@ F src/fusefs.c b8b126cf9a5322fa6a2afbb8768d38859da61daf
 F src/glob.c 162eefbce151ba02dd67243d92633393c0aeb302
 F src/graph.c 57ddf309e5bf7be4f88b6ec36eb6296f6c278153
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
-F src/http.c 2bdf374282852ce5f9185c85b21959506dc0afb4
-F src/http_socket.c ce93672847d58de0888d686d2da4b4c552ed8e98
+F src/http.c b670bab6a02879c837ad9f68166e034d1c472aa5
+F src/http_socket.c 6764d44297ff6a770de8b7badedb8ce68641f4e8
 F src/http_ssl.c ed0b33af9b7819d4a6e6f24ae6508bd1b8c7b327
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
 F src/import.c 065b6bcb8bfefbf15f8eb0bcbc4e915e3418aa72
@@ -666,14 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 85f265625bc7653657139e3125a2c6d8be2ba497
-R 244ef9a510d3e7b3a6783544fd05fdb2
-U bch
-Z 52dc7fcf6f2e1d723a805739f832cd86
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlSKGU4ACgkQad0Kwpwugm/h+wCfaBLdh4I++PxrqhD1u8LEcAh2
-YXEAnRAHxjb0mf32o+wAgjlzh1FdZ5D5
-=y1PQ
------END PGP SIGNATURE-----
+P 37e234fa8893bb72a94648ce49dc70595b2077fd
+R d22e98f1144b95ac17d798612d68620b
+U andybradford
+Z 6db2f466fa441eb117d45adf780bc15d

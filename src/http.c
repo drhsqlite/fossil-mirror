@@ -344,6 +344,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       if( g.zHttpAuth ) free(g.zHttpAuth);
       g.zHttpAuth = get_httpauth();
       transport_close(&g.url);
+      transport_global_shutdown(&g.url);
       return http_exchange(pSend, pReply, useLogin, maxRedirect);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
       if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){
