@@ -140,6 +140,7 @@ int socket_open(UrlData *pUrlData){
 
   socket_global_init();
   if( !addrIsInit ){
+    memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
     addr.sin_port = htons(pUrlData->port);
     *(int*)&addr.sin_addr = inet_addr(pUrlData->name);
