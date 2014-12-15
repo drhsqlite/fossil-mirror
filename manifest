@@ -1,5 +1,5 @@
-C Simply\sthe\s"fileage"\swebpage\sby\sconverting\sto\suse\sof\sthe\n"files_of_checkin"\svirtual\stable.
-D 2014-12-15T15:47:11.046
+C A\snew,\sfaster,\simplementation\sof\sthe\scompute_fileage()\sutility\sthat\sis\nimplemented\sin\sSQL,\susing\sthe\sfiles_of_checkin\svirtual\stables\sand\sa\ncommon\stable\sexpression.
+D 2014-12-15T17:53:05.998
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -317,7 +317,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
 F src/branch.c 224c454d1a14c5879586596ada1d5d5db4be0d3f
-F src/browse.c 2795965c5a9eae175089dc45e25008e3d86f1676
+F src/browse.c 01cc15c5fa4b1d639b4d7914ad7e5f15c6e649ca
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 522cf5f66db5a6ee54bdc30e0f0468460f45fbf0
-R 2a6d77c3b20e3201a00d0905130d67e4
+P a0cc614326fa40e943f80126b2015256c35e9949
+R f0e80f94a9c6e26fb2f6b4e63ca3a044
 U drh
-Z 22f619d18aa0146528f5e632a8254422
+Z aed5b73e2d350572996db014cb1e02c8

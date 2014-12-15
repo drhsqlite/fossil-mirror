@@ -728,6 +728,38 @@ const char *fileext_class(const char *zFilename){
 }
 
 /*
+** SQL used to compute the age of all files in checkin :ckin whose
+** names match :glob
+*/
+static const char zComputeFileAgeSetup[] = 
+@ CREATE TABLE IF NOT EXISTS temp.fileage(
+@   fnid INTEGER PRIMARY KEY,
+@   fid INTEGER,
+@   mid INTEGER,
+@   mtime DATETIME,
+@   pathname TEXT
+@ );
+@ CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;
+;
+
+static const char zComputeFileAgeRun[] = 
+@ WITH RECURSIVE
+@   ckin(x) AS (VALUES(:ckin) UNION ALL
+@                 SELECT pid FROM ckin, plink WHERE cid=x AND isprim)
+@ INSERT OR IGNORE INTO fileage(fnid, fid, mid, mtime, pathname)
+@   SELECT mlink.fnid, mlink.fid, x, event.mtime, filename.name
+@     FROM ckin, mlink, event, filename
+@    WHERE mlink.mid=ckin.x
+@      AND mlink.fnid IN (SELECT fnid FROM foci, filename
+@                          WHERE foci.checkinID=:ckin
+@                            AND filename.name=foci.filename
+@                            AND filename.name GLOB :glob)
+@      AND filename.fnid=mlink.fnid
+@      AND event.objid=mlink.mid;
+;
+
+
+/*
 ** Look at all file containing in the version "vid".  Construct a
 ** temporary table named "fileage" that contains the file-id for each
 ** files, the pathname, the check-in where the file was added, and the
@@ -735,62 +767,13 @@ const char *fileext_class(const char *zFilename){
 ** the given glob are computed.
 */
 int compute_fileage(int vid, const char* zGlob){
-  int nFile = 0;
-  double vmtime;
-  Stmt q1, q2, q3;
-  Stmt upd;
-  if(zGlob && !*zGlob) zGlob = NULL;
-  db_multi_exec(
-    /*"DROP TABLE IF EXISTS temp.fileage;"*/
-    "CREATE TEMP TABLE fileage(\n"
-    "  fid INTEGER,\n"
-    "  mid INTEGER,\n"
-    "  mtime DATETIME,\n"
-    "  pathname TEXT\n"
-    ");\n"
-    "CREATE INDEX fileage_fid ON fileage(fid);\n"
-    "CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;\n"
-    "INSERT INTO temp.fileage(fid,pathname)"
-    "  SELECT blob.rid, foci.filename\n"
-    "    FROM foci, blob\n"
-    "   WHERE foci.checkinID=%d\n"
-    "     AND blob.uuid=foci.uuid\n"
-    "     AND foci.filename GLOB '%q';",
-    vid, zGlob ? zGlob : "*"
-  );
-  nFile = db_int(0, "SELECT count(*) FROM fileage");
-  db_prepare(&q1,"SELECT fid FROM mlink WHERE mid=:mid");
-  db_prepare(&upd, "UPDATE fileage SET mid=:mid, mtime=:vmtime"
-                      " WHERE fid=:fid AND mid IS NULL");
-  db_prepare(&q2,"SELECT pid FROM plink WHERE cid=:vid AND isprim");
-  db_prepare(&q3,"SELECT mtime FROM event WHERE objid=:vid");
-  while( nFile>0 && vid>0 ){
-    db_bind_int(&q3, ":vid", vid);
-    if( db_step(&q3)==SQLITE_ROW ){
-      vmtime = db_column_double(&q3, 0);
-    }else{
-      break;
-    }
-    db_reset(&q3);
-    db_bind_int(&q1, ":mid", vid);
-    db_bind_int(&upd, ":mid", vid);
-    db_bind_double(&upd, ":vmtime", vmtime);
-    while( db_step(&q1)==SQLITE_ROW ){
-      db_bind_int(&upd, ":fid", db_column_int(&q1, 0));
-      db_step(&upd);
-      nFile -= db_changes();
-      db_reset(&upd);
-    }
-    db_reset(&q1);
-    db_bind_int(&q2, ":vid", vid);
-    if( db_step(&q2)!=SQLITE_ROW ) break;
-    vid = db_column_int(&q2, 0);
-    db_reset(&q2);
-  }
-  db_finalize(&q1);
-  db_finalize(&upd);
-  db_finalize(&q2);
-  db_finalize(&q3);
+  Stmt q;
+  db_multi_exec(zComputeFileAgeSetup /*works-like:"constant"*/);
+  db_prepare(&q, zComputeFileAgeRun /*works-like:"constant"*/);
+  db_bind_int(&q, ":ckin", vid);
+  db_bind_text(&q, ":glob", zGlob && zGlob[0] ? zGlob : "*");
+  db_exec(&q);
+  db_finalize(&q);
   return 0;
 }
 
@@ -815,7 +798,6 @@ char *human_readable_age(double rAge){
     return mprintf("%.2f years", rAge/365.0);
   }
 }
-
 
 /*
 ** COMMAND: test-fileage
