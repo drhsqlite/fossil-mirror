@@ -48,7 +48,8 @@ struct FociTable {
 struct FociCursor {
   sqlite3_vtab_cursor base; /* Base class - must be first */
   Manifest *pMan;           /* Current manifest */
-  int iFile;                /* Index of current file */
+  ManifestFile *pFile;      /* Current file */
+  int iFile;                /* File index */
 };
 #endif /* INTERFACE */
 
@@ -129,13 +130,14 @@ static int fociClose(sqlite3_vtab_cursor *pCursor){
 */
 static int fociNext(sqlite3_vtab_cursor *pCursor){
   FociCursor *pCsr = (FociCursor *)pCursor;
+  pCsr->pFile = manifest_file_next(pCsr->pMan, 0);
   pCsr->iFile++;
   return SQLITE_OK;
 }
 
 static int fociEof(sqlite3_vtab_cursor *pCursor){
   FociCursor *pCsr = (FociCursor *)pCursor;
-  return pCsr->pMan==0 || pCsr->iFile>=pCsr->pMan->nFile;
+  return pCsr->pFile==0;
 }
 
 static int fociFilter(
@@ -148,6 +150,8 @@ static int fociFilter(
   if( idxNum ){
     pCur->pMan = manifest_get(sqlite3_value_int(argv[0]), CFTYPE_MANIFEST, 0);
     pCur->iFile = 0;
+    manifest_file_rewind(pCur->pMan);
+    pCur->pFile = manifest_file_next(pCur->pMan, 0);
   }else{
     pCur->pMan = 0;
     pCur->iFile = 0;
@@ -166,19 +170,19 @@ static int fociColumn(
       sqlite3_result_int(ctx, pCsr->pMan->rid);
       break;
     case 1:            /* filename */
-      sqlite3_result_text(ctx, pCsr->pMan->aFile[pCsr->iFile].zName, -1,
+      sqlite3_result_text(ctx, pCsr->pFile->zName, -1,
                           SQLITE_TRANSIENT);
       break;
     case 2:            /* uuid */
-      sqlite3_result_text(ctx, pCsr->pMan->aFile[pCsr->iFile].zUuid, -1,
+      sqlite3_result_text(ctx, pCsr->pFile->zUuid, -1,
                           SQLITE_TRANSIENT);
       break;
     case 3:            /* previousName */
-      sqlite3_result_text(ctx, pCsr->pMan->aFile[pCsr->iFile].zPrior, -1,
+      sqlite3_result_text(ctx, pCsr->pFile->zPrior, -1,
                           SQLITE_TRANSIENT);
       break;
     case 4:            /* perm */
-      sqlite3_result_text(ctx, pCsr->pMan->aFile[pCsr->iFile].zPerm, -1,
+      sqlite3_result_text(ctx, pCsr->pFile->zPerm, -1,
                           SQLITE_TRANSIENT);
       break;
   }

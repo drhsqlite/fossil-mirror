@@ -728,6 +728,38 @@ const char *fileext_class(const char *zFilename){
 }
 
 /*
+** SQL used to compute the age of all files in checkin :ckin whose
+** names match :glob
+*/
+static const char zComputeFileAgeSetup[] = 
+@ CREATE TABLE IF NOT EXISTS temp.fileage(
+@   fnid INTEGER PRIMARY KEY,
+@   fid INTEGER,
+@   mid INTEGER,
+@   mtime DATETIME,
+@   pathname TEXT
+@ );
+@ CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;
+;
+
+static const char zComputeFileAgeRun[] = 
+@ WITH RECURSIVE
+@   ckin(x) AS (VALUES(:ckin) UNION ALL
+@                 SELECT pid FROM ckin, plink WHERE cid=x AND isprim)
+@ INSERT OR IGNORE INTO fileage(fnid, fid, mid, mtime, pathname)
+@   SELECT mlink.fnid, mlink.fid, x, event.mtime, filename.name
+@     FROM ckin, mlink, event, filename
+@    WHERE mlink.mid=ckin.x
+@      AND mlink.fnid IN (SELECT fnid FROM foci, filename
+@                          WHERE foci.checkinID=:ckin
+@                            AND filename.name=foci.filename
+@                            AND filename.name GLOB :glob)
+@      AND filename.fnid=mlink.fnid
+@      AND event.objid=mlink.mid;
+;
+
+
+/*
 ** Look at all file containing in the version "vid".  Construct a
 ** temporary table named "fileage" that contains the file-id for each
 ** files, the pathname, the check-in where the file was added, and the
@@ -735,74 +767,66 @@ const char *fileext_class(const char *zFilename){
 ** the given glob are computed.
 */
 int compute_fileage(int vid, const char* zGlob){
-  Manifest *pManifest;
-  ManifestFile *pFile;
-  int nFile = 0;
-  double vmtime;
-  Stmt ins;
-  Stmt q1, q2, q3;
-  Stmt upd;
-  if(zGlob && !*zGlob) zGlob = NULL;
-  db_multi_exec(
-    /*"DROP TABLE IF EXISTS temp.fileage;"*/
-    "CREATE TEMP TABLE fileage("
-    "  fid INTEGER,"
-    "  mid INTEGER,"
-    "  mtime DATETIME,"
-    "  pathname TEXT"
-    ");"
-    "CREATE INDEX fileage_fid ON fileage(fid);"
-  );
-  pManifest = manifest_get(vid, CFTYPE_MANIFEST, 0);
-  if( pManifest==0 ) return 1;
-  manifest_file_rewind(pManifest);
-  db_prepare(&ins,
-     "INSERT INTO temp.fileage(fid, pathname)"
-     "  SELECT rid, :path FROM blob WHERE uuid=:uuid"
-  );
-  while( (pFile = manifest_file_next(pManifest, 0))!=0 ){
-    if( zGlob && sqlite3_strglob(zGlob, pFile->zName)!=0 ) continue;
-    db_bind_text(&ins, ":uuid", pFile->zUuid);
-    db_bind_text(&ins, ":path", pFile->zName);
-    db_step(&ins);
-    db_reset(&ins);
-    nFile++;
-  }
-  db_finalize(&ins);
-  manifest_destroy(pManifest);
-  db_prepare(&q1,"SELECT fid FROM mlink WHERE mid=:mid");
-  db_prepare(&upd, "UPDATE fileage SET mid=:mid, mtime=:vmtime"
-                      " WHERE fid=:fid AND mid IS NULL");
-  db_prepare(&q2,"SELECT pid FROM plink WHERE cid=:vid AND isprim");
-  db_prepare(&q3,"SELECT mtime FROM event WHERE objid=:vid");
-  while( nFile>0 && vid>0 ){
-    db_bind_int(&q3, ":vid", vid);
-    if( db_step(&q3)==SQLITE_ROW ){
-      vmtime = db_column_double(&q3, 0);
-    }else{
-      break;
-    }
-    db_reset(&q3);
-    db_bind_int(&q1, ":mid", vid);
-    db_bind_int(&upd, ":mid", vid);
-    db_bind_double(&upd, ":vmtime", vmtime);
-    while( db_step(&q1)==SQLITE_ROW ){
-      db_bind_int(&upd, ":fid", db_column_int(&q1, 0));
-      db_step(&upd);
-      nFile -= db_changes();
-      db_reset(&upd);
-    }
-    db_reset(&q1);
-    db_bind_int(&q2, ":vid", vid);
-    if( db_step(&q2)!=SQLITE_ROW ) break;
-    vid = db_column_int(&q2, 0);
-    db_reset(&q2);
-  }
-  db_finalize(&q1);
-  db_finalize(&upd);
-  db_finalize(&q2);
-  db_finalize(&q3);
+  Stmt q;
+  db_multi_exec(zComputeFileAgeSetup /*works-like:"constant"*/);
+  db_prepare(&q, zComputeFileAgeRun /*works-like:"constant"*/);
+  db_bind_int(&q, ":ckin", vid);
+  db_bind_text(&q, ":glob", zGlob && zGlob[0] ? zGlob : "*");
+  db_exec(&q);
+  db_finalize(&q);
   return 0;
+}
+
+/*
+** Render the number of days in rAge as a more human-readable time span.
+** Different units (seconds, minutes, hours, days, months, years) are
+** selected depending on the magnitude of rAge.
+**
+** The string returned is obtained from fossil_malloc() and should be
+** freed by the caller.
+*/
+char *human_readable_age(double rAge){
+  if( rAge*86400.0<120 ){
+    return mprintf("%d seconds", (int)(rAge*86400.0));
+  }else if( rAge*1440.0<90 ){
+    return mprintf("%.1f minutes", rAge*1440.0);
+  }else if( rAge*24.0<36 ){
+    return mprintf("%.1f hours", rAge*24.0);
+  }else if( rAge<365.0 ){
+    return mprintf("%.1f days", rAge);
+  }else{
+    return mprintf("%.2f years", rAge/365.0);
+  }
+}
+
+/*
+** COMMAND: test-fileage
+**
+** Usage: %fossil test-fileage CHECKIN
+*/
+void test_fileage_cmd(void){
+  int mid;
+  Stmt q;
+  const char *zGlob = find_option("glob",0,1);
+  db_find_and_open_repository(0,0);
+  verify_all_options();
+  if( g.argc!=3 ) usage("test-fileage CHECKIN");
+  mid = name_to_typed_rid(g.argv[2],"ci");
+  compute_fileage(mid, zGlob);
+  db_prepare(&q,
+    "SELECT fid, mid, julianday('now') - mtime, pathname"
+    "  FROM fileage"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    char *zAge = human_readable_age(db_column_double(&q,2));
+    fossil_print("%8d %8d %16s %s\n",
+      db_column_int(&q,0),
+      db_column_int(&q,1),
+      zAge,
+      db_column_text(&q,3));
+    fossil_free(zAge);
+  }
+  db_finalize(&q);
 }
 
 /*
@@ -853,30 +877,19 @@ void fileage_page(void){
     double age = baseTime - db_column_double(&q, 0);
     int mid = db_column_int(&q, 2);
     const char *zFUuid = db_column_text(&q, 1);
-    char zAge[200];
+    char *zAge = 0;
     if( lastMid!=mid ){
       @ <tr><td colspan=3><hr></tr>
       lastMid = mid;
-      if( age*86400.0<120 ){
-        sqlite3_snprintf(sizeof(zAge), zAge, "%d seconds", (int)(age*86400.0));
-      }else if( age*1440.0<90 ){
-        sqlite3_snprintf(sizeof(zAge), zAge, "%.1f minutes", age*1440.0);
-      }else if( age*24.0<36 ){
-        sqlite3_snprintf(sizeof(zAge), zAge, "%.1f hours", age*24.0);
-      }else if( age<365.0 ){
-        sqlite3_snprintf(sizeof(zAge), zAge, "%.1f days", age);
-      }else{
-        sqlite3_snprintf(sizeof(zAge), zAge, "%.2f years", age/365.0);
-      }
-    }else{
-      zAge[0] = 0;
+      zAge = human_readable_age(age);
     }
     @ <tr>
-    @ <td>%s(zAge)
+    @ <td>%s(zAge?zAge:"")
     @ <td width="25">
     @ <td>%z(href("%R/artifact/%s?ln", zFUuid))%h(db_column_text(&q, 3))</a>
     @ </tr>
     @
+    fossil_free(zAge);
   }
   @ <tr><td colspan=3><hr></tr>
   @ </table>
