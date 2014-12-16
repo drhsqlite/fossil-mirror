@@ -1,5 +1,5 @@
-C Improvements\sto\sHTTP\sredirect\son\ssync.
-D 2014-12-16T02:37:43.855
+C Enhance\sthe\s"fileage"\swebpage\sso\sthat\sit\sshows\sages\srelative\sto\scurrent\stime\nrather\sthan\srelative\sto\sthe\slast\scheckin,\sso\sthat\sit\sshows\sassociated\scheckin\ncomments,\sand\sso\sthat\sit\sis\sstyled\susing\sCSS.
+D 2014-12-16T14:46:55.712
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -317,7 +317,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
 F src/branch.c 224c454d1a14c5879586596ada1d5d5db4be0d3f
-F src/browse.c 01cc15c5fa4b1d639b4d7914ad7e5f15c6e649ca
+F src/browse.c 8d0a0decc3d1d88d9ad8a8ebe718b74d8d109dc7
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
@@ -420,7 +420,7 @@ F src/sqlite3.c 56000991a7b983adbb5d489edc201fe710aa737a
 F src/sqlite3.h 4ae9e4e6f8e8c266a18a440f7c4a17d6e1bffd0e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c d058aef03224498f96facc0ffcdebce34952970e
-F src/style.c 627066920ce1d00e737018c206fc9db8115cab51
+F src/style.c 34d2bfb3d12e9c3348d957fa6e08313bd28607ea
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 3e5c18658ada7bc2bfe21eea4ec47eaa89776e6e
 F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c556f8c61cb11f9a7dcd0488045f6fa3879e37c1
-R 673fcecfd6fb2ac1e5da73da21790092
+P 3a00b612d449eaf37e6ba786b8105f61b29d17ff
+R a2ba0c0e53a42a656f8e26b9e02503b8
 U drh
-Z ff8d0d6b2373919eebc5e5dd665affc4
+Z 84bd9bfb358f3fcc56d372444284285c

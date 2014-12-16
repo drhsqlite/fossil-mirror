@@ -1221,6 +1221,25 @@ const struct strctCssDefaults {
     @ vertical-align: top;
     @ white-space: nowrap;
   },
+  { ".fileage table",
+    "The fileage table",
+    @ border-spacing: 0;
+  },
+  { ".fileage td",
+    "fileage table cells",
+    @ vertical-align: top;
+    @ text-align: left;
+    @ border-top: 1px solid black;
+  },
+  { ".fileage td:first-child",
+    "fileage first column (the age)",
+    @ white-space: nowrap;
+  },
+  { ".fileage td:first-child + td",
+    "fileage second column (the filename)",
+    @ padding-left: 1em;
+    @ padding-right: 1em;
+  },
   { 0,
     0,
     0

@@ -840,11 +840,9 @@ void test_fileage_cmd(void){
 void fileage_page(void){
   int rid;
   const char *zName;
-  char *zBaseTime;
   const char *zGlob;
-  Stmt q;
+  Stmt q1, q2;
   double baseTime;
-  int lastMid = -1;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   zName = P("name");
@@ -857,42 +855,67 @@ void fileage_page(void){
   style_header("File Ages");
   zGlob = P("glob");
   compute_fileage(rid,zGlob);
-  baseTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
-  zBaseTime = db_text("","SELECT datetime(%.20g%s)", baseTime, timeline_utc());
-  @ <h2>File Ages For Check-in
-  @ %z(href("%R/info?name=%T",zName))%h(zName)</a></h2>
+  db_multi_exec("CREATE INDEX fileage_ix1 ON fileage(mid,pathname);");
+
+  baseTime = db_double(0.0, "SELECT julianday('now');");
+  @ <h2>Most recent change to files in checkin
+  @ %z(href("%R/info?name=%T",zName))%h(zName)</a>
+  if( zGlob && zGlob[0] ){
+    @ that match "%h(zGlob)"
+  }
+  @</h2>
   @
-  @ <p>The times given are relative to
-  @ %z(href("%R/timeline?c=%T",zBaseTime))%s(zBaseTime)</a>, which is the
-  @ check-in time for
-  @ %z(href("%R/info?name=%T",zName))%h(zName)</a></p>
-  @
-  @ <table border=0 cellspacing=0 cellpadding=0>
-  db_prepare(&q,
-    "SELECT mtime, (SELECT uuid FROM blob WHERE rid=fid), mid, pathname"
-    "  FROM fileage"
-    " ORDER BY mtime DESC, mid, pathname"
+  @ <div class='fileage'><table>
+  @ <tr><th>Age</th><th>Files</th><th>Checkin</th></tr>
+  db_prepare(&q1,
+    "SELECT event.mtime, event.objid, blob.uuid,\n"
+    "       coalesce(event.ecomment,event.comment),\n"
+    "       coalesce(event.euser,event.user),\n"
+    "       coalesce((SELECT value FROM tagxref\n"
+    "                  WHERE tagtype>0 AND tagid=%d\n"
+    "                    AND rid=event.objid),'trunk')\n"
+    "  FROM event, blob\n"
+    " WHERE event.objid IN (SELECT mid FROM fileage)\n"
+    "   AND blob.rid=event.objid\n"
+    " ORDER BY event.mtime DESC;",
+    TAG_BRANCH
   );
-  while( db_step(&q)==SQLITE_ROW ){
-    double age = baseTime - db_column_double(&q, 0);
-    int mid = db_column_int(&q, 2);
-    const char *zFUuid = db_column_text(&q, 1);
-    char *zAge = 0;
-    if( lastMid!=mid ){
-      @ <tr><td colspan=3><hr></tr>
-      lastMid = mid;
-      zAge = human_readable_age(age);
+  db_prepare(&q2,
+    "SELECT blob.uuid, filename.name\n"
+    "  FROM fileage, blob, filename\n"
+    " WHERE fileage.mid=:mid AND filename.fnid=fileage.fnid"
+    "   AND blob.rid=fileage.fid;"
+  );
+  while( db_step(&q1)==SQLITE_ROW ){
+    double age = baseTime - db_column_double(&q1, 0);
+    int mid = db_column_int(&q1, 1);
+    const char *zUuid = db_column_text(&q1, 2);
+    const char *zComment = db_column_text(&q1, 3);
+    const char *zUser = db_column_text(&q1, 4);
+    const char *zBranch = db_column_text(&q1, 5);
+    char *zAge = human_readable_age(age);
+    @ <tr><td>%s(zAge)</td>
+    @ <td>
+    db_bind_int(&q2, ":mid", mid);
+    while( db_step(&q2)==SQLITE_ROW ){
+      const char *zFUuid = db_column_text(&q2,0);
+      const char *zFile = db_column_text(&q2,1);
+      @ %z(href("%R/artifact/%s",zFUuid))%h(zFile)</a><br>
     }
-    @ <tr>
-    @ <td>%s(zAge?zAge:"")
-    @ <td width="25">
-    @ <td>%z(href("%R/artifact/%s?ln", zFUuid))%h(db_column_text(&q, 3))</a>
-    @ </tr>
+    db_reset(&q2);
+    @ </td>
+    @ <td>
+    @ %z(href("%R/info/%s",zUuid))[%S(zUuid)]</a>
+    @ %W(zComment) (user:
+    @ %z(href("%R/timeline?u=%t&c=%t&nd&n=200",zUser,zUuid))%h(zUser)</a>,
+    @ branch:
+    @ %z(href("%R/timeline?r=%t&c=%t&nd&n=200",zBranch,zUuid))%h(zBranch)</a>)
+    @ </td></tr>
     @
     fossil_free(zAge);
   }
-  @ <tr><td colspan=3><hr></tr>
-  @ </table>
-  db_finalize(&q);
+  @ </table></div>
+  db_finalize(&q1);
+  db_finalize(&q2);
   style_footer();
 }
