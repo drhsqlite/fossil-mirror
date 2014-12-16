@@ -129,7 +129,6 @@ static void undo_all_filesystem(int redoFlag){
 static void undo_all(int redoFlag){
   int ucid;
   int ncid;
-  const char *zDb = db_name("localdb");
   undo_all_filesystem(redoFlag);
   db_multi_exec(
     "CREATE TEMP TABLE undo_vfile_2 AS SELECT * FROM vfile;"
@@ -145,7 +144,7 @@ static void undo_all(int redoFlag){
     "INSERT INTO undo_vmerge SELECT * FROM undo_vmerge_2;"
     "DROP TABLE undo_vmerge_2;"
   );
-  if( db_table_exists(zDb, "undo_stash") ){
+  if( db_table_exists("localdb", "undo_stash") ){
     if( redoFlag ){
       db_multi_exec(
         "DELETE FROM stash WHERE stashid IN (SELECT stashid FROM undo_stash);"
