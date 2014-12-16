@@ -43,7 +43,7 @@
 ** local variables:
 */
 static int sslIsInit = 0;    /* True after global initialization */
-static BIO *iBio;            /* OpenSSL I/O abstraction */
+static BIO *iBio = 0;        /* OpenSSL I/O abstraction */
 static char *sslErrMsg = 0;  /* Text of most recent OpenSSL error */
 static SSL_CTX *sslCtx;      /* SSL context */
 static SSL *ssl;
@@ -173,6 +173,7 @@ void ssl_close(void){
   if( iBio!=NULL ){
     (void)BIO_reset(iBio);
     BIO_free_all(iBio);
+    iBio = NULL;
   }
 }
 
