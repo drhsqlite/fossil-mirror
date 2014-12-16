@@ -312,6 +312,7 @@ struct FileTreeNode {
   char *zName;              /* Name of this entry.  The "tail" */
   char *zFullName;          /* Full pathname of this entry */
   char *zUuid;              /* SHA1 hash of this file.  May be NULL. */
+  double mtime;             /* Modification time for this entry */
   unsigned nFullName;       /* Length of zFullName */
   unsigned iLevel;          /* Levels of parent directories */
   u8 isDir;                 /* True if there are children */
@@ -333,7 +334,8 @@ struct FileTree {
 static void tree_add_node(
   FileTree *pTree,         /* Tree into which nodes are added */
   const char *zPath,       /* The full pathname of file to add */
-  const char *zUuid        /* UUID of the file.  Might be NULL. */
+  const char *zUuid,       /* UUID of the file.  Might be NULL. */
+  double mtime             /* Modification time for this entry */
 ){
   int i;
   FileTreeNode *pParent;
@@ -381,8 +383,15 @@ static void tree_add_node(
     pNew->iLevel = pParent ? pParent->iLevel+1 : 0;
     pNew->isDir = zPath[i]=='/';
     pNew->isLast = 1;
+    pNew->mtime = mtime;
     while( zPath[i]=='/' ){ i++; }
     pParent = pNew;
+  }
+  while( pParent && pParent->pParent ){
+    if( pParent->pParent->mtime < pParent->mtime ){
+      pParent->pParent->mtime = pParent->mtime;
+    }
+    pParent = pParent->pParent;
   }
 }
 
@@ -405,6 +414,7 @@ void page_tree(void){
   char *zUuid = 0;
   Blob dirname;
   Manifest *pM = 0;
+  double rNow = db_double(0.0,"SELECT julianday('now')");
   int nFile = 0;           /* Number of files (or folders with "nofiles") */
   int linkTrunk = 1;       /* include link to "trunk" */
   int linkTip = 1;         /* include link to "tip" */
@@ -509,34 +519,21 @@ void page_tree(void){
   /* Compute the file hierarchy.
   */
   if( zCI ){
-    Stmt ins, q;
-    ManifestFile *pFile;
-
-    db_multi_exec(
-        "CREATE TEMP TABLE filelist("
-        "   x TEXT PRIMARY KEY COLLATE nocase,"
-        "   uuid TEXT"
-        ") WITHOUT ROWID;"
+    Stmt q;
+    compute_fileage(rid, 0);
+    db_prepare(&q,
+       "SELECT filename.name, blob.uuid, fileage.mtime\n"
+       "  FROM fileage, filename, blob\n"
+       " WHERE filename.fnid=fileage.fnid\n"
+       "   AND blob.rid=fileage.fid\n"
+       " ORDER BY filename.name COLLATE nocase;"
     );
-    db_prepare(&ins, "INSERT OR IGNORE INTO filelist VALUES(:f,:u)");
-    manifest_file_rewind(pM);
-    while( (pFile = manifest_file_next(pM,0))!=0 ){
-      if( nD>0
-       && (fossil_strncmp(pFile->zName, zD, nD-1)!=0
-           || pFile->zName[nD-1]!='/')
-      ){
-        continue;
-      }
-      if( pRE && re_match(pRE, (const u8*)pFile->zName, -1)==0 ) continue;
-      db_bind_text(&ins, ":f", pFile->zName);
-      db_bind_text(&ins, ":u", pFile->zUuid);
-      db_step(&ins);
-      db_reset(&ins);
-    }
-    db_finalize(&ins);
-    db_prepare(&q, "SELECT x, uuid FROM filelist ORDER BY x");
     while( db_step(&q)==SQLITE_ROW ){
-      tree_add_node(&sTree, db_column_text(&q,0), db_column_text(&q,1));
+      const char *zFile = db_column_text(&q,0);
+      const char *zUuid = db_column_text(&q,1);
+      double mtime = db_column_double(&q,2);
+      if( pRE && re_match(pRE, (const unsigned char*)zFile, -1)==0 ) continue;
+      tree_add_node(&sTree, zFile, zUuid, mtime);
       nFile++;
     }
     db_finalize(&q);
@@ -549,7 +546,7 @@ void page_tree(void){
         continue;
       }
       if( pRE && re_match(pRE, (const u8*)z, -1)==0 ) continue;
-      tree_add_node(&sTree, z, 0);
+      tree_add_node(&sTree, z, 0, 0.0);
       nFile++;
     }
     db_finalize(&q);
@@ -606,6 +603,10 @@ void page_tree(void){
       const char *zSubdirClass = p->nFullName==nD-1 ? " subdir" : "";
       @ <li class="dir%s(zSubdirClass)%s(zLastClass)">
       @ %z(href("%s",url_render(&sURI,"name",p->zFullName,0,0)))%h(p->zName)</a>
+      if( p->mtime>0 ){
+        char *zAge = human_readable_age(rNow - p->mtime);
+        @ <div class="filetreeage">%s(zAge) ago</div>
+      }
       if( startExpanded || p->nFullName<=nD ){
         @ <ul id="dir%d(nDir)">
       }else{
@@ -621,6 +622,10 @@ void page_tree(void){
         zLink = href("%R/finfo?name=%T",p->zFullName);
       }
       @ <li class="%z(zFileClass)%s(zLastClass)">%z(zLink)%h(p->zName)</a>
+      if( p->mtime>0 ){
+        char *zAge = human_readable_age(rNow - p->mtime);
+        @ <div class="filetreeage">%s(zAge) ago</div>
+      }
     }
     if( p->isLast ){
       int nClose = p->iLevel - (p->pNext ? p->pNext->iLevel : 0);

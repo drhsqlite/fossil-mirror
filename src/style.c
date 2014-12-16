@@ -845,6 +845,11 @@ const struct strctCssDefaults {
     "tree-view directory links",
     @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
   },
+  { "div.filetreeage",
+    "Last change floating display on the right",
+    @  clear: right;
+    @  float: right;
+  },
   { "table.login_out",
     "table format for login/out label/input table",
     @   text-align: left;
