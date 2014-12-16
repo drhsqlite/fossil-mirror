@@ -306,17 +306,17 @@ typedef struct FileTree FileTree;
 ** A single line of the file hierarchy
 */
 struct FileTreeNode {
-  FileTreeNode *pNext;      /* Next line in sequence */
-  FileTreeNode *pPrev;      /* Previous line */
-  FileTreeNode *pParent;    /* Directory containing this line */
+  FileTreeNode *pNext;      /* Next entry in an ordered list of them all */
+  FileTreeNode *pParent;    /* Directory containing this entry */
+  FileTreeNode *pSibling;   /* Next element in the same subdirectory */
+  FileTreeNode *pChild;     /* List of child nodes */
+  FileTreeNode *pLastChild; /* Last child on the pChild list */
   char *zName;              /* Name of this entry.  The "tail" */
   char *zFullName;          /* Full pathname of this entry */
   char *zUuid;              /* SHA1 hash of this file.  May be NULL. */
   double mtime;             /* Modification time for this entry */
   unsigned nFullName;       /* Length of zFullName */
   unsigned iLevel;          /* Levels of parent directories */
-  u8 isDir;                 /* True if there are children */
-  u8 isLast;                /* True if this is the last child of its parent */
 };
 
 /*
@@ -325,11 +325,20 @@ struct FileTreeNode {
 struct FileTree {
   FileTreeNode *pFirst;     /* First line of the list */
   FileTreeNode *pLast;      /* Last line of the list */
+  FileTreeNode *pLastTop;   /* Last top-level node */
 };
 
 /*
 ** Add one or more new FileTreeNodes to the FileTree object so that the
-** leaf object zPathname is at the end of the node list
+** leaf object zPathname is at the end of the node list.
+**
+** The caller invokes this routine once for each leaf node (each file
+** as opposed to each directory).  This routine fills in any missing
+** intermediate nodes automatically.
+**
+** When constructing a list of FileTreeNodes, all entries that have
+** a common directory prefix must be added consecutively in order for
+** the tree to be constructed properly.
 */
 static void tree_add_node(
   FileTree *pTree,         /* Tree into which nodes are added */
@@ -338,20 +347,19 @@ static void tree_add_node(
   double mtime             /* Modification time for this entry */
 ){
   int i;
-  FileTreeNode *pParent;
-  FileTreeNode *pChild;
+  FileTreeNode *pParent;   /* Parent (directory) of the next node to insert */
 
-  pChild = pTree->pLast;
-  pParent = pChild ? pChild->pParent : 0;
+  /* Make pParent point to the most recent ancestor of zPath, or
+  ** NULL if there are no prior entires that are a container for zPath.
+  */
+  pParent = pTree->pLast;
   while( pParent!=0 &&
       ( strncmp(pParent->zFullName, zPath, pParent->nFullName)!=0
         || zPath[pParent->nFullName]!='/' )
   ){
-    pChild = pParent;
-    pParent = pChild->pParent;
+    pParent = pParent->pParent;
   }
   i = pParent ? pParent->nFullName+1 : 0;
-  if( pChild ) pChild->isLast = 0;
   while( zPath[i] ){
     FileTreeNode *pNew;
     int iStart = i;
@@ -360,6 +368,7 @@ static void tree_add_node(
     nByte = sizeof(*pNew) + i + 1;
     if( zUuid!=0 && zPath[i]==0 ) nByte += UUID_SIZE+1;
     pNew = fossil_malloc( nByte );
+    memset(pNew, 0, sizeof(*pNew));
     pNew->zFullName = (char*)&pNew[1];
     memcpy(pNew->zFullName, zPath, i);
     pNew->zFullName[i] = 0;
@@ -367,8 +376,6 @@ static void tree_add_node(
     if( zUuid!=0 && zPath[i]==0 ){
       pNew->zUuid = pNew->zFullName + i + 1;
       memcpy(pNew->zUuid, zUuid, UUID_SIZE+1);
-    }else{
-      pNew->zUuid = 0;
     }
     pNew->zName = pNew->zFullName + iStart;
     if( pTree->pLast ){
@@ -376,13 +383,20 @@ static void tree_add_node(
     }else{
       pTree->pFirst = pNew;
     }
-    pNew->pPrev = pTree->pLast;
-    pNew->pNext = 0;
-    pNew->pParent = pParent;
     pTree->pLast = pNew;
-    pNew->iLevel = pParent ? pParent->iLevel+1 : 0;
-    pNew->isDir = zPath[i]=='/';
-    pNew->isLast = 1;
+    pNew->pParent = pParent;
+    if( pParent ){
+      if( pParent->pChild ){
+        pParent->pLastChild->pSibling = pNew;
+      }else{
+        pParent->pChild = pNew;
+      }
+      pNew->iLevel = pParent->iLevel + 1;
+      pParent->pLastChild = pNew;
+    }else{
+      if( pTree->pLastTop ) pTree->pLastTop->pSibling = pNew;
+      pTree->pLastTop = pNew;
+    }
     pNew->mtime = mtime;
     while( zPath[i]=='/' ){ i++; }
     pParent = pNew;
@@ -395,6 +409,100 @@ static void tree_add_node(
   }
 }
 
+/* Comparison function for two FileTreeNode objects.  Sort first by
+** mtime (larger numbers first) and then by zName (smaller names first).
+**
+** Return negative if pLeft<pRight.
+** Return positive if pLeft>pRight.
+** Return zero if pLeft==pRight.
+*/
+static int compareNodes(FileTreeNode *pLeft, FileTreeNode *pRight){
+  if( pLeft->mtime>pRight->mtime ) return -1;
+  if( pLeft->mtime<pRight->mtime ) return +1;
+  return fossil_stricmp(pLeft->zName, pRight->zName);
+}
+
+/* Merge together two sorted lists of FileTreeNode objects */
+static FileTreeNode *mergeNodes(FileTreeNode *pLeft,  FileTreeNode *pRight){
+  FileTreeNode *pEnd;
+  FileTreeNode base;
+  pEnd = &base;
+  while( pLeft && pRight ){
+    if( compareNodes(pLeft,pRight)<=0 ){
+      pEnd = pEnd->pSibling = pLeft;
+      pLeft = pLeft->pSibling;
+    }else{
+      pEnd = pEnd->pSibling = pRight;
+      pRight = pRight->pSibling;
+    }
+  }
+  if( pLeft ){
+    pEnd->pSibling = pLeft;
+  }else{
+    pEnd->pSibling = pRight;
+  }
+  return base.pSibling;
+}
+
+/* Sort a list of FileTreeNode objects in mtime order. */
+static FileTreeNode *sortNodesByMtime(FileTreeNode *p){
+  FileTreeNode *a[30];
+  FileTreeNode *pX;
+  int i;
+
+  memset(a, 0, sizeof(a));
+  while( p ){
+    pX = p;
+    p = pX->pSibling;
+    pX->pSibling = 0;
+    for(i=0; i<count(a)-1 && a[i]!=0; i++){
+      pX = mergeNodes(a[i], pX);
+      a[i] = 0;
+    }
+    a[i] = mergeNodes(a[i], pX);
+  }
+  pX = 0;
+  for(i=0; i<count(a); i++){
+    pX = mergeNodes(a[i], pX);
+  }
+  return pX;
+}
+
+/* Sort an entire FileTreeNode tree by mtime
+**
+** This routine invalidates the following fields:
+**
+**     FileTreeNode.pLastChild
+**     FileTreeNode.pNext
+**
+** Use relinkTree to reconnect the pNext pointers.
+*/
+static FileTreeNode *sortTreeByMtime(FileTreeNode *p){
+  FileTreeNode *pX;
+  for(pX=p; pX; pX=pX->pSibling){
+    if( pX->pChild ) pX->pChild = sortTreeByMtime(pX->pChild);
+  }
+  return sortNodesByMtime(p);
+}
+
+/* Reconstruct the FileTree by reconnecting the FileTreeNode.pNext
+** fields in sequential order.
+*/
+static void relinkTree(FileTree *pTree, FileTreeNode *pRoot){
+  while( pRoot ){
+    if( pTree->pLast ){
+      pTree->pLast->pNext = pRoot;
+    }else{
+      pTree->pFirst = pRoot;
+    }
+    pTree->pLast = pRoot;
+    if( pRoot->pChild ) relinkTree(pTree, pRoot->pChild);
+    pRoot = pRoot->pSibling;
+  }
+  if( pTree->pLast ) pTree->pLast->pNext = 0;
+}
+
+
 /*
 ** WEBPAGE: tree
 **
@@ -405,6 +513,7 @@ static void tree_add_node(
 **    re=REGEXP        Show only files matching REGEXP.  Optional.
 **    expand           Begin with the tree fully expanded.
 **    nofiles          Show directories (folders) only.  Omit files.
+**    mtime            Order directory elements by decreasing mtime
 */
 void page_tree(void){
   char *zD = fossil_strdup(P("name"));
@@ -558,7 +667,7 @@ void page_tree(void){
 
   if( showDirOnly ){
     for(nFile=0, p=sTree.pFirst; p; p=p->pNext){
-      if( p->isDir && p->nFullName>nD ) nFile++;
+      if( p->pChild!=0 && p->nFullName>nD ) nFile++;
     }
     zObjType = "folders";
     style_submenu_element("Files","Files","%s",
@@ -606,9 +715,14 @@ void page_tree(void){
   }
   @ </div>
   @ <ul>
+  if( zCI && P("mtime")!=0 ){
+    p = sortTreeByMtime(sTree.pFirst);
+    memset(&sTree, 0, sizeof(sTree));
+    relinkTree(&sTree, p);
+  }
   for(p=sTree.pFirst, nDir=0; p; p=p->pNext){
-    const char *zLastClass = p->isLast ? " last" : "";
-    if( p->isDir ){
+    const char *zLastClass = p->pSibling==0 ? " last" : "";
+    if( p->pChild ){
       const char *zSubdirClass = p->nFullName==nD-1 ? " subdir" : "";
       @ <li class="dir%s(zSubdirClass)%s(zLastClass)"><div class="filetreeline">
       @ %z(href("%s",url_render(&sURI,"name",p->zFullName,0,0)))%h(p->zName)</a>
@@ -639,7 +753,7 @@ void page_tree(void){
       }
       @ </div>
     }
-    if( p->isLast ){
+    if( p->pSibling==0 ){
       int nClose = p->iLevel - (p->pNext ? p->pNext->iLevel : 0);
       while( nClose-- > 0 ){
         @ </ul>
