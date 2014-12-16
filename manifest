@@ -1,5 +1,5 @@
-C Add\sthe\smtime\squery\sparameter\sto\sthe\s/tree\spage.
-D 2014-12-16T23:27:37.086
+C Add\s"Sort\sBy\sFilename"\sand\s"Sort\sBy\sTime"\sbuttons\sto\sthe\s/tree\swebpage.
+D 2014-12-16T23:49:54.812
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -317,7 +317,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
 F src/branch.c 224c454d1a14c5879586596ada1d5d5db4be0d3f
-F src/browse.c b6bfa0c8e0df4f82267fd49dd299684869d227ae
+F src/browse.c c116f2d764b8d885aee15cb217618c5bb17994ac
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 987af58824c150415da7d27b47b9df2dcd894618
-R 160a8dfcd8ef9c07f5f2f692d15a9b74
+P fd4e1b55d702de4d078473c58139baa0455b1534
+R d85208400da199ac90343b57000e5d99
 U drh
-Z 94a474d4b915a123cc4b8d24000aa756
+Z 9222a971588e122b726f6c1185154cf8
