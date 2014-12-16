@@ -1274,6 +1274,7 @@ void move_repo_cmd(void){
   }
   db_open_or_attach(zRepo, "test_repo", 0);
   db_lset("repository", blob_str(&repo));
+  db_record_repository_filename(blob_str(&repo));
   db_close(1);
 }
 
