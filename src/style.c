@@ -841,7 +841,7 @@ const struct strctCssDefaults {
     @   background-position: center left;
     @   background-repeat: no-repeat;
   },
-  { ".filetree .dir > a",
+  { ".filetree .dir > div.filetreeline > a",
     "tree-view directory links",
     @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
   },
@@ -849,6 +849,10 @@ const struct strctCssDefaults {
     "Last change floating display on the right",
     @  clear: right;
     @  float: right;
+  },
+  { "div.filetreeline:hover",
+    "Highlight the line of a file tree",
+    @  background-color: #eee;
   },
   { "table.login_out",
     "table format for login/out label/input table",

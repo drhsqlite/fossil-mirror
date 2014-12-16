@@ -414,7 +414,8 @@ void page_tree(void){
   char *zUuid = 0;
   Blob dirname;
   Manifest *pM = 0;
-  double rNow = db_double(0.0,"SELECT julianday('now')");
+  double rNow = 0;
+  char *zNow = 0;
   int nFile = 0;           /* Number of files (or folders with "nofiles") */
   int linkTrunk = 1;       /* include link to "trunk" */
   int linkTip = 1;         /* include link to "tip" */
@@ -476,6 +477,9 @@ void page_tree(void){
       linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       url_add_parameter(&sURI, "ci", zCI);
+      rNow = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
+      zNow = db_text("", "SELECT datetime(mtime,'localtime')"
+                         " FROM event WHERE objid=%d", rid);
     }else{
       zCI = 0;
     }
@@ -595,18 +599,24 @@ void page_tree(void){
   }else{
     @ <li class="dir subdir last">
   }
+  @ <div class="filetreeline">
   @ %z(href("%s",url_render(&sURI,"name",0,0,0)))%h(zProjectName)</a>
+  if( zNow ){
+    @ <div class="filetreeage">%s(zNow)</div>
+  }
+  @ </div>
   @ <ul>
   for(p=sTree.pFirst, nDir=0; p; p=p->pNext){
     const char *zLastClass = p->isLast ? " last" : "";
     if( p->isDir ){
       const char *zSubdirClass = p->nFullName==nD-1 ? " subdir" : "";
-      @ <li class="dir%s(zSubdirClass)%s(zLastClass)">
+      @ <li class="dir%s(zSubdirClass)%s(zLastClass)"><div class="filetreeline">
       @ %z(href("%s",url_render(&sURI,"name",p->zFullName,0,0)))%h(p->zName)</a>
-      if( p->mtime>0 ){
+      if( p->mtime>0.0 ){
         char *zAge = human_readable_age(rNow - p->mtime);
-        @ <div class="filetreeage">%s(zAge) ago</div>
+        @ <div class="filetreeage">%s(zAge)</div>
       }
+      @ </div>
       if( startExpanded || p->nFullName<=nD ){
         @ <ul id="dir%d(nDir)">
       }else{
@@ -621,11 +631,13 @@ void page_tree(void){
       }else{
         zLink = href("%R/finfo?name=%T",p->zFullName);
       }
-      @ <li class="%z(zFileClass)%s(zLastClass)">%z(zLink)%h(p->zName)</a>
+      @ <li class="%z(zFileClass)%s(zLastClass)"><div class="filetreeline">
+      @ %z(zLink)%h(p->zName)</a>
       if( p->mtime>0 ){
         char *zAge = human_readable_age(rNow - p->mtime);
-        @ <div class="filetreeage">%s(zAge) ago</div>
+        @ <div class="filetreeage">%s(zAge)</div>
       }
+      @ </div>
     }
     if( p->isLast ){
       int nClose = p->iLevel - (p->pNext ? p->pNext->iLevel : 0);
@@ -694,12 +706,12 @@ void page_tree(void){
   @   e = e || window.event;
   @   var a = e.target || e.srcElement;
   @   if( a.nodeName!='A' ) return true;
-  @   if( a.parentNode==subdir ){
+  @   if( a.parentNode.parentNode==subdir ){
   @     toggleAll(outer_ul);
   @     return false;
   @   }
   @   if( !belowSubdir(a) ) return true;
-  @   var ul = a.nextSibling;
+  @   var ul = a.parentNode.nextSibling;
   @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
   @   if( !ul ) return true; /* This is a file link, not a directory */
   @   toggleDir(ul);
@@ -792,15 +804,19 @@ int compute_fileage(int vid, const char* zGlob){
 */
 char *human_readable_age(double rAge){
   if( rAge*86400.0<120 ){
-    return mprintf("%d seconds", (int)(rAge*86400.0));
+    if( rAge*86400.0<1.0 ){
+      return mprintf("current");
+    }else{
+      return mprintf("-%d seconds", (int)(rAge*86400.0));
+    }
   }else if( rAge*1440.0<90 ){
-    return mprintf("%.1f minutes", rAge*1440.0);
+    return mprintf("-%.1f minutes", rAge*1440.0);
   }else if( rAge*24.0<36 ){
-    return mprintf("%.1f hours", rAge*24.0);
+    return mprintf("-%.1f hours", rAge*24.0);
   }else if( rAge<365.0 ){
-    return mprintf("%.1f days", rAge);
+    return mprintf("-%.1f days", rAge);
   }else{
-    return mprintf("%.2f years", rAge/365.0);
+    return mprintf("-%.2f years", rAge/365.0);
   }
 }
 
@@ -846,6 +862,8 @@ void fileage_page(void){
   int rid;
   const char *zName;
   const char *zGlob;
+  const char *zUuid;
+  const char *zNow;            /* Time of checkin */
   Stmt q1, q2;
   double baseTime;
   login_check_credentials();
@@ -856,22 +874,28 @@ void fileage_page(void){
   if( rid==0 ){
     fossil_fatal("not a valid check-in: %s", zName);
   }
+  zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
+  baseTime = db_double(0.0,"SELECT mtime FROM event WHERE objid=%d", rid);
+  zNow = db_text("", "SELECT datetime(mtime,'localtime') FROM event"
+                     " WHERE objid=%d", rid);
   style_submenu_element("Tree-View", "Tree-View", "%R/tree?ci=%T", zName);
   style_header("File Ages");
   zGlob = P("glob");
   compute_fileage(rid,zGlob);
   db_multi_exec("CREATE INDEX fileage_ix1 ON fileage(mid,pathname);");
 
-  baseTime = db_double(0.0, "SELECT julianday('now');");
   @ <h2>Most recent change to files in checkin
-  @ %z(href("%R/info?name=%T",zName))%h(zName)</a>
+  @ %z(href("%R/info?name=%T",zUuid))%S(zUuid)</a>
   if( zGlob && zGlob[0] ){
     @ that match "%h(zGlob)"
   }
   @</h2>
   @
+  @ <p>All times are shown relative to the check-in time for
+  @ %S(zUuid) which was %s(zNow).</p>
+  @
   @ <div class='fileage'><table>
-  @ <tr><th>Age</th><th>Files</th><th>Checkin</th></tr>
+  @ <tr><th>Time</th><th>Files</th><th>Checkin</th></tr>
   db_prepare(&q1,
     "SELECT event.mtime, event.objid, blob.uuid,\n"
     "       coalesce(event.ecomment,event.comment),\n"
