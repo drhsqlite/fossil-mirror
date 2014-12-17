@@ -942,16 +942,16 @@ char *human_readable_age(double rAge){
     if( rAge*86400.0<1.0 ){
       return mprintf("current");
     }else{
-      return mprintf("-%d seconds", (int)(rAge*86400.0));
+      return mprintf("%d seconds", (int)(rAge*86400.0));
     }
   }else if( rAge*1440.0<90 ){
-    return mprintf("-%.1f minutes", rAge*1440.0);
+    return mprintf("%.1f minutes", rAge*1440.0);
   }else if( rAge*24.0<36 ){
-    return mprintf("-%.1f hours", rAge*24.0);
+    return mprintf("%.1f hours", rAge*24.0);
   }else if( rAge<365.0 ){
-    return mprintf("-%.1f days", rAge);
+    return mprintf("%.1f days", rAge);
   }else{
-    return mprintf("-%.2f years", rAge/365.0);
+    return mprintf("%.2f years", rAge/365.0);
   }
 }
 
