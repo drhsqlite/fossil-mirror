@@ -104,7 +104,6 @@ set src {
   report
   rss
   schema
-  search
   setup
   sha1
   shun

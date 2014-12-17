@@ -98,7 +98,6 @@ SRC = \
   $(SRCDIR)/report.c \
   $(SRCDIR)/rss.c \
   $(SRCDIR)/schema.c \
-  $(SRCDIR)/search.c \
   $(SRCDIR)/setup.c \
   $(SRCDIR)/sha1.c \
   $(SRCDIR)/shun.c \
@@ -221,7 +220,6 @@ TRANS_SRC = \
   $(OBJDIR)/report_.c \
   $(OBJDIR)/rss_.c \
   $(OBJDIR)/schema_.c \
-  $(OBJDIR)/search_.c \
   $(OBJDIR)/setup_.c \
   $(OBJDIR)/sha1_.c \
   $(OBJDIR)/shun_.c \
@@ -341,7 +339,6 @@ OBJ = \
  $(OBJDIR)/report.o \
  $(OBJDIR)/rss.o \
  $(OBJDIR)/schema.o \
- $(OBJDIR)/search.o \
  $(OBJDIR)/setup.o \
  $(OBJDIR)/sha1.o \
  $(OBJDIR)/shun.o \
@@ -570,7 +567,6 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/report_.c:$(OBJDIR)/report.h \
 	$(OBJDIR)/rss_.c:$(OBJDIR)/rss.h \
 	$(OBJDIR)/schema_.c:$(OBJDIR)/schema.h \
-	$(OBJDIR)/search_.c:$(OBJDIR)/search.h \
 	$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
 	$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
 	$(OBJDIR)/shun_.c:$(OBJDIR)/shun.h \
@@ -1282,14 +1278,6 @@ $(OBJDIR)/schema.o:	$(OBJDIR)/schema_.c $(OBJDIR)/schema.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/schema.o -c $(OBJDIR)/schema_.c
 
 $(OBJDIR)/schema.h:	$(OBJDIR)/headers
-
-$(OBJDIR)/search_.c:	$(SRCDIR)/search.c $(OBJDIR)/translate
-	$(OBJDIR)/translate $(SRCDIR)/search.c >$@
-
-$(OBJDIR)/search.o:	$(OBJDIR)/search_.c $(OBJDIR)/search.h $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/search.o -c $(OBJDIR)/search_.c
-
-$(OBJDIR)/search.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/setup_.c:	$(SRCDIR)/setup.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/setup.c >$@

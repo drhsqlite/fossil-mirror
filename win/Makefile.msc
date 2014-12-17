@@ -281,7 +281,6 @@ SRC   = add_.c \
         report_.c \
         rss_.c \
         schema_.c \
-        search_.c \
         setup_.c \
         sha1_.c \
         shun_.c \
@@ -403,7 +402,6 @@ OBJ   = $(OX)\add$O \
         $(OX)\report$O \
         $(OX)\rss$O \
         $(OX)\schema$O \
-        $(OX)\search$O \
         $(OX)\setup$O \
         $(OX)\sha1$O \
         $(OX)\shell$O \
@@ -578,7 +576,6 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\report.obj >> $@
 	echo $(OX)\rss.obj >> $@
 	echo $(OX)\schema.obj >> $@
-	echo $(OX)\search.obj >> $@
 	echo $(OX)\setup.obj >> $@
 	echo $(OX)\sha1.obj >> $@
 	echo $(OX)\shell.obj >> $@
@@ -1220,12 +1217,6 @@ $(OX)\schema$O : schema_.c schema.h
 schema_.c : $(SRCDIR)\schema.c
 	translate$E $** > $@
 
-$(OX)\search$O : search_.c search.h
-	$(TCC) /Fo$@ -c search_.c
-
-search_.c : $(SRCDIR)\search.c
-	translate$E $** > $@
-
 $(OX)\setup$O : setup_.c setup.h
 	$(TCC) /Fo$@ -c setup_.c
 
@@ -1512,7 +1503,6 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			report_.c:report.h \
 			rss_.c:rss.h \
 			schema_.c:schema.h \
-			search_.c:search.h \
 			setup_.c:setup.h \
 			sha1_.c:sha1.h \
 			shun_.c:shun.h \

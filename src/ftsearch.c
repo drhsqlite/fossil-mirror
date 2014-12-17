@@ -324,6 +324,10 @@ void ftsearch_cmd(void){
     const char *zMark1 = "\033[1m";
     const char *zMark2 = "\033[0m";
 #endif
+    if( !db_table_exists("repository","ftsearch") ){
+      fossil_fatal("search is disabled - see \"fossil help search\""
+                   " for more information");
+    }
     db_prepare(&q, "SELECT "
       "       snippet(ftsearch,%Q,%Q,'...'),"
       "       ftsearchxref.ftsid"
