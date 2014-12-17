@@ -1,5 +1,5 @@
-C Remove\sthe\s"Flat-View"\ssubmenu\soption\sfrom\sthe\s/tree\spages.\s\sThe\sFlat-View\npage\sstill\sexists,\sand\sis\sreachable\sfrom\sthe\s/sitemap\spage.\s\sBut\sit\sis\sno\nlonger\sprominently\sfeatured.
-D 2014-12-17T01:39:47.549
+C Disable\sSSLv3\sby\sdefault,\sbut\sprovide\sa\snew\ssetting\s"ssl-enable-v3"\sto\senable\sit.
+D 2014-12-17T21:22:17.049
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -335,7 +335,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 8c4065fb0e73b2c1249c2c062df67be1fa1c53f5
+F src/db.c 2f374e87561a55cd7f869cb39b98dee238d5d87b
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 393ebd57f83ff9f2f87df9572430f399ecc95d47
@@ -355,7 +355,7 @@ F src/graph.c 57ddf309e5bf7be4f88b6ec36eb6296f6c278153
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 7d19b4cc027188fd6dd286aafc6333a17086cd80
 F src/http_socket.c 957fcf6bde44fd478d66bf87c973a01422ee0f58
-F src/http_ssl.c e36ab021a30ced899a9071aaaebcdd5325f0cb30
+F src/http_ssl.c 5ce85163730ca4a0d25905af23f5251e720e924a
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
 F src/import.c 065b6bcb8bfefbf15f8eb0bcbc4e915e3418aa72
 F src/info.c 15360861d475f8c031dfaae12de41438779f2a4c
@@ -663,7 +663,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9240905c978e1ce9161a8d3e085102c3be100b3e
-R a148fa02759fd5369bccced49e40f408
-U drh
-Z a86c52629f1968848909f6ddab7188e9
+P 47a9d3899a69b2c6588aa75e78a3077d32d0a2ff
+R 1eec196fab8467900105b08c7b6f1aeb
+T *branch * disable-sslv3
+T *sym-disable-sslv3 *
+T -sym-trunk *
+U jan.nijtmans
+Z d56f467b19d869d427d5c9aed0071920
