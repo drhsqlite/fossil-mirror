@@ -76,15 +76,23 @@ char *ftsearch_content(const char *zDocType, const char *zDocId){
       break;
     }
     case 'f': {   /* A file with zDocId as the filename.fnid */
-      zRes = db_text(0,
-        "SELECT content(mlink.fid)"
+      Blob x;
+      int rid;
+      rid = db_int(0,
+        "SELECT mlink.fid"
         "  FROM filename, mlink, event"
         " WHERE filename.fnid=%d"
         "   AND mlink.fnid=filename.fnid"
         "   AND event.objid=mlink.mid"
-        " ORDER BY event.mtime DESC LIMIT 1",
-        id
-      );
+        " ORDER BY event.mtime DESC LIMIT 1", id);
+      blob_init(&x,0,0);
+      if( rid>0 ){
+        content_get(rid, &x);
+      }
+      zRes = blob_str(&x);
+      if( !blob_is_malloced(&x) ){
+        zRes = mprintf("%s", zRes);
+      }
       break;
     }
     default: {

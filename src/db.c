@@ -840,7 +840,6 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   re_add_sql_func(db);
   foci_register(db);
   ftsearch_add_sql_func(db);
-  add_content_sql_commands(db);
   sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
   return db;
 }
