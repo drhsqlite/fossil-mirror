@@ -706,11 +706,11 @@ void page_tree(void){
     @ <h2>%s(zObjType) from all %d(n) check-ins %s(blob_str(&dirname))
   }
   if( useMtime ){
-    @ sorted by modification time</h2>
+    @ sorted by modification time
   }else{
-    @ sorted by filename</h2>
+    @ sorted by filename
   }
-
+  @ <input id="filter_text" onInput="filter_list(this.value)" style="float:right" /></h2>
 
   /* Generate tree of lists.
   **
@@ -723,7 +723,7 @@ void page_tree(void){
   ** The <li> element for directories also contains a sublist <ul>
   ** for the contents of that directory.
   */
-  @ <div class="filetree"><ul>
+  @ <div class="filetree" id="filetreeroot"><ul>
   if( nD ){
     @ <li class="dir last">
   }else{
@@ -853,6 +853,14 @@ void page_tree(void){
   @   return false;
   @ }
   @ }())</script>
+  @ <script>function filter_list(t){
+  @   var root = gebi('filetreeroot');
+  @   var links = root.querySelectorAll(".file a")
+  @   for(var i = 0; i < links.length; i++){
+  @     var a = links[i];
+  @     a.parentNode.parentNode.hidden = (a.innerHTML.lastIndexOf(t) == -1)
+  @   }
+  @ }</script>
   style_footer();
 
   /* We could free memory used by sTree here if we needed to.  But

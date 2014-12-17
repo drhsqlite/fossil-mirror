@@ -451,8 +451,8 @@ const char zRepositorySchema2[] =
 #endif
 
 /*
-** The schema for the locate FOSSIL database file found at the root
-** of very check-out.  This database contains the complete state of
+** The schema for the local FOSSIL database file found at the root
+** of every check-out.  This database contains the complete state of
 ** the checkout.
 */
 const char zLocalSchema[] =
