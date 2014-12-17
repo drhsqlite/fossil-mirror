@@ -525,6 +525,7 @@ void page_tree(void){
   Manifest *pM = 0;
   double rNow = 0;
   char *zNow = 0;
+  int useMtime = atoi(PD("mtime","0"));
   int nFile = 0;           /* Number of files (or folders with "nofiles") */
   int linkTrunk = 1;       /* include link to "trunk" */
   int linkTip = 1;         /* include link to "tip" */
@@ -592,6 +593,8 @@ void page_tree(void){
     }else{
       zCI = 0;
     }
+  }else{
+    useMtime = 0;
   }
 
   /* Compute the title of the page */
@@ -619,7 +622,7 @@ void page_tree(void){
       style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%s",
                             zUuid);
     }
-    if( P("mtime")!=0 ){
+    if( useMtime ){
       style_submenu_element("Sort By Filename","Sort By Filename", "%s",
                              url_render(&sURI, 0, 0, 0, 0));
       url_add_parameter(&sURI, "mtime", "1");
@@ -677,24 +680,29 @@ void page_tree(void){
     for(nFile=0, p=sTree.pFirst; p; p=p->pNext){
       if( p->pChild!=0 && p->nFullName>nD ) nFile++;
     }
-    zObjType = "folders";
+    zObjType = "Folders";
     style_submenu_element("Files","Files","%s",
                           url_render(&sURI,"nofiles",0,0,0));
   }else{
-    zObjType = "files";
+    zObjType = "Files";
     style_submenu_element("Folders","Folders","%s",
                           url_render(&sURI,"nofiles","1",0,0));
   }
 
   if( zCI ){
-    @ <h2>%d(nFile) %s(zObjType) of check-in
+    @ <h2>%s(zObjType) from
     if( sqlite3_strnicmp(zCI, zUuid, (int)strlen(zCI))!=0 ){
       @ "%h(zCI)"
     }
-    @ [%z(href("vinfo?name=%s",zUuid))%S(zUuid)</a>] %s(blob_str(&dirname))</h2>
+    @ [%z(href("vinfo?name=%s",zUuid))%S(zUuid)</a>] %s(blob_str(&dirname))
+    if( useMtime ){
+      @ sorted by modification time</h2>
+    }else{
+      @ sorted by filename</h2>
+    }
   }else{
     int n = db_int(0, "SELECT count(*) FROM plink");
-    @ <h2>%d(nFile) %s(zObjType) from all %d(n) check-ins
+    @ <h2>%s(zObjType) from all %d(n) check-ins
     @ %s(blob_str(&dirname))</h2>
   }
 
@@ -723,7 +731,7 @@ void page_tree(void){
   }
   @ </div>
   @ <ul>
-  if( zCI && P("mtime")!=0 ){
+  if( zCI && useMtime ){
     p = sortTreeByMtime(sTree.pFirst);
     memset(&sTree, 0, sizeof(sTree));
     relinkTree(&sTree, p);
@@ -1000,21 +1008,23 @@ void fileage_page(void){
   baseTime = db_double(0.0,"SELECT mtime FROM event WHERE objid=%d", rid);
   zNow = db_text("", "SELECT datetime(mtime,'localtime') FROM event"
                      " WHERE objid=%d", rid);
-  style_submenu_element("Tree-View", "Tree-View", "%R/tree?ci=%T", zName);
+  style_submenu_element("Tree-View", "Tree-View", "%R/tree?ci=%T&mtime=1",
+                        zName);
   style_header("File Ages");
   zGlob = P("glob");
   compute_fileage(rid,zGlob);
   db_multi_exec("CREATE INDEX fileage_ix1 ON fileage(mid,pathname);");
 
-  @ <h2>Most recent change to files in checkin
-  @ %z(href("%R/info?name=%T",zUuid))%S(zUuid)</a>
+  @ <h2>Files in 
+  @ %z(href("%R/info?name=%T",zUuid))[%S(zUuid)]</a>
   if( zGlob && zGlob[0] ){
-    @ that match "%h(zGlob)"
+    @ that match "%h(zGlob)" and
   }
-  @</h2>
+  @ ordered by check-in time</h2>
   @
-  @ <p>All times are shown relative to the check-in time for
-  @ %S(zUuid) which was %s(zNow).</p>
+  @ <p>Times are relative to the checkin time for
+  @ %z(href("%R/ci/%s",zUuid))[%S(zUuid)]</a> which is
+  @ %z(href("%R/timeline?c=%t",zNow))%s(zNow)</a>.</p>
   @
   @ <div class='fileage'><table>
   @ <tr><th>Time</th><th>Files</th><th>Checkin</th></tr>
