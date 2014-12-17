@@ -593,8 +593,10 @@ void page_tree(void){
     }else{
       zCI = 0;
     }
-  }else{
-    useMtime = 0;
+  }
+  if( zCI==0 ){
+    rNow = db_double(0.0, "SELECT max(mtime) FROM event");
+    zNow = db_text("", "SELECT datetime(max(mtime),'localtime') FROM event");
   }
 
   /* Compute the title of the page */
@@ -615,20 +617,20 @@ void page_tree(void){
     style_submenu_element("Flat-View", "Flat-View", "%s",
                           url_render(&sURI, "type", "flat", 0, 0));
   }
+  if( useMtime ){
+    style_submenu_element("Sort By Filename","Sort By Filename", "%s",
+                           url_render(&sURI, 0, 0, 0, 0));
+    url_add_parameter(&sURI, "mtime", "1");
+  }else{
+    style_submenu_element("Sort By Time","Sort By Time", "%s",
+                           url_render(&sURI, "mtime", "1", 0, 0));
+  }
   if( zCI ){
     style_submenu_element("All", "All", "%s",
                           url_render(&sURI, "ci", 0, 0, 0));
     if( nD==0 && !showDirOnly ){
       style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%s",
                             zUuid);
-    }
-    if( useMtime ){
-      style_submenu_element("Sort By Filename","Sort By Filename", "%s",
-                             url_render(&sURI, 0, 0, 0, 0));
-      url_add_parameter(&sURI, "mtime", "1");
-    }else{
-      style_submenu_element("Sort By Time","Sort By Time", "%s",
-                             url_render(&sURI, "mtime", "1", 0, 0));
     }
   }
   if( linkTrunk ){
@@ -663,14 +665,22 @@ void page_tree(void){
     db_finalize(&q);
   }else{
     Stmt q;
-    db_prepare(&q, "SELECT name FROM filename ORDER BY name COLLATE nocase");
+    db_prepare(&q,
+      "SELECT filename.name, blob.uuid, max(event.mtime)\n"
+      "  FROM filename, mlink, blob, event\n"
+      " WHERE mlink.fnid=filename.fnid\n"
+      "   AND event.objid=mlink.mid\n"
+      "   AND blob.rid=mlink.fid\n"
+      " GROUP BY 1 ORDER BY 1 COLLATE nocase");
     while( db_step(&q)==SQLITE_ROW ){
-      const char *z = db_column_text(&q, 0);
-      if( nD>0 && (fossil_strncmp(z, zD, nD-1)!=0 || z[nD-1]!='/') ){
+      const char *zName = db_column_text(&q, 0);
+      const char *zUuid = db_column_text(&q,1);
+      double mtime = db_column_double(&q,2);
+      if( nD>0 && (fossil_strncmp(zName, zD, nD-1)!=0 || zName[nD-1]!='/') ){
         continue;
       }
-      if( pRE && re_match(pRE, (const u8*)z, -1)==0 ) continue;
-      tree_add_node(&sTree, z, 0, 0.0);
+      if( pRE && re_match(pRE, (const u8*)zName, -1)==0 ) continue;
+      tree_add_node(&sTree, zName, zUuid, mtime);
       nFile++;
     }
     db_finalize(&q);
@@ -695,15 +705,14 @@ void page_tree(void){
       @ "%h(zCI)"
     }
     @ [%z(href("vinfo?name=%s",zUuid))%S(zUuid)</a>] %s(blob_str(&dirname))
-    if( useMtime ){
-      @ sorted by modification time</h2>
-    }else{
-      @ sorted by filename</h2>
-    }
   }else{
     int n = db_int(0, "SELECT count(*) FROM plink");
-    @ <h2>%s(zObjType) from all %d(n) check-ins
-    @ %s(blob_str(&dirname))</h2>
+    @ <h2>%s(zObjType) from all %d(n) check-ins %s(blob_str(&dirname))
+  }
+  if( useMtime ){
+    @ sorted by modification time</h2>
+  }else{
+    @ sorted by filename</h2>
   }
 
 
@@ -731,7 +740,7 @@ void page_tree(void){
   }
   @ </div>
   @ <ul>
-  if( zCI && useMtime ){
+  if( useMtime ){
     p = sortTreeByMtime(sTree.pFirst);
     memset(&sTree, 0, sizeof(sTree));
     relinkTree(&sTree, p);
