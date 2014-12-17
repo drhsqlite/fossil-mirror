@@ -62,7 +62,7 @@ char *ftsearch_content(const char *zDocType, const char *zDocId){
   }
   id = atoi(zDocId);
   switch( zDocType[0] ){
-    case 'c': {    /* A check-in comment. zDocId is the UUID */
+    case 'c': {    /* A check-in comment. zDocId is the RID */
       zRes = db_text(0,
         "SELECT coalesce(ecomment,comment) || char(10) ||"
         "       'user: ' || coalesce(euser,user) || char(10) ||"
@@ -75,6 +75,18 @@ char *ftsearch_content(const char *zDocType, const char *zDocId){
         TAG_BRANCH, id, id);
       break;
     }
+    case 'f': {   /* A file with zDocId as the filename.fnid */
+      zRes = db_text(0,
+        "SELECT content(mlink.fid)"
+        "  FROM filename, mlink, event"
+        " WHERE filename.fnid=%d"
+        "   AND mlink.fnid=filename.fnid"
+        "   AND event.objid=mlink.mid"
+        " ORDER BY event.mtime DESC LIMIT 1",
+        id
+      );
+      break;
+    }
     default: {
       /* No-op */
     }
@@ -83,12 +95,15 @@ char *ftsearch_content(const char *zDocType, const char *zDocId){
 }
 
 /* Return a human-readable description for the document described by
-** the arguments.  The returned text is in the Wiki format and contains
-** links to the document in question.
+** the arguments.
 **
 ** See ftsearch_content() for further information
 */
-char *ftsearch_description(const char *zDocType, const char *zDocId){
+char *ftsearch_description(
+  const char *zDocType,
+  const char *zDocId,
+  int bLink                   /* Provide hyperlink in text if true */
+){
   char *zRes = 0;  /* The result to be returned */
   int id;
   if( zDocId==0 ){
@@ -97,10 +112,16 @@ char *ftsearch_description(const char *zDocType, const char *zDocId){
   }
   id = atoi(zDocId);
   switch( zDocType[0] ){
-    case 'c': {    /* A check-in comment. zDocId is the UUID */
+    case 'c': {    /* A check-in comment. zDocId is the RID */
       char *zUuid = db_text("","SELECT uuid FROM blob WHERE rid=%d", id);
       zRes = mprintf("Check-in [%S]", zUuid);
       fossil_free(zUuid);
+      break;
+    }
+    case 'f': {    /* A file.  zDocId is the FNID */
+      char *zName = db_text("","SELECT name FROM filename WHERE fnid=%d",id);
+      zRes = mprintf("File %s", zName);
+      fossil_free(zName);
       break;
     }
     default: {
@@ -127,7 +148,7 @@ void test_doc_content_cmd(void){
   if( g.argc!=3 ) usage("DOCUMENTCODE");
   if( strlen(g.argv[2])>3 ){
     zContent = ftsearch_content(g.argv[2],0);
-    zDesc = ftsearch_description(g.argv[2],0);
+    zDesc = ftsearch_description(g.argv[2],0,0);
   }
   if( zDesc ){
     fossil_print("Description: %s\n", zDesc);
@@ -212,8 +233,15 @@ void ftsearch_disable_all(void){
 ** Completely rebuild the ftsearch indexes from scratch
 */
 void ftsearch_rebuild_all(void){
+  const char *zEnables;
   db_begin_transaction();
   ftsearch_disable_all();
+  zEnables = db_get("ftsearch-index-type", "cdeftw");
+
+  /* If none of the search categories are enabled, then do not
+  ** bother constructing the search tables
+  */
+  if( sqlite3_strglob("*[cdeftw]*", zEnables) ) return;
 
   /* The FTSSEARCHXREF table provides a mapping between the integer
   ** document-ids in FTS4 to the "document codes" that describe a 
@@ -244,14 +272,31 @@ void ftsearch_rebuild_all(void){
     db_name("repository")
   );
 
-  /* Populate the FTSEARCHXREF table with references to all check-in
-  ** comments currently in the event table
-  */
-  db_multi_exec(
-    "INSERT INTO ftsearchxref(ftsid,mtime)"
-    "  SELECT 'c-' || objid, mtime FROM event"
-    "   WHERE type='ci';"
-  );
+  if( strchr(zEnables, 'c')!=0 ){
+    /* Populate the FTSEARCHXREF table with references to all check-in
+    ** comments currently in the event table
+    */
+    db_multi_exec(
+      "INSERT INTO ftsearchxref(ftsid,mtime)"
+      "  SELECT 'c-' || objid, mtime FROM event"
+      "   WHERE type='ci';"
+    );
+  }
+
+  if( strchr(zEnables, 'f')!=0 ){
+    /* Populate the FTSEARCHXREF table with references to all files
+    */
+    db_multi_exec(
+      "INSERT INTO ftsearchxref(ftsid,mtime)"
+      "  SELECT 'f-' || filename.fnid, max(event.mtime)"
+      "    FROM filename, mlink, event"
+      "   WHERE mlink.fnid=filename.fnid"
+      "     AND event.objid=mlink.mid"
+      "     AND %s"
+      "   GROUP BY 1",
+      glob_expr("filename.name", db_get("search-file-glob","*"))
+    );
+  }
 
   /* Index every document mentioned in the FTSEARCHXREF table */
   db_multi_exec(
@@ -274,7 +319,19 @@ void ftsearch_rebuild_all(void){
 ** The "search-config" is used to setup the search feature of the repository.
 ** Subcommands are:
 **
-**   fossil search-config setting ?NAME? ?VALUE?
+**   fossil search-config doclist
+**
+**      List all the documents currently indexed
+**
+**   fossil search-config rebuild
+**
+**      Completely rebuild the search index.
+**
+**   fossil search-config reset
+**
+**      Disable search and remove the search indexes from the repository.
+**
+**   fossil search-config setting NAME ?VALUE?
 **
 **      Set or query a search setting.  NAMES are:
 **         file-glob             Comma-separated list of GLOBs for file search
@@ -295,16 +352,14 @@ void ftsearch_rebuild_all(void){
 **      It is necessary to run "fossil search-config rebuild" after making
 **      setting changes in order to reconstruct the search index
 **
-**   fossil search-config rebuild
-**   fossil search-config optimize
+**   fossil search-config status
 **
-**      Completely rebuild the search index, or optimize the search index.
-**
-**   fossil search-config reset
-**
-**      Disable search and remove the search indexes from the repository.
+**      Report on the status of the search configuration.
 */
 void ftsearch_cmd(void){
+  static const char *azSettings[] = {
+     "file-glob", "index-type", "ticket-expr", "ticketchng-expr"
+  };
   const char *zSubCmd;
   int nSubCmd;
   db_find_and_open_repository(0, 0);
@@ -330,29 +385,88 @@ void ftsearch_cmd(void){
     }
     db_prepare(&q, "SELECT "
       "       snippet(ftsearch,%Q,%Q,'...'),"
-      "       ftsearchxref.ftsid"
+      "       ftsearchxref.ftsid,"
+      "       date(ftsearchxref.mtime)"
       "  FROM ftsearch, ftsearchxref"
       " WHERE ftsearch.body MATCH %Q"
       "   AND ftsearchxref.docid=ftsearch.docid"
-      " ORDER BY ftsearchxref.mtime DESC;",
+      " ORDER BY ftsearchxref.mtime DESC LIMIT 50;",
       zMark1, zMark2, zSubCmd);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zSnippet = db_column_text(&q,0);
-      char *zDesc = ftsearch_description(db_column_text(&q,1),0);
+      char *zDesc = ftsearch_description(db_column_text(&q,1),0,0);
+      const char *zDate = db_column_text(&q,2);
       if( i++ > 0 ){
         fossil_print("----------------------------------------------------\n");
       }
-      fossil_print("%s\n%s\n", zDesc, zSnippet);
+      fossil_print("%s (%s)\n%s\n", zDesc, zDate, zSnippet);
       fossil_free(zDesc);
     }
     db_finalize(&q);
-  }else if( strncmp(zSubCmd, "settings", nSubCmd)==0 ){
-
+  }else if( strncmp(zSubCmd, "doclist", nSubCmd)==0 ){
+    if( db_table_exists("repository","ftsearch") ){
+      Stmt q;
+      db_prepare(&q, "SELECT ftsid, date(mtime) FROM ftsearchxref"
+                     " ORDER BY mtime DESC");
+      while( db_step(&q)==SQLITE_ROW ){
+        const char *zDate = db_column_text(&q,1);
+        const char *zFtsid = db_column_text(&q,0);
+        char *zDesc = ftsearch_description(zFtsid,0,0);
+        fossil_print("%s (%s)\n", zDesc, zDate);
+        fossil_free(zDesc);
+      }
+      db_finalize(&q);
+    }
   }else if( strncmp(zSubCmd, "rebuild", nSubCmd)==0 ){
     ftsearch_rebuild_all();
   }else if( strncmp(zSubCmd, "reset", nSubCmd)==0 ){
     ftsearch_disable_all();
-  }else if( strncmp(zSubCmd, "optimize", nSubCmd)==0 ){
+  }else if( strncmp(zSubCmd, "settings", nSubCmd)==0 ){
+    const char *zName = g.argv[3];
+    const char *zValue = g.argc>=5 ? g.argv[4] : 0;
+    char *zFullname;
+    int i;
+    if( g.argc<4 ) usage("setting NAME ?VALUE?");
+    for(i=0; i<count(azSettings); i++){
+      if( strcmp(zName, azSettings[i])==0 ) break;
+    }
+    if( i>=count(azSettings) ){
+      Blob x;
+      blob_init(&x,0,0);
+      for(i=0; i<count(azSettings); i++) blob_appendf(&x," %s", azSettings[i]);
+      fossil_fatal("unknown setting \"%s\" - should be one of:%s",
+          zName, blob_str(&x));
+    }
+    zFullname = mprintf("search-%s", zName);
+    if( zValue==0 ){
+      zValue = db_get(zFullname, 0);
+    }else{
+      db_set(zFullname, zValue, 0);
+    }
+    if( zValue==0 ){
+      fossil_print("%s is not defined\n", zName);
+    }else{
+      fossil_print("%s: %s\n", zName, zValue);
+    }
+  }else if( strncmp(zSubCmd, "status", nSubCmd)==0 ){
+    int i;
+    fossil_print("search settings:\n");
+    for(i=0; i<count(azSettings); i++){
+      char *zFullname = mprintf("search-%s", azSettings[i]);
+      char *zValue = db_get(zFullname, 0);
+      if( zValue==0 ){
+        fossil_print("  %s is undefined\n", azSettings[i]);
+      }else{
+        fossil_print("  %s: %s\n", azSettings[i], zValue);
+      }
+      fossil_free(zFullname);
+    }
+    if( db_table_exists("repository","ftsearchxref") ){
+      int n = db_int(0, "SELECT count(*) FROM ftsearchxref");
+      fossil_print("search is enabled with %d documents indexed\n", n);
+    }else{
+      fossil_print("search is disabled\n");
+    }
   }
   db_end_transaction(0);
 }

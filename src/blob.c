@@ -204,6 +204,14 @@ void blob_reset(Blob *pBlob){
   pBlob->xRealloc(pBlob, 0);
 }
 
+/*
+** Return true if the result of blob_str() is a string that can be
+** freed using fossil_free.
+*/
+int blob_is_malloced(Blob *pBlob){
+  return pBlob && pBlob->aData && pBlob->xRealloc==blobReallocMalloc;
+}
+
 
 /*
 ** Return true if the blob has been zeroed - in other words if it contains

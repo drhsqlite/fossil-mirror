@@ -42,16 +42,19 @@ static void sqlcmd_content(
   Blob cx;
   const char *zName;
   assert( argc==1 );
-  zName = (const char*)sqlite3_value_text(argv[0]);
-  if( zName==0 ) return;
-  g.db = sqlite3_context_db_handle(context);
-  g.repositoryOpen = 1;
-  rid = name_to_rid(zName);
+  if( sqlite3_value_type(argv[0])==SQLITE_INTEGER ){
+    rid = sqlite3_value_int(argv[0]);
+  }else{
+    zName = (const char*)sqlite3_value_text(argv[0]);
+    if( zName==0 ) return;
+    g.db = sqlite3_context_db_handle(context);
+    g.repositoryOpen = 1;
+    rid = name_to_rid(zName);
+  }
   if( rid==0 ) return;
   if( content_get(rid, &cx) ){
     sqlite3_result_blob(context, blob_buffer(&cx), blob_size(&cx),
-                                 SQLITE_TRANSIENT);
-    blob_reset(&cx);
+                       blob_is_malloced(&cx) ? fossil_free : SQLITE_TRANSIENT);
   }
 }
 
