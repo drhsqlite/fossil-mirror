@@ -727,7 +727,7 @@ static void re_sql_func(
 **
 ** Use:
 **
-**      sqlite3_auto_extension(sqlite3_add_regexp_func);
+**      sqlite3_auto_extension(re_add_regexp_func);
 **
 ** to cause this extension to be automatically loaded into each new
 ** database connection.

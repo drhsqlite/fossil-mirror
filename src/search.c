@@ -184,8 +184,8 @@ void search_sql_setup(Search *p){
 /*
 ** Testing the search function.
 **
-** COMMAND: search*
-** %fossil search [-all|-a] [-limit|-n #] [-width|-W #] pattern...
+** COMMAND: test-search*
+** %fossil test-search [-all|-a] [-limit|-n #] [-width|-W #] pattern...
 **
 ** Search for timeline entries matching all words
 ** provided on the command line. Whole-word matches

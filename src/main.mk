@@ -47,6 +47,7 @@ SRC = \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
+  $(SRCDIR)/ftsearch.c \
   $(SRCDIR)/fusefs.c \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
@@ -169,6 +170,7 @@ TRANS_SRC = \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
+  $(OBJDIR)/ftsearch_.c \
   $(OBJDIR)/fusefs_.c \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
@@ -288,6 +290,7 @@ OBJ = \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
+ $(OBJDIR)/ftsearch.o \
  $(OBJDIR)/fusefs.o \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
@@ -417,13 +420,13 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
 # Setup the options used to compile the included SQLite library.
-SQLITE_OPTIONS = -DNDEBUG=1 \
-                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
+SQLITE_OPTIONS = -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  -DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  -DSQLITE_THREADSAFE=0 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_OMIT_DEPRECATED \
-                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS
+                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
+                 -DSQLITE_ENABLE_FTS4
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
@@ -516,6 +519,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 	$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 	$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
+	$(OBJDIR)/ftsearch_.c:$(OBJDIR)/ftsearch.h \
 	$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 	$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
@@ -870,6 +874,14 @@ $(OBJDIR)/foci.o:	$(OBJDIR)/foci_.c $(OBJDIR)/foci.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/foci.o -c $(OBJDIR)/foci_.c
 
 $(OBJDIR)/foci.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/ftsearch_.c:	$(SRCDIR)/ftsearch.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/ftsearch.c >$@
+
+$(OBJDIR)/ftsearch.o:	$(OBJDIR)/ftsearch_.c $(OBJDIR)/ftsearch.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/ftsearch.o -c $(OBJDIR)/ftsearch_.c
+
+$(OBJDIR)/ftsearch.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/fusefs_.c:	$(SRCDIR)/fusefs.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/fusefs.c >$@

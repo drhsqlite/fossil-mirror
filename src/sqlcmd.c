@@ -137,6 +137,7 @@ static int sqlcmd_autoinit(
   re_add_sql_func(db);
   g.zMainDbType = "repository";
   foci_register(db);
+  ftsearch_add_sql_func(db);
   g.repositoryOpen = 1;
   g.db = db;
   return SQLITE_OK;

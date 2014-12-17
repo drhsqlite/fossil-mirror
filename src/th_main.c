@@ -1371,7 +1371,7 @@ void Th_CloseConfig(
   int closeRepository
 ){
   if( g.th1Flags & TH_STATE_CONFIG ){
-    db_close_config();
+    db_close_config(1);
     g.th1Flags &= ~TH_STATE_CONFIG;
   }
   if( closeRepository && (g.th1Flags & TH_STATE_REPOSITORY) ){

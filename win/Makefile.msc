@@ -175,13 +175,13 @@ TCC       = $(TCC) /DUSE_TCL_STUBS=1
 RCC       = $(RCC) /DUSE_TCL_STUBS=1
 !endif
 
-SQLITE_OPTIONS = /DNDEBUG=1 \
-                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
+SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  /DSQLITE_ENABLE_LOCKING_STYLE=0 \
                  /DSQLITE_THREADSAFE=0 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  /DSQLITE_OMIT_DEPRECATED \
                  /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
+                 /DSQLITE_ENABLE_FTS4 \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /Dmain=sqlite3_shell \
@@ -230,6 +230,7 @@ SRC   = add_.c \
         file_.c \
         finfo_.c \
         foci_.c \
+        ftsearch_.c \
         fusefs_.c \
         glob_.c \
         graph_.c \
@@ -351,6 +352,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\file$O \
         $(OX)\finfo$O \
         $(OX)\foci$O \
+        $(OX)\ftsearch$O \
         $(OX)\fusefs$O \
         $(OX)\glob$O \
         $(OX)\graph$O \
@@ -525,6 +527,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\file.obj >> $@
 	echo $(OX)\finfo.obj >> $@
 	echo $(OX)\foci.obj >> $@
+	echo $(OX)\ftsearch.obj >> $@
 	echo $(OX)\fusefs.obj >> $@
 	echo $(OX)\glob.obj >> $@
 	echo $(OX)\graph.obj >> $@
@@ -909,6 +912,12 @@ $(OX)\foci$O : foci_.c foci.h
 	$(TCC) /Fo$@ -c foci_.c
 
 foci_.c : $(SRCDIR)\foci.c
+	translate$E $** > $@
+
+$(OX)\ftsearch$O : ftsearch_.c ftsearch.h
+	$(TCC) /Fo$@ -c ftsearch_.c
+
+ftsearch_.c : $(SRCDIR)\ftsearch.c
 	translate$E $** > $@
 
 $(OX)\fusefs$O : fusefs_.c fusefs.h
@@ -1452,6 +1461,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			file_.c:file.h \
 			finfo_.c:finfo.h \
 			foci_.c:foci.h \
+			ftsearch_.c:ftsearch.h \
 			fusefs_.c:fusefs.h \
 			glob_.c:glob.h \
 			graph_.c:graph.h \

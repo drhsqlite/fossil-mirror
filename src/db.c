@@ -692,6 +692,21 @@ char *db_text(const char *zDefault, const char *zSql, ...){
 }
 
 /*
+** Invoke sqlite3_close() but also check its return code and if the
+** return code is SQLITE_BUSY, report errors.
+*/
+static void db_close_with_checks(sqlite3 *db, int reportErrors){
+  int rc = sqlite3_close(db);
+  if( rc==SQLITE_BUSY && reportErrors ){
+    sqlite3_stmt *pStmt;
+    while( (pStmt = sqlite3_next_stmt(g.db, pStmt))!=0 ){
+      fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
+    }
+  }
+}
+
+
+/*
 ** Initialize a new database file with the given schema.  If anything
 ** goes wrong, call db_err() to exit.
 */
@@ -824,6 +839,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
   re_add_sql_func(db);
   foci_register(db);
+  ftsearch_add_sql_func(db);
   sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
   return db;
 }
@@ -869,20 +885,20 @@ void db_open_or_attach(
 /*
 ** Close the user database.
 */
-void db_close_config(){
+void db_close_config(int reportErrors){
   if( g.useAttach ){
     db_detach("configdb");
     g.useAttach = 0;
     g.zConfigDbName = 0;
   }else if( g.dbConfig ){
     sqlite3_wal_checkpoint(g.dbConfig, 0);
-    sqlite3_close(g.dbConfig);
+    db_close_with_checks(g.dbConfig, reportErrors);
     g.dbConfig = 0;
     g.zConfigDbType = 0;
     g.zConfigDbName = 0;
   }else if( g.db && fossil_strcmp(g.zMainDbType, "configdb")==0 ){
     sqlite3_wal_checkpoint(g.db, 0);
-    sqlite3_close(g.db);
+    db_close_with_checks(g.db, reportErrors);
     g.db = 0;
     g.zMainDbType = 0;
     g.zConfigDbName = 0;
@@ -906,7 +922,7 @@ void db_open_config(int useAttach){
   char *zHome;
   if( g.zConfigDbName ){
     if( useAttach==g.useAttach ) return;
-    db_close_config();
+    db_close_config(1);
   }
 #if defined(_WIN32) || defined(__CYGWIN__)
   zHome = fossil_getenv("LOCALAPPDATA");
@@ -1297,7 +1313,6 @@ void db_must_be_within_tree(void){
 ** argument is true.  Ignore unfinalized statements when false.
 */
 void db_close(int reportErrors){
-  sqlite3_stmt *pStmt;
   if( g.db==0 ) return;
   if( g.fSqlStats ){
     int cur, hiwtr;
@@ -1329,16 +1344,10 @@ void db_close(int reportErrors){
     db_finalize(db.pAllStmt);
   }
   db_end_transaction(1);
-  pStmt = 0;
-  if( reportErrors ){
-    while( (pStmt = sqlite3_next_stmt(g.db, pStmt))!=0 ){
-      fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
-    }
-  }
-  db_close_config();
+  db_close_config(reportErrors);
   if( g.db ){
     sqlite3_wal_checkpoint(g.db, 0);
-    sqlite3_close(g.db);
+    db_close_with_checks(g.db, reportErrors);
     g.db = 0;
     g.zMainDbType = 0;
   }
