@@ -613,10 +613,6 @@ void page_tree(void){
       blob_appendf(&dirname, "matching \"%s\"", zRE);
     }
   }
-  if( !showDirOnly ){
-    style_submenu_element("Flat-View", "Flat-View", "%s",
-                          url_render(&sURI, "type", "flat", 0, 0));
-  }
   if( useMtime ){
     style_submenu_element("Sort By Filename","Sort By Filename", "%s",
                            url_render(&sURI, 0, 0, 0, 0));
