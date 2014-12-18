@@ -1,5 +1,5 @@
-C Generate\sshorter\shyperlinks\sin\sthe\s/tree\spage.
-D 2014-12-18T19:56:38.809
+C fixed\sthe\smtime\sfield\son\sjson\stimeline\soutput.
+D 2014-12-18T22:27:57.973
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -372,7 +372,7 @@ F src/json_query.c 15f7b943478b3fa4a423aefb5a022e6e9513abc7
 F src/json_report.c ae998f37dee54fa0b6c898de29b2f34d9a0d87b7
 F src/json_status.c 0a9f959d19f4b90c879ad50ef0cd376262d8247b
 F src/json_tag.c 691fc350fa41dfbaba2500fba75065c18e779063
-F src/json_timeline.c f80de4c2ceb88c157e59d03b25d2285fa4a093c6
+F src/json_timeline.c 08550aee7113163dd2b7f60ac9d300d5471dd8c2
 F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
 F src/json_wiki.c fca83828f069a0964f7b5e72dc4e8793e8571707
 F src/leaf.c 59c3308977e0f3f264a75c8c772d18be4df30615
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b78ca10222c8b0499e13195f31a6b5f53185627b
-R e7bb625f3ecd1fdf6850acd1993b8c0b
-U drh
-Z a18b6dacc8034a61dc561635e315cdba
+P 8ff34a4b6ca5e2dcf6048a3f0b962d694b298b40
+R d4e79685e15d38317d12513244a9a225
+U stephan
+Z 48e4e46f780886bd053e4b316397c965
