@@ -407,7 +407,7 @@ option to the server command to specify a different TCP port.  If
 you do not have a local source tree, use the <b>-R</b> command-line
 option to specify the repository file.
 
-A stand-alone server is a great way to set of transient connections
+The "fossil server" command is a great way to set of transient connections
 between coworkers for doing quick pushes or pulls.  But you can also
 set up a permanent stand-alone server if you prefer.  Just make
 arrangements for fossil to be launched with appropriate arguments
