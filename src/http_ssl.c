@@ -101,8 +101,8 @@ void ssl_global_init(void){
     ERR_load_BIO_strings();
     OpenSSL_add_all_algorithms();
     sslCtx = SSL_CTX_new(SSLv23_client_method());
-    /* Disable SSLv2 */
-    SSL_CTX_set_options(sslCtx, SSL_OP_NO_SSLv2);
+    /* Disable SSLv2 and SSLv3 */
+    SSL_CTX_set_options(sslCtx, SSL_OP_NO_SSLv2|SSL_OP_NO_SSLv3);
 
     /* Set up acceptable CA root certificates */
     zCaSetting = db_get("ssl-ca-location", 0);
