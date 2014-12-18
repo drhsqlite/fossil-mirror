@@ -550,6 +550,7 @@ ZLIBCONFIG =
 LIBTARGETS =
 endif
 
+SSLCONFIG += no-ssl2 no-ssl3 no-shared
 ifndef FOSSIL_ENABLE_MINIZ
 SSLCONFIG +=  --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib
 endif
