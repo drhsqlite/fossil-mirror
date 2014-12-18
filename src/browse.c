@@ -762,7 +762,7 @@ void page_tree(void){
       const char *zFileClass = fileext_class(p->zName);
       char *zLink;
       if( zCI ){
-        zLink = href("%R/artifact/%s",p->zUuid);
+        zLink = href("%R/artifact/%.16s",p->zUuid);
       }else{
         zLink = href("%R/finfo?name=%T",p->zFullName);
       }
