@@ -2328,7 +2328,6 @@ struct stControlSettings const ctrlSettings[] = {
   { "self-register",    0,              0, 0, 0, "off"                 },
   { "ssh-command",      0,             40, 0, 0, ""                    },
   { "ssl-ca-location",  0,             40, 0, 0, ""                    },
-  { "ssl-enable-v3",    0,              0, 0, 0, "off"                 },
   { "ssl-identity",     0,             40, 0, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",              0,              0, 0, 0, "off"                 },
@@ -2531,9 +2530,6 @@ struct stControlSettings const ctrlSettings[] = {
 **                     Check your platform behaviour is as required if the
 **                     exact contents of the CA root is critical for your
 **                     application.
-**
-**    ssl-enable-v3    If enabled, allow the SSLv3 protocol to be used.
-**                     Default: off
 **
 **    ssl-identity     The full pathname to a file containing a certificate
 **                     and private key in PEM format. Create by concatenating

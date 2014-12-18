@@ -35,52 +35,67 @@ void sitemap_page(void){
   @ </p>
   @
   @ <ul>
-  @ <li>%z(href("%R/home"))Home Page</a>
-  @ <li>%z(href("%R/tree"))File Browser</a>
+  @ <li>%z(href("%R/home"))Home Page</a></li>
+  @ <li>%z(href("%R/tree"))File Browser</a></li>
   @ <ul>
-  @   <li>%z(href("%R/tree?ci=trunk"))Tree-view, Trunk Checkin</a>
-  @   <li>%z(href("%R/tree?type=flat"))Flat-view</a>
-  @   <li>%z(href("%R/fileage?name=trunk"))File ages for Trunk</a>
+  @   <li>%z(href("%R/tree?ci=trunk"))Tree-view, Trunk Checkin</a></li>
+  @   <li>%z(href("%R/tree?type=flat"))Flat-view</a></li>
+  @   <li>%z(href("%R/fileage?name=trunk"))File ages for Trunk</a></li>
   @ </ul>
-  @ <li>%z(href("%R/timeline?n=200"))Project Timeline</a>
+  @ <li>%z(href("%R/timeline?n=200"))Project Timeline</a></li>
   @ <ul>
-  @   <li>%z(href("%R/timeline?a=1970-01-01&y=ci&n=10"))First 10 checkins</a>
+  @   <li>%z(href("%R/timeline?a=1970-01-01&y=ci&n=10"))First 10 checkins</a></li>
   @   <li>%z(href("%R/timeline?n=0&namechng"))All checkins with file name
-  @        changes</a>
+  @        changes</a></li>
+  @   <li>%z(href("%R/reports"))Activity Reports</a></li>
   @ </ul>
-  @ <li>%z(href("%R/brlist"))Branches</a>
-  @ <li>%z(href("%R/leaves"))Leaf Checkins</a>
-  @ <li>%z(href("%R/taglist"))List of Tags</a>
-  @ <li>%z(href("%R/wcontent"))List of Wiki Pages</a>
-  @ <li>%z(href("%R/reportlist"))Ticket Reports</a>
-  @ <li>%z(href("%R/reports"))Activity Reports</a>
-  @ <li>%z(href("%R/login"))Login/Logout/Change Password</a>
-  @ <li>%z(href("%R/attachlist"))List of Attachments</a>
+  @ <li>Branches and Tags</a>
+  @ <ul>
+  @   <li>%z(href("%R/brlist"))Branches</a></li>
+  @   <li>%z(href("%R/leaves"))Leaf Checkins</a></li>
+  @   <li>%z(href("%R/taglist"))List of Tags</a></li>
+  @ </ul>
+  @ </li>
+  @ <li>%z(href("%R/wiki"))Wiki</a>
+  @   <ul>
+  @     <li>%z(href("%R/wcontent"))List of Wiki Pages</a></li>
+  @     <li>%z(href("%R/timeline?y=w"))Recent activity</a></li>
+  @     <li>%z(href("%R/wiki_rules"))Wiki Formatting Rules</a></li>
+  @     <li>%z(href("%R/attachlist"))List of Attachments</a></li>
+  @   </ul>
+  @ </li>
+  @ <li>%z(href("%R/reportlist"))Tickets</a>
+  @   <ul>
+  @   <li>%z(href("%R/timeline?y=t"))Recent activity</a></li>
+  @   <li>%z(href("%R/attachlist"))List of Attachments</a></li>
+  @   </ul>
+  @ </li>
+  @ <li>%z(href("%R/login"))Login/Logout/Change Password</a></li>
   @ <li>Repository Status
   @   <ul>
-  @   <li>%z(href("%R/stat"))Status Summary</a>
-  @   <li>%z(href("%R/urllist"))List of URLs used to access this repository</a>
-  @   <li>%z(href("%R/bloblist"))List of Artifacts</a>
-  @   </ul>
+  @   <li>%z(href("%R/stat"))Status Summary</a></li>
+  @   <li>%z(href("%R/urllist"))List of URLs used to access this repository</a></li>
+  @   <li>%z(href("%R/bloblist"))List of Artifacts</a></li>
+  @   </ul></li>
   @ <li>On-line Documentation
   @   <ul>
-  @   <li>%z(href("%R/help"))List of All Commands and Web Pages</a>
-  @   <li>%z(href("%R/test-all-help"))All "help" text on a single page</a>
-  @   <li>%z(href("%R/wiki_rules"))Wiki Formatting Rules</a>
-  @   </ul>
+  @   <li>%z(href("%R/help"))List of All Commands and Web Pages</a></li>
+  @   <li>%z(href("%R/test-all-help"))All "help" text on a single page</a></li>
+  @   </ul></li>
   @ <li>Administration Pages
   @   <ul>
-  @   <li>%z(href("%R/setup"))Configuration and Setup Menu</a>
-  @   <li>%z(href("%R/modreq"))Pending Moderation Requests</a>
-  @   </ul>
+  @   <li>%z(href("%R/setup"))Configuration and Setup Menu</a></li>
+  @   <li>%z(href("%R/modreq"))Pending Moderation Requests</a></li>
+  @   <li>%z(href("%R/admin_log"))Admin log</a></li>
+  @   </ul></li>
   @ <li>Test Pages
   @   <ul>
-  @   <li>%z(href("%R/test_env"))CGI Environment Test</a>
-  @   <li>%z(href("%R/test_timewarps"))List of "Timewarp" Checkins</a>
-  @   <li>%z(href("%R/test-rename-list"))List of file renames</a>
+  @   <li>%z(href("%R/test_env"))CGI Environment Test</a></li>
+  @   <li>%z(href("%R/test_timewarps"))List of "Timewarp" Checkins</a></li>
+  @   <li>%z(href("%R/test-rename-list"))List of file renames</a></li>
   @   <li>%z(href("%R/hash-color-test"))Page to experiment with the automatic
   @       colors assigned to branch names</a>
-  @   </ul>
-  @ </ul>
+  @   </ul></li>
+  @ </ul></li>
   style_footer();
 }
