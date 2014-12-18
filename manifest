@@ -1,5 +1,5 @@
-C fixed\sthe\smtime\sfield\son\sjson\stimeline\soutput.
-D 2014-12-18T22:27:57.973
+C Change\sfrom\susing\sExpires:\sto\sCache-Control:\sto\scontrol\scaching.
+D 2014-12-18T23:34:45.052
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -322,7 +322,7 @@ F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
-F src/cgi.c 259725db75a53752aef97d99c38cbfd0e86e43ec
+F src/cgi.c 35e30682cdd9ee54d8b4bd4df411cfba77099bae
 F src/checkin.c 3115c18a923bf22f5177335071c9e5d8562fbed5
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8ff34a4b6ca5e2dcf6048a3f0b962d694b298b40
-R d4e79685e15d38317d12513244a9a225
-U stephan
-Z 48e4e46f780886bd053e4b316397c965
+P df50cb6e4d5674ebf7d4139c3775378ba05acd4b
+R 800af032b06b22acb6919890a3f35b48
+U drh
+Z eac7f3a72ac24c6d187b67b624b2d486
