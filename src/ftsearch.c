@@ -273,13 +273,28 @@ void ftsearch_rebuild_all(void){
     db_name("repository")
   );
 
-  /* This is the FTS4 table used for searching */
-  db_multi_exec(
-    "CREATE VIRTUAL TABLE %s.ftsearch"
-    " USING fts4(content='ftsearchbody',body);",
-    db_name("repository")
-  );
-
+  /* This is the FTS4 table used for searching.
+  ** Make use of an undocumented feature of the FTS4.simple tokenizer
+  ** that the second argument is a list of separator characters.  Use
+  ** this to make "_" not be a separator so that identifiers that contain
+  ** "_" are not split apart.
+  */
+  {
+    char zSep[129];
+    int i, j;
+    for(i=0, j=1; j<0x80; j++){
+      if( j=='_' || fossil_isalnum(j) ) continue;
+      zSep[i++] = j;
+    }
+    zSep[i] = 0;
+    db_multi_exec(
+      "CREATE VIRTUAL TABLE %s.ftsearch USING fts4("
+        "body,"
+        "tokenize=simple \"\" \"%w\","
+        "content='ftsearchbody');",
+      db_name("repository"), zSep
+    );
+  }
   if( strchr(zEnables, 'c')!=0 ){
     /* Populate the FTSEARCHXREF table with references to all check-in
     ** comments currently in the event table

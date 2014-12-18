@@ -1,5 +1,5 @@
-C Merge\srecent\schanges\sfrom\strunk.
-D 2014-12-17T21:36:31.733
+C Change\sthe\sFTS4\stokenizer\sso\sthat\s"_"\sacts\slike\sa\snormal\sletter,\snot\sa\ntoken\sseparator.\s\sThis\sseems\sto\swork\sbetter\swhen\sdoing\ssearches\son\ssource\scode.
+D 2014-12-18T00:29:38.295
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -349,7 +349,7 @@ F src/export.c 694230481df6238552c15b0ee7355e75230a5805
 F src/file.c a653b0a67def52ee6facbef9d8f44697160e4994
 F src/finfo.c 25824b723483dec646c10bed56e52f35e082956e
 F src/foci.c 0f6dfbaa4b05185662950f1853e0e505d23ad617
-F src/ftsearch.c dcf39b7479137a06c78da25097b1a85fc4dcd9d8
+F src/ftsearch.c c6ba722a549a16e8b70a859b246f700ca8a51e10
 F src/fusefs.c b8b126cf9a5322fa6a2afbb8768d38859da61daf
 F src/glob.c 162eefbce151ba02dd67243d92633393c0aeb302
 F src/graph.c 57ddf309e5bf7be4f88b6ec36eb6296f6c278153
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bbcce76f2645a98d35973467bee421ae75dd8de1 6e29ebbb77ebbdd2bc3f99e4c4f544f9fe130d3e
-R ce31112a6faa3dfadf37f61f51134c7c
+P 03309b1b9561466c193a3fcd7d2f2d1be92614a0
+R d246533cc66d2cb96d5785373efb0d6a
 U drh
-Z 3f0ecb2d552037d249d7c7a31ab9ee5c
+Z db468b1fa74840c52ee7a2122b3dd661
