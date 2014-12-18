@@ -1,5 +1,5 @@
-C first\sattempt\sat\sclient-side\sfile-list\sfiltering
-D 2014-12-17T23:17:41.762
+C Hide\sempty\sfolders\swhen\sfiltering
+D 2014-12-18T10:18:03.344
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -317,7 +317,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
 F src/branch.c 224c454d1a14c5879586596ada1d5d5db4be0d3f
-F src/browse.c dc4eebdc5617f4f500c6dcd11232704a42415fbc
+F src/browse.c 123b7b100590bffa5853d8c3f736c1bbb97841cd
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
@@ -663,10 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6e29ebbb77ebbdd2bc3f99e4c4f544f9fe130d3e
-R 051d7d33b6bfd4c43f46385226da1584
-T *branch * file-filter
-T *sym-file-filter *
-T -sym-trunk *
+P e44de4cc841b9cdc00828bedbfca30bcfacf56b1
+R b9821fae7c3e8deb1bcc1e902996e00a
 U baruch
-Z 476fc8de86c92b7fdca46b9799d0e6f3
+Z 1816fd3e4135214a6e28314982401f1f

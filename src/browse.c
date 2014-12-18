@@ -854,11 +854,33 @@ void page_tree(void){
   @ }
   @ }())</script>
   @ <script>function filter_list(t){
-  @   var root = gebi('filetreeroot');
-  @   var links = root.querySelectorAll(".file a")
-  @   for(var i = 0; i < links.length; i++){
-  @     var a = links[i];
-  @     a.parentNode.parentNode.hidden = (a.innerHTML.lastIndexOf(t) == -1)
+  @   var outer_ul = document.querySelector('.filetree > ul');
+  @   var links = outer_ul.querySelectorAll('.file a');
+  @   for( var i = 0; i < links.length; i++ ){
+  @     var node = links[i];
+  @     if( node.innerHTML.lastIndexOf(t) == -1 ){
+  @       node = node.parentNode.parentNode;
+  @       node.hidden = true;
+  @       node = node.parentNode;
+  @       hide_parents_loop:
+  @       while( node!=outer_ul && !node.parentNode.hidden ){
+  @         for( var j = 0; j < node.children.length; j++ ){
+  @           if( !node.children[j].hidden ) break hide_parents_loop;
+  @         }
+  @         node = node.parentNode;
+  @         node.hidden = true;
+  @         node = node.parentNode;
+  @       }
+  @     }else{
+  @       node = node.parentNode.parentNode;
+  @       node.hidden = false;
+  @       node = node.parentNode;
+  @       while( node!=outer_ul && node.parentNode.hidden ){
+  @         node = node.parentNode;
+  @         node.hidden = false;
+  @         node = node.parentNode;
+  @       }
+  @     }
   @   }
   @ }</script>
   style_footer();
