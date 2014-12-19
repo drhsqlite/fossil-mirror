@@ -1,5 +1,5 @@
-C Add\scomments\sto\sthe\sMinGW\smakefiles.\s\sAlso\sdisable\suse\sof\sSSLv2\sand\sSSLv3\swhen\sbuilding\swith\sMSVC.
-D 2014-12-19T21:15:03.573
+C Fix\sfor\sMSVC\schanges\sfrom\sthe\sprevious\scheck-in:\swork\saround\sissue\sin\sOpenSSL\swhere\sit\swill\snot\slink\swhen\sSSLv2\sand\sSSLv3\sare\sdisabled\s(i.e.\sit\sends\sup\snot\sbuilding\s'ssleay32.lib'\sat\sall).
+D 2014-12-19T21:56:39.034
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -383,7 +383,7 @@ F src/main.c 08d5baeb5c6176298805eda4f123fd6562566ad6
 F src/main.mk 89f8280d78d9550150eb5fc4e7dfdbd75ae0816d
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 51d581f1edb3a0294bc37ebbf4b4b977d1b35c39
+F src/makemake.tcl cc804c591903957c59e863a0ab272e011d2e463f
 F src/manifest.c 06116766e4fd508c8cd6fc5db608d232f56c3c64
 F src/markdown.c a8ea5a5012e968331bf26f3de92cef68d65d1066
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
@@ -554,7 +554,7 @@ F win/Makefile.PellesCGMake ae6cd880ccef86d97e9d7e2c494d37c77cd4a28a
 F win/Makefile.dmc eeaac89b06dfbeb4d700109d98b57e3538faa878
 F win/Makefile.mingw 89dfcc5a648e7bf52beb46c018b2c97aac0701db
 F win/Makefile.mingw.mistachkin c8edcfc8181b7ff668435a74766f1bc75b05b5a3
-F win/Makefile.msc 4c2f7a8c51f831876c15b1e62cfea5ac558bdaa9
+F win/Makefile.msc 7a4db383b953f5c3d423eabaa1e45668d8a7b4c8
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 623057ea5971c33ca8d443f97c82fe80df9c4715
-R 69c84022c71e460396473d74a9f6d450
+P 1f91d041bf37f5992956ca1bfb15e9e5a7d598a0
+R 770e1fe8be970e62395f91a53a81237f
 U mistachkin
-Z 9f3ae58c5358f6d1acb7f26601792c04
+Z 17701c9143ffefd39ffba57dbe9952b8
