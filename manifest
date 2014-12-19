@@ -1,5 +1,5 @@
-C Change\sfrom\susing\sExpires:\sto\sCache-Control:\sto\scontrol\scaching.
-D 2014-12-18T23:34:45.052
+C Fix\sa\scompiler\swarning\sin\smarkdown.c\sthat\soccurs\sonly\swith\s-Os\son\sgcc.
+D 2014-12-19T12:51:08.714
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -385,7 +385,7 @@ F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 67e5b1172810d3165cc9e42f576048b7019d4cc4
 F src/manifest.c 06116766e4fd508c8cd6fc5db608d232f56c3c64
-F src/markdown.c 3b30a917f0423474f9a76e3b0f3f1ebfbb55448e
+F src/markdown.c a8ea5a5012e968331bf26f3de92cef68d65d1066
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
 F src/merge.c c04a12cdcb97e617887beaa481b828c70e9a3632
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P df50cb6e4d5674ebf7d4139c3775378ba05acd4b
-R 800af032b06b22acb6919890a3f35b48
+P c8414504e1a6a317c8a11e00c3e49227d1d4cb93
+R 062fc1e55827af81814a15dafe9bfc7a
 U drh
-Z eac7f3a72ac24c6d187b67b624b2d486
+Z 7c219e6633924dd7b215bb3338f81026
