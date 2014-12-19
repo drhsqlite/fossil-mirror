@@ -516,7 +516,8 @@ BCC = gcc
 FOSSIL_TCL_SOURCE = 1
 
 #### Check if the workaround for the MinGW command line handling needs to
-#    be enabled by default.
+#    be enabled by default.  This check may be somewhat fragile due to the
+#    use of "findstring".
 #
 ifndef MINGW_IS_32BIT_ONLY
 ifeq (,$(findstring w64-mingw32,$(PREFIX)))
@@ -529,12 +530,19 @@ endif
 ZINCDIR = $(SRCDIR)/../compat/zlib
 ZLIBDIR = $(SRCDIR)/../compat/zlib
 
+#### Make an attempt to detect if Fossil is being built for the x64 processor
+#    architecture.  This check may be somewhat fragile due to "findstring".
+#
 ifndef X64
 ifneq (,$(findstring x86_64-w64-mingw32,$(PREFIX)))
 X64 = 1
 endif
 endif
 
+#### Determine if the optimized assembly routines provided with zlib should be
+#    used, taking into account whether zlib is actually enabled and the target
+#    processor architecture.
+#
 ifndef X64
 SSLCONFIG = mingw
 ifndef FOSSIL_ENABLE_MINIZ
@@ -550,7 +558,14 @@ ZLIBCONFIG =
 LIBTARGETS =
 endif
 
+#### Disable creation of the OpenSSL shared libraries.  Also, disable support
+#    for both SSLv2 and SSLv3 (i.e. thereby forcing the use of TLS).
+#
 SSLCONFIG += no-ssl2 no-ssl3 no-shared
+
+#### When using zlib, make sure that OpenSSL is configured to use the zlib
+#    that Fossil knows about (i.e. the one within the source tree).
+#
 ifndef FOSSIL_ENABLE_MINIZ
 SSLCONFIG +=  --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib
 endif
@@ -1299,17 +1314,17 @@ SSLLFLAGS = /nologo /opt:ref /debug
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
-SSLCONFIG = VC-WIN64A no-asm
+SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3 no-shared
 SSLSETUP  = ms\do_win64a.bat
 SSLNMAKE  = ms\nt.mak all
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
-SSLCONFIG = VC-WIN64I no-asm
+SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3 no-shared
 SSLSETUP  = ms\do_win64i.bat
 SSLNMAKE  = ms\nt.mak all
 !else
 !message Assuming 'x86' platform for OpenSSL...
-SSLCONFIG = VC-WIN32 no-asm
+SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3 no-shared
 SSLSETUP  = ms\do_ms.bat
 SSLNMAKE  = ms\nt.mak all
 !endif
