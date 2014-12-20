@@ -1,5 +1,5 @@
-C Fix\sfor\sMSVC\schanges\sfrom\sthe\sprevious\scheck-in:\swork\saround\sissue\sin\sOpenSSL\swhere\sit\swill\snot\slink\swhen\sSSLv2\sand\sSSLv3\sare\sdisabled\s(i.e.\sit\sends\sup\snot\sbuilding\s'ssleay32.lib'\sat\sall).
-D 2014-12-19T21:56:39.034
+C Handle\s301\sredirect\sthe\ssame\sas\s302\sredirect.
+D 2014-12-20T19:26:02.294
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -353,7 +353,7 @@ F src/fusefs.c b8b126cf9a5322fa6a2afbb8768d38859da61daf
 F src/glob.c 162eefbce151ba02dd67243d92633393c0aeb302
 F src/graph.c 57ddf309e5bf7be4f88b6ec36eb6296f6c278153
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
-F src/http.c 7d19b4cc027188fd6dd286aafc6333a17086cd80
+F src/http.c 93e8175024405fef1568af3d65ebfb1ee2a3db33
 F src/http_socket.c 957fcf6bde44fd478d66bf87c973a01422ee0f58
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1f91d041bf37f5992956ca1bfb15e9e5a7d598a0
-R 770e1fe8be970e62395f91a53a81237f
-U mistachkin
-Z 17701c9143ffefd39ffba57dbe9952b8
+P 479805e1ec7f6c43997b47ced8c26f0e20e1ac2c
+R 74947728a1487e1518ecbcdf897b8606
+U andybradford
+Z f81994745ebe2fa311e200e7eddde16d

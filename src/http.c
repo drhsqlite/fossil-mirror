@@ -287,7 +287,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
           return http_exchange(pSend, pReply, useLogin, maxRedirect);
         }
       }
-      if( rc!=200 && rc!=302 ){
+      if( rc!=200 && rc!=301 && rc!=302 ){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
@@ -301,7 +301,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }
     }else if( g.url.isSsh && fossil_strnicmp(zLine, "status:", 7)==0 ){
       if( sscanf(zLine, "Status: %d", &rc)!=1 ) goto write_err;
-      if( rc!=200 && rc!=302 ){
+      if( rc!=200 && rc!=301 && rc!=302 ){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
@@ -321,7 +321,8 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }else if( c=='k' || c=='K' ){
         closeConnection = 0;
       }
-    }else if( rc==302 && fossil_strnicmp(zLine, "location:", 9)==0 ){
+    }else if( ( rc==301 || rc==302 ) &&
+                fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
 
       if ( --maxRedirect == 0){
@@ -362,7 +363,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
     goto write_err;
   }
   if( rc!=200 ){
-    fossil_warning("\"location:\" missing from 302 redirect reply");
+    fossil_warning("\"location:\" missing from %d redirect reply", rc);
     goto write_err;
   }
 
