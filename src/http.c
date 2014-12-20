@@ -341,7 +341,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }
       transport_close(&g.url);
       transport_global_shutdown(&g.url);
-      fossil_print("redirect to %s\n", &zLine[i]);
+      fossil_print("redirect with status %d to %s\n", rc, &zLine[i]);
       url_parse(&zLine[i], 0);
       fSeenHttpAuth = 0;
       if( g.zHttpAuth ) free(g.zHttpAuth);
