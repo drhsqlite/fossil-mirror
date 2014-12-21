@@ -1,5 +1,5 @@
-C Improve\sdiagnostic\soutput\sfor\sHTTP\sredirects.
-D 2014-12-20T21:06:33.625
+C Adjust\sfile\stree\sCSS\sso\sfile\sages\sare\scloser\sto\sthe\sfilenames.
+D 2014-12-21T02:44:28.643
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -420,7 +420,7 @@ F src/sqlite3.c 56000991a7b983adbb5d489edc201fe710aa737a
 F src/sqlite3.h 4ae9e4e6f8e8c266a18a440f7c4a17d6e1bffd0e
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c d058aef03224498f96facc0ffcdebce34952970e
-F src/style.c 1357293c19eec9cb4ad9dee6654d2ff8e06ab29a
+F src/style.c 05f7493a6c0357c7ef79c24c95f70f4f08827a13
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 3e5c18658ada7bc2bfe21eea4ec47eaa89776e6e
 F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2678d87d6a2c36435cae66b371a908d61385b4b4
-R cf4e256b1a260140cc1e7683e2d667c9
-U mistachkin
-Z 4cc3cbef8483e53d3776457694607e2d
+P a1e256cc83a9f798f2f97b6b3dc1b658f0983324
+R 26aca209c2819ca7b394b7322c59914e
+U joel
+Z 8aef15dd53e29498bb76b8bfaca7c020
