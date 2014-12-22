@@ -742,10 +742,9 @@ void page_tree(void){
     relinkTree(&sTree, p);
   }
   for(p=sTree.pFirst, nDir=0; p; p=p->pNext){
-    const char *zLastClass = p->pSibling==0 ? " last" : "";
     if( p->pChild ){
       const char *zSubdirClass = p->nFullName==nD-1 ? " subdir" : "";
-      @ <li class="dir%s(zSubdirClass)%s(zLastClass)"><div class="filetreeline">
+      @ <li class="dir%s(zSubdirClass)"><div class="filetreeline">
       @ %z(href("%s",url_render(&sURI,"name",p->zFullName,0,0)))%h(p->zName)</a>
       if( p->mtime>0.0 ){
         char *zAge = human_readable_age(rNow - p->mtime);
@@ -762,11 +761,11 @@ void page_tree(void){
       const char *zFileClass = fileext_class(p->zName);
       char *zLink;
       if( zCI ){
-        zLink = href("%R/artifact/%.16s",p->zUuid);
+        zLink = href("%R/artifact/%s",p->zUuid);
       }else{
         zLink = href("%R/finfo?name=%T",p->zFullName);
       }
-      @ <li class="%z(zFileClass)%s(zLastClass)"><div class="filetreeline">
+      @ <li class="%z(zFileClass)"><div class="filetreeline">
       @ %z(zLink)%h(p->zName)</a>
       if( p->mtime>0 ){
         char *zAge = human_readable_age(rNow - p->mtime);
@@ -783,7 +782,24 @@ void page_tree(void){
   }
   @ </ul>
   @ </ul></div>
-  @ <script>(function(){
+  @ <script>function fixLast(){
+  @   var dirs = document.querySelectorAll('.filetree ul');
+  @   for( var i = 0; i < dirs.length; i++ ){
+  @     var node = dirs[i];
+  @     var last = true;
+  @     for( var j = node.children.length-1; j >= 0; j-- ){
+  @       if( !node.children[j].hidden ){
+  @         if( last ){
+  @           node.children[j].classList.add('last');
+  @           last = false;
+  @         }else{
+  @           node.children[j].classList.remove('last');
+  @         }
+  @       }
+  @     }
+  @   }
+  @ }
+  @ (function(){
   @ function isExpanded(ul){
   @   return ul.className=='';
   @ }
@@ -852,8 +868,9 @@ void page_tree(void){
   @   toggleDir(ul);
   @   return false;
   @ }
-  @ }())</script>
-  @ <script>function filter_list(t){
+  @ fixLast();
+  @ }())
+  @ function filter_list(t){
   @   var outer_ul = document.querySelector('.filetree > ul');
   @   var links = outer_ul.querySelectorAll('.file a');
   @   for( var i = 0; i < links.length; i++ ){
@@ -882,6 +899,7 @@ void page_tree(void){
   @       }
   @     }
   @   }
+  @   fixLast();
   @ }</script>
   style_footer();
 
