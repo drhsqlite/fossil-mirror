@@ -1076,7 +1076,7 @@ void page_timeline(void){
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only checkins that rename files */
   int tagid;                         /* Tag ID */
-  int tmFlags;                       /* Timeline flags */
+  int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
   const char *zThisUser = 0;         /* Suppress links to this user */
   HQuery url;                        /* URL for various branch links */
@@ -1116,9 +1116,9 @@ void page_timeline(void){
     nEntry = -1;
   }
   if( zType[0]=='a' ){
-    tmFlags = TIMELINE_BRIEF | TIMELINE_GRAPH;
+    tmFlags |= TIMELINE_BRIEF | TIMELINE_GRAPH;
   }else{
-    tmFlags = TIMELINE_GRAPH;
+    tmFlags |= TIMELINE_GRAPH;
   }
   if( nEntry>0 ) url_add_parameter(&url, "n", mprintf("%d", nEntry));
   if( P("ng")!=0 || zSearch!=0 ){
@@ -1212,6 +1212,7 @@ void page_timeline(void){
     char *zUuid;
     int np, nd;
 
+    tmFlags |= TIMELINE_DISJOINT;
     if( p_rid && d_rid ){
       if( p_rid!=d_rid ) p_rid = d_rid;
       if( P("n")==0 ) nEntry = 10;

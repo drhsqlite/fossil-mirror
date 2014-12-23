@@ -1,5 +1,5 @@
-C Add\sthe\s(undocumented)\s"showrid"\squery\sparameter\sto\sthe\smain\stimeline.\nUsed\sfor\sdebugging\sonly.
-D 2014-12-23T12:09:34.258
+C Use\sa\s"disjoint"\stimeline\sfor\sthe\sdisplay\sof\sancestor\sand\sdescendent\sgraphs.
+D 2014-12-23T12:20:55.805
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -429,7 +429,7 @@ F src/th.h 3d96cf226cbdb8f68a7b3e554c17e069eaace860
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 38a77d04427296f65729de869316c5cc0606f6d7
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c 7090cfefad5770538e671767e4128707f106102a
+F src/timeline.c 4397700fa4c0170224b54de2673291f4c31b5826
 F src/tkt.c 37c7a5d99ab5ed542af2378b6971bbb9e115ca05
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c 09c23a40506a4ceff1e9c254938b25e42d69cf4e
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 797780c3ff28b589e24dbcf73056b37d728311f1
-R 4579a504fa5fe5aa8e3b6813f3e6dcee
+P 5111a5fea21e206ffc0fa933a0ade7ee5ac7ef3b
+R 1208b4a97842e3a2db05889d5a82ffa9
 U drh
-Z 77ac040c6bf94ebc6d631167f36addde
+Z 69defc25e0d437f3b185696d7fd4bde4
