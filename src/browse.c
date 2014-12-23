@@ -799,6 +799,7 @@ void page_tree(void){
   @     }
   @   }
   @ }
+  @
   @ (function(){
   @ function isExpanded(ul){
   @   return ul.className=='';
@@ -870,12 +871,14 @@ void page_tree(void){
   @ }
   @ fixLast();
   @ }())
+  @
   @ function filter_list(t){
   @   var outer_ul = document.querySelector('.filetree > ul');
   @   var links = outer_ul.querySelectorAll('.file a');
+  @   t = t.toUpperCase();
   @   for( var i = 0; i < links.length; i++ ){
   @     var node = links[i];
-  @     if( node.innerHTML.lastIndexOf(t) == -1 ){
+  @     if( node.innerHTML.toUpperCase().lastIndexOf(t) == -1 ){
   @       node = node.parentNode.parentNode;
   @       node.hidden = true;
   @       node = node.parentNode;
@@ -889,8 +892,6 @@ void page_tree(void){
   @         node = node.parentNode;
   @       }
   @     }else{
-  @       node = node.parentNode.parentNode;
-  @       node.hidden = false;
   @       node = node.parentNode;
   @       while( node!=outer_ul && node.parentNode.hidden ){
   @         node = node.parentNode;
