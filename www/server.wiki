@@ -72,7 +72,7 @@ The final argument is either the name of the fossil repository to be served,
 or a directory containing multiple repositories.
 </p>
 <p>
-If you system is running xinetd, then the configuration is likely to be
+If your system is running xinetd, then the configuration is likely to be
 in the file "/etc/xinetd.conf" or in a subfile of "/etc/xinetd.d".
 An xinetd configuration file will appear like this:</p>
 <blockquote>
