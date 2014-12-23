@@ -89,6 +89,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_UCOLOR   0x0080  /* Background color by user */
 #define TIMELINE_FRENAMES 0x0100  /* Detail only file name changes */
 #define TIMELINE_UNHIDE   0x0200  /* Unhide check-ins with "hidden" tag */
+#define TIMELINE_SHOWRID  0x0400  /* Show RID values in addition to UUIDs */
 #endif
 
 /*
@@ -406,6 +407,9 @@ void www_print_timeline(
       hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);
+    }
+    if( tmFlags & TIMELINE_SHOWRID ){
+      @ (%d(rid))
     }
     db_column_blob(pQuery, commentColumn, &comment);
     if( zType[0]!='c' ){
@@ -1554,6 +1558,7 @@ void page_timeline(void){
   if( P("showsql") ){
     @ <blockquote>%h(blob_sql_text(&sql))</blockquote>
   }
+  if( P("showrid") ) tmFlags |= TIMELINE_SHOWRID;
   blob_zero(&sql);
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
   @ <h2>%b(&desc)</h2>
