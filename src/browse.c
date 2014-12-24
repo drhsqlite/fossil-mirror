@@ -725,9 +725,9 @@ void page_tree(void){
   */
   @ <div class="filetree" id="filetreeroot"><ul>
   if( nD ){
-    @ <li class="dir last">
+    @ <li class="dir">
   }else{
-    @ <li class="dir subdir last">
+    @ <li class="dir subdir">
   }
   @ <div class="filetreeline">
   @ %z(href("%s",url_render(&sURI,"name",0,0,0)))%h(zProjectName)</a>
@@ -784,16 +784,17 @@ void page_tree(void){
   @ </ul></div>
   @ <script>function fixLast(){
   @   var dirs = document.querySelectorAll('.filetree ul');
+  @   var regexp = /(?:^|\s)last(?=\s|$)/g
   @   for( var i = 0; i < dirs.length; i++ ){
   @     var node = dirs[i];
   @     var last = true;
   @     for( var j = node.children.length-1; j >= 0; j-- ){
   @       if( !node.children[j].hidden ){
+  @         node.children[j].className = 
+  @             node.children[j].className.replace(regexp, '');
   @         if( last ){
-  @           node.children[j].classList.add('last');
+  @           node.children[j].className += ' last';
   @           last = false;
-  @         }else{
-  @           node.children[j].classList.remove('last');
   @         }
   @       }
   @     }
