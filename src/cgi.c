@@ -344,9 +344,7 @@ void cgi_reply(void){
     ** stale cache is the least of the problem. So we provide an Expires
     ** header set to a reasonable period (default: one week).
     */
-    /*time_t expires = time(0) + atoi(db_config("constant_expires","604800"));*/
-    time_t expires = time(0) + 604800;
-    fprintf(g.httpOut, "Expires: %s\r\n", cgi_rfc822_datestamp(expires));
+    fprintf(g.httpOut, "Cache-control: max-age=28800\r\n");
   }else{
     fprintf(g.httpOut, "Cache-control: no-cache\r\n");
   }

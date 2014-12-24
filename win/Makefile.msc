@@ -64,19 +64,28 @@ SSLLFLAGS = /nologo /opt:ref /debug
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
-SSLCONFIG = VC-WIN64A no-asm
+# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3 no-shared
+SSLCONFIG = VC-WIN64A no-asm no-shared
 SSLSETUP  = ms\do_win64a.bat
 SSLNMAKE  = ms\nt.mak all
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
-SSLCONFIG = VC-WIN64I no-asm
+# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3 no-shared
+SSLCONFIG = VC-WIN64I no-asm no-shared
 SSLSETUP  = ms\do_win64i.bat
 SSLNMAKE  = ms\nt.mak all
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
 !else
 !message Assuming 'x86' platform for OpenSSL...
-SSLCONFIG = VC-WIN32 no-asm
+# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3 no-shared
+SSLCONFIG = VC-WIN32 no-asm no-shared
 SSLSETUP  = ms\do_ms.bat
 SSLNMAKE  = ms\nt.mak all
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
 !endif
 !endif
 
@@ -284,6 +293,7 @@ SRC   = add_.c \
         setup_.c \
         sha1_.c \
         shun_.c \
+        sitemap_.c \
         skins_.c \
         sqlcmd_.c \
         stash_.c \
@@ -405,6 +415,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\sha1$O \
         $(OX)\shell$O \
         $(OX)\shun$O \
+        $(OX)\sitemap$O \
         $(OX)\skins$O \
         $(OX)\sqlcmd$O \
         $(OX)\sqlite3$O \
@@ -467,9 +478,9 @@ openssl:
 	@pushd "$(SSLDIR)" && $(PERL) Configure $(SSLCONFIG) && popd
 	@pushd "$(SSLDIR)" && call $(SSLSETUP) && popd
 !ifdef FOSSIL_ENABLE_WINXP
-	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(XPCFLAGS)" "LFLAGS=$(SSLLFLAGS) $(XPLDFLAGS)" && popd
+	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS) $(XPCFLAGS)" "LFLAGS=$(SSLLFLAGS) $(XPLDFLAGS)" && popd
 !else
-	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) && popd
+	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS)" && popd
 !endif
 !endif
 
@@ -578,6 +589,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\sha1.obj >> $@
 	echo $(OX)\shell.obj >> $@
 	echo $(OX)\shun.obj >> $@
+	echo $(OX)\sitemap.obj >> $@
 	echo $(OX)\skins.obj >> $@
 	echo $(OX)\sqlcmd.obj >> $@
 	echo $(OX)\sqlite3.obj >> $@
@@ -1232,6 +1244,12 @@ $(OX)\shun$O : shun_.c shun.h
 shun_.c : $(SRCDIR)\shun.c
 	translate$E $** > $@
 
+$(OX)\sitemap$O : sitemap_.c sitemap.h
+	$(TCC) /Fo$@ -c sitemap_.c
+
+sitemap_.c : $(SRCDIR)\sitemap.c
+	translate$E $** > $@
+
 $(OX)\skins$O : skins_.c skins.h
 	$(TCC) /Fo$@ -c skins_.c
 
@@ -1497,6 +1515,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			setup_.c:setup.h \
 			sha1_.c:sha1.h \
 			shun_.c:shun.h \
+			sitemap_.c:sitemap.h \
 			skins_.c:skins.h \
 			sqlcmd_.c:sqlcmd.h \
 			stash_.c:stash.h \

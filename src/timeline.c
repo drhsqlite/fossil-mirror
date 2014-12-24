@@ -89,6 +89,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_UCOLOR   0x0080  /* Background color by user */
 #define TIMELINE_FRENAMES 0x0100  /* Detail only file name changes */
 #define TIMELINE_UNHIDE   0x0200  /* Unhide check-ins with "hidden" tag */
+#define TIMELINE_SHOWRID  0x0400  /* Show RID values in addition to UUIDs */
 #endif
 
 /*
@@ -406,6 +407,9 @@ void www_print_timeline(
       hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);
+    }
+    if( tmFlags & TIMELINE_SHOWRID ){
+      @ (%d(rid))
     }
     db_column_blob(pQuery, commentColumn, &comment);
     if( zType[0]!='c' ){
@@ -1072,7 +1076,7 @@ void page_timeline(void){
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only checkins that rename files */
   int tagid;                         /* Tag ID */
-  int tmFlags;                       /* Timeline flags */
+  int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
   const char *zThisUser = 0;         /* Suppress links to this user */
   HQuery url;                        /* URL for various branch links */
@@ -1112,9 +1116,9 @@ void page_timeline(void){
     nEntry = -1;
   }
   if( zType[0]=='a' ){
-    tmFlags = TIMELINE_BRIEF | TIMELINE_GRAPH;
+    tmFlags |= TIMELINE_BRIEF | TIMELINE_GRAPH;
   }else{
-    tmFlags = TIMELINE_GRAPH;
+    tmFlags |= TIMELINE_GRAPH;
   }
   if( nEntry>0 ) url_add_parameter(&url, "n", mprintf("%d", nEntry));
   if( P("ng")!=0 || zSearch!=0 ){
@@ -1208,6 +1212,7 @@ void page_timeline(void){
     char *zUuid;
     int np, nd;
 
+    tmFlags |= TIMELINE_DISJOINT;
     if( p_rid && d_rid ){
       if( p_rid!=d_rid ) p_rid = d_rid;
       if( P("n")==0 ) nEntry = 10;
@@ -1462,7 +1467,7 @@ void page_timeline(void){
       blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
     }else if( zYearWeek ){
       blob_appendf(&desc, "%s events for year/week %h", zEType, zYearWeek);
-    }else if( zAfter==0 && zBefore==0 && zCirca==0 && nEntry>0 ){
+    }else if( zAfter==0 && zBefore==0 && zCirca==0 && n>=nEntry && nEntry>0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
       blob_appendf(&desc, "%d %ss", n, zEType);
@@ -1513,7 +1518,7 @@ void page_timeline(void){
         zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
         timeline_submenu(&url, "Newer", "a", zDate, "b");
         free(zDate);
-      }else if( tagid==0 ){
+      }else if( tagid==0 && zUses==0 ){
         if( zType[0]!='a' ){
           timeline_submenu(&url, "All Types", "y", "all", 0);
         }
@@ -1554,6 +1559,7 @@ void page_timeline(void){
   if( P("showsql") ){
     @ <blockquote>%h(blob_sql_text(&sql))</blockquote>
   }
+  if( P("showrid") ) tmFlags |= TIMELINE_SHOWRID;
   blob_zero(&sql);
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
   @ <h2>%b(&desc)</h2>

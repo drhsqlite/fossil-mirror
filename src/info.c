@@ -1921,7 +1921,7 @@ void tinfo_page(void){
       moderation_approve(rid);
     }
   }
-  zTktTitle = db_table_has_column( "ticket", "title" )
+  zTktTitle = db_table_has_column("repository", "ticket", "title" )
       ? db_text("(No title)", "SELECT title FROM ticket WHERE tkt_uuid=%Q", zTktName)
       : 0;
   style_header("Ticket Change Details");

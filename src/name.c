@@ -348,26 +348,21 @@ int name_to_uuid2(const char *zName, const char *zType, char **pUuid){
 ** than 4 characters in length.
 */
 int name_collisions(const char *zName){
-  Stmt q;
   int c = 0;         /* count of collisions for zName */
   int nLen;          /* length of zName */
   nLen = strlen(zName);
   if( nLen>=4 && nLen<=UUID_SIZE && validate16(zName, nLen) ){
-    db_prepare(&q,
-      "SELECT count(uuid) FROM"
-      "  (SELECT substr(tkt_uuid, 1, %d) AS uuid FROM ticket"
-      "   UNION ALL SELECT * FROM"
-      "     (SELECT substr(tagname, 7, %d) FROM"
-      "       tag WHERE tagname GLOB 'event-*')"
-      "   UNION ALL SELECT * FROM"
-      "     (SELECT substr(uuid, 1, %d) FROM blob))"
-      "  WHERE uuid GLOB '%q*'"
-      "  GROUP BY uuid HAVING count(uuid) > 1;",
-      nLen, nLen, nLen, zName);
-    if( db_step(&q)==SQLITE_ROW ){
-      c = db_column_int(&q, 0);
-    }
-    db_finalize(&q);
+    c = db_int(0,
+      "SELECT"
+      " (SELECT count(*) FROM ticket"
+      "   WHERE tkt_uuid GLOB '%q*') +"
+      " (SELECT count(*) FROM tag"
+      "   WHERE tagname GLOB 'event-%q*') +"
+      " (SELECT count(*) FROM blob"
+      "   WHERE uuid GLOB '%q*');",
+      zName, zName, zName
+    );
+    if( c<2 ) c = 0;
   }
   return c;
 }
@@ -810,7 +805,7 @@ void describe_artifacts(const char *zWhere){
     "SELECT blob.rid, blob.uuid, event.mtime, 'checkin',\n"
     "       'checkin on ' || strftime('%%Y-%%m-%%d %%H:%%M',event.mtime)\n"
     "  FROM event, blob\n"
-    " WHERE event.objid %s AND event.type='ci'\n"
+    " WHERE (event.objid %s) AND event.type='ci'\n"
     "   AND event.objid=blob.rid;",
     zWhere /*safe-for-%s*/
   );
@@ -820,7 +815,7 @@ void describe_artifacts(const char *zWhere){
     "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, event.mtime, 'file', 'file '||filename.name\n"
     "  FROM mlink, blob, event, filename\n"
-    " WHERE mlink.fid %s\n"
+    " WHERE (mlink.fid %s)\n"
     "   AND mlink.mid=event.objid\n"
     "   AND filename.fnid=mlink.fnid\n"
     "   AND mlink.fid=blob.rid;",
@@ -833,7 +828,7 @@ void describe_artifacts(const char *zWhere){
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'tag',\n"
     "     'tag '||substr((SELECT uuid FROM blob WHERE rid=tagxref.rid),1,16)\n"
     "  FROM tagxref, blob\n"
-    " WHERE tagxref.srcid %s AND tagxref.srcid!=tagxref.rid\n"
+    " WHERE (tagxref.srcid %s) AND tagxref.srcid!=tagxref.rid\n"
     "   AND tagxref.srcid=blob.rid;",
     zWhere /*safe-for-%s*/
   );
@@ -843,7 +838,7 @@ void describe_artifacts(const char *zWhere){
     "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'cluster', 'cluster'\n"
     "  FROM tagxref, blob\n"
-    " WHERE tagxref.rid %s\n"
+    " WHERE (tagxref.rid %s)\n"
     "   AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='cluster')\n"
     "   AND blob.rid=tagxref.rid;",
     zWhere /*safe-for-%s*/
@@ -855,7 +850,7 @@ void describe_artifacts(const char *zWhere){
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'ticket',\n"
     "       'ticket '||substr(tag.tagname,5,21)\n"
     "  FROM tagxref, tag, blob\n"
-    " WHERE tagxref.rid %s\n"
+    " WHERE (tagxref.rid %s)\n"
     "   AND tag.tagid=tagxref.tagid\n"
     "   AND tag.tagname GLOB 'tkt-*'"
     "   AND blob.rid=tagxref.rid;",
@@ -868,7 +863,7 @@ void describe_artifacts(const char *zWhere){
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'wiki',\n"
     "       printf('wiki \"%%s\"',substr(tag.tagname,6))\n"
     "  FROM tagxref, tag, blob\n"
-    " WHERE tagxref.rid %s\n"
+    " WHERE (tagxref.rid %s)\n"
     "   AND tag.tagid=tagxref.tagid\n"
     "   AND tag.tagname GLOB 'wiki-*'"
     "   AND blob.rid=tagxref.rid;",
@@ -881,7 +876,7 @@ void describe_artifacts(const char *zWhere){
     "SELECT blob.rid, blob.uuid, tagxref.mtime, 'event',\n"
     "       'event '||substr(tag.tagname,7)\n"
     "  FROM tagxref, tag, blob\n"
-    " WHERE tagxref.rid %s\n"
+    " WHERE (tagxref.rid %s)\n"
     "   AND tag.tagid=tagxref.tagid\n"
     "   AND tag.tagname GLOB 'event-*'"
     "   AND blob.rid=tagxref.rid;",
@@ -890,12 +885,22 @@ void describe_artifacts(const char *zWhere){
 
   /* Attachments */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,detail)\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, attachment.mtime, 'attach-control',\n"
+    "       'attachment-control for '||attachment.filename\n"
+    "  FROM attachment, blob\n"
+    " WHERE (attachment.attachid %s)\n"
+    "   AND blob.rid=attachment.attachid",
+    zWhere /*safe-for-%s*/
+  );
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, attachment.mtime, 'attachment',\n"
     "       'attachment '||attachment.filename\n"
     "  FROM attachment, blob\n"
-    " WHERE attachment.src %s\n"
-    "   AND blob.rid=attachment.src;",
+    " WHERE (blob.rid %s)\n"
+    "   AND blob.rid NOT IN (SELECT rid FROM description)\n"
+    "   AND blob.uuid=attachment.src",
     zWhere /*safe-for-%s*/
   );
 
@@ -905,7 +910,7 @@ void describe_artifacts(const char *zWhere){
     "SELECT blob.rid, blob.uuid,"
     "       CASE WHEN blob.size<0 THEN 'phantom' ELSE '' END,\n"
     "       'unknown'\n"
-    "  FROM blob WHERE blob.rid %s;",
+    "  FROM blob WHERE (blob.rid %s);",
     zWhere /*safe-for-%s*/
   );
 
@@ -945,13 +950,79 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
 /*
 ** COMMAND: test-describe-artifacts
 **
-** Usage: %fossil test-describe-artifacts
+** Usage: %fossil test-describe-artifacts [--from S] [--count N]
 **
 ** Display a one-line description of every artifact.
 */
 void test_describe_artifacts_cmd(void){
+  int iFrom = 0;
+  int iCnt = 1000000;
+  const char *z;
+  char *zRange;
   db_find_and_open_repository(0,0);
-  describe_artifacts_to_stdout("IN (SELECT rid FROM blob)", 0);
+  z = find_option("from",0,1);
+  if( z ) iFrom = atoi(z);
+  z = find_option("count",0,1);
+  if( z ) iCnt = atoi(z);
+  zRange = mprintf("BETWEEN %d AND %d", iFrom, iFrom+iCnt-1);
+  describe_artifacts_to_stdout(zRange, 0);
+}
+
+/*
+** WEBPAGE: bloblist
+**
+** Return a page showing all artifacts in the repository.  Query parameters:
+**
+**   n=N         Show N artifacts
+**   s=S         Start with artifact number S
+*/
+void bloblist_page(void){
+  Stmt q;
+  int s = atoi(PD("s","0"));
+  int n = atoi(PD("n","5000"));
+  int mx = db_int(0, "SELECT max(rid) FROM blob");
+  char *zRange;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(); return; }
+  style_header("List Of Artifacts");
+  if( mx>n && P("s")==0 ){
+    int i;
+    @ <p>Select a range of artifacts to view:</p>
+    @ <ul>
+    for(i=1; i<=mx; i+=n){
+      @ <li> %z(href("%R/bloblist?s=%d&n=%d",i,n))
+      @ %d(i)..%d(i+n-1<mx?i+n-1:mx)</a>
+    }
+    @ </ul>
+    style_footer();
+    return;
+  }
+  if( mx>n ){
+    style_submenu_element("Index", "Index", "bloblist");
+  }
+  zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
+  describe_artifacts(zRange);
+  db_prepare(&q,
+    "SELECT rid, uuid, summary, isPrivate FROM description ORDER BY rid"
+  );
+  @ <table cellpadding="0" cellspacing="0">
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q,0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDesc = db_column_text(&q, 2);
+    int isPriv = db_column_int(&q,2);
+    @ <tr><td align="right">%d(rid)</td>
+    @ <td>&nbsp;%z(href("%R/info/%s",zUuid))%s(zUuid)</a>&nbsp;</td>
+    @ <td align="left">%h(zDesc)</td>
+    if( isPriv ){
+      @ <td>(unpublished)</td>
+    }
+    @ </tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  style_footer();
 }
 
 /*
