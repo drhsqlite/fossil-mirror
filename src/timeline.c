@@ -610,8 +610,8 @@ void timeline_output_graph_javascript(
     **        node has no merge children and no merge-out line is drawn.
     **   mu:  The id of the row which is the top of the merge-out arrow.
     **    u:  Draw a thick child-line out of the top of this node and up to
-    **        the node with an id equal to this value.  0 if there is no
-    **        thick-line riser.
+    **        the node with an id equal to this value.  0 if it is straight to
+    **        the top of the page, -1 if there is no thick-line riser.
     **    f:  0x01: a leaf node.
     **   au:  An array of integers that define thick-line risers for branches.
     **        The integers are in pairs.  For each pair, the first integer is
