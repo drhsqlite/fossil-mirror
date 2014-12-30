@@ -1,5 +1,5 @@
-C Bring\stk\sdiff\sviewer\sbranch\sup\sto\sdate
-D 2014-12-30T21:04:13.964
+C Revert\smakefile\schange\saccidentally\scommited
+D 2014-12-30T21:13:01.567
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -552,7 +552,7 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake ae6cd880ccef86d97e9d7e2c494d37c77cd4a28a
 F win/Makefile.dmc eeaac89b06dfbeb4d700109d98b57e3538faa878
-F win/Makefile.mingw 8c84f94c7d69edac8e47cb8ab0b485cf83b0d9fb
+F win/Makefile.mingw 89dfcc5a648e7bf52beb46c018b2c97aac0701db
 F win/Makefile.mingw.mistachkin c8edcfc8181b7ff668435a74766f1bc75b05b5a3
 F win/Makefile.msc 7a4db383b953f5c3d423eabaa1e45668d8a7b4c8
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 73b8c619eeb627a367325b91237f742875f9065b 1860c6d6ded94bf7f591b9f2ca1cad8e26da5c53
-R 8cd08ff5093f7a66a7cabc6b67f18262
+P 42436cef32953c82c4e66d092f7fa14985ef152d
+R 161add6fe4816108f241dc1acfb3d1a9
 U baruch
-Z 5b7999b3a49d30333c7bd8965f2b475a
+Z 2b9abcf90c822e95c192aac361099089
