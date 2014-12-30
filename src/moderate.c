@@ -40,12 +40,7 @@ void moderation_table_create(void){
 ** Return TRUE if the modreq table exists
 */
 int moderation_table_exists(void){
-  static int modreqExists = -1;
-  if( modreqExists<0 ){
-    modreqExists = db_exists("SELECT 1 FROM %s.sqlite_master"
-                             " WHERE name='modreq'", db_name("repository"));
-  }
-  return modreqExists;
+  return db_table_exists("repository", "modreq");
 }
 
 /*
@@ -118,6 +113,7 @@ void moderation_disapprove(int objid){
       db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
     }
     if( attachRid && object_used(attachRid) ) attachRid = 0;
+    admin_log("Disapproved moderation of rid %d.", rid);
     rid = attachRid;
   }
   db_end_transaction(0);
@@ -136,6 +132,7 @@ void moderation_approve(int rid){
     rid, rid, rid
   );
   db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
+  admin_log("Approved moderation of rid %d.", rid);
   db_end_transaction(0);
 }
 

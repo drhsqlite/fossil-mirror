@@ -26,6 +26,10 @@
 #  include <zlib.h>
 #endif
 #include "blob.h"
+#if defined(_WIN32)
+#include <fcntl.h>
+#include <io.h>
+#endif
 
 #if INTERFACE
 /*
@@ -825,8 +829,14 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     if( fossil_utf8_to_console(blob_buffer(pBlob), nWrote, 0) >= 0 ){
       return nWrote;
     }
+    fflush(stdout);
+    _setmode(_fileno(stdout), _O_BINARY);
 #endif
     fwrite(blob_buffer(pBlob), 1, nWrote, stdout);
+#if defined(_WIN32)
+    fflush(stdout);
+    _setmode(_fileno(stdout), _O_TEXT);
+#endif
   }else{
     file_mkfolder(zFilename, 1);
     out = fossil_fopen(zFilename, "wb");
@@ -1195,12 +1205,14 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     zUtf8 = blob_str(pBlob) + bomSize;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
     blob_set_dynamic(pBlob, zUtf8);
-#if defined(_WIN32)
-  }else if( useMbcs ){
+  }else if( useMbcs && invalid_utf8(pBlob) ){
+#if defined(_WIN32) || defined(__CYGWIN__)
     zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
     blob_reset(pBlob);
     blob_append(pBlob, zUtf8, -1);
     fossil_mbcs_free(zUtf8);
+#else
+    blob_cp1252_to_utf8(pBlob);
 #endif /* _WIN32 */
   }
 }

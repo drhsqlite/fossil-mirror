@@ -321,7 +321,6 @@ void fusefs_cmd(void){
 #else
   char *zMountPoint;
   char *azNewArgv[5];
-  int i;
   int doDebug = find_option("debug","d",0)!=0;
 
   db_find_and_open_repository(0,0);

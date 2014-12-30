@@ -287,7 +287,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
           return http_exchange(pSend, pReply, useLogin, maxRedirect);
         }
       }
-      if( rc!=200 && rc!=302 ){
+      if( rc!=200 && rc!=301 && rc!=302 ){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
@@ -301,7 +301,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }
     }else if( g.url.isSsh && fossil_strnicmp(zLine, "status:", 7)==0 ){
       if( sscanf(zLine, "Status: %d", &rc)!=1 ) goto write_err;
-      if( rc!=200 && rc!=302 ){
+      if( rc!=200 && rc!=301 && rc!=302 ){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
@@ -321,7 +321,8 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }else if( c=='k' || c=='K' ){
         closeConnection = 0;
       }
-    }else if( rc==302 && fossil_strnicmp(zLine, "location:", 9)==0 ){
+    }else if( ( rc==301 || rc==302 ) &&
+                fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
 
       if ( --maxRedirect == 0){
@@ -338,12 +339,13 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
          j -= 4;
          zLine[j] = 0;
       }
-      fossil_print("redirect to %s\n", &zLine[i]);
+      transport_close(&g.url);
+      transport_global_shutdown(&g.url);
+      fossil_print("redirect with status %d to %s\n", rc, &zLine[i]);
       url_parse(&zLine[i], 0);
       fSeenHttpAuth = 0;
       if( g.zHttpAuth ) free(g.zHttpAuth);
       g.zHttpAuth = get_httpauth();
-      transport_close(&g.url);
       return http_exchange(pSend, pReply, useLogin, maxRedirect);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
       if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){
@@ -361,7 +363,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
     goto write_err;
   }
   if( rc!=200 ){
-    fossil_warning("\"location:\" missing from 302 redirect reply");
+    fossil_warning("\"location:\" missing from %d redirect reply", rc);
     goto write_err;
   }
 

@@ -2157,7 +2157,7 @@ void markdown(
 ){
   struct link_ref *lr;
   struct Blob text = BLOB_INITIALIZER;
-  size_t i, beg, end;
+  size_t i, beg, end = 0;
   struct render rndr;
   char *ib_data;
 

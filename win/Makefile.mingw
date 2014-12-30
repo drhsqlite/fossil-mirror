@@ -48,7 +48,7 @@ BCC = gcc
 
 #### Enable HTTPS support via OpenSSL (links to libssl and libcrypto)
 #
-# FOSSIL_ENABLE_SSL = 1
+FOSSIL_ENABLE_SSL = 1
 
 #### Automatically build OpenSSL when building Fossil (causes rebuild
 #    issues when building incrementally).
@@ -89,7 +89,8 @@ BCC = gcc
 FOSSIL_TCL_SOURCE = 1
 
 #### Check if the workaround for the MinGW command line handling needs to
-#    be enabled by default.
+#    be enabled by default.  This check may be somewhat fragile due to the
+#    use of "findstring".
 #
 ifndef MINGW_IS_32BIT_ONLY
 ifeq (,$(findstring w64-mingw32,$(PREFIX)))
@@ -102,22 +103,42 @@ endif
 ZINCDIR = $(SRCDIR)/../compat/zlib
 ZLIBDIR = $(SRCDIR)/../compat/zlib
 
+#### Make an attempt to detect if Fossil is being built for the x64 processor
+#    architecture.  This check may be somewhat fragile due to "findstring".
+#
 ifndef X64
 ifneq (,$(findstring x86_64-w64-mingw32,$(PREFIX)))
 X64 = 1
 endif
 endif
 
+#### Determine if the optimized assembly routines provided with zlib should be
+#    used, taking into account whether zlib is actually enabled and the target
+#    processor architecture.
+#
 ifndef X64
 SSLCONFIG = mingw
+ifndef FOSSIL_ENABLE_MINIZ
 ZLIBCONFIG = LOC="-DASMV -DASMINF" OBJA="inffas86.o match.o"
 LIBTARGETS = $(ZLIBDIR)/inffas86.o $(ZLIBDIR)/match.o
 else
+ZLIBCONFIG =
+LIBTARGETS =
+endif
+else
 SSLCONFIG = mingw64
-ZLIBCONFIG = 
+ZLIBCONFIG =
 LIBTARGETS =
 endif
 
+#### Disable creation of the OpenSSL shared libraries.  Also, disable support
+#    for both SSLv2 and SSLv3 (i.e. thereby forcing the use of TLS).
+#
+SSLCONFIG += no-ssl2 no-ssl3 no-shared
+
+#### When using zlib, make sure that OpenSSL is configured to use the zlib
+#    that Fossil knows about (i.e. the one within the source tree).
+#
 ifndef FOSSIL_ENABLE_MINIZ
 SSLCONFIG +=  --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib
 endif
@@ -354,6 +375,7 @@ SRC = \
   $(SRCDIR)/branch.c \
   $(SRCDIR)/browse.c \
   $(SRCDIR)/builtin.c \
+  $(SRCDIR)/bundle.c \
   $(SRCDIR)/cache.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
@@ -376,6 +398,7 @@ SRC = \
   $(SRCDIR)/export.c \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
+  $(SRCDIR)/foci.c \
   $(SRCDIR)/fusefs.c \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
@@ -419,6 +442,8 @@ SRC = \
   $(SRCDIR)/popen.c \
   $(SRCDIR)/pqueue.c \
   $(SRCDIR)/printf.c \
+  $(SRCDIR)/publish.c \
+  $(SRCDIR)/purge.c \
   $(SRCDIR)/rebuild.c \
   $(SRCDIR)/regexp.c \
   $(SRCDIR)/report.c \
@@ -428,6 +453,7 @@ SRC = \
   $(SRCDIR)/setup.c \
   $(SRCDIR)/sha1.c \
   $(SRCDIR)/shun.c \
+  $(SRCDIR)/sitemap.c \
   $(SRCDIR)/skins.c \
   $(SRCDIR)/sqlcmd.c \
   $(SRCDIR)/stash.c \
@@ -471,6 +497,7 @@ TRANS_SRC = \
   $(OBJDIR)/branch_.c \
   $(OBJDIR)/browse_.c \
   $(OBJDIR)/builtin_.c \
+  $(OBJDIR)/bundle_.c \
   $(OBJDIR)/cache_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
@@ -493,6 +520,7 @@ TRANS_SRC = \
   $(OBJDIR)/export_.c \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
+  $(OBJDIR)/foci_.c \
   $(OBJDIR)/fusefs_.c \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
@@ -536,6 +564,8 @@ TRANS_SRC = \
   $(OBJDIR)/popen_.c \
   $(OBJDIR)/pqueue_.c \
   $(OBJDIR)/printf_.c \
+  $(OBJDIR)/publish_.c \
+  $(OBJDIR)/purge_.c \
   $(OBJDIR)/rebuild_.c \
   $(OBJDIR)/regexp_.c \
   $(OBJDIR)/report_.c \
@@ -545,6 +575,7 @@ TRANS_SRC = \
   $(OBJDIR)/setup_.c \
   $(OBJDIR)/sha1_.c \
   $(OBJDIR)/shun_.c \
+  $(OBJDIR)/sitemap_.c \
   $(OBJDIR)/skins_.c \
   $(OBJDIR)/sqlcmd_.c \
   $(OBJDIR)/stash_.c \
@@ -585,6 +616,7 @@ OBJ = \
  $(OBJDIR)/branch.o \
  $(OBJDIR)/browse.o \
  $(OBJDIR)/builtin.o \
+ $(OBJDIR)/bundle.o \
  $(OBJDIR)/cache.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
@@ -607,6 +639,7 @@ OBJ = \
  $(OBJDIR)/export.o \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
+ $(OBJDIR)/foci.o \
  $(OBJDIR)/fusefs.o \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
@@ -650,6 +683,8 @@ OBJ = \
  $(OBJDIR)/popen.o \
  $(OBJDIR)/pqueue.o \
  $(OBJDIR)/printf.o \
+ $(OBJDIR)/publish.o \
+ $(OBJDIR)/purge.o \
  $(OBJDIR)/rebuild.o \
  $(OBJDIR)/regexp.o \
  $(OBJDIR)/report.o \
@@ -659,6 +694,7 @@ OBJ = \
  $(OBJDIR)/setup.o \
  $(OBJDIR)/sha1.o \
  $(OBJDIR)/shun.o \
+ $(OBJDIR)/sitemap.o \
  $(OBJDIR)/skins.o \
  $(OBJDIR)/sqlcmd.o \
  $(OBJDIR)/stash.o \
@@ -892,6 +928,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/branch_.c:$(OBJDIR)/branch.h \
 		$(OBJDIR)/browse_.c:$(OBJDIR)/browse.h \
 		$(OBJDIR)/builtin_.c:$(OBJDIR)/builtin.h \
+		$(OBJDIR)/bundle_.c:$(OBJDIR)/bundle.h \
 		$(OBJDIR)/cache_.c:$(OBJDIR)/cache.h \
 		$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 		$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
@@ -914,6 +951,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/export_.c:$(OBJDIR)/export.h \
 		$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 		$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
+		$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
 		$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
 		$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 		$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
@@ -957,6 +995,8 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/popen_.c:$(OBJDIR)/popen.h \
 		$(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h \
 		$(OBJDIR)/printf_.c:$(OBJDIR)/printf.h \
+		$(OBJDIR)/publish_.c:$(OBJDIR)/publish.h \
+		$(OBJDIR)/purge_.c:$(OBJDIR)/purge.h \
 		$(OBJDIR)/rebuild_.c:$(OBJDIR)/rebuild.h \
 		$(OBJDIR)/regexp_.c:$(OBJDIR)/regexp.h \
 		$(OBJDIR)/report_.c:$(OBJDIR)/report.h \
@@ -966,6 +1006,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(MAKEHEADERS
 		$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
 		$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
 		$(OBJDIR)/shun_.c:$(OBJDIR)/shun.h \
+		$(OBJDIR)/sitemap_.c:$(OBJDIR)/sitemap.h \
 		$(OBJDIR)/skins_.c:$(OBJDIR)/skins.h \
 		$(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h \
 		$(OBJDIR)/stash_.c:$(OBJDIR)/stash.h \
@@ -1075,6 +1116,14 @@ $(OBJDIR)/builtin.o:	$(OBJDIR)/builtin_.c $(OBJDIR)/builtin.h $(OBJDIR)/builtin_
 	$(XTCC) -o $(OBJDIR)/builtin.o -c $(OBJDIR)/builtin_.c
 
 $(OBJDIR)/builtin.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/bundle_.c:	$(SRCDIR)/bundle.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/bundle.c >$@
+
+$(OBJDIR)/bundle.o:	$(OBJDIR)/bundle_.c $(OBJDIR)/bundle.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/bundle.o -c $(OBJDIR)/bundle_.c
+
+$(OBJDIR)/bundle.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/cache_.c:	$(SRCDIR)/cache.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/cache.c >$@
@@ -1251,6 +1300,14 @@ $(OBJDIR)/finfo.o:	$(OBJDIR)/finfo_.c $(OBJDIR)/finfo.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/finfo.o -c $(OBJDIR)/finfo_.c
 
 $(OBJDIR)/finfo.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/foci_.c:	$(SRCDIR)/foci.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/foci.c >$@
+
+$(OBJDIR)/foci.o:	$(OBJDIR)/foci_.c $(OBJDIR)/foci.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/foci.o -c $(OBJDIR)/foci_.c
+
+$(OBJDIR)/foci.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/fusefs_.c:	$(SRCDIR)/fusefs.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/fusefs.c >$@
@@ -1596,6 +1653,22 @@ $(OBJDIR)/printf.o:	$(OBJDIR)/printf_.c $(OBJDIR)/printf.h $(SRCDIR)/config.h
 
 $(OBJDIR)/printf.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/publish_.c:	$(SRCDIR)/publish.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/publish.c >$@
+
+$(OBJDIR)/publish.o:	$(OBJDIR)/publish_.c $(OBJDIR)/publish.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/publish.o -c $(OBJDIR)/publish_.c
+
+$(OBJDIR)/publish.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/purge_.c:	$(SRCDIR)/purge.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/purge.c >$@
+
+$(OBJDIR)/purge.o:	$(OBJDIR)/purge_.c $(OBJDIR)/purge.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/purge.o -c $(OBJDIR)/purge_.c
+
+$(OBJDIR)/purge.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/rebuild_.c:	$(SRCDIR)/rebuild.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/rebuild.c >$@
 
@@ -1667,6 +1740,14 @@ $(OBJDIR)/shun.o:	$(OBJDIR)/shun_.c $(OBJDIR)/shun.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/shun.o -c $(OBJDIR)/shun_.c
 
 $(OBJDIR)/shun.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/sitemap_.c:	$(SRCDIR)/sitemap.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/sitemap.c >$@
+
+$(OBJDIR)/sitemap.o:	$(OBJDIR)/sitemap_.c $(OBJDIR)/sitemap.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/sitemap.o -c $(OBJDIR)/sitemap_.c
+
+$(OBJDIR)/sitemap.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/skins_.c:	$(SRCDIR)/skins.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/skins.c >$@

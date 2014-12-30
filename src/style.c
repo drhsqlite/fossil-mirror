@@ -303,6 +303,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("title", zTitle);
   Th_Store("baseurl", g.zBaseURL);
+  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
@@ -784,6 +785,11 @@ const struct strctCssDefaults {
     @   margin: 1em 0;
     @   line-height: 1.5;
   },
+  {
+    ".filetree > ul",
+    "tree-view top-level list",
+    @   display: inline-block;
+  },
   { ".filetree ul",
     "tree-view lists",
     @   margin: 0;
@@ -833,16 +839,32 @@ const struct strctCssDefaults {
     "tree-view links",
     @   position: relative;
     @   z-index: 1;
-    @   display: inline-block;
+    @   display: table-cell;
     @   min-height: 16px;
     @   padding-left: 21px;
     @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);
     @   background-position: center left;
     @   background-repeat: no-repeat;
   },
-  { ".filetree .dir > a",
+  { "div.filetreeline",
+    "line of a file tree",
+    @   display: table;
+    @   width: 100%;
+    @   white-space: nowrap;
+  },
+  { ".filetree .dir > div.filetreeline > a",
     "tree-view directory links",
     @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
+  },
+  { "div.filetreeage",
+    "Last change floating display on the right",
+    @  display: table-cell;
+    @  padding-left: 3em;
+    @  text-align: right;
+  },
+  { "div.filetreeline:hover",
+    "Highlight the line of a file tree",
+    @  background-color: #eee;
   },
   { "table.login_out",
     "table format for login/out label/input table",
@@ -1210,6 +1232,46 @@ const struct strctCssDefaults {
     @ color: black;
     @ background-color: white;
   },
+  { "table.adminLogTable",
+    "Class for the /admin_log table",
+    @ text-align: left;
+  },
+  { ".adminLogTable .adminTime",
+    "Class for the /admin_log table",
+    @ text-align: left;
+    @ vertical-align: top;
+    @ white-space: nowrap;
+  },
+  { ".fileage table",
+    "The fileage table",
+    @ border-spacing: 0;
+  },
+  { ".fileage tr:hover",
+    "Mouse-over effects for the file-age table",
+    @ background-color: #eee;
+  },
+  { ".fileage td",
+    "fileage table cells",
+    @ vertical-align: top;
+    @ text-align: left;
+    @ border-top: 1px solid #ddd;
+    @ padding-top: 3px;
+  },
+  { ".fileage td:first-child",
+    "fileage first column (the age)",
+    @ white-space: nowrap;
+  },
+  { ".fileage td:nth-child(2)",
+    "fileage second column (the filename)",
+    @ padding-left: 1em;
+    @ padding-right: 1em;
+  },
+  { ".fileage td:nth-child(3)",
+    "fileage third column (the check-in comment)",
+    @ word-break: break-all;
+    @ word-wrap: break-word;
+    @ max-width: 50%;
+  },
   { 0,
     0,
     0
@@ -1261,6 +1323,7 @@ void page_style_css(void){
   ** variables such as $baseurl.
   */
   Th_Store("baseurl", g.zBaseURL);
+  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
   image_url_var("logo");
   image_url_var("background");
@@ -1306,6 +1369,7 @@ void page_test_env(void){
   @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif
   @ g.zBaseURL = %h(g.zBaseURL)<br />
+  @ g.zHttpsURL = %h(g.zHttpsURL)<br />
   @ g.zTop = %h(g.zTop)<br />
   for(i=0, c='a'; c<='z'; c++){
     if( login_has_capability(&c, 1) ) zCap[i++] = c;

@@ -79,7 +79,7 @@ void stat_page(void){
       Stmt q;
       @ <tr><th>Uncompressed&nbsp;Artifact&nbsp;Size:</th><td>
       db_prepare(&q, "SELECT total(size), avg(size), max(size)"
-                     " FROM blob WHERE size>0");
+                     " FROM blob WHERE size>0 /*scan*/");
       db_step(&q);
       t = db_column_int64(&q, 0);
       szAvg = db_column_int(&q, 1);
@@ -228,7 +228,7 @@ void dbstat_cmd(void){
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE tagname GLOB 'wiki-*'");
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='w'");
-    fossil_print("%*s%d (%d changes)\n", colWidth, "wikipages:", n, m);
+    fossil_print("%*s%d (%d changes)\n", colWidth, "wiki-pages:", n, m);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE tagname GLOB 'tkt-*'");
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='t'");
@@ -236,7 +236,7 @@ void dbstat_cmd(void){
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='e'");
     fossil_print("%*s%d\n", colWidth, "events:", n);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
-    fossil_print("%*s%d\n", colWidth, "tagchanges:", n);
+    fossil_print("%*s%d\n", colWidth, "tag-changes:", n);
     z = db_text(0, "SELECT datetime(mtime) || ' - about ' ||"
                    " CAST(julianday('now') - mtime AS INTEGER)"
                    " || ' days ago' FROM event "

@@ -10,7 +10,7 @@
 # This file is included by primary Makefile.
 #
 
-XTCC = $(TCC) $(CFLAGS) -I. -I$(SRCDIR) -I$(OBJDIR)
+XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS) $(CFLAGS)
 
 
 SRC = \
@@ -23,6 +23,7 @@ SRC = \
   $(SRCDIR)/branch.c \
   $(SRCDIR)/browse.c \
   $(SRCDIR)/builtin.c \
+  $(SRCDIR)/bundle.c \
   $(SRCDIR)/cache.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
@@ -45,6 +46,7 @@ SRC = \
   $(SRCDIR)/export.c \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
+  $(SRCDIR)/foci.c \
   $(SRCDIR)/fusefs.c \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
@@ -88,6 +90,8 @@ SRC = \
   $(SRCDIR)/popen.c \
   $(SRCDIR)/pqueue.c \
   $(SRCDIR)/printf.c \
+  $(SRCDIR)/publish.c \
+  $(SRCDIR)/purge.c \
   $(SRCDIR)/rebuild.c \
   $(SRCDIR)/regexp.c \
   $(SRCDIR)/report.c \
@@ -97,6 +101,7 @@ SRC = \
   $(SRCDIR)/setup.c \
   $(SRCDIR)/sha1.c \
   $(SRCDIR)/shun.c \
+  $(SRCDIR)/sitemap.c \
   $(SRCDIR)/skins.c \
   $(SRCDIR)/sqlcmd.c \
   $(SRCDIR)/stash.c \
@@ -140,6 +145,7 @@ TRANS_SRC = \
   $(OBJDIR)/branch_.c \
   $(OBJDIR)/browse_.c \
   $(OBJDIR)/builtin_.c \
+  $(OBJDIR)/bundle_.c \
   $(OBJDIR)/cache_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
@@ -162,6 +168,7 @@ TRANS_SRC = \
   $(OBJDIR)/export_.c \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
+  $(OBJDIR)/foci_.c \
   $(OBJDIR)/fusefs_.c \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
@@ -205,6 +212,8 @@ TRANS_SRC = \
   $(OBJDIR)/popen_.c \
   $(OBJDIR)/pqueue_.c \
   $(OBJDIR)/printf_.c \
+  $(OBJDIR)/publish_.c \
+  $(OBJDIR)/purge_.c \
   $(OBJDIR)/rebuild_.c \
   $(OBJDIR)/regexp_.c \
   $(OBJDIR)/report_.c \
@@ -214,6 +223,7 @@ TRANS_SRC = \
   $(OBJDIR)/setup_.c \
   $(OBJDIR)/sha1_.c \
   $(OBJDIR)/shun_.c \
+  $(OBJDIR)/sitemap_.c \
   $(OBJDIR)/skins_.c \
   $(OBJDIR)/sqlcmd_.c \
   $(OBJDIR)/stash_.c \
@@ -254,6 +264,7 @@ OBJ = \
  $(OBJDIR)/branch.o \
  $(OBJDIR)/browse.o \
  $(OBJDIR)/builtin.o \
+ $(OBJDIR)/bundle.o \
  $(OBJDIR)/cache.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
@@ -276,6 +287,7 @@ OBJ = \
  $(OBJDIR)/export.o \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
+ $(OBJDIR)/foci.o \
  $(OBJDIR)/fusefs.o \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
@@ -319,6 +331,8 @@ OBJ = \
  $(OBJDIR)/popen.o \
  $(OBJDIR)/pqueue.o \
  $(OBJDIR)/printf.o \
+ $(OBJDIR)/publish.o \
+ $(OBJDIR)/purge.o \
  $(OBJDIR)/rebuild.o \
  $(OBJDIR)/regexp.o \
  $(OBJDIR)/report.o \
@@ -328,6 +342,7 @@ OBJ = \
  $(OBJDIR)/setup.o \
  $(OBJDIR)/sha1.o \
  $(OBJDIR)/shun.o \
+ $(OBJDIR)/sitemap.o \
  $(OBJDIR)/skins.o \
  $(OBJDIR)/sqlcmd.o \
  $(OBJDIR)/stash.o \
@@ -477,6 +492,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/branch_.c:$(OBJDIR)/branch.h \
 	$(OBJDIR)/browse_.c:$(OBJDIR)/browse.h \
 	$(OBJDIR)/builtin_.c:$(OBJDIR)/builtin.h \
+	$(OBJDIR)/bundle_.c:$(OBJDIR)/bundle.h \
 	$(OBJDIR)/cache_.c:$(OBJDIR)/cache.h \
 	$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 	$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
@@ -499,6 +515,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/export_.c:$(OBJDIR)/export.h \
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 	$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
+	$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
 	$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 	$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
@@ -542,6 +559,8 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/popen_.c:$(OBJDIR)/popen.h \
 	$(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h \
 	$(OBJDIR)/printf_.c:$(OBJDIR)/printf.h \
+	$(OBJDIR)/publish_.c:$(OBJDIR)/publish.h \
+	$(OBJDIR)/purge_.c:$(OBJDIR)/purge.h \
 	$(OBJDIR)/rebuild_.c:$(OBJDIR)/rebuild.h \
 	$(OBJDIR)/regexp_.c:$(OBJDIR)/regexp.h \
 	$(OBJDIR)/report_.c:$(OBJDIR)/report.h \
@@ -551,6 +570,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
 	$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
 	$(OBJDIR)/shun_.c:$(OBJDIR)/shun.h \
+	$(OBJDIR)/sitemap_.c:$(OBJDIR)/sitemap.h \
 	$(OBJDIR)/skins_.c:$(OBJDIR)/skins.h \
 	$(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h \
 	$(OBJDIR)/stash_.c:$(OBJDIR)/stash.h \
@@ -658,6 +678,14 @@ $(OBJDIR)/builtin.o:	$(OBJDIR)/builtin_.c $(OBJDIR)/builtin.h $(OBJDIR)/builtin_
 	$(XTCC) -o $(OBJDIR)/builtin.o -c $(OBJDIR)/builtin_.c
 
 $(OBJDIR)/builtin.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/bundle_.c:	$(SRCDIR)/bundle.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/bundle.c >$@
+
+$(OBJDIR)/bundle.o:	$(OBJDIR)/bundle_.c $(OBJDIR)/bundle.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/bundle.o -c $(OBJDIR)/bundle_.c
+
+$(OBJDIR)/bundle.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/cache_.c:	$(SRCDIR)/cache.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/cache.c >$@
@@ -834,6 +862,14 @@ $(OBJDIR)/finfo.o:	$(OBJDIR)/finfo_.c $(OBJDIR)/finfo.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/finfo.o -c $(OBJDIR)/finfo_.c
 
 $(OBJDIR)/finfo.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/foci_.c:	$(SRCDIR)/foci.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/foci.c >$@
+
+$(OBJDIR)/foci.o:	$(OBJDIR)/foci_.c $(OBJDIR)/foci.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/foci.o -c $(OBJDIR)/foci_.c
+
+$(OBJDIR)/foci.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/fusefs_.c:	$(SRCDIR)/fusefs.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/fusefs.c >$@
@@ -1179,6 +1215,22 @@ $(OBJDIR)/printf.o:	$(OBJDIR)/printf_.c $(OBJDIR)/printf.h $(SRCDIR)/config.h
 
 $(OBJDIR)/printf.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/publish_.c:	$(SRCDIR)/publish.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/publish.c >$@
+
+$(OBJDIR)/publish.o:	$(OBJDIR)/publish_.c $(OBJDIR)/publish.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/publish.o -c $(OBJDIR)/publish_.c
+
+$(OBJDIR)/publish.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/purge_.c:	$(SRCDIR)/purge.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/purge.c >$@
+
+$(OBJDIR)/purge.o:	$(OBJDIR)/purge_.c $(OBJDIR)/purge.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/purge.o -c $(OBJDIR)/purge_.c
+
+$(OBJDIR)/purge.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/rebuild_.c:	$(SRCDIR)/rebuild.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/rebuild.c >$@
 
@@ -1250,6 +1302,14 @@ $(OBJDIR)/shun.o:	$(OBJDIR)/shun_.c $(OBJDIR)/shun.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/shun.o -c $(OBJDIR)/shun_.c
 
 $(OBJDIR)/shun.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/sitemap_.c:	$(SRCDIR)/sitemap.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/sitemap.c >$@
+
+$(OBJDIR)/sitemap.o:	$(OBJDIR)/sitemap_.c $(OBJDIR)/sitemap.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/sitemap.o -c $(OBJDIR)/sitemap_.c
+
+$(OBJDIR)/sitemap.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/skins_.c:	$(SRCDIR)/skins.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/skins.c >$@

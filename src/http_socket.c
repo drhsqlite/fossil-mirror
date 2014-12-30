@@ -47,6 +47,7 @@
 ** local variables:
 */
 static int socketIsInit = 0;    /* True after global initialization */
+static int addrIsInit = 0;      /* True once addr is initialized */
 #if defined(_WIN32)
 static WSADATA socketInfo;      /* Windows socket initialize data */
 #endif
@@ -107,6 +108,7 @@ void socket_global_shutdown(void){
     socket_clear_errmsg();
     socketIsInit = 0;
   }
+  addrIsInit = 0;
 }
 
 /*
@@ -135,10 +137,10 @@ void socket_close(void){
 */
 int socket_open(UrlData *pUrlData){
   static struct sockaddr_in addr;  /* The server address */
-  static int addrIsInit = 0;       /* True once addr is initialized */
 
   socket_global_init();
   if( !addrIsInit ){
+    memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
     addr.sin_port = htons(pUrlData->port);
     *(int*)&addr.sin_addr = inet_addr(pUrlData->name);

@@ -307,8 +307,7 @@ void close_cmd(void){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
   if( !forceFlag
-   && db_exists("SELECT 1 FROM %s.sqlite_master WHERE name='stash'",
-                db_name("localdb"))
+   && db_table_exists("localdb","stash")
    && db_exists("SELECT 1 FROM %s.stash", db_name("localdb"))
   ){
     fossil_fatal("closing the checkout will delete your stash");

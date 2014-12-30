@@ -477,6 +477,16 @@ void login_page(void){
   const char *zReferer;
 
   login_check_credentials();
+  if( login_wants_https_redirect() ){
+    const char *zQS = P("QUERY_STRING");
+    if( zQS==0 ){
+      zQS = "";
+    }else if( zQS[0]!=0 ){
+      zQS = mprintf("?%s", zQS);
+    }
+    cgi_redirectf("%s%s%s", g.zHttpsURL, P("PATH_INFO"), zQS);
+    return;    
+  }
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
                   constant_time_cmp_function, 0, 0);
   zUsername = P("u");
@@ -780,6 +790,21 @@ static int login_find_user(
 }
 
 /*
+** Return true if it is appropriate to redirect login requests to HTTPS.
+**
+** Redirect to https is appropriate if all of the above are true:
+**    (1) The redirect-to-https flag is set
+**    (2) The current connection is http, not https or ssh
+**    (3) The sslNotAvailable flag is clear
+*/
+int login_wants_https_redirect(void){
+  if( g.sslNotAvailable ) return 0;
+  if( db_get_boolean("redirect-to-https",0)==0 ) return 0;
+  if( P("HTTPS")!=0 ) return 0;
+  return 1;
+}
+
+/*
 ** This routine examines the login cookie to see if it exists and
 ** is valid.  If the login cookie checks out, it then sets global
 ** variables appropriately.
@@ -814,7 +839,7 @@ void login_check_credentials(void){
   */
   zRemoteAddr = ipPrefix(zIpAddr = PD("REMOTE_ADDR","nil"));
   if( ( fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
-        g.fSshClient & CGI_SSH_CLIENT )
+        (g.fSshClient & CGI_SSH_CLIENT)!=0 )
    && g.useLocalauth
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0

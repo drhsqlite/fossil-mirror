@@ -110,6 +110,20 @@ static void sqlcmd_decompress(
 }
 
 /*
+** Add the content(), compress(), and decompress() SQL functions to 
+** database connection db.
+*/
+int add_content_sql_commands(sqlite3 *db){
+  sqlite3_create_function(db, "content", 1, SQLITE_UTF8, 0,
+                          sqlcmd_content, 0, 0);
+  sqlite3_create_function(db, "compress", 1, SQLITE_UTF8, 0,
+                          sqlcmd_compress, 0, 0);
+  sqlite3_create_function(db, "decompress", 1, SQLITE_UTF8, 0,
+                          sqlcmd_decompress, 0, 0);
+  return SQLITE_OK;
+}
+
+/*
 ** This is the "automatic extension" initializer that runs right after
 ** the connection to the repository database is opened.  Set up the
 ** database connection to be more useful to the human operator.
@@ -119,13 +133,10 @@ static int sqlcmd_autoinit(
   const char **pzErrMsg,
   const void *notUsed
 ){
-  sqlite3_create_function(db, "content", 1, SQLITE_UTF8, 0,
-                          sqlcmd_content, 0, 0);
-  sqlite3_create_function(db, "compress", 1, SQLITE_UTF8, 0,
-                          sqlcmd_compress, 0, 0);
-  sqlite3_create_function(db, "decompress", 1, SQLITE_UTF8, 0,
-                          sqlcmd_decompress, 0, 0);
+  add_content_sql_commands(db);
   re_add_sql_func(db);
+  g.zMainDbType = "repository";
+  foci_register(db);
   g.repositoryOpen = 1;
   g.db = db;
   return SQLITE_OK;
