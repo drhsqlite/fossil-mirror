@@ -1,5 +1,5 @@
-C merge\strunk
-D 2014-12-24T09:00:34.674
+C Working\son\sfixing/rewriting\ssvn-import\sfunction.\sThis\sis\snot\sin\sa\sstable\sstate\syet.\sDO\sNOT\sTEST
+D 2014-12-31T15:46:06.913
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -348,7 +348,7 @@ F src/event.c 26fd16a9f3fe9f88edd233e39cf4051a0398eb29
 F src/export.c 694230481df6238552c15b0ee7355e75230a5805
 F src/file.c a653b0a67def52ee6facbef9d8f44697160e4994
 F src/finfo.c 25824b723483dec646c10bed56e52f35e082956e
-F src/foci.c 0f6dfbaa4b05185662950f1853e0e505d23ad617
+F src/foci.c 0e3efb92318c1cb363575c10fbf33b992d8536d6
 F src/fusefs.c b8b126cf9a5322fa6a2afbb8768d38859da61daf
 F src/glob.c 162eefbce151ba02dd67243d92633393c0aeb302
 F src/graph.c 57ddf309e5bf7be4f88b6ec36eb6296f6c278153
@@ -357,7 +357,7 @@ F src/http.c 7fe8a2731d517e5b03449c006efb2b019b86fce1
 F src/http_socket.c 957fcf6bde44fd478d66bf87c973a01422ee0f58
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
-F src/import.c 661095385b9ef72c57be206103a88a2d92570220
+F src/import.c ca9dd05d4ec1ebdcb78382794ee50b08da37dd7a
 F src/info.c 15360861d475f8c031dfaae12de41438779f2a4c
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c9dae7ab66e97e7f777674633245132a1e35c5b9 4f2f04495c2a51f302d16186b7a53d49bf6d2633
-R f925459c42f8ae6b37b83fce7654f4a5
+P 2caad83d8c9ea8cb146bca2a21e22f15c036ad70
+R 1884e3f7fab4015cfb6d079699bb6440
 U baruch
-Z 2ca9eeeb66ddef9ad7e627256e6dd599
+Z 6e94a532e5f32429f67433c9fc17739b
