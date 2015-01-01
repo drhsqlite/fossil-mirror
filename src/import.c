@@ -1086,26 +1086,30 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
 **          3 - It is a tag
 **          0 - It is none of the above
  */
-static int svn_parse_path(char *zPath, char **zBranch, char **zFile){
+static int svn_parse_path(char *zPath, char **zFile){
+  int type = 0;
+  char *zBranch = 0;
+  int branchId = 0;
+  *zFile = 0;
   if( gsvn.lenTrunk==0 ){
-    *zBranch = "trunk";
+    zBranch = "trunk";
     *zFile = zPath;
-    return 1;
+    type = 1;
   }else
   if( strncmp(zPath, gsvn.zTrunk, gsvn.lenTrunk-1)==0 ){
-    *zBranch = "trunk";
+    zBranch = "trunk";
     if( zPath[gsvn.lenTrunk-1]=='/' ){
       *zFile = zPath+gsvn.lenTrunk;;
     }else if( zPath[gsvn.lenTrunk-1]==0 ){
       *zFile = 0;
     }else{
-      *zFile = *zBranch = 0;
-      return 0;
+      *zFile = zBranch = 0;
+      type = 0;
     }
-    return 1;
+    type = 1;
   }else
   if( strncmp(zPath, gsvn.zBranches, gsvn.lenBranches)==0 ){
-    *zFile = *zBranch = zPath+gsvn.lenBranches;
+    *zFile = zBranch = zPath+gsvn.lenBranches;
     while( **zFile && **zFile!='/' ){ (*zFile)++; }
     if( *zFile ){
       **zFile = '\0';
@@ -1113,10 +1117,10 @@ static int svn_parse_path(char *zPath, char **zBranch, char **zFile){
     }else{
       *zFile = 0;
     }
-    return 2;
+    type = 2;
   }else
   if( strncmp(zPath, gsvn.zTags, gsvn.lenTags)==0 ){
-    *zFile = *zBranch = zPath+gsvn.lenTags;
+    *zFile = zBranch = zPath+gsvn.lenTags;
     while( **zFile && **zFile!='/' ){ (*zFile)++; }
     if( *zFile ){
       **zFile = '\0';
@@ -1124,10 +1128,19 @@ static int svn_parse_path(char *zPath, char **zBranch, char **zFile){
     }else{
       *zFile = 0;
     }
-    return 3;
+    type = 3;
   }
-  *zFile = *zBranch = 0;
-  return 0;
+  if( type>0 ){
+    branchId = db_int(0,
+                      "SELECT tid FROM xbranches WHERE tbranch=%Q AND ttype=%d",
+                      zBranch, branchType);
+    if( branchId==0 ){
+      db_multi_exec("INSERT INTO xbranches (tbranch, ttype) VALUES(%Q, %d)",
+                    zBranch, branchType);
+      branchId = db_last_insert_rowid();
+    }
+  }
+  return branchId;
 }
 
 /*
@@ -1172,12 +1185,9 @@ static void svn_dump_import(FILE *pIn){
     " WHERE (tpath=:path OR (tpath>:path||'/' AND tpath<:path||'0'))"
     "     AND tbranch=:branch"
   );
-  db_prepare(&addSrc,
-    "INSERT INTO xsrc (tpath, tbranch, tsrc, tsrcbranch, tsrcrev)"
-    " VALUES(:path, :branch, :srcpath, :srcbranch, :srcrev)"
-  );
-  db_prepare(&addBranch,
-    "INSERT INTO xchanges (tbranch, ttype) VALUES(:branch, :type)"
+  db_prepare(&addRev,
+    "INSERT OR IGNORE INTO xrevisions (trev, tbranch, tparent)"
+    " VALUES(:rev, :branch, :parent)"
   );
   db_prepare(&cpyPath,
     "INSERT INTO xfiles (tpath, tbranch, tuuid, tperm)"
@@ -1205,6 +1215,7 @@ static void svn_dump_import(FILE *pIn){
         zDate = date_in_standard_format(zDate);
       }
       gsvn.zDate = zDate;
+      db_bind_int(&addRev, ":rev", gsvn.rev);
       fossil_print("\rImporting SVN revision: %d", gsvn.rev);
     }else
     if( (zTemp = svn_find_header(rec, "Node-path")) ){ /* file/dir node */
@@ -1212,21 +1223,16 @@ static void svn_dump_import(FILE *pIn){
       char *zKind = svn_find_header(rec, "Node-kind");
       char *zSrcPath = svn_find_header(rec, "Node-copyfrom-path");
       char *zPerm = svn_find_prop(rec, "svn:executable") ? "x" : 0;
-      char *zBranch;
       char *zFile;
-      char *zSrcBranch;
+      int srcBranch;
       char *zSrcFile;
       int deltaFlag = 0;
       int srcRev = 0;
-      int branchType = svn_parse_path(zTemp, &zBranch, &zFile);
-      if( branchType==0 ){
+      int branchId = svn_parse_path(zTemp, &zFile);
+      if( branchId==0 ){
         svn_free_rec(&rec);
         continue;
       }
-      db_bind_text(&addBranch, ":branch", zBranch);
-      db_bind_int(&addBranch, ":type", branchType);
-      db_step(&addBranch);
-      db_reset(&addBranch);
       if( (zTemp = svn_find_header(rec, "Text-delta")) ){
         deltaFlag = strncmp(zTemp, "true", 4)==0;
       }
@@ -1237,22 +1243,16 @@ static void svn_dump_import(FILE *pIn){
         }else{
           fossil_fatal("Missing copyfrom-rev");
         }
-        if( svn_parse_path(zSrcPath, &zSrcBranch, &zSrcFile)==0 ){
+        srcBranch = svn_parse_path(zSrcPath, &zSrcFile);
+        if( srcBranch==0 ){
           fossil_fatal("Copy from path outside the import paths");
         }
-        db_bind_text(&addSrc, ":path", zFile);
-        db_bind_text(&addSrc, ":branch", zBranch);
-        db_bind_text(&addSrc, ":srcpath", zSrcFile);
-        db_bind_text(&addSrc, ":srcbranch", zSrcBranch);
-        db_bind_int(&addSrc, ":srcrev", srcRev);
-        db_step(&addSrc);
-        db_reset(&addSrc);
       }
       if( strncmp(zAction, "delete", 6)==0
        || strncmp(zAction, "replace", 7)==0 )
       {
         db_bind_text(&delPath, ":path", zFile);
-        db_bind_text(&delPath, ":branch", zBranch);
+        db_bind_text(&delPath, ":branch", branchId);
         db_step(&delPath);
         db_reset(&delPath);
       } /* no 'else' here since 'replace' does both a 'delete' and an 'add' */
@@ -1458,15 +1458,16 @@ void import_cmd(void){
   if( strncmp(g.argv[2], "svn", 3)==0 ){
     db_multi_exec(
        "CREATE TEMP TABLE xrevisions("
-       " tid INTEGER PRIMARY KEY, trev INTEGER, tbranch TEXT, ttype INT, trid INT,"
-       " UNIQUE(tbranch, ttype, trev)"
+       " trev INTEGER, tbranch INT, trid INT, tparent INT,"
+       " UNIQUE(tbranch, trev), UNIQUE(trid)"
        ");"
        "CREATE TEMP TABLE xfiles("
-       " tpath TEXT, tbranch TEXT, tuuid TEXT, tperm TEXT,"
+       " tpath TEXT, tbranch INT, tuuid TEXT, tperm TEXT, tsrcpath TEXT"
        " UNIQUE (tbranch, tpath) ON CONFLICT REPLACE"
        ");"
-       "CREATE TEMP TABLE xsrc("
-       " tpath TEXT, tbranch TEXT, tsrc TEXT, tsrcbranch TEXT, tsrcrev INT"
+       "CREATE TEMP TABLE xbranches("
+       " tid INTEGER PRIMARY KEY, tbranch TEXT, ttype INT,"
+       " UNIQUE(tbranch, ttype)"
        ");"
        "CREATE VIRTUAL TABLE temp.xfoci USING files_of_checkin;"
     );
