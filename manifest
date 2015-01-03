@@ -1,5 +1,5 @@
-C Fix\scomment\sexplaining\sJS\sgraph\sgeneration
-D 2014-12-25T08:20:57.706
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sJan\s3\sbeta\sfor\s3.8.8.
+D 2015-01-03T19:58:50.598
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -416,8 +416,8 @@ F src/shun.c a93c409f694b6022061d2c946311d6ead83a4e49
 F src/sitemap.c d7f2c19e565727ab6108c0c0043b1db6d81cd470
 F src/skins.c 810054ea1343bc1b78c2f4b9b0d8a9145fd4ae39
 F src/sqlcmd.c 33672640d42e08a9561aa5238f42326522d191aa
-F src/sqlite3.c 56000991a7b983adbb5d489edc201fe710aa737a
-F src/sqlite3.h 4ae9e4e6f8e8c266a18a440f7c4a17d6e1bffd0e
+F src/sqlite3.c 49aca66c8acb65e78985d4a3176026e4b5b618e7
+F src/sqlite3.h efbb53079547607cd47f0a62ae26fd7742c885b6
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c d058aef03224498f96facc0ffcdebce34952970e
 F src/style.c 05f7493a6c0357c7ef79c24c95f70f4f08827a13
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4f2f04495c2a51f302d16186b7a53d49bf6d2633
-R ed0698da665a8622d717c6a4b158c773
-U baruch
-Z ccf3fc6d49fe0938c4a354c2f1d86b7c
+P 1860c6d6ded94bf7f591b9f2ca1cad8e26da5c53
+R 38a80f0b9189505b57a8d99dacadef90
+U drh
+Z 28693741d815bed276b7bb1b5b1192cc
