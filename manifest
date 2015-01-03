@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sJan\s3\sbeta\sfor\s3.8.8.
-D 2015-01-03T19:58:50.598
+C New\sdesign\sfor\sthe\s/brlist\swebpage\sthat\sshows\sthe\sbranches\sin\sage\sorder\nand\sshows\stheir\scurrent\sstatus.
+D 2015-01-03T23:54:11.341
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -316,7 +316,7 @@ F src/attach.c e92ad3e5f4efd1269185a215a94558f362e34bdd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
-F src/branch.c 224c454d1a14c5879586596ada1d5d5db4be0d3f
+F src/branch.c d1ddecdf775e149e00ce3a4b54b99b522d7eb09a
 F src/browse.c b16805a8c0ccd6b7d4b72fdd0eda64c0d9698e96
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
@@ -361,7 +361,7 @@ F src/import.c 065b6bcb8bfefbf15f8eb0bcbc4e915e3418aa72
 F src/info.c 15360861d475f8c031dfaae12de41438779f2a4c
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
-F src/json_branch.c aa922544841030c688df33aec81cca05577bbb7d
+F src/json_branch.c 9dc534e8f54ef292f2f9b107006c777424b1166a
 F src/json_config.c 5d22db5b04527c1447333aa53ca87583cc1e45ea
 F src/json_detail.h 7d9cdc126617216623145aaea42a914a93cf983c
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
@@ -420,7 +420,7 @@ F src/sqlite3.c 49aca66c8acb65e78985d4a3176026e4b5b618e7
 F src/sqlite3.h efbb53079547607cd47f0a62ae26fd7742c885b6
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c d058aef03224498f96facc0ffcdebce34952970e
-F src/style.c 05f7493a6c0357c7ef79c24c95f70f4f08827a13
+F src/style.c 23c54b3bc1515e77ce41c3357f414854cfc1e227
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 3e5c18658ada7bc2bfe21eea4ec47eaa89776e6e
 F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1860c6d6ded94bf7f591b9f2ca1cad8e26da5c53
-R 38a80f0b9189505b57a8d99dacadef90
+P ab3fed40ec6dd1c7a347b17e3861f54baf59f49c
+R 5c16c31e97da6f10a38e9e12d9e27ac4
 U drh
-Z 28693741d815bed276b7bb1b5b1192cc
+Z 4b8da2c08ff3a764d65deec36e2dab30

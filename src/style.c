@@ -1272,6 +1272,15 @@ const struct strctCssDefaults {
     @ word-wrap: break-word;
     @ max-width: 50%;
   },
+  { ".brlist table",  "The list of branches",
+    @ border-spacing: 0;
+  },
+  { ".brlist table th",  "Branch list table headers",
+    @ text-align: left;
+  },
+  { ".brlist table td",  "Branch list table headers",
+    @ padding: 0px 2em 0px 0px;
+  },
   { 0,
     0,
     0
