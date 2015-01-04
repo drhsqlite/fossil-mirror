@@ -940,7 +940,13 @@ void output_table_sorting_javascript(const char *zTableId, const char *zColumnTy
   @   this.tbody = tableEl.getElementsByTagName('tbody');
   @   this.sort = function (cell) {
   @     var column = cell.cellIndex;
-  @     var sortFn = cell.sortType=="n" ? this.sortNumeric : this.sortText;
+  @     var sortFn;
+  @     switch( cell.sortType ){
+  @       case "n":  sortFn = this.sortNumeric;  break;
+  @       case "t":  sortFn = this.sortText;     break;
+  @       case "k":  sortFn = this.sortKey;      break;
+  @       case "x":  return;
+  @     }
   @     this.sortIndex = column;
   @     var newRows = new Array();
   @     for (j = 0; j < this.tbody[0].rows.length; j++) {
@@ -972,6 +978,14 @@ void output_table_sorting_javascript(const char *zTableId, const char *zColumnTy
   @     bb = parseFloat(b.cells[i].textContent);
   @     if (isNaN(bb)) bb = 0;
   @     return aa-bb;
+  @   }
+  @   this.sortKey = function(a,b) {
+  @     var i = thisObject.sortIndex;
+  @     aa = a.cells[i].getAttribute("data-sortkey");
+  @     bb = b.cells[i].getAttribute("data-sortkey");
+  @     if(aa==bb) return 0;
+  @     if(aa<bb) return -1;
+  @     return 1;
   @   }
   @   var thisObject = this;
   @   var x = tableEl.getElementsByTagName('thead');

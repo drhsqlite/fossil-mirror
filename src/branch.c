@@ -348,22 +348,23 @@ static void new_brlist_page(void){
   assert( orderByMtime==0 || orderByMtime==1 );
   db_prepare(&q, brlistQuery/*works-like:"%d"*/, 2-orderByMtime);
   rNow = db_double(0.0, "SELECT julianday('now')");
-  @ <div class="brlist"><table>
-  @ <tr>
+  @ <div class="brlist"><table id="branchlisttable">
+  @ <thead><tr>
   @ <th>Branch Name</th>
   @ <th>Age</th>
   @ <th>Status</th>
-  @ </tr>
+  @ </tr></thead><tbody>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBranch = db_column_text(&q, 0);
     double rMtime = db_column_double(&q, 1);
     int isClosed = db_column_int(&q, 2);
     const char *zMergeTo = db_column_text(&q, 3);
     char *zAge = human_readable_age(rNow - rMtime);
+    sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0);
     if( zMergeTo && zMergeTo[0]==0 ) zMergeTo = 0;
     @ <tr>
     @ <td>%z(href("%R/timeline?n=100&r=%T",zBranch))%h(zBranch)</a>
-    @ <td>%s(zAge)
+    @ <td data-sortkey="%016llx(iMtime)">%s(zAge)
     fossil_free(zAge);
     if( isClosed && zMergeTo ){
       @ <td>closed,
@@ -377,9 +378,9 @@ static void new_brlist_page(void){
     }
     @ </tr>
   }
-  @ </table></div>
-
+  @ </tbody></table></div>
   db_finalize(&q);
+  output_table_sorting_javascript("branchlisttable","tkx");
   style_footer();
 }
 
