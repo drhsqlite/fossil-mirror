@@ -1,5 +1,5 @@
-C Click\son\sthe\scolumn\slabels\sto\ssort\son\sthe\s/brlist\spage.
-D 2015-01-04T00:28:21.883
+C Enhance\sthe\s/brlist\soutput\sto\sshow\sa\scount\sof\sthe\snumber\sof\scheck-ins\son\neach\sbranch,\sand\sto\sseparate\sthe\s"Status"\sand\s"Resolution"\sinto\sseparate\ncolumns,\swith\sthe\s"Status"\scolumn\sbeing\ssortable.\s\sEnhance\sthe\s\nSortableTable()\sjavascript\sto\salways\ssort\sASC\son\sinitial\sclick\sand\sonly\ngo\sto\sDESC\son\sa\ssecond\sclick\sof\sthe\ssame\scolumn.
+D 2015-01-04T20:54:00.599
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -316,7 +316,7 @@ F src/attach.c e92ad3e5f4efd1269185a215a94558f362e34bdd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
-F src/branch.c e1adb7e626825179ab0d14e67165ccd80a5b4d09
+F src/branch.c cf6878895ca10e7ea00f81a86d86270913275cbf
 F src/browse.c b16805a8c0ccd6b7d4b72fdd0eda64c0d9698e96
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
@@ -405,7 +405,7 @@ F src/publish.c f3fb747977b74980df556620c912d2d967921fd0
 F src/purge.c 3e807688b108bd0cf54b86a19283f64fcf46d374
 F src/rebuild.c ea2736883d102bbf2debd96bb0636fdad574d95c
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
-F src/report.c abca0644ed8ee551088076d69630acb837ebae98
+F src/report.c 1bf556c72809495c5f84b09034e3f189761a361c
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
 F src/schema.c 6aa448a328fef31516933b763985247add80292b
 F src/search.c ba6851ec9758fd80df427008c2e4f0b9e0f857db
@@ -420,7 +420,7 @@ F src/sqlite3.c 49aca66c8acb65e78985d4a3176026e4b5b618e7
 F src/sqlite3.h efbb53079547607cd47f0a62ae26fd7742c885b6
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c d058aef03224498f96facc0ffcdebce34952970e
-F src/style.c 23c54b3bc1515e77ce41c3357f414854cfc1e227
+F src/style.c f0b8a0410012462fd2687e1125af6a6ee0739f89
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 3e5c18658ada7bc2bfe21eea4ec47eaa89776e6e
 F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 12fb5d04e37b53cb58ac66951520a2bf512d5595
-R 031ff6d47977b9e25bb2891e12c73f79
+P e35b9cb74cbf0de3f577529487f768b38be772d3
+R 8633c64e6bef584c066e56cd423d0b39
 U drh
-Z 5bcaff290210170d5548ddee9483fa62
+Z dca0377d41f477943de4facb5707836f

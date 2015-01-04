@@ -309,21 +309,22 @@ static char brlistQuery[] =
 @   tagxref.value,
 @   max(event.mtime),
 @   EXISTS(SELECT 1 FROM tagxref AS tx
-@           WHERE tx.rid=leaf.rid
+@           WHERE tx.rid=tagxref.rid
 @             AND tx.tagid=(SELECT tagid FROM tag WHERE tagname='closed')
 @             AND tx.tagtype>0),
 @   (SELECT tagxref.value
 @      FROM plink CROSS JOIN tagxref
-@    WHERE plink.pid=leaf.rid
+@    WHERE plink.pid=event.objid
 @       AND tagxref.rid=plink.cid
 @      AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='branch')
-@      AND tagtype>0)
-@  FROM leaf, tagxref, tag, event
-@ WHERE leaf.rid=tagxref.rid
-@   AND tagxref.tagid=tag.tagid
+@      AND tagtype>0),
+@   count(*),
+@   (SELECT uuid FROM blob WHERE rid=tagxref.rid)
+@  FROM tagxref, tag, event
+@ WHERE tagxref.tagid=tag.tagid
 @   AND tagxref.tagtype>0
 @   AND tag.tagname='branch'
-@   AND event.objid=leaf.rid
+@   AND event.objid=tagxref.rid
 @ GROUP BY 1
 @ ORDER BY %d DESC;
 ;
@@ -352,35 +353,37 @@ static void new_brlist_page(void){
   @ <thead><tr>
   @ <th>Branch Name</th>
   @ <th>Age</th>
+  @ <th>Checkins</th>
   @ <th>Status</th>
+  @ <th>Resolution</th>
   @ </tr></thead><tbody>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBranch = db_column_text(&q, 0);
     double rMtime = db_column_double(&q, 1);
     int isClosed = db_column_int(&q, 2);
     const char *zMergeTo = db_column_text(&q, 3);
+    int nCkin = db_column_int(&q, 4);
+    const char *zLastCkin = db_column_text(&q, 5);
     char *zAge = human_readable_age(rNow - rMtime);
     sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0);
     if( zMergeTo && zMergeTo[0]==0 ) zMergeTo = 0;
     @ <tr>
-    @ <td>%z(href("%R/timeline?n=100&r=%T",zBranch))%h(zBranch)</a>
-    @ <td data-sortkey="%016llx(iMtime)">%s(zAge)
+    @ <td>%z(href("%R/timeline?n=100&r=%T",zBranch))%h(zBranch)</a></td>
+    @ <td data-sortkey="%016llx(-iMtime)">%s(zAge)</td>
+    @ <td data-sortkey="%08x(-nCkin)">%d(nCkin)</td>
     fossil_free(zAge);
-    if( isClosed && zMergeTo ){
-      @ <td>closed,
-    }else if( isClosed ){
-      @ <td>closed
-    }else{
-      @ <td>
-    }
+    @ <td>%s(isClosed?"closed":"")</td>
     if( zMergeTo ){
-      @ merged into %z(href("%R/timeline?r=%T",zMergeTo))%h(zMergeTo)</a>
+      @ <td>merged into
+      @ %z(href("%R/timeline?f=%s",zLastCkin))%h(zMergeTo)</a></td>
+    }else{
+      @ <td></td>
     }
     @ </tr>
   }
   @ </tbody></table></div>
   db_finalize(&q);
-  output_table_sorting_javascript("branchlisttable","tkx");
+  output_table_sorting_javascript("branchlisttable","tkktx");
   style_footer();
 }
 

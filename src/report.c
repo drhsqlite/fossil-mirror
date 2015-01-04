@@ -930,9 +930,16 @@ static int db_exec_readonly(
 **
 ** This variation allows column types to be expressed using the second
 ** argument.  Each character of the second argument represent a column.
-** "t" means sort as text.  "n" means sort numerically.  "x" means do not
-** sort on this column.  If there are fewer characters in zColumnTypes[] than
-** their are columns, the all extra columns assume type "t" (text).
+**
+**       t      Sort by text
+**       n      Sort numerically
+**       k      Sort by the data-sortkey property
+**       x      This column is not sortable
+**
+** If there are fewer characters in zColumnTypes[] than their are columns,
+** the all extra columns assume type "t" (text).
+**
+** Clicking on the same column header twice in a row inverts the sort.
 */
 void output_table_sorting_javascript(const char *zTableId, const char *zColumnTypes){
   @ <script>
@@ -952,12 +959,11 @@ void output_table_sorting_javascript(const char *zTableId, const char *zColumnTy
   @     for (j = 0; j < this.tbody[0].rows.length; j++) {
   @        newRows[j] = this.tbody[0].rows[j];
   @     }
-  @     newRows.sort(sortFn);
-  @     if (cell.getAttribute("sortdir") == 'down') {
-  @        newRows.reverse();
-  @        cell.setAttribute('sortdir','up');
-  @     } else {
-  @        cell.setAttribute('sortdir','down');
+  @     if( this.sortIndex==this.prevColumn ){
+  @       newRows.reverse();
+  @     }else{
+  @       newRows.sort(sortFn);
+  @       this.prevColumn = this.sortIndex;
   @     }
   @     for (i=0;i<newRows.length;i++) {
   @       this.tbody[0].appendChild(newRows[i]);
@@ -988,6 +994,7 @@ void output_table_sorting_javascript(const char *zTableId, const char *zColumnTy
   @     return 1;
   @   }
   @   var thisObject = this;
+  @   var prevColumn = -1;
   @   var x = tableEl.getElementsByTagName('thead');
   @   if(!(this.tbody && this.tbody[0].rows && this.tbody[0].rows.length>0)){
   @     return;
