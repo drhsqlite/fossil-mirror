@@ -68,7 +68,7 @@ static cson_value * json_branch_list(){
   cson_value * listV;
   cson_array * list;
   char const * range = NULL;
-  int branchListFlags = BPLQ_OPEN_ONLY;
+  int branchListFlags = BRL_OPEN_ONLY;
   char * sawConversionError = NULL;
   Stmt q;
   if( !g.perm.Read ){
