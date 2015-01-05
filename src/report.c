@@ -1005,7 +1005,9 @@ void output_table_sorting_javascript(const char *zTableId, const char *zColumnTy
   @     return;
   @   }
   @   for (var i=0; i<sortRow.cells.length; i++) {
+  @     if( columnTypes[i]=='x' ) continue;
   @     sortRow.cells[i].sTable = this;
+  @     sortRow.cells[i].style.cursor = "pointer";
   @     sortRow.cells[i].sortType = columnTypes[i] || 't';
   @     sortRow.cells[i].onclick = function () {
   @       this.sTable.sort(this);
