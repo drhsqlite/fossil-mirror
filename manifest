@@ -1,5 +1,5 @@
-C Change\sthe\scursor\sto\s"pointer"\sfor\ssortable\scolumns\sof\sa\stable.
-D 2015-01-05T01:57:03.654
+C Fix\stypos\sin\sthe\sfile-format\sdocumentation.
+D 2015-01-05T20:36:46.346
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -616,7 +616,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
 F www/faq.tcl fc729b76b9dfb449c128525eef9b05f7efe18fc8
 F www/faq.wiki 281b387c178fd439a4d2f47856434dd2e54f566f
-F www/fileformat.wiki d7f9a26e4d77a7b635ab38e33b3ba1f7d62c16ae
+F www/fileformat.wiki 736c516ee9a33b4e28116c37b87d2aaf030124a4
 F www/fiveminutes.wiki f83379e169ba6f17066f2988ad3a4bbf27984748
 F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 965905c884286e466c3494b3b15d10a1a902cd16
-R 014c311304810abe85913ced34ca6048
+P 54d53deb1650212c0d5b2ee983e0676cc4bf156a
+R 6a4d15ae5c205ceee38f4301e34956e7
 U drh
-Z 50e70b5ced0dfa7067a1638a27f8f569
+Z e658ebeff2a87c597206c655751d779f
