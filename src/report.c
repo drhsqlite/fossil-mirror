@@ -959,12 +959,22 @@ void output_table_sorting_javascript(const char *zTableId, const char *zColumnTy
   @     for (j = 0; j < this.tbody[0].rows.length; j++) {
   @        newRows[j] = this.tbody[0].rows[j];
   @     }
+  @     var arrow = "\u25B4";
+  @     var arrowdiv = this.sortRow.getElementsByClassName("sortarrow");
+  @     while(arrowdiv[0]) {
+  @       if( arrowdiv[0].innerHTML=="\u25B4" ){
+  @         arrow = "\u25BE"
+  @       }
+  @       arrowdiv[0].parentNode.removeChild(arrowdiv[0]);
+  @     }
   @     if( this.sortIndex==this.prevColumn ){
   @       newRows.reverse();
   @     }else{
   @       newRows.sort(sortFn);
   @       this.prevColumn = this.sortIndex;
+  @       arrow = "\u25B4"
   @     }
+  @     cell.innerHTML += "<div class='sortarrow' style='float:right'>" + arrow + "</div>";
   @     for (i=0;i<newRows.length;i++) {
   @       this.tbody[0].appendChild(newRows[i]);
   @     }
@@ -1000,16 +1010,16 @@ void output_table_sorting_javascript(const char *zTableId, const char *zColumnTy
   @     return;
   @   }
   @   if(x && x[0].rows && x[0].rows.length > 0) {
-  @     var sortRow = x[0].rows[0];
+  @     this.sortRow = x[0].rows[0];
   @   } else {
   @     return;
   @   }
-  @   for (var i=0; i<sortRow.cells.length; i++) {
+  @   for (var i=0; i<this.sortRow.cells.length; i++) {
   @     if( columnTypes[i]=='x' ) continue;
-  @     sortRow.cells[i].sTable = this;
-  @     sortRow.cells[i].style.cursor = "pointer";
-  @     sortRow.cells[i].sortType = columnTypes[i] || 't';
-  @     sortRow.cells[i].onclick = function () {
+  @     this.sortRow.cells[i].sTable = this;
+  @     this.sortRow.cells[i].style.cursor = "pointer";
+  @     this.sortRow.cells[i].sortType = columnTypes[i] || 't';
+  @     this.sortRow.cells[i].onclick = function () {
   @       this.sTable.sort(this);
   @       return false;
   @     }
