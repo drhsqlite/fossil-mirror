@@ -946,10 +946,12 @@ static void svn_finish_revision(){
         const char *zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", parentRid);
         blob_appendf(&manifest, "P %s\n", zParentUuid);
         if( onBranch==0 ){
-          const char *zParentBranch = db_text(0, "SELECT tbranch FROM xbranches WHERE tid=(SELECT tbranch FROM xrevisions WHERE trid=%d)", parentRid);
           blob_appendf(&manifest, "T *branch * %F\n", zBranch);
           blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
-          blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+        }
+        blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+        if( onBranch==0 ){
+          const char *zParentBranch = db_text(0, "SELECT tbranch FROM xbranches WHERE tid=(SELECT tbranch FROM xrevisions WHERE trid=%d)", parentRid);
           blob_appendf(&manifest, "T -sym-%s *\n", zParentBranch);
         }
       }else{
@@ -1252,7 +1254,7 @@ static void svn_dump_import(FILE *pIn){
                          srcRev, srcBranch);
             rid = db_int(0, "SELECT rid FROM blob WHERE uuid=("
                             " SELECT uuid FROM xfoci"
-                            "  WHERE chekinID=%d AND filename=%Q"
+                            "  WHERE checkinID=%d AND filename=%Q"
                             ")",
                          srcRid, zSrcFile);
           }
