@@ -991,11 +991,11 @@ void output_table_sorting_javascript(
   @     for (var i=0; i<this.hdrRow.cells.length; i++) {
   @       if( this.columnTypes[i]=='x' ) continue;
   @       if( this.prevColumn==i+1 ){
-  @         arrow = "\u2b07";
+  @         arrow = "&darr;"
   @       }else if( this.prevColumn==(-1-i) ){
-  @         arrow = "\u2b06";
+  @         arrow = "&uarr;"
   @       }else{
-  @         arrow = "\u21f3";
+  @         arrow = "&diams;"
   @       }
   @       this.hdrRow.cells[i].innerHTML +=
   @             "<span class='sortarrow'>" + arrow + "</div>";
