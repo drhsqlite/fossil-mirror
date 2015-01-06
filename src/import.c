@@ -902,128 +902,82 @@ static int svn_read_rec(FILE *pIn, SvnRecord *rec){
 
 static void svn_finish_revision(){
   Blob manifest;
-  static Stmt insRev;
+  static Stmt getChanges;
+  static Stmt getFiles;
+  static Stmt setRid;
   Blob mcksum;
 
   blob_zero(&manifest);
-  db_static_prepare(&getChanges, "SELECT tbranch, ttype FROM xchanged");
-  db_static_prepare(&getFiles, "SELECT tpath, tuuid, tperm,"
-                               " tsrc, tsrcbranch, trev tsrcrev"
-                               " FROM xfiles, xsrc"
-                               " ON tpath, tbranch)"
+  db_static_prepare(&getChanges, "SELECT tid, tname, ttype, tparent"
+                                 " FROM xrevisions, xbranches ON (tbranch=tid)"
+                                 " WHERE trid ISNULL");
+  db_static_prepare(&getFiles, "SELECT tpath, tuuid, tperm FROM xfiles"
                                " WHERE tbranch=:branch ORDER BY tpath");
-  db_static_prepare(&setRid, "REPLACE INTO xrevisions(trev, tbranch, trid)"
-                             " VALUES (%d, :branch, :rid)", gsvn.rev);
-  if( !gsvn.flatFlag ){
-    if( gsvn.parentRev<0 ){
-      gsvn.parentRev = db_int(-1, "SELECT ifnull(max(trev),-1) FROM xrevisions "
-                                  "WHERE tbranch=%Q", gsvn.zBranch);
-      if( gsvn.parentRev<0 ){
-        gsvn.parentRev =
-            db_int(-1, "SELECT ifnull(max(trev),-1) FROM xrevisions");
-      }
-      gsvn.zParentBranch = gsvn.zBranch;
-    }else if( gsvn.zParentBranch==0 ){
-      gsvn.zParentBranch = mprintf("trunk");
-    }
-    /*db_bind_int(&insRev, ":rev", gsvn.rev);
-    db_bind_text(&insRev, ":branch", gsvn.zBranch);
-    db_bind_int(&insRev, ":rid", 0);
-    db_step(&insRev);
-    db_reset(&insRev);*/
-  }else{
-    static int prevRev = -1;
-    gsvn.parentRev = prevRev;
-    gsvn.zParentBranch = gsvn.zBranch = "";
-    prevRev = gsvn.rev;
-  }
-
-  if( gsvn.zComment ){
-    blob_appendf(&manifest, "C %F\n", gsvn.zComment);
-  }else{
-    blob_append(&manifest, "C (no\\scomment)\n", 16);
-  }
-  if( gsvn.zDate ){
-    blob_appendf(&manifest, "D %s\n", gsvn.zDate);
-  }else{
-    goto skip_revision;
-  }
-  nFilter = blob_size(&gsvn.filter)-1;
-  db_bind_text(&qFiles, ":filter", blob_str(&gsvn.filter));
-  while( db_step(&qFiles)==SQLITE_ROW ){
-    const char *zFile = db_column_text(&qFiles, 0);
-    int rid = db_column_int(&qFiles, 1);
-    const char *zPerm = db_column_text(&qFiles, 2);
-    char *zUuid;
-    zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
-    blob_appendf(&manifest, "F %F %s %s\n", zFile+nFilter, zUuid, zPerm);
-    fossil_free(zUuid);
-  }
-  db_reset(&qFiles);
-  if( gsvn.parentRev>=0 ){
-    const char *zParentUuid;
-    db_bind_int(&qParent, ":rev", gsvn.parentRev);
-    db_bind_text(&qParent, ":branch", gsvn.zParentBranch);
-    db_step(&qParent);
-    zParentUuid = db_column_text(&qParent, 0);
-    if( zParentUuid==0 ){
-      db_bind_text(&qParent2, ":branch", gsvn.zParentBranch);
-      db_step(&qParent2);
-      zParentUuid = db_column_text(&qParent2, 0);
-    }
-    blob_appendf(&manifest, "P %s\n", zParentUuid);
-    if( !gsvn.flatFlag ){
-      if( strcmp(gsvn.zBranch, gsvn.zParentBranch)!=0 ){
-        blob_appendf(&manifest, "T *branch * %F\n", gsvn.zBranch);
-        blob_appendf(&manifest, "T *sym-%F *\n", gsvn.zBranch);
-        zParentBranch = mprintf("%F", gsvn.zParentBranch);
+  db_prepare(&setRid, "UPDATE xrevisions SET trid=:rid"
+                             " WHERE trev=%d AND tbranch=:branch", gsvn.rev);
+  while( db_step(&getChanges)==SQLITE_ROW ){
+    int branchId = db_column_int(&getChanges, 0);
+    const char *zBranch = db_column_text(&getChanges, 1);
+    int branchType = db_column_int(&getChanges, 2);
+    int parentRid = db_column_int(&getChanges, 3);
+    int onBranch = 0;
+    int rid;
+    if( branchType!=3 ){
+      if( gsvn.zComment ){
+        blob_appendf(&manifest, "C %F\n", gsvn.zComment);
       }else{
-        zParentBranch = 0;
+        blob_append(&manifest, "C (no\\scomment)\n", 16);
       }
+      blob_appendf(&manifest, "D %s\n", gsvn.zDate);
+      db_bind_int(&getFiles, ":branch", branchId);
+      while( db_step(&getFiles)==SQLITE_ROW ){
+        const char *zFile = db_column_text(&getFiles, 0);
+        const char *zUuid = db_column_text(&getFiles, 1);
+        const char *zPerm = db_column_text(&getFiles, 2);
+        blob_appendf(&manifest, "F %F %s %s\n", zFile, zUuid, zPerm);
+      }
+      db_reset(&getFiles);
+      if( parentRid==0 ){
+        parentRid = db_int(0, "SELECT trid, max(trev) FROM xrevisions"
+                              " WHERE trev<%d AND tbranch=%d", gsvn.rev, branchId);
+        onBranch = 1;
+      }
+      if( parentRid>0 ){
+        const char *zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", parentRid);
+        blob_appendf(&manifest, "P %s\n", zParentUuid);
+        if( onBranch==0 ){
+          const char *zParentBranch = db_text(0, "SELECT tbranch FROM xbranches WHERE tid=(SELECT tbranch FROM xrevisions WHERE trid=%d)", parentRid);
+          blob_appendf(&manifest, "T *branch * %F\n", zBranch);
+          blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
+          blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+          blob_appendf(&manifest, "T -sym-%s *\n", zParentBranch);
+        }
+      }else{
+        blob_appendf(&manifest, "T *branch * %F\n", zBranch);
+        blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
+        blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+      }
+      if( gsvn.zUser ){
+        blob_appendf(&manifest, "U %F\n", gsvn.zUser);
+      }else{
+        const char *zUserOvrd = find_option("user-override",0,1);
+        blob_appendf(&manifest, "U %F\n", zUserOvrd ? zUserOvrd : login_name());
+      }
+      md5sum_blob(&manifest, &mcksum);
+      blob_appendf(&manifest, "Z %b\n", &mcksum);
+      blob_reset(&mcksum);
+    }else{
+//      TODO tag
     }
-    db_reset(&qParent);
-    db_reset(&qParent2);
-  }else{
-    blob_appendf(&manifest, "T *branch * trunk\n");
-    blob_appendf(&manifest, "T *sym-trunk *\n");
+    rid = content_put(&manifest);
+    db_bind_int(&setRid, ":branch", branchId);
+    db_bind_int(&setRid, ":rid", rid);
+    db_step(&setRid);
+    db_reset(&setRid);
+    blob_reset(&manifest);
   }
-  db_bind_int(&qTags, ":rev", gsvn.rev);
-  while( db_step(&qTags)==SQLITE_ROW ){
-    const char *zTag = db_column_text(&qTags, 0);
-    blob_appendf(&manifest, "T +sym-%s *\n", zTag);
-  }
-  db_reset(&qTags);
-  blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
-  if( zParentBranch ) {
-    blob_appendf(&manifest, "T -sym-%s *\n", zParentBranch);
-    fossil_free(zParentBranch);
-  }
-  if( gsvn.zUser ){
-    blob_appendf(&manifest, "U %F\n", gsvn.zUser);
-  }else{
-    const char *zUserOvrd = find_option("user-override",0,1);
-    blob_appendf(&manifest, "U %F\n", zUserOvrd ? zUserOvrd : login_name());
-  }
-  md5sum_blob(&manifest, &mcksum);
-  blob_appendf(&manifest, "Z %b\n", &mcksum);
-  blob_reset(&mcksum);
-
-  rid = content_put(&manifest);
-  db_bind_int(&insRev, ":rev", gsvn.rev);
-  db_bind_text(&insRev, ":branch", gsvn.zBranch);
-  db_bind_int(&insRev, ":rid", rid);
-  db_step(&insRev);
-  db_reset(&insRev);
-
-skip_revision:
-  blob_resize(&gsvn.filter, nBaseFilter);
-  if( gsvn.zParentBranch == gsvn.zBranch ){
-    gsvn.zParentBranch = 0;
-  }
-  if( gsvn.flatFlag ){
-    gsvn.zBranch = 0;
-  }
-  blob_reset(&manifest);
+  db_reset(&getChanges);
+  db_finalize(&setRid);
 }
 
 static u64 svn_get_varint(const char **pz){
@@ -1132,11 +1086,11 @@ static int svn_parse_path(char *zPath, char **zFile){
   }
   if( type>0 ){
     branchId = db_int(0,
-                      "SELECT tid FROM xbranches WHERE tbranch=%Q AND ttype=%d",
-                      zBranch, branchType);
+                      "SELECT tid FROM xbranches WHERE tname=%Q AND ttype=%d",
+                      zBranch, type);
     if( branchId==0 ){
-      db_multi_exec("INSERT INTO xbranches (tbranch, ttype) VALUES(%Q, %d)",
-                    zBranch, branchType);
+      db_multi_exec("INSERT INTO xbranches (tname, ttype) VALUES(%Q, %d)",
+                    zBranch, type);
       branchId = db_last_insert_rowid();
     }
   }
@@ -1154,9 +1108,9 @@ static void svn_dump_import(FILE *pIn){
   const char *zUuid;
   Stmt addFile;
   Stmt delPath;
-  Stmt addSrc;
-  Stmt addBranch;
+  Stmt addRev;
   Stmt cpyPath;
+  Stmt revSrc;
 
   /* version */
   if( svn_read_rec(pIn, &rec)
@@ -1186,14 +1140,17 @@ static void svn_dump_import(FILE *pIn){
     "     AND tbranch=:branch"
   );
   db_prepare(&addRev,
-    "INSERT OR IGNORE INTO xrevisions (trev, tbranch, tparent)"
-    " VALUES(:rev, :branch, :parent)"
+    "INSERT OR IGNORE INTO xrevisions (trev, tbranch)"
+    " VALUES(:rev, :branch)"
   );
   db_prepare(&cpyPath,
     "INSERT INTO xfiles (tpath, tbranch, tuuid, tperm)"
     " SELECT :path||substr(filename, length(:srcpath)+1), :branch, uuid, perm"
     " FROM xfoci"
-    " WHERE chekinID=:rid AND filename>:srcpath||'/' AND filename<:srcpath||'0'"
+    " WHERE checkinID=:rid AND filename>:srcpath||'/' AND filename<:srcpath||'0'"
+  );
+  db_prepare(&revSrc,
+    "UPDATE xrevisions SET tparent=:parent WHERE trev=:rev AND tbranch=:branch"
   );
   gsvn.rev = -1;
   while( svn_read_rec(pIn, &rec) ){
@@ -1212,9 +1169,10 @@ static void svn_dump_import(FILE *pIn){
       gsvn.zComment = mprintf("%s", svn_find_prop(rec, "svn:log"));
       zDate = svn_find_prop(rec, "svn:date");
       if( zDate ){
-        zDate = date_in_standard_format(zDate);
+        gsvn.zDate = date_in_standard_format(zDate);
+      }else{
+        gsvn.zDate = date_in_standard_format("now");
       }
-      gsvn.zDate = zDate;
       db_bind_int(&addRev, ":rev", gsvn.rev);
       fossil_print("\rImporting SVN revision: %d", gsvn.rev);
     }else
@@ -1252,9 +1210,12 @@ static void svn_dump_import(FILE *pIn){
        || strncmp(zAction, "replace", 7)==0 )
       {
         db_bind_text(&delPath, ":path", zFile);
-        db_bind_text(&delPath, ":branch", branchId);
+        db_bind_int(&delPath, ":branch", branchId);
         db_step(&delPath);
         db_reset(&delPath);
+        db_bind_int(&addRev, ":branch", branchId);
+        db_step(&addRev);
+        db_reset(&addRev);
       } /* no 'else' here since 'replace' does both a 'delete' and an 'add' */
       if( strncmp(zAction, "add", 3)==0
        || strncmp(zAction, "replace", 7)==0 )
@@ -1264,21 +1225,31 @@ static void svn_dump_import(FILE *pIn){
         }else if( strncmp(zKind, "dir", 3)==0 ){
           if( zSrcPath ){
             int srcRid = db_int(0, "SELECT trid, max(trev) FROM xrevisions"
-                                   " WHERE trev<=%d AND tbranch=%Q",
-                                srcRev, zSrcBranch);
+                                   " WHERE trev<=%d AND tbranch=%d",
+                                srcRev, srcBranch);
             db_bind_text(&cpyPath, ":path", zFile);
-            db_bind_text(&cpyPath, ":branch", zBranch);
+            db_bind_int(&cpyPath, ":branch", branchId);
             db_bind_text(&cpyPath, ":srcpath", zSrcFile);
             db_bind_int(&cpyPath, ":rid", srcRid);
             db_step(&cpyPath);
             db_reset(&cpyPath);
+            db_bind_int(&addRev, ":branch", branchId);
+            db_step(&addRev);
+            db_reset(&addRev);
+            if( zFile==0 ){
+              db_bind_int(&revSrc, ":parent", srcRid);
+              db_bind_int(&revSrc, ":rev", srcRev);
+              db_bind_int(&revSrc, ":branch", branchId);
+              db_step(&revSrc);
+              db_reset(&revSrc);
+            }
           }
         }else{
           int rid = 0;
           if( zSrcPath ){
             int srcRid = db_int(0, "SELECT trid, max(trev) FROM xrevisions"
-                            " WHERE trev<=%d AND tbranch=%Q",
-                         srcRev, zSrcBranch);
+                            " WHERE trev<=%d AND tbranch=%d",
+                         srcRev, srcBranch);
             rid = db_int(0, "SELECT rid FROM blob WHERE uuid=("
                             " SELECT uuid FROM xfoci"
                             "  WHERE chekinID=%d AND filename=%Q"
@@ -1299,11 +1270,14 @@ static void svn_dump_import(FILE *pIn){
             rid = content_put(&rec.content);
           }
           db_bind_text(&addFile, ":path", zFile);
-          db_bind_text(&addFile, ":branch", zBranch);
+          db_bind_int(&addFile, ":branch", branchId);
           db_bind_int(&addFile, ":rid", rid);
           db_bind_text(&addFile, ":perm", zPerm);
           db_step(&addFile);
           db_reset(&addFile);
+          db_bind_int(&addRev, ":branch", branchId);
+          db_step(&addRev);
+          db_reset(&addRev);
         }
       }else
       if( strncmp(zAction, "change", 6)==0 ){
@@ -1317,8 +1291,8 @@ static void svn_dump_import(FILE *pIn){
             Blob target;
             rid = db_int(0, "SELECT rid FROM blob WHERE uuid=("
                             " SELECT uuid FROM xfiles"
-                            "  WHERE tpath=%Q AND tbranch=%Q"
-                            ")", zFile, zBranch);
+                            "  WHERE tpath=%Q AND tbranch=%d"
+                            ")", zFile, branchId);
             content_get(rid, &deltaSrc);
             svn_apply_svndiff(&rec.content, &deltaSrc, &target);
             rid = content_put(&target);
@@ -1326,11 +1300,14 @@ static void svn_dump_import(FILE *pIn){
             rid = content_put(&rec.content);
           }
           db_bind_text(&addFile, ":path", zFile);
-          db_bind_text(&addFile, ":branch", zBranch);
+          db_bind_int(&addFile, ":branch", branchId);
           db_bind_int(&addFile, ":rid", rid);
           db_bind_text(&addFile, ":perm", zPerm);
           db_step(&addFile);
           db_reset(&addFile);
+          db_bind_int(&addRev, ":branch", branchId);
+          db_step(&addRev);
+          db_reset(&addRev);
         }
       }else
       if( strncmp(zAction, "delete", 6)!=0 ){ /* already did this one above */
@@ -1347,9 +1324,9 @@ static void svn_dump_import(FILE *pIn){
   fossil_free(gsvn.zDate);
   db_finalize(&addFile);
   db_finalize(&delPath);
-  db_finalize(&addSrc);
-  db_finalize(&addBranch);
+  db_finalize(&addRev);
   db_finalize(&cpyPath);
+  db_finalize(&revSrc);
   fossil_print(" Done!\n");
 }
 
@@ -1462,12 +1439,12 @@ void import_cmd(void){
        " UNIQUE(tbranch, trev), UNIQUE(trid)"
        ");"
        "CREATE TEMP TABLE xfiles("
-       " tpath TEXT, tbranch INT, tuuid TEXT, tperm TEXT, tsrcpath TEXT"
+       " tpath TEXT, tbranch INT, tuuid TEXT, tperm TEXT,"
        " UNIQUE (tbranch, tpath) ON CONFLICT REPLACE"
        ");"
        "CREATE TEMP TABLE xbranches("
-       " tid INTEGER PRIMARY KEY, tbranch TEXT, ttype INT,"
-       " UNIQUE(tbranch, ttype)"
+       " tid INTEGER PRIMARY KEY, tname TEXT, ttype INT,"
+       " UNIQUE(tname, ttype)"
        ");"
        "CREATE VIRTUAL TABLE temp.xfoci USING files_of_checkin;"
     );
