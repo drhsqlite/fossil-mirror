@@ -326,7 +326,7 @@ static char brlistQuery[] =
 @   AND tag.tagname='branch'
 @   AND event.objid=tagxref.rid
 @ GROUP BY 1
-@ ORDER BY %d DESC;
+@ ORDER BY 2 DESC;
 ;
 
 /*
@@ -340,14 +340,12 @@ static char brlistQuery[] =
 static void new_brlist_page(void){
   Stmt q;
   double rNow;
-  int orderByMtime = P("mtime")!=0;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   style_header("Branches");
   login_anonymous_available();
   
-  assert( orderByMtime==0 || orderByMtime==1 );
-  db_prepare(&q, brlistQuery/*works-like:"%d"*/, 2-orderByMtime);
+  db_prepare(&q, brlistQuery/*works-like:""*/);
   rNow = db_double(0.0, "SELECT julianday('now')");
   @ <div class="brlist"><table id="branchlisttable">
   @ <thead><tr>
@@ -383,7 +381,7 @@ static void new_brlist_page(void){
   }
   @ </tbody></table></div>
   db_finalize(&q);
-  output_table_sorting_javascript("branchlisttable","tkktx");
+  output_table_sorting_javascript("branchlisttable","tkktx",2);
   style_footer();
 }
 
