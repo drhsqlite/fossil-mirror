@@ -1230,11 +1230,12 @@ static void svn_dump_import(FILE *pIn){
       if( strncmp(zAction, "add", 3)==0
        || strncmp(zAction, "replace", 7)==0 )
       {
+        int srcRid = 0;
         if( zKind==0 ){
           fossil_fatal("Missing Node-kind");
         }else if( strncmp(zKind, "dir", 3)==0 ){
           if( zSrcPath ){
-            int srcRid = db_int(0, "SELECT trid, max(trev) FROM xrevisions"
+            srcRid = db_int(0, "SELECT trid, max(trev) FROM xrevisions"
                                    " WHERE trev<=%d AND tbranch=%d",
                                 srcRev, srcBranch);
             if( srcRid>0 ){
@@ -1247,17 +1248,12 @@ static void svn_dump_import(FILE *pIn){
               db_bind_int(&addRev, ":branch", branchId);
               db_step(&addRev);
               db_reset(&addRev);
-              db_bind_int(&revSrc, ":parent", srcRid);
-              db_bind_int(&revSrc, ":rev", gsvn.rev);
-              db_bind_int(&revSrc, ":branch", branchId);
-              db_step(&revSrc);
-              db_reset(&revSrc);
             }
           }
         }else{
           int rid = 0;
           if( zSrcPath ){
-            int srcRid = db_int(0, "SELECT trid, max(trev) FROM xrevisions"
+            srcRid = db_int(0, "SELECT trid, max(trev) FROM xrevisions"
                             " WHERE trev<=%d AND tbranch=%d",
                          srcRev, srcBranch);
             rid = db_int(0, "SELECT rid FROM blob WHERE uuid=("
@@ -1265,11 +1261,6 @@ static void svn_dump_import(FILE *pIn){
                             "  WHERE checkinID=%d AND filename=%Q"
                             ")",
                          srcRid, zSrcFile);
-            db_bind_int(&revSrc, ":parent", srcRid);
-            db_bind_int(&revSrc, ":rev", gsvn.rev);
-            db_bind_int(&revSrc, ":branch", branchId);
-            db_step(&revSrc);
-            db_reset(&revSrc);
           }
           if( deltaFlag ){
             Blob deltaSrc;
@@ -1293,6 +1284,13 @@ static void svn_dump_import(FILE *pIn){
           db_bind_int(&addRev, ":branch", branchId);
           db_step(&addRev);
           db_reset(&addRev);
+        }
+        if( zSrcPath && srcRid>0 && srcBranch!=branchId ){
+          db_bind_int(&revSrc, ":parent", srcRid);
+          db_bind_int(&revSrc, ":rev", gsvn.rev);
+          db_bind_int(&revSrc, ":branch", branchId);
+          db_step(&revSrc);
+          db_reset(&revSrc);
         }
       }else
       if( strncmp(zAction, "change", 6)==0 ){
