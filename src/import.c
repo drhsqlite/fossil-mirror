@@ -966,11 +966,13 @@ static void svn_finish_revision(){
           blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
           blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
           blob_appendf(&manifest, "T -sym-%F *\n", zParentBranch);
+          fossil_free(zParentBranch);
         }else{
           const char *zMergeUuid = rid_to_uuid(mergeRid);
           blob_appendf(&manifest, "P %s %s\n", zParentUuid, zMergeUuid);
           blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
         }
+        fossil_free(zParentUuid);
       }else{
         blob_appendf(&manifest, "T *branch * %F\n", zBranch);
         blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
@@ -980,6 +982,7 @@ static void svn_finish_revision(){
       const char *zParentUuid = rid_to_uuid(parentRid);
       blob_appendf(&manifest, "D %s\n", gsvn.zDate);
       blob_appendf(&manifest, "T +sym-%F %s\n", zBranch, zParentUuid);
+      fossil_free(zParentUuid);
     }
     if( gsvn.zUser ){
       blob_appendf(&manifest, "U %F\n", gsvn.zUser);
