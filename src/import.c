@@ -901,6 +901,16 @@ static int svn_read_rec(FILE *pIn, SvnRecord *rec){
   return 1;
 }
 
+/*
+** Returns the UUID for the RID, or NULL if not found.
+** The returned string is allocated via db_text() and must be
+** free()d by the caller.
+*/
+char * rid_to_uuid(int rid)
+{
+  return db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+}
+
 static void svn_finish_revision(){
   Blob manifest;
   static Stmt getChanges;
@@ -940,19 +950,24 @@ static void svn_finish_revision(){
       db_reset(&getFiles);
       if( !bag_find(&gsvn.newBranches, branchId) ){
         parentRid = db_int(0, "SELECT trid, max(trev) FROM xrevisions"
-                              " WHERE trev<%d AND tbranch=%d", gsvn.rev, branchId);
+                              " WHERE trev<%d AND tbranch=%d",
+                           gsvn.rev, branchId);
       }
       if( parentRid>0 ){
-        const char *zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", parentRid);
+        const char *zParentUuid = rid_to_uuid(parentRid);
         if( parentRid==mergeRid || mergeRid==0){
-          const char *zParentBranch = db_text(0, "SELECT tname FROM xbranches WHERE tid=(SELECT tbranch FROM xrevisions WHERE trid=%d)", parentRid);
+          const char *zParentBranch =
+            db_text(0, "SELECT tname FROM xbranches WHERE tid="
+                       " (SELECT tbranch FROM xrevisions WHERE trid=%d)",
+                    parentRid
+            );
           blob_appendf(&manifest, "P %s\n", zParentUuid);
           blob_appendf(&manifest, "T *branch * %F\n", zBranch);
           blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
           blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
           blob_appendf(&manifest, "T -sym-%F *\n", zParentBranch);
         }else{
-          const char *zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mergeRid);
+          const char *zMergeUuid = rid_to_uuid(mergeRid);
           blob_appendf(&manifest, "P %s %s\n", zParentUuid, zMergeUuid);
           blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
         }
@@ -962,7 +977,7 @@ static void svn_finish_revision(){
         blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
       }
     }else{
-      const char *zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", parentRid);
+      const char *zParentUuid = rid_to_uuid(parentRid);
       blob_appendf(&manifest, "D %s\n", gsvn.zDate);
       blob_appendf(&manifest, "T +sym-%F %s\n", zBranch, zParentUuid);
     }
@@ -1152,10 +1167,13 @@ static void svn_dump_import(FILE *pIn){
     "INSERT INTO xfiles (tpath, tbranch, tuuid, tperm)"
     " SELECT :path||substr(filename, length(:srcpath)+1), :branch, uuid, perm"
     " FROM xfoci"
-    " WHERE checkinID=:rid AND filename>:srcpath||'/' AND filename<:srcpath||'0'"
+    " WHERE checkinID=:rid"
+    "   AND filename>:srcpath||'/'"
+    "   AND filename<:srcpath||'0'"
   );
   db_prepare(&revSrc,
-    "UPDATE xrevisions SET tparent=:parent WHERE trev=:rev AND tbranch=:branch AND tparent<:parent"
+    "UPDATE xrevisions SET tparent=:parent"
+    " WHERE trev=:rev AND tbranch=:branch AND tparent<:parent"
   );
   gsvn.rev = -1;
   bag_init(&gsvn.newBranches);
