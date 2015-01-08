@@ -64,19 +64,28 @@ SSLLFLAGS = /nologo /opt:ref /debug
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
-SSLCONFIG = VC-WIN64A no-asm
+# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3 no-shared
+SSLCONFIG = VC-WIN64A no-asm no-shared
 SSLSETUP  = ms\do_win64a.bat
 SSLNMAKE  = ms\nt.mak all
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
-SSLCONFIG = VC-WIN64I no-asm
+# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3 no-shared
+SSLCONFIG = VC-WIN64I no-asm no-shared
 SSLSETUP  = ms\do_win64i.bat
 SSLNMAKE  = ms\nt.mak all
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
 !else
 !message Assuming 'x86' platform for OpenSSL...
-SSLCONFIG = VC-WIN32 no-asm
+# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3 no-shared
+SSLCONFIG = VC-WIN32 no-asm no-shared
 SSLSETUP  = ms\do_ms.bat
 SSLNMAKE  = ms\nt.mak all
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
 !endif
 !endif
 
@@ -206,6 +215,7 @@ SRC   = add_.c \
         branch_.c \
         browse_.c \
         builtin_.c \
+        bundle_.c \
         cache_.c \
         captcha_.c \
         cgi_.c \
@@ -272,6 +282,8 @@ SRC   = add_.c \
         popen_.c \
         pqueue_.c \
         printf_.c \
+        publish_.c \
+        purge_.c \
         rebuild_.c \
         regexp_.c \
         report_.c \
@@ -281,6 +293,7 @@ SRC   = add_.c \
         setup_.c \
         sha1_.c \
         shun_.c \
+        sitemap_.c \
         skins_.c \
         sqlcmd_.c \
         stash_.c \
@@ -322,6 +335,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\branch$O \
         $(OX)\browse$O \
         $(OX)\builtin$O \
+        $(OX)\bundle$O \
         $(OX)\cache$O \
         $(OX)\captcha$O \
         $(OX)\cgi$O \
@@ -389,6 +403,8 @@ OBJ   = $(OX)\add$O \
         $(OX)\popen$O \
         $(OX)\pqueue$O \
         $(OX)\printf$O \
+        $(OX)\publish$O \
+        $(OX)\purge$O \
         $(OX)\rebuild$O \
         $(OX)\regexp$O \
         $(OX)\report$O \
@@ -399,6 +415,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\sha1$O \
         $(OX)\shell$O \
         $(OX)\shun$O \
+        $(OX)\sitemap$O \
         $(OX)\skins$O \
         $(OX)\sqlcmd$O \
         $(OX)\sqlite3$O \
@@ -461,9 +478,9 @@ openssl:
 	@pushd "$(SSLDIR)" && $(PERL) Configure $(SSLCONFIG) && popd
 	@pushd "$(SSLDIR)" && call $(SSLSETUP) && popd
 !ifdef FOSSIL_ENABLE_WINXP
-	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(XPCFLAGS)" "LFLAGS=$(SSLLFLAGS) $(XPLDFLAGS)" && popd
+	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS) $(XPCFLAGS)" "LFLAGS=$(SSLLFLAGS) $(XPLDFLAGS)" && popd
 !else
-	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) && popd
+	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS)" && popd
 !endif
 !endif
 
@@ -492,6 +509,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\branch.obj >> $@
 	echo $(OX)\browse.obj >> $@
 	echo $(OX)\builtin.obj >> $@
+	echo $(OX)\bundle.obj >> $@
 	echo $(OX)\cache.obj >> $@
 	echo $(OX)\captcha.obj >> $@
 	echo $(OX)\cgi.obj >> $@
@@ -559,6 +577,8 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\popen.obj >> $@
 	echo $(OX)\pqueue.obj >> $@
 	echo $(OX)\printf.obj >> $@
+	echo $(OX)\publish.obj >> $@
+	echo $(OX)\purge.obj >> $@
 	echo $(OX)\rebuild.obj >> $@
 	echo $(OX)\regexp.obj >> $@
 	echo $(OX)\report.obj >> $@
@@ -569,6 +589,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\sha1.obj >> $@
 	echo $(OX)\shell.obj >> $@
 	echo $(OX)\shun.obj >> $@
+	echo $(OX)\sitemap.obj >> $@
 	echo $(OX)\skins.obj >> $@
 	echo $(OX)\sqlcmd.obj >> $@
 	echo $(OX)\sqlite3.obj >> $@
@@ -753,6 +774,12 @@ $(OX)\builtin$O : builtin_.c builtin.h
 	$(TCC) /Fo$@ -c builtin_.c
 
 builtin_.c : $(SRCDIR)\builtin.c
+	translate$E $** > $@
+
+$(OX)\bundle$O : bundle_.c bundle.h
+	$(TCC) /Fo$@ -c bundle_.c
+
+bundle_.c : $(SRCDIR)\bundle.c
 	translate$E $** > $@
 
 $(OX)\cache$O : cache_.c cache.h
@@ -1151,6 +1178,18 @@ $(OX)\printf$O : printf_.c printf.h
 printf_.c : $(SRCDIR)\printf.c
 	translate$E $** > $@
 
+$(OX)\publish$O : publish_.c publish.h
+	$(TCC) /Fo$@ -c publish_.c
+
+publish_.c : $(SRCDIR)\publish.c
+	translate$E $** > $@
+
+$(OX)\purge$O : purge_.c purge.h
+	$(TCC) /Fo$@ -c purge_.c
+
+purge_.c : $(SRCDIR)\purge.c
+	translate$E $** > $@
+
 $(OX)\rebuild$O : rebuild_.c rebuild.h
 	$(TCC) /Fo$@ -c rebuild_.c
 
@@ -1203,6 +1242,12 @@ $(OX)\shun$O : shun_.c shun.h
 	$(TCC) /Fo$@ -c shun_.c
 
 shun_.c : $(SRCDIR)\shun.c
+	translate$E $** > $@
+
+$(OX)\sitemap$O : sitemap_.c sitemap.h
+	$(TCC) /Fo$@ -c sitemap_.c
+
+sitemap_.c : $(SRCDIR)\sitemap.c
 	translate$E $** > $@
 
 $(OX)\skins$O : skins_.c skins.h
@@ -1392,6 +1437,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			branch_.c:branch.h \
 			browse_.c:browse.h \
 			builtin_.c:builtin.h \
+			bundle_.c:bundle.h \
 			cache_.c:cache.h \
 			captcha_.c:captcha.h \
 			cgi_.c:cgi.h \
@@ -1458,6 +1504,8 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			popen_.c:popen.h \
 			pqueue_.c:pqueue.h \
 			printf_.c:printf.h \
+			publish_.c:publish.h \
+			purge_.c:purge.h \
 			rebuild_.c:rebuild.h \
 			regexp_.c:regexp.h \
 			report_.c:report.h \
@@ -1467,6 +1515,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			setup_.c:setup.h \
 			sha1_.c:sha1.h \
 			shun_.c:shun.h \
+			sitemap_.c:sitemap.h \
 			skins_.c:skins.h \
 			sqlcmd_.c:sqlcmd.h \
 			stash_.c:stash.h \

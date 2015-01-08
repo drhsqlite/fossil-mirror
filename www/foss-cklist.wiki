@@ -7,7 +7,7 @@ http://spot.livejournal.com/308370.html</a> (see also
 <a href="http://www.theopensourceway.org/book/The_Open_Source_Way-How_to_tell_if_a_FLOSS_project_is_doomed_to_FAIL.html">[1]</a> and
 <a href="https://www.theopensourceway.org/wiki/How_to_tell_if_a_FLOSS_project_is_doomed_to_FAIL">[2]</a>).
 Tom's original post assigned point scores to the various elements and
-by adding together the individual points, the reader is suppose to be able
+by adding together the individual points, the reader is supposed to be able
 to judge the likelihood that the project will fail.
 The point scores, and the items on the list, clearly reflect Tom's
 biases and are not necessarily those of the larger open-source community.

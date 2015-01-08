@@ -924,37 +924,80 @@ static int db_exec_readonly(
 ** Output Javascript code that will enables sorting of the table with
 ** the id zTableId by clicking.
 **
-** The javascript is derived from:
+** The javascript was originally derived from:
 **
 **     http://www.webtoolkit.info/sortable-html-table.html
 **
+** But there have been extensive modifications.
+**
 ** This variation allows column types to be expressed using the second
 ** argument.  Each character of the second argument represent a column.
-** "t" means sort as text.  "n" means sort numerically.  "x" means do not
-** sort on this column.  If there are fewer characters in zColumnTypes[] than
-** their are columns, the all extra columns assume type "t" (text).
+**
+**       t      Sort by text
+**       n      Sort numerically
+**       k      Sort by the data-sortkey property
+**       x      This column is not sortable
+**
+** If there are fewer characters in zColumnTypes[] than their are columns,
+** the all extra columns assume type "t" (text).
+**
+** The third parameter is the column that was initially sorted (using 1-based
+** column numbers, like SQL).  Make this value 0 if none of the columns are
+** initially sorted.  Make the value negative if the column is initially sorted
+** in reverse order.
+**
+** Clicking on the same column header twice in a row inverts the sort.
 */
-void output_table_sorting_javascript(const char *zTableId, const char *zColumnTypes){
+void output_table_sorting_javascript(
+  const char *zTableId,      /* ID of table to sort */
+  const char *zColumnTypes,  /* String for column types */
+  int iInitSort              /* Initially sorted column. Leftmost is 1. 0 for NONE */
+){
   @ <script>
-  @ function SortableTable(tableEl,columnTypes){
+  @ function SortableTable(tableEl,columnTypes,initSort){
   @   this.tbody = tableEl.getElementsByTagName('tbody');
+  @   this.columnTypes = columnTypes;
   @   this.sort = function (cell) {
   @     var column = cell.cellIndex;
-  @     var sortFn = cell.sortType=="n" ? this.sortNumeric : this.sortText;
+  @     var sortFn;
+  @     switch( cell.sortType ){
+  @       case "n":  sortFn = this.sortNumeric;  break;
+  @       case "t":  sortFn = this.sortText;     break;
+  @       case "k":  sortFn = this.sortKey;      break;
+  @       case "x":  return;
+  @     }
   @     this.sortIndex = column;
   @     var newRows = new Array();
   @     for (j = 0; j < this.tbody[0].rows.length; j++) {
   @        newRows[j] = this.tbody[0].rows[j];
   @     }
-  @     newRows.sort(sortFn);
-  @     if (cell.getAttribute("sortdir") == 'down') {
-  @        newRows.reverse();
-  @        cell.setAttribute('sortdir','up');
-  @     } else {
-  @        cell.setAttribute('sortdir','down');
+  @     if( this.sortIndex==Math.abs(this.prevColumn)-1 ){
+  @       newRows.reverse();
+  @       this.prevColumn = -this.prevColumn;
+  @     }else{
+  @       newRows.sort(sortFn);
+  @       this.prevColumn = this.sortIndex+1;
   @     }
   @     for (i=0;i<newRows.length;i++) {
   @       this.tbody[0].appendChild(newRows[i]);
+  @     }
+  @     this.setHdrIcons();
+  @   }
+  @   this.setHdrIcons = function() {
+  @     for (var i=0; i<this.hdrRow.cells.length; i++) {
+  @       if( this.columnTypes[i]=='x' ) continue;
+  @       var sortType;
+  @       if( this.prevColumn==i+1 ){
+  @         sortType = 'asc';
+  @       }else if( this.prevColumn==(-1-i) ){
+  @         sortType = 'desc'
+  @       }else{
+  @         sortType = 'none';
+  @       }
+  @       var hdrCell = this.hdrRow.cells[i];
+  @       var clsName = hdrCell.className.replace(/\s*\bsort\s*\w+/, '');
+  @       clsName += ' sort ' + sortType;
+  @       hdrCell.className = clsName;
   @     }
   @   }
   @   this.sortText = function(a,b) {
@@ -973,26 +1016,39 @@ void output_table_sorting_javascript(const char *zTableId, const char *zColumnTy
   @     if (isNaN(bb)) bb = 0;
   @     return aa-bb;
   @   }
-  @   var thisObject = this;
+  @   this.sortKey = function(a,b) {
+  @     var i = thisObject.sortIndex;
+  @     aa = a.cells[i].getAttribute("data-sortkey");
+  @     bb = b.cells[i].getAttribute("data-sortkey");
+  @     if(aa==bb) return 0;
+  @     if(aa<bb) return -1;
+  @     return 1;
+  @   }
   @   var x = tableEl.getElementsByTagName('thead');
   @   if(!(this.tbody && this.tbody[0].rows && this.tbody[0].rows.length>0)){
   @     return;
   @   }
   @   if(x && x[0].rows && x[0].rows.length > 0) {
-  @     var sortRow = x[0].rows[0];
+  @     this.hdrRow = x[0].rows[0];
   @   } else {
   @     return;
   @   }
-  @   for (var i=0; i<sortRow.cells.length; i++) {
-  @     sortRow.cells[i].sTable = this;
-  @     sortRow.cells[i].sortType = columnTypes[i] || 't';
-  @     sortRow.cells[i].onclick = function () {
+  @   var thisObject = this;
+  @   this.prevColumn = initSort;
+  @   for (var i=0; i<this.hdrRow.cells.length; i++) {
+  @     if( columnTypes[i]=='x' ) continue;
+  @     var hdrcell = this.hdrRow.cells[i];
+  @     hdrcell.sTable = this;
+  @     hdrcell.style.cursor = "pointer";
+  @     hdrcell.sortType = columnTypes[i] || 't';
+  @     hdrcell.onclick = function () {
   @       this.sTable.sort(this);
   @       return false;
   @     }
   @   }
+  @   this.setHdrIcons()
   @ }
-  @ var t = new SortableTable(gebi("%s(zTableId)"),"%s(zColumnTypes)");
+  @ var t = new SortableTable(gebi("%s(zTableId)"),"%s(zColumnTypes)",%d(iInitSort));
   @ </script>
 }
 
@@ -1088,7 +1144,7 @@ void rptview_page(void){
     }else if( zErr2 ){
       @ <p class="reportError">Error: %h(zErr2)</p>
     }
-    output_table_sorting_javascript("reportTable","");
+    output_table_sorting_javascript("reportTable","",0);
     style_footer();
   }else{
     report_restrict_sql(&zErr1);
