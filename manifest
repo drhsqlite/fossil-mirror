@@ -1,5 +1,5 @@
-C Update\sreferenced\sOpenSSL\sversion.
-D 2015-01-08T17:38:46.478
+C Restore\sthe\sdiamond\ssymbol\sas\sthe\sdefault\s'not\ssorted'\scolumn\sindicator.
+D 2015-01-08T19:46:28.820
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -420,7 +420,7 @@ F src/sqlite3.c 49aca66c8acb65e78985d4a3176026e4b5b618e7
 F src/sqlite3.h efbb53079547607cd47f0a62ae26fd7742c885b6
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c d058aef03224498f96facc0ffcdebce34952970e
-F src/style.c a8881389f9d65a2526f329905458ea103f0dfe1c
+F src/style.c 79f67f94aed22bb239c909f728d256c5c982740b
 F src/sync.c 7ab2ffc24ef2f54612da6ef3c9df626468904b57
 F src/tag.c 3e5c18658ada7bc2bfe21eea4ec47eaa89776e6e
 F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b5b62b3d576cc2fb6674b66aed38ac062ac6442c
-R 8c2e9f3b1b33e65696e234a64969c1e6
+P 6c484ec392b8b94487646970a34d25d982498b8a
+R acec46ace1a4eac016e853be60ff36d1
 U mistachkin
-Z 87a9b04fbc44abf5733b4d4af4cf6e4a
+Z 5eae131d396f5aa5c002c7ddd1c0798c
