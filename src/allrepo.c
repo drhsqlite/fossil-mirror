@@ -78,7 +78,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 /*
 ** COMMAND: all
 **
-** Usage: %fossil all (changes|clean|extras|ignore|list|ls|pull|push|rebuild|sync)
+** Usage: %fossil all SUBCOMMAND ...
 **
 ** The ~/.fossil file records the location of all repositories for a
 ** user.  This command performs certain operations on all repositories

@@ -785,6 +785,11 @@ const struct strctCssDefaults {
     @   margin: 1em 0;
     @   line-height: 1.5;
   },
+  {
+    ".filetree > ul",
+    "tree-view top-level list",
+    @   display: inline-block;
+  },
   { ".filetree ul",
     "tree-view lists",
     @   margin: 0;
@@ -834,16 +839,32 @@ const struct strctCssDefaults {
     "tree-view links",
     @   position: relative;
     @   z-index: 1;
-    @   display: inline-block;
+    @   display: table-cell;
     @   min-height: 16px;
     @   padding-left: 21px;
     @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);
     @   background-position: center left;
     @   background-repeat: no-repeat;
   },
-  { ".filetree .dir > a",
+  { "div.filetreeline",
+    "line of a file tree",
+    @   display: table;
+    @   width: 100%;
+    @   white-space: nowrap;
+  },
+  { ".filetree .dir > div.filetreeline > a",
     "tree-view directory links",
     @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
+  },
+  { "div.filetreeage",
+    "Last change floating display on the right",
+    @  display: table-cell;
+    @  padding-left: 3em;
+    @  text-align: right;
+  },
+  { "div.filetreeline:hover",
+    "Highlight the line of a file tree",
+    @  background-color: #eee;
   },
   { "table.login_out",
     "table format for login/out label/input table",
@@ -1213,13 +1234,67 @@ const struct strctCssDefaults {
   },
   { "table.adminLogTable",
     "Class for the /admin_log table",
-    @ text-align: left
+    @ text-align: left;
   },
   { ".adminLogTable .adminTime",
     "Class for the /admin_log table",
-    @ text-align: left
+    @ text-align: left;
     @ vertical-align: top;
     @ white-space: nowrap;
+  },
+  { ".fileage table",
+    "The fileage table",
+    @ border-spacing: 0;
+  },
+  { ".fileage tr:hover",
+    "Mouse-over effects for the file-age table",
+    @ background-color: #eee;
+  },
+  { ".fileage td",
+    "fileage table cells",
+    @ vertical-align: top;
+    @ text-align: left;
+    @ border-top: 1px solid #ddd;
+    @ padding-top: 3px;
+  },
+  { ".fileage td:first-child",
+    "fileage first column (the age)",
+    @ white-space: nowrap;
+  },
+  { ".fileage td:nth-child(2)",
+    "fileage second column (the filename)",
+    @ padding-left: 1em;
+    @ padding-right: 1em;
+  },
+  { ".fileage td:nth-child(3)",
+    "fileage third column (the check-in comment)",
+    @ word-break: break-all;
+    @ word-wrap: break-word;
+    @ max-width: 50%;
+  },
+  { ".brlist table",  "The list of branches",
+    @ border-spacing: 0;
+  },
+  { ".brlist table th",  "Branch list table headers",
+    @ text-align: left;
+    @ padding: 0px 1em 0.5ex 0px;
+  },
+  { ".brlist table td",  "Branch list table headers",
+    @ padding: 0px 2em 0px 0px;
+  },
+  { "th.sort:after",
+    "General styles for sortable column marker",
+    @ margin-left: .4em;
+    @ cursor: pointer;
+    @ text-shadow: 0 0 0 #000; /* Makes arrow darker */
+  },
+  { "th.sort.asc:after",
+    "Ascending sort column marker",
+    @ content: '\2193';
+  },
+  { "th.sort.desc:after",
+    "Descending sort column marker",
+    @ content: '\2191';
   },
   { 0,
     0,

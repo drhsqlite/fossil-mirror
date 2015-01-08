@@ -67,7 +67,7 @@ static void status_report(
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
     " WHERE is_selected(id) %s"
-    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1",
+    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1 /*scan*/",
     blob_sql_text(&where)
   );
   blob_zero(&rewrittenPathname);
@@ -500,6 +500,7 @@ void extras_cmd(void){
   );
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   blob_zero(&rewrittenPathname);
+  g.allowSymlinks = 1;  /* Report on symbolic links */
   while( db_step(&q)==SQLITE_ROW ){
     zDisplayName = zPathname = db_column_text(&q, 0);
     if( cwdRelative ) {
@@ -571,6 +572,7 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
+**    --verily         Shorthand for: -f --emptydirs --dotfiles
 **    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
 **    --ignore <CSG>   Ignore files matching patterns from the
@@ -615,6 +617,11 @@ void clean_cmd(void){
   zKeepFlag = find_option("keep",0,1);
   zCleanFlag = find_option("clean",0,1);
   db_must_be_within_tree();
+  if( find_option("verily",0,0)!=0 ){
+    allFileFlag = allDirFlag = 1;
+    emptyDirsFlag = 1;
+    scanFlags |= SCAN_ALL;
+  }
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
@@ -648,6 +655,7 @@ void clean_cmd(void){
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
   nRoot = (int)strlen(g.zLocalRoot);
+  g.allowSymlinks = 1;  /* Find symlinks too */
   if( !dirsOnlyFlag ){
     Stmt q;
     Blob repo;

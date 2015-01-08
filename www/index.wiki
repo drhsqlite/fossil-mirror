@@ -112,6 +112,10 @@ internet these days. What makes Fossil worthy of attention?
 <hr>
 <h3>Links For Fossil Users:</h3>
 
+  *  "Fuel" is cross-platform GUI front-end for Fossil
+     written in Qt.  [http://fuelscm.org/].  
+     Fuel is an independent project run by a different group of
+     developers.
   *  [./reviews.wiki | Testimonials] from satisfied fossil users and
      [./quotes.wiki | Quotes] about Fossil and other DVCSes.
   *  [./faq.wiki | FAQ]

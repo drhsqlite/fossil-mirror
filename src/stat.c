@@ -79,7 +79,7 @@ void stat_page(void){
       Stmt q;
       @ <tr><th>Uncompressed&nbsp;Artifact&nbsp;Size:</th><td>
       db_prepare(&q, "SELECT total(size), avg(size), max(size)"
-                     " FROM blob WHERE size>0");
+                     " FROM blob WHERE size>0 /*scan*/");
       db_step(&q);
       t = db_column_int64(&q, 0);
       szAvg = db_column_int(&q, 1);

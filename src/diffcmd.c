@@ -365,7 +365,7 @@ static void diff_all_against_disk(
       " WHERE v2.vid=%d"
       "   AND NOT EXISTS(SELECT 1 FROM vfile v1"
                         " WHERE v1.vid=%d AND v1.pathname=v2.pathname)"
-      " ORDER BY 1",
+      " ORDER BY 1 /*scan*/",
       rid, vid, rid, vid, vid, rid
     );
   }else{
@@ -374,7 +374,7 @@ static void diff_all_against_disk(
       "  FROM vfile"
       " WHERE vid=%d"
       "   AND (deleted OR chnged OR rid==0)"
-      " ORDER BY pathname",
+      " ORDER BY pathname /*scan*/",
       vid
     );
   }
