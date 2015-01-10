@@ -11,7 +11,8 @@
       [http://www.activestate.com/activetcl] to for a quick download of
       Tcl/Tk if you do not already have it on your system.)
 
-  3.  The "[/help?cmd=clean | fossil clean -f]" command makes a great 
+  3.  The "[/help/clean | fossil clean -f]" or
+      "[/help/clean | fossil clean --verily]" command is a great 
       alternative to "make clean".
   
   4.  Use "[/help?cmd=all | fossil all changes]" to look for any uncommitted 
