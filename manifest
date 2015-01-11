@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sclean\s--verily"\scommand\sto\sthe\s"hints"\sdocumentation.
-D 2015-01-10T18:01:57.968
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.8.8\sbeta.
+D 2015-01-11T00:06:08.460
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -411,13 +411,13 @@ F src/schema.c 6aa448a328fef31516933b763985247add80292b
 F src/search.c ba6851ec9758fd80df427008c2e4f0b9e0f857db
 F src/setup.c c06b72a7ad2b4e89eb18d6e651ccec5c15339205
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
-F src/shell.c 45d9c9bd7cde07845af957f2d849933b990773cf
+F src/shell.c 96ba1f6300d36b8c8694ee9e27edf92590f384b4
 F src/shun.c a93c409f694b6022061d2c946311d6ead83a4e49
 F src/sitemap.c d7f2c19e565727ab6108c0c0043b1db6d81cd470
 F src/skins.c 810054ea1343bc1b78c2f4b9b0d8a9145fd4ae39
 F src/sqlcmd.c 33672640d42e08a9561aa5238f42326522d191aa
-F src/sqlite3.c 49aca66c8acb65e78985d4a3176026e4b5b618e7
-F src/sqlite3.h efbb53079547607cd47f0a62ae26fd7742c885b6
+F src/sqlite3.c 523c62e205b98a825c6c9cfe6aa886508acf0c10
+F src/sqlite3.h 144d61c51c1f981110fa9ec9ffae6e55a4586759
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c d058aef03224498f96facc0ffcdebce34952970e
 F src/style.c 79f67f94aed22bb239c909f728d256c5c982740b
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e1893dc6ab8f3ae8da3580c14c0581732cc36ec4
-R a1667a06ff5e42678fa29ae97b85a21a
+P 70931e58dfd2ddaddfbe95e57cb674a4e3637d36
+R fc6f389dc76f4fe84d46740c58fa52b4
 U drh
-Z 3901d79ba8bcd3196148b0b834a6998a
+Z 39d668abe0f573998a6b86327ad3ce4d
