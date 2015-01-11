@@ -954,9 +954,9 @@ static void svn_finish_revision(){
                            gsvn.rev, branchId);
       }
       if( parentRid>0 ){
-        const char *zParentUuid = rid_to_uuid(parentRid);
+        char *zParentUuid = rid_to_uuid(parentRid);
         if( parentRid==mergeRid || mergeRid==0){
-          const char *zParentBranch =
+          char *zParentBranch =
             db_text(0, "SELECT tname FROM xbranches WHERE tid="
                        " (SELECT tbranch FROM xrevisions WHERE trid=%d)",
                     parentRid
@@ -968,9 +968,10 @@ static void svn_finish_revision(){
           blob_appendf(&manifest, "T -sym-%F *\n", zParentBranch);
           fossil_free(zParentBranch);
         }else{
-          const char *zMergeUuid = rid_to_uuid(mergeRid);
+          char *zMergeUuid = rid_to_uuid(mergeRid);
           blob_appendf(&manifest, "P %s %s\n", zParentUuid, zMergeUuid);
           blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+          fossil_free(zMergeUuid);
         }
         fossil_free(zParentUuid);
       }else{
@@ -979,7 +980,7 @@ static void svn_finish_revision(){
         blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
       }
     }else{
-      const char *zParentUuid = rid_to_uuid(parentRid);
+      char *zParentUuid = rid_to_uuid(parentRid);
       blob_appendf(&manifest, "D %s\n", gsvn.zDate);
       blob_appendf(&manifest, "T +sym-%F %s\n", zBranch, zParentUuid);
       fossil_free(zParentUuid);
@@ -1058,57 +1059,51 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
 }
 
 /*
-** Extract the name of the branch or tag that the given path is on.
-** Returns: 1 - It is on the trunk
-**          2 - It is on a branch
-**          3 - It is a tag
-**          0 - It is none of the above
+** Extract the branch or tag that the given path is on. Return the branch ID.
  */
-static int svn_parse_path(char *zPath, char **zFile){
-  int type = 0;
+static int svn_parse_path(char *zPath, char **zFile, int *type){
   char *zBranch = 0;
   int branchId = 0;
+  *type = 0;
   *zFile = 0;
   if( gsvn.lenTrunk==0 ){
     zBranch = "trunk";
     *zFile = zPath;
-    type = 1;
+    *type = 1;
   }else
   if( strncmp(zPath, gsvn.zTrunk, gsvn.lenTrunk-1)==0 ){
     if( zPath[gsvn.lenTrunk-1]=='/' || zPath[gsvn.lenTrunk-1]==0 ){
       zBranch = "trunk";
       *zFile = zPath+gsvn.lenTrunk;
-      type = 1;
+      *type = 1;
     }else{
       zBranch = 0;
-      type = 0;
+      *type = 0;
     }
-  }else
-  if( strncmp(zPath, gsvn.zBranches, gsvn.lenBranches)==0 ){
-    *zFile = zBranch = zPath+gsvn.lenBranches;
+  }else{
+    if( strncmp(zPath, gsvn.zBranches, gsvn.lenBranches)==0 ){
+      *zFile = zBranch = zPath+gsvn.lenBranches;
+      *type = 2;
+    }else
+    if( strncmp(zPath, gsvn.zTags, gsvn.lenTags)==0 ){
+      *zFile = zBranch = zPath+gsvn.lenTags;
+      *type = 3;
+    }else{ /* Not a branch, tag or trunk */
+      return 0;
+    }
     while( **zFile && **zFile!='/' ){ (*zFile)++; }
     if( **zFile ){
       **zFile = '\0';
       (*zFile)++;
     }
-    type = 2;
-  }else
-  if( strncmp(zPath, gsvn.zTags, gsvn.lenTags)==0 ){
-    *zFile = zBranch = zPath+gsvn.lenTags;
-    while( **zFile && **zFile!='/' ){ (*zFile)++; }
-    if( **zFile ){
-      **zFile = '\0';
-      (*zFile)++;
-    }
-    type = 3;
   }
-  if( type>0 ){
+  if( *type>0 ){
     branchId = db_int(0,
                       "SELECT tid FROM xbranches WHERE tname=%Q AND ttype=%d",
-                      zBranch, type);
+                      zBranch, *type);
     if( branchId==0 ){
       db_multi_exec("INSERT INTO xbranches (tname, ttype) VALUES(%Q, %d)",
-                    zBranch, type);
+                    zBranch, *type);
       branchId = db_last_insert_rowid();
     }
   }
@@ -1144,7 +1139,8 @@ static void svn_dump_import(FILE *pIn){
   svn_free_rec(&rec);
   /* UUID */
   if( !svn_read_rec(pIn, &rec) || !(zUuid = svn_find_header(rec, "UUID")) ){
-    fossil_fatal("Missing UUID!");
+    /* Removed the following line since UUID is not actually used
+     fossil_fatal("Missing UUID!"); */
   }
   svn_free_rec(&rec);
 
@@ -1206,34 +1202,20 @@ static void svn_dump_import(FILE *pIn){
       fossil_print("\rImporting SVN revision: %d", gsvn.rev);
     }else
     if( (zTemp = svn_find_header(rec, "Node-path")) ){ /* file/dir node */
+      char *zFile;
+      int branchType;
+      int branchId = svn_parse_path(zTemp, &zFile, &branchType);
       char *zAction = svn_find_header(rec, "Node-action");
       char *zKind = svn_find_header(rec, "Node-kind");
-      char *zSrcPath = svn_find_header(rec, "Node-copyfrom-path");
       char *zPerm = svn_find_prop(rec, "svn:executable") ? "x" : 0;
-      char *zFile;
-      int srcBranch;
-      char *zSrcFile;
       int deltaFlag = 0;
       int srcRev = 0;
-      int branchId = svn_parse_path(zTemp, &zFile);
       if( branchId==0 ){
         svn_free_rec(&rec);
         continue;
       }
       if( (zTemp = svn_find_header(rec, "Text-delta")) ){
         deltaFlag = strncmp(zTemp, "true", 4)==0;
-      }
-      if( zSrcPath ){
-        zTemp = svn_find_header(rec, "Node-copyfrom-rev");
-        if( zTemp ){
-          srcRev = atoi(zTemp);
-        }else{
-          fossil_fatal("Missing copyfrom-rev");
-        }
-        srcBranch = svn_parse_path(zSrcPath, &zSrcFile);
-        if( srcBranch==0 ){
-          fossil_fatal("Copy from path outside the import paths");
-        }
       }
       if( zFile[0]==0 ){
         bag_insert(&gsvn.newBranches, branchId);
@@ -1253,14 +1235,45 @@ static void svn_dump_import(FILE *pIn){
       if( strncmp(zAction, "add", 3)==0
        || strncmp(zAction, "replace", 7)==0 )
       {
+        char *zSrcPath = svn_find_header(rec, "Node-copyfrom-path");
+        char *zSrcFile;
         int srcRid = 0;
+        if( zSrcPath ){
+          int srcBranch;
+          zTemp = svn_find_header(rec, "Node-copyfrom-rev");
+          if( zTemp ){
+            srcRev = atoi(zTemp);
+          }else{
+            fossil_fatal("Missing copyfrom-rev");
+          }
+          srcBranch = svn_parse_path(zSrcPath, &zSrcFile, &branchType);
+          if( srcBranch==0 ){
+            fossil_fatal("Copy from path outside the import paths");
+          }
+          if( branchType!=3 ){
+            srcRid = db_int(0, "SELECT trid, max(trev) FROM xrevisions"
+                               " WHERE trev<=%d AND tbranch=%d",
+                            srcRev, srcBranch);
+          }else{
+            srcRid = db_int(0, "SELECT tparent, max(trev) FROM xrevisions"
+                               " WHERE trev<=%d AND tbranch=%d",
+                            srcRev, srcBranch);
+          }
+          if( srcRid>0 && srcBranch!=branchId ){
+            db_bind_int(&addRev, ":branch", branchId);
+            db_step(&addRev);
+            db_reset(&addRev);
+            db_bind_int(&revSrc, ":parent", srcRid);
+            db_bind_int(&revSrc, ":rev", gsvn.rev);
+            db_bind_int(&revSrc, ":branch", branchId);
+            db_step(&revSrc);
+            db_reset(&revSrc);
+          }
+        }
         if( zKind==0 ){
           fossil_fatal("Missing Node-kind");
         }else if( strncmp(zKind, "dir", 3)==0 ){
           if( zSrcPath ){
-            srcRid = db_int(0, "SELECT trid, max(trev) FROM xrevisions"
-                                   " WHERE trev<=%d AND tbranch=%d",
-                                srcRev, srcBranch);
             if( srcRid>0 ){
               if( zFile[0]==0 ){
                 db_bind_text(&cpyRoot, ":path", zFile);
@@ -1284,9 +1297,6 @@ static void svn_dump_import(FILE *pIn){
         }else{
           int rid = 0;
           if( zSrcPath ){
-            srcRid = db_int(0, "SELECT trid, max(trev) FROM xrevisions"
-                            " WHERE trev<=%d AND tbranch=%d",
-                         srcRev, srcBranch);
             rid = db_int(0, "SELECT rid FROM blob WHERE uuid=("
                             " SELECT uuid FROM xfoci"
                             "  WHERE checkinID=%d AND filename=%Q"
@@ -1315,13 +1325,6 @@ static void svn_dump_import(FILE *pIn){
           db_bind_int(&addRev, ":branch", branchId);
           db_step(&addRev);
           db_reset(&addRev);
-        }
-        if( zSrcPath && srcRid>0 && srcBranch!=branchId ){
-          db_bind_int(&revSrc, ":parent", srcRid);
-          db_bind_int(&revSrc, ":rev", gsvn.rev);
-          db_bind_int(&revSrc, ":branch", branchId);
-          db_step(&revSrc);
-          db_reset(&revSrc);
         }
       }else
       if( strncmp(zAction, "change", 6)==0 ){
