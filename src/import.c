@@ -911,6 +911,11 @@ char * rid_to_uuid(int rid)
   return db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
 }
 
+#define SVN_UNKNOWN   0
+#define SVN_TRUNK     1
+#define SVN_BRANCH    2
+#define SVN_TAG       3
+
 static void svn_finish_revision(){
   Blob manifest;
   static Stmt getChanges;
@@ -933,7 +938,7 @@ static void svn_finish_revision(){
     int parentRid = db_column_int(&getChanges, 3);
     int mergeRid = parentRid;
     int rid;
-    if( branchType!=3 ){
+    if( branchType!=SVN_TAG ){
       if( gsvn.zComment ){
         blob_appendf(&manifest, "C %F\n", gsvn.zComment);
       }else{
@@ -1064,30 +1069,30 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
 static int svn_parse_path(char *zPath, char **zFile, int *type){
   char *zBranch = 0;
   int branchId = 0;
-  *type = 0;
+  *type = SVN_UNKNOWN;
   *zFile = 0;
   if( gsvn.lenTrunk==0 ){
     zBranch = "trunk";
     *zFile = zPath;
-    *type = 1;
+    *type = SVN_TRUNK;
   }else
   if( strncmp(zPath, gsvn.zTrunk, gsvn.lenTrunk-1)==0 ){
     if( zPath[gsvn.lenTrunk-1]=='/' || zPath[gsvn.lenTrunk-1]==0 ){
       zBranch = "trunk";
       *zFile = zPath+gsvn.lenTrunk;
-      *type = 1;
+      *type = SVN_TRUNK;
     }else{
       zBranch = 0;
-      *type = 0;
+      *type = SVN_UNKNOWN;
     }
   }else{
     if( strncmp(zPath, gsvn.zBranches, gsvn.lenBranches)==0 ){
       *zFile = zBranch = zPath+gsvn.lenBranches;
-      *type = 2;
+      *type = SVN_BRANCH;
     }else
     if( strncmp(zPath, gsvn.zTags, gsvn.lenTags)==0 ){
       *zFile = zBranch = zPath+gsvn.lenTags;
-      *type = 3;
+      *type = SVN_TAG;
     }else{ /* Not a branch, tag or trunk */
       return 0;
     }
@@ -1097,7 +1102,7 @@ static int svn_parse_path(char *zPath, char **zFile, int *type){
       (*zFile)++;
     }
   }
-  if( *type>0 ){
+  if( *type!=SVN_UNKNOWN ){
     branchId = db_int(0,
                       "SELECT tid FROM xbranches WHERE tname=%Q AND ttype=%d",
                       zBranch, *type);
@@ -1250,7 +1255,7 @@ static void svn_dump_import(FILE *pIn){
           if( srcBranch==0 ){
             fossil_fatal("Copy from path outside the import paths");
           }
-          if( branchType!=3 ){
+          if( branchType!=SVN_TAG ){
             srcRid = db_int(0, "SELECT trid, max(trev) FROM xrevisions"
                                " WHERE trev<=%d AND tbranch=%d",
                             srcRev, srcBranch);
