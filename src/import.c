@@ -1075,16 +1075,14 @@ static int svn_parse_path(char *zPath, char **zFile){
     type = 1;
   }else
   if( strncmp(zPath, gsvn.zTrunk, gsvn.lenTrunk-1)==0 ){
-    zBranch = "trunk";
-    if( zPath[gsvn.lenTrunk-1]=='/' ){
-      *zFile = zPath+gsvn.lenTrunk;;
-    }else if( zPath[gsvn.lenTrunk-1]==0 ){
-      *zFile = 0;
+    if( zPath[gsvn.lenTrunk-1]=='/' || zPath[gsvn.lenTrunk-1]==0 ){
+      zBranch = "trunk";
+      *zFile = zPath+gsvn.lenTrunk;
+      type = 1;
     }else{
-      *zFile = zBranch = 0;
+      zBranch = 0;
       type = 0;
     }
-    type = 1;
   }else
   if( strncmp(zPath, gsvn.zBranches, gsvn.lenBranches)==0 ){
     *zFile = zBranch = zPath+gsvn.lenBranches;
@@ -1092,8 +1090,6 @@ static int svn_parse_path(char *zPath, char **zFile){
     if( **zFile ){
       **zFile = '\0';
       (*zFile)++;
-    }else{
-      *zFile = 0;
     }
     type = 2;
   }else
@@ -1103,8 +1099,6 @@ static int svn_parse_path(char *zPath, char **zFile){
     if( **zFile ){
       **zFile = '\0';
       (*zFile)++;
-    }else{
-      *zFile = 0;
     }
     type = 3;
   }
@@ -1134,6 +1128,7 @@ static void svn_dump_import(FILE *pIn){
   Stmt delPath;
   Stmt addRev;
   Stmt cpyPath;
+  Stmt cpyRoot;
   Stmt revSrc;
 
   /* version */
@@ -1173,6 +1168,12 @@ static void svn_dump_import(FILE *pIn){
     " WHERE checkinID=:rid"
     "   AND filename>:srcpath||'/'"
     "   AND filename<:srcpath||'0'"
+  );
+  db_prepare(&cpyRoot,
+    "INSERT INTO xfiles (tpath, tbranch, tuuid, tperm)"
+    " SELECT :path||filename, :branch, uuid, perm"
+    " FROM xfoci"
+    " WHERE checkinID=:rid"
   );
   db_prepare(&revSrc,
     "UPDATE xrevisions SET tparent=:parent"
@@ -1234,12 +1235,13 @@ static void svn_dump_import(FILE *pIn){
           fossil_fatal("Copy from path outside the import paths");
         }
       }
-      if( zFile==0 ){
+      if( zFile[0]==0 ){
         bag_insert(&gsvn.newBranches, branchId);
       }
       if( strncmp(zAction, "delete", 6)==0
        || strncmp(zAction, "replace", 7)==0 )
       {
+        //TODO delete root
         db_bind_text(&delPath, ":path", zFile);
         db_bind_int(&delPath, ":branch", branchId);
         db_step(&delPath);
@@ -1260,12 +1262,20 @@ static void svn_dump_import(FILE *pIn){
                                    " WHERE trev<=%d AND tbranch=%d",
                                 srcRev, srcBranch);
             if( srcRid>0 ){
-              db_bind_text(&cpyPath, ":path", zFile);
-              db_bind_int(&cpyPath, ":branch", branchId);
-              db_bind_text(&cpyPath, ":srcpath", zSrcFile);
-              db_bind_int(&cpyPath, ":rid", srcRid);
-              db_step(&cpyPath);
-              db_reset(&cpyPath);
+              if( zFile[0]==0 ){
+                db_bind_text(&cpyRoot, ":path", zFile);
+                db_bind_int(&cpyRoot, ":branch", branchId);
+                db_bind_int(&cpyRoot, ":rid", srcRid);
+                db_step(&cpyRoot);
+                db_reset(&cpyRoot);
+              }else{
+                db_bind_text(&cpyPath, ":path", zFile);
+                db_bind_int(&cpyPath, ":branch", branchId);
+                db_bind_text(&cpyPath, ":srcpath", zSrcFile);
+                db_bind_int(&cpyPath, ":rid", srcRid);
+                db_step(&cpyPath);
+                db_reset(&cpyPath);
+              }
               db_bind_int(&addRev, ":branch", branchId);
               db_step(&addRev);
               db_reset(&addRev);
@@ -1360,6 +1370,7 @@ static void svn_dump_import(FILE *pIn){
   db_finalize(&delPath);
   db_finalize(&addRev);
   db_finalize(&cpyPath);
+  db_finalize(&cpyRoot);
   db_finalize(&revSrc);
   fossil_print(" Done!\n");
 }
