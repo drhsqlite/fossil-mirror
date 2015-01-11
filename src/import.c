@@ -1278,7 +1278,7 @@ static void svn_dump_import(FILE *pIn){
         if( zKind==0 ){
           fossil_fatal("Missing Node-kind");
         }else if( strncmp(zKind, "dir", 3)==0 ){
-          if( zSrcPath ){
+          if( zSrcPath && branchType!=SVN_TAG ){
             if( srcRid>0 ){
               if( zFile[0]==0 ){
                 db_bind_text(&cpyRoot, ":path", zFile);
@@ -1294,9 +1294,6 @@ static void svn_dump_import(FILE *pIn){
                 db_step(&cpyPath);
                 db_reset(&cpyPath);
               }
-              db_bind_int(&addRev, ":branch", branchId);
-              db_step(&addRev);
-              db_reset(&addRev);
             }
           }
         }else{
