@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.8.8\srelease\scandidate.
-D 2015-01-13T00:27:49.800
+C typo
+D 2015-01-13T08:30:03.066
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -643,7 +643,7 @@ F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
 F www/permutedindex.wiki f7e2aec1e6efcc090591252b3a68c7f1772da8bf
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
-F www/qandc.wiki 66dd4572859a4409599f00df7f44573c2216a38c
+F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
 F www/quickstart.wiki e58da3550b57620f703c248b92ba545622948909
 F www/quotes.wiki f5011126eb9abfd5d4f7e2eb483d3cbe73c1c0ef
 F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ec1197ca01b1c2ea752b27dc78ec50f3aa671ecf
-R 40c75b0da5c0a02b032d35cf4ba0c392
-U drh
-Z 21574ce7dae750c69e16058e468c600b
+P 51b476a0b9040ecd512cb8641f43f2241341e905
+R 4aa680a96ec7856e0adf179cf3a4e203
+U jan.nijtmans
+Z 19bc85a0b452a7a10e7b3b2d580a7553
