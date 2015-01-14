@@ -1,5 +1,5 @@
-C Use\s"COLLATE\snocase"\swhen\slisting\suser\snames.
-D 2015-01-14T11:56:41.903
+C Enhanced\scomments\son\sthe\simplementation\sof\sthe\scheckin_mtime()\sSQL\sfunction.
+D 2015-01-14T23:26:48.201
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -335,7 +335,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 8c4065fb0e73b2c1249c2c062df67be1fa1c53f5
+F src/db.c 1af0a13f453e4e1221849060af42eeaa61b3c362
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 81c808210a860ad82f4707571a925496ab9020a0
 F src/descendants.c 393ebd57f83ff9f2f87df9572430f399ecc95d47
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bc04f483f95c5033b9aa9a2ac5984598bf10ffe4
-R 4c8862363d3506c9a54a9764287faf23
+P 439453b5c77ab790865e454c92d89378a22c01ff
+R dd62376d51ac3bc0c66a8dc6b7fb3c65
 U drh
-Z 131c7b67b2fcec87862fa5d3e5494e10
+Z 94d88e9a41a82aa4d3e89d4999ea17ea
