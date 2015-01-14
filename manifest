@@ -1,5 +1,5 @@
-C typo
-D 2015-01-13T08:30:03.066
+C Use\s"COLLATE\snocase"\swhen\slisting\suser\snames.
+D 2015-01-14T11:56:41.903
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -409,7 +409,7 @@ F src/report.c d59e49a92272cf6af0521c2cb8f2b798d20c7613
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
 F src/schema.c 6aa448a328fef31516933b763985247add80292b
 F src/search.c ba6851ec9758fd80df427008c2e4f0b9e0f857db
-F src/setup.c c06b72a7ad2b4e89eb18d6e651ccec5c15339205
+F src/setup.c d189c01fd952c4bd8d5592e54536ed8235100a66
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
 F src/shell.c 5b8e786a7c8eec87fa3f2ea615b337d2d99e284c
 F src/shun.c a93c409f694b6022061d2c946311d6ead83a4e49
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 51b476a0b9040ecd512cb8641f43f2241341e905
-R 4aa680a96ec7856e0adf179cf3a4e203
-U jan.nijtmans
-Z 19bc85a0b452a7a10e7b3b2d580a7553
+P bc04f483f95c5033b9aa9a2ac5984598bf10ffe4
+R 4c8862363d3506c9a54a9764287faf23
+U drh
+Z 131c7b67b2fcec87862fa5d3e5494e10
