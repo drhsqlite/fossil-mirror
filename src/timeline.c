@@ -610,8 +610,8 @@ void timeline_output_graph_javascript(
     **        node has no merge children and no merge-out line is drawn.
     **   mu:  The id of the row which is the top of the merge-out arrow.
     **    u:  Draw a thick child-line out of the top of this node and up to
-    **        the node with an id equal to this value.  0 if there is no
-    **        thick-line riser.
+    **        the node with an id equal to this value.  0 if it is straight to
+    **        the top of the page, -1 if there is no thick-line riser.
     **    f:  0x01: a leaf node.
     **   au:  An array of integers that define thick-line risers for branches.
     **        The integers are in pairs.  For each pair, the first integer is
@@ -2401,7 +2401,7 @@ static void stats_report_by_month_year(char includeMonth,
     @ </div>
   }
   if( !includeMonth ){
-    output_table_sorting_javascript("statsTable","tnx");
+    output_table_sorting_javascript("statsTable","tnx",-1);
   }
 }
 
@@ -2452,7 +2452,7 @@ static void stats_report_by_user(){
     @<tr class='row%d(rowClass)'>
     @ <td>
     @ <a href="?view=bymonth&user=%h(zUser)&type=%c((char)statsReportType)">%h(zUser)</a>
-    @ </td><td>%d(nCount)</td>
+    @ </td><td data-sortkey='%08x(-nCount)'>%d(nCount)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
     @  style='width:%d(nSize)%%;'>&nbsp;</div>
@@ -2465,7 +2465,7 @@ static void stats_report_by_user(){
   }
   @ </tbody></table>
   db_finalize(&query);
-  output_table_sorting_javascript("statsTable","tnx");
+  output_table_sorting_javascript("statsTable","tkx",2);
 }
 
 /*
@@ -2530,7 +2530,7 @@ static void stats_report_day_of_week(){
   }
   @ </tbody></table>
   db_finalize(&query);
-  output_table_sorting_javascript("statsTable","ntnx");
+  output_table_sorting_javascript("statsTable","ntnx",1);
 }
 
 
@@ -2663,7 +2663,7 @@ static void stats_report_year_weeks(const char *zUserName){
                  "Average per active week: %d</div>",
                  total, nAvg);
     }
-    output_table_sorting_javascript("statsTable","tnx");
+    output_table_sorting_javascript("statsTable","tnx",-1);
   }
 }
 

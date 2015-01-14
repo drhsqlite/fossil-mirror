@@ -153,7 +153,7 @@ void setup_ulist(void){
      " UNION ALL "
      "SELECT uid, login, cap, info, 2 FROM user"
      " WHERE login NOT IN ('anonymous','nobody','developer','reader') "
-     "ORDER BY 5, 2"
+     "ORDER BY 5, 2 COLLATE nocase"
   );
   while( db_step(&s)==SQLITE_ROW ){
     int iLevel = db_column_int(&s, 4);

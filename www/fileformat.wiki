@@ -51,7 +51,7 @@ meaning to fossil.  Fossil recognizes:
 These seven artifact types are described in the following sections.
 
 In the current implementation (as of 2009-01-25) the artifacts that
-make up a fossil repository are stored in in as delta- and zlib-compressed
+make up a fossil repository are stored as delta- and zlib-compressed
 blobs in an <a href="http://www.sqlite.org/">SQLite</a> database.  This
 is an implementation detail and might change in a future release.  For
 the purpose of this article "file format" means the format of the artifacts,
@@ -186,7 +186,7 @@ range of check-ins which were cherry-picked for inclusion in or
 exclusion from the current manifest.  The first argument of
 the Q-card is the artifact ID of another manifest (the "target")
 which has had its changes included or excluded in the current manifest.  
-The target is preceeded by "+" or "-" to show inclusion or
+The target is preceded by "+" or "-" to show inclusion or
 exclusion, respectively.  The optional second argument to the
 Q-card is another manifest artifact ID which is the "baseline"
 for the cherry-pick.  If omitted, the baseline is the primary
@@ -317,7 +317,7 @@ to the artifact.  The "-" means the tag should be removed.
 The "*" character means the tag should be added to the artifact
 and all direct descendants (but not descendents through a merge) down
 to but not including the first descendant that contains a 
-more recent "-" or "+" tag with the same name.
+more recent "-", "*", or "+" tag with the same name.
 The optional third argument is the value of the tag.  A tag
 without a value is a boolean.
 
@@ -364,7 +364,7 @@ the mimetype of the wiki text.  If the N card is omitted, the
 mimetype is assumed to be text/x-fossil-wiki.  
 The U card specifies the login
 of the user who made this edit to the wiki page.  The Z card is
-the usual checksum over the either artifact and is required.
+the usual checksum over the entire artifact and is required.
 
 The W card is used to specify the text of the wiki page.  The
 argument to the W card is an integer which is the number of bytes
@@ -455,7 +455,7 @@ There may be zero or one N cards.  The N card specifies the mimetype of the
 comment text provided in the C card.  If the N card is omitted, the C card
 mimetype is taken to be text/plain.
 
-A single U card gives the name of the user to added the attachment.
+A single U card gives the name of the user who added the attachment.
 If an attachment is added anonymously, then the U card may be omitted.
 
 The Z card is the usual checksum over the rest of the attachment artifact.
