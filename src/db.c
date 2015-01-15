@@ -737,6 +737,14 @@ void db_now_function(
 
 /*
 ** Function to return the check-in time for a file.
+**
+**      checkin_mtime(CKINID,RID)
+**
+** CKINID:  The RID for the manifest for a check-in.
+** RID:     The RID of a file in CKINID for which the check-in time
+**          is desired.
+**
+** Returns: The check-in time in seconds since 1970.
 */
 void db_checkin_mtime_function(
   sqlite3_context *context,

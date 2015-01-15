@@ -381,7 +381,7 @@ static void new_brlist_page(void){
   }
   @ </tbody></table></div>
   db_finalize(&q);
-  output_table_sorting_javascript("branchlisttable","tkktx",2);
+  output_table_sorting_javascript("branchlisttable","tkktt",2);
   style_footer();
 }
 

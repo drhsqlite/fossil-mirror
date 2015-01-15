@@ -984,21 +984,20 @@ void output_table_sorting_javascript(
   @     this.setHdrIcons();
   @   }
   @   this.setHdrIcons = function() {
-  @     var arrowdiv = this.hdrRow.getElementsByClassName("sortarrow");
-  @     while( arrowdiv[0] ){
-  @        arrowdiv[0].parentNode.removeChild(arrowdiv[0]);
-  @     }
   @     for (var i=0; i<this.hdrRow.cells.length; i++) {
   @       if( this.columnTypes[i]=='x' ) continue;
+  @       var sortType;
   @       if( this.prevColumn==i+1 ){
-  @         arrow = "&darr;"
+  @         sortType = 'asc';
   @       }else if( this.prevColumn==(-1-i) ){
-  @         arrow = "&uarr;"
+  @         sortType = 'desc'
   @       }else{
-  @         arrow = "&diams;"
+  @         sortType = 'none';
   @       }
-  @       this.hdrRow.cells[i].innerHTML +=
-  @             "<span class='sortarrow'>" + arrow + "</div>";
+  @       var hdrCell = this.hdrRow.cells[i];
+  @       var clsName = hdrCell.className.replace(/\s*\bsort\s*\w+/, '');
+  @       clsName += ' sort ' + sortType;
+  @       hdrCell.className = clsName;
   @     }
   @   }
   @   this.sortText = function(a,b) {

@@ -153,7 +153,7 @@ void setup_ulist(void){
      " UNION ALL "
      "SELECT uid, login, cap, info, 2 FROM user"
      " WHERE login NOT IN ('anonymous','nobody','developer','reader') "
-     "ORDER BY 5, 2"
+     "ORDER BY 5, 2 COLLATE nocase"
   );
   while( db_step(&s)==SQLITE_ROW ){
     int iLevel = db_column_int(&s, 4);
@@ -997,7 +997,7 @@ void setup_access(void){
   onoff_attribute("Redirect to HTTPS on the Login page",
      "redirect-to-https", "redirhttps", 0, 0);
   @ <p>When selected, force the use of HTTPS for the Login page.
-  @ <p>Details:  When enabled, this option causes the $secureurl TH1 
+  @ <p>Details:  When enabled, this option causes the $secureurl TH1
   @ variable is set to an "https:" variant of $baseurl.  Otherwise,
   @ $secureurl is just an alias for $baseurl.  Also when enabled, the
   @ Login page redirects to https if accessed via http.

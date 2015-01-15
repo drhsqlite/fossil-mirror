@@ -207,7 +207,8 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   Blob payload;         /* The complete payload including login card */
   Blob hdr;             /* The HTTP request header */
   int closeConnection;  /* True to close the connection when done */
-  int iLength;          /* Length of the reply payload */
+  int iLength;          /* Expected length of the reply payload */
+  int iRecvLen;         /* Received length of the reply payload */
   int rc = 0;           /* Result code */
   int iHttpVersion;     /* Which version of HTTP protocol server uses */
   char *zLine;          /* A single line of the reply header */
@@ -372,7 +373,11 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   */
   blob_zero(pReply);
   blob_resize(pReply, iLength);
-  iLength = transport_receive(&g.url, blob_buffer(pReply), iLength);
+  iRecvLen = transport_receive(&g.url, blob_buffer(pReply), iLength);
+  if( iRecvLen != iLength ){
+    fossil_warning("response truncated: got %d bytes of %d", iRecvLen, iLength);
+    goto write_err;
+  }
   blob_resize(pReply, iLength);
   if( isError ){
     char *z;

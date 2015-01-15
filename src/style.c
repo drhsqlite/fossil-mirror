@@ -1282,6 +1282,24 @@ const struct strctCssDefaults {
   { ".brlist table td",  "Branch list table headers",
     @ padding: 0px 2em 0px 0px;
   },
+  { "th.sort:after",
+    "General styles for sortable column marker",
+    @ margin-left: .4em;
+    @ cursor: pointer;
+    @ text-shadow: 0 0 0 #000; /* Makes arrow darker */
+  },
+  { "th.sort.none:after",
+    "None sort column marker",
+    @ content: '\2666';
+  },
+  { "th.sort.asc:after",
+    "Ascending sort column marker",
+    @ content: '\2193';
+  },
+  { "th.sort.desc:after",
+    "Descending sort column marker",
+    @ content: '\2191';
+  },
   { 0,
     0,
     0

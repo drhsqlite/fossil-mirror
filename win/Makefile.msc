@@ -57,7 +57,7 @@ PERL    = perl.exe
 # FOSSIL_ENABLE_TCL = 1
 
 !ifdef FOSSIL_ENABLE_SSL
-SSLDIR    = $(B)\compat\openssl-1.0.1j
+SSLDIR    = $(B)\compat\openssl-1.0.1k
 SSLINCDIR = $(SSLDIR)\inc32
 SSLLIBDIR = $(SSLDIR)\out32
 SSLLFLAGS = /nologo /opt:ref /debug
