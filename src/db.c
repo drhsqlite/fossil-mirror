@@ -2647,7 +2647,7 @@ void setting_cmd(void){
     }else{
       isManifest = 0;
       while( ctrlSettings[i].name
-            && strncmp(ctrlSettings[i].name, zName, n)==0
+          && strncmp(ctrlSettings[i].name, zName, n)==0
       ){
         print_setting(&ctrlSettings[i], db_open_local(0));
         i++;

@@ -33,7 +33,7 @@ static const char zFociSchema[] =
 @  filename     TEXT,       -- Name of a file
 @  uuid         TEXT,       -- SHA1 hash of the file
 @  previousName TEXT,       -- Name of the file in previous checkin
-@  prem         TEXT        -- Permissions on the file
+@  perm         TEXT        -- Permissions on the file
 @ );
 ;
 
