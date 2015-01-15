@@ -252,7 +252,7 @@ void cat_cmd(void){
   const char *zRev;
   db_find_and_open_repository(0, 0);
   zRev = find_option("r","r",1);
-  
+
   /* We should be done with options.. */
   verify_all_options();
 

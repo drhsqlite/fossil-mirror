@@ -997,7 +997,7 @@ void setup_access(void){
   onoff_attribute("Redirect to HTTPS on the Login page",
      "redirect-to-https", "redirhttps", 0, 0);
   @ <p>When selected, force the use of HTTPS for the Login page.
-  @ <p>Details:  When enabled, this option causes the $secureurl TH1 
+  @ <p>Details:  When enabled, this option causes the $secureurl TH1
   @ variable is set to an "https:" variant of $baseurl.  Otherwise,
   @ $secureurl is just an alias for $baseurl.  Also when enabled, the
   @ Login page redirects to https if accessed via http.

@@ -27,7 +27,7 @@
 /*
 ** The schema for the virtual table:
 */
-static const char zFociSchema[] = 
+static const char zFociSchema[] =
 @ CREATE TABLE files_of_checkin(
 @  checkinID    INTEGER,    -- RID for the checkin manifest
 @  filename     TEXT,       -- Name of a file
@@ -141,7 +141,7 @@ static int fociEof(sqlite3_vtab_cursor *pCursor){
 }
 
 static int fociFilter(
-  sqlite3_vtab_cursor *pCursor, 
+  sqlite3_vtab_cursor *pCursor,
   int idxNum, const char *idxStr,
   int argc, sqlite3_value **argv
 ){
@@ -160,8 +160,8 @@ static int fociFilter(
 }
 
 static int fociColumn(
-  sqlite3_vtab_cursor *pCursor, 
-  sqlite3_context *ctx, 
+  sqlite3_vtab_cursor *pCursor,
+  sqlite3_context *ctx,
   int i
 ){
   FociCursor *pCsr = (FociCursor *)pCursor;

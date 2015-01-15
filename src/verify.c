@@ -65,7 +65,7 @@ static Bag toVerify;
 static int inFinalVerify = 0;
 
 /*
-** This routine is called just prior to each commit operation.  
+** This routine is called just prior to each commit operation.
 **
 ** Invoke verify_rid() on every record that has been added or modified
 ** in the repository, in order to make sure that the repository is sane.
@@ -86,7 +86,7 @@ static int verify_at_commit(void){
 
 /*
 ** Arrange to verify a particular record prior to committing.
-** 
+**
 ** If the record rid is less than 1, then just initialize the
 ** verification system but do not record anything as needing
 ** verification.

@@ -215,7 +215,7 @@ void changes_cmd(void){
   int cwdRelative = 0;
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -251,7 +251,7 @@ void status_cmd(void){
   db_must_be_within_tree();
        /* 012345678901234 */
   cwdRelative = determine_cwd_relative_option();
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -264,7 +264,7 @@ void status_cmd(void){
   if( vid ){
     show_common_info(vid, "checkout:", 1, 1);
   }
-  db_record_repository_filename(0); 
+  db_record_repository_filename(0);
   print_changes(useSha1sum, showHdr, verboseFlag, cwdRelative);
 }
 
@@ -482,7 +482,7 @@ void extras_cmd(void){
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -1730,7 +1730,7 @@ void commit_cmd(void){
   ** Do not allow a commit against a closed leaf unless the commit
   ** ends up on a different branch.
   */
-  if( 
+  if(
       /* parent checkin has the "closed" tag... */
       db_exists("SELECT 1 FROM tagxref"
                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
