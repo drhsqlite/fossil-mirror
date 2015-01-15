@@ -1222,9 +1222,6 @@ static void svn_dump_import(FILE *pIn){
       if( (zTemp = svn_find_header(rec, "Text-delta")) ){
         deltaFlag = strncmp(zTemp, "true", 4)==0;
       }
-      if( zFile[0]==0 ){
-        bag_insert(&gsvn.newBranches, branchId);
-      }
       if( strncmp(zAction, "delete", 6)==0
        || strncmp(zAction, "replace", 7)==0 )
       {
@@ -1280,7 +1277,7 @@ static void svn_dump_import(FILE *pIn){
         }else if( strncmp(zKind, "dir", 3)==0 ){
           if( zSrcPath && branchType!=SVN_TAG ){
             if( srcRid>0 ){
-              if( zFile[0]==0 ){
+              if( zSrcFile[0]==0 ){
                 db_bind_text(&cpyRoot, ":path", zFile);
                 db_bind_int(&cpyRoot, ":branch", branchId);
                 db_bind_int(&cpyRoot, ":rid", srcRid);
@@ -1295,6 +1292,9 @@ static void svn_dump_import(FILE *pIn){
                 db_reset(&cpyPath);
               }
             }
+          }
+          if( zFile[0]==0 ){
+            bag_insert(&gsvn.newBranches, branchId);
           }
         }else{
           int rid = 0;
