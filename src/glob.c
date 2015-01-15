@@ -141,25 +141,6 @@ Glob *glob_create(const char *zPatternList){
 }
 
 /*
-** Return non-zero if string z matches glob pattern zGlob and zero if the
-** pattern does not match.
-**
-** Globbing rules:
-**
-**      '*'       Matches any sequence of zero or more characters.
-**
-**      '?'       Matches exactly one character.
-**
-**     [...]      Matches one character from the enclosed list of
-**                characters.
-**
-**     [^...]     Matches one character not in the enclosed list.
-*/
-int strglob(const char *zGlob, const char *z){
-  return sqlite3_strglob(zGlob, z)==0;
-}
-
-/*
 ** Return true (non-zero) if zString matches any of the patterns in
 ** the Glob.  The value returned is actually a 1-based index of the pattern
 ** that matched.  Return 0 if none of the patterns match zString.
