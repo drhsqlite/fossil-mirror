@@ -5,7 +5,7 @@ FROM fedora:21
 
 ### Now install some additional parts we will need for the build
 # RUN yum update -y && yum clean all
-RUN yum install -y gcc make zlib-devel openssl-devel tcl-devel && yum clean all
+RUN yum install -y gcc make zlib-devel openssl-devel tcl-devel tar && yum clean all
 RUN groupadd -r fossil -g 433 && useradd -u 431 -r -g fossil -d /opt/fossil -s /sbin/nologin -c "Fossil user" fossil
 
 ### If you want to build "release", change the next line accordingly.
@@ -20,7 +20,7 @@ RUN mkdir -p /opt/fossil
 RUN chown fossil:fossil /opt/fossil
 
 ### Build is done, remove modules no longer needed
-RUN yum remove -y gcc make zlib-devel openssl-devel tcl-devel && yum clean all
+RUN yum remove -y gcc make zlib-devel openssl-devel tcl-devel tar && yum clean all
 
 USER fossil
 

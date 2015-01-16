@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.30 (as yet unreleased)</h2>
+<h2>Changes For Version 1.30 (2015-01-??)</h2>
   *  Add setting to control the number of times autosync will be tried before
      returning an error.
   *  Add the [/help/fusefs|fossil fusefs DIRECTORY] command that mounts a
@@ -33,6 +33,8 @@
   *  Update documentation for protocol 3 and 'cfile' card use
   *  Fix sync protocol bug which would occasionally delete phantom artifacts 
      before they were included in a cluster artifact
+  *  Add support for Docker. Just install docker and type
+     "sudo docker run -d -p 8080:8080 nijtmans/fossil" to get it running.
 
 <h2>Changes For Version 1.29 (2014-06-12)</h2>
   *  Add the ability to display content, diffs and annotations for UTF16
