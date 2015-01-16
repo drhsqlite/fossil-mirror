@@ -22,9 +22,7 @@
      to a valid UTF-8 stream ('c') if you like.
   *  Let [/help?cmd=new|fossil new] no longer create an initial empty commit
      by default. The first commit after checking out an empty repository will
-     become the initial commit. (NOT PLANNED FOR 1.30, BUT DONE TO EXPOSE
-     [/help?cmd=new|fossil new --empty] TO MORE FIELD TESTING BEFORE
-     MAKING ANY DECISION ON IT!)
+     become the initial commit.
   *  Added a line-number toggle option to the [/help?cmd=/info|/info]
      and [/help?cmd=/artifact|/artifact] pages.
   *  Add check to most commands to error on unknown command-line options

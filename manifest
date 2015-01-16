@@ -1,5 +1,5 @@
-C Update\schange\slog\swith\ssome\sof\sthe\sobvious\sbug\sfixes.
-D 2015-01-16T05:52:20.931
+C Remove\scomment,\sassuming\sthe\s"initial\scommit"\schange\sis\saccepted\sfor\s1.30
+D 2015-01-16T08:34:09.857
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -583,7 +583,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6dae3715d845ce395c0dcca5fc25b0998353e8ca
-F www/changes.wiki 5ce4c08f1cff55afb7fcda6f55b42f8f635d53f7
+F www/changes.wiki 4d50aa3a07ea84b7289a0e9b51c13c8a2450c296
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 80d94f4d8d893e7ba3f0bb261986e6f7a003cd41
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2c79aed2d5bceca4e06f63d4f5f8559f27906afd
-R e4ae106528e8639c2deed72b0898cfb6
-U andybradford
-Z a2adb7c1a0c2dad3d4d667d077568f85
+P 64d831245acdddbe62d3f63587f01d0648736de0
+R b8f0e2c0880c9896c6a0a71c6e959ffc
+U jan.nijtmans
+Z e097b53313c5da977c2d8c8cb89f4065
