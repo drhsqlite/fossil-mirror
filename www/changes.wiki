@@ -5,59 +5,69 @@
   *  Added the [/help?cmd=purge|fossil purge] command.
   *  Added the [/help?cmd=publish|fossil publish] command.
   *  Added the [/help?cmd=unpublished|fossil unpublished] command.
-  *  Enhance the [/tree] webpage to show the age of each file and to give the
-     option to sort the display by file age - newest files first.
+  *  Enhance the [/tree] webpage to show the age of each file with the option
+     to sort by age.
   *  Enhance the [/brlist] webpage to show additional information about each branch
-     and to be sortable by click on column headers.
+     and to be sortable by clicking on column headers.
   *  Add support for Docker. Just install docker and type
      "sudo docker run -d -p 8080:8080 nijtmans/fossil" to get it running.
   *  Add the [/help/fusefs|fossil fusefs DIRECTORY] command that mounts a
      Fuse Filesystem at the given DIRECTORY and populates it with read-only
      copies of all historical check-ins. This only works on systems that
      support FuseFS.
-  *  Add the administrative log - recording all configuration changes to a
-     repository.
+  *  Add the administrative log that records all configuration.
   *  Added the [/sitemap] webpage.
   *  Added the [/bloblist] web page.
   *  Let [/help?cmd=new|fossil new] no longer create an initial empty commit
      by default. The first commit after checking out an empty repository will
      become the initial commit.
-  *  Added the [/help?cmd=all|fossil all dbstat] command and the --db-check
-     command-line option.
+  *  Added the [/help?cmd=all|fossil all dbstat] and
+     [/help?cmd=all|fossil all info] commands.
   *  Update SQLite to version 3.8.8.
   *  Added the --verily option to the [/help?cmd=clean|fossil clean] command.
-  *  Add setting to control the number of times autosync will be tried before
-     returning an error.
+  *  Add the "autosync-tries" setting to control the number of autosync attempts
+     before returning an error.
   *  Added a compile-time option (--with-miniz) to build using miniz instead
      of zlib.  Disabled by default.
-  *  Several fixes to the TH1 expression parser.
   *  Support customization of commands and webpages, including the ability to
      add new ones, via the "TH1 hooks" feature.  Disabled by default. Enabled
      via a compile-time option.
   *  Add the <nowiki>[checkout], [render], [styleHeader], [styleFooter],
      [trace], [getParameter], [setParameter], [artifact], and
      [globalState]</nowiki> commands to TH1, primarily for use by TH1 hooks.
-  *  Bring in the latest version of autosetup from upstream.
-  *  Automatically adjust the width of command-line output according to the
+  *  Automatically adjust the width of command-line timeline output according to the
      detected width of the terminal.
-  *  When committing a (non-binary) file which contains bytes forming an
-     invalid UTF-8 stream, fossil now adds the possibility to convert it
-     to a valid UTF-8 stream ('c') if you like.
+  *  Prompt the user to optionally fix invalid UTF-8 at check-in.
   *  Added a line-number toggle option to the [/help?cmd=/info|/info]
      and [/help?cmd=/artifact|/artifact] pages.
-  *  Updates most commands so that they generate errors when used with
-     unknown command-line options.
+  *  Most commands now issue errors rather than silently ignoring unrecognized
+     command-line options.
   *  Use full 40-character SHA1 hashes (instead of abbreviations) in most
      internal URLs.
-  *  Fix to prevent partial clone when connection is lost during clone
-  *  Fix bug with 302 redirect not properly shutting down connection and
-     and handle 301 redirects.
-  *  Fix to prevent empty cloned repository when authentication fails
-  *  Update documentation for protocol 3 and 'cfile' card use
+  *  The "ssh:" sync method on windows now uses "plink.exe" instead of "ssh" as
+     the secure-shell client program.
+  *  Prevent a partial clone when the connection is lost.
+  *  Make the distinction between 301 and 302 redirects.
   *  Allow commits against a closed check-in as long as the commit goes onto
      a different branch.
-  *  Fix sync protocol bug which would occasionally delete phantom artifacts 
-     before they were included in a cluster artifact
+  *  Improved cache control in the web interface reduces unnecessary requests
+     for common resources like the page logo and CSS.
+  *  Fix a rare and long-standing sync protocol bug
+     that would silently prevent the sync from running to completion.  Before
+     this bug-fix it was sometimes necessary to do "fossil sync --verily" to
+     get two repositories in sync.
+  *  Add the [/finfo?name=src/foci.c|files_of_checkin] virtual table - useful
+     for ad hoc queries in the [/help?cmd=sqlite3|fossil sql] interface,
+     and also used internally.
+  *  Added the "$secureurl" TH1 variable for use in headers and footers.
+  *  (Internal:) Add the ability to include resources as separate files in the
+     source tree that are converted into constant byte arrays in the compiled
+     binary.  Use this feature to store the Tk script that implements the --tk
+     diff option in a separate file for easier editing.
+  *  (Internal:) Implement a system of compile-time checks to help ensure
+     the correctness of printf-style formatting strings.
+  *  Numerous documentation fixes and improvements.
+  *  Other obscure and minor bug fixes - see the timeline for details.
 
 <h2>Changes For Version 1.29 (2014-06-12)</h2>
   *  Add the ability to display content, diffs and annotations for UTF16
