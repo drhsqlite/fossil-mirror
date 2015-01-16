@@ -1,12 +1,33 @@
 <title>Change Log</title>
 
 <h2>Changes For Version 1.30 (2015-01-??)</h2>
-  *  Add setting to control the number of times autosync will be tried before
-     returning an error.
+  *  Added the [/help?cmd=bundle|fossil bundle] command.
+  *  Added the [/help?cmd=purge|fossil purge] command.
+  *  Added the [/help?cmd=publish|fossil publish] command.
+  *  Added the [/help?cmd=unpublished|fossil unpublished] command.
+  *  Enhance the [/tree] webpage to show the age of each file and to give the
+     option to sort the display by file age - newest files first.
+  *  Enhance the [/brlist] webpage to show additional information about each branch
+     and to be sortable by click on column headers.
+  *  Add support for Docker. Just install docker and type
+     "sudo docker run -d -p 8080:8080 nijtmans/fossil" to get it running.
   *  Add the [/help/fusefs|fossil fusefs DIRECTORY] command that mounts a
      Fuse Filesystem at the given DIRECTORY and populates it with read-only
      copies of all historical check-ins. This only works on systems that
      support FuseFS.
+  *  Add the administrative log - recording all configuration changes to a
+     repository.
+  *  Added the [/sitemap] webpage.
+  *  Added the [/bloblist] web page.
+  *  Let [/help?cmd=new|fossil new] no longer create an initial empty commit
+     by default. The first commit after checking out an empty repository will
+     become the initial commit.
+  *  Added the [/help?cmd=all|fossil all dbstat] command and the --db-check
+     command-line option.
+  *  Update SQLite to version 3.8.8.
+  *  Added the --verily option to the [/help?cmd=clean|fossil clean] command.
+  *  Add setting to control the number of times autosync will be tried before
+     returning an error.
   *  Added a compile-time option (--with-miniz) to build using miniz instead
      of zlib.  Disabled by default.
   *  Several fixes to the TH1 expression parser.
@@ -17,24 +38,26 @@
      [trace], [getParameter], [setParameter], [artifact], and
      [globalState]</nowiki> commands to TH1, primarily for use by TH1 hooks.
   *  Bring in the latest version of autosetup from upstream.
+  *  Automatically adjust the width of command-line output according to the
+     detected width of the terminal.
   *  When committing a (non-binary) file which contains bytes forming an
      invalid UTF-8 stream, fossil now adds the possibility to convert it
      to a valid UTF-8 stream ('c') if you like.
-  *  Let [/help?cmd=new|fossil new] no longer create an initial empty commit
-     by default. The first commit after checking out an empty repository will
-     become the initial commit.
   *  Added a line-number toggle option to the [/help?cmd=/info|/info]
      and [/help?cmd=/artifact|/artifact] pages.
-  *  Add check to most commands to error on unknown command-line options
+  *  Updates most commands so that they generate errors when used with
+     unknown command-line options.
+  *  Use full 40-character SHA1 hashes (instead of abbreviations) in most
+     internal URLs.
   *  Fix to prevent partial clone when connection is lost during clone
   *  Fix bug with 302 redirect not properly shutting down connection and
      and handle 301 redirects.
   *  Fix to prevent empty cloned repository when authentication fails
   *  Update documentation for protocol 3 and 'cfile' card use
+  *  Allow commits against a closed check-in as long as the commit goes onto
+     a different branch.
   *  Fix sync protocol bug which would occasionally delete phantom artifacts 
      before they were included in a cluster artifact
-  *  Add support for Docker. Just install docker and type
-     "sudo docker run -d -p 8080:8080 nijtmans/fossil" to get it running.
 
 <h2>Changes For Version 1.29 (2014-06-12)</h2>
   *  Add the ability to display content, diffs and annotations for UTF16
