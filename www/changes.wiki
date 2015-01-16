@@ -27,6 +27,14 @@
      MAKING ANY DECISION ON IT!)
   *  Added a line-number toggle option to the [/help?cmd=/info|/info]
      and [/help?cmd=/artifact|/artifact] pages.
+  *  Add check to most commands to error on unknown command-line options
+  *  Fix to prevent partial clone when connection is lost during clone
+  *  Fix bug with 302 redirect not properly shutting down connection and
+     and handle 301 redirects.
+  *  Fix to prevent empty cloned repository when authentication fails
+  *  Update documentation for protocol 3 and 'cfile' card use
+  *  Fix sync protocol bug which would occasionally delete phantom artifacts 
+     before they were included in a cluster artifact
 
 <h2>Changes For Version 1.29 (2014-06-12)</h2>
   *  Add the ability to display content, diffs and annotations for UTF16
