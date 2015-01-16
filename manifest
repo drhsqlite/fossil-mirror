@@ -1,5 +1,5 @@
-C Add\sentry\sfor\sDocker\sin\schanges.wiki,\sand\sminor\sbug-fix
-D 2015-01-16T10:43:05.087
+C Update\sSQLite\sto\sthe\s3.8.8\srelease.
+D 2015-01-16T13:28:28.630
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -416,8 +416,8 @@ F src/shun.c a93c409f694b6022061d2c946311d6ead83a4e49
 F src/sitemap.c d7f2c19e565727ab6108c0c0043b1db6d81cd470
 F src/skins.c 810054ea1343bc1b78c2f4b9b0d8a9145fd4ae39
 F src/sqlcmd.c 33672640d42e08a9561aa5238f42326522d191aa
-F src/sqlite3.c 7bed6ff310f8b830ae67063d2e6df30b42bc465f
-F src/sqlite3.h 4aa6e63a496bcce864a42d3cc1fc18e2f369f948
+F src/sqlite3.c 91aea4cc722371d58aae3d22e94d2a4165276905
+F src/sqlite3.h 270ca424d0cc052889f8e75b58b82046e4c49274
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c d058aef03224498f96facc0ffcdebce34952970e
 F src/style.c 79f67f94aed22bb239c909f728d256c5c982740b
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 65815de271780f81b232770a9e2cb07fd74b98b0
-R fc118070b24d88451cf3fc2b00c5b1d2
-U jan.nijtmans
-Z f0f210a8191441333c4c399fc358f3ea
+P 7ad592b915316cba7b4df7159deb2b5875427280
+R d94cbc764a9cc6f0db8f19d9074ea217
+U drh
+Z 7a916813d65ae7675f99eee4c83f052b
