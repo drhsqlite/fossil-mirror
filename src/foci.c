@@ -19,6 +19,26 @@
 ** files associated with a single checkin.
 **
 ** The filename "foci" is short for "Files Of CheckIn".
+**
+** Usage example:
+**
+**    CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;
+**                      -- ^^^^--- important!
+**    SELECT * FROM foci WHERE checkinID=symbolic_name_to_rid('trunk');
+**
+** The symbolic_name_to_rid('trunk') function finds the BLOB.RID value 
+** corresponding to the 'trunk' tag.  Then the files_of_checkin virtual table
+** decodes the manifest defined by that BLOB and returns all files described
+** by that manifest.  The "schema" for the temp.foci table is:
+**
+**     CREATE TABLE files_of_checkin(
+**       checkinID    INTEGER,    -- RID for the checkin manifest
+**       filename     TEXT,       -- Name of a file
+**       uuid         TEXT,       -- SHA1 hash of the file
+**       previousName TEXT,       -- Name of the file in previous checkin
+**       perm         TEXT        -- Permissions on the file
+**     );
+**
 */
 #include "config.h"
 #include "foci.h"
