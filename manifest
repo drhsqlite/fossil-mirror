@@ -1,5 +1,5 @@
-C Put\sback\scode\sfrom\sshell.c\s<\s3.8.7,\sneeded\sfor\s.explain\smode:\sThe\sSQLITE_TESTCTRL_EXPLAIN_STMT\stest_control\sbecame\sa\snop\sthen,\sbut\sis\sstill\sneeded\swhen\slinking\swith\solder\sSQLite\s(./configure\s--disable-internal-sqlite).
-D 2015-01-17T15:52:23.207
+C Build\s"docker"\simages\swith\s--with-th1-docs\s--with-th1-hooks,\sbut\swithout\sfusefs\ssupport\s(not\sneeded\sanyway\sin\sthis\senvironment).\nOptimize\sDockerfile,\susing\ssomewhat\slonger\slines,\sso\sit\sneeds\sless\sintermediate\sdocker\simages\sduring\sbuild.\nBuild\s"release"\sversion\sof\sfossil\sby\sdefault,\snot\s"trunk".
+D 2015-01-17T15:56:09.194
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -9,7 +9,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile f27ad908dd7232c98adf221f5da500719d7a2ce4
+F Dockerfile 68e14ad57657162e90aa7802abed8cb167ed58d9
 F Makefile.classic 8860fc8763421cb968e05bdd361311f9a443fc07
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
 F VERSION 72867f32a368547eaf1e8b96c60e100001c7c9e1
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ba1429cef87c9cb1e27c9281651c7fbbc5f70839
-R 1a591e12346356d17d5683daa80ceffe
+P 21acf839cb954e676c710ef71f1a5f5e6be8215c
+R 185bf9ac44016a942d388bd23633d45c
 U jan.nijtmans
-Z c9fac5ef3b1921d906efdb0f58c0c9a2
+Z 0af261b924a6fc7793a79cc8fe0d786a
