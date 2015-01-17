@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.30 (2015-01-??)</h2>
+<h2>Changes For Version 1.30 (2015-01-19)</h2>
   *  Added the [/help?cmd=bundle|fossil bundle] command.
   *  Added the [/help?cmd=purge|fossil purge] command.
   *  Added the [/help?cmd=publish|fossil publish] command.
@@ -66,6 +66,7 @@
      diff option in a separate file for easier editing.
   *  (Internal:) Implement a system of compile-time checks to help ensure
      the correctness of printf-style formatting strings.
+  *  Fix CVE-2014-3566, also known as the POODLE SSL 3.0 vulnerability.
   *  Numerous documentation fixes and improvements.
   *  Other obscure and minor bug fixes - see the timeline for details.
 
