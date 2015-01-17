@@ -1,5 +1,5 @@
-C Mention\sCVE-2014-3566\sfix\sin\schangelog.
-D 2015-01-17T16:01:42.177
+C Send\sbrowser\sto\stestwindow\slike\sthe\srest\sof\sthe\slinks.
+D 2015-01-17T18:56:50.666
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
@@ -458,7 +458,7 @@ F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki a789acd5523d840232fcb2164929592260af0743
 F test/file1.test 4a1009731c0959c46c228a9336df9da4a5da97f1
 F test/glob.test 027f2aa0b0c737a0f27d51800802a08f07561beb
-F test/graph-test-1.wiki 518f814b5c860c5cc04a6d07f5dd2dddba472dda
+F test/graph-test-1.wiki 00251223b5349e46c99a2b4d48364291fb1881ef
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
@@ -663,7 +663,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2621f8e530b4c8b0f7ba11e8c6213c8dd5658519
-R 7885718c018ccb4f7e6ce7a1f657025b
-U jan.nijtmans
-Z cfea8dfe04911b3b7cdc7550898ef09d
+P 98e30b7222dd4930d306bd0db24ec29fd3c882fc
+R 6a2fc509beea7a6fb3603e6679fea72c
+U andybradford
+Z 887f5c4a58feb535c9cdbbf1ccd94bd5

@@ -62,7 +62,7 @@ the correct operation of the graph drawing logic.
   *  <a href="../../../timeline?me=e663bac6f7&you=a298a0e2f9"
      target="testwindow">
      Common ancestor path of e663bac6f7 to a298a0e2f9.</a>
-  *  <a href="../../../timeline?f=65dd90fb95a2af55">
+  *  <a href="../../../timeline?f=65dd90fb95a2af55" target="testwindow">
      Merge on the same branch does not result in a leaf.
      </a>
 
