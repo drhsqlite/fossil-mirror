@@ -1473,6 +1473,17 @@ static int shell_exec(
         sqlite3_free(zEQP);
       }
 
+#if USE_SYSTEM_SQLITE+0==1
+      /* Output TESTCTRL_EXPLAIN text of requested */
+      if( pArg && pArg->mode==MODE_Explain && sqlite3_libversion_number()<3008007 ){
+        const char *zExplain = 0;
+        sqlite3_test_control(SQLITE_TESTCTRL_EXPLAIN_STMT, pStmt, &zExplain);
+        if( zExplain && zExplain[0] ){
+          fprintf(pArg->out, "%s", zExplain);
+        }
+      }
+#endif
+
       /* If the shell is currently in ".explain" mode, gather the extra
       ** data required to add indents to the output.*/
       if( pArg && pArg->mode==MODE_Explain ){
