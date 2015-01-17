@@ -1037,7 +1037,6 @@ char *names_of_file(const char *zUuid){
 **    f=UUID         Show family (immediate parents and children) of UUID
 **    from=UUID      Path from...
 **    to=UUID          ... to this
-**    nomerge          ... avoid merge links on the path
 **    shortest         ... show only the shortest path
 **    uf=FUUID       Show only checkins that use given file version
 **    brbg           Background color from branch name
