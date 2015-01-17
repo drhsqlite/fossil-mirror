@@ -65,8 +65,7 @@ the correct operation of the graph drawing logic.
      </a>
   *  <a href="../../../timeline?c=20015206bc"
      target="testwindow">
-     This timeline has a hidden commit. Click Unhide to reveal.
-     </a>
+     This timeline has a hidden commit.</a> Click Unhide to reveal.
 
 External:
 
