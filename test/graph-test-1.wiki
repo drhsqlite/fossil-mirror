@@ -65,7 +65,7 @@ the correct operation of the graph drawing logic.
   *  <a href="../../../timeline?f=65dd90fb95a2af55" target="testwindow">
      Merge on the same branch does not result in a leaf.
      </a>
-  *  <a href="../../../timeline?c=aeb1cfe112890e"
+  *  <a href="../../../timeline?c=20015206bc"
      target="testwindow">
      This timeline has a hidden commit. Click Unhide to reveal.
      </a>
