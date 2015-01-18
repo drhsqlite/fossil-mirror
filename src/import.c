@@ -1202,7 +1202,7 @@ static void svn_dump_import(FILE *pIn){
   );
   db_prepare(&cpyPath,
     "INSERT INTO xfiles (tpath, tbranch, tuuid, tperm)"
-    " SELECT :path||substr(filename, length(:srcpath)+1), :branch, uuid, perm"
+    " SELECT :path||:sep||substr(filename, length(:srcpath)+2), :branch, uuid, perm"
     " FROM xfoci"
     " WHERE checkinID=:rid"
     "   AND filename>:srcpath||'/'"
@@ -1210,7 +1210,7 @@ static void svn_dump_import(FILE *pIn){
   );
   db_prepare(&cpyRoot,
     "INSERT INTO xfiles (tpath, tbranch, tuuid, tperm)"
-    " SELECT :path||filename, :branch, uuid, perm"
+    " SELECT :path||:sep||filename, :branch, uuid, perm"
     " FROM xfoci"
     " WHERE checkinID=:rid"
   );
@@ -1311,12 +1311,22 @@ static void svn_dump_import(FILE *pIn){
             if( srcRid>0 ){
               if( zSrcFile[0]==0 ){
                 db_bind_text(&cpyRoot, ":path", zFile);
+                if( zFile[0]!=0 ){
+                  db_bind_text(&cpyRoot, ":sep", "/");
+                }else{
+                  db_bind_text(&cpyRoot, ":sep", "");
+                }
                 db_bind_int(&cpyRoot, ":branch", branchId);
                 db_bind_int(&cpyRoot, ":rid", srcRid);
                 db_step(&cpyRoot);
                 db_reset(&cpyRoot);
               }else{
                 db_bind_text(&cpyPath, ":path", zFile);
+                if( zFile[0]!=0 ){
+                  db_bind_text(&cpyPath, ":sep", "/");
+                }else{
+                  db_bind_text(&cpyPath, ":sep", "");
+                }
                 db_bind_int(&cpyPath, ":branch", branchId);
                 db_bind_text(&cpyPath, ":srcpath", zSrcFile);
                 db_bind_int(&cpyPath, ":rid", srcRid);
