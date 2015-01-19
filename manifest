@@ -1,5 +1,5 @@
-C Version\s1.30
-D 2015-01-19T11:29:00.074
+C Update\sreferenced\sopenSSL\sversion
+D 2015-01-19T13:06:21.938
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/main.c 08d5baeb5c6176298805eda4f123fd6562566ad6
 F src/main.mk 89f8280d78d9550150eb5fc4e7dfdbd75ae0816d
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl f38ad725c87aff80b49417e831350b23e251a3c7
+F src/makemake.tcl 35b7a8871e8e19895ecb7d0bb773b55728a6f816
 F src/manifest.c 06116766e4fd508c8cd6fc5db608d232f56c3c64
 F src/markdown.c a8ea5a5012e968331bf26f3de92cef68d65d1066
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
@@ -553,9 +553,9 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake ae6cd880ccef86d97e9d7e2c494d37c77cd4a28a
 F win/Makefile.dmc eeaac89b06dfbeb4d700109d98b57e3538faa878
-F win/Makefile.mingw 0f80d4182723aeedc3b51c62cf5b79822ff57841
-F win/Makefile.mingw.mistachkin f252c3082d12dca3fe8002b0ec5ec578b2cda498
-F win/Makefile.msc 5dfa113a5d5e139d208d12634f268f38fbe0391c
+F win/Makefile.mingw 1dc24e8b4d72894a0432c6ebacabe37a9e478e54
+F win/Makefile.mingw.mistachkin ec505826b0d27d4f3e3b0052747d64327c77a351
+F win/Makefile.msc 44e811ed963d5ed4efc85b9734efb734a7e319d6
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -583,7 +583,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 6dae3715d845ce395c0dcca5fc25b0998353e8ca
+F www/build.wiki 663b197ed4091d6ce1b10d4ba26592f745d52964
 F www/changes.wiki 8670822cbb1e08982c40e21d8a903144cfdbc251
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 80d94f4d8d893e7ba3f0bb261986e6f7a003cd41
@@ -664,10 +664,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 25106f1eac062f9d70be0965051ae11cc8ad6e88
-R 9c31abb7a6351dbade1ba6ee97a8d10f
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-1.30 *
-U drh
-Z ca8c1cf8792ab958f657f8bf1737a4e4
+P 1df1b41c868188bf1bbc5bfb72c70321ef27f13a
+R ab220095eca596a6407bb7dbb91ccf4e
+U jan.nijtmans
+Z 76a29aa6eee85395c559b932b1e6af42
