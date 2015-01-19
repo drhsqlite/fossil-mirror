@@ -1,5 +1,5 @@
-C Add\s.dockerignore\sfile\s(which\sdoes\snothing\smore\sthan\sspeeding\sup\sthe\sdocker\sbuild\sprocess)
-D 2015-01-19T09:09:57.792
+C Version\s1.30
+D 2015-01-19T11:29:00.074
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -664,7 +664,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b955a6b282264eb42808e44818c05517ef20be8d
+P 25106f1eac062f9d70be0965051ae11cc8ad6e88
 R 9c31abb7a6351dbade1ba6ee97a8d10f
-U jan.nijtmans
-Z 380b8450907205ab9dee8a59138470d1
+T +bgcolor * #d0c0ff
+T +sym-release *
+T +sym-version-1.30 *
+U drh
+Z ca8c1cf8792ab958f657f8bf1737a4e4
