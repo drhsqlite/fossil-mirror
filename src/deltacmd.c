@@ -19,7 +19,7 @@
 */
 #include "config.h"
 #include "deltacmd.h"
- 
+
 /*
 ** Create a delta that describes the change from pOriginal to pTarget
 ** and put that delta in pDelta.  The pDelta blob is assumed to be

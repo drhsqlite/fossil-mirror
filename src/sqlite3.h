@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.8"
 #define SQLITE_VERSION_NUMBER 3008008
-#define SQLITE_SOURCE_ID      "2015-01-03 18:59:17 23d4c07eb81db5a5c6beb56b5820f0b6501f1fb6"
+#define SQLITE_SOURCE_ID      "2015-01-16 12:08:06 7d68a42face3ab14ed88407d4331872f5b243fdf"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -7491,6 +7491,10 @@ SQLITE_API int sqlite3_vtab_on_conflict(sqlite3 *);
 ** [sqlite3_stmt_scanstatus(S,X,T,V)] interface.  Each constant designates a
 ** different metric for sqlite3_stmt_scanstatus() to return.
 **
+** When the value returned to V is a string, space to hold that string is
+** managed by the prepared statement S and will be automatically freed when
+** S is finalized.
+**
 ** <dl>
 ** [[SQLITE_SCANSTAT_NLOOP]] <dt>SQLITE_SCANSTAT_NLOOP</dt>
 ** <dd>^The [sqlite3_int64] variable pointed to by the T parameter will be
@@ -7536,7 +7540,14 @@ SQLITE_API int sqlite3_vtab_on_conflict(sqlite3 *);
 /*
 ** CAPI3REF: Prepared Statement Scan Status
 **
-** Return status data for a single loop within query pStmt.
+** This interface returns information about the predicted and measured
+** performance for pStmt.  Advanced applications can use this
+** interface to compare the predicted and the measured performance and
+** issue warnings and/or rerun [ANALYZE] if discrepancies are found.
+**
+** Since this interface is expected to be rarely used, it is only
+** available if SQLite is compiled using the [SQLITE_ENABLE_STMT_SCANSTATUS]
+** compile-time option.
 **
 ** The "iScanStatusOp" parameter determines which status information to return.
 ** The "iScanStatusOp" must be one of the [scanstatus options] or the behavior
@@ -7553,9 +7564,6 @@ SQLITE_API int sqlite3_vtab_on_conflict(sqlite3 *);
 ** where there exist loops with no available statistics, this function behaves
 ** as if the loop did not exist - it returns non-zero and leave the variable
 ** that pOut points to unchanged.
-**
-** This API is only available if the library is built with pre-processor
-** symbol [SQLITE_ENABLE_STMT_SCANSTATUS] defined.
 **
 ** See also: [sqlite3_stmt_scanstatus_reset()]
 */
