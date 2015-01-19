@@ -78,7 +78,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 /*
 ** COMMAND: all
 **
-** Usage: %fossil all (changes|clean|extras|ignore|list|ls|pull|push|rebuild|sync)
+** Usage: %fossil all SUBCOMMAND ...
 **
 ** The ~/.fossil file records the location of all repositories for a
 ** user.  This command performs certain operations on all repositories
@@ -100,6 +100,8 @@ static void collect_argv(Blob *pExtra, int iStart){
 **               be deleted beforehand is highly recommended.  The command
 **               line options supported by the clean command itself, if any
 **               are present, are passed along verbatim.
+**
+**    dbstat     Run the "dbstat" command on all repositories.
 **
 **    extras     Shows "extra" files from all local checkouts.  The command
 **               line options supported by the extra command itself, if any
@@ -131,7 +133,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 **    setting    Run the "setting", "set", or "unset" commands on all
 **    set        repositories.  These command are particularly useful in
-**    unset      conjunection with the "max-loadavg" setting which cannot
+**    unset      conjunction with the "max-loadavg" setting which cannot
 **               otherwise be set globally.
 **
 ** Repositories are automatically added to the set of known repositories
@@ -192,6 +194,12 @@ void all_cmd(void){
     collect_argument(&extra, "verbose","v");
     collect_argument(&extra, "whatif",0);
     useCheckouts = 1;
+  }else if( strncmp(zCmd, "dbstat", n)==0 ){
+    zCmd = "dbstat --omit-version-info -R";
+    showLabel = 1;
+    quiet = 1;
+    collect_argument(&extra, "brief", "b");
+    collect_argument(&extra, "db-check", 0);
   }else if( strncmp(zCmd, "extras", n)==0 ){
     if( showFile ){
       zCmd = "extras --chdir";
@@ -251,15 +259,18 @@ void all_cmd(void){
     verify_all_options();
     db_begin_transaction();
     for(j=3; j<g.argc; j++){
-      char *zSql = mprintf("DELETE FROM global_config"
-                           " WHERE name GLOB '%s:%q'",
-                           useCheckouts?"ckout":"repo", g.argv[j]);
+      Blob sql;
+      blob_zero(&sql);
+      blob_append_sql(&sql, 
+         "DELETE FROM global_config WHERE name GLOB '%s:%q'",
+         useCheckouts?"ckout":"repo", g.argv[j]
+      );
       if( dryRunFlag ){
-        fossil_print("%s\n", zSql);
+        fossil_print("%s\n", blob_sql_text(&sql));
       }else{
-        db_multi_exec("%s", zSql);
+        db_multi_exec("%s", blob_sql_text(&sql));
       }
-      fossil_free(zSql);
+      blob_reset(&sql);
     }
     db_end_transaction(0);
     return;
@@ -340,7 +351,7 @@ void all_cmd(void){
     if( dryRunFlag ){
       fossil_print("%s\n", zSql);
     }else{
-      db_multi_exec(zSql);
+      db_multi_exec("%s", zSql /*safe-for-%s*/ );
     }
   }
 }

@@ -215,7 +215,8 @@ int tag_insert(
     }
   }
   if( zCol ){
-    db_multi_exec("UPDATE event SET %s=%Q WHERE objid=%d", zCol, zValue, rid);
+    db_multi_exec("UPDATE event SET \"%w\"=%Q WHERE objid=%d",
+                  zCol, zValue, rid);
     if( tagid==TAG_COMMENT ){
       char *zCopy = mprintf("%s", zValue);
       wiki_extract_links(zCopy, rid, 0, mtime, 1, WIKI_INLINE);
@@ -439,7 +440,7 @@ void tag_cmd(void){
       usage("find ?--raw? ?-t|--type TYPE? ?-n|--limit #? TAGNAME");
     }
     if( fRaw ){
-      blob_appendf(&sql,
+      blob_append_sql(&sql,
         "SELECT blob.uuid FROM tagxref, blob"
         " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
         "   AND tagxref.tagtype>0"
@@ -447,9 +448,9 @@ void tag_cmd(void){
         g.argv[3]
       );
       if( nFindLimit>0 ){
-        blob_appendf(&sql, " LIMIT %d", nFindLimit);
+        blob_append_sql(&sql, " LIMIT %d", nFindLimit);
       }
-      db_prepare(&q, "%s", blob_str(&sql));
+      db_prepare(&q, "%s", blob_sql_text(&sql));
       blob_reset(&sql);
       while( db_step(&q)==SQLITE_ROW ){
         fossil_print("%s\n", db_column_text(&q, 0));
@@ -459,7 +460,7 @@ void tag_cmd(void){
       int tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
                          g.argv[3]);
       if( tagid>0 ){
-        blob_appendf(&sql,
+        blob_append_sql(&sql,
           "%s"
           "  AND event.type GLOB '%q'"
           "  AND blob.rid IN ("
@@ -469,7 +470,7 @@ void tag_cmd(void){
           " ORDER BY event.mtime DESC",
           timeline_query_for_tty(), zType, tagid
         );
-        db_prepare(&q, "%s", blob_str(&sql));
+        db_prepare(&q, "%s", blob_sql_text(&sql));
         blob_reset(&sql);
         print_timeline(&q, nFindLimit, 79, 0);
         db_finalize(&q);
@@ -562,7 +563,7 @@ void taglist_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     if( g.perm.Hyperlink ){
-      @ <li>%z(xhref("class='taglink'","%R/timeline?t=%T",zName))
+      @ <li>%z(xhref("class='taglink'","%R/timeline?t=%T&n=200",zName))
       @ %h(zName)</a></li>
     }else{
       @ <li><span class="tagDsp">%h(zName)</span></li>

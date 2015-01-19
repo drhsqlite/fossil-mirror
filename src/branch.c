@@ -181,6 +181,19 @@ void branch_new(void){
   if( !isPrivate ) autosync_loop(SYNC_PUSH, db_get_int("autosync-tries", 1));
 }
 
+#if INTERFACE
+/*
+** Allows bits in the mBplqFlags parameter to branch_prepare_list_query().
+*/
+#define BRL_CLOSED_ONLY      0x001 /* Show only closed branches */
+#define BRL_OPEN_ONLY        0x002 /* Show only open branches */
+#define BRL_BOTH             0x003 /* Show both open and closed branches */
+#define BRL_OPEN_CLOSED_MASK 0x003
+#define BRL_MTIME            0x004 /* Include lastest check-in time */
+#dfeine BRL_ORDERBY_MTIME    0x008 /* Sort by MTIME. (otherwise sort by name)*/
+
+#endif /* INTERFACE */
+
 /*
 ** Prepare a query that will list branches.
 **
@@ -188,36 +201,43 @@ void branch_new(void){
 ** (which>0) then the query pulls all (closed and opened)
 ** branches. Else the query pulls currently-opened branches.
 */
-void branch_prepare_list_query(Stmt *pQuery, int which ){
-  if( which < 0 ){
-    db_prepare(pQuery,
-      "SELECT value FROM tagxref"
-      " WHERE tagid=%d AND value NOT NULL "
-      "EXCEPT "
-      "SELECT value FROM tagxref"
-      " WHERE tagid=%d"
-      "   AND rid IN leaf"
-      "   AND NOT %z"
-      " ORDER BY value COLLATE nocase /*sort*/",
-      TAG_BRANCH, TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
-    );
-  }else if( which>0 ){
-    db_prepare(pQuery,
-      "SELECT DISTINCT value FROM tagxref"
-      " WHERE tagid=%d AND value NOT NULL"
-      "   AND rid IN leaf"
-      " ORDER BY value COLLATE nocase /*sort*/",
-      TAG_BRANCH
-    );
-  }else{
-    db_prepare(pQuery,
-      "SELECT DISTINCT value FROM tagxref"
-      " WHERE tagid=%d AND value NOT NULL"
-      "   AND rid IN leaf"
-      "   AND NOT %z"
-      " ORDER BY value COLLATE nocase /*sort*/",
-      TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
-    );
+void branch_prepare_list_query(Stmt *pQuery, int brFlags){
+  switch( brFlags & BRL_OPEN_CLOSED_MASK ){
+    case BRL_CLOSED_ONLY: {
+      db_prepare(pQuery,
+        "SELECT value FROM tagxref"
+        " WHERE tagid=%d AND value NOT NULL "
+        "EXCEPT "
+        "SELECT value FROM tagxref"
+        " WHERE tagid=%d"
+        "   AND rid IN leaf"
+        "   AND NOT %z"
+        " ORDER BY value COLLATE nocase /*sort*/",
+        TAG_BRANCH, TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
+      );
+      break;
+    }
+    case BRL_BOTH: {
+      db_prepare(pQuery,
+        "SELECT DISTINCT value FROM tagxref"
+        " WHERE tagid=%d AND value NOT NULL"
+        "   AND rid IN leaf"
+        " ORDER BY value COLLATE nocase /*sort*/",
+        TAG_BRANCH
+      );
+      break;
+    }
+    case BRL_OPEN_ONLY: {
+      db_prepare(pQuery,
+        "SELECT DISTINCT value FROM tagxref"
+        " WHERE tagid=%d AND value NOT NULL"
+        "   AND rid IN leaf"
+        "   AND NOT %z"
+        " ORDER BY value COLLATE nocase /*sort*/",
+        TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
+      );
+      break;
+    }
   }
 }
 
@@ -262,15 +282,16 @@ void branch_cmd(void){
     Stmt q;
     int vid;
     char *zCurrent = 0;
-    int showAll = find_option("all","a",0)!=0;
-    int showClosed = find_option("closed","c",0)!=0;
+    int brFlags = BRL_OPEN_ONLY;
+    if( find_option("all","a",0)!=0 ) brFlags = BRL_BOTH;
+    if( find_option("closed","c",0)!=0 ) brFlags = BRL_CLOSED_ONLY;
 
     if( g.localOpen ){
       vid = db_lget_int("checkout", 0);
       zCurrent = db_text(0, "SELECT value FROM tagxref"
                             " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
     }
-    branch_prepare_list_query(&q, showAll?1:(showClosed?-1:0));
+    branch_prepare_list_query(&q, brFlags);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
@@ -283,31 +304,125 @@ void branch_cmd(void){
   }
 }
 
+static char brlistQuery[] = 
+@ SELECT
+@   tagxref.value,
+@   max(event.mtime),
+@   EXISTS(SELECT 1 FROM tagxref AS tx
+@           WHERE tx.rid=tagxref.rid
+@             AND tx.tagid=(SELECT tagid FROM tag WHERE tagname='closed')
+@             AND tx.tagtype>0),
+@   (SELECT tagxref.value
+@      FROM plink CROSS JOIN tagxref
+@    WHERE plink.pid=event.objid
+@       AND tagxref.rid=plink.cid
+@      AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='branch')
+@      AND tagtype>0),
+@   count(*),
+@   (SELECT uuid FROM blob WHERE rid=tagxref.rid)
+@  FROM tagxref, tag, event
+@ WHERE tagxref.tagid=tag.tagid
+@   AND tagxref.tagtype>0
+@   AND tag.tagname='branch'
+@   AND event.objid=tagxref.rid
+@ GROUP BY 1
+@ ORDER BY 2 DESC;
+;
+
+/*
+** This is the new-style branch-list page that shows the branch names
+** together with their ages (time of last check-in) and whether or not
+** they are closed or merged to another branch.
+**
+** Control jumps to this routine from brlist_page() (the /brlist handler)
+** if there are no query parameters.
+*/
+static void new_brlist_page(void){
+  Stmt q;
+  double rNow;
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(); return; }
+  style_header("Branches");
+  login_anonymous_available();
+  
+  db_prepare(&q, brlistQuery/*works-like:""*/);
+  rNow = db_double(0.0, "SELECT julianday('now')");
+  @ <div class="brlist"><table id="branchlisttable">
+  @ <thead><tr>
+  @ <th>Branch Name</th>
+  @ <th>Age</th>
+  @ <th>Checkins</th>
+  @ <th>Status</th>
+  @ <th>Resolution</th>
+  @ </tr></thead><tbody>
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zBranch = db_column_text(&q, 0);
+    double rMtime = db_column_double(&q, 1);
+    int isClosed = db_column_int(&q, 2);
+    const char *zMergeTo = db_column_text(&q, 3);
+    int nCkin = db_column_int(&q, 4);
+    const char *zLastCkin = db_column_text(&q, 5);
+    char *zAge = human_readable_age(rNow - rMtime);
+    sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0);
+    if( zMergeTo && zMergeTo[0]==0 ) zMergeTo = 0;
+    @ <tr>
+    @ <td>%z(href("%R/timeline?n=100&r=%T",zBranch))%h(zBranch)</a></td>
+    @ <td data-sortkey="%016llx(-iMtime)">%s(zAge)</td>
+    @ <td data-sortkey="%08x(-nCkin)">%d(nCkin)</td>
+    fossil_free(zAge);
+    @ <td>%s(isClosed?"closed":"")</td>
+    if( zMergeTo ){
+      @ <td>merged into
+      @ %z(href("%R/timeline?f=%s",zLastCkin))%h(zMergeTo)</a></td>
+    }else{
+      @ <td></td>
+    }
+    @ </tr>
+  }
+  @ </tbody></table></div>
+  db_finalize(&q);
+  output_table_sorting_javascript("branchlisttable","tkktt",2);
+  style_footer();
+}
+
 /*
 ** WEBPAGE: brlist
+** Show a list of branches
+** Query parameters:
 **
-** Show a timeline of all branches
+**     all         Show all branches
+**     closed      Show only closed branches
+**     open        Show only open branches (default behavior)
+**     colortest   Show all branches with automatic color
 */
 void brlist_page(void){
   Stmt q;
   int cnt;
   int showClosed = P("closed")!=0;
   int showAll = P("all")!=0;
+  int showOpen = P("open")!=0;
   int colorTest = P("colortest")!=0;
+  int brFlags = BRL_OPEN_ONLY;
 
+  if( showClosed==0 && showAll==0 && showOpen==0 && colorTest==0 ){
+    new_brlist_page();
+    return;
+  }
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   if( colorTest ){
     showClosed = 0;
     showAll = 1;
   }
+  if( showAll ) brFlags = BRL_BOTH;
+  if( showClosed ) brFlags = BRL_CLOSED_ONLY;
 
-  style_header(showClosed ? "Closed Branches" :
-                  showAll ? "All Branches" : "Open Branches");
+  style_header("%s", showClosed ? "Closed Branches" :
+                        showAll ? "All Branches" : "Open Branches");
   style_submenu_element("Timeline", "Timeline", "brtimeline");
   if( showClosed ){
     style_submenu_element("All", "All", "brlist?all");
-    style_submenu_element("Open","Open","brlist");
+    style_submenu_element("Open","Open","brlist?open");
   }else if( showAll ){
     style_submenu_element("Closed", "Closed", "brlist?closed");
     style_submenu_element("Open","Open","brlist");
@@ -337,17 +452,17 @@ void brlist_page(void){
   @ </ol>
   style_sidebox_end();
 
-  branch_prepare_list_query(&q, showAll?1:(showClosed?-1:0));
+  branch_prepare_list_query(&q, brFlags);
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
     if( cnt==0 ){
       if( colorTest ){
         @ <h2>Default background colors for all branches:</h2>
-      }else if( showAll ){
-        @ <h2>All Branches:</h2>
       }else if( showClosed ){
         @ <h2>Closed Branches:</h2>
+      }else if( showAll ){
+        @ <h2>All Branches:</h2>
       }else{
         @ <h2>Open Branches:</h2>
       }
@@ -359,7 +474,7 @@ void brlist_page(void){
       @ <li><span style="background-color: %s(zColor)">
       @ %h(zBr) &rarr; %s(zColor)</span></li>
     }else{
-      @ <li>%z(href("%R/timeline?r=%T",zBr))%h(zBr)</a></li>
+      @ <li>%z(href("%R/timeline?r=%T&n=200",zBr))%h(zBr)</a></li>
     }
   }
   if( cnt ){
@@ -387,7 +502,7 @@ static void brtimeline_extra(int rid){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
-    @ %z(href("%R/timeline?r=%T",zTagName))[timeline]</a>
+    @ %z(href("%R/timeline?r=%T&n=200",zTagName))[timeline]</a>
   }
   db_finalize(&q);
 }

@@ -169,7 +169,7 @@ char *prompt_for_httpauth_creds(void){
   if( !isatty(fileno(stdin)) ) return 0;
   zPrompt = mprintf("\n%s authorization required by\n%s\n",
     g.url.isHttps==1 ? "Encrypted HTTPS" : "Unencrypted HTTP", g.url.canonical);
-  fossil_print(zPrompt);
+  fossil_print("%s", zPrompt);
   free(zPrompt);
   if ( g.url.user && g.url.passwd && use_fossil_creds_for_httpauth_prompt() ){
     zHttpAuth = mprintf("%s:%s", g.url.user, g.url.passwd);
@@ -207,7 +207,8 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   Blob payload;         /* The complete payload including login card */
   Blob hdr;             /* The HTTP request header */
   int closeConnection;  /* True to close the connection when done */
-  int iLength;          /* Length of the reply payload */
+  int iLength;          /* Expected length of the reply payload */
+  int iRecvLen;         /* Received length of the reply payload */
   int rc = 0;           /* Result code */
   int iHttpVersion;     /* Which version of HTTP protocol server uses */
   char *zLine;          /* A single line of the reply header */
@@ -216,7 +217,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   int isCompressed = 1; /* True if the reply is compressed */
 
   if( transport_open(&g.url) ){
-    fossil_warning(transport_errmsg(&g.url));
+    fossil_warning("%s", transport_errmsg(&g.url));
     return 1;
   }
 
@@ -287,7 +288,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
           return http_exchange(pSend, pReply, useLogin, maxRedirect);
         }
       }
-      if( rc!=200 && rc!=302 ){
+      if( rc!=200 && rc!=301 && rc!=302 ){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
@@ -301,7 +302,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }
     }else if( g.url.isSsh && fossil_strnicmp(zLine, "status:", 7)==0 ){
       if( sscanf(zLine, "Status: %d", &rc)!=1 ) goto write_err;
-      if( rc!=200 && rc!=302 ){
+      if( rc!=200 && rc!=301 && rc!=302 ){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
@@ -321,7 +322,8 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }else if( c=='k' || c=='K' ){
         closeConnection = 0;
       }
-    }else if( rc==302 && fossil_strnicmp(zLine, "location:", 9)==0 ){
+    }else if( ( rc==301 || rc==302 ) &&
+                fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
 
       if ( --maxRedirect == 0){
@@ -338,12 +340,13 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
          j -= 4;
          zLine[j] = 0;
       }
-      fossil_print("redirect to %s\n", &zLine[i]);
+      transport_close(&g.url);
+      transport_global_shutdown(&g.url);
+      fossil_print("redirect with status %d to %s\n", rc, &zLine[i]);
       url_parse(&zLine[i], 0);
       fSeenHttpAuth = 0;
       if( g.zHttpAuth ) free(g.zHttpAuth);
       g.zHttpAuth = get_httpauth();
-      transport_close(&g.url);
       return http_exchange(pSend, pReply, useLogin, maxRedirect);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
       if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){
@@ -361,7 +364,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
     goto write_err;
   }
   if( rc!=200 ){
-    fossil_warning("\"location:\" missing from 302 redirect reply");
+    fossil_warning("\"location:\" missing from %d redirect reply", rc);
     goto write_err;
   }
 
@@ -370,7 +373,11 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   */
   blob_zero(pReply);
   blob_resize(pReply, iLength);
-  iLength = transport_receive(&g.url, blob_buffer(pReply), iLength);
+  iRecvLen = transport_receive(&g.url, blob_buffer(pReply), iLength);
+  if( iRecvLen != iLength ){
+    fossil_warning("response truncated: got %d bytes of %d", iRecvLen, iLength);
+    goto write_err;
+  }
   blob_resize(pReply, iLength);
   if( isError ){
     char *z;

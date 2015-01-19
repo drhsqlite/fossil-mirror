@@ -83,8 +83,8 @@ static const char zSchemaUpdates2[] =
 
 static void rebuild_update_schema(void){
   int rc;
-  db_multi_exec(zSchemaUpdates1);
-  db_multi_exec(zSchemaUpdates2);
+  db_multi_exec("%s", zSchemaUpdates1 /*safe-for-%s*/);
+  db_multi_exec("%s", zSchemaUpdates2 /*safe-for-%s*/);
 
   rc = db_exists("SELECT 1 FROM sqlite_master"
                  " WHERE name='user' AND sql GLOB '* mtime *'");
@@ -137,7 +137,7 @@ static void rebuild_update_schema(void){
       "CREATE TEMP TABLE old_fmt AS SELECT * FROM reportfmt;"
       "DROP TABLE reportfmt;"
     );
-    db_multi_exec(zSchemaUpdates2);
+    db_multi_exec("%s", zSchemaUpdates2/*safe-for-%s*/);
     db_multi_exec(
       "INSERT OR IGNORE INTO reportfmt(rn,owner,title,cols,sqlcode,mtime)"
         " SELECT rn, owner, title, cols, sqlcode, now() FROM old_fmt;"
@@ -256,7 +256,8 @@ static void rebuild_step(int rid, int size, Blob *pBase){
     }else{
       /* We are doing "fossil deconstruct" */
       char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      char *zFile = mprintf(zFNameFormat, zUuid, zUuid+prefixLength);
+      char *zFile = mprintf(zFNameFormat /*works-like:"%s:%s"*/,
+                            zUuid, zUuid+prefixLength);
       blob_write_to_file(pUse,zFile);
       free(zFile);
       free(zUuid);
@@ -347,9 +348,10 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     zTable = db_text(0,
        "SELECT name FROM sqlite_master /*scan*/"
        " WHERE type='table'"
-       " AND name NOT IN ('blob','delta','rcvfrom','user',"
+       " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user',"
                          "'config','shun','private','reportfmt',"
-                         "'concealed','accesslog','modreq')"
+                         "'concealed','accesslog','modreq',"
+                         "'purgeevent','purgeitem')"
        " AND name NOT GLOB 'sqlite_*'"
        " AND name NOT GLOB 'fx_*'"
     );
@@ -357,7 +359,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     db_multi_exec("DROP TABLE %Q", zTable);
     free(zTable);
   }
-  db_multi_exec(zRepositorySchema2);
+  db_multi_exec("%s", zRepositorySchema2/*safe-for-%s*/);
   ticket_create_table(0);
   shun_artifacts();
 
@@ -589,10 +591,10 @@ void rebuild_database(void){
   errCnt = rebuild_db(randomizeFlag, 1, doClustering);
   reconstruct_private_table();
   db_multi_exec(
-    "REPLACE INTO config(name,value,mtime) VALUES('content-schema','%s',now());"
-    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());"
-    "REPLACE INTO config(name,value,mtime) VALUES('rebuilt','%s',now());",
-    CONTENT_SCHEMA, AUX_SCHEMA, get_version()
+    "REPLACE INTO config(name,value,mtime) VALUES('content-schema',%Q,now());"
+    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema',%Q,now());"
+    "REPLACE INTO config(name,value,mtime) VALUES('rebuilt',%Q,now());",
+    CONTENT_SCHEMA, AUX_SCHEMA_MAX, get_version()
   );
   if( errCnt && !forceFlag ){
     fossil_print(
@@ -830,10 +832,14 @@ void scrub_cmd(void){
     );
     if( bVerily ){
       db_multi_exec(
-        "DELETE FROM concealed;"
-        "UPDATE rcvfrom SET ipaddr='unknown';"
-        "DROP TABLE IF EXISTS accesslog;"
-        "UPDATE user SET photo=NULL, info='';"
+        "DELETE FROM concealed;\n"
+        "UPDATE rcvfrom SET ipaddr='unknown';\n"
+        "DROP TABLE IF EXISTS accesslog;\n"
+        "UPDATE user SET photo=NULL, info='';\n"
+        "DROP TABLE IF EXISTS purgeevent;\n"
+        "DROP TABLE IF EXISTS purgeitem;\n"
+        "DROP TABLE IF EXISTS admin_log;\n"
+        "DROP TABLE IF EXISTS vcache;\n"
       );
     }
   }

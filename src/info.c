@@ -537,16 +537,14 @@ void ci_page(void){
   sideBySide = !is_false(PD("sbs","1"));
   if( db_step(&q1)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q1, 0);
-    char *zTitle = mprintf("Check-in [%S]", zUuid);
     char *zEUser, *zEComment;
     const char *zUser;
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
 
-    style_header(zTitle);
+    style_header("Check-in [%S]", zUuid);
     login_anonymous_available();
-    free(zTitle);
     zEUser = db_text(0,
                    "SELECT value FROM tagxref"
                    " WHERE tagid=%d AND rid=%d AND tagtype>0",
@@ -935,6 +933,7 @@ static void checkin_description(int rid){
     }
     @ date:
     hyperlink_to_date(zDate, ")");
+    tag_private_status(rid);
   }
   db_finalize(&q);
 }
@@ -1207,6 +1206,7 @@ int object_description(
       }
       objType |= OBJTYPE_CONTENT;
       @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
+      tag_private_status(rid);
       if( showDetail ){
         @ <ul>
       }
@@ -1215,7 +1215,7 @@ int object_description(
     if( showDetail ){
       @ <li>
       hyperlink_to_date(zDate,"");
-      @ &mdash; part of check-in
+      @ &mdash; part of checkin
       hyperlink_to_uuid(zVers);
     }else{
       @ &mdash; part of checkin
@@ -1318,6 +1318,7 @@ int object_description(
       if( pDownloadName && blob_size(pDownloadName)==0 ){
         blob_appendf(pDownloadName, "%.10s.txt", zUuid);
       }
+      tag_private_status(rid);
       cnt++;
     }
     db_finalize(&q);
@@ -1361,6 +1362,7 @@ int object_description(
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_append(pDownloadName, zFilename, -1);
     }
+    tag_private_status(rid);
   }
   db_finalize(&q);
   if( cnt==0 ){
@@ -1368,6 +1370,7 @@ int object_description(
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_appendf(pDownloadName, "%.10s.txt", zUuid);
     }
+    tag_private_status(rid);
   }
   return objType;
 }
@@ -1584,7 +1587,7 @@ void hexdump_page(void){
   if( rid==0 ) fossil_redirect_home();
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
-    if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
+    if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
       style_submenu_element("Unshun","Unshun", "%s/shun?accept=%s&sub=1#delshun",
             g.zTop, zUuid);
     }else{
@@ -1770,7 +1773,7 @@ void artifact_page(void){
   if( rid==0 ) fossil_redirect_home();
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
-    if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
+    if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
       style_submenu_element("Unshun","Unshun", "%s/shun?accept=%s&sub=1#accshun",
             g.zTop, zUuid);
     }else{
@@ -1779,7 +1782,7 @@ void artifact_page(void){
     }
   }
   if( descOnly || P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
-  style_header(descOnly ? "Artifact Description" : "Artifact Content");
+  style_header("%s", descOnly ? "Artifact Description" : "Artifact Content");
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Setup ){
     @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
@@ -1886,7 +1889,7 @@ void tinfo_page(void){
   if( rid==0 ){ fossil_redirect_home(); }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Admin ){
-    if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
+    if( db_exists("SELECT 1 FROM shun WHERE uuid=%Q", zUuid) ){
       style_submenu_element("Unshun","Unshun", "%s/shun?accept=%s&sub=1#accshun",
             g.zTop, zUuid);
     }else{
@@ -1918,7 +1921,7 @@ void tinfo_page(void){
       moderation_approve(rid);
     }
   }
-  zTktTitle = db_table_has_column( "ticket", "title" )
+  zTktTitle = db_table_has_column("repository", "ticket", "title" )
       ? db_text("(No title)", "SELECT title FROM ticket WHERE tkt_uuid=%Q", zTktName)
       : 0;
   style_header("Ticket Change Details");
@@ -2031,7 +2034,7 @@ void info_page(void){
     return;
   }
   zName = blob_str(&uuid);
-  rid = db_int(0, "SELECT rid FROM blob WHERE uuid='%s'", zName);
+  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zName);
   if( rid==0 ){
     style_header("Broken Link");
     @ <p>No such object: %h(zName)</p>

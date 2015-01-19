@@ -127,12 +127,14 @@ struct Global {
   const char *zVfsName;   /* The VFS to use for database connections */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
+  char *zAuxSchema;       /* Main repository aux-schema */
   int useAttach;          /* True if global_config is attached to repository */
   const char *zConfigDbName;/* Path of the config database. NULL if not open */
   sqlite3_int64 now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
   char *zRepositoryOption; /* Most recent cached repository option value */
   char *zRepositoryName;  /* Name of the repository database */
+  char *zLocalDbName;     /* Name of the local database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
   const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
   int localOpen;          /* True if the local database is open */
@@ -152,6 +154,7 @@ struct Global {
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
+  char *zHttpsURL;        /* zBaseURL translated to https: */
   char *zTop;             /* Parent directory of zPath */
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
@@ -171,7 +174,7 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
-  int wikiFlags;          /* Wiki conversion flags applied to %w and %W */
+  int wikiFlags;          /* Wiki conversion flags applied to %W */
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
   Blob httpHeader;        /* Complete text of the HTTP request header */
@@ -971,7 +974,7 @@ void version_cmd(void){
     fossil_print("Compiled on %s %s using %s (%d-bit)\n",
                  __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
     fossil_print("SQLite %s %.30s\n", sqlite3_libversion(), sqlite3_sourceid());
-    fossil_print("Schema version %s\n", AUX_SCHEMA);
+    fossil_print("Schema version %s\n", AUX_SCHEMA_MAX);
 #if defined(FOSSIL_ENABLE_MINIZ)
     fossil_print("miniz %s, loaded %s\n", MZ_VERSION, mz_version());
 #else
@@ -1292,9 +1295,11 @@ static void set_base_url(const char *zAltBase){
     if( fossil_stricmp(zMode,"on")==0 ){
       g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
       g.zTop = &g.zBaseURL[8+strlen(zHost)];
+      g.zHttpsURL = g.zBaseURL;
     }else{
       g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
       g.zTop = &g.zBaseURL[7+strlen(zHost)];
+      g.zHttpsURL = mprintf("https://%s%.*s", zHost, i, zCur);
     }
   }
   if( db_is_writeable("repository") ){
@@ -1697,9 +1702,9 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
 **    redirect:  repository-filename  http://hostname/path/%s
 **
 ** then control jumps here.  Search each repository for an artifact ID
-** that matches the "name" CGI parameter and for the first match,
-** redirect to the corresponding URL with the "name" CGI parameter
-** inserted.  Paint an error page if no match is found.
+** or ticket ID that matches the "name" CGI parameter and for the
+** first match, redirect to the corresponding URL with the "name" CGI
+** parameter inserted.  Paint an error page if no match is found.
 **
 ** If there is a line of the form:
 **
@@ -1724,15 +1729,16 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
         continue;
       }
       db_open_repository(azRedirect[i*2]);
-      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%s*'", zName) ){
-        cgi_redirectf(azRedirect[i*2+1], zName);
+      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'", zName) ||
+	  db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
+        cgi_redirectf(azRedirect[i*2+1] /*works-like:"%s"*/, zName);
         return;
       }
       db_close(1);
     }
   }
   if( zNotFound ){
-    cgi_redirectf(zNotFound, zName);
+    cgi_redirectf(zNotFound /*works-like:"%s"*/, zName);
   }else{
     @ <html>
     @ <head><title>No Such Object</title></head>
@@ -1930,7 +1936,7 @@ static void find_server_repository(int disallowDir, int arg){
 ** See also: cgi, server, winsrv
 */
 void cmd_http(void){
-  const char *zIpAddr;
+  const char *zIpAddr = 0;
   const char *zNotFound;
   const char *zHost;
   const char *zAltBase;
@@ -1955,7 +1961,10 @@ void cmd_http(void){
   useSCGI = find_option("scgi", 0, 0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
   if( zAltBase ) set_base_url(zAltBase);
-  if( find_option("https",0,0)!=0 ) cgi_replace_parameter("HTTPS","on");
+  if( find_option("https",0,0)!=0 ){
+    zIpAddr = fossil_getenv("REMOTE_HOST"); /* From stunnel */
+    cgi_replace_parameter("HTTPS","on");
+  }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
   g.cgiOutput = 1;
@@ -1975,7 +1984,6 @@ void cmd_http(void){
   }else{
     g.httpIn = stdin;
     g.httpOut = stdout;
-    zIpAddr = 0;
     find_server_repository(0, 2);
   }
   if( zIpAddr==0 ){

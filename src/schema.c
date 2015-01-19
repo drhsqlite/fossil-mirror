@@ -46,7 +46,8 @@ const char zConfigSchema[] =
 ** the aux schema changes, all we need to do is rebuild the database.
 */
 #define CONTENT_SCHEMA  "2"
-#define AUX_SCHEMA      "2011-04-25 19:50"
+#define AUX_SCHEMA_MIN  "2011-04-25 19:50"
+#define AUX_SCHEMA_MAX  "2014-11-24 20:35"
 
 #endif /* INTERFACE */
 
@@ -82,8 +83,8 @@ const char zRepositorySchema1[] =
 @   CHECK( length(uuid)==40 AND rid>0 )
 @ );
 @ CREATE TABLE delta(
-@   rid INTEGER PRIMARY KEY,                 -- Record ID
-@   srcid INTEGER NOT NULL REFERENCES blob   -- Record holding source document
+@   rid INTEGER PRIMARY KEY,                 -- BLOB that is delta-compressed 
+@   srcid INTEGER NOT NULL REFERENCES blob   -- Baseline for delta-compression
 @ );
 @ CREATE INDEX delta_i1 ON delta(srcid);
 @
@@ -127,7 +128,7 @@ const char zRepositorySchema1[] =
 @   photo BLOB                      -- JPEG image of this user
 @ );
 @
-@ -- The VAR table holds miscellanous information about the repository.
+@ -- The config table holds miscellanous information about the repository.
 @ -- in the form of name-value pairs.
 @ --
 @ CREATE TABLE config(
@@ -252,6 +253,7 @@ const char zRepositorySchema2[] =
 @   cid INTEGER REFERENCES blob,    -- Child manifest
 @   isprim BOOLEAN,                 -- pid is the primary parent of cid
 @   mtime DATETIME,                 -- the date/time stamp on cid.  Julian day.
+@   baseid INTEGER REFERENCES blob, -- Baseline if child is a delta manifest
 @   UNIQUE(pid, cid)
 @ );
 @ CREATE INDEX plink_i2 ON plink(cid,pid);
@@ -449,8 +451,8 @@ const char zRepositorySchema2[] =
 #endif
 
 /*
-** The schema for the locate FOSSIL database file found at the root
-** of very check-out.  This database contains the complete state of
+** The schema for the local FOSSIL database file found at the root
+** of every check-out.  This database contains the complete state of
 ** the checkout.
 */
 const char zLocalSchema[] =
@@ -481,8 +483,8 @@ const char zLocalSchema[] =
 @ -- Vfile.chnged is 2 if the file has been replaced from a different
 @ -- version by the merge and 3 if the file has been added by a merge.
 @ -- Vfile.chnged is 4|5 is the same as 2|3, but the operation has been
-@ -- done by an --integrate merge.  The difference between vfile.chnged==2|4
-@ -- and a regular add is that with vfile.chnged==2|4 we know that the
+@ -- done by an --integrate merge.  The difference between vfile.chnged==3|5
+@ -- and a regular add is that with vfile.chnged==3|5 we know that the
 @ -- current version of the file is already in the repository.
 @ --
 @ CREATE TABLE vfile(

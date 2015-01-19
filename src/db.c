@@ -179,7 +179,7 @@ void db_end_transaction(int rollbackFlag){
     while( db.pAllStmt ){
       db_finalize(db.pAllStmt);
     }
-    db_multi_exec(db.doRollback ? "ROLLBACK" : "COMMIT");
+    db_multi_exec("%s", db.doRollback ? "ROLLBACK" : "COMMIT");
     db.doRollback = 0;
   }
 }
@@ -426,6 +426,9 @@ int db_changes(void){
 ** Extract text, integer, or blob values from the N-th column of the
 ** current row.
 */
+int db_column_type(Stmt *pStmt, int N){
+  return sqlite3_column_type(pStmt->pStmt, N);
+}
 int db_column_bytes(Stmt *pStmt, int N){
   return sqlite3_column_bytes(pStmt->pStmt, N);
 }
@@ -486,6 +489,46 @@ int db_exec(Stmt *pStmt){
   while( (rc = db_step(pStmt))==SQLITE_ROW ){}
   rc = db_reset(pStmt);
   db_check_result(rc);
+  return rc;
+}
+
+/*
+** Print the output of one or more SQL queries on standard output.
+** This routine is used for debugging purposes only.
+*/
+int db_debug(const char *zSql, ...){
+  Blob sql;
+  int rc = SQLITE_OK;
+  va_list ap;
+  const char *z, *zEnd;
+  sqlite3_stmt *pStmt;
+  blob_init(&sql, 0, 0);
+  va_start(ap, zSql);
+  blob_vappendf(&sql, zSql, ap);
+  va_end(ap);
+  z = blob_str(&sql);
+  while( rc==SQLITE_OK && z[0] ){
+    pStmt = 0;
+    rc = sqlite3_prepare_v2(g.db, z, -1, &pStmt, &zEnd);
+    if( rc!=SQLITE_OK ) break;
+    if( pStmt ){
+      int nRow = 0;
+      db.nPrepare++;
+      while( sqlite3_step(pStmt)==SQLITE_ROW ){
+        int i, n;
+        if( nRow++ > 0 ) fossil_print("\n");
+        n = sqlite3_column_count(pStmt);
+        for(i=0; i<n; i++){
+          fossil_print("%s = %s\n", sqlite3_column_name(pStmt, i),
+                       sqlite3_column_text(pStmt,i));
+        }
+      }
+      rc = sqlite3_finalize(pStmt);
+      if( rc ) db_err("%s: {%.*s}", sqlite3_errmsg(g.db), (int)(zEnd-z), z);
+    }
+    z = zEnd;
+  }
+  blob_reset(&sql);
   return rc;
 }
 
@@ -666,13 +709,13 @@ void db_init_database(
   sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
   rc = sqlite3_exec(db, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
-    db_err(sqlite3_errmsg(db));
+    db_err("%s", sqlite3_errmsg(db));
   }
   va_start(ap, zSchema);
   while( (zSql = va_arg(ap, const char*))!=0 ){
     rc = sqlite3_exec(db, zSql, 0, 0, 0);
     if( rc!=SQLITE_OK ){
-      db_err(sqlite3_errmsg(db));
+      db_err("%s", sqlite3_errmsg(db));
     }
   }
   va_end(ap);
@@ -694,6 +737,14 @@ void db_now_function(
 
 /*
 ** Function to return the check-in time for a file.
+**
+**      checkin_mtime(CKINID,RID)
+**
+** CKINID:  The RID for the manifest for a check-in.
+** RID:     The RID of a file in CKINID for which the check-in time
+**          is desired.
+**
+** Returns: The check-in time in seconds since 1970.
 */
 void db_checkin_mtime_function(
   sqlite3_context *context,
@@ -706,6 +757,56 @@ void db_checkin_mtime_function(
   if( rc==0 ){
     sqlite3_result_int64(context, mtime);
   }
+}
+
+/*
+** SQL wrapper around the symbolic_name_to_rid() C-language API.
+** Examples:
+**
+**     symbolic_name_to_rid('trunk');
+**     symbolic_name_to_rid('trunk','w');
+**
+*/
+void db_sym2rid_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  char const * arg;
+  char const * type;
+  if(1 != argc && 2 != argc){
+    sqlite3_result_error(context, "Expecting one or two arguments", -1);
+    return;
+  }
+  arg = (const char*)sqlite3_value_text(argv[0]);
+  if(!arg){
+    sqlite3_result_error(context, "Expecting a STRING argument", -1);
+  }else{
+    int rid;
+    type = (2==argc) ? (const char*)sqlite3_value_text(argv[1]) : 0;
+    if(!type) type = "ci";
+    rid = symbolic_name_to_rid( arg, type );
+    if(rid<0){
+      sqlite3_result_error(context, "Symbolic name is ambiguous.", -1);
+    }else if(0==rid){
+      sqlite3_result_null(context);
+    }else{
+      sqlite3_result_int64(context, rid);
+    }
+  }
+}
+
+/*
+** Register the SQL functions that are useful both to the internal 
+** representation and to the "fossil sql" command.
+*/
+void db_add_aux_functions(sqlite3 *db){
+  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
+                          db_checkin_mtime_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 1, SQLITE_UTF8, 0,
+                          db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0,
+                          db_sym2rid_function, 0, 0);
 }
 
 
@@ -728,9 +829,8 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   }
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
-  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0, db_now_function, 0, 0);
-  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
-                          db_checkin_mtime_function, 0, 0);
+  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0,
+                                 db_now_function, 0, 0);
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
   sqlite3_create_function(db, "cgi", 1, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
   sqlite3_create_function(db, "cgi", 2, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
@@ -742,7 +842,9 @@ LOCAL sqlite3 *db_open(const char *zDbName){
     db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
   );
   if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
-  re_add_sql_func(db);
+  db_add_aux_functions(db);  
+  re_add_sql_func(db);  /* The REGEXP operator */
+  foci_register(db);    /* The "files_of_checkin" virtual table */
   sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
   return db;
 }
@@ -752,7 +854,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
 ** Detaches the zLabel database.
 */
 void db_detach(const char *zLabel){
-  db_multi_exec("DETACH DATABASE %s", zLabel);
+  db_multi_exec("DETACH DATABASE %Q", zLabel);
 }
 
 /*
@@ -760,7 +862,7 @@ void db_detach(const char *zLabel){
 ** the name zLabel.
 */
 void db_attach(const char *zDbName, const char *zLabel){
-  db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
+  db_multi_exec("ATTACH DATABASE %Q AS %Q", zDbName, zLabel);
 }
 
 /*
@@ -879,6 +981,32 @@ void db_open_config(int useAttach){
   g.zConfigDbName = zDbName;
 }
 
+/*
+** Return TRUE if zTable exists.
+*/
+int db_table_exists(
+  const char *zDb,      /* One of: NULL, "configdb", "localdb", "repository" */
+  const char *zTable    /* Name of table */
+){
+  return sqlite3_table_column_metadata(g.db,
+              zDb ? db_name(zDb) : 0, zTable, 0,
+              0, 0, 0, 0, 0)==SQLITE_OK;
+}
+
+/*
+** Return TRUE if zTable exists and contains column zColumn.
+** Return FALSE if zTable does not exist or if zTable exists
+** but lacks zColumn.
+*/
+int db_table_has_column(
+  const char *zDb,       /* One of: NULL, "config", "localdb", "repository" */
+  const char *zTable,    /* Name of table */
+  const char *zColumn    /* Name of column in table */
+){
+  return sqlite3_table_column_metadata(g.db,
+              zDb ? db_name(zDb) : 0, zTable, zColumn,
+              0, 0, 0, 0, 0)==SQLITE_OK;
+}
 
 /*
 ** Returns TRUE if zTable exists in the local database but lacks column
@@ -888,17 +1016,8 @@ static int db_local_table_exists_but_lacks_column(
   const char *zTable,
   const char *zColumn
 ){
-  char *zDef = db_text(0, "SELECT sql FROM %s.sqlite_master"
-                   " WHERE name=='%s' /*scan*/",
-                   db_name("localdb"), zTable);
-  int rc = 0;
-  if( zDef ){
-    char *zPattern = mprintf("* %s *", zColumn);
-    rc = strglob(zPattern, zDef)==0;
-    fossil_free(zPattern);
-    fossil_free(zDef);
-  }
-  return rc;
+  return db_table_exists(db_name("localdb"), zTable)
+      && !db_table_has_column(db_name("localdb"), zTable, zColumn);
 }
 
 /*
@@ -921,7 +1040,7 @@ static int isValidLocalDb(const char *zDbName){
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted.
   */
-  if( !strglob("* isexe *", zVFileDef) ){
+  if( sqlite3_strglob("* isexe *", zVFileDef)!=0 ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
   }
 
@@ -929,7 +1048,7 @@ static int isValidLocalDb(const char *zDbName){
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
   ** After all users have upgraded, this code can be safely deleted.
   */
-  if( !strglob("* islink *", zVFileDef) ){
+  if( sqlite3_strglob("* islink *", zVFileDef)!=0 ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
     if( db_local_table_exists_but_lacks_column("stashfile", "isLink") ){
       db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOL DEFAULT 0");
@@ -964,7 +1083,7 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(const char *zDbName){
   int i, n;
   char zPwd[2000];
-  static const char aDbName[][10] = { "_FOSSIL_", ".fslckout", ".fos" };
+  static const char *(aDbName[]) = { "_FOSSIL_", ".fslckout", ".fos" };
 
   if( g.localOpen ) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
@@ -974,6 +1093,7 @@ int db_open_local(const char *zDbName){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
+        g.zLocalDbName = mprintf("%s", zPwd);
         zPwd[n] = 0;
         while( n>0 && zPwd[n-1]=='/' ){
           n--;
@@ -1119,9 +1239,9 @@ const char *db_name(const char *zDb){
 ** Return TRUE if the schema is out-of-date
 */
 int db_schema_is_outofdate(void){
-  return db_exists("SELECT 1 FROM config"
-                   " WHERE name='aux-schema'"
-                   "   AND value<>'%s'", AUX_SCHEMA);
+  if( g.zAuxSchema==0 ) g.zAuxSchema = db_get("aux-schema","");
+  return strcmp(g.zAuxSchema,AUX_SCHEMA_MIN)<0
+      || strcmp(g.zAuxSchema,AUX_SCHEMA_MAX)>0;
 }
 
 /*
@@ -1140,10 +1260,10 @@ void db_verify_schema(void){
 #ifdef FOSSIL_ENABLE_JSON
     g.json.resultCode = FSL_JSON_E_DB_NEEDS_REBUILD;
 #endif
-    fossil_warning("incorrect repository schema version");
-    fossil_warning("your repository has schema version \"%s\" "
-          "but this binary expects version \"%s\"",
-          db_get("aux-schema",0), AUX_SCHEMA);
+    fossil_warning("incorrect repository schema version: "
+          "current repository schema version is \"%s\" "
+          "but need versions between \"%s\" and \"%s\".",
+          g.zAuxSchema, AUX_SCHEMA_MIN, AUX_SCHEMA_MAX);
     fossil_fatal("run \"fossil rebuild\" to fix this problem");
   }
 }
@@ -1175,6 +1295,7 @@ void move_repo_cmd(void){
   }
   db_open_or_attach(zRepo, "test_repo", 0);
   db_lset("repository", blob_str(&repo));
+  db_record_repository_filename(blob_str(&repo));
   db_close(1);
 }
 
@@ -1330,7 +1451,7 @@ void db_setup_server_and_project_codes(
         "INSERT INTO config(name,value,mtime)"
         " VALUES('project-code', lower(hex(randomblob(20))),now());"
     );
-  }else{
+  }else if( db_is_writeable("repository") ){
     if( db_get("server-code", 0)==0 ) {
       db_multi_exec(
           "INSERT INTO config(name,value,mtime)"
@@ -1357,13 +1478,13 @@ const char *db_setting_inop_rhs(){
   const char *zSep = "";
 
   blob_zero(&x);
-  blob_append(&x, "(", 1);
+  blob_append_sql(&x, "(");
   for(i=0; ctrlSettings[i].name; i++){
-    blob_appendf(&x, "%s'%s'", zSep, ctrlSettings[i].name);
+    blob_append_sql(&x, "%s%Q", zSep/*safe-for-%s*/, ctrlSettings[i].name);
     zSep = ",";
   }
-  blob_append(&x, ")", 1);
-  return blob_str(&x);
+  blob_append_sql(&x, ")");
+  return blob_sql_text(&x);
 }
 
 /*
@@ -1395,7 +1516,7 @@ void db_initial_setup(
   Blob manifest;
 
   db_set("content-schema", CONTENT_SCHEMA, 0);
-  db_set("aux-schema", AUX_SCHEMA, 0);
+  db_set("aux-schema", AUX_SCHEMA_MAX, 0);
   db_set("rebuilt", get_version(), 0);
   if( makeServerCodes ){
     db_setup_server_and_project_codes(0);
@@ -1498,7 +1619,6 @@ void db_initial_setup(
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
 **                              (default: do not create an initial checkin)
-**    --empty                   create repository without project-id/server-id
 **
 ** See also: clone
 */
@@ -1512,8 +1632,9 @@ void create_repository_cmd(void){
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
-  makeServerCodes = find_option("empty", 0, 0)==0;
+  makeServerCodes = find_option("docker", 0, 0)==0;
 
+  find_option("empty", 0, 0); /* deprecated */
   /* We should be done with options.. */
   verify_all_options();
 
@@ -1968,27 +2089,6 @@ void db_lset_int(const char *zName, int value){
 }
 
 /*
-** Returns non-0 if the database (which must be open) table identified
-** by zTableName has a column named zColName (case-sensitive), else
-** returns 0.
-*/
-int db_table_has_column(const char *zTableName, const char *zColName){
-  Stmt q = empty_Stmt;
-  int rc = 0;
-  db_prepare( &q, "PRAGMA table_info(%Q)", zTableName );
-  while(SQLITE_ROW == db_step(&q)){
-    /* Columns: (cid, name, type, notnull, dflt_value, pk) */
-    const char *zCol = db_column_text(&q, 1);
-    if( 0==fossil_strcmp(zColName, zCol) ){
-      rc = 1;
-      break;
-    }
-  }
-  db_finalize(&q);
-  return rc;
-}
-
-/*
 ** Record the name of a local repository in the global_config() database.
 ** The repository filename %s is recorded as an entry with a "name" field
 ** of the following form:
@@ -2005,7 +2105,6 @@ int db_table_has_column(const char *zTableName, const char *zColName){
 ** Where %s is the checkout root.  The value is the repository file.
 */
 void db_record_repository_filename(const char *zName){
-  const char *zCollation;
   char *zRepoSetting;
   char *zCkoutSetting;
   Blob full;
@@ -2014,16 +2113,16 @@ void db_record_repository_filename(const char *zName){
     zName = db_repository_filename();
   }
   file_canonical_name(zName, &full, 0);
-  zCollation = filename_collation();
+  (void)filename_collation();  /* Initialize before connection swap */
   db_swap_connections();
   zRepoSetting = mprintf("repo:%q", blob_str(&full));
   db_multi_exec(
-     "DELETE FROM global_config WHERE name %s = '%s';",
-     zCollation, zRepoSetting
+     "DELETE FROM global_config WHERE name %s = %Q;",
+     filename_collation(), zRepoSetting
   );
   db_multi_exec(
      "INSERT OR IGNORE INTO global_config(name,value)"
-     "VALUES('%s',1);",
+     "VALUES(%Q,1);",
      zRepoSetting
   );
   fossil_free(zRepoSetting);
@@ -2032,22 +2131,22 @@ void db_record_repository_filename(const char *zName){
     file_canonical_name(g.zLocalRoot, &localRoot, 1);
     zCkoutSetting = mprintf("ckout:%q", blob_str(&localRoot));
     db_multi_exec(
-       "DELETE FROM global_config WHERE name %s = '%s';",
-       zCollation, zCkoutSetting
+       "DELETE FROM global_config WHERE name %s = %Q;",
+       filename_collation(), zCkoutSetting
     );
     db_multi_exec(
       "REPLACE INTO global_config(name, value)"
-      "VALUES('%s','%q');",
+      "VALUES(%Q,%Q);",
       zCkoutSetting, blob_str(&full)
     );
     db_swap_connections();
     db_optional_sql("repository",
-        "DELETE FROM config WHERE name %s = '%s';",
-        zCollation, zCkoutSetting
+        "DELETE FROM config WHERE name %s = %Q;",
+        filename_collation(), zCkoutSetting
     );
     db_optional_sql("repository",
         "REPLACE INTO config(name,value,mtime)"
-        "VALUES('%s',1,now());",
+        "VALUES(%Q,1,now());",
         zCkoutSetting
     );
     fossil_free(zCkoutSetting);
@@ -2207,6 +2306,7 @@ struct stControlSettings {
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
   { "access-log",       0,              0, 0, 0, "off"                 },
+  { "admin-log",        0,              0, 0, 0, "off"                 },
   { "allow-symlinks",   0,              0, 1, 0, "off"                 },
   { "auto-captcha",     "autocaptcha",  0, 0, 0, "on"                  },
   { "auto-hyperlink",   0,              0, 0, 0, "on",                 },
@@ -2287,6 +2387,9 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    access-log       If enabled, record successful and failed login attempts
 **                     in the "accesslog" table.  Default: off
+**
+**    admin-log        If enabled, record configuration changes in the
+**                     "admin_log" table.  Default: off
 **
 **    allow-symlinks   If enabled, don't follow symlinks, and instead treat
 **     (versionable)   them as symlinks on Unix. Has no effect on Windows
@@ -2557,7 +2660,7 @@ void setting_cmd(void){
     }else{
       isManifest = 0;
       while( ctrlSettings[i].name
-            && strncmp(ctrlSettings[i].name, zName, n)==0
+          && strncmp(ctrlSettings[i].name, zName, n)==0
       ){
         print_setting(&ctrlSettings[i], db_open_local(0));
         i++;
@@ -2656,26 +2759,68 @@ void test_without_rowid(void){
         }
       }
       blob_append(&newSql, zOrigSql, -1);
-      blob_appendf(&allSql,
-         "ALTER TABLE %s RENAME TO x_%s;\n"
+      blob_append_sql(&allSql,
+         "ALTER TABLE \"%w\" RENAME TO \"x_%w\";\n"
          "%s WITHOUT ROWID;\n"
-         "INSERT INTO %s SELECT * FROM x_%s;\n"
-         "DROP TABLE x_%s;\n",
-         zTName, zTName, blob_str(&newSql), zTName, zTName, zTName
+         "INSERT INTO \"%w\" SELECT * FROM \"x_%w\";\n"
+         "DROP TABLE \"x_%w\";\n",
+         zTName, zTName, blob_sql_text(&newSql), zTName, zTName, zTName
       );
-      fossil_print("Converting table %s of %s to WITHOUT ROWID.\n", zTName, g.argv[i]);
+      fossil_print("Converting table %s of %s to WITHOUT ROWID.\n",
+                    zTName, g.argv[i]);
       blob_reset(&newSql);
     }
-    blob_appendf(&allSql, "COMMIT;\n");
+    blob_append_sql(&allSql, "COMMIT;\n");
     db_finalize(&q);
     if( dryRun ){
       fossil_print("SQL that would have been evaluated:\n");
-      fossil_print("-------------------------------------------------------------\n");
-      fossil_print("%s", blob_str(&allSql));
+      fossil_print("%.78c\n", '-');
+      fossil_print("%s", blob_sql_text(&allSql));
     }else{
-      db_multi_exec("%s", blob_str(&allSql));
+      db_multi_exec("%s", blob_sql_text(&allSql));
     }
     blob_reset(&allSql);
     db_close(1);
   }
+}
+
+/*
+** Make sure the adminlog table exists.  Create it if it does not
+*/
+void create_admin_log_table(void){
+  static int once = 0;
+  if( once ) return;
+  once = 1;
+  db_multi_exec(
+    "CREATE TABLE IF NOT EXISTS \"%w\".admin_log(\n"
+    " id INTEGER PRIMARY KEY,\n"
+    " time INTEGER, -- Seconds since 1970\n"
+    " page TEXT,    -- path of page\n"
+    " who TEXT,     -- User who made the change\n "
+    " what TEXT     -- What changed\n"
+    ")", db_name("repository")
+  );
+}
+
+/*
+** Write a message into the admin_event table, if admin logging is
+** enabled via the admin-log configuration option.
+*/
+void admin_log(const char *zFormat, ...){
+  Blob what = empty_blob;
+  va_list ap;
+  if( !db_get_boolean("admin-log", 0) ){
+      /* Potential leak here (on %z params) but
+         the alternative is to let blob_vappendf()
+         do it below. */
+      return;
+  }
+  create_admin_log_table();
+  va_start(ap,zFormat);
+  blob_vappendf( &what, zFormat, ap );
+  va_end(ap);
+  db_multi_exec("INSERT INTO admin_log(time,page,who,what)"
+                " VALUES(now(), %Q, %Q, %B)",
+                g.zPath, g.zLogin, &what);
+  blob_reset(&what);
 }

@@ -1048,7 +1048,7 @@ static void startAutoParagraph(Renderer *p){
   if( p->wantAutoParagraph==0 ) return;
   if( p->state & WIKI_LINKSONLY ) return;
   if( p->wikiList==MARKUP_OL || p->wikiList==MARKUP_UL ) return;
-  blob_appendf(p->pOut, "<p>", -1);
+  blob_append(p->pOut, "<p>", -1);
   p->wantAutoParagraph = 0;
   p->inAutoParagraph = 1;
 }
@@ -1123,7 +1123,7 @@ static int is_ticket(
     db_static_prepare(&q,
       "SELECT %s FROM ticket "
       " WHERE tkt_uuid>=:lwr AND tkt_uuid<:upr",
-      zClosedExpr
+      zClosedExpr /*safe-for-%s*/
     );
     once = 0;
   }
@@ -1245,7 +1245,7 @@ static void openHyperlink(
       if( (p->state & (WIKI_LINKSONLY|WIKI_NOBADLINKS))!=0 ){
         zTerm = "";
       }else{
-        blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
+        blob_appendf(p->pOut, "<span class=\"brokenlink\">[");
         zTerm = "]</span>";
       }
     }else if( g.perm.Hyperlink ){
@@ -1330,7 +1330,7 @@ static void wiki_render(Renderer *p, char *z){
             p->wikiList = 0;
           }
           endAutoParagraph(p);
-          blob_appendf(p->pOut, "\n\n", 1);
+          blob_append(p->pOut, "\n\n", 1);
           p->wantAutoParagraph = 1;
         }
         p->state |= AT_PARAGRAPH|AT_NEWLINE;

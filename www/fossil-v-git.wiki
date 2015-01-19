@@ -187,7 +187,7 @@ in the middle of Git operation can damage or corrupt the Git repository.
 
 A Fossil repository consists of a single disk file.  A single Fossil
 repository can serve multiple simultaneous working checkouts.
-A Fossil repository is an SQLite database, so it highly resistant
+A Fossil repository is an SQLite database, so it is highly resistant
 to damage from a power-loss or system crash - incomplete transactions
 are simply rolled back after the system reboots.
 

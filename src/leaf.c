@@ -29,11 +29,11 @@
 /*
 ** Return true if the check-in with RID=rid is a leaf.
 **
-** A leaf has no children in the same branch. 
+** A leaf has no children in the same branch.
 */
 int is_a_leaf(int rid){
   int rc;
-  static const char zSql[] = 
+  static const char zSql[] =
     @ SELECT 1 FROM plink
     @  WHERE pid=%d
     @    AND coalesce((SELECT value FROM tagxref
@@ -41,7 +41,8 @@ int is_a_leaf(int rid){
     @       =coalesce((SELECT value FROM tagxref
     @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
   ;
-  rc = db_int(0, zSql, rid, TAG_BRANCH, TAG_BRANCH);
+  rc = db_int(0, zSql /*works-like:"%d,%d,%d"*/,
+              rid, TAG_BRANCH, TAG_BRANCH);
   return rc==0;
 }
 
@@ -57,7 +58,7 @@ int is_a_leaf(int rid){
 int count_nonbranch_children(int pid){
   int nNonBranch = 0;
   static Stmt q;
-  static const char zSql[] = 
+  static const char zSql[] =
     @ SELECT count(*) FROM plink
     @  WHERE pid=:pid AND isprim
     @    AND coalesce((SELECT value FROM tagxref
@@ -65,7 +66,7 @@ int count_nonbranch_children(int pid){
     @       =coalesce((SELECT value FROM tagxref
     @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
   ;
-  db_static_prepare(&q, zSql, TAG_BRANCH, TAG_BRANCH);
+  db_static_prepare(&q, zSql /*works-like: "%d,%d"*/, TAG_BRANCH, TAG_BRANCH);
   db_bind_int(&q, ":pid", pid);
   if( db_step(&q)==SQLITE_ROW ){
     nNonBranch = db_column_int(&q, 0);
@@ -76,7 +77,7 @@ int count_nonbranch_children(int pid){
 
 
 /*
-** Recompute the entire LEAF table.  
+** Recompute the entire LEAF table.
 **
 ** This can be expensive (5 seconds or so) for a really large repository.
 ** So it is only done for things like a rebuild.
@@ -160,7 +161,7 @@ char *leaf_is_closed_sql(const char *zVar){
 void leaf_eventually_check(int rid){
   static Stmt parentsOf;
 
-  db_static_prepare(&parentsOf, 
+  db_static_prepare(&parentsOf,
      "SELECT pid FROM plink WHERE cid=:rid AND pid>0"
   );
   db_bind_int(&parentsOf, ":rid", rid);

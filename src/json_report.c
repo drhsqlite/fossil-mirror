@@ -206,7 +206,7 @@ static cson_value * json_report_run(){
   blob_append(&sql, db_column_text(&q,0), -1);
   zTitle = mprintf("%s", db_column_text(&q,1));
   db_finalize(&q);
-  db_prepare(&q, "%s", blob_str(&sql));
+  db_prepare(&q, "%s", blob_sql_text(&sql));
 
   /** Build the response... */
   pay = cson_new_object();

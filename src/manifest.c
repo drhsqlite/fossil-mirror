@@ -49,6 +49,7 @@
 */
 #define MC_NONE           0  /*  default handling           */
 #define MC_PERMIT_HOOKS   1  /*  permit hooks to execute    */
+#define MC_NO_ERRORS      2  /*  do not issue errors for a bad parse */
 
 /*
 ** A single F-card within a manifest
@@ -362,6 +363,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   char *zUuid;
   int sz = 0;
   int isRepeat, hasSelfRefTag = 0;
+  Blob bUuid = BLOB_INITIALIZER;
   static Bag seen;
   const char *zErr = 0;
 
@@ -380,9 +382,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   if( !isRepeat ) g.parseCnt[0]++;
   z = blob_materialize(pContent);
   n = blob_size(pContent);
-  if( n<=0 || z[n-1]!='\n' ){
+  if( pErr && (n<=0 || z[n-1]!='\n') ){
     blob_reset(pContent);
-    blob_appendf(pErr, n ? "not terminated with \\n" : "zero-length");
+    blob_append(pErr, n ? "not terminated with \\n" : "zero-length", -1);
     return 0;
   }
 
@@ -405,6 +407,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     blob_appendf(pErr, "incorrect Z-card cksum");
     return 0;
   }
+
+  /* Store the UUID (before modifying the blob) only for error
+  ** reporting purposes.
+  */
+  sha1sum_blob(pContent, &bUuid);
 
   /* Allocate a Manifest object to hold the parsed control artifact.
   */
@@ -946,9 +953,14 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   }
   md5sum_init();
   if( !isRepeat ) g.parseCnt[p->type]++;
+  blob_reset(&bUuid);
   return p;
 
 manifest_syntax_error:
+  if(bUuid.nUsed){
+    blob_appendf(pErr, "manifest [%.40s] ", blob_str(&bUuid));
+    blob_reset(&bUuid);
+  }
   if( zErr ){
     blob_appendf(pErr, "line %d: %s", lineNo, zErr);
   }else{
@@ -1591,7 +1603,7 @@ void manifest_ticket_event(
     zStatusColumn = db_get("ticket-status-column", "status");
   }
   zTitle = db_text("unknown",
-    "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
+    "SELECT \"%w\" FROM ticket WHERE tkt_uuid=%Q",
     zTitleExpr, pManifest->zTicketUuid
   );
   if( !isNew ){
@@ -1612,7 +1624,7 @@ void manifest_ticket_event(
                    zNewStatus, pManifest->zTicketUuid, pManifest->zTicketUuid);
     }else{
       zNewStatus = db_text("unknown",
-         "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
+         "SELECT \"%w\" FROM ticket WHERE tkt_uuid=%Q",
          zStatusColumn, pManifest->zTicketUuid
       );
       blob_appendf(&comment, "Ticket [%s|%S] <i>%h</i> status still %h with "
@@ -1735,19 +1747,25 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     blob_reset(pContent);
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
     assert( blob_is_reset(pContent) || pContent==0 );
-    fossil_error(1, "syntax error in manifest");
+    if( (flags & MC_NO_ERRORS)==0 ){
+      fossil_error(1, "syntax error in manifest [%s]",
+                   db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
+    }
     return 0;
   }
   if( g.xlinkClusterOnly && p->type!=CFTYPE_CLUSTER ){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
-    fossil_error(1, "no manifest");
+    if( (flags & MC_NO_ERRORS)==0 ) fossil_error(1, "no manifest");
     return 0;
   }
   if( p->type==CFTYPE_MANIFEST && fetch_baseline(p, 0) ){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
-    fossil_error(1, "cannot fetch baseline manifest");
+    if( (flags & MC_NO_ERRORS)==0 ){
+      fossil_error(1, "cannot fetch baseline for manifest [%s]",
+                   db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
+    }
     return 0;
   }
   db_begin_transaction();
@@ -1758,10 +1776,30 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
+      char zBaseId[30];
+      if( p->zBaseline ){
+        sqlite3_snprintf(sizeof(zBaseId), zBaseId, "%d",
+                         uuid_to_rid(p->zBaseline,1));
+      }else{
+        sqlite3_snprintf(sizeof(zBaseId), zBaseId, "NULL");
+      }
+      (void)db_schema_is_outofdate(); /* Make sure g.zAuxSchema is initialized */
       for(i=0; i<p->nParent; i++){
         int pid = uuid_to_rid(p->azParent[i], 1);
-        db_multi_exec("INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
-                      "VALUES(%d, %d, %d, %.17g)", pid, rid, i==0, p->rDate);
+        if( strcmp(g.zAuxSchema,"2014-11-24 20:35")>=0 ){
+          /* Support for PLINK.BASEID added on 2014-11-24 */
+          db_multi_exec(
+             "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime, baseid)"
+             "VALUES(%d, %d, %d, %.17g, %s)",
+             pid, rid, i==0, p->rDate, zBaseId/*safe-for-%s*/);
+        }else{
+          /* Continue to work with older schema to avoid an unnecessary
+          ** rebuild */
+          db_multi_exec(
+             "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
+             "VALUES(%d, %d, %d, %.17g)",
+             pid, rid, i==0, p->rDate);
+        }
         if( i==0 ){
           add_mlink(pid, 0, rid, p);
           parentid = pid;
@@ -1896,7 +1934,6 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
       p->rDate, rid, p->zUser, zComment,
       TAG_BGCOLOR, rid,
-      TAG_BGCOLOR, rid,
       TAG_USER, rid,
       TAG_COMMENT, rid
     );
@@ -2028,7 +2065,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         branchMove = 0;
         if( permitHooks && db_exists("SELECT 1 FROM event, blob"
             " WHERE event.type='ci' AND event.objid=blob.rid"
-            " AND blob.uuid='%s'", zTagUuid) ){
+            " AND blob.uuid=%Q", zTagUuid) ){
           zScript = xfer_commit_code();
           zUuid = zTagUuid;
         }

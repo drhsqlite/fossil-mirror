@@ -62,7 +62,7 @@ int load_vfile(const char *zName, int forceMissingFlag){
 
   blob_init(&uuid, zName, -1);
   if( name_to_uuid(&uuid, 1, "ci") ){
-    fossil_fatal(g.zErrMsg);
+    fossil_fatal("%s", g.zErrMsg);
   }
   vid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
   if( vid==0 ){
@@ -307,8 +307,7 @@ void close_cmd(void){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
   if( !forceFlag
-   && db_exists("SELECT 1 FROM %s.sqlite_master WHERE name='stash'",
-                db_name("localdb"))
+   && db_table_exists("localdb","stash")
    && db_exists("SELECT 1 FROM %s.stash", db_name("localdb"))
   ){
     fossil_fatal("closing the checkout will delete your stash");

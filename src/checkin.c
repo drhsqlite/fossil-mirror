@@ -54,19 +54,21 @@ static void status_report(
       blob_reset(&where);
       break;
     }
-    blob_appendf(&where, " %s (pathname=%Q %s) "
-                 "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
-                 (blob_size(&where)>0) ? "OR" : "AND", zName,
-                 filename_collation(), zName, filename_collation(),
-                 zName, filename_collation());
+    blob_append_sql(&where,
+      " %s (pathname=%Q %s) "
+      "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+      (blob_size(&where)>0) ? "OR" : "AND", zName,
+      filename_collation(), zName, filename_collation(),
+      zName, filename_collation()
+    );
   }
 
   db_prepare(&q,
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
     " WHERE is_selected(id) %s"
-    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1",
-    blob_str(&where)
+    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1 /*scan*/",
+    blob_sql_text(&where)
   );
   blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
@@ -213,7 +215,7 @@ void changes_cmd(void){
   int cwdRelative = 0;
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -249,7 +251,7 @@ void status_cmd(void){
   db_must_be_within_tree();
        /* 012345678901234 */
   cwdRelative = determine_cwd_relative_option();
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -262,7 +264,7 @@ void status_cmd(void){
   if( vid ){
     show_common_info(vid, "checkout:", 1, 1);
   }
-  db_record_repository_filename(0); 
+  db_record_repository_filename(0);
   print_changes(useSha1sum, showHdr, verboseFlag, cwdRelative);
 }
 
@@ -315,11 +317,13 @@ void ls_cmd(void){
       blob_reset(&where);
       break;
     }
-    blob_appendf(&where, " %s (pathname=%Q %s) "
-                 "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
-                 (blob_size(&where)>0) ? "OR" : "WHERE", zName,
-                 filename_collation(), zName, filename_collation(),
-                 zName, filename_collation());
+    blob_append_sql(&where,
+       " %s (pathname=%Q %s) "
+       "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+       (blob_size(&where)>0) ? "OR" : "WHERE", zName,
+       filename_collation(), zName, filename_collation(),
+       zName, filename_collation()
+    );
   }
   vfile_check_signature(vid, 0);
   if( showAge ){
@@ -327,13 +331,14 @@ void ls_cmd(void){
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
        "       datetime(checkin_mtime(%d,rid),'unixepoch'%s)"
        "  FROM vfile %s"
-       " ORDER BY %s", vid, timeline_utc(), blob_str(&where), zOrderBy
+       " ORDER BY %s",
+       vid, timeline_utc(), blob_sql_text(&where), zOrderBy /*safe-for-%s*/
     );
   }else{
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
        "  FROM vfile %s"
-       " ORDER BY %s", blob_str(&where), zOrderBy
+       " ORDER BY %s", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
     );
   }
   blob_reset(&where);
@@ -477,7 +482,7 @@ void extras_cmd(void){
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -495,6 +500,7 @@ void extras_cmd(void){
   );
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   blob_zero(&rewrittenPathname);
+  g.allowSymlinks = 1;  /* Report on symbolic links */
   while( db_step(&q)==SQLITE_ROW ){
     zDisplayName = zPathname = db_column_text(&q, 0);
     if( cwdRelative ) {
@@ -560,6 +566,7 @@ void extras_cmd(void){
 **                     therefore, directories that contain only files
 **                     that were removed will be removed as well.
 **    -f|--force       Remove files without prompting.
+**    --verily         Shorthand for: -f --emptydirs --dotfiles
 **    --clean <CSG>    Never prompt for files matching this
 **                     comma separated list of glob patterns.
 **    --ignore <CSG>   Ignore files matching patterns from the
@@ -598,6 +605,11 @@ void clean_cmd(void){
   zKeepFlag = find_option("keep",0,1);
   zCleanFlag = find_option("clean",0,1);
   db_must_be_within_tree();
+  if( find_option("verily",0,0)!=0 ){
+    allFileFlag = allDirFlag = 1;
+    emptyDirsFlag = 1;
+    scanFlags |= SCAN_ALL;
+  }
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
@@ -612,6 +624,7 @@ void clean_cmd(void){
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
   nRoot = (int)strlen(g.zLocalRoot);
+  g.allowSymlinks = 1;  /* Find symlinks too */
   if( !dirsOnlyFlag ){
     Stmt q;
     Blob repo;
@@ -910,10 +923,8 @@ int select_commit_files(void){
     int ii, jj=0;
     Blob fname;
     Stmt q;
-    const char *zCollate;
     Bag toCommit;
 
-    zCollate = filename_collation();
     blob_zero(&fname);
     bag_init(&toCommit);
     for(ii=2; ii<g.argc; ii++){
@@ -926,8 +937,8 @@ int select_commit_files(void){
       db_prepare(&q,
         "SELECT id FROM vfile WHERE pathname=%Q %s"
         " OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
-        blob_str(&fname), zCollate, blob_str(&fname),
-        zCollate, blob_str(&fname), zCollate);
+        blob_str(&fname), filename_collation(), blob_str(&fname),
+        filename_collation(), blob_str(&fname), filename_collation());
       while( db_step(&q)==SQLITE_ROW ){
         cnt++;
         bag_insert(&toCommit, db_column_int(&q, 0));
@@ -1719,7 +1730,7 @@ void commit_cmd(void){
   ** Do not allow a commit against a closed leaf unless the commit
   ** ends up on a different branch.
   */
-  if( 
+  if(
       /* parent checkin has the "closed" tag... */
       db_exists("SELECT 1 FROM tagxref"
                 " WHERE tagid=%d AND rid=%d AND tagtype>0",

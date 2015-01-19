@@ -148,7 +148,9 @@ You do not need any other packages
 sqlite, and so forth)
 in order to run fossil.  Fossil runs just fine in a chroot jail all
 by itself.  And the self-contained fossil
-executable is much less than 1MB in size.
+executable is much less than 1MB in size.  (Update 2015-01-12: Fossil has
+grown in the years since the previous sentence was written but is still 
+much less than 2MB according to "size" when compiled using -Os on x64 Linux.)
 Fossil is the very opposite of bloat.</p>
 </blockquote>
 
