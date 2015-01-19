@@ -84,7 +84,7 @@ int main(int argc, char **argv){
   int nRes = argc-1;
   unsigned char *pData;
   int nErr = 0;
-  
+
   aRes = malloc( nRes*sizeof(aRes[0]) );
   if( aRes==0 ){
     fprintf(stderr, "malloc failed\n");

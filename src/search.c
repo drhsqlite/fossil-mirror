@@ -36,7 +36,7 @@ struct Search {
   struct srchTerm {     /* For each search term */
     char *z;               /* Text */
     int n;                 /* length */
-  } a[8];               
+  } a[8];
 };
 #endif
 
@@ -141,7 +141,7 @@ int search_score(Search *p, int nDoc, const char **azDoc){
       while( !isBoundary[zDoc[i]&0xff] ){ i++; }
     }
   }
-  
+
   /* Every term must be seen or else the score is zero */
   for(j=0; j<p->nTerm; j++){
     if( !seen[j] ) return 0;

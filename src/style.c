@@ -1288,6 +1288,10 @@ const struct strctCssDefaults {
     @ cursor: pointer;
     @ text-shadow: 0 0 0 #000; /* Makes arrow darker */
   },
+  { "th.sort.none:after",
+    "None sort column marker",
+    @ content: '\2666';
+  },
   { "th.sort.asc:after",
     "Ascending sort column marker",
     @ content: '\2193';

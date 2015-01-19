@@ -16,7 +16,7 @@
 *******************************************************************************
 **
 ** This module implements the userspace side of a Fuse Filesystem that
-** contains all check-ins for a fossil repository.  
+** contains all check-ins for a fossil repository.
 **
 ** This module is a mostly a no-op unless compiled with -DFOSSIL_HAVE_FUSEFS.
 ** The FOSSIL_HAVE_FUSEFS should be omitted on systems that lack support for
@@ -195,7 +195,7 @@ static int fusefs_readdir(
   if( n==0 ){
     filler(buf, ".", NULL, 0);
     filler(buf, "..", NULL, 0);
-    filler(buf, "checkins", NULL, 0);    
+    filler(buf, "checkins", NULL, 0);
     return 0;
   }
   if( strcmp(fusefs.az[0],"checkins")!=0 ) return -ENOENT;
@@ -277,7 +277,7 @@ static int fusefs_read(
   }
   memcpy(buf, blob_buffer(&fusefs.content)+offset, size);
   return size;
-}  
+}
 
 static struct fuse_operations fusefs_methods = {
   .getattr = fusefs_getattr,
@@ -295,7 +295,7 @@ static struct fuse_operations fusefs_methods = {
 ** DIRECTORY that contains the content of all check-ins in the
 ** repository.  The names of files are DIRECTORY/checkins/VERSION/PATH
 ** where DIRECTORY is the root of the mount, VERSION is any valid
-** check-in name (examples: "trunk" or "tip" or a tag or any unique 
+** check-in name (examples: "trunk" or "tip" or a tag or any unique
 ** prefix of a SHA1 hash, etc) and PATH is the pathname of the file
 ** in the checkin.  If DIRECTORY does not exist, then an attempt is
 ** made to create it.

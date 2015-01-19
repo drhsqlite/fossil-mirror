@@ -737,6 +737,14 @@ void db_now_function(
 
 /*
 ** Function to return the check-in time for a file.
+**
+**      checkin_mtime(CKINID,RID)
+**
+** CKINID:  The RID for the manifest for a check-in.
+** RID:     The RID of a file in CKINID for which the check-in time
+**          is desired.
+**
+** Returns: The check-in time in seconds since 1970.
 */
 void db_checkin_mtime_function(
   sqlite3_context *context,
@@ -751,6 +759,14 @@ void db_checkin_mtime_function(
   }
 }
 
+/*
+** SQL wrapper around the symbolic_name_to_rid() C-language API.
+** Examples:
+**
+**     symbolic_name_to_rid('trunk');
+**     symbolic_name_to_rid('trunk','w');
+**
+*/
 void db_sym2rid_function(
   sqlite3_context *context,
   int argc,
@@ -780,6 +796,19 @@ void db_sym2rid_function(
   }
 }
 
+/*
+** Register the SQL functions that are useful both to the internal 
+** representation and to the "fossil sql" command.
+*/
+void db_add_aux_functions(sqlite3 *db){
+  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
+                          db_checkin_mtime_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 1, SQLITE_UTF8, 0,
+                          db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0,
+                          db_sym2rid_function, 0, 0);
+}
+
 
 /*
 ** Open a database file.  Return a pointer to the new database
@@ -800,9 +829,8 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   }
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
-  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0, db_now_function, 0, 0);
-  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
-                          db_checkin_mtime_function, 0, 0);
+  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0,
+                                 db_now_function, 0, 0);
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
   sqlite3_create_function(db, "cgi", 1, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
   sqlite3_create_function(db, "cgi", 2, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
@@ -813,17 +841,10 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   sqlite3_create_function(
     db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
   );
-  sqlite3_create_function(
-    db, "symbolic_name_to_rid", 1, SQLITE_UTF8, 0, db_sym2rid_function,
-    0, 0
-  );
-  sqlite3_create_function(
-    db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0, db_sym2rid_function,
-    0, 0
-  );
   if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
-  re_add_sql_func(db);
-  foci_register(db);
+  db_add_aux_functions(db);  
+  re_add_sql_func(db);  /* The REGEXP operator */
+  foci_register(db);    /* The "files_of_checkin" virtual table */
   sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
   return db;
 }
@@ -2638,7 +2659,7 @@ void setting_cmd(void){
     }else{
       isManifest = 0;
       while( ctrlSettings[i].name
-            && strncmp(ctrlSettings[i].name, zName, n)==0
+          && strncmp(ctrlSettings[i].name, zName, n)==0
       ){
         print_setting(&ctrlSettings[i], db_open_local(0));
         i++;
