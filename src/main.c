@@ -1796,6 +1796,7 @@ void cmd_cgi(void){
     }
     if( blob_eq(&key, "errorlog:") && blob_token(&line, &value) ){
       g.zErrlog = mprintf("%s", blob_str(&value));
+      blob_reset(&value);
       continue;
     }
     if( blob_eq(&key, "HOME:") && blob_token(&line, &value) ){
@@ -1836,6 +1837,14 @@ void cmd_cgi(void){
     }
     if( blob_eq(&key, "files:") && blob_token(&line, &value) ){
       pFileGlob = glob_create(blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "setenv:") && blob_token(&line, &value)
+            && blob_token(&line, &value2) ){
+      fossil_setenv(blob_str(&value), blob_str(&value2));
+      blob_reset(&value);
+      blob_reset(&value2);
       continue;
     }
   }

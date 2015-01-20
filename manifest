@@ -1,5 +1,5 @@
-C When\sattempting\sto\sopen\sthe\sconfiguration,\spermit\sthe\s'FOSSIL_HOME'\senvironment\svariable\s(if\spresent),\sto\soverride\s'HOME'.
-D 2015-01-20T16:44:04.126
+C Experimental\schanges\sto\sadd\s'setenv'\ssupport\sto\sCGI\sscript\sfiles.
+D 2015-01-20T17:48:46.069
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -347,7 +347,7 @@ F src/doc.c 64209642ecdaa5cadd09d34bbf8a488a646d778b
 F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 26fd16a9f3fe9f88edd233e39cf4051a0398eb29
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
-F src/file.c a653b0a67def52ee6facbef9d8f44697160e4994
+F src/file.c 6c218bb03870305f7d3b89e9eb2fd814ce8236dc
 F src/finfo.c 7723537f2fe6c8ead74072f155a2d2170cea7e63
 F src/foci.c 5f8f822add6007009b2abb7f3d238122e29d9a90
 F src/fusefs.c 6834881d9573f824aa10ee06985b3d03e24d7172
@@ -380,7 +380,7 @@ F src/leaf.c a8880fbcf409f34c0ea9566f8b548a96496856a7
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 42c4ed73759dcf0d828bdb5f3cc4086cc7e0997a
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 08d5baeb5c6176298805eda4f123fd6562566ad6
+F src/main.c 6b2d22219b22017862715f75d147a6eff19324b7
 F src/main.mk 89f8280d78d9550150eb5fc4e7dfdbd75ae0816d
 F src/makeheaders.c ac090787de3b2c145673b16f34d3c91155414d8d
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -664,7 +664,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bf681039e2a29672a6652531dc14a6a389060d0e
-R 27670e75e4e341ea6e6ccb2cd059fb42
+P c97a085a0e7200b808dd3a810d46c1ad369604c3
+R 7b35d3fb24f79f9a8c22a9a87a154161
+T *branch * cgiSetEnv
+T *sym-cgiSetEnv *
+T -sym-trunk *
 U mistachkin
-Z bf07b08cb09b538a543866edfd662a7c
+Z 674cd679adb1446ea0e6e105aa55e555

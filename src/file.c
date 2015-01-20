@@ -1266,6 +1266,25 @@ char *fossil_getenv(const char *zName){
 }
 
 /*
+** Sets the value of an environment variable as UTF8.
+*/
+int fossil_setenv(const char *zName, const char *zValue){
+  int rc;
+  char *zString = mprintf("%s=%s", zName, zValue);
+#ifdef _WIN32
+  wchar_t *uString = fossil_utf8_to_unicode(zString);
+  rc = _wputenv(uString);
+  fossil_unicode_free(uString);
+  fossil_free(zString);
+#else
+  rc = putenv(zString);
+  /* NOTE: Cannot free the string on POSIX. */
+  /* fossil_free(zString); */
+#endif
+  return rc;
+}
+
+/*
 ** Like fopen() but always takes a UTF8 argument.
 */
 FILE *fossil_fopen(const char *zName, const char *zMode){
