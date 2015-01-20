@@ -929,26 +929,31 @@ void db_open_config(int useAttach){
     if( useAttach==g.useAttach ) return;
     db_close_config();
   }
+  zHome = fossil_getenv("FOSSIL_HOME");
 #if defined(_WIN32) || defined(__CYGWIN__)
-  zHome = fossil_getenv("LOCALAPPDATA");
   if( zHome==0 ){
-    zHome = fossil_getenv("APPDATA");
+    zHome = fossil_getenv("LOCALAPPDATA");
     if( zHome==0 ){
-      char *zDrive = fossil_getenv("HOMEDRIVE");
-      zHome = fossil_getenv("HOMEPATH");
-      if( zDrive && zHome ) zHome = mprintf("%s%s", zDrive, zHome);
+      zHome = fossil_getenv("APPDATA");
+      if( zHome==0 ){
+        char *zDrive = fossil_getenv("HOMEDRIVE");
+        char *zPath = fossil_getenv("HOMEPATH");
+        if( zDrive && zPath ) zHome = mprintf("%s%s", zDrive, zPath);
+      }
     }
   }
   if( zHome==0 ){
-    fossil_fatal("cannot locate home directory - "
-                "please set the LOCALAPPDATA or APPDATA or HOMEPATH "
-                "environment variables");
+    fossil_fatal("cannot locate home directory - please set the "
+                 "FOSSIL_HOME, LOCALAPPDATA, APPDATA, or HOMEPATH "
+                 "environment variables");
   }
 #else
-  zHome = fossil_getenv("HOME");
   if( zHome==0 ){
-    fossil_fatal("cannot locate home directory - "
-                 "please set the HOME environment variable");
+    zHome = fossil_getenv("HOME");
+  }
+  if( zHome==0 ){
+    fossil_fatal("cannot locate home directory - please set the "
+                 "FOSSIL_HOME or HOME environment variables");
   }
 #endif
   if( file_isdir(zHome)!=1 ){
