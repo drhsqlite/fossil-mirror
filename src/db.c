@@ -1357,6 +1357,18 @@ void db_close(int reportErrors){
     }
   }
   db_close_config();
+
+  /* If the localdb (the check-out database) is open and if it has
+  ** a lot of unused free space, then VACUUM it as we shut down.
+  */
+  if( g.localOpen && strcmp(db_name("localdb"),"main")==0 ){
+    int nFree = db_int(0, "PRAGMA main.freelist_count");
+    int nTotal = db_int(0, "PRAGMA main.page_count");
+    if( nFree>nTotal/4 ){
+      db_multi_exec("VACUUM;");
+    }
+  }
+
   if( g.db ){
     sqlite3_wal_checkpoint(g.db, 0);
     sqlite3_close(g.db);
