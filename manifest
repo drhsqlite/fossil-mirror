@@ -1,5 +1,5 @@
-C Fix\sinternal\slinks\son\sthe\s'attachlist'\spage.\s\sReported\svia\sthe\smailing\slist.
-D 2015-01-21T17:38:31.238
+C Add\sa\s"Flat-View"\sbutton\sto\sthe\s/tree\spage\swhen\sin\stree-view\smode.
+D 2015-01-21T20:45:06.233
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -318,7 +318,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
 F src/branch.c 184d9cd919b932fd476658dffb5b7cac17acb372
-F src/browse.c b16805a8c0ccd6b7d4b72fdd0eda64c0d9698e96
+F src/browse.c 5f7de7f733a6b65c7dab4385f7a0701b3bb54ef3
 F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
@@ -664,7 +664,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1829fa8845ae7fe20d4046b5585838dd78e5e928
-R cd951268471a7ce0cd316dc32bae31f5
-U mistachkin
-Z fe0a50c90ece56e848af95542a653f86
+P 0438d06635892890f39f78995799539d25607e23
+R 8f7f71db668b28c86d6a2df85e1d1302
+U drh
+Z a141490930a89b611bd5a21cb4456b4d

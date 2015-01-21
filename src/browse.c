@@ -637,6 +637,8 @@ void page_tree(void){
     style_submenu_element("Tip", "Tip", "%s",
                           url_render(&sURI, "ci", "tip", 0, 0));
   }
+  style_submenu_element("Flat-View", "Flat-View", "%s",
+                        url_render(&sURI, "type", "flat", 0, 0));
 
   /* Compute the file hierarchy.
   */
@@ -654,6 +656,9 @@ void page_tree(void){
       const char *zFile = db_column_text(&q,0);
       const char *zUuid = db_column_text(&q,1);
       double mtime = db_column_double(&q,2);
+      if( nD>0 && (fossil_strncmp(zFile, zD, nD-1)!=0 || zFile[nD-1]!='/') ){
+        continue;
+      }
       if( pRE && re_match(pRE, (const unsigned char*)zFile, -1)==0 ) continue;
       tree_add_node(&sTree, zFile, zUuid, mtime);
       nFile++;
