@@ -502,6 +502,7 @@ void doc_page(void){
                                   " WHERE objid=%d AND type='ci'", vid));
   if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
     Blob title, tail;
+    style_adunit_config(ADUNIT_RIGHT_OK);
     if( wiki_find_title(&filebody, &title, &tail) ){
       style_header("%s", blob_str(&title));
       wiki_convert(&tail, 0, WIKI_BUTTONS);

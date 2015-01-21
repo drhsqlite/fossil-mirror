@@ -537,7 +537,7 @@ tag_cmd_usage:
 }
 
 /*
-** WEBPAGE: /taglist
+** WEBPAGE: taglist
 */
 void taglist_page(void){
   Stmt q;
@@ -548,6 +548,7 @@ void taglist_page(void){
   }
   login_anonymous_available();
   style_header("Tags");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Timeline", "Timeline", "tagtimeline");
   @ <h2>Non-propagating tags:</h2>
   db_prepare(&q,

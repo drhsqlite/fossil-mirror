@@ -135,6 +135,7 @@ void page_dir(void){
   if( !g.perm.Read ){ login_needed(); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   style_header("File List");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
   url_initialize(&sURI, "dir");
@@ -557,6 +558,7 @@ void page_tree(void){
     showDirOnly = 0;
     style_header("File Tree");
   }
+  style_adunit_config(ADUNIT_RIGHT_OK);
   if( P("expand")!=0 ){
     startExpanded = 1;
     url_add_parameter(&sURI, "expand", "1");

@@ -343,6 +343,7 @@ static void new_brlist_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   style_header("Branches");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   login_anonymous_available();
   
   db_prepare(&q, brlistQuery/*works-like:""*/);
