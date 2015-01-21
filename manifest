@@ -1,5 +1,5 @@
-C Manually\smerge\sthe\sblob\sleak\sfixes\scorrected\son\sthe\s'cgiSetEnv'\sbranch.
-D 2015-01-21T00:17:57.627
+C Fix\sinternal\slinks\son\sthe\s'attachlist'\spage.\s\sReported\svia\sthe\smailing\slist.
+D 2015-01-21T17:38:31.238
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -313,7 +313,7 @@ F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c a66548627cf802196c54c1200780f2bd37a503bb
 F src/allrepo.c cbbd052812deb214e6cd8d7d08a10c8d90f87ff9
-F src/attach.c e92ad3e5f4efd1269185a215a94558f362e34bdd
+F src/attach.c e9186b7e96800753bc8696fa020fb82aba9fbd70
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
@@ -664,7 +664,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c97a085a0e7200b808dd3a810d46c1ad369604c3
-R 199f812504a69ac06b0d871dc3814361
+P 1829fa8845ae7fe20d4046b5585838dd78e5e928
+R cd951268471a7ce0cd316dc32bae31f5
 U mistachkin
-Z 23911c37d2ac2cb0352f529b4f656d2d
+Z fe0a50c90ece56e848af95542a653f86

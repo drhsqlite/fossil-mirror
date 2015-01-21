@@ -92,8 +92,8 @@ void attachlist_page(void){
     if( moderation_pending(attachid) ){
       @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
     }
-    @ <br><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
-    @ [<a href="/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
+    @ <br><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
+    @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
       @ %!w(zComment)<br />
