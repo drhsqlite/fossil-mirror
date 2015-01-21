@@ -48,6 +48,11 @@ static int headerHasBeenGenerated = 0;
 */
 static int sideboxUsed = 0;
 
+/*
+** Ad-unit styles.
+*/
+static unsigned adUnitFlags = 0;
+
 
 /*
 ** List of hyperlinks and forms that need to be resolved by javascript in
@@ -346,22 +351,49 @@ void style_header(const char *zTitleFormat, ...){
   @ </script>
 }
 
+#if INTERFACE
+/* Allowed parameters for style_adunit() */
+#define ADUNIT_OFF        0x0001       /* Do not allow ads on this page */
+#define ADUNIT_RIGHT_OK   0x0002       /* Right-side vertical ads ok here */
+#endif   
+
 /*
-** Append ad unit text if appropriate.
+** Various page implementations can invoke this interface to let the
+** style manager know what kinds of ads are appropriate for this page.
 */
-static void style_ad_unit(void){
-  const char *zAd;
+void style_adunit_config(unsigned int mFlags){
+  adUnitFlags = mFlags;
+}
+
+/*
+** Return the text of an ad-unit, if one should be rendered.  Return
+** NULL if no ad-unit is desired.
+**
+** The *pAdFlag value might be set to ADUNIT_RIGHT_OK if this is
+** a right-hand vertical ad.
+*/
+static const char *style_adunit_text(unsigned int *pAdFlag){
+  const char *zAd = 0;
+  *pAdFlag = 0;
+  if( adUnitFlags & ADUNIT_OFF ) return 0;  /* Disallow ads on this page */
   if( g.perm.Admin && db_get_boolean("adunit-omit-if-admin",0) ){
-    return;
+    return 0;
   }
   if( !login_is_nobody()
    && fossil_strcmp(g.zLogin,"anonymous")!=0
    && db_get_boolean("adunit-omit-if-user",0)
   ){
-    return;
+    return 0;
   }
-  zAd = db_get("adunit", 0);
-  if( zAd ) cgi_append_content(zAd, -1);
+  if( (adUnitFlags & ADUNIT_RIGHT_OK)!=0
+   && !fossil_all_whitespace(zAd = db_get("adunit-right", 0))
+  ){
+    *pAdFlag = ADUNIT_RIGHT_OK;
+    return zAd;
+  }else if( !fossil_all_whitespace(zAd = db_get("adunit",0)) ){
+    return zAd;
+  }
+  return 0;
 }
 
 /*
@@ -369,6 +401,8 @@ static void style_ad_unit(void){
 */
 void style_footer(void){
   const char *zFooter;
+  const char *zAd = 0;
+  unsigned int mAdFlags = 0;
 
   if( !headerHasBeenGenerated ) return;
 
@@ -391,8 +425,21 @@ void style_footer(void){
     }
     @ </div>
   }
-  style_ad_unit();
-  @ <div class="content">
+
+  zAd = style_adunit_text(&mAdFlags);
+  if( mAdFlags & ADUNIT_RIGHT_OK ){
+    @ <div class="content adunit_right_container">
+    @ <div class="adunit_right">
+    cgi_append_content(zAd, -1);
+    @ </div>
+  }else{
+    if( zAd ){
+      @ <div class="adunit_banner">
+      cgi_append_content(zAd, -1);
+      @ </div>
+    }
+    @ <div class="content">
+  }
   cgi_destination(CGI_BODY);
 
   if( sideboxUsed ){

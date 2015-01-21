@@ -57,6 +57,7 @@ void stat_page(void){
   if( !g.perm.Read ){ login_needed(); return; }
   brief = P("brief")!=0;
   style_header("Repository Statistics");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   if( g.perm.Admin ){
     style_submenu_element("URLs", "URLs and Checkouts", "urllist");
     style_submenu_element("Schema", "Repository Schema", "repo_schema");
@@ -292,6 +293,7 @@ void urllist_page(void){
   if( !g.perm.Admin ){ login_needed(); return; }
 
   style_header("URLs and Checkouts");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "Repository Stats", "stat");
   style_submenu_element("Schema", "Repository Schema", "repo_schema");
   @ <div class="section">URLs</div>
@@ -338,6 +340,7 @@ void repo_schema_page(void){
   if( !g.perm.Admin ){ login_needed(); return; }
 
   style_header("Repository Schema");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "Repository Stats", "stat");
   style_submenu_element("URLs", "URLs and Checkouts", "urllist");
   db_prepare(&q, "SELECT sql FROM %s.sqlite_master WHERE sql IS NOT NULL",

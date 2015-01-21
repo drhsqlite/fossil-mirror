@@ -577,6 +577,7 @@ void login_page(void){
     }
   }
   style_header("Login/Logout");
+  style_adunit_config(ADUNIT_OFF);
   @ %s(zErrMsg)
   if( zGoto && P("anon")==0 ){
     @ <p>A login is required for <a href="%h(zGoto)">%h(zGoto)</a>.</p>
