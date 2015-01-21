@@ -387,6 +387,7 @@ static const char *style_adunit_text(unsigned int *pAdFlag){
   }
   if( (adUnitFlags & ADUNIT_RIGHT_OK)!=0
    && !fossil_all_whitespace(zAd = db_get("adunit-right", 0))
+   && !cgi_body_contains("<table")
   ){
     *pAdFlag = ADUNIT_RIGHT_OK;
     return zAd;
@@ -427,7 +428,7 @@ void style_footer(void){
   }
 
   zAd = style_adunit_text(&mAdFlags);
-  if( mAdFlags & ADUNIT_RIGHT_OK ){
+  if( (mAdFlags & ADUNIT_RIGHT_OK)!=0  ){
     @ <div class="content adunit_right_container">
     @ <div class="adunit_right">
     cgi_append_content(zAd, -1);

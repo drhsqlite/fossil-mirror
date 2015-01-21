@@ -1,5 +1,5 @@
-C Enhance\sthe\sad-unit\sprocessing\sto\sallow\sfor\stall\sright-side\scolumn\sads\sas\nan\salternative\sto\sbanner\sads.
-D 2015-01-21T18:55:15.207
+C Do\snot\sattempt\sto\suse\sthe\sRight-Column\sAd-Unit\sif\sthe\scontent\scontains\na\s&lt;table&gt;\selement.
+D 2015-01-21T21:19:00.582
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -323,7 +323,7 @@ F src/builtin.c 08565eade8f6c68f5c17b5f932fc2c4dfd931cba
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
-F src/cgi.c 35e30682cdd9ee54d8b4bd4df411cfba77099bae
+F src/cgi.c 9c73ecf9a0435e1fcf52f2a206df4f6c1dd13778
 F src/checkin.c dc87c556cbd24182b8bb8a30a692a37f3b74f55a
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -421,7 +421,7 @@ F src/sqlite3.c 91aea4cc722371d58aae3d22e94d2a4165276905
 F src/sqlite3.h 270ca424d0cc052889f8e75b58b82046e4c49274
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c beadf875af7ef98c67e1c5e1017c31ba3ee493c1
-F src/style.c 822b33294b428d29aebc67d78694df1c5edd0a80
+F src/style.c d850d4b54691c68fbb9b3e3c7a4965bbde2676b4
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 70a289414489828df970743d06d37efd9c83d750
 F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
@@ -664,10 +664,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0438d06635892890f39f78995799539d25607e23
-R 7e006bb0b4be723e01da76f6721a3f70
-T *branch * ad-unit-enhancement
-T *sym-ad-unit-enhancement *
-T -sym-trunk *
+P 4bc5b6cf9b7466c8b1add02de655046003babfcc
+R 4fa809b4b563c3de0a5c8ccf30b3cdb3
 U drh
-Z feca6d4eb4424246837eb679831edf49
+Z a1da059f0f40fd95d14a598a01997320
