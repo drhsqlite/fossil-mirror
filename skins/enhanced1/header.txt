@@ -25,11 +25,11 @@
         set idx(first+1) [expr {$idx(first) + 2}]
         ##
         ## NOTE: (part 1) The [string first] command does NOT actually
-        ##       the optional startIndex argument as specified in the
-        ##       TH1 support manual; therefore, we fake it by using the
-        ##       [string range] command and then adding the necessary
-        ##       offset to the resulting index manually (below).  In Tcl,
-        ##       we could use the following instead:
+        ##       support the optional startIndex argument as specified
+        ##       in the TH1 support manual; therefore, we fake it by
+        ##       using the [string range] command and then adding the
+        ##       necessary offset to the resulting index manually
+        ##       (below).  In Tcl, we could use the following instead:
         ##
         ##       set idx(next) [string first / $baseurl $idx(first+1)]
         ##
@@ -37,9 +37,9 @@
         set idx(next) [string first / $idx(nextRange)]
         if {$idx(next) != -1} {
           ##
-          ## NOTE: (part 2) Add the necessary offset to the result of the
-          ##       search for the next slash (i.e. the one after the initial
-          ##       search for the two slashes).
+          ## NOTE: (part 2) Add the necessary offset to the result of
+          ##       the search for the next slash (i.e. the one after
+          ##       the initial search for the two slashes).
           ##
           set idx(next) [expr {$idx(next) + $idx(first+1)}]
           ##

@@ -136,3 +136,10 @@ pre.verbatim {
   padding: 0.5em;
   white-space: pre-wrap;
 }
+
+/* The label/value pairs on (for example) the ci page */
+table.label-value th {
+  vertical-align: top;
+  text-align: right;
+  padding: 0.2ex 2ex;
+}

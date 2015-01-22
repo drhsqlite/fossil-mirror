@@ -1,5 +1,5 @@
-C Add\scomments\sthe\sCGI-script\sparser.\s\sMove\sthe\smost\scommonly\sseen\slines\sto\nthe\stop\sof\sthe\sif-then-else\schain.
-D 2015-01-22T13:44:44.728
+C Add\smissing\sstyle\sto\sthe\sdefault\sskin\sCSS.\s\sAlso,\scorrect\ssome\scomments.
+D 2015-01-22T15:32:25.085
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -314,12 +314,12 @@ F skins/README.md be42c1cdac9f4da896447ea88d90cce2b8fe7e46
 F skins/black_and_white/css.txt c3adc27aeeba71bd280e681233158c7694e41a25
 F skins/black_and_white/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/black_and_white/header.txt 45bf325c3c68d5ad3c02074433edc708ecf005a9
-F skins/default/css.txt f6b4de41e1d28d8c3fb95a8ef123c568cf2f9cf2
+F skins/default/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
 F skins/default/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
 F skins/default/header.txt 3e621823aa73d698b5a6b0f45f5f04bfbcee51cf
 F skins/enhanced1/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
 F skins/enhanced1/footer.txt d388a6f9a892e85b36c4869eae0e392a0eb557c1
-F skins/enhanced1/header.txt eaa558a9d12ba6de499ac5a6cf349546515a98ae
+F skins/enhanced1/header.txt e16e351190bf975017bbaf88d6014f722cdf88b8
 F skins/khaki/css.txt 1e2129df1cd0a0e15f833866c11ea796d19fbc7b
 F skins/khaki/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/khaki/header.txt 3e575cd45271f30daa1115c3fef6db5e617f8b5e
@@ -683,7 +683,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f6c285f88c9768d6c895c22b094db7ac0e865585
-R a44f079ab5b590cab4955c587694f4ec
-U drh
-Z 1741a4d22cfdaa0e0f284a60c0608df7
+P 236087b98e559e3ed21ae85819f60e576b071147
+R 028cb2eb2c6177ca505e00844b4fc22a
+U mistachkin
+Z abf0a307dc1d05eaa4e721357cbbde13
