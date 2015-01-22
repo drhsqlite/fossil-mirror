@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\ssetting\senvironment\svariables\sfrom\swithin\sCGI\sscript\sfiles.
-D 2015-01-22T02:59:48.545
+C Update\sSQLite\sto\sthe\s3.8.8.1\srelease
+D 2015-01-22T09:16:57.447
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -436,8 +436,8 @@ F src/shun.c a93c409f694b6022061d2c946311d6ead83a4e49
 F src/sitemap.c 48d23c10d6a2cef3f3b961ff912536c6d80fb3e0
 F src/skins.c 950d48b3d90ef6b65b19b8b5fec7c0686deec521
 F src/sqlcmd.c 1138c93fe8925bc5697de8d15789cb460d5b6ca5
-F src/sqlite3.c 91aea4cc722371d58aae3d22e94d2a4165276905
-F src/sqlite3.h 270ca424d0cc052889f8e75b58b82046e4c49274
+F src/sqlite3.c 33987fb50dcc09f1429a653d6b47672f5a96f19e
+F src/sqlite3.h 1db30efd42bf6adb957b695210805a6fdb165bf3
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c beadf875af7ef98c67e1c5e1017c31ba3ee493c1
 F src/style.c 9930d9338085f418c16bdad44f4e90ce0fdc314a
@@ -683,7 +683,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 448c9cfae5f5a8d83f16a24425d144a1430aad14 878b5663d5bf546249ff7ae5c943eb91db5d57ac
-R f8a9c35b419c1af114eeb768eb1cdfbf
-U mistachkin
-Z e3332b3d3a14605fbb89d21ff252ba6a
+P 0af7024db1246f1fad4ff6b23aa03879f7157edc
+R b925613df6c96cfcf10aeb9bf8521232
+U jan.nijtmans
+Z a5bf835b2a525c068cb346de71d4bc01
