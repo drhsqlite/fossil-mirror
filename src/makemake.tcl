@@ -144,6 +144,7 @@ set src {
 #
 set extra_files {
   diff.tcl
+  ../skins/*/*.txt
 }
 
 # Options used to compile the included SQLite library.
@@ -205,6 +206,15 @@ proc writeln {args} {
 # STOP HERE.
 # Unless the build procedures changes, you should not have to edit anything
 # below this line.
+
+# Expand any wildcards in "extra_files"
+set new_extra_files {}
+foreach file $extra_files {
+  foreach x [glob -nocomplain $file] {
+    lappend new_extra_files $x
+  }
+}
+set extra_files $new_extra_files
 
 ##############################################################################
 ##############################################################################

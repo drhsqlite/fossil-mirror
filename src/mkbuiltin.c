@@ -31,7 +31,7 @@
 
 /*
 ** Read the entire content of the file named zFilename into memory obtained
-** from malloc() and retur a pointer to that memory.  Write the size of the
+** from malloc() and return a pointer to that memory.  Write the size of the
 ** file into *pnByte.
 */
 static unsigned char *read_file(const char *zFilename, int *pnByte){
@@ -64,6 +64,7 @@ typedef struct Resource Resource;
 struct Resource {
   const char *zName;
   int nByte;
+  int idx;
 };
 
 /*
@@ -84,6 +85,7 @@ int main(int argc, char **argv){
   int nRes = argc-1;
   unsigned char *pData;
   int nErr = 0;
+  int nSkip;
 
   aRes = malloc( nRes*sizeof(aRes[0]) );
   if( aRes==0 ){
@@ -105,11 +107,20 @@ int main(int argc, char **argv){
       nErr++;
       continue;
     }
-    aRes[i].nByte = sz;
+
+    /* Skip initial lines beginning with # */
+    nSkip = 0;
+    while( pData[nSkip]=='#' ){
+      while( pData[nSkip]!=0 && pData[nSkip]!='\n' ){ nSkip++; }
+      if( pData[nSkip]=='\n' ) nSkip++;
+    }
+
+    aRes[i].nByte = sz - nSkip;
+    aRes[i].idx = i;
     printf("/* Content of file %s */\n", aRes[i].zName);
     printf("static const unsigned char bidata%d[%d] = {\n  ",
-           i, sz+1);
-    for(j=n=0; j<=sz; j++){
+           i, sz+1-nSkip);
+    for(j=nSkip, n=0; j<=sz; j++){
       printf("%3d", pData[j]);
       if( j==sz ){
         printf(" };\n");
@@ -131,14 +142,23 @@ int main(int argc, char **argv){
   printf("};\n");
   printf("static const BuiltinFileTable aBuiltinFiles[] = {\n");
   for(i=0; i<nRes; i++){
-    const char *zTail;
     const char *z = aRes[i].zName;
+    const char *zTail;
+    int nSlash = 0;
     zTail = z;
     while( z && z[0] ){
-      if( z[0]=='/' || z[0]=='\\' ) zTail = &z[1];
+      if( z[0]=='/' || z[0]=='\\' ){
+        nSlash++;
+        if( nSlash<=2 || z[-1]=='.' ) zTail = &z[1];
+      }
       z++;
     }
-    printf("  { \"%s\", bidata%d, %d },\n", zTail, i, aRes[i].nByte);
+    aRes[i].zName = zTail;
+  }
+  qsort(aRes, nRes, sizeof(aRes[0]), compareResource);
+  for(i=0; i<nRes; i++){
+    printf("  { \"%s\", bidata%d, %d },\n",
+           aRes[i].zName, aRes[i].idx, aRes[i].nByte);
   }
   printf("};\n");
   return nErr;
