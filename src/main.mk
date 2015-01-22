@@ -133,6 +133,24 @@ SRC = \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
+  $(SRCDIR)/../skins/black_and_white/css.txt \
+  $(SRCDIR)/../skins/black_and_white/footer.txt \
+  $(SRCDIR)/../skins/black_and_white/header.txt \
+  $(SRCDIR)/../skins/default/css.txt \
+  $(SRCDIR)/../skins/default/footer.txt \
+  $(SRCDIR)/../skins/default/header.txt \
+  $(SRCDIR)/../skins/enhanced1/css.txt \
+  $(SRCDIR)/../skins/enhanced1/footer.txt \
+  $(SRCDIR)/../skins/enhanced1/header.txt \
+  $(SRCDIR)/../skins/khaki/css.txt \
+  $(SRCDIR)/../skins/khaki/footer.txt \
+  $(SRCDIR)/../skins/khaki/header.txt \
+  $(SRCDIR)/../skins/plain_gray/css.txt \
+  $(SRCDIR)/../skins/plain_gray/footer.txt \
+  $(SRCDIR)/../skins/plain_gray/header.txt \
+  $(SRCDIR)/../skins/rounded1/css.txt \
+  $(SRCDIR)/../skins/rounded1/footer.txt \
+  $(SRCDIR)/../skins/rounded1/header.txt \
   $(SRCDIR)/diff.tcl
 
 TRANS_SRC = \
