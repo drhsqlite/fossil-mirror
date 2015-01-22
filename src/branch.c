@@ -369,7 +369,7 @@ static void new_brlist_page(void){
     @ <tr>
     @ <td>%z(href("%R/timeline?n=100&r=%T",zBranch))%h(zBranch)</a></td>
     @ <td data-sortkey="%016llx(-iMtime)">%s(zAge)</td>
-    @ <td data-sortkey="%08x(-nCkin)">%d(nCkin)</td>
+    @ <td>%d(nCkin)</td>
     fossil_free(zAge);
     @ <td>%s(isClosed?"closed":"")</td>
     if( zMergeTo ){
@@ -382,7 +382,7 @@ static void new_brlist_page(void){
   }
   @ </tbody></table></div>
   db_finalize(&q);
-  output_table_sorting_javascript("branchlisttable","tkktt",2);
+  output_table_sorting_javascript("branchlisttable","tkNtt",2);
   style_footer();
 }
 

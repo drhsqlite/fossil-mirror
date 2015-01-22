@@ -935,6 +935,7 @@ static int db_exec_readonly(
 **       k      Sort by the data-sortkey property
 **       x      This column is not sortable
 **
+** Capital letters mean sort in reverse order.
 ** If there are fewer characters in zColumnTypes[] than their are columns,
 ** the all extra columns assume type "t" (text).
 **
@@ -958,10 +959,10 @@ void output_table_sorting_javascript(
   @     var column = cell.cellIndex;
   @     var sortFn;
   @     switch( cell.sortType ){
-  @       case "n":  sortFn = this.sortNumeric;  break;
-  @       case "t":  sortFn = this.sortText;     break;
-  @       case "k":  sortFn = this.sortKey;      break;
-  @       case "x":  return;
+  @       case "N": case "n":  sortFn = this.sortNumeric;  break;
+  @       case "T": case "t":  sortFn = this.sortText;     break;
+  @       case "K": case "k":  sortFn = this.sortKey;      break;
+  @       default:  return;
   @     }
   @     this.sortIndex = column;
   @     var newRows = new Array();
@@ -974,6 +975,9 @@ void output_table_sorting_javascript(
   @     }else{
   @       newRows.sort(sortFn);
   @       this.prevColumn = this.sortIndex+1;
+  @       if( cell.sortType>="A" && cell.sortType<="Z" ){
+  @         newRows.reverse();
+  @       }
   @     }
   @     for (i=0;i<newRows.length;i++) {
   @       this.tbody[0].appendChild(newRows[i]);

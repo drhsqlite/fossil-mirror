@@ -1,5 +1,5 @@
-C Make\stable\ssorting\s(by\sclicking\son\scolumn\sheaders)\sstable.\s\sIn\sother\swords,\nidentical\svalues\sin\sthe\scolumn\sbeing\ssorted\spreserve\stheir\sprior\srelative\norder.\s\sPatch\ssuggested\sby\sJacek\sCała.
-D 2015-01-22T22:52:47.184
+C Enhance\sthe\stable\ssorting\sjavascript\sto\ssupport\sinitial\sreverse-order\ssorting.\nAdd\stable\ssorting\sto\sthe\suser\slog.
+D 2015-01-22T23:45:15.316
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -340,7 +340,7 @@ F src/attach.c e9186b7e96800753bc8696fa020fb82aba9fbd70
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
-F src/branch.c ccf3c3da137c854771f526425ba07d24f03a4efb
+F src/branch.c 63825d1c0579a83a9ee69b6c73e30e6888d999b7
 F src/browse.c 63f86de0741e71dad6524d697c3b18b179e68ac6
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
@@ -429,7 +429,7 @@ F src/publish.c 899d9791e70f48b9f2a62f58c846ab1b1b369894
 F src/purge.c 3e807688b108bd0cf54b86a19283f64fcf46d374
 F src/rebuild.c ea2736883d102bbf2debd96bb0636fdad574d95c
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
-F src/report.c 1e5d1769cbec2046b82e59c55489dd96a555b0ee
+F src/report.c a0d00508940476f5f428b0fb2a5df9e8db149afb
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
 F src/schema.c 1b578de8bf55a1b707e2f135051ce0a2a3b61d3c
 F src/search.c 8a4df7e4c41c3ae55347a48e00d143563cb23097
@@ -461,7 +461,7 @@ F src/undo.c d341d0e026cc82796b580ef7f27a8508c45fcdbf
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
 F src/update.c c9fbde269bc2766708622b1a9e7f01ba9baf3728
 F src/url.c b7743600119e97d34f96aea8996b9a4caad4bdc0
-F src/user.c 1160e782d0da7e29e714a500bafbbac3ce8f70e1
+F src/user.c 80f05d6ac698a7da5cf8d57ab7ba45b01677e467
 F src/utf8.c cb3a7d214d1eea0919fc68b0683388d1cf61c78b
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
@@ -687,7 +687,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P beaf897cb1ab47d5b73f91f98ee7eeaf94f62f7e
-R 0d864d981c9318a2a98a3502953d8c35
+P fe61f4958d1b8983cf051922d35648d63674508a
+R b4d83b0d391a7f05bcbadf7ad2d26592
 U drh
-Z 98a9e96e40509b4330b7748da8a4c642
+Z 54f01baec1a40279409797fca6aa55df
