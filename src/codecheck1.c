@@ -278,7 +278,7 @@ static int is_s_safe(const char *z){
   ** for use with %s */
   z = next_non_whitespace(z, &len, &eType);
   for(i=0; i<sizeof(azSafeFunc)/sizeof(azSafeFunc[0]); i++){
-    if( eType==TK_ID 
+    if( eType==TK_ID
      && strncmp(z, azSafeFunc[i], len)==0
      && strlen(azSafeFunc[i])==len
     ){
@@ -293,7 +293,7 @@ static int is_s_safe(const char *z){
   /* If the "safe-for-%s" comment appears in the argument, then
   ** let it through */
   if( strstr(z, "/*safe-for-%s*/")!=0 ) return 1;
-    
+
   return 0;
 }
 
@@ -462,7 +462,7 @@ static int checkFormatFunc(
   }
   acType = (char*)&azArg[nArg];
   if( fmtArg>nArg ){
-    printf("%s:%d: too few arguments to %.*s()\n", 
+    printf("%s:%d: too few arguments to %.*s()\n",
            zFilename, lnFCall, szFName, zFCall);
     nErr++;
   }else{
@@ -539,7 +539,7 @@ static int scan_file(const char *zName, const char *zContent){
             && (x = isFormatFunc(zPrev,szPrev,&fmtFlags))>0 ){
         nErr += checkFormatFunc(zName, zPrev, lnPrev, x, fmtFlags);
       }
-    }    
+    }
     zPrev = z;
     ePrev = eToken;
     szPrev = szToken;

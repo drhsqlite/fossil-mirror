@@ -219,7 +219,7 @@ void scan_for_func(char *zLine){
   nHelp = 0;
   return;
 
-page_skip:   
+page_skip:
    for(i=nFixed; i<nUsed; i++){
       fprintf(stderr,"%s:%d: skipping page \"%s\"\n",
          zFile, nLine, aEntry[i].zPath);
@@ -329,7 +329,7 @@ void build_table(void){
   }
   puts("struct CmdHelp {"
        "int eType; "
-       "char const * zText;"
+       "const char *zText;"
        "};");
   puts("static struct CmdHelp aCmdHelp[] = {");
   for(i=0; i<nFixed; i++){
@@ -363,7 +363,7 @@ void process_file(void){
     scan_for_func(zLine);
   }
   fclose(in);
-  nUsed = nFixed; 
+  nUsed = nFixed;
 }
 
 int main(int argc, char **argv){
