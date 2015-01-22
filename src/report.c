@@ -1001,7 +1001,7 @@ void output_table_sorting_javascript(
   @     var i = thisObject.sortIndex;
   @     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
   @     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
-  @     if(aa==bb) return 0;
+  @     if(aa==bb) return a.rowIndex-b.rowIndex;
   @     if(aa<bb) return -1;
   @     return 1;
   @   }
@@ -1011,13 +1011,14 @@ void output_table_sorting_javascript(
   @     if (isNaN(aa)) aa = 0;
   @     bb = parseFloat(b.cells[i].textContent);
   @     if (isNaN(bb)) bb = 0;
+  @     if(aa==bb) return a.rowIndex-b.rowIndex;
   @     return aa-bb;
   @   }
   @   this.sortKey = function(a,b) {
   @     var i = thisObject.sortIndex;
   @     aa = a.cells[i].getAttribute("data-sortkey");
   @     bb = b.cells[i].getAttribute("data-sortkey");
-  @     if(aa==bb) return 0;
+  @     if(aa==bb) return a.rowIndex-b.rowIndex;
   @     if(aa<bb) return -1;
   @     return 1;
   @   }
