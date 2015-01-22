@@ -1,5 +1,5 @@
-C Add\smissing\sstyle\sto\sthe\sdefault\sskin\sCSS.\s\sAlso,\scorrect\ssome\scomments.
-D 2015-01-22T15:32:25.085
+C Dockerfile:\sbuild\s"trunk"\sin\sstead\sof\s"release"\sby\sdefault.\sNo\sneed\sfor\sinstalling\stcl-devel\swhen\sbuilding\sfossil\swith\s--with-tcl-private-stubs,\sjust\stcl\sis\senough.
+D 2015-01-22T15:40:31.988
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -10,7 +10,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile 68e14ad57657162e90aa7802abed8cb167ed58d9
+F Dockerfile e6ea4b106b9d19278486f544d44fc1b02210adec
 F Makefile.classic 8860fc8763421cb968e05bdd361311f9a443fc07
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
 F VERSION 72867f32a368547eaf1e8b96c60e100001c7c9e1
@@ -683,7 +683,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 236087b98e559e3ed21ae85819f60e576b071147
-R 028cb2eb2c6177ca505e00844b4fc22a
-U mistachkin
-Z abf0a307dc1d05eaa4e721357cbbde13
+P 03a75d7cb5241acbeb3d5be88c2d234cae0a7a5b
+R 2262d633e6af470286bc680957ceea49
+U jan.nijtmans
+Z 336d1ba376ac279f96930e77ff4ceb24
