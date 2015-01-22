@@ -173,6 +173,7 @@ int report_query_authorizer(
   }
   switch( code ){
     case SQLITE_SELECT:
+    case SQLITE_RECURSIVE:
     case SQLITE_FUNCTION: {
       break;
     }
@@ -201,11 +202,6 @@ int report_query_authorizer(
       }else if( !g.perm.RdAddr && strncmp(zArg2, "private_", 8)==0 ){
         rc = SQLITE_IGNORE;
       }
-      break;
-    }
-    case SQLITE_RECURSIVE: {
-      *(char**)pError = mprintf("recursive queries are not allowed");
-      rc = SQLITE_DENY;
       break;
     }
     default: {
