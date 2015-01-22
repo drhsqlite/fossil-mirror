@@ -1527,12 +1527,13 @@ void setup_editcss(void){
   db_begin_transaction();
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name='css'");
-    cgi_replace_parameter("css", zDefaultCSS);
+    cgi_replace_parameter("css", builtin_text("skins/default.css"));
     db_end_transaction(0);
     cgi_redirect("setup_editcss");
   }
   if( P("submit")!=0 ){
-    textarea_attribute(0, 0, 0, "css", "css", zDefaultCSS, 0);
+    textarea_attribute(0, 0, 0, "css", "css",
+                       builtin_text("skins/default.css"), 0);
     db_end_transaction(0);
     cgi_redirect("setup_editcss");
   }
@@ -1540,7 +1541,8 @@ void setup_editcss(void){
   @ <form action="%s(g.zTop)/setup_editcss" method="post"><div>
   login_insert_csrf_secret();
   @ Edit the CSS below:<br />
-  textarea_attribute("", 35, 80, "css", "css", zDefaultCSS, 0);
+  textarea_attribute("", 35, 80, "css", "css",
+                     builtin_text("skins/default.css"), 0);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -1570,11 +1572,13 @@ void setup_header(void){
   db_begin_transaction();
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name='header'");
-    cgi_replace_parameter("header", zDefaultHeader);
+    cgi_replace_parameter("header", builtin_text("skins/default.header"));
   }else if( P("submit")!=0 ){
-    textarea_attribute(0, 0, 0, "header", "header", zDefaultHeader, 0);
+    textarea_attribute(0, 0, 0, "header", "header",
+                       builtin_text("skins/default.header"), 0);
   }else if( P("fixbase")!=0 ){
-    const char *z = db_get("header", (char*)zDefaultHeader);
+    const char *z = db_get("header",
+                           (char*)builtin_text("skins/default.header"));
     char *zHead = strstr(z, "<head>");
     if( strstr(z, "<base href=")==0 && zHead!=0 ){
       char *zNew;
@@ -1603,7 +1607,8 @@ void setup_header(void){
   @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the beginning of every page through start of the main
   @ menu.</p>
-  textarea_attribute("", 35, 80, "header", "header", zDefaultHeader, 0);
+  textarea_attribute("", 35, 80, "header", "header",
+                     builtin_text("skins/default.header"), 0);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -1614,7 +1619,7 @@ void setup_header(void){
   @ See also the <a href="setup_editcss">CSS</a> and
   @ <a href="setup_footer">footer</a> editing screens.
   @ <blockquote><pre>
-  @ %h(zDefaultHeader)
+  @ %h(builtin_text("skins/default.header"))
   @ </pre></blockquote>
   style_footer();
   db_end_transaction(0);
@@ -1631,7 +1636,7 @@ void setup_footer(void){
   db_begin_transaction();
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name='footer'");
-    cgi_replace_parameter("footer", zDefaultFooter);
+    cgi_replace_parameter("footer", builtin_text("skins/default.footer"));
   }
 
   style_header("Edit Page Footer");
@@ -1639,7 +1644,8 @@ void setup_footer(void){
   login_insert_csrf_secret();
   @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the end of every page.</p>
-  textarea_attribute("", 20, 80, "footer", "footer", zDefaultFooter, 0);
+  textarea_attribute("", 20, 80, "footer", "footer",
+                     builtin_text("skins/default.footer"), 0);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -1650,7 +1656,7 @@ void setup_footer(void){
   @ See also the <a href="setup_editcss">CSS</a> and
   @ <a href="setup_header">header</a> editing screens.
   @ <blockquote><pre>
-  @ %h(zDefaultFooter)
+  @ %h(builtin_text("skins/default.footer"))
   @ </pre></blockquote>
   style_footer();
   db_end_transaction(0);
