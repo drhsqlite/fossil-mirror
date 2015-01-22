@@ -151,6 +151,7 @@ struct Global {
   int fSshClient;         /* HTTP client flags for SSH client */
   char *zSshCmd;          /* SSH command string */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
+  const char *zSkin;      /* Alternative webpage skin name */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
@@ -1859,6 +1860,17 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
+    if( blob_eq(&key, "skin:") && blob_token(&line, &value) ){
+      /* skin: NAME
+      **
+      ** Use an alternative "skin" for this instance.  NAME is the name
+      ** of the alternative skin to use.  See comments on db_skin_name()
+      ** for addition information.
+      */
+      g.zSkin = mprintf("%s", blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
     if( blob_eq(&key, "setenv:") && blob_token(&line, &value)
             && blob_token(&line, &value2) ){
       /* setenv: NAME VALUE
@@ -1993,6 +2005,7 @@ static void find_server_repository(int disallowDir, int arg){
 **   --files GLOB     comma-separate glob patterns for static file to serve
 **   --baseurl URL    base URL (useful with reverse proxies)
 **   --scgi           Interpret input as SCGI rather than HTTP
+**   --skin NAME      Use an alternative labeled NAME
 **
 ** See also: cgi, server, winsrv
 */
@@ -2019,6 +2032,7 @@ void cmd_http(void){
   zNotFound = find_option("notfound", 0, 1);
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
+  g.zSkin = find_option("skin", 0, 1);
   useSCGI = find_option("scgi", 0, 0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
   if( zAltBase ) set_base_url(zAltBase);
@@ -2212,6 +2226,7 @@ void cmd_webserver(void){
   zPort = find_option("port", "P", 1);
   zNotFound = find_option("notfound", 0, 1);
   zAltBase = find_option("baseurl", 0, 1);
+  g.zSkin = find_option("skin",0,1);
   if( find_option("scgi", 0, 0)!=0 ) flags |= HTTP_SERVER_SCGI;
   if( zAltBase ){
     set_base_url(zAltBase);

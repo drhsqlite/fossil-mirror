@@ -1231,6 +1231,9 @@ void page_test_env(void){
   @ g.isHuman = %d(g.isHuman)<br />
   @ capabilities = %s(zCap)<br />
   @ g.zRepositoryName = %h(g.zRepositoryName)<br />
+  if( g.zSkin ){
+    @ g.zSkin = %h(g.zSkin)<br />
+  }
   @ load_average() = %f(load_average())<br />
   @ <hr>
   P("HTTP_USER_AGENT");

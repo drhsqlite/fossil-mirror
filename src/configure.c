@@ -85,9 +85,9 @@ static struct {
   const char *zName;   /* Name of the configuration parameter */
   int groupMask;       /* Which config groups is it part of */
 } aConfig[] = {
-  { "css",                    CONFIGSET_CSS  },
-  { "header",                 CONFIGSET_SKIN },
-  { "footer",                 CONFIGSET_SKIN },
+  { "css",                    CONFIGSET_CSS  }, /* Keep all CSS and SKIN in */
+  { "header",                 CONFIGSET_SKIN }, /* in sync with db_skin_name() */
+  { "footer",                 CONFIGSET_SKIN }, /* in db.c */
   { "logo-mimetype",          CONFIGSET_SKIN },
   { "logo-image",             CONFIGSET_SKIN },
   { "background-mimetype",    CONFIGSET_SKIN },

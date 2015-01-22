@@ -60,7 +60,11 @@ static struct BuiltinSkin {
 static char *skinVarName(const char *zSkinName, int ifExists){
   char *z;
   if( zSkinName==0 || zSkinName[0]==0 ) return 0;
-  z = mprintf("skin:%s", zSkinName);
+  if( g.zSkin ){
+    z = mprintf("skin(%s):%s", g.zSkin, zSkinName);
+  }else{
+    z = mprintf("skin:%s", zSkinName);
+  }
   if( ifExists && !db_exists("SELECT 1 FROM config WHERE name=%Q", z) ){
     free(z);
     z = 0;
@@ -98,7 +102,7 @@ static char *getSkin(const char *zName){
     }
     blob_appendf(&val,
        "REPLACE INTO config(name,value,mtime) VALUES(%Q,%Q,now());\n",
-       azType[i], z
+       db_skin_name(azType[i]), z
     );
   }
   return blob_str(&val);
@@ -168,13 +172,15 @@ void setup_skin(void){
       }
     }
     if( !seen ){
-      seen = db_exists("SELECT 1 FROM config WHERE name GLOB 'skin:*'"
-                       " AND value=%Q", zCurrent);
+      seen = db_exists("SELECT 1 FROM config"
+                       " WHERE name GLOB %Q"
+                       "   AND value=%Q",
+                       skinVarName("*",0), zCurrent);
       if( !seen ){
         db_multi_exec(
-          "INSERT INTO config(name,value,mtime) VALUES("
-          "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
-          "  %Q,now())", zCurrent
+          "INSERT INTO config(name,value,mtime) "
+          " VALUES(strftime(%Q),%Q,now())",
+          skinVarName("Backup On %Y-%m-%d %H:%M:%S",0), zCurrent
         );
       }
     }
@@ -221,13 +227,15 @@ void setup_skin(void){
   }
   db_prepare(&q,
      "SELECT substr(name, 6), value FROM config"
-     " WHERE name GLOB 'skin:*'"
-     " ORDER BY name"
+     " WHERE name GLOB %Q"
+     " ORDER BY name",
+     skinVarName("*",0)
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zN = db_column_text(&q, 0);
     const char *zV = db_column_text(&q, 1);
     i++;
+    if( g.zSkin ) zN += strlen(g.zSkin)+2;
     @ <tr><td>%d(i).<td>%h(zN)<td>&nbsp;&nbsp;<td>
     if( fossil_strcmp(zV, zCurrent)==0 ){
       @ (Currently In Use)

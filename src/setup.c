@@ -1802,22 +1802,21 @@ void setup_logo(void){
     blob_init(&img, aLogoImg, szLogoImg);
     db_prepare(&ins,
         "REPLACE INTO config(name,value,mtime)"
-        " VALUES('logo-image',:bytes,now())"
+        " VALUES(%Q,:bytes,now())",
+        db_skin_name("logo-image")
     );
     db_bind_blob(&ins, ":bytes", &img);
     db_step(&ins);
     db_finalize(&ins);
     db_multi_exec(
-       "REPLACE INTO config(name,value,mtime) VALUES('logo-mimetype',%Q,now())",
-       zLogoMime
+       "REPLACE INTO config(name,value,mtime) VALUES(%Q,%Q,now())",
+       db_skin_name("logo-mimetype"), zLogoMime
     );
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("clrlogo")!=0 ){
-    db_multi_exec(
-       "DELETE FROM config WHERE name IN "
-           "('logo-image','logo-mimetype')"
-    );
+    db_unset("logo-image", 0);
+    db_unset("logo-mimetype", 0);
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("setbg")!=0 && zBgMime && zBgMime[0] && szBgImg>0 ){
@@ -1826,23 +1825,22 @@ void setup_logo(void){
     blob_init(&img, aBgImg, szBgImg);
     db_prepare(&ins,
         "REPLACE INTO config(name,value,mtime)"
-        " VALUES('background-image',:bytes,now())"
+        " VALUES(%Q,:bytes,now())",
+        db_skin_name("background-image")
     );
     db_bind_blob(&ins, ":bytes", &img);
     db_step(&ins);
     db_finalize(&ins);
     db_multi_exec(
        "REPLACE INTO config(name,value,mtime)"
-       " VALUES('background-mimetype',%Q,now())",
-       zBgMime
+       " VALUES(%Q,%Q,now())",
+       db_skin_name("background-mimetype"),zBgMime
     );
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }else if( P("clrbg")!=0 ){
-    db_multi_exec(
-       "DELETE FROM config WHERE name IN "
-           "('background-image','background-mimetype')"
-    );
+    db_unset("background-image", 0);
+    db_unset("background-mimetype", 0);
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }

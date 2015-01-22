@@ -1967,6 +1967,60 @@ char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
 
 
 /*
+** Translate a local CONFIG parameter name based on the g.zSkin setting
+** and return a pointer to the new name.
+**
+** The returned string is only valid until the next call to this routine.
+**
+** If g.zSkin==0 (which is the overwhelmingly common case) then just
+** return zName immediately, without change.  But if g.zSkin is set and
+** if zName is one of the CONFIG parameters that affect the screen
+** appearance, then return a copy of zName with "("+g.zSkin+")" appended.
+** Space to hold the copy is managed locally and is freed on the next
+** call to this routine.
+*/
+const char *db_skin_name(const char *zName){
+  static const char *azSkinVars[] = {   /* These are the names of CONFIG */
+    "adunit",                           /* variables that affect appearance. */
+    "adunit-omit-if-admin",             /* Keep this list in sorted order, */
+    "adunit-omit-if-user",              /* and in sync with the list of */
+    "background-image",                 /* CONFIGSET_SKIN and CONFIGSET_CSS */
+    "background-mimetype",              /* names in configure.c */
+    "css",
+    "footer",
+    "header",
+    "index-page",
+    "logo-image",
+    "logo-mimetype",
+    "timeline-block-markup",
+    "timeline-max-comment",
+    "timeline-plaintext",
+  };
+  int i, c, lwr, upr;
+  static char *zToFree = 0;
+  if( g.zSkin==0 ) return zName;  /* The common case */
+  if( zToFree ){
+    fossil_free(zToFree);
+    zToFree = 0;
+  }
+  lwr = 0;
+  upr = sizeof(azSkinVars)/sizeof(azSkinVars[0])-1;
+  while( lwr<=upr ){
+    i = (lwr+upr)/2;
+    c = fossil_strcmp(azSkinVars[i], zName);
+    if( c<0 ){
+      lwr = i+1;
+    }else if( c>0 ){
+      upr = i-1;
+    }else{
+      zToFree = mprintf("%s(%s)", zName, g.zSkin);
+      return zToFree;
+    }
+  }
+  return zName;
+}
+
+/*
 ** Get and set values from the CONFIG, GLOBAL_CONFIG and VVAR table in the
 ** repository and local databases.
 */
@@ -1982,7 +2036,8 @@ char *db_get(const char *zName, char *zDefault){
     }
   }
   if( g.repositoryOpen ){
-    z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
+    z = db_text(0, "SELECT value FROM config WHERE name=%Q",
+                db_skin_name(zName));
   }
   if( z==0 && g.zConfigDbName ){
     db_swap_connections();
@@ -2002,7 +2057,8 @@ char *db_get(const char *zName, char *zDefault){
 char *db_get_mtime(const char *zName, char *zFormat, char *zDefault){
   char *z = 0;
   if( g.repositoryOpen ){
-    z = db_text(0, "SELECT mtime FROM config WHERE name=%Q", zName);
+    z = db_text(0, "SELECT mtime FROM config WHERE name=%Q",
+                db_skin_name(zName));
   }
   if( z==0 ){
     z = zDefault;
@@ -2020,7 +2076,7 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
     db_swap_connections();
   }else{
     db_multi_exec("REPLACE INTO config(name,value,mtime) VALUES(%Q,%Q,now())",
-                   zName, zValue);
+                   db_skin_name(zName), zValue);
   }
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
@@ -2034,7 +2090,7 @@ void db_unset(const char *zName, int globalFlag){
     db_multi_exec("DELETE FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
   }else{
-    db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+    db_multi_exec("DELETE FROM config WHERE name=%Q", db_skin_name(zName));
   }
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
@@ -2055,7 +2111,8 @@ int db_get_int(const char *zName, int dflt){
   int rc;
   if( g.repositoryOpen ){
     Stmt q;
-    db_prepare(&q, "SELECT value FROM config WHERE name=%Q", zName);
+    db_prepare(&q, "SELECT value FROM config WHERE name=%Q",
+                    db_skin_name(zName));
     rc = db_step(&q);
     if( rc==SQLITE_ROW ){
       v = db_column_int(&q, 0);
@@ -2079,7 +2136,7 @@ void db_set_int(const char *zName, int value, int globalFlag){
     db_swap_connections();
   }else{
     db_multi_exec("REPLACE INTO config(name,value,mtime) VALUES(%Q,%d,now())",
-                  zName, value);
+                  db_skin_name(zName), value);
   }
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
