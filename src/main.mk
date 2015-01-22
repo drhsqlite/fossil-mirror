@@ -142,6 +142,9 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/enhanced1/css.txt \
   $(SRCDIR)/../skins/enhanced1/footer.txt \
   $(SRCDIR)/../skins/enhanced1/header.txt \
+  $(SRCDIR)/../skins/etienne1/css.txt \
+  $(SRCDIR)/../skins/etienne1/footer.txt \
+  $(SRCDIR)/../skins/etienne1/header.txt \
   $(SRCDIR)/../skins/khaki/css.txt \
   $(SRCDIR)/../skins/khaki/footer.txt \
   $(SRCDIR)/../skins/khaki/header.txt \
