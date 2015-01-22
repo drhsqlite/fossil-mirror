@@ -1717,9 +1717,11 @@ void setup_adunit(void){
   style_header("Edit Ad Unit");
   @ <form action="%s(g.zTop)/setup_adunit" method="post"><div>
   login_insert_csrf_secret();
-  @ <p>Edit HTML text for an ad unit that will be inserted after the
-  @ menu bar and above the content of every page.</p>
-  textarea_attribute("", 20, 80, "adunit", "adunit", "", 0);
+  @ <b>Banner Ad-Unit:</b><br />
+ textarea_attribute("", 6, 80, "adunit", "adunit", "", 0);
+  @ <br />
+  @ <b>Right-Column Ad-Unit:</b><br />
+  textarea_attribute("", 6, 80, "adunit-right", "adright", "", 0);
   @ <br />
   onoff_attribute("Omit ads to administrator",
      "adunit-omit-if-admin", "oia", 0, 0);
@@ -1730,6 +1732,37 @@ void setup_adunit(void){
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Delete Ad-Unit" />
   @ </div></form>
+  @ <hr />
+  @ <b>Ad-Unit Notes:</b><ul>
+  @ <li>Leave both Ad-Units blank to disable all advertising.
+  @ <li>The "Banner Ad-Unit" is used for wide pages.
+  @ <li>The "Right-Column Ad-Unit" is used on pages with tall, narrow content.
+  @ <li>If the "Right-Column Ad-Unit" is blank, the "Banner Ad-Unit" is used on all pages.
+  @ <li>Suggested <a href="setup_editcss">CSS</a> changes:
+  @ <blockquote><pre>
+  @ div.adunit_banner {
+  @   margin: auto;
+  @   width: 100%;
+  @ }
+  @ div.adunit_right {
+  @   float: right;
+  @ }
+  @ div.adunit_right_container {
+  @   min-height: <i>height-of-right-column-ad-unit</i>;
+  @ }
+  @ </pre></blockquote>
+  @ <li>For a place-holder Ad-Unit for testing, Copy/Paste the following
+  @ with appropriate adjustments to "width:" and "height:".
+  @ <blockquote><pre>
+  @ &lt;div style='
+  @   margin: 0 auto;
+  @   width: 600px;
+  @   height: 90px;
+  @   border: 1px solid #f11;
+  @   background-color: #fcc;
+  @ '&gt;Demo Ad&lt;/div&gt;
+  @ </pre></blockquote>
+  @ </li>
   style_footer();
   db_end_transaction(0);
 }
