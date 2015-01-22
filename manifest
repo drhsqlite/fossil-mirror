@@ -1,5 +1,5 @@
-C Add\sa\sfew\s"const"\squalifiers\sin\sappropriate\splaces,\sand\sremove\ssome\sunnecessary\send-of-line\sspaces.\sNo\schange\sin\sfunctionality.
-D 2015-01-22T12:37:35.076
+C Add\scomments\sthe\sCGI-script\sparser.\s\sMove\sthe\smost\scommonly\sseen\slines\sto\nthe\stop\sof\sthe\sif-then-else\schain.
+D 2015-01-22T13:44:44.728
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -399,7 +399,7 @@ F src/leaf.c a8880fbcf409f34c0ea9566f8b548a96496856a7
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c df63c9e03c607859beded9eade6c042c9fd64f65
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 6b2d22219b22017862715f75d147a6eff19324b7
+F src/main.c b2152b0fb9624b64111ce176e1114a7cd2dff422
 F src/main.mk e13b6a50ea0b7087cc9984371b18d28103ce1054
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -683,7 +683,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0eae9d3cbd71477c2868b9de95a8a6f79d594c7c
-R b2c15d0c8b2c2d46e6d462e77e51c9bd
-U jan.nijtmans
-Z 1b1065cb6deb9fe5705857b3d1d98aa3
+P f6c285f88c9768d6c895c22b094db7ac0e865585
+R a44f079ab5b590cab4955c587694f4ec
+U drh
+Z 1741a4d22cfdaa0e0f284a60c0608df7
