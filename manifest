@@ -1,5 +1,5 @@
-C Break\sout\sthe\svarious\sbuilt-in\sskins\sinto\sseparate\sCSS,\sheader,\sand\sfooter\ntext\sfiles\sstored\sunder\ssubfolders\sof\sthe\sskins/\sdirectory\sin\sthe\ssource\stree.\nThis\sshould\smake\sit\smuch\seasier\sto\sedit\sbuilt-in\sskins\sand\sto\sadd\snew\nbuilt-in\sskins.
-D 2015-01-22T01:43:04.988
+C Add\sthe\sskins/README.md\sfile\sdescribing\show\sto\sadd\snew\sskins.
+D 2015-01-22T01:57:39.957
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -310,6 +310,7 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F setup/fossil.iss c9ad92c989eecde15b2b01cd69eadc74de7a8d33
 F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
+F skins/README.md be42c1cdac9f4da896447ea88d90cce2b8fe7e46
 F skins/black_and_white/css.txt c3adc27aeeba71bd280e681233158c7694e41a25
 F skins/black_and_white/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/black_and_white/header.txt 45bf325c3c68d5ad3c02074433edc708ecf005a9
@@ -682,10 +683,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ff78d6d5ef2043d6b209fd8015dbdc14492429db
-R 10a281e8cdfe5f3b06fee5fa0c305d4c
-T *branch * skins-refactor
-T *sym-skins-refactor *
-T -sym-trunk *
+P 12333d9545701ed61673f22e0ec44dc753988ab5
+R f7fba5123257db74ba87f57d4ae13556
 U drh
-Z 6e1fe0be42a484eb6debffe2f5b1433b
+Z 28512094ef72f36adebd2874de9e9a31
