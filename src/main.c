@@ -1840,6 +1840,13 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
+    if( blob_eq(&key, "setenv:") && blob_token(&line, &value)
+            && blob_token(&line, &value2) ){
+      fossil_setenv(blob_str(&value), blob_str(&value2));
+      blob_reset(&value);
+      blob_reset(&value2);
+      continue;
+    }
   }
   blob_reset(&config);
   if( g.db==0 && g.zRepositoryName==0 && nRedirect==0 ){
