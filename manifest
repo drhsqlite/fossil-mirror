@@ -1,5 +1,5 @@
-C Fix\scomment\sand\serror-message
-D 2015-01-23T14:31:24.139
+C Add\snew\scommands:\s\stest-var-list,\stest-var-get,\sand\stest-var-set.\s\sThe\noriginal\smotivation\swas\sto\smake\sit\seasier\sto\sinsert\s"css",\s"header",\sand\n"footer"\svalues\sthat\speople\ssend\sin,\sbut\sthese\scommands\sseem\suseful\sfor\nother\skinds\sof\sexperimentation.\s\sThe\sare\s"test-*"\scommands\sbecause\sthey\nare\snot\sintended\sto\sbe\saccessed\sby\sordinary\susers.
+D 2015-01-23T17:13:32.369
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -354,7 +354,7 @@ F src/clone.c ce67376a70e80ea5c2b9b73d44086d7b8969518a
 F src/codecheck1.c 2cf1fc75f4f611574e92cf1440f4fb2ae49e8ba6
 F src/comformat.c 24b2de2bad5e8e6da966586c68d6505ea08df8e7
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
-F src/configure.c 192f2cafaddd1cfb3a13243cdf3f6f72bb3d4adc
+F src/configure.c dd83c309a104a829945ea2f61813b99c66d563ca
 F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
@@ -687,7 +687,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0134654db60898d91ede721843d2831ca7f3d3de
-R 48db6e3c8703720d8450f5c313eeb36b
-U jan.nijtmans
-Z 403bc5e8b5d7cf1558bdf5129180c64b
+P 9a07b24935c6c4bda2c5a63b00a466a60563b711
+R 6bda75dfe4d7a93b12886d6cf6963936
+U drh
+Z 3295e744e28d6921f8d6fadf7d336918

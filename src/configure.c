@@ -991,3 +991,194 @@ void configuration_cmd(void){
   }
   configure_rebuild();
 }
+
+
+/*
+** COMMAND: test-var-list
+**
+** Usage: %fossil test-var-list ?PATTERN? ?--unset? ?--mtime?
+**
+** Show the content of the CONFIG table in a repository.  If PATTERN is
+** specified, then only show the entries that match that glob pattern.
+** Last modification time is shown if the --mtime option is present.
+**
+** If the --unset option is included, then entries are deleted rather than
+** being displayed.  WARNING! This cannot be undone.  Be sure you know what
+** you are doing!  The --unset option only works if there is a PATTERN.
+** Probably you should run the command once without --unset to make sure
+** you know exactly what is being deleted.
+**
+** If not in an open check-out, use the -R REPO option to specify a
+** a repository.
+*/
+void test_var_list_cmd(void){
+  Stmt q;
+  int i, j;
+  const char *zPattern = 0;
+  int doUnset;
+  int showMtime;
+  Blob sql;
+  Blob ans;
+  unsigned char zTrans[1000];
+
+  doUnset = find_option("unset",0,0)!=0;
+  showMtime = find_option("mtime",0,0)!=0;
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  verify_all_options();
+  if( g.argc>=3 ){
+    zPattern = g.argv[2];
+  }
+  blob_init(&sql,0,0);
+  blob_appendf(&sql, "SELECT name, value, datetime(mtime,'unixepoch')"
+                     " FROM config");
+  if( zPattern ){
+    blob_appendf(&sql, " WHERE name GLOB %Q", zPattern);
+  }
+  if( showMtime ){
+    blob_appendf(&sql, " ORDER BY mtime, name");
+  }else{
+    blob_appendf(&sql, " ORDER BY name");
+  }
+  db_prepare(&q, "%s", blob_str(&sql)/*safe-for-%s*/);
+  blob_reset(&sql);
+#define MX_VAL 40
+#define MX_NM  28
+#define MX_LONGNM 60
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q,0);
+    int nName = db_column_bytes(&q,0);
+    const char *zValue = db_column_text(&q,1);
+    int szValue = db_column_bytes(&q,1);
+    const char *zMTime = db_column_text(&q,2);
+    for(i=j=0; j<MX_VAL && zValue[i]; i++){
+      unsigned char c = (unsigned char)zValue[i];
+      if( c>=' ' && c<='~' ){
+        zTrans[j++] = c;
+      }else{
+        zTrans[j++] = '\\';
+        if( c=='\n' ){
+          zTrans[j++] = 'n';
+        }else if( c=='\r' ){
+          zTrans[j++] = 'r';
+        }else if( c=='\t' ){
+          zTrans[j++] = 't';
+        }else{      
+          zTrans[j++] = '0' + ((c>>6)&7);
+          zTrans[j++] = '0' + ((c>>3)&7);
+          zTrans[j++] = '0' + (c&7);
+        }
+      }
+    }
+    zTrans[j] = 0;
+    if( i<szValue ){
+      sqlite3_snprintf(sizeof(zTrans)-j, (char*)zTrans+j, "...+%d", szValue-i);
+      j += (int)strlen((char*)zTrans+j);
+    }
+    if( showMtime ){
+      fossil_print("%s:%*s%s\n", zName, 58-nName, "", zMTime);
+    }else if( nName<MX_NM-2 ){
+      fossil_print("%s:%*s%s\n", zName, MX_NM-1-nName, "", zTrans);
+    }else if( nName<MX_LONGNM-2 && j<10 ){
+      fossil_print("%s:%*s%s\n", zName, MX_LONGNM-1-nName, "", zTrans);
+    }else{
+      fossil_print("%s:\n%*s%s\n", zName, MX_NM, "", zTrans);
+    }
+  }
+  db_finalize(&q);
+  if( zPattern && doUnset ){
+    prompt_user("Delete all of the above? (y/N)? ", &ans);
+    if( blob_str(&ans)[0]=='y' || blob_str(&ans)[0]=='Y' ){
+      db_multi_exec("DELETE FROM config WHERE name GLOB %Q", zPattern);
+    }
+    blob_reset(&ans);
+  }
+}
+
+/*
+** COMMAND: test-var-get
+**
+** Usage: %fossil test-var-get VAR ?FILE?
+**
+** Write the text of the VAR variable into FILE.  If FILE is "-" 
+** or is omitted then output goes to standard output.  VAR can be a
+** GLOB pattern.
+**
+** If not in an open check-out, use the -R REPO option to specify a
+** a repository.
+*/
+void test_var_get_cmd(void){
+  const char *zVar;
+  const char *zFile;
+  int n;
+  Blob x;
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  verify_all_options();
+  if( g.argc<3 ){
+    usage("VAR ?FILE?");
+  }
+  zVar = g.argv[2];
+  zFile = g.argc>=4 ? g.argv[3] : "-";
+  n = db_int(0, "SELECT count(*) FROM config WHERE name GLOB %Q", zVar);
+  if( n==0 ){
+    fossil_fatal("no match for %Q", zVar);
+  }
+  if( n>1 ){
+    fossil_fatal("multiple matches: %s",
+      db_text(0, "SELECT group_concat(quote(name),', ') FROM ("
+                 " SELECT name FROM config WHERE name GLOB %Q ORDER BY 1)",
+                 zVar));
+  }
+  blob_init(&x,0,0);
+  db_blob(&x, "SELECT value FROM config WHERE name GLOB %Q", zVar);
+  blob_write_to_file(&x, zFile);
+}
+
+/*
+** COMMAND: test-var-set
+**
+** Usage: %fossil test-var-set VAR ?VALUE? ?--file FILE?
+**
+** Store VALUE or the content of FILE (exactly one of which must be
+** supplied) into variable VAR.  Use a FILE of "-" to read from
+** standard input.
+**
+** WARNING: changing the value of a variable can interfere with the
+** operation of Fossil.  Be sure you know what you are doing.
+**
+** Use "--blob FILE" instead of "--file FILE" to load a binary blob
+** such as a GIF.
+*/
+void test_var_set_cmd(void){
+  const char *zVar;
+  const char *zFile;
+  const char *zBlob;
+  Blob x;
+  Stmt ins;
+  zFile = find_option("file",0,1);
+  zBlob = find_option("blob",0,1);
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  verify_all_options();
+  if( g.argc<3 || (zFile==0 && zBlob==0 && g.argc<4) ){
+    usage("VAR ?VALUE? ?--file FILE?");
+  }
+  zVar = g.argv[2];
+  if( zFile ){
+    if( zBlob ) fossil_fatal("cannot do both --file or --blob");
+    blob_read_from_file(&x, zFile);
+  }else if( zBlob ){
+    blob_read_from_file(&x, zBlob);
+  }else{
+    blob_init(&x,g.argv[3],-1);
+  }
+  db_prepare(&ins,
+     "REPLACE INTO config(name,value,mtime)"
+     "VALUES(%Q,:val,now())", zVar);
+  if( zBlob ){
+    db_bind_blob(&ins, ":val", &x);
+  }else{
+    db_bind_text(&ins, ":val", blob_str(&x));
+  }
+  db_step(&ins);
+  db_finalize(&ins);
+  blob_reset(&x);
+}
