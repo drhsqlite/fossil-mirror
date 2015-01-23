@@ -1,5 +1,5 @@
-C Enhance\sthe\stable\ssorting\sjavascript\sto\ssupport\sinitial\sreverse-order\ssorting.\nAdd\stable\ssorting\sto\sthe\suser\slog.
-D 2015-01-22T23:45:15.316
+C Use\sIPv6\sfor\s"fossil\ssync"\swhen\savailable.
+D 2015-01-23T02:05:11.622
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -378,7 +378,7 @@ F src/glob.c ab1baf2161ef8a00aa70a1b67eb201d0edc833fe
 F src/graph.c e9b989b70555493cefb9134c1ec27d7c006cbf21
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 5dc3ca7f803849e2345af26f85b01fe585d6ce26
-F src/http_socket.c 957fcf6bde44fd478d66bf87c973a01422ee0f58
+F src/http_socket.c 8c94157fad79c8718c4bf0761c659e7f7c50275e
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
 F src/import.c 065b6bcb8bfefbf15f8eb0bcbc4e915e3418aa72
@@ -471,7 +471,7 @@ F src/wikiformat.c fc6a1e15a1733e49c7fc188931cec748d3ead074
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c 55e7d4f21887561faea665fc3f6c15e5f511792e
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c ec848a186fd950f2975fc4e6771ddc6799fd719a
+F src/xfer.c b64f484bf676a55f9778aceb8632e45dd99cdd5a
 F src/xfersetup.c c69c710fec70f76dac901a9181fe81be5dc316e7
 F src/zip.c 957e6e17944e026605072b460f75d970c188e0d5
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -687,7 +687,8 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fe61f4958d1b8983cf051922d35648d63674508a
-R b4d83b0d391a7f05bcbadf7ad2d26592
+P 0cdec7d290da52b472d3a4e0e4997203a4e7e673 3842742871f6b265c6027379dd33d3d228c039cd
+R 2df76f89e5e863a2f530b05e855020bc
+T +closed 3842742871f6b265c6027379dd33d3d228c039cd
 U drh
-Z 54f01baec1a40279409797fca6aa55df
+Z b87452423750976904741703500d8919
