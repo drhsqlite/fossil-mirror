@@ -70,6 +70,18 @@ static char *skinVarName(const char *zSkinName, int ifExists){
 }
 
 /*
+** Return true if there exists a skin name "zSkinName".
+*/
+static int skinExists(const char *zSkinName){
+  int i;
+  if( zSkinName==0 ) return 0;
+  for(i=0; i<sizeof(aBuiltinSkin)/sizeof(aBuiltinSkin[0]); i++){
+    if( fossil_strcmp(zSkinName, aBuiltinSkin[i].zDesc)==0 ) return 1;
+  }
+  return db_exists("SELECT 1 FROM config WHERE name='skin:%q'", zSkinName);
+}
+
+/*
 ** Construct and return an string of SQL statements that represents
 ** a "skin" setting.  If zName==0 then return the skin currently
 ** installed.  Otherwise, return one of the built-in skins designated
@@ -112,17 +124,23 @@ static char *getSkin(const char *zName){
 static int skinRename(void){
   const char *zOldName;
   const char *zNewName;
+  int ex = 0;
   if( P("rename")==0 ) return 0;
   zOldName = P("sn");
   zNewName = P("newname");
   if( zOldName==0 ) return 0;
-  if( zNewName==0 || zNewName[0]==0 ){
+  if( zNewName==0 || zNewName[0]==0 || (ex = skinExists(zNewName))!=0 ){
+    if( zNewName==0 ) zNewName = zOldName;
     style_header("Rename A Skin");
+    if( ex ){
+      @ <p><span class="generalError">There is already another skin
+      @ named "%h(zNewName)".  Choose a different name.</span></p>
+    }
     @ <form action="%s(g.zTop)/setup_skin" method="post"><div>
     @ <table border="0"><tr>
     @ <tr><td align="right">Current name:<td align="left"><b>%h(zOldName)</b>
     @ <tr><td align="right">New name:<td align="left">
-    @ <input type="text" size="35" name="newname" value="%h(zOldName)">
+    @ <input type="text" size="35" name="newname" value="%h(zNewName)">
     @ <tr><td><td>
     @ <input type="hidden" name="sn" value="%h(zOldName)">
     @ <input type="submit" name="rename" value="Rename">
@@ -141,6 +159,45 @@ static int skinRename(void){
 }
 
 /*
+** Respond to a Save button press.  Return TRUE if a dialog was painted.
+** Return FALSE to continue with the main Skins page.
+*/
+static int skinSave(const char *zCurrent){
+  const char *zNewName;
+  int ex = 0;
+  if( P("save")==0 ) return 0;
+  zNewName = P("svname");
+  if( zNewName && zNewName[0]!=0 ){
+  }
+  if( zNewName==0 || zNewName[0]==0 || (ex = skinExists(zNewName))!=0 ){
+    if( zNewName==0 ) zNewName = "";
+    style_header("Save Current Skin");
+    if( ex ){
+      @ <p><span class="generalError">There is already another skin
+      @ named "%h(zNewName)".  Choose a different name.</span></p>
+    }
+    @ <form action="%s(g.zTop)/setup_skin" method="post"><div>
+    @ <table border="0"><tr>
+    @ <tr><td align="right">Name for this skin:<td align="left">
+    @ <input type="text" size="35" name="svname" value="%h(zNewName)">
+    @ <tr><td><td>
+    @ <input type="submit" name="save" value="Save">
+    @ <input type="submit" name="cansave" value="Cancel">
+    @ </table>
+    login_insert_csrf_secret();
+    @ </div></form>
+    style_footer();
+    return 1;
+  }
+  db_multi_exec(
+    "INSERT OR IGNORE INTO config(name, value, mtime)"
+    "VALUES('skin:%q',%Q,now())",
+    zNewName, zCurrent
+  );
+  return 0;
+}
+
+/*
 ** WEBPAGE: setup_skin
 */
 void setup_skin(void){
@@ -150,6 +207,7 @@ void setup_skin(void){
   const char *zCurrent = 0;  /* Current skin */
   int i;                     /* Loop counter */
   Stmt q;
+  int seenCurrent = 0;
 
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -179,6 +237,7 @@ void setup_skin(void){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
   if( skinRename() ) return;
+  if( skinSave(zCurrent) ) return;
 
   /* The user pressed one of the "Install" buttons. */
   if( P("load") && (z = P("sn"))!=0 && z[0] ){
@@ -237,6 +296,7 @@ void setup_skin(void){
     @ <tr><td>%d(i+1).<td>%h(z)<td>&nbsp;&nbsp;<td>
     if( fossil_strcmp(aBuiltinSkin[i].zSQL, zCurrent)==0 ){
       @ (Currently In Use)
+      seenCurrent = 1;
     }else{
       @ <form action="%s(g.zTop)/setup_skin" method="post">
       @ <input type="hidden" name="sn" value="%h(z)" />
@@ -258,6 +318,7 @@ void setup_skin(void){
     @ <form action="%s(g.zTop)/setup_skin" method="post">
     if( fossil_strcmp(zV, zCurrent)==0 ){
       @ (Currently In Use)
+      seenCurrent = 1;
     }else{
       @ <input type="submit" name="load" value="Install">
       @ <input type="submit" name="del1" value="Delete">
@@ -267,6 +328,13 @@ void setup_skin(void){
     @ </form></tr>
   }
   db_finalize(&q);
+  if( !seenCurrent ){
+    i++;
+    @ <tr><td>%d(i).<td><i>Current Configuration</i><td>&nbsp;&nbsp;<td>
+    @ <form action="%s(g.zTop)/setup_skin" method="post">
+    @ <input type="submit" name="save" value="Save">
+    @ </form>
+  }
   @ </table>
   style_footer();
   db_end_transaction(0);
