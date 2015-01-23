@@ -401,9 +401,10 @@ void doc_page(void){
   }
   while( zName[0]=='/' ){ zName++; }
   g.zPath = mprintf("%s/%s/%s", g.zPath, zCheckin, zName);
+  zOrigName = zName;
   if( !file_is_simple_pathname(zName, 1) ){
     if( sqlite3_strglob("*/", zName)==0 ){
-      zName = mprintf("%sindex.wiki", zName);
+      zOrigName = zName = mprintf("%sindex.wiki", zName);
       if( !file_is_simple_pathname(zName, 1) ){
         goto doc_not_found;
       }
@@ -411,7 +412,6 @@ void doc_page(void){
       goto doc_not_found;
     }
   }
-  zOrigName = zName;
   if( fossil_strcmp(zCheckin,"ckout")==0 && db_open_local(0)==0 ){
     sqlite3_snprintf(sizeof(zCheckin), zCheckin, "tip");
   }
