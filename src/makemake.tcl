@@ -1,6 +1,6 @@
 #!/usr/bin/tclsh
 #
-# Run this TCL script to generate the various makefiles for a variety
+# Run this Tcl script to generate the various makefiles for a variety
 # of platforms.  Files generated include:
 #
 #     src/main.mk           # makefile for all unix systems

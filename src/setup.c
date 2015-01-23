@@ -1604,7 +1604,7 @@ void setup_header(void){
   }
 
   login_insert_csrf_secret();
-  @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
+  @ <p>Edit HTML text with embedded TH1 (a Tcl dialect) that will be used to
   @ generate the beginning of every page through start of the main
   @ menu.</p>
   textarea_attribute("", 35, 80, "header", "header",
@@ -1642,7 +1642,7 @@ void setup_footer(void){
   style_header("Edit Page Footer");
   @ <form action="%s(g.zTop)/setup_footer" method="post"><div>
   login_insert_csrf_secret();
-  @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
+  @ <p>Edit HTML text with embedded TH1 (a Tcl dialect) that will be used to
   @ generate the end of every page.</p>
   textarea_attribute("", 20, 80, "footer", "footer",
                      builtin_text("skins/default.footer"), 0);
