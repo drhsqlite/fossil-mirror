@@ -1441,9 +1441,9 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   if( !setupUserOnly ){
     db_multi_exec(
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
-       "   VALUES('anonymous',hex(randomblob(8)),'hmncz','Anon');"
+       "   VALUES('anonymous',hex(randomblob(8)),'hmnc','Anon');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
-       "   VALUES('nobody','','gjor','Nobody');"
+       "   VALUES('nobody','','gjorz','Nobody');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('developer','','dei','Dev');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
