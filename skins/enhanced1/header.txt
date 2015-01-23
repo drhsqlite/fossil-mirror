@@ -74,18 +74,30 @@
       <img src="$logo_image_url" border="0" alt="$project_name">
     </a>
   </div>
-  <div class="title"><small>$<project_name></small><br />$<title></div>
+  <div class="title">$<title></div>
   <div class="status"><th1>
      if {[info exists login]} {
        puts "Logged in as $login"
      } else {
        puts "Not logged in"
      }
-  </th1></div>
+  </th1></nobr><small><div id="clock"></div></small></div>
 </div>
+<script>
+function updateClock(){
+  var e = document.getElementById("clock");
+  if(e){
+    var d = new Date();
+    e.innerHTML=d.toISOString().replace("T"," ").replace(/:\d\d\.\d+Z/,"");
+    setTimeout("updateClock();",(60-d.getSeconds())*1000);
+  }
+}
+updateClock();
+</script>
 <div class="mainmenu">
 <th1>
 html "<a href='$home$index_page'>Home</a>\n"
+html "<a href='$home/help'>Help</a>\n"
 if {[anycap jor]} {
   html "<a href='$home/timeline'>Timeline</a>\n"
 }

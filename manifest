@@ -1,5 +1,5 @@
-C Enable\sZIP\sand\sTarball\sdownloads\sfor\suser\s"nobody"\sby\sdefault,\ssince\nthe\sother\santi-spider\sdefenses\sseem\sto\swork\swell\senough\sto\sprevent\nabuse.
-D 2015-01-23T18:43:09.649
+C Improvements\sto\sthe\s'enhanced'\sskin.
+D 2015-01-23T21:00:31.524
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -318,8 +318,8 @@ F skins/default/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
 F skins/default/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
 F skins/default/header.txt 3e621823aa73d698b5a6b0f45f5f04bfbcee51cf
 F skins/enhanced1/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
-F skins/enhanced1/footer.txt d388a6f9a892e85b36c4869eae0e392a0eb557c1
-F skins/enhanced1/header.txt e16e351190bf975017bbaf88d6014f722cdf88b8
+F skins/enhanced1/footer.txt 12d9581af14a2980778c00d83756db293b363c83
+F skins/enhanced1/header.txt 27d9781f0a2522e109f7d8124080c8e013b83e19
 F skins/etienne1/README.md 46b87d9fe01a16616401a87f2107b6685f279c77
 F skins/etienne1/css.txt 53e15e4710dc252429b76b9fdcd75af2861878fc
 F skins/etienne1/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
@@ -687,7 +687,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P be5b69862c8156149e701aabb46f0c09daccf75d
-R 95ce42390c02f8bb31e69034d756b5ae
-U drh
-Z 299b688310f36d46483d48da7f64dd21
+P 68ce0bcf6269988efe0ba4bf97b3c4876d8b0a38
+R 8ebad6a386b37161b57deebf14e4405e
+U mistachkin
+Z a67cdf36831145a1968eca18733fb9b0

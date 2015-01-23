@@ -12,7 +12,7 @@
   }
   set version [getVersion $manifest_version]
   set tclVersion [getTclVersion]
-  set fossilUrl http://www.fossil-scm.org
+  set fossilUrl https://www.fossil-scm.org
   </th1>
   This page was generated in about
   <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s by
