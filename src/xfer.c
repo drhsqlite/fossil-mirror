@@ -1968,8 +1968,8 @@ int client_sync(
 
   fossil_force_newline();
   fossil_print(
-     "%s finished with %lld bytes sent, %lld bytes received\n",
-     zOpType, nSent, nRcvd);
+     "Total bytes sent: %lld  received: %lld  ip: %s\n",
+      nSent, nRcvd, g.zIpAddr);
   transport_close(&g.url);
   transport_global_shutdown(&g.url);
   if( nErr && go==2 ){
