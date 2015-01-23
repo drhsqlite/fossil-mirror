@@ -48,6 +48,7 @@ static struct BuiltinSkin {
   { "Shadow boxes & Rounded Corners",    "rounded1",          0 },
   { "Enhanced Default",                  "enhanced1",         0 },
   { "San Francisco Modern",              "etienne1",          0 },
+  { "Eagle",                             "eagle",             0 },
 };
 
 /*
