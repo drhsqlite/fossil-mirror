@@ -1,5 +1,5 @@
-C Correct\scasing\sof\s'Tcl'\swhere\sneeded.
-D 2015-01-23T21:03:08.282
+C Enhance\sthe\s/setup_skin\spage\sto\senable\srenaming\sof\scustom\sskins.
+D 2015-01-23T22:55:30.521
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -438,7 +438,7 @@ F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
 F src/shell.c cfab24ce2a5382157ae27dbc15b7ae5935c981f3
 F src/shun.c a93c409f694b6022061d2c946311d6ead83a4e49
 F src/sitemap.c 48d23c10d6a2cef3f3b961ff912536c6d80fb3e0
-F src/skins.c 7e60a34c6d460b931430c18c1f8059d69497e9b8
+F src/skins.c 1aa9a05f8703e20e40ae7cf6fe44be2a6bf3e1fe
 F src/sqlcmd.c 0a2dddbf1ccf2f1336822cbbfe766742d183479b
 F src/sqlite3.c 154b1f5dffa815e0817b32f219b9958a004d2f45
 F src/sqlite3.h 1db30efd42bf6adb957b695210805a6fdb165bf3
@@ -687,7 +687,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ef006c3147ecce8f888a7014c3ee9487beddf49f
-R 7809c68eab16a2f7926d1278f0ef3d5d
-U mistachkin
-Z 55ce5348635296db1182d83b9a415d82
+P 967050341d834fb4f559736a699bf90cc2edf36a
+R 44e0b6a53e4d9110439f5a059d5c1314
+U drh
+Z 8a548ec694b72e6e18836052d0c2f034
