@@ -47,7 +47,7 @@ static struct BuiltinSkin {
   { "Black & White, Menu on Left",       "black_and_white",   0 }, 
   { "Shadow boxes & Rounded Corners",    "rounded1",          0 },
   { "Enhanced Default",                  "enhanced1",         0 },
-  { "Similar to GitHub",                 "etienne1",          0 },
+  { "San Francisco Modern",              "etienne1",          0 },
 };
 
 /*
