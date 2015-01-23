@@ -238,12 +238,13 @@ char *verify_sql_statement(char *zSql){
   int rc;
 
   /* First make sure the SQL is a single query command by verifying that
-  ** the first token is "SELECT" and that there are no unquoted semicolons.
+  ** the first token is "SELECT" or "WITH" and that there are no unquoted
+  ** semicolons.
   */
   for(i=0; fossil_isspace(zSql[i]); i++){}
   if( fossil_strnicmp(&zSql[i], "select", 6)!=0
       && fossil_strnicmp(&zSql[i], "with", 4)!=0 ){
-    return mprintf("The SQL must be a SELECT statement");
+    return mprintf("The SQL must be a SELECT or WITH statement");
   }
   for(i=0; zSql[i]; i++){
     if( zSql[i]==';' ){
