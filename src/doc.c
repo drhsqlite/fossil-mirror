@@ -380,7 +380,7 @@ void mimetype_test_cmd(void){
 */
 void doc_page(void){
   const char *zName;                /* Argument to the /doc page */
-  const char *zOrigName;            /* Original document name */
+  const char *zOrigName = 0;        /* Original document name */
   const char *zMime;                /* Document MIME type */
   char *zCheckin;                   /* The checkin holding the document */
   int vid = 0;                      /* Artifact of checkin */
@@ -525,7 +525,7 @@ doc_not_found:
   db_end_transaction(0);
   cgi_set_status(404, "Not Found");
   style_header("Not Found");
-  @ <p>Document %h(zOrigName) not found
+  @ <p>Document %h(zOrigName ? zOrigName : zName) not found
   if( fossil_strcmp(zCheckin,"ckout")!=0 ){
     @ in %z(href("%R/tree?ci=%T",zCheckin))%h(zCheckin)</a>
   }
