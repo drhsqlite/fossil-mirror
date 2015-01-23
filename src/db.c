@@ -807,6 +807,8 @@ void db_add_aux_functions(sqlite3 *db){
                           db_sym2rid_function, 0, 0);
   sqlite3_create_function(db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0,
                           db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0,
+                                 db_now_function, 0, 0);
 }
 
 
@@ -829,8 +831,6 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   }
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
-  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0,
-                                 db_now_function, 0, 0);
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
   sqlite3_create_function(db, "cgi", 1, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
   sqlite3_create_function(db, "cgi", 2, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
