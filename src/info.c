@@ -200,9 +200,6 @@ void info_cmd(void){
     verboseFlag = find_option("detail","l",0)!=0; /* deprecated */
   }
 
-  /* We should be done with options.. */
-  verify_all_options();
-
   if( g.argc==3 && (fsize = file_size(g.argv[2]))>0 && (fsize&0x1ff)==0 ){
     db_open_config(0);
     db_open_repository(g.argv[2]);
@@ -213,6 +210,7 @@ void info_cmd(void){
     return;
   }
   db_find_and_open_repository(0,0);
+  verify_all_options();
   if( g.argc==2 ){
     int vid;
          /* 012345678901234 */

@@ -1,5 +1,5 @@
-C Add\s"white-space:\snowrap"\sto\sthe\sbranch\stable\selements.
-D 2015-01-24T17:05:24.664
+C Fix\sthe\s"info"\scommand\sso\sthat\sit\sonce\sagain\saccepts\sthe\s-R\soption.
+D 2015-01-24T20:42:29.972
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -385,7 +385,7 @@ F src/http_socket.c b39665e9f55571fc6758dd09dba3c7a547b6f238
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
 F src/import.c 065b6bcb8bfefbf15f8eb0bcbc4e915e3418aa72
-F src/info.c 15360861d475f8c031dfaae12de41438779f2a4c
+F src/info.c afe98fe2869141602755a1acba999bf9b2922ad0
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -690,7 +690,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f88c18fc71543f07696639cc317cfae7fa5ac7a7
-R 7c1d26538b635f3bf3b72be14c594f36
+P f55b538c65fae19426b2e82defcd52e3236eb9cc
+R 1ae148350e02e6ab91a85683dea4006a
 U drh
-Z 2052bf347822b426d1363de7dae7e11c
+Z dcaf34314e303828aa6045b87365b6a2
