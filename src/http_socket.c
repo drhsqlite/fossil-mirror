@@ -139,6 +139,7 @@ void socket_close(void){
 int socket_open(UrlData *pUrlData){
   int rc = 0;
   struct addrinfo *ai = 0;
+  struct addrinfo *p;
   struct addrinfo hints;
   char zPort[30];
   char zRemote[NI_MAXHOST];
@@ -155,24 +156,25 @@ int socket_open(UrlData *pUrlData){
     socket_set_errmsg("getaddrinfo() fails: %s", gai_strerror(rc));
     goto end_socket_open;
   }
-  rc = getnameinfo(ai->ai_addr, ai->ai_addrlen, zRemote, sizeof(zRemote),
-                   0, 0, NI_NUMERICHOST);
-  if( rc ){
-    socket_set_errmsg("getnameinfo() failed: %s", gai_strerror(rc));
-    goto end_socket_open;
+  for(p=ai; p; p=p->ai_next){
+    iSocket = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+    if( iSocket<0 ) continue;
+    if( connect(iSocket,p->ai_addr,p->ai_addrlen)<0 ){
+      socket_close();
+      continue;
+    }
+    rc = getnameinfo(p->ai_addr, p->ai_addrlen, zRemote, sizeof(zRemote),
+                     0, 0, NI_NUMERICHOST);
+    if( rc ){
+      socket_set_errmsg("getnameinfo() failed: %s", gai_strerror(rc));
+      goto end_socket_open;
+    }
+    g.zIpAddr = mprintf("%s", zRemote);
+    break;
   }
-  g.zIpAddr = mprintf("%s", zRemote);
-  iSocket = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
-  if( iSocket<0 ){
-    socket_set_errmsg("cannot create a socket");
-    rc = 1;
-    goto end_socket_open;
-  }
-  if( connect(iSocket,ai->ai_addr,ai->ai_addrlen)<0 ){
+  if( p==0 ){
     socket_set_errmsg("cannot connect to host %s:%d", pUrlData->name,
                       pUrlData->port);
-    rc = 1;
-    goto end_socket_open;
   }
 #if !defined(_WIN32)
   signal(SIGPIPE, SIG_IGN);
