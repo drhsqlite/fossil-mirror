@@ -151,6 +151,7 @@ struct Global {
   int fSshClient;         /* HTTP client flags for SSH client */
   char *zSshCmd;          /* SSH command string */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
+  int fIPv4;              /* Use only IPv4, not IPv6. --ipv4 */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
