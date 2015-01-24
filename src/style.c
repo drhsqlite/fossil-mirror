@@ -1107,6 +1107,7 @@ const struct strctCssDefaults {
   },
   { ".brlist table td",  "Branch list table headers",
     @ padding: 0px 2em 0px 0px;
+    @ white-space: nowrap;
   },
   { "th.sort:after",
     "General styles for sortable column marker",

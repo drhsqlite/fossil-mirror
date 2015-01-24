@@ -1,5 +1,5 @@
-C Add\sthe\s'white-foreground'\ssetting\sto\sthe\slist\sof\sthose\sused\sfor\sskinning.
-D 2015-01-24T00:17:55.718
+C Add\s"white-space:\snowrap"\sto\sthe\sbranch\stable\selements.
+D 2015-01-24T17:05:24.664
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -447,7 +447,7 @@ F src/sqlite3.c 154b1f5dffa815e0817b32f219b9958a004d2f45
 F src/sqlite3.h 1db30efd42bf6adb957b695210805a6fdb165bf3
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c beadf875af7ef98c67e1c5e1017c31ba3ee493c1
-F src/style.c 9930d9338085f418c16bdad44f4e90ce0fdc314a
+F src/style.c cb8b51f48de520a9dc9d797c412bbe2818cf6dd1
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 70a289414489828df970743d06d37efd9c83d750
 F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
@@ -690,7 +690,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8f87308eef106a5175636a7fb065ae4c992a096c
-R 37b24a8bcfe16aaaef3427e30ab9c881
-U mistachkin
-Z 24bd8019cf5f7a37ecd6e1ce01f7e6d5
+P f88c18fc71543f07696639cc317cfae7fa5ac7a7
+R 7c1d26538b635f3bf3b72be14c594f36
+U drh
+Z 2052bf347822b426d1363de7dae7e11c
