@@ -151,6 +151,7 @@ struct Global {
   int fSshClient;         /* HTTP client flags for SSH client */
   char *zSshCmd;          /* SSH command string */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
+  int fIPv4;              /* Use only IPv4, not IPv6. --ipv4 */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
@@ -1789,43 +1790,53 @@ void cmd_cgi(void){
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
     if( blob_buffer(&key)[0]=='#' ) continue;
-    if( blob_eq(&key, "debug:") && blob_token(&line, &value) ){
-      g.fDebug = fossil_fopen(blob_str(&value), "ab");
-      blob_reset(&value);
-      continue;
-    }
-    if( blob_eq(&key, "errorlog:") && blob_token(&line, &value) ){
-      g.zErrlog = mprintf("%s", blob_str(&value));
-      continue;
-    }
-    if( blob_eq(&key, "HOME:") && blob_token(&line, &value) ){
-      cgi_setenv("HOME", blob_str(&value));
-      blob_reset(&value);
-      continue;
-    }
     if( blob_eq(&key, "repository:") && blob_tail(&line, &value) ){
+      /* repository: FILENAME
+      **
+      ** The name of the Fossil repository to be served via CGI.  Most
+      ** fossil CGI scripts have a single non-comment line that contains
+      ** this one entry.
+      */
       blob_trim(&value);
       db_open_repository(blob_str(&value));
       blob_reset(&value);
       continue;
     }
     if( blob_eq(&key, "directory:") && blob_token(&line, &value) ){
+      /* directory: DIRECTORY
+      **
+      ** If repository: is omitted, then terms of the PATH_INFO cgi parameter
+      ** are appended to DIRECTORY looking for a repository (whose name ends
+      ** in ".fossil") or a file in "files:".
+      */
       db_close(1);
       g.zRepositoryName = mprintf("%s", blob_str(&value));
       blob_reset(&value);
       continue;
     }
     if( blob_eq(&key, "notfound:") && blob_token(&line, &value) ){
+      /* notfound: URL
+      **
+      ** If using directory: and no suitable repository or file is found,
+      ** then redirect to URL.
+      */
       zNotFound = mprintf("%s", blob_str(&value));
       blob_reset(&value);
       continue;
     }
     if( blob_eq(&key, "localauth") ){
+      /* localauth
+      **
+      ** Grant "administrator" privileges to users connecting with HTTP
+      ** from IP address 127.0.0.1.  Do not bother checking credentials.
+      */
       g.useLocalauth = 1;
       continue;
     }
     if( blob_eq(&key, "redirect:") && blob_token(&line, &value)
             && blob_token(&line, &value2) ){
+      /* See the header comment on the redirect_web_page() function
+      ** above for details. */
       nRedirect++;
       azRedirect = fossil_realloc(azRedirect, 2*nRedirect*sizeof(char*));
       azRedirect[nRedirect*2-2] = mprintf("%s", blob_str(&value));
@@ -1835,7 +1846,59 @@ void cmd_cgi(void){
       continue;
     }
     if( blob_eq(&key, "files:") && blob_token(&line, &value) ){
+      /* files: GLOBLIST
+      **
+      ** GLOBLIST is a comma-separated list of filename globs.  For
+      ** example:  *.html,*.css,*.js
+      **
+      ** If the repository: line is omitted and then PATH_INFO is searched
+      ** for files that match any of these GLOBs and if any such file is
+      ** found it is returned verbatim.  This feature allows "fossil server"
+      ** to function as a primitive web-server delivering arbitrary content.
+      */
       pFileGlob = glob_create(blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "setenv:") && blob_token(&line, &value)
+            && blob_token(&line, &value2) ){
+      /* setenv: NAME VALUE
+      **
+      ** Sets environment variable NAME to VALUE
+      */
+      fossil_setenv(blob_str(&value), blob_str(&value2));
+      blob_reset(&value);
+      blob_reset(&value2);
+      continue;
+    }
+    if( blob_eq(&key, "debug:") && blob_token(&line, &value) ){
+      /* debug: FILENAME
+      **
+      ** Causes output from cgi_debug() and CGIDEBUG(()) calls to go
+      ** into FILENAME. 
+      */
+      g.fDebug = fossil_fopen(blob_str(&value), "ab");
+      blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "errorlog:") && blob_token(&line, &value) ){
+      /* errorlog: FILENAME
+      **
+      ** Causes messages from warnings, errors, and panics to be appended
+      ** to FILENAME.
+      */
+      g.zErrlog = mprintf("%s", blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "HOME:") && blob_token(&line, &value) ){
+      /* HOME: VALUE
+      **
+      ** Set CGI parameter "HOME" to VALUE.  This is legacy.  Use
+      ** setenv: instead.
+      */
+      cgi_setenv("HOME", blob_str(&value));
+      blob_reset(&value);
       continue;
     }
   }

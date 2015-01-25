@@ -173,6 +173,7 @@ int report_query_authorizer(
   }
   switch( code ){
     case SQLITE_SELECT:
+    case SQLITE_RECURSIVE:
     case SQLITE_FUNCTION: {
       break;
     }
@@ -201,11 +202,6 @@ int report_query_authorizer(
       }else if( !g.perm.RdAddr && strncmp(zArg2, "private_", 8)==0 ){
         rc = SQLITE_IGNORE;
       }
-      break;
-    }
-    case SQLITE_RECURSIVE: {
-      *(char**)pError = mprintf("recursive queries are not allowed");
-      rc = SQLITE_DENY;
       break;
     }
     default: {
@@ -242,11 +238,13 @@ char *verify_sql_statement(char *zSql){
   int rc;
 
   /* First make sure the SQL is a single query command by verifying that
-  ** the first token is "SELECT" and that there are no unquoted semicolons.
+  ** the first token is "SELECT" or "WITH" and that there are no unquoted
+  ** semicolons.
   */
   for(i=0; fossil_isspace(zSql[i]); i++){}
-  if( fossil_strnicmp(&zSql[i],"select",6)!=0 ){
-    return mprintf("The SQL must be a SELECT statement");
+  if( fossil_strnicmp(&zSql[i], "select", 6)!=0
+      && fossil_strnicmp(&zSql[i], "with", 4)!=0 ){
+    return mprintf("The SQL must be a SELECT or WITH statement");
   }
   for(i=0; zSql[i]; i++){
     if( zSql[i]==';' ){
@@ -938,6 +936,7 @@ static int db_exec_readonly(
 **       k      Sort by the data-sortkey property
 **       x      This column is not sortable
 **
+** Capital letters mean sort in reverse order.
 ** If there are fewer characters in zColumnTypes[] than their are columns,
 ** the all extra columns assume type "t" (text).
 **
@@ -961,10 +960,10 @@ void output_table_sorting_javascript(
   @     var column = cell.cellIndex;
   @     var sortFn;
   @     switch( cell.sortType ){
-  @       case "n":  sortFn = this.sortNumeric;  break;
-  @       case "t":  sortFn = this.sortText;     break;
-  @       case "k":  sortFn = this.sortKey;      break;
-  @       case "x":  return;
+  @       case "N": case "n":  sortFn = this.sortNumeric;  break;
+  @       case "T": case "t":  sortFn = this.sortText;     break;
+  @       case "K": case "k":  sortFn = this.sortKey;      break;
+  @       default:  return;
   @     }
   @     this.sortIndex = column;
   @     var newRows = new Array();
@@ -977,6 +976,9 @@ void output_table_sorting_javascript(
   @     }else{
   @       newRows.sort(sortFn);
   @       this.prevColumn = this.sortIndex+1;
+  @       if( cell.sortType>="A" && cell.sortType<="Z" ){
+  @         newRows.reverse();
+  @       }
   @     }
   @     for (i=0;i<newRows.length;i++) {
   @       this.tbody[0].appendChild(newRows[i]);
@@ -1004,7 +1006,7 @@ void output_table_sorting_javascript(
   @     var i = thisObject.sortIndex;
   @     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
   @     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
-  @     if(aa==bb) return 0;
+  @     if(aa==bb) return a.rowIndex-b.rowIndex;
   @     if(aa<bb) return -1;
   @     return 1;
   @   }
@@ -1014,13 +1016,14 @@ void output_table_sorting_javascript(
   @     if (isNaN(aa)) aa = 0;
   @     bb = parseFloat(b.cells[i].textContent);
   @     if (isNaN(bb)) bb = 0;
+  @     if(aa==bb) return a.rowIndex-b.rowIndex;
   @     return aa-bb;
   @   }
   @   this.sortKey = function(a,b) {
   @     var i = thisObject.sortIndex;
   @     aa = a.cells[i].getAttribute("data-sortkey");
   @     bb = b.cells[i].getAttribute("data-sortkey");
-  @     if(aa==bb) return 0;
+  @     if(aa==bb) return a.rowIndex-b.rowIndex;
   @     if(aa<bb) return -1;
   @     return 1;
   @   }

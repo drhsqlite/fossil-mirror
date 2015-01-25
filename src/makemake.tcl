@@ -1,6 +1,6 @@
 #!/usr/bin/tclsh
 #
-# Run this TCL script to generate the various makefiles for a variety
+# Run this Tcl script to generate the various makefiles for a variety
 # of platforms.  Files generated include:
 #
 #     src/main.mk           # makefile for all unix systems
@@ -144,6 +144,7 @@ set src {
 #
 set extra_files {
   diff.tcl
+  ../skins/*/*.txt
 }
 
 # Options used to compile the included SQLite library.
@@ -205,6 +206,15 @@ proc writeln {args} {
 # STOP HERE.
 # Unless the build procedures changes, you should not have to edit anything
 # below this line.
+
+# Expand any wildcards in "extra_files"
+set new_extra_files {}
+foreach file $extra_files {
+  foreach x [glob -nocomplain $file] {
+    lappend new_extra_files $x
+  }
+}
+set extra_files $new_extra_files
 
 ##############################################################################
 ##############################################################################
@@ -575,8 +585,9 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1k/include
-OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1k
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.1l
+OPENSSLINCDIR = $(OPENSSLDIR)/include
+OPENSSLLIBDIR = $(OPENSSLDIR)
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -1307,7 +1318,7 @@ PERL    = perl.exe
 # FOSSIL_ENABLE_TCL = 1
 
 !ifdef FOSSIL_ENABLE_SSL
-SSLDIR    = $(B)\compat\openssl-1.0.1k
+SSLDIR    = $(B)\compat\openssl-1.0.1l
 SSLINCDIR = $(SSLDIR)\inc32
 SSLLIBDIR = $(SSLDIR)\out32
 SSLLFLAGS = /nologo /opt:ref /debug

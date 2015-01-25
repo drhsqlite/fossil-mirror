@@ -29,6 +29,9 @@
 #include "config.h"
 #include "http_socket.h"
 #if defined(_WIN32)
+#  if !defined(_WIN32_WINNT)
+#    define _WIN32_WINNT 0x0501
+#  endif
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
 #else
@@ -47,7 +50,6 @@
 ** local variables:
 */
 static int socketIsInit = 0;    /* True after global initialization */
-static int addrIsInit = 0;      /* True once addr is initialized */
 #if defined(_WIN32)
 static WSADATA socketInfo;      /* Windows socket initialize data */
 #endif
@@ -108,7 +110,6 @@ void socket_global_shutdown(void){
     socket_clear_errmsg();
     socketIsInit = 0;
   }
-  addrIsInit = 0;
 }
 
 /*
@@ -136,50 +137,52 @@ void socket_close(void){
 ** Return the number of errors.
 */
 int socket_open(UrlData *pUrlData){
-  static struct sockaddr_in addr;  /* The server address */
+  int rc = 0;
+  struct addrinfo *ai = 0;
+  struct addrinfo *p;
+  struct addrinfo hints;
+  char zPort[30];
+  char zRemote[NI_MAXHOST];
 
   socket_global_init();
-  if( !addrIsInit ){
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(pUrlData->port);
-    *(int*)&addr.sin_addr = inet_addr(pUrlData->name);
-    if( -1 == *(int*)&addr.sin_addr ){
-#ifndef FOSSIL_STATIC_LINK
-      struct hostent *pHost;
-      pHost = gethostbyname(pUrlData->name);
-      if( pHost!=0 ){
-        memcpy(&addr.sin_addr,pHost->h_addr_list[0],pHost->h_length);
-      }else
-#endif
-      {
-        socket_set_errmsg("can't resolve host name: %s", pUrlData->name);
-        return 1;
-      }
+  memset(&hints, 0, sizeof(struct addrinfo));
+  assert( iSocket<0 );
+  hints.ai_family = g.fIPv4 ? AF_INET : AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+  sqlite3_snprintf(sizeof(zPort),zPort,"%d", pUrlData->port);
+  rc = getaddrinfo(pUrlData->name, zPort, &hints, &ai);
+  if( rc ){
+    socket_set_errmsg("getaddrinfo() fails: %s", gai_strerror(rc));
+    goto end_socket_open;
+  }
+  for(p=ai; p; p=p->ai_next){
+    iSocket = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+    if( iSocket<0 ) continue;
+    if( connect(iSocket,p->ai_addr,p->ai_addrlen)<0 ){
+      socket_close();
+      continue;
     }
-    addrIsInit = 1;
-
-    /* Set the Global.zIpAddr variable to the server we are talking to.
-    ** This is used to populate the ipaddr column of the rcvfrom table,
-    ** if any files are received from the server.
-    */
-    g.zIpAddr = mprintf("%s", inet_ntoa(addr.sin_addr));
+    rc = getnameinfo(p->ai_addr, p->ai_addrlen, zRemote, sizeof(zRemote),
+                     0, 0, NI_NUMERICHOST);
+    if( rc ){
+      socket_set_errmsg("getnameinfo() failed: %s", gai_strerror(rc));
+      goto end_socket_open;
+    }
+    g.zIpAddr = mprintf("%s", zRemote);
+    break;
   }
-  iSocket = socket(AF_INET,SOCK_STREAM,0);
-  if( iSocket<0 ){
-    socket_set_errmsg("cannot create a socket");
-    return 1;
-  }
-  if( connect(iSocket,(struct sockaddr*)&addr,sizeof(addr))<0 ){
+  if( p==0 ){
     socket_set_errmsg("cannot connect to host %s:%d", pUrlData->name,
                       pUrlData->port);
-    socket_close();
-    return 1;
   }
 #if !defined(_WIN32)
   signal(SIGPIPE, SIG_IGN);
 #endif
-  return 0;
+end_socket_open:
+  if( rc && iSocket>=0 ) socket_close();
+  if( ai ) freeaddrinfo(ai);
+  return rc;
 }
 
 /*

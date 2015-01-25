@@ -148,8 +148,9 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1k/include
-OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1k
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.1l
+OPENSSLINCDIR = $(OPENSSLDIR)/include
+OPENSSLLIBDIR = $(OPENSSLDIR)
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -485,6 +486,27 @@ SRC = \
   $(SRCDIR)/zip.c
 
 EXTRA_FILES = \
+  $(SRCDIR)/../skins/black_and_white/css.txt \
+  $(SRCDIR)/../skins/black_and_white/footer.txt \
+  $(SRCDIR)/../skins/black_and_white/header.txt \
+  $(SRCDIR)/../skins/default/css.txt \
+  $(SRCDIR)/../skins/default/footer.txt \
+  $(SRCDIR)/../skins/default/header.txt \
+  $(SRCDIR)/../skins/eagle/css.txt \
+  $(SRCDIR)/../skins/eagle/footer.txt \
+  $(SRCDIR)/../skins/eagle/header.txt \
+  $(SRCDIR)/../skins/enhanced1/css.txt \
+  $(SRCDIR)/../skins/enhanced1/footer.txt \
+  $(SRCDIR)/../skins/enhanced1/header.txt \
+  $(SRCDIR)/../skins/khaki/css.txt \
+  $(SRCDIR)/../skins/khaki/footer.txt \
+  $(SRCDIR)/../skins/khaki/header.txt \
+  $(SRCDIR)/../skins/plain_gray/css.txt \
+  $(SRCDIR)/../skins/plain_gray/footer.txt \
+  $(SRCDIR)/../skins/plain_gray/header.txt \
+  $(SRCDIR)/../skins/rounded1/css.txt \
+  $(SRCDIR)/../skins/rounded1/footer.txt \
+  $(SRCDIR)/../skins/rounded1/header.txt \
   $(SRCDIR)/diff.tcl
 
 TRANS_SRC = \

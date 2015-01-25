@@ -355,44 +355,56 @@ void mimetype_test_cmd(void){
 
 /*
 ** WEBPAGE: doc
-** URL: /doc?name=BASELINE/PATH
-** URL: /doc/BASELINE/PATH
+** URL: /doc?name=CHECKIN/FILE
+** URL: /doc/CHECKIN/FILE
 **
-** BASELINE can be either a baseline uuid prefix or magic words "tip"
-** to mean the most recently checked in baseline or "ckout" to mean the
-** content of the local checkout, if any.  PATH is the relative pathname
-** of some file.  This method returns the file content.
+** CHECKIN can be either tag or SHA1 hash or timestamp identifying a
+** particular check, or the name of a branch (meaning the most recent
+** check-in on that branch) or one of various magic words:
 **
-** If PATH matches the patterns *.wiki or *.txt then formatting content
-** is added before returning the file.  For all other names, the content
-** is returned straight without any interpretation or processing.
+**     "tip"      means the most recent check-in
+**
+**     "ckout"    means the current check-out, if the server is run from
+**                within a check-out, otherwise it is the same as "tip"
+**
+** FILE is the name of a file to delivered up as a webpage.  FILE is relative
+** to the root of the source tree of the repository. The FILE must
+** be a part of CHECKIN, except when CHECKIN=="ckout" when FILE is read
+** directly from disk and need not be a managed file.
+**
+** The "ckout" CHECKIN is intended for development - to provide a mechanism
+** for looking at what a file will look like using the /doc webpage after
+** it gets checked in.
+**
+** The file extension is used to decide how to render the file.
 */
 void doc_page(void){
   const char *zName;                /* Argument to the /doc page */
+  const char *zOrigName;            /* Original document name */
   const char *zMime;                /* Document MIME type */
-  int vid = 0;                      /* Artifact of baseline */
+  char *zCheckin;                   /* The checkin holding the document */
+  int vid = 0;                      /* Artifact of checkin */
   int rid = 0;                      /* Artifact of file */
   int i;                            /* Loop counter */
   Blob filebody;                    /* Content of the documentation file */
-  char zBaseline[UUID_SIZE+1];      /* Baseline UUID */
+  int nMiss = 0;                    /* Failed attempts to find the document */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   zName = PD("name", "tip/index.wiki");
   for(i=0; zName[i] && zName[i]!='/'; i++){}
-  if( zName[i]==0 || i>UUID_SIZE ){
-    zName = "index.html";
-    goto doc_not_found;
+  zCheckin = mprintf("%.*s", i, zName);
+  if( zName[i]==0 ){
+    zName = "index.wiki";
+  }else{
+    zName += i;
   }
-  g.zPath = mprintf("%s/%s", g.zPath, zName);
-  memcpy(zBaseline, zName, i);
-  zBaseline[i] = 0;
-  zName += i;
   while( zName[0]=='/' ){ zName++; }
+  g.zPath = mprintf("%s/%s/%s", g.zPath, zCheckin, zName);
+  zOrigName = zName;
   if( !file_is_simple_pathname(zName, 1) ){
-    int n = strlen(zName);
-    if( n>0 && zName[n-1]=='/' ){
-      zName = mprintf("%sindex.html", zName);
+    if( sqlite3_strglob("*/", zName)==0 ){
+      zOrigName = zName = mprintf("%sindex.wiki", zName);
       if( !file_is_simple_pathname(zName, 1) ){
         goto doc_not_found;
       }
@@ -400,88 +412,54 @@ void doc_page(void){
       goto doc_not_found;
     }
   }
-  if( fossil_strcmp(zBaseline,"ckout")==0 && db_open_local(0)==0 ){
-    sqlite3_snprintf(sizeof(zBaseline), zBaseline, "tip");
+  if( fossil_strcmp(zCheckin,"ckout")==0 && db_open_local(0)==0 ){
+    sqlite3_snprintf(sizeof(zCheckin), zCheckin, "tip");
   }
-  if( fossil_strcmp(zBaseline,"ckout")==0 ){
+  if( fossil_strcmp(zCheckin,"ckout")==0 ){
     /* Read from the local checkout */
     char *zFullpath;
     db_must_be_within_tree();
-    zFullpath = mprintf("%s/%s", g.zLocalRoot, zName);
-    if( !file_isfile(zFullpath) ){
-      goto doc_not_found;
-    }
-    if( blob_read_from_file(&filebody, zFullpath)<0 ){
-      goto doc_not_found;
+    while( rid==0 && nMiss<2 ){
+      zFullpath = mprintf("%s/%s", g.zLocalRoot, zName);
+      if( file_isfile(zFullpath)
+       && blob_read_from_file(&filebody, zFullpath)<0 ){
+        rid = 1;  /* Fake RID just to get the loop to end */
+      }
+      fossil_free(zFullpath);
+      if( rid ) break;
+      nMiss++;
+      zName = "404.md";
     }
   }else{
     db_begin_transaction();
-    if( fossil_strcmp(zBaseline,"tip")==0 ){
-      vid = db_int(0, "SELECT objid FROM event WHERE type='ci'"
-                      " ORDER BY mtime DESC LIMIT 1");
-    }else{
-      vid = name_to_typed_rid(zBaseline, "ci");
-    }
-
-    /* Create the baseline cache if it does not already exist */
+    vid = name_to_typed_rid(zCheckin, "ci");
     db_multi_exec(
       "CREATE TABLE IF NOT EXISTS vcache(\n"
-      "  vid INTEGER,         -- baseline ID\n"
+      "  vid INTEGER,         -- checkin ID\n"
       "  fname TEXT,          -- filename\n"
       "  rid INTEGER,         -- artifact ID\n"
-      "  UNIQUE(vid,fname,rid)\n"
-      ")"
+      "  PRIMARY KEY(vid,fname)\n"
+      ") WITHOUT ROWID"
     );
-
-
-
-    /* Check to see if the documentation file artifact ID is contained
-    ** in the baseline cache */
-    rid = db_int(0, "SELECT rid FROM vcache"
-                    " WHERE vid=%d AND fname=%Q", vid, zName);
-    if( rid==0 && db_exists("SELECT 1 FROM vcache WHERE vid=%d", vid) ){
-      goto doc_not_found;
-    }
-
-    if( rid==0 ){
-      Stmt s;
-      Manifest *pM;
-      ManifestFile *pFile;
-
-      /* Add the vid baseline to the cache */
-      if( db_int(0, "SELECT count(*) FROM vcache")>10000 ){
-        db_multi_exec("DELETE FROM vcache");
-      }
-      pM = manifest_get(vid, CFTYPE_MANIFEST, 0);
-      if( pM==0 ){
-        goto doc_not_found;
-      }
-      db_prepare(&s,
+    if( !db_exists("SELECT 1 FROM vcache WHERE vid=%d", vid) ){
+      db_multi_exec(
+        "DELETE FROM vcache;\n"
+        "CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;\n"
         "INSERT INTO vcache(vid,fname,rid)"
-        " SELECT %d, :fname, rid FROM blob"
-        "  WHERE uuid=:uuid",
+        "  SELECT checkinID, filename, blob.rid FROM foci, blob"
+        "   WHERE blob.uuid=foci.uuid"
+        "     AND foci.checkinID=%d;",
         vid
       );
-      manifest_file_rewind(pM);
-      while( (pFile = manifest_file_next(pM,0))!=0 ){
-        db_bind_text(&s, ":fname", pFile->zName);
-        db_bind_text(&s, ":uuid", pFile->zUuid);
-        db_step(&s);
-        db_reset(&s);
-      }
-      db_finalize(&s);
-      manifest_destroy(pM);
-
-      /* Try again to find the file */
+    }
+    while( rid==0 && nMiss<2 ){
       rid = db_int(0, "SELECT rid FROM vcache"
                       " WHERE vid=%d AND fname=%Q", vid, zName);
+      if( rid ) break;
+      nMiss++;
+      zName = "404.md";
     }
-    if( rid==0 ){
-      goto doc_not_found;
-    }
-
-    /* Get the file content */
-    if( content_get(rid, &filebody)==0 ){
+    if( rid==0 || content_get(rid, &filebody)==0 ){
       goto doc_not_found;
     }
     db_end_transaction(0);
@@ -491,7 +469,7 @@ void doc_page(void){
   /* The file is now contained in the filebody blob.  Deliver the
   ** file to the user
   */
-  zMime = P("mimetype");
+  zMime = nMiss==0 ? P("mimetype") : 0;
   if( zMime==0 ){
     zMime = mimetype_from_name(zName);
   }
@@ -502,6 +480,7 @@ void doc_page(void){
                                   " WHERE objid=%d AND type='ci'", vid));
   if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
     Blob title, tail;
+    style_adunit_config(ADUNIT_RIGHT_OK);
     if( wiki_find_title(&filebody, &title, &tail) ){
       style_header("%s", blob_str(&title));
       wiki_convert(&tail, 0, WIKI_BUTTONS);
@@ -517,7 +496,7 @@ void doc_page(void){
     if( blob_size(&title)>0 ){
       style_header("%s", blob_str(&title));
     }else{
-      style_header("Documentation");
+      style_header("%s", nMiss?"Not Found":"Documentation");
     }
     blob_append(cgi_output_blob(), blob_buffer(&tail), blob_size(&tail));
     style_footer();
@@ -538,13 +517,18 @@ void doc_page(void){
     cgi_set_content_type(zMime);
     cgi_set_content(&filebody);
   }
+  if( nMiss ) cgi_set_status(404, "Not Found");
   return;
 
-doc_not_found:
   /* Jump here when unable to locate the document */
+doc_not_found:
   db_end_transaction(0);
-  style_header("Document Not Found");
-  @ <p>No such document: %h(zName)</p>
+  cgi_set_status(404, "Not Found");
+  style_header("Not Found");
+  @ <p>Document %h(zOrigName) not found
+  if( fossil_strcmp(zCheckin,"ckout")!=0 ){
+    @ in %z(href("%R/tree?ci=%T",zCheckin))%h(zCheckin)</a>
+  }
   style_footer();
   return;
 }

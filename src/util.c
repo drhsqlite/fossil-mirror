@@ -333,3 +333,13 @@ int fossil_is_uuid(const char *zSym){
     && (UUID_SIZE==strlen(zSym))
     && validate16(zSym, UUID_SIZE);
 }
+
+/*
+** Return true if the input string is NULL or all whitespace.
+** Return false if the input string contains text.
+*/
+int fossil_all_whitespace(const char *z){
+  if( z==0 ) return 1;
+  while( fossil_isspace(z[0]) ){ z++; }
+  return z[0]==0;
+}

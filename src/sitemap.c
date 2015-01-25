@@ -29,6 +29,7 @@
 void sitemap_page(void){
   login_check_credentials();
   style_header("Site Map");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   @ <p>
   @ The following links are just a few of the many web-pages available for
   @ this Fossil repository:

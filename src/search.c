@@ -167,7 +167,7 @@ static void search_score_sqlfunc(
   azDoc = fossil_malloc( sizeof(const char*)*(argc+1) );
   for(i=0; i<argc; i++) azDoc[i] = (const char*)sqlite3_value_text(argv[i]);
   score = search_score(p, argc, azDoc);
-  fossil_free(azDoc);
+  fossil_free((void *)azDoc);
   sqlite3_result_int(context, score);
 }
 

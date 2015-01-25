@@ -173,6 +173,8 @@ static int sqlcmd_autoinit(
 **    symbolic_name_to_rid(X)   Return a the BLOB.RID corresponding to symbolic
 **                              name X.
 **
+**    now()                     Return the number of seconds since 1970.
+**
 **    REGEXP                    The REGEXP operator works, unlike in
 **                              standard SQLite.
 **
