@@ -1,5 +1,5 @@
-C Enhance\sthe\s"fossil\ssync"\scommand\sto\sretry\sall\sof\sthe\sreturned\svalues\nfrom\sgetaddrinfo()\suntil\sit\sfinds\sone\sthat\sactually\sworks.\s\sThat\sway,\nit\swill\sfind\sthe\sIPv4\sversion\son\smachines\sthat\sdo\snot\shave\san\sIPv6\sgateway.
-D 2015-01-24T22:13:38.857
+C Improved\stracing\scapability\sfor\sdebugging\spurposes.
+D 2015-01-25T21:21:26.990
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -349,7 +349,7 @@ F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
-F src/cgi.c 9c73ecf9a0435e1fcf52f2a206df4f6c1dd13778
+F src/cgi.c 76a4af25a1df3fa6c112d09e291c4bba140df662
 F src/checkin.c dc87c556cbd24182b8bb8a30a692a37f3b74f55a
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -374,7 +374,7 @@ F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 26fd16a9f3fe9f88edd233e39cf4051a0398eb29
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 6c218bb03870305f7d3b89e9eb2fd814ce8236dc
-F src/finfo.c 7723537f2fe6c8ead74072f155a2d2170cea7e63
+F src/finfo.c b0d751f50a96cea5fea1de1ed8e1ff277a6fb9ae
 F src/foci.c 5f8f822add6007009b2abb7f3d238122e29d9a90
 F src/fusefs.c 6834881d9573f824aa10ee06985b3d03e24d7172
 F src/glob.c ab1baf2161ef8a00aa70a1b67eb201d0edc833fe
@@ -406,7 +406,7 @@ F src/leaf.c a8880fbcf409f34c0ea9566f8b548a96496856a7
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c df63c9e03c607859beded9eade6c042c9fd64f65
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 2aa380b1b844cf8f600a100a3ac5f7e225564668
+F src/main.c 1660e8aee8420a1c45def4a9d4224e5476531070
 F src/main.mk b701cd59ca93fff534c0d1f7475f7c92e8ac3b08
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -456,7 +456,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 38a77d04427296f65729de869316c5cc0606f6d7
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c 39a5d07a1c2422d2878abcd2cf62879d153b38a9
+F src/timeline.c 1ea51228a0fe5602c94da9e2a3c005c103f00010
 F src/tkt.c 37c7a5d99ab5ed542af2378b6971bbb9e115ca05
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -690,7 +690,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 317bd3cb3dbc5c1d4a3f75939fec5ede6f6a1655
-R 819b84156ec15acb0cb56dab1c1d19d9
+P ae3ef4d3d9d786c79afb805ad9892cca82bde046
+R d867e2625b446f456cd2f6b03e815da3
 U drh
-Z 4dfe8138f7dc12784c63c2d33ba2c50e
+Z 6bd90898a113753c3e29525fa3343abf
