@@ -305,6 +305,7 @@ void finfo_page(void){
   int uBg = P("ubg")!=0;
   int firstChngOnly = atoi(PD("fco","1"))!=0;
   int fDebug = atoi(PD("debug","0"));
+  int fShowId = P("showid")!=0;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -424,13 +425,27 @@ void finfo_page(void){
     int pfnid = db_column_int(&q, 11);
     int gidx;
     char zTime[10];
+    int nParent = 0;
+    int aParent[32];
+    static Stmt qparent;
+    db_static_prepare(&qparent,
+      "SELECT DISTINCT pid FROM mlink"
+      " WHERE fid=:fid AND mid=:mid"
+      " ORDER BY isaux /*sort*/"
+    );
+    db_bind_int(&qparent, ":fid", frid);
+    db_bind_int(&qparent, ":mid", fmid);
+    while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
+      aParent[nParent++] = db_column_int(&qparent, 0);
+    }
+    db_reset(&qparent);
     if( zBr==0 ) zBr = "trunk";
     if( uBg ){
       zBgClr = hash_color(zUser);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
-    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr,
+    gidx = graph_add_row(pGraph, frid, nParent, aParent, zBr, zBgClr,
                          zUuid, 0);
     if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
@@ -457,7 +472,11 @@ void finfo_page(void){
         @ <b>Renamed</b> from
         @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
       }
-      @ %z(href("%R/artifact/%s",zUuid))[%S(zUuid)]</a> part of check-in
+      @ %z(href("%R/artifact/%s",zUuid))[%S(zUuid)]</a>
+      if( fShowId ){
+        @ (%d(frid))
+      }
+      @ part of check-in
     }else{
       char *zNewName;
       zNewName = db_text(0,
@@ -475,6 +494,9 @@ void finfo_page(void){
       }
     }
     hyperlink_to_uuid(zCkin);
+    if( fShowId ){
+      @ (%d(fmid))
+    }
     @ %W(zCom) (user:
     hyperlink_to_user(zUser, zDate, "");
     @ branch: %h(zBr))

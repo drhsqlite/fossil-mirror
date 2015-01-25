@@ -1,5 +1,5 @@
-C Enhance\sthe\sMLINK\stable\sschema\sto\srecord\sfile\schanges\sfrom\sall\sparents.\nRequires\sa\s"fossil\srebuild".\s\sOther\sschema\scleanups\sat\sthe\ssame\stime.
-D 2015-01-25T00:20:07.357
+C Comment\simprovements\sin\sthe\sschema.\s\sAttempt\sto\sget\sthe\s/finfo\spage\sto\nshow\smerge\sarrows.
+D 2015-01-25T01:30:24.800
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -374,7 +374,7 @@ F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 26fd16a9f3fe9f88edd233e39cf4051a0398eb29
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 6c218bb03870305f7d3b89e9eb2fd814ce8236dc
-F src/finfo.c 7723537f2fe6c8ead74072f155a2d2170cea7e63
+F src/finfo.c ce765baea98bf61a8d0480924abcff467157f678
 F src/foci.c 5f8f822add6007009b2abb7f3d238122e29d9a90
 F src/fusefs.c 6834881d9573f824aa10ee06985b3d03e24d7172
 F src/glob.c ab1baf2161ef8a00aa70a1b67eb201d0edc833fe
@@ -434,7 +434,7 @@ F src/rebuild.c ea2736883d102bbf2debd96bb0636fdad574d95c
 F src/regexp.c 2e96572cdf9438adf7298cf8fb38a26b0fd01d4e
 F src/report.c fc8913ece84d192f7af01681a13c72435dd1eb3f
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
-F src/schema.c 73fb4469101883e74311ccac441777e0d010604c
+F src/schema.c 2607c2746111fcdaa3fe3719583627383315e34d
 F src/search.c 8a4df7e4c41c3ae55347a48e00d143563cb23097
 F src/setup.c 8adc42850579d93ec2c88bad5ae20787e3e6e777
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
@@ -690,10 +690,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ae3ef4d3d9d786c79afb805ad9892cca82bde046
-R 86ff6e2c8c20e93eaf558300278acf67
-T *branch * mlink-improvements
-T *sym-mlink-improvements *
-T -sym-trunk *
+P a241444d8f5225c1d977c5ac7540e7064a8613e0
+R ea051cd84897943321904baaa67623b4
 U drh
-Z 8afe665bc1130e84f1ad9e03f63ded30
+Z 8069b9d1f6d8eff80367f91fd43b55f1

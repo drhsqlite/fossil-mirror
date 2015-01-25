@@ -249,6 +249,16 @@ const char zRepositorySchema2[] =
 @ -- a merge.  Entries with isaux==0 are from the primary parent.  Merge
 @ -- parents have isaux set to true.
 @ --
+@ -- Field name mnemonics:
+@ --    mid = Manifest ID.  (Each check-in is stored as a "Manifest")
+@ --    fid = File ID.
+@ --    pmid = Parent Manifest ID.
+@ --    pid = Parent file ID.
+@ --    fnid = File Name ID.
+@ --    pfnid = Parent File Name ID.
+@ --    fclass = FileCLASS id.
+@ --    isaux = pmid IS AUXiliary parent, not primary parent
+@ --
 @ -- pid==0 if the file is added by checkin mid.
 @ -- fid==0 if the file is removed by checkin mid.
 @ --
