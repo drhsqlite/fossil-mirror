@@ -296,6 +296,7 @@ void finfo_page(void){
   const char *zB;
   int n;
   int baseCheckin;
+  int fnid;
 
   Blob title;
   Blob sql;
@@ -404,6 +405,8 @@ void finfo_page(void){
     blob_appendf(&title, "History of files named ");
     hyperlinked_path(zFilename, &title, 0, "tree", "");
   }
+  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
+  if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
@@ -430,11 +433,12 @@ void finfo_page(void){
     static Stmt qparent;
     db_static_prepare(&qparent,
       "SELECT DISTINCT pid FROM mlink"
-      " WHERE fid=:fid AND mid=:mid"
+      " WHERE fid=:fid AND mid=:mid AND pid>0 AND fnid=:fnid"
       " ORDER BY isaux /*sort*/"
     );
     db_bind_int(&qparent, ":fid", frid);
     db_bind_int(&qparent, ":mid", fmid);
+    db_bind_int(&qparent, ":fnid", fnid);
     while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
       aParent[nParent++] = db_column_int(&qparent, 0);
     }
