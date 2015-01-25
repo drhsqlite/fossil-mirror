@@ -46,8 +46,8 @@ const char zConfigSchema[] =
 ** the aux schema changes, all we need to do is rebuild the database.
 */
 #define CONTENT_SCHEMA  "2"
-#define AUX_SCHEMA_MIN  "2011-04-25 19:50"
-#define AUX_SCHEMA_MAX  "2014-11-24 20:35"
+#define AUX_SCHEMA_MIN  "2015-01-24"
+#define AUX_SCHEMA_MAX  "2015-01-24"
 
 #endif /* INTERFACE */
 
@@ -227,19 +227,41 @@ const char zRepositorySchema2[] =
 @   name TEXT UNIQUE             -- Name of file page
 @ );
 @
+@
+@ -- A "file class" is like a filename except that it remains constant
+@ -- across renames.
+@ --
+@ CREATE TABLE fileclass(
+@   fclass INTEGER PRIMARY KEY,          -- Unique id for this fileclass
+@   ckid INTEGER REFERENCES plink(cid),  -- Checkin where file originates
+@   fnid INTEGER REFERENCES filename     -- Name of the file in ckid
+@ );
+@
 @ -- Linkages between checkins, files created by each checkin, and
 @ -- the names of those files.
+@ -- 
+@ -- Each entry represents a file that changed content from pid to fid
+@ -- due to the check-in that goes from pmid to mid.  fnid is the name
+@ -- of the file in the mid check-in.  If the file was renamed as part
+@ -- of the mid check-in, then pfnid is the previous filename.
+@
+@ -- There can be multiple entries for (mid,fid) if the mid checkin was
+@ -- a merge.  Entries with isaux==0 are from the primary parent.  Merge
+@ -- parents have isaux set to true.
 @ --
 @ -- pid==0 if the file is added by checkin mid.
 @ -- fid==0 if the file is removed by checkin mid.
 @ --
 @ CREATE TABLE mlink(
-@   mid INTEGER REFERENCES blob,        -- Manifest ID where change occurs
-@   pid INTEGER REFERENCES blob,        -- File ID in parent manifest
-@   fid INTEGER REFERENCES blob,        -- Changed file ID in this manifest
+@   mid INTEGER REFERENCES plink(cid),  -- Checkin that contains fid
+@   fid INTEGER REFERENCES blob,        -- New file content. 0 if deleted
+@   pmid INTEGER REFERENCES plink(cid), -- Checkin that contains pid
+@   pid INTEGER REFERENCES blob,        -- Prev file content. 0 if new
 @   fnid INTEGER REFERENCES filename,   -- Name of the file
 @   pfnid INTEGER REFERENCES filename,  -- Previous name. 0 if unchanged
-@   mperm INTEGER                       -- File permissions.  1==exec
+@   mperm INTEGER,                      -- File permissions.  1==exec
+@   fclass INTEGER REFERENCE fileclass, -- fid is an instance of this class
+@   isaux BOOLEAN DEFAULT 0             -- TRUE if pmid is the primary
 @ );
 @ CREATE INDEX mlink_i1 ON mlink(mid);
 @ CREATE INDEX mlink_i2 ON mlink(fnid);
@@ -253,7 +275,7 @@ const char zRepositorySchema2[] =
 @   cid INTEGER REFERENCES blob,    -- Child manifest
 @   isprim BOOLEAN,                 -- pid is the primary parent of cid
 @   mtime DATETIME,                 -- the date/time stamp on cid.  Julian day.
-@   baseid INTEGER REFERENCES blob, -- Baseline if child is a delta manifest
+@   baseid INTEGER REFERENCES blob, -- Baseline if cid is a delta manifest.
 @   UNIQUE(pid, cid)
 @ );
 @ CREATE INDEX plink_i2 ON plink(cid,pid);
@@ -490,7 +512,7 @@ const char zLocalSchema[] =
 @ CREATE TABLE vfile(
 @   id INTEGER PRIMARY KEY,           -- ID of the checked out file
 @   vid INTEGER REFERENCES blob,      -- The baseline this file is part of.
-@   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add 4:i-chng 5:i-add
+@   chnged INT DEFAULT 0,  -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng 5:i-add
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted
 @   isexe BOOLEAN,                    -- True if file should be executable
 @   islink BOOLEAN,                   -- True if file should be symlink
