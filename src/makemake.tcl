@@ -1207,7 +1207,7 @@ page_index.h: mkindex$E $(SRC)
 	+$** > $@
 
 builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
-	mkbuildin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
+	mkbuiltin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
 
 clean:
 	-del $(OBJDIR)\*.obj
@@ -1601,7 +1601,7 @@ page_index.h: mkindex$E $(SRC)
 	$** > $@
 
 builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
-	mkbuildin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
+	mkbuiltin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
 
 clean:
 	-del $(OX)\*.obj
