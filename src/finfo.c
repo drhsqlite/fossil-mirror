@@ -404,7 +404,7 @@ void finfo_page(void){
     int gidx;
     char zTime[10];
     int nParent = 0;
-    int aParent[32];
+    int aParent[GR_MAX_RAIL];
     static Stmt qparent;
     db_static_prepare(&qparent,
       "SELECT DISTINCT pid FROM mlink"
@@ -414,7 +414,7 @@ void finfo_page(void){
     db_bind_int(&qparent, ":fid", frid);
     db_bind_int(&qparent, ":mid", fmid);
     db_bind_int(&qparent, ":fnid", fnid);
-    while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
+    while( db_step(&qparent)==SQLITE_ROW && nParent<ArraySize(aParent) ){
       aParent[nParent++] = db_column_int(&qparent, 0);
     }
     db_reset(&qparent);
@@ -443,7 +443,7 @@ void finfo_page(void){
       @ <td class="timelineTableCell">
     }
     if( zUuid ){
-      if( fpid==0 ){
+      if( nParent==0 ){
         @ <b>Added</b>
       }else if( pfnid ){
         char *zPrevName = db_text(0, "SELECT name FROM filename WHERE fnid=%d",

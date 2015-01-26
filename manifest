@@ -1,5 +1,5 @@
-C Improved\scomment\son\sthe\sautomatic\sMLINK\scolumn\sadding\sthat\sis\sdone\nin\sdb_open_repository().
-D 2015-01-26T14:44:00.251
+C Use\sthe\sGR_MAX_RAIL\smacro\sto\slimit\sthe\snumber\sof\sparents\sfor\sa\snode\son\sa\ngraph.\s\sOn\sthe\s/finfo\spage,\sensure\sthat\sa\snode\sis\sonly\smarked\s"Added"\sif\sit\nhas\sno\sparents.
+D 2015-01-26T15:19:24.948
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -374,7 +374,7 @@ F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 26fd16a9f3fe9f88edd233e39cf4051a0398eb29
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 6c218bb03870305f7d3b89e9eb2fd814ce8236dc
-F src/finfo.c 6398af8346f5ebb21fd7b751ef14b0fb24a733ee
+F src/finfo.c 204c70c33a2dd628bf9a4ea6c57f8416b69a6fb2
 F src/foci.c 5f8f822add6007009b2abb7f3d238122e29d9a90
 F src/fusefs.c 6834881d9573f824aa10ee06985b3d03e24d7172
 F src/glob.c ab1baf2161ef8a00aa70a1b67eb201d0edc833fe
@@ -457,7 +457,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 38a77d04427296f65729de869316c5cc0606f6d7
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c 1ea51228a0fe5602c94da9e2a3c005c103f00010
+F src/timeline.c 599db2a1169cf7ae2734fc30b2b155c20ba8a1c1
 F src/tkt.c 37c7a5d99ab5ed542af2378b6971bbb9e115ca05
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -691,7 +691,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3bb88739409958b1b8f771b6c3aa1c944c57c70f
-R 47c132a553f81390b9d8fb008f3d39ca
+P c33c574e43e384f9b3dfd3f29a7d1ee9aac3af13
+R 7dc2c2723bec4e358b566f228badf53e
 U drh
-Z a348c823a8be5482eb3ac227474b29f7
+Z f4b3a99087d86ea1ab2b9b359055e2b0

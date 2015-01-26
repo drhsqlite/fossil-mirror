@@ -362,7 +362,7 @@ void www_print_timeline(
     }
     if( zType[0]=='c' && (pGraph || (tmFlags & TIMELINE_BRCOLOR)!=0) ){
       int nParent = 0;
-      int aParent[32];
+      int aParent[GR_MAX_RAIL];
       int gidx;
       static Stmt qparent;
       db_static_prepare(&qparent,
@@ -371,7 +371,7 @@ void www_print_timeline(
         " ORDER BY isprim DESC /*sort*/"
       );
       db_bind_int(&qparent, ":rid", rid);
-      while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
+      while( db_step(&qparent)==SQLITE_ROW && nParent<ArraySize(aParent) ){
         aParent[nParent++] = db_column_int(&qparent, 0);
       }
       db_reset(&qparent);
