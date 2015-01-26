@@ -1178,6 +1178,12 @@ void db_open_repository(const char *zDbName){
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
   g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
   g.zAuxSchema = db_get("aux-schema","");
+
+  /* Verify that the MLINK table has the newer columns added by the
+  ** 2015-01-24 schema change.  Create them if necessary.  This code
+  ** can be removed in the future, once all users have upgraded to the
+  ** 2015-01-24 schema.
+  */  
   if( !db_table_has_column("repository","mlink","isaux") ){
     db_begin_transaction();
     db_multi_exec(
