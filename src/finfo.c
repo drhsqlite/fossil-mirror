@@ -335,7 +335,7 @@ void finfo_page(void){
     " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
     " event.bgcolor,"                                /* Background color */
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
-                                " AND tagxref.rid=mlink.mid)," /* Tags */
+                                " AND tagxref.rid=mlink.mid)," /* Branchname */
     " mlink.mid,"                                    /* check-in ID */
     " mlink.pfnid",                                  /* Previous filename */
     timeline_utc(), TAG_BRANCH
@@ -503,7 +503,7 @@ void finfo_page(void){
     }
     @ %W(zCom) (user:
     hyperlink_to_user(zUser, zDate, "");
-    @ branch: %h(zBr))
+    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))

@@ -1802,6 +1802,19 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         add_mlink(pid, 0, rid, p, i);
         if( i==0 ) parentid = pid;
       }
+      if( p->nParent>1 ){
+        /* Remove incorrect MLINK create-file entries that arise when a
+        ** file is added by merge. */
+        db_multi_exec(
+           "DELETE FROM mlink"
+           " WHERE mid=%d"
+           "   AND pid=0"
+           "   AND fnid IN "
+           "  (SELECT fnid FROM mlink WHERE mid=%d GROUP BY fnid"
+           "    HAVING count(*)<%d)",
+           rid, rid, p->nParent
+        );
+      }
       db_prepare(&q, "SELECT cid, isprim FROM plink WHERE pid=%d", rid);
       while( db_step(&q)==SQLITE_ROW ){
         int cid = db_column_int(&q, 0);

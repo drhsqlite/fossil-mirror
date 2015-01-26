@@ -1,5 +1,5 @@
-C Some\sminor\sfixes\sto\sthe\s/finfo\stree\sconstruction.\s\sStill\shaving\sproblems\swith\nincorrect\smlink\sentries\sbeing\screated\sfor\sfiles\sadded\sby\smerge.
-D 2015-01-25T02:29:45.336
+C Omit\sMLINK\sentries\swhen\sa\sfile\sis\sadded\sby\smerge.
+D 2015-01-26T11:52:01.357
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -374,7 +374,7 @@ F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 26fd16a9f3fe9f88edd233e39cf4051a0398eb29
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 6c218bb03870305f7d3b89e9eb2fd814ce8236dc
-F src/finfo.c ea55eda46c4dbddf3a6ae9e6154fa05b7bc30c48
+F src/finfo.c b1112e1eeec6ec6b8667d5c56057a90fba564a7a
 F src/foci.c 5f8f822add6007009b2abb7f3d238122e29d9a90
 F src/fusefs.c 6834881d9573f824aa10ee06985b3d03e24d7172
 F src/glob.c ab1baf2161ef8a00aa70a1b67eb201d0edc833fe
@@ -411,7 +411,7 @@ F src/main.mk b701cd59ca93fff534c0d1f7475f7c92e8ac3b08
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl aac295f5436eece36fcd58717f62955279a00e72
-F src/manifest.c 9f727f5daa5593963aaf0664c0cbc74b80c175a7
+F src/manifest.c 8ffb6b9de3020a9d4c41e6652af240c0fd93d07c
 F src/markdown.c a8ea5a5012e968331bf26f3de92cef68d65d1066
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
 F src/md5.c 3576c4209b1e80c437ab70a15f30d790650d46eb
@@ -690,7 +690,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7d5a85bba8db9f2398a61fa4709a96651eaa6595
-R 447e3fbae05debc06682bf505b60bb0d
+P f603a914320243fb1a1914cde14333933b4092f5
+R ba6df6473afdc10cf7767594a8371aa2
 U drh
-Z 6267d7ab1b307234a9846e7aa1c1e45d
+Z 3329a31cae9c9ebec47eda3bfd987771
