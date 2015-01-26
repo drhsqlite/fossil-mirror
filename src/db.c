@@ -797,7 +797,7 @@ void db_sym2rid_function(
 }
 
 /*
-** Register the SQL functions that are useful both to the internal 
+** Register the SQL functions that are useful both to the internal
 ** representation and to the "fossil sql" command.
 */
 void db_add_aux_functions(sqlite3 *db){
@@ -842,7 +842,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
     db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
   );
   if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
-  db_add_aux_functions(db);  
+  db_add_aux_functions(db);
   re_add_sql_func(db);  /* The REGEXP operator */
   foci_register(db);    /* The "files_of_checkin" virtual table */
   sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);

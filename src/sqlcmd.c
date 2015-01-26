@@ -110,7 +110,7 @@ static void sqlcmd_decompress(
 }
 
 /*
-** Add the content(), compress(), and decompress() SQL functions to 
+** Add the content(), compress(), and decompress() SQL functions to
 ** database connection db.
 */
 int add_content_sql_commands(sqlite3 *db){

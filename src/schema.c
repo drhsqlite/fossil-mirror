@@ -14,7 +14,7 @@
 **   http://www.hwaci.com/drh/
 **
 *******************************************************************************
-** 
+**
 ** This file contains string constants that implement the database schema.
 */
 #include "config.h"
@@ -83,7 +83,7 @@ const char zRepositorySchema1[] =
 @   CHECK( length(uuid)==40 AND rid>0 )
 @ );
 @ CREATE TABLE delta(
-@   rid INTEGER PRIMARY KEY,                 -- BLOB that is delta-compressed 
+@   rid INTEGER PRIMARY KEY,                 -- BLOB that is delta-compressed
 @   srcid INTEGER NOT NULL REFERENCES blob   -- Baseline for delta-compression
 @ );
 @ CREATE INDEX delta_i1 ON delta(srcid);

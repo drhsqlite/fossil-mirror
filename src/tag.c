@@ -271,7 +271,7 @@ void testtag_cmd(void){
   zValue = g.argc==5 ? g.argv[4] : 0;
   db_begin_transaction();
   tag_insert(zTag, tagtype, zValue, -1, 0.0, rid);
-  db_end_transaction(0); 
+  db_end_transaction(0);
 }
 
 /*

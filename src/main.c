@@ -1876,7 +1876,7 @@ void cmd_cgi(void){
       /* debug: FILENAME
       **
       ** Causes output from cgi_debug() and CGIDEBUG(()) calls to go
-      ** into FILENAME. 
+      ** into FILENAME.
       */
       g.fDebug = fossil_fopen(blob_str(&value), "ab");
       blob_reset(&value);

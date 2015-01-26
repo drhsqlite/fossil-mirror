@@ -304,7 +304,7 @@ void branch_cmd(void){
   }
 }
 
-static char brlistQuery[] = 
+static const char brlistQuery[] =
 @ SELECT
 @   tagxref.value,
 @   max(event.mtime),
@@ -345,7 +345,7 @@ static void new_brlist_page(void){
   style_header("Branches");
   style_adunit_config(ADUNIT_RIGHT_OK);
   login_anonymous_available();
-  
+
   db_prepare(&q, brlistQuery/*works-like:""*/);
   rNow = db_double(0.0, "SELECT julianday('now')");
   @ <div class="brlist"><table id="branchlisttable">
