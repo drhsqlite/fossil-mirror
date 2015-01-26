@@ -157,7 +157,8 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/rounded1/css.txt \
   $(SRCDIR)/../skins/rounded1/footer.txt \
   $(SRCDIR)/../skins/rounded1/header.txt \
-  $(SRCDIR)/diff.tcl
+  $(SRCDIR)/diff.tcl \
+  $(SRCDIR)/markdown.md
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
