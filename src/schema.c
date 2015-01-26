@@ -46,8 +46,11 @@ const char zConfigSchema[] =
 ** the aux schema changes, all we need to do is rebuild the database.
 */
 #define CONTENT_SCHEMA  "2"
-#define AUX_SCHEMA_MIN  "2015-01-24"
+#define AUX_SCHEMA_MIN  "2011-04-25 19:50"
 #define AUX_SCHEMA_MAX  "2015-01-24"
+/* NB:  Some features require the latest schema.  Warning or error messages
+** will appear if an older schema is used.  However, the older schemas are
+** adequate for many common functions. */
 
 #endif /* INTERFACE */
 
@@ -227,16 +230,6 @@ const char zRepositorySchema2[] =
 @   name TEXT UNIQUE             -- Name of file page
 @ );
 @
-@
-@ -- A "file class" is like a filename except that it remains constant
-@ -- across renames.
-@ --
-@ CREATE TABLE fileclass(
-@   fclass INTEGER PRIMARY KEY,          -- Unique id for this fileclass
-@   ckid INTEGER REFERENCES plink(cid),  -- Checkin where file originates
-@   fnid INTEGER REFERENCES filename     -- Name of the file in ckid
-@ );
-@
 @ -- Linkages between checkins, files created by each checkin, and
 @ -- the names of those files.
 @ -- 
@@ -256,7 +249,6 @@ const char zRepositorySchema2[] =
 @ --    pid = Parent file ID.
 @ --    fnid = File Name ID.
 @ --    pfnid = Parent File Name ID.
-@ --    fclass = FileCLASS id.
 @ --    isaux = pmid IS AUXiliary parent, not primary parent
 @ --
 @ -- pid==0 if the file is added by checkin mid.
@@ -270,7 +262,6 @@ const char zRepositorySchema2[] =
 @   fnid INTEGER REFERENCES filename,   -- Name of the file
 @   pfnid INTEGER REFERENCES filename,  -- Previous name. 0 if unchanged
 @   mperm INTEGER,                      -- File permissions.  1==exec
-@   fclass INTEGER REFERENCE fileclass, -- fid is an instance of this class
 @   isaux BOOLEAN DEFAULT 0             -- TRUE if pmid is the primary
 @ );
 @ CREATE INDEX mlink_i1 ON mlink(mid);
