@@ -75,7 +75,7 @@
     </a>
   </div>
   <div class="title">$<title></div>
-  <div class="status"><th1>
+  <div class="status"><nobr><th1>
      if {[info exists login]} {
        puts "Logged in as $login"
      } else {
