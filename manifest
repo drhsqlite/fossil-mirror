@@ -1,5 +1,5 @@
-C Make\ssure\sthe\sPLINK.BASEID\scolumn\sexists\swhen\sopening\sthe\srepository\sdatabase.
-D 2015-01-26T18:34:17.829
+C Clarify\sguidance\sfor\sthe\s"nobody"\suser.\s\s\nTicket\s[21e39ebe66a21b7a8].
+D 2015-01-26T21:11:45.797
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -437,7 +437,7 @@ F src/report.c fc8913ece84d192f7af01681a13c72435dd1eb3f
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
 F src/schema.c 4cf219c92277e2df277f0f8e8be4eccc1e47ed53
 F src/search.c 8a4df7e4c41c3ae55347a48e00d143563cb23097
-F src/setup.c 8adc42850579d93ec2c88bad5ae20787e3e6e777
+F src/setup.c cf25d2c69e4660f5dc5264677cf633f8ab79ba41
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
 F src/shell.c cfab24ce2a5382157ae27dbc15b7ae5935c981f3
 F src/shun.c a93c409f694b6022061d2c946311d6ead83a4e49
@@ -691,7 +691,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2075361ece43d7faa912c78c1c7ca13e71ec0579
-R ec1451c0113b4d13f40fa75f227f52ac
+P b00e9ac8bb38c0b85fe91cef4b25e71656e8852a
+R 0c86b91708465eda7e6262a8d2b91227
 U drh
-Z 25dd74a4a920ce44d24838733508fb43
+Z 6b5e2e0ae053d2b6897998921adc13e1

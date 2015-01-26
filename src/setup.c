@@ -815,13 +815,9 @@ void user_edit(void){
   @ No login is required for user <span class="usertype">nobody</span>. The
   @ capabilities of the <span class="usertype">nobody</span> user are
   @ inherited by all users, regardless of whether or not they are logged in.
-  @ To disable universal access to the repository, make sure no user named
-  @ <span class="usertype">nobody</span> exists or that the
+  @ To disable universal access to the repository, make sure that the
   @ <span class="usertype">nobody</span> user has no capabilities
   @ enabled. The password for <span class="usertype">nobody</span> is ignored.
-  @ To avoid problems with spiders overloading the server, it is recommended
-  @ that the <span class="capability">h</span> (Hyperlinks) capability be
-  @ turned off for the <span class="usertype">nobody</span> user.
   @ </p></li>
   @
   @ <li><p>
