@@ -157,7 +157,8 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/rounded1/css.txt \
   $(SRCDIR)/../skins/rounded1/footer.txt \
   $(SRCDIR)/../skins/rounded1/header.txt \
-  $(SRCDIR)/diff.tcl
+  $(SRCDIR)/diff.tcl \
+  $(SRCDIR)/markdown.md
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
@@ -504,7 +505,7 @@ $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 	$(OBJDIR)/mkindex $(TRANS_SRC) >$@
 
 $(OBJDIR)/builtin_data.h: $(OBJDIR)/mkbuiltin $(EXTRA_FILES)
-	$(OBJDIR)/mkbuiltin $(EXTRA_FILES) >$@
+	$(OBJDIR)/mkbuiltin --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
 
 $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \

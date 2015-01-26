@@ -348,7 +348,8 @@ EXTRA_FILES   = $(SRCDIR)\../skins/black_and_white/css.txt \
         $(SRCDIR)\../skins/rounded1/css.txt \
         $(SRCDIR)\../skins/rounded1/footer.txt \
         $(SRCDIR)\../skins/rounded1/header.txt \
-        $(SRCDIR)\diff.tcl
+        $(SRCDIR)\diff.tcl \
+        $(SRCDIR)\markdown.md
 
 OBJ   = $(OX)\add$O \
         $(OX)\allrepo$O \
@@ -700,7 +701,7 @@ page_index.h: mkindex$E $(SRC)
 	$** > $@
 
 builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
-	$** > $@
+	mkbuiltin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
 
 clean:
 	-del $(OX)\*.obj

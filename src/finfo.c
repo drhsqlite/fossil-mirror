@@ -321,6 +321,12 @@ void finfo_page(void){
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
+  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
+  if( fnid==0 ){
+    @ No such file: %h(zFilename)
+    style_footer();
+    return;
+  }
   url_add_parameter(&url, "name", zFilename);
   blob_zero(&sql);
   blob_append_sql(&sql,
@@ -341,22 +347,18 @@ void finfo_page(void){
     timeline_utc(), TAG_BRANCH
   );
   if( firstChngOnly ){
-#if 0
-    blob_append_sql(&sql, ", min(event.mtime)");
-#else
     blob_append_sql(&sql,
         ", min(CASE (SELECT value FROM tagxref"
                     " WHERE tagtype>0 AND tagid=%d"
                     "   AND tagxref.rid=mlink.mid)"
              " WHEN 'trunk' THEN event.mtime-10000 ELSE event.mtime END)",
     TAG_BRANCH);
-#endif
   }
   blob_append_sql(&sql,
     "  FROM mlink, event"
-    " WHERE mlink.fnid IN (SELECT fnid FROM filename WHERE name=%Q)"
+    " WHERE mlink.fnid=%d"
     "   AND event.objid=mlink.mid",
-    zFilename
+    fnid
   );
   if( baseCheckin ){
     compute_direct_ancestors(baseCheckin, 10000000);
@@ -405,7 +407,6 @@ void finfo_page(void){
     blob_appendf(&title, "History of files named ");
     hyperlinked_path(zFilename, &title, 0, "tree", "");
   }
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
