@@ -286,7 +286,6 @@ void cat_cmd(void){
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
 **    ci=UUID    Ancestors of a particular check-in
-**    fco=BOOL   Show only first occurrence of each version if true (default)
 */
 void finfo_page(void){
   Stmt q;
@@ -304,7 +303,6 @@ void finfo_page(void){
   GraphContext *pGraph;
   int brBg = P("brbg")!=0;
   int uBg = P("ubg")!=0;
-  int firstChngOnly = atoi(PD("fco","1"))!=0;
   int fDebug = atoi(PD("debug","0"));
   int fShowId = P("showid")!=0;
 
@@ -316,9 +314,6 @@ void finfo_page(void){
   if( brBg ) url_add_parameter(&url, "brbg", 0);
   if( uBg ) url_add_parameter(&url, "ubg", 0);
   baseCheckin = name_to_rid_www("ci");
-  if( baseCheckin ) firstChngOnly = 1;
-  if( !firstChngOnly ) url_add_parameter(&url, "fco", "0");
-
   zPrevDate[0] = 0;
   zFilename = PD("name","");
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
@@ -331,7 +326,7 @@ void finfo_page(void){
   blob_zero(&sql);
   blob_append_sql(&sql,
     "SELECT"
-    " datetime(event.mtime%s),"                      /* Date of change */
+    " datetime(min(event.mtime)%s),"                 /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
     " coalesce(event.euser, event.user),"            /* User who made chng */
     " mlink.pid,"                                    /* Parent file rid */
@@ -343,22 +338,11 @@ void finfo_page(void){
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
                                 " AND tagxref.rid=mlink.mid)," /* Branchname */
     " mlink.mid,"                                    /* check-in ID */
-    " mlink.pfnid",                                  /* Previous filename */
-    timeline_utc(), TAG_BRANCH
-  );
-  if( firstChngOnly ){
-    blob_append_sql(&sql,
-        ", min(CASE (SELECT value FROM tagxref"
-                    " WHERE tagtype>0 AND tagid=%d"
-                    "   AND tagxref.rid=mlink.mid)"
-             " WHEN 'trunk' THEN event.mtime-10000 ELSE event.mtime END)",
-    TAG_BRANCH);
-  }
-  blob_append_sql(&sql,
+    " mlink.pfnid"                                   /* Previous filename */
     "  FROM mlink, event"
     " WHERE mlink.fnid=%d"
     "   AND event.objid=mlink.mid",
-    fnid
+    timeline_utc(), TAG_BRANCH, fnid
   );
   if( baseCheckin ){
     compute_direct_ancestors(baseCheckin, 10000000);
@@ -372,23 +356,13 @@ void finfo_page(void){
     blob_append_sql(&sql, " AND event.mtime<=julianday('%q')", zB);
     url_add_parameter(&url, "b", zB);
   }
-  if( firstChngOnly ){
-    blob_append_sql(&sql, " GROUP BY mlink.fid");
-  }
-  blob_append_sql(&sql," ORDER BY event.mtime DESC /*sort*/");
+  blob_append_sql(&sql,
+    " GROUP BY mlink.fid"
+    " ORDER BY event.mtime DESC /*sort*/"
+  );
   if( (n = atoi(PD("n","0")))>0 ){
     blob_append_sql(&sql, " LIMIT %d", n);
     url_add_parameter(&url, "n", P("n"));
-  }
-  if( baseCheckin==0 ){
-    if( firstChngOnly ){
-      style_submenu_element("Full", "Show all changes","%s",
-                            url_render(&url, "fco", "0", 0, 0));
-    }else{
-      style_submenu_element("Simplified",
-                            "Show only first use of a change","%s",
-                            url_render(&url, "fco", 0, 0, 0));
-    }
   }
   db_prepare(&q, "%s", blob_sql_text(&sql));
   if( P("showsql")!=0 ){
