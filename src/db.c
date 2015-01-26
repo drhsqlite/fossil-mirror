@@ -1177,6 +1177,22 @@ void db_open_repository(const char *zDbName){
   g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
   g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  g.zAuxSchema = db_get("aux-schema","");
+
+  /* Verify that the MLINK table has the newer columns added by the
+  ** 2015-01-24 schema change.  Create them if necessary.  This code
+  ** can be removed in the future, once all users have upgraded to the
+  ** 2015-01-24 schema.
+  */  
+  if( !db_table_has_column("repository","mlink","isaux") ){
+    db_begin_transaction();
+    db_multi_exec(
+      "ALTER TABLE %s.mlink ADD COLUMN pmid INTEGER DEFAULT 0;"
+      "ALTER TABLE %s.mlink ADD COLUMN isaux INTEGER DEFAULT 0;",
+      db_name("repository"), db_name("repository")
+    );
+    db_end_transaction(0);
+  }
 }
 
 /*
@@ -1244,7 +1260,6 @@ const char *db_name(const char *zDb){
 ** Return TRUE if the schema is out-of-date
 */
 int db_schema_is_outofdate(void){
-  if( g.zAuxSchema==0 ) g.zAuxSchema = db_get("aux-schema","");
   return strcmp(g.zAuxSchema,AUX_SCHEMA_MIN)<0
       || strcmp(g.zAuxSchema,AUX_SCHEMA_MAX)>0;
 }

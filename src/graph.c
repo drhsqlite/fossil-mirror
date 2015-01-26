@@ -381,6 +381,27 @@ void graph_finish(GraphContext *p, int omitDescenders){
     }
   }
 
+  /* If the primary parent is in a different branch, but there are
+  ** other parents in the same branch, reorder the parents to make
+  ** the parent from the same branch the primary parent.
+  */
+  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+    if( pRow->isDup ) continue;
+    if( pRow->nParent<2 ) continue;                    /* Not a fork */
+    pParent = hashFind(p, pRow->aParent[0]);
+    if( pParent==0 ) continue;                         /* Parent off-screen */
+    if( pParent->zBranch==pRow->zBranch ) continue;    /* Same branch */
+    for(i=1; i<pRow->nParent; i++){
+      pParent = hashFind(p, pRow->aParent[i]);
+      if( pParent->zBranch==pRow->zBranch ){
+        int t = pRow->aParent[0];
+        pRow->aParent[0] = pRow->aParent[i];
+        pRow->aParent[i] = t;
+        break;
+      }
+    }
+  }
+
 
   /* Find the pChild pointer for each node.
   **

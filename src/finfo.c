@@ -286,7 +286,6 @@ void cat_cmd(void){
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
 **    ci=UUID    Ancestors of a particular check-in
-**    fco=BOOL   Show only first occurrence of each version if true (default)
 */
 void finfo_page(void){
   Stmt q;
@@ -304,7 +303,6 @@ void finfo_page(void){
   GraphContext *pGraph;
   int brBg = P("brbg")!=0;
   int uBg = P("ubg")!=0;
-  int firstChngOnly = atoi(PD("fco","1"))!=0;
   int fDebug = atoi(PD("debug","0"));
   int fShowId = P("showid")!=0;
 
@@ -316,9 +314,6 @@ void finfo_page(void){
   if( brBg ) url_add_parameter(&url, "brbg", 0);
   if( uBg ) url_add_parameter(&url, "ubg", 0);
   baseCheckin = name_to_rid_www("ci");
-  if( baseCheckin ) firstChngOnly = 1;
-  if( !firstChngOnly ) url_add_parameter(&url, "fco", "0");
-
   zPrevDate[0] = 0;
   zFilename = PD("name","");
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
@@ -331,7 +326,7 @@ void finfo_page(void){
   blob_zero(&sql);
   blob_append_sql(&sql,
     "SELECT"
-    " datetime(event.mtime%s),"                      /* Date of change */
+    " datetime(min(event.mtime)%s),"                 /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
     " coalesce(event.euser, event.user),"            /* User who made chng */
     " mlink.pid,"                                    /* Parent file rid */
@@ -341,24 +336,13 @@ void finfo_page(void){
     " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
     " event.bgcolor,"                                /* Background color */
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
-                                " AND tagxref.rid=mlink.mid)," /* Tags */
+                                " AND tagxref.rid=mlink.mid)," /* Branchname */
     " mlink.mid,"                                    /* check-in ID */
-    " mlink.pfnid",                                  /* Previous filename */
-    timeline_utc(), TAG_BRANCH
-  );
-  if( firstChngOnly ){
-    blob_append_sql(&sql,
-        ", min(CASE (SELECT value FROM tagxref"
-                    " WHERE tagtype>0 AND tagid=%d"
-                    "   AND tagxref.rid=mlink.mid)"
-             " WHEN 'trunk' THEN event.mtime-10000 ELSE event.mtime END)",
-    TAG_BRANCH);
-  }
-  blob_append_sql(&sql,
+    " mlink.pfnid"                                   /* Previous filename */
     "  FROM mlink, event"
     " WHERE mlink.fnid=%d"
     "   AND event.objid=mlink.mid",
-    fnid
+    timeline_utc(), TAG_BRANCH, fnid
   );
   if( baseCheckin ){
     compute_direct_ancestors(baseCheckin, 10000000);
@@ -372,23 +356,13 @@ void finfo_page(void){
     blob_append_sql(&sql, " AND event.mtime<=julianday('%q')", zB);
     url_add_parameter(&url, "b", zB);
   }
-  if( firstChngOnly ){
-    blob_append_sql(&sql, " GROUP BY mlink.fid");
-  }
-  blob_append_sql(&sql," ORDER BY event.mtime DESC /*sort*/");
+  blob_append_sql(&sql,
+    " GROUP BY mlink.fid"
+    " ORDER BY event.mtime DESC /*sort*/"
+  );
   if( (n = atoi(PD("n","0")))>0 ){
     blob_append_sql(&sql, " LIMIT %d", n);
     url_add_parameter(&url, "n", P("n"));
-  }
-  if( baseCheckin==0 ){
-    if( firstChngOnly ){
-      style_submenu_element("Full", "Show all changes","%s",
-                            url_render(&url, "fco", "0", 0, 0));
-    }else{
-      style_submenu_element("Simplified",
-                            "Show only first use of a change","%s",
-                            url_render(&url, "fco", 0, 0, 0));
-    }
   }
   db_prepare(&q, "%s", blob_sql_text(&sql));
   if( P("showsql")!=0 ){
@@ -429,13 +403,28 @@ void finfo_page(void){
     int pfnid = db_column_int(&q, 11);
     int gidx;
     char zTime[10];
+    int nParent = 0;
+    int aParent[GR_MAX_RAIL];
+    static Stmt qparent;
+    db_static_prepare(&qparent,
+      "SELECT DISTINCT pid FROM mlink"
+      " WHERE fid=:fid AND mid=:mid AND pid>0 AND fnid=:fnid"
+      " ORDER BY isaux /*sort*/"
+    );
+    db_bind_int(&qparent, ":fid", frid);
+    db_bind_int(&qparent, ":mid", fmid);
+    db_bind_int(&qparent, ":fnid", fnid);
+    while( db_step(&qparent)==SQLITE_ROW && nParent<ArraySize(aParent) ){
+      aParent[nParent++] = db_column_int(&qparent, 0);
+    }
+    db_reset(&qparent);
     if( zBr==0 ) zBr = "trunk";
     if( uBg ){
       zBgClr = hash_color(zUser);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
-    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr,
+    gidx = graph_add_row(pGraph, frid, nParent, aParent, zBr, zBgClr,
                          zUuid, 0);
     if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
@@ -454,7 +443,7 @@ void finfo_page(void){
       @ <td class="timelineTableCell">
     }
     if( zUuid ){
-      if( fpid==0 ){
+      if( nParent==0 ){
         @ <b>Added</b>
       }else if( pfnid ){
         char *zPrevName = db_text(0, "SELECT name FROM filename WHERE fnid=%d",
@@ -489,7 +478,7 @@ void finfo_page(void){
     }
     @ %W(zCom) (user:
     hyperlink_to_user(zUser, zDate, "");
-    @ branch: %h(zBr))
+    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
