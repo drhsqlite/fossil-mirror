@@ -1,5 +1,5 @@
-C Remove\sthe\soption\sin\s/finfo\sto\sshow\sall\schanges\sto\sa\sfile.\s\sShow\sthe\sfirst\nchange\sonly.\s\sAnd\sdo\snot\sattempt\sto\sput\sthat\schange\son\sthe\strunk,\sbut\sreally\nshow\sthe\sfirst\sactual\schange.
-D 2015-01-26T13:52:43.454
+C Remove\sa\sneedless\smlink.isaux\stest\sin\sthe\sfileage\scomputation.
+D 2015-01-26T14:25:40.014
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -344,7 +344,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
 F src/branch.c 43e8053b77663b273e094798398289bf8a634211
-F src/browse.c e66570f60d7bc987b8e104bb5117cc3a256f4e70
+F src/browse.c 91dd87d3e77f32abdd60d24b21aa6771d35aedc9
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
@@ -691,7 +691,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3f739d4da7340ec89e4e8364cd7d627ec60cfdcb
-R f3a27034b9d739bcff117807f026543d
+P 5f6ee7ce0450f4241d1aaab4f68ccaa3d100e0f3
+R c0e5c108fd0a055f7e4ae9990988820d
 U drh
-Z 9a5319b0af98390bd6b07da7c3283ba2
+Z c543a1ec18fd23ac0fffe6afd74100dc

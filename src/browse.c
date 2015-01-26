@@ -909,7 +909,6 @@ static const char zComputeFileAgeRun[] =
 @   SELECT mlink.fnid, mlink.fid, x, event.mtime, filename.name
 @     FROM ckin, mlink, event, filename
 @    WHERE mlink.mid=ckin.x
-@      AND NOT mlink.isaux
 @      AND mlink.fnid IN (SELECT fnid FROM foci, filename
 @                          WHERE foci.checkinID=:ckin
 @                            AND filename.name=foci.filename
