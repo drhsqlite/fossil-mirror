@@ -82,11 +82,18 @@ int main(int argc, char **argv){
   int i, sz;
   int j, n;
   Resource *aRes;
-  int nRes = argc-1;
+  int nRes;
   unsigned char *pData;
   int nErr = 0;
   int nSkip;
+  int nPrefix = 0;
 
+  if( argc>3 && strcmp(argv[1],"--prefix")==0 ){
+    nPrefix = (int)strlen(argv[2]);
+    argc -= 2;
+    argv += 2;
+  }
+  nRes = argc - 1;
   aRes = malloc( nRes*sizeof(aRes[0]) );
   if( aRes==0 ){
     fprintf(stderr, "malloc failed\n");
@@ -143,17 +150,9 @@ int main(int argc, char **argv){
   printf("static const BuiltinFileTable aBuiltinFiles[] = {\n");
   for(i=0; i<nRes; i++){
     const char *z = aRes[i].zName;
-    const char *zTail;
-    int nSlash = 0;
-    zTail = z;
-    while( z && z[0] ){
-      if( z[0]=='/' || z[0]=='\\' ){
-        nSlash++;
-        if( nSlash<=2 || z[-1]=='.' ) zTail = &z[1];
-      }
-      z++;
-    }
-    aRes[i].zName = zTail;
+    if( strlen(z)>=nPrefix ) z += nPrefix;
+    while( z[0]=='.' || z[0]=='/' ){ z++; }
+    aRes[i].zName = z;
   }
   qsort(aRes, nRes, sizeof(aRes[0]), compareResource);
   for(i=0; i<nRes; i++){

@@ -375,7 +375,7 @@ writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
 writeln "\t\$(OBJDIR)/mkindex \$(TRANS_SRC) >\$@\n"
 
 writeln "\$(OBJDIR)/builtin_data.h: \$(OBJDIR)/mkbuiltin \$(EXTRA_FILES)"
-writeln "\t\$(OBJDIR)/mkbuiltin \$(EXTRA_FILES) >\$@\n"
+writeln "\t\$(OBJDIR)/mkbuiltin --prefix \$(SRCDIR)/ \$(EXTRA_FILES) >\$@\n"
 
 writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
 writeln "\t\$(OBJDIR)/makeheaders $mhargs"
@@ -1028,7 +1028,7 @@ writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(MKINDEX)"
 writeln "\t\$(MKINDEX) \$(TRANS_SRC) >\$@\n"
 
 writeln "\$(OBJDIR)/builtin_data.h:\t\$(MKBUILTIN) \$(EXTRA_FILES)"
-writeln "\t\$(MKBUILTIN) \$(EXTRA_FILES) >\$@\n"
+writeln "\t\$(MKBUILTIN) --prefix \$(SRCDIR)/ \$(EXTRA_FILES) >\$@\n"
 
 writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(MAKEHEADERS) \$(OBJDIR)/VERSION.h"
 writeln "\t\$(MAKEHEADERS) $mhargs"
@@ -1207,7 +1207,7 @@ page_index.h: mkindex$E $(SRC)
 	+$** > $@
 
 builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
-	+$** > $@
+	mkbuildin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
 
 clean:
 	-del $(OBJDIR)\*.obj
@@ -1601,7 +1601,7 @@ page_index.h: mkindex$E $(SRC)
 	$** > $@
 
 builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
-	$** > $@
+	mkbuildin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
 
 clean:
 	-del $(OX)\*.obj
@@ -1833,7 +1833,7 @@ page_index.h:	$(TRANSLATEDSRC) mkindex.exe
 	mkindex.exe $(TRANSLATEDSRC) >$@
 
 builtin_data.h:	$(EXTRA_FILES) mkbuiltin.exe
-	mkbuiltin.exe $(EXTRA_FILES) >$@
+	mkbuiltin.exe --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
 
 # extracting version info from manifest
 VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
