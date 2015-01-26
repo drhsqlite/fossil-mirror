@@ -1179,10 +1179,21 @@ void db_open_repository(const char *zDbName){
   g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
   g.zAuxSchema = db_get("aux-schema","");
 
+  /* Verify that the PLINK table has a new column added by the
+  ** 2014-11-28 schema change.  Create it if necessary.  This code
+  ** can be removed in the future, once all users have upgraded to the
+  ** 2014-11-28 or later schema.
+  */  
+  if( !db_table_has_column("repository","plink","baseid") ){
+    db_multi_exec(
+      "ALTER TABLE %s.plink ADD COLUMN baseid;", db_name("repository")
+    );
+  }
+
   /* Verify that the MLINK table has the newer columns added by the
   ** 2015-01-24 schema change.  Create them if necessary.  This code
   ** can be removed in the future, once all users have upgraded to the
-  ** 2015-01-24 schema.
+  ** 2015-01-24 or later schema.
   */  
   if( !db_table_has_column("repository","mlink","isaux") ){
     db_begin_transaction();
