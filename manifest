@@ -1,5 +1,5 @@
-C Increase\sthe\sversion\snumber\sto\s1.31,\sdue\sto\sthe\schange\sto\sthe\sMLINK\sschema.
-D 2015-01-27T03:53:37.572
+C Cherry-pick\s[http://www.sqlite.org/src/info/2a9ea9b4a7d6904efb2112e32efe84123dfa75d7|2a9ea9b4a7]\s:\sIn\sthe\scommand-line\sshell,\smake\ssure\sstderr\sis\sunbuffered\sso\sthat\sit\sautomatically\sflushes.\s\nSo,\sthis\sworks\sfor\s"fossil\ssqlite"\sas\swell.\s(actually,\sjust\sby\scopying\slatest\s"shell.c"\sfrom\sSQLite)
+D 2015-01-27T10:47:59.135
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -439,7 +439,7 @@ F src/schema.c 4cf219c92277e2df277f0f8e8be4eccc1e47ed53
 F src/search.c 8a4df7e4c41c3ae55347a48e00d143563cb23097
 F src/setup.c cf25d2c69e4660f5dc5264677cf633f8ab79ba41
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
-F src/shell.c cfab24ce2a5382157ae27dbc15b7ae5935c981f3
+F src/shell.c c7f50399dfc174948aac09f9acbbf1b2d3c71b70
 F src/shun.c a93c409f694b6022061d2c946311d6ead83a4e49
 F src/sitemap.c 48d23c10d6a2cef3f3b961ff912536c6d80fb3e0
 F src/skins.c 6d30409b07b15bf37b88770017b349ac6f53973c
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 840343d4be1774bb37a0e0e6aab38ef82b32019c
-R f569ee818f4eff16df2ac375738663af
-U drh
-Z 69245f4b5cd7fb634fea956e2f405d6e
+P 09fe92ad728cf5f45bb4a9e1169cfb16a6363510
+R 0493c23a3944549e3030a8a045063a57
+U jan.nijtmans
+Z e97d23808c595a1de52b73f881fc7b90
