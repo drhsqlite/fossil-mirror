@@ -1,5 +1,5 @@
-C Fixes\sto\sthe\s"ancestry"\slinks\sof\s/fdiff.
-D 2015-01-27T01:20:03.705
+C On\sthe\scheck-in\sinformation\spage,\sonly\sshow\sdiffs\sfor\schanges\sfrom\sthe\nprimary\sparent.\s\sOmit\sdiffs\sof\schanges\sfrom\smerged\sin\snodes.
+D 2015-01-27T01:25:55.030
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -385,7 +385,7 @@ F src/http_socket.c 55dc2fabcf16703060083cdb5221a70f6292a841
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 2c22f80ba7048f316fcfd760927f94642b2bc9ae
 F src/import.c 065b6bcb8bfefbf15f8eb0bcbc4e915e3418aa72
-F src/info.c afe98fe2869141602755a1acba999bf9b2922ad0
+F src/info.c b29fbd9eab22e3a66fdf53ff10b5624a5b8775d7
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -691,7 +691,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a08d175634973388e5337703920b29d142749f49
-R 3459ce658531c8e129d9fc1af8397eaf
+P d4d6a8432b9bfe4d0ab1afca728ba4818dece611
+R f0308f85ab33f0279ec0b42e93aac36e
 U drh
-Z 49da8d029e66d753a5a8f99ee8c97481
+Z d0fa7cd8b3c6bef581a79c26fabf4edc
