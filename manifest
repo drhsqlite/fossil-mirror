@@ -1,5 +1,5 @@
-C Add\sthe\sschema-version\sto\sthe\s/stat\spage\sand\sto\sthe\sdbstat\scommand.
-D 2015-01-27T16:34:58.148
+C Add\sa\shyperlink\sfrom\sthe\s/reports\spage\sback\sto\sthe\s/stat\spage.
+D 2015-01-27T16:46:23.390
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -448,7 +448,7 @@ F src/sqlite3.c 154b1f5dffa815e0817b32f219b9958a004d2f45
 F src/sqlite3.h 1db30efd42bf6adb957b695210805a6fdb165bf3
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 960f9ad6a35e40bd1c019b9e7e082e2ec28f076d
-F src/statrep.c 03dd9fe95d11f06dbd14c48c90b4f2a1e402559f
+F src/statrep.c f6ea57a6ba001a4a7f264cca80c32c4f38be8e7a
 F src/style.c fd2abb2753780f3a267f1e537f84b9ec14fe2c22
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 96fca99e9916e931d3f492eee5123da0113b1037
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9bc7041ae74dfc097c981e88f42b0eb3018a4248
-R a15f0261cf5bfc6e3e77258e54222787
+P 2f62d307430d8aa46ce4ef578de38752a3c64c30
+R 4cddaa7b175815fcab4210c4afd366ac
 U drh
-Z 9b8aa17e048c5160dbc5cd895a2f9489
+Z 024127bee79205f68c6f773bea50c120

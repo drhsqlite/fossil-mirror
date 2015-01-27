@@ -743,6 +743,7 @@ void stats_report_page(){
   statrep_submenu(&url, "By Weekday", "view", "byweekday", 0);
   statrep_submenu(&url, "By User", "view", "byuser", "user");
   statrep_submenu(&url, "By File", "view", "byfile", "file");
+  style_submenu_element("Stats", "Stats", "%R/stat");
   url_reset(&url);
   style_header("Activity Reports");
   if(0==fossil_strcmp(zView,"byyear")){
@@ -758,14 +759,14 @@ void stats_report_page(){
   }else if(0==fossil_strcmp(zView,"byfile")){
     stats_report_by_file();
   }else{
-    @ <h1>Select a report to show:</h1>
+    @ <h1>Activity Reports:</h1>
     @ <ul>
-    @ <li><a href='?view=byyear'>Events by year</a></li>
-    @ <li><a href='?view=bymonth'>Events by month</a></li>
-    @ <li><a href='?view=byweek'>Events by calendar week</a></li>
-    @ <li><a href='?view=byweekday'>Events by day of the week</a></li>
-    @ <li><a href='?view=byuser'>Events by user</a></li>
-    @ <li><a href='?view=byfile'>Events by file</a></li>
+    @ <li>%z(href("?view=byyear"))Events by year</a></li>
+    @ <li>%z(href("?view=bymonth"))Events by month</a></li>
+    @ <li>%z(href("?view=byweek"))Events by calendar week</a></li>
+    @ <li>%z(href("?view=byweekday"))Events by day of the week</a></li>
+    @ <li>%z(href("?view=byuser"))Events by user</a></li>
+    @ <li>%z(href("?view=byfile"))Events by file</a></li>
     @ </ul>
   }
 
