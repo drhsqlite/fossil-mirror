@@ -83,7 +83,7 @@ const char zRepositorySchema1[] =
 @   CHECK( length(uuid)==40 AND rid>0 )
 @ );
 @ CREATE TABLE delta(
-@   rid INTEGER PRIMARY KEY,                 -- BLOB that is delta-compressed 
+@   rid INTEGER PRIMARY KEY,                 -- BLOB that is delta-compressed
 @   srcid INTEGER NOT NULL REFERENCES blob   -- Baseline for delta-compression
 @ );
 @ CREATE INDEX delta_i1 ON delta(srcid);
@@ -234,13 +234,14 @@ const char zRepositorySchema2[] =
 @ -- fid==0 if the file is removed by checkin mid.
 @ --
 @ CREATE TABLE mlink(
-@   mid INTEGER REFERENCES blob,        -- Manifest ID where change occurs
-@   pid INTEGER REFERENCES blob,        -- File ID in parent manifest
-@   fid INTEGER REFERENCES blob,        -- Changed file ID in this manifest
+@   mid INTEGER REFERENCES plink(cid),  -- Checkin that contains fid
+@   fid INTEGER REFERENCES blob,        -- New file content. 0 if deleted
+@   pmid INTEGER DEFAULT 0              -- (not used yet)
+@   pid INTEGER REFERENCES blob,        -- Prev file content. 0 if new
 @   fnid INTEGER REFERENCES filename,   -- Name of the file
 @   pfnid INTEGER REFERENCES filename,  -- Previous name. 0 if unchanged
-@   mperm INTEGER                       -- File permissions.  1==exec
-@   isaux BOOLEAN DEFAULT 0             -- TRUE if pmid is the primary (not used yet)
+@   mperm INTEGER,                      -- File permissions.  1==exec
+@   isaux BOOLEAN DEFAULT 0             -- (not used yet)
 @ );
 @ CREATE INDEX mlink_i1 ON mlink(mid);
 @ CREATE INDEX mlink_i2 ON mlink(fnid);
@@ -254,7 +255,7 @@ const char zRepositorySchema2[] =
 @   cid INTEGER REFERENCES blob,    -- Child manifest
 @   isprim BOOLEAN,                 -- pid is the primary parent of cid
 @   mtime DATETIME,                 -- the date/time stamp on cid.  Julian day.
-@   baseid INTEGER REFERENCES blob, -- Baseline if child is a delta manifest
+@   baseid INTEGER REFERENCES blob, -- Baseline if cid is a delta manifest.
 @   UNIQUE(pid, cid)
 @ );
 @ CREATE INDEX plink_i2 ON plink(cid,pid);
@@ -491,7 +492,7 @@ const char zLocalSchema[] =
 @ CREATE TABLE vfile(
 @   id INTEGER PRIMARY KEY,           -- ID of the checked out file
 @   vid INTEGER REFERENCES blob,      -- The baseline this file is part of.
-@   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add 4:i-chng 5:i-add
+@   chnged INT DEFAULT 0,  -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng 5:i-add
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted
 @   isexe BOOLEAN,                    -- True if file should be executable
 @   islink BOOLEAN,                   -- True if file should be symlink
