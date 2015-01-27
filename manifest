@@ -1,5 +1,5 @@
-C Update\sthe\scustom\sMinGW\smakefile.
-D 2015-01-27T21:39:50.743
+C Fix\ssome\scalls\sto\sbuiltin_text()\son\sthe\sstyle\ssetup\spages.
+D 2015-01-27T22:14:44.100
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -437,7 +437,7 @@ F src/report.c fc8913ece84d192f7af01681a13c72435dd1eb3f
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
 F src/schema.c 4cf219c92277e2df277f0f8e8be4eccc1e47ed53
 F src/search.c 8a4df7e4c41c3ae55347a48e00d143563cb23097
-F src/setup.c cf25d2c69e4660f5dc5264677cf633f8ab79ba41
+F src/setup.c 11896d1a1332dfdcdb8bb4961462a685691dd926
 F src/sha1.c bf0bc6d93b207750e54d9a95ebc51828f1b1d44d
 F src/shell.c c7f50399dfc174948aac09f9acbbf1b2d3c71b70
 F src/shun.c a93c409f694b6022061d2c946311d6ead83a4e49
@@ -692,7 +692,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5c3734c64a92bd02eef5356028a87479fc811301
-R 16af4754fd1e110ae4e819142fee1bb4
+P cc3c583f50df7b446032c972708fc2ebb0e761aa
+R 9506bfcf0d9b3829c4f8c42e6158f8c9
+T *branch * styleSetupFix
+T *sym-styleSetupFix *
+T -sym-trunk *
 U mistachkin
-Z a1a0768a51dda1ad8a3df400336a7f6a
+Z 8989005143fafd5d172efa3faf993970
