@@ -1256,7 +1256,7 @@ const char *db_name(const char *zDb){
 */
 int db_schema_is_outofdate(void){
   return strcmp(g.zAuxSchema,AUX_SCHEMA_MIN)<0
-      || strcmp(g.zAuxSchema,AUX_SCHEMA_MAX)>0;
+      || strcmp(g.zAuxSchema,"2015-01-24")>0;
 }
 
 /*
