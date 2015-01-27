@@ -296,7 +296,7 @@ void finfo_page(void){
   int n;
   int baseCheckin;
   int fnid;
-
+  Bag ancestor;
   Blob title;
   Blob sql;
   HQuery url;
@@ -322,6 +322,14 @@ void finfo_page(void){
     style_footer();
     return;
   }
+  if( baseCheckin ){
+    int baseFid = db_int(0,
+      "SELECT fid FROM mlink WHERE fnid=%d AND mid=%d",
+      fnid, baseCheckin
+    );
+    bag_init(&ancestor);
+    if( baseFid ) bag_insert(&ancestor, baseFid);
+  }
   url_add_parameter(&url, "name", zFilename);
   blob_zero(&sql);
   blob_append_sql(&sql,
@@ -344,20 +352,6 @@ void finfo_page(void){
     "   AND event.objid=mlink.mid",
     timeline_utc(), TAG_BRANCH, fnid
   );
-  if( baseCheckin ){
-    blob_append_sql(&sql,
-      " AND mlink.fid IN ("
-      "   WITH RECURSIVE x(fid) AS ("
-      "     SELECT mlink.fid FROM mlink"
-      "      WHERE mlink.mid=%d AND mlink.fnid=%d"
-      "      UNION"
-      "     SELECT mlink.pid FROM mlink, x"
-      "      WHERE mlink.fid=x.fid AND mlink.pid>0 AND +mlink.fnid=%d"
-      "   ) SELECT fid FROM x)"
-      " AND event.mtime<=(SELECT mtime FROM event WHERE objid=%d)",
-      baseCheckin, fnid, fnid, baseCheckin
-    );
-  }
   if( (zA = P("a"))!=0 ){
     blob_append_sql(&sql, " AND event.mtime>=julianday('%q')", zA);
     url_add_parameter(&url, "a", zA);
@@ -418,6 +412,8 @@ void finfo_page(void){
     int nParent = 0;
     int aParent[GR_MAX_RAIL];
     static Stmt qparent;
+
+    if( baseCheckin && frid && !bag_find(&ancestor, frid) ) continue;
     db_static_prepare(&qparent,
       "SELECT DISTINCT pid FROM mlink"
       " WHERE fid=:fid AND mid=:mid AND pid>0 AND fnid=:fnid"
@@ -427,7 +423,9 @@ void finfo_page(void){
     db_bind_int(&qparent, ":mid", fmid);
     db_bind_int(&qparent, ":fnid", fnid);
     while( db_step(&qparent)==SQLITE_ROW && nParent<ArraySize(aParent) ){
-      aParent[nParent++] = db_column_int(&qparent, 0);
+      aParent[nParent] = db_column_int(&qparent, 0);
+      if( baseCheckin ) bag_insert(&ancestor, aParent[nParent]);
+      nParent++;
     }
     db_reset(&qparent);
     if( zBr==0 ) zBr = "trunk";
@@ -511,6 +509,7 @@ void finfo_page(void){
           @ %d(aParent[ii])
         }
       }
+      @ %z(href("%R/finfo?name=%T&ci=%s&debug=1",zFilename,zCkin))[ancestry]</a>
     }
     tag_private_status(frid);
     @ </td></tr>
