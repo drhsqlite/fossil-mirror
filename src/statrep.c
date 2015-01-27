@@ -473,7 +473,7 @@ static void stats_report_by_file(){
     "   GROUP BY 1"
   );
   db_prepare(&query,
-    "SELECT filename, cnt FROM statrep ORDER BY cnt DESC /*sort*/"
+    "SELECT filename, cnt FROM statrep ORDER BY cnt DESC, filename /*sort*/"
   );
   mxEvent = db_int(1, "SELECT max(cnt) FROM statrep");
   @ <h1>Checkins Per File</h1>
