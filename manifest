@@ -1,5 +1,5 @@
-C In\sthe\sCheckins\sBy\sFile\sreport,\suse\sfilenames\sas\sthe\ssecondary\ssort\skey.
-D 2015-01-27T03:10:10.856
+C Increase\sthe\sversion\snumber\sto\s1.31,\sdue\sto\sthe\schange\sto\sthe\sMLINK\sschema.
+D 2015-01-27T03:53:37.572
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -13,7 +13,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile e6ea4b106b9d19278486f544d44fc1b02210adec
 F Makefile.classic 8860fc8763421cb968e05bdd361311f9a443fc07
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
-F VERSION 72867f32a368547eaf1e8b96c60e100001c7c9e1
+F VERSION 5bd5965584001ecca11c52ce37a2c591b3a1955b
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 811d10ac7ad84e6b38d5abdbc854cf7f60604776
-R 14c578dd3c24097101b108bd1b5c70c1
+P 840343d4be1774bb37a0e0e6aab38ef82b32019c
+R f569ee818f4eff16df2ac375738663af
 U drh
-Z f0132f756976f5e6425edf9812ea277f
+Z 69245f4b5cd7fb634fea956e2f405d6e
