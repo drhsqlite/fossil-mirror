@@ -112,6 +112,7 @@ set src {
   sqlcmd
   stash
   stat
+  statrep
   style
   sync
   tag
