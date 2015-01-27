@@ -393,7 +393,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
     if( pParent->zBranch==pRow->zBranch ) continue;    /* Same branch */
     for(i=1; i<pRow->nParent; i++){
       pParent = hashFind(p, pRow->aParent[i]);
-      if( pParent->zBranch==pRow->zBranch ){
+      if( pParent && pParent->zBranch==pRow->zBranch ){
         int t = pRow->aParent[0];
         pRow->aParent[0] = pRow->aParent[i];
         pRow->aParent[i] = t;
