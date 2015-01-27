@@ -240,6 +240,7 @@ const char zRepositorySchema2[] =
 @   fnid INTEGER REFERENCES filename,   -- Name of the file
 @   pfnid INTEGER REFERENCES filename,  -- Previous name. 0 if unchanged
 @   mperm INTEGER                       -- File permissions.  1==exec
+@   isaux BOOLEAN DEFAULT 0             -- TRUE if pmid is the primary (not used yet)
 @ );
 @ CREATE INDEX mlink_i1 ON mlink(mid);
 @ CREATE INDEX mlink_i2 ON mlink(fnid);
