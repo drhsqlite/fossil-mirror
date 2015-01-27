@@ -63,6 +63,7 @@ void stat_page(void){
     style_submenu_element("Schema", "Repository Schema", "repo_schema");
     style_submenu_element("Web-Cache", "Web-Cache Stats", "cachestat");
   }
+  style_submenu_element("Activity", "Activity Reports", "reports");
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
   fsize = file_size(g.zRepositoryName);
@@ -134,7 +135,8 @@ void stat_page(void){
   @ (%h(RELEASE_VERSION)) [compiled using %h(COMPILER_NAME)]
   @ </td></tr>
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
-  @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))</td></tr>
+  @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion())</td></tr>
+  @ <tr><th>Schema&nbsp;Version:</th><td>%h(g.zAuxSchema)</td></tr>
   @ <tr><th>Repository Rebuilt:</th><td>
   @ %h(db_get_mtime("rebuilt","%Y-%m-%d %H:%M:%S","Never"))
   @ By Fossil %h(db_get("rebuilt","Unknown"))</td></tr>
@@ -256,6 +258,7 @@ void dbstat_cmd(void){
   /* Server-id is not useful information any more */
   fossil_print("%*s%s\n", colWidth, "server-id:", db_get("server-code", 0));
 #endif
+  fossil_print("%*s%s\n", colWidth, "schema-version:", g.zAuxSchema);
   if( !omitVers ){
     fossil_print("%*s%s %s [%s] (%s)\n",
                  colWidth, "fossil-version:",
