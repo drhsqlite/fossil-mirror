@@ -492,7 +492,7 @@ static void stats_report_by_file(){
     sz = (int)(100*n/mxEvent);
     if( sz==0 ) sz = 1;
     @<tr class='row%d(++nRowNumber%2)'>
-    @ <td>@ %z(href("%R/finfo?name=%T",zFile))%h(zFile)</a></td>
+    @ <td>%z(href("%R/finfo?name=%T",zFile))%h(zFile)</a></td>
     @ <td>%d(n)</td>
     @ <td>
     @ <div class='statistics-report-graph-line'
