@@ -345,8 +345,18 @@ void finfo_page(void){
     timeline_utc(), TAG_BRANCH, fnid
   );
   if( baseCheckin ){
-    compute_direct_ancestors(baseCheckin, 10000000);
-    blob_append_sql(&sql,"  AND mlink.mid IN (SELECT rid FROM ancestor)");
+    blob_append_sql(&sql,
+      " AND mlink.fid IN ("
+      "   WITH RECURSIVE x(fid) AS ("
+      "     SELECT mlink.fid FROM mlink"
+      "      WHERE mlink.mid=%d AND mlink.fnid=%d"
+      "      UNION"
+      "     SELECT mlink.pid FROM mlink, x"
+      "      WHERE mlink.fid=x.fid AND mlink.pid>0 AND +mlink.fnid=%d"
+      "   ) SELECT fid FROM x)"
+      " AND event.mtime<=(SELECT mtime FROM event WHERE objid=%d)",
+      baseCheckin, fnid, fnid, baseCheckin
+    );
   }
   if( (zA = P("a"))!=0 ){
     blob_append_sql(&sql, " AND event.mtime>=julianday('%q')", zA);
@@ -375,13 +385,15 @@ void finfo_page(void){
     char *zLink = href("%R/info/%s", zUuid);
     blob_appendf(&title, "Ancestors of file ");
     hyperlinked_path(zFilename, &title, zUuid, "tree", "");
+    if( fShowId ) blob_appendf(&title, " (%d)", fnid);
     blob_appendf(&title, " from check-in %z%S</a>", zLink, zUuid);
+    if( fShowId ) blob_appendf(&title, " (%d)", baseCheckin);
     fossil_free(zUuid);
   }else{
     blob_appendf(&title, "History of files named ");
     hyperlinked_path(zFilename, &title, 0, "tree", "");
+    if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   }
-  if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
@@ -491,11 +503,13 @@ void finfo_page(void){
       }
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
-      int srcid = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", frid);
-      int sz = db_int(0, "SELECT length(content) FROM blob WHERE rid=%d", frid);
-      @ <br>fid=%d(frid) pid=%d(fpid) mid=%d(fmid) sz=%d(sz)
-      if( srcid ){
-        @ srcid=%d(srcid)
+      int ii;
+      @ <br>fid=%d(frid) pid=%d(fpid) mid=%d(fmid)
+      if( nParent>0 ){
+        @ parents=%d(aParent[0])
+        for(ii=1; ii<nParent; ii++){
+          @ %d(aParent[ii])
+        }
       }
     }
     tag_private_status(frid);
@@ -503,7 +517,7 @@ void finfo_page(void){
   }
   db_finalize(&q);
   if( pGraph ){
-    graph_finish(pGraph, 0);
+    graph_finish(pGraph, 1);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;
