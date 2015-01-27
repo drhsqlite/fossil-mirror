@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sthe\s/finfo\sancestry\scalculation.
-D 2015-01-27T02:08:35.219
+C The\sMLINK.ISAUX\sfield\swas\sbeing\sset\sincorrectly\sby\sall\sversions\ssince\sthe\ncutover\sto\sthe\snew\sMLINK\sschema\sin\scheck-in\s[65aa10f97c].\nRun\s"fossil\srebuild"\sagain\safter\supgrading\sto\sthis\sversion.
+D 2015-01-27T02:20:14.415
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -411,7 +411,7 @@ F src/main.mk 44f4bfe258a0f0119b08ddfedbd4b86a0ba1acd1
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 64fd1507d054386abaa38667814aa605722e1d62
-F src/manifest.c 8ffb6b9de3020a9d4c41e6652af240c0fd93d07c
+F src/manifest.c 1cc493d97f032ce25f79a335b8dff14d4fb66df1
 F src/markdown.c a8ea5a5012e968331bf26f3de92cef68d65d1066
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
 F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
@@ -691,7 +691,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 03250bc6490de95f4e271533ae57b74d3ee4bd85
-R 1cd77624eebbcb9d936de9af4513c76d
+P 116921fd86659636a379315dfa30ff7ed4978e18
+R 76a2f12ecda4a3df6481d4631b48d107
 U drh
-Z 3ed7081fd631ccd26bb4808b1a88197c
+Z cb2113d86f2d3919b35a5fb46748b4e1

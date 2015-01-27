@@ -1799,7 +1799,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
            "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime, baseid)"
            "VALUES(%d, %d, %d, %.17g, %s)",
            pid, rid, i==0, p->rDate, zBaseId/*safe-for-%s*/);
-        add_mlink(pid, 0, rid, p, i);
+        add_mlink(pid, 0, rid, p, i==0);
         if( i==0 ) parentid = pid;
       }
       if( p->nParent>1 ){
