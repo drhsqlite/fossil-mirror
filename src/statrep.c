@@ -457,6 +457,55 @@ static void stats_report_by_user(){
 }
 
 /*
+** Implements the "byfile" view for /reports.
+*/
+static void stats_report_by_file(){
+  Stmt query;
+  int mxEvent = 1;       /* max number of events across all rows */
+  int nRowNumber = 0;
+
+  db_multi_exec(
+    "CREATE TEMP TABLE statrep(filename, cnt);"
+    "INSERT INTO statrep(filename, cnt)"
+    "  SELECT filename.name, count(distinct mlink.mid)"
+    "    FROM filename, mlink"
+    "   WHERE filename.fnid=mlink.fnid"
+    "   GROUP BY 1"
+  );
+  db_prepare(&query,
+    "SELECT filename, cnt FROM statrep ORDER BY cnt DESC /*sort*/"
+  );
+  mxEvent = db_int(1, "SELECT max(cnt) FROM statrep");
+  @ <h1>Checkins Per File</h1>
+  @ <table class='statistics-report-table-events' border='0'
+  @ cellpadding='2' cellspacing='0' id='statsTable'>
+  @ <thead><tr>
+  @ <th>File</th>
+  @ <th>Checkins</th>
+  @ <th width='90%%'><!-- relative commits graph --></th>
+  @ </tr></thead><tbody>
+  while( SQLITE_ROW == db_step(&query) ){
+    const char *zFile = db_column_text(&query, 0);
+    const int n = db_column_int(&query, 1);
+    int sz;
+    if( n<=0 ) continue;
+    sz = (int)(100*n/mxEvent);
+    if( sz==0 ) sz = 1;
+    @<tr class='row%d(++nRowNumber%2)'>
+    @ <td>@ %z(href("%R/finfo?name=%T",zFile))%h(zFile)</a></td>
+    @ <td>%d(n)</td>
+    @ <td>
+    @ <div class='statistics-report-graph-line'
+    @  style='width:%d(sz)%%;'>&nbsp;</div>
+    @ </td>
+    @</tr>
+  }
+  @ </tbody></table>
+  db_finalize(&query);
+  output_table_sorting_javascript("statsTable","tNx",2);
+}
+
+/*
 ** Implements the "byweekday" view for /reports.
 */
 static void stats_report_day_of_week(){
@@ -693,6 +742,7 @@ void stats_report_page(){
   statrep_submenu(&url, "By Week", "view", "byweek", 0);
   statrep_submenu(&url, "By Weekday", "view", "byweekday", 0);
   statrep_submenu(&url, "By User", "view", "byuser", "user");
+  statrep_submenu(&url, "By File", "view", "byfile", "file");
   url_reset(&url);
   style_header("Activity Reports");
   if(0==fossil_strcmp(zView,"byyear")){
@@ -705,6 +755,8 @@ void stats_report_page(){
     stats_report_by_user();
   }else if(0==fossil_strcmp(zView,"byweekday")){
     stats_report_day_of_week();
+  }else if(0==fossil_strcmp(zView,"byfile")){
+    stats_report_by_file();
   }else{
     @ <h1>Select a report to show:</h1>
     @ <ul>
@@ -713,6 +765,7 @@ void stats_report_page(){
     @ <li><a href='?view=byweek'>Events by calendar week</a></li>
     @ <li><a href='?view=byweekday'>Events by day of the week</a></li>
     @ <li><a href='?view=byuser'>Events by user</a></li>
+    @ <li><a href='?view=byfile'>Events by file</a></li>
     @ </ul>
   }
 

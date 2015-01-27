@@ -1,5 +1,5 @@
-C Split\sthe\s/reports\swebpage\sout\sinto\sa\sseparate\ssource-code\sfile\sfor\sease\sof\nediting\sand\smaintenance.\s\sNo\sfunctional\schanges.
-D 2015-01-27T02:40:12.498
+C Add\sthe\s"Checkins\sPer\sFile"\sreport\sto\sthe\s/reports\spage.
+D 2015-01-27T03:00:36.174
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -448,7 +448,7 @@ F src/sqlite3.c 154b1f5dffa815e0817b32f219b9958a004d2f45
 F src/sqlite3.h 1db30efd42bf6adb957b695210805a6fdb165bf3
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c beadf875af7ef98c67e1c5e1017c31ba3ee493c1
-F src/statrep.c 40f2f4da48e8daee91cdd40f56dac06b990d0b13
+F src/statrep.c 5052488dbe4492674bd881076a303241f0701e3e
 F src/style.c fd2abb2753780f3a267f1e537f84b9ec14fe2c22
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 96fca99e9916e931d3f492eee5123da0113b1037
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a27fa3d46beb304c04efa5a0d8cd7c6688c9f053
-R 90a1390297f808d1ec86723c7df0477e
+P 39cd06c9f764cf6d98b690a0864d623103723d6f
+R c41ba855b24753416931efbd51ef8161
 U drh
-Z 4e30357c7d058769faed51eea266c0cd
+Z 5341e0936052b59fef6c69bc27cd4e53
