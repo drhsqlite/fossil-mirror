@@ -2140,10 +2140,10 @@ void page_admin_log(){
   @ <th width="60%%">Message</th>
   @ </thead><tbody>
   while( SQLITE_ROW == db_step(&stLog) ){
-    char const * zTime = db_column_text(&stLog, 0);
-    char const * zUser = db_column_text(&stLog, 1);
-    char const * zPage = db_column_text(&stLog, 2);
-    char const * zMessage = db_column_text(&stLog, 3);
+    const char *zTime = db_column_text(&stLog, 0);
+    const char *zUser = db_column_text(&stLog, 1);
+    const char *zPage = db_column_text(&stLog, 2);
+    const char *zMessage = db_column_text(&stLog, 3);
     @ <tr class="row%d(counter++%2)">
     @ <td class="adminTime">%s(zTime)</td>
     @ <td>%s(zUser)</td>

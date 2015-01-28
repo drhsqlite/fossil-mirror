@@ -66,7 +66,7 @@ struct SHA1Context {
 /*
  * (R0+R1), R2, R3, R4 are the different operations (rounds) used in SHA1
  *
- * Rl0() for little-endian and Rb0() for big-endian.  Endianness is 
+ * Rl0() for little-endian and Rb0() for big-endian.  Endianness is
  * determined at run-time.
  */
 #define Rl0(v,w,x,y,z,i) \
@@ -219,7 +219,7 @@ static void SHA1Final(SHA1Context *context, unsigned char digest[20]){
 ** be "char zBuf[41]".
 */
 static void DigestToBase16(unsigned char *digest, char *zBuf){
-  static char const zEncode[] = "0123456789abcdef";
+  static const char zEncode[] = "0123456789abcdef";
   int ix;
 
   for(ix=0; ix<20; ix++){
@@ -260,7 +260,7 @@ void sha1sum_step_blob(Blob *p){
 
 /*
 ** Finish the incremental SHA1 checksum.  Store the result in blob pOut
-** if pOut!=0.  Also return a pointer to the result.  
+** if pOut!=0.  Also return a pointer to the result.
 **
 ** This resets the incremental checksum preparing for the next round
 ** of computation.  The return pointer points to a static buffer that
@@ -297,7 +297,7 @@ int sha1sum_file(const char *zFilename, Blob *pCksum){
     /* Instead of file content, return sha1 of link destination path */
     Blob destinationPath;
     int rc;
-    
+
     blob_read_link(&destinationPath, zFilename);
     rc = sha1sum_blob(&destinationPath, pCksum);
     blob_reset(&destinationPath);
@@ -365,7 +365,7 @@ char *sha1sum(const char *zIn){
 
 /*
 ** Convert a cleartext password for a specific user into a SHA1 hash.
-** 
+**
 ** The algorithm here is:
 **
 **       SHA1( project-code + "/" + login + "/" + password )
@@ -377,7 +377,7 @@ char *sha1sum(const char *zIn){
 ** to authenticate to a server for the sync protocol.  It is also the
 ** value stored in the USER.PW field of the database.  By mixing in the
 ** login name and the project id with the hash, different shared secrets
-** are obtained even if two users select the same password, or if a 
+** are obtained even if two users select the same password, or if a
 ** single user selects the same password for multiple projects.
 */
 char *sha1_shared_secret(
@@ -459,7 +459,7 @@ void sha1sum_test(void){
   int i;
   Blob in;
   Blob cksum;
-  
+
   for(i=2; i<g.argc; i++){
     blob_init(&cksum, "************** not found ***************", -1);
     if( g.argv[i][0]=='-' && g.argv[i][1]==0 ){
