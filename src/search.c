@@ -42,15 +42,23 @@ struct Search {
     int n;                 /* length */
   } a[SEARCH_MAX_TERM];
   /* Snippet controls */
+  char *zPattern;       /* The search pattern */
   char *zMarkBegin;     /* Start of a match */   
   char *zMarkEnd;       /* End of a match */
   char *zMarkGap;       /* A gap between two matches */
   unsigned fSrchFlg;    /* Flags */
 };
 
-#define SRCHFLG_HTML  0x0001   /* Escape snippet text for HTML */
+#define SRCHFLG_HTML    0x01   /* Escape snippet text for HTML */
+#define SRCHFLG_SCORE   0x02   /* Prepend the score to each snippet */
+#define SRCHFLG_STATIC  0x04   /* The static gSearch object */
 
 #endif
+
+/*
+** There is a single global Search object:
+*/
+static Search gSearch;
 
 
 /*
@@ -76,19 +84,47 @@ static const char isBoundary[] = {
 };
 #define ISALNUM(x)  (!isBoundary[(x)&0xff])
 
+
+/*
+** Destroy a search context.
+*/
+void search_end(Search *p){
+  if( p ){
+    fossil_free(p->zPattern);
+    fossil_free(p->zMarkBegin);
+    fossil_free(p->zMarkEnd);
+    fossil_free(p->zMarkGap);
+    memset(p, 0, sizeof(*p));
+    if( p!=&gSearch ) fossil_free(p);
+  }
+}
+
 /*
 ** Compile a search pattern
 */
-Search *search_init(const char *zPattern){
-  int nPattern = strlen(zPattern);
+Search *search_init(
+  const char *zPattern,       /* The search pattern */
+  const char *zMarkBegin,     /* Start of a match */   
+  const char *zMarkEnd,       /* End of a match */
+  const char *zMarkGap,       /* A gap between two matches */
+  unsigned fSrchFlg           /* Flags */
+){
   Search *p;
   char *z;
   int i;
 
-  p = fossil_malloc( nPattern + sizeof(*p) + 1);
-  z = (char*)&p[1];
-  memcpy(z, zPattern, nPattern+1);
-  memset(p, 0, sizeof(*p));
+  if( fSrchFlg & SRCHFLG_STATIC ){
+    p = &gSearch;
+    search_end(p);
+  }else{
+    p = fossil_malloc(sizeof(*p));
+    memset(p, 0, sizeof(*p));
+  }
+  p->zPattern = z = mprintf("%s", zPattern);
+  p->zMarkBegin = mprintf("%s", zMarkBegin);
+  p->zMarkEnd = mprintf("%s", zMarkEnd);
+  p->zMarkGap = mprintf("%s", zMarkGap);
+  p->fSrchFlg = fSrchFlg;
   while( *z && p->nTerm<SEARCH_MAX_TERM ){
     while( *z && !ISALNUM(*z) ){ z++; }
     if( *z==0 ) break;
@@ -103,13 +139,6 @@ Search *search_init(const char *zPattern){
 
 
 /*
-** Destroy a search context.
-*/
-void search_end(Search *p){
-  free(p);
-}
-
-/*
 ** Append n bytes of text to snippet zTxt.  Encode the text appropriately.
 */
 static void snippet_text_append(
@@ -118,10 +147,12 @@ static void snippet_text_append(
   const char *zTxt,      /* Text to append */
   int n                  /* How many bytes to append */
 ){
-  if( p->fSrchFlg & SRCHFLG_HTML ){
-    blob_appendf(pSnip, "%.*h", n, zTxt);
-  }else{
-    blob_append(pSnip, zTxt, n);
+  if( n>0 ){
+    if( p->fSrchFlg & SRCHFLG_HTML ){
+      blob_appendf(pSnip, "%#h", n, zTxt);
+    }else{
+      blob_append(pSnip, zTxt, n);
+    }
   }
 }
 
@@ -202,6 +233,7 @@ static int search_score(
   /* Prepare a snippet that describes the matching text.
   */
   blob_init(pSnip, 0, 0);
+  if( p->fSrchFlg & SRCHFLG_SCORE ) blob_appendf(pSnip, "%08x", score);
 
   while(1){
     int iOfst;
@@ -273,7 +305,7 @@ static int search_score(
         while( ISALNUM(zDoc[i]) && i<iTail ){ i++; }
       }
     } /* end for(i) */
-    if( iTail>0 ) snippet_text_append(p, pSnip, zDoc, iTail);
+    snippet_text_append(p, pSnip, zDoc, iTail);
   }
   if( wantGap ) blob_append(pSnip, p->zMarkGap, -1);
   return score;
@@ -291,11 +323,19 @@ void test_snippet_cmd(void){
   Blob snip;
   int score;
   char *zDoc;
+  int flg = 0;
+  char *zBegin = (char*)find_option("begin",0,1);
+  char *zEnd = (char*)find_option("end",0,1);
+  char *zGap = (char*)find_option("gap",0,1);
+  if( find_option("html",0,0)!=0 ) flg |= SRCHFLG_HTML;
+  if( find_option("score",0,0)!=0 ) flg |= SRCHFLG_SCORE;
+  if( find_option("static",0,0)!=0 ) flg |= SRCHFLG_STATIC;
+  verify_all_options();
   if( g.argc<4 ) usage("SEARCHSTRING FILE1...");
-  p = search_init(g.argv[2]);
-  p->zMarkBegin = "[[";
-  p->zMarkEnd = "]]";
-  p->zMarkGap = " ... ";
+  if( zBegin==0 ) zBegin = "[[";
+  if( zEnd==0 ) zEnd = "]]";
+  if( zGap==0 ) zGap = " ... ";
+  p = search_init(g.argv[2], zBegin, zEnd, zGap, flg);
   for(i=3; i<g.argc; i++){
     blob_read_from_file(&x, g.argv[i]);
     zDoc = blob_str(&x);
@@ -306,28 +346,72 @@ void test_snippet_cmd(void){
       fossil_print("%.78c\n%s\n%.78c\n\n", '=', blob_str(&snip), '=');
       blob_reset(&snip);
     }
-  }    
+  }
+}
+
+/*
+** An SQL function to initialize the global search pattern:
+**
+**     search_init(PATTERN,BEGIN,END,GAP,FLAGS)
+**
+** All arguments are optional.
+*/
+static void search_init_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zPattern = 0;
+  const char *zBegin = "<b>";
+  const char *zEnd = "</b>";
+  const char *zGap = " ... ";
+  unsigned int flg = SRCHFLG_HTML;
+  switch( argc ){
+    default:
+      flg = (unsigned int)sqlite3_value_int(argv[4]);
+    case 4:
+      zGap = (const char*)sqlite3_value_text(argv[3]);
+    case 3:
+      zEnd = (const char*)sqlite3_value_text(argv[2]);
+    case 2:
+      zBegin = (const char*)sqlite3_value_text(argv[1]);
+    case 1:
+      zPattern = (const char*)sqlite3_value_text(argv[0]);
+  }
+  if( zPattern && zPattern[0] ){
+    search_init(zPattern, zBegin, zEnd, zGap, flg | SRCHFLG_STATIC);
+  }else{
+    search_end(&gSearch);
+  }
 }
 
 /*
 ** This is an SQLite function that scores its input using
-** a pre-computed pattern.
+** the pattern from the previous call to search_init().
 */
 static void search_score_sqlfunc(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
 ){
-  Search *p = (Search*)sqlite3_user_data(context);
+  int isSnippet = sqlite3_user_data(context)!=0;
   const char **azDoc;
   int score;
   int i;
+  Blob snip;
 
+  if( gSearch.nTerm==0 ) return;
   azDoc = fossil_malloc( sizeof(const char*)*(argc+1) );
   for(i=0; i<argc; i++) azDoc[i] = (const char*)sqlite3_value_text(argv[i]);
-  score = search_score(p, argc, azDoc, 0);
+  score = search_score(&gSearch, argc, azDoc, isSnippet ? &snip : 0);
   fossil_free((void *)azDoc);
-  sqlite3_result_int(context, score);
+  if( isSnippet ){
+    if( score ){
+      sqlite3_result_text(context, blob_materialize(&snip), -1, fossil_free);
+    }
+  }else{
+    sqlite3_result_int(context, score);
+  }
 }
 
 /*
@@ -335,9 +419,13 @@ static void search_score_sqlfunc(
 ** using the given Search object.  Once this function is registered,
 ** do not delete the Search object.
 */
-void search_sql_setup(Search *p){
-  sqlite3_create_function(g.db, "score", -1, SQLITE_UTF8, p,
+void search_sql_setup(sqlite3 *db){
+  sqlite3_create_function(db, "score", -1, SQLITE_UTF8, 0,
      search_score_sqlfunc, 0, 0);
+  sqlite3_create_function(db, "snippet", -1, SQLITE_UTF8, &gSearch,
+     search_score_sqlfunc, 0, 0);
+  sqlite3_create_function(db, "search_init", -1, SQLITE_UTF8, 0,
+     search_init_sqlfunc, 0, 0);
 }
 
 /*
@@ -359,7 +447,6 @@ void search_sql_setup(Search *p){
 ** matches.
 */
 void search_cmd(void){
-  Search *p;
   Blob pattern;
   int i;
   Blob sql = empty_blob;
@@ -388,9 +475,9 @@ void search_cmd(void){
   for(i=3; i<g.argc; i++){
     blob_appendf(&pattern, " %s", g.argv[i]);
   }
-  p = search_init(blob_str(&pattern));
+  (void)search_init(blob_str(&pattern),"*","*","...",SRCHFLG_STATIC);
   blob_reset(&pattern);
-  search_sql_setup(p);
+  search_sql_setup(g.db);
 
   db_multi_exec(
      "CREATE TEMP TABLE srch(rid,uuid,date,comment,x);"
@@ -415,4 +502,66 @@ void search_cmd(void){
   blob_reset(&sql);
   print_timeline(&q, nLimit, width, 0);
   db_finalize(&q);
+}
+
+/*
+** WEBPAGE: /search
+**
+** This is an EXPERIMENTAL page for doing search across a repository.
+**
+** The current implementation does a full text search over embedded
+** documentation files on the tip of the "trunk" branch.  Only files
+** ending in ".wiki", ".md", ".html", and ".txt" are searched.
+**
+** The entire text is scanned.  There is no full-text index.  This is
+** experimental.  We may change to using a full-text index depending
+** on performance.
+**
+** Other pending enhancements:
+**    *   Search tickets
+**    *   Search wiki
+*/
+void search_page(void){
+  const char *zPattern = PD("s","");
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(); return; }
+  style_header("Search");
+  @ <form method="GET" action="search"><center>
+  @ <input type="text" name="s" size="40" value="%h(zPattern)">
+  @ <input type="submit" value="Search">
+  @ </center></form>
+  while( fossil_isspace(zPattern[0]) ) zPattern++;
+  if( zPattern[0] ){
+    search_sql_setup(g.db);
+    add_content_sql_commands(g.db);
+    search_init(zPattern, "<b>", "</b>", " ... ",
+            SRCHFLG_STATIC|SRCHFLG_HTML|SRCHFLG_SCORE);
+    db_multi_exec(
+      "CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;"
+      "CREATE TEMP TABLE x(fn TEXT,url TEXT,snip TEXT);"
+      "INSERT INTO x(fn,url,snip)"
+      "  SELECT filename, printf('%R/doc/trunk/%%s',filename),"
+      "         snippet(content(uuid))"
+      "    FROM foci"
+      "   WHERE checkinID=symbolic_name_to_rid('trunk')"
+      "     AND (filename GLOB '*.wiki' OR"
+      "          filename GLOB '*.md' OR"
+      "          filename GLOB '*.txt' OR"
+      "          filename GLOB '*.html');"
+    );
+    db_prepare(&q, "SELECT url, substr(snip,8)"
+                   "   FROM x WHERE snip IS NOT NULL"
+                   " ORDER BY substr(snip,1,8) DESC, fn;");
+    @ <ol>
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zUrl = db_column_text(&q, 0);
+      const char *zSnippet = db_column_text(&q, 1);
+      @ <li><p>%s(href("%s",zUrl))%h(zUrl)</a><br>%s(zSnippet)</li>
+    }
+    db_finalize(&q);
+    @ </ol>
+  }
+  style_footer();
 }

@@ -1,5 +1,5 @@
-C Update\sreferenced\sopenSSL\sversion\s(1.0.2)
-D 2015-01-28T12:11:49.337
+C Add\san\sexperimental\s/search\spage\sfor\sembedded\sdocumentation.\s\sNeed\sto\nenhance\swith\s(1)\swiki\ssearch,\s(2)\sticket\ssearch,\s(3)\sconfiguration\soptions,\nand\s(4)\sCSS,\sand\smaybe\sother\sthings\sas\swell.\s\sBut\sit\sis\sa\sstart.
+D 2015-01-28T15:11:15.798
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -436,14 +436,14 @@ F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c fc8913ece84d192f7af01681a13c72435dd1eb3f
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
 F src/schema.c 4cf219c92277e2df277f0f8e8be4eccc1e47ed53
-F src/search.c 02121c15b1cc113441606a1879795eee8c6cf253
+F src/search.c 5bd264b59426e1bc42d3093fc8580f96c1b0ff28
 F src/setup.c 48381b94c89b0f0a2419067049867245ac2d09bf
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c 66986a98df6556f8de10d137f53a270f34ef1252
 F src/shun.c a93c409f694b6022061d2c946311d6ead83a4e49
 F src/sitemap.c 48d23c10d6a2cef3f3b961ff912536c6d80fb3e0
 F src/skins.c 6d30409b07b15bf37b88770017b349ac6f53973c
-F src/sqlcmd.c c2be7f628d421016da77585386e4f85085396a30
+F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
 F src/sqlite3.c 154b1f5dffa815e0817b32f219b9958a004d2f45
 F src/sqlite3.h 1db30efd42bf6adb957b695210805a6fdb165bf3
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5330d107b25626e1441fab860bcd9b0f331557ec
-R 22382d722400add163bfc389ce63e277
-U jan.nijtmans
-Z d2a63a4c421e614b366ee6ff8091b015
+P 16a4f60b24fc7eba10604c40de520b9d0827de88
+R 0f8368a1ccc6277c23f16d7b7dca03f8
+U drh
+Z 953f21daf5318bf3c47301a71460a81a
