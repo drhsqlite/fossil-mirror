@@ -1,5 +1,5 @@
-C Minor\scompiler\swarning\sin\sshell.c\s(already\sfixed\sin\sSQLite).\s\n"char\sconst"\s->\s"const\schar"\sfor\sconsistancy.
-D 2015-01-28T09:24:13.678
+C Update\sreferenced\sopenSSL\sversion\s(1.0.2)
+D 2015-01-28T12:11:49.337
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -410,7 +410,7 @@ F src/main.c 8796540f8281eaac9ae1e1006e5a12e33bbe5425
 F src/main.mk d858d86aa86540c2ff1bdba2269e93fb75dcb852
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 93737aabeea8347461871151ac2d1c668a9ea833
+F src/makemake.tcl 911d6da6aa388c7773f1cbb9d75ffc52e9e0f9ff
 F src/manifest.c 1cc493d97f032ce25f79a335b8dff14d4fb66df1
 F src/markdown.c a8ea5a5012e968331bf26f3de92cef68d65d1066
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
@@ -581,9 +581,9 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 0be6627e894fc7fc66cca99f430954df00ea3790
 F win/Makefile.dmc 1587ceb4db7b2e4460ac3e30dcc4cbc805416e51
-F win/Makefile.mingw 0791732ac4b310b967ccfb15b83cdb7becb6855f
-F win/Makefile.mingw.mistachkin b58774a3e0517f46fd59e5112ed78e6400445815
-F win/Makefile.msc abe5198525eb3e46fe3d3e6b706b7c90bc868698
+F win/Makefile.mingw 77cb61ed52b7f9e0a91815675b051d647c96cab0
+F win/Makefile.mingw.mistachkin 5b1143acbe4aa3bd0963ecd6a4de077e18363ba8
+F win/Makefile.msc 9aa03d848281c70183535f9972bff940d1138f24
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -611,7 +611,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 663b197ed4091d6ce1b10d4ba26592f745d52964
+F www/build.wiki 1f3f22a07ecd948bac7c1fac08b442446b530b78
 F www/changes.wiki 8670822cbb1e08982c40e21d8a903144cfdbc251
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 80d94f4d8d893e7ba3f0bb261986e6f7a003cd41
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6115de1504137b91c610a364a4bcbb6398548449
-R 6a960722048b09333a9a43af2d302902
+P 5330d107b25626e1441fab860bcd9b0f331557ec
+R 22382d722400add163bfc389ce63e277
 U jan.nijtmans
-Z d40b28fb4fc165fa55795ce7792e07e0
+Z d2a63a4c421e614b366ee6ff8091b015
