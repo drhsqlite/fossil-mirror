@@ -1,5 +1,5 @@
-C Create\snew\sbranch\snamed\s"dg-skin-reset"
-D 2015-01-28T22:24:51.833
+C Change\sindex-page\sso\sit's\sa\sproject\ssetting\sand\snot\sa\sskin.
+D 2015-01-28T22:31:34.336
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -357,7 +357,7 @@ F src/clone.c ce67376a70e80ea5c2b9b73d44086d7b8969518a
 F src/codecheck1.c 2cf1fc75f4f611574e92cf1440f4fb2ae49e8ba6
 F src/comformat.c 24b2de2bad5e8e6da966586c68d6505ea08df8e7
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
-F src/configure.c 0442812db96796b31f2660aba45817dee5d6e36a
+F src/configure.c 5381b78ac227c56be220b461711fc5aa3ee1cb09
 F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
@@ -692,10 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 046d7430bfec4bbb3ddb0ba6fac4c2474095f7b7
-R 0f8368a1ccc6277c23f16d7b7dca03f8
-T *branch * dg-skin-reset
-T *sym-dg-skin-reset *
-T -sym-trunk *
+P a1dd3c210303a6733f0e894d418cf8eb1ea08f25
+R c72e620410f9e66fd00e6ef01879049c
 U dg
-Z d6605fe859e5893c6074ab5215484d0f
+Z e17ffd8ea1fe0386017fcb0e8a6d1cc0
