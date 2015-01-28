@@ -28,6 +28,10 @@
 #include <assert.h>
 
 #if INTERFACE
+
+/* Maximum number of search terms */
+#define SEARCH_MAX_TERM   8
+
 /*
 ** A compiled search pattern
 */
@@ -36,42 +40,18 @@ struct Search {
   struct srchTerm {     /* For each search term */
     char *z;               /* Text */
     int n;                 /* length */
-  } a[8];
+  } a[SEARCH_MAX_TERM];
+  /* Snippet controls */
+  char *zMarkBegin;     /* Start of a match */   
+  char *zMarkEnd;       /* End of a match */
+  char *zMarkGap;       /* A gap between two matches */
+  unsigned fSrchFlg;    /* Flags */
 };
+
+#define SRCHFLG_HTML  0x0001   /* Escape snippet text for HTML */
+
 #endif
 
-/*
-** Compile a search pattern
-*/
-Search *search_init(const char *zPattern){
-  int nPattern = strlen(zPattern);
-  Search *p;
-  char *z;
-  int i;
-
-  p = fossil_malloc( nPattern + sizeof(*p) + 1);
-  z = (char*)&p[1];
-  memcpy(z, zPattern, nPattern+1);
-  memset(p, 0, sizeof(*p));
-  while( *z && p->nTerm<sizeof(p->a)/sizeof(p->a[0]) ){
-    while( !fossil_isalnum(*z) && *z ){ z++; }
-    if( *z==0 ) break;
-    p->a[p->nTerm].z = z;
-    for(i=1; fossil_isalnum(z[i]) || z[i]=='_'; i++){}
-    p->a[p->nTerm].n = i;
-    z += i;
-    p->nTerm++;
-  }
-  return p;
-}
-
-
-/*
-** Destroy a search context.
-*/
-void search_end(Search *p){
-  free(p);
-}
 
 /*
 ** Theses characters constitute a word boundary
@@ -94,60 +74,239 @@ static const char isBoundary[] = {
   0, 0, 0, 0, 0, 0, 0, 0,     0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0,     0, 0, 0, 0, 0, 0, 0, 0,
 };
+#define ISALNUM(x)  (!isBoundary[(x)&0xff])
 
 /*
-** Compare a search pattern against an input string and return a score.
+** Compile a search pattern
+*/
+Search *search_init(const char *zPattern){
+  int nPattern = strlen(zPattern);
+  Search *p;
+  char *z;
+  int i;
+
+  p = fossil_malloc( nPattern + sizeof(*p) + 1);
+  z = (char*)&p[1];
+  memcpy(z, zPattern, nPattern+1);
+  memset(p, 0, sizeof(*p));
+  while( *z && p->nTerm<SEARCH_MAX_TERM ){
+    while( *z && !ISALNUM(*z) ){ z++; }
+    if( *z==0 ) break;
+    p->a[p->nTerm].z = z;
+    for(i=1; ISALNUM(z[i]); i++){}
+    p->a[p->nTerm].n = i;
+    z += i;
+    p->nTerm++;
+  }
+  return p;
+}
+
+
+/*
+** Destroy a search context.
+*/
+void search_end(Search *p){
+  free(p);
+}
+
+/*
+** Append n bytes of text to snippet zTxt.  Encode the text appropriately.
+*/
+static void snippet_text_append(
+  Search *p,             /* The search context */
+  Blob *pSnip,           /* Append to this snippet */
+  const char *zTxt,      /* Text to append */
+  int n                  /* How many bytes to append */
+){
+  if( p->fSrchFlg & SRCHFLG_HTML ){
+    blob_appendf(pSnip, "%.*h", n, zTxt);
+  }else{
+    blob_append(pSnip, zTxt, n);
+  }
+}
+
+/*
+** Compare a search pattern against one or more input strings which
+** collectively comprise a document.  Return a match score.  Optionally
+** also return a "snippet".
 **
 ** Scoring:
 **   *  All terms must match at least once or the score is zero
-**   *  10 bonus points if the first occurrence is an exact match
-**   *  1 additional point for each subsequent match of the same word
-**   *  Extra points of two consecutive words of the pattern are consecutive
+**   *  One point for each matching term
+**   *  Extra points if consecutive words of the pattern are consecutive
 **      in the document
 */
-int search_score(Search *p, int nDoc, const char **azDoc){
-  int iPrev = 999;
-  int score = 10;
-  int iBonus = 0;
-  int i, j, k;
-  const char *zDoc;
-  unsigned char seen[8];
+static int search_score(
+  Search *p,              /* Search pattern and flags */
+  int nDoc,               /* Number of strings in this document */
+  const char **azDoc,     /* Text of each string */
+  Blob *pSnip             /* If not NULL: Write a snippet here */
+){
+  int score;                         /* Final score */
+  int i;                             /* Offset into current document */
+  int ii;                            /* Loop counter */
+  int j;                             /* Loop over search terms */
+  int k;                             /* Loop over prior terms */
+  int iWord = 0;                     /* Current word number */
+  int iDoc;                          /* Current document number */
+  int wantGap = 0;                   /* True if a zMarkGap is wanted */
+  const char *zDoc;                  /* Current document text */
+  const int CTX = 50;                /* Amount of snippet context */
+  int anMatch[SEARCH_MAX_TERM];      /* Number of terms in best match */
+  int aiBestDoc[SEARCH_MAX_TERM];    /* Document containing best match */
+  int aiBestOfst[SEARCH_MAX_TERM];   /* Byte offset to start of best match */
+  int aiLastDoc[SEARCH_MAX_TERM];    /* Document containing most recent match */
+  int aiLastOfst[SEARCH_MAX_TERM];   /* Byte offset to the most recent match */
+  int aiWordIdx[SEARCH_MAX_TERM];    /* Word index of most recent match */
 
-  memset(seen, 0, sizeof(seen));
-  for(k=0; k<nDoc; k++){
-    zDoc = azDoc[k];
+  memset(anMatch, 0, sizeof(anMatch));
+  memset(aiWordIdx, 0xff, sizeof(aiWordIdx));
+  for(iDoc=0; iDoc<nDoc; iDoc++){
+    zDoc = azDoc[iDoc];
     if( zDoc==0 ) continue;
+    iWord++;
     for(i=0; zDoc[i]; i++){
-      char c = zDoc[i];
-      if( isBoundary[c&0xff] ) continue;
+      if( !ISALNUM(zDoc[i]) ) continue;
+      iWord++;
       for(j=0; j<p->nTerm; j++){
         int n = p->a[j].n;
-        if( sqlite3_strnicmp(p->a[j].z, &zDoc[i], n)==0 ){
-          score += 1;
-          if( !seen[j] ){
-            if( isBoundary[zDoc[i+n]&0xff] ) score += 10;
-            seen[j] = 1;
+        if( sqlite3_strnicmp(p->a[j].z, &zDoc[i], n)==0
+         && (!ISALNUM(zDoc[i+n]) || p->a[j].z[n]=='*')
+        ){
+          aiWordIdx[j] = iWord;
+          aiLastDoc[j] = iDoc;
+          aiLastOfst[j] = i;
+          for(k=1; j-k>=0 && anMatch[j-k] && aiWordIdx[j-k]==iWord-k; k++){}
+          for(ii=0; ii<k; ii++){
+            if( anMatch[j-ii]<k ){
+              anMatch[j-ii] = k;
+              aiBestDoc[j-ii] = aiLastDoc[j-ii];
+              aiBestOfst[j-ii] = aiLastOfst[j-ii];
+            }
           }
-          if( j==iPrev+1 ){
-            score += iBonus;
-          }
-          i += n-1;
-          iPrev = j;
-          iBonus = 50;
           break;
         }
       }
-      iBonus /= 2;
-      while( !isBoundary[zDoc[i]&0xff] ){ i++; }
+      while( ISALNUM(zDoc[i]) ){ i++; }
     }
   }
 
-  /* Every term must be seen or else the score is zero */
-  for(j=0; j<p->nTerm; j++){
-    if( !seen[j] ) return 0;
-  }
+  /* Finished search all documents.
+  ** Every term must be seen or else the score is zero 
+  */
+  score = 1;
+  for(j=0; j<p->nTerm; j++) score *= anMatch[j];
+  if( score==0 || pSnip==0 ) return score;
 
+
+  /* Prepare a snippet that describes the matching text.
+  */
+  blob_init(pSnip, 0, 0);
+
+  while(1){
+    int iOfst;
+    int iTail;
+    int iBest;
+    for(ii=0; ii<p->nTerm && anMatch[ii]==0; ii++){}
+    if( ii>=p->nTerm ) break;  /* This is where the loop exits */
+    iBest = ii;
+    iDoc = aiBestDoc[ii];
+    iOfst = aiBestOfst[ii];
+    for(; ii<p->nTerm; ii++){
+      if( anMatch[ii]==0 ) continue;
+      if( aiBestDoc[ii]>iDoc ) continue;
+      if( aiBestOfst[ii]>iOfst ) continue;
+      iDoc = aiBestDoc[ii];
+      iOfst = aiBestOfst[ii];
+      iBest = ii;
+    }
+    iTail = iOfst + p->a[iBest].n;
+    anMatch[iBest] = 0;
+    for(ii=0; ii<p->nTerm; ii++){
+      if( anMatch[ii]==0 ) continue;
+      if( aiBestDoc[ii]!=iDoc ) continue;
+      if( aiBestOfst[ii]<=iTail+CTX*2 ){
+        if( iTail<aiBestOfst[ii]+p->a[ii].n ){
+          iTail = aiBestOfst[ii]+p->a[ii].n;
+        }
+        anMatch[ii] = 0;
+        ii = -1;
+        continue;
+      }
+    }
+    zDoc = azDoc[iDoc];
+    iOfst -= CTX;
+    if( iOfst<0 ) iOfst = 0;
+    while( iOfst>0 && ISALNUM(zDoc[iOfst-1]) ) iOfst--;
+    while( zDoc[iOfst] && !ISALNUM(zDoc[iOfst]) ) iOfst++;
+    for(ii=0; ii<CTX && zDoc[iTail]; ii++, iTail++){}
+    while( ISALNUM(zDoc[iTail]) ) iTail++;
+    if( iOfst>0 || wantGap ) blob_append(pSnip, p->zMarkGap, -1);
+    wantGap = zDoc[iTail]!=0;
+    zDoc += iOfst;
+    iTail -= iOfst;
+
+    /* Add a snippet segment using characters iOfst..iOfst+iTail from zDoc */
+    for(i=0; i<iTail; i++){
+      if( !ISALNUM(zDoc[i]) ) continue;
+      for(j=0; j<p->nTerm; j++){
+        int n = p->a[j].n;
+        if( sqlite3_strnicmp(p->a[j].z, &zDoc[i], n)==0
+         && (!ISALNUM(zDoc[i+n]) || p->a[j].z[n]=='*')
+        ){
+          snippet_text_append(p, pSnip, zDoc, i);
+          zDoc += i;
+          iTail -= i;
+          blob_append(pSnip, p->zMarkBegin, -1);
+          if( p->a[j].z[n]=='*' ){
+            while( ISALNUM(zDoc[n]) ) n++;
+          }
+          snippet_text_append(p, pSnip, zDoc, n);
+          zDoc += n;
+          iTail -= n;
+          blob_append(pSnip, p->zMarkEnd, -1);
+          i = -1;
+          break;
+        } /* end-if */
+      } /* end for(j) */
+      if( j<p->nTerm ){
+        while( ISALNUM(zDoc[i]) && i<iTail ){ i++; }
+      }
+    } /* end for(i) */
+    if( iTail>0 ) snippet_text_append(p, pSnip, zDoc, iTail);
+  }
+  if( wantGap ) blob_append(pSnip, p->zMarkGap, -1);
   return score;
+}
+
+/*
+** COMMAND: test-snippet
+**
+** Usage: fossil test-snippet SEARCHSTRING FILE1 FILE2 ... 
+*/
+void test_snippet_cmd(void){
+  Search *p;
+  int i;
+  Blob x;
+  Blob snip;
+  int score;
+  char *zDoc;
+  if( g.argc<4 ) usage("SEARCHSTRING FILE1...");
+  p = search_init(g.argv[2]);
+  p->zMarkBegin = "[[";
+  p->zMarkEnd = "]]";
+  p->zMarkGap = " ... ";
+  for(i=3; i<g.argc; i++){
+    blob_read_from_file(&x, g.argv[i]);
+    zDoc = blob_str(&x);
+    score = search_score(p, 1, (const char**)&zDoc, &snip);
+    fossil_print("%s: %d\n", g.argv[i], score);
+    blob_reset(&x);
+    if( score ){
+      fossil_print("%.78c\n%s\n%.78c\n\n", '=', blob_str(&snip), '=');
+      blob_reset(&snip);
+    }
+  }    
 }
 
 /*
@@ -166,7 +325,7 @@ static void search_score_sqlfunc(
 
   azDoc = fossil_malloc( sizeof(const char*)*(argc+1) );
   for(i=0; i<argc; i++) azDoc[i] = (const char*)sqlite3_value_text(argv[i]);
-  score = search_score(p, argc, azDoc);
+  score = search_score(p, argc, azDoc, 0);
   fossil_free((void *)azDoc);
   sqlite3_result_int(context, score);
 }
