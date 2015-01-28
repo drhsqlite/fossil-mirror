@@ -356,7 +356,7 @@ void style_header(const char *zTitleFormat, ...){
 /* Allowed parameters for style_adunit() */
 #define ADUNIT_OFF        0x0001       /* Do not allow ads on this page */
 #define ADUNIT_RIGHT_OK   0x0002       /* Right-side vertical ads ok here */
-#endif   
+#endif
 
 /*
 ** Various page implementations can invoke this interface to let the

@@ -159,6 +159,26 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
 }
 
 /*
+** WEBPAGE: md_rules
+**
+** Show a summary of the Markdown wiki formatting rules.
+*/
+void markdown_rules_page(void){
+  Blob x;
+  int fTxt = P("txt")!=0;
+  style_header("Markdown Formatting Rules");
+  if( fTxt ){
+    style_submenu_element("Formatted", "Formatted", "%R/md_rules");
+  }else{
+    style_submenu_element("Plain-Text", "Plain-Text", "%R/md_rules?txt=1");
+  }
+  blob_init(&x, builtin_text("markdown.md"), -1);
+  wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-markdown");
+  blob_reset(&x);
+  style_footer();
+}
+
+/*
 ** Returns non-zero if moderation is required for wiki changes and wiki
 ** attachments.
 */
@@ -215,7 +235,8 @@ void wiki_page(void){
       }
     }
     @ <li> %z(href("%R/timeline?y=w"))Recent changes</a> to wiki pages.</li>
-    @ <li> %z(href("%R/wiki_rules"))Formatting rules</a> for wiki.</li>
+    @ <li> Formatting rules for %z(href("%R/wiki_rules"))Fossil Wiki</a> and for
+    @ %z(href("%R/md_rules"))Markdown Wiki</a>.</li>
     @ <li> Use the %z(href("%R/wiki?name=Sandbox"))Sandbox</a>
     @      to experiment.</li>
     if( g.perm.NewWiki ){

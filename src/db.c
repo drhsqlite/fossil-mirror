@@ -772,8 +772,8 @@ void db_sym2rid_function(
   int argc,
   sqlite3_value **argv
 ){
-  char const * arg;
-  char const * type;
+  const char *arg;
+  const char *type;
   if(1 != argc && 2 != argc){
     sqlite3_result_error(context, "Expecting one or two arguments", -1);
     return;
@@ -797,7 +797,7 @@ void db_sym2rid_function(
 }
 
 /*
-** Register the SQL functions that are useful both to the internal 
+** Register the SQL functions that are useful both to the internal
 ** representation and to the "fossil sql" command.
 */
 void db_add_aux_functions(sqlite3 *db){
@@ -842,7 +842,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
     db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
   );
   if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
-  db_add_aux_functions(db);  
+  db_add_aux_functions(db);
   re_add_sql_func(db);  /* The REGEXP operator */
   foci_register(db);    /* The "files_of_checkin" virtual table */
   sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
@@ -1177,6 +1177,33 @@ void db_open_repository(const char *zDbName){
   g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
   g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  g.zAuxSchema = db_get("aux-schema","");
+
+  /* Verify that the PLINK table has a new column added by the
+  ** 2014-11-28 schema change.  Create it if necessary.  This code
+  ** can be removed in the future, once all users have upgraded to the
+  ** 2014-11-28 or later schema.
+  */
+  if( !db_table_has_column("repository","plink","baseid") ){
+    db_multi_exec(
+      "ALTER TABLE %s.plink ADD COLUMN baseid;", db_name("repository")
+    );
+  }
+
+  /* Verify that the MLINK table has the newer columns added by the
+  ** 2015-01-24 schema change.  Create them if necessary.  This code
+  ** can be removed in the future, once all users have upgraded to the
+  ** 2015-01-24 or later schema.
+  */
+  if( !db_table_has_column("repository","mlink","isaux") ){
+    db_begin_transaction();
+    db_multi_exec(
+      "ALTER TABLE %s.mlink ADD COLUMN pmid INTEGER DEFAULT 0;"
+      "ALTER TABLE %s.mlink ADD COLUMN isaux INTEGER DEFAULT 0;",
+      db_name("repository"), db_name("repository")
+    );
+    db_end_transaction(0);
+  }
 }
 
 /*
@@ -1244,7 +1271,6 @@ const char *db_name(const char *zDb){
 ** Return TRUE if the schema is out-of-date
 */
 int db_schema_is_outofdate(void){
-  if( g.zAuxSchema==0 ) g.zAuxSchema = db_get("aux-schema","");
   return strcmp(g.zAuxSchema,AUX_SCHEMA_MIN)<0
       || strcmp(g.zAuxSchema,AUX_SCHEMA_MAX)>0;
 }

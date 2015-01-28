@@ -106,6 +106,7 @@ SRC = \
   $(SRCDIR)/sqlcmd.c \
   $(SRCDIR)/stash.c \
   $(SRCDIR)/stat.c \
+  $(SRCDIR)/statrep.c \
   $(SRCDIR)/style.c \
   $(SRCDIR)/sync.c \
   $(SRCDIR)/tag.c \
@@ -157,7 +158,8 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/rounded1/css.txt \
   $(SRCDIR)/../skins/rounded1/footer.txt \
   $(SRCDIR)/../skins/rounded1/header.txt \
-  $(SRCDIR)/diff.tcl
+  $(SRCDIR)/diff.tcl \
+  $(SRCDIR)/markdown.md
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
@@ -252,6 +254,7 @@ TRANS_SRC = \
   $(OBJDIR)/sqlcmd_.c \
   $(OBJDIR)/stash_.c \
   $(OBJDIR)/stat_.c \
+  $(OBJDIR)/statrep_.c \
   $(OBJDIR)/style_.c \
   $(OBJDIR)/sync_.c \
   $(OBJDIR)/tag_.c \
@@ -371,6 +374,7 @@ OBJ = \
  $(OBJDIR)/sqlcmd.o \
  $(OBJDIR)/stash.o \
  $(OBJDIR)/stat.o \
+ $(OBJDIR)/statrep.o \
  $(OBJDIR)/style.o \
  $(OBJDIR)/sync.o \
  $(OBJDIR)/tag.o \
@@ -504,7 +508,7 @@ $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 	$(OBJDIR)/mkindex $(TRANS_SRC) >$@
 
 $(OBJDIR)/builtin_data.h: $(OBJDIR)/mkbuiltin $(EXTRA_FILES)
-	$(OBJDIR)/mkbuiltin $(EXTRA_FILES) >$@
+	$(OBJDIR)/mkbuiltin --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
 
 $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
@@ -599,6 +603,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h \
 	$(OBJDIR)/stash_.c:$(OBJDIR)/stash.h \
 	$(OBJDIR)/stat_.c:$(OBJDIR)/stat.h \
+	$(OBJDIR)/statrep_.c:$(OBJDIR)/statrep.h \
 	$(OBJDIR)/style_.c:$(OBJDIR)/style.h \
 	$(OBJDIR)/sync_.c:$(OBJDIR)/sync.h \
 	$(OBJDIR)/tag_.c:$(OBJDIR)/tag.h \
@@ -1366,6 +1371,14 @@ $(OBJDIR)/stat.o:	$(OBJDIR)/stat_.c $(OBJDIR)/stat.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/stat.o -c $(OBJDIR)/stat_.c
 
 $(OBJDIR)/stat.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/statrep_.c:	$(SRCDIR)/statrep.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/statrep.c >$@
+
+$(OBJDIR)/statrep.o:	$(OBJDIR)/statrep_.c $(OBJDIR)/statrep.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/statrep.o -c $(OBJDIR)/statrep_.c
+
+$(OBJDIR)/statrep.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/style_.c:	$(SRCDIR)/style.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/style.c >$@

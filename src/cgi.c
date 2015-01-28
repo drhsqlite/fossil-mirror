@@ -1758,7 +1758,7 @@ int cgi_http_server(
           close(1);
           fd = dup(connection);
           if( fd!=1 ) nErr++;
-          if( !g.fHttpTrace && !g.fSqlTrace ){
+          if( !g.fAnyTrace ){
             close(2);
             fd = dup(connection);
             if( fd!=2 ) nErr++;

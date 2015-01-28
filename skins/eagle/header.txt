@@ -75,7 +75,7 @@
     </a>
   </div>
   <div class="title">$<title></div>
-  <div class="status"><th1>
+  <div class="status"><nobr><th1>
      if {[info exists login]} {
        puts "Logged in as $login"
      } else {
@@ -88,8 +88,15 @@ function updateClock(){
   var e = document.getElementById("clock");
   if(e){
     var d = new Date();
-    e.innerHTML=d.toISOString().replace("T"," ").replace(/:\d\d\.\d+Z/,"");
-    setTimeout("updateClock();",(60-d.getSeconds())*1000);
+    function f(n) {
+      return n < 10 ? '0' + n : n;
+    }
+    e.innerHTML = d.getUTCFullYear()+ '-' +
+      f(d.getUTCMonth() + 1) + '-' +
+      f(d.getUTCDate())      + ' ' +
+      f(d.getUTCHours())     + ':' +
+      f(d.getUTCMinutes());
+    setTimeout("updateClock();",(60-d.getUTCSeconds())*1000);
   }
 }
 updateClock();

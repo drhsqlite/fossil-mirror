@@ -225,13 +225,20 @@ size_t socket_receive(void *NotUsed, void *pContent, size_t N){
 ** to which we connect.
 */
 void socket_ssh_resolve_addr(UrlData *pUrlData){
-  struct hostent *pHost;        /* Used to make best effort for rcvfrom */
-  struct sockaddr_in addr;
-
-  memset(&addr, 0, sizeof(addr));
-  pHost = gethostbyname(pUrlData->name);
-  if( pHost!=0 ){
-    memcpy(&addr.sin_addr,pHost->h_addr_list[0],pHost->h_length);
-    g.zIpAddr = mprintf("%s", inet_ntoa(addr.sin_addr));
+  struct addrinfo *ai = 0;
+  struct addrinfo hints;
+  char zRemote[NI_MAXHOST];
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+  if( getaddrinfo(pUrlData->name, NULL, &hints, &ai)==0
+   && ai!=0
+   && getnameinfo(ai->ai_addr, ai->ai_addrlen, zRemote,
+                  sizeof(zRemote), 0, 0, NI_NUMERICHOST)==0 ){
+    g.zIpAddr = mprintf("%s (%s)", zRemote, pUrlData->name);
+  }
+  if( ai ) freeaddrinfo(ai);
+  if( g.zIpAddr==0 ){
+    g.zIpAddr = mprintf("%s", pUrlData->name);
   }
 }

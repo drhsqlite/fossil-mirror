@@ -145,6 +145,7 @@ struct Global {
   int fSqlPrint;          /* True if -sqlprint flag is present */
   int fQuiet;             /* True if -quiet flag is present */
   int fHttpTrace;         /* Trace outbound HTTP requests */
+  int fAnyTrace;          /* Any kind of tracing */
   char *zHttpAuth;        /* HTTP Authorization user:pass information */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
@@ -660,11 +661,11 @@ int main(int argc, char **argv)
     g.fSshClient = 0;
     g.zSshCmd = 0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
-    g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
     g.fNoThHook = find_option("no-th-hook", 0, 0)!=0;
 #endif
+    g.fAnyTrace = g.fSqlTrace|g.fSystemTrace|g.fSshTrace|g.fHttpTrace;
     g.zHttpAuth = 0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
@@ -1875,7 +1876,7 @@ void cmd_cgi(void){
       /* debug: FILENAME
       **
       ** Causes output from cgi_debug() and CGIDEBUG(()) calls to go
-      ** into FILENAME. 
+      ** into FILENAME.
       */
       g.fDebug = fossil_fopen(blob_str(&value), "ab");
       blob_reset(&value);

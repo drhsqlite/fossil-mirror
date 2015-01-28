@@ -890,7 +890,7 @@ const char *fileext_class(const char *zFilename){
 ** SQL used to compute the age of all files in checkin :ckin whose
 ** names match :glob
 */
-static const char zComputeFileAgeSetup[] = 
+static const char zComputeFileAgeSetup[] =
 @ CREATE TABLE IF NOT EXISTS temp.fileage(
 @   fnid INTEGER PRIMARY KEY,
 @   fid INTEGER,
@@ -901,7 +901,7 @@ static const char zComputeFileAgeSetup[] =
 @ CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;
 ;
 
-static const char zComputeFileAgeRun[] = 
+static const char zComputeFileAgeRun[] =
 @ WITH RECURSIVE
 @   ckin(x) AS (VALUES(:ckin) UNION ALL
 @                 SELECT pid FROM ckin, plink WHERE cid=x AND isprim)
@@ -1027,7 +1027,7 @@ void fileage_page(void){
   compute_fileage(rid,zGlob);
   db_multi_exec("CREATE INDEX fileage_ix1 ON fileage(mid,pathname);");
 
-  @ <h2>Files in 
+  @ <h2>Files in
   @ %z(href("%R/info?name=%T",zUuid))[%S(zUuid)]</a>
   if( zGlob && zGlob[0] ){
     @ that match "%h(zGlob)" and
