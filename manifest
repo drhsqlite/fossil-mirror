@@ -1,5 +1,5 @@
-C Add\san\sexperimental\s/search\spage\sfor\sembedded\sdocumentation.\s\sNeed\sto\nenhance\swith\s(1)\swiki\ssearch,\s(2)\sticket\ssearch,\s(3)\sconfiguration\soptions,\nand\s(4)\sCSS,\sand\smaybe\sother\sthings\sas\swell.\s\sBut\sit\sis\sa\sstart.
-D 2015-01-28T15:11:15.798
+C For\sembedded\sdocumentation\sthat\sends\sin\s/\sgo\sback\sto\sappending\sindex.html\ninstead\sof\sindex.wiki.
+D 2015-01-29T00:38:58.215
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -369,7 +369,7 @@ F src/descendants.c 393ebd57f83ff9f2f87df9572430f399ecc95d47
 F src/diff.c 26603debe5f78ec79aa42349765441097ce3ff64
 F src/diff.tcl af32ef4670c331139b8e467286df687a3d136594
 F src/diffcmd.c 9391a8baf1927201f957d95c6a7d72bb2ff13cd3
-F src/doc.c 86e1af46c4823236ae24c013bd3170980087661d
+F src/doc.c 46cdbe931e0dfbb68c6a5391f29ad1feca32a4c2
 F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 26fd16a9f3fe9f88edd233e39cf4051a0398eb29
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 16a4f60b24fc7eba10604c40de520b9d0827de88
-R 0f8368a1ccc6277c23f16d7b7dca03f8
+P 046d7430bfec4bbb3ddb0ba6fac4c2474095f7b7
+R 68372e097ca55e27f93b29ec576b67eb
 U drh
-Z 953f21daf5318bf3c47301a71460a81a
+Z cf68e4f97db022d4ac3f060b39fd70c6

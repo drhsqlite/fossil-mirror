@@ -395,7 +395,7 @@ void doc_page(void){
   for(i=0; zName[i] && zName[i]!='/'; i++){}
   zCheckin = mprintf("%.*s", i, zName);
   if( zName[i]==0 ){
-    zName = "index.wiki";
+    zName = "index.html";
   }else{
     zName += i;
   }
