@@ -821,7 +821,6 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   sqlite3 *db;
 
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
-
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
@@ -1672,7 +1671,6 @@ void create_repository_cmd(void){
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
   int makeServerCodes;
-  struct stat sb;
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
