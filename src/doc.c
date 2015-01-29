@@ -385,9 +385,9 @@ void mimetype_test_cmd(void){
 */
 void doc_page(void){
   const char *zName;                /* Argument to the /doc page */
-  const char *zOrigName;            /* Original document name */
+  const char *zOrigName = "?";      /* Original document name */
   const char *zMime;                /* Document MIME type */
-  char *zCheckin;                   /* The checkin holding the document */
+  char *zCheckin = "tip";           /* The checkin holding the document */
   int vid = 0;                      /* Artifact of checkin */
   int rid = 0;                      /* Artifact of file */
   int i;                            /* Loop counter */
