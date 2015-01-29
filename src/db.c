@@ -819,13 +819,8 @@ void db_add_aux_functions(sqlite3 *db){
 LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
   sqlite3 *db;
-  struct stat sb;
 
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
-
-  if (0 == stat(zDbName, &sb)) {
-       db_err("[%s]: %s", zDbName, "File already exists.");
-  }
 
   rc = sqlite3_open_v2(
        zDbName, &db,
@@ -1677,6 +1672,7 @@ void create_repository_cmd(void){
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
   int makeServerCodes;
+  struct stat sb;
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
@@ -1690,6 +1686,11 @@ void create_repository_cmd(void){
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
+ 
+  if (0 == stat(g.argv[2], &sb)) {
+       fossil_fatal("[%s]: %s", g.argv[2], "File already exists.");
+  }
+
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
   db_open_config(0);
