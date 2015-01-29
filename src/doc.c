@@ -393,7 +393,7 @@ void doc_page(void){
   int i;                            /* Loop counter */
   Blob filebody;                    /* Content of the documentation file */
   int nMiss = (-1);                 /* Failed attempts to find the document */
-  static const char *azSuffix[] = {
+  static const char *const azSuffix[] = {
      "index.html", "index.wiki", "index.md"
   };
 
