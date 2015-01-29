@@ -377,6 +377,11 @@ void mimetype_test_cmd(void){
 ** it gets checked in.
 **
 ** The file extension is used to decide how to render the file.
+**
+** If FILE ends in "/" then names "FILE/index.html", "FILE/index.wiki",
+** and "FILE/index.md" are  in that order.  If none of those are found,
+** then FILE is completely replaced by "404.md" and tried.  If that is
+** not found, then a default 404 screen is generated.
 */
 void doc_page(void){
   const char *zName;                /* Argument to the /doc page */
@@ -388,82 +393,81 @@ void doc_page(void){
   int i;                            /* Loop counter */
   Blob filebody;                    /* Content of the documentation file */
   int nMiss = 0;                    /* Failed attempts to find the document */
+  static const char *azSuffix[] = {
+     "index.html", "index.wiki", "index.md"
+  };
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
-  zName = PD("name", "tip/index.wiki");
-  for(i=0; zName[i] && zName[i]!='/'; i++){}
-  zCheckin = mprintf("%.*s", i, zName);
-  if( zName[i]==0 ){
-    zName = "index.html";
-  }else{
-    zName += i;
-  }
-  while( zName[0]=='/' ){ zName++; }
-  g.zPath = mprintf("%s/%s/%s", g.zPath, zCheckin, zName);
-  zOrigName = zName;
-  if( !file_is_simple_pathname(zName, 1) ){
-    if( sqlite3_strglob("*/", zName)==0 ){
-      zOrigName = zName = mprintf("%sindex.html", zName);
-      if( !file_is_simple_pathname(zName, 1) ){
+  for(nMiss=0; rid==0 && nMiss<=ArraySize(azSuffix); nMiss++){
+    zName = PD("name", "tip/index.wiki");
+    for(i=0; zName[i] && zName[i]!='/'; i++){}
+    zCheckin = mprintf("%.*s", i, zName);
+    if( fossil_strcmp(zCheckin,"ckout")==0 && db_open_local(0)==0 ){
+      zCheckin = "tip";
+    }
+    if( nMiss==ArraySize(azSuffix) ){
+      zName = "404.md";
+    }else if( zName[i]==0 ){
+      zName = azSuffix[nMiss];
+    }else{
+      zName += i;
+    }
+    while( zName[0]=='/' ){ zName++; }
+    g.zPath = mprintf("%s/%s/%s", g.zPath, zCheckin, zName);
+    if( nMiss==0 ) zOrigName = zName;
+    if( !file_is_simple_pathname(zName, 1) ){
+      if( sqlite3_strglob("*/", zName)==0 ){
+        zName = mprintf("%s%s", zName, azSuffix[nMiss]);
+        if( !file_is_simple_pathname(zName, 1) ){
+          goto doc_not_found;
+        }
+      }else{
         goto doc_not_found;
       }
-    }else{
-      goto doc_not_found;
     }
-  }
-  if( fossil_strcmp(zCheckin,"ckout")==0 && db_open_local(0)==0 ){
-    sqlite3_snprintf(sizeof(zCheckin), zCheckin, "tip");
-  }
-  if( fossil_strcmp(zCheckin,"ckout")==0 ){
-    /* Read from the local checkout */
-    char *zFullpath;
-    db_must_be_within_tree();
-    while( rid==0 && nMiss<2 ){
+    if( fossil_strcmp(zCheckin,"ckout")==0 ){
+      /* Read from the local checkout */
+      char *zFullpath;
+      db_must_be_within_tree();
       zFullpath = mprintf("%s/%s", g.zLocalRoot, zName);
       if( file_isfile(zFullpath)
-       && blob_read_from_file(&filebody, zFullpath)<0 ){
+       && blob_read_from_file(&filebody, zFullpath)>0 ){
         rid = 1;  /* Fake RID just to get the loop to end */
       }
       fossil_free(zFullpath);
-      if( rid ) break;
-      nMiss++;
-      zName = "404.md";
-    }
-  }else{
-    db_begin_transaction();
-    vid = name_to_typed_rid(zCheckin, "ci");
-    db_multi_exec(
-      "CREATE TABLE IF NOT EXISTS vcache(\n"
-      "  vid INTEGER,         -- checkin ID\n"
-      "  fname TEXT,          -- filename\n"
-      "  rid INTEGER,         -- artifact ID\n"
-      "  PRIMARY KEY(vid,fname)\n"
-      ") WITHOUT ROWID"
-    );
-    if( !db_exists("SELECT 1 FROM vcache WHERE vid=%d", vid) ){
+    }else{
+      db_begin_transaction();
+      vid = name_to_typed_rid(zCheckin, "ci");
       db_multi_exec(
-        "DELETE FROM vcache;\n"
-        "CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;\n"
-        "INSERT INTO vcache(vid,fname,rid)"
-        "  SELECT checkinID, filename, blob.rid FROM foci, blob"
-        "   WHERE blob.uuid=foci.uuid"
-        "     AND foci.checkinID=%d;",
-        vid
+        "CREATE TABLE IF NOT EXISTS vcache(\n"
+        "  vid INTEGER,         -- checkin ID\n"
+        "  fname TEXT,          -- filename\n"
+        "  rid INTEGER,         -- artifact ID\n"
+        "  PRIMARY KEY(vid,fname)\n"
+        ") WITHOUT ROWID"
       );
-    }
-    while( rid==0 && nMiss<2 ){
+      if( !db_exists("SELECT 1 FROM vcache WHERE vid=%d", vid) ){
+        db_multi_exec(
+          "DELETE FROM vcache;\n"
+          "CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;\n"
+          "INSERT INTO vcache(vid,fname,rid)"
+          "  SELECT checkinID, filename, blob.rid FROM foci, blob"
+          "   WHERE blob.uuid=foci.uuid"
+          "     AND foci.checkinID=%d;",
+          vid
+        );
+      }
       rid = db_int(0, "SELECT rid FROM vcache"
                       " WHERE vid=%d AND fname=%Q", vid, zName);
-      if( rid ) break;
       nMiss++;
-      zName = "404.md";
+      if( rid==0 || content_get(rid, &filebody)==0 ){
+        goto doc_not_found;
+      }
+      db_end_transaction(0);
     }
-    if( rid==0 || content_get(rid, &filebody)==0 ){
-      goto doc_not_found;
-    }
-    db_end_transaction(0);
   }
+  if( rid==0 ) goto doc_not_found;
   blob_to_utf8_no_bom(&filebody, 0);
 
   /* The file is now contained in the filebody blob.  Deliver the
