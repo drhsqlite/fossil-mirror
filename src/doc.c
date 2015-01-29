@@ -392,14 +392,14 @@ void doc_page(void){
   int rid = 0;                      /* Artifact of file */
   int i;                            /* Loop counter */
   Blob filebody;                    /* Content of the documentation file */
-  int nMiss = 0;                    /* Failed attempts to find the document */
+  int nMiss = (-1);                 /* Failed attempts to find the document */
   static const char *azSuffix[] = {
      "index.html", "index.wiki", "index.md"
   };
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
-  for(nMiss=0; rid==0 && nMiss<=ArraySize(azSuffix); nMiss++){
+  while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){
     zName = PD("name", "tip/index.wiki");
     for(i=0; zName[i] && zName[i]!='/'; i++){}
     zCheckin = mprintf("%.*s", i, zName);
@@ -409,6 +409,7 @@ void doc_page(void){
     if( nMiss==ArraySize(azSuffix) ){
       zName = "404.md";
     }else if( zName[i]==0 ){
+      assert( nMiss>=0 && nMiss<ArraySize(azSuffix) );
       zName = azSuffix[nMiss];
     }else{
       zName += i;
@@ -418,6 +419,7 @@ void doc_page(void){
     if( nMiss==0 ) zOrigName = zName;
     if( !file_is_simple_pathname(zName, 1) ){
       if( sqlite3_strglob("*/", zName)==0 ){
+        assert( nMiss>=0 && nMiss<ArraySize(azSuffix) );
         zName = mprintf("%s%s", zName, azSuffix[nMiss]);
         if( !file_is_simple_pathname(zName, 1) ){
           goto doc_not_found;
@@ -460,7 +462,6 @@ void doc_page(void){
       }
       rid = db_int(0, "SELECT rid FROM vcache"
                       " WHERE vid=%d AND fname=%Q", vid, zName);
-      nMiss++;
       if( rid==0 || content_get(rid, &filebody)==0 ){
         goto doc_not_found;
       }
@@ -500,7 +501,8 @@ void doc_page(void){
     if( blob_size(&title)>0 ){
       style_header("%s", blob_str(&title));
     }else{
-      style_header("%s", nMiss?"Not Found":"Documentation");
+      style_header("%s", nMiss>=ArraySize(azSuffix)?
+                        "Not Found" : "Documentation");
     }
     blob_append(cgi_output_blob(), blob_buffer(&tail), blob_size(&tail));
     style_footer();
@@ -521,7 +523,7 @@ void doc_page(void){
     cgi_set_content_type(zMime);
     cgi_set_content(&filebody);
   }
-  if( nMiss ) cgi_set_status(404, "Not Found");
+  if( nMiss>=ArraySize(azSuffix) ) cgi_set_status(404, "Not Found");
   return;
 
   /* Jump here when unable to locate the document */

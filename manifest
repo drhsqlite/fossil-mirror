@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarnings.
-D 2015-01-29T01:25:30.089
+C Fix\sthe\s/doc\spage\sso\sthat\sit\sreturns\sstatus\s200\s(not\s404)\safter\sappending\n"index.html"\sto\sthe\send\sof\sa\spage\sname.
+D 2015-01-29T01:48:22.652
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -369,7 +369,7 @@ F src/descendants.c 393ebd57f83ff9f2f87df9572430f399ecc95d47
 F src/diff.c 26603debe5f78ec79aa42349765441097ce3ff64
 F src/diff.tcl af32ef4670c331139b8e467286df687a3d136594
 F src/diffcmd.c 9391a8baf1927201f957d95c6a7d72bb2ff13cd3
-F src/doc.c e656298185b7c4a776ba12433df3bae38c4c15a4
+F src/doc.c d1ed1c0181afa8d9ec2e1ec17b015c98efed88c7
 F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 26fd16a9f3fe9f88edd233e39cf4051a0398eb29
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bdfbbddc8f170f406b30692d9780a368bf0efc10
-R 480bb4e4d2a2dd4367344fd3052da0fe
+P ef108998c4fb82665f2cacaf1bd03acdbcba3e6c
+R 92a07ca0b41f8fe2ec6f1e6588ef5b4e
 U drh
-Z 63305a1960cc3864eba7289296261608
+Z 2c44050fa765842355d3cfc1dfef5a00
