@@ -404,7 +404,7 @@ void doc_page(void){
   zOrigName = zName;
   if( !file_is_simple_pathname(zName, 1) ){
     if( sqlite3_strglob("*/", zName)==0 ){
-      zOrigName = zName = mprintf("%sindex.wiki", zName);
+      zOrigName = zName = mprintf("%sindex.html", zName);
       if( !file_is_simple_pathname(zName, 1) ){
         goto doc_not_found;
       }
