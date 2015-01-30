@@ -1199,7 +1199,7 @@ void db_open_repository(const char *zDbName){
     db_begin_transaction();
     db_multi_exec(
       "ALTER TABLE %s.mlink ADD COLUMN pmid INTEGER DEFAULT 0;"
-      "ALTER TABLE %s.mlink ADD COLUMN isaux INTEGER DEFAULT 0;",
+      "ALTER TABLE %s.mlink ADD COLUMN isaux BOOLEAN DEFAULT 0;",
       db_name("repository"), db_name("repository")
     );
     db_end_transaction(0);
