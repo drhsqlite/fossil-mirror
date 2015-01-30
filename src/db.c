@@ -1684,6 +1684,11 @@ void create_repository_cmd(void){
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
+ 
+  if( -1 != file_size(g.argv[2]) ){
+    fossil_fatal("file already exists: %s", g.argv[2]);
+  }
+
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
   db_open_config(0);
