@@ -1,5 +1,5 @@
-C Update\sSQLite\sto\sthe\s3.8.8.2\srelease
-D 2015-01-30T15:57:42.747
+C Correct\suser\stable\soutline\scolor\sin\sthe\s'eagle'\sskin.
+D 2015-01-30T19:25:34.040
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -317,7 +317,7 @@ F skins/black_and_white/header.txt 45bf325c3c68d5ad3c02074433edc708ecf005a9
 F skins/default/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
 F skins/default/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
 F skins/default/header.txt 3e621823aa73d698b5a6b0f45f5f04bfbcee51cf
-F skins/eagle/css.txt aebe3e46b55fdd6d77758c23d74d308ecebf15dd
+F skins/eagle/css.txt 63a1292dd002231bcebf7ee2884258b1dcdebab2
 F skins/eagle/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
 F skins/eagle/header.txt ea900408595fb1d7bdc4867f1293116c4e1978c9
 F skins/enhanced1/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ef3562a1169b4fda107ba2fbb16cdd0d4f012441
-R 11ed136231779d37c48e41fb2d3f9699
-U jan.nijtmans
-Z cdda7b6b1f81977b0b35107800edcff7
+P 703ec175b960e73c69bd037726abe93cb2edda16
+R 16e6dafc86a7de895adb95d331fd7fb6
+U mistachkin
+Z 1345e59820dd17cd7d1d4fc384d01723
