@@ -354,6 +354,42 @@ void mimetype_test_cmd(void){
 }
 
 /*
+** Look for a file named zName in the checkin with RID=vid.  Load the content
+** of that file into pContent and return the RID for the file.  Or return 0
+** if the file is not found or could not be loaded.
+*/
+int doc_load_content(int vid, const char *zName, Blob *pContent){
+  int rid;   /* The RID of the file being loaded */
+  if( !db_table_exists("repository","vcache") ){
+    db_multi_exec(
+      "CREATE TABLE IF NOT EXISTS vcache(\n"
+      "  vid INTEGER,         -- checkin ID\n"
+      "  fname TEXT,          -- filename\n"
+      "  rid INTEGER,         -- artifact ID\n"
+      "  PRIMARY KEY(vid,fname)\n"
+      ") WITHOUT ROWID"
+    );
+  }
+  if( !db_exists("SELECT 1 FROM vcache WHERE vid=%d", vid) ){
+    db_multi_exec(
+      "DELETE FROM vcache;\n"
+      "CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;\n"
+      "INSERT INTO vcache(vid,fname,rid)"
+      "  SELECT checkinID, filename, blob.rid FROM foci, blob"
+      "   WHERE blob.uuid=foci.uuid"
+      "     AND foci.checkinID=%d;",
+      vid
+    );
+  }
+  rid = db_int(0, "SELECT rid FROM vcache"
+                  " WHERE vid=%d AND fname=%Q", vid, zName);
+  if( rid && content_get(rid, pContent)==0 ){
+    rid = 0;
+  }
+  return rid;
+}
+
+/*
 ** WEBPAGE: doc
 ** URL: /doc?name=CHECKIN/FILE
 ** URL: /doc/CHECKIN/FILE
@@ -399,6 +435,7 @@ void doc_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
+  db_begin_transaction();
   while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){
     zName = PD("name", "tip/index.wiki");
     for(i=0; zName[i] && zName[i]!='/'; i++){}
@@ -439,33 +476,8 @@ void doc_page(void){
       }
       fossil_free(zFullpath);
     }else{
-      db_begin_transaction();
       vid = name_to_typed_rid(zCheckin, "ci");
-      db_multi_exec(
-        "CREATE TABLE IF NOT EXISTS vcache(\n"
-        "  vid INTEGER,         -- checkin ID\n"
-        "  fname TEXT,          -- filename\n"
-        "  rid INTEGER,         -- artifact ID\n"
-        "  PRIMARY KEY(vid,fname)\n"
-        ") WITHOUT ROWID"
-      );
-      if( !db_exists("SELECT 1 FROM vcache WHERE vid=%d", vid) ){
-        db_multi_exec(
-          "DELETE FROM vcache;\n"
-          "CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;\n"
-          "INSERT INTO vcache(vid,fname,rid)"
-          "  SELECT checkinID, filename, blob.rid FROM foci, blob"
-          "   WHERE blob.uuid=foci.uuid"
-          "     AND foci.checkinID=%d;",
-          vid
-        );
-      }
-      rid = db_int(0, "SELECT rid FROM vcache"
-                      " WHERE vid=%d AND fname=%Q", vid, zName);
-      if( rid==0 || content_get(rid, &filebody)==0 ){
-        goto doc_not_found;
-      }
-      db_end_transaction(0);
+      rid = doc_load_content(vid, zName, &filebody);
     }
   }
   if( rid==0 ) goto doc_not_found;
@@ -524,6 +536,7 @@ void doc_page(void){
     cgi_set_content(&filebody);
   }
   if( nMiss>=ArraySize(azSuffix) ) cgi_set_status(404, "Not Found");
+  db_end_transaction(0);
   return;
 
   /* Jump here when unable to locate the document */
@@ -536,6 +549,7 @@ doc_not_found:
     @ in %z(href("%R/tree?ci=%T",zCheckin))%h(zCheckin)</a>
   }
   style_footer();
+  db_end_transaction(0);
   return;
 }
 

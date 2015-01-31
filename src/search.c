@@ -565,3 +565,95 @@ void search_page(void){
   }
   style_footer();
 }
+
+
+/*
+** This is a helper function for search_stext().  Writing into pOut
+** the search text obtained from pIn according to zMimetype.
+*/
+static void get_stext_by_mimetype(
+  Blob *pIn,
+  const char *zMimetype,
+  Blob *pOut
+){
+  Blob html, title;
+  blob_init(&html, 0, 0);
+  blob_init(&title, 0, 0);
+  if( zMimetype==0 ) zMimetype = "text/plain";
+  if( fossil_strcmp(zMimetype,"text/x-fossil-wiki")==0 ){
+    wiki_convert(pIn, &html, 0);
+    html_to_plaintext(blob_str(&html), pOut);
+  }else if( fossil_strcmp(zMimetype,"text/x-markdown")==0 ){
+    markdown_to_html(pIn, &title, &html);
+    html_to_plaintext(blob_str(&html), pOut);
+  }else if( fossil_strcmp(zMimetype,"text/html")==0 ){
+    html_to_plaintext(blob_str(pIn), pOut);
+  }else{
+    *pOut = *pIn;
+    blob_init(pIn, 0, 0);
+  }
+  blob_reset(&html);
+  blob_reset(&title);
+}
+
+/*
+** Return "search text" - a reduced version of a document appropriate for
+** full text search and/or for constructing a search result snippet.
+**
+**    cType:            d      Embedded documentation
+**                      s      Source code listing
+**                      w      Wiki page
+**                      c      Check-in comment
+**                      t      Ticket text
+**                      e      Event/Blog text
+**                      k      Diff of a wiki
+**                      f      Diff of a checkin
+**
+**   zArg1, zArg2:      Description of the document, depending on cType.
+*/
+void search_stext(
+  char cType,            /* Type of document */
+  const char *zArg1,     /* First parameter */
+  const char *zArg2,     /* Second parameter */
+  Blob *pOut             /* OUT: Initialize to the search text */
+){
+  blob_init(pOut, 0, 0);
+  switch( cType ){
+    case 'd':     /* Doc.     zArg1: RID of the file.  zArg2: Filename */
+    case 's': {   /* Source.  zArg1: RID of the file.  zArg2: Filename */
+      int rid = atoi(zArg1);
+      Blob doc;
+      content_get(rid, &doc);
+      blob_to_utf8_no_bom(&doc, 0);
+      get_stext_by_mimetype(&doc, mimetype_from_name(zArg2), pOut);
+      blob_reset(&doc);
+      break;
+    }
+    case 'w': {   /* Wiki.    zArg1: RID of the page.  zArg2: Page name */
+      int rid = atoi(zArg1);
+      Manifest *pWiki = manifest_get(rid, CFTYPE_WIKI,0);
+      Blob wiki;
+      if( pWiki==0 ) break;
+      blob_init(&wiki, pWiki->zWiki, -1);
+      get_stext_by_mimetype(&wiki, wiki_filter_mimetypes(pWiki->zMimetype),
+                            pOut);
+      blob_reset(&wiki);
+      manifest_destroy(pWiki);
+      break;
+    }
+  }
+}
+
+/*
+** COMMAND: test-search-stext
+**
+** Usage: fossil test-search-stext TYPE ARG1 ARG2
+*/
+void test_search_stext(void){
+  Blob out;
+  db_find_and_open_repository(0,0);
+  if( g.argc!=5 ) usage("TYPE ARG1 ARG2");
+  search_stext(g.argv[2][0], g.argv[3], g.argv[4], &out);
+  fossil_print("%s",blob_str(&out));
+  blob_reset(&out);
+}
