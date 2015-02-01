@@ -415,6 +415,36 @@ static void search_score_sqlfunc(
 }
 
 /*
+** This is an SQLite function that computes the searchable text.
+** It is a wrapper around the search_stext() routine.  See the 
+** search_stext() routine for further detail.
+*/
+static void search_stext_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  Blob txt;
+  const char *zType = (const char*)sqlite3_value_text(argv[0]);
+  const char *zArg1 = (const char*)sqlite3_value_text(argv[1]);
+  const char *zArg2 = (const char*)sqlite3_value_text(argv[2]);
+  search_stext(zType[0], zArg1, zArg2, &txt);
+  sqlite3_result_text(context, blob_materialize(&txt), -1, fossil_free);
+}
+
+/*
+** Encode a string for use as a query parameter in a URL
+*/
+static void search_urlencode_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  char *z = mprintf("%T",sqlite3_value_text(argv[0]));
+  sqlite3_result_text(context, z, -1, fossil_free);
+}
+
+/*
 ** Register the "score()" SQL function to score its input text
 ** using the given Search object.  Once this function is registered,
 ** do not delete the Search object.
@@ -426,6 +456,10 @@ void search_sql_setup(sqlite3 *db){
      search_score_sqlfunc, 0, 0);
   sqlite3_create_function(db, "search_init", -1, SQLITE_UTF8, 0,
      search_init_sqlfunc, 0, 0);
+  sqlite3_create_function(db, "stext", 3, SQLITE_UTF8, 0,
+     search_stext_sqlfunc, 0, 0);
+  sqlite3_create_function(db, "urlencode", 1, SQLITE_UTF8, 0,
+     search_urlencode_sqlfunc, 0, 0);
 }
 
 /*
@@ -524,6 +558,7 @@ void search_cmd(void){
 void search_page(void){
   const char *zPattern = PD("s","");
   Stmt q;
+  const char *zSrchEnable = "dwc";
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -539,26 +574,68 @@ void search_page(void){
     search_init(zPattern, "<b>", "</b>", " ... ",
             SRCHFLG_STATIC|SRCHFLG_HTML|SRCHFLG_SCORE);
     db_multi_exec(
-      "CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;"
-      "CREATE TEMP TABLE x(fn TEXT,url TEXT,snip TEXT);"
-      "INSERT INTO x(fn,url,snip)"
-      "  SELECT filename, printf('%R/doc/trunk/%%s',filename),"
-      "         snippet(content(uuid))"
-      "    FROM foci"
-      "   WHERE checkinID=symbolic_name_to_rid('trunk')"
-      "     AND (filename GLOB '*.wiki' OR"
-      "          filename GLOB '*.md' OR"
-      "          filename GLOB '*.txt' OR"
-      "          filename GLOB '*.html');"
+      "CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;"
+      "CREATE TEMP TABLE x(label TEXT,url TEXT,date TEXT,snip TEXT);"
     );
-    db_prepare(&q, "SELECT url, substr(snip,8)"
+    if( strchr(zSrchEnable, 'd') ){
+      db_multi_exec(
+        "INSERT INTO x(label,url,date,snip)"
+        "  SELECT printf('Document: %%s',foci.filename),"
+        "         printf('%R/doc/trunk/%%s',foci.filename),"
+        "         (SELECT datetime(event.mtime) FROM event"
+        "            WHERE objid=symbolic_name_to_rid('trunk')),"
+        "         snippet(stext('d',blob.rid,foci.filename))"
+        "    FROM foci CROSS JOIN blob"
+        "   WHERE checkinID=symbolic_name_to_rid('trunk')"
+        "     AND blob.uuid=foci.uuid"
+        "     AND (filename GLOB '*.wiki' OR"
+        "          filename GLOB '*.md' OR"
+        "          filename GLOB '*.txt' OR"
+        "          filename GLOB '*.html');"
+      );
+    }
+    if( strchr(zSrchEnable, 'w') ){
+      db_multi_exec(
+        "WITH wiki(name,rid,mtime) AS ("
+        "  SELECT substr(tagname,6), tagxref.rid, max(tagxref.mtime)"
+        "    FROM tag, tagxref"
+        "   WHERE tag.tagname GLOB 'wiki-*'"
+        "     AND tagxref.tagid=tag.tagid"
+        "   GROUP BY 1"
+        ")"
+        "INSERT INTO x(label,url,date,snip)"
+        "  SELECT printf('Wiki: %%s',name),"
+        "         printf('%R/wiki?name=%%s',urlencode(name)),"
+        "         datetime(mtime),"
+        "         snippet(stext('w',rid,name))"
+        "    FROM wiki;"
+      );
+    }
+    if( strchr(zSrchEnable, 'c') ){
+      db_multi_exec(
+        "WITH ckin(uuid,rid,mtime) AS ("
+        "  SELECT blob.uuid, event.objid, event.mtime"
+        "    FROM event, blob"
+        "   WHERE event.type='ci'"
+        "     AND blob.rid=event.objid"
+        ")"
+        "INSERT INTO x(label,url,date,snip)"
+        "  SELECT printf('Check-in [%%.10s] on %%s',uuid,datetime(mtime)),"
+        "         printf('%R/timeline?c=%%s&n=8&y=ci',uuid),"
+        "         datetime(mtime),"
+        "         snippet(stext('c',rid,NULL))"
+        "    FROM ckin;"
+      );
+    }
+    db_prepare(&q, "SELECT url, substr(snip,9), label"
                    "   FROM x WHERE snip IS NOT NULL"
-                   " ORDER BY substr(snip,1,8) DESC, fn;");
+                   " ORDER BY substr(snip,1,9) DESC, date DESC;");
     @ <ol>
     while( db_step(&q)==SQLITE_ROW ){
       const char *zUrl = db_column_text(&q, 0);
       const char *zSnippet = db_column_text(&q, 1);
-      @ <li><p>%s(href("%s",zUrl))%h(zUrl)</a><br>%s(zSnippet)</li>
+      const char *zLabel = db_column_text(&q, 2);
+      @ <li><p>%s(href("%s",zUrl))%h(zLabel)</a><br>%s(zSnippet)</li>
     }
     db_finalize(&q);
     @ </ol>
@@ -641,8 +718,67 @@ void search_stext(
       manifest_destroy(pWiki);
       break;
     }
+    case 'c': {   /* Ckeckin:  zArg1: RID of the checkin.  zArg2: Not used */
+      int rid = atoi(zArg1);
+      static Stmt q;
+      db_static_prepare(&q,
+         "SELECT coalesce(ecomment,comment)"
+         "  ||' (user: '||coalesce(euser,user,'?')"
+         "  ||', tags: '||"
+         "  (SELECT group_concat(substr(tag.tagname,5),',')"
+         "     FROM tag, tagxref"
+         "    WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
+         "      AND tagxref.rid=event.objid AND tagxref.tagtype>0)"
+         "  ||')'"
+         "  FROM event WHERE objid=:x AND type='ci'");
+      db_bind_int(&q, ":x", rid);
+      if( db_step(&q)==SQLITE_ROW ){
+        db_column_blob(&q, 0, pOut);
+        blob_append(pOut, "\n", 1);
+      }
+      db_reset(&q);
+      break;
+    }
   }
 }
+
+/*
+** The arguments cType,zArg1,zArg2 define an object that can be searched
+** for.  Return a URL (relative to the root of the Fossil project) that
+** will jump to that document.  
+**
+** Space to hold the returned string is obtained from mprintf() and should
+** be freed by the caller using fossil_free() or the equivalent.
+*/
+char *search_url(
+  char cType,            /* Type of document */
+  const char *zArg1,     /* First parameter */
+  const char *zArg2      /* Second parameter */
+){
+  char *zUrl = 0;
+  switch( cType ){
+    case 'd': {   /* Doc.     zArg1: RID of the file.  zArg2: Filename */
+    case 's':     /* Source.  zArg1: RID of the file.  zArg2: Filename */
+      zUrl = db_text(0,
+         "SELECT printf('/doc/%%s%%s', substr(blob.uuid,20), %Q)"
+         "  FROM mlink, blob"
+         " WHERE mlink.fid=%d AND mlink.mid=blob.rid",
+         zArg2, atoi(zArg1));
+      break;
+    }
+    case 'w': {   /* Wiki.    zArg1: RID of the page.  zArg2: Page name */
+      char *zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d",atoi(zArg1));
+      zUrl = mprintf("/wiki?id=%z&name=%t", zId, zArg2);
+      break;
+    }     
+    case 'c': {   /* Ckeckin:  zArg1: RID of the checkin.  zArg2: Not used */
+      char *zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d",atoi(zArg1));
+      zUrl = mprintf("/info/%z", zId);
+      break;
+    }
+  }
+  return zUrl;
+}	
 
 /*
 ** COMMAND: test-search-stext
@@ -651,9 +787,11 @@ void search_stext(
 */
 void test_search_stext(void){
   Blob out;
+  char *zUrl;
   db_find_and_open_repository(0,0);
   if( g.argc!=5 ) usage("TYPE ARG1 ARG2");
   search_stext(g.argv[2][0], g.argv[3], g.argv[4], &out);
-  fossil_print("%s",blob_str(&out));
+  zUrl = search_url(g.argv[2][0], g.argv[3], g.argv[4]);
+  fossil_print("%s\n%z\n",blob_str(&out),zUrl);
   blob_reset(&out);
 }

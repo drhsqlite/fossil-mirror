@@ -266,13 +266,16 @@ void wiki_page(void){
     zMimetype = db_get("sandbox-mimetype","text/x-fossil-wiki");
     rid = 0;
   }else{
-    zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0,
-      "SELECT rid FROM tagxref"
-      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
-      " ORDER BY mtime DESC", zTag
-    );
-    free(zTag);
+    const char *zUuid = P("id");
+    if( zUuid==0 || (rid = symbolic_name_to_rid(zUuid,"w"))==0 ){
+      zTag = mprintf("wiki-%s", zPageName);
+      rid = db_int(0,
+        "SELECT rid FROM tagxref"
+        " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+        " ORDER BY mtime DESC", zTag
+      );
+      free(zTag);
+    }
     pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
     if( pWiki ){
       zBody = pWiki->zWiki;

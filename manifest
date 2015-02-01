@@ -1,5 +1,5 @@
-C Initial\swork\son\sthe\ssearch_stext()\sfunction\sused\sto\sextract\ssearchable\ntext\sfrom\sformatted\sfiles.
-D 2015-01-31T22:13:39.480
+C The\s/search\spage\snow\scovers\swiki\sand\scheck-in\scomments.\s\sAnd\sthe\sformatting\nof\ssnippets\sis\simproved.\s\sThe\ssearch\sis\sstill\sdone\sby\sfull-scan\sbut\sthe\ninfrastructure\sis\scoming\sinto\splace\sto\shandle\sthe\ssearch\susing\san\sindex.
+D 2015-02-01T00:15:39.049
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -436,7 +436,7 @@ F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c fc8913ece84d192f7af01681a13c72435dd1eb3f
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
 F src/schema.c 4cf219c92277e2df277f0f8e8be4eccc1e47ed53
-F src/search.c d334261ee3c8a5c7d925fc03389e321d50196464
+F src/search.c 83a2aaa95fb3ece852e6ab30a65ca6e71e2d55b1
 F src/setup.c 48381b94c89b0f0a2419067049867245ac2d09bf
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c 66986a98df6556f8de10d137f53a270f34ef1252
@@ -471,7 +471,7 @@ F src/utf8.c cb3a7d214d1eea0919fc68b0683388d1cf61c78b
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c 448fd883b6f413118a1d69bf6eab19d8bb132e46
-F src/wiki.c 1c5f65f8fc5f667ae57fe631a4690b0fa102f844
+F src/wiki.c 5aeb14145cfb7f5d32b5909a2bbce0bc812eca72
 F src/wikiformat.c 0c545ab5578a342e578e754d4099594d451aa4ed
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c 55e7d4f21887561faea665fc3f6c15e5f511792e
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cbd8e67f73306549c85a79603c6d8fc1ba1ac4ea
-R 210520971dd22d9b3bd75b7744d7511d
+P 48e1e18304a2ec18173e4985977a28f7b0a87c5f
+R 026e8ec3f0d05fe311973ca60323cf80
 U drh
-Z 2992bf1971efb1c11af319914e062e6c
+Z c58bf13877a354cddc81ea93f987e8a9
