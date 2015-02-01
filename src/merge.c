@@ -43,7 +43,7 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
     }else{
       zCom = mprintf("%s", db_column_text(&q,2));
     }
-    fossil_print("%-*s [%S] by %s on %s\n%*s", 
+    fossil_print("%-*s [%S] by %s on %s\n%*s",
        indent-1, zLabel,
        db_column_text(&q, 3),
        db_column_text(&q, 1),
@@ -168,7 +168,7 @@ void merge_cmd(void){
     ** leaf that is (1) not the version currently checked out and (2)
     ** has not already been merged into the current checkout and (3)
     ** the leaf is not closed and (4) the leaf is in the same branch
-    ** as the current checkout. 
+    ** as the current checkout.
     */
     Stmt q;
     if( pickFlag || backoutFlag || integrateFlag){
@@ -474,9 +474,9 @@ void merge_cmd(void){
     }
   }
   db_finalize(&q);
-  
+
   /*
-  ** Find files that have changed from P->M but not P->V. 
+  ** Find files that have changed from P->M but not P->V.
   ** Copy the M content over into V.
   */
   db_prepare(&q,
@@ -526,14 +526,14 @@ void merge_cmd(void){
     Blob m, p, r;
     /* Do a 3-way merge of idp->idm into idp->idv.  The results go into idv. */
     if( verboseFlag ){
-      fossil_print("MERGE %s  (pivot=%d v1=%d v2=%d)\n", 
+      fossil_print("MERGE %s  (pivot=%d v1=%d v2=%d)\n",
                    zName, ridp, ridm, ridv);
     }else{
       fossil_print("MERGE %s\n", zName);
     }
     if( islinkv || islinkm /* || file_wd_islink(zFullPath) */ ){
       fossil_print("***** Cannot merge symlink %s\n", zName);
-      nConflict++;        
+      nConflict++;
     }else{
       undo_save(zName);
       zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);

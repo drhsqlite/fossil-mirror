@@ -200,9 +200,6 @@ void info_cmd(void){
     verboseFlag = find_option("detail","l",0)!=0; /* deprecated */
   }
 
-  /* We should be done with options.. */
-  verify_all_options();
-
   if( g.argc==3 && (fsize = file_size(g.argv[2]))>0 && (fsize&0x1ff)==0 ){
     db_open_config(0);
     db_open_repository(g.argv[2]);
@@ -213,6 +210,7 @@ void info_cmd(void){
     return;
   }
   db_find_and_open_repository(0,0);
+  verify_all_options();
   if( g.argc==2 ){
     int vid;
          /* 012345678901234 */
@@ -718,7 +716,7 @@ void ci_page(void){
     "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
     "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
     "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
-    " WHERE mlink.mid=%d"
+    " WHERE mlink.mid=%d AND NOT mlink.isaux"
     "   AND (mlink.fid>0"
            " OR mlink.fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=%d))"
     " ORDER BY name /*sort*/",

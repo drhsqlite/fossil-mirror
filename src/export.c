@@ -106,14 +106,14 @@ static void print_person(const char *zUser){
 **
 ** Write an export of all check-ins to standard output.  The export is
 ** written in the git-fast-export file format assuming the --git option is
-** provided.  The git-fast-export format is currently the only VCS 
+** provided.  The git-fast-export format is currently the only VCS
 ** interchange format supported, though other formats may be added in
 ** the future.
 **
 ** Run this command within a checkout.  Or use the -R or --repository
 ** option to specify a Fossil repository to be exported.
 **
-** Only check-ins are exported using --git.  Git does not support tickets 
+** Only check-ins are exported using --git.  Git does not support tickets
 ** or wiki or events or attachments, so none of those are exported.
 **
 ** If the "--import-marks FILE" option is used, it contains a list of
@@ -126,7 +126,7 @@ static void print_person(const char *zUser){
 **   --export-marks FILE          export rids of exported data to FILE
 **   --import-marks FILE          read rids of data to ignore from FILE
 **   --repository|-R REPOSITORY   export the given REPOSITORY
-**   
+**
 ** See also: import
 */
 void export_cmd(void){
@@ -181,7 +181,7 @@ void export_cmd(void){
   }
 
   /* Step 1:  Generate "blob" records for every artifact that is part
-  ** of a check-in 
+  ** of a check-in
   */
   fossil_binary_mode(stdout);
   db_multi_exec("CREATE TEMP TABLE newblob(rid INTEGER KEY, srcid INTEGER)");

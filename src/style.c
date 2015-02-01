@@ -48,6 +48,11 @@ static int headerHasBeenGenerated = 0;
 */
 static int sideboxUsed = 0;
 
+/*
+** Ad-unit styles.
+*/
+static unsigned adUnitFlags = 0;
+
 
 /*
 ** List of hyperlinks and forms that need to be resolved by javascript in
@@ -286,7 +291,8 @@ static void image_url_var(const char *zImageName){
 void style_header(const char *zTitleFormat, ...){
   va_list ap;
   char *zTitle;
-  const char *zHeader = db_get("header", (char*)zDefaultHeader);
+  const char *zHeader = db_get("header", 0);
+  if( zHeader==0 ) zHeader = builtin_text("skins/default/header.txt");
   login_check_credentials();
 
   va_start(ap, zTitleFormat);
@@ -346,22 +352,50 @@ void style_header(const char *zTitleFormat, ...){
   @ </script>
 }
 
+#if INTERFACE
+/* Allowed parameters for style_adunit() */
+#define ADUNIT_OFF        0x0001       /* Do not allow ads on this page */
+#define ADUNIT_RIGHT_OK   0x0002       /* Right-side vertical ads ok here */
+#endif
+
 /*
-** Append ad unit text if appropriate.
+** Various page implementations can invoke this interface to let the
+** style manager know what kinds of ads are appropriate for this page.
 */
-static void style_ad_unit(void){
-  const char *zAd;
+void style_adunit_config(unsigned int mFlags){
+  adUnitFlags = mFlags;
+}
+
+/*
+** Return the text of an ad-unit, if one should be rendered.  Return
+** NULL if no ad-unit is desired.
+**
+** The *pAdFlag value might be set to ADUNIT_RIGHT_OK if this is
+** a right-hand vertical ad.
+*/
+static const char *style_adunit_text(unsigned int *pAdFlag){
+  const char *zAd = 0;
+  *pAdFlag = 0;
+  if( adUnitFlags & ADUNIT_OFF ) return 0;  /* Disallow ads on this page */
   if( g.perm.Admin && db_get_boolean("adunit-omit-if-admin",0) ){
-    return;
+    return 0;
   }
   if( !login_is_nobody()
    && fossil_strcmp(g.zLogin,"anonymous")!=0
    && db_get_boolean("adunit-omit-if-user",0)
   ){
-    return;
+    return 0;
   }
-  zAd = db_get("adunit", 0);
-  if( zAd ) cgi_append_content(zAd, -1);
+  if( (adUnitFlags & ADUNIT_RIGHT_OK)!=0
+   && !fossil_all_whitespace(zAd = db_get("adunit-right", 0))
+   && !cgi_body_contains("<table")
+  ){
+    *pAdFlag = ADUNIT_RIGHT_OK;
+    return zAd;
+  }else if( !fossil_all_whitespace(zAd = db_get("adunit",0)) ){
+    return zAd;
+  }
+  return 0;
 }
 
 /*
@@ -369,6 +403,8 @@ static void style_ad_unit(void){
 */
 void style_footer(void){
   const char *zFooter;
+  const char *zAd = 0;
+  unsigned int mAdFlags = 0;
 
   if( !headerHasBeenGenerated ) return;
 
@@ -391,8 +427,21 @@ void style_footer(void){
     }
     @ </div>
   }
-  style_ad_unit();
-  @ <div class="content">
+
+  zAd = style_adunit_text(&mAdFlags);
+  if( (mAdFlags & ADUNIT_RIGHT_OK)!=0  ){
+    @ <div class="content adunit_right_container">
+    @ <div class="adunit_right">
+    cgi_append_content(zAd, -1);
+    @ </div>
+  }else{
+    if( zAd ){
+      @ <div class="adunit_banner">
+      cgi_append_content(zAd, -1);
+      @ </div>
+    }
+    @ <div class="content">
+  }
   cgi_destination(CGI_BODY);
 
   if( sideboxUsed ){
@@ -408,7 +457,8 @@ void style_footer(void){
   ** the footer will be generating </html> */
   style_resolve_href();
 
-  zFooter = db_get("footer", (char*)zDefaultFooter);
+  zFooter = db_get("footer", 0);
+  if( zFooter==0 ) zFooter = builtin_text("skins/default/footer.txt");
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
   if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
@@ -438,226 +488,6 @@ void style_sidebox_end(void){
   @ </div>
 }
 
-/* @-comment: // */
-/*
-** The default page header.
-*/
-const char zDefaultHeader[] =
-@ <html>
-@ <head>
-@ <base href="$baseurl/$current_page" />
-@ <title>$<project_name>: $<title></title>
-@ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-@       href="$home/timeline.rss" />
-@ <link rel="stylesheet" href="$stylesheet_url" type="text/css"
-@       media="screen" />
-@ </head>
-@ <body>
-@ <div class="header">
-@   <div class="logo">
-@     <img src="$logo_image_url" alt="logo" />
-@   </div>
-@   <div class="title"><small>$<project_name></small><br />$<title></div>
-@   <div class="status"><th1>
-@      if {[info exists login]} {
-@        puts "Logged in as $login"
-@      } else {
-@        puts "Not logged in"
-@      }
-@   </th1></div>
-@ </div>
-@ <div class="mainmenu">
-@ <th1>
-@ html "<a href='$home$index_page'>Home</a>\n"
-@ if {[anycap jor]} {
-@   html "<a href='$home/timeline'>Timeline</a>\n"
-@ }
-@ if {[hascap oh]} {
-@   html "<a href='$home/tree?ci=tip'>Files</a>\n"
-@ }
-@ if {[hascap o]} {
-@   html "<a href='$home/brlist'>Branches</a>\n"
-@   html "<a href='$home/taglist'>Tags</a>\n"
-@ }
-@ if {[hascap r]} {
-@   html "<a href='$home/reportlist'>Tickets</a>\n"
-@ }
-@ if {[hascap j]} {
-@   html "<a href='$home/wiki'>Wiki</a>\n"
-@ }
-@ if {[hascap s]} {
-@   html "<a href='$home/setup'>Admin</a>\n"
-@ } elseif {[hascap a]} {
-@   html "<a href='$home/setup_ulist'>Users</a>\n"
-@ }
-@ if {[info exists login]} {
-@   html "<a href='$home/login'>Logout</a>\n"
-@ } else {
-@   html "<a href='$home/login'>Login</a>\n"
-@ }
-@ </th1></div>
-;
-
-/*
-** The default page footer
-*/
-const char zDefaultFooter[] =
-@ <div class="footer">
-@ This page was generated in about
-@ <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s by
-@ Fossil version $manifest_version $manifest_date
-@ </div>
-@ </body></html>
-;
-
-/*
-** The default Cascading Style Sheet.
-** It's assembled by different strings for each class.
-** The default css contains all definitions.
-** The style sheet, send to the client only contains the ones,
-** not defined in the user defined css.
-*/
-const char zDefaultCSS[] =
-@ /* General settings for the entire page */
-@ body {
-@   margin: 0ex 1ex;
-@   padding: 0px;
-@   background-color: white;
-@   font-family: sans-serif;
-@ }
-@
-@ /* The project logo in the upper left-hand corner of each page */
-@ div.logo {
-@   display: table-cell;
-@   text-align: center;
-@   vertical-align: bottom;
-@   font-weight: bold;
-@   color: #558195;
-@   min-width: 200px;
-@   white-space: nowrap;
-@ }
-@
-@ /* The page title centered at the top of each page */
-@ div.title {
-@   display: table-cell;
-@   font-size: 2em;
-@   font-weight: bold;
-@   text-align: center;
-@   padding: 0 0 0 1em;
-@   color: #558195;
-@   vertical-align: bottom;
-@   width: 100%;
-@ }
-@
-@ /* The login status message in the top right-hand corner */
-@ div.status {
-@   display: table-cell;
-@   text-align: right;
-@   vertical-align: bottom;
-@   color: #558195;
-@   font-size: 0.8em;
-@   font-weight: bold;
-@   min-width: 200px;
-@   white-space: nowrap;
-@ }
-@
-@ /* The header across the top of the page */
-@ div.header {
-@   display: table;
-@   width: 100%;
-@ }
-@
-@ /* The main menu bar that appears at the top of the page beneath
-@ ** the header */
-@ div.mainmenu {
-@   padding: 5px 10px 5px 10px;
-@   font-size: 0.9em;
-@   font-weight: bold;
-@   text-align: center;
-@   letter-spacing: 1px;
-@   background-color: #558195;
-@   border-top-left-radius: 8px;
-@   border-top-right-radius: 8px;
-@   color: white;
-@ }
-@
-@ /* The submenu bar that *sometimes* appears below the main menu */
-@ div.submenu, div.sectionmenu {
-@   padding: 3px 10px 3px 0px;
-@   font-size: 0.9em;
-@   text-align: center;
-@   background-color: #456878;
-@   color: white;
-@ }
-@ div.mainmenu a, div.mainmenu a:visited, div.submenu a, div.submenu a:visited,
-@ div.sectionmenu>a.button:link, div.sectionmenu>a.button:visited {
-@   padding: 3px 10px 3px 10px;
-@   color: white;
-@   text-decoration: none;
-@ }
-@ div.mainmenu a:hover, div.submenu a:hover, div.sectionmenu>a.button:hover {
-@   color: #558195;
-@   background-color: white;
-@ }
-@
-@ /* All page content from the bottom of the menu or submenu down to
-@ ** the footer */
-@ div.content {
-@   padding: 0ex 1ex 1ex 1ex;
-@   border: solid #aaa;
-@   border-width: 1px;
-@ }
-@
-@ /* Some pages have section dividers */
-@ div.section {
-@   margin-bottom: 0px;
-@   margin-top: 1em;
-@   padding: 1px 1px 1px 1px;
-@   font-size: 1.2em;
-@   font-weight: bold;
-@   background-color: #558195;
-@   color: white;
-@   white-space: nowrap;
-@ }
-@
-@ /* The "Date" that occurs on the left hand side of timelines */
-@ div.divider {
-@   background: #a1c4d4;
-@   border: 2px #558195 solid;
-@   font-size: 1em; font-weight: normal;
-@   padding: .25em;
-@   margin: .2em 0 .2em 0;
-@   float: left;
-@   clear: left;
-@   white-space: nowrap;
-@ }
-@
-@ /* The footer at the very bottom of the page */
-@ div.footer {
-@   clear: both;
-@   font-size: 0.8em;
-@   padding: 5px 10px 5px 10px;
-@   text-align: right;
-@   background-color: #558195;
-@   border-bottom-left-radius: 8px;
-@   border-bottom-right-radius: 8px;
-@   color: white;
-@ }
-@
-@ /* Hyperlink colors in the footer */
-@ div.footer a { color: white; }
-@ div.footer a:link { color: white; }
-@ div.footer a:visited { color: white; }
-@ div.footer a:hover { background-color: white; color: #558195; }
-@
-@ /* verbatim blocks */
-@ pre.verbatim {
-@   background-color: #f5f5f5;
-@   padding: 0.5em;
-@   white-space: pre-wrap;
-@}
-;
-
 
 /* The following table contains bits of default CSS that must
 ** be included if they are not found in the application-defined
@@ -668,10 +498,6 @@ const struct strctCssDefaults {
   const char *comment;       /* Comment text */
   const char *value;         /* CSS text */
 } cssDefaultList[] = {
-  { "",
-    "",
-    zDefaultCSS
-  },
   { "div.sidebox",
     "The nomenclature sidebox for branches,..",
     @   float: right;
@@ -1272,6 +1098,35 @@ const struct strctCssDefaults {
     @ word-wrap: break-word;
     @ max-width: 50%;
   },
+  { ".brlist table",  "The list of branches",
+    @ border-spacing: 0;
+  },
+  { ".brlist table th",  "Branch list table headers",
+    @ text-align: left;
+    @ padding: 0px 1em 0.5ex 0px;
+  },
+  { ".brlist table td",  "Branch list table headers",
+    @ padding: 0px 2em 0px 0px;
+    @ white-space: nowrap;
+  },
+  { "th.sort:after",
+    "General styles for sortable column marker",
+    @ margin-left: .4em;
+    @ cursor: pointer;
+    @ text-shadow: 0 0 0 #000; /* Makes arrow darker */
+  },
+  { "th.sort.none:after",
+    "None sort column marker",
+    @ content: '\2666';
+  },
+  { "th.sort.asc:after",
+    "Ascending sort column marker",
+    @ content: '\2193';
+  },
+  { "th.sort.desc:after",
+    "Descending sort column marker",
+    @ content: '\2191';
+  },
   { 0,
     0,
     0
@@ -1284,15 +1139,12 @@ const struct strctCssDefaults {
 void cgi_append_default_css(void) {
   int i;
 
+  cgi_printf("%s", builtin_text("skins/default/css.txt"));
   for( i=0; cssDefaultList[i].elementClass; i++ ){
     if( cssDefaultList[i].elementClass[0] ){
       cgi_printf("/* %s */\n%s {\n%s\n}\n\n",
                  cssDefaultList[i].comment,
                  cssDefaultList[i].elementClass,
-                 cssDefaultList[i].value
-                );
-    }else{
-      cgi_printf("%s",
                  cssDefaultList[i].value
                 );
     }
@@ -1307,7 +1159,7 @@ void page_style_css(void){
   int i;
 
   cgi_set_content_type("text/css");
-  blob_init(&css, db_get("css",(char*)zDefaultCSS), -1);
+  blob_init(&css, db_get("css",(char*)builtin_text("skins/default/css.txt")), -1);
 
   /* add special missing definitions */
   for(i=1; cssDefaultList[i].elementClass; i++){

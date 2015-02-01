@@ -68,7 +68,7 @@ fully.</p>
 
 <p>The segment-list of a delta describes how to create the target from
 the original by a combination of inserting literal byte-sequences and
-copying ranges of bytes from the original. This is there the
+copying ranges of bytes from the original. This is where the
 compression takes place, by encoding the large common parts of
 original and target in small copy instructions.</p>
 
@@ -215,7 +215,7 @@ bluepeak:(761) ~/Projects/Tcl/Fossil/Devel/devel > diff -u ../DELTA/old ../DELTA
 </li>
 <li>Binary files generate a delta that may contain some binary data.
 </li>
-<li>The delta encoding does not attempt to compress the content
+<li>The delta encoding does not attempt to compress the content.
 It was considered to be much
 more sensible to do compression using a separate general-purpose
 compression library, like <a href="http://www.zlib.net">zlib</a>.

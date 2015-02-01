@@ -153,7 +153,7 @@ void setup_ulist(void){
      " UNION ALL "
      "SELECT uid, login, cap, info, 2 FROM user"
      " WHERE login NOT IN ('anonymous','nobody','developer','reader') "
-     "ORDER BY 5, 2"
+     "ORDER BY 5, 2 COLLATE nocase"
   );
   while( db_step(&s)==SQLITE_ROW ){
     int iLevel = db_column_int(&s, 4);
@@ -815,13 +815,9 @@ void user_edit(void){
   @ No login is required for user <span class="usertype">nobody</span>. The
   @ capabilities of the <span class="usertype">nobody</span> user are
   @ inherited by all users, regardless of whether or not they are logged in.
-  @ To disable universal access to the repository, make sure no user named
-  @ <span class="usertype">nobody</span> exists or that the
+  @ To disable universal access to the repository, make sure that the
   @ <span class="usertype">nobody</span> user has no capabilities
   @ enabled. The password for <span class="usertype">nobody</span> is ignored.
-  @ To avoid problems with spiders overloading the server, it is recommended
-  @ that the <span class="capability">h</span> (Hyperlinks) capability be
-  @ turned off for the <span class="usertype">nobody</span> user.
   @ </p></li>
   @
   @ <li><p>
@@ -997,7 +993,7 @@ void setup_access(void){
   onoff_attribute("Redirect to HTTPS on the Login page",
      "redirect-to-https", "redirhttps", 0, 0);
   @ <p>When selected, force the use of HTTPS for the Login page.
-  @ <p>Details:  When enabled, this option causes the $secureurl TH1 
+  @ <p>Details:  When enabled, this option causes the $secureurl TH1
   @ variable is set to an "https:" variant of $baseurl.  Otherwise,
   @ $secureurl is just an alias for $baseurl.  Also when enabled, the
   @ Login page redirects to https if accessed via http.
@@ -1527,12 +1523,13 @@ void setup_editcss(void){
   db_begin_transaction();
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name='css'");
-    cgi_replace_parameter("css", zDefaultCSS);
+    cgi_replace_parameter("css", builtin_text("skins/default/css.txt"));
     db_end_transaction(0);
     cgi_redirect("setup_editcss");
   }
   if( P("submit")!=0 ){
-    textarea_attribute(0, 0, 0, "css", "css", zDefaultCSS, 0);
+    textarea_attribute(0, 0, 0, "css", "css",
+                       builtin_text("skins/default/css.txt"), 0);
     db_end_transaction(0);
     cgi_redirect("setup_editcss");
   }
@@ -1540,7 +1537,8 @@ void setup_editcss(void){
   @ <form action="%s(g.zTop)/setup_editcss" method="post"><div>
   login_insert_csrf_secret();
   @ Edit the CSS below:<br />
-  textarea_attribute("", 35, 80, "css", "css", zDefaultCSS, 0);
+  textarea_attribute("", 35, 80, "css", "css",
+                     builtin_text("skins/default/css.txt"), 0);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -1570,11 +1568,13 @@ void setup_header(void){
   db_begin_transaction();
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name='header'");
-    cgi_replace_parameter("header", zDefaultHeader);
+    cgi_replace_parameter("header", builtin_text("skins/default/header.txt"));
   }else if( P("submit")!=0 ){
-    textarea_attribute(0, 0, 0, "header", "header", zDefaultHeader, 0);
+    textarea_attribute(0, 0, 0, "header", "header",
+                       builtin_text("skins/default/header.txt"), 0);
   }else if( P("fixbase")!=0 ){
-    const char *z = db_get("header", (char*)zDefaultHeader);
+    const char *z = db_get("header",
+                           (char*)builtin_text("skins/default/header.txt"));
     char *zHead = strstr(z, "<head>");
     if( strstr(z, "<base href=")==0 && zHead!=0 ){
       char *zNew;
@@ -1600,10 +1600,11 @@ void setup_header(void){
   }
 
   login_insert_csrf_secret();
-  @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
+  @ <p>Edit HTML text with embedded TH1 (a Tcl dialect) that will be used to
   @ generate the beginning of every page through start of the main
   @ menu.</p>
-  textarea_attribute("", 35, 80, "header", "header", zDefaultHeader, 0);
+  textarea_attribute("", 35, 80, "header", "header",
+                     builtin_text("skins/default/header.txt"), 0);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -1614,7 +1615,7 @@ void setup_header(void){
   @ See also the <a href="setup_editcss">CSS</a> and
   @ <a href="setup_footer">footer</a> editing screens.
   @ <blockquote><pre>
-  @ %h(zDefaultHeader)
+  @ %h(builtin_text("skins/default/header.txt"))
   @ </pre></blockquote>
   style_footer();
   db_end_transaction(0);
@@ -1631,15 +1632,16 @@ void setup_footer(void){
   db_begin_transaction();
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name='footer'");
-    cgi_replace_parameter("footer", zDefaultFooter);
+    cgi_replace_parameter("footer", builtin_text("skins/default/footer.txt"));
   }
 
   style_header("Edit Page Footer");
   @ <form action="%s(g.zTop)/setup_footer" method="post"><div>
   login_insert_csrf_secret();
-  @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
+  @ <p>Edit HTML text with embedded TH1 (a Tcl dialect) that will be used to
   @ generate the end of every page.</p>
-  textarea_attribute("", 20, 80, "footer", "footer", zDefaultFooter, 0);
+  textarea_attribute("", 20, 80, "footer", "footer",
+                     builtin_text("skins/default/footer.txt"), 0);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -1650,7 +1652,7 @@ void setup_footer(void){
   @ See also the <a href="setup_editcss">CSS</a> and
   @ <a href="setup_header">header</a> editing screens.
   @ <blockquote><pre>
-  @ %h(zDefaultFooter)
+  @ %h(builtin_text("skins/default/footer.txt"))
   @ </pre></blockquote>
   style_footer();
   db_end_transaction(0);
@@ -1717,9 +1719,11 @@ void setup_adunit(void){
   style_header("Edit Ad Unit");
   @ <form action="%s(g.zTop)/setup_adunit" method="post"><div>
   login_insert_csrf_secret();
-  @ <p>Edit HTML text for an ad unit that will be inserted after the
-  @ menu bar and above the content of every page.</p>
-  textarea_attribute("", 20, 80, "adunit", "adunit", "", 0);
+  @ <b>Banner Ad-Unit:</b><br />
+ textarea_attribute("", 6, 80, "adunit", "adunit", "", 0);
+  @ <br />
+  @ <b>Right-Column Ad-Unit:</b><br />
+  textarea_attribute("", 6, 80, "adunit-right", "adright", "", 0);
   @ <br />
   onoff_attribute("Omit ads to administrator",
      "adunit-omit-if-admin", "oia", 0, 0);
@@ -1730,6 +1734,37 @@ void setup_adunit(void){
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Delete Ad-Unit" />
   @ </div></form>
+  @ <hr />
+  @ <b>Ad-Unit Notes:</b><ul>
+  @ <li>Leave both Ad-Units blank to disable all advertising.
+  @ <li>The "Banner Ad-Unit" is used for wide pages.
+  @ <li>The "Right-Column Ad-Unit" is used on pages with tall, narrow content.
+  @ <li>If the "Right-Column Ad-Unit" is blank, the "Banner Ad-Unit" is used on all pages.
+  @ <li>Suggested <a href="setup_editcss">CSS</a> changes:
+  @ <blockquote><pre>
+  @ div.adunit_banner {
+  @   margin: auto;
+  @   width: 100%;
+  @ }
+  @ div.adunit_right {
+  @   float: right;
+  @ }
+  @ div.adunit_right_container {
+  @   min-height: <i>height-of-right-column-ad-unit</i>;
+  @ }
+  @ </pre></blockquote>
+  @ <li>For a place-holder Ad-Unit for testing, Copy/Paste the following
+  @ with appropriate adjustments to "width:" and "height:".
+  @ <blockquote><pre>
+  @ &lt;div style='
+  @   margin: 0 auto;
+  @   width: 600px;
+  @   height: 90px;
+  @   border: 1px solid #f11;
+  @   background-color: #fcc;
+  @ '&gt;Demo Ad&lt;/div&gt;
+  @ </pre></blockquote>
+  @ </li>
   style_footer();
   db_end_transaction(0);
 }
@@ -2105,10 +2140,10 @@ void page_admin_log(){
   @ <th width="60%%">Message</th>
   @ </thead><tbody>
   while( SQLITE_ROW == db_step(&stLog) ){
-    char const * zTime = db_column_text(&stLog, 0);
-    char const * zUser = db_column_text(&stLog, 1);
-    char const * zPage = db_column_text(&stLog, 2);
-    char const * zMessage = db_column_text(&stLog, 3);
+    const char *zTime = db_column_text(&stLog, 0);
+    const char *zUser = db_column_text(&stLog, 1);
+    const char *zPage = db_column_text(&stLog, 2);
+    const char *zMessage = db_column_text(&stLog, 3);
     @ <tr class="row%d(counter++%2)">
     @ <td class="adminTime">%s(zTime)</td>
     @ <td>%s(zUser)</td>

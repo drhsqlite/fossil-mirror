@@ -57,11 +57,13 @@ void stat_page(void){
   if( !g.perm.Read ){ login_needed(); return; }
   brief = P("brief")!=0;
   style_header("Repository Statistics");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   if( g.perm.Admin ){
     style_submenu_element("URLs", "URLs and Checkouts", "urllist");
     style_submenu_element("Schema", "Repository Schema", "repo_schema");
     style_submenu_element("Web-Cache", "Web-Cache Stats", "cachestat");
   }
+  style_submenu_element("Activity", "Activity Reports", "reports");
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
   fsize = file_size(g.zRepositoryName);
@@ -134,6 +136,7 @@ void stat_page(void){
   @ </td></tr>
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
   @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))</td></tr>
+  @ <tr><th>Schema&nbsp;Version:</th><td>%h(g.zAuxSchema)</td></tr>
   @ <tr><th>Repository Rebuilt:</th><td>
   @ %h(db_get_mtime("rebuilt","%Y-%m-%d %H:%M:%S","Never"))
   @ By Fossil %h(db_get("rebuilt","Unknown"))</td></tr>
@@ -255,6 +258,7 @@ void dbstat_cmd(void){
   /* Server-id is not useful information any more */
   fossil_print("%*s%s\n", colWidth, "server-id:", db_get("server-code", 0));
 #endif
+  fossil_print("%*s%s\n", colWidth, "schema-version:", g.zAuxSchema);
   if( !omitVers ){
     fossil_print("%*s%s %s [%s] (%s)\n",
                  colWidth, "fossil-version:",
@@ -292,6 +296,7 @@ void urllist_page(void){
   if( !g.perm.Admin ){ login_needed(); return; }
 
   style_header("URLs and Checkouts");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "Repository Stats", "stat");
   style_submenu_element("Schema", "Repository Schema", "repo_schema");
   @ <div class="section">URLs</div>
@@ -338,6 +343,7 @@ void repo_schema_page(void){
   if( !g.perm.Admin ){ login_needed(); return; }
 
   style_header("Repository Schema");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "Repository Stats", "stat");
   style_submenu_element("URLs", "URLs and Checkouts", "urllist");
   db_prepare(&q, "SELECT sql FROM %s.sqlite_master WHERE sql IS NOT NULL",

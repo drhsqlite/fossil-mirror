@@ -393,11 +393,11 @@ static int hasfeatureCmd(
   int *argl
 ){
   int rc = 0;
-  char const * zArg;
+  const char *zArg;
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "hasfeature STRING");
   }
-  zArg = (char const*)argv[1];
+  zArg = (const char *)argv[1];
   if(NULL==zArg){
     /* placeholder for following ifdefs... */
   }

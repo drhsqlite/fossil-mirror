@@ -160,8 +160,18 @@ void url_parse_local(
       pUrlData->name = mprintf("%.*s", j-i-1, &zUrl[i+1]);
       i = j;
     }else{
-      for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!=':'; i++){}
+      int inSquare = 0;
+      int n;
+      for(i=iStart; (c=zUrl[i])!=0 && c!='/' && (inSquare || c!=':'); i++){
+        if( c=='[' ) inSquare = 1;
+        if( c==']' ) inSquare = 0;
+      }
       pUrlData->name = mprintf("%.*s", i-iStart, &zUrl[iStart]);
+      n = strlen(pUrlData->name);
+      if( pUrlData->name[0]=='[' && n>2 && pUrlData->name[n-1]==']' ){
+        pUrlData->name++;
+        pUrlData->name[n-2] = 0;
+      }
       zLogin = mprintf("");
     }
     url_tolower(pUrlData->name);
@@ -364,6 +374,7 @@ static const char *zProxyOpt = 0;
 void url_proxy_options(void){
   zProxyOpt = find_option("proxy", 0, 1);
   if( find_option("nosync",0,0) ) g.fNoSync = 1;
+  if( find_option("ipv4",0,0) ) g.fIPv4 = 1;
 }
 
 /*

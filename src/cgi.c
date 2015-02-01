@@ -110,6 +110,9 @@ void cgi_destination(int dest){
 int cgi_header_contains(const char *zNeedle){
   return strstr(blob_str(&cgiContent[0]), zNeedle)!=0;
 }
+int cgi_body_contains(const char *zNeedle){
+  return strstr(blob_str(&cgiContent[1]), zNeedle)!=0;
+}
 
 /*
 ** Append reply content to what already exists.
@@ -1755,7 +1758,7 @@ int cgi_http_server(
           close(1);
           fd = dup(connection);
           if( fd!=1 ) nErr++;
-          if( !g.fHttpTrace && !g.fSqlTrace ){
+          if( !g.fAnyTrace ){
             close(2);
             fd = dup(connection);
             if( fd!=2 ) nErr++;

@@ -485,7 +485,7 @@ void login_page(void){
       zQS = mprintf("?%s", zQS);
     }
     cgi_redirectf("%s%s%s", g.zHttpsURL, P("PATH_INFO"), zQS);
-    return;    
+    return;
   }
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
                   constant_time_cmp_function, 0, 0);
@@ -577,6 +577,7 @@ void login_page(void){
     }
   }
   style_header("Login/Logout");
+  style_adunit_config(ADUNIT_OFF);
   @ %s(zErrMsg)
   if( zGoto && P("anon")==0 ){
     @ <p>A login is required for <a href="%h(zGoto)">%h(zGoto)</a>.</p>

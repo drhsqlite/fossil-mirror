@@ -36,7 +36,7 @@ static int internalUpdate = 0;
 static int internalConflictCnt = 0;
 
 /*
-** Do an update to version vid.  
+** Do an update to version vid.
 **
 ** Start an undo session but do not terminate it.  Do not autosync.
 */
@@ -159,7 +159,7 @@ void update_cmd(void){
       fossil_fatal("Cannot proceed with update");
     }
   }
-  
+
   /* Create any empty directories now, as well as after the update,
   ** so changes in settings are reflected now */
   if( !dryRunFlag ) ensure_empty_dirs_created();
@@ -184,7 +184,7 @@ void update_cmd(void){
       }
     }
   }
-  
+
   /* If no VERSION is specified on the command-line, then look for a
   ** descendent of the current version.  If there are multiple descendants,
   ** look for one from the same branch as the current version.  If there
@@ -209,7 +209,7 @@ void update_cmd(void){
       );
       if( db_int(0, "SELECT count(*) FROM leaves")>1 ){
         compute_leaves(vid, closeCode);
-        db_prepare(&q, 
+        db_prepare(&q,
           "%s "
           "   AND event.objid IN leaves"
           " ORDER BY event.mtime DESC",
@@ -222,7 +222,7 @@ void update_cmd(void){
     }
     tid = db_int(0, "SELECT rid FROM leaves, event"
                     " WHERE event.objid=leaves.rid"
-                    " ORDER BY event.mtime DESC"); 
+                    " ORDER BY event.mtime DESC");
     if( tid==0 ) tid = vid;
   }
 
@@ -359,7 +359,7 @@ void update_cmd(void){
       file_tree_name(g.argv[i], &treename, 1);
       if( file_wd_isdir(g.argv[i])==1 ){
         if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
-          blob_append_sql(&sql, "%sfn NOT GLOB '%q/*' ", 
+          blob_append_sql(&sql, "%sfn NOT GLOB '%q/*' ",
                          zSep /*safe-for-%s*/, blob_str(&treename));
         }else{
           blob_reset(&sql);
@@ -380,7 +380,7 @@ void update_cmd(void){
   ** Alter the content of the checkout so that it conforms with the
   ** target
   */
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT fn, idv, ridv, idt, ridt, chnged, fnt,"
     "       isexe, islinkv, islinkt, deleted FROM fv ORDER BY 1"
   );
@@ -472,7 +472,7 @@ void update_cmd(void){
       }
       if( islinkv || islinkt /* || file_wd_islink(zFullPath) */ ){
         fossil_print("***** Cannot merge symlink %s\n", zNewName);
-        nConflict++;        
+        nConflict++;
       }else{
         unsigned mergeFlags = dryRunFlag ? MERGE_DRYRUN : 0;
         undo_save(zName);
@@ -546,7 +546,7 @@ void update_cmd(void){
       nMerge++;
     }
     db_finalize(&q);
-    
+
     if( nConflict ){
       if( internalUpdate ){
         internalConflictCnt = nConflict;
@@ -563,7 +563,7 @@ void update_cmd(void){
       fossil_warning("WARNING: %d uncommitted prior merges", nMerge);
     }
   }
-  
+
   /*
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.
   */
@@ -617,14 +617,14 @@ void ensure_empty_dirs_created(void){
 
       blob_zero(&path);
       blob_appendf(&path, "%s/%s", g.zLocalRoot, zDir);
-      zPath = blob_str(&path);      
+      zPath = blob_str(&path);
       /* Handle various cases of existence of the directory */
       switch( file_wd_isdir(zPath) ){
         case 0: { /* doesn't exist */
           if( file_mkdir(zPath, 0)!=0 ) {
             fossil_warning("couldn't create directory %s as "
                            "required by empty-dirs setting", zDir);
-          }          
+          }
           break;
         }
         case 1: { /* exists, and is a directory */
@@ -633,7 +633,7 @@ void ensure_empty_dirs_created(void){
         }
         case 2: { /* exists, but isn't a directory */
           fossil_warning("file %s found, but a directory is required "
-                         "by empty-dirs setting", zDir);          
+                         "by empty-dirs setting", zDir);
         }
       }
       blob_reset(&path);
@@ -658,7 +658,7 @@ int historical_version_of_file(
   Manifest *pManifest;
   ManifestFile *pFile;
   int rid=0;
-  
+
   if( revision ){
     rid = name_to_typed_rid(revision,"ci");
   }else if( !g.localOpen ){
@@ -671,7 +671,7 @@ int historical_version_of_file(
     fossil_fatal("no such checkin: %s", revision);
   }
   pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
-  
+
   if( pManifest ){
     pFile = manifest_file_find(pManifest, file);
     if( pFile ){
@@ -730,10 +730,10 @@ void revert_cmd(void){
   int errCode;
   Stmt q;
 
-  undo_capture_command_line();  
+  undo_capture_command_line();
   zRevision = find_option("revision", "r", 1);
   verify_all_options();
-  
+
   if( g.argc<2 ){
     usage("?OPTIONS? [FILE] ...");
   }

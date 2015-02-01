@@ -40,7 +40,7 @@ struct GraphRow {
 
   GraphRow *pNext;            /* Next row down in the list of all rows */
   GraphRow *pPrev;            /* Previous row */
-  
+
   int idx;                    /* Row index.  First is 1.  0 used for "none" */
   int idxTop;                 /* Direct descendent highest up on the graph */
   GraphRow *pChild;           /* Child immediately above this node */
@@ -156,7 +156,7 @@ static GraphRow *hashFind(GraphContext *p, int rid){
 ** will return the same pointer.
 **
 ** The returned value is a pointer to a (readonly) string that
-** has the useful property that strings can be checked for 
+** has the useful property that strings can be checked for
 ** equality by comparing pointers.
 **
 ** Note: also used for background color names.
@@ -216,7 +216,7 @@ int graph_add_row(
 
 /*
 ** Return the index of a rail currently not in use for any row between
-** top and bottom, inclusive.  
+** top and bottom, inclusive.
 */
 static int findFreeRail(
   GraphContext *p,         /* The graph context */
@@ -381,8 +381,29 @@ void graph_finish(GraphContext *p, int omitDescenders){
     }
   }
 
+  /* If the primary parent is in a different branch, but there are
+  ** other parents in the same branch, reorder the parents to make
+  ** the parent from the same branch the primary parent.
+  */
+  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+    if( pRow->isDup ) continue;
+    if( pRow->nParent<2 ) continue;                    /* Not a fork */
+    pParent = hashFind(p, pRow->aParent[0]);
+    if( pParent==0 ) continue;                         /* Parent off-screen */
+    if( pParent->zBranch==pRow->zBranch ) continue;    /* Same branch */
+    for(i=1; i<pRow->nParent; i++){
+      pParent = hashFind(p, pRow->aParent[i]);
+      if( pParent && pParent->zBranch==pRow->zBranch ){
+        int t = pRow->aParent[0];
+        pRow->aParent[0] = pRow->aParent[i];
+        pRow->aParent[i] = t;
+        break;
+      }
+    }
+  }
 
-  /* Find the pChild pointer for each node. 
+
+  /* Find the pChild pointer for each node.
   **
   ** The pChild points to the node directly above on the same rail.
   ** The pChild must be in the same branch.  Leaf nodes have a NULL
@@ -535,7 +556,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   }
 
   /*
-  ** Insert merge rails from primaries to duplicates. 
+  ** Insert merge rails from primaries to duplicates.
   */
   if( hasDup ){
     int dupRail;

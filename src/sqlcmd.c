@@ -110,7 +110,7 @@ static void sqlcmd_decompress(
 }
 
 /*
-** Add the content(), compress(), and decompress() SQL functions to 
+** Add the content(), compress(), and decompress() SQL functions to
 ** database connection db.
 */
 int add_content_sql_commands(sqlite3 *db){
@@ -134,7 +134,9 @@ static int sqlcmd_autoinit(
   const void *notUsed
 ){
   add_content_sql_commands(db);
+  db_add_aux_functions(db);
   re_add_sql_func(db);
+  search_sql_setup(db);
   g.zMainDbType = "repository";
   foci_register(db);
   g.repositoryOpen = 1;
@@ -149,11 +151,41 @@ static int sqlcmd_autoinit(
 **
 ** Run the standalone sqlite3 command-line shell on DATABASE with OPTIONS.
 ** If DATABASE is omitted, then the repository that serves the working
-** directory is opened.
+** directory is opened.  See https://www.sqlite.org/cli.html for additional
+** information.
 **
 ** WARNING:  Careless use of this command can corrupt a Fossil repository
 ** in ways that are unrecoverable.  Be sure you know what you are doing before
 ** running any SQL commands that modifies the repository database.
+**
+** The following extensions to the usual SQLite commands are provided:
+**
+**    content(X)                Return the contenxt of artifact X.  X can be a
+**                              SHA1 hash or prefix or a tag.
+**
+**    compress(X)               Compress text X.
+**
+**    decompress(X)             Decompress text X.  Undoes the work of
+**                              compress(X).
+**
+**    checkin_mtime(X,Y)        Return the mtime for the file Y (a BLOB.RID)
+**                              found in check-in X (another BLOB.RID value).
+**
+**    symbolic_name_to_rid(X)   Return a the BLOB.RID corresponding to symbolic
+**                              name X.
+**
+**    now()                     Return the number of seconds since 1970.
+**
+**    REGEXP                    The REGEXP operator works, unlike in
+**                              standard SQLite.
+**
+**    files_of_checkin          The "files_of_check" virtual table is
+**                              available for decoding manifests.
+**
+** Usage example for files_of_checkin:
+**
+**     CREATE VIRTUAL TABLE temp.foci USING files_of_checkin;
+**     SELECT * FROM foci WHERE checkinID=symbolic_name_to_rid('trunk');
 */
 void cmd_sqlite3(void){
   extern int sqlite3_shell(int, char**);

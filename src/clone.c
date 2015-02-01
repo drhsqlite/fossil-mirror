@@ -85,7 +85,7 @@ void delete_private_content(void){
 ** Usage: %fossil clone ?OPTIONS? URL FILENAME
 **
 ** Make a clone of a repository specified by URL in the local
-** file named FILENAME.  
+** file named FILENAME.
 **
 ** URL must be in one of the following form: ([...] mean optional)
 **   HTTP/HTTPS protocol:
@@ -98,7 +98,7 @@ void delete_private_content(void){
 **   Filesystem:
 **     [file://]path/to/repo.fossil
 **
-**   Note: For ssh and filesystem, path must have an extra leading 
+**   Note: For ssh and filesystem, path must have an extra leading
 **         '/' to use an absolute path.
 **
 ** By default, your current login name is used to create the default
@@ -108,10 +108,11 @@ void delete_private_content(void){
 ** Options:
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
 **    --once                     Don't save url.
-**    --private                  Also clone private branches 
+**    --private                  Also clone private branches
 **    --ssl-identity=filename    Use the SSL identity if requested by the server
 **    --ssh-command|-c 'command' Use this SSH command
 **    --httpauth|-B 'user:pass'  Add HTTP Basic Authorization to requests
+**    --verbose                  Show more statistics in output
 **
 ** See also: init
 */
@@ -120,16 +121,18 @@ void clone_cmd(void){
   const char *zDefaultUser;   /* Optional name of the default user */
   const char *zHttpAuth;      /* HTTP Authorization user:pass information */
   int nErr = 0;
-  int bPrivate = 0;           /* Also clone private branches */
   int urlFlags = URL_PROMPT_PW | URL_REMEMBER;
+  int syncFlags = SYNC_CLONE;
 
-  if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
+  /* Also clone private branches */
+  if( find_option("private",0,0)!=0 ) syncFlags |= SYNC_PRIVATE;
   if( find_option("once",0,0)!=0) urlFlags &= ~URL_REMEMBER;
+  if( find_option("verbose",0,0)!=0) syncFlags |= SYNC_VERBOSE;
   zHttpAuth = find_option("httpauth","B",1);
   zDefaultUser = find_option("admin-user","A",1);
   clone_ssh_find_options();
   url_proxy_options();
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -137,7 +140,7 @@ void clone_cmd(void){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
   }
   db_open_config(0);
-  if( file_size(g.argv[3])>0 ){
+  if( -1 != file_size(g.argv[3]) ){
     fossil_fatal("file already exists: %s", g.argv[3]);
   }
 
@@ -149,7 +152,7 @@ void clone_cmd(void){
     db_open_repository(g.argv[3]);
     db_record_repository_filename(g.argv[3]);
     url_remember();
-    if( !bPrivate ) delete_private_content();
+    if( !(syncFlags & SYNC_PRIVATE) ) delete_private_content();
     shun_artifacts();
     db_create_default_users(1, zDefaultUser);
     if( zDefaultUser ){
@@ -186,7 +189,7 @@ void clone_cmd(void){
     clone_ssh_db_set_options();
     url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
-    nErr = client_sync(SYNC_CLONE | bPrivate,CONFIGSET_ALL,0);
+    nErr = client_sync(syncFlags,CONFIGSET_ALL,0);
     g.xlinkClusterOnly = 0;
     verify_cancel();
     db_end_transaction(0);
@@ -209,7 +212,7 @@ void clone_cmd(void){
 
 /*
 ** If user chooses to use HTTP Authentication over unencrypted HTTP,
-** remember decision.  Otherwise, if the URL is being changed and no 
+** remember decision.  Otherwise, if the URL is being changed and no
 ** preference has been indicated, err on the safe side and revert the
 ** decision. Set the global preference if the URL is not being changed.
 */
@@ -268,7 +271,7 @@ void clone_ssh_find_options(void){
 }
 
 /*
-** Set SSH options discovered in global variables (set from command line 
+** Set SSH options discovered in global variables (set from command line
 ** options).
 */
 void clone_ssh_db_set_options(void){

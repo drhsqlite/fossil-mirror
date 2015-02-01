@@ -737,6 +737,14 @@ void db_now_function(
 
 /*
 ** Function to return the check-in time for a file.
+**
+**      checkin_mtime(CKINID,RID)
+**
+** CKINID:  The RID for the manifest for a check-in.
+** RID:     The RID of a file in CKINID for which the check-in time
+**          is desired.
+**
+** Returns: The check-in time in seconds since 1970.
 */
 void db_checkin_mtime_function(
   sqlite3_context *context,
@@ -751,13 +759,21 @@ void db_checkin_mtime_function(
   }
 }
 
+/*
+** SQL wrapper around the symbolic_name_to_rid() C-language API.
+** Examples:
+**
+**     symbolic_name_to_rid('trunk');
+**     symbolic_name_to_rid('trunk','w');
+**
+*/
 void db_sym2rid_function(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
 ){
-  char const * arg;
-  char const * type;
+  const char *arg;
+  const char *type;
   if(1 != argc && 2 != argc){
     sqlite3_result_error(context, "Expecting one or two arguments", -1);
     return;
@@ -780,6 +796,21 @@ void db_sym2rid_function(
   }
 }
 
+/*
+** Register the SQL functions that are useful both to the internal
+** representation and to the "fossil sql" command.
+*/
+void db_add_aux_functions(sqlite3 *db){
+  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
+                          db_checkin_mtime_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 1, SQLITE_UTF8, 0,
+                          db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0,
+                          db_sym2rid_function, 0, 0);
+  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0,
+                                 db_now_function, 0, 0);
+}
+
 
 /*
 ** Open a database file.  Return a pointer to the new database
@@ -800,9 +831,6 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   }
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
-  sqlite3_create_function(db, "now", 0, SQLITE_UTF8, 0, db_now_function, 0, 0);
-  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_UTF8, 0,
-                          db_checkin_mtime_function, 0, 0);
   sqlite3_create_function(db, "user", 0, SQLITE_UTF8, 0, db_sql_user, 0, 0);
   sqlite3_create_function(db, "cgi", 1, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
   sqlite3_create_function(db, "cgi", 2, SQLITE_UTF8, 0, db_sql_cgi, 0, 0);
@@ -813,17 +841,10 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   sqlite3_create_function(
     db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
   );
-  sqlite3_create_function(
-    db, "symbolic_name_to_rid", 1, SQLITE_UTF8, 0, db_sym2rid_function,
-    0, 0
-  );
-  sqlite3_create_function(
-    db, "symbolic_name_to_rid", 2, SQLITE_UTF8, 0, db_sym2rid_function,
-    0, 0
-  );
   if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
-  re_add_sql_func(db);
-  foci_register(db);
+  db_add_aux_functions(db);
+  re_add_sql_func(db);  /* The REGEXP operator */
+  foci_register(db);    /* The "files_of_checkin" virtual table */
   sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
   return db;
 }
@@ -908,26 +929,31 @@ void db_open_config(int useAttach){
     if( useAttach==g.useAttach ) return;
     db_close_config();
   }
+  zHome = fossil_getenv("FOSSIL_HOME");
 #if defined(_WIN32) || defined(__CYGWIN__)
-  zHome = fossil_getenv("LOCALAPPDATA");
   if( zHome==0 ){
-    zHome = fossil_getenv("APPDATA");
+    zHome = fossil_getenv("LOCALAPPDATA");
     if( zHome==0 ){
-      char *zDrive = fossil_getenv("HOMEDRIVE");
-      zHome = fossil_getenv("HOMEPATH");
-      if( zDrive && zHome ) zHome = mprintf("%s%s", zDrive, zHome);
+      zHome = fossil_getenv("APPDATA");
+      if( zHome==0 ){
+        char *zDrive = fossil_getenv("HOMEDRIVE");
+        char *zPath = fossil_getenv("HOMEPATH");
+        if( zDrive && zPath ) zHome = mprintf("%s%s", zDrive, zPath);
+      }
     }
   }
   if( zHome==0 ){
-    fossil_fatal("cannot locate home directory - "
-                "please set the LOCALAPPDATA or APPDATA or HOMEPATH "
-                "environment variables");
+    fossil_fatal("cannot locate home directory - please set the "
+                 "FOSSIL_HOME, LOCALAPPDATA, APPDATA, or HOMEPATH "
+                 "environment variables");
   }
 #else
-  zHome = fossil_getenv("HOME");
   if( zHome==0 ){
-    fossil_fatal("cannot locate home directory - "
-                 "please set the HOME environment variable");
+    zHome = fossil_getenv("HOME");
+  }
+  if( zHome==0 ){
+    fossil_fatal("cannot locate home directory - please set the "
+                 "FOSSIL_HOME or HOME environment variables");
   }
 #endif
   if( file_isdir(zHome)!=1 ){
@@ -1151,6 +1177,33 @@ void db_open_repository(const char *zDbName){
   g.repositoryOpen = 1;
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
   g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  g.zAuxSchema = db_get("aux-schema","");
+
+  /* Verify that the PLINK table has a new column added by the
+  ** 2014-11-28 schema change.  Create it if necessary.  This code
+  ** can be removed in the future, once all users have upgraded to the
+  ** 2014-11-28 or later schema.
+  */
+  if( !db_table_has_column("repository","plink","baseid") ){
+    db_multi_exec(
+      "ALTER TABLE %s.plink ADD COLUMN baseid;", db_name("repository")
+    );
+  }
+
+  /* Verify that the MLINK table has the newer columns added by the
+  ** 2015-01-24 schema change.  Create them if necessary.  This code
+  ** can be removed in the future, once all users have upgraded to the
+  ** 2015-01-24 or later schema.
+  */
+  if( !db_table_has_column("repository","mlink","isaux") ){
+    db_begin_transaction();
+    db_multi_exec(
+      "ALTER TABLE %s.mlink ADD COLUMN pmid INTEGER DEFAULT 0;"
+      "ALTER TABLE %s.mlink ADD COLUMN isaux BOOLEAN DEFAULT 0;",
+      db_name("repository"), db_name("repository")
+    );
+    db_end_transaction(0);
+  }
 }
 
 /*
@@ -1218,7 +1271,6 @@ const char *db_name(const char *zDb){
 ** Return TRUE if the schema is out-of-date
 */
 int db_schema_is_outofdate(void){
-  if( g.zAuxSchema==0 ) g.zAuxSchema = db_get("aux-schema","");
   return strcmp(g.zAuxSchema,AUX_SCHEMA_MIN)<0
       || strcmp(g.zAuxSchema,AUX_SCHEMA_MAX)>0;
 }
@@ -1336,6 +1388,18 @@ void db_close(int reportErrors){
     }
   }
   db_close_config();
+
+  /* If the localdb (the check-out database) is open and if it has
+  ** a lot of unused free space, then VACUUM it as we shut down.
+  */
+  if( g.localOpen && strcmp(db_name("localdb"),"main")==0 ){
+    int nFree = db_int(0, "PRAGMA main.freelist_count");
+    int nTotal = db_int(0, "PRAGMA main.page_count");
+    if( nFree>nTotal/4 ){
+      db_multi_exec("VACUUM;");
+    }
+  }
+
   if( g.db ){
     sqlite3_wal_checkpoint(g.db, 0);
     sqlite3_close(g.db);
@@ -1403,9 +1467,9 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   if( !setupUserOnly ){
     db_multi_exec(
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
-       "   VALUES('anonymous',hex(randomblob(8)),'hmncz','Anon');"
+       "   VALUES('anonymous',hex(randomblob(8)),'hmnc','Anon');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
-       "   VALUES('nobody','','gjor','Nobody');"
+       "   VALUES('nobody','','gjorz','Nobody');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('developer','','dei','Dev');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
@@ -1620,6 +1684,11 @@ void create_repository_cmd(void){
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
+ 
+  if( -1 != file_size(g.argv[2]) ){
+    fossil_fatal("file already exists: %s", g.argv[2]);
+  }
+
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
   db_open_config(0);
@@ -2639,7 +2708,7 @@ void setting_cmd(void){
     }else{
       isManifest = 0;
       while( ctrlSettings[i].name
-            && strncmp(ctrlSettings[i].name, zName, n)==0
+          && strncmp(ctrlSettings[i].name, zName, n)==0
       ){
         print_setting(&ctrlSettings[i], db_open_local(0));
         i++;

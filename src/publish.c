@@ -60,7 +60,7 @@ void unpublished_cmd(void){
 ** This can be used (for example) to convert a private branch into a public
 ** branch, or to publish a bundle that was imported privately.
 **
-** If any of TAGS names a branch, then all checkins on that most recent
+** If any of TAGS names a branch, then all checkins on the most recent
 ** instance of that branch are included, not just the most recent checkin.
 **
 ** If any of TAGS name checkins then all files and tags associated with

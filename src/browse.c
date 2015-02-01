@@ -135,6 +135,7 @@ void page_dir(void){
   if( !g.perm.Read ){ login_needed(); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   style_header("File List");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
   url_initialize(&sURI, "dir");
@@ -557,6 +558,7 @@ void page_tree(void){
     showDirOnly = 0;
     style_header("File Tree");
   }
+  style_adunit_config(ADUNIT_RIGHT_OK);
   if( P("expand")!=0 ){
     startExpanded = 1;
     url_add_parameter(&sURI, "expand", "1");
@@ -637,6 +639,8 @@ void page_tree(void){
     style_submenu_element("Tip", "Tip", "%s",
                           url_render(&sURI, "ci", "tip", 0, 0));
   }
+  style_submenu_element("Flat-View", "Flat-View", "%s",
+                        url_render(&sURI, "type", "flat", 0, 0));
 
   /* Compute the file hierarchy.
   */
@@ -654,6 +658,9 @@ void page_tree(void){
       const char *zFile = db_column_text(&q,0);
       const char *zUuid = db_column_text(&q,1);
       double mtime = db_column_double(&q,2);
+      if( nD>0 && (fossil_strncmp(zFile, zD, nD-1)!=0 || zFile[nD-1]!='/') ){
+        continue;
+      }
       if( pRE && re_match(pRE, (const unsigned char*)zFile, -1)==0 ) continue;
       tree_add_node(&sTree, zFile, zUuid, mtime);
       nFile++;
@@ -933,7 +940,7 @@ const char *fileext_class(const char *zFilename){
 ** SQL used to compute the age of all files in checkin :ckin whose
 ** names match :glob
 */
-static const char zComputeFileAgeSetup[] = 
+static const char zComputeFileAgeSetup[] =
 @ CREATE TABLE IF NOT EXISTS temp.fileage(
 @   fnid INTEGER PRIMARY KEY,
 @   fid INTEGER,
@@ -944,7 +951,7 @@ static const char zComputeFileAgeSetup[] =
 @ CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;
 ;
 
-static const char zComputeFileAgeRun[] = 
+static const char zComputeFileAgeRun[] =
 @ WITH RECURSIVE
 @   ckin(x) AS (VALUES(:ckin) UNION ALL
 @                 SELECT pid FROM ckin, plink WHERE cid=x AND isprim)
@@ -1070,7 +1077,7 @@ void fileage_page(void){
   compute_fileage(rid,zGlob);
   db_multi_exec("CREATE INDEX fileage_ix1 ON fileage(mid,pathname);");
 
-  @ <h2>Files in 
+  @ <h2>Files in
   @ %z(href("%R/info?name=%T",zUuid))[%S(zUuid)]</a>
   if( zGlob && zGlob[0] ){
     @ that match "%h(zGlob)" and
