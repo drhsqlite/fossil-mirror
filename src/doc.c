@@ -124,9 +124,11 @@ const char *mimetype_from_name(const char *zName){
     { "dl",         2, "video/dl"                          },
     { "dms",        3, "application/octet-stream"          },
     { "doc",        3, "application/msword"                },
-    { "docx",       4, "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+    { "docx",       4, "application/vnd.openxmlformats-"
+                       "officedocument.wordprocessingml.document"},
     { "dot",        3, "application/msword"                },
-    { "dotx",       4, "application/vnd.openxmlformats-officedocument.wordprocessingml.template"},
+    { "dotx",       4, "application/vnd.openxmlformats-"
+                       "officedocument.wordprocessingml.template"},
     { "drw",        3, "application/drafting"              },
     { "dvi",        3, "application/x-dvi"                 },
     { "dwg",        3, "application/acad"                  },
@@ -205,12 +207,15 @@ const char *mimetype_from_name(const char *zName){
     { "png",        3, "image/png"                         },
     { "pnm",        3, "image/x-portable-anymap"           },
     { "pot",        3, "application/mspowerpoint"          },
-    { "potx",       4, "application/vnd.openxmlformats-officedocument.presentationml.template"},
+    { "potx",       4, "application/vnd.openxmlformats-"
+                       "officedocument.presentationml.template"},
     { "ppm",        3, "image/x-portable-pixmap"           },
     { "pps",        3, "application/mspowerpoint"          },
-    { "ppsx",       4, "application/vnd.openxmlformats-officedocument.presentationml.slideshow"},
+    { "ppsx",       4, "application/vnd.openxmlformats-"
+                       "officedocument.presentationml.slideshow"},
     { "ppt",        3, "application/mspowerpoint"          },
-    { "pptx",       4, "application/vnd.openxmlformats-officedocument.presentationml.presentation"},
+    { "pptx",       4, "application/vnd.openxmlformats-"
+                       "officedocument.presentationml.presentation"},
     { "ppz",        3, "application/mspowerpoint"          },
     { "pre",        3, "application/x-freelance"           },
     { "prt",        3, "application/pro_eng"               },
@@ -286,7 +291,8 @@ const char *mimetype_from_name(const char *zName){
     { "xll",        3, "application/vnd.ms-excel"          },
     { "xlm",        3, "application/vnd.ms-excel"          },
     { "xls",        3, "application/vnd.ms-excel"          },
-    { "xlsx",       4, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
+    { "xlsx",       4, "application/vnd.openxmlformats-"
+                       "officedocument.spreadsheetml.sheet"},
     { "xlw",        3, "application/vnd.ms-excel"          },
     { "xml",        3, "text/xml"                          },
     { "xpm",        3, "image/x-xpixmap"                   },
@@ -352,6 +358,71 @@ void mimetype_test_cmd(void){
     fossil_print("%-20s -> %s\n", g.argv[i], mimetype_from_name(g.argv[i]));
   }
 }
+
+
+
+/*
+** Check to see if the file in the pContent blob is "embedded HTML".  Return
+** true if it is, and fill pTitle with the document title.
+**
+** An "embedded HTML" file is HTML that lacks a header and a footer.  The
+** standard Fossil header is prepended and the standard Fossil footer is
+** appended.  Otherwise, the file is displayed without change.
+**
+** Embedded HTML must be contained in a <div class='fossil-doc'> element.
+** If that <div> also contains a data-title attribute, then the
+** value of that attribute is extracted into pTitle and becomes the title
+** of the document.
+*/
+int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
+  const char *zIn = blob_str(pContent);
+  const char *zAttr;
+  const char *zValue;
+  int nAttr, nValue;
+  int seenClass = 0;
+  int seenTitle = 0;
+  
+  while( fossil_isspace(zIn[0]) ) zIn++;
+  if( fossil_strnicmp(zIn,"<div",4)!=0 ) return 0;
+  zIn += 4;
+  while( zIn[0] ){
+    if( fossil_isspace(zIn[0]) ) zIn++;
+    if( zIn[0]=='>' ) return 0;
+    zAttr = zIn;
+    while( fossil_isalnum(zIn[0]) || zIn[0]=='-' ) zIn++;
+    nAttr = (int)(zIn - zAttr);
+    while( fossil_isspace(zIn[0]) ) zIn++;
+    if( zIn[0]!='=' ) continue;
+    zIn++;
+    while( fossil_isspace(zIn[0]) ) zIn++;
+    if( zIn[0]=='"' || zIn[0]=='\'' ){
+      char cDelim = zIn[0];
+      zIn++;
+      zValue = zIn;
+      while( zIn[0] && zIn[0]!=cDelim ) zIn++;
+      if( zIn[0]==0 ) return 0;
+      nValue = (int)(zIn - zValue);
+      zIn++;
+    }else{
+      zValue = zIn;
+      while( zIn[0]!=0 && zIn[0]!='>' && zIn[0]!='/'
+            && !fossil_isspace(zIn[0]) ) zIn++;
+      if( zIn[0]==0 ) return 0;
+      nValue = (int)(zIn - zValue);
+    }
+    if( nAttr==5 && fossil_strnicmp(zAttr,"class",5)==0 ){
+      if( nValue!=10 || fossil_strnicmp(zValue,"fossil-doc",10)!=0 ) return 0;
+      seenClass = 1;
+      if( seenTitle ) return 1;
+    }
+    if( nAttr==10 && fossil_strnicmp(zAttr,"data-title",10)==0 ){
+      blob_append(pTitle, zValue, nValue);
+      seenTitle = 1;
+      if( seenClass ) return 1;
+    }
+  }
+  return seenClass;
+}        
 
 /*
 ** Look for a file named zName in the checkin with RID=vid.  Load the content
@@ -428,6 +499,7 @@ void doc_page(void){
   int rid = 0;                      /* Artifact of file */
   int i;                            /* Loop counter */
   Blob filebody;                    /* Content of the documentation file */
+  Blob title;                       /* Document title */
   int nMiss = (-1);                 /* Failed attempts to find the document */
   static const char *const azSuffix[] = {
      "index.html", "index.wiki", "index.md"
@@ -435,6 +507,7 @@ void doc_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
+  blob_init(&title, 0, 0);
   db_begin_transaction();
   while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){
     zName = PD("name", "tip/index.wiki");
@@ -496,7 +569,7 @@ void doc_page(void){
   Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
                                   " WHERE objid=%d AND type='ci'", vid));
   if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
-    Blob title, tail;
+    Blob tail;
     style_adunit_config(ADUNIT_RIGHT_OK);
     if( wiki_find_title(&filebody, &title, &tail) ){
       style_header("%s", blob_str(&title));
@@ -507,7 +580,6 @@ void doc_page(void){
     }
     style_footer();
   }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
-    Blob title = BLOB_INITIALIZER;
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(&filebody, &title, &tail);
     if( blob_size(&title)>0 ){
@@ -523,6 +595,12 @@ void doc_page(void){
     @ <blockquote><pre>
     @ %h(blob_str(&filebody))
     @ </pre></blockquote>
+    style_footer();
+  }else if( fossil_strcmp(zMime, "text/html")==0
+            && doc_is_embedded_html(&filebody, &title) ){
+    if( blob_size(&title)==0 ) blob_append(&title,zName,-1);
+    style_header("%s", blob_str(&title));
+    blob_append(cgi_output_blob(), blob_buffer(&filebody),blob_size(&filebody));
     style_footer();
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   }else if( db_get_boolean("th1-docs", 0) &&
