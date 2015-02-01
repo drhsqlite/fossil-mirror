@@ -1,5 +1,5 @@
-C For\sembedded\sdocumentation,\sif\sthe\scontent\sfile\shas\smimetype\stext/html\sbut\nit\sbegins\swith\sa\s&lt;div&gt;\selement\sthat\shas\sclass=fossil-doc,\sthen\sadd\nthe\susual\sheader\sand\sfooter\sto\sthe\scontent\sbefore\sdisplaying\sit.\s\sAlso,\nif\sthe\s&lt;div&gt;\selement\shas\sa\sdata-title=TITLE\sattribute,\sthen\suse\nTITLE\sas\sthe\stitle\sof\sthe\sdocument.
-D 2015-02-01T18:22:03.910
+C Add\sthe\s/mimetype_list\spage\sfor\suse\sby\sdocumentation.
+D 2015-02-01T18:37:17.056
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -369,7 +369,7 @@ F src/descendants.c 393ebd57f83ff9f2f87df9572430f399ecc95d47
 F src/diff.c 26603debe5f78ec79aa42349765441097ce3ff64
 F src/diff.tcl af32ef4670c331139b8e467286df687a3d136594
 F src/diffcmd.c 9391a8baf1927201f957d95c6a7d72bb2ff13cd3
-F src/doc.c c295211857dbf59aa2a3ada2d6acfdddc196a448
+F src/doc.c f122ebf6905540d900b806de8ecd4c12422d8c56
 F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 26fd16a9f3fe9f88edd233e39cf4051a0398eb29
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8e02c26ad2baf8553290376aa7ec1e7e7a715b5d
-R 18b16530f75f23d1e746b960dfbbca85
+P ace8016f297a1d0591d7569e8ed7a289444baa7b
+R 6ea080c0be7a8f717c6448e446b6b7fb
 U drh
-Z 28534669eea0e75e12a549b81d44b225
+Z 828d4adf48acaeef80c8434e8d706422

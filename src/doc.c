@@ -67,13 +67,229 @@ const char *mimetype_from_content(Blob *pBlob){
   if( i>=n ){
     return 0;   /* Plain text */
   }
-  for(i=0; i<sizeof(aMime)/sizeof(aMime[0]); i++){
+  for(i=0; i<ArraySize(aMime); i++){
     if( n>=aMime[i].size && memcmp(x, aMime[i].zPrefix, aMime[i].size)==0 ){
       return aMime[i].zMimetype;
     }
   }
   return "unknown/unknown";
 }
+
+/* A table of mimetypes based on file suffixes.
+** Suffixes must be in sorted order so that we can do a binary
+** search to find the mime-type
+*/
+static const struct {
+  const char *zSuffix;       /* The file suffix */
+  int size;                  /* Length of the suffix */
+  const char *zMimetype;     /* The corresponding mimetype */
+} aMime[] = {
+  { "ai",         2, "application/postscript"            },
+  { "aif",        3, "audio/x-aiff"                      },
+  { "aifc",       4, "audio/x-aiff"                      },
+  { "aiff",       4, "audio/x-aiff"                      },
+  { "arj",        3, "application/x-arj-compressed"      },
+  { "asc",        3, "text/plain"                        },
+  { "asf",        3, "video/x-ms-asf"                    },
+  { "asx",        3, "video/x-ms-asx"                    },
+  { "au",         2, "audio/ulaw"                        },
+  { "avi",        3, "video/x-msvideo"                   },
+  { "bat",        3, "application/x-msdos-program"       },
+  { "bcpio",      5, "application/x-bcpio"               },
+  { "bin",        3, "application/octet-stream"          },
+  { "c",          1, "text/plain"                        },
+  { "cc",         2, "text/plain"                        },
+  { "ccad",       4, "application/clariscad"             },
+  { "cdf",        3, "application/x-netcdf"              },
+  { "class",      5, "application/octet-stream"          },
+  { "cod",        3, "application/vnd.rim.cod"           },
+  { "com",        3, "application/x-msdos-program"       },
+  { "cpio",       4, "application/x-cpio"                },
+  { "cpt",        3, "application/mac-compactpro"        },
+  { "csh",        3, "application/x-csh"                 },
+  { "css",        3, "text/css"                          },
+  { "dcr",        3, "application/x-director"            },
+  { "deb",        3, "application/x-debian-package"      },
+  { "dir",        3, "application/x-director"            },
+  { "dl",         2, "video/dl"                          },
+  { "dms",        3, "application/octet-stream"          },
+  { "doc",        3, "application/msword"                },
+  { "docx",       4, "application/vnd.openxmlformats-"
+                     "officedocument.wordprocessingml.document"},
+  { "dot",        3, "application/msword"                },
+  { "dotx",       4, "application/vnd.openxmlformats-"
+                     "officedocument.wordprocessingml.template"},
+  { "drw",        3, "application/drafting"              },
+  { "dvi",        3, "application/x-dvi"                 },
+  { "dwg",        3, "application/acad"                  },
+  { "dxf",        3, "application/dxf"                   },
+  { "dxr",        3, "application/x-director"            },
+  { "eps",        3, "application/postscript"            },
+  { "etx",        3, "text/x-setext"                     },
+  { "exe",        3, "application/octet-stream"          },
+  { "ez",         2, "application/andrew-inset"          },
+  { "f",          1, "text/plain"                        },
+  { "f90",        3, "text/plain"                        },
+  { "fli",        3, "video/fli"                         },
+  { "flv",        3, "video/flv"                         },
+  { "gif",        3, "image/gif"                         },
+  { "gl",         2, "video/gl"                          },
+  { "gtar",       4, "application/x-gtar"                },
+  { "gz",         2, "application/x-gzip"                },
+  { "h",          1, "text/plain"                        },
+  { "hdf",        3, "application/x-hdf"                 },
+  { "hh",         2, "text/plain"                        },
+  { "hqx",        3, "application/mac-binhex40"          },
+  { "htm",        3, "text/html"                         },
+  { "html",       4, "text/html"                         },
+  { "ice",        3, "x-conference/x-cooltalk"           },
+  { "ief",        3, "image/ief"                         },
+  { "iges",       4, "model/iges"                        },
+  { "igs",        3, "model/iges"                        },
+  { "ips",        3, "application/x-ipscript"            },
+  { "ipx",        3, "application/x-ipix"                },
+  { "jad",        3, "text/vnd.sun.j2me.app-descriptor"  },
+  { "jar",        3, "application/java-archive"          },
+  { "jpe",        3, "image/jpeg"                        },
+  { "jpeg",       4, "image/jpeg"                        },
+  { "jpg",        3, "image/jpeg"                        },
+  { "js",         2, "application/x-javascript"          },
+  { "kar",        3, "audio/midi"                        },
+  { "latex",      5, "application/x-latex"               },
+  { "lha",        3, "application/octet-stream"          },
+  { "lsp",        3, "application/x-lisp"                },
+  { "lzh",        3, "application/octet-stream"          },
+  { "m",          1, "text/plain"                        },
+  { "m3u",        3, "audio/x-mpegurl"                   },
+  { "man",        3, "application/x-troff-man"           },
+  { "markdown",   8, "text/x-markdown"                   },
+  { "md",         2, "text/x-markdown"                   },
+  { "me",         2, "application/x-troff-me"            },
+  { "mesh",       4, "model/mesh"                        },
+  { "mid",        3, "audio/midi"                        },
+  { "midi",       4, "audio/midi"                        },
+  { "mif",        3, "application/x-mif"                 },
+  { "mime",       4, "www/mime"                          },
+  { "mkd",        3, "text/x-markdown"                   },
+  { "mov",        3, "video/quicktime"                   },
+  { "movie",      5, "video/x-sgi-movie"                 },
+  { "mp2",        3, "audio/mpeg"                        },
+  { "mp3",        3, "audio/mpeg"                        },
+  { "mp4",        3, "video/mp4"                         },
+  { "mpe",        3, "video/mpeg"                        },
+  { "mpeg",       4, "video/mpeg"                        },
+  { "mpg",        3, "video/mpeg"                        },
+  { "mpga",       4, "audio/mpeg"                        },
+  { "ms",         2, "application/x-troff-ms"            },
+  { "msh",        3, "model/mesh"                        },
+  { "nc",         2, "application/x-netcdf"              },
+  { "oda",        3, "application/oda"                   },
+  { "ogg",        3, "application/ogg"                   },
+  { "ogm",        3, "application/ogg"                   },
+  { "pbm",        3, "image/x-portable-bitmap"           },
+  { "pdb",        3, "chemical/x-pdb"                    },
+  { "pdf",        3, "application/pdf"                   },
+  { "pgm",        3, "image/x-portable-graymap"          },
+  { "pgn",        3, "application/x-chess-pgn"           },
+  { "pgp",        3, "application/pgp"                   },
+  { "pl",         2, "application/x-perl"                },
+  { "pm",         2, "application/x-perl"                },
+  { "png",        3, "image/png"                         },
+  { "pnm",        3, "image/x-portable-anymap"           },
+  { "pot",        3, "application/mspowerpoint"          },
+  { "potx",       4, "application/vnd.openxmlformats-"
+                     "officedocument.presentationml.template"},
+  { "ppm",        3, "image/x-portable-pixmap"           },
+  { "pps",        3, "application/mspowerpoint"          },
+  { "ppsx",       4, "application/vnd.openxmlformats-"
+                     "officedocument.presentationml.slideshow"},
+  { "ppt",        3, "application/mspowerpoint"          },
+  { "pptx",       4, "application/vnd.openxmlformats-"
+                     "officedocument.presentationml.presentation"},
+  { "ppz",        3, "application/mspowerpoint"          },
+  { "pre",        3, "application/x-freelance"           },
+  { "prt",        3, "application/pro_eng"               },
+  { "ps",         2, "application/postscript"            },
+  { "qt",         2, "video/quicktime"                   },
+  { "ra",         2, "audio/x-realaudio"                 },
+  { "ram",        3, "audio/x-pn-realaudio"              },
+  { "rar",        3, "application/x-rar-compressed"      },
+  { "ras",        3, "image/cmu-raster"                  },
+  { "rgb",        3, "image/x-rgb"                       },
+  { "rm",         2, "audio/x-pn-realaudio"              },
+  { "roff",       4, "application/x-troff"               },
+  { "rpm",        3, "audio/x-pn-realaudio-plugin"       },
+  { "rtf",        3, "text/rtf"                          },
+  { "rtx",        3, "text/richtext"                     },
+  { "scm",        3, "application/x-lotusscreencam"      },
+  { "set",        3, "application/set"                   },
+  { "sgm",        3, "text/sgml"                         },
+  { "sgml",       4, "text/sgml"                         },
+  { "sh",         2, "application/x-sh"                  },
+  { "shar",       4, "application/x-shar"                },
+  { "silo",       4, "model/mesh"                        },
+  { "sit",        3, "application/x-stuffit"             },
+  { "skd",        3, "application/x-koan"                },
+  { "skm",        3, "application/x-koan"                },
+  { "skp",        3, "application/x-koan"                },
+  { "skt",        3, "application/x-koan"                },
+  { "smi",        3, "application/smil"                  },
+  { "smil",       4, "application/smil"                  },
+  { "snd",        3, "audio/basic"                       },
+  { "sol",        3, "application/solids"                },
+  { "spl",        3, "application/x-futuresplash"        },
+  { "src",        3, "application/x-wais-source"         },
+  { "step",       4, "application/STEP"                  },
+  { "stl",        3, "application/SLA"                   },
+  { "stp",        3, "application/STEP"                  },
+  { "sv4cpio",    7, "application/x-sv4cpio"             },
+  { "sv4crc",     6, "application/x-sv4crc"              },
+  { "svg",        3, "image/svg+xml"                     },
+  { "swf",        3, "application/x-shockwave-flash"     },
+  { "t",          1, "application/x-troff"               },
+  { "tar",        3, "application/x-tar"                 },
+  { "tcl",        3, "application/x-tcl"                 },
+  { "tex",        3, "application/x-tex"                 },
+  { "texi",       4, "application/x-texinfo"             },
+  { "texinfo",    7, "application/x-texinfo"             },
+  { "tgz",        3, "application/x-tar-gz"              },
+  { "th1",        3, "application/x-th1"                 },
+  { "tif",        3, "image/tiff"                        },
+  { "tiff",       4, "image/tiff"                        },
+  { "tr",         2, "application/x-troff"               },
+  { "tsi",        3, "audio/TSP-audio"                   },
+  { "tsp",        3, "application/dsptype"               },
+  { "tsv",        3, "text/tab-separated-values"         },
+  { "txt",        3, "text/plain"                        },
+  { "unv",        3, "application/i-deas"                },
+  { "ustar",      5, "application/x-ustar"               },
+  { "vcd",        3, "application/x-cdlink"              },
+  { "vda",        3, "application/vda"                   },
+  { "viv",        3, "video/vnd.vivo"                    },
+  { "vivo",       4, "video/vnd.vivo"                    },
+  { "vrml",       4, "model/vrml"                        },
+  { "wav",        3, "audio/x-wav"                       },
+  { "wax",        3, "audio/x-ms-wax"                    },
+  { "wiki",       4, "text/x-fossil-wiki"                },
+  { "wma",        3, "audio/x-ms-wma"                    },
+  { "wmv",        3, "video/x-ms-wmv"                    },
+  { "wmx",        3, "video/x-ms-wmx"                    },
+  { "wrl",        3, "model/vrml"                        },
+  { "wvx",        3, "video/x-ms-wvx"                    },
+  { "xbm",        3, "image/x-xbitmap"                   },
+  { "xlc",        3, "application/vnd.ms-excel"          },
+  { "xll",        3, "application/vnd.ms-excel"          },
+  { "xlm",        3, "application/vnd.ms-excel"          },
+  { "xls",        3, "application/vnd.ms-excel"          },
+  { "xlsx",       4, "application/vnd.openxmlformats-"
+                     "officedocument.spreadsheetml.sheet"},
+  { "xlw",        3, "application/vnd.ms-excel"          },
+  { "xml",        3, "text/xml"                          },
+  { "xpm",        3, "image/x-xpixmap"                   },
+  { "xwd",        3, "image/x-xwindowdump"               },
+  { "xyz",        3, "chemical/x-pdb"                    },
+  { "zip",        3, "application/zip"                   },
+};
 
 /*
 ** Guess the mime-type of a document based on its name.
@@ -85,228 +301,13 @@ const char *mimetype_from_name(const char *zName){
   int len;
   char zSuffix[20];
 
-  /* A table of mimetypes based on file suffixes.
-  ** Suffixes must be in sorted order so that we can do a binary
-  ** search to find the mime-type
-  */
-  static const struct {
-    const char *zSuffix;       /* The file suffix */
-    int size;                  /* Length of the suffix */
-    const char *zMimetype;     /* The corresponding mimetype */
-  } aMime[] = {
-    { "ai",         2, "application/postscript"            },
-    { "aif",        3, "audio/x-aiff"                      },
-    { "aifc",       4, "audio/x-aiff"                      },
-    { "aiff",       4, "audio/x-aiff"                      },
-    { "arj",        3, "application/x-arj-compressed"      },
-    { "asc",        3, "text/plain"                        },
-    { "asf",        3, "video/x-ms-asf"                    },
-    { "asx",        3, "video/x-ms-asx"                    },
-    { "au",         2, "audio/ulaw"                        },
-    { "avi",        3, "video/x-msvideo"                   },
-    { "bat",        3, "application/x-msdos-program"       },
-    { "bcpio",      5, "application/x-bcpio"               },
-    { "bin",        3, "application/octet-stream"          },
-    { "c",          1, "text/plain"                        },
-    { "cc",         2, "text/plain"                        },
-    { "ccad",       4, "application/clariscad"             },
-    { "cdf",        3, "application/x-netcdf"              },
-    { "class",      5, "application/octet-stream"          },
-    { "cod",        3, "application/vnd.rim.cod"           },
-    { "com",        3, "application/x-msdos-program"       },
-    { "cpio",       4, "application/x-cpio"                },
-    { "cpt",        3, "application/mac-compactpro"        },
-    { "csh",        3, "application/x-csh"                 },
-    { "css",        3, "text/css"                          },
-    { "dcr",        3, "application/x-director"            },
-    { "deb",        3, "application/x-debian-package"      },
-    { "dir",        3, "application/x-director"            },
-    { "dl",         2, "video/dl"                          },
-    { "dms",        3, "application/octet-stream"          },
-    { "doc",        3, "application/msword"                },
-    { "docx",       4, "application/vnd.openxmlformats-"
-                       "officedocument.wordprocessingml.document"},
-    { "dot",        3, "application/msword"                },
-    { "dotx",       4, "application/vnd.openxmlformats-"
-                       "officedocument.wordprocessingml.template"},
-    { "drw",        3, "application/drafting"              },
-    { "dvi",        3, "application/x-dvi"                 },
-    { "dwg",        3, "application/acad"                  },
-    { "dxf",        3, "application/dxf"                   },
-    { "dxr",        3, "application/x-director"            },
-    { "eps",        3, "application/postscript"            },
-    { "etx",        3, "text/x-setext"                     },
-    { "exe",        3, "application/octet-stream"          },
-    { "ez",         2, "application/andrew-inset"          },
-    { "f",          1, "text/plain"                        },
-    { "f90",        3, "text/plain"                        },
-    { "fli",        3, "video/fli"                         },
-    { "flv",        3, "video/flv"                         },
-    { "gif",        3, "image/gif"                         },
-    { "gl",         2, "video/gl"                          },
-    { "gtar",       4, "application/x-gtar"                },
-    { "gz",         2, "application/x-gzip"                },
-    { "h",          1, "text/plain"                        },
-    { "hdf",        3, "application/x-hdf"                 },
-    { "hh",         2, "text/plain"                        },
-    { "hqx",        3, "application/mac-binhex40"          },
-    { "htm",        3, "text/html"                         },
-    { "html",       4, "text/html"                         },
-    { "ice",        3, "x-conference/x-cooltalk"           },
-    { "ief",        3, "image/ief"                         },
-    { "iges",       4, "model/iges"                        },
-    { "igs",        3, "model/iges"                        },
-    { "ips",        3, "application/x-ipscript"            },
-    { "ipx",        3, "application/x-ipix"                },
-    { "jad",        3, "text/vnd.sun.j2me.app-descriptor"  },
-    { "jar",        3, "application/java-archive"          },
-    { "jpe",        3, "image/jpeg"                        },
-    { "jpeg",       4, "image/jpeg"                        },
-    { "jpg",        3, "image/jpeg"                        },
-    { "js",         2, "application/x-javascript"          },
-    { "kar",        3, "audio/midi"                        },
-    { "latex",      5, "application/x-latex"               },
-    { "lha",        3, "application/octet-stream"          },
-    { "lsp",        3, "application/x-lisp"                },
-    { "lzh",        3, "application/octet-stream"          },
-    { "m",          1, "text/plain"                        },
-    { "m3u",        3, "audio/x-mpegurl"                   },
-    { "man",        3, "application/x-troff-man"           },
-    { "markdown",   8, "text/x-markdown"                   },
-    { "md",         2, "text/x-markdown"                   },
-    { "me",         2, "application/x-troff-me"            },
-    { "mesh",       4, "model/mesh"                        },
-    { "mid",        3, "audio/midi"                        },
-    { "midi",       4, "audio/midi"                        },
-    { "mif",        3, "application/x-mif"                 },
-    { "mime",       4, "www/mime"                          },
-    { "mkd",        3, "text/x-markdown"                   },
-    { "mov",        3, "video/quicktime"                   },
-    { "movie",      5, "video/x-sgi-movie"                 },
-    { "mp2",        3, "audio/mpeg"                        },
-    { "mp3",        3, "audio/mpeg"                        },
-    { "mp4",        3, "video/mp4"                         },
-    { "mpe",        3, "video/mpeg"                        },
-    { "mpeg",       4, "video/mpeg"                        },
-    { "mpg",        3, "video/mpeg"                        },
-    { "mpga",       4, "audio/mpeg"                        },
-    { "ms",         2, "application/x-troff-ms"            },
-    { "msh",        3, "model/mesh"                        },
-    { "nc",         2, "application/x-netcdf"              },
-    { "oda",        3, "application/oda"                   },
-    { "ogg",        3, "application/ogg"                   },
-    { "ogm",        3, "application/ogg"                   },
-    { "pbm",        3, "image/x-portable-bitmap"           },
-    { "pdb",        3, "chemical/x-pdb"                    },
-    { "pdf",        3, "application/pdf"                   },
-    { "pgm",        3, "image/x-portable-graymap"          },
-    { "pgn",        3, "application/x-chess-pgn"           },
-    { "pgp",        3, "application/pgp"                   },
-    { "pl",         2, "application/x-perl"                },
-    { "pm",         2, "application/x-perl"                },
-    { "png",        3, "image/png"                         },
-    { "pnm",        3, "image/x-portable-anymap"           },
-    { "pot",        3, "application/mspowerpoint"          },
-    { "potx",       4, "application/vnd.openxmlformats-"
-                       "officedocument.presentationml.template"},
-    { "ppm",        3, "image/x-portable-pixmap"           },
-    { "pps",        3, "application/mspowerpoint"          },
-    { "ppsx",       4, "application/vnd.openxmlformats-"
-                       "officedocument.presentationml.slideshow"},
-    { "ppt",        3, "application/mspowerpoint"          },
-    { "pptx",       4, "application/vnd.openxmlformats-"
-                       "officedocument.presentationml.presentation"},
-    { "ppz",        3, "application/mspowerpoint"          },
-    { "pre",        3, "application/x-freelance"           },
-    { "prt",        3, "application/pro_eng"               },
-    { "ps",         2, "application/postscript"            },
-    { "qt",         2, "video/quicktime"                   },
-    { "ra",         2, "audio/x-realaudio"                 },
-    { "ram",        3, "audio/x-pn-realaudio"              },
-    { "rar",        3, "application/x-rar-compressed"      },
-    { "ras",        3, "image/cmu-raster"                  },
-    { "rgb",        3, "image/x-rgb"                       },
-    { "rm",         2, "audio/x-pn-realaudio"              },
-    { "roff",       4, "application/x-troff"               },
-    { "rpm",        3, "audio/x-pn-realaudio-plugin"       },
-    { "rtf",        3, "text/rtf"                          },
-    { "rtx",        3, "text/richtext"                     },
-    { "scm",        3, "application/x-lotusscreencam"      },
-    { "set",        3, "application/set"                   },
-    { "sgm",        3, "text/sgml"                         },
-    { "sgml",       4, "text/sgml"                         },
-    { "sh",         2, "application/x-sh"                  },
-    { "shar",       4, "application/x-shar"                },
-    { "silo",       4, "model/mesh"                        },
-    { "sit",        3, "application/x-stuffit"             },
-    { "skd",        3, "application/x-koan"                },
-    { "skm",        3, "application/x-koan"                },
-    { "skp",        3, "application/x-koan"                },
-    { "skt",        3, "application/x-koan"                },
-    { "smi",        3, "application/smil"                  },
-    { "smil",       4, "application/smil"                  },
-    { "snd",        3, "audio/basic"                       },
-    { "sol",        3, "application/solids"                },
-    { "spl",        3, "application/x-futuresplash"        },
-    { "src",        3, "application/x-wais-source"         },
-    { "step",       4, "application/STEP"                  },
-    { "stl",        3, "application/SLA"                   },
-    { "stp",        3, "application/STEP"                  },
-    { "sv4cpio",    7, "application/x-sv4cpio"             },
-    { "sv4crc",     6, "application/x-sv4crc"              },
-    { "svg",        3, "image/svg+xml"                     },
-    { "swf",        3, "application/x-shockwave-flash"     },
-    { "t",          1, "application/x-troff"               },
-    { "tar",        3, "application/x-tar"                 },
-    { "tcl",        3, "application/x-tcl"                 },
-    { "tex",        3, "application/x-tex"                 },
-    { "texi",       4, "application/x-texinfo"             },
-    { "texinfo",    7, "application/x-texinfo"             },
-    { "tgz",        3, "application/x-tar-gz"              },
-    { "th1",        3, "application/x-th1"                 },
-    { "tif",        3, "image/tiff"                        },
-    { "tiff",       4, "image/tiff"                        },
-    { "tr",         2, "application/x-troff"               },
-    { "tsi",        3, "audio/TSP-audio"                   },
-    { "tsp",        3, "application/dsptype"               },
-    { "tsv",        3, "text/tab-separated-values"         },
-    { "txt",        3, "text/plain"                        },
-    { "unv",        3, "application/i-deas"                },
-    { "ustar",      5, "application/x-ustar"               },
-    { "vcd",        3, "application/x-cdlink"              },
-    { "vda",        3, "application/vda"                   },
-    { "viv",        3, "video/vnd.vivo"                    },
-    { "vivo",       4, "video/vnd.vivo"                    },
-    { "vrml",       4, "model/vrml"                        },
-    { "wav",        3, "audio/x-wav"                       },
-    { "wax",        3, "audio/x-ms-wax"                    },
-    { "wiki",       4, "text/x-fossil-wiki"                },
-    { "wma",        3, "audio/x-ms-wma"                    },
-    { "wmv",        3, "video/x-ms-wmv"                    },
-    { "wmx",        3, "video/x-ms-wmx"                    },
-    { "wrl",        3, "model/vrml"                        },
-    { "wvx",        3, "video/x-ms-wvx"                    },
-    { "xbm",        3, "image/x-xbitmap"                   },
-    { "xlc",        3, "application/vnd.ms-excel"          },
-    { "xll",        3, "application/vnd.ms-excel"          },
-    { "xlm",        3, "application/vnd.ms-excel"          },
-    { "xls",        3, "application/vnd.ms-excel"          },
-    { "xlsx",       4, "application/vnd.openxmlformats-"
-                       "officedocument.spreadsheetml.sheet"},
-    { "xlw",        3, "application/vnd.ms-excel"          },
-    { "xml",        3, "text/xml"                          },
-    { "xpm",        3, "image/x-xpixmap"                   },
-    { "xwd",        3, "image/x-xwindowdump"               },
-    { "xyz",        3, "chemical/x-pdb"                    },
-    { "zip",        3, "application/zip"                   },
-  };
 
 #ifdef FOSSIL_DEBUG
   /* This is test code to make sure the table above is in the correct
   ** order
   */
   if( fossil_strcmp(zName, "mimetype-test")==0 ){
-    for(i=1; i<sizeof(aMime)/sizeof(aMime[0]); i++){
+    for(i=1; i<ArraySize(aMime); i++){
       if( fossil_strcmp(aMime[i-1].zSuffix,aMime[i].zSuffix)>=0 ){
         fossil_fatal("mimetypes out of sequence: %s before %s",
                      aMime[i-1].zSuffix, aMime[i].zSuffix);
@@ -325,7 +326,7 @@ const char *mimetype_from_name(const char *zName){
     sqlite3_snprintf(sizeof(zSuffix), zSuffix, "%s", z);
     for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     first = 0;
-    last = sizeof(aMime)/sizeof(aMime[0]) - 1;
+    last = ArraySize(aMime) - 1;
     while( first<=last ){
       int c;
       i = (first+last)/2;
@@ -359,7 +360,30 @@ void mimetype_test_cmd(void){
   }
 }
 
-
+/*
+** WEBPAGE: mimetype_list
+**
+** Show the built-in table used to guess embedded document mimetypes
+** from file suffixes.
+*/
+void mimetype_list_page(void){
+  int i;
+  style_header("Mimetype List");
+  @ <p>The Fossil <a href="%R/help?cmd=/doc">/doc</a> page uses filename
+  @ suffixes and the following table to guess at the appropriate mimetype
+  @ for each document.</p>
+  @ <table id='mimeTable' border=1 cellpadding=0 class='mimetypetable'>
+  @ <thead>
+  @ <tr><th>Suffix<th>Mimetype
+  @ </thead>
+  @ <tbody>
+  for(i=0; i<ArraySize(aMime); i++){
+    @ <tr><td>%h(aMime[i].zSuffix)<td>%h(aMime[i].zMimetype)</tr>
+  }
+  @ </tbody></table>
+  output_table_sorting_javascript("mimeTable","tt",1);
+  style_footer();
+}
 
 /*
 ** Check to see if the file in the pContent blob is "embedded HTML".  Return
