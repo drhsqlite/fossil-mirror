@@ -1399,13 +1399,13 @@ void ticket_cmd(void){
 */
 void ticket_standard_submenu(unsigned int ok){
   if( (ok & T_SRCH)!=0 && search_restrict(SRCH_TKT)!=0 ){
-    style_submenu_element("Search","Search","/tktsrch");
+    style_submenu_element("Search","Search","%R/tktsrch");
   }
   if( (ok & T_REPLIST)!=0 ){
-    style_submenu_element("Reports","Reports","/reportlist");
+    style_submenu_element("Reports","Reports","%R/reportlist");
   }
   if( (ok & T_NEW)!=0 && g.perm.NewTkt ){
-    style_submenu_element("New","New","/tktnew");
+    style_submenu_element("New","New","%R/tktnew");
   }
 }
 

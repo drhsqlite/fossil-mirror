@@ -216,16 +216,16 @@ int wiki_need_moderation(
 */
 static void wiki_standard_submenu(unsigned int ok){
   if( (ok & W_SRCH)!=0 && search_restrict(SRCH_WIKI)!=0 ){
-    style_submenu_element("Search","Search","/wikisrch");
+    style_submenu_element("Search","Search","%R/wikisrch");
   }
   if( (ok & W_LIST)!=0 ){
-    style_submenu_element("List","List","/wcontent");
+    style_submenu_element("List","List","%R/wcontent");
   }
   if( (ok & W_HELP)!=0 ){
-    style_submenu_element("Help","Help","/wikihelp");
+    style_submenu_element("Help","Help","%R/wikihelp");
   }
   if( (ok & W_NEW)!=0 && g.perm.NewWiki ){
-    style_submenu_element("New","New","/wikinew");
+    style_submenu_element("New","New","%R/wikinew");
   }
 #if 0
   if( (ok & W_BLOG)!=0
