@@ -72,7 +72,7 @@ void setup_page(void){
     @ <tt>&lt;head&gt;</tt> in the <a href="setup_header">HTML header</a>!</p>
   }
 
-  @ <table border="0" cellspacing="7">
+  @ <table border="0" cellspacing="3">
   setup_menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
   setup_menu_entry("Access", "setup_access",
@@ -88,6 +88,8 @@ void setup_page(void){
     " on the same server");
   setup_menu_entry("Tickets", "tktsetup",
     "Configure the trouble-ticketing system for this repository");
+  setup_menu_entry("Search","srchsetup",
+    "Configure the built-in search engine");
   setup_menu_entry("Transfers", "xfersetup",
     "Configure the transfer system for this repository");
   setup_menu_entry("Skins", "setup_skin",
@@ -2155,5 +2157,57 @@ void page_admin_log(){
   if(limit>0 && counter<limit){
     @ <div>%d(counter) entries shown.</div>
   }
+  style_footer();
+}
+
+/*
+** WEBPAGE: srchsetup
+**
+** Configure the search engine.
+*/
+void page_srchsetup(){
+  login_check_credentials();
+  if( !g.perm.Setup && !g.perm.Admin ){
+    login_needed();
+  }
+  style_header("Search Configuration");
+  @ <form action="%s(g.zTop)/srchsetup" method="post"><div>
+  login_insert_csrf_secret();
+  @ <div style="text-align:center;font-weight:bold;">
+  @ Server-specific settings that affect the 
+  @ <a href="%R/help?cmd=/search">/search</a> webpage.
+  @ </div>
+  @ <hr />
+  textarea_attribute("Document Glob List", 3, 35, "doc-glob", "dg", "", 0);
+  @ <p>The "Document Glob List" is a comma- or newline-separated list 
+  @ of GLOB expressions that identify all documents within the source
+  @ tree that are to be searched when "Document Search" is enabled.
+  @ Some examples:
+  @ <table border=0 cellpadding=2 align=center>
+  @ <tr><td>*.wiki,*.html,*.md,*.txt<td style="width: 4x;">
+  @ <td>Search all wiki, HTML, Markdown, and Text files</tr>
+  @ <tr><td>doc/*.md,*/README.txt,README.txt<td>
+  @ <td>Search all Markdown files in the doc/ subfolder and all README.txt
+  @ files.</tr>
+  @ <tr><td>*<td><td>Search all checked-in files</tr>
+  @ <tr><td><i>(blank)</i><td>
+  @ <td>Search nothing. (Disables document search).</tr>
+  @ </table>
+  @ <hr />
+  entry_attribute("Document Branch", 20, "doc-branch", "db", "trunk", 0);
+  @ <p>When searching documents, use the versions of the files found at the
+  @ type of the "Document Branch" branch.  Recommended value: "trunk".
+  @ Document search is disabled if blank.
+  @ <hr/>
+  onoff_attribute("Search Check-in Comments", "search-ci", "sc", 0, 0);
+  @ <br>
+  onoff_attribute("Search Documents", "search-doc", "sd", 0, 0);
+  @ <br>
+  onoff_attribute("Search Tickets", "search-tkt", "st", 0, 0);
+  @ <br>
+  onoff_attribute("Search Wiki","search-wiki", "sw", 0, 0);
+  @ <hr/>
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
   style_footer();
 }

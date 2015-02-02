@@ -426,9 +426,9 @@ static void search_stext_sqlfunc(
 ){
   Blob txt;
   const char *zType = (const char*)sqlite3_value_text(argv[0]);
-  const char *zArg1 = (const char*)sqlite3_value_text(argv[1]);
-  const char *zArg2 = (const char*)sqlite3_value_text(argv[2]);
-  search_stext(zType[0], zArg1, zArg2, &txt);
+  int rid = sqlite3_value_int(argv[1]);
+  const char *zName = (const char*)sqlite3_value_text(argv[2]);
+  search_stext(zType[0], rid, zName, &txt);
   sqlite3_result_text(context, blob_materialize(&txt), -1, fossil_free);
 }
 
@@ -558,14 +558,28 @@ void search_cmd(void){
 void search_page(void){
   const char *zPattern = PD("s","");
   Stmt q;
-  const char *zSrchEnable = "dwc";
+  int okCheckin;
+  int okDoc;
+  int okTicket;
+  int okWiki;
+  int allOff;
+  const char *zDisable;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  okCheckin = g.perm.Read && db_get_boolean("search-ci",0);
+  okDoc = g.perm.Read && db_get_boolean("search-doc",0);
+  okTicket = g.perm.RdTkt && db_get_boolean("search-tkt",0);
+  okWiki = g.perm.RdWiki && db_get_boolean("search-wiki",0);
+  allOff = (okCheckin + okDoc + okTicket + okWiki == 0);
+  zDisable = allOff ? " disabled" : "";
+  zPattern = allOff ? "" : PD("s","");
   style_header("Search");
   @ <form method="GET" action="search"><center>
-  @ <input type="text" name="s" size="40" value="%h(zPattern)">
-  @ <input type="submit" value="Search">
+  @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable)>
+  @ <input type="submit" value="Search"%s(zDisable)>
+  if( allOff ){
+    @ <p class="generalError">Search is disabled</p>
+  }
   @ </center></form>
   while( fossil_isspace(zPattern[0]) ) zPattern++;
   if( zPattern[0] ){
@@ -577,24 +591,26 @@ void search_page(void){
       "CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;"
       "CREATE TEMP TABLE x(label TEXT,url TEXT,date TEXT,snip TEXT);"
     );
-    if( strchr(zSrchEnable, 'd') ){
-      db_multi_exec(
-        "INSERT INTO x(label,url,date,snip)"
-        "  SELECT printf('Document: %%s',foci.filename),"
-        "         printf('%R/doc/trunk/%%s',foci.filename),"
-        "         (SELECT datetime(event.mtime) FROM event"
-        "            WHERE objid=symbolic_name_to_rid('trunk')),"
-        "         snippet(stext('d',blob.rid,foci.filename))"
-        "    FROM foci CROSS JOIN blob"
-        "   WHERE checkinID=symbolic_name_to_rid('trunk')"
-        "     AND blob.uuid=foci.uuid"
-        "     AND (filename GLOB '*.wiki' OR"
-        "          filename GLOB '*.md' OR"
-        "          filename GLOB '*.txt' OR"
-        "          filename GLOB '*.html');"
-      );
+    if( okDoc ){
+      char *zDocGlob = db_get("doc-glob","");
+      char *zDocBr = db_get("doc-branch","trunk");
+      if( zDocGlob && zDocGlob[0] && zDocBr && zDocBr[0] ){
+        db_multi_exec(
+          "INSERT INTO x(label,url,date,snip)"
+          "  SELECT printf('Document: %%s',foci.filename),"
+          "         printf('%R/doc/%T/%%s',foci.filename),"
+          "         (SELECT datetime(event.mtime) FROM event"
+          "            WHERE objid=symbolic_name_to_rid('trunk')),"
+          "         snippet(stext('d',blob.rid,foci.filename))"
+          "    FROM foci CROSS JOIN blob"
+          "   WHERE checkinID=symbolic_name_to_rid('trunk')"
+          "     AND blob.uuid=foci.uuid"
+          "     AND %z",
+          zDocBr, glob_expr("foci.filename", zDocGlob)
+        );
+      }
     }
-    if( strchr(zSrchEnable, 'w') ){
+    if( okWiki ){
       db_multi_exec(
         "WITH wiki(name,rid,mtime) AS ("
         "  SELECT substr(tagname,6), tagxref.rid, max(tagxref.mtime)"
@@ -611,7 +627,7 @@ void search_page(void){
         "    FROM wiki;"
       );
     }
-    if( strchr(zSrchEnable, 'c') ){
+    if( okCheckin ){
       db_multi_exec(
         "WITH ckin(uuid,rid,mtime) AS ("
         "  SELECT blob.uuid, event.objid, event.mtime"
@@ -629,7 +645,7 @@ void search_page(void){
     }
     db_prepare(&q, "SELECT url, substr(snip,9), label"
                    "   FROM x WHERE snip IS NOT NULL"
-                   " ORDER BY substr(snip,1,9) DESC, date DESC;");
+                   " ORDER BY substr(snip,1,8) DESC, date DESC;");
     @ <ol>
     while( db_step(&q)==SQLITE_ROW ){
       const char *zUrl = db_column_text(&q, 0);
@@ -678,36 +694,32 @@ static void get_stext_by_mimetype(
 ** full text search and/or for constructing a search result snippet.
 **
 **    cType:            d      Embedded documentation
-**                      s      Source code listing
 **                      w      Wiki page
 **                      c      Check-in comment
 **                      t      Ticket text
-**                      e      Event/Blog text
-**                      k      Diff of a wiki
-**                      f      Diff of a checkin
 **
-**   zArg1, zArg2:      Description of the document, depending on cType.
+**    rid               The RID of an artifact that defines the object
+**                      being searched.
+**
+**    zName             Name of the object being searched.
 */
 void search_stext(
   char cType,            /* Type of document */
-  const char *zArg1,     /* First parameter */
-  const char *zArg2,     /* Second parameter */
+  int rid,               /* BLOB.RID or TAG.TAGID value for document */
+  const char *zName,     /* Name of the document */
   Blob *pOut             /* OUT: Initialize to the search text */
 ){
   blob_init(pOut, 0, 0);
   switch( cType ){
-    case 'd':     /* Doc.     zArg1: RID of the file.  zArg2: Filename */
-    case 's': {   /* Source.  zArg1: RID of the file.  zArg2: Filename */
-      int rid = atoi(zArg1);
+    case 'd': {   /* Documents */
       Blob doc;
       content_get(rid, &doc);
       blob_to_utf8_no_bom(&doc, 0);
-      get_stext_by_mimetype(&doc, mimetype_from_name(zArg2), pOut);
+      get_stext_by_mimetype(&doc, mimetype_from_name(zName), pOut);
       blob_reset(&doc);
       break;
     }
-    case 'w': {   /* Wiki.    zArg1: RID of the page.  zArg2: Page name */
-      int rid = atoi(zArg1);
+    case 'w': {   /* Wiki */
       Manifest *pWiki = manifest_get(rid, CFTYPE_WIKI,0);
       Blob wiki;
       if( pWiki==0 ) break;
@@ -718,8 +730,7 @@ void search_stext(
       manifest_destroy(pWiki);
       break;
     }
-    case 'c': {   /* Ckeckin:  zArg1: RID of the checkin.  zArg2: Not used */
-      int rid = atoi(zArg1);
+    case 'c': {   /* Ckeck-in Comments */
       static Stmt q;
       db_static_prepare(&q,
          "SELECT coalesce(ecomment,comment)"
@@ -743,7 +754,7 @@ void search_stext(
 }
 
 /*
-** The arguments cType,zArg1,zArg2 define an object that can be searched
+** The arguments cType,rid,zName define an object that can be searched
 ** for.  Return a URL (relative to the root of the Fossil project) that
 ** will jump to that document.  
 **
@@ -752,33 +763,32 @@ void search_stext(
 */
 char *search_url(
   char cType,            /* Type of document */
-  const char *zArg1,     /* First parameter */
-  const char *zArg2      /* Second parameter */
+  int rid,               /* BLOB.RID or TAG.TAGID for the object */
+  const char *zName      /* Name of the object */
 ){
   char *zUrl = 0;
   switch( cType ){
-    case 'd': {   /* Doc.     zArg1: RID of the file.  zArg2: Filename */
-    case 's':     /* Source.  zArg1: RID of the file.  zArg2: Filename */
+    case 'd': {   /* Documents */
       zUrl = db_text(0,
          "SELECT printf('/doc/%%s%%s', substr(blob.uuid,20), %Q)"
          "  FROM mlink, blob"
          " WHERE mlink.fid=%d AND mlink.mid=blob.rid",
-         zArg2, atoi(zArg1));
+         zName, rid);
       break;
     }
-    case 'w': {   /* Wiki.    zArg1: RID of the page.  zArg2: Page name */
-      char *zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d",atoi(zArg1));
-      zUrl = mprintf("/wiki?id=%z&name=%t", zId, zArg2);
+    case 'w': {   /* Wiki */
+      char *zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      zUrl = mprintf("/wiki?id=%z&name=%t", zId, zName);
       break;
     }     
-    case 'c': {   /* Ckeckin:  zArg1: RID of the checkin.  zArg2: Not used */
-      char *zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d",atoi(zArg1));
+    case 'c': {   /* Ckeck-in Comment */
+      char *zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       zUrl = mprintf("/info/%z", zId);
       break;
     }
   }
   return zUrl;
-}	
+}
 
 /*
 ** COMMAND: test-search-stext
@@ -789,9 +799,9 @@ void test_search_stext(void){
   Blob out;
   char *zUrl;
   db_find_and_open_repository(0,0);
-  if( g.argc!=5 ) usage("TYPE ARG1 ARG2");
-  search_stext(g.argv[2][0], g.argv[3], g.argv[4], &out);
-  zUrl = search_url(g.argv[2][0], g.argv[3], g.argv[4]);
+  if( g.argc!=5 ) usage("TYPE RID NAME");
+  search_stext(g.argv[2][0], atoi(g.argv[3]), g.argv[4], &out);
+  zUrl = search_url(g.argv[2][0], atoi(g.argv[3]), g.argv[4]);
   fossil_print("%s\n%z\n",blob_str(&out),zUrl);
   blob_reset(&out);
 }
