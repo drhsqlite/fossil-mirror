@@ -451,6 +451,8 @@ static void search_urlencode_sqlfunc(
 ** do not delete the Search object.
 */
 void search_sql_setup(sqlite3 *db){
+  static int once = 0;
+  if( once++ ) return;
   sqlite3_create_function(db, "score", -1, SQLITE_UTF8, 0,
      search_score_sqlfunc, 0, 0);
   sqlite3_create_function(db, "snippet", -1, SQLITE_UTF8, &gSearch,
@@ -791,14 +793,14 @@ static void append_all_ticket_fields(Blob *pAccum, Stmt *pQuery){
 void search_stext(
   char cType,            /* Type of document */
   int rid,               /* BLOB.RID or TAG.TAGID value for document */
-  const char *zName,     /* Name of the document */
+  const char *zName,     /* Auxiliary information */
   Blob *pOut             /* OUT: Initialize to the search text */
 ){
   blob_init(pOut, 0, 0);
   switch( cType ){
     case 'd': {   /* Documents */
       Blob doc;
-      content_get(rid, &doc);
+        content_get(rid, &doc);
       blob_to_utf8_no_bom(&doc, 0);
       get_stext_by_mimetype(&doc, mimetype_from_name(zName), pOut);
       blob_reset(&doc);
@@ -919,4 +921,96 @@ void test_search_stext(void){
   zUrl = search_url(g.argv[2][0], atoi(g.argv[3]), g.argv[4]);
   fossil_print("%s\n%z\n",blob_str(&out),zUrl);
   blob_reset(&out);
+}
+
+/* The schema for the full-text index
+*/
+static const char zFtsSchema[] = 
+@ -- One entry for each possible search result
+@ CREATE TABLE IF NOT EXISTS "%w".ftsdocs(
+@   id INTEGER PRIMARY KEY,    -- Maps to the ftsidx.rowid
+@   type CHAR(1),              -- Type of document
+@   rid INTEGER,               -- BLOB.RID or TAG.TAGID for the document
+@   name TEXT,                 -- Additional document description
+@   idxed BOOLEAN,             -- True if currently in the index
+@   UNIQUE(type,rid)
+@ );
+@ CREATE INDEX "%w".ftsdocIdxed ON ftsdocs(type,rid,name) WHERE idxed==0;
+@ CREATE VIEW IF NOT EXISTS "%w".ftscontent AS
+@   SELECT id, type, rid, name, 
+@          stext(type,rid,name) AS stext
+@     FROM ftsdocs;
+@ CREATE VIRTUAL TABLE IF NOT EXISTS "%w".ftsidx
+@   USING fts4(content="ftscontent", stext);
+;
+static const char zFtsDrop[] =
+@ DROP TABLE IF EXISTS "%w".ftsidx;
+@ DROP VIEW IF EXISTS "%w".ftscontent;
+@ DROP TABLE IF EXISTS "%w".ftsdocs;
+;
+
+/*
+** Create or drop the tables associated with a full-text index.
+*/
+void search_create_index(void){
+  const char *zDb = db_name("repository");
+  search_sql_setup(g.db);
+  db_multi_exec(zFtsSchema/*works-like:"%w%w%w%w"*/, zDb, zDb, zDb, zDb);
+}
+void search_drop_index(void){
+  const char *zDb = db_name("repository");
+  db_multi_exec(zFtsDrop/*works-like:"%w%w%w"*/, zDb, zDb, zDb);
+}
+
+/*
+** Return true if the full-text search index exists
+*/
+int search_index_exists(void){
+  static int fExists = -1;
+  if( fExists<0 ) fExists = db_table_exists("repository","ftsdocs");
+  return fExists;
+}
+
+/*
+** The document described by cType,rid,zName is about to be added or
+** updated.  If the document has already been indexed, then unindex it
+** now while we still have access to the old content.  Add the document
+** to the queue of documents that need to be indexed or reindexed.
+*/
+void search_doc_touch(char cType, int rid, const char *zName){
+  if( search_index_exists() ){
+    db_multi_exec(
+       "DELETE FROM ftsidx WHERE rowid IN"
+       "    (SELECT id FROM ftsdocs WHERE type=%Q AND rid=%d AND idxed)",
+       cType, rid
+    );
+    db_multi_exec(
+       "REPLACE INTO ftsdocs(type,rid,name,idxed)"
+       " VALUES(%Q,%d,%Q,0)",
+       cType, rid, zName
+    );
+  }
+}
+
+/*
+** COMMAND: test-fts
+*/
+void test_fts_cmd(void){
+  char *zSubCmd;
+  int n;
+  db_find_and_open_repository(0, 0);
+  if( g.argc<3 ) usage("SUBCMD ...");
+  zSubCmd = g.argv[2];
+  n = (int)strlen(zSubCmd);
+  db_begin_transaction();
+  if( fossil_strncmp(zSubCmd, "create", n)==0 ){
+    search_create_index();
+  }else if( fossil_strncmp(zSubCmd, "drop",n)==0 ){
+    search_drop_index();
+  }else if( fossil_strncmp(zSubCmd, "exists",n)==0 ){
+    fossil_print("search_index_exists() = %d\n", search_index_exists());
+  }else{
+    fossil_fatal("unknown subcommand \"%s\"", zSubCmd);
+  }
+  db_end_transaction(0);
 }
