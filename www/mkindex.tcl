@@ -85,9 +85,8 @@ puts $out \
 "<div class='fossil-doc' data-title='Index Of Fossil Documentation'>"
 puts $out {
 <center>
-<form action='../../../search' method='GET'>
+<form action='../../../docsrch' method='GET'>
 <input type="text" name="s" size="40">
-<input type="hidden" name="only" value="d">
 <input type="submit" value="Search Docs">
 </form>
 </center>
