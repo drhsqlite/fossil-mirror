@@ -972,6 +972,35 @@ int search_index_exists(void){
 }
 
 /*
+** Fill the FTSDOCS table with unindexed entries for everything
+** in the repository.  This uses INSERT OR IGNORE so entries already
+** in FTSDOCS are unchanged.
+*/
+void search_fill_index(void){
+  if( !search_index_exists() ) return;
+  search_sql_setup(g.db);
+  db_multi_exec(
+    "INSERT OR IGNORE INTO ftsdocs(type,rid,idxed)"
+    "  SELECT 'c', objid, 0 FROM event WHERE type='ci';"
+  );
+  db_multi_exec(
+    "WITH latest_wiki(rid,name,mtime) AS ("
+    "  SELECT tagxref.rid, substr(tag.tagname,6), max(tagxref.mtime)"
+    "    FROM tag, tagxref"
+    "   WHERE tag.tagname GLOB 'wiki-*'"
+    "     AND tagxref.tagid=tag.tagid"
+    "     AND tagxref.value>0"
+    "   GROUP BY 2"
+    ") INSERT OR IGNORE INTO ftsdocs(type,rid,name,idxed)"
+    "     SELECT 'w', rid, name, 0 FROM latest_wiki;"
+  );
+  db_multi_exec(
+    "INSERT OR IGNORE INTO ftsdocs(type,rid,idxed)"
+    "  SELECT 't', tkt_id, 0 FROM ticket;"
+  );
+}
+
+/*
 ** The document described by cType,rid,zName is about to be added or
 ** updated.  If the document has already been indexed, then unindex it
 ** now while we still have access to the old content.  Add the document
@@ -997,20 +1026,79 @@ void search_doc_touch(char cType, int rid, const char *zName){
 */
 void test_fts_cmd(void){
   char *zSubCmd;
-  int n;
+  int i, n;
+  static const struct { int iCmd; const char *z; } aCmd[] = {
+     { 1,  "create"    },
+     { 2,  "drop"      },
+     { 3,  "exists"    },
+     { 4,  "fill"      },
+     { 5,  "pending"   },
+     { 6,  "all"       },
+  };
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ) usage("SUBCMD ...");
   zSubCmd = g.argv[2];
   n = (int)strlen(zSubCmd);
+  for(i=0; i<ArraySize(aCmd); i++){
+    if( fossil_strncmp(aCmd[i].z, zSubCmd, n)==0 ) break;
+  }
+  if( i>=ArraySize(aCmd) ){
+    Blob all;
+    blob_init(&all,0,0);
+    for(i=0; i<ArraySize(aCmd); i++) blob_appendf(&all, " %s", aCmd[i].z);
+    fossil_fatal("unknown \"%s\" - should be:%s", zSubCmd, blob_str(&all));
+    return;
+  }
   db_begin_transaction();
-  if( fossil_strncmp(zSubCmd, "create", n)==0 ){
-    search_create_index();
-  }else if( fossil_strncmp(zSubCmd, "drop",n)==0 ){
-    search_drop_index();
-  }else if( fossil_strncmp(zSubCmd, "exists",n)==0 ){
-    fossil_print("search_index_exists() = %d\n", search_index_exists());
-  }else{
-    fossil_fatal("unknown subcommand \"%s\"", zSubCmd);
+  switch( aCmd[i].iCmd ){
+    case 1: {  assert( fossil_strncmp(zSubCmd, "create", n)==0 );
+      search_create_index();
+      break;
+    }
+    case 2: {  assert( fossil_strncmp(zSubCmd, "drop", n)==0 );
+      search_drop_index();
+      break;
+    }
+    case 3: {  assert( fossil_strncmp(zSubCmd, "exist", n)==0 );
+      fossil_print("search_index_exists() = %d\n", search_index_exists());
+      break;
+    }
+    case 4: {  assert( fossil_strncmp(zSubCmd, "fill", n)==0 );
+      search_fill_index();
+      break;
+    }
+    case 5: {  assert( fossil_strncmp(zSubCmd, "pending", n)==0 );
+      Stmt q;
+      if( !search_index_exists() ) break;
+      db_prepare(&q, "SELECT id, type, rid, quote(name) FROM ftsdocs"
+                     " WHERE NOT idxed");
+      while( db_step(&q)==SQLITE_ROW ){
+        fossil_print("%6d: %s %6d %s\n",
+           db_column_int(&q, 0),
+           db_column_text(&q, 1),
+           db_column_int(&q, 2),
+           db_column_text(&q, 3)
+        );
+      }
+      db_finalize(&q);
+      break;
+    }
+    case 6: {  assert( fossil_strncmp(zSubCmd, "all", n)==0 );
+      Stmt q;
+      if( !search_index_exists() ) break;
+      db_prepare(&q, "SELECT id, type, rid, quote(name), idxed FROM ftsdocs");
+      while( db_step(&q)==SQLITE_ROW ){
+        fossil_print("%6d: %s %6d %s%s\n",
+           db_column_int(&q, 0),
+           db_column_text(&q, 1),
+           db_column_int(&q, 2),
+           db_column_text(&q, 3),
+           db_column_int(&q, 4) ? "" : " (NOT INDEXED)"
+        );
+      }
+      db_finalize(&q);
+      break;
+    }
   }
   db_end_transaction(0);
 }
