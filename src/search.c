@@ -643,6 +643,17 @@ void search_page(void){
         "    FROM ckin;"
       );
     }
+    if( okTicket ){
+      db_multi_exec(
+        "INSERT INTO x(label,url,date,snip)"
+        "  SELECT printf('Ticket [%%.17s] on %%s',"
+                        "tkt_uuid,datetime(tkt_mtime)),"
+        "         printf('%R/tktview/%%.20s',tkt_uuid),"
+        "         datetime(tkt_mtime),"
+        "         snippet(stext('t',tkt_id,NULL))"
+        "    FROM ticket;"
+      );
+    }
     db_prepare(&q, "SELECT url, substr(snip,9), label"
                    "   FROM x WHERE snip IS NOT NULL"
                    " ORDER BY substr(snip,1,8) DESC, date DESC;");
@@ -690,6 +701,27 @@ static void get_stext_by_mimetype(
 }
 
 /*
+** Query pQuery is pointing at a single row of output.  Append a text
+** representation of every text-compatible column to pAccum.
+*/
+static void append_all_ticket_fields(Blob *pAccum, Stmt *pQuery){
+  int n = db_column_count(pQuery);
+  int i;
+  for(i=0; i<n; i++){
+    const char *zColName = db_column_name(pQuery,i);
+    if( fossil_strnicmp(zColName,"tkt_",4)==0 ) continue;
+    if( fossil_stricmp(zColName,"mimetype")==0 ) continue;
+    switch( db_column_type(pQuery,i) ){
+      case SQLITE_INTEGER:
+      case SQLITE_FLOAT:
+      case SQLITE_TEXT:
+        blob_appendf(pAccum, "%s: %s |\n", zColName, db_column_text(pQuery,i));
+    }
+  }
+}
+
+
+/*
 ** Return "search text" - a reduced version of a document appropriate for
 ** full text search and/or for constructing a search result snippet.
 **
@@ -730,7 +762,7 @@ void search_stext(
       manifest_destroy(pWiki);
       break;
     }
-    case 'c': {   /* Ckeck-in Comments */
+    case 'c': {   /* Check-in Comments */
       static Stmt q;
       db_static_prepare(&q,
          "SELECT coalesce(ecomment,comment)"
@@ -748,6 +780,30 @@ void search_stext(
         blob_append(pOut, "\n", 1);
       }
       db_reset(&q);
+      break;
+    }
+    case 't': {   /* Tickets */
+      static Stmt q1;
+      Blob raw;
+      db_static_prepare(&q1, "SELECT * FROM ticket WHERE tkt_id=:rid");
+      blob_init(&raw,0,0);
+      db_bind_int(&q1, ":rid", rid);
+      if( db_step(&q1)==SQLITE_ROW ){
+        append_all_ticket_fields(&raw, &q1);
+      }
+      db_reset(&q1);
+      if( db_table_exists("repository","ticketchng") ){
+        static Stmt q2;
+        db_static_prepare(&q2, "SELECT * FROM ticketchng WHERE tkt_id=:rid"
+                               "  ORDER BY tkt_mtime");
+        db_bind_int(&q2, ":rid", rid);
+        while( db_step(&q2)==SQLITE_ROW ){
+          append_all_ticket_fields(&raw, &q2);
+        }
+        db_reset(&q2);
+      }
+      html_to_plaintext(blob_str(&raw), pOut);
+      blob_reset(&raw);
       break;
     }
   }
@@ -784,6 +840,12 @@ char *search_url(
     case 'c': {   /* Ckeck-in Comment */
       char *zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       zUrl = mprintf("/info/%z", zId);
+      break;
+    }
+    case 't': {   /* Tickets */
+      char *zId = db_text(0, "SELECT tkt_uuid FROM ticket"
+                             " WHERE tkt_id=%d", rid);
+      zUrl = mprintf("/tktview/%.20z", zId);
       break;
     }
   }
