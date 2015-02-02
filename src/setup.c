@@ -2175,7 +2175,7 @@ void page_srchsetup(){
   login_insert_csrf_secret();
   @ <div style="text-align:center;font-weight:bold;">
   @ Server-specific settings that affect the 
-  @ <a href="%R/help?cmd=/search">/search</a> webpage.
+  @ <a href="%R/search">/search</a> webpage.
   @ </div>
   @ <hr />
   textarea_attribute("Document Glob List", 3, 35, "doc-glob", "dg", "", 0);

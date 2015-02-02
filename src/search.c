@@ -538,134 +538,179 @@ void search_cmd(void){
   db_finalize(&q);
 }
 
+#if INTERFACE
+/* What to search for */
+#define SRCH_CKIN   0x0001    /* Search over check-in comments */
+#define SRCH_DOC    0x0002    /* Search over embedded documents */
+#define SRCH_TKT    0x0004    /* Search over tickets */
+#define SRCH_WIKI   0x0008    /* Search over wiki */
+#define SRCH_ALL    0x000f    /* Search over everything */
+#endif
+
+/*
+** Remove bits from srchFlags which are disallowed by either the
+** current server configuration or by user permissions.
+*/
+unsigned int search_restrict(unsigned int srchFlags){
+  if( (srchFlags & SRCH_CKIN)!=0 
+   && (g.perm.Read==0 || db_get_boolean("search-ci",0)==0) ){
+    srchFlags &= ~SRCH_CKIN;
+  }
+  if( (srchFlags & SRCH_DOC)!=0 
+   && (g.perm.Read==0 || db_get_boolean("search-doc",0)==0) ){
+    srchFlags &= ~SRCH_DOC;
+  }
+  if( (srchFlags & SRCH_TKT)!=0 
+   && (g.perm.RdTkt==0 || db_get_boolean("search-tkt",0)==0) ){
+    srchFlags &= ~SRCH_TKT;
+  }
+  if( (srchFlags & SRCH_WIKI)!=0 
+   && (g.perm.RdWiki==0 || db_get_boolean("search-wiki",0)==0) ){
+    srchFlags &= ~SRCH_WIKI;
+  }
+  return srchFlags;
+}
+
+/*
+** This routine generates web-page output for a search operation.
+** Other web-pages can invoke this routine to add search results
+** in the middle of the page.
+**
+** Return the number of rows.
+*/
+int search_run_and_output(
+  const char *zPattern,       /* The query pattern */
+  unsigned int srchFlags      /* What to search over */
+){
+  Stmt q;
+  int nRow = 0;
+
+  srchFlags = search_restrict(srchFlags);
+  if( srchFlags==0 ) return 0;
+  search_sql_setup(g.db);
+  add_content_sql_commands(g.db);
+  search_init(zPattern, "<b>", "</b>", " ... ",
+          SRCHFLG_STATIC|SRCHFLG_HTML|SRCHFLG_SCORE);
+  db_multi_exec(
+    "CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;"
+    "CREATE TEMP TABLE x(label TEXT,url TEXT,date TEXT,snip TEXT);"
+  );
+  if( (srchFlags & SRCH_DOC)!=0 ){
+    char *zDocGlob = db_get("doc-glob","");
+    char *zDocBr = db_get("doc-branch","trunk");
+    if( zDocGlob && zDocGlob[0] && zDocBr && zDocBr[0] ){
+      db_multi_exec(
+        "INSERT INTO x(label,url,date,snip)"
+        "  SELECT printf('Document: %%s',foci.filename),"
+        "         printf('%R/doc/%T/%%s',foci.filename),"
+        "         (SELECT datetime(event.mtime) FROM event"
+        "            WHERE objid=symbolic_name_to_rid('trunk')),"
+        "         snippet(stext('d',blob.rid,foci.filename))"
+        "    FROM foci CROSS JOIN blob"
+        "   WHERE checkinID=symbolic_name_to_rid('trunk')"
+        "     AND blob.uuid=foci.uuid"
+        "     AND %z",
+        zDocBr, glob_expr("foci.filename", zDocGlob)
+      );
+    }
+  }
+  if( (srchFlags & SRCH_WIKI)!=0 ){
+    db_multi_exec(
+      "WITH wiki(name,rid,mtime) AS ("
+      "  SELECT substr(tagname,6), tagxref.rid, max(tagxref.mtime)"
+      "    FROM tag, tagxref"
+      "   WHERE tag.tagname GLOB 'wiki-*'"
+      "     AND tagxref.tagid=tag.tagid"
+      "   GROUP BY 1"
+      ")"
+      "INSERT INTO x(label,url,date,snip)"
+      "  SELECT printf('Wiki: %%s',name),"
+      "         printf('%R/wiki?name=%%s',urlencode(name)),"
+      "         datetime(mtime),"
+      "         snippet(stext('w',rid,name))"
+      "    FROM wiki;"
+    );
+  }
+  if( (srchFlags & SRCH_CKIN)!=0 ){
+    db_multi_exec(
+      "WITH ckin(uuid,rid,mtime) AS ("
+      "  SELECT blob.uuid, event.objid, event.mtime"
+      "    FROM event, blob"
+      "   WHERE event.type='ci'"
+      "     AND blob.rid=event.objid"
+      ")"
+      "INSERT INTO x(label,url,date,snip)"
+      "  SELECT printf('Check-in [%%.10s] on %%s',uuid,datetime(mtime)),"
+      "         printf('%R/timeline?c=%%s&n=8&y=ci',uuid),"
+      "         datetime(mtime),"
+      "         snippet(stext('c',rid,NULL))"
+      "    FROM ckin;"
+    );
+  }
+  if( (srchFlags & SRCH_TKT)!=0 ){
+    db_multi_exec(
+      "INSERT INTO x(label,url,date,snip)"
+      "  SELECT printf('Ticket [%%.17s] on %%s',"
+                      "tkt_uuid,datetime(tkt_mtime)),"
+      "         printf('%R/tktview/%%.20s',tkt_uuid),"
+      "         datetime(tkt_mtime),"
+      "         snippet(stext('t',tkt_id,NULL))"
+      "    FROM ticket;"
+    );
+  }
+  db_prepare(&q, "SELECT url, substr(snip,9), label"
+                 "   FROM x WHERE snip IS NOT NULL"
+                 " ORDER BY substr(snip,1,8) DESC, date DESC;");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUrl = db_column_text(&q, 0);
+    const char *zSnippet = db_column_text(&q, 1);
+    const char *zLabel = db_column_text(&q, 2);
+    if( nRow==0 ){
+      @ <ol>
+    }
+    nRow++;
+    @ <li><p>%s(href("%s",zUrl))%h(zLabel)</a><br>%s(zSnippet)</li>
+  }
+  db_finalize(&q);
+  if( nRow ){
+    @ </ol>
+  }
+  return nRow;
+}
+
 /*
 ** WEBPAGE: /search
 **
-** This is an EXPERIMENTAL page for doing search across a repository.
-**
-** The current implementation does a full text search over embedded
-** documentation files on the tip of the "trunk" branch.  Only files
-** ending in ".wiki", ".md", ".html", and ".txt" are searched.
-**
-** The entire text is scanned.  There is no full-text index.  This is
-** experimental.  We may change to using a full-text index depending
-** on performance.
-**
-** Other pending enhancements:
-**    *   Search tickets
-**    *   Search wiki
+** Search for check-in comments, documents, tickets, or wiki that
+** match a user-supplied pattern.
 */
 void search_page(void){
   const char *zPattern = PD("s","");
-  Stmt q;
-  int okCheckin;
-  int okDoc;
-  int okTicket;
-  int okWiki;
-  int allOff;
+  unsigned srchFlags = 0;
   const char *zDisable;
 
   login_check_credentials();
-  okCheckin = g.perm.Read && db_get_boolean("search-ci",0);
-  okDoc = g.perm.Read && db_get_boolean("search-doc",0);
-  okTicket = g.perm.RdTkt && db_get_boolean("search-tkt",0);
-  okWiki = g.perm.RdWiki && db_get_boolean("search-wiki",0);
-  allOff = (okCheckin + okDoc + okTicket + okWiki == 0);
-  zDisable = allOff ? " disabled" : "";
-  zPattern = allOff ? "" : PD("s","");
+  srchFlags = search_restrict(SRCH_ALL);
+  if( srchFlags==0 ){
+    zDisable = " disabled";
+    zPattern = "";
+  }else{
+    zDisable = "";
+    zPattern = PD("s","");
+  }
   style_header("Search");
   @ <form method="GET" action="search"><center>
   @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable)>
   @ <input type="submit" value="Search"%s(zDisable)>
-  if( allOff ){
+  if( srchFlags==0 ){
     @ <p class="generalError">Search is disabled</p>
   }
   @ </center></form>
   while( fossil_isspace(zPattern[0]) ) zPattern++;
   if( zPattern[0] ){
-    search_sql_setup(g.db);
-    add_content_sql_commands(g.db);
-    search_init(zPattern, "<b>", "</b>", " ... ",
-            SRCHFLG_STATIC|SRCHFLG_HTML|SRCHFLG_SCORE);
-    db_multi_exec(
-      "CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;"
-      "CREATE TEMP TABLE x(label TEXT,url TEXT,date TEXT,snip TEXT);"
-    );
-    if( okDoc ){
-      char *zDocGlob = db_get("doc-glob","");
-      char *zDocBr = db_get("doc-branch","trunk");
-      if( zDocGlob && zDocGlob[0] && zDocBr && zDocBr[0] ){
-        db_multi_exec(
-          "INSERT INTO x(label,url,date,snip)"
-          "  SELECT printf('Document: %%s',foci.filename),"
-          "         printf('%R/doc/%T/%%s',foci.filename),"
-          "         (SELECT datetime(event.mtime) FROM event"
-          "            WHERE objid=symbolic_name_to_rid('trunk')),"
-          "         snippet(stext('d',blob.rid,foci.filename))"
-          "    FROM foci CROSS JOIN blob"
-          "   WHERE checkinID=symbolic_name_to_rid('trunk')"
-          "     AND blob.uuid=foci.uuid"
-          "     AND %z",
-          zDocBr, glob_expr("foci.filename", zDocGlob)
-        );
-      }
+    if( search_run_and_output(zPattern, srchFlags)==0 ){
+      @ <p><i>No matches for: "%h(zPattern)"</i></p>
     }
-    if( okWiki ){
-      db_multi_exec(
-        "WITH wiki(name,rid,mtime) AS ("
-        "  SELECT substr(tagname,6), tagxref.rid, max(tagxref.mtime)"
-        "    FROM tag, tagxref"
-        "   WHERE tag.tagname GLOB 'wiki-*'"
-        "     AND tagxref.tagid=tag.tagid"
-        "   GROUP BY 1"
-        ")"
-        "INSERT INTO x(label,url,date,snip)"
-        "  SELECT printf('Wiki: %%s',name),"
-        "         printf('%R/wiki?name=%%s',urlencode(name)),"
-        "         datetime(mtime),"
-        "         snippet(stext('w',rid,name))"
-        "    FROM wiki;"
-      );
-    }
-    if( okCheckin ){
-      db_multi_exec(
-        "WITH ckin(uuid,rid,mtime) AS ("
-        "  SELECT blob.uuid, event.objid, event.mtime"
-        "    FROM event, blob"
-        "   WHERE event.type='ci'"
-        "     AND blob.rid=event.objid"
-        ")"
-        "INSERT INTO x(label,url,date,snip)"
-        "  SELECT printf('Check-in [%%.10s] on %%s',uuid,datetime(mtime)),"
-        "         printf('%R/timeline?c=%%s&n=8&y=ci',uuid),"
-        "         datetime(mtime),"
-        "         snippet(stext('c',rid,NULL))"
-        "    FROM ckin;"
-      );
-    }
-    if( okTicket ){
-      db_multi_exec(
-        "INSERT INTO x(label,url,date,snip)"
-        "  SELECT printf('Ticket [%%.17s] on %%s',"
-                        "tkt_uuid,datetime(tkt_mtime)),"
-        "         printf('%R/tktview/%%.20s',tkt_uuid),"
-        "         datetime(tkt_mtime),"
-        "         snippet(stext('t',tkt_id,NULL))"
-        "    FROM ticket;"
-      );
-    }
-    db_prepare(&q, "SELECT url, substr(snip,9), label"
-                   "   FROM x WHERE snip IS NOT NULL"
-                   " ORDER BY substr(snip,1,8) DESC, date DESC;");
-    @ <ol>
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zUrl = db_column_text(&q, 0);
-      const char *zSnippet = db_column_text(&q, 1);
-      const char *zLabel = db_column_text(&q, 2);
-      @ <li><p>%s(href("%s",zUrl))%h(zLabel)</a><br>%s(zSnippet)</li>
-    }
-    db_finalize(&q);
-    @ </ol>
   }
   style_footer();
 }

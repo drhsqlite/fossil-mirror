@@ -693,6 +693,7 @@ void tktnew_page(void){
     cgi_redirect("home");
   }
   style_header("New Ticket");
+  ticket_standard_submenu(T_ALL_BUT(T_NEW));
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW<br />\n", -1);
   ticket_init();
   initializeVariablesFromCGI();
@@ -1381,4 +1382,74 @@ void ticket_cmd(void){
       }
     }
   }
+}
+
+
+#if INTERFACE
+/* Standard submenu items for wiki pages */
+#define T_SRCH        0x00001
+#define T_REPLIST     0x00002
+#define T_NEW         0x00004
+#define T_ALL         0x00007
+#define T_ALL_BUT(x)  (T_ALL&~(x))
+#endif
+
+/*
+** Add some standard submenu elements for ticket screens.
+*/
+void ticket_standard_submenu(unsigned int ok){
+  if( (ok & T_SRCH)!=0 && search_restrict(SRCH_TKT)!=0 ){
+    style_submenu_element("Search","Search","/tktsrch");
+  }
+  if( (ok & T_REPLIST)!=0 ){
+    style_submenu_element("Reports","Reports","/reportlist");
+  }
+  if( (ok & T_NEW)!=0 && g.perm.NewTkt ){
+    style_submenu_element("New","New","/tktnew");
+  }
+}
+
+
+
+/*
+** Note:  The /ticket webpage is intended to be the page that the
+** main menu links to.  We might move that page around in the future.
+** Use /tktsrch if you really want a ticket search.
+**
+** WEBPAGE: tktsrch
+** WEBPAGE: ticket
+** Usage:  /tktsrch?s=PATTERN
+**
+** Full-text search of all current tickets
+*/
+void tkt_srchpage(void){
+  const char *zPattern = PD("s","");
+  unsigned srchFlags = 0;
+  const char *zDisable;
+
+  login_check_credentials();
+  srchFlags = search_restrict(SRCH_TKT);
+  if( srchFlags==0 ){
+    zDisable = " disabled";
+    zPattern = "";
+  }else{
+    zDisable = "";
+    zPattern = PD("s","");
+  }
+  style_header("Ticket Search");
+  ticket_standard_submenu(T_ALL_BUT(T_SRCH));
+  @ <form method="GET" action="tktsrch"><center>
+  @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable)>
+  @ <input type="submit" value="Search Tickets"%s(zDisable)>
+  if( srchFlags==0 ){
+    @ <p class="generalError">Ticket search is disabled</p>
+  }
+  @ </center></form>
+  while( fossil_isspace(zPattern[0]) ) zPattern++;
+  if( zPattern[0] ){
+    if( search_run_and_output(zPattern, srchFlags)==0 ){
+      @ <p><i>No matches for: "%h(zPattern)"</i></p>
+    }
+  }
+  style_footer();
 }
