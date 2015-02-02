@@ -688,9 +688,16 @@ void search_page(void){
   const char *zPattern = PD("s","");
   unsigned srchFlags = 0;
   const char *zDisable;
+  const char *zOnly = P("only");
 
   login_check_credentials();
   srchFlags = search_restrict(SRCH_ALL);
+  if( zOnly ){
+    if( strchr(zOnly,'c') ) srchFlags &= SRCH_CKIN;
+    if( strchr(zOnly,'d') ) srchFlags &= SRCH_DOC;
+    if( strchr(zOnly,'t') ) srchFlags &= SRCH_TKT;
+    if( strchr(zOnly,'w') ) srchFlags &= SRCH_WIKI;
+  }
   if( srchFlags==0 ){
     zDisable = " disabled";
     zPattern = "";

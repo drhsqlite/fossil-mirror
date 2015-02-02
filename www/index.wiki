@@ -25,7 +25,7 @@ cellpadding="2">
 <li> [./hacker-howto.wiki | Hacker How-To]
 <li> [./changes.wiki | Change Log]
 <li> [./hints.wiki | Tip &amp; Hints]
-<li> [./permutedindex.wiki | Documentation Index]
+<li> [./permutedindex.html | Documentation Index]
 <li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
 <li> Mailing list
      <ul>
