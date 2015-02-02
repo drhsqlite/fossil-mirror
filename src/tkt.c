@@ -1409,15 +1409,24 @@ void ticket_standard_submenu(unsigned int ok){
   }
 }
 
-
+/*
+** WEBPAGE: ticket
+**
+** This is intended to be the primary "Ticket" page.  Render as
+** either ticket-search (if search is enabled) or as the 
+** /reportlist page (if ticket search is disabled).
+*/
+void tkt_home_page(void){
+  login_check_credentials();
+  if( search_restrict(SRCH_TKT)!=0 ){
+    tkt_srchpage();
+  }else{
+    view_list();
+  }
+}
 
 /*
-** Note:  The /ticket webpage is intended to be the page that the
-** main menu links to.  We might move that page around in the future.
-** Use /tktsrch if you really want a ticket search.
-**
 ** WEBPAGE: tktsrch
-** WEBPAGE: ticket
 ** Usage:  /tktsrch?s=PATTERN
 **
 ** Full-text search of all current tickets
