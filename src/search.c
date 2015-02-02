@@ -219,6 +219,7 @@ static int search_score(
         }
       }
       while( ISALNUM(zDoc[i]) ){ i++; }
+      if( zDoc[i]==0 ) break;
     }
   }
 
