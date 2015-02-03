@@ -601,7 +601,7 @@ static void search_fullscan(
   const char *zPattern,       /* The query pattern */
   unsigned int srchFlags      /* What to search over */
 ){
-  search_init(zPattern, "<b>", "</b>", " ... ",
+  search_init(zPattern, "<mark>", "</mark>", " ... ",
           SRCHFLG_STATIC|SRCHFLG_HTML);
   if( (srchFlags & SRCH_DOC)!=0 ){
     char *zDocGlob = db_get("doc-glob","");
@@ -800,7 +800,7 @@ static char *cleanSnippet(const char *zSnip){
   int n = 0;
   char *z;
   for(i=0; zSnip[i]; i++) if( zSnip[i]=='<' ) n++;
-  z = fossil_malloc( i+n+1 );
+  z = fossil_malloc( i+n*4+1 );
   i = 0;
   while( zSnip[0] ){
     if( zSnip[0]=='<' ){
