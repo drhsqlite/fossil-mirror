@@ -1127,7 +1127,7 @@ const struct strctCssDefaults {
     "Descending sort column marker",
     @ content: '\2191';
   },
-  { "mark",
+  { "span.snippet>mark",
     "Search markup",
     @ background-color: inherit;
     @ font-weight: bold;
