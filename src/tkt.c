@@ -1433,33 +1433,9 @@ void tkt_home_page(void){
 ** Full-text search of all current tickets
 */
 void tkt_srchpage(void){
-  const char *zPattern = PD("s","");
-  unsigned srchFlags = 0;
-  const char *zDisable;
-
   login_check_credentials();
-  srchFlags = search_restrict(SRCH_TKT);
-  if( srchFlags==0 ){
-    zDisable = " disabled";
-    zPattern = "";
-  }else{
-    zDisable = "";
-    zPattern = PD("s","");
-  }
   style_header("Ticket Search");
   ticket_standard_submenu(T_ALL_BUT(T_SRCH));
-  @ <form method="GET" action="tktsrch"><center>
-  @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable)>
-  @ <input type="submit" value="Search Tickets"%s(zDisable)>
-  if( srchFlags==0 ){
-    @ <p class="generalError">Ticket search is disabled</p>
-  }
-  @ </center></form>
-  while( fossil_isspace(zPattern[0]) ) zPattern++;
-  if( zPattern[0] ){
-    if( search_run_and_output(zPattern, srchFlags)==0 ){
-      @ <p><i>No matches for: "%h(zPattern)"</i></p>
-    }
-  }
+  search_screen(SRCH_TKT, "tktsrch");
   style_footer();
 }

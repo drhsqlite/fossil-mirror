@@ -572,7 +572,6 @@ unsigned int search_restrict(unsigned int srchFlags){
   if( g.perm.Read==0 )   srchFlags &= ~(SRCH_CKIN|SRCH_DOC);
   if( g.perm.RdTkt==0 )  srchFlags &= ~(SRCH_TKT);
   if( g.perm.RdWiki==0 ) srchFlags &= ~(SRCH_WIKI);
-  if( search_index_exists() ) return srchFlags;
   if( (srchFlags & SRCH_CKIN)!=0 && db_get_boolean("search-ci",0)==0 ){
     srchFlags &= ~SRCH_CKIN;
   }
@@ -826,25 +825,29 @@ int search_run_and_output(
 }
 
 /*
-** WEBPAGE: /search
+** Generate some HTML for doing search.  At a minimum include the
+** Search-Text entry form.  If the "s" query parameter is present, also
+** show search results.
 **
-** Search for check-in comments, documents, tickets, or wiki that
-** match a user-supplied pattern.
+** The srchFlags parameter is used to customize some of the text of the
+** form and the results.  srchFlags should be either a single search
+** category or all categories.  Any srchFlags with two or more bits set
+** is treated like SRCH_ALL for display purposes.
+**
+** The entry box is shown disabled if srchFlags is 0.
 */
-void search_page(void){
-  const char *zPattern = PD("s","");
-  unsigned srchFlags = 0;
+void search_screen(unsigned srchFlags, const char *zAction){
+  const char *zType = 0;
+  const char *zClass = 0;
   const char *zDisable;
-  const char *zOnly = P("only");
-
-  login_check_credentials();
-  srchFlags = search_restrict(SRCH_ALL);
-  if( zOnly ){
-    if( strchr(zOnly,'c') ) srchFlags &= SRCH_CKIN;
-    if( strchr(zOnly,'d') ) srchFlags &= SRCH_DOC;
-    if( strchr(zOnly,'t') ) srchFlags &= SRCH_TKT;
-    if( strchr(zOnly,'w') ) srchFlags &= SRCH_WIKI;
+  const char *zPattern;
+  switch( srchFlags ){
+    case SRCH_CKIN:  zType = " Check-ins";  zClass = "Ckin";  break;
+    case SRCH_DOC:   zType = " Docs";       zClass = "Doc";   break;
+    case SRCH_TKT:   zType = " Tickets";    zClass = "Tkt";   break;
+    case SRCH_WIKI:  zType = " Wiki";       zClass = "Wiki";  break;
   }
+  srchFlags = search_restrict(srchFlags);
   if( srchFlags==0 ){
     zDisable = " disabled";
     zPattern = "";
@@ -852,20 +855,51 @@ void search_page(void){
     zDisable = "";
     zPattern = PD("s","");
   }
-  style_header("Search");
-  @ <form method="GET" action="search"><center>
+  @ <form method='GET' action='%s(zAction)'>
+  if( zClass ){
+    @ <div class='searchForm searchForm%s(zClass)'>
+  }else{
+    @ <div class='searchForm'>
+  }
   @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable)>
-  @ <input type="submit" value="Search"%s(zDisable)>
+  @ <input type="submit" value="Search%s(zType)"%s(zDisable)>
   if( srchFlags==0 ){
     @ <p class="generalError">Search is disabled</p>
   }
-  @ </center></form>
+  @ </div></form>
   while( fossil_isspace(zPattern[0]) ) zPattern++;
   if( zPattern[0] ){
-    if( search_run_and_output(zPattern, srchFlags)==0 ){
-      @ <p><i>No matches for: "%h(zPattern)"</i></p>
+    if( zClass ){
+      @ <div class='searchResult searchResult%s(zClass)'>
+    }else{
+      @ <div class='searchResult'>
     }
+    if( search_run_and_output(zPattern, srchFlags)==0 ){
+      @ <p class='searchEmpty'>No matches for: <span>%h(zPattern)</span></p>
+    }
+    @ </div>
   }
+}
+
+/*
+** WEBPAGE: /search
+**
+** Search for check-in comments, documents, tickets, or wiki that
+** match a user-supplied pattern.
+*/
+void search_page(void){
+  unsigned srchFlags = SRCH_ALL;
+  const char *zOnly = P("only");
+
+  login_check_credentials();
+  if( zOnly ){
+    if( strchr(zOnly,'c') ) srchFlags &= SRCH_CKIN;
+    if( strchr(zOnly,'d') ) srchFlags &= SRCH_DOC;
+    if( strchr(zOnly,'t') ) srchFlags &= SRCH_TKT;
+    if( strchr(zOnly,'w') ) srchFlags &= SRCH_WIKI;
+  }
+  style_header("Search");
+  search_screen(srchFlags, "search");
   style_footer();
 }
 

@@ -785,32 +785,8 @@ void background_page(void){
 ** Search for documents that match a user-supplied pattern.
 */
 void doc_search_page(void){
-  const char *zPattern = PD("s","");
-  unsigned srchFlags = 0;
-  const char *zDisable;
-
   login_check_credentials();
-  srchFlags = search_restrict(SRCH_DOC);
-  if( srchFlags==0 ){
-    zDisable = " disabled";
-    zPattern = "";
-  }else{
-    zDisable = "";
-    zPattern = PD("s","");
-  }
   style_header("Document Search");
-  @ <form method="GET" action="docsrch"><center>
-  @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable)>
-  @ <input type="submit" value="Search Docs"%s(zDisable)>
-  if( srchFlags==0 ){
-    @ <p class="generalError">Document search is disabled</p>
-  }
-  @ </center></form>
-  while( fossil_isspace(zPattern[0]) ) zPattern++;
-  if( zPattern[0] ){
-    if( search_run_and_output(zPattern, srchFlags)==0 ){
-      @ <p><i>No matches for: "%h(zPattern)"</i></p>
-    }
-  }
+  search_screen(SRCH_DOC, "docsrch");
   style_footer();
 }

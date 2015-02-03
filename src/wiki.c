@@ -290,34 +290,10 @@ void wiki_helppage(void){
 ** Full-text search of all current wiki text
 */
 void wiki_srchpage(void){
-  const char *zPattern = PD("s","");
-  unsigned srchFlags = 0;
-  const char *zDisable;
-
   login_check_credentials();
-  srchFlags = search_restrict(SRCH_WIKI);
-  if( srchFlags==0 ){
-    zDisable = " disabled";
-    zPattern = "";
-  }else{
-    zDisable = "";
-    zPattern = PD("s","");
-  }
   style_header("Wiki Search");
   wiki_standard_submenu(W_HELP|W_LIST|W_SANDBOX);
-  @ <form method="GET" action="wikisrch"><center>
-  @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable)>
-  @ <input type="submit" value="Search Wiki"%s(zDisable)>
-  if( srchFlags==0 ){
-    @ <p class="generalError">Wiki search is disabled</p>
-  }
-  @ </center></form>
-  while( fossil_isspace(zPattern[0]) ) zPattern++;
-  if( zPattern[0] ){
-    if( search_run_and_output(zPattern, srchFlags)==0 ){
-      @ <p><i>No matches for: "%h(zPattern)"</i></p>
-    }
-  }
+  search_screen(SRCH_WIKI, "wikisrch");
   style_footer();
 }
 

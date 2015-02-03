@@ -1132,6 +1132,14 @@ const struct strctCssDefaults {
     @ background-color: inherit;
     @ font-weight: bold;
   },
+  { "div.searchForm",
+    "Container for the search terms entry box",
+    @ text-align: center;
+  },
+  { "p.searchEmpty",
+    "Message explaining that there are no search results",
+    @ font-style: italic;
+  },
   { 0,
     0,
     0
