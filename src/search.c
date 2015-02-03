@@ -736,9 +736,12 @@ static void search_indexed(
   const char *zPattern,       /* The query pattern */
   unsigned int srchFlags      /* What to search over */
 ){
+  Blob sql;
+  if( srchFlags==0 ) return;
   sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8, 0,
      search_rank_sqlfunc, 0, 0);
-  db_multi_exec(
+  blob_init(&sql, 0, 0);
+  blob_appendf(&sql,
     "INSERT INTO x(label,url,score,date,snip) "
     " SELECT ftsdocs.label,"
     "        ftsdocs.url,"
@@ -750,6 +753,24 @@ static void search_indexed(
     "    AND ftsdocs.rowid=ftsidx.docid",
     zPattern
   );
+  if( srchFlags!=SRCH_ALL ){
+    const char *zSep = " AND (";
+    static const struct { unsigned m; char c; } aMask[] = {
+       { SRCH_CKIN,  'c' },
+       { SRCH_DOC,   'd' },
+       { SRCH_TKT,   't' },
+       { SRCH_WIKI,  'w' },
+    };
+    int i;
+    for(i=0; i<ArraySize(aMask); i++){
+      if( srchFlags & aMask[i].m ){
+        blob_appendf(&sql, "%sftsdocs.type='%c'", zSep, aMask[i].c);
+        zSep = " OR ";
+      }
+    }
+    blob_append(&sql,")",1);
+  }
+  db_multi_exec("%s",blob_str(&sql)/*safe-for-%s*/);
 #if SEARCH_DEBUG_RANK
   db_multi_exec("UPDATE x SET label=printf('%%s (score=%%s)',label,score)");
 #endif
@@ -780,7 +801,7 @@ int search_run_and_output(
   if( !search_index_exists() ){
     search_fullscan(zPattern, srchFlags);
   }else{
-    search_update_index();
+    search_update_index(srchFlags);
     search_indexed(zPattern, srchFlags);
   }
   db_prepare(&q, "SELECT url, snip, label"
@@ -1223,17 +1244,17 @@ static void search_update_wiki_index(void){
   db_multi_exec(
     "INSERT INTO ftsidx(docid,stext)"
     " SELECT rowid, stext('w',rid,NULL) FROM ftsdocs"
-    "  WHERE type='t' AND NOT idxed;"
+    "  WHERE type='w' AND NOT idxed;"
   );
   if( db_changes()==0 ) return;
   db_multi_exec(
     "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
     "  SELECT ftsdocs.rowid, 1, 'w', ftsdocs.rid, ftsdocs.name,"
-    "    'Wiki: '||tsdocs.name),"
+    "    'Wiki: '||ftsdocs.name,"
     "    '/wiki?name='||urlencode(ftsdocs.name),"
     "    tagxref.mtime"
     "  FROM ftsdocs, tagxref"
-    "  WHERE ftsdocs.type='t' AND NOT ftsdocs.idxed"
+    "  WHERE ftsdocs.type='w' AND NOT ftsdocs.idxed"
     "    AND tagxref.rid=ftsdocs.rid"
   );
 }
@@ -1243,14 +1264,20 @@ static void search_update_wiki_index(void){
 ** is to say, all the entries with FTSDOCS.IDXED=0.  Add them to the
 ** index.
 */
-void search_update_index(void){
+void search_update_index(unsigned int srchFlags){
   if( !search_index_exists() ) return;
   if( !db_exists("SELECT 1 FROM ftsdocs WHERE NOT idxed") ) return;
   search_sql_setup(g.db);
-  search_update_doc_index();
-  search_update_checkin_index();
-  search_update_ticket_index();
-  search_update_wiki_index();
+  if( srchFlags & (SRCH_CKIN|SRCH_DOC) ){
+    search_update_doc_index();
+    search_update_checkin_index();
+  }
+  if( srchFlags & SRCH_TKT ){
+    search_update_ticket_index();
+  }
+  if( srchFlags & SRCH_WIKI ){
+    search_update_wiki_index();
+  }
 }
 
 /*
@@ -1323,7 +1350,7 @@ void test_fts_cmd(void){
       break;
     }
     case 7: {  assert( fossil_strncmp(zSubCmd, "update", n)==0 );
-      search_update_index();
+      search_update_index(SRCH_ALL);
       break;
     }
 

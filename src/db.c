@@ -549,8 +549,9 @@ int db_multi_exec(const char *zSql, ...){
   while( rc==SQLITE_OK && z[0] ){
     pStmt = 0;
     rc = sqlite3_prepare_v2(g.db, z, -1, &pStmt, &zEnd);
-    if( rc!=SQLITE_OK ) break;
-    if( pStmt ){
+    if( rc ){
+      db_err("%s: {%s}", sqlite3_errmsg(g.db), z);
+    }else if( pStmt ){
       db.nPrepare++;
       while( sqlite3_step(pStmt)==SQLITE_ROW ){}
       rc = sqlite3_finalize(pStmt);
