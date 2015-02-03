@@ -681,6 +681,48 @@ static void search_fullscan(
 }
 
 /*
+** Implemenation of the rank() function used with rank(matchinfo(*,'pcsx')).
+*/
+static void search_rank_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const unsigned *aVal = (unsigned int*)sqlite3_value_blob(argv[0]);
+  int nVal = sqlite3_value_bytes(argv[0])/4;
+  int nTerm;          /* Number of search terms in the query */
+  int i;              /* Loop counter */
+  double r = 1.0;     /* Score */
+
+  if( nVal<6 ) return;
+  if( aVal[1]!=1 ) return;
+  nTerm = aVal[0];
+  r *= 1<<((30*(aVal[2]-1))/nTerm);
+  for(i=1; i<=nTerm; i++){
+    int hits_this_row = aVal[3*i];
+    int hits_all_rows = aVal[3*i+1];
+    int rows_with_hit = aVal[3*i+2];
+    double avg_hits_per_row = (double)hits_all_rows/(double)rows_with_hit;
+    r *= hits_this_row/avg_hits_per_row;
+  }
+#define SEARCH_DEBUG_RANK 0
+#if SEARCH_DEBUG_RANK
+  {
+    Blob x;
+    blob_init(&x,0,0);
+    blob_appendf(&x,"%08x", (int)r);
+    for(i=0; i<nVal; i++){
+      blob_appendf(&x," %d", aVal[i]);
+    }
+    blob_appendf(&x," r=%g", r);
+    sqlite3_result_text(context, blob_str(&x), -1, fossil_free);
+  }
+#else
+  sqlite3_result_double(context, r);
+#endif
+}
+
+/*
 ** When this routine is called, there already exists a table
 **
 **       x(label,url,score,date,snip).
@@ -694,11 +736,13 @@ static void search_indexed(
   const char *zPattern,       /* The query pattern */
   unsigned int srchFlags      /* What to search over */
 ){
+  sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8, 0,
+     search_rank_sqlfunc, 0, 0);
   db_multi_exec(
     "INSERT INTO x(label,url,score,date,snip) "
     " SELECT ftsdocs.label,"
     "        ftsdocs.url,"
-    "        1,"  /*FIX ME*/
+    "        rank(matchinfo(ftsidx,'pcsx')),"
     "        datetime(ftsdocs.mtime),"
     "        snippet(ftsidx)"
     "   FROM ftsidx, ftsdocs"
@@ -706,6 +750,9 @@ static void search_indexed(
     "    AND ftsdocs.rowid=ftsidx.docid",
     zPattern
   );
+#if SEARCH_DEBUG_RANK
+  db_multi_exec("UPDATE x SET label=printf('%%s (score=%%s)',label,score)");
+#endif
 }
 
 
