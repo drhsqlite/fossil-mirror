@@ -1202,6 +1202,7 @@ void search_doc_touch(char cType, int rid, const char *zName){
     char zType[2];
     zType[0] = cType;
     zType[1] = 0;
+    search_sql_setup(g.db);
     db_multi_exec(
        "DELETE FROM ftsidx WHERE docid IN"
        "    (SELECT rowid FROM ftsdocs WHERE type=%Q AND rid=%d AND idxed)",
