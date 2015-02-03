@@ -1365,79 +1365,105 @@ void search_update_index(unsigned int srchFlags){
 }
 
 /*
-** COMMAND: test-fts
+** COMMAND: fts-config*
+**
+** Usage: fossil fts-config ?SUBCOMMAND? ?ARGUMENT?
+**
+** The "fossil fts-config" command configures the full-text search capabilities
+** of the repository.  Subcommands:
+**
+**     reindex            Rebuild the search index.  Create it if it does
+**                        not already exist
+**
+**     index (on|off)     Turn the search index on or off
+**
+**     enable cdtw        Enable various kinds of search. c=Check-ins,
+**                        d=Documents, t=Tickets, w=Wiki.
+**
+**     disable cdtw       Disable versious kinds of search
+**
+** The current search settings are displayed after any changes are applied.
+** Run this command with no arguments to simply see the settings.
 */
 void test_fts_cmd(void){
-  char *zSubCmd;
-  int i, n;
   static const struct { int iCmd; const char *z; } aCmd[] = {
-     { 1,  "create"    },
-     { 2,  "drop"      },
-     { 3,  "exists"    },
-     { 4,  "fill"      },
-     { 8,  "refill"    },
-     { 5,  "pending"   },
-     { 7,  "update"    },
+     { 1,  "reindex"  },
+     { 2,  "index"    },
+     { 3,  "disable"  },
+     { 4,  "enable"   },
   };
+  static const struct { char *zSetting; char *zName; char *zSw; } aSetng[] = {
+     { "search-ckin",  "check-in search:",  "c" },
+     { "search-doc",   "document search:",  "d" },
+     { "search-tkt",   "ticket search:",    "t" },
+     { "search-wiki",  "wiki search:",      "w" },
+  };
+  char *zSubCmd;
+  int i, j, n;
+  int iCmd = 0;
+  int iAction = 0;
   db_find_and_open_repository(0, 0);
-  if( g.argc<3 ) usage("SUBCMD ...");
-  zSubCmd = g.argv[2];
-  n = (int)strlen(zSubCmd);
-  for(i=0; i<ArraySize(aCmd); i++){
-    if( fossil_strncmp(aCmd[i].z, zSubCmd, n)==0 ) break;
+  if( g.argc>2 ){
+    zSubCmd = g.argv[2];
+    n = (int)strlen(zSubCmd);
+    for(i=0; i<ArraySize(aCmd); i++){
+      if( fossil_strncmp(aCmd[i].z, zSubCmd, n)==0 ) break;
+    }
+    if( i>=ArraySize(aCmd) ){
+      Blob all;
+      blob_init(&all,0,0);
+      for(i=0; i<ArraySize(aCmd); i++) blob_appendf(&all, " %s", aCmd[i].z);
+      fossil_fatal("unknown \"%s\" - should be on of:%s",
+                   zSubCmd, blob_str(&all));
+      return;
+    }
+    iCmd = aCmd[i].iCmd;
   }
-  if( i>=ArraySize(aCmd) ){
-    Blob all;
-    blob_init(&all,0,0);
-    for(i=0; i<ArraySize(aCmd); i++) blob_appendf(&all, " %s", aCmd[i].z);
-    fossil_fatal("unknown \"%s\" - should be:%s", zSubCmd, blob_str(&all));
-    return;
+  if( iCmd==1 ){
+    iAction = 2;
+  }
+  if( iCmd==2 ){
+    if( g.argc<3 ) usage("index (on|off)");
+    iAction = 1 + is_truth(g.argv[3]);
   }
   db_begin_transaction();
-  switch( aCmd[i].iCmd ){
-    case 1: {  assert( fossil_strncmp(zSubCmd, "create", n)==0 );
-      search_create_index();
-      break;
-    }
-    case 2: {  assert( fossil_strncmp(zSubCmd, "drop", n)==0 );
-      search_drop_index();
-      break;
-    }
-    case 3: {  assert( fossil_strncmp(zSubCmd, "exists", n)==0 );
-      fossil_print("search_index_exists() = %d\n", search_index_exists());
-      break;
-    }
-    case 4: {  assert( fossil_strncmp(zSubCmd, "fill", n)==0 );
-      search_fill_index();
-      break;
-    }
-    case 8: {  assert( fossil_strncmp(zSubCmd, "refill", n)==0 );
-      search_drop_index();
-      search_create_index();
-      search_fill_index();
-      break;
-    }
-    case 5: {  assert( fossil_strncmp(zSubCmd, "pending", n)==0 );
-      Stmt q;
-      if( !search_index_exists() ) break;
-      db_prepare(&q, "SELECT rowid,type,rid,quote(name) FROM ftsdocs"
-                     " WHERE NOT idxed");
-      while( db_step(&q)==SQLITE_ROW ){
-        fossil_print("%6d: %s %6d %s\n",
-           db_column_int(&q, 0),
-           db_column_text(&q, 1),
-           db_column_int(&q, 2),
-           db_column_text(&q, 3)
-        );
-      }
-      db_finalize(&q);
-      break;
-    }
-    case 7: {  assert( fossil_strncmp(zSubCmd, "update", n)==0 );
-      search_update_index(SRCH_ALL);
-      break;
-    }
 
+  /* Adjust search settings */
+  if( iCmd==3 || iCmd==4 ){
+    const char *zCtrl;
+    if( g.argc<4 ) usage("enable STRING");
+    zCtrl = g.argv[3];
+    for(j=0; j<ArraySize(aSetng); j++){
+      if( strchr(zCtrl, aSetng[j].zSw[0])!=0 ){
+        db_set_int(aSetng[j].zSetting, iCmd-3, 0);
+      }
+    }
+  }
+
+  /* destroy or rebuild the index, if requested */
+  if( iAction>=1 ){
+    search_drop_index();
+  }
+  if( iAction>=2 ){
+    fossil_print("rebuilding the search index...");
+    fflush(stdout);
+    search_create_index();
+    search_fill_index();
+    search_update_index(search_restrict(SRCH_ALL));
+    fossil_print(" done\n");
+  }
+
+  /* Always show the status before ending */
+  for(i=0; i<ArraySize(aSetng); i++){
+    fossil_print("%-16s %s\n", aSetng[i].zName, 
+       db_get_boolean(aSetng[i].zSetting,0) ? "on" : "off");
+  }
+  if( search_index_exists() ){
+    fossil_print("%-16s enabled\n", "full-text index:");
+    fossil_print("%-16s %d\n", "documents:",
+       db_int(0, "SELECT count(*) FROM ftsdocs"));
+  }else{
+    fossil_print("%-16s disabled\n", "full-text index:");
   }
   db_end_transaction(0);
 }

@@ -237,6 +237,9 @@ void all_cmd(void){
   }else if( strncmp(zCmd, "unset", n)==0 ){
     zCmd = "unset -R";
     collect_argv(&extra, 3);
+  }else if( strncmp(zCmd, "fts-config", n)==0 ){
+    zCmd = "fts-config -R";
+    collect_argv(&extra, 3);
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
     collect_argument(&extra, "verbose","v");
