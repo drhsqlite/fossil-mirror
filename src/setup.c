@@ -2215,12 +2215,13 @@ void page_srchsetup(){
     search_drop_index();
     search_create_index();
     search_fill_index();
-    search_update_index(SRCH_ALL);
+    search_update_index(search_restrict(SRCH_ALL));
   }
   if( search_index_exists() ){
     @ <p>Currently using an SQLite FTS4 search index. This makes search
     @ run faster, especially on large repositories, but takes up space.</p>
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
+    @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
   }else{
     @ <p>The SQLite FTS4 search index is disabled.  All searching will be
     @ a full-text scan.  This usually works fine, but can be slow for
