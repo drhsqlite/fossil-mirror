@@ -535,6 +535,8 @@ static void reconstruct_private_table(void){
 **   --analyze     Run ANALYZE on the database after rebuilding
 **   --wal         Set Write-Ahead-Log journalling mode on the database
 **   --stats       Show artifact statistics after rebuilding
+**   --index       Always add in the full-text search index
+**   --no-index    Always omit the full-text search index
 **
 ** See also: deconstruct, reconstruct
 */
@@ -552,6 +554,7 @@ void rebuild_database(void){
   int runAnalyze;
   int runCompress;
   int showStats;
+  int runReindex;
 
   omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
@@ -582,11 +585,15 @@ void rebuild_database(void){
     db_close(1);
     db_open_repository(g.zRepositoryName);
   }
+  runReindex = search_index_exists();
+  if( find_option("index",0,0)!=0 ) runReindex = 1;
+  if( find_option("no-index",0,0)!=0 ) runReindex = 0;
   
   /* We should be done with options.. */
   verify_all_options();
 
   db_begin_transaction();
+  search_drop_index();
   ttyOutput = 1;
   errCnt = rebuild_db(randomizeFlag, 1, doClustering);
   reconstruct_private_table();
@@ -636,6 +643,7 @@ void rebuild_database(void){
       db_multi_exec("PRAGMA journal_mode=WAL;");
     }
   }
+  if( runReindex ) search_rebuild_index();
   if( showStats ){
     static const struct { int idx; const char *zLabel; } aStat[] = {
        { CFTYPE_ANY,       "Artifacts:" },

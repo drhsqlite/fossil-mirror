@@ -1138,24 +1138,28 @@ static const char zFtsDrop[] =
 /*
 ** Create or drop the tables associated with a full-text index.
 */
+static int searchIdxExists = -1;
 void search_create_index(void){
   const char *zDb = db_name("repository");
   search_sql_setup(g.db);
   db_multi_exec(zFtsSchema/*works-like:"%w%w%w%w%w"*/,
        zDb, zDb, zDb, zDb, zDb);
+  searchIdxExists = 1;
 }
 void search_drop_index(void){
   const char *zDb = db_name("repository");
   db_multi_exec(zFtsDrop/*works-like:"%w%w%w"*/, zDb, zDb, zDb);
+  searchIdxExists = 0;
 }
 
 /*
 ** Return true if the full-text search index exists
 */
 int search_index_exists(void){
-  static int fExists = -1;
-  if( fExists<0 ) fExists = db_table_exists("repository","ftsdocs");
-  return fExists;
+  if( searchIdxExists<0 ){
+    searchIdxExists = db_table_exists("repository","ftsdocs");
+  }
+  return searchIdxExists;
 }
 
 /*
@@ -1365,6 +1369,18 @@ void search_update_index(unsigned int srchFlags){
 }
 
 /*
+** Construct, prepopulate, and then update the full-text index.
+*/
+void search_rebuild_index(void){
+  fossil_print("rebuilding the search index...");
+  fflush(stdout);
+  search_create_index();
+  search_fill_index();
+  search_update_index(search_restrict(SRCH_ALL));
+  fossil_print(" done\n");
+}
+
+/*
 ** COMMAND: fts-config*
 **
 ** Usage: fossil fts-config ?SUBCOMMAND? ?ARGUMENT?
@@ -1445,12 +1461,7 @@ void test_fts_cmd(void){
     search_drop_index();
   }
   if( iAction>=2 ){
-    fossil_print("rebuilding the search index...");
-    fflush(stdout);
-    search_create_index();
-    search_fill_index();
-    search_update_index(search_restrict(SRCH_ALL));
-    fossil_print(" done\n");
+    search_rebuild_index();
   }
 
   /* Always show the status before ending */
