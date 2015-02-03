@@ -1,5 +1,5 @@
-C Put\sthe\ssearch\ssnippets\sinside\sof\s&lt;span\sclass='snippet'&gt;.
-D 2015-02-03T04:45:46.345
+C Add\sa\scontrol\sto\sthe\s/srchsetup\spage\sthat\sallows\sthe\sfull-text\sindex\sto\sbe\ncreated\sand\sdestroyed.
+D 2015-02-03T04:58:31.777
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -437,7 +437,7 @@ F src/report.c 802d68bca3a9b0ed615d386cc541a092e1c94100
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
 F src/schema.c 4cf219c92277e2df277f0f8e8be4eccc1e47ed53
 F src/search.c c84bab8aa0fd1c80a2c359b72958f34fd4dfd7ed
-F src/setup.c 65455cc232350f37830c60e9651863322c34e381
+F src/setup.c 6a5eb2e295b9a7381712f73be8a82687185c7dbc
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c 66986a98df6556f8de10d137f53a270f34ef1252
 F src/shun.c a93c409f694b6022061d2c946311d6ead83a4e49
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c5a2832eebd62b50de331e576c2d4f8f3651058b
-R 071fcc34b54bac5b20accae41f6d8c8f
+P 1b08cfe2155004724ffa86c10e4dc69655364732
+R 9ca69aeda4e6e9d4d4250ab44bf95512
 U drh
-Z 8f4d9a69168cf4ceb3758f2548879ee2
+Z 3b999c5c7093d1c24d461a7f2b5127f8
