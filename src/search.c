@@ -747,7 +747,7 @@ static void search_indexed(
     "        rank(matchinfo(ftsidx,'pcsx')),"
     "        datetime(ftsdocs.mtime),"
     "        snippet(ftsidx,'<mark>','</mark>',' ... ')"
-    "   FROM ftsidx, ftsdocs"
+    "   FROM ftsidx CROSS JOIN ftsdocs"
     "  WHERE ftsidx MATCH %Q"
     "    AND ftsdocs.rowid=ftsidx.docid",
     zPattern
