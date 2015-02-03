@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\sdo\ssearch\susing\san\sSQLite\sFTS4\sindex.
-D 2015-02-03T05:24:56.518
+C Fix\sto\shyperlinks\son\ssearch\sresults.
+D 2015-02-03T06:05:40.309
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -436,7 +436,7 @@ F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 802d68bca3a9b0ed615d386cc541a092e1c94100
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
 F src/schema.c 4cf219c92277e2df277f0f8e8be4eccc1e47ed53
-F src/search.c c84bab8aa0fd1c80a2c359b72958f34fd4dfd7ed
+F src/search.c 243d90be0ca47859487b5935ec595830ff3893b2
 F src/setup.c 6a5eb2e295b9a7381712f73be8a82687185c7dbc
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c 66986a98df6556f8de10d137f53a270f34ef1252
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 41e5da02349b318cd248bbd46e1e2cdba6f4bd0d ef78fba86a7fff99e0cfa80da6b75038c480efee
-R f0dab9f2307a6bbc5bdd2969349c0268
+P a00a140bff46373e36855e2cb734abbc73fbb571
+R 5bf9b79bfa6e51514873f84de1bed264
 U drh
-Z 0c8f832ce8459a4667334a3b5016d222
+Z b07edd2b3bf2d3c828a66d7737cabe78

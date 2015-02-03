@@ -815,7 +815,7 @@ int search_run_and_output(
       @ <ol>
     }
     nRow++;
-    @ <li><p><a href='%s(zUrl)'>%h(zLabel)</a><br>
+    @ <li><p><a href='%R%s(zUrl)'>%h(zLabel)</a><br>
     @ <span class='snippet'>%s(zSnippet)</span></li>
   }
   db_finalize(&q);
