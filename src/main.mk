@@ -451,7 +451,8 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_THREADSAFE=0 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_OMIT_DEPRECATED \
-                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS
+                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
+                 -DSQLITE_ENABLE_FTS4
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -Dmain=sqlite3_shell \

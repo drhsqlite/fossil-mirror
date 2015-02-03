@@ -47,10 +47,11 @@ struct Search {
   char *zMarkEnd;       /* End of a match */
   char *zMarkGap;       /* A gap between two matches */
   unsigned fSrchFlg;    /* Flags */
+  int iScore;           /* Score of the last match attempt */
+  Blob snip;            /* Snippet for the most recent match */
 };
 
 #define SRCHFLG_HTML    0x01   /* Escape snippet text for HTML */
-#define SRCHFLG_SCORE   0x02   /* Prepend the score to each snippet */
 #define SRCHFLG_STATIC  0x04   /* The static gSearch object */
 
 #endif
@@ -94,6 +95,7 @@ void search_end(Search *p){
     fossil_free(p->zMarkBegin);
     fossil_free(p->zMarkEnd);
     fossil_free(p->zMarkGap);
+    if( p->iScore ) blob_reset(&p->snip);
     memset(p, 0, sizeof(*p));
     if( p!=&gSearch ) fossil_free(p);
   }
@@ -125,6 +127,7 @@ Search *search_init(
   p->zMarkEnd = mprintf("%s", zMarkEnd);
   p->zMarkGap = mprintf("%s", zMarkGap);
   p->fSrchFlg = fSrchFlg;
+  blob_init(&p->snip, 0, 0);
   while( *z && p->nTerm<SEARCH_MAX_TERM ){
     while( *z && !ISALNUM(*z) ){ z++; }
     if( *z==0 ) break;
@@ -158,8 +161,11 @@ static void snippet_text_append(
 
 /*
 ** Compare a search pattern against one or more input strings which
-** collectively comprise a document.  Return a match score.  Optionally
-** also return a "snippet".
+** collectively comprise a document.  Return a match score.  Any
+** postive value means there was a match.  Zero means that one or
+** more terms are missing.
+**
+** The score and a snippet are record for future use.
 **
 ** Scoring:
 **   *  All terms must match at least once or the score is zero
@@ -167,11 +173,10 @@ static void snippet_text_append(
 **   *  Extra points if consecutive words of the pattern are consecutive
 **      in the document
 */
-static int search_score(
+static int search_match(
   Search *p,              /* Search pattern and flags */
   int nDoc,               /* Number of strings in this document */
-  const char **azDoc,     /* Text of each string */
-  Blob *pSnip             /* If not NULL: Write a snippet here */
+  const char **azDoc      /* Text of each string */
 ){
   int score;                         /* Final score */
   int i;                             /* Offset into current document */
@@ -228,14 +233,13 @@ static int search_score(
   */
   score = 1;
   for(j=0; j<p->nTerm; j++) score *= anMatch[j];
-  if( score==0 || pSnip==0 ) return score;
+  blob_reset(&p->snip);
+  p->iScore = score;
+  if( score==0 ) return score;
 
 
   /* Prepare a snippet that describes the matching text.
   */
-  blob_init(pSnip, 0, 0);
-  if( p->fSrchFlg & SRCHFLG_SCORE ) blob_appendf(pSnip, "%08x", score);
-
   while(1){
     int iOfst;
     int iTail;
@@ -274,7 +278,7 @@ static int search_score(
     while( zDoc[iOfst] && !ISALNUM(zDoc[iOfst]) ) iOfst++;
     for(ii=0; ii<CTX && zDoc[iTail]; ii++, iTail++){}
     while( ISALNUM(zDoc[iTail]) ) iTail++;
-    if( iOfst>0 || wantGap ) blob_append(pSnip, p->zMarkGap, -1);
+    if( iOfst>0 || wantGap ) blob_append(&p->snip, p->zMarkGap, -1);
     wantGap = zDoc[iTail]!=0;
     zDoc += iOfst;
     iTail -= iOfst;
@@ -287,17 +291,17 @@ static int search_score(
         if( sqlite3_strnicmp(p->a[j].z, &zDoc[i], n)==0
          && (!ISALNUM(zDoc[i+n]) || p->a[j].z[n]=='*')
         ){
-          snippet_text_append(p, pSnip, zDoc, i);
+          snippet_text_append(p, &p->snip, zDoc, i);
           zDoc += i;
           iTail -= i;
-          blob_append(pSnip, p->zMarkBegin, -1);
+          blob_append(&p->snip, p->zMarkBegin, -1);
           if( p->a[j].z[n]=='*' ){
             while( ISALNUM(zDoc[n]) ) n++;
           }
-          snippet_text_append(p, pSnip, zDoc, n);
+          snippet_text_append(p, &p->snip, zDoc, n);
           zDoc += n;
           iTail -= n;
-          blob_append(pSnip, p->zMarkEnd, -1);
+          blob_append(&p->snip, p->zMarkEnd, -1);
           i = -1;
           break;
         } /* end-if */
@@ -306,22 +310,21 @@ static int search_score(
         while( ISALNUM(zDoc[i]) && i<iTail ){ i++; }
       }
     } /* end for(i) */
-    snippet_text_append(p, pSnip, zDoc, iTail);
+    snippet_text_append(p, &p->snip, zDoc, iTail);
   }
-  if( wantGap ) blob_append(pSnip, p->zMarkGap, -1);
+  if( wantGap ) blob_append(&p->snip, p->zMarkGap, -1);
   return score;
 }
 
 /*
-** COMMAND: test-snippet
+** COMMAND: test-match
 **
-** Usage: fossil test-snippet SEARCHSTRING FILE1 FILE2 ... 
+** Usage: fossil test-match SEARCHSTRING FILE1 FILE2 ... 
 */
-void test_snippet_cmd(void){
+void test_match_cmd(void){
   Search *p;
   int i;
   Blob x;
-  Blob snip;
   int score;
   char *zDoc;
   int flg = 0;
@@ -329,7 +332,6 @@ void test_snippet_cmd(void){
   char *zEnd = (char*)find_option("end",0,1);
   char *zGap = (char*)find_option("gap",0,1);
   if( find_option("html",0,0)!=0 ) flg |= SRCHFLG_HTML;
-  if( find_option("score",0,0)!=0 ) flg |= SRCHFLG_SCORE;
   if( find_option("static",0,0)!=0 ) flg |= SRCHFLG_STATIC;
   verify_all_options();
   if( g.argc<4 ) usage("SEARCHSTRING FILE1...");
@@ -340,14 +342,14 @@ void test_snippet_cmd(void){
   for(i=3; i<g.argc; i++){
     blob_read_from_file(&x, g.argv[i]);
     zDoc = blob_str(&x);
-    score = search_score(p, 1, (const char**)&zDoc, &snip);
-    fossil_print("%s: %d\n", g.argv[i], score);
+    score = search_match(p, 1, (const char**)&zDoc);
+    fossil_print("%s: %d\n", g.argv[i], p->iScore);
     blob_reset(&x);
     if( score ){
-      fossil_print("%.78c\n%s\n%.78c\n\n", '=', blob_str(&snip), '=');
-      blob_reset(&snip);
+      fossil_print("%.78c\n%s\n%.78c\n\n", '=', blob_str(&p->snip), '=');
     }
   }
+  search_end(p);
 }
 
 /*
@@ -363,8 +365,8 @@ static void search_init_sqlfunc(
   sqlite3_value **argv
 ){
   const char *zPattern = 0;
-  const char *zBegin = "<b>";
-  const char *zEnd = "</b>";
+  const char *zBegin = "<mark>";
+  const char *zEnd = "</mark>";
   const char *zGap = " ... ";
   unsigned int flg = SRCHFLG_HTML;
   switch( argc ){
@@ -387,31 +389,41 @@ static void search_init_sqlfunc(
 }
 
 /*
-** This is an SQLite function that scores its input using
-** the pattern from the previous call to search_init().
+** Try to match the input text against the search parameters set up
+** by the previous search_init() call.  Remember the results globally.
+** Return non-zero on a match and zero on a miss.
+*/
+static void search_match_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zSText = (const char*)sqlite3_value_text(argv[0]);
+  int rc;
+  if( zSText==0 ) return;
+  rc = search_match(&gSearch, 1, &zSText);
+  sqlite3_result_int(context, rc);
+}
+
+/*
+** These SQL functions return the results of the last
+** call to the search_match() SQL function.
 */
 static void search_score_sqlfunc(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
 ){
-  int isSnippet = sqlite3_user_data(context)!=0;
-  const char **azDoc;
-  int score;
-  int i;
-  Blob snip;
-
-  if( gSearch.nTerm==0 ) return;
-  azDoc = fossil_malloc( sizeof(const char*)*(argc+1) );
-  for(i=0; i<argc; i++) azDoc[i] = (const char*)sqlite3_value_text(argv[i]);
-  score = search_score(&gSearch, argc, azDoc, isSnippet ? &snip : 0);
-  fossil_free((void *)azDoc);
-  if( isSnippet ){
-    if( score ){
-      sqlite3_result_text(context, blob_materialize(&snip), -1, fossil_free);
-    }
-  }else{
-    sqlite3_result_int(context, score);
+  sqlite3_result_int(context, gSearch.iScore);
+}
+static void search_snippet_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  if( blob_size(&gSearch.snip)>0 ){
+    sqlite3_result_text(context, blob_str(&gSearch.snip), -1, fossil_free);
+    blob_init(&gSearch.snip, 0, 0);
   }
 }
 
@@ -451,10 +463,14 @@ static void search_urlencode_sqlfunc(
 ** do not delete the Search object.
 */
 void search_sql_setup(sqlite3 *db){
-  sqlite3_create_function(db, "score", -1, SQLITE_UTF8, 0,
+  static int once = 0;
+  if( once++ ) return;
+  sqlite3_create_function(db, "search_match", 1, SQLITE_UTF8, 0,
+     search_match_sqlfunc, 0, 0);
+  sqlite3_create_function(db, "search_score", 0, SQLITE_UTF8, 0,
      search_score_sqlfunc, 0, 0);
-  sqlite3_create_function(db, "snippet", -1, SQLITE_UTF8, &gSearch,
-     search_score_sqlfunc, 0, 0);
+  sqlite3_create_function(db, "search_snippet", 0, SQLITE_UTF8, 0,
+     search_snippet_sqlfunc, 0, 0);
   sqlite3_create_function(db, "search_init", -1, SQLITE_UTF8, 0,
      search_init_sqlfunc, 0, 0);
   sqlite3_create_function(db, "stext", 3, SQLITE_UTF8, 0,
@@ -553,24 +569,213 @@ void search_cmd(void){
 ** current server configuration or by user permissions.
 */
 unsigned int search_restrict(unsigned int srchFlags){
-  if( (srchFlags & SRCH_CKIN)!=0 
-   && (g.perm.Read==0 || db_get_boolean("search-ci",0)==0) ){
+  if( g.perm.Read==0 )   srchFlags &= ~(SRCH_CKIN|SRCH_DOC);
+  if( g.perm.RdTkt==0 )  srchFlags &= ~(SRCH_TKT);
+  if( g.perm.RdWiki==0 ) srchFlags &= ~(SRCH_WIKI);
+  if( search_index_exists() ) return srchFlags;
+  if( (srchFlags & SRCH_CKIN)!=0 && db_get_boolean("search-ci",0)==0 ){
     srchFlags &= ~SRCH_CKIN;
   }
-  if( (srchFlags & SRCH_DOC)!=0 
-   && (g.perm.Read==0 || db_get_boolean("search-doc",0)==0) ){
+  if( (srchFlags & SRCH_DOC)!=0 && db_get_boolean("search-doc",0)==0 ){
     srchFlags &= ~SRCH_DOC;
   }
-  if( (srchFlags & SRCH_TKT)!=0 
-   && (g.perm.RdTkt==0 || db_get_boolean("search-tkt",0)==0) ){
+  if( (srchFlags & SRCH_TKT)!=0 && db_get_boolean("search-tkt",0)==0 ){
     srchFlags &= ~SRCH_TKT;
   }
-  if( (srchFlags & SRCH_WIKI)!=0 
-   && (g.perm.RdWiki==0 || db_get_boolean("search-wiki",0)==0) ){
+  if( (srchFlags & SRCH_WIKI)!=0 && db_get_boolean("search-wiki",0)==0 ){
     srchFlags &= ~SRCH_WIKI;
   }
   return srchFlags;
 }
+
+/*
+** When this routine is called, there already exists a table
+**
+**       x(label,url,score,date,snip).
+**
+** And the srchFlags parameter has been validated.  This routine
+** fills the X table with search results using a full-text scan.
+**
+** The companion indexed scan routine is search_indexed().
+*/
+static void search_fullscan(
+  const char *zPattern,       /* The query pattern */
+  unsigned int srchFlags      /* What to search over */
+){
+  search_init(zPattern, "<b>", "</b>", " ... ",
+          SRCHFLG_STATIC|SRCHFLG_HTML);
+  if( (srchFlags & SRCH_DOC)!=0 ){
+    char *zDocGlob = db_get("doc-glob","");
+    char *zDocBr = db_get("doc-branch","trunk");
+    if( zDocGlob && zDocGlob[0] && zDocBr && zDocBr[0] ){
+      db_multi_exec(
+        "CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;"
+      );
+      db_multi_exec(
+        "INSERT INTO x(label,url,score,date,snip)"
+        "  SELECT printf('Document: %%s',foci.filename),"
+        "         printf('%R/doc/%T/%%s',foci.filename),"
+        "         search_score(),"
+        "         (SELECT datetime(event.mtime) FROM event"
+        "            WHERE objid=symbolic_name_to_rid('trunk')),"
+        "         search_snippet()"
+        "    FROM foci CROSS JOIN blob"
+        "   WHERE checkinID=symbolic_name_to_rid('trunk')"
+        "     AND blob.uuid=foci.uuid"
+        "     AND search_match(stext('d',blob.rid,foci.filename))"
+        "     AND %z",
+        zDocBr, glob_expr("foci.filename", zDocGlob)
+      );
+    }
+  }
+  if( (srchFlags & SRCH_WIKI)!=0 ){
+    db_multi_exec(
+      "WITH wiki(name,rid,mtime) AS ("
+      "  SELECT substr(tagname,6), tagxref.rid, max(tagxref.mtime)"
+      "    FROM tag, tagxref"
+      "   WHERE tag.tagname GLOB 'wiki-*'"
+      "     AND tagxref.tagid=tag.tagid"
+      "   GROUP BY 1"
+      ")"
+      "INSERT INTO x(label,url,score,date,snip)"
+      "  SELECT printf('Wiki: %%s',name),"
+      "         printf('%R/wiki?name=%%s',urlencode(name)),"
+      "         search_score(),"
+      "         datetime(mtime),"
+      "         search_snippet()"
+      "    FROM wiki"
+      "   WHERE search_match(stext('w',rid,name));"
+    );
+  }
+  if( (srchFlags & SRCH_CKIN)!=0 ){
+    db_multi_exec(
+      "WITH ckin(uuid,rid,mtime) AS ("
+      "  SELECT blob.uuid, event.objid, event.mtime"
+      "    FROM event, blob"
+      "   WHERE event.type='ci'"
+      "     AND blob.rid=event.objid"
+      ")"
+      "INSERT INTO x(label,url,score,date,snip)"
+      "  SELECT printf('Check-in [%%.10s] on %%s',uuid,datetime(mtime)),"
+      "         printf('%R/timeline?c=%%s&n=8&y=ci',uuid),"
+      "         search_score(),"
+      "         datetime(mtime),"
+      "         search_snippet()"
+      "    FROM ckin"
+      "   WHERE search_match(stext('c',rid,NULL));"
+    );
+  }
+  if( (srchFlags & SRCH_TKT)!=0 ){
+    db_multi_exec(
+      "INSERT INTO x(label,url,score, date,snip)"
+      "  SELECT printf('Ticket [%%.17s] on %%s',"
+                      "tkt_uuid,datetime(tkt_mtime)),"
+      "         printf('%R/tktview/%%.20s',tkt_uuid),"
+      "         search_score(),"
+      "         datetime(tkt_mtime),"
+      "         search_snippet()"
+      "    FROM ticket"
+      "   WHERE search_match(stext('t',tkt_id,NULL));"
+    );
+  }
+}
+
+/*
+** Implemenation of the rank() function used with rank(matchinfo(*,'pcsx')).
+*/
+static void search_rank_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const unsigned *aVal = (unsigned int*)sqlite3_value_blob(argv[0]);
+  int nVal = sqlite3_value_bytes(argv[0])/4;
+  int nTerm;          /* Number of search terms in the query */
+  int i;              /* Loop counter */
+  double r = 1.0;     /* Score */
+
+  if( nVal<6 ) return;
+  if( aVal[1]!=1 ) return;
+  nTerm = aVal[0];
+  r *= 1<<((30*(aVal[2]-1))/nTerm);
+  for(i=1; i<=nTerm; i++){
+    int hits_this_row = aVal[3*i];
+    int hits_all_rows = aVal[3*i+1];
+    int rows_with_hit = aVal[3*i+2];
+    double avg_hits_per_row = (double)hits_all_rows/(double)rows_with_hit;
+    r *= hits_this_row/avg_hits_per_row;
+  }
+#define SEARCH_DEBUG_RANK 0
+#if SEARCH_DEBUG_RANK
+  {
+    Blob x;
+    blob_init(&x,0,0);
+    blob_appendf(&x,"%08x", (int)r);
+    for(i=0; i<nVal; i++){
+      blob_appendf(&x," %d", aVal[i]);
+    }
+    blob_appendf(&x," r=%g", r);
+    sqlite3_result_text(context, blob_str(&x), -1, fossil_free);
+  }
+#else
+  sqlite3_result_double(context, r);
+#endif
+}
+
+/*
+** When this routine is called, there already exists a table
+**
+**       x(label,url,score,date,snip).
+**
+** And the srchFlags parameter has been validated.  This routine
+** fills the X table with search results using a index scan.
+**
+** The companion full-text scan routine is search_fullscan().
+*/
+static void search_indexed(
+  const char *zPattern,       /* The query pattern */
+  unsigned int srchFlags      /* What to search over */
+){
+  Blob sql;
+  if( srchFlags==0 ) return;
+  sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8, 0,
+     search_rank_sqlfunc, 0, 0);
+  blob_init(&sql, 0, 0);
+  blob_appendf(&sql,
+    "INSERT INTO x(label,url,score,date,snip) "
+    " SELECT ftsdocs.label,"
+    "        ftsdocs.url,"
+    "        rank(matchinfo(ftsidx,'pcsx')),"
+    "        datetime(ftsdocs.mtime),"
+    "        snippet(ftsidx,'<mark>','</mark>')"
+    "   FROM ftsidx, ftsdocs"
+    "  WHERE ftsidx MATCH %Q"
+    "    AND ftsdocs.rowid=ftsidx.docid",
+    zPattern
+  );
+  if( srchFlags!=SRCH_ALL ){
+    const char *zSep = " AND (";
+    static const struct { unsigned m; char c; } aMask[] = {
+       { SRCH_CKIN,  'c' },
+       { SRCH_DOC,   'd' },
+       { SRCH_TKT,   't' },
+       { SRCH_WIKI,  'w' },
+    };
+    int i;
+    for(i=0; i<ArraySize(aMask); i++){
+      if( srchFlags & aMask[i].m ){
+        blob_appendf(&sql, "%sftsdocs.type='%c'", zSep, aMask[i].c);
+        zSep = " OR ";
+      }
+    }
+    blob_append(&sql,")",1);
+  }
+  db_multi_exec("%s",blob_str(&sql)/*safe-for-%s*/);
+#if SEARCH_DEBUG_RANK
+  db_multi_exec("UPDATE x SET label=printf('%%s (score=%%s)',label,score)");
+#endif
+}
+
 
 /*
 ** This routine generates web-page output for a search operation.
@@ -590,78 +795,18 @@ int search_run_and_output(
   if( srchFlags==0 ) return 0;
   search_sql_setup(g.db);
   add_content_sql_commands(g.db);
-  search_init(zPattern, "<b>", "</b>", " ... ",
-          SRCHFLG_STATIC|SRCHFLG_HTML|SRCHFLG_SCORE);
   db_multi_exec(
-    "CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;"
-    "CREATE TEMP TABLE x(label TEXT,url TEXT,date TEXT,snip TEXT);"
+    "CREATE TEMP TABLE x(label,url,score,date,snip);"
   );
-  if( (srchFlags & SRCH_DOC)!=0 ){
-    char *zDocGlob = db_get("doc-glob","");
-    char *zDocBr = db_get("doc-branch","trunk");
-    if( zDocGlob && zDocGlob[0] && zDocBr && zDocBr[0] ){
-      db_multi_exec(
-        "INSERT INTO x(label,url,date,snip)"
-        "  SELECT printf('Document: %%s',foci.filename),"
-        "         printf('%R/doc/%T/%%s',foci.filename),"
-        "         (SELECT datetime(event.mtime) FROM event"
-        "            WHERE objid=symbolic_name_to_rid('trunk')),"
-        "         snippet(stext('d',blob.rid,foci.filename))"
-        "    FROM foci CROSS JOIN blob"
-        "   WHERE checkinID=symbolic_name_to_rid('trunk')"
-        "     AND blob.uuid=foci.uuid"
-        "     AND %z",
-        zDocBr, glob_expr("foci.filename", zDocGlob)
-      );
-    }
+  if( !search_index_exists() ){
+    search_fullscan(zPattern, srchFlags);
+  }else{
+    search_update_index(srchFlags);
+    search_indexed(zPattern, srchFlags);
   }
-  if( (srchFlags & SRCH_WIKI)!=0 ){
-    db_multi_exec(
-      "WITH wiki(name,rid,mtime) AS ("
-      "  SELECT substr(tagname,6), tagxref.rid, max(tagxref.mtime)"
-      "    FROM tag, tagxref"
-      "   WHERE tag.tagname GLOB 'wiki-*'"
-      "     AND tagxref.tagid=tag.tagid"
-      "   GROUP BY 1"
-      ")"
-      "INSERT INTO x(label,url,date,snip)"
-      "  SELECT printf('Wiki: %%s',name),"
-      "         printf('%R/wiki?name=%%s',urlencode(name)),"
-      "         datetime(mtime),"
-      "         snippet(stext('w',rid,name))"
-      "    FROM wiki;"
-    );
-  }
-  if( (srchFlags & SRCH_CKIN)!=0 ){
-    db_multi_exec(
-      "WITH ckin(uuid,rid,mtime) AS ("
-      "  SELECT blob.uuid, event.objid, event.mtime"
-      "    FROM event, blob"
-      "   WHERE event.type='ci'"
-      "     AND blob.rid=event.objid"
-      ")"
-      "INSERT INTO x(label,url,date,snip)"
-      "  SELECT printf('Check-in [%%.10s] on %%s',uuid,datetime(mtime)),"
-      "         printf('%R/timeline?c=%%s&n=8&y=ci',uuid),"
-      "         datetime(mtime),"
-      "         snippet(stext('c',rid,NULL))"
-      "    FROM ckin;"
-    );
-  }
-  if( (srchFlags & SRCH_TKT)!=0 ){
-    db_multi_exec(
-      "INSERT INTO x(label,url,date,snip)"
-      "  SELECT printf('Ticket [%%.17s] on %%s',"
-                      "tkt_uuid,datetime(tkt_mtime)),"
-      "         printf('%R/tktview/%%.20s',tkt_uuid),"
-      "         datetime(tkt_mtime),"
-      "         snippet(stext('t',tkt_id,NULL))"
-      "    FROM ticket;"
-    );
-  }
-  db_prepare(&q, "SELECT url, substr(snip,9), label"
-                 "   FROM x WHERE snip IS NOT NULL"
-                 " ORDER BY substr(snip,1,8) DESC, date DESC;");
+  db_prepare(&q, "SELECT url, snip, label"
+                 "  FROM x"
+                 " ORDER BY score DESC, date DESC;");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUrl = db_column_text(&q, 0);
     const char *zSnippet = db_column_text(&q, 1);
@@ -670,7 +815,8 @@ int search_run_and_output(
       @ <ol>
     }
     nRow++;
-    @ <li><p><a href='%s(zUrl)'>%h(zLabel)</a><br>%s(zSnippet)</li>
+    @ <li><p><a href='%s(zUrl)'>%h(zLabel)</a><br>
+    @ <span class='snippet'>%s(zSnippet)</span></li>
   }
   db_finalize(&q);
   if( nRow ){
@@ -791,14 +937,14 @@ static void append_all_ticket_fields(Blob *pAccum, Stmt *pQuery){
 void search_stext(
   char cType,            /* Type of document */
   int rid,               /* BLOB.RID or TAG.TAGID value for document */
-  const char *zName,     /* Name of the document */
+  const char *zName,     /* Auxiliary information */
   Blob *pOut             /* OUT: Initialize to the search text */
 ){
   blob_init(pOut, 0, 0);
   switch( cType ){
     case 'd': {   /* Documents */
       Blob doc;
-      content_get(rid, &doc);
+        content_get(rid, &doc);
       blob_to_utf8_no_bom(&doc, 0);
       get_stext_by_mimetype(&doc, mimetype_from_name(zName), pOut);
       blob_reset(&doc);
@@ -863,60 +1009,352 @@ void search_stext(
 }
 
 /*
-** The arguments cType,rid,zName define an object that can be searched
-** for.  Return a URL (relative to the root of the Fossil project) that
-** will jump to that document.  
-**
-** Space to hold the returned string is obtained from mprintf() and should
-** be freed by the caller using fossil_free() or the equivalent.
-*/
-char *search_url(
-  char cType,            /* Type of document */
-  int rid,               /* BLOB.RID or TAG.TAGID for the object */
-  const char *zName      /* Name of the object */
-){
-  char *zUrl = 0;
-  switch( cType ){
-    case 'd': {   /* Documents */
-      zUrl = db_text(0,
-         "SELECT printf('/doc/%%s%%s', substr(blob.uuid,20), %Q)"
-         "  FROM mlink, blob"
-         " WHERE mlink.fid=%d AND mlink.mid=blob.rid",
-         zName, rid);
-      break;
-    }
-    case 'w': {   /* Wiki */
-      char *zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      zUrl = mprintf("/wiki?id=%z&name=%t", zId, zName);
-      break;
-    }     
-    case 'c': {   /* Ckeck-in Comment */
-      char *zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      zUrl = mprintf("/info/%z", zId);
-      break;
-    }
-    case 't': {   /* Tickets */
-      char *zId = db_text(0, "SELECT tkt_uuid FROM ticket"
-                             " WHERE tkt_id=%d", rid);
-      zUrl = mprintf("/tktview/%.20z", zId);
-      break;
-    }
-  }
-  return zUrl;
-}
-
-/*
 ** COMMAND: test-search-stext
 **
 ** Usage: fossil test-search-stext TYPE ARG1 ARG2
 */
 void test_search_stext(void){
   Blob out;
-  char *zUrl;
   db_find_and_open_repository(0,0);
   if( g.argc!=5 ) usage("TYPE RID NAME");
   search_stext(g.argv[2][0], atoi(g.argv[3]), g.argv[4], &out);
-  zUrl = search_url(g.argv[2][0], atoi(g.argv[3]), g.argv[4]);
-  fossil_print("%s\n%z\n",blob_str(&out),zUrl);
+  fossil_print("%s\n",blob_str(&out));
   blob_reset(&out);
+}
+
+/* The schema for the full-text index
+*/
+static const char zFtsSchema[] = 
+@ -- One entry for each possible search result
+@ CREATE TABLE IF NOT EXISTS "%w".ftsdocs(
+@   rowid INTEGER PRIMARY KEY, -- Maps to the ftsidx.docid
+@   type CHAR(1),              -- Type of document
+@   rid INTEGER,               -- BLOB.RID or TAG.TAGID for the document
+@   name TEXT,                 -- Additional document description
+@   idxed BOOLEAN,             -- True if currently in the index
+@   label TEXT,                -- Label to print on search results
+@   url TEXT,                  -- URL to access this document
+@   mtime DATE,                -- Date when document created
+@   UNIQUE(type,rid)
+@ );
+@ CREATE INDEX "%w".ftsdocIdxed ON ftsdocs(type,rid,name) WHERE idxed==0;
+@ CREATE INDEX "%w".ftsdocName ON ftsdocs(name) WHERE type='w';
+@ CREATE VIEW IF NOT EXISTS "%w".ftscontent AS
+@   SELECT rowid, type, rid, name, idxed, label, url, mtime,
+@          stext(type,rid,name) AS 'stext'
+@     FROM ftsdocs;
+@ CREATE VIRTUAL TABLE IF NOT EXISTS "%w".ftsidx
+@   USING fts4(content="ftscontent", stext);
+;
+static const char zFtsDrop[] =
+@ DROP TABLE IF EXISTS "%w".ftsidx;
+@ DROP VIEW IF EXISTS "%w".ftscontent;
+@ DROP TABLE IF EXISTS "%w".ftsdocs;
+;
+
+/*
+** Create or drop the tables associated with a full-text index.
+*/
+void search_create_index(void){
+  const char *zDb = db_name("repository");
+  search_sql_setup(g.db);
+  db_multi_exec(zFtsSchema/*works-like:"%w%w%w%w%w"*/,
+       zDb, zDb, zDb, zDb, zDb);
+}
+void search_drop_index(void){
+  const char *zDb = db_name("repository");
+  db_multi_exec(zFtsDrop/*works-like:"%w%w%w"*/, zDb, zDb, zDb);
+}
+
+/*
+** Return true if the full-text search index exists
+*/
+int search_index_exists(void){
+  static int fExists = -1;
+  if( fExists<0 ) fExists = db_table_exists("repository","ftsdocs");
+  return fExists;
+}
+
+/*
+** Fill the FTSDOCS table with unindexed entries for everything
+** in the repository.  This uses INSERT OR IGNORE so entries already
+** in FTSDOCS are unchanged.
+*/
+void search_fill_index(void){
+  if( !search_index_exists() ) return;
+  search_sql_setup(g.db);
+  db_multi_exec(
+    "INSERT OR IGNORE INTO ftsdocs(type,rid,idxed)"
+    "  SELECT 'c', objid, 0 FROM event WHERE type='ci';"
+  );
+  db_multi_exec(
+    "WITH latest_wiki(rid,name,mtime) AS ("
+    "  SELECT tagxref.rid, substr(tag.tagname,6), max(tagxref.mtime)"
+    "    FROM tag, tagxref"
+    "   WHERE tag.tagname GLOB 'wiki-*'"
+    "     AND tagxref.tagid=tag.tagid"
+    "     AND tagxref.value>0"
+    "   GROUP BY 2"
+    ") INSERT OR IGNORE INTO ftsdocs(type,rid,name,idxed)"
+    "     SELECT 'w', rid, name, 0 FROM latest_wiki;"
+  );
+  db_multi_exec(
+    "INSERT OR IGNORE INTO ftsdocs(type,rid,idxed)"
+    "  SELECT 't', tkt_id, 0 FROM ticket;"
+  );
+}
+
+/*
+** The document described by cType,rid,zName is about to be added or
+** updated.  If the document has already been indexed, then unindex it
+** now while we still have access to the old content.  Add the document
+** to the queue of documents that need to be indexed or reindexed.
+*/
+void search_doc_touch(char cType, int rid, const char *zName){
+  if( search_index_exists() ){
+    char zType[2];
+    zType[0] = cType;
+    zType[1] = 0;
+    db_multi_exec(
+       "DELETE FROM ftsidx WHERE docid IN"
+       "    (SELECT rowid FROM ftsdocs WHERE type=%Q AND rid=%d AND idxed)",
+       zType, rid
+    );
+    db_multi_exec(
+       "REPLACE INTO ftsdocs(type,rid,name,idxed)"
+       " VALUES(%Q,%d,%Q,0)",
+       zType, rid, zName
+    );
+    if( cType=='w' ){
+      db_multi_exec(
+        "DELETE FROM ftsidx WHERE docid IN"
+        "    (SELECT rowid FROM ftsdocs WHERE type='w' AND name=%Q AND idxed)",
+        zName
+      );
+      db_multi_exec(
+        "DELETE FROM ftsdocs WHERE type='w' AND name=%Q AND rid!=%d",
+        zName, rid
+      );
+    }
+  }
+}
+
+/*
+** If the doc-glob and doc-br settings are valid for document search
+** and if the latest check-in on doc-br is in the unindexed set of 
+** check-ins, then update all 'd' entries in FTSDOCS that have
+** changed.
+*/
+static void search_update_doc_index(void){
+  const char *zDocBr = db_get("doc-branch","trunk");
+  int ckid = zDocBr ? symbolic_name_to_rid(zDocBr,"ci") : 0;
+  double rTime;
+  char *zBrUuid;
+  if( ckid==0 ) return;
+  if( !db_exists("SELECT 1 FROM ftsdocs WHERE type='c' AND rid=%d"
+                 "   AND NOT idxed", ckid) ) return;
+
+  /* If we get this far, it means that changes to 'd' entries are
+  ** required. */
+  rTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", ckid);
+  zBrUuid = db_text("","SELECT substr(uuid,1,20) FROM blob WHERE rid=%d",ckid);
+  db_multi_exec(
+    "CREATE TEMP TABLE current_docs(rid INTEGER PRIMARY KEY, name);"
+    "CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;"
+    "INSERT OR IGNORE INTO current_docs(rid, name)"
+    "  SELECT blob.rid, foci.filename FROM foci, blob"
+    "   WHERE foci.checkinID=%d AND blob.uuid=foci.uuid"
+    "     AND %z",
+    ckid, glob_expr("foci.filename", db_get("doc-glob",""))
+  );
+  db_multi_exec(
+    "DELETE FROM ftsidx WHERE docid IN"
+    "  (SELECT rowid FROM ftsdocs WHERE type='d'"
+    "      AND rid NOT IN (SELECT rid FROM current_docs))"
+  );
+  db_multi_exec(
+    "DELETE FROM ftsdocs WHERE type='d'"
+    "      AND rid NOT IN (SELECT rid FROM current_docs)"
+  );
+  db_multi_exec(
+    "INSERT OR IGNORE INTO ftsdocs(type,rid,name,idxed,label,url,mtime)"
+    "  SELECT 'd', rid, name, 0,"
+    "         printf('Document: %%s',name),"
+    "         printf('/doc/%q/%%s',urlencode(name)),"
+    "         %.17g"
+    " FROM current_docs",
+    zBrUuid, rTime
+  );
+  db_multi_exec(
+    "INSERT INTO ftsidx(docid,stext)"
+    "  SELECT rowid, stext FROM ftscontent WHERE type='d' AND NOT idxed"
+  );
+  db_multi_exec(
+    "UPDATE ftsdocs SET idxed=1 WHERE type='d' AND NOT idxed"
+  );
+}
+
+/*
+** Deal with all of the unindexed 'c' terms in FTSDOCS 
+*/
+static void search_update_checkin_index(void){
+  db_multi_exec(
+    "INSERT INTO ftsidx(docid,stext)"
+    " SELECT rowid, stext('c',rid,NULL) FROM ftsdocs"
+    "  WHERE type='c' AND NOT idxed;"
+  );
+  db_multi_exec(
+    "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
+    "  SELECT ftsdocs.rowid, 1, 'c', ftsdocs.rid, NULL,"
+    "    printf('Check-in [%%.16s] on %%s',blob.uuid,datetime(event.mtime)),"
+    "    printf('/timeline?y=ci&n=9&c=%%.20s',blob.uuid),"
+    "    event.mtime"
+    "  FROM ftsdocs, event, blob"
+    "  WHERE ftsdocs.type='c' AND NOT ftsdocs.idxed"
+    "    AND event.objid=ftsdocs.rid"
+    "    AND blob.rid=ftsdocs.rid"
+  );
+}
+
+/*
+** Deal with all of the unindexed 't' terms in FTSDOCS 
+*/
+static void search_update_ticket_index(void){
+  db_multi_exec(
+    "INSERT INTO ftsidx(docid,stext)"
+    " SELECT rowid, stext('t',rid,NULL) FROM ftsdocs"
+    "  WHERE type='t' AND NOT idxed;"
+  );
+  if( db_changes()==0 ) return;
+  db_multi_exec(
+    "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
+    "  SELECT ftsdocs.rowid, 1, 't', ftsdocs.rid, NULL,"
+    "    printf('Ticket [%%.16s] on %%s',tkt_uuid,datetime(tkt_mtime)),"
+    "    printf('/tktview/%%.20s',tkt_uuid),"
+    "    tkt_mtime"
+    "  FROM ftsdocs, ticket"
+    "  WHERE ftsdocs.type='t' AND NOT ftsdocs.idxed"
+    "    AND ticket.tkt_id=ftsdocs.rid"
+  );
+}
+
+/*
+** Deal with all of the unindexed 'w' terms in FTSDOCS 
+*/
+static void search_update_wiki_index(void){
+  db_multi_exec(
+    "INSERT INTO ftsidx(docid,stext)"
+    " SELECT rowid, stext('w',rid,NULL) FROM ftsdocs"
+    "  WHERE type='w' AND NOT idxed;"
+  );
+  if( db_changes()==0 ) return;
+  db_multi_exec(
+    "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
+    "  SELECT ftsdocs.rowid, 1, 'w', ftsdocs.rid, ftsdocs.name,"
+    "    'Wiki: '||ftsdocs.name,"
+    "    '/wiki?name='||urlencode(ftsdocs.name),"
+    "    tagxref.mtime"
+    "  FROM ftsdocs, tagxref"
+    "  WHERE ftsdocs.type='w' AND NOT ftsdocs.idxed"
+    "    AND tagxref.rid=ftsdocs.rid"
+  );
+}
+
+/*
+** Deal with all of the unindexed entries in the FTSDOCS table - that
+** is to say, all the entries with FTSDOCS.IDXED=0.  Add them to the
+** index.
+*/
+void search_update_index(unsigned int srchFlags){
+  if( !search_index_exists() ) return;
+  if( !db_exists("SELECT 1 FROM ftsdocs WHERE NOT idxed") ) return;
+  search_sql_setup(g.db);
+  if( srchFlags & (SRCH_CKIN|SRCH_DOC) ){
+    search_update_doc_index();
+    search_update_checkin_index();
+  }
+  if( srchFlags & SRCH_TKT ){
+    search_update_ticket_index();
+  }
+  if( srchFlags & SRCH_WIKI ){
+    search_update_wiki_index();
+  }
+}
+
+/*
+** COMMAND: test-fts
+*/
+void test_fts_cmd(void){
+  char *zSubCmd;
+  int i, n;
+  static const struct { int iCmd; const char *z; } aCmd[] = {
+     { 1,  "create"    },
+     { 2,  "drop"      },
+     { 3,  "exists"    },
+     { 4,  "fill"      },
+     { 8,  "refill"    },
+     { 5,  "pending"   },
+     { 7,  "update"    },
+  };
+  db_find_and_open_repository(0, 0);
+  if( g.argc<3 ) usage("SUBCMD ...");
+  zSubCmd = g.argv[2];
+  n = (int)strlen(zSubCmd);
+  for(i=0; i<ArraySize(aCmd); i++){
+    if( fossil_strncmp(aCmd[i].z, zSubCmd, n)==0 ) break;
+  }
+  if( i>=ArraySize(aCmd) ){
+    Blob all;
+    blob_init(&all,0,0);
+    for(i=0; i<ArraySize(aCmd); i++) blob_appendf(&all, " %s", aCmd[i].z);
+    fossil_fatal("unknown \"%s\" - should be:%s", zSubCmd, blob_str(&all));
+    return;
+  }
+  db_begin_transaction();
+  switch( aCmd[i].iCmd ){
+    case 1: {  assert( fossil_strncmp(zSubCmd, "create", n)==0 );
+      search_create_index();
+      break;
+    }
+    case 2: {  assert( fossil_strncmp(zSubCmd, "drop", n)==0 );
+      search_drop_index();
+      break;
+    }
+    case 3: {  assert( fossil_strncmp(zSubCmd, "exists", n)==0 );
+      fossil_print("search_index_exists() = %d\n", search_index_exists());
+      break;
+    }
+    case 4: {  assert( fossil_strncmp(zSubCmd, "fill", n)==0 );
+      search_fill_index();
+      break;
+    }
+    case 8: {  assert( fossil_strncmp(zSubCmd, "refill", n)==0 );
+      search_drop_index();
+      search_create_index();
+      search_fill_index();
+      break;
+    }
+    case 5: {  assert( fossil_strncmp(zSubCmd, "pending", n)==0 );
+      Stmt q;
+      if( !search_index_exists() ) break;
+      db_prepare(&q, "SELECT rowid,type,rid,quote(name) FROM ftsdocs"
+                     " WHERE NOT idxed");
+      while( db_step(&q)==SQLITE_ROW ){
+        fossil_print("%6d: %s %6d %s\n",
+           db_column_int(&q, 0),
+           db_column_text(&q, 1),
+           db_column_int(&q, 2),
+           db_column_text(&q, 3)
+        );
+      }
+      db_finalize(&q);
+      break;
+    }
+    case 7: {  assert( fossil_strncmp(zSubCmd, "update", n)==0 );
+      search_update_index(SRCH_ALL);
+      break;
+    }
+
+  }
+  db_end_transaction(0);
 }

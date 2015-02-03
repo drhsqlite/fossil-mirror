@@ -1127,6 +1127,11 @@ const struct strctCssDefaults {
     "Descending sort column marker",
     @ content: '\2191';
   },
+  { "span.snippet>mark",
+    "Search markup",
+    @ background-color: inherit;
+    @ font-weight: bold;
+  },
   { 0,
     0,
     0
@@ -1152,6 +1157,29 @@ void cgi_append_default_css(void) {
 }
 
 /*
+** Search string zHaystack for zNeedle.  zNeedle must be an isolated
+** word with space or punctuation on either size.
+**
+** Return true if found.  Return false if not found
+*/
+static int containsString(const char *zHaystack, const char *zNeedle){
+  char *z;
+  int n;
+
+  while( zHaystack[0] ){
+    z = strstr(zHaystack, zNeedle);
+    if( z==0 ) return 0;
+    n = (int)strlen(zNeedle);
+    if( (z==zHaystack || !fossil_isalnum(z[-1])) && !fossil_isalnum(z[n]) ){
+      return 1;
+    }
+    zHaystack = z + n;
+  }
+  return 0;
+}
+   
+
+/*
 ** WEBPAGE: style.css
 */
 void page_style_css(void){
@@ -1159,11 +1187,12 @@ void page_style_css(void){
   int i;
 
   cgi_set_content_type("text/css");
-  blob_init(&css, db_get("css",(char*)builtin_text("skins/default/css.txt")), -1);
+  blob_init(&css,db_get("css",(char*)builtin_text("skins/default/css.txt")),-1);
 
   /* add special missing definitions */
   for(i=1; cssDefaultList[i].elementClass; i++){
-    if( strstr(blob_str(&css), cssDefaultList[i].elementClass)==0 ){
+    char *z = blob_str(&css);
+    if( !containsString(z, cssDefaultList[i].elementClass) ){
       blob_appendf(&css, "/* %s */\n%s {\n%s}\n",
           cssDefaultList[i].comment,
           cssDefaultList[i].elementClass,
