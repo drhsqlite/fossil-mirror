@@ -746,7 +746,7 @@ static void search_indexed(
     "        ftsdocs.url,"
     "        rank(matchinfo(ftsidx,'pcsx')),"
     "        datetime(ftsdocs.mtime),"
-    "        snippet(ftsidx,'<mark>','</mark>')"
+    "        snippet(ftsidx,'<mark>','</mark>',' ... ')"
     "   FROM ftsidx, ftsdocs"
     "  WHERE ftsidx MATCH %Q"
     "    AND ftsdocs.rowid=ftsidx.docid",
@@ -773,6 +773,55 @@ static void search_indexed(
 #if SEARCH_DEBUG_RANK
   db_multi_exec("UPDATE x SET label=printf('%%s (score=%%s)',label,score)");
 #endif
+}
+
+/*
+** If z[] is of the form "<mark>TEXT</mark>" where TEXT contains
+** no white-space or punctuation, then return the length of the mark.
+** If 
+*/
+static int isSnippetMark(const char *z){
+  int n;
+  if( strncmp(z,"<mark>",6)!=0 ) return 0;
+  n = 6;
+  while( fossil_isalnum(z[n]) ) n++;
+  if( strncmp(&z[n],"</mark>",7)!=0 ) return 0;
+  return n+7;
+}
+
+/*
+** Return a copy of zSnip (in memory obtained from fossil_malloc()) that
+** has all "<" characters, other than those on <mark> and </mark>, 
+** converted into "&lt;".  This is similar to htmlize() except that
+** <mark> and </mark> are preserved.
+*/
+static char *cleanSnippet(const char *zSnip){
+  int i;
+  int n = 0;
+  char *z;
+  for(i=0; zSnip[i]; i++) if( zSnip[i]=='<' ) n++;
+  z = fossil_malloc( i+n+1 );
+  i = 0;
+  while( zSnip[0] ){
+    if( zSnip[0]=='<' ){
+      n = isSnippetMark(zSnip);
+      if( n ){
+        memcpy(&z[i], zSnip, n);
+        zSnip += n;
+        i += n;
+        continue;
+      }else{
+        memcpy(&z[i], "&lt;", 4);
+        i += 4;
+        zSnip++;
+      }
+    }else{
+      z[i++] = zSnip[0];
+      zSnip++;
+    }
+  }
+  z[i] = 0;
+  return z;
 }
 
 
@@ -815,7 +864,7 @@ int search_run_and_output(
     }
     nRow++;
     @ <li><p><a href='%R%s(zUrl)'>%h(zLabel)</a><br>
-    @ <span class='snippet'>%s(zSnippet)</span></li>
+    @ <span class='snippet'>%z(cleanSnippet(zSnippet))</span></li>
   }
   db_finalize(&q);
   if( nRow ){
