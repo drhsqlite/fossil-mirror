@@ -2098,3 +2098,75 @@ void test_html_tidy(void){
     blob_reset(&out);
   }
 }
+
+/*
+** Remove all HTML markup from the input text.  The output written into
+** pOut is pure text.
+*/
+void html_to_plaintext(const char *zIn, Blob *pOut){
+  int n;
+  int i, j;
+  int nNL = 0;              /* Number of \n characters at the end of pOut */
+  int nWS = 0;              /* True if pOut ends with whitespace */
+  while( zIn[0] ){
+    n = nextHtmlToken(zIn);
+    if( zIn[0]=='<' && n>1 ){
+      int isCloseTag;
+      int eTag;
+      int eType;
+      char zTag[32];
+      isCloseTag = zIn[1]=='/';
+      for(i=0, j=1+isCloseTag; i<30 && fossil_isalnum(zIn[j]); i++, j++){
+         zTag[i] = fossil_tolower(zIn[j]);
+      }
+      zTag[i] = 0;
+      eTag = findTag(zTag);
+      eType = aMarkup[eTag].iType;
+      if( eTag==MARKUP_INVALID && fossil_strnicmp(zIn,"<style",6)==0 ){
+        zIn += n;
+        while( zIn[0] ){
+          n = nextHtmlToken(zIn);
+          if( fossil_strnicmp(zIn, "</style",7)==0 ) break;
+          zIn += n;
+        }
+        if( zIn[0]=='<' ) zIn += n;
+        continue;
+      }
+      if( !isCloseTag && (eType & (MUTYPE_BLOCK|MUTYPE_TABLE))!=0 ){
+        if( nNL==0 ){      
+          blob_append(pOut, "\n", 1);
+          nNL++;
+        }
+        nWS = 1;
+      }
+    }else if( fossil_isspace(zIn[0]) ){
+      for(i=nNL=0; i<n; i++) if( zIn[i]=='\n' ) nNL++;
+      if( !nWS ){
+        blob_append(pOut, nNL ? "\n" : " ", 1);
+        nWS = 1;
+      }
+    }else{
+      blob_append(pOut, zIn, n);
+      nNL = nWS = 0;
+    }
+    zIn += n;
+  }
+  if( nNL==0 ) blob_append(pOut, "\n", 1);
+}
+
+/*
+** COMMAND: test-html-to-text
+*/
+void test_html_to_text(void){
+  Blob in, out;
+  int i;
+
+  for(i=2; i<g.argc; i++){
+    blob_read_from_file(&in, g.argv[i]);
+    blob_zero(&out);
+    html_to_plaintext(blob_str(&in), &out);
+    blob_reset(&in);
+    fossil_puts(blob_str(&out), 0);
+    blob_reset(&out);
+  }
+}

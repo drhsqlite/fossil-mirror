@@ -1831,6 +1831,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
                         isPublic, 1, manifest_file_mperm(&p->aFile[i]));
         }
       }
+      search_doc_touch('c', rid, 0);
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment,"
                            "bgcolor,euser,ecomment,omtime)"
@@ -1936,6 +1937,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }else{
       zComment = mprintf("Deleted wiki page [%h]", p->zWikiTitle);
     }
+    search_doc_touch('w',rid,p->zWikiTitle);
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment,"
       "                  bgcolor,euser,ecomment)"
@@ -1988,6 +1990,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     if( subsequent ){
       content_deltify(rid, subsequent, 0);
     }else{
+      search_doc_touch('e',rid,0);
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,tagid,user,comment,bgcolor)"
         "VALUES('e',%.17g,%d,%d,%Q,%Q,"

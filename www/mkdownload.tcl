@@ -28,7 +28,7 @@ puts $out \
 <a href='/fossil/timeline?y=ci'>Timeline</a>
 <a href='/download.html'>Download</a>
 <a href='/fossil/dir?ci=trunk'>Code</a>
-<a href='/fossil/doc/trunk/www/permutedindex.wiki'>Documentation</a>
+<a href='/fossil/doc/trunk/www/permutedindex.html'>Documentation</a>
 <a href='/fossil/brlist'>Branches</a>
 <a href='/fossil/taglist'>Tags</a>
 <a href='/fossil/reportlist'>Tickets</a>

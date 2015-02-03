@@ -189,7 +189,7 @@ table.captcha {
 table.usetupUserList {
   outline-style: double;
   outline-width: 1px;
-  border-color: white;
+  outline-color: white;
   padding: 10px;
 }
 

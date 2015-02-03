@@ -315,6 +315,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
   getAllTicketFields();
   if( haveTicket==0 ) return;
   tktid = db_int(0, "SELECT tkt_id FROM ticket WHERE tkt_uuid=%Q", zTktUuid);
+  search_doc_touch('t', tktid, 0);
   if( haveTicketChng ){
     db_multi_exec("DELETE FROM ticketchng WHERE tkt_id=%d;", tktid);
   }
@@ -693,6 +694,7 @@ void tktnew_page(void){
     cgi_redirect("home");
   }
   style_header("New Ticket");
+  ticket_standard_submenu(T_ALL_BUT(T_NEW));
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW<br />\n", -1);
   ticket_init();
   initializeVariablesFromCGI();
@@ -1381,4 +1383,59 @@ void ticket_cmd(void){
       }
     }
   }
+}
+
+
+#if INTERFACE
+/* Standard submenu items for wiki pages */
+#define T_SRCH        0x00001
+#define T_REPLIST     0x00002
+#define T_NEW         0x00004
+#define T_ALL         0x00007
+#define T_ALL_BUT(x)  (T_ALL&~(x))
+#endif
+
+/*
+** Add some standard submenu elements for ticket screens.
+*/
+void ticket_standard_submenu(unsigned int ok){
+  if( (ok & T_SRCH)!=0 && search_restrict(SRCH_TKT)!=0 ){
+    style_submenu_element("Search","Search","%R/tktsrch");
+  }
+  if( (ok & T_REPLIST)!=0 ){
+    style_submenu_element("Reports","Reports","%R/reportlist");
+  }
+  if( (ok & T_NEW)!=0 && g.perm.NewTkt ){
+    style_submenu_element("New","New","%R/tktnew");
+  }
+}
+
+/*
+** WEBPAGE: ticket
+**
+** This is intended to be the primary "Ticket" page.  Render as
+** either ticket-search (if search is enabled) or as the 
+** /reportlist page (if ticket search is disabled).
+*/
+void tkt_home_page(void){
+  login_check_credentials();
+  if( search_restrict(SRCH_TKT)!=0 ){
+    tkt_srchpage();
+  }else{
+    view_list();
+  }
+}
+
+/*
+** WEBPAGE: tktsrch
+** Usage:  /tktsrch?s=PATTERN
+**
+** Full-text search of all current tickets
+*/
+void tkt_srchpage(void){
+  login_check_credentials();
+  style_header("Ticket Search");
+  ticket_standard_submenu(T_ALL_BUT(T_SRCH));
+  search_screen(SRCH_TKT, "tktsrch");
+  style_footer();
 }

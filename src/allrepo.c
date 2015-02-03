@@ -231,11 +231,16 @@ void all_cmd(void){
     collect_argument(&extra, "analyze",0);
     collect_argument(&extra, "wal",0);
     collect_argument(&extra, "stats",0);
+    collect_argument(&extra, "index",0);
+    collect_argument(&extra, "no-index",0);
   }else if( strncmp(zCmd, "setting", n)==0 ){
     zCmd = "setting -R";
     collect_argv(&extra, 3);
   }else if( strncmp(zCmd, "unset", n)==0 ){
     zCmd = "unset -R";
+    collect_argv(&extra, 3);
+  }else if( strncmp(zCmd, "fts-config", n)==0 ){
+    zCmd = "fts-config -R";
     collect_argv(&extra, 3);
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";

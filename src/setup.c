@@ -72,7 +72,7 @@ void setup_page(void){
     @ <tt>&lt;head&gt;</tt> in the <a href="setup_header">HTML header</a>!</p>
   }
 
-  @ <table border="0" cellspacing="7">
+  @ <table border="0" cellspacing="3">
   setup_menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
   setup_menu_entry("Access", "setup_access",
@@ -88,6 +88,8 @@ void setup_page(void){
     " on the same server");
   setup_menu_entry("Tickets", "tktsetup",
     "Configure the trouble-ticketing system for this repository");
+  setup_menu_entry("Search","srchsetup",
+    "Configure the built-in search engine");
   setup_menu_entry("Transfers", "xfersetup",
     "Configure the transfer system for this repository");
   setup_menu_entry("Skins", "setup_skin",
@@ -1356,7 +1358,7 @@ void setup_timeline(void){
 ** WEBPAGE: setup_settings
 */
 void setup_settings(void){
-  struct stControlSettings const *pSet;
+  Setting const *pSet;
 
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -1377,10 +1379,10 @@ void setup_settings(void){
   @ <form action="%s(g.zTop)/setup_settings" method="post"><div>
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
-  for(pSet=ctrlSettings; pSet->name!=0; pSet++){
+  for(pSet=aSetting; pSet->name!=0; pSet++){
     if( pSet->width==0 ){
       int hasVersionableValue = pSet->versionable &&
-          (db_get_do_versionable(pSet->name, NULL)!=0);
+          (db_get_versioned(pSet->name, NULL)!=0);
       onoff_attribute(pSet->name, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       is_truth(pSet->def), hasVersionableValue);
@@ -1393,7 +1395,7 @@ void setup_settings(void){
   }
   @ <br /><input type="submit"  name="submit" value="Apply Changes" />
   @ </td><td style="width:50px;"></td><td valign="top">
-  for(pSet=ctrlSettings; pSet->name!=0; pSet++){
+  for(pSet=aSetting; pSet->name!=0; pSet++){
     if( pSet->width!=0 && !pSet->versionable && !pSet->forceTextArea ){
       entry_attribute(pSet->name, /*pSet->width*/ 25, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
@@ -1401,7 +1403,7 @@ void setup_settings(void){
       @ <br />
     }
   }
-  for(pSet=ctrlSettings; pSet->name!=0; pSet++){
+  for(pSet=aSetting; pSet->name!=0; pSet++){
     if( pSet->width!=0 && !pSet->versionable && pSet->forceTextArea ){
       @<b>%s(pSet->name)</b><br />
       textarea_attribute("", /*rows*/ 3, /*cols*/ 50, pSet->name,
@@ -1411,9 +1413,9 @@ void setup_settings(void){
     }
   }
   @ </td><td style="width:50px;"></td><td valign="top">
-  for(pSet=ctrlSettings; pSet->name!=0; pSet++){
+  for(pSet=aSetting; pSet->name!=0; pSet++){
     if( pSet->width!=0 && pSet->versionable ){
-      int hasVersionableValue = db_get_do_versionable(pSet->name, NULL)!=0;
+      int hasVersionableValue = db_get_versioned(pSet->name, NULL)!=0;
       @<b>%s(pSet->name)</b> (v)<br />
       textarea_attribute("", /*rows*/ 3, /*cols*/ 20, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
@@ -2155,5 +2157,77 @@ void page_admin_log(){
   if(limit>0 && counter<limit){
     @ <div>%d(counter) entries shown.</div>
   }
+  style_footer();
+}
+
+/*
+** WEBPAGE: srchsetup
+**
+** Configure the search engine.
+*/
+void page_srchsetup(){
+  login_check_credentials();
+  if( !g.perm.Setup && !g.perm.Admin ){
+    login_needed();
+  }
+  style_header("Search Configuration");
+  @ <form action="%s(g.zTop)/srchsetup" method="post"><div>
+  login_insert_csrf_secret();
+  @ <div style="text-align:center;font-weight:bold;">
+  @ Server-specific settings that affect the 
+  @ <a href="%R/search">/search</a> webpage.
+  @ </div>
+  @ <hr />
+  textarea_attribute("Document Glob List", 3, 35, "doc-glob", "dg", "", 0);
+  @ <p>The "Document Glob List" is a comma- or newline-separated list 
+  @ of GLOB expressions that identify all documents within the source
+  @ tree that are to be searched when "Document Search" is enabled.
+  @ Some examples:
+  @ <table border=0 cellpadding=2 align=center>
+  @ <tr><td>*.wiki,*.html,*.md,*.txt<td style="width: 4x;">
+  @ <td>Search all wiki, HTML, Markdown, and Text files</tr>
+  @ <tr><td>doc/*.md,*/README.txt,README.txt<td>
+  @ <td>Search all Markdown files in the doc/ subfolder and all README.txt
+  @ files.</tr>
+  @ <tr><td>*<td><td>Search all checked-in files</tr>
+  @ <tr><td><i>(blank)</i><td>
+  @ <td>Search nothing. (Disables document search).</tr>
+  @ </table>
+  @ <hr />
+  entry_attribute("Document Branch", 20, "doc-branch", "db", "trunk", 0);
+  @ <p>When searching documents, use the versions of the files found at the
+  @ type of the "Document Branch" branch.  Recommended value: "trunk".
+  @ Document search is disabled if blank.
+  @ <hr/>
+  onoff_attribute("Search Check-in Comments", "search-ci", "sc", 0, 0);
+  @ <br>
+  onoff_attribute("Search Documents", "search-doc", "sd", 0, 0);
+  @ <br>
+  onoff_attribute("Search Tickets", "search-tkt", "st", 0, 0);
+  @ <br>
+  onoff_attribute("Search Wiki","search-wiki", "sw", 0, 0);
+  @ <hr/>
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr/>
+  if( P("fts0") ){
+    search_drop_index();
+  }else if( P("fts1") ){
+    search_drop_index();
+    search_create_index();
+    search_fill_index();
+    search_update_index(search_restrict(SRCH_ALL));
+  }
+  if( search_index_exists() ){
+    @ <p>Currently using an SQLite FTS4 search index. This makes search
+    @ run faster, especially on large repositories, but takes up space.</p>
+    @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
+    @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
+  }else{
+    @ <p>The SQLite FTS4 search index is disabled.  All searching will be
+    @ a full-text scan.  This usually works fine, but can be slow for
+    @ larger repositories.</p>
+    @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
+  }
+  @ </div></form>
   style_footer();
 }

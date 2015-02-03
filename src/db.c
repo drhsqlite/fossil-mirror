@@ -549,8 +549,9 @@ int db_multi_exec(const char *zSql, ...){
   while( rc==SQLITE_OK && z[0] ){
     pStmt = 0;
     rc = sqlite3_prepare_v2(g.db, z, -1, &pStmt, &zEnd);
-    if( rc!=SQLITE_OK ) break;
-    if( pStmt ){
+    if( rc ){
+      db_err("%s: {%s}", sqlite3_errmsg(g.db), z);
+    }else if( pStmt ){
       db.nPrepare++;
       while( sqlite3_step(pStmt)==SQLITE_ROW ){}
       rc = sqlite3_finalize(pStmt);
@@ -1199,7 +1200,7 @@ void db_open_repository(const char *zDbName){
     db_begin_transaction();
     db_multi_exec(
       "ALTER TABLE %s.mlink ADD COLUMN pmid INTEGER DEFAULT 0;"
-      "ALTER TABLE %s.mlink ADD COLUMN isaux INTEGER DEFAULT 0;",
+      "ALTER TABLE %s.mlink ADD COLUMN isaux BOOLEAN DEFAULT 0;",
       db_name("repository"), db_name("repository")
     );
     db_end_transaction(0);
@@ -1382,11 +1383,6 @@ void db_close(int reportErrors){
   }
   db_end_transaction(1);
   pStmt = 0;
-  if( reportErrors ){
-    while( (pStmt = sqlite3_next_stmt(g.db, pStmt))!=0 ){
-      fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
-    }
-  }
   db_close_config();
 
   /* If the localdb (the check-out database) is open and if it has
@@ -1401,8 +1397,14 @@ void db_close(int reportErrors){
   }
 
   if( g.db ){
+    int rc;
     sqlite3_wal_checkpoint(g.db, 0);
-    sqlite3_close(g.db);
+    rc = sqlite3_close(g.db);
+    if( rc==SQLITE_BUSY && reportErrors ){
+      while( (pStmt = sqlite3_next_stmt(g.db, pStmt))!=0 ){
+        fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
+      }
+    }
     g.db = 0;
     g.zMainDbType = 0;
   }
@@ -1522,8 +1524,8 @@ const char *db_setting_inop_rhs(){
 
   blob_zero(&x);
   blob_append_sql(&x, "(");
-  for(i=0; ctrlSettings[i].name; i++){
-    blob_append_sql(&x, "%s%Q", zSep/*safe-for-%s*/, ctrlSettings[i].name);
+  for(i=0; aSetting[i].name; i++){
+    blob_append_sql(&x, "%s%Q", zSep/*safe-for-%s*/, aSetting[i].name);
     zSep = ",";
   }
   blob_append_sql(&x, ")");
@@ -1684,6 +1686,11 @@ void create_repository_cmd(void){
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
+ 
+  if( -1 != file_size(g.argv[2]) ){
+    fossil_fatal("file already exists: %s", g.argv[2]);
+  }
+
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
   db_open_config(0);
@@ -1915,12 +1922,17 @@ void db_swap_connections(void){
 }
 
 /*
-** Logic for reading potentially versioned settings from
-** .fossil-settings/<name> , and emits warnings if necessary.
-** Returns the non-versioned value without modification if there is no
-** versioned value.
+** Try to read a versioned setting string from .fossil-settings/<name>.
+**
+** Return the text of the string if it is found.  Return NULL if not
+** found.
+**
+** If the zNonVersionedSetting parameter is not NULL then it holds the
+** non-versioned value for this setting.  If both a versioned and ad
+** non-versioned value exist and are not equal, then a warning message
+** might be generated.
 */
-char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
+char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
   char *zVersionedSetting = 0;
   int noWarn = 0;
   struct _cacheEntry {
@@ -1995,18 +2007,15 @@ char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
 /*
 ** Get and set values from the CONFIG, GLOBAL_CONFIG and VVAR table in the
 ** repository and local databases.
+**
+** If no such variable exists, return zDefault.  Or, if zName is the name
+** of a setting, then the zDefault is ignored and the default value of the
+** setting is returned instead.  If zName is a versioned setting, then
+** versioned value takes priority.
 */
 char *db_get(const char *zName, char *zDefault){
   char *z = 0;
-  int i;
-  const struct stControlSettings *ctrlSetting = 0;
-  /* Is this a setting? */
-  for(i=0; ctrlSettings[i].name; i++){
-    if( strcmp(ctrlSettings[i].name, zName)==0 ){
-      ctrlSetting = &(ctrlSettings[i]);
-      break;
-    }
-  }
+  const Setting *pSetting = db_find_setting(zName, 0);
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
   }
@@ -2015,13 +2024,17 @@ char *db_get(const char *zName, char *zDefault){
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
   }
-  if( ctrlSetting!=0 && ctrlSetting->versionable ){
+  if( pSetting!=0 && pSetting->versionable ){
     /* This is a versionable setting, try and get the info from a
     ** checked out file */
-    z = db_get_do_versionable(zName, z);
+    z = db_get_versioned(zName, z);
   }
   if( z==0 ){
-    z = zDefault;
+    if( zDefault==0 && pSetting && pSetting->def[0] ){
+      z = fossil_strdup(pSetting->def);
+    }else{
+      z = zDefault;
+    }
   }
   return z;
 }
@@ -2287,58 +2300,60 @@ void cmd_open(void){
 }
 
 /*
-** Print the value of a setting named zName
+** Print the current value of a setting identified by the pSetting
+** pointer.
 */
-static void print_setting(
-  const struct stControlSettings *ctrlSetting,
-  int localOpen
-){
+static void print_setting(const Setting *pSetting){
   Stmt q;
   if( g.repositoryOpen ){
     db_prepare(&q,
        "SELECT '(local)', value FROM config WHERE name=%Q"
        " UNION ALL "
        "SELECT '(global)', value FROM global_config WHERE name=%Q",
-       ctrlSetting->name, ctrlSetting->name
+       pSetting->name, pSetting->name
     );
   }else{
     db_prepare(&q,
       "SELECT '(global)', value FROM global_config WHERE name=%Q",
-      ctrlSetting->name
+      pSetting->name
     );
   }
   if( db_step(&q)==SQLITE_ROW ){
-    fossil_print("%-20s %-8s %s\n", ctrlSetting->name, db_column_text(&q, 0),
+    fossil_print("%-20s %-8s %s\n", pSetting->name, db_column_text(&q, 0),
         db_column_text(&q, 1));
   }else{
-    fossil_print("%-20s\n", ctrlSetting->name);
+    fossil_print("%-20s\n", pSetting->name);
   }
-  if( ctrlSetting->versionable && localOpen ){
+  if( pSetting->versionable && g.localOpen ){
     /* Check to see if this is overridden by a versionable settings file */
     Blob versionedPathname;
     blob_zero(&versionedPathname);
     blob_appendf(&versionedPathname, "%s/.fossil-settings/%s",
-                 g.zLocalRoot, ctrlSetting->name);
+                 g.zLocalRoot, pSetting->name);
     if( file_size(blob_str(&versionedPathname))>=0 ){
       fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
-                   ctrlSetting->name);
+                   pSetting->name);
     }
   }
   db_finalize(&q);
 }
 
 
+#if INTERFACE
 /*
-** define all settings, which can be controlled via the set/unset
-** command. var is the name of the internal configuration name for db_(un)set.
+** Define all settings, which can be controlled via the set/unset
+** command.
+**
+** var is the name of the internal configuration name for db_(un)set.
 ** If var is 0, the settings name is used.
+**
 ** width is the length for the edit field on the behavior page, 0
 ** is used for on/off checkboxes.
+**
 ** The behaviour page doesn't use a special layout. It lists all
 ** set-commands and displays the 'set'-help as info.
 */
-#if INTERFACE
-struct stControlSettings {
+struct Setting {
   const char *name;     /* Name of the setting */
   const char *var;      /* Internal variable name used by db_set() */
   int width;            /* Width of display.  0 for boolean values. */
@@ -2347,7 +2362,8 @@ struct stControlSettings {
   const char *def;      /* Default value */
 };
 #endif /* INTERFACE */
-struct stControlSettings const ctrlSettings[] = {
+
+const Setting aSetting[] = {
   { "access-log",       0,              0, 0, 0, "off"                 },
   { "admin-log",        0,              0, 0, 0, "off"                 },
   { "allow-symlinks",   0,              0, 1, 0, "off"                 },
@@ -2357,7 +2373,6 @@ struct stControlSettings const ctrlSettings[] = {
   { "autosync",         0,              0, 0, 0, "on"                  },
   { "autosync-tries",   0,             16, 0, 0, "1"                   },
   { "binary-glob",      0,             40, 1, 0, ""                    },
-  { "clearsign",        0,              0, 0, 0, "off"                 },
 #if defined(_WIN32) || defined(__CYGWIN__) || defined(__DARWIN__) || \
     defined(__APPLE__)
   { "case-sensitive",   0,              0, 0, 0, "off"                 },
@@ -2365,6 +2380,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "case-sensitive",   0,              0, 0, 0, "on"                  },
 #endif
   { "clean-glob",       0,             40, 1, 0, ""                    },
+  { "clearsign",        0,              0, 0, 0, "off"                 },
   { "crnl-glob",        0,             40, 1, 0, ""                    },
   { "default-perms",    0,             16, 0, 0, "u"                   },
   { "diff-binary",      0,              0, 0, 0, "on"                  },
@@ -2409,6 +2425,37 @@ struct stControlSettings const ctrlSettings[] = {
   { "white-foreground", 0,              0, 0, 0, "off"                 },
   { 0,0,0,0,0,0 }
 };
+
+/*
+** Look up a control setting by its name.  Return a pointer to the Setting
+** object, or NULL if there is no such setting.
+**
+** If allowPrefix is true, then the Setting returned is the first one for
+** which zName is a prefix of the Setting name.
+*/
+const Setting *db_find_setting(const char *zName, int allowPrefix){
+  int lwr, mid, upr, c;
+  int n = (int)strlen(zName) + !allowPrefix;
+  lwr = 0;
+  upr = ArraySize(aSetting)-2;
+  while( upr>=lwr ){
+    mid = (upr+lwr)/2;
+    c = fossil_strncmp(zName, aSetting[mid].name, n);
+    if( c<0 ){
+      upr = mid - 1;
+    }else if( c>0 ){
+      lwr = mid + 1;
+    }else{
+      if( allowPrefix ){
+        while( mid>lwr && fossil_strncmp(zName, aSetting[mid-1].name, n)==0 ){
+          mid--;
+        }
+      }
+      return &aSetting[mid];
+    }
+  }
+  return 0;
+}
 
 /*
 ** COMMAND: settings
@@ -2660,57 +2707,61 @@ void setting_cmd(void){
   if( unsetFlag && g.argc!=3 ){
     usage("PROPERTY ?-global?");
   }
+
+  /* Verify that the aSetting[] entries are in sorted order.  This is
+  ** necessary for the binary search in db_find_setting() to work correctly.
+  */
+  for(i=1; aSetting[i].name; i++){
+    if( fossil_strcmp(aSetting[i-1].name, aSetting[i].name)>=0 ){
+      fossil_panic("Internal Error: aSetting[] entries for \"%s\""
+                   " and \"%s\" are out of order.",
+                   aSetting[i-1].name, aSetting[i].name);
+    }
+  }
+
   if( g.argc==2 ){
-    int openLocal = db_open_local(0);
-    for(i=0; ctrlSettings[i].name; i++){
-      print_setting(&ctrlSettings[i], openLocal);
+    for(i=0; aSetting[i].name; i++){
+      print_setting(&aSetting[i]);
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
-    int isManifest;
-    int n = strlen(zName);
-    for(i=0; ctrlSettings[i].name; i++){
-      if( strncmp(ctrlSettings[i].name, zName, n)==0 ) break;
-    }
-    if( !ctrlSettings[i].name ){
+    int n = (int)strlen(zName);
+    const Setting *pSetting = db_find_setting(zName, 1);
+    if( pSetting==0 ){
       fossil_fatal("no such setting: %s", zName);
     }
-    isManifest = fossil_strcmp(ctrlSettings[i].name, "manifest")==0;
-    if( isManifest && globalFlag ){
+    if( globalFlag && fossil_strcmp(pSetting->name, "manifest")==0 ){
       fossil_fatal("cannot set 'manifest' globally");
     }
     if( unsetFlag || g.argc==4 ){
-      if( ctrlSettings[i+1].name
-       && strncmp(ctrlSettings[i+1].name, zName, n)==0
-       && ctrlSettings[i].name[n]!=0
-      ){
-        fossil_print("ambiguous property prefix: %s\nMatching properties:\n",
-                     zName);
-        while( ctrlSettings[i].name
-            && strncmp(ctrlSettings[i].name, zName, n)==0
-        ){
-          fossil_print("%s\n", ctrlSettings[i].name);
-          i++;
+      int isManifest = fossil_strcmp(pSetting->name, "manifest")==0;
+      if( pSetting[1].name && fossil_strncmp(pSetting[1].name, zName, n)==0 ){
+        Blob x;
+        int i;
+        blob_init(&x,0,0);
+        for(i=0; pSetting[i].name; i++){
+          if( fossil_strncmp(pSetting[i].name,zName,n)!=0 ) break;
+          blob_appendf(&x, " %s", pSetting[i].name);
         }
-        fossil_exit(1);
+        fossil_fatal("ambiguous setting \"%s\" - might be:%s",
+                     zName, blob_str(&x));
+      }
+      if( globalFlag && isManifest ){
+        fossil_fatal("cannot set 'manifest' globally");
+      }
+      if( unsetFlag ){
+        db_unset(pSetting->name, globalFlag);
       }else{
-        if( unsetFlag ){
-          db_unset(ctrlSettings[i].name, globalFlag);
-        }else{
-          db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
-        }
+        db_set(pSetting->name, g.argv[3], globalFlag);
+      }
+      if( isManifest && g.localOpen ){
+        manifest_to_disk(db_lget_int("checkout", 0));
       }
     }else{
-      isManifest = 0;
-      while( ctrlSettings[i].name
-          && strncmp(ctrlSettings[i].name, zName, n)==0
-      ){
-        print_setting(&ctrlSettings[i], db_open_local(0));
-        i++;
+      while( pSetting->name && fossil_strncmp(pSetting->name,zName,n)==0 ){
+        print_setting(pSetting);
+        pSetting++;
       }
-    }
-    if( isManifest && g.localOpen ){
-      manifest_to_disk(db_lget_int("checkout", 0));
     }
   }else{
     usage("?PROPERTY? ?VALUE? ?-global?");

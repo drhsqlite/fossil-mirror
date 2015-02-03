@@ -31,6 +31,8 @@ static void report_format_hints(void);
 
 /*
 ** WEBPAGE: /reportlist
+**
+** Main menu for Tickets.
 */
 void view_list(void){
   const char *zScript;
@@ -42,6 +44,7 @@ void view_list(void){
   login_check_credentials();
   if( !g.perm.RdTkt && !g.perm.NewTkt ){ login_needed(); return; }
   style_header("Ticket Main Menu");
+  ticket_standard_submenu(T_ALL_BUT(T_REPLIST));
   if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST<br />\n", -1);
   zScript = ticket_reportlist_code();
   if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST_SCRIPT<br />\n", -1);
