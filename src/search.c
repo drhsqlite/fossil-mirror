@@ -780,6 +780,7 @@ int search_run_and_output(
   if( !search_index_exists() ){
     search_fullscan(zPattern, srchFlags);
   }else{
+    search_update_index();
     search_indexed(zPattern, srchFlags);
   }
   db_prepare(&q, "SELECT url, snip, label"
@@ -986,61 +987,16 @@ void search_stext(
 }
 
 /*
-** The arguments cType,rid,zName define an object that can be searched
-** for.  Return a URL (relative to the root of the Fossil project) that
-** will jump to that document.  
-**
-** Space to hold the returned string is obtained from mprintf() and should
-** be freed by the caller using fossil_free() or the equivalent.
-*/
-char *search_url(
-  char cType,            /* Type of document */
-  int rid,               /* BLOB.RID or TAG.TAGID for the object */
-  const char *zName      /* Name of the object */
-){
-  char *zUrl = 0;
-  switch( cType ){
-    case 'd': {   /* Documents */
-      zUrl = db_text(0,
-         "SELECT printf('/doc/%%s%%s', substr(blob.uuid,20), %Q)"
-         "  FROM mlink, blob"
-         " WHERE mlink.fid=%d AND mlink.mid=blob.rid",
-         zName, rid);
-      break;
-    }
-    case 'w': {   /* Wiki */
-      char *zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      zUrl = mprintf("/wiki?id=%z&name=%t", zId, zName);
-      break;
-    }     
-    case 'c': {   /* Ckeck-in Comment */
-      char *zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      zUrl = mprintf("/info/%z", zId);
-      break;
-    }
-    case 't': {   /* Tickets */
-      char *zId = db_text(0, "SELECT tkt_uuid FROM ticket"
-                             " WHERE tkt_id=%d", rid);
-      zUrl = mprintf("/tktview/%.20z", zId);
-      break;
-    }
-  }
-  return zUrl;
-}
-
-/*
 ** COMMAND: test-search-stext
 **
 ** Usage: fossil test-search-stext TYPE ARG1 ARG2
 */
 void test_search_stext(void){
   Blob out;
-  char *zUrl;
   db_find_and_open_repository(0,0);
   if( g.argc!=5 ) usage("TYPE RID NAME");
   search_stext(g.argv[2][0], atoi(g.argv[3]), g.argv[4], &out);
-  zUrl = search_url(g.argv[2][0], atoi(g.argv[3]), g.argv[4]);
-  fossil_print("%s\n%z\n",blob_str(&out),zUrl);
+  fossil_print("%s\n",blob_str(&out));
   blob_reset(&out);
 }
 
@@ -1060,6 +1016,7 @@ static const char zFtsSchema[] =
 @   UNIQUE(type,rid)
 @ );
 @ CREATE INDEX "%w".ftsdocIdxed ON ftsdocs(type,rid,name) WHERE idxed==0;
+@ CREATE INDEX "%w".ftsdocName ON ftsdocs(name) WHERE type='w';
 @ CREATE VIEW IF NOT EXISTS "%w".ftscontent AS
 @   SELECT rowid, type, rid, name, idxed, label, url, mtime,
 @          stext(type,rid,name) AS 'stext'
@@ -1079,7 +1036,8 @@ static const char zFtsDrop[] =
 void search_create_index(void){
   const char *zDb = db_name("repository");
   search_sql_setup(g.db);
-  db_multi_exec(zFtsSchema/*works-like:"%w%w%w%w"*/, zDb, zDb, zDb, zDb);
+  db_multi_exec(zFtsSchema/*works-like:"%w%w%w%w%w"*/,
+       zDb, zDb, zDb, zDb, zDb);
 }
 void search_drop_index(void){
   const char *zDb = db_name("repository");
@@ -1132,16 +1090,30 @@ void search_fill_index(void){
 */
 void search_doc_touch(char cType, int rid, const char *zName){
   if( search_index_exists() ){
+    char zType[2];
+    zType[0] = cType;
+    zType[1] = 0;
     db_multi_exec(
        "DELETE FROM ftsidx WHERE docid IN"
        "    (SELECT rowid FROM ftsdocs WHERE type=%Q AND rid=%d AND idxed)",
-       cType, rid
+       zType, rid
     );
     db_multi_exec(
        "REPLACE INTO ftsdocs(type,rid,name,idxed)"
        " VALUES(%Q,%d,%Q,0)",
-       cType, rid, zName
+       zType, rid, zName
     );
+    if( cType=='w' ){
+      db_multi_exec(
+        "DELETE FROM ftsidx WHERE docid IN"
+        "    (SELECT rowid FROM ftsdocs WHERE type='w' AND name=%Q AND idxed)",
+        zName
+      );
+      db_multi_exec(
+        "DELETE FROM ftsdocs WHERE type='w' AND name=%Q AND rid!=%d",
+        zName, rid
+      );
+    }
   }
 }
 
@@ -1201,15 +1173,84 @@ static void search_update_doc_index(void){
 }
 
 /*
+** Deal with all of the unindexed 'c' terms in FTSDOCS 
+*/
+static void search_update_checkin_index(void){
+  db_multi_exec(
+    "INSERT INTO ftsidx(docid,stext)"
+    " SELECT rowid, stext('c',rid,NULL) FROM ftsdocs"
+    "  WHERE type='c' AND NOT idxed;"
+  );
+  db_multi_exec(
+    "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
+    "  SELECT ftsdocs.rowid, 1, 'c', ftsdocs.rid, NULL,"
+    "    printf('Check-in [%%.16s] on %%s',blob.uuid,datetime(event.mtime)),"
+    "    printf('/timeline?y=ci&n=9&c=%%.20s',blob.uuid),"
+    "    event.mtime"
+    "  FROM ftsdocs, event, blob"
+    "  WHERE ftsdocs.type='c' AND NOT ftsdocs.idxed"
+    "    AND event.objid=ftsdocs.rid"
+    "    AND blob.rid=ftsdocs.rid"
+  );
+}
+
+/*
+** Deal with all of the unindexed 't' terms in FTSDOCS 
+*/
+static void search_update_ticket_index(void){
+  db_multi_exec(
+    "INSERT INTO ftsidx(docid,stext)"
+    " SELECT rowid, stext('t',rid,NULL) FROM ftsdocs"
+    "  WHERE type='t' AND NOT idxed;"
+  );
+  if( db_changes()==0 ) return;
+  db_multi_exec(
+    "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
+    "  SELECT ftsdocs.rowid, 1, 't', ftsdocs.rid, NULL,"
+    "    printf('Ticket [%%.16s] on %%s',tkt_uuid,datetime(tkt_mtime)),"
+    "    printf('/tktview/%%.20s',tkt_uuid),"
+    "    tkt_mtime"
+    "  FROM ftsdocs, ticket"
+    "  WHERE ftsdocs.type='t' AND NOT ftsdocs.idxed"
+    "    AND ticket.tkt_id=ftsdocs.rid"
+  );
+}
+
+/*
+** Deal with all of the unindexed 'w' terms in FTSDOCS 
+*/
+static void search_update_wiki_index(void){
+  db_multi_exec(
+    "INSERT INTO ftsidx(docid,stext)"
+    " SELECT rowid, stext('w',rid,NULL) FROM ftsdocs"
+    "  WHERE type='t' AND NOT idxed;"
+  );
+  if( db_changes()==0 ) return;
+  db_multi_exec(
+    "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
+    "  SELECT ftsdocs.rowid, 1, 'w', ftsdocs.rid, ftsdocs.name,"
+    "    'Wiki: '||tsdocs.name),"
+    "    '/wiki?name='||urlencode(ftsdocs.name),"
+    "    tagxref.mtime"
+    "  FROM ftsdocs, tagxref"
+    "  WHERE ftsdocs.type='t' AND NOT ftsdocs.idxed"
+    "    AND tagxref.rid=ftsdocs.rid"
+  );
+}
+
+/*
 ** Deal with all of the unindexed entries in the FTSDOCS table - that
 ** is to say, all the entries with FTSDOCS.IDXED=0.  Add them to the
 ** index.
 */
 void search_update_index(void){
   if( !search_index_exists() ) return;
+  if( !db_exists("SELECT 1 FROM ftsdocs WHERE NOT idxed") ) return;
   search_sql_setup(g.db);
   search_update_doc_index();
-
+  search_update_checkin_index();
+  search_update_ticket_index();
+  search_update_wiki_index();
 }
 
 /*
@@ -1223,9 +1264,8 @@ void test_fts_cmd(void){
      { 2,  "drop"      },
      { 3,  "exists"    },
      { 4,  "fill"      },
-     { 8,  "refill"     },
+     { 8,  "refill"    },
      { 5,  "pending"   },
-     { 6,  "all"       },
      { 7,  "update"    },
   };
   db_find_and_open_repository(0, 0);
@@ -1269,42 +1309,14 @@ void test_fts_cmd(void){
     case 5: {  assert( fossil_strncmp(zSubCmd, "pending", n)==0 );
       Stmt q;
       if( !search_index_exists() ) break;
-      db_prepare(&q, "SELECT rowid, type, rid, quote(label), url, date(mtime)"
-                     "  FROM ftsdocs"
+      db_prepare(&q, "SELECT rowid,type,rid,quote(name) FROM ftsdocs"
                      " WHERE NOT idxed");
       while( db_step(&q)==SQLITE_ROW ){
-        const char *zUrl = db_column_text(&q,4);
-        if( zUrl && zUrl[0] ){
-          fossil_print("%6d: %s %6d %s %s\n        %s\n",
-             db_column_int(&q, 0),
-             db_column_text(&q, 1),
-             db_column_int(&q, 2),
-             db_column_text(&q, 5),
-             db_column_text(&q, 3),
-             zUrl);
-        }else{
-          fossil_print("%6d: %s %6d %s %s\n",
-             db_column_int(&q, 0),
-             db_column_text(&q, 1),
-             db_column_int(&q, 2),
-             db_column_text(&q, 5),
-             db_column_text(&q, 3));
-        }
-      }
-      db_finalize(&q);
-      break;
-    }
-    case 6: {  assert( fossil_strncmp(zSubCmd, "all", n)==0 );
-      Stmt q;
-      if( !search_index_exists() ) break;
-      db_prepare(&q, "SELECT rowid,type,rid,quote(name),idxed FROM ftsdocs");
-      while( db_step(&q)==SQLITE_ROW ){
-        fossil_print("%6d: %s %6d %s%s\n",
+        fossil_print("%6d: %s %6d %s\n",
            db_column_int(&q, 0),
            db_column_text(&q, 1),
            db_column_int(&q, 2),
-           db_column_text(&q, 3),
-           db_column_int(&q, 4) ? "" : " (NOT INDEXED)"
+           db_column_text(&q, 3)
         );
       }
       db_finalize(&q);
