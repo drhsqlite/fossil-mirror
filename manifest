@@ -1,5 +1,5 @@
-C Restrict\sindexed\ssearch\saccording\sto\sthe\ssearch\sflags.\s\sFix\sthe\sgeneration\nof\sthe\sindex\sfor\swiki\spages.\s\sFix\sdb_multi_exec()\sso\sthat\sit\saborts\swith\na\ssensible\smessage\sfollowing\sa\ssyntax\serror.
-D 2015-02-03T04:10:10.389
+C Highlight\smatching\sworks\son\sa\ssearch\susing\s&lt;mark&gt;\srather\sthan\n&lt;b&gt;\sand\sadd\sappropriate\sCSS\sto\smake\s"mark"\slook\slike\s"b"\sby\sdefault.
+D 2015-02-03T04:39:00.097
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -436,7 +436,7 @@ F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 802d68bca3a9b0ed615d386cc541a092e1c94100
 F src/rss.c fafc3986a24f30cfeb5af69e477401e4b6f17bcd
 F src/schema.c 4cf219c92277e2df277f0f8e8be4eccc1e47ed53
-F src/search.c bb50c892aa2ef9e63bf27a36f15cac3f680e689a
+F src/search.c 8fdf564ead0c95ab625aef9b9a6a96929104a625
 F src/setup.c 65455cc232350f37830c60e9651863322c34e381
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c 66986a98df6556f8de10d137f53a270f34ef1252
@@ -449,7 +449,7 @@ F src/sqlite3.h eb06a7a2c24836d63607f1a4407c3aaccb79f3cf
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 14eec54b80de07bc69a7a97cb6396f1e1ba5f40a
 F src/statrep.c f6ea57a6ba001a4a7f264cca80c32c4f38be8e7a
-F src/style.c fd2abb2753780f3a267f1e537f84b9ec14fe2c22
+F src/style.c c81ef9b84e5df4e22106d60b3fc8f8bd3fdb823c
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 96fca99e9916e931d3f492eee5123da0113b1037
 F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 786a3632a8e0d10494facab0ff3812a751c2f891
-R a39e54f98d198aa34226e79b591f83cb
+P 780117d2239e21d64d2010e366864cb77ddc6418
+R a3887adf410a0d517730f3bfc9204b9d
 U drh
-Z cef86a3b862888b31f1df466176aac60
+Z 59f841a582938e21b2bf3b73fc54eb0a

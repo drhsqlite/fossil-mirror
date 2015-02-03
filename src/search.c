@@ -365,8 +365,8 @@ static void search_init_sqlfunc(
   sqlite3_value **argv
 ){
   const char *zPattern = 0;
-  const char *zBegin = "<b>";
-  const char *zEnd = "</b>";
+  const char *zBegin = "<mark>";
+  const char *zEnd = "</mark>";
   const char *zGap = " ... ";
   unsigned int flg = SRCHFLG_HTML;
   switch( argc ){
@@ -747,7 +747,7 @@ static void search_indexed(
     "        ftsdocs.url,"
     "        rank(matchinfo(ftsidx,'pcsx')),"
     "        datetime(ftsdocs.mtime),"
-    "        snippet(ftsidx)"
+    "        snippet(ftsidx,'<mark>','</mark>')"
     "   FROM ftsidx, ftsdocs"
     "  WHERE ftsidx MATCH %Q"
     "    AND ftsdocs.rowid=ftsidx.docid",
