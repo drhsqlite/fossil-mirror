@@ -1300,7 +1300,7 @@ void page_timeline(void){
       }
       url_add_parameter(&url, "d", zUuid);
     }
-    style_submenu_checkbox("v","Files");
+    style_submenu_binary("v","With Files","Without Files");
     style_submenu_entry("n","Lines",1);
     timeline_y_submenu();
   }else if( f_rid && g.perm.Read ){
@@ -1544,7 +1544,7 @@ void page_timeline(void){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
     }
     if( g.perm.Hyperlink ){
-      style_submenu_checkbox("v","Show Files");
+      style_submenu_binary("v","With Files","Without Files");
       if( zAfter || n==nEntry ){
         zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
         timeline_submenu(&url, "Older", "b", zDate, "a");

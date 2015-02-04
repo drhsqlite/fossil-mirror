@@ -50,11 +50,13 @@ static struct SubmenuCtrl {
   int eType;                 /* FF_ENTRY, FF_CKBOX, FF_MULTI */
   int iSize;                 /* Width for FF_ENTRY.  Count for FF_MULTI */
   const char **azChoice;     /* value/display pairs for FF_MULTI */
+  const char *zFalse;        /* FF_BINARY label when false */
 } aSubmenuCtrl[20];
 static int nSubmenuCtrl = 0;
-#define FF_ENTRY 1
-#define FF_CKBOX 2
-#define FF_MULTI 3
+#define FF_ENTRY  1
+#define FF_CKBOX  2
+#define FF_MULTI  3
+#define FF_BINARY 4
 
 /*
 ** Remember that the header has been generated.  The footer is omitted
@@ -263,6 +265,18 @@ void style_submenu_checkbox(
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_CKBOX;
+  nSubmenuCtrl++;
+}
+void style_submenu_binary(
+  const char *zName,       /* Query parameter name */
+  const char *zTrue,       /* Label to show when parameter is true */
+  const char *zFalse       /* Label to show when the parameter is false */
+){
+  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  aSubmenuCtrl[nSubmenuCtrl].zName = zName;
+  aSubmenuCtrl[nSubmenuCtrl].zLabel = zTrue;
+  aSubmenuCtrl[nSubmenuCtrl].zFalse = zFalse;
+  aSubmenuCtrl[nSubmenuCtrl].eType = FF_BINARY;
   nSubmenuCtrl++;
 }
 void style_submenu_multichoice(
@@ -529,6 +543,24 @@ void style_footer(void){
                 aSubmenuCtrl[i].azChoice[j+1]
               );
             }
+            @ </select>
+            break;
+          }
+          case FF_BINARY: {
+            int isTrue = PB(zQPN);
+            cgi_printf(
+               "<select class='submenuctrl' size='1' name='%s' "
+               "onchange='gebi(\"f01\").submit();'>\n",
+               zQPN
+            );
+            cgi_printf(
+              "<option value='1'%s>%h</option>\n",
+              isTrue ? " selected":"", aSubmenuCtrl[i].zLabel
+            );
+            cgi_printf(
+              "<option value='0'%s>%h</option>\n",
+              (!isTrue) ? " selected":"", aSubmenuCtrl[i].zFalse
+            );
             @ </select>
             break;
           }

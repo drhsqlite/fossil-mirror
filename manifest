@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\sinclude\sFORM\selements\son\sthe\ssubmenu.
-D 2015-02-04T19:14:10.647
+C Use\sa\stwo-entry\sselection-box\sinstead\sof\sa\scheckbox\sfor\sboolean\sproperties.
+D 2015-02-04T23:56:46.155
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -449,7 +449,7 @@ F src/sqlite3.h eb06a7a2c24836d63607f1a4407c3aaccb79f3cf
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 14eec54b80de07bc69a7a97cb6396f1e1ba5f40a
 F src/statrep.c f6ea57a6ba001a4a7f264cca80c32c4f38be8e7a
-F src/style.c 78a46a8d49d5f1d511d5c5ac6d0f15c1a9454cb2
+F src/style.c 0440e74d59b4f8943a3ad5789495f3498c1db732
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 96fca99e9916e931d3f492eee5123da0113b1037
 F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
@@ -458,7 +458,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 312b6284fbb63001c182c7d28ca451a4ba284bb8
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c ae383585accb7a3a4393b9c93190f4fef8417939
+F src/timeline.c 17af39ed63f91adcfe65bcaaa0859ab1e91a4570
 F src/tkt.c ff00fc0200fd588254b8b5f06f5ac6bc6e1e2944
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -692,10 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5098f747a95a421d587f1ff04ed332e1b184b9a1
-R b09449542f196d2ffb6a683f270a17d5
-T *branch * form-submenu
-T *sym-form-submenu *
-T -sym-trunk *
+P b17970e13bc314b499571caa091c4e142196979b
+R 385afc2f9013d54e2026386cdd59ae57
 U drh
-Z 5cba5316865ac72c63144cf9314ee813
+Z 06df5b1a5ec47584299f3dbd3a488c2b
