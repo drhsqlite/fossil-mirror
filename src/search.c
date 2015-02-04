@@ -888,7 +888,8 @@ int search_run_and_output(
 void search_screen(unsigned srchFlags, const char *zAction){
   const char *zType = 0;
   const char *zClass = 0;
-  const char *zDisable;
+  const char *zDisable1;
+  const char *zDisable2;
   const char *zPattern;
   switch( srchFlags ){
     case SRCH_CKIN:  zType = " Check-ins";  zClass = "Ckin";  break;
@@ -898,10 +899,12 @@ void search_screen(unsigned srchFlags, const char *zAction){
   }
   srchFlags = search_restrict(srchFlags);
   if( srchFlags==0 ){
-    zDisable = " disabled";
+    zDisable1 = " disabled";
+    zDisable2 = " disabled";
     zPattern = "";
   }else{
-    zDisable = "";
+    zDisable1 = " autofocus";
+    zDisable2 = "";
     zPattern = PD("s","");
   }
   @ <form method='GET' action='%s(zAction)'>
@@ -910,8 +913,8 @@ void search_screen(unsigned srchFlags, const char *zAction){
   }else{
     @ <div class='searchForm'>
   }
-  @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable)>
-  @ <input type="submit" value="Search%s(zType)"%s(zDisable)>
+  @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable1)>
+  @ <input type="submit" value="Search%s(zType)"%s(zDisable2)>
   if( srchFlags==0 ){
     @ <p class="generalError">Search is disabled</p>
   }

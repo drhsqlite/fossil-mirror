@@ -86,7 +86,7 @@ puts $out \
 puts $out {
 <center>
 <form action='../../../docsrch' method='GET'>
-<input type="text" name="s" size="40">
+<input type="text" name="s" size="40" autofocus>
 <input type="submit" value="Search Docs">
 </form>
 </center>
