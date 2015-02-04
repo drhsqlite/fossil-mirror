@@ -746,7 +746,7 @@ static void search_indexed(
     "        ftsdocs.url,"
     "        rank(matchinfo(ftsidx,'pcsx')),"
     "        datetime(ftsdocs.mtime),"
-    "        snippet(ftsidx,'<mark>','</mark>',' ... ')"
+    "        snippet(ftsidx,'<mark>','</mark>',' ... ',-1,35)"
     "   FROM ftsidx CROSS JOIN ftsdocs"
     "  WHERE ftsidx MATCH %Q"
     "    AND ftsdocs.rowid=ftsidx.docid",
