@@ -1015,6 +1015,43 @@ char *names_of_file(const char *zUuid){
 
 
 /*
+** Add the select/option box to the timeline submenu that is used to 
+** set the y= parameter that determines which elements to display
+** on the timeline.
+*/
+static void timeline_y_submenu(void){
+  static int i = 0;
+  static const char *az[12];
+  if( i==0 ){
+    az[0] = "all";
+    az[1] = "All Types";
+    i = 2;
+    if( g.perm.RdWiki ){
+      az[i++] = "e";
+      az[i++] = "Blog Posts";
+    }
+    if( g.perm.Read ){
+      az[i++] = "ci";
+      az[i++] = "Check-ins";
+      az[i++] = "g";
+      az[i++] = "Tags";
+    }
+    if( g.perm.RdTkt ){
+      az[i++] = "t";
+      az[i++] = "Tickets";
+    }
+    if( g.perm.RdWiki ){
+      az[i++] = "w";
+      az[i++] = "Wiki";
+    }
+    assert( i<=ArraySize(az) );
+  }
+  if( i>2 ){
+    style_submenu_multichoice("y", i/2, az);
+  }
+}
+
+/*
 ** WEBPAGE: timeline
 **
 ** Query parameters:
@@ -1057,7 +1094,7 @@ void page_timeline(void){
   Stmt q;                            /* Query used to generate the timeline */
   Blob sql;                          /* text of SQL used to generate timeline */
   Blob desc;                         /* Description of the timeline */
-  int nEntry = atoi(PD("n","20"));   /* Max number of entries on timeline */
+  int nEntry;                        /* Max number of entries on timeline */
   int p_rid = name_to_typed_rid(P("p"),"ci");  /* artifact p and its parents */
   int d_rid = name_to_typed_rid(P("d"),"ci");  /* artifact d and descendants */
   int f_rid = name_to_typed_rid(P("f"),"ci");  /* artifact f and close family */
@@ -1086,6 +1123,16 @@ void page_timeline(void){
   int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
   int pd_rid;
   double rBefore, rAfter, rCirca;     /* Boundary times */
+  const char *z;
+
+  /* Set number of rows to display */
+  z = P("n");
+  if( z ){
+    nEntry = atoi(z);
+  }else{
+    cgi_replace_query_parameter("n","50");
+    nEntry = 50;
+  }
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -1163,7 +1210,7 @@ void page_timeline(void){
   blob_zero(&desc);
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
-  if( P("fc")!=0 || P("v")!=0 || P("detail")!=0 ){
+  if( PB("fc") || PB("v") || PB("detail") ){
     tmFlags |= TIMELINE_FCHANGES;
     url_add_parameter(&url, "v", 0);
   }
@@ -1253,20 +1300,9 @@ void page_timeline(void){
       }
       url_add_parameter(&url, "d", zUuid);
     }
-    if( nEntry>20 ){
-      timeline_submenu(&url, "20 Entries", "n", "20", 0);
-    }
-    if( nEntry<200 && nEntry>0 ){
-      timeline_submenu(&url, "200 Entries", "n", "200", 0);
-    }
-    if( tmFlags & TIMELINE_FCHANGES ){
-      timeline_submenu(&url, "Hide Files", "v", 0, 0);
-    }else{
-      timeline_submenu(&url, "Show Files", "v", "", 0);
-    }
-    if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-      timeline_submenu(&url, "Unhide", "unhide", "", 0);
-    }
+    style_submenu_checkbox("v","Files");
+    style_submenu_entry("n","Lines",1);
+    timeline_y_submenu();
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1508,6 +1544,7 @@ void page_timeline(void){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
     }
     if( g.perm.Hyperlink ){
+      style_submenu_checkbox("v","Show Files");
       if( zAfter || n==nEntry ){
         zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
         timeline_submenu(&url, "Older", "b", zDate, "a");
@@ -1518,37 +1555,10 @@ void page_timeline(void){
         timeline_submenu(&url, "Newer", "a", zDate, "b");
         free(zDate);
       }else if( tagid==0 && zUses==0 ){
-        if( zType[0]!='a' ){
-          timeline_submenu(&url, "All Types", "y", "all", 0);
-        }
-        if( zType[0]!='w' && g.perm.RdWiki ){
-          timeline_submenu(&url, "Wiki Only", "y", "w", 0);
-        }
-        if( zType[0]!='c' && g.perm.Read ){
-          timeline_submenu(&url, "Checkins Only", "y", "ci", 0);
-        }
-        if( zType[0]!='t' && g.perm.RdTkt ){
-          timeline_submenu(&url, "Tickets Only", "y", "t", 0);
-        }
-        if( zType[0]!='e' && g.perm.RdWiki ){
-          timeline_submenu(&url, "Events Only", "y", "e", 0);
-        }
-        if( zType[0]!='g' && g.perm.Read ){
-          timeline_submenu(&url, "Tags Only", "y", "g", 0);
-        }
+        timeline_y_submenu();
       }
-      if( nEntry>20 ){
-        timeline_submenu(&url, "20 Entries", "n", "20", 0);
-      }
-      if( nEntry<200 && nEntry>0 ){
-        timeline_submenu(&url, "200 Entries", "n", "200", 0);
-      }
+      style_submenu_entry("n","Lines",1);
       if( zType[0]=='a' || zType[0]=='c' ){
-        if( tmFlags & TIMELINE_FCHANGES ){
-          timeline_submenu(&url, "Hide Files", "v", 0, 0);
-        }else{
-          timeline_submenu(&url, "Show Files", "v", "", 0);
-        }
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
           timeline_submenu(&url, "Unhide", "unhide", "", 0);
         }
