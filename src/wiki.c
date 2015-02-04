@@ -231,7 +231,7 @@ static void wiki_standard_submenu(unsigned int ok){
   if( (ok & W_BLOG)!=0
 #endif
   if( (ok & W_SANDBOX)!=0 ){
-    style_submenu_element("Sandbox", "Sandbox", "/wiki?name=Sandbox");
+    style_submenu_element("Sandbox", "Sandbox", "%R/wiki?name=Sandbox");
   }
 }
 
