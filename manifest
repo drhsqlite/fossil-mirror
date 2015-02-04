@@ -1,5 +1,5 @@
-C Add\sautofocus\sto\ssearch\sentry\sboxes.
-D 2015-02-04T13:32:33.669
+C Update\sjson\sconfiguration\soptions\sand\swiki\swith\sreality
+D 2015-02-04T15:47:33.202
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -357,7 +357,7 @@ F src/clone.c cca4f31e16d619ee841bfae5919fdd529523f62f
 F src/codecheck1.c 2cf1fc75f4f611574e92cf1440f4fb2ae49e8ba6
 F src/comformat.c 24b2de2bad5e8e6da966586c68d6505ea08df8e7
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
-F src/configure.c 6134b0cc9193da2c3f7b885fb4b6ca1ab64f82c2
+F src/configure.c f4ed1439b8c1cd49247d8002c9e8021ff5f2d951
 F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
@@ -389,7 +389,7 @@ F src/info.c b29fbd9eab22e3a66fdf53ff10b5624a5b8775d7
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
-F src/json_config.c 5d22db5b04527c1447333aa53ca87583cc1e45ea
+F src/json_config.c 06307c932a6c53e2a553742f61b91d87a3731196
 F src/json_detail.h 7d9cdc126617216623145aaea42a914a93cf983c
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
 F src/json_dir.c a76008c3fbf13ff3edcfa07edaf8fa7e60a678c0
@@ -685,14 +685,14 @@ F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
 F www/style.wiki 92ede836b02fb8958e948b9df51f196e9ec95d68
-F www/sync.wiki aca075f40f7019142c583b494609060240a2e71e
+F www/sync.wiki 53a1e45726f4bbfc69e8f0898bb8196e7660c82b
 F www/tech_overview.wiki 47bd3f7fa192bb99ff6b2063d7e4cac62786f96d
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 188c62c2d591ce26bdf3a8c048b426dd7485da97
-R 7055fbd1d5b7ab306f8ac5b2394a4a75
-U drh
-Z 7d8e76c555c9f5659c9d810c0823cd0c
+P c799881474dde5e3c490cc550176eee0813de0da
+R 45a949a15892b3e2ec1e605b1f00c75c
+U jan.nijtmans
+Z 703a7c3581748a48ba96877528a238a4

@@ -386,7 +386,7 @@ data elements.
 <b>reqconfig</b> <i>configuration-name</i>
 </blockquote>
 
-<p>As of this writing ([2010-11-12]), the configuration-name must be one of the
+<p>As of [/timeline?r=trunk&c=2015-01-24+00%3A17%3A55&n=20|2015-01-24], the configuration-name must be one of the
 following values:
 
 <center><table border=0>
@@ -397,21 +397,38 @@ following values:
 <li> footer
 <li> logo-mimetype
 <li> logo-image
-<li> project-name
-<li> project-description
-<li> manifest
+<li> background-mimetype
+<li> background-image
 <li> index-page
-<ul></td><td valign="top"><ul>
 <li> timeline-block-markup
 <li> timeline-max-comment
 <li> timeline-plaintext
+<ul></td><td valign="top"><ul>
+<li> adunit
+<li> adunit-omit-if-admin
+<li> adunit-omit-if-user
+<li> white-foreground
+<li> project-name
+<li> short-project-name
+<li> project-description
+<li> index-page
+<li> manifest
+<li> binary-glob
+<li> clean-glob
+<ul></td><td valign="top"><ul>
+<li> ignore-glob
+<li> keep-glob
+<li> crnl-glob
+<li> encoding-glob
+<li> empty-dirs
+<li> allow-symlinks
 <li> ticket-table
 <li> ticket-common
 <li> ticket-change
 <li> ticket-newpage
 <li> ticket-viewpage
-<li> ticket-editpage
 <ul></td><td valign="top"><ul>
+<li> ticket-editpage
 <li> ticket-reportlist
 <li> ticket-report-template
 <li> ticket-key-template
