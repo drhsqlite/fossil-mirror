@@ -1,5 +1,5 @@
-C Add\s'move-files'\sand\s'remove-files'\ssettings\sto\senable\smoving\sor\sremoving\sfiles\swhen\sthe\smv\sor\srm\scommands\sare\sused,\srespectively.
-D 2015-02-05T03:39:04.734
+C Enhance\sthe\scomments\sassociated\swith\sthe\scommon\scommand\sline\soptions.
+D 2015-02-05T03:46:24.005
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -337,7 +337,7 @@ F skins/rounded1/css.txt 23098aad131c5c535bfcfbaa72577dc356254e85
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt e17ef8f3cfa1f92a5b8922708a6eac97f544a79a
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 51c947a7f98cbceb24b67ce174394f64750d4f4a
+F src/add.c 58d764e1514f1ffbf90a19d538aa077a3c6c4b58
 F src/allrepo.c 7177991a7e085a75ffaebf0acfc19a269acaa08f
 F src/attach.c e9186b7e96800753bc8696fa020fb82aba9fbd70
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -692,10 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7e56e360807f94f5d602fb308b091cdf222101b0
-R bf4358992cf6b13c6c94aa016f66c829
-T *branch * mvAndRmFiles
-T *sym-mvAndRmFiles *
-T -sym-trunk *
+P 21e08f09049a4031bb22fa85a6e0c0f67df876b8
+R cc8cdaea7c42d3f412f224f0e5b316f3
 U mistachkin
-Z 7c6548966db2f95bcdc063a9b8f12643
+Z 28a91c36f060f009fcb4e65ed113a134
