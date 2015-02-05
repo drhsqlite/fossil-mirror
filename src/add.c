@@ -330,6 +330,37 @@ void add_cmd(void){
 
   add_files_in_sfile(vid);
   db_end_transaction(0);
+
+}
+
+static void init_files_to_remove(){
+  db_multi_exec("CREATE TEMP TABLE fremove(x TEXT PRIMARY KEY %s)",
+                filename_collation());
+}
+
+static void add_file_to_remove(
+  const char *zOldName /* The old name of the file on disk. */
+){
+  Blob fullOldName;
+  file_canonical_name(zOldName, &fullOldName, 0);
+  db_multi_exec("INSERT INTO fremove VALUES('%q');", blob_str(&fullOldName));
+  blob_reset(&fullOldName);
+}
+
+static void process_files_to_remove(
+  int dryRunFlag /* Non-zero to actually operate on the file-system. */
+){
+  Stmt remove;
+  db_prepare(&remove, "SELECT x FROM fremove ORDER BY x;");
+  while( db_step(&remove)==SQLITE_ROW ){
+    const char *zOldName = db_column_text(&remove, 0);
+    fossil_print("REMOVED %s\n", zOldName);
+    if( !dryRunFlag ){
+      file_delete(zOldName);
+    }
+  }
+  db_finalize(&remove);
+  db_multi_exec("DROP TABLE fremove;");
 }
 
 /*
@@ -352,13 +383,19 @@ void add_cmd(void){
 */
 void delete_cmd(void){
   int i;
+  int removeFiles;
+  int dryRunFlag;
   Stmt loop;
+
+  dryRunFlag = find_option("dry-run","n",0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
 
   db_must_be_within_tree();
   db_begin_transaction();
+  removeFiles = db_get_boolean("remove-files",0);
+  if( removeFiles ) init_files_to_remove();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
   for(i=2; i<g.argc; i++){
@@ -382,13 +419,17 @@ void delete_cmd(void){
   db_prepare(&loop, "SELECT x FROM sfile");
   while( db_step(&loop)==SQLITE_ROW ){
     fossil_print("DELETED %s\n", db_column_text(&loop, 0));
+    if( removeFiles ) add_file_to_remove(db_column_text(&loop, 0));
   }
   db_finalize(&loop);
-  db_multi_exec(
-    "UPDATE vfile SET deleted=1 WHERE pathname IN sfile;"
-    "DELETE FROM vfile WHERE rid=0 AND deleted;"
-  );
+  if( !dryRunFlag ){
+    db_multi_exec(
+      "UPDATE vfile SET deleted=1 WHERE pathname IN sfile;"
+      "DELETE FROM vfile WHERE rid=0 AND deleted;"
+    );
+  }
   db_end_transaction(0);
+  if( removeFiles ) process_files_to_remove(dryRunFlag);
 }
 
 /*
@@ -588,7 +629,12 @@ void addremove_cmd(void){
 **
 ** The original name of the file is zOrig.  The new filename is zNew.
 */
-static void mv_one_file(int vid, const char *zOrig, const char *zNew){
+static void mv_one_file(
+  int vid,
+  const char *zOrig,
+  const char *zNew,
+  int dryRunFlag
+){
   int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q %s",
                          zNew, filename_collation());
   if( x>=0 ){
@@ -601,10 +647,54 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
     }
   }
   fossil_print("RENAME %s %s\n", zOrig, zNew);
-  db_multi_exec(
-    "UPDATE vfile SET pathname='%q' WHERE pathname='%q' %s AND vid=%d",
-    zNew, zOrig, filename_collation(), vid
-  );
+  if( !dryRunFlag ){
+    db_multi_exec(
+      "UPDATE vfile SET pathname='%q' WHERE pathname='%q' %s AND vid=%d",
+      zNew, zOrig, filename_collation(), vid
+    );
+  }
+}
+
+static void init_files_to_move(){
+  db_multi_exec("CREATE TEMP TABLE IF NOT EXISTS "
+                "fmove(x TEXT PRIMARY KEY %s, y TEXT %s)",
+                filename_collation(), filename_collation());
+}
+
+static void add_file_to_move(
+  const char *zOldName, /* The old name of the file on disk. */
+  const char *zNewName  /* The new name of the file on disk. */
+){
+  Blob fullOldName;
+  Blob fullNewName;
+  file_canonical_name(zOldName, &fullOldName, 0);
+  file_canonical_name(zNewName, &fullNewName, 0);
+  db_multi_exec("INSERT INTO fmove VALUES('%q','%q');",
+                blob_str(&fullOldName), blob_str(&fullNewName));
+  blob_reset(&fullNewName);
+  blob_reset(&fullOldName);
+}
+
+static void process_files_to_move(
+  int dryRunFlag /* Non-zero to actually operate on the file-system. */
+){
+  Stmt move;
+  db_prepare(&move, "SELECT x, y FROM fmove ORDER BY x;");
+  while( db_step(&move)==SQLITE_ROW ){
+    const char *zOldName = db_column_text(&move, 0);
+    const char *zNewName = db_column_text(&move, 1);
+    fossil_print("MOVED %s %s\n", zOldName, zNewName);
+    if( !dryRunFlag ){
+      if( file_wd_islink(zOldName) ){
+        symlink_copy(zOldName, zNewName);
+      }else{
+        file_copy(zOldName, zNewName);
+      }
+      file_delete(zOldName);
+    }
+  }
+  db_finalize(&move);
+  db_multi_exec("DROP TABLE fmove;");
 }
 
 /*
@@ -629,11 +719,14 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 void mv_cmd(void){
   int i;
   int vid;
+  int moveFiles;
+  int dryRunFlag;
   char *zDest;
   Blob dest;
   Stmt q;
 
   db_must_be_within_tree();
+  dryRunFlag = find_option("dry-run","n",0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -647,6 +740,8 @@ void mv_cmd(void){
   }
   zDest = g.argv[g.argc-1];
   db_begin_transaction();
+  moveFiles = db_get_boolean("move-files",0);
+  if( moveFiles ) init_files_to_move();
   file_tree_name(zDest, &dest, 1);
   db_multi_exec(
     "UPDATE vfile SET origname=pathname WHERE origname IS NULL;"
@@ -705,10 +800,12 @@ void mv_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFrom = db_column_text(&q, 0);
     const char *zTo = db_column_text(&q, 1);
-    mv_one_file(vid, zFrom, zTo);
+    mv_one_file(vid, zFrom, zTo, dryRunFlag);
+    if( moveFiles ) add_file_to_move(zFrom, zTo);
   }
   db_finalize(&q);
   db_end_transaction(0);
+  if( moveFiles ) process_files_to_move(dryRunFlag);
 }
 
 /*
