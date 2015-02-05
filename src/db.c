@@ -2606,6 +2606,9 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **    max-upload       A limit on the size of uplink HTTP requests.  The
 **                     default is 250000 bytes.
 **
+**    move-files       If enabled, the "mv" and "rename" commands will also move
+**                     the associated files within the checkout.  Default: off.
+**
 **    mtime-changes    Use file modification times (mtimes) to detect when
 **                     files have been modified.  (Default "on".)
 **
@@ -2619,6 +2622,10 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **    relative-paths   When showing changes and extras, report paths relative
 **                     to the current working directory.  Default: "on"
+**
+**    remove-files     If enabled, the "rm" and "delete" commands will also
+**                     remove the associated files from within the checkout.
+**                     Default: off.
 **
 **    repo-cksum       Compute checksums over all files in each checkout
 **                     as a double-check of correctness.  Defaults to "on".

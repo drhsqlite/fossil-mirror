@@ -1,5 +1,5 @@
-C Emit\sdiagnostic\smessages\safter\sthe\sfile\soperations\shave\sbeen\sdone,\snot\sbefore.
-D 2015-02-05T04:35:52.522
+C Add\shelp\stext\sfor\sthe\snew\ssettings.
+D 2015-02-05T04:50:12.029
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -362,7 +362,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c b8995dcc2a194ce7b476bdee7818adcdd2870490
+F src/db.c 2b76e0159f95cf74d3f77dd3e55b08fb20749758
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c 393ebd57f83ff9f2f87df9572430f399ecc95d47
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dfc3dfa59cae37cd6ee6e80e723c7f075a3ed2c8
-R 08fc16b18f18ba230930a78d74b68b22
+P 1dad8acaa2d44f2255cb754f8c1f50209bb76acd
+R 73077410e4d5c386f53f8d08212c4841
 U mistachkin
-Z 79dcae5ed78ace325b36600d81321c18
+Z 0d09ffdcbe402da948900d15cae061d2
