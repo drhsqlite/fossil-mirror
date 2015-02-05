@@ -569,22 +569,29 @@ void search_cmd(void){
 ** current server configuration or by user permissions.
 */
 unsigned int search_restrict(unsigned int srchFlags){
+  static unsigned int knownGood = 0;
+  static unsigned int knownBad = 0;
+  static const struct { unsigned m; const char *zKey; } aSetng[] = {
+     { SRCH_CKIN,   "search-ci"   },
+     { SRCH_DOC,    "search-doc"  },
+     { SRCH_TKT,    "search-tkt"  },
+     { SRCH_WIKI,   "search-wiki" },
+  };
+  int i;
   if( g.perm.Read==0 )   srchFlags &= ~(SRCH_CKIN|SRCH_DOC);
   if( g.perm.RdTkt==0 )  srchFlags &= ~(SRCH_TKT);
   if( g.perm.RdWiki==0 ) srchFlags &= ~(SRCH_WIKI);
-  if( (srchFlags & SRCH_CKIN)!=0 && db_get_boolean("search-ci",0)==0 ){
-    srchFlags &= ~SRCH_CKIN;
+  for(i=0; i<ArraySize(aSetng); i++){
+    unsigned int m = aSetng[i].m;
+    if( (srchFlags & m)==0 ) continue;
+    if( ((knownGood|knownBad) & m)!=0 ) continue;
+    if( db_get_boolean(aSetng[i].zKey,0) ){
+      knownGood |= m;
+    }else{
+      knownBad |= m;
+    }
   }
-  if( (srchFlags & SRCH_DOC)!=0 && db_get_boolean("search-doc",0)==0 ){
-    srchFlags &= ~SRCH_DOC;
-  }
-  if( (srchFlags & SRCH_TKT)!=0 && db_get_boolean("search-tkt",0)==0 ){
-    srchFlags &= ~SRCH_TKT;
-  }
-  if( (srchFlags & SRCH_WIKI)!=0 && db_get_boolean("search-wiki",0)==0 ){
-    srchFlags &= ~SRCH_WIKI;
-  }
-  return srchFlags;
+  return srchFlags & ~knownBad;      
 }
 
 /*
