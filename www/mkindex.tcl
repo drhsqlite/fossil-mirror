@@ -98,7 +98,7 @@ puts $out {
 <li> <a href='COPYRIGHT-BSD2.txt'>License</a>
 <li> <a href='http://www.fossil-scm.org/schimpf-book/home'>Jim Schimpf's
 book</a>
-<li> <a href='../../help'>Command-line help</a>
+<li> <a href='../../../help'>Command-line help</a>
 </ul>
 <a name="pindex"></a>
 <h2>Permuted Index:</h2>

@@ -1,5 +1,5 @@
-C Unfinished\scomment\sin\ssearch.c,\sand\ssome\smore\send-of-line\sspacing\sremovals.\sNo\schange\sin\sfunctionality.
-D 2015-02-05T09:01:31.921
+C Fix\sa\sbroken\shyperlink\son\sthe\spermutedindex.html\spage.
+D 2015-02-05T14:42:11.114
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -666,10 +666,10 @@ F www/index.wiki a028412c05afc6984405bef0a1b441dcc214d70b
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
 F www/mkdownload.tcl 1ab6c61635c227f0a613e55244c937e7f2537ede
-F www/mkindex.tcl 98ba8ec91d6131e4778568c92759528b6344956b
+F www/mkindex.tcl 053a2d8af0d4b14945e83032fe00d1f3cac10de7
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
-F www/permutedindex.html be60294c49df6d880e6917615ae72b3965b69057
+F www/permutedindex.html 84b4b3d041d93a44b4b7cced587fe792b6579a4f
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b2f2f0ce2f5d969b82140462408f428f26baac69
-R 405e34f0de1419552d2840e48b1bff78
-U jan.nijtmans
-Z 631da54f28161316c2e32c95d76d66b4
+P 5260fbf632874b61c491e5cf95a134342be3445f
+R e3daabe5054e76434d1cc6d893c35d54
+U drh
+Z 3f0de7cbd21996970f70a4d63b8acc4b
