@@ -354,10 +354,10 @@ static void process_files_to_remove(
   db_prepare(&remove, "SELECT x FROM fremove ORDER BY x;");
   while( db_step(&remove)==SQLITE_ROW ){
     const char *zOldName = db_column_text(&remove, 0);
-    fossil_print("REMOVED %s\n", zOldName);
     if( !dryRunFlag ){
       file_delete(zOldName);
     }
+    fossil_print("REMOVED %s\n", zOldName);
   }
   db_finalize(&remove);
   db_multi_exec("DROP TABLE fremove;");
@@ -684,7 +684,6 @@ static void process_files_to_move(
   while( db_step(&move)==SQLITE_ROW ){
     const char *zOldName = db_column_text(&move, 0);
     const char *zNewName = db_column_text(&move, 1);
-    fossil_print("MOVED %s %s\n", zOldName, zNewName);
     if( !dryRunFlag ){
       if( file_wd_islink(zOldName) ){
         symlink_copy(zOldName, zNewName);
@@ -693,6 +692,7 @@ static void process_files_to_move(
       }
       file_delete(zOldName);
     }
+    fossil_print("MOVED %s %s\n", zOldName, zNewName);
   }
   db_finalize(&move);
   db_multi_exec("DROP TABLE fmove;");
