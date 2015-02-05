@@ -43,7 +43,7 @@ struct Search {
   } a[SEARCH_MAX_TERM];
   /* Snippet controls */
   char *zPattern;       /* The search pattern */
-  char *zMarkBegin;     /* Start of a match */   
+  char *zMarkBegin;     /* Start of a match */
   char *zMarkEnd;       /* End of a match */
   char *zMarkGap;       /* A gap between two matches */
   unsigned fSrchFlg;    /* Flags */
@@ -106,7 +106,7 @@ void search_end(Search *p){
 */
 Search *search_init(
   const char *zPattern,       /* The search pattern */
-  const char *zMarkBegin,     /* Start of a match */   
+  const char *zMarkBegin,     /* Start of a match */
   const char *zMarkEnd,       /* End of a match */
   const char *zMarkGap,       /* A gap between two matches */
   unsigned fSrchFlg           /* Flags */
@@ -229,7 +229,7 @@ static int search_match(
   }
 
   /* Finished search all documents.
-  ** Every term must be seen or else the score is zero 
+  ** Every term must be seen or else the score is zero
   */
   score = 1;
   for(j=0; j<p->nTerm; j++) score *= anMatch[j];
@@ -319,7 +319,7 @@ static int search_match(
 /*
 ** COMMAND: test-match
 **
-** Usage: fossil test-match SEARCHSTRING FILE1 FILE2 ... 
+** Usage: fossil test-match SEARCHSTRING FILE1 FILE2 ...
 */
 void test_match_cmd(void){
   Search *p;
@@ -429,7 +429,7 @@ static void search_snippet_sqlfunc(
 
 /*
 ** This is an SQLite function that computes the searchable text.
-** It is a wrapper around the search_stext() routine.  See the 
+** It is a wrapper around the search_stext() routine.  See the
 ** search_stext() routine for further detail.
 */
 static void search_stext_sqlfunc(
@@ -778,7 +778,6 @@ static void search_indexed(
 /*
 ** If z[] is of the form "<mark>TEXT</mark>" where TEXT contains
 ** no white-space or punctuation, then return the length of the mark.
-** If 
 */
 static int isSnippetMark(const char *z){
   int n;
@@ -791,7 +790,7 @@ static int isSnippetMark(const char *z){
 
 /*
 ** Return a copy of zSnip (in memory obtained from fossil_malloc()) that
-** has all "<" characters, other than those on <mark> and </mark>, 
+** has all "<" characters, other than those on <mark> and </mark>,
 ** converted into "&lt;".  This is similar to htmlize() except that
 ** <mark> and </mark> are preserved.
 */
@@ -1110,7 +1109,7 @@ void test_search_stext(void){
 
 /* The schema for the full-text index
 */
-static const char zFtsSchema[] = 
+static const char zFtsSchema[] =
 @ -- One entry for each possible search result
 @ CREATE TABLE IF NOT EXISTS "%w".ftsdocs(
 @   rowid INTEGER PRIMARY KEY, -- Maps to the ftsidx.docid
@@ -1232,7 +1231,7 @@ void search_doc_touch(char cType, int rid, const char *zName){
 
 /*
 ** If the doc-glob and doc-br settings are valid for document search
-** and if the latest check-in on doc-br is in the unindexed set of 
+** and if the latest check-in on doc-br is in the unindexed set of
 ** check-ins, then update all 'd' entries in FTSDOCS that have
 ** changed.
 */
@@ -1286,7 +1285,7 @@ static void search_update_doc_index(void){
 }
 
 /*
-** Deal with all of the unindexed 'c' terms in FTSDOCS 
+** Deal with all of the unindexed 'c' terms in FTSDOCS
 */
 static void search_update_checkin_index(void){
   db_multi_exec(
@@ -1308,7 +1307,7 @@ static void search_update_checkin_index(void){
 }
 
 /*
-** Deal with all of the unindexed 't' terms in FTSDOCS 
+** Deal with all of the unindexed 't' terms in FTSDOCS
 */
 static void search_update_ticket_index(void){
   db_multi_exec(
@@ -1330,7 +1329,7 @@ static void search_update_ticket_index(void){
 }
 
 /*
-** Deal with all of the unindexed 'w' terms in FTSDOCS 
+** Deal with all of the unindexed 'w' terms in FTSDOCS
 */
 static void search_update_wiki_index(void){
   db_multi_exec(
@@ -1470,7 +1469,7 @@ void test_fts_cmd(void){
 
   /* Always show the status before ending */
   for(i=0; i<ArraySize(aSetng); i++){
-    fossil_print("%-16s %s\n", aSetng[i].zName, 
+    fossil_print("%-16s %s\n", aSetng[i].zName,
        db_get_boolean(aSetng[i].zSetting,0) ? "on" : "off");
   }
   if( search_index_exists() ){

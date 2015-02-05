@@ -405,7 +405,7 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
   int nAttr, nValue;
   int seenClass = 0;
   int seenTitle = 0;
-  
+
   while( fossil_isspace(zIn[0]) ) zIn++;
   if( fossil_strnicmp(zIn,"<div",4)!=0 ) return 0;
   zIn += 4;
@@ -446,7 +446,7 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
     }
   }
   return seenClass;
-}        
+}
 
 /*
 ** Look for a file named zName in the checkin with RID=vid.  Load the content

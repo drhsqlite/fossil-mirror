@@ -1414,7 +1414,7 @@ void ticket_standard_submenu(unsigned int ok){
 ** WEBPAGE: ticket
 **
 ** This is intended to be the primary "Ticket" page.  Render as
-** either ticket-search (if search is enabled) or as the 
+** either ticket-search (if search is enabled) or as the
 ** /reportlist page (if ticket search is disabled).
 */
 void tkt_home_page(void){

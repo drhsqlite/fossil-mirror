@@ -588,7 +588,7 @@ void rebuild_database(void){
   runReindex = search_index_exists();
   if( find_option("index",0,0)!=0 ) runReindex = 1;
   if( find_option("no-index",0,0)!=0 ) runReindex = 0;
-  
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -809,7 +809,7 @@ void scrub_cmd(void){
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
   db_close(1);
   db_open_repository(g.zRepositoryName);
-    
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -939,7 +939,7 @@ void reconstruct_cmd(void) {
   }
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
-  
+
   /* We should be done with options.. */
   verify_all_options();
 

@@ -2174,12 +2174,12 @@ void page_srchsetup(){
   @ <form action="%s(g.zTop)/srchsetup" method="post"><div>
   login_insert_csrf_secret();
   @ <div style="text-align:center;font-weight:bold;">
-  @ Server-specific settings that affect the 
+  @ Server-specific settings that affect the
   @ <a href="%R/search">/search</a> webpage.
   @ </div>
   @ <hr />
   textarea_attribute("Document Glob List", 3, 35, "doc-glob", "dg", "", 0);
-  @ <p>The "Document Glob List" is a comma- or newline-separated list 
+  @ <p>The "Document Glob List" is a comma- or newline-separated list
   @ of GLOB expressions that identify all documents within the source
   @ tree that are to be searched when "Document Search" is enabled.
   @ Some examples:
