@@ -1026,15 +1026,15 @@ static void timeline_y_submenu(void){
     az[0] = "all";
     az[1] = "All Types";
     i = 2;
-    if( g.perm.RdWiki ){
-      az[i++] = "e";
-      az[i++] = "Blog Posts";
-    }
     if( g.perm.Read ){
       az[i++] = "ci";
       az[i++] = "Check-ins";
       az[i++] = "g";
       az[i++] = "Tags";
+    }
+    if( g.perm.RdWiki ){
+      az[i++] = "e";
+      az[i++] = "Tech Notes";
     }
     if( g.perm.RdTkt ){
       az[i++] = "t";
