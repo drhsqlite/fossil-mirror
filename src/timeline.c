@@ -1544,7 +1544,6 @@ void page_timeline(void){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
     }
     if( g.perm.Hyperlink ){
-      style_submenu_binary("v","With Files","Without Files");
       if( zAfter || n==nEntry ){
         zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
         timeline_submenu(&url, "Older", "b", zDate, "a");
@@ -1554,15 +1553,15 @@ void page_timeline(void){
         zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
         timeline_submenu(&url, "Newer", "a", zDate, "b");
         free(zDate);
-      }else if( tagid==0 && zUses==0 ){
-        timeline_y_submenu();
       }
-      style_submenu_entry("n","Lines",1);
       if( zType[0]=='a' || zType[0]=='c' ){
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
           timeline_submenu(&url, "Unhide", "unhide", "", 0);
         }
       }
+      style_submenu_binary("v","With Files","Without Files");
+      if( zUses==0 ) timeline_y_submenu();
+      style_submenu_entry("n","Lines",1);
     }
   }
   if( P("showsql") ){
