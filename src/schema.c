@@ -232,7 +232,7 @@ const char zRepositorySchema2[] =
 @
 @ -- Linkages between checkins, files created by each checkin, and
 @ -- the names of those files.
-@ -- 
+@ --
 @ -- Each entry represents a file that changed content from pid to fid
 @ -- due to the check-in that goes from pmid to mid.  fnid is the name
 @ -- of the file in the mid check-in.  If the file was renamed as part

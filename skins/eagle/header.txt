@@ -116,7 +116,7 @@ if {[hascap o]} {
   html "<a href='$home/taglist'>Tags</a>\n"
 }
 if {[hascap r]} {
-  html "<a href='$home/reportlist'>Tickets</a>\n"
+  html "<a href='$home/ticket'>Tickets</a>\n"
 }
 if {[hascap j]} {
   html "<a href='$home/wiki'>Wiki</a>\n"

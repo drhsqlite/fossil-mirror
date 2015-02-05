@@ -28,7 +28,7 @@
 **
 **    1.  Pick a name for the new skin.  (Here we use "xyzzy").
 **
-**    2.  Install files skins/xyzzy/css.txt, skins/xyzzy/header.txt, 
+**    2.  Install files skins/xyzzy/css.txt, skins/xyzzy/header.txt,
 **        and skins/xyzzy/footer.txt into the source tree.
 **
 **    3.  Rerun "tclsh makemake.tcl" in the src/ folder in order to
@@ -44,7 +44,7 @@ static struct BuiltinSkin {
   { "Default",                           "default",           0 },
   { "Plain Gray, No Logo",               "plain_gray",        0 },
   { "Khaki, No Logo",                    "khaki",             0 },
-  { "Black & White, Menu on Left",       "black_and_white",   0 }, 
+  { "Black & White, Menu on Left",       "black_and_white",   0 },
   { "Shadow boxes & Rounded Corners",    "rounded1",          0 },
   { "Enhanced Default",                  "enhanced1",         0 },
   { "San Francisco Modern",              "etienne1",          0 },

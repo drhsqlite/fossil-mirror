@@ -92,7 +92,6 @@ static struct {
   { "logo-image",             CONFIGSET_SKIN },
   { "background-mimetype",    CONFIGSET_SKIN },
   { "background-image",       CONFIGSET_SKIN },
-  { "index-page",             CONFIGSET_SKIN },
   { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-max-comment",   CONFIGSET_SKIN },
   { "timeline-plaintext",     CONFIGSET_SKIN },
@@ -117,6 +116,7 @@ static struct {
   { "project-name",           CONFIGSET_PROJ },
   { "short-project-name",     CONFIGSET_PROJ },
   { "project-description",    CONFIGSET_PROJ },
+  { "index-page",             CONFIGSET_PROJ },
   { "manifest",               CONFIGSET_PROJ },
   { "binary-glob",            CONFIGSET_PROJ },
   { "clean-glob",             CONFIGSET_PROJ },
@@ -1063,7 +1063,7 @@ void test_var_list_cmd(void){
           zTrans[j++] = 'r';
         }else if( c=='\t' ){
           zTrans[j++] = 't';
-        }else{      
+        }else{
           zTrans[j++] = '0' + ((c>>6)&7);
           zTrans[j++] = '0' + ((c>>3)&7);
           zTrans[j++] = '0' + (c&7);
@@ -1100,7 +1100,7 @@ void test_var_list_cmd(void){
 **
 ** Usage: %fossil test-var-get VAR ?FILE?
 **
-** Write the text of the VAR variable into FILE.  If FILE is "-" 
+** Write the text of the VAR variable into FILE.  If FILE is "-"
 ** or is omitted then output goes to standard output.  VAR can be a
 ** GLOB pattern.
 **

@@ -136,6 +136,7 @@ static int sqlcmd_autoinit(
   add_content_sql_commands(db);
   db_add_aux_functions(db);
   re_add_sql_func(db);
+  search_sql_setup(db);
   g.zMainDbType = "repository";
   foci_register(db);
   g.repositoryOpen = 1;

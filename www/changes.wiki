@@ -1,5 +1,25 @@
 <title>Change Log</title>
 
+<h2>Changes For Version 1.31 (2015-??-??)</h2>
+  *  Add direct Subversion import support to
+     [/help?cmd=import|fossil import]. (??)
+  *  Add IPv6 support to [/help?cmd=sync|fossil sync] and
+     [/help?cmd=clone|fossil clone]
+  *  Add more skins such as "San Francisco Modern" and "Eagle".
+  *  Update SQLite to version 3.8.9. (??)
+  *  Improve the display of the history of changes to a single
+     file. A [/help?cmd=rebuild|fossil rebuild] is needed for that.
+  *  Enable ZIP and Tarball downloads for user "nobody" by default.
+  *  Make the now() SQL function available in the
+     [/help?cmd=sqlite|fossil sqlite] command.
+  *  Improve table sorting in various pages.
+  *  Add support for setting environment variables from within CGI script
+     files.
+  *  Enhance the Ad-Unit processing to allow a choice of two different
+     ad-units.
+  *  During shutdown, check to see if the check-out database (".fslckout")
+     contains a lot of free space, and if it does, VACUUM it. 
+
 <h2>Changes For Version 1.30 (2015-01-19)</h2>
   *  Added the [/help?cmd=bundle|fossil bundle] command.
   *  Added the [/help?cmd=purge|fossil purge] command.
