@@ -954,9 +954,18 @@ double symbolic_name_to_mtime(const char *z){
     mtime = db_double(0.0, "SELECT julianday(%Q,'utc')", z);
     if( mtime>0.0 ) return mtime;
   }
-  rid = symbolic_name_to_rid(z, "ci");
-  if( rid==0 ) return -1.0;
-  mtime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
+  rid = symbolic_name_to_rid(z, "*");
+  if( rid ){
+    mtime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
+  }else{
+    mtime = db_double(-1.0,
+        "SELECT max(event.mtime) FROM event, tag, tagxref"
+        " WHERE tag.tagname GLOB 'event-%q*'"
+        "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype"
+        "   AND event.objid=tagxref.rid",
+        z
+    );
+  }
   return mtime;
 }
 
