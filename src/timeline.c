@@ -1567,7 +1567,7 @@ void page_timeline(void){
   if( P("showsql") ){
     @ <blockquote>%h(blob_sql_text(&sql))</blockquote>
   }
-  style_submenu_element("Search", 0, "/search?y=c");
+  style_submenu_element("Search", 0, "%R/search?y=c");
   if( P("showid") ) tmFlags |= TIMELINE_SHOWRID;
   blob_zero(&sql);
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
