@@ -53,7 +53,7 @@ proc menulink {pagename url name} {
         || ($pagename eq "taglist" && $comptag == 0)
         || ($pagename eq "dir" && $compdir == 0)
         || ($pagename eq "timeline" && $comptl == 0)
-        || ($pagename eq "reportlist" && $comptkt == 0)
+        || ($pagename eq "ticket" && $comptkt == 0)
         || ($pagename eq "brlist" && $compbr == 0)
     } {
         html " class='active' "
@@ -75,7 +75,7 @@ if {[hascap o]} {
     menulink "taglist" "/taglist" Tags
 }
 if {[hascap r]} {
-    menulink "reportlist" "/reportlist" Tickets
+    menulink "ticket" "/ticket" Tickets
 }
 if {[hascap j]} {
     menulink "wiki" "/wiki" Wiki
