@@ -537,7 +537,7 @@ void www_print_timeline(
           }else{
             @ <li> %h(zFilename) &nbsp; %s(zUnpubTag)
           }
-          @ %z(href("%R/fdiff?sbs=1&v1=%s&v2=%s",zOld,zNew))[diff]</a></li>
+          @ %z(btn("%R/fdiff?sbs=1&v1=%s&v2=%s",zOld,zNew))diff</a></li>
         }
       }
       db_reset(&fchngQuery);

@@ -117,49 +117,61 @@ int nFormAction = 0;
 ** obtained from fossil_malloc() so rendering it with %z will reclaim
 ** that memory space.
 **
-** There are two versions of this routine: href() does a plain hyperlink
-** and xhref() adds extra attribute text.
+** There are three versions of this routine: href() does a plain hyperlink
+** and xhref() adds extra attribute text.  The btn() version adds a
+** single "class='inlinebutton'" class to the anchor.
 **
 ** g.perm.Hyperlink is true if the user has the Hyperlink (h) property.
 ** Most logged in users should have this property, since we can assume
 ** that a logged in user is not a bot.  Only "nobody" lacks g.perm.Hyperlink,
 ** typically.
 */
-char *xhref(const char *zExtra, const char *zFormat, ...){
+char *vxhref(const char *zExtra, const char *zFormat, va_list ap){
   char *zUrl;
+  Blob ref = empty_blob;
+  blob_append(&ref, "<a ", 3);
+  if( zExtra ){
+    blob_append(&ref, zExtra, -1);
+    blob_append(&ref, " ", 1);
+  }
+  zUrl = vmprintf(zFormat, ap);
+  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+    blob_appendf(&ref,"href='%h'>", zUrl);
+    fossil_free(zUrl);
+  }else{
+    if( nHref>=nHrefAlloc ){
+      nHrefAlloc = nHrefAlloc*2 + 10;
+      aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
+    }
+    aHref[nHref++] = zUrl;
+    blob_appendf(&ref, "id='a%d' href='%R/honeypot'>", nHref);
+  }
+  blob_materialize(&ref);
+  return ref.aData;
+}  
+char *xhref(const char *zExtra, const char *zFormat, ...){
+  char *zResult;
   va_list ap;
   va_start(ap, zFormat);
-  zUrl = vmprintf(zFormat, ap);
+  zResult = vxhref(zExtra, zFormat, ap);
   va_end(ap);
-  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    char *zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
-    fossil_free(zUrl);
-    return zHUrl;
-  }
-  if( nHref>=nHrefAlloc ){
-    nHrefAlloc = nHrefAlloc*2 + 10;
-    aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
-  }
-  aHref[nHref++] = zUrl;
-  return mprintf("<a %s id='a%d' href='%R/honeypot'>", zExtra, nHref);
+  return zResult;
 }
 char *href(const char *zFormat, ...){
-  char *zUrl;
+  char *zResult;
   va_list ap;
   va_start(ap, zFormat);
-  zUrl = vmprintf(zFormat, ap);
+  zResult = vxhref(0, zFormat, ap);
   va_end(ap);
-  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    char *zHUrl = mprintf("<a href=\"%h\">", zUrl);
-    fossil_free(zUrl);
-    return zHUrl;
-  }
-  if( nHref>=nHrefAlloc ){
-    nHrefAlloc = nHrefAlloc*2 + 10;
-    aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
-  }
-  aHref[nHref++] = zUrl;
-  return mprintf("<a id='a%d' href='%R/honeypot'>", nHref);
+  return zResult;
+}
+char *btn(const char *zFormat, ...){
+  char *zResult;
+  va_list ap;
+  va_start(ap, zFormat);
+  zResult = vxhref("class='inlinebutton'", zFormat, ap);
+  va_end(ap);
+  return zResult;
 }
 
 /*
