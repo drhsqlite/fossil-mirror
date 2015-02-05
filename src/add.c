@@ -658,8 +658,7 @@ static void mv_one_file(
 }
 
 static void init_files_to_move(){
-  db_multi_exec("CREATE TEMP TABLE IF NOT EXISTS "
-                "fmove(x TEXT PRIMARY KEY %s, y TEXT %s)",
+  db_multi_exec("CREATE TEMP TABLE fmove(x TEXT PRIMARY KEY %s, y TEXT %s)",
                 filename_collation(), filename_collation());
 }
 

@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2015-02-05T03:53:32.651
+C Minor\sadjustment\sto\ssome\sSQL.
+D 2015-02-05T03:55:06.143
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -337,7 +337,7 @@ F skins/rounded1/css.txt 23098aad131c5c535bfcfbaa72577dc356254e85
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt e17ef8f3cfa1f92a5b8922708a6eac97f544a79a
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 58d764e1514f1ffbf90a19d538aa077a3c6c4b58
+F src/add.c 7740078782e46c0adee9f84c0b294c75c6ac1cb1
 F src/allrepo.c 7177991a7e085a75ffaebf0acfc19a269acaa08f
 F src/attach.c e9186b7e96800753bc8696fa020fb82aba9fbd70
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5a2e8453a11019c7d73220e9a41469edf42e1e8d b2f2f0ce2f5d969b82140462408f428f26baac69
-R 694386757d2ccd7ce28c6eefed397578
+P 3766e0e833a3517b6bf32117472817ea45949446
+R 7d85ea4fe43693a3974f1c8877fe8402
 U mistachkin
-Z ca11ac9364cb50a9e44b58c58d45bee4
+Z 32f26033e82b4e41ebbca95b00ea8923
