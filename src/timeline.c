@@ -668,12 +668,12 @@ void timeline_output_graph_javascript(
     }
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
-    @ var canvasDiv = gebi("canvas");
-    @ var canvasStyle = window.getComputedStyle && window.getComputedStyle(canvasDiv,null);
-    @ var lineColor = (canvasStyle && canvasStyle.getPropertyValue('color')) || 'black';
-    @ var bgColor = (canvasStyle && canvasStyle.getPropertyValue('background-color')) || 'white';
-    @ if( bgColor=='transparent' ) bgColor = 'white';
-    @ var boxColor = lineColor;
+    @ var cDiv = gebi("canvas");
+    @ var csty = window.getComputedStyle && window.getComputedStyle(cDiv,null);
+    @ var lineClr = (csty && csty.getPropertyValue('color')) || 'black';
+    @ var bgClr = (csty && csty.getPropertyValue('background-color')) ||'white';
+    @ if( bgClr=='transparent' ) bgClr = 'white';
+    @ var boxColor = lineClr;
     @ function drawBox(color,x0,y0,x1,y1){
     @   var n = document.createElement("div");
     @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
@@ -687,7 +687,7 @@ void timeline_output_graph_javascript(
     @   n.style.width = w+"px";
     @   n.style.height = h+"px";
     @   n.style.backgroundColor = color;
-    @   canvasDiv.appendChild(n);
+    @   cDiv.appendChild(n);
     @   return n;
     @ }
     @ function absoluteY(id){
@@ -713,35 +713,35 @@ void timeline_output_graph_javascript(
     @   return left;
     @ }
     @ function drawUpArrow(x,y0,y1){
-    @   drawBox(lineColor,x,y0,x+1,y1);
+    @   drawBox(lineClr,x,y0,x+1,y1);
     @   if( y0+10>=y1 ){
-    @     drawBox(lineColor,x-1,y0+1,x+2,y0+2);
-    @     drawBox(lineColor,x-2,y0+3,x+3,y0+4);
+    @     drawBox(lineClr,x-1,y0+1,x+2,y0+2);
+    @     drawBox(lineClr,x-2,y0+3,x+3,y0+4);
     @   }else{
-    @     drawBox(lineColor,x-1,y0+2,x+2,y0+4);
-    @     drawBox(lineColor,x-2,y0+5,x+3,y0+7);
+    @     drawBox(lineClr,x-1,y0+2,x+2,y0+4);
+    @     drawBox(lineClr,x-2,y0+5,x+3,y0+7);
     @   }
     @ }
     @ function drawThinArrow(y,xFrom,xTo){
     @   if( xFrom<xTo ){
-    @     drawBox(lineColor,xFrom,y,xTo,y);
-    @     drawBox(lineColor,xTo-3,y-1,xTo-2,y+1);
-    @     drawBox(lineColor,xTo-4,y-2,xTo-4,y+2);
+    @     drawBox(lineClr,xFrom,y,xTo,y);
+    @     drawBox(lineClr,xTo-3,y-1,xTo-2,y+1);
+    @     drawBox(lineClr,xTo-4,y-2,xTo-4,y+2);
     @   }else{
-    @     drawBox(lineColor,xTo,y,xFrom,y);
-    @     drawBox(lineColor,xTo+2,y-1,xTo+3,y+1);
-    @     drawBox(lineColor,xTo+4,y-2,xTo+4,y+2);
+    @     drawBox(lineClr,xTo,y,xFrom,y);
+    @     drawBox(lineClr,xTo+2,y-1,xTo+3,y+1);
+    @     drawBox(lineClr,xTo+4,y-2,xTo+4,y+2);
     @   }
     @ }
     @ function drawThinLine(x0,y0,x1,y1){
-    @   drawBox(lineColor,x0,y0,x1,y1);
+    @   drawBox(lineClr,x0,y0,x1,y1);
     @ }
     @ function drawNodeBox(color,x0,y0,x1,y1){
     @   drawBox(color,x0,y0,x1,y1).style.cursor = "pointer";
     @ }
     @ function drawNode(p, left, btm){
     @   drawNodeBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
-    @   drawNodeBox(p.bg||bgColor,p.x-4,p.y-4,p.x+5,p.y+5);
+    @   drawNodeBox(p.bg||bgClr,p.x-4,p.y-4,p.x+5,p.y+5);
     @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
     @   if( p.f&1 ) drawNodeBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2);
     if( !omitDescenders ){
@@ -767,7 +767,7 @@ void timeline_output_graph_javascript(
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
-    @       drawBox(lineColor,x0,p.y,x1,p.y+1);
+    @       drawBox(lineClr,x0,p.y,x1,p.y+1);
     @       drawUpArrow(x1, u.y+6, p.y);
     @     }else{
     @       drawBox("#600000",x0,p.y,x1,p.y+1);
@@ -1108,7 +1108,7 @@ void page_timeline(void){
   const char *zSearch = P("s");      /* Search string */
   const char *zUses = P("uf");       /* Only show checkins hold this file */
   const char *zYearMonth = P("ym");  /* Show checkins for the given YYYY-MM */
-  const char *zYearWeek = P("yw");   /* Show checkins for the given YYYY-WW (week-of-year)*/
+  const char *zYearWeek = P("yw");   /* Checkins for YYYY-WW (week-of-year) */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only checkins that rename files */
   int tagid;                         /* Tag ID */
@@ -2053,7 +2053,7 @@ void test_timewarp_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     @ <li>
-    @ <a href="%s(g.zTop)/timeline?p=%s(zUuid)&amp;d=%s(zUuid)&amp;unhide">%S(zUuid)</a>
+    @ <a href="%s(g.zTop)/timeline?dp=%s(zUuid)&amp;unhide">%S(zUuid)</a>
   }
   db_finalize(&q);
   style_footer();
