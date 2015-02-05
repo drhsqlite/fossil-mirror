@@ -1124,6 +1124,7 @@ void page_timeline(void){
   int pd_rid;
   double rBefore, rAfter, rCirca;     /* Boundary times */
   const char *z;
+  char *zOlderButton = 0;             /* URL for Older button at the bottom */
 
   /* Set number of rows to display */
   z = P("n");
@@ -1547,6 +1548,7 @@ void page_timeline(void){
       if( zAfter || n==nEntry ){
         zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
         timeline_submenu(&url, "Older", "b", zDate, "a");
+        zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "a", 0));
         free(zDate);
       }
       if( zBefore || (zAfter && n==nEntry) ){
@@ -1577,6 +1579,9 @@ void page_timeline(void){
   blob_reset(&desc);
   www_print_timeline(&q, tmFlags, zThisUser, zThisTag, 0);
   db_finalize(&q);
+  if( zOlderButton ){
+    @ %z(xhref("class='button'","%z",zOlderButton))Older</a>
+  }
   style_footer();
 }
 

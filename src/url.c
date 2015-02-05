@@ -471,6 +471,9 @@ void url_add_parameter(HQuery *p, const char *zName, const char *zValue){
 
 /*
 ** Render the URL with a parameter override.
+**
+** Returned memory is transient and is overwritten on the next call to this
+** routine for the same HQuery, or until the HQuery object is destroyed.
 */
 char *url_render(
   HQuery *p,              /* Base URL */
