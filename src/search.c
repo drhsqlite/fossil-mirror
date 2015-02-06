@@ -569,22 +569,29 @@ void search_cmd(void){
 ** current server configuration or by user permissions.
 */
 unsigned int search_restrict(unsigned int srchFlags){
+  static unsigned int knownGood = 0;
+  static unsigned int knownBad = 0;
+  static const struct { unsigned m; const char *zKey; } aSetng[] = {
+     { SRCH_CKIN,   "search-ci"   },
+     { SRCH_DOC,    "search-doc"  },
+     { SRCH_TKT,    "search-tkt"  },
+     { SRCH_WIKI,   "search-wiki" },
+  };
+  int i;
   if( g.perm.Read==0 )   srchFlags &= ~(SRCH_CKIN|SRCH_DOC);
   if( g.perm.RdTkt==0 )  srchFlags &= ~(SRCH_TKT);
   if( g.perm.RdWiki==0 ) srchFlags &= ~(SRCH_WIKI);
-  if( (srchFlags & SRCH_CKIN)!=0 && db_get_boolean("search-ci",0)==0 ){
-    srchFlags &= ~SRCH_CKIN;
+  for(i=0; i<ArraySize(aSetng); i++){
+    unsigned int m = aSetng[i].m;
+    if( (srchFlags & m)==0 ) continue;
+    if( ((knownGood|knownBad) & m)!=0 ) continue;
+    if( db_get_boolean(aSetng[i].zKey,0) ){
+      knownGood |= m;
+    }else{
+      knownBad |= m;
+    }
   }
-  if( (srchFlags & SRCH_DOC)!=0 && db_get_boolean("search-doc",0)==0 ){
-    srchFlags &= ~SRCH_DOC;
-  }
-  if( (srchFlags & SRCH_TKT)!=0 && db_get_boolean("search-tkt",0)==0 ){
-    srchFlags &= ~SRCH_TKT;
-  }
-  if( (srchFlags & SRCH_WIKI)!=0 && db_get_boolean("search-wiki",0)==0 ){
-    srchFlags &= ~SRCH_WIKI;
-  }
-  return srchFlags;
+  return srchFlags & ~knownBad;      
 }
 
 /*
@@ -877,26 +884,31 @@ int search_run_and_output(
 ** Search-Text entry form.  If the "s" query parameter is present, also
 ** show search results.
 **
-** The srchFlags parameter is used to customize some of the text of the
-** form and the results.  srchFlags should be either a single search
-** category or all categories.  Any srchFlags with two or more bits set
+** The srchFlags parameter restricts the set of documents to be searched.
+** srchFlags should normally be either a single search category or all
+** categories.  Any srchFlags with two or more bits set
 ** is treated like SRCH_ALL for display purposes.
 **
-** The entry box is shown disabled if srchFlags is 0.
+** This routine automatically restricts srchFlag according to user
+** permissions and the server configuration.  The entry box is shown
+** disabled if srchFlags is 0 after these restrictions are applied.
+**
+** If useYparam is true, then this routine also looks at the y= query
+** parameter for further search restrictions.
 */
-void search_screen(unsigned srchFlags, const char *zAction){
+void search_screen(unsigned srchFlags, int useYparam){
   const char *zType = 0;
   const char *zClass = 0;
   const char *zDisable1;
   const char *zDisable2;
   const char *zPattern;
+  srchFlags = search_restrict(srchFlags);
   switch( srchFlags ){
     case SRCH_CKIN:  zType = " Check-ins";  zClass = "Ckin";  break;
     case SRCH_DOC:   zType = " Docs";       zClass = "Doc";   break;
     case SRCH_TKT:   zType = " Tickets";    zClass = "Tkt";   break;
     case SRCH_WIKI:  zType = " Wiki";       zClass = "Wiki";  break;
   }
-  srchFlags = search_restrict(srchFlags);
   if( srchFlags==0 ){
     zDisable1 = " disabled";
     zDisable2 = " disabled";
@@ -906,13 +918,37 @@ void search_screen(unsigned srchFlags, const char *zAction){
     zDisable2 = "";
     zPattern = PD("s","");
   }
-  @ <form method='GET' action='%s(zAction)'>
+  @ <form method='GET' action='%R/%t(g.zPath)'>
   if( zClass ){
     @ <div class='searchForm searchForm%s(zClass)'>
   }else{
     @ <div class='searchForm'>
   }
   @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable1)>
+  if( useYparam && (srchFlags & (srchFlags-1))!=0 && useYparam ){
+    static const struct { char *z; char *zNm; unsigned m; } aY[] = {
+       { "all",  "All",        SRCH_ALL  },
+       { "c",    "Check-ins",  SRCH_CKIN },
+       { "d",    "Docs",       SRCH_DOC  },
+       { "t",    "Tickets",    SRCH_TKT  },
+       { "w",    "Wiki",       SRCH_WIKI },
+    };
+    const char *zY = PD("y","all");
+    unsigned newFlags = srchFlags;
+    int i;
+    @ <select size='1' name='y'>
+    for(i=0; i<ArraySize(aY); i++){
+      if( (aY[i].m & srchFlags)==0 ) continue;
+      cgi_printf("<option value='%s'", aY[i].z);
+      if( fossil_strcmp(zY,aY[i].z)==0 ){
+        newFlags &= aY[i].m;
+        cgi_printf(" selected");
+      }
+      cgi_printf(">%s</option>\n", aY[i].zNm);
+    }
+    @ </select>
+    srchFlags = newFlags;
+  }
   @ <input type="submit" value="Search%s(zType)"%s(zDisable2)>
   if( srchFlags==0 ){
     @ <p class="generalError">Search is disabled</p>
@@ -939,18 +975,9 @@ void search_screen(unsigned srchFlags, const char *zAction){
 ** match a user-supplied pattern.
 */
 void search_page(void){
-  unsigned srchFlags = SRCH_ALL;
-  const char *zOnly = P("only");
-
   login_check_credentials();
-  if( zOnly ){
-    if( strchr(zOnly,'c') ) srchFlags &= SRCH_CKIN;
-    if( strchr(zOnly,'d') ) srchFlags &= SRCH_DOC;
-    if( strchr(zOnly,'t') ) srchFlags &= SRCH_TKT;
-    if( strchr(zOnly,'w') ) srchFlags &= SRCH_WIKI;
-  }
   style_header("Search");
-  search_screen(srchFlags, "search");
+  search_screen(SRCH_ALL, 1);
   style_footer();
 }
 
@@ -1297,7 +1324,7 @@ static void search_update_checkin_index(void){
     "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
     "  SELECT ftsdocs.rowid, 1, 'c', ftsdocs.rid, NULL,"
     "    printf('Check-in [%%.16s] on %%s',blob.uuid,datetime(event.mtime)),"
-    "    printf('/timeline?y=ci&n=9&c=%%.20s',blob.uuid),"
+    "    printf('/timeline?y=ci&c=%%.20s',blob.uuid),"
     "    event.mtime"
     "  FROM ftsdocs, event, blob"
     "  WHERE ftsdocs.type='c' AND NOT ftsdocs.idxed"

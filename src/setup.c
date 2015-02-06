@@ -1265,6 +1265,23 @@ void setup_login_group(void){
     @ To leave this login group press
     @ <input type="submit" value="Leave Login Group" name="leave">
     @ </form></p>
+    @ <hr><h2>Implementation Details</h2>
+    @ <p>The following are fields from the CONFIG table related to login-groups,
+    @ provided here for instructional and debugging purposes:</p>
+    @ <table border='1' id='configTab'>
+    @ <thead><tr><th>Config.Name<th>Config.Value<th>Config.mtime</tr></thead><tbody>
+    db_prepare(&q, "SELECT name, value, datetime(mtime,'unixepoch') FROM config"
+                   " WHERE name GLOB 'peer-*'"
+                   "    OR name GLOB 'project-*'"
+                   " ORDER BY name");
+    while( db_step(&q)==SQLITE_ROW ){
+      @ <tr><td>%h(db_column_text(&q,0))</td>
+      @ <td>%h(db_column_text(&q,1))</td>
+      @ <td>%h(db_column_text(&q,2))</td></tr>
+    }
+    db_finalize(&q);
+    @ </tbody></table>
+    output_table_sorting_javascript("configTab","ttt",1);
   }
   style_footer();
 }

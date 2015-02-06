@@ -25,17 +25,38 @@
 
 /*
 ** Elements of the submenu are collected into the following
-** structure and displayed below the main menu by style_header().
+** structure and displayed below the main menu.
 **
-** Populate this structure with calls to style_submenu_element()
-** prior to calling style_header().
+** Populate these structure with calls to 
+**
+**      style_submenu_element()
+**      style_submenu_entry()
+**      style_submenu_checkbox()
+**      style_submenu_multichoice()
+**
+** prior to calling style_footer().  The style_footer() routine
+** will generate the appropriate HTML text just below the main
+** menu.
 */
 static struct Submenu {
-  const char *zLabel;
+  const char *zLabel;        /* Button label */
   const char *zTitle;
-  const char *zLink;
+  const char *zLink;         /* Jump to this link when button is pressed */
 } aSubmenu[30];
-static int nSubmenu = 0;
+static int nSubmenu = 0;     /* Number of buttons */
+static struct SubmenuCtrl {
+  const char *zName;         /* Form query parameter */
+  const char *zLabel;        /* Label.  Might be NULL for FF_MULTI */
+  int eType;                 /* FF_ENTRY, FF_CKBOX, FF_MULTI */
+  int iSize;                 /* Width for FF_ENTRY.  Count for FF_MULTI */
+  const char **azChoice;     /* value/display pairs for FF_MULTI */
+  const char *zFalse;        /* FF_BINARY label when false */
+} aSubmenuCtrl[20];
+static int nSubmenuCtrl = 0;
+#define FF_ENTRY  1
+#define FF_CKBOX  2
+#define FF_MULTI  3
+#define FF_BINARY 4
 
 /*
 ** Remember that the header has been generated.  The footer is omitted
@@ -218,12 +239,59 @@ void style_submenu_element(
   va_list ap;
   assert( nSubmenu < sizeof(aSubmenu)/sizeof(aSubmenu[0]) );
   aSubmenu[nSubmenu].zLabel = zLabel;
-  aSubmenu[nSubmenu].zTitle = zTitle;
+  aSubmenu[nSubmenu].zTitle = zTitle ? zTitle : zLabel;
   va_start(ap, zLink);
   aSubmenu[nSubmenu].zLink = vmprintf(zLink, ap);
   va_end(ap);
   nSubmenu++;
 }
+void style_submenu_entry(
+  const char *zName,       /* Query parameter name */
+  const char *zLabel,      /* Label before the entry box */
+  int iSize                /* Size of the entry box */
+){
+  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  aSubmenuCtrl[nSubmenuCtrl].zName = zName;
+  aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
+  aSubmenuCtrl[nSubmenuCtrl].iSize = iSize;
+  aSubmenuCtrl[nSubmenuCtrl].eType = FF_ENTRY;
+  nSubmenuCtrl++;
+}
+void style_submenu_checkbox(
+  const char *zName,       /* Query parameter name */
+  const char *zLabel       /* Label before the checkbox */
+){
+  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  aSubmenuCtrl[nSubmenuCtrl].zName = zName;
+  aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
+  aSubmenuCtrl[nSubmenuCtrl].eType = FF_CKBOX;
+  nSubmenuCtrl++;
+}
+void style_submenu_binary(
+  const char *zName,       /* Query parameter name */
+  const char *zTrue,       /* Label to show when parameter is true */
+  const char *zFalse       /* Label to show when the parameter is false */
+){
+  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  aSubmenuCtrl[nSubmenuCtrl].zName = zName;
+  aSubmenuCtrl[nSubmenuCtrl].zLabel = zTrue;
+  aSubmenuCtrl[nSubmenuCtrl].zFalse = zFalse;
+  aSubmenuCtrl[nSubmenuCtrl].eType = FF_BINARY;
+  nSubmenuCtrl++;
+}
+void style_submenu_multichoice(
+  const char *zName,       /* Query parameter name */
+  int nChoice,             /* Number of options */
+  const char **azChoice    /* value/display pairs.  2*nChoice entries */
+){
+  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  aSubmenuCtrl[nSubmenuCtrl].zName = zName;
+  aSubmenuCtrl[nSubmenuCtrl].iSize = nChoice;
+  aSubmenuCtrl[nSubmenuCtrl].azChoice = azChoice;
+  aSubmenuCtrl[nSubmenuCtrl].eType = FF_MULTI;
+  nSubmenuCtrl++;
+}
+
 
 /*
 ** Compare two submenu items for sorting purposes
@@ -413,19 +481,98 @@ void style_footer(void){
   ** to the submenu while generating page text.
   */
   cgi_destination(CGI_HEADER);
-  if( nSubmenu>0 ){
+  if( nSubmenu+nSubmenuCtrl>0 ){
     int i;
+    if( nSubmenuCtrl ){
+      cgi_printf("<form id='f01' method='GET' action='%R/%s'>", g.zPath);
+    }
     @ <div class="submenu">
-    qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
-    for(i=0; i<nSubmenu; i++){
-      struct Submenu *p = &aSubmenu[i];
-      if( p->zLink==0 ){
-        @ <span class="label">%h(p->zLabel)</span>
-      }else{
-        @ <a class="label" href="%h(p->zLink)">%h(p->zLabel)</a>
+    if( nSubmenu>0 ){
+      qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
+      for(i=0; i<nSubmenu; i++){
+        struct Submenu *p = &aSubmenu[i];
+        if( p->zLink==0 ){
+          @ <span class="label">%h(p->zLabel)</span>
+        }else{
+          @ <a class="label" href="%h(p->zLink)">%h(p->zLabel)</a>
+        }
+      }
+    }
+    if( nSubmenuCtrl>0 ){
+      for(i=0; i<nSubmenuCtrl; i++){
+        const char *zQPN = aSubmenuCtrl[i].zName;
+        cgi_tag_query_parameter(zQPN);
+        switch( aSubmenuCtrl[i].eType ){
+          case FF_ENTRY: {
+            cgi_printf(
+               "<span class='submenuctrl'>"
+               "%h:&nbsp;<input type='text' name='%s' size='%d' "
+               "value='%h'></span>\n",
+               aSubmenuCtrl[i].zLabel,
+               zQPN,
+               aSubmenuCtrl[i].iSize,
+               PD(zQPN,"")
+            );
+            break;
+          }
+          case FF_CKBOX: {
+            cgi_printf(
+               "<span class='submenuctrl'>"
+               "%h:&nbsp;<input type='checkbox' name='%s'%s "
+               "onchange='gebi(\"f01\").submit();'></span>\n",
+               aSubmenuCtrl[i].zLabel,
+               zQPN,
+               PB(zQPN) ? " checked":""
+            );
+            break;
+          }
+          case FF_MULTI: {
+            int j;
+            const char *zVal = P(zQPN);
+            cgi_printf(
+               "<select class='submenuctrl' size='1' name='%s' "
+               "onchange='gebi(\"f01\").submit();'>\n",
+               zQPN
+            );
+            for(j=0; j<aSubmenuCtrl[i].iSize*2; j+=2){
+              const char *zQPV = aSubmenuCtrl[i].azChoice[j];
+              cgi_printf(
+                "<option value='%h'%s>%h</option>\n",
+                zQPV,
+                fossil_strcmp(zVal,zQPV)==0 ? " selected" : "",
+                aSubmenuCtrl[i].azChoice[j+1]
+              );
+            }
+            @ </select>
+            break;
+          }
+          case FF_BINARY: {
+            int isTrue = PB(zQPN);
+            cgi_printf(
+               "<select class='submenuctrl' size='1' name='%s' "
+               "onchange='gebi(\"f01\").submit();'>\n",
+               zQPN
+            );
+            cgi_printf(
+              "<option value='1'%s>%h</option>\n",
+              isTrue ? " selected":"", aSubmenuCtrl[i].zLabel
+            );
+            cgi_printf(
+              "<option value='0'%s>%h</option>\n",
+              (!isTrue) ? " selected":"", aSubmenuCtrl[i].zFalse
+            );
+            @ </select>
+            break;
+          }
+        }
       }
     }
     @ </div>
+    if( nSubmenuCtrl ){
+      cgi_query_parameters_to_hidden();
+      cgi_tag_query_parameter(0);
+      @ </form>
+    }
   }
 
   zAd = style_adunit_text(&mAdFlags);
@@ -1248,11 +1395,9 @@ void page_test_env(void){
   style_header("Environment Test");
   showAll = atoi(PD("showall","0"));
   if( !showAll ){
-    style_submenu_element("Show Cookies", "Show Cookies",
-                          "%s/test_env?showall=1", g.zTop);
+    style_submenu_element("Show Cookies", 0, "%R/test_env?showall=1");
   }else{
-    style_submenu_element("Hide Cookies", "Hide Cookies",
-                          "%s/test_env", g.zTop);
+    style_submenu_element("Hide Cookies", 0, "%R/test_env");
   }
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />
@@ -1260,6 +1405,7 @@ void page_test_env(void){
   @ g.zBaseURL = %h(g.zBaseURL)<br />
   @ g.zHttpsURL = %h(g.zHttpsURL)<br />
   @ g.zTop = %h(g.zTop)<br />
+  @ g.zPath = %h(g.zPath)<br />
   for(i=0, c='a'; c<='z'; c++){
     if( login_has_capability(&c, 1) ) zCap[i++] = c;
   }

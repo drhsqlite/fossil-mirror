@@ -46,7 +46,7 @@ void sitemap_page(void){
   @ <li>%z(href("%R/timeline?n=200"))Project Timeline</a></li>
   @ <ul>
   @   <li>%z(href("%R/timeline?a=1970-01-01&y=ci&n=10"))First 10 checkins</a></li>
-  @   <li>%z(href("%R/timeline?n=0&namechng"))All checkins with file name
+  @   <li>%z(href("%R/timeline?n=all&namechng"))All checkins with file name
   @        changes</a></li>
   @   <li>%z(href("%R/reports"))Activity Reports</a></li>
   @ </ul>
