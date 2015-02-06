@@ -293,7 +293,7 @@ void wiki_srchpage(void){
   login_check_credentials();
   style_header("Wiki Search");
   wiki_standard_submenu(W_HELP|W_LIST|W_SANDBOX);
-  search_screen(SRCH_WIKI, "wikisrch");
+  search_screen(SRCH_WIKI, 0);
   style_footer();
 }
 

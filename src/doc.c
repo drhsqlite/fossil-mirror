@@ -787,6 +787,6 @@ void background_page(void){
 void doc_search_page(void){
   login_check_credentials();
   style_header("Document Search");
-  search_screen(SRCH_DOC, "docsrch");
+  search_screen(SRCH_DOC, 0);
   style_footer();
 }

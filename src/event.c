@@ -131,32 +131,28 @@ void event_page(void){
                           g.zTop, zEventId);
   }
   zETime = db_text(0, "SELECT datetime(%.17g)", pEvent->rEventDate);
-  style_submenu_element("Context", "Context", "%s/timeline?c=%T",
-                        g.zTop, zETime);
+  style_submenu_element("Context", 0, "%R/timeline?c=%.20s", zEventId);
   if( g.perm.Hyperlink ){
     if( verboseFlag ){
-      style_submenu_element("Plain", "Plain", "%s/event?name=%s&aid=%s",
-                            g.zTop, zEventId, zUuid);
+      style_submenu_element("Plain", 0, "%R/event?name=%.20s&aid=%s",
+                            zEventId, zUuid);
       if( nextRid ){
         char *zNext;
         zNext = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nextRid);
-        style_submenu_element("Next", "Next",
-                              "%s/event?name=%s&aid=%s&v",
-                              g.zTop, zEventId, zNext);
+        style_submenu_element("Next", 0,"%R/event?name=%.20s&aid=%s&v",
+                              zEventId, zNext);
         free(zNext);
       }
       if( prevRid ){
         char *zPrev;
         zPrev = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", prevRid);
-        style_submenu_element("Prev", "Prev",
-                              "%s/event?name=%s&aid=%s&v",
-                              g.zTop, zEventId, zPrev);
+        style_submenu_element("Prev", 0, "%R/event?name=%s&aid=%s&v",
+                              zEventId, zPrev);
         free(zPrev);
       }
     }else{
-      style_submenu_element("Detail", "Detail",
-                            "%s/event?name=%s&aid=%s&v",
-                            g.zTop, zEventId, zUuid);
+      style_submenu_element("Detail", 0, "%R/event?name=%.20s&aid=%s&v",
+                            zEventId, zUuid);
     }
   }
 

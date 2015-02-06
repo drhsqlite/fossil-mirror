@@ -1436,6 +1436,6 @@ void tkt_srchpage(void){
   login_check_credentials();
   style_header("Ticket Search");
   ticket_standard_submenu(T_ALL_BUT(T_SRCH));
-  search_screen(SRCH_TKT, "tktsrch");
+  search_screen(SRCH_TKT, 0);
   style_footer();
 }

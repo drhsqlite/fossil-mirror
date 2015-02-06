@@ -1517,42 +1517,6 @@ void import_cmd(void){
   db_begin_transaction();
   if( !incrFlag ) db_initial_setup(0, 0, 0, 1);
 
-  if( strncmp(g.argv[2], "git", 3)==0 ){
-    /* The following temp-tables are used to hold information needed for
-    ** the import.
-    **
-    ** The XMARK table provides a mapping from fast-import "marks" and symbols
-    ** into artifact ids (UUIDs - the 40-byte hex SHA1 hash of artifacts).
-    ** Given any valid fast-import symbol, the corresponding fossil rid and
-    ** uuid can found by searching against the xmark.tname field.
-    **
-    ** The XBRANCH table maps commit marks and symbols into the branch those
-    ** commits belong to.  If xbranch.tname is a fast-import symbol for a
-    ** checkin then xbranch.brnm is the branch that checkin is part of.
-    **
-    ** The XTAG table records information about tags that need to be applied
-    ** to various branches after the import finishes.  The xtag.tcontent field
-    ** contains the text of an artifact that will add a tag to a check-in.
-    ** The git-fast-export file format might specify the same tag multiple
-    ** times but only the last tag should be used.  And we do not know which
-    ** occurrence of the tag is the last until the import finishes.
-    */
-    db_multi_exec(
-       "CREATE TEMP TABLE xmark(tname TEXT UNIQUE, trid INT, tuuid TEXT);"
-       "CREATE TEMP TABLE xbranch(tname TEXT UNIQUE, brnm TEXT);"
-       "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, tcontent TEXT);"
-    );
-
-    git_fast_import(pIn);
-    db_prepare(&q, "SELECT tcontent FROM xtag");
-    while( db_step(&q)==SQLITE_ROW ){
-      Blob record;
-      db_ephemeral_blob(&q, 0, &record);
-      fast_insert_content(&record, 0, 0);
-      import_reset(0);
-    }
-    db_finalize(&q);
-  }else
   if( strncmp(g.argv[2], "svn", 3)==0 ){
     db_multi_exec(
        "CREATE TEMP TABLE xrevisions("
@@ -1607,6 +1571,41 @@ void import_cmd(void){
       }
     }
     svn_dump_import(pIn);
+  }else if( strncmp(g.argv[2], "git", 3)==0 ){
+    /* The following temp-tables are used to hold information needed for
+    ** the import.
+    **
+    ** The XMARK table provides a mapping from fast-import "marks" and symbols
+    ** into artifact ids (UUIDs - the 40-byte hex SHA1 hash of artifacts).
+    ** Given any valid fast-import symbol, the corresponding fossil rid and
+    ** uuid can found by searching against the xmark.tname field.
+    **
+    ** The XBRANCH table maps commit marks and symbols into the branch those
+    ** commits belong to.  If xbranch.tname is a fast-import symbol for a
+    ** checkin then xbranch.brnm is the branch that checkin is part of.
+    **
+    ** The XTAG table records information about tags that need to be applied
+    ** to various branches after the import finishes.  The xtag.tcontent field
+    ** contains the text of an artifact that will add a tag to a check-in.
+    ** The git-fast-export file format might specify the same tag multiple
+    ** times but only the last tag should be used.  And we do not know which
+    ** occurrence of the tag is the last until the import finishes.
+    */
+    db_multi_exec(
+       "CREATE TEMP TABLE xmark(tname TEXT UNIQUE, trid INT, tuuid TEXT);"
+       "CREATE TEMP TABLE xbranch(tname TEXT UNIQUE, brnm TEXT);"
+       "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, tcontent TEXT);"
+    );
+
+    git_fast_import(pIn);
+    db_prepare(&q, "SELECT tcontent FROM xtag");
+    while( db_step(&q)==SQLITE_ROW ){
+      Blob record;
+      db_ephemeral_blob(&q, 0, &record);
+      fast_insert_content(&record, 0, 0);
+      import_reset(0);
+    }
+    db_finalize(&q);
   }
 
   verify_cancel();
