@@ -1,5 +1,5 @@
-C Reorder\sand\srevise\sthe\s/timeline\ssubmenu\scontrols\sfor\sa\smore\snatural\npresentation.
-D 2015-02-06T21:39:27.816
+C Add\sREADME\sfor\sthe\s'eagle'\sskin.
+D 2015-02-06T23:02:00.378
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -317,6 +317,7 @@ F skins/black_and_white/header.txt 41d6cd39c23b0cc4dc0bc72d675afeea7e45a3bf
 F skins/default/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
 F skins/default/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
 F skins/default/header.txt 8d8ec9c13b068d19c64ce1342fb96802f822390e
+F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 63a1292dd002231bcebf7ee2884258b1dcdebab2
 F skins/eagle/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
 F skins/eagle/header.txt 080721591ecda0d40a87d38bb37229bf99367f51
@@ -692,8 +693,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9c3b544ec29e92f022b8fd69b87c57e0bb547d74 c8f121c7c8f27c656bfb0d1e69d60fb0103ce507
-R 222bb5003a62e278dc5867e2dd7993a3
-T +closed c8f121c7c8f27c656bfb0d1e69d60fb0103ce507
-U drh
-Z 14c02748f74ae7dec860adf18380dc7a
+P f76cfaca7f44a02d3efe464e8afe4f3529de0043
+R b4aa5a14247bc2ba67e0c459c431cc30
+U mistachkin
+Z 917911e4d24c55a3e9147d2eaaeeede8
