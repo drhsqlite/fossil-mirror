@@ -369,6 +369,65 @@ static int hascapCmd(
 }
 
 /*
+** TH1 command: searchable STRING...
+**
+** Return true if searching in any of the document classes identified
+** by STRING is enabled for the repository and user has the necessary
+** capabilities to perform the search.
+**
+** Document classes:
+**
+**      c     Check-in comments
+**      d     Embedded documentation
+**      t     Tickets
+**      w     Wiki
+**
+** To be clear, only one of the document classes identified by each STRING
+** needs to be searchable in order for that argument to be true.  But
+** all arguments must be true for this routine to return true.  Hence, to
+** see if ALL document classes are searchable:
+** 
+**      if {[searchable c d t w]} {...}
+**
+** But to see if ANY document class is searchable:
+**
+**      if {[searchable cdtw]} {...}
+**
+** This command is useful for enabling or disabling a "Search" entry
+** on the menu bar.
+*/
+static int searchableCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc = 1, i, j;
+  unsigned int searchCap = search_restrict(SRCH_ALL);
+  if( argc<2 ){
+    return Th_WrongNumArgs(interp, "hascap STRING ...");
+  }
+  for(i=1; i<argc && rc; i++){
+    int match = 0;
+    for(j=0; j<argl[i]; j++){
+      switch( argv[i][j] ){
+        case 'c':  match |= searchCap & SRCH_CKIN;  break;
+        case 'd':  match |= searchCap & SRCH_DOC;   break;
+        case 't':  match |= searchCap & SRCH_TKT;   break;
+        case 'w':  match |= searchCap & SRCH_WIKI;  break;
+      }
+    }
+    if( !match ) rc = 0;
+  }
+  if( g.thTrace ){
+    Th_Trace("[searchable %#h] => %d<br />\n", argl[1], argv[1], rc);
+  }
+  Th_SetResultInt(interp, rc);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: hasfeature STRING
 **
 ** Return true if the fossil binary has the given compile-time feature
@@ -1421,6 +1480,7 @@ void Th_FossilInit(u32 flags){
     {"reinitialize",  reinitializeCmd,      0},
     {"render",        renderCmd,            0},
     {"repository",    repositoryCmd,        0},
+    {"searchable",    searchableCmd,        0},
     {"setParameter",  setParameterCmd,      0},
     {"setting",       settingCmd,           0},
     {"styleHeader",   styleHeaderCmd,       0},

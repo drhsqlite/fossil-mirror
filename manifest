@@ -1,5 +1,5 @@
-C Some\sclean-up\sof\sthe\s"Tech-Note"\s(formerly\s"Event")\sprocessing.\s\sLots\smore\nopportunity\sfor\simprovement\shere.
-D 2015-02-05T22:20:20.174
+C Add\sthe\s"searchable"\sTH1\scommand\sthat\stests\sto\ssee\sif\ssearch\sis\senabled\non\sthe\srepository.\s\sIntended\suse:\s\sConditionally\sdisplay\sa\s"Search"\sbutton\non\sthe\smenu\sbar.
+D 2015-02-06T01:44:13.848
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -456,7 +456,7 @@ F src/tar.c 0a4c8e091580e988064d2fac4c6ede7fa9141123
 F src/th.c f3e2d60ea44acd118e8462d48c0865c496f89e6f
 F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
-F src/th_main.c 312b6284fbb63001c182c7d28ca451a4ba284bb8
+F src/th_main.c 4a277e877fec410428c5d2a536bf9d9ecc8dced5
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
 F src/timeline.c 2eabc9b40552cf4833ee12e3f38d2b1f528f8eeb
 F src/tkt.c fd9baf240f30cea69c146da3bd40d33588d70d45
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b6b2f8df2c00b31983141a0d088a450e0d2e9c7c
-R f8b07c56826b0211eaf44c1b9e6485bb
+P d7eb21e8a639bbc88cc38eba33655e4152e65803
+R fd98f2c2e9bf22cdf0aead88ce830a18
 U drh
-Z 1aff14fae212342b047914a5fae737f9
+Z 7fa932a8d38259c9a32b8dfb9700fb29
