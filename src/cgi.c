@@ -1087,7 +1087,7 @@ char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
 int cgi_parameter_boolean(const char *zName){
   const char *zIn = cgi_parameter(zName, 0);
   if( zIn==0 ) return 0;
-  return is_truth(zIn);
+  return zIn[0]==0 || is_truth(zIn);
 }
 
 /*
@@ -1178,6 +1178,18 @@ void cgi_query_parameters_to_hidden(void){
     zN = aParamQP[i].zName;
     zV = aParamQP[i].zValue;
     @ <input type="hidden" name="%h(zN)" value="%h(zV)">
+  }
+}
+
+/*
+** Export all untagged query parameters (but not cookies or environment
+** variables) to the HQuery object.
+*/
+void cgi_query_parameters_to_url(HQuery *p){
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( aParamQP[i].isQP==0 || aParamQP[i].cTag ) continue;
+    url_add_parameter(p, aParamQP[i].zName, aParamQP[i].zValue);
   }
 }
 

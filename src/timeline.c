@@ -50,7 +50,7 @@ void hyperlink_to_uuid(const char *zUuid){
 void hyperlink_to_date(const char *zDate, const char *zSuffix){
   if( zSuffix==0 ) zSuffix = "";
   if( g.perm.Hyperlink ){
-    @ %z(href("%R/timeline?c=%T",zDate))%s(zDate)</a>%s(zSuffix)
+    @ %z(href("%R/timeline?n=11&c=%T",zDate))%s(zDate)</a>%s(zSuffix)
   }else{
     @ %s(zDate)%s(zSuffix)
   }
@@ -496,6 +496,7 @@ void www_print_timeline(
           " WHERE mid=:mid AND (pid!=fid OR pfnid>0)"
           "   AND (fid>0 OR"
                "   fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=:mid))"
+          "   AND NOT mlink.isaux"
           " ORDER BY 3 /*sort*/"
         );
         fchngQueryInit = 1;
@@ -1156,6 +1157,7 @@ void page_timeline(void){
     return;
   }
   url_initialize(&url, "timeline");
+  cgi_query_parameters_to_url(&url);
   if( zTagName && g.perm.Read ){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
     zThisTag = zTagName;
@@ -1176,28 +1178,22 @@ void page_timeline(void){
   }else{
     tmFlags |= TIMELINE_GRAPH;
   }
-  if( nEntry>0 ) url_add_parameter(&url, "n", mprintf("%d", nEntry));
-  if( P("ng")!=0 || zSearch!=0 ){
+  if( PB("ng") || zSearch!=0 ){
     tmFlags &= ~TIMELINE_GRAPH;
-    url_add_parameter(&url, "ng", 0);
   }
-  if( P("brbg")!=0 ){
+  if( PB("brbg") ){
     tmFlags |= TIMELINE_BRCOLOR;
-    url_add_parameter(&url, "brbg", 0);
   }
-  if( P("unhide")!=0 ){
+  if( PB("unhide") ){
     tmFlags |= TIMELINE_UNHIDE;
-    url_add_parameter(&url, "unhide", 0);
   }
-  if( P("ubg")!=0 ){
+  if( PB("ubg") ){
     tmFlags |= TIMELINE_UCOLOR;
-    url_add_parameter(&url, "ubg", 0);
   }
   if( zUses!=0 ){
     int ufid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUses);
     if( ufid ){
       zUses = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", ufid);
-      url_add_parameter(&url, "uf", zUses);
       db_multi_exec("CREATE TEMP TABLE usesfile(rid INTEGER PRIMARY KEY)");
       compute_uses_file("usesfile", ufid, 0);
       zType = "ci";
@@ -1222,7 +1218,6 @@ void page_timeline(void){
   blob_append(&sql, timeline_query_for_www(), -1);
   if( PB("fc") || PB("v") || PB("detail") ){
     tmFlags |= TIMELINE_FCHANGES;
-    url_add_parameter(&url, "v", 0);
   }
   if( (tmFlags & TIMELINE_UNHIDE)==0 ){
     blob_append_sql(&sql,
@@ -1231,7 +1226,6 @@ void page_timeline(void){
       TAG_HIDDEN
     );
   }
-  if( !useDividers ) url_add_parameter(&url, "nd", 0);
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
     /* If from= and to= are present, display all nodes on a path connecting
     ** the two */
@@ -1300,15 +1294,11 @@ void page_timeline(void){
     }
     blob_appendf(&desc, " of %z[%S]</a>",
                    href("%R/info/%s", zUuid), zUuid);
-    if( p_rid ){
-      url_add_parameter(&url, "p", zUuid);
-    }
     if( d_rid ){
       if( p_rid ){
         /* If both p= and d= are set, we don't have the uuid of d yet. */
         zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
-      url_add_parameter(&url, "d", zUuid);
     }
     style_submenu_binary("v","With Files","Without Files");
     style_submenu_entry("n","Lines",1);
@@ -1330,12 +1320,7 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%s", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
-    url_add_parameter(&url, "f", zUuid);
-    if( tmFlags & TIMELINE_FCHANGES ){
-      timeline_submenu(&url, "Hide Files", "v", 0, 0);
-    }else{
-      timeline_submenu(&url, "Show Files", "v", "", 0);
-    }
+    style_submenu_binary("v","With Files","Without Files");
     if( (tmFlags & TIMELINE_UNHIDE)==0 ){
       timeline_submenu(&url, "Unhide", "unhide", "", 0);
     }
@@ -1364,7 +1349,6 @@ void page_timeline(void){
                     " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)", tagid);
 
       if( zBrName ){
-        url_add_parameter(&url, "r", zBrName);
         /* The next two blob_appendf() calls add SQL that causes checkins that
         ** are not part of the branch which are parents or children of the
         ** branch to be included in the report.  This related check-ins are
@@ -1396,11 +1380,7 @@ void page_timeline(void){
               TAG_HIDDEN
             );
           }
-        }else{
-          url_add_parameter(&url, "mionly", "1");
         }
-      }else{
-        url_add_parameter(&url, "t", zTagName);
       }
       blob_append_sql(&sql, ")");
     }
@@ -1432,7 +1412,6 @@ void page_timeline(void){
       }
     }else{ /* zType!="all" */
       blob_append_sql(&sql, " AND event.type=%Q", zType);
-      url_add_parameter(&url, "y", zType);
       if( zType[0]=='c' ){
         zEType = "checkin";
       }else if( zType[0]=='w' ){
@@ -1454,14 +1433,12 @@ void page_timeline(void){
       }
       blob_append_sql(&sql, " AND (event.user=%Q OR event.euser=%Q)",
                    zUser, zUser);
-      url_add_parameter(&url, "u", zUser);
       zThisUser = zUser;
     }
     if( zSearch ){
       blob_append_sql(&sql,
         " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
         zSearch, zSearch);
-      url_add_parameter(&url, "s", zSearch);
     }
     rBefore = symbolic_name_to_mtime(zBefore);
     rAfter = symbolic_name_to_mtime(zAfter);
@@ -1471,20 +1448,16 @@ void page_timeline(void){
         blob_append_sql(&sql,
            " AND event.mtime>=%.17g AND event.mtime<=%.17g"
            " ORDER BY event.mtime ASC", rAfter-ONE_SECOND, rBefore+ONE_SECOND);
-        url_add_parameter(&url, "a", zAfter);
-        url_add_parameter(&url, "b", zBefore);
         nEntry = -1;
       }else{
         blob_append_sql(&sql,
            " AND event.mtime>=%.17g  ORDER BY event.mtime ASC",
            rAfter-ONE_SECOND);
-        url_add_parameter(&url, "a", zAfter);
       }
     }else if( rBefore>0.0 ){
       blob_append_sql(&sql,
          " AND event.mtime<=%.17g ORDER BY event.mtime DESC",
          rBefore+ONE_SECOND);
-      url_add_parameter(&url, "b", zBefore);
     }else if( rCirca>0.0 ){
       Blob sql2;
       blob_init(&sql2, blob_sql_text(&sql), -1);
@@ -1500,7 +1473,6 @@ void page_timeline(void){
       );
       nEntry -= (nEntry+1)/2;
       if( useDividers ) timeline_add_dividers(rCirca, 0);
-      url_add_parameter(&url, "c", zCirca);
     }else{
       blob_append_sql(&sql, " ORDER BY event.mtime DESC");
     }
