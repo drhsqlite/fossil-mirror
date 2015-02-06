@@ -1,5 +1,5 @@
-C Fix\sexecute\spermissions
-D 2015-02-06T14:16:20.221
+C One\smore\sexecute\spermission
+D 2015-02-06T14:18:30.077
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68 x
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -80,7 +80,7 @@ F compat/zlib/as400/compile.clp 8a1eb0df264e2ee0506e0161231551a40cd314e9
 F compat/zlib/as400/readme.txt e33c9c2fb7eed894bae68600c69a17dc7474cb00
 F compat/zlib/as400/zlib.inc a6f64b22423b2a59bb8710a11367189ece634fcb
 F compat/zlib/compress.c 37f7523fc76d3fb1ddc1c9f47936e3e7ac481316
-F compat/zlib/configure 65213505af98ff69e860857f1d823e22736555c1
+F compat/zlib/configure 65213505af98ff69e860857f1d823e22736555c1 x
 F compat/zlib/contrib/README.contrib c8f5ac934e07b3d91b26b111f5bdc15befa425ac
 F compat/zlib/contrib/ada/buffer_demo.adb 1d8fba99362b0973535a759097f7893d4551c4e7
 F compat/zlib/contrib/ada/mtest.adb f1c968146ba1a8f07c7070a2af72ab8a84c82e3d
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe x
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee x
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a x
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43 x
-P 3209f072849acda0532060411e8f30b3127d8b8a
+P 216798706a9eb4e5acf99184844dbe52739719d4
 R 07ea8c65825a9d608662f56b3ca0d082
 U jan.nijtmans
-Z d8cf8cbe549736d479821bcd9da62136
+Z 70b2b505c5f71038e2550b293286828d
