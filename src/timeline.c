@@ -1034,7 +1034,7 @@ static void timeline_y_submenu(void){
   static const char *az[12];
   if( i==0 ){
     az[0] = "all";
-    az[1] = "All Types";
+    az[1] = "Any Type";
     i = 2;
     if( g.perm.Read ){
       az[i++] = "ci";
@@ -1057,7 +1057,7 @@ static void timeline_y_submenu(void){
     assert( i<=ArraySize(az) );
   }
   if( i>2 ){
-    style_submenu_multichoice("y", i/2, az);
+    style_submenu_multichoice("y", i/2, az, 0);
   }
 }
 
@@ -1311,9 +1311,10 @@ void page_timeline(void){
         zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
     }
-    style_submenu_binary("v","With Files","Without Files");
-    style_submenu_entry("n","Lines",1);
+    style_submenu_entry("n","Max:",1,0);
     timeline_y_submenu();
+    style_submenu_binary("v","With Files","Without Files",
+                         zType[0]!='a' && zType[0]!='c');
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1331,7 +1332,8 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%s", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
-    style_submenu_binary("v","With Files","Without Files");
+    style_submenu_binary("v","With Files","Without Files",
+                         zType[0]!='a' && zType[0]!='c');
     if( (tmFlags & TIMELINE_UNHIDE)==0 ){
       timeline_submenu(&url, "Unhide", "unhide", "", 0);
     }
@@ -1553,9 +1555,10 @@ void page_timeline(void){
           timeline_submenu(&url, "Unhide", "unhide", "", 0);
         }
       }
-      style_submenu_binary("v","With Files","Without Files");
+      style_submenu_entry("n","Max:",1,0);
       if( zUses==0 ) timeline_y_submenu();
-      style_submenu_entry("n","Lines",1);
+      style_submenu_binary("v","With Files","Without Files",
+                           zType[0]!='a' && zType[0]!='c');
     }
   }
   if( P("showsql") ){

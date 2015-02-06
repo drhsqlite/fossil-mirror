@@ -47,16 +47,16 @@ static int nSubmenu = 0;     /* Number of buttons */
 static struct SubmenuCtrl {
   const char *zName;         /* Form query parameter */
   const char *zLabel;        /* Label.  Might be NULL for FF_MULTI */
-  int eType;                 /* FF_ENTRY, FF_CKBOX, FF_MULTI */
-  int iSize;                 /* Width for FF_ENTRY.  Count for FF_MULTI */
+  unsigned char eType;       /* FF_ENTRY, FF_MULTI, FF_BINARY */
+  unsigned char isDisabled;  /* True if this control is grayed out */
+  short int iSize;           /* Width for FF_ENTRY.  Count for FF_MULTI */
   const char **azChoice;     /* value/display pairs for FF_MULTI */
   const char *zFalse;        /* FF_BINARY label when false */
 } aSubmenuCtrl[20];
 static int nSubmenuCtrl = 0;
 #define FF_ENTRY  1
-#define FF_CKBOX  2
-#define FF_MULTI  3
-#define FF_BINARY 4
+#define FF_MULTI  2
+#define FF_BINARY 3
 
 /*
 ** Remember that the header has been generated.  The footer is omitted
@@ -248,46 +248,42 @@ void style_submenu_element(
 void style_submenu_entry(
   const char *zName,       /* Query parameter name */
   const char *zLabel,      /* Label before the entry box */
-  int iSize                /* Size of the entry box */
+  int iSize,               /* Size of the entry box */
+  int isDisabled           /* True if disabled */
 ){
   assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
   aSubmenuCtrl[nSubmenuCtrl].iSize = iSize;
+  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_ENTRY;
-  nSubmenuCtrl++;
-}
-void style_submenu_checkbox(
-  const char *zName,       /* Query parameter name */
-  const char *zLabel       /* Label before the checkbox */
-){
-  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
-  aSubmenuCtrl[nSubmenuCtrl].zName = zName;
-  aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
-  aSubmenuCtrl[nSubmenuCtrl].eType = FF_CKBOX;
   nSubmenuCtrl++;
 }
 void style_submenu_binary(
   const char *zName,       /* Query parameter name */
   const char *zTrue,       /* Label to show when parameter is true */
-  const char *zFalse       /* Label to show when the parameter is false */
+  const char *zFalse,      /* Label to show when the parameter is false */
+  int isDisabled           /* True if this control is disabled */
 ){
   assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].zLabel = zTrue;
   aSubmenuCtrl[nSubmenuCtrl].zFalse = zFalse;
+  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_BINARY;
   nSubmenuCtrl++;
 }
 void style_submenu_multichoice(
   const char *zName,       /* Query parameter name */
   int nChoice,             /* Number of options */
-  const char **azChoice    /* value/display pairs.  2*nChoice entries */
+  const char **azChoice,   /* value/display pairs.  2*nChoice entries */
+  int isDisabled           /* True if this control is disabled */
 ){
   assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].iSize = nChoice;
   aSubmenuCtrl[nSubmenuCtrl].azChoice = azChoice;
+  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_MULTI;
   nSubmenuCtrl++;
 }
@@ -501,28 +497,22 @@ void style_footer(void){
     if( nSubmenuCtrl>0 ){
       for(i=0; i<nSubmenuCtrl; i++){
         const char *zQPN = aSubmenuCtrl[i].zName;
-        cgi_tag_query_parameter(zQPN);
+        const char *zDisabled = " disabled";
+        if( !aSubmenuCtrl[i].isDisabled ){
+          zDisabled = "";
+          cgi_tag_query_parameter(zQPN);
+        }
         switch( aSubmenuCtrl[i].eType ){
           case FF_ENTRY: {
             cgi_printf(
                "<span class='submenuctrl'>"
-               "%h:&nbsp;<input type='text' name='%s' size='%d' "
-               "value='%h'></span>\n",
+               "&nbsp;%h<input type='text' name='%s' size='%d' "
+               "value='%h'%s></span>\n",
                aSubmenuCtrl[i].zLabel,
                zQPN,
                aSubmenuCtrl[i].iSize,
-               PD(zQPN,"")
-            );
-            break;
-          }
-          case FF_CKBOX: {
-            cgi_printf(
-               "<span class='submenuctrl'>"
-               "%h:&nbsp;<input type='checkbox' name='%s'%s "
-               "onchange='gebi(\"f01\").submit();'></span>\n",
-               aSubmenuCtrl[i].zLabel,
-               zQPN,
-               PB(zQPN) ? " checked":""
+               PD(zQPN,""),
+               zDisabled
             );
             break;
           }
@@ -530,9 +520,9 @@ void style_footer(void){
             int j;
             const char *zVal = P(zQPN);
             cgi_printf(
-               "<select class='submenuctrl' size='1' name='%s' "
+               "<select class='submenuctrl' size='1' name='%s'%s "
                "onchange='gebi(\"f01\").submit();'>\n",
-               zQPN
+               zQPN, zDisabled
             );
             for(j=0; j<aSubmenuCtrl[i].iSize*2; j+=2){
               const char *zQPV = aSubmenuCtrl[i].azChoice[j];
@@ -549,9 +539,9 @@ void style_footer(void){
           case FF_BINARY: {
             int isTrue = PB(zQPN);
             cgi_printf(
-               "<select class='submenuctrl' size='1' name='%s' "
+               "<select class='submenuctrl' size='1' name='%s'%s "
                "onchange='gebi(\"f01\").submit();'>\n",
-               zQPN
+               zQPN, zDisabled
             );
             cgi_printf(
               "<option value='1'%s>%h</option>\n",
