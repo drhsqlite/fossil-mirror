@@ -1,5 +1,5 @@
-C merge\strunk
-D 2015-02-06T10:49:58.393
+C Merge\strunk
+D 2015-02-06T14:19:54.748
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68 x
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe x
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee x
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a x
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43 x
-P 9e7ea6a20fd81a1487ba5fc16902e09ff04c535c 3209f072849acda0532060411e8f30b3127d8b8a
+P 9bc76f6a118e44207893341e831a77a9516666f1 15f53721b9114927f5fe44d8b1fb852751866ddc
 R 1def0af795957871f1dc03c0da250e4d
 U jan.nijtmans
-Z cff965200b7c14facff7cdc770d9d01a
+Z bb5b1fe68952fb69fd93f147ebabbb32
