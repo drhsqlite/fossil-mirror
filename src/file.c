@@ -232,6 +232,13 @@ void symlink_copy(const char *zFrom, const char *zTo){
   blob_reset(&content);
 }
 
+#ifdef __CYGWIN__
+/* Workaround for recently introduced Cygwin bug: group execute */
+/* permission is always set, so it cannot be relied upon! */
+# undef S_IXGRP
+# define S_IXGRP 0
+#endif
+
 /*
 ** Return file permissions (normal, executable, or symlink):
 **   - PERM_EXE if file is executable;
