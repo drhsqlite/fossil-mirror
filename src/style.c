@@ -27,7 +27,7 @@
 ** Elements of the submenu are collected into the following
 ** structure and displayed below the main menu.
 **
-** Populate these structure with calls to 
+** Populate these structure with calls to
 **
 **      style_submenu_element()
 **      style_submenu_entry()
@@ -1332,7 +1332,7 @@ static int containsString(const char *zHaystack, const char *zNeedle){
   }
   return 0;
 }
-   
+
 
 /*
 ** WEBPAGE: style.css

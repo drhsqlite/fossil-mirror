@@ -591,7 +591,7 @@ unsigned int search_restrict(unsigned int srchFlags){
       knownBad |= m;
     }
   }
-  return srchFlags & ~knownBad;      
+  return srchFlags & ~knownBad;
 }
 
 /*

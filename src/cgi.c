@@ -1207,7 +1207,7 @@ void cgi_tag_query_parameter(const char *zName){
       if( strcmp(zName,aParamQP[i].zName)==0 ) aParamQP[i].cTag = 1;
     }
   }
-} 
+}
 
 /*
 ** This routine works like "printf" except that it has the

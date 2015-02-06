@@ -386,7 +386,7 @@ static int hascapCmd(
 ** needs to be searchable in order for that argument to be true.  But
 ** all arguments must be true for this routine to return true.  Hence, to
 ** see if ALL document classes are searchable:
-** 
+**
 **      if {[searchable c d t w]} {...}
 **
 ** But to see if ANY document class is searchable:

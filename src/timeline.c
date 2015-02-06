@@ -1025,7 +1025,7 @@ char *names_of_file(const char *zUuid){
 
 
 /*
-** Add the select/option box to the timeline submenu that is used to 
+** Add the select/option box to the timeline submenu that is used to
 ** set the y= parameter that determines which elements to display
 ** on the timeline.
 */
@@ -1178,7 +1178,7 @@ void page_timeline(void){
   }else{
     tagid = 0;
   }
-  if( tagid>0 
+  if( tagid>0
    && db_int(0,"SELECT count(*) FROM tagxref WHERE tagid=%d",tagid)<=nEntry
   ){
     zCirca = zBefore = zAfter = 0;
@@ -1385,7 +1385,7 @@ void page_timeline(void){
             tagid
           );
           if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-            blob_append_sql(&sql, 
+            blob_append_sql(&sql,
               " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
               " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
               TAG_HIDDEN
@@ -1782,7 +1782,7 @@ static int isIsoDate(const char *z){
 ** Options:
 **   -n|--limit N         Output the first N entries (default 20 lines).
 **                        N=0 means no limit.
-**   -p|--path PATH       Output items affecting PATH only. 
+**   -p|--path PATH       Output items affecting PATH only.
 **                        PATH can be a file or a sub directory.
 **   --offset P           skip P changes
 **   -t|--type TYPE       Output items from the given types only, such as:
@@ -1904,7 +1904,7 @@ void timeline_cmd(void){
     }
     zDate = mprintf("(SELECT julianday(%Q%s, 'utc'))", zOrigin, zShift);
   }
-  
+
   if( zFilePattern ){
     if( zType==0 ){
       /* When zFilePattern is specified and type is not specified, only show
