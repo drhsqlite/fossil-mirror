@@ -1,10 +1,10 @@
-C One\smore\sexecute\spermission
-D 2015-02-06T14:18:30.077
+C Now\sreally\sfix\sexecute\spermissions\sto\swhat\sthey\swere\sbefore
+D 2015-02-06T15:06:29.231
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68 x
-F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
-F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
-F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
-F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
+F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596 x
+F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0 x
+F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59 x
+F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59 x
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7 x
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d x
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b x
@@ -142,12 +142,12 @@ F compat/zlib/contrib/iostream3/TODO c40d91b8e4051c4fac646e0213dee173e207bcee
 F compat/zlib/contrib/iostream3/test.cc b81342fb774937c210f5718ad5783f1eed13f7a7
 F compat/zlib/contrib/iostream3/zfstream.cc 19b83e921e89a638ebf978ca2beea7aefd78f9c2
 F compat/zlib/contrib/iostream3/zfstream.h 351a3f5bfb93196701cc86b27db866a18ca54105
-F compat/zlib/contrib/masmx64/bld_ml64.bat 1d723acf46ecfb6e16922ea55309cee9c77b9d49
+F compat/zlib/contrib/masmx64/bld_ml64.bat 1d723acf46ecfb6e16922ea55309cee9c77b9d49 x
 F compat/zlib/contrib/masmx64/gvmat64.asm 3c72c7b7f6c82e72b25a700eebccd0a987e7ba7b
 F compat/zlib/contrib/masmx64/inffas8664.c a179f3e1a04b5db58eaf6fcc473567794e0391f8
 F compat/zlib/contrib/masmx64/inffasx64.asm 249b0329964e35481e8e6217220f474e3076d35a
 F compat/zlib/contrib/masmx64/readme.txt 3f2e049fdd6fc4c914a0d9a099dfe735cd0e3b86
-F compat/zlib/contrib/masmx86/bld_ml32.bat d2bcdd2fcb5e43ee260f510c25cf2b98318e9b0c
+F compat/zlib/contrib/masmx86/bld_ml32.bat d2bcdd2fcb5e43ee260f510c25cf2b98318e9b0c x
 F compat/zlib/contrib/masmx86/inffas32.asm 6f42ac182d48c31346bb6dc04ab74f85157eb0b9
 F compat/zlib/contrib/masmx86/match686.asm 34529073d91211b48f2d8d6cad58202f50cb2047
 F compat/zlib/contrib/masmx86/readme.txt 287dd9febd8dc4b56b07ca84e4cfcf90d21dc09d
@@ -161,7 +161,7 @@ F compat/zlib/contrib/minizip/ioapi.c 2846a21ba725da90aa3a67024d8107daa793f5f7
 F compat/zlib/contrib/minizip/ioapi.h e71518ae9f172eab44a2d8f52b3f80b0552070d5
 F compat/zlib/contrib/minizip/iowin32.c 58dfec8630a3842b6689c077e81407a575de418c
 F compat/zlib/contrib/minizip/iowin32.h 4fedf239afafc20e420c5fec678dba91c1dd0074
-F compat/zlib/contrib/minizip/make_vms.com 79d9e7c5d124fbcf79bff4509b51c09600b33a34
+F compat/zlib/contrib/minizip/make_vms.com 79d9e7c5d124fbcf79bff4509b51c09600b33a34 x
 F compat/zlib/contrib/minizip/miniunz.c 54e7b5392ee6600c91c9c423561941a571aaf715
 F compat/zlib/contrib/minizip/miniunzip.1 e925714d46251f192d3266ef4a4cb64d292eb787
 F compat/zlib/contrib/minizip/minizip.1 17a13c717cd030c037a407f59d0d14d2c25e4e05
@@ -261,7 +261,7 @@ F compat/zlib/inflate.c 5ede4b23d0e54bfb08fed005cb35dd7b11580081
 F compat/zlib/inflate.h a75affa8989115330672e04289b2681a542979b8
 F compat/zlib/inftrees.c f1ae4935697dd305bde334835d7d3139e06197b9
 F compat/zlib/inftrees.h 3c63a7707d83991f3e074391c047b3136ff3e558
-F compat/zlib/make_vms.com dc817ba3a5335de14bde5b81b1a3365734757625
+F compat/zlib/make_vms.com dc817ba3a5335de14bde5b81b1a3365734757625 x
 F compat/zlib/msdos/Makefile.bor 85d42a140e556d3b659f7e26c834b5574ea51754
 F compat/zlib/msdos/Makefile.dj2 27db1cceefc629ce5bbafbf34188c4de18f327b8
 F compat/zlib/msdos/Makefile.emx a27700d4d11801fd2b2e9bbbd51eee114b785239
@@ -528,50 +528,50 @@ F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
-F tools/cvs2fossil/getmemoryseries.tcl a93703a60d1c154bea2a5b8f2a66a46dc9a511d7 x
-F tools/cvs2fossil/lib/c2f_blobstore.tcl b63bce5767afb8a5e50b6ba5be213a0dea3a88bf x
-F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 59ef48a9b8851e680f238e1243e86c05a81428c8 x
-F tools/cvs2fossil/lib/c2f_file.tcl 43f6a2b4c2c2c71a7eb62dea1168cd3f4f33c75b x
-F tools/cvs2fossil/lib/c2f_fossil.tcl 55a6ec9011f9335bac80172c4d49a7989ef2f116 x
-F tools/cvs2fossil/lib/c2f_frev.tcl 5f8c3fdd03e593a12ac063ba37cc16df5e14ec40 x
-F tools/cvs2fossil/lib/c2f_fsym.tcl b11a935cc8d103e3ec455b2acf48136b5cafcc83 x
-F tools/cvs2fossil/lib/c2f_ftrunk.tcl 116792654a5a7ee6745262756b7cd9a028482eb6 x
-F tools/cvs2fossil/lib/c2f_gtcore.tcl 6d553315880f6054c1bf453a26a91732cc1dc504 x
-F tools/cvs2fossil/lib/c2f_integrity.tcl cd21bd4aefba1cd07b909cbe338e9ed1c5aed69f x
-F tools/cvs2fossil/lib/c2f_option.tcl 737f972b127681c537c8da03f5703ffc65fb59e4 x
-F tools/cvs2fossil/lib/c2f_pass.tcl d98651431b7344ed481cdddad18890c249395ed4 x
-F tools/cvs2fossil/lib/c2f_patopsort.tcl 32dd51eb8ce14ea302c3a9af1cbc3860156b629c x
-F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 6d6903cdcab3809b6f7cf19e1073e754bed592d2 x
-F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 9b0d3d53604c99a5f3339f92232ab45262dea23d x
-F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 9943947d7e001b1c0b42717a06423c0101e6011d x
-F tools/cvs2fossil/lib/c2f_pcollar.tcl 7d94939b63ae5f2e2291d3a6f3d816dad9a12126 x
-F tools/cvs2fossil/lib/c2f_pcollrev.tcl 643897c97a0558c46ffa98837c3d9f097d0269a6 x
-F tools/cvs2fossil/lib/c2f_pcollsym.tcl 67107f6d59dba2c74a01e1d34d5199effc4f4829 x
-F tools/cvs2fossil/lib/c2f_pcsetdeps.tcl 627fcc1355eb6c029d49ea28250ff245ffdce592 x
-F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 77d474466172f34ed9e8f27f56c0b0c62d4e2973 x
-F tools/cvs2fossil/lib/c2f_pimportcsets.tcl 69adaad9d5ae91590e823a712d26a8c480f154cd x
-F tools/cvs2fossil/lib/c2f_pimportfiles.tcl 6318a84484d6875333bd2d8a387714f045304cfd x
-F tools/cvs2fossil/lib/c2f_pimportfinal.tcl 47b2c14f5346beeedffa9ad5a663fe04ff6947fa x
-F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 14fdb6d32b359b01b3edbfe66f0b3f2a069a14f2 x
-F tools/cvs2fossil/lib/c2f_prev.tcl b2c7314519b34cfc9be5d8a8a85dbf56f48caf84 x
-F tools/cvs2fossil/lib/c2f_prevlink.tcl c7d0900794b2be39e003522407571e41c8510f73 x
-F tools/cvs2fossil/lib/c2f_project.tcl 15a57df0aedec07e8b23bb6292325219285e735b x
-F tools/cvs2fossil/lib/c2f_prtopsort.tcl dbb40b4225992f9ab267571f366724966bf772e6 x
-F tools/cvs2fossil/lib/c2f_psym.tcl 472799fd794f0ceb9bcfe1e8c006fd824f4cf126 x
-F tools/cvs2fossil/lib/c2f_ptrunk.tcl 46554f57369d41e50025fe58297217585ffb4f0e x
-F tools/cvs2fossil/lib/c2f_repository.tcl e021cb0c0ba26a1f03dce672c10c353c44c28cfb x
-F tools/cvs2fossil/lib/c2f_ristate.tcl 29b3696463cb158a41291ad1c3bbab2e9f9c4116 x
-F tools/cvs2fossil/lib/c2f_state.tcl 98813ec9b67baacd5de24462a0c6a60ec8f9d09e x
-F tools/cvs2fossil/lib/c2f_wsstate.tcl ab8cd1f9b92a776119fd83e9f725f9d789373e34 x
-F tools/cvs2fossil/lib/cvs2fossil.tcl d530eb41003784a9a3fefbfa8e61103334ceafd6 x
-F tools/cvs2fossil/lib/dot.tcl a07b3e3a20b9cf0896f3d585b6350ab367b8c44b x
-F tools/cvs2fossil/lib/id.tcl ad0171bebe08b12ce2197e444b1237e9dfabf68a x
-F tools/cvs2fossil/lib/log.tcl c2ee0c05740bbe0195ac286a145ce740bad7bb2f x
-F tools/cvs2fossil/lib/mem.tcl 124db2afe9bc2adab4e0ec405998d5df657e82f7 x
-F tools/cvs2fossil/lib/misc.tcl b4a6c1a89033c497001ff7db53f337921dbea56f x
-F tools/cvs2fossil/lib/pkgIndex.tcl b810fde76079e77e850013d65ca6cf1a5ea62a36 x
-F tools/cvs2fossil/lib/rcsparser.tcl 6518936d0c3152fb53024c91aa587de15b354262 x
-F tools/cvs2fossil/lib/trouble.tcl c6cef7555cede649dab283c4a15ea0d2ec71d042 x
+F tools/cvs2fossil/getmemoryseries.tcl a93703a60d1c154bea2a5b8f2a66a46dc9a511d7
+F tools/cvs2fossil/lib/c2f_blobstore.tcl b63bce5767afb8a5e50b6ba5be213a0dea3a88bf
+F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 59ef48a9b8851e680f238e1243e86c05a81428c8
+F tools/cvs2fossil/lib/c2f_file.tcl 43f6a2b4c2c2c71a7eb62dea1168cd3f4f33c75b
+F tools/cvs2fossil/lib/c2f_fossil.tcl 55a6ec9011f9335bac80172c4d49a7989ef2f116
+F tools/cvs2fossil/lib/c2f_frev.tcl 5f8c3fdd03e593a12ac063ba37cc16df5e14ec40
+F tools/cvs2fossil/lib/c2f_fsym.tcl b11a935cc8d103e3ec455b2acf48136b5cafcc83
+F tools/cvs2fossil/lib/c2f_ftrunk.tcl 116792654a5a7ee6745262756b7cd9a028482eb6
+F tools/cvs2fossil/lib/c2f_gtcore.tcl 6d553315880f6054c1bf453a26a91732cc1dc504
+F tools/cvs2fossil/lib/c2f_integrity.tcl cd21bd4aefba1cd07b909cbe338e9ed1c5aed69f
+F tools/cvs2fossil/lib/c2f_option.tcl 737f972b127681c537c8da03f5703ffc65fb59e4
+F tools/cvs2fossil/lib/c2f_pass.tcl d98651431b7344ed481cdddad18890c249395ed4
+F tools/cvs2fossil/lib/c2f_patopsort.tcl 32dd51eb8ce14ea302c3a9af1cbc3860156b629c
+F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 6d6903cdcab3809b6f7cf19e1073e754bed592d2
+F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 9b0d3d53604c99a5f3339f92232ab45262dea23d
+F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 9943947d7e001b1c0b42717a06423c0101e6011d
+F tools/cvs2fossil/lib/c2f_pcollar.tcl 7d94939b63ae5f2e2291d3a6f3d816dad9a12126
+F tools/cvs2fossil/lib/c2f_pcollrev.tcl 643897c97a0558c46ffa98837c3d9f097d0269a6
+F tools/cvs2fossil/lib/c2f_pcollsym.tcl 67107f6d59dba2c74a01e1d34d5199effc4f4829
+F tools/cvs2fossil/lib/c2f_pcsetdeps.tcl 627fcc1355eb6c029d49ea28250ff245ffdce592
+F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 77d474466172f34ed9e8f27f56c0b0c62d4e2973
+F tools/cvs2fossil/lib/c2f_pimportcsets.tcl 69adaad9d5ae91590e823a712d26a8c480f154cd
+F tools/cvs2fossil/lib/c2f_pimportfiles.tcl 6318a84484d6875333bd2d8a387714f045304cfd
+F tools/cvs2fossil/lib/c2f_pimportfinal.tcl 47b2c14f5346beeedffa9ad5a663fe04ff6947fa
+F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 14fdb6d32b359b01b3edbfe66f0b3f2a069a14f2
+F tools/cvs2fossil/lib/c2f_prev.tcl b2c7314519b34cfc9be5d8a8a85dbf56f48caf84
+F tools/cvs2fossil/lib/c2f_prevlink.tcl c7d0900794b2be39e003522407571e41c8510f73
+F tools/cvs2fossil/lib/c2f_project.tcl 15a57df0aedec07e8b23bb6292325219285e735b
+F tools/cvs2fossil/lib/c2f_prtopsort.tcl dbb40b4225992f9ab267571f366724966bf772e6
+F tools/cvs2fossil/lib/c2f_psym.tcl 472799fd794f0ceb9bcfe1e8c006fd824f4cf126
+F tools/cvs2fossil/lib/c2f_ptrunk.tcl 46554f57369d41e50025fe58297217585ffb4f0e
+F tools/cvs2fossil/lib/c2f_repository.tcl e021cb0c0ba26a1f03dce672c10c353c44c28cfb
+F tools/cvs2fossil/lib/c2f_ristate.tcl 29b3696463cb158a41291ad1c3bbab2e9f9c4116
+F tools/cvs2fossil/lib/c2f_state.tcl 98813ec9b67baacd5de24462a0c6a60ec8f9d09e
+F tools/cvs2fossil/lib/c2f_wsstate.tcl ab8cd1f9b92a776119fd83e9f725f9d789373e34
+F tools/cvs2fossil/lib/cvs2fossil.tcl d530eb41003784a9a3fefbfa8e61103334ceafd6
+F tools/cvs2fossil/lib/dot.tcl a07b3e3a20b9cf0896f3d585b6350ab367b8c44b
+F tools/cvs2fossil/lib/id.tcl ad0171bebe08b12ce2197e444b1237e9dfabf68a
+F tools/cvs2fossil/lib/log.tcl c2ee0c05740bbe0195ac286a145ce740bad7bb2f
+F tools/cvs2fossil/lib/mem.tcl 124db2afe9bc2adab4e0ec405998d5df657e82f7
+F tools/cvs2fossil/lib/misc.tcl b4a6c1a89033c497001ff7db53f337921dbea56f
+F tools/cvs2fossil/lib/pkgIndex.tcl b810fde76079e77e850013d65ca6cf1a5ea62a36
+F tools/cvs2fossil/lib/rcsparser.tcl 6518936d0c3152fb53024c91aa587de15b354262
+F tools/cvs2fossil/lib/trouble.tcl c6cef7555cede649dab283c4a15ea0d2ec71d042
 F tools/cvs2fossil/lodtree eadeb78341c0c59f1dec0f0db0383bf797f5ca8f
 F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe x
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee x
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a x
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43 x
-P 216798706a9eb4e5acf99184844dbe52739719d4
+P 15f53721b9114927f5fe44d8b1fb852751866ddc
 R 07ea8c65825a9d608662f56b3ca0d082
 U jan.nijtmans
-Z 70b2b505c5f71038e2550b293286828d
+Z bd535b9ac43449f06c144922eb14cb0e
