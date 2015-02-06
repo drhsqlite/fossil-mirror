@@ -1254,7 +1254,7 @@ static void openHyperlink(
     }
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"%R/timeline?n=11&c=%T\">", zTarget);
+    blob_appendf(p->pOut, "<a href=\"%R/timeline?c=%T\">", zTarget);
   }else if( (z = validWikiPageName(p, zTarget))!=0 ){
     blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", z);
   }else if( zTarget>=&zOrig[2] && !fossil_isspace(zTarget[-2]) ){

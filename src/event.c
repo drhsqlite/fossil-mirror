@@ -131,7 +131,7 @@ void event_page(void){
                           g.zTop, zEventId);
   }
   zETime = db_text(0, "SELECT datetime(%.17g)", pEvent->rEventDate);
-  style_submenu_element("Context", 0, "%R/timeline?c=%.20s&n=11", zEventId);
+  style_submenu_element("Context", 0, "%R/timeline?c=%.20s", zEventId);
   if( g.perm.Hyperlink ){
     if( verboseFlag ){
       style_submenu_element("Plain", 0, "%R/event?name=%.20s&aid=%s",

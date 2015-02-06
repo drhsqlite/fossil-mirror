@@ -50,7 +50,7 @@ void hyperlink_to_uuid(const char *zUuid){
 void hyperlink_to_date(const char *zDate, const char *zSuffix){
   if( zSuffix==0 ) zSuffix = "";
   if( g.perm.Hyperlink ){
-    @ %z(href("%R/timeline?n=11&c=%T",zDate))%s(zDate)</a>%s(zSuffix)
+    @ %z(href("%R/timeline?c=%T",zDate))%s(zDate)</a>%s(zSuffix)
   }else{
     @ %s(zDate)%s(zSuffix)
   }
@@ -1139,7 +1139,18 @@ void page_timeline(void){
   /* Set number of rows to display */
   z = P("n");
   if( z ){
-    nEntry = atoi(z);
+    if( fossil_strcmp(z,"all")==0 ){
+      nEntry = 0;
+    }else{
+      nEntry = atoi(z);
+      if( nEntry<=0 ){
+        cgi_replace_query_parameter("n","10");
+        nEntry = 10;
+      }
+    }
+  }else if( zCirca ){
+    cgi_replace_query_parameter("n","11");
+    nEntry = 11;
   }else{
     cgi_replace_query_parameter("n","50");
     nEntry = 50;

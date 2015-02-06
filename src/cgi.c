@@ -500,7 +500,7 @@ void cgi_replace_query_parameter(const char *zName, const char *zValue){
   for(i=0; i<nUsedQP; i++){
     if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
       aParamQP[i].zValue = zValue;
-      assert( aParamQP[0].isQP );
+      assert( aParamQP[i].isQP );
       return;
     }
   }

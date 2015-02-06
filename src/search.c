@@ -1324,7 +1324,7 @@ static void search_update_checkin_index(void){
     "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
     "  SELECT ftsdocs.rowid, 1, 'c', ftsdocs.rid, NULL,"
     "    printf('Check-in [%%.16s] on %%s',blob.uuid,datetime(event.mtime)),"
-    "    printf('/timeline?y=ci&n=11&c=%%.20s',blob.uuid),"
+    "    printf('/timeline?y=ci&c=%%.20s',blob.uuid),"
     "    event.mtime"
     "  FROM ftsdocs, event, blob"
     "  WHERE ftsdocs.type='c' AND NOT ftsdocs.idxed"
