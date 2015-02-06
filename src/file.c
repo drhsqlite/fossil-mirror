@@ -233,8 +233,10 @@ void symlink_copy(const char *zFrom, const char *zTo){
 }
 
 #ifdef __CYGWIN__
-/* Workaround for recently introduced Cygwin bug: group execute */
-/* permission is always set, so it cannot be relied upon! */
+/* On Cygwin (and possibly other IEEE 1003.1 ("POSIX.1") compliant systems)
+** the group permission cannot be relied upon for security reasons. See:
+** https://cygwin.com/faq/faq.html#faq.using.ssh-pubkey-stops-working
+*/
 # undef S_IXGRP
 # define S_IXGRP 0
 #endif
