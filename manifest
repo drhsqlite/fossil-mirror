@@ -1,10 +1,10 @@
 C Merge\strunk
-D 2015-02-06T14:19:54.748
+D 2015-02-06T15:07:35.795
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68 x
-F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
-F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
-F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59
-F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59
+F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596 x
+F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0 x
+F .fossil-settings/ignore-glob 402e93887552ebde5e8c4757982630b7de319b59 x
+F .fossil-settings/keep-glob 402e93887552ebde5e8c4757982630b7de319b59 x
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7 x
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d x
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b x
@@ -15,7 +15,7 @@ F Makefile.classic 8860fc8763421cb968e05bdd361311f9a443fc07 x
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0 x
 F VERSION 5bd5965584001ecca11c52ce37a2c591b3a1955b x
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc x
-F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
+F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
 F ajax/i-test/rhino-test.js 29c5eb998ee1b33f8138f26618ef1014a0555e48
 F ajax/index.html 144dfb6264fd55caf41e9138e94110f846c2d701 x
@@ -692,7 +692,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe x
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee x
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a x
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43 x
-P 9bc76f6a118e44207893341e831a77a9516666f1 15f53721b9114927f5fe44d8b1fb852751866ddc
+P b69bf8ca53aaa1d7e096013db73e23bec7379254 596e7a9cef19aa17ed85f5f679038c59a10eb067
 R 1def0af795957871f1dc03c0da250e4d
 U jan.nijtmans
-Z bb5b1fe68952fb69fd93f147ebabbb32
+Z d08cb42449ea6df3f87a6995c8436b0c
