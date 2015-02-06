@@ -506,9 +506,10 @@ void style_footer(void){
           case FF_ENTRY: {
             cgi_printf(
                "<span class='submenuctrl'>"
-               "%h:&nbsp;<input type='text' name='%s' size='%d' "
+               "%h%s<input type='text' name='%s' size='%d' "
                "value='%h'></span>\n",
                aSubmenuCtrl[i].zLabel,
+               aSubmenuCtrl[i].zLabel ? ":&nbsp;" : "",
                zQPN,
                aSubmenuCtrl[i].iSize,
                PD(zQPN,"")
@@ -518,9 +519,10 @@ void style_footer(void){
           case FF_CKBOX: {
             cgi_printf(
                "<span class='submenuctrl'>"
-               "%h:&nbsp;<input type='checkbox' name='%s'%s "
+               "%h%s<input type='checkbox' name='%s'%s "
                "onchange='gebi(\"f01\").submit();'></span>\n",
                aSubmenuCtrl[i].zLabel,
+               aSubmenuCtrl[i].zLabel ? ":&nbsp;" : "",
                zQPN,
                PB(zQPN) ? " checked":""
             );

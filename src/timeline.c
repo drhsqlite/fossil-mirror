@@ -1311,9 +1311,9 @@ void page_timeline(void){
         zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
     }
-    style_submenu_binary("v","With Files","Without Files");
-    style_submenu_entry("n","Lines",1);
+    style_submenu_entry("n",0,1);
     timeline_y_submenu();
+    style_submenu_binary("v","With Files","Without Files");
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1553,9 +1553,9 @@ void page_timeline(void){
           timeline_submenu(&url, "Unhide", "unhide", "", 0);
         }
       }
-      style_submenu_binary("v","With Files","Without Files");
+      style_submenu_entry("n",0,1);
       if( zUses==0 ) timeline_y_submenu();
-      style_submenu_entry("n","Lines",1);
+      style_submenu_binary("v","With Files","Without Files");
     }
   }
   if( P("showsql") ){
