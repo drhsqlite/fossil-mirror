@@ -691,8 +691,12 @@ int main(int argc, char **argv)
     zCmdName = g.argv[1];
   }
 #ifndef _WIN32
-  if( !is_valid_fd(2) ) fossil_panic("file descriptor 2 not open");
-  /* if( is_valid_fd(3) ) fossil_warning("file descriptor 3 is open"); */
+  /* Make sure open() will not return file descriptor 2. */
+  { int nTry = 0;
+    while( !is_valid_fd(2) && nTry++ < 2 ){
+      open("/dev/null", O_WRONLY);
+    }
+  }
 #endif
   rc = name_search(zCmdName, aCommand, count(aCommand), FOSSIL_FIRST_CMD, &idx);
   if( rc==1 ){
