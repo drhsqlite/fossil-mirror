@@ -693,7 +693,7 @@ int main(int argc, char **argv)
 #ifndef _WIN32
   /* Make sure open() will not return file descriptor 2. */
   { int nTry = 0;
-    while( !is_valid_fd(2) && nTry++ < 2 && open("/dev/null",O_WRONLY)>0 ){}
+    while( !is_valid_fd(2) && nTry++ < 2 && open("/dev/null",O_WRONLY)>=0 ){}
     if( !is_valid_fd(2) ){
       fossil_fatal("file descriptor 2 is not open");
     }
