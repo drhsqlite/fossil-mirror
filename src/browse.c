@@ -130,7 +130,7 @@ void page_dir(void){
   int linkTip = 1;
   HQuery sURI;
 
-  if( strcmp(PD("type",""),"tree")==0 ){ page_tree(); return; }
+  if( strcmp(PD("type","flat"),"tree")==0 ){ page_tree(); return; }
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
@@ -542,7 +542,7 @@ void page_tree(void){
   int nDir = 0;            /* Number of directories. Used for ID attributes */
   char *zProjectName = db_get("project-name", 0);
 
-  if( strcmp(PD("type",""),"flat")==0 ){ page_dir(); return; }
+  if( strcmp(PD("type","flat"),"flat")==0 ){ page_dir(); return; }
   memset(&sTree, 0, sizeof(sTree));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -899,16 +899,24 @@ static const char zComputeFileAgeSetup[] =
 @   pathname TEXT
 @ );
 @ CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;
+@ CREATE TEMP TABLE descendents(x INTEGER PRIMARY KEY);
 ;
 
-static const char zComputeFileAgeRun[] =
+static const char zComputeFileAgeRun1[] =
 @ WITH RECURSIVE
-@   ckin(x) AS (VALUES(:ckin) UNION ALL
-@                 SELECT pid FROM ckin, plink WHERE cid=x AND isprim)
+@   ckin(x,m) AS (SELECT objid, mtime FROM event WHERE objid=:ckin
+@                 UNION
+@                 SELECT plink.pid, event.mtime
+@                   FROM ckin, plink, event
+@                  WHERE plink.cid=ckin.x AND event.objid=plink.pid
+@                  ORDER BY 2 DESC)
+@ INSERT INTO descendents SELECT x FROM ckin;
+;
+static const char zComputeFileAgeRun2[] = 
 @ INSERT OR IGNORE INTO fileage(fnid, fid, mid, mtime, pathname)
 @   SELECT mlink.fnid, mlink.fid, x, event.mtime, filename.name
-@     FROM ckin, mlink, event, filename
-@    WHERE mlink.mid=ckin.x
+@     FROM descendents, mlink, event, filename
+@    WHERE mlink.mid=descendents.x
 @      AND mlink.fnid IN (SELECT fnid FROM foci, filename
 @                          WHERE foci.checkinID=:ckin
 @                            AND filename.name=foci.filename
@@ -928,7 +936,11 @@ static const char zComputeFileAgeRun[] =
 int compute_fileage(int vid, const char* zGlob){
   Stmt q;
   db_multi_exec(zComputeFileAgeSetup /*works-like:"constant"*/);
-  db_prepare(&q, zComputeFileAgeRun /*works-like:"constant"*/);
+  db_prepare(&q, zComputeFileAgeRun1 /*works-like:"constant"*/);
+  db_bind_int(&q, ":ckin", vid);
+  db_exec(&q);
+  db_finalize(&q);
+  db_prepare(&q, zComputeFileAgeRun2 /*works-like:"constant"*/);
   db_bind_int(&q, ":ckin", vid);
   db_bind_text(&q, ":glob", zGlob && zGlob[0] ? zGlob : "*");
   db_exec(&q);
