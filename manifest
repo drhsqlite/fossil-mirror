@@ -1,5 +1,5 @@
-C Do\snot\sconsider\schanges\sin\sexecute\spermission\sto\sbe\sa\sreal\schange\sfor\sthe\npurpose\sof\scompute\sfile-age.
-D 2015-02-07T13:03:42.048
+C Update\sthe\srelease-test\sdocument\swith\snew\stest\scases\sfor\sfile-age.
+D 2015-02-07T13:18:13.533
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -487,6 +487,7 @@ F test/comment.test 3d18947b36ad7dcc914ed905eb950c9fb84a1ec6
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
 F test/file1.test 4a1009731c0959c46c228a9336df9da4a5da97f1
+F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test 027f2aa0b0c737a0f27d51800802a08f07561beb
 F test/graph-test-1.wiki e404e3525b85c812c2771364697ef4ec825d1556
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
@@ -499,7 +500,7 @@ F test/merge5.test 28cc9adf08343456fae9f2d9001c35ec62a78f31
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge6.test ed766d924a9cb87249bbe7f84e093135f088a2b3
 F test/merge_renames.test 23036947380c8c2268761cf606063cbad51bb747
-F test/release-checklist.wiki bf02d4180bd66fbc3d2a11b97310557cd8484107
+F test/release-checklist.wiki 935231d0bc486ead6d7668188a260d3cf776e569
 F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
@@ -693,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2e126082096ab8048a4c4ff686deee0d0001fc6d
-R 9e3e74c98fdd107f5261b61372caeedf
+P c9df0dcdaa402eb243ff4a82aeca7469cb28ccdc
+R a1b43375f6c0fb44653578163c38ffdf
 U drh
-Z ac0c40082073f770d91b35e3e3159bce
+Z d65eed722e2a639b538db28277065ab7
