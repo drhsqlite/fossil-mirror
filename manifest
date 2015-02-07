@@ -1,5 +1,5 @@
-C Improved\smanagement\sof\sURL\sparameters\sin\sthe\sfile\sbrowsers.\nAdd\sfile\sand\sdirectory\sicons\sto\sthe\sflat-view.
-D 2015-02-07T02:49:14.026
+C Fix\sthe\s/finfo\spage\sto\sdo\sa\sbetter\sjob\sof\sshowing\slater\sdeletions\sof\nfiles\sthat\sare\sdeleted\smore\sthan\sonce.
+D 2015-02-07T04:14:06.302
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -375,7 +375,7 @@ F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c f835240456a34b6eb6bdd876b186fd4e5a0129d9
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 79e1328f5c0f2bd4466a0f0d5a3b6e554aa6d5e8
-F src/finfo.c b64d61ce27510547423f638802b4ef492ad0ec84
+F src/finfo.c d6c59ff4818371e58b3fac2d5ff0fe7c8176bcaa
 F src/foci.c 5f8f822add6007009b2abb7f3d238122e29d9a90
 F src/fusefs.c 6834881d9573f824aa10ee06985b3d03e24d7172
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -693,7 +693,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7198da122dc9c080850defc86ac04afd21cddec6
-R fdbbfd640cd237f5502013b7c6d2bf80
+P 7478f9974c6320e4c942b7808ca393fa1540d871
+R 4c6cdf25f5ebadf812555c248cc9d3f3
 U drh
-Z b8a880350a655c78dd46035cffbde33a
+Z 95ff1ecf8bca2f2ba8e70ed9fe0c5b65

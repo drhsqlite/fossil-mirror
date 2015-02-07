@@ -360,8 +360,17 @@ void finfo_page(void){
     blob_append_sql(&sql, " AND event.mtime<=julianday('%q')", zB);
     url_add_parameter(&url, "b", zB);
   }
+  /* We only want each version of a file to appear on the graph once,
+  ** at its earliest appearance.  All the other times that it gets merged
+  ** into this or that branch can be ignored.  An exception is for when
+  ** files are deleted (when they have mlink.fid==0).  If the same file
+  ** is deleted in multiple places, we want to show each deletion, so
+  ** use a "fake fid" which is derived from the parent-fid for grouping.
+  ** The same fake-fid must be used on the graph.
+  */
   blob_append_sql(&sql,
-    " GROUP BY mlink.fid"
+    " GROUP BY"
+    "   CASE WHEN mlink.fid>0 THEN mlink.fid ELSE mlink.pid+1000000000 END"
     " ORDER BY event.mtime DESC /*sort*/"
   );
   if( (n = atoi(PD("n","0")))>0 ){
@@ -434,7 +443,8 @@ void finfo_page(void){
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
-    gidx = graph_add_row(pGraph, frid, nParent, aParent, zBr, zBgClr,
+    gidx = graph_add_row(pGraph, frid>0 ? frid : fpid+1000000000,
+                         nParent, aParent, zBr, zBgClr,
                          zUuid, 0);
     if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
