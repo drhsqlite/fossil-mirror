@@ -9,7 +9,7 @@ fconfigure $out -encoding utf-8 -translation lf
 puts $out \
 {<!DOCTYPE html><html>
 <head>
-<base href="http://www.fossil-scm.org/" />
+<base href="/" />
 <title>Fossil: Downloads</title>
 <link rel="stylesheet" href="/fossil/style.css" type="text/css"
       media="screen">

@@ -1,5 +1,5 @@
-C If\sfile\sdescriptor\s2\sis\snot\sopen,\stry\stwice\sto\sopen\sit.\s\sIf\sit\sstill\sis\snot\nopen,\sjust\scontinue\son,\sbecause\spresumably\sit\swon't\sopen\son\sany\ssubquent\nopen()\ssystem\scall.
-D 2015-02-07T16:59:40.900
+C Fix\sthe\s&lt;base&gt;\stag\sin\sthe\sDownload\spage\sso\sthat\sit\somits\sthe\nURL\sscheme.\s\sThis\spermits\sthe\sdownload\spage\sto\swork\swith\sboth\sHTTP:\sand\nwith\sHTTPS:.
+D 2015-02-07T17:06:24.711
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -667,7 +667,7 @@ F www/hints.wiki 5192eca6496ed918b5f2eb17fc79da3fcc022148
 F www/index.wiki a028412c05afc6984405bef0a1b441dcc214d70b
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
-F www/mkdownload.tcl 1ab6c61635c227f0a613e55244c937e7f2537ede
+F www/mkdownload.tcl 9fbf9cf690506ed04aa1935ab39f0fa685626870
 F www/mkindex.tcl 053a2d8af0d4b14945e83032fe00d1f3cac10de7
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dd51f09a390e556968d2e6871e338af55b2bd24d
-R 35920fa1945725bf8be388c942e37c2f
+P a3ade265680a8488627275fb8beafebedd136add
+R 0870b88e6e60f29b498a52f73311faee
 U drh
-Z 0d8ca899578c7d1614514d32b02baa1b
+Z 063898b2ee49fe0d9900e2617d20e6ad
