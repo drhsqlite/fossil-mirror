@@ -1,5 +1,5 @@
-C Don't\scheck\sfor\smore\ssettings\snames\sif\sthere's\san\sexact\smatch.\s(Couldn't\sset\sautosync\sbecause\sit\salso\smatached\sautosync-tries).
-D 2015-02-07T15:23:01.035
+C Faster\sand\smore\saccurate\smethod\sfor\scomputing\sfile-age.\nAlso\sadd\sthe\sshowid\squery\sparameter\sto\s/fileage\sand\sextend\sshowid\son\n/timeline\sto\sshow\sthe\sRIDs\sfor\sindividual\sfiles\swhen\sthe\s"v"\squery\sparameter\nis\sused.
+D 2015-02-07T15:59:44.987
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -345,7 +345,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
 F src/branch.c 43e8053b77663b273e094798398289bf8a634211
-F src/browse.c e95ed8796e7dc501de7cc44e0ddbf2c333f2889b
+F src/browse.c 1e01e8676807121ead6edf39d04f686c47ef6571
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
@@ -459,7 +459,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 775452d03ebd49ab976aff5c2b4e03a6f69eabe0
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c fa958c5f93511391553b8a2221002de94e508a82
+F src/timeline.c 5ce565ec54191d3d0a7bb0322caf96cd59a59f17
 F src/tkt.c fd9baf240f30cea69c146da3bd40d33588d70d45
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7f84d2938e06e05372dbab243da5709e4585ab6c
-R 18664001947f262a18d938840c9ab9d6
-U jan
-Z 8c6f277267d7fb7ae7938b1be7bb43aa
+P c94efdf287eb9695558ca81232b830d8e3146259
+R 96785edb7af156f538be32593983a14a
+U drh
+Z 01d723cf34f4923c09acba695c03ea69

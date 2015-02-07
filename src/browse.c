@@ -887,10 +887,9 @@ static const char zComputeFileAgeSetup[] =
 @   pathname TEXT
 @ );
 @ CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;
-@ CREATE TEMP TABLE descendents(x INTEGER PRIMARY KEY);
 ;
 
-static const char zComputeFileAgeRun1[] =
+static const char zComputeFileAgeRun[] =
 @ WITH RECURSIVE
 @   ckin(x,m) AS (SELECT objid, mtime FROM event WHERE objid=:ckin
 @                 UNION
@@ -898,23 +897,19 @@ static const char zComputeFileAgeRun1[] =
 @                   FROM ckin, plink, event
 @                  WHERE plink.cid=ckin.x AND event.objid=plink.pid
 @                  ORDER BY 2 DESC)
-@ INSERT INTO descendents SELECT x FROM ckin;
-;
-static const char zComputeFileAgeRun2[] = 
 @ INSERT OR IGNORE INTO fileage(fnid, fid, mid, mtime, pathname)
-@   SELECT mlink.fnid, mlink.fid, x, event.mtime, filename.name
-@     FROM descendents, mlink, event, filename
-@    WHERE mlink.mid=descendents.x
-@      AND mlink.fnid IN (SELECT fnid FROM foci, filename
-@                          WHERE foci.checkinID=:ckin
-@                            AND filename.name=foci.filename
-@                            AND filename.name GLOB :glob)
-@      AND filename.fnid=mlink.fnid
-@      AND event.objid=mlink.mid
+@   SELECT filename.fnid, mlink.fid, mlink.mid, event.mtime, filename.name
+@     FROM foci, filename, blob, mlink, event
+@    WHERE foci.checkinID=:ckin
+@      AND foci.filename GLOB :glob
+@      AND filename.name=foci.filename
+@      AND blob.uuid=foci.uuid
+@      AND mlink.fid=blob.rid
 @      AND mlink.fid!=mlink.pid
-@    ORDER BY event.mtime DESC;
+@      AND mlink.mid IN (SELECT x FROM ckin)
+@      AND event.objid=mlink.mid      
+@  ORDER BY event.mtime ASC;
 ;
-
 
 /*
 ** Look at all file containing in the version "vid".  Construct a
@@ -926,11 +921,7 @@ static const char zComputeFileAgeRun2[] =
 int compute_fileage(int vid, const char* zGlob){
   Stmt q;
   db_multi_exec(zComputeFileAgeSetup /*works-like:"constant"*/);
-  db_prepare(&q, zComputeFileAgeRun1 /*works-like:"constant"*/);
-  db_bind_int(&q, ":ckin", vid);
-  db_exec(&q);
-  db_finalize(&q);
-  db_prepare(&q, zComputeFileAgeRun2 /*works-like:"constant"*/);
+  db_prepare(&q, zComputeFileAgeRun  /*works-like:"constant"*/);
   db_bind_int(&q, ":ckin", vid);
   db_bind_text(&q, ":glob", zGlob && zGlob[0] ? zGlob : "*");
   db_exec(&q);
@@ -1001,6 +992,7 @@ void test_fileage_cmd(void){
 **   name=VERSION   Selects the checkin version (default=tip).
 **   glob=STRING    Only shows files matching this glob pattern
 **                  (e.g. *.c or *.txt).
+**   showid         Show RID values for debugging
 */
 void fileage_page(void){
   int rid;
@@ -1008,6 +1000,7 @@ void fileage_page(void){
   const char *zGlob;
   const char *zUuid;
   const char *zNow;            /* Time of checkin */
+  int showId = PB("showid");
   Stmt q1, q2;
   double baseTime;
   login_check_credentials();
@@ -1057,7 +1050,7 @@ void fileage_page(void){
     TAG_BRANCH
   );
   db_prepare(&q2,
-    "SELECT blob.uuid, filename.name\n"
+    "SELECT blob.uuid, filename.name, fileage.fid\n"
     "  FROM fileage, blob, filename\n"
     " WHERE fileage.mid=:mid AND filename.fnid=fileage.fnid"
     "   AND blob.rid=fileage.fid;"
@@ -1076,12 +1069,20 @@ void fileage_page(void){
     while( db_step(&q2)==SQLITE_ROW ){
       const char *zFUuid = db_column_text(&q2,0);
       const char *zFile = db_column_text(&q2,1);
-      @ %z(href("%R/artifact/%s",zFUuid))%h(zFile)</a><br>
+      int fid = db_column_int(&q2,2);
+      if( showId ){
+        @ %z(href("%R/artifact/%s",zFUuid))%h(zFile)</a> (%d(fid))<br>
+      }else{
+        @ %z(href("%R/artifact/%s",zFUuid))%h(zFile)</a><br>
+      }
     }
     db_reset(&q2);
     @ </td>
     @ <td>
     @ %z(href("%R/info/%s",zUuid))[%S(zUuid)]</a>
+    if( showId ){
+      @ (%d(mid))
+    }
     @ %W(zComment) (user:
     @ %z(href("%R/timeline?u=%t&c=%t&nd&n=200",zUser,zUuid))%h(zUser)</a>,
     @ branch:

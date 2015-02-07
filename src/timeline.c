@@ -511,13 +511,19 @@ void www_print_timeline(
         const char *zOld = db_column_text(&fchngQuery, 4);
         const char *zNew = db_column_text(&fchngQuery, 3);
         const char *zUnpubTag = "";
+        char zId[20];
         if( !inUl ){
           @ <ul class="filelist">
           inUl = 1;
         }
+        if( tmFlags & TIMELINE_SHOWRID ){
+          sqlite3_snprintf(sizeof(zId), zId, " (%d) ", fid);
+        }else{
+          zId[0] = 0;
+        }
         if( (tmFlags & TIMELINE_FRENAMES)!=0 ){
           if( !isNew && !isDel && zOldName!=0 ){
-            @ <li> %h(zOldName) &rarr; %h(zFilename)
+            @ <li> %h(zOldName) &rarr; %h(zFilename)%s(zId)
           }
           continue;
         }
@@ -525,18 +531,18 @@ void www_print_timeline(
           zUnpubTag =  UNPUB_TAG;
         }
         if( isNew ){
-          @ <li> %h(zFilename) %s(zUnpubTag) (new file) &nbsp;
+          @ <li> %h(zFilename)%s(zId) %s(zUnpubTag) (new file) &nbsp;
           @ %z(href("%R/artifact/%s",zNew))[view]</a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
-          @ <li> %h(zOldName) &rarr; %h(zFilename) %s(zUnpubTag)
+          @ <li> %h(zOldName) &rarr; %h(zFilename)%s(zId) %s(zUnpubTag)
           @ %z(href("%R/artifact/%s",zNew))[view]</a></li>
         }else{
           if( zOldName!=0 ){
-            @ <li> %h(zOldName) &rarr; %h(zFilename) %s(zUnpubTag)
+            @ <li> %h(zOldName) &rarr; %h(zFilename)%s(zId) %s(zUnpubTag)
           }else{
-            @ <li> %h(zFilename) &nbsp; %s(zUnpubTag)
+            @ <li> %h(zFilename)%s(zId) &nbsp; %s(zUnpubTag)
           }
           @ %z(href("%R/fdiff?sbs=1&v1=%s&v2=%s",zOld,zNew))[diff]</a></li>
         }
