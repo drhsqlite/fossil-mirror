@@ -695,6 +695,9 @@ int main(int argc, char **argv)
   { int nTry = 0;
     while( !is_valid_fd(2) && nTry++ < 2 && open("/dev/null",O_WRONLY)>=0 ){}
     if( !is_valid_fd(2) ){
+      g.cgiOutput = 1;
+      g.httpOut = stdout;
+      g.fullHttpReply = !g.isHTTP;
       fossil_fatal("file descriptor 2 is not open");
     }
   }
