@@ -737,12 +737,6 @@ const struct strctCssDefaults {
     @   width: 24%;
     @   vertical-align: top;
   },
-  { "ul.browser",
-    "format for the list in the file browser",
-    @   margin-left: 0.5em;
-    @   padding-left: 0.5em;
-    @   white-space: nowrap;
-  },
   { ".filetree",
     "tree-view file browser",
     @   margin: 1em 0;
@@ -800,14 +794,43 @@ const struct strctCssDefaults {
   },
   { ".filetree a",
     "tree-view links",
-    @   position: relative;
-    @   z-index: 1;
-    @   display: table-cell;
-    @   min-height: 16px;
-    @   padding-left: 21px;
-    @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);
-    @   background-position: center left;
-    @   background-repeat: no-repeat;
+    "  position: relative;\n"
+    "  z-index: 1;\n"
+    "  display: table-cell;\n"
+    "  min-height: 16px;\n"
+    "  padding-left: 21px;\n"
+    "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP"
+    "\\/\\/\\/yEhIf\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmg"
+    "OUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);\n"
+    "  background-position: center left;\n"
+    "  background-repeat: no-repeat;\n"
+  },
+  { "ul.browser",
+    "list of files in the 'flat-view' file browser",
+    @   list-style-type: none;
+    @   padding: 10px;
+    @   margin: 0px;
+    @   white-space: nowrap;
+  },
+  { "ul.browser li.file",
+    "List element in the 'flat-view' file browser for a file",
+    "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP"
+    "\\/\\/\\/yEhIf\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfm" 
+    "gOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);\n"
+    "  background-repeat: no-repeat;\n"
+    "  background-position: 0px center;\n"
+    "  padding-left: 20px;\n"
+    "  padding-top: 2px;\n"
+  },
+  { "ul.browser li.dir",
+    "List element in the 'flat-view file browser for a directory",
+    "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIi"
+    "Iv\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaX"
+    "po+jUs6b5Z/K4siDu5RPUFADs=);\n"
+    "  background-repeat: no-repeat;\n"
+    "  background-position: 0px center;\n"
+    "  padding-left: 20px;\n"
+    "  padding-top: 2px;\n"
   },
   { "div.filetreeline",
     "line of a file tree",
@@ -817,7 +840,9 @@ const struct strctCssDefaults {
   },
   { ".filetree .dir > div.filetreeline > a",
     "tree-view directory links",
-    @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
+    "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIi"
+    "Iv\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXp"
+    "o+jUs6b5Z/K4siDu5RPUFADs=);\n"
   },
   { "div.filetreeage",
     "Last change floating display on the right",

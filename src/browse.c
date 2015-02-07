@@ -139,6 +139,7 @@ void page_dir(void){
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
   url_initialize(&sURI, "dir");
+  cgi_query_parameters_to_url(&sURI);
 
   /* If the name= parameter is an empty string, make it a NULL pointer */
   if( zD && strlen(zD)==0 ){ zD = 0; }
@@ -154,7 +155,6 @@ void page_dir(void){
       linkTrunk = trunkRid && rid != trunkRid;
       linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      url_add_parameter(&sURI, "ci", zCI);
     }else{
       zCI = 0;
     }
@@ -163,7 +163,6 @@ void page_dir(void){
   /* Compute the title of the page */
   blob_zero(&dirname);
   if( zD ){
-    url_add_parameter(&sURI, "name", zD);
     blob_append(&dirname, "in directory ", -1);
     hyperlinked_path(zD, &dirname, zCI, "dir", "");
     zPrefix = mprintf("%s/", zD);
@@ -550,18 +549,17 @@ void page_tree(void){
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
   url_initialize(&sURI, "tree");
-  if( P("nofiles")!=0 ){
+  cgi_query_parameters_to_url(&sURI);
+  if( PB("nofiles") ){
     showDirOnly = 1;
-    url_add_parameter(&sURI, "nofiles", "1");
     style_header("Folder Hierarchy");
   }else{
     showDirOnly = 0;
     style_header("File Tree");
   }
   style_adunit_config(ADUNIT_RIGHT_OK);
-  if( P("expand")!=0 ){
+  if( PB("expand") ){
     startExpanded = 1;
-    url_add_parameter(&sURI, "expand", "1");
   }else{
     startExpanded = 0;
   }
@@ -570,7 +568,6 @@ void page_tree(void){
   zRE = P("re");
   if( zRE ){
     re_compile(&pRE, zRE, 0);
-    url_add_parameter(&sURI, "re", zRE);
     zREx = mprintf("&re=%T", zRE);
   }
 
@@ -588,7 +585,6 @@ void page_tree(void){
       linkTrunk = trunkRid && rid != trunkRid;
       linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      url_add_parameter(&sURI, "ci", zCI);
       rNow = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
       zNow = db_text("", "SELECT datetime(mtime,'localtime')"
                          " FROM event WHERE objid=%d", rid);
@@ -604,7 +600,6 @@ void page_tree(void){
   /* Compute the title of the page */
   blob_zero(&dirname);
   if( zD ){
-    url_add_parameter(&sURI, "name", zD);
     blob_append(&dirname, "within directory ", -1);
     hyperlinked_path(zD, &dirname, zCI, "tree", zREx);
     if( zRE ) blob_appendf(&dirname, " matching \"%s\"", zRE);
