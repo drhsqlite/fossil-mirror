@@ -610,14 +610,7 @@ void page_tree(void){
       blob_appendf(&dirname, "matching \"%s\"", zRE);
     }
   }
-  if( useMtime ){
-    style_submenu_element("Sort By Filename","Sort By Filename", "%s",
-                           url_render(&sURI, 0, 0, 0, 0));
-    url_add_parameter(&sURI, "mtime", "1");
-  }else{
-    style_submenu_element("Sort By Time","Sort By Time", "%s",
-                           url_render(&sURI, "mtime", "1", 0, 0));
-  }
+  style_submenu_binary("mtime","Sort By Time","Sort By Filename", 0);
   if( zCI ){
     style_submenu_element("All", "All", "%s",
                           url_render(&sURI, "ci", 0, 0, 0));
@@ -1029,7 +1022,8 @@ void fileage_page(void){
   baseTime = db_double(0.0,"SELECT mtime FROM event WHERE objid=%d", rid);
   zNow = db_text("", "SELECT datetime(mtime,'localtime') FROM event"
                      " WHERE objid=%d", rid);
-  style_submenu_element("Tree-View", "Tree-View", "%R/tree?ci=%T&mtime=1",
+  style_submenu_element("Tree-View", "Tree-View",
+                        "%R/tree?ci=%T&mtime=1&type=tree",
                         zName);
   style_header("File Ages");
   zGlob = P("glob");
