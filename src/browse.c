@@ -917,7 +917,8 @@ static const char zComputeFileAgeRun2[] =
 @                            AND filename.name=foci.filename
 @                            AND filename.name GLOB :glob)
 @      AND filename.fnid=mlink.fnid
-@      AND event.objid=mlink.mid;
+@      AND event.objid=mlink.mid
+@    ORDER BY event.mtime DESC;
 ;
 
 
