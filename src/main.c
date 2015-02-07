@@ -691,10 +691,19 @@ int main(int argc, char **argv)
     zCmdName = g.argv[1];
   }
 #ifndef _WIN32
-  /* Make sure open() will not return file descriptor 2. */
-  { int nTry = 0;
-    while( !is_valid_fd(2) && nTry++ < 2 && open("/dev/null",O_WRONLY)>=0 ){}
-    if( !is_valid_fd(2) ){
+  /* There is a bug in stunnel4 in which it sometimes starts up client
+  ** processes without first opening file descriptor 2 (standard error).
+  ** If this happens, and a subsequent open() of a database returns file
+  ** descriptor 2, and then an assert() fires and writes on fd 2, that
+  ** can corrupt the data file.  To avoid this problem, make sure open()
+  ** will never return file descriptor 2 or less. */
+  if( !is_valid_fd(2) ){
+    int nTry = 0;
+    int fd = 0;
+    while( !is_valid_fd(2)
+        && (nTry++)<2
+        && (fd = open("/dev/null",O_WRONLY))>=0 && fd<2 ){}
+    if( fd<2 && !is_valid_fd(2) ){
       g.cgiOutput = 1;
       g.httpOut = stdout;
       g.fullHttpReply = !g.isHTTP;
