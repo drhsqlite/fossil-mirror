@@ -1,5 +1,5 @@
-C Add\sthe\s--ifneeded\soption\sto\sthe\s"fossil\srebuild"\scommand.\s\sChanged\sthe\n--no-index\soption\sto\s--noindex\sfor\sconsistency.\s\sUpdated\sthe\shelp\sscreen\nfor\s"fossil\srebuild"\sso\sthat\soptions\sare\sin\ssorted\sorder.
-D 2015-02-08T21:47:30.193
+C Fix\sthe\ssocket_open()\sroutine\sso\sthat\sit\sreturns\sa\snon-zero\serror\scode\nif\sit\sfails\sto\sconnect.
+D 2015-02-08T22:26:18.325
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -382,7 +382,7 @@ F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 480e291c3bc95b84fba15bb9d0baabf1753a0132
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 4045dd21bdc880bc7b694088c21a15bdbe1b562b
-F src/http_socket.c f571eba5d21d66acbb0093214ddf624867bee34c
+F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 0c184184f4d37cccfeb99e0d3e059c4b9d169c95
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c6b233229ddbfaefd0c203091c492696996fea96
-R 08e74de6f4eba254aa6d09803cf2009b
+P 7a91ee99fce042ac94aaa52329aa0d2a07a66b0e
+R 35a081152284e643358c89ae2d073dbb
 U drh
-Z 8e3d33009ad0504f95c106f4a93ad741
+Z 4717b56822af401969eb01180e2cc6e2
