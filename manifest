@@ -1,5 +1,5 @@
-C Fix\sFossil's\shandling\sof\sfile\spermission\sbits\son\ssystems\swhich\shave\sACL's.\sIn\sthat\scase,\sgroup\spermissions\scan\sgive\sunexpected\svalues,\swhich\sresults\sin\sunnecessary\sslowdown\srepeatedly\strying\sto\sunset\sthe\sflags\swhich\sdoesn't\swork.\sMore\sexplanation:\s[https://cygwin.com/faq/faq.html#faq.using.ssh-pubkey-stops-working].\sNoted\son\slatest\sCygwin\s(1.7.34)\swhich\sadded\ssupport\sfor\sACL\shandling.
-D 2015-02-08T10:20:49.192
+C Fix\sa\stypo\sin\sartifact\sdescriptions.
+D 2015-02-08T18:02:50.158
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -386,7 +386,7 @@ F src/http_socket.c f571eba5d21d66acbb0093214ddf624867bee34c
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 0c184184f4d37cccfeb99e0d3e059c4b9d169c95
-F src/info.c 09856da1257285462bff883264b670230f4395f5
+F src/info.c 8cea409e04ccacb8f5753a1119a8a5909a1c5065
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ca30907b0e6e092f595cb823219dc2388e7b32ab
-R b20adfa9d44d4e28611d2eccbc64ef79
-U jan.nijtmans
-Z e7d2055a6eadbda4ec1a0478f8d5f41e
+P 3d0e8c01fe45d0167b55e72de228f147579f2fcc
+R c9b69f63f996e50fda2c89f592e5a05f
+U drh
+Z e23c646f56c17b1dfe71a82147144ba4
