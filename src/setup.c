@@ -53,6 +53,8 @@ void setup_menu_entry(
   @ </td><td width="5"></td><td valign="top">%h(zDesc)</td></tr>
 }
 
+
+
 /*
 ** WEBPAGE: /setup
 */
@@ -71,6 +73,20 @@ void setup_page(void){
     @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the <a href="setup_header">HTML header</a>!</p>
   }
+
+#if !defined(_WIN32)
+  /* Check for /dev/null and /dev/urandom.  We want both devices to be present,
+  ** but they are sometimes omitted (by mistake) from chroot jails. */
+  if( access("/dev/null", R_OK|W_OK) ){
+    @ <p class="generalError">WARNING: Device "/dev/null" is not available
+    @ for reading and writing.</p>
+  }
+  if( access("/dev/urandom", R_OK) ){
+    @ <p class="generalError">WARNING: Device "/dev/urandom" is not available
+    @ for reading. This means that the pseudo-random number generator used
+    @ by SQLite will be poorly seeded.</p>
+  }
+#endif
 
   @ <table border="0" cellspacing="3">
   setup_menu_entry("Users", "setup_ulist",
