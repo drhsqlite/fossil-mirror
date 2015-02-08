@@ -700,14 +700,18 @@ int main(int argc, char **argv)
   if( !is_valid_fd(2) ){
     int nTry = 0;
     int fd = 0;
-    while( !is_valid_fd(2)
-        && (nTry++)<2
-        && (fd = open("/dev/null",O_WRONLY))>=0 && fd<2 ){}
-    if( fd<2 && !is_valid_fd(2) ){
+    int x = 0;
+    do{
+      fd = open("/dev/null",O_WRONLY);
+      if( fd>=2 ) break;
+      if( fd<0 ) x = errno;
+    }while( nTry++ < 2 );
+    if( fd<2 ){
       g.cgiOutput = 1;
       g.httpOut = stdout;
       g.fullHttpReply = !g.isHTTP;
-      fossil_fatal("file descriptor 2 is not open");
+      fossil_fatal("file descriptor 2 is not open. (fd=%d, errno=%d)",
+                   fd, x);
     }
   }
 #endif

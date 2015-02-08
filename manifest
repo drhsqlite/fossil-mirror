@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sartifact\sdescriptions.
-D 2015-02-08T18:02:50.158
+C Improvements\sto\sdetection\sand\sreporting\sof\sfile-descriptor\s2\snot\sopen.
+D 2015-02-08T21:15:42.368
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -407,7 +407,7 @@ F src/leaf.c a8880fbcf409f34c0ea9566f8b548a96496856a7
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c df63c9e03c607859beded9eade6c042c9fd64f65
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c db9fc418c3fdca1a0cff1f68d7aa91b7885fbb36
+F src/main.c 970625ed18ac70e16ae1635b6ea7eb026ffe86ae
 F src/main.mk 17e859f85a513f5e88937e8595d25357794d300f
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3d0e8c01fe45d0167b55e72de228f147579f2fcc
-R c9b69f63f996e50fda2c89f592e5a05f
+P 88ed51221d2c81c71334cef4f99cc3116461ad31
+R 0ae4e624d8fffb4d414a2c4f73ec5c4b
 U drh
-Z e23c646f56c17b1dfe71a82147144ba4
+Z 3cb17668c6488a40e6a29945fa2263a0
