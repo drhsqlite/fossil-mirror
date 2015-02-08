@@ -1,5 +1,5 @@
-C On\sunix\ssystems,\stest\sto\smake\ssure\s/dev/null\sand\s/dev/urandom\sare\savailable\nand\sprint\swarning\smessages\sat\sthe\stop\sof\sthe\s/setup\sscreen\sif\sthey\sare\snot.
-D 2015-02-08T21:30:57.533
+C Add\sthe\s--ifneeded\soption\sto\sthe\s"fossil\srebuild"\scommand.\s\sChanged\sthe\n--no-index\soption\sto\s--noindex\sfor\sconsistency.\s\sUpdated\sthe\shelp\sscreen\nfor\s"fossil\srebuild"\sso\sthat\soptions\sare\sin\ssorted\sorder.
+D 2015-02-08T21:47:30.193
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -339,7 +339,7 @@ F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt e17ef8f3cfa1f92a5b8922708a6eac97f544a79a
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c a66548627cf802196c54c1200780f2bd37a503bb
-F src/allrepo.c 7177991a7e085a75ffaebf0acfc19a269acaa08f
+F src/allrepo.c 37b198fd0ed53ff6c6d0859d9ca640ed9a39b576
 F src/attach.c e9186b7e96800753bc8696fa020fb82aba9fbd70
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
@@ -432,7 +432,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 98dae687a6c785877897b4062281a5bac002b338
 F src/publish.c 899d9791e70f48b9f2a62f58c846ab1b1b369894
 F src/purge.c 3e807688b108bd0cf54b86a19283f64fcf46d374
-F src/rebuild.c 2c88fb974a4e0db3948e8c50e7d6fb6c2f604a7c
+F src/rebuild.c f4ced6c8687b4544af1e542ed592557e42e76428
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 802d68bca3a9b0ed615d386cc541a092e1c94100
 F src/rss.c efed54aa9062f0aa3cea92aaabcc68edc2d7da51
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fdfc039bb3bc3a91865ea416201b9c5d4a2207fb
-R 9f510d65282d787561575424d3caf59b
+P c6b233229ddbfaefd0c203091c492696996fea96
+R 08e74de6f4eba254aa6d09803cf2009b
 U drh
-Z 6ccfa00eabdbcb288b37367d03cbdfad
+Z 8e3d33009ad0504f95c106f4a93ad741
