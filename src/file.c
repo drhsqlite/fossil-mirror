@@ -232,15 +232,6 @@ void symlink_copy(const char *zFrom, const char *zTo){
   blob_reset(&content);
 }
 
-#ifdef __CYGWIN__
-/* On Cygwin (and possibly other IEEE 1003.1 ("POSIX.1") compliant systems)
-** the group permission cannot be relied upon for security reasons. See:
-** https://cygwin.com/faq/faq.html#faq.using.ssh-pubkey-stops-working
-*/
-# undef S_IXGRP
-# define S_IXGRP 0
-#endif
-
 /*
 ** Return file permissions (normal, executable, or symlink):
 **   - PERM_EXE if file is executable;
@@ -258,8 +249,7 @@ int file_wd_perm(const char *zFilename){
   else
     return PERM_REG;
 #else
-  if( S_ISREG(fileStat.st_mode) &&
-      ((S_IXUSR|S_IXGRP|S_IXOTH)&fileStat.st_mode)!=0 )
+  if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
     return PERM_EXE;
   else if( g.allowSymlinks && S_ISLNK(fileStat.st_mode) )
     return PERM_LNK;
@@ -443,12 +433,12 @@ int file_wd_setexe(const char *zFilename, int onoff){
   if( fossil_stat(zFilename, &buf, 1)!=0 || S_ISLNK(buf.st_mode) ) return 0;
   if( onoff ){
     int targetMode = (buf.st_mode & 0444)>>2;
-    if( (buf.st_mode & 0111)!=targetMode ){
+    if( (buf.st_mode & 0100) == 0 ){
       chmod(zFilename, buf.st_mode | targetMode);
       rc = 1;
     }
   }else{
-    if( (buf.st_mode & 0111)!=0 ){
+    if( (buf.st_mode & 0100) != 0 ){
       chmod(zFilename, buf.st_mode & ~0111);
       rc = 1;
     }
