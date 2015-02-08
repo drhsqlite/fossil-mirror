@@ -649,12 +649,12 @@ void ci_page(void){
       @ </td></tr>
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      @     %z(href("%R/tree?ci=%s",zUuid))files</a>
-      @   | %z(href("%R/fileage?name=%s",zUuid))file ages</a>
-      @   | %z(href("%R/tree?ci=%s&nofiles",zUuid))folders</a>
-      @   | %z(href("%R/artifact/%s",zUuid))manifest</a>
+      @     %z(href("%R/tree?ci=%S",zUuid))files</a>
+      @   | %z(href("%R/fileage?name=%S",zUuid))file ages</a>
+      @   | %z(href("%R/tree?nofiles&type=tree&ci=%S",zUuid))folders</a>
+      @   | %z(href("%R/artifact/%S",zUuid))manifest</a>
       if( g.perm.Write ){
-        @   | %z(href("%R/ci_edit?r=%s",zUuid))edit</a>
+        @   | %z(href("%R/ci_edit?r=%S",zUuid))edit</a>
       }
       @   </td>
       @ </tr>
@@ -1190,7 +1190,7 @@ int object_description(
       continue;
     }
     if( !sameFilename ){
-      if( prevName ) {
+      if( prevName && showDetail ) {
         @ </ul>
       }
       if( mPerm==PERM_LNK ){
