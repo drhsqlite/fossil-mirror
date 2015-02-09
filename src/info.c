@@ -266,6 +266,7 @@ static void showTags(int rid){
     cnt++;
     if( cnt==1 ){
       @ <div class="section">Tags And Properties</div>
+      @ <div class="sectionbody">
       @ <ul>
     }
     @ <li>
@@ -305,6 +306,7 @@ static void showTags(int rid){
   db_finalize(&q);
   if( cnt ){
     @ </ul>
+    @ </div>
   }
 }
 
@@ -312,10 +314,23 @@ static void showTags(int rid){
 ** Show the context graph (immediate parents and children) for
 ** check-in rid.
 */
-static void showContext(int rid){
+static void showContext(int rid, HQuery *pUrl){
   Blob sql;
   Stmt q;
+  int tmFlags = TIMELINE_DISJOINT | TIMELINE_GRAPH;
+  char *zLink;
   @ <div class="section">Context</div>
+  @ <div class="sectionmenu">
+  if( PB("v") ){
+    tmFlags |= TIMELINE_FCHANGES;
+    zLink = xhref("class='button'", "%s", url_render(pUrl,"v",0,0,0));
+    @ %z(zLink)Omit Files</a>
+  }else{
+    zLink = xhref("class='button'", "%s", url_render(pUrl,"v","1",0,0));
+    @ %z(zLink)Show Files</a>
+  }
+  @ </div>
+  @ <div class="sectionbody">
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
   db_multi_exec(
@@ -327,8 +342,9 @@ static void showContext(int rid){
   );
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
-  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH, 0, 0, rid, 0);
+  www_print_timeline(&q, tmFlags, 0, 0, rid, 0);
   db_finalize(&q);
+  @ </div>
 }
 
 
@@ -527,6 +543,7 @@ void ci_page(void){
   const char *zW;      /* URL param for ignoring whitespace */
   const char *zPage = "vinfo";  /* Page that shows diffs */
   const char *zPageHide = "ci"; /* Page that hides diffs */
+  HQuery url;	
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -578,6 +595,7 @@ void ci_page(void){
     zDate = db_column_text(&q1,1);
     zOrigDate = db_column_text(&q1, 4);
     @ <div class="section">Overview</div>
+    @ <div class="sectionbody">
     @ <table class="label-value">
     @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
     if( g.perm.Setup ){
@@ -683,22 +701,24 @@ void ci_page(void){
       @ </tr>
       blob_reset(&projName);
     }
-    @ </table>
+    @ </table></div>
   }else{
     style_header("Check-in Information");
     login_anonymous_available();
   }
   db_finalize(&q1);
-  showTags(rid);
-  showContext(rid);
-  @ <div class="section">Changes</div>
-  @ <div class="sectionmenu">
   verboseFlag = g.zPath[0]!='c';
   if( db_get_boolean("show-version-diffs", 0)==0 ){
     verboseFlag = !verboseFlag;
     zPage = "ci";
     zPageHide = "vinfo";
   }
+  showTags(rid);
+  url_initialize(&url, zPage);
+  cgi_query_parameters_to_url(&url);
+  showContext(rid, &url);
+  @ <div class="section">Changes</div>
+  @ <div class="sectionmenu">
   diffFlags = construct_diff_flags(verboseFlag, sideBySide);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   if( verboseFlag ){
@@ -728,7 +748,8 @@ void ci_page(void){
     @ %z(xhref("class='button'","%R/vpatch?from=%s&to=%s",zParent,zUuid))
     @ Patch</a>
   }
-  @</div>
+  @ </div>
+  @ <div class="sectionbody">
   if( pRe ){
     @ <p><b>Only differences that match regular expression "%h(zRe)"
     @ are shown.</b></p>
@@ -755,6 +776,7 @@ void ci_page(void){
     append_file_change_line(zName, zOld, zNew, zOldName, diffFlags,pRe,mperm);
   }
   db_finalize(&q3);
+  @ </div>
   append_diff_javascript(sideBySide);
   style_footer();
 }
@@ -813,6 +835,7 @@ void winfo_page(void){
                         pWiki->zWikiTitle);
   login_anonymous_available();
   @ <div class="section">Overview</div>
+  @ <div class="sectionbody">
   @ <p><table class="label-value">
   @ <tr><th>Artifact&nbsp;ID:</th>
   @ <td>%z(href("%R/artifact/%s",zUuid))%s(zUuid)</a>
@@ -839,9 +862,11 @@ void winfo_page(void){
     @ </td></tr>
   }
   @ </table>
+  @ </div>
 
   if( g.perm.ModWiki && modPending ){
     @ <div class="section">Moderation</div>
+    @ <div class="sectionbody">
     @ <blockquote>
     @ <form method="POST" action="%R/winfo/%s(zUuid)">
     @ <label><input type="radio" name="modaction" value="delete">
@@ -851,12 +876,15 @@ void winfo_page(void){
     @ <input type="submit" value="Submit">
     @ </form>
     @ </blockquote>
+    @ </div>
   }
 
 
   @ <div class="section">Content</div>
+  @ <div class="sectionbody">
   blob_init(&wiki, pWiki->zWiki, -1);
   wiki_convert(&wiki, 0, 0);
+  @ </div>
   blob_reset(&wiki);
   manifest_destroy(pWiki);
   style_footer();
@@ -1959,7 +1987,8 @@ void tinfo_page(void){
   }
 
   @ <div class="section">Overview</div>
-  @ <p><table class="label-value">
+  @ <div class="sectionbody">
+  @ <table class="label-value">
   @ <tr><th>Artifact&nbsp;ID:</th>
   @ <td>%z(href("%R/artifact/%s",zUuid))%s(zUuid)</a>
   if( g.perm.Setup ){
@@ -1980,11 +2009,13 @@ void tinfo_page(void){
   @ <tr><th>User:</th><td>
   hyperlink_to_user(pTktChng->zUser, zDate, "</td></tr>");
   @ </table>
+  @ </div>
   free(zDate);
   free(zTktTitle);
 
   if( g.perm.ModTkt && modPending ){
     @ <div class="section">Moderation</div>
+    @ <div class="sectionbody">
     @ <blockquote>
     @ <form method="POST" action="%R/tinfo/%s(zUuid)">
     @ <label><input type="radio" name="modaction" value="delete">
@@ -1994,11 +2025,13 @@ void tinfo_page(void){
     @ <input type="submit" value="Submit">
     @ </form>
     @ </blockquote>
+    @ </div>
   }
 
   @ <div class="section">Changes</div>
-  @ <p>
+  @ <div class="sectionbody">
   ticket_output_change_artifact(pTktChng, 0);
+  @ </div>
   manifest_destroy(pTktChng);
   style_footer();
 }
