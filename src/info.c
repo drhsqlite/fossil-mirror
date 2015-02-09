@@ -909,18 +909,21 @@ static void checkin_description(int rid){
   db_prepare(&q,
     "SELECT datetime(mtime), coalesce(euser,user),"
     "       coalesce(ecomment,comment), uuid,"
+    "       coalesce((SELECT value FROM tagxref"
+    "        WHERE tagid=%d AND tagtype>0 AND rid=blob.rid),'trunk'),"
     "      (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
     "        WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
     "          AND tagxref.rid=blob.rid AND tagxref.tagtype>0)"
     "  FROM event, blob"
     " WHERE event.objid=%d AND type='ci'"
     "   AND blob.rid=%d",
-    rid, rid
+    TAG_BRANCH, rid, rid
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zUser = db_column_text(&q, 1);
     const char *zUuid = db_column_text(&q, 3);
+    const char *zBranch = db_column_text(&q, 4);
     const char *zTagList = db_column_text(&q, 4);
     Blob comment;
     int wikiFlags = WIKI_INLINE|WIKI_NOBADLINKS;
@@ -928,6 +931,8 @@ static void checkin_description(int rid){
       wikiFlags |= WIKI_NOBLOCK;
     }
     hyperlink_to_uuid(zUuid);
+    @ on branch <a href="%R/timeline?r=%s(zBranch)&nd&c=%T(zDate)">
+    @   %s(zBranch)</a> - 
     blob_zero(&comment);
     db_column_blob(&q, 2, &comment);
     wiki_convert(&comment, 0, wikiFlags);
