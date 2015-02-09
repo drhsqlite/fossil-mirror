@@ -104,36 +104,32 @@ char *hash_color(const char *z){
   int i;                       /* Loop counter */
   unsigned int h = 0;          /* Hash on the branch name */
   int r, g, b;                 /* Values for red, green, and blue */
-  int h1, h2, h3, h4;          /* Elements of the hash value */
-  int mx, mn;                  /* Components of HSV */
   static char zColor[10];      /* The resulting color */
-  static int ix[2] = {0,0};    /* Color chooser parameters */
+  static int whitefg = -1;
+  int cpc = 4;                 /* colours per component */
+  int cfactor = 128/cpc;       /* Factor so n*cpc < 128 */
+  int cmin = cfactor - 1;      /* Factor so the max component is 127
+                                  and the min is different than the bg */
 
-  if( ix[0]==0 ){
-    if( db_get_boolean("white-foreground", 0) ){
-      ix[0] = 140;
-      ix[1] = 40;
-    }else{
-      ix[0] = 216;
-      ix[1] = 16;
-    }
-  }
-  for(i=0; z[i]; i++ ){
+  if(whitefg = -1) 
+    whitefg = db_get_boolean("white-foreground", 0);
+
+  /* Calculate the hash based on the branch name */
+  for(i=0; z[i]; i++){
     h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
   }
-  h1 = h % 6;  h /= 6;
-  h3 = h % 30; h /= 30;
-  h4 = h % 40; h /= 40;
-  mx = ix[0] - h3;
-  mn = mx - h4 - ix[1];
-  h2 = (h%(mx - mn)) + mn;
-  switch( h1 ){
-    case 0:  r = mx; g = h2, b = mn;  break;
-    case 1:  r = h2; g = mx, b = mn;  break;
-    case 2:  r = mn; g = mx, b = h2;  break;
-    case 3:  r = mn; g = h2, b = mx;  break;
-    case 4:  r = h2; g = mn, b = mx;  break;
-    default: r = mx; g = mn, b = h2;  break;
+
+  /* 'cpc' different random values per component, between 'cmin' and 127 */
+  r = cmin + (h % cpc) * cfactor;  h /= cpc;
+  g = cmin + (h % cpc) * cfactor;  h /= cpc;
+  b = cmin + (h % cpc) * cfactor;  h /= cpc;
+
+  /* In case of blackfg, get the inverse effect */
+  if(!whitefg)
+  {
+      r = 255 - r;
+      g = 255 - g;
+      b = 255 - b;
   }
   sqlite3_snprintf(8, zColor, "#%02x%02x%02x", r,g,b);
   return zColor;
