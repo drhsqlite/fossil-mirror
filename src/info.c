@@ -242,9 +242,9 @@ void info_cmd(void){
 }
 
 /*
-** Show information about all tags on a given node.
+** Show information about all tags on a given check-in.
 */
-static void showTags(int rid, const char *zNotGlob){
+static void showTags(int rid){
   Stmt q;
   int cnt = 0;
   db_prepare(&q,
@@ -253,8 +253,8 @@ static void showTags(int rid, const char *zNotGlob){
     "       value, datetime(tagxref.mtime%s), tagtype,"
     "       (SELECT uuid FROM blob WHERE rid=tagxref.origid AND rid!=%d)"
     "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
-    " WHERE tagxref.rid=%d AND tagname NOT GLOB '%q'"
-    " ORDER BY tagname /*sort*/", rid, timeline_utc(), rid, rid, zNotGlob
+    " WHERE tagxref.rid=%d"
+    " ORDER BY tagname /*sort*/", rid, timeline_utc(), rid, rid
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagname = db_column_text(&q, 1);
@@ -306,6 +306,29 @@ static void showTags(int rid, const char *zNotGlob){
   if( cnt ){
     @ </ul>
   }
+}
+
+/*
+** Show the context graph (immediate parents and children) for
+** check-in rid.
+*/
+static void showContext(int rid){
+  Blob sql;
+  Stmt q;
+  @ <div class="section">Context</div>
+  blob_zero(&sql);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  db_multi_exec(
+     "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
+     "INSERT INTO ok VALUES(%d);"
+     "INSERT OR IGNORE INTO ok SELECT pid FROM plink WHERE cid=%d;"
+     "INSERT OR IGNORE INTO ok SELECT cid FROM plink WHERE pid=%d;",
+     rid, rid, rid
+  );
+  blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
+  db_prepare(&q, "%s", blob_sql_text(&sql));
+  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH, 0, 0, rid, 0);
+  db_finalize(&q);
 }
 
 
@@ -666,7 +689,8 @@ void ci_page(void){
     login_anonymous_available();
   }
   db_finalize(&q1);
-  showTags(rid, "");
+  showTags(rid);
+  showContext(rid);
   @ <div class="section">Changes</div>
   @ <div class="sectionmenu">
   verboseFlag = g.zPath[0]!='c';
