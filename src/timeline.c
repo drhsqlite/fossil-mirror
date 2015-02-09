@@ -24,6 +24,11 @@
 #include "timeline.h"
 
 /*
+** The value of one second in julianday notation
+*/
+#define ONE_SECOND (1.0/86400.0)
+
+/*
 ** Add an appropriate tag to the output if "rid" is unpublished (private)
 */
 #define UNPUB_TAG "<em>(unpublished)</em>"
@@ -211,6 +216,7 @@ void www_print_timeline(
   int tmFlags,           /* Flags controlling display behavior */
   const char *zThisUser, /* Suppress links to this user */
   const char *zThisTag,  /* Suppress links to this tag */
+  int selectedRid,       /* Highlight the line with this RID value */
   void (*xExtra)(int)    /* Routine to call on each line of display */
 ){
   int mxWikiLen;
@@ -291,11 +297,14 @@ void www_print_timeline(
     }
     if( pendingEndTr ){
       @ </td></tr>
+      if( pendingEndTr>1 ){
+        @ <tr class="timelineSpacer"></tr>
+      }
       pendingEndTr = 0;
     }
     if( fossil_strcmp(zType,"div")==0 ){
       if( !prevWasDivider ){
-        @ <tr><td colspan="3"><hr /></td></tr>
+        @ <tr><td colspan="3"><hr class="timelineMarker"/></td></tr>
       }
       prevWasDivider = 1;
       continue;
@@ -334,7 +343,12 @@ void www_print_timeline(
     }else{
       zTime[0] = 0;
     }
-    if( rid == vid ){
+    pendingEndTr = 1;
+    if( rid==selectedRid ){
+      @ <tr class="timelineSpacer"></tr>
+      @ <tr class="timelineSelected">
+      pendingEndTr = 2;
+    }else if( rid==vid ){
       @ <tr class="timelineCurrent">
     }else {
       @ <tr>
@@ -381,7 +395,7 @@ void www_print_timeline(
       @ <div id="m%d(gidx)"></div>
     }
     @</td>
-    if( zBgClr && zBgClr[0] ){
+    if( zBgClr && zBgClr[0] && rid!=selectedRid ){
       @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
     }else{
       @ <td class="timelineTableCell">
@@ -552,7 +566,6 @@ void www_print_timeline(
         @ </ul>
       }
     }
-    pendingEndTr = 1;
   }
   if( suppressCnt ){
     @ <span class="timelineDisabled">... %d(suppressCnt) similar
@@ -977,32 +990,19 @@ double symbolic_name_to_mtime(const char *z){
 }
 
 /*
-** The value of one second in julianday notation
-*/
-#define ONE_SECOND (1.0/86400.0)
-
-/*
 ** zDate is a localtime date.  Insert records into the
-** "timeline" table to cause <hr> to be inserted before and after
-** entries of that date.  If zDate==NULL then put dividers around
-** the event identified by rid.
+** "timeline" table to cause <hr> to be inserted on zDate.
 */
-static void timeline_add_dividers(double rDate, int rid){
-  char *zToDel = 0;
-  if( rDate==0 ){
-    rDate = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
-  }
-  db_multi_exec(
-    "INSERT INTO timeline(rid,sortby,etype)"
-    "VALUES(-1,%.16g,'div')",
-    rDate-ONE_SECOND
+static int timeline_add_divider(double rDate){
+  int rid = db_int(-1,
+    "SELECT rid FROM timeline ORDER BY abs(sortby-%.16g) LIMIT 1", rDate
   );
+  if( rid>0 ) return rid;
   db_multi_exec(
-    "INSERT INTO timeline(rid,sortby,etype)"
-    "VALUES(-2,%.17g,'div')",
-    rDate+ONE_SECOND
+    "INSERT INTO timeline(rid,sortby,etype) VALUES(-1,%.16g,'div')",
+    rDate
   );
-  fossil_free(zToDel);
+  return -1;
 }
 
 /*
@@ -1141,6 +1141,7 @@ void page_timeline(void){
   double rBefore, rAfter, rCirca;     /* Boundary times */
   const char *z;
   char *zOlderButton = 0;             /* URL for Older button at the bottom */
+  int selectedRid = -9999999;         /* Show a highlight on this RID */
 
   /* Set number of rows to display */
   z = P("n");
@@ -1296,7 +1297,7 @@ void page_timeline(void){
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
       if( nd>=0 ) db_multi_exec("%s", blob_sql_text(&sql));
       if( nd>0 ) blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
-      if( useDividers ) timeline_add_dividers(0, d_rid);
+      if( useDividers ) selectedRid = d_rid;
       db_multi_exec("DELETE FROM ok");
     }
     if( p_rid ){
@@ -1307,7 +1308,7 @@ void page_timeline(void){
         blob_appendf(&desc, "%d ancestors", np);
         db_multi_exec("%s", blob_sql_text(&sql));
       }
-      if( d_rid==0 && useDividers ) timeline_add_dividers(0, p_rid);
+      if( useDividers ) selectedRid = p_rid;
     }
     blob_appendf(&desc, " of %z[%S]</a>",
                    href("%R/info/%s", zUuid), zUuid);
@@ -1333,7 +1334,7 @@ void page_timeline(void){
     );
     blob_append_sql(&sql, " AND event.objid IN ok");
     db_multi_exec("%s", blob_sql_text(&sql));
-    if( useDividers ) timeline_add_dividers(0, f_rid);
+    if( useDividers ) selectedRid = f_rid;
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%s", zUuid), zUuid);
@@ -1491,12 +1492,12 @@ void page_timeline(void){
           rCirca
       );
       nEntry -= (nEntry+1)/2;
-      if( useDividers ) timeline_add_dividers(rCirca, 0);
     }else{
       blob_append_sql(&sql, " ORDER BY event.mtime DESC");
     }
     if( nEntry>0 ) blob_append_sql(&sql, " LIMIT %d", nEntry);
     db_multi_exec("%s", blob_sql_text(&sql));
+    if( zCirca && useDividers ) selectedRid = timeline_add_divider(rCirca);
 
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
     if( zYearMonth ){
@@ -1578,7 +1579,7 @@ void page_timeline(void){
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
-  www_print_timeline(&q, tmFlags, zThisUser, zThisTag, 0);
+  www_print_timeline(&q, tmFlags, zThisUser, zThisTag, selectedRid, 0);
   db_finalize(&q);
   if( zOlderButton ){
     @ %z(xhref("class='button'","%z",zOlderButton))Older</a>

@@ -854,7 +854,7 @@ void whistory_page(void){
                  "ORDER BY mtime DESC",
                  timeline_query_for_www(), zPageName, zPageName);
   zWikiPageName = zPageName;
-  www_print_timeline(&q, TIMELINE_ARTID, 0, 0, wiki_history_extra);
+  www_print_timeline(&q, TIMELINE_ARTID, 0, 0, 0, wiki_history_extra);
   db_finalize(&q);
   style_footer();
 }

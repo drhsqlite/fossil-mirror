@@ -596,7 +596,7 @@ void tagtimeline_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www()
   );
-  www_print_timeline(&q, 0, 0, 0, 0);
+  www_print_timeline(&q, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   style_footer();

@@ -156,7 +156,7 @@ void modreq_page(void){
         " ORDER BY event.mtime DESC"
     );
     db_prepare(&q, "%s", blob_sql_text(&sql));
-    www_print_timeline(&q, 0, 0, 0, 0);
+    www_print_timeline(&q, 0, 0, 0, 0, 0);
     db_finalize(&q);
   }
   style_footer();

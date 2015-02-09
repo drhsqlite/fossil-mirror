@@ -529,7 +529,7 @@ void brtimeline_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www(), TAG_BRANCH
   );
-  www_print_timeline(&q, 0, 0, 0, brtimeline_extra);
+  www_print_timeline(&q, 0, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   style_footer();
 }
