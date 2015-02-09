@@ -1474,10 +1474,14 @@ void page_timeline(void){
            " AND event.mtime>=%.17g  ORDER BY event.mtime ASC",
            rAfter-ONE_SECOND);
       }
+      zCirca = 0;
+      url_add_parameter(&url, "c", 0);
     }else if( rBefore>0.0 ){
       blob_append_sql(&sql,
          " AND event.mtime<=%.17g ORDER BY event.mtime DESC",
          rBefore+ONE_SECOND);
+      zCirca = 0;
+      url_add_parameter(&url, "c", 0);
     }else if( rCirca>0.0 ){
       Blob sql2;
       blob_init(&sql2, blob_sql_text(&sql), -1);
@@ -1487,7 +1491,7 @@ void page_timeline(void){
       );
       db_multi_exec("%s", blob_sql_text(&sql2));
       blob_reset(&sql2);
-      blob_append_sql(&sql,
+      blob_append_sql(&sql, 
           " AND event.mtime>=%f ORDER BY event.mtime ASC",
           rCirca
       );

@@ -462,17 +462,24 @@ void url_reset(HQuery *p){
 }
 
 /*
-** Add a fixed parameter to an HQuery.
+** Add a fixed parameter to an HQuery.  Or remove the parameters if zValue==0.
 */
 void url_add_parameter(HQuery *p, const char *zName, const char *zValue){
   int i;
   for(i=0; i<p->nParam; i++){
     if( fossil_strcmp(p->azName[i],zName)==0 ){
-      p->azValue[i] = zValue;
+      if( zValue==0 ){
+        p->nParam--;
+        p->azValue[i] = p->azValue[p->nParam];
+        p->azName[i] = p->azName[p->nParam];
+      }else{
+        p->azValue[i] = zValue;
+      }
       return;
     }
   }
   assert( i==p->nParam );
+  if( zValue==0 ) return;
   if( i>=p->nAlloc ){
     p->nAlloc = p->nAlloc*2 + 10;
     p->azName = fossil_realloc(p->azName, sizeof(p->azName[0])*p->nAlloc);
