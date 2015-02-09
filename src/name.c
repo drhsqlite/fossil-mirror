@@ -184,6 +184,15 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     return rid;
   }
 
+  /* "parent:", as for parent branch. It returns the checkin of
+     the last checkin of the parent branch that has been merged in. */
+  if( memcmp(zTag, "pbranch:", 8)==0 ){
+    int branchRid = symbolic_name_to_rid(&zTag[8], zType);
+    if (branchRid == 0) return 0;
+    rid = get_parent_branch_rid(branchRid);
+    return rid;
+  }
+
   /* "tag:" + symbolic-name */
   if( memcmp(zTag, "tag:", 4)==0 ){
     rid = db_int(0,
@@ -1059,4 +1068,102 @@ void test_unclusterd_cmd(void){
 void test_phatoms_cmd(void){
   db_find_and_open_repository(0,0);
   describe_artifacts_to_stdout("IN (SELECT rid FROM blob WHERE size<0)", 0);
+}
+
+
+
+/*
+** It returns the checkin of the last checkin of the parent branch that has
+** been merged in.
+*/
+int get_parent_branch_rid(int ridRequested){
+  Stmt s;
+  const char *branchName;    /* Name of the branch requested at rid */
+  const char *parentBranchName; /* Name of the parent branch */
+  int rid;
+
+  /* Get the name of the current branch */
+  branchName = db_text(0,
+    "SELECT value FROM tagxref"
+    " WHERE tagid=%d"
+    "   AND tagxref.tagtype>0"
+    "   AND rid=%d",
+    TAG_BRANCH, ridRequested);
+
+  if ( !branchName )
+    return 0;
+
+  /* Find the name of the branch this was forked from */
+  db_prepare(&s,
+    "SELECT pid, tagxref.value FROM plink JOIN tagxref"
+    " WHERE cid=:rid"
+    "   AND isprim=1"
+    "   AND tagxref.tagid=%d"
+    "   AND tagxref.tagtype>0"
+    "   AND tagxref.rid=pid",
+    TAG_BRANCH);
+
+  rid = ridRequested;
+  while( rid > 0 ) {
+    db_bind_int(&s, ":rid", rid);
+    if ( db_step(&s) == SQLITE_ROW ) {
+      rid = db_column_int(&s, 0);
+      parentBranchName = db_column_text(&s, 1);
+      if ( !parentBranchName ) {
+        rid = 0;
+        break;
+      }
+
+      if ( fossil_strcmp(parentBranchName, branchName) ) {
+        parentBranchName = fossil_strdup(parentBranchName);
+        break;
+      }
+    }else{
+      rid = 0;
+      break;
+    }
+    db_reset(&s);
+  }
+  db_finalize(&s);
+
+  if (rid == 0)
+      return 0;
+
+  /* Find the last checkin coming from the parent branch */
+  db_prepare(&s,
+    "SELECT pid, tagxref.value FROM plink JOIN tagxref"
+    " WHERE cid=:rid"
+    "   AND tagxref.tagid=%d"
+    "   AND tagxref.tagtype>0"
+    "   AND tagxref.rid=pid ORDER BY isprim ASC",
+    TAG_BRANCH);
+
+  rid = ridRequested;
+  while( rid > 0 ) {
+    db_bind_int(&s, ":rid", rid);
+    int found = 0;
+    while ( db_step(&s) == SQLITE_ROW ) {
+      const char *branchNamePid; /* Branch name of the pid */
+
+      ++found;
+      rid = db_column_int(&s, 0);
+      branchNamePid = db_column_text(&s, 1);
+      if ( !branchNamePid ) {
+        break;
+      }
+      if ( fossil_strcmp(parentBranchName, branchNamePid)==0 ) {
+        /* Found the last merge from the parent branch */
+        db_finalize(&s);
+        return rid;
+      }
+    }
+    
+    if (found == 0) {
+      break;
+    }
+    db_reset(&s);
+  }
+  db_finalize(&s);
+
+  return 0;
 }

@@ -676,6 +676,8 @@ void ci_page(void){
       @   | %z(href("%R/fileage?name=%S",zUuid))file ages</a>
       @   | %z(href("%R/tree?nofiles&type=tree&ci=%S",zUuid))folders</a>
       @   | %z(href("%R/artifact/%S",zUuid))manifest</a>
+      @   | <a href="%s(g.zTop)/vdiff?from=pbranch:%S(zUuid)&to=%S(zUuid)">
+      @           changes over parent branch</a>
       if( g.perm.Write ){
         @   | %z(href("%R/ci_edit?r=%S",zUuid))edit</a>
       }
