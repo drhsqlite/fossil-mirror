@@ -498,7 +498,7 @@ void finfo_page(void){
     }
     @ %W(zCom) (user:
     hyperlink_to_user(zUser, zDate, "");
-    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>
+    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>)
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
