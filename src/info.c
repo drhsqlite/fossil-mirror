@@ -677,7 +677,7 @@ void ci_page(void){
       @   | %z(href("%R/tree?nofiles&type=tree&ci=%S",zUuid))folders</a>
       @   | %z(href("%R/artifact/%S",zUuid))manifest</a>
       @   | %z(href("%R/vdiff?from=pbranch:%S&to=%S",zUuid,zUuid))
-      @           branch changes</a>
+      @           branch diff</a>
       if( g.perm.Write ){
         @   | %z(href("%R/ci_edit?r=%S",zUuid))edit</a>
       }

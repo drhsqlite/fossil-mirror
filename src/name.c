@@ -184,12 +184,12 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     return rid;
   }
 
-  /* "parent:", as for parent branch. It returns the checkin of
+  /* "pbranch:", as for parent branch.  It returns the checkin of
      the last checkin of the parent branch that has been merged in. */
   if( memcmp(zTag, "pbranch:", 8)==0 ){
-    int branchRid = symbolic_name_to_rid(&zTag[8], zType);
-    if (branchRid == 0) return 0;
-    rid = get_parent_branch_rid(branchRid);
+    rid = symbolic_name_to_rid(&zTag[8], zType);
+    if( rid==0 ) return 0; /* TODO: Negative rid allowed here? */
+    rid = get_parent_branch_rid(rid);
     return rid;
   }
 
@@ -1070,16 +1070,15 @@ void test_phatoms_cmd(void){
   describe_artifacts_to_stdout("IN (SELECT rid FROM blob WHERE size<0)", 0);
 }
 
-
-
 /*
-** It returns the checkin of the last checkin of the parent branch that has
-** been merged in.
+** Returns the rid for the last checkin where the parent branch was merged.
 */
-int get_parent_branch_rid(int ridRequested){
+int get_parent_branch_rid(
+  int branchRid /* The rid to find parent branch for. */
+){
   Stmt s;
-  const char *branchName;    /* Name of the branch requested at rid */
-  const char *parentBranchName; /* Name of the parent branch */
+  char *branchName = 0;       /* Name of the branch at rid */
+  char *parentBranchName = 0; /* Name of the parent branch */
   int rid;
 
   /* Get the name of the current branch */
@@ -1088,9 +1087,10 @@ int get_parent_branch_rid(int ridRequested){
     " WHERE tagid=%d"
     "   AND tagxref.tagtype>0"
     "   AND rid=%d",
-    TAG_BRANCH, ridRequested);
+    TAG_BRANCH, branchRid
+  );
 
-  if ( !branchName )
+  if( !branchName )
     return 0;
 
   /* Find the name of the branch this was forked from */
@@ -1101,21 +1101,21 @@ int get_parent_branch_rid(int ridRequested){
     "   AND tagxref.tagid=%d"
     "   AND tagxref.tagtype>0"
     "   AND tagxref.rid=pid",
-    TAG_BRANCH);
-
-  rid = ridRequested;
-  while( rid > 0 ) {
+    TAG_BRANCH
+  );
+  rid = branchRid;
+  while( rid>0 ){
     db_bind_int(&s, ":rid", rid);
-    if ( db_step(&s) == SQLITE_ROW ) {
+    if( db_step(&s)==SQLITE_ROW ){
+      const char *zValue; /* Branch name of the pid */
       rid = db_column_int(&s, 0);
-      parentBranchName = db_column_text(&s, 1);
-      if ( !parentBranchName ) {
+      zValue = db_column_text(&s, 1);
+      if( !zValue ){
         rid = 0;
         break;
       }
-
-      if ( fossil_strcmp(parentBranchName, branchName) ) {
-        parentBranchName = fossil_strdup(parentBranchName);
+      if( fossil_strcmp(zValue,branchName) ){
+        parentBranchName = fossil_strdup(zValue);
         break;
       }
     }else{
@@ -1126,8 +1126,11 @@ int get_parent_branch_rid(int ridRequested){
   }
   db_finalize(&s);
 
-  if (rid == 0)
-      return 0;
+  if( rid==0 ){
+    fossil_free(branchName);
+    fossil_free(parentBranchName);
+    return 0;
+  }
 
   /* Find the last checkin coming from the parent branch */
   db_prepare(&s,
@@ -1136,34 +1139,36 @@ int get_parent_branch_rid(int ridRequested){
     "   AND tagxref.tagid=%d"
     "   AND tagxref.tagtype>0"
     "   AND tagxref.rid=pid ORDER BY isprim ASC",
-    TAG_BRANCH);
-
-  rid = ridRequested;
-  while( rid > 0 ) {
+    TAG_BRANCH
+  );
+  rid = branchRid;
+  while( rid>0 ){
     db_bind_int(&s, ":rid", rid);
     int found = 0;
-    while ( db_step(&s) == SQLITE_ROW ) {
-      const char *branchNamePid; /* Branch name of the pid */
-
-      ++found;
+    while( db_step(&s)==SQLITE_ROW ){
+      const char *zValue; /* Branch name of the pid */
+      found++;
       rid = db_column_int(&s, 0);
-      branchNamePid = db_column_text(&s, 1);
-      if ( !branchNamePid ) {
+      zValue = db_column_text(&s, 1);
+      if( !zValue ){
         break;
       }
-      if ( fossil_strcmp(parentBranchName, branchNamePid)==0 ) {
+      if( fossil_strcmp(parentBranchName,zValue)==0 ){
         /* Found the last merge from the parent branch */
         db_finalize(&s);
+        fossil_free(branchName);
+        fossil_free(parentBranchName);
         return rid;
       }
     }
-    
-    if (found == 0) {
+    if( found==0 ){
       break;
     }
     db_reset(&s);
   }
   db_finalize(&s);
 
+  fossil_free(branchName);
+  fossil_free(parentBranchName);
   return 0;
 }
