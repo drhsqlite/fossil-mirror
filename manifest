@@ -1,5 +1,5 @@
-C Add\sa\slink\sin\sthe\scheckin\spage\sto\sshow\sthe\schanges\sin\sthe\sbranch\sin\srespect\sto\nthe\sparent\sbranch.\sIt\sfinds\sthe\slast\smerge\sfrom\sparent\sto\sthe\scurrent\sbranch\nfor\sthe\scomparison.
-D 2015-02-09T10:56:38.374
+C Make\sthe\snew\slink\sconsistent\swith\sthe\sexisting\scoding\sstyle.
+D 2015-02-10T02:40:47.657
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -386,7 +386,7 @@ F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 0c184184f4d37cccfeb99e0d3e059c4b9d169c95
-F src/info.c 6f17c3cda96065ad842199cb7dfaf237bdad53a6
+F src/info.c e56c041912a92445352df2f94854c608418576a3
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -694,10 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 042ec2b9c377b31c6edc86733fbcccc4b28b8124
-R 2138d0de3362dab391dbc6059394319e
-T *branch * viric_pbranch
-T *sym-viric_pbranch *
-T -sym-trunk *
-U viriketo
-Z a42365f12892dff0008f7d459ab08a74
+P f309130a8bb347ee490ea83ef02ad90d413ccd3b
+R 2368d99ff4481fc60b8ff9eaf0da665e
+U mistachkin
+Z a903844ddb19606c2c7eb9f385142bd0
