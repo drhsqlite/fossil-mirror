@@ -111,7 +111,7 @@ void diff_file(
     if( file_wd_size(zFile2)<0 ){
       zName2 = NULL_DEVICE;
     }else{
-      if( file_wd_islink(zFile2) ){
+      if( file_wd_islink(0) ){
         blob_read_link(&file2, zFile2);
       }else{
         blob_read_from_file(&file2, zFile2);
@@ -158,7 +158,7 @@ void diff_file(
       }
       blob_zero(&file2);
       if( file_wd_size(zFile2)>=0 ){
-        if( file_wd_islink(zFile2) ){
+        if( file_wd_islink(0) ){
           blob_read_link(&file2, zFile2);
         }else{
           blob_read_from_file(&file2, zFile2);
