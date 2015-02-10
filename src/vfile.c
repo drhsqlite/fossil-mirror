@@ -191,8 +191,8 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     isDeleted = db_column_int(&q, 3);
     oldChnged = chnged = db_column_int(&q, 4);
     oldMtime = db_column_int64(&q, 7);
-    currentSize = file_wd_size(zName);
     origSize = db_column_int64(&q, 6);
+    currentSize = file_wd_size(zName);
     currentMtime = file_wd_mtime(0);
     if( chnged==0 && (isDeleted || rid==0) ){
       /* "fossil rm" or "fossil add" always change the file */
@@ -322,7 +322,7 @@ void vfile_to_disk(
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite\n", zName);
     }
-    if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(zName)) ){
+    if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(0)) ){
       file_delete(zName);
     }
     if( isLink ){
