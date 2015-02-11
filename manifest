@@ -1,5 +1,5 @@
-C Accidentally\somitted\sthe\s--skin\soption\sprocessing\sfrom\sthe\sprevious\scheck-in.
-D 2015-02-11T15:12:15.899
+C Set\sthe\s"Max:"\sentry\sbox\son\sthe\s/timeline\ssubmenu\sto\sbe\ssize\s4\swith\nmaxlength\sof\s4.
+D 2015-02-11T15:45:46.196
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -450,7 +450,7 @@ F src/sqlite3.h eb06a7a2c24836d63607f1a4407c3aaccb79f3cf
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 2916a6ee4113d94278c536146c07e99eae7d989d
 F src/statrep.c d4db6638c1cfda31b7e8012e0f41cf5f4bb1fed7
-F src/style.c 7de9907750516b06fc9ade2f8e6ffa7bfa5126cb
+F src/style.c 086dcb42e5e3c7068e2176398c7dd70c44cbf5a0
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 19d4ca3b7d12950cb5a8129114d78340daf06e9d
 F src/tar.c 99b559d28723ad8a77099eec2e7c8760a3782924
@@ -459,7 +459,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 775452d03ebd49ab976aff5c2b4e03a6f69eabe0
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c 5d466d6c755cfb1732c25765b50bc3a164f125ee
+F src/timeline.c 92e01067d5e93e2be592e720d92729c46bb2a8d0
 F src/tkt.c d5510b01e8b84ffeec67c86bef03b577ec8e7ddd
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ed36e2eb510fbd26c05fae76b74dd23d02302a82
-R 572cf929dcea28f38d959a72bff22656
+P 5ce5ff5765202f7ec9aad04e709651ebb53e3e9e
+R fd72b817a14ace8b9afe979e374b7f70
 U drh
-Z 616732205ceabc06738ab036108d4bff
+Z 2a62ef56a8e608aa02adc47003881b6b

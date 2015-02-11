@@ -1330,7 +1330,7 @@ void page_timeline(void){
         zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
     }
-    style_submenu_entry("n","Max:",1,0);
+    style_submenu_entry("n","Max:",4,0);
     timeline_y_submenu(1);
     style_submenu_binary("v","With Files","Without Files",
                          zType[0]!='a' && zType[0]!='c');
@@ -1578,7 +1578,7 @@ void page_timeline(void){
           timeline_submenu(&url, "Unhide", "unhide", "", 0);
         }
       }
-      style_submenu_entry("n","Max:",1,0);
+      style_submenu_entry("n","Max:",4,0);
       timeline_y_submenu(disableY);
       style_submenu_binary("v","With Files","Without Files",
                            zType[0]!='a' && zType[0]!='c');
