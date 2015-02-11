@@ -46,6 +46,16 @@ int fossil_isdate(const char *z){
 }
 
 /*
+** Return the name of the branch containing RID -OR- zero if not found.
+*/
+char *name_of_branch(int rid){
+  return db_text(0,"SELECT value FROM tagxref"
+                   " WHERE rid=%d AND tagid=%d"
+                   " AND tagtype>0",
+                   rid, TAG_BRANCH);
+}
+
+/*
 ** Return the RID that is the "root" of the branch that contains
 ** check-in "rid" if inBranch==0 or the first check-in in the branch
 ** if inBranch==1.
@@ -1082,53 +1092,15 @@ int get_parent_branch_rid(
   int rid;
 
   /* Get the name of the current branch */
-  branchName = db_text(0,
-    "SELECT value FROM tagxref"
-    " WHERE tagid=%d"
-    "   AND tagxref.tagtype>0"
-    "   AND rid=%d",
-    TAG_BRANCH, branchRid
-  );
+  branchName = name_of_branch(branchRid);
 
   if( !branchName )
     return 0;
 
-  /* Find the name of the branch this was forked from */
-  db_prepare(&s,
-    "SELECT pid, tagxref.value FROM plink JOIN tagxref"
-    " WHERE cid=:rid"
-    "   AND isprim=1"
-    "   AND tagxref.tagid=%d"
-    "   AND tagxref.tagtype>0"
-    "   AND tagxref.rid=pid",
-    TAG_BRANCH
-  );
-  rid = branchRid;
-  while( rid>0 ){
-    db_bind_int(&s, ":rid", rid);
-    if( db_step(&s)==SQLITE_ROW ){
-      const char *zValue; /* Branch name of the pid */
-      rid = db_column_int(&s, 0);
-      zValue = db_column_text(&s, 1);
-      if( !zValue ){
-        rid = 0;
-        break;
-      }
-      if( fossil_strcmp(zValue,branchName) ){
-        parentBranchName = fossil_strdup(zValue);
-        break;
-      }
-    }else{
-      rid = 0;
-      break;
-    }
-    db_reset(&s);
-  }
-  db_finalize(&s);
+  parentBranchName = name_of_branch(start_of_branch(branchRid, 0));
 
-  if( rid==0 ){
+  if( !parentBranchName ){
     fossil_free(branchName);
-    fossil_free(parentBranchName);
     return 0;
   }
 
