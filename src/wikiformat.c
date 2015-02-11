@@ -1967,13 +1967,22 @@ void wiki_extract_links(
 */
 static int nextHtmlToken(const char *z){
   int n;
-  if( z[0]=='<' ){
+  char c;
+  if( (c=z[0])=='<' ){
     n = markupLength(z);
     if( n<=0 ) n = 1;
-  }else if( fossil_isspace(z[0]) ){
+  }else if( fossil_isspace(c) ){
     for(n=1; z[n] && fossil_isspace(z[n]); n++){}
+  }else if( c=='&' ){
+    n = z[1]=='#' ? 2 : 1;
+    while( fossil_isalnum(z[n]) ) n++;
+    if( z[n]==';' ) n++;
   }else{
-    for(n=1; z[n] && z[n]!='<' && !fossil_isspace(z[n]); n++){}
+    n = 1;
+    for(n=1; 1; n++){
+      if( (c = z[n]) > '<' ) continue;
+      if( c=='<' || c=='&' || fossil_isspace(c) || c==0 ) break;
+    }
   }
   return n;
 }
@@ -2108,6 +2117,7 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
   int i, j;
   int nNL = 0;              /* Number of \n characters at the end of pOut */
   int nWS = 0;              /* True if pOut ends with whitespace */
+  while( fossil_isspace(zIn[0]) ) zIn++;
   while( zIn[0] ){
     n = nextHtmlToken(zIn);
     if( zIn[0]=='<' && n>1 ){
@@ -2144,6 +2154,34 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
       if( !nWS ){
         blob_append(pOut, nNL ? "\n" : " ", 1);
         nWS = 1;
+      }
+    }else if( zIn[0]=='&' ){
+      char c = '?';
+      if( zIn[1]=='#' ){
+        int x = atoi(&zIn[1]);
+        if( x>0 && x<=127 ) c = x;
+      }else{
+        static const struct { int n; char c; char *z; } aEntity[] = {
+           { 5, '&', "&amp;"   },
+           { 4, '<', "&lt;"    },
+           { 4, '>', "&gt;"    },
+           { 6, ' ', "&nbsp;"  },
+        };
+        int jj;
+        for(jj=0; jj<ArraySize(aEntity); jj++){
+          if( aEntity[jj].n==n && strncmp(aEntity[jj].z,zIn,n)==0 ){
+            c = aEntity[jj].c;
+            break;
+          }
+        }
+      }
+      if( fossil_isspace(c) ){
+        if( nWS==0 ) blob_append(pOut, &c, 1);
+        nWS = 1;
+        nNL = c=='\n';
+      }else{
+        blob_append(pOut, &c, 1);
+        nWS = nNL = 0;
       }
     }else{
       blob_append(pOut, zIn, n);
