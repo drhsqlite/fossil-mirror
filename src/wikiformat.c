@@ -2133,7 +2133,7 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
         continue;
       }
       if( !isCloseTag && (eType & (MUTYPE_BLOCK|MUTYPE_TABLE))!=0 ){
-        if( nNL==0 ){      
+        if( nNL==0 ){
           blob_append(pOut, "\n", 1);
           nNL++;
         }

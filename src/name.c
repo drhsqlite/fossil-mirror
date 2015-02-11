@@ -784,14 +784,14 @@ void test_ambiguous_cmd(void){
 /*
 ** Schema for the description table
 */
-static const char zDescTab[] = 
+static const char zDescTab[] =
 @ CREATE TEMP TABLE IF NOT EXISTS description(
-@   rid INTEGER PRIMARY KEY,       -- RID of the object 
-@   uuid TEXT,                     -- SHA1 hash of the object 
-@   ctime DATETIME,                -- Time of creation 
+@   rid INTEGER PRIMARY KEY,       -- RID of the object
+@   uuid TEXT,                     -- SHA1 hash of the object
+@   ctime DATETIME,                -- Time of creation
 @   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
 @   type TEXT,                     -- file, checkin, wiki, ticket, etc.
-@   summary TEXT,                  -- Summary comment for the object 
+@   summary TEXT,                  -- Summary comment for the object
 @   detail TEXT                    -- filename, checkin comment, etc
 @ );
 ;

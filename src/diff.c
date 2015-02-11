@@ -2436,7 +2436,7 @@ void annotate_cmd(void){
   }
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
- 
+
   /* We should be done with options.. */
   verify_all_options();
 

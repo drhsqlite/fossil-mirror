@@ -907,7 +907,7 @@ static const char zComputeFileAgeRun[] =
 @      AND mlink.fid=blob.rid
 @      AND mlink.fid!=mlink.pid
 @      AND mlink.mid IN (SELECT x FROM ckin)
-@      AND event.objid=mlink.mid      
+@      AND event.objid=mlink.mid
 @  ORDER BY event.mtime ASC;
 ;
 

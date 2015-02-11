@@ -1503,7 +1503,7 @@ void page_timeline(void){
       );
       db_multi_exec("%s", blob_sql_text(&sql2));
       blob_reset(&sql2);
-      blob_append_sql(&sql, 
+      blob_append_sql(&sql,
           " AND event.mtime>=%f ORDER BY event.mtime ASC",
           rCirca
       );
