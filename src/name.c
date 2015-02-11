@@ -1060,3 +1060,55 @@ void test_phatoms_cmd(void){
   db_find_and_open_repository(0,0);
   describe_artifacts_to_stdout("IN (SELECT rid FROM blob WHERE size<0)", 0);
 }
+
+/*
+** WEBPAGE: hash-collisions
+**
+** Show the number of hash collisions for hash prefixes of various lengths.
+*/
+void hash_collisions_webpage(void){
+  int i;
+  int nHash = 0;
+  Stmt q;
+  char zPrev[UUID_SIZE+1];
+  struct {
+    int cnt;
+    char z[UUID_SIZE+1];
+  } aCollide[UUID_SIZE+1];
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(); return; }
+  memset(aCollide, 0, sizeof(aCollide));
+  memset(zPrev, 0, sizeof(zPrev));
+  db_prepare(&q,
+      "SELECT tkt_uuid FROM ticket\n"
+      "UNION ALL\n"
+      "SELECT substr(tagname,7) FROM tag WHERE tagname GLOB 'event-*'\n"
+      "UNION ALL\n"
+      "SELECT uuid FROM blob\n"
+      "ORDER BY 1"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q,0);
+    int n = db_column_bytes(&q,0);
+    int i;
+    nHash++;
+    for(i=0; zPrev[i] && zPrev[i]==zUuid[i]; i++){}
+    memcpy(zPrev, zUuid, n+1);
+    if( i>0 && i<=UUID_SIZE ){
+      aCollide[i].cnt++;
+      if( aCollide[i].z[0]==0 ) memcpy(aCollide[i].z, zPrev, n+1);
+    }
+  }
+  db_finalize(&q);
+  style_header("Hash Prefix Collisions");
+  @ <table border=1><thead>
+  @ <tr><th>Length<th>Instances<th>First Instance</tr>
+  @ </thead><tbody>
+  for(i=1; i<UUID_SIZE; i++){
+    if( aCollide[i].cnt==0 ) continue;
+    @ <tr><td>%d(i)<td>%d(aCollide[i].cnt)<td>%h(aCollide[i].z)</tr>
+  }
+  @ </tbody></table>
+  @ <p>Total number of hashes: %d(nHash)</p>
+  style_footer();
+}
