@@ -1923,6 +1923,18 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
+    if( blob_eq(&key, "skin:") && blob_token(&line, &value) ){
+      /* skin: LABEL
+      **
+      ** Use one of the built-in skins defined by LABEL.  LABEL is the
+      ** name of the subdirectory under the skins/ directory that holds
+      ** the elements of the built-in skin.  If LABEL does not match,
+      ** this directive is a silent no-op.
+      */
+      skin_use_alternative(blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
   }
   blob_reset(&config);
   if( g.db==0 && g.zRepositoryName==0 && nRedirect==0 ){

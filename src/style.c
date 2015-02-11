@@ -355,8 +355,7 @@ static void image_url_var(const char *zImageName){
 void style_header(const char *zTitleFormat, ...){
   va_list ap;
   char *zTitle;
-  const char *zHeader = db_get("header", 0);
-  if( zHeader==0 ) zHeader = builtin_text("skins/default/header.txt");
+  const char *zHeader = skin_get("header");
   login_check_credentials();
 
   va_start(ap, zTitleFormat);
@@ -594,8 +593,7 @@ void style_footer(void){
   ** the footer will be generating </html> */
   style_resolve_href();
 
-  zFooter = db_get("footer", 0);
-  if( zFooter==0 ) zFooter = builtin_text("skins/default/footer.txt");
+  zFooter = skin_get("footer");
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
   if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
@@ -1369,7 +1367,7 @@ void page_style_css(void){
   int i;
 
   cgi_set_content_type("text/css");
-  blob_init(&css,db_get("css",(char*)builtin_text("skins/default/css.txt")),-1);
+  blob_init(&css,skin_get("css"),-1);
 
   /* add special missing definitions */
   for(i=1; cssDefaultList[i].elementClass; i++){

@@ -2296,7 +2296,7 @@ void annotation_page(void){
     style_submenu_element("20 Ancestors", "20 Ancestors",
        "%s", url_render(&url, "limit", "20", 0, 0));
   }
-  if( db_get_boolean("white-foreground", 0) ){
+  if( skin_white_foreground() ){
     clr1 = 0xa04040;
     clr2 = 0x4059a0;
   }else{
