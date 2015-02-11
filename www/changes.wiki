@@ -1,24 +1,47 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.31 (2015-??-??)</h2>
-  *  Add direct Subversion import support to
-     [/help?cmd=import|fossil import]. (??)
+<h2>Changes For Version 1.31 (2015-02-??)</h2>
+  *  Change the auxiliary schema by adding columns MLINK.ISAUX and MLINK.PMID
+     columns to the schema, to support better drawing of file change graphs.
+     A [/help?cmd=rebuild|fossil rebuild] is recommended but is not required.
+     so that the new graph drawing logic can work effectively.
+  *  Added [/search|search] over Check-in comments, Documents, Tickets and
+     Wiki.  Disabled by default.  The search can be either a full-scan or it
+     can use an index that is kept up-to-date automatically.  The new
+     /srchsetup web-page and the [/help?cmd=fts-config|fts-config] command
+     were added to help configure the search capability.  Expect further
+     enhancements to the search capabilities in subsequent releases.
+  *  Added form elements to some submenus (in particular the /timeline)
+     for easier operation.
+  *  Added the --ifneeded option to [/help?cmd=rebuild|fossil rebuild].
+  *  Added "override skins" using the "skin:" line of the CGI script or
+     using the --skin LABEL option on the 
+     [/help?cmd=server|server],
+     [/help?cmd=ui|ui], or 
+     [/help?cmd=http|http] commands.
+  *  Embedded html documents that begin with
+     &lt;doc class="fossil-doc"&gt; are displayed with standard
+     headers and footers added.
+  *  Added the [/md_rules] pages containing summary instructions on the
+     Markdown format.
+  *  The [/help?cmd=/doc|/doc] web-page will now try to deliver the file
+     "404.md" from the top-level directory (if such a file exists) in
+     place of its built-in 404 text.
+  *  Download of Tarballs and ZIP Archives by user "nobody" is now enabled
+     by default in new repositories.
+  *  Enhancements to the table sorting controls.  More display tables
+     are now sortable.
   *  Add IPv6 support to [/help?cmd=sync|fossil sync] and
      [/help?cmd=clone|fossil clone]
   *  Add more skins such as "San Francisco Modern" and "Eagle".
-  *  Update SQLite to version 3.8.9. (??)
-  *  Improve the display of the history of changes to a single
-     file. A [/help?cmd=rebuild|fossil rebuild] is needed for that.
-  *  Enable ZIP and Tarball downloads for user "nobody" by default.
-  *  Make the now() SQL function available in the
-     [/help?cmd=sqlite|fossil sqlite] command.
-  *  Improve table sorting in various pages.
-  *  Add support for setting environment variables from within CGI script
-     files.
-  *  Enhance the Ad-Unit processing to allow a choice of two different
-     ad-units.
   *  During shutdown, check to see if the check-out database (".fslckout")
-     contains a lot of free space, and if it does, VACUUM it. 
+     contains a lot of free space, and if it does, VACUUM it.
+  *  Added the [/mimetype_list] page.
+  *  Added the [/hash-collisions] page.
+  *  Allow the user of Common Table Expressions in the SQL that defaults
+     ticket reports.
+  *  Break out the components (css, footer, and header) for the
+     various built-in skins into separate files in the source tree.
 
 <h2>Changes For Version 1.30 (2015-01-19)</h2>
   *  Added the [/help?cmd=bundle|fossil bundle] command.
