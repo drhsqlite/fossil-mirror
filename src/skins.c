@@ -88,6 +88,18 @@ char *skin_use_alternative(const char *zName){
 }
 
 /*
+** Look for the --skin command-line option and process it.  Or
+** call fossil_fatal() if an unknown skin is specified.
+*/
+void skin_override(void){
+  const char *zSkin = find_option("skin",0,1);
+  if( zSkin ){
+    char *zErr = skin_use_alternative(zSkin);
+    if( zErr ) fossil_fatal("available skins: %s", zErr);
+  }
+}
+
+/*
 ** The following routines return the various components of the skin
 ** that should be used for the current run.
 */

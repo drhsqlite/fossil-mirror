@@ -2028,6 +2028,7 @@ static void find_server_repository(int disallowDir, int arg){
 **   --files GLOB     comma-separate glob patterns for static file to serve
 **   --baseurl URL    base URL (useful with reverse proxies)
 **   --scgi           Interpret input as SCGI rather than HTTP
+**   --skin LABEL     Use override skin LABEL
 **
 ** See also: cgi, server, winsrv
 */
@@ -2051,6 +2052,7 @@ void cmd_http(void){
   }else{
     zFileGlob = find_option("files",0,1);
   }
+  skin_override();
   zNotFound = find_option("notfound", 0, 1);
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
@@ -2214,6 +2216,7 @@ static int binaryOnPath(const char *zBinary){
 **   --notfound URL      Redirect
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --scgi              Accept SCGI rather than HTTP
+**   --skin LABEL        Use override skin LABEL
 **
 ** See also: cgi, http, winsrv
 */
@@ -2242,6 +2245,7 @@ void cmd_webserver(void){
   }else{
     zFileGlob = find_option("files",0,1);
   }
+  skin_override();
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   Th_InitTraceLog();
   zPort = find_option("port", "P", 1);
