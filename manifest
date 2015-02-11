@@ -1,5 +1,5 @@
-C Add\sthe\sm=\squery\sparameter\sto\s/timeline.\s\sDisable\sthe\sy=\sselection\sbox\son\n/timeline\sfor\scases\swhere\sother\sparameters\sonly\sallow\scheckins.\s\sFurther\nwork\sneeded\son\sthe\sa=\sand\sb=\squery\sparameters\sto\sget\sthem\sworking\swith\nall\scombinations\sof\sother\sparameters.
-D 2015-02-11T01:55:44.754
+C On\s/timeline\swith\sfiles,\shyperlink\sfrom\sthe\sfile\sto\sthe\scorresponding\nartifact\stext.
+D 2015-02-11T04:29:39.841
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -459,7 +459,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 775452d03ebd49ab976aff5c2b4e03a6f69eabe0
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c 326c78a7a9032da2fbcb02bc3e2a7d08e05df50b
+F src/timeline.c 5ae70e76a867396dde1b67be78e7eda8bf7c3840
 F src/tkt.c 5ea07c399373d350d12d539d1e6df3173b9af164
 F src/tktsetup.c 3208196e4152e80517e8922aaacd054034e53989
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dd94e596f4bc6e483b110741baf1bd2eb67c416f
-R b6290aab8ba3496ecfb9ac4b1ab9263e
+P 45127a7236e4c34ecac670b6ee0645c1bcf77c20
+R a8db745a9f2e7453fa240ce22d81c0f2
 U drh
-Z aaba65543ce19a8a62e3106da0899a3e
+Z dc9cb7b289ec506e8307236d34f6b4fd

@@ -524,7 +524,8 @@ void www_print_timeline(
         const char *zOldName = db_column_text(&fchngQuery, 5);
         const char *zOld = db_column_text(&fchngQuery, 4);
         const char *zNew = db_column_text(&fchngQuery, 3);
-        const char *zUnpubTag = "";
+        const char *zUnpub = "";
+        char *zA;
         char zId[20];
         if( !inUl ){
           @ <ul class="filelist">
@@ -541,25 +542,27 @@ void www_print_timeline(
           }
           continue;
         }
+        zA = href("%R/artifact/%S",fid?zNew:zOld);
         if( content_is_private(fid) ){
-          zUnpubTag =  UNPUB_TAG;
+          zUnpub =  UNPUB_TAG;
         }
         if( isNew ){
-          @ <li> %h(zFilename)%s(zId) %s(zUnpubTag) (new file) &nbsp;
+          @ <li> %s(zA)%h(zFilename)</a>%s(zId) %s(zUnpub) (new file) &nbsp;
           @ %z(href("%R/artifact/%s",zNew))[view]</a></li>
         }else if( isDel ){
-          @ <li> %h(zFilename) (deleted)</li>
+          @ <li> %s(zA)%h(zFilename)</a> (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
-          @ <li> %h(zOldName) &rarr; %h(zFilename)%s(zId) %s(zUnpubTag)
-          @ %z(href("%R/artifact/%s",zNew))[view]</a></li>
+          @ <li> %h(zOldName) &rarr; %s(zA)%h(zFilename)</a>%s(zId)
+          @ %s(zUnpub) %z(href("%R/artifact/%s",zNew))[view]</a></li>
         }else{
           if( zOldName!=0 ){
-            @ <li> %h(zOldName) &rarr; %h(zFilename)%s(zId) %s(zUnpubTag)
+            @ <li>%h(zOldName) &rarr; %s(zA)%h(zFilename)%s(zId)</a> %s(zUnpub)
           }else{
-            @ <li> %h(zFilename)%s(zId) &nbsp; %s(zUnpubTag)
+            @ <li>%s(zA)%h(zFilename)</a>%s(zId) &nbsp; %s(zUnpub)
           }
           @ %z(href("%R/fdiff?sbs=1&v1=%s&v2=%s",zOld,zNew))[diff]</a></li>
         }
+        fossil_free(zA);
       }
       db_reset(&fchngQuery);
       if( inUl ){
