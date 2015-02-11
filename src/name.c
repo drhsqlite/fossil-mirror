@@ -1066,25 +1066,27 @@ void test_phatoms_cmd(void){
   describe_artifacts_to_stdout("IN (SELECT rid FROM blob WHERE size<0)", 0);
 }
 
+/* Maximum number of collision examples to remember */
+#define MAX_COLLIDE 25
+
 /*
 ** WEBPAGE: hash-collisions
 **
 ** Show the number of hash collisions for hash prefixes of various lengths.
 */
 void hash_collisions_webpage(void){
-  int i, kk;
+  int i, j, kk;
   int nHash = 0;
   Stmt q;
   char zPrev[UUID_SIZE+1];
   struct {
     int cnt;
-    Blob ex;
+    char *azHit[MAX_COLLIDE];
     char z[UUID_SIZE+1];
   } aCollide[UUID_SIZE+1];
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   memset(aCollide, 0, sizeof(aCollide));
-  for(i=0; i<ArraySize(aCollide); i++) blob_init(&aCollide[i].ex,0,0);
   memset(zPrev, 0, sizeof(zPrev));
   db_prepare(&q,"SELECT uuid FROM blob ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
@@ -1094,12 +1096,11 @@ void hash_collisions_webpage(void){
     nHash++;
     for(i=0; zPrev[i] && zPrev[i]==zUuid[i]; i++){}
     if( i>0 && i<=UUID_SIZE ){
+      if( i>=4 && aCollide[i].cnt<MAX_COLLIDE ){
+        aCollide[i].azHit[aCollide[i].cnt] = mprintf("%.*s", i, zPrev);
+      }
       aCollide[i].cnt++;
       if( aCollide[i].z[0]==0 ) memcpy(aCollide[i].z, zPrev, n+1);
-      if( aCollide[i].cnt<25 ){
-        blob_appendf(&aCollide[i].ex, " %z%.*s</a>",
-           href("%R/whatis/%.*s", i, zPrev), i, zPrev);
-      }
     }
     memcpy(zPrev, zUuid, n+1);
   }
@@ -1115,7 +1116,7 @@ void hash_collisions_webpage(void){
   @ </tbody></table>
   @ <p>Total number of hashes: %d(nHash)</p>
   kk = 0;
-  for(i=UUID_SIZE; i>=0; i--){
+  for(i=UUID_SIZE; i>=4; i--){
     if( aCollide[i].cnt==0 ) continue;
     if( aCollide[i].cnt>200 ) break;
     kk += aCollide[i].cnt;
@@ -1124,7 +1125,11 @@ void hash_collisions_webpage(void){
     }else{
       @ <p>First 25 collisions of length %d(i):
     }
-    @ %s(blob_str(&aCollide[i].ex))</p>
+    for(j=0; j<aCollide[i].cnt && j<MAX_COLLIDE; j++){
+      char *zId = aCollide[i].azHit[j];
+      if( zId==0 ) continue;
+      @ %z(href("%R/whatis/%s",zId))%h(zId)</a>
+    }
   }
   style_footer();
 }

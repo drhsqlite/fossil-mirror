@@ -1,5 +1,5 @@
-C Fix\sto\sthe\s/hash-collisions\spage:\s\sOnly\sconsider\sthe\sSHA1\shashes\sin\sthe\sBLOB\ntable,\snot\sthe\srandom\shexadecimal\sidentifiers\sassigned\sto\stickets\sand\s\ntech-notes.\s\sThe\slatter\stwo\slive\sin\sa\sdifferent\snamespace.
-D 2015-02-11T13:18:00.092
+C Fix\sa\sproblem\sin\s/hash-collisions\sthat\swas\scausing\sthe\slinks\sto\sremain\ndirected\sto\sthe\shoneypot.
+D 2015-02-11T13:34:30.322
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -424,7 +424,7 @@ F src/mkbuiltin.c 4f27b52df5a72b6c516ed48c585f94109eb63560
 F src/mkindex.c 8b49a351b060c3e9203dacbacfc8216f760f8da2
 F src/mkversion.c 40ed302872cc5795c76efb3ab089fc1aedba18f1
 F src/moderate.c a96d77136a50a92746b3fe9ecf1f9afe4b86b6d9
-F src/name.c ece619140c2d941e9b69b748de5766114d9a6949
+F src/name.c 2cb38a8e8f12fbf9200d10de4776ad00fcb294aa
 F src/path.c de295e194a7c95db17e75b61a6b4e76adeda14c4
 F src/pivot.c 883b0a1aa6e344385fa852c2b8390fc9709dc124
 F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3234cf1efe96ad6d62249f1d7ce02a22d16728a7
-R 8cbb27342499acef46bcf46d444f0e8e
+P 327eee14525ff1c98f4f36e73c8ed24ded7fc55c
+R e7fbc4c8d982b5143c1ba12b5194458b
 U drh
-Z 75b3b9ec1b69aa1ef4309cbf734bf251
+Z 85fbdc6dc368e3e68a864d1304b9075f
