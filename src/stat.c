@@ -63,7 +63,8 @@ void stat_page(void){
     style_submenu_element("Schema", "Repository Schema", "repo_schema");
     style_submenu_element("Web-Cache", "Web-Cache Stats", "cachestat");
   }
-  style_submenu_element("Activity", "Activity Reports", "reports");
+  style_submenu_element("Activity Reports", 0, "reports");
+  style_submenu_element("SHA1 Collisions", 0, "hash-collisions");
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
   fsize = file_size(g.zRepositoryName);

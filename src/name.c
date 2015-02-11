@@ -1105,7 +1105,9 @@ void hash_collisions_webpage(void){
     memcpy(zPrev, zUuid, n+1);
   }
   db_finalize(&q);
-  style_header("Hash Prefix Collisions");
+  style_header("SHA1 Prefix Collisions");
+  style_submenu_element("Activity Reports", 0, "reports");
+  style_submenu_element("Stats", 0, "stat");
   @ <table border=1><thead>
   @ <tr><th>Length<th>Instances<th>First Instance</tr>
   @ </thead><tbody>
