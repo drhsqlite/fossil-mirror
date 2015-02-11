@@ -1035,7 +1035,7 @@ char *names_of_file(const char *zUuid){
 ** set the y= parameter that determines which elements to display
 ** on the timeline.
 */
-static void timeline_y_submenu(void){
+static void timeline_y_submenu(int isDisabled){
   static int i = 0;
   static const char *az[12];
   if( i==0 ){
@@ -1063,7 +1063,7 @@ static void timeline_y_submenu(void){
     assert( i<=ArraySize(az) );
   }
   if( i>2 ){
-    style_submenu_multichoice("y", i/2, az, 0);
+    style_submenu_multichoice("y", i/2, az, isDisabled);
   }
 }
 
@@ -1075,6 +1075,7 @@ static void timeline_y_submenu(void){
 **    a=TIMEORTAG    after this event
 **    b=TIMEORTAG    before this event
 **    c=TIMEORTAG    "circa" this event
+**    m=TIMEORTAG    mark this event
 **    n=COUNT        max number of events in output
 **    p=UUID         artifact and up to COUNT parents and ancestors
 **    d=UUID         artifact and up to COUNT descendants
@@ -1101,10 +1102,10 @@ static void timeline_y_submenu(void){
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
 **
-** If a= and b= appear, only a= is used.  If neither appear, the most
-** recent events are chosen.
+** If both a= and b= appear then both upper and lower bounds are honored.
 **
-** If n= is missing, the default count is 20.
+** If n= is missing, the default count is 50 for most queries but
+** drops to 11 for c= queries.
 */
 void page_timeline(void){
   Stmt q;                            /* Query used to generate the timeline */
@@ -1119,6 +1120,7 @@ void page_timeline(void){
   const char *zAfter = P("a");       /* Events after this time */
   const char *zBefore = P("b");      /* Events before this time */
   const char *zCirca = P("c");       /* Events near this time */
+  const char *zMark = P("m");        /* Mark this event or an event this time */
   const char *zTagName = P("t");     /* Show events with this tag */
   const char *zBrName = P("r");      /* Show events related to this tag */
   const char *zSearch = P("s");      /* Search string */
@@ -1142,6 +1144,7 @@ void page_timeline(void){
   const char *z;
   char *zOlderButton = 0;             /* URL for Older button at the bottom */
   int selectedRid = -9999999;         /* Show a highlight on this RID */
+  int disableY = 0;                   /* Disable type selector on submenu */
 
   /* Set number of rows to display */
   z = P("n");
@@ -1185,10 +1188,14 @@ void page_timeline(void){
   }else{
     tagid = 0;
   }
+  if( zMark && zMark[0]==0 ){
+    if( zAfter ) zMark = zAfter;
+    if( zBefore ) zMark = zBefore;
+    if( zCirca ) zMark = zCirca;
+  }
   if( tagid>0
    && db_int(0,"SELECT count(*) FROM tagxref WHERE tagid=%d",tagid)<=nEntry
   ){
-    zCirca = zBefore = zAfter = 0;
     nEntry = -1;
   }
   if( zType[0]=='a' ){
@@ -1215,6 +1222,7 @@ void page_timeline(void){
       db_multi_exec("CREATE TEMP TABLE usesfile(rid INTEGER PRIMARY KEY)");
       compute_uses_file("usesfile", ufid, 0);
       zType = "ci";
+      disableY = 1;
     }else{
       zUses = 0;
     }
@@ -1225,6 +1233,7 @@ void page_timeline(void){
       "INSERT OR IGNORE INTO rnfile"
       "  SELECT mid FROM mlink WHERE pfnid>0 AND pfnid!=fnid;"
     );
+    disableY = 1;
   }
 
   style_header("Timeline");
@@ -1319,7 +1328,7 @@ void page_timeline(void){
       }
     }
     style_submenu_entry("n","Max:",1,0);
-    timeline_y_submenu();
+    timeline_y_submenu(1);
     style_submenu_binary("v","With Files","Without Files",
                          zType[0]!='a' && zType[0]!='c');
   }else if( f_rid && g.perm.Read ){
@@ -1496,19 +1505,19 @@ void page_timeline(void){
           rCirca
       );
       nEntry -= (nEntry+1)/2;
+      if( zMark==0 ) zMark = zCirca;
     }else{
       blob_append_sql(&sql, " ORDER BY event.mtime DESC");
     }
     if( nEntry>0 ) blob_append_sql(&sql, " LIMIT %d", nEntry);
     db_multi_exec("%s", blob_sql_text(&sql));
-    if( zCirca && useDividers ) selectedRid = timeline_add_divider(rCirca);
 
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
     if( zYearMonth ){
       blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
     }else if( zYearWeek ){
       blob_appendf(&desc, "%s events for year/week %h", zEType, zYearWeek);
-    }else if( zAfter==0 && zBefore==0 && zCirca==0 && n>=nEntry && nEntry>0 ){
+    }else if( zBefore==0 && zCirca==0 && n>=nEntry && nEntry>0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
       blob_appendf(&desc, "%d %ss", n, zEType);
@@ -1567,18 +1576,22 @@ void page_timeline(void){
         }
       }
       style_submenu_entry("n","Max:",1,0);
-      if( zUses==0 ) timeline_y_submenu();
+      timeline_y_submenu(disableY);
       style_submenu_binary("v","With Files","Without Files",
                            zType[0]!='a' && zType[0]!='c');
     }
   }
-  if( P("showsql") ){
+  if( PB("showsql") ){
     @ <blockquote>%h(blob_sql_text(&sql))</blockquote>
   }
   if( search_restrict(SRCH_CKIN)!=0 ){
     style_submenu_element("Search", 0, "%R/search?y=c");
   }
-  if( P("showid") ) tmFlags |= TIMELINE_SHOWRID;
+  if( PB("showid") ) tmFlags |= TIMELINE_SHOWRID;
+  if( useDividers && zMark && zMark[0] ){
+    double r = symbolic_name_to_mtime(zMark);
+    if( r>0.0 ) selectedRid = timeline_add_divider(r);
+  }
   blob_zero(&sql);
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
   @ <h2>%b(&desc)</h2>
