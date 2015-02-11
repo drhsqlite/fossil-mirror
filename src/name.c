@@ -1067,17 +1067,19 @@ void test_phatoms_cmd(void){
 ** Show the number of hash collisions for hash prefixes of various lengths.
 */
 void hash_collisions_webpage(void){
-  int i;
+  int i, kk;
   int nHash = 0;
   Stmt q;
   char zPrev[UUID_SIZE+1];
   struct {
     int cnt;
+    Blob ex;
     char z[UUID_SIZE+1];
   } aCollide[UUID_SIZE+1];
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   memset(aCollide, 0, sizeof(aCollide));
+  for(i=0; i<ArraySize(aCollide); i++) blob_init(&aCollide[i].ex,0,0);
   memset(zPrev, 0, sizeof(zPrev));
   db_prepare(&q,
       "SELECT tkt_uuid FROM ticket\n"
@@ -1096,6 +1098,10 @@ void hash_collisions_webpage(void){
     if( i>0 && i<=UUID_SIZE ){
       aCollide[i].cnt++;
       if( aCollide[i].z[0]==0 ) memcpy(aCollide[i].z, zPrev, n+1);
+      if( aCollide[i].cnt<25 ){
+        blob_appendf(&aCollide[i].ex, " %z%.*s</a>",
+           href("%R/whatis/%.*s", i, zPrev), i, zPrev);
+      }
     }
     memcpy(zPrev, zUuid, n+1);
   }
@@ -1104,11 +1110,23 @@ void hash_collisions_webpage(void){
   @ <table border=1><thead>
   @ <tr><th>Length<th>Instances<th>First Instance</tr>
   @ </thead><tbody>
-  for(i=1; i<UUID_SIZE; i++){
+  for(i=1; i<=UUID_SIZE; i++){
     if( aCollide[i].cnt==0 ) continue;
     @ <tr><td>%d(i)<td>%d(aCollide[i].cnt)<td>%h(aCollide[i].z)</tr>
   }
   @ </tbody></table>
   @ <p>Total number of hashes: %d(nHash)</p>
+  kk = 0;
+  for(i=UUID_SIZE; i>=0; i--){
+    if( aCollide[i].cnt==0 ) continue;
+    if( aCollide[i].cnt>200 ) break;
+    kk += aCollide[i].cnt;
+    if( aCollide[i].cnt<25 ){
+      @ <p>Collisions of length %d(i):
+    }else{
+      @ <p>First 25 collisions of length %d(i):
+    }
+    @ %s(blob_str(&aCollide[i].ex))</p>
+  }
   style_footer();
 }
