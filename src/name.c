@@ -106,6 +106,11 @@ int start_of_branch(int rid, int inBranch){
 ** rather than the last.
 ** zType is "ci" in most use cases since we are usually searching for
 ** a check-in.
+**
+** Note that the input zTag for types "t" and "e" is the SHA1 hash of
+** the ticket-change or event-change artifact, not the randomly generated
+** hexadecimal identifier assigned to tickets and events.  Those identifiers
+** live in a separate namespace.
 */
 int symbolic_name_to_rid(const char *zTag, const char *zType){
   int vid;
@@ -1081,14 +1086,7 @@ void hash_collisions_webpage(void){
   memset(aCollide, 0, sizeof(aCollide));
   for(i=0; i<ArraySize(aCollide); i++) blob_init(&aCollide[i].ex,0,0);
   memset(zPrev, 0, sizeof(zPrev));
-  db_prepare(&q,
-      "SELECT tkt_uuid FROM ticket\n"
-      "UNION ALL\n"
-      "SELECT substr(tagname,7) FROM tag WHERE tagname GLOB 'event-*'\n"
-      "UNION ALL\n"
-      "SELECT uuid FROM blob\n"
-      "ORDER BY 1"
-  );
+  db_prepare(&q,"SELECT uuid FROM blob ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q,0);
     int n = db_column_bytes(&q,0);
