@@ -1093,11 +1093,11 @@ void hash_collisions_webpage(void){
     int i;
     nHash++;
     for(i=0; zPrev[i] && zPrev[i]==zUuid[i]; i++){}
-    memcpy(zPrev, zUuid, n+1);
     if( i>0 && i<=UUID_SIZE ){
       aCollide[i].cnt++;
       if( aCollide[i].z[0]==0 ) memcpy(aCollide[i].z, zPrev, n+1);
     }
+    memcpy(zPrev, zUuid, n+1);
   }
   db_finalize(&q);
   style_header("Hash Prefix Collisions");
