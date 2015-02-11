@@ -446,7 +446,7 @@ void ambiguous_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
-    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
     @ %s(zUuid)</a> -
     object_description(rid, 0, 0);
     @ </p></li>
@@ -463,7 +463,7 @@ void ambiguous_page(void){
     int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zTitle = db_column_text(&q, 2);
-    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
     @ %s(zUuid)</a> -
     @ <ul></ul>
     @ Ticket
@@ -483,7 +483,7 @@ void ambiguous_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     const char* zUuid = db_column_text(&q, 1);
-    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
     @ %s(zUuid)</a> -
     @ <ul><li>
     object_description(rid, 0, 0);
@@ -1013,7 +1013,7 @@ void bloblist_page(void){
     const char *zDesc = db_column_text(&q, 2);
     int isPriv = db_column_int(&q,2);
     @ <tr><td align="right">%d(rid)</td>
-    @ <td>&nbsp;%z(href("%R/info/%s",zUuid))%s(zUuid)</a>&nbsp;</td>
+    @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%s(zUuid)</a>&nbsp;</td>
     @ <td align="left">%h(zDesc)</td>
     if( isPriv ){
       @ <td>(unpublished)</td>

@@ -638,7 +638,7 @@ void login_page(void){
   @ the login to take.</p>
   if( db_get_boolean("self-register", 0) ){
     @ <p>If you do not have an account, you can
-    @ <a href="%s(g.zTop)/register?g=%T(P("G"))">create one</a>.
+    @ <a href="%R/register?g=%T(P("G"))">create one</a>.
   }
   if( zAnonPw ){
     unsigned int uSeed = captcha_seed();
@@ -1227,7 +1227,7 @@ void login_anonymous_available(void){
                 "   AND cap LIKE '%%h%%'") ){
     const char *zUrl = PD("REQUEST_URI", "index");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br />
-    @ Use <a href="%s(g.zTop)/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
+    @ Use <a href="%R/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
     @ to enable hyperlinks.</p>
   }
 }

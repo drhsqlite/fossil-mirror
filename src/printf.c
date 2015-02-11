@@ -26,6 +26,20 @@
 #endif
 #include <time.h>
 
+/* Two custom conversions are used to show a prefix of SHA1 hashes:
+**
+**      %!S       Prefix of a length appropriate for URLs
+**      %S        Prefix of a length appropriate for human display
+**
+** The following macros determine those lengths.
+*/
+#ifndef FOSSIL_SHA1_PREFIX_LEN
+# define FOSSIL_SHA1_PREFIX_LEN 10      /* For %S (human display) */
+#endif
+#ifndef FOSSIL_SHA1_URLPREFIX_LEN
+# define FOSSIL_SHA1_URLPREFIX_LEN 16   /* For %!S (embedded in URLs) */
+#endif
+
 /*
 ** Conversion types fall into various categories as defined by the
 ** following enumeration.
@@ -622,12 +636,8 @@ int vxprintf(
         }else if( xtype==etDYNSTRING ){
           zExtra = bufpt;
         }else if( xtype==etSTRINGID ){
-          precision = 0;
-          while( bufpt[precision]>='0' && bufpt[precision]<='9' ){
-            precision++;
-          }
-          if( bufpt[precision]!=0 ) precision++;
-          if( precision<10 ) precision=10;
+          precision = 	flag_altform2 ? FOSSIL_SHA1_URLPREFIX_LEN :
+                                       FOSSIL_SHA1_PREFIX_LEN;
         }
         length = StrNLen32(bufpt, limit);
         if( precision>=0 && precision<length ) length = precision;

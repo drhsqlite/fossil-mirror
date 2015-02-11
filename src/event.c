@@ -162,7 +162,7 @@ void event_page(void){
     Blob comment;
 
     zATime = db_text(0, "SELECT datetime(%.17g)", pEvent->rDate);
-    @ <p>Event [%z(href("%R/artifact/%s",zUuid))%S(zUuid)</a>] at
+    @ <p>Event [%z(href("%R/artifact/%!S",zUuid))%S(zUuid)</a>] at
     @ [%z(href("%R/timeline?c=%T",zETime))%s(zETime)</a>]
     @ entered by user <b>%h(pEvent->zUser)</b> on
     @ [%z(href("%R/timeline?c=%T",zATime))%s(zATime)</a>]:</p>

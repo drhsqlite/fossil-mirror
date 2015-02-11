@@ -563,7 +563,7 @@ void test_rename_list_page(void){
     @ <td>%z(href("%R/timeline?c=%t",zDate))%s(zDate)</a></td>
     @ <td>%z(href("%R/finfo?name=%t",zOld))%h(zOld)</a></td>
     @ <td>%z(href("%R/finfo?name=%t",zNew))%h(zNew)</a></td>
-    @ <td>%z(href("%R/info/%s",zUuid))%S(zUuid)</a></td></tr>
+    @ <td>%z(href("%R/info/%!S",zUuid))%S(zUuid)</a></td></tr>
   }
   @ </table>
   db_finalize(&q);

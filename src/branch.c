@@ -374,7 +374,7 @@ static void new_brlist_page(void){
     @ <td>%s(isClosed?"closed":"")</td>
     if( zMergeTo ){
       @ <td>merged into
-      @ %z(href("%R/timeline?f=%s",zLastCkin))%h(zMergeTo)</a></td>
+      @ %z(href("%R/timeline?f=%!S",zLastCkin))%h(zMergeTo)</a></td>
     }else{
       @ <td></td>
     }

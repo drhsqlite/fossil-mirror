@@ -88,7 +88,7 @@ void attachlist_page(void){
       zUrlTail = mprintf("page=%t&file=%t", zTarget, zFilename);
     }
     @ <li><p>
-    @ Attachment %z(href("%R/ainfo/%s",zUuid))%S(zUuid)</a>
+    @ Attachment %z(href("%R/ainfo/%!S",zUuid))%S(zUuid)</a>
     if( moderation_pending(attachid) ){
       @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
     }
@@ -105,10 +105,10 @@ void attachlist_page(void){
         zSrc = "Added to";
       }
       if( strlen(zTarget)==UUID_SIZE && validate16(zTarget, UUID_SIZE) ){
-        @ %s(zSrc) ticket <a href="%s(g.zTop)/tktview?name=%s(zTarget)">
+        @ %s(zSrc) ticket <a href="%R/tktview?name=%s(zTarget)">
         @ %S(zTarget)</a>
       }else{
-        @ %s(zSrc) wiki page <a href="%s(g.zTop)/wiki?name=%t(zTarget)">
+        @ %s(zSrc) wiki page <a href="%R/wiki?name=%t(zTarget)">
         @ %h(zTarget)</a>
       }
     }else{
@@ -250,8 +250,8 @@ void attachadd_page(void){
       fossil_redirect_home();
     }
     zTarget = zPage;
-    zTargetType = mprintf("Wiki Page <a href=\"%s/wiki?name=%h\">%h</a>",
-                           g.zTop, zPage, zPage);
+    zTargetType = mprintf("Wiki Page <a href=\"%R/wiki?name=%h\">%h</a>",
+                           zPage, zPage);
   }else{
     if( g.perm.ApndTkt==0 || g.perm.Attach==0 ) login_needed();
     if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'", zTkt) ){
@@ -260,8 +260,8 @@ void attachadd_page(void){
       if( zTkt==0 ) fossil_redirect_home();
     }
     zTarget = zTkt;
-    zTargetType = mprintf("Ticket <a href=\"%s/tktview/%s\">%S</a>",
-                          g.zTop, zTkt, zTkt);
+    zTargetType = mprintf("Ticket <a href=\"%R/tktview/%s\">%S</a>",
+                          zTkt, zTkt);
   }
   if( zFrom==0 ) zFrom = mprintf("%s/home", g.zTop);
   if( P("cancel") ){
@@ -479,7 +479,7 @@ void ainfo_page(void){
   @ <div class="section">Overview</div>
   @ <p><table class="label-value">
   @ <tr><th>Artifact&nbsp;ID:</th>
-  @ <td>%z(href("%R/artifact/%s",zUuid))%s(zUuid)</a>
+  @ <td>%z(href("%R/artifact/%!S",zUuid))%s(zUuid)</a>
   if( g.perm.Setup ){
     @ (%d(rid))
   }
@@ -581,10 +581,10 @@ void attachment_list(
     }
     cnt++;
     @ <li>
-    @ %z(href("%R/artifact/%s",zSrc))%h(zFile)</a>
+    @ %z(href("%R/artifact/%!S",zSrc))%h(zFile)</a>
     @ added by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
-    @ [%z(href("%R/ainfo/%s",zUuid))details</a>]
+    @ [%z(href("%R/ainfo/%!S",zUuid))details</a>]
     @ </li>
   }
   if( cnt ){

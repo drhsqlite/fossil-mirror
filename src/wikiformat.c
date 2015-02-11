@@ -1208,7 +1208,7 @@ static void openHyperlink(
   ){
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
   }else if( zTarget[0]=='/' ){
-    blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zTop, zTarget);
+    blob_appendf(p->pOut, "<a href=\"%R%h\">", zTarget);
   }else if( zTarget[0]=='.'
          && (zTarget[1]=='/' || (zTarget[1]=='.' && zTarget[2]=='/'))
          && (p->state & WIKI_LINKSONLY)==0 ){

@@ -218,9 +218,9 @@ static void stats_report_output_week_links(const char *zTimeframe){
   while( SQLITE_ROW == db_step(&stWeek) ){
     const char *zWeek = db_column_text(&stWeek,0);
     const int nCount = db_column_int(&stWeek,1);
-    cgi_printf("<a href='%s/timeline?"
+    cgi_printf("<a href='%R/timeline?"
                "yw=%t-%t&n=%d&y=%s'>%s</a>",
-               g.zTop, yearPart, zWeek,
+               yearPart, zWeek,
                nCount, statsReportTimelineYFlag, zWeek);
   }
   db_finalize(&stWeek);
@@ -330,9 +330,9 @@ static void stats_report_by_month_year(char includeMonth,
    @<tr class='row%d(rowClass)'>
    @ <td>
     if(includeMonth){
-      cgi_printf("<a href='%s/timeline?"
+      cgi_printf("<a href='%R/timeline?"
                  "ym=%t&n=%d&y=%s",
-                 g.zTop, zTimeframe, nCount,
+                 zTimeframe, nCount,
                  statsReportTimelineYFlag );
       /* Reminder: n=nCount is not actually correct for bymonth unless
          that was the only user who caused events.
@@ -674,8 +674,8 @@ static void stats_report_year_weeks(const char *zUserName){
       if(!nSize) nSize = 1;
       total += nCount;
       cgi_printf("<tr class='row%d'>", ++rowCount % 2 );
-      cgi_printf("<td><a href='%s/timeline?yw=%t-%s&n=%d&y=%s",
-                 g.zTop, zYear, zWeek, nCount,
+      cgi_printf("<td><a href='%R/timeline?yw=%t-%s&n=%d&y=%s",
+                 zYear, zWeek, nCount,
                  statsReportTimelineYFlag);
       if(zUserName && *zUserName){
         cgi_printf("&u=%t",zUserName);

@@ -43,7 +43,7 @@ void tag_private_status(int rid){
 */
 void hyperlink_to_uuid(const char *zUuid){
   if( g.perm.Hyperlink ){
-    @ %z(xhref("class='timelineHistLink'","%R/info/%s",zUuid))[%S(zUuid)]</a>
+    @ %z(xhref("class='timelineHistLink'","%R/info/%!S",zUuid))[%S(zUuid)]</a>
   }else{
     @ <span class="timelineHistDsp">[%S(zUuid)]</span>
   }
@@ -455,7 +455,7 @@ void www_print_timeline(
 
     /* Generate a "detail" link for tags. */
     if( (zType[0]=='g' || zType[0]=='w' || zType[0]=='t') && g.perm.Hyperlink ){
-      @ [%z(href("%R/info/%s",zUuid))details</a>]
+      @ [%z(href("%R/info/%!S",zUuid))details</a>]
     }
 
     /* Generate the "tags: TAGLIST" at the end of the comment, together
@@ -542,25 +542,25 @@ void www_print_timeline(
           }
           continue;
         }
-        zA = href("%R/artifact/%S",fid?zNew:zOld);
+        zA = href("%R/artifact/%!S",fid?zNew:zOld);
         if( content_is_private(fid) ){
           zUnpub =  UNPUB_TAG;
         }
         if( isNew ){
           @ <li> %s(zA)%h(zFilename)</a>%s(zId) %s(zUnpub) (new file) &nbsp;
-          @ %z(href("%R/artifact/%s",zNew))[view]</a></li>
+          @ %z(href("%R/artifact/%!S",zNew))[view]</a></li>
         }else if( isDel ){
           @ <li> %s(zA)%h(zFilename)</a> (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
           @ <li> %h(zOldName) &rarr; %s(zA)%h(zFilename)</a>%s(zId)
-          @ %s(zUnpub) %z(href("%R/artifact/%s",zNew))[view]</a></li>
+          @ %s(zUnpub) %z(href("%R/artifact/%!S",zNew))[view]</a></li>
         }else{
           if( zOldName!=0 ){
             @ <li>%h(zOldName) &rarr; %s(zA)%h(zFilename)%s(zId)</a> %s(zUnpub)
           }else{
             @ <li>%s(zA)%h(zFilename)</a>%s(zId) &nbsp; %s(zUnpub)
           }
-          @ %z(href("%R/fdiff?sbs=1&v1=%s&v2=%s",zOld,zNew))[diff]</a></li>
+          @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zOld,zNew))[diff]</a></li>
         }
         fossil_free(zA);
       }
@@ -1323,7 +1323,7 @@ void page_timeline(void){
       if( useDividers ) selectedRid = p_rid;
     }
     blob_appendf(&desc, " of %z[%S]</a>",
-                   href("%R/info/%s", zUuid), zUuid);
+                   href("%R/info/%!S", zUuid), zUuid);
     if( d_rid ){
       if( p_rid ){
         /* If both p= and d= are set, we don't have the uuid of d yet. */
@@ -1349,7 +1349,7 @@ void page_timeline(void){
     if( useDividers ) selectedRid = f_rid;
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
-    blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%s", zUuid), zUuid);
+    blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
     style_submenu_binary("v","With Files","Without Files",
                          zType[0]!='a' && zType[0]!='c');
@@ -1528,7 +1528,7 @@ void page_timeline(void){
     if( zUses ){
       char *zFilenames = names_of_file(zUses);
       blob_appendf(&desc, " using file %s version %z%S</a>", zFilenames,
-                   href("%R/artifact/%s",zUses), zUses);
+                   href("%R/artifact/%!S",zUses), zUses);
       tmFlags |= TIMELINE_DISJOINT;
     }
     if( renameOnly ){
@@ -2082,7 +2082,7 @@ void test_timewarp_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     @ <li>
-    @ <a href="%s(g.zTop)/timeline?dp=%s(zUuid)&amp;unhide">%S(zUuid)</a>
+    @ <a href="%R/timeline?dp=%!S(zUuid)&amp;unhide">%S(zUuid)</a>
   }
   db_finalize(&q);
   style_footer();
