@@ -1,5 +1,5 @@
-C Striving\sto\smake\ssearch\swork\sbetter.\s\sThese\schanges\swill\srequire\ssearch\nindexes\sto\sbe\srebuilt,\sso\sthey\sgo\sinto\sa\sbranch\sfor\snow.
-D 2015-02-11T20:16:39.498
+C Improvements\sto\sthe\sway\sthat\ssearchable\stext\sis\sparsed\sout\sof\sdocuments,\nwiki,\sand\scheck-in\scomments.\s\sThe\sfirst\sline\sof\sthe\stext\sis\sthe\stitle.\nSubsequent\slines\sare\smessage\sbody.\s\sStill\sneed\sto\sdo\sthis\sfor\stickets.
+D 2015-02-12T02:32:08.787
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -408,7 +408,7 @@ F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c c2a3f8bb396e400492b1678f87dd4735dba9d9f2
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c de0f5eb3c433dc38a6541301925ff7f80c4c442e
-F src/main.mk 17e859f85a513f5e88937e8595d25357794d300f
+F src/main.mk f9dcf8365fadd154815d00404da25f63c6bd0780
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl c0246202adf3c01371bbc29f4ddd7b3ae820fc31
@@ -437,7 +437,7 @@ F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 802d68bca3a9b0ed615d386cc541a092e1c94100
 F src/rss.c efed54aa9062f0aa3cea92aaabcc68edc2d7da51
 F src/schema.c f614471807c3c7ce1539644e9a6270d4cb76cd61
-F src/search.c 76d74f4e00d8d87775194a1f41d3d2e36bd4b3f2
+F src/search.c ec85f61c58e431fc5ab5f285100fdcf25c807e9a
 F src/setup.c 6f02d4cce9d0adc44665561fe5bf782ebaa5f7bc
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c 66986a98df6556f8de10d137f53a270f34ef1252
@@ -473,7 +473,7 @@ F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c bcf0d661edd47722586d3d502555a01466b09429
 F src/wiki.c cb6acb218b6fc7abab285e54810c39bced75ffa3
-F src/wikiformat.c b1f0266d1cbe0c090c7e13819efcff4f679978a8
+F src/wikiformat.c 09019cb518137e880cfd72daa66e4fae63db7b33
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c 55e7d4f21887561faea665fc3f6c15e5f511792e
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
@@ -694,10 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ef2db66199048db5ca44d3674ebd4cd92f7554ee
-R 5b9fb4fa4100c36561d246efb56b15e2
-T *branch * search-enhancements
-T *sym-search-enhancements *
-T -sym-trunk *
+P e0df485935abab4c48f078d89f0c89d5d5f25334
+R f289dd613a95c5b4d9d135f979bf4e60
 U drh
-Z 1dd2e3ac70bb9d10ee4ffd1df2300fb6
+Z efeb208ffd03c41014df849aac268138

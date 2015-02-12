@@ -985,23 +985,44 @@ void search_page(void){
 /*
 ** This is a helper function for search_stext().  Writing into pOut
 ** the search text obtained from pIn according to zMimetype.
+**
+** The title of the document is the first line of text.  All subsequent
+** lines are the body.  If the document has no title, the first line
+** is blank.
 */
 static void get_stext_by_mimetype(
   Blob *pIn,
   const char *zMimetype,
   Blob *pOut
 ){
-  Blob html, title;
+  Blob html, title, tail;
   blob_init(&html, 0, 0);
   blob_init(&title, 0, 0);
   if( zMimetype==0 ) zMimetype = "text/plain";
   if( fossil_strcmp(zMimetype,"text/x-fossil-wiki")==0 ){
-    wiki_convert(pIn, &html, 0);
+    Blob tail;
+    blob_init(&tail, 0, 0);
+    if( wiki_find_title(pIn, &title, &tail) ){
+      blob_appendf(pOut, "%s\n", blob_str(&title));
+      wiki_convert(&tail, &html, 0);
+      blob_reset(&tail);
+    }else{
+      blob_append(pOut, "\n", 1);
+      wiki_convert(pIn, &html, 0);
+    }
     html_to_plaintext(blob_str(&html), pOut);
   }else if( fossil_strcmp(zMimetype,"text/x-markdown")==0 ){
     markdown_to_html(pIn, &title, &html);
+    if( blob_size(&title) ){
+      blob_appendf(pOut, "%s\n", blob_str(&title));
+    }else{
+      blob_append(pOut, "\n", 1);
+    }
     html_to_plaintext(blob_str(&html), pOut);
   }else if( fossil_strcmp(zMimetype,"text/html")==0 ){
+    if( doc_is_embedded_html(pIn, &title) ){
+      blob_appendf(pOut, "%s\n", blob_str(&title));
+    }
     html_to_plaintext(blob_str(pIn), pOut);
   }else{
     *pOut = *pIn;
@@ -1056,7 +1077,7 @@ void search_stext(
   switch( cType ){
     case 'd': {   /* Documents */
       Blob doc;
-        content_get(rid, &doc);
+      content_get(rid, &doc);
       blob_to_utf8_no_bom(&doc, 0);
       get_stext_by_mimetype(&doc, mimetype_from_name(zName), pOut);
       blob_reset(&doc);
@@ -1075,6 +1096,7 @@ void search_stext(
     }
     case 'c': {   /* Check-in Comments */
       static Stmt q;
+      static int isPlainText = -1;
       db_static_prepare(&q,
          "SELECT coalesce(ecomment,comment)"
          "  ||' (user: '||coalesce(euser,user,'?')"
@@ -1085,10 +1107,21 @@ void search_stext(
          "      AND tagxref.rid=event.objid AND tagxref.tagtype>0)"
          "  ||')'"
          "  FROM event WHERE objid=:x AND type='ci'");
+      if( isPlainText<0 ){
+        isPlainText = db_get_boolean("timeline-plaintext",0);
+      }
       db_bind_int(&q, ":x", rid);
       if( db_step(&q)==SQLITE_ROW ){
-        db_column_blob(&q, 0, pOut);
         blob_append(pOut, "\n", 1);
+        if( isPlainText ){
+          db_column_blob(&q, 0, pOut);
+        }else{
+          Blob x;
+          blob_init(&x,0,0);
+          db_column_blob(&q, 0, &x);
+          get_stext_by_mimetype(&x, "text/x-fossil-wiki", pOut);
+          blob_reset(&x);
+        }
       }
       db_reset(&q);
       break;
@@ -1131,6 +1164,26 @@ void test_search_stext(void){
   if( g.argc!=5 ) usage("TYPE RID NAME");
   search_stext(g.argv[2][0], atoi(g.argv[3]), g.argv[4], &out);
   fossil_print("%s\n",blob_str(&out));
+  blob_reset(&out);
+}
+
+/*
+** COMMAND: test-convert-stext
+**
+** Usage: fossil test-convert-stext FILE MIMETYPE
+**
+** Read the content of FILE and convert it to stext according to MIMETYPE.
+** Send the result to standard output.
+*/
+void test_convert_stext(void){
+  Blob in, out;
+  db_find_and_open_repository(0,0);
+  if( g.argc!=4 ) usage("FILENAME MIMETYPE");
+  blob_read_from_file(&in, g.argv[2]);
+  blob_init(&out, 0, 0);
+  get_stext_by_mimetype(&in, g.argv[3], &out);
+  fossil_print("%s\n",blob_str(&out));
+  blob_reset(&in);
   blob_reset(&out);
 }
 

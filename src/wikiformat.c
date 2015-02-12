@@ -2111,10 +2111,15 @@ void test_html_tidy(void){
 /*
 ** Remove all HTML markup from the input text.  The output written into
 ** pOut is pure text.
+**
+** Put the title on the first line, if there is any <title> markup.
+** If there is no <title>, then create a blank first line.
 */
 void html_to_plaintext(const char *zIn, Blob *pOut){
   int n;
   int i, j;
+  int inTitle = 0;          /* True between <title>...</title> */
+  int seenText = 0;         /* True after first non-whitespace seen */
   int nNL = 0;              /* Number of \n characters at the end of pOut */
   int nWS = 0;              /* True if pOut ends with whitespace */
   while( fossil_isspace(zIn[0]) ) zIn++;
@@ -2142,7 +2147,10 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
         if( zIn[0]=='<' ) zIn += n;
         continue;
       }
-      if( !isCloseTag && (eType & (MUTYPE_BLOCK|MUTYPE_TABLE))!=0 ){
+      if( eTag==MARKUP_TITLE ){
+        inTitle = !isCloseTag;
+      }
+      if( !isCloseTag && seenText && (eType & (MUTYPE_BLOCK|MUTYPE_TABLE))!=0 ){
         if( nNL==0 ){
           blob_append(pOut, "\n", 1);
           nNL++;
@@ -2150,10 +2158,15 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
         nWS = 1;
       }
     }else if( fossil_isspace(zIn[0]) ){
-      for(i=nNL=0; i<n; i++) if( zIn[i]=='\n' ) nNL++;
-      if( !nWS ){
-        blob_append(pOut, nNL ? "\n" : " ", 1);
-        nWS = 1;
+      if( seenText ){
+        nNL = 0;
+        if( !inTitle ){ /* '\n' -> ' ' within <title> */
+          for(i=0; i<n; i++) if( zIn[i]=='\n' ) nNL++;
+        }
+        if( !nWS ){
+          blob_append(pOut, nNL ? "\n" : " ", 1);
+          nWS = 1;
+        }
       }
     }else if( zIn[0]=='&' ){
       char c = '?';
@@ -2176,16 +2189,20 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
         }
       }
       if( fossil_isspace(c) ){
-        if( nWS==0 ) blob_append(pOut, &c, 1);
+        if( nWS==0 && seenText ) blob_append(pOut, &c, 1);
         nWS = 1;
         nNL = c=='\n';
       }else{
+        if( !seenText && !inTitle ) blob_append(pOut, "\n", 1);
+        seenText = 1;
+        nNL = nWS = 0;
         blob_append(pOut, &c, 1);
-        nWS = nNL = 0;
       }
     }else{
-      blob_append(pOut, zIn, n);
+      if( !seenText && !inTitle ) blob_append(pOut, "\n", 1);
+      seenText = 1;
       nNL = nWS = 0;
+      blob_append(pOut, zIn, n);
     }
     zIn += n;
   }
