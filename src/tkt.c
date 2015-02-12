@@ -430,7 +430,7 @@ static void showAllFields(void){
   for(i=0; i<nField; i++){
     @ <li>aField[%d(i)].zName = "%h(aField[i].zName)";
     @ originally = "%h(aField[i].zValue)";
-    @ currently = "%h(PD(aField[i].zName,""))"";
+    @ currently = "%h(PD(aField[i].zName,""))";
     if( aField[i].zAppend ){
       @ zAppend = "%h(aField[i].zAppend)";
     }

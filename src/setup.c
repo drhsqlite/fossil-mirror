@@ -1710,7 +1710,7 @@ void setup_modreq(void){
   onoff_attribute("Moderate ticket changes",
      "modreq-tkt", "modreq-tkt", 0, 0);
   @ <p>When enabled, any change to tickets is subject to the approval
-  @ a ticket moderator - a user with the "q" or Mod-Tkt privilege.
+  @ by a ticket moderator - a user with the "q" or Mod-Tkt privilege.
   @ Ticket changes enter the system and are shown locally, but are not
   @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Ticket changes made by
@@ -1721,7 +1721,7 @@ void setup_modreq(void){
   onoff_attribute("Moderate wiki changes",
      "modreq-wiki", "modreq-wiki", 0, 0);
   @ <p>When enabled, any change to wiki is subject to the approval
-  @ a ticket moderator - a user with the "l" or Mod-Wiki privilege.
+  @ by a wiki moderator - a user with the "l" or Mod-Wiki privilege.
   @ Wiki changes enter the system and are shown locally, but are not
   @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Wiki changes made by
