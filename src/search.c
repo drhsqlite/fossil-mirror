@@ -1036,18 +1036,35 @@ static void get_stext_by_mimetype(
 ** Query pQuery is pointing at a single row of output.  Append a text
 ** representation of every text-compatible column to pAccum.
 */
-static void append_all_ticket_fields(Blob *pAccum, Stmt *pQuery){
+static void append_all_ticket_fields(Blob *pAccum, Stmt *pQuery, int iTitle){
   int n = db_column_count(pQuery);
   int i;
+  const char *zMime = 0;
+  if( iTitle>=0 ){
+    if( db_column_type(pQuery,iTitle)==SQLITE_TEXT ){
+      blob_append(pAccum, db_column_text(pQuery,iTitle), -1);
+    }
+    blob_append(pAccum, "\n", 1);
+  }
   for(i=0; i<n; i++){
     const char *zColName = db_column_name(pQuery,i);
+    int eType = db_column_type(pQuery,i);
+    if( i==iTitle ) continue;
     if( fossil_strnicmp(zColName,"tkt_",4)==0 ) continue;
-    if( fossil_stricmp(zColName,"mimetype")==0 ) continue;
-    switch( db_column_type(pQuery,i) ){
-      case SQLITE_INTEGER:
-      case SQLITE_FLOAT:
-      case SQLITE_TEXT:
-        blob_appendf(pAccum, "%s: %s |\n", zColName, db_column_text(pQuery,i));
+    if( fossil_strnicmp(zColName,"private_",8)==0 ) continue;
+    if( eType==SQLITE_BLOB || eType==SQLITE_NULL ) continue;
+    if( fossil_stricmp(zColName,"mimetype")==0 ){
+      zMime = db_column_text(pQuery,i);
+      if( fossil_strcmp(zMime,"text/plain")==0 ) zMime = 0;
+    }else if( zMime==0 || eType!=SQLITE_TEXT ){
+      blob_appendf(pAccum, "%s: %s |\n", zColName, db_column_text(pQuery,i));
+    }else{
+      Blob txt;
+      blob_init(&txt, db_column_text(pQuery,i), -1);
+      blob_appendf(pAccum, "%s: ", zColName);
+      get_stext_by_mimetype(&txt, zMime, pAccum);
+      blob_append(pAccum, " |", 2);
+      blob_reset(&txt);
     }
   }
 }
@@ -1128,12 +1145,17 @@ void search_stext(
     }
     case 't': {   /* Tickets */
       static Stmt q1;
-      Blob raw;
+      static int iTitle = -1;
       db_static_prepare(&q1, "SELECT * FROM ticket WHERE tkt_id=:rid");
-      blob_init(&raw,0,0);
       db_bind_int(&q1, ":rid", rid);
       if( db_step(&q1)==SQLITE_ROW ){
-        append_all_ticket_fields(&raw, &q1);
+        if( iTitle<0 ){
+          int n = db_column_count(&q1);
+          for(iTitle=0; iTitle<n; iTitle++){
+            if( fossil_stricmp(db_column_name(&q1,iTitle),"title")==0 ) break;
+          }
+        }
+        append_all_ticket_fields(pOut, &q1, iTitle);
       }
       db_reset(&q1);
       if( db_table_exists("repository","ticketchng") ){
@@ -1142,12 +1164,10 @@ void search_stext(
                                "  ORDER BY tkt_mtime");
         db_bind_int(&q2, ":rid", rid);
         while( db_step(&q2)==SQLITE_ROW ){
-          append_all_ticket_fields(&raw, &q2);
+          append_all_ticket_fields(pOut, &q2, -1);
         }
         db_reset(&q2);
       }
-      html_to_plaintext(blob_str(&raw), pOut);
-      blob_reset(&raw);
       break;
     }
   }
