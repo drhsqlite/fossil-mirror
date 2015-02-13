@@ -161,7 +161,7 @@ void branch_new(void){
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", brid);
-  fossil_print("New branch: %s\n", zUuid);
+  fossil_print("New branch: %S\n", zUuid);
   if( g.argc==3 ){
     fossil_print(
       "\n"

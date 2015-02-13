@@ -995,7 +995,7 @@ static void get_stext_by_mimetype(
   const char *zMimetype,
   Blob *pOut
 ){
-  Blob html, title, tail;
+  Blob html, title;
   blob_init(&html, 0, 0);
   blob_init(&title, 0, 0);
   if( zMimetype==0 ) zMimetype = "text/plain";

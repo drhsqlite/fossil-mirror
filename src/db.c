@@ -2391,6 +2391,7 @@ const Setting aSetting[] = {
   { "encoding-glob",    0,             40, 1, 0, ""                    },
   { "gdiff-command",    0,             40, 0, 0, "gdiff"               },
   { "gmerge-command",   0,             40, 0, 0, ""                    },
+  { "hash-digits",      0,              5, 0, 0, "10"                  },
   { "http-port",        0,             16, 0, 0, "8080"                },
   { "https-login",      0,              0, 0, 0, "off"                 },
   { "ignore-glob",      0,             40, 1, 0, ""                    },
@@ -2567,6 +2568,9 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     Ex: kdiff3 "%baseline" "%original" "%merge" -o "%output"
 **                     Ex: xxdiff "%original" "%baseline" "%merge" -M "%output"
 **                     Ex: meld "%baseline" "%original" "%merge" "%output"
+**
+**    hash-digits      The number of hexadecimal digits of the SHA1 hash to
+**                     display.  (Default: 10; Minimum: 6)
 **
 **    http-port        The TCP/IP port number to use by the "server"
 **                     and "ui" commands.  Default: 8080

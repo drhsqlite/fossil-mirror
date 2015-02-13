@@ -445,7 +445,7 @@ void ainfo_page(void){
   if( P("del")
    && ((zTktUuid && g.perm.WrTkt) || (zWikiName && g.perm.WrWiki))
   ){
-    form_begin(0, "%R/ainfo/%s", zUuid);
+    form_begin(0, "%R/ainfo/%!S", zUuid);
     @ <p>Confirm you want to delete the attachment shown below.
     @ <input type="submit" name="confirm" value="Confirm">
     @ </form>
@@ -458,7 +458,7 @@ void ainfo_page(void){
     if( strcmp(zModAction,"delete")==0 ){
       moderation_disapprove(rid);
       if( zTktUuid ){
-        cgi_redirectf("%R/tktview/%s", zTktUuid);
+        cgi_redirectf("%R/tktview/%!S", zTktUuid);
       }else{
         cgi_redirectf("%R/wiki?name=%t", zWikiName);
       }
