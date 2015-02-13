@@ -524,6 +524,35 @@ int captcha_is_correct(void){
 }
 
 /*
+** Make a captcha string initially illegible in an attempt to confuse
+** robots.
+*/
+static char *captcha_obscure(char *z){
+  int i;
+  for(i=0; z[i]; i++){
+    if( strchr("/\\()_ |",z[i]) ) z[i] ^= 0x10;
+  }
+  return z;
+}
+
+/*
+** Output javascript that will de-obscure the capture string contained
+** within the element name "zId"
+*/
+static void capture_output_deobscurer(const char *zId, int nDelay){
+  @ <script>
+  @ setTimeout(function(){
+  @   var x = document.getElementById('%s(zId)');
+  @   var str = x.innerHTML.replace(/&lt;/g,"<").replace(/&gt;/g,">")
+  @   x.innerHTML = str.replace(/[?l89O0L]/g,function(c){
+  @     return String.fromCharCode(c.charCodeAt(0)^0x10)
+  @   }).replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  @ },%d(nDelay));
+  @ </script>
+}
+
+
+/*
 ** Generate a captcha display together with the necessary hidden parameter
 ** for the seed and the entry box into which the user will type the text of
 ** the captcha.  This is typically done at the very bottom of a form.
@@ -539,8 +568,8 @@ void captcha_generate(int showButton){
   uSeed = captcha_seed();
   zDecoded = captcha_decode(uSeed);
   zCaptcha = captcha_render(zDecoded);
-  @ <div class="captcha"><table class="captcha"><tr><td><pre>
-  @ %h(zCaptcha)
+  @ <div class="captcha"><table class="captcha"><tr><td><pre id='cx15'>
+  @ %h(captcha_obscure(zCaptcha))
   @ </pre>
   @ Enter security code shown above:
   @ <input type="hidden" name="captchaseed" value="%u(uSeed)" />
@@ -549,6 +578,7 @@ void captcha_generate(int showButton){
     @ <input type="submit" value="Submit">
   }
   @ </td></tr></table></div>
+  capture_output_deobscurer("cx15",3000);
 }
 
 /*
@@ -562,9 +592,10 @@ void captcha_test(void){
     zPw = mprintf("%016llx", x);
   }
   style_header("Captcha Test");
-  @ <pre>
-  @ %s(captcha_render(zPw))
+  @ <pre id='cx'>
+  @ %h(captcha_obscure(captcha_render(zPw)))
   @ </pre>
+  capture_output_deobscurer("cx",2000);
   style_footer();
 }
 

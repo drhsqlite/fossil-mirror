@@ -1,5 +1,5 @@
-C Add\sthe\s"hash-digits"\ssetting\sfor\scontroling\sthe\snumber\sof\sdigits\sof\sthe\nSHA1\shash\sto\sdisplay\sin\soutput\sintended\sfor\shumans.\s\sThe\sminimum\sis\s6\sand\nthe\sdefault\sis\s10.\s\sCompile-time\soption\sFOSSIL_HASH_DIGITS\scan\sset\sa\sdifferent\ndefault.\s\sURLs\suse\sat\sleast\s6\smore\sdigits\sthan\shuman\soutput.\nCompile-time\soption\sFOSSIL_HASH_DIGITS_URL\ssets\sa\slower-bound\son\sthe\snumber\nof\shash\sdigits\sin\sURLs.
-D 2015-02-13T02:36:19.876
+C Obscure\sthe\scaptcha\stext\susing\sa\scharacter\ssubstitution\sfor\sthree\sseconds.
+D 2015-02-13T19:39:06.841
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -349,7 +349,7 @@ F src/browse.c 61e772b999c9f86eecf03cf0114f53573d03200b
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
-F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
+F src/captcha.c 84e3b29993cce247428bdb618449145ccf072acb
 F src/cgi.c 08b3b1ce3e333427860dd5336bb810b272b4b4dd
 F src/checkin.c dc87c556cbd24182b8bb8a30a692a37f3b74f55a
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
@@ -694,7 +694,10 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8fdb68226f27b15581274621f3027bb9f8d78e48
-R 4a3d1451acc8bf3669a29893cf4b7c85
+P cc94bd078e322b6544cc8078957fae6997062656
+R b7c2cc8a7f871d1d40a6cdfe2fe55365
+T *branch * captcha-enhancement
+T *sym-captcha-enhancement *
+T -sym-trunk *
 U drh
-Z 5d10e56c990ab4e1a499aa902b0998e8
+Z 2a12452b5c0f06a20d7f284f0e62203f
