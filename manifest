@@ -1,5 +1,5 @@
-C Take\sover\slatest\sshell.c,\sbut\swithout\sSQLITE_TESTCTRL_IMPOSTER\ssupport\s(included\sSQLite\sdoesn't\shave\sthat\syet).\sReason:\sadd\s'.dbinfo'\scommand\sto\s"fossil\ssqlite"\s[http://www.sqlite.org/src/info/0f65a7e2e09f801b|0f65a7e2e0]\sand\sfix\sbug\sin\s'.import'\s[http://www.sqlite.org/src/info/9c5bcad1f7d04c16|9c5bcad1]
-D 2015-02-13T09:00:51.713
+C A\sfew\smore\splaces\swhere\sdisplayed\sUUID\slength\sshould\sbe\sconfigurable.
+D 2015-02-13T09:03:07.834
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -340,18 +340,18 @@ F skins/rounded1/header.txt e17ef8f3cfa1f92a5b8922708a6eac97f544a79a
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 81baa38e7c83048bf84192d0b810da076f781259
 F src/allrepo.c 37b198fd0ed53ff6c6d0859d9ca640ed9a39b576
-F src/attach.c b36e6e393d2bc76c9786cef30401e3c101a40695
+F src/attach.c 0fbede46125bc36faaabed06aa3a681d958e9f7d
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
-F src/branch.c b041ff1caf7b410f3724fe3ea43d0c11d876f6ed
-F src/browse.c 61e772b999c9f86eecf03cf0114f53573d03200b
+F src/branch.c 5d23a7c61bb902e2337b7344b004e3500d9f13ed
+F src/browse.c 62b80463e8b1ff435fc510835cf27e9526787f02
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c b6b373b7b5a2b3977a4274399f0853831c162462
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 08b3b1ce3e333427860dd5336bb810b272b4b4dd
-F src/checkin.c dc87c556cbd24182b8bb8a30a692a37f3b74f55a
+F src/checkin.c 2675bbb7c9aed6a29d80e92be88085fa34035b90
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c cca4f31e16d619ee841bfae5919fdd529523f62f
@@ -375,7 +375,7 @@ F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 7b4e962d4c780141cd365e48d03277c31d1e2cf0
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c b679d1682780c813c97c0de352e671d0ad40dca4
-F src/finfo.c 25bae066a904cc00f6a66b3325615ce946bd3c4a
+F src/finfo.c e72ec0530ddd16cd63a6c91314ffd8290a31ef35
 F src/foci.c 5f8f822add6007009b2abb7f3d238122e29d9a90
 F src/fusefs.c 6834881d9573f824aa10ee06985b3d03e24d7172
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -386,7 +386,7 @@ F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 0c184184f4d37cccfeb99e0d3e059c4b9d169c95
-F src/info.c 74621251d965037c199787eb65cc5858d3034653
+F src/info.c 01b00922d4461d81350fb1ee65b5b04446e41a42
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cc94bd078e322b6544cc8078957fae6997062656
-R 7824d26ad8fee6af08b47481ad3d8199
+P d96488860f5a855908a33edd2018f8f3d3c0dde0
+R a5a28dd2bbf6e890fbb80c3a0b386720
 U jan.nijtmans
-Z 71799a49c7b2f031db31b47b96172ac1
+Z 02be3d17957900f71f1d98cb2d1232c6

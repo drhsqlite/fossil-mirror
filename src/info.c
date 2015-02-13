@@ -1338,7 +1338,7 @@ int object_description(
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".");
       if( pDownloadName && blob_size(pDownloadName)==0 ){
-        blob_appendf(pDownloadName, "%.10s.txt", zUuid);
+        blob_appendf(pDownloadName, "%S.txt", zUuid);
       }
       tag_private_status(rid);
       cnt++;
@@ -1390,7 +1390,7 @@ int object_description(
   if( cnt==0 ){
     @ Control artifact.
     if( pDownloadName && blob_size(pDownloadName)==0 ){
-      blob_appendf(pDownloadName, "%.10s.txt", zUuid);
+      blob_appendf(pDownloadName, "%S.txt", zUuid);
     }
     tag_private_status(rid);
   }

@@ -217,7 +217,7 @@ void finfo_cmd(void){
         fossil_free(zOut);
       }else{
         blob_reset(&line);
-        blob_appendf(&line, "%.10s ", zCiUuid);
+        blob_appendf(&line, "%S ", zCiUuid);
         blob_appendf(&line, "%.10s ", zDate);
         blob_appendf(&line, "%8.8s ", zUser);
         blob_appendf(&line, "%8.8s ", zBr);
