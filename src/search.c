@@ -215,7 +215,7 @@ static int search_match(
           for(k=1; j-k>=0 && anMatch[j-k] && aiWordIdx[j-k]==iWord-k; k++){}
           for(ii=0; ii<k; ii++){
             if( anMatch[j-ii]<k ){
-              anMatch[j-ii] = k;
+              anMatch[j-ii] = k*(nDoc-iDoc);
               aiBestDoc[j-ii] = aiLastDoc[j-ii];
               aiBestOfst[j-ii] = aiLastOfst[j-ii];
             }
@@ -398,10 +398,14 @@ static void search_match_sqlfunc(
   int argc,
   sqlite3_value **argv
 ){
-  const char *zSText = (const char*)sqlite3_value_text(argv[0]);
+  const char *azDoc[5];
+  int nDoc;
   int rc;
-  if( zSText==0 ) return;
-  rc = search_match(&gSearch, 1, &zSText);
+  for(nDoc=0; nDoc<ArraySize(azDoc) && nDoc<argc; nDoc++){
+    azDoc[nDoc] = (const char*)sqlite3_value_text(argv[nDoc]);
+    if( azDoc[nDoc]==0 ) azDoc[nDoc] = "";
+  }
+  rc = search_match(&gSearch, nDoc, azDoc);
   sqlite3_result_int(context, rc);
 }
 
@@ -437,12 +441,39 @@ static void search_stext_sqlfunc(
   int argc,
   sqlite3_value **argv
 ){
-  Blob txt;
   const char *zType = (const char*)sqlite3_value_text(argv[0]);
   int rid = sqlite3_value_int(argv[1]);
   const char *zName = (const char*)sqlite3_value_text(argv[2]);
-  search_stext(zType[0], rid, zName, &txt);
-  sqlite3_result_text(context, blob_materialize(&txt), -1, fossil_free);
+  sqlite3_result_text(context, search_stext_cached(zType[0],rid,zName,0), -1,
+                      SQLITE_TRANSIENT);
+}
+static void search_title_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zType = (const char*)sqlite3_value_text(argv[0]);
+  int rid = sqlite3_value_int(argv[1]);
+  const char *zName = (const char*)sqlite3_value_text(argv[2]);
+  int nHdr;
+  char *z = search_stext_cached(zType[0], rid, zName, &nHdr);
+  if( nHdr || zType[0]!='d' ){
+    sqlite3_result_text(context, z, nHdr, SQLITE_TRANSIENT);
+  }else{
+    sqlite3_result_value(context, argv[2]);
+  }
+}
+static void search_body_sqlfunc(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zType = (const char*)sqlite3_value_text(argv[0]);
+  int rid = sqlite3_value_int(argv[1]);
+  const char *zName = (const char*)sqlite3_value_text(argv[2]);
+  int nHdr;
+  char *z = search_stext_cached(zType[0], rid, zName, &nHdr);
+  sqlite3_result_text(context, z+nHdr+1, -1, SQLITE_TRANSIENT);
 }
 
 /*
@@ -465,7 +496,7 @@ static void search_urlencode_sqlfunc(
 void search_sql_setup(sqlite3 *db){
   static int once = 0;
   if( once++ ) return;
-  sqlite3_create_function(db, "search_match", 1, SQLITE_UTF8, 0,
+  sqlite3_create_function(db, "search_match", -1, SQLITE_UTF8, 0,
      search_match_sqlfunc, 0, 0);
   sqlite3_create_function(db, "search_score", 0, SQLITE_UTF8, 0,
      search_score_sqlfunc, 0, 0);
@@ -475,6 +506,10 @@ void search_sql_setup(sqlite3 *db){
      search_init_sqlfunc, 0, 0);
   sqlite3_create_function(db, "stext", 3, SQLITE_UTF8, 0,
      search_stext_sqlfunc, 0, 0);
+  sqlite3_create_function(db, "title", 3, SQLITE_UTF8, 0,
+     search_title_sqlfunc, 0, 0);
+  sqlite3_create_function(db, "body", 3, SQLITE_UTF8, 0,
+     search_body_sqlfunc, 0, 0);
   sqlite3_create_function(db, "urlencode", 1, SQLITE_UTF8, 0,
      search_urlencode_sqlfunc, 0, 0);
 }
@@ -619,7 +654,7 @@ static void search_fullscan(
       );
       db_multi_exec(
         "INSERT INTO x(label,url,score,date,snip)"
-        "  SELECT printf('Document: %%s',foci.filename),"
+        "  SELECT printf('Document: %%s',title('d',blob.rid,foci.filename)),"
         "         printf('/doc/%T/%%s',foci.filename),"
         "         search_score(),"
         "         (SELECT datetime(event.mtime) FROM event"
@@ -628,7 +663,8 @@ static void search_fullscan(
         "    FROM foci CROSS JOIN blob"
         "   WHERE checkinID=symbolic_name_to_rid('trunk')"
         "     AND blob.uuid=foci.uuid"
-        "     AND search_match(stext('d',blob.rid,foci.filename))"
+        "     AND search_match(title('d',blob.rid,foci.filename),"
+        "                      body('d',blob.rid,foci.filename))"
         "     AND %z",
         zDocBr, glob_expr("foci.filename", zDocGlob)
       );
@@ -650,7 +686,7 @@ static void search_fullscan(
       "         datetime(mtime),"
       "         search_snippet()"
       "    FROM wiki"
-      "   WHERE search_match(stext('w',rid,name));"
+      "   WHERE search_match(title('w',rid,name),body('w',rid,name));"
     );
   }
   if( (srchFlags & SRCH_CKIN)!=0 ){
@@ -668,20 +704,20 @@ static void search_fullscan(
       "         datetime(mtime),"
       "         search_snippet()"
       "    FROM ckin"
-      "   WHERE search_match(stext('c',rid,NULL));"
+      "   WHERE search_match('',body('c',rid,NULL));"
     );
   }
   if( (srchFlags & SRCH_TKT)!=0 ){
     db_multi_exec(
       "INSERT INTO x(label,url,score, date,snip)"
-      "  SELECT printf('Ticket [%%.17s] on %%s',"
-                      "tkt_uuid,datetime(tkt_mtime)),"
+      "  SELECT printf('Ticket: %%s (%%s)',title('t',tkt_id,NULL),"
+                      "datetime(tkt_mtime)),"
       "         printf('/tktview/%%.20s',tkt_uuid),"
       "         search_score(),"
       "         datetime(tkt_mtime),"
       "         search_snippet()"
       "    FROM ticket"
-      "   WHERE search_match(stext('t',tkt_id,NULL));"
+      "   WHERE search_match(title('t',tkt_id,NULL),body('t',tkt_id,NULL));"
     );
   }
 }
@@ -1025,8 +1061,7 @@ static void get_stext_by_mimetype(
     }
     html_to_plaintext(blob_str(pIn), pOut);
   }else{
-    *pOut = *pIn;
-    blob_init(pIn, 0, 0);
+    blob_append(pOut, blob_buffer(pIn), blob_size(pIn));
   }
   blob_reset(&html);
   blob_reset(&title);
@@ -1040,7 +1075,7 @@ static void append_all_ticket_fields(Blob *pAccum, Stmt *pQuery, int iTitle){
   int n = db_column_count(pQuery);
   int i;
   const char *zMime = 0;
-  if( iTitle>=0 ){
+  if( iTitle>=0 && iTitle<n ){
     if( db_column_type(pQuery,iTitle)==SQLITE_TEXT ){
       blob_append(pAccum, db_column_text(pQuery,iTitle), -1);
     }
@@ -1171,6 +1206,47 @@ void search_stext(
       break;
     }
   }
+}
+
+/*
+** This routine is a wrapper around search_stext().  
+**
+** This routine looks up the search text, stores it in an internal
+** buffer, and returns a pointer to the text.  Subsequent requests
+** for the same document return the same pointer.  The returned pointer
+** is valid until the next invocation of this routine.  Call this routine
+** with an eType of 0 to clear the cache.
+*/
+char *search_stext_cached(
+  char cType,            /* Type of document */
+  int rid,               /* BLOB.RID or TAG.TAGID value for document */
+  const char *zName,     /* Auxiliary information */
+  int *pnTitle           /* OUT: length of title in bytes excluding \n */
+){
+  static struct {
+    Blob stext;          /* Cached search text */
+    char cType;          /* The type */
+    int rid;             /* The RID */
+    int nTitle;          /* Number of bytes in title */
+  } cache;
+  int i;
+  char *z;
+  if( cType!=cache.cType || rid!=cache.rid ){
+    if( cache.rid>0 ){
+      blob_reset(&cache.stext);
+    }else{
+      blob_init(&cache.stext,0,0);
+    }
+    cache.cType = cType;
+    cache.rid = rid;
+    if( cType==0 ) return 0;
+    search_stext(cType, rid, zName, &cache.stext);
+    z  = blob_str(&cache.stext);
+    for(i=0; z[i] && z[i]!='\n'; i++){}
+    cache.nTitle = i;
+  }
+  if( pnTitle ) *pnTitle = cache.nTitle;
+  return blob_str(&cache.stext);
 }
 
 /*
