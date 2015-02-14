@@ -732,20 +732,28 @@ static void search_rank_sqlfunc(
 ){
   const unsigned *aVal = (unsigned int*)sqlite3_value_blob(argv[0]);
   int nVal = sqlite3_value_bytes(argv[0])/4;
+  int nCol;           /* Number of columns in the index */
   int nTerm;          /* Number of search terms in the query */
-  int i;              /* Loop counter */
+  int i, j;           /* Loop counter */
   double r = 1.0;     /* Score */
+  const unsigned *aX, *aS;
 
-  if( nVal<6 ) return;
-  if( aVal[1]!=1 ) return;
+  if( nVal<2 ) return;
   nTerm = aVal[0];
-  r *= 1<<((30*(aVal[2]-1))/nTerm);
-  for(i=1; i<=nTerm; i++){
-    int hits_this_row = aVal[3*i];
-    int hits_all_rows = aVal[3*i+1];
-    int rows_with_hit = aVal[3*i+2];
-    double avg_hits_per_row = (double)hits_all_rows/(double)rows_with_hit;
-    r *= hits_this_row/avg_hits_per_row;
+  nCol = aVal[1];
+  if( nVal<2+3*nCol*nTerm+4*nCol ) return;
+  aS = aVal+2;
+  aX = aS+nCol;
+  for(j=0; j<nCol; j++){
+    r *= 1<<((30*(aS[j]-1))/nTerm);
+    for(i=0; i<nTerm; i++){
+      int hits_this_row = aX[j + i*nCol];
+      int hits_all_rows = aX[j + i*nCol + 1];
+      int rows_with_hit = aX[j + i*nCol + 2];
+      double avg_hits_per_row = (double)hits_all_rows/(double)rows_with_hit;
+      r *= hits_this_row/avg_hits_per_row;
+    }
+    r *= 2.0;
   }
 #define SEARCH_DEBUG_RANK 0
 #if SEARCH_DEBUG_RANK
@@ -1296,16 +1304,17 @@ static const char zFtsSchema[] =
 @   label TEXT,                -- Label to print on search results
 @   url TEXT,                  -- URL to access this document
 @   mtime DATE,                -- Date when document created
+@   bx TEXT,                   -- Temporary "body" content cache
 @   UNIQUE(type,rid)
 @ );
 @ CREATE INDEX "%w".ftsdocIdxed ON ftsdocs(type,rid,name) WHERE idxed==0;
 @ CREATE INDEX "%w".ftsdocName ON ftsdocs(name) WHERE type='w';
 @ CREATE VIEW IF NOT EXISTS "%w".ftscontent AS
 @   SELECT rowid, type, rid, name, idxed, label, url, mtime,
-@          stext(type,rid,name) AS 'stext'
+@          title(type,rid,name) AS 'title', body(type,rid,name) AS 'body'
 @     FROM ftsdocs;
 @ CREATE VIRTUAL TABLE IF NOT EXISTS "%w".ftsidx
-@   USING fts4(content="ftscontent", stext);
+@   USING fts4(content="ftscontent", title, body%s);
 ;
 static const char zFtsDrop[] =
 @ DROP TABLE IF EXISTS "%w".ftsidx;
@@ -1319,9 +1328,11 @@ static const char zFtsDrop[] =
 static int searchIdxExists = -1;
 void search_create_index(void){
   const char *zDb = db_name("repository");
+  int useStemmer = db_get_boolean("search-stemmer",0);
+  const char *zExtra = useStemmer ? ",tokenize=porter" : "";
   search_sql_setup(g.db);
-  db_multi_exec(zFtsSchema/*works-like:"%w%w%w%w%w"*/,
-       zDb, zDb, zDb, zDb, zDb);
+  db_multi_exec(zFtsSchema/*works-like:"%w%w%w%w%w%s"*/,
+       zDb, zDb, zDb, zDb, zDb, zExtra/*safe-for-%s*/);
   searchIdxExists = 1;
 }
 void search_drop_index(void){
@@ -1443,20 +1454,24 @@ static void search_update_doc_index(void){
     "      AND rid NOT IN (SELECT rid FROM current_docs)"
   );
   db_multi_exec(
-    "INSERT OR IGNORE INTO ftsdocs(type,rid,name,idxed,label,url,mtime)"
+    "INSERT OR IGNORE INTO ftsdocs(type,rid,name,idxed,label,bx,url,mtime)"
     "  SELECT 'd', rid, name, 0,"
-    "         printf('Document: %%s',name),"
+    "         'Document: '||title('d',rid,name),"
+    "         body('d',rid,name),"
     "         printf('/doc/%q/%%s',urlencode(name)),"
     "         %.17g"
     " FROM current_docs",
     zBrUuid, rTime
   );
   db_multi_exec(
-    "INSERT INTO ftsidx(docid,stext)"
-    "  SELECT rowid, stext FROM ftscontent WHERE type='d' AND NOT idxed"
+    "INSERT INTO ftsidx(docid,title,body)"
+    "  SELECT rowid, name, bx FROM ftsdocs WHERE type='d' AND NOT idxed"
   );
   db_multi_exec(
-    "UPDATE ftsdocs SET idxed=1 WHERE type='d' AND NOT idxed"
+    "UPDATE ftsdocs SET"
+    "  idxed=1,"
+    "  bx=NULL"
+    " WHERE type='d' AND NOT idxed"
   );
 }
 
@@ -1465,8 +1480,8 @@ static void search_update_doc_index(void){
 */
 static void search_update_checkin_index(void){
   db_multi_exec(
-    "INSERT INTO ftsidx(docid,stext)"
-    " SELECT rowid, stext('c',rid,NULL) FROM ftsdocs"
+    "INSERT INTO ftsidx(docid,title,body)"
+    " SELECT rowid, '', body('c',rid,NULL) FROM ftsdocs"
     "  WHERE type='c' AND NOT idxed;"
   );
   db_multi_exec(
@@ -1487,15 +1502,16 @@ static void search_update_checkin_index(void){
 */
 static void search_update_ticket_index(void){
   db_multi_exec(
-    "INSERT INTO ftsidx(docid,stext)"
-    " SELECT rowid, stext('t',rid,NULL) FROM ftsdocs"
+    "INSERT INTO ftsidx(docid,title,body)"
+    " SELECT rowid, title('t',rid,NULL), body('t',rid,NULL) FROM ftsdocs"
     "  WHERE type='t' AND NOT idxed;"
   );
   if( db_changes()==0 ) return;
   db_multi_exec(
     "REPLACE INTO ftsdocs(rowid,idxed,type,rid,name,label,url,mtime)"
     "  SELECT ftsdocs.rowid, 1, 't', ftsdocs.rid, NULL,"
-    "    printf('Ticket [%%.16s] on %%s',tkt_uuid,datetime(tkt_mtime)),"
+    "    printf('Ticket: %%s (%%s)',title('t',tkt_id,null),"
+    "           datetime(tkt_mtime)),"
     "    printf('/tktview/%%.20s',tkt_uuid),"
     "    tkt_mtime"
     "  FROM ftsdocs, ticket"
@@ -1509,8 +1525,8 @@ static void search_update_ticket_index(void){
 */
 static void search_update_wiki_index(void){
   db_multi_exec(
-    "INSERT INTO ftsidx(docid,stext)"
-    " SELECT rowid, stext('w',rid,NULL) FROM ftsdocs"
+    "INSERT INTO ftsidx(docid,title,body)"
+    " SELECT rowid, title('w',rid,NULL),body('w',rid,NULL) FROM ftsdocs"
     "  WHERE type='w' AND NOT idxed;"
   );
   if( db_changes()==0 ) return;
@@ -1567,8 +1583,8 @@ void search_rebuild_index(void){
 ** The "fossil fts-config" command configures the full-text search capabilities
 ** of the repository.  Subcommands:
 **
-**     reindex            Rebuild the search index.  Create it if it does
-**                        not already exist
+**     reindex            Rebuild the search index.  This is a no-op if
+**                        index search is disabled
 **
 **     index (on|off)     Turn the search index on or off
 **
@@ -1576,6 +1592,9 @@ void search_rebuild_index(void){
 **                        d=Documents, t=Tickets, w=Wiki.
 **
 **     disable cdtw       Disable versious kinds of search
+**
+**     stemmer (on|off)   Turn the Porter stemmer on or off for indexed
+**                        search.  (Unindexed search is never stemmed.)
 **
 ** The current search settings are displayed after any changes are applied.
 ** Run this command with no arguments to simply see the settings.
@@ -1586,12 +1605,13 @@ void test_fts_cmd(void){
      { 2,  "index"    },
      { 3,  "disable"  },
      { 4,  "enable"   },
+     { 5,  "stemmer"  },
   };
   static const struct { char *zSetting; char *zName; char *zSw; } aSetng[] = {
-     { "search-ckin",  "check-in search:",  "c" },
-     { "search-doc",   "document search:",  "d" },
-     { "search-tkt",   "ticket search:",    "t" },
-     { "search-wiki",  "wiki search:",      "w" },
+     { "search-ckin",   "check-in search:",  "c" },
+     { "search-doc",    "document search:",  "d" },
+     { "search-tkt",    "ticket search:",    "t" },
+     { "search-wiki",   "wiki search:",      "w" },
   };
   char *zSubCmd;
   int i, j, n;
@@ -1615,7 +1635,7 @@ void test_fts_cmd(void){
     iCmd = aCmd[i].iCmd;
   }
   if( iCmd==1 ){
-    iAction = 2;
+    if( search_index_exists() ) iAction = 2;
   }
   if( iCmd==2 ){
     if( g.argc<3 ) usage("index (on|off)");
@@ -1626,7 +1646,7 @@ void test_fts_cmd(void){
   /* Adjust search settings */
   if( iCmd==3 || iCmd==4 ){
     const char *zCtrl;
-    if( g.argc<4 ) usage("enable STRING");
+    if( g.argc<4 ) usage(mprintf("%s STRING",zSubCmd));
     zCtrl = g.argv[3];
     for(j=0; j<ArraySize(aSetng); j++){
       if( strchr(zCtrl, aSetng[j].zSw[0])!=0 ){
@@ -1634,6 +1654,11 @@ void test_fts_cmd(void){
       }
     }
   }
+  if( iCmd==5 ){
+    if( g.argc<4 ) usage("porter ON/OFF");
+    db_set_int("search-stemmer", is_truth(g.argv[3]), 0);
+  }
+     
 
   /* destroy or rebuild the index, if requested */
   if( iAction>=1 ){
@@ -1648,6 +1673,8 @@ void test_fts_cmd(void){
     fossil_print("%-16s %s\n", aSetng[i].zName,
        db_get_boolean(aSetng[i].zSetting,0) ? "on" : "off");
   }
+  fossil_print("%-16s %s\n", "Porter stemmer:",
+       db_get_boolean("search-stemmer",0) ? "on" : "off");
   if( search_index_exists() ){
     fossil_print("%-16s enabled\n", "full-text index:");
     fossil_print("%-16s %d\n", "documents:",
