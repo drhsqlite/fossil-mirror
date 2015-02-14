@@ -1,5 +1,5 @@
-C Rename\sthe\s"event\sartifact"\stype\sto\s"technical\snote"\sor\s"technote".\s\sThe\nformat\sof\sthe\sartifact\sis\sunchanged.\s\sAdd\sthe\sability\sto\senter\sand\sedit\ntechnotes\sas\smarkdown\sand\splain\stext\sin\saddition\sto\swiki.
-D 2015-02-14T17:56:05.448
+C Updates\sto\sthe\s/sitemap\spage.
+D 2015-02-14T19:04:35.539
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/setup.c 72e3d8640b631d3db99a777866cc7188121d0838
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c a29ab8256f525a7431d865c6c2e7116bd7ffa92a
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
-F src/sitemap.c fb17b11ac688054846d50806c2214153169f886c
+F src/sitemap.c 1ee05a72c2d1dd9be333964b4089d7b2802e8518
 F src/skins.c 3582876e7514edb1116225ea5d68d8636e764e28
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
 F src/sqlite3.c 85ce79948116aa9a087ec345c9d2ce2c1d3cd8af
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c662ad90d3a37d0aa67d169532f9970920f6f89e
-R f218d45c8a98920e634aadd20ef33631
+P bd50848eb51d61dcc74c2af46a0b2c1199f99d24
+R 411cc07dd24ab0428c87c06ca3e6d3d8
 U drh
-Z 4f0bf1ba894cfb9e1f23595ee6f9a273
+Z 383bc3022911431a6bdbee0b3303d0d4
