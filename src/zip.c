@@ -475,6 +475,17 @@ void baseline_zip_page(void){
     @ Not found
     return;
   }
+  if( referred_from_login() ){
+    style_header("ZIP Archive Download");
+    @ <form action='%R/zip'>
+    cgi_query_parameters_to_hidden();
+    @ <p>ZIP Archive named <b>%h(zName).zip</b> holding the content
+    @ of check-in <b>%h(zRid)</b>:
+    @ <input type="submit" value="Download" />
+    @ </form>
+    style_footer();
+    return;
+  }
   if( nRid==0 && nName>10 ) zName[10] = 0;
   zKey = db_text(0, "SELECT '/zip/'||uuid||'/%q' FROM blob WHERE rid=%d",zName,rid);
   blob_zero(&zip);

@@ -1,5 +1,5 @@
-C Change\sdefault\sheaders\sto\sshow\smenu-bar\sitems\sthat\swould\sbe\savailable\nto\suser\s"anonymous"\seven\sif\sthe\scurrent\suser\sis\snot\slogged\sin.
-D 2015-02-14T14:05:05.766
+C Added\sthe\sreferred_from_login()\sfunction\sand\suse\sit\sto\senhance\sthe\s/zip\sand\n/tarball\spages\sso\sthat\sthey\sshow\sa\sdownload\sbutton\sto\sclick\sif\sthe\sreferrer\npage\swas\s/login.
+D 2015-02-14T14:55:41.146
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -405,7 +405,7 @@ F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
 F src/json_wiki.c fca83828f069a0964f7b5e72dc4e8793e8571707
 F src/leaf.c a8880fbcf409f34c0ea9566f8b548a96496856a7
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
-F src/login.c d3fbff4fe6dbcfb44af79c3ce21bbe3dea816f55
+F src/login.c db73eac13084bc3e030a2ecf60fa298e8e53c97b
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c 3d17275ac19e6ea868a8bb0cad7a48de6b7cebca
 F src/main.mk 17e859f85a513f5e88937e8595d25357794d300f
@@ -453,7 +453,7 @@ F src/statrep.c 1128b3def0a01aa4f5349189c5e9122f4bb8028a
 F src/style.c 2661152c6e67aa4089d2e8366c0feeb18e8f2013
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 5e978c8c486ac450c4674025529c60186428982e
-F src/tar.c dc2ecf7d82d3e15baf37903b574a7791d8ffeb33
+F src/tar.c d3a332c83b24d4a498c3ce05dcafcc3496f27f25
 F src/th.c f3e2d60ea44acd118e8462d48c0865c496f89e6f
 F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
@@ -479,7 +479,7 @@ F src/winhttp.c 55e7d4f21887561faea665fc3f6c15e5f511792e
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 2e4de226a79936b985bdcf69a0de04d612f5c579
 F src/xfersetup.c 93dd7188de02cd6d980ffec9f4092244965a5fe7
-F src/zip.c 47fabdf7bb974bd85b821b0cfd69f58755e244fc
+F src/zip.c 4493de5cc26e348be7624d0b7b1aaa41006f282f
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2f50d427a9482d4ccac4a1e42385905115b70338
-R 50dbc5ee231f3ca99bf5ea8dffdd2bce
+P 72cddddbcc2e4b19ae173ff568ded585b82d393f
+R 38b1a12a33eef4e759f4797f72331709
 U drh
-Z 60eb1391e972ba12d5f97933d1341682
+Z ff25c393adf9ac5ee665e5fe0781e072

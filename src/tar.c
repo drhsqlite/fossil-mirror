@@ -641,6 +641,17 @@ void tarball_page(void){
     style_footer();
     return;
   }
+  if( referred_from_login() ){
+    style_header("Tarball Download");
+    @ <form action='%R/tarball'>
+    cgi_query_parameters_to_hidden();
+    @ <p>Tarball named <b>%h(zName).tar.gz</b> holding the content
+    @ of check-in <b>%h(zRid)</b>:
+    @ <input type="submit" value="Download" />
+    @ </form>
+    style_footer();
+    return;
+  }
   blob_zero(&tarball);
   if( cache_read(&tarball, zKey)==0 ){
     tarball_of_checkin(rid, &tarball, zName);

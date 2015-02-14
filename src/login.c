@@ -449,6 +449,21 @@ static void constant_time_cmp_function(
 }
 
 /*
+** Return true if the current page was reached by a redirect from the /login
+** page.
+*/
+int referred_from_login(void){
+  const char *zReferer = P("HTTP_REFERER");
+  char *zPattern;
+  int rc;
+  if( zReferer==0 ) return 0;
+  zPattern = mprintf("%s/login*", g.zBaseURL);
+  rc = sqlite3_strglob(zPattern, zReferer)==0;
+  fossil_free(zPattern);
+  return rc;
+}
+
+/*
 ** There used to be a page named "my" that was designed to show information
 ** about a specific user.  The "my" page was linked from the "Logged in as USER"
 ** line on the title bar.  The "my" page was never completed so it is now
