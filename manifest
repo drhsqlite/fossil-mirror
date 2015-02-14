@@ -1,5 +1,5 @@
-C Updates\sto\sthe\s/sitemap\spage.
-D 2015-02-14T19:04:35.539
+C Documentation\supdates:\s\sRevise\sthe\schange\slist.\s\sContinue\smigrating\sfrom\nthe\sterm\s"Event"\sover\sto\s"Technical\sNote".\s\sUpdate\sthe\swiki\sdocumentation\nto\sacknowledge\sthe\sability\sto\suse\sMarkdown\sfor\sthe\spast\stwo\syears.
+D 2015-02-14T20:55:57.950
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -442,7 +442,7 @@ F src/setup.c 72e3d8640b631d3db99a777866cc7188121d0838
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c a29ab8256f525a7431d865c6c2e7116bd7ffa92a
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
-F src/sitemap.c 1ee05a72c2d1dd9be333964b4089d7b2802e8518
+F src/sitemap.c f173892c2871ab1de8640be58d2ac2c2569f3394
 F src/skins.c 3582876e7514edb1116225ea5d68d8636e764e28
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
 F src/sqlite3.c 85ce79948116aa9a087ec345c9d2ce2c1d3cd8af
@@ -459,7 +459,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c d6425dc1719c346e7af15bcd44b3c35a9f8fc069
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c d440c7ce701168c4f1a95efd0877067aef8c08e0
+F src/timeline.c 519d10c7cf89768b46d52adb4a9ff41c51f1580f
 F src/tkt.c 6023529b050cf5919b5b35b53874c90f883d2b8e
 F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -614,7 +614,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 1f3f22a07ecd948bac7c1fac08b442446b530b78
-F www/changes.wiki 8cd8c6090d558819a0ea791523ff15c7bbe7cd5c
+F www/changes.wiki 1f36b1a3f284b31519228654692d1a906c7df4e8
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 80d94f4d8d893e7ba3f0bb261986e6f7a003cd41
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -633,7 +633,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki 9686168c940fc6e88065a845918e9b7e77e881c8
 F www/delta_format.wiki 089fc33721dd235f448fa4ef807996e521e74303
-F www/embeddeddoc.wiki bff623894edca5194e2619dcbffe37b2bd954e87
+F www/embeddeddoc.wiki b0a84f7535827c2d612d9cd6598f028d12cf55e6
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -644,7 +644,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
+F www/event.wiki 15162ec1152f20fd11ff9cee4c8fd20bb4e9e930
 F www/faq.tcl fc729b76b9dfb449c128525eef9b05f7efe18fc8
 F www/faq.wiki 281b387c178fd439a4d2f47856434dd2e54f566f
 F www/fileformat.wiki 6bbd07271995eee02c9a8db3c5f2ecee5ec00fe1
@@ -693,8 +693,8 @@ F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
-F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bd50848eb51d61dcc74c2af46a0b2c1199f99d24
-R 411cc07dd24ab0428c87c06ca3e6d3d8
+F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
+P 767c97c603633a82e4858beaf22b92a1b8394229
+R 9c8107e6f1deb0c680f0ce95f6b484c8
 U drh
-Z 383bc3022911431a6bdbee0b3303d0d4
+Z 9dd9754a13fd58a8a887646a05b3a4d9

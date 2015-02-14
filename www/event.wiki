@@ -1,17 +1,19 @@
-<title>Events</title>
+<title>Technical Notes</title>
 
-<h2>What Is An "Event"?</h2>
+<h2>What Is An "Technote"?</h2>
 
-In Fossil, and "event" is a special kind of [./wikitheory.wiki | wiki page]
+In Fossil, a "technical note" or "technote" (formerly called an "event")
+is a special kind of [./wikitheory.wiki | wiki page]
 that is associated with a point in time rather than having a page name.
-Each event causes a single entry to appear on the [/timeline | Timeline Page].
-Clicking on the hyperlink of the timeline entry cause a jump to the wiki
-content for the event.  The wiki content, the timeline entry text, the
+Each technote causes a single entry to appear on the
+[/timeline?y=e | Timeline Page].
+Clicking on the timeline link will display the text of the technote.
+The wiki content, the timeline entry text, the
 time of the event, and the timeline background color can all be edited.
 
-As with check-ins, wiki, and tickets, all events automatically synchronize
-to other repositories.  Hence, events can be viewed, created, and edited
-off-line.  And the complete edit history for events is maintained
+As with check-ins, wiki, and tickets, all technotes automatically synchronize
+to other repositories.  Hence, technotes can be viewed, created, and edited
+off-line.  And the complete edit history for technotes is maintained
 for auditing purposes.
 
 Possible uses for events include:
@@ -43,33 +45,31 @@ Possible uses for events include:
      team or acquisition of new project sponsors can be communicated as
      announcements which can be implemented as events.
 
-No project is required to use events.  But events can help many projects
+No project is required to use technotes.  But technotes can help many projects
 stay better organized and provide a better historical record of the
 development progress.
 
-<h2>Viewing Events</h2>
+<h2>Viewing Technotes</h2>
 
-Because events are considered a special kind of wiki, 
+Because technotes are considered a special kind of wiki, 
 users must have permission to read wiki in order read events.
 Enable the "j" permission under the /Setup/Users menu in order
 to give specific users or user classes the ability to view wiki
-and events.
+and technotes.
 
-Events show up on the timeline.  Click on the hyperlink beside the
-event title to see the details of the event.
+Technotes show up on the timeline.  Click on the hyperlink beside the
+technote title to see the complete text.
 
-<h2>Creating And Editing Events</h2>
+<h2>Creating And Editing Technotes</h2>
 
-There is a hyperlink under the /Wiki menu that can be used to create
-new events.  And there is a submenu hyperlink on event displays for
-editing existing events.
+There is a hyperlink under the /wikihelp menu that can be used to create
+new technotes.  And there is a submenu hyperlink on technote displays for
+editing existing technotes.
 
 Users must have check-in privileges (permission "i") in order to 
-create or edit events.  In addition, users must have create-wiki
-privilege (permission "f") to create new events and edit-wiki
-privilege (permission "k") in order to edit existing events.
+create or edit technotes.  In addition, users must have create-wiki
+privilege (permission "f") to create new technotes and edit-wiki
+privilege (permission "k") in order to edit existing technotes.
 
-If the first non-whitespace text of the event wiki content is
-&lt;title&gt;...&lt;/title&gt; then that markup is omitted from
-the body of the wiki pages and is instead displayed as the page
-title.
+Technote content may be formatted as [/wiki_rules | Fossil wiki],
+[/md_rules | Markdown], or a plain text.

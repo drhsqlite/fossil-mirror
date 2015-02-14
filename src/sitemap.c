@@ -93,6 +93,7 @@ void sitemap_page(void){
   @   <ul>
   @   <li>%z(href("%R/help"))List of All Commands and Web Pages</a></li>
   @   <li>%z(href("%R/test-all-help"))All "help" text on a single page</a></li>
+  @   <li>%z(href("%R/mimetype_list"))Filename suffix to mimetype map</a></li>
   @   </ul></li>
   @ <li>%z(href("%R/setup"))Administration Pages</a>
   @   <ul>

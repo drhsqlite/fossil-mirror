@@ -22,8 +22,14 @@
   *  Embedded html documents that begin with
      &lt;doc class="fossil-doc"&gt; are displayed with standard
      headers and footers added.
+  *  Renamed "Events" to "Technical Notes", while updating the technote
+     display and control pages.  Add support for technotes as plain text
+     or as Markdown.
   *  Added the [/md_rules] pages containing summary instructions on the
      Markdown format.
+  *  Improvements to the /login page.  Some hyperlinks to pages that require
+     "anonymous" privileges are displayed even if the current user is "nobody"
+     but automatically redirect to /login.
   *  The [/help?cmd=/doc|/doc] web-page will now try to deliver the file
      "404.md" from the top-level directory (if such a file exists) in
      place of its built-in 404 text.

@@ -1451,7 +1451,7 @@ void page_timeline(void){
       }else if( zType[0]=='t' ){
         zEType = "ticket change";
       }else if( zType[0]=='e' ){
-        zEType = "event";
+        zEType = "technical note";
       }else if( zType[0]=='g' ){
         zEType = "tag";
       }
@@ -1817,7 +1817,7 @@ static int isIsoDate(const char *z){
 **   --offset P           skip P changes
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
-**                            e  = events only
+**                            e  = technical notes only
 **                            t  = tickets only
 **                            w  = wiki commits only
 **   -v|--verbose         Output the list of files changed by each commit
