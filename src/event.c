@@ -71,7 +71,7 @@ void event_page(void){
   */
   login_check_credentials();
   if( !g.perm.RdWiki ){
-    login_needed();
+    login_needed(g.anon.RdWiki);
     return;
   }
 
@@ -235,7 +235,7 @@ void eventedit_page(void){
   ** to edit/create an event.
   */
   if( !g.perm.Write || (rid && !g.perm.WrWiki) || (!rid && !g.perm.NewWiki) ){
-    login_needed();
+    login_needed(g.anon.Write && (rid ? g.anon.WrWiki : g.anon.NewWiki));
     return;
   }
 

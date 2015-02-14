@@ -195,8 +195,11 @@ struct Global {
   char *zIpAddr;          /* The remote IP address */
   char *zNonce;           /* The nonce used for login */
 
-  /* permissions used by the server */
+  /* permissions available to current user */
   struct FossilUserPerms perm;
+
+  /* permissions available to user "anonymous" */
+  struct FossilUserPerms anon;
 
 #ifdef FOSSIL_ENABLE_TCL
   /* all Tcl related context necessary for integration */

@@ -450,7 +450,7 @@ void baseline_zip_page(void){
   char *zKey;
 
   login_check_credentials();
-  if( !g.perm.Zip ){ login_needed(); return; }
+  if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
   load_control();
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);

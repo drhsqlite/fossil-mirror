@@ -51,7 +51,8 @@ void shun_page(void){
 
   login_check_credentials();
   if( !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   if( P("rebuild") ){
     db_close(1);
@@ -303,7 +304,8 @@ void rcvfromlist_page(void){
 
   login_check_credentials();
   if( !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   style_header("Artifact Receipts");
   if( showAll ){
@@ -383,7 +385,8 @@ void rcvfrom_page(void){
 
   login_check_credentials();
   if( !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   style_header("Artifact Receipt %d", rcvid);
   if( db_exists(

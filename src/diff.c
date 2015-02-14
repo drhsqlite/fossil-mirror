@@ -2236,7 +2236,7 @@ void annotation_page(void){
   /* Gather query parameters */
   showLog = atoi(PD("log","1"));
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( exclude_spiders("annotate") ) return;
   load_control();
   mid = name_to_typed_rid(PD("checkin","0"),"ci");

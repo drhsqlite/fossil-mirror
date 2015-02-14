@@ -730,7 +730,7 @@ void stats_report_page(){
   const char *zUserName = P("user");
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if(!zUserName) zUserName = P("u");
   url_initialize(&url, "reports");
   if(zUserName && *zUserName){

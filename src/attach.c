@@ -50,15 +50,18 @@ void attachlist_page(void){
      timeline_utc()
   );
   if( zPage ){
-    if( g.perm.RdWiki==0 ) login_needed();
+    if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     style_header("Attachments To %h", zPage);
     blob_append_sql(&sql, " WHERE target=%Q", zPage);
   }else if( zTkt ){
-    if( g.perm.RdTkt==0 ) login_needed();
+    if( g.perm.RdTkt==0 ){ login_needed(g.anon.RdTkt); return; }
     style_header("Attachments To Ticket %S", zTkt);
     blob_append_sql(&sql, " WHERE target GLOB '%q*'", zTkt);
   }else{
-    if( g.perm.RdTkt==0 && g.perm.RdWiki==0 ) login_needed();
+    if( g.perm.RdTkt==0 && g.perm.RdWiki==0 ){
+      login_needed(g.anon.RdTkt || g.anon.RdWiki);
+      return;
+    }
     style_header("All Attachments");
   }
   blob_append_sql(&sql, " ORDER BY mtime DESC");
@@ -152,10 +155,10 @@ void attachview_page(void){
   if( zFile==0 ) fossil_redirect_home();
   login_check_credentials();
   if( zPage ){
-    if( g.perm.RdWiki==0 ) login_needed();
+    if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     zTarget = zPage;
   }else if( zTkt ){
-    if( g.perm.RdTkt==0 ) login_needed();
+    if( g.perm.RdTkt==0 ){ login_needed(g.anon.RdTkt); return; }
     zTarget = zTkt;
   }else{
     fossil_redirect_home();
@@ -245,7 +248,10 @@ void attachadd_page(void){
   if( zPage==0 && zTkt==0 ) fossil_redirect_home();
   login_check_credentials();
   if( zPage ){
-    if( g.perm.ApndWiki==0 || g.perm.Attach==0 ) login_needed();
+    if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
+      login_needed(g.anon.ApndWiki && g.anon.Attach);
+      return;
+    }
     if( !db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'", zPage) ){
       fossil_redirect_home();
     }
@@ -253,7 +259,10 @@ void attachadd_page(void){
     zTargetType = mprintf("Wiki Page <a href=\"%R/wiki?name=%h\">%h</a>",
                            zPage, zPage);
   }else{
-    if( g.perm.ApndTkt==0 || g.perm.Attach==0 ) login_needed();
+    if( g.perm.ApndTkt==0 || g.perm.Attach==0 ){
+      login_needed(g.anon.ApndTkt && g.anon.Attach);
+      return;
+    }
     if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'", zTkt) ){
       zTkt = db_text(0, "SELECT substr(tagname,5) FROM tag"
                         " WHERE tagname GLOB 'tkt-%q*'", zTkt);
@@ -371,7 +380,10 @@ void ainfo_page(void){
   const char *zLn = P("ln");
 
   login_check_credentials();
-  if( !g.perm.RdTkt && !g.perm.RdWiki ){ login_needed(); return; }
+  if( !g.perm.RdTkt && !g.perm.RdWiki ){
+    login_needed(g.anon.RdTkt || g.anon.RdWiki);
+    return;
+  }
   rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -401,13 +413,13 @@ void ainfo_page(void){
    && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid='%q'", zTarget)
   ){
     zTktUuid = zTarget;
-    if( !g.perm.RdTkt ){ login_needed(); return; }
+    if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
     if( g.perm.WrTkt ){
       style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
     }
   }else if( db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",zTarget) ){
     zWikiName = zTarget;
-    if( !g.perm.RdWiki ){ login_needed(); return; }
+    if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
     if( g.perm.WrWiki ){
       style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
     }

@@ -307,7 +307,7 @@ void finfo_page(void){
   int fShowId = P("showid")!=0;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("File History");
   login_anonymous_available();
   url_initialize(&url, "finfo");

@@ -843,7 +843,7 @@ void vpatch_page(void){
   const char *zFrom = P("from");
   const char *zTo = P("to");
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( zFrom==0 || zTo==0 ) fossil_redirect_home();
 
   cgi_set_content_type("text/plain");

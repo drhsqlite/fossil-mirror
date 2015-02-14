@@ -341,7 +341,7 @@ static void new_brlist_page(void){
   Stmt q;
   double rNow;
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Branches");
   style_adunit_config(ADUNIT_RIGHT_OK);
   login_anonymous_available();
@@ -410,7 +410,7 @@ void brlist_page(void){
     return;
   }
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( colorTest ){
     showClosed = 0;
     showAll = 1;
@@ -517,7 +517,7 @@ void brtimeline_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Branches");
   style_submenu_element("List", "List", "brlist");

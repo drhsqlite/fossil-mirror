@@ -241,7 +241,7 @@ static void wiki_standard_submenu(unsigned int ok){
 */
 void wiki_helppage(void){
   login_check_credentials();
-  if( !g.perm.RdWiki ){ login_needed(); return; }
+  if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   style_header("Wiki Help");
   wiki_standard_submenu(W_ALL_BUT(W_HELP));
   @ <h2>Wiki Links</h2>
@@ -314,7 +314,7 @@ void wiki_page(void){
   char *zBody = mprintf("%s","<i>Empty Page</i>");
 
   login_check_credentials();
-  if( !g.perm.RdWiki ){ login_needed(); return; }
+  if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   zPageName = P("name");
   if( zPageName==0 ){
     if( search_restrict(SRCH_WIKI)!=0 ){
@@ -487,7 +487,7 @@ void wikiedit_page(void){
   isSandbox = is_sandbox(zPageName);
   if( isSandbox ){
     if( !g.perm.WrWiki ){
-      login_needed();
+      login_needed(g.anon.WrWiki);
       return;
     }
     if( zBody==0 ){
@@ -503,7 +503,7 @@ void wikiedit_page(void){
     );
     free(zTag);
     if( (rid && !g.perm.WrWiki) || (!rid && !g.perm.NewWiki) ){
-      login_needed();
+      login_needed(rid ? g.anon.WrWiki : g.anon.NewWiki);
       return;
     }
     if( zBody==0 && (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0 ){
@@ -627,7 +627,7 @@ void wikinew_page(void){
   const char *zMimetype;
   login_check_credentials();
   if( !g.perm.NewWiki ){
-    login_needed();
+    login_needed(g.anon.NewWiki);
     return;
   }
   zName = PD("name","");
@@ -729,7 +729,7 @@ void wikiappend_page(void){
     }
   }
   if( !g.perm.ApndWiki ){
-    login_needed();
+    login_needed(g.anon.ApndWiki);
     return;
   }
   if( P("submit")!=0 && P("r")!=0 && P("u")!=0
@@ -842,7 +842,7 @@ void whistory_page(void){
   Stmt q;
   const char *zPageName;
   login_check_credentials();
-  if( !g.perm.Hyperlink ){ login_needed(); return; }
+  if( !g.perm.Hyperlink ){ login_needed(g.anon.Hyperlink); return; }
   zPageName = PD("name","");
   style_header("History Of %s", zPageName);
 
@@ -874,7 +874,7 @@ void wdiff_page(void){
 
   login_check_credentials();
   rid1 = atoi(PD("a","0"));
-  if( !g.perm.Hyperlink ){ login_needed(); return; }
+  if( !g.perm.Hyperlink ){ login_needed(g.anon.Hyperlink); return; }
   if( rid1==0 ) fossil_redirect_home();
   rid2 = atoi(PD("b","0"));
   zPageName = PD("name","");
@@ -937,7 +937,7 @@ void wcontent_page(void){
   int showAll = P("all")!=0;
 
   login_check_credentials();
-  if( !g.perm.RdWiki ){ login_needed(); return; }
+  if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   style_header("Available Wiki Pages");
   if( showAll ){
     style_submenu_element("Active", "Only Active Pages", "%s/wcontent", g.zTop);
@@ -971,7 +971,7 @@ void wfind_page(void){
   Stmt q;
   const char *zTitle;
   login_check_credentials();
-  if( !g.perm.RdWiki ){ login_needed(); return; }
+  if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   zTitle = PD("title","*");
   style_header("Wiki Pages Found");
   @ <ul>

@@ -451,7 +451,7 @@ void tktview_page(void){
   const char *zUuid = PD("name","");
 
   login_check_credentials();
-  if( !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   if( g.perm.WrTkt || g.perm.ApndTkt ){
     style_submenu_element("Edit", "Edit The Ticket", "%s/tktedit?name=%T",
         g.zTop, PD("name",""));
@@ -689,7 +689,7 @@ void tktnew_page(void){
   char *zNewUuid = 0;
 
   login_check_credentials();
-  if( !g.perm.NewTkt ){ login_needed(); return; }
+  if( !g.perm.NewTkt ){ login_needed(g.anon.NewTkt); return; }
   if( P("cancel") ){
     cgi_redirect("home");
   }
@@ -740,7 +740,10 @@ void tktedit_page(void){
   int nRec;
 
   login_check_credentials();
-  if( !g.perm.ApndTkt && !g.perm.WrTkt ){ login_needed(); return; }
+  if( !g.perm.ApndTkt && !g.perm.WrTkt ){
+    login_needed(g.anon.ApndTkt || g.anon.WrTkt);
+    return;
+  }
   zName = P("name");
   if( P("cancel") ){
     cgi_redirectf("tktview?name=%T", zName);
@@ -841,7 +844,10 @@ void tkttimeline_page(void){
   const char *zType;
 
   login_check_credentials();
-  if( !g.perm.Hyperlink || !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.Hyperlink || !g.perm.RdTkt ){
+    login_needed(g.anon.Hyperlink && g.anon.RdTkt);
+    return;
+  }
   zUuid = PD("name","");
   zType = PD("y","a");
   if( zType[0]!='c' ){
@@ -914,7 +920,10 @@ void tkthistory_page(void){
   int nChng = 0;
 
   login_check_credentials();
-  if( !g.perm.Hyperlink || !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.Hyperlink || !g.perm.RdTkt ){
+    login_needed(g.anon.Hyperlink && g.anon.RdTkt);
+    return;
+  }
   zUuid = PD("name","");
   zTitle = mprintf("History Of Ticket %h", zUuid);
   style_submenu_element("Status", "Status",

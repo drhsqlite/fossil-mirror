@@ -29,7 +29,8 @@
 void tktsetup_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Ticket Setup");
@@ -120,9 +121,10 @@ static void tktsetup_generic(
 
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
-  if( P("setup") ){
+  if( PB("setup") ){
     cgi_redirect("tktsetup");
   }
   isSubmit = P("submit")!=0;
@@ -860,7 +862,8 @@ void tktsetup_keytplt_page(void){
 void tktsetup_timeline_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   if( P("setup") ){

@@ -54,7 +54,7 @@ void stat_page(void){
   const char *p;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   brief = P("brief")!=0;
   style_header("Repository Statistics");
   style_adunit_config(ADUNIT_RIGHT_OK);
@@ -294,7 +294,7 @@ void urllist_page(void){
   Stmt q;
   int cnt;
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(); return; }
+  if( !g.perm.Admin ){ login_needed(0); return; }
 
   style_header("URLs and Checkouts");
   style_adunit_config(ADUNIT_RIGHT_OK);
@@ -341,7 +341,7 @@ void urllist_page(void){
 void repo_schema_page(void){
   Stmt q;
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(); return; }
+  if( !g.perm.Admin ){ login_needed(0); return; }
 
   style_header("Repository Schema");
   style_adunit_config(ADUNIT_RIGHT_OK);

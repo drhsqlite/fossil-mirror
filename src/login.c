@@ -354,12 +354,8 @@ void login_clear_login_data(){
                   "  cexpire=0 WHERE uid=%d"
                   "  AND login NOT IN ('anonymous','nobody',"
                   "  'developer','reader')", g.userUid);
-    cgi_replace_parameter(cookie, NULL)
-      /* At the time of this writing, cgi_replace_parameter() was
-      ** "NULL-value-safe", and I'm hoping the NULL doesn't cause any
-      ** downstream problems here. We could alternately use "" here.
-      */
-      ;
+    cgi_replace_parameter(cookie, NULL);
+    cgi_replace_parameter("anon", NULL);
   }
 }
 
@@ -469,7 +465,7 @@ void login_page(void){
   const char *zNew1, *zNew2;
   const char *zAnonPw = 0;
   const char *zGoto = P("g");
-  int anonFlag;
+  int anonFlag = PB("anon");
   char *zErrMsg = "";
   int uid;                     /* User id logged in user */
   char *zSha1Pw;
@@ -491,10 +487,10 @@ void login_page(void){
                   constant_time_cmp_function, 0, 0);
   zUsername = P("u");
   zPasswd = P("p");
-  anonFlag = P("anon")!=0;
-  if( P("out")!=0 ){
+  if( P("out") ){
     login_clear_login_data();
     redirect_to_g();
+    return;
   }
   if( g.perm.Password && zPasswd
    && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0
@@ -579,8 +575,20 @@ void login_page(void){
   style_header("Login/Logout");
   style_adunit_config(ADUNIT_OFF);
   @ %s(zErrMsg)
-  if( zGoto && P("anon")==0 ){
-    @ <p>A login is required for <a href="%h(zGoto)">%h(zGoto)</a>.</p>
+  if( zGoto ){
+    char *zAbbrev = fossil_strdup(zGoto);
+    int i;
+    for(i=0; zAbbrev[i] && zAbbrev[i]!='?'; i++){}
+    zAbbrev[i] = 0;
+    if( g.zLogin ){
+      @ <p>Use a different login with greater privilege that <b>%h(g.zLogin)</b>
+      @ to access <b>%h(zAbbrev)</b>.
+    }else if( anonFlag ){
+      @ <p>Login as <b>anonymous</b> or any named user
+      @ to access page <b>%h(zAbbrev)</b>.
+    }else{
+      @ <p>Login as a named user to access page <b>%h(zAbbrev)</b>.
+    }
   }
   form_begin(0, "%R/login");
   if( zGoto ){
@@ -626,16 +634,11 @@ void login_page(void){
   }
   @ }
   @ </script>
-  if( g.zLogin==0 ){
-    @ <p>Enter
-  }else{
+  if( g.zLogin ){
     @ <p>You are currently logged in as <b>%h(g.zLogin)</b></p>
-    @ <p>To change your login to a different user, enter
   }
-  @ your user-id and password at the left and press the
-  @ "Login" button.  Your user name will be stored in a browser cookie.
-  @ You must configure your web browser to accept cookies in order for
-  @ the login to take.</p>
+  @ <p>By pressing the Login button, you grant permission to store an
+  @ access token for this site in a cookie.</p>
   if( db_get_boolean("self-register", 0) ){
     @ <p>If you do not have an account, you can
     @ <a href="%R/register?g=%T(P("G"))">create one</a>.
@@ -813,6 +816,7 @@ int login_wants_https_redirect(void){
 **    g.userUid      Database USER.UID value.  Might be -1 for "nobody"
 **    g.zLogin       Database USER.LOGIN value.  NULL for user "nobody"
 **    g.perm         Permissions granted to this user
+**    g.anon         Permissions that would be available to anonymous
 **    g.isHuman      True if the user is human, not a spider or robot
 **
 */
@@ -1008,15 +1012,18 @@ static int login_anon_once = 1;
 ** for the user g.zLogin.
 */
 void login_set_anon_nobody_capabilities(void){
-  if( g.zLogin && login_anon_once ){
+  if( login_anon_once ){
     const char *zCap;
-    /* All logged-in users inherit privileges from "nobody" */
+    /* All users get privileges from "nobody" */
     zCap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
     login_set_capabilities(zCap, 0);
-    if( fossil_strcmp(g.zLogin, "nobody")!=0 ){
+    zCap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
+    if( g.zLogin && fossil_strcmp(g.zLogin, "nobody")!=0 ){
       /* All logged-in users inherit privileges from "anonymous" */
-      zCap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
       login_set_capabilities(zCap, 0);
+    }else{
+      /* Record the privileges of anonymous in g.anon */
+      login_set_capabilities(zCap, LOGIN_ANON);
     }
     login_anon_once = 0;
   }
@@ -1027,51 +1034,53 @@ void login_set_anon_nobody_capabilities(void){
 */
 #if INTERFACE
 #define LOGIN_IGNORE_UV  0x01         /* Ignore "u" and "v" */
+#define LOGIN_ANON       0x02         /* Use g.anon instead of g.perm */
 #endif
 
 /*
-** Adds all capability flags in zCap to g.perm.
+** Adds all capability flags in zCap to g.perm or g.anon.
 */
 void login_set_capabilities(const char *zCap, unsigned flags){
   int i;
+  FossilUserPerms *p = (flags & LOGIN_ANON) ? &g.anon : &g.perm;
   if(NULL==zCap){
     return;
   }
   for(i=0; zCap[i]; i++){
     switch( zCap[i] ){
-      case 's':   g.perm.Setup = 1;  /* Fall thru into Admin */
-      case 'a':   g.perm.Admin = g.perm.RdTkt = g.perm.WrTkt = g.perm.Zip =
-                           g.perm.RdWiki = g.perm.WrWiki = g.perm.NewWiki =
-                           g.perm.ApndWiki = g.perm.Hyperlink = g.perm.Clone =
-                           g.perm.NewTkt = g.perm.Password = g.perm.RdAddr =
-                           g.perm.TktFmt = g.perm.Attach = g.perm.ApndTkt =
-                           g.perm.ModWiki = g.perm.ModTkt = 1;
+      case 's':   p->Setup = 1;  /* Fall thru into Admin */
+      case 'a':   p->Admin = p->RdTkt = p->WrTkt = p->Zip =
+                           p->RdWiki = p->WrWiki = p->NewWiki =
+                           p->ApndWiki = p->Hyperlink = p->Clone =
+                           p->NewTkt = p->Password = p->RdAddr =
+                           p->TktFmt = p->Attach = p->ApndTkt =
+                           p->ModWiki = p->ModTkt = 1;
                            /* Fall thru into Read/Write */
-      case 'i':   g.perm.Read = g.perm.Write = 1;                     break;
-      case 'o':   g.perm.Read = 1;                                 break;
-      case 'z':   g.perm.Zip = 1;                                  break;
+      case 'i':   p->Read = p->Write = 1;                     break;
+      case 'o':   p->Read = 1;                                 break;
+      case 'z':   p->Zip = 1;                                  break;
 
-      case 'd':   g.perm.Delete = 1;                               break;
-      case 'h':   g.perm.Hyperlink = 1;                            break;
-      case 'g':   g.perm.Clone = 1;                                break;
-      case 'p':   g.perm.Password = 1;                             break;
+      case 'd':   p->Delete = 1;                               break;
+      case 'h':   p->Hyperlink = 1;                            break;
+      case 'g':   p->Clone = 1;                                break;
+      case 'p':   p->Password = 1;                             break;
 
-      case 'j':   g.perm.RdWiki = 1;                               break;
-      case 'k':   g.perm.WrWiki = g.perm.RdWiki = g.perm.ApndWiki =1;    break;
-      case 'm':   g.perm.ApndWiki = 1;                             break;
-      case 'f':   g.perm.NewWiki = 1;                              break;
-      case 'l':   g.perm.ModWiki = 1;                              break;
+      case 'j':   p->RdWiki = 1;                               break;
+      case 'k':   p->WrWiki = p->RdWiki = p->ApndWiki =1;    break;
+      case 'm':   p->ApndWiki = 1;                             break;
+      case 'f':   p->NewWiki = 1;                              break;
+      case 'l':   p->ModWiki = 1;                              break;
 
-      case 'e':   g.perm.RdAddr = 1;                               break;
-      case 'r':   g.perm.RdTkt = 1;                                break;
-      case 'n':   g.perm.NewTkt = 1;                               break;
-      case 'w':   g.perm.WrTkt = g.perm.RdTkt = g.perm.NewTkt =
-                  g.perm.ApndTkt = 1;                              break;
-      case 'c':   g.perm.ApndTkt = 1;                              break;
-      case 'q':   g.perm.ModTkt = 1;                               break;
-      case 't':   g.perm.TktFmt = 1;                               break;
-      case 'b':   g.perm.Attach = 1;                               break;
-      case 'x':   g.perm.Private = 1;                              break;
+      case 'e':   p->RdAddr = 1;                               break;
+      case 'r':   p->RdTkt = 1;                                break;
+      case 'n':   p->NewTkt = 1;                               break;
+      case 'w':   p->WrTkt = p->RdTkt = p->NewTkt =
+                  p->ApndTkt = 1;                              break;
+      case 'c':   p->ApndTkt = 1;                              break;
+      case 'q':   p->ModTkt = 1;                               break;
+      case 't':   p->TktFmt = 1;                               break;
+      case 'b':   p->Attach = 1;                               break;
+      case 'x':   p->Private = 1;                              break;
 
       /* The "u" privileges is a little different.  It recursively
       ** inherits all privileges of the user named "reader" */
@@ -1112,38 +1121,39 @@ void login_replace_capabilities(const char *zCap, unsigned flags){
 ** the input, then return 0.  If all capabilities are present, then
 ** return 1.
 */
-int login_has_capability(const char *zCap, int nCap){
+int login_has_capability(const char *zCap, int nCap, u32 flgs){
   int i;
   int rc = 1;
+  FossilUserPerms *p = (flgs & LOGIN_ANON) ? &g.anon : &g.perm;
   if( nCap<0 ) nCap = strlen(zCap);
   for(i=0; i<nCap && rc && zCap[i]; i++){
     switch( zCap[i] ){
-      case 'a':  rc = g.perm.Admin;     break;
-      case 'b':  rc = g.perm.Attach;    break;
-      case 'c':  rc = g.perm.ApndTkt;   break;
-      case 'd':  rc = g.perm.Delete;    break;
-      case 'e':  rc = g.perm.RdAddr;    break;
-      case 'f':  rc = g.perm.NewWiki;   break;
-      case 'g':  rc = g.perm.Clone;     break;
-      case 'h':  rc = g.perm.Hyperlink; break;
-      case 'i':  rc = g.perm.Write;     break;
-      case 'j':  rc = g.perm.RdWiki;    break;
-      case 'k':  rc = g.perm.WrWiki;    break;
-      case 'l':  rc = g.perm.ModWiki;   break;
-      case 'm':  rc = g.perm.ApndWiki;  break;
-      case 'n':  rc = g.perm.NewTkt;    break;
-      case 'o':  rc = g.perm.Read;      break;
-      case 'p':  rc = g.perm.Password;  break;
-      case 'q':  rc = g.perm.ModTkt;    break;
-      case 'r':  rc = g.perm.RdTkt;     break;
-      case 's':  rc = g.perm.Setup;     break;
-      case 't':  rc = g.perm.TktFmt;    break;
+      case 'a':  rc = p->Admin;     break;
+      case 'b':  rc = p->Attach;    break;
+      case 'c':  rc = p->ApndTkt;   break;
+      case 'd':  rc = p->Delete;    break;
+      case 'e':  rc = p->RdAddr;    break;
+      case 'f':  rc = p->NewWiki;   break;
+      case 'g':  rc = p->Clone;     break;
+      case 'h':  rc = p->Hyperlink; break;
+      case 'i':  rc = p->Write;     break;
+      case 'j':  rc = p->RdWiki;    break;
+      case 'k':  rc = p->WrWiki;    break;
+      case 'l':  rc = p->ModWiki;   break;
+      case 'm':  rc = p->ApndWiki;  break;
+      case 'n':  rc = p->NewTkt;    break;
+      case 'o':  rc = p->Read;      break;
+      case 'p':  rc = p->Password;  break;
+      case 'q':  rc = p->ModTkt;    break;
+      case 'r':  rc = p->RdTkt;     break;
+      case 's':  rc = p->Setup;     break;
+      case 't':  rc = p->TktFmt;    break;
       /* case 'u': READER    */
       /* case 'v': DEVELOPER */
-      case 'w':  rc = g.perm.WrTkt;     break;
-      case 'x':  rc = g.perm.Private;   break;
+      case 'w':  rc = p->WrTkt;     break;
+      case 'x':  rc = p->Private;   break;
       /* case 'y': */
-      case 'z':  rc = g.perm.Zip;       break;
+      case 'z':  rc = p->Zip;       break;
       default:   rc = 0;             break;
     }
   }
@@ -1197,7 +1207,7 @@ const char *login_name(void){
 ** Call this routine when the credential check fails.  It causes
 ** a redirect to the "login" page.
 */
-void login_needed(void){
+void login_needed(int anonOk){
 #ifdef FOSSIL_ENABLE_JSON
   if(g.json.isJsonMode){
     json_err( FSL_JSON_E_DENIED, NULL, 1 );
@@ -1208,7 +1218,19 @@ void login_needed(void){
 #endif /* FOSSIL_ENABLE_JSON */
   {
     const char *zUrl = PD("REQUEST_URI", "index");
-    cgi_redirect(mprintf("login?g=%T", zUrl));
+    const char *zQS = P("QUERY_STRING");
+    Blob redir;
+    blob_init(&redir, 0, 0);
+    if( login_wants_https_redirect() ){
+      blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrl);
+    }else{
+      blob_appendf(&redir, "%R/login?g=%T", zUrl);
+    }
+    if( anonOk ) blob_append(&redir, "&anon", 5);
+    if( zQS ){
+      blob_appendf(&redir, "&%s", zQS);
+    }
+    cgi_redirect(blob_str(&redir));
     /* NOTREACHED */
     assert(0);
   }
@@ -1221,10 +1243,7 @@ void login_needed(void){
 ** logging in as anonymous.
 */
 void login_anonymous_available(void){
-  if( !g.perm.Hyperlink &&
-      db_exists("SELECT 1 FROM user"
-                " WHERE login='anonymous'"
-                "   AND cap LIKE '%%h%%'") ){
+  if( !g.perm.Hyperlink && g.anon.Hyperlink ){
     const char *zUrl = PD("REQUEST_URI", "index");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br />
     @ Use <a href="%R/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>

@@ -344,8 +344,10 @@ static int dateCmd(
 
 /*
 ** TH1 command: hascap STRING...
+** TH1 command: anoncap STRING...
 **
-** Return true if the user has all of the capabilities listed in STRING.
+** Return true if the current user (hascap) or if the anonymous user
+** (anoncap) has all of the capabilities listed in STRING.
 */
 static int hascapCmd(
   Th_Interp *interp,
@@ -359,7 +361,7 @@ static int hascapCmd(
     return Th_WrongNumArgs(interp, "hascap STRING ...");
   }
   for(i=1; i<argc && rc==0; i++){
-    rc = login_has_capability((char*)argv[i],argl[i]);
+    rc = login_has_capability((char*)argv[i],argl[i],*(int*)p);
   }
   if( g.thTrace ){
     Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
@@ -545,7 +547,8 @@ static int tclReadyCmd(
 /*
 ** TH1 command: anycap STRING
 **
-** Return true if the user has any one of the capabilities listed in STRING.
+** Return true if the current user user
+** has any one of the capabilities listed in STRING.
 */
 static int anycapCmd(
   Th_Interp *interp,
@@ -560,7 +563,7 @@ static int anycapCmd(
     return Th_WrongNumArgs(interp, "anycap STRING");
   }
   for(i=0; rc==0 && i<argl[1]; i++){
-    rc = login_has_capability((char*)&argv[1][i],1);
+    rc = login_has_capability((char*)&argv[1][i],1,0);
   }
   if( g.thTrace ){
     Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
@@ -1452,11 +1455,14 @@ void Th_FossilInit(u32 flags){
   int forceTcl = flags & TH_INIT_FORCE_TCL;
   int forceSetup = flags & TH_INIT_FORCE_SETUP;
   static unsigned int aFlags[] = { 0, 1, WIKI_LINKSONLY };
+  static int anonFlag = LOGIN_ANON;
+  static int zeroInt = 0;
   static struct _Command {
     const char *zName;
     Th_CommandProc xProc;
     void *pContext;
   } aCommand[] = {
+    {"anoncap",       hascapCmd,            (void*)&anonFlag},
     {"anycap",        anycapCmd,            0},
     {"artifact",      artifactCmd,          0},
     {"checkout",      checkoutCmd,          0},
@@ -1467,7 +1473,7 @@ void Th_FossilInit(u32 flags){
     {"getParameter",  getParameterCmd,      0},
     {"globalState",   globalStateCmd,       0},
     {"httpize",       httpizeCmd,           0},
-    {"hascap",        hascapCmd,            0},
+    {"hascap",        hascapCmd,            (void*)&zeroInt},
     {"hasfeature",    hasfeatureCmd,        0},
     {"html",          putsCmd,              (void*)&aFlags[0]},
     {"htmlize",       htmlizeCmd,           0},

@@ -61,7 +61,7 @@ void setup_menu_entry(
 void setup_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
   }
 
   style_header("Server Administration");
@@ -154,7 +154,7 @@ void setup_ulist(void){
 
   login_check_credentials();
   if( !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
     return;
   }
 
@@ -338,7 +338,7 @@ void user_edit(void){
   /* Must have ADMIN privileges to access this page
   */
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(); return; }
+  if( !g.perm.Admin ){ login_needed(0); return; }
 
   /* Check to see if an ADMIN user is trying to edit a SETUP account.
   ** Don't allow that.
@@ -1000,7 +1000,8 @@ static void multiple_choice_attribute(
 void setup_access(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Access Control Settings");
@@ -1205,7 +1206,8 @@ void setup_login_group(void){
 
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   file_canonical_name(g.zRepositoryName, &fullName, 0);
   zSelfRepo = fossil_strdup(blob_str(&fullName));
@@ -1317,7 +1319,8 @@ void setup_timeline(void){
   };
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Timeline Display Preferences");
@@ -1395,7 +1398,8 @@ void setup_settings(void){
 
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   (void) aCmdHelp; /* NOTE: Silence compiler warning. */
@@ -1475,7 +1479,8 @@ void setup_settings(void){
 void setup_config(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("WWW Configuration");
@@ -1553,7 +1558,8 @@ void setup_config(void){
 void setup_editcss(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   if( P("clear")!=0 ){
@@ -1598,7 +1604,8 @@ void setup_editcss(void){
 void setup_header(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   if( P("clear")!=0 ){
@@ -1662,7 +1669,8 @@ void setup_header(void){
 void setup_footer(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   if( P("clear")!=0 ){
@@ -1699,7 +1707,8 @@ void setup_footer(void){
 void setup_modreq(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Moderator For Wiki And Tickets");
@@ -1743,7 +1752,8 @@ void setup_modreq(void){
 void setup_adunit(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   if( P("clear")!=0 ){
@@ -1824,7 +1834,8 @@ void setup_logo(void){
   }
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
@@ -1963,7 +1974,8 @@ void sql_page(void){
   int go = P("go")!=0;
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   style_header("Raw SQL Commands");
@@ -2084,7 +2096,8 @@ void th1_page(void){
   int go = P("go")!=0;
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   style_header("Raw TH1 Commands");
@@ -2144,7 +2157,8 @@ void page_admin_log(){
   int counter = 0;
   login_check_credentials();
   if( !g.perm.Setup && !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   style_header("Admin Log");
   create_admin_log_table();
@@ -2201,7 +2215,8 @@ void page_admin_log(){
 void page_srchsetup(){
   login_check_credentials();
   if( !g.perm.Setup && !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   style_header("Search Configuration");
   @ <form action="%s(g.zTop)/srchsetup" method="post"><div>

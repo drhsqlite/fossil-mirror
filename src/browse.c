@@ -132,7 +132,7 @@ void page_dir(void){
 
   if( strcmp(PD("type","flat"),"tree")==0 ){ page_tree(); return; }
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   style_header("File List");
   style_adunit_config(ADUNIT_RIGHT_OK);
@@ -544,7 +544,7 @@ void page_tree(void){
   if( strcmp(PD("type","flat"),"flat")==0 ){ page_dir(); return; }
   memset(&sTree, 0, sizeof(sTree));
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
@@ -1004,7 +1004,7 @@ void fileage_page(void){
   Stmt q1, q2;
   double baseTime;
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   zName = P("name");
   if( zName==0 ) zName = "tip";
   rid = symbolic_name_to_rid(zName, "ci");
