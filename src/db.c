@@ -67,10 +67,6 @@ static void db_err(const char *zFormat, ...){
   va_list ap;
   char *z;
   int rc = 1;
-  static const char zRebuildMsg[] =
-      "If you have recently updated your fossil executable, you might\n"
-      "need to run \"fossil all rebuild\" to bring the repository\n"
-      "schemas up to date.\n";
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
@@ -90,11 +86,10 @@ static void db_err(const char *zFormat, ...){
   }
   else if( g.cgiOutput ){
     g.cgiOutput = 0;
-    cgi_printf("<h1>Database Error</h1>\n"
-               "<pre>%h</pre>\n<p>%s</p>\n", z, zRebuildMsg);
+    cgi_printf("<h1>Database Error</h1>\n<p>%h</p>\n", z);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n\n%s", g.argv[0], z, zRebuildMsg);
+    fprintf(stderr, "%s: %s\n", g.argv[0], z);
   }
   free(z);
   db_force_rollback();
