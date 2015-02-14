@@ -653,10 +653,11 @@ static void search_fullscan(
         "CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;"
       );
       db_multi_exec(
-        "INSERT INTO x(label,url,score,date,snip)"
+        "INSERT INTO x(label,url,score,id,date,snip)"
         "  SELECT printf('Document: %%s',title('d',blob.rid,foci.filename)),"
         "         printf('/doc/%T/%%s',foci.filename),"
         "         search_score(),"
+        "         'd'||blob.rid,"
         "         (SELECT datetime(event.mtime) FROM event"
         "            WHERE objid=symbolic_name_to_rid('trunk')),"
         "         search_snippet()"
@@ -679,10 +680,11 @@ static void search_fullscan(
       "     AND tagxref.tagid=tag.tagid"
       "   GROUP BY 1"
       ")"
-      "INSERT INTO x(label,url,score,date,snip)"
+      "INSERT INTO x(label,url,score,id,date,snip)"
       "  SELECT printf('Wiki: %%s',name),"
       "         printf('/wiki?name=%%s',urlencode(name)),"
       "         search_score(),"
+      "         'w'||rid,"
       "         datetime(mtime),"
       "         search_snippet()"
       "    FROM wiki"
@@ -697,10 +699,11 @@ static void search_fullscan(
       "   WHERE event.type='ci'"
       "     AND blob.rid=event.objid"
       ")"
-      "INSERT INTO x(label,url,score,date,snip)"
+      "INSERT INTO x(label,url,score,id,date,snip)"
       "  SELECT printf('Check-in [%%.10s] on %%s',uuid,datetime(mtime)),"
       "         printf('/timeline?c=%%s&n=8&y=ci',uuid),"
       "         search_score(),"
+      "         'c'||rid,"
       "         datetime(mtime),"
       "         search_snippet()"
       "    FROM ckin"
@@ -709,17 +712,27 @@ static void search_fullscan(
   }
   if( (srchFlags & SRCH_TKT)!=0 ){
     db_multi_exec(
-      "INSERT INTO x(label,url,score, date,snip)"
+      "INSERT INTO x(label,url,score,id,date,snip)"
       "  SELECT printf('Ticket: %%s (%%s)',title('t',tkt_id,NULL),"
                       "datetime(tkt_mtime)),"
       "         printf('/tktview/%%.20s',tkt_uuid),"
       "         search_score(),"
+      "         't'||tkt_id,"
       "         datetime(tkt_mtime),"
       "         search_snippet()"
       "    FROM ticket"
       "   WHERE search_match(title('t',tkt_id,NULL),body('t',tkt_id,NULL));"
     );
   }
+}
+
+/*
+** Number of significant bits in a u32
+*/
+static int nbits(u32 x){
+  int n = 0; 
+  while( x ){ n++; x >>= 1; }
+  return n;
 }
 
 /*
@@ -735,25 +748,38 @@ static void search_rank_sqlfunc(
   int nCol;           /* Number of columns in the index */
   int nTerm;          /* Number of search terms in the query */
   int i, j;           /* Loop counter */
-  double r = 1.0;     /* Score */
+  double r = 0.0;     /* Score */
   const unsigned *aX, *aS;
 
   if( nVal<2 ) return;
   nTerm = aVal[0];
   nCol = aVal[1];
-  if( nVal<2+3*nCol*nTerm+4*nCol ) return;
+  if( nVal<2+3*nCol*nTerm+nCol ) return;
   aS = aVal+2;
   aX = aS+nCol;
   for(j=0; j<nCol; j++){
-    r *= 1<<((30*(aS[j]-1))/nTerm);
-    for(i=0; i<nTerm; i++){
-      int hits_this_row = aX[j + i*nCol];
-      int hits_all_rows = aX[j + i*nCol + 1];
-      int rows_with_hit = aX[j + i*nCol + 2];
-      double avg_hits_per_row = (double)hits_all_rows/(double)rows_with_hit;
-      r *= hits_this_row/avg_hits_per_row;
+    double x;
+    if( aS[j]>0 ){
+      x = 0.0;
+      for(i=0; i<nTerm; i++){
+        int hits_this_row;
+        int hits_all_rows;
+        int rows_with_hit;
+        double avg_hits_per_row;
+
+        hits_this_row = aX[j + i*nCol*3];
+        if( hits_this_row==0 )continue;
+        hits_all_rows = aX[j + i*nCol*3 + 1];
+        rows_with_hit = aX[j + i*nCol*3 + 2];
+        if( rows_with_hit==0 ) continue;
+        avg_hits_per_row = hits_all_rows/(double)rows_with_hit;
+        x += hits_this_row/(avg_hits_per_row*nbits(rows_with_hit));
+      }
+      x *= (1<<((30*(aS[j]-1))/nTerm));
+    }else{
+      x = 0.0;
     }
-    r *= 2.0;
+    r = r*10.0 + x;
   }
 #define SEARCH_DEBUG_RANK 0
 #if SEARCH_DEBUG_RANK
@@ -792,10 +818,11 @@ static void search_indexed(
      search_rank_sqlfunc, 0, 0);
   blob_init(&sql, 0, 0);
   blob_appendf(&sql,
-    "INSERT INTO x(label,url,score,date,snip) "
+    "INSERT INTO x(label,url,score,id,date,snip) "
     " SELECT ftsdocs.label,"
     "        ftsdocs.url,"
     "        rank(matchinfo(ftsidx,'pcsx')),"
+    "        ftsdocs.type || ftsdocs.rid,"
     "        datetime(ftsdocs.mtime),"
     "        snippet(ftsidx,'<mark>','</mark>',' ... ',-1,35)"
     "   FROM ftsidx CROSS JOIN ftsdocs"
@@ -884,7 +911,8 @@ static char *cleanSnippet(const char *zSnip){
 */
 int search_run_and_output(
   const char *zPattern,       /* The query pattern */
-  unsigned int srchFlags      /* What to search over */
+  unsigned int srchFlags,     /* What to search over */
+  int fDebug                  /* Extra debugging output */
 ){
   Stmt q;
   int nRow = 0;
@@ -894,7 +922,7 @@ int search_run_and_output(
   search_sql_setup(g.db);
   add_content_sql_commands(g.db);
   db_multi_exec(
-    "CREATE TEMP TABLE x(label,url,score,date,snip);"
+    "CREATE TEMP TABLE x(label,url,score,id,date,snip);"
   );
   if( !search_index_exists() ){
     search_fullscan(zPattern, srchFlags);
@@ -902,7 +930,7 @@ int search_run_and_output(
     search_update_index(srchFlags);
     search_indexed(zPattern, srchFlags);
   }
-  db_prepare(&q, "SELECT url, snip, label"
+  db_prepare(&q, "SELECT url, snip, label, score, id"
                  "  FROM x"
                  " ORDER BY score DESC, date DESC;");
   while( db_step(&q)==SQLITE_ROW ){
@@ -913,8 +941,11 @@ int search_run_and_output(
       @ <ol>
     }
     nRow++;
-    @ <li><p><a href='%R%s(zUrl)'>%h(zLabel)</a><br>
-    @ <span class='snippet'>%z(cleanSnippet(zSnippet))</span></li>
+    @ <li><p><a href='%R%s(zUrl)'>%h(zLabel)</a>
+    if( fDebug ){
+      @ (%e(db_column_double(&q,3)), %s(db_column_text(&q,4)))
+    }
+    @ <br><span class='snippet'>%z(cleanSnippet(zSnippet))</span></li>
   }
   db_finalize(&q);
   if( nRow ){
@@ -946,6 +977,7 @@ void search_screen(unsigned srchFlags, int useYparam){
   const char *zDisable1;
   const char *zDisable2;
   const char *zPattern;
+  int fDebug = PB("debug");
   srchFlags = search_restrict(srchFlags);
   switch( srchFlags ){
     case SRCH_CKIN:  zType = " Check-ins";  zClass = "Ckin";  break;
@@ -993,6 +1025,9 @@ void search_screen(unsigned srchFlags, int useYparam){
     @ </select>
     srchFlags = newFlags;
   }
+  if( fDebug ){
+    @ <input type="hidden" name="debug" value="1">
+  }
   @ <input type="submit" value="Search%s(zType)"%s(zDisable2)>
   if( srchFlags==0 ){
     @ <p class="generalError">Search is disabled</p>
@@ -1005,7 +1040,7 @@ void search_screen(unsigned srchFlags, int useYparam){
     }else{
       @ <div class='searchResult'>
     }
-    if( search_run_and_output(zPattern, srchFlags)==0 ){
+    if( search_run_and_output(zPattern, srchFlags, fDebug)==0 ){
       @ <p class='searchEmpty'>No matches for: <span>%h(zPattern)</span></p>
     }
     @ </div>
@@ -1456,7 +1491,7 @@ static void search_update_doc_index(void){
   db_multi_exec(
     "INSERT OR IGNORE INTO ftsdocs(type,rid,name,idxed,label,bx,url,mtime)"
     "  SELECT 'd', rid, name, 0,"
-    "         'Document: '||title('d',rid,name),"
+    "         title('d',rid,name),"
     "         body('d',rid,name),"
     "         printf('/doc/%q/%%s',urlencode(name)),"
     "         %.17g"
@@ -1465,12 +1500,13 @@ static void search_update_doc_index(void){
   );
   db_multi_exec(
     "INSERT INTO ftsidx(docid,title,body)"
-    "  SELECT rowid, name, bx FROM ftsdocs WHERE type='d' AND NOT idxed"
+    "  SELECT rowid, label, bx FROM ftsdocs WHERE type='d' AND NOT idxed"
   );
   db_multi_exec(
     "UPDATE ftsdocs SET"
     "  idxed=1,"
-    "  bx=NULL"
+    "  bx=NULL,"
+    "  label='Document: '||label"
     " WHERE type='d' AND NOT idxed"
   );
 }
