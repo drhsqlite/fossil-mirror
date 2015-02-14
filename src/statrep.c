@@ -131,7 +131,7 @@ static const char *stats_report_label_for_type(){
     case 'c':
       return "checkins";
     case 'e':
-      return "events";
+      return "technotes";
     case 'w':
       return "wiki changes";
     case 't':
@@ -173,9 +173,9 @@ static void stats_report_event_types_menu(const char *zCurrentViewName,
     cgi_printf(" <a href='%s&type=ci'>checkins</a>", zTop);
   }
   if('e' == statsReportType){
-    cgi_printf(" <strong>events</strong>", zTop);
+    cgi_printf(" <strong>technotes</strong>", zTop);
   }else{
-    cgi_printf(" <a href='%s&type=e'>events</a>", zTop);
+    cgi_printf(" <a href='%s&type=e'>technotes</a>", zTop);
   }
   if( 't' == statsReportType ){
     cgi_printf(" <strong>tickets</strong>", zTop);
