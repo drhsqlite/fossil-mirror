@@ -136,7 +136,11 @@ const char *wiki_filter_mimetypes(const char *zMimetype){
 }
 
 /*
-** Render wiki text according to its mimetype
+** Render wiki text according to its mimetype.
+**
+**   text/x-fossil-wiki      Fossil wiki
+**   text/x-markdown         Markdown
+**   anything else...        Plain text
 */
 void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
   if( zMimetype==0 || fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
@@ -266,7 +270,7 @@ void wiki_helppage(void){
   if( g.anon.NewWiki ){
     @ <li>  Create a %z(href("%R/wikinew"))new wiki page</a>.</li>
     if( g.anon.Write ){
-      @ <li>   Create a %z(href("%R/eventedit"))new tech-note</a>.</li>
+      @ <li>   Create a %z(href("%R/technoteedit"))new tech-note</a>.</li>
     }
   }
   @ <li> %z(href("%R/wcontent"))List of All Wiki Pages</a>
@@ -425,9 +429,9 @@ static const char *const azStyles[] = {
 ** Output a selection box from which the user can select the
 ** wiki mimetype.
 */
-static void mimetype_option_menu(const char *zMimetype){
+void mimetype_option_menu(const char *zMimetype){
   unsigned i;
-  @ Markup style: <select name="mimetype" size="1">
+  @ <select name="mimetype" size="1">
   for(i=0; i<sizeof(azStyles)/sizeof(azStyles[0]); i+=2){
     if( fossil_strcmp(zMimetype,azStyles[i])==0 ){
       @ <option value="%s(azStyles[i])" selected>%s(azStyles[i+1])</option>
@@ -575,7 +579,7 @@ void wikiedit_page(void){
   if( !isWysiwyg ){
     /* Traditional markup-only editing */
     form_begin(0, "%R/wikiedit");
-    @ <div>
+    @ <div>Markup style:
     mimetype_option_menu(zMimetype);
     @ <br /><textarea name="w" class="wikiedit" cols="80"
     @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
@@ -648,6 +652,7 @@ void wikinew_page(void){
   form_begin(0, "%R/wikinew");
   @ <p>Name of new wiki page:
   @ <input style="width: 35;" type="text" name="name" value="%h(zName)" /><br />
+  @ Markup style:
   mimetype_option_menu("text/x-fossil-wiki");
   @ <br /><input type="submit" value="Create" />
   @ </p></form>
