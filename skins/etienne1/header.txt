@@ -67,17 +67,17 @@ menulink "home" $index_page Home
 if {[anycap jor]} {
     menulink "timeline" "/timeline" Timeline
 }
-if {[hascap oh]} {
+if {[anoncap oh]} {
     menulink "dir" "/dir?ci=tip" Files
 }
-if {[hascap o]} {
+if {[anoncap o]} {
     menulink "brlist" "/brlist" Branches
     menulink "taglist" "/taglist" Tags
 }
-if {[hascap r]} {
+if {[anoncap r]} {
     menulink "ticket" "/ticket" Tickets
 }
-if {[hascap j]} {
+if {[anoncap j]} {
     menulink "wiki" "/wiki" Wiki
 }
 if {[hascap s]} {

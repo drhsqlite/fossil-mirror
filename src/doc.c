@@ -545,7 +545,7 @@ void doc_page(void){
   };
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   blob_init(&title, 0, 0);
   db_begin_transaction();
   while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){

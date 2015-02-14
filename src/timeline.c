@@ -165,7 +165,7 @@ void test_hash_color_page(void){
   char zNm[10];
   int i, cnt;
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Hash Color Test");
   for(i=cnt=0; i<10; i++){
@@ -1177,7 +1177,7 @@ void page_timeline(void){
   }
   login_check_credentials();
   if( !g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki ){
-    login_needed();
+    login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
   url_initialize(&url, "timeline");
@@ -2070,7 +2070,10 @@ void test_timewarp_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read || !g.perm.Hyperlink ){ login_needed(); return; }
+  if( !g.perm.Read || !g.perm.Hyperlink ){
+    login_needed(g.anon.Read && g.anon.Hyperlink);
+    return;
+  }
   style_header("Instances of timewarp");
   @ <ul>
   db_prepare(&q,

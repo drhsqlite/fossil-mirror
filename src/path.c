@@ -545,7 +545,7 @@ void test_rename_list_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of File Name Changes");
   @ <h3>NB: Experimental Page</h3>
   @ <table border="1" width="100%%">

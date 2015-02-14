@@ -529,7 +529,7 @@ void ci_page(void){
   const char *zPageHide = "ci"; /* Page that hides diffs */
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   zName = P("name");
   rid = name_to_rid_www("name");
   if( rid==0 ){
@@ -659,7 +659,7 @@ void ci_page(void){
 
 
       /* The Download: line */
-      if( g.perm.Zip ){
+      if( g.anon.Zip ){
         char *zUrl = mprintf("%R/tarball/%t-%S.tar.gz?uuid=%s",
                              zPJ, zUuid, zUuid);
         @ </td></tr>
@@ -676,7 +676,7 @@ void ci_page(void){
       @   | %z(href("%R/fileage?name=%!S",zUuid))file ages</a>
       @   | %z(href("%R/tree?nofiles&type=tree&ci=%!S",zUuid))folders</a>
       @   | %z(href("%R/artifact/%!S",zUuid))manifest</a>
-      if( g.perm.Write ){
+      if( g.anon.Write ){
         @   | %z(href("%R/ci_edit?r=%!S",zUuid))edit</a>
       }
       @   </td>
@@ -775,7 +775,7 @@ void winfo_page(void){
   const char *zModAction;
 
   login_check_credentials();
-  if( !g.perm.RdWiki ){ login_needed(); return; }
+  if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   rid = name_to_rid_www("name");
   if( rid==0 || (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))==0 ){
     style_header("Wiki Page Information Error");
@@ -993,7 +993,7 @@ void vdiff_page(void){
   const char *zGlob;
   ReCompiled *pRe = 0;
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   login_anonymous_available();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
@@ -1365,13 +1365,13 @@ int object_description(
     }
     objType |= OBJTYPE_ATTACHMENT;
     if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
-      if( g.perm.Hyperlink && g.perm.RdTkt ){
+      if( g.perm.Hyperlink && g.anon.RdTkt ){
         @ ticket [%z(href("%R/tktview?name=%!S",zTarget))%S(zTarget)</a>]
       }else{
         @ ticket [%S(zTarget)]
       }
     }else{
-      if( g.perm.Hyperlink && g.perm.RdWiki ){
+      if( g.perm.Hyperlink && g.anon.RdWiki ){
         @ wiki page [%z(href("%R/wiki?name=%t",zTarget))%h(zTarget)</a>]
       }else{
         @ wiki page [%h(zTarget)]
@@ -1423,7 +1423,7 @@ void diff_page(void){
   u32 objdescFlags = 0;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   v1 = name_to_rid_www("v1");
   v2 = name_to_rid_www("v2");
   if( v1==0 || v2==0 ) fossil_redirect_home();
@@ -1508,7 +1508,7 @@ void rawartifact_page(void){
 
   rid = name_to_rid_www("name");
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( rid==0 ) fossil_redirect_home();
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( fossil_strcmp(P("name"), zUuid)==0 && login_is_nobody() ){
@@ -1605,7 +1605,7 @@ void hexdump_page(void){
 
   rid = name_to_rid_www("name");
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( rid==0 ) fossil_redirect_home();
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -1791,7 +1791,7 @@ void artifact_page(void){
   }
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( rid==0 ) fossil_redirect_home();
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -1906,7 +1906,7 @@ void tinfo_page(void){
   const char *zModAction;
   char *zTktTitle;
   login_check_credentials();
-  if( !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -2278,7 +2278,7 @@ void ci_edit_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Write ){ login_needed(); return; }
+  if( !g.perm.Write ){ login_needed(g.anon.Write); return; }
   rid = name_to_typed_rid(P("r"), "ci");
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zComment = db_text(0, "SELECT coalesce(ecomment,comment)"

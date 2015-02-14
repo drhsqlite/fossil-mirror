@@ -451,8 +451,8 @@ void tktview_page(void){
   const char *zUuid = PD("name","");
 
   login_check_credentials();
-  if( !g.perm.RdTkt ){ login_needed(); return; }
-  if( g.perm.WrTkt || g.perm.ApndTkt ){
+  if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
+  if( g.anon.WrTkt || g.anon.ApndTkt ){
     style_submenu_element("Edit", "Edit The Ticket", "%s/tktedit?name=%T",
         g.zTop, PD("name",""));
   }
@@ -464,11 +464,11 @@ void tktview_page(void){
     style_submenu_element("Check-ins", "Check-ins Of This Ticket",
         "%s/tkttimeline/%T?y=ci", g.zTop, zUuid);
   }
-  if( g.perm.NewTkt ){
+  if( g.anon.NewTkt ){
     style_submenu_element("New Ticket", "Create a new ticket",
         "%s/tktnew", g.zTop);
   }
-  if( g.perm.ApndTkt && g.perm.Attach ){
+  if( g.anon.ApndTkt && g.anon.Attach ){
     style_submenu_element("Attach", "Add An Attachment",
         "%s/attachadd?tkt=%T&from=%s/tktview/%t",
         g.zTop, zUuid, g.zTop, zUuid);
@@ -689,7 +689,7 @@ void tktnew_page(void){
   char *zNewUuid = 0;
 
   login_check_credentials();
-  if( !g.perm.NewTkt ){ login_needed(); return; }
+  if( !g.perm.NewTkt ){ login_needed(g.anon.NewTkt); return; }
   if( P("cancel") ){
     cgi_redirect("home");
   }
@@ -740,7 +740,10 @@ void tktedit_page(void){
   int nRec;
 
   login_check_credentials();
-  if( !g.perm.ApndTkt && !g.perm.WrTkt ){ login_needed(); return; }
+  if( !g.perm.ApndTkt && !g.perm.WrTkt ){
+    login_needed(g.anon.ApndTkt || g.anon.WrTkt);
+    return;
+  }
   zName = P("name");
   if( P("cancel") ){
     cgi_redirectf("tktview?name=%T", zName);
@@ -841,7 +844,10 @@ void tkttimeline_page(void){
   const char *zType;
 
   login_check_credentials();
-  if( !g.perm.Hyperlink || !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.Hyperlink || !g.perm.RdTkt ){
+    login_needed(g.anon.Hyperlink && g.anon.RdTkt);
+    return;
+  }
   zUuid = PD("name","");
   zType = PD("y","a");
   if( zType[0]!='c' ){
@@ -914,7 +920,10 @@ void tkthistory_page(void){
   int nChng = 0;
 
   login_check_credentials();
-  if( !g.perm.Hyperlink || !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.Hyperlink || !g.perm.RdTkt ){
+    login_needed(g.anon.Hyperlink && g.anon.RdTkt);
+    return;
+  }
   zUuid = PD("name","");
   zTitle = mprintf("History Of Ticket %h", zUuid);
   style_submenu_element("Status", "Status",
@@ -1405,7 +1414,7 @@ void ticket_standard_submenu(unsigned int ok){
   if( (ok & T_REPLIST)!=0 ){
     style_submenu_element("Reports","Reports","%R/reportlist");
   }
-  if( (ok & T_NEW)!=0 && g.perm.NewTkt ){
+  if( (ok & T_NEW)!=0 && g.anon.NewTkt ){
     style_submenu_element("New","New","%R/tktnew");
   }
 }

@@ -989,7 +989,7 @@ void bloblist_page(void){
   char *zRange;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of Artifacts");
   if( mx>n && P("s")==0 ){
     int i;
@@ -1085,7 +1085,7 @@ void hash_collisions_webpage(void){
     char z[UUID_SIZE+1];
   } aCollide[UUID_SIZE+1];
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   memset(aCollide, 0, sizeof(aCollide));
   memset(zPrev, 0, sizeof(zPrev));
   db_prepare(&q,"SELECT uuid FROM blob ORDER BY 1");

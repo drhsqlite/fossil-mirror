@@ -1413,7 +1413,7 @@ void page_test_env(void){
 
   login_check_credentials();
   if( !g.perm.Admin && !g.perm.Setup && !db_get_boolean("test_env_enable",0) ){
-    login_needed();
+    login_needed(0);
     return;
   }
   for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
@@ -1432,13 +1432,21 @@ void page_test_env(void){
   @ g.zTop = %h(g.zTop)<br />
   @ g.zPath = %h(g.zPath)<br />
   for(i=0, c='a'; c<='z'; c++){
-    if( login_has_capability(&c, 1) ) zCap[i++] = c;
+    if( login_has_capability(&c, 1, 0) ) zCap[i++] = c;
   }
   zCap[i] = 0;
   @ g.userUid = %d(g.userUid)<br />
   @ g.zLogin = %h(g.zLogin)<br />
   @ g.isHuman = %d(g.isHuman)<br />
   @ capabilities = %s(zCap)<br />
+  for(i=0, c='a'; c<='z'; c++){
+    if( login_has_capability(&c, 1, LOGIN_ANON)
+         && !login_has_capability(&c, 1, 0) ) zCap[i++] = c;
+  }
+  zCap[i] = 0;
+  if( i>0 ){
+    @ anonymous-adds = %s(zCap)<br />
+  }
   @ g.zRepositoryName = %h(g.zRepositoryName)<br />
   @ load_average() = %f(load_average())<br />
   @ <hr>
