@@ -717,7 +717,7 @@ void tktsetup_editpage_page(void){
 */
 static const char zDefaultReportList[] =
 @ <th1>
-@ if {[hascap n]} {
+@ if {[anoncap n]} {
 @   html "<p>Enter a new ticket:</p>"
 @   html "<ul><li><a href='tktnew'>New ticket</a></li></ul>"
 @ }
@@ -729,12 +729,12 @@ static const char zDefaultReportList[] =
 @ </ol>
 @
 @ <th1>
-@ if {[hascap t q]} {
+@ if {[anoncap t q]} {
 @   html "<p>Other options:</p>\n<ul>\n"
-@   if {[hascap t]} {
+@   if {[anoncap t]} {
 @     html "<li><a href='rptnew'>New report format</a></li>\n"
 @   }
-@   if {[hascap q]} {
+@   if {[anoncap q]} {
 @     html "<li><a href='modreq'>Tend to pending moderation requests</a></li>\n"
 @   }
 @ }

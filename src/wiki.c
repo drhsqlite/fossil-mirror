@@ -224,7 +224,7 @@ static void wiki_standard_submenu(unsigned int ok){
   if( (ok & W_HELP)!=0 ){
     style_submenu_element("Help","Help","%R/wikihelp");
   }
-  if( (ok & W_NEW)!=0 && g.perm.NewWiki ){
+  if( (ok & W_NEW)!=0 && g.anon.NewWiki ){
     style_submenu_element("New","New","%R/wikinew");
   }
 #if 0
@@ -263,15 +263,15 @@ void wiki_helppage(void){
   @ %z(href("%R/md_rules"))Markdown Wiki</a>.</li>
   @ <li> Use the %z(href("%R/wiki?name=Sandbox"))Sandbox</a>
   @      to experiment.</li>
-  if( g.perm.NewWiki ){
+  if( g.anon.NewWiki ){
     @ <li>  Create a %z(href("%R/wikinew"))new wiki page</a>.</li>
-    if( g.perm.Write ){
-      @ <li>   Create a %z(href("%R/eventedit"))new blog entry</a>.</li>
+    if( g.anon.Write ){
+      @ <li>   Create a %z(href("%R/eventedit"))new tech-note</a>.</li>
     }
   }
   @ <li> %z(href("%R/wcontent"))List of All Wiki Pages</a>
   @      available on this server.</li>
-  if( g.perm.ModWiki ){
+  if( g.anon.ModWiki ){
     @ <li> %z(href("%R/modreq"))Tend to pending moderation requests</a></li>
   }
   if( search_restrict(SRCH_WIKI)!=0 ){
@@ -357,7 +357,7 @@ void wiki_page(void){
       style_submenu_element("Details", "Details",
                    "%R/info/%s", zUuid);
     }
-    if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
+    if( (rid && g.anon.WrWiki) || (!rid && g.anon.NewWiki) ){
       if( db_get_boolean("wysiwyg-wiki", 0) ){
         style_submenu_element("Edit", "Edit Wiki Page",
              "%s/wikiedit?name=%T&wysiwyg=1",
@@ -368,12 +368,12 @@ void wiki_page(void){
              g.zTop, zPageName);
       }
     }
-    if( rid && g.perm.ApndWiki && g.perm.Attach ){
+    if( rid && g.anon.ApndWiki && g.anon.Attach ){
       style_submenu_element("Attach", "Add An Attachment",
            "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
            g.zTop, zPageName, g.zTop, zPageName);
     }
-    if( rid && g.perm.ApndWiki ){
+    if( rid && g.anon.ApndWiki ){
       style_submenu_element("Append", "Add A Comment",
            "%s/wikiappend?name=%T&mimetype=%s",
            g.zTop, zPageName, zMimetype);

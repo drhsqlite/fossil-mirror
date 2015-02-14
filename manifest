@@ -1,5 +1,5 @@
-C When\sthe\suser\sis\s"nobody",\smake\sthe\sg.anon\spermission\svector\sfor\s"anonymous"\navailable\sin\saddition\sto\sg.perm.\s\sHyperlinks\sto\spages\sthat\swould\sbe\savailable\nto\sanonymous\sare\sshown\srather\sthan\ssuppressed.\s\sWhen\spermission\sis\sdenied\sand\ncontrol\sjumps\sto\slogin_needed()\sa\snew\sflag\sshows\swhether\sor\snot\slogging\sin\nas\s"anonymous"\swould\shelp.\s\sWork\sin\sprogress.
-D 2015-02-14T12:24:12.801
+C Change\sdefault\sheaders\sto\sshow\smenu-bar\sitems\sthat\swould\sbe\savailable\nto\suser\s"anonymous"\seven\sif\sthe\scurrent\suser\sis\snot\slogged\sin.
+D 2015-02-14T14:05:05.766
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -313,30 +313,30 @@ F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F skins/README.md be42c1cdac9f4da896447ea88d90cce2b8fe7e46
 F skins/black_and_white/css.txt c3adc27aeeba71bd280e681233158c7694e41a25
 F skins/black_and_white/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
-F skins/black_and_white/header.txt 41d6cd39c23b0cc4dc0bc72d675afeea7e45a3bf
+F skins/black_and_white/header.txt c74f3b8cfefae2e763d8f117dbd20e90c6dba33d
 F skins/default/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
 F skins/default/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
-F skins/default/header.txt 8d8ec9c13b068d19c64ce1342fb96802f822390e
+F skins/default/header.txt e1f837ff2d7bbe1cda8ca6847875491f6b5b269a
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 9bf7236cac127b6ad2dad47b55785f9239a3676a
 F skins/eagle/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
-F skins/eagle/header.txt 080721591ecda0d40a87d38bb37229bf99367f51
+F skins/eagle/header.txt f38e32ea185558d7be359afab65c335b29cb1782
 F skins/enhanced1/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
 F skins/enhanced1/footer.txt 12d9581af14a2980778c00d83756db293b363c83
-F skins/enhanced1/header.txt c9909b403443dce8b6baf2256c468da0a1263d0f
+F skins/enhanced1/header.txt 1fd3a93e575374bd1ddd7c8c41372830055368b0
 F skins/etienne1/README.md 46b87d9fe01a16616401a87f2107b6685f279c77
 F skins/etienne1/css.txt 5c73cf7b57e650bd674f563cf1a4f9a663d12db4
 F skins/etienne1/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
-F skins/etienne1/header.txt 93d007e70ba0d22ea8b58b080f28da806b72a001
+F skins/etienne1/header.txt 18cc8141d5b298b3cb8be8818f7b8b7b81289845
 F skins/khaki/css.txt 1e2129df1cd0a0e15f833866c11ea796d19fbc7b
 F skins/khaki/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
-F skins/khaki/header.txt 77f8f980b74244015b12d7eb7d0cb100f1f3630d
+F skins/khaki/header.txt 609fe1dd9dd3afdfe2777ce207a2012cb36c3f64
 F skins/plain_gray/css.txt bd18a142f4ab944ae5328746c1e4d356818168ef
 F skins/plain_gray/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
-F skins/plain_gray/header.txt e3f510c6d1c90b1b7cd3cf10b0e04760a7b13fb0
+F skins/plain_gray/header.txt dc58123dc4ae1714dea231d69f3dcf25308fe83a
 F skins/rounded1/css.txt 23098aad131c5c535bfcfbaa72577dc356254e85
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
-F skins/rounded1/header.txt e17ef8f3cfa1f92a5b8922708a6eac97f544a79a
+F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 81baa38e7c83048bf84192d0b810da076f781259
 F src/allrepo.c 37b198fd0ed53ff6c6d0859d9ca640ed9a39b576
@@ -386,7 +386,7 @@ F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 0c184184f4d37cccfeb99e0d3e059c4b9d169c95
-F src/info.c 07af825023822963e93994dd1bf0dea96f3304c3
+F src/info.c 0a06d899a69f5b52e6ea56a0851149bc288cb485
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -405,9 +405,9 @@ F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
 F src/json_wiki.c fca83828f069a0964f7b5e72dc4e8793e8571707
 F src/leaf.c a8880fbcf409f34c0ea9566f8b548a96496856a7
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
-F src/login.c 49939325e88896d9c328bc593246e72ebe6fcc69
+F src/login.c d3fbff4fe6dbcfb44af79c3ce21bbe3dea816f55
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 83840e7bea5dcedd5089ef01a0e5871c61d1c8a1
+F src/main.c 3d17275ac19e6ea868a8bb0cad7a48de6b7cebca
 F src/main.mk 17e859f85a513f5e88937e8595d25357794d300f
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -460,8 +460,8 @@ F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c d6425dc1719c346e7af15bcd44b3c35a9f8fc069
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
 F src/timeline.c d440c7ce701168c4f1a95efd0877067aef8c08e0
-F src/tkt.c 0fb71703b3d0cbd7f1a20c77e9c5e8b9d9a8f5fb
-F src/tktsetup.c cc78dda4e616452fe763420004cfe141430bf57a
+F src/tkt.c 6023529b050cf5919b5b35b53874c90f883d2b8e
+F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
 F src/undo.c 463d3968fdd2cb7052bf351e9b028ad0dd556b10
 F src/unicode.c 471c170c6ca090967e68ffa51010d79233b9ff1b
@@ -472,7 +472,7 @@ F src/utf8.c cb3a7d214d1eea0919fc68b0683388d1cf61c78b
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c bcf0d661edd47722586d3d502555a01466b09429
-F src/wiki.c 400763150acd5db94ab3d382279f3b913cbb9bf3
+F src/wiki.c f43769458565a3e20e9811afae77682552dcd30d
 F src/wikiformat.c 3bed73dcb7e5009bd1aa7382e43178a56493f5fe
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c 55e7d4f21887561faea665fc3f6c15e5f511792e
@@ -694,10 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c62e94f8a3da2acda7e2737680e6c096c349c533
-R 59d1c505869d8609ed4ac9e0cb40839f
-T *branch * login-enhancements
-T *sym-login-enhancements *
-T -sym-trunk *
+P 2f50d427a9482d4ccac4a1e42385905115b70338
+R 50dbc5ee231f3ca99bf5ea8dffdd2bce
 U drh
-Z 6ec51690ac1b8926f916a57a88a9c2b8
+Z 60eb1391e972ba12d5f97933d1341682

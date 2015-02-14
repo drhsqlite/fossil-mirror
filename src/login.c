@@ -449,23 +449,27 @@ static void constant_time_cmp_function(
 }
 
 /*
-** WEBPAGE: login
-** WEBPAGE: logout
-** WEBPAGE: my
-**
-** Generate the login page.
-**
 ** There used to be a page named "my" that was designed to show information
 ** about a specific user.  The "my" page was linked from the "Logged in as USER"
 ** line on the title bar.  The "my" page was never completed so it is now
 ** removed.  Use this page as a placeholder in older installations.
+**
+** WEBPAGE: login
+** WEBPAGE: logout
+** WEBPAGE: my
+**
+** The login/logout page.  Parameters:
+**
+**    g=URL             Jump back to this URL after login completes
+**    anon              The g=URL is not accessible by "nobody" but is
+**                      accessible by "anonymous"
 */
 void login_page(void){
   const char *zUsername, *zPasswd;
   const char *zNew1, *zNew2;
   const char *zAnonPw = 0;
   const char *zGoto = P("g");
-  int anonFlag = PB("anon");
+  int anonFlag;                /* Login as "anonymous" would be useful */
   char *zErrMsg = "";
   int uid;                     /* User id logged in user */
   char *zSha1Pw;
@@ -487,11 +491,16 @@ void login_page(void){
                   constant_time_cmp_function, 0, 0);
   zUsername = P("u");
   zPasswd = P("p");
+  anonFlag = g.zLogin==0 && PB("anon");
+
+  /* Handle log-out requests */
   if( P("out") ){
     login_clear_login_data();
     redirect_to_g();
     return;
   }
+
+  /* Deal with password-change requests */
   if( g.perm.Password && zPasswd
    && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0
   ){
@@ -596,6 +605,15 @@ void login_page(void){
   }else if( zReferer && strncmp(g.zBaseURL, zReferer, strlen(g.zBaseURL))==0 ){
     @ <input type="hidden" name="g" value="%h(zReferer)" />
   }
+  if( anonFlag ){
+    @ <input type="hidden" name="anon" value="1" />
+  }
+  if( g.zLogin ){
+    @ <p>Currently logged in as <b>%h(g.zLogin)</b>.
+    @ <input type="submit" name="out" value="Logout"></p>
+    @ <hr />
+    @ <p>Change user:
+  }
   @ <table class="login_out">
   @ <tr>
   @   <td class="login_out_label">User ID:</td>
@@ -609,7 +627,7 @@ void login_page(void){
   @  <td class="login_out_label">Password:</td>
   @   <td><input type="password" id="p" name="p" value="" size="30" /></td>
   @ </tr>
-  if( g.zLogin==0 ){
+  if( g.zLogin==0 && (anonFlag || zGoto==0) ){
     zAnonPw = db_text(0, "SELECT pw FROM user"
                          " WHERE login='anonymous'"
                          "   AND cap!=''");
@@ -634,11 +652,7 @@ void login_page(void){
   }
   @ }
   @ </script>
-  if( g.zLogin ){
-    @ <p>You are currently logged in as <b>%h(g.zLogin)</b></p>
-  }
-  @ <p>By pressing the Login button, you grant permission to store an
-  @ access token for this site in a cookie.</p>
+  @ <p>Pressing the Login button grants permission to store a cookie.</p>
   if( db_get_boolean("self-register", 0) ){
     @ <p>If you do not have an account, you can
     @ <a href="%R/register?g=%T(P("G"))">create one</a>.
@@ -662,18 +676,10 @@ void login_page(void){
     @ </div>
     free(zCaptcha);
   }
-  if( g.zLogin ){
-    @ <hr />
-    @ <p>To log off the system (and delete your login cookie)
-    @  press the following button:<br />
-    @ <input type="submit" name="out" value="Logout" /></p>
-  }
   @ </form>
   if( g.perm.Password ){
     @ <hr />
-    @ <p>To change your password, enter your old password and your
-    @ new password twice below then press the "Change Password"
-    @ button.</p>
+    @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
     form_begin(0, "%R/login");
     @ <table>
     @ <tr><td class="login_out_label">Old Password:</td>
@@ -1008,8 +1014,12 @@ void login_check_credentials(void){
 static int login_anon_once = 1;
 
 /*
-** Add the default privileges of users "nobody" and "anonymous" as appropriate
-** for the user g.zLogin.
+** Add to g.perm the default privileges of users "nobody" and/or "anonymous"
+** as appropriate for the user g.zLogin.
+**
+** This routine also sets up g.anon to be either a copy of g.perm for
+** all logged in uses, or the privileges that would be available to "anonymous"
+** if g.zLogin==0 (meaning that the user is "nobody").
 */
 void login_set_anon_nobody_capabilities(void){
   if( login_anon_once ){
@@ -1021,8 +1031,10 @@ void login_set_anon_nobody_capabilities(void){
     if( g.zLogin && fossil_strcmp(g.zLogin, "nobody")!=0 ){
       /* All logged-in users inherit privileges from "anonymous" */
       login_set_capabilities(zCap, 0);
+      g.anon = g.perm;
     }else{
       /* Record the privileges of anonymous in g.anon */
+      g.anon = g.perm;
       login_set_capabilities(zCap, LOGIN_ANON);
     }
     login_anon_once = 0;
@@ -1227,7 +1239,7 @@ void login_needed(int anonOk){
       blob_appendf(&redir, "%R/login?g=%T", zUrl);
     }
     if( anonOk ) blob_append(&redir, "&anon", 5);
-    if( zQS ){
+    if( zQS && zQS[0] ){
       blob_appendf(&redir, "&%s", zQS);
     }
     cgi_redirect(blob_str(&redir));

@@ -26,17 +26,17 @@ html "<a href='$home$index_page'>Home</a>\n"
 if {[anycap jor]} {
   html "<a href='$home/timeline'>Timeline</a>\n"
 }
-if {[hascap oh]} {
+if {[anoncap oh]} {
   html "<a href='$home/tree?ci=tip'>Files</a>\n"
 }
-if {[hascap o]} {
+if {[anoncap o]} {
   html "<a href='$home/brlist'>Branches</a>\n"
   html "<a href='$home/taglist'>Tags</a>\n"
 }
-if {[hascap r]} {
+if {[anoncap r]} {
   html "<a href='$home/ticket'>Tickets</a>\n"
 }
-if {[hascap j]} {
+if {[anoncap j]} {
   html "<a href='$home/wiki'>Wiki</a>\n"
 }
 if {[hascap s]} {

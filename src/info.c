@@ -659,7 +659,7 @@ void ci_page(void){
 
 
       /* The Download: line */
-      if( g.perm.Zip || g.anon.Zip ){
+      if( g.anon.Zip ){
         char *zUrl = mprintf("%R/tarball/%t-%S.tar.gz?uuid=%s",
                              zPJ, zUuid, zUuid);
         @ </td></tr>
@@ -676,7 +676,7 @@ void ci_page(void){
       @   | %z(href("%R/fileage?name=%!S",zUuid))file ages</a>
       @   | %z(href("%R/tree?nofiles&type=tree&ci=%!S",zUuid))folders</a>
       @   | %z(href("%R/artifact/%!S",zUuid))manifest</a>
-      if( g.perm.Write || g.anon.Write ){
+      if( g.anon.Write ){
         @   | %z(href("%R/ci_edit?r=%!S",zUuid))edit</a>
       }
       @   </td>
@@ -1365,13 +1365,13 @@ int object_description(
     }
     objType |= OBJTYPE_ATTACHMENT;
     if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
-      if( g.perm.Hyperlink && (g.perm.RdTkt || g.anon.RdTkt) ){
+      if( g.perm.Hyperlink && g.anon.RdTkt ){
         @ ticket [%z(href("%R/tktview?name=%!S",zTarget))%S(zTarget)</a>]
       }else{
         @ ticket [%S(zTarget)]
       }
     }else{
-      if( g.perm.Hyperlink && (g.perm.RdWiki || g.anon.RdWiki) ){
+      if( g.perm.Hyperlink && g.anon.RdWiki ){
         @ wiki page [%z(href("%R/wiki?name=%t",zTarget))%h(zTarget)</a>]
       }else{
         @ wiki page [%h(zTarget)]
