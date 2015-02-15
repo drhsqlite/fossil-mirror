@@ -1,5 +1,5 @@
-C Merge\strunk
-D 2015-02-06T15:38:51.371
+C Add\sthe\s--no-svn-rev\scommand\sline\soption\sto\sthe\s"import\ssvn"\scommand\sthat\swill\nskip\sthe\sautomatic\stagging\sof\severy\scheckins\swith\s"svn-rev-nnn"\stags.\n\nProposition\sfor\sthe\ssvn-import\sbranch..
+D 2015-02-15T19:34:03.695
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/http.c 4045dd21bdc880bc7b694088c21a15bdbe1b562b
 F src/http_socket.c f571eba5d21d66acbb0093214ddf624867bee34c
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
-F src/import.c f9bbcde158b7ae99a5c7f1c31802237d0e75d6fe
+F src/import.c 4b1865720bbd5547e7fdc1a46a907ca422ace990
 F src/info.c b29fbd9eab22e3a66fdf53ff10b5624a5b8775d7
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
@@ -692,7 +692,9 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7d41f6a6d8c419b91a914a8687e15dce3bb7de84 d9dfe11d0c8f8591a5fd50988d5864b64b723d07
-R d4100b77cf54e3fbf58222b31d5daf15
-U jan.nijtmans
-Z 3b4ef6256ce4c662e5fbd759bdcc7073
+P 1be2eb0535a9b8b64d616cb9a22ac16d357bd4e5
+T *branch * svn-import_no-svn-rev
+T *sym-svn-import_no-svn-rev *
+T -sym-svn-import *
+U mgagnon
+Z 5b4c08c437a14e4468ce1559f9fae993
