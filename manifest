@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sall\sadd"\scommand\sfor\sefficiently\sadding\snew\srepositories\nto\sthe\srepo\slist\safter\sthey\shave\sbeen\smoved\sor\srenamed.
-D 2015-02-15T20:48:43.542
+C Fix\sa\sbroken\shyperlink\sin\sthe\sdocumentation\sindex.
+D 2015-02-15T21:43:03.281
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -668,10 +668,10 @@ F www/index.wiki a028412c05afc6984405bef0a1b441dcc214d70b
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
 F www/mkdownload.tcl ef28c12c054844e02863c990650ae7e34784fbd4
-F www/mkindex.tcl 053a2d8af0d4b14945e83032fe00d1f3cac10de7
+F www/mkindex.tcl 822660d093bfc726958178fd775f8bceb83db3be
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
-F www/permutedindex.html 84b4b3d041d93a44b4b7cced587fe792b6579a4f
+F www/permutedindex.html dc582aa1d222ed02d0a6e42c889aeedd5df7681e
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c5c9f1642b07cbe57485d0b78233fbca72349b9d
-R 5c3c9f5f42f67e5ec6bcc2ee49bba2cc
+P c2f6fef80adeb3badc1aa7d011af6bc1c873f958
+R 7edd2150283675b462b2d63c4a6a8808
 U drh
-Z d1fc32a890ddf3e64cf949db7821af8e
+Z 8f932ab53c6042121b4602f9783ed07f
