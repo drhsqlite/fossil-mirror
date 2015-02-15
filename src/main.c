@@ -1359,8 +1359,11 @@ NORETURN void fossil_redirect_home(void){
 **
 ** Assume the user-id and group-id of the repository, or if zRepo
 ** is a directory, of that directory.
+**
+** The noJail flag means that the chroot jail is not entered.  But
+** privileges are still lowered to that of the the user-id and group-id.
 */
-static char *enter_chroot_jail(char *zRepo){
+static char *enter_chroot_jail(char *zRepo, int noJail){
 #if !defined(_WIN32)
   if( getuid()==0 ){
     int i;
@@ -1373,22 +1376,24 @@ static char *enter_chroot_jail(char *zRepo){
 
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
-    if( file_isdir(zDir)==1 ){
-      if( file_chdir(zDir, 1) ){
-        fossil_fatal("unable to chroot into %s", zDir);
-      }
-      zRepo = "/";
-    }else{
-      for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
-      if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
-      if( i>0 ){
-        zDir[i] = 0;
+    if( !noJail ){
+      if( file_isdir(zDir)==1 ){
         if( file_chdir(zDir, 1) ){
           fossil_fatal("unable to chroot into %s", zDir);
         }
-        zDir[i] = '/';
+        zRepo = "/";
+      }else{
+        for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
+        if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
+        if( i>0 ){
+          zDir[i] = 0;
+          if( file_chdir(zDir, 1) ){
+            fossil_fatal("unable to chroot into %s", zDir);
+          }
+          zDir[i] = '/';
+        }
+        zRepo = &zDir[i];
       }
-      zRepo = &zDir[i];
     }
     if( stat(zRepo, &sStat)!=0 ){
       fossil_fatal("cannot stat() repository: %s", zRepo);
@@ -2028,6 +2033,7 @@ static void find_server_repository(int disallowDir, int arg){
 **   --localauth      enable automatic login for local connections
 **   --host NAME      specify hostname of the server
 **   --https          signal a request coming in via https
+**   --nojail         drop root privilege but do not enter the chroot jail
 **   --nossl          signal that no SSL connections are available
 **   --notfound URL   use URL as "HTTP 404, object not found" page.
 **   --files GLOB     comma-separate glob patterns for static file to serve
@@ -2044,6 +2050,7 @@ void cmd_http(void){
   const char *zAltBase;
   const char *zFileGlob;
   int useSCGI;
+  int noJail;
 
   /* The winhttp module passes the --files option as --files-urlenc with
   ** the argument being URL encoded, to avoid wildcard expansion in the
@@ -2059,6 +2066,7 @@ void cmd_http(void){
   }
   skin_override();
   zNotFound = find_option("notfound", 0, 1);
+  noJail = find_option("nojail",0,0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   useSCGI = find_option("scgi", 0, 0)!=0;
@@ -2095,7 +2103,7 @@ void cmd_http(void){
       g.fSshClient |= CGI_SSH_CLIENT;
     }
   }
-  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
   if( useSCGI ){
     cgi_handle_scgi_request();
   }else if( g.fSshClient & CGI_SSH_CLIENT ){
@@ -2213,15 +2221,17 @@ static int binaryOnPath(const char *zBinary){
 ** the --notfound option is used.
 **
 ** Options:
+**   --baseurl URL       Use URL as the base (useful for reverse proxies)
+**   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
+**   --nojail            Drop root privileges but do not enter the chroot jail
+**   --notfound URL      Redirect
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --th-trace          trace TH1 execution (for debugging purposes)
-**   --baseurl URL       Use URL as the base (useful for reverse proxies)
-**   --notfound URL      Redirect
-**   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --scgi              Accept SCGI rather than HTTP
 **   --skin LABEL        Use override skin LABEL
+
 **
 ** See also: cgi, http, winsrv
 */
@@ -2233,6 +2243,7 @@ void cmd_webserver(void){
   int isUiCmd;              /* True if command is "ui", not "server' */
   const char *zNotFound;    /* The --notfound option or NULL */
   int flags = 0;            /* Server flags */
+  int noJail;               /* Do not enter the chroot jail */
   const char *zAltBase;     /* Argument to the --baseurl option */
   const char *zFileGlob;    /* Static content must match this */
   char *zIpAddr = 0;        /* Bind to this IP address */
@@ -2251,6 +2262,7 @@ void cmd_webserver(void){
     zFileGlob = find_option("files",0,1);
   }
   skin_override();
+  noJail = find_option("nojail",0,0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   Th_InitTraceLog();
   zPort = find_option("port", "P", 1);
@@ -2328,7 +2340,7 @@ void cmd_webserver(void){
   }
   g.cgiOutput = 1;
   find_server_repository(isUiCmd && zNotFound==0, 2);
-  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();
   }else{
