@@ -186,3 +186,10 @@ td.tktDspValue pre {
     margin-top: 10px;
     color: #ccc;
 }
+div.timelineDate {
+    font-weight: bold;
+    white-space: nowrap;
+}
+span.submenuctrl, span.submenuctrl input, select.submenuctrl {
+  color: #777;
+}
