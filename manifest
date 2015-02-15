@@ -1,5 +1,5 @@
-C Fix\sa\sbroken\shyperlink\sin\sthe\sdocumentation\sindex.
-D 2015-02-15T21:43:03.281
+C Another\stweak\sto\sthe\s"San\sFrancisco\sModern"\sskin.
+D 2015-02-15T23:31:40.005
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -325,7 +325,7 @@ F skins/enhanced1/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
 F skins/enhanced1/footer.txt 12d9581af14a2980778c00d83756db293b363c83
 F skins/enhanced1/header.txt 1fd3a93e575374bd1ddd7c8c41372830055368b0
 F skins/etienne1/README.md 46b87d9fe01a16616401a87f2107b6685f279c77
-F skins/etienne1/css.txt c3ea9a08e26c9be3a0ee815c1cb2eb69d56a1711
+F skins/etienne1/css.txt 77d9435bcb2606c646f4a1c3d15f126320ec8e6e
 F skins/etienne1/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
 F skins/etienne1/header.txt 18cc8141d5b298b3cb8be8818f7b8b7b81289845
 F skins/khaki/css.txt 1e2129df1cd0a0e15f833866c11ea796d19fbc7b
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c2f6fef80adeb3badc1aa7d011af6bc1c873f958
-R 7edd2150283675b462b2d63c4a6a8808
+P 488fb146e6f0a5a05923b806da08d99686e5a027
+R 6bb95b5aa7ac0d9572f9b4029060fd4c
 U drh
-Z 8f932ab53c6042121b4602f9783ed07f
+Z 6b5f70fac5b4067aa78f4d84556ec495

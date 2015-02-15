@@ -120,8 +120,7 @@ hr {
     color: #444;
 }
 
-.udiff, .sbsdiff,
-.content blockquote {
+.udiff, .sbsdiff {
     font-size: .85em !important;
     overflow: auto;
     border: 1px solid #ccc;
