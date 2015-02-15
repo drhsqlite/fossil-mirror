@@ -1,6 +1,6 @@
 <title>Technical Notes</title>
 
-<h2>What Is An "Technote"?</h2>
+<h2>What Is A "Technote"?</h2>
 
 In Fossil, a "technical note" or "technote" (formerly called an "event")
 is a special kind of [./wikitheory.wiki | wiki page]

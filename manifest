@@ -1,5 +1,5 @@
-C Change\sthe\sname\sof\s"Events"\sto\s"Technotes"\sin\sthe\sactivity\sreports\spages.
-D 2015-02-14T21:20:10.648
+C Fix\sa\stypo\sin\sthe\stechnote\sdocumentation.
+D 2015-02-15T02:46:48.118
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -644,7 +644,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/event.wiki 15162ec1152f20fd11ff9cee4c8fd20bb4e9e930
+F www/event.wiki 7a932aadc92802be5e80246d0ac494accb2b09b7
 F www/faq.tcl fc729b76b9dfb449c128525eef9b05f7efe18fc8
 F www/faq.wiki 281b387c178fd439a4d2f47856434dd2e54f566f
 F www/fileformat.wiki 6bbd07271995eee02c9a8db3c5f2ecee5ec00fe1
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P de6a590a0f6b6f3bd9a43afab89ce343c4471e2a
-R ac9ef657e23b8b26e5eb9b528dc2cba9
+P 12a3f81cb268c5f04773e4a8e1a93e4613e18f0f
+R b0f946041d5ebd49e14e2ba37b139e94
 U drh
-Z 1fe4ed7983b4d60f27a4e3637adf65a2
+Z ec157cd996ef693ad73b51a6a8b5a111
