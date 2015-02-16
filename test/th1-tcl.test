@@ -34,7 +34,7 @@ set env(TH1_ENABLE_TCL) 1; # Tcl integration must be enabled for this test.
 
 ###############################################################################
 
-fossil test-th-render --th-open-config \
+fossil test-th-render --open-config \
     [file nativename [file join $dir th1-tcl1.txt]]
 
 test th1-tcl-1 {[regexp -- {^tclReady\(before\) = 0
@@ -61,7 +61,7 @@ $} [string map [list \r\n \n] $RESULT]]}
 
 ###############################################################################
 
-fossil test-th-render --th-open-config \
+fossil test-th-render --open-config \
     [file nativename [file join $dir th1-tcl2.txt]]
 
 test th1-tcl-2 {[regexp -- {^\d+
@@ -69,7 +69,7 @@ $} [string map [list \r\n \n] $RESULT]]}
 
 ###############################################################################
 
-fossil test-th-render --th-open-config \
+fossil test-th-render --open-config \
     [file nativename [file join $dir th1-tcl3.txt]]
 
 test th1-tcl-3 {$RESULT eq {<hr><p class="thmainError">ERROR:\
@@ -77,7 +77,7 @@ invalid command name &quot;bad_command&quot;</p>}}
 
 ###############################################################################
 
-fossil test-th-render --th-open-config \
+fossil test-th-render --open-config \
     [file nativename [file join $dir th1-tcl4.txt]]
 
 test th1-tcl-4 {$RESULT eq {<hr><p class="thmainError">ERROR:\
@@ -85,7 +85,7 @@ divide by zero</p>}}
 
 ###############################################################################
 
-fossil test-th-render --th-open-config \
+fossil test-th-render --open-config \
     [file nativename [file join $dir th1-tcl5.txt]]
 
 test th1-tcl-5 {$RESULT eq {<hr><p class="thmainError">ERROR:\
@@ -94,7 +94,7 @@ class="thmainError">ERROR: invalid command name &quot;bad_command&quot;</p>}}
 
 ###############################################################################
 
-fossil test-th-render --th-open-config \
+fossil test-th-render --open-config \
     [file nativename [file join $dir th1-tcl6.txt]]
 
 test th1-tcl-6 {$RESULT eq {<hr><p class="thmainError">ERROR:\
@@ -102,7 +102,7 @@ no such command:  bad_command</p>}}
 
 ###############################################################################
 
-fossil test-th-render --th-open-config \
+fossil test-th-render --open-config \
     [file nativename [file join $dir th1-tcl7.txt]]
 
 test th1-tcl-7 {$RESULT eq {<hr><p class="thmainError">ERROR:\
@@ -110,7 +110,7 @@ syntax error in expression: &quot;2**0&quot;</p>}}
 
 ###############################################################################
 
-fossil test-th-render --th-open-config \
+fossil test-th-render --open-config \
     [file nativename [file join $dir th1-tcl8.txt]]
 
 test th1-tcl-8 {$RESULT eq {<hr><p class="thmainError">ERROR:\
@@ -121,9 +121,9 @@ requires Tcl 8.6 or higher.</p>}}
 
 ###############################################################################
 
-fossil test-th-render --th-open-config \
+fossil test-th-render --open-config \
     [file nativename [file join $dir th1-tcl9.txt]]
 
 test th1-tcl-9 {[string trim $RESULT] eq [list [file tail $fossilexe] 3 \
-[list test-th-render --th-open-config [file nativename [file join $dir \
+[list test-th-render --open-config [file nativename [file join $dir \
 th1-tcl9.txt]]]]}

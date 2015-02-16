@@ -250,6 +250,77 @@ static void sendError(const char *z, int n, int forceCgi){
 }
 
 /*
+** Convert name to an rid.  This function was copied from name_to_typed_rid()
+** in name.c; however, it has been modified to report TH1 script errors instead
+** of "fatal errors".
+*/
+int th1_name_to_typed_rid(
+  Th_Interp *interp,
+  const char *zName,
+  const char *zType
+){
+  int rid;
+
+  if( zName==0 || zName[0]==0 ) return 0;
+  rid = symbolic_name_to_rid(zName, zType);
+  if( rid<0 ){
+    Th_SetResult(interp, "ambiguous name", -1);
+  }else if( rid==0 ){
+    Th_SetResult(interp, "name not found", -1);
+  }
+  return rid;
+}
+
+/*
+** Attempt to lookup the specified checkin and file name into an rid.
+** This function was copied from artifact_from_ci_and_filename() in
+** info.c; however, it has been modified to report TH1 script errors
+** instead of "fatal errors".
+*/
+int th1_artifact_from_ci_and_filename(
+  Th_Interp *interp,
+  const char *zCI,
+  const char *zFilename
+){
+  int cirid;
+  Blob err;
+  Manifest *pManifest;
+  ManifestFile *pFile;
+
+  if( zCI==0 ){
+    Th_SetResult(interp, "invalid check-in", -1);
+    return 0;
+  }
+  if( zFilename==0 ){
+    Th_SetResult(interp, "invalid file name", -1);
+    return 0;
+  }
+  cirid = th1_name_to_typed_rid(interp, zCI, "*");
+  blob_zero(&err);
+  pManifest = manifest_get(cirid, CFTYPE_MANIFEST, &err);
+  if( pManifest==0 ){
+    if( blob_size(&err)>0 ){
+      Th_SetResult(interp, blob_str(&err), blob_size(&err));
+    }else{
+      Th_SetResult(interp, "manifest not found", -1);
+    }
+    blob_reset(&err);
+    return 0;
+  }
+  blob_reset(&err);
+  manifest_file_rewind(pManifest);
+  while( (pFile = manifest_file_next(pManifest,0))!=0 ){
+    if( fossil_strcmp(zFilename, pFile->zName)==0 ){
+      int rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", pFile->zUuid);
+      manifest_destroy(pManifest);
+      return rid;
+    }
+  }
+  Th_SetResult(interp, "file name not found in manifest", -1);
+  return 0;
+}
+
+/*
 ** TH1 command: puts STRING
 ** TH1 command: html STRING
 **
@@ -983,16 +1054,15 @@ static int artifactCmd(
     int rid;
     Blob content;
     if( argc==3 ){
-      rid = artifact_from_ci_and_filename(argv[1], argv[2]);
+      rid = th1_artifact_from_ci_and_filename(interp, argv[1], argv[2]);
     }else{
-      rid = name_to_rid(argv[1]);
+      rid = th1_name_to_typed_rid(interp, argv[1], "*");
     }
     if( rid!=0 && content_get(rid, &content) ){
       Th_SetResult(interp, blob_str(&content), blob_size(&content));
       blob_reset(&content);
       return TH_OK;
     }else{
-      Th_SetResult(interp, "artifact not found", -1);
       return TH_ERROR;
     }
   }else{
