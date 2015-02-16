@@ -1,5 +1,5 @@
-C Fix\sfor\sticket\sdisplay\sCSS\sin\sthe\setienne1\sskin.
-D 2015-02-16T11:33:04.165
+C Enhance\sthe\s--skin\soption\sso\sthat\sit\scan\sbe\sa\sdirectory\sholding\sthe\sthree\nskin\sfiles.
+D 2015-02-16T13:41:27.205
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -310,7 +310,7 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F setup/fossil.iss c9ad92c989eecde15b2b01cd69eadc74de7a8d33
 F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
-F skins/README.md be42c1cdac9f4da896447ea88d90cce2b8fe7e46
+F skins/README.md 635d3230265fe31ceaa1c3c3b9b327e1fdc7c292
 F skins/black_and_white/css.txt c3adc27aeeba71bd280e681233158c7694e41a25
 F skins/black_and_white/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/black_and_white/header.txt c74f3b8cfefae2e763d8f117dbd20e90c6dba33d
@@ -343,7 +343,7 @@ F src/allrepo.c d44cc238625534b90238714b4607c7cdd04f3a59
 F src/attach.c b7c3b237a69a7b91ce9ec40ff075731f7298979b
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
-F src/blob.c 6a1aea546e402a5fcf38d29e353d80a603e5731d
+F src/blob.c d5931816af9d494fb96732952ecaa7650efc2e1d
 F src/branch.c b5c56ea42cae0adbcce305e0d9c96cd6d6f2a97b
 F src/browse.c 57876211769abca6f68b864fa67a806dbe7a8b94
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
@@ -443,7 +443,7 @@ F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c a29ab8256f525a7431d865c6c2e7116bd7ffa92a
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c f173892c2871ab1de8640be58d2ac2c2569f3394
-F src/skins.c 3582876e7514edb1116225ea5d68d8636e764e28
+F src/skins.c 153ba32582e26dff62322a97107617b345d77dc0
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
 F src/sqlite3.c 85ce79948116aa9a087ec345c9d2ce2c1d3cd8af
 F src/sqlite3.h eb06a7a2c24836d63607f1a4407c3aaccb79f3cf
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P b2852d41ad25fff31bbc321c925f5c3c6d5d859f
-R ff0facde2a01d329c0111e359ed19080
+P 47bb6432a13059fd29afa3ee3ad80f7ef782fd26
+R 2fd2bae2adc0027ae63bbd092378332d
 U drh
-Z d22bf89c0685b7263e82c49a3546f216
+Z 59811f7713b5ca9efd63b651d3904837

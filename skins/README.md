@@ -3,7 +3,7 @@ Built-in Skins
 
 Each subdirectory under this folder describes a built-in "skin".
 There are three files in each subdirectory for the CSS, the header,
-and the footer for the skin.
+and the footer for that skin.
 
 To improve an existing built-in skin, simply edit the appropriate
 files and recompile.
@@ -25,3 +25,19 @@ To add a new skin:
         file so that it describes and references the "newskin" skin.
 
    5.   Type "make" to rebuild.
+
+Development Hints
+-----------------
+
+One way to develop a new skin is to copy the baseline files (css.txt,
+footer.txt, and header.txt) into a working directory $WORKDIR then
+launch Fossil with a command-line option "--skin $WORKDIR".  Example:
+
+        cp -r skins/default newskin
+        fossil ui --skin ./newskin
+
+When the argument to --skin contains one or more '/' characters, the
+appropriate skin files are read from disk from the directory specified.
+So after launching fossil as shown above, you can edit the newskin/css.txt,
+newskin/header.txt, and newskin/footer.txt files using your favorite
+text editor, then press Reload on your browser to see immediate results.
