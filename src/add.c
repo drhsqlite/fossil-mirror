@@ -358,7 +358,7 @@ static void process_files_to_remove(
     if( !dryRunFlag ){
       file_delete(zOldName);
     }
-    fossil_print("REMOVED %s\n", zOldName);
+    fossil_print("DELETED_FILE %s\n", zOldName);
   }
   db_finalize(&remove);
   db_multi_exec("DROP TABLE fremove;");
@@ -693,7 +693,7 @@ static void process_files_to_move(
       }
       file_delete(zOldName);
     }
-    fossil_print("MOVED %s %s\n", zOldName, zNewName);
+    fossil_print("MOVED_FILE %s\n", zOldName);
   }
   db_finalize(&move);
   db_multi_exec("DROP TABLE fmove;");
