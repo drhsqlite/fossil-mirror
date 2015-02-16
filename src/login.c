@@ -605,7 +605,7 @@ void login_page(void){
     for(i=0; zAbbrev[i] && zAbbrev[i]!='?'; i++){}
     zAbbrev[i] = 0;
     if( g.zLogin ){
-      @ <p>Use a different login with greater privilege that <b>%h(g.zLogin)</b>
+      @ <p>Use a different login with greater privilege than <b>%h(g.zLogin)</b>
       @ to access <b>%h(zAbbrev)</b>.
     }else if( anonFlag ){
       @ <p>Login as <b>anonymous</b> or any named user

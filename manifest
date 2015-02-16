@@ -1,5 +1,5 @@
-C Further\ssimplifications\sto\sthe\sheader\sgenerating\sscript\sin\sthe\setienne1\sskin.
-D 2015-02-16T02:16:36.394
+C Fix\stypo\son\sthe\sLogin\spage.\s\sDo\snot\suse\sthe\spointer\scursor\son\sreport\ntables,\sexcept\sin\sclickable\splaces.
+D 2015-02-16T02:25:49.340
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -334,7 +334,7 @@ F skins/khaki/header.txt 609fe1dd9dd3afdfe2777ce207a2012cb36c3f64
 F skins/plain_gray/css.txt bd18a142f4ab944ae5328746c1e4d356818168ef
 F skins/plain_gray/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/plain_gray/header.txt dc58123dc4ae1714dea231d69f3dcf25308fe83a
-F skins/rounded1/css.txt 23098aad131c5c535bfcfbaa72577dc356254e85
+F skins/rounded1/css.txt d29684c130b326b1e7c15c3b40022fa707aebcc2
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
@@ -405,7 +405,7 @@ F src/json_user.c 66fc65a1647616819074eb8ae4534f0822b2fb55
 F src/json_wiki.c fca83828f069a0964f7b5e72dc4e8793e8571707
 F src/leaf.c a8880fbcf409f34c0ea9566f8b548a96496856a7
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
-F src/login.c db73eac13084bc3e030a2ecf60fa298e8e53c97b
+F src/login.c 2abcbfe5306a237232816ebccbaf0b871e65d267
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c 99b3c7f6a582f2d17cc8ddc4d33b2db7348db022
 F src/main.mk f9dcf8365fadd154815d00404da25f63c6bd0780
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c9db8c79586fc2bfcd463ecb4e1dde61a0c88dc1
-R d40ab94b0e7cd6d4b1be05b20ec36d8a
+P 64d3a61efcefbb45eaf0fc8533b710453a9ad0a9
+R d87f26739047eff44f19a9a9fd81cc78
 U drh
-Z ef4d56e4e5020ab16a5b6ec910ff62c3
+Z 630cf428b5bb95077d310f57c522bac9
