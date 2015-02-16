@@ -1,5 +1,5 @@
-C Make\sthe\soption\shandling\sfor\s'test-th-hook'\sconsistent\swith\sthe\sother\sTH1\stest\scommands.
-D 2015-02-16T03:44:19.981
+C Fix\sthe\ssubmenu\sshimmer\sand\salignment\sproblems\sin\sthe\setienne1\sskin.
+D 2015-02-16T04:16:02.188
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -325,7 +325,7 @@ F skins/enhanced1/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
 F skins/enhanced1/footer.txt 12d9581af14a2980778c00d83756db293b363c83
 F skins/enhanced1/header.txt 1fd3a93e575374bd1ddd7c8c41372830055368b0
 F skins/etienne1/README.md 46b87d9fe01a16616401a87f2107b6685f279c77
-F skins/etienne1/css.txt f3f2643f432cf0acab9dd561e8d1df011b0ea9e6
+F skins/etienne1/css.txt c26f7e9df0c0382c54b20b987c856d78ed30b251
 F skins/etienne1/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
 F skins/etienne1/header.txt 4c3f4dbdbffcd53faef11dbc4cc01c930e5c3cef
 F skins/khaki/css.txt 1e2129df1cd0a0e15f833866c11ea796d19fbc7b
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P d44207ff43b0aaa3eb5f0fa0e440c3481b57ce4b
-R 94f7efd1d14ee6245b840e9afa465986
-U mistachkin
-Z 3c834bd1660e374cd6888ffcc2eb6ed9
+P 0afcc93d3c14b78b6a66be825b5476de9cfebc3e
+R 1dcfb695da64cc0194d3f48fe467f91f
+U drh
+Z 68e68261975870129cc31ff903577d42

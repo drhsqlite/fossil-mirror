@@ -102,16 +102,16 @@ hr {
 }
 
 .submenu a {
-    padding: 10px;
+    padding: 10px 11px;
     text-decoration:none;
     color: #777;
 }
 
 .submenu a:hover {
+    padding: 6px 10px;
     border: 1px solid #ccc;
-    border-bottom: 1px solid #fff;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-radius: 5px;
+    color: #000;
 }
 
 .content {
