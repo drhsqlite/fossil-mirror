@@ -234,29 +234,20 @@ void symlink_copy(const char *zFrom, const char *zTo){
 
 /*
 ** Return file permissions (normal, executable, or symlink):
-**   - PERM_EXE if file is executable;
+**   - PERM_EXE on Unix if file is executable;
 **   - PERM_LNK on Unix if file is symlink and allow-symlinks option is on;
 **   - PERM_REG for all other cases (regular file, directory, fifo, etc).
 */
 int file_wd_perm(const char *zFilename){
-  if( getStat(zFilename, 1) ) return PERM_REG;
-#if defined(_WIN32)
-#  ifndef S_IXUSR
-#    define S_IXUSR  _S_IEXEC
-#  endif
-  if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
-    return PERM_EXE;
-  else
-    return PERM_REG;
-#else
-  if( S_ISREG(fileStat.st_mode) &&
-      ((S_IXUSR|S_IXGRP|S_IXOTH)&fileStat.st_mode)!=0 )
-    return PERM_EXE;
-  else if( g.allowSymlinks && S_ISLNK(fileStat.st_mode) )
-    return PERM_LNK;
-  else
-    return PERM_REG;
+#if !defined(_WIN32)
+  if( !getStat(zFilename, 1) ){
+     if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
+      return PERM_EXE;
+    else if( g.allowSymlinks && S_ISLNK(fileStat.st_mode) )
+      return PERM_LNK;
+  }
 #endif
+  return PERM_REG;
 }
 
 /*
@@ -434,12 +425,12 @@ int file_wd_setexe(const char *zFilename, int onoff){
   if( fossil_stat(zFilename, &buf, 1)!=0 || S_ISLNK(buf.st_mode) ) return 0;
   if( onoff ){
     int targetMode = (buf.st_mode & 0444)>>2;
-    if( (buf.st_mode & 0111)!=targetMode ){
+    if( (buf.st_mode & 0100) == 0 ){
       chmod(zFilename, buf.st_mode | targetMode);
       rc = 1;
     }
   }else{
-    if( (buf.st_mode & 0111)!=0 ){
+    if( (buf.st_mode & 0100) != 0 ){
       chmod(zFilename, buf.st_mode & ~0111);
       rc = 1;
     }

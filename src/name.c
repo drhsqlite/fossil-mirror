@@ -106,6 +106,11 @@ int start_of_branch(int rid, int inBranch){
 ** rather than the last.
 ** zType is "ci" in most use cases since we are usually searching for
 ** a check-in.
+**
+** Note that the input zTag for types "t" and "e" is the SHA1 hash of
+** the ticket-change or event-change artifact, not the randomly generated
+** hexadecimal identifier assigned to tickets and events.  Those identifiers
+** live in a separate namespace.
 */
 int symbolic_name_to_rid(const char *zTag, const char *zType){
   int vid;
@@ -446,7 +451,7 @@ void ambiguous_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
-    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
     @ %s(zUuid)</a> -
     object_description(rid, 0, 0);
     @ </p></li>
@@ -463,7 +468,7 @@ void ambiguous_page(void){
     int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zTitle = db_column_text(&q, 2);
-    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
     @ %s(zUuid)</a> -
     @ <ul></ul>
     @ Ticket
@@ -483,7 +488,7 @@ void ambiguous_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     const char* zUuid = db_column_text(&q, 1);
-    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
     @ %s(zUuid)</a> -
     @ <ul><li>
     object_description(rid, 0, 0);
@@ -779,14 +784,14 @@ void test_ambiguous_cmd(void){
 /*
 ** Schema for the description table
 */
-static const char zDescTab[] = 
+static const char zDescTab[] =
 @ CREATE TEMP TABLE IF NOT EXISTS description(
-@   rid INTEGER PRIMARY KEY,       -- RID of the object 
-@   uuid TEXT,                     -- SHA1 hash of the object 
-@   ctime DATETIME,                -- Time of creation 
+@   rid INTEGER PRIMARY KEY,       -- RID of the object
+@   uuid TEXT,                     -- SHA1 hash of the object
+@   ctime DATETIME,                -- Time of creation
 @   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
 @   type TEXT,                     -- file, checkin, wiki, ticket, etc.
-@   summary TEXT,                  -- Summary comment for the object 
+@   summary TEXT,                  -- Summary comment for the object
 @   detail TEXT                    -- filename, checkin comment, etc
 @ );
 ;
@@ -984,7 +989,7 @@ void bloblist_page(void){
   char *zRange;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of Artifacts");
   if( mx>n && P("s")==0 ){
     int i;
@@ -1013,7 +1018,7 @@ void bloblist_page(void){
     const char *zDesc = db_column_text(&q, 2);
     int isPriv = db_column_int(&q,2);
     @ <tr><td align="right">%d(rid)</td>
-    @ <td>&nbsp;%z(href("%R/info/%s",zUuid))%s(zUuid)</a>&nbsp;</td>
+    @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%s(zUuid)</a>&nbsp;</td>
     @ <td align="left">%h(zDesc)</td>
     if( isPriv ){
       @ <td>(unpublished)</td>
@@ -1059,4 +1064,74 @@ void test_unclusterd_cmd(void){
 void test_phatoms_cmd(void){
   db_find_and_open_repository(0,0);
   describe_artifacts_to_stdout("IN (SELECT rid FROM blob WHERE size<0)", 0);
+}
+
+/* Maximum number of collision examples to remember */
+#define MAX_COLLIDE 25
+
+/*
+** WEBPAGE: hash-collisions
+**
+** Show the number of hash collisions for hash prefixes of various lengths.
+*/
+void hash_collisions_webpage(void){
+  int i, j, kk;
+  int nHash = 0;
+  Stmt q;
+  char zPrev[UUID_SIZE+1];
+  struct {
+    int cnt;
+    char *azHit[MAX_COLLIDE];
+    char z[UUID_SIZE+1];
+  } aCollide[UUID_SIZE+1];
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  memset(aCollide, 0, sizeof(aCollide));
+  memset(zPrev, 0, sizeof(zPrev));
+  db_prepare(&q,"SELECT uuid FROM blob ORDER BY 1");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q,0);
+    int n = db_column_bytes(&q,0);
+    int i;
+    nHash++;
+    for(i=0; zPrev[i] && zPrev[i]==zUuid[i]; i++){}
+    if( i>0 && i<=UUID_SIZE ){
+      if( i>=4 && aCollide[i].cnt<MAX_COLLIDE ){
+        aCollide[i].azHit[aCollide[i].cnt] = mprintf("%.*s", i, zPrev);
+      }
+      aCollide[i].cnt++;
+      if( aCollide[i].z[0]==0 ) memcpy(aCollide[i].z, zPrev, n+1);
+    }
+    memcpy(zPrev, zUuid, n+1);
+  }
+  db_finalize(&q);
+  style_header("SHA1 Prefix Collisions");
+  style_submenu_element("Activity Reports", 0, "reports");
+  style_submenu_element("Stats", 0, "stat");
+  @ <table border=1><thead>
+  @ <tr><th>Length<th>Instances<th>First Instance</tr>
+  @ </thead><tbody>
+  for(i=1; i<=UUID_SIZE; i++){
+    if( aCollide[i].cnt==0 ) continue;
+    @ <tr><td>%d(i)<td>%d(aCollide[i].cnt)<td>%h(aCollide[i].z)</tr>
+  }
+  @ </tbody></table>
+  @ <p>Total number of hashes: %d(nHash)</p>
+  kk = 0;
+  for(i=UUID_SIZE; i>=4; i--){
+    if( aCollide[i].cnt==0 ) continue;
+    if( aCollide[i].cnt>200 ) break;
+    kk += aCollide[i].cnt;
+    if( aCollide[i].cnt<25 ){
+      @ <p>Collisions of length %d(i):
+    }else{
+      @ <p>First 25 collisions of length %d(i):
+    }
+    for(j=0; j<aCollide[i].cnt && j<MAX_COLLIDE; j++){
+      char *zId = aCollide[i].azHit[j];
+      if( zId==0 ) continue;
+      @ %z(href("%R/whatis/%s",zId))%h(zId)</a>
+    }
+  }
+  style_footer();
 }

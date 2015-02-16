@@ -183,7 +183,6 @@ table.report tr th {
 
 table.report tr td {
   padding: 3px 5px;
-  cursor: pointer;
 }
 
 textarea {

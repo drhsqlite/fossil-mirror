@@ -195,8 +195,13 @@ struct Global {
   char *zIpAddr;          /* The remote IP address */
   char *zNonce;           /* The nonce used for login */
 
-  /* permissions used by the server */
+  /* permissions available to current user */
   struct FossilUserPerms perm;
+
+  /* permissions available to current user or to "anonymous".
+  ** This is the logical union of perm permissions above with
+  ** the value that perm would take if g.zLogin were "anonymous". */
+  struct FossilUserPerms anon;
 
 #ifdef FOSSIL_ENABLE_TCL
   /* all Tcl related context necessary for integration */
@@ -691,8 +696,29 @@ int main(int argc, char **argv)
     zCmdName = g.argv[1];
   }
 #ifndef _WIN32
-  if( !is_valid_fd(2) ) fossil_panic("file descriptor 2 not open");
-  /* if( is_valid_fd(3) ) fossil_warning("file descriptor 3 is open"); */
+  /* There is a bug in stunnel4 in which it sometimes starts up client
+  ** processes without first opening file descriptor 2 (standard error).
+  ** If this happens, and a subsequent open() of a database returns file
+  ** descriptor 2, and then an assert() fires and writes on fd 2, that
+  ** can corrupt the data file.  To avoid this problem, make sure open()
+  ** will never return file descriptor 2 or less. */
+  if( !is_valid_fd(2) ){
+    int nTry = 0;
+    int fd = 0;
+    int x = 0;
+    do{
+      fd = open("/dev/null",O_WRONLY);
+      if( fd>=2 ) break;
+      if( fd<0 ) x = errno;
+    }while( nTry++ < 2 );
+    if( fd<2 ){
+      g.cgiOutput = 1;
+      g.httpOut = stdout;
+      g.fullHttpReply = !g.isHTTP;
+      fossil_fatal("file descriptor 2 is not open. (fd=%d, errno=%d)",
+                   fd, x);
+    }
+  }
 #endif
   rc = name_search(zCmdName, aCommand, count(aCommand), FOSSIL_FIRST_CMD, &idx);
   if( rc==1 ){
@@ -1154,7 +1180,7 @@ void help_page(void){
       if( j==0 ){
         @ <td valign="top"><ul>
       }
-      @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a></li>
+      @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
       j++;
       if( j>=n ){
         @ </ul></td>
@@ -1182,7 +1208,7 @@ void help_page(void){
         @ <td valign="top"><ul>
       }
       if( aCmdHelp[i].zText && *aCmdHelp[i].zText ){
-        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z+1)</a></li>
+        @ <li><a href="%R/help?cmd=%s(z)">%s(z+1)</a></li>
       }else{
         @ <li>%s(z+1)</li>
       }
@@ -1212,7 +1238,7 @@ void help_page(void){
         @ <td valign="top"><ul>
       }
       if( aCmdHelp[i].zText && *aCmdHelp[i].zText ){
-        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a></li>
+        @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
       }else{
         @ <li>%s(z)</li>
       }
@@ -1333,8 +1359,11 @@ NORETURN void fossil_redirect_home(void){
 **
 ** Assume the user-id and group-id of the repository, or if zRepo
 ** is a directory, of that directory.
+**
+** The noJail flag means that the chroot jail is not entered.  But
+** privileges are still lowered to that of the the user-id and group-id.
 */
-static char *enter_chroot_jail(char *zRepo){
+static char *enter_chroot_jail(char *zRepo, int noJail){
 #if !defined(_WIN32)
   if( getuid()==0 ){
     int i;
@@ -1347,22 +1376,24 @@ static char *enter_chroot_jail(char *zRepo){
 
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
-    if( file_isdir(zDir)==1 ){
-      if( file_chdir(zDir, 1) ){
-        fossil_fatal("unable to chroot into %s", zDir);
-      }
-      zRepo = "/";
-    }else{
-      for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
-      if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
-      if( i>0 ){
-        zDir[i] = 0;
+    if( !noJail ){
+      if( file_isdir(zDir)==1 ){
         if( file_chdir(zDir, 1) ){
           fossil_fatal("unable to chroot into %s", zDir);
         }
-        zDir[i] = '/';
+        zRepo = "/";
+      }else{
+        for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
+        if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
+        if( i>0 ){
+          zDir[i] = 0;
+          if( file_chdir(zDir, 1) ){
+            fossil_fatal("unable to chroot into %s", zDir);
+          }
+          zDir[i] = '/';
+        }
+        zRepo = &zDir[i];
       }
-      zRepo = &zDir[i];
     }
     if( stat(zRepo, &sStat)!=0 ){
       fossil_fatal("cannot stat() repository: %s", zRepo);
@@ -1902,6 +1933,18 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
+    if( blob_eq(&key, "skin:") && blob_token(&line, &value) ){
+      /* skin: LABEL
+      **
+      ** Use one of the built-in skins defined by LABEL.  LABEL is the
+      ** name of the subdirectory under the skins/ directory that holds
+      ** the elements of the built-in skin.  If LABEL does not match,
+      ** this directive is a silent no-op.
+      */
+      skin_use_alternative(blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
   }
   blob_reset(&config);
   if( g.db==0 && g.zRepositoryName==0 && nRedirect==0 ){
@@ -1990,11 +2033,13 @@ static void find_server_repository(int disallowDir, int arg){
 **   --localauth      enable automatic login for local connections
 **   --host NAME      specify hostname of the server
 **   --https          signal a request coming in via https
+**   --nojail         drop root privilege but do not enter the chroot jail
 **   --nossl          signal that no SSL connections are available
 **   --notfound URL   use URL as "HTTP 404, object not found" page.
 **   --files GLOB     comma-separate glob patterns for static file to serve
 **   --baseurl URL    base URL (useful with reverse proxies)
 **   --scgi           Interpret input as SCGI rather than HTTP
+**   --skin LABEL     Use override skin LABEL
 **
 ** See also: cgi, server, winsrv
 */
@@ -2005,6 +2050,7 @@ void cmd_http(void){
   const char *zAltBase;
   const char *zFileGlob;
   int useSCGI;
+  int noJail;
 
   /* The winhttp module passes the --files option as --files-urlenc with
   ** the argument being URL encoded, to avoid wildcard expansion in the
@@ -2018,7 +2064,9 @@ void cmd_http(void){
   }else{
     zFileGlob = find_option("files",0,1);
   }
+  skin_override();
   zNotFound = find_option("notfound", 0, 1);
+  noJail = find_option("nojail",0,0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   useSCGI = find_option("scgi", 0, 0)!=0;
@@ -2055,7 +2103,7 @@ void cmd_http(void){
       g.fSshClient |= CGI_SSH_CLIENT;
     }
   }
-  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
   if( useSCGI ){
     cgi_handle_scgi_request();
   }else if( g.fSshClient & CGI_SSH_CLIENT ){
@@ -2173,14 +2221,17 @@ static int binaryOnPath(const char *zBinary){
 ** the --notfound option is used.
 **
 ** Options:
+**   --baseurl URL       Use URL as the base (useful for reverse proxies)
+**   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
+**   --nojail            Drop root privileges but do not enter the chroot jail
+**   --notfound URL      Redirect
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --th-trace          trace TH1 execution (for debugging purposes)
-**   --baseurl URL       Use URL as the base (useful for reverse proxies)
-**   --notfound URL      Redirect
-**   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --scgi              Accept SCGI rather than HTTP
+**   --skin LABEL        Use override skin LABEL
+
 **
 ** See also: cgi, http, winsrv
 */
@@ -2192,6 +2243,9 @@ void cmd_webserver(void){
   int isUiCmd;              /* True if command is "ui", not "server' */
   const char *zNotFound;    /* The --notfound option or NULL */
   int flags = 0;            /* Server flags */
+#if !defined(_WIN32)
+  int noJail;               /* Do not enter the chroot jail */
+#endif
   const char *zAltBase;     /* Argument to the --baseurl option */
   const char *zFileGlob;    /* Static content must match this */
   char *zIpAddr = 0;        /* Bind to this IP address */
@@ -2209,6 +2263,10 @@ void cmd_webserver(void){
   }else{
     zFileGlob = find_option("files",0,1);
   }
+  skin_override();
+#if !defined(_WIN32)
+  noJail = find_option("nojail",0,0)!=0;
+#endif
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   Th_InitTraceLog();
   zPort = find_option("port", "P", 1);
@@ -2286,7 +2344,7 @@ void cmd_webserver(void){
   }
   g.cgiOutput = 1;
   find_server_repository(isUiCmd && zNotFound==0, 2);
-  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();
   }else{

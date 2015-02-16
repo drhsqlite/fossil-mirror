@@ -524,19 +524,20 @@ static void reconstruct_private_table(void){
 ** executable in a way that changes the database schema.
 **
 ** Options:
+**   --analyze     Run ANALYZE on the database after rebuilding
 **   --cluster     Compute clusters for unclustered artifacts
 **   --compress    Strive to make the database as small as possible
+**   --deanalyze   Remove ANALYZE tables from the database
 **   --force       Force the rebuild to complete even if errors are seen
+**   --ifneeded    Only do the rebuild if it would change the schema version
+**   --index       Always add in the full-text search index
 **   --noverify    Skip the verification of changes to the BLOB table
+**   --noindex     Always omit the full-text search index
 **   --pagesize N  Set the database pagesize to N. (512..65536 and power of 2)
 **   --randomize   Scan artifacts in a random order
-**   --vacuum      Run VACUUM on the database after rebuilding
-**   --deanalyze   Remove ANALYZE tables from the database
-**   --analyze     Run ANALYZE on the database after rebuilding
-**   --wal         Set Write-Ahead-Log journalling mode on the database
 **   --stats       Show artifact statistics after rebuilding
-**   --index       Always add in the full-text search index
-**   --no-index    Always omit the full-text search index
+**   --vacuum      Run VACUUM on the database after rebuilding
+**   --wal         Set Write-Ahead-Log journalling mode on the database
 **
 ** See also: deconstruct, reconstruct
 */
@@ -555,6 +556,9 @@ void rebuild_database(void){
   int runCompress;
   int showStats;
   int runReindex;
+  int optNoIndex;
+  int optIndex;
+  int optIfNeeded;
 
   omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
@@ -566,6 +570,9 @@ void rebuild_database(void){
   runCompress = find_option("compress",0,0)!=0;
   zPagesize = find_option("pagesize",0,1);
   showStats = find_option("stats",0,0)!=0;
+  optIndex = find_option("index",0,0)!=0;
+  optNoIndex = find_option("noindex",0,0)!=0;
+  optIfNeeded = find_option("ifneeded",0,0)!=0;
   if( zPagesize ){
     newPagesize = atoi(zPagesize);
     if( newPagesize<512 || newPagesize>65536
@@ -586,9 +593,12 @@ void rebuild_database(void){
     db_open_repository(g.zRepositoryName);
   }
   runReindex = search_index_exists();
-  if( find_option("index",0,0)!=0 ) runReindex = 1;
-  if( find_option("no-index",0,0)!=0 ) runReindex = 0;
-  
+  if( optIndex ) runReindex = 1;
+  if( optNoIndex ) runReindex = 0;
+  if( optIfNeeded && fossil_strcmp(db_get("aux-schema",""),AUX_SCHEMA_MAX)==0 ){
+    return;
+  }
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -809,7 +819,7 @@ void scrub_cmd(void){
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
   db_close(1);
   db_open_repository(g.zRepositoryName);
-    
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -939,7 +949,7 @@ void reconstruct_cmd(void) {
   }
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
-  
+
   /* We should be done with options.. */
   verify_all_options();
 

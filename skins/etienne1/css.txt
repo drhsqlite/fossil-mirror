@@ -15,7 +15,7 @@ a:hover {
 }
 
 hr {
-    border: 0px;
+    color: #eee;
 }
 
 .title {
@@ -120,8 +120,7 @@ hr {
     color: #444;
 }
 
-.udiff, .sbsdiff,
-.content blockquote {
+.udiff, .sbsdiff {
     font-size: .85em !important;
     overflow: auto;
     border: 1px solid #ccc;
@@ -185,4 +184,11 @@ td.tktDspValue pre {
     font-size:.7em;
     margin-top: 10px;
     color: #ccc;
+}
+div.timelineDate {
+    font-weight: bold;
+    white-space: nowrap;
+}
+span.submenuctrl, span.submenuctrl input, select.submenuctrl {
+  color: #777;
 }

@@ -21,68 +21,36 @@
     </div>
 
     <div class="mainmenu">
-      <th1>
-proc isin {val lst} {
-    set tot [llength $lst]
-    for {set i 0} {$i < $tot} {set i [expr {$i + 1}]} {
-        set cur [lindex $lst $i]
-        if {$val eq $cur} {
-            return 0
-        }
-    }
-    return 1
+<th1>
+proc menulink {url name} {
+  upvar current_page current
+  upvar home home
+  if {$url eq "/$current"} {
+    html "<a href='$home$url' class='active'>$name</a>\n"
+  } else {
+    html "<a href='$home$url'>$name</a>\n"
+  }
 }
-
-proc menulink {pagename url name} {
-    upvar current_page current
-    upvar home home
-
-    set compsetup [string compare [string range $current 0 4] setup]
-    set comphome [string compare [string range $current 0 3] home]
-    set comptag [string compare $current tagtimeline]
-    set compbr [string compare $current brtimeline]
-    set compdir [isin $current "artifact ci finfo hexdump"]
-    set comptl [string compare $current info]
-    set comptkt [isin $current "modreq rptedit tktnew rptsql rptview"]
-
-    html "<a href='$home$url'"
-
-    if {$pagename eq $current
-        || ($pagename eq "home" && $comphome == 0)
-        || ($pagename eq "setup" && $compsetup == 0)
-        || ($pagename eq "taglist" && $comptag == 0)
-        || ($pagename eq "dir" && $compdir == 0)
-        || ($pagename eq "timeline" && $comptl == 0)
-        || ($pagename eq "ticket" && $comptkt == 0)
-        || ($pagename eq "brlist" && $compbr == 0)
-    } {
-        html " class='active' "
-    }
-
-    html ">$name</a>"
-}
-
-menulink "home" $index_page Home
-
+menulink $index_page Home
 if {[anycap jor]} {
-    menulink "timeline" "/timeline" Timeline
+  menulink /timeline Timeline
 }
 if {[hascap oh]} {
-    menulink "dir" "/dir?ci=tip" Files
+  menulink /dir?ci=tip Files
 }
 if {[hascap o]} {
-    menulink "brlist" "/brlist" Branches
-    menulink "taglist" "/taglist" Tags
+  menulink  /brlist Branches
+  menulink  /taglist Tags
 }
 if {[hascap r]} {
-    menulink "ticket" "/ticket" Tickets
+  menulink /ticket Tickets
 }
 if {[hascap j]} {
-    menulink "wiki" "/wiki" Wiki
+  menulink /wiki Wiki
 }
 if {[hascap s]} {
-    menulink "setup" "/setup" Admin
+  menulink /setup Admin
 } elseif {[hascap a]} {
-    menulink "setup_ulist" "/setup_ulist" Users
+  menulink /setup_ulist Users
 }
 </th1></div>

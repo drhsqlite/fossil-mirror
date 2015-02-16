@@ -42,7 +42,10 @@ void view_list(void){
   int cnt = 0;
 
   login_check_credentials();
-  if( !g.perm.RdTkt && !g.perm.NewTkt ){ login_needed(); return; }
+  if( !g.perm.RdTkt && !g.perm.NewTkt ){
+    login_needed(g.anon.RdTkt || g.anon.NewTkt);
+    return;
+  }
   style_header("Ticket Main Menu");
   ticket_standard_submenu(T_ALL_BUT(T_REPLIST));
   if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST<br />\n", -1);
@@ -295,7 +298,7 @@ void view_see_sql(void){
 
   login_check_credentials();
   if( !g.perm.TktFmt ){
-    login_needed();
+    login_needed(g.anon.TktFmt);
     return;
   }
   rn = atoi(PD("rn","0"));
@@ -345,7 +348,7 @@ void view_edit(void){
 
   login_check_credentials();
   if( !g.perm.TktFmt ){
-    login_needed();
+    login_needed(g.anon.TktFmt);
     return;
   }
   /*view_add_functions(0);*/
@@ -1080,7 +1083,7 @@ void rptview_page(void){
   char *zErr2 = 0;
 
   login_check_credentials();
-  if( !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
   rn = atoi(PD("rn","0"));
   if( rn==0 ){
     cgi_redirect("reportlist");

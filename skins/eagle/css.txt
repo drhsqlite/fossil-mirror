@@ -161,6 +161,7 @@ table.timelineTable {
   border: 0;
   cellpadding: 0;
   font-family: "courier new";
+  border-collapse: collapse;
 }
 
 /* Side-by-side diff */

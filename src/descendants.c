@@ -441,7 +441,7 @@ void leaves_page(void){
   int showClosed = P("closed")!=0;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   if( !showAll ){
     style_submenu_element("All", "All", "leaves?all");
@@ -484,7 +484,7 @@ void leaves_page(void){
   }
   db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
   blob_reset(&sql);
-  www_print_timeline(&q, TIMELINE_LEAFONLY, 0, 0, 0);
+  www_print_timeline(&q, TIMELINE_LEAFONLY, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   style_footer();

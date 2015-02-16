@@ -175,6 +175,7 @@ int socket_open(UrlData *pUrlData){
   if( p==0 ){
     socket_set_errmsg("cannot connect to host %s:%d", pUrlData->name,
                       pUrlData->port);
+    rc = 1;
   }
 #if !defined(_WIN32)
   signal(SIGPIPE, SIG_IGN);

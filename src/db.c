@@ -67,10 +67,6 @@ static void db_err(const char *zFormat, ...){
   va_list ap;
   char *z;
   int rc = 1;
-  static const char zRebuildMsg[] =
-      "If you have recently updated your fossil executable, you might\n"
-      "need to run \"fossil all rebuild\" to bring the repository\n"
-      "schemas up to date.\n";
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
@@ -90,11 +86,10 @@ static void db_err(const char *zFormat, ...){
   }
   else if( g.cgiOutput ){
     g.cgiOutput = 0;
-    cgi_printf("<h1>Database Error</h1>\n"
-               "<pre>%h</pre>\n<p>%s</p>\n", z, zRebuildMsg);
+    cgi_printf("<h1>Database Error</h1>\n<p>%h</p>\n", z);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n\n%s", g.argv[0], z, zRebuildMsg);
+    fprintf(stderr, "%s: %s\n", g.argv[0], z);
   }
   free(z);
   db_force_rollback();
@@ -2391,6 +2386,7 @@ const Setting aSetting[] = {
   { "encoding-glob",    0,             40, 1, 0, ""                    },
   { "gdiff-command",    0,             40, 0, 0, "gdiff"               },
   { "gmerge-command",   0,             40, 0, 0, ""                    },
+  { "hash-digits",      0,              5, 0, 0, "10"                  },
   { "http-port",        0,             16, 0, 0, "8080"                },
   { "https-login",      0,              0, 0, 0, "off"                 },
   { "ignore-glob",      0,             40, 1, 0, ""                    },
@@ -2570,6 +2566,9 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     Ex: xxdiff "%original" "%baseline" "%merge" -M "%output"
 **                     Ex: meld "%baseline" "%original" "%merge" "%output"
 **
+**    hash-digits      The number of hexadecimal digits of the SHA1 hash to
+**                     display.  (Default: 10; Minimum: 6)
+**
 **    http-port        The TCP/IP port number to use by the "server"
 **                     and "ui" commands.  Default: 8080
 **
@@ -2744,7 +2743,8 @@ void setting_cmd(void){
     }
     if( unsetFlag || g.argc==4 ){
       int isManifest = fossil_strcmp(pSetting->name, "manifest")==0;
-      if( pSetting[1].name && fossil_strncmp(pSetting[1].name, zName, n)==0 ){
+      if( n!=strlen(pSetting[0].name) && pSetting[1].name &&
+          fossil_strncmp(pSetting[1].name, zName, n)==0 ){
         Blob x;
         int i;
         blob_init(&x,0,0);

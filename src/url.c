@@ -434,9 +434,10 @@ void url_enable_proxy(const char *zMsg){
 struct HQuery {
   Blob url;                  /* The URL */
   const char *zBase;         /* The base URL */
-  int nParam;                /* Number of parameters.  Max 10 */
-  const char *azName[15];    /* Parameter names */
-  const char *azValue[15];   /* Parameter values */
+  int nParam;                /* Number of parameters. */
+  int nAlloc;                /* Number of allocated slots */
+  const char **azName;       /* Parameter names */
+  const char **azValue;      /* Parameter values */
 };
 #endif
 
@@ -444,9 +445,9 @@ struct HQuery {
 ** Initialize the URL object.
 */
 void url_initialize(HQuery *p, const char *zBase){
+  memset(p, 0, sizeof(*p));
   blob_zero(&p->url);
   p->zBase = zBase;
-  p->nParam = 0;
 }
 
 /*
@@ -455,22 +456,45 @@ void url_initialize(HQuery *p, const char *zBase){
 */
 void url_reset(HQuery *p){
   blob_reset(&p->url);
+  fossil_free(p->azName);
+  fossil_free(p->azValue);
   url_initialize(p, p->zBase);
 }
 
 /*
-** Add a fixed parameter to an HQuery.
+** Add a fixed parameter to an HQuery.  Or remove the parameters if zValue==0.
 */
 void url_add_parameter(HQuery *p, const char *zName, const char *zValue){
-  assert( p->nParam < count(p->azName) );
-  assert( p->nParam < count(p->azValue) );
-  p->azName[p->nParam] = zName;
-  p->azValue[p->nParam] = zValue;
+  int i;
+  for(i=0; i<p->nParam; i++){
+    if( fossil_strcmp(p->azName[i],zName)==0 ){
+      if( zValue==0 ){
+        p->nParam--;
+        p->azValue[i] = p->azValue[p->nParam];
+        p->azName[i] = p->azName[p->nParam];
+      }else{
+        p->azValue[i] = zValue;
+      }
+      return;
+    }
+  }
+  assert( i==p->nParam );
+  if( zValue==0 ) return;
+  if( i>=p->nAlloc ){
+    p->nAlloc = p->nAlloc*2 + 10;
+    p->azName = fossil_realloc(p->azName, sizeof(p->azName[0])*p->nAlloc);
+    p->azValue = fossil_realloc(p->azValue, sizeof(p->azValue[0])*p->nAlloc);
+  }
+  p->azName[i] = zName;
+  p->azValue[i] = zValue;
   p->nParam++;
 }
 
 /*
 ** Render the URL with a parameter override.
+**
+** Returned memory is transient and is overwritten on the next call to this
+** routine for the same HQuery, or until the HQuery object is destroyed.
 */
 char *url_render(
   HQuery *p,              /* Base URL */

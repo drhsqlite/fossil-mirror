@@ -250,6 +250,77 @@ static void sendError(const char *z, int n, int forceCgi){
 }
 
 /*
+** Convert name to an rid.  This function was copied from name_to_typed_rid()
+** in name.c; however, it has been modified to report TH1 script errors instead
+** of "fatal errors".
+*/
+int th1_name_to_typed_rid(
+  Th_Interp *interp,
+  const char *zName,
+  const char *zType
+){
+  int rid;
+
+  if( zName==0 || zName[0]==0 ) return 0;
+  rid = symbolic_name_to_rid(zName, zType);
+  if( rid<0 ){
+    Th_SetResult(interp, "ambiguous name", -1);
+  }else if( rid==0 ){
+    Th_SetResult(interp, "name not found", -1);
+  }
+  return rid;
+}
+
+/*
+** Attempt to lookup the specified checkin and file name into an rid.
+** This function was copied from artifact_from_ci_and_filename() in
+** info.c; however, it has been modified to report TH1 script errors
+** instead of "fatal errors".
+*/
+int th1_artifact_from_ci_and_filename(
+  Th_Interp *interp,
+  const char *zCI,
+  const char *zFilename
+){
+  int cirid;
+  Blob err;
+  Manifest *pManifest;
+  ManifestFile *pFile;
+
+  if( zCI==0 ){
+    Th_SetResult(interp, "invalid check-in", -1);
+    return 0;
+  }
+  if( zFilename==0 ){
+    Th_SetResult(interp, "invalid file name", -1);
+    return 0;
+  }
+  cirid = th1_name_to_typed_rid(interp, zCI, "*");
+  blob_zero(&err);
+  pManifest = manifest_get(cirid, CFTYPE_MANIFEST, &err);
+  if( pManifest==0 ){
+    if( blob_size(&err)>0 ){
+      Th_SetResult(interp, blob_str(&err), blob_size(&err));
+    }else{
+      Th_SetResult(interp, "manifest not found", -1);
+    }
+    blob_reset(&err);
+    return 0;
+  }
+  blob_reset(&err);
+  manifest_file_rewind(pManifest);
+  while( (pFile = manifest_file_next(pManifest,0))!=0 ){
+    if( fossil_strcmp(zFilename, pFile->zName)==0 ){
+      int rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", pFile->zUuid);
+      manifest_destroy(pManifest);
+      return rid;
+    }
+  }
+  Th_SetResult(interp, "file name not found in manifest", -1);
+  return 0;
+}
+
+/*
 ** TH1 command: puts STRING
 ** TH1 command: html STRING
 **
@@ -344,8 +415,10 @@ static int dateCmd(
 
 /*
 ** TH1 command: hascap STRING...
+** TH1 command: anoncap STRING...
 **
-** Return true if the user has all of the capabilities listed in STRING.
+** Return true if the current user (hascap) or if the anonymous user
+** (anoncap) has all of the capabilities listed in STRING.
 */
 static int hascapCmd(
   Th_Interp *interp,
@@ -359,10 +432,69 @@ static int hascapCmd(
     return Th_WrongNumArgs(interp, "hascap STRING ...");
   }
   for(i=1; i<argc && rc==0; i++){
-    rc = login_has_capability((char*)argv[i],argl[i]);
+    rc = login_has_capability((char*)argv[i],argl[i],*(int*)p);
   }
   if( g.thTrace ){
     Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
+  }
+  Th_SetResultInt(interp, rc);
+  return TH_OK;
+}
+
+/*
+** TH1 command: searchable STRING...
+**
+** Return true if searching in any of the document classes identified
+** by STRING is enabled for the repository and user has the necessary
+** capabilities to perform the search.
+**
+** Document classes:
+**
+**      c     Check-in comments
+**      d     Embedded documentation
+**      t     Tickets
+**      w     Wiki
+**
+** To be clear, only one of the document classes identified by each STRING
+** needs to be searchable in order for that argument to be true.  But
+** all arguments must be true for this routine to return true.  Hence, to
+** see if ALL document classes are searchable:
+**
+**      if {[searchable c d t w]} {...}
+**
+** But to see if ANY document class is searchable:
+**
+**      if {[searchable cdtw]} {...}
+**
+** This command is useful for enabling or disabling a "Search" entry
+** on the menu bar.
+*/
+static int searchableCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc = 1, i, j;
+  unsigned int searchCap = search_restrict(SRCH_ALL);
+  if( argc<2 ){
+    return Th_WrongNumArgs(interp, "hascap STRING ...");
+  }
+  for(i=1; i<argc && rc; i++){
+    int match = 0;
+    for(j=0; j<argl[i]; j++){
+      switch( argv[i][j] ){
+        case 'c':  match |= searchCap & SRCH_CKIN;  break;
+        case 'd':  match |= searchCap & SRCH_DOC;   break;
+        case 't':  match |= searchCap & SRCH_TKT;   break;
+        case 'w':  match |= searchCap & SRCH_WIKI;  break;
+      }
+    }
+    if( !match ) rc = 0;
+  }
+  if( g.thTrace ){
+    Th_Trace("[searchable %#h] => %d<br />\n", argl[1], argv[1], rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -486,7 +618,8 @@ static int tclReadyCmd(
 /*
 ** TH1 command: anycap STRING
 **
-** Return true if the user has any one of the capabilities listed in STRING.
+** Return true if the current user user
+** has any one of the capabilities listed in STRING.
 */
 static int anycapCmd(
   Th_Interp *interp,
@@ -501,7 +634,7 @@ static int anycapCmd(
     return Th_WrongNumArgs(interp, "anycap STRING");
   }
   for(i=0; rc==0 && i<argl[1]; i++){
-    rc = login_has_capability((char*)&argv[1][i],1);
+    rc = login_has_capability((char*)&argv[1][i],1,0);
   }
   if( g.thTrace ){
     Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
@@ -921,16 +1054,15 @@ static int artifactCmd(
     int rid;
     Blob content;
     if( argc==3 ){
-      rid = artifact_from_ci_and_filename(argv[1], argv[2]);
+      rid = th1_artifact_from_ci_and_filename(interp, argv[1], argv[2]);
     }else{
-      rid = name_to_rid(argv[1]);
+      rid = th1_name_to_typed_rid(interp, argv[1], "*");
     }
     if( rid!=0 && content_get(rid, &content) ){
       Th_SetResult(interp, blob_str(&content), blob_size(&content));
       blob_reset(&content);
       return TH_OK;
     }else{
-      Th_SetResult(interp, "artifact not found", -1);
       return TH_ERROR;
     }
   }else{
@@ -1393,11 +1525,14 @@ void Th_FossilInit(u32 flags){
   int forceTcl = flags & TH_INIT_FORCE_TCL;
   int forceSetup = flags & TH_INIT_FORCE_SETUP;
   static unsigned int aFlags[] = { 0, 1, WIKI_LINKSONLY };
+  static int anonFlag = LOGIN_ANON;
+  static int zeroInt = 0;
   static struct _Command {
     const char *zName;
     Th_CommandProc xProc;
     void *pContext;
   } aCommand[] = {
+    {"anoncap",       hascapCmd,            (void*)&anonFlag},
     {"anycap",        anycapCmd,            0},
     {"artifact",      artifactCmd,          0},
     {"checkout",      checkoutCmd,          0},
@@ -1408,7 +1543,7 @@ void Th_FossilInit(u32 flags){
     {"getParameter",  getParameterCmd,      0},
     {"globalState",   globalStateCmd,       0},
     {"httpize",       httpizeCmd,           0},
-    {"hascap",        hascapCmd,            0},
+    {"hascap",        hascapCmd,            (void*)&zeroInt},
     {"hasfeature",    hasfeatureCmd,        0},
     {"html",          putsCmd,              (void*)&aFlags[0]},
     {"htmlize",       htmlizeCmd,           0},
@@ -1421,6 +1556,7 @@ void Th_FossilInit(u32 flags){
     {"reinitialize",  reinitializeCmd,      0},
     {"render",        renderCmd,            0},
     {"repository",    repositoryCmd,        0},
+    {"searchable",    searchableCmd,        0},
     {"setParameter",  setParameterCmd,      0},
     {"setting",       settingCmd,           0},
     {"styleHeader",   styleHeaderCmd,       0},
@@ -1894,17 +2030,31 @@ int Th_Render(const char *z){
 
 /*
 ** COMMAND: test-th-render
+**
+** Usage: %fossil test-th-render FILE
+**
+** Read the content of the file named "FILE" as if it were a header or
+** footer or ticket rendering script, evaluate it, and show the results
+** on standard output.
+**
+** Options:
+**
+**     --cgi                Include a CGI response header in the output
+**     --http               Include an HTTP response header in the output
+**     --open-config        Open the configuration database
 */
 void test_th_render(void){
-  int forceCgi, fullHttpReply;
+  int forceCgi = 0, fullHttpReply = 0;
   Blob in;
   Th_InitTraceLog();
-  forceCgi = find_option("th-force-cgi", 0, 0)!=0;
-  fullHttpReply = find_option("th-full-http", 0, 0)!=0;
+  forceCgi = find_option("cgi", 0, 0)!=0;
+  fullHttpReply = find_option("http", 0, 0)!=0;
+  if( fullHttpReply ) forceCgi = 1;
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
-  if( find_option("th-open-config", 0, 0)!=0 ){
+  if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
+  verify_all_options();
   if( g.argc<3 ){
     usage("FILE");
   }
@@ -1917,16 +2067,28 @@ void test_th_render(void){
 
 /*
 ** COMMAND: test-th-eval
+**
+** Usage: %fossil test-th-eval SCRIPT
+**
+** Evaluate SCRIPT as if it were a header or footer or ticket rendering
+** script, evaluate it, and show the results on standard output.
+**
+** Options:
+**
+**     --cgi                Include a CGI response header in the output
+**     --http               Include an HTTP response header in the output
+**     --open-config        Open the configuration database
 */
 void test_th_eval(void){
   int rc;
   const char *zRc;
   int forceCgi, fullHttpReply;
   Th_InitTraceLog();
-  forceCgi = find_option("th-force-cgi", 0, 0)!=0;
-  fullHttpReply = find_option("th-full-http", 0, 0)!=0;
+  forceCgi = find_option("cgi", 0, 0)!=0;
+  fullHttpReply = find_option("http", 0, 0)!=0;
+  if( fullHttpReply ) forceCgi = 1;
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
-  if( find_option("th-open-config", 0, 0)!=0 ){
+  if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
   if( g.argc!=3 ){
