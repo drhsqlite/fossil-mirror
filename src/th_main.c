@@ -2112,8 +2112,9 @@ void test_th_hook(void){
   char *zResult;
   int forceCgi, fullHttpReply;
   Th_InitTraceLog();
-  forceCgi = find_option("th-force-cgi", 0, 0)!=0;
-  fullHttpReply = find_option("th-full-http", 0, 0)!=0;
+  forceCgi = find_option("cgi", 0, 0)!=0;
+  fullHttpReply = find_option("http", 0, 0)!=0;
+  if( fullHttpReply ) forceCgi = 1;
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
   if( g.argc<5 ){
     usage("TYPE NAME FLAGS");
