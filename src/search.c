@@ -1649,7 +1649,7 @@ void test_fts_cmd(void){
      { "search-tkt",    "ticket search:",    "t" },
      { "search-wiki",   "wiki search:",      "w" },
   };
-  char *zSubCmd;
+  char *zSubCmd = 0;
   int i, j, n;
   int iCmd = 0;
   int iAction = 0;

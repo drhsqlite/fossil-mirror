@@ -2243,7 +2243,9 @@ void cmd_webserver(void){
   int isUiCmd;              /* True if command is "ui", not "server' */
   const char *zNotFound;    /* The --notfound option or NULL */
   int flags = 0;            /* Server flags */
+#if !defined(_WIN32)
   int noJail;               /* Do not enter the chroot jail */
+#endif
   const char *zAltBase;     /* Argument to the --baseurl option */
   const char *zFileGlob;    /* Static content must match this */
   char *zIpAddr = 0;        /* Bind to this IP address */
@@ -2262,7 +2264,9 @@ void cmd_webserver(void){
     zFileGlob = find_option("files",0,1);
   }
   skin_override();
+#if !defined(_WIN32)
   noJail = find_option("nojail",0,0)!=0;
+#endif
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   Th_InitTraceLog();
   zPort = find_option("port", "P", 1);

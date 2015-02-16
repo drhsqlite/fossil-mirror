@@ -1,5 +1,5 @@
-C Improved\sTH1\sscript\sfor\sheader\sgeneration\sin\sthe\setienne1\sskin.
-D 2015-02-16T01:36:16.471
+C Fix\sharmless\scompiler\swarnings.
+D 2015-02-16T02:09:15.078
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -407,7 +407,7 @@ F src/leaf.c a8880fbcf409f34c0ea9566f8b548a96496856a7
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c db73eac13084bc3e030a2ecf60fa298e8e53c97b
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 03a74d0952b42ace326d61e272387b9e62fea021
+F src/main.c 99b3c7f6a582f2d17cc8ddc4d33b2db7348db022
 F src/main.mk f9dcf8365fadd154815d00404da25f63c6bd0780
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -437,7 +437,7 @@ F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 653c5affb28a4ae9624e65de1f596c4bf08fe8b3
 F src/rss.c efed54aa9062f0aa3cea92aaabcc68edc2d7da51
 F src/schema.c f614471807c3c7ce1539644e9a6270d4cb76cd61
-F src/search.c 232bb0f2cc6e0aa31ca0aef4acad29f62b9d8630
+F src/search.c 62eb5f66698a6ea27397c121baf7ad5c3bd8a872
 F src/setup.c 72e3d8640b631d3db99a777866cc7188121d0838
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c a29ab8256f525a7431d865c6c2e7116bd7ffa92a
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P de6f310d9cdbb2e750f4d2defc7bfa452955de1c
-R ae6de5d8651458fee77b75a41a955f46
-U drh
-Z f1649b8f1350af99f30612dfc6ecbf28
+P 924315bdfc2e3380873d8fec118fb07bcb263afe
+R 9983650d31c0f8d0f4bdf0eb939f12f0
+U mistachkin
+Z 0a7c2c56f46b29dc6cc746c0554674a7
