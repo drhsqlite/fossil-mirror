@@ -111,7 +111,7 @@ void diff_file(
     if( file_wd_size(zFile2)<0 ){
       zName2 = NULL_DEVICE;
     }else{
-      if( file_wd_islink(zFile2) ){
+      if( file_wd_islink(0) ){
         blob_read_link(&file2, zFile2);
       }else{
         blob_read_from_file(&file2, zFile2);
@@ -158,7 +158,7 @@ void diff_file(
       }
       blob_zero(&file2);
       if( file_wd_size(zFile2)>=0 ){
-        if( file_wd_islink(zFile2) ){
+        if( file_wd_islink(0) ){
           blob_read_link(&file2, zFile2);
         }else{
           blob_read_from_file(&file2, zFile2);
@@ -843,7 +843,7 @@ void vpatch_page(void){
   const char *zFrom = P("from");
   const char *zTo = P("to");
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( zFrom==0 || zTo==0 ) fossil_redirect_home();
 
   cgi_set_content_type("text/plain");

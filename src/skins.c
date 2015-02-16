@@ -39,17 +39,96 @@
 static struct BuiltinSkin {
   const char *zDesc;    /* Description of this skin */
   const char *zLabel;   /* The directory under skins/ holding this skin */
+  int whiteForeground;  /* True if this skin uses a light-colored foreground */
   char *zSQL;           /* Filled in at run-time with SQL to insert this skin */
 } aBuiltinSkin[] = {
-  { "Default",                           "default",           0 },
-  { "Plain Gray, No Logo",               "plain_gray",        0 },
-  { "Khaki, No Logo",                    "khaki",             0 },
-  { "Black & White, Menu on Left",       "black_and_white",   0 },
-  { "Shadow boxes & Rounded Corners",    "rounded1",          0 },
-  { "Enhanced Default",                  "enhanced1",         0 },
-  { "San Francisco Modern",              "etienne1",          0 },
-  { "Eagle",                             "eagle",             0 },
+  { "Default",                           "default",           0, 0 },
+  { "Plain Gray, No Logo",               "plain_gray",        0, 0 },
+  { "Khaki, No Logo",                    "khaki",             0, 0 },
+  { "Black & White, Menu on Left",       "black_and_white",   0, 0 },
+  { "Shadow boxes & Rounded Corners",    "rounded1",          0, 0 },
+  { "Enhanced Default",                  "enhanced1",         0, 0 },
+  { "San Francisco Modern",              "etienne1",          0, 0 },
+  { "Eagle",                             "eagle",             1, 0 },
 };
+
+/*
+** Alternative skins can be specified in the CGI script or by options
+** on the "http", "ui", and "server" commands.  The alternative skin
+** name must be one of the aBuiltinSkin[].zLabel names.  If there is
+** a match, that alternative is used.
+**
+** The following static variable holds the name of the alternative skin,
+** or NULL if the skin should be as configured.
+*/
+static struct BuiltinSkin *pAltSkin = 0;
+
+/*
+** Invoke this routine to set the alternative skin.  Return NULL if the
+** alternative was successfully installed.  Return a string listing all
+** available skins if zName does not match an available skin.  Memory
+** for the returned string comes from fossil_malloc() and should be freed
+** by the caller.
+*/
+char *skin_use_alternative(const char *zName){
+  int i;
+  Blob err;
+  for(i=0; i<ArraySize(aBuiltinSkin); i++){
+    if( fossil_strcmp(aBuiltinSkin[i].zLabel, zName)==0 ){
+      pAltSkin = &aBuiltinSkin[i];
+      return 0;
+    }
+  }
+  blob_init(&err, aBuiltinSkin[0].zLabel, -1);
+  for(i=1; i<ArraySize(aBuiltinSkin); i++){
+    blob_append(&err, " ", 1);
+    blob_append(&err, aBuiltinSkin[i].zLabel, -1);
+  }
+  return blob_str(&err);
+}
+
+/*
+** Look for the --skin command-line option and process it.  Or
+** call fossil_fatal() if an unknown skin is specified.
+*/
+void skin_override(void){
+  const char *zSkin = find_option("skin",0,1);
+  if( zSkin ){
+    char *zErr = skin_use_alternative(zSkin);
+    if( zErr ) fossil_fatal("available skins: %s", zErr);
+  }
+}
+
+/*
+** The following routines return the various components of the skin
+** that should be used for the current run.
+*/
+const char *skin_get(const char *zWhat){
+  const char *zOut;
+  char *z;
+  if( pAltSkin ){
+    z = mprintf("skins/%s/%s.txt", pAltSkin->zLabel, zWhat);
+    zOut = builtin_text(z);
+    fossil_free(z);
+  }else{
+    zOut = db_get(zWhat, 0);
+    if( zOut==0 ){
+      z = mprintf("skins/default/%s.txt", zWhat);
+      zOut = builtin_text(z);
+      fossil_free(z);
+    }
+  }
+  return zOut;
+}
+int skin_white_foreground(void){
+  int rc;
+  if( pAltSkin ){
+    rc = pAltSkin->whiteForeground;
+  }else{
+    rc = db_get_boolean("white-foreground",0);
+  }
+  return rc;
+}
 
 /*
 ** For a skin named zSkinName, compute the name of the CONFIG table
@@ -212,7 +291,8 @@ void setup_skin(void){
 
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   zCurrent = getSkin(0);
@@ -290,6 +370,14 @@ void setup_skin(void){
   @ <a href="setup_footer">Footer</a> that determines the look and feel
   @ of the web interface.</p>
   @
+  if( pAltSkin ){
+    @ <p class="generalError">
+    @ This page is generated using an skin override named
+    @ "%h(pAltSkin->zLabel)".  You can change the skin configuration
+    @ below, but the changes will not take effect until the Fossil server
+    @ is restarted without the override.</p>
+    @
+  }
   @ <h2>Available Skins:</h2>
   @ <table border="0">
   for(i=0; i<sizeof(aBuiltinSkin)/sizeof(aBuiltinSkin[0]); i++){
@@ -302,6 +390,9 @@ void setup_skin(void){
       @ <form action="%s(g.zTop)/setup_skin" method="post">
       @ <input type="hidden" name="sn" value="%h(z)" />
       @ <input type="submit" name="load" value="Install" />
+      if( pAltSkin==&aBuiltinSkin[i] ){
+        @ (Current override)
+      }
       @ </form>
     }
     @ </tr>

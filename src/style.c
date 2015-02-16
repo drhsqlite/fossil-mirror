@@ -47,16 +47,16 @@ static int nSubmenu = 0;     /* Number of buttons */
 static struct SubmenuCtrl {
   const char *zName;         /* Form query parameter */
   const char *zLabel;        /* Label.  Might be NULL for FF_MULTI */
-  int eType;                 /* FF_ENTRY, FF_CKBOX, FF_MULTI */
-  int iSize;                 /* Width for FF_ENTRY.  Count for FF_MULTI */
+  unsigned char eType;       /* FF_ENTRY, FF_MULTI, FF_BINARY */
+  unsigned char isDisabled;  /* True if this control is grayed out */
+  short int iSize;           /* Width for FF_ENTRY.  Count for FF_MULTI */
   const char **azChoice;     /* value/display pairs for FF_MULTI */
   const char *zFalse;        /* FF_BINARY label when false */
 } aSubmenuCtrl[20];
 static int nSubmenuCtrl = 0;
 #define FF_ENTRY  1
-#define FF_CKBOX  2
-#define FF_MULTI  3
-#define FF_BINARY 4
+#define FF_MULTI  2
+#define FF_BINARY 3
 
 /*
 ** Remember that the header has been generated.  The footer is omitted
@@ -248,46 +248,42 @@ void style_submenu_element(
 void style_submenu_entry(
   const char *zName,       /* Query parameter name */
   const char *zLabel,      /* Label before the entry box */
-  int iSize                /* Size of the entry box */
+  int iSize,               /* Size of the entry box */
+  int isDisabled           /* True if disabled */
 ){
   assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
   aSubmenuCtrl[nSubmenuCtrl].iSize = iSize;
+  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_ENTRY;
-  nSubmenuCtrl++;
-}
-void style_submenu_checkbox(
-  const char *zName,       /* Query parameter name */
-  const char *zLabel       /* Label before the checkbox */
-){
-  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
-  aSubmenuCtrl[nSubmenuCtrl].zName = zName;
-  aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
-  aSubmenuCtrl[nSubmenuCtrl].eType = FF_CKBOX;
   nSubmenuCtrl++;
 }
 void style_submenu_binary(
   const char *zName,       /* Query parameter name */
   const char *zTrue,       /* Label to show when parameter is true */
-  const char *zFalse       /* Label to show when the parameter is false */
+  const char *zFalse,      /* Label to show when the parameter is false */
+  int isDisabled           /* True if this control is disabled */
 ){
   assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].zLabel = zTrue;
   aSubmenuCtrl[nSubmenuCtrl].zFalse = zFalse;
+  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_BINARY;
   nSubmenuCtrl++;
 }
 void style_submenu_multichoice(
   const char *zName,       /* Query parameter name */
   int nChoice,             /* Number of options */
-  const char **azChoice    /* value/display pairs.  2*nChoice entries */
+  const char **azChoice,   /* value/display pairs.  2*nChoice entries */
+  int isDisabled           /* True if this control is disabled */
 ){
   assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
   aSubmenuCtrl[nSubmenuCtrl].zName = zName;
   aSubmenuCtrl[nSubmenuCtrl].iSize = nChoice;
   aSubmenuCtrl[nSubmenuCtrl].azChoice = azChoice;
+  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
   aSubmenuCtrl[nSubmenuCtrl].eType = FF_MULTI;
   nSubmenuCtrl++;
 }
@@ -359,8 +355,7 @@ static void image_url_var(const char *zImageName){
 void style_header(const char *zTitleFormat, ...){
   va_list ap;
   char *zTitle;
-  const char *zHeader = db_get("header", 0);
-  if( zHeader==0 ) zHeader = builtin_text("skins/default/header.txt");
+  const char *zHeader = skin_get("header");
   login_check_credentials();
 
   va_start(ap, zTitleFormat);
@@ -501,28 +496,22 @@ void style_footer(void){
     if( nSubmenuCtrl>0 ){
       for(i=0; i<nSubmenuCtrl; i++){
         const char *zQPN = aSubmenuCtrl[i].zName;
-        cgi_tag_query_parameter(zQPN);
+        const char *zDisabled = " disabled";
+        if( !aSubmenuCtrl[i].isDisabled ){
+          zDisabled = "";
+          cgi_tag_query_parameter(zQPN);
+        }
         switch( aSubmenuCtrl[i].eType ){
           case FF_ENTRY: {
             cgi_printf(
                "<span class='submenuctrl'>"
-               "%h:&nbsp;<input type='text' name='%s' size='%d' "
-               "value='%h'></span>\n",
+               "&nbsp;%h<input type='text' name='%s' size='%d' maxlength='%d'"
+               "value='%h'%s></span>\n",
                aSubmenuCtrl[i].zLabel,
                zQPN,
-               aSubmenuCtrl[i].iSize,
-               PD(zQPN,"")
-            );
-            break;
-          }
-          case FF_CKBOX: {
-            cgi_printf(
-               "<span class='submenuctrl'>"
-               "%h:&nbsp;<input type='checkbox' name='%s'%s "
-               "onchange='gebi(\"f01\").submit();'></span>\n",
-               aSubmenuCtrl[i].zLabel,
-               zQPN,
-               PB(zQPN) ? " checked":""
+               aSubmenuCtrl[i].iSize, aSubmenuCtrl[i].iSize,
+               PD(zQPN,""),
+               zDisabled
             );
             break;
           }
@@ -530,9 +519,9 @@ void style_footer(void){
             int j;
             const char *zVal = P(zQPN);
             cgi_printf(
-               "<select class='submenuctrl' size='1' name='%s' "
+               "<select class='submenuctrl' size='1' name='%s'%s "
                "onchange='gebi(\"f01\").submit();'>\n",
-               zQPN
+               zQPN, zDisabled
             );
             for(j=0; j<aSubmenuCtrl[i].iSize*2; j+=2){
               const char *zQPV = aSubmenuCtrl[i].azChoice[j];
@@ -549,9 +538,9 @@ void style_footer(void){
           case FF_BINARY: {
             int isTrue = PB(zQPN);
             cgi_printf(
-               "<select class='submenuctrl' size='1' name='%s' "
+               "<select class='submenuctrl' size='1' name='%s'%s "
                "onchange='gebi(\"f01\").submit();'>\n",
-               zQPN
+               zQPN, zDisabled
             );
             cgi_printf(
               "<option value='1'%s>%h</option>\n",
@@ -604,8 +593,7 @@ void style_footer(void){
   ** the footer will be generating </html> */
   style_resolve_href();
 
-  zFooter = db_get("footer", 0);
-  if( zFooter==0 ) zFooter = builtin_text("skins/default/footer.txt");
+  zFooter = skin_get("footer");
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
   if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
@@ -675,6 +663,7 @@ const struct strctCssDefaults {
   { "table.timelineTable",
     "the format for the timeline data table",
     @   border: 0;
+    @   border-collapse: collapse;
   },
   { "td.timelineTableCell",
     "the format for the timeline data cells",
@@ -685,6 +674,17 @@ const struct strctCssDefaults {
     "the format for the timeline data cell of the current checkout",
     @   padding: .1em .2em;
     @   border: 1px dashed #446979;
+  },
+  { "tr.timelineSelected",
+    "The row in the timeline table that contains the entry of interest",
+    @   padding: .1em .2em;
+    @   border: 2px solid lightgray;
+    @   background-color: #ffc;
+    @   box-shadow: 4px 4px 2px #888;
+  },
+  { "tr.timelineSpacer",
+    "An extra row inserted to give vertical space between two rows",
+    @   height: 1ex;
   },
   { "span.timelineLeaf",
     "the format for the timeline leaf marks",
@@ -747,12 +747,6 @@ const struct strctCssDefaults {
     @   width: 24%;
     @   vertical-align: top;
   },
-  { "ul.browser",
-    "format for the list in the file browser",
-    @   margin-left: 0.5em;
-    @   padding-left: 0.5em;
-    @   white-space: nowrap;
-  },
   { ".filetree",
     "tree-view file browser",
     @   margin: 1em 0;
@@ -810,14 +804,43 @@ const struct strctCssDefaults {
   },
   { ".filetree a",
     "tree-view links",
-    @   position: relative;
-    @   z-index: 1;
-    @   display: table-cell;
-    @   min-height: 16px;
-    @   padding-left: 21px;
-    @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);
-    @   background-position: center left;
-    @   background-repeat: no-repeat;
+    "  position: relative;\n"
+    "  z-index: 1;\n"
+    "  display: table-cell;\n"
+    "  min-height: 16px;\n"
+    "  padding-left: 21px;\n"
+    "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP"
+    "\\/\\/\\/yEhIf\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmg"
+    "OUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);\n"
+    "  background-position: center left;\n"
+    "  background-repeat: no-repeat;\n"
+  },
+  { "ul.browser",
+    "list of files in the 'flat-view' file browser",
+    @   list-style-type: none;
+    @   padding: 10px;
+    @   margin: 0px;
+    @   white-space: nowrap;
+  },
+  { "ul.browser li.file",
+    "List element in the 'flat-view' file browser for a file",
+    "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP"
+    "\\/\\/\\/yEhIf\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfm" 
+    "gOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);\n"
+    "  background-repeat: no-repeat;\n"
+    "  background-position: 0px center;\n"
+    "  padding-left: 20px;\n"
+    "  padding-top: 2px;\n"
+  },
+  { "ul.browser li.dir",
+    "List element in the 'flat-view file browser for a directory",
+    "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIi"
+    "Iv\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaX"
+    "po+jUs6b5Z/K4siDu5RPUFADs=);\n"
+    "  background-repeat: no-repeat;\n"
+    "  background-position: 0px center;\n"
+    "  padding-left: 20px;\n"
+    "  padding-top: 2px;\n"
   },
   { "div.filetreeline",
     "line of a file tree",
@@ -827,7 +850,9 @@ const struct strctCssDefaults {
   },
   { ".filetree .dir > div.filetreeline > a",
     "tree-view directory links",
-    @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
+    "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIi"
+    "Iv\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXp"
+    "o+jUs6b5Z/K4siDu5RPUFADs=);\n"
   },
   { "div.filetreeage",
     "Last change floating display on the right",
@@ -1342,7 +1367,7 @@ void page_style_css(void){
   int i;
 
   cgi_set_content_type("text/css");
-  blob_init(&css,db_get("css",(char*)builtin_text("skins/default/css.txt")),-1);
+  blob_init(&css,skin_get("css"),-1);
 
   /* add special missing definitions */
   for(i=1; cssDefaultList[i].elementClass; i++){
@@ -1388,7 +1413,7 @@ void page_test_env(void){
 
   login_check_credentials();
   if( !g.perm.Admin && !g.perm.Setup && !db_get_boolean("test_env_enable",0) ){
-    login_needed();
+    login_needed(0);
     return;
   }
   for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
@@ -1407,13 +1432,21 @@ void page_test_env(void){
   @ g.zTop = %h(g.zTop)<br />
   @ g.zPath = %h(g.zPath)<br />
   for(i=0, c='a'; c<='z'; c++){
-    if( login_has_capability(&c, 1) ) zCap[i++] = c;
+    if( login_has_capability(&c, 1, 0) ) zCap[i++] = c;
   }
   zCap[i] = 0;
   @ g.userUid = %d(g.userUid)<br />
   @ g.zLogin = %h(g.zLogin)<br />
   @ g.isHuman = %d(g.isHuman)<br />
   @ capabilities = %s(zCap)<br />
+  for(i=0, c='a'; c<='z'; c++){
+    if( login_has_capability(&c, 1, LOGIN_ANON)
+         && !login_has_capability(&c, 1, 0) ) zCap[i++] = c;
+  }
+  zCap[i] = 0;
+  if( i>0 ){
+    @ anonymous-adds = %s(zCap)<br />
+  }
   @ g.zRepositoryName = %h(g.zRepositoryName)<br />
   @ load_average() = %f(load_average())<br />
   @ <hr>

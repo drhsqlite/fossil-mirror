@@ -332,7 +332,7 @@ void cache_page(void){
   char zBuf[100];
 
   login_check_credentials();
-  if( !g.perm.Setup ){ login_needed(); return; }
+  if( !g.perm.Setup ){ login_needed(0); return; }
   style_header("Web Cache Status");
   db = cacheOpen(0);
   if( db==0 ){
@@ -380,7 +380,7 @@ void cache_getpage(void){
   Blob content;
 
   login_check_credentials();
-  if( !g.perm.Setup ){ login_needed(); return; }
+  if( !g.perm.Setup ){ login_needed(0); return; }
   zKey = PD("key","");
   blob_zero(&content);
   if( cache_read(&content, zKey)==0 ){

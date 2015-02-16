@@ -53,13 +53,15 @@ void setup_menu_entry(
   @ </td><td width="5"></td><td valign="top">%h(zDesc)</td></tr>
 }
 
+
+
 /*
 ** WEBPAGE: /setup
 */
 void setup_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
   }
 
   style_header("Server Administration");
@@ -71,6 +73,20 @@ void setup_page(void){
     @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the <a href="setup_header">HTML header</a>!</p>
   }
+
+#if !defined(_WIN32)
+  /* Check for /dev/null and /dev/urandom.  We want both devices to be present,
+  ** but they are sometimes omitted (by mistake) from chroot jails. */
+  if( access("/dev/null", R_OK|W_OK) ){
+    @ <p class="generalError">WARNING: Device "/dev/null" is not available
+    @ for reading and writing.</p>
+  }
+  if( access("/dev/urandom", R_OK) ){
+    @ <p class="generalError">WARNING: Device "/dev/urandom" is not available
+    @ for reading. This means that the pseudo-random number generator used
+    @ by SQLite will be poorly seeded.</p>
+  }
+#endif
 
   @ <table border="0" cellspacing="3">
   setup_menu_entry("Users", "setup_ulist",
@@ -138,7 +154,7 @@ void setup_ulist(void){
 
   login_check_credentials();
   if( !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
     return;
   }
 
@@ -322,7 +338,7 @@ void user_edit(void){
   /* Must have ADMIN privileges to access this page
   */
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(); return; }
+  if( !g.perm.Admin ){ login_needed(0); return; }
 
   /* Check to see if an ADMIN user is trying to edit a SETUP account.
   ** Don't allow that.
@@ -984,7 +1000,8 @@ static void multiple_choice_attribute(
 void setup_access(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Access Control Settings");
@@ -1004,11 +1021,11 @@ void setup_access(void){
      "localauth", "localauth", 0, 0);
   @ <p>When enabled, the password sign-in is always required for
   @ web access.  When disabled, unrestricted web access from 127.0.0.1
-  @ is allowed for the <a href="%s(g.zTop)/help/ui">fossil ui</a> command or
-  @ from the <a href="%s(g.zTop)/help/server">fossil server</a>,
-  @ <a href="%s(g.zTop)/help/http">fossil http</a> commands when the
+  @ is allowed for the <a href="%R/help/ui">fossil ui</a> command or
+  @ from the <a href="%R/help/server">fossil server</a>,
+  @ <a href="%R/help/http">fossil http</a> commands when the
   @ "--localauth" command line options is used, or from the
-  @ <a href="%s(g.zTop)/help/cgi">fossil cgi</a> if a line containing
+  @ <a href="%R/help/cgi">fossil cgi</a> if a line containing
   @ the word "localauth" appears in the CGI script.
   @
   @ <p>A password is always required if any one or more
@@ -1017,8 +1034,8 @@ void setup_access(void){
   @ <li> This button is checked
   @ <li> The inbound TCP/IP connection is not from 127.0.0.1
   @ <li> The server is started using either of the
-  @ <a href="%s(g.zTop)/help/server">fossil server</a> or
-  @ <a href="%s(g.zTop)/help/server">fossil http</a> commands
+  @ <a href="%R/help/server">fossil server</a> or
+  @ <a href="%R/help/server">fossil http</a> commands
   @ without the "--localauth" option.
   @ <li> The server is started from CGI without the "localauth" keyword
   @ in the CGI script.
@@ -1189,7 +1206,8 @@ void setup_login_group(void){
 
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   file_canonical_name(g.zRepositoryName, &fullName, 0);
   zSelfRepo = fossil_strdup(blob_str(&fullName));
@@ -1301,7 +1319,8 @@ void setup_timeline(void){
   };
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Timeline Display Preferences");
@@ -1379,7 +1398,8 @@ void setup_settings(void){
 
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   (void) aCmdHelp; /* NOTE: Silence compiler warning. */
@@ -1459,7 +1479,8 @@ void setup_settings(void){
 void setup_config(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("WWW Configuration");
@@ -1537,7 +1558,8 @@ void setup_config(void){
 void setup_editcss(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   if( P("clear")!=0 ){
@@ -1582,7 +1604,8 @@ void setup_editcss(void){
 void setup_header(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   if( P("clear")!=0 ){
@@ -1646,7 +1669,8 @@ void setup_header(void){
 void setup_footer(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   if( P("clear")!=0 ){
@@ -1683,7 +1707,8 @@ void setup_footer(void){
 void setup_modreq(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Moderator For Wiki And Tickets");
@@ -1694,7 +1719,7 @@ void setup_modreq(void){
   onoff_attribute("Moderate ticket changes",
      "modreq-tkt", "modreq-tkt", 0, 0);
   @ <p>When enabled, any change to tickets is subject to the approval
-  @ a ticket moderator - a user with the "q" or Mod-Tkt privilege.
+  @ by a ticket moderator - a user with the "q" or Mod-Tkt privilege.
   @ Ticket changes enter the system and are shown locally, but are not
   @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Ticket changes made by
@@ -1705,7 +1730,7 @@ void setup_modreq(void){
   onoff_attribute("Moderate wiki changes",
      "modreq-wiki", "modreq-wiki", 0, 0);
   @ <p>When enabled, any change to wiki is subject to the approval
-  @ a ticket moderator - a user with the "l" or Mod-Wiki privilege.
+  @ by a wiki moderator - a user with the "l" or Mod-Wiki privilege.
   @ Wiki changes enter the system and are shown locally, but are not
   @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Wiki changes made by
@@ -1727,7 +1752,8 @@ void setup_modreq(void){
 void setup_adunit(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   if( P("clear")!=0 ){
@@ -1808,7 +1834,8 @@ void setup_logo(void){
   }
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
@@ -1947,7 +1974,8 @@ void sql_page(void){
   int go = P("go")!=0;
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   style_header("Raw SQL Commands");
@@ -2068,7 +2096,8 @@ void th1_page(void){
   int go = P("go")!=0;
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   db_begin_transaction();
   style_header("Raw TH1 Commands");
@@ -2128,7 +2157,8 @@ void page_admin_log(){
   int counter = 0;
   login_check_credentials();
   if( !g.perm.Setup && !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   style_header("Admin Log");
   create_admin_log_table();
@@ -2185,7 +2215,8 @@ void page_admin_log(){
 void page_srchsetup(){
   login_check_credentials();
   if( !g.perm.Setup && !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   style_header("Search Configuration");
   @ <form action="%s(g.zTop)/srchsetup" method="post"><div>
@@ -2237,12 +2268,14 @@ void page_srchsetup(){
   if( search_index_exists() ){
     @ <p>Currently using an SQLite FTS4 search index. This makes search
     @ run faster, especially on large repositories, but takes up space.</p>
+    onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
   }else{
     @ <p>The SQLite FTS4 search index is disabled.  All searching will be
     @ a full-text scan.  This usually works fine, but can be slow for
     @ larger repositories.</p>
+    onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
     @ <p><input type="submit" name="fts1" value="Create A Full-Text Index">
   }
   @ </div></form>

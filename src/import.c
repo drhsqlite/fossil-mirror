@@ -1492,11 +1492,11 @@ void import_cmd(void){
   const char *zBase = find_option("base", 0, 1);
   int forceFlag = find_option("force", "f", 0)!=0;
   int incrFlag = find_option("incremental", "i", 0)!=0;
+  int flatFlag = find_option("flat", 0, 0)!=0;
+
   gsvn.zTrunk = find_option("trunk", 0, 1);
   gsvn.zBranches = find_option("branches", 0, 1);
   gsvn.zTags = find_option("tags", 0, 1);
-  int flatFlag = find_option("flat", 0, 0)!=0;
-
   verify_all_options();
   if( g.argc!=4  && g.argc!=5 ){
     usage("FORMAT REPOSITORY-NAME");
