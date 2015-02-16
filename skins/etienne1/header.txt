@@ -22,36 +22,35 @@
 
     <div class="mainmenu">
 <th1>
-proc menulink {re url name} {
+proc menulink {url name} {
   upvar current_page current
   upvar home home
-  if {($re eq "" && $url eq "/$current")
-       || ($re ne "" && [regexp $re /$current])} {
+  if {$url eq "/$current"} {
     html "<a href='$home$url' class='active'>$name</a>\n"
   } else {
     html "<a href='$home$url'>$name</a>\n"
   }
 }
-menulink "" $index_page Home
+menulink $index_page Home
 if {[anycap jor]} {
-  menulink "" "/timeline" Timeline
+  menulink /timeline Timeline
 }
 if {[hascap oh]} {
-  menulink "^/dir.*" "/dir?ci=tip" Files
+  menulink /dir?ci=tip Files
 }
 if {[hascap o]} {
-  menulink "" "/brlist" Branches
-  menulink "" "/taglist" Tags
+  menulink  /brlist Branches
+  menulink  /taglist Tags
 }
 if {[hascap r]} {
-  menulink "" "/ticket" Tickets
+  menulink /ticket Tickets
 }
 if {[hascap j]} {
-  menulink "" "/wiki" Wiki
+  menulink /wiki Wiki
 }
 if {[hascap s]} {
-  menulink "" "/setup" Admin
+  menulink /setup Admin
 } elseif {[hascap a]} {
-  menulink "" "/setup_ulist" Users
+  menulink /setup_ulist Users
 }
 </th1></div>
