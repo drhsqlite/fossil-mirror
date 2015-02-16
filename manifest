@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\sthe\smarkdown_to_html()\sroutine\sin\sfinding\sthe\stitle\sof\sthe\ndocument.\s\s*This\schange\srequires\sa\ssearch\sindex\srebuild*.\s\sBegin\sadding\ndocumentation\son\show\sthe\sheader/footer\smechanism\sworks.
-D 2015-02-16T19:27:03.540
+C More\sdocumentation\son\stheming\sand\screating\scustom\sskins.
+D 2015-02-16T20:15:45.818
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -625,7 +625,7 @@ F www/contribute.wiki 57e13151802a559fa6a78587048d74bc7368cca6
 F www/copyright-release.html 76db86c906d5d09347b000e07d1bda8ca5754ad6
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
-F www/customskin.md f2eaa2435ad521cc9d3f8f7f5d33007b7f2c7c61
+F www/customskin.md ba1333a884cf6464650401c668ad84403dc9602c
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -669,10 +669,10 @@ F www/index.wiki a028412c05afc6984405bef0a1b441dcc214d70b
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
 F www/mkdownload.tcl ef28c12c054844e02863c990650ae7e34784fbd4
-F www/mkindex.tcl 822660d093bfc726958178fd775f8bceb83db3be
+F www/mkindex.tcl c9e3664d723eb10b2a7b5d1255f933a003eb1eec
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
-F www/permutedindex.html dc582aa1d222ed02d0a6e42c889aeedd5df7681e
+F www/permutedindex.html a0d9ee48362b87be7a99dbb21a014497f6df9f91
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -690,13 +690,13 @@ F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
 F www/style.wiki 92ede836b02fb8958e948b9df51f196e9ec95d68
 F www/sync.wiki 53a1e45726f4bbfc69e8f0898bb8196e7660c82b
 F www/tech_overview.wiki 47bd3f7fa192bb99ff6b2063d7e4cac62786f96d
-F www/th1.md bbbae638c8e92d6a4e6cb5ef83ebc77607684fc7
+F www/th1.md 43b8b538556d2a6e9b99ea34ff16236a57bfc500
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P bfd413bf1eb6049195b18c8f5e4c619856cf04b0
-R 4ec6ca574061a4c3fd5d57716d650580
+P e214a576ea0dc1c88f2f6e5c39cf161d4a54e6db
+R 2ea1da85160a84f58691bce142dbf229
 U drh
-Z e0b3178f06d19497f6d7fb4857c84d9f
+Z a0bb9865a2dfefe10c38951201bf74a2

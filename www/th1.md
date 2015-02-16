@@ -113,3 +113,54 @@ summarize the commands available in TH1:
 
 All of the above commands works as in the original TCL.  Refer to the
 TCL documentation for details.
+
+TH1 Extended Commands
+---------------------
+
+There are many new commands added to TH1 and used to access the special
+features of Fossil.  The following is a summary of the extended commands:
+
+  *  anoncap
+  *  anycap
+  *  artifact
+  *  checkout
+  *  combobox
+  *  date
+  *  decorate
+  *  enable_output
+  *  getParameter
+  *  globalState
+  *  httpize
+  *  hascap
+  *  hasfeature
+  *  html
+  *  htmlize
+  *  http
+  *  linecount
+  *  puts
+  *  query
+  *  randhex
+  *  regexp
+  *  reinitialize
+  *  render
+  *  repository
+  *  searchable
+  *  setParameter
+  *  setting
+  *  styleHeader
+  *  styleFooter
+  *  tclReady
+  *  trace
+  *  stime
+  *  utime
+  *  wiki
+
+Each of the commands above is documented by a block comment above their
+implementation in the th_main.c source file.
+
+**To Do:** We would like to have a community volunteer go through and
+copy the documentation for each of these command (with appropriate
+format changes and spelling and grammar corrections) into subsequent
+sections of this document. It is suggested that the list of extension
+commands be left intact - as a quick reference.  But it would be really
+nice to also have the details of each each command does.
