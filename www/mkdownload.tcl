@@ -9,7 +9,7 @@ fconfigure $out -encoding utf-8 -translation lf
 puts $out \
 {<!DOCTYPE html><html>
 <head>
-<base href="http://www.fossil-scm.org/" />
+<base href="/" />
 <title>Fossil: Downloads</title>
 <link rel="stylesheet" href="/fossil/style.css" type="text/css"
       media="screen">
@@ -70,7 +70,7 @@ foreach datetime [lsort -decr [array names adate]] {
   append dt "[string range $datetime 8 9]:[string range $datetime 10 11]:"
   append dt "[string range $datetime 12 13]"
   set link [string map {{ } +} $dt]
-  set hr "http://www.fossil-scm.org/fossil/timeline?c=$link&amp;y=ci"
+  set hr "/fossil/timeline?c=$link&amp;y=ci"
   puts $out "<tr><td colspan=6 align=left><hr>"
   puts $out "<center><b><a href=\"$hr\">$dt</a></b></center>"
   puts $out "</td></tr>"
@@ -130,7 +130,7 @@ puts $out {<html>
 <h1 align="center">Checksums For Fossil Downloads</h1>
 <p>The following table shows the SHA1 checksums for the precompiled
 binaries available on the
-<a href="http://www.fossil-scm.org/download.html">Fossil website</a>.</p>
+<a href="/download.html">Fossil website</a>.</p>
 <pre>}
 
 foreach file [lsort [glob -nocomplain download/fossil-*.zip]] {

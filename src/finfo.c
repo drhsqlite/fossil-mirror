@@ -217,7 +217,7 @@ void finfo_cmd(void){
         fossil_free(zOut);
       }else{
         blob_reset(&line);
-        blob_appendf(&line, "%.10s ", zCiUuid);
+        blob_appendf(&line, "%S ", zCiUuid);
         blob_appendf(&line, "%.10s ", zDate);
         blob_appendf(&line, "%8.8s ", zUser);
         blob_appendf(&line, "%8.8s ", zBr);
@@ -307,7 +307,7 @@ void finfo_page(void){
   int fShowId = P("showid")!=0;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("File History");
   login_anonymous_available();
   url_initialize(&url, "finfo");
@@ -360,8 +360,17 @@ void finfo_page(void){
     blob_append_sql(&sql, " AND event.mtime<=julianday('%q')", zB);
     url_add_parameter(&url, "b", zB);
   }
+  /* We only want each version of a file to appear on the graph once,
+  ** at its earliest appearance.  All the other times that it gets merged
+  ** into this or that branch can be ignored.  An exception is for when
+  ** files are deleted (when they have mlink.fid==0).  If the same file
+  ** is deleted in multiple places, we want to show each deletion, so
+  ** use a "fake fid" which is derived from the parent-fid for grouping.
+  ** The same fake-fid must be used on the graph.
+  */
   blob_append_sql(&sql,
-    " GROUP BY mlink.fid"
+    " GROUP BY"
+    "   CASE WHEN mlink.fid>0 THEN mlink.fid ELSE mlink.pid+1000000000 END"
     " ORDER BY event.mtime DESC /*sort*/"
   );
   if( (n = atoi(PD("n","0")))>0 ){
@@ -376,7 +385,7 @@ void finfo_page(void){
   blob_zero(&title);
   if( baseCheckin ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
-    char *zLink = href("%R/info/%s", zUuid);
+    char *zLink = 	href("%R/info/%!S", zUuid);
     blob_appendf(&title, "Ancestors of file ");
     hyperlinked_path(zFilename, &title, zUuid, "tree", "");
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
@@ -434,7 +443,8 @@ void finfo_page(void){
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
-    gidx = graph_add_row(pGraph, frid, nParent, aParent, zBr, zBgClr,
+    gidx = graph_add_row(pGraph, frid>0 ? frid : fpid+1000000000,
+                         nParent, aParent, zBr, zBgClr,
                          zUuid, 0);
     if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
@@ -461,7 +471,7 @@ void finfo_page(void){
         @ <b>Renamed</b> from
         @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
       }
-      @ %z(href("%R/artifact/%s",zUuid))[%S(zUuid)]</a>
+      @ %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
       if( fShowId ){
         @ (%d(frid))
       }
@@ -488,20 +498,21 @@ void finfo_page(void){
     }
     @ %W(zCom) (user:
     hyperlink_to_user(zUser, zDate, "");
-    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>
+    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>)
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
-      @ %z(href("%R/timeline?n=200&uf=%s",zUuid))[checkins&nbsp;using]</a>
+      @ %z(href("%R/timeline?n=200&uf=%!S",zUuid))[checkins&nbsp;using]</a>
       if( fpid ){
-        @ %z(href("%R/fdiff?sbs=1&v1=%s&v2=%s",zPUuid,zUuid))[diff]</a>
+        @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
       int ii;
+      char *zAncLink;
       @ <br>fid=%d(frid) pid=%d(fpid) mid=%d(fmid)
       if( nParent>0 ){
         @ parents=%d(aParent[0])
@@ -509,7 +520,8 @@ void finfo_page(void){
           @ %d(aParent[ii])
         }
       }
-      @ %z(href("%R/finfo?name=%T&ci=%s&debug=1",zFilename,zCkin))[ancestry]</a>
+      zAncLink = href("%R/finfo?name=%T&ci=%!S&debug=1",zFilename,zCkin);
+      @ %z(zAncLink)[ancestry]</a>
     }
     tag_private_status(frid);
     @ </td></tr>

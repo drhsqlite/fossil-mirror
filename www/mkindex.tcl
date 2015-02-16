@@ -95,7 +95,7 @@ puts $out {
 <li> <a href='quickstart.wiki'>Quick-start Guide</a>
 <li> <a href='faq.wiki'>FAQ</a>
 <li> <a href='build.wiki'>Compiling and installing Fossil</a>
-<li> <a href='COPYRIGHT-BSD2.txt'>License</a>
+<li> <a href='../COPYRIGHT-BSD2.txt'>License</a>
 <li> <a href='http://www.fossil-scm.org/schimpf-book/home'>Jim Schimpf's
 book</a>
 <li> <a href='../../../help'>Command-line help</a>

@@ -1938,14 +1938,14 @@ void commit_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zIntegrateUuid = db_column_text(&q, 0);
     if( is_a_leaf(db_column_int(&q, 1)) ){
-      fossil_print("Closed: %s\n", zIntegrateUuid);
+      fossil_print("Closed: %S\n", zIntegrateUuid);
     }else{
-      fossil_print("Not_Closed: %s (not a leaf any more)\n", zIntegrateUuid);
+      fossil_print("Not_Closed: %S (not a leaf any more)\n", zIntegrateUuid);
     }
   }
   db_finalize(&q);
 
-  fossil_print("New_Version: %s\n", zUuid);
+  fossil_print("New_Version: %S\n", zUuid);
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
     blob_zero(&muuid);

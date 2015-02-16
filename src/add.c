@@ -155,10 +155,11 @@ static int add_one_file(
                   " WHERE pathname=%Q %s", zPath, filename_collation());
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
+    int isExe = file_wd_isexe(zFullname);
     db_multi_exec(
       "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink)"
       "VALUES(%d,0,0,0,%Q,%d,%d)",
-      vid, zPath, file_wd_isexe(zFullname), file_wd_islink(zFullname));
+      vid, zPath, isExe, file_wd_islink(0));
     fossil_free(zFullname);
   }
   if( db_changes() ){

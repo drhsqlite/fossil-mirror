@@ -161,7 +161,7 @@ void branch_new(void){
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", brid);
-  fossil_print("New branch: %s\n", zUuid);
+  fossil_print("New branch: %S\n", zUuid);
   if( g.argc==3 ){
     fossil_print(
       "\n"
@@ -341,7 +341,7 @@ static void new_brlist_page(void){
   Stmt q;
   double rNow;
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Branches");
   style_adunit_config(ADUNIT_RIGHT_OK);
   login_anonymous_available();
@@ -374,7 +374,7 @@ static void new_brlist_page(void){
     @ <td>%s(isClosed?"closed":"")</td>
     if( zMergeTo ){
       @ <td>merged into
-      @ %z(href("%R/timeline?f=%s",zLastCkin))%h(zMergeTo)</a></td>
+      @ %z(href("%R/timeline?f=%!S",zLastCkin))%h(zMergeTo)</a></td>
     }else{
       @ <td></td>
     }
@@ -410,7 +410,7 @@ void brlist_page(void){
     return;
   }
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( colorTest ){
     showClosed = 0;
     showAll = 1;
@@ -517,7 +517,7 @@ void brtimeline_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Branches");
   style_submenu_element("List", "List", "brlist");
@@ -529,7 +529,7 @@ void brtimeline_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www(), TAG_BRANCH
   );
-  www_print_timeline(&q, 0, 0, 0, brtimeline_extra);
+  www_print_timeline(&q, 0, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   style_footer();
 }
