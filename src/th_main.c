@@ -1960,17 +1960,31 @@ int Th_Render(const char *z){
 
 /*
 ** COMMAND: test-th-render
+**
+** Usage: %fossil test-th-render FILE
+**
+** Read the content of the file named "FILE" as if it were a header or
+** footer or ticket rendering script, evaluate it, and show the results
+** on standard output.
+**
+** Options:
+**
+**     --cgi                Include a CGI response header in the output
+**     --http               Include an HTTP response header in the output
+**     --open-config        Open the configuration database
 */
 void test_th_render(void){
-  int forceCgi, fullHttpReply;
+  int forceCgi = 0, fullHttpReply = 0;
   Blob in;
   Th_InitTraceLog();
-  forceCgi = find_option("th-force-cgi", 0, 0)!=0;
-  fullHttpReply = find_option("th-full-http", 0, 0)!=0;
+  forceCgi = find_option("cgi", 0, 0)!=0;
+  fullHttpReply = find_option("http", 0, 0)!=0;
+  if( fullHttpReply ) forceCgi = 1;
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
-  if( find_option("th-open-config", 0, 0)!=0 ){
+  if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
+  verify_all_options();
   if( g.argc<3 ){
     usage("FILE");
   }
@@ -1983,16 +1997,28 @@ void test_th_render(void){
 
 /*
 ** COMMAND: test-th-eval
+**
+** Usage: %fossil test-th-eval SCRIPT
+**
+** Evaluate SCRIPT as if it were a header or footer or ticket rendering
+** script, evaluate it, and show the results on standard output.
+**
+** Options:
+**
+**     --cgi                Include a CGI response header in the output
+**     --http               Include an HTTP response header in the output
+**     --open-config        Open the configuration database
 */
 void test_th_eval(void){
   int rc;
   const char *zRc;
   int forceCgi, fullHttpReply;
   Th_InitTraceLog();
-  forceCgi = find_option("th-force-cgi", 0, 0)!=0;
-  fullHttpReply = find_option("th-full-http", 0, 0)!=0;
+  forceCgi = find_option("cgi", 0, 0)!=0;
+  fullHttpReply = find_option("http", 0, 0)!=0;
+  if( fullHttpReply ) forceCgi = 1;
   if( forceCgi ) Th_ForceCgi(fullHttpReply);
-  if( find_option("th-open-config", 0, 0)!=0 ){
+  if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
   if( g.argc!=3 ){

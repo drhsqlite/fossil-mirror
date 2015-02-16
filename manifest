@@ -1,5 +1,5 @@
-C Another\stweak\sto\sthe\s"San\sFrancisco\sModern"\sskin.
-D 2015-02-15T23:31:40.005
+C Improved\sTH1\sscript\sfor\sheader\sgeneration\sin\sthe\setienne1\sskin.
+D 2015-02-16T01:36:16.471
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -327,7 +327,7 @@ F skins/enhanced1/header.txt 1fd3a93e575374bd1ddd7c8c41372830055368b0
 F skins/etienne1/README.md 46b87d9fe01a16616401a87f2107b6685f279c77
 F skins/etienne1/css.txt 77d9435bcb2606c646f4a1c3d15f126320ec8e6e
 F skins/etienne1/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
-F skins/etienne1/header.txt 18cc8141d5b298b3cb8be8818f7b8b7b81289845
+F skins/etienne1/header.txt 6444783dec07d954ce31d61fe22c9803d92df07d
 F skins/khaki/css.txt 1e2129df1cd0a0e15f833866c11ea796d19fbc7b
 F skins/khaki/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/khaki/header.txt 609fe1dd9dd3afdfe2777ce207a2012cb36c3f64
@@ -457,7 +457,7 @@ F src/tar.c d3a332c83b24d4a498c3ce05dcafcc3496f27f25
 F src/th.c f3e2d60ea44acd118e8462d48c0865c496f89e6f
 F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
-F src/th_main.c d6425dc1719c346e7af15bcd44b3c35a9f8fc069
+F src/th_main.c 3348954977e3b113a0b419dd73cf8b915e954142
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
 F src/timeline.c 519d10c7cf89768b46d52adb4a9ff41c51f1580f
 F src/tkt.c 6023529b050cf5919b5b35b53874c90f883d2b8e
@@ -694,7 +694,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 488fb146e6f0a5a05923b806da08d99686e5a027
-R 6bb95b5aa7ac0d9572f9b4029060fd4c
+P de6f310d9cdbb2e750f4d2defc7bfa452955de1c
+R ae6de5d8651458fee77b75a41a955f46
 U drh
-Z 6b5f70fac5b4067aa78f4d84556ec495
+Z f1649b8f1350af99f30612dfc6ecbf28
