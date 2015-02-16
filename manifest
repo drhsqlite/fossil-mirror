@@ -1,5 +1,5 @@
-C Enhance\sthe\s--skin\soption\sso\sthat\sit\scan\sbe\sa\sdirectory\sholding\sthe\sthree\nskin\sfiles.
-D 2015-02-16T13:41:27.205
+C Fix\sa\sbug\sin\sthe\smarkdown_to_html()\sroutine\sin\sfinding\sthe\stitle\sof\sthe\ndocument.\s\s*This\schange\srequires\sa\ssearch\sindex\srebuild*.\s\sBegin\sadding\ndocumentation\son\show\sthe\sheader/footer\smechanism\sworks.
+D 2015-02-16T19:27:03.540
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -415,7 +415,7 @@ F src/makemake.tcl c0246202adf3c01371bbc29f4ddd7b3ae820fc31
 F src/manifest.c 68e385a49b74120d79472a5363e73d5b34044d5f
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
-F src/markdown_html.c 60d700c9008336936383d7fe7c86a283a2d56578
+F src/markdown_html.c 29e42640edab9c60dc2222f52b62da3bc3c3f81d
 F src/md5.c c6f6b5df8001ab094e5f49416fc2aa3019823d69
 F src/merge.c 4c3894827ab19c2865045c2ea10faabe4d954054
 F src/merge3.c fe6f3002aab77bc3403897561e75a0d2438162b3
@@ -625,6 +625,7 @@ F www/contribute.wiki 57e13151802a559fa6a78587048d74bc7368cca6
 F www/copyright-release.html 76db86c906d5d09347b000e07d1bda8ca5754ad6
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
+F www/customskin.md f2eaa2435ad521cc9d3f8f7f5d33007b7f2c7c61
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -689,12 +690,13 @@ F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
 F www/style.wiki 92ede836b02fb8958e948b9df51f196e9ec95d68
 F www/sync.wiki 53a1e45726f4bbfc69e8f0898bb8196e7660c82b
 F www/tech_overview.wiki 47bd3f7fa192bb99ff6b2063d7e4cac62786f96d
+F www/th1.md bbbae638c8e92d6a4e6cb5ef83ebc77607684fc7
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 47bb6432a13059fd29afa3ee3ad80f7ef782fd26
-R 2fd2bae2adc0027ae63bbd092378332d
+P bfd413bf1eb6049195b18c8f5e4c619856cf04b0
+R 4ec6ca574061a4c3fd5d57716d650580
 U drh
-Z 59811f7713b5ca9efd63b651d3904837
+Z e0b3178f06d19497f6d7fb4857c84d9f
