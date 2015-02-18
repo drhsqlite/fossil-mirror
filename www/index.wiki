@@ -10,11 +10,7 @@
 
 <h3>Why Use Fossil?</h3>
 
-<table border="0" cellspacing="10" bgcolor="white" align="right"
-cellpadding="2">
-<tr><td bgcolor="#446979">
-<table border="0" cellpadding="10" bgcolor="white">
-<tr><td>
+<div style='width:200px;float:right;border:2px solid #446979;padding:10px;margin:0px 10px;'>
 <ul>
 <li> [http://www.fossil-scm.org/download.html | Download]
 <li> [./quickstart.wiki | Quick Start]
@@ -33,12 +29,8 @@ cellpadding="2">
      <li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
      </ul>
 </ul>
-</td></tr>
-<tr><td>
 <center><img src="fossil3.gif"></center>
-</td></tr>
-</table>
-</table>
+</div>
 
 There are plenty of open-source version control systems available on the
 internet these days. What makes Fossil worthy of attention?
