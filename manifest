@@ -1,5 +1,5 @@
-C Remove\sthe\s"word-break:break-all;"\sfrom\sthe\sdefault\sCSS\sfor\sthe\sfileage\spage.
-D 2015-02-17T20:45:59.354
+C Fix\sthe\smkdownload.tcl\sscript\sthat\sgenerates\sthe\sdownload.html\spage\sso\nthat\sis\suses\sthe\snew\swebsite\sskin.
+D 2015-02-18T02:49:52.513
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -605,7 +605,7 @@ F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
 F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
 F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
-F www/branching.wiki b67eeb7dc798a6d1df59ee12a3b79f7838ffc6ba
+F www/branching.wiki 20dfe820c2b1bbd3ed04eb4c88150b5563679265
 F www/bugtheory.wiki e43e29be95b51db3cbe00dfc0c4cea6a3a424eec
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -668,7 +668,7 @@ F www/hints.wiki 5192eca6496ed918b5f2eb17fc79da3fcc022148
 F www/index.wiki a028412c05afc6984405bef0a1b441dcc214d70b
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
-F www/mkdownload.tcl ef28c12c054844e02863c990650ae7e34784fbd4
+F www/mkdownload.tcl e8316ebbcd9b03860e3bae7584c3d402c1877e0f
 F www/mkindex.tcl c9e3664d723eb10b2a7b5d1255f933a003eb1eec
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
@@ -696,7 +696,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c397fe5c444e9f5cdf6f3370fe035c5c7c066106
-R 2a2c19041ae57a17cb8cd1e8750dd705
+P 565f4d11b81a0954a863583742c6b86f2002b75f
+R 063c6ae9bc1a4e5f33f28f25ea0023d5
 U drh
-Z a7bfb149ab6748c9925b3fbf1822cd9f
+Z 8272f64b34963e3b1c4c591cd5d7372f
