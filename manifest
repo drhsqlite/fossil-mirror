@@ -1,5 +1,5 @@
-C Added\sfossil\sman-page.\sStarted\swith\sthe\sone\sfrom\sdebian,\sbut\sadapted\sto\scontain\scurrent\scommand\slist.
-D 2015-02-18T10:02:52.957
+C In\sthe\setienne1\sskin,\sset\sa\sminimum\swidth\sbut\sallow\sthe\swidth\sto\sgrow\swithout\nbound.
+D 2015-02-18T12:02:35.377
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -326,7 +326,7 @@ F skins/enhanced1/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
 F skins/enhanced1/footer.txt 12d9581af14a2980778c00d83756db293b363c83
 F skins/enhanced1/header.txt 1fd3a93e575374bd1ddd7c8c41372830055368b0
 F skins/etienne1/README.md 46b87d9fe01a16616401a87f2107b6685f279c77
-F skins/etienne1/css.txt a9ea441b74e03c8e0028a3b2da1d6e375616a736
+F skins/etienne1/css.txt 752664cc8c2e30278216a15f17dac0022f286635
 F skins/etienne1/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
 F skins/etienne1/header.txt a2e75e85ebf23af7b4bbbb4a6f35cb92aaec65cd
 F skins/khaki/css.txt 1e2129df1cd0a0e15f833866c11ea796d19fbc7b
@@ -697,7 +697,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 5bc5c69b315b431571ddd804adde8de02ea118b0
-R 9a2b2158a680f0ed20980d536a42e1ca
-U jan.nijtmans
-Z 0d012bcc65dc8e188a87bb9b66ae1247
+P 17049409eb07b24fd59ec79867f37b3d8563eb01
+R 04449ca687fbeea7cfc47217b2749565
+U drh
+Z fa283839bc9686408f247973023db790
