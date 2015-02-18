@@ -1,5 +1,5 @@
-C More\scorrections\sto\sthe\smkdownload.tcl\sscript.
-D 2015-02-18T02:56:34.501
+C Added\sfossil\sman-page.\sStarted\swith\sthe\sone\sfrom\sdebian,\sbut\sadapted\sto\scontain\scurrent\scommand\slist.
+D 2015-02-18T10:02:52.957
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -308,6 +308,7 @@ F compat/zlib/zutil.c e1af709bff21ae0d4331119a7fc4c19f82932043
 F compat/zlib/zutil.h b909d27ef9ce51639f76b7ea6b62721e7d1b6bf7
 F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
+F fossil.1 fc19c06dd5ce3367c5714e7aa6ecfdef1d6e55b3
 F setup/fossil.iss c9ad92c989eecde15b2b01cd69eadc74de7a8d33
 F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F skins/README.md 635d3230265fe31ceaa1c3c3b9b327e1fdc7c292
@@ -696,7 +697,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P bdc892f9ffca81d2d7ea33181c0bce6aef4906de
-R edffd2a9ffb8ba3cda1147ac8666bf82
-U drh
-Z 289c92090e8cd2e208fb70764ee8c2c4
+P 5bc5c69b315b431571ddd804adde8de02ea118b0
+R 9a2b2158a680f0ed20980d536a42e1ca
+U jan.nijtmans
+Z 0d012bcc65dc8e188a87bb9b66ae1247
