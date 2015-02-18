@@ -158,9 +158,6 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/rounded1/css.txt \
   $(SRCDIR)/../skins/rounded1/footer.txt \
   $(SRCDIR)/../skins/rounded1/header.txt \
-  $(SRCDIR)/../skins/test/css.txt \
-  $(SRCDIR)/../skins/test/footer.txt \
-  $(SRCDIR)/../skins/test/header.txt \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/markdown.md
 
