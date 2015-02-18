@@ -69,7 +69,7 @@ management with these advanced features:
 
   5.  <b>CGI/SCGI Enabled</b> -  No server is required, but if you want to
       set one up, Fossil supports four simple
-      simple [./server.wiki | server configurations].
+      [./server.wiki | server configurations].
 
   6.  <b>Autosync</b> -
       Fossil supports [./concepts.wiki#workflow | "autosync" mode]

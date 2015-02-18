@@ -1,5 +1,5 @@
-C Make\sthe\sfront\spage\sless\sprolix.\s\sFix\stypos\sin\sthe\s"fossil\sui"\shelp\sscreen.
-D 2015-02-18T19:10:24.181
+C Adapt\sman-page\sto\swording\sin\sindex.wiki,\s+\sfix\stypo
+D 2015-02-18T20:07:31.736
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -308,7 +308,7 @@ F compat/zlib/zutil.c e1af709bff21ae0d4331119a7fc4c19f82932043
 F compat/zlib/zutil.h b909d27ef9ce51639f76b7ea6b62721e7d1b6bf7
 F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
-F fossil.1 fc19c06dd5ce3367c5714e7aa6ecfdef1d6e55b3
+F fossil.1 2947f4d66ede5508f4fbe501e1e965df3b3a243d
 F setup/fossil.iss c9ad92c989eecde15b2b01cd69eadc74de7a8d33
 F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F skins/README.md 635d3230265fe31ceaa1c3c3b9b327e1fdc7c292
@@ -666,7 +666,7 @@ F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki 5192eca6496ed918b5f2eb17fc79da3fcc022148
-F www/index.wiki 87fae1c8756e7a5ea55114fd81ffd76a5be26d5e
+F www/index.wiki 2e8d3255cdc7a4f89321778a8594c82712ec36ca
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
 F www/mkdownload.tcl 0fb977f0644549fa063e4bfedd2bdf062abf97e8
@@ -697,7 +697,7 @@ F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 9ac9ee605b0c74b00cace3bf9802ce7a0f785ae9
-R e8e4c19e37a44b2a018fc52b7552a052
-U drh
-Z be4a895f80863b09e5ab0057bba76b80
+P be7fdc7ab098094791d932b2460b3fd9e35f52a4
+R 071071c96473cf2a3b75dbef080b981b
+U jan.nijtmans
+Z 2882a793913a7e5a56abc2686b538c7a
