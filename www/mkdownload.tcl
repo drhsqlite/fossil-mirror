@@ -10,8 +10,8 @@ puts $out \
 {<!DOCTYPE html>
 <html>
   <head>
-    <base href="https://www.fossil-scm.org/fossil/timeline" />
-    <title>Fossil: Timeline</title>
+    <base href="https://www.fossil-scm.org/download.html" />
+    <title>Fossil: Download</title>
       <link rel="alternate" type="application/rss+xml" title="RSS Feed"
             href="/fossil/timeline.rss" />
       <link rel="stylesheet" href="/fossil/style.css?default" type="text/css"
@@ -20,7 +20,7 @@ puts $out \
 
   <body>
     <div class="header">
-      <div class="title"><h1>Fossil</h1>Timeline</div>
+      <div class="title"><h1>Fossil</h1>Download</div>
     </div>
     <div class="mainmenu">
 <a href='/fossil/doc/trunk/www/index.wiki'>Home</a>
