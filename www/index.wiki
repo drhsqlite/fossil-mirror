@@ -31,7 +31,7 @@ cellpadding="2">
      <ul>
      <li> [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | sign-up]
      <li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
-     <ul>
+     </ul>
 </ul>
 </td></tr>
 <tr><td>
