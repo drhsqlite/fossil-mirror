@@ -2213,12 +2213,12 @@ static int binaryOnPath(const char *zBinary){
 ** also present.
 **
 ** By default, the "ui" command provides full administrative access without
-** having to log in.  This can be disabled by setting turning off the
-** "localauth" setting.  Automatic login for the "server" command is available
-** if the --localauth option is present and the "localauth" setting is off
-** and the connection is from localhost.  The optional REPOSITORY argument
-** to "ui" may be a directory and will function as "server" if and only if
-** the --notfound option is used.
+** having to log in.  This can be disabled by turning off the "localauth"
+** setting.  Automatic login for the "server" command is available if the
+** --localauth option is present and the "localauth" setting is off and the
+** connection is from localhost.  The optional REPOSITORY argument to "ui"
+** may be a directory and will function as "server" if and only if the
+** --notfound option is used.
 **
 ** Options:
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
