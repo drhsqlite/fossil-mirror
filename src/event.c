@@ -269,6 +269,12 @@ void eventedit_page(void){
     " WHERE tagid=(SELECT tagid FROM tag WHERE tagname GLOB '%q*')"
     " ORDER BY mtime DESC", zTag
   );
+  if( rid && strlen(zId)<40 ){
+    zId = db_text(0,
+      "SELECT substr(tagname,7) FROM tag WHERE tagname GLOB '%q*'",
+      zTag
+    );
+  }
   free(zTag);
 
   /* Need both check-in and wiki-write or wiki-create privileges in order
