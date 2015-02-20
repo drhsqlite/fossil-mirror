@@ -2408,6 +2408,7 @@ void cmd_webserver(void){
   process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
 #else
   /* Win32 implementation */
+  (void)allowRepoList;  /* Suppress warning */
   if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
     if( zIpAddr ){

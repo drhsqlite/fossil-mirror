@@ -1,5 +1,5 @@
-C Get\sthe\srepolist\smechanism\sworking\son\swindows.\s\sMake\ssure\srepolist\sis\ndisabled\s(except\sfor\sthe\s"ui"\scommand)\swithout\sthe\s--repolist\soption.
-D 2015-02-20T15:57:38.957
+C Fix\sa\scompiler\swarning\son\swindows.
+D 2015-02-20T16:03:42.469
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -408,7 +408,7 @@ F src/leaf.c a8880fbcf409f34c0ea9566f8b548a96496856a7
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 2abcbfe5306a237232816ebccbaf0b871e65d267
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 8ac6edcb2cd37dff09780c87418465adbb60213c
+F src/main.c a4a666201e29efd40910af0380f0cf4388167966
 F src/main.mk 0fa40118d5255607c5a8b9e87e843e986d1e91ed
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md a93049785ab3618dbb12908317cf8fbcb52be7f7
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 87508e0bf995f4eaee57cdba22fa2875b7bfece4
-R 2e6194dcf593a795f2919cdae647587b
+P d976b474e9d0815dd2d4ddb009965cce8a6934ca
+R 182a2eb04c2c119885aeae3657c26e33
 U drh
-Z e9c539e4312ba0b58c9fa1ceab7fd6c4
+Z 433c84add9c318eb440e48a2d56b617d
