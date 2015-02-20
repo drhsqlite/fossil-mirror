@@ -138,7 +138,7 @@ management with these advanced features:
      (contributed by Gilles Ganault on 2013-01-08).
   *  [./antibot.wiki | How Fossil defends against abuse by spiders and bots].
 
-<h3>Links For Fossil Developer:</h3>
+<h3>Links For Fossil Developers:</h3>
 
   *  [./contribute.wiki | Contributing] code or documentation to the
      Fossil project.
