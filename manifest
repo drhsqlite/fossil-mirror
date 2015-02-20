@@ -1,5 +1,5 @@
-C Pluralize\s'Links\sFor\sFossil\sDevelopers'\son\sthe\shome\spage.
-D 2015-02-20T02:55:42.432
+C Add\sthe\swebpage-ex.md\spage\scontaining\slots\sof\sexamples\sof\sthe\sweb\sinterface.\nUpdates\sto\sthe\shomepage.
+D 2015-02-20T14:12:26.387
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -666,7 +666,7 @@ F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki 5192eca6496ed918b5f2eb17fc79da3fcc022148
-F www/index.wiki 2dd1c241c833ce23a0706bdc741fd1317da29b12
+F www/index.wiki ee4577c2885329a8e0591a1adb2d4d7a7d91d34d
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
 F www/mkdownload.tcl 0fb977f0644549fa063e4bfedd2bdf062abf97e8
@@ -695,9 +695,10 @@ F www/th1.md 43b8b538556d2a6e9b99ea34ff16236a57bfc500
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
-F www/webui.wiki c9caec2422fafa1a4d448cd9b36f8f9fd86c727a
+F www/webpage-ex.md a93049785ab3618dbb12908317cf8fbcb52be7f7
+F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 7867a8115cff22107e0710bbe6f7be7abf3dd67a
-R 3849c2ed1829d637cfb81fc4fd6890e7
-U mistachkin
-Z 8fa6b8857425d9d8a6a88556f888b3bc
+P 479707a46bbdcf7c0888148e3d7f8be15864cc68
+R e013080dc6c2f233fc504addc1eb6030
+U drh
+Z 31d1df5286c9b2e6b5334d831f6d33d4

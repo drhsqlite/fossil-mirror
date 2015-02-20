@@ -34,11 +34,8 @@ management with these advanced features:
 
   2.  <b>Built-in Web Interface</b> - 
       Fossil has a built-in and intuitive [./webui.wiki | web interface]
-      that promotes project situational awareness.
-      Type "[/help?cmd=ui|fossil ui]" and Fossil
-      automatically opens a web browser to a page that shows detailed
-      [/timeline?n=100&y=ci | graphical history] and status information
-      on that project.
+      with a rich assortment of information pages 
+      ([./webpage-ex.md|examples]) designed to promote situational awareness.
 
       This entire website&#185;
       is just a running instance of Fossil.  The pages you see here
@@ -85,6 +82,8 @@ management with these advanced features:
       the repository are consistent prior to each commit.  In over seven years
       of operation, no work has ever been lost after having been committed to
       a Fossil repository.
+
+  8.  <b>Free and Open-Source</b> - Uses the [../COPYRIGHT-BSD2.txt|2-clause BSD license].
 
 <hr>
 <h3>Links For Fossil Users:</h3>
