@@ -1,5 +1,5 @@
-C Add\sthe\swebpage-ex.md\spage\scontaining\slots\sof\sexamples\sof\sthe\sweb\sinterface.\nUpdates\sto\sthe\shomepage.
-D 2015-02-20T14:12:26.387
+C For\scommands\s"ui",\s"server",\sand\s"http",\sand\sfor\sCGI,\swhen\sa\sdirectory\sis\nsupplied\sinstead\sof\sa\sspecific\srepository,\sadd\sthe\sability\sto\nshow\sa\slist\sof\savailable\srepositories\sunder\sthat\sdirectory.\s\sEnabled\sby\ndefault\swith\sthe\s"ui"\scommand.\s\sUse\s--repolist\swith\s"server"\sand\s"http"\sand\nthe\s"repolist"\sattribute\sin\sthe\sCGI\sscript\sto\senable.
+D 2015-02-20T15:40:09.964
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -408,7 +408,7 @@ F src/leaf.c a8880fbcf409f34c0ea9566f8b548a96496856a7
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 2abcbfe5306a237232816ebccbaf0b871e65d267
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c db15c9e35ae38bd24ec5211112b8bfbe4fd961b9
+F src/main.c 364f7d5e02cd1277755c236c0fbde4b4f1b66dcf
 F src/main.mk 0fa40118d5255607c5a8b9e87e843e986d1e91ed
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md a93049785ab3618dbb12908317cf8fbcb52be7f7
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 479707a46bbdcf7c0888148e3d7f8be15864cc68
-R e013080dc6c2f233fc504addc1eb6030
+P 3216a9cb2aeb51345c846f1c5f5ae810c255dc30
+R fa0675a75ad8798e7c60eedb5ce13e2f
 U drh
-Z 31d1df5286c9b2e6b5334d831f6d33d4
+Z 5fd9d85091ab042730b1e035c7bc8b02
