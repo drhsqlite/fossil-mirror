@@ -1550,7 +1550,9 @@ static void process_one_web_page(
         set_base_url(0);
         if( zNotFound ){
           cgi_redirect(zNotFound);
-        }else if( strcmp(zPathInfo,"/")==0 && repo_list_page() ){
+        }else if( strcmp(zPathInfo,"/")==0
+                  && allowRepoList
+                  && repo_list_page() ){
           /* Will return a list of repositories */
         }else{
 #ifdef FOSSIL_ENABLE_JSON
@@ -2266,9 +2268,8 @@ static int binaryOnPath(const char *zBinary){
 ** having to log in.  This can be disabled by turning off the "localauth"
 ** setting.  Automatic login for the "server" command is available if the
 ** --localauth option is present and the "localauth" setting is off and the
-** connection is from localhost.  The optional REPOSITORY argument to "ui"
-** may be a directory and will function as "server" if and only if the
-** --notfound option is used.
+** connection is from localhost.  The "ui" command also enables --repolist
+** by default.
 **
 ** Options:
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
@@ -2339,7 +2340,7 @@ void cmd_webserver(void){
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
-    flags |= HTTP_SERVER_LOCALHOST;
+    flags |= HTTP_SERVER_LOCALHOST|HTTP_SERVER_REPOLIST;
     g.useLocalauth = 1;
     allowRepoList = 1;
   }
