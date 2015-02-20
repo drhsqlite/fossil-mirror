@@ -47,28 +47,27 @@ management with these advanced features:
       When you clone Fossil from one of its
       [./selfhost.wiki | self-hosting repositories], 
       you get more than just source code - you get this entire website.
-      <small><i>(&#91;1&#93; except the 
-      [http://www.fossil-scm.org/download.html | download] page)</i></small>
+      <span style='font-size:75%;'>(&#185;except the 
+      [http://www.fossil-scm.org/download.html | download] page)</span>
 
   3.  <b>Self-Contained</b> -
       Fossil is a single self-contained stand-alone executable.
       To install, simply download a 
       <a href="http://www.fossil-scm.org/download.html">precompiled binary</a>
       for Linux, Mac, OpenBSD, or Windows and put it on your $PATH.
-      [./build.wiki | Easy-to-compile source code] is available for
-      users on other platforms.
+      [./build.wiki | Easy-to-compile source code] is also available.
 
   4.  <b>Simple Networking</b> -
       No custom protocols or TCP ports.
       Fossil uses ordinary HTTP (or HTTPS or SSH)
-      for all network communications, so it works fine from behind
+      for network communications, so it works fine from behind
       restrictive firewalls, including [./quickstart.wiki#proxy|proxies].
       The protocol is
       [./stats.wiki | bandwidth efficient] to the point that Fossil can be
       used comfortably over dial-up.
 
   5.  <b>CGI/SCGI Enabled</b> -  No server is required, but if you want to
-      set one up, Fossil supports four simple
+      set one up, Fossil supports four easy
       [./server.wiki | server configurations].
 
   6.  <b>Autosync</b> -
