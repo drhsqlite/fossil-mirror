@@ -1,4 +1,4 @@
-<title>Fossil</title>
+<title>Home</title>
 
 <h3>What Is Fossil?</h3>
 

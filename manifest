@@ -1,5 +1,5 @@
-C Fix\sa\scompiler\swarning\son\swindows.
-D 2015-02-20T16:03:42.469
+C Change\sthe\stitle\sof\sthe\shomepage\sfrom\s"Fossil"\sto\s"Home".
+D 2015-02-21T14:57:21.649
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -666,7 +666,7 @@ F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki 5192eca6496ed918b5f2eb17fc79da3fcc022148
-F www/index.wiki ee4577c2885329a8e0591a1adb2d4d7a7d91d34d
+F www/index.wiki daf9d0cce052572ba9c211715782cb599db0b093
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
 F www/mkdownload.tcl 0fb977f0644549fa063e4bfedd2bdf062abf97e8
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md a93049785ab3618dbb12908317cf8fbcb52be7f7
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P d976b474e9d0815dd2d4ddb009965cce8a6934ca
-R 182a2eb04c2c119885aeae3657c26e33
+P c0c3e1749841704cdd8c2a061d5198d1544afe6d
+R 63d58b7185594bdec3b3785804083808
 U drh
-Z 433c84add9c318eb440e48a2d56b617d
+Z 68bee704a310521aa1275789b916930c
