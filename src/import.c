@@ -1086,14 +1086,18 @@ static void svn_apply_svndiff(Blob *pDiff, Blob *pSrc, Blob *pOut){
   zDiff += 4;
   blob_zero(pOut);
   while( zDiff<(blob_buffer(pDiff)+blob_size(pDiff)) ){
+    u64 lenOut, lenInst, lenData, lenOld;
+    const char *zInst;
+    const char *zData;
+
     u64 offSrc = svn_get_varint(&zDiff);
-    /*u64 lenSrc =*/ svn_get_varint(&zDiff);
-    u64 lenOut = svn_get_varint(&zDiff);
-    u64 lenInst = svn_get_varint(&zDiff);
-    u64 lenData = svn_get_varint(&zDiff);
-    const char *zInst = zDiff;
-    const char *zData = zInst+lenInst;
-    u64 lenOld = blob_size(pOut);
+    /*lenSrc =*/ svn_get_varint(&zDiff);
+    lenOut = svn_get_varint(&zDiff);
+    lenInst = svn_get_varint(&zDiff);
+    lenData = svn_get_varint(&zDiff);
+    zInst = zDiff;
+    zData = zInst+lenInst;
+    lenOld = blob_size(pOut);
     blob_resize(pOut, lenOut+lenOld);
     zOut = blob_buffer(pOut)+lenOld;
     while( zDiff<zInst+lenInst ){
