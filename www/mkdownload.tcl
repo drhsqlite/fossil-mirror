@@ -7,38 +7,37 @@
 set out [open download.html w]
 fconfigure $out -encoding utf-8 -translation lf
 puts $out \
-{<!DOCTYPE html><html>
-<head>
-<base href="/" />
-<title>Fossil: Downloads</title>
-<link rel="stylesheet" href="/fossil/style.css" type="text/css"
-      media="screen">
-</head>
-<body>
-<div class="header">
-  <div class="logo">
-    <img src="/fossil/logo" alt="logo">
-    <br /><nobr>Fossil</nobr>
-  </div>
+{<!DOCTYPE html>
+<html>
+  <head>
+    <base href="https://www.fossil-scm.org/download.html" />
+    <title>Fossil: Download</title>
+      <link rel="alternate" type="application/rss+xml" title="RSS Feed"
+            href="/fossil/timeline.rss" />
+      <link rel="stylesheet" href="/fossil/style.css?default" type="text/css"
+            media="screen" />
+  </head>
 
-  <div class="title">Fossil Downloads</div>
-</div>
-<div class="mainmenu">
+  <body>
+    <div class="header">
+      <div class="title"><h1>Fossil</h1>Download</div>
+    </div>
+    <div class="mainmenu">
 <a href='/fossil/doc/trunk/www/index.wiki'>Home</a>
 <a href='/fossil/timeline?y=ci'>Timeline</a>
-<a href='/download.html'>Download</a>
-<a href='/fossil/dir?ci=trunk'>Code</a>
-<a href='/fossil/doc/trunk/www/permutedindex.html'>Documentation</a>
+<a href='/fossil/dir?ci=tip'>Code</a>
+<a href='/fossil/doc/trunk/www/permutedindex.html'>Docs</a>
 <a href='/fossil/brlist'>Branches</a>
-<a href='/fossil/taglist'>Tags</a>
-<a href='/fossil/reportlist'>Tickets</a>
+<a href='/fossil/ticket'>Tickets</a>
+<a href='/fossil/wiki'>Wiki</a>
+<a href='/download.html' class='active'>Download</a>
 </div>
 <div class="content">
 <p>
 
 <center><font size=4>}
 puts $out \
-"<b>To install Fossil \u2192</b> download the stand-alone executable"
+"<b>To install Fossil &rarr;</b> download the stand-alone executable"
 puts $out \
 {and put it on your $PATH.
 </font><p><small>
@@ -113,7 +112,7 @@ foreach datetime [lsort -decr [array names adate]] {
 }
 puts $out "<tr><td colspan=5><hr></td></tr>"
 
-puts $out {</table>
+puts $out {</table></div>
 </body>
 </html>
 }

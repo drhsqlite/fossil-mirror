@@ -62,6 +62,7 @@ static struct BuiltinSkin {
 ** or NULL if the skin should be as configured.
 */
 static struct BuiltinSkin *pAltSkin = 0;
+static char *zAltSkinDir = 0;
 
 /*
 ** Invoke this routine to set the alternative skin.  Return NULL if the
@@ -69,17 +70,26 @@ static struct BuiltinSkin *pAltSkin = 0;
 ** available skins if zName does not match an available skin.  Memory
 ** for the returned string comes from fossil_malloc() and should be freed
 ** by the caller.
+**
+** If the alternative skin name contains one or more '/' characters, then
+** it is assumed to be a directory on disk that holds override css.txt,
+** footer.txt, and header.txt.  This mode can be used for interactive
+** development of new skins.
 */
 char *skin_use_alternative(const char *zName){
   int i;
-  Blob err;
+  Blob err = BLOB_INITIALIZER;
+  if( strchr(zName, '/')!=0 ){
+    zAltSkinDir = fossil_strdup(zName);
+    return 0;
+  }
   for(i=0; i<ArraySize(aBuiltinSkin); i++){
     if( fossil_strcmp(aBuiltinSkin[i].zLabel, zName)==0 ){
       pAltSkin = &aBuiltinSkin[i];
       return 0;
     }
   }
-  blob_init(&err, aBuiltinSkin[0].zLabel, -1);
+  blob_appendf(&err, "available skins: %s", aBuiltinSkin[0].zLabel);
   for(i=1; i<ArraySize(aBuiltinSkin); i++){
     blob_append(&err, " ", 1);
     blob_append(&err, aBuiltinSkin[i].zLabel, -1);
@@ -95,7 +105,7 @@ void skin_override(void){
   const char *zSkin = find_option("skin",0,1);
   if( zSkin ){
     char *zErr = skin_use_alternative(zSkin);
-    if( zErr ) fossil_fatal("available skins: %s", zErr);
+    if( zErr ) fossil_fatal("%s", zErr);
   }
 }
 
@@ -106,6 +116,16 @@ void skin_override(void){
 const char *skin_get(const char *zWhat){
   const char *zOut;
   char *z;
+  if( zAltSkinDir ){
+    char *z = mprintf("%s/%s.txt", zAltSkinDir, zWhat);
+    if( file_isfile(z) ){
+      Blob x;
+      blob_read_from_file(&x, z);
+      fossil_free(z);
+      return blob_str(&x);
+    }
+    fossil_free(z);
+  }
   if( pAltSkin ){
     z = mprintf("skins/%s/%s.txt", pAltSkin->zLabel, zWhat);
     zOut = builtin_text(z);

@@ -199,7 +199,11 @@ use GPG to clearsign your manifests if you happen to have it installed,
 but fossil will skip that step if GPG missing from your system.
 You can optionally set up fossil to use external "diff" programs, 
 though fossil has an excellent built-in "diff" algorithm that works
-fine for most people.
+fine for most people.  If you happen to have Tcl/Tk installed on your
+system, Fossil will use it to generate a graphical "diff" display when
+you use the --tk option to the "diff" command, but this too is entirely
+optional.
+
 
 To uninstall fossil, simply delete the executable.
 
@@ -393,71 +397,28 @@ Repeat all of the above until you have generated great software.
 With other configuration management software, setting up a server is
 a lot of work and normally takes time, patience, and a lot of system
 knowledge.  Fossil is designed to avoid this frustration.  Setting up
-a server with fossil is ridiculously easy.  You have three options:</p>
+a server with fossil is ridiculously easy.  You have four options:</p>
 
 <ol>
-<li><b><a name="saserv"></a>Setting up a stand-alone server</b>
+<li><p><b>Stand-alone server.</b>
+Simply run the [/help?cmd=server|fossil server] or
+[/help?cmd=ui|fossil ui] command from the command-line.
 
-From within your source tree just use the <b>server</b> command and
-fossil will start listening for incoming requests on TCP port 8080.
-You can point your web browser at <a href="http://localhost:8080/">
-http://localhost:8080/</a> and begin exploring.  Or your coworkers
-can do pushes or pulls against your server.  Use the <b>--port</b>
-option to the server command to specify a different TCP port.  If
-you do not have a local source tree, use the <b>-R</b> command-line
-option to specify the repository file.
+<li><p><b>CGI.</b>
+Install a 2-line CGI script on a CGI-enabled web-server like Apache.
 
-The "fossil server" command is a great way to set of transient connections
-between coworkers for doing quick pushes or pulls.  But you can also
-set up a permanent stand-alone server if you prefer.  Just make
-arrangements for fossil to be launched with appropriate arguments
-after every reboot.
+<li><p><b>SCGI.</b>
+Start an SCGI server using the
+[/help?cmd=server| fossil server --scgi] command for handling
+SCGI requests from web-servers like Nginx.
 
-If you just want a server to browse the built-in fossil website
-locally, use the <b>ui</b> command in place of <b>server</b>.  The
-<b>ui</b> command starts up a local server too, but it also takes
-the additional step of automatically launching your webbrowser and
-pointing at the new server.
-</li>
-
-<li><b>Setting up a CGI server</b>
-
-If you have a web-server running on your machine already, you can
-set up fossil to be run from CGI.  Simply create an executable script
-that looks something like this:
-
-<blockquote><pre>
-#!/usr/local/bin/fossil
-repository: /home/me/bigproject.fossil
-</pre></blockquote>
-
-Edit this script to use whatever pathnames are appropriate for
-your project.  Then point your web browser at the script and off you
-go.  The [./selfhost.wiki | self-hosting fossil repositories] are
-all set up this way.</li>
-
-<li><b>Setting up an inetd server</b>
-
-If you have inetd or xinetd running on your system, you can set
-those services up to launch fossil to deal with inbound TCP/IP connections
-on whatever port you want.  Set up inetd or xinetd to launch fossil
-like this:
-
-<blockquote><pre>
-/usr/local/bin/fossil http /home/me/bigproject.fossil
-</pre></blockquote>
-
-As before, change the filenames to whatever is appropriate for
-your system.  You can have fossil run as any user that has write
-permission on the repository and on the directory that contains the
-repository.  But it is safer to run fossil as root.  When fossil
-sees that it is running as root, it automatically puts itself into
-a <a href="http://en.wikipedia.org/wiki/Chroot">chroot jail</a> and
-drops all privileges prior to reading any information from the client.
-Since fossil is a stand-alone program, you do not need to put anything
-in the chroot jail with fossil in order for it to do its job.
-</li>
+<li><p><b>Inetd or Stunnel.</b>
+Configure programs like inetd, xinetd, or stunnel to hand off HTTP requests
+directly to the [/help?cmd=http|fossil http] command.
 </ol>
+
+See the [./server.wiki | How To Configure A Fossil Server] document
+for details.
 
 <h2>6.0 Review Of Key Concepts</h2>
 

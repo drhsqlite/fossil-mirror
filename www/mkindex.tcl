@@ -19,6 +19,7 @@ set doclist {
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
+  customskin.md {Theming: Customizing The Appearance of Web Pages}
   custom_ticket.wiki {Customizing The Ticket System}
   delta_encoder_algorithm.wiki {Fossil Delta Encoding Algorithm}
   delta_format.wiki {Fossil Delta Format}
@@ -57,6 +58,7 @@ set doclist {
   tech_overview.wiki {A Technical Overview Of The Design And Implementation
                       Of Fossil}
   tech_overview.wiki {SQLite Databases Used By Fossil}
+  th1.md {The TH1 Scripting Language}
   tickets.wiki {The Fossil Ticket System}
   theory1.wiki {Thoughts On The Design Of The Fossil DVCS}
   webui.wiki {The Fossil Web Interface}

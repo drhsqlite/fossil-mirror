@@ -149,9 +149,11 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
     Blob title = BLOB_INITIALIZER;
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(pWiki, &title, &tail);
+#if 0
     if( blob_size(&title)>0 ){
       @ <h1>%s(blob_str(&title))</h1>
     }
+#endif
     @ %s(blob_str(&tail))
     blob_reset(&title);
     blob_reset(&tail);

@@ -46,7 +46,7 @@ to make sure that bugs in these encoding mechanisms do not lead to
 loss of data.
 
 To increase our confidence that everything in the repository is
-recoverable, fossil makes sure it can extract an exact replicate
+recoverable, fossil makes sure it can extract an exact replica
 of every content file that it changes just prior to transaction
 commit.  So during the course of check-in (or other repository
 operation) many different files

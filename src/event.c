@@ -269,6 +269,12 @@ void eventedit_page(void){
     " WHERE tagid=(SELECT tagid FROM tag WHERE tagname GLOB '%q*')"
     " ORDER BY mtime DESC", zTag
   );
+  if( rid && strlen(zId)<40 ){
+    zId = db_text(0,
+      "SELECT substr(tagname,7) FROM tag WHERE tagname GLOB '%q*'",
+      zTag
+    );
+  }
   free(zTag);
 
   /* Need both check-in and wiki-write or wiki-create privileges in order
@@ -395,7 +401,14 @@ void eventedit_page(void){
     blob_reset(&cksum);
     nrid = content_put(&event);
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-    manifest_crosslink(nrid, &event, MC_NONE);
+    if( manifest_crosslink(nrid, &event, MC_NONE)==0 ){
+      db_end_transaction(1);
+      style_header("Error");
+      @ Internal error:  Fossil tried to make an invalid artifact for
+      @ the edited technode.
+      style_footer();
+      return;
+    }
     assert( blob_is_reset(&event) );
     content_deltify(rid, nrid, 0);
     db_end_transaction(0);
