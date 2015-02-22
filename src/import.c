@@ -917,7 +917,7 @@ char * rid_to_uuid(int rid)
 #define SVN_BRANCH    2
 #define SVN_TAG       3
 
-#define MAX_INT_32    (1<<31 - 1)
+#define MAX_INT_32    (~(1 << 31))
 
 static void svn_finish_revision(){
   Blob manifest;

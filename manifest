@@ -1,5 +1,5 @@
-C Stay\sin\ssync\swith\ssvn-import
-D 2015-02-22T12:01:32.429
+C Fix\scompiler\swarning...
+D 2015-02-22T15:17:15.180
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -386,7 +386,7 @@ F src/http.c 4045dd21bdc880bc7b694088c21a15bdbe1b562b
 F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
-F src/import.c 1e096a7f226351b32c7988075f25d5e988852c86
+F src/import.c c1f846fe763199da2c21c795064b78034abb1bbb
 F src/info.c 14a6e31db2da4e6027fd3272b45a3eb5c7540cb2
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 04308c2164c758c3943d30d31c3a1c61e1026be2 c3bcab0f0505eb9a96a59dbd3994b93e998f5463
-R f50f2081b9aa259dbac81ee86a6c2821
-U jan.nijtmans
-Z 5a15552499ad8c555e2b0f5d20b0efca
+P f273714ebf6400b99b225ad463293f7c174102a5
+R bcabf1b609cbd5e01fa2e55e99248c1b
+U mgagnon
+Z 392fcbcd87cd04d61d2c1df2cb594909
