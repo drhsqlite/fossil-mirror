@@ -1,5 +1,5 @@
-C Enhancement\sto\sthe\sFossil-to-Git\sexport\sdocumentation.\nFix\sfor\sticket\s[c34c31ccb27812343].
-D 2015-02-21T15:25:29.620
+C Do\snot\sduplicate\sthe\stitle\sfor\smarkdown-formatted\swiki.
+D 2015-02-22T11:14:06.817
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -473,7 +473,7 @@ F src/utf8.c cb3a7d214d1eea0919fc68b0683388d1cf61c78b
 F src/util.c 9f02b01358bf71236e91ebedde2027aa158bb87f
 F src/verify.c 51b1a2e2609ae83f4e35243d1a38faa8271a0b22
 F src/vfile.c bcf0d661edd47722586d3d502555a01466b09429
-F src/wiki.c 4690a58594998b0406c1fa5ee13e7f85bd9673b0
+F src/wiki.c 6698e15c8ace35dc12877a5bff22f27a1f6d6e62
 F src/wikiformat.c e5b2f7046649e8c68d144d48f41b331483c6ed05
 F src/winfile.c 0bcf34859198c42bbfe224e23eb8bcf27dd3e27d
 F src/winhttp.c 145f3badc96ea89cc39d49ee578ee29090cf7415
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md a93049785ab3618dbb12908317cf8fbcb52be7f7
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 806193b090377501f329cf485c9ce0bc41620932
-R d54fb083070a34998336342f4b9e822f
+P a996b69961d490f6c72028e18ad4caa1ccda4144
+R e45807cc702d40b50d0a37b984777c0f
 U drh
-Z 8d912fcfeae5a56b3dc36b855353549a
+Z bf0f1df770b4107fe69c685360ddb12f
