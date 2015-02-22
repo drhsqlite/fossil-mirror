@@ -829,6 +829,9 @@ void winfo_page(void){
   hyperlink_to_date(zDate, "</td></tr>");
   @ <tr><th>Original&nbsp;User:</th><td>
   hyperlink_to_user(pWiki->zUser, zDate, "</td></tr>");
+  if( pWiki->zMimetype ){
+    @ <tr><th>Mimetype:</th><td>%h(pWiki->zMimetype)</td></tr>
+  }
   if( pWiki->nParent>0 ){
     int i;
     @ <tr><th>Parent%s(pWiki->nParent==1?"":"s"):</th><td>
@@ -856,7 +859,7 @@ void winfo_page(void){
 
   @ <div class="section">Content</div>
   blob_init(&wiki, pWiki->zWiki, -1);
-  wiki_convert(&wiki, 0, 0);
+  wiki_render_by_mimetype(&wiki, pWiki->zMimetype);
   blob_reset(&wiki);
   manifest_destroy(pWiki);
   style_footer();
