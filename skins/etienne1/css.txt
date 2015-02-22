@@ -1,6 +1,7 @@
 body {
     margin: 0 auto;
-    width: 960px;
+    min-width: 800px;
+    padding: 0px 20px;
     font-family: sans-serif;
     font-size:14pt;
 }
@@ -165,14 +166,15 @@ table.report {
 }
 
 td.tktDspLabel {
-    max-width: 70px;
+    width: 70px;
     text-align: right;
+    overflow: hidden;
 }
 td.tktDspValue {
-    max-width: 800px;
     text-align: left;
     vertical-align: top;
-    background-color: #f5f9fc;
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
 }
 td.tktDspValue pre {
     white-space: pre-wrap;

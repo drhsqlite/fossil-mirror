@@ -755,7 +755,7 @@ int blob_read_from_channel(Blob *pBlob, FILE *in, int nToRead){
 **
 ** Any prior content of the blob is discarded, not freed.
 **
-** Return the number of bytes read. Calls fossil_fatal() error (i.e.
+** Return the number of bytes read. Calls fossil_fatal() on error (i.e.
 ** it exit()s and does not return).
 */
 int blob_read_from_file(Blob *pBlob, const char *zFilename){

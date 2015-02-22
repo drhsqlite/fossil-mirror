@@ -262,6 +262,9 @@ void win32_http_server(
   if( g.useLocalauth ){
     blob_appendf(&options, " --localauth");
   }
+  if( flags & HTTP_SERVER_REPOLIST ){
+    blob_appendf(&options, " --repolist");
+  }
   if( WSAStartup(MAKEWORD(1,1), &wd) ){
     fossil_fatal("unable to initialize winsock");
   }
