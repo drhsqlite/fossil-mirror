@@ -1,5 +1,5 @@
-C New\sentry\son\sthe\s"quotes.wiki"\spage.
-D 2015-02-23T18:52:56.998
+C Make\ssure\sthe\s'cTag'\sstructure\sfield\sis\sinitialized\sto\szero.
+D 2015-02-23T23:27:21.401
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -351,7 +351,7 @@ F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c 92403763ed6b734fedf133a17dcdf0ee21dad3ec
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
-F src/cgi.c 0179775048b77c68ac0fe70655c47c7fd1377921
+F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
 F src/checkin.c 2675bbb7c9aed6a29d80e92be88085fa34035b90
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 2e7c40dbdd68c5b21ef982d66bd24246f50a0110
-R 9ae67d6b1dff6b79452496e784d871d8
-U drh
-Z 5e5dc56162a858805538e9110620eb5f
+P a56f58299c04bdf2f27d15b27cdc21847eb67f51
+R 5b3e62f7f6a96b81f8ff9406d48ed43d
+U mistachkin
+Z bab41996575b44eb2c45bd9213254b8e
