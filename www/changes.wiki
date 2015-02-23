@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.31 (2015-02-??)</h2>
+<h2>Changes For Version 1.31 (2015-02-23)</h2>
   *  Change the auxiliary schema by adding columns MLINK.ISAUX and MLINK.PMID
      columns to the schema, to support better drawing of file change graphs.
      A [/help?cmd=rebuild|fossil rebuild] is recommended but is not required.
@@ -22,11 +22,15 @@
   *  Embedded html documents that begin with
      &lt;doc class="fossil-doc"&gt; are displayed with standard
      headers and footers added.
+  *  Allow &lt;div style='...'&gt; markup in [/wiki_rules|wiki].
   *  Renamed "Events" to "Technical Notes", while updating the technote
      display and control pages.  Add support for technotes as plain text
      or as Markdown.
   *  Added the [/md_rules] pages containing summary instructions on the
      Markdown format.
+  *  Added the --repolist and --nojail options to the various server commands
+     (ex: [/help?cmd=server|fossil server]).
+  *  Added the [/help?cmd=all|fossil all add] subcommand to "fossil all".
   *  Improvements to the /login page.  Some hyperlinks to pages that require
      "anonymous" privileges are displayed even if the current user is "nobody"
      but automatically redirect to /login.
