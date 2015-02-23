@@ -1,5 +1,5 @@
-C Fix\san\sincorrect\shyperlink\son\sthe\swebpage-ex.md\sdocumentation\spage.
-D 2015-02-22T11:42:25.918
+C Fix\sto\sthe\stimeline\sdisplay\swhen\susing\sall\sof\sthe\sr=,\sc=,\sand\sn=\squery\nparameters.\s\sAlso:\simprovements\sto\sthe\s(undocumented\sand\sunsupported)\n"showsql"\squery\sparameter\sused\sfor\sdebugging.
+D 2015-02-23T12:52:49.318
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -460,7 +460,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 38b740672c736cccaa53b35970bd4615384502ba
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c a27d7205623ecb6bdddf8164f3c365a963f3f168
+F src/timeline.c e0071a6cfcf4e0ce95aaf087b8f382b8c7b949bd
 F src/tkt.c 6023529b050cf5919b5b35b53874c90f883d2b8e
 F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P bfe726f64c17d49678c93d9ac4a36a35252b9f87
-R ab1aecd1321a4d213d7fcb7eff02b64c
+P 858dcc2c1955be395203ab67b196a05b2a7e2b38
+R e46ff5084e98c423c9a96492664befce
 U drh
-Z 3eae3007cc66814ed577a2f95f89e11c
+Z 75f9e4294aab3865fd24805e8e647d29
