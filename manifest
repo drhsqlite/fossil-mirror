@@ -1,5 +1,5 @@
-C Version\s1.31
-D 2015-02-23T16:27:34.181
+C New\sentry\son\sthe\s"quotes.wiki"\spage.
+D 2015-02-23T18:52:56.998
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -678,7 +678,7 @@ F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
 F www/quickstart.wiki 4f732070d5f25f22329dff8dc225442978906c77
-F www/quotes.wiki f5011126eb9abfd5d4f7e2eb483d3cbe73c1c0ef
+F www/quotes.wiki c0b0e6efba00ac77366ce575a8183027649769c7
 F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 23fd916be2143ac1026fcbea2fbea1373bf68876
 F www/selfcheck.wiki e970d3140085538c8bc7df1b0629c134ea8b8e05
@@ -698,10 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 513c0f2d8a731df4a587c348c35a33d672ed5422
-R 6710f2ff780e970a0ec0a6a9f053ecec
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-1.31 *
+P 2e7c40dbdd68c5b21ef982d66bd24246f50a0110
+R 9ae67d6b1dff6b79452496e784d871d8
 U drh
-Z 1591a72858c1964fd2d3f483609b1993
+Z 5e5dc56162a858805538e9110620eb5f
