@@ -4,6 +4,9 @@ body {
     padding: 0px 20px;
     font-family: sans-serif;
     font-size:14pt;
+    -moz-text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+    -mx-text-size-adjust: none;
 }
 
 a {

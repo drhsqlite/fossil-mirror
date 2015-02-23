@@ -5,6 +5,9 @@ body {
     font-family:verdana, arial, helvetica, "sans serif";
     color:#333;
     background-color:white;
+    -moz-text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+    -mx-text-size-adjust: none;
 }
 
 /* consistent colours */

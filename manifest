@@ -1,5 +1,5 @@
-C Fix\sto\sthe\stimeline\sdisplay\swhen\susing\sall\sof\sthe\sr=,\sc=,\sand\sn=\squery\nparameters.\s\sAlso:\simprovements\sto\sthe\s(undocumented\sand\sunsupported)\n"showsql"\squery\sparameter\sused\sfor\sdebugging.
-D 2015-02-23T12:52:49.318
+C Disable\sfont-inflation\son\sall\sskins.\n(Additional\sinformation\shttp://dbaron.org/log/20111126-font-inflation)
+D 2015-02-23T13:54:18.128
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -312,30 +312,30 @@ F fossil.1 2947f4d66ede5508f4fbe501e1e965df3b3a243d
 F setup/fossil.iss c9ad92c989eecde15b2b01cd69eadc74de7a8d33
 F setup/fossil.nsi 688d5a732b08facc529dceeb9fb1ce5c9aa050ab
 F skins/README.md 635d3230265fe31ceaa1c3c3b9b327e1fdc7c292
-F skins/black_and_white/css.txt c3adc27aeeba71bd280e681233158c7694e41a25
+F skins/black_and_white/css.txt 569f06d046846930594299a1e38714b50e0c74a7
 F skins/black_and_white/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/black_and_white/header.txt c74f3b8cfefae2e763d8f117dbd20e90c6dba33d
-F skins/default/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
+F skins/default/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
 F skins/default/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
 F skins/default/header.txt e1f837ff2d7bbe1cda8ca6847875491f6b5b269a
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
-F skins/eagle/css.txt 9bf7236cac127b6ad2dad47b55785f9239a3676a
+F skins/eagle/css.txt c327bfceff7d946b1be859d87338bd2d3c386eb3
 F skins/eagle/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
 F skins/eagle/header.txt f38e32ea185558d7be359afab65c335b29cb1782
-F skins/enhanced1/css.txt 6c2e13c0aceea12b28444ecdb61d6e13835db2ea
+F skins/enhanced1/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
 F skins/enhanced1/footer.txt 12d9581af14a2980778c00d83756db293b363c83
 F skins/enhanced1/header.txt 1fd3a93e575374bd1ddd7c8c41372830055368b0
 F skins/etienne1/README.md 46b87d9fe01a16616401a87f2107b6685f279c77
-F skins/etienne1/css.txt 752664cc8c2e30278216a15f17dac0022f286635
+F skins/etienne1/css.txt 3f861eb75889c6dd18688fe002228cf1688a3143
 F skins/etienne1/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
 F skins/etienne1/header.txt a2e75e85ebf23af7b4bbbb4a6f35cb92aaec65cd
-F skins/khaki/css.txt 1e2129df1cd0a0e15f833866c11ea796d19fbc7b
+F skins/khaki/css.txt 2a210e3703806e09e04a739eb9877a4b953528e7
 F skins/khaki/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/khaki/header.txt 609fe1dd9dd3afdfe2777ce207a2012cb36c3f64
-F skins/plain_gray/css.txt bd18a142f4ab944ae5328746c1e4d356818168ef
+F skins/plain_gray/css.txt 56cdc6074767d5b90116b2e39074a40ac535ba93
 F skins/plain_gray/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/plain_gray/header.txt dc58123dc4ae1714dea231d69f3dcf25308fe83a
-F skins/rounded1/css.txt d29684c130b326b1e7c15c3b40022fa707aebcc2
+F skins/rounded1/css.txt cf2b6d826f72710f06de8e4ba9c11954d545f884
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 858dcc2c1955be395203ab67b196a05b2a7e2b38
-R e46ff5084e98c423c9a96492664befce
+P 4005828845cd4017ba1c3e07d779ec7ab82277a0
+R f58f22e5947326df62de545e232aa22f
 U drh
-Z 75f9e4294aab3865fd24805e8e647d29
+Z 39b0d5a385dd2172f0ede07295a99db9
