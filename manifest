@@ -1,5 +1,5 @@
-C Make\ssure\sthe\s'cTag'\sstructure\sfield\sis\sinitialized\sto\szero.
-D 2015-02-23T23:27:21.401
+C Execute\s'optional'\sSQL\sstatements\sin\stheir\soriginal\sorder.
+D 2015-02-23T23:40:53.764
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -364,7 +364,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 7cf13db1c275c4e4c42c3fd0196ca6b8a3f25e85
+F src/db.c b307d469854bb43b4b797c9e27ed2bb274f9e867
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c 0f5849fd90b779bae76498176e438797f063695b
@@ -698,7 +698,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P a56f58299c04bdf2f27d15b27cdc21847eb67f51
-R 5b3e62f7f6a96b81f8ff9406d48ed43d
+P 1a2aa2b37ecc8edb903467a3c1f5032ec1845320
+R b2ffbf1f901445e11090a1db9977f54b
+T *branch * optSql
+T *sym-optSql *
+T -sym-trunk *
 U mistachkin
-Z bab41996575b44eb2c45bd9213254b8e
+Z 98231511fe438032d8855b863c4d7553

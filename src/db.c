@@ -161,10 +161,12 @@ void db_end_transaction(int rollbackFlag){
   if( db.nBegin==0 ){
     int i;
     if( db.doRollback==0 && db.nPriorChanges<sqlite3_total_changes(g.db) ){
+      i = 0;
       while( db.nBeforeCommit ){
         db.nBeforeCommit--;
-        sqlite3_exec(g.db, db.azBeforeCommit[db.nBeforeCommit], 0, 0, 0);
-        sqlite3_free(db.azBeforeCommit[db.nBeforeCommit]);
+        sqlite3_exec(g.db, db.azBeforeCommit[i], 0, 0, 0);
+        sqlite3_free(db.azBeforeCommit[i]);
+        i++;
       }
       leaf_do_pending_checks();
     }
