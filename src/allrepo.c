@@ -107,15 +107,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **               line options supported by the extra command itself, if any
 **               are present, are passed along verbatim.
 **
-**    ignore     Arguments are repositories that should be ignored by
-**               subsequent clean, extras, list, pull, push, rebuild, and
-**               sync operations.  The -c|--ckout option causes the listed
-**               local checkouts to be ignored instead.
-**
 **    info       Run the "info" command on all repositories.
-**
-**    list | ls  Display the location of all repositories.  The -c|--ckout
-**               option causes all local checkouts to be listed instead.
 **
 **    pull       Run a "pull" operation on all repositories.  Only the
 **               --verbose option is supported.
@@ -135,6 +127,21 @@ static void collect_argv(Blob *pExtra, int iStart){
 **    set        repositories.  These command are particularly useful in
 **    unset      conjunction with the "max-loadavg" setting which cannot
 **               otherwise be set globally.
+**
+** In addition, the following maintenance operations are supported:
+**
+**    add        Add all the repositories named to the set of repositories
+**               tracked by Fossil.  Normally Fossil is able to keep up with
+**               this list by itself, but sometime it can benefit from this
+**               hint if you rename repositories.
+**
+**    ignore     Arguments are repositories that should be ignored by
+**               subsequent clean, extras, list, pull, push, rebuild, and
+**               sync operations.  The -c|--ckout option causes the listed
+**               local checkouts to be ignored instead.
+**
+**    list | ls  Display the location of all repositories.  The -c|--ckout
+**               option causes all local checkouts to be listed instead.
 **
 ** Repositories are automatically added to the set of known repositories
 ** when one of the following commands are run against the repository:
@@ -231,11 +238,17 @@ void all_cmd(void){
     collect_argument(&extra, "analyze",0);
     collect_argument(&extra, "wal",0);
     collect_argument(&extra, "stats",0);
+    collect_argument(&extra, "index",0);
+    collect_argument(&extra, "noindex",0);
+    collect_argument(&extra, "ifneeded", 0);
   }else if( strncmp(zCmd, "setting", n)==0 ){
     zCmd = "setting -R";
     collect_argv(&extra, 3);
   }else if( strncmp(zCmd, "unset", n)==0 ){
     zCmd = "unset -R";
+    collect_argv(&extra, 3);
+  }else if( strncmp(zCmd, "fts-config", n)==0 ){
+    zCmd = "fts-config -R";
     collect_argv(&extra, 3);
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
@@ -255,22 +268,51 @@ void all_cmd(void){
     quiet = 1;
   }else if( strncmp(zCmd, "ignore", n)==0 ){
     int j;
+    Blob fn = BLOB_INITIALIZER;
+    Blob sql = BLOB_INITIALIZER;
     useCheckouts = find_option("ckout","c",0)!=0;
     verify_all_options();
     db_begin_transaction();
-    for(j=3; j<g.argc; j++){
-      Blob sql;
-      blob_zero(&sql);
+    for(j=3; j<g.argc; j++, blob_reset(&sql), blob_reset(&fn)){
+      file_canonical_name(g.argv[j], &fn, 0);
       blob_append_sql(&sql, 
          "DELETE FROM global_config WHERE name GLOB '%s:%q'",
-         useCheckouts?"ckout":"repo", g.argv[j]
+         useCheckouts?"ckout":"repo", blob_str(&fn)
       );
       if( dryRunFlag ){
         fossil_print("%s\n", blob_sql_text(&sql));
       }else{
         db_multi_exec("%s", blob_sql_text(&sql));
       }
-      blob_reset(&sql);
+    }
+    db_end_transaction(0);
+    return;
+  }else if( strncmp(zCmd, "add", n)==0 ){
+    int j;
+    Blob fn = BLOB_INITIALIZER;
+    Blob sql = BLOB_INITIALIZER;
+    verify_all_options();
+    db_begin_transaction();
+    for(j=3; j<g.argc; j++, blob_reset(&fn), blob_reset(&sql)){
+      sqlite3 *db;
+      int rc;
+      const char *z;
+      file_canonical_name(g.argv[j], &fn, 0);
+      z = blob_str(&fn);
+      if( !file_isfile(z) ) continue;
+      rc = sqlite3_open(z, &db);
+      if( rc!=SQLITE_OK ){ sqlite3_close(db); continue; }
+      rc = sqlite3_exec(db, "SELECT rcvid FROM blob, delta LIMIT 1", 0, 0, 0);
+      sqlite3_close(db);
+      if( rc!=SQLITE_OK ) continue;
+      blob_append_sql(&sql,
+         "INSERT INTO global_config(name,value)VALUES('repo:%q',1)", z
+      );
+      if( dryRunFlag ){
+        fossil_print("%s\n", blob_sql_text(&sql));
+      }else{
+        db_multi_exec("%s", blob_sql_text(&sql));
+      }
     }
     db_end_transaction(0);
     return;

@@ -110,7 +110,7 @@ static void sqlcmd_decompress(
 }
 
 /*
-** Add the content(), compress(), and decompress() SQL functions to 
+** Add the content(), compress(), and decompress() SQL functions to
 ** database connection db.
 */
 int add_content_sql_commands(sqlite3 *db){
@@ -136,6 +136,7 @@ static int sqlcmd_autoinit(
   add_content_sql_commands(db);
   db_add_aux_functions(db);
   re_add_sql_func(db);
+  search_sql_setup(db);
   g.zMainDbType = "repository";
   foci_register(db);
   g.repositoryOpen = 1;
@@ -172,6 +173,8 @@ static int sqlcmd_autoinit(
 **
 **    symbolic_name_to_rid(X)   Return a the BLOB.RID corresponding to symbolic
 **                              name X.
+**
+**    now()                     Return the number of seconds since 1970.
 **
 **    REGEXP                    The REGEXP operator works, unlike in
 **                              standard SQLite.

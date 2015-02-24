@@ -46,7 +46,7 @@ char *glob_expr(const char *zVal, const char *zGlobList){
   int i;
   int cTerm;
 
-  if( zGlobList==0 || zGlobList[0]==0 ) return "0";
+  if( zGlobList==0 || zGlobList[0]==0 ) return fossil_strdup("0");
   blob_zero(&expr);
   while( zGlobList[0] ){
     while( fossil_isspace(zGlobList[0]) || zGlobList[0]==',' ){
@@ -75,7 +75,7 @@ char *glob_expr(const char *zVal, const char *zGlobList){
     blob_appendf(&expr, ")");
     return blob_str(&expr);
   }else{
-    return "0";
+    return fossil_strdup("0");
   }
 }
 

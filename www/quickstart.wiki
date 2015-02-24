@@ -389,7 +389,7 @@ and painlessly.</p>
 
     <p>A [/help | complete list of commands] is available, as is the
     [./hints.wiki|helpful hints] document.  See the
-    [./permutedindex.wiki#pindex|permuted index] for additional
+    [./permutedindex.html#pindex|permuted index] for additional
     documentation.
 
     <p>Explore and have fun!</p>

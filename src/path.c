@@ -545,7 +545,7 @@ void test_rename_list_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("List Of File Name Changes");
   @ <h3>NB: Experimental Page</h3>
   @ <table border="1" width="100%%">
@@ -563,7 +563,7 @@ void test_rename_list_page(void){
     @ <td>%z(href("%R/timeline?c=%t",zDate))%s(zDate)</a></td>
     @ <td>%z(href("%R/finfo?name=%t",zOld))%h(zOld)</a></td>
     @ <td>%z(href("%R/finfo?name=%t",zNew))%h(zNew)</a></td>
-    @ <td>%z(href("%R/info/%s",zUuid))%S(zUuid)</a></td></tr>
+    @ <td>%z(href("%R/info/%!S",zUuid))%S(zUuid)</a></td></tr>
   }
   @ </table>
   db_finalize(&q);

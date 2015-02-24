@@ -146,7 +146,10 @@ void modreq_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.RdWiki && !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.RdWiki && !g.perm.RdTkt ){
+    login_needed(g.anon.RdWiki && g.anon.RdTkt);
+    return;
+  }
   style_header("Pending Moderation Requests");
   @ <h2>All Pending Moderation Requests</h2>
   if( moderation_table_exists() ){
@@ -156,7 +159,7 @@ void modreq_page(void){
         " ORDER BY event.mtime DESC"
     );
     db_prepare(&q, "%s", blob_sql_text(&sql));
-    www_print_timeline(&q, 0, 0, 0, 0);
+    www_print_timeline(&q, 0, 0, 0, 0, 0);
     db_finalize(&q);
   }
   style_footer();

@@ -157,7 +157,7 @@ static int save_httpauth_prompt(void){
 }
 
 /*
-** Get the HTTP Basic Authorization credentials from the user 
+** Get the HTTP Basic Authorization credentials from the user
 ** when 401 is received.
 */
 char *prompt_for_httpauth_creds(void){
@@ -268,7 +268,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   blob_reset(&hdr);
   blob_reset(&payload);
   transport_flip(&g.url);
-  
+
   /*
   ** Read and interpret the server reply
   */
@@ -335,7 +335,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
         fossil_warning("malformed redirect: %s", zLine);
         goto write_err;
       }
-      j = strlen(zLine) - 1; 
+      j = strlen(zLine) - 1;
       while( j>4 && fossil_strcmp(&zLine[j-4],"/xfer")==0 ){
          j -= 4;
          zLine[j] = 0;
@@ -351,7 +351,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
       if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){
         isCompressed = 0;
-      }else if( fossil_strnicmp(&zLine[14], 
+      }else if( fossil_strnicmp(&zLine[14],
                           "application/x-fossil-uncompressed", -1)==0 ){
         isCompressed = 0;
       }else if( fossil_strnicmp(&zLine[14], "application/x-fossil", -1)!=0 ){
@@ -413,10 +413,10 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   }
   return 0;
 
-  /* 
+  /*
   ** Jump to here if an error is seen.
   */
 write_err:
   transport_close(&g.url);
-  return 1;  
+  return 1;
 }
