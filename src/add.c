@@ -331,7 +331,6 @@ void add_cmd(void){
 
   add_files_in_sfile(vid);
   db_end_transaction(0);
-
 }
 
 static void init_files_to_remove(){
