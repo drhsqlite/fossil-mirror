@@ -1,5 +1,5 @@
-C Build\sfix
-D 2015-02-24T05:50:00.000
+C Let\s-x\simply\s--emptydirs\sand\s--dotfiles
+D 2015-02-24T06:40:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob c5110d1807c498749c0820fe1013f2bd25649541
@@ -351,7 +351,7 @@ F src/bundle.c b4f92fc96631a5c407d5839079bc0cb520dd0470
 F src/cache.c 92403763ed6b734fedf133a17dcdf0ee21dad3ec
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c e61f891caf8580c21e53331207b295f0dc35563a
+F src/checkin.c 35ec7e4c8c41fefc862209ca9e2205ef48bb9c26
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c cca4f31e16d619ee841bfae5919fdd529523f62f
@@ -697,7 +697,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c4750a1e850b2312dc03fcd04c4cc3f3d9c1ce32
-R 89877e9e54220811bb74b3b1b30d5f20
+P 4f4bb9fd0256849a9e6756abaf51365ccd3859ec
+R 90123dc794bfba3595d0d8c2b50452c3
 U jan.nijtmans
-Z 0f9ee8fd3812ad0589c84ab98acb1f61
+Z c4810fdaabedb44d8b2affdad7a55780
