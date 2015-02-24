@@ -1,5 +1,5 @@
-C Execute\s'optional'\sSQL\sstatements\sin\stheir\soriginal\sorder.
-D 2015-02-24T00:36:56.548
+C Minor\stweaks\sto\scoding\sstyle\sand\scomments.\s\sNo\sfunctional\schanges.
+D 2015-02-24T02:40:34.609
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -339,7 +339,7 @@ F skins/rounded1/css.txt cf2b6d826f72710f06de8e4ba9c11954d545f884
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 81baa38e7c83048bf84192d0b810da076f781259
+F src/add.c 018ef19eb7fd11df63e1d2b49843f104325a674f
 F src/allrepo.c d44cc238625534b90238714b4607c7cdd04f3a59
 F src/attach.c b7c3b237a69a7b91ce9ec40ff075731f7298979b
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -698,8 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 1a2aa2b37ecc8edb903467a3c1f5032ec1845320 24d7ebe12afa2f72f1d258389e1b3a5511776e46
-R b2ffbf1f901445e11090a1db9977f54b
-T +closed 24d7ebe12afa2f72f1d258389e1b3a5511776e46
+P 9491f1dd54e2ff7c432845bb2293b3bbd736141d
+R 260debb9e29155418bf13052a000518d
 U mistachkin
-Z b858e299fdc03b9e95a2fdaea834436b
+Z 9fcafa8d8c84ffd38f2ca5421222b320

@@ -239,12 +239,12 @@ static int add_files_in_sfile(int vid){
 **
 ** Options:
 **
-**    --case-sensitive <BOOL> override case-sensitive setting
+**    --case-sensitive <BOOL> Override the case-sensitive setting.
 **    --dotfiles              include files beginning with a dot (".")
 **    -f|--force              Add files without prompting
-**    --ignore <CSG>          ignore files matching patterns from the
+**    --ignore <CSG>          Ignore files matching patterns from the
 **                            comma separated list of glob patterns.
-**    --clean <CSG>           also ignore files matching patterns from
+**    --clean <CSG>           Also ignore files matching patterns from
 **                            the comma separated list of glob patterns.
 **
 ** See also: addremove, rm
@@ -347,7 +347,7 @@ void add_cmd(void){
 ** changes to the named files will not be versioned.
 **
 ** Options:
-**   --case-sensitive <BOOL> override case-sensitive setting
+**   --case-sensitive <BOOL> Override the case-sensitive setting.
 **
 ** See also: addremove, add
 */
@@ -492,18 +492,19 @@ const char *filename_collation(void){
 ** --clean option with the "clean-glob" setting. See the documentation
 ** on the "settings" command for further information.
 **
-** The -n|--dry-run option shows what would happen without actually doing anything.
+** The -n|--dry-run option shows what would happen without actually doing
+** anything.
 **
 ** This command can be used to track third party software.
 **
 ** Options:
-**   --case-sensitive <BOOL> override case-sensitive setting
-**   --dotfiles              include files beginning with a dot (".")
-**   --ignore <CSG>          ignore files matching patterns from the
+**   --case-sensitive <BOOL> Override the case-sensitive setting.
+**   --dotfiles              Include files beginning with a dot (".")
+**   --ignore <CSG>          Ignore files matching patterns from the
 **                           comma separated list of glob patterns.
-**   --clean <CSG>           also ignore files matching patterns from
+**   --clean <CSG>           Also ignore files matching patterns from
 **                           the comma separated list of glob patterns.
-**   -n|--dry-run            If given, display instead of run actions
+**   -n|--dry-run            If given, display instead of run actions.
 **
 ** See also: add, rm
 */
@@ -589,7 +590,11 @@ void addremove_cmd(void){
 **
 ** The original name of the file is zOrig.  The new filename is zNew.
 */
-static void mv_one_file(int vid, const char *zOrig, const char *zNew){
+static void mv_one_file(
+  int vid,
+  const char *zOrig,
+  const char *zNew
+){
   int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q %s",
                          zNew, filename_collation());
   if( x>=0 ){
@@ -623,7 +628,7 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 ** can be made at the next commit/checkin.
 **
 ** Options:
-**   --case-sensitive <BOOL> override case-sensitive setting
+**   --case-sensitive <BOOL> Override the case-sensitive setting.
 **
 ** See also: changes, status
 */
