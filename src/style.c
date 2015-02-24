@@ -1266,7 +1266,6 @@ const struct strctCssDefaults {
   },
   { ".fileage td:nth-child(3)",
     "fileage third column (the check-in comment)",
-    @ word-break: break-all;
     @ word-wrap: break-word;
     @ max-width: 50%;
   },

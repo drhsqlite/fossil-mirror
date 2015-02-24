@@ -764,7 +764,7 @@ struct ParsedMarkup {
 ** The content of z[] might be modified by converting characters
 ** to lowercase and by inserting some "\000" characters.
 */
-static void parseMarkup(ParsedMarkup *p, char *z){
+static int parseMarkup(ParsedMarkup *p, char *z){
   int i, j, c;
   int iACode;
   char *zValue;
@@ -796,7 +796,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
     p->aAttr[0].cTerm = c = z[i];
     z[i++] = 0;
     p->nAttr = 1;
-    if( c=='>' ) return;
+    if( c=='>' ) return 0;
   }
   while( fossil_isspace(z[i]) ){ i++; }
   while( c!='>' && p->nAttr<8 && fossil_isalpha(z[i]) ){
@@ -843,6 +843,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
     while( fossil_isspace(z[i]) ){ i++; }
     if( z[i]=='>' || (z[i]=='/' && z[i+1]=='>') ) break;
   }
+  return seen;
 }
 
 /*
@@ -962,7 +963,7 @@ static void popStack(Renderer *p){
     int iCode;
     p->nStack--;
     iCode = p->aStack[p->nStack].iCode;
-    if( iCode!=MARKUP_DIV && p->pOut ){
+    if( (iCode!=MARKUP_DIV || p->aStack[p->nStack].zId==0) && p->pOut ){
       blob_appendf(p->pOut, "</%s>", aMarkup[iCode].zName);
     }
   }
@@ -1482,7 +1483,7 @@ static void wiki_render(Renderer *p, char *z){
       case TOKEN_MARKUP: {
         const char *zId;
         int iDiv;
-        parseMarkup(&markup, z);
+        int mAttr = parseMarkup(&markup, z);
 
         /* Convert <title> to <h1 align='center'> */
         if( markup.iCode==MARKUP_TITLE && !p->inVerbatim ){
@@ -1569,7 +1570,7 @@ static void wiki_render(Renderer *p, char *z){
 
         /* Push <div> markup onto the stack together with the id=ID attribute.
         */
-        if( markup.iCode==MARKUP_DIV ){
+        if( markup.iCode==MARKUP_DIV && (mAttr & ATTR_ID)!=0 ){
           pushStackWithId(p, markup.iCode, markupId(&markup),
                           (p->state & ALLOW_WIKI)!=0);
         }else

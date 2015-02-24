@@ -452,7 +452,8 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_OMIT_DEPRECATED \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
-                 -DSQLITE_ENABLE_FTS4
+                 -DSQLITE_ENABLE_FTS4 \
+                 -DSQLITE_ENABLE_FTS3_PARENTHESIS
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -Dmain=sqlite3_shell \
@@ -493,7 +494,7 @@ EXTRAOBJ = \
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(OBJ) $(EXTRAOBJ)
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
-	$(TCC) $(CFLAGS) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
+	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"

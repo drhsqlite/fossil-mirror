@@ -1200,6 +1200,7 @@ void page_timeline(void){
    && db_int(0,"SELECT count(*) FROM tagxref WHERE tagid=%d",tagid)<=nEntry
   ){
     nEntry = -1;
+    zCirca = 0;
   }
   if( zType[0]=='a' ){
     tmFlags |= TIMELINE_BRIEF | TIMELINE_GRAPH;
@@ -1252,7 +1253,7 @@ void page_timeline(void){
   if( (tmFlags & TIMELINE_UNHIDE)==0 ){
     blob_append_sql(&sql,
       " AND NOT EXISTS(SELECT 1 FROM tagxref"
-      "     WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
+      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",
       TAG_HIDDEN
     );
   }
@@ -1377,8 +1378,8 @@ void page_timeline(void){
     }
     if( tagid>0 ){
       blob_append_sql(&sql,
-        "AND (EXISTS(SELECT 1 FROM tagxref"
-                    " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)", tagid);
+        " AND (EXISTS(SELECT 1 FROM tagxref"
+            " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n", tagid);
 
       if( zBrName ){
         /* The next two blob_appendf() calls add SQL that causes checkins that
@@ -1389,26 +1390,26 @@ void page_timeline(void){
         */
         blob_append_sql(&sql,
           " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=cid"
-                     " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
+                     " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)\n",
            tagid
         );
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
           blob_append_sql(&sql,
             " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
-                       " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
+                       " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)\n",
             TAG_HIDDEN
           );
         }
         if( P("mionly")==0 ){
           blob_append_sql(&sql,
             " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=pid"
-                       " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+                       " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)\n",
             tagid
           );
           if( (tmFlags & TIMELINE_UNHIDE)==0 ){
             blob_append_sql(&sql,
               " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
-              " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+              " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)\n",
               TAG_HIDDEN
             );
           }
@@ -1498,16 +1499,20 @@ void page_timeline(void){
       Blob sql2;
       blob_init(&sql2, blob_sql_text(&sql), -1);
       blob_append_sql(&sql2,
-          " AND event.mtime<=%f ORDER BY event.mtime DESC LIMIT %d",
-          rCirca, (nEntry+1)/2
-      );
+          " AND event.mtime<=%f ORDER BY event.mtime DESC", rCirca);
+      if( nEntry>0 ){
+        blob_append_sql(&sql2," LIMIT %d", (nEntry+1)/2);
+        nEntry -= (nEntry+1)/2;
+      }
+      if( PB("showsql") ){
+         @ <pre>%h(blob_sql_text(&sql2))</pre>
+      }
       db_multi_exec("%s", blob_sql_text(&sql2));
       blob_reset(&sql2);
       blob_append_sql(&sql,
           " AND event.mtime>=%f ORDER BY event.mtime ASC",
           rCirca
       );
-      nEntry -= (nEntry+1)/2;
       if( zMark==0 ) zMark = zCirca;
     }else{
       blob_append_sql(&sql, " ORDER BY event.mtime DESC");
@@ -1585,7 +1590,7 @@ void page_timeline(void){
     }
   }
   if( PB("showsql") ){
-    @ <blockquote>%h(blob_sql_text(&sql))</blockquote>
+    @ <pre>%h(blob_sql_text(&sql))</pre>
   }
   if( search_restrict(SRCH_CKIN)!=0 ){
     style_submenu_element("Search", 0, "%R/search?y=c");
@@ -1804,7 +1809,7 @@ static int isIsoDate(const char *z){
 **     descendants | children
 **     ancestors | parents
 **
-** The BASELINE can be any unique prefix of 4 characters or more.
+** The CHECKIN can be any unique prefix of 4 characters or more.
 ** The DATETIME should be in the ISO8601 format.  For
 ** examples: "2007-08-18 07:21:21".  You can also say "current"
 ** for the current version or "now" for the current time.
@@ -1952,7 +1957,7 @@ void timeline_cmd(void){
   if( mode==0 ) mode = 1;
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(), -1);
-  blob_append_sql(&sql, "  AND event.mtime %s %s",
+  blob_append_sql(&sql, "\n  AND event.mtime %s %s",
      (mode==1 || mode==4) ? "<=" : ">=",
      zDate /*safe-for-%s*/
   );
