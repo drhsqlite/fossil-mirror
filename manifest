@@ -1,5 +1,5 @@
-C Merge\scleanX
-D 2015-02-24T04:40:00.000
+C Build\sfix
+D 2015-02-24T05:50:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
 F .fossil-settings/ignore-glob c5110d1807c498749c0820fe1013f2bd25649541
@@ -407,7 +407,7 @@ F src/leaf.c a8880fbcf409f34c0ea9566f8b548a96496856a7
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 2abcbfe5306a237232816ebccbaf0b871e65d267
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c a4a666201e29efd40910af0380f0cf4388167966
+F src/main.c 1ccce94695534ef3805970d626c1960c4756c9e5
 F src/main.mk 0fa40118d5255607c5a8b9e87e843e986d1e91ed
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -672,7 +672,7 @@ F www/mkdownload.tcl 0fb977f0644549fa063e4bfedd2bdf062abf97e8
 F www/mkindex.tcl c9e3664d723eb10b2a7b5d1255f933a003eb1eec
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
-F www/permutedindex.html a0d9ee48362b87be7a99dbb21a014497f6df9f91 w www/permutedindex.wiki
+F www/permutedindex.html a0d9ee48362b87be7a99dbb21a014497f6df9f91
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
@@ -697,7 +697,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ac1fc1c675cf65dbe90fe709beeb1a1581bbe7f8 1cbe4fd9e10e2681a456c1e3d50234045f3f2479
-R 786fd5ab438e8842c37f327dfa7ae745
+P c4750a1e850b2312dc03fcd04c4cc3f3d9c1ce32
+R 89877e9e54220811bb74b3b1b30d5f20
 U jan.nijtmans
-Z 4ca004f43d124ed96a7bd1bdfce50720
+Z 0f9ee8fd3812ad0589c84ab98acb1f61
