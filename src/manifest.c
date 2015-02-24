@@ -1189,12 +1189,14 @@ int manifest_file_mperm(ManifestFile *pFile){
 ** the filename table if it is not there already.
 */
 static void add_one_mlink(
+  int pmid,                 /* The parent manifest */
+  const char *zFromUuid,    /* UUID for content in parent */
   int mid,                  /* The record ID of the manifest */
-  const char *zFromUuid,    /* UUID for the mlink.pid. "" to add file */
-  const char *zToUuid,      /* UUID for the mlink.fid. "" to delete */
+  const char *zToUuid,      /* UUID for content in child */
   const char *zFilename,    /* Filename */
   const char *zPrior,       /* Previous filename. NULL if unchanged */
   int isPublic,             /* True if mid is not a private manifest */
+  int isPrimary,            /* pmid is the primary parent of mid */
   int mperm                 /* 1: exec, 2: symlink */
 ){
   int fnid, pfnid, pid, fid;
@@ -1218,15 +1220,17 @@ static void add_one_mlink(
     if( isPublic ) content_make_public(fid);
   }
   db_static_prepare(&s1,
-    "INSERT INTO mlink(mid,pid,fid,fnid,pfnid,mperm)"
-    "VALUES(:m,:p,:f,:n,:pfn,:mp)"
+    "INSERT INTO mlink(mid,fid,pmid,pid,fnid,pfnid,mperm,isaux)"
+    "VALUES(:m,:f,:pm,:p,:n,:pfn,:mp,:isaux)"
   );
   db_bind_int(&s1, ":m", mid);
-  db_bind_int(&s1, ":p", pid);
   db_bind_int(&s1, ":f", fid);
+  db_bind_int(&s1, ":pm", pmid);
+  db_bind_int(&s1, ":p", pid);
   db_bind_int(&s1, ":n", fnid);
   db_bind_int(&s1, ":pfn", pfnid);
   db_bind_int(&s1, ":mp", mperm);
+  db_bind_int(&s1, ":isaux", isPrimary==0);
   db_exec(&s1);
   if( pid && fid ){
     content_deltify(pid, fid, 0);
@@ -1344,7 +1348,11 @@ ManifestFile *manifest_file_find(Manifest *p, const char *zName){
 ** Added files have mlink.pid=0.
 ** Edited files have both mlink.pid!=0 and mlink.fid!=0
 */
-static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
+static void add_mlink(
+  int pmid, Manifest *pParent,    /* Parent check-in */
+  int mid,  Manifest *pChild,     /* The child check-in */
+  int isPrim                      /* TRUE if pmid is the primary parent of mid */
+){
   Blob otherContent;
   int otherRid;
   int i, rc;
@@ -1353,11 +1361,12 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   static Stmt eq;
   int isPublic;                /* True if pChild is non-private */
 
-  /* If mlink table entires are already set for cid, then abort early
-  ** doing no work.
+  /* If mlink table entires are already exist for the pmid-to-mid transition,
+  ** then abort early doing no work.
   */
-  db_static_prepare(&eq, "SELECT 1 FROM mlink WHERE mid=:mid");
-  db_bind_int(&eq, ":mid", cid);
+  db_static_prepare(&eq, "SELECT 1 FROM mlink WHERE mid=:mid AND pmid=:pmid");
+  db_bind_int(&eq, ":mid", mid);
+  db_bind_int(&eq, ":pmid", pmid);
   rc = db_step(&eq);
   db_reset(&eq);
   if( rc==SQLITE_ROW ) return;
@@ -1368,10 +1377,10 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   assert( pParent==0 || pChild==0 );
   if( pParent==0 ){
     ppOther = &pParent;
-    otherRid = pid;
+    otherRid = pmid;
   }else{
     ppOther = &pChild;
-    otherRid = cid;
+    otherRid = mid;
   }
   if( (*ppOther = manifest_cache_find(otherRid))==0 ){
     content_get(otherRid, &otherContent);
@@ -1383,16 +1392,16 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     manifest_destroy(*ppOther);
     return;
   }
-  isPublic = !content_is_private(cid);
+  isPublic = !content_is_private(mid);
 
   /* Try to make the parent manifest a delta from the child, if that
   ** is an appropriate thing to do.  For a new baseline, make the
   ** previous baseline a delta from the current baseline.
   */
   if( (pParent->zBaseline==0)==(pChild->zBaseline==0) ){
-    content_deltify(pid, cid, 0);
+    content_deltify(pmid, mid, 0);
   }else if( pChild->zBaseline==0 && pParent->zBaseline!=0 ){
-    content_deltify(pParent->pBaseline->rid, cid, 0);
+    content_deltify(pParent->pBaseline->rid, mid, 0);
   }
 
   /* Remember all children less than a few seconds younger than their parent,
@@ -1416,27 +1425,28 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
        pParentFile = manifest_file_seek(pParent, pChildFile->zPrior, 0);
        if( pParentFile ){
          /* File with name change */
-         add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
-                       pChildFile->zName, pChildFile->zPrior, isPublic, mperm);
+         add_one_mlink(pmid, pParentFile->zUuid, mid, pChildFile->zUuid,
+                       pChildFile->zName, pChildFile->zPrior,
+                       isPublic, isPrim, mperm);
        }else{
          /* File name changed, but the old name is not found in the parent!
          ** Treat this like a new file. */
-         add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
-                       isPublic, mperm);
+         add_one_mlink(pmid, 0, mid, pChildFile->zUuid, pChildFile->zName, 0,
+                       isPublic, isPrim, mperm);
        }
     }else{
        pParentFile = manifest_file_seek(pParent, pChildFile->zName, 0);
        if( pParentFile==0 ){
          if( pChildFile->zUuid ){
            /* A new file */
-           add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
-                         isPublic, mperm);
+           add_one_mlink(pmid, 0, mid, pChildFile->zUuid, pChildFile->zName, 0,
+                         isPublic, isPrim, mperm);
          }
        }else if( fossil_strcmp(pChildFile->zUuid, pParentFile->zUuid)!=0
               || manifest_file_mperm(pParentFile)!=mperm ){
          /* Changes in file content or permissions */
-         add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
-                       pChildFile->zName, 0, isPublic, mperm);
+         add_one_mlink(pmid, pParentFile->zUuid, mid, pChildFile->zUuid,
+                       pChildFile->zName, 0, isPublic, isPrim, mperm);
        }
     }
   }
@@ -1452,8 +1462,8 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
           /* The child file reverts to baseline.  Show this as a change */
           pChildFile = manifest_file_seek(pChild, pParentFile->zName, 0);
           if( pChildFile ){
-            add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
-                          pChildFile->zName, 0, isPublic,
+            add_one_mlink(pmid, pParentFile->zUuid, mid, pChildFile->zUuid,
+                          pChildFile->zName, 0, isPublic, isPrim,
                           manifest_file_mperm(pChildFile));
           }
         }
@@ -1462,8 +1472,8 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
         if( pChildFile ){
           /* File resurrected in the child after having been deleted in
           ** the parent.  Show this as an added file. */
-          add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
-                        isPublic, manifest_file_mperm(pChildFile));
+          add_one_mlink(pmid, 0, mid, pChildFile->zUuid, pChildFile->zName, 0,
+                        isPublic, isPrim, manifest_file_mperm(pChildFile));
         }
       }
     }
@@ -1474,8 +1484,8 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     while( (pParentFile = manifest_file_next(pParent,0))!=0 ){
       pChildFile = manifest_file_seek(pChild, pParentFile->zName, 0);
       if( pChildFile==0 && pParentFile->zUuid!=0 ){
-        add_one_mlink(cid, pParentFile->zUuid, 0, pParentFile->zName, 0,
-                      isPublic, 0);
+        add_one_mlink(pmid, pParentFile->zUuid, mid, 0, pParentFile->zName, 0,
+                      isPublic, isPrim, 0);
       }
     }
   }
@@ -1613,36 +1623,36 @@ void manifest_ticket_event(
       }
     }
     if( zNewStatus ){
-      blob_appendf(&comment, "%h ticket [%s|%S]: <i>%h</i>",
+      blob_appendf(&comment, "%h ticket [%!S|%S]: <i>%h</i>",
          zNewStatus, pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle
       );
       if( pManifest->nField>1 ){
         blob_appendf(&comment, " plus %d other change%s",
           pManifest->nField-1, pManifest->nField==2 ? "" : "s");
       }
-      blob_appendf(&brief, "%h ticket [%s|%S].",
+      blob_appendf(&brief, "%h ticket [%!S|%S].",
                    zNewStatus, pManifest->zTicketUuid, pManifest->zTicketUuid);
     }else{
       zNewStatus = db_text("unknown",
          "SELECT \"%w\" FROM ticket WHERE tkt_uuid=%Q",
          zStatusColumn, pManifest->zTicketUuid
       );
-      blob_appendf(&comment, "Ticket [%s|%S] <i>%h</i> status still %h with "
+      blob_appendf(&comment, "Ticket [%!S|%S] <i>%h</i> status still %h with "
            "%d other change%s",
            pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle, zNewStatus,
            pManifest->nField, pManifest->nField==1 ? "" : "s"
       );
       fossil_free(zNewStatus);
-      blob_appendf(&brief, "Ticket [%s|%S]: %d change%s",
+      blob_appendf(&brief, "Ticket [%!S|%S]: %d change%s",
            pManifest->zTicketUuid, pManifest->zTicketUuid, pManifest->nField,
            pManifest->nField==1 ? "" : "s"
       );
     }
   }else{
-    blob_appendf(&comment, "New ticket [%s|%S] <i>%h</i>.",
+    blob_appendf(&comment, "New ticket [%!S|%S] <i>%h</i>.",
       pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle
     );
-    blob_appendf(&brief, "New ticket [%s|%S].", pManifest->zTicketUuid,
+    blob_appendf(&brief, "New ticket [%!S|%S].", pManifest->zTicketUuid,
         pManifest->zTicketUuid);
   }
   fossil_free(zTitle);
@@ -1748,7 +1758,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
     assert( blob_is_reset(pContent) || pContent==0 );
     if( (flags & MC_NO_ERRORS)==0 ){
-      fossil_error(1, "syntax error in manifest [%s]",
+      fossil_error(1, "syntax error in manifest [%S]",
                    db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
     }
     return 0;
@@ -1763,7 +1773,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
     if( (flags & MC_NO_ERRORS)==0 ){
-      fossil_error(1, "cannot fetch baseline for manifest [%s]",
+      fossil_error(1, "cannot fetch baseline for manifest [%S]",
                    db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
     }
     return 0;
@@ -1783,32 +1793,33 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       }else{
         sqlite3_snprintf(sizeof(zBaseId), zBaseId, "NULL");
       }
-      (void)db_schema_is_outofdate(); /* Make sure g.zAuxSchema is initialized */
       for(i=0; i<p->nParent; i++){
         int pid = uuid_to_rid(p->azParent[i], 1);
-        if( strcmp(g.zAuxSchema,"2014-11-24 20:35")>=0 ){
-          /* Support for PLINK.BASEID added on 2014-11-24 */
-          db_multi_exec(
-             "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime, baseid)"
-             "VALUES(%d, %d, %d, %.17g, %s)",
-             pid, rid, i==0, p->rDate, zBaseId/*safe-for-%s*/);
-        }else{
-          /* Continue to work with older schema to avoid an unnecessary
-          ** rebuild */
-          db_multi_exec(
-             "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
-             "VALUES(%d, %d, %d, %.17g)",
-             pid, rid, i==0, p->rDate);
-        }
-        if( i==0 ){
-          add_mlink(pid, 0, rid, p);
-          parentid = pid;
-        }
+        db_multi_exec(
+           "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime, baseid)"
+           "VALUES(%d, %d, %d, %.17g, %s)",
+           pid, rid, i==0, p->rDate, zBaseId/*safe-for-%s*/);
+        add_mlink(pid, 0, rid, p, i==0);
+        if( i==0 ) parentid = pid;
       }
-      db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d AND isprim", rid);
+      if( p->nParent>1 ){
+        /* Remove incorrect MLINK create-file entries that arise when a
+        ** file is added by merge. */
+        db_multi_exec(
+           "DELETE FROM mlink"
+           " WHERE mid=%d"
+           "   AND pid=0"
+           "   AND fnid IN "
+           "  (SELECT fnid FROM mlink WHERE mid=%d GROUP BY fnid"
+           "    HAVING count(*)<%d)",
+           rid, rid, p->nParent
+        );
+      }
+      db_prepare(&q, "SELECT cid, isprim FROM plink WHERE pid=%d", rid);
       while( db_step(&q)==SQLITE_ROW ){
         int cid = db_column_int(&q, 0);
-        add_mlink(rid, p, cid, 0);
+        int isprim = db_column_int(&q, 1);
+        add_mlink(rid, p, cid, 0, isprim);
       }
       db_finalize(&q);
       if( p->nParent==0 ){
@@ -1816,10 +1827,11 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
         ** showing all content as new. */
         int isPublic = !content_is_private(rid);
         for(i=0; i<p->nFile; i++){
-          add_one_mlink(rid, 0, p->aFile[i].zUuid, p->aFile[i].zName, 0,
-                        isPublic, manifest_file_mperm(&p->aFile[i]));
+          add_one_mlink(0, 0, rid, p->aFile[i].zUuid, p->aFile[i].zName, 0,
+                        isPublic, 1, manifest_file_mperm(&p->aFile[i]));
         }
       }
+      search_doc_touch('c', rid, 0);
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment,"
                            "bgcolor,euser,ecomment,omtime)"
@@ -1925,6 +1937,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }else{
       zComment = mprintf("Deleted wiki page [%h]", p->zWikiTitle);
     }
+    search_doc_touch('w',rid,p->zWikiTitle);
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment,"
       "                  bgcolor,euser,ecomment)"
@@ -1977,6 +1990,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     if( subsequent ){
       content_deltify(rid, subsequent, 0);
     }else{
+      search_doc_touch('e',rid,0);
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,tagid,user,comment,bgcolor)"
         "VALUES('e',%.17g,%d,%d,%Q,%Q,"
@@ -2019,7 +2033,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     if( 'w' == attachToType ){
       if( isAdd ){
         zComment = mprintf(
-             "Add attachment [/artifact/%s|%h] to wiki page [%h]",
+             "Add attachment [/artifact/%!S|%h] to wiki page [%h]",
              p->zAttachSrc, p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
@@ -2028,10 +2042,10 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }else{
       if( isAdd ){
         zComment = mprintf(
-             "Add attachment [/artifact/%s|%h] to ticket [%s|%S]",
+             "Add attachment [/artifact/%!S|%h] to ticket [%!S|%S]",
              p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }else{
-        zComment = mprintf("Delete attachment \"%h\" from ticket [%s|%S]",
+        zComment = mprintf("Delete attachment \"%h\" from ticket [%!S|%S]",
              p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }
     }
@@ -2060,7 +2074,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       if( !zTagUuid ) continue;
       if( i==0 || fossil_strcmp(zTagUuid, p->aTag[i-1].zUuid)!=0 ){
         blob_appendf(&comment,
-           " Edit [%s|%S]:",
+           " Edit [%!S|%S]:",
            zTagUuid, zTagUuid);
         branchMove = 0;
         if( permitHooks && db_exists("SELECT 1 FROM event, blob"
@@ -2074,7 +2088,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       zValue = p->aTag[i].zValue;
       if( strcmp(zName, "*branch")==0 ){
         blob_appendf(&comment,
-           " Move to branch [/timeline?r=%h&nd&dp=%s&unhide | %h].",
+           " Move to branch [/timeline?r=%h&nd&dp=%!S&unhide | %h].",
            zValue, zTagUuid, zValue);
         branchMove = 1;
         continue;

@@ -85,9 +85,13 @@ static void html_escape(struct Blob *ob, const char *data, size_t size){
 
 /* HTML block tags */
 
+/* Size of the prolog: "<div class='markdown'>\n" */
+#define PROLOG_SIZE 23
+
 static void html_prolog(struct Blob *ob, void *opaque){
   INTER_BLOCK(ob);
   BLOB_APPEND_LITTERAL(ob, "<div class=\"markdown\">\n");
+  assert( blob_size(ob)==PROLOG_SIZE );
 }
 
 static void html_epilog(struct Blob *ob, void *opaque){
@@ -128,9 +132,8 @@ static void html_header(
   struct Blob *title = opaque;
   /* The first header at the beginning of a text is considered as
    * a title and not output. */
-  if( blob_size(ob)==0 && blob_size(title)==0 ){
+  if( blob_size(ob)<=PROLOG_SIZE && blob_size(title)==0 ){
     BLOB_APPEND_BLOB(title, text);
-    return;
   }
   INTER_BLOCK(ob);
   blob_appendf(ob, "<h%d>", level);

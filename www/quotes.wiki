@@ -73,12 +73,19 @@ Demented workflow complexity on acid?
    2014-09-01.</i>
 </blockquote>
 
+<li>If programmers _really_ wanted to help scientists, they'd build a version control
+system that was more usable than Git.
+
+<blockquote>
+<i>Tweet by Greg Wilson @gvwilson on 2015-02-22 17:47</i>
+</blockquote>
+
 </ol>
 
 <h2>On The Usability Of Fossil:</h2>
 
 <ol>
-<li value=9>
+<li value=10>
 Fossil mesmerizes me with simplicity especially after I struggled to
 get a bug-tracking system to work with mercurial.
 
@@ -110,7 +117,7 @@ such simplicity and flexibility!!!
 <h2>On Git Versus Fossil</h2>
 
 <ol>
-<li value=12>
+<li value=13>
 Just want to say thanks for fossil making my life easier.... 
 Also <nowiki>[for]</nowiki> not having a misanthropic command line interface.
 

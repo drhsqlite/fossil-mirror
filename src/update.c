@@ -811,7 +811,7 @@ void revert_cmd(void){
     }else{
       sqlite3_int64 mtime;
       undo_save(zFile);
-      if( file_wd_size(zFull)>=0 && (isLink || file_wd_islink(zFull)) ){
+      if( file_wd_size(zFull)>=0 && (isLink || file_wd_islink(0)) ){
         file_delete(zFull);
       }
       if( isLink ){

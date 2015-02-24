@@ -45,7 +45,7 @@ int main(int argc, char *argv[]){
     fclose(v);
     for(z=b; z[0] && z[0]!='\r' && z[0]!='\n'; z++){}
     *z = 0;
-    printf("#define RELEASE_VERSION \"%s\"\n", b);   
+    printf("#define RELEASE_VERSION \"%s\"\n", b);
     x=0;
     i=0;
     z=b;

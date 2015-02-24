@@ -161,7 +161,7 @@ void branch_new(void){
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", brid);
-  fossil_print("New branch: %s\n", zUuid);
+  fossil_print("New branch: %S\n", zUuid);
   if( g.argc==3 ){
     fossil_print(
       "\n"
@@ -304,7 +304,7 @@ void branch_cmd(void){
   }
 }
 
-static char brlistQuery[] = 
+static const char brlistQuery[] =
 @ SELECT
 @   tagxref.value,
 @   max(event.mtime),
@@ -341,10 +341,11 @@ static void new_brlist_page(void){
   Stmt q;
   double rNow;
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Branches");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   login_anonymous_available();
-  
+
   db_prepare(&q, brlistQuery/*works-like:""*/);
   rNow = db_double(0.0, "SELECT julianday('now')");
   @ <div class="brlist"><table id="branchlisttable">
@@ -368,12 +369,12 @@ static void new_brlist_page(void){
     @ <tr>
     @ <td>%z(href("%R/timeline?n=100&r=%T",zBranch))%h(zBranch)</a></td>
     @ <td data-sortkey="%016llx(-iMtime)">%s(zAge)</td>
-    @ <td data-sortkey="%08x(-nCkin)">%d(nCkin)</td>
+    @ <td>%d(nCkin)</td>
     fossil_free(zAge);
     @ <td>%s(isClosed?"closed":"")</td>
     if( zMergeTo ){
       @ <td>merged into
-      @ %z(href("%R/timeline?f=%s",zLastCkin))%h(zMergeTo)</a></td>
+      @ %z(href("%R/timeline?f=%!S",zLastCkin))%h(zMergeTo)</a></td>
     }else{
       @ <td></td>
     }
@@ -381,7 +382,7 @@ static void new_brlist_page(void){
   }
   @ </tbody></table></div>
   db_finalize(&q);
-  output_table_sorting_javascript("branchlisttable","tkktt",2);
+  output_table_sorting_javascript("branchlisttable","tkNtt",2);
   style_footer();
 }
 
@@ -409,7 +410,7 @@ void brlist_page(void){
     return;
   }
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( colorTest ){
     showClosed = 0;
     showAll = 1;
@@ -516,7 +517,7 @@ void brtimeline_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Branches");
   style_submenu_element("List", "List", "brlist");
@@ -528,7 +529,7 @@ void brtimeline_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www(), TAG_BRANCH
   );
-  www_print_timeline(&q, 0, 0, 0, brtimeline_extra);
+  www_print_timeline(&q, 0, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   style_footer();
 }

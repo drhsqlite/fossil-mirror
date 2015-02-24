@@ -271,7 +271,7 @@ void testtag_cmd(void){
   zValue = g.argc==5 ? g.argv[4] : 0;
   db_begin_transaction();
   tag_insert(zTag, tagtype, zValue, -1, 0.0, rid);
-  db_end_transaction(0); 
+  db_end_transaction(0);
 }
 
 /*
@@ -537,17 +537,18 @@ tag_cmd_usage:
 }
 
 /*
-** WEBPAGE: /taglist
+** WEBPAGE: taglist
 */
 void taglist_page(void){
   Stmt q;
 
   login_check_credentials();
   if( !g.perm.Read ){
-    login_needed();
+    login_needed(g.anon.Read);
   }
   login_anonymous_available();
   style_header("Tags");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Timeline", "Timeline", "tagtimeline");
   @ <h2>Non-propagating tags:</h2>
   db_prepare(&q,
@@ -581,7 +582,7 @@ void tagtimeline_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Tagged Check-ins");
   style_submenu_element("List", "List", "taglist");
@@ -595,7 +596,7 @@ void tagtimeline_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www()
   );
-  www_print_timeline(&q, 0, 0, 0, 0);
+  www_print_timeline(&q, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   style_footer();
