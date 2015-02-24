@@ -1623,36 +1623,36 @@ void manifest_ticket_event(
       }
     }
     if( zNewStatus ){
-      blob_appendf(&comment, "%h ticket [%s|%S]: <i>%h</i>",
+      blob_appendf(&comment, "%h ticket [%!S|%S]: <i>%h</i>",
          zNewStatus, pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle
       );
       if( pManifest->nField>1 ){
         blob_appendf(&comment, " plus %d other change%s",
           pManifest->nField-1, pManifest->nField==2 ? "" : "s");
       }
-      blob_appendf(&brief, "%h ticket [%s|%S].",
+      blob_appendf(&brief, "%h ticket [%!S|%S].",
                    zNewStatus, pManifest->zTicketUuid, pManifest->zTicketUuid);
     }else{
       zNewStatus = db_text("unknown",
          "SELECT \"%w\" FROM ticket WHERE tkt_uuid=%Q",
          zStatusColumn, pManifest->zTicketUuid
       );
-      blob_appendf(&comment, "Ticket [%s|%S] <i>%h</i> status still %h with "
+      blob_appendf(&comment, "Ticket [%!S|%S] <i>%h</i> status still %h with "
            "%d other change%s",
            pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle, zNewStatus,
            pManifest->nField, pManifest->nField==1 ? "" : "s"
       );
       fossil_free(zNewStatus);
-      blob_appendf(&brief, "Ticket [%s|%S]: %d change%s",
+      blob_appendf(&brief, "Ticket [%!S|%S]: %d change%s",
            pManifest->zTicketUuid, pManifest->zTicketUuid, pManifest->nField,
            pManifest->nField==1 ? "" : "s"
       );
     }
   }else{
-    blob_appendf(&comment, "New ticket [%s|%S] <i>%h</i>.",
+    blob_appendf(&comment, "New ticket [%!S|%S] <i>%h</i>.",
       pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle
     );
-    blob_appendf(&brief, "New ticket [%s|%S].", pManifest->zTicketUuid,
+    blob_appendf(&brief, "New ticket [%!S|%S].", pManifest->zTicketUuid,
         pManifest->zTicketUuid);
   }
   fossil_free(zTitle);
@@ -1758,7 +1758,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
     assert( blob_is_reset(pContent) || pContent==0 );
     if( (flags & MC_NO_ERRORS)==0 ){
-      fossil_error(1, "syntax error in manifest [%s]",
+      fossil_error(1, "syntax error in manifest [%S]",
                    db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
     }
     return 0;
@@ -1773,7 +1773,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
     if( (flags & MC_NO_ERRORS)==0 ){
-      fossil_error(1, "cannot fetch baseline for manifest [%s]",
+      fossil_error(1, "cannot fetch baseline for manifest [%S]",
                    db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
     }
     return 0;
@@ -2033,7 +2033,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     if( 'w' == attachToType ){
       if( isAdd ){
         zComment = mprintf(
-             "Add attachment [/artifact/%s|%h] to wiki page [%h]",
+             "Add attachment [/artifact/%!S|%h] to wiki page [%h]",
              p->zAttachSrc, p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
@@ -2042,10 +2042,10 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }else{
       if( isAdd ){
         zComment = mprintf(
-             "Add attachment [/artifact/%s|%h] to ticket [%s|%S]",
+             "Add attachment [/artifact/%!S|%h] to ticket [%!S|%S]",
              p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }else{
-        zComment = mprintf("Delete attachment \"%h\" from ticket [%s|%S]",
+        zComment = mprintf("Delete attachment \"%h\" from ticket [%!S|%S]",
              p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }
     }
@@ -2074,7 +2074,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       if( !zTagUuid ) continue;
       if( i==0 || fossil_strcmp(zTagUuid, p->aTag[i-1].zUuid)!=0 ){
         blob_appendf(&comment,
-           " Edit [%s|%S]:",
+           " Edit [%!S|%S]:",
            zTagUuid, zTagUuid);
         branchMove = 0;
         if( permitHooks && db_exists("SELECT 1 FROM event, blob"
@@ -2088,7 +2088,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       zValue = p->aTag[i].zValue;
       if( strcmp(zName, "*branch")==0 ){
         blob_appendf(&comment,
-           " Move to branch [/timeline?r=%h&nd&dp=%s&unhide | %h].",
+           " Move to branch [/timeline?r=%h&nd&dp=%!S&unhide | %h].",
            zValue, zTagUuid, zValue);
         branchMove = 1;
         continue;

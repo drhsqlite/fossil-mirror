@@ -1,8 +1,12 @@
 body {
     margin: 0 auto;
-    width: 960px;
+    min-width: 800px;
+    padding: 0px 20px;
     font-family: sans-serif;
     font-size:14pt;
+    -moz-text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+    -mx-text-size-adjust: none;
 }
 
 a {
@@ -15,7 +19,7 @@ a:hover {
 }
 
 hr {
-    border: 0px;
+    color: #eee;
 }
 
 .title {
@@ -102,16 +106,16 @@ hr {
 }
 
 .submenu a {
-    padding: 10px;
+    padding: 10px 11px;
     text-decoration:none;
     color: #777;
 }
 
 .submenu a:hover {
+    padding: 6px 10px;
     border: 1px solid #ccc;
-    border-bottom: 1px solid #fff;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-radius: 5px;
+    color: #000;
 }
 
 .content {
@@ -120,8 +124,7 @@ hr {
     color: #444;
 }
 
-.udiff, .sbsdiff,
-.content blockquote {
+.udiff, .sbsdiff {
     font-size: .85em !important;
     overflow: auto;
     border: 1px solid #ccc;
@@ -166,14 +169,15 @@ table.report {
 }
 
 td.tktDspLabel {
-    max-width: 70px;
+    width: 70px;
     text-align: right;
+    overflow: hidden;
 }
 td.tktDspValue {
-    max-width: 800px;
     text-align: left;
     vertical-align: top;
-    background-color: #f5f9fc;
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
 }
 td.tktDspValue pre {
     white-space: pre-wrap;
@@ -185,4 +189,11 @@ td.tktDspValue pre {
     font-size:.7em;
     margin-top: 10px;
     color: #ccc;
+}
+div.timelineDate {
+    font-weight: bold;
+    white-space: nowrap;
+}
+span.submenuctrl, span.submenuctrl input, select.submenuctrl {
+  color: #777;
 }

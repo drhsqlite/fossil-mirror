@@ -17,11 +17,19 @@
 **
 ** This file contains code to do formatting of event messages:
 **
+**     Technical Notes
 **     Milestones
 **     Blog posts
 **     New articles
 **     Process checkpoints
 **     Announcements
+**
+** Do not confuse "event" artifacts with the "event" table in the
+** repository database.  An "event" artifact is a technical-note: a
+** wiki- or blog-like essay that appears on the timeline.  The "event"
+** table records all entries on the timeline, including tech-notes.
+**
+** (2015-02-14):  Changing the name to "tech-note" most everywhere.
 */
 #include "config.h"
 #include <assert.h>
@@ -29,54 +37,58 @@
 #include "event.h"
 
 /*
-** Output a hyperlink to an event given its tagid.
+** Output a hyperlink to an technote given its tagid.
 */
 void hyperlink_to_event_tagid(int tagid){
-  char *zEventId;
-  zEventId = db_text(0, "SELECT substr(tagname, 7) FROM tag WHERE tagid=%d",
+  char *zId;
+  zId = db_text(0, "SELECT substr(tagname, 7) FROM tag WHERE tagid=%d",
                      tagid);
-  @ [%z(href("%R/event/%s",zEventId))%S(zEventId)</a>]
-  free(zEventId);
+  @ [%z(href("%R/technote/%s",zId))%S(zId)</a>]
+  free(zId);
 }
 
 /*
+** WEBPAGE: technote
 ** WEBPAGE: event
-** URL: /event
+**
+** Display a "technical note" or "tech-note" (formerly called an "event").
+**
 ** PARAMETERS:
 **
-**  name=EVENTID      // Identify the event to display EVENTID must be complete
-**  aid=ARTIFACTID    // Which specific version of the event.  Optional.
-**  v=BOOLEAN         // Show details if TRUE.  Default is FALSE.  Optional.
+**  name=ID          // Identify the tech-note to display. ID must be complete
+**  aid=ARTIFACTID   // Which specific version of the tech-note.  Optional.
+**  v=BOOLEAN        // Show details if TRUE.  Default is FALSE.  Optional.
 **
 ** Display an existing event identified by EVENTID
 */
 void event_page(void){
   int rid = 0;             /* rid of the event artifact */
   char *zUuid;             /* UUID corresponding to rid */
-  const char *zEventId;    /* Event identifier */
+  const char *zId;    /* Event identifier */
   const char *zVerbose;    /* Value of verbose option */
-  char *zETime;            /* Time of the event */
+  char *zETime;            /* Time of the tech-note */
   char *zATime;            /* Time the artifact was created */
   int specRid;             /* rid specified by aid= parameter */
-  int prevRid, nextRid;    /* Previous or next edits of this event */
-  Manifest *pEvent;        /* Parsed event artifact */
-  Blob fullbody;           /* Complete content of the event body */
-  Blob title;              /* Title extracted from the event body */
+  int prevRid, nextRid;    /* Previous or next edits of this tech-note */
+  Manifest *pTNote;        /* Parsed technote artifact */
+  Blob fullbody;           /* Complete content of the technote body */
+  Blob title;              /* Title extracted from the technote body */
   Blob tail;               /* Event body that comes after the title */
-  Stmt q1;                 /* Query to search for the event */
+  Stmt q1;                 /* Query to search for the technote */
   int verboseFlag;         /* True to show details */
+  const char *zMimetype = 0;  /* Mimetype of the document */
 
 
-  /* wiki-read privilege is needed in order to read events.
+  /* wiki-read privilege is needed in order to read tech-notes.
   */
   login_check_credentials();
   if( !g.perm.RdWiki ){
-    login_needed();
+    login_needed(g.anon.RdWiki);
     return;
   }
 
-  zEventId = P("name");
-  if( zEventId==0 ){ fossil_redirect_home(); return; }
+  zId = P("name");
+  if( zId==0 ){ fossil_redirect_home(); return; }
   zUuid = (char*)P("aid");
   specRid = zUuid ? uuid_to_rid(zUuid, 0) : 0;
   rid = nextRid = prevRid = 0;
@@ -84,7 +96,7 @@ void event_page(void){
      "SELECT rid FROM tagxref"
      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname GLOB 'event-%q*')"
      " ORDER BY mtime DESC",
-     zEventId
+     zId
   );
   while( db_step(&q1)==SQLITE_ROW ){
     nextRid = rid;
@@ -98,8 +110,8 @@ void event_page(void){
   }
   db_finalize(&q1);
   if( rid==0 || (specRid!=0 && specRid!=rid) ){
-    style_header("No Such Event");
-    @ Cannot locate specified event
+    style_header("No Such Tech-Note");
+    @ Cannot locate a technical note called <b>%h(zId)</b>.
     style_footer();
     return;
   }
@@ -115,44 +127,56 @@ void event_page(void){
 
   /* Extract the event content.
   */
-  pEvent = manifest_get(rid, CFTYPE_EVENT, 0);
-  if( pEvent==0 ){
-    fossil_fatal("Object #%d is not an event", rid);
+  pTNote = manifest_get(rid, CFTYPE_EVENT, 0);
+  if( pTNote==0 ){
+    fossil_fatal("Object #%d is not a tech-note", rid);
   }
-  blob_init(&fullbody, pEvent->zWiki, -1);
-  if( wiki_find_title(&fullbody, &title, &tail) ){
-    style_header("%s", blob_str(&title));
+  zMimetype = wiki_filter_mimetypes(PD("mimetype",pTNote->zMimetype));
+  blob_init(&fullbody, pTNote->zWiki, -1);
+  blob_init(&title, 0, 0);
+  blob_init(&tail, 0, 0);
+  if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
+    if( !wiki_find_title(&fullbody, &title, &tail) ){
+      blob_appendf(&title, "Tech-note %S", zId);
+      tail = fullbody;
+    }
+  }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
+    markdown_to_html(&fullbody, &title, &tail);
+    if( blob_size(&title)==0 ){
+      blob_appendf(&title, "Tech-note %S", zId);
+    }
   }else{
-    style_header("Event %S", zEventId);
+    blob_appendf(&title, "Tech-note %S", zId);
     tail = fullbody;
   }
+  style_header("%s", blob_str(&title));
   if( g.perm.WrWiki && g.perm.Write && nextRid==0 ){
-    style_submenu_element("Edit", "Edit", "%s/eventedit?name=%s",
-                          g.zTop, zEventId);
+    style_submenu_element("Edit", 0, "%R/technoteedit?name=%!S", zId);
   }
-  zETime = db_text(0, "SELECT datetime(%.17g)", pEvent->rEventDate);
-  style_submenu_element("Context", 0, "%R/timeline?c=%.20s", zEventId);
+  zETime = db_text(0, "SELECT datetime(%.17g)", pTNote->rEventDate);
+  style_submenu_element("Context", 0, "%R/timeline?c=%.20s", zId);
   if( g.perm.Hyperlink ){
     if( verboseFlag ){
-      style_submenu_element("Plain", 0, "%R/event?name=%.20s&aid=%s",
-                            zEventId, zUuid);
+      style_submenu_element("Plain", 0,
+                            "%R/technote?name=%!S&aid=%s&mimetype=text/plain",
+                            zId, zUuid);
       if( nextRid ){
         char *zNext;
         zNext = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nextRid);
-        style_submenu_element("Next", 0,"%R/event?name=%.20s&aid=%s&v",
-                              zEventId, zNext);
+        style_submenu_element("Next", 0,"%R/technote?name=%!S&aid=%s&v",
+                              zId, zNext);
         free(zNext);
       }
       if( prevRid ){
         char *zPrev;
         zPrev = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", prevRid);
-        style_submenu_element("Prev", 0, "%R/event?name=%s&aid=%s&v",
-                              zEventId, zPrev);
+        style_submenu_element("Prev", 0, "%R/technote?name=%!S&aid=%s&v",
+                              zId, zPrev);
         free(zPrev);
       }
     }else{
-      style_submenu_element("Detail", 0, "%R/event?name=%.20s&aid=%s&v",
-                            zEventId, zUuid);
+      style_submenu_element("Detail", 0, "%R/technote?name=%!S&aid=%s&v",
+                            zId, zUuid);
     }
   }
 
@@ -161,15 +185,15 @@ void event_page(void){
     const char *zClr = 0;
     Blob comment;
 
-    zATime = db_text(0, "SELECT datetime(%.17g)", pEvent->rDate);
-    @ <p>Event [%z(href("%R/artifact/%s",zUuid))%S(zUuid)</a>] at
+    zATime = db_text(0, "SELECT datetime(%.17g)", pTNote->rDate);
+    @ <p>Tech-note [%z(href("%R/artifact/%!S",zUuid))%S(zUuid)</a>] at
     @ [%z(href("%R/timeline?c=%T",zETime))%s(zETime)</a>]
-    @ entered by user <b>%h(pEvent->zUser)</b> on
+    @ entered by user <b>%h(pTNote->zUser)</b> on
     @ [%z(href("%R/timeline?c=%T",zATime))%s(zATime)</a>]:</p>
     @ <blockquote>
-    for(i=0; i<pEvent->nTag; i++){
-      if( fossil_strcmp(pEvent->aTag[i].zName,"+bgcolor")==0 ){
-        zClr = pEvent->aTag[i].zValue;
+    for(i=0; i<pTNote->nTag; i++){
+      if( fossil_strcmp(pTNote->aTag[i].zName,"+bgcolor")==0 ){
+        zClr = pTNote->aTag[i].zValue;
       }
     }
     if( zClr && zClr[0]==0 ) zClr = 0;
@@ -178,29 +202,42 @@ void event_page(void){
     }else{
       @ <div>
     }
-    blob_init(&comment, pEvent->zComment, -1);
+    blob_init(&comment, pTNote->zComment, -1);
     wiki_convert(&comment, 0, WIKI_INLINE);
     blob_reset(&comment);
     @ </div>
     @ </blockquote><hr />
   }
 
-  wiki_convert(&tail, 0, 0);
+  if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
+    wiki_convert(&fullbody, 0, 0);
+  }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
+    cgi_append_content(blob_buffer(&tail), blob_size(&tail));
+  }else{
+    @ <pre>
+    @ %h(blob_str(&fullbody))
+    @ </pre>
+  }
   style_footer();
-  manifest_destroy(pEvent);
+  manifest_destroy(pTNote);
 }
 
 /*
+** WEBPAGE: technoteedit
 ** WEBPAGE: eventedit
-** URL: /eventedit?name=EVENTID
 **
-** Edit an event.  If name is omitted, create a new event.
+** Revise or create a technical note (formerly called an 'event').
+**
+** Parameters:
+**
+**    name=ID           Hex hash ID of the tech-note.  If omitted, a new
+**                      tech-note is created.
 */
 void eventedit_page(void){
   char *zTag;
   int rid = 0;
   Blob event;
-  const char *zEventId;
+  const char *zId;
   int n;
   const char *z;
   char *zBody = (char*)P("w");
@@ -208,42 +245,52 @@ void eventedit_page(void){
   const char *zComment = P("c");
   const char *zTags = P("g");
   const char *zClr;
+  const char *zMimetype = P("mimetype");
+  int isNew = 0;
 
   if( zBody ){
     zBody = mprintf("%s", zBody);
   }
   login_check_credentials();
-  zEventId = P("name");
-  if( zEventId==0 ){
-    zEventId = db_text(0, "SELECT lower(hex(randomblob(20)))");
+  zId = P("name");
+  if( zId==0 ){
+    zId = db_text(0, "SELECT lower(hex(randomblob(20)))");
+    isNew = 1;
   }else{
-    int nEventId = strlen(zEventId);
-    if( nEventId!=40 || !validate16(zEventId, 40) ){
+    int nId = strlen(zId);
+    if( !validate16(zId, nId) ){
       fossil_redirect_home();
       return;
     }
   }
-  zTag = mprintf("event-%s", zEventId);
+  zTag = mprintf("event-%s", zId);
   rid = db_int(0,
     "SELECT rid FROM tagxref"
-    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname GLOB '%q*')"
     " ORDER BY mtime DESC", zTag
   );
+  if( rid && strlen(zId)<40 ){
+    zId = db_text(0,
+      "SELECT substr(tagname,7) FROM tag WHERE tagname GLOB '%q*'",
+      zTag
+    );
+  }
   free(zTag);
 
   /* Need both check-in and wiki-write or wiki-create privileges in order
   ** to edit/create an event.
   */
   if( !g.perm.Write || (rid && !g.perm.WrWiki) || (!rid && !g.perm.NewWiki) ){
-    login_needed();
+    login_needed(g.anon.Write && (rid ? g.anon.WrWiki : g.anon.NewWiki));
     return;
   }
 
   /* Figure out the color */
   if( rid ){
-    zClr = db_text("", "SELECT bgcolor  FROM event WHERE objid=%d", rid);
+    zClr = db_text("", "SELECT bgcolor FROM event WHERE objid=%d", rid);
   }else{
     zClr = "";
+    isNew = 1;
   }
   zClr = PD("clr",zClr);
   if( fossil_strcmp(zClr,"##")==0 ) zClr = PD("cclr","");
@@ -252,15 +299,18 @@ void eventedit_page(void){
   /* If editing an existing event, extract the key fields to use as
   ** a starting point for the edit.
   */
-  if( rid && (zBody==0 || zETime==0 || zComment==0 || zTags==0) ){
-    Manifest *pEvent;
-    pEvent = manifest_get(rid, CFTYPE_EVENT, 0);
-    if( pEvent && pEvent->type==CFTYPE_EVENT ){
-      if( zBody==0 ) zBody = pEvent->zWiki;
+  if( rid
+   && (zBody==0 || zETime==0 || zComment==0 || zTags==0 || zMimetype==0)
+  ){
+    Manifest *pTNote;
+    pTNote = manifest_get(rid, CFTYPE_EVENT, 0);
+    if( pTNote && pTNote->type==CFTYPE_EVENT ){
+      if( zBody==0 ) zBody = pTNote->zWiki;
       if( zETime==0 ){
-        zETime = db_text(0, "SELECT datetime(%.17g)", pEvent->rEventDate);
+        zETime = db_text(0, "SELECT datetime(%.17g)", pTNote->rEventDate);
       }
-      if( zComment==0 ) zComment = pEvent->zComment;
+      if( zComment==0 ) zComment = pTNote->zComment;
+      if( zMimetype==0 ) zMimetype = pTNote->zMimetype;
     }
     if( zTags==0 ){
       zTags = db_text(0,
@@ -278,7 +328,7 @@ void eventedit_page(void){
     char *zDate;
     Blob cksum;
     int nrid, n;
-    blob_zero(&event);
+    blob_init(&event, 0, 0);
     db_begin_transaction();
     login_verify_csrf_secret();
     while( fossil_isspace(zComment[0]) ) zComment++;
@@ -291,12 +341,15 @@ void eventedit_page(void){
     blob_appendf(&event, "D %s\n", zDate);
     free(zDate);
     zETime[10] = 'T';
-    blob_appendf(&event, "E %s %s\n", zETime, zEventId);
+    blob_appendf(&event, "E %s %s\n", zETime, zId);
     zETime[10] = ' ';
     if( rid ){
       char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       blob_appendf(&event, "P %s\n", zUuid);
       free(zUuid);
+    }
+    if( zMimetype && zMimetype[0] ){
+      blob_appendf(&event, "N %s\n", zMimetype);
     }
     if( zClr && zClr[0] ){
       blob_appendf(&event, "T +bgcolor * %F\n", zClr);
@@ -348,22 +401,33 @@ void eventedit_page(void){
     blob_reset(&cksum);
     nrid = content_put(&event);
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-    manifest_crosslink(nrid, &event, MC_NONE);
+    if( manifest_crosslink(nrid, &event, MC_NONE)==0 ){
+      db_end_transaction(1);
+      style_header("Error");
+      @ Internal error:  Fossil tried to make an invalid artifact for
+      @ the edited technode.
+      style_footer();
+      return;
+    }
     assert( blob_is_reset(&event) );
     content_deltify(rid, nrid, 0);
     db_end_transaction(0);
-    cgi_redirectf("event?name=%T", zEventId);
+    cgi_redirectf("technote?name=%T", zId);
   }
   if( P("cancel")!=0 ){
-    cgi_redirectf("event?name=%T", zEventId);
+    cgi_redirectf("technote?name=%T", zId);
     return;
   }
   if( zBody==0 ){
-    zBody = mprintf("<i>Event Text</i>");
+    zBody = mprintf("Insert new content here...");
   }
-  style_header("Edit Event %S", zEventId);
+  if( isNew ){
+    style_header("New Tech-note %S", zId);
+  }else{
+    style_header("Edit Tech-note %S", zId);
+  }
   if( P("preview")!=0 ){
-    Blob title, tail, com;
+    Blob com;
     @ <p><b>Timeline comment preview:</b></p>
     @ <blockquote>
     @ <table border="0">
@@ -379,14 +443,9 @@ void eventedit_page(void){
     @ </blockquote>
     @ <p><b>Page content preview:</b><p>
     @ <blockquote>
-    blob_zero(&event);
+    blob_init(&event, 0, 0);
     blob_append(&event, zBody, -1);
-    if( wiki_find_title(&event, &title, &tail) ){
-      @ <h2 align="center">%h(blob_str(&title))</h2>
-      wiki_convert(&tail, 0, 0);
-    }else{
-      wiki_convert(&event, 0, 0);
-    }
+    wiki_render_by_mimetype(&event, zMimetype);
     @ </blockquote><hr />
     blob_reset(&event);
   }
@@ -395,23 +454,23 @@ void eventedit_page(void){
   }
   if( n<20 ) n = 20;
   if( n>40 ) n = 40;
-  @ <form method="post" action="%s(g.zTop)/eventedit"><div>
+  @ <form method="post" action="%R/technoteedit"><div>
   login_insert_csrf_secret();
-  @ <input type="hidden" name="name" value="%h(zEventId)" />
+  @ <input type="hidden" name="name" value="%h(zId)" />
   @ <table border="0" cellspacing="10">
 
-  @ <tr><th align="right" valign="top">Event&nbsp;Time (UTC):</th>
+  @ <tr><th align="right" valign="top">Timestamp (UTC):</th>
   @ <td valign="top">
   @   <input type="text" name="t" size="25" value="%h(zETime)" />
   @ </td></tr>
 
-  @ <tr><th align="right" valign="top">Timeline&nbsp;Comment:</th>
+  @ <tr><th align="right" valign="top">Timeline Comment:</th>
   @ <td valign="top">
-  @ <textarea name="c" class="eventedit" cols="80"
+  @ <textarea name="c" class="technoteedit" cols="80"
   @  rows="3" wrap="virtual">%h(zComment)</textarea>
   @ </td></tr>
 
-  @ <tr><th align="right" valign="top">Background&nbsp;Color:</th>
+  @ <tr><th align="right" valign="top">Timeline Background Color:</th>
   @ <td valign="top">
   render_color_chooser(0, zClr, 0, "clr", "cclr");
   @ </td></tr>
@@ -421,9 +480,14 @@ void eventedit_page(void){
   @   <input type="text" name="g" size="40" value="%h(zTags)" />
   @ </td></tr>
 
+  @ <tr><th align="right" valign="top">Markup Style:</th>
+  @ <td valign="top">
+  mimetype_option_menu(zMimetype);
+  @ </td></tr>
+
   @ <tr><th align="right" valign="top">Page&nbsp;Content:</th>
   @ <td valign="top">
-  @ <textarea name="w" class="eventedit" cols="80"
+  @ <textarea name="w" class="technoteedit" cols="80"
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
   @ </td></tr>
 

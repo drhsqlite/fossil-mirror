@@ -29,7 +29,8 @@
 void xfersetup_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Transfer Setup");
@@ -106,7 +107,8 @@ static void xfersetup_generic(
 
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   if( P("setup") ){
     cgi_redirect("xfersetup");

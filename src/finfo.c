@@ -217,7 +217,7 @@ void finfo_cmd(void){
         fossil_free(zOut);
       }else{
         blob_reset(&line);
-        blob_appendf(&line, "%.10s ", zCiUuid);
+        blob_appendf(&line, "%S ", zCiUuid);
         blob_appendf(&line, "%.10s ", zDate);
         blob_appendf(&line, "%8.8s ", zUser);
         blob_appendf(&line, "%8.8s ", zBr);
@@ -307,7 +307,7 @@ void finfo_page(void){
   int fShowId = P("showid")!=0;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("File History");
   login_anonymous_available();
   url_initialize(&url, "finfo");
@@ -385,7 +385,7 @@ void finfo_page(void){
   blob_zero(&title);
   if( baseCheckin ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
-    char *zLink = href("%R/info/%s", zUuid);
+    char *zLink = 	href("%R/info/%!S", zUuid);
     blob_appendf(&title, "Ancestors of file ");
     hyperlinked_path(zFilename, &title, zUuid, "tree", "");
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
@@ -471,7 +471,7 @@ void finfo_page(void){
         @ <b>Renamed</b> from
         @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
       }
-      @ %z(href("%R/artifact/%s",zUuid))[%S(zUuid)]</a>
+      @ %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
       if( fShowId ){
         @ (%d(frid))
       }
@@ -505,13 +505,14 @@ void finfo_page(void){
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
-      @ %z(href("%R/timeline?n=200&uf=%s",zUuid))[checkins&nbsp;using]</a>
+      @ %z(href("%R/timeline?n=200&uf=%!S",zUuid))[checkins&nbsp;using]</a>
       if( fpid ){
-        @ %z(href("%R/fdiff?sbs=1&v1=%s&v2=%s",zPUuid,zUuid))[diff]</a>
+        @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
       int ii;
+      char *zAncLink;
       @ <br>fid=%d(frid) pid=%d(fpid) mid=%d(fmid)
       if( nParent>0 ){
         @ parents=%d(aParent[0])
@@ -519,7 +520,8 @@ void finfo_page(void){
           @ %d(aParent[ii])
         }
       }
-      @ %z(href("%R/finfo?name=%T&ci=%s&debug=1",zFilename,zCkin))[ancestry]</a>
+      zAncLink = href("%R/finfo?name=%T&ci=%!S&debug=1",zFilename,zCkin);
+      @ %z(zAncLink)[ancestry]</a>
     }
     tag_private_status(frid);
     @ </td></tr>

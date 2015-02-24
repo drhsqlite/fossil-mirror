@@ -108,6 +108,7 @@ static const struct {
   { "cpt",        3, "application/mac-compactpro"        },
   { "csh",        3, "application/x-csh"                 },
   { "css",        3, "text/css"                          },
+  { "csv",        3, "text/csv"                          },
   { "dcr",        3, "application/x-director"            },
   { "deb",        3, "application/x-debian-package"      },
   { "dir",        3, "application/x-director"            },
@@ -295,6 +296,20 @@ static const struct {
 };
 
 /*
+** Verify that all entries in the aMime[] table are in sorted order.
+** Abort with a fatal error if any is out-of-order.
+*/
+static void mimetype_verify(void){
+  int i;
+  for(i=1; i<ArraySize(aMime); i++){
+    if( fossil_strcmp(aMime[i-1].zSuffix,aMime[i].zSuffix)>=0 ){
+      fossil_fatal("mimetypes out of sequence: %s before %s",
+                   aMime[i-1].zSuffix, aMime[i].zSuffix);
+    }
+  }
+}
+
+/*
 ** Guess the mime-type of a document based on its name.
 */
 const char *mimetype_from_name(const char *zName){
@@ -310,12 +325,7 @@ const char *mimetype_from_name(const char *zName){
   ** order
   */
   if( fossil_strcmp(zName, "mimetype-test")==0 ){
-    for(i=1; i<ArraySize(aMime); i++){
-      if( fossil_strcmp(aMime[i-1].zSuffix,aMime[i].zSuffix)>=0 ){
-        fossil_fatal("mimetypes out of sequence: %s before %s",
-                     aMime[i-1].zSuffix, aMime[i].zSuffix);
-      }
-    }
+    mimetype_verify();
     return "ok";
   }
 #endif
@@ -358,6 +368,7 @@ const char *mimetype_from_name(const char *zName){
 */
 void mimetype_test_cmd(void){
   int i;
+  mimetype_verify();
   for(i=2; i<g.argc; i++){
     fossil_print("%-20s -> %s\n", g.argv[i], mimetype_from_name(g.argv[i]));
   }
@@ -371,6 +382,7 @@ void mimetype_test_cmd(void){
 */
 void mimetype_list_page(void){
   int i;
+  mimetype_verify();
   style_header("Mimetype List");
   @ <p>The Fossil <a href="%R/help?cmd=/doc">/doc</a> page uses filename
   @ suffixes and the following table to guess at the appropriate mimetype
@@ -533,7 +545,7 @@ void doc_page(void){
   };
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   blob_init(&title, 0, 0);
   db_begin_transaction();
   while( rid==0 && (++nMiss)<=ArraySize(azSuffix) ){

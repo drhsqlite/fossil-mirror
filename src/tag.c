@@ -544,7 +544,7 @@ void taglist_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){
-    login_needed();
+    login_needed(g.anon.Read);
   }
   login_anonymous_available();
   style_header("Tags");
@@ -582,7 +582,7 @@ void tagtimeline_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Tagged Check-ins");
   style_submenu_element("List", "List", "taglist");

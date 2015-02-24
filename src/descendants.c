@@ -441,7 +441,7 @@ void leaves_page(void){
   int showClosed = P("closed")!=0;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   if( !showAll ){
     style_submenu_element("All", "All", "leaves?all");

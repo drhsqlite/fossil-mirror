@@ -9,6 +9,9 @@ body {
   color: #333;
   font-family: Verdana, sans-serif;
   font-size: 0.8em;
+  -moz-text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+  -mx-text-size-adjust: none;
 }
 
 /* The project logo in the upper left-hand corner of each page */
@@ -183,7 +186,6 @@ table.report tr th {
 
 table.report tr td {
   padding: 3px 5px;
-  cursor: pointer;
 }
 
 textarea {

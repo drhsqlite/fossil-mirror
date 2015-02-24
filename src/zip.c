@@ -450,7 +450,7 @@ void baseline_zip_page(void){
   char *zKey;
 
   login_check_credentials();
-  if( !g.perm.Zip ){ login_needed(); return; }
+  if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
   load_control();
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
@@ -473,6 +473,17 @@ void baseline_zip_page(void){
   rid = name_to_typed_rid(nRid?zRid:zName,"ci");
   if( rid==0 ){
     @ Not found
+    return;
+  }
+  if( referred_from_login() ){
+    style_header("ZIP Archive Download");
+    @ <form action='%R/zip'>
+    cgi_query_parameters_to_hidden();
+    @ <p>ZIP Archive named <b>%h(zName).zip</b> holding the content
+    @ of check-in <b>%h(zRid)</b>:
+    @ <input type="submit" value="Download" />
+    @ </form>
+    style_footer();
     return;
   }
   if( nRid==0 && nName>10 ) zName[10] = 0;

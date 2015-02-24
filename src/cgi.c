@@ -467,6 +467,7 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
   }
   aParamQP[nUsedQP].seq = seqQP++;
   aParamQP[nUsedQP].isQP = isQP;
+  aParamQP[nUsedQP].cTag = 0;
   nUsedQP++;
   sortQP = 1;
 }
@@ -1682,6 +1683,7 @@ void cgi_handle_scgi_request(void){
 #define HTTP_SERVER_SCGI           0x0002     /* SCGI instead of HTTP */
 #define HTTP_SERVER_HAD_REPOSITORY 0x0004     /* Was the repository open? */
 #define HTTP_SERVER_HAD_CHECKOUT   0x0008     /* Was a checkout open? */
+#define HTTP_SERVER_REPOLIST       0x0010     /* Allow repo listing */
 
 #endif /* INTERFACE */
 

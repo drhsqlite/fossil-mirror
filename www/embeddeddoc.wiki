@@ -1,5 +1,5 @@
-<title>Managing Project Documentation</title>
-<h1 align="center">Managing Project Documentation</h1>
+<title>Project Documentation</title>
+<h1 align="center">Project Documentation</h1>
 
 Fossil provides a built-in <a href="wikitheory.wiki">wiki</a>
 that can be used to store the
@@ -65,22 +65,36 @@ pathname of the documentation file relative to the root of the source
 tree.
 
 The mimetype (and thus the rendering) of documentation files is 
-determined by the file suffix.  Fossil currently understands 197
-different file suffixes, including all the popular ones such as
-".css", ".gif", ".htm", ".html", ".jpg", ".jpeg", ".png", and ".txt".
+determined by the file suffix.  Fossil currently understands 
+[/mimetype_list|many different file suffixes],
+including all the popular ones such as ".css", ".gif", ".htm",
+".html", ".jpg", ".jpeg", ".png", and ".txt".
 
 Documentation files whose names end in ".wiki" use the 
 [/wiki_rules | same markup as wiki pages] -
 a safe subset of HTML together with some wiki rules for paragraph
 breaks, lists, and hyperlinks. 
 Documentation files ending in ".md" or ".markdown" use the
-Markdown markup langauge.
+[/md_rules  | Markdown markup langauge].
 Documentation files ending in ".txt" are plain text.
 Wiki, markdown, and plain text documentation files
 are rendered with the standard fossil header and footer added.
-All other mimetypes (including ".html" files)
-are delivered directly to the requesting
+Most other mimetypes are delivered directly to the requesting
 web browser without interpretation, additions, or changes.
+
+Files with the mimetype "text/html" (the .html or .htm suffix) are
+usually rendered directly to the browser without interpretation. 
+However, if the file begins with a &lt;div&gt; element like this:
+
+    <b>&lt;div class='fossil-doc' data-title='<i>Title Text</i>'&gt;</b>
+
+Then the standard Fossil header and footer are added to the document
+prior to being displayed.  The "class='fossil-doc'" attribute is
+required for this to occur.  The "data-title='...'" attribute is
+optional, but if it is present the text will become the title displayed
+in the Fossil header.  An example of this can be seen in the text
+of the [/artifact/84b4b3d041d93a?txt=1 | Index Of Fossil Documentation]
+document.
 
 <h2>Examples</h2>
 

@@ -605,7 +605,7 @@ void tarball_page(void){
   Blob tarball;
 
   login_check_credentials();
-  if( !g.perm.Zip ){ login_needed(); return; }
+  if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
   load_control();
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
@@ -638,6 +638,17 @@ void tarball_page(void){
     @ zName = "%h(zName)"<br>
     @ rid = %d(rid)<br>
     @ zKey = "%h(zKey)"
+    style_footer();
+    return;
+  }
+  if( referred_from_login() ){
+    style_header("Tarball Download");
+    @ <form action='%R/tarball'>
+    cgi_query_parameters_to_hidden();
+    @ <p>Tarball named <b>%h(zName).tar.gz</b> holding the content
+    @ of check-in <b>%h(zRid)</b>:
+    @ <input type="submit" value="Download" />
+    @ </form>
     style_footer();
     return;
   }

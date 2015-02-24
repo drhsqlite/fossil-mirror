@@ -195,8 +195,13 @@ struct Global {
   char *zIpAddr;          /* The remote IP address */
   char *zNonce;           /* The nonce used for login */
 
-  /* permissions used by the server */
+  /* permissions available to current user */
   struct FossilUserPerms perm;
+
+  /* permissions available to current user or to "anonymous".
+  ** This is the logical union of perm permissions above with
+  ** the value that perm would take if g.zLogin were "anonymous". */
+  struct FossilUserPerms anon;
 
 #ifdef FOSSIL_ENABLE_TCL
   /* all Tcl related context necessary for integration */
@@ -1175,7 +1180,7 @@ void help_page(void){
       if( j==0 ){
         @ <td valign="top"><ul>
       }
-      @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a></li>
+      @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
       j++;
       if( j>=n ){
         @ </ul></td>
@@ -1203,7 +1208,7 @@ void help_page(void){
         @ <td valign="top"><ul>
       }
       if( aCmdHelp[i].zText && *aCmdHelp[i].zText ){
-        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z+1)</a></li>
+        @ <li><a href="%R/help?cmd=%s(z)">%s(z+1)</a></li>
       }else{
         @ <li>%s(z+1)</li>
       }
@@ -1233,7 +1238,7 @@ void help_page(void){
         @ <td valign="top"><ul>
       }
       if( aCmdHelp[i].zText && *aCmdHelp[i].zText ){
-        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a></li>
+        @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
       }else{
         @ <li>%s(z)</li>
       }
@@ -1354,8 +1359,11 @@ NORETURN void fossil_redirect_home(void){
 **
 ** Assume the user-id and group-id of the repository, or if zRepo
 ** is a directory, of that directory.
+**
+** The noJail flag means that the chroot jail is not entered.  But
+** privileges are still lowered to that of the the user-id and group-id.
 */
-static char *enter_chroot_jail(char *zRepo){
+static char *enter_chroot_jail(char *zRepo, int noJail){
 #if !defined(_WIN32)
   if( getuid()==0 ){
     int i;
@@ -1368,22 +1376,24 @@ static char *enter_chroot_jail(char *zRepo){
 
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
-    if( file_isdir(zDir)==1 ){
-      if( file_chdir(zDir, 1) ){
-        fossil_fatal("unable to chroot into %s", zDir);
-      }
-      zRepo = "/";
-    }else{
-      for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
-      if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
-      if( i>0 ){
-        zDir[i] = 0;
+    if( !noJail ){
+      if( file_isdir(zDir)==1 ){
         if( file_chdir(zDir, 1) ){
           fossil_fatal("unable to chroot into %s", zDir);
         }
-        zDir[i] = '/';
+        zRepo = "/";
+      }else{
+        for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
+        if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
+        if( i>0 ){
+          zDir[i] = 0;
+          if( file_chdir(zDir, 1) ){
+            fossil_fatal("unable to chroot into %s", zDir);
+          }
+          zDir[i] = '/';
+        }
+        zRepo = &zDir[i];
       }
-      zRepo = &zDir[i];
     }
     if( stat(zRepo, &sStat)!=0 ){
       fossil_fatal("cannot stat() repository: %s", zRepo);
@@ -1399,6 +1409,44 @@ static char *enter_chroot_jail(char *zRepo){
   }
 #endif
   return zRepo;
+}
+
+/*
+** Generate a web-page that lists all repositories located under the
+** g.zRepositoryName directory and return non-zero.
+**
+** Or, if no repositories can be located beneath g.zRepositoryName,
+** return 0.
+*/
+static int repo_list_page(void){
+  Blob base;
+  int n = 0;
+
+  assert( g.db==0 );
+  blob_init(&base, g.zRepositoryName, -1);
+  sqlite3_open(":memory:", &g.db);
+  db_multi_exec("CREATE TABLE sfile(x TEXT);");
+  db_multi_exec("CREATE TABLE vfile(pathname);");
+  vfile_scan(&base, blob_size(&base), 0, 0, 0);
+  db_multi_exec("DELETE FROM sfile WHERE x NOT GLOB '*.fossil'");
+  n = db_int(0, "SELECT count(*) FROM sfile");
+  if( n>0 ){
+    Stmt q;
+    @ <h1>Available Repositories:</h1>
+    @ <ol>
+    db_prepare(&q, "SELECT x, substr(x,-7,-100000)||'/home'"
+                   " FROM sfile ORDER BY x COLLATE nocase;");
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q, 0);
+      const char *zUrl = db_column_text(&q, 1);
+      @ <li><a href="%h(zUrl)">%h(zName)</a></li>
+    }
+    @ </ol>
+    cgi_reply();
+  }
+  sqlite3_close(g.db);
+  g.db = 0;
+  return n;
 }
 
 /*
@@ -1423,7 +1471,11 @@ static char *enter_chroot_jail(char *zRepo){
 **
 ** If no suitable webpage is found, try to redirect to zNotFound.
 */
-static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
+static void process_one_web_page(
+  const char *zNotFound,      /* Redirect here on a 404 if not NULL */
+  Glob *pFileGlob,            /* Deliver static files matching */
+  int allowRepoList           /* Send repo list for "/" URL */
+){
   const char *zPathInfo;
   char *zPath = NULL;
   int idx;
@@ -1498,6 +1550,10 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
         set_base_url(0);
         if( zNotFound ){
           cgi_redirect(zNotFound);
+        }else if( strcmp(zPathInfo,"/")==0
+                  && allowRepoList
+                  && repo_list_page() ){
+          /* Will return a list of repositories */
         }else{
 #ifdef FOSSIL_ENABLE_JSON
           if(g.json.isJsonMode){
@@ -1797,6 +1853,7 @@ void cmd_cgi(void){
   char **azRedirect = 0;             /* List of repositories to redirect to */
   int nRedirect = 0;                 /* Number of entries in azRedirect */
   Glob *pFileGlob = 0;               /* Pattern for files */
+  int allowRepoList = 0;             /* Allow lists of repository files */
   Blob config, line, key, value, value2;
   if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
     zFile = g.argv[2];
@@ -1853,6 +1910,15 @@ void cmd_cgi(void){
       ** from IP address 127.0.0.1.  Do not bother checking credentials.
       */
       g.useLocalauth = 1;
+      continue;
+    }
+    if( blob_eq(&key, "repolist") ){
+      /* repolist
+      **
+      ** If using "directory:" and the URL is "/" then generate a page
+      ** showing a list of available repositories.
+      */
+      allowRepoList = 1;
       continue;
     }
     if( blob_eq(&key, "redirect:") && blob_token(&line, &value)
@@ -1923,6 +1989,18 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
+    if( blob_eq(&key, "skin:") && blob_token(&line, &value) ){
+      /* skin: LABEL
+      **
+      ** Use one of the built-in skins defined by LABEL.  LABEL is the
+      ** name of the subdirectory under the skins/ directory that holds
+      ** the elements of the built-in skin.  If LABEL does not match,
+      ** this directive is a silent no-op.
+      */
+      skin_use_alternative(blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
   }
   blob_reset(&config);
   if( g.db==0 && g.zRepositoryName==0 && nRedirect==0 ){
@@ -1932,7 +2010,7 @@ void cmd_cgi(void){
   if( nRedirect ){
     redirect_web_page(nRedirect, azRedirect);
   }else{
-    process_one_web_page(zNotFound, pFileGlob);
+    process_one_web_page(zNotFound, pFileGlob, allowRepoList);
   }
 }
 
@@ -1950,20 +2028,13 @@ void cmd_cgi(void){
 ** the name of that directory and the specific repository will be
 ** opened later by process_one_web_page() based on the content of
 ** the PATH_INFO variable.
-**
-** If disallowDir is set, then the directory full of repositories method
-** is disallowed.
 */
-static void find_server_repository(int disallowDir, int arg){
+static void find_server_repository(int arg){
   if( g.argc<=arg ){
     db_must_be_within_tree();
   }else if( file_isdir(g.argv[arg])==1 ){
-    if( disallowDir ){
-      fossil_fatal("\"%s\" is a directory, not a repository file", g.argv[arg]);
-    }else{
-      g.zRepositoryName = mprintf("%s", g.argv[arg]);
-      file_simplify_name(g.zRepositoryName, -1, 0);
-    }
+    g.zRepositoryName = mprintf("%s", g.argv[arg]);
+    file_simplify_name(g.zRepositoryName, -1, 0);
   }else{
     db_open_repository(g.argv[arg]);
   }
@@ -2008,14 +2079,17 @@ static void find_server_repository(int disallowDir, int arg){
 ** enabled.
 **
 ** Options:
+**   --baseurl URL    base URL (useful with reverse proxies)
+**   --files GLOB     comma-separate glob patterns for static file to serve
 **   --localauth      enable automatic login for local connections
 **   --host NAME      specify hostname of the server
 **   --https          signal a request coming in via https
+**   --nojail         drop root privilege but do not enter the chroot jail
 **   --nossl          signal that no SSL connections are available
 **   --notfound URL   use URL as "HTTP 404, object not found" page.
-**   --files GLOB     comma-separate glob patterns for static file to serve
-**   --baseurl URL    base URL (useful with reverse proxies)
+**   --repolist       If REPOSITORY is directory, URL "/" lists all repos
 **   --scgi           Interpret input as SCGI rather than HTTP
+**   --skin LABEL     Use override skin LABEL
 **
 ** See also: cgi, server, winsrv
 */
@@ -2026,6 +2100,8 @@ void cmd_http(void){
   const char *zAltBase;
   const char *zFileGlob;
   int useSCGI;
+  int noJail;
+  int allowRepoList;
 
   /* The winhttp module passes the --files option as --files-urlenc with
   ** the argument being URL encoded, to avoid wildcard expansion in the
@@ -2039,7 +2115,10 @@ void cmd_http(void){
   }else{
     zFileGlob = find_option("files",0,1);
   }
+  skin_override();
   zNotFound = find_option("notfound", 0, 1);
+  noJail = find_option("nojail",0,0)!=0;
+  allowRepoList = find_option("repolist",0,0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   useSCGI = find_option("scgi", 0, 0)!=0;
@@ -2064,11 +2143,11 @@ void cmd_http(void){
     g.httpIn = fossil_fopen(g.argv[2], "rb");
     g.httpOut = fossil_fopen(g.argv[3], "wb");
     zIpAddr = g.argv[4];
-    find_server_repository(0, 5);
+    find_server_repository(5);
   }else{
     g.httpIn = stdin;
     g.httpOut = stdout;
-    find_server_repository(0, 2);
+    find_server_repository(2);
   }
   if( zIpAddr==0 ){
     zIpAddr = cgi_ssh_remote_addr(0);
@@ -2076,7 +2155,7 @@ void cmd_http(void){
       g.fSshClient |= CGI_SSH_CLIENT;
     }
   }
-  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
   if( useSCGI ){
     cgi_handle_scgi_request();
   }else if( g.fSshClient & CGI_SSH_CLIENT ){
@@ -2084,7 +2163,7 @@ void cmd_http(void){
   }else{
     cgi_handle_http_request(zIpAddr);
   }
-  process_one_web_page(zNotFound, glob_create(zFileGlob));
+  process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
 }
 
 /*
@@ -2094,7 +2173,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
   blob_zero(&g.cgiIn);
   do{
     cgi_handle_ssh_http_request(zIpAddr);
-    process_one_web_page(0, FileGlob);
+    process_one_web_page(0, FileGlob, 0);
     blob_reset(&g.cgiIn);
   } while ( g.fSshClient & CGI_SSH_FOSSIL ||
           g.fSshClient & CGI_SSH_COMPAT );
@@ -2115,7 +2194,7 @@ void cmd_test_http(void){
   g.useLocalauth = 1;
   g.httpIn = stdin;
   g.httpOut = stdout;
-  find_server_repository(0, 2);
+  find_server_repository(2);
   g.cgiOutput = 1;
   g.fullHttpReply = 1;
   zIpAddr = cgi_ssh_remote_addr(0);
@@ -2125,7 +2204,7 @@ void cmd_test_http(void){
   }else{
     cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
     cgi_handle_http_request(0);
-    process_one_web_page(0, 0);
+    process_one_web_page(0, 0, 0);
   }
 }
 
@@ -2186,22 +2265,25 @@ static int binaryOnPath(const char *zBinary){
 ** also present.
 **
 ** By default, the "ui" command provides full administrative access without
-** having to log in.  This can be disabled by setting turning off the
-** "localauth" setting.  Automatic login for the "server" command is available
-** if the --localauth option is present and the "localauth" setting is off
-** and the connection is from localhost.  The optional REPOSITORY argument
-** to "ui" may be a directory and will function as "server" if and only if
-** the --notfound option is used.
+** having to log in.  This can be disabled by turning off the "localauth"
+** setting.  Automatic login for the "server" command is available if the
+** --localauth option is present and the "localauth" setting is off and the
+** connection is from localhost.  The "ui" command also enables --repolist
+** by default.
 **
 ** Options:
+**   --baseurl URL       Use URL as the base (useful for reverse proxies)
+**   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
+**   --nojail            Drop root privileges but do not enter the chroot jail
+**   --notfound URL      Redirect
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --th-trace          trace TH1 execution (for debugging purposes)
-**   --baseurl URL       Use URL as the base (useful for reverse proxies)
-**   --notfound URL      Redirect
-**   --files GLOBLIST    Comma-separated list of glob patterns for static files
+**   --repolist          If REPOSITORY is dir, URL "/" lists repos.
 **   --scgi              Accept SCGI rather than HTTP
+**   --skin LABEL        Use override skin LABEL
+
 **
 ** See also: cgi, http, winsrv
 */
@@ -2213,6 +2295,10 @@ void cmd_webserver(void){
   int isUiCmd;              /* True if command is "ui", not "server' */
   const char *zNotFound;    /* The --notfound option or NULL */
   int flags = 0;            /* Server flags */
+#if !defined(_WIN32)
+  int noJail;               /* Do not enter the chroot jail */
+#endif
+  int allowRepoList;        /* List repositories on URL "/" */
   const char *zAltBase;     /* Argument to the --baseurl option */
   const char *zFileGlob;    /* Static content must match this */
   char *zIpAddr = 0;        /* Bind to this IP address */
@@ -2230,10 +2316,15 @@ void cmd_webserver(void){
   }else{
     zFileGlob = find_option("files",0,1);
   }
+  skin_override();
+#if !defined(_WIN32)
+  noJail = find_option("nojail",0,0)!=0;
+#endif
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   Th_InitTraceLog();
   zPort = find_option("port", "P", 1);
   zNotFound = find_option("notfound", 0, 1);
+  allowRepoList = find_option("repolist",0,0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
   if( find_option("scgi", 0, 0)!=0 ) flags |= HTTP_SERVER_SCGI;
   if( zAltBase ){
@@ -2249,10 +2340,11 @@ void cmd_webserver(void){
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
-    flags |= HTTP_SERVER_LOCALHOST;
+    flags |= HTTP_SERVER_LOCALHOST|HTTP_SERVER_REPOLIST;
     g.useLocalauth = 1;
+    allowRepoList = 1;
   }
-  find_server_repository(isUiCmd && zNotFound==0, 2);
+  find_server_repository(2);
   if( zPort ){
     int i;
     for(i=strlen(zPort)-1; i>=0 && zPort[i]!=':'; i--){}
@@ -2306,16 +2398,17 @@ void cmd_webserver(void){
     fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
   }
   g.cgiOutput = 1;
-  find_server_repository(isUiCmd && zNotFound==0, 2);
-  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
+  find_server_repository(2);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();
   }else{
     cgi_handle_http_request(0);
   }
-  process_one_web_page(zNotFound, glob_create(zFileGlob));
+  process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
 #else
   /* Win32 implementation */
+  (void)allowRepoList;  /* Suppress warning */
   if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
     if( zIpAddr ){

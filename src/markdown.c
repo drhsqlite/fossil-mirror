@@ -844,7 +844,9 @@ static size_t char_langle_tag(
 }
 
 
-/* get_link_inline -- extract inline-style link and title from parenthesed data*/
+/* get_link_inline -- extract inline-style link and title from
+** parenthesed data
+*/
 static int get_link_inline(
   struct Blob *link,
   struct Blob *title,
@@ -1524,7 +1526,7 @@ static size_t parse_listitem(
       rndr->make.listitem(ob, work, *flags, rndr->make.opaque);
     }
     if( work!=&fallback ) release_work_buffer(rndr, work);
-    blob_zero(&fallback);
+    blob_reset(&fallback);
     return beg;
   }
 
@@ -1560,7 +1562,7 @@ static size_t parse_listitem(
   }
   release_work_buffer(rndr, inter);
   if( work!=&fallback ) release_work_buffer(rndr, work);
-  blob_zero(&fallback);
+  blob_reset(&fallback);
   return beg;
 }
 
@@ -1586,7 +1588,7 @@ static size_t parse_list(
 
   if( rndr->make.list ) rndr->make.list(ob, work, flags, rndr->make.opaque);
   if( work!=&fallback ) release_work_buffer(rndr, work);
-  blob_zero(&fallback);
+  blob_reset(&fallback);
   return i;
 }
 
@@ -1633,7 +1635,11 @@ static size_t parse_atxheader(
 
 /* htmlblock_end -- checking end of HTML block : </tag>[ \t]*\n[ \t*]\n */
 /*  returns the length on match, 0 otherwise */
-static size_t htmlblock_end(const struct html_tag *tag, const char *data, size_t size){
+static size_t htmlblock_end(
+  const struct html_tag *tag,
+  const char *data,
+  size_t size
+){
   size_t i, w;
 
   /* assuming data[0]=='<' && data[1]=='/' already tested */
@@ -2226,15 +2232,15 @@ void markdown(
   if( rndr.make.epilog ) rndr.make.epilog(ob, rndr.make.opaque);
 
   /* clean-up */
-  blob_zero(&text);
+  blob_reset(&text);
   lr = (struct link_ref *)blob_buffer(&rndr.refs);
   end = blob_size(&rndr.refs)/sizeof(struct link_ref);
   for(i=0; i<end; i++){
-    blob_zero(&lr[i].id);
-    blob_zero(&lr[i].link);
-    blob_zero(&lr[i].title);
+    blob_reset(&lr[i].id);
+    blob_reset(&lr[i].link);
+    blob_reset(&lr[i].title);
   }
-  blob_zero(&rndr.refs);
+  blob_reset(&rndr.refs);
   blobarray_zero(rndr.work, rndr.make.max_work_stack);
   fossil_free(rndr.work);
 }

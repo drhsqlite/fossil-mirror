@@ -426,7 +426,7 @@ void access_log_page(void){
   int rc;
 
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(); return; }
+  if( !g.perm.Admin ){ login_needed(0); return; }
   create_accesslog_table();
 
   if( P("delall") && P("delallbtn") ){

@@ -192,6 +192,7 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_OMIT_DEPRECATED \
                  /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  /DSQLITE_ENABLE_FTS4 \
+                 /DSQLITE_ENABLE_FTS3_PARENTHESIS \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /Dmain=sqlite3_shell \
