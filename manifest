@@ -1,5 +1,5 @@
-C Usage\stext\sonly\smodifications:\n\t-\sMention\sabout\s--force.\n\t-\sShow\sthat\s--git\sis\soptional\s(?--git?)\n\t-\sAdd\sshort\soption\s(-f\sfor\s--force\sand\s-i\sfor\s--incremental)\n\n(No\schange\sto\sthe\scode)
-D 2015-02-25T17:19:01.855
+C Merge\strunk.\s\nRemove\s--no-svn-rev\sswitch\sfor\s"fossil\simport\s--svn",\sjust\suse\s--incremental\sfor\sthat\s(svn-rev-??\stags\sare\soff\sby\sdefault,\sbut\sswitched\son\sby\s--incremental)
+D 2015-02-25T22:39:44.986
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -386,7 +386,7 @@ F src/http.c 4045dd21bdc880bc7b694088c21a15bdbe1b562b
 F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
-F src/import.c cea940fcc5a1877d3a68b451c4b4a5e3586c3ff6
+F src/import.c 8502ed8dbd7327695150549e67ae77cf45ddbb91
 F src/info.c 14a6e31db2da4e6027fd3272b45a3eb5c7540cb2
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
@@ -441,13 +441,13 @@ F src/schema.c f614471807c3c7ce1539644e9a6270d4cb76cd61
 F src/search.c 62eb5f66698a6ea27397c121baf7ad5c3bd8a872
 F src/setup.c 72e3d8640b631d3db99a777866cc7188121d0838
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c a29ab8256f525a7431d865c6c2e7116bd7ffa92a
+F src/shell.c 2a77c6cb90eebf781e989a535149a3816c6f96ff
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c f173892c2871ab1de8640be58d2ac2c2569f3394
 F src/skins.c 153ba32582e26dff62322a97107617b345d77dc0
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
-F src/sqlite3.c 85ce79948116aa9a087ec345c9d2ce2c1d3cd8af
-F src/sqlite3.h eb06a7a2c24836d63607f1a4407c3aaccb79f3cf
+F src/sqlite3.c 74ee38c8c6fd175ec85a47276dfcefe8a262827a
+F src/sqlite3.h 04dfde386ba67d65f30bc4c7ca8c49885113505b
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 82f40082a3fe739b417dbcf0288f00db327ea62b
 F src/statrep.c 6e51144c2835255ade68644eded15f84865ce5dc
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 3a6c848f68e55c2efc1ac5ec251295050d022bd9
-R 212000adfe41680791c19e25d80f3740
-U mgagnon
-Z b526aa787761eb0776bca082bb24d384
+P c2cdd0e3e8925458034ea1c39c1efbd810962e1f 4bd1014ef06f039a9568cf334ecec6a9f11a44ad
+R 2ffa892aeaac9239509fb11a1b1090b3
+U jan.nijtmans
+Z 9268238fa40b56c116f7c3854a9ae306

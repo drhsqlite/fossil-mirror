@@ -731,7 +731,7 @@ static struct{
   const char *zTags;          /* Name of tags folder in repo root */
   int lenTags;                /* String length of zTags */
   Bag newBranches;            /* Branches that were created in this revision */
-  int noSvnRevFlag;           /* Omit snv-rev-nn tags on every checkins */
+  int incrFlag;               /* Add svn-rev-nn tags on every checkin */
 } gsvn;
 typedef struct {
   char *zKey;
@@ -1002,7 +1002,7 @@ static void svn_finish_revision(){
             blob_appendf(&manifest, "P %s\n", zParentUuid);
             blob_appendf(&manifest, "T *branch * %F\n", zBranch);
             blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
-            if( !gsvn.noSvnRevFlag ){
+            if( gsvn.incrFlag ){
               blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
             }
             blob_appendf(&manifest, "T -sym-%F *\n", zParentBranch);
@@ -1010,7 +1010,7 @@ static void svn_finish_revision(){
           }else{
             char *zMergeUuid = rid_to_uuid(mergeRid);
             blob_appendf(&manifest, "P %s %s\n", zParentUuid, zMergeUuid);
-            if( !gsvn.noSvnRevFlag ){
+            if( gsvn.incrFlag ){
               blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
             }
             fossil_free(zMergeUuid);
@@ -1019,7 +1019,7 @@ static void svn_finish_revision(){
         }else{
           blob_appendf(&manifest, "T *branch * %F\n", zBranch);
           blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
-          if( !gsvn.noSvnRevFlag ){
+          if( gsvn.incrFlag ){
             blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
           }
         }
@@ -1488,7 +1488,6 @@ static void svn_dump_import(FILE *pIn){
 **                  --tags FOLDER      Name of tags folder
 **                  --base PATH        Path to project root in repository
 **                  --flat             The whole dump is a single branch
-**                  --no-svn-rev       Omit 'snv-rev-nnn' tags on checkins
 **
 ** Common Options:
 **   -i|--incremental   allow importing into an existing repository
@@ -1523,7 +1522,7 @@ void import_cmd(void){
     gsvn.zTrunk = find_option("trunk", 0, 1);
     gsvn.zBranches = find_option("branches", 0, 1);
     gsvn.zTags = find_option("tags", 0, 1);
-    gsvn.noSvnRevFlag = find_option("no-svn-rev", 0, 0)!=0;
+    gsvn.incrFlag = incrFlag;
   }else{
     find_option("git",0,0);  /* Skip the --git option for now */
   }
