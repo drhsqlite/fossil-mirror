@@ -1475,13 +1475,13 @@ static void svn_dump_import(FILE *pIn){
 **
 ** The following formats are currently understood by this command
 **
-**   --git        Import from the git-fast-export file format
+**   --git        Import from the git-fast-export file format (default)
 **
 **   --svn        Import from the svnadmin-dump file format. The default
-**                behaviour (unless overridden by --flat) is to treat 3 folders
-**                in the SVN root as special, following the common layout of
-**                SVN repositories. These are (by default) trunk/, branches/
-**                and tags/
+**                behaviour (unless overridden by --flat) is to treat 3
+**                folders in the SVN root as special, following the
+**                common layout of SVN repositories. These are (by
+**                default) trunk/, branches/ and tags/
 **                Options:
 **                  --trunk FOLDER     Name of trunk folder
 **                  --branches FOLDER  Name of branches folder
@@ -1502,33 +1502,28 @@ void import_cmd(void){
   char *zPassword;
   FILE *pIn;
   Stmt q;
-  int gitFlag=0;
-  int svnFlag=0;
+  int forceFlag = find_option("force", "f", 0)!=0;
+  int svnFlag = find_option("svn", 0, 0)!=0;
 
   /* Options common to all input formats */
   int incrFlag = find_option("incremental", "i", 0)!=0;
 
   /* Options for --svn only */
   const char *zBase="";
-  int forceFlag=0;
   int flatFlag=0;
 
-  if( find_option("svn", 0, 0) ){
-    svnFlag=1;
+  if( svnFlag ){
     /* Get --svn related options here, so verify_all_options() fail when svn
      * only option are specify with --git
      */
     zBase = find_option("base", 0, 1);
-    forceFlag = find_option("force", "f", 0)!=0;
     flatFlag = find_option("flat", 0, 0)!=0;
     gsvn.zTrunk = find_option("trunk", 0, 1);
     gsvn.zBranches = find_option("branches", 0, 1);
     gsvn.zTags = find_option("tags", 0, 1);
     gsvn.noSvnRevFlag = find_option("no-svn-rev", 0, 0)!=0;
-  }else if( find_option("git", 0, 0) ){
-    gitFlag=1;
   }else{
-    usage("--git|--svn ?OPTIONS? NEW-REPOSITORY ?INPUT-FILE?");
+    find_option("git",0,0);  /* Skip the --git option for now */
   }
   verify_all_options();
 
@@ -1605,7 +1600,7 @@ void import_cmd(void){
       }
     }
     svn_dump_import(pIn);
-  }else if( gitFlag ){
+  }else{
     /* The following temp-tables are used to hold information needed for
     ** the import.
     **
