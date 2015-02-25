@@ -348,7 +348,7 @@ static void add_file_to_remove(
 }
 
 static void process_files_to_remove(
-  int dryRunFlag /* Non-zero to actually operate on the file-system. */
+  int dryRunFlag /* Zero to actually operate on the file-system. */
 ){
   Stmt remove;
   db_prepare(&remove, "SELECT x FROM fremove ORDER BY x;");
@@ -677,7 +677,7 @@ static void add_file_to_move(
 }
 
 static void process_files_to_move(
-  int dryRunFlag /* Non-zero to actually operate on the file-system. */
+  int dryRunFlag /* Zero to actually operate on the file-system. */
 ){
   Stmt move;
   db_prepare(&move, "SELECT x, y FROM fmove ORDER BY x;");
