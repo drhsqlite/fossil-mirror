@@ -1,5 +1,5 @@
-C Add\smissing\sbackground-color\sto\sSan\sFrancisco\sModern\sskin\sper\s[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg19009.html].
-D 2015-02-24T06:03:54.341
+C For\sthe\s'eagle'\sskin,\smake\sthe\scontext\sselected\stimeline\stable\srow\sreadable.
+D 2015-02-25T03:00:10.329
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -319,7 +319,7 @@ F skins/default/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
 F skins/default/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
 F skins/default/header.txt e1f837ff2d7bbe1cda8ca6847875491f6b5b269a
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
-F skins/eagle/css.txt c327bfceff7d946b1be859d87338bd2d3c386eb3
+F skins/eagle/css.txt e336d13fdfae49934adc73ad022df038c8954d75
 F skins/eagle/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
 F skins/eagle/header.txt f38e32ea185558d7be359afab65c335b29cb1782
 F skins/enhanced1/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P a97404ef7fc3f9d779353927d624872ffaf33a2a
-R 35711b5a8ba80b548596a3e07aa7bf67
-U andybradford
-Z 4f16a0c11a506fa17efb8a399d707436
+P b0febccc4e1cf5c6763e3aa088b1ea788d255e47
+R 53960a10299ba35faee6bf8a7099f52f
+U mistachkin
+Z 159ba1ffbc7e90e94771eebed0030eab
