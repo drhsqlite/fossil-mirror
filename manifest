@@ -1,5 +1,5 @@
-C Fix\sa\stypo\son\sthe\sconcepts\spage.
-D 2015-02-25T05:35:25.605
+C Update\sSQLite\sto\sthe\s3.8.8.3\srelease
+D 2015-02-25T21:39:54.090
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,13 +441,13 @@ F src/schema.c f614471807c3c7ce1539644e9a6270d4cb76cd61
 F src/search.c 62eb5f66698a6ea27397c121baf7ad5c3bd8a872
 F src/setup.c 72e3d8640b631d3db99a777866cc7188121d0838
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c a29ab8256f525a7431d865c6c2e7116bd7ffa92a
+F src/shell.c 2a77c6cb90eebf781e989a535149a3816c6f96ff
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c f173892c2871ab1de8640be58d2ac2c2569f3394
 F src/skins.c 153ba32582e26dff62322a97107617b345d77dc0
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
-F src/sqlite3.c 85ce79948116aa9a087ec345c9d2ce2c1d3cd8af
-F src/sqlite3.h eb06a7a2c24836d63607f1a4407c3aaccb79f3cf
+F src/sqlite3.c 74ee38c8c6fd175ec85a47276dfcefe8a262827a
+F src/sqlite3.h 04dfde386ba67d65f30bc4c7ca8c49885113505b
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 82f40082a3fe739b417dbcf0288f00db327ea62b
 F src/statrep.c 6e51144c2835255ade68644eded15f84865ce5dc
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P abffb10f28d3a7ec07ca6ff54dae91452c86c629
-R a02d57123d0e92ceded32683c834ab03
-U drh
-Z ef7ed1b3ad36c2297d1f55f7335262e3
+P 4e6fb46a61ed045d5efd2070b575b953928b9dea
+R 2c4797b03b482e7db98bcdb57aa60157
+U jan.nijtmans
+Z f8b2ddb134166f2bd66944320820ed20
