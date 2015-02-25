@@ -375,7 +375,7 @@ local repository.
 
 <li>
 Once changes are in your local repository, use
-use the <b>update</b> command to merge them to your local source tree.
+the <b>update</b> command to merge them to your local source tree.
 If you merge in some changes and find that the changes do not work out
 or are not to your liking, you can back out the changes using the
 <b>undo</b> command.

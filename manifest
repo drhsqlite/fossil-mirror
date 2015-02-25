@@ -1,5 +1,5 @@
-C For\sthe\s'eagle'\sskin,\smake\sthe\scontext\sselected\stimeline\stable\srow\sreadable.
-D 2015-02-25T03:00:10.329
+C Fix\sa\stypo\son\sthe\sconcepts\spage.
+D 2015-02-25T05:35:25.605
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -621,7 +621,7 @@ F www/checkin_names.wiki 80d94f4d8d893e7ba3f0bb261986e6f7a003cd41
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki e66b013ab71e14aecb39213b6d6682369261d107
+F www/concepts.wiki 3dcf2d2b73e47da50a21c75e750b4546569473fd
 F www/contribute.wiki 57e13151802a559fa6a78587048d74bc7368cca6
 F www/copyright-release.html 76db86c906d5d09347b000e07d1bda8ca5754ad6
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P b0febccc4e1cf5c6763e3aa088b1ea788d255e47
-R 53960a10299ba35faee6bf8a7099f52f
-U mistachkin
-Z 159ba1ffbc7e90e94771eebed0030eab
+P abffb10f28d3a7ec07ca6ff54dae91452c86c629
+R a02d57123d0e92ceded32683c834ab03
+U drh
+Z ef7ed1b3ad36c2297d1f55f7335262e3
