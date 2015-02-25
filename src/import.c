@@ -731,6 +731,7 @@ static struct{
   const char *zTags;          /* Name of tags folder in repo root */
   int lenTags;                /* String length of zTags */
   Bag newBranches;            /* Branches that were created in this revision */
+  int noSvnRevFlag;           /* Omit snv-rev-nn tags on every checkins */
 } gsvn;
 typedef struct {
   char *zKey;
@@ -1001,20 +1002,26 @@ static void svn_finish_revision(){
             blob_appendf(&manifest, "P %s\n", zParentUuid);
             blob_appendf(&manifest, "T *branch * %F\n", zBranch);
             blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
-            blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+            if( !gsvn.noSvnRevFlag ){
+              blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+            }
             blob_appendf(&manifest, "T -sym-%F *\n", zParentBranch);
             fossil_free(zParentBranch);
           }else{
             char *zMergeUuid = rid_to_uuid(mergeRid);
             blob_appendf(&manifest, "P %s %s\n", zParentUuid, zMergeUuid);
-            blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+            if( !gsvn.noSvnRevFlag ){
+              blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+            }
             fossil_free(zMergeUuid);
           }
           fossil_free(zParentUuid);
         }else{
           blob_appendf(&manifest, "T *branch * %F\n", zBranch);
           blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
-          blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+          if( !gsvn.noSvnRevFlag ){
+            blob_appendf(&manifest, "T +sym-svn-rev-%d *\n", gsvn.rev);
+          }
         }
       }else if( branchType==SVN_TAG ){
         char *zParentUuid = rid_to_uuid(parentRid);
@@ -1480,6 +1487,7 @@ static void svn_dump_import(FILE *pIn){
 **                  --tags FOLDER      Name of tags folder
 **                  --base PATH        Path to project root in repository
 **                  --flat             The whole dump is a single branch
+**                  --no-svn-rev       Omit 'snv-rev-nnn' tags on checkins
 **
 ** The --incremental option allows an existing repository to be extended
 ** with new content.
@@ -1501,6 +1509,8 @@ void import_cmd(void){
   gsvn.zTrunk = find_option("trunk", 0, 1);
   gsvn.zBranches = find_option("branches", 0, 1);
   gsvn.zTags = find_option("tags", 0, 1);
+  gsvn.noSvnRevFlag = find_option("no-svn-rev", 0, 0)!=0;
+
   verify_all_options();
   if( g.argc!=4  && g.argc!=5 ){
     usage("FORMAT REPOSITORY-NAME");

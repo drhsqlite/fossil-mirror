@@ -1,5 +1,5 @@
-C Compiler\swarning\s(cherry-picked\sfrom\s"svn-import_no-svn-rev"\sbranch)
-D 2015-02-22T15:35:51.375
+C Integrate\ssvn-import_no-svn-rev\sbranch..
+D 2015-02-25T13:52:56.159
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -386,7 +386,7 @@ F src/http.c 4045dd21bdc880bc7b694088c21a15bdbe1b562b
 F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
-F src/import.c ae3d36f84f5b79e6a07725322e3de5ece062d0dd
+F src/import.c 4e5c39d7110f593fb85061af3f1923a61bfc0743
 F src/info.c 14a6e31db2da4e6027fd3272b45a3eb5c7540cb2
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
@@ -698,7 +698,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 916d1d463e8e55e1708c7d0502d20109362a638d
-R 546f0a2538a41476d7467125c87fef23
-U jan.nijtmans
-Z 4088453b24f0afdf584b0a59efd2ea20
+P 998ba3ada4ac2a7a6e93f3d2254c3c3e1a622c97 44686ca1a92eb13f859b94a244ebad27e43efb1a
+R 57479e574ad59a75a67011fef10dbbad
+T +closed 44686ca1a92eb13f859b94a244ebad27e43efb1a
+U mgagnon
+Z c8a09e24b8873daf184e04db5b5e5382
