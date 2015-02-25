@@ -1,5 +1,5 @@
-C Make\s--git\sthe\sdefault\sfor\s"fossil\simport"\sif\sneither\s--git\snor\s--svn\sis\sspecified.\nMake\s--force\swork\s(again)\swith\s"fossil\simport\s--git".
-D 2015-02-25T16:09:34.690
+C Usage\stext\sonly\smodifications:\n\t-\sMention\sabout\s--force.\n\t-\sShow\sthat\s--git\sis\soptional\s(?--git?)\n\t-\sAdd\sshort\soption\s(-f\sfor\s--force\sand\s-i\sfor\s--incremental)\n\n(No\schange\sto\sthe\scode)
+D 2015-02-25T17:19:01.855
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -386,7 +386,7 @@ F src/http.c 4045dd21bdc880bc7b694088c21a15bdbe1b562b
 F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
-F src/import.c c290110112383c2e4538ec19941936b7be3263a1
+F src/import.c cea940fcc5a1877d3a68b451c4b4a5e3586c3ff6
 F src/info.c 14a6e31db2da4e6027fd3272b45a3eb5c7540cb2
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 9c517763598a62b831359f699b120e928c6e1ef0
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 4d3bb24b4434cd4050bc2b4646848023c102f873
-R 79eb3c538213d0586db338b13efd3246
-U jan.nijtmans
-Z 8dd51306d063fc9f8a342a285975a009
+P 3a6c848f68e55c2efc1ac5ec251295050d022bd9
+R 212000adfe41680791c19e25d80f3740
+U mgagnon
+Z b526aa787761eb0776bca082bb24d384
