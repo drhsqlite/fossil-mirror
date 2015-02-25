@@ -467,6 +467,7 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
   }
   aParamQP[nUsedQP].seq = seqQP++;
   aParamQP[nUsedQP].isQP = isQP;
+  aParamQP[nUsedQP].cTag = 0;
   nUsedQP++;
   sortQP = 1;
 }
