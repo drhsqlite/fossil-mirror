@@ -1,5 +1,5 @@
-C fixed\sa\snumber\sof\stypos\sin\sWWW-docs,\sas\ssuggested\son\sML
-D 2015-02-26T20:18:06.004
+C fixed\smore\stypos\sand\sgrammatical\serrors\sin\sWWW-docs\sas\sspecified\sby\sML-posted\spatches
+D 2015-02-26T21:33:30.890
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -614,15 +614,15 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 1f3f22a07ecd948bac7c1fac08b442446b530b78
-F www/changes.wiki 47f7feadd001bf846bd48a872df3a9e546f8573e
+F www/build.wiki e3457d63f4c9bcb288600ac0cd718096927166df
+F www/changes.wiki 428933f000d7b7f825f7475b8df33d980aa6552e
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a79a64b6099d0cf3fe3ee4b4543f03b71ddb2fec
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 3dcf2d2b73e47da50a21c75e750b4546569473fd
-F www/contribute.wiki 57e13151802a559fa6a78587048d74bc7368cca6
+F www/contribute.wiki 71b136fb9549c3b6167b1c24249d354c551abd47
 F www/copyright-release.html af2224620e3aa85d5226b74832dce703616a1c21
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
@@ -649,11 +649,11 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 7a932aadc92802be5e80246d0ac494accb2b09b7
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
-F www/fileformat.wiki 01e30821da0eec45799121e4fe8078573c5a7cd6
-F www/fiveminutes.wiki c7be1d69d2252d849f26dd32e0b561020b91beff
+F www/fileformat.wiki d54f8450d78b81d03a3ee158688debf15d2dbeb0
+F www/fiveminutes.wiki 3172b324738523b163b19a8c836d3d9a3ceb9b94
 F www/foss-cklist.wiki 77fe5872d7077a68e1b01e8dd5e3a48f7ee2b0dd
 F www/fossil-from-msvc.wiki f2c229553ff6304fa0c6e82d169e959498af98a8
-F www/fossil-v-git.wiki 139da8883446a3d2e1c933272b2f3c4ca5a04d26
+F www/fossil-v-git.wiki 31acd45f927afcd17712b633e7e0799dd03346eb
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
@@ -675,32 +675,29 @@ F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
 F www/permutedindex.html a0d9ee48362b87be7a99dbb21a014497f6df9f91
 F www/pop.wiki 759734461ff700ab2cf94bec8f1eba08b239a092
-F www/private.wiki 2114b9b05a06351377c768a1a877b3fee1c30da8
+F www/private.wiki af8adafa228db1b9e56921a8bcee0b1acc26c6c5
 F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
-F www/quickstart.wiki 4f732070d5f25f22329dff8dc225442978906c77
+F www/quickstart.wiki aa6a95f181fad1f7806016ed463b4875ec06dd8a
 F www/quotes.wiki a6a8bd9783b681cabcce39600bce0bfc561fd2bf
 F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 23fd916be2143ac1026fcbea2fbea1373bf68876
 F www/selfcheck.wiki e970d3140085538c8bc7df1b0629c134ea8b8e05
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki 1248fecc83765e45ec21311a3d1e082575088e81
+F www/server.wiki 9c31a8973d9c0f6de8049951a2d1e958bae22060
 F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
-F www/stats.wiki 99a99ecde88b33cbf458c444bfd26dba08956bc2
-F www/style.wiki 92ede836b02fb8958e948b9df51f196e9ec95d68
+F www/stats.wiki d83fbd652012f1bc88ff76c00937652c3619ab2e
+F www/style.wiki 8b1edadee7b57ae0baf22b590b6bfca6231c0639
 F www/sync.wiki 53a1e45726f4bbfc69e8f0898bb8196e7660c82b
-F www/tech_overview.wiki 47bd3f7fa192bb99ff6b2063d7e4cac62786f96d
-F www/th1.md ca65967cc48353b90f71cd5d22409fef07e111ba
+F www/tech_overview.wiki 764344331a89b240909d5fe70c83eabd2c274990
+F www/th1.md 57434d9b816ecf2b6e79211402caa7b1eb718916
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
-F www/webui.wiki ecc730cf349cd23f82863f3151e73e458147a2d2
+F www/webui.wiki 21c05a1aa4d2437fafc4039940f3cb794b688b2c
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e7ec49815b988811f8a8c4493209a5951a3a5e30
-T *branch * ml-jb-doc-typos
-T *sym-ml-jb-doc-typos *
-T -sym-trunk *
+P 05fc09c5ddc1b00f19a639bbc396be7f29f997aa
 U michai
-Z faf2dbc793663b1be559c4c609f3ad4c
+Z ecfee114ac6a9a73116529876db2ce48

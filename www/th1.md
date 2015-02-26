@@ -7,7 +7,7 @@ content in Fossil.
 Origins
 -------
 
-TH1 began as a minimalist reimplementation of the TCL scripting language.
+TH1 began as a minimalist re-implementation of the TCL scripting language.
 There was a need to test the SQLite library on Symbian phones, but at that
 time all of the test cases for SQLite were written in Tcl and Tcl could not
 be easily compiled on the SymbianOS.  So TH1 was developed as a cut-down
@@ -159,8 +159,8 @@ Each of the commands above is documented by a block comment above their
 implementation in the th_main.c source file.
 
 **To Do:** We would like to have a community volunteer go through and
-copy the documentation for each of these command (with appropriate
+copy the documentation for each of these commands (with appropriate
 format changes and spelling and grammar corrections) into subsequent
 sections of this document. It is suggested that the list of extension
 commands be left intact - as a quick reference.  But it would be really
-nice to also have the details of each each command does.
+nice to also have the details of what each command does.

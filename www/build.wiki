@@ -80,7 +80,7 @@ of the Fossil code you find running on the main Fossil website.
 <p>Unpack the ZIP or tarball you downloaded then
 <b>cd</b> into the directory created.</p></li>
 
-<li><i>(Optional, unix only)</i>
+<li><i>(Optional, Unix only)</i>
 Run <b>./configure</b> to construct a makefile.
 
 <ol type="a">
@@ -102,7 +102,7 @@ The details depend on your platform and compiler.
 
 <ol type="a">
 <li><p><i>Unix</i> → the configure-generated Makefile should work on
-all unix and unix-like systems.  Simply type "<b>make</b>".
+all Unix and Unix-like systems.  Simply type "<b>make</b>".
 
 <li><p><i>Unix without running "configure"</i> → if you prefer to avoid running configure, you
 can also use: <b>make -f Makefile.classic</b>.  You may want to make minor
@@ -134,7 +134,7 @@ nmake /f Makefile.msc FOSSIL_ENABLE_SSL=1 FOSSIL_BUILD_SSL=1 PERLDIR=C:\full\pat
 buildmsvc.bat FOSSIL_ENABLE_SSL=1 FOSSIL_BUILD_SSL=1 PERLDIR=C:\full\path\to\Perl\bin
 </pre></blockquote>
 
-<li><p><i>Cygwin</i> → The same as other unix-like systems. It is
+<li><p><i>Cygwin</i> → The same as other Unix-like systems. It is
 recommended to configure using: "<b>configure --disable-internal-sqlite</b>",
 making sure you have the "libsqlite3-devel" , "zlib-devel" and
 "openssl-devel" packages installed first.

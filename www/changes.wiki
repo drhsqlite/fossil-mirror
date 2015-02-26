@@ -248,7 +248,7 @@
   *  Added <tt>yw=YYYY-WW</tt> (year-week) filter to timeline to limit the results
      to a specific year and calendar week number, e.g. [/timeline?yw=2013-01].
   *  Updates to SQLite to prevent opening a repository file using file descriptors
-     1 or 2 on unix.  This fixes a bug under which an assertion failure could
+     1 or 2 on Unix.  This fixes a bug under which an assertion failure could
      overwrite part of a repository database file, corrupting it.
   *  Added support for unlimited line lengths in side-by-side diffs.
   *  New --close option to [/help?cmd=commit | fossil commit], which
@@ -271,7 +271,7 @@
   *  After prompting for a password, also ask if that password should be
      remembered.
   *  Performance improvements to the diff engine.
-  *  Fix the side-by-side diff engine to work better with multi-byte unicode text.
+  *  Fix the side-by-side diff engine to work better with multi-byte Unicode text.
   *  Color-coding in the web-based annotation (blame) display.  Fix the annotation
      engine so that it is no longer confused by time-warps.
   *  The markdown formatter is now available by default and can be used for
@@ -468,7 +468,7 @@
 
 <h2>Changes For Version 1.23 (2012-08-08)</h2>
   *  The default checkout database name is now ".fslckout" instead of
-     "_FOSSIL_" on unix.  Both names continue to work.
+     "_FOSSIL_" on Unix.  Both names continue to work.
   *  Added the "fossil all changes" command
   *  Added the --ckout option to the "fossil all list" command
   *  Added the "public-pages" glob pattern that can be configured to allow
@@ -608,7 +608,7 @@
   *  Added "ssl-ca-location" setting to specify trusted root
      SSL certificates.
   *  Added the --case-sensitive BOOLEAN command-line option to many commands.
-     Default to true for unix and false for windows.
+     Default to true for Unix and false for windows.
   *  Added the "Color-Test" submenu button on the branch list web page.
   *  Compatibility improvements to the git-export feature.
   *  Performance improvements on SHA1 checksums

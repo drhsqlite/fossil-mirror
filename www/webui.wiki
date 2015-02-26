@@ -111,7 +111,7 @@ menu bar.  From those pages you can follow hyperlinks to get additional
 details.  These screens allow you to easily keep track of what is going
 on with separate subteams within your project team.
 
-The "Files" link on the menu allows you to browse though the <b>file
+The "Files" link on the menu allows you to browse through the <b>file
 hierarchy</b> of the project and to view complete changes histories on
 individual files, with hyperlinks to the check-ins that made those
 changes, and with diffs and annotated diffs between versions.

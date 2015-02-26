@@ -154,6 +154,6 @@ all the changes to SQLite that have been made since the conversion from
 CVS.  Of those changes are omitted, the clone bandwidth drops to 13MB.)
 The "sync" protocol
 used by fossil has turned out to be surprisingly efficient.  A typical
-check-in on SQLite might use 3 or 4KB of network bandwidth total.  Hardly
+check-in on SQLite might use 3 or 4KB of network bandwidth total, hardly
 worth measuring.  The sync protocol is efficient enough that, once cloned,
 Fossil could easily be used over a dial-up connection.

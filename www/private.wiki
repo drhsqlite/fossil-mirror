@@ -47,7 +47,7 @@ application and have separate repositories on your Windows laptop,
 your Linux desktop, and your iMac.  You can transfer private branches
 between these machines by using the --private option on the "sync",
 "push", "pull", and "clone" commands.  For example, if you are running
-"fossil server" on your linux box and you want to clone that repository
+"fossil server" on your Linux box and you want to clone that repository
 to your Mac, including all private branches, use:
 
 <blockquote><pre>

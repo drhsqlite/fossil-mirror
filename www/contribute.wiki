@@ -17,7 +17,7 @@ Fossil.
 
 If you do not wish to submit a Contributor Agreement, we would still
 welcome your suggestions and example code, but we will not use your code
-directly - we will be forced to reimplement your changes from scratch which
+directly - we will be forced to re-implement your changes from scratch which
 might take longer.
 
 <h2>2.0 Submitting Patches</h2>

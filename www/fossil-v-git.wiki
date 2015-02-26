@@ -59,7 +59,7 @@ branches, until all the changes are merged together at the top-level master
 branch.  And all of this can be accomplished without having to have all the
 code in any one repository.  Developers or groups of developers can share
 only those branches that they want to share and keep other branches of the
-project private.  This is analogous to sharding an a distributed database.
+project private.  This is analogous to sharding a distributed database.
 
 Fossil allows private branches, but its default mode is to share everything.
 And so in a Fossil project, all repositories tend to contain all of the
@@ -78,7 +78,7 @@ until they reach the master branch.
 
 Fossil is designed for smaller and non-hierarchical teams where all
 developers are operating directly on the master branch, or at most
-a small number of well defined branches.
+a small number of well-defined branches.
 The [./concepts.wiki#workflow | autosync] mode of Fossil makes it easy
 for multiple developers to work on a single branch and maintain
 linear development on that branch and avoid needless forking
@@ -117,7 +117,7 @@ branches in Fossil are feature-centric.
 
 The Git approach scales much better for large projects like the Linux
 kernel with thousands of contributors who in many cases don't even know
-each others names.  The integrators serve a gatekeeper role to help keep
+each other's names.  The integrators serve a gatekeeper role to help keep
 undesirable code out of the official Linux source tree.  On the other hand,
 not many projects are as big or as loosely organized as the Linux kernel.
 Most projects have a small team of developers who all know each other

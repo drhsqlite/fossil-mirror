@@ -319,7 +319,7 @@ and all direct descendants (but not descendants through a merge) down
 to but not including the first descendant that contains a 
 more recent "-", "*", or "+" tag with the same name.
 The optional third argument is the value of the tag.  A tag
-without a value is a boolean.
+without a value is a Boolean.
 
 When two or more tags with the same name are applied to the
 same artifact, the tag with the latest (most recent) date is

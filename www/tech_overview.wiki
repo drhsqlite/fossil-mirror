@@ -126,7 +126,7 @@ The configuration database also maintains a list of repositories.  This
 list is used by the [/help/all | fossil all] command in order to run various
 operations such as "sync" or "rebuild" on all repositories managed by a user.
 
-On unix systems, the configuration database is named ".fossil" and is
+On Unix systems, the configuration database is named ".fossil" and is
 located in the user's home directory.  On windows, the configuration
 database is named "_fossil" (using an underscore as the first character
 instead of a dot) and is located in the directory specified by the

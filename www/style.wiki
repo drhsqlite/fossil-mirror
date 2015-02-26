@@ -48,7 +48,7 @@ Fossil source code should following the style guidelines below.
        of the function.
 
   31.  Function header comment defines the behavior of the function in
-       sufficient detail to allow the function to be reimplemented from
+       sufficient detail to allow the function to be re-implemented from
        scratch without reference to the original code.
 
   32.  Functions that perform dynamic memory allocation (either directly
