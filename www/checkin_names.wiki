@@ -119,14 +119,14 @@ check-in whose canonical name begins with "deed2".
 
 <h2>Whole Branches</h2>
 
-Usually whan a branch name is specified, it means the latest checkin on
+Usually when a branch name is specified, it means the latest checkin on
 that branch.  But for some commands (ex: [/help/purge|purge]) a branch name
 on the argument means the earliest connected checkin on the branch.  This
 seems confusing when being explained here, but it works out to be intuitive
 in practice.
 
 For example, the command "fossil purge XYZ" means to purge the checkin XYZ
-and all of its descendents.  But when XYZ is in the form of a branch name, one
+and all of its descendants.  But when XYZ is in the form of a branch name, one
 generally wants to purge the entire branch, not just the last checkin on the
 branch.  And so for this reason, commands like purge will interpret a branch
 name to be the first checkin of the branch rather than the last.  If there

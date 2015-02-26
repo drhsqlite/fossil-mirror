@@ -7,7 +7,7 @@ by the creator of Fossil, so of course there is selection bias...
 <h2>On The Usability Of Git:</h2>
 
 <ol>
-<li>Git approaches the useability of iptables, which is to say, utterly 
+<li>Git approaches the usability of iptables, which is to say, utterly 
 unusable unless you have the manpage tattooed on you arm.
 
 <blockquote>

@@ -106,7 +106,7 @@ your edits will automatically merge with those of your co-workers when
 your repository synchronizes.
 
 You can view summary reports of <b>branches</b> in the
-check-in graph by visiting the "Branche" links on the
+check-in graph by visiting the "Branches" link on the
 menu bar.  From those pages you can follow hyperlinks to get additional
 details.  These screens allow you to easily keep track of what is going
 on with separate subteams within your project team.

@@ -34,14 +34,14 @@ the files in all the subdirectories.</p>
 <p>Note: To tell Fossil to ignore some extensions:</p>
 <p>fossil settings ignore-glob &quot;*.o,*.obj,*.exe&quot; --global</p>
 
-<h2>Remove files that haven't been commited yet</h2>
+<h2>Remove files that haven't been committed yet</h2>
 <p>fossil delete myfile.c</p>
 <p>This will simply remove the item from the list of files that were previously 
 added through &quot;fossil add&quot;.</p>
 
 <h2>Check current status</h2>
 <p>fossil changes</p>
-<p>This shows the list of changes that have been done and will be commited the 
+<p>This shows the list of changes that have been done and will be committed the 
 next time you run &quot;fossil commit&quot;. It's a useful command to run before 
 running &quot;fossil commit&quot; just to check that things are OK before proceeding.</p>
 
@@ -61,7 +61,7 @@ in your work directory:</p>
 <p>fossil gdiff myfile.c</p>
 <p>If you wish to compare two different revisions of a file in the repository:</p>
 <p>fossil finfo myfile: Note the first hash, which is the UUID of the commit 
-when the file was commited</p>
+when the file was committed</p>
 <p>fossil gdiff --from UUID#1 --to UUID#2 myfile.c</p>
 <h2>Cancel changes and go back to previous revision</h2>
 <p>fossil revert myfile.c</p>

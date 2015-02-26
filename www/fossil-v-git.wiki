@@ -58,7 +58,7 @@ of integrators merge changes from individual developers into collaborative
 branches, until all the changes are merged together at the top-level master
 branch.  And all of this can be accomplished without having to have all the
 code in any one repository.  Developers or groups of developers can share
-only those branches that they want to share and keep other branchs of the
+only those branches that they want to share and keep other branches of the
 project private.  This is analogous to sharding an a distributed database.
 
 Fossil allows private branches, but its default mode is to share everything.
@@ -222,7 +222,7 @@ to understand.  This is important if you view the history of a project
 as part of the documentation for the project.
 
 Fossil takes an opposing view.  Fossil views history as sacrosanct and
-stubornly refuses to change it.
+stubbornly refuses to change it.
 Fossil allows mistakes to be corrected (for example, check-in comments
 can be revised, and check-ins can be moved onto new branches even after
 the check-in has occurred) but the correction is an addition to the repository

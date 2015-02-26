@@ -81,7 +81,7 @@ Summary of Core TH1 Commands
 ----------------------------
 
 The original TCL language after when TH1 is modeled has a very rich
-repetoire of commands.  TH1, as it is designed to be minimalist and
+repertoire of commands.  TH1, as it is designed to be minimalist and
 embedded has a greatly reduced command set.  The following bullets
 summarize the commands available in TH1:
 

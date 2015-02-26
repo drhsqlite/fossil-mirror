@@ -125,7 +125,7 @@ be 20% larger without that rebuild.
 
 On the right end of the table, we show the "Clone Bandwidth".  This is the
 total number of bytes sent from server back to the client.  The number of
-bytes sent from client to server is neglible in comparison.
+bytes sent from client to server is negligible in comparison.
 These byte counts include HTTP protocol overhead.
 
 In the table and throughout this article,
@@ -134,7 +134,7 @@ not <a href="http://en.wikipedia.org/wiki/Gibibyte">gibibytes</a>
 (2<sup><small>30</small></sup> bytes).  Similarly, "MB" and "KB"
 means megabytes and kilobytes, not mebibytes and kibibytes.
 
-<h2>Analysis And Supplimental Data</h2>
+<h2>Analysis And Supplemental Data</h2>
 
 Perhaps the two most interesting datapoints in the above table are SQLite
 and SLT.  SQLite is a long-running project with long revision chains.
