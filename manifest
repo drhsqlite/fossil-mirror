@@ -1,5 +1,5 @@
-C Additional\schanges\sassociated\swith\scheck-in\s[43b30dcfc330b]\son\s\n2014-10-20:\sChange\sthe\s%!w\sformat\sto\s%!W.
-D 2015-02-26T03:12:40.365
+C Make\sgebi()\swork\son\sbrowsers\swith\sjavascipt\s<\s5.1
+D 2015-02-26T12:25:41.421
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -451,7 +451,7 @@ F src/sqlite3.h f8151534e8c69113c7ce4dc7c8491932836095cd
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 82f40082a3fe739b417dbcf0288f00db327ea62b
 F src/statrep.c 6e51144c2835255ade68644eded15f84865ce5dc
-F src/style.c 58158958dcaaf86c6a4de0d7208a40352e484fe0
+F src/style.c 90dfcd154f3ddeda5a3a6b4079fb9969521a3497
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 5e978c8c486ac450c4674025529c60186428982e
 F src/tar.c d3a332c83b24d4a498c3ce05dcafcc3496f27f25
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c3d72bd99ef1144e215e6d5150c28335dff410a5
-R fdc044b28fb9b87aa37ce36e8ff6cebc
-U drh
-Z 295e869f74908a619e97bf7a4dfabaeb
+P 3b92154af8d44c0e8b90fa864caf784a4a081905
+R 598dc13dca7866dc881bba7ec05cd056
+U jan.nijtmans
+Z 8f431845d58e429d191783a008fb535a

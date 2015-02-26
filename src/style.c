@@ -408,9 +408,9 @@ void style_header(const char *zTitleFormat, ...){
   */
   @ <script>
   @ function gebi(x){
-  @ if(/^#/.test(x)) x = x.substr(1);
+  @ if(x.substr(0,1)=='#') x = x.substr(1);
   @ var e = document.getElementById(x);
-  @ if(!e) throw new Error("Expecting element with ID "+x);
+  @ if(!e) throw new Error('Expecting element with ID '+x);
   @ else return e;}
   @ </script>
 }
