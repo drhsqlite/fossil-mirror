@@ -1,5 +1,5 @@
-C fixed\smore\stypos\sand\sgrammatical\serrors\sin\sWWW-docs\sas\sspecified\sby\sML-posted\spatches
-D 2015-02-26T21:33:30.890
+C capitalise\s'Windows'\sthroughout\sWWW-docs
+D 2015-02-26T21:38:54.436
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -597,8 +597,8 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/adding_code.wiki 9003ffc417cd006cc7d67ecaec111dc31edd2b6b
-F www/antibot.wiki 544a983a29e19f0330fc9b16d78795789b2d566f
+F www/adding_code.wiki b769f1c0b4fd661ea7d3a22e6bbc10d9ebeed677
+F www/antibot.wiki 2cb08df5fdf129d683b1fa104c93c6785660432b
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/branch01.gif a288153196b8f3fc5fabe00c92101000717cb491
@@ -614,14 +614,14 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki e3457d63f4c9bcb288600ac0cd718096927166df
-F www/changes.wiki 428933f000d7b7f825f7475b8df33d980aa6552e
+F www/build.wiki 1f7a2a1351b3b12bec8cb5f1d86715bbfb9b9ec5
+F www/changes.wiki 07d1d69510a6185b448a614c3358e8373c9dac03
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a79a64b6099d0cf3fe3ee4b4543f03b71ddb2fec
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki 3dcf2d2b73e47da50a21c75e750b4546569473fd
+F www/concepts.wiki a1230dfc3bdef4f0ddc78c3cc8695a60eb7684fe
 F www/contribute.wiki 71b136fb9549c3b6167b1c24249d354c551abd47
 F www/copyright-release.html af2224620e3aa85d5226b74832dce703616a1c21
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -688,9 +688,9 @@ F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki d83fbd652012f1bc88ff76c00937652c3619ab2e
-F www/style.wiki 8b1edadee7b57ae0baf22b590b6bfca6231c0639
+F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki 53a1e45726f4bbfc69e8f0898bb8196e7660c82b
-F www/tech_overview.wiki 764344331a89b240909d5fe70c83eabd2c274990
+F www/tech_overview.wiki 0d565f762d79003c9237931169dc2138c70b13f1
 F www/th1.md 57434d9b816ecf2b6e79211402caa7b1eb718916
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
@@ -698,6 +698,6 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki 21c05a1aa4d2437fafc4039940f3cb794b688b2c
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 05fc09c5ddc1b00f19a639bbc396be7f29f997aa
+P bf1b99723e32418ad5bd0fe5fcd07c789d13f73e
 U michai
-Z ecfee114ac6a9a73116529876db2ce48
+Z c664fcdda1e43c95b6378df88870dc9e

@@ -145,7 +145,7 @@ making sure you have the "libsqlite3-devel" , "zlib-devel" and
 
 <ol>
 <li value="8">
-<p>The finished binary is named "fossil" (or "fossil.exe" on windows).  
+<p>The finished binary is named "fossil" (or "fossil.exe" on Windows).  
 Put this binary in a 
 directory that is somewhere on your PATH environment variable.
 It does not matter where.</p>

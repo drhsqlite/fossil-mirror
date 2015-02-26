@@ -25,7 +25,7 @@ Fossil source code should following the style guidelines below.
   17.  All comments and identifiers are in English.
 
   18.  The program is single-threaded.  Do not use threads.
-       (One exception to this is the HTTP server implementation for windows,
+       (One exception to this is the HTTP server implementation for Windows,
        which we do not know how to implement without the use of threads.)
 
 

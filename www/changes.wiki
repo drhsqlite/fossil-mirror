@@ -97,7 +97,7 @@
      command-line options.
   *  Use full 40-character SHA1 hashes (instead of abbreviations) in most
      internal URLs.
-  *  The "ssh:" sync method on windows now uses "plink.exe" instead of "ssh" as
+  *  The "ssh:" sync method on Windows now uses "plink.exe" instead of "ssh" as
      the secure-shell client program.
   *  Prevent a partial clone when the connection is lost.
   *  Make the distinction between 301 and 302 redirects.
@@ -330,7 +330,7 @@
      "fossil finfo -p".
   *  Hyperlinks with the class "button" are rendered as submenu buttons
      on embedded documentation.
-  *  The check-in comment editor on windows now defaults to NotePad.exe.
+  *  The check-in comment editor on Windows now defaults to NotePad.exe.
   *  Correctly deal with BOMs in check-in comments.  Also attempt to convert
      check-in comments to UTF8 from other encodings.
   *  Allow the deletion of multiple stash entries using multiple arguments
@@ -384,7 +384,7 @@
   *  Judge the UserAgent strings issued by the NetSurf webbrowser to be
      coming from a human, not from a bot.
   *  Add the zlib sources to the Fossil source tree (under compat/zlib) and
-     use those sources when compiling on (windows) systems that do not have
+     use those sources when compiling on (Windows) systems that do not have
      a zlib library installed by default.
   *  Prompt the user with the option to convert non-UTF8 files into UTF8
      when committing.
@@ -404,7 +404,7 @@
      commands, causing color-coded diff output to be displayed in a Tcl/Tk
      GUI window.  This option only works if Tcl/Tk is installed on the
      host.
-  *  On windows, make the "gdiff" command default to use WinDiff.exe.
+  *  On Windows, make the "gdiff" command default to use WinDiff.exe.
   *  Update the "fossil stash" command so that it always prompts for a
      comment if the -m option is omitted.
   *  Enhance the timeline webpages so that a=, b=, c=, d=, p=, and dp=
@@ -589,7 +589,7 @@
 <h2>Changes For Version 1.19 (2011-09-02)</h2>
   *  Added a ./configure script based on autosetup.
   *  Added the "[/help/winsrv | fossil winsrv]" command
-     for creating a Fossil service on windows systems.
+     for creating a Fossil service on Windows systems.
   *  Added "versionable settings" where settings that affect
      the local tree can be stored in versioned files in the
      .fossil-settings directory.
@@ -608,7 +608,7 @@
   *  Added "ssl-ca-location" setting to specify trusted root
      SSL certificates.
   *  Added the --case-sensitive BOOLEAN command-line option to many commands.
-     Default to true for Unix and false for windows.
+     Default to true for Unix and false for Windows.
   *  Added the "Color-Test" submenu button on the branch list web page.
   *  Compatibility improvements to the git-export feature.
   *  Performance improvements on SHA1 checksums
