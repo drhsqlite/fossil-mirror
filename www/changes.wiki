@@ -408,7 +408,7 @@
   *  Update the "fossil stash" command so that it always prompts for a
      comment if the -m option is omitted.
   *  Enhance the timeline webpages so that a=, b=, c=, d=, p=, and dp=
-     query parameters (and others) can all accept any valid checkin name
+     query parameters (and others) can all accept any valid check-in name
      (such as branch names or labels) instead of just SHA1 hashes.
   *  Added the "fossil stash show" command.
   *  Added the "fileage" webpage with links to this page from the check-in
@@ -565,7 +565,7 @@
   *  Other SSL improvements.
   *  Added -R REPOFILE support to several more CLI commands. [e080560378]
   *  Generated tarballs now have constant timestamps, so they are
-     always identical for any given checkin. [e080560378]
+     always identical for any given check-in. [e080560378]
   *  A number of minor HTML-related tweaks and fixes.
   *  Added --args FILENAME global CLI argument to import arbitrary
      CLI arguments from a file (e.g. long file lists). [e080560378]

@@ -189,7 +189,7 @@ is attached to a single check-in in order to either override a one-time
 tag that was previously placed on that same check-in, or to block
 tag propagation from an ancestor.
 
-The initial checkin of every repository has two propagating tags.  In
+The initial check-in of every repository has two propagating tags.  In
 figure 5, that initial check-in is check-in 1.  The <b>branch</b> tag
 tells (by its value)  what branch the check-in is a member of.
 The default branch is called "trunk."  All tags that begin with "<b>sym-</b>"

@@ -18,7 +18,7 @@ The --private option causes Fossil to put the check-in in a new branch
 named "private".  That branch will not participate in subsequent clone,
 sync, push, or pull operations.  The branch will remain on the one local
 repository where it was created.  Note that you only use the --private
-option for the first checkin that creates the private branch.
+option for the first check-in that creates the private branch.
 Additional checkins into the private branch remain private automatically.
 
 <h2>Publishing Private Changes</h2>
