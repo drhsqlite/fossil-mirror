@@ -1,5 +1,5 @@
-C Added\sthe\sXekri\sskin
-D 2015-02-26T02:36:53.145
+C Copied\sthe\sheader.txt\sfrom\sthe\s"eagle"\sskin.
+D 2015-02-26T02:52:24.121
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -341,7 +341,7 @@ F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
 F skins/xekri/css.txt dc34d29a63f1ac7e3dd148ca6a8c53c6916958b2
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
-F skins/xekri/header.txt 0c3696c6bf397afaa1fe4400c3437d2aef28f182
+F skins/xekri/header.txt f38e32ea185558d7be359afab65c335b29cb1782
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 018ef19eb7fd11df63e1d2b49843f104325a674f
 F src/allrepo.c d44cc238625534b90238714b4607c7cdd04f3a59
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 5680eebb1673f4a0abd2b4a09e525df07329a092
-R ebb4d41b0ba665f2a9c9c90674782ece
+P 388c140d5c5b6aaa54e90142d86da7e7a5cd50b6
+R ebdbe1161f660cb0de7da181a9a86601
 U zakero
-Z c64f73fbc1c4d8e981ad8bcb2e165062
+Z 088d72ed0a0a0294188efc501a4f087a
