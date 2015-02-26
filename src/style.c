@@ -506,7 +506,7 @@ void style_footer(void){
             cgi_printf(
                "<span class='submenuctrl'>"
                "&nbsp;%h<input type='text' name='%s' size='%d' maxlength='%d'"
-               "value='%h'%s></span>\n",
+               " value='%h'%s></span>\n",
                aSubmenuCtrl[i].zLabel,
                zQPN,
                aSubmenuCtrl[i].iSize, aSubmenuCtrl[i].iSize,
