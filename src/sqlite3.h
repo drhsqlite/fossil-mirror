@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.8.8"
 #define SQLITE_VERSION_NUMBER 3008008
-#define SQLITE_SOURCE_ID      "2015-01-16 12:08:06 7d68a42face3ab14ed88407d4331872f5b243fdf"
+#define SQLITE_SOURCE_ID      "2015-02-25 14:25:31 6d132e7a224ee68b5cefe9222944aac5760ffc20"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -949,9 +949,9 @@ struct sqlite3_io_methods {
 ** </ul>
 */
 #define SQLITE_FCNTL_LOCKSTATE               1
-#define SQLITE_GET_LOCKPROXYFILE             2
-#define SQLITE_SET_LOCKPROXYFILE             3
-#define SQLITE_LAST_ERRNO                    4
+#define SQLITE_FCNTL_GET_LOCKPROXYFILE       2
+#define SQLITE_FCNTL_SET_LOCKPROXYFILE       3
+#define SQLITE_FCNTL_LAST_ERRNO              4
 #define SQLITE_FCNTL_SIZE_HINT               5
 #define SQLITE_FCNTL_CHUNK_SIZE              6
 #define SQLITE_FCNTL_FILE_POINTER            7
@@ -970,6 +970,12 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_SYNC                   21
 #define SQLITE_FCNTL_COMMIT_PHASETWO        22
 #define SQLITE_FCNTL_WIN32_SET_HANDLE       23
+
+/* deprecated names */
+#define SQLITE_GET_LOCKPROXYFILE      SQLITE_FCNTL_GET_LOCKPROXYFILE
+#define SQLITE_SET_LOCKPROXYFILE      SQLITE_FCNTL_SET_LOCKPROXYFILE
+#define SQLITE_LAST_ERRNO             SQLITE_FCNTL_LAST_ERRNO
+
 
 /*
 ** CAPI3REF: Mutex Handle
@@ -2231,6 +2237,10 @@ SQLITE_API void sqlite3_free_table(char **result);
 **
 ** These routines are work-alikes of the "printf()" family of functions
 ** from the standard C library.
+** These routines understand most of the common K&R formatting options,
+** plus some additional non-standard formats, detailed below.
+** Note that some of the more obscure formatting options from recent
+** C-library standards are omitted from this implementation.
 **
 ** ^The sqlite3_mprintf() and sqlite3_vmprintf() routines write their
 ** results into memory obtained from [sqlite3_malloc()].
@@ -2263,7 +2273,7 @@ SQLITE_API void sqlite3_free_table(char **result);
 ** These routines all implement some additional formatting
 ** options that are useful for constructing SQL statements.
 ** All of the usual printf() formatting options apply.  In addition, there
-** is are "%q", "%Q", and "%z" options.
+** is are "%q", "%Q", "%w" and "%z" options.
 **
 ** ^(The %q option works like %s in that it substitutes a nul-terminated
 ** string from the argument list.  But %q also doubles every '\'' character.
@@ -2315,6 +2325,12 @@ SQLITE_API void sqlite3_free_table(char **result);
 **
 ** The code above will render a correct SQL statement in the zSQL
 ** variable even if the zText variable is a NULL pointer.
+**
+** ^(The "%w" formatting option is like "%q" except that it expects to
+** be contained within double-quotes instead of single quotes, and it
+** escapes the double-quote character instead of the single-quote
+** character.)^  The "%w" formatting option is intended for safely inserting
+** table and column names into a constructed SQL statement.
 **
 ** ^(The "%z" formatting option works like "%s" but with the
 ** addition that after the string has been read and copied into
@@ -5066,6 +5082,11 @@ SQLITE_API void *sqlite3_update_hook(
 ** future releases of SQLite.  Applications that care about shared
 ** cache setting should set it explicitly.
 **
+** Note: This method is disabled on MacOS X 10.7 and iOS version 5.0
+** and will always return SQLITE_MISUSE. On those systems, 
+** shared cache mode should be enabled per-database connection via 
+** [sqlite3_open_v2()] with [SQLITE_OPEN_SHAREDCACHE].
+**
 ** This interface is threadsafe on processors where writing a
 ** 32-bit integer is atomic.
 **
@@ -6265,7 +6286,8 @@ SQLITE_API int sqlite3_test_control(int op, ...);
 #define SQLITE_TESTCTRL_BYTEORDER               22
 #define SQLITE_TESTCTRL_ISINIT                  23
 #define SQLITE_TESTCTRL_SORTER_MMAP             24
-#define SQLITE_TESTCTRL_LAST                    24
+#define SQLITE_TESTCTRL_IMPOSTER                25
+#define SQLITE_TESTCTRL_LAST                    25
 
 /*
 ** CAPI3REF: SQLite Runtime Status

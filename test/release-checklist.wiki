@@ -19,6 +19,7 @@ rendered correctly.
 Click on each of the links in in the
 [./diff-test-1.wiki] document and verify that all diffs are
 rendered correctly.
+
 <li><p>
 Click on the following link to verify that it works: [./test-page%2b%2b.wiki | ./test-page++.wiki]
 (NB:  Many web servers automatically block
@@ -26,6 +27,10 @@ or rewrite URLs that contain "+" characters, even when those "+"
 characters are encoded as "%2B".  On such web servers, the URL
 above will not work.  This test is only guaranteed to work
 when running "fossil ui".)
+
+<li><p>
+Shift-click on each of the links in [./fileage-test-1.wiki] and verify
+correct operation of the file-age computation.
 
 <li><p>
 Verify correct name-change tracking behavior (no net changes) for:

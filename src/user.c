@@ -426,7 +426,7 @@ void access_log_page(void){
   int rc;
 
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(); return; }
+  if( !g.perm.Admin ){ login_needed(0); return; }
   create_accesslog_table();
 
   if( P("delall") && P("delallbtn") ){
@@ -469,9 +469,9 @@ void access_log_page(void){
               n, y);
   }
   rc = db_prepare_ignore_error(&q, "%s", blob_sql_text(&sql));
-  @ <center><table border="1" cellpadding="5">
-  @ <tr><th width="33%%">Date</th><th width="34%%">User</th>
-  @ <th width="33%%">IP Address</th></tr>
+  @ <center><table border="1" cellpadding="5" id='logtable'>
+  @ <thead><tr><th width="33%%">Date</th><th width="34%%">User</th>
+  @ <th width="33%%">IP Address</th></tr></thead><tbody>
   while( rc==SQLITE_OK && db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zIP = db_column_text(&q, 1);
@@ -494,7 +494,7 @@ void access_log_page(void){
     style_submenu_element("All", "All entries",
           "%s/access_log?n=10000000", g.zTop);
   }
-  @ </table></center>
+  @ </tbody></table></center>
   db_finalize(&q);
   @ <hr>
   @ <form method="post" action="%s(g.zTop)/access_log">
@@ -517,5 +517,6 @@ void access_log_page(void){
   @ Delete all entries</input></label>
   @ <input type="submit" name="delallbtn" value="Delete"></input>
   @ </form>
+  output_table_sorting_javascript("logtable", "Ttt", 1);
   style_footer();
 }

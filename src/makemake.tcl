@@ -1,6 +1,6 @@
 #!/usr/bin/tclsh
 #
-# Run this TCL script to generate the various makefiles for a variety
+# Run this Tcl script to generate the various makefiles for a variety
 # of platforms.  Files generated include:
 #
 #     src/main.mk           # makefile for all unix systems
@@ -112,6 +112,7 @@ set src {
   sqlcmd
   stash
   stat
+  statrep
   style
   sync
   tag
@@ -144,6 +145,8 @@ set src {
 #
 set extra_files {
   diff.tcl
+  markdown.md
+  ../skins/*/*.txt
 }
 
 # Options used to compile the included SQLite library.
@@ -156,6 +159,8 @@ set SQLITE_OPTIONS {
   -DSQLITE_DEFAULT_FILE_FORMAT=4
   -DSQLITE_OMIT_DEPRECATED
   -DSQLITE_ENABLE_EXPLAIN_COMMENTS
+  -DSQLITE_ENABLE_FTS4
+  -DSQLITE_ENABLE_FTS3_PARENTHESIS
 }
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_FTS3=1
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_STAT4
@@ -205,6 +210,15 @@ proc writeln {args} {
 # STOP HERE.
 # Unless the build procedures changes, you should not have to edit anything
 # below this line.
+
+# Expand any wildcards in "extra_files"
+set new_extra_files {}
+foreach file $extra_files {
+  foreach x [glob -nocomplain $file] {
+    lappend new_extra_files $x
+  }
+}
+set extra_files $new_extra_files
 
 ##############################################################################
 ##############################################################################
@@ -364,7 +378,7 @@ writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
 writeln "\t\$(OBJDIR)/mkindex \$(TRANS_SRC) >\$@\n"
 
 writeln "\$(OBJDIR)/builtin_data.h: \$(OBJDIR)/mkbuiltin \$(EXTRA_FILES)"
-writeln "\t\$(OBJDIR)/mkbuiltin \$(EXTRA_FILES) >\$@\n"
+writeln "\t\$(OBJDIR)/mkbuiltin --prefix \$(SRCDIR)/ \$(EXTRA_FILES) >\$@\n"
 
 writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
 writeln "\t\$(OBJDIR)/makeheaders $mhargs"
@@ -575,8 +589,9 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.2/include
-OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.2
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2
+OPENSSLINCDIR = $(OPENSSLDIR)/include
+OPENSSLLIBDIR = $(OPENSSLDIR)
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -1016,7 +1031,7 @@ writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(MKINDEX)"
 writeln "\t\$(MKINDEX) \$(TRANS_SRC) >\$@\n"
 
 writeln "\$(OBJDIR)/builtin_data.h:\t\$(MKBUILTIN) \$(EXTRA_FILES)"
-writeln "\t\$(MKBUILTIN) \$(EXTRA_FILES) >\$@\n"
+writeln "\t\$(MKBUILTIN) --prefix \$(SRCDIR)/ \$(EXTRA_FILES) >\$@\n"
 
 writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(MAKEHEADERS) \$(OBJDIR)/VERSION.h"
 writeln "\t\$(MAKEHEADERS) $mhargs"
@@ -1195,7 +1210,7 @@ page_index.h: mkindex$E $(SRC)
 	+$** > $@
 
 builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
-	+$** > $@
+	mkbuiltin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
 
 clean:
 	-del $(OBJDIR)\*.obj
@@ -1589,7 +1604,7 @@ page_index.h: mkindex$E $(SRC)
 	$** > $@
 
 builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
-	$** > $@
+	mkbuiltin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
 
 clean:
 	-del $(OX)\*.obj
@@ -1821,7 +1836,7 @@ page_index.h:	$(TRANSLATEDSRC) mkindex.exe
 	mkindex.exe $(TRANSLATEDSRC) >$@
 
 builtin_data.h:	$(EXTRA_FILES) mkbuiltin.exe
-	mkbuiltin.exe $(EXTRA_FILES) >$@
+	mkbuiltin.exe --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
 
 # extracting version info from manifest
 VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION

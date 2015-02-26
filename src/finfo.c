@@ -217,7 +217,7 @@ void finfo_cmd(void){
         fossil_free(zOut);
       }else{
         blob_reset(&line);
-        blob_appendf(&line, "%.10s ", zCiUuid);
+        blob_appendf(&line, "%S ", zCiUuid);
         blob_appendf(&line, "%.10s ", zDate);
         blob_appendf(&line, "%8.8s ", zUser);
         blob_appendf(&line, "%8.8s ", zBr);
@@ -286,7 +286,6 @@ void cat_cmd(void){
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
 **    ci=UUID    Ancestors of a particular check-in
-**    fco=BOOL   Show only first occurrence of each version if true (default)
 */
 void finfo_page(void){
   Stmt q;
@@ -296,34 +295,46 @@ void finfo_page(void){
   const char *zB;
   int n;
   int baseCheckin;
-
+  int fnid;
+  Bag ancestor;
   Blob title;
   Blob sql;
   HQuery url;
   GraphContext *pGraph;
   int brBg = P("brbg")!=0;
   int uBg = P("ubg")!=0;
-  int firstChngOnly = atoi(PD("fco","1"))!=0;
   int fDebug = atoi(PD("debug","0"));
+  int fShowId = P("showid")!=0;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("File History");
   login_anonymous_available();
   url_initialize(&url, "finfo");
   if( brBg ) url_add_parameter(&url, "brbg", 0);
   if( uBg ) url_add_parameter(&url, "ubg", 0);
   baseCheckin = name_to_rid_www("ci");
-  if( baseCheckin ) firstChngOnly = 1;
-  if( !firstChngOnly ) url_add_parameter(&url, "fco", "0");
-
   zPrevDate[0] = 0;
   zFilename = PD("name","");
+  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
+  if( fnid==0 ){
+    @ No such file: %h(zFilename)
+    style_footer();
+    return;
+  }
+  if( baseCheckin ){
+    int baseFid = db_int(0,
+      "SELECT fid FROM mlink WHERE fnid=%d AND mid=%d",
+      fnid, baseCheckin
+    );
+    bag_init(&ancestor);
+    if( baseFid ) bag_insert(&ancestor, baseFid);
+  }
   url_add_parameter(&url, "name", zFilename);
   blob_zero(&sql);
   blob_append_sql(&sql,
     "SELECT"
-    " datetime(event.mtime%s),"                      /* Date of change */
+    " datetime(min(event.mtime)%s),"                 /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
     " coalesce(event.euser, event.user),"            /* User who made chng */
     " mlink.pid,"                                    /* Parent file rid */
@@ -333,33 +344,14 @@ void finfo_page(void){
     " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
     " event.bgcolor,"                                /* Background color */
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
-                                " AND tagxref.rid=mlink.mid)," /* Tags */
+                                " AND tagxref.rid=mlink.mid)," /* Branchname */
     " mlink.mid,"                                    /* check-in ID */
-    " mlink.pfnid",                                  /* Previous filename */
-    timeline_utc(), TAG_BRANCH
-  );
-  if( firstChngOnly ){
-#if 0
-    blob_append_sql(&sql, ", min(event.mtime)");
-#else
-    blob_append_sql(&sql,
-        ", min(CASE (SELECT value FROM tagxref"
-                    " WHERE tagtype>0 AND tagid=%d"
-                    "   AND tagxref.rid=mlink.mid)"
-             " WHEN 'trunk' THEN event.mtime-10000 ELSE event.mtime END)",
-    TAG_BRANCH);
-#endif
-  }
-  blob_append_sql(&sql,
+    " mlink.pfnid"                                   /* Previous filename */
     "  FROM mlink, event"
-    " WHERE mlink.fnid IN (SELECT fnid FROM filename WHERE name=%Q)"
+    " WHERE mlink.fnid=%d"
     "   AND event.objid=mlink.mid",
-    zFilename
+    timeline_utc(), TAG_BRANCH, fnid
   );
-  if( baseCheckin ){
-    compute_direct_ancestors(baseCheckin, 10000000);
-    blob_append_sql(&sql,"  AND mlink.mid IN (SELECT rid FROM ancestor)");
-  }
   if( (zA = P("a"))!=0 ){
     blob_append_sql(&sql, " AND event.mtime>=julianday('%q')", zA);
     url_add_parameter(&url, "a", zA);
@@ -368,23 +360,22 @@ void finfo_page(void){
     blob_append_sql(&sql, " AND event.mtime<=julianday('%q')", zB);
     url_add_parameter(&url, "b", zB);
   }
-  if( firstChngOnly ){
-    blob_append_sql(&sql, " GROUP BY mlink.fid");
-  }
-  blob_append_sql(&sql," ORDER BY event.mtime DESC /*sort*/");
+  /* We only want each version of a file to appear on the graph once,
+  ** at its earliest appearance.  All the other times that it gets merged
+  ** into this or that branch can be ignored.  An exception is for when
+  ** files are deleted (when they have mlink.fid==0).  If the same file
+  ** is deleted in multiple places, we want to show each deletion, so
+  ** use a "fake fid" which is derived from the parent-fid for grouping.
+  ** The same fake-fid must be used on the graph.
+  */
+  blob_append_sql(&sql,
+    " GROUP BY"
+    "   CASE WHEN mlink.fid>0 THEN mlink.fid ELSE mlink.pid+1000000000 END"
+    " ORDER BY event.mtime DESC /*sort*/"
+  );
   if( (n = atoi(PD("n","0")))>0 ){
     blob_append_sql(&sql, " LIMIT %d", n);
     url_add_parameter(&url, "n", P("n"));
-  }
-  if( baseCheckin==0 ){
-    if( firstChngOnly ){
-      style_submenu_element("Full", "Show all changes","%s",
-                            url_render(&url, "fco", "0", 0, 0));
-    }else{
-      style_submenu_element("Simplified",
-                            "Show only first use of a change","%s",
-                            url_render(&url, "fco", 0, 0, 0));
-    }
   }
   db_prepare(&q, "%s", blob_sql_text(&sql));
   if( P("showsql")!=0 ){
@@ -394,14 +385,17 @@ void finfo_page(void){
   blob_zero(&title);
   if( baseCheckin ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", baseCheckin);
-    char *zLink = href("%R/info/%s", zUuid);
+    char *zLink = 	href("%R/info/%!S", zUuid);
     blob_appendf(&title, "Ancestors of file ");
     hyperlinked_path(zFilename, &title, zUuid, "tree", "");
+    if( fShowId ) blob_appendf(&title, " (%d)", fnid);
     blob_appendf(&title, " from check-in %z%S</a>", zLink, zUuid);
+    if( fShowId ) blob_appendf(&title, " (%d)", baseCheckin);
     fossil_free(zUuid);
   }else{
     blob_appendf(&title, "History of files named ");
     hyperlinked_path(zFilename, &title, 0, "tree", "");
+    if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   }
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
@@ -424,13 +418,33 @@ void finfo_page(void){
     int pfnid = db_column_int(&q, 11);
     int gidx;
     char zTime[10];
+    int nParent = 0;
+    int aParent[GR_MAX_RAIL];
+    static Stmt qparent;
+
+    if( baseCheckin && frid && !bag_find(&ancestor, frid) ) continue;
+    db_static_prepare(&qparent,
+      "SELECT DISTINCT pid FROM mlink"
+      " WHERE fid=:fid AND mid=:mid AND pid>0 AND fnid=:fnid"
+      " ORDER BY isaux /*sort*/"
+    );
+    db_bind_int(&qparent, ":fid", frid);
+    db_bind_int(&qparent, ":mid", fmid);
+    db_bind_int(&qparent, ":fnid", fnid);
+    while( db_step(&qparent)==SQLITE_ROW && nParent<ArraySize(aParent) ){
+      aParent[nParent] = db_column_int(&qparent, 0);
+      if( baseCheckin ) bag_insert(&ancestor, aParent[nParent]);
+      nParent++;
+    }
+    db_reset(&qparent);
     if( zBr==0 ) zBr = "trunk";
     if( uBg ){
       zBgClr = hash_color(zUser);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
-    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr,
+    gidx = graph_add_row(pGraph, frid>0 ? frid : fpid+1000000000,
+                         nParent, aParent, zBr, zBgClr,
                          zUuid, 0);
     if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
@@ -449,7 +463,7 @@ void finfo_page(void){
       @ <td class="timelineTableCell">
     }
     if( zUuid ){
-      if( fpid==0 ){
+      if( nParent==0 ){
         @ <b>Added</b>
       }else if( pfnid ){
         char *zPrevName = db_text(0, "SELECT name FROM filename WHERE fnid=%d",
@@ -457,7 +471,11 @@ void finfo_page(void){
         @ <b>Renamed</b> from
         @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
       }
-      @ %z(href("%R/artifact/%s",zUuid))[%S(zUuid)]</a> part of check-in
+      @ %z(href("%R/artifact/%!S",zUuid))[%S(zUuid)]</a>
+      if( fShowId ){
+        @ (%d(frid))
+      }
+      @ part of check-in
     }else{
       char *zNewName;
       zNewName = db_text(0,
@@ -475,34 +493,42 @@ void finfo_page(void){
       }
     }
     hyperlink_to_uuid(zCkin);
+    if( fShowId ){
+      @ (%d(fmid))
+    }
     @ %W(zCom) (user:
     hyperlink_to_user(zUser, zDate, "");
-    @ branch: %h(zBr))
+    @ branch: %z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>)
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
       @ %z(href("%R/annotate?filename=%h&checkin=%s",z,zCkin))
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
-      @ %z(href("%R/timeline?n=200&uf=%s",zUuid))[checkins&nbsp;using]</a>
+      @ %z(href("%R/timeline?n=200&uf=%!S",zUuid))[checkins&nbsp;using]</a>
       if( fpid ){
-        @ %z(href("%R/fdiff?sbs=1&v1=%s&v2=%s",zPUuid,zUuid))[diff]</a>
+        @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
-      int srcid = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", frid);
-      int sz = db_int(0, "SELECT length(content) FROM blob WHERE rid=%d", frid);
-      @ <br>fid=%d(frid) pid=%d(fpid) mid=%d(fmid) sz=%d(sz)
-      if( srcid ){
-        @ srcid=%d(srcid)
+      int ii;
+      char *zAncLink;
+      @ <br>fid=%d(frid) pid=%d(fpid) mid=%d(fmid)
+      if( nParent>0 ){
+        @ parents=%d(aParent[0])
+        for(ii=1; ii<nParent; ii++){
+          @ %d(aParent[ii])
+        }
       }
+      zAncLink = href("%R/finfo?name=%T&ci=%!S&debug=1",zFilename,zCkin);
+      @ %z(zAncLink)[ancestry]</a>
     }
     tag_private_status(frid);
     @ </td></tr>
   }
   db_finalize(&q);
   if( pGraph ){
-    graph_finish(pGraph, 0);
+    graph_finish(pGraph, 1);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;

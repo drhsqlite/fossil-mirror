@@ -18,59 +18,59 @@
 # TH1 Commands
 #
 
-fossil test-th-eval --th-open-config "setting th1-hooks"
+fossil test-th-eval --open-config "setting th1-hooks"
 set th1Hooks [expr {$RESULT eq "1"}]
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting abc"
+fossil test-th-eval --open-config "setting abc"
 test th1-setting-1 {$RESULT eq ""}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -- abc"
+fossil test-th-eval --open-config "setting -- abc"
 test th1-setting-2 {$RESULT eq ""}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -strict abc"
+fossil test-th-eval --open-config "setting -strict abc"
 test th1-setting-3 {$RESULT eq {TH_ERROR: no value for setting "abc"}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -strict -- abc"
+fossil test-th-eval --open-config "setting -strict -- abc"
 test th1-setting-4 {$RESULT eq {TH_ERROR: no value for setting "abc"}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting autosync"
+fossil test-th-eval --open-config "setting autosync"
 test th1-setting-5 {$RESULT eq 0 || $RESULT eq 1}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -strict autosync"
+fossil test-th-eval --open-config "setting -strict autosync"
 test th1-setting-6 {$RESULT eq 0 || $RESULT eq 1}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting --"
+fossil test-th-eval --open-config "setting --"
 test th1-setting-7 {$RESULT eq \
 {TH_ERROR: wrong # args: should be "setting ?-strict? ?--? name"}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -strict --"
+fossil test-th-eval --open-config "setting -strict --"
 test th1-setting-8 {$RESULT eq \
 {TH_ERROR: wrong # args: should be "setting ?-strict? ?--? name"}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -- --"
+fossil test-th-eval --open-config "setting -- --"
 test th1-setting-9 {$RESULT eq {}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -strict -- --"
+fossil test-th-eval --open-config "setting -strict -- --"
 test th1-setting-10 {$RESULT eq {TH_ERROR: no value for setting "--"}}
 
 ###############################################################################
@@ -597,7 +597,7 @@ test th1-header-1 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "styleHeader {Page Title Here}"
+fossil test-th-eval --open-config "styleHeader {Page Title Here}"
 test th1-header-2 {[regexp -- {<title>Fossil: Page Title Here</title>} $RESULT]}
 
 ###############################################################################
@@ -607,12 +607,12 @@ test th1-footer-1 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "styleFooter"
+fossil test-th-eval --open-config "styleFooter"
 test th1-footer-2 {$RESULT eq {}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config --th-force-cgi "styleHeader {}; styleFooter"
+fossil test-th-eval --open-config --cgi "styleHeader {}; styleFooter"
 test th1-footer-3 {[regexp -- {</body></html>} $RESULT]}
 
 ###############################################################################
@@ -680,7 +680,7 @@ test th1-artifact-2 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "artifact tip"
+fossil test-th-eval --open-config "artifact tip"
 test th1-artifact-3 {[regexp -- {F test/th1\.test [0-9a-f]{40}} $RESULT]}
 
 ###############################################################################
@@ -690,8 +690,8 @@ test th1-artifact-4 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "artifact 0000000000"
-test th1-artifact-5 {$RESULT eq {TH_ERROR: artifact not found}}
+fossil test-th-eval --open-config "artifact 0000000000"
+test th1-artifact-5 {$RESULT eq {TH_ERROR: name not found}}
 
 ###############################################################################
 
@@ -700,7 +700,7 @@ test th1-artifact-6 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "artifact tip test/th1.test"
+fossil test-th-eval --open-config "artifact tip test/th1.test"
 test th1-artifact-7 {[regexp -- {th1-artifact-7} $RESULT]}
 
 ###############################################################################
@@ -710,8 +710,8 @@ test th1-artifact-8 {$RESULT eq {TH_ERROR: repository unavailable}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "artifact 0000000000 test/th1.test"
-test th1-artifact-9 {$RESULT eq {TH_ERROR: artifact not found}}
+fossil test-th-eval --open-config "artifact 0000000000 test/th1.test"
+test th1-artifact-9 {$RESULT eq {TH_ERROR: manifest not found}}
 
 ###############################################################################
 
@@ -730,7 +730,7 @@ test th1-globalState-3 {[string length $RESULT] == 0}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "globalState configuration"
+fossil test-th-eval --open-config "globalState configuration"
 test th1-globalState-4 {[string length $RESULT] > 0}
 
 ###############################################################################

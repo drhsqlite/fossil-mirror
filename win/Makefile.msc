@@ -191,6 +191,8 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  /DSQLITE_OMIT_DEPRECATED \
                  /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
+                 /DSQLITE_ENABLE_FTS4 \
+                 /DSQLITE_ENABLE_FTS3_PARENTHESIS \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /Dmain=sqlite3_shell \
@@ -298,6 +300,7 @@ SRC   = add_.c \
         sqlcmd_.c \
         stash_.c \
         stat_.c \
+        statrep_.c \
         style_.c \
         sync_.c \
         tag_.c \
@@ -324,7 +327,32 @@ SRC   = add_.c \
         xfersetup_.c \
         zip_.c
 
-EXTRA_FILES   = $(SRCDIR)\diff.tcl
+EXTRA_FILES   = $(SRCDIR)\../skins/black_and_white/css.txt \
+        $(SRCDIR)\../skins/black_and_white/footer.txt \
+        $(SRCDIR)\../skins/black_and_white/header.txt \
+        $(SRCDIR)\../skins/default/css.txt \
+        $(SRCDIR)\../skins/default/footer.txt \
+        $(SRCDIR)\../skins/default/header.txt \
+        $(SRCDIR)\../skins/eagle/css.txt \
+        $(SRCDIR)\../skins/eagle/footer.txt \
+        $(SRCDIR)\../skins/eagle/header.txt \
+        $(SRCDIR)\../skins/enhanced1/css.txt \
+        $(SRCDIR)\../skins/enhanced1/footer.txt \
+        $(SRCDIR)\../skins/enhanced1/header.txt \
+        $(SRCDIR)\../skins/etienne1/css.txt \
+        $(SRCDIR)\../skins/etienne1/footer.txt \
+        $(SRCDIR)\../skins/etienne1/header.txt \
+        $(SRCDIR)\../skins/khaki/css.txt \
+        $(SRCDIR)\../skins/khaki/footer.txt \
+        $(SRCDIR)\../skins/khaki/header.txt \
+        $(SRCDIR)\../skins/plain_gray/css.txt \
+        $(SRCDIR)\../skins/plain_gray/footer.txt \
+        $(SRCDIR)\../skins/plain_gray/header.txt \
+        $(SRCDIR)\../skins/rounded1/css.txt \
+        $(SRCDIR)\../skins/rounded1/footer.txt \
+        $(SRCDIR)\../skins/rounded1/header.txt \
+        $(SRCDIR)\diff.tcl \
+        $(SRCDIR)\markdown.md
 
 OBJ   = $(OX)\add$O \
         $(OX)\allrepo$O \
@@ -421,6 +449,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\sqlite3$O \
         $(OX)\stash$O \
         $(OX)\stat$O \
+        $(OX)\statrep$O \
         $(OX)\style$O \
         $(OX)\sync$O \
         $(OX)\tag$O \
@@ -595,6 +624,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\sqlite3.obj >> $@
 	echo $(OX)\stash.obj >> $@
 	echo $(OX)\stat.obj >> $@
+	echo $(OX)\statrep.obj >> $@
 	echo $(OX)\style.obj >> $@
 	echo $(OX)\sync.obj >> $@
 	echo $(OX)\tag.obj >> $@
@@ -676,7 +706,7 @@ page_index.h: mkindex$E $(SRC)
 	$** > $@
 
 builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
-	$** > $@
+	mkbuiltin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
 
 clean:
 	-del $(OX)\*.obj
@@ -1274,6 +1304,12 @@ $(OX)\stat$O : stat_.c stat.h
 stat_.c : $(SRCDIR)\stat.c
 	translate$E $** > $@
 
+$(OX)\statrep$O : statrep_.c statrep.h
+	$(TCC) /Fo$@ -c statrep_.c
+
+statrep_.c : $(SRCDIR)\statrep.c
+	translate$E $** > $@
+
 $(OX)\style$O : style_.c style.h
 	$(TCC) /Fo$@ -c style_.c
 
@@ -1520,6 +1556,7 @@ headers: makeheaders$E page_index.h builtin_data.h VERSION.h
 			sqlcmd_.c:sqlcmd.h \
 			stash_.c:stash.h \
 			stat_.c:stat.h \
+			statrep_.c:statrep.h \
 			style_.c:style.h \
 			sync_.c:sync.h \
 			tag_.c:tag.h \

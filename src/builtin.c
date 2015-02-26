@@ -33,18 +33,26 @@
 ** Return a pointer to built-in content
 */
 const unsigned char *builtin_file(const char *zFilename, int *piSize){
-  int lwr, upr, i;
+  int lwr, upr, i, c;
   lwr = 0;
   upr = sizeof(aBuiltinFiles)/sizeof(aBuiltinFiles[0]) - 1;
   while( upr>=lwr ){
     i = (upr+lwr)/2;
-    if( strcmp(aBuiltinFiles[i].zName,zFilename)==0 ){
+    c = strcmp(aBuiltinFiles[i].zName,zFilename);
+    if( c<0 ){
+      lwr = i+1;
+    }else if( c>0 ){
+      upr = i-1;
+    }else{
       if( piSize ) *piSize = aBuiltinFiles[i].nByte;
       return aBuiltinFiles[i].pData;
     }
   }
   if( piSize ) *piSize = 0;
   return 0;
+}
+const char *builtin_text(const char *zFilename){
+  return (char*)builtin_file(zFilename, 0);
 }
 
 /*

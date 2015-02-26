@@ -87,7 +87,7 @@ void hyperlinked_path(
     for(j=i; zPath[j] && zPath[j]!='/'; j++){}
     if( zPath[j] && g.perm.Hyperlink ){
       if( zCI ){
-        char *zLink = href("%R/%s?name=%#T%s&ci=%s", zURI, j, zPath, zREx, zCI);
+        char *zLink = href("%R/%s?name=%#T%s&ci=%!S", zURI, j, zPath, zREx,zCI);
         blob_appendf(pOut, "%s%z%#h</a>",
                      zSep, zLink, j-i, &zPath[i]);
       }else{
@@ -130,14 +130,16 @@ void page_dir(void){
   int linkTip = 1;
   HQuery sURI;
 
-  if( strcmp(PD("type",""),"tree")==0 ){ page_tree(); return; }
+  if( strcmp(PD("type","flat"),"tree")==0 ){ page_tree(); return; }
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   style_header("File List");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
   url_initialize(&sURI, "dir");
+  cgi_query_parameters_to_url(&sURI);
 
   /* If the name= parameter is an empty string, make it a NULL pointer */
   if( zD && strlen(zD)==0 ){ zD = 0; }
@@ -153,7 +155,6 @@ void page_dir(void){
       linkTrunk = trunkRid && rid != trunkRid;
       linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      url_add_parameter(&sURI, "ci", zCI);
     }else{
       zCI = 0;
     }
@@ -162,7 +163,6 @@ void page_dir(void){
   /* Compute the title of the page */
   blob_zero(&dirname);
   if( zD ){
-    url_add_parameter(&sURI, "name", zD);
     blob_append(&dirname, "in directory ", -1);
     hyperlinked_path(zD, &dirname, zCI, "dir", "");
     zPrefix = mprintf("%s/", zD);
@@ -181,11 +181,11 @@ void page_dir(void){
                           url_render(&sURI, "ci", "tip", 0, 0));
   }
   if( zCI ){
-    @ <h2>Files of check-in [%z(href("vinfo?name=%s",zUuid))%S(zUuid)</a>]
+    @ <h2>Files of check-in [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>]
     @ %s(blob_str(&dirname))</h2>
-    zSubdirLink = mprintf("%R/dir?ci=%s&name=%T", zUuid, zPrefix);
+    zSubdirLink = mprintf("%R/dir?ci=%!S&name=%T", zUuid, zPrefix);
     if( nD==0 ){
-      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%s",
+      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%!S",
                             zUuid);
     }
   }else{
@@ -283,7 +283,7 @@ void page_dir(void){
       const char *zLink;
       if( zCI ){
         const char *zUuid = db_column_text(&q, 1);
-        zLink = href("%R/artifact/%s",zUuid);
+        zLink = href("%R/artifact/%!S",zUuid);
       }else{
         zLink = href("%R/finfo?name=%T%T",zPrefix,zFN);
       }
@@ -541,25 +541,25 @@ void page_tree(void){
   int nDir = 0;            /* Number of directories. Used for ID attributes */
   char *zProjectName = db_get("project-name", 0);
 
-  if( strcmp(PD("type",""),"flat")==0 ){ page_dir(); return; }
+  if( strcmp(PD("type","flat"),"flat")==0 ){ page_dir(); return; }
   memset(&sTree, 0, sizeof(sTree));
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
   url_initialize(&sURI, "tree");
-  if( P("nofiles")!=0 ){
+  cgi_query_parameters_to_url(&sURI);
+  if( PB("nofiles") ){
     showDirOnly = 1;
-    url_add_parameter(&sURI, "nofiles", "1");
     style_header("Folder Hierarchy");
   }else{
     showDirOnly = 0;
     style_header("File Tree");
   }
-  if( P("expand")!=0 ){
+  style_adunit_config(ADUNIT_RIGHT_OK);
+  if( PB("expand") ){
     startExpanded = 1;
-    url_add_parameter(&sURI, "expand", "1");
   }else{
     startExpanded = 0;
   }
@@ -568,7 +568,6 @@ void page_tree(void){
   zRE = P("re");
   if( zRE ){
     re_compile(&pRE, zRE, 0);
-    url_add_parameter(&sURI, "re", zRE);
     zREx = mprintf("&re=%T", zRE);
   }
 
@@ -586,7 +585,6 @@ void page_tree(void){
       linkTrunk = trunkRid && rid != trunkRid;
       linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      url_add_parameter(&sURI, "ci", zCI);
       rNow = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
       zNow = db_text("", "SELECT datetime(mtime,'localtime')"
                          " FROM event WHERE objid=%d", rid);
@@ -602,7 +600,6 @@ void page_tree(void){
   /* Compute the title of the page */
   blob_zero(&dirname);
   if( zD ){
-    url_add_parameter(&sURI, "name", zD);
     blob_append(&dirname, "within directory ", -1);
     hyperlinked_path(zD, &dirname, zCI, "tree", zREx);
     if( zRE ) blob_appendf(&dirname, " matching \"%s\"", zRE);
@@ -613,14 +610,7 @@ void page_tree(void){
       blob_appendf(&dirname, "matching \"%s\"", zRE);
     }
   }
-  if( useMtime ){
-    style_submenu_element("Sort By Filename","Sort By Filename", "%s",
-                           url_render(&sURI, 0, 0, 0, 0));
-    url_add_parameter(&sURI, "mtime", "1");
-  }else{
-    style_submenu_element("Sort By Time","Sort By Time", "%s",
-                           url_render(&sURI, "mtime", "1", 0, 0));
-  }
+  style_submenu_binary("mtime","Sort By Time","Sort By Filename", 0);
   if( zCI ){
     style_submenu_element("All", "All", "%s",
                           url_render(&sURI, "ci", 0, 0, 0));
@@ -637,6 +627,8 @@ void page_tree(void){
     style_submenu_element("Tip", "Tip", "%s",
                           url_render(&sURI, "ci", "tip", 0, 0));
   }
+  style_submenu_element("Flat-View", "Flat-View", "%s",
+                        url_render(&sURI, "type", "flat", 0, 0));
 
   /* Compute the file hierarchy.
   */
@@ -654,6 +646,9 @@ void page_tree(void){
       const char *zFile = db_column_text(&q,0);
       const char *zUuid = db_column_text(&q,1);
       double mtime = db_column_double(&q,2);
+      if( nD>0 && (fossil_strncmp(zFile, zD, nD-1)!=0 || zFile[nD-1]!='/') ){
+        continue;
+      }
       if( pRE && re_match(pRE, (const unsigned char*)zFile, -1)==0 ) continue;
       tree_add_node(&sTree, zFile, zUuid, mtime);
       nFile++;
@@ -700,7 +695,7 @@ void page_tree(void){
     if( sqlite3_strnicmp(zCI, zUuid, (int)strlen(zCI))!=0 ){
       @ "%h(zCI)"
     }
-    @ [%z(href("vinfo?name=%s",zUuid))%S(zUuid)</a>] %s(blob_str(&dirname))
+    @ [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>] %s(blob_str(&dirname))
   }else{
     int n = db_int(0, "SELECT count(*) FROM plink");
     @ <h2>%s(zObjType) from all %d(n) check-ins %s(blob_str(&dirname))
@@ -762,7 +757,7 @@ void page_tree(void){
       const char *zFileClass = fileext_class(p->zName);
       char *zLink;
       if( zCI ){
-        zLink = href("%R/artifact/%.16s",p->zUuid);
+        zLink = href("%R/artifact/%!S",p->zUuid);
       }else{
         zLink = href("%R/finfo?name=%T",p->zFullName);
       }
@@ -883,7 +878,7 @@ const char *fileext_class(const char *zFilename){
 ** SQL used to compute the age of all files in checkin :ckin whose
 ** names match :glob
 */
-static const char zComputeFileAgeSetup[] = 
+static const char zComputeFileAgeSetup[] =
 @ CREATE TABLE IF NOT EXISTS temp.fileage(
 @   fnid INTEGER PRIMARY KEY,
 @   fid INTEGER,
@@ -894,22 +889,27 @@ static const char zComputeFileAgeSetup[] =
 @ CREATE VIRTUAL TABLE IF NOT EXISTS temp.foci USING files_of_checkin;
 ;
 
-static const char zComputeFileAgeRun[] = 
+static const char zComputeFileAgeRun[] =
 @ WITH RECURSIVE
-@   ckin(x) AS (VALUES(:ckin) UNION ALL
-@                 SELECT pid FROM ckin, plink WHERE cid=x AND isprim)
+@   ckin(x,m) AS (SELECT objid, mtime FROM event WHERE objid=:ckin
+@                 UNION
+@                 SELECT plink.pid, event.mtime
+@                   FROM ckin, plink, event
+@                  WHERE plink.cid=ckin.x AND event.objid=plink.pid
+@                  ORDER BY 2 DESC)
 @ INSERT OR IGNORE INTO fileage(fnid, fid, mid, mtime, pathname)
-@   SELECT mlink.fnid, mlink.fid, x, event.mtime, filename.name
-@     FROM ckin, mlink, event, filename
-@    WHERE mlink.mid=ckin.x
-@      AND mlink.fnid IN (SELECT fnid FROM foci, filename
-@                          WHERE foci.checkinID=:ckin
-@                            AND filename.name=foci.filename
-@                            AND filename.name GLOB :glob)
-@      AND filename.fnid=mlink.fnid
-@      AND event.objid=mlink.mid;
+@   SELECT filename.fnid, mlink.fid, mlink.mid, event.mtime, filename.name
+@     FROM foci, filename, blob, mlink, event
+@    WHERE foci.checkinID=:ckin
+@      AND foci.filename GLOB :glob
+@      AND filename.name=foci.filename
+@      AND blob.uuid=foci.uuid
+@      AND mlink.fid=blob.rid
+@      AND mlink.fid!=mlink.pid
+@      AND mlink.mid IN (SELECT x FROM ckin)
+@      AND event.objid=mlink.mid
+@  ORDER BY event.mtime ASC;
 ;
-
 
 /*
 ** Look at all file containing in the version "vid".  Construct a
@@ -921,7 +921,7 @@ static const char zComputeFileAgeRun[] =
 int compute_fileage(int vid, const char* zGlob){
   Stmt q;
   db_multi_exec(zComputeFileAgeSetup /*works-like:"constant"*/);
-  db_prepare(&q, zComputeFileAgeRun /*works-like:"constant"*/);
+  db_prepare(&q, zComputeFileAgeRun  /*works-like:"constant"*/);
   db_bind_int(&q, ":ckin", vid);
   db_bind_text(&q, ":glob", zGlob && zGlob[0] ? zGlob : "*");
   db_exec(&q);
@@ -992,6 +992,7 @@ void test_fileage_cmd(void){
 **   name=VERSION   Selects the checkin version (default=tip).
 **   glob=STRING    Only shows files matching this glob pattern
 **                  (e.g. *.c or *.txt).
+**   showid         Show RID values for debugging
 */
 void fileage_page(void){
   int rid;
@@ -999,10 +1000,11 @@ void fileage_page(void){
   const char *zGlob;
   const char *zUuid;
   const char *zNow;            /* Time of checkin */
+  int showId = PB("showid");
   Stmt q1, q2;
   double baseTime;
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   zName = P("name");
   if( zName==0 ) zName = "tip";
   rid = symbolic_name_to_rid(zName, "ci");
@@ -1013,22 +1015,23 @@ void fileage_page(void){
   baseTime = db_double(0.0,"SELECT mtime FROM event WHERE objid=%d", rid);
   zNow = db_text("", "SELECT datetime(mtime,'localtime') FROM event"
                      " WHERE objid=%d", rid);
-  style_submenu_element("Tree-View", "Tree-View", "%R/tree?ci=%T&mtime=1",
+  style_submenu_element("Tree-View", "Tree-View",
+                        "%R/tree?ci=%T&mtime=1&type=tree",
                         zName);
   style_header("File Ages");
   zGlob = P("glob");
   compute_fileage(rid,zGlob);
   db_multi_exec("CREATE INDEX fileage_ix1 ON fileage(mid,pathname);");
 
-  @ <h2>Files in 
-  @ %z(href("%R/info?name=%T",zUuid))[%S(zUuid)]</a>
+  @ <h2>Files in
+  @ %z(href("%R/info/%!S",zUuid))[%S(zUuid)]</a>
   if( zGlob && zGlob[0] ){
     @ that match "%h(zGlob)" and
   }
   @ ordered by check-in time</h2>
   @
   @ <p>Times are relative to the checkin time for
-  @ %z(href("%R/ci/%s",zUuid))[%S(zUuid)]</a> which is
+  @ %z(href("%R/ci/%!S",zUuid))[%S(zUuid)]</a> which is
   @ %z(href("%R/timeline?c=%t",zNow))%s(zNow)</a>.</p>
   @
   @ <div class='fileage'><table>
@@ -1047,7 +1050,7 @@ void fileage_page(void){
     TAG_BRANCH
   );
   db_prepare(&q2,
-    "SELECT blob.uuid, filename.name\n"
+    "SELECT blob.uuid, filename.name, fileage.fid\n"
     "  FROM fileage, blob, filename\n"
     " WHERE fileage.mid=:mid AND filename.fnid=fileage.fnid"
     "   AND blob.rid=fileage.fid;"
@@ -1066,16 +1069,24 @@ void fileage_page(void){
     while( db_step(&q2)==SQLITE_ROW ){
       const char *zFUuid = db_column_text(&q2,0);
       const char *zFile = db_column_text(&q2,1);
-      @ %z(href("%R/artifact/%s",zFUuid))%h(zFile)</a><br>
+      int fid = db_column_int(&q2,2);
+      if( showId ){
+        @ %z(href("%R/artifact/%!S",zFUuid))%h(zFile)</a> (%d(fid))<br>
+      }else{
+        @ %z(href("%R/artifact/%!S",zFUuid))%h(zFile)</a><br>
+      }
     }
     db_reset(&q2);
     @ </td>
     @ <td>
-    @ %z(href("%R/info/%s",zUuid))[%S(zUuid)]</a>
+    @ %z(href("%R/info/%!S",zUuid))[%S(zUuid)]</a>
+    if( showId ){
+      @ (%d(mid))
+    }
     @ %W(zComment) (user:
-    @ %z(href("%R/timeline?u=%t&c=%t&nd&n=200",zUser,zUuid))%h(zUser)</a>,
+    @ %z(href("%R/timeline?u=%t&c=%!S&nd&n=200",zUser,zUuid))%h(zUser)</a>,
     @ branch:
-    @ %z(href("%R/timeline?r=%t&c=%t&nd&n=200",zBranch,zUuid))%h(zBranch)</a>)
+    @ %z(href("%R/timeline?r=%t&c=%!S&nd&n=200",zBranch,zUuid))%h(zBranch)</a>)
     @ </td></tr>
     @
     fossil_free(zAge);

@@ -67,7 +67,7 @@ void page_timeline_rss(void){
   ;
 
   login_check_credentials();
-  if( !g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki ){ 
+  if( !g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki ){
     return;
   }
 
@@ -85,7 +85,7 @@ void page_timeline_rss(void){
         blob_append(&bSQL, " AND event.type!='ci'", -1);
       }else if( g.perm.RdTkt ){
         blob_append(&bSQL, " AND event.type=='t'", -1);
-        
+
       }else{
         blob_append(&bSQL, " AND event.type=='w'", -1);
       }

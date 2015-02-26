@@ -71,3 +71,6 @@ External:
 
   *  <a href="http://www.sqlite.org/src/timeline?c=2010-09-29&nd"
      target="testwindow">Timewarp due to a mis-configured system clock.</a>
+  *  <a href="http://core.tcl.tk/tk/finfo?name=tests/id.test"
+     target="testwindow">Show all three separate deletions of "id.test".
+     (Scroll down for the third deletion.)

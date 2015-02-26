@@ -1,3 +1,12 @@
+# The "diff --tk" command outputs prepends a "set fossilcmd {...}" line
+# to this file, then runs this file using "tclsh" in order to display the
+# graphical diff in a separate window.  A typical "set fossilcmd" line
+# looks like this:
+#
+#     set fossilcmd {| "./fossil" diff --html -y -i -v}
+#
+# This header comment is stripped off by the "mkbuiltin.c" program.
+#
 set prog {
 package require Tk
 

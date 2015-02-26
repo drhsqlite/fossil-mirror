@@ -14,7 +14,7 @@
 **   http://www.hwaci.com/drh/
 **
 *******************************************************************************
-** 
+**
 ** This file contains string constants that implement the database schema.
 */
 #include "config.h"
@@ -47,7 +47,10 @@ const char zConfigSchema[] =
 */
 #define CONTENT_SCHEMA  "2"
 #define AUX_SCHEMA_MIN  "2011-04-25 19:50"
-#define AUX_SCHEMA_MAX  "2014-11-24 20:35"
+#define AUX_SCHEMA_MAX  "2015-01-24"
+/* NB:  Some features require the latest schema.  Warning or error messages
+** will appear if an older schema is used.  However, the older schemas are
+** adequate for many common functions. */
 
 #endif /* INTERFACE */
 
@@ -230,18 +233,36 @@ const char zRepositorySchema2[] =
 @ -- Linkages between checkins, files created by each checkin, and
 @ -- the names of those files.
 @ --
+@ -- Each entry represents a file that changed content from pid to fid
+@ -- due to the check-in that goes from pmid to mid.  fnid is the name
+@ -- of the file in the mid check-in.  If the file was renamed as part
+@ -- of the mid check-in, then pfnid is the previous filename.
+@
+@ -- There can be multiple entries for (mid,fid) if the mid checkin was
+@ -- a merge.  Entries with isaux==0 are from the primary parent.  Merge
+@ -- parents have isaux set to true.
+@ --
+@ -- Field name mnemonics:
+@ --    mid = Manifest ID.  (Each check-in is stored as a "Manifest")
+@ --    fid = File ID.
+@ --    pmid = Parent Manifest ID.
+@ --    pid = Parent file ID.
+@ --    fnid = File Name ID.
+@ --    pfnid = Parent File Name ID.
+@ --    isaux = pmid IS AUXiliary parent, not primary parent
+@ --
 @ -- pid==0 if the file is added by checkin mid.
 @ -- fid==0 if the file is removed by checkin mid.
 @ --
 @ CREATE TABLE mlink(
 @   mid INTEGER REFERENCES plink(cid),  -- Checkin that contains fid
 @   fid INTEGER REFERENCES blob,        -- New file content. 0 if deleted
-@   pmid INTEGER DEFAULT 0              -- (not used yet)
+@   pmid INTEGER REFERENCES plink(cid), -- Checkin that contains pid
 @   pid INTEGER REFERENCES blob,        -- Prev file content. 0 if new
 @   fnid INTEGER REFERENCES filename,   -- Name of the file
 @   pfnid INTEGER REFERENCES filename,  -- Previous name. 0 if unchanged
 @   mperm INTEGER,                      -- File permissions.  1==exec
-@   isaux BOOLEAN DEFAULT 0             -- (not used yet)
+@   isaux BOOLEAN DEFAULT 0             -- TRUE if pmid is the primary
 @ );
 @ CREATE INDEX mlink_i1 ON mlink(mid);
 @ CREATE INDEX mlink_i2 ON mlink(fnid);

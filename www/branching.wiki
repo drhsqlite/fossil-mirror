@@ -182,7 +182,7 @@ A tag can be a one-time tag, a propagating tag or a cancellation tag.
 A one-time tag only applies to the check-in to which it is attached.  A
 propagating tag applies to the check-in to which it is attached and also
 to all direct descendants of that check-in.  A <i>direct descendant</i>
-is a descendant through direct children.  Tags propagation does not
+is a descendant through direct children.  Tag propagation does not
 cross merges.  Tag propagation also stops as soon
 as it encounters another check-in with the same tag.  A cancellation tag
 is attached to a single check-in in order to either override a one-time

@@ -44,7 +44,7 @@
 **
 ** Comments of the form:  "/* @-comment: CC" cause CC to become a
 ** comment character for the @-substitution.  Typical values for CC are
-** "--" (for SQL text) or "#" (for TCL script) or "//" (for C++ code).
+** "--" (for SQL text) or "#" (for Tcl script) or "//" (for C++ code).
 ** Lines of subsequent @-blocks that begin with CC are omitted from the
 ** output.
 **
