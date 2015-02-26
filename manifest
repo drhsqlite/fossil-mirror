@@ -1,5 +1,5 @@
-C Create\snew\sbranch\snamed\s"skin-xekri"
-D 2015-02-26T02:22:29.844
+C Added\sthe\sXekri\sskin
+D 2015-02-26T02:36:53.145
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -338,6 +338,10 @@ F skins/plain_gray/header.txt dc58123dc4ae1714dea231d69f3dcf25308fe83a
 F skins/rounded1/css.txt cf2b6d826f72710f06de8e4ba9c11954d545f884
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
+F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
+F skins/xekri/css.txt dc34d29a63f1ac7e3dd148ca6a8c53c6916958b2
+F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
+F skins/xekri/header.txt 0c3696c6bf397afaa1fe4400c3437d2aef28f182
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 018ef19eb7fd11df63e1d2b49843f104325a674f
 F src/allrepo.c d44cc238625534b90238714b4607c7cdd04f3a59
@@ -409,7 +413,7 @@ F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 2abcbfe5306a237232816ebccbaf0b871e65d267
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c a4a666201e29efd40910af0380f0cf4388167966
-F src/main.mk 0fa40118d5255607c5a8b9e87e843e986d1e91ed
+F src/main.mk 865a74db23622cec2b71c1b2d98eddf2abd9d0e3
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 3faba3b0e1402482bd5faa26cd2afdcf581f0d83
@@ -444,7 +448,7 @@ F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c f06cca68a3f07e03d35d2f879375967169db6a61
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c f173892c2871ab1de8640be58d2ac2c2569f3394
-F src/skins.c 153ba32582e26dff62322a97107617b345d77dc0
+F src/skins.c 71ba57e81f1b678c55141f8957a267ce7ad557a2
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
 F src/sqlite3.c 722600f2119c595ce106d4fbd63a9595c84469e0
 F src/sqlite3.h f8151534e8c69113c7ce4dc7c8491932836095cd
@@ -584,9 +588,9 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 68fbf55e0d94c4e7291437c3412e17786f47db78
 F win/Makefile.dmc 0cefec6ea838e5e0ee4fd2af7da607cda5eae8aa
-F win/Makefile.mingw e5ded98822f84aabf55139268a26729005ef03d0
+F win/Makefile.mingw 944038f171c7c0fbb1c39b6bd59c31dfe39ddfb0
 F win/Makefile.mingw.mistachkin 1151a85f6e40ef662988ce0d258417a526fb3168
-F win/Makefile.msc 6b540291f37219acc1475a5eb06d6f148704c444
+F win/Makefile.msc 600a797557bab413bb1c4ef42db40b55300ac842
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -698,10 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 6db683a570b97cbb2108da3e990c4a835b233b27
 F www/webui.wiki d1f43d9785e55202bc813b62bafbf1387735ad8b
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c3d72bd99ef1144e215e6d5150c28335dff410a5
-R 1cc5fd7c3e8babad1ced8d61e9d6c3d6
-T *branch * skin-xekri
-T *sym-skin-xekri *
-T -sym-trunk *
+P 5680eebb1673f4a0abd2b4a09e525df07329a092
+R ebb4d41b0ba665f2a9c9c90674782ece
 U zakero
-Z 515821b4fbd14d23b10e26f5de75eda6
+Z c64f73fbc1c4d8e981ad8bcb2e165062
