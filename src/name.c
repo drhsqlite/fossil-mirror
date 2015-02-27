@@ -808,7 +808,7 @@ void describe_artifacts(const char *zWhere){
   db_multi_exec(
     "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, event.mtime, 'checkin',\n"
-    "       'checkin on ' || strftime('%%Y-%%m-%%d %%H:%%M',event.mtime)\n"
+    "       'check-in on ' || strftime('%%Y-%%m-%%d %%H:%%M',event.mtime)\n"
     "  FROM event, blob\n"
     " WHERE (event.objid %s) AND event.type='ci'\n"
     "   AND event.objid=blob.rid;",

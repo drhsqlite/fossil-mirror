@@ -454,6 +454,7 @@ void leaves_page(void){
   }
   style_header("Leaves");
   login_anonymous_available();
+#if 0
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
   @ <li> A <div class="sideboxDescribed">leaf</div>
@@ -466,6 +467,7 @@ void leaves_page(void){
   @ be historical and no longer in active use.</li>
   @ </ol>
   style_sidebox_end();
+#endif
 
   if( showAll ){
     @ <h1>All leaves, both open and closed:</h1>

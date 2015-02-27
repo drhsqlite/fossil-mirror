@@ -1035,7 +1035,7 @@ void fileage_page(void){
   @ %z(href("%R/timeline?c=%t",zNow))%s(zNow)</a>.</p>
   @
   @ <div class='fileage'><table>
-  @ <tr><th>Time</th><th>Files</th><th>Checkin</th></tr>
+  @ <tr><th>Time</th><th>Files</th><th>Check-in</th></tr>
   db_prepare(&q1,
     "SELECT event.mtime, event.objid, blob.uuid,\n"
     "       coalesce(event.ecomment,event.comment),\n"

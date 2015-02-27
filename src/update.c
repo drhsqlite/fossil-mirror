@@ -643,11 +643,11 @@ void ensure_empty_dirs_created(void){
 
 
 /*
-** Get the contents of a file within the checking "revision".  If
+** Get the contents of a file within the check-in "revision".  If
 ** revision==NULL then get the file content for the current checkout.
 */
 int historical_version_of_file(
-  const char *revision,    /* The checkin containing the file */
+  const char *revision,    /* The check-in containing the file */
   const char *file,        /* Full treename of the file */
   Blob *content,           /* Put the content here */
   int *pIsLink,            /* Set to true if file is link. */
@@ -668,7 +668,7 @@ int historical_version_of_file(
   }
   if( !is_a_version(rid) ){
     if( errCode>0 ) return errCode;
-    fossil_fatal("no such checkin: %s", revision);
+    fossil_fatal("no such check-in: %s", revision);
   }
   pManifest = manifest_get(rid, CFTYPE_MANIFEST, 0);
 
@@ -688,13 +688,13 @@ int historical_version_of_file(
     }
     manifest_destroy(pManifest);
     if( errCode<=0 ){
-      fossil_fatal("file %s does not exist in checkin: %s", file, revision);
+      fossil_fatal("file %s does not exist in check-in: %s", file, revision);
     }
   }else if( errCode<=0 ){
     if( revision==0 ){
       revision = db_text("current", "SELECT uuid FROM blob WHERE rid=%d", rid);
     }
-    fossil_fatal("could not parse manifest for checkin: %s", revision);
+    fossil_fatal("could not parse manifest for check-in: %s", revision);
   }
   return errCode;
 }
