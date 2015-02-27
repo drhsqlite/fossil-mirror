@@ -30,7 +30,7 @@
   
   6.  You can manually add a "c=CHECKIN" query parameter to the timeline
       URL to get a snapshot of what was going on about the time of some
-      checkin.  The "CHECKIN" can be
+      check-in.  The "CHECKIN" can be
       [./checkin_names.wiki | any valid check-in or version name], including
       tags, branch names, and dates.  For example, to see what was going 
       on in the Fossil repository on 2008-01-01, visit

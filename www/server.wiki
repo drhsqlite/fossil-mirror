@@ -101,7 +101,7 @@ off of the wire.
 <p>
 [http://www.stunnel.org/ | Stunnel version 4] is an inetd-like process that
 accepts and decodes SSL-encrypted connections.  Fossil can be run directly from
-stunnel in a mannar similar to inetd and xinetd.  This can be used to provide
+stunnel in a manner similar to inetd and xinetd.  This can be used to provide
 a secure link to a Fossil project.  The configuration needed to get stunnel4
 to invoke Fossil is very similar to the inetd and xinetd examples shown above.
 The relevant parts of an stunnel configuration might look something
@@ -113,7 +113,7 @@ TIMEOUTclose = 0
 exec         = /usr/bin/fossil
 execargs     = /usr/bin/fossil http /home/fossil/ubercool.fossil --https
 </nowiki></pre></blockquote>
-See the stunnel4 documentation for further details bout the /etc/stunnel/stunnel.conf
+See the stunnel4 documentation for further details about the /etc/stunnel/stunnel.conf
 configuration file.  Note that the [/help/http|fossil http] command should include 
 the --https option to let Fossil know to use "https" instead of "http" as the scheme
 on generated hyperlinks.
@@ -268,7 +268,7 @@ requests can be arriving at a continuous rate of 20 or more per second
 and the CPU can still be mostly idle.
 <p>
 However, there are some Fossil web pages that can consume large 
-amounts of CPU time, expecially on repositories with a large number
+amounts of CPU time, especially on repositories with a large number
 of files or with long revision histories.  High CPU usage pages include
 [/help?cmd=/zip | /zip], [/help?cmd=/tarball | /tarball],
 [/help?cmd=/annotate | /annotate] and others.  On very large repositories,
@@ -315,7 +315,7 @@ The second form is especially useful for changing the maximum load average
 simultaneously on a large number of repositories.
 <p>
 Note that this load-average limiting feature is only available on operating
-systems that support the "getloadavg()" API.  Most modern unix systems have
+systems that support the "getloadavg()" API.  Most modern Unix systems have
 this interface, but Windows does not, so the feature will not work on Windows.
 Note also that Linux implements "getloadavg()" by accessing the "/proc/loadavg"
 file in the "proc" virtual filesystem.  If you are running a Fossil instance

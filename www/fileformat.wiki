@@ -115,7 +115,7 @@ another manifest that serves as the "baseline" for this manifest.  A
 manifest that has a B-card is called a delta-manifest and a manifest
 that omits the B-card is a baseline-manifest.  The other manifest
 identified by the argument of the B-card must be a baseline-manifest.
-A baseline-manifest records the complete contents of a checkin.
+A baseline-manifest records the complete contents of a check-in.
 A delta-manifest records only changes from its baseline.  
 
 A manifest must have exactly one C-card.  The sole argument to
@@ -315,11 +315,11 @@ first value is the tag name.  The first character of the tag
 is either "+", "-", or "*".  The "+" means the tag should be added
 to the artifact.  The "-" means the tag should be removed.
 The "*" character means the tag should be added to the artifact
-and all direct descendants (but not descendents through a merge) down
+and all direct descendants (but not descendants through a merge) down
 to but not including the first descendant that contains a 
 more recent "-", "*", or "+" tag with the same name.
 The optional third argument is the value of the tag.  A tag
-without a value is a boolean.
+without a value is a Boolean.
 
 When two or more tags with the same name are applied to the
 same artifact, the tag with the latest (most recent) date is
