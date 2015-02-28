@@ -297,12 +297,12 @@ static struct fuse_operations fusefs_methods = {
 ** where DIRECTORY is the root of the mount, VERSION is any valid
 ** check-in name (examples: "trunk" or "tip" or a tag or any unique
 ** prefix of a SHA1 hash, etc) and PATH is the pathname of the file
-** in the checkin.  If DIRECTORY does not exist, then an attempt is
+** in the check-in.  If DIRECTORY does not exist, then an attempt is
 ** made to create it.
 **
 ** The DIRECTORY/checkins directory is not searchable so one cannot
-** do "ls DIRECTORY/checkins" to get a listing of all possible checkin
-** names.  There are countless variations on checkin names and it is
+** do "ls DIRECTORY/checkins" to get a listing of all possible check-in
+** names.  There are countless variations on check-in names and it is
 ** impractical to list them all.  But all other directories are searchable
 ** and so the "ls" command will work everywhere else in the fusefs
 ** file hierarchy.

@@ -32,7 +32,7 @@
 ** A "leaf" is a check-in that has no children in the same branch.
 ** There is a separate permanent table LEAF that contains all leaves
 ** in the tree.  This routine is used to compute a subset of that
-** table consisting of leaves that are descended from a single checkin.
+** table consisting of leaves that are descended from a single check-in.
 **
 ** The closeMode flag determines behavior associated with the "closed"
 ** tag:
@@ -293,8 +293,8 @@ void compute_descendants(int rid, int N){
 **
 ** Usage: %fossil descendants ?CHECKIN? ?OPTIONS?
 **
-** Find all leaf descendants of the checkin specified or if the argument
-** is omitted, of the checkin currently checked out.
+** Find all leaf descendants of the check-in specified or if the argument
+** is omitted, of the check-in currently checked out.
 **
 ** Options:
 **    -R|--repository FILE       Extract info from repository FILE

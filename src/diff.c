@@ -2396,7 +2396,7 @@ void annotation_page(void){
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.  The "annotate" command shows line numbers
 ** and omits the username.  The "blame" and "praise" commands show the user
-** who made each checkin and omits the line number.
+** who made each check-in and omits the line number.
 **
 ** Options:
 **   --filevers                 Show file version numbers rather than check-in versions

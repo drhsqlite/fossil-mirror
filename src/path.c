@@ -351,8 +351,8 @@ struct NameChange {
 };
 
 /*
-** Compute all file name changes that occur going from checkin iFrom
-** to checkin iTo.
+** Compute all file name changes that occur going from check-in iFrom
+** to check-in iTo.
 **
 ** The number of name changes is written into *pnChng.  For each name
 ** change, two integers are allocated for *piChng.  The first is the

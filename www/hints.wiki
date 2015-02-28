@@ -50,7 +50,7 @@
       add a query parameter of the form "ln=FROM,TO" to the URL that
       will cause the range of lines indicated to be highlighted.  This
       is useful in pointing out a few lines of code using a hyperlink
-      in a email or text message.  Example:
+      in an email or text message.  Example:
       [http://www.fossil-scm.org/fossil/artifact/c7dd1de9f?ln=28,30].
       Adding the "ln" query parameter without any argument simply turns
       on line numbers.   This feature only works right with files with

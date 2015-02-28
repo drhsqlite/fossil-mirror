@@ -61,7 +61,7 @@ void unpublished_cmd(void){
 ** branch, or to publish a bundle that was imported privately.
 **
 ** If any of TAGS names a branch, then all checkins on the most recent
-** instance of that branch are included, not just the most recent checkin.
+** instance of that branch are included, not just the most recent check-in.
 **
 ** If any of TAGS name checkins then all files and tags associated with
 ** those checkins are also published automatically.  Except if the --only

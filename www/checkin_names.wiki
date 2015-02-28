@@ -161,9 +161,9 @@ distributed projects where participants are scattered around the globe.
 But there is an option on the Admin/Timeline page of the web-interface to
 switch to local time.  The "<b>Z</b>" suffix on an timestamp check-in
 name is meaningless if Fossil is in the default mode of using UTC for
-everything, but if Fossil has been switched to localtime mode, then the
+everything, but if Fossil has been switched to local time mode, then the
 "<b>Z</b>" suffix means to interpret that particular timestamp using 
-UTC instead localtime.
+UTC instead of local time.
 
 For an example of how timestamps are useful, 
 consider the homepage for the Fossil website itself:

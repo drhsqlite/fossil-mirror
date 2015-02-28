@@ -1497,7 +1497,7 @@ static int tagCmp(const void *a, const void *b){
 **    --private                  do not sync changes and their descendants
 **    --sha1sum                  verify file status using SHA1 hashing rather
 **                               than relying on file mtimes
-**    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
+**    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
 **
 ** See also: branch, changes, checkout, extras, sync
 */
@@ -1731,11 +1731,11 @@ void commit_cmd(void){
   ** ends up on a different branch.
   */
   if(
-      /* parent checkin has the "closed" tag... */
+      /* parent check-in has the "closed" tag... */
       db_exists("SELECT 1 FROM tagxref"
                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
                 TAG_CLOSED, vid)
-      /* ... and the new checkin has no --branch option or the --branch
+      /* ... and the new check-in has no --branch option or the --branch
       ** option does not actually change the branch */
    && (sCiInfo.zBranch==0
        || db_exists("SELECT 1 FROM tagxref"
@@ -1871,7 +1871,7 @@ void commit_cmd(void){
       create_manifest(&delta, zBaselineUuid, pBaseline, vid, &sCiInfo, &szD);
       /*
       ** At this point, two manifests have been constructed, either of
-      ** which would work for this checkin.  The first manifest (held
+      ** which would work for this check-in.  The first manifest (held
       ** in the "manifest" variable) is a baseline manifest and the second
       ** (held in variable named "delta") is a delta manifest.  The
       ** question now is: which manifest should we use?
@@ -1969,7 +1969,7 @@ void commit_cmd(void){
 
   if( useCksum ){
     /* Verify that the repository checksum matches the expected checksum
-    ** calculated before the checkin started (and stored as the R record
+    ** calculated before the check-in started (and stored as the R record
     ** of the manifest file).
     */
     vfile_aggregate_checksum_repository(nvid, &cksum2);

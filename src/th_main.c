@@ -272,7 +272,7 @@ int th1_name_to_typed_rid(
 }
 
 /*
-** Attempt to lookup the specified checkin and file name into an rid.
+** Attempt to lookup the specified check-in and file name into an rid.
 ** This function was copied from artifact_from_ci_and_filename() in
 ** info.c; however, it has been modified to report TH1 script errors
 ** instead of "fatal errors".
