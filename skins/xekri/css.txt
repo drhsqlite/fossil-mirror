@@ -671,6 +671,27 @@ table.timelineTable {
   border: 0;
 }
 
+/* The row in the timeline table that contains the entry of interest */
+tr.timelineSelected {
+  border: 1px solid #eee;
+  border-radius: 1rem;
+}
+
+tr.timelineSelected td.timelineTime
+, tr.timelineSelected td.timelineTableCell {
+  background-color: #333;
+  box-shadow: 2px 2px 1px #000;
+  padding: 0.5rem;
+}
+
+tr.timelineSelected td.timelineTime {
+  border-radius: 1rem 0 0 1rem;
+}
+
+tr.timelineSelected td.timelineTableCell {
+  border-radius: 0 1rem 1rem 0;
+}
+
 /* the format for the timeline data cells */
 td.timelineTableCell {
   padding: 0.3rem;

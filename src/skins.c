@@ -50,7 +50,7 @@ static struct BuiltinSkin {
   { "Enhanced Default",                  "enhanced1",         0, 0 },
   { "San Francisco Modern",              "etienne1",          0, 0 },
   { "Eagle",                             "eagle",             1, 0 },
-  { "Xekri",                             "xekri",             0 },
+  { "Xekri",                             "xekri",             0, 0 },
 };
 
 /*
