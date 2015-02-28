@@ -197,7 +197,7 @@ int purge_artifact_list(
 /*
 ** The TEMP table named zTab contains RIDs for a set of checkins.  
 **
-** Check to see if any checkin in zTab is a baseline manifest for some
+** Check to see if any check-in in zTab is a baseline manifest for some
 ** delta manifest that is not in zTab.  Return true if zTab contains a
 ** baseline for a delta that is not in zTab.
 **
@@ -220,7 +220,7 @@ int purge_baseline_out_from_under_delta(const char *zTab){
 
 
 /*
-** The TEMP table named zTab contains the RIDs for a set of checkin
+** The TEMP table named zTab contains the RIDs for a set of check-in
 ** artifacts.  Expand this set (by adding new entries to zTab) to include
 ** all other artifacts that are used the set of checkins in
 ** the original list.

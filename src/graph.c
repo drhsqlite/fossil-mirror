@@ -365,7 +365,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   ** drawn.
   **
   ** Each node has one primary parent and zero or more "merge" parents.
-  ** A merge parent is a prior checkin from which changes were merged into
+  ** A merge parent is a prior check-in from which changes were merged into
   ** the current check-in.  If a merge parent is not in the visible section
   ** of this graph, then no arrows will be drawn for it, so remove it from
   ** the aParent[] array.

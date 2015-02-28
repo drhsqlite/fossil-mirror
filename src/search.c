@@ -16,7 +16,7 @@
 *******************************************************************************
 **
 ** This file contains code to implement a very simple search function
-** against timeline comments, checkin content, wiki pages, and/or tickets.
+** against timeline comments, check-in content, wiki pages, and/or tickets.
 **
 ** The search is full-text like in that it is looking for words and ignores
 ** punctuation and capitalization.  But it is more akin to "grep" in that
