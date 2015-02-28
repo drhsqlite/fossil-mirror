@@ -1,5 +1,5 @@
-C Update\sthe\sperformance\sstats\swebpage.
-D 2015-02-28T14:46:19.775
+C Further\supdates\sto\sthe\sperformance\sstats\spage:\s\s"yrs"\sbecomes\s"years".\nGive\sa\sspecific\sexample\sof\sthe\scommit\sbandwidth.
+D 2015-02-28T14:55:06.566
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -687,7 +687,7 @@ F www/server.wiki 9c31a8973d9c0f6de8049951a2d1e958bae22060
 F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
-F www/stats.wiki 6ce2c1d6746b680bf963f16a3c967f69fd3f76df
+F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki 53a1e45726f4bbfc69e8f0898bb8196e7660c82b
 F www/tech_overview.wiki 47e983b31db847b51d03df511138a128fe65c357
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 35c25558cbffcb7f5f03d16f584e1898ad76e201
-R 02b28ef7ba7fa9c5d4a65f8b2630c22d
+P 04eef9522386a59e31063b9300a5b9670c2be146
+R d1384104413b7f94b56f25d524526c1c
 U drh
-Z 96323bcd46c0c3cce06caa5ed9dcb56b
+Z fa80bb8170333d46ea6b853d0563af96

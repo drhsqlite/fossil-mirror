@@ -26,7 +26,7 @@ Explanation and analysis follows the table.
 <td>[http://www.sqlite.org/src/timeline | SQLite]
 <td>56089
 <td>14357
-<td>5388&nbsp;days<br>14.75&nbsp;yrs
+<td>5388&nbsp;days<br>14.75&nbsp;years
 <td>3.4&nbsp;GB
 <td>45.5&nbsp;MB
 <td>73:1
@@ -37,7 +37,7 @@ Explanation and analysis follows the table.
 <td>[http://core.tcl.tk/tcl/timeline | TCL]
 <td>139662
 <td>18125
-<td>6183&nbsp;days<br>16.93&nbsp;yrs
+<td>6183&nbsp;days<br>16.93&nbsp;years
 <td>6.6&nbsp;GB
 <td>192.6&nbsp;MB
 <td>34:1
@@ -48,7 +48,7 @@ Explanation and analysis follows the table.
 <td>[/timeline | Fossil]
 <td>29937
 <td>8238
-<td>2779&nbsp;days<br>7.61&nbsp;yrs
+<td>2779&nbsp;days<br>7.61&nbsp;years
 <td>2.3&nbsp;GB
 <td>34.0&nbsp;MB
 <td>67:1
@@ -59,7 +59,7 @@ Explanation and analysis follows the table.
 <td>[http://www.sqlite.org/slt/timeline | SLT]
 <td>2278
 <td>136
-<td>2282&nbsp;days<br>6.25&nbsp;yrs
+<td>2282&nbsp;days<br>6.25&nbsp;years
 <td>2.0&nbsp;GB
 <td>144.7&nbsp;MB
 <td>13:1
@@ -70,7 +70,7 @@ Explanation and analysis follows the table.
 <td>[http://www.sqlite.org/th3.html | TH3]
 <td>8729
 <td>2406
-<td>2347&nbsp;days<br>6.43&nbsp;yrs
+<td>2347&nbsp;days<br>6.43&nbsp;years
 <td>386&nbsp;MB
 <td>15.2&nbsp;MB
 <td>25:1
@@ -81,7 +81,7 @@ Explanation and analysis follows the table.
 <td>[http://www.sqlite.org/docsrc/timeline | SQLite Docs]
 <td>5503
 <td>1631
-<td>2666&nbsp;days<br>7.30&nbsp;yrs
+<td>2666&nbsp;days<br>7.30&nbsp;years
 <td>194&nbsp;MB
 <td>10.9&nbsp;MB
 <td>17:1
@@ -143,6 +143,8 @@ developers were surprised to see that the equivalent Fossil project (the
 first nine years on SQLite) would clone with only 13MB of bandwidth.
 The "sync" protocol
 used by fossil has turned out to be surprisingly efficient.  A typical
-check-in on SQLite might use 3 or 4KB of network bandwidth total, hardly
-worth measuring.  The sync protocol is efficient enough that, once cloned,
-Fossil could easily be used over a dial-up connection.
+check-in on SQLite might use 3 or 4KB of network bandwidth.
+For example, the [04eef9522386a59e] check-in used a single HTTP request
+of 2099 bytes and got back a reply of 1116 bytes.
+The sync protocol is efficient enough that, once cloned,
+Fossil can easily be used over a dial-up connection.
