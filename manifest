@@ -1,5 +1,5 @@
-C changed\smentioned\sStunnel\sversion\sfrom\s4\sto\s5,\sand\schanged\smentioned\sStunnel\sURL\sto\shttps://
-D 2015-02-28T08:32:04.962
+C fixed\ssome\stypos\ssuggested\sin\sprivate\semail
+D 2015-02-28T08:39:44.986
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -665,7 +665,7 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
-F www/hints.wiki d2d19d653a457126b7bf7f4a401d13781209a14a
+F www/hints.wiki f554575abde781c13e76b147a6ef2f3ba9b5ef21
 F www/index.wiki daf9d0cce052572ba9c211715782cb599db0b093
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
@@ -680,7 +680,7 @@ F www/qandc.wiki e07b21da221b05afeb1905f17af3765045952ba8
 F www/quickstart.wiki aa6a95f181fad1f7806016ed463b4875ec06dd8a
 F www/quotes.wiki a6a8bd9783b681cabcce39600bce0bfc561fd2bf
 F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
-F www/scgi.wiki 23fd916be2143ac1026fcbea2fbea1373bf68876
+F www/scgi.wiki 45a497a26ea940ef945a4c34cc1458ddddf304d6
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
 F www/server.wiki 0062d0777f9d56635d0bc357db6819455bfca4e9
@@ -698,9 +698,6 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 76e77aba292c7a174def31e4d1a1e5c569eacbef
-T *branch * ml-jb-doc-typos
-T *sym-ml-jb-doc-typos *
-T -sym-trunk *
+P a633efefaa54f682ec2ac798e7bfa79f0249a84b
 U michai
-Z 0caa4bc84a990149f771ddc358d1df1a
+Z 0190f97cca0dc56828dcfd93abec467b
