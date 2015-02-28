@@ -1,5 +1,5 @@
-C Remove\swordy\sside\sbars\sfrom\stwo\sobscure\spages.\s\sChange\s"Checkin"\sto\n"Check-in"\son\sgenerated\spages.\s\sFix\sa\stypo\son\sthe\swebpage-ex.md\sdocumentation\npage.
-D 2015-02-27T13:36:30.218
+C Automatically\srun\sextra\sdelta-compression\sand\svacuum\sa\srepository\safter\sa\sclone.\nAnd\schange\sthe\spage\ssize\sto\s8192\sif\sthere\sare\smore\sthan\s1000\spages.
+D 2015-02-28T14:15:01.037
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -355,7 +355,7 @@ F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
 F src/checkin.c 2675bbb7c9aed6a29d80e92be88085fa34035b90
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c cca4f31e16d619ee841bfae5919fdd529523f62f
+F src/clone.c 17a56a8a39befb6f7d8f1aa87deeadb7d2833b1e
 F src/codecheck1.c 2cf1fc75f4f611574e92cf1440f4fb2ae49e8ba6
 F src/comformat.c 24b2de2bad5e8e6da966586c68d6505ea08df8e7
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
@@ -433,7 +433,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 3d86d4ec595025c938053049ea915012e2b10306
 F src/publish.c 899d9791e70f48b9f2a62f58c846ab1b1b369894
 F src/purge.c 3e807688b108bd0cf54b86a19283f64fcf46d374
-F src/rebuild.c f4ced6c8687b4544af1e542ed592557e42e76428
+F src/rebuild.c de9fef381f1897d01685e94063eff139c6f76004
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 653c5affb28a4ae9624e65de1f596c4bf08fe8b3
 F src/rss.c efed54aa9062f0aa3cea92aaabcc68edc2d7da51
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P fe38a768db2ccfefb7188c2c3ef9c782ee53dc0f
-R 271e4f81257e28218650489e5ad9619c
+P 76e77aba292c7a174def31e4d1a1e5c569eacbef
+R 3d7dfb3cd9ccf247e6cbb96d92734ee8
 U drh
-Z dc8b7604fa9ed707f3c9742c2c7d97f1
+Z 863ec7cdfdce42a73642b5bcf57073bc
