@@ -804,7 +804,7 @@ static const char zDescTab[] =
 void describe_artifacts(const char *zWhere){
   db_multi_exec("%s", zDescTab/*safe-for-%s*/);
 
-  /* Describe checkins */
+  /* Describe check-ins */
   db_multi_exec(
     "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, event.mtime, 'checkin',\n"

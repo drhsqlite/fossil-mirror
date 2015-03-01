@@ -1047,7 +1047,7 @@ const struct strctCssDefaults {
     @   border-style: solid;
   },
   { "input.checkinUserColor",
-    "format for user color input on checkin edit page",
+    "format for user color input on check-in edit page",
     @ /* no special definitions, class defined, to enable color pickers, f.e.:
     @ **  add the color picker found at http:jscolor.com  as java script include
     @ **  to the header and configure the java script file with

@@ -15,7 +15,7 @@
 *******************************************************************************
 **
 ** This file contains code used to trace paths of through the
-** directed acyclic graph (DAG) of checkins.
+** directed acyclic graph (DAG) of check-ins.
 */
 #include "config.h"
 #include "path.h"
@@ -201,7 +201,7 @@ PathNode *path_midpoint(void){
 **
 ** Usage: %fossil test-shortest-path ?--no-merge? VERSION1 VERSION2
 **
-** Report the shortest path between two checkins.  If the --no-merge flag
+** Report the shortest path between two check-ins.  If the --no-merge flag
 ** is used, follow only direct parent-child paths and omit merge links.
 */
 void shortest_path_test_cmd(void){

@@ -209,11 +209,11 @@ cson_value * json_artifact_ticket( cson_object * zParent, int rid ){
 }
 
 /*
-** Sub-impl of /json/artifact for checkins.
+** Sub-impl of /json/artifact for check-ins.
 */
 static cson_value * json_artifact_ci( cson_object * zParent, int rid ){
   if(!g.perm.Read){
-    json_set_err( FSL_JSON_E_DENIED, "Viewing checkins requires 'o' privileges." );
+    json_set_err( FSL_JSON_E_DENIED, "Viewing check-ins requires 'o' privileges." );
     return NULL;
   }else{
     cson_value * artV = json_artifact_for_ci(rid, 1);
@@ -348,7 +348,7 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
     fossil_free(parentUuid);
   }
   
-  /* Find checkins associated with this file... */
+  /* Find check-ins associated with this file... */
   db_prepare(&q,
       "SELECT filename.name AS name, "
       "  (mlink.pid==0) AS isNew,"
@@ -357,7 +357,7 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
       "  coalesce(event.ecomment,event.comment) as comment,"
       "  coalesce(event.euser,event.user) as user,"
 #if 0
-      "  a.size AS size," /* same for all checkins. */
+      "  a.size AS size," /* same for all check-ins. */
 #endif
       "  b.uuid as checkin, "
 #if 0
@@ -375,7 +375,7 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
       "   ORDER BY filename.name, event.mtime",
       TAG_BRANCH, rid
     );
-  /* TODO: add a "state" flag for the file in each checkin,
+  /* TODO: add a "state" flag for the file in each check-in,
      e.g. "modified", "new", "deleted".
    */
   checkin_arr = cson_new_array(); 

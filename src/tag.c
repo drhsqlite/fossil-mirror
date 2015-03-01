@@ -62,7 +62,7 @@ static void tag_propagate(
   db_bind_double(&s, ":mtime", mtime);
 
   if( tagType==2 ){
-    /* Set the propagated tag marker on checkin :rid */
+    /* Set the propagated tag marker on check-in :rid */
     db_prepare(&ins,
        "REPLACE INTO tagxref(tagid, tagtype, srcid, origid, value, mtime, rid)"
        "VALUES(%d,2,0,%d,%Q,:mtime,:rid)",
@@ -70,7 +70,7 @@ static void tag_propagate(
     );
     db_bind_double(&ins, ":mtime", mtime);
   }else{
-    /* Remove all references to the tag from checkin :rid */
+    /* Remove all references to the tag from check-in :rid */
     zValue = 0;
     db_prepare(&ins,
        "DELETE FROM tagxref WHERE tagid=%d AND rid=:rid", tagid
@@ -354,7 +354,7 @@ void tag_add_artifact(
 **     %fossil tag find ?--raw? ?-t|--type TYPE? ?-n|--limit #? TAGNAME
 **
 **         List all objects that use TAGNAME.  TYPE can be "ci" for
-**         checkins or "e" for events. The limit option limits the number
+**         check-ins or "e" for events. The limit option limits the number
 **         of results to the given value.
 **
 **     %fossil tag list|ls ?--raw? ?CHECK-IN?

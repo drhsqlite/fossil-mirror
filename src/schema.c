@@ -230,7 +230,7 @@ const char zRepositorySchema2[] =
 @   name TEXT UNIQUE             -- Name of file page
 @ );
 @
-@ -- Linkages between checkins, files created by each checkin, and
+@ -- Linkages between check-ins, files created by each check-in, and
 @ -- the names of those files.
 @ --
 @ -- Each entry represents a file that changed content from pid to fid
@@ -238,7 +238,7 @@ const char zRepositorySchema2[] =
 @ -- of the file in the mid check-in.  If the file was renamed as part
 @ -- of the mid check-in, then pfnid is the previous filename.
 @
-@ -- There can be multiple entries for (mid,fid) if the mid checkin was
+@ -- There can be multiple entries for (mid,fid) if the mid check-in was
 @ -- a merge.  Entries with isaux==0 are from the primary parent.  Merge
 @ -- parents have isaux set to true.
 @ --
@@ -251,8 +251,8 @@ const char zRepositorySchema2[] =
 @ --    pfnid = Parent File Name ID.
 @ --    isaux = pmid IS AUXiliary parent, not primary parent
 @ --
-@ -- pid==0 if the file is added by checkin mid.
-@ -- fid==0 if the file is removed by checkin mid.
+@ -- pid==0 if the file is added by check-in mid.
+@ -- fid==0 if the file is removed by check-in mid.
 @ --
 @ CREATE TABLE mlink(
 @   mid INTEGER REFERENCES plink(cid),  -- Checkin that contains fid
@@ -269,7 +269,7 @@ const char zRepositorySchema2[] =
 @ CREATE INDEX mlink_i3 ON mlink(fid);
 @ CREATE INDEX mlink_i4 ON mlink(pid);
 @
-@ -- Parent/child linkages between checkins
+@ -- Parent/child linkages between check-ins
 @ --
 @ CREATE TABLE plink(
 @   pid INTEGER REFERENCES blob,    -- Parent manifest
@@ -281,10 +281,10 @@ const char zRepositorySchema2[] =
 @ );
 @ CREATE INDEX plink_i2 ON plink(cid,pid);
 @
-@ -- A "leaf" checkin is a checkin that has no children in the same
+@ -- A "leaf" check-in is a check-in that has no children in the same
 @ -- branch.  The set of all leaves is easily computed with a join,
 @ -- between the plink and tagxref tables, but it is a slower join for
-@ -- very large repositories (repositories with 100,000 or more checkins)
+@ -- very large repositories (repositories with 100,000 or more check-ins)
 @ -- and so it makes sense to precompute the set of leaves.  There is
 @ -- one entry in the following table for each leaf.
 @ --
@@ -395,7 +395,7 @@ const char zRepositorySchema2[] =
 @ CREATE TABLE backlink(
 @   target TEXT,           -- Where the hyperlink points to
 @   srctype INT,           -- 0: check-in  1: ticket  2: wiki
-@   srcid INT,             -- rid for checkin or wiki.  tkt_id for ticket.
+@   srcid INT,             -- rid for check-in or wiki.  tkt_id for ticket.
 @   mtime TIMESTAMP,       -- time that the hyperlink was added. Julian day.
 @   UNIQUE(target, srctype, srcid)
 @ );
@@ -467,7 +467,7 @@ const char zRepositorySchema2[] =
 # define TAG_CLUSTER    7     /* A cluster */
 # define TAG_BRANCH     8     /* Value is name of the current branch */
 # define TAG_CLOSED     9     /* Do not display this check-in as a leaf */
-# define TAG_PARENT     10    /* Change to parentage on a checkin */
+# define TAG_PARENT     10    /* Change to parentage on a check-in */
 #endif
 #if EXPORT_INTERFACE
 # define MAX_INT_TAG    16    /* The largest pre-assigned tag id */

@@ -978,7 +978,7 @@ static void checkin_description(int rid){
 **   glob=STRING     only diff files matching this glob
 **
 **
-** Show all differences between two checkins.
+** Show all differences between two check-ins.
 */
 void vdiff_page(void){
   int ridFrom, ridTo;
@@ -1240,10 +1240,10 @@ int object_description(
     if( showDetail ){
       @ <li>
       hyperlink_to_date(zDate,"");
-      @ &mdash; part of checkin
+      @ &mdash; part of check-in
       hyperlink_to_uuid(zVers);
     }else{
-      @ &mdash; part of checkin
+      @ &mdash; part of check-in
       hyperlink_to_uuid(zVers);
       @ at
       hyperlink_to_date(zDate,"");

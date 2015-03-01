@@ -98,7 +98,7 @@ void leaf_rebuild(void){
 }
 
 /*
-** A bag of checkins whose leaf status needs to be checked.
+** A bag of check-ins whose leaf status needs to be checked.
 */
 static Bag needToCheck;
 
