@@ -269,3 +269,23 @@ span.diffln {
 #canvas {
   background-color: #485D7B;
 }
+
+.fileage tr:hover {
+  background-color: #7EA2D9;
+}
+
+.fileage td {
+  font-family: "courier new";
+}
+
+div.filetreeline:hover {
+  background-color: #7EA2D9;
+}
+
+div.selectedText {
+  background-color: #7EA2D9;
+}
+
+.statistics-report-graph-line {
+  background-color: #7EA2D9;
+}
