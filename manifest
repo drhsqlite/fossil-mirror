@@ -1,5 +1,5 @@
-C More\schanges\sto\smake\s'check-in'\sterminology\sconsistent\sin\ssource\scomments,\sSQL\scomments,\sJSON\serror\smessages,\sand\sweb\spage\slink\stext.
-D 2015-03-01T20:56:26.369
+C Command\sline\soutput-only\schanges\sof\s'checkins'\sto\s'check-ins'\sfor\sthe\sdbstat,\sinfo,\sand\spurge\ssub-commands.\s\sThis\smay\sbreak\ssome\spre-existing\sautomation,\splease\sreview.
+D 2015-03-01T21:01:13.306
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c bc289d3b4cf7b4357a5228cdb434a47de5f20c50
-F src/info.c d36818b59b7da102df269074b6c48e5c9ecd00c0
+F src/info.c 7e916f5440815c7b66928f866eaf9b09a68c161f
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -432,7 +432,7 @@ F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 3d86d4ec595025c938053049ea915012e2b10306
 F src/publish.c af0eb8c4075fcc2e775a463e756106e9158904ff
-F src/purge.c acb69d6626207895edde2a8ba8315c14c12e0686
+F src/purge.c 7d60b5a89a5eeab91ae5fe846ad37e6835a735b4
 F src/rebuild.c de9fef381f1897d01685e94063eff139c6f76004
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 653c5affb28a4ae9624e65de1f596c4bf08fe8b3
@@ -449,7 +449,7 @@ F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
 F src/sqlite3.c 722600f2119c595ce106d4fbd63a9595c84469e0
 F src/sqlite3.h f8151534e8c69113c7ce4dc7c8491932836095cd
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
-F src/stat.c 82f40082a3fe739b417dbcf0288f00db327ea62b
+F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
 F src/statrep.c b7bd715a0429375342af08151854d62b467c4792
 F src/style.c 4206ec505753337401f6bed49a3fb0f175e8b00b
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
@@ -698,7 +698,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 6ec2c2e3d966ceee7a8034b71bad19bddd0f2dc9
-R ce8ff3d8cbc5b01d01e2d30700755efb
+P 30c107e2c8de3f7dcd59f287f1d3c1b2a45625cd
+R ad2a469b242054094c1895c2d04b5d28
+T *branch * pendingReview
+T *sym-pendingReview *
+T -sym-trunk *
 U mistachkin
-Z adc54829fcdc4385b8b874554e455115
+Z 09c4407a5fb59d8ece11e3046d42588e
