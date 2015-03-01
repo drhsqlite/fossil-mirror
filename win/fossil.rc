@@ -95,7 +95,7 @@ BEGIN
     BLOCK "040904b0"
     BEGIN
       VALUE "CompanyName", "Fossil Development Team\0"
-      VALUE "FileDescription", "Simple, high-reliability, distributed software configuration management system.\0"
+      VALUE "FileDescription", "Fossil. A simple, high-reliability, distributed software configuration management system.\0"
       VALUE "ProductName", "Fossil\0"
       VALUE "ProductVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
       VALUE "FileVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
