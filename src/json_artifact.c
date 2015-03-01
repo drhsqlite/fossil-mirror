@@ -81,7 +81,7 @@ cson_value * json_parent_uuids_for_ci( int rid ){
 
 /*
 ** Generates an artifact Object for the given rid,
-** which must refer to a Checkin.
+** which must refer to a Check-in.
 **
 ** Returned value is NULL or an Object owned by the caller.
 */

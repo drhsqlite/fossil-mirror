@@ -74,8 +74,8 @@ struct FossilUserPerms {
   char Delete;           /* d: delete wiki or tickets */
   char Password;         /* p: change password */
   char Query;            /* q: create new reports */
-  char Write;            /* i: xfer inbound. checkin */
-  char Read;             /* o: xfer outbound. checkout */
+  char Write;            /* i: xfer inbound. check-in */
+  char Read;             /* o: xfer outbound. check-out */
   char Hyperlink;        /* h: enable the display of hyperlinks */
   char Clone;            /* g: clone */
   char RdWiki;           /* j: view wiki via web */

@@ -255,9 +255,9 @@ const char zRepositorySchema2[] =
 @ -- fid==0 if the file is removed by check-in mid.
 @ --
 @ CREATE TABLE mlink(
-@   mid INTEGER REFERENCES plink(cid),  -- Checkin that contains fid
+@   mid INTEGER REFERENCES plink(cid),  -- Check-in that contains fid
 @   fid INTEGER REFERENCES blob,        -- New file content. 0 if deleted
-@   pmid INTEGER REFERENCES plink(cid), -- Checkin that contains pid
+@   pmid INTEGER REFERENCES plink(cid), -- Check-in that contains pid
 @   pid INTEGER REFERENCES blob,        -- Prev file content. 0 if new
 @   fnid INTEGER REFERENCES filename,   -- Name of the file
 @   pfnid INTEGER REFERENCES filename,  -- Previous name. 0 if unchanged

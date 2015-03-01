@@ -792,7 +792,7 @@ static const char zDescTab[] =
 @   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
 @   type TEXT,                     -- file, checkin, wiki, ticket, etc.
 @   summary TEXT,                  -- Summary comment for the object
-@   detail TEXT                    -- filename, checkin comment, etc
+@   detail TEXT                    -- File name, check-in comment, etc
 @ );
 ;
 

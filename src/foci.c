@@ -18,7 +18,7 @@
 ** This routine implements an SQLite virtual table that gives all of the
 ** files associated with a single check-in.
 **
-** The filename "foci" is short for "Files Of CheckIn".
+** The filename "foci" is short for "Files of Check-in".
 **
 ** Usage example:
 **
