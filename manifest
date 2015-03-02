@@ -1,5 +1,5 @@
-C Several\scosmetic\schanges\sto\sthe\sprevious\scheck-in.\s\sAdd\sthe\smissing\sword\s'system'\son\sthe\sfront\spage.
-D 2015-03-02T03:01:45.460
+C When\scleaning\swith\sMSVC,\sprevent\ssuperfluous\soutput\sregarding\s'missing'\sfiles.
+D 2015-03-02T05:54:14.157
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -412,7 +412,7 @@ F src/main.c cb7ab7fca76acddd98afae6be8cd5c4b865f12be
 F src/main.mk 0fa40118d5255607c5a8b9e87e843e986d1e91ed
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 3faba3b0e1402482bd5faa26cd2afdcf581f0d83
+F src/makemake.tcl 5af23fd1331bcb6409ddc4183cc6d77318e94765
 F src/manifest.c 415888c0a298b71ab059c9b100bd418c26509868
 F src/markdown.c c740cc81a2b0740548475fbe10f9ed159313cb66
 F src/markdown.md 45f6e06e03e4183764067eec37ff73f357303306
@@ -586,7 +586,7 @@ F win/Makefile.PellesCGMake 68fbf55e0d94c4e7291437c3412e17786f47db78
 F win/Makefile.dmc 0cefec6ea838e5e0ee4fd2af7da607cda5eae8aa
 F win/Makefile.mingw e5ded98822f84aabf55139268a26729005ef03d0
 F win/Makefile.mingw.mistachkin 1151a85f6e40ef662988ce0d258417a526fb3168
-F win/Makefile.msc 6b540291f37219acc1475a5eb06d6f148704c444
+F win/Makefile.msc 6f8849f6f965120a349daf64b32caf554b238bdc
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 4f4ef542a421e05462bfae18d9a151f7b040f275
-R aa499e012dae5a192e8558eec73b2ba6
+P 472959301161567e149056465bdb9a9bb996ce33
+R 5744db2c1b7f7314744acb93d924f11e
 U mistachkin
-Z 6e236271b6e85f0f5919239b1b759ecd
+Z 612ddea122f38740a51f3f6f2f3f34ce
