@@ -2413,7 +2413,6 @@ void cmd_webserver(void){
   process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
 #else
   /* Win32 implementation */
-  (void)allowRepoList;  /* Suppress warning */
   if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
     if( zIpAddr ){
@@ -2425,6 +2424,9 @@ void cmd_webserver(void){
     if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   }
   db_close(1);
+  if( allowRepoList ){
+    flags |= HTTP_SERVER_REPOLIST;
+  }
   if( win32_http_service(iPort, zNotFound, zFileGlob, flags) ){
     win32_http_server(iPort, mxPort, zBrowserCmd,
                       zStopperFile, zNotFound, zFileGlob, zIpAddr, flags);
