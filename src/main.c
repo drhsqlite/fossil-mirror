@@ -1037,7 +1037,9 @@ void version_cmd(void){
     fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
 #endif
 #if defined(BROKEN_MINGW_CMDLINE)
-    fossil_print("COMMANDLINE UNICODE SUPPORT: NO\n");
+    fossil_print("MBCS_COMMAND_LINE\n");
+#else
+    fossil_print("UNICODE_COMMAND_LINE\n");
 #endif
   }
 }
