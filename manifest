@@ -1,5 +1,5 @@
-C updated\stimeline-related\shints\sto\scorrespond\sto\scurrent\sbehaviour
-D 2015-03-02T21:31:28.187
+C cosmetic\schanges\sin\sdocs\sw.r.t.\scompiling/installing
+D 2015-03-02T21:35:46.101
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -614,7 +614,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 1f7a2a1351b3b12bec8cb5f1d86715bbfb9b9ec5
+F www/build.wiki f7150aa2eaf372caa7ddfae0c7777385d52da346
 F www/changes.wiki 11bd374ff6b1ff84e0b255a219bfa1f0c08218d4
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
@@ -698,6 +698,6 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P fbbf640b4e8387a42277a369b49710ea2cc32602
+P 2009fd4bfd97bc6fe7b3055ca5ab256ad0d81b24
 U michai
-Z 2950478936322710b964bc73536fa853
+Z 2537374020c1f7bf1cfbbc1aa757a38a

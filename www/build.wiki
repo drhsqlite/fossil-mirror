@@ -35,7 +35,7 @@ fossil are available from the <a href="http://www.fossil-scm.org/download.html">
 To obtain a development version of fossil, follow these steps:</p>
 
 <ol>
-<li><p>Point your web browser at
+<li><p>Point your web browser to
 <a href="http://www.fossil-scm.org/">
 http://www.fossil-scm.org/</a>.</p></li>
 
@@ -50,7 +50,7 @@ link.</p></li>
 <li><p>Finally, click on one of the
 "Zip Archive" or "Tarball" links, according to your preference.
 These link will build a ZIP archive or a gzip-compressed tarball of the 
-complete source code and download it to your browser.
+complete source code and download it to your computer.
 </ol>
 
 <h2>Aside: Is it really safe to use an unreleased development version of
@@ -68,7 +68,7 @@ repository change that prevent loss-of-work due to bugs.
 The Fossil [./selfhost.wiki | self-hosting repositories], especially
 the one at [http://www.fossil-scm.org/fossil], usually run a version
 of trunk that is less than a week or two old.  Look at the bottom
-right-hand corner of this screen (to the right of "This page was
+left-hand corner of this screen (to the right of "This page was
 generated in...") to see exactly which version of Fossil is
 rendering this page.  It is always safe to use whatever version
 of the Fossil code you find running on the main Fossil website.
