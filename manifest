@@ -1,5 +1,5 @@
-C Support\sthe\s--repolist\scommand\sline\soption\sfor\sthe\s'winsrv'\ssub-command.
-D 2015-03-02T21:41:52.088
+C Fix\sthe\s(obsolete)\s"fossil\ssearch"\scommand.
+D 2015-03-02T22:38:15.698
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -438,7 +438,7 @@ F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 653c5affb28a4ae9624e65de1f596c4bf08fe8b3
 F src/rss.c bb314966b5fd2c4a779d4ac6afbabc4721fcf44f
 F src/schema.c c43e7d7f0872b2e4940d049fc1dbcac81bffa543
-F src/search.c dce99140d84015973f19c3050956851c2fd7aaec
+F src/search.c d0d5e94f53f5ed1d15c04593a0f5bcafed9fa50a
 F src/setup.c 72e3d8640b631d3db99a777866cc7188121d0838
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c f06cca68a3f07e03d35d2f879375967169db6a61
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c8ed137ae7609197f780d613a0b319dcaf9c6749
-R a564d0ab8fd7413326e72a477b53452f
-U mistachkin
-Z 9d89a2018987a3edbbfd74f0885aa819
+P a0b33ab4d46047e4cc1943c42e82174d71c6b2ea
+R 7d65d84f0dcbabece123d22481051c37
+U drh
+Z 8edccff809b3b09bc1b3f3791041b21f
