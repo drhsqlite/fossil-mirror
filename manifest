@@ -1,5 +1,5 @@
-C Added\sanother\squote\sto\squotes.wiki\s-\san\sendorsement\sof\sFossil\sthat\sappeared\non\sHackerNews.
-D 2015-03-03T12:56:50.975
+C Merge\sin\snew\s"checkin"-to-"check-in"\sfixes\sand\sother\sdocumentation\stypo\sfixes.
+D 2015-03-03T13:04:03.337
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -387,7 +387,7 @@ F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c bc289d3b4cf7b4357a5228cdb434a47de5f20c50
-F src/info.c d36818b59b7da102df269074b6c48e5c9ecd00c0
+F src/info.c 7e916f5440815c7b66928f866eaf9b09a68c161f
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -432,7 +432,7 @@ F src/popen.c 74cb7489480e7e1470820ff5b47091ae3500e470
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 3d86d4ec595025c938053049ea915012e2b10306
 F src/publish.c af0eb8c4075fcc2e775a463e756106e9158904ff
-F src/purge.c acb69d6626207895edde2a8ba8315c14c12e0686
+F src/purge.c 7d60b5a89a5eeab91ae5fe846ad37e6835a735b4
 F src/rebuild.c de9fef381f1897d01685e94063eff139c6f76004
 F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 653c5affb28a4ae9624e65de1f596c4bf08fe8b3
@@ -449,7 +449,7 @@ F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
 F src/sqlite3.c 722600f2119c595ce106d4fbd63a9595c84469e0
 F src/sqlite3.h f8151534e8c69113c7ce4dc7c8491932836095cd
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
-F src/stat.c 82f40082a3fe739b417dbcf0288f00db327ea62b
+F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
 F src/statrep.c b7bd715a0429375342af08151854d62b467c4792
 F src/style.c 4206ec505753337401f6bed49a3fb0f175e8b00b
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
@@ -614,7 +614,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 1f7a2a1351b3b12bec8cb5f1d86715bbfb9b9ec5
+F www/build.wiki be1bf237c9d66f899206b454bc2c37b252cb7cfe
 F www/changes.wiki 11bd374ff6b1ff84e0b255a219bfa1f0c08218d4
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
@@ -665,7 +665,7 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
-F www/hints.wiki f554575abde781c13e76b147a6ef2f3ba9b5ef21
+F www/hints.wiki 1b508177aeff0580a7544942681de2d0b00c705d
 F www/index.wiki b07b2e9d188ce5db495457468dc95687bd5d29da
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
@@ -683,7 +683,7 @@ F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 45a497a26ea940ef945a4c34cc1458ddddf304d6
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki 0062d0777f9d56635d0bc357db6819455bfca4e9
+F www/server.wiki c8e2660ea98fde9873542e6c905418c78765090b
 F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -698,7 +698,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 9186bf2a4669d16269f2dde409c202fac4aeab0d
-R 6c468c428660108df921cbfbc233c9ac
+P 101737b65fd86dadeee45d6912fe02ca86be1ba3 739b3aab92c8241e164e2308daaabae04c90ccc5 ede82808aeb3ca349aad56bddae82cd5893f29a4
+R ee1b8098c6cedff8a4ed19b1c3cd1070
 U drh
-Z 53203b3d80c34cdaf5327605c647f4c6
+Z d4ccbd7054a929a9916477db9cff5c5f

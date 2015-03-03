@@ -23,10 +23,7 @@
       "[/help/all|fossil all push]" when you get back online to upload
       your changes.
   
-  5.  Sub-menu options on Timelines lets you select either 20 or 200
-      records.  But you can manual edit the "n=" query parameter in the
-      URL to get any number of records you desire.  To see a complete
-      timeline graph, set n to some ridiculously large value like 10000000.
+  5.  To see an entire timeline, type "all" into the "Max:" entry box.
   
   6.  You can manually add a "c=CHECKIN" query parameter to the timeline
       URL to get a snapshot of what was going on about the time of some

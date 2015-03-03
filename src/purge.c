@@ -573,7 +573,7 @@ void purge_cmd(void){
       describe_artifacts_to_stdout("IN ok", 0);
     }else{
       int peid = purge_artifact_list("ok","",1);
-      fossil_print("%d checkins and %d artifacts purged.\n", nCkin, nArtifact);
+      fossil_print("%d check-ins and %d artifacts purged.\n", nCkin, nArtifact);
       fossil_print("undoable using \"%s purge undo %d\".\n",
                     g.nameOfExe, peid);
     }
