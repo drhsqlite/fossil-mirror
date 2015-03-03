@@ -1,5 +1,5 @@
-C Use\stimelineDate\sclass\sfor\sthe\sdate\sdiv\son\sfinfo\spage,\sjust\slike\son\stimeline\npage\sto\sensure\sthe\sdate\sdoesn't\swrap.\s(problem\sreported\son\sml)
-D 2015-03-03T17:16:54.191
+C added\snote\sto\sdocs\sabout\susing\sFOSSIL_HOME\sto\soverride\sconfig-db\slocation
+D 2015-03-03T21:54:39.912
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -694,7 +694,7 @@ F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki 53a1e45726f4bbfc69e8f0898bb8196e7660c82b
-F www/tech_overview.wiki 47e983b31db847b51d03df511138a128fe65c357
+F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
 F www/th1.md 57434d9b816ecf2b6e79211402caa7b1eb718916
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
@@ -702,7 +702,9 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f05bfde912bd278449855a1786223679cab87d76
-R c715c2d6d4f01db5db99f5def2d79cb7
-U mgagnon
-Z dec960cdf2989287c5c1138dd53f741c
+P 3dbe76fca9ef1264b2c237eefa9cdb46451355a2
+T *branch * ml-doc-changes
+T *sym-ml-doc-changes *
+T -sym-trunk *
+U michai
+Z d96c501b2a07d86e5c94518772496c3a

@@ -132,6 +132,9 @@ database is named "_fossil" (using an underscore as the first character
 instead of a dot) and is located in the directory specified by the
 LOCALAPPDATA, APPDATA, or HOMEPATH environment variables, in that order.
 
+You can override this default location by defining the environment
+variable FOSSIL_HOME pointing to an appropriate (writable) directory.
+
 <h3>2.2 Repository Databases</h3>
 
 The repository database is the file that is commonly referred to as 
