@@ -108,11 +108,14 @@ all Unix and Unix-like systems.  Simply type "<b>make</b>".
 can also use: <b>make -f Makefile.classic</b>.  You may want to make minor
 edits to Makefile.classic to configure the build for your system.
 
-<li><p><i>MinGW/MinGW-w64</i> → Use the mingw makefile:
+<li><p><i>MinGW3.x (not 4.0)/MinGW-w64</i> → Use the mingw makefile:
 "<b>make -f win/Makefile.mingw</b>". On a Windows box you will
 need either Cygwin or Msys as build environment. On Cygwin, Linux
 or Darwin you may want to make minor edits to win/Makefile.mingw
 to configure the cross-compile environment.
+
+Hint: don't use MinGW-4.0, it will compile but fossil won't work correctly, see
+<a href="https://www.fossil-scm.org/index.html/tktview/18cff45a4e210430e24c">https://www.fossil-scm.org/index.html/tktview/18cff45a4e210430e24c</a>.
 
 <li><p><i>MSVC</i> → Use the MSVC makefile.  First
 change to the "win/" subdirectory ("<b>cd win</b>") then run
