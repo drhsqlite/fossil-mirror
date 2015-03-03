@@ -25,6 +25,40 @@
 #include "cygsup.h"
 
 /*
+** WARNING: For Fossil version 1.x this value was always zero.  For Fossil
+**          2.x, it will probably always be one.  When this value is zero,
+**          files in the checkout will not be moved by the "mv" command.
+**
+**          If the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option is used,
+**          the "move-files" setting will be consulted instead of using
+**          this value.
+**
+**          To retain the Fossil version 1.x behavior when using Fossil 2.x,
+**          the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option must be used
+**          -AND- the "move-files" setting must be set to non-zero.
+*/
+#ifndef FOSSIL_MV_CHECKOUT_FILE_ON_MV
+#define FOSSIL_MV_CHECKOUT_FILE_ON_MV            (0)
+#endif
+
+/*
+** WARNING: For Fossil version 1.x this value was always zero.  For Fossil
+**          2.x, it will probably always be one.  When this value is zero,
+**          files in the checkout will not be removed by the "rm" command.
+**
+**          If the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option is used,
+**          the "remove-files" setting will be consulted instead of using
+**          this value.
+**
+**          To retain the Fossil version 1.x behavior when using Fossil 2.x,
+**          the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option must be used
+**          -AND- the "move-files" setting must be set to non-zero.
+*/
+#ifndef FOSSIL_RM_CHECKOUT_FILE_ON_RM
+#define FOSSIL_RM_CHECKOUT_FILE_ON_RM            (0)
+#endif
+
+/*
 ** This routine returns the names of files in a working checkout that
 ** are created by Fossil itself, and hence should not be added, deleted,
 ** or merge, and should be omitted from "clean" and "extras" lists.
@@ -395,7 +429,11 @@ void delete_cmd(void){
 
   db_must_be_within_tree();
   db_begin_transaction();
+#if FOSSIL_ENABLE_LEGACY_MV_RM
   removeFiles = db_get_boolean("remove-files",0);
+#else
+  removeFiles = FOSSIL_RM_CHECKOUT_FILE_ON_RM;
+#endif
   if( removeFiles ) init_files_to_remove();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
@@ -742,7 +780,11 @@ void mv_cmd(void){
   }
   zDest = g.argv[g.argc-1];
   db_begin_transaction();
+#if FOSSIL_ENABLE_LEGACY_MV_RM
   moveFiles = db_get_boolean("move-files",0);
+#else
+  moveFiles = FOSSIL_MV_CHECKOUT_FILE_ON_MV;
+#endif
   if( moveFiles ) init_files_to_move();
   file_tree_name(zDest, &dest, 1);
   db_multi_exec(

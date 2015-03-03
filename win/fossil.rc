@@ -117,6 +117,11 @@ BEGIN
 #if defined(FOSSIL_ENABLE_SSL)
       VALUE "SslEnabled", "Yes, " OPENSSL_VERSION_TEXT "\0"
 #endif /* defined(FOSSIL_ENABLE_SSL) */
+#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
+      VALUE "LegacyMvRm", "Yes\0"
+#else
+      VALUE "LegacyMvRm", "No\0"
+#endif /* defined(FOSSIL_ENABLE_LEGACY_MV_RM) */
 #if defined(FOSSIL_ENABLE_TH1_DOCS)
       VALUE "Th1Docs", "Yes\0"
 #else

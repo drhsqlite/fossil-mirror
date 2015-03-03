@@ -2398,12 +2398,16 @@ const Setting aSetting[] = {
   { "manifest",         0,              0, 1, 0, "off"                 },
   { "max-loadavg",      0,             25, 0, 0, "0.0"                 },
   { "max-upload",       0,             25, 0, 0, "250000"              },
+#if FOSSIL_ENABLE_LEGACY_MV_RM
   { "move-files",       0,              0, 0, 0, "off"                 },
+#endif
   { "mtime-changes",    0,              0, 0, 0, "on"                  },
   { "pgp-command",      0,             40, 0, 0, "gpg --clearsign -o " },
   { "proxy",            0,             32, 0, 0, "off"                 },
   { "relative-paths",   0,              0, 0, 0, "on"                  },
+#if FOSSIL_ENABLE_LEGACY_MV_RM
   { "remove-files",     0,              0, 0, 0, "off"                 },
+#endif
   { "repo-cksum",       0,              0, 0, 0, "on"                  },
   { "self-register",    0,              0, 0, 0, "off"                 },
   { "ssh-command",      0,             40, 0, 0, ""                    },
@@ -2607,7 +2611,8 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **    max-upload       A limit on the size of uplink HTTP requests.  The
 **                     default is 250000 bytes.
 **
-**    move-files       If enabled, the "mv" and "rename" commands will also move
+**    move-files       If enabled (and Fossil was compiled with legacy "mv"
+**                     support), the "mv" and "rename" commands will also move
 **                     the associated files within the checkout.  Default: off.
 **
 **    mtime-changes    Use file modification times (mtimes) to detect when
@@ -2624,7 +2629,8 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **    relative-paths   When showing changes and extras, report paths relative
 **                     to the current working directory.  Default: "on"
 **
-**    remove-files     If enabled, the "rm" and "delete" commands will also
+**    remove-files     If enabled (and Fossil was compiled with legacy "rm"
+**                     support), the "rm" and "delete" commands will also
 **                     remove the associated files from within the checkout.
 **                     Default: off.
 **

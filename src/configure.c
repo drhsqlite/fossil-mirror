@@ -126,8 +126,11 @@ static struct {
   { "encoding-glob",          CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
   { "allow-symlinks",         CONFIGSET_PROJ },
+
+#ifdef FOSSIL_ENABLE_LEGACY_MV_RM
   { "move-files",             CONFIGSET_PROJ },
   { "remove-files",           CONFIGSET_PROJ },
+#endif
 
   { "ticket-table",           CONFIGSET_TKT  },
   { "ticket-common",          CONFIGSET_TKT  },

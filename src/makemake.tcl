@@ -496,6 +496,10 @@ BCC = gcc
 #
 # FOSSIL_BUILD_SSL = 1
 
+#### Enable legacy treatment of mv/rm (skip checkout files)
+#
+# FOSSIL_ENABLE_LEGACY_MV_RM = 1
+
 #### Enable TH1 scripts in embedded documentation files
 #
 # FOSSIL_ENABLE_TH1_DOCS = 1
@@ -693,6 +697,12 @@ endif
 ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
+endif
+
+# With legacy treatment of mv/rm
+ifdef FOSSIL_ENABLE_LEGACY_MV_RM
+TCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
+RCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
 endif
 
 # With TH1 embedded docs support
@@ -1312,6 +1322,9 @@ PERL    = perl.exe
 # Uncomment to build SSL libraries
 # FOSSIL_BUILD_SSL = 1
 
+# Uncomment to enable legacy treatment of mv/rm
+# FOSSIL_ENABLE_LEGACY_MV_RM = 1
+
 # Uncomment to enable TH1 scripts in embedded documentation files
 # FOSSIL_ENABLE_TH1_DOCS = 1
 
@@ -1426,6 +1439,11 @@ TCC       = $(TCC) /DFOSSIL_ENABLE_SSL=1
 RCC       = $(RCC) /DFOSSIL_ENABLE_SSL=1
 LIBS      = $(LIBS) $(SSLLIB)
 LIBDIR    = $(LIBDIR) /LIBPATH:$(SSLLIBDIR)
+!endif
+
+!ifdef FOSSIL_ENABLE_LEGACY_MV_RM
+TCC       = $(TCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_LEGACY_MV_RM=1
 !endif
 
 !ifdef FOSSIL_ENABLE_TH1_DOCS
