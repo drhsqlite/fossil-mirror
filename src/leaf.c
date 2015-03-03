@@ -18,8 +18,8 @@
 ** This file contains code used to manage the "leaf" table of the
 ** repository.
 **
-** The LEAF table contains the rids for all leaves in the checkin DAG.
-** A leaf is a checkin that has no children in the same branch.
+** The LEAF table contains the rids for all leaves in the check-in DAG.
+** A leaf is a check-in that has no children in the same branch.
 */
 #include "config.h"
 #include "leaf.h"
@@ -98,12 +98,12 @@ void leaf_rebuild(void){
 }
 
 /*
-** A bag of checkins whose leaf status needs to be checked.
+** A bag of check-ins whose leaf status needs to be checked.
 */
 static Bag needToCheck;
 
 /*
-** Check to see if checkin "rid" is a leaf and either add it to the LEAF
+** Check to see if check-in "rid" is a leaf and either add it to the LEAF
 ** table if it is, or remove it if it is not.
 */
 void leaf_check(int rid){

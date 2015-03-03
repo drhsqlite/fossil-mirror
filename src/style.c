@@ -408,9 +408,9 @@ void style_header(const char *zTitleFormat, ...){
   */
   @ <script>
   @ function gebi(x){
-  @ if(/^#/.test(x)) x = x.substr(1);
+  @ if(x.substr(0,1)=='#') x = x.substr(1);
   @ var e = document.getElementById(x);
-  @ if(!e) throw new Error("Expecting element with ID "+x);
+  @ if(!e) throw new Error('Expecting element with ID '+x);
   @ else return e;}
   @ </script>
 }
@@ -506,7 +506,7 @@ void style_footer(void){
             cgi_printf(
                "<span class='submenuctrl'>"
                "&nbsp;%h<input type='text' name='%s' size='%d' maxlength='%d'"
-               "value='%h'%s></span>\n",
+               " value='%h'%s></span>\n",
                aSubmenuCtrl[i].zLabel,
                zQPN,
                aSubmenuCtrl[i].iSize, aSubmenuCtrl[i].iSize,
@@ -1047,7 +1047,7 @@ const struct strctCssDefaults {
     @   border-style: solid;
   },
   { "input.checkinUserColor",
-    "format for user color input on checkin edit page",
+    "format for user color input on check-in edit page",
     @ /* no special definitions, class defined, to enable color pickers, f.e.:
     @ **  add the color picker found at http:jscolor.com  as java script include
     @ **  to the header and configure the java script file with

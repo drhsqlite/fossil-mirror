@@ -59,17 +59,37 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 #endif
+
 #if HAVE_EDITLINE
-# undef HAVE_READLINE
-# define HAVE_READLINE 1
 # include <editline/readline.h>
 #endif
-#if !HAVE_READLINE
-# define add_history(X)
-# define read_history(X)
-# define write_history(X)
-# define stifle_history(X)
+
+#if HAVE_EDITLINE || HAVE_READLINE
+
+# define shell_add_history(X) add_history(X)
+# define shell_read_history(X) read_history(X)
+# define shell_write_history(X) write_history(X)
+# define shell_stifle_history(X) stifle_history(X)
+# define shell_readline(X) readline(X)
+
+#elif HAVE_LINENOISE
+
+# include "linenoise.h"
+# define shell_add_history(X) linenoiseHistoryAdd(X)
+# define shell_read_history(X) linenoiseHistoryLoad(X)
+# define shell_write_history(X) linenoiseHistorySave(X)
+# define shell_stifle_history(X) linenoiseHistorySetMaxLen(X)
+# define shell_readline(X) linenoise(X)
+
+#else
+
+# define shell_read_history(X) 
+# define shell_write_history(X)
+# define shell_stifle_history(X)
+
+# define SHELL_USE_LOCAL_GETLINE 1
 #endif
+
 
 #if defined(_WIN32) || defined(WIN32)
 # include <io.h>
@@ -451,14 +471,14 @@ static char *one_input_line(FILE *in, char *zPrior, int isContinuation){
     zResult = local_getline(zPrior, in);
   }else{
     zPrompt = isContinuation ? continuePrompt : mainPrompt;
-#if HAVE_READLINE
-    free(zPrior);
-    zResult = readline(zPrompt);
-    if( zResult && *zResult ) add_history(zResult);
-#else
+#if SHELL_USE_LOCAL_GETLINE
     printf("%s", zPrompt);
     fflush(stdout);
     zResult = local_getline(zPrior, stdin);
+#else
+    free(zPrior);
+    zResult = shell_readline(zPrompt);
+    if( zResult && *zResult ) shell_add_history(zResult);
 #endif
   }
   return zResult;
@@ -1488,17 +1508,6 @@ static int shell_exec(
         sqlite3_finalize(pExplain);
         sqlite3_free(zEQP);
       }
-
-#if USE_SYSTEM_SQLITE+0==1
-      /* Output TESTCTRL_EXPLAIN text of requested */
-      if( pArg && pArg->mode==MODE_Explain && sqlite3_libversion_number()<3008007 ){
-        const char *zExplain = 0;
-        sqlite3_test_control(SQLITE_TESTCTRL_EXPLAIN_STMT, pStmt, &zExplain);
-        if( zExplain && zExplain[0] ){
-          fprintf(pArg->out, "%s", zExplain);
-        }
-      }
-#endif
 
       /* If the shell is currently in ".explain" mode, gather the extra
       ** data required to add indents to the output.*/
@@ -3662,6 +3671,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       { "scratchmalloc",         SQLITE_TESTCTRL_SCRATCHMALLOC          },
       { "byteorder",             SQLITE_TESTCTRL_BYTEORDER              },
       { "never_corrupt",         SQLITE_TESTCTRL_NEVER_CORRUPT          },
+      { "imposter",              SQLITE_TESTCTRL_IMPOSTER               },
     };
     int testctrl = -1;
     int rc = 0;
@@ -3753,6 +3763,18 @@ static int do_meta_command(char *zLine, ShellState *p){
           }
           break;
 #endif
+
+        case SQLITE_TESTCTRL_IMPOSTER:
+          if( nArg==5 ){
+            rc = sqlite3_test_control(testctrl, p->db, 
+                          azArg[2],
+                          integerValue(azArg[3]),
+                          integerValue(azArg[4]));
+          }else{
+            fprintf(stderr,"Usage: .testctrl initmode dbName onoff tnum\n");
+            rc = 1;
+          }
+          break;
 
         case SQLITE_TESTCTRL_BITVEC_TEST:         
         case SQLITE_TESTCTRL_FAULT_INSTALL:       
@@ -4634,13 +4656,11 @@ int main(int argc, char **argv){
           sqlite3_snprintf(nHistory, zHistory,"%s/.sqlite_history", zHome);
         }
       }
-#if HAVE_READLINE
-      if( zHistory ) read_history(zHistory);
-#endif
+      if( zHistory ) shell_read_history(zHistory);
       rc = process_input(&data, 0);
       if( zHistory ){
-        stifle_history(100);
-        write_history(zHistory);
+        shell_stifle_history(100);
+        shell_write_history(zHistory);
         free(zHistory);
       }
     }else{

@@ -126,8 +126,8 @@ The configuration database also maintains a list of repositories.  This
 list is used by the [/help/all | fossil all] command in order to run various
 operations such as "sync" or "rebuild" on all repositories managed by a user.
 
-On unix systems, the configuration database is named ".fossil" and is
-located in the user's home directory.  On windows, the configuration
+On Unix systems, the configuration database is named ".fossil" and is
+located in the user's home directory.  On Windows, the configuration
 database is named "_fossil" (using an underscore as the first character
 instead of a dot) and is located in the directory specified by the
 LOCALAPPDATA, APPDATA, or HOMEPATH environment variables, in that order.
@@ -188,16 +188,16 @@ The global project state information in the repository database is
 supplemented by computed metadata that makes querying the project state
 more efficient.  Metadata includes information such as the following:
 
-  *  The names for all files found in any checkin.
+  *  The names for all files found in any check-in.
   *  All check-ins that modify a given file
-  *  Parents and children of each checkin.
+  *  Parents and children of each check-in.
   *  Potential timeline rows.
-  *  The names of all symbolic tags and the checkins they apply to.
+  *  The names of all symbolic tags and the check-ins they apply to.
   *  The names of all wiki pages and the artifacts that comprise each
      wiki page.
   *  Attachments and the wiki pages or tickets they apply to.
   *  Current content of each ticket.
-  *  Cross-references between tickets, checkins, and wiki pages.
+  *  Cross-references between tickets, check-ins, and wiki pages.
 
 The metadata is held in various SQL tables in the repository database.
 The metadata is designed to facilitate queries for the various timelines and
@@ -301,7 +301,7 @@ such as the following:
      yet committed.
   *  The mtime and size of files as they were originally checked out,
      in order to expedite checking which files have been edited.
-  *  Other checkins that have been [/help/merge | merged] into the
+  *  Other check-ins that have been [/help/merge | merged] into the
      working checkout but not yet committed.
   *  Copies of files prior to the most recent undoable operation - needed to
      implement the [/help/undo | undo] and [/help/redo | redo] commands.

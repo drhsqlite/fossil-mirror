@@ -16,7 +16,7 @@
 *******************************************************************************
 **
 ** This file contains code used to implement the "purge" command and
-** related functionality for removing checkins from a repository.  It also
+** related functionality for removing check-ins from a repository.  It also
 ** manages the graveyard of purged content.
 */
 #include "config.h"
@@ -195,15 +195,15 @@ int purge_artifact_list(
 }
 
 /*
-** The TEMP table named zTab contains RIDs for a set of checkins.  
+** The TEMP table named zTab contains RIDs for a set of check-ins.  
 **
-** Check to see if any checkin in zTab is a baseline manifest for some
+** Check to see if any check-in in zTab is a baseline manifest for some
 ** delta manifest that is not in zTab.  Return true if zTab contains a
 ** baseline for a delta that is not in zTab.
 **
-** This is a database integrity preservation check.  The checkins in zTab
+** This is a database integrity preservation check.  The check-ins in zTab
 ** are about to be deleted or otherwise made inaccessible.  This routine
-** is checking to ensure that purging the checkins in zTab will not delete
+** is checking to ensure that purging the check-ins in zTab will not delete
 ** a baseline manifest out from under a delta.
 */
 int purge_baseline_out_from_under_delta(const char *zTab){
@@ -220,15 +220,15 @@ int purge_baseline_out_from_under_delta(const char *zTab){
 
 
 /*
-** The TEMP table named zTab contains the RIDs for a set of checkin
+** The TEMP table named zTab contains the RIDs for a set of check-in
 ** artifacts.  Expand this set (by adding new entries to zTab) to include
-** all other artifacts that are used the set of checkins in
+** all other artifacts that are used the set of check-ins in
 ** the original list.
 **
 ** If the bExclusive flag is true, then the set is only expanded by
-** artifacts that are used exclusively by the checkins in the set.
-** When bExclusive is false, then all artifacts used by the checkins
-** are added even if those artifacts are also used by other checkins
+** artifacts that are used exclusively by the check-ins in the set.
+** When bExclusive is false, then all artifacts used by the check-ins
+** are added even if those artifacts are also used by other check-ins
 ** not in the set.
 **
 ** The "fossil publish" command with the (undocumented) --test and
@@ -437,12 +437,12 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **
 **   fossil purge ?checkins? TAGS... ?OPTIONS?
 **
-**      Move the checkins identified by TAGS and all of their descendants
+**      Move the check-ins identified by TAGS and all of their descendants
 **      out of the repository and into the graveyard.  The "checkins" 
 **      subcommand keyword is option and can be omitted as long as TAGS
 **      does not conflict with any other subcommand.
 **
-**      If a TAGS includes a branch name then it means all the checkins
+**      If a TAGS includes a branch name then it means all the check-ins
 **      on the most recent occurrance of that branch.
 **
 **           --explain         Make no changes, but show what would happen.
@@ -573,7 +573,7 @@ void purge_cmd(void){
       describe_artifacts_to_stdout("IN ok", 0);
     }else{
       int peid = purge_artifact_list("ok","",1);
-      fossil_print("%d checkins and %d artifacts purged.\n", nCkin, nArtifact);
+      fossil_print("%d check-ins and %d artifacts purged.\n", nCkin, nArtifact);
       fossil_print("undoable using \"%s purge undo %d\".\n",
                     g.nameOfExe, peid);
     }

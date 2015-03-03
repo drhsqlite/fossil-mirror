@@ -784,7 +784,7 @@ void import_cmd(void){
     **
     ** The XBRANCH table maps commit marks and symbols into the branch those
     ** commits belong to.  If xbranch.tname is a fast-import symbol for a
-    ** checkin then xbranch.brnm is the branch that checkin is part of.
+    ** check-in then xbranch.brnm is the branch that check-in is part of.
     **
     ** The XTAG table records information about tags that need to be applied
     ** to various branches after the import finishes.  The xtag.tcontent field

@@ -208,8 +208,8 @@ static int StrNLen32(const char *z, int N){
 ** comments on a timeline.  These flag settings are determined by
 ** configuration parameters.
 **
-** The altForm2 argument is true for "%!w" (with the "!" alternate-form-2
-** flags) and is false for plain "%w".  The ! indicates that the text is
+** The altForm2 argument is true for "%!W" (with the "!" alternate-form-2
+** flags) and is false for plain "%W".  The ! indicates that the text is
 ** to be rendered on a form rather than the timeline and that block markup
 ** is acceptable even if the "timeline-block-markup" setting is false.
 */

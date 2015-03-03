@@ -74,8 +74,8 @@ struct FossilUserPerms {
   char Delete;           /* d: delete wiki or tickets */
   char Password;         /* p: change password */
   char Query;            /* q: create new reports */
-  char Write;            /* i: xfer inbound. checkin */
-  char Read;             /* o: xfer outbound. checkout */
+  char Write;            /* i: xfer inbound. check-in */
+  char Read;             /* o: xfer outbound. check-out */
   char Hyperlink;        /* h: enable the display of hyperlinks */
   char Clone;            /* g: clone */
   char RdWiki;           /* j: view wiki via web */
@@ -1035,6 +1035,11 @@ void version_cmd(void){
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
     fossil_print("JSON (API %s)\n", FOSSIL_JSON_API_VERSION);
+#endif
+#if defined(BROKEN_MINGW_CMDLINE)
+    fossil_print("MBCS_COMMAND_LINE\n");
+#else
+    fossil_print("UNICODE_COMMAND_LINE\n");
 #endif
   }
 }
@@ -2408,7 +2413,6 @@ void cmd_webserver(void){
   process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
 #else
   /* Win32 implementation */
-  (void)allowRepoList;  /* Suppress warning */
   if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
     if( zIpAddr ){
@@ -2420,6 +2424,9 @@ void cmd_webserver(void){
     if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   }
   db_close(1);
+  if( allowRepoList ){
+    flags |= HTTP_SERVER_REPOLIST;
+  }
   if( win32_http_service(iPort, zNotFound, zFileGlob, flags) ){
     win32_http_server(iPort, mxPort, zBrowserCmd,
                       zStopperFile, zNotFound, zFileGlob, zIpAddr, flags);

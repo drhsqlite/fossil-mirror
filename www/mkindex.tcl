@@ -13,7 +13,7 @@ set doclist {
   bugtheory.wiki {Bug Tracking In Fossil}
   branching.wiki {Branching, Forking, Merging, and Tagging}
   build.wiki {Compiling and Installing Fossil}
-  checkin_names.wiki {Checkin And Version Names}
+  checkin_names.wiki {Check-in And Version Names}
   checkin.wiki {Check-in Checklist}
   changes.wiki {Fossil Changelog}
   copyright-release.html {Contributor License Agreement}

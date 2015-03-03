@@ -862,7 +862,7 @@ void tkttimeline_page(void){
   style_submenu_element("Status", "Status",
     "%s/info/%s", g.zTop, zUuid);
   if( zType[0]=='c' ){
-    zTitle = mprintf("Check-Ins Associated With Ticket %h", zUuid);
+    zTitle = mprintf("Check-ins Associated With Ticket %h", zUuid);
   }else{
     zTitle = mprintf("Timeline Of Ticket %h", zUuid);
   }

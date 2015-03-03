@@ -449,7 +449,7 @@ void finfo_page(void){
     if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
-      @   <div class="divider">%s(zPrevDate)</div>
+      @   <div class="divider timelineDate">%s(zPrevDate)</div>
       @ </td><td></td><td></td></tr>
     }
     memcpy(zTime, &zDate[11], 5);
@@ -505,7 +505,7 @@ void finfo_page(void){
       @ [annotate]</a>
       @ %z(href("%R/blame?filename=%h&checkin=%s",z,zCkin))
       @ [blame]</a>
-      @ %z(href("%R/timeline?n=200&uf=%!S",zUuid))[checkins&nbsp;using]</a>
+      @ %z(href("%R/timeline?n=200&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
       if( fpid ){
         @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }

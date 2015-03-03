@@ -16,7 +16,7 @@
 *******************************************************************************
 **
 ** This file contains code to implement a very simple search function
-** against timeline comments, checkin content, wiki pages, and/or tickets.
+** against timeline comments, check-in content, wiki pages, and/or tickets.
 **
 ** The search is full-text like in that it is looking for words and ignores
 ** punctuation and capitalization.  But it is more akin to "grep" in that
@@ -571,9 +571,10 @@ void search_cmd(void){
      "INSERT INTO srch(rid,uuid,date,comment,x)"
      "   SELECT blob.rid, uuid, datetime(event.mtime%s),"
      "          coalesce(ecomment,comment),"
-     "          score(coalesce(ecomment,comment)) AS y"
+     "          search_score()"
      "     FROM event, blob"
-     "    WHERE blob.rid=event.objid AND y>0;",
+     "    WHERE blob.rid=event.objid"
+     "      AND search_match(coalesce(ecomment,comment));",
      timeline_utc()
   );
   iBest = db_int(0, "SELECT max(x) FROM srch");

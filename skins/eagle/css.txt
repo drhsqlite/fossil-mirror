@@ -167,6 +167,10 @@ table.timelineTable {
   border-collapse: collapse;
 }
 
+tr.timelineSelected {
+  background-color: #7EA2D9;
+}
+
 /* Side-by-side diff */
 table.sbsdiff {
   background-color: #485D7B;
@@ -264,4 +268,24 @@ span.diffln {
 
 #canvas {
   background-color: #485D7B;
+}
+
+.fileage tr:hover {
+  background-color: #7EA2D9;
+}
+
+.fileage td {
+  font-family: "courier new";
+}
+
+div.filetreeline:hover {
+  background-color: #7EA2D9;
+}
+
+div.selectedText {
+  background-color: #7EA2D9;
+}
+
+.statistics-report-graph-line {
+  background-color: #7EA2D9;
 }

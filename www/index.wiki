@@ -24,7 +24,7 @@
 </div>
 
 <p>Fossil is a simple, high-reliability, distributed software configuration
-management with these advanced features:
+management system with these advanced features:
 
   1.  <b>Integrated Bug Tracking, Wiki, and Technotes</b> -
       In addition to doing [./concepts.wiki | distributed version control]

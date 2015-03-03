@@ -229,7 +229,7 @@ void info_cmd(void){
     if( vid ){
       show_common_info(vid, "checkout:", 1, 1);
     }
-    fossil_print("checkins:     %d\n",
+    fossil_print("check-ins:    %d\n",
                  db_int(-1, "SELECT count(*) FROM event WHERE type='ci' /*scan*/"));
   }else{
     int rid;
@@ -519,9 +519,9 @@ void ci_page(void){
   int verboseFlag;     /* True to show diffs */
   int sideBySide;      /* True for side-by-side diffs */
   u64 diffFlags;       /* Flag parameter for text_diff() */
-  const char *zName;   /* Name of the checkin to be displayed */
+  const char *zName;   /* Name of the check-in to be displayed */
   const char *zUuid;   /* UUID of zName */
-  const char *zParent; /* UUID of the parent checkin (if any) */
+  const char *zParent; /* UUID of the parent check-in (if any) */
   const char *zRe;     /* regex parameter */
   ReCompiled *pRe = 0; /* regex */
   const char *zW;      /* URL param for ignoring whitespace */
@@ -600,10 +600,10 @@ void ci_page(void){
       hyperlink_to_user(zUser,zDate,"</td></tr>");
     }
     if( zEComment ){
-      @ <tr><th>Edited&nbsp;Comment:</th><td class="infoComment">%!w(zEComment)</td></tr>
-      @ <tr><th>Original&nbsp;Comment:</th><td class="infoComment">%!w(zComment)</td></tr>
+      @ <tr><th>Edited&nbsp;Comment:</th><td class="infoComment">%!W(zEComment)</td></tr>
+      @ <tr><th>Original&nbsp;Comment:</th><td class="infoComment">%!W(zComment)</td></tr>
     }else{
-      @ <tr><th>Comment:</th><td class="infoComment">%!w(zComment)</td></tr>
+      @ <tr><th>Comment:</th><td class="infoComment">%!W(zComment)</td></tr>
     }
     if( g.perm.Admin ){
       db_prepare(&q2,
@@ -881,7 +881,7 @@ void webpage_error(const char *zFormat, ...){
 }
 
 /*
-** Find an checkin based on query parameter zParam and parse its
+** Find an check-in based on query parameter zParam and parse its
 ** manifest.  Return the number of errors.
 */
 static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
@@ -898,7 +898,7 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
     return 0;
   }
   if( !is_a_version(rid) ){
-    webpage_error("Artifact %s is not a checkin.", P(zParam));
+    webpage_error("Artifact %s is not a check-in.", P(zParam));
     return 0;
   }
   return manifest_get(rid, CFTYPE_MANIFEST, 0);
@@ -978,7 +978,7 @@ static void checkin_description(int rid){
 **   glob=STRING     only diff files matching this glob
 **
 **
-** Show all differences between two checkins.
+** Show all differences between two check-ins.
 */
 void vdiff_page(void){
   int ridFrom, ridTo;
@@ -1240,10 +1240,10 @@ int object_description(
     if( showDetail ){
       @ <li>
       hyperlink_to_date(zDate,"");
-      @ &mdash; part of checkin
+      @ &mdash; part of check-in
       hyperlink_to_uuid(zVers);
     }else{
-      @ &mdash; part of checkin
+      @ &mdash; part of check-in
       hyperlink_to_uuid(zVers);
       @ at
       hyperlink_to_date(zDate,"");
@@ -1251,7 +1251,7 @@ int object_description(
     if( zBr && zBr[0] ){
       @ on branch %z(href("%R/timeline?r=%T",zBr))%h(zBr)</a>
     }
-    @ &mdash; %!w(zCom) (user:
+    @ &mdash; %!W(zCom) (user:
     hyperlink_to_user(zUser,zDate,")");
     if( g.perm.Hyperlink ){
       @ %z(href("%R/finfo?name=%T&ci=%!S",zName,zVers))[ancestry]</a>
@@ -1337,7 +1337,7 @@ int object_description(
       if( zType[0]!='e' ){
         hyperlink_to_uuid(zUuid);
       }
-      @ - %!w(zCom) by
+      @ - %!W(zCom) by
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".");
       if( pDownloadName && blob_size(pDownloadName)==0 ){
@@ -1641,7 +1641,7 @@ void hexdump_page(void){
 }
 
 /*
-** Attempt to lookup the specified checkin and file name into an rid.
+** Attempt to lookup the specified check-in and file name into an rid.
 */
 int artifact_from_ci_and_filename(
   const char *zCI,
@@ -1819,7 +1819,7 @@ void artifact_page(void){
   style_submenu_element("Download", "Download",
           "%R/raw/%T?name=%s", blob_str(&downloadName), zUuid);
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
-    style_submenu_element("Checkins Using", "Checkins Using",
+    style_submenu_element("Check-ins Using", "Check-ins Using",
           "%R/timeline?n=200&uf=%s",zUuid);
   }
   asText = P("txt")!=0;
@@ -2454,7 +2454,7 @@ void ci_edit_page(void){
     }else{
       @ <tr><td>
     }
-    @ %!w(blob_str(&comment))
+    @ %!W(blob_str(&comment))
     blob_zero(&suffix);
     blob_appendf(&suffix, "(user: %h", zNewUser);
     db_prepare(&q, "SELECT substr(tagname,5) FROM tagxref, tag"

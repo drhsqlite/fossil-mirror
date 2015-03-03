@@ -792,7 +792,7 @@ static const char zDescTab[] =
 @   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
 @   type TEXT,                     -- file, checkin, wiki, ticket, etc.
 @   summary TEXT,                  -- Summary comment for the object
-@   detail TEXT                    -- filename, checkin comment, etc
+@   detail TEXT                    -- File name, check-in comment, etc
 @ );
 ;
 
@@ -804,11 +804,11 @@ static const char zDescTab[] =
 void describe_artifacts(const char *zWhere){
   db_multi_exec("%s", zDescTab/*safe-for-%s*/);
 
-  /* Describe checkins */
+  /* Describe check-ins */
   db_multi_exec(
     "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
     "SELECT blob.rid, blob.uuid, event.mtime, 'checkin',\n"
-    "       'checkin on ' || strftime('%%Y-%%m-%%d %%H:%%M',event.mtime)\n"
+    "       'check-in on ' || strftime('%%Y-%%m-%%d %%H:%%M',event.mtime)\n"
     "  FROM event, blob\n"
     " WHERE (event.objid %s) AND event.type='ci'\n"
     "   AND event.objid=blob.rid;",

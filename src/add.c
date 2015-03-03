@@ -710,7 +710,7 @@ static void process_files_to_move(
 **
 ** This command does NOT rename or move the files on disk.  This command merely
 ** records the fact that filenames have changed so that appropriate notations
-** can be made at the next commit/checkin.
+** can be made at the next commit/check-in.
 **
 ** Options:
 **   --case-sensitive <BOOL> Override the case-sensitive setting.
