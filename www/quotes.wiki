@@ -110,6 +110,14 @@ such simplicity and flexibility!!!
 <i>zengr at [http://stackoverflow.com/questions/138621/best-version-control-for-lone-developer]</i>
 </blockquote>
 
+<li>This is my favourite VCS. I can carry it on a USB. And it's a complete system, with it's own
+server, ticketing system, Wiki pages, and a very, very helpful timeline visualization. And 
+the entire program in a single file!
+
+<blockquote>
+<i>thunderbong commenting on hacker news: [https://news.ycombinator.com/item?id=9131619]</i>
+</blockquote>
+
 
 </ol>
 
@@ -117,7 +125,7 @@ such simplicity and flexibility!!!
 <h2>On Git Versus Fossil</h2>
 
 <ol>
-<li value=13>
+<li value=14>
 Just want to say thanks for fossil making my life easier.... 
 Also <nowiki>[for]</nowiki> not having a misanthropic command line interface.
 
