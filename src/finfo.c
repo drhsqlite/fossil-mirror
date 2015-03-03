@@ -449,7 +449,7 @@ void finfo_page(void){
     if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
-      @   <div class="divider">%s(zPrevDate)</div>
+      @   <div class="divider timelineDate">%s(zPrevDate)</div>
       @ </td><td></td><td></td></tr>
     }
     memcpy(zTime, &zDate[11], 5);

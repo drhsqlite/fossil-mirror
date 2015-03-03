@@ -1,5 +1,5 @@
-C Add\sthe\sXekri\sskin.
-D 2015-03-03T14:42:12.710
+C Use\stimelineDate\sclass\sfor\sthe\sdate\sdiv\son\sfinfo\spage,\sjust\slike\son\stimeline\npage\sto\sensure\sthe\sdate\sdoesn't\swrap.\s(problem\sreported\son\sml)
+D 2015-03-03T17:16:54.191
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -380,7 +380,7 @@ F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c b679d1682780c813c97c0de352e671d0ad40dca4
-F src/finfo.c 32bdac04e313832b9d276c75c03f9b7f5573d2ee
+F src/finfo.c 2c3139bec64384550ae52b02d561ce6416f93656
 F src/foci.c cbfabff57c933424628c341924ed0cf79a3ccc5e
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -702,8 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P d5ef91feb8856e4a25ace3354a68d006bd5d7201 d528f2bb9e08eaa8550736e0ff4f7631c42332f5
-R e026900e865ab402b87a7b3327971ee2
-T +closed d528f2bb9e08eaa8550736e0ff4f7631c42332f5
-U drh
-Z e08855aecd659cc5291a58492578b11e
+P f05bfde912bd278449855a1786223679cab87d76
+R c715c2d6d4f01db5db99f5def2d79cb7
+U mgagnon
+Z dec960cdf2989287c5c1138dd53f741c
