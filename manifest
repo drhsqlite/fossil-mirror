@@ -1,5 +1,5 @@
-C Recognize\sthe\s'--soft'\sand\s'--hard'\soptions\sas\swell\sfor\sthe\smv/rm\scommands.
-D 2015-03-04T02:00:22.928
+C Revise\sthe\s--soft/--hard\soption\sprocessing\sa\sbit.
+D 2015-03-04T02:03:56.389
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -343,7 +343,7 @@ F skins/xekri/css.txt 87c960adedaf66056a094f065229fc1dc599f8dd
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt f38e32ea185558d7be359afab65c335b29cb1782
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 3cd5c13001b30b84752523633b001175c5471e4a
+F src/add.c 005bf87855817c2f90d66e6b70ecdee9db5a3b24
 F src/allrepo.c d44cc238625534b90238714b4607c7cdd04f3a59
 F src/attach.c ecad9be142ff32f9a11c5e6b32bd8704f0b669bb
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 65d5f2756add237613096a82dc07e28821e2d316
-R 9a0933c8b7fc8dc8d54b1338a5791df9
+P 2ed14f79d8c0a0fbaac7c5391eb95a04be0e8a0c
+R 74763893443893c0bdd414ac1a33a01b
 U mistachkin
-Z c991f87f510bc940d2a2a5130a50e8e7
+Z edf3a9e65698c936ca91f2302176df44
