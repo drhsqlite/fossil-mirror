@@ -428,7 +428,11 @@ void capture_metadata_only_option(void){
 **
 ** Options:
 **   --metadata-only <BOOL>  Non-zero to skip removing files from the
-**                           checkout.
+**                           checkout.  Supersedes both the --soft and
+**                           --hard options.
+**   --soft                  Skip removing files from the checkout.
+**                           This supersedes the --hard option.
+**   --hard                  Remove files from the checkout.
 **   --case-sensitive <BOOL> Override the case-sensitive setting.
 **   -n|--dry-run            If given, display instead of run actions.
 **
@@ -776,7 +780,11 @@ static void process_files_to_move(
 **
 ** Options:
 **   --metadata-only <BOOL>  Non-zero to skip moving files within the
-**                           checkout.
+**                           checkout.  Supersedes both the --soft and
+**                           --hard options.
+**   --soft                  Skip moving files within the checkout.
+**                           This supersedes the --hard option.
+**   --hard                  Move files within the checkout.
 **   --case-sensitive <BOOL> Override the case-sensitive setting.
 **   -n|--dry-run            If given, display instead of run actions.
 **
