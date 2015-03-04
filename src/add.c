@@ -405,6 +405,12 @@ void capture_metadata_only_option(void){
   if( zMetadataOnly==0 ){
     zMetadataOnly = find_option("metadata-only",0,1);
   }
+  if( find_option("soft",0,0) && zMetadataOnly==0 ){
+    zMetadataOnly = "1";
+  }
+  if( find_option("hard",0,0) && zMetadataOnly==0 ){
+    zMetadataOnly = "0";
+  }
 }
 
 /*
