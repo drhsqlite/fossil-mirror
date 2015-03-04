@@ -1,5 +1,5 @@
-C Merge\strunk.
-D 2015-03-03T23:27:16.491
+C Add\s'--metadata-only'\soption\sto\sthe\s'mv'\sand\s'rm'\scommands.
+D 2015-03-04T01:27:32.469
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -343,7 +343,7 @@ F skins/xekri/css.txt 87c960adedaf66056a094f065229fc1dc599f8dd
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt f38e32ea185558d7be359afab65c335b29cb1782
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 06b7f32f5c735ca33d1b3daedc917004f1424a7a
+F src/add.c a09577bd6a3efb7fa3aa495df743925b3442528b
 F src/allrepo.c d44cc238625534b90238714b4607c7cdd04f3a59
 F src/attach.c ecad9be142ff32f9a11c5e6b32bd8704f0b669bb
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c227e14f800029a0a5594f31584cecd24c8a7e92 8ef89404783a09d942126ba1b812b89a582b5247
-R 131b2649a6e20f4488fb2fb91c719a66
+P ae5c35ef4127e7d7cc8fd8cb657da1c35e66999f
+R 8f88b56a23ae274d302d433f1cd49442
 U mistachkin
-Z 7f767c63cbca3705707f1cfb43841a66
+Z 43378d771fa0c88fe6821324f1f83bfb

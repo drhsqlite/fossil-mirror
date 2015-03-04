@@ -398,6 +398,16 @@ static void process_files_to_remove(
 }
 
 /*
+** Capture the command-line --metadata-only option.
+*/
+static const char *zMetadataOnly = 0;
+void capture_metadata_only_option(void){
+  if( zMetadataOnly==0 ){
+    zMetadataOnly = find_option("metadata-only",0,1);
+  }
+}
+
+/*
 ** COMMAND: rm
 ** COMMAND: delete*
 **
@@ -411,6 +421,8 @@ static void process_files_to_remove(
 ** changes to the named files will not be versioned.
 **
 ** Options:
+**   --metadata-only <BOOL>  Non-zero to skip removing files from the
+**                           checkout.
 **   --case-sensitive <BOOL> Override the case-sensitive setting.
 **   -n|--dry-run            If given, display instead of run actions.
 **
@@ -424,16 +436,22 @@ void delete_cmd(void){
 
   dryRunFlag = find_option("dry-run","n",0)!=0;
 
+  capture_metadata_only_option();
+
   /* We should be done with options.. */
   verify_all_options();
 
   db_must_be_within_tree();
   db_begin_transaction();
+  if( zMetadataOnly ){
+    removeFiles = is_false(zMetadataOnly);
+  }else{
 #if FOSSIL_ENABLE_LEGACY_MV_RM
-  removeFiles = db_get_boolean("remove-files",0);
+    removeFiles = db_get_boolean("remove-files",0);
 #else
-  removeFiles = FOSSIL_RM_CHECKOUT_FILE_ON_RM;
+    removeFiles = FOSSIL_RM_CHECKOUT_FILE_ON_RM;
 #endif
+  }
   if( removeFiles ) init_files_to_remove();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
@@ -751,6 +769,8 @@ static void process_files_to_move(
 ** can be made at the next commit/check-in.
 **
 ** Options:
+**   --metadata-only <BOOL>  Non-zero to skip moving files within the
+**                           checkout.
 **   --case-sensitive <BOOL> Override the case-sensitive setting.
 **   -n|--dry-run            If given, display instead of run actions.
 **
@@ -768,6 +788,8 @@ void mv_cmd(void){
   db_must_be_within_tree();
   dryRunFlag = find_option("dry-run","n",0)!=0;
 
+  capture_metadata_only_option();
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -780,11 +802,15 @@ void mv_cmd(void){
   }
   zDest = g.argv[g.argc-1];
   db_begin_transaction();
+  if( zMetadataOnly ){
+    moveFiles = is_false(zMetadataOnly);
+  }else{
 #if FOSSIL_ENABLE_LEGACY_MV_RM
-  moveFiles = db_get_boolean("move-files",0);
+    moveFiles = db_get_boolean("move-files",0);
 #else
-  moveFiles = FOSSIL_MV_CHECKOUT_FILE_ON_MV;
+    moveFiles = FOSSIL_MV_CHECKOUT_FILE_ON_MV;
 #endif
+  }
   if( moveFiles ) init_files_to_move();
   file_tree_name(zDest, &dest, 1);
   db_multi_exec(
