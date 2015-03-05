@@ -1,5 +1,5 @@
-C Add\s'unicodeCmdLine'\soption\sto\sthe\sTH1\s'hasfeature'\scommand.
-D 2015-03-05T17:22:23.977
+C Correct\s[fossil\sfinfo\s-n\s0]\sto\shave\sno\slimit,\sin\saccordance\swith\sdocumentation.\s\sUpdate\sdocumentation\sto\smention\sthat\snegative\snumbers\salso\shave\sno\slimit\sand\sthat\sunlimited\sis\sthe\sdefault.
+D 2015-03-05T19:18:35.811
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -380,7 +380,7 @@ F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c b679d1682780c813c97c0de352e671d0ad40dca4
-F src/finfo.c 2c3139bec64384550ae52b02d561ce6416f93656
+F src/finfo.c b621bd7fc9699ecb76e361bf28a7f6aae921bbff
 F src/foci.c cbfabff57c933424628c341924ed0cf79a3ccc5e
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 998af5b2a84e55782d7b322b5ff0098d1bc62d02
-R 8bd124322c71d07b4f05357363fc3f2b
-U mistachkin
-Z 8bb7ebcd80f6282f548771a51e00944b
+P edb8237f06040e17c090d96ae1f8d649850c9091
+R e77bb8f98d14890d64a53ee4b707440d
+U andygoth
+Z b09e1ec4c71aebb196ce7e28594bff74

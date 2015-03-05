@@ -45,7 +45,8 @@
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
 **                        boolean: "yes", "no", "true", "false", etc.
 **   -l|--log             select log mode (the default)
-**   -n|--limit N         display the first N changes. N=0 means no limit.
+**   -n|--limit N         Display the first N changes (default unlimited).
+**                        N<=0 means no limit.
 **   --offset P           skip P changes
 **   -p|--print           select print mode
 **   -r|--revision R      print the given revision (or ckout, if none is given)
@@ -157,6 +158,9 @@ void finfo_cmd(void){
     zOffset = find_option("offset",0,1);
     iOffset = zOffset ? atoi(zOffset) : 0;
     iBrief = (find_option("brief","b",0) == 0);
+    if( iLimit==0 ){
+      iLimit = -1;
+    }
     if( zWidth ){
       iWidth = atoi(zWidth);
       if( (iWidth!=0) && (iWidth<=22) ){
