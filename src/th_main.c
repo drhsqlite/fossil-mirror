@@ -515,6 +515,7 @@ static int searchableCmd(
 ** "tclPrivateStubs" = FOSSIL_ENABLE_TCL_PRIVATE_STUBS
 ** "json"            = FOSSIL_ENABLE_JSON
 ** "markdown"        = FOSSIL_ENABLE_MARKDOWN
+** "unicodeCmdLine"  = !BROKEN_MINGW_CMDLINE
 **
 */
 static int hasfeatureCmd(
@@ -570,6 +571,11 @@ static int hasfeatureCmd(
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
   else if( 0 == fossil_strnicmp( zArg, "json\0", 5 ) ){
+    rc = 1;
+  }
+#endif
+#if !defined(BROKEN_MINGW_CMDLINE)
+  else if( 0 == fossil_strnicmp( zArg, "unicodeCmdLine\0", 15 ) ){
     rc = 1;
   }
 #endif

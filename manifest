@@ -1,5 +1,5 @@
-C Add\sa\snote\sabout\sFOSSIL_HOME\sto\sthe\stechnical-overview\sdocument.
-D 2015-03-04T00:54:24.037
+C Add\s'unicodeCmdLine'\soption\sto\sthe\sTH1\s'hasfeature'\scommand.
+D 2015-03-05T17:22:23.977
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -462,7 +462,7 @@ F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c f3e2d60ea44acd118e8462d48c0865c496f89e6f
 F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
-F src/th_main.c 468c240d4b9be8593f27b3a3725f03eaee251011
+F src/th_main.c e79b55e41e0fabdcbb115845f0a7776ef9b1953b
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
 F src/timeline.c 030a20a11f0121e5c598497305322c38625a8db8
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
@@ -702,8 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 8ef89404783a09d942126ba1b812b89a582b5247 4984c5ef936e44bbf80bdb9c2858f2b9b9d029dd
-R 0b6c951842e5599dadba1c23985a1f96
-T +closed 4984c5ef936e44bbf80bdb9c2858f2b9b9d029dd
-U drh
-Z 33e246054f687dd362096720ce4fddf8
+P 998af5b2a84e55782d7b322b5ff0098d1bc62d02
+R 8bd124322c71d07b4f05357363fc3f2b
+U mistachkin
+Z 8bb7ebcd80f6282f548771a51e00944b
