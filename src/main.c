@@ -1049,16 +1049,16 @@ void version_cmd(void){
 ** COMMAND: help
 **
 ** Usage: %fossil help COMMAND
-**    or: %fossil COMMAND -help
+**    or: %fossil COMMAND --help
 **
 ** Display information on how to use COMMAND.  To display a list of
 ** available commands one of:
 **
 **    %fossil help              Show common commands
-**    %fossil help --a|-all     Show both common and auxiliary commands
-**    %fossil help --t|-test    Show test commands only
-**    %fossil help --x|-aux     Show auxiliary commands only
-**    %fossil help --w|-www     Show list of WWW pages
+**    %fossil help -a|--all     Show both common and auxiliary commands
+**    %fossil help -t|--test    Show test commands only
+**    %fossil help -x|--aux     Show auxiliary commands only
+**    %fossil help -w|--www     Show list of WWW pages
 */
 void help_cmd(void){
   int rc, idx, isPage = 0;

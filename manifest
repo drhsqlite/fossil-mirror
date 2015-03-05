@@ -1,5 +1,5 @@
-C Correct\s[fossil\sfinfo\s-n\s0]\sto\shave\sno\slimit,\sin\saccordance\swith\sdocumentation.\s\sUpdate\sdocumentation\sto\smention\sthat\snegative\snumbers\salso\shave\sno\slimit\sand\sthat\sunlimited\sis\sthe\sdefault.
-D 2015-03-05T19:18:35.811
+C Swap\ssingle-/double-dash\sconvention\sin\s[fossil\shelp\shelp]\slisting\sto\smatch\sthe\sother\scommands.\s\sUse\ssingle-dash\sfor\ssingle-letter\soption\snames\sand\sdouble-dash\sfor\slong\soption\snames.\s\s(Truth\sis\sthat\seither\sis\saccepted;\sthis\sis\smerely\sa\sdisplay\sissue.)
+D 2015-03-05T19:51:17.116
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -412,7 +412,7 @@ F src/leaf.c a59b5b73a02ace671d8c4f6efb44aaefaf838dfc
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 2abcbfe5306a237232816ebccbaf0b871e65d267
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 23f8f13d03b205e61c0bad70a771439336e1d2d1
+F src/main.c f8a3152207d87a3415fb8dcfeac8aed981e5cb82
 F src/main.mk 865a74db23622cec2b71c1b2d98eddf2abd9d0e3
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P edb8237f06040e17c090d96ae1f8d649850c9091
-R e77bb8f98d14890d64a53ee4b707440d
+P 81da7b0024a51b945acc1129f11c6741d06f0a1d
+R 244737c3daf29615fd39a9e3435973f8
 U andygoth
-Z b09e1ec4c71aebb196ce7e28594bff74
+Z 71e5f6079465233cb69e57e3beff9bd3
