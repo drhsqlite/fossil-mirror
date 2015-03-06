@@ -1774,7 +1774,7 @@ void output_text_with_line_numbers(
   }
   if( n<iEnd ) cgi_printf("</div>");
   @ </pre>
-  if( iStart ){
+  if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
     @ <script>gebi('topln').scrollIntoView(true);</script>
   }
 }

@@ -1,5 +1,5 @@
-C Add\sability\sto\shighlight\smore\sthan\sone\sblock\sof\slines\swhen\susing\sthe\sln=\nquery\sparameter.
-D 2015-03-06T07:39:09.377
+C Restore\sthe\stopln\sfunctionality.
+D 2015-03-06T07:53:53.145
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -391,7 +391,7 @@ F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c bc289d3b4cf7b4357a5228cdb434a47de5f20c50
-F src/info.c fb955bb21e9233b716332f0bf658f02f7ce23233
+F src/info.c 3ec6b6f99824862466f8da5166310e42b9ac4f31
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -702,10 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ee45080dd6da73e00c9cbe1d61aeae0b28ca74e4
-R 1889790abbd562a00c01c51a638ac28c
-T *branch * multi-block-highlight
-T *sym-multi-block-highlight *
-T -sym-trunk *
+P 20c63861d8dcbd359bf34bf53eafe3e87173a04e
+R fdf34d42c2fbacf5ffb5db1b1202773a
 U andybradford
-Z 60d277804ad8d472bcb4696c3fd5bad5
+Z c22c9af4888dda4d8a586b1bd32e686d
