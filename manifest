@@ -1,5 +1,5 @@
-C Fix\smisplaced\s</span>\sso\sit\sactually\slands\son\sthe\sline\sthat\sbegins\sthe\s<span>\nrather\sthan\sa\sfew\slines\sbefore\sit\sbegins.
-D 2015-03-06T04:10:44.708
+C Fix\sthe\shyperlink\sto\ssign-up\sfor\sthe\smailing\slist.
+D 2015-03-06T14:47:01.679
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -670,7 +670,7 @@ F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki 1b508177aeff0580a7544942681de2d0b00c705d
-F www/index.wiki b07b2e9d188ce5db495457468dc95687bd5d29da
+F www/index.wiki cf377cae7f9ffd87373212ad8f33c8f72a57823b
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
 F www/mkdownload.tcl 0fb977f0644549fa063e4bfedd2bdf062abf97e8
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 03e1850bf12d6bdd4e3d9fc4e4001f03ac3a6001
-R cf3dcf876151f2363da96135b041f3d1
-U andybradford
-Z 52a1b62c80de572e4505d73efd5945d0
+P ee45080dd6da73e00c9cbe1d61aeae0b28ca74e4
+R 42a24923c87afa4c004d43669d3716d2
+U drh
+Z 8884288812ab477f3ec9d2dbd474089b
