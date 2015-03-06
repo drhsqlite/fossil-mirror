@@ -1748,7 +1748,7 @@ void output_text_with_line_numbers(
   while( z[0] ){
     n++;
     db_prepare(&q,
-      "SELECT min(iStart), iEnd FROM lnos"
+      "SELECT min(iStart), max(iEnd) FROM lnos"
       " WHERE iStart <= %d AND iEnd >= %d", n, n);
     if( db_step(&q)==SQLITE_ROW ){
       iStart = db_column_int(&q, 0);

@@ -1,5 +1,5 @@
-C Restore\sthe\stopln\sfunctionality.
-D 2015-03-06T07:53:53.145
+C Need\sto\saccount\sfor\sadjacent\sranges\sto\savoid\sbad\sdata\sfrom\sdb_column_text.
+D 2015-03-06T08:28:34.529
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -391,7 +391,7 @@ F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c bc289d3b4cf7b4357a5228cdb434a47de5f20c50
-F src/info.c 3ec6b6f99824862466f8da5166310e42b9ac4f31
+F src/info.c 3de7fe7f57f8f3e36c70d2c1af1e6c3d379fcea3
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 20c63861d8dcbd359bf34bf53eafe3e87173a04e
-R fdf34d42c2fbacf5ffb5db1b1202773a
+P 5758e5bace3e0855be85f54484edc6e07a820ee5
+R 919fd23aa77c1400b724dd7b332f1801
 U andybradford
-Z c22c9af4888dda4d8a586b1bd32e686d
+Z c1bf0047bd2566ce24d500cb4cc14325
