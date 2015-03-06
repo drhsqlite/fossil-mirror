@@ -318,9 +318,9 @@ static void ls_cmd_rev(
   compute_fileage(rid,0);
   db_prepare(&q,
     "SELECT datetime(fileage.mtime, 'localtime'), fileage.pathname,\n"
-    "       blob.size, blob.uuid, blob2.uuid\n"
-    "  FROM fileage, blob, blob as blob2\n"
-    " WHERE blob.rid=fileage.fid AND blob2.rid=fileage.mid %s\n"
+    "       blob.size\n"
+    "  FROM fileage, blob\n"
+    " WHERE blob.rid=fileage.fid %s\n"
     " ORDER BY %s;", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
   );
   blob_reset(&where);
@@ -329,11 +329,8 @@ static void ls_cmd_rev(
     const char *zTime = db_column_text(&q,0);
     const char *zFile = db_column_text(&q,1);
     int size = db_column_int(&q,2);
-    const char *zFUuid = db_column_text(&q,3);
-    const char *zCUuid = db_column_text(&q,4);
     if( verboseFlag ){
-      /* TBD: What to include in verbose. UUID? */
-      fossil_print("%s  %7d  %S  %S  %s\n", zTime, size, zFUuid, zCUuid, zFile);
+      fossil_print("%s  %7d  %s\n", zTime, size, zFile);
     }else if( showAge ){
       fossil_print("%s  %s\n", zTime, zFile);
     }else{
