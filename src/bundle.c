@@ -788,6 +788,8 @@ static void bundle_purge_cmd(void){
 **          --force                                     Cross-repo import
 **   fossil bundle ls BUNDLE                          List content of a bundle
 **   fossil bundle purge BUNDLE                       Undo an import
+**
+** See also: publish
 */
 void bundle_cmd(void){
   const char *zSubcmd;
