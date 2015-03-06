@@ -1739,7 +1739,7 @@ void output_text_with_line_numbers(
       cgi_append_content(zHtml, -1);
       fossil_free(zHtml);
     }
-    if( n==iStart-15 ) cgi_append_content("</span>", -1);
+    if( n==iTop ) cgi_append_content("</span>", -1);
     if( n==iEnd ) cgi_append_content("</div>", -1);
     else cgi_append_content("\n", 1);
     z += i;

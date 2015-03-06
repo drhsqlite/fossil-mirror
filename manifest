@@ -1,5 +1,5 @@
-C Swap\ssingle-/double-dash\sconvention\sin\s[fossil\shelp\shelp]\slisting\sto\smatch\sthe\sother\scommands.\s\sUse\ssingle-dash\sfor\ssingle-letter\soption\snames\sand\sdouble-dash\sfor\slong\soption\snames.\s\s(Truth\sis\sthat\seither\sis\saccepted;\sthis\sis\smerely\sa\sdisplay\sissue.)
-D 2015-03-05T19:51:17.116
+C Fix\smisplaced\s</span>\sso\sit\sactually\slands\son\sthe\sline\sthat\sbegins\sthe\s<span>\nrather\sthan\sa\sfew\slines\sbefore\sit\sbegins.
+D 2015-03-06T04:10:44.708
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -391,7 +391,7 @@ F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c bc289d3b4cf7b4357a5228cdb434a47de5f20c50
-F src/info.c 7e916f5440815c7b66928f866eaf9b09a68c161f
+F src/info.c 14d490efa130bb5b29a6d9fb95e8ff16d4536eb0
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 81da7b0024a51b945acc1129f11c6741d06f0a1d
-R 244737c3daf29615fd39a9e3435973f8
-U andygoth
-Z 71e5f6079465233cb69e57e3beff9bd3
+P 03e1850bf12d6bdd4e3d9fc4e4001f03ac3a6001
+R cf3dcf876151f2363da96135b041f3d1
+U andybradford
+Z 52a1b62c80de572e4505d73efd5945d0
