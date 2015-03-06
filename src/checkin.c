@@ -269,17 +269,98 @@ void status_cmd(void){
 }
 
 /*
+** Take care of -r version of ls command
+*/
+static void ls_cmd_rev(
+  const char *zRev,  /* Revision string given */
+  int verboseFlag,   /* Verbose flag given */
+  int showAge,       /* Age flag given */ 
+  int timeOrder      /* Order by time flag given */
+){
+  Stmt q;
+  char *zOrderBy = "pathname COLLATE nocase";
+  char *zName;
+  Blob where;
+  int rid;
+  int i;
+
+  /* Handle given file names */
+  blob_zero(&where);
+  for(i=2; i<g.argc; i++){
+    Blob fname;
+    file_tree_name(g.argv[i], &fname, 1);
+    zName = blob_str(&fname);
+    if( fossil_strcmp(zName, ".")==0 ) {
+      blob_reset(&where);
+      break;
+    }
+    blob_append_sql(&where,
+      " %s (pathname=%Q %s) "
+      "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+      (blob_size(&where)>0) ? "OR" : "AND (", zName,
+      filename_collation(), zName, filename_collation(),
+      zName, filename_collation()
+    );
+  }
+  if( blob_size(&where)>0 ){
+    blob_append_sql(&where, ")");
+  }
+
+  rid = symbolic_name_to_rid(zRev, "ci");
+  if( rid==0 ){
+    fossil_fatal("not a valid check-in: %s", zRev);
+  }
+  
+  if( timeOrder ){
+    zOrderBy = "mtime DESC";
+  }
+
+  compute_fileage(rid,0);
+  db_prepare(&q,
+    "SELECT datetime(fileage.mtime, 'localtime'), fileage.pathname,\n"
+    "       blob.size, blob.uuid, blob2.uuid\n"
+    "  FROM fileage, blob, blob as blob2\n"
+    " WHERE blob.rid=fileage.fid AND blob2.rid=fileage.mid %s\n"
+    " ORDER BY %s;", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
+  );
+  blob_reset(&where);
+
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTime = db_column_text(&q,0);
+    const char *zFile = db_column_text(&q,1);
+    int size = db_column_int(&q,2);
+    const char *zFUuid = db_column_text(&q,3);
+    const char *zCUuid = db_column_text(&q,4);
+    if( verboseFlag ){
+      /* TBD: What to include in verbose. UUID? */
+      fossil_print("%s  %7d  %S  %S  %s\n", zTime, size, zFUuid, zCUuid, zFile);
+    }else if( showAge ){
+      fossil_print("%s  %s\n", zTime, zFile);
+    }else{
+      fossil_print("%s\n", zFile);
+    }        
+  }
+  db_finalize(&q);
+}
+
+/*
 ** COMMAND: ls
 **
-** Usage: %fossil ls ?OPTIONS? ?VERSION? ?FILENAMES?
+** Usage: %fossil ls ?OPTIONS? ?FILENAMES?
 **
 ** Show the names of all files in the current checkout.  The -v provides
 ** extra information about each file.  If FILENAMES are included, only
 ** the files listed (or their children if they are directories) are shown.
 **
+** If -r is given a specific check-in is listed. In this case -R can be
+** given to query another repository.
+**
 ** Options:
-**   --age           Show when each file was committed
-**   -v|--verbose    Provide extra information about each file.
+**   --age                 Show when each file was committed
+**   -v|--verbose          Provide extra information about each file.
+**   -t                    Sort output in time order.
+**   -r VERSION            The specific check-in to list
+**   -R|--repository FILE  Extract info from repository FILE
 **
 ** See also: changes, extras, status
 */
@@ -288,19 +369,31 @@ void ls_cmd(void){
   Stmt q;
   int verboseFlag;
   int showAge;
+  int timeOrder;
   char *zOrderBy = "pathname";
   Blob where;
   int i;
   const char *zName;
+  const char *zRev;
 
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag ){
     verboseFlag = find_option("l","l", 0)!=0; /* deprecated */
   }
   showAge = find_option("age",0,0)!=0;
+  zRev = find_option("r","r",1);
+  timeOrder = find_option("t","t",0)!=0;
+
+  if( zRev!=0 ){
+    db_find_and_open_repository(0, 0);
+    verify_all_options();
+    ls_cmd_rev(zRev,verboseFlag,showAge,timeOrder);
+    return;
+  }
+
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
-  if( find_option("t","t",0)!=0 ){
+  if( timeOrder ){
     if( showAge ){
       zOrderBy = mprintf("checkin_mtime(%d,rid) DESC", vid);
     }else{

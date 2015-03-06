@@ -1,5 +1,5 @@
-C Reference\sthe\spublish\scommand\sin\sthe\sbundle\shelp\stext.
-D 2015-03-06T16:57:18.336
+C Extend\sfossil\sls\swith\s-r
+D 2015-03-06T22:14:16.864
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -356,7 +356,7 @@ F src/bundle.c aba37e6351b44bec067d2548b34c66cc0f384456
 F src/cache.c 92403763ed6b734fedf133a17dcdf0ee21dad3ec
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c 283690b32953a04f08a7da36b584d6bcefe6111a
+F src/checkin.c 28222e85068a81ab70c70452b7da02503c7d699d
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 17a56a8a39befb6f7d8f1aa87deeadb7d2833b1e
@@ -702,7 +702,11 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ad6e4004592807fb5e2dd7bbdcbe88e83c60eedc
-R c82d738aaf493989868f94925bdfab96
-U jan
-Z 4a994ac22d28f7c91095b616011fdbff
+P 8fa54638c2eea27fa52c5eab0a2dc5e7a4502d78
+R 028af62d49297e6f33398cf49577d036
+T *bgcolor * pink
+T *branch * peter-ls
+T *sym-peter-ls *
+T -sym-trunk *
+U peter
+Z 73d5a40d964347740b33d33fff15a8cb
