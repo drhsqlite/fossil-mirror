@@ -335,10 +335,10 @@ void add_cmd(void){
 
 /*
 ** COMMAND: rm
-** COMMAND: delete*
+** COMMAND: delete
+** COMMAND: forget*
 **
-** Usage: %fossil rm FILE1 ?FILE2 ...?
-**    or: %fossil delete FILE1 ?FILE2 ...?
+** Usage: %fossil rm|delete|forget FILE1 ?FILE2 ...?
 **
 ** Remove one or more files or directories from the repository.
 **
