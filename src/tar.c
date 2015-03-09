@@ -447,8 +447,8 @@ void test_tarball_cmd(void){
 }
 
 /*
-** Given the RID for a checkin, construct a tarball containing
-** all files in that checkin
+** Given the RID for a check-in, construct a tarball containing
+** all files in that check-in
 **
 ** If RID is for an object that is not a real manifest, then the
 ** resulting tarball contains a single file which is the RID
@@ -560,7 +560,7 @@ void tarball_cmd(void){
   }
   rid = name_to_typed_rid(g.argv[2], "ci");
   if( rid==0 ){
-    fossil_fatal("Checkin not found: %s", g.argv[2]);
+    fossil_fatal("Check-in not found: %s", g.argv[2]);
     return;
   }
 
@@ -584,7 +584,7 @@ void tarball_cmd(void){
 ** WEBPAGE: tarball
 ** URL: /tarball/RID.tar.gz
 **
-** Generate a compressed tarball for a checkin.
+** Generate a compressed tarball for a check-in.
 ** Return that tarball as the HTTP reply content.
 **
 ** Optional URL Parameters:

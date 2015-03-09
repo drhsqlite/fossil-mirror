@@ -49,7 +49,7 @@ since the git-fast-export file format is currently the only VCS interchange
 format that Fossil will generate.  However,
 future versions of Fossil might add the ability to generate other
 VCS interchange formats, and so for compatibility, the use of the --git 
-option recommented.
+option recommended.
 
 An anonymous user sends this comment:
 

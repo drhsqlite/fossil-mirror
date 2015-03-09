@@ -180,7 +180,7 @@ be PGP clearsigned.</p>
 <h2>3.0 Fossil - The Program</h2>
 
 Fossil is software.  The implementation of fossil is in the form
-of a single executable named "fossil" (or "fossil.exe" on windows).
+of a single executable named "fossil" (or "fossil.exe" on Windows).
 To install fossil on your system,
 all you have to do is obtain a copy of this one executable file (either
 by downloading a

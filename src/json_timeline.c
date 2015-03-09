@@ -459,7 +459,7 @@ static cson_value * json_timeline_ci(){
     /* Reminder to self: HTML impl requires 'o' (Read)
        rights.
     */
-    json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'h' access." );
+    json_set_err( FSL_JSON_E_DENIED, "Check-in timeline requires 'h' access." );
     return NULL;
   }
   verboseFlag = json_find_option_bool("verbose",NULL,"v",0);

@@ -649,6 +649,10 @@ int win32_http_service(
 **              and the "localauth" setting is off and the connection is from
 **              localhost.
 **
+**         --repolist
+**
+**              If REPOSITORY is directory, URL "/" lists all repositories.
+**
 **         --scgi
 **
 **              Create an SCGI server instead of an HTTP server
@@ -706,6 +710,7 @@ void cmd_win32_service(void){
     const char *zLocalAuth  = find_option("localauth", 0, 0);
     const char *zRepository = find_repository_option();
     int useSCGI             = find_option("scgi", 0, 0)!=0;
+    int allowRepoList       = find_option("repolist",0,0)!=0;
     Blob binPath;
 
     verify_all_options();
@@ -752,6 +757,7 @@ void cmd_win32_service(void){
     blob_appendf(&binPath, "\"%s\" server", g.nameOfExe);
     if( zPort ) blob_appendf(&binPath, " --port %s", zPort);
     if( useSCGI ) blob_appendf(&binPath, " --scgi");
+    if( allowRepoList ) blob_appendf(&binPath, " --repolist");
     if( zNotFound ) blob_appendf(&binPath, " --notfound \"%s\"", zNotFound);
     if( zFileGlob ) blob_appendf(&binPath, " --files-urlenc %T", zFileGlob);
     if( zLocalAuth ) blob_append(&binPath, " --localauth", -1);

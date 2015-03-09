@@ -1095,10 +1095,10 @@ static void timeline_y_submenu(int isDisabled){
 **    from=UUID      Path from...
 **    to=UUID          ... to this
 **    shortest         ... show only the shortest path
-**    uf=FUUID       Show only checkins that use given file version
+**    uf=FUUID       Show only check-ins that use given file version
 **    brbg           Background color from branch name
 **    ubg            Background color from user
-**    namechng       Show only checkins that filename changes
+**    namechng       Show only check-ins that filename changes
 **    ym=YYYY-MM     Shown only events for the given year/month.
 **    datefmt=N      Override the date format
 **
@@ -1127,11 +1127,11 @@ void page_timeline(void){
   const char *zTagName = P("t");     /* Show events with this tag */
   const char *zBrName = P("r");      /* Show events related to this tag */
   const char *zSearch = P("s");      /* Search string */
-  const char *zUses = P("uf");       /* Only show checkins hold this file */
-  const char *zYearMonth = P("ym");  /* Show checkins for the given YYYY-MM */
-  const char *zYearWeek = P("yw");   /* Checkins for YYYY-WW (week-of-year) */
+  const char *zUses = P("uf");       /* Only show check-ins hold this file */
+  const char *zYearMonth = P("ym");  /* Show check-ins for the given YYYY-MM */
+  const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
-  int renameOnly = P("namechng")!=0; /* Show only checkins that rename files */
+  int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int tagid;                         /* Tag ID */
   int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
@@ -1382,7 +1382,7 @@ void page_timeline(void){
             " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n", tagid);
 
       if( zBrName ){
-        /* The next two blob_appendf() calls add SQL that causes checkins that
+        /* The next two blob_appendf() calls add SQL that causes check-ins that
         ** are not part of the branch which are parents or children of the
         ** branch to be included in the report.  This related check-ins are
         ** useful in helping to visualize what has happened on a quiescent
@@ -1446,7 +1446,7 @@ void page_timeline(void){
     }else{ /* zType!="all" */
       blob_append_sql(&sql, " AND event.type=%Q", zType);
       if( zType[0]=='c' ){
-        zEType = "checkin";
+        zEType = "check-in";
       }else if( zType[0]=='w' ){
         zEType = "wiki edit";
       }else if( zType[0]=='t' ){
@@ -1827,7 +1827,7 @@ static int isIsoDate(const char *z){
 **                            w  = wiki commits only
 **   -v|--verbose         Output the list of files changed by each commit
 **                        and the type of each change (edited, deleted,
-**                        etc.) after the checkin comment.
+**                        etc.) after the check-in comment.
 **   -W|--width <num>     Width of lines (default is to auto-detect). Must be
 **                        >20 or 0 (= no limit, resulting in a single line per
 **                        entry).
@@ -1943,7 +1943,7 @@ void timeline_cmd(void){
   if( zFilePattern ){
     if( zType==0 ){
       /* When zFilePattern is specified and type is not specified, only show
-       * file checkins */
+       * file check-ins */
       zType="ci";
     }
     file_tree_name(zFilePattern, &treeName, 1);
@@ -2034,9 +2034,9 @@ const char *timeline_utc(){
 **
 ** Usage: %fossil test-timewarp-list ?-v|---verbose?
 **
-** Display all instances of child checkins that appear earlier in time
+** Display all instances of child check-ins that appear earlier in time
 ** than their parent.  If the -v|--verbose option is provided, both the
-** parent and child checking and their times are shown.
+** parent and child check-ins and their times are shown.
 */
 void test_timewarp_cmd(void){
   Stmt q;

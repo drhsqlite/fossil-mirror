@@ -464,7 +464,7 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
 }
 
 /*
-** Look for a file named zName in the checkin with RID=vid.  Load the content
+** Look for a file named zName in the check-in with RID=vid.  Load the content
 ** of that file into pContent and return the RID for the file.  Or return 0
 ** if the file is not found or could not be loaded.
 */
@@ -473,7 +473,7 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
   if( !db_table_exists("repository","vcache") ){
     db_multi_exec(
       "CREATE TABLE IF NOT EXISTS vcache(\n"
-      "  vid INTEGER,         -- checkin ID\n"
+      "  vid INTEGER,         -- check-in ID\n"
       "  fname TEXT,          -- filename\n"
       "  rid INTEGER,         -- artifact ID\n"
       "  PRIMARY KEY(vid,fname)\n"
@@ -533,8 +533,8 @@ void doc_page(void){
   const char *zName;                /* Argument to the /doc page */
   const char *zOrigName = "?";      /* Original document name */
   const char *zMime;                /* Document MIME type */
-  char *zCheckin = "tip";           /* The checkin holding the document */
-  int vid = 0;                      /* Artifact of checkin */
+  char *zCheckin = "tip";           /* The check-in holding the document */
+  int vid = 0;                      /* Artifact of check-in */
   int rid = 0;                      /* Artifact of file */
   int i;                            /* Loop counter */
   Blob filebody;                    /* Content of the documentation file */

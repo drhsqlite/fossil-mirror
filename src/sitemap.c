@@ -43,21 +43,21 @@ void sitemap_page(void){
   @ <li>%z(href("%R/tree"))File Browser</a></li>
   @   <ul>
   @   <li>%z(href("%R/tree?type=tree&ci=trunk"))Tree-view,
-  @        Trunk Checkin</a></li>
+  @        Trunk Check-in</a></li>
   @   <li>%z(href("%R/tree?type=flat"))Flat-view</a></li>
   @   <li>%z(href("%R/fileage?name=trunk"))File ages for Trunk</a></li>
   @ </ul>
   @ <li>%z(href("%R/timeline?n=200"))Project Timeline</a></li>
   @ <ul>
   @   <li>%z(href("%R/timeline?a=1970-01-01&y=ci&n=10"))First 10 
-  @        checkins</a></li>
-  @   <li>%z(href("%R/timeline?n=all&namechng"))All checkins with file name
+  @        check-ins</a></li>
+  @   <li>%z(href("%R/timeline?n=all&namechng"))All check-ins with file name
   @        changes</a></li>
   @   <li>%z(href("%R/reports"))Activity Reports</a></li>
   @ </ul>
   @ <li>%z(href("%R/brlist"))Branches</a></li>
   @ <ul>
-  @   <li>%z(href("%R/leaves"))Leaf Checkins</a></li>
+  @   <li>%z(href("%R/leaves"))Leaf Check-ins</a></li>
   @   <li>%z(href("%R/taglist"))List of Tags</a></li>
   @ </ul>
   @ </li>
@@ -104,7 +104,7 @@ void sitemap_page(void){
   @ <li>Test Pages
   @   <ul>
   @   <li>%z(href("%R/test_env"))CGI Environment Test</a></li>
-  @   <li>%z(href("%R/test_timewarps"))List of "Timewarp" Checkins</a></li>
+  @   <li>%z(href("%R/test_timewarps"))List of "Timewarp" Check-ins</a></li>
   @   <li>%z(href("%R/test-rename-list"))List of file renames</a></li>
   @   <li>%z(href("%R/hash-color-test"))Page to experiment with the automatic
   @       colors assigned to branch names</a>

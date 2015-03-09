@@ -226,7 +226,7 @@ void dbstat_cmd(void){
       fossil_print("%*s%d:%d\n", colWidth, "compression-ratio:", a, b);
     }
     n = db_int(0, "SELECT COUNT(*) FROM event e WHERE e.type='ci'");
-    fossil_print("%*s%d\n", colWidth, "checkins:", n);
+    fossil_print("%*s%d\n", colWidth, "check-ins:", n);
     n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
     fossil_print("%*s%d across all branches\n", colWidth, "files:", n);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"

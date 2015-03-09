@@ -335,10 +335,10 @@ void add_cmd(void){
 
 /*
 ** COMMAND: rm
-** COMMAND: delete*
+** COMMAND: delete
+** COMMAND: forget*
 **
-** Usage: %fossil rm FILE1 ?FILE2 ...?
-**    or: %fossil delete FILE1 ?FILE2 ...?
+** Usage: %fossil rm|delete|forget FILE1 ?FILE2 ...?
 **
 ** Remove one or more files or directories from the repository.
 **
@@ -625,7 +625,7 @@ static void mv_one_file(
 **
 ** This command does NOT rename or move the files on disk.  This command merely
 ** records the fact that filenames have changed so that appropriate notations
-** can be made at the next commit/checkin.
+** can be made at the next commit/check-in.
 **
 ** Options:
 **   --case-sensitive <BOOL> Override the case-sensitive setting.

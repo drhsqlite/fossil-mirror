@@ -161,7 +161,7 @@ void branch_new(void){
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", brid);
-  fossil_print("New branch: %S\n", zUuid);
+  fossil_print("New branch: %s\n", zUuid);
   if( g.argc==3 ){
     fossil_print(
       "\n"
@@ -352,7 +352,7 @@ static void new_brlist_page(void){
   @ <thead><tr>
   @ <th>Branch Name</th>
   @ <th>Age</th>
-  @ <th>Checkins</th>
+  @ <th>Check-ins</th>
   @ <th>Status</th>
   @ <th>Resolution</th>
   @ </tr></thead><tbody>
@@ -437,6 +437,7 @@ void brlist_page(void){
     style_submenu_element("All", "All", "brlist?all");
   }
   login_anonymous_available();
+#if 0
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
   @ <li> An <div class="sideboxDescribed">%z(href("brlist"))
@@ -452,6 +453,7 @@ void brlist_page(void){
   @ reopened).</li>
   @ </ol>
   style_sidebox_end();
+#endif
 
   branch_prepare_list_query(&q, brFlags);
   cnt = 0;

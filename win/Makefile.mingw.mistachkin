@@ -511,6 +511,9 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/rounded1/css.txt \
   $(SRCDIR)/../skins/rounded1/footer.txt \
   $(SRCDIR)/../skins/rounded1/header.txt \
+  $(SRCDIR)/../skins/xekri/css.txt \
+  $(SRCDIR)/../skins/xekri/footer.txt \
+  $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/markdown.md
 
@@ -916,7 +919,7 @@ ifdef FOSSIL_BUILD_SSL
 APPTARGETS += openssl
 endif
 
-$(APPNAME):	$(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o $(APPTARGETS)
+$(APPNAME):	$(APPTARGETS) $(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
 	$(CODECHECK1) $(TRANS_SRC)
 	$(TCC) -o $@ $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 

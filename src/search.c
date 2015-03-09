@@ -16,7 +16,7 @@
 *******************************************************************************
 **
 ** This file contains code to implement a very simple search function
-** against timeline comments, checkin content, wiki pages, and/or tickets.
+** against timeline comments, check-in content, wiki pages, and/or tickets.
 **
 ** The search is full-text like in that it is looking for words and ignores
 ** punctuation and capitalization.  But it is more akin to "grep" in that
@@ -571,9 +571,10 @@ void search_cmd(void){
      "INSERT INTO srch(rid,uuid,date,comment,x)"
      "   SELECT blob.rid, uuid, datetime(event.mtime%s),"
      "          coalesce(ecomment,comment),"
-     "          score(coalesce(ecomment,comment)) AS y"
+     "          search_score()"
      "     FROM event, blob"
-     "    WHERE blob.rid=event.objid AND y>0;",
+     "    WHERE blob.rid=event.objid"
+     "      AND search_match(coalesce(ecomment,comment));",
      timeline_utc()
   );
   iBest = db_int(0, "SELECT max(x) FROM srch");
@@ -730,7 +731,7 @@ static void search_fullscan(
 ** Number of significant bits in a u32
 */
 static int nbits(u32 x){
-  int n = 0; 
+  int n = 0;
   while( x ){ n++; x >>= 1; }
   return n;
 }
@@ -1252,7 +1253,7 @@ void search_stext(
 }
 
 /*
-** This routine is a wrapper around search_stext().  
+** This routine is a wrapper around search_stext().
 **
 ** This routine looks up the search text, stores it in an internal
 ** buffer, and returns a pointer to the text.  Subsequent requests
@@ -1694,7 +1695,7 @@ void test_fts_cmd(void){
     if( g.argc<4 ) usage("porter ON/OFF");
     db_set_int("search-stemmer", is_truth(g.argv[3]), 0);
   }
-     
+
 
   /* destroy or rebuild the index, if requested */
   if( iAction>=1 ){

@@ -441,7 +441,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
 ** Attempt to convert more full-text blobs into delta-blobs for
 ** storage efficiency.
 */
-static void extra_deltification(void){
+void extra_deltification(void){
   Stmt q;
   int topid, previd, rid;
   int prevfnid, fnid;

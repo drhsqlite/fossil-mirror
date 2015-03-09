@@ -272,7 +272,7 @@ int th1_name_to_typed_rid(
 }
 
 /*
-** Attempt to lookup the specified checkin and file name into an rid.
+** Attempt to lookup the specified check-in and file name into an rid.
 ** This function was copied from artifact_from_ci_and_filename() in
 ** info.c; however, it has been modified to report TH1 script errors
 ** instead of "fatal errors".
@@ -515,6 +515,7 @@ static int searchableCmd(
 ** "tclPrivateStubs" = FOSSIL_ENABLE_TCL_PRIVATE_STUBS
 ** "json"            = FOSSIL_ENABLE_JSON
 ** "markdown"        = FOSSIL_ENABLE_MARKDOWN
+** "unicodeCmdLine"  = !BROKEN_MINGW_CMDLINE
 **
 */
 static int hasfeatureCmd(
@@ -570,6 +571,11 @@ static int hasfeatureCmd(
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
   else if( 0 == fossil_strnicmp( zArg, "json\0", 5 ) ){
+    rc = 1;
+  }
+#endif
+#if !defined(BROKEN_MINGW_CMDLINE)
+  else if( 0 == fossil_strnicmp( zArg, "unicodeCmdLine\0", 15 ) ){
     rc = 1;
   }
 #endif

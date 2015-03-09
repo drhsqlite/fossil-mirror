@@ -84,7 +84,7 @@ static cson_value * json_page_dir_list(){
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     }else{
       json_set_err(FSL_JSON_E_UNRESOLVED_UUID,
-                   "Checkin name [%s] is unresolved.",
+                   "Check-in name [%s] is unresolved.",
                    zCI);
       return NULL;
     }
