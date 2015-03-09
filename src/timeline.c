@@ -736,25 +736,53 @@ void timeline_output_graph_javascript(
     @   return left;
     @ }
     @ function drawUpArrow(x,y0,y1){
-    @   drawBox(lineClr,x,y0,x+1,y1);
+    @   drawBox(lineClr,x,y0+5,x+1,y1);
+    @   var n = document.createElement("div"),
+    @       l = x-2,
+    @       t = y0;
+    @   n.style.position = "absolute";
+    @   n.style.left = l+"px";
+    @   n.style.top = t+"px";
+    @   n.style.width = 0;
+    @   n.style.height = 0;
+    @   n.style.borderWidth = 0;
+    @   n.style.borderStyle = "solid";
+    @   n.style.borderColor = "transparent";
+    @   n.style.borderRightWidth = "3px";
+    @   n.style.borderBottomColor = "#000";
+    @   n.style.borderBottomStyle = "outset";
+    @   n.style.borderLeftWidth = "3px";
     @   if( y0+10>=y1 ){
-    @     drawBox(lineClr,x-1,y0+1,x+2,y0+2);
-    @     drawBox(lineClr,x-2,y0+3,x+3,y0+4);
-    @   }else{
-    @     drawBox(lineClr,x-1,y0+2,x+2,y0+4);
-    @     drawBox(lineClr,x-2,y0+5,x+3,y0+7);
+    @     n.style.borderBottomWidth = "5px";
+    @   } else {
+    @     n.style.borderBottomWidth = "7px";
     @   }
+    @   cDiv.appendChild(n);
     @ }
     @ function drawThinArrow(y,xFrom,xTo){
+    @   var n = document.createElement("div"),
+    @       t = y-2;
+    @   n.style.position = "absolute";
+    @   n.style.top = t+"px";
+    @   n.style.width = 0;
+    @   n.style.height = "1px";
+    @   n.style.borderWidth = 0;
+    @   n.style.borderStyle = "solid";
+    @   n.style.borderColor = "transparent";
+    @   n.style.borderTopWidth = "2px";
+    @   n.style.borderBottomWidth = "2px";
     @   if( xFrom<xTo ){
-    @     drawBox(lineClr,xFrom,y,xTo,y);
-    @     drawBox(lineClr,xTo-3,y-1,xTo-2,y+1);
-    @     drawBox(lineClr,xTo-4,y-2,xTo-4,y+2);
+    @     drawBox(lineClr,xFrom,y,xTo-3,y);
+    @     n.style.left = xTo-3+"px";
+    @     n.style.borderLeftWidth = "3px";
+    @     n.style.borderLeftColor = "#000";
     @   }else{
-    @     drawBox(lineClr,xTo,y,xFrom,y);
-    @     drawBox(lineClr,xTo+2,y-1,xTo+3,y+1);
-    @     drawBox(lineClr,xTo+4,y-2,xTo+4,y+2);
+    @     drawBox(lineClr,xTo+3,y,xFrom,y);
+    @     n.style.left = xTo+1+"px";
+    @     n.style.borderRightWidth = "3px";
+    @     n.style.borderRightColor = "#000";
     @   }
+    @   cDiv.appendChild(n);
     @ }
     @ function drawThinLine(x0,y0,x1,y1){
     @   drawBox(lineClr,x0,y0,x1,y1);
@@ -790,7 +818,7 @@ void timeline_output_graph_javascript(
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
-    @       drawBox(lineClr,x0,p.y,x1,p.y+1);
+    @       drawBox(lineClr,x0,p.y,x1+1,p.y+1);
     @       drawUpArrow(x1, u.y+6, p.y);
     @     }else{
     @       drawBox("#600000",x0,p.y,x1,p.y+1);
