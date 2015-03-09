@@ -1110,6 +1110,10 @@ const struct strctCssDefaults {
     @   margin-top: 3px;
     @   line-height: 100%;
   },
+  { "ul.filelist li",
+    "List of files in a timeline",
+    @   padding-top: 1px;
+  },
   { "table.sbsdiffcols",
     "side-by-side diff display (column-based)",
     @   width: 90%;

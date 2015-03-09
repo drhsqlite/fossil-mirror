@@ -1,5 +1,5 @@
-C Add\s"fossil\sforget"\sas\salias\sto\s"fossil\srm|delete".\sThis\sopens\sup\sthe\s"fossil\srm"\scommand\sfor\sbehavior\smodification,\sas\ssuggested\son\sML.
-D 2015-03-09T09:09:06.078
+C Add\sextra\sspace\sbetween\slines\sof\sthe\sfile-list\sin\sa\stimeline.
+D 2015-03-09T11:15:13.141
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -455,7 +455,7 @@ F src/sqlite3.h f8151534e8c69113c7ce4dc7c8491932836095cd
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
 F src/statrep.c b7bd715a0429375342af08151854d62b467c4792
-F src/style.c 0fdfdfeb82c80254a1f3ac95cff129dd3c23373b
+F src/style.c f200b94959cbea987bdb40e6737b00a8cfc9031a
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 807b4154d67dc0bf02089d61bda5cac84bf7d44b
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 7fbc1c3a1f2cfdde389c7c3a2a73380f1ae67b55
-R 9972673fe48d8be3811cac22860f40bf
-U jan.nijtmans
-Z 5d5ac0fa24c9bcc60b60772cec0a2fab
+P 8cf976d24689ae9ef42a2de78c5c7e945ce70905
+R 8f0c605cb765612572ef742314b312e4
+U drh
+Z 4ff13be5bea86bb763e20856023e7e21
