@@ -30,12 +30,12 @@
 ** purge event, multiple artifacts might have been removed.  Each removed
 ** artifact is stored as an entry in the purgeitem table.
 **
-** The purgeevent and purgeitem tables are not synced, even by the 
-** "fossil config" command.  They exist only as a backup in case of a 
+** The purgeevent and purgeitem tables are not synced, even by the
+** "fossil config" command.  They exist only as a backup in case of a
 ** mistaken purge or for content recovery in case there is a bug in the
 ** purge command.
 */
-static const char zPurgeInit[] = 
+static const char zPurgeInit[] =
 @ CREATE TABLE IF NOT EXISTS "%w".purgeevent(
 @   peid INTEGER PRIMARY KEY,  -- Unique ID for the purge event
 @   ctime DATETIME,            -- When purge occurred.  Seconds since 1970.
@@ -44,7 +44,7 @@ static const char zPurgeInit[] =
 @ CREATE TABLE IF NOT EXISTS "%w".purgeitem(
 @   piid INTEGER PRIMARY KEY,  -- ID for the purge item
 @   peid INTEGER REFERENCES purgeevent ON DELETE CASCADE, -- Purge event
-@   orid INTEGER,              -- Original RID before purged 
+@   orid INTEGER,              -- Original RID before purged
 @   uuid TEXT NOT NULL,        -- SHA1 hash of the purged artifact
 @   srcid INTEGER,             -- Basis purgeitem for delta compression
 @   isPrivate BOOLEAN,         -- True if artifact was originally private
@@ -124,7 +124,7 @@ int purge_artifact_list(
   /* Construct the graveyard and copy the artifacts to be purged into the
   ** graveyard */
   if( moveToGraveyard ){
-    db_multi_exec(zPurgeInit /*works-like:"%w%w"*/, 
+    db_multi_exec(zPurgeInit /*works-like:"%w%w"*/,
                   db_name("repository"), db_name("repository"));
     db_multi_exec(
       "INSERT INTO purgeevent(ctime,pnotes) VALUES(now(),%Q)", zNote
@@ -195,7 +195,7 @@ int purge_artifact_list(
 }
 
 /*
-** The TEMP table named zTab contains RIDs for a set of check-ins.  
+** The TEMP table named zTab contains RIDs for a set of check-ins.
 **
 ** Check to see if any check-in in zTab is a baseline manifest for some
 ** delta manifest that is not in zTab.  Return true if zTab contains a
@@ -277,7 +277,7 @@ void find_checkin_associates(const char *zTab, int bExclusive){
       zTab, zTab, zTab
     );
   }
-  
+
   /* Transfer the extra artifacts into zTab */
   db_multi_exec(
     "INSERT OR IGNORE INTO \"%w\" SELECT fid FROM \"%w_files\";"
@@ -379,7 +379,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
     }
     bag_insert(&busy, iSrc);
   }
-  db_prepare(&q, 
+  db_prepare(&q,
      "SELECT uuid, data, isPrivate, ix.piid"
      "  FROM ix, purgeitem"
      " WHERE ix.srcid=%d"
@@ -438,7 +438,7 @@ static void purge_item_resurrect(int iSrc, Blob *pBasis){
 **   fossil purge ?checkins? TAGS... ?OPTIONS?
 **
 **      Move the check-ins identified by TAGS and all of their descendants
-**      out of the repository and into the graveyard.  The "checkins" 
+**      out of the repository and into the graveyard.  The "checkins"
 **      subcommand keyword is option and can be omitted as long as TAGS
 **      does not conflict with any other subcommand.
 **

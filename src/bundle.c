@@ -30,7 +30,7 @@
 ** basis, which is presumably in the master repository.  If NULL, then
 ** data contains contain without delta compression.
 */
-static const char zBundleInit[] = 
+static const char zBundleInit[] =
 @ CREATE TABLE IF NOT EXISTS "%w".bconfig(
 @   bcname TEXT,
 @   bcvalue ANY
@@ -157,7 +157,7 @@ static void bundle_append_cmd(void){
 
   verify_all_options();
   bundle_attach_file(g.argv[3], "b1", 1);
-  db_prepare(&q, 
+  db_prepare(&q,
     "INSERT INTO bblob(blobid, uuid, sz, delta, data, notes) "
     "VALUES(NULL, $uuid, $sz, NULL, $data, $filename)");
   db_begin_transaction();
@@ -190,7 +190,7 @@ static void bundle_append_cmd(void){
 **                                  up to and including TAG2
 **     --checkin TAG                Check-in TAG only
 **
-** Store the RIDs for all applicable check-ins in the zTab table that 
+** Store the RIDs for all applicable check-ins in the zTab table that
 ** should already exist.  Invoke fossil_fatal() if any kind of error is
 ** seen.
 */
@@ -433,7 +433,7 @@ static void bundle_import_elements(int iSrc, Blob *pBasis, int isPriv){
     }
     bag_insert(&busy, iSrc);
   }
-  db_prepare(&q, 
+  db_prepare(&q,
      "SELECT uuid, data, bblob.delta, bix.blobid"
      "  FROM bix, bblob"
      " WHERE bix.delta=%d"
@@ -625,7 +625,7 @@ static void bundle_import_cmd(void){
   bundle_import_elements(0, 0, isPriv);
   manifest_crosslink_end(0);
   describe_artifacts_to_stdout("IN got", "Imported content:");
-  db_end_transaction(0);    
+  db_end_transaction(0);
 }
 
 /* fossil bundle purge BUNDLE
@@ -771,7 +771,7 @@ static void bundle_purge_cmd(void){
 **
 **   fossil bundle purge BUNDLE
 **
-**      Remove from the repository all files that are used exclusively 
+**      Remove from the repository all files that are used exclusively
 **      by check-ins in BUNDLE.  This has the effect of undoing a
 **      "fossil bundle import".
 **

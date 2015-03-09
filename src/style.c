@@ -825,7 +825,7 @@ const struct strctCssDefaults {
   { "ul.browser li.file",
     "List element in the 'flat-view' file browser for a file",
     "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP"
-    "\\/\\/\\/yEhIf\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfm" 
+    "\\/\\/\\/yEhIf\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfm"
     "gOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);\n"
     "  background-repeat: no-repeat;\n"
     "  background-position: 0px center;\n"

@@ -101,7 +101,7 @@ void publish_cmd(void){
     ** artifacts.  Instead, just list the artifact information on standard
     ** output.  The --test option is useful for verifying correct operation
     ** of the logic that figures out which artifacts to publish, such as
-    ** the find_checkin_associates() routine 
+    ** the find_checkin_associates() routine
     */
     describe_artifacts_to_stdout("IN ok", 0);
   }else{
