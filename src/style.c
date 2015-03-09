@@ -825,7 +825,7 @@ const struct strctCssDefaults {
   { "ul.browser li.file",
     "List element in the 'flat-view' file browser for a file",
     "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP"
-    "\\/\\/\\/yEhIf\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfm" 
+    "\\/\\/\\/yEhIf\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfm"
     "gOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);\n"
     "  background-repeat: no-repeat;\n"
     "  background-position: 0px center;\n"
@@ -1109,6 +1109,10 @@ const struct strctCssDefaults {
     "List of files in a timeline",
     @   margin-top: 3px;
     @   line-height: 100%;
+  },
+  { "ul.filelist li",
+    "List of files in a timeline",
+    @   padding-top: 1px;
   },
   { "table.sbsdiffcols",
     "side-by-side diff display (column-based)",

@@ -415,10 +415,10 @@ void capture_metadata_only_option(void){
 
 /*
 ** COMMAND: rm
-** COMMAND: delete*
+** COMMAND: delete
+** COMMAND: forget*
 **
-** Usage: %fossil rm FILE1 ?FILE2 ...?
-**    or: %fossil delete FILE1 ?FILE2 ...?
+** Usage: %fossil rm|delete|forget FILE1 ?FILE2 ...?
 **
 ** Remove one or more files or directories from the repository.
 **
@@ -453,7 +453,9 @@ void delete_cmd(void){
 
   db_must_be_within_tree();
   db_begin_transaction();
-  if( zMetadataOnly ){
+  if(g.argv[1][0]=='f'){
+    removeFiles = 0;
+  }else if( zMetadataOnly ){
     removeFiles = is_false(zMetadataOnly);
   }else{
 #if FOSSIL_ENABLE_LEGACY_MV_RM
@@ -816,7 +818,9 @@ void mv_cmd(void){
   }
   zDest = g.argv[g.argc-1];
   db_begin_transaction();
-  if( zMetadataOnly ){
+  if(g.argv[1][0]=='r'){
+    moveFiles = 0;
+  }else if( zMetadataOnly ){
     moveFiles = is_false(zMetadataOnly);
   }else{
 #if FOSSIL_ENABLE_LEGACY_MV_RM

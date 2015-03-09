@@ -1703,6 +1703,8 @@ int artifact_from_ci_and_filename_www(void){
 ** zLn is the ?ln= parameter for the HTTP query.  If there is an argument,
 ** then highlight that line number and scroll to it once the page loads.
 ** If there are two line numbers, highlight the range of lines.
+** Multiple ranges can be highlighed by adding additional line numbers
+** separated by a non-digit character (also not one of [-,.]).
 */
 void output_text_with_line_numbers(
   const char *z,
@@ -1710,24 +1712,49 @@ void output_text_with_line_numbers(
 ){
   int iStart, iEnd;    /* Start and end of region to highlight */
   int n = 0;           /* Current line number */
-  int i;               /* Loop index */
+  int i = 0;           /* Loop index */
   int iTop = 0;        /* Scroll so that this line is on top of screen. */
+  Stmt q;
 
   iStart = iEnd = atoi(zLn);
+  db_multi_exec(
+    "CREATE TEMP TABLE lnos(iStart INTEGER PRIMARY KEY, iEnd INTEGER)");
   if( iStart>0 ){
-    for(i=0; fossil_isdigit(zLn[i]); i++){}
-    if( zLn[i]==',' || zLn[i]=='-' || zLn[i]=='.' ){
-      i++;
-      while( zLn[i]=='.' ){ i++; }
-      iEnd = atoi(&zLn[i]);
-    }
-    if( iEnd<iStart ) iEnd = iStart;
+    do{
+      while( fossil_isdigit(zLn[i]) ) i++;
+      if( zLn[i]==',' || zLn[i]=='-' || zLn[i]=='.' ){
+        i++;
+        while( zLn[i]=='.' ){ i++; }
+        iEnd = atoi(&zLn[i]);
+        while( fossil_isdigit(zLn[i]) ) i++;
+      }
+      while( fossil_isdigit(zLn[i]) ) i++;
+      if( iEnd<iStart ) iEnd = iStart;
+      db_multi_exec(
+        "INSERT OR REPLACE INTO lnos VALUES(%d,%d)", iStart, iEnd
+      );
+      iStart = iEnd = atoi(&zLn[i++]);
+    }while( zLn[i] && iStart && iEnd );
+  }
+  db_prepare(&q, "SELECT min(iStart), iEnd FROM lnos");
+  if( db_step(&q)==SQLITE_ROW ){
+    iStart = db_column_int(&q, 0);
+    iEnd = db_column_int(&q, 1);
     iTop = iStart - 15 + (iEnd-iStart)/4;
     if( iTop>iStart - 2 ) iTop = iStart-2;
   }
+  db_finalize(&q);
   @ <pre>
   while( z[0] ){
     n++;
+    db_prepare(&q,
+      "SELECT min(iStart), max(iEnd) FROM lnos"
+      " WHERE iStart <= %d AND iEnd >= %d", n, n);
+    if( db_step(&q)==SQLITE_ROW ){
+      iStart = db_column_int(&q, 0);
+      iEnd = db_column_int(&q, 1);
+    }
+    db_finalize(&q);
     for(i=0; z[i] && z[i]!='\n'; i++){}
     if( n==iTop ) cgi_append_content("<span id=\"topln\">", -1);
     if( n==iStart ){
@@ -1739,7 +1766,7 @@ void output_text_with_line_numbers(
       cgi_append_content(zHtml, -1);
       fossil_free(zHtml);
     }
-    if( n==iStart-15 ) cgi_append_content("</span>", -1);
+    if( n==iTop ) cgi_append_content("</span>", -1);
     if( n==iEnd ) cgi_append_content("</div>", -1);
     else cgi_append_content("\n", 1);
     z += i;
@@ -1747,7 +1774,7 @@ void output_text_with_line_numbers(
   }
   if( n<iEnd ) cgi_printf("</div>");
   @ </pre>
-  if( iStart ){
+  if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
     @ <script>gebi('topln').scrollIntoView(true);</script>
   }
 }
@@ -1766,6 +1793,7 @@ void output_text_with_line_numbers(
 **   ln              - show line numbers
 **   ln=N            - highlight line number N
 **   ln=M-N          - highlight lines M through N inclusive
+**   ln=M-N+Y-Z      - higllight lines M through N and Y through Z (inclusive)
 **   verbose         - show more detail in the description
 **
 ** The /artifact page show the complete content of a file

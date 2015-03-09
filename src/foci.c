@@ -26,7 +26,7 @@
 **                      -- ^^^^--- important!
 **    SELECT * FROM foci WHERE checkinID=symbolic_name_to_rid('trunk');
 **
-** The symbolic_name_to_rid('trunk') function finds the BLOB.RID value 
+** The symbolic_name_to_rid('trunk') function finds the BLOB.RID value
 ** corresponding to the 'trunk' tag.  Then the files_of_checkin virtual table
 ** decodes the manifest defined by that BLOB and returns all files described
 ** by that manifest.  The "schema" for the temp.foci table is:
