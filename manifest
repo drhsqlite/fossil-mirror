@@ -1,5 +1,5 @@
-C Allow\sthe\srail\spatch\son\sgraphs\sto\sgo\sas\slow\sas\s11\spixels.\s\sAdjust\sthe\soffset\nof\sthe\smerge\srisers\sas\sthe\srail\spitch\sgets\ssmaller\sso\sthat\smerge\sarrows\sdo\nnot\soverlap\sthe\smerge\srisers.
-D 2015-03-10T02:21:06.116
+C Automatically\somit\smerge\srisers\sfrom\sthe\sgraph\swhen\sthe\sgraph\sis\sscrunched\sdue\nto\smany\srails.\s\sMake\ssure\sthere\sis\sadequate\sspacing\sbetween\sthe\sgraph\sand\ntext\swhen\sthe\sgraph\sis\sscrunched.
+D 2015-03-10T15:22:05.439
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -380,7 +380,7 @@ F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c b679d1682780c813c97c0de352e671d0ad40dca4
-F src/finfo.c b621bd7fc9699ecb76e361bf28a7f6aae921bbff
+F src/finfo.c 640d7c4410873a0a26eb4bb37894ca375bd50356
 F src/foci.c 8e1553ee3a2db6b73497b4cfca8d4b8fe89e2471
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -464,7 +464,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c e79b55e41e0fabdcbb115845f0a7776ef9b1953b
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c 3764b167e11f9b028b25c97bdeae30a31a3102c2
+F src/timeline.c f587ca4a4d15a82cc097db8809e8f617b9fd8081
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
 F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -494,7 +494,7 @@ F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
 F test/file1.test 4a1009731c0959c46c228a9336df9da4a5da97f1
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test 027f2aa0b0c737a0f27d51800802a08f07561beb
-F test/graph-test-1.wiki e404e3525b85c812c2771364697ef4ec825d1556
+F test/graph-test-1.wiki 1bbf8bd05dfd5205c589569d911477c27aeb4d51
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
@@ -702,7 +702,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e567a910de739d0cf9f684ead99bfe9a34470b5f
-R 4a71379ac71cdfc81ddeccb0d5301fdf
+P e81344f3bd663c143ed3e9857fb794bc596fdae0 3229e5e83cd381985577b14a2eab6d2fb032085a
+R 61be50776a5fb2b5cac60d1c846629e5
+T +closed 3229e5e83cd381985577b14a2eab6d2fb032085a
 U drh
-Z 3e7362981cdfeff0414971e28ad0dfd5
+Z d02adb2832d2f47a7a3988a1a6e815c2

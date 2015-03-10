@@ -588,7 +588,7 @@ void www_print_timeline(
       /* style is not moved to css, because this is
       ** a technical div for the timeline graph
       */
-      w = (pGraph->mxRail+1)*pGraph->iRailPitch + 10;
+      w = pGraph->mxRail*pGraph->iRailPitch + 28;
       @ <tr><td></td><td>
       @ <div id="grbtm" style="width:%d(w)px;"></div>
       @ </td><td></td></tr>
@@ -612,14 +612,19 @@ void timeline_output_graph_javascript(
     GraphRow *pRow;
     int i;
     char cSep;
-    int mergeOffset;
+    int mergeOffset;     /* Pixel offset from rail to merge riser */
+    int iRailPitch;      /* Pixels between consecutive rails */
+    iRailPitch = pGraph->iRailPitch;
 
     /* Number of pixels that the thin merge lines are offset from the
-    ** the center of the think rail lines */
-    mergeOffset = pGraph->iRailPitch>=14 ? 4 : pGraph->iRailPitch>=13 ? 3 : 0;
+    ** the center of the think rail lines.  If zero, then the vertical
+    ** merge lines overlap with the thicker rail lines.
+    */
+    mergeOffset = iRailPitch>=14 ? 4 : iRailPitch>=13 ? 3 : 0;
+    if( PB("nomo") ) mergeOffset = 0;
 
     @ <script>
-    @ var railPitch=%d(pGraph->iRailPitch);
+    @ var railPitch=%d(iRailPitch);
 
     /* the rowinfo[] array contains all the information needed to generate
     ** the graph.  Each entry contains information for a single row:
@@ -658,7 +663,7 @@ void timeline_output_graph_javascript(
       if( mo<0 ){
         mo = 0;
       }else{
-        int x = (mo/4)*pGraph->iRailPitch;
+        int x = (mo/4)*iRailPitch;
         switch( mo&3 ){
           case 0: x -= mergeOffset-2;  break;
           case 1: x += 1;              break;
@@ -691,7 +696,9 @@ void timeline_output_graph_javascript(
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
-          int mi = i*pGraph->iRailPitch - mergeOffset*(2 - pRow->mergeIn[i]);
+          int mi = i*iRailPitch;
+          if( pRow->mergeIn[i]==1 ) mi -= mergeOffset-1;
+          if( pRow->mergeIn[i]==3 ) mi += mergeOffset;
           if( pRow->mergeDown & (1<<i) ) mi = -mi;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
@@ -821,6 +828,7 @@ void timeline_output_graph_javascript(
     @     }else{
     @       drawThinLine(x0,y1,x1,y1);
     @     }
+    if( mergeOffset>0 ) cgi_printf("if( p.mo!=p.u-1 ) ");
     @     drawThinLine(x1,y0,x1,y1);
     @   }
     @   var n = p.au.length;
