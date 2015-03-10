@@ -1,5 +1,5 @@
-C Improved\sarrowheads\son\sthe\stimeline\sgraph.
-D 2015-03-09T18:14:30.122
+C Add\sthe\s-r\soption\sto\sthe\s"ls"\scommand.
+D 2015-03-10T00:17:26.656
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -356,7 +356,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 92403763ed6b734fedf133a17dcdf0ee21dad3ec
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c 6a639ee27f9d4a07aae3ab6ae604db490d4baf53
+F src/checkin.c f419771761a2f7c997fbadf2e7dfd5731a1c52c9
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 17a56a8a39befb6f7d8f1aa87deeadb7d2833b1e
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P c68c68d9d10947445b0f685ee4c46b6ed55b7fa5
-R de5305adf6f9540614def76cbde12635
+P 3c8b24d402037de4df0b2f9b3828bb0fc56bccbb 4f46e4f910a717c1818a819034d7e7910c5db1f8
+R 15486b7285cff8ccb2ded29c0a13129e
 U drh
-Z 39008310a0a86a61d7d902ac995d978f
+Z 50c1fe7e965e1b06965f2611110f8233
