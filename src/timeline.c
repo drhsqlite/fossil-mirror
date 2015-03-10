@@ -792,11 +792,13 @@ void timeline_output_graph_javascript(
     @   if( xFrom<xTo ){
     @     drawBox(lineClr,xFrom,y,xTo-3,y);
     @     n.style.left = xTo-3+"px";
+    @     n.style.borderLeftStyle = "inset";
     @     n.style.borderLeftWidth = "3px";
     @     n.style.borderLeftColor = "#000";
     @   }else{
     @     drawBox(lineClr,xTo+3,y,xFrom,y);
     @     n.style.left = xTo+1+"px";
+    @     n.style.borderRightStyle = "outset";
     @     n.style.borderRightWidth = "3px";
     @     n.style.borderRightColor = "#000";
     @   }
@@ -842,9 +844,24 @@ void timeline_output_graph_javascript(
     @     }else{
     @       drawBox("#600000",x0,p.y,x1,p.y+1);
     @       drawBox("#600000",x1-1,p.y,x1,u.y+1);
-    @       drawBox("#600000",x1,u.y,u.x-6,u.y+1);
-    @       drawBox("#600000",u.x-9,u.y-1,u.x-8,u.y+2);
-    @       drawBox("#600000",u.x-11,u.y-2,u.x-10,u.y+3);
+    @       drawBox("#600000",x1,u.y,u.x-10,u.y+1);
+    @       var n = document.createElement("div"),
+    @           t = u.y-2,
+    @           l = u.x-11;
+    @       n.style.position = "absolute";
+    @       n.style.top = t+"px";
+    @       n.style.left = l+"px";
+    @       n.style.width = 0;
+    @       n.style.height = 0;
+    @       n.style.borderWidth = 0;
+    @       n.style.borderStyle = "solid";
+    @       n.style.borderColor = "transparent";
+    @       n.style.borderTopWidth = "3px";
+    @       n.style.borderBottomWidth = "3px";
+    @       n.style.borderLeftStyle = "inset";
+    @       n.style.borderLeftWidth = "7px";
+    @       n.style.borderLeftColor = "#600000";
+    @       cDiv.appendChild(n);
     @     }
     @   }
     @   for(var j in p.mi){
