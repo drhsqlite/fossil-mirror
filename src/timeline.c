@@ -692,7 +692,9 @@ void timeline_output_graph_javascript(
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
-          int mi = i*pGraph->iRailPitch - mergeOffset*(2 - pRow->mergeIn[i]);
+          int mi = i*pGraph->iRailPitch;
+          if( pRow->mergeIn[i]==1 ) mi -= mergeOffset-1;
+          if( pRow->mergeIn[i]==3 ) mi += mergeOffset;
           if( pRow->mergeDown & (1<<i) ) mi = -mi;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
