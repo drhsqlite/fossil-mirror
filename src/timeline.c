@@ -828,7 +828,7 @@ void timeline_output_graph_javascript(
     @     }else{
     @       drawThinLine(x0,y1,x1,y1);
     @     }
-    if( mergeOffset>0 ) cgi_printf("if( p.mo!=p.u-1 ) ");
+    if( mergeOffset==0 ) cgi_printf("if( p.mo!=p.u-1 ) ");
     @     drawThinLine(x1,y0,x1,y1);
     @   }
     @   var n = p.au.length;
