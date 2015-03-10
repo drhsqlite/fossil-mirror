@@ -1,5 +1,5 @@
-C Add\santi-aliasing\sto\stimewarp\sarrowheads.\s\sImprove\sthe\santi-aliasing\son\nmerge\sarrowheads.
-D 2015-03-10T18:46:23.440
+C Fix\sfile_is_absolute_path(),\saccounting\sfor\s"C:"\sbeing\san\sabsolute\spath
+D 2015-03-10T21:00:15.320
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -379,7 +379,7 @@ F src/doc.c 3f153d8c9f27a3adf4a14908a6551632dba36b05
 F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
-F src/file.c b679d1682780c813c97c0de352e671d0ad40dca4
+F src/file.c 884b233bc94c8e7a24644ac815bc174756421545
 F src/finfo.c 640d7c4410873a0a26eb4bb37894ca375bd50356
 F src/foci.c 8e1553ee3a2db6b73497b4cfca8d4b8fe89e2471
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 151717fc48f0a707f39ea17aaf5463beb8763a06
-R 4c5b553d350a6fe789d4935c8ae02c63
-U drh
-Z 3c2f20b409938e8787a14e92c8f9419f
+P f99848e04832e6b7d2ccdc85e1bd820fd4143721
+R 84ba5be168082880f08fad2f2c4155ae
+U jan.nijtmans
+Z c1ef182cf243506713b50fa18989f4c0
