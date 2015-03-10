@@ -1,5 +1,5 @@
-C Allow\sthe\srail\spatch\son\sgraphs\sto\sgo\sas\slow\sas\s11\spixels.\s\sAdjust\sthe\soffset\nof\sthe\smerge\srisers\sas\sthe\srail\spitch\sgets\ssmaller\sso\sthat\smerge\sarrows\sdo\nnot\soverlap\sthe\smerge\srisers.
-D 2015-03-10T02:21:06.116
+C Add\sthe\sexperiemental\s"nomo"\squery\sparameter\son\sthe\stimeline\sgraph.
+D 2015-03-10T02:39:38.080
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -464,7 +464,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c e79b55e41e0fabdcbb115845f0a7776ef9b1953b
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c 3764b167e11f9b028b25c97bdeae30a31a3102c2
+F src/timeline.c 9fdd109732132431d6dad8346bee3b86be1b3021
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
 F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -702,7 +702,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e567a910de739d0cf9f684ead99bfe9a34470b5f
-R 4a71379ac71cdfc81ddeccb0d5301fdf
+P e81344f3bd663c143ed3e9857fb794bc596fdae0
+R 49a965150bc0d99a1b5121efd518b2a5
+T *branch * ex-graph
+T *sym-ex-graph *
+T -sym-trunk *
 U drh
-Z 3e7362981cdfeff0414971e28ad0dfd5
+Z 2ac471ddf7a26d2240b64680d06d5448

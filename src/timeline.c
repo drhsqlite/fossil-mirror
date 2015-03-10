@@ -617,6 +617,7 @@ void timeline_output_graph_javascript(
     /* Number of pixels that the thin merge lines are offset from the
     ** the center of the think rail lines */
     mergeOffset = pGraph->iRailPitch>=14 ? 4 : pGraph->iRailPitch>=13 ? 3 : 0;
+    if( PB("nomo") ) mergeOffset = 0;
 
     @ <script>
     @ var railPitch=%d(pGraph->iRailPitch);
@@ -821,6 +822,7 @@ void timeline_output_graph_javascript(
     @     }else{
     @       drawThinLine(x0,y1,x1,y1);
     @     }
+    if( mergeOffset>0 ) cgi_printf("if( p.mo!=p.u-1 ) ");
     @     drawThinLine(x1,y0,x1,y1);
     @   }
     @   var n = p.au.length;
