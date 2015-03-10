@@ -49,7 +49,7 @@ struct GraphRow {
   u8 timeWarp;                /* Child is earlier in time */
   u8 bDescender;              /* True if riser from bottom of graph to here. */
   i8 iRail;                   /* Which rail this check-in appears on. 0-based.*/
-  i8 mergeOut;                /* Merge out to this rail.  -1 if no merge-out */
+  i8 mergeOut;                /* Merge out on rail mergeOut/4.  -1 for none */
   u8 mergeIn[GR_MAX_RAIL];    /* Merge in from non-zero rails */
   int aiRiser[GR_MAX_RAIL];   /* Risers from this node to a higher row. */
   int mergeUpto;              /* Draw the mergeOut rail up to this level */
@@ -586,7 +586,10 @@ void graph_finish(GraphContext *p, int omitDescenders){
   ** Find the maximum rail number.
   */
   find_max_rail(p);
-  p->iRailPitch = 18 - (p->mxRail/3);
-  if( p->iRailPitch<12 ) p->iRailPitch = 12;
+  p->iRailPitch = atoi(PD("railpitch","0"));
+  if( p->iRailPitch<=0 ){
+    p->iRailPitch = 18 - (p->mxRail/3);
+    if( p->iRailPitch<11 ) p->iRailPitch = 11;
+  }
   p->nErr = 0;
 }

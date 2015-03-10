@@ -612,6 +612,11 @@ void timeline_output_graph_javascript(
     GraphRow *pRow;
     int i;
     char cSep;
+    int mergeOffset;
+
+    /* Number of pixels that the thin merge lines are offset from the
+    ** the center of the think rail lines */
+    mergeOffset = pGraph->iRailPitch>=14 ? 4 : pGraph->iRailPitch>=13 ? 3 : 0;
 
     @ <script>
     @ var railPitch=%d(pGraph->iRailPitch);
@@ -653,7 +658,13 @@ void timeline_output_graph_javascript(
       if( mo<0 ){
         mo = 0;
       }else{
-        mo = (mo/4)*pGraph->iRailPitch - 3 + 4*(mo&3);
+        int x = (mo/4)*pGraph->iRailPitch;
+        switch( mo&3 ){
+          case 0: x -= mergeOffset-2;  break;
+          case 1: x += 1;              break;
+          case 2: x += mergeOffset+1;  break;
+        }
+        mo = x;
       }
       cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,f:%d,au:",
         pRow->idx,                      /* id */
@@ -680,7 +691,7 @@ void timeline_output_graph_javascript(
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
-          int mi = i*pGraph->iRailPitch - 8 + 4*pRow->mergeIn[i];
+          int mi = i*pGraph->iRailPitch - mergeOffset*(2 - pRow->mergeIn[i]);
           if( pRow->mergeDown & (1<<i) ) mi = -mi;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
