@@ -1,5 +1,5 @@
-C Fix\sfile_is_absolute_path(),\saccounting\sfor\s"C:"\sbeing\san\sabsolute\spath
-D 2015-03-10T21:00:15.320
+C In\sthe\s"server.wiki"\sdocument,\suse\sstandard\sHTTP\sports\sfor\sthe\sexamples.
+D 2015-03-11T02:06:19.230
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -687,7 +687,7 @@ F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 45a497a26ea940ef945a4c34cc1458ddddf304d6
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki c8e2660ea98fde9873542e6c905418c78765090b
+F www/server.wiki 3e4c81928384c129f86445928c337594d8c82ef0
 F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P f99848e04832e6b7d2ccdc85e1bd820fd4143721
-R 84ba5be168082880f08fad2f2c4155ae
-U jan.nijtmans
-Z c1ef182cf243506713b50fa18989f4c0
+P 573bbd3eb94b7d3f64bea1edff4fc0b17839dda0
+R d09923d00563faa4f29edea60f013106
+U drh
+Z dbf5baccad1d242018513557c27334ba
