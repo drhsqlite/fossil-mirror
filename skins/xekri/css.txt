@@ -21,7 +21,7 @@ body {
 }
 
 a {
-  color: #44e;
+  color: #07e;
 }
 
 a:hover {
@@ -100,7 +100,7 @@ div.logo nobr {
 }
 
 div.title {
-  color: #22e;
+  color: #07e;
   font-family: Verdana, sans-serif;
   font-weight: bold;
   font-size: 2.5rem;
@@ -488,8 +488,8 @@ table.captcha pre {
  */
 
 div.section, div.sectionmenu {
-  color: #eee;
-  background-color: #22e;
+  color: #2ee;
+  background-color: #22c;
   border-radius: 0 3rem;
   box-shadow: 2px 2px #000;
   display: flex;
@@ -508,7 +508,7 @@ div.sectionmenu {
 }
 
 div.sectionmenu > a:link, div.sectionmenu > a:visited {
-  color: #000;
+  color: #888;
   text-decoration: none;
 }
 
