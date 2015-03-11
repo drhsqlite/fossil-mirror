@@ -1,5 +1,5 @@
-C Updated\sthe\scolors\sto\sbe\seasier\sto\sread.\n\n\s\s*\s\sSection\sMenu\sLinks\sare\snow\sgrey\n\s\s*\s\sSection\sDiv's\sare\sdarker\swith\sa\shigher\scontrast\stext\n\s\s*\s\sTitle\sDiv\stext\shas\sa\shigher\scontrast\n\s\s*\s\sDefault\slink\scolor\shas\sa\shigher\scontrast
-D 2015-03-11T20:21:26.433
+C Fix\sthe\stext\scolor\son\sthe\s"blame"\spage\sto\smake\sit\seasier\sto\sread.
+D 2015-03-11T23:16:41.484
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -339,7 +339,7 @@ F skins/rounded1/css.txt cf2b6d826f72710f06de8e4ba9c11954d545f884
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 796995796778f171fe16bd50c486ab06214d0bf3
+F skins/xekri/css.txt cc41c76c759eb576b7f68119b50f6db14b5cab1d
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt f38e32ea185558d7be359afab65c335b29cb1782
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 56f9d72933fe966bfbc19cfe848a6c02f75d0f24
-R 4bbdb016ff912d155c416d941be31a8c
+P abacdcc398ae60e9cee0118b76bc6de255a277dc
+R 81e5f263ddaac78d7d1ff9a660cc52a2
 U zakero
-Z fcacdd80927030c8247db38ea8dbfb64
+Z 9cc29d8556622f205b1887fb1bb756b4

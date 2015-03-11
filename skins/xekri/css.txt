@@ -57,6 +57,9 @@ h3 {
   font-size: 1.25rem;
 }
 
+span[style^=background-color] {
+  color: #000;
+}
 
 /**************************************
  * Main Area
@@ -508,7 +511,7 @@ div.sectionmenu {
 }
 
 div.sectionmenu > a:link, div.sectionmenu > a:visited {
-  color: #888;
+  color: #000;
   text-decoration: none;
 }
 
