@@ -1,5 +1,5 @@
-C Fix\sthe\stext\scolor\son\sthe\s"blame"\spage\sto\smake\sit\seasier\sto\sread.
-D 2015-03-11T23:16:41.484
+C Merged\sthe\slatest\schanges\sfrom\strunk.
+D 2015-03-11T23:20:54.441
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -450,7 +450,7 @@ F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c 87a91b09ca9f595121d741c31ebd724d1e5df708
 F src/skins.c 2c8edaaf389c06a0f1af6aa923960e80beb1102b
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
-F src/sqlite3.c 722600f2119c595ce106d4fbd63a9595c84469e0
+F src/sqlite3.c 96f6ffa4db37d6abef8d840c8a99d7cc7db1bfb1
 F src/sqlite3.h f8151534e8c69113c7ce4dc7c8491932836095cd
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P abacdcc398ae60e9cee0118b76bc6de255a277dc
-R 81e5f263ddaac78d7d1ff9a660cc52a2
+P 836a89c5b250d1ef109174d9d8d4eefc63ea98ed 3e77213a7376fb48cad153331468ccdad6113b01
+R befa8c8d4e596c99750a8ad7a334fad5
 U zakero
-Z 9cc29d8556622f205b1887fb1bb756b4
+Z 93b3cb5e6bdbf147e04f7c538daf1d24
