@@ -1,5 +1,5 @@
-C Restore\s"fossil\snew\s--empty"\sand\s"docker\snew\s--docker".\sCorrect\shelp-text\sfor\s"fossil\snew"
-D 2015-03-13T09:11:12.346
+C Create\sa\schange\slog\sfor\sthe\s1.32\srelease.
+D 2015-03-13T13:34:07.419
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -619,7 +619,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki be1bf237c9d66f899206b454bc2c37b252cb7cfe
-F www/changes.wiki 11bd374ff6b1ff84e0b255a219bfa1f0c08218d4
+F www/changes.wiki 5b4a8527bf5742a24e2367fe7cd555fddf4fbbb7
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 18bfcfcf3b0c12ed2cd293c18d1c8bdcb67f998b
-R 7d96b1ad103b08e425f3a71265e26425
-U jan.nijtmans
-Z b3126129a0ade9cc17da302a644ad335
+P 68a4c33b2e1c9d98ef43bfacb25d170b14a3c4f6
+R 29fafdf8c32201e8975df294b2e57208
+U drh
+Z 33b47946045c76bcdb84dcc20b5b99ce
