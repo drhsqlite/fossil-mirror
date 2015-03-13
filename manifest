@@ -1,5 +1,5 @@
-C Remove\sthe\s--empty\sand\s--docker\soptions\sfrom\s"fossil\sinit".\s\sThe\screation\nof\sincompatible\sFossil\srepositories\sis\sprohibited.
-D 2015-03-13T14:01:22.874
+C Initial\scontribution\sof\sthe\sBlitz\sskin\s(two\svariants)
+D 2015-03-13T16:14:26.255
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -315,6 +315,23 @@ F skins/README.md 635d3230265fe31ceaa1c3c3b9b327e1fdc7c292
 F skins/black_and_white/css.txt 569f06d046846930594299a1e38714b50e0c74a7
 F skins/black_and_white/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/black_and_white/header.txt c74f3b8cfefae2e763d8f117dbd20e90c6dba33d
+F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
+F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
+F skins/blitz/css.txt f10bb06c1015336a533dfc8903e1b45b0eb1ac60
+F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
+F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
+F skins/blitz/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
+F skins/blitz/fossil_100.png fa1dca72090a10f4caac3e6bbb6fe5ca6f776fc7
+F skins/blitz/fossil_80_reversed_darkcyan.png c053b47fc8bd5e525ecefc69307ce66b6316fb7e
+F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f081e1817a34
+F skins/blitz/header.txt dd3d6689cea8c3ef821108fbe41507c59fc89cec
+F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
+F skins/blitz/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
+F skins/blitz_no_logo/README.md 24829897e941d1cef4f8b8d6291c86d9cfe17cd7
+F skins/blitz_no_logo/css.txt 524d93a94e80c95a71b9bdb695b2ec4a453216d8
+F skins/blitz_no_logo/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
+F skins/blitz_no_logo/header.txt 4e518c08679f3685f8bb9d38cf53a48cd0d9b12f
+F skins/blitz_no_logo/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
 F skins/default/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
 F skins/default/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
 F skins/default/header.txt e1f837ff2d7bbe1cda8ca6847875491f6b5b269a
@@ -413,7 +430,7 @@ F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 2abcbfe5306a237232816ebccbaf0b871e65d267
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c f8a3152207d87a3415fb8dcfeac8aed981e5cb82
-F src/main.mk 865a74db23622cec2b71c1b2d98eddf2abd9d0e3
+F src/main.mk 73c07fd74d90ec66d94d90aadf6475548287977c
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 30cb785cf251d0936df94c55da489e6c14fb738e
@@ -448,7 +465,7 @@ F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c f06cca68a3f07e03d35d2f879375967169db6a61
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c 87a91b09ca9f595121d741c31ebd724d1e5df708
-F src/skins.c 2c8edaaf389c06a0f1af6aa923960e80beb1102b
+F src/skins.c de4266ce199e417d262ba8c852886b841a35e119
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
 F src/sqlite3.c 96f6ffa4db37d6abef8d840c8a99d7cc7db1bfb1
 F src/sqlite3.h f8151534e8c69113c7ce4dc7c8491932836095cd
@@ -588,9 +605,9 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 68fbf55e0d94c4e7291437c3412e17786f47db78
 F win/Makefile.dmc 0cefec6ea838e5e0ee4fd2af7da607cda5eae8aa
-F win/Makefile.mingw 2367ba298fc6af04a4b2fcaac28b7e7e21cd8a87
+F win/Makefile.mingw d0785ef8f4304445f7b61d8797aaf785094e776e
 F win/Makefile.mingw.mistachkin 60224a20365c643b86c826a96941d2f5244dd150
-F win/Makefile.msc 13d4cd81d49386a03f12f4e194502fb60d7a3378
+F win/Makefile.msc 447b081a170cbe3aa05b6c45c93c304650db00c2
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -702,7 +719,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 7b074869b3a5001d5f1671abcb1b5584101b15cc
-R 88bc1637de2ae3e99d36c2b19399e63b
-U drh
-Z e9e4f6595d128068972ed526a4948c1f
+P 620783cae23d28bd73959006af71f859e8b7333e
+R 8fc5be22c299870e55e94a6842902fd6
+T *branch * skin-blitz
+T *sym-skin-blitz *
+T -sym-trunk *
+U jmoger
+Z 2617e326357288248130b378a36e6201
