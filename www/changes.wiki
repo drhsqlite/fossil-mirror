@@ -1,5 +1,21 @@
 <title>Change Log</title>
 
+<h2>Changes for Version 1.32 (2015-03-??)</h2>
+  *  When creating a new repository using [/help?cmd=init|fossil init], ensure
+     that the new repository is fully compatible with historical versions of
+     Fossil by having a valid manifest as RID 1.
+  *  Anti-aliased rendering of arrowheads on timeline graphs.
+  *  Added vi/less-style key bindings to the --tk diff GUI.
+  *  Documentation updates to fix spellings and changes all "checkins" to
+     "check-ins".
+  *  Add the --repolist option to server commands such as
+     [/help?cmd=server|fossil server] or [/help?cmd=http|fossil http].
+  *  Added the "Xekri" skin.
+  *  Enhance the "ln=" query parameter on artifact displays to accept multiple
+     ranges, separate by spaces (or "+" when URL-encoded).
+  *  Added [/help?cmd=forget|fossil forget] as an alias for 
+     [/help?cmd=rm|fossil rm].
+
 <h2>Changes For Version 1.31 (2015-02-23)</h2>
   *  Change the auxiliary schema by adding columns MLINK.ISAUX and MLINK.PMID
      columns to the schema, to support better drawing of file change graphs.
