@@ -1660,7 +1660,7 @@ void db_initial_setup(
 **    --template      FILE      copy settings from repository file
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial check-in
-**                              (default: do not create an initial check-in)
+**    --empty                   do not create an initial check-in
 **
 ** See also: clone
 */
@@ -1670,13 +1670,13 @@ void create_repository_cmd(void){
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
   int makeServerCodes;
+  int makeEmptyRepository;
 
   zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
   makeServerCodes = find_option("docker", 0, 0)==0;
-
-  find_option("empty", 0, 0); /* deprecated */
+  makeEmptyRepository = (find_option("empty", 0, 0)!=0) || (makeServerCodes==0);
   /* We should be done with options.. */
   verify_all_options();
 
@@ -1693,7 +1693,7 @@ void create_repository_cmd(void){
   db_open_config(0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
-  if( zDate==0 ) zDate = "now";
+  if( zDate==0 && makeEmptyRepository==0 ) zDate = "now";
   db_initial_setup(zTemplate, zDate, zDefaultUser, makeServerCodes);
   db_end_transaction(0);
   if( zTemplate ) db_detach("settingSrc");
