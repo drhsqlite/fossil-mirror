@@ -1693,6 +1693,7 @@ void create_repository_cmd(void){
   db_open_config(0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
+  if( zDate==0 ) zDate = "now";
   db_initial_setup(zTemplate, zDate, zDefaultUser, makeServerCodes);
   db_end_transaction(0);
   if( zTemplate ) db_detach("settingSrc");
