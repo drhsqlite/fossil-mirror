@@ -1,5 +1,5 @@
-C Remove\sfrom\sthe\shomepage\sthe\sassertion\sthat\s"no\swork\shas\sever\sbeen\slost\nafter\shaving\sbeen\scommitted\sto\sa\sFossil\srepository"\sbecause\speople\shave\nin\sfact\slost\swork\sdue\sto\sthe\sbug\sfixed\sby\sthe\sprevious\scheck-in.
-D 2015-03-13T01:03:01.739
+C Update\sthe\sversion\snumber\sto\s1.32.
+D 2015-03-13T01:23:02.489
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -13,7 +13,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile e6ea4b106b9d19278486f544d44fc1b02210adec
 F Makefile.classic 8860fc8763421cb968e05bdd361311f9a443fc07
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
-F VERSION 5bd5965584001ecca11c52ce37a2c591b3a1955b
+F VERSION 02c9e548dd1b3e511f161b1e27cf60d8f5c79e7d
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P a56e6bbfc6c51b944fbb1b1173ceceafb7849738
-R aacefb30f12ca897963c39492e939dbe
+P 1f411eee4c926a58f9e23384a2683dbb6c165553
+R e955925504bea1a52bda914572673fa9
 U drh
-Z 797f55996158d3008c35a80024a71c7f
+Z 7f0f6805626e4f0e5262b7f1456c2a79
