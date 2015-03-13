@@ -21,7 +21,7 @@ body {
 }
 
 a {
-  color: #44e;
+  color: #07e;
 }
 
 a:hover {
@@ -57,6 +57,9 @@ h3 {
   font-size: 1.25rem;
 }
 
+span[style^=background-color] {
+  color: #000;
+}
 
 /**************************************
  * Main Area
@@ -100,7 +103,7 @@ div.logo nobr {
 }
 
 div.title {
-  color: #22e;
+  color: #07e;
   font-family: Verdana, sans-serif;
   font-weight: bold;
   font-size: 2.5rem;
@@ -256,7 +259,7 @@ span.diffrm {
 /* display (column-based) */
 table.sbsdiffcols {
   border-spacing: 0;
-  font-size: 0.75em;
+  font-size: 0.85rem;
   width: 90%;
 }
 
@@ -488,8 +491,8 @@ table.captcha pre {
  */
 
 div.section, div.sectionmenu {
-  color: #eee;
-  background-color: #22e;
+  color: #2ee;
+  background-color: #22c;
   border-radius: 0 3rem;
   box-shadow: 2px 2px #000;
   display: flex;
