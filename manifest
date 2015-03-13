@@ -1,5 +1,5 @@
-C Merged\sthe\slatest\schanges\sfrom\strunk.
-D 2015-03-11T23:20:54.441
+C Updated\sthe\sheader\smenu\sto\sbe\sconsistent\swith\sthe\sother\sskins.
+D 2015-03-13T20:02:22.674
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -341,7 +341,7 @@ F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
 F skins/xekri/css.txt cc41c76c759eb576b7f68119b50f6db14b5cab1d
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
-F skins/xekri/header.txt f38e32ea185558d7be359afab65c335b29cb1782
+F skins/xekri/header.txt 0db90e00529d8bd44fb5ff13e4be967610e61aed
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c ec438f737602841783a839a26bbe98221100df01
 F src/allrepo.c d44cc238625534b90238714b4607c7cdd04f3a59
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 836a89c5b250d1ef109174d9d8d4eefc63ea98ed 3e77213a7376fb48cad153331468ccdad6113b01
-R befa8c8d4e596c99750a8ad7a334fad5
+P 72518c1239131bd1450a1b0c472ddae0111bf53d
+R a609ea033697ef82b8198072059bb02f
 U zakero
-Z 93b3cb5e6bdbf147e04f7c538daf1d24
+Z 1280bc5ae90fd5150d620bac06642fc7
