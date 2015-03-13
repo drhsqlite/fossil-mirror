@@ -1,5 +1,5 @@
-C When\screating\sa\snew\srepository\salways\sgenerate\san\s"initial\sempty\scheck-in"\nfor\scompatibility\swith\sFossil\s1.27\sand\searlier.
-D 2015-03-13T01:00:13.287
+C Remove\sfrom\sthe\shomepage\sthe\sassertion\sthat\s"no\swork\shas\sever\sbeen\slost\nafter\shaving\sbeen\scommitted\sto\sa\sFossil\srepository"\sbecause\speople\shave\nin\sfact\slost\swork\sdue\sto\sthe\sbug\sfixed\sby\sthe\sprevious\scheck-in.
+D 2015-03-13T01:03:01.739
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -670,7 +670,7 @@ F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki 1b508177aeff0580a7544942681de2d0b00c705d
-F www/index.wiki cf377cae7f9ffd87373212ad8f33c8f72a57823b
+F www/index.wiki ed2340fa4a69d437e8d796814a12cde3fa9d290a
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
 F www/mkdownload.tcl 0fb977f0644549fa063e4bfedd2bdf062abf97e8
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 3e77213a7376fb48cad153331468ccdad6113b01
-R 566ca53dfd87364920fdb31b000fc76b
+P a56e6bbfc6c51b944fbb1b1173ceceafb7849738
+R aacefb30f12ca897963c39492e939dbe
 U drh
-Z d30112030d9c2b21c24329f9720a4d0b
+Z 797f55996158d3008c35a80024a71c7f
