@@ -43,16 +43,16 @@ static struct BuiltinSkin {
   char *zSQL;           /* Filled in at run-time with SQL to insert this skin */
 } aBuiltinSkin[] = {
   { "Default",                           "default",           0, 0 },
-  { "Plain Gray, No Logo",               "plain_gray",        0, 0 },
-  { "Khaki, No Logo",                    "khaki",             0, 0 },
-  { "Black & White, Menu on Left",       "black_and_white",   0, 0 },
-  { "Shadow boxes & Rounded Corners",    "rounded1",          0, 0 },
-  { "Enhanced Default",                  "enhanced1",         0, 0 },
-  { "San Francisco Modern",              "etienne1",          0, 0 },
-  { "Eagle",                             "eagle",             1, 0 },
-  { "Xekri",                             "xekri",             0, 0 },
   { "Blitz",                             "blitz",             0, 0 },
   { "Blitz, No Logo",                    "blitz_no_logo",     0, 0 },
+  { "Xekri",                             "xekri",             0, 0 },
+  { "Original",                          "original",          0, 0 },
+  { "Enhanced Original",                 "enhanced1",         0, 0 },
+  { "Shadow boxes & Rounded Corners",    "rounded1",          0, 0 },
+  { "Eagle",                             "eagle",             1, 0 },
+  { "Black & White, Menu on Left",       "black_and_white",   0, 0 },
+  { "Plain Gray, No Logo",               "plain_gray",        0, 0 },
+  { "Khaki, No Logo",                    "khaki",             0, 0 },
 };
 
 /*
