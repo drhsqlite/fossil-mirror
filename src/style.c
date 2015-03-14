@@ -327,12 +327,10 @@ static void url_var(
   const char *zConfigName,
   const char *zPageName
 ){
-  char *zMtime = db_get_mtime(zConfigName, 0, 0);
-  char *zUrl = mprintf("%s/%s/%s%.5s", g.zTop, zPageName, zMtime,
-                       MANIFEST_UUID);
   char *zVarName = mprintf("%s_url", zVarPrefix);
+  char *zUrl = mprintf("%s/%s?id=%x", g.zTop, zPageName,
+                       skin_id(zConfigName));
   Th_Store(zVarName, zUrl);
-  free(zMtime);
   free(zUrl);
   free(zVarName);
 }

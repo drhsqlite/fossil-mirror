@@ -1,5 +1,5 @@
-C The\sformer\s"San\sFrancisco\sModern"\sskin\sis\snow\sthe\sdefault.\s\sThe\sold\sdefault\nskin\sis\srenamed\sto\s"Original".
-D 2015-03-14T14:46:01.228
+C Improved\smanagement\sof\sresource\snames\sso\sthat\sit\sis\snot\snecessary\sto\spress\n"Reload"\safter\schanging\sskins\seither\sin\sthe\sadmin\sscreens\sor\susing\sthe\s--skin\ncommand-line\soption.
+D 2015-03-14T15:21:53.225
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -324,18 +324,18 @@ F skins/blitz/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
 F skins/blitz/fossil_100.png fa1dca72090a10f4caac3e6bbb6fe5ca6f776fc7
 F skins/blitz/fossil_80_reversed_darkcyan.png c053b47fc8bd5e525ecefc69307ce66b6316fb7e
 F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f081e1817a34
-F skins/blitz/header.txt dd3d6689cea8c3ef821108fbe41507c59fc89cec
+F skins/blitz/header.txt 14ad6c45e2eb7e4664f362663e699e52a6e26bce
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
 F skins/blitz_no_logo/README.md 24829897e941d1cef4f8b8d6291c86d9cfe17cd7
 F skins/blitz_no_logo/css.txt 524d93a94e80c95a71b9bdb695b2ec4a453216d8
 F skins/blitz_no_logo/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
-F skins/blitz_no_logo/header.txt 4e518c08679f3685f8bb9d38cf53a48cd0d9b12f
+F skins/blitz_no_logo/header.txt fdfffc2be91c2d45f410e953337fa2aa55c58b96
 F skins/blitz_no_logo/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt 3644519916de6a497cbda2baac0bd4abdbdce038
 F skins/default/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
-F skins/default/header.txt a2e75e85ebf23af7b4bbbb4a6f35cb92aaec65cd
+F skins/default/header.txt 382e13d2c8147320bb3598611f4625638f7694ad
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 561c02a1ad76e163549e3faedeb041dd02c081b4
 F skins/eagle/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
@@ -465,14 +465,14 @@ F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c f06cca68a3f07e03d35d2f879375967169db6a61
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c 87a91b09ca9f595121d741c31ebd724d1e5df708
-F src/skins.c ed51cccd7f4fd132b800a7a730ba68963ec712ee
+F src/skins.c 07c9e4ca7092265c227cdc1f822ecf902f280ba3
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
 F src/sqlite3.c 96f6ffa4db37d6abef8d840c8a99d7cc7db1bfb1
 F src/sqlite3.h f8151534e8c69113c7ce4dc7c8491932836095cd
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
 F src/statrep.c b7bd715a0429375342af08151854d62b467c4792
-F src/style.c f200b94959cbea987bdb40e6737b00a8cfc9031a
+F src/style.c 04648413ce04acf03d58a6f3fd92c5eb93a978ca
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 807b4154d67dc0bf02089d61bda5cac84bf7d44b
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -719,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 6550b5551cc82f78cd1516da724c8f19d2da0c26
-R 2b5425619005666d231153bdf4f18b34
+P 756a58531b07a8c6b02926d5075bcc8f0dd4c8ce
+R 523dec580aa185a27a936dd8d016ffea
 U drh
-Z bcd4bc50f18cd402e41067bdb9b82102
+Z c419a23cd2ec63976798b06dabc666ae
