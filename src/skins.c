@@ -51,6 +51,8 @@ static struct BuiltinSkin {
   { "San Francisco Modern",              "etienne1",          0, 0 },
   { "Eagle",                             "eagle",             1, 0 },
   { "Xekri",                             "xekri",             0, 0 },
+  { "Blitz",                             "blitz",             0, 0 },
+  { "Blitz, No Logo",                    "blitz_no_logo",     0, 0 },
 };
 
 /*
