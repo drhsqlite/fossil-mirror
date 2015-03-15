@@ -1,5 +1,5 @@
-C Update\sthe\scustom\sMinGW\smakefile.
-D 2015-03-15T03:45:23.313
+C Remove\sRSS\sicon\sfrom\sthe\s'eagle'\sand\s'enhanced1'\sskins,\sas\sit\scurrently\sdoes\snot\slook\sright.
+D 2015-03-15T03:58:11.821
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -339,10 +339,10 @@ F skins/default/header.txt 382e13d2c8147320bb3598611f4625638f7694ad
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 561c02a1ad76e163549e3faedeb041dd02c081b4
 F skins/eagle/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
-F skins/eagle/header.txt 36e8648053054e1cf4851c796fb968d07562d127
+F skins/eagle/header.txt 6c91395abefbaba9e54d475e0ee3839ff8dfd535
 F skins/enhanced1/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
 F skins/enhanced1/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
-F skins/enhanced1/header.txt 3636b33c5e197111e94bd2ac2cd148e3f6434e7e
+F skins/enhanced1/header.txt 4f57da29b372156822ccd2dfbe1f7420c1c3b429
 F skins/khaki/css.txt 2a210e3703806e09e04a739eb9877a4b953528e7
 F skins/khaki/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/khaki/header.txt 609fe1dd9dd3afdfe2777ce207a2012cb36c3f64
@@ -719,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P fee8c197496d73697c187787db38927c8d32f4ae
-R 7a305ec685fcdc37f00bcefe01df2f7c
+P 6ac8871cc188bbd6ab7bf79d8435414a1e4cc3f4
+R f8844d6e6d5cf9e3450e40bc3141e865
 U mistachkin
-Z e10f865b2d095aaaaa3c20c0f0651608
+Z 8c32e6f7c17510c83232645ffc8fb4e4

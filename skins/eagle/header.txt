@@ -72,11 +72,6 @@
     </th1>
     <a href="$logourl">
       <img src="$logo_image_url" border="0" alt="$project_name">
-      <th1>
-        if {[anycap jor]} {
-          html "<a class='rss' href='$home/timeline.rss'></a>"
-        }
-      </th1>
     </a>
   </div>
   <div class="title">$<title></div>
