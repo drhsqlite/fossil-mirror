@@ -43,14 +43,16 @@ static struct BuiltinSkin {
   char *zSQL;           /* Filled in at run-time with SQL to insert this skin */
 } aBuiltinSkin[] = {
   { "Default",                           "default",           0, 0 },
+  { "Blitz",                             "blitz",             0, 0 },
+  { "Blitz, No Logo",                    "blitz_no_logo",     0, 0 },
+  { "Xekri",                             "xekri",             0, 0 },
+  { "Original",                          "original",          0, 0 },
+  { "Enhanced Original",                 "enhanced1",         0, 0 },
+  { "Shadow boxes & Rounded Corners",    "rounded1",          0, 0 },
+  { "Eagle",                             "eagle",             1, 0 },
+  { "Black & White, Menu on Left",       "black_and_white",   0, 0 },
   { "Plain Gray, No Logo",               "plain_gray",        0, 0 },
   { "Khaki, No Logo",                    "khaki",             0, 0 },
-  { "Black & White, Menu on Left",       "black_and_white",   0, 0 },
-  { "Shadow boxes & Rounded Corners",    "rounded1",          0, 0 },
-  { "Enhanced Default",                  "enhanced1",         0, 0 },
-  { "San Francisco Modern",              "etienne1",          0, 0 },
-  { "Eagle",                             "eagle",             1, 0 },
-  { "Xekri",                             "xekri",             0, 0 },
 };
 
 /*
@@ -149,6 +151,40 @@ int skin_white_foreground(void){
     rc = db_get_boolean("white-foreground",0);
   }
   return rc;
+}
+
+/*
+** Hash function for computing a skin id.
+*/
+static unsigned int skin_hash(unsigned int h, const char *z){
+  if( z==0 ) return h;
+  while( z[0] ){
+    h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[0];
+    z++;
+  }
+  return h;
+}
+
+/*
+** Return an identifier that is (probably) different for every skin
+** but that is (probably) the same if the skin is unchanged.  This
+** identifier can be attached to resource URLs to force reloading when
+** the resources change but allow the resources to be read from cache
+** as long as they are unchanged.
+*/
+unsigned int skin_id(const char *zResource){
+  unsigned int h = 0;
+  if( zAltSkinDir ){
+    h = skin_hash(0, zAltSkinDir);
+  }else if( pAltSkin ){
+    h = skin_hash(0, pAltSkin->zLabel);
+  }else{
+    char *zMTime = db_get_mtime(zResource, 0, 0);
+    h = skin_hash(0, zMTime);
+    fossil_free(zMTime);
+  }
+  h = skin_hash(h, MANIFEST_UUID);
+  return h;
 }
 
 /*

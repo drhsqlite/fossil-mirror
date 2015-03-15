@@ -338,6 +338,14 @@ SRC   = add_.c \
 EXTRA_FILES   = $(SRCDIR)\../skins/black_and_white/css.txt \
         $(SRCDIR)\../skins/black_and_white/footer.txt \
         $(SRCDIR)\../skins/black_and_white/header.txt \
+        $(SRCDIR)\../skins/blitz/css.txt \
+        $(SRCDIR)\../skins/blitz/footer.txt \
+        $(SRCDIR)\../skins/blitz/header.txt \
+        $(SRCDIR)\../skins/blitz/ticket.txt \
+        $(SRCDIR)\../skins/blitz_no_logo/css.txt \
+        $(SRCDIR)\../skins/blitz_no_logo/footer.txt \
+        $(SRCDIR)\../skins/blitz_no_logo/header.txt \
+        $(SRCDIR)\../skins/blitz_no_logo/ticket.txt \
         $(SRCDIR)\../skins/default/css.txt \
         $(SRCDIR)\../skins/default/footer.txt \
         $(SRCDIR)\../skins/default/header.txt \
@@ -347,12 +355,12 @@ EXTRA_FILES   = $(SRCDIR)\../skins/black_and_white/css.txt \
         $(SRCDIR)\../skins/enhanced1/css.txt \
         $(SRCDIR)\../skins/enhanced1/footer.txt \
         $(SRCDIR)\../skins/enhanced1/header.txt \
-        $(SRCDIR)\../skins/etienne1/css.txt \
-        $(SRCDIR)\../skins/etienne1/footer.txt \
-        $(SRCDIR)\../skins/etienne1/header.txt \
         $(SRCDIR)\../skins/khaki/css.txt \
         $(SRCDIR)\../skins/khaki/footer.txt \
         $(SRCDIR)\../skins/khaki/header.txt \
+        $(SRCDIR)\../skins/original/css.txt \
+        $(SRCDIR)\../skins/original/footer.txt \
+        $(SRCDIR)\../skins/original/header.txt \
         $(SRCDIR)\../skins/plain_gray/css.txt \
         $(SRCDIR)\../skins/plain_gray/footer.txt \
         $(SRCDIR)\../skins/plain_gray/header.txt \
