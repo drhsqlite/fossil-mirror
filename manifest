@@ -1,5 +1,5 @@
-C Update\sthe\s'eagle'\sskin\sto\suse\sthe\s'menulink'\sprocedure.
-D 2015-03-15T03:43:03.360
+C Updates\sto\sthe\s'enhanced1'\sskin.
+D 2015-03-15T03:43:39.086
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -341,8 +341,8 @@ F skins/eagle/css.txt 561c02a1ad76e163549e3faedeb041dd02c081b4
 F skins/eagle/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
 F skins/eagle/header.txt 36e8648053054e1cf4851c796fb968d07562d127
 F skins/enhanced1/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
-F skins/enhanced1/footer.txt 12d9581af14a2980778c00d83756db293b363c83
-F skins/enhanced1/header.txt 1fd3a93e575374bd1ddd7c8c41372830055368b0
+F skins/enhanced1/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
+F skins/enhanced1/header.txt 3636b33c5e197111e94bd2ac2cd148e3f6434e7e
 F skins/khaki/css.txt 2a210e3703806e09e04a739eb9877a4b953528e7
 F skins/khaki/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/khaki/header.txt 609fe1dd9dd3afdfe2777ce207a2012cb36c3f64
@@ -719,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 1992856655fd427d5a2df4bc8cc0143a0f0a4ed6
-R 66f33c17c60f184cda9f06cf66048431
+P 6440c7f91d87b1cf4acc0fc3c92754b9c7deb58e
+R aef383a463fc436ba46f12df0a65dbab
 U mistachkin
-Z eef423d639206eb242e884751284dabe
+Z 8e8c2dadfd1ddac22644138f921750d1
