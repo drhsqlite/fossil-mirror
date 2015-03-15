@@ -422,9 +422,13 @@ void capture_metadata_only_option(void){
 **
 ** Remove one or more files or directories from the repository.
 **
-** This command does NOT remove the files from disk.  It just marks the
-** files as no longer being part of the project.  In other words, future
-** changes to the named files will not be versioned.
+** This command does NOT normally remove the files from disk.  It just
+** marks the files as no longer being part of the project.  In other
+** words, future changes to the named files will not be versioned.
+**
+** WARNING: If either the "--metadata-only 0" or "--hard" option is
+**          specified -OR- the "remove-files" setting is non-zero,
+**          files WILL BE removed from disk as well.
 **
 ** Options:
 **   --metadata-only <BOOL>  Non-zero to skip removing files from the
@@ -776,9 +780,13 @@ static void process_files_to_move(
 ** Move or rename one or more files or directories within the repository tree.
 ** You can either rename a file or directory or move it to another subdirectory.
 **
-** This command does NOT rename or move the files on disk.  This command merely
-** records the fact that filenames have changed so that appropriate notations
-** can be made at the next commit/check-in.
+** This command does NOT normally rename or move the files on disk.  This
+** command merely records the fact that filenames have changed so that
+** appropriate notations can be made at the next commit/check-in.
+**
+** WARNING: If either the "--metadata-only 0" or "--hard" option is
+**          specified -OR- the "move-files" setting is non-zero,
+**          files WILL BE renamed or moved on disk as well.
 **
 ** Options:
 **   --metadata-only <BOOL>  Non-zero to skip moving files within the
