@@ -518,8 +518,8 @@ static void git_fast_import(FILE *pIn){
       ** None of the above is explained in the git-fast-export
       ** documentation.  We had to figure it out via trial and error.
       */
-      for(i=strlen(z)-1; i>=0 && z[i]!='/'; i--){}
-      gg.tagCommit = strncmp(&z[i-4], "tags", 4)==0;  /* True for pattern B */
+      for(i=5; i<strlen(z) && z[i]!='/'; i++){}
+      gg.tagCommit = strncmp(&z[5], "tags", 4)==0;  /* True for pattern B */
       if( z[i+1]!=0 ) z += i+1;
       if( fossil_strcmp(z, "master")==0 ) z = "trunk";
       gg.zBranch = fossil_strdup(z);

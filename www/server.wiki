@@ -60,11 +60,11 @@ your inetd configuration file (typically "/etc/inetd.conf") to contain a
 line something like this:
 <blockquote>
 <pre>
-12345 stream tcp nowait.1000 root /usr/bin/fossil /usr/bin/fossil http /home/fossil/repo.fossil
+80 stream tcp nowait.1000 root /usr/bin/fossil /usr/bin/fossil http /home/fossil/repo.fossil
 </pre>
 </blockquote>
 In this example, you are telling "inetd" that when an incoming connection
-appears on port "12345", that it should launch the binary "/usr/bin/fossil"
+appears on TCP port "80", that it should launch the binary "/usr/bin/fossil"
 program with the arguments shown.
 Obviously you will
 need to modify the pathnames for your particular setup.
@@ -72,8 +72,11 @@ The final argument is either the name of the fossil repository to be served,
 or a directory containing multiple repositories.
 </p>
 <p>
-For systems where the port-specification must be a symbolic name and cannot be 
-numeric, add the desired name and port to /etc/services, e.g.:
+If you use a non-standard TCP port on 
+systems where the port-specification must be a symbolic name and cannot be 
+numeric, add the desired name and port to /etc/services.  For example, if
+you want your Fossil server running on TCP port 12345 instead of 80, you
+will need to add:
 <blockquote>
 <pre>
 fossil          12345/tcp  #fossil server
@@ -90,9 +93,9 @@ in the file "/etc/xinetd.conf" or in a subfile of "/etc/xinetd.d".
 An xinetd configuration file will appear like this:</p>
 <blockquote>
 <pre>
-service http-alt
+service http
 {
-  port = 591
+  port = 80
   socket_type = stream
   wait = no
   user = root

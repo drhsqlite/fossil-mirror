@@ -1,5 +1,5 @@
 C merge\strunk
-D 2015-03-09T14:12:49.702
+D 2015-03-16T20:32:24.110
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -10,10 +10,10 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile e6ea4b106b9d19278486f544d44fc1b02210adec
+F Dockerfile be3a473a1d7098d1218078f3ea8ae584de99b090
 F Makefile.classic 8860fc8763421cb968e05bdd361311f9a443fc07
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
-F VERSION 5bd5965584001ecca11c52ce37a2c591b3a1955b
+F VERSION 02c9e548dd1b3e511f161b1e27cf60d8f5c79e7d
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -315,23 +315,40 @@ F skins/README.md 635d3230265fe31ceaa1c3c3b9b327e1fdc7c292
 F skins/black_and_white/css.txt 569f06d046846930594299a1e38714b50e0c74a7
 F skins/black_and_white/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/black_and_white/header.txt c74f3b8cfefae2e763d8f117dbd20e90c6dba33d
-F skins/default/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
+F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
+F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
+F skins/blitz/css.txt f991c1480b15f43cf11ce888465f3a873cf54669
+F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
+F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
+F skins/blitz/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
+F skins/blitz/fossil_100.png fa1dca72090a10f4caac3e6bbb6fe5ca6f776fc7
+F skins/blitz/fossil_80_reversed_darkcyan.png c053b47fc8bd5e525ecefc69307ce66b6316fb7e
+F skins/blitz/fossil_80_reversed_darkcyan_text.png ea0c0176d0dd3d3e372befc160d0f081e1817a34
+F skins/blitz/header.txt 14ad6c45e2eb7e4664f362663e699e52a6e26bce
+F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
+F skins/blitz/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
+F skins/blitz_no_logo/README.md 24829897e941d1cef4f8b8d6291c86d9cfe17cd7
+F skins/blitz_no_logo/css.txt 5ce09754d894e400840d9869972c12a1e0393efc
+F skins/blitz_no_logo/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
+F skins/blitz_no_logo/header.txt fdfffc2be91c2d45f410e953337fa2aa55c58b96
+F skins/blitz_no_logo/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
+F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
+F skins/default/css.txt 3644519916de6a497cbda2baac0bd4abdbdce038
 F skins/default/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
-F skins/default/header.txt e1f837ff2d7bbe1cda8ca6847875491f6b5b269a
+F skins/default/header.txt 382e13d2c8147320bb3598611f4625638f7694ad
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 561c02a1ad76e163549e3faedeb041dd02c081b4
 F skins/eagle/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
-F skins/eagle/header.txt f38e32ea185558d7be359afab65c335b29cb1782
+F skins/eagle/header.txt 6c91395abefbaba9e54d475e0ee3839ff8dfd535
 F skins/enhanced1/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
-F skins/enhanced1/footer.txt 12d9581af14a2980778c00d83756db293b363c83
-F skins/enhanced1/header.txt 1fd3a93e575374bd1ddd7c8c41372830055368b0
-F skins/etienne1/README.md 46b87d9fe01a16616401a87f2107b6685f279c77
-F skins/etienne1/css.txt 3644519916de6a497cbda2baac0bd4abdbdce038
-F skins/etienne1/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
-F skins/etienne1/header.txt a2e75e85ebf23af7b4bbbb4a6f35cb92aaec65cd
+F skins/enhanced1/footer.txt 7f36cbf30a82ef3cec30c1917a96415fa7d76eeb
+F skins/enhanced1/header.txt 4f57da29b372156822ccd2dfbe1f7420c1c3b429
 F skins/khaki/css.txt 2a210e3703806e09e04a739eb9877a4b953528e7
 F skins/khaki/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/khaki/header.txt 609fe1dd9dd3afdfe2777ce207a2012cb36c3f64
+F skins/original/css.txt 8ec40ceed5434186d4264607c2b4acca6a1a1249
+F skins/original/footer.txt 73c83aa5dd4b1ff7cfdd5a446a63c4e0193213a9
+F skins/original/header.txt e1f837ff2d7bbe1cda8ca6847875491f6b5b269a
 F skins/plain_gray/css.txt 56cdc6074767d5b90116b2e39074a40ac535ba93
 F skins/plain_gray/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/plain_gray/header.txt dc58123dc4ae1714dea231d69f3dcf25308fe83a
@@ -339,9 +356,9 @@ F skins/rounded1/css.txt cf2b6d826f72710f06de8e4ba9c11954d545f884
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 87c960adedaf66056a094f065229fc1dc599f8dd
+F skins/xekri/css.txt cc41c76c759eb576b7f68119b50f6db14b5cab1d
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
-F skins/xekri/header.txt f38e32ea185558d7be359afab65c335b29cb1782
+F skins/xekri/header.txt 0db90e00529d8bd44fb5ff13e4be967610e61aed
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c ec438f737602841783a839a26bbe98221100df01
 F src/allrepo.c d44cc238625534b90238714b4607c7cdd04f3a59
@@ -356,7 +373,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 92403763ed6b734fedf133a17dcdf0ee21dad3ec
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c 6a639ee27f9d4a07aae3ab6ae604db490d4baf53
+F src/checkin.c f419771761a2f7c997fbadf2e7dfd5731a1c52c9
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 17a56a8a39befb6f7d8f1aa87deeadb7d2833b1e
@@ -368,7 +385,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 9e1d8b4421c6665f3d11a1fe4c568c8f2388be9b
+F src/db.c 637f749cd0b9e7767a57bf090b988eb24c4dc6ff
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c e5303b9fef3d21da1cd753b19c4f201dd9381090
@@ -379,19 +396,19 @@ F src/doc.c 3f153d8c9f27a3adf4a14908a6551632dba36b05
 F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
-F src/file.c b679d1682780c813c97c0de352e671d0ad40dca4
-F src/finfo.c b621bd7fc9699ecb76e361bf28a7f6aae921bbff
+F src/file.c 884b233bc94c8e7a24644ac815bc174756421545
+F src/finfo.c 640d7c4410873a0a26eb4bb37894ca375bd50356
 F src/foci.c 8e1553ee3a2db6b73497b4cfca8d4b8fe89e2471
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c a528cedc5e25313ee544907dff530c3e956b7ac5
+F src/graph.c 42f51f885ecca41125435465f5f1b1171a3c1f11
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 4045dd21bdc880bc7b694088c21a15bdbe1b562b
 F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
-F src/import.c 4afb38d8243fc0be184c82593ca20330f1e1bd31
-F src/info.c 3de7fe7f57f8f3e36c70d2c1af1e6c3d379fcea3
+F src/import.c 98fbfba2684aa85547069f21bdb12bc1c9094a19
+F src/info.c d90f5550b863a261513cc8ec6a9f66e4ca3044c8
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
@@ -413,7 +430,7 @@ F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 2abcbfe5306a237232816ebccbaf0b871e65d267
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
 F src/main.c f8a3152207d87a3415fb8dcfeac8aed981e5cb82
-F src/main.mk 865a74db23622cec2b71c1b2d98eddf2abd9d0e3
+F src/main.mk f1c0eb09df40f5cc1feb43c504b4a456a74bd067
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 30cb785cf251d0936df94c55da489e6c14fb738e
@@ -448,14 +465,14 @@ F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c f06cca68a3f07e03d35d2f879375967169db6a61
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c 87a91b09ca9f595121d741c31ebd724d1e5df708
-F src/skins.c 2c8edaaf389c06a0f1af6aa923960e80beb1102b
+F src/skins.c 07c9e4ca7092265c227cdc1f822ecf902f280ba3
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
-F src/sqlite3.c 722600f2119c595ce106d4fbd63a9595c84469e0
+F src/sqlite3.c 96f6ffa4db37d6abef8d840c8a99d7cc7db1bfb1
 F src/sqlite3.h f8151534e8c69113c7ce4dc7c8491932836095cd
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
 F src/statrep.c b7bd715a0429375342af08151854d62b467c4792
-F src/style.c f200b94959cbea987bdb40e6737b00a8cfc9031a
+F src/style.c 04648413ce04acf03d58a6f3fd92c5eb93a978ca
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 807b4154d67dc0bf02089d61bda5cac84bf7d44b
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -464,7 +481,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c e79b55e41e0fabdcbb115845f0a7776ef9b1953b
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c 030a20a11f0121e5c598497305322c38625a8db8
+F src/timeline.c 417b46e21d98997a6f84eadbee0b026d49dba2f7
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
 F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -494,7 +511,7 @@ F test/diff-test-1.wiki 597fbb13c9c3da02e09a53d128f3b5d4dd5cadda
 F test/file1.test 4a1009731c0959c46c228a9336df9da4a5da97f1
 F test/fileage-test-1.wiki d249e897fdd41038c17f3b66d374e509830da1eb
 F test/glob.test 027f2aa0b0c737a0f27d51800802a08f07561beb
-F test/graph-test-1.wiki e404e3525b85c812c2771364697ef4ec825d1556
+F test/graph-test-1.wiki 1bbf8bd05dfd5205c589569d911477c27aeb4d51
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
 F test/merge1.test 4734854393f717824ae96b3de8524a2401a21921
@@ -588,9 +605,9 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 68fbf55e0d94c4e7291437c3412e17786f47db78
 F win/Makefile.dmc 0cefec6ea838e5e0ee4fd2af7da607cda5eae8aa
-F win/Makefile.mingw 2367ba298fc6af04a4b2fcaac28b7e7e21cd8a87
-F win/Makefile.mingw.mistachkin 60224a20365c643b86c826a96941d2f5244dd150
-F win/Makefile.msc 13d4cd81d49386a03f12f4e194502fb60d7a3378
+F win/Makefile.mingw dbe39df70fb1059f17082c60efab18639bf7e1c4
+F win/Makefile.mingw.mistachkin c9c24e7f79b5128144a9a06f2111551bd0b43a96
+F win/Makefile.msc 98ad527ffb1c082d8986b264f118c6f45d0dc0d7
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -619,7 +636,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki be1bf237c9d66f899206b454bc2c37b252cb7cfe
-F www/changes.wiki 11bd374ff6b1ff84e0b255a219bfa1f0c08218d4
+F www/changes.wiki 48e54a8e8c086abb8df64f9b177c39d86cbc586f
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -670,10 +687,10 @@ F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
 F www/hints.wiki 1b508177aeff0580a7544942681de2d0b00c705d
-F www/index.wiki cf377cae7f9ffd87373212ad8f33c8f72a57823b
+F www/index.wiki ed2340fa4a69d437e8d796814a12cde3fa9d290a
 F www/inout.wiki 61818535112fc22f7c80de4683c834f5fec27362
 F www/makefile.wiki 843e568594e5320634da1fccc5177f99d4f7044d
-F www/mkdownload.tcl 0fb977f0644549fa063e4bfedd2bdf062abf97e8
+F www/mkdownload.tcl 2adb240f61ff7f6027e5f00b5920f74b9e6680f2
 F www/mkindex.tcl 243c5648ba8c1c5b58b560b552b726fdef2fa002
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 336916afde4ff470e87fc43066063623a9a74c8a
@@ -687,7 +704,7 @@ F www/reviews.wiki 866e545f89fce7cff29c96a29ab10586692f3964
 F www/scgi.wiki 45a497a26ea940ef945a4c34cc1458ddddf304d6
 F www/selfcheck.wiki d1e2fc5baf9ade46815499c9758256a22efe8142
 F www/selfhost.wiki 03de31d67690fe47972589e4e1e395e11559c85c
-F www/server.wiki c8e2660ea98fde9873542e6c905418c78765090b
+F www/server.wiki 3e4c81928384c129f86445928c337594d8c82ef0
 F www/settings.wiki 691c64e6d164d5a26cef610d07b000659189a314
 F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
@@ -702,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 89a56fe0c752e1b715b2e90becff5b6cbeb94cfe c68c68d9d10947445b0f685ee4c46b6ed55b7fa5
-R a34424784c66241ce95a02b3402e62a4
+P 5d3c6df6ba196df8c4158d5b3d0b9f949a698b61 3270562fe0b7aff565ed5d75d95cbe1ca48ffa10
+R 630826769493eb3ebefc754237f9b1d0
 U jan.nijtmans
-Z 39b80a01513465619fca76891d2a6b37
+Z 872fc5c9a0b2b52abeff9e473a31e7ff

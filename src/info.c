@@ -1882,7 +1882,7 @@ void artifact_page(void){
   }else{
     style_submenu_element("Line Numbers", "Line Numbers",
                           "%R/info/%s%s",zUuid,
-                          ((zLn&&*zLn) ? "" : "?ln=0"));
+                          ((zLn&&*zLn) ? "" : "?txt=1&ln=0"));
     @ <hr />
     content_get(rid, &content);
     if( renderAsWiki ){

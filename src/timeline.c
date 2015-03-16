@@ -588,7 +588,7 @@ void www_print_timeline(
       /* style is not moved to css, because this is
       ** a technical div for the timeline graph
       */
-      w = (pGraph->mxRail+1)*pGraph->iRailPitch + 10;
+      w = pGraph->mxRail*pGraph->iRailPitch + 28;
       @ <tr><td></td><td>
       @ <div id="grbtm" style="width:%d(w)px;"></div>
       @ </td><td></td></tr>
@@ -612,9 +612,19 @@ void timeline_output_graph_javascript(
     GraphRow *pRow;
     int i;
     char cSep;
+    int mergeOffset;     /* Pixel offset from rail to merge riser */
+    int iRailPitch;      /* Pixels between consecutive rails */
+    iRailPitch = pGraph->iRailPitch;
+
+    /* Number of pixels that the thin merge lines are offset from the
+    ** the center of the think rail lines.  If zero, then the vertical
+    ** merge lines overlap with the thicker rail lines.
+    */
+    mergeOffset = iRailPitch>=14 ? 4 : iRailPitch>=13 ? 3 : 0;
+    if( PB("nomo") ) mergeOffset = 0;
 
     @ <script>
-    @ var railPitch=%d(pGraph->iRailPitch);
+    @ var railPitch=%d(iRailPitch);
 
     /* the rowinfo[] array contains all the information needed to generate
     ** the graph.  Each entry contains information for a single row:
@@ -653,7 +663,13 @@ void timeline_output_graph_javascript(
       if( mo<0 ){
         mo = 0;
       }else{
-        mo = (mo/4)*pGraph->iRailPitch - 3 + 4*(mo&3);
+        int x = (mo/4)*iRailPitch;
+        switch( mo&3 ){
+          case 0: x -= mergeOffset-2;  break;
+          case 1: x += 1;              break;
+          case 2: x += mergeOffset+1;  break;
+        }
+        mo = x;
       }
       cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,f:%d,au:",
         pRow->idx,                      /* id */
@@ -680,7 +696,9 @@ void timeline_output_graph_javascript(
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
-          int mi = i*pGraph->iRailPitch - 8 + 4*pRow->mergeIn[i];
+          int mi = i*iRailPitch;
+          if( pRow->mergeIn[i]==1 ) mi -= mergeOffset-1;
+          if( pRow->mergeIn[i]==3 ) mi += mergeOffset;
           if( pRow->mergeDown & (1<<i) ) mi = -mi;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
@@ -736,25 +754,55 @@ void timeline_output_graph_javascript(
     @   return left;
     @ }
     @ function drawUpArrow(x,y0,y1){
-    @   drawBox(lineClr,x,y0,x+1,y1);
+    @   drawBox(lineClr,x,y0+5,x+1,y1);
+    @   var n = document.createElement("div"),
+    @       l = x-2,
+    @       t = y0;
+    @   n.style.position = "absolute";
+    @   n.style.left = l+"px";
+    @   n.style.top = t+"px";
+    @   n.style.width = 0;
+    @   n.style.height = 0;
+    @   n.style.borderWidth = 0;
+    @   n.style.borderStyle = "solid";
+    @   n.style.borderColor = "transparent";
+    @   n.style.borderRightWidth = "3px";
+    @   n.style.borderBottomColor = "#000";
+    @   n.style.borderBottomStyle = "outset";
+    @   n.style.borderLeftWidth = "3px";
     @   if( y0+10>=y1 ){
-    @     drawBox(lineClr,x-1,y0+1,x+2,y0+2);
-    @     drawBox(lineClr,x-2,y0+3,x+3,y0+4);
-    @   }else{
-    @     drawBox(lineClr,x-1,y0+2,x+2,y0+4);
-    @     drawBox(lineClr,x-2,y0+5,x+3,y0+7);
+    @     n.style.borderBottomWidth = "5px";
+    @   } else {
+    @     n.style.borderBottomWidth = "7px";
     @   }
+    @   cDiv.appendChild(n);
     @ }
     @ function drawThinArrow(y,xFrom,xTo){
+    @   var n = document.createElement("div"),
+    @       t = y-2;
+    @   n.style.position = "absolute";
+    @   n.style.top = t+"px";
+    @   n.style.width = 0;
+    @   n.style.height = "1px";
+    @   n.style.borderWidth = 0;
+    @   n.style.borderStyle = "solid";
+    @   n.style.borderColor = "transparent";
+    @   n.style.borderTopWidth = "2px";
+    @   n.style.borderBottomWidth = "2px";
     @   if( xFrom<xTo ){
-    @     drawBox(lineClr,xFrom,y,xTo,y);
-    @     drawBox(lineClr,xTo-3,y-1,xTo-2,y+1);
-    @     drawBox(lineClr,xTo-4,y-2,xTo-4,y+2);
+    @     drawBox(lineClr,xFrom,y,xTo-3,y);
+    @     n.style.left = xTo-3+"px";
+    @     n.style.borderLeftStyle = "inset";
+    @     n.style.borderLeftWidth = "3px";
+    @     n.style.borderLeftColor = "#000";
     @   }else{
-    @     drawBox(lineClr,xTo,y,xFrom,y);
-    @     drawBox(lineClr,xTo+2,y-1,xTo+3,y+1);
-    @     drawBox(lineClr,xTo+4,y-2,xTo+4,y+2);
+    @     drawBox(lineClr,xTo+3,y,xFrom,y);
+    @     n.style.left = xTo+1+"px";
+    @     n.style.borderRightStyle = "outset";
+    @     n.style.borderRightWidth = "3px";
+    @     n.style.borderRightColor = "#000";
     @   }
+    @   cDiv.appendChild(n);
     @ }
     @ function drawThinLine(x0,y0,x1,y1){
     @   drawBox(lineClr,x0,y0,x1,y1);
@@ -782,6 +830,7 @@ void timeline_output_graph_javascript(
     @     }else{
     @       drawThinLine(x0,y1,x1,y1);
     @     }
+    if( mergeOffset==0 ) cgi_printf("if( p.mo!=p.u-1 ) ");
     @     drawThinLine(x1,y0,x1,y1);
     @   }
     @   var n = p.au.length;
@@ -790,14 +839,29 @@ void timeline_output_graph_javascript(
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
-    @       drawBox(lineClr,x0,p.y,x1,p.y+1);
+    @       drawBox(lineClr,x0,p.y,x1+1,p.y+1);
     @       drawUpArrow(x1, u.y+6, p.y);
     @     }else{
     @       drawBox("#600000",x0,p.y,x1,p.y+1);
     @       drawBox("#600000",x1-1,p.y,x1,u.y+1);
-    @       drawBox("#600000",x1,u.y,u.x-6,u.y+1);
-    @       drawBox("#600000",u.x-9,u.y-1,u.x-8,u.y+2);
-    @       drawBox("#600000",u.x-11,u.y-2,u.x-10,u.y+3);
+    @       drawBox("#600000",x1,u.y,u.x-10,u.y+1);
+    @       var n = document.createElement("div"),
+    @           t = u.y-2,
+    @           l = u.x-11;
+    @       n.style.position = "absolute";
+    @       n.style.top = t+"px";
+    @       n.style.left = l+"px";
+    @       n.style.width = 0;
+    @       n.style.height = 0;
+    @       n.style.borderWidth = 0;
+    @       n.style.borderStyle = "solid";
+    @       n.style.borderColor = "transparent";
+    @       n.style.borderTopWidth = "3px";
+    @       n.style.borderBottomWidth = "3px";
+    @       n.style.borderLeftStyle = "inset";
+    @       n.style.borderLeftWidth = "7px";
+    @       n.style.borderLeftColor = "#600000";
+    @       cDiv.appendChild(n);
     @     }
     @   }
     @   for(var j in p.mi){

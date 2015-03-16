@@ -537,7 +537,7 @@ void finfo_page(void){
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      int w = (pGraph->mxRail+1)*pGraph->iRailPitch + 10;
+      int w = pGraph->mxRail*pGraph->iRailPitch + 28;
       @ <tr><td></td><td>
       @ <div id="grbtm" style="width:%d(w)px;"></div>
       @     </td><td></td></tr>
