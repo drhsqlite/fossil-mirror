@@ -524,7 +524,6 @@ static void git_fast_import(FILE *pIn){
       if( fossil_strcmp(z, "master")==0 ) z = "trunk";
       gg.zBranch = fossil_strdup(z);
       gg.fromLoaded = 0;
-
     }else
     if( strncmp(zLine, "tag ", 4)==0 ){
       gg.xFinish();
