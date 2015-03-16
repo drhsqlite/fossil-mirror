@@ -1,5 +1,5 @@
-C Upgrade\sto\sTcl\s8.6.4.\s(doesn't\swork\syet,\sstill\shave\sto\sfind\sa\ssolution\sfor\smissing\s"fossil\snew\s--docker")
-D 2015-03-16T12:30:28.142
+C Merge\sblitz\senhancements\sto\strunk.
+D 2015-03-16T14:25:03.209
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -317,7 +317,7 @@ F skins/black_and_white/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/black_and_white/header.txt c74f3b8cfefae2e763d8f117dbd20e90c6dba33d
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt f10bb06c1015336a533dfc8903e1b45b0eb1ac60
+F skins/blitz/css.txt f991c1480b15f43cf11ce888465f3a873cf54669
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
 F skins/blitz/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
@@ -328,7 +328,7 @@ F skins/blitz/header.txt 14ad6c45e2eb7e4664f362663e699e52a6e26bce
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
 F skins/blitz_no_logo/README.md 24829897e941d1cef4f8b8d6291c86d9cfe17cd7
-F skins/blitz_no_logo/css.txt 524d93a94e80c95a71b9bdb695b2ec4a453216d8
+F skins/blitz_no_logo/css.txt 5ce09754d894e400840d9869972c12a1e0393efc
 F skins/blitz_no_logo/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
 F skins/blitz_no_logo/header.txt fdfffc2be91c2d45f410e953337fa2aa55c58b96
 F skins/blitz_no_logo/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
@@ -719,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e68d2e48fce87edd99437c318c3b6965cf0ef4dc
-R c29751fbc400f3794f7e5d52d8996a4f
-U jan.nijtmans
-Z ae7e08efe0024268987f5d90b49b8e99
+P ca6c248e71689abb2cce8477d89d57d26f3497fc 108ccef535bae660194efce74ff88f82d409abcb
+R 2d8a9e226b8d7eaddda6a9c4fc0796cc
+U drh
+Z a39e02f9a6c70a3ee7b549615163d5b5
