@@ -763,12 +763,12 @@ void timeline_output_graph_javascript(
     @   n.style.top = t+"px";
     @   n.style.width = 0;
     @   n.style.height = 0;
+    @   n.style.transform = "scale(.999)";
     @   n.style.borderWidth = 0;
     @   n.style.borderStyle = "solid";
     @   n.style.borderColor = "transparent";
     @   n.style.borderRightWidth = "3px";
-    @   n.style.borderBottomColor = "#000";
-    @   n.style.borderBottomStyle = "outset";
+    @   n.style.borderBottomColor = lineClr;
     @   n.style.borderLeftWidth = "3px";
     @   if( y0+10>=y1 ){
     @     n.style.borderBottomWidth = "5px";
@@ -784,6 +784,7 @@ void timeline_output_graph_javascript(
     @   n.style.top = t+"px";
     @   n.style.width = 0;
     @   n.style.height = "1px";
+    @   n.style.transform = "scale(.999)";
     @   n.style.borderWidth = 0;
     @   n.style.borderStyle = "solid";
     @   n.style.borderColor = "transparent";
@@ -792,15 +793,13 @@ void timeline_output_graph_javascript(
     @   if( xFrom<xTo ){
     @     drawBox(lineClr,xFrom,y,xTo-3,y);
     @     n.style.left = xTo-3+"px";
-    @     n.style.borderLeftStyle = "inset";
     @     n.style.borderLeftWidth = "3px";
-    @     n.style.borderLeftColor = "#000";
+    @     n.style.borderLeftColor = lineClr;
     @   }else{
     @     drawBox(lineClr,xTo+3,y,xFrom,y);
     @     n.style.left = xTo+1+"px";
-    @     n.style.borderRightStyle = "outset";
     @     n.style.borderRightWidth = "3px";
-    @     n.style.borderRightColor = "#000";
+    @     n.style.borderRightColor = lineClr;
     @   }
     @   cDiv.appendChild(n);
     @ }
@@ -853,12 +852,12 @@ void timeline_output_graph_javascript(
     @       n.style.left = l+"px";
     @       n.style.width = 0;
     @       n.style.height = 0;
+    @       n.style.transform = "scale(.999)";
     @       n.style.borderWidth = 0;
     @       n.style.borderStyle = "solid";
     @       n.style.borderColor = "transparent";
     @       n.style.borderTopWidth = "3px";
     @       n.style.borderBottomWidth = "3px";
-    @       n.style.borderLeftStyle = "inset";
     @       n.style.borderLeftWidth = "7px";
     @       n.style.borderLeftColor = "#600000";
     @       cDiv.appendChild(n);
