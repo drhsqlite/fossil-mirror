@@ -754,7 +754,7 @@ void timeline_output_graph_javascript(
     @   return left;
     @ }
     @ function drawUpArrow(x,y0,y1){
-    @   drawBox(lineClr,x,y0+5,x+1,y1);
+    @   drawBox(lineClr,x,y0+4,x+1,y1);
     @   var n = document.createElement("div"),
     @       l = x-2,
     @       t = y0;
