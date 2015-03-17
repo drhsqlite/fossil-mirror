@@ -1,5 +1,5 @@
-C More\sfixes\sand\simprovements.\n\n\s\s*\s\sFixed\sthe\sFiles\s"Tree-View"\shighlighting\sso\sthe\sfile\sage\sis\sreadable\n\s\s*\s\sFixed\sthe\sFiles\s"File\sAge"\shighlighting\sso\sthe\stext\sis\sreadable\n\s\s*\s\sMatching\ssearch\sterms\sstand-out\sbetter
-D 2015-03-17T00:16:29.858
+C A\spossible\swork\saround\sfor\sa\smailing\slist\sreported\sissue\swhere\sthe\s"display:\sflex"\sfor\ssubmenus\sis\sbroken\son\sthe\sOpera\sweb\sbrowser.
+D 2015-03-17T00:43:53.240
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -339,7 +339,7 @@ F skins/rounded1/css.txt cf2b6d826f72710f06de8e4ba9c11954d545f884
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 9bc12ac83b7c2bf4798d3e7e42caf9678772b0a3
+F skins/xekri/css.txt 0b118cff2cb36a9be4ff685fb0380efd87491d42
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt 0db90e00529d8bd44fb5ff13e4be967610e61aed
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P bcf2bd23a8f10cc268326724d4b563048d79905f
-R d519f5bd33adcc411f31aac0ca062cbd
+P 9fc08d9200e432f9af31f2a60b8c58e52f0ec406
+R 380d17025c45b2c6362b181d8749187c
 U zakero
-Z b65bee14f32a612c8e903e8edbf2f2a9
+Z a03087f64941a5bee03ef1dd9e57c8ef
