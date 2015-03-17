@@ -62,9 +62,9 @@ void xfersetup_page(void){
       zWarning = mprintf("WARNING: Pushing to \"%s\" is enabled.",
                          g.url.canonical);
     }
-    @ <p>Press the <strong>%h(zButton)</strong> button below to synchronize with the
-    @ <em>%h(g.url.canonical)</em> repository now.<br/>This may be useful when
-    @ testing the various transfer scripts.</p>
+    @ <p>Press the <strong>%h(zButton)</strong> button below to
+    @ synchronize with the <em>%h(g.url.canonical)</em> repository now.<br/>
+    @ This may be useful when testing the various transfer scripts.</p>
     @ <p>You can use the <code>http -async</code> command in your scripts, but
     @ make sure the <code>th1-uri-regexp</code> setting is set first.</p>
     if( zWarning ){
@@ -183,7 +183,8 @@ static const char *zDefaultXferPush = 0;
 */
 void xfersetup_push_page(void){
   static const char zDesc[] =
-  @ Enter TH1 script that runs after processing <strong>push</strong> transfer requests.
+  @ Enter TH1 script that runs after processing <strong>push</strong>
+  @ transfer requests.
   ;
   xfersetup_generic(
     "Transfer Push Script",
