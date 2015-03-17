@@ -342,6 +342,15 @@ ul.browser li.dir {
 
 
 /**************************************
+ * File List : Age
+ */
+
+.fileage tr:hover td {
+  background-color: #225;
+}
+
+
+/**************************************
  * File List : Tree
  */
 
@@ -418,6 +427,14 @@ ul.browser li.dir {
   font-style: italic
 }
 
+.filetreeline:hover {
+  color: #000;
+  font-weight: bold;
+}
+
+.filetreeline .filetreeage {
+  padding-right: 0.5rem;
+}
 
 /**************************************
  * Logout
@@ -483,6 +500,15 @@ table.captcha pre {
 
 .statistics-report-week-of-year-list {
   font-size: 0.8rem;
+}
+
+
+/**************************************
+ * Search
+ */
+
+.searchResult .snippet mark {
+  color: #ee0;
 }
 
 
