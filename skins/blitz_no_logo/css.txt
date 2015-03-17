@@ -893,7 +893,7 @@ td:last-child {
 }
 
 .submenu input, .submenu select {
-  margin: 0;
+  margin: 0 0 0 5px;
 }
 
 .submenu a {
