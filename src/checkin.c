@@ -573,6 +573,8 @@ void extras_cmd(void){
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
 
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -709,6 +711,7 @@ void clean_cmd(void){
   if( zCleanFlag==0 ){
     zCleanFlag = db_get("clean-glob", 0);
   }
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   verify_all_options();
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
