@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sHTML\sgenerated\sfor\sthe\s/xfersetup\spage.
-D 2015-03-17T17:10:35.953
+C Adjust\ssubmenu\sinput\smargins
+D 2015-03-17T20:54:31.493
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -317,7 +317,7 @@ F skins/black_and_white/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/black_and_white/header.txt c74f3b8cfefae2e763d8f117dbd20e90c6dba33d
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt 1a44d6c3cb26759abbd56970eebaff3b19f5a065
+F skins/blitz/css.txt fbcdede7686bf95a399f2f280bf30260c8963338
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
 F skins/blitz/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
@@ -328,7 +328,7 @@ F skins/blitz/header.txt 14ad6c45e2eb7e4664f362663e699e52a6e26bce
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
 F skins/blitz_no_logo/README.md 24829897e941d1cef4f8b8d6291c86d9cfe17cd7
-F skins/blitz_no_logo/css.txt 26961c352fedefac0185ac5b7116256c7b7b2c35
+F skins/blitz_no_logo/css.txt ff31089aa8ca476c541c8aba34c3aceaab653d4b
 F skins/blitz_no_logo/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
 F skins/blitz_no_logo/header.txt fdfffc2be91c2d45f410e953337fa2aa55c58b96
 F skins/blitz_no_logo/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
@@ -719,8 +719,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e1e0ec574b2514cd204b64b4436682af18b5ef78 ae09eed3aaf05a7ae472d4331050aed8763edf4a
-R 92a9df2cec35cf99f0a20f657ed142ca
-T +closed ae09eed3aaf05a7ae472d4331050aed8763edf4a
-U drh
-Z 7e5dd6aee60ed98b1712a90205dd73f1
+P f215075a47e34aa48ecf111b6e8cad759c40a14e
+R bef73579c1d572dbe693ecdb0d71a3dc
+T *branch * skin-blitz
+T *sym-skin-blitz *
+T -sym-trunk *
+U jmoger
+Z 80a8ee77934f8cecd17f3a570b9a98c8
