@@ -1838,7 +1838,6 @@ void commit_cmd(void){
     fossil_fatal("cannot commit against a closed leaf");
   }
 
-  if( useCksum ) vfile_aggregate_checksum_disk(vid, &cksum1);
   if( zComment ){
     blob_zero(&comment);
     blob_append(&comment, zComment, -1);
@@ -1872,10 +1871,40 @@ void commit_cmd(void){
     db_begin_transaction();
   }
 
+  /* Step 0: If the repository does not have any artifacts yet
+  ** and a non-empty commit is being prepared, create an additional
+  ** empty check-in for compatibility with fossil<1.28. This
+  ** section can be removed when Fossil 1.27 is not used any more.
+  */
+
+  if( !db_exists("SELECT 1 FROM blob") && db_exists("SELECT 1 FROM vfile")){
+    int rid;
+    const char *zDate;
+    Blob hash;
+    blob_zero(&manifest);
+    blob_appendf(&manifest, "C initial\\sempty\\scheck-in\n");
+    zDate = date_in_standard_format(sCiInfo.zDateOvrd ? sCiInfo.zDateOvrd : "now");
+    blob_appendf(&manifest, "D %s\n", zDate);
+    md5sum_init();
+    /* The R-card is necessary here because without it
+     * fossil versions earlier than versions 1.27 would
+     * interpret this artifact as a "control". */
+    blob_appendf(&manifest, "R %s\n", md5sum_finish(0));
+    blob_appendf(&manifest, "T *branch * %F\n", sCiInfo.zBranch);
+    blob_appendf(&manifest, "T *sym-%F *\n", sCiInfo.zBranch);
+    blob_appendf(&manifest, "U %F\n", g.zLogin);
+    md5sum_blob(&manifest, &hash);
+    blob_appendf(&manifest, "Z %b\n", &hash);
+    blob_reset(&hash);
+    vid = content_put(&manifest);
+    manifest_crosslink(vid, &manifest, MC_NONE);
+  }
+
   /* Step 1: Insert records for all modified files into the blob
   ** table. If there were arguments passed to this command, only
   ** the identified files are inserted (if they have been modified).
   */
+  if( useCksum ) vfile_aggregate_checksum_disk(vid, &cksum1);
   db_prepare(&q,
     "SELECT id, %Q || pathname, mrid, %s, chnged, %s, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",

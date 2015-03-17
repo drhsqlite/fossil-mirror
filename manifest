@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sHTML\sgenerated\sfor\sthe\s/xfersetup\spage.
-D 2015-03-17T17:10:35.953
+C Fix\sfor\s"fossil\snew\s--docker"\sand\sfor\s[http://www.mail-archive.com/fossil-users%40lists.fossil-scm.org/msg17644.html|Chisallapp:\sI\shave\stwo\strunks\s?],\swhile\sstill\sguaranteeing\sthe\srid=1\sinitial\sempty\scommit.
+D 2015-03-17T21:03:24.037
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -373,7 +373,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 92403763ed6b734fedf133a17dcdf0ee21dad3ec
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c 8b852778798303500b5999326caf741bb2bb1e86
+F src/checkin.c f48025f15d3c8e9480a6895acac00ba973750f70
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 17a56a8a39befb6f7d8f1aa87deeadb7d2833b1e
@@ -385,7 +385,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 665dac679006b4a1ea11e4503303be8fb7b5368a
+F src/db.c 4756c4bca6a8668fc11ca74c796321af5f4424ec
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c e5303b9fef3d21da1cd753b19c4f201dd9381090
@@ -719,8 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e1e0ec574b2514cd204b64b4436682af18b5ef78 ae09eed3aaf05a7ae472d4331050aed8763edf4a
-R 92a9df2cec35cf99f0a20f657ed142ca
-T +closed ae09eed3aaf05a7ae472d4331050aed8763edf4a
-U drh
-Z 7e5dd6aee60ed98b1712a90205dd73f1
+P f215075a47e34aa48ecf111b6e8cad759c40a14e
+R 8dbe7e7548316eda05e2a1c9b2c30986
+U jan.nijtmans
+Z 30832258c7c14142a78a853c0cf85109
