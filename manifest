@@ -1,5 +1,5 @@
-C Improved\shandling\sof\stag\snames\sin\s"import\s--git".
-D 2015-03-16T19:45:46.087
+C Added\sa\sdotfiles\ssetting\sto\sthe\srepository\ssettings.\sThis\scomplements\sthe\s--dotfiles\scommand\sline\sargument\sused\sby\sadd,\saddremove,\sextras,\sand\schanges\scommands.\sUseful\sin\sa\sproject\sthat\salways\sneeds\sto\sprocess\sdotfiles\sso\sthat\sthe\s--dotfiles\soption\sdoes\snot\sneed\sto\sbe\sspecified\seach\sand\severy\stime.
+D 2015-03-17T08:23:57.384
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -360,7 +360,7 @@ F skins/xekri/css.txt cc41c76c759eb576b7f68119b50f6db14b5cab1d
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt 0db90e00529d8bd44fb5ff13e4be967610e61aed
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c ec438f737602841783a839a26bbe98221100df01
+F src/add.c e0798cb7833a1ce467ed0780f47303d43e2e64c2
 F src/allrepo.c d44cc238625534b90238714b4607c7cdd04f3a59
 F src/attach.c ecad9be142ff32f9a11c5e6b32bd8704f0b669bb
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -373,7 +373,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c 92403763ed6b734fedf133a17dcdf0ee21dad3ec
 F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c f419771761a2f7c997fbadf2e7dfd5731a1c52c9
+F src/checkin.c 8b852778798303500b5999326caf741bb2bb1e86
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 17a56a8a39befb6f7d8f1aa87deeadb7d2833b1e
@@ -385,7 +385,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 637f749cd0b9e7767a57bf090b988eb24c4dc6ff
+F src/db.c 665dac679006b4a1ea11e4503303be8fb7b5368a
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c e5303b9fef3d21da1cd753b19c4f201dd9381090
@@ -719,8 +719,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 127ee1f5723405832a9895efd367e8f93fe90818 bfbf3bfd965cfed7ae0652e2a45908bf9ad39be5
-R e9c0f0f292291d2ca9e1802eac30a567
-T +closed bfbf3bfd965cfed7ae0652e2a45908bf9ad39be5
-U drh
-Z f6e0232ac09b86970ddc918ccd58b4b6
+P 3270562fe0b7aff565ed5d75d95cbe1ca48ffa10
+R b559e493201a1db258fd6e6fbe3d77e0
+T *branch * dotfiles-setting
+T *sym-dotfiles-setting *
+T -sym-trunk *
+U scott
+Z 704e58e50508bc475cbc25b6f6c2addc
