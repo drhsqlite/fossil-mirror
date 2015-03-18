@@ -230,6 +230,14 @@ cache_read_done:
 }
 
 /*
+** Create a cache database for the current repository if no such
+** database already exists.
+*/
+void cache_initialize(void){
+  sqlite3_close(cacheOpen(1));
+}
+
+/*
 ** COMMAND: cache*
 ** Usage: %fossil cache SUBCOMMAND
 **
