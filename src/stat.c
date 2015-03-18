@@ -54,14 +54,17 @@ void stat_page(void){
   const char *p;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   brief = P("brief")!=0;
   style_header("Repository Statistics");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   if( g.perm.Admin ){
     style_submenu_element("URLs", "URLs and Checkouts", "urllist");
     style_submenu_element("Schema", "Repository Schema", "repo_schema");
     style_submenu_element("Web-Cache", "Web-Cache Stats", "cachestat");
   }
+  style_submenu_element("Activity Reports", 0, "reports");
+  style_submenu_element("SHA1 Collisions", 0, "hash-collisions");
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
   fsize = file_size(g.zRepositoryName);
@@ -79,7 +82,7 @@ void stat_page(void){
       Stmt q;
       @ <tr><th>Uncompressed&nbsp;Artifact&nbsp;Size:</th><td>
       db_prepare(&q, "SELECT total(size), avg(size), max(size)"
-                     " FROM blob WHERE size>0");
+                     " FROM blob WHERE size>0 /*scan*/");
       db_step(&q);
       t = db_column_int64(&q, 0);
       szAvg = db_column_int(&q, 1);
@@ -134,6 +137,7 @@ void stat_page(void){
   @ </td></tr>
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(sqlite3_sourceid())
   @ [%.10s(&sqlite3_sourceid()[20])] (%s(sqlite3_libversion()))</td></tr>
+  @ <tr><th>Schema&nbsp;Version:</th><td>%h(g.zAuxSchema)</td></tr>
   @ <tr><th>Repository Rebuilt:</th><td>
   @ %h(db_get_mtime("rebuilt","%Y-%m-%d %H:%M:%S","Never"))
   @ By Fossil %h(db_get("rebuilt","Unknown"))</td></tr>
@@ -222,13 +226,13 @@ void dbstat_cmd(void){
       fossil_print("%*s%d:%d\n", colWidth, "compression-ratio:", a, b);
     }
     n = db_int(0, "SELECT COUNT(*) FROM event e WHERE e.type='ci'");
-    fossil_print("%*s%d\n", colWidth, "checkins:", n);
+    fossil_print("%*s%d\n", colWidth, "check-ins:", n);
     n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
     fossil_print("%*s%d across all branches\n", colWidth, "files:", n);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE tagname GLOB 'wiki-*'");
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='w'");
-    fossil_print("%*s%d (%d changes)\n", colWidth, "wikipages:", n, m);
+    fossil_print("%*s%d (%d changes)\n", colWidth, "wiki-pages:", n, m);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE tagname GLOB 'tkt-*'");
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='t'");
@@ -236,7 +240,7 @@ void dbstat_cmd(void){
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='e'");
     fossil_print("%*s%d\n", colWidth, "events:", n);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
-    fossil_print("%*s%d\n", colWidth, "tagchanges:", n);
+    fossil_print("%*s%d\n", colWidth, "tag-changes:", n);
     z = db_text(0, "SELECT datetime(mtime) || ' - about ' ||"
                    " CAST(julianday('now') - mtime AS INTEGER)"
                    " || ' days ago' FROM event "
@@ -255,6 +259,7 @@ void dbstat_cmd(void){
   /* Server-id is not useful information any more */
   fossil_print("%*s%s\n", colWidth, "server-id:", db_get("server-code", 0));
 #endif
+  fossil_print("%*s%s\n", colWidth, "schema-version:", g.zAuxSchema);
   if( !omitVers ){
     fossil_print("%*s%s %s [%s] (%s)\n",
                  colWidth, "fossil-version:",
@@ -289,9 +294,10 @@ void urllist_page(void){
   Stmt q;
   int cnt;
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(); return; }
+  if( !g.perm.Admin ){ login_needed(0); return; }
 
   style_header("URLs and Checkouts");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "Repository Stats", "stat");
   style_submenu_element("Schema", "Repository Schema", "repo_schema");
   @ <div class="section">URLs</div>
@@ -335,9 +341,10 @@ void urllist_page(void){
 void repo_schema_page(void){
   Stmt q;
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(); return; }
+  if( !g.perm.Admin ){ login_needed(0); return; }
 
   style_header("Repository Schema");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Stat", "Repository Stats", "stat");
   style_submenu_element("URLs", "URLs and Checkouts", "urllist");
   db_prepare(&q, "SELECT sql FROM %s.sqlite_master WHERE sql IS NOT NULL",

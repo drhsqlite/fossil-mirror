@@ -89,7 +89,7 @@ static char zDefaultSshCmd[] = "ssh -e none -T";
 ** SSH initialization of the transport layer
 */
 int transport_ssh_open(UrlData *pUrlData){
-  /* For SSH we need to create and run SSH fossil http 
+  /* For SSH we need to create and run SSH fossil http
   ** to talk to the remote machine.
   */
   const char *zSsh;  /* The base SSH command */

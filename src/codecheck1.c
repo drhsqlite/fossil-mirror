@@ -278,7 +278,7 @@ static int is_s_safe(const char *z){
   ** for use with %s */
   z = next_non_whitespace(z, &len, &eType);
   for(i=0; i<sizeof(azSafeFunc)/sizeof(azSafeFunc[0]); i++){
-    if( eType==TK_ID 
+    if( eType==TK_ID
      && strncmp(z, azSafeFunc[i], len)==0
      && strlen(azSafeFunc[i])==len
     ){
@@ -293,7 +293,7 @@ static int is_s_safe(const char *z){
   /* If the "safe-for-%s" comment appears in the argument, then
   ** let it through */
   if( strstr(z, "/*safe-for-%s*/")!=0 ) return 1;
-    
+
   return 0;
 }
 
@@ -311,6 +311,7 @@ struct {
   int iFmtArg;           /* Index of format argument.  Leftmost is 1. */
   unsigned fmtFlags;     /* Processing flags */
 } aFmtFunc[] = {
+  { "admin_log",               1, 0 },
   { "blob_append_sql",         2, FMT_NO_S },
   { "blob_appendf",            2, 0 },
   { "cgi_panic",               1, 0 },
@@ -435,7 +436,7 @@ static int checkFormatFunc(
   char *z;
   char *zCopy;
   int nArg = 0;
-  char const **azArg = 0;
+  const char **azArg = 0;
   int i, k;
   int nErr = 0;
   char *acType;
@@ -452,7 +453,7 @@ static int checkFormatFunc(
   z = zCopy;
   while( z[0] ){
     len = distance_to(z, ',');
-    azArg = safe_realloc(azArg, (sizeof(azArg[0])+1)*(nArg+1));
+    azArg = safe_realloc((char*)azArg, (sizeof(azArg[0])+1)*(nArg+1));
     azArg[nArg++] = skip_space(z);
     if( z[len]==0 ) break;
     z[len] = 0;
@@ -461,7 +462,7 @@ static int checkFormatFunc(
   }
   acType = (char*)&azArg[nArg];
   if( fmtArg>nArg ){
-    printf("%s:%d: too few arguments to %.*s()\n", 
+    printf("%s:%d: too few arguments to %.*s()\n",
            zFilename, lnFCall, szFName, zFCall);
     nErr++;
   }else{
@@ -497,7 +498,7 @@ static int checkFormatFunc(
     }
   }
 
-  free(azArg);
+  free((char*)azArg);
   free(zCopy);
   return nErr;
 }
@@ -538,7 +539,7 @@ static int scan_file(const char *zName, const char *zContent){
             && (x = isFormatFunc(zPrev,szPrev,&fmtFlags))>0 ){
         nErr += checkFormatFunc(zName, zPrev, lnPrev, x, fmtFlags);
       }
-    }    
+    }
     zPrev = z;
     ePrev = eToken;
     szPrev = szToken;

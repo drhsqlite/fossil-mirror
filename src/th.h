@@ -1,6 +1,6 @@
 
 /* This header file defines the external interface to the custom Scripting
-** Language (TH) interpreter.  TH is very similar to TCL but is not an
+** Language (TH) interpreter.  TH is very similar to Tcl but is not an
 ** exact clone.
 */
 

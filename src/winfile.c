@@ -40,11 +40,9 @@
 # define FSCTL_GET_REPARSE_POINT (((0x00000009) << 16) | ((0x00000000) << 14) | ((42) << 2) | (0)) 
 #endif
 
-#if defined(__MSVCRT__)
 static HANDLE dllhandle = NULL;
-static DWORD WINAPI (*getFinalPathNameByHandleW) (HANDLE, LPWSTR, DWORD, DWORD) = NULL;
-static BOOLEAN APIENTRY (*createSymbolicLinkW) (LPCWSTR, LPCWSTR, DWORD) = NULL;
-#endif
+static DWORD (WINAPI *getFinalPathNameByHandleW) (HANDLE, LPWSTR, DWORD, DWORD) = NULL;
+static BOOLEAN (APIENTRY *createSymbolicLinkW) (LPCWSTR, LPCWSTR, DWORD) = NULL;
 
 /* a couple defines to make the borrowed struct below compile */
 #ifndef _ANONYMOUS_UNION
@@ -89,8 +87,8 @@ typedef struct {
 static int isVistaOrLater(){
     if( !dllhandle ){
         HANDLE h = LoadLibraryW(L"KERNEL32");
-        createSymbolicLinkW = (BOOLEAN APIENTRY (*) (LPCWSTR, LPCWSTR, DWORD)) GetProcAddress(h, "CreateSymbolicLinkW");
-        getFinalPathNameByHandleW = (DWORD WINAPI (*) (HANDLE, LPWSTR, DWORD, DWORD)) GetProcAddress(h, "GetFinalPathNameByHandleW");
+        createSymbolicLinkW = (BOOLEAN (APIENTRY *) (LPCWSTR, LPCWSTR, DWORD)) GetProcAddress(h, "CreateSymbolicLinkW");
+        getFinalPathNameByHandleW = (DWORD (WINAPI *) (HANDLE, LPWSTR, DWORD, DWORD)) GetProcAddress(h, "GetFinalPathNameByHandleW");
         dllhandle = h;
     }
     return createSymbolicLinkW != NULL;

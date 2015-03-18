@@ -203,7 +203,7 @@ static void xfer_accept_file(
     blob_reset(&content);
   }else{
     if( !isPriv ) content_make_public(rid);
-    manifest_crosslink(rid, &content, MC_NONE);
+    manifest_crosslink(rid, &content, MC_NO_ERRORS);
   }
   assert( blob_is_reset(&content) );
   remote_has(rid);
@@ -534,7 +534,7 @@ static void send_compressed_file(Xfer *pXfer, int rid){
 static void request_phantoms(Xfer *pXfer, int maxReq){
   Stmt q;
   db_prepare(&q,
-    "SELECT uuid FROM phantom JOIN blob USING(rid)"
+    "SELECT uuid FROM phantom CROSS JOIN blob USING(rid) /*scan*/"
     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid) %s",
     (pXfer->syncPrivate ? "" :
          "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)")
@@ -1968,8 +1968,8 @@ int client_sync(
 
   fossil_force_newline();
   fossil_print(
-     "%s finished with %lld bytes sent, %lld bytes received\n",
-     zOpType, nSent, nRcvd);
+     "%s done, sent: %lld  received: %lld  ip: %s\n",
+     zOpType, nSent, nRcvd, g.zIpAddr);
   transport_close(&g.url);
   transport_global_shutdown(&g.url);
   if( nErr && go==2 ){

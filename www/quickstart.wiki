@@ -78,7 +78,7 @@ and painlessly.</p>
     you can just make a copy of the repository file (for example, using
     "scp").  Note, however, that the repository file contains auxiliary
     information above and beyond the versioned files, including some
-    sensitive information such as password hashs and email addresses.  If you
+    sensitive information such as password hashes and email addresses.  If you
     want to share Fossil repositories directly, consider running the
     [/help/scrub|fossil scrub] command to remove sensitive information
     before transmitting the file.
@@ -338,7 +338,7 @@ and painlessly.</p>
     <li>[./server.wiki#scgi|SCGI]
     </ul>
 
-    <p>The the [./selfhost.wiki | self-hosting fossil repositories] use
+    <p>The [./selfhost.wiki | self-hosting fossil repositories] use
     CGI.  
 
 <a name="proxy"></a>
@@ -389,7 +389,7 @@ and painlessly.</p>
 
     <p>A [/help | complete list of commands] is available, as is the
     [./hints.wiki|helpful hints] document.  See the
-    [./permutedindex.wiki#pindex|permuted index] for additional
+    [./permutedindex.html#pindex|permuted index] for additional
     documentation.
 
     <p>Explore and have fun!</p>

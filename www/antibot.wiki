@@ -61,7 +61,7 @@ strings look like this:
 </ul>
 
 The first two UserAgent strings above identify Firefox 19 and
-Internet Explorer 8.0, both running on windows NT.  The third
+Internet Explorer 8.0, both running on Windows NT.  The third
 example is the spider used by Google to index the internet.
 The fourth example is the "wget" utility running on OpenBSD.
 Thus the first two UserAgent strings above identify the requestor

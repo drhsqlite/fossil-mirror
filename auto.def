@@ -70,7 +70,7 @@ if {![opt-bool internal-sqlite]} {
 }
 
 if {[string match *-solaris* [get-define host]]} {
-    define-append EXTRA_CFLAGS -D_XOPEN_SOURCE=500
+    define-append EXTRA_CFLAGS {-D_XOPEN_SOURCE=500 -D__EXTENSIONS__}
 }
 
 if {[opt-bool fossil-debug]} {

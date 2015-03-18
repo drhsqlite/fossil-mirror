@@ -51,13 +51,15 @@ void shun_page(void){
 
   login_check_credentials();
   if( !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   if( P("rebuild") ){
     db_close(1);
     db_open_repository(g.zRepositoryName);
     db_begin_transaction();
     rebuild_db(0, 0, 0);
+    admin_log("Rebuilt database.");
     db_end_transaction(0);
   }
   if( zUuid ){
@@ -103,12 +105,13 @@ void shun_page(void){
       if( !db_exists("SELECT 1 FROM blob WHERE uuid=%Q", p) ){
         allExist = 0;
       }
+      admin_log("Unshunned %Q", p);
       p += UUID_SIZE+1;
     }
     if( allExist ){
       @ <p class="noMoreShun">Artifact(s)<br />
       for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
-        @ <a href="%s(g.zTop)/artifact/%s(p)">%s(p)</a><br />
+        @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
       }
       @ are no longer being shunned.</p>
     }else{
@@ -141,11 +144,12 @@ void shun_page(void){
         db_multi_exec("DELETE FROM tag WHERE tagid=%d", tagid);
         db_multi_exec("DELETE FROM tagxref WHERE tagid=%d", tagid);
       }
+      admin_log("Shunned %Q", p);
       p += UUID_SIZE+1;
     }
     @ <p class="shunned">Artifact(s)<br />
     for( p = zUuid ; *p ; p += UUID_SIZE+1 ){
-      @ <a href="%s(g.zTop)/artifact/%s(p)">%s(p)</a><br />
+      @ <a href="%R/artifact/%s(p)">%s(p)</a><br />
     }
     @ have been shunned.  They will no longer be pushed.
     @ They will be removed from the repository the next time the repository
@@ -247,7 +251,7 @@ void shun_page(void){
     int stillExists = db_column_int(&q, 1);
     cnt++;
     if( stillExists ){
-      @ <b><a href="%s(g.zTop)/artifact/%s(zUuid)">%s(zUuid)</a></b><br />
+      @ <b><a href="%R/artifact/%s(zUuid)">%s(zUuid)</a></b><br />
     }else{
       @ <b>%s(zUuid)</b><br />
     }
@@ -294,23 +298,35 @@ void shun_artifacts(void){
 */
 void rcvfromlist_page(void){
   int ofst = atoi(PD("ofst","0"));
+  int showAll = P("all")!=0;
   int cnt;
   Stmt q;
 
   login_check_credentials();
   if( !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
-  style_header("Content Sources");
+  style_header("Artifact Receipts");
+  if( showAll ){
+    ofst = 0;
+  }else{
+    style_submenu_element("All", "All", "rcvfromlist?all=1");
+  }
   if( ofst>0 ){
     style_submenu_element("Newer", "Newer", "rcvfromlist?ofst=%d",
                            ofst>30 ? ofst-30 : 0);
   }
+  db_multi_exec(
+    "CREATE TEMP TABLE rcvidUsed(x INTEGER PRIMARY KEY);"
+    "INSERT OR IGNORE INTO rcvidUsed(x) SELECT rcvid FROM blob;"
+  );
   db_prepare(&q,
-    "SELECT rcvid, login, datetime(rcvfrom.mtime), rcvfrom.ipaddr"
+    "SELECT rcvid, login, datetime(rcvfrom.mtime), rcvfrom.ipaddr,"
+    "       EXISTS(SELECT 1 FROM rcvidUsed WHERE x=rcvfrom.rcvid)"
     "  FROM rcvfrom LEFT JOIN user USING(uid)"
-    " ORDER BY rcvid DESC LIMIT 31 OFFSET %d",
-    ofst
+    " ORDER BY rcvid DESC LIMIT %d OFFSET %d",
+    showAll ? -1 : 31, ofst
   );
   @ <p>Whenever new artifacts are added to the repository, either by
   @ push or using the web interface, an entry is made in the RCVFROM table
@@ -320,7 +336,9 @@ void rcvfromlist_page(void){
   @
   @ <p>Click on the "rcvid" to show a list of specific artifacts received
   @ by a transaction.  After identifying illicit artifacts, remove them
-  @ using the "Shun" feature.</p>
+  @ using the "Shun" button.  If an "rcvid" is not hyperlinked, that means
+  @ all artifacts associated with that rcvid have already been shunned
+  @ or purged.</p>
   @
   @ <table cellpadding="0" cellspacing="0" border="0">
   @ <tr><th style="padding-right: 15px;text-align: right;">rcvid</th>
@@ -333,13 +351,18 @@ void rcvfromlist_page(void){
     const char *zUser = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     const char *zIpAddr = db_column_text(&q, 3);
-    if( cnt==30 ){
+    if( cnt==30 && !showAll ){
       style_submenu_element("Older", "Older",
          "rcvfromlist?ofst=%d", ofst+30);
     }else{
       cnt++;
       @ <tr>
-      @ <td style="padding-right: 15px;text-align: right;"><a href="rcvfrom?rcvid=%d(rcvid)">%d(rcvid)</a></td>
+      if( db_column_int(&q,4) ){
+        @ <td style="padding-right: 15px;text-align: right;">
+        @ <a href="rcvfrom?rcvid=%d(rcvid)">%d(rcvid)</a></td>
+      }else{
+        @ <td style="padding-right: 15px;text-align: right;">%d(rcvid)</td>
+      }
       @ <td style="padding-right: 15px;text-align: left;">%s(zDate)</td>
       @ <td style="padding-right: 15px;text-align: left;">%h(zUser)</td>
       @ <td style="text-align: left;">%s(zIpAddr)</td>
@@ -362,20 +385,23 @@ void rcvfrom_page(void){
 
   login_check_credentials();
   if( !g.perm.Admin ){
-    login_needed();
+    login_needed(0);
+    return;
   }
-  style_header("Content Source %d", rcvid);
+  style_header("Artifact Receipt %d", rcvid);
   if( db_exists(
     "SELECT 1 FROM blob WHERE rcvid=%d AND"
     " NOT EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
   ){
-    style_submenu_element("Shun All", "Shun All", "shun?shun&rcvid=%d#addshun", rcvid);
+    style_submenu_element("Shun All", "Shun All",
+                          "shun?shun&rcvid=%d#addshun", rcvid);
   }
   if( db_exists(
     "SELECT 1 FROM blob WHERE rcvid=%d AND"
     " EXISTS (SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)", rcvid)
   ){
-    style_submenu_element("Unshun All", "Unshun All", "shun?accept&rcvid=%d#delshun", rcvid);
+    style_submenu_element("Unshun All", "Unshun All",
+                          "shun?accept&rcvid=%d#delshun", rcvid);
   }
   db_prepare(&q,
     "SELECT login, datetime(rcvfrom.mtime), rcvfrom.ipaddr"
@@ -398,17 +424,25 @@ void rcvfrom_page(void){
     @ <td valign="top">%s(zIpAddr)</td></tr>
   }
   db_finalize(&q);
+  db_multi_exec(
+    "CREATE TEMP TABLE toshow(rid INTEGER PRIMARY KEY);"
+    "INSERT INTO toshow SELECT rid FROM blob WHERE rcvid=%d", rcvid
+  );
+  describe_artifacts("IN toshow");
   db_prepare(&q,
-    "SELECT rid, uuid, size FROM blob WHERE rcvid=%d", rcvid
+    "SELECT blob.rid, blob.uuid, blob.size, description.summary\n"
+    "  FROM blob LEFT JOIN description ON (blob.rid=description.rid)"
+    " WHERE blob.rcvid=%d", rcvid
   );
   @ <tr><th valign="top" align="right">Artifacts:</th>
   @ <td valign="top">
   while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     int size = db_column_int(&q, 2);
-    @ <a href="%s(g.zTop)/info/%s(zUuid)">%s(zUuid)</a>
-    @ (rid: %d(rid), size: %d(size))<br />
+    const char *zDesc = db_column_text(&q, 3);
+    if( zDesc==0 ) zDesc = "";
+    @ <a href="%R/info/%s(zUuid)">%s(zUuid)</a>
+    @ %h(zDesc) (size: %d(size))<br />
   }
   @ </td></tr>
   @ </table>

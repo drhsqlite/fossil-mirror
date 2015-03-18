@@ -46,6 +46,40 @@ int fossil_isdate(const char *z){
 }
 
 /*
+** Return the RID that is the "root" of the branch that contains
+** check-in "rid" if inBranch==0 or the first check-in in the branch
+** if inBranch==1.
+*/
+int start_of_branch(int rid, int inBranch){
+  Stmt q;
+  int rc;
+  char *zBr;
+  zBr = db_text("trunk","SELECT value FROM tagxref"
+                        " WHERE rid=%d AND tagid=%d"
+                        " AND tagtype>0",
+                        rid, TAG_BRANCH);
+  db_prepare(&q,
+    "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
+                       " WHERE tagid=%d AND tagtype>0"
+                       "   AND value=%Q AND rid=plink.pid)"
+    "  FROM plink"
+    " WHERE cid=:cid AND isprim",
+    TAG_BRANCH, zBr
+  );
+  fossil_free(zBr);
+  do{
+    db_reset(&q);
+    db_bind_int(&q, ":cid", rid);
+    rc = db_step(&q);
+    if( rc!=SQLITE_ROW ) break;
+    if( inBranch && db_column_int(&q,1)==0 ) break;
+    rid = db_column_int(&q, 0);
+  }while( db_column_int(&q, 1)==1 && rid>0 );
+  db_finalize(&q);
+  return rid;
+}
+
+/*
 ** Convert a symbolic name into a RID.  Acceptable forms:
 **
 **   *  SHA1 hash
@@ -68,16 +102,29 @@ int fossil_isdate(const char *z){
 **
 ** The zType parameter specifies the type of artifact: ci, t, w, e, g.
 ** If zType is NULL or "" or "*" then any type of artifact will serve.
+** If zType is "br" then find the first check-in of the named branch
+** rather than the last.
 ** zType is "ci" in most use cases since we are usually searching for
 ** a check-in.
+**
+** Note that the input zTag for types "t" and "e" is the SHA1 hash of
+** the ticket-change or event-change artifact, not the randomly generated
+** hexadecimal identifier assigned to tickets and events.  Those identifiers
+** live in a separate namespace.
 */
 int symbolic_name_to_rid(const char *zTag, const char *zType){
   int vid;
   int rid = 0;
   int nTag;
   int i;
+  int startOfBranch = 0;
 
-  if( zType==0 || zType[0]==0 ) zType = "*";
+  if( zType==0 || zType[0]==0 ){
+    zType = "*";
+  }else if( zType[0]=='b' ){
+    zType = "ci";
+    startOfBranch = 1;
+  }
   if( zTag==0 || zTag[0]==0 ) return 0;
 
   /* special keyword: "tip" */
@@ -153,37 +200,14 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
        "   AND event.type GLOB '%q'",
        &zTag[4], zType
     );
+    if( startOfBranch ) rid = start_of_branch(rid,1);
     return rid;
   }
 
   /* root:TAG -> The origin of the branch */
   if( memcmp(zTag, "root:", 5)==0 ){
-    Stmt q;
-    int rc;
-    char *zBr;
     rid = symbolic_name_to_rid(zTag+5, zType);
-    zBr = db_text("trunk","SELECT value FROM tagxref"
-                          " WHERE rid=%d AND tagid=%d"
-                          " AND tagtype>0",
-                          rid, TAG_BRANCH);
-    db_prepare(&q,
-      "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
-                         " WHERE tagid=%d AND tagtype>0"
-                         "   AND value=%Q AND rid=plink.pid)"
-      "  FROM plink"
-      " WHERE cid=:cid AND isprim",
-      TAG_BRANCH, zBr
-    );
-    fossil_free(zBr);
-    do{
-      db_reset(&q);
-      db_bind_int(&q, ":cid", rid);
-      rc = db_step(&q);
-      if( rc!=SQLITE_ROW ) break;
-      rid = db_column_int(&q, 0);
-    }while( db_column_int(&q, 1)==1 && rid>0 );
-    db_finalize(&q);
-    return rid;
+    return start_of_branch(rid, 0);
   }
 
   /* symbolic-name ":" date-time */
@@ -247,7 +271,10 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     "   AND event.type GLOB '%q'",
     zTag, zType
   );
-  if( rid>0 ) return rid;
+  if( rid>0 ){
+    if( startOfBranch ) rid = start_of_branch(rid,1);
+    return rid;
+  }
 
   /* Undocumented:  numeric tags get translated directly into the RID */
   if( memcmp(zTag, "rid:", 4)==0 ){
@@ -326,26 +353,21 @@ int name_to_uuid2(const char *zName, const char *zType, char **pUuid){
 ** than 4 characters in length.
 */
 int name_collisions(const char *zName){
-  Stmt q;
   int c = 0;         /* count of collisions for zName */
   int nLen;          /* length of zName */
   nLen = strlen(zName);
   if( nLen>=4 && nLen<=UUID_SIZE && validate16(zName, nLen) ){
-    db_prepare(&q,
-      "SELECT count(uuid) FROM"
-      "  (SELECT substr(tkt_uuid, 1, %d) AS uuid FROM ticket"
-      "   UNION ALL SELECT * FROM"
-      "     (SELECT substr(tagname, 7, %d) FROM"
-      "       tag WHERE tagname GLOB 'event-*')"
-      "   UNION ALL SELECT * FROM"
-      "     (SELECT substr(uuid, 1, %d) FROM blob))"
-      "  WHERE uuid GLOB '%q*'"
-      "  GROUP BY uuid HAVING count(uuid) > 1;",
-      nLen, nLen, nLen, zName);
-    if( db_step(&q)==SQLITE_ROW ){
-      c = db_column_int(&q, 0);
-    }
-    db_finalize(&q);
+    c = db_int(0,
+      "SELECT"
+      " (SELECT count(*) FROM ticket"
+      "   WHERE tkt_uuid GLOB '%q*') +"
+      " (SELECT count(*) FROM tag"
+      "   WHERE tagname GLOB 'event-%q*') +"
+      " (SELECT count(*) FROM blob"
+      "   WHERE uuid GLOB '%q*');",
+      zName, zName, zName
+    );
+    if( c<2 ) c = 0;
   }
   return c;
 }
@@ -393,14 +415,11 @@ int name_to_typed_rid(const char *zName, const char *zType){
   if( zName==0 || zName[0]==0 ) return 0;
   rid = symbolic_name_to_rid(zName, zType);
   if( rid<0 ){
-    fossil_error(1, "ambiguous name: %s", zName);
-    return 0;
+    fossil_fatal("ambiguous name: %s", zName);
   }else if( rid==0 ){
-    fossil_error(1, "not found: %s", zName);
-    return 0;
-  }else{
-    return rid;
+    fossil_fatal("not found: %s", zName);
   }
+  return rid;
 }
 int name_to_rid(const char *zName){
   return name_to_typed_rid(zName, "*");
@@ -432,7 +451,7 @@ void ambiguous_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
-    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
     @ %s(zUuid)</a> -
     object_description(rid, 0, 0);
     @ </p></li>
@@ -449,7 +468,7 @@ void ambiguous_page(void){
     int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zTitle = db_column_text(&q, 2);
-    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
     @ %s(zUuid)</a> -
     @ <ul></ul>
     @ Ticket
@@ -469,7 +488,7 @@ void ambiguous_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     const char* zUuid = db_column_text(&q, 1);
-    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%s(zUuid)">
+    @ <li><p><a href="%R/%T(zSrc)/%!S(zUuid)">
     @ %s(zUuid)</a> -
     @ <ul><li>
     object_description(rid, 0, 0);
@@ -507,7 +526,7 @@ int name_to_rid_www(const char *zParamName){
 /*
 ** Generate a description of artifact "rid"
 */
-static void whatis_rid(int rid, int verboseFlag){
+void whatis_rid(int rid, int verboseFlag){
   Stmt q;
   int cnt;
 
@@ -659,8 +678,10 @@ void whatis_cmd(void){
   const char *zName;
   int verboseFlag;
   int i;
+  const char *zType = 0;
   db_find_and_open_repository(0,0);
   verboseFlag = find_option("verbose","v",0)!=0;
+  zType = find_option("type",0,1);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -669,7 +690,7 @@ void whatis_cmd(void){
   for(i=2; i<g.argc; i++){
     zName = g.argv[i];
     if( i>2 ) fossil_print("%.79c\n",'-');
-    rid = symbolic_name_to_rid(zName, 0);
+    rid = symbolic_name_to_rid(zName, zType);
     if( rid<0 ){
       Stmt q;
       int cnt = 0;
@@ -758,4 +779,359 @@ void test_ambiguous_cmd(void){
     fossil_print("%s\n", db_column_text(&q, 0));
   }
   db_finalize(&q);
+}
+
+/*
+** Schema for the description table
+*/
+static const char zDescTab[] =
+@ CREATE TEMP TABLE IF NOT EXISTS description(
+@   rid INTEGER PRIMARY KEY,       -- RID of the object
+@   uuid TEXT,                     -- SHA1 hash of the object
+@   ctime DATETIME,                -- Time of creation
+@   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
+@   type TEXT,                     -- file, checkin, wiki, ticket, etc.
+@   summary TEXT,                  -- Summary comment for the object
+@   detail TEXT                    -- File name, check-in comment, etc
+@ );
+;
+
+/*
+** Create the description table if it does not already exists.
+** Populate fields of this table with descriptions for all artifacts
+** whose RID matches the SQL expression in zWhere.
+*/
+void describe_artifacts(const char *zWhere){
+  db_multi_exec("%s", zDescTab/*safe-for-%s*/);
+
+  /* Describe check-ins */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, event.mtime, 'checkin',\n"
+    "       'check-in on ' || strftime('%%Y-%%m-%%d %%H:%%M',event.mtime)\n"
+    "  FROM event, blob\n"
+    " WHERE (event.objid %s) AND event.type='ci'\n"
+    "   AND event.objid=blob.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Describe files */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, event.mtime, 'file', 'file '||filename.name\n"
+    "  FROM mlink, blob, event, filename\n"
+    " WHERE (mlink.fid %s)\n"
+    "   AND mlink.mid=event.objid\n"
+    "   AND filename.fnid=mlink.fnid\n"
+    "   AND mlink.fid=blob.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Describe tags */
+  db_multi_exec(
+   "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'tag',\n"
+    "     'tag '||substr((SELECT uuid FROM blob WHERE rid=tagxref.rid),1,16)\n"
+    "  FROM tagxref, blob\n"
+    " WHERE (tagxref.srcid %s) AND tagxref.srcid!=tagxref.rid\n"
+    "   AND tagxref.srcid=blob.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Cluster artifacts */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'cluster', 'cluster'\n"
+    "  FROM tagxref, blob\n"
+    " WHERE (tagxref.rid %s)\n"
+    "   AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='cluster')\n"
+    "   AND blob.rid=tagxref.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Ticket change artifacts */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'ticket',\n"
+    "       'ticket '||substr(tag.tagname,5,21)\n"
+    "  FROM tagxref, tag, blob\n"
+    " WHERE (tagxref.rid %s)\n"
+    "   AND tag.tagid=tagxref.tagid\n"
+    "   AND tag.tagname GLOB 'tkt-*'"
+    "   AND blob.rid=tagxref.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Wiki edit artifacts */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'wiki',\n"
+    "       printf('wiki \"%%s\"',substr(tag.tagname,6))\n"
+    "  FROM tagxref, tag, blob\n"
+    " WHERE (tagxref.rid %s)\n"
+    "   AND tag.tagid=tagxref.tagid\n"
+    "   AND tag.tagname GLOB 'wiki-*'"
+    "   AND blob.rid=tagxref.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Event edit artifacts */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'event',\n"
+    "       'event '||substr(tag.tagname,7)\n"
+    "  FROM tagxref, tag, blob\n"
+    " WHERE (tagxref.rid %s)\n"
+    "   AND tag.tagid=tagxref.tagid\n"
+    "   AND tag.tagname GLOB 'event-*'"
+    "   AND blob.rid=tagxref.rid;",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Attachments */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, attachment.mtime, 'attach-control',\n"
+    "       'attachment-control for '||attachment.filename\n"
+    "  FROM attachment, blob\n"
+    " WHERE (attachment.attachid %s)\n"
+    "   AND blob.rid=attachment.attachid",
+    zWhere /*safe-for-%s*/
+  );
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, attachment.mtime, 'attachment',\n"
+    "       'attachment '||attachment.filename\n"
+    "  FROM attachment, blob\n"
+    " WHERE (blob.rid %s)\n"
+    "   AND blob.rid NOT IN (SELECT rid FROM description)\n"
+    "   AND blob.uuid=attachment.src",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Everything else */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO description(rid,uuid,type,summary)\n"
+    "SELECT blob.rid, blob.uuid,"
+    "       CASE WHEN blob.size<0 THEN 'phantom' ELSE '' END,\n"
+    "       'unknown'\n"
+    "  FROM blob WHERE (blob.rid %s);",
+    zWhere /*safe-for-%s*/
+  );
+
+  /* Mark private elements */
+  db_multi_exec(
+   "UPDATE description SET isPrivate=1 WHERE rid IN private"
+  );
+}
+
+/*
+** Print the content of the description table on stdout
+*/
+int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
+  Stmt q;
+  int cnt = 0;
+  describe_artifacts(zWhere);
+  db_prepare(&q,
+    "SELECT uuid, summary, isPrivate\n"
+    "  FROM description\n"
+    " ORDER BY ctime, type;"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    if( zLabel ){
+      fossil_print("%s\n", zLabel);
+      zLabel = 0;
+    }
+    fossil_print("  %.16s %s", db_column_text(&q,0), db_column_text(&q,1));
+    if( db_column_int(&q,2) ) fossil_print(" (unpublished)");
+    fossil_print("\n");
+    cnt++;
+  }
+  db_finalize(&q);
+  db_multi_exec("DELETE FROM description;");
+  return cnt;
+}
+
+/*
+** COMMAND: test-describe-artifacts
+**
+** Usage: %fossil test-describe-artifacts [--from S] [--count N]
+**
+** Display a one-line description of every artifact.
+*/
+void test_describe_artifacts_cmd(void){
+  int iFrom = 0;
+  int iCnt = 1000000;
+  const char *z;
+  char *zRange;
+  db_find_and_open_repository(0,0);
+  z = find_option("from",0,1);
+  if( z ) iFrom = atoi(z);
+  z = find_option("count",0,1);
+  if( z ) iCnt = atoi(z);
+  zRange = mprintf("BETWEEN %d AND %d", iFrom, iFrom+iCnt-1);
+  describe_artifacts_to_stdout(zRange, 0);
+}
+
+/*
+** WEBPAGE: bloblist
+**
+** Return a page showing all artifacts in the repository.  Query parameters:
+**
+**   n=N         Show N artifacts
+**   s=S         Start with artifact number S
+*/
+void bloblist_page(void){
+  Stmt q;
+  int s = atoi(PD("s","0"));
+  int n = atoi(PD("n","5000"));
+  int mx = db_int(0, "SELECT max(rid) FROM blob");
+  char *zRange;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_header("List Of Artifacts");
+  if( mx>n && P("s")==0 ){
+    int i;
+    @ <p>Select a range of artifacts to view:</p>
+    @ <ul>
+    for(i=1; i<=mx; i+=n){
+      @ <li> %z(href("%R/bloblist?s=%d&n=%d",i,n))
+      @ %d(i)..%d(i+n-1<mx?i+n-1:mx)</a>
+    }
+    @ </ul>
+    style_footer();
+    return;
+  }
+  if( mx>n ){
+    style_submenu_element("Index", "Index", "bloblist");
+  }
+  zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
+  describe_artifacts(zRange);
+  db_prepare(&q,
+    "SELECT rid, uuid, summary, isPrivate FROM description ORDER BY rid"
+  );
+  @ <table cellpadding="0" cellspacing="0">
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q,0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDesc = db_column_text(&q, 2);
+    int isPriv = db_column_int(&q,2);
+    @ <tr><td align="right">%d(rid)</td>
+    @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%s(zUuid)</a>&nbsp;</td>
+    @ <td align="left">%h(zDesc)</td>
+    if( isPriv ){
+      @ <td>(unpublished)</td>
+    }
+    @ </tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  style_footer();
+}
+
+/*
+** COMMAND: test-unsent
+**
+** Usage: %fossil test-unsent
+**
+** Show all artifacts in the unsent table
+*/
+void test_unsent_cmd(void){
+  db_find_and_open_repository(0,0);
+  describe_artifacts_to_stdout("IN unsent", 0);
+}
+
+/*
+** COMMAND: test-unclustered
+**
+** Usage: %fossil test-unclustered
+**
+** Show all artifacts in the unclustered table
+*/
+void test_unclusterd_cmd(void){
+  db_find_and_open_repository(0,0);
+  describe_artifacts_to_stdout("IN unclustered", 0);
+}
+
+/*
+** COMMAND: test-phantoms
+**
+** Usage: %fossil test-phantoms
+**
+** Show all phantom artifacts
+*/
+void test_phatoms_cmd(void){
+  db_find_and_open_repository(0,0);
+  describe_artifacts_to_stdout("IN (SELECT rid FROM blob WHERE size<0)", 0);
+}
+
+/* Maximum number of collision examples to remember */
+#define MAX_COLLIDE 25
+
+/*
+** WEBPAGE: hash-collisions
+**
+** Show the number of hash collisions for hash prefixes of various lengths.
+*/
+void hash_collisions_webpage(void){
+  int i, j, kk;
+  int nHash = 0;
+  Stmt q;
+  char zPrev[UUID_SIZE+1];
+  struct {
+    int cnt;
+    char *azHit[MAX_COLLIDE];
+    char z[UUID_SIZE+1];
+  } aCollide[UUID_SIZE+1];
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  memset(aCollide, 0, sizeof(aCollide));
+  memset(zPrev, 0, sizeof(zPrev));
+  db_prepare(&q,"SELECT uuid FROM blob ORDER BY 1");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q,0);
+    int n = db_column_bytes(&q,0);
+    int i;
+    nHash++;
+    for(i=0; zPrev[i] && zPrev[i]==zUuid[i]; i++){}
+    if( i>0 && i<=UUID_SIZE ){
+      if( i>=4 && aCollide[i].cnt<MAX_COLLIDE ){
+        aCollide[i].azHit[aCollide[i].cnt] = mprintf("%.*s", i, zPrev);
+      }
+      aCollide[i].cnt++;
+      if( aCollide[i].z[0]==0 ) memcpy(aCollide[i].z, zPrev, n+1);
+    }
+    memcpy(zPrev, zUuid, n+1);
+  }
+  db_finalize(&q);
+  style_header("SHA1 Prefix Collisions");
+  style_submenu_element("Activity Reports", 0, "reports");
+  style_submenu_element("Stats", 0, "stat");
+  @ <table border=1><thead>
+  @ <tr><th>Length<th>Instances<th>First Instance</tr>
+  @ </thead><tbody>
+  for(i=1; i<=UUID_SIZE; i++){
+    if( aCollide[i].cnt==0 ) continue;
+    @ <tr><td>%d(i)<td>%d(aCollide[i].cnt)<td>%h(aCollide[i].z)</tr>
+  }
+  @ </tbody></table>
+  @ <p>Total number of hashes: %d(nHash)</p>
+  kk = 0;
+  for(i=UUID_SIZE; i>=4; i--){
+    if( aCollide[i].cnt==0 ) continue;
+    if( aCollide[i].cnt>200 ) break;
+    kk += aCollide[i].cnt;
+    if( aCollide[i].cnt<25 ){
+      @ <p>Collisions of length %d(i):
+    }else{
+      @ <p>First 25 collisions of length %d(i):
+    }
+    for(j=0; j<aCollide[i].cnt && j<MAX_COLLIDE; j++){
+      char *zId = aCollide[i].azHit[j];
+      if( zId==0 ) continue;
+      @ %z(href("%R/whatis/%s",zId))%h(zId)</a>
+    }
+  }
+  style_footer();
 }

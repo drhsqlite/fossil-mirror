@@ -14,7 +14,7 @@
 **   http://www.hwaci.com/drh/
 **
 *******************************************************************************
-** 
+**
 ** This file implements the undo/redo functionality.
 */
 #include "config.h"
@@ -47,15 +47,15 @@ static void undo_one(const char *zPathname, int redoFlag){
     Blob new;
     zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
     old_link = db_column_int(&q, 3);
-    new_link = file_wd_islink(zFullname);
     new_exists = file_wd_size(zFullname)>=0;
+    new_link = file_wd_islink(0);
     if( new_exists ){
       if( new_link ){
         blob_read_link(&current, zFullname);
       }else{
-        blob_read_from_file(&current, zFullname);        
+        blob_read_from_file(&current, zFullname);
       }
-      new_exe = file_wd_isexe(zFullname);
+      new_exe = file_wd_isexe(0);
     }else{
       blob_zero(&current);
       new_exe = 0;
@@ -81,7 +81,7 @@ static void undo_one(const char *zPathname, int redoFlag){
     blob_reset(&new);
     free(zFullname);
     db_finalize(&q);
-    db_prepare(&q, 
+    db_prepare(&q,
        "UPDATE undo SET content=:c, existsflag=%d, isExe=%d, isLink=%d,"
              " redoflag=NOT redoflag"
        " WHERE pathname=%Q",
@@ -122,7 +122,6 @@ static void undo_all_filesystem(int redoFlag){
 static void undo_all(int redoFlag){
   int ucid;
   int ncid;
-  const char *zDb = db_name("localdb");
   undo_all_filesystem(redoFlag);
   db_multi_exec(
     "CREATE TEMP TABLE undo_vfile_2 AS SELECT * FROM vfile;"
@@ -138,8 +137,7 @@ static void undo_all(int redoFlag){
     "INSERT INTO undo_vmerge SELECT * FROM undo_vmerge_2;"
     "DROP TABLE undo_vmerge_2;"
   );
-  if(db_exists("SELECT 1 FROM \"%w\".sqlite_master"
-               " WHERE name='undo_stash'", zDb) ){
+  if( db_table_exists("localdb", "undo_stash") ){
     if( redoFlag ){
       db_multi_exec(
         "DELETE FROM stash WHERE stashid IN (SELECT stashid FROM undo_stash);"
@@ -214,7 +212,7 @@ void undo_capture_command_line(void){
 void undo_begin(void){
   int cid;
   const char *zDb = db_name("localdb");
-  static const char zSql[] = 
+  static const char zSql[] =
     @ CREATE TABLE "%w".undo(
     @   pathname TEXT UNIQUE,             -- Name of the file
     @   redoflag BOOLEAN,                 -- 0 for undoable.  1 for redoable
@@ -237,7 +235,7 @@ void undo_begin(void){
 }
 
 /*
-** Permanently disable undo 
+** Permanently disable undo
 */
 void undo_disable(void){
   undoDisable = 1;
@@ -276,7 +274,7 @@ void undo_save(const char *zPathname){
   );
   if( existsFlag ){
     if( isLink ){
-      blob_read_link(&content, zFullname); 
+      blob_read_link(&content, zFullname);
     }else{
       blob_read_from_file(&content, zFullname);
     }
@@ -360,7 +358,7 @@ void undo_rollback(void){
 **    (4) fossil stash pop
 **
 ** If FILENAME is specified then restore the content of the named
-** file(s) but otherwise leave the update or merge or revert in effect. 
+** file(s) but otherwise leave the update or merge or revert in effect.
 ** The redo command undoes the effect of the most recent undo.
 **
 ** If the -n|--dry-run option is present, no changes are made and instead
@@ -407,7 +405,7 @@ void undo_cmd(void){
                        "command above is %sne:\n\n", zCmd);
         }
         nChng++;
-        fossil_print("%s %s\n", 
+        fossil_print("%s %s\n",
            db_column_int(&q,0) ? "UPDATE" : "DELETE",
            db_column_text(&q, 1)
         );

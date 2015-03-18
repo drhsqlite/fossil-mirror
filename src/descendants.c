@@ -32,7 +32,7 @@
 ** A "leaf" is a check-in that has no children in the same branch.
 ** There is a separate permanent table LEAF that contains all leaves
 ** in the tree.  This routine is used to compute a subset of that
-** table consisting of leaves that are descended from a single checkin.
+** table consisting of leaves that are descended from a single check-in.
 **
 ** The closeMode flag determines behavior associated with the "closed"
 ** tag:
@@ -291,10 +291,10 @@ void compute_descendants(int rid, int N){
 /*
 ** COMMAND: descendants*
 **
-** Usage: %fossil descendants ?BASELINE-ID? ?OPTIONS?
+** Usage: %fossil descendants ?CHECKIN? ?OPTIONS?
 **
-** Find all leaf descendants of the baseline specified or if the argument
-** is omitted, of the baseline currently checked out.
+** Find all leaf descendants of the check-in specified or if the argument
+** is omitted, of the check-in currently checked out.
 **
 ** Options:
 **    -R|--repository FILE       Extract info from repository FILE
@@ -336,7 +336,7 @@ void descendants_cmd(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_tty()
   );
-  print_timeline(&q, -20, width, 0);
+  print_timeline(&q, 0, width, 0);
   db_finalize(&q);
 }
 
@@ -441,7 +441,7 @@ void leaves_page(void){
   int showClosed = P("closed")!=0;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   if( !showAll ){
     style_submenu_element("All", "All", "leaves?all");
@@ -454,6 +454,7 @@ void leaves_page(void){
   }
   style_header("Leaves");
   login_anonymous_available();
+#if 0
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
   @ <li> A <div class="sideboxDescribed">leaf</div>
@@ -466,6 +467,7 @@ void leaves_page(void){
   @ be historical and no longer in active use.</li>
   @ </ol>
   style_sidebox_end();
+#endif
 
   if( showAll ){
     @ <h1>All leaves, both open and closed:</h1>
@@ -484,7 +486,7 @@ void leaves_page(void){
   }
   db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
   blob_reset(&sql);
-  www_print_timeline(&q, TIMELINE_LEAFONLY, 0, 0, 0);
+  www_print_timeline(&q, TIMELINE_LEAFONLY, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   style_footer();

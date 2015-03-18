@@ -354,12 +354,8 @@ void login_clear_login_data(){
                   "  cexpire=0 WHERE uid=%d"
                   "  AND login NOT IN ('anonymous','nobody',"
                   "  'developer','reader')", g.userUid);
-    cgi_replace_parameter(cookie, NULL)
-      /* At the time of this writing, cgi_replace_parameter() was
-      ** "NULL-value-safe", and I'm hoping the NULL doesn't cause any
-      ** downstream problems here. We could alternately use "" here.
-      */
-      ;
+    cgi_replace_parameter(cookie, NULL);
+    cgi_replace_parameter("anon", NULL);
   }
 }
 
@@ -453,23 +449,42 @@ static void constant_time_cmp_function(
 }
 
 /*
-** WEBPAGE: login
-** WEBPAGE: logout
-** WEBPAGE: my
-**
-** Generate the login page.
-**
+** Return true if the current page was reached by a redirect from the /login
+** page.
+*/
+int referred_from_login(void){
+  const char *zReferer = P("HTTP_REFERER");
+  char *zPattern;
+  int rc;
+  if( zReferer==0 ) return 0;
+  zPattern = mprintf("%s/login*", g.zBaseURL);
+  rc = sqlite3_strglob(zPattern, zReferer)==0;
+  fossil_free(zPattern);
+  return rc;
+}
+
+/*
 ** There used to be a page named "my" that was designed to show information
 ** about a specific user.  The "my" page was linked from the "Logged in as USER"
 ** line on the title bar.  The "my" page was never completed so it is now
 ** removed.  Use this page as a placeholder in older installations.
+**
+** WEBPAGE: login
+** WEBPAGE: logout
+** WEBPAGE: my
+**
+** The login/logout page.  Parameters:
+**
+**    g=URL             Jump back to this URL after login completes
+**    anon              The g=URL is not accessible by "nobody" but is
+**                      accessible by "anonymous"
 */
 void login_page(void){
   const char *zUsername, *zPasswd;
   const char *zNew1, *zNew2;
   const char *zAnonPw = 0;
   const char *zGoto = P("g");
-  int anonFlag;
+  int anonFlag;                /* Login as "anonymous" would be useful */
   char *zErrMsg = "";
   int uid;                     /* User id logged in user */
   char *zSha1Pw;
@@ -477,15 +492,30 @@ void login_page(void){
   const char *zReferer;
 
   login_check_credentials();
+  if( login_wants_https_redirect() ){
+    const char *zQS = P("QUERY_STRING");
+    if( zQS==0 ){
+      zQS = "";
+    }else if( zQS[0]!=0 ){
+      zQS = mprintf("?%s", zQS);
+    }
+    cgi_redirectf("%s%s%s", g.zHttpsURL, P("PATH_INFO"), zQS);
+    return;
+  }
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
                   constant_time_cmp_function, 0, 0);
   zUsername = P("u");
   zPasswd = P("p");
-  anonFlag = P("anon")!=0;
-  if( P("out")!=0 ){
+  anonFlag = g.zLogin==0 && PB("anon");
+
+  /* Handle log-out requests */
+  if( P("out") ){
     login_clear_login_data();
     redirect_to_g();
+    return;
   }
+
+  /* Deal with password-change requests */
   if( g.perm.Password && zPasswd
    && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0
   ){
@@ -567,15 +597,37 @@ void login_page(void){
     }
   }
   style_header("Login/Logout");
+  style_adunit_config(ADUNIT_OFF);
   @ %s(zErrMsg)
-  if( zGoto && P("anon")==0 ){
-    @ <p>A login is required for <a href="%h(zGoto)">%h(zGoto)</a>.</p>
+  if( zGoto ){
+    char *zAbbrev = fossil_strdup(zGoto);
+    int i;
+    for(i=0; zAbbrev[i] && zAbbrev[i]!='?'; i++){}
+    zAbbrev[i] = 0;
+    if( g.zLogin ){
+      @ <p>Use a different login with greater privilege than <b>%h(g.zLogin)</b>
+      @ to access <b>%h(zAbbrev)</b>.
+    }else if( anonFlag ){
+      @ <p>Login as <b>anonymous</b> or any named user
+      @ to access page <b>%h(zAbbrev)</b>.
+    }else{
+      @ <p>Login as a named user to access page <b>%h(zAbbrev)</b>.
+    }
   }
   form_begin(0, "%R/login");
   if( zGoto ){
     @ <input type="hidden" name="g" value="%h(zGoto)" />
   }else if( zReferer && strncmp(g.zBaseURL, zReferer, strlen(g.zBaseURL))==0 ){
     @ <input type="hidden" name="g" value="%h(zReferer)" />
+  }
+  if( anonFlag ){
+    @ <input type="hidden" name="anon" value="1" />
+  }
+  if( g.zLogin ){
+    @ <p>Currently logged in as <b>%h(g.zLogin)</b>.
+    @ <input type="submit" name="out" value="Logout"></p>
+    @ <hr />
+    @ <p>Change user:
   }
   @ <table class="login_out">
   @ <tr>
@@ -590,7 +642,7 @@ void login_page(void){
   @  <td class="login_out_label">Password:</td>
   @   <td><input type="password" id="p" name="p" value="" size="30" /></td>
   @ </tr>
-  if( g.zLogin==0 ){
+  if( g.zLogin==0 && (anonFlag || zGoto==0) ){
     zAnonPw = db_text(0, "SELECT pw FROM user"
                          " WHERE login='anonymous'"
                          "   AND cap!=''");
@@ -615,19 +667,10 @@ void login_page(void){
   }
   @ }
   @ </script>
-  if( g.zLogin==0 ){
-    @ <p>Enter
-  }else{
-    @ <p>You are currently logged in as <b>%h(g.zLogin)</b></p>
-    @ <p>To change your login to a different user, enter
-  }
-  @ your user-id and password at the left and press the
-  @ "Login" button.  Your user name will be stored in a browser cookie.
-  @ You must configure your web browser to accept cookies in order for
-  @ the login to take.</p>
+  @ <p>Pressing the Login button grants permission to store a cookie.</p>
   if( db_get_boolean("self-register", 0) ){
     @ <p>If you do not have an account, you can
-    @ <a href="%s(g.zTop)/register?g=%T(P("G"))">create one</a>.
+    @ <a href="%R/register?g=%T(P("G"))">create one</a>.
   }
   if( zAnonPw ){
     unsigned int uSeed = captcha_seed();
@@ -648,18 +691,10 @@ void login_page(void){
     @ </div>
     free(zCaptcha);
   }
-  if( g.zLogin ){
-    @ <hr />
-    @ <p>To log off the system (and delete your login cookie)
-    @  press the following button:<br />
-    @ <input type="submit" name="out" value="Logout" /></p>
-  }
   @ </form>
   if( g.perm.Password ){
     @ <hr />
-    @ <p>To change your password, enter your old password and your
-    @ new password twice below then press the "Change Password"
-    @ button.</p>
+    @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
     form_begin(0, "%R/login");
     @ <table>
     @ <tr><td class="login_out_label">Old Password:</td>
@@ -780,6 +815,21 @@ static int login_find_user(
 }
 
 /*
+** Return true if it is appropriate to redirect login requests to HTTPS.
+**
+** Redirect to https is appropriate if all of the above are true:
+**    (1) The redirect-to-https flag is set
+**    (2) The current connection is http, not https or ssh
+**    (3) The sslNotAvailable flag is clear
+*/
+int login_wants_https_redirect(void){
+  if( g.sslNotAvailable ) return 0;
+  if( db_get_boolean("redirect-to-https",0)==0 ) return 0;
+  if( P("HTTPS")!=0 ) return 0;
+  return 1;
+}
+
+/*
 ** This routine examines the login cookie to see if it exists and
 ** is valid.  If the login cookie checks out, it then sets global
 ** variables appropriately.
@@ -787,6 +837,7 @@ static int login_find_user(
 **    g.userUid      Database USER.UID value.  Might be -1 for "nobody"
 **    g.zLogin       Database USER.LOGIN value.  NULL for user "nobody"
 **    g.perm         Permissions granted to this user
+**    g.anon         Permissions that would be available to anonymous
 **    g.isHuman      True if the user is human, not a spider or robot
 **
 */
@@ -814,7 +865,7 @@ void login_check_credentials(void){
   */
   zRemoteAddr = ipPrefix(zIpAddr = PD("REMOTE_ADDR","nil"));
   if( ( fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
-        g.fSshClient & CGI_SSH_CLIENT )
+        (g.fSshClient & CGI_SSH_CLIENT)!=0 )
    && g.useLocalauth
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0
@@ -978,19 +1029,28 @@ void login_check_credentials(void){
 static int login_anon_once = 1;
 
 /*
-** Add the default privileges of users "nobody" and "anonymous" as appropriate
-** for the user g.zLogin.
+** Add to g.perm the default privileges of users "nobody" and/or "anonymous"
+** as appropriate for the user g.zLogin.
+**
+** This routine also sets up g.anon to be either a copy of g.perm for
+** all logged in uses, or the privileges that would be available to "anonymous"
+** if g.zLogin==0 (meaning that the user is "nobody").
 */
 void login_set_anon_nobody_capabilities(void){
-  if( g.zLogin && login_anon_once ){
+  if( login_anon_once ){
     const char *zCap;
-    /* All logged-in users inherit privileges from "nobody" */
+    /* All users get privileges from "nobody" */
     zCap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
     login_set_capabilities(zCap, 0);
-    if( fossil_strcmp(g.zLogin, "nobody")!=0 ){
+    zCap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
+    if( g.zLogin && fossil_strcmp(g.zLogin, "nobody")!=0 ){
       /* All logged-in users inherit privileges from "anonymous" */
-      zCap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
       login_set_capabilities(zCap, 0);
+      g.anon = g.perm;
+    }else{
+      /* Record the privileges of anonymous in g.anon */
+      g.anon = g.perm;
+      login_set_capabilities(zCap, LOGIN_ANON);
     }
     login_anon_once = 0;
   }
@@ -1001,51 +1061,53 @@ void login_set_anon_nobody_capabilities(void){
 */
 #if INTERFACE
 #define LOGIN_IGNORE_UV  0x01         /* Ignore "u" and "v" */
+#define LOGIN_ANON       0x02         /* Use g.anon instead of g.perm */
 #endif
 
 /*
-** Adds all capability flags in zCap to g.perm.
+** Adds all capability flags in zCap to g.perm or g.anon.
 */
 void login_set_capabilities(const char *zCap, unsigned flags){
   int i;
+  FossilUserPerms *p = (flags & LOGIN_ANON) ? &g.anon : &g.perm;
   if(NULL==zCap){
     return;
   }
   for(i=0; zCap[i]; i++){
     switch( zCap[i] ){
-      case 's':   g.perm.Setup = 1;  /* Fall thru into Admin */
-      case 'a':   g.perm.Admin = g.perm.RdTkt = g.perm.WrTkt = g.perm.Zip =
-                           g.perm.RdWiki = g.perm.WrWiki = g.perm.NewWiki =
-                           g.perm.ApndWiki = g.perm.Hyperlink = g.perm.Clone =
-                           g.perm.NewTkt = g.perm.Password = g.perm.RdAddr =
-                           g.perm.TktFmt = g.perm.Attach = g.perm.ApndTkt =
-                           g.perm.ModWiki = g.perm.ModTkt = 1;
+      case 's':   p->Setup = 1;  /* Fall thru into Admin */
+      case 'a':   p->Admin = p->RdTkt = p->WrTkt = p->Zip =
+                           p->RdWiki = p->WrWiki = p->NewWiki =
+                           p->ApndWiki = p->Hyperlink = p->Clone =
+                           p->NewTkt = p->Password = p->RdAddr =
+                           p->TktFmt = p->Attach = p->ApndTkt =
+                           p->ModWiki = p->ModTkt = 1;
                            /* Fall thru into Read/Write */
-      case 'i':   g.perm.Read = g.perm.Write = 1;                     break;
-      case 'o':   g.perm.Read = 1;                                 break;
-      case 'z':   g.perm.Zip = 1;                                  break;
+      case 'i':   p->Read = p->Write = 1;                     break;
+      case 'o':   p->Read = 1;                                 break;
+      case 'z':   p->Zip = 1;                                  break;
 
-      case 'd':   g.perm.Delete = 1;                               break;
-      case 'h':   g.perm.Hyperlink = 1;                            break;
-      case 'g':   g.perm.Clone = 1;                                break;
-      case 'p':   g.perm.Password = 1;                             break;
+      case 'd':   p->Delete = 1;                               break;
+      case 'h':   p->Hyperlink = 1;                            break;
+      case 'g':   p->Clone = 1;                                break;
+      case 'p':   p->Password = 1;                             break;
 
-      case 'j':   g.perm.RdWiki = 1;                               break;
-      case 'k':   g.perm.WrWiki = g.perm.RdWiki = g.perm.ApndWiki =1;    break;
-      case 'm':   g.perm.ApndWiki = 1;                             break;
-      case 'f':   g.perm.NewWiki = 1;                              break;
-      case 'l':   g.perm.ModWiki = 1;                              break;
+      case 'j':   p->RdWiki = 1;                               break;
+      case 'k':   p->WrWiki = p->RdWiki = p->ApndWiki =1;    break;
+      case 'm':   p->ApndWiki = 1;                             break;
+      case 'f':   p->NewWiki = 1;                              break;
+      case 'l':   p->ModWiki = 1;                              break;
 
-      case 'e':   g.perm.RdAddr = 1;                               break;
-      case 'r':   g.perm.RdTkt = 1;                                break;
-      case 'n':   g.perm.NewTkt = 1;                               break;
-      case 'w':   g.perm.WrTkt = g.perm.RdTkt = g.perm.NewTkt =
-                  g.perm.ApndTkt = 1;                              break;
-      case 'c':   g.perm.ApndTkt = 1;                              break;
-      case 'q':   g.perm.ModTkt = 1;                               break;
-      case 't':   g.perm.TktFmt = 1;                               break;
-      case 'b':   g.perm.Attach = 1;                               break;
-      case 'x':   g.perm.Private = 1;                              break;
+      case 'e':   p->RdAddr = 1;                               break;
+      case 'r':   p->RdTkt = 1;                                break;
+      case 'n':   p->NewTkt = 1;                               break;
+      case 'w':   p->WrTkt = p->RdTkt = p->NewTkt =
+                  p->ApndTkt = 1;                              break;
+      case 'c':   p->ApndTkt = 1;                              break;
+      case 'q':   p->ModTkt = 1;                               break;
+      case 't':   p->TktFmt = 1;                               break;
+      case 'b':   p->Attach = 1;                               break;
+      case 'x':   p->Private = 1;                              break;
 
       /* The "u" privileges is a little different.  It recursively
       ** inherits all privileges of the user named "reader" */
@@ -1086,38 +1148,39 @@ void login_replace_capabilities(const char *zCap, unsigned flags){
 ** the input, then return 0.  If all capabilities are present, then
 ** return 1.
 */
-int login_has_capability(const char *zCap, int nCap){
+int login_has_capability(const char *zCap, int nCap, u32 flgs){
   int i;
   int rc = 1;
+  FossilUserPerms *p = (flgs & LOGIN_ANON) ? &g.anon : &g.perm;
   if( nCap<0 ) nCap = strlen(zCap);
   for(i=0; i<nCap && rc && zCap[i]; i++){
     switch( zCap[i] ){
-      case 'a':  rc = g.perm.Admin;     break;
-      case 'b':  rc = g.perm.Attach;    break;
-      case 'c':  rc = g.perm.ApndTkt;   break;
-      case 'd':  rc = g.perm.Delete;    break;
-      case 'e':  rc = g.perm.RdAddr;    break;
-      case 'f':  rc = g.perm.NewWiki;   break;
-      case 'g':  rc = g.perm.Clone;     break;
-      case 'h':  rc = g.perm.Hyperlink; break;
-      case 'i':  rc = g.perm.Write;     break;
-      case 'j':  rc = g.perm.RdWiki;    break;
-      case 'k':  rc = g.perm.WrWiki;    break;
-      case 'l':  rc = g.perm.ModWiki;   break;
-      case 'm':  rc = g.perm.ApndWiki;  break;
-      case 'n':  rc = g.perm.NewTkt;    break;
-      case 'o':  rc = g.perm.Read;      break;
-      case 'p':  rc = g.perm.Password;  break;
-      case 'q':  rc = g.perm.ModTkt;    break;
-      case 'r':  rc = g.perm.RdTkt;     break;
-      case 's':  rc = g.perm.Setup;     break;
-      case 't':  rc = g.perm.TktFmt;    break;
+      case 'a':  rc = p->Admin;     break;
+      case 'b':  rc = p->Attach;    break;
+      case 'c':  rc = p->ApndTkt;   break;
+      case 'd':  rc = p->Delete;    break;
+      case 'e':  rc = p->RdAddr;    break;
+      case 'f':  rc = p->NewWiki;   break;
+      case 'g':  rc = p->Clone;     break;
+      case 'h':  rc = p->Hyperlink; break;
+      case 'i':  rc = p->Write;     break;
+      case 'j':  rc = p->RdWiki;    break;
+      case 'k':  rc = p->WrWiki;    break;
+      case 'l':  rc = p->ModWiki;   break;
+      case 'm':  rc = p->ApndWiki;  break;
+      case 'n':  rc = p->NewTkt;    break;
+      case 'o':  rc = p->Read;      break;
+      case 'p':  rc = p->Password;  break;
+      case 'q':  rc = p->ModTkt;    break;
+      case 'r':  rc = p->RdTkt;     break;
+      case 's':  rc = p->Setup;     break;
+      case 't':  rc = p->TktFmt;    break;
       /* case 'u': READER    */
       /* case 'v': DEVELOPER */
-      case 'w':  rc = g.perm.WrTkt;     break;
-      case 'x':  rc = g.perm.Private;   break;
+      case 'w':  rc = p->WrTkt;     break;
+      case 'x':  rc = p->Private;   break;
       /* case 'y': */
-      case 'z':  rc = g.perm.Zip;       break;
+      case 'z':  rc = p->Zip;       break;
       default:   rc = 0;             break;
     }
   }
@@ -1171,7 +1234,7 @@ const char *login_name(void){
 ** Call this routine when the credential check fails.  It causes
 ** a redirect to the "login" page.
 */
-void login_needed(void){
+void login_needed(int anonOk){
 #ifdef FOSSIL_ENABLE_JSON
   if(g.json.isJsonMode){
     json_err( FSL_JSON_E_DENIED, NULL, 1 );
@@ -1182,7 +1245,19 @@ void login_needed(void){
 #endif /* FOSSIL_ENABLE_JSON */
   {
     const char *zUrl = PD("REQUEST_URI", "index");
-    cgi_redirect(mprintf("login?g=%T", zUrl));
+    const char *zQS = P("QUERY_STRING");
+    Blob redir;
+    blob_init(&redir, 0, 0);
+    if( login_wants_https_redirect() ){
+      blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrl);
+    }else{
+      blob_appendf(&redir, "%R/login?g=%T", zUrl);
+    }
+    if( anonOk ) blob_append(&redir, "&anon", 5);
+    if( zQS && zQS[0] ){
+      blob_appendf(&redir, "&%s", zQS);
+    }
+    cgi_redirect(blob_str(&redir));
     /* NOTREACHED */
     assert(0);
   }
@@ -1195,13 +1270,10 @@ void login_needed(void){
 ** logging in as anonymous.
 */
 void login_anonymous_available(void){
-  if( !g.perm.Hyperlink &&
-      db_exists("SELECT 1 FROM user"
-                " WHERE login='anonymous'"
-                "   AND cap LIKE '%%h%%'") ){
+  if( !g.perm.Hyperlink && g.anon.Hyperlink ){
     const char *zUrl = PD("REQUEST_URI", "index");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br />
-    @ Use <a href="%s(g.zTop)/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
+    @ Use <a href="%R/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
     @ to enable hyperlinks.</p>
   }
 }

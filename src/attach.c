@@ -50,15 +50,18 @@ void attachlist_page(void){
      timeline_utc()
   );
   if( zPage ){
-    if( g.perm.RdWiki==0 ) login_needed();
+    if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     style_header("Attachments To %h", zPage);
     blob_append_sql(&sql, " WHERE target=%Q", zPage);
   }else if( zTkt ){
-    if( g.perm.RdTkt==0 ) login_needed();
+    if( g.perm.RdTkt==0 ){ login_needed(g.anon.RdTkt); return; }
     style_header("Attachments To Ticket %S", zTkt);
     blob_append_sql(&sql, " WHERE target GLOB '%q*'", zTkt);
   }else{
-    if( g.perm.RdTkt==0 && g.perm.RdWiki==0 ) login_needed();
+    if( g.perm.RdTkt==0 && g.perm.RdWiki==0 ){
+      login_needed(g.anon.RdTkt || g.anon.RdWiki);
+      return;
+    }
     style_header("All Attachments");
   }
   blob_append_sql(&sql, " ORDER BY mtime DESC");
@@ -88,15 +91,15 @@ void attachlist_page(void){
       zUrlTail = mprintf("page=%t&file=%t", zTarget, zFilename);
     }
     @ <li><p>
-    @ Attachment %z(href("%R/ainfo/%s",zUuid))%S(zUuid)</a>
+    @ Attachment %z(href("%R/ainfo/%!S",zUuid))%S(zUuid)</a>
     if( moderation_pending(attachid) ){
       @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
     }
-    @ <br><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
-    @ [<a href="/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
+    @ <br><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
+    @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
-      @ %!w(zComment)<br />
+      @ %!W(zComment)<br />
     }
     if( zPage==0 && zTkt==0 ){
       if( zSrc==0 || zSrc[0]==0 ){
@@ -105,10 +108,10 @@ void attachlist_page(void){
         zSrc = "Added to";
       }
       if( strlen(zTarget)==UUID_SIZE && validate16(zTarget, UUID_SIZE) ){
-        @ %s(zSrc) ticket <a href="%s(g.zTop)/tktview?name=%s(zTarget)">
+        @ %s(zSrc) ticket <a href="%R/tktview?name=%s(zTarget)">
         @ %S(zTarget)</a>
       }else{
-        @ %s(zSrc) wiki page <a href="%s(g.zTop)/wiki?name=%t(zTarget)">
+        @ %s(zSrc) wiki page <a href="%R/wiki?name=%t(zTarget)">
         @ %h(zTarget)</a>
       }
     }else{
@@ -152,10 +155,10 @@ void attachview_page(void){
   if( zFile==0 ) fossil_redirect_home();
   login_check_credentials();
   if( zPage ){
-    if( g.perm.RdWiki==0 ) login_needed();
+    if( g.perm.RdWiki==0 ){ login_needed(g.anon.RdWiki); return; }
     zTarget = zPage;
   }else if( zTkt ){
-    if( g.perm.RdTkt==0 ) login_needed();
+    if( g.perm.RdTkt==0 ){ login_needed(g.anon.RdTkt); return; }
     zTarget = zTkt;
   }else{
     fossil_redirect_home();
@@ -245,23 +248,29 @@ void attachadd_page(void){
   if( zPage==0 && zTkt==0 ) fossil_redirect_home();
   login_check_credentials();
   if( zPage ){
-    if( g.perm.ApndWiki==0 || g.perm.Attach==0 ) login_needed();
+    if( g.perm.ApndWiki==0 || g.perm.Attach==0 ){
+      login_needed(g.anon.ApndWiki && g.anon.Attach);
+      return;
+    }
     if( !db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'", zPage) ){
       fossil_redirect_home();
     }
     zTarget = zPage;
-    zTargetType = mprintf("Wiki Page <a href=\"%s/wiki?name=%h\">%h</a>",
-                           g.zTop, zPage, zPage);
+    zTargetType = mprintf("Wiki Page <a href=\"%R/wiki?name=%h\">%h</a>",
+                           zPage, zPage);
   }else{
-    if( g.perm.ApndTkt==0 || g.perm.Attach==0 ) login_needed();
+    if( g.perm.ApndTkt==0 || g.perm.Attach==0 ){
+      login_needed(g.anon.ApndTkt && g.anon.Attach);
+      return;
+    }
     if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'", zTkt) ){
       zTkt = db_text(0, "SELECT substr(tagname,5) FROM tag"
                         " WHERE tagname GLOB 'tkt-%q*'", zTkt);
       if( zTkt==0 ) fossil_redirect_home();
     }
     zTarget = zTkt;
-    zTargetType = mprintf("Ticket <a href=\"%s/tktview/%s\">%S</a>",
-                          g.zTop, zTkt, zTkt);
+    zTargetType = mprintf("Ticket <a href=\"%R/tktview/%s\">%S</a>",
+                          zTkt, zTkt);
   }
   if( zFrom==0 ) zFrom = mprintf("%s/home", g.zTop);
   if( P("cancel") ){
@@ -371,7 +380,10 @@ void ainfo_page(void){
   const char *zLn = P("ln");
 
   login_check_credentials();
-  if( !g.perm.RdTkt && !g.perm.RdWiki ){ login_needed(); return; }
+  if( !g.perm.RdTkt && !g.perm.RdWiki ){
+    login_needed(g.anon.RdTkt || g.anon.RdWiki);
+    return;
+  }
   rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -401,13 +413,13 @@ void ainfo_page(void){
    && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid='%q'", zTarget)
   ){
     zTktUuid = zTarget;
-    if( !g.perm.RdTkt ){ login_needed(); return; }
+    if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
     if( g.perm.WrTkt ){
       style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
     }
   }else if( db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",zTarget) ){
     zWikiName = zTarget;
-    if( !g.perm.RdWiki ){ login_needed(); return; }
+    if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
     if( g.perm.WrWiki ){
       style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
     }
@@ -445,7 +457,7 @@ void ainfo_page(void){
   if( P("del")
    && ((zTktUuid && g.perm.WrTkt) || (zWikiName && g.perm.WrWiki))
   ){
-    form_begin(0, "%R/ainfo/%s", zUuid);
+    form_begin(0, "%R/ainfo/%!S", zUuid);
     @ <p>Confirm you want to delete the attachment shown below.
     @ <input type="submit" name="confirm" value="Confirm">
     @ </form>
@@ -458,7 +470,7 @@ void ainfo_page(void){
     if( strcmp(zModAction,"delete")==0 ){
       moderation_disapprove(rid);
       if( zTktUuid ){
-        cgi_redirectf("%R/tktview/%s", zTktUuid);
+        cgi_redirectf("%R/tktview/%!S", zTktUuid);
       }else{
         cgi_redirectf("%R/wiki?name=%t", zWikiName);
       }
@@ -479,7 +491,7 @@ void ainfo_page(void){
   @ <div class="section">Overview</div>
   @ <p><table class="label-value">
   @ <tr><th>Artifact&nbsp;ID:</th>
-  @ <td>%z(href("%R/artifact/%s",zUuid))%s(zUuid)</a>
+  @ <td>%z(href("%R/artifact/%!S",zUuid))%s(zUuid)</a>
   if( g.perm.Setup ){
     @ (%d(rid))
   }
@@ -581,10 +593,10 @@ void attachment_list(
     }
     cnt++;
     @ <li>
-    @ %z(href("%R/artifact/%s",zSrc))%h(zFile)</a>
+    @ %z(href("%R/artifact/%!S",zSrc))%h(zFile)</a>
     @ added by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
-    @ [%z(href("%R/ainfo/%s",zUuid))details</a>]
+    @ [%z(href("%R/ainfo/%!S",zUuid))details</a>]
     @ </li>
   }
   if( cnt ){

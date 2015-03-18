@@ -288,25 +288,22 @@ void symlink_copy(const char *zFrom, const char *zTo){
 /*
 ** Return file permissions (normal, executable, or symlink):
 **   - PERM_EXE if file is executable;
-**   - PERM_LNK on Unix if file is symlink and allow-symlinks option is on;
+**   - PERM_LNK if file is symlink and allow-symlinks option is on;
 **   - PERM_REG for all other cases (regular file, directory, fifo, etc).
 */
 int file_wd_perm(const char *zFilename){
-  if( getStat(zFilename, 1) ) return PERM_REG;
 #if defined(_WIN32)
 #  ifndef S_IXUSR
 #    define S_IXUSR  _S_IEXEC
 #  endif
-  if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
-#else
-  if( S_ISREG(fileStat.st_mode) &&
-      ((S_IXUSR|S_IXGRP|S_IXOTH)&fileStat.st_mode)!=0 )
 #endif
-    return PERM_EXE;
-  else if( g.allowSymlinks && S_ISLNK(fileStat.st_mode) )
-    return PERM_LNK;
-  else
-    return PERM_REG;
+  if( !getStat(zFilename, 1) ){
+    if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
+      return PERM_EXE;
+    else if( g.allowSymlinks && S_ISLNK(fileStat.st_mode) )
+      return PERM_LNK;
+  }
+  return PERM_REG;
 }
 
 /*
@@ -484,12 +481,12 @@ int file_wd_setexe(const char *zFilename, int onoff){
   if( fossil_stat(zFilename, &buf, 1)!=0 || S_ISLNK(buf.st_mode) ) return 0;
   if( onoff ){
     int targetMode = (buf.st_mode & 0444)>>2;
-    if( (buf.st_mode & 0111)!=targetMode ){
+    if( (buf.st_mode & 0100) == 0 ){
       chmod(zFilename, buf.st_mode | targetMode);
       rc = 1;
     }
   }else{
-    if( (buf.st_mode & 0111)!=0 ){
+    if( (buf.st_mode & 0100) != 0 ){
       chmod(zFilename, buf.st_mode & ~0111);
       rc = 1;
     }
@@ -893,7 +890,7 @@ int file_is_absolute_path(const char *zPath){
 #if defined(_WIN32) || defined(__CYGWIN__)
       || zPath[0]=='\\'
       || (fossil_isalpha(zPath[0]) && zPath[1]==':'
-           && (zPath[2]=='\\' || zPath[2]=='/'))
+           && (zPath[2]=='\\' || zPath[2]=='/' || zPath[2]=='\0'))
 #endif
   ){
     return 1;
@@ -1331,6 +1328,25 @@ char *fossil_getenv(const char *zName){
 #endif
   if( zValue ) zValue = fossil_filename_to_utf8(zValue);
   return zValue;
+}
+
+/*
+** Sets the value of an environment variable as UTF8.
+*/
+int fossil_setenv(const char *zName, const char *zValue){
+  int rc;
+  char *zString = mprintf("%s=%s", zName, zValue);
+#ifdef _WIN32
+  wchar_t *uString = fossil_utf8_to_unicode(zString);
+  rc = _wputenv(uString);
+  fossil_unicode_free(uString);
+  fossil_free(zString);
+#else
+  rc = putenv(zString);
+  /* NOTE: Cannot free the string on POSIX. */
+  /* fossil_free(zString); */
+#endif
+  return rc;
 }
 
 /*

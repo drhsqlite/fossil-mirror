@@ -90,7 +90,8 @@ static void json_timeline_temp_table(void){
 
 /*
 ** Return a pointer to a constant string that forms the basis
-** for a timeline query for the JSON interface.
+** for a timeline query for the JSON interface. It MUST NOT
+** be used in a formatted string argument.
 */
 char const * json_timeline_query(void){
   /* Field order MUST match that from json_timeline_temp_table()!!! */
@@ -99,7 +100,7 @@ char const * json_timeline_query(void){
     @   NULL,
     @   blob.rid,
     @   uuid,
-    @   CAST(strftime('%%s',event.mtime) AS INTEGER),
+    @   CAST(strftime('%s',event.mtime) AS INTEGER),
     @   datetime(event.mtime),
     @   coalesce(ecomment, comment),
     @   coalesce(euser, user),
@@ -458,7 +459,7 @@ static cson_value * json_timeline_ci(){
     /* Reminder to self: HTML impl requires 'o' (Read)
        rights.
     */
-    json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'h' access." );
+    json_set_err( FSL_JSON_E_DENIED, "Check-in timeline requires 'h' access." );
     return NULL;
   }
   verboseFlag = json_find_option_bool("verbose",NULL,"v",0);
@@ -546,8 +547,7 @@ cson_value * json_timeline_wiki(){
 
 #if 0
   /* only for testing! */
-  tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
-  SET("timelineSql");
+  cson_object_set(pay, "timelineSql", cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql))));
 #endif
   db_multi_exec("%s", blob_buffer(&sql) /*safe-for-%s*/);
   blob_reset(&sql);

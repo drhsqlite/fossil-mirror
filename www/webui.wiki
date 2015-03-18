@@ -10,15 +10,15 @@ development project:
   *  Status information
   *  Timelines
   *  Graphs of revision and branching history
-  *  [./event.wiki | Blogs, News, and Announcements]
+  *  [./event.wiki | Technical notes]
   *  File and version lists and differences
   *  Download historical versions as ZIP archives
   *  Historical change data
-  *  Add and remove tags on checkins
-  *  Move checkins between branches
-  *  Revise checkin comments
+  *  Add and remove tags on check-ins
+  *  Move check-ins between branches
+  *  Revise check-in comments
   *  Manage user credentials and access permissions
-  *  And so forth...
+  *  And so forth... (some [./webpage-ex.md|examples])
 
 You get all of this, and more, for free when you use Fossil. 
 There are no extra programs to install or setup.
@@ -106,12 +106,12 @@ your edits will automatically merge with those of your co-workers when
 your repository synchronizes.
 
 You can view summary reports of <b>branches</b> in the
-check-in graph by visiting the "Branche" links on the
+check-in graph by visiting the "Branches" link on the
 menu bar.  From those pages you can follow hyperlinks to get additional
 details.  These screens allow you to easily keep track of what is going
 on with separate subteams within your project team.
 
-The "Files" link on the menu allows you to browse though the <b>file
+The "Files" link on the menu allows you to browse through the <b>file
 hierarchy</b> of the project and to view complete changes histories on
 individual files, with hyperlinks to the check-ins that made those
 changes, and with diffs and annotated diffs between versions.

@@ -62,7 +62,7 @@ static void tag_propagate(
   db_bind_double(&s, ":mtime", mtime);
 
   if( tagType==2 ){
-    /* Set the propagated tag marker on checkin :rid */
+    /* Set the propagated tag marker on check-in :rid */
     db_prepare(&ins,
        "REPLACE INTO tagxref(tagid, tagtype, srcid, origid, value, mtime, rid)"
        "VALUES(%d,2,0,%d,%Q,:mtime,:rid)",
@@ -70,7 +70,7 @@ static void tag_propagate(
     );
     db_bind_double(&ins, ":mtime", mtime);
   }else{
-    /* Remove all references to the tag from checkin :rid */
+    /* Remove all references to the tag from check-in :rid */
     zValue = 0;
     db_prepare(&ins,
        "DELETE FROM tagxref WHERE tagid=%d AND rid=:rid", tagid
@@ -271,7 +271,7 @@ void testtag_cmd(void){
   zValue = g.argc==5 ? g.argv[4] : 0;
   db_begin_transaction();
   tag_insert(zTag, tagtype, zValue, -1, 0.0, rid);
-  db_end_transaction(0); 
+  db_end_transaction(0);
 }
 
 /*
@@ -354,7 +354,7 @@ void tag_add_artifact(
 **     %fossil tag find ?--raw? ?-t|--type TYPE? ?-n|--limit #? TAGNAME
 **
 **         List all objects that use TAGNAME.  TYPE can be "ci" for
-**         checkins or "e" for events. The limit option limits the number
+**         check-ins or "e" for events. The limit option limits the number
 **         of results to the given value.
 **
 **     %fossil tag list|ls ?--raw? ?CHECK-IN?
@@ -537,17 +537,18 @@ tag_cmd_usage:
 }
 
 /*
-** WEBPAGE: /taglist
+** WEBPAGE: taglist
 */
 void taglist_page(void){
   Stmt q;
 
   login_check_credentials();
   if( !g.perm.Read ){
-    login_needed();
+    login_needed(g.anon.Read);
   }
   login_anonymous_available();
   style_header("Tags");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Timeline", "Timeline", "tagtimeline");
   @ <h2>Non-propagating tags:</h2>
   db_prepare(&q,
@@ -563,7 +564,7 @@ void taglist_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     if( g.perm.Hyperlink ){
-      @ <li>%z(xhref("class='taglink'","%R/timeline?t=%T",zName))
+      @ <li>%z(xhref("class='taglink'","%R/timeline?t=%T&n=200",zName))
       @ %h(zName)</a></li>
     }else{
       @ <li><span class="tagDsp">%h(zName)</span></li>
@@ -581,7 +582,7 @@ void tagtimeline_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Tagged Check-ins");
   style_submenu_element("List", "List", "taglist");
@@ -595,7 +596,7 @@ void tagtimeline_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www()
   );
-  www_print_timeline(&q, 0, 0, 0, 0);
+  www_print_timeline(&q, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   style_footer();

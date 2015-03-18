@@ -25,17 +25,38 @@
 
 /*
 ** Elements of the submenu are collected into the following
-** structure and displayed below the main menu by style_header().
+** structure and displayed below the main menu.
 **
-** Populate this structure with calls to style_submenu_element()
-** prior to calling style_header().
+** Populate these structure with calls to
+**
+**      style_submenu_element()
+**      style_submenu_entry()
+**      style_submenu_checkbox()
+**      style_submenu_multichoice()
+**
+** prior to calling style_footer().  The style_footer() routine
+** will generate the appropriate HTML text just below the main
+** menu.
 */
 static struct Submenu {
-  const char *zLabel;
+  const char *zLabel;        /* Button label */
   const char *zTitle;
-  const char *zLink;
+  const char *zLink;         /* Jump to this link when button is pressed */
 } aSubmenu[30];
-static int nSubmenu = 0;
+static int nSubmenu = 0;     /* Number of buttons */
+static struct SubmenuCtrl {
+  const char *zName;         /* Form query parameter */
+  const char *zLabel;        /* Label.  Might be NULL for FF_MULTI */
+  unsigned char eType;       /* FF_ENTRY, FF_MULTI, FF_BINARY */
+  unsigned char isDisabled;  /* True if this control is grayed out */
+  short int iSize;           /* Width for FF_ENTRY.  Count for FF_MULTI */
+  const char **azChoice;     /* value/display pairs for FF_MULTI */
+  const char *zFalse;        /* FF_BINARY label when false */
+} aSubmenuCtrl[20];
+static int nSubmenuCtrl = 0;
+#define FF_ENTRY  1
+#define FF_MULTI  2
+#define FF_BINARY 3
 
 /*
 ** Remember that the header has been generated.  The footer is omitted
@@ -47,6 +68,11 @@ static int headerHasBeenGenerated = 0;
 ** remember, if a sidebox was used
 */
 static int sideboxUsed = 0;
+
+/*
+** Ad-unit styles.
+*/
+static unsigned adUnitFlags = 0;
 
 
 /*
@@ -184,14 +210,18 @@ void style_resolve_href(void){
     @ if( isOperaMini ){
     @   setTimeout("setAllHrefs();",%d(nDelay));
     @ }
+  }else if( db_get_boolean("auto-hyperlink-ishuman",0) && g.isHuman ){
+    /* Active hyperlinks after a delay */
+    @ setTimeout("setAllHrefs();",%d(nDelay));
   }else if( db_get_boolean("auto-hyperlink-mouseover",0) ){
-    /* Require mouse movement prior to activating hyperlinks */
+    /* Require mouse movement before starting the teim that will
+    ** activating hyperlinks */
     @ document.getElementsByTagName("body")[0].onmousemove=function(){
     @   setTimeout("setAllHrefs();",%d(nDelay));
     @   this.onmousemove = null;
     @ }
   }else{
-    /* Active hyperlinks right away */
+    /* Active hyperlinks after a delay */
     @ setTimeout("setAllHrefs();",%d(nDelay));
   }
   @ </script>
@@ -209,12 +239,55 @@ void style_submenu_element(
   va_list ap;
   assert( nSubmenu < sizeof(aSubmenu)/sizeof(aSubmenu[0]) );
   aSubmenu[nSubmenu].zLabel = zLabel;
-  aSubmenu[nSubmenu].zTitle = zTitle;
+  aSubmenu[nSubmenu].zTitle = zTitle ? zTitle : zLabel;
   va_start(ap, zLink);
   aSubmenu[nSubmenu].zLink = vmprintf(zLink, ap);
   va_end(ap);
   nSubmenu++;
 }
+void style_submenu_entry(
+  const char *zName,       /* Query parameter name */
+  const char *zLabel,      /* Label before the entry box */
+  int iSize,               /* Size of the entry box */
+  int isDisabled           /* True if disabled */
+){
+  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  aSubmenuCtrl[nSubmenuCtrl].zName = zName;
+  aSubmenuCtrl[nSubmenuCtrl].zLabel = zLabel;
+  aSubmenuCtrl[nSubmenuCtrl].iSize = iSize;
+  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
+  aSubmenuCtrl[nSubmenuCtrl].eType = FF_ENTRY;
+  nSubmenuCtrl++;
+}
+void style_submenu_binary(
+  const char *zName,       /* Query parameter name */
+  const char *zTrue,       /* Label to show when parameter is true */
+  const char *zFalse,      /* Label to show when the parameter is false */
+  int isDisabled           /* True if this control is disabled */
+){
+  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  aSubmenuCtrl[nSubmenuCtrl].zName = zName;
+  aSubmenuCtrl[nSubmenuCtrl].zLabel = zTrue;
+  aSubmenuCtrl[nSubmenuCtrl].zFalse = zFalse;
+  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
+  aSubmenuCtrl[nSubmenuCtrl].eType = FF_BINARY;
+  nSubmenuCtrl++;
+}
+void style_submenu_multichoice(
+  const char *zName,       /* Query parameter name */
+  int nChoice,             /* Number of options */
+  const char **azChoice,   /* value/display pairs.  2*nChoice entries */
+  int isDisabled           /* True if this control is disabled */
+){
+  assert( nSubmenuCtrl < ArraySize(aSubmenuCtrl) );
+  aSubmenuCtrl[nSubmenuCtrl].zName = zName;
+  aSubmenuCtrl[nSubmenuCtrl].iSize = nChoice;
+  aSubmenuCtrl[nSubmenuCtrl].azChoice = azChoice;
+  aSubmenuCtrl[nSubmenuCtrl].isDisabled = isDisabled;
+  aSubmenuCtrl[nSubmenuCtrl].eType = FF_MULTI;
+  nSubmenuCtrl++;
+}
+
 
 /*
 ** Compare two submenu items for sorting purposes
@@ -254,12 +327,10 @@ static void url_var(
   const char *zConfigName,
   const char *zPageName
 ){
-  char *zMtime = db_get_mtime(zConfigName, 0, 0);
-  char *zUrl = mprintf("%s/%s/%s%.5s", g.zTop, zPageName, zMtime,
-                       MANIFEST_UUID);
   char *zVarName = mprintf("%s_url", zVarPrefix);
+  char *zUrl = mprintf("%s/%s?id=%x", g.zTop, zPageName,
+                       skin_id(zConfigName));
   Th_Store(zVarName, zUrl);
-  free(zMtime);
   free(zUrl);
   free(zVarName);
 }
@@ -282,7 +353,7 @@ static void image_url_var(const char *zImageName){
 void style_header(const char *zTitleFormat, ...){
   va_list ap;
   char *zTitle;
-  const char *zHeader = db_get("header", (char*)zDefaultHeader);
+  const char *zHeader = skin_get("header");
   login_check_credentials();
 
   va_start(ap, zTitleFormat);
@@ -299,6 +370,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("title", zTitle);
   Th_Store("baseurl", g.zBaseURL);
+  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
@@ -334,29 +406,57 @@ void style_header(const char *zTitleFormat, ...){
   */
   @ <script>
   @ function gebi(x){
-  @ if(/^#/.test(x)) x = x.substr(1);
+  @ if(x.substr(0,1)=='#') x = x.substr(1);
   @ var e = document.getElementById(x);
-  @ if(!e) throw new Error("Expecting element with ID "+x);
+  @ if(!e) throw new Error('Expecting element with ID '+x);
   @ else return e;}
   @ </script>
 }
 
+#if INTERFACE
+/* Allowed parameters for style_adunit() */
+#define ADUNIT_OFF        0x0001       /* Do not allow ads on this page */
+#define ADUNIT_RIGHT_OK   0x0002       /* Right-side vertical ads ok here */
+#endif
+
 /*
-** Append ad unit text if appropriate.
+** Various page implementations can invoke this interface to let the
+** style manager know what kinds of ads are appropriate for this page.
 */
-static void style_ad_unit(void){
-  const char *zAd;
+void style_adunit_config(unsigned int mFlags){
+  adUnitFlags = mFlags;
+}
+
+/*
+** Return the text of an ad-unit, if one should be rendered.  Return
+** NULL if no ad-unit is desired.
+**
+** The *pAdFlag value might be set to ADUNIT_RIGHT_OK if this is
+** a right-hand vertical ad.
+*/
+static const char *style_adunit_text(unsigned int *pAdFlag){
+  const char *zAd = 0;
+  *pAdFlag = 0;
+  if( adUnitFlags & ADUNIT_OFF ) return 0;  /* Disallow ads on this page */
   if( g.perm.Admin && db_get_boolean("adunit-omit-if-admin",0) ){
-    return;
+    return 0;
   }
   if( !login_is_nobody()
    && fossil_strcmp(g.zLogin,"anonymous")!=0
    && db_get_boolean("adunit-omit-if-user",0)
   ){
-    return;
+    return 0;
   }
-  zAd = db_get("adunit", 0);
-  if( zAd ) cgi_append_content(zAd, -1);
+  if( (adUnitFlags & ADUNIT_RIGHT_OK)!=0
+   && !fossil_all_whitespace(zAd = db_get("adunit-right", 0))
+   && !cgi_body_contains("<table")
+  ){
+    *pAdFlag = ADUNIT_RIGHT_OK;
+    return zAd;
+  }else if( !fossil_all_whitespace(zAd = db_get("adunit",0)) ){
+    return zAd;
+  }
+  return 0;
 }
 
 /*
@@ -364,6 +464,8 @@ static void style_ad_unit(void){
 */
 void style_footer(void){
   const char *zFooter;
+  const char *zAd = 0;
+  unsigned int mAdFlags = 0;
 
   if( !headerHasBeenGenerated ) return;
 
@@ -372,22 +474,108 @@ void style_footer(void){
   ** to the submenu while generating page text.
   */
   cgi_destination(CGI_HEADER);
-  if( nSubmenu>0 ){
+  if( nSubmenu+nSubmenuCtrl>0 ){
     int i;
+    if( nSubmenuCtrl ){
+      cgi_printf("<form id='f01' method='GET' action='%R/%s'>", g.zPath);
+    }
     @ <div class="submenu">
-    qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
-    for(i=0; i<nSubmenu; i++){
-      struct Submenu *p = &aSubmenu[i];
-      if( p->zLink==0 ){
-        @ <span class="label">%h(p->zLabel)</span>
-      }else{
-        @ <a class="label" href="%h(p->zLink)">%h(p->zLabel)</a>
+    if( nSubmenu>0 ){
+      qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
+      for(i=0; i<nSubmenu; i++){
+        struct Submenu *p = &aSubmenu[i];
+        if( p->zLink==0 ){
+          @ <span class="label">%h(p->zLabel)</span>
+        }else{
+          @ <a class="label" href="%h(p->zLink)">%h(p->zLabel)</a>
+        }
+      }
+    }
+    if( nSubmenuCtrl>0 ){
+      for(i=0; i<nSubmenuCtrl; i++){
+        const char *zQPN = aSubmenuCtrl[i].zName;
+        const char *zDisabled = " disabled";
+        if( !aSubmenuCtrl[i].isDisabled ){
+          zDisabled = "";
+          cgi_tag_query_parameter(zQPN);
+        }
+        switch( aSubmenuCtrl[i].eType ){
+          case FF_ENTRY: {
+            cgi_printf(
+               "<span class='submenuctrl'>"
+               "&nbsp;%h<input type='text' name='%s' size='%d' maxlength='%d'"
+               " value='%h'%s></span>\n",
+               aSubmenuCtrl[i].zLabel,
+               zQPN,
+               aSubmenuCtrl[i].iSize, aSubmenuCtrl[i].iSize,
+               PD(zQPN,""),
+               zDisabled
+            );
+            break;
+          }
+          case FF_MULTI: {
+            int j;
+            const char *zVal = P(zQPN);
+            cgi_printf(
+               "<select class='submenuctrl' size='1' name='%s'%s "
+               "onchange='gebi(\"f01\").submit();'>\n",
+               zQPN, zDisabled
+            );
+            for(j=0; j<aSubmenuCtrl[i].iSize*2; j+=2){
+              const char *zQPV = aSubmenuCtrl[i].azChoice[j];
+              cgi_printf(
+                "<option value='%h'%s>%h</option>\n",
+                zQPV,
+                fossil_strcmp(zVal,zQPV)==0 ? " selected" : "",
+                aSubmenuCtrl[i].azChoice[j+1]
+              );
+            }
+            @ </select>
+            break;
+          }
+          case FF_BINARY: {
+            int isTrue = PB(zQPN);
+            cgi_printf(
+               "<select class='submenuctrl' size='1' name='%s'%s "
+               "onchange='gebi(\"f01\").submit();'>\n",
+               zQPN, zDisabled
+            );
+            cgi_printf(
+              "<option value='1'%s>%h</option>\n",
+              isTrue ? " selected":"", aSubmenuCtrl[i].zLabel
+            );
+            cgi_printf(
+              "<option value='0'%s>%h</option>\n",
+              (!isTrue) ? " selected":"", aSubmenuCtrl[i].zFalse
+            );
+            @ </select>
+            break;
+          }
+        }
       }
     }
     @ </div>
+    if( nSubmenuCtrl ){
+      cgi_query_parameters_to_hidden();
+      cgi_tag_query_parameter(0);
+      @ </form>
+    }
   }
-  style_ad_unit();
-  @ <div class="content">
+
+  zAd = style_adunit_text(&mAdFlags);
+  if( (mAdFlags & ADUNIT_RIGHT_OK)!=0  ){
+    @ <div class="content adunit_right_container">
+    @ <div class="adunit_right">
+    cgi_append_content(zAd, -1);
+    @ </div>
+  }else{
+    if( zAd ){
+      @ <div class="adunit_banner">
+      cgi_append_content(zAd, -1);
+      @ </div>
+    }
+    @ <div class="content">
+  }
   cgi_destination(CGI_BODY);
 
   if( sideboxUsed ){
@@ -403,7 +591,7 @@ void style_footer(void){
   ** the footer will be generating </html> */
   style_resolve_href();
 
-  zFooter = db_get("footer", (char*)zDefaultFooter);
+  zFooter = skin_get("footer");
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
   if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
@@ -433,226 +621,6 @@ void style_sidebox_end(void){
   @ </div>
 }
 
-/* @-comment: // */
-/*
-** The default page header.
-*/
-const char zDefaultHeader[] =
-@ <html>
-@ <head>
-@ <base href="$baseurl/$current_page" />
-@ <title>$<project_name>: $<title></title>
-@ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-@       href="$home/timeline.rss" />
-@ <link rel="stylesheet" href="$stylesheet_url" type="text/css"
-@       media="screen" />
-@ </head>
-@ <body>
-@ <div class="header">
-@   <div class="logo">
-@     <img src="$logo_image_url" alt="logo" />
-@   </div>
-@   <div class="title"><small>$<project_name></small><br />$<title></div>
-@   <div class="status"><th1>
-@      if {[info exists login]} {
-@        puts "Logged in as $login"
-@      } else {
-@        puts "Not logged in"
-@      }
-@   </th1></div>
-@ </div>
-@ <div class="mainmenu">
-@ <th1>
-@ html "<a href='$home$index_page'>Home</a>\n"
-@ if {[anycap jor]} {
-@   html "<a href='$home/timeline'>Timeline</a>\n"
-@ }
-@ if {[hascap oh]} {
-@   html "<a href='$home/tree?ci=tip'>Files</a>\n"
-@ }
-@ if {[hascap o]} {
-@   html "<a href='$home/brlist'>Branches</a>\n"
-@   html "<a href='$home/taglist'>Tags</a>\n"
-@ }
-@ if {[hascap r]} {
-@   html "<a href='$home/reportlist'>Tickets</a>\n"
-@ }
-@ if {[hascap j]} {
-@   html "<a href='$home/wiki'>Wiki</a>\n"
-@ }
-@ if {[hascap s]} {
-@   html "<a href='$home/setup'>Admin</a>\n"
-@ } elseif {[hascap a]} {
-@   html "<a href='$home/setup_ulist'>Users</a>\n"
-@ }
-@ if {[info exists login]} {
-@   html "<a href='$home/login'>Logout</a>\n"
-@ } else {
-@   html "<a href='$home/login'>Login</a>\n"
-@ }
-@ </th1></div>
-;
-
-/*
-** The default page footer
-*/
-const char zDefaultFooter[] =
-@ <div class="footer">
-@ This page was generated in about
-@ <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s by
-@ Fossil version $manifest_version $manifest_date
-@ </div>
-@ </body></html>
-;
-
-/*
-** The default Cascading Style Sheet.
-** It's assembled by different strings for each class.
-** The default css contains all definitions.
-** The style sheet, send to the client only contains the ones,
-** not defined in the user defined css.
-*/
-const char zDefaultCSS[] =
-@ /* General settings for the entire page */
-@ body {
-@   margin: 0ex 1ex;
-@   padding: 0px;
-@   background-color: white;
-@   font-family: sans-serif;
-@ }
-@
-@ /* The project logo in the upper left-hand corner of each page */
-@ div.logo {
-@   display: table-cell;
-@   text-align: center;
-@   vertical-align: bottom;
-@   font-weight: bold;
-@   color: #558195;
-@   min-width: 200px;
-@   white-space: nowrap;
-@ }
-@
-@ /* The page title centered at the top of each page */
-@ div.title {
-@   display: table-cell;
-@   font-size: 2em;
-@   font-weight: bold;
-@   text-align: center;
-@   padding: 0 0 0 1em;
-@   color: #558195;
-@   vertical-align: bottom;
-@   width: 100%;
-@ }
-@
-@ /* The login status message in the top right-hand corner */
-@ div.status {
-@   display: table-cell;
-@   text-align: right;
-@   vertical-align: bottom;
-@   color: #558195;
-@   font-size: 0.8em;
-@   font-weight: bold;
-@   min-width: 200px;
-@   white-space: nowrap;
-@ }
-@
-@ /* The header across the top of the page */
-@ div.header {
-@   display: table;
-@   width: 100%;
-@ }
-@
-@ /* The main menu bar that appears at the top of the page beneath
-@ ** the header */
-@ div.mainmenu {
-@   padding: 5px 10px 5px 10px;
-@   font-size: 0.9em;
-@   font-weight: bold;
-@   text-align: center;
-@   letter-spacing: 1px;
-@   background-color: #558195;
-@   border-top-left-radius: 8px;
-@   border-top-right-radius: 8px;
-@   color: white;
-@ }
-@
-@ /* The submenu bar that *sometimes* appears below the main menu */
-@ div.submenu, div.sectionmenu {
-@   padding: 3px 10px 3px 0px;
-@   font-size: 0.9em;
-@   text-align: center;
-@   background-color: #456878;
-@   color: white;
-@ }
-@ div.mainmenu a, div.mainmenu a:visited, div.submenu a, div.submenu a:visited,
-@ div.sectionmenu>a.button:link, div.sectionmenu>a.button:visited {
-@   padding: 3px 10px 3px 10px;
-@   color: white;
-@   text-decoration: none;
-@ }
-@ div.mainmenu a:hover, div.submenu a:hover, div.sectionmenu>a.button:hover {
-@   color: #558195;
-@   background-color: white;
-@ }
-@
-@ /* All page content from the bottom of the menu or submenu down to
-@ ** the footer */
-@ div.content {
-@   padding: 0ex 1ex 1ex 1ex;
-@   border: solid #aaa;
-@   border-width: 1px;
-@ }
-@
-@ /* Some pages have section dividers */
-@ div.section {
-@   margin-bottom: 0px;
-@   margin-top: 1em;
-@   padding: 1px 1px 1px 1px;
-@   font-size: 1.2em;
-@   font-weight: bold;
-@   background-color: #558195;
-@   color: white;
-@   white-space: nowrap;
-@ }
-@
-@ /* The "Date" that occurs on the left hand side of timelines */
-@ div.divider {
-@   background: #a1c4d4;
-@   border: 2px #558195 solid;
-@   font-size: 1em; font-weight: normal;
-@   padding: .25em;
-@   margin: .2em 0 .2em 0;
-@   float: left;
-@   clear: left;
-@   white-space: nowrap;
-@ }
-@
-@ /* The footer at the very bottom of the page */
-@ div.footer {
-@   clear: both;
-@   font-size: 0.8em;
-@   padding: 5px 10px 5px 10px;
-@   text-align: right;
-@   background-color: #558195;
-@   border-bottom-left-radius: 8px;
-@   border-bottom-right-radius: 8px;
-@   color: white;
-@ }
-@
-@ /* Hyperlink colors in the footer */
-@ div.footer a { color: white; }
-@ div.footer a:link { color: white; }
-@ div.footer a:visited { color: white; }
-@ div.footer a:hover { background-color: white; color: #558195; }
-@
-@ /* verbatim blocks */
-@ pre.verbatim {
-@   background-color: #f5f5f5;
-@   padding: 0.5em;
-@   white-space: pre-wrap;
-@}
-;
-
 
 /* The following table contains bits of default CSS that must
 ** be included if they are not found in the application-defined
@@ -663,10 +631,6 @@ const struct strctCssDefaults {
   const char *comment;       /* Comment text */
   const char *value;         /* CSS text */
 } cssDefaultList[] = {
-  { "",
-    "",
-    zDefaultCSS
-  },
   { "div.sidebox",
     "The nomenclature sidebox for branches,..",
     @   float: right;
@@ -697,6 +661,7 @@ const struct strctCssDefaults {
   { "table.timelineTable",
     "the format for the timeline data table",
     @   border: 0;
+    @   border-collapse: collapse;
   },
   { "td.timelineTableCell",
     "the format for the timeline data cells",
@@ -707,6 +672,17 @@ const struct strctCssDefaults {
     "the format for the timeline data cell of the current checkout",
     @   padding: .1em .2em;
     @   border: 1px dashed #446979;
+  },
+  { "tr.timelineSelected",
+    "The row in the timeline table that contains the entry of interest",
+    @   padding: .1em .2em;
+    @   border: 2px solid lightgray;
+    @   background-color: #ffc;
+    @   box-shadow: 4px 4px 2px #888;
+  },
+  { "tr.timelineSpacer",
+    "An extra row inserted to give vertical space between two rows",
+    @   height: 1ex;
   },
   { "span.timelineLeaf",
     "the format for the timeline leaf marks",
@@ -769,16 +745,15 @@ const struct strctCssDefaults {
     @   width: 24%;
     @   vertical-align: top;
   },
-  { "ul.browser",
-    "format for the list in the file browser",
-    @   margin-left: 0.5em;
-    @   padding-left: 0.5em;
-    @   white-space: nowrap;
-  },
   { ".filetree",
     "tree-view file browser",
     @   margin: 1em 0;
     @   line-height: 1.5;
+  },
+  {
+    ".filetree > ul",
+    "tree-view top-level list",
+    @   display: inline-block;
   },
   { ".filetree ul",
     "tree-view lists",
@@ -827,18 +802,65 @@ const struct strctCssDefaults {
   },
   { ".filetree a",
     "tree-view links",
-    @   position: relative;
-    @   z-index: 1;
-    @   display: inline-block;
-    @   min-height: 16px;
-    @   padding-left: 21px;
-    @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP\/\/\/yEhIf\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmgOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);
-    @   background-position: center left;
-    @   background-repeat: no-repeat;
+    "  position: relative;\n"
+    "  z-index: 1;\n"
+    "  display: table-cell;\n"
+    "  min-height: 16px;\n"
+    "  padding-left: 21px;\n"
+    "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP"
+    "\\/\\/\\/yEhIf\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfmg"
+    "OUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);\n"
+    "  background-position: center left;\n"
+    "  background-repeat: no-repeat;\n"
   },
-  { ".filetree .dir > a",
+  { "ul.browser",
+    "list of files in the 'flat-view' file browser",
+    @   list-style-type: none;
+    @   padding: 10px;
+    @   margin: 0px;
+    @   white-space: nowrap;
+  },
+  { "ul.browser li.file",
+    "List element in the 'flat-view' file browser for a file",
+    "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP"
+    "\\/\\/\\/yEhIf\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAIvlIKpxqcfm"
+    "gOUvoaqDSCxrEEfF14GqFXImJZsu73wepJzVMNxrtNTj3NATMKhpwAAOw==);\n"
+    "  background-repeat: no-repeat;\n"
+    "  background-position: 0px center;\n"
+    "  padding-left: 20px;\n"
+    "  padding-top: 2px;\n"
+  },
+  { "ul.browser li.dir",
+    "List element in the 'flat-view file browser for a directory",
+    "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIi"
+    "Iv\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaX"
+    "po+jUs6b5Z/K4siDu5RPUFADs=);\n"
+    "  background-repeat: no-repeat;\n"
+    "  background-position: 0px center;\n"
+    "  padding-left: 20px;\n"
+    "  padding-top: 2px;\n"
+  },
+  { "div.filetreeline",
+    "line of a file tree",
+    @   display: table;
+    @   width: 100%;
+    @   white-space: nowrap;
+  },
+  { ".filetree .dir > div.filetreeline > a",
     "tree-view directory links",
-    @   background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIiIv\/\/\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXpo+jUs6b5Z/K4siDu5RPUFADs=);
+    "  background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAP/WVCIi"
+    "Iv\\/\\/\\/wAAACH5BAEHAAIALAAAAAAQABAAAAInlI9pwa3XYniCgQtkrAFfLXkiFo1jaXp"
+    "o+jUs6b5Z/K4siDu5RPUFADs=);\n"
+  },
+  { "div.filetreeage",
+    "Last change floating display on the right",
+    @  display: table-cell;
+    @  padding-left: 3em;
+    @  text-align: right;
+  },
+  { "div.filetreeline:hover",
+    "Highlight the line of a file tree",
+    @  background-color: #eee;
   },
   { "table.login_out",
     "table format for login/out label/input table",
@@ -1023,7 +1045,7 @@ const struct strctCssDefaults {
     @   border-style: solid;
   },
   { "input.checkinUserColor",
-    "format for user color input on checkin edit page",
+    "format for user color input on check-in edit page",
     @ /* no special definitions, class defined, to enable color pickers, f.e.:
     @ **  add the color picker found at http:jscolor.com  as java script include
     @ **  to the header and configure the java script file with
@@ -1085,6 +1107,10 @@ const struct strctCssDefaults {
     "List of files in a timeline",
     @   margin-top: 3px;
     @   line-height: 100%;
+  },
+  { "ul.filelist li",
+    "List of files in a timeline",
+    @   padding-top: 1px;
   },
   { "table.sbsdiffcols",
     "side-by-side diff display (column-based)",
@@ -1206,6 +1232,87 @@ const struct strctCssDefaults {
     @ color: black;
     @ background-color: white;
   },
+  { "table.adminLogTable",
+    "Class for the /admin_log table",
+    @ text-align: left;
+  },
+  { ".adminLogTable .adminTime",
+    "Class for the /admin_log table",
+    @ text-align: left;
+    @ vertical-align: top;
+    @ white-space: nowrap;
+  },
+  { ".fileage table",
+    "The fileage table",
+    @ border-spacing: 0;
+  },
+  { ".fileage tr:hover",
+    "Mouse-over effects for the file-age table",
+    @ background-color: #eee;
+  },
+  { ".fileage td",
+    "fileage table cells",
+    @ vertical-align: top;
+    @ text-align: left;
+    @ border-top: 1px solid #ddd;
+    @ padding-top: 3px;
+  },
+  { ".fileage td:first-child",
+    "fileage first column (the age)",
+    @ white-space: nowrap;
+  },
+  { ".fileage td:nth-child(2)",
+    "fileage second column (the filename)",
+    @ padding-left: 1em;
+    @ padding-right: 1em;
+  },
+  { ".fileage td:nth-child(3)",
+    "fileage third column (the check-in comment)",
+    @ word-wrap: break-word;
+    @ max-width: 50%;
+  },
+  { ".brlist table",  "The list of branches",
+    @ border-spacing: 0;
+  },
+  { ".brlist table th",  "Branch list table headers",
+    @ text-align: left;
+    @ padding: 0px 1em 0.5ex 0px;
+  },
+  { ".brlist table td",  "Branch list table headers",
+    @ padding: 0px 2em 0px 0px;
+    @ white-space: nowrap;
+  },
+  { "th.sort:after",
+    "General styles for sortable column marker",
+    @ margin-left: .4em;
+    @ cursor: pointer;
+    @ text-shadow: 0 0 0 #000; /* Makes arrow darker */
+  },
+  { "th.sort.none:after",
+    "None sort column marker",
+    @ content: '\2666';
+  },
+  { "th.sort.asc:after",
+    "Ascending sort column marker",
+    @ content: '\2193';
+  },
+  { "th.sort.desc:after",
+    "Descending sort column marker",
+    @ content: '\2191';
+  },
+  { "span.snippet>mark",
+    "Search markup",
+    @ background-color: inherit;
+    @ font-weight: bold;
+  },
+  { "div.searchForm",
+    "Container for the search terms entry box",
+    @ text-align: center;
+  },
+  { "p.searchEmpty",
+    "Message explaining that there are no search results",
+    @ font-style: italic;
+  },
   { 0,
     0,
     0
@@ -1218,6 +1325,7 @@ const struct strctCssDefaults {
 void cgi_append_default_css(void) {
   int i;
 
+  cgi_printf("%s", builtin_text("skins/default/css.txt"));
   for( i=0; cssDefaultList[i].elementClass; i++ ){
     if( cssDefaultList[i].elementClass[0] ){
       cgi_printf("/* %s */\n%s {\n%s\n}\n\n",
@@ -1225,13 +1333,32 @@ void cgi_append_default_css(void) {
                  cssDefaultList[i].elementClass,
                  cssDefaultList[i].value
                 );
-    }else{
-      cgi_printf("%s",
-                 cssDefaultList[i].value
-                );
     }
   }
 }
+
+/*
+** Search string zHaystack for zNeedle.  zNeedle must be an isolated
+** word with space or punctuation on either size.
+**
+** Return true if found.  Return false if not found
+*/
+static int containsString(const char *zHaystack, const char *zNeedle){
+  char *z;
+  int n;
+
+  while( zHaystack[0] ){
+    z = strstr(zHaystack, zNeedle);
+    if( z==0 ) return 0;
+    n = (int)strlen(zNeedle);
+    if( (z==zHaystack || !fossil_isalnum(z[-1])) && !fossil_isalnum(z[n]) ){
+      return 1;
+    }
+    zHaystack = z + n;
+  }
+  return 0;
+}
+
 
 /*
 ** WEBPAGE: style.css
@@ -1241,11 +1368,12 @@ void page_style_css(void){
   int i;
 
   cgi_set_content_type("text/css");
-  blob_init(&css, db_get("css",(char*)zDefaultCSS), -1);
+  blob_init(&css,skin_get("css"),-1);
 
   /* add special missing definitions */
   for(i=1; cssDefaultList[i].elementClass; i++){
-    if( strstr(blob_str(&css), cssDefaultList[i].elementClass)==0 ){
+    char *z = blob_str(&css);
+    if( !containsString(z, cssDefaultList[i].elementClass) ){
       blob_appendf(&css, "/* %s */\n%s {\n%s}\n",
           cssDefaultList[i].comment,
           cssDefaultList[i].elementClass,
@@ -1257,6 +1385,7 @@ void page_style_css(void){
   ** variables such as $baseurl.
   */
   Th_Store("baseurl", g.zBaseURL);
+  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
   image_url_var("logo");
   image_url_var("background");
@@ -1285,32 +1414,40 @@ void page_test_env(void){
 
   login_check_credentials();
   if( !g.perm.Admin && !g.perm.Setup && !db_get_boolean("test_env_enable",0) ){
-    login_needed();
+    login_needed(0);
     return;
   }
   for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
   style_header("Environment Test");
   showAll = atoi(PD("showall","0"));
   if( !showAll ){
-    style_submenu_element("Show Cookies", "Show Cookies",
-                          "%s/test_env?showall=1", g.zTop);
+    style_submenu_element("Show Cookies", 0, "%R/test_env?showall=1");
   }else{
-    style_submenu_element("Hide Cookies", "Hide Cookies",
-                          "%s/test_env", g.zTop);
+    style_submenu_element("Hide Cookies", 0, "%R/test_env");
   }
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif
   @ g.zBaseURL = %h(g.zBaseURL)<br />
+  @ g.zHttpsURL = %h(g.zHttpsURL)<br />
   @ g.zTop = %h(g.zTop)<br />
+  @ g.zPath = %h(g.zPath)<br />
   for(i=0, c='a'; c<='z'; c++){
-    if( login_has_capability(&c, 1) ) zCap[i++] = c;
+    if( login_has_capability(&c, 1, 0) ) zCap[i++] = c;
   }
   zCap[i] = 0;
   @ g.userUid = %d(g.userUid)<br />
   @ g.zLogin = %h(g.zLogin)<br />
   @ g.isHuman = %d(g.isHuman)<br />
   @ capabilities = %s(zCap)<br />
+  for(i=0, c='a'; c<='z'; c++){
+    if( login_has_capability(&c, 1, LOGIN_ANON)
+         && !login_has_capability(&c, 1, 0) ) zCap[i++] = c;
+  }
+  zCap[i] = 0;
+  if( i>0 ){
+    @ anonymous-adds = %s(zCap)<br />
+  }
   @ g.zRepositoryName = %h(g.zRepositoryName)<br />
   @ load_average() = %f(load_average())<br />
   @ <hr>

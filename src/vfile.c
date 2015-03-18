@@ -191,8 +191,8 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     isDeleted = db_column_int(&q, 3);
     oldChnged = chnged = db_column_int(&q, 4);
     oldMtime = db_column_int64(&q, 7);
-    currentSize = file_wd_size(zName);
     origSize = db_column_int64(&q, 6);
+    currentSize = file_wd_size(zName);
     currentMtime = file_wd_mtime(0);
     if( chnged==0 && (isDeleted || rid==0) ){
       /* "fossil rm" or "fossil add" always change the file */
@@ -277,6 +277,7 @@ void vfile_to_disk(
   Stmt q;
   Blob content;
   int nRepos = strlen(g.zLocalRoot);
+  int mayNeedDelete, mayBeLink;
 
   if( vid>0 && id==0 ){
     db_prepare(&q, "SELECT id, %Q || pathname, mrid, isexe, islink"
@@ -329,7 +330,9 @@ void vfile_to_disk(
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite\n", zName);
     }
-    create_symlink_or_file(file_wd_size(zName)>=0, isLink, file_wd_islink(zName), &content, zName);
+    mayNeedDelete = file_wd_size(zName)>=0;
+    mayBeLink = file_wd_islink(0);
+    create_symlink_or_file(mayNeedDelete, isLink, mayBeLink, &content, zName);
     file_wd_setexe(zName, isExe);
     blob_reset(&content);
     db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",

@@ -155,10 +155,11 @@ static int add_one_file(
                   " WHERE pathname=%Q %s", zPath, filename_collation());
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
+    int isExe = file_wd_isexe(zFullname);
     db_multi_exec(
       "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink)"
       "VALUES(%d,0,0,0,%Q,%d,%d)",
-      vid, zPath, file_wd_isexe(zFullname), file_wd_islink(zFullname));
+      vid, zPath, isExe, file_wd_islink(0));
     fossil_free(zFullname);
   }
   if( db_changes() ){
@@ -238,12 +239,12 @@ static int add_files_in_sfile(int vid){
 **
 ** Options:
 **
-**    --case-sensitive <BOOL> override case-sensitive setting
+**    --case-sensitive <BOOL> Override the case-sensitive setting.
 **    --dotfiles              include files beginning with a dot (".")
 **    -f|--force              Add files without prompting
-**    --ignore <CSG>          ignore files matching patterns from the
+**    --ignore <CSG>          Ignore files matching patterns from the
 **                            comma separated list of glob patterns.
-**    --clean <CSG>           also ignore files matching patterns from
+**    --clean <CSG>           Also ignore files matching patterns from
 **                            the comma separated list of glob patterns.
 **
 ** See also: addremove, rm
@@ -273,6 +274,7 @@ void add_cmd(void){
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   vid = db_lget_int("checkout",0);
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
@@ -334,10 +336,10 @@ void add_cmd(void){
 
 /*
 ** COMMAND: rm
-** COMMAND: delete*
+** COMMAND: delete
+** COMMAND: forget*
 **
-** Usage: %fossil rm FILE1 ?FILE2 ...?
-**    or: %fossil delete FILE1 ?FILE2 ...?
+** Usage: %fossil rm|delete|forget FILE1 ?FILE2 ...?
 **
 ** Remove one or more files or directories from the repository.
 **
@@ -346,7 +348,7 @@ void add_cmd(void){
 ** changes to the named files will not be versioned.
 **
 ** Options:
-**   --case-sensitive <BOOL> override case-sensitive setting
+**   --case-sensitive <BOOL> Override the case-sensitive setting.
 **
 ** See also: addremove, add
 */
@@ -491,18 +493,19 @@ const char *filename_collation(void){
 ** --clean option with the "clean-glob" setting. See the documentation
 ** on the "settings" command for further information.
 **
-** The -n|--dry-run option shows what would happen without actually doing anything.
+** The -n|--dry-run option shows what would happen without actually doing
+** anything.
 **
 ** This command can be used to track third party software.
 **
 ** Options:
-**   --case-sensitive <BOOL> override case-sensitive setting
-**   --dotfiles              include files beginning with a dot (".")
-**   --ignore <CSG>          ignore files matching patterns from the
+**   --case-sensitive <BOOL> Override the case-sensitive setting.
+**   --dotfiles              Include files beginning with a dot (".")
+**   --ignore <CSG>          Ignore files matching patterns from the
 **                           comma separated list of glob patterns.
-**   --clean <CSG>           also ignore files matching patterns from
+**   --clean <CSG>           Also ignore files matching patterns from
 **                           the comma separated list of glob patterns.
-**   -n|--dry-run            If given, display instead of run actions
+**   -n|--dry-run            If given, display instead of run actions.
 **
 ** See also: add, rm
 */
@@ -533,6 +536,7 @@ void addremove_cmd(void){
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   vid = db_lget_int("checkout",0);
   db_begin_transaction();
 
@@ -588,7 +592,11 @@ void addremove_cmd(void){
 **
 ** The original name of the file is zOrig.  The new filename is zNew.
 */
-static void mv_one_file(int vid, const char *zOrig, const char *zNew){
+static void mv_one_file(
+  int vid,
+  const char *zOrig,
+  const char *zNew
+){
   int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q %s",
                          zNew, filename_collation());
   if( x>=0 ){
@@ -619,10 +627,10 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 **
 ** This command does NOT rename or move the files on disk.  This command merely
 ** records the fact that filenames have changed so that appropriate notations
-** can be made at the next commit/checkin.
+** can be made at the next commit/check-in.
 **
 ** Options:
-**   --case-sensitive <BOOL> override case-sensitive setting
+**   --case-sensitive <BOOL> Override the case-sensitive setting.
 **
 ** See also: changes, status
 */
