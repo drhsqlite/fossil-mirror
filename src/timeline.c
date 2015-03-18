@@ -806,14 +806,17 @@ void timeline_output_graph_javascript(
     @ function drawThinLine(x0,y0,x1,y1){
     @   drawBox(lineClr,x0,y0,x1,y1);
     @ }
-    @ function drawNodeBox(color,x0,y0,x1,y1){
-    @   drawBox(color,x0,y0,x1,y1).style.cursor = "pointer";
+    @ function drawNodeBox(color,x0,y0,x1,y1,isMerge){
+    @   var n = drawBox(color,x0,y0,x1,y1);
+    @   n.style.cursor = "pointer";
+    @   if ( !isMerge ) n.style.borderRadius = "6px";
     @ }
     @ function drawNode(p, left, btm){
-    @   drawNodeBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
-    @   drawNodeBox(p.bg||bgClr,p.x-4,p.y-4,p.x+5,p.y+5);
+    @   var isMerge = p.mi.length>0;
+    @   drawNodeBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6,isMerge);
+    @   drawNodeBox(p.bg||bgClr,p.x-4,p.y-4,p.x+5,p.y+5,isMerge);
     @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
-    @   if( p.f&1 ) drawNodeBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2);
+    @   if( p.f&1 ) drawNodeBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2,isMerge);
     if( !omitDescenders ){
       @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
       @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
@@ -926,6 +929,7 @@ void timeline_output_graph_javascript(
     @ function clickOnRow(p){
     @   if( selRow==null ){
     @     selBox = drawBox("red",p.x-2,p.y-2,p.x+3,p.y+3);
+    @     if ( p.mi.length==0 ) selBox.style.borderRadius="6px";
     @     selRow = p;
     @   }else if( selRow==p ){
     @     var canvasDiv = gebi("canvas");

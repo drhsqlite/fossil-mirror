@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sHTML\sgenerated\sfor\sthe\s/xfersetup\spage.
-D 2015-03-17T17:10:35.953
+C Differentiate\smerge\scheck-ins\sfrom\sregular,\slinear\scheck-ins
+D 2015-03-18T16:45:48.838
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -481,7 +481,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c e79b55e41e0fabdcbb115845f0a7776ef9b1953b
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c cb0edd5624529f0896fa474ef3e0101245b64aa2
+F src/timeline.c e6784a5efc2234ef96fdfcf04a4739dd89044575
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
 F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -719,8 +719,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e1e0ec574b2514cd204b64b4436682af18b5ef78 ae09eed3aaf05a7ae472d4331050aed8763edf4a
-R 92a9df2cec35cf99f0a20f657ed142ca
-T +closed ae09eed3aaf05a7ae472d4331050aed8763edf4a
-U drh
-Z 7e5dd6aee60ed98b1712a90205dd73f1
+P f215075a47e34aa48ecf111b6e8cad759c40a14e
+R 5c90b62374760f2a1b51fd1288877fa6
+T *branch * differentiate-timeline
+T *sym-differentiate-timeline *
+T -sym-trunk *
+U jmoger
+Z b36d27d6d9751bf2aa8d01b439f7a693
