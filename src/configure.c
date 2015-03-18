@@ -859,7 +859,7 @@ static void export_config(
 **         by URL.  Admin privilege is required on the remote server for
 **         this to work.  When the same record exists both locally and on
 **         the remote end, the one that was most recently changed wins.
-**         Use the --legacy flag when talking to holder servers.
+**         Use the --legacy flag when talking to older servers.
 **
 **    %fossil configuration reset AREA
 **

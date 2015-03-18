@@ -1,5 +1,5 @@
-C Add\sthe\s--create\soption\sto\s"fossil\sserver",\swhich\scauses\sa\snew\srepository\nto\sbe\screated\sfor\sthe\sserver\sis\sone\sdoes\snot\salready\sexist.\s\sThe\sintended\nuse\scase\sis\sDocker.
-D 2015-03-18T14:17:44.821
+C Correct\stypo\sin\s[fossil\sconfiguration\ssync]\sdocumentation.
+D 2015-03-18T17:37:25.505
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -380,7 +380,7 @@ F src/clone.c 78d25dfb9d2dd3a64736ee38ac37b2a8aba3eacb
 F src/codecheck1.c 2cf1fc75f4f611574e92cf1440f4fb2ae49e8ba6
 F src/comformat.c 24b2de2bad5e8e6da966586c68d6505ea08df8e7
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
-F src/configure.c f4ed1439b8c1cd49247d8002c9e8021ff5f2d951
+F src/configure.c 57a78234cf624d4a5a54f4f770f5121f329a0d03
 F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
@@ -719,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P a7e1101d7196904aaa903195311c7791e8a974f6
-R 48f466a2634793d49d99cc29687834c1
-U drh
-Z 6dc2e5d1f6cc935f36d0371baffc63ec
+P a6e2ceb4541526f29a380733df5c5908c80f529c
+R 2e5714edc2393b24dfd2c7d68450476f
+U andygoth
+Z a2760400f4b76b396d5144b1669b3750
