@@ -386,7 +386,7 @@ data elements.
 <b>reqconfig</b> <i>configuration-name</i>
 </blockquote>
 
-<p>As of [/timeline?r=trunk&c=2015-01-24+00%3A17%3A55&n=20|2015-01-24], the configuration-name must be one of the
+<p>As of [/timeline?r=trunk&c=2015-03-19+03%3A57%3A46&n=20|2015-03-19], the configuration-name must be one of the
 following values:
 
 <center><table border=0>
@@ -422,12 +422,13 @@ following values:
 <li> encoding-glob
 <li> empty-dirs
 <li> allow-symlinks
+<li> dotfiles
 <li> ticket-table
 <li> ticket-common
 <li> ticket-change
 <li> ticket-newpage
-<li> ticket-viewpage
 <ul></td><td valign="top"><ul>
+<li> ticket-viewpage
 <li> ticket-editpage
 <li> ticket-reportlist
 <li> ticket-report-template

@@ -1,5 +1,5 @@
-C upgrade\sSQLite\sto\slatest\spre-release
-D 2015-03-19T09:25:27.380
+C Put\s"dotfiles"\sin\sjson\sconfiguration\sas\swell,\sand\supdate\sdocumentation
+D 2015-03-19T09:34:19.418
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -412,7 +412,7 @@ F src/info.c d90f5550b863a261513cc8ec6a9f66e4ca3044c8
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
-F src/json_config.c 06307c932a6c53e2a553742f61b91d87a3731196
+F src/json_config.c 64d57cdbf3999e7fc96d851df488c48109c23a89
 F src/json_detail.h 7d9cdc126617216623145aaea42a914a93cf983c
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
 F src/json_dir.c bd7be6f09d9c4d951e68b9562ad13d15aa76fb70
@@ -710,7 +710,7 @@ F www/shunning.wiki 8e73f8191c1270e33863dac5529f93397ac158e4
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
-F www/sync.wiki 53a1e45726f4bbfc69e8f0898bb8196e7660c82b
+F www/sync.wiki a970dc07566cc805ec6938fc9ce61718ca9c7dcc
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
 F www/th1.md 57434d9b816ecf2b6e79211402caa7b1eb718916
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
@@ -719,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 9a67babcdb1ce9eaa608bdfa14fd2c516e0e50b5
-R 419109796c4a29ad4fcfa94ce868e9f0
+P d1db1e47a4acdb7b13f311eafbd608330883c700
+R 16288cbe1582a30992ce7ea5968c01c5
 U jan.nijtmans
-Z fd8bd439e2280b4b04be09900566886d
+Z 2bee9b3298cfdf30d3870e935905d0d0
