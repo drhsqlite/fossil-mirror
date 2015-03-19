@@ -714,7 +714,8 @@ void timeline_output_graph_javascript(
     @ var lineClr = (csty && csty.getPropertyValue('color')) || 'black';
     @ var bgClr = (csty && csty.getPropertyValue('background-color')) ||'white';
     @ if( bgClr=='transparent' ) bgClr = 'white';
-    @ var boxColor = lineClr;
+    @ var boxColor = (csty && csty.getPropertyValue('outline-color')) ||lineClr;
+    @ var leafColor = (csty && csty.getPropertyValue('border-color')) ||lineClr;
     @ function drawBox(color,x0,y0,x1,y1){
     @   var n = document.createElement("div");
     @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
@@ -753,29 +754,9 @@ void timeline_output_graph_javascript(
     @   }
     @   return left;
     @ }
-    @ function drawUpArrow(x,y0,y1){
-    @   drawBox(lineClr,x,y0+4,x+1,y1);
-    @   var n = document.createElement("div"),
-    @       l = x-2,
-    @       t = y0;
-    @   n.style.position = "absolute";
-    @   n.style.left = l+"px";
-    @   n.style.top = t+"px";
-    @   n.style.width = 0;
-    @   n.style.height = 0;
-    @   n.style.transform = "scale(.999)";
-    @   n.style.borderWidth = 0;
-    @   n.style.borderStyle = "solid";
-    @   n.style.borderColor = "transparent";
-    @   n.style.borderRightWidth = "3px";
-    @   n.style.borderBottomColor = lineClr;
-    @   n.style.borderLeftWidth = "3px";
-    @   if( y0+10>=y1 ){
-    @     n.style.borderBottomWidth = "5px";
-    @   } else {
-    @     n.style.borderBottomWidth = "7px";
-    @   }
-    @   cDiv.appendChild(n);
+    @ function drawRail(x,y0,y1,clr){
+    @   if ( bgClr == clr ) clr = lineClr;
+    @   drawBox(clr||lineClr,x,y0+1,x+1,y1);
     @ }
     @ function drawThinArrow(y,xFrom,xTo){
     @   var n = document.createElement("div"),
@@ -806,25 +787,29 @@ void timeline_output_graph_javascript(
     @ function drawThinLine(x0,y0,x1,y1){
     @   drawBox(lineClr,x0,y0,x1,y1);
     @ }
-    @ function drawNodeBox(color,x0,y0,x1,y1,isMerge){
+    @ function drawNodeBox(color,x0,y0,x1,y1){
     @   var n = drawBox(color,x0,y0,x1,y1);
     @   n.style.cursor = "pointer";
-    @   if ( !isMerge ) n.style.borderRadius = "6px";
+    @  	n.style.borderRadius = "6px";
     @ }
     @ function drawNode(p, left, btm){
-    @   var isMerge = p.mi.length>0;
-    @   drawNodeBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6,isMerge);
-    @   drawNodeBox(p.bg||bgClr,p.x-4,p.y-4,p.x+5,p.y+5,isMerge);
-    @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
-    @   if( p.f&1 ) drawNodeBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2,isMerge);
+    @   /* Current CheckIn node */
+    @   drawNodeBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
+    @   drawNodeBox(p.bg||bgClr,p.x-4,p.y-4,p.x+5,p.y+5);
+    @   /* Leaf indicator for CheckIn node */
+    @   if( p.f&1 ) drawNodeBox(leafColor,p.x-1,p.y-1,p.x+2,p.y+2);
+    @   /* Branch rail to CheckIn's node */
+    @   if( p.u>0 ) drawRail(p.x, rowinfo[p.u-1].y+6, p.y-6, rowinfo[p.u-1].bg);
     if( !omitDescenders ){
-      @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
-      @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
+      @   /* Branch rails from bottom or to top of page */
+      @   if( p.u==0 ) drawRail(p.x, 0, p.y-5,p.bg);
+      @   if( p.d ) drawRail(p.x, p.y+6, btm,p.bg);
     }
+    @   /* MergeOut horizontal rail */
     @   if( p.mo>0 ){
     @     var x1 = p.mo + left - 1;
     @     var y1 = p.y-3;
-    @     var x0 = x1>p.x ? p.x+7 : p.x-6;
+    @     var x0 = x1>p.x ? p.x+6 : p.x-6;
     @     var u = rowinfo[p.mu-1];
     @     var y0 = u.y+5;
     @     if( x1>=p.x-5 && x1<=p.x+5 ){
@@ -841,9 +826,11 @@ void timeline_output_graph_javascript(
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
-    @       drawBox(lineClr,x0,p.y,x1+1,p.y+1);
-    @       drawUpArrow(x1, u.y+6, p.y);
+    @       /* Branch rail */
+    @       drawBox(u.bg,x0,p.y,x1+1,p.y+1);
+    @       drawRail(x1, u.y+6, p.y, u.bg);
     @     }else{
+    @       /* Timewarp rail */
     @       drawBox("#600000",x0,p.y,x1,p.y+1);
     @       drawBox("#600000",x1-1,p.y,x1,u.y+1);
     @       drawBox("#600000",x1,u.y,u.x-10,u.y+1);
@@ -866,6 +853,7 @@ void timeline_output_graph_javascript(
     @       cDiv.appendChild(n);
     @     }
     @   }
+    @   /* MergeIn rails & arrows */
     @   for(var j in p.mi){
     @     var y0 = p.y+5;
     @     var mx = p.mi[j];
@@ -928,8 +916,8 @@ void timeline_output_graph_javascript(
     @ }
     @ function clickOnRow(p){
     @   if( selRow==null ){
-    @     selBox = drawBox("red",p.x-2,p.y-2,p.x+3,p.y+3);
-    @     if ( p.mi.length==0 ) selBox.style.borderRadius="6px";
+    @     selBox = drawBox("orange",p.x-2,p.y-2,p.x+3,p.y+3);
+    @     selBox.style.borderRadius="6px";
     @     selRow = p;
     @   }else if( selRow==p ){
     @     var canvasDiv = gebi("canvas");

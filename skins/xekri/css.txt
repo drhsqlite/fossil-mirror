@@ -651,8 +651,10 @@ span.tktError {
  */
 
 #canvas {
-  color: #000;
-  background-color: #fff;
+  color: darkGray;
+  border-color: black;
+  outline-color: white;
+  background-color: #0a0;
 }
 
 div.divider {
@@ -977,4 +979,3 @@ tr.row0 {
 tr.row1 {
   /* Use default */
 }
-
