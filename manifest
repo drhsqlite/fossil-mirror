@@ -1,5 +1,5 @@
-C Include\sthe\snew\s'dotfiles'\ssetting\sin\sthe\slist\sof\sthose\sassociated\swith\sthe\sproject.
-D 2015-03-19T03:57:46.340
+C upgrade\sSQLite\sto\slatest\spre-release
+D 2015-03-19T09:25:27.380
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -462,13 +462,13 @@ F src/schema.c c43e7d7f0872b2e4940d049fc1dbcac81bffa543
 F src/search.c edaaa322e4a9552288f7fe1d4b168b5eeac4b20e
 F src/setup.c 72e3d8640b631d3db99a777866cc7188121d0838
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c f06cca68a3f07e03d35d2f879375967169db6a61
+F src/shell.c cce82ca26392578a4a1ee927dfe55ea3411c7c92
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c 87a91b09ca9f595121d741c31ebd724d1e5df708
 F src/skins.c 07c9e4ca7092265c227cdc1f822ecf902f280ba3
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
-F src/sqlite3.c 96f6ffa4db37d6abef8d840c8a99d7cc7db1bfb1
-F src/sqlite3.h f8151534e8c69113c7ce4dc7c8491932836095cd
+F src/sqlite3.c de6ecb8c25a7a37496197a6d206dfabb227b16bb
+F src/sqlite3.h 4be09f4f0a202edaed5fb31aa077fa8f03361d6d
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
 F src/statrep.c b7bd715a0429375342af08151854d62b467c4792
@@ -719,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 23515802c9b797a37eea0a222b7ce21203d0b758
-R 98be1ec7fcc8a8464b57d3ed77b48977
-U mistachkin
-Z a792e4b00878ed4e5467201f7b755e66
+P 9a67babcdb1ce9eaa608bdfa14fd2c516e0e50b5
+R 419109796c4a29ad4fcfa94ce868e9f0
+U jan.nijtmans
+Z fd8bd439e2280b4b04be09900566886d
