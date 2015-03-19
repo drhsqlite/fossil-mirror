@@ -802,7 +802,7 @@ void timeline_output_graph_javascript(
     @   if( p.u>0 ) drawRail(p.x, rowinfo[p.u-1].y+6, p.y-6, rowinfo[p.u-1].bg);
     if( !omitDescenders ){
       @   /* Branch rails from bottom or to top of page */
-      @   if( p.u==0 ) drawRail(p.x, 0, p.y-5,p.bg);
+      @   if( p.u==0 ) drawRail(p.x, 0, p.y-6,p.bg);
       @   if( p.d ) drawRail(p.x, p.y+6, btm,p.bg);
     }
     @   /* MergeOut horizontal rail */
