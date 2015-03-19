@@ -166,7 +166,7 @@ void clone_cmd(void){
     db_open_repository(g.argv[3]);
     db_begin_transaction();
     db_record_repository_filename(g.argv[3]);
-    db_initial_setup(0, 0, zDefaultUser, 0);
+    db_initial_setup(0, 0, zDefaultUser);
     user_select();
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA_MAX, 0);
