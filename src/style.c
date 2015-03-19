@@ -1229,8 +1229,10 @@ const struct strctCssDefaults {
     @ font-weight: bold;
   },
   { "#canvas", "timeline graph node colors",
-    @ color: black;
-    @ background-color: white;
+    @ color: black;             /* default rail/line color */
+    @ background-color: white;  /* default branch node/box color */
+    @ border-color: black;      /* leaf indicator color */
+    @ outline-color: black;     /* node/box border color */
   },
   { "table.adminLogTable",
     "Class for the /admin_log table",

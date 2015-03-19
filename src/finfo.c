@@ -309,6 +309,9 @@ void finfo_page(void){
   int uBg = P("ubg")!=0;
   int fDebug = atoi(PD("debug","0"));
   int fShowId = P("showid")!=0;
+  int showRailArrows = db_get_boolean("timeline-rail-arrows", 1);
+  int showRailCircles = db_get_boolean("timeline-rail-circles", 0);
+  int showRailColors = db_get_boolean("timeline-rail-colors", 0);
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -544,6 +547,7 @@ void finfo_page(void){
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph, 0, 1);
+  timeline_output_graph_javascript(pGraph, 0, 1, showRailArrows,
+    showRailCircles, showRailColors);
   style_footer();
 }

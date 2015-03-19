@@ -219,6 +219,9 @@ void www_print_timeline(
   int selectedRid,       /* Highlight the line with this RID value */
   void (*xExtra)(int)    /* Routine to call on each line of display */
 ){
+  int showRailArrows;
+  int showRailCircles;
+  int showRailColors;
   int mxWikiLen;
   Blob comment;
   int prevTagid = 0;
@@ -238,6 +241,9 @@ void www_print_timeline(
     vid = db_lget_int("checkout", 0);
   }
   zPrevDate[0] = 0;
+  showRailArrows = db_get_boolean("timeline-rail-arrows", 1);
+  showRailCircles = db_get_boolean("timeline-rail-circles", 0);
+  showRailColors = db_get_boolean("timeline-rail-colors", 0);
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
   zDateFmt = P("datefmt");
@@ -596,7 +602,8 @@ void www_print_timeline(
   }
   @ </table>
   if( fchngQueryInit ) db_finalize(&fchngQuery);
-  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0, 0);
+  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0, 0,
+    showRailArrows, showRailCircles, showRailColors);
 }
 
 /*
@@ -606,7 +613,10 @@ void www_print_timeline(
 void timeline_output_graph_javascript(
   GraphContext *pGraph,     /* The graph to be displayed */
   int omitDescenders,       /* True to omit descenders */
-  int fileDiff              /* True for file diff.  False for check-in diff */
+  int fileDiff,             /* True for file diff.  False for check-in diff */
+  int showRailArrows,       /* True to render rail arrow heads */
+  int showRailCircles,      /* True to render circles instead of squares */
+  int showRailColors        /* True to color rails by the branch background */
 ){
   if( pGraph && pGraph->nErr==0 && pGraph->nRow>0 ){
     GraphRow *pRow;
@@ -754,9 +764,40 @@ void timeline_output_graph_javascript(
     @   }
     @   return left;
     @ }
+    @ function getRailColor(clr){
+    @   var railClr = lineClr;
+    if( showRailColors ) {
+      @   if ( bgClr == clr ) railClr = lineClr;
+      @   railClr = clr||railClr;
+    }
+    @   return railClr;
+    @ }
     @ function drawRail(x,y0,y1,clr){
-    @   if ( bgClr == clr ) clr = lineClr;
-    @   drawBox(clr||lineClr,x,y0+1,x+1,y1);
+    @   var railClr = getRailColor(clr);
+    @   drawBox(railClr,x,y0+1,x+1,y1);
+    @   var n = document.createElement("div"),
+    @       l = x-2,
+    @       t = y0;
+    if( showRailArrows ){
+      @   n.style.position = "absolute";
+      @   n.style.left = l+"px";
+      @   n.style.top = t+"px";
+      @   n.style.width = 0;
+      @   n.style.height = 0;
+      @   n.style.transform = "scale(.999)";
+      @   n.style.borderWidth = 0;
+      @   n.style.borderStyle = "solid";
+      @   n.style.borderColor = "transparent";
+      @   n.style.borderRightWidth = "3px";
+      @   n.style.borderBottomColor = railClr;
+      @   n.style.borderLeftWidth = "3px";
+      @   if( y0+10>=y1 ){
+      @     n.style.borderBottomWidth = "5px";
+      @   } else {
+      @     n.style.borderBottomWidth = "7px";
+      @   }
+      @   cDiv.appendChild(n);
+    }
     @ }
     @ function drawThinArrow(y,xFrom,xTo){
     @   var n = document.createElement("div"),
@@ -790,7 +831,9 @@ void timeline_output_graph_javascript(
     @ function drawNodeBox(color,x0,y0,x1,y1){
     @   var n = drawBox(color,x0,y0,x1,y1);
     @   n.style.cursor = "pointer";
-    @  	n.style.borderRadius = "6px";
+    if( showRailCircles ){
+      @   n.style.borderRadius = "6px";
+    }
     @ }
     @ function drawNode(p, left, btm){
     @   /* Current CheckIn node */
@@ -827,7 +870,8 @@ void timeline_output_graph_javascript(
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
     @       /* Branch rail */
-    @       drawBox(u.bg,x0,p.y,x1+1,p.y+1);
+    @       var railClr = getRailColor(u.bg);
+    @       drawBox(railClr,x0,p.y,x1+1,p.y+1);
     @       drawRail(x1, u.y+6, p.y, u.bg);
     @     }else{
     @       /* Timewarp rail */
@@ -916,8 +960,10 @@ void timeline_output_graph_javascript(
     @ }
     @ function clickOnRow(p){
     @   if( selRow==null ){
-    @     selBox = drawBox("orange",p.x-2,p.y-2,p.x+3,p.y+3);
-    @     selBox.style.borderRadius="6px";
+    @     selBox = drawBox("red",p.x-2,p.y-2,p.x+3,p.y+3);
+    if( showRailCircles ){
+      @   selBox.style.borderRadius="6px";
+    }
     @     selRow = p;
     @   }else if( selRow==p ){
     @     var canvasDiv = gebi("canvas");

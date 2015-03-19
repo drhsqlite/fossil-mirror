@@ -1342,6 +1342,25 @@ void setup_timeline(void){
   @ display formatting features such as fonts and line-wrapping behavior.)</p>
 
   @ <hr />
+  onoff_attribute("Show branch rail arrowheads",
+                  "timeline-rail-arrows", "tra", 1, 0);
+  @ <p>The rail (line) that connects check-ins may optionally display an
+  @ arrowhead indicating the linear progression of changes.</p>
+
+  @ <hr />
+  onoff_attribute("Show check-in timeline nodes as circles",
+                  "timeline-rail-circles", "trc", 0, 0);
+  @ <p>By default, Fossil will display check-nodes as squares. Alternatively you
+  @ may prefer to display them as circles.</p>
+
+  @ <hr />
+  onoff_attribute("Use branch background color for branch rails",
+                  "timeline-rail-colors", "trl", 0, 0);
+  @ <p>Fossil will display your branch rails using the color defined for the
+  @ branch background.  (Note: Branch background colors may not have enough
+  @ contrast to be easily distinguishable from the timeline background.</p>
+
+  @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",
                   "timeline-utc", "utc", 1, 0);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or

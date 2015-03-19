@@ -651,10 +651,10 @@ span.tktError {
  */
 
 #canvas {
-  color: darkGray;
-  border-color: black;
-  outline-color: white;
-  background-color: #0a0;
+  color: darkGray;         /* default rail/line color */
+  border-color: black;     /* default branch node/box color */
+  outline-color: white;    /* leaf indicator color */
+  background-color: #0a0;  /* node/box border color */
 }
 
 div.divider {

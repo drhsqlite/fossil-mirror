@@ -1,5 +1,5 @@
-C Fix\soff-by-one\swith\stop-of-page\sdescending\srails
-D 2015-03-19T19:12:41.998
+C Expose\stimeline\scircles,\sarrowheads,\sand\sbranch\srail\scolors\sas\ssettings
+D 2015-03-19T23:57:21.090
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -356,7 +356,7 @@ F skins/rounded1/css.txt cf2b6d826f72710f06de8e4ba9c11954d545f884
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 5f4305dd177ea4ee079293a006a519c46e6547ff
+F skins/xekri/css.txt 7c7f3c0c7531b5db761f996f3d107f87f1cb8bc3
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt 0db90e00529d8bd44fb5ff13e4be967610e61aed
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
@@ -380,7 +380,7 @@ F src/clone.c 17a56a8a39befb6f7d8f1aa87deeadb7d2833b1e
 F src/codecheck1.c 2cf1fc75f4f611574e92cf1440f4fb2ae49e8ba6
 F src/comformat.c 24b2de2bad5e8e6da966586c68d6505ea08df8e7
 F src/config.h 5b0f2c55c62691916d4477f37109d3356a1dcecf
-F src/configure.c f4ed1439b8c1cd49247d8002c9e8021ff5f2d951
+F src/configure.c bd5a92d885eb878ea7c63974de09f05b393be372
 F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
@@ -397,7 +397,7 @@ F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 884b233bc94c8e7a24644ac815bc174756421545
-F src/finfo.c 640d7c4410873a0a26eb4bb37894ca375bd50356
+F src/finfo.c d942571474977305dd6f51b52c7411aa5b0d4c49
 F src/foci.c 8e1553ee3a2db6b73497b4cfca8d4b8fe89e2471
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -412,7 +412,7 @@ F src/info.c d90f5550b863a261513cc8ec6a9f66e4ca3044c8
 F src/json.c f3969a835cdd4256e55882e66c9505605c9a2135
 F src/json_artifact.c 82c34f8fd337856f779c5062d4431266c4e5f505
 F src/json_branch.c db1dbae4d7cbd728dbbf05167aaa5c1c6579ad8a
-F src/json_config.c 06307c932a6c53e2a553742f61b91d87a3731196
+F src/json_config.c 113fe7bbe3b701a3dfdefce5bacd0ffde25cc832
 F src/json_detail.h 7d9cdc126617216623145aaea42a914a93cf983c
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
 F src/json_dir.c bd7be6f09d9c4d951e68b9562ad13d15aa76fb70
@@ -460,7 +460,7 @@ F src/report.c 653c5affb28a4ae9624e65de1f596c4bf08fe8b3
 F src/rss.c bb314966b5fd2c4a779d4ac6afbabc4721fcf44f
 F src/schema.c c43e7d7f0872b2e4940d049fc1dbcac81bffa543
 F src/search.c edaaa322e4a9552288f7fe1d4b168b5eeac4b20e
-F src/setup.c 72e3d8640b631d3db99a777866cc7188121d0838
+F src/setup.c 5990fea0dc2515b23fd808213f6c75ae93624be3
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c f06cca68a3f07e03d35d2f879375967169db6a61
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
@@ -472,7 +472,7 @@ F src/sqlite3.h f8151534e8c69113c7ce4dc7c8491932836095cd
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
 F src/statrep.c b7bd715a0429375342af08151854d62b467c4792
-F src/style.c 04648413ce04acf03d58a6f3fd92c5eb93a978ca
+F src/style.c 0f13497dcb38ccdd925d4c0f7f756eb002c63c4a
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 807b4154d67dc0bf02089d61bda5cac84bf7d44b
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
@@ -481,7 +481,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c e79b55e41e0fabdcbb115845f0a7776ef9b1953b
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c 6efc49b41a7253cc468bf563442fc1749bc2dd77
+F src/timeline.c 3b62a9ece813024fdd208432c1da0ae7bb9471a4
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
 F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -719,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 529c07af9861afc1bd3d6c08a0ed4e4b22ad665d
-R 613961b718db667715da90ad76c375cb
+P 550f245af4317e5f135db2b653fae9c6bcc1e2f5
+R 0a11e20ef47e9f282ee101947a998dd3
 U jmoger
-Z 45d28a41d5ccce517b51d82771b45ad7
+Z ec99bf97ae3357b5da033aef726be44e
