@@ -2052,7 +2052,7 @@ static void find_server_repository(int arg, int fCreate){
         db_create_repository(zRepo);
         db_open_repository(zRepo);
         db_begin_transaction();
-        db_initial_setup(0,"now",0);
+        db_initial_setup(0, "now", g.zLogin);
         db_end_transaction(0);
         fossil_print("project-id: %s\n", db_get("project-code", 0));
         fossil_print("server-id:  %s\n", db_get("server-code", 0));

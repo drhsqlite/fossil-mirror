@@ -1,5 +1,5 @@
-C In\s"fossil\sserver\s--create",\sdon't\screate\s"admin"\suser\swith\s"admin"\spassword,\sbut\sprint\sthe\srandom-generated\spassword
-D 2015-03-20T11:12:12.270
+C Explicitely\sspecify\s"admin"\sas\susername,\sotherwise\sDocker\scannot\sfind\sout\swhich\suser\sshould\sbe\screated
+D 2015-03-20T14:50:16.815
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -10,7 +10,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile d04b0fbe4f108f0dbb56325f09693a3277a00c6c
+F Dockerfile f57bc9b00197a8ac02d52afb9cb9dd4ade476c05
 F Makefile.classic 8860fc8763421cb968e05bdd361311f9a443fc07
 F Makefile.in 4c745f08a8ecfe6e1f227e2a6d33cce3adc532d0
 F VERSION 02c9e548dd1b3e511f161b1e27cf60d8f5c79e7d
@@ -429,7 +429,7 @@ F src/leaf.c a59b5b73a02ace671d8c4f6efb44aaefaf838dfc
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 2abcbfe5306a237232816ebccbaf0b871e65d267
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 486edea59b5d843add25a33188607032a77364c2
+F src/main.c 99192d11e612f08c0198f26411493a3b50e2a978
 F src/main.mk f1c0eb09df40f5cc1feb43c504b4a456a74bd067
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -719,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e315ec84109a2ed753a8ce7971f9e3132d838510
-R 0edb00f4f09bc92838f51cf463a91fc6
+P 2ec9af63bdf19f75e0da164cd48ca53a067a815d
+R 35f145f94bb66e1713c8df55181d02ac
 U jan.nijtmans
-Z 2f2f49ac5951d92339c68ca6af3ddf64
+Z 2a9f1e9327e9e17f6f3b88e676a374c9
