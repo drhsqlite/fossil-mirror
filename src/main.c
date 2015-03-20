@@ -2048,12 +2048,17 @@ static void find_server_repository(int arg, int fCreate){
       file_simplify_name(g.zRepositoryName, -1, 0);
     }else{
       if( isDir==0 && fCreate ){
+        const char *zPassword;
         db_create_repository(zRepo);
         db_open_repository(zRepo);
         db_begin_transaction();
-        db_initial_setup(0,"now","admin");
-        db_multi_exec("UPDATE user SET pw='admin' WHERE login='admin'");
+        db_initial_setup(0,"now",0);
         db_end_transaction(0);
+        fossil_print("project-id: %s\n", db_get("project-code", 0));
+        fossil_print("server-id:  %s\n", db_get("server-code", 0));
+        zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
+        fossil_print("admin-user: %s (initial password is \"%s\")\n",
+                     g.zLogin, zPassword);
         cache_initialize();
         g.zLogin = 0;
         g.userUid = 0;
