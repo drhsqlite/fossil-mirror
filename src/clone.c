@@ -184,6 +184,7 @@ void clone_cmd(void){
     db_multi_exec(
       "REPLACE INTO config(name,value,mtime)"
       " VALUES('server-code', lower(hex(randomblob(20))), now());"
+      "DELETE FROM config WHERE name='project-code';"
     );
     url_enable_proxy(0);
     clone_ssh_db_set_options();
