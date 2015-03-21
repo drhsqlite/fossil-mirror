@@ -68,7 +68,7 @@ span[style^=background-color] {
 div.header, div.mainmenu, div.submenu, div.content, div.footer {
   clear: both;
   margin: 0 auto;
-  max-width: 80%;
+  max-width: 90%;
   padding: 0.25rem 1rem;
 }
 
@@ -136,22 +136,20 @@ div.mainmenu, div.submenu {
 }
 
 div.mainmenu {
+  padding-top: 0.33rem;
   padding-bottom: 0.25rem;
 }
 
 div.submenu {
   border-top: 1px solid #0a0;
   border-radius: 0;
-  display: flex;
-  -o-display: block;
-  justify-content: space-around;
+  display: block;
 }
 
 div.mainmenu a, div.submenu a {
   color: #000;
   padding: 0 0.75rem;
   text-decoration: none;
-  vertical-align: middle;
 }
 
 div.mainmenu a:hover, div.submenu a:hover {
@@ -159,8 +157,21 @@ div.mainmenu a:hover, div.submenu a:hover {
   text-shadow: 0px 0px 6px #0f0;
 }
 
+div.submenu * {
+  margin: 0 0.5rem;
+  vertical-align: middle;
+}
+
+div.submenu select, div.submenu input {
+  background-color: #222;
+  border: 1px inset #080;
+  color: #eee;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
 div.submenu select {
-  background-color: #090;
+  height: 1.75rem;
 }
 
 /**************************************
