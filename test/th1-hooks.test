@@ -30,54 +30,6 @@ set env(TH1_ENABLE_HOOKS) 1; # TH1 hooks must be enabled for this test.
 
 ###############################################################################
 
-proc fossil_th1_hook_http { repository url } {
-  set suffix [appendArgs [pid] - [getSeqNo] - [clock seconds] .txt]
-  set inFileName [file join $::tempPath [appendArgs test-http-in- $suffix]]
-  set outFileName [file join $::tempPath [appendArgs test-http-out- $suffix]]
-  set data [subst [read_file [file join $::testdir th1-hooks-input.txt]]]
-
-  write_file $inFileName $data
-  fossil http $inFileName $outFileName 127.0.0.1 $repository
-  set result [expr {[file exists $outFileName] ? [read_file $outFileName] : ""}]
-
-  if {1} then {
-    catch {file delete $inFileName}
-    catch {file delete $outFileName}
-  }
-
-  return $result
-}
-
-proc normalize_result {} {
-  return [string map [list \r\n \n] [string trim $::RESULT]]
-}
-
-proc first_data_line {} {
-  return [lindex [split [normalize_result] \n] 0]
-}
-
-proc second_data_line {} {
-  return [lindex [split [normalize_result] \n] 1]
-}
-
-proc third_data_line {} {
-  return [lindex [split [normalize_result] \n] 2]
-}
-
-proc last_data_line {} {
-  return [lindex [split [normalize_result] \n] end]
-}
-
-proc next_to_last_data_line {} {
-  return [lindex [split [normalize_result] \n] end-1]
-}
-
-proc third_to_last_data_line {} {
-  return [lindex [split [normalize_result] \n] end-2]
-}
-
-###############################################################################
-
 set testTh1Setup {
   proc initialize_hook_log {} {
     if {![info exists ::hook_log]} {
@@ -155,6 +107,8 @@ if {[string length $repository] == 0 || ![file exists $repository]} then {
   error "unable to locate repository"
 }
 
+set dataFileName [file join $::testdir th1-hooks-input.txt]
+
 ###############################################################################
 
 saveTh1SetupFile; writeTh1SetupFile $testTh1Setup
@@ -218,7 +172,7 @@ test th1-custom-cmd-4a {[string trim $RESULT] eq \
 
 ###############################################################################
 
-set RESULT [fossil_th1_hook_http $repository /timeline]
+set RESULT [test_fossil_http $repository $dataFileName /timeline]
 test th1-web-hooks-1a {[regexp {<title>Fossil: Timeline</title>} $RESULT]}
 
 test th1-web-hooks-1b {[regexp [appendArgs \
@@ -227,7 +181,7 @@ test th1-web-hooks-1b {[regexp [appendArgs \
 
 ###############################################################################
 
-set RESULT [fossil_th1_hook_http $repository /test1]
+set RESULT [test_fossil_http $repository $dataFileName /test1]
 test th1-custom-web-1a {[next_to_last_data_line] eq $repository}
 
 test th1-custom-web-1b {[last_data_line] eq \

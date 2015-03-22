@@ -1,5 +1,5 @@
-C Fix\sTH1\shook\sreturn\scode\shandling\sfor\serrors.\s\sCleanup\sand\sfix\sTH1\shook\stests.\s\sCorrections\sto\sthe\sTH1\shooks\stests,\staking\sinto\saccount\s'http'\ssub-command\sargument\schanges.
-D 2015-03-22T20:07:26.928
+C Factor\sout\scommon\stest\scode\sinto\sthe\s'tester.tcl'\sscript.
+D 2015-03-22T22:59:46.215
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -527,9 +527,9 @@ F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 93ad9116da2bcbbdba20670a5805649e0517e08d
+F test/tester.tcl 2b2b84f1bb8b7d7e44a4dfc0d2f67ee58394213f
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-hooks.test bd1e9cd4c7ffe745593e4853d0ae46ce3c35442a
+F test/th1-hooks.test 3e533ca4b5956be9f13119177c795465dd3dd3a8
 F test/th1-tcl.test 2122a0da663a830cfefa68cc997adeec0b0013c7
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
@@ -719,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P d07ae0ce4dc13c61aa06bef2758aa7e71410e703
-R 41204584a73c3f68e31d99be2b5df99e
+P a313f031a48c4513ba64df87b0dc946dfbe11bd5
+R b2fc73b9900593ac1f0b1e87940ce49e
 U mistachkin
-Z 706cd25774393ac808034b6d0fa0f61c
+Z e21ac3ac6c851da4553d9e37aaa083fb
