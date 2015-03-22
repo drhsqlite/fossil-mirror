@@ -1,5 +1,5 @@
-C In\sthe\scustom\sMinGW\sMakefile\sonly,\sinclude\sthe\sTH1\sdocs\sfeature\sby\sdefault.
-D 2015-03-22T18:58:21.291
+C Fix\sTH1\shook\sreturn\scode\shandling\sfor\serrors.\s\sCleanup\sand\sfix\sTH1\shook\stests.\s\sCorrections\sto\sthe\sTH1\shooks\stests,\staking\sinto\saccount\s'http'\ssub-command\sargument\schanges.
+D 2015-03-22T20:07:26.928
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -479,7 +479,7 @@ F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c f3e2d60ea44acd118e8462d48c0865c496f89e6f
 F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
-F src/th_main.c e79b55e41e0fabdcbb115845f0a7776ef9b1953b
+F src/th_main.c bdc2af4fc8e4293b26bd9262087969469e2dd485
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
 F src/timeline.c c41b6e02179cae1f25c76c1a615321ab8ae19941
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
@@ -527,9 +527,9 @@ F test/revert.test fd2db9b23831a1e0e9ada5bfc7475fce579a949a
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl db2311eb8a604c9ebee5e716645b304b5348bdac
+F test/tester.tcl 93ad9116da2bcbbdba20670a5805649e0517e08d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-hooks.test 7ffbd9a20c0380e1ae9f9ec3b00fab1512972da3
+F test/th1-hooks.test bd1e9cd4c7ffe745593e4853d0ae46ce3c35442a
 F test/th1-tcl.test 2122a0da663a830cfefa68cc997adeec0b0013c7
 F test/th1-tcl1.txt c60e664b138a2189b637c254d55a05819db1521d
 F test/th1-tcl2.txt 9f7e7ea7cc6c75df78c5efb761d10a4e8e354401
@@ -719,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P caeb68d98d45cb15ddecdc42723a20f9502754fa
-R 8fe2d5adb31667e186895232631b5c40
+P d07ae0ce4dc13c61aa06bef2758aa7e71410e703
+R 41204584a73c3f68e31d99be2b5df99e
 U mistachkin
-Z 40d359178fd70084ecb190656db79178
+Z 706cd25774393ac808034b6d0fa0f61c

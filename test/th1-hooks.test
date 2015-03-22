@@ -31,13 +31,13 @@ set env(TH1_ENABLE_HOOKS) 1; # TH1 hooks must be enabled for this test.
 ###############################################################################
 
 proc fossil_th1_hook_http { repository url } {
-  set suffix [appendArgs [pid] - [clock seconds] .txt]
+  set suffix [appendArgs [pid] - [getSeqNo] - [clock seconds] .txt]
   set inFileName [file join $::tempPath [appendArgs test-http-in- $suffix]]
   set outFileName [file join $::tempPath [appendArgs test-http-out- $suffix]]
   set data [subst [read_file [file join $::testdir th1-hooks-input.txt]]]
 
   write_file $inFileName $data
-  fossil http $repository $inFileName $outFileName 127.0.0.1
+  fossil http $inFileName $outFileName 127.0.0.1 $repository
   set result [expr {[file exists $outFileName] ? [read_file $outFileName] : ""}]
 
   if {1} then {
@@ -48,24 +48,32 @@ proc fossil_th1_hook_http { repository url } {
   return $result
 }
 
+proc normalize_result {} {
+  return [string map [list \r\n \n] [string trim $::RESULT]]
+}
+
 proc first_data_line {} {
-  return [lindex [split [string trim $::RESULT] \r\n] 0]
+  return [lindex [split [normalize_result] \n] 0]
 }
 
 proc second_data_line {} {
-  return [lindex [split [string trim $::RESULT] \r\n] 1]
+  return [lindex [split [normalize_result] \n] 1]
 }
 
 proc third_data_line {} {
-  return [lindex [split [string trim $::RESULT] \r\n] 2]
+  return [lindex [split [normalize_result] \n] 2]
 }
 
 proc last_data_line {} {
-  return [lindex [split [string trim $::RESULT] \r\n] end]
+  return [lindex [split [normalize_result] \n] end]
 }
 
 proc next_to_last_data_line {} {
-  return [lindex [split [string trim $::RESULT] \r\n] end-1]
+  return [lindex [split [normalize_result] \n] end-1]
+}
+
+proc third_to_last_data_line {} {
+  return [lindex [split [normalize_result] \n] end-2]
 }
 
 ###############################################################################
@@ -105,9 +113,14 @@ set testTh1Setup {
       emit_hook_log
       return -code 2 "TH_RETURN return code"
     } elseif {$::cmd_name eq "timeline"} {
-      if {$::cmd_args eq "custom"} {
+      set length [llength $::cmd_args]
+      set length [expr {$length - 1}]
+      if {[lindex $::cmd_args $length] eq "custom"} {
         emit_hook_log
         return "custom timeline"
+      } elseif {[lindex $::cmd_args $length] eq "now"} {
+        emit_hook_log
+        return "now timeline"
       } else {
         emit_hook_log
         error "unsupported timeline"
@@ -149,8 +162,8 @@ saveTh1SetupFile; writeTh1SetupFile $testTh1Setup
 ###############################################################################
 
 fossil timeline custom; # NOTE: Bad "WHEN" argument.
-test th1-cmd-hooks-1a {[string map [list \r\n \n] [string trim $RESULT]] eq {<h1><b>command_hook timeline</b></h1>
-ERROR: unsupported timeline
+test th1-cmd-hooks-1a {[normalize_result] eq \
+{<h1><b>command_hook timeline</b></h1>
 +++ no more data (0) +++
 
 <h1><b>command_hook timeline command_notify timeline</b></h1>}}
@@ -158,16 +171,33 @@ ERROR: unsupported timeline
 ###############################################################################
 
 fossil timeline
-test th1-cmd-hooks-2a {[first_data_line] eq {<h1><b>command_hook timeline</b></h1>}}
+test th1-cmd-hooks-2a {[first_data_line] eq \
+    {<h1><b>command_hook timeline</b></h1>}}
+
 test th1-cmd-hooks-2b {[second_data_line] eq {ERROR: unsupported timeline}}
-test th1-cmd-hooks-2c {[regexp -- {=== \d{4}-\d{2}-\d{2} ===} [third_data_line]]}
-test th1-cmd-hooks-2d {[last_data_line] eq {<h1><b>command_hook timeline command_notify timeline</b></h1>}}
+
+###############################################################################
+
+fossil timeline now
+test th1-cmd-hooks-3a {[first_data_line] eq \
+    {<h1><b>command_hook timeline</b></h1>}}
+
+test th1-cmd-hooks-3b \
+    {[regexp -- {=== \d{4}-\d{2}-\d{2} ===} [second_data_line]]}
+
+test th1-cmd-hooks-3c \
+    {[regexp -- {--- line limit \(\d+\) reached ---} [third_to_last_data_line]]}
+
+test th1-cmd-hooks-3d {[last_data_line] eq \
+    {<h1><b>command_hook timeline command_notify timeline</b></h1>}}
 
 ###############################################################################
 
 fossil test1
 test th1-custom-cmd-1a {[next_to_last_data_line] eq $repository}
-test th1-custom-cmd-1b {[last_data_line] eq {<h1><b>command_hook test1 command_notify test1</b></h1>}}
+
+test th1-custom-cmd-1b {[last_data_line] eq \
+    {<h1><b>command_hook test1 command_notify test1</b></h1>}}
 
 ###############################################################################
 
@@ -177,24 +207,31 @@ test th1-custom-cmd-2a {[first_data_line] eq {ERROR: unsupported command}}
 ###############################################################################
 
 fossil test3
-test th1-custom-cmd-3a {[string trim $RESULT] eq {<h1><b>command_hook test3</b></h1>}}
+test th1-custom-cmd-3a {[string trim $RESULT] eq \
+    {<h1><b>command_hook test3</b></h1>}}
 
 ###############################################################################
 
 fossil test4
-test th1-custom-cmd-4a {[string trim $RESULT] eq {<h1><b>command_hook test4</b></h1>}}
+test th1-custom-cmd-4a {[string trim $RESULT] eq \
+    {<h1><b>command_hook test4</b></h1>}}
 
 ###############################################################################
 
 set RESULT [fossil_th1_hook_http $repository /timeline]
 test th1-web-hooks-1a {[regexp {<title>Fossil: Timeline</title>} $RESULT]}
-test th1-web-hooks-1b {[regexp {<h1><b>command_hook http webpage_hook timeline webpage_notify timeline</b></h1>} $RESULT]}
+
+test th1-web-hooks-1b {[regexp [appendArgs \
+    {<h1><b>command_hook http webpage_hook timeline} " " \
+    {webpage_notify timeline</b></h1>}] $RESULT]}
 
 ###############################################################################
 
 set RESULT [fossil_th1_hook_http $repository /test1]
 test th1-custom-web-1a {[next_to_last_data_line] eq $repository}
-test th1-custom-web-1b {[last_data_line] eq {<h1><b>command_hook http webpage_hook test1 webpage_notify test1</b></h1>}}
+
+test th1-custom-web-1b {[last_data_line] eq \
+    {<h1><b>command_hook http webpage_hook test1 webpage_notify test1</b></h1>}}
 
 ###############################################################################
 

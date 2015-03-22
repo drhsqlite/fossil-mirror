@@ -1835,6 +1835,12 @@ int Th_CommandHook(
     */
     if( memcmp(zResult, NO_COMMAND_HOOK_ERROR, nResult)!=0 ){
       sendError(zResult, nResult, 0);
+    }else{
+      /*
+      ** There is no command hook handler "installed".  This situation
+      ** is NOT actually an error.
+      */
+      rc = TH_OK;
     }
   }
   /*
@@ -1855,7 +1861,7 @@ int Th_CommandHook(
   ** open prior to their own code doing so.
   */
   if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
-  return (rc != TH_ERROR) ? rc : TH_OK;
+  return rc;
 }
 
 /*
@@ -1916,6 +1922,12 @@ int Th_WebpageHook(
     */
     if( memcmp(zResult, NO_WEBPAGE_HOOK_ERROR, nResult)!=0 ){
       sendError(zResult, nResult, 1);
+    }else{
+      /*
+      ** There is no webpage hook handler "installed".  This situation
+      ** is NOT actually an error.
+      */
+      rc = TH_OK;
     }
   }
   /*
@@ -1936,7 +1948,7 @@ int Th_WebpageHook(
   ** open prior to their own code doing so.
   */
   if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
-  return (rc != TH_ERROR) ? rc : TH_OK;
+  return rc;
 }
 
 /*

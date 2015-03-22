@@ -331,6 +331,15 @@ proc random_changes {body blocksize count index prob} {
   return [string range $out 1 end]
 }
 
+# obtains and increments a "sequence number" for this test run.
+proc getSeqNo {} {
+  upvar #0 seqNo seqNo
+  if {![info exists seqNo]} {
+    set seqNo 0
+  }
+  return [incr seqNo]
+}
+
 protInit $fossilexe
 foreach testfile $argv {
   set dir [file root [file tail $testfile]]
