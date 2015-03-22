@@ -2280,8 +2280,8 @@ static int binaryOnPath(const char *zBinary){
 ** only process HTTP traffic from the local machine.
 **
 ** The REPOSITORY can be a directory (aka folder) that contains one or
-** more repositories with names ending in ".fossil".  In this case, the
-** a prefix of the URL pathname is used to search the directory for an
+** more repositories with names ending in ".fossil".  In this case, a
+** prefix of the URL pathname is used to search the directory for an
 ** appropriate repository.  To thwart mischief, the pathname in the URL must
 ** contain only alphanumerics, "_", "/", "-", and ".", and no "-" may
 ** occur after "/", and every "." must be surrounded on both sides by

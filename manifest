@@ -1,5 +1,5 @@
-C Place\sNewer\sand\sOlder\sbuttons\son\scirca\squeries\sto\smake\sbrowsing\seasier.
-D 2015-03-21T23:34:57.521
+C Correct\stypo.\s\sCredit\sArseniy\sTerekhin\son\sthe\sfossil-dev\slist\sfor\sthe\sreport.
+D 2015-03-22T01:38:42.672
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -429,7 +429,7 @@ F src/leaf.c a59b5b73a02ace671d8c4f6efb44aaefaf838dfc
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 2abcbfe5306a237232816ebccbaf0b871e65d267
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c 99192d11e612f08c0198f26411493a3b50e2a978
+F src/main.c c269b9b1287c43231748ff1d0f45166dd82b8d4a
 F src/main.mk f1c0eb09df40f5cc1feb43c504b4a456a74bd067
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -719,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 14b8475598268f3a3875ef95a0ae000e1737a926
-R 5eaa58b1b6f2ab70550563f2be504e5f
-U andybradford
-Z e6aea9fe30d99f250c967b2cb0a8ead9
+P ced021fd57ac2bac3087a203525decb721b3e579
+R 4b522a75d2b105c47b437ffafe478c22
+U andygoth
+Z 7883e9eeae4f24ca8029e54592e4b1ae
