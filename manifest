@@ -1,5 +1,5 @@
-C Correct\stypo.\s\sCredit\sArseniy\sTerekhin\son\sthe\sfossil-dev\slist\sfor\sthe\sreport.
-D 2015-03-22T01:38:42.672
+C Update\sversion\sof\sOpenSSL\smentioned\son\sthe\sbuild\swiki\spage.
+D 2015-03-22T18:38:23.612
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -635,7 +635,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki be1bf237c9d66f899206b454bc2c37b252cb7cfe
+F www/build.wiki e72a7ddf5c84b35b90a3f5094229d137802d204a
 F www/changes.wiki ee2e3abf7f0edfa25dd9547e93d8b0afa7972fe9
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 37087c035ff437c1c14dce07a0b8c7bf7adb3c2d
@@ -719,7 +719,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ced021fd57ac2bac3087a203525decb721b3e579
-R 4b522a75d2b105c47b437ffafe478c22
-U andygoth
-Z 7883e9eeae4f24ca8029e54592e4b1ae
+P b0592fe329b4efcb07102447ca5cb3281bda35c1
+R 4dbe4947119ca8c2be563c59e21579d0
+U mistachkin
+Z bbcdd5b78de8c4b0addfd95459b30442
