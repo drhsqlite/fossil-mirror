@@ -1984,6 +1984,20 @@ int Th_WebpageNotify(
 }
 #endif
 
+
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+/*
+** This function determines if TH1 docs are enabled for the repository.
+*/
+int Th_AreDocsEnabled(void){
+  if( fossil_getenv("TH1_ENABLE_DOCS")!=0 ){
+    return 1;
+  }
+  return db_get_boolean("th1-docs", 0);
+}
+#endif
+
+
 /*
 ** The z[] input contains text mixed with TH1 scripts.
 ** The TH1 scripts are contained within <th1>...</th1>.

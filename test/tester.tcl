@@ -342,7 +342,7 @@ proc test_fossil_http { repository dataFileName url } {
   set data [subst [read_file $dataFileName]]
 
   write_file $inFileName $data
-  fossil http $inFileName $outFileName 127.0.0.1 $repository
+  fossil http $inFileName $outFileName 127.0.0.1 $repository --localauth
   set result [expr {[file exists $outFileName] ? [read_file $outFileName] : ""}]
 
   if {1} then {
