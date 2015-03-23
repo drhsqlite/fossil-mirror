@@ -1478,38 +1478,6 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
 }
 
 /*
-** This function sets the server and project codes if they do not already
-** exist.  Currently, it should be called only by the db_initial_setup()
-** or cmd_webserver() functions, the latter being used to facilitate more
-** robust integration with "canned image" environments (e.g. Docker).
-*/
-void db_setup_server_and_project_codes(
-  int optional
-){
-  if( !optional ){
-    db_multi_exec(
-        "INSERT INTO config(name,value,mtime)"
-        " VALUES('server-code', lower(hex(randomblob(20))),now());"
-        "INSERT INTO config(name,value,mtime)"
-        " VALUES('project-code', lower(hex(randomblob(20))),now());"
-    );
-  }else if( db_is_writeable("repository") ){
-    if( db_get("server-code", 0)==0 ) {
-      db_multi_exec(
-          "INSERT INTO config(name,value,mtime)"
-          " VALUES('server-code', lower(hex(randomblob(20))),now());"
-      );
-    }
-    if( db_get("project-code", 0)==0 ) {
-      db_multi_exec(
-          "INSERT INTO config(name,value,mtime)"
-          " VALUES('project-code', lower(hex(randomblob(20))),now());"
-      );
-    }
-  }
-}
-
-/*
 ** Return a pointer to a string that contains the RHS of an IN operator
 ** that will select CONFIG table names that are in the list of control
 ** settings.
@@ -1550,8 +1518,7 @@ const char *db_setting_inop_rhs(){
 void db_initial_setup(
   const char *zTemplate,       /* Repository from which to copy settings. */
   const char *zInitialDate,    /* Initial date of repository. (ex: "now") */
-  const char *zDefaultUser,    /* Default user for the repository */
-  int makeServerCodes          /* True to make new server & project codes */
+  const char *zDefaultUser     /* Default user for the repository */
 ){
   char *zDate;
   Blob hash;
@@ -1560,9 +1527,12 @@ void db_initial_setup(
   db_set("content-schema", CONTENT_SCHEMA, 0);
   db_set("aux-schema", AUX_SCHEMA_MAX, 0);
   db_set("rebuilt", get_version(), 0);
-  if( makeServerCodes ){
-    db_setup_server_and_project_codes(0);
-  }
+  db_multi_exec(
+      "INSERT INTO config(name,value,mtime)"
+      " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      "INSERT INTO config(name,value,mtime)"
+      " VALUES('project-code', lower(hex(randomblob(20))),now());"
+  );
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
   if( !db_is_global("timeline-plaintext") ){
@@ -1689,7 +1659,7 @@ void create_repository_cmd(void){
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
   if( zDate==0 ) zDate = "now";
-  db_initial_setup(zTemplate, zDate, zDefaultUser, 1);
+  db_initial_setup(zTemplate, zDate, zDefaultUser);
   db_end_transaction(0);
   if( zTemplate ) db_detach("settingSrc");
   fossil_print("project-id: %s\n", db_get("project-code", 0));
@@ -2377,6 +2347,7 @@ const Setting aSetting[] = {
   { "diff-binary",      0,              0, 0, 0, "on"                  },
   { "diff-command",     0,             40, 0, 0, ""                    },
   { "dont-push",        0,              0, 0, 0, "off"                 },
+  { "dotfiles",         0,              0, 0, 0, "off"                 },
   { "editor",           0,             32, 0, 0, ""                    },
   { "empty-dirs",       0,             40, 1, 0, ""                    },
   { "encoding-glob",    0,             40, 1, 0, ""                    },
@@ -2543,6 +2514,8 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 **    dont-push        Prevent this repository from pushing from client to
 **                     server.  Useful when setting up a private branch.
+**
+**    dotfiles         Include --dotfiles option for all compatible commands.
 **
 **    editor           Text editor command used for check-in comments.
 **

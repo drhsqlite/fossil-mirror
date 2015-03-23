@@ -2036,15 +2036,39 @@ void cmd_cgi(void){
 ** the name of that directory and the specific repository will be
 ** opened later by process_one_web_page() based on the content of
 ** the PATH_INFO variable.
+**
+** If the fCreate flag is set, then create the repository if it
+** does not already exist.
 */
-static void find_server_repository(int arg){
+static void find_server_repository(int arg, int fCreate){
   if( g.argc<=arg ){
     db_must_be_within_tree();
-  }else if( file_isdir(g.argv[arg])==1 ){
-    g.zRepositoryName = mprintf("%s", g.argv[arg]);
-    file_simplify_name(g.zRepositoryName, -1, 0);
   }else{
-    db_open_repository(g.argv[arg]);
+    const char *zRepo = g.argv[arg];
+    int isDir = file_isdir(zRepo);
+    if( isDir==1 ){
+      g.zRepositoryName = mprintf("%s", zRepo);
+      file_simplify_name(g.zRepositoryName, -1, 0);
+    }else{
+      if( isDir==0 && fCreate ){
+        const char *zPassword;
+        db_create_repository(zRepo);
+        db_open_repository(zRepo);
+        db_begin_transaction();
+        db_initial_setup(0, "now", g.zLogin);
+        db_end_transaction(0);
+        fossil_print("project-id: %s\n", db_get("project-code", 0));
+        fossil_print("server-id:  %s\n", db_get("server-code", 0));
+        zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
+        fossil_print("admin-user: %s (initial password is \"%s\")\n",
+                     g.zLogin, zPassword);
+        cache_initialize();
+        g.zLogin = 0;
+        g.userUid = 0;
+      }else{
+        db_open_repository(zRepo);
+      }
+    }
   }
 }
 
@@ -2151,11 +2175,11 @@ void cmd_http(void){
     g.httpIn = fossil_fopen(g.argv[2], "rb");
     g.httpOut = fossil_fopen(g.argv[3], "wb");
     zIpAddr = g.argv[4];
-    find_server_repository(5);
+    find_server_repository(5, 0);
   }else{
     g.httpIn = stdin;
     g.httpOut = stdout;
-    find_server_repository(2);
+    find_server_repository(2, 0);
   }
   if( zIpAddr==0 ){
     zIpAddr = cgi_ssh_remote_addr(0);
@@ -2202,7 +2226,7 @@ void cmd_test_http(void){
   g.useLocalauth = 1;
   g.httpIn = stdin;
   g.httpOut = stdout;
-  find_server_repository(2);
+  find_server_repository(2, 0);
   g.cgiOutput = 1;
   g.fullHttpReply = 1;
   zIpAddr = cgi_ssh_remote_addr(0);
@@ -2259,8 +2283,8 @@ static int binaryOnPath(const char *zBinary){
 ** only process HTTP traffic from the local machine.
 **
 ** The REPOSITORY can be a directory (aka folder) that contains one or
-** more repositories with names ending in ".fossil".  In this case, the
-** a prefix of the URL pathname is used to search the directory for an
+** more repositories with names ending in ".fossil".  In this case, a
+** prefix of the URL pathname is used to search the directory for an
 ** appropriate repository.  To thwart mischief, the pathname in the URL must
 ** contain only alphanumerics, "_", "/", "-", and ".", and no "-" may
 ** occur after "/", and every "." must be surrounded on both sides by
@@ -2281,6 +2305,7 @@ static int binaryOnPath(const char *zBinary){
 **
 ** Options:
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
+**   --create            Create a new REPOSITORY if it does not already exist
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
@@ -2310,6 +2335,7 @@ void cmd_webserver(void){
   const char *zAltBase;     /* Argument to the --baseurl option */
   const char *zFileGlob;    /* Static content must match this */
   char *zIpAddr = 0;        /* Bind to this IP address */
+  int fCreate = 0;
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -2334,6 +2360,7 @@ void cmd_webserver(void){
   zNotFound = find_option("notfound", 0, 1);
   allowRepoList = find_option("repolist",0,0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
+  fCreate = find_option("create",0,0)!=0;
   if( find_option("scgi", 0, 0)!=0 ) flags |= HTTP_SERVER_SCGI;
   if( zAltBase ){
     set_base_url(zAltBase);
@@ -2352,7 +2379,7 @@ void cmd_webserver(void){
     g.useLocalauth = 1;
     allowRepoList = 1;
   }
-  find_server_repository(2);
+  find_server_repository(2, fCreate);
   if( zPort ){
     int i;
     for(i=strlen(zPort)-1; i>=0 && zPort[i]!=':'; i--){}
@@ -2392,8 +2419,6 @@ void cmd_webserver(void){
     }
     if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
     if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
-  }else{
-    db_setup_server_and_project_codes(1);
   }
   db_close(1);
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
@@ -2406,7 +2431,7 @@ void cmd_webserver(void){
     fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
   }
   g.cgiOutput = 1;
-  find_server_repository(2);
+  find_server_repository(2, 0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName, noJail);
   if( flags & HTTP_SERVER_SCGI ){
     cgi_handle_scgi_request();

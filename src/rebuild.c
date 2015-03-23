@@ -955,7 +955,7 @@ void reconstruct_cmd(void) {
 
   db_open_config(0);
   db_begin_transaction();
-  db_initial_setup(0, 0, 0, 1);
+  db_initial_setup(0, 0, 0);
 
   fossil_print("Reading files from directory \"%s\"...\n", g.argv[3]);
   recon_read_dir(g.argv[3]);

@@ -61,7 +61,7 @@ FOSSIL_ENABLE_LEGACY_MV_RM = 1
 
 #### Enable TH1 scripts in embedded documentation files
 #
-# FOSSIL_ENABLE_TH1_DOCS = 1
+FOSSIL_ENABLE_TH1_DOCS = 1
 
 #### Enable hooks for commands and web pages via TH1
 #
@@ -152,7 +152,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2a
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 

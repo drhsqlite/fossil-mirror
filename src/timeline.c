@@ -754,7 +754,7 @@ void timeline_output_graph_javascript(
     @   return left;
     @ }
     @ function drawUpArrow(x,y0,y1){
-    @   drawBox(lineClr,x,y0+5,x+1,y1);
+    @   drawBox(lineClr,x,y0+4,x+1,y1);
     @   var n = document.createElement("div"),
     @       l = x-2,
     @       t = y0;
@@ -763,12 +763,12 @@ void timeline_output_graph_javascript(
     @   n.style.top = t+"px";
     @   n.style.width = 0;
     @   n.style.height = 0;
+    @   n.style.transform = "scale(.999)";
     @   n.style.borderWidth = 0;
     @   n.style.borderStyle = "solid";
     @   n.style.borderColor = "transparent";
     @   n.style.borderRightWidth = "3px";
-    @   n.style.borderBottomColor = "#000";
-    @   n.style.borderBottomStyle = "outset";
+    @   n.style.borderBottomColor = lineClr;
     @   n.style.borderLeftWidth = "3px";
     @   if( y0+10>=y1 ){
     @     n.style.borderBottomWidth = "5px";
@@ -784,6 +784,7 @@ void timeline_output_graph_javascript(
     @   n.style.top = t+"px";
     @   n.style.width = 0;
     @   n.style.height = "1px";
+    @   n.style.transform = "scale(.999)";
     @   n.style.borderWidth = 0;
     @   n.style.borderStyle = "solid";
     @   n.style.borderColor = "transparent";
@@ -792,15 +793,13 @@ void timeline_output_graph_javascript(
     @   if( xFrom<xTo ){
     @     drawBox(lineClr,xFrom,y,xTo-3,y);
     @     n.style.left = xTo-3+"px";
-    @     n.style.borderLeftStyle = "inset";
     @     n.style.borderLeftWidth = "3px";
-    @     n.style.borderLeftColor = "#000";
+    @     n.style.borderLeftColor = lineClr;
     @   }else{
     @     drawBox(lineClr,xTo+3,y,xFrom,y);
     @     n.style.left = xTo+1+"px";
-    @     n.style.borderRightStyle = "outset";
     @     n.style.borderRightWidth = "3px";
-    @     n.style.borderRightColor = "#000";
+    @     n.style.borderRightColor = lineClr;
     @   }
     @   cDiv.appendChild(n);
     @ }
@@ -853,12 +852,12 @@ void timeline_output_graph_javascript(
     @       n.style.left = l+"px";
     @       n.style.width = 0;
     @       n.style.height = 0;
+    @       n.style.transform = "scale(.999)";
     @       n.style.borderWidth = 0;
     @       n.style.borderStyle = "solid";
     @       n.style.borderColor = "transparent";
     @       n.style.borderTopWidth = "3px";
     @       n.style.borderBottomWidth = "3px";
-    @       n.style.borderLeftStyle = "inset";
     @       n.style.borderLeftWidth = "7px";
     @       n.style.borderLeftColor = "#600000";
     @       cDiv.appendChild(n);
@@ -1423,7 +1422,7 @@ void page_timeline(void){
     }
   }else{
     /* Otherwise, a timeline based on a span of time */
-    int n;
+    int n, nBefore, nAfter;
     const char *zEType = "timeline item";
     char *zDate;
     if( zUses ){
@@ -1631,16 +1630,34 @@ void page_timeline(void){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
     }
     if( g.perm.Hyperlink ){
-      if( zAfter || n==nEntry ){
+      if( zCirca && rCirca ){
+        nBefore = db_int(0,
+          "SELECT count(*) FROM timeline WHERE etype!='div'"
+          "   AND sortby<=%f /*scan*/", rCirca);
+        nAfter = db_int(0,
+          "SELECT count(*) FROM timeline WHERE etype!='div'"
+          "   AND sortby>=%f /*scan*/", rCirca);
         zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
-        timeline_submenu(&url, "Older", "b", zDate, "a");
-        zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "a", 0));
+        if( nBefore>=nEntry ){
+          timeline_submenu(&url, "Older", "b", zDate, "c");
+          zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "c", 0));
+        }
+        if( nAfter>=nEntry ){
+          timeline_submenu(&url, "Newer", "a", zDate, "c");
+        }
         free(zDate);
-      }
-      if( zBefore || (zAfter && n==nEntry) ){
-        zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
-        timeline_submenu(&url, "Newer", "a", zDate, "b");
-        free(zDate);
+      }else{
+        if( zAfter || n==nEntry ){
+          zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
+          timeline_submenu(&url, "Older", "b", zDate, "a");
+          zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "a", 0));
+          free(zDate);
+        }
+        if( zBefore || (zAfter && n==nEntry) ){
+          zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
+          timeline_submenu(&url, "Newer", "a", zDate, "b");
+          free(zDate);
+        }
       }
       if( zType[0]=='a' || zType[0]=='c' ){
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
