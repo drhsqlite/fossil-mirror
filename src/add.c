@@ -423,13 +423,20 @@ void capture_metadata_only_option(void){
 **
 ** Remove one or more files or directories from the repository.
 **
-** This command does NOT normally remove the files from disk.  It just
-** marks the files as no longer being part of the project.  In other
-** words, future changes to the named files will not be versioned.
+** The 'rm' and 'delete' commands do NOT normally remove the files from
+** disk.  They just mark the files as no longer being part of the project.
+** In other words, future changes to the named files will not be versioned.
+** However, the default behavior of this command may be overridden via the
+** command line options listed below and/or the 'remove-files' setting.
+**
+** The 'forget' command never removes files from disk, even when the command
+** line options and/or the 'remove-files' setting would otherwise require it
+** to do so.
 **
 ** WARNING: If either the "--metadata-only 0" or "--hard" option is
 **          specified -OR- the "remove-files" setting is non-zero,
-**          files WILL BE removed from disk as well.
+**          files WILL BE removed from disk as well.  This does NOT
+**          apply to the 'forget' command.
 **
 ** Options:
 **   --metadata-only <BOOL>  Non-zero to skip removing files from the
@@ -782,13 +789,20 @@ static void process_files_to_move(
 ** Move or rename one or more files or directories within the repository tree.
 ** You can either rename a file or directory or move it to another subdirectory.
 **
-** This command does NOT normally rename or move the files on disk.  This
-** command merely records the fact that filenames have changed so that
-** appropriate notations can be made at the next commit/check-in.
+** The 'mv' command does NOT normally rename or move the files on disk.
+** This command merely records the fact that file names have changed so
+** that appropriate notations can be made at the next commit/check-in.
+** However, the default behavior of this command may be overridden via
+** command line options listed below and/or the 'move-files' setting.
+**
+** The 'rename' command never renames or moves files on disk, even when the
+** command line options and/or the 'move-files' setting would otherwise
+** require it to do so.
 **
 ** WARNING: If either the "--metadata-only 0" or "--hard" option is
 **          specified -OR- the "move-files" setting is non-zero,
-**          files WILL BE renamed or moved on disk as well.
+**          files WILL BE renamed or moved on disk as well.  This does
+**          NOT apply to the 'rename' command.
 **
 ** Options:
 **   --metadata-only <BOOL>  Non-zero to skip moving files within the
