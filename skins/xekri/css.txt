@@ -1,5 +1,11 @@
-/**************************************
+/******************************************************************************
  * Xekri
+ *
+ * To adjust the width of the contents for this skin, look for the "max-width" 
+ * property and change its value.  (It's in the "Main Area" section)  The value 
+ * determines how much of the browser window to use.  Some like 100%, so that 
+ * the entire window is used.  Others prefer 80%, which makes the contents 
+ * easier to read for them.
  */
 
 
@@ -64,6 +70,7 @@ span[style^=background-color] {
 td[style^=background-color] {
   color: #000;
 }
+
 
 /**************************************
  * Main Area

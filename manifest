@@ -1,5 +1,5 @@
-C Fixed\sthe\sfont\scolor\sfor\sthe\sEdit\sCheck-in\spage\sso\sthat\sthe\stext\sis\smore\sreadable.
-D 2015-03-21T16:04:32.910
+C Added\sinstructions\sfor\show\sto\schange\sthe\swidth\sof\sthe\sskin.
+D 2015-03-25T21:37:14.444
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -339,7 +339,7 @@ F skins/rounded1/css.txt cf2b6d826f72710f06de8e4ba9c11954d545f884
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt 13423f5c8ae6a4e5e13531f520f8dd41cb7148e3
+F skins/xekri/css.txt ac725fc5b37f790d4b0cb0f26d8826e421f070a8
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
 F skins/xekri/header.txt 0db90e00529d8bd44fb5ff13e4be967610e61aed
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
@@ -702,7 +702,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 44cb5bb0c4a1e93a1cc22649473905fa757b8e87
-R 148f66b3f7959190923644066737aa76
+P cb98ab9dadd7673249574c258cf8e13615ad6ea4
+R 43cf66a97da411d52f763d411fefcdbd
 U zakero
-Z f1401271d65f953118c234d010168493
+Z 3b7f35986f33d49cc5cfb44b87f2199a
