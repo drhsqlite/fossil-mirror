@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2015-03-25T21:52:07.220
+C Updates\sto\sthe\sXekri\sskin\sto\smatch\sthe\schanges\sin\sthe\sother\sskins\n\n\s\s*\s\s[7211414857]\sDisable\sfont-inflation\son\sall\sskins.\n\s\s*\s\s[72cddddbcc]\sChange\sdefault\sheaders\sto\sshow\smenu-bar\sitems\sthat\swould\sbe\savailable\sto\suser\s"anonymous"\seven\sif\sthe\scurrent\suser\sis\snot\slogged\sin.
+D 2015-03-25T22:13:17.527
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -356,9 +356,9 @@ F skins/rounded1/css.txt cf2b6d826f72710f06de8e4ba9c11954d545f884
 F skins/rounded1/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/rounded1/header.txt 90ea81c5b14e22a048e182c22769e9aa779d8752
 F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
-F skins/xekri/css.txt ac725fc5b37f790d4b0cb0f26d8826e421f070a8
+F skins/xekri/css.txt 4516c99a8f276d585c9f9e65e34c46d831999a15
 F skins/xekri/footer.txt e8a573cd5148c80926e8bed7f1407519cefbbd7c
-F skins/xekri/header.txt 0db90e00529d8bd44fb5ff13e4be967610e61aed
+F skins/xekri/header.txt 14b3c4d0c2760db2457eacad4278ba3d10f08c81
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e0798cb7833a1ce467ed0780f47303d43e2e64c2
 F src/allrepo.c d44cc238625534b90238714b4607c7cdd04f3a59
@@ -722,7 +722,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 87f06e88fccc9d4f8a32881717d68413159a9032 a00cdb182c1f7bebcbc4a20d1a2c53029c00e2f9
-R d0f25dfbfde1064e5f246da228e27dbe
+P df21fa23c7d04b814c81cd9c99da89b62f0b4927
+R 922b751cb1d693eefb6e41530d6e03f5
 U zakero
-Z 1c3a6a7eb12de3c4e4cb7383c6503c9d
+Z 94264b91f288510707efab1575dd54bc
