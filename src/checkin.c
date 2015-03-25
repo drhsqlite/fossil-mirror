@@ -573,6 +573,8 @@ void extras_cmd(void){
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
 
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -709,6 +711,7 @@ void clean_cmd(void){
   if( zCleanFlag==0 ){
     zCleanFlag = db_get("clean-glob", 0);
   }
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   verify_all_options();
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
@@ -1808,6 +1811,10 @@ void commit_cmd(void){
   */
   if( !vid ){
     if( sCiInfo.zBranch==0 ){
+      if( allowFork==0 && forceFlag==0 && g.markPrivate==0
+        && db_exists("SELECT 1 from event where type='ci'") ){
+        fossil_fatal("would fork.  \"update\" first or use --allow-fork.");
+      }
       sCiInfo.zBranch = db_get("main-branch", "trunk");
     }
   }else if( sCiInfo.zBranch==0 && allowFork==0 && forceFlag==0

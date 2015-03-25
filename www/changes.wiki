@@ -1,6 +1,10 @@
 <title>Change Log</title>
 
-<h2>Changes for Version 1.32 (2015-03-??)</h2>
+<h2>Changes for Version 1.33 (not released yet)</h2>
+  *  Add [/help?cmd=import|fossil import --svn], for importing a subversion
+     repository into fossil which was exported using "svnadmin dump".
+
+<h2>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure
      that the new repository is fully compatible with historical versions of
      Fossil by having a valid manifest as RID 1.
