@@ -1,5 +1,5 @@
-C Merge\sin\sthe\slatest\sXekri\schanges.
-D 2015-03-25T23:02:54.375
+C Fix\shttp_socket.c\sso\sthat\sit\sbuilds\son\sSolaris.
+D 2015-03-26T13:35:40.339
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -404,7 +404,7 @@ F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 42f51f885ecca41125435465f5f1b1171a3c1f11
 F src/gzip.c b0d60daf0cf3e17c848906ec952ef0a4812d8a49
 F src/http.c 4045dd21bdc880bc7b694088c21a15bdbe1b562b
-F src/http_socket.c 49403e76335984f04c3afb00cb86bdfbc1cb4dff
+F src/http_socket.c cdd5f9adf90b400f997434a1b748da85fc7da635
 F src/http_ssl.c 3bb5fed66102596645238c14ae010266ba7f0d2a
 F src/http_transport.c 8231c313134df651b6a89028ce3bc03fc0c09f21
 F src/import.c 39947d8db7449d3e73b121de4c1196e33138508c
@@ -722,7 +722,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P a00cdb182c1f7bebcbc4a20d1a2c53029c00e2f9 290a1c3363d09ed6ca5f86d0168b7e06f10efd1d
-R 922b751cb1d693eefb6e41530d6e03f5
+P 196e0fd99a8e7ba1dad0ed1a0828e1741807690c
+R 34a38b9631c87b7e500c05995ac042b9
 U drh
-Z cc9c728de341876233d84644637f111d
+Z c955a2642327bdf3253cd089e3a96cb4
