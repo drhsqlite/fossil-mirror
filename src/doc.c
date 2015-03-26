@@ -642,7 +642,7 @@ void doc_page(void){
     blob_append(cgi_output_blob(), blob_buffer(&filebody),blob_size(&filebody));
     style_footer();
 #ifdef FOSSIL_ENABLE_TH1_DOCS
-  }else if( db_get_boolean("th1-docs", 0) &&
+  }else if( Th_AreDocsEnabled() &&
             fossil_strcmp(zMime, "application/x-th1")==0 ){
     style_header("%h", zName);
     Th_Render(blob_str(&filebody));

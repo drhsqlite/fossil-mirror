@@ -1,5 +1,11 @@
-/**************************************
+/******************************************************************************
  * Xekri
+ *
+ * To adjust the width of the contents for this skin, look for the "max-width" 
+ * property and change its value.  (It's in the "Main Area" section)  The value 
+ * determines how much of the browser window to use.  Some like 100%, so that 
+ * the entire window is used.  Others prefer 80%, which makes the contents 
+ * easier to read for them.
  */
 
 
@@ -18,6 +24,9 @@ html {
 body {
   margin: 0;
   padding: 0;
+  -moz-text-size-adjust: none;
+  -ms-text-size-adjust: none;
+  -webkit-text-size-adjust: none;
 }
 
 a {
@@ -61,6 +70,11 @@ span[style^=background-color] {
   color: #000;
 }
 
+td[style^=background-color] {
+  color: #000;
+}
+
+
 /**************************************
  * Main Area
  */
@@ -68,7 +82,7 @@ span[style^=background-color] {
 div.header, div.mainmenu, div.submenu, div.content, div.footer {
   clear: both;
   margin: 0 auto;
-  max-width: 80%;
+  max-width: 90%;
   padding: 0.25rem 1rem;
 }
 
@@ -136,21 +150,20 @@ div.mainmenu, div.submenu {
 }
 
 div.mainmenu {
+  padding-top: 0.33rem;
   padding-bottom: 0.25rem;
 }
 
 div.submenu {
   border-top: 1px solid #0a0;
   border-radius: 0;
-  display: flex;
-  justify-content: space-around;
+  display: block;
 }
 
 div.mainmenu a, div.submenu a {
   color: #000;
   padding: 0 0.75rem;
   text-decoration: none;
-  vertical-align: middle;
 }
 
 div.mainmenu a:hover, div.submenu a:hover {
@@ -158,8 +171,21 @@ div.mainmenu a:hover, div.submenu a:hover {
   text-shadow: 0px 0px 6px #0f0;
 }
 
+div.submenu * {
+  margin: 0 0.5rem;
+  vertical-align: middle;
+}
+
+div.submenu select, div.submenu input {
+  background-color: #222;
+  border: 1px inset #080;
+  color: #eee;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
 div.submenu select {
-  background-color: #090;
+  height: 1.75rem;
 }
 
 /**************************************
@@ -342,6 +368,15 @@ ul.browser li.dir {
 
 
 /**************************************
+ * File List : Age
+ */
+
+.fileage tr:hover td {
+  background-color: #225;
+}
+
+
+/**************************************
  * File List : Tree
  */
 
@@ -418,6 +453,14 @@ ul.browser li.dir {
   font-style: italic
 }
 
+.filetreeline:hover {
+  color: #000;
+  font-weight: bold;
+}
+
+.filetreeline .filetreeage {
+  padding-right: 0.5rem;
+}
 
 /**************************************
  * Logout
@@ -483,6 +526,15 @@ table.captcha pre {
 
 .statistics-report-week-of-year-list {
   font-size: 0.8rem;
+}
+
+
+/**************************************
+ * Search
+ */
+
+.searchResult .snippet mark {
+  color: #ee0;
 }
 
 
@@ -651,10 +703,8 @@ span.tktError {
  */
 
 #canvas {
-  color: darkGray;         /* default rail/line color */
-  border-color: black;     /* default branch node/box color */
-  outline-color: white;    /* leaf indicator color */
-  background-color: #0a0;  /* node/box border color */
+  color: #000;
+  background-color: #fff;
 }
 
 div.divider {
