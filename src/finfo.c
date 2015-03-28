@@ -443,9 +443,9 @@ void finfo_page(void){
     db_reset(&qparent);
     if( zBr==0 ) zBr = "trunk";
     if( uBg ){
-      zBgClr = hash_color(zUser);
+      zBgClr = hash_color(zUser, 0);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
-      zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
+      zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr, 0);
     }
     gidx = graph_add_row(pGraph, frid>0 ? frid : fpid+1000000000,
                          nParent, aParent, zBr, zBgClr,

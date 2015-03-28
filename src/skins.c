@@ -144,7 +144,8 @@ const char *skin_get(const char *zWhat){
   return zOut;
 }
 int skin_white_foreground(void){
-  int rc;
+  static int rc = -1;
+  if( rc>=0 ) return rc;
   if( pAltSkin ){
     rc = pAltSkin->whiteForeground;
   }else{

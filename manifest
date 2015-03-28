@@ -1,5 +1,5 @@
-C Fix\shttp_socket.c\sso\sthat\sit\sbuilds\son\sSolaris.
-D 2015-03-26T13:35:40.339
+C Enhance\sthe\shash_color()\sfunction\sso\sthat\sit\scan\sprovide\sforeground\scolors\nin\saddition\sto\sbackground\scolors.
+D 2015-03-28T19:47:05.460
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -366,7 +366,7 @@ F src/attach.c ecad9be142ff32f9a11c5e6b32bd8704f0b669bb
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 9029c31c5fbce785202743937ccf4c276284b433
 F src/blob.c d5931816af9d494fb96732952ecaa7650efc2e1d
-F src/branch.c 702d9219856cb62b39e6f43df4da80f7d5fbc0dc
+F src/branch.c 59c4fcb8c82e9dc9757dbbebad6591886c90427a
 F src/browse.c 3eaea1e904a2c6e6fe28e38fb6b208cbc9aaff0f
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
@@ -397,7 +397,7 @@ F src/encode.c e7bda8a6c527b9b5b02d0739a481e76e33b4cf68
 F src/event.c 8ee9f8359ef1c26c9cd831b229fd824573390e22
 F src/export.c 5a38d841078ab504cfc1e73328a847c8d670d979
 F src/file.c 884b233bc94c8e7a24644ac815bc174756421545
-F src/finfo.c 640d7c4410873a0a26eb4bb37894ca375bd50356
+F src/finfo.c f90b6a3942787f689f68dd166b1307ee1ce2c167
 F src/foci.c 8e1553ee3a2db6b73497b4cfca8d4b8fe89e2471
 F src/fusefs.c e25405b83122ed8369aa63125897348e5eb3cab2
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -465,7 +465,7 @@ F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c 3ae1e53878d2804fe77b8c8f1f6ca287a0e5d80e
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c 87a91b09ca9f595121d741c31ebd724d1e5df708
-F src/skins.c 07c9e4ca7092265c227cdc1f822ecf902f280ba3
+F src/skins.c 6c52154092fe9b1d427c6165d44aeddbba17139c
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
 F src/sqlite3.c 573b1f95a4fcb88f8aa1744237b242a45aba560c
 F src/sqlite3.h 3e1867470e5561a2077b17b14e5d03a43ecc277d
@@ -481,7 +481,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 7bec06525728eb0875beab0ba539009f7eff5512
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c c41b6e02179cae1f25c76c1a615321ab8ae19941
+F src/timeline.c 048a5f86905fd71828930f2c1453c30520717e82
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
 F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -722,7 +722,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 196e0fd99a8e7ba1dad0ed1a0828e1741807690c
-R 34a38b9631c87b7e500c05995ac042b9
+P f93184125d0c38e6ebc4fe6b81c5b21659752e52
+R 78efc89139d9fa29e38e1b1912932aee
+T *branch * auto-fg-color
+T *sym-auto-fg-color *
+T -sym-trunk *
 U drh
-Z c955a2642327bdf3253cd089e3a96cb4
+Z 583a39a51877649dd1048a7577f98d5d

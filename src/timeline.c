@@ -98,34 +98,30 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #endif
 
 /*
-** Hash a string and use the hash to determine a background color.
+** Hash a string and use the hash to determine a background color or
+** foreground color.
 */
-char *hash_color(const char *z){
+char *hash_color(const char *z, int bFgnd){
   int i;                       /* Loop counter */
   unsigned int h = 0;          /* Hash on the branch name */
   int r, g, b;                 /* Values for red, green, and blue */
   int h1, h2, h3, h4;          /* Elements of the hash value */
   int mx, mn;                  /* Components of HSV */
   static char zColor[10];      /* The resulting color */
-  static int ix[2] = {0,0};    /* Color chooser parameters */
 
-  if( ix[0]==0 ){
-    if( db_get_boolean("white-foreground", 0) ){
-      ix[0] = 140;
-      ix[1] = 40;
-    }else{
-      ix[0] = 216;
-      ix[1] = 16;
-    }
-  }
   for(i=0; z[i]; i++ ){
     h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
   }
   h1 = h % 6;  h /= 6;
   h3 = h % 30; h /= 30;
   h4 = h % 40; h /= 40;
-  mx = ix[0] - h3;
-  mn = mx - h4 - ix[1];
+  if( bFgnd^skin_white_foreground() ){
+    mx = 140 - h3;
+    mn = mx - h4 - 40;
+  }else{
+    mx = 216 - h3;
+    mn = mx - h4 - 16;
+  }
   h2 = (h%(mx - mn)) + mn;
   switch( h1 ){
     case 0:  r = mx; g = h2, b = mn;  break;
@@ -150,7 +146,7 @@ char *hash_color(const char *z){
 void test_hash_color(void){
   int i;
   for(i=2; i<g.argc; i++){
-    fossil_print("%20s: %s\n", g.argv[i], hash_color(g.argv[i]));
+    fossil_print("%20s: %s\n", g.argv[i], hash_color(g.argv[i], 0));
   }
 }
 
@@ -172,11 +168,14 @@ void test_hash_color_page(void){
     sqlite3_snprintf(sizeof(zNm),zNm,"b%d",i);
     zBr = P(zNm);
     if( zBr && zBr[0] ){
-      @ <p style='border:1px solid;background-color:%s(hash_color(zBr));'>
-      @ %h(zBr) - %s(hash_color(zBr)) -
+      @ <p>
+      @ <span style='border:1px solid;background-color:%s(hash_color(zBr,0));'>
+      @ %h(zBr) - %s(hash_color(zBr,0)) -
       @ Omnes nos quasi oves erravimus unusquisque in viam
-      @ suam declinavit.</p>
+      @ suam declinavit.</span>
       cnt++;
+      @ <span style='color:%s(hash_color(zBr,1))'>
+      @ Corresponding foreground color: %s(hash_color(zBr,1))</span></p>
     }
   }
   if( cnt ){
@@ -355,7 +354,7 @@ void www_print_timeline(
     }
     @ <td class="timelineTime">%s(zTime)</td>
     @ <td class="timelineGraph">
-    if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
+    if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser,0) : 0;
     if( zType[0]=='c'
     && (pGraph || zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0)
     ){
@@ -370,7 +369,7 @@ void www_print_timeline(
         if( zBr==0 || strcmp(zBr,"trunk")==0 ){
           zBgClr = 0;
         }else{
-          zBgClr = hash_color(zBr);
+          zBgClr = hash_color(zBr,0);
         }
       }
     }

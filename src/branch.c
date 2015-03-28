@@ -473,7 +473,7 @@ void brlist_page(void){
       cnt++;
     }
     if( colorTest ){
-      const char *zColor = hash_color(zBr);
+      const char *zColor = hash_color(zBr, 0);
       @ <li><span style="background-color: %s(zColor)">
       @ %h(zBr) &rarr; %s(zColor)</span></li>
     }else{
