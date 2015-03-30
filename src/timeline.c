@@ -890,8 +890,8 @@ void timeline_output_graph_javascript(
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
-    @       drawBox(lineClr,x0,p.y,x1+1,p.y+1);
-    @       drawUpArrow(x1,u.y+6,p.y,p.fg||lineClr);
+    @       drawBox(u.fg||lineClr,x0,p.y,x1+1,p.y+1);
+    @       drawUpArrow(x1,u.y+6,p.y,u.fg||lineClr);
     @     }else{
     @       drawBox("#600000",x0,p.y,x1,p.y+1);
     @       drawBox("#600000",x1-1,p.y,x1,u.y+1);

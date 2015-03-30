@@ -1,5 +1,5 @@
-C Simplify\sand\simprove\sthe\sskin-editing\scapability.\s\sAdd\sthe\snew\s"details.txt"\nskin\sfile\sthat\scontains\sskin\ssettings\sused\son\sthe\sserver-side.\s\sAdd\sdetail\nvalues\sfor\sselecting\swhite-background,\srounded\snodes,\scolor\sgraph\slines,\nand\sfor\somitting\sarrowheads\son\sverticle\sgraph\slines.
-D 2015-03-30T17:51:13.135
+C In\sthe\stimeline\sgraph,\scolor\sthe\sinitial\sup-arrow\sof\sa\sbranch\sin\sthe\sbranch\ncolor,\swhen\sgraph\scoloring\sis\senable.
+D 2015-03-30T20:34:39.271
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -493,7 +493,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 7bec06525728eb0875beab0ba539009f7eff5512
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c bb2e11bacc080c9b9ee0ee90e41900a2fb6f0dd4
+F src/timeline.c f6f8c9d24d9204662871b73b3e5d14999c576b13
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
 F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -734,8 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P a0cd8d35ee90f357f297ccc88fbb4e1e9cac8533 70e882b5db49a9130d0f9ee2f4b29992e61f70bb
-R caf7111e915f4803e30cf646bc0b58c0
-T +closed 70e882b5db49a9130d0f9ee2f4b29992e61f70bb
+P 106c0909e45e798ec04f87fb02204d1ccbfd5381
+R 8ff0b1b41be3b1e578dc3c2189bbba92
 U drh
-Z b20d307358e415e662113e2e17830257
+Z e5172076fc900c8a6e15e29f1f401b49
