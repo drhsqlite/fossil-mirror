@@ -110,7 +110,7 @@ char *hash_color(const char *z){
   static int ix[2] = {0,0};    /* Color chooser parameters */
 
   if( ix[0]==0 ){
-    if( db_get_boolean("white-foreground", 0) ){
+    if( skin_detail_boolean("white-foreground") ){
       ix[0] = 140;
       ix[1] = 40;
     }else{

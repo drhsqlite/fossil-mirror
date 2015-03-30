@@ -71,7 +71,7 @@ void setup_page(void){
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError"><b>Configuration Error:</b> Please add
     @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
-    @ <tt>&lt;head&gt;</tt> in the <a href="setup_header">HTML header</a>!</p>
+    @ <tt>&lt;head&gt;</tt> in the <a href="setup_skinedit?w=2">HTML header</a>!</p>
   }
 
 #if !defined(_WIN32)
@@ -110,11 +110,11 @@ void setup_page(void){
     "Configure the transfer system for this repository");
   setup_menu_entry("Skins", "setup_skin",
     "Select from a menu of prepackaged \"skins\" for the web interface");
-  setup_menu_entry("CSS", "setup_editcss",
+  setup_menu_entry("CSS", "setup_skinedit?w=0",
     "Edit the Cascading Style Sheet used by all pages of this repository");
-  setup_menu_entry("Header", "setup_header",
+  setup_menu_entry("Header", "setup_skinedit?w=2",
     "Edit HTML text inserted at the top of every page");
-  setup_menu_entry("Footer", "setup_footer",
+  setup_menu_entry("Footer", "setup_skinedit?w=1",
     "Edit HTML text inserted at the bottom of every page");
   setup_menu_entry("Moderation", "setup_modreq",
     "Enable/Disable requiring moderator approval of Wiki and/or Ticket"
@@ -932,7 +932,7 @@ void entry_attribute(
 /*
 ** Generate a text box for an attribute.
 */
-static void textarea_attribute(
+const char *textarea_attribute(
   const char *zLabel,   /* The text label on the textarea */
   int rows,             /* Rows in the textarea */
   int cols,             /* Columns in the textarea */
@@ -961,6 +961,7 @@ static void textarea_attribute(
       @ <span class="textareaLabel">%s(zLabel)</span>
     }
   }
+  return z;
 }
 
 /*
@@ -1553,155 +1554,6 @@ void setup_config(void){
 }
 
 /*
-** WEBPAGE: setup_editcss
-*/
-void setup_editcss(void){
-  login_check_credentials();
-  if( !g.perm.Setup ){
-    login_needed(0);
-    return;
-  }
-  db_begin_transaction();
-  if( P("clear")!=0 ){
-    db_multi_exec("DELETE FROM config WHERE name='css'");
-    cgi_replace_parameter("css", builtin_text("skins/default/css.txt"));
-    db_end_transaction(0);
-    cgi_redirect("setup_editcss");
-  }
-  if( P("submit")!=0 ){
-    textarea_attribute(0, 0, 0, "css", "css",
-                       builtin_text("skins/default/css.txt"), 0);
-    db_end_transaction(0);
-    cgi_redirect("setup_editcss");
-  }
-  style_header("Edit CSS");
-  @ <form action="%s(g.zTop)/setup_editcss" method="post"><div>
-  login_insert_csrf_secret();
-  @ Edit the CSS below:<br />
-  textarea_attribute("", 35, 80, "css", "css",
-                     builtin_text("skins/default/css.txt"), 0);
-  @ <br />
-  @ <input type="submit" name="submit" value="Apply Changes" />
-  @ <input type="submit" name="clear" value="Revert To Default" />
-  @ </div></form>
-  @ <p><span class="note">Note:</span> Press your browser Reload button after
-  @ modifying the CSS in order to pull in the modified CSS file.</p>
-  @ <hr />
-  @ The default CSS is shown below for reference.  Other examples
-  @ of CSS files can be seen on the <a href="setup_skin">skins page</a>.
-  @ See also the <a href="setup_header">header</a> and
-  @ <a href="setup_footer">footer</a> editing screens.
-  @ <blockquote><pre>
-  cgi_append_default_css();
-  @ </pre></blockquote>
-  style_footer();
-  db_end_transaction(0);
-}
-
-/*
-** WEBPAGE: setup_header
-*/
-void setup_header(void){
-  login_check_credentials();
-  if( !g.perm.Setup ){
-    login_needed(0);
-    return;
-  }
-  db_begin_transaction();
-  if( P("clear")!=0 ){
-    db_multi_exec("DELETE FROM config WHERE name='header'");
-    cgi_replace_parameter("header", builtin_text("skins/default/header.txt"));
-  }else if( P("submit")!=0 ){
-    textarea_attribute(0, 0, 0, "header", "header",
-                       builtin_text("skins/default/header.txt"), 0);
-  }else if( P("fixbase")!=0 ){
-    const char *z = db_get("header",
-                           (char*)builtin_text("skins/default/header.txt"));
-    char *zHead = strstr(z, "<head>");
-    if( strstr(z, "<base href=")==0 && zHead!=0 ){
-      char *zNew;
-      char *zTail = &zHead[6];
-      while( fossil_isspace(zTail[0]) ) zTail++;
-      zNew = mprintf("%.*s\n<base href=\"$secureurl/$current_page\" />\n%s",
-                     zHead+6-z, z, zTail);
-      cgi_replace_parameter("header", zNew);
-      db_set("header", zNew, 0);
-    }
-  }
-
-  style_header("Edit Page Header");
-  @ <form action="%R/setup_header" method="post"><div>
-
-  /* Make sure the header contains <base href="...">.   Issue a warning
-  ** if it does not. */
-  if( !cgi_header_contains("<base href=") ){
-    @ <p class="generalError">Please add
-    @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
-    @ <tt>&lt;head&gt;</tt> in the header!
-    @ <input type="submit" name="fixbase" value="Add &lt;base&gt; Now"></p>
-  }
-
-  login_insert_csrf_secret();
-  @ <p>Edit HTML text with embedded TH1 (a Tcl dialect) that will be used to
-  @ generate the beginning of every page through start of the main
-  @ menu.</p>
-  textarea_attribute("", 35, 80, "header", "header",
-                     builtin_text("skins/default/header.txt"), 0);
-  @ <br />
-  @ <input type="submit" name="submit" value="Apply Changes" />
-  @ <input type="submit" name="clear" value="Revert To Default" />
-  @ </div></form>
-  @ <hr />
-  @ The default header is shown below for reference.  Other examples
-  @ of headers can be seen on the <a href="setup_skin">skins page</a>.
-  @ See also the <a href="setup_editcss">CSS</a> and
-  @ <a href="setup_footer">footer</a> editing screens.
-  @ <blockquote><pre>
-  @ %h(builtin_text("skins/default/header.txt"))
-  @ </pre></blockquote>
-  style_footer();
-  db_end_transaction(0);
-}
-
-/*
-** WEBPAGE: setup_footer
-*/
-void setup_footer(void){
-  login_check_credentials();
-  if( !g.perm.Setup ){
-    login_needed(0);
-    return;
-  }
-  db_begin_transaction();
-  if( P("clear")!=0 ){
-    db_multi_exec("DELETE FROM config WHERE name='footer'");
-    cgi_replace_parameter("footer", builtin_text("skins/default/footer.txt"));
-  }
-
-  style_header("Edit Page Footer");
-  @ <form action="%s(g.zTop)/setup_footer" method="post"><div>
-  login_insert_csrf_secret();
-  @ <p>Edit HTML text with embedded TH1 (a Tcl dialect) that will be used to
-  @ generate the end of every page.</p>
-  textarea_attribute("", 20, 80, "footer", "footer",
-                     builtin_text("skins/default/footer.txt"), 0);
-  @ <br />
-  @ <input type="submit" name="submit" value="Apply Changes" />
-  @ <input type="submit" name="clear" value="Revert To Default" />
-  @ </div></form>
-  @ <hr />
-  @ The default footer is shown below for reference.  Other examples
-  @ of footers can be seen on the <a href="setup_skin">skins page</a>.
-  @ See also the <a href="setup_editcss">CSS</a> and
-  @ <a href="setup_header">header</a> editing screens.
-  @ <blockquote><pre>
-  @ %h(builtin_text("skins/default/footer.txt"))
-  @ </pre></blockquote>
-  style_footer();
-  db_end_transaction(0);
-}
-
-/*
 ** WEBPAGE: setup_modreq
 */
 void setup_modreq(void){
@@ -1785,7 +1637,7 @@ void setup_adunit(void){
   @ <li>The "Banner Ad-Unit" is used for wide pages.
   @ <li>The "Right-Column Ad-Unit" is used on pages with tall, narrow content.
   @ <li>If the "Right-Column Ad-Unit" is blank, the "Banner Ad-Unit" is used on all pages.
-  @ <li>Suggested <a href="setup_editcss">CSS</a> changes:
+  @ <li>Suggested <a href="setup_skinedit?w=0">CSS</a> changes:
   @ <blockquote><pre>
   @ div.adunit_banner {
   @   margin: auto;
@@ -1899,8 +1751,8 @@ void setup_logo(void){
   @ <p>The logo is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/logo">%s(g.zBaseURL)/logo</a>.
   @ The logo may or may not appear on each
-  @ page depending on the <a href="setup_editcss">CSS</a> and
-  @ <a href="setup_header">header setup</a>.
+  @ page depending on the <a href="setup_skinedit?w=0">CSS</a> and
+  @ <a href="setup_skinedit?w=2">header setup</a>.
   @ To change the logo image, use the following form:</p>
   login_insert_csrf_secret();
   @ Logo Image file:
@@ -1921,8 +1773,8 @@ void setup_logo(void){
   @ <p>The background image is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/background">%s(g.zBaseURL)/background</a>.
   @ The background image may or may not appear on each
-  @ page depending on the <a href="setup_editcss">CSS</a> and
-  @ <a href="setup_header">header setup</a>.
+  @ page depending on the <a href="setup_skinedit?w=0">CSS</a> and
+  @ <a href="setup_skinedit?w=2">header setup</a>.
   @ To change the background image, use the following form:</p>
   login_insert_csrf_secret();
   @ Background image file:
