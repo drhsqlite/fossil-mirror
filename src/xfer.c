@@ -1737,12 +1737,8 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0],"push")
        && xfer.nToken==3
        && (syncFlags & SYNC_CLONE)!=0
-       && blob_is_uuid(&xfer.aToken[1])
        && blob_is_uuid(&xfer.aToken[2])
       ){
-        if( blob_eq_str(&xfer.aToken[1], zSCode, -1) ){
-          fossil_fatal("server loop");
-        }
         if( zPCode==0 ){
           zPCode = mprintf("%b", &xfer.aToken[2]);
           db_set("project-code", zPCode, 0);
