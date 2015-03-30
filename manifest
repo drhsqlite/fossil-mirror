@@ -1,5 +1,5 @@
-C In\sthe\stimeline\sgraph,\scolor\sthe\sinitial\sup-arrow\sof\sa\sbranch\sin\sthe\sbranch\ncolor,\swhen\sgraph\scoloring\sis\senable.
-D 2015-03-30T20:34:39.271
+C Rename\s"event"\sto\s"technote"\sthroughout\stechnote/event\sdocumentation.\s\sPrevious\srenaming\sdid\snot\saddress\severy\sinstance\sof\sthe\sword\s"event".
+D 2015-03-30T22:00:19.832
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -682,7 +682,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/event.wiki 7a932aadc92802be5e80246d0ac494accb2b09b7
+F www/event.wiki 395b955e611769fd9aedf3ab489530b89ad5f224
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 93c4421d2bafd192dc61ea563df68aa25caaed95
 F www/fileformat.wiki 1cd023bfde51e32161cee8f0824be255f76e30e8
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 106c0909e45e798ec04f87fb02204d1ccbfd5381
-R 8ff0b1b41be3b1e578dc3c2189bbba92
-U drh
-Z e5172076fc900c8a6e15e29f1f401b49
+P d19b52a3cfa6d3f482c8ed0a5d98b027b5b0b9d2
+R 8efd17a4a2024b6ec989da63d56098c0
+U andygoth
+Z a3327a4bdd414867fb850bbe9ea0c49d
