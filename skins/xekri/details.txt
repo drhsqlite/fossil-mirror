@@ -1,2 +1,4 @@
-white-foreground:      0
-timeline-arrows:       1
+timeline-arrowheads:    1
+timeline-circle-nodes:  0
+timeline-colored-lines: 0
+white-foreground:       0

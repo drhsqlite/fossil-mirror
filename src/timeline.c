@@ -614,7 +614,15 @@ void timeline_output_graph_javascript(
     char cSep;
     int mergeOffset;     /* Pixel offset from rail to merge riser */
     int iRailPitch;      /* Pixels between consecutive rails */
+    int showArrowheads;  /* True to draw arrowheads.  False to omit. */
+    int circleNodes;     /* True for circle nodes.  False for square nodes */
+    int multicolorLines; /* Use colors for graph lines */
+
     iRailPitch = pGraph->iRailPitch;
+    showArrowheads = skin_detail_boolean("timeline-arrowheads");
+    circleNodes = skin_detail_boolean("timeline-circle-nodes");
+    multicolorLines = skin_detail_boolean("timeline-multicolor");
+    (void)multicolorLines; /* Not currently used */
 
     /* Number of pixels that the thin merge lines are offset from the
     ** the center of the think rail lines.  If zero, then the vertical
@@ -753,30 +761,36 @@ void timeline_output_graph_javascript(
     @   }
     @   return left;
     @ }
-    @ function drawUpArrow(x,y0,y1){
-    @   drawBox(lineClr,x,y0+4,x+1,y1);
-    @   var n = document.createElement("div"),
-    @       l = x-2,
-    @       t = y0;
-    @   n.style.position = "absolute";
-    @   n.style.left = l+"px";
-    @   n.style.top = t+"px";
-    @   n.style.width = 0;
-    @   n.style.height = 0;
-    @   n.style.transform = "scale(.999)";
-    @   n.style.borderWidth = 0;
-    @   n.style.borderStyle = "solid";
-    @   n.style.borderColor = "transparent";
-    @   n.style.borderRightWidth = "3px";
-    @   n.style.borderBottomColor = lineClr;
-    @   n.style.borderLeftWidth = "3px";
-    @   if( y0+10>=y1 ){
-    @     n.style.borderBottomWidth = "5px";
-    @   } else {
-    @     n.style.borderBottomWidth = "7px";
-    @   }
-    @   cDiv.appendChild(n);
-    @ }
+    if( showArrowheads ){
+      @ function drawUpArrow(x,y0,y1){
+      @   drawBox(lineClr,x,y0+4,x+1,y1);
+      @   var n = document.createElement("div"),
+      @       l = x-2,
+      @       t = y0;
+      @   n.style.position = "absolute";
+      @   n.style.left = l+"px";
+      @   n.style.top = t+"px";
+      @   n.style.width = 0;
+      @   n.style.height = 0;
+      @   n.style.transform = "scale(.999)";
+      @   n.style.borderWidth = 0;
+      @   n.style.borderStyle = "solid";
+      @   n.style.borderColor = "transparent";
+      @   n.style.borderRightWidth = "3px";
+      @   n.style.borderBottomColor = lineClr;
+      @   n.style.borderLeftWidth = "3px";
+      @   if( y0+10>=y1 ){
+      @     n.style.borderBottomWidth = "5px";
+      @   } else {
+      @     n.style.borderBottomWidth = "7px";
+      @   }
+      @   cDiv.appendChild(n);
+      @ }
+    }else{
+      @ function drawUpArrow(x,y0,y1){
+      @   drawBox(lineClr,x,y0+1,x+1,y1);
+      @ }
+    }
     @ function drawThinArrow(y,xFrom,xTo){
     @   var n = document.createElement("div"),
     @       t = y-2;
@@ -807,7 +821,11 @@ void timeline_output_graph_javascript(
     @   drawBox(lineClr,x0,y0,x1,y1);
     @ }
     @ function drawNodeBox(color,x0,y0,x1,y1){
-    @   drawBox(color,x0,y0,x1,y1).style.cursor = "pointer";
+    @   var n = drawBox(color,x0,y0,x1,y1);
+    @   n.style.cursor = "pointer";
+    if( circleNodes ){
+      @   n.style.borderRadius = "6px";
+    }
     @ }
     @ function drawNode(p, left, btm){
     @   drawNodeBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
@@ -926,6 +944,9 @@ void timeline_output_graph_javascript(
     @ function clickOnRow(p){
     @   if( selRow==null ){
     @     selBox = drawBox("red",p.x-2,p.y-2,p.x+3,p.y+3);
+    if( circleNodes ){
+      @     selBox.style.borderRadius="6px";
+    }
     @     selRow = p;
     @   }else if( selRow==p ){
     @     var canvasDiv = gebi("canvas");

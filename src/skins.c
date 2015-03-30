@@ -77,8 +77,10 @@ static struct SkinDetail {
   const char *zName;      /* Name of the detail */
   char *zValue;           /* Value of the detail */
 } aSkinDetail[] = {
-  { "timeline-arrowheads",  "yes"  },
-  { "white-foreground",     "no"   }
+  { "timeline-arrowheads",    "1"  },
+  { "timeline-circle-nodes",  "0"  },
+  { "timeline-multicolor",    "0"  },
+  { "white-foreground",       "0"  }
 };
 
 /*
@@ -599,7 +601,7 @@ void setup_skinedit(void){
     db_multi_exec("DELETE FROM config WHERE name=%Q", aSkinAttr[ii].zFile);
     cgi_replace_parameter(aSkinAttr[ii].zFile, builtin_text(zDflt));
   }
-  style_header("Edit %s", aSkinAttr[ii].zTitle);
+  style_header("%s", aSkinAttr[ii].zTitle);
   for(j=0; j<ArraySize(aSkinAttr); j++){
     if( j==ii ) continue;
     style_submenu_element(aSkinAttr[j].zSubmenu, 0, 
