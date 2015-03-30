@@ -616,13 +616,12 @@ void timeline_output_graph_javascript(
     int iRailPitch;      /* Pixels between consecutive rails */
     int showArrowheads;  /* True to draw arrowheads.  False to omit. */
     int circleNodes;     /* True for circle nodes.  False for square nodes */
-    int multicolorLines; /* Use colors for graph lines */
+    int colorGraph;      /* Use colors for graph lines */
 
     iRailPitch = pGraph->iRailPitch;
     showArrowheads = skin_detail_boolean("timeline-arrowheads");
     circleNodes = skin_detail_boolean("timeline-circle-nodes");
-    multicolorLines = skin_detail_boolean("timeline-multicolor");
-    (void)multicolorLines; /* Not currently used */
+    colorGraph = skin_detail_boolean("timeline-color-graph-lines");
 
     /* Number of pixels that the thin merge lines are offset from the
     ** the center of the think rail lines.  If zero, then the vertical
@@ -699,8 +698,12 @@ void timeline_output_graph_javascript(
         }
       }
       if( cSep=='[' ) cgi_printf("[");
-      cgi_printf("],mi:");
+      cgi_printf("],");
+      if( colorGraph && pRow->zBgClr[0]=='#' ){
+        cgi_printf("fg:\"%s\",", pRow->zBgClr);
+      }
       /* mi */
+      cgi_printf("mi:");
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
@@ -762,8 +765,8 @@ void timeline_output_graph_javascript(
     @   return left;
     @ }
     if( showArrowheads ){
-      @ function drawUpArrow(x,y0,y1){
-      @   drawBox(lineClr,x,y0+4,x+1,y1);
+      @ function drawUpArrow(x,y0,y1,clr){
+      @   drawBox(clr,x,y0+4,x+1,y1);
       @   var n = document.createElement("div"),
       @       l = x-2,
       @       t = y0;
@@ -777,7 +780,7 @@ void timeline_output_graph_javascript(
       @   n.style.borderStyle = "solid";
       @   n.style.borderColor = "transparent";
       @   n.style.borderRightWidth = "3px";
-      @   n.style.borderBottomColor = lineClr;
+      @   n.style.borderBottomColor = clr;
       @   n.style.borderLeftWidth = "3px";
       @   if( y0+10>=y1 ){
       @     n.style.borderBottomWidth = "5px";
@@ -787,8 +790,8 @@ void timeline_output_graph_javascript(
       @   cDiv.appendChild(n);
       @ }
     }else{
-      @ function drawUpArrow(x,y0,y1){
-      @   drawBox(lineClr,x,y0+1,x+1,y1);
+      @ function drawUpArrow(x,y0,y1,clr){
+      @   drawBox(clr,x,y0+1,x+1,y1);
       @ }
     }
     @ function drawThinArrow(y,xFrom,xTo){
@@ -830,11 +833,11 @@ void timeline_output_graph_javascript(
     @ function drawNode(p, left, btm){
     @   drawNodeBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
     @   drawNodeBox(p.bg||bgClr,p.x-4,p.y-4,p.x+5,p.y+5);
-    @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
+    @   if( p.u>0 ) drawUpArrow(p.x,rowinfo[p.u-1].y+6,p.y-6,p.fg||lineClr);
     @   if( p.f&1 ) drawNodeBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2);
     if( !omitDescenders ){
-      @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
-      @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
+      @   if( p.u==0 ) drawUpArrow(p.x,0,p.y-6,p.fg||lineClr);
+      @   if( p.d ) drawUpArrow(p.x,p.y+6,btm,p.fg||lineClr);
     }
     @   if( p.mo>0 ){
     @     var x1 = p.mo + left - 1;
@@ -857,7 +860,7 @@ void timeline_output_graph_javascript(
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
     @       drawBox(lineClr,x0,p.y,x1+1,p.y+1);
-    @       drawUpArrow(x1, u.y+6, p.y);
+    @       drawUpArrow(x1,u.y+6,p.y,p.fg||lineClr);
     @     }else{
     @       drawBox("#600000",x0,p.y,x1,p.y+1);
     @       drawBox("#600000",x1-1,p.y,x1,u.y+1);
