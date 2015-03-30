@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\sdraw\sgraph\srail\slines\sin\snode\scolor.
-D 2015-03-30T16:57:31.810
+C Convert\sbackground\scolors\sinto\sforeground\scolors\sbefore\susing\sthem\sfor\ndrawing\sgraph\slines.
+D 2015-03-30T17:43:47.125
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -383,7 +383,7 @@ F src/browse.c 3eaea1e904a2c6e6fe28e38fb6b208cbc9aaff0f
 F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c e609e5951a8e8ef4a4d0b13a7c5a77f4668294a0
-F src/captcha.c 604af55db411bdf82a705df2b8c26947b3285b31
+F src/captcha.c 9e3cf8ce57a60d503339cbbc98818fb84fa03f08
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
 F src/checkin.c da007c500c7afa75510522dd4aaad6bf0814c6ba
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
@@ -493,7 +493,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 7bec06525728eb0875beab0ba539009f7eff5512
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c 2b0a89c7a01cecfcd4e88a6f490b68d4be026569
+F src/timeline.c bb2e11bacc080c9b9ee0ee90e41900a2fb6f0dd4
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
 F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P d4c2e8db08f041e2b19b26477bbe3179749398b0
-R 3f3fb7325c56ce48ae4f65fdba5d9b19
+P 675f8c7d29b09eab1f5dd2f0688270fd38733bf6
+R 8e7fe887dcddbe0454ec2dad4b0cd23d
 U drh
-Z fb9b3f013b8e332bc4675970737b62c7
+Z 507a0350a0ccdf1da7c349b67c894bd3

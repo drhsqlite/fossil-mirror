@@ -600,6 +600,37 @@ void www_print_timeline(
 }
 
 /*
+** Change the RGB background color given in the argument in a foreground
+** color with the same hue.
+*/
+static const char *bg_to_fg(const char *zIn){
+  int i;
+  unsigned int x[3];
+  unsigned int mx = 0;
+  static int whiteFg = -1;
+  static char zRes[10];
+  if( strlen(zIn)!=7 || zIn[0]!='#' ) return zIn;
+  zIn++;
+  for(i=0; i<3; i++){
+    x[i] = hex_digit_value(zIn[0])*16 + hex_digit_value(zIn[1]);
+    zIn += 2;
+    if( x[i]>mx ) mx = x[i];
+  }
+  if( whiteFg<0 ) whiteFg = skin_detail_boolean("white-foreground");
+  if( whiteFg ){
+    /* Make the color lighter */
+    static const unsigned int t = 215;
+    if( mx<t ) for(i=0; i<3; i++) x[i] += t - mx;
+  }else{
+    /* Make the color darker */
+    static const unsigned int t = 128;
+    if( mx>t ) for(i=0; i<3; i++) x[i] -= mx - t;
+  }
+  sqlite3_snprintf(sizeof(zRes),zRes,"#%02x%02x%02x",x[0],x[1],x[2]);
+  return zRes;
+}
+
+/*
 ** Generate all of the necessary javascript to generate a timeline
 ** graph.
 */
@@ -700,7 +731,7 @@ void timeline_output_graph_javascript(
       if( cSep=='[' ) cgi_printf("[");
       cgi_printf("],");
       if( colorGraph && pRow->zBgClr[0]=='#' ){
-        cgi_printf("fg:\"%s\",", pRow->zBgClr);
+        cgi_printf("fg:\"%s\",", bg_to_fg(pRow->zBgClr));
       }
       /* mi */
       cgi_printf("mi:");
