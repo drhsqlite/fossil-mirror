@@ -327,39 +327,51 @@ SRC   = add_.c \
         xfersetup_.c \
         zip_.c
 
-EXTRA_FILES   = $(SRCDIR)\../skins/black_and_white/css.txt \
+EXTRA_FILES   = $(SRCDIR)\../skins/aht/details.txt \
+        $(SRCDIR)\../skins/black_and_white/css.txt \
+        $(SRCDIR)\../skins/black_and_white/details.txt \
         $(SRCDIR)\../skins/black_and_white/footer.txt \
         $(SRCDIR)\../skins/black_and_white/header.txt \
         $(SRCDIR)\../skins/blitz/css.txt \
+        $(SRCDIR)\../skins/blitz/details.txt \
         $(SRCDIR)\../skins/blitz/footer.txt \
         $(SRCDIR)\../skins/blitz/header.txt \
         $(SRCDIR)\../skins/blitz/ticket.txt \
         $(SRCDIR)\../skins/blitz_no_logo/css.txt \
+        $(SRCDIR)\../skins/blitz_no_logo/details.txt \
         $(SRCDIR)\../skins/blitz_no_logo/footer.txt \
         $(SRCDIR)\../skins/blitz_no_logo/header.txt \
         $(SRCDIR)\../skins/blitz_no_logo/ticket.txt \
         $(SRCDIR)\../skins/default/css.txt \
+        $(SRCDIR)\../skins/default/details.txt \
         $(SRCDIR)\../skins/default/footer.txt \
         $(SRCDIR)\../skins/default/header.txt \
         $(SRCDIR)\../skins/eagle/css.txt \
+        $(SRCDIR)\../skins/eagle/details.txt \
         $(SRCDIR)\../skins/eagle/footer.txt \
         $(SRCDIR)\../skins/eagle/header.txt \
         $(SRCDIR)\../skins/enhanced1/css.txt \
+        $(SRCDIR)\../skins/enhanced1/details.txt \
         $(SRCDIR)\../skins/enhanced1/footer.txt \
         $(SRCDIR)\../skins/enhanced1/header.txt \
         $(SRCDIR)\../skins/khaki/css.txt \
+        $(SRCDIR)\../skins/khaki/details.txt \
         $(SRCDIR)\../skins/khaki/footer.txt \
         $(SRCDIR)\../skins/khaki/header.txt \
         $(SRCDIR)\../skins/original/css.txt \
+        $(SRCDIR)\../skins/original/details.txt \
         $(SRCDIR)\../skins/original/footer.txt \
         $(SRCDIR)\../skins/original/header.txt \
         $(SRCDIR)\../skins/plain_gray/css.txt \
+        $(SRCDIR)\../skins/plain_gray/details.txt \
         $(SRCDIR)\../skins/plain_gray/footer.txt \
         $(SRCDIR)\../skins/plain_gray/header.txt \
         $(SRCDIR)\../skins/rounded1/css.txt \
+        $(SRCDIR)\../skins/rounded1/details.txt \
         $(SRCDIR)\../skins/rounded1/footer.txt \
         $(SRCDIR)\../skins/rounded1/header.txt \
         $(SRCDIR)\../skins/xekri/css.txt \
+        $(SRCDIR)\../skins/xekri/details.txt \
         $(SRCDIR)\../skins/xekri/footer.txt \
         $(SRCDIR)\../skins/xekri/header.txt \
         $(SRCDIR)\diff.tcl \

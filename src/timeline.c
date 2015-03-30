@@ -110,7 +110,7 @@ char *hash_color(const char *z){
   static int ix[2] = {0,0};    /* Color chooser parameters */
 
   if( ix[0]==0 ){
-    if( db_get_boolean("white-foreground", 0) ){
+    if( skin_detail_boolean("white-foreground") ){
       ix[0] = 140;
       ix[1] = 40;
     }else{
@@ -600,6 +600,37 @@ void www_print_timeline(
 }
 
 /*
+** Change the RGB background color given in the argument in a foreground
+** color with the same hue.
+*/
+static const char *bg_to_fg(const char *zIn){
+  int i;
+  unsigned int x[3];
+  unsigned int mx = 0;
+  static int whiteFg = -1;
+  static char zRes[10];
+  if( strlen(zIn)!=7 || zIn[0]!='#' ) return zIn;
+  zIn++;
+  for(i=0; i<3; i++){
+    x[i] = hex_digit_value(zIn[0])*16 + hex_digit_value(zIn[1]);
+    zIn += 2;
+    if( x[i]>mx ) mx = x[i];
+  }
+  if( whiteFg<0 ) whiteFg = skin_detail_boolean("white-foreground");
+  if( whiteFg ){
+    /* Make the color lighter */
+    static const unsigned int t = 215;
+    if( mx<t ) for(i=0; i<3; i++) x[i] += t - mx;
+  }else{
+    /* Make the color darker */
+    static const unsigned int t = 128;
+    if( mx>t ) for(i=0; i<3; i++) x[i] -= mx - t;
+  }
+  sqlite3_snprintf(sizeof(zRes),zRes,"#%02x%02x%02x",x[0],x[1],x[2]);
+  return zRes;
+}
+
+/*
 ** Generate all of the necessary javascript to generate a timeline
 ** graph.
 */
@@ -614,7 +645,14 @@ void timeline_output_graph_javascript(
     char cSep;
     int mergeOffset;     /* Pixel offset from rail to merge riser */
     int iRailPitch;      /* Pixels between consecutive rails */
+    int showArrowheads;  /* True to draw arrowheads.  False to omit. */
+    int circleNodes;     /* True for circle nodes.  False for square nodes */
+    int colorGraph;      /* Use colors for graph lines */
+
     iRailPitch = pGraph->iRailPitch;
+    showArrowheads = skin_detail_boolean("timeline-arrowheads");
+    circleNodes = skin_detail_boolean("timeline-circle-nodes");
+    colorGraph = skin_detail_boolean("timeline-color-graph-lines");
 
     /* Number of pixels that the thin merge lines are offset from the
     ** the center of the think rail lines.  If zero, then the vertical
@@ -691,8 +729,12 @@ void timeline_output_graph_javascript(
         }
       }
       if( cSep=='[' ) cgi_printf("[");
-      cgi_printf("],mi:");
+      cgi_printf("],");
+      if( colorGraph && pRow->zBgClr[0]=='#' ){
+        cgi_printf("fg:\"%s\",", bg_to_fg(pRow->zBgClr));
+      }
       /* mi */
+      cgi_printf("mi:");
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
@@ -753,30 +795,36 @@ void timeline_output_graph_javascript(
     @   }
     @   return left;
     @ }
-    @ function drawUpArrow(x,y0,y1){
-    @   drawBox(lineClr,x,y0+4,x+1,y1);
-    @   var n = document.createElement("div"),
-    @       l = x-2,
-    @       t = y0;
-    @   n.style.position = "absolute";
-    @   n.style.left = l+"px";
-    @   n.style.top = t+"px";
-    @   n.style.width = 0;
-    @   n.style.height = 0;
-    @   n.style.transform = "scale(.999)";
-    @   n.style.borderWidth = 0;
-    @   n.style.borderStyle = "solid";
-    @   n.style.borderColor = "transparent";
-    @   n.style.borderRightWidth = "3px";
-    @   n.style.borderBottomColor = lineClr;
-    @   n.style.borderLeftWidth = "3px";
-    @   if( y0+10>=y1 ){
-    @     n.style.borderBottomWidth = "5px";
-    @   } else {
-    @     n.style.borderBottomWidth = "7px";
-    @   }
-    @   cDiv.appendChild(n);
-    @ }
+    if( showArrowheads ){
+      @ function drawUpArrow(x,y0,y1,clr){
+      @   drawBox(clr,x,y0+4,x+1,y1);
+      @   var n = document.createElement("div"),
+      @       l = x-2,
+      @       t = y0;
+      @   n.style.position = "absolute";
+      @   n.style.left = l+"px";
+      @   n.style.top = t+"px";
+      @   n.style.width = 0;
+      @   n.style.height = 0;
+      @   n.style.transform = "scale(.999)";
+      @   n.style.borderWidth = 0;
+      @   n.style.borderStyle = "solid";
+      @   n.style.borderColor = "transparent";
+      @   n.style.borderRightWidth = "3px";
+      @   n.style.borderBottomColor = clr;
+      @   n.style.borderLeftWidth = "3px";
+      @   if( y0+10>=y1 ){
+      @     n.style.borderBottomWidth = "5px";
+      @   } else {
+      @     n.style.borderBottomWidth = "7px";
+      @   }
+      @   cDiv.appendChild(n);
+      @ }
+    }else{
+      @ function drawUpArrow(x,y0,y1,clr){
+      @   drawBox(clr,x,y0+1,x+1,y1);
+      @ }
+    }
     @ function drawThinArrow(y,xFrom,xTo){
     @   var n = document.createElement("div"),
     @       t = y-2;
@@ -807,16 +855,20 @@ void timeline_output_graph_javascript(
     @   drawBox(lineClr,x0,y0,x1,y1);
     @ }
     @ function drawNodeBox(color,x0,y0,x1,y1){
-    @   drawBox(color,x0,y0,x1,y1).style.cursor = "pointer";
+    @   var n = drawBox(color,x0,y0,x1,y1);
+    @   n.style.cursor = "pointer";
+    if( circleNodes ){
+      @   n.style.borderRadius = "6px";
+    }
     @ }
     @ function drawNode(p, left, btm){
     @   drawNodeBox(boxColor,p.x-5,p.y-5,p.x+6,p.y+6);
     @   drawNodeBox(p.bg||bgClr,p.x-4,p.y-4,p.x+5,p.y+5);
-    @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
+    @   if( p.u>0 ) drawUpArrow(p.x,rowinfo[p.u-1].y+6,p.y-6,p.fg||lineClr);
     @   if( p.f&1 ) drawNodeBox(boxColor,p.x-1,p.y-1,p.x+2,p.y+2);
     if( !omitDescenders ){
-      @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
-      @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
+      @   if( p.u==0 ) drawUpArrow(p.x,0,p.y-6,p.fg||lineClr);
+      @   if( p.d ) drawUpArrow(p.x,p.y+6,btm,p.fg||lineClr);
     }
     @   if( p.mo>0 ){
     @     var x1 = p.mo + left - 1;
@@ -839,7 +891,7 @@ void timeline_output_graph_javascript(
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
     @       drawBox(lineClr,x0,p.y,x1+1,p.y+1);
-    @       drawUpArrow(x1, u.y+6, p.y);
+    @       drawUpArrow(x1,u.y+6,p.y,p.fg||lineClr);
     @     }else{
     @       drawBox("#600000",x0,p.y,x1,p.y+1);
     @       drawBox("#600000",x1-1,p.y,x1,u.y+1);
@@ -926,6 +978,9 @@ void timeline_output_graph_javascript(
     @ function clickOnRow(p){
     @   if( selRow==null ){
     @     selBox = drawBox("red",p.x-2,p.y-2,p.x+3,p.y+3);
+    if( circleNodes ){
+      @     selBox.style.borderRadius="6px";
+    }
     @     selRow = p;
     @   }else if( selRow==p ){
     @     var canvasDiv = gebi("canvas");
