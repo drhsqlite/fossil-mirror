@@ -1,5 +1,5 @@
-C Update\sto\sthe\slatest\sSQLite\s3.8.9\salpha\scode.
-D 2015-03-31T00:15:02.964
+C Update\scustom\smakefile
+D 2015-03-31T09:39:30.946
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -621,7 +621,7 @@ F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 68fbf55e0d94c4e7291437c3412e17786f47db78
 F win/Makefile.dmc 0cefec6ea838e5e0ee4fd2af7da607cda5eae8aa
 F win/Makefile.mingw df6eed36e85bf69c627abeed627f9ffd59435190
-F win/Makefile.mingw.mistachkin 8d11fef56cb9d360512ac9458a2bd256775cdbae
+F win/Makefile.mingw.mistachkin e8ec4a647605eac6d39e6a310a44265289498666
 F win/Makefile.msc feb5cf8467c63106d1c010dc0898a0025599f3a5
 F win/buildmsvc.bat 869c37b9583faaaf69a04a4fac921ce5edb74f0e
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P dc359323be5c482ffaf5c83359fd4b15c8e88417
-R 0b75b7477a84b5e3ece81e160eee91c7
-U drh
-Z 5d45b808e6cc4b5f576b672c1e322198
+P ec44ff010f0c112c7503d1f8133b7afc75399019
+R 9308ac898a511a69771ae4e38a59ea6e
+U jan.nijtmans
+Z 45d92872f6e7c6eee2092c386e8c613d
