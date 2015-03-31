@@ -1,5 +1,5 @@
-C Rename\s"event"\sto\s"technote"\sthroughout\stechnote/event\sdocumentation.\s\sPrevious\srenaming\sdid\snot\saddress\severy\sinstance\sof\sthe\sword\s"event".
-D 2015-03-30T22:00:19.832
+C Update\sto\sthe\slatest\sSQLite\s3.8.9\salpha\scode.
+D 2015-03-31T00:15:02.964
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -474,13 +474,13 @@ F src/schema.c c43e7d7f0872b2e4940d049fc1dbcac81bffa543
 F src/search.c edaaa322e4a9552288f7fe1d4b168b5eeac4b20e
 F src/setup.c d1b18d9cf235cf1ebae5f7dbb0dd8f7bf72d9aa2
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
-F src/shell.c 3ae1e53878d2804fe77b8c8f1f6ca287a0e5d80e
+F src/shell.c 84a1593bd86aaa14f4da8a8f9b16fbc239d262aa
 F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c 87a91b09ca9f595121d741c31ebd724d1e5df708
 F src/skins.c 1bb9b8b149475870969d6e77cea0610017b084fd
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
-F src/sqlite3.c 573b1f95a4fcb88f8aa1744237b242a45aba560c
-F src/sqlite3.h 3e1867470e5561a2077b17b14e5d03a43ecc277d
+F src/sqlite3.c ac7de496f21a78731594a33facf3f95075558264
+F src/sqlite3.h 09dc20af4d484d9e93aae1e62358e8cbc507143c
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
 F src/statrep.c b7bd715a0429375342af08151854d62b467c4792
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P d19b52a3cfa6d3f482c8ed0a5d98b027b5b0b9d2
-R 8efd17a4a2024b6ec989da63d56098c0
-U andygoth
-Z a3327a4bdd414867fb850bbe9ea0c49d
+P dc359323be5c482ffaf5c83359fd4b15c8e88417
+R 0b75b7477a84b5e3ece81e160eee91c7
+U drh
+Z 5d45b808e6cc4b5f576b672c1e322198
