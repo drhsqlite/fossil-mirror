@@ -1,4 +1,4 @@
-timeline-arrowheads:        1
-timeline-circle-nodes:      0
-timeline-color-graph-lines: 0
+timeline-arrowheads:        0
+timeline-circle-nodes:      1
+timeline-color-graph-lines: 1
 white-foreground:           0

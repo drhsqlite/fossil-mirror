@@ -1,5 +1,5 @@
-C Update\scustom\smakefile
-D 2015-03-31T09:39:30.946
+C Merge\sfork\son\sblitz\sskin\supdates.
+D 2015-03-31T17:15:37.899
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -320,7 +320,7 @@ F skins/black_and_white/header.txt c74f3b8cfefae2e763d8f117dbd20e90c6dba33d
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
 F skins/blitz/css.txt fbcdede7686bf95a399f2f280bf30260c8963338
-F skins/blitz/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
+F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
 F skins/blitz/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
@@ -332,7 +332,7 @@ F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
 F skins/blitz_no_logo/README.md 24829897e941d1cef4f8b8d6291c86d9cfe17cd7
 F skins/blitz_no_logo/css.txt ff31089aa8ca476c541c8aba34c3aceaab653d4b
-F skins/blitz_no_logo/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
+F skins/blitz_no_logo/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz_no_logo/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
 F skins/blitz_no_logo/header.txt fdfffc2be91c2d45f410e953337fa2aa55c58b96
 F skins/blitz_no_logo/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ec44ff010f0c112c7503d1f8133b7afc75399019
-R 9308ac898a511a69771ae4e38a59ea6e
-U jan.nijtmans
-Z 45d92872f6e7c6eee2092c386e8c613d
+P eb090f25fc858b4b36ae1f013d2a0b4143a1d879 b2a40fda79350e21edc1e58fdace800f58f6a46b
+R 29bb7e446358c2e841286c5c2f85be71
+U drh
+Z 95f02550c09e5c17e95fe39be54fe58c
