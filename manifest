@@ -1,5 +1,5 @@
-C Fix\sinterpretation\sof\s'+'\sor\s'-'\sas\svalid\sintegers.\sNoted\son\sML\sby\sSergei\sGavrikov.\sThanks!
-D 2015-04-01T08:52:20.899
+C Honor\sthe\s--baseurl\scommand-line\soption\sin\sscgi\smode.
+D 2015-04-01T17:23:49.595
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/leaf.c a59b5b73a02ace671d8c4f6efb44aaefaf838dfc
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 2abcbfe5306a237232816ebccbaf0b871e65d267
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c c269b9b1287c43231748ff1d0f45166dd82b8d4a
+F src/main.c 7f909e79d8ed658f90c19da223e7c460f00cb730
 F src/main.mk ca9de93963900e71e92ed118feeddb4f741861fe
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -734,7 +734,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P e7d5fcf784eba1c8dd644ca17eb874f710bfa9e3
-R 82570dbc5c03fcd646a8b16ff6301055
-U jan.nijtmans
-Z bcb12c152cee6c4138898ef3b568aea0
+P 4ae42e363c585f785416448cffd35d58a7dfc170 7c8eb85c24ab99ed4d90e5ea4a31155d32518ece
+R 5878a1bed720eecb67f530a417748c08
+T +closed 7c8eb85c24ab99ed4d90e5ea4a31155d32518ece
+U drh
+Z f115759ad06e5c12d612e77298e01287
