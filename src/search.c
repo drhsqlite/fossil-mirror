@@ -452,15 +452,14 @@ static void search_title_sqlfunc(
   int argc,
   sqlite3_value **argv
 ){
-  const char *zType = (const char*)sqlite3_value_text(argv[0]);
-  int rid = sqlite3_value_int(argv[1]);
   const char *zName = (const char*)sqlite3_value_text(argv[2]);
-  int nHdr;
-  char *z = search_stext_cached(zType[0], rid, zName, &nHdr);
-  if( nHdr || zType[0]!='d' ){
-    sqlite3_result_text(context, z, nHdr, SQLITE_TRANSIENT);
+  if( zName ){
+    sqlite3_result_text(context, zName, -1, SQLITE_TRANSIENT);
   }else{
-    sqlite3_result_value(context, argv[2]);
+    const char *zType = (const char*)sqlite3_value_text(argv[0]);
+    int nHdr = 0, rid = sqlite3_value_int(argv[1]);
+    char *z = search_stext_cached(zType[0], rid, zName, &nHdr);
+    sqlite3_result_text(context, z, nHdr, SQLITE_TRANSIENT);
   }
 }
 static void search_body_sqlfunc(
