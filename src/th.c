@@ -2648,24 +2648,22 @@ int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
     n = th_strlen(z);
   }
 
-  if( n>0 && (z[0]=='-' || z[0]=='+') ){
+  if( n>1 && (z[0]=='-' || z[0]=='+') ){
     i = 1;
   }
-  if( n>2 ){
-    if( z[i]=='0' ){
-      if( z[i+1]=='x' || z[i+1]=='X' ){
-        i += 2;
-        base = 16;
-        isdigit = th_ishexdig;
-      }else if( z[i+1]=='o' || z[i+1]=='O' ){
-        i += 2;
-        base = 8;
-        isdigit = th_isoctdig;
-      }else if( z[i+1]=='b' || z[i+1]=='B' ){
-        i += 2;
-        base = 2;
-        isdigit = th_isbindig;
-      }
+  if( n>2 && z[i]=='0'){
+    if( z[i+1]=='x' || z[i+1]=='X' ){
+      i += 2;
+      base = 16;
+      isdigit = th_ishexdig;
+    }else if( z[i+1]=='o' || z[i+1]=='O' ){
+      i += 2;
+      base = 8;
+      isdigit = th_isoctdig;
+    }else if( z[i+1]=='b' || z[i+1]=='B' ){
+      i += 2;
+      base = 2;
+      isdigit = th_isbindig;
     }
   }
   for(; i<n; i++){

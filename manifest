@@ -1,5 +1,5 @@
-C Merge\sfork\son\sblitz\sskin\supdates.
-D 2015-03-31T17:15:37.899
+C Fix\sinterpretation\sof\s'+'\sor\s'-'\sas\svalid\sintegers.\sNoted\son\sML\sby\sSergei\sGavrikov.\sThanks!
+D 2015-04-01T08:52:20.899
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -488,7 +488,7 @@ F src/style.c 04648413ce04acf03d58a6f3fd92c5eb93a978ca
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 807b4154d67dc0bf02089d61bda5cac84bf7d44b
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
-F src/th.c f3e2d60ea44acd118e8462d48c0865c496f89e6f
+F src/th.c f5750c7b2580319631243ff15a2e1b9d03d335ae
 F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 7bec06525728eb0875beab0ba539009f7eff5512
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P eb090f25fc858b4b36ae1f013d2a0b4143a1d879 b2a40fda79350e21edc1e58fdace800f58f6a46b
-R 29bb7e446358c2e841286c5c2f85be71
-U drh
-Z 95f02550c09e5c17e95fe39be54fe58c
+P e7d5fcf784eba1c8dd644ca17eb874f710bfa9e3
+R 82570dbc5c03fcd646a8b16ff6301055
+U jan.nijtmans
+Z bcb12c152cee6c4138898ef3b568aea0
