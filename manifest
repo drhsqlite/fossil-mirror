@@ -1,5 +1,5 @@
-C Merge\sfork\son\sblitz\sskin\supdates.
-D 2015-03-31T17:15:37.899
+C Honor\s--baseurl\scommand\sline\soption\s(as\sobserved\sby\sfact\sthat\sglobal\svariables\nare\snot\snull)\sso\srelative\slinks\swork.
+D 2015-04-01T06:26:46.719
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -441,7 +441,7 @@ F src/leaf.c a59b5b73a02ace671d8c4f6efb44aaefaf838dfc
 F src/loadctrl.c df2282aa92481289773a129400309e682d73a311
 F src/login.c 2abcbfe5306a237232816ebccbaf0b871e65d267
 F src/lookslike.c 390a2bc854f3a8ea8259139af7f88c497960da97
-F src/main.c c269b9b1287c43231748ff1d0f45166dd82b8d4a
+F src/main.c 7f909e79d8ed658f90c19da223e7c460f00cb730
 F src/main.mk ca9de93963900e71e92ed118feeddb4f741861fe
 F src/makeheaders.c c42268ec69aae42b8dd10471fd73377d789873ca
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -734,7 +734,10 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P eb090f25fc858b4b36ae1f013d2a0b4143a1d879 b2a40fda79350e21edc1e58fdace800f58f6a46b
-R 29bb7e446358c2e841286c5c2f85be71
-U drh
-Z 95f02550c09e5c17e95fe39be54fe58c
+P e7d5fcf784eba1c8dd644ca17eb874f710bfa9e3
+R c7cd62b412a21579ed97adaf917fe6a7
+T *branch * baseurl-fix
+T *sym-baseurl-fix *
+T -sym-trunk *
+U andybradford
+Z a1b7ddab3dae98ba6c0dc988e8f81407
