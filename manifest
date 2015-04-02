@@ -1,5 +1,5 @@
-C Made\sdotfiles\sa\sversionable\ssetting.
-D 2015-04-01T19:16:37.640
+C More\sfixes\sto\sTH1\sinteger\sand\sexpression\sprocessing.
+D 2015-04-02T20:15:32.549
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -488,7 +488,7 @@ F src/style.c 04648413ce04acf03d58a6f3fd92c5eb93a978ca
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 807b4154d67dc0bf02089d61bda5cac84bf7d44b
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
-F src/th.c f5750c7b2580319631243ff15a2e1b9d03d335ae
+F src/th.c cead0ace0497a881aac1f66374b996a02532d024
 F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 7bec06525728eb0875beab0ba539009f7eff5512
@@ -555,7 +555,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test bf19e34973a9c9c8b99eb4e4e076684d00d4495e
+F test/th1.test 8658d83e014ffc5bc12c628cc24a76f675fd4ea4
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F test/utf.test 9b9447e346cbc663d6f3c51e00adbc1ba2d296a2
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 3eb0594c9eabe321384ea0df2283057046f9077d
-R 4273dfef0fcf7397b4eeeaf65836aeab
-U scott
-Z eb91a62e0539beefc9299f815db4685d
+P 5fb84d01a221fe2c09e3223a3deea3d609fb5f2a
+R 147c3ac9b59bf75d01f404c7830ed261
+U mistachkin
+Z ef4ddc55a4d558b0a4ea913a2454e75d
