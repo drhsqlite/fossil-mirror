@@ -398,7 +398,7 @@ void db_all_column_free(
   char ***pazValue  /* Array of column values from query. */
 ){
   if( pazValue ){
-    char **azValue = pazValue ? *pazValue : 0;
+    char **azValue = *pazValue;
     int i;
     for(i=0; i<count; i++){
       if( azValue ){

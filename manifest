@@ -1,5 +1,5 @@
-C Manually\sfix\ssome\smerge\sissues\sand\sadapt\sthe\salgorithm\sto\sthe\slatest\strunk\scode.
-D 2015-04-03T03:04:55.471
+C Remove\ssuperfluous\sconditional\soperator.
+D 2015-04-03T03:06:13.385
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -397,7 +397,7 @@ F src/content.c 49fd70d3136fbeb4794b7ef2f76c977c3ea77013
 F src/cson_amalgamation.c 992eb40c1cf7f2ee67f6c0d2a8579de84bff368a
 F src/cson_amalgamation.h e6b06068f936bb96f0ce38e9dcd188df4f3d5f7b
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 5fc7c931a48dddb217f9cdedca10e6057f1ac713
+F src/db.c ac460ae251d7c095a1fe6e9301e66dec87b5b652
 F src/delta.c e8de840f518dca8a6641f34eae115c8f9ca36004
 F src/deltacmd.c 4ac36378bf7b772d3bd67954212eb98be121961b
 F src/descendants.c e5303b9fef3d21da1cd753b19c4f201dd9381090
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 06ffd8009ff257ded9f98e179fd52513081ddcf2
-R c803d295abf5e5d77cb997b1fe10f8f5
+P e6b160afe3d1c7831112acdad5cfe944d0314532
+R 54e7ac04f947f3702a4acf805928dde8
 U mistachkin
-Z 760147918d88f8396c56ac54b715c386
+Z bb10deb643bbfec6b65bb884793f6dc8
