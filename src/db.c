@@ -352,65 +352,64 @@ int db_step(Stmt *pStmt){
 ** total number of rows processed by this function.  If the pazValue1
 ** parameter is non-zero, captures the iCol1'th column value from each
 ** row (as text) and stores the resulting final array pointer into it.
-** If the paiValue2 parameter is non-zero, captures the iCol2'th column
-** value from each row (as int64) and stores the resulting final array
+** If the pazValue2 parameter is non-zero, captures the iCol2'th column
+** value from each row (as text) and stores the resulting final array
 ** pointer into it.  The caller of this function is responsible for
 ** calling the db_all_column_free() function later, passing it the
 ** result of this function along with the values for both the pazValue1
-** and paiValue2 paramters.
+** and pazValue2 paramters.
 */
-int db_all_column_text_and_int64(
+int db_all_column_text(
   Stmt *pStmt,       /* The statement handle. */
   int iCol1,         /* The first column number to fetch from the results. */
   char ***pazValue1, /* Array of iCol1'th column values from query. */
   int iCol2,         /* The second column number to fetch from the results. */
-  i64 **paiValue2    /* Array of iCol2'th column values from query. */
+  char ***pazValue2  /* Array of iCol2'th column values from query. */
 ){
   int count = 0;
-  char **azValue = 0;
-  i64 *aiValue = 0;
+  char **azValue1 = 0;
+  char **azValue2 = 0;
   while( db_step(pStmt)==SQLITE_ROW ){
     count++;
     if( pazValue1 ){
-      azValue = fossil_realloc(azValue, count * sizeof(char*));
-      azValue[count - 1] = fossil_strdup(db_column_text(pStmt, iCol1));
+      azValue1 = fossil_realloc(azValue1, count * sizeof(char*));
+      azValue1[count - 1] = fossil_strdup(db_column_text(pStmt, iCol1));
     }
-    if( paiValue2 ){
-      aiValue = fossil_realloc(aiValue, count * sizeof(i64));
-      aiValue[count - 1] = db_column_int64(pStmt, iCol2);
+    if( pazValue2 ){
+      azValue2 = fossil_realloc(azValue2, count * sizeof(char*));
+      azValue2[count - 1] = fossil_strdup(db_column_text(pStmt, iCol2));
     }
   }
   if( pazValue1 ){
-    *pazValue1 = azValue;
+    *pazValue1 = azValue1;
   }
-  if( paiValue2 ){
-    *paiValue2 = aiValue;
+  if( pazValue2 ){
+    *pazValue2 = azValue2;
   }
   return count;
 }
 
 /*
 ** This function frees all the storage that was allocated by the
-** db_all_column_text() function.
+** db_all_column_text() function for a particular column.
 */
 void db_all_column_free(
-  int count,         /* Number of string elements in the array. */
-  char ***pazValue1, /* Array of iCol1'th column values from query. */
-  i64 **paiValue2    /* Array of iCol2'th column values from query. */
+  int count,        /* Number of string elements in the arrays. */
+  char ***pazValue  /* Array of column values from query. */
 ){
-  if( pazValue1 ){
-    char **azValue = *pazValue1;
+  if( pazValue ){
+    char **azValue = pazValue ? *pazValue : 0;
     int i;
     for(i=0; i<count; i++){
-      fossil_free(azValue[i]);
-      azValue[i] = 0;
+      if( azValue ){
+        fossil_free(azValue[i]);
+        azValue[i] = 0;
+      }
     }
     fossil_free(azValue);
-    *pazValue1 = 0;
-  }
-  if( paiValue2 ){
-    fossil_free(*paiValue2);
-    *paiValue2 = 0;
+    if( pazValue ){
+      *pazValue = 0;
+    }
   }
 }
 

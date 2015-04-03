@@ -169,9 +169,7 @@ void all_cmd(void){
   int rc;
   int rowCount, i = 0;
   char **azFilename = 0;
-  i64 *aiRowid = 0;
-  Bag outOfDate;
-  
+  char **azTag = 0;
   int nToDel = 0;
   int showLabel = 0;
 
@@ -349,19 +347,18 @@ void all_cmd(void){
        " ORDER BY 1"
     );
   }
-  rowCount = db_all_column_text_and_int64(&q, 0, &azFilename, 1, &aiRowid);
-  db_finalize(&q);
-  bag_init(&outOfDate);
-  db_multi_exec("CREATE TEMP TABLE todel(x TEXT)");
   db_prepare(&q, "SELECT name, tag FROM repolist ORDER BY 1");
+  rowCount = db_all_column_text(&q, 0, &azFilename, 1, &azTag);
+  db_finalize(&q);
+  db_multi_exec("CREATE TEMP TABLE todel(x TEXT)");
   while( i<rowCount ){
     const char *zFilename = azFilename[i];
-    int rowid = (int)aiRowid[i];
+    const char *zTag = azTag[i];
     if( file_access(zFilename, F_OK)
      || !file_is_canonical(zFilename)
      || (useCheckouts && file_isdir(zFilename)!=1)
     ){
-      db_multi_exec("INSERT INTO todel VALUES(%Q)", zFilename);
+      db_multi_exec("INSERT INTO todel VALUES(%Q)", zTag);
       nToDel++;
       i++; continue;
     }
@@ -393,9 +390,10 @@ void all_cmd(void){
     }
     i++;
   }
-  db_all_column_free(rowCount, &azFilename, &aiRowid);
+  db_all_column_free(rowCount, &azFilename);
+  db_all_column_free(rowCount, &azTag);
   assert( !azFilename );
-  assert( !aiRowid );
+  assert( !azTag );
 
   /* If any repositories whose names appear in the ~/.fossil file could not
   ** be found, remove those names from the ~/.fossil file.
