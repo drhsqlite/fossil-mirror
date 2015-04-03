@@ -401,15 +401,11 @@ void db_all_column_free(
     char **azValue = *pazValue;
     int i;
     for(i=0; i<count; i++){
-      if( azValue ){
-        fossil_free(azValue[i]);
-        azValue[i] = 0;
-      }
+      fossil_free(azValue[i]);
+      azValue[i] = 0;
     }
     fossil_free(azValue);
-    if( pazValue ){
-      *pazValue = 0;
-    }
+    *pazValue = 0;
   }
 }
 
