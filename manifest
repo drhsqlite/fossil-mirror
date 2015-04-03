@@ -1,5 +1,5 @@
-C Cleanup\sblobs\sused\sby\sthe\s'all'\ssub-command.
-D 2015-04-03T04:08:29.328
+C Merge\sthe\sblitz\sskin\senhancements.
+D 2015-04-03T13:27:19.670
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -319,7 +319,7 @@ F skins/black_and_white/footer.txt b2c60ecb6edfe58430883cb267f50ef35705b473
 F skins/black_and_white/header.txt c74f3b8cfefae2e763d8f117dbd20e90c6dba33d
 F skins/blitz/README.md 2b86027936aa1ed69d0ccc413868aa886cacb45f
 F skins/blitz/arrow_project.png 2b2958e36ec7fe54836ab50d6c194789461463d0
-F skins/blitz/css.txt fbcdede7686bf95a399f2f280bf30260c8963338
+F skins/blitz/css.txt 0d5206461cfa802a3c8b63f68964d4d777402fe9
 F skins/blitz/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz/dir.png 4a210b2afb16584e6093478f77025da7e7b83a57
 F skins/blitz/file.png 0d20b3bee95152a6358e1878a9bb07cc6a0f975d
@@ -331,7 +331,7 @@ F skins/blitz/header.txt 14ad6c45e2eb7e4664f362663e699e52a6e26bce
 F skins/blitz/rss_20.png 7d659cf7e4378d16198ddd4e984b4073e1fac901
 F skins/blitz/ticket.txt 1aab964cd7430a550560412a813fbe72311500d9
 F skins/blitz_no_logo/README.md 24829897e941d1cef4f8b8d6291c86d9cfe17cd7
-F skins/blitz_no_logo/css.txt ff31089aa8ca476c541c8aba34c3aceaab653d4b
+F skins/blitz_no_logo/css.txt 448d28510e35b9628e5a64fac981464a17bf0d9b
 F skins/blitz_no_logo/details.txt 1260bc474e730cd32e4e86f7a346e22a1268cc8f
 F skins/blitz_no_logo/footer.txt 6a2b49fa89f262377fc709549f745742bae76a1a
 F skins/blitz_no_logo/header.txt fdfffc2be91c2d45f410e953337fa2aa55c58b96
@@ -493,7 +493,7 @@ F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
 F src/th_main.c 7bec06525728eb0875beab0ba539009f7eff5512
 F src/th_tcl.c be14bb8d7b5f67db6a47b92030df0311b0319c94
-F src/timeline.c f6f8c9d24d9204662871b73b3e5d14999c576b13
+F src/timeline.c 62b10da0e1fe8ee5fa8b1af9aa35696079bb48ee
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
 F src/tktsetup.c c4682befe7fdf7864eb45e003ac3920316a1c87a
 F src/translate.c f88e01afc6c1f195525a7c959875779559d2cd82
@@ -734,7 +734,8 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P ac56af176b7d015bedbbe335855dbdc6ba7e83e9
-R b70a3d98e9bfd2d60eb6d16ead883623
-U mistachkin
-Z 37d74e05bec1ada08331d6d489d3b23b
+P 52d746ed1eae3f18be48feedcd1b08253b5f3fe5 7eb1b666e985ea74f4969f106be69a90aa869c23
+R aa0705cc2fa0fef775e15780fba6bb84
+T +closed 7eb1b666e985ea74f4969f106be69a90aa869c23
+U drh
+Z 28d150b8c0e7aeaec22c1c02630f4947
