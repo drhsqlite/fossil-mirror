@@ -2509,6 +2509,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     server.  Useful when setting up a private branch.
 **
 **    dotfiles         Include --dotfiles option for all compatible commands.
+**     (versionable)
 **
 **    editor           Text editor command used for check-in comments.
 **
