@@ -19,8 +19,17 @@
 ** or binary data.
 */
 #include "config.h"
-#include <zlib.h>
+#if defined(FOSSIL_ENABLE_MINIZ)
+#  define MINIZ_HEADER_FILE_ONLY
+#  include "miniz.c"
+#else
+#  include <zlib.h>
+#endif
 #include "blob.h"
+#if defined(_WIN32)
+#include <fcntl.h>
+#include <io.h>
+#endif
 
 #if INTERFACE
 /*
@@ -31,9 +40,15 @@ struct Blob {
   unsigned int nUsed;            /* Number of bytes used in aData[] */
   unsigned int nAlloc;           /* Number of bytes allocated for aData[] */
   unsigned int iCursor;          /* Next character of input to parse */
+  unsigned int blobFlags;        /* One or more BLOBFLAG_* bits */
   char *aData;                   /* Where the information is stored */
   void (*xRealloc)(Blob*, unsigned int); /* Function to reallocate the buffer */
 };
+
+/*
+** Allowed values for Blob.blobFlags
+*/
+#define BLOBFLAG_NotSQL  0x0001      /* Non-SQL text */
 
 /*
 ** The current size of a Blob
@@ -145,6 +160,7 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
     pBlob->nAlloc = 0;
     pBlob->nUsed = 0;
     pBlob->iCursor = 0;
+    pBlob->blobFlags = 0;
   }else if( newSize>pBlob->nAlloc || newSize<pBlob->nAlloc-4000 ){
     char *pNew = fossil_realloc(pBlob->aData, newSize);
     pBlob->aData = pNew;
@@ -159,7 +175,7 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
 ** An initializer for Blobs
 */
 #if INTERFACE
-#define BLOB_INITIALIZER  {0,0,0,0,blobReallocMalloc}
+#define BLOB_INITIALIZER  {0,0,0,0,0,blobReallocMalloc}
 #endif
 const Blob empty_blob = BLOB_INITIALIZER;
 
@@ -214,6 +230,7 @@ void blob_init(Blob *pBlob, const char *zData, int size){
     pBlob->nUsed = pBlob->nAlloc = size;
     pBlob->aData = (char*)zData;
     pBlob->iCursor = 0;
+    pBlob->blobFlags = 0;
     pBlob->xRealloc = blobReallocStatic;
   }
 }
@@ -227,6 +244,15 @@ void blob_set(Blob *pBlob, const char *zStr){
 }
 
 /*
+** Initialize a blob to a nul-terminated string obtained from fossil_malloc().
+** The blob will take responsibility for freeing the string.
+*/
+void blob_set_dynamic(Blob *pBlob, char *zStr){
+  blob_init(pBlob, zStr, -1);
+  pBlob->xRealloc = blobReallocMalloc;
+}
+
+/*
 ** Initialize a blob to an empty string.
 */
 void blob_zero(Blob *pBlob){
@@ -236,6 +262,7 @@ void blob_zero(Blob *pBlob){
   pBlob->nAlloc = 1;
   pBlob->aData = (char*)zEmpty;
   pBlob->iCursor = 0;
+  pBlob->blobFlags = 0;
   pBlob->xRealloc = blobReallocStatic;
 }
 
@@ -280,6 +307,20 @@ char *blob_str(Blob *p){
   }
   return p->aData;
 }
+
+/*
+** Return a pointer to a null-terminated string for a blob that has
+** been created using blob_append_sql() and not blob_appendf().  If
+** text was ever added using blob_appendf() then throw an error.
+*/
+char *blob_sql_text(Blob *p){
+  blob_is_init(p);
+  if( (p->blobFlags & BLOBFLAG_NotSQL) ){
+    fossil_fatal("Internal error: Use of blob_appendf() to construct SQL text");
+  }
+  return blob_str(p);
+}
+
 
 /*
 ** Return a pointer to a null-terminated string for a blob.
@@ -659,8 +700,20 @@ int blob_tokenize(Blob *pIn, Blob *aToken, int nToken){
 
 /*
 ** Do printf-style string rendering and append the results to a blob.
+**
+** The blob_appendf() version sets the BLOBFLAG_NotSQL bit in Blob.blobFlags
+** whereas blob_append_sql() does not.
 */
 void blob_appendf(Blob *pBlob, const char *zFormat, ...){
+  if( pBlob ){
+    va_list ap;
+    va_start(ap, zFormat);
+    vxprintf(pBlob, zFormat, ap);
+    va_end(ap);
+    pBlob->blobFlags |= BLOBFLAG_NotSQL;
+  }
+}
+void blob_append_sql(Blob *pBlob, const char *zFormat, ...){
   if( pBlob ){
     va_list ap;
     va_start(ap, zFormat);
@@ -702,7 +755,7 @@ int blob_read_from_channel(Blob *pBlob, FILE *in, int nToRead){
 **
 ** Any prior content of the blob is discarded, not freed.
 **
-** Return the number of bytes read. Calls fossil_fatal() error (i.e.
+** Return the number of bytes read. Calls fossil_fatal() on error (i.e.
 ** it exit()s and does not return).
 */
 int blob_read_from_file(Blob *pBlob, const char *zFilename){
@@ -776,47 +829,22 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     if( fossil_utf8_to_console(blob_buffer(pBlob), nWrote, 0) >= 0 ){
       return nWrote;
     }
+    fflush(stdout);
+    _setmode(_fileno(stdout), _O_BINARY);
 #endif
     fwrite(blob_buffer(pBlob), 1, nWrote, stdout);
+#if defined(_WIN32)
+    fflush(stdout);
+    _setmode(_fileno(stdout), _O_TEXT);
+#endif
   }else{
-    int i, nName;
-    char *zName, zBuf[1000];
-
-    nName = strlen(zFilename);
-    if( nName>=sizeof(zBuf) ){
-      zName = mprintf("%s", zFilename);
-    }else{
-      zName = zBuf;
-      memcpy(zName, zFilename, nName+1);
-    }
-    nName = file_simplify_name(zName, nName, 0);
-    for(i=1; i<nName; i++){
-      if( zName[i]=='/' ){
-        zName[i] = 0;
-#if defined(_WIN32) || defined(__CYGWIN__)
-        /*
-        ** On Windows, local path looks like: C:/develop/project/file.txt
-        ** The if stops us from trying to create a directory of a drive letter
-        ** C: in this example.
-        */
-        if( !(i==2 && zName[1]==':') ){
-#endif
-          if( file_mkdir(zName, 1) && file_isdir(zName)!=1 ){
-            fossil_fatal_recursive("unable to create directory %s", zName);
-            return 0;
-          }
-#if defined(_WIN32) || defined(__CYGWIN__)
-        }
-#endif
-        zName[i] = '/';
-      }
-    }
-    out = fossil_fopen(zName, "wb");
+    file_mkfolder(zFilename, 1);
+    out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
-      fossil_fatal_recursive("unable to open file \"%s\" for writing", zName);
+      fossil_fatal_recursive("unable to open file \"%s\" for writing",
+                             zFilename);
       return 0;
     }
-    if( zName!=zBuf ) free(zName);
     blob_is_init(pBlob);
     nWrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
     fclose(out);
@@ -1030,6 +1058,61 @@ void blob_to_lf_only(Blob *p){
 }
 
 /*
+** Convert blob from cp1252 to UTF-8. As cp1252 is a superset
+** of iso8859-1, this is useful on UNIX as well.
+**
+** This table contains the character translations for 0x80..0xA0.
+*/
+
+static const unsigned short cp1252[32] = {
+  0x20ac,   0x81, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
+  0x02C6, 0x2030, 0x0160, 0x2039, 0x0152,   0x8D, 0x017D,   0x8F,
+    0x90, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
+   0x2DC, 0x2122, 0x0161, 0x203A, 0x0153,   0x9D, 0x017E, 0x0178
+};
+
+void blob_cp1252_to_utf8(Blob *p){
+  unsigned char *z = (unsigned char *)p->aData;
+  int j   = p->nUsed;
+  int i, n;
+  for(i=n=0; i<j; i++){
+    if( z[i]>=0x80 ){
+      if( (z[i]<0xa0) && (cp1252[z[i]&0x1f]>=0x800) ){
+        n++;
+      }
+      n++;
+    }
+  }
+  j += n;
+  if( j>=p->nAlloc ){
+    blob_resize(p, j);
+    z = (unsigned char *)p->aData;
+  }
+  p->nUsed = j;
+  z[j] = 0;
+  while( j>i ){
+    if( z[--i]>=0x80 ){
+      if( z[i]<0xa0 ){
+        unsigned short sym = cp1252[z[i]&0x1f];
+        if( sym>=0x800 ){
+          z[--j] = 0x80 | (sym&0x3f);
+          z[--j] = 0x80 | ((sym>>6)&0x3f);
+          z[--j] = 0xe0 | (sym>>12);
+        }else{
+          z[--j] = 0x80 | (sym&0x3f);
+          z[--j] = 0xc0 | (sym>>6);
+        }
+      }else{
+        z[--j] = 0x80 | (z[i]&0x3f);
+        z[--j] = 0xC0 | (z[i]>>6);
+      }
+    }else{
+      z[--j] = z[i];
+    }
+  }
+}
+
+/*
 ** Shell-escape the given string.  Append the result to a blob.
 */
 void shell_escape(Blob *pBlob, const char *zIn){
@@ -1097,9 +1180,7 @@ void blob_swap( Blob *pLeft, Blob *pRight ){
 void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
   char *zUtf8;
   int bomSize = 0;
-#if defined(_WIN32) || defined(__CYGWIN__)
   int bomReverse = 0;
-#endif
   if( starts_with_utf8_bom(pBlob, &bomSize) ){
     struct Blob temp;
     zUtf8 = blob_str(pBlob) + bomSize;
@@ -1107,7 +1188,6 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     blob_append(&temp, zUtf8, -1);
     blob_swap(pBlob, &temp);
     blob_reset(&temp);
-#if defined(_WIN32) || defined(__CYGWIN__)
   }else if( starts_with_utf16_bom(pBlob, &bomSize, &bomReverse) ){
     zUtf8 = blob_buffer(pBlob);
     if( bomReverse ){
@@ -1124,16 +1204,15 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     blob_append(pBlob, "", 1);
     zUtf8 = blob_str(pBlob) + bomSize;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
-    blob_zero(pBlob);
-    blob_append(pBlob, zUtf8, -1);
-    fossil_unicode_free(zUtf8);
-#endif /* _WIN32 ||  __CYGWIN__ */
-#if defined(_WIN32)
-  }else if( useMbcs ){
+    blob_set_dynamic(pBlob, zUtf8);
+  }else if( useMbcs && invalid_utf8(pBlob) ){
+#if defined(_WIN32) || defined(__CYGWIN__)
     zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
     blob_reset(pBlob);
     blob_append(pBlob, zUtf8, -1);
     fossil_mbcs_free(zUtf8);
+#else
+    blob_cp1252_to_utf8(pBlob);
 #endif /* _WIN32 */
   }
 }

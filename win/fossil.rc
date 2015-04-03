@@ -32,7 +32,17 @@
 #define _RC_COMPILE_
 #include "config.h"
 #include "sqlite3.h"
+
+#if defined(FOSSIL_ENABLE_MINIZ)
+#if defined(__MINGW32__)
+#include "minizver.h"
+#else
+#define MINIZ_HEADER_FILE_ONLY
+#include "miniz.c"
+#endif /* defined(__MINGW32__) */
+#else
 #include "zlib.h"
+#endif /* defined(FOSSIL_ENABLE_MINIZ) */
 
 #if defined(FOSSIL_ENABLE_SSL)
 #include "openssl/opensslv.h"
@@ -85,7 +95,7 @@ BEGIN
     BLOCK "040904b0"
     BEGIN
       VALUE "CompanyName", "Fossil Development Team\0"
-      VALUE "FileDescription", "Simple, high-reliability, distributed software configuration management system.\0"
+      VALUE "FileDescription", "Fossil is a simple, high-reliability, distributed software configuration management system.\0"
       VALUE "ProductName", "Fossil\0"
       VALUE "ProductVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
       VALUE "FileVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
@@ -94,7 +104,11 @@ BEGIN
       VALUE "OriginalFilename", "fossil.exe\0"
       VALUE "CompilerName", COMPILER_NAME "\0"
       VALUE "SQLiteVersion", "SQLite " SQLITE_VERSION " " SQLITE_SOURCE_ID "\0"
+#if defined(FOSSIL_ENABLE_MINIZ)
+      VALUE "MinizVersion", "miniz " MZ_VERSION "\0"
+#else
       VALUE "ZlibVersion", "zlib " ZLIB_VERSION "\0"
+#endif /* defined(FOSSIL_ENABLE_MINIZ) */
 #if defined(BROKEN_MINGW_CMDLINE)
       VALUE "CommandLineIsUnicode", "No\0"
 #else
@@ -103,6 +117,16 @@ BEGIN
 #if defined(FOSSIL_ENABLE_SSL)
       VALUE "SslEnabled", "Yes, " OPENSSL_VERSION_TEXT "\0"
 #endif /* defined(FOSSIL_ENABLE_SSL) */
+#if defined(FOSSIL_ENABLE_TH1_DOCS)
+      VALUE "Th1Docs", "Yes\0"
+#else
+      VALUE "Th1Docs", "No\0"
+#endif /* defined(FOSSIL_ENABLE_TH1_DOCS) */
+#if defined(FOSSIL_ENABLE_TH1_HOOKS)
+      VALUE "Th1Hooks", "Yes\0"
+#else
+      VALUE "Th1Hooks", "No\0"
+#endif /* defined(FOSSIL_ENABLE_TH1_HOOKS) */
 #if defined(FOSSIL_ENABLE_TCL)
       VALUE "TclEnabled", "Yes, Tcl " TCL_PATCH_LEVEL "\0"
 #if defined(USE_TCL_STUBS)
@@ -132,3 +156,17 @@ BEGIN
     VALUE "Translation", 0x409, 0x4b0
   END
 END
+
+/*
+ * This embedded manifest is needed for Windows 8.1.
+ */
+
+#ifndef RT_MANIFEST
+#define RT_MANIFEST     24
+#endif /* RT_MANIFEST */
+
+#ifndef CREATEPROCESS_MANIFEST_RESOURCE_ID
+#define CREATEPROCESS_MANIFEST_RESOURCE_ID 1
+#endif /* CREATEPROCESS_MANIFEST_RESOURCE_ID */
+
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "fossil.exe.manifest"

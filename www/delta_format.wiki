@@ -68,7 +68,7 @@ fully.</p>
 
 <p>The segment-list of a delta describes how to create the target from
 the original by a combination of inserting literal byte-sequences and
-copying ranges of bytes from the original. This is there the
+copying ranges of bytes from the original. This is where the
 compression takes place, by encoding the large common parts of
 original and target in small copy instructions.</p>
 
@@ -157,7 +157,7 @@ The base-64 coding is described in
 <tr><td>&nbsp;</td> <td>79@Qt,	         </td><td>Copy    </td><td> 457 @ 1720     </td></tr>
 <tr><td>&nbsp;</td> <td>F: Example: eskil</td><td>Literal </td><td> 15 ' Example: eskil'</td></tr>
 <tr><td>&nbsp;</td> <td>~E@Y0,           </td><td>Copy    </td><td>  4046 @ 2176        </td></tr>
-<tr><td>Trailer</td><td>2zMM3E           </td><td>Ckecksum</td><td> -1101438770         </td></tr>
+<tr><td>Trailer</td><td>2zMM3E           </td><td>Checksum</td><td> -1101438770         </td></tr>
 </table>
 
 <p>The unified diff behind the above delta is</p>
@@ -215,7 +215,7 @@ bluepeak:(761) ~/Projects/Tcl/Fossil/Devel/devel > diff -u ../DELTA/old ../DELTA
 </li>
 <li>Binary files generate a delta that may contain some binary data.
 </li>
-<li>The delta encoding does not attempt to compress the content
+<li>The delta encoding does not attempt to compress the content.
 It was considered to be much
 more sensible to do compression using a separate general-purpose
 compression library, like <a href="http://www.zlib.net">zlib</a>.

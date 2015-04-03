@@ -46,7 +46,7 @@ to make sure that bugs in these encoding mechanisms do not lead to
 loss of data.
 
 To increase our confidence that everything in the repository is
-recoverable, fossil makes sure it can extract an exact replicate
+recoverable, fossil makes sure it can extract an exact replica
 of every content file that it changes just prior to transaction
 commit.  So during the course of check-in (or other repository
 operation) many different files
@@ -71,7 +71,7 @@ files.
 Manifest artifacts that define a check-in have two fields (the
 R-card and Z-card) that record MD5 hashes of the manifest itself
 and of all other files in the manifest.  Prior to any check-in
-commit, these checksums are verified to ensure that the checkin
+commit, these checksums are verified to ensure that the check-in
 agrees exactly with what is on disk.  Similarly,
 the repository checksum is verified after a checkout to make
 sure that the entire repository was checked out correctly.

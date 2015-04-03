@@ -63,7 +63,7 @@ static int fieldId(const char *zFieldName){
 }
 
 /*
-** Obtain a list of all fields of the TICKET and TICKETCHNG tables.  Put them 
+** Obtain a list of all fields of the TICKET and TICKETCHNG tables.  Put them
 ** in sorted order in aField[].
 **
 ** The haveTicket and haveTicketChng variables are set to 1 if the TICKET and
@@ -139,8 +139,9 @@ static void initializeVariablesFromDb(void){
   int i, n, size, j;
 
   zName = PD("name","-none-");
-  db_prepare(&q, "SELECT datetime(tkt_mtime,'localtime') AS tkt_datetime, *"
-                 "  FROM ticket WHERE tkt_uuid GLOB '%q*'", zName);
+  db_prepare(&q, "SELECT datetime(tkt_mtime%s) AS tkt_datetime, *"
+                 "  FROM ticket WHERE tkt_uuid GLOB '%q*'",
+                 timeline_utc(), zName);
   if( db_step(&q)==SQLITE_ROW ){
     n = db_column_count(&q);
     for(i=0; i<n; i++){
@@ -204,9 +205,9 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   blob_zero(&sql1);
   blob_zero(&sql2);
   blob_zero(&sql3);
-  blob_appendf(&sql1, "UPDATE OR REPLACE ticket SET tkt_mtime=:mtime");
+  blob_append_sql(&sql1, "UPDATE OR REPLACE ticket SET tkt_mtime=:mtime");
   if( haveTicketCTime ){
-    blob_appendf(&sql1, ", tkt_ctime=coalesce(tkt_ctime,:mtime)");
+    blob_append_sql(&sql1, ", tkt_ctime=coalesce(tkt_ctime,:mtime)");
   }
   aUsed = fossil_malloc( nField );
   memset(aUsed, 0, nField);
@@ -219,22 +220,22 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
     if( aField[j].mUsed & USEDBY_TICKET ){
       if( zName[0]=='+' ){
         zName++;
-        blob_appendf(&sql1,", %s=coalesce(%s,'') || %Q",
+        blob_append_sql(&sql1,", \"%w\"=coalesce(\"%w\",'') || %Q",
                      zName, zName, p->aField[i].zValue);
       }else{
-        blob_appendf(&sql1,", %s=%Q", zName, p->aField[i].zValue);
+        blob_append_sql(&sql1,", \"%w\"=%Q", zName, p->aField[i].zValue);
       }
     }
     if( aField[j].mUsed & USEDBY_TICKETCHNG ){
-      blob_appendf(&sql2, ",%s", zName);
-      blob_appendf(&sql3, ",%Q", p->aField[i].zValue);
+      blob_append_sql(&sql2, ",\"%w\"", zName);
+      blob_append_sql(&sql3, ",%Q", p->aField[i].zValue);
     }
     if( rid>0 ){
       wiki_extract_links(p->aField[i].zValue, rid, 1, p->rDate, i==0, 0);
     }
   }
-  blob_appendf(&sql1, " WHERE tkt_id=%d", tktid);
-  db_prepare(&q, "%s", blob_str(&sql1));
+  blob_append_sql(&sql1, " WHERE tkt_id=%d", tktid);
+  db_prepare(&q, "%s", blob_sql_text(&sql1));
   db_bind_double(&q, ":mtime", p->rDate);
   db_step(&q);
   db_finalize(&q);
@@ -243,7 +244,7 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
     int fromTkt = 0;
     if( haveTicketChngRid ){
       blob_append(&sql2, ",tkt_rid", -1);
-      blob_appendf(&sql3, ",%d", rid);
+      blob_append_sql(&sql3, ",%d", rid);
     }
     for(i=0; i<nField; i++){
       if( aUsed[i]==0
@@ -252,18 +253,19 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
         const char *z = aField[i].zName;
         if( z[0]=='+' ) z++;
         fromTkt = 1;
-        blob_appendf(&sql2, ",%s", z);
-        blob_appendf(&sql3, ",%s", z);
+        blob_append_sql(&sql2, ",\"%w\"", z);
+        blob_append_sql(&sql3, ",\"%w\"", z);
       }
     }
     if( fromTkt ){
       db_prepare(&q, "INSERT INTO ticketchng(tkt_id,tkt_mtime%s)"
                      "SELECT %d,:mtime%s FROM ticket WHERE tkt_id=%d",
-                     blob_str(&sql2), tktid, blob_str(&sql3), tktid);
+                     blob_sql_text(&sql2), tktid,
+                     blob_sql_text(&sql3), tktid);
     }else{
       db_prepare(&q, "INSERT INTO ticketchng(tkt_id,tkt_mtime%s)"
                      "VALUES(%d,:mtime%s)",
-                     blob_str(&sql2), tktid, blob_str(&sql3));
+                     blob_sql_text(&sql2), tktid, blob_sql_text(&sql3));
     }
     db_bind_double(&q, ":mtime", p->rDate);
     db_step(&q);
@@ -273,6 +275,29 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   blob_reset(&sql3);
   fossil_free(aUsed);
   return tktid;
+}
+
+/*
+** Returns non-zero if moderation is required for ticket changes and ticket
+** attachments.
+*/
+int ticket_need_moderation(
+  int localUser /* Are we being called for a local interactive user? */
+){
+  /*
+  ** If the FOSSIL_FORCE_TICKET_MODERATION variable is set, *ALL* changes for
+  ** tickets will be required to go through moderation (even those performed
+  ** by the local interactive user via the command line).  This can be useful
+  ** for local (or remote) testing of the moderation subsystem and its impact
+  ** on the contents and status of tickets.
+  */
+  if( fossil_getenv("FOSSIL_FORCE_TICKET_MODERATION")!=0 ){
+    return 1;
+  }
+  if( localUser ){
+    return 0;
+  }
+  return g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1;
 }
 
 /*
@@ -290,6 +315,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
   getAllTicketFields();
   if( haveTicket==0 ) return;
   tktid = db_int(0, "SELECT tkt_id FROM ticket WHERE tkt_uuid=%Q", zTktUuid);
+  search_doc_touch('t', tktid, 0);
   if( haveTicketChng ){
     db_multi_exec("DELETE FROM ticketchng WHERE tkt_id=%d;", tktid);
   }
@@ -323,9 +349,10 @@ void ticket_init(void){
 /*
 ** Create the TH1 interpreter and load the "change" code.
 */
-int ticket_change(void){
+int ticket_change(const char *zUuid){
   const char *zConfig;
   Th_FossilInit(TH_INIT_DEFAULT);
+  Th_Store("uuid", zUuid);
   zConfig = ticket_change_code();
   return Th_Eval(g.interp, 0, zConfig, -1);
 }
@@ -345,7 +372,7 @@ void ticket_create_table(int separateConnection){
     db_end_transaction(0);
     db_init_database(g.zRepositoryName, zSql, 0);
   }else{
-    db_multi_exec("%s", zSql);
+    db_multi_exec("%s", zSql/*safe-for-%s*/);
   }
 }
 
@@ -403,7 +430,7 @@ static void showAllFields(void){
   for(i=0; i<nField; i++){
     @ <li>aField[%d(i)].zName = "%h(aField[i].zName)";
     @ originally = "%h(aField[i].zValue)";
-    @ currently = "%h(PD(aField[i].zName,""))"";
+    @ currently = "%h(PD(aField[i].zName,""))";
     if( aField[i].zAppend ){
       @ zAppend = "%h(aField[i].zAppend)";
     }
@@ -424,33 +451,33 @@ void tktview_page(void){
   const char *zUuid = PD("name","");
 
   login_check_credentials();
-  if( !g.perm.RdTkt ){ login_needed(); return; }
-  if( g.perm.WrTkt || g.perm.ApndTkt ){
+  if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
+  if( g.anon.WrTkt || g.anon.ApndTkt ){
     style_submenu_element("Edit", "Edit The Ticket", "%s/tktedit?name=%T",
         g.zTop, PD("name",""));
   }
   if( g.perm.Hyperlink ){
-    style_submenu_element("History", "History Of This Ticket", 
+    style_submenu_element("History", "History Of This Ticket",
         "%s/tkthistory/%T", g.zTop, zUuid);
-    style_submenu_element("Timeline", "Timeline Of This Ticket", 
+    style_submenu_element("Timeline", "Timeline Of This Ticket",
         "%s/tkttimeline/%T", g.zTop, zUuid);
-    style_submenu_element("Check-ins", "Check-ins Of This Ticket", 
+    style_submenu_element("Check-ins", "Check-ins Of This Ticket",
         "%s/tkttimeline/%T?y=ci", g.zTop, zUuid);
   }
-  if( g.perm.NewTkt ){
+  if( g.anon.NewTkt ){
     style_submenu_element("New Ticket", "Create a new ticket",
         "%s/tktnew", g.zTop);
   }
-  if( g.perm.ApndTkt && g.perm.Attach ){
+  if( g.anon.ApndTkt && g.anon.Attach ){
     style_submenu_element("Attach", "Add An Attachment",
         "%s/attachadd?tkt=%T&from=%s/tktview/%t",
         g.zTop, zUuid, g.zTop, zUuid);
   }
   if( P("plaintext") ){
-    style_submenu_element("Formatted", "Formatted", "%R/tktview/%S", zUuid);
+    style_submenu_element("Formatted", "Formatted", "%R/tktview/%s", zUuid);
   }else{
     style_submenu_element("Plaintext", "Plaintext",
-                          "%R/tktview/%S?plaintext", zUuid);
+                          "%R/tktview/%s?plaintext", zUuid);
   }
   style_header("View Ticket");
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
@@ -464,18 +491,18 @@ void tktview_page(void){
   Th_Render(zScript);
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
 
-  zFullName = db_text(0, 
+  zFullName = db_text(0,
        "SELECT tkt_uuid FROM ticket"
        " WHERE tkt_uuid GLOB '%q*'", zUuid);
   if( zFullName ){
     attachment_list(zFullName, "<hr /><h2>Attachments:</h2><ul>");
   }
- 
+
   style_footer();
 }
 
 /*
-** TH command:   append_field FIELD STRING
+** TH1 command: append_field FIELD STRING
 **
 ** FIELD is the name of a database column to which we might want
 ** to append text.  STRING is the text to be appended to that
@@ -483,10 +510,10 @@ void tktview_page(void){
 ** submit_ticket command is run.
 */
 static int appendRemarkCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
   int *argl
 ){
   int idx;
@@ -515,11 +542,12 @@ static int appendRemarkCmd(
 /*
 ** Write a ticket into the repository.
 */
-static void ticket_put(
+static int ticket_put(
   Blob *pTicket,           /* The text of the ticket change record */
   const char *zTktId,      /* The ticket to which this change is applied */
   int needMod              /* True if moderation is needed */
 ){
+  int result;
   int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
   if( rid==0 ){
     fossil_fatal("trouble committing ticket: %s", g.zErrMsg);
@@ -527,7 +555,7 @@ static void ticket_put(
   if( needMod ){
     moderation_table_create();
     db_multi_exec(
-      "INSERT INTO modreq(objid, tktid) VALUES(%d,'%s')",
+      "INSERT INTO modreq(objid, tktid) VALUES(%d,%Q)",
       rid, zTktId
     );
   }else{
@@ -535,9 +563,14 @@ static void ticket_put(
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
   }
   manifest_crosslink_begin();
-  manifest_crosslink(rid, pTicket);
+  result = (manifest_crosslink(rid, pTicket, MC_NONE)==0);
   assert( blob_is_reset(pTicket) );
-  manifest_crosslink_end();
+  if( !result ){
+    result = manifest_crosslink_end(MC_PERMIT_HOOKS);
+  }else{
+    manifest_crosslink_end(MC_NONE);
+  }
+  return result;
 }
 
 /*
@@ -550,10 +583,10 @@ static void ticket_put(
 ** are concealed using the db_conceal() function.
 */
 static int submitTicketCmd(
-  Th_Interp *interp, 
-  void *pUuid, 
-  int argc, 
-  const char **argv, 
+  Th_Interp *interp,
+  void *pUuid,
+  int argc,
+  const char **argv,
   int *argl
 ){
   char *zDate;
@@ -561,6 +594,7 @@ static int submitTicketCmd(
   int i;
   int nJ = 0;
   Blob tktchng, cksum;
+  int needMod;
 
   login_verify_csrf_secret();
   if( !captcha_is_correct() ){
@@ -601,7 +635,7 @@ static int submitTicketCmd(
     }
   }
   if( *(char**)pUuid ){
-    zUuid = db_text(0, 
+    zUuid = db_text(0,
        "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%q*'", P("name")
     );
   }else{
@@ -609,29 +643,32 @@ static int submitTicketCmd(
   }
   *(const char**)pUuid = zUuid;
   blob_appendf(&tktchng, "K %s\n", zUuid);
-  blob_appendf(&tktchng, "U %F\n", g.zLogin ? g.zLogin : "");
+  blob_appendf(&tktchng, "U %F\n", login_name());
   md5sum_blob(&tktchng, &cksum);
   blob_appendf(&tktchng, "Z %b\n", &cksum);
   if( nJ==0 ){
     blob_reset(&tktchng);
     return TH_OK;
   }
+  needMod = ticket_need_moderation(0);
   if( g.zPath[0]=='d' ){
+    const char *zNeedMod = needMod ? "required" : "skipped";
     /* If called from /debug_tktnew or /debug_tktedit... */
     @ <font color="blue">
     @ <p>Ticket artifact that would have been submitted:</p>
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
+    @ <blockquote><pre>Moderation would be %h(zNeedMod).</pre></blockquote>
     @ <hr /></font>
     return TH_OK;
-  }else if( g.thTrace ){
-    Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
-             "}<br />\n",
-       blob_str(&tktchng));
   }else{
-    ticket_put(&tktchng, zUuid,
-               (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
+    if( g.thTrace ){
+      Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
+               "}<br />\n",
+         blob_str(&tktchng));
+    }
+    ticket_put(&tktchng, zUuid, needMod);
   }
-  return ticket_change();
+  return ticket_change(zUuid);
 }
 
 
@@ -652,11 +689,12 @@ void tktnew_page(void){
   char *zNewUuid = 0;
 
   login_check_credentials();
-  if( !g.perm.NewTkt ){ login_needed(); return; }
+  if( !g.perm.NewTkt ){ login_needed(g.anon.NewTkt); return; }
   if( P("cancel") ){
     cgi_redirect("home");
   }
   style_header("New Ticket");
+  ticket_standard_submenu(T_ALL_BUT(T_NEW));
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW<br />\n", -1);
   ticket_init();
   initializeVariablesFromCGI();
@@ -669,7 +707,7 @@ void tktnew_page(void){
     @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
   }
   zScript = ticket_newpage_code();
-  Th_Store("login", g.zLogin ? g.zLogin : "nobody");
+  Th_Store("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
                    (void*)&zNewUuid, 0);
@@ -702,7 +740,10 @@ void tktedit_page(void){
   int nRec;
 
   login_check_credentials();
-  if( !g.perm.ApndTkt && !g.perm.WrTkt ){ login_needed(); return; }
+  if( !g.perm.ApndTkt && !g.perm.WrTkt ){
+    login_needed(g.anon.ApndTkt || g.anon.WrTkt);
+    return;
+  }
   zName = P("name");
   if( P("cancel") ){
     cgi_redirectf("tktview?name=%T", zName);
@@ -737,7 +778,7 @@ void tktedit_page(void){
   @ <input type="hidden" name="name" value="%s(zName)" />
   login_insert_csrf_secret();
   zScript = ticket_editpage_code();
-  Th_Store("login", g.zLogin ? g.zLogin : "nobody");
+  Th_Store("login", login_name());
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
@@ -803,7 +844,10 @@ void tkttimeline_page(void){
   const char *zType;
 
   login_check_credentials();
-  if( !g.perm.Hyperlink || !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.Hyperlink || !g.perm.RdTkt ){
+    login_needed(g.anon.Hyperlink && g.anon.RdTkt);
+    return;
+  }
   zUuid = PD("name","");
   zType = PD("y","a");
   if( zType[0]!='c' ){
@@ -818,12 +862,11 @@ void tkttimeline_page(void){
   style_submenu_element("Status", "Status",
     "%s/info/%s", g.zTop, zUuid);
   if( zType[0]=='c' ){
-    zTitle = mprintf("Check-Ins Associated With Ticket %h", zUuid);
+    zTitle = mprintf("Check-ins Associated With Ticket %h", zUuid);
   }else{
     zTitle = mprintf("Timeline Of Ticket %h", zUuid);
   }
-  style_header(zTitle);
-  free(zTitle);
+  style_header("%z", zTitle);
 
   sqlite3_snprintf(6, zGlobPattern, "%s", zUuid);
   canonical16(zGlobPattern, strlen(zGlobPattern));
@@ -856,10 +899,9 @@ void tkttimeline_page(void){
          timeline_query_for_www(), tagid, zFullUuid, zFullUuid, zFullUuid
     );
   }
-  db_prepare(&q, zSQL);
-  free(zSQL);
+  db_prepare(&q, "%z", zSQL/*safe-for-%s*/);
   www_print_timeline(&q, TIMELINE_ARTID|TIMELINE_DISJOINT|TIMELINE_GRAPH,
-                     0, 0, 0);
+                     0, 0, 0, 0);
   db_finalize(&q);
   style_footer();
 }
@@ -878,7 +920,10 @@ void tkthistory_page(void){
   int nChng = 0;
 
   login_check_credentials();
-  if( !g.perm.Hyperlink || !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.Hyperlink || !g.perm.RdTkt ){
+    login_needed(g.anon.Hyperlink && g.anon.RdTkt);
+    return;
+  }
   zUuid = PD("name","");
   zTitle = mprintf("History Of Ticket %h", zUuid);
   style_submenu_element("Status", "Status",
@@ -889,13 +934,12 @@ void tkthistory_page(void){
     "%s/tkttimeline?name=%s", g.zTop, zUuid);
   if( P("plaintext")!=0 ){
     style_submenu_element("Formatted", "Formatted",
-                          "%R/tkthistory/%S", zUuid);
+                          "%R/tkthistory/%s", zUuid);
   }else{
     style_submenu_element("Plaintext", "Plaintext",
-                          "%R/tkthistory/%S?plaintext", zUuid);
+                          "%R/tkthistory/%s?plaintext", zUuid);
   }
-  style_header(zTitle);
-  free(zTitle);
+  style_header("%z", zTitle);
 
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zUuid);
   if( tagid==0 ){
@@ -904,27 +948,24 @@ void tkthistory_page(void){
     return;
   }
   db_prepare(&q,
-    "SELECT datetime(mtime,'localtime'), objid, uuid, NULL, NULL, NULL"
+    "SELECT datetime(mtime%s), objid, uuid, NULL, NULL, NULL"
     "  FROM event, blob"
     " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
     "   AND blob.rid=event.objid"
     " UNION "
-    "SELECT datetime(mtime,'localtime'), attachid, uuid, src, filename, user"
+    "SELECT datetime(mtime%s), attachid, uuid, src, filename, user"
     "  FROM attachment, blob"
     " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
     "   AND blob.rid=attachid"
     " ORDER BY 1",
-    tagid, tagid
+    timeline_utc(), tagid, timeline_utc(), tagid
   );
   while( db_step(&q)==SQLITE_ROW ){
     Manifest *pTicket;
-    char zShort[12];
     const char *zDate = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
     const char *zChngUuid = db_column_text(&q, 2);
     const char *zFile = db_column_text(&q, 4);
-    memcpy(zShort, zChngUuid, 10);
-    zShort[10] = 0;
     if( nChng==0 ){
       @ <ol>
     }
@@ -933,14 +974,14 @@ void tkthistory_page(void){
       const char *zSrc = db_column_text(&q, 3);
       const char *zUser = db_column_text(&q, 5);
       if( zSrc==0 || zSrc[0]==0 ){
-        @ 
+        @
         @ <li><p>Delete attachment "%h(zFile)"
       }else{
-        @ 
+        @
         @ <li><p>Add attachment
-        @ "%z(href("%R/artifact/%S",zSrc))%s(zFile)</a>"
+        @ "%z(href("%R/artifact/%!S",zSrc))%s(zFile)</a>"
       }
-      @ [%z(href("%R/artifact/%T",zChngUuid))%s(zShort)</a>]
+      @ [%z(href("%R/artifact/%!S",zChngUuid))%S(zChngUuid)</a>]
       @ (rid %d(rid)) by
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".</p>");
@@ -949,7 +990,7 @@ void tkthistory_page(void){
       if( pTicket ){
         @
         @ <li><p>Ticket change
-        @ [%z(href("%R/artifact/%T",zChngUuid))%s(zShort)</a>]
+        @ [%z(href("%R/artifact/%!S",zChngUuid))%S(zChngUuid)</a>]
         @ (rid %d(rid)) by
         hyperlink_to_user(pTicket->zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
@@ -1050,10 +1091,12 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
 **     defined in the ticket table.
 **
 **   %fossil ticket list fields
+**   %fossil ticket ls fields
 **
 **     list all fields, defined for ticket in the fossil repository
 **
 **   %fossil ticket list reports
+**   %fossil ticket ls reports
 **
 **     list all ticket reports, defined in the fossil repository
 **
@@ -1096,7 +1139,7 @@ void ticket_cmd(void){
   user_select();
 
   zUser = find_option("user-override",0,1);
-  if( zUser==0 ) zUser = g.zLogin;
+  if( zUser==0 ) zUser = login_name();
   zDate = find_option("date-override",0,1);
   if( zDate==0 ) zDate = "now";
   zDate = date_in_standard_format(zDate);
@@ -1120,7 +1163,7 @@ void ticket_cmd(void){
     /* set/show cannot be distinguished, so show the usage */
     usage("add|change|list|set|show|history");
   }
-  if( strncmp(g.argv[2],"list",n)==0 ){
+  if(( strncmp(g.argv[2],"list",n)==0 ) || ( strncmp(g.argv[2],"ls",n)==0 )){
     if( g.argc==3 ){
       usage("list fields|reports");
     }else{
@@ -1145,7 +1188,7 @@ void ticket_cmd(void){
     tTktShowEncoding tktEncoding;
 
     tktEncoding = find_option("quote","q",0) ? tktFossilize : tktNoTab;
-    
+
     if( strncmp(g.argv[2],"show",n)==0 ){
       if( g.argc==3 ){
         usage("show REPORTNR");
@@ -1180,8 +1223,8 @@ void ticket_cmd(void){
         if( g.argc==3 ){
           usage("set|change|history TICKETUUID");
         }
-        zTktUuid = db_text(0, 
-          "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'", g.argv[3]
+        zTktUuid = db_text(0,
+          "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%q*'", g.argv[3]
         );
         if( !zTktUuid ){
           fossil_fatal("unknown ticket: '%s'!",g.argv[3]);
@@ -1204,40 +1247,36 @@ void ticket_cmd(void){
         Stmt q;
         int tagid;
 
-        if ( i != g.argc ){
+        if( i != g.argc ){
           fossil_fatal("no other parameters expected to %s!",g.argv[2]);
         }
         tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",
                        zTktUuid);
         if( tagid==0 ){
           fossil_fatal("no such ticket %h", zTktUuid);
-        }  
+        }
         db_prepare(&q,
-          "SELECT datetime(mtime,'localtime'), objid, uuid, NULL, NULL, NULL"
+          "SELECT datetime(mtime%s), objid, NULL, NULL, NULL"
           "  FROM event, blob"
           " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
           "   AND blob.rid=event.objid"
           " UNION "
-          "SELECT datetime(mtime,'localtime'), attachid, uuid, src, "
-          "       filename, user"
+          "SELECT datetime(mtime%s), attachid, filename, "
+          "       src, user"
           "  FROM attachment, blob"
           " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
           "   AND blob.rid=attachid"
           " ORDER BY 1 DESC",
-          tagid, tagid
+          timeline_utc(), tagid, timeline_utc(), tagid
         );
         while( db_step(&q)==SQLITE_ROW ){
           Manifest *pTicket;
-          char zShort[12];
           const char *zDate = db_column_text(&q, 0);
           int rid = db_column_int(&q, 1);
-          const char *zChngUuid = db_column_text(&q, 2);
-          const char *zFile = db_column_text(&q, 4);
-          memcpy(zShort, zChngUuid, 10);
-          zShort[10] = 0;
+          const char *zFile = db_column_text(&q, 2);
           if( zFile!=0 ){
             const char *zSrc = db_column_text(&q, 3);
-            const char *zUser = db_column_text(&q, 5);
+            const char *zUser = db_column_text(&q, 4);
             if( zSrc==0 || zSrc[0]==0 ){
               fossil_print("Delete attachment %s\n", zFile);
             }else{
@@ -1258,14 +1297,14 @@ void ticket_cmd(void){
                 blob_set(&val, pTicket->aField[i].zValue);
                 if( z[0]=='+' ){
                   fossil_print("  Append to ");
-		    z++;
-		  }else{
-		    fossil_print("  Change ");
-                }
-		  fossil_print("%h: ",z);
-		  if( blob_size(&val)>50 || contains_newline(&val)) {
-                  fossil_print("\n    ",blob_str(&val));
-                  comment_print(blob_str(&val),4,79);
+            z++;
+          }else{
+            fossil_print("  Change ");
+          }
+          fossil_print("%h: ",z);
+          if( blob_size(&val)>50 || contains_newline(&val)) {
+                  fossil_print("\n    ");
+                  comment_print(blob_str(&val),0,4,-1,g.comFmtFlags);
                 }else{
                   fossil_print("%s\n",blob_str(&val));
                 }
@@ -1300,16 +1339,16 @@ void ticket_cmd(void){
           defossilize(zFValue);
         }
         append = (zFName[0] == '+');
-        if (append){
+        if( append ){
           zFName++;
         }
         j = fieldId(zFName);
         if( j == -1 ){
           fossil_fatal("unknown field name '%s'!",zFName);
         }else{
-          if (append) {
+          if( append ){
             aField[j].zAppend = zFValue;
-          } else {
+          }else{
             aField[j].zValue = zFValue;
           }
         }
@@ -1324,13 +1363,13 @@ void ticket_cmd(void){
         char *zValue = 0;
         char *zPfx;
 
-        if (aField[i].zAppend && aField[i].zAppend[0] ){
+        if( aField[i].zAppend && aField[i].zAppend[0] ){
           zPfx = " +";
           zValue = aField[i].zAppend;
-        } else if( aField[i].zValue && aField[i].zValue[0] ){
+        }else if( aField[i].zValue && aField[i].zValue[0] ){
           zPfx = " ";
           zValue = aField[i].zValue;
-        } else {
+        }else{
           continue;
         }
         if( memcmp(aField[i].zName, "private_", 8)==0 ){
@@ -1345,9 +1384,67 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      ticket_put(&tktchng, zTktUuid, 0);
-      printf("ticket %s succeeded for %s\n",
+      if( ticket_put(&tktchng, zTktUuid, ticket_need_moderation(1)) ){
+        fossil_fatal("%s\n", g.zErrMsg);
+      }else{
+        fossil_print("ticket %s succeeded for %s\n",
              (eCmd==set?"set":"add"),zTktUuid);
+      }
     }
   }
+}
+
+
+#if INTERFACE
+/* Standard submenu items for wiki pages */
+#define T_SRCH        0x00001
+#define T_REPLIST     0x00002
+#define T_NEW         0x00004
+#define T_ALL         0x00007
+#define T_ALL_BUT(x)  (T_ALL&~(x))
+#endif
+
+/*
+** Add some standard submenu elements for ticket screens.
+*/
+void ticket_standard_submenu(unsigned int ok){
+  if( (ok & T_SRCH)!=0 && search_restrict(SRCH_TKT)!=0 ){
+    style_submenu_element("Search","Search","%R/tktsrch");
+  }
+  if( (ok & T_REPLIST)!=0 ){
+    style_submenu_element("Reports","Reports","%R/reportlist");
+  }
+  if( (ok & T_NEW)!=0 && g.anon.NewTkt ){
+    style_submenu_element("New","New","%R/tktnew");
+  }
+}
+
+/*
+** WEBPAGE: ticket
+**
+** This is intended to be the primary "Ticket" page.  Render as
+** either ticket-search (if search is enabled) or as the
+** /reportlist page (if ticket search is disabled).
+*/
+void tkt_home_page(void){
+  login_check_credentials();
+  if( search_restrict(SRCH_TKT)!=0 ){
+    tkt_srchpage();
+  }else{
+    view_list();
+  }
+}
+
+/*
+** WEBPAGE: tktsrch
+** Usage:  /tktsrch?s=PATTERN
+**
+** Full-text search of all current tickets
+*/
+void tkt_srchpage(void){
+  login_check_credentials();
+  style_header("Ticket Search");
+  ticket_standard_submenu(T_ALL_BUT(T_SRCH));
+  search_screen(SRCH_TKT, 0);
+  style_footer();
 }

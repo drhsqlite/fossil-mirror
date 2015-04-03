@@ -1,0 +1,7 @@
+<title>Test Page</title>
+
+The purpose of this page is to test Fossil's ability to deal with
+embedded documentation pages that contain characters that should be
+escaped in URLs.
+
+Here is a link to the [./release-checklist.wiki | release checklist].

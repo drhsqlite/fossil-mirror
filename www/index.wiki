@@ -1,117 +1,95 @@
-<title>Fossil</title>
+<title>Home</title>
 
+<h3>What Is Fossil?</h3>
 
-<p align="center">
-<font size="3">
-<i>Simple, high-reliability, distributed software configuration management</i>
-</font>
-</p>
-
-
-<h3>Why Use Fossil?</h3>
-
-<table border="0" cellspacing="10" bgcolor="white" align="right"
-cellpadding="2">
-<tr><td bgcolor="#446979">
-<table border="0" cellpadding="10" bgcolor="white">
-<tr><td>
+<div style='width:200px;float:right;border:2px solid #446979;padding:10px;margin:0px 10px;'>
 <ul>
 <li> [http://www.fossil-scm.org/download.html | Download]
 <li> [./quickstart.wiki | Quick Start]
 <li> [./build.wiki | Install]
 <li> [../COPYRIGHT-BSD2.txt | License]
-<li> [/timeline | Recent changes]
 <li> [./faq.wiki | FAQ]
-<li> [./hacker-howto.wiki | Hacker How-To]
 <li> [./changes.wiki | Change Log]
+<li> [./hacker-howto.wiki | Hacker How-To]
 <li> [./hints.wiki | Tip &amp; Hints]
-<li> [./permutedindex.wiki#pindex | Documentation Index]
+<li> [./permutedindex.html | Documentation Index]
 <li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
 <li> Mailing list
      <ul>
-     <li> [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | sign-up]
+     <li> [http://mailinglists.sqlite.org/cgi-bin/mailman/listinfo/fossil-users | sign-up]
      <li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
-     <ul>
+     </ul>
 </ul>
-</td></tr>
-<tr><td>
 <center><img src="fossil3.gif"></center>
-</td></tr>
-</table>
-</table>
+</div>
 
-There are plenty of open-source version control systems available on the
-internet these days. What makes Fossil worthy of attention?
+<p>Fossil is a simple, high-reliability, distributed software configuration
+management system with these advanced features:
 
-  1.  <b>Bug Tracking And Wiki</b> -
+  1.  <b>Integrated Bug Tracking, Wiki, and Technotes</b> -
       In addition to doing [./concepts.wiki | distributed version control]
       like Git and Mercurial,
-      Fossil also supports [./bugtheory.wiki | distributed bug tracking],
-      [./wikitheory.wiki | distributed wiki], and a
-      [./event.wiki | distributed blog] mechanism all in a single
-      integrated package.
+      Fossil also supports [./bugtheory.wiki | bug tracking],
+      [./wikitheory.wiki | wiki], and [./event.wiki | technotes].
 
-  2.  <b>Web Interface</b> - 
-      Fossil has a built-in and easy-to-use [./webui.wiki | web interface]
-      that simplifies project tracking and promotes situational awareness.
-      Simply type "fossil&nbsp;ui" from within any check-out and Fossil
-      automatically opens your web browser in a page that gives detailed
-      [/timeline?n=100&y=ci | graphical history] and status information
-      on that project.
+  2.  <b>Built-in Web Interface</b> - 
+      Fossil has a built-in and intuitive [./webui.wiki | web interface]
+      with a rich assortment of information pages 
+      ([./webpage-ex.md|examples]) designed to promote situational awareness.
 
-      This entire website (except the
-      [http://www.fossil-scm.org/download.html | download] page)
+      This entire website&#185;
       is just a running instance of Fossil.  The pages you see here
       are all [./wikitheory.wiki | wiki] or
       [./embeddeddoc.wiki | embedded documentation].
       When you clone Fossil from one of its
       [./selfhost.wiki | self-hosting repositories], 
       you get more than just source code - you get this entire website.
+      <span style='font-size:75%;'>(&#185;except the 
+      [http://www.fossil-scm.org/download.html | download] page)</span>
 
-  3.  <b>Autosync</b> -
+  3.  <b>Self-Contained</b> -
+      Fossil is a single self-contained stand-alone executable.
+      To install, simply download a 
+      <a href="http://www.fossil-scm.org/download.html">precompiled binary</a>
+      for Linux, Mac, OpenBSD, or Windows and put it on your $PATH.
+      [./build.wiki | Easy-to-compile source code] is also available.
+
+  4.  <b>Simple Networking</b> -
+      No custom protocols or TCP ports.
+      Fossil uses ordinary HTTP (or HTTPS or SSH)
+      for network communications, so it works fine from behind
+      restrictive firewalls, including [./quickstart.wiki#proxy|proxies].
+      The protocol is
+      [./stats.wiki | bandwidth efficient] to the point that Fossil can be
+      used comfortably over dial-up.
+
+  5.  <b>CGI/SCGI Enabled</b> -  No server is required, but if you want to
+      set one up, Fossil supports four easy
+      [./server.wiki | server configurations].
+
+  6.  <b>Autosync</b> -
       Fossil supports [./concepts.wiki#workflow | "autosync" mode]
       which helps to keep projects moving
       forward by reducing the amount of needless 
       [./branching.wiki | forking and merging] often
       associated with distributed projects.
 
-  4.  <b>Self-Contained</b> -
-      Fossil is a single stand-alone executable that contains everything
-      needed to do configuration management.
-      Installation is trivial: simply download a 
-      <a href="http://www.fossil-scm.org/download.html">precompiled binary</a>
-      for Linux, Mac, or Windows and put it on your $PATH.
-      [./build.wiki | Easy-to-compile source code] is available for
-      users on other platforms.  Fossil sources are also mostly self-contained,
-      requiring only the standard C library to build.
-
-  5.  <b>Simple Networking</b> -
-      Fossil uses plain old HTTP (with
-      [./quickstart.wiki#proxy | proxy support])
-      for all network communications, meaning that it works fine from behind
-      restrictive firewalls.  The protocol is
-      [./stats.wiki | bandwidth efficient] to the point that Fossil can be
-      used comfortably over a dial-up internet connection.
-
-  6.  <b>CGI/SCGI Enabled</b> -
-      No server is required to use fossil.  But a
-      server does make collaboration easier.  Fossil supports four different
-      yet simple [./server.wiki | server configurations].
-      The most popular is a 2-line CGI script.  This is the approach
-      used by the [./selfhost.wiki | self-hosting fossil repositories].
-
   7.  <b>Robust &amp; Reliable</b> -
       Fossil stores content using an [./fileformat.wiki | enduring file format]
       in an SQLite database so that transactions are
-      atomic even if interrupted by a power loss or system crash.  Furthermore,
-      automatic [./selfcheck.wiki | self-checks] verify that all aspects of
-      the repository are consistent prior to each commit.  In over six years
-      of operation, no work has ever been lost after having been committed to
-      a Fossil repository.
+      atomic even if interrupted by a power loss or system crash.
+      Automatic [./selfcheck.wiki | self-checks] verify that all aspects of
+      the repository are consistent prior to each commit.
+
+  8.  <b>Free and Open-Source</b> - Uses the [../COPYRIGHT-BSD2.txt|2-clause BSD license].
 
 <hr>
 <h3>Links For Fossil Users:</h3>
 
+  *  "Fuel" is cross-platform GUI front-end for Fossil
+     written in Qt.  [http://fuelscm.org/].  
+     Fuel is an independent project run by a different group of
+     developers.
   *  [./reviews.wiki | Testimonials] from satisfied fossil users and
      [./quotes.wiki | Quotes] about Fossil and other DVCSes.
   *  [./faq.wiki | FAQ]
@@ -157,7 +135,7 @@ internet these days. What makes Fossil worthy of attention?
      (contributed by Gilles Ganault on 2013-01-08).
   *  [./antibot.wiki | How Fossil defends against abuse by spiders and bots].
 
-<h3>Links For Fossil Developer:</h3>
+<h3>Links For Fossil Developers:</h3>
 
   *  [./contribute.wiki | Contributing] code or documentation to the
      Fossil project.

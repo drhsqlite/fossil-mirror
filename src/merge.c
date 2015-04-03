@@ -28,13 +28,13 @@
 void print_checkin_description(int rid, int indent, const char *zLabel){
   Stmt q;
   db_prepare(&q,
-     "SELECT datetime(mtime,'localtime'),"
+     "SELECT datetime(mtime%s),"
      "       coalesce(euser,user), coalesce(ecomment,comment),"
      "       (SELECT uuid FROM blob WHERE rid=%d),"
      "       (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
      "         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
      "           AND tagxref.rid=%d AND tagxref.tagtype>0)"
-     "  FROM event WHERE objid=%d", rid, rid, rid);
+     "  FROM event WHERE objid=%d", timeline_utc(), rid, rid, rid);
   if( db_step(&q)==SQLITE_ROW ){
     const char *zTagList = db_column_text(&q, 4);
     char *zCom;
@@ -43,13 +43,13 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
     }else{
       zCom = mprintf("%s", db_column_text(&q,2));
     }
-    fossil_print("%-*s [%S] by %s on %s\n%*s", 
+    fossil_print("%-*s [%S] by %s on %s\n%*s",
        indent-1, zLabel,
        db_column_text(&q, 3),
        db_column_text(&q, 1),
        db_column_text(&q, 0),
        indent, "");
-    comment_print(zCom, indent, 78);
+    comment_print(zCom, db_column_text(&q,2), indent, -1, g.comFmtFlags);
     fossil_free(zCom);
   }
   db_finalize(&q);
@@ -93,6 +93,8 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 **
 **   -f|--force              Force the merge even if it would be a no-op.
 **
+**   --force-missing         Force the merge even if there is missing content.
+**
 **   --integrate             Merged branch will be closed when committing.
 **
 **   -n|--dry-run            If given, display instead of run actions
@@ -109,6 +111,7 @@ void merge_cmd(void){
   int backoutFlag;      /* True if the --backout option is present */
   int dryRunFlag;       /* True if the --dry-run or -n option is present */
   int forceFlag;        /* True if the --force or -f option is present */
+  int forceMissingFlag; /* True if the --force-missing option is present */
   const char *zBinGlob; /* The value of --binary */
   const char *zPivot;   /* The value of --baseline */
   int debugFlag;        /* True if --debug is present */
@@ -129,6 +132,7 @@ void merge_cmd(void){
 
   undo_capture_command_line();
   verboseFlag = find_option("verbose","v",0)!=0;
+  forceMissingFlag = find_option("force-missing",0,0)!=0;
   if( !verboseFlag ){
     verboseFlag = find_option("detail",0,0)!=0; /* deprecated */
   }
@@ -143,7 +147,6 @@ void merge_cmd(void){
   }
   forceFlag = find_option("force","f",0)!=0;
   zPivot = find_option("baseline",0,1);
-  capture_case_sensitive_option();
   verify_all_options();
   db_must_be_within_tree();
   if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);
@@ -165,7 +168,7 @@ void merge_cmd(void){
     ** leaf that is (1) not the version currently checked out and (2)
     ** has not already been merged into the current checkout and (3)
     ** the leaf is not closed and (4) the leaf is in the same branch
-    ** as the current checkout. 
+    ** as the current checkout.
     */
     Stmt q;
     if( pickFlag || backoutFlag || integrateFlag){
@@ -197,18 +200,18 @@ void merge_cmd(void){
     }
     db_prepare(&q,
       "SELECT blob.uuid,"
-          "   datetime(event.mtime,'localtime'),"
+          "   datetime(event.mtime%s),"
           "   coalesce(ecomment, comment),"
           "   coalesce(euser, user)"
       "  FROM event, blob"
       " WHERE event.objid=%d AND blob.rid=%d",
-      mid, mid
+      timeline_utc(), mid, mid
     );
     if( db_step(&q)==SQLITE_ROW ){
       char *zCom = mprintf("Merging fork [%S] at %s by %s: \"%s\"",
             db_column_text(&q, 0), db_column_text(&q, 1),
             db_column_text(&q, 3), db_column_text(&q, 2));
-      comment_print(zCom, 0, 79);
+      comment_print(zCom, db_column_text(&q,2), 0, -1, g.comFmtFlags);
       fossil_free(zCom);
     }
     db_finalize(&q);
@@ -260,17 +263,9 @@ void merge_cmd(void){
                  " Use --force to override.\n");
     return;
   }
-  if( integrateFlag ){
-    if( db_exists("SELECT 1 FROM vmerge WHERE id=-4")) {
-      /* Fossil earlier than [55cacfcace] cannot handle this,
-       * therefore disallow it. */
-      fossil_fatal("Integration of another branch already in progress."
-        "  Commit or Undo needed first", g.argv[2]);
-    }
-    if( !is_a_leaf(mid) ){
-      fossil_warning("ignoring --integrate: %s is not a leaf", g.argv[2]);
-      integrateFlag = 0;
-    }
+  if( integrateFlag && !is_a_leaf(mid)){
+    fossil_warning("ignoring --integrate: %s is not a leaf", g.argv[2]);
+    integrateFlag = 0;
   }
   if( verboseFlag ){
     print_checkin_description(mid, 12, integrateFlag?"integrate:":"merge-from:");
@@ -279,8 +274,12 @@ void merge_cmd(void){
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   db_begin_transaction();
   if( !dryRunFlag ) undo_begin();
-  load_vfile_from_rid(mid);
-  load_vfile_from_rid(pid);
+  if( load_vfile_from_rid(mid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to merge");
+  }
+  if( load_vfile_from_rid(pid) && !forceMissingFlag ){
+    fossil_fatal("missing content, unable to merge");
+  }
   if( debugFlag ){
     char *z;
     z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", pid);
@@ -475,9 +474,9 @@ void merge_cmd(void){
     }
   }
   db_finalize(&q);
-  
+
   /*
-  ** Find files that have changed from P->M but not P->V. 
+  ** Find files that have changed from P->M but not P->V.
   ** Copy the M content over into V.
   */
   db_prepare(&q,
@@ -527,14 +526,14 @@ void merge_cmd(void){
     Blob m, p, r;
     /* Do a 3-way merge of idp->idm into idp->idv.  The results go into idv. */
     if( verboseFlag ){
-      fossil_print("MERGE %s  (pivot=%d v1=%d v2=%d)\n", 
+      fossil_print("MERGE %s  (pivot=%d v1=%d v2=%d)\n",
                    zName, ridp, ridm, ridv);
     }else{
       fossil_print("MERGE %s\n", zName);
     }
     if( islinkv || islinkm /* || file_wd_islink(zFullPath) */ ){
       fossil_print("***** Cannot merge symlink %s\n", zName);
-      nConflict++;        
+      nConflict++;
     }else{
       undo_save(zName);
       zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
@@ -646,7 +645,7 @@ void merge_cmd(void){
   }
   if( dryRunFlag ){
     fossil_warning("REMINDER: this was a dry run -"
-                   " no file were actually changed.");
+                   " no files were actually changed.");
   }
 
   /*

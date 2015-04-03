@@ -22,6 +22,7 @@
 
 #ifdef FOSSIL_ENABLE_TCL
 
+#include "sqlite3.h"
 #include "th.h"
 #include "tcl.h"
 
@@ -32,20 +33,20 @@
 #define USE_ARGV_TO_OBJV() \
   int objc;                \
   Tcl_Obj **objv;          \
-  int i;
+  int obji;
 
 #define COPY_ARGV_TO_OBJV()                                         \
   objc = argc-1;                                                    \
   objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *))); \
-  for(i=1; i<argc; i++){                                            \
-    objv[i-1] = Tcl_NewStringObj(argv[i], argl[i]);                 \
-    Tcl_IncrRefCount(objv[i-1]);                                    \
+  for(obji=1; obji<argc; obji++){                                   \
+    objv[obji-1] = Tcl_NewStringObj(argv[obji], argl[obji]);        \
+    Tcl_IncrRefCount(objv[obji-1]);                                 \
   }
 
-#define FREE_ARGV_TO_OBJV()      \
-  for(i=1; i<argc; i++){         \
-    Tcl_DecrRefCount(objv[i-1]); \
-  }                              \
+#define FREE_ARGV_TO_OBJV()         \
+  for(obji=1; obji<argc; obji++){   \
+    Tcl_DecrRefCount(objv[obji-1]); \
+  }                                 \
   ckfree((char *)objv);
 
 /*
@@ -111,16 +112,16 @@
 #    endif /* defined(__CYGWIN__) */
 #  endif /* defined(_WIN32) */
 #  ifndef TCL_FINDEXECUTABLE_NAME
-#    define TCL_FINDEXECUTABLE_NAME "_Tcl_FindExecutable"
+#    define TCL_FINDEXECUTABLE_NAME "_Tcl_FindExecutable\0"
 #  endif
 #  ifndef TCL_CREATEINTERP_NAME
-#    define TCL_CREATEINTERP_NAME "_Tcl_CreateInterp"
+#    define TCL_CREATEINTERP_NAME "_Tcl_CreateInterp\0"
 #  endif
 #  ifndef TCL_DELETEINTERP_NAME
-#    define TCL_DELETEINTERP_NAME "_Tcl_DeleteInterp"
+#    define TCL_DELETEINTERP_NAME "_Tcl_DeleteInterp\0"
 #  endif
 #  ifndef TCL_FINALIZE_NAME
-#    define TCL_FINALIZE_NAME "_Tcl_Finalize"
+#    define TCL_FINALIZE_NAME "_Tcl_Finalize\0"
 #  endif
 #endif /* defined(USE_TCL_STUBS) */
 
@@ -167,7 +168,8 @@ typedef int (tcl_NotifyProc) (
 **       the Tcl API calls [found within this file] to the function pointers
 **       that will be contained in our private Tcl stubs table.  This takes
 **       advantage of the fact that the Tcl headers always define the Tcl API
-**       functions in terms of the "tclStubsPtr" variable.
+**       functions in terms of the "tclStubsPtr" variable when the define
+**       USE_TCL_STUBS is present during compilation.
 */
 #define tclStubsPtr privateTclStubsPtr
 static const TclStubs *tclStubsPtr = NULL;
@@ -252,6 +254,28 @@ static int canUseObjProc(){
 static int createTclInterp(Th_Interp *interp, void *pContext);
 
 /*
+** Returns a name for a Tcl return code.
+*/
+static const char *getTclReturnCodeName(
+  int rc,
+  int nullIfOk
+){
+  static char zRc[32];
+
+  switch( rc ){
+    case TCL_OK:       return nullIfOk ? 0 : "TCL_OK";
+    case TCL_ERROR:    return "TCL_ERROR";
+    case TCL_BREAK:    return "TCL_BREAK";
+    case TCL_RETURN:   return "TCL_RETURN";
+    case TCL_CONTINUE: return "TCL_CONTINUE";
+    default: {
+      sqlite3_snprintf(sizeof(zRc), zRc, "Tcl return code %d", rc);
+    }
+  }
+  return zRc;
+}
+
+/*
 ** Returns the Tcl interpreter result as a string with the associated length.
 ** If the Tcl interpreter or the Tcl result are NULL, the length will be 0.
 ** If the length pointer is NULL, the length will not be stored.
@@ -313,13 +337,13 @@ static int notifyPreOrPostEval(
   struct TclContext *tclContext = (struct TclContext *)ctx;
   tcl_NotifyProc *xNotifyProc;
 
-  if ( !tclContext ){
+  if( !tclContext ){
     Th_ErrorMessage(interp,
         "invalid Tcl context", (const char *)"", 0);
     return TH_ERROR;
   }
   xNotifyProc = bIsPost ? tclContext->xPostEval : tclContext->xPreEval;
-  if ( xNotifyProc ){
+  if( xNotifyProc ){
     rc = xNotifyProc(bIsPost ?
         tclContext->pPostContext : tclContext->pPreContext,
         interp, ctx, argc, argv, argl, rc);
@@ -770,6 +794,48 @@ static int setTclArguments(
 }
 
 /*
+** Evaluate a Tcl script, creating the Tcl interpreter if necessary. If the
+** Tcl script succeeds, start a Tcl event loop until there are no more events
+** remaining to process -OR- the script calls [exit].  If the bWait argument
+** is zero, only process events that are already in the queue; otherwise,
+** process events until the script terminates the Tcl event loop.
+*/
+void fossil_print(const char *zFormat, ...); /* printf.h */
+
+int evaluateTclWithEvents(
+  Th_Interp *interp,
+  void *pContext,
+  const char *zScript,
+  int nScript,
+  int bWait,
+  int bVerbose
+){
+  struct TclContext *tclContext = (struct TclContext *)pContext;
+  Tcl_Interp *tclInterp;
+  int rc;
+  int flags = TCL_ALL_EVENTS;
+
+  if( createTclInterp(interp, pContext)!=TH_OK ){
+    return TH_ERROR;
+  }
+  tclInterp = tclContext->interp;
+  rc = Tcl_EvalEx(tclInterp, zScript, nScript, TCL_EVAL_GLOBAL);
+  if( rc!=TCL_OK ){
+    if( bVerbose ){
+      const char *zResult = getTclResult(tclInterp, 0);
+      fossil_print("%s: ", getTclReturnCodeName(rc, 0));
+      fossil_print("%s\n", zResult);
+    }
+    return rc;
+  }
+  if( !bWait ) flags |= TCL_DONT_WAIT;
+  while( Tcl_DoOneEvent(flags) ){
+    /* do nothing */
+  }
+  return rc;
+}
+
+/*
 ** Creates and initializes a Tcl interpreter for use with the specified TH1
 ** interpreter.  Stores the created Tcl interpreter in the Tcl context supplied
 ** by the caller.
@@ -785,12 +851,12 @@ static int createTclInterp(
   Tcl_Interp *tclInterp;
   char *setup;
 
-  if ( !tclContext ){
+  if( !tclContext ){
     Th_ErrorMessage(interp,
         "invalid Tcl context", (const char *)"", 0);
     return TH_ERROR;
   }
-  if ( tclContext->interp ){
+  if( tclContext->interp ){
     return TH_OK;
   }
   if( loadTcl(interp, &tclContext->library, &tclContext->xFindExecutable,
@@ -884,7 +950,7 @@ int unloadTcl(
   void *library;
 #endif /* defined(USE_TCL_STUBS) */
 
-  if ( !tclContext ){
+  if( !tclContext ){
     Th_ErrorMessage(interp,
         "invalid Tcl context", (const char *)"", 0);
     return TH_ERROR;
@@ -899,7 +965,7 @@ int unloadTcl(
   ** If the Tcl interpreter has been created, formally delete it now.
   */
   tclInterp = tclContext->interp;
-  if ( tclInterp ){
+  if( tclInterp ){
     Tcl_DeleteInterp(tclInterp);
     tclContext->interp = tclInterp = 0;
   }
@@ -941,7 +1007,7 @@ int th_register_tcl(
   /* Add the Tcl integration commands to TH1. */
   for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
     void *ctx;
-    if ( !aCommand[i].zName || !aCommand[i].xProc ) continue;
+    if( !aCommand[i].zName || !aCommand[i].xProc ) continue;
     ctx = aCommand[i].pContext;
     /* Use Tcl interpreter for context? */
     if( !ctx ) ctx = pContext;

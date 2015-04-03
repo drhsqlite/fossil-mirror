@@ -36,7 +36,7 @@ static void strip_string(Blob *pBlob, char *z){
        z[i] = 0;
        break;
     }
-    if( z[i]<' ' ) z[i] = ' ';
+    if( z[i]>0 && z[i]<' ' ) z[i] = ' ';
   }
   blob_append(pBlob, z, -1);
 }
@@ -132,6 +132,37 @@ void prompt_for_password(
 }
 
 /*
+** Prompt to save Fossil user password
+*/
+int save_password_prompt(const char *passwd){
+  Blob x;
+  char c;
+  const char *old = db_get("last-sync-pw", 0);
+  if( (old!=0) && fossil_strcmp(unobscure(old), passwd)==0 ){
+     return 0;
+  }
+  prompt_user("remember password (Y/n)? ", &x);
+  c = blob_str(&x)[0];
+  blob_reset(&x);
+  return ( c!='n' && c!='N' );
+}
+
+/*
+** Prompt for Fossil user password
+*/
+char *prompt_for_user_password(const char *zUser){
+  char *zPrompt = mprintf("\rpassword for %s: ", zUser);
+  char *zPw;
+  Blob x;
+  fossil_force_newline();
+  prompt_for_password(zPrompt, &x, 0);
+  free(zPrompt);
+  zPw = mprintf("%b", &x);
+  blob_reset(&x);
+  return zPw;
+}
+
+/*
 ** Prompt the user to enter a single line of text.
 */
 void prompt_user(const char *zPrompt, Blob *pIn){
@@ -168,6 +199,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 **        user for command-line interaction.
 **
 **    %fossil user list
+**    %fossil user ls
 **
 **        List all users known to the repository
 **
@@ -219,8 +251,8 @@ void user_cmd(void){
     );
     free(zPw);
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
-    user_select();
     if( g.argc==3 ){
+      user_select();
       fossil_print("%s\n", g.zLogin);
     }else{
       if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.argv[3]) ){
@@ -232,7 +264,7 @@ void user_cmd(void){
         db_set("default-user", g.argv[3], 0);
       }
     }
-  }else if( n>=2 && strncmp(g.argv[2],"list",n)==0 ){
+  }else if(( n>=2 && strncmp(g.argv[2],"list",n)==0 ) || ( n>=2 && strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
     db_prepare(&q, "SELECT login, info FROM user ORDER BY login");
     while( db_step(&q)==SQLITE_ROW ){
@@ -265,7 +297,7 @@ void user_cmd(void){
   }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
     int uid;
     if( g.argc!=4 && g.argc!=5 ){
-      usage("user capabilities USERNAME ?PERMISSIONS?");
+      usage("capabilities USERNAME ?PERMISSIONS?");
     }
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.argv[3]);
     if( uid==0 ){
@@ -346,7 +378,7 @@ void user_select(void){
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
 
   url_parse(0, 0);
-  if( g.urlUser && attempt_user(g.urlUser) ) return;
+  if( g.url.user && attempt_user(g.url.user) ) return;
 
   fossil_print(
     "Cannot figure out who you are!  Consider using the --user\n"
@@ -394,7 +426,7 @@ void access_log_page(void){
   int rc;
 
   login_check_credentials();
-  if( !g.perm.Admin ){ login_needed(); return; }
+  if( !g.perm.Admin ){ login_needed(0); return; }
   create_accesslog_table();
 
   if( P("delall") && P("delallbtn") ){
@@ -421,25 +453,25 @@ void access_log_page(void){
   }
   style_header("Access Log");
   blob_zero(&sql);
-  blob_append(&sql, 
-    "SELECT uname, ipaddr, datetime(mtime, 'localtime'), success"
-    "  FROM accesslog", -1
+  blob_append_sql(&sql,
+    "SELECT uname, ipaddr, datetime(mtime%s), success"
+    "  FROM accesslog", timeline_utc()
   );
   if( y==1 ){
     blob_append(&sql, "  WHERE success", -1);
   }else if( y==2 ){
     blob_append(&sql, "  WHERE NOT success", -1);
   }
-  blob_appendf(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
+  blob_append_sql(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
   if( skip ){
     style_submenu_element("Newer", "Newer entries",
               "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip>=n ? skip-n : 0,
               n, y);
   }
-  rc = db_prepare_ignore_error(&q, blob_str(&sql));
-  @ <center><table border="1" cellpadding="5">
-  @ <tr><th width="33%%">Date</th><th width="34%%">User</th>
-  @ <th width="33%%">IP Address</th></tr>
+  rc = db_prepare_ignore_error(&q, "%s", blob_sql_text(&sql));
+  @ <center><table border="1" cellpadding="5" id='logtable'>
+  @ <thead><tr><th width="33%%">Date</th><th width="34%%">User</th>
+  @ <th width="33%%">IP Address</th></tr></thead><tbody>
   while( rc==SQLITE_OK && db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zIP = db_column_text(&q, 1);
@@ -462,7 +494,7 @@ void access_log_page(void){
     style_submenu_element("All", "All entries",
           "%s/access_log?n=10000000", g.zTop);
   }
-  @ </table></center>
+  @ </tbody></table></center>
   db_finalize(&q);
   @ <hr>
   @ <form method="post" action="%s(g.zTop)/access_log">
@@ -485,5 +517,6 @@ void access_log_page(void){
   @ Delete all entries</input></label>
   @ <input type="submit" name="delallbtn" value="Delete"></input>
   @ </form>
+  output_table_sorting_javascript("logtable", "Ttt", 1);
   style_footer();
 }

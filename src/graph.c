@@ -36,11 +36,11 @@ struct GraphRow {
   int *aParent;               /* Array of parents.  0 element is primary .*/
   char *zBranch;              /* Branch name */
   char *zBgClr;               /* Background Color */
-  char zUuid[17];             /* Check-in for file ID */
+  char zUuid[41];             /* Check-in for file ID */
 
   GraphRow *pNext;            /* Next row down in the list of all rows */
   GraphRow *pPrev;            /* Previous row */
-  
+
   int idx;                    /* Row index.  First is 1.  0 used for "none" */
   int idxTop;                 /* Direct descendent highest up on the graph */
   GraphRow *pChild;           /* Child immediately above this node */
@@ -49,7 +49,7 @@ struct GraphRow {
   u8 timeWarp;                /* Child is earlier in time */
   u8 bDescender;              /* True if riser from bottom of graph to here. */
   i8 iRail;                   /* Which rail this check-in appears on. 0-based.*/
-  i8 mergeOut;                /* Merge out to this rail.  -1 if no merge-out */
+  i8 mergeOut;                /* Merge out on rail mergeOut/4.  -1 for none */
   u8 mergeIn[GR_MAX_RAIL];    /* Merge in from non-zero rails */
   int aiRiser[GR_MAX_RAIL];   /* Risers from this node to a higher row. */
   int mergeUpto;              /* Draw the mergeOut rail up to this level */
@@ -156,7 +156,7 @@ static GraphRow *hashFind(GraphContext *p, int rid){
 ** will return the same pointer.
 **
 ** The returned value is a pointer to a (readonly) string that
-** has the useful property that strings can be checked for 
+** has the useful property that strings can be checked for
 ** equality by comparing pointers.
 **
 ** Note: also used for background color names.
@@ -216,7 +216,7 @@ int graph_add_row(
 
 /*
 ** Return the index of a rail currently not in use for any row between
-** top and bottom, inclusive.  
+** top and bottom, inclusive.
 */
 static int findFreeRail(
   GraphContext *p,         /* The graph context */
@@ -365,7 +365,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   ** drawn.
   **
   ** Each node has one primary parent and zero or more "merge" parents.
-  ** A merge parent is a prior checkin from which changes were merged into
+  ** A merge parent is a prior check-in from which changes were merged into
   ** the current check-in.  If a merge parent is not in the visible section
   ** of this graph, then no arrows will be drawn for it, so remove it from
   ** the aParent[] array.
@@ -381,8 +381,29 @@ void graph_finish(GraphContext *p, int omitDescenders){
     }
   }
 
+  /* If the primary parent is in a different branch, but there are
+  ** other parents in the same branch, reorder the parents to make
+  ** the parent from the same branch the primary parent.
+  */
+  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+    if( pRow->isDup ) continue;
+    if( pRow->nParent<2 ) continue;                    /* Not a fork */
+    pParent = hashFind(p, pRow->aParent[0]);
+    if( pParent==0 ) continue;                         /* Parent off-screen */
+    if( pParent->zBranch==pRow->zBranch ) continue;    /* Same branch */
+    for(i=1; i<pRow->nParent; i++){
+      pParent = hashFind(p, pRow->aParent[i]);
+      if( pParent && pParent->zBranch==pRow->zBranch ){
+        int t = pRow->aParent[0];
+        pRow->aParent[0] = pRow->aParent[i];
+        pRow->aParent[i] = t;
+        break;
+      }
+    }
+  }
 
-  /* Find the pChild pointer for each node. 
+
+  /* Find the pChild pointer for each node.
   **
   ** The pChild points to the node directly above on the same rail.
   ** The pChild must be in the same branch.  Leaf nodes have a NULL
@@ -535,7 +556,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   }
 
   /*
-  ** Insert merge rails from primaries to duplicates. 
+  ** Insert merge rails from primaries to duplicates.
   */
   if( hasDup ){
     int dupRail;
@@ -565,7 +586,10 @@ void graph_finish(GraphContext *p, int omitDescenders){
   ** Find the maximum rail number.
   */
   find_max_rail(p);
-  p->iRailPitch = 18 - (p->mxRail/3);
-  if( p->iRailPitch<12 ) p->iRailPitch = 12;
+  p->iRailPitch = atoi(PD("railpitch","0"));
+  if( p->iRailPitch<=0 ){
+    p->iRailPitch = 18 - (p->mxRail/3);
+    if( p->iRailPitch<11 ) p->iRailPitch = 11;
+  }
   p->nErr = 0;
 }

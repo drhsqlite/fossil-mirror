@@ -21,6 +21,22 @@
 #include "http.h"
 #include <assert.h>
 
+#ifdef _WIN32
+#include <io.h>
+#ifndef isatty
+#define isatty(d) _isatty(d)
+#endif
+#ifndef fileno
+#define fileno(s) _fileno(s)
+#endif
+#endif
+
+/* Maximum number of HTTP Authorization attempts */
+#define MAX_HTTP_AUTH 2
+
+/* Keep track of HTTP Basic Authorization failures */
+static int fSeenHttpAuth = 0;
+
 /*
 ** Construct the "login" card with the client credentials.
 **
@@ -41,19 +57,19 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   Blob sig;            /* The signature field */
 
   blob_zero(pLogin);
-  if( g.urlUser==0 || fossil_strcmp(g.urlUser, "anonymous")==0 ){
+  if( g.url.user==0 || fossil_strcmp(g.url.user, "anonymous")==0 ){
      return;  /* If no login card for users "nobody" and "anonymous" */
   }
-  if( g.urlIsSsh ){
+  if( g.url.isSsh ){
      return;  /* If no login card for SSH: */
   }
   blob_zero(&nonce);
   blob_zero(&pw);
   sha1sum_blob(pPayload, &nonce);
   blob_copy(&pw, &nonce);
-  zLogin = g.urlUser;
-  if( g.urlPasswd ){
-    zPw = g.urlPasswd;
+  zLogin = g.url.user;
+  if( g.url.passwd ){
+    zPw = g.url.passwd;
   }else if( g.cgiOutput ){
     /* Password failure while doing a sync from the web interface */
     cgi_printf("*** incorrect or missing password for user %h\n", zLogin);
@@ -61,17 +77,11 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   }else{
     /* Password failure while doing a sync from the command-line interface */
     url_prompt_for_password();
-    zPw = g.urlPasswd;
+    zPw = g.url.passwd;
   }
 
-  /* If the first character of the password is "#", then that character is
-  ** not really part of the password - it is an indicator that we should
-  ** use Basic Authentication.  So skip that character.
-  */
-  if( zPw && zPw[0]=='#' ) zPw++;
-
   /* The login card wants the SHA1 hash of the password, so convert the
-  ** password to its SHA1 hash it it isn't already a SHA1 hash.
+  ** password to its SHA1 hash if it isn't already a SHA1 hash.
   */
   /* fossil_print("\nzPw=[%s]\n", zPw); // TESTING ONLY */
   if( zPw && zPw[0] ) zPw = sha1_shared_secret(zPw, zLogin, 0);
@@ -94,32 +104,92 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   const char *zSep;
 
   blob_zero(pHdr);
-  i = strlen(g.urlPath);
-  if( i>0 && g.urlPath[i-1]=='/' ){
+  i = strlen(g.url.path);
+  if( i>0 && g.url.path[i-1]=='/' ){
     zSep = "";
   }else{
     zSep = "/";
   }
-  blob_appendf(pHdr, "POST %s%sxfer/xfer HTTP/1.0\r\n", g.urlPath, zSep);
-  if( g.urlProxyAuth ){
-    blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
+  blob_appendf(pHdr, "POST %s%sxfer/xfer HTTP/1.0\r\n", g.url.path, zSep);
+  if( g.url.proxyAuth ){
+    blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
   }
-  if( g.urlPasswd && g.urlUser && g.urlPasswd[0]=='#' ){
-    char *zCredentials = mprintf("%s:%s", g.urlUser, &g.urlPasswd[1]);
+  if( g.zHttpAuth && g.zHttpAuth[0] ){
+    const char *zCredentials = g.zHttpAuth;
     char *zEncoded = encode64(zCredentials, -1);
     blob_appendf(pHdr, "Authorization: Basic %s\r\n", zEncoded);
     fossil_free(zEncoded);
-    fossil_free(zCredentials);
   }
-  blob_appendf(pHdr, "Host: %s\r\n", g.urlHostname);
-  blob_appendf(pHdr, "User-Agent: Fossil/" RELEASE_VERSION 
-                     " (" MANIFEST_DATE " " MANIFEST_VERSION ")\r\n");
+  blob_appendf(pHdr, "Host: %s\r\n", g.url.hostname);
+  blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
+  if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
   if( g.fHttpTrace ){
     blob_appendf(pHdr, "Content-Type: application/x-fossil-debug\r\n");
   }else{
     blob_appendf(pHdr, "Content-Type: application/x-fossil\r\n");
   }
   blob_appendf(pHdr, "Content-Length: %d\r\n\r\n", blob_size(pPayload));
+}
+
+/*
+** Use Fossil credentials for HTTP Basic Authorization prompt
+*/
+static int use_fossil_creds_for_httpauth_prompt(void){
+  Blob x;
+  char c;
+  prompt_user("Use Fossil username and password (y/N)? ", &x);
+  c = blob_str(&x)[0];
+  blob_reset(&x);
+  return ( c=='y' || c=='Y' );
+}
+
+/*
+** Prompt to save HTTP Basic Authorization information
+*/
+static int save_httpauth_prompt(void){
+  Blob x;
+  char c;
+  if( (g.url.flags & URL_REMEMBER)==0 ) return 0;
+  prompt_user("Remember Basic Authorization credentials (Y/n)? ", &x);
+  c = blob_str(&x)[0];
+  blob_reset(&x);
+  return ( c!='n' && c!='N' );
+}
+
+/*
+** Get the HTTP Basic Authorization credentials from the user
+** when 401 is received.
+*/
+char *prompt_for_httpauth_creds(void){
+  Blob x;
+  char *zUser;
+  char *zPw;
+  char *zPrompt;
+  char *zHttpAuth = 0;
+  if( !isatty(fileno(stdin)) ) return 0;
+  zPrompt = mprintf("\n%s authorization required by\n%s\n",
+    g.url.isHttps==1 ? "Encrypted HTTPS" : "Unencrypted HTTP", g.url.canonical);
+  fossil_print("%s", zPrompt);
+  free(zPrompt);
+  if ( g.url.user && g.url.passwd && use_fossil_creds_for_httpauth_prompt() ){
+    zHttpAuth = mprintf("%s:%s", g.url.user, g.url.passwd);
+  }else{
+    prompt_user("Basic Authorization user: ", &x);
+    zUser = mprintf("%b", &x);
+    zPrompt = mprintf("HTTP password for %b: ", &x);
+    blob_reset(&x);
+    prompt_for_password(zPrompt, &x, 1);
+    zPw = mprintf("%b", &x);
+    zHttpAuth = mprintf("%s:%s", zUser, zPw);
+    free(zUser);
+    free(zPw);
+    free(zPrompt);
+    blob_reset(&x);
+  }
+  if( save_httpauth_prompt() ){
+    set_httpauth(zHttpAuth);
+  }
+  return zHttpAuth;
 }
 
 /*
@@ -137,7 +207,8 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   Blob payload;         /* The complete payload including login card */
   Blob hdr;             /* The HTTP request header */
   int closeConnection;  /* True to close the connection when done */
-  int iLength;          /* Length of the reply payload */
+  int iLength;          /* Expected length of the reply payload */
+  int iRecvLen;         /* Received length of the reply payload */
   int rc = 0;           /* Result code */
   int iHttpVersion;     /* Which version of HTTP protocol server uses */
   char *zLine;          /* A single line of the reply header */
@@ -145,8 +216,8 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   int isError = 0;      /* True if the reply is an error message */
   int isCompressed = 1; /* True if the reply is compressed */
 
-  if( transport_open() ){
-    fossil_warning(transport_errmsg());
+  if( transport_open(&g.url) ){
+    fossil_warning("%s", transport_errmsg(&g.url));
     return 1;
   }
 
@@ -192,22 +263,32 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   /*
   ** Send the request to the server.
   */
-  transport_send(&hdr);
-  transport_send(&payload);
+  transport_send(&g.url, &hdr);
+  transport_send(&g.url, &payload);
   blob_reset(&hdr);
   blob_reset(&payload);
-  transport_flip();
-  
+  transport_flip(&g.url);
+
   /*
   ** Read and interpret the server reply
   */
   closeConnection = 1;
   iLength = -1;
-  while( (zLine = transport_receive_line())!=0 && zLine[0]!=0 ){
+  while( (zLine = transport_receive_line(&g.url))!=0 && zLine[0]!=0 ){
     /* printf("[%s]\n", zLine); fflush(stdout); */
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
-      if( rc!=200 && rc!=302 ){
+      if( rc==401 ){
+        if( fSeenHttpAuth++ < MAX_HTTP_AUTH ){
+          if( g.zHttpAuth ){
+            if( g.zHttpAuth ) free(g.zHttpAuth);
+          }
+          g.zHttpAuth = prompt_for_httpauth_creds();
+          transport_close(&g.url);
+          return http_exchange(pSend, pReply, useLogin, maxRedirect);
+        }
+      }
+      if( rc!=200 && rc!=301 && rc!=302 ){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
@@ -219,6 +300,16 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }else{
         closeConnection = 0;
       }
+    }else if( g.url.isSsh && fossil_strnicmp(zLine, "status:", 7)==0 ){
+      if( sscanf(zLine, "Status: %d", &rc)!=1 ) goto write_err;
+      if( rc!=200 && rc!=301 && rc!=302 ){
+        int ii;
+        for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
+        while( zLine[ii]==' ' ) ii++;
+        fossil_warning("server says: %s", &zLine[ii]);
+        goto write_err;
+      }
+      closeConnection = 0;
     }else if( fossil_strnicmp(zLine, "content-length:", 15)==0 ){
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
@@ -231,27 +322,36 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }else if( c=='k' || c=='K' ){
         closeConnection = 0;
       }
-    }else if( rc==302 && fossil_strnicmp(zLine, "location:", 9)==0 ){
+    }else if( ( rc==301 || rc==302 ) &&
+                fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
 
       if ( --maxRedirect == 0){
-        fossil_fatal("redirect limit exceeded");
+        fossil_warning("redirect limit exceeded");
+        goto write_err;
       }
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
-      if( zLine[i]==0 ) fossil_fatal("malformed redirect: %s", zLine);
-      j = strlen(zLine) - 1; 
+      if( zLine[i]==0 ){
+        fossil_warning("malformed redirect: %s", zLine);
+        goto write_err;
+      }
+      j = strlen(zLine) - 1;
       while( j>4 && fossil_strcmp(&zLine[j-4],"/xfer")==0 ){
          j -= 4;
          zLine[j] = 0;
       }
-      fossil_print("redirect to %s\n", &zLine[i]);
+      transport_close(&g.url);
+      transport_global_shutdown(&g.url);
+      fossil_print("redirect with status %d to %s\n", rc, &zLine[i]);
       url_parse(&zLine[i], 0);
-      transport_close();
+      fSeenHttpAuth = 0;
+      if( g.zHttpAuth ) free(g.zHttpAuth);
+      g.zHttpAuth = get_httpauth();
       return http_exchange(pSend, pReply, useLogin, maxRedirect);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
       if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){
         isCompressed = 0;
-      }else if( fossil_strnicmp(&zLine[14], 
+      }else if( fossil_strnicmp(&zLine[14],
                           "application/x-fossil-uncompressed", -1)==0 ){
         isCompressed = 0;
       }else if( fossil_strnicmp(&zLine[14], "application/x-fossil", -1)!=0 ){
@@ -260,11 +360,11 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
     }
   }
   if( iLength<0 ){
-    fossil_fatal("server did not reply");
+    fossil_warning("server did not reply");
     goto write_err;
   }
   if( rc!=200 ){
-    fossil_warning("\"location:\" missing from 302 redirect reply");
+    fossil_warning("\"location:\" missing from %d redirect reply", rc);
     goto write_err;
   }
 
@@ -273,7 +373,11 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   */
   blob_zero(pReply);
   blob_resize(pReply, iLength);
-  iLength = transport_receive(blob_buffer(pReply), iLength);
+  iRecvLen = transport_receive(&g.url, blob_buffer(pReply), iLength);
+  if( iRecvLen != iLength ){
+    fossil_warning("response truncated: got %d bytes of %d", iRecvLen, iLength);
+    goto write_err;
+  }
   blob_resize(pReply, iLength);
   if( isError ){
     char *z;
@@ -287,7 +391,8 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       z[j] = z[i];
     }
     z[j] = 0;
-    fossil_fatal("server sends error: %s", z);
+    fossil_warning("server sends error: %s", z);
+    goto write_err;
   }
   if( isCompressed ) blob_uncompress(pReply, pReply);
 
@@ -297,19 +402,21 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   ** FIXME:  There is some bug in the lower layers that prevents the
   ** connection from remaining open.  The easiest fix for now is to
   ** simply close and restart the connection for each round-trip.
+  **
+  ** For SSH we will leave the connection open.
   */
-  closeConnection = 1; /* FIX ME */
+  if( ! g.url.isSsh ) closeConnection = 1; /* FIX ME */
   if( closeConnection ){
-    transport_close();
+    transport_close(&g.url);
   }else{
-    transport_rewind();
+    transport_rewind(&g.url);
   }
   return 0;
 
-  /* 
+  /*
   ** Jump to here if an error is seen.
   */
 write_err:
-  transport_close();
-  return 1;  
+  transport_close(&g.url);
+  return 1;
 }

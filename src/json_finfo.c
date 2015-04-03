@@ -64,7 +64,7 @@ cson_value * json_page_finfo(){
   limit = json_find_option_int("limit",NULL,"n", -1);
   zCheckin = json_find_option_cstr("checkin",NULL,"ci");
 
-  blob_appendf(&sql, 
+  blob_append_sql(&sql, 
 /*0*/   "SELECT b.uuid,"
 /*1*/   "   ci.uuid,"
 /*2*/   "   (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* Current file uuid */
@@ -76,7 +76,7 @@ cson_value * json_page_finfo(){
 /*8*/   " b.size,"
 /*9*/   " (mlink.pid==0) AS isNew,"
 /*10*/  " (mlink.fid==0) AS isDel"
-	"  FROM mlink, blob b, event, blob ci, filename"
+        "  FROM mlink, blob b, event, blob ci, filename"
         " WHERE filename.name=%Q"
         "   AND mlink.fnid=filename.fnid"
         "   AND b.rid=mlink.fid"
@@ -91,25 +91,24 @@ cson_value * json_page_finfo(){
     /*printf("zCheckin=[%s], zU=[%s]", zCheckin, zU);*/
     if(rc<=0){
       json_set_err((rc<0) ? FSL_JSON_E_AMBIGUOUS_UUID : FSL_JSON_E_RESOURCE_NOT_FOUND,
-                   "Checkin UUID %s.", (rc<0) ? "is ambiguous" : "not found");
+                   "Check-in UUID %s.", (rc<0) ? "is ambiguous" : "not found");
       blob_reset(&sql);
       return NULL;
     }
-    blob_appendf(&sql, " AND ci.uuid='%q'", zU);
+    blob_append_sql(&sql, " AND ci.uuid='%q'", zU);
     free(zU);
   }else{
     if( zAfter && *zAfter ){
-      blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zAfter);
+      blob_append_sql(&sql, " AND event.mtime>=julianday('%q')", zAfter);
       sort = 1;
     }else if( zBefore && *zBefore ){
-      blob_appendf(&sql, " AND event.mtime<=julianday('%q')", zBefore);
+      blob_append_sql(&sql, " AND event.mtime<=julianday('%q')", zBefore);
     }
   }
 
-  blob_appendf(&sql," ORDER BY event.mtime %s /*sort*/", (sort>0?"ASC":"DESC"));
+  blob_append_sql(&sql," ORDER BY event.mtime %s /*sort*/", (sort>0?"ASC":"DESC"));
   /*printf("SQL=\n%s\n",blob_str(&sql));*/
-  db_prepare(&q, "%s", blob_str(&sql)/*extra %s to avoid double-expanding
-                                       SQL escapes*/);
+  db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
 
   pay = cson_new_object();

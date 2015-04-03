@@ -55,24 +55,35 @@ static const struct JsonConfigProperty {
   char const * name;
   int groupMask;
 } JsonConfigProperties[] = {
-{ "css",                    CONFIGSET_SKIN },
+{ "css",                    CONFIGSET_CSS },
 { "header",                 CONFIGSET_SKIN },
 { "footer",                 CONFIGSET_SKIN },
-{ "index-page",             CONFIGSET_SKIN },
+{ "details",                CONFIGSET_SKIN },
+{ "logo-mimetype",          CONFIGSET_SKIN },
+{ "logo-image",             CONFIGSET_SKIN },
+{ "background-mimetype",    CONFIGSET_SKIN },
+{ "background-image",       CONFIGSET_SKIN },
 { "timeline-block-markup",  CONFIGSET_SKIN },
 { "timeline-max-comment",   CONFIGSET_SKIN },
+{ "timeline-plaintext",     CONFIGSET_SKIN },
+{ "adunit",                 CONFIGSET_SKIN },
+{ "adunit-omit-if-admin",   CONFIGSET_SKIN },
+{ "adunit-omit-if-user",    CONFIGSET_SKIN },
 
 { "project-name",           CONFIGSET_PROJ },
+{ "short-project-name",     CONFIGSET_PROJ },
 { "project-description",    CONFIGSET_PROJ },
+{ "index-page",             CONFIGSET_PROJ },
 { "manifest",               CONFIGSET_PROJ },
 { "binary-glob",            CONFIGSET_PROJ },
 { "clean-glob",             CONFIGSET_PROJ },
-{ "encoding-glob",          CONFIGSET_PROJ },
 { "ignore-glob",            CONFIGSET_PROJ },
 { "keep-glob",              CONFIGSET_PROJ },
 { "crnl-glob",              CONFIGSET_PROJ },
+{ "encoding-glob",          CONFIGSET_PROJ },
 { "empty-dirs",             CONFIGSET_PROJ },
 { "allow-symlinks",         CONFIGSET_PROJ },
+{ "dotfiles",               CONFIGSET_PROJ },
 
 { "ticket-table",           CONFIGSET_TKT  },
 { "ticket-common",          CONFIGSET_TKT  },
@@ -115,7 +126,7 @@ static cson_value * json_config_get(){
     }else if(0==(strcmp("project", zName))){
       confMask |= CONFIGSET_PROJ;
     }else if(0==(strcmp("skin", zName))){
-      confMask |= CONFIGSET_SKIN;
+      confMask |= (CONFIGSET_CSS|CONFIGSET_SKIN);
     }else if(0==(strcmp("ticket", zName))){
       confMask |= CONFIGSET_TKT;
     }else if(0==(strcmp("skin-backup", zName))){
@@ -142,7 +153,7 @@ static cson_value * json_config_get(){
         if( i++ ){
           blob_append(&sql,",",1);
         }
-        blob_appendf(&sql, "%Q", prop->name);
+        blob_append_sql(&sql, "%Q", prop->name);
       }
     }
     blob_append(&sql,") ", -1);
@@ -153,7 +164,7 @@ static cson_value * json_config_get(){
     blob_append(&sql, " OR name GLOB 'skin:*'", -1);
   }
   blob_append(&sql," ORDER BY name", -1);
-  db_prepare(&q, blob_str(&sql));
+  db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   pay = cson_new_object();
   while( (SQLITE_ROW==db_step(&q)) ){

@@ -55,16 +55,16 @@ their behavior.  See the [/help/server|online documentation] for an overview.
 <h2>Fossil as an inetd/xinetd or stunnel service</h2><blockquote>
 <p>
 A Fossil server can be launched on-demand by inetd or xinetd using
-the [/help/http|fossil http] command.  To launch Fossil from inetd, modify
+the [/help/http|fossil http] command. To launch Fossil from inetd, modify
 your inetd configuration file (typically "/etc/inetd.conf") to contain a
 line something like this:
 <blockquote>
 <pre>
-12345 stream tcp nowait.1000 root /usr/bin/fossil /usr/bin/fossil http /home/fossil/repo.fossil
+80 stream tcp nowait.1000 root /usr/bin/fossil /usr/bin/fossil http /home/fossil/repo.fossil
 </pre>
 </blockquote>
 In this example, you are telling "inetd" that when an incoming connection
-appears on port "12345", that it should launch the binary "/usr/bin/fossil"
+appears on TCP port "80", that it should launch the binary "/usr/bin/fossil"
 program with the arguments shown.
 Obviously you will
 need to modify the pathnames for your particular setup.
@@ -72,14 +72,30 @@ The final argument is either the name of the fossil repository to be served,
 or a directory containing multiple repositories.
 </p>
 <p>
-If you system is running xinetd, then the configuration is likely to be
+If you use a non-standard TCP port on 
+systems where the port-specification must be a symbolic name and cannot be 
+numeric, add the desired name and port to /etc/services.  For example, if
+you want your Fossil server running on TCP port 12345 instead of 80, you
+will need to add:
+<blockquote>
+<pre>
+fossil          12345/tcp  #fossil server
+</pre>
+</blockquote>
+and use the symbolic name ('fossil' in this example) instead of the numeral ('12345') 
+in inetd.conf. For details, see the relevant section in your system's documentation, e.g. 
+the [https://www.freebsd.org/doc/en/books/handbook/network-inetd.html|FreeBSD Handbook] in 
+case you use FreeBSD.
+</p>
+<p>
+If your system is running xinetd, then the configuration is likely to be
 in the file "/etc/xinetd.conf" or in a subfile of "/etc/xinetd.d".
 An xinetd configuration file will appear like this:</p>
 <blockquote>
 <pre>
-service http-alt
+service http
 {
-  port = 591
+  port = 80
   socket_type = stream
   wait = no
   user = root
@@ -99,10 +115,14 @@ jail for the user who owns the fossil repository before reading any information
 off of the wire.
 </p>
 <p>
-[http://www.stunnel.org/ | Stunnel version 4] is an inetd-like process that
+Inetd or xinetd must be enabled, and must be (re)started whenever their configuration
+changes - consult your system's documentation for details. 
+</p>
+<p>
+[https://www.stunnel.org/ | Stunnel version 5] is an inetd-like process that
 accepts and decodes SSL-encrypted connections.  Fossil can be run directly from
-stunnel in a mannar similar to inetd and xinetd.  This can be used to provide
-a secure link to a Fossil project.  The configuration needed to get stunnel4
+stunnel in a manner similar to inetd and xinetd.  This can be used to provide
+a secure link to a Fossil project.  The configuration needed to get stunnel5
 to invoke Fossil is very similar to the inetd and xinetd examples shown above.
 The relevant parts of an stunnel configuration might look something
 like the following:
@@ -113,7 +133,7 @@ TIMEOUTclose = 0
 exec         = /usr/bin/fossil
 execargs     = /usr/bin/fossil http /home/fossil/ubercool.fossil --https
 </nowiki></pre></blockquote>
-See the stunnel4 documentation for further details bout the /etc/stunnel/stunnel.conf
+See the stunnel5 documentation for further details about the /etc/stunnel/stunnel.conf
 configuration file.  Note that the [/help/http|fossil http] command should include 
 the --https option to let Fossil know to use "https" instead of "http" as the scheme
 on generated hyperlinks.
@@ -200,7 +220,7 @@ be used in combination with a webserver (such as [http://nginx.org|Nginx])
 that does not support CGI.  A typical Nginx configuration to support SCGI
 with Fossil would look something like this:
 <blockquote><pre>
-location ~ ^/demo_project/ {
+location /demo_project/ {
     include scgi_params;
     scgi_pass localhost:9000;
     scgi_param SCRIPT_NAME "/demo_project";
@@ -218,6 +238,16 @@ All of the features of the stand-alone server mode described above,
 such as the ability to serve a directory full of Fossil repositories
 rather than just a single repository, work the same way in SCGI mode.
 </p>
+<p>
+For security, it is probably a good idea to add the --localhost option
+to the [/help/server|fossil server] command to prevent Fossil from accepting
+off-site connections.  And one might want to specify the listening TCP port
+number, rather than letting Fossil choose one for itself, just to avoid
+ambiguity.  A typical command to start a Fossil SCGI server
+would be something like this:
+<blockquote><pre>
+fossil server $REPOSITORY --scgi --localhost --port 9000
+</pre></blockquote>
 </blockquote>
 
 <h2>Securing a repository with SSL</h2><blockquote>
@@ -242,5 +272,89 @@ support SSL.
 For more information, see <a href="./ssl.wiki">Using SSL with Fossil</a>.
 </p>
 </blockquote>
+
+<a name="loadmgmt"></a>
+<h2>Managing Server Load</h2><blockquote>
+<p>
+A Fossil server is very efficient and normally presents a very light 
+load on the server.
+The Fossil [./selfhost.wiki | self-hosting server] is a 1/24th slice VM at
+[http://www.linode.com | Linode.com] hosting 65 other repositories in
+addition to Fossil (and including some very high-traffic sites such
+as [http://www.sqlite.org] and [http://system.data.sqlite.org]) and
+it has a typical load of 0.05 to 0.1.  A single HTTP request to Fossil
+normally takes less than 10 milliseconds of CPU time to complete.  So
+requests can be arriving at a continuous rate of 20 or more per second 
+and the CPU can still be mostly idle.
+<p>
+However, there are some Fossil web pages that can consume large 
+amounts of CPU time, especially on repositories with a large number
+of files or with long revision histories.  High CPU usage pages include
+[/help?cmd=/zip | /zip], [/help?cmd=/tarball | /tarball],
+[/help?cmd=/annotate | /annotate] and others.  On very large repositories,
+these commands can take 15 seconds or more of CPU time.  
+If these kinds of requests arrive too quickly, the load average on the
+server can grow dramatically, making the server unresponsive.
+<p>
+Fossil provides two capabilities to help avoid server overload problems
+due to excessive requests to expensive pages:
+<ol>
+<li><p>An optional cache is available that remembers the 10 most recently
+    requested /zip or /tarball pages and returns the precomputed answer
+    if the same page is requested again.
+<li><p>Page requests can be configured to fail with a
+    [http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.3 | "503 Server Overload"]
+    HTTP error if an expensive request is received while the host load 
+    average is too high.
+</ol>
+Both of these load-control mechanisms are turned off by default, but they
+are recommended for high-traffic sites.
+<p>
+The webpage cache is activated using the [/help?cmd=cache|fossil cache init]
+command-line on the server.  Add a -R option to specify the specific repository
+for which to enable caching.  If running this command as root, be sure to
+"chown" the cache database (which is a separate file in the same directory
+and with the same name as the repository but with the suffix changed to ".cache")
+to give it write permission for the userid of the webserver.
+<p>
+To activate the server load control feature
+visit the /Admin/Access setup page in the administrative web
+interface and in the "<b>Server Load Average Limit</b>" box
+enter the load average threshold above which "503 Server
+Overload" replies will be issued for expensive requests.  On the
+self-host Fossil server, that value is set to 1.5.  But you could easily
+set it higher on a multi-core server.
+<p>
+The maximum load average can also be set on the command line using
+commands like this:
+<blockquote><pre>
+fossil set max-loadavg 1.5
+fossil all set max-loadavg 1.5
+</pre></blockquote>
+The second form is especially useful for changing the maximum load average
+simultaneously on a large number of repositories.
+<p>
+Note that this load-average limiting feature is only available on operating
+systems that support the "getloadavg()" API.  Most modern Unix systems have
+this interface, but Windows does not, so the feature will not work on Windows.
+Note also that Linux implements "getloadavg()" by accessing the "/proc/loadavg"
+file in the "proc" virtual filesystem.  If you are running a Fossil instance
+inside a chroot() jail on Linux, you will need to make the "/proc" file
+system available inside that jail in order for this feature to work.  On
+the self-hosting Fossil repository, this was accomplished by adding a line
+to the "/etc/mtab" file that looks like:
+<blockquote><pre>
+chroot_jail_proc /home/www/proc proc r 0 0
+</pre></blockquote>
+Pathnames should be adjusted for individual systems, of course.
+<p>
+To see if the load-average limiter is functional, visit the [/test_env] page
+of the server to view the current load average.  If the value for the load
+average is greater than zero, that means that it is possible to activate
+the load-average limiter on that repository.  If the load average shows
+exactly "0.0", then that means that Fossil is unable to find the load average
+(either because it is in a chroot() jail without /proc access, or because
+it is running on a system that does not support "getloadavg()") and so the
+load-average limiter will not function.
 
 </blockquote>

@@ -29,7 +29,8 @@
 void tktsetup_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Ticket Setup");
@@ -117,12 +118,13 @@ static void tktsetup_generic(
 ){
   const char *z;
   int isSubmit;
-  
+
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
-  if( P("setup") ){
+  if( PB("setup") ){
     cgi_redirect("tktsetup");
   }
   isSubmit = P("submit")!=0;
@@ -316,13 +318,13 @@ static const char zDefaultNew[] =
 @ <input type="text" name="title" size="60" value="$<title>" />
 @ </td>
 @ </tr>
-@ 
+@
 @ <tr>
 @ <td align="right">Type:</td>
 @ <td align="left"><th1>combobox type $type_choices 1</th1></td>
 @ <td align="left">What type of ticket is this?</td>
 @ </tr>
-@ 
+@
 @ <tr>
 @ <td align="right">Version:</td>
 @ <td align="left">
@@ -331,14 +333,14 @@ static const char zDefaultNew[] =
 @ <td align="left">In what version or build number do you observe
 @ the problem?</td>
 @ </tr>
-@ 
+@
 @ <tr>
 @ <td align="right">Severity:</td>
 @ <td align="left"><th1>combobox severity $severity_choices 1</th1></td>
 @ <td align="left">How debilitating is the problem?  How badly does the problem
 @ affect the operation of the product?</td>
 @ </tr>
-@ 
+@
 @ <tr>
 @ <td align="right">EMail:</td>
 @ <td align="left">
@@ -348,7 +350,7 @@ static const char zDefaultNew[] =
 @ <td align="left"><u>Not publicly visible</u>
 @ Used by developers to contact you with questions.</td>
 @ </tr>
-@ 
+@
 @ <tr>
 @ <td colspan="3">
 @ Enter a detailed description of the problem.
@@ -361,7 +363,7 @@ static const char zDefaultNew[] =
 @ <textarea name="icomment" cols="80" rows="$nline"
 @  wrap="virtual" class="wikiedit">$<icomment></textarea><br />
 @ </tr>
-@ 
+@
 @ <th1>enable_output [info exists preview]</th1>
 @ <tr><td colspan="3">
 @ Description Preview:<br /><hr />
@@ -380,24 +382,24 @@ static const char zDefaultNew[] =
 @ </th1>
 @ <hr /></td></tr>
 @ <th1>enable_output 1</th1>
-@ 
+@
 @ <tr>
 @ <td><td align="left">
 @ <input type="submit" name="preview" value="Preview" />
 @ </td>
 @ <td align="left">See how the description will appear after formatting.</td>
 @ </tr>
-@ 
+@
 @ <th1>enable_output [info exists preview]</th1>
 @ <tr>
 @ <td><td align="left">
 @ <input type="submit" name="submit" value="Submit" />
 @ </td>
-@ <td align="left">After filling in the information above, press this 
+@ <td align="left">After filling in the information above, press this
 @ button to create the new ticket</td>
 @ </tr>
 @ <th1>enable_output 1</th1>
-@ 
+@
 @ <tr>
 @ <td><td align="left">
 @ <input type="submit" name="cancel" value="Cancel" />
@@ -437,11 +439,20 @@ static const char zDefaultView[] =
 @ <table cellpadding="5">
 @ <tr><td class="tktDspLabel">Ticket&nbsp;UUID:</td>
 @ <th1>
-@ if {[hascap s]} {
-@   html "<td class='tktDspValue' colspan='3'>$tkt_uuid "
-@   html "($tkt_id)</td></tr>\n"
+@ if {[info exists tkt_uuid]} {
+@   if {[hascap s]} {
+@     html "<td class='tktDspValue' colspan='3'>$tkt_uuid "
+@     html "($tkt_id)</td></tr>\n"
+@   } else {
+@     html "<td class='tktDspValue' colspan='3'>$tkt_uuid</td></tr>\n"
+@   }
 @ } else {
-@   html "<td class='tktDspValue' colspan='3'>$tkt_uuid</td></tr>\n"
+@   if {[hascap s]} {
+@     html "<td class='tktDspValue' colspan='3'>Deleted "
+@     html "(0)</td></tr>\n"
+@   } else {
+@     html "<td class='tktDspValue' colspan='3'>Deleted</td></tr>\n"
+@   }
 @ }
 @ </th1>
 @ <tr><td class="tktDspLabel">Title:</td>
@@ -467,7 +478,11 @@ static const char zDefaultView[] =
 @ $<resolution>
 @ </td></tr>
 @ <tr><td class="tktDspLabel">Last&nbsp;Modified:</td><td class="tktDspValue">
-@ $<tkt_datetime>
+@ <th1>
+@ if {[info exists tkt_datetime]} {
+@   html $tkt_datetime
+@ }
+@ </th1>
 @ </td>
 @ <th1>enable_output [hascap e]</th1>
 @   <td class="tktDspLabel">Contact:</td><td class="tktDspValue">
@@ -479,18 +494,20 @@ static const char zDefaultView[] =
 @ <td colspan="3" valign="top" class="tktDspValue">
 @ $<foundin>
 @ </td></tr>
-@ 
+@
 @ <th1>
-@ if {[info exists comment] && [string length $comment]>10} {
-@   html {
-@     <tr><td class="tktDspLabel">Description:</td></tr>
-@     <tr><td colspan="5" class="tktDspValue">
-@   }
-@   if {[info exists plaintext]} {
-@     set r [randhex]
-@     wiki "<verbatim-$r links>\n$comment\n</verbatim-$r>"
-@   } else {
-@     wiki $comment
+@ if {[info exists comment]} {
+@   if {[string length $comment]>10} {
+@     html {
+@       <tr><td class="tktDspLabel">Description:</td></tr>
+@       <tr><td colspan="5" class="tktDspValue">
+@     }
+@     if {[info exists plaintext]} {
+@       set r [randhex]
+@       wiki "<verbatim-$r links>\n$comment\n</verbatim-$r>"
+@     } else {
+@       wiki $comment
+@     }
 @   }
 @ }
 @ set seenRow 0
@@ -579,42 +596,42 @@ static const char zDefaultEdit[] =
 @ <tr><td class="tktDspLabel">Title:</td><td>
 @ <input type="text" name="title" value="$<title>" size="60" />
 @ </td></tr>
-@ 
+@
 @ <tr><td class="tktDspLabel">Status:</td><td>
 @ <th1>combobox status $status_choices 1</th1>
 @ </td></tr>
-@ 
+@
 @ <tr><td class="tktDspLabel">Type:</td><td>
 @ <th1>combobox type $type_choices 1</th1>
 @ </td></tr>
-@ 
+@
 @ <tr><td class="tktDspLabel">Severity:</td><td>
 @ <th1>combobox severity $severity_choices 1</th1>
 @ </td></tr>
-@ 
+@
 @ <tr><td class="tktDspLabel">Priority:</td><td>
 @ <th1>combobox priority $priority_choices 1</th1>
 @ </td></tr>
-@ 
+@
 @ <tr><td class="tktDspLabel">Resolution:</td><td>
 @ <th1>combobox resolution $resolution_choices 1</th1>
 @ </td></tr>
-@ 
+@
 @ <tr><td class="tktDspLabel">Subsystem:</td><td>
 @ <th1>combobox subsystem $subsystem_choices 1</th1>
 @ </td></tr>
-@ 
+@
 @ <th1>enable_output [hascap e]</th1>
 @   <tr><td class="tktDspLabel">Contact:</td><td>
 @   <input type="text" name="private_contact" size="40"
 @    value="$<private_contact>" />
 @   </td></tr>
 @ <th1>enable_output 1</th1>
-@ 
+@
 @ <tr><td class="tktDspLabel">Version&nbsp;Found&nbsp;In:</td><td>
 @ <input type="text" name="foundin" size="50" value="$<foundin>" />
 @ </td></tr>
-@ 
+@
 @ <tr><td colspan="2">
 @   Append Remark with format
 @   <th1>combobox mutype {Wiki HTML {Plain Text} {[links only]}} 1</th1>
@@ -623,7 +640,7 @@ static const char zDefaultEdit[] =
 @   <textarea name="icomment" cols="80" rows="15"
 @    wrap="virtual" class="wikiedit">$<icomment></textarea>
 @ </td></tr>
-@ 
+@
 @ <th1>enable_output [info exists preview]</th1>
 @ <tr><td colspan="2">
 @ Description Preview:<br><hr>
@@ -643,14 +660,14 @@ static const char zDefaultEdit[] =
 @ <hr>
 @ </td></tr>
 @ <th1>enable_output 1</th1>
-@ 
+@
 @ <tr>
 @ <td align="right">
 @ <input type="submit" name="preview" value="Preview" />
 @ </td>
 @ <td align="left">See how the description will appear after formatting.</td>
 @ </tr>
-@ 
+@
 @ <th1>enable_output [info exists preview]</th1>
 @ <tr>
 @ <td align="right">
@@ -659,14 +676,14 @@ static const char zDefaultEdit[] =
 @ <td align="left">Apply the changes shown above</td>
 @ </tr>
 @ <th1>enable_output 1</th1>
-@ 
+@
 @ <tr>
 @ <td align="right">
 @ <input type="submit" name="cancel" value="Cancel" />
 @ </td>
 @ <td>Abandon this edit</td>
 @ </tr>
-@ 
+@
 @ </table>
 ;
 
@@ -700,24 +717,24 @@ void tktsetup_editpage_page(void){
 */
 static const char zDefaultReportList[] =
 @ <th1>
-@ if {[hascap n]} {
+@ if {[anoncap n]} {
 @   html "<p>Enter a new ticket:</p>"
 @   html "<ul><li><a href='tktnew'>New ticket</a></li></ul>"
 @ }
 @ </th1>
-@ 
+@
 @ <p>Choose a report format from the following list:</p>
 @ <ol>
 @ <th1>html $report_items</th1>
 @ </ol>
-@ 
+@
 @ <th1>
-@ if {[hascap t q]} {
+@ if {[anoncap t q]} {
 @   html "<p>Other options:</p>\n<ul>\n"
-@   if {[hascap t]} {
+@   if {[anoncap t]} {
 @     html "<li><a href='rptnew'>New report format</a></li>\n"
 @   }
-@   if {[hascap q]} {
+@   if {[anoncap q]} {
 @     html "<li><a href='modreq'>Tend to pending moderation requests</a></li>\n"
 @   }
 @ }
@@ -752,7 +769,7 @@ void tktsetup_reportlist(void){
 /*
 ** The default template ticket report format:
 */
-static char zDefaultReport[] = 
+static char zDefaultReport[] =
 @ SELECT
 @   CASE WHEN status IN ('Open','Verified') THEN '#f2dcdc'
 @        WHEN status='Review' THEN '#e8e8e8'
@@ -801,7 +818,7 @@ void tktsetup_rpttplt_page(void){
 /*
 ** The default template ticket key:
 */
-static const char zDefaultKey[] = 
+static const char zDefaultKey[] =
 @ #ffffff Key:
 @ #f2dcdc Active
 @ #e8e8e8 Review
@@ -845,7 +862,8 @@ void tktsetup_keytplt_page(void){
 void tktsetup_timeline_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   if( P("setup") ){
@@ -882,5 +900,5 @@ void tktsetup_timeline_page(void){
   @ </div></form>
   db_end_transaction(0);
   style_footer();
-  
+
 }

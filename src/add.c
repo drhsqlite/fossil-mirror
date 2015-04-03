@@ -27,7 +27,7 @@
 /*
 ** This routine returns the names of files in a working checkout that
 ** are created by Fossil itself, and hence should not be added, deleted,
-** or merge, and should be omitted from "clean" and "extra" lists.
+** or merge, and should be omitted from "clean" and "extras" lists.
 **
 ** Return the N-th name.  The first name has N==0.  When all names have
 ** been used, return 0.
@@ -46,7 +46,7 @@ const char *fossil_reserved_name(int N, int omitRepo){
      ".fslckout-wal",
      ".fslckout-shm",
 
-     /* The use of ".fos" as the name of the checkout database is 
+     /* The use of ".fos" as the name of the checkout database is
      ** deprecated.  Use ".fslckout" instead.  At some point, the following
      ** entries should be removed.  2012-02-04 */
      ".fos",
@@ -125,6 +125,10 @@ void test_reserved_names(void){
   int i;
   const char *z;
   int omitRepo = find_option("omitrepo",0,0)!=0;
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   for(i=0; (z = fossil_reserved_name(i, omitRepo))!=0; i++){
     fossil_print("%3d: %s\n", i, z);
@@ -151,10 +155,11 @@ static int add_one_file(
                   " WHERE pathname=%Q %s", zPath, filename_collation());
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
+    int isExe = file_wd_isexe(zFullname);
     db_multi_exec(
       "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink)"
       "VALUES(%d,0,0,0,%Q,%d,%d)",
-      vid, zPath, file_wd_isexe(zFullname), file_wd_islink(zFullname));
+      vid, zPath, isExe, file_wd_islink(0));
     fossil_free(zFullname);
   }
   if( db_changes() ){
@@ -179,7 +184,7 @@ static int add_files_in_sfile(int vid){
   Blob repoName;            /* Treename of the repository */
   Stmt loop;                /* SQL to loop over all files to add */
   int (*xCmp)(const char*,const char*);
- 
+
   if( !file_tree_name(g.zRepositoryName, &repoName, 0) ){
     blob_zero(&repoName);
     zRepo = "";
@@ -224,19 +229,24 @@ static int add_files_in_sfile(int vid){
 ** is used.  If the --clean option does not appear on the command line then
 ** the "clean-glob" setting is used.
 **
+** If files are attempted to be added explicitly on the command line which
+** match "ignore-glob", a confirmation is asked first. This can be prevented
+** using the -f|--force option.
+**
 ** The --case-sensitive option determines whether or not filenames should
 ** be treated case sensitive or not. If the option is not given, the default
 ** depends on the global setting, or the operating system default, if not set.
 **
 ** Options:
 **
-**    --case-sensitive <BOOL> override case-sensitive setting
-**    --dotfiles              include files beginning with a dot (".")   
-**    --ignore <CSG>          ignore files matching patterns from the 
+**    --case-sensitive <BOOL> Override the case-sensitive setting.
+**    --dotfiles              include files beginning with a dot (".")
+**    -f|--force              Add files without prompting
+**    --ignore <CSG>          Ignore files matching patterns from the
 **                            comma separated list of glob patterns.
-**    --clean <CSG>           also ignore files matching patterns from
+**    --clean <CSG>           Also ignore files matching patterns from
 **                            the comma separated list of glob patterns.
-** 
+**
 ** See also: addremove, rm
 */
 void add_cmd(void){
@@ -247,11 +257,16 @@ void add_cmd(void){
   const char *zIgnoreFlag;   /* The --ignore option or ignore-glob setting */
   Glob *pIgnore, *pClean;    /* Ignore everything matching the glob patterns */
   unsigned scanFlags = 0;    /* Flags passed to vfile_scan() */
+  int forceFlag;
 
   zCleanFlag = find_option("clean",0,1);
   zIgnoreFlag = find_option("ignore",0,1);
+  forceFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
-  capture_case_sensitive_option();
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   if( zCleanFlag==0 ){
     zCleanFlag = db_get("clean-glob", 0);
@@ -259,22 +274,25 @@ void add_cmd(void){
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   vid = db_lget_int("checkout",0);
-  if( vid==0 ){
-    fossil_fatal("no checkout to add to");
-  }
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
   pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
   nRoot = strlen(g.zLocalRoot);
-  
+
   /* Load the names of all files that are to be added into sfile temp table */
   for(i=2; i<g.argc; i++){
     char *zName;
     int isDir;
     Blob fullName;
+
+    /* file_tree_name() throws a fatal error if g.argv[i] is outside of the
+    ** checkout. */
+    file_tree_name(g.argv[i], &fullName, 1);
+    blob_reset(&fullName);
 
     file_canonical_name(g.argv[i], &fullName, 0);
     zName = blob_str(&fullName);
@@ -287,6 +305,21 @@ void add_cmd(void){
       fossil_fatal("cannot open %s", zName);
     }else{
       char *zTreeName = &zName[nRoot];
+      if( !forceFlag && glob_match(pIgnore, zTreeName) ){
+        Blob ans;
+        char cReply;
+        char *prompt = mprintf("file \"%s\" matches \"ignore-glob\".  "
+                               "Add it (a=all/y/N)? ", zTreeName);
+        prompt_user(prompt, &ans);
+        cReply = blob_str(&ans)[0];
+        blob_reset(&ans);
+        if( cReply=='a' || cReply=='A' ){
+          forceFlag = 1;
+        }else if( cReply!='y' && cReply!='Y' ){
+          blob_reset(&fullName);
+          continue;
+        }
+      }
       db_multi_exec(
          "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
          zTreeName
@@ -303,10 +336,10 @@ void add_cmd(void){
 
 /*
 ** COMMAND: rm
-** COMMAND: delete*
+** COMMAND: delete
+** COMMAND: forget*
 **
-** Usage: %fossil rm FILE1 ?FILE2 ...?
-**    or: %fossil delete FILE1 ?FILE2 ...?
+** Usage: %fossil rm|delete|forget FILE1 ?FILE2 ...?
 **
 ** Remove one or more files or directories from the repository.
 **
@@ -315,21 +348,18 @@ void add_cmd(void){
 ** changes to the named files will not be versioned.
 **
 ** Options:
-**   --case-sensitive <BOOL> override case-sensitive setting
+**   --case-sensitive <BOOL> Override the case-sensitive setting.
 **
 ** See also: addremove, add
 */
 void delete_cmd(void){
   int i;
-  int vid;
   Stmt loop;
 
-  capture_case_sensitive_option();
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
-  vid = db_lget_int("checkout", 0);
-  if( vid==0 ){
-    fossil_fatal("no checkout to remove from");
-  }
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
@@ -350,7 +380,7 @@ void delete_cmd(void){
     );
     blob_reset(&treeName);
   }
-  
+
   db_prepare(&loop, "SELECT x FROM sfile");
   while( db_step(&loop)==SQLITE_ROW ){
     fossil_print("DELETED %s\n", db_column_text(&loop, 0));
@@ -416,8 +446,9 @@ int filenames_are_case_sensitive(void){
     }
     if( !caseSensitive && g.localOpen ){
       db_multi_exec(
-         "CREATE INDEX IF NOT EXISTS vfile_nocase"
-         "  ON vfile(pathname COLLATE nocase)"
+         "CREATE INDEX IF NOT EXISTS %s.vfile_nocase"
+         "  ON vfile(pathname COLLATE nocase)",
+         db_name("localdb")
       );
     }
   }
@@ -444,7 +475,7 @@ const char *filename_collation(void){
 ** with the content of the working checkout:
 **
 **  *  All files in the checkout but not in the repository (that is,
-**     all files displayed using the "extra" command) are added as
+**     all files displayed using the "extras" command) are added as
 **     if by the "add" command.
 **
 **  *  All files in the repository but missing from the checkout (that is,
@@ -462,18 +493,19 @@ const char *filename_collation(void){
 ** --clean option with the "clean-glob" setting. See the documentation
 ** on the "settings" command for further information.
 **
-** The -n|--dry-run option shows what would happen without actually doing anything.
+** The -n|--dry-run option shows what would happen without actually doing
+** anything.
 **
 ** This command can be used to track third party software.
-** 
-** Options: 
-**   --case-sensitive <BOOL> override case-sensitive setting
-**   --dotfiles              include files beginning with a dot (".")
-**   --ignore <CSG>          ignore files matching patterns from the
+**
+** Options:
+**   --case-sensitive <BOOL> Override the case-sensitive setting.
+**   --dotfiles              Include files beginning with a dot (".")
+**   --ignore <CSG>          Ignore files matching patterns from the
 **                           comma separated list of glob patterns.
-**   --clean <CSG>           also ignore files matching patterns from
+**   --clean <CSG>           Also ignore files matching patterns from
 **                           the comma separated list of glob patterns.
-**   -n|--dry-run            If given, display instead of run actions
+**   -n|--dry-run            If given, display instead of run actions.
 **
 ** See also: add, rm
 */
@@ -493,7 +525,10 @@ void addremove_cmd(void){
   if( !dryRunFlag ){
     dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
   }
-  capture_case_sensitive_option();
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   db_must_be_within_tree();
   if( zCleanFlag==0 ){
     zCleanFlag = db_get("clean-glob", 0);
@@ -501,13 +536,11 @@ void addremove_cmd(void){
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   vid = db_lget_int("checkout",0);
-  if( vid==0 ){
-    fossil_fatal("no checkout to add to");
-  }
   db_begin_transaction();
 
-  /* step 1:  
+  /* step 1:
   ** Populate the temp table "sfile" with the names of all unmanaged
   ** files currently in the check-out, except for files that match the
   ** --ignore or ignore-glob patterns and dot-files.  Then add all of
@@ -533,8 +566,8 @@ void addremove_cmd(void){
       g.zLocalRoot
   );
   while( db_step(&q)==SQLITE_ROW ){
-    const char * zFile;
-    const char * zPath;
+    const char *zFile;
+    const char *zPath;
 
     zFile = db_column_text(&q, 0);
     zPath = db_column_text(&q, 1);
@@ -559,13 +592,17 @@ void addremove_cmd(void){
 **
 ** The original name of the file is zOrig.  The new filename is zNew.
 */
-static void mv_one_file(int vid, const char *zOrig, const char *zNew){
+static void mv_one_file(
+  int vid,
+  const char *zOrig,
+  const char *zNew
+){
   int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q %s",
-		         zNew, filename_collation());
+                         zNew, filename_collation());
   if( x>=0 ){
     if( x==0 ){
       fossil_fatal("cannot rename '%s' to '%s' since another file named '%s'"
-                   " is currently under management", zOrig, zNew, zNew); 
+                   " is currently under management", zOrig, zNew, zNew);
     }else{
       fossil_fatal("cannot rename '%s' to '%s' since the delete of '%s' has "
                    "not yet been committed", zOrig, zNew, zNew);
@@ -590,10 +627,10 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 **
 ** This command does NOT rename or move the files on disk.  This command merely
 ** records the fact that filenames have changed so that appropriate notations
-** can be made at the next commit/checkin.
+** can be made at the next commit/check-in.
 **
 ** Options:
-**   --case-sensitive <BOOL> override case-sensitive setting
+**   --case-sensitive <BOOL> Override the case-sensitive setting.
 **
 ** See also: changes, status
 */
@@ -604,8 +641,11 @@ void mv_cmd(void){
   Blob dest;
   Stmt q;
 
-  capture_case_sensitive_option();
   db_must_be_within_tree();
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     fossil_fatal("no checkout rename files in");
@@ -677,4 +717,12 @@ void mv_cmd(void){
   }
   db_finalize(&q);
   db_end_transaction(0);
+}
+
+/*
+** Function for stash_apply to be able to restore a file and indicate
+** newly ADDED state.
+*/
+int stash_add_files_in_sfile(int vid){
+  return add_files_in_sfile(vid);
 }

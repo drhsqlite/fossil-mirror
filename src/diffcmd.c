@@ -31,6 +31,11 @@
 #endif
 
 /*
+** Used when the name for the diff is unknown.
+*/
+#define DIFF_NO_NAME  "(unknown)"
+
+/*
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, u64 diffFlags){
@@ -51,11 +56,21 @@ void diff_print_filenames(const char *zLeft, const char *zRight, u64 diffFlags){
   }else if( diffFlags & DIFF_SIDEBYSIDE ){
     int w = diff_width(diffFlags);
     int n1 = strlen(zLeft);
+    int n2 = strlen(zRight);
     int x;
-    if( n1>w*2 ) n1 = w*2;
-    x = w*2+17 - (n1+2);
-    z = mprintf("%.*c %.*s %.*c\n",
-                x/2, '=', n1, zLeft, (x+1)/2, '=');
+    if( n1==n2 && fossil_strcmp(zLeft,zRight)==0 ){
+      if( n1>w*2 ) n1 = w*2;
+      x = w*2+17 - (n1+2);
+      z = mprintf("%.*c %.*s %.*c\n",
+                 x/2, '=', n1, zLeft, (x+1)/2, '=');
+    }else{
+      if( w<20 ) w = 20;
+      if( n1>w-10 ) n1 = w - 10;
+      if( n2>w-10 ) n2 = w - 10;
+      z = mprintf("%.*c %.*s %.*c versus %.*c %.*s %.*c\n",
+                  (w-n1+10)/2, '=', n1, zLeft, (w-n1+1)/2, '=',
+                  (w-n2)/2, '=', n2, zRight, (w-n2+1)/2, '=');
+    }
   }else{
     z = mprintf("--- %s\n+++ %s\n", zLeft, zRight);
   }
@@ -96,7 +111,7 @@ void diff_file(
     if( file_wd_size(zFile2)<0 ){
       zName2 = NULL_DEVICE;
     }else{
-      if( file_wd_islink(zFile2) ){
+      if( file_wd_islink(0) ){
         blob_read_link(&file2, zFile2);
       }else{
         blob_read_from_file(&file2, zFile2);
@@ -129,13 +144,13 @@ void diff_file(
     if( !fIncludeBinary ){
       Blob file2;
       if( isBin1 ){
-        fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
+        fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
         return;
       }
       if( zBinGlob ){
         Glob *pBinary = glob_create(zBinGlob);
         if( glob_match(pBinary, zName) ){
-          fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
+          fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
           glob_free(pBinary);
           return;
         }
@@ -143,14 +158,14 @@ void diff_file(
       }
       blob_zero(&file2);
       if( file_wd_size(zFile2)>=0 ){
-        if( file_wd_islink(zFile2) ){
+        if( file_wd_islink(0) ){
           blob_read_link(&file2, zFile2);
         }else{
           blob_read_from_file(&file2, zFile2);
         }
       }
       if( looks_like_binary(&file2) ){
-        fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
+        fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
         blob_reset(&file2);
         return;
       }
@@ -163,7 +178,7 @@ void diff_file(
     do{
       blob_reset(&nameFile1);
       blob_appendf(&nameFile1, "%s~%d", zFile2, cnt++);
-    }while( file_access(blob_str(&nameFile1),0)==0 );
+    }while( file_access(blob_str(&nameFile1),F_OK)==0 );
     blob_write_to_file(pFile1, blob_str(&nameFile1));
 
     /* Construct the external diff command */
@@ -225,13 +240,13 @@ void diff_file_mem(
 
     if( !fIncludeBinary ){
       if( isBin1 || isBin2 ){
-        fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
+        fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
         return;
       }
       if( zBinGlob ){
         Glob *pBinary = glob_create(zBinGlob);
         if( glob_match(pBinary, zName) ){
-          fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
+          fossil_print("%s",DIFF_CANNOT_COMPUTE_BINARY);
           glob_free(pBinary);
           return;
         }
@@ -289,7 +304,7 @@ static void diff_one_against_disk(
   historical_version_of_file(zFrom, blob_str(&fname), &content, &isLink, 0,
                              fIncludeBinary ? 0 : &isBin, 0);
   if( !isLink != !file_wd_islink(zFrom) ){
-    fossil_print(DIFF_CANNOT_COMPUTE_SYMLINK);
+    fossil_print("%s",DIFF_CANNOT_COMPUTE_SYMLINK);
   }else{
     diff_file(&content, isBin, zFileTreeName, zFileTreeName,
               zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
@@ -333,7 +348,7 @@ static void diff_all_against_disk(
       fossil_fatal("no such check-in: %s", zFrom);
     }
     load_vfile_from_rid(rid);
-    blob_appendf(&sql,
+    blob_append_sql(&sql,
       "SELECT v2.pathname, v2.deleted, v2.chnged, v2.rid==0, v1.rid, v1.islink"
       "  FROM vfile v1, vfile v2 "
       " WHERE v1.pathname=v2.pathname AND v1.vid=%d AND v2.vid=%d"
@@ -350,20 +365,20 @@ static void diff_all_against_disk(
       " WHERE v2.vid=%d"
       "   AND NOT EXISTS(SELECT 1 FROM vfile v1"
                         " WHERE v1.vid=%d AND v1.pathname=v2.pathname)"
-      " ORDER BY 1",
+      " ORDER BY 1 /*scan*/",
       rid, vid, rid, vid, vid, rid
     );
   }else{
-    blob_appendf(&sql,
+    blob_append_sql(&sql,
       "SELECT pathname, deleted, chnged , rid==0, rid, islink"
       "  FROM vfile"
       " WHERE vid=%d"
       "   AND (deleted OR chnged OR rid==0)"
-      " ORDER BY pathname",
+      " ORDER BY pathname /*scan*/",
       vid
     );
   }
-  db_prepare(&q, blob_str(&sql));
+  db_prepare(&q, "%s", blob_sql_text(&sql));
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
     int isDeleted = db_column_int(&q, 1);
@@ -371,13 +386,13 @@ static void diff_all_against_disk(
     int isNew = db_column_int(&q,3);
     int srcid = db_column_int(&q, 4);
     int isLink = db_column_int(&q, 5);
-    char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-    char *zToFree = zFullName;
+    char *zToFree = mprintf("%s%s", g.zLocalRoot, zPathname);
+    const char *zFullName = zToFree;
     int showDiff = 1;
     if( isDeleted ){
       fossil_print("DELETED  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; zFullName = NULL_DEVICE; }
-    }else if( file_access(zFullName, 0) ){
+    }else if( file_access(zFullName, F_OK) ){
       fossil_print("MISSING  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; }
     }else if( isNew ){
@@ -395,7 +410,7 @@ static void diff_all_against_disk(
       if( !isLink != !file_wd_islink(zFullName) ){
         diff_print_index(zPathname, diffFlags);
         diff_print_filenames(zPathname, zPathname, diffFlags);
-        fossil_print(DIFF_CANNOT_COMPUTE_SYMLINK);
+        fossil_print("%s",DIFF_CANNOT_COMPUTE_SYMLINK);
         continue;
       }
       if( srcid>0 ){
@@ -449,7 +464,7 @@ static void diff_one_two_versions(
                              fIncludeBinary ? 0 : &isBin2, 0);
   if( isLink1 != isLink2 ){
     diff_print_filenames(zName, zName, diffFlags);
-    fossil_print(DIFF_CANNOT_COMPUTE_SYMLINK);
+    fossil_print("%s",DIFF_CANNOT_COMPUTE_SYMLINK);
   }else{
     diff_file_mem(&v1, &v2, isBin1, isBin2, zName, zDiffCmd,
                   zBinGlob, fIncludeBinary, diffFlags);
@@ -481,7 +496,14 @@ static void diff_manifest_entry(
   Blob f1, f2;
   int isBin1, isBin2;
   int rid;
-  const char *zName =  pFrom ? pFrom->zName : pTo->zName;
+  const char *zName;
+  if( pFrom ){
+    zName = pFrom->zName;
+  }else if( pTo ){
+    zName = pTo->zName;
+  }else{
+    zName = DIFF_NO_NAME;
+  }
   if( diffFlags & DIFF_BRIEF ) return;
   diff_print_index(zName, diffFlags);
   if( pFrom ){
@@ -597,347 +619,69 @@ const char *diff_command_external(int guiDiff){
   return db_get(zName, zDefault);
 }
 
-/* A Tcl/Tk script used to render diff output.
-*/
-static const char zDiffScript[] =
-@ package require Tk
-@ 
-@ array set CFG {
-@   TITLE      {Fossil Diff}
-@   LN_COL_BG  #dddddd
-@   LN_COL_FG  #444444
-@   TXT_COL_BG #ffffff
-@   TXT_COL_FG #000000
-@   MKR_COL_BG #444444
-@   MKR_COL_FG #dddddd
-@   CHNG_BG    #d0d0ff
-@   ADD_BG     #c0ffc0
-@   RM_BG      #ffc0c0
-@   HR_FG      #888888
-@   HR_PAD_TOP 4
-@   HR_PAD_BTM 8
-@   FN_BG      #444444
-@   FN_FG      #ffffff
-@   FN_PAD     5
-@   PADX       5
-@   WIDTH      80
-@   HEIGHT     45
-@   LB_HEIGHT  25
-@ }
-@ 
-@ if {![namespace exists ttk]} {
-@   interp alias {} ::ttk::scrollbar {} ::scrollbar
-@   interp alias {} ::ttk::menubutton {} ::menubutton
-@ }
-@ 
-@ proc dehtml {x} {
-@   set x [regsub -all {<[^>]*>} $x {}]
-@   return [string map {&amp; & &lt; < &gt; > &#39; ' &quot; \"} $x]
-@ }
-@ 
-@ proc cols {} {
-@   return [list .lnA .txtA .mkr .lnB .txtB]
-@ }
-@ 
-@ proc colType {c} {
-@   regexp {[a-z]+} $c type
-@   return $type
-@ }
-@ 
-@ proc readDiffs {fossilcmd} {
-@   set in [open $fossilcmd r]
-@   fconfigure $in -encoding utf-8
-@   set nDiffs 0
-@   array set widths {txt 0 ln 0 mkr 0}
-@   while {[gets $in line] != -1} {
-@     if {![regexp {^=+\s+(.*?)\s+=+$} $line all fn]} {
-@       continue
-@     }
-@     if {[string compare -length 6 [gets $in] "<table"]} {
-@       continue
-@     }
-@     incr nDiffs
-@     set idx [expr {$nDiffs > 1 ? [.txtA index end] : "1.0"}]
-@     .wfiles.lb insert end $fn
-@     
-@     foreach c [cols] {
-@       while {[gets $in] ne "<pre>"} continue
-@       
-@       if {$nDiffs > 1} {
-@         $c insert end \n -
-@       }
-@       if {[colType $c] eq "txt"} {
-@         $c insert end $fn\n fn
-@       } else {
-@         $c insert end \n fn
-@       }
-@       $c insert end \n -
-@        
-@       set type [colType $c]
-@       set str {}
-@       while {[set line [gets $in]] ne "</pre>"} {
-@         set len [string length [dehtml $line]]
-@         if {$len > $widths($type)} {
-@           set widths($type) $len
-@         }
-@         append str $line\n
-@       }
-@       
-@       set re {<span class="diff([a-z]+)">([^<]*)</span>}
-@       # Use \r as separator since it can't appear in the diff output (it gets
-@       # converted to a space).
-@       set str [regsub -all $re $str "\r\\1\r\\2\r"]
-@       foreach {pre class mid} [split $str \r] {
-@         if {$class ne ""} {
-@           $c insert end [dehtml $pre] - [dehtml $mid] [list $class -]
-@         } else {
-@           $c insert end [dehtml $pre] -
-@         }
-@       }
-@     }
-@   }
-@   close $in
-@   
-@   foreach c [cols] {
-@     set type [colType $c]
-@     if {$type ne "txt"} {
-@       $c config -width $widths($type)
-@     }
-@     $c config -state disabled
-@   }
-@   if {$nDiffs <= [.wfiles.lb cget -height]} {
-@     .wfiles.lb config -height $nDiffs
-@     grid remove .wfiles.sb
-@   }
-@   
-@   return $nDiffs
-@ }
-@ 
-@ proc viewDiff {idx} {
-@   .txtA yview $idx
-@   .txtA xview moveto 0
-@ }
-@ 
-@ proc cycleDiffs {{reverse 0}} {
-@   if {$reverse} {
-@     set range [.txtA tag prevrange fn @0,0 1.0]
-@     if {$range eq ""} {
-@       viewDiff {fn.last -1c}
-@     } else {
-@       viewDiff [lindex $range 0]
-@     }
-@   } else {
-@     set range [.txtA tag nextrange fn {@0,0 +1c} end]
-@     if {$range eq "" || [lindex [.txtA yview] 1] == 1} {
-@       viewDiff fn.first
-@     } else {
-@       viewDiff [lindex $range 0]
-@     }
-@   }
-@ }
-@ 
-@ proc xvis {col} {
-@   set view [$col xview]
-@   return [expr {[lindex $view 1]-[lindex $view 0]}]
-@ }
-@ 
-@ proc scroll-x {args} {
-@   set c .txt[expr {[xvis .txtA] < [xvis .txtB] ? "A" : "B"}]
-@   eval $c xview $args
-@ }
-@ 
-@ interp alias {} scroll-y {} .txtA yview
-@ 
-@ proc noop {args} {}
-@ 
-@ proc enableSync {axis} {
-@   update idletasks
-@   interp alias {} sync-$axis {}
-@   rename _sync-$axis sync-$axis
-@ }
-@ 
-@ proc disableSync {axis} {
-@   rename sync-$axis _sync-$axis
-@   interp alias {} sync-$axis {} noop
-@ }
-@ 
-@ proc sync-x {col first last} {
-@   disableSync x
-@   $col xview moveto [expr {$first*[xvis $col]/($last-$first)}]
-@   foreach side {A B} {
-@     set sb .sbx$side
-@     set xview [.txt$side xview]
-@     if {[lindex $xview 0] > 0 || [lindex $xview 1] < 1} {
-@       grid $sb
-@       eval $sb set $xview
-@     } else {
-@       grid remove $sb
-@     }
-@   }
-@   enableSync x
-@ }
-@ 
-@ proc sync-y {first last} {
-@   disableSync y
-@   foreach c [cols] {
-@     $c yview moveto $first
-@   }
-@   if {$first > 0 || $last < 1} {
-@     grid .sby
-@     .sby set $first $last
-@   } else {
-@     grid remove .sby
-@   }
-@   enableSync y
-@ }
-@ 
-@ wm withdraw .
-@ wm title . $CFG(TITLE)
-@ wm iconname . $CFG(TITLE)
-@ bind . <q> exit
-@ bind . <Tab> {cycleDiffs; break}
-@ bind . <<PrevWindow>> {cycleDiffs 1; break}
-@ bind . <Return> {
-@   event generate .files <1>
-@   event generate .files <ButtonRelease-1>
-@   break
-@ }
-@ foreach {key axis args} {
-@   Up    y {scroll -5 units}
-@   Down  y {scroll 5 units}
-@   Left  x {scroll -5 units}
-@   Right x {scroll 5 units}
-@   Prior y {scroll -1 page}
-@   Next  y {scroll 1 page}
-@   Home  y {moveto 0}
-@   End   y {moveto 1}
-@ } {
-@   bind . <$key> "scroll-$axis $args; break"
-@   bind . <Shift-$key> continue
-@ }
-@ 
-@ ::ttk::menubutton .files -text "Files"
-@ toplevel .wfiles
-@ wm withdraw .wfiles
-@ update idletasks
-@ wm transient .wfiles .
-@ wm overrideredirect .wfiles 1
-@ listbox .wfiles.lb -width 0 -height $CFG(LB_HEIGHT) -activestyle none \
-@   -yscroll {.wfiles.sb set}
-@ ::ttk::scrollbar .wfiles.sb -command {.wfiles.lb yview}
-@ grid .wfiles.lb .wfiles.sb -sticky ns
-@ bind .files <1> {
-@   set x [winfo rootx %W]
-@   set y [expr {[winfo rooty %W]+[winfo height %W]}]
-@   wm geometry .wfiles +$x+$y
-@   wm deiconify .wfiles
-@   focus .wfiles.lb
-@ }
-@ bind .wfiles <FocusOut> {wm withdraw .wfiles}
-@ bind .wfiles <Escape> {focus .}
-@ foreach evt {1 Return} {
-@   bind .wfiles.lb <$evt> {
-@     catch {
-@       set idx [lindex [.txtA tag ranges fn] [expr {[%W curselection]*2}]]
-@       viewDiff $idx
-@     }
-@     focus .
-@     break
-@   }
-@ }
-@ bind .wfiles.lb <Motion> {
-@   %W selection clear 0 end
-@   %W selection set @%x,%y
-@ }
-@ 
-@ foreach {side syncCol} {A .txtB B .txtA} {
-@   set ln .ln$side
-@   text $ln
-@   $ln tag config - -justify right
-@   
-@   set txt .txt$side
-@   text $txt -width $CFG(WIDTH) -height $CFG(HEIGHT) -wrap none \
-@     -xscroll "sync-x $syncCol"
-@   catch {$txt config -tabstyle wordprocessor} ;# Required for Tk>=8.5
-@   foreach tag {add rm chng} {
-@     $txt tag config $tag -background $CFG([string toupper $tag]_BG)
-@     $txt tag lower $tag
-@   }
-@   $txt tag config fn -background $CFG(FN_BG) -foreground $CFG(FN_FG) \
-@     -justify center
-@ }
-@ text .mkr
-@ 
-@ foreach c [cols] {
-@   set keyPrefix [string toupper [colType $c]]_COL_
-@   if {[tk windowingsystem] eq "win32"} {$c config -font {courier 9}}
-@   $c config -bg $CFG(${keyPrefix}BG) -fg $CFG(${keyPrefix}FG) -borderwidth 0 \
-@     -padx $CFG(PADX) -yscroll sync-y
-@   $c tag config hr -spacing1 $CFG(HR_PAD_TOP) -spacing3 $CFG(HR_PAD_BTM) \
-@      -foreground $CFG(HR_FG)
-@   $c tag config fn -spacing1 $CFG(FN_PAD) -spacing3 $CFG(FN_PAD)
-@   bindtags $c ". $c Text all"
-@   bind $c <1> {focus %W}
-@ }
-@ 
-@ ::ttk::scrollbar .sby -command {.txtA yview} -orient vertical
-@ ::ttk::scrollbar .sbxA -command {.txtA xview} -orient horizontal
-@ ::ttk::scrollbar .sbxB -command {.txtB xview} -orient horizontal
-@ frame .spacer
-@ 
-@ if {[readDiffs $fossilcmd] == 0} {
-@   tk_messageBox -type ok -title $CFG(TITLE) -message "No changes"
-@   exit
-@ }
-@ update idletasks
-@ 
-@ grid rowconfigure . 1 -weight 1
-@ grid columnconfigure . 1 -weight 1
-@ grid columnconfigure . 4 -weight 1
-@ grid .files -row 0 -columnspan 6
-@ eval grid [cols] -row 1 -sticky nsew
-@ grid .sby -row 1 -column 5 -sticky ns
-@ grid .sbxA -row 2 -columnspan 2 -sticky ew
-@ grid .spacer -row 2 -column 2
-@ grid .sbxB -row 2 -column 3 -columnspan 2 -sticky ew
-@
-@ .spacer config -height [winfo height .sbxA]
-@ wm deiconify .
-;
-
 /*
 ** Show diff output in a Tcl/Tk window, in response to the --tk option
 ** to the diff command.
-** 
-** Steps:
+**
+** If fossil has direct access to a Tcl interpreter (either loaded
+** dynamically through stubs or linked in statically), we can use it
+** directly. Otherwise:
 ** (1) Write the Tcl/Tk script used for rendering into a temp file.
-** (2) Invoke "wish" on the temp file using fossil_system().
+** (2) Invoke "tclsh" on the temp file using fossil_system().
 ** (3) Delete the temp file.
 */
 void diff_tk(const char *zSubCmd, int firstArg){
   int i;
   Blob script;
-  char *zTempFile;
+  const char *zTempFile = 0;
   char *zCmd;
   blob_zero(&script);
   blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v",
                g.nameOfExe, zSubCmd);
+  find_option("html",0,0);
+  find_option("side-by-side","y",0);
+  find_option("internal","i",0);
+  find_option("verbose","v",0);
+  /* The undocumented --script FILENAME option causes the Tk script to
+  ** be written into the FILENAME instead of being run.  This is used
+  ** for testing and debugging. */
+  zTempFile = find_option("script",0,1);
   for(i=firstArg; i<g.argc; i++){
     const char *z = g.argv[i];
-    if( z[0]=='-' ){
-      if( strglob("*-html",z) ) continue;
-      if( strglob("*-y",z) ) continue;
-      if( strglob("*-i",z) ) continue;
+    if( sqlite3_strglob("*}*",z) ){
+      blob_appendf(&script, " {%/}", z);
+    }else{
+      int j;
+      blob_append(&script, " ", 1);
+      for(j=0; z[j]; j++) blob_appendf(&script, "\\%03o", (unsigned char)z[j]);
     }
-    blob_append(&script, " ", 1);
-    shell_escape(&script, z);
   }
-  blob_appendf(&script, "}\n%s", zDiffScript);
-  zTempFile = write_blob_to_temp_file(&script);
-  zCmd = mprintf("tclsh \"%s\"", zTempFile);
-  fossil_system(zCmd);
-  file_delete(zTempFile);
-  fossil_free(zCmd);
+  blob_appendf(&script, "}\n%s", builtin_file("diff.tcl", 0));
+  if( zTempFile ){
+    blob_write_to_file(&script, zTempFile);
+    fossil_print("To see diff, run: tclsh \"%s\"\n", zTempFile);
+  }else{
+#if defined(FOSSIL_ENABLE_TCL)
+    Th_FossilInit(TH_INIT_DEFAULT);
+    if( evaluateTclWithEvents(g.interp, &g.tcl, blob_str(&script),
+                              blob_size(&script), 1, 0)==TCL_OK ){
+      blob_reset(&script);
+      return;
+    }
+    /*
+     * If evaluation of the Tcl script fails, the reason may be that Tk
+     * could not be found by the loaded Tcl, or that Tcl cannot be loaded
+     * dynamically (e.g. x64 Tcl with x86 Fossil).  Therefore, fallback
+     * to using the external "tclsh", if available.
+     */
+#endif
+    zTempFile = write_blob_to_temp_file(&script);
+    zCmd = mprintf("tclsh \"%s\"", zTempFile);
+    fossil_system(zCmd);
+    file_delete(zTempFile);
+    fossil_free(zCmd);
+  }
+  blob_reset(&script);
 }
 
 /*
@@ -976,7 +720,7 @@ const char *diff_get_binary_glob(void){
 ** currently in the working check-out.
 **
 ** If the "--from VERSION" or "-r VERSION" option is used it specifies
-** the source check-in for the diff operation.  If not specified, the 
+** the source check-in for the diff operation.  If not specified, the
 ** source check-in is the base check-in for the current check-out.
 **
 ** If the "--to VERSION" option appears, it specifies the check-in from
@@ -1000,19 +744,22 @@ const char *diff_get_binary_glob(void){
 ** This option overrides the "binary-glob" setting.
 **
 ** Options:
-**   --binary PATTERN    Treat files that match the glob PATTERN as binary
-**   --branch BRANCH     Show diff of all changes on BRANCH
-**   --brief             Show filenames only
-**   --context|-c N      Use N lines of context 
-**   --diff-binary BOOL  Include binary files when using external commands
-**   --from|-r VERSION   select VERSION as source for the diff
-**   --internal|-i       use internal diff logic
-**   --side-by-side|-y   side-by-side diff
-**   --tk                Launch a Tcl/Tk GUI for display
-**   --to VERSION        select VERSION as target for the diff
-**   --unified           unified diff
-**   -v|--verbose        output complete text of added or deleted files
-**   -W|--width          Width of lines in side-by-side diff
+**   --binary PATTERN           Treat files that match the glob PATTERN as binary
+**   --branch BRANCH            Show diff of all changes on BRANCH
+**   --brief                    Show filenames only
+**   --context|-c N             Use N lines of context
+**   --diff-binary BOOL         Include binary files when using external commands
+**   --from|-r VERSION          select VERSION as source for the diff
+**   --internal|-i              use internal diff logic
+**   --side-by-side|-y          side-by-side diff
+**   --strip-trailing-cr        Strip trailing CR
+**   --tk                       Launch a Tcl/Tk GUI for display
+**   --to VERSION               select VERSION as target for the diff
+**   --unified                  unified diff
+**   -v|--verbose               output complete text of added or deleted files
+**   -w|--ignore-all-space      Ignore white space when comparing lines
+**   -W|--width <num>           Width of lines in side-by-side diff
+**   -Z|--ignore-trailing-space Ignore changes to end-of-line whitespace
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
@@ -1042,7 +789,6 @@ void diff_cmd(void){
     verboseFlag = find_option("new-file","N",0)!=0; /* deprecated */
   }
   if( verboseFlag ) diffFlags |= DIFF_VERBOSE;
-
   if( zBranch ){
     if( zTo || zFrom ){
       fossil_fatal("cannot use --from or --to with --branch");
@@ -1097,7 +843,7 @@ void vpatch_page(void){
   const char *zFrom = P("from");
   const char *zTo = P("to");
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( zFrom==0 || zTo==0 ) fossil_redirect_home();
 
   cgi_set_content_type("text/plain");

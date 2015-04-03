@@ -45,7 +45,7 @@ document describes the various methods.
 
 <h2>Canonical Check-in Name</h2>
 
-The canonical name of a checkin is the SHA1 hash of its
+The canonical name of a check-in is the SHA1 hash of its
 [./fileformat.wiki#manifest | manifest] expressed as a 40-character
 lowercase hexadecimal number.  For example:
 
@@ -117,6 +117,27 @@ The "tag:deed2" name will refer to the most recent check-in
 tagged with "deed2" not to the
 check-in whose canonical name begins with "deed2".
 
+<h2>Whole Branches</h2>
+
+Usually when a branch name is specified, it means the latest check-in on
+that branch.  But for some commands (ex: [/help/purge|purge]) a branch name
+on the argument means the earliest connected check-in on the branch.  This
+seems confusing when being explained here, but it works out to be intuitive
+in practice.
+
+For example, the command "fossil purge XYZ" means to purge the check-in XYZ
+and all of its descendants.  But when XYZ is in the form of a branch name, one
+generally wants to purge the entire branch, not just the last check-in on the
+branch.  And so for this reason, commands like purge will interpret a branch
+name to be the first check-in of the branch rather than the last.  If there
+are two or more branches with the same name, then these commands will select
+the first check-in of the branch that has the most recent check-in.  What
+happens is that Fossil searches for the most recent check-in with the given
+tag, just as it always does.  But if that tag is a branch name, it then walks
+back down the branch looking for the first check-in of that branch.
+
+Again, this behavior only occurs on a few commands where it make sense.
+
 <h2>Timestamps</h2>
 
 A timestamp in one of the formats shown below means the most recent
@@ -140,9 +161,9 @@ distributed projects where participants are scattered around the globe.
 But there is an option on the Admin/Timeline page of the web-interface to
 switch to local time.  The "<b>Z</b>" suffix on an timestamp check-in
 name is meaningless if Fossil is in the default mode of using UTC for
-everything, but if Fossil has been switched to localtime mode, then the
+everything, but if Fossil has been switched to local time mode, then the
 "<b>Z</b>" suffix means to interpret that particular timestamp using 
-UTC instead localtime.
+UTC instead of local time.
 
 For an example of how timestamps are useful, 
 consider the homepage for the Fossil website itself:

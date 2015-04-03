@@ -129,7 +129,7 @@ static void re_add_state(ReStateSet *pSet, int newState){
 
 /* Extract the next unicode character from *pzIn and return it.  Advance
 ** *pzIn to the first byte past the end of the character returned.  To
-** be clear:  this routine converts utf8 to unicode.  This routine is 
+** be clear:  this routine converts utf8 to unicode.  This routine is
 ** optimized for the common case where the next character is a single byte.
 */
 static unsigned re_next_char(ReInput *p){
@@ -193,12 +193,12 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
 
   in.z = zIn;
   in.i = 0;
-  in.mx = nIn>=0 ? nIn : strlen((char const*)zIn);
+  in.mx = nIn>=0 ? nIn : strlen((const char*)zIn);
 
   /* Look for the initial prefix match, if there is one. */
   if( pRe->nInit ){
     unsigned char x = pRe->zInit[0];
-    while( in.i+pRe->nInit<=in.mx 
+    while( in.i+pRe->nInit<=in.mx
      && (zIn[in.i]!=x ||
          strncmp((const char*)zIn+in.i, (const char*)pRe->zInit, pRe->nInit)!=0)
     ){
@@ -305,7 +305,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
           }
           if( pRe->aOp[x]==RE_OP_CC_EXC ) hit = !hit;
           if( hit ) re_add_state(pNext, x+n);
-          break;            
+          break;
         }
       }
     }
@@ -466,7 +466,7 @@ static const char *re_subcompile_string(ReCompiled *p){
     iStart = p->nState;
     switch( c ){
       case '|':
-      case '$': 
+      case '$':
       case ')': {
         p->sIn.i--;
         return 0;
@@ -482,7 +482,7 @@ static const char *re_subcompile_string(ReCompiled *p){
         if( rePeek(p)=='*' ){
           re_append(p, RE_OP_ANYSTAR, 0);
           p->sIn.i++;
-        }else{ 
+        }else{
           re_append(p, RE_OP_ANY, 0);
         }
         break;
@@ -654,7 +654,7 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
   /* The following is a performance optimization.  If the regex begins with
   ** ".*" (if the input regex lacks an initial "^") and afterwards there are
   ** one or more matching characters, enter those matching characters into
-  ** zInit[].  The re_match() routine can then search ahead in the input 
+  ** zInit[].  The re_match() routine can then search ahead in the input
   ** string looking for the initial match without having to run the whole
   ** regex engine over the string.  Do not worry able trying to match
   ** unicode characters beyond plane 0 - those are very rare and this is
@@ -691,8 +691,8 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
 ** is implemented as regexp(B,A).
 */
 static void re_sql_func(
-  sqlite3_context *context, 
-  int argc, 
+  sqlite3_context *context,
+  int argc,
   sqlite3_value **argv
 ){
   ReCompiled *pRe;          /* Compiled regular expression */
@@ -770,7 +770,6 @@ void re_test_grep(void){
   ReCompiled *pRe;
   const char *zErr;
   int ignoreCase = find_option("ignore-case","i",0)!=0;
-
   if( g.argc<3 ){
     usage("REGEXP [FILE...]");
   }

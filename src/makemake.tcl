@@ -1,6 +1,6 @@
 #!/usr/bin/tclsh
 #
-# Run this TCL script to generate the various makefiles for a variety
+# Run this Tcl script to generate the various makefiles for a variety
 # of platforms.  Files generated include:
 #
 #     src/main.mk           # makefile for all unix systems
@@ -14,8 +14,11 @@
 #############################################################################
 
 # Basenames of all source files that get preprocessed using
-# "translate" and "makeheaders".  To add new source files to the
+# "translate" and "makeheaders".  To add new C-language source files to the
 # project, simply add the basename to this list and rerun this script.
+#
+# Set the separate extra_files variable further down for how to add non-C
+# files, such as string and BLOB resources.
 #
 set src {
   add
@@ -26,6 +29,9 @@ set src {
   blob
   branch
   browse
+  builtin
+  bundle
+  cache
   captcha
   cgi
   checkin
@@ -47,6 +53,8 @@ set src {
   export
   file
   finfo
+  foci
+  fusefs
   glob
   graph
   gzip
@@ -71,6 +79,7 @@ set src {
   json_user
   json_wiki
   leaf
+  loadctrl
   login
   lookslike
   main
@@ -87,6 +96,8 @@ set src {
   popen
   pqueue
   printf
+  publish
+  purge
   rebuild
   regexp
   report
@@ -96,10 +107,12 @@ set src {
   setup
   sha1
   shun
+  sitemap
   skins
   sqlcmd
   stash
   stat
+  statrep
   style
   sync
   tag
@@ -119,6 +132,7 @@ set src {
   vfile
   wiki
   wikiformat
+  winfile
   winhttp
   wysiwyg
   xfer
@@ -126,6 +140,57 @@ set src {
   zip
   http_ssl
 }
+
+# Additional resource files that get built into the executable.
+#
+set extra_files {
+  diff.tcl
+  markdown.md
+  ../skins/*/*.txt
+}
+
+# Options used to compile the included SQLite library.
+#
+set SQLITE_OPTIONS {
+  -DNDEBUG=1
+  -DSQLITE_OMIT_LOAD_EXTENSION=1
+  -DSQLITE_ENABLE_LOCKING_STYLE=0
+  -DSQLITE_THREADSAFE=0
+  -DSQLITE_DEFAULT_FILE_FORMAT=4
+  -DSQLITE_OMIT_DEPRECATED
+  -DSQLITE_ENABLE_EXPLAIN_COMMENTS
+  -DSQLITE_ENABLE_FTS4
+  -DSQLITE_ENABLE_FTS3_PARENTHESIS
+}
+#lappend SQLITE_OPTIONS -DSQLITE_ENABLE_FTS3=1
+#lappend SQLITE_OPTIONS -DSQLITE_ENABLE_STAT4
+#lappend SQLITE_OPTIONS -DSQLITE_WIN32_NO_ANSI
+#lappend SQLITE_OPTIONS -DSQLITE_WINNT_MAX_PATH_CHARS=4096
+
+# Options used to compile the included SQLite shell.
+#
+set SHELL_OPTIONS {
+  -Dmain=sqlite3_shell
+  -DSQLITE_OMIT_LOAD_EXTENSION=1
+  -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE)
+  -DSQLITE_SHELL_DBNAME_PROC=fossil_open
+}
+
+# miniz (libz drop-in alternative) precompiler flags.
+#
+set MINIZ_OPTIONS {
+  -DMINIZ_NO_STDIO
+  -DMINIZ_NO_TIME
+  -DMINIZ_NO_ARCHIVE_APIS
+}
+
+# Options used to compile the included SQLite shell on Windows.
+#
+set SHELL_WIN32_OPTIONS $SHELL_OPTIONS
+lappend SHELL_WIN32_OPTIONS -Daccess=file_access
+lappend SHELL_WIN32_OPTIONS -Dsystem=fossil_system
+lappend SHELL_WIN32_OPTIONS -Dgetenv=fossil_getenv
+lappend SHELL_WIN32_OPTIONS -Dfopen=fossil_fopen
 
 # Name of the final application
 #
@@ -145,6 +210,15 @@ proc writeln {args} {
 # STOP HERE.
 # Unless the build procedures changes, you should not have to edit anything
 # below this line.
+
+# Expand any wildcards in "extra_files"
+set new_extra_files {}
+foreach file $extra_files {
+  foreach x [glob -nocomplain $file] {
+    lappend new_extra_files $x
+  }
+}
+set extra_files $new_extra_files
 
 ##############################################################################
 ##############################################################################
@@ -167,12 +241,17 @@ writeln {#
 # This file is included by primary Makefile.
 #
 
-XTCC = $(TCC) $(CFLAGS) -I. -I$(SRCDIR) -I$(OBJDIR)
+XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS) $(CFLAGS)
 
 }
 writeln -nonewline "SRC ="
 foreach s [lsort $src] {
   writeln -nonewline " \\\n  \$(SRCDIR)/$s.c"
+}
+writeln "\n"
+writeln -nonewline "EXTRA_FILES ="
+foreach s [lsort $extra_files] {
+  writeln -nonewline " \\\n  \$(SRCDIR)/$s"
 }
 writeln "\n"
 writeln -nonewline "TRANS_SRC ="
@@ -188,12 +267,18 @@ writeln "\n"
 writeln "APPNAME = $name\$(E)"
 writeln "\n"
 
-writeln {
+writeln [string map [list \
+    <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS " \\\n                 "] \
+    <<<SHELL_OPTIONS>>> [join $SHELL_OPTIONS " \\\n                "] \
+    <<<MINIZ_OPTIONS>>> [join $MINIZ_OPTIONS " \\\n                "]] {
 all:	$(OBJDIR) $(APPNAME)
 
 install:	$(APPNAME)
 	mkdir -p $(INSTALLDIR)
 	mv $(APPNAME) $(INSTALLDIR)
+
+codecheck:	$(TRANS_SRC) $(OBJDIR)/codecheck1
+	$(OBJDIR)/codecheck1 $(TRANS_SRC)
 
 $(OBJDIR):
 	-mkdir $(OBJDIR)
@@ -207,8 +292,14 @@ $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
 	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
+$(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
+	$(BCC) -o $(OBJDIR)/mkbuiltin $(SRCDIR)/mkbuiltin.c
+
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
+
+$(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
+	$(BCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -221,101 +312,112 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/
 		$(SRCDIR)/../manifest \
 		$(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
+# Setup the options used to compile the included SQLite library.
+SQLITE_OPTIONS = <<<SQLITE_OPTIONS>>>
+
+# Setup the options used to compile the included SQLite shell.
+SHELL_OPTIONS = <<<SHELL_OPTIONS>>>
+
+# Setup the options used to compile the included miniz library.
+MINIZ_OPTIONS = <<<MINIZ_OPTIONS>>>
+
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
-# the sqlite3.o object. Instead, the system sqlite will be linked
+# the sqlite3.o object. Instead, the system SQLite will be linked
 # using -lsqlite3.
-SQLITE3_OBJ.1 = 
+SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
-# The FOSSIL_ENABLE_TCL variable may be undefined, set to 0, or set to 1.
-# If it is set to 1, then we need to build the Tcl integration code and
-# link to the Tcl library.
-TCL_OBJ.0 = 
-TCL_OBJ.1 = $(OBJDIR)/th_tcl.o
-TCL_OBJ. = $(TCL_OBJ.0)
+# The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
+# set to 1.  If it is set to 1, the miniz library included in the
+# source tree should be used; otherwise, it should not.
+MINIZ_OBJ.0 =
+MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
+MINIZ_OBJ.  = $(MINIZ_OBJ.0)
+}]
 
-EXTRAOBJ = \
-  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
-  $(OBJDIR)/shell.o \
-  $(OBJDIR)/th.o \
-  $(OBJDIR)/th_lang.o \
-  $(TCL_OBJ.$(FOSSIL_ENABLE_TCL)) \
-  $(OBJDIR)/cson_amalgamation.o
+writeln [string map [list <<<NEXT_LINE>>> \\] {
+EXTRAOBJ = <<<NEXT_LINE>>>
+ $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) <<<NEXT_LINE>>>
+ $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) <<<NEXT_LINE>>>
+ $(OBJDIR)/shell.o <<<NEXT_LINE>>>
+ $(OBJDIR)/th.o <<<NEXT_LINE>>>
+ $(OBJDIR)/th_lang.o <<<NEXT_LINE>>>
+ $(OBJDIR)/th_tcl.o <<<NEXT_LINE>>>
+ $(OBJDIR)/cson_amalgamation.o
+}]
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
+writeln {
+$(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(OBJ) $(EXTRAOBJ)
+	$(OBJDIR)/codecheck1 $(TRANS_SRC)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
 #
-$(SRCDIR)/../manifest:	
+$(SRCDIR)/../manifest:
 	# noop
 
-clean:	
+clean:
 	rm -rf $(OBJDIR)/* $(APPNAME)
 
 }
 
 set mhargs {}
 foreach s [lsort $src] {
-  append mhargs " \$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
-  set extra_h($s) {}
+  append mhargs "\$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h <<<NEXT_LINE>>>"
+  set extra_h($s) { }
 }
-append mhargs " \$(SRCDIR)/sqlite3.h"
-append mhargs " \$(SRCDIR)/th.h"
-#append mhargs " \$(SRCDIR)/cson_amalgamation.h"
-append mhargs " \$(OBJDIR)/VERSION.h"
+append mhargs "\$(SRCDIR)/sqlite3.h <<<NEXT_LINE>>>"
+append mhargs "\$(SRCDIR)/th.h <<<NEXT_LINE>>>"
+#append mhargs "\$(SRCDIR)/cson_amalgamation.h <<<NEXT_LINE>>>"
+append mhargs "\$(OBJDIR)/VERSION.h"
+set mhargs [string map [list <<<NEXT_LINE>>> \\\n\t] $mhargs]
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
-writeln "\t\$(OBJDIR)/mkindex \$(TRANS_SRC) >$@"
-writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
+writeln "\t\$(OBJDIR)/mkindex \$(TRANS_SRC) >\$@\n"
+
+writeln "\$(OBJDIR)/builtin_data.h: \$(OBJDIR)/mkbuiltin \$(EXTRA_FILES)"
+writeln "\t\$(OBJDIR)/mkbuiltin --prefix \$(SRCDIR)/ \$(EXTRA_FILES) >\$@\n"
+
+writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
 writeln "\t\$(OBJDIR)/makeheaders $mhargs"
 writeln "\ttouch \$(OBJDIR)/headers"
 writeln "\$(OBJDIR)/headers: Makefile"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/json_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h"
 writeln "Makefile:"
-set extra_h(main) \$(OBJDIR)/page_index.h
+set extra_h(main) " \$(OBJDIR)/page_index.h "
+set extra_h(builtin) " \$(OBJDIR)/builtin_data.h "
 
 foreach s [lsort $src] {
   writeln "\$(OBJDIR)/${s}_.c:\t\$(SRCDIR)/$s.c \$(OBJDIR)/translate"
-  writeln "\t\$(OBJDIR)/translate \$(SRCDIR)/$s.c >\$(OBJDIR)/${s}_.c\n"
-  writeln "\$(OBJDIR)/$s.o:\t\$(OBJDIR)/${s}_.c \$(OBJDIR)/$s.h $extra_h($s) \$(SRCDIR)/config.h"
+  writeln "\t\$(OBJDIR)/translate \$(SRCDIR)/$s.c >\$@\n"
+  writeln "\$(OBJDIR)/$s.o:\t\$(OBJDIR)/${s}_.c \$(OBJDIR)/$s.h$extra_h($s)\$(SRCDIR)/config.h"
   writeln "\t\$(XTCC) -o \$(OBJDIR)/$s.o -c \$(OBJDIR)/${s}_.c\n"
-  writeln "\$(OBJDIR)/$s.h:\t\$(OBJDIR)/headers"
+  writeln "\$(OBJDIR)/$s.h:\t\$(OBJDIR)/headers\n"
 }
 
-
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
-set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1}
-append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
-#append opt " -DSQLITE_ENABLE_FTS3=1"
-append opt " -DSQLITE_ENABLE_STAT3"
-append opt " -Dlocaltime=fossil_localtime"
-append opt " -DSQLITE_ENABLE_LOCKING_STYLE=0"
-append opt " -DSQLITE_WIN32_NO_ANSI"
-set SQLITE_OPTIONS $opt
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$@\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
-set opt {-Dmain=sqlite3_shell}
-append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
-append opt " -Dsqlite3_strglob=strglob"
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
-writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th_lang.o:\t\$(SRCDIR)/th_lang.c"
-writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
-writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$@\n"
 
-set opt {}
 writeln {
+$(OBJDIR)/miniz.o:	$(SRCDIR)/miniz.c
+	$(XTCC) $(MINIZ_OPTIONS) -c $(SRCDIR)/miniz.c -o $@
+
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
-	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
+	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $@
 
 #
 # The list of all the targets that do not correspond to real files. This stops
@@ -389,6 +491,19 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_SSL = 1
 
+#### Automatically build OpenSSL when building Fossil (causes rebuild
+#    issues when building incrementally).
+#
+# FOSSIL_BUILD_SSL = 1
+
+#### Enable TH1 scripts in embedded documentation files
+#
+# FOSSIL_ENABLE_TH1_DOCS = 1
+
+#### Enable hooks for commands and web pages via TH1
+#
+# FOSSIL_ENABLE_TH1_HOOKS = 1
+
 #### Enable scripting support via Tcl/Tk
 #
 # FOSSIL_ENABLE_TCL = 1
@@ -401,13 +516,22 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_TCL_PRIVATE_STUBS = 1
 
+#### Use 'system' SQLite
+#
+# USE_SYSTEM_SQLITE = 1
+
+#### Use the miniz compression library
+#
+# FOSSIL_ENABLE_MINIZ = 1
+
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
 #
 FOSSIL_TCL_SOURCE = 1
 
 #### Check if the workaround for the MinGW command line handling needs to
-#    be enabled by default.
+#    be enabled by default.  This check may be somewhat fragile due to the
+#    use of "findstring".
 #
 ifndef MINGW_IS_32BIT_ONLY
 ifeq (,$(findstring w64-mingw32,$(PREFIX)))
@@ -420,13 +544,54 @@ endif
 ZINCDIR = $(SRCDIR)/../compat/zlib
 ZLIBDIR = $(SRCDIR)/../compat/zlib
 
+#### Make an attempt to detect if Fossil is being built for the x64 processor
+#    architecture.  This check may be somewhat fragile due to "findstring".
+#
+ifndef X64
+ifneq (,$(findstring x86_64-w64-mingw32,$(PREFIX)))
+X64 = 1
+endif
+endif
+
+#### Determine if the optimized assembly routines provided with zlib should be
+#    used, taking into account whether zlib is actually enabled and the target
+#    processor architecture.
+#
+ifndef X64
+SSLCONFIG = mingw
+ifndef FOSSIL_ENABLE_MINIZ
+ZLIBCONFIG = LOC="-DASMV -DASMINF" OBJA="inffas86.o match.o"
+LIBTARGETS = $(ZLIBDIR)/inffas86.o $(ZLIBDIR)/match.o
+else
+ZLIBCONFIG =
+LIBTARGETS =
+endif
+else
+SSLCONFIG = mingw64
+ZLIBCONFIG =
+LIBTARGETS =
+endif
+
+#### Disable creation of the OpenSSL shared libraries.  Also, disable support
+#    for both SSLv2 and SSLv3 (i.e. thereby forcing the use of TLS).
+#
+SSLCONFIG += no-ssl2 no-ssl3 no-shared
+
+#### When using zlib, make sure that OpenSSL is configured to use the zlib
+#    that Fossil knows about (i.e. the one within the source tree).
+#
+ifndef FOSSIL_ENABLE_MINIZ
+SSLCONFIG +=  --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib
+endif
+
 #### The directories where the OpenSSL include and library files are located.
 #    The recommended usage here is to use the Sysinternals junction tool
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1e/include
-OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1e
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2a
+OPENSSLINCDIR = $(OPENSSLDIR)/include
+OPENSSLLIBDIR = $(OPENSSLDIR)
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -471,7 +636,13 @@ endif
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
+TCC = $(PREFIX)gcc -Os -Wall
+
+#### When not using the miniz compression library, zlib is required.
+#
+ifndef FOSSIL_ENABLE_MINIZ
+TCC += -L$(ZLIBDIR) -I$(ZINCDIR)
+endif
 
 #### Add the necessary command line options to build with debugging
 #    symbols, if enabled.
@@ -483,7 +654,11 @@ endif
 #### Compile resources for use in building executables that will run
 #    on the target platform.
 #
-RCC = $(PREFIX)windres -I$(SRCDIR) -I$(ZINCDIR)
+RCC = $(PREFIX)windres -I$(SRCDIR)
+
+ifndef FOSSIL_ENABLE_MINIZ
+RCC += -I$(ZINCDIR)
+endif
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
@@ -502,16 +677,34 @@ RCC += -I$(TCLINCDIR)
 endif
 endif
 
+# With miniz (i.e. instead of zlib)
+ifdef FOSSIL_ENABLE_MINIZ
+TCC += -DFOSSIL_ENABLE_MINIZ=1
+RCC += -DFOSSIL_ENABLE_MINIZ=1
+endif
+
 # With MinGW command line handling workaround
 ifdef MINGW_IS_32BIT_ONLY
-TCC += -DBROKEN_MINGW_CMDLINE=1 -D_USE_32BIT_TIME_T
-RCC += -DBROKEN_MINGW_CMDLINE=1 -D_USE_32BIT_TIME_T
+TCC += -DBROKEN_MINGW_CMDLINE=1
+RCC += -DBROKEN_MINGW_CMDLINE=1
 endif
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
+endif
+
+# With TH1 embedded docs support
+ifdef FOSSIL_ENABLE_TH1_DOCS
+TCC += -DFOSSIL_ENABLE_TH1_DOCS=1
+RCC += -DFOSSIL_ENABLE_TH1_DOCS=1
+endif
+
+# With TH1 hook support
+ifdef FOSSIL_ENABLE_TH1_HOOKS
+TCC += -DFOSSIL_ENABLE_TH1_HOOKS=1
+RCC += -DFOSSIL_ENABLE_TH1_HOOKS=1
 endif
 
 # With Tcl support
@@ -543,17 +736,26 @@ endif
 #
 LIB = -static
 
-# MinGW: If available, use the Unicode capable runtime startup code.
+#### MinGW: If available, use the Unicode capable runtime startup code.
+#
 ifndef MINGW_IS_32BIT_ONLY
 LIB += -municode
 endif
 
-# OpenSSL: Add the necessary libraries required, if enabled.
+#### SQLite: If enabled, use the system SQLite library.
+#
+ifdef USE_SYSTEM_SQLITE
+LIB += -lsqlite3
+endif
+
+#### OpenSSL: Add the necessary libraries required, if enabled.
+#
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
 endif
 
-# Tcl: Add the necessary libraries required, if enabled.
+#### Tcl: Add the necessary libraries required, if enabled.
+#
 ifdef FOSSIL_ENABLE_TCL
 LIB += $(LIBTCL)
 endif
@@ -562,7 +764,13 @@ endif
 #    to link against the Z-Lib compression library.  There are no
 #    other mandatory dependencies.
 #
-LIB += -lmingwex -lz
+LIB += -lmingwex
+
+#### When not using the miniz compression library, zlib is required.
+#
+ifndef FOSSIL_ENABLE_MINIZ
+LIB += -lz
+endif
 
 #### These libraries MUST appear in the same order as they do for Tcl
 #    or linking with it will not work (exact reason unknown).
@@ -584,7 +792,11 @@ TCLSH = tclsh
 
 #### Nullsoft installer MakeNSIS location
 #
-MAKENSIS = "$(ProgramFiles)\NSIS\MakeNSIS.exe"
+MAKENSIS = "$(PROGRAMFILES)\NSIS\MakeNSIS.exe"
+
+#### Inno Setup executable location
+#
+INNOSETUP = "$(PROGRAMFILES)\Inno Setup 5\ISCC.exe"
 
 #### Include a configuration file that can override any one of these settings.
 #
@@ -600,6 +812,11 @@ foreach s [lsort $src] {
   writeln -nonewline " \\\n  \$(SRCDIR)/$s.c"
 }
 writeln "\n"
+writeln -nonewline "EXTRA_FILES ="
+foreach s [lsort $extra_files] {
+  writeln -nonewline " \\\n  \$(SRCDIR)/$s"
+}
+writeln "\n"
 writeln -nonewline "TRANS_SRC ="
 foreach s [lsort $src] {
   writeln -nonewline " \\\n  \$(OBJDIR)/${s}_.c"
@@ -610,7 +827,8 @@ foreach s [lsort $src] {
   writeln -nonewline " \\\n \$(OBJDIR)/$s.o"
 }
 writeln "\n"
-writeln "APPNAME = ${name}.exe"
+writeln "APPNAME    = ${name}.exe"
+writeln "APPTARGETS ="
 writeln {
 #### If the USE_WINDOWS variable exists, it is assumed that we are building
 #    inside of a Windows-style shell; otherwise, it is assumed that we are
@@ -620,21 +838,29 @@ writeln {
 #    recognized internally by make.
 #
 ifdef USE_WINDOWS
-TRANSLATE   = $(subst /,\,$(OBJDIR)/translate)
-MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders)
-MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
-VERSION     = $(subst /,\,$(OBJDIR)/version)
+TRANSLATE   = $(subst /,\,$(OBJDIR)/translate.exe)
+MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders.exe)
+MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex.exe)
+MKBUILTIN   = $(subst /,\,$(OBJDIR)/mkbuiltin.exe)
+MKVERSION   = $(subst /,\,$(OBJDIR)/mkversion.exe)
+CODECHECK1  = $(subst /,\,$(OBJDIR)/codecheck1.exe)
+CAT         = type
 CP          = copy
+GREP        = find
 MV          = copy
 RM          = del /Q
 MKDIR       = -mkdir
 RMDIR       = rmdir /S /Q
 else
-TRANSLATE   = $(OBJDIR)/translate
-MAKEHEADERS = $(OBJDIR)/makeheaders
-MKINDEX     = $(OBJDIR)/mkindex
-VERSION     = $(OBJDIR)/version
+TRANSLATE   = $(OBJDIR)/translate.exe
+MAKEHEADERS = $(OBJDIR)/makeheaders.exe
+MKINDEX     = $(OBJDIR)/mkindex.exe
+MKBUILTIN   = $(OBJDIR)/mkbuiltin.exe
+MKVERSION   = $(OBJDIR)/mkversion.exe
+CODECHECK1  = $(OBJDIR)/codecheck1.exe
+CAT         = cat
 CP          = cp
+GREP        = grep
 MV          = mv
 RM          = rm -f
 MKDIR       = -mkdir -p
@@ -646,11 +872,15 @@ all:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 ifdef USE_WINDOWS
+	$(CAT) $(subst /,\,$(SRCDIR)\miniz.c) | $(GREP) "define MZ_VERSION" > $(subst /,\,$(OBJDIR)\minizver.h)
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
 	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.ico) $(subst /,\,$(OBJDIR))
+	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.exe.manifest) $(subst /,\,$(OBJDIR))
 else
+	$(CAT) $(SRCDIR)/miniz.c | $(GREP) "define MZ_VERSION" > $(OBJDIR)/minizver.h
 	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
+	$(CP) $(SRCDIR)/../win/fossil.exe.manifest $(OBJDIR)
 endif
 	$(RCC) $(OBJDIR)/fossil.rc -o $(OBJDIR)/fossil.o
 
@@ -670,17 +900,23 @@ else
 	$(MKDIR) $(OBJDIR)
 endif
 
-$(OBJDIR)/translate:	$(SRCDIR)/translate.c
-	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
+$(TRANSLATE):	$(SRCDIR)/translate.c
+	$(BCC) -o $@ $(SRCDIR)/translate.c
 
-$(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
-	$(BCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
+$(MAKEHEADERS):	$(SRCDIR)/makeheaders.c
+	$(BCC) -o $@ $(SRCDIR)/makeheaders.c
 
-$(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
-	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
+$(MKINDEX):	$(SRCDIR)/mkindex.c
+	$(BCC) -o $@ $(SRCDIR)/mkindex.c
 
-$(VERSION): $(SRCDIR)/mkversion.c
-	$(BCC) -o $(OBJDIR)/version $(SRCDIR)/mkversion.c
+$(MKBUILTIN):	$(SRCDIR)/mkbuiltin.c
+	$(BCC) -o $@ $(SRCDIR)/mkbuiltin.c
+
+$(MKVERSION): $(SRCDIR)/mkversion.c
+	$(BCC) -o $@ $(SRCDIR)/mkversion.c
+
+$(CODECHECK1):	$(SRCDIR)/codecheck1.c
+	$(BCC) -o $@ $(SRCDIR)/codecheck1.c
 
 # WARNING. DANGER. Running the test suite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -688,28 +924,56 @@ $(VERSION): $(SRCDIR)/mkversion.c
 test:	$(OBJDIR) $(APPNAME)
 	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(VERSION)
-	$(VERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(MKVERSION)
+	$(MKVERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$@
 
-EXTRAOBJ = \
-  $(OBJDIR)/sqlite3.o \
-  $(OBJDIR)/shell.o \
-  $(OBJDIR)/th.o \
-  $(OBJDIR)/th_lang.o \
-  $(OBJDIR)/cson_amalgamation.o
+# The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
+# to 1. If it is set to 1, then there is no need to build or link
+# the sqlite3.o object. Instead, the system SQLite will be linked
+# using -lsqlite3.
+SQLITE3_OBJ.1 =
+SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
-ifdef FOSSIL_ENABLE_TCL
-EXTRAOBJ +=  $(OBJDIR)/th_tcl.o
-endif
+# The FOSSIL_ENABLE_MINIZ variable may be undefined, set to 0, or
+# set to 1.  If it is set to 1, the miniz library included in the
+# source tree should be used; otherwise, it should not.
+MINIZ_OBJ.0 =
+MINIZ_OBJ.1 = $(OBJDIR)/miniz.o
+MINIZ_OBJ.  = $(MINIZ_OBJ.0)
+}
 
+writeln [string map [list <<<NEXT_LINE>>> \\] {
+EXTRAOBJ = <<<NEXT_LINE>>>
+ $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) <<<NEXT_LINE>>>
+ $(MINIZ_OBJ.$(FOSSIL_ENABLE_MINIZ)) <<<NEXT_LINE>>>
+ $(OBJDIR)/shell.o <<<NEXT_LINE>>>
+ $(OBJDIR)/th.o <<<NEXT_LINE>>>
+ $(OBJDIR)/th_lang.o <<<NEXT_LINE>>>
+ $(OBJDIR)/th_tcl.o <<<NEXT_LINE>>>
+ $(OBJDIR)/cson_amalgamation.o
+}]
+
+writeln {
 zlib:
-	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) $(ZLIBCONFIG) -f win32/Makefile.gcc libz.a
 
 clean-zlib:
 	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc clean
 
-openssl:	zlib
-	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) --with-zlib-lib=$(PWD)/$(ZLIBDIR) --with-zlib-include=$(PWD)/$(ZLIBDIR) zlib mingw
+$(ZLIBDIR)/inffas86.o:
+	$(TCC) -c -o $@ -DASMINF -I$(ZLIBDIR) -O3 $(ZLIBDIR)/contrib/inflate86/inffas86.c
+
+$(ZLIBDIR)/match.o:
+	$(TCC) -c -o $@ -DASMV $(ZLIBDIR)/contrib/asm686/match.S
+
+
+ifndef FOSSIL_ENABLE_MINIZ
+LIBTARGETS += zlib
+endif
+
+openssl:	$(LIBTARGETS)
+	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) $(SSLCONFIG)
 	$(MAKE) -C $(OPENSSLLIBDIR) build_libs
 
 clean-openssl:
@@ -722,8 +986,15 @@ tcl:
 clean-tcl:
 	$(MAKE) -C $(TCLSRCDIR)/win distclean
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
-	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
+APPTARGETS += $(LIBTARGETS)
+
+ifdef FOSSIL_BUILD_SSL
+APPTARGETS += openssl
+endif
+
+$(APPNAME):	$(APPTARGETS) $(OBJDIR)/headers $(CODECHECK1) $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
+	$(CODECHECK1) $(TRANS_SRC)
+	$(TCC) -o $@ $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -741,60 +1012,81 @@ else
 endif
 
 setup: $(OBJDIR) $(APPNAME)
-	$(MAKENSIS) ./fossil.nsi
+	$(MAKENSIS) ./setup/fossil.nsi
+
+innosetup: $(OBJDIR) $(APPNAME)
+	$(INNOSETUP) ./setup/fossil.iss -DAppVersion=$(shell $(CAT) ./VERSION)
 }
 
 set mhargs {}
 foreach s [lsort $src] {
   if {[string length $mhargs] > 0} {append mhargs " \\\n\t\t"}
   append mhargs "\$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
-  set extra_h($s) {}
+  set extra_h($s) { }
 }
 append mhargs " \\\n\t\t\$(SRCDIR)/sqlite3.h"
 append mhargs " \\\n\t\t\$(SRCDIR)/th.h"
 append mhargs " \\\n\t\t\$(OBJDIR)/VERSION.h"
-writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
-writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@\n"
-writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
+writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(MKINDEX)"
+writeln "\t\$(MKINDEX) \$(TRANS_SRC) >\$@\n"
+
+writeln "\$(OBJDIR)/builtin_data.h:\t\$(MKBUILTIN) \$(EXTRA_FILES)"
+writeln "\t\$(MKBUILTIN) --prefix \$(SRCDIR)/ \$(EXTRA_FILES) >\$@\n"
+
+writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/builtin_data.h \$(MAKEHEADERS) \$(OBJDIR)/VERSION.h"
 writeln "\t\$(MAKEHEADERS) $mhargs"
 writeln "\techo Done >\$(OBJDIR)/headers\n"
 writeln "\$(OBJDIR)/headers: Makefile\n"
 writeln "Makefile:\n"
-set extra_h(main) \$(OBJDIR)/page_index.h
+set extra_h(main) " \$(OBJDIR)/page_index.h "
+set extra_h(builtin) " \$(OBJDIR)/builtin_data.h "
 
 foreach s [lsort $src] {
-  writeln "\$(OBJDIR)/${s}_.c:\t\$(SRCDIR)/$s.c \$(OBJDIR)/translate"
-  writeln "\t\$(TRANSLATE) \$(SRCDIR)/$s.c >\$(OBJDIR)/${s}_.c\n"
-  writeln "\$(OBJDIR)/$s.o:\t\$(OBJDIR)/${s}_.c \$(OBJDIR)/$s.h $extra_h($s) \$(SRCDIR)/config.h"
+  writeln "\$(OBJDIR)/${s}_.c:\t\$(SRCDIR)/$s.c \$(TRANSLATE)"
+  writeln "\t\$(TRANSLATE) \$(SRCDIR)/$s.c >\$@\n"
+  writeln "\$(OBJDIR)/$s.o:\t\$(OBJDIR)/${s}_.c \$(OBJDIR)/$s.h$extra_h($s)\$(SRCDIR)/config.h"
   writeln "\t\$(XTCC) -o \$(OBJDIR)/$s.o -c \$(OBJDIR)/${s}_.c\n"
   writeln "\$(OBJDIR)/${s}.h:\t\$(OBJDIR)/headers\n"
 }
 
+set SQLITE_WIN32_OPTIONS $SQLITE_OPTIONS
+lappend SQLITE_WIN32_OPTIONS -DSQLITE_WIN32_NO_ANSI
 
-writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
-set opt $SQLITE_OPTIONS
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+set MINGW_SQLITE_OPTIONS $SQLITE_WIN32_OPTIONS
+lappend MINGW_SQLITE_OPTIONS -D_HAVE__MINGW_H
+lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MALLOC_H
+lappend MINGW_SQLITE_OPTIONS -DSQLITE_USE_MSIZE
 
-set opt {}
+set MINIZ_WIN32_OPTIONS $MINIZ_OPTIONS
+
+set j " \\\n                 "
+writeln "SQLITE_OPTIONS = [join $MINGW_SQLITE_OPTIONS $j]\n"
+set j " \\\n                "
+writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS $j]\n"
+set j " \\\n                "
+writeln "MINIZ_OPTIONS = [join $MINIZ_WIN32_OPTIONS $j]\n"
+
+writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c \$(SRCDIR)/../win/Makefile.mingw"
+writeln "\t\$(XTCC) \$(SQLITE_OPTIONS) \$(SQLITE_CFLAGS) -c \$(SRCDIR)/sqlite3.c -o \$@\n"
+
 writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/cson_amalgamation.c -o \$@\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_status.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
-set opt {-Dmain=sqlite3_shell}
-append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
+writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h \$(SRCDIR)/../win/Makefile.mingw"
+writeln "\t\$(XTCC) \$(SHELL_OPTIONS) \$(SHELL_CFLAGS) -c \$(SRCDIR)/shell.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
-writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$@\n"
 
 writeln "\$(OBJDIR)/th_lang.o:\t\$(SRCDIR)/th_lang.c"
-writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$@\n"
 
-writeln {ifdef FOSSIL_ENABLE_TCL
-$(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
-	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
-endif}
+writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$@\n"
+
+writeln "\$(OBJDIR)/miniz.o:\t\$(SRCDIR)/miniz.c"
+writeln "\t\$(XTCC) \$(MINIZ_OPTIONS) -c \$(SRCDIR)/miniz.c -o \$@\n"
 
 close $output_file
 #
@@ -836,7 +1128,8 @@ BCC    = $(DMDIR)\bin\dmc $(CFLAGS)
 TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(SSL) $(INCL)
 LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32
 }
-writeln "SQLITE_OPTIONS = $SQLITE_OPTIONS\n"
+writeln "SQLITE_OPTIONS = [join $SQLITE_OPTIONS { }]\n"
+writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS { }]\n"
 writeln -nonewline "SRC   = "
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c "
@@ -856,8 +1149,9 @@ APPNAME = $(OBJDIR)\fossil$(E)
 
 all: $(APPNAME)
 
-$(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
-	cd $(OBJDIR) 
+$(APPNAME) : translate$E mkindex$E codecheck1$E headers  $(OBJ) $(OBJDIR)\link
+	cd $(OBJDIR)
+	codecheck1$E $(SRC)
 	$(DMDIR)\bin\link @link
 
 $(OBJDIR)\fossil.res:	$B\win\fossil.rc
@@ -885,14 +1179,20 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) -o$@ $**
 
-version$E: $B\src\mkversion.c
+mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
+	$(BCC) -o$@ $**
+
+mkversion$E: $(SRCDIR)\mkversion.c
+	$(BCC) -o$@ $**
+
+codecheck1$E: $(SRCDIR)\codecheck1.c
 	$(BCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) -o$@ -c -Dmain=sqlite3_shell $(SQLITE_OPTIONS) $**
+	$(TCC) -o$@ -c $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) $**
 
 $(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $**
+	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $**
 
 $(OBJDIR)\th$O : $(SRCDIR)\th.c
 	$(TCC) -o$@ -c $**
@@ -903,18 +1203,21 @@ $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 $(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
 	cp $@ $@
 
-VERSION.h : version$E $B\manifest.uuid $B\manifest $B\VERSION
+VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	+$** > $@
 
-page_index.h: mkindex$E $(SRC) 
+page_index.h: mkindex$E $(SRC)
 	+$** > $@
+
+builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
+	mkbuiltin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
 
 clean:
 	-del $(OBJDIR)\*.obj
 	-del *.obj *_.c *.h *.map
 
 realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
+	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E codecheck1$E mkbuiltin$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -941,7 +1244,7 @@ foreach s [lsort $src] {
   writeln "\t+translate\$E \$** > \$@\n"
 }
 
-writeln -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\t +makeheaders\$E "
+writeln -nonewline "headers: makeheaders\$E page_index.h builtin_data.h VERSION.h\n\t +makeheaders\$E "
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
@@ -965,62 +1268,199 @@ writeln {#
 # WARNING: DO NOT EDIT, AUTOMATICALLY GENERATED FILE (SEE "src/makemake.tcl")
 ##############################################################################
 #
+# This Makefile will only function correctly if used from a sub-directory
+# that is a direct child of the top-level directory for this project.
+#
+!if !exist("..\.fossil-settings")
+!error "Please change the current directory to the one containing this file."
+!endif
+
+#
 # This file is automatically generated.  Instead of editing this
 # file, edit "makemake.tcl" then run "tclsh makemake.tcl"
 # to regenerate this file.
 #
-B      = ..
-SRCDIR = $B\src
-OBJDIR = .
-OX     = .
-O      = .obj
-E      = .exe
+B       = ..
+SRCDIR  = $B\src
+OBJDIR  = .
+OX      = .
+O       = .obj
+E       = .exe
+P       = .pdb
+
+# Perl is only necessary if OpenSSL support is enabled and it must
+# be built from source code.  The PERLDIR variable should point to
+# the directory containing the main Perl binary (i.e. "perl.exe").
+PERLDIR = C:\Perl\bin
+PERL    = perl.exe
+
+# Uncomment to enable debug symbols
+# DEBUG = 1
+
+# Uncomment to support Windows XP with Visual Studio 201x
+# FOSSIL_ENABLE_WINXP = 1
 
 # Uncomment to enable JSON API
 # FOSSIL_ENABLE_JSON = 1
 
+# Uncomment to enable miniz usage
+# FOSSIL_ENABLE_MINIZ = 1
+
 # Uncomment to enable SSL support
 # FOSSIL_ENABLE_SSL = 1
 
+# Uncomment to build SSL libraries
+# FOSSIL_BUILD_SSL = 1
+
+# Uncomment to enable TH1 scripts in embedded documentation files
+# FOSSIL_ENABLE_TH1_DOCS = 1
+
+# Uncomment to enable TH1 hooks
+# FOSSIL_ENABLE_TH1_HOOKS = 1
+
+# Uncomment to enable Tcl support
+# FOSSIL_ENABLE_TCL = 1
+
 !ifdef FOSSIL_ENABLE_SSL
-SSLINCDIR = $(B)\compat\openssl-1.0.1e\include
-SSLLIBDIR = $(B)\compat\openssl-1.0.1e\out32
+SSLDIR    = $(B)\compat\openssl-1.0.2a
+SSLINCDIR = $(SSLDIR)\inc32
+SSLLIBDIR = $(SSLDIR)\out32
+SSLLFLAGS = /nologo /opt:ref /debug
 SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib
+!if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
+!message Using 'x64' platform for OpenSSL...
+# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3 no-shared
+SSLCONFIG = VC-WIN64A no-asm no-shared
+SSLSETUP  = ms\do_win64a.bat
+SSLNMAKE  = ms\nt.mak all
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+!elseif "$(PLATFORM)"=="ia64"
+!message Using 'ia64' platform for OpenSSL...
+# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3 no-shared
+SSLCONFIG = VC-WIN64I no-asm no-shared
+SSLSETUP  = ms\do_win64i.bat
+SSLNMAKE  = ms\nt.mak all
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+!else
+!message Assuming 'x86' platform for OpenSSL...
+# BUGBUG (OpenSSL): Apparently, using "no-ssl*" here breaks the build.
+# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3 no-shared
+SSLCONFIG = VC-WIN32 no-asm no-shared
+SSLSETUP  = ms\do_ms.bat
+SSLNMAKE  = ms\nt.mak all
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+!endif
+!endif
+
+!ifdef FOSSIL_ENABLE_TCL
+TCLDIR    = $(B)\compat\tcl-8.6
+TCLSRCDIR = $(TCLDIR)
+TCLINCDIR = $(TCLSRCDIR)\generic
 !endif
 
 # zlib options
-ZINCDIR = $(B)\compat\zlib
-ZLIBDIR = $(B)\compat\zlib
-ZLIB    = zlib.lib
+ZINCDIR   = $(B)\compat\zlib
+ZLIBDIR   = $(B)\compat\zlib
+ZLIB      = zlib.lib
 
-INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
+INCL      = /I. /I$(SRCDIR) /I$B\win\include
 
-!ifdef FOSSIL_ENABLE_SSL
-INCL   = $(INCL) -I$(SSLINCDIR)
+!ifndef FOSSIL_ENABLE_MINIZ
+INCL      = $(INCL) /I$(ZINCDIR)
 !endif
 
-CFLAGS = -nologo -MT -O2
-BCC    = $(CC) $(CFLAGS)
-TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(INCL)
-RCC    = rc -D_WIN32 -D_MSC_VER $(MSCDEF) $(INCL)
-LIBS   = $(ZLIB) ws2_32.lib advapi32.lib
-LIBDIR = -LIBPATH:$(ZLIBDIR)
+!ifdef FOSSIL_ENABLE_SSL
+INCL      = $(INCL) /I$(SSLINCDIR)
+!endif
+
+!ifdef FOSSIL_ENABLE_TCL
+INCL      = $(INCL) /I$(TCLINCDIR)
+!endif
+
+CFLAGS    = /nologo
+LDFLAGS   = /NODEFAULTLIB:msvcrt /MANIFEST:NO
+
+!ifdef FOSSIL_ENABLE_WINXP
+XPCFLAGS  = $(XPCFLAGS) /D_USING_V110_SDK71_=1
+CFLAGS    = $(CFLAGS) $(XPCFLAGS)
+!if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
+XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.02
+!else
+XPLDFLAGS = $(XPLDFLAGS) /SUBSYSTEM:CONSOLE,5.01
+!endif
+LDFLAGS   = $(LDFLAGS) $(XPLDFLAGS)
+!endif
+
+!ifdef DEBUG
+CFLAGS    = $(CFLAGS) /Zi /MTd /Od
+LDFLAGS   = $(LDFLAGS) /DEBUG
+!else
+CFLAGS    = $(CFLAGS) /MT /O2
+!endif
+
+BCC       = $(CC) $(CFLAGS)
+TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
+RCC       = rc /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
+LIBS      = ws2_32.lib advapi32.lib
+LIBDIR    =
+
+!ifndef FOSSIL_ENABLE_MINIZ
+LIBS      = $(LIBS) $(ZLIB)
+LIBDIR    = $(LIBDIR) /LIBPATH:$(ZLIBDIR)
+!endif
+
+!ifdef FOSSIL_ENABLE_MINIZ
+TCC       = $(TCC) /DFOSSIL_ENABLE_MINIZ=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_MINIZ=1
+!endif
 
 !ifdef FOSSIL_ENABLE_JSON
-TCC = $(TCC) -DFOSSIL_ENABLE_JSON=1
-RCC = $(RCC) -DFOSSIL_ENABLE_JSON=1
+TCC       = $(TCC) /DFOSSIL_ENABLE_JSON=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_JSON=1
 !endif
 
 !ifdef FOSSIL_ENABLE_SSL
-TCC    = $(TCC) -DFOSSIL_ENABLE_SSL=1
-RCC    = $(RCC) -DFOSSIL_ENABLE_SSL=1
-LIBS   = $(LIBS) $(SSLLIB)
-LIBDIR = $(LIBDIR) -LIBPATH:$(SSLLIBDIR)
+TCC       = $(TCC) /DFOSSIL_ENABLE_SSL=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_SSL=1
+LIBS      = $(LIBS) $(SSLLIB)
+LIBDIR    = $(LIBDIR) /LIBPATH:$(SSLLIBDIR)
+!endif
+
+!ifdef FOSSIL_ENABLE_TH1_DOCS
+TCC       = $(TCC) /DFOSSIL_ENABLE_TH1_DOCS=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_TH1_DOCS=1
+!endif
+
+!ifdef FOSSIL_ENABLE_TH1_HOOKS
+TCC       = $(TCC) /DFOSSIL_ENABLE_TH1_HOOKS=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_TH1_HOOKS=1
+!endif
+
+!ifdef FOSSIL_ENABLE_TCL
+TCC       = $(TCC) /DFOSSIL_ENABLE_TCL=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_TCL=1
+TCC       = $(TCC) /DFOSSIL_ENABLE_TCL_STUBS=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_TCL_STUBS=1
+TCC       = $(TCC) /DFOSSIL_ENABLE_TCL_PRIVATE_STUBS=1
+RCC       = $(RCC) /DFOSSIL_ENABLE_TCL_PRIVATE_STUBS=1
+TCC       = $(TCC) /DUSE_TCL_STUBS=1
+RCC       = $(RCC) /DUSE_TCL_STUBS=1
 !endif
 }
-regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS
+regsub -all {[-]D} [join $SQLITE_WIN32_OPTIONS { }] {/D} MSC_SQLITE_OPTIONS
 set j " \\\n                 "
 writeln "SQLITE_OPTIONS = [join $MSC_SQLITE_OPTIONS $j]\n"
+
+regsub -all {[-]D} [join $SHELL_WIN32_OPTIONS { }] {/D} MSC_SHELL_OPTIONS
+set j " \\\n                "
+writeln "SHELL_OPTIONS = [join $MSC_SHELL_OPTIONS $j]\n"
+
+regsub -all {[-]D} [join $MINIZ_WIN32_OPTIONS { }] {/D} MSC_MINIZ_OPTIONS
+set j " \\\n                "
+writeln "MINIZ_OPTIONS = [join $MSC_MINIZ_OPTIONS $j]\n"
+
 writeln -nonewline "SRC   = "
 set i 0
 foreach s [lsort $src] {
@@ -1031,7 +1471,17 @@ foreach s [lsort $src] {
   writeln -nonewline "${s}_.c"; incr i
 }
 writeln "\n"
-set AdditionalObj [list shell sqlite3 th th_lang cson_amalgamation]
+writeln -nonewline "EXTRA_FILES   = "
+set i 0
+foreach s [lsort $extra_files] {
+  if {$i > 0} {
+    writeln " \\"
+    writeln -nonewline "        "
+  }
+  writeln -nonewline "\$(SRCDIR)\\${s}"; incr i
+}
+writeln "\n"
+set AdditionalObj [list shell sqlite3 th th_lang th_tcl cson_amalgamation]
 writeln -nonewline "OBJ   = "
 set i 0
 foreach s [lsort [concat $src $AdditionalObj]] {
@@ -1041,20 +1491,58 @@ foreach s [lsort [concat $src $AdditionalObj]] {
   }
   writeln -nonewline "\$(OX)\\$s\$O"; incr i
 }
-writeln " \\"
-writeln -nonewline "        \$(OX)\\fossil.res\n"
+if {$i > 0} {
+  writeln " \\"
+}
+writeln "!ifdef FOSSIL_ENABLE_MINIZ"
+writeln -nonewline "        "
+writeln "\$(OX)\\miniz\$O \\"; incr i
+writeln "!endif"
+writeln -nonewline "        \$(OX)\\fossil.res\n\n"
 writeln {
-APPNAME = $(OX)\fossil$(E)
+APPNAME    = $(OX)\fossil$(E)
+PDBNAME    = $(OX)\fossil$(P)
+APPTARGETS =
 
 all: $(OX) $(APPNAME)
 
 zlib:
 	@echo Building zlib from "$(ZLIBDIR)"...
-	@pushd "$(ZLIBDIR)" && nmake /f win32\Makefile.msc $(ZLIB) && popd
+!ifdef FOSSIL_ENABLE_WINXP
+	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) "CC=cl $(XPCFLAGS)" "LD=link $(XPLDFLAGS)" && popd
+!else
+	@pushd "$(ZLIBDIR)" && $(MAKE) /f win32\Makefile.msc $(ZLIB) && popd
+!endif
 
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
-	cd $(OX) 
-	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
+!ifdef FOSSIL_ENABLE_SSL
+openssl:
+	@echo Building OpenSSL from "$(SSLDIR)"...
+!if "$(PERLDIR)" != ""
+	@set PATH=$(PERLDIR);$(PATH)
+!endif
+	@pushd "$(SSLDIR)" && $(PERL) Configure $(SSLCONFIG) && popd
+	@pushd "$(SSLDIR)" && call $(SSLSETUP) && popd
+!ifdef FOSSIL_ENABLE_WINXP
+	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS) $(XPCFLAGS)" "LFLAGS=$(SSLLFLAGS) $(XPLDFLAGS)" && popd
+!else
+	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS)" && popd
+!endif
+!endif
+
+!ifndef FOSSIL_ENABLE_MINIZ
+APPTARGETS = $(APPTARGETS) zlib
+!endif
+
+!ifdef FOSSIL_ENABLE_SSL
+!ifdef FOSSIL_BUILD_SSL
+APPTARGETS = $(APPTARGETS) openssl
+!endif
+!endif
+
+$(APPNAME) : $(APPTARGETS) translate$E mkindex$E codecheck1$E headers $(OBJ) $(OX)\linkopts
+	cd $(OX)
+	codecheck1$E $(SRC)
+	link $(LDFLAGS) /OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
 set redir {>}
@@ -1062,10 +1550,12 @@ foreach s [lsort [concat $src $AdditionalObj]] {
   writeln "\techo \$(OX)\\$s.obj $redir \$@"
   set redir {>>}
 }
-writeln "\techo \$(LIBS) >> \$@\n\n"
-
+set redir {>>}
+writeln "!ifdef FOSSIL_ENABLE_MINIZ"
+writeln "\techo \$(OX)\\miniz.obj $redir \$@"
+writeln "!endif"
+writeln "\techo \$(LIBS) $redir \$@"
 writeln {
-
 $(OX):
 	@-mkdir $@
 
@@ -1078,14 +1568,20 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) $**
 
-mkversion$E: $B\src\mkversion.c
+mkbuiltin$E: $(SRCDIR)\mkbuiltin.c
 	$(BCC) $**
 
-$(OX)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) /Fo$@ /Dmain=sqlite3_shell $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
+mkversion$E: $(SRCDIR)\mkversion.c
+	$(BCC) $**
 
-$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**
+codecheck1$E: $(SRCDIR)\codecheck1.c
+	$(BCC) $**
+
+$(OX)\shell$O : $(SRCDIR)\shell.c $B\win\Makefile.msc
+	$(TCC) /Fo$@ $(SHELL_OPTIONS) $(SQLITE_OPTIONS) $(SHELL_CFLAGS) -c $(SRCDIR)\shell.c
+
+$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c $B\win\Makefile.msc
+	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $(SQLITE_CFLAGS) $(SRCDIR)\sqlite3.c
 
 $(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**
@@ -1093,31 +1589,50 @@ $(OX)\th$O : $(SRCDIR)\th.c
 $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) /Fo$@ -c $**
 
+$(OX)\th_tcl$O : $(SRCDIR)\th_tcl.c
+	$(TCC) /Fo$@ -c $**
+
+$(OX)\miniz$O : $(SRCDIR)\miniz.c
+	$(TCC) /Fo$@ -c $(MINIZ_OPTIONS) $(SRCDIR)\miniz.c
+
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
 $(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
-	$(TCC) /Fo$@ -c $**
+	$(TCC) /Fo$@ /c $**
 
-page_index.h: mkindex$E $(SRC) 
+page_index.h: mkindex$E $(SRC)
 	$** > $@
 
+builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
+	mkbuiltin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
+
 clean:
-	-del $(OX)\*.obj
-	-del *.obj
-	-del *_.c
-	-del *.h
-	-del *.map
-	-del *.manifest
-	-del headers
-	-del linkopts
-	-del *.res
+	del $(OX)\*.obj 2>NUL
+	del *.obj 2>NUL
+	del *_.c 2>NUL
+	del *.h 2>NUL
+	del *.ilk 2>NUL
+	del *.map 2>NUL
+	del *.res 2>NUL
+	del headers 2>NUL
+	del linkopts 2>NUL
+	del vc*.pdb 2>NUL
 
 realclean: clean
-	-del $(APPNAME)
-	-del translate$E
-	-del mkindex$E
-	-del makeheaders$E
-	-del mkversion$E
+	del $(APPNAME) 2>NUL
+	del $(PDBNAME) 2>NUL
+	del translate$E 2>NUL
+	del translate$P 2>NUL
+	del mkindex$E 2>NUL
+	del mkindex$P 2>NUL
+	del makeheaders$E 2>NUL
+	del makeheaders$P 2>NUL
+	del mkversion$E 2>NUL
+	del mkversion$P 2>NUL
+	del codecheck1$E 2>NUL
+	del codecheck1$P 2>NUL
+	del mkbuiltin$E 2>NUL
+	del mkbuiltin$P 2>NUL
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -1134,7 +1649,6 @@ $(OBJDIR)\json_tag$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_wiki$O : $(SRCDIR)\json_detail.h
-
 }
 foreach s [lsort $src] {
   writeln "\$(OX)\\$s\$O : ${s}_.c ${s}.h"
@@ -1144,9 +1658,9 @@ foreach s [lsort $src] {
 }
 
 writeln "fossil.res : \$B\\win\\fossil.rc"
-writeln "\t\$(RCC)  -fo \$@ \$**"
+writeln "\t\$(RCC)  /fo \$@ \$**\n"
 
-writeln "headers: makeheaders\$E page_index.h VERSION.h"
+writeln "headers: makeheaders\$E page_index.h builtin_data.h VERSION.h"
 writeln -nonewline "\tmakeheaders\$E "
 set i 0
 foreach s [lsort $src] {
@@ -1175,7 +1689,9 @@ puts "building ../win/Makefile.PellesCGMake"
 set output_file [open ../win/Makefile.PellesCGMake w]
 fconfigure $output_file -translation binary
 
-writeln {#
+writeln [string map [list \
+    <<<SQLITE_OPTIONS>>> [join $SQLITE_WIN32_OPTIONS { }] \
+    <<<SHELL_OPTIONS>>> [join $SHELL_WIN32_OPTIONS { }]] {#
 ##############################################################################
 # WARNING: DO NOT EDIT, AUTOMATICALLY GENERATED FILE (SEE "src/makemake.tcl")
 ##############################################################################
@@ -1209,9 +1725,9 @@ writeln {#
 #   gmake           3.80
 #   zlib sources    1.2.5
 #   Windows 7 Home Premium
-#  
+#
 
-#  
+#
 PellesCDir=c:\Programme\PellesC
 
 # Select between 32/64 bit code, default is 32 bit
@@ -1254,21 +1770,21 @@ RCFLAGS=$(INCLUDE) -D__POCC__=1 -D_M_X$(TARGETVERSION)
 
 # define the special utilities files, needed to generate
 # the automatically generated source files
-UTILS=translate.exe mkindex.exe makeheaders.exe
+UTILS=translate.exe mkindex.exe makeheaders.exe mkbuiltin.exe
 UTILS_OBJ=$(UTILS:.exe=.obj)
 UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 
-# define the sqlite files, which need special flags on compile
+# define the SQLite files, which need special flags on compile
 SQLITESRC=sqlite3.c
 ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
-SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -DSQLITE_WIN32_NO_ANSI
+SQLITEDEFINES=<<<SQLITE_OPTIONS>>>
 
-# define the sqlite shell files, which need special flags on compile
+# define the SQLite shell files, which need special flags on compile
 SQLITESHELLSRC=shell.c
 ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
-SQLITESHELLDEFINES=-Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -Dsqlite3_strglob=strglob
+SQLITESHELLDEFINES=<<<SHELL_OPTIONS>>>
 
 # define the th scripting files, which need special flags on compile
 THSRC=th.c th_lang.c
@@ -1293,7 +1809,7 @@ APPLICATION=fossil.exe
 
 # define the standard make target
 .PHONY:	default
-default:	page_index.h headers $(APPLICATION)
+default:	page_index.h builtin_data.h headers $(APPLICATION)
 
 # symbolic target to generate the source generate utils
 .PHONY:	utils
@@ -1319,12 +1835,15 @@ $(TRANSLATEDSRC):	%_.c:	$(SRCDIR)%.c translate.exe
 page_index.h:	$(TRANSLATEDSRC) mkindex.exe
 	mkindex.exe $(TRANSLATEDSRC) >$@
 
+builtin_data.h:	$(EXTRA_FILES) mkbuiltin.exe
+	mkbuiltin.exe --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
+
 # extracting version info from manifest
 VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
-	version.exe ..\manifest.uuid ..\manifest ..\VERSION  > $@
+	version.exe ..\manifest.uuid ..\manifest ..\VERSION  >$@
 
 # generate the simplified headers
-headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h
+headers: makeheaders.exe page_index.h builtin_data.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h
 	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite3.h ../src/th.h VERSION.h
 	echo Done >$@
 
@@ -1365,4 +1884,4 @@ clean:
 .PHONY: clobber
 clobber: clean
 	del /F *.exe
-}
+}]

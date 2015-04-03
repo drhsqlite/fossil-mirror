@@ -43,7 +43,7 @@
 ** local variables:
 */
 static int sslIsInit = 0;    /* True after global initialization */
-static BIO *iBio;            /* OpenSSL I/O abstraction */
+static BIO *iBio = 0;        /* OpenSSL I/O abstraction */
 static char *sslErrMsg = 0;  /* Text of most recent OpenSSL error */
 static SSL_CTX *sslCtx;      /* SSL context */
 static SSL *ssl;
@@ -60,7 +60,7 @@ static void ssl_clear_errmsg(void){
 /*
 ** Set the SSL error message.
 */
-void ssl_set_errmsg(char *zFormat, ...){
+void ssl_set_errmsg(const char *zFormat, ...){
   va_list ap;
   ssl_clear_errmsg();
   va_start(ap, zFormat);
@@ -84,7 +84,7 @@ static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
     "authentication. Specify the pathname to a file containing the PEM "
     "encoded certificate and private key with the --ssl-identity option "
     "or the ssl-identity setting.");
-  return 0; /* no cert available */    
+  return 0; /* no cert available */
 }
 
 /*
@@ -94,16 +94,16 @@ static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
 void ssl_global_init(void){
   const char *zCaSetting = 0, *zCaFile = 0, *zCaDirectory = 0;
   const char *identityFile;
-  
+
   if( sslIsInit==0 ){
     SSL_library_init();
     SSL_load_error_strings();
     ERR_load_BIO_strings();
-    OpenSSL_add_all_algorithms();    
+    OpenSSL_add_all_algorithms();
     sslCtx = SSL_CTX_new(SSLv23_client_method());
-    /* Disable SSLv2 */
-    SSL_CTX_set_options(sslCtx, SSL_OP_NO_SSLv2);
-    
+    /* Disable SSLv2 and SSLv3 */
+    SSL_CTX_set_options(sslCtx, SSL_OP_NO_SSLv2|SSL_OP_NO_SSLv3);
+
     /* Set up acceptable CA root certificates */
     zCaSetting = db_get("ssl-ca-location", 0);
     if( zCaSetting==0 || zCaSetting[0]=='\0' ){
@@ -131,7 +131,7 @@ void ssl_global_init(void){
           "ssl-ca-location '%s'", zCaSetting);
       }
     }
-    
+
     /* Load client SSL identity, preferring the filename specified on the
     ** command line */
     if( g.zSSLIdentity!=0 ){
@@ -166,26 +166,75 @@ void ssl_global_shutdown(void){
 }
 
 /*
-** Close the currently open SSL connection.  If no connection is open, 
+** Close the currently open SSL connection.  If no connection is open,
 ** this routine is a no-op.
 */
 void ssl_close(void){
   if( iBio!=NULL ){
     (void)BIO_reset(iBio);
     BIO_free_all(iBio);
+    iBio = NULL;
   }
+}
+
+/* See RFC2817 for details */
+static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
+  int rc, httpVerMin;
+  char *bbuf;
+  Blob snd, reply;
+  int done=0,end=0;
+  blob_zero(&snd);
+  blob_appendf(&snd, "CONNECT %s:%d HTTP/1.1\r\n", pUrlData->hostname,
+      pUrlData->proxyOrigPort);
+  blob_appendf(&snd, "Host: %s:%d\r\n", pUrlData->hostname, pUrlData->proxyOrigPort);
+  if( pUrlData->proxyAuth ){
+    blob_appendf(&snd, "Proxy-Authorization: %s\r\n", pUrlData->proxyAuth);
+  }
+  blob_append(&snd, "Proxy-Connection: keep-alive\r\n", -1);
+  blob_appendf(&snd, "User-Agent: %s\r\n", get_user_agent());
+  blob_append(&snd, "\r\n", 2);
+  BIO_write(bio, blob_buffer(&snd), blob_size(&snd));
+  blob_reset(&snd);
+
+  /* Wait for end of reply */
+  blob_zero(&reply);
+  do{
+    int len;
+    char buf[256];
+    len = BIO_read(bio, buf, sizeof(buf));
+    blob_append(&reply, buf, len);
+
+    bbuf = blob_buffer(&reply);
+    len = blob_size(&reply);
+    while(end < len) {
+      if(bbuf[end] == '\r') {
+        if(len - end < 4) {
+          /* need more data */
+          break;
+        }
+        if(memcmp(&bbuf[end], "\r\n\r\n", 4) == 0) {
+          done = 1;
+          break;
+        }
+      }
+      end++;
+    }
+  }while(!done);
+  sscanf(bbuf, "HTTP/1.%d %d", &httpVerMin, &rc);
+  blob_reset(&reply);
+  return rc;
 }
 
 /*
 ** Open an SSL connection.  The identify of the server is determined
-** by global variables that are set using url_parse():
+** as follows:
 **
-**    g.urlName       Name of the server.  Ex: www.fossil-scm.org
-**    g.urlPort       TCP/IP port to use.  Ex: 80
+**    g.url.name      Name of the server.  Ex: www.fossil-scm.org
+**    pUrlData->port  TCP/IP port to use.  Ex: 80
 **
 ** Return the number of errors.
 */
-int ssl_open(void){
+int ssl_open(UrlData *pUrlData){
   X509 *cert;
   int hasSavedCertificate = 0;
   int trusted = 0;
@@ -196,43 +245,71 @@ int ssl_open(void){
   /* Get certificate for current server from global config and
    * (if we have it in config) add it to certificate store.
    */
-  cert = ssl_get_certificate(&trusted);
+  cert = ssl_get_certificate(pUrlData, &trusted);
   if ( cert!=NULL ){
     X509_STORE_add_cert(SSL_CTX_get_cert_store(sslCtx), cert);
     X509_free(cert);
     hasSavedCertificate = 1;
   }
 
-  iBio = BIO_new_ssl_connect(sslCtx);
+  if( pUrlData->useProxy ){
+    int rc;
+    BIO *sBio;
+    char *connStr;
+    connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
+    sBio = BIO_new_connect(connStr);
+    free(connStr);
+    if( BIO_do_connect(sBio)<=0 ){
+      ssl_set_errmsg("SSL: cannot connect to proxy %s:%d (%s)",
+            pUrlData->name, pUrlData->port, ERR_reason_error_string(ERR_get_error()));
+      ssl_close();
+      return 1;
+    }
+    rc = establish_proxy_tunnel(pUrlData, sBio);
+    if( rc<200||rc>299 ){
+      ssl_set_errmsg("SSL: proxy connect failed with HTTP status code %d", rc);
+      return 1;
+    }
+
+    pUrlData->path = pUrlData->proxyUrlPath;
+
+    iBio = BIO_new_ssl(sslCtx, 1);
+    BIO_push(iBio, sBio);
+  }else{
+    iBio = BIO_new_ssl_connect(sslCtx);
+  }
+  if( iBio==NULL ) {
+    ssl_set_errmsg("SSL: cannot open SSL (%s)",
+                    ERR_reason_error_string(ERR_get_error()));
+    return 1;
+  }
   BIO_get_ssl(iBio, &ssl);
 
 #if (SSLEAY_VERSION_NUMBER >= 0x00908070) && !defined(OPENSSL_NO_TLSEXT)
-  if( !SSL_set_tlsext_host_name(ssl, g.urlName) ){
+  if( !SSL_set_tlsext_host_name(ssl, (pUrlData->useProxy?pUrlData->hostname:pUrlData->name)) ){
     fossil_warning("WARNING: failed to set server name indication (SNI), "
                   "continuing without it.\n");
   }
 #endif
 
   SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
-  if( iBio==NULL ) {
-    ssl_set_errmsg("SSL: cannot open SSL (%s)", 
-                    ERR_reason_error_string(ERR_get_error()));
-    return 1;
+
+  if( !pUrlData->useProxy ){
+    BIO_set_conn_hostname(iBio, pUrlData->name);
+    BIO_set_conn_int_port(iBio, &pUrlData->port);
+    if( BIO_do_connect(iBio)<=0 ){
+      ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)",
+          pUrlData->name, pUrlData->port, ERR_reason_error_string(ERR_get_error()));
+      ssl_close();
+      return 1;
+    }
   }
 
-  BIO_set_conn_hostname(iBio, g.urlName);
-  BIO_set_conn_int_port(iBio, &g.urlPort);
-  
-  if( BIO_do_connect(iBio)<=0 ){
-    ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)", 
-        g.urlName, g.urlPort, ERR_reason_error_string(ERR_get_error()));
-    ssl_close();
-    return 1;
-  }
-  
   if( BIO_do_handshake(iBio)<=0 ) {
-    ssl_set_errmsg("Error establishing SSL connection %s:%d (%s)", 
-        g.urlName, g.urlPort, ERR_reason_error_string(ERR_get_error()));
+    ssl_set_errmsg("Error establishing SSL connection %s:%d (%s)",
+        pUrlData->useProxy?pUrlData->hostname:pUrlData->name,
+        pUrlData->useProxy?pUrlData->proxyOrigPort:pUrlData->port,
+        ERR_reason_error_string(ERR_get_error()));
     ssl_close();
     return 1;
   }
@@ -247,13 +324,13 @@ int ssl_open(void){
 
   if( trusted<=0 && (e = SSL_get_verify_result(ssl)) != X509_V_OK ){
     char *desc, *prompt;
-    char *warning = "";
+    const char *warning = "";
     Blob ans;
     char cReply;
     BIO *mem;
     unsigned char md[32];
     unsigned int mdLength = 31;
-    
+
     mem = BIO_new(BIO_s_mem());
     X509_NAME_print_ex(mem, X509_get_subject_name(cert), 2, XN_FLAG_MULTILINE);
     BIO_puts(mem, "\n\nIssued By:\n\n");
@@ -267,7 +344,7 @@ int ssl_open(void){
     }
     BIO_write(mem, "", 1); /* nul-terminate mem buffer */
     BIO_get_mem_data(mem, &desc);
-    
+
     if( hasSavedCertificate ){
       warning = "WARNING: Certificate doesn't match the "
                 "saved certificate for this host!";
@@ -283,7 +360,7 @@ int ssl_open(void){
         "contact your server\nadministrator.\n\n"
         "Accept certificate for host %s (a=always/y/N)? ",
         X509_verify_cert_error_string(e), desc, warning,
-        g.urlName);
+        pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
     BIO_free(mem);
 
     prompt_user(prompt, &ans);
@@ -304,7 +381,7 @@ int ssl_open(void){
         trusted = ( cReply=='a' || cReply=='A' );
         blob_reset(&ans);
       }
-      ssl_save_certificate(cert, trusted);
+      ssl_save_certificate(pUrlData, cert, trusted);
     }
   }
 
@@ -325,7 +402,7 @@ int ssl_open(void){
 /*
 ** Save certificate to global config.
 */
-void ssl_save_certificate(X509 *cert, int trusted){
+void ssl_save_certificate(UrlData *pUrlData, X509 *cert, int trusted){
   BIO *mem;
   char *zCert, *zHost;
 
@@ -333,32 +410,34 @@ void ssl_save_certificate(X509 *cert, int trusted){
   PEM_write_bio_X509(mem, cert);
   BIO_write(mem, "", 1); /* nul-terminate mem buffer */
   BIO_get_mem_data(mem, &zCert);
-  zHost = mprintf("cert:%s", g.urlName);
+  zHost = mprintf("cert:%s", pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
   db_set(zHost, zCert, 1);
   free(zHost);
-  zHost = mprintf("trusted:%s", g.urlName);
+  zHost = mprintf("trusted:%s", pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
   db_set_int(zHost, trusted, 1);
   free(zHost);
-  BIO_free(mem);  
+  BIO_free(mem);
 }
 
 /*
-** Get certificate for g.urlName from global config.
+** Get certificate for pUrlData->urlName from global config.
 ** Return NULL if no certificate found.
 */
-X509 *ssl_get_certificate(int *pTrusted){
+X509 *ssl_get_certificate(UrlData *pUrlData, int *pTrusted){
   char *zHost, *zCert;
   BIO *mem;
   X509 *cert;
 
-  zHost = mprintf("cert:%s", g.urlName);
+  zHost = mprintf("cert:%s",
+      pUrlData->useProxy ? pUrlData->hostname : pUrlData->name);
   zCert = db_get(zHost, NULL);
   free(zHost);
   if ( zCert==NULL )
     return NULL;
 
   if ( pTrusted!=0 ){
-    zHost = mprintf("trusted:%s", g.urlName);
+    zHost = mprintf("trusted:%s",
+             pUrlData->useProxy ? pUrlData->hostname : pUrlData->name);
     *pTrusted = db_get_int(zHost, 0);
     free(zHost);
   }
@@ -367,7 +446,7 @@ X509 *ssl_get_certificate(int *pTrusted){
   BIO_puts(mem, zCert);
   cert = PEM_read_bio_X509(mem, NULL, 0, NULL);
   free(zCert);
-  BIO_free(mem);  
+  BIO_free(mem);
   return cert;
 }
 

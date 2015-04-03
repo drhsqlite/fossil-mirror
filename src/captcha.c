@@ -19,8 +19,8 @@
 ** defeated by a sophisticated attacker, this CAPTCHA does at least make
 ** scripting attacks more difficult.
 */
-#include <assert.h>
 #include "config.h"
+#include <assert.h>
 #include "captcha.h"
 
 #if INTERFACE
@@ -30,7 +30,7 @@
 /*
 ** Convert a hex digit into a value between 0 and 15
 */
-static int hexValue(char c){
+int hex_digit_value(char c){
   if( c>='0' && c<='9' ){
     return c - '0';
   }else if( c>='a' && c<='f' ){
@@ -77,7 +77,7 @@ char *captcha_render(const char *zPw){
   k = 0;
   for(i=0; i<6; i++){
     for(j=0; zPw[j]; j++){
-      unsigned char v = hexValue(zPw[j]);
+      unsigned char v = hex_digit_value(zPw[j]);
       v = (aFont1[v] >> ((5-i)*4)) & 0xf;
       for(m=8; m>=1; m = m>>1){
         if( v & m ){
@@ -94,7 +94,7 @@ char *captcha_render(const char *zPw){
     z[k++] = '\n';
   }
   z[k] = 0;
-  return z;     
+  return z;
 }
 #endif /* CAPTCHA==1 */
 
@@ -150,7 +150,7 @@ static const char *const azFont2[] = {
  " /_/  ",
 
  /* 8 */
- " ___ ", 
+ " ___ ",
  "( _ )",
  "/ _ \\",
  "\\___/",
@@ -211,7 +211,7 @@ char *captcha_render(const char *zPw){
   k = 0;
   for(i=0; i<4; i++){
     for(j=0; zPw[j]; j++){
-      unsigned char v = hexValue(zPw[j]);
+      unsigned char v = hex_digit_value(zPw[j]);
       zChar = azFont2[4*v + i];
       for(m=0; zChar[m]; m++){
         z[k++] = zChar[m];
@@ -220,7 +220,7 @@ char *captcha_render(const char *zPw){
     z[k++] = '\n';
   }
   z[k] = 0;
-  return z;     
+  return z;
 }
 #endif /* CAPTCHA==2 */
 
@@ -233,7 +233,7 @@ static const char *const azFont3[] = {
   "| | | |",
   "| |_| |",
   " \\___/ ",
-                                                                                                               
+
   /* 1 */
   " __ ",
   "/_ |",
@@ -241,7 +241,7 @@ static const char *const azFont3[] = {
   " | |",
   " | |",
   " |_|",
-                                                                                                               
+
   /* 2 */
   " ___  ",
   "|__ \\ ",
@@ -249,7 +249,7 @@ static const char *const azFont3[] = {
   "  / / ",
   " / /_ ",
   "|____|",
-                                                                                                               
+
   /* 3 */
   " ____  ",
   "|___ \\ ",
@@ -257,7 +257,7 @@ static const char *const azFont3[] = {
   " |__ < ",
   " ___) |",
   "|____/ ",
-                                                                                                               
+
   /* 4 */
   " _  _   ",
   "| || |  ",
@@ -265,7 +265,7 @@ static const char *const azFont3[] = {
   "|__   _|",
   "   | |  ",
   "   |_|  ",
-                                                                                                               
+
   /* 5 */
   " _____ ",
   "| ____|",
@@ -273,7 +273,7 @@ static const char *const azFont3[] = {
   "|___ \\ ",
   " ___) |",
   "|____/ ",
-                                                                                                               
+
   /* 6 */
   "   __  ",
   "  / /  ",
@@ -281,7 +281,7 @@ static const char *const azFont3[] = {
   "| '_ \\ ",
   "| (_) |",
   " \\___/ ",
-                                                                                                               
+
   /* 7 */
   " ______ ",
   "|____  |",
@@ -289,7 +289,7 @@ static const char *const azFont3[] = {
   "   / /  ",
   "  / /   ",
   " /_/    ",
-                                                                                                               
+
   /* 8 */
   "  ___  ",
   " / _ \\ ",
@@ -297,7 +297,7 @@ static const char *const azFont3[] = {
   " > _ < ",
   "| (_) |",
   " \\___/ ",
-                                                                                                               
+
   /* 9 */
   "  ___  ",
   " / _ \\ ",
@@ -305,7 +305,7 @@ static const char *const azFont3[] = {
   " \\__, |",
   "   / / ",
   "  /_/  ",
-                                                                                                               
+
   /* A */
   "          ",
   "    /\\    ",
@@ -313,7 +313,7 @@ static const char *const azFont3[] = {
   "  / /\\ \\  ",
   " / ____ \\ ",
   "/_/    \\_\\",
-                                                                                                               
+
   /* B */
   " ____  ",
   "|  _ \\ ",
@@ -321,7 +321,7 @@ static const char *const azFont3[] = {
   "|  _ < ",
   "| |_) |",
   "|____/ ",
-                                                                                                               
+
   /* C */
   "  _____ ",
   " / ____|",
@@ -329,7 +329,7 @@ static const char *const azFont3[] = {
   "| |     ",
   "| |____ ",
   " \\_____|",
-                                                                                                               
+
   /* D */
   " _____  ",
   "|  __ \\ ",
@@ -337,7 +337,7 @@ static const char *const azFont3[] = {
   "| |  | |",
   "| |__| |",
   "|_____/ ",
-                                                                                                               
+
   /* E */
   " ______ ",
   "|  ____|",
@@ -345,7 +345,7 @@ static const char *const azFont3[] = {
   "|  __|  ",
   "| |____ ",
   "|______|",
-                                                                                                               
+
   /* F */
   " ______ ",
   "|  ____|",
@@ -371,7 +371,7 @@ char *captcha_render(const char *zPw){
   for(i=0; i<6; i++){
     x = 0;
     for(j=0; zPw[j]; j++){
-      unsigned char v = hexValue(zPw[j]);
+      unsigned char v = hex_digit_value(zPw[j]);
       x = (x<<4) + v;
       switch( x ){
         case 0x7a:
@@ -410,7 +410,7 @@ char *captcha_render(const char *zPw){
     z[k++] = '\n';
   }
   z[k] = 0;
-  return z;     
+  return z;
 }
 #endif /* CAPTCHA==3 */
 
@@ -450,7 +450,7 @@ unsigned int captcha_seed(void){
 ** The returned string is static and overwritten on each call to
 ** this function.
 */
-char const *captcha_decode(unsigned int seed){
+const char *captcha_decode(unsigned int seed){
   const char *zSecret;
   const char *z;
   Blob b;
@@ -480,12 +480,11 @@ char const *captcha_decode(unsigned int seed){
 **
 ** A CAPTCHA is required in those cases if the user is not logged in (if they
 ** are user "nobody") and if the "require-captcha" setting is true.  The
-** "require-captcha" setting is controlled on the Admin/Access page.  It 
+** "require-captcha" setting is controlled on the Admin/Access page.  It
 ** defaults to true.
 */
 int captcha_needed(void){
-  if( g.zLogin!=0 ) return 0;
-  return db_get_boolean("require-captcha", 1);
+  return login_is_nobody() && db_get_boolean("require-captcha", 1);
 }
 
 /*
@@ -520,7 +519,7 @@ int captcha_is_correct(void){
     if( c=='O' ) c = '0';
     z[i] = c;
   }
-  if( memcmp(zDecode,z,8)!=0 ) return 0;
+  if( strncmp(zDecode,z,8)!=0 ) return 0;
   return 1;
 }
 

@@ -81,7 +81,7 @@ cson_value * json_parent_uuids_for_ci( int rid ){
 
 /*
 ** Generates an artifact Object for the given rid,
-** which must refer to a Checkin.
+** which must refer to a Check-in.
 **
 ** Returned value is NULL or an Object owned by the caller.
 */
@@ -209,11 +209,11 @@ cson_value * json_artifact_ticket( cson_object * zParent, int rid ){
 }
 
 /*
-** Sub-impl of /json/artifact for checkins.
+** Sub-impl of /json/artifact for check-ins.
 */
 static cson_value * json_artifact_ci( cson_object * zParent, int rid ){
   if(!g.perm.Read){
-    json_set_err( FSL_JSON_E_DENIED, "Viewing checkins requires 'o' privileges." );
+    json_set_err( FSL_JSON_E_DENIED, "Viewing check-ins requires 'o' privileges." );
     return NULL;
   }else{
     cson_value * artV = json_artifact_for_ci(rid, 1);
@@ -247,16 +247,16 @@ static ArtifactDispatchEntry ArtifactDispatchList[] = {
 ** if either the includeContent (HTTP) or -content|-c boolean flags
 ** (CLI) are set.
 */ 
-static char json_artifact_get_content_format_flag(){
+static int json_artifact_get_content_format_flag(){
   enum { MagicValue = -9 };
-  char contentFormat = json_wiki_get_content_format_flag(MagicValue);
+  int contentFormat = json_wiki_get_content_format_flag(MagicValue);
   if(MagicValue == contentFormat){
     contentFormat = json_find_option_bool("includeContent","content","c",0) /* deprecated */ ? -1 : 0;
   }
   return contentFormat;
 }
 
-extern char json_wiki_get_content_format_flag( char defaultValue ) /* json_wiki.c */;
+extern int json_wiki_get_content_format_flag( int defaultValue ) /* json_wiki.c */;
 
 cson_value * json_artifact_wiki(cson_object * zParent, int rid){
   if( ! g.perm.RdWiki ){
@@ -265,7 +265,7 @@ cson_value * json_artifact_wiki(cson_object * zParent, int rid){
     return NULL;
   }else{
     enum { MagicValue = -9 };
-    char const contentFormat = json_artifact_get_content_format_flag();
+    int const contentFormat = json_artifact_get_content_format_flag();
     return json_get_wiki_page_by_rid(rid, contentFormat);
   }
 }
@@ -291,7 +291,7 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
   cson_object * pay = NULL;
   Stmt q = empty_Stmt;
   cson_array * checkin_arr = NULL;
-  char contentFormat;
+  int contentFormat;
   i64 contentSize = -1;
   char * parentUuid;
   if( ! g.perm.Read ){
@@ -348,7 +348,7 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
     fossil_free(parentUuid);
   }
   
-  /* Find checkins associated with this file... */
+  /* Find check-ins associated with this file... */
   db_prepare(&q,
       "SELECT filename.name AS name, "
       "  (mlink.pid==0) AS isNew,"
@@ -357,7 +357,7 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
       "  coalesce(event.ecomment,event.comment) as comment,"
       "  coalesce(event.euser,event.user) as user,"
 #if 0
-      "  a.size AS size," /* same for all checkins. */
+      "  a.size AS size," /* same for all check-ins. */
 #endif
       "  b.uuid as checkin, "
 #if 0
@@ -375,7 +375,7 @@ cson_value * json_artifact_file(cson_object * zParent, int rid){
       "   ORDER BY filename.name, event.mtime",
       TAG_BRANCH, rid
     );
-  /* TODO: add a "state" flag for the file in each checkin,
+  /* TODO: add a "state" flag for the file in each check-in,
      e.g. "modified", "new", "deleted".
    */
   checkin_arr = cson_new_array(); 

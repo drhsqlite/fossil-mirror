@@ -52,7 +52,7 @@ static void tag_propagate(
   ** Three returns:  (1) rid of the child.  (2) timestamp of child.
   ** (3) True to propagate or false to block.
   */
-  db_prepare(&s, 
+  db_prepare(&s,
      "SELECT cid, plink.mtime,"
      "       coalesce(srcid=0 AND tagxref.mtime<:mtime, %d) AS doit"
      "  FROM plink LEFT JOIN tagxref ON cid=rid AND tagid=%d"
@@ -62,7 +62,7 @@ static void tag_propagate(
   db_bind_double(&s, ":mtime", mtime);
 
   if( tagType==2 ){
-    /* Set the propagated tag marker on checkin :rid */
+    /* Set the propagated tag marker on check-in :rid */
     db_prepare(&ins,
        "REPLACE INTO tagxref(tagid, tagtype, srcid, origid, value, mtime, rid)"
        "VALUES(%d,2,0,%d,%Q,:mtime,:rid)",
@@ -70,7 +70,7 @@ static void tag_propagate(
     );
     db_bind_double(&ins, ":mtime", mtime);
   }else{
-    /* Remove all references to the tag from checkin :rid */
+    /* Remove all references to the tag from check-in :rid */
     zValue = 0;
     db_prepare(&ins,
        "DELETE FROM tagxref WHERE tagid=%d AND rid=:rid", tagid
@@ -181,7 +181,7 @@ int tag_insert(
     /* Another entry that is more recent already exists.  Do nothing */
     return tagid;
   }
-  db_prepare(&s, 
+  db_prepare(&s,
     "REPLACE INTO tagxref(tagid,tagtype,srcId,origid,value,mtime,rid)"
     " VALUES(%d,%d,%d,%d,%Q,:mtime,%d)",
     tagid, tagtype, srcId, rid, zValue, rid
@@ -215,7 +215,8 @@ int tag_insert(
     }
   }
   if( zCol ){
-    db_multi_exec("UPDATE event SET %s=%Q WHERE objid=%d", zCol, zValue, rid);
+    db_multi_exec("UPDATE event SET \"%w\"=%Q WHERE objid=%d",
+                  zCol, zValue, rid);
     if( tagid==TAG_COMMENT ){
       char *zCopy = mprintf("%s", zValue);
       wiki_extract_links(zCopy, rid, 0, mtime, 1, WIKI_INLINE);
@@ -258,7 +259,7 @@ void testtag_cmd(void){
     case '+':  tagtype = 1;  break;
     case '*':  tagtype = 2;  break;
     case '-':  tagtype = 0;  break;
-    default:   
+    default:
       fossil_fatal("tag should begin with '+', '*', or '-'");
       return;
   }
@@ -270,7 +271,7 @@ void testtag_cmd(void){
   zValue = g.argc==5 ? g.argv[4] : 0;
   db_begin_transaction();
   tag_insert(zTag, tagtype, zValue, -1, 0.0, rid);
-  db_end_transaction(0); 
+  db_end_transaction(0);
 }
 
 /*
@@ -324,11 +325,11 @@ void tag_add_artifact(
   }else{
     blob_appendf(&ctrl, "\n");
   }
-  blob_appendf(&ctrl, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
+  blob_appendf(&ctrl, "U %F\n", zUserOvrd ? zUserOvrd : login_name());
   md5sum_blob(&ctrl, &cksum);
   blob_appendf(&ctrl, "Z %b\n", &cksum);
   nrid = content_put(&ctrl);
-  manifest_crosslink(nrid, &ctrl);
+  manifest_crosslink(nrid, &ctrl, MC_PERMIT_HOOKS);
   assert( blob_is_reset(&ctrl) );
 }
 
@@ -353,10 +354,10 @@ void tag_add_artifact(
 **     %fossil tag find ?--raw? ?-t|--type TYPE? ?-n|--limit #? TAGNAME
 **
 **         List all objects that use TAGNAME.  TYPE can be "ci" for
-**         checkins or "e" for events. The limit option limits the number
+**         check-ins or "e" for events. The limit option limits the number
 **         of results to the given value.
 **
-**     %fossil tag list ?--raw? ?CHECK-IN?
+**     %fossil tag list|ls ?--raw? ?CHECK-IN?
 **
 **         List all tags, or if CHECK-IN is supplied, list
 **         all tags and their values for CHECK-IN.
@@ -380,9 +381,9 @@ void tag_add_artifact(
 **
 ** will assume that "decaf" is a tag/branch name.
 **
-** only allow --date-override and --user-override in 
+** only allow --date-override and --user-override in
 **   %fossil tag add --date-override 'YYYY-MMM-DD HH:MM:SS' \\
-**                   --user-override user 
+**                   --user-override user
 ** in order to import history from other scm systems
 */
 void tag_cmd(void){
@@ -390,8 +391,8 @@ void tag_cmd(void){
   int fRaw = find_option("raw","",0)!=0;
   int fPropagate = find_option("propagate","",0)!=0;
   const char *zPrefix = fRaw ? "" : "sym-";
-  char const * zFindLimit = find_option("limit","n",1);
-  int const nFindLimit = zFindLimit ? atoi(zFindLimit) : 0;
+  const char *zFindLimit = find_option("limit","n",1);
+  const int nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
 
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
@@ -439,17 +440,17 @@ void tag_cmd(void){
       usage("find ?--raw? ?-t|--type TYPE? ?-n|--limit #? TAGNAME");
     }
     if( fRaw ){
-      blob_appendf(&sql,
+      blob_append_sql(&sql,
         "SELECT blob.uuid FROM tagxref, blob"
         " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
         "   AND tagxref.tagtype>0"
         "   AND blob.rid=tagxref.rid",
         g.argv[3]
       );
-      if(nFindLimit>0){
-        blob_appendf(&sql, " LIMIT %d", nFindLimit);
+      if( nFindLimit>0 ){
+        blob_append_sql(&sql, " LIMIT %d", nFindLimit);
       }
-      db_prepare(&q, "%s", blob_str(&sql));
+      db_prepare(&q, "%s", blob_sql_text(&sql));
       blob_reset(&sql);
       while( db_step(&q)==SQLITE_ROW ){
         fossil_print("%s\n", db_column_text(&q, 0));
@@ -459,7 +460,7 @@ void tag_cmd(void){
       int tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
                          g.argv[3]);
       if( tagid>0 ){
-        blob_appendf(&sql,
+        blob_append_sql(&sql,
           "%s"
           "  AND event.type GLOB '%q'"
           "  AND blob.rid IN ("
@@ -469,21 +470,18 @@ void tag_cmd(void){
           " ORDER BY event.mtime DESC",
           timeline_query_for_tty(), zType, tagid
         );
-        if(nFindLimit>0){
-          blob_appendf(&sql, " LIMIT %d", nFindLimit);
-        }
-        db_prepare(&q, "%s", blob_str(&sql));
+        db_prepare(&q, "%s", blob_sql_text(&sql));
         blob_reset(&sql);
-        print_timeline(&q, 2000, 0);
+        print_timeline(&q, nFindLimit, 79, 0);
         db_finalize(&q);
       }
     }
   }else
 
-  if( strncmp(g.argv[2],"list",n)==0 ){
+  if(( strncmp(g.argv[2],"list",n)==0 )||( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
     if( g.argc==3 ){
-      db_prepare(&q, 
+      db_prepare(&q,
         "SELECT tagname FROM tag"
         " WHERE EXISTS(SELECT 1 FROM tagxref"
         "               WHERE tagid=tag.tagid"
@@ -539,17 +537,18 @@ tag_cmd_usage:
 }
 
 /*
-** WEBPAGE: /taglist
+** WEBPAGE: taglist
 */
 void taglist_page(void){
   Stmt q;
 
   login_check_credentials();
   if( !g.perm.Read ){
-    login_needed();
+    login_needed(g.anon.Read);
   }
   login_anonymous_available();
   style_header("Tags");
+  style_adunit_config(ADUNIT_RIGHT_OK);
   style_submenu_element("Timeline", "Timeline", "tagtimeline");
   @ <h2>Non-propagating tags:</h2>
   db_prepare(&q,
@@ -565,7 +564,7 @@ void taglist_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     if( g.perm.Hyperlink ){
-      @ <li>%z(xhref("class='taglink'","%R/timeline?t=%T",zName))
+      @ <li>%z(xhref("class='taglink'","%R/timeline?t=%T&n=200",zName))
       @ %h(zName)</a></li>
     }else{
       @ <li><span class="tagDsp">%h(zName)</span></li>
@@ -583,7 +582,7 @@ void tagtimeline_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
 
   style_header("Tagged Check-ins");
   style_submenu_element("List", "List", "taglist");
@@ -597,14 +596,8 @@ void tagtimeline_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www()
   );
-  www_print_timeline(&q, 0, 0, 0, 0);
+  www_print_timeline(&q, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
-  @ <script  type="text/JavaScript">
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
   style_footer();
 }

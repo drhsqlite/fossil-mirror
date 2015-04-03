@@ -27,6 +27,15 @@ proc simplify-name {testname args} {
   }
 }
 
+proc relative-name {testname args} {
+  set i 1
+  foreach {subdir path result} $args {
+    fossil test-relative-name --chdir $subdir $path
+    test relative-name-$testname.$i {$::RESULT==$result}
+    incr i
+  }
+}
+
 simplify-name 100 . . .// . .. .. ..///// ..
 simplify-name 101 {} {} / / ///////// / ././././ .
 simplify-name 102 x x /x /x ///x //x
@@ -35,3 +44,19 @@ simplify-name 104 a/b/../c/ a/c /a/b/../c /a/c /a/b//../c /a/c /a/b/..///c /a/c
 simplify-name 105 a/b/../../x/y x/y /a/b/../../x/y /x/y
 simplify-name 106 a/b/../../../x/y ../x/y /a/b/../../../x/y /../x/y
 simplify-name 107 a/./b/.././../x/y x/y a//.//b//..//.//..//x//y/// x/y
+
+if {$::tcl_platform(os)=="Windows NT"} {
+  simplify-name 108 //?/a:/a/b a:/a/b //?/UNC/a/b //a/b //?/ {}
+  simplify-name 109 \\\\?\\a:\\a\\b a:/a/b \\\\?\\UNC\\a\\b //a/b \\\\?\\ {}
+}
+
+# Those directories are only needed for the testcase being able to "--chdir" to it.
+file mkdir test1
+file mkdir test1/test2
+
+relative-name 100 . . . test1 [pwd] .. test1 [pwd]/ .. test1 [pwd]/test ../test
+relative-name 101 test1/test2 [pwd] ../.. test1/test2 [pwd]/ ../.. test1/test2 [pwd]/test ../../test
+relative-name 102 test1 [pwd]/test ../test . [pwd]/file1 ./file1 . [pwd]/file1/file2 ./file1/file2
+
+catch {file delete test1/test2}
+catch {file delete test1}

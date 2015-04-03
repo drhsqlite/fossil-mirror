@@ -27,6 +27,16 @@
 #endif
 #define _LARGEFILE_SOURCE 1
 
+/* Needed for various definitions... */
+#ifndef _GNU_SOURCE
+# define _GNU_SOURCE
+#endif
+
+/* Make sure that in Win32 MinGW builds, _USE_32BIT_TIME_T is always defined. */
+#if defined(_WIN32) && !defined(_WIN64) && !defined(_MSC_VER) && !defined(_USE_32BIT_TIME_T)
+#  define _USE_32BIT_TIME_T
+#endif
+
 #ifdef HAVE_AUTOCONFIG_H
 #include "autoconfig.h"
 #endif
@@ -60,31 +70,94 @@
 #endif
 
 /*
+** Utility macro to wrap an argument with double quotes.
+*/
+#if !defined(COMPILER_STRINGIFY)
+#  define COMPILER_STRINGIFY(x)  COMPILER_STRINGIFY1(x)
+#  define COMPILER_STRINGIFY1(x) #x
+#endif
+
+/*
 ** Define the compiler variant, used to compile the project
 */
 #if !defined(COMPILER_NAME)
 #  if defined(__DMC__)
-#    define COMPILER_NAME "dmc"
+#    if defined(COMPILER_VERSION) && !defined(NO_COMPILER_VERSION)
+#      define COMPILER_NAME "dmc-" COMPILER_VERSION
+#    else
+#      define COMPILER_NAME "dmc"
+#    endif
 #  elif defined(__POCC__)
 #    if defined(_M_X64)
-#      define COMPILER_NAME "pellesc64"
+#      if defined(COMPILER_VERSION) && !defined(NO_COMPILER_VERSION)
+#        define COMPILER_NAME "pellesc64-" COMPILER_VERSION
+#      else
+#        define COMPILER_NAME "pellesc64"
+#      endif
 #    else
-#      define COMPILER_NAME "pellesc32"
+#      if defined(COMPILER_VERSION) && !defined(NO_COMPILER_VERSION)
+#        define COMPILER_NAME "pellesc32-" COMPILER_VERSION
+#      else
+#        define COMPILER_NAME "pellesc32"
+#      endif
 #    endif
 #  elif defined(_MSC_VER)
-#    define COMPILER_NAME "msc"
+#    if !defined(COMPILER_VERSION)
+#      define COMPILER_VERSION COMPILER_STRINGIFY(_MSC_VER)
+#    endif
+#    if defined(COMPILER_VERSION) && !defined(NO_COMPILER_VERSION)
+#      define COMPILER_NAME "msc-" COMPILER_VERSION
+#    else
+#      define COMPILER_NAME "msc"
+#    endif
 #  elif defined(__MINGW32__)
-#    define COMPILER_NAME "mingw32"
+#    if !defined(COMPILER_VERSION)
+#      if defined(__MINGW_VERSION)
+#        if defined(__GNUC__)
+#          if defined(__VERSION__)
+#            define COMPILER_VERSION COMPILER_STRINGIFY(__MINGW_VERSION) "-gcc-" __VERSION__
+#          else
+#            define COMPILER_VERSION COMPILER_STRINGIFY(__MINGW_VERSION) "-gcc"
+#          endif
+#        else
+#          define COMPILER_VERSION COMPILER_STRINGIFY(__MINGW_VERSION)
+#        endif
+#      elif defined(__MINGW32_VERSION)
+#        if defined(__GNUC__)
+#          if defined(__VERSION__)
+#            define COMPILER_VERSION COMPILER_STRINGIFY(__MINGW32_VERSION) "-gcc-" __VERSION__
+#          else
+#            define COMPILER_VERSION COMPILER_STRINGIFY(__MINGW32_VERSION) "-gcc"
+#          endif
+#        else
+#          define COMPILER_VERSION COMPILER_STRINGIFY(__MINGW32_VERSION)
+#        endif
+#      endif
+#    endif
+#    if defined(COMPILER_VERSION) && !defined(NO_COMPILER_VERSION)
+#      define COMPILER_NAME "mingw32-" COMPILER_VERSION
+#    else
+#      define COMPILER_NAME "mingw32"
+#    endif
 #  elif defined(_WIN32)
 #    define COMPILER_NAME "win32"
 #  elif defined(__GNUC__)
-#    define COMPILER_NAME "gcc-" __VERSION__
+#    if !defined(COMPILER_VERSION)
+#      if defined(__VERSION__)
+#        define COMPILER_VERSION __VERSION__
+#      endif
+#    endif
+#    if defined(COMPILER_VERSION) && !defined(NO_COMPILER_VERSION)
+#      define COMPILER_NAME "gcc-" COMPILER_VERSION
+#    else
+#      define COMPILER_NAME "gcc"
+#    endif
 #  else
 #    define COMPILER_NAME "unknown"
 #  endif
 #endif
 
-#ifndef _RC_COMPILE_
+#if !defined(_RC_COMPILE_) && !defined(SQLITE_AMALGAMATION)
 
 #include "sqlite3.h"
 
@@ -120,7 +193,7 @@ typedef signed char i8;
 ** to the next, so we have developed the following set of #if statements
 ** to generate appropriate macros for a wide range of compilers.
 **
-** The correct "ANSI" way to do this is to use the intptr_t type. 
+** The correct "ANSI" way to do this is to use the intptr_t type.
 ** Unfortunately, that typedef is not available on all compilers, or
 ** if it is available, it requires an #include of specific headers
 ** that vary from one machine to the next.

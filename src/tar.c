@@ -17,9 +17,14 @@
 **
 ** This file contains code used to generate tarballs.
 */
-#include <assert.h>
-#include <zlib.h>
 #include "config.h"
+#include <assert.h>
+#if defined(FOSSIL_ENABLE_MINIZ)
+#  define MINIZ_HEADER_FILE_ONLY
+#  include "miniz.c"
+#else
+#  include <zlib.h>
+#endif
 #include "tar.h"
 
 /*
@@ -282,7 +287,7 @@ static void tar_add_header(
   int iMode,             /* Mode.  0644 or 0755 */
   unsigned int mTime,    /* File modification time */
   int iSize,             /* Size of the object in bytes */
-  char cType             /* Type of object:  
+  char cType             /* Type of object:
                             '0'==file. '2'==symlink. '5'==directory */
 ){
   /* set mode and modification time */
@@ -338,8 +343,9 @@ static void tar_add_directory_of(
   int i;
   for(i=nName-1; i>0 && zName[i]!='/'; i--){}
   if( i<=0 ) return;
-  if( i < tball.nPrevDirAlloc && tball.zPrevDir[i]==0 &&
-        memcmp(tball.zPrevDir, zName, i)==0 ) return;
+  if( i<tball.nPrevDirAlloc
+   && strncmp(tball.zPrevDir, zName, i)==0
+   && tball.zPrevDir[i]==0 ) return;
   db_multi_exec("INSERT OR IGNORE INTO dir VALUES('%#q')", i, zName);
   if( sqlite3_changes(g.db)==0 ) return;
   tar_add_directory_of(zName, i-1, mTime);
@@ -373,7 +379,7 @@ static void tar_add_file(
   /* length check moved to tar_split_path */
   tar_add_directory_of(zName, nName, mTime);
 
-  /* 
+  /*
    * If we have a symlink, write its destination path (which is stored in
    * pContent) into header, and set content length to 0 to avoid storing path
    * as file content in the next step.  Since 'linkname' header is limited to
@@ -386,7 +392,7 @@ static void tar_add_file(
     n = 0;
   }
 
-  tar_add_header(zName, nName, ( mPerm==PERM_EXE ) ? 0755 : 0644, 
+  tar_add_header(zName, nName, ( mPerm==PERM_EXE ) ? 0755 : 0644,
                  mTime, n, cType);
   if( n ){
     gzip_step(blob_buffer(pContent), n);
@@ -424,17 +430,16 @@ static void tar_finish(Blob *pOut){
 void test_tarball_cmd(void){
   int i;
   Blob zip;
-  Blob file;
   if( g.argc<3 ){
     usage("ARCHIVE FILE....");
   }
   sqlite3_open(":memory:", &g.db);
-  tar_begin(0);
+  tar_begin(-1);
   for(i=3; i<g.argc; i++){
+    Blob file;
     blob_zero(&file);
     blob_read_from_file(&file, g.argv[i]);
-    tar_add_file(g.argv[i], &file,
-                 file_wd_perm(g.argv[i]), file_wd_mtime(g.argv[i]));
+    tar_add_file(g.argv[i], &file, file_wd_perm(0), file_wd_mtime(0));
     blob_reset(&file);
   }
   tar_finish(&zip);
@@ -442,8 +447,8 @@ void test_tarball_cmd(void){
 }
 
 /*
-** Given the RID for a checkin, construct a tarball containing
-** all files in that checkin
+** Given the RID for a check-in, construct a tarball containing
+** all files in that check-in
 **
 ** If RID is for an object that is not a real manifest, then the
 ** resulting tarball contains a single file which is the RID
@@ -488,8 +493,9 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
     if( db_get_boolean("manifest", 0) ){
       blob_append(&filename, "manifest", -1);
       zName = blob_str(&filename);
-      tar_add_file(zName, &mfile, 0, mTime);
       sha1sum_blob(&mfile, &hash);
+      sterilize_manifest(&mfile);
+      tar_add_file(zName, &mfile, 0, mTime);
       blob_reset(&mfile);
       blob_append(&hash, "\n", 1);
       blob_resize(&filename, nPrefix);
@@ -527,13 +533,17 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
 /*
 ** COMMAND: tarball*
 **
-** Usage: %fossil tarball VERSION OUTPUTFILE [--name DIRECTORYNAME] [-R|--repository REPO]
+** Usage: %fossil tarball VERSION OUTPUTFILE
 **
 ** Generate a compressed tarball for a specified version.  If the --name
 ** option is used, its argument becomes the name of the top-level directory
 ** in the resulting tarball.  If --name is omitted, the top-level directory
 ** named is derived from the project name, the check-in date and time, and
 ** the artifact ID of the check-in.
+**
+** Options:
+**   --name DIRECTORYNAME   The name of the top-level directory in the archive
+**   -R REPOSITORY          Specify a Fossil repository
 */
 void tarball_cmd(void){
   int rid;
@@ -541,12 +551,16 @@ void tarball_cmd(void){
   const char *zName;
   zName = find_option("name", 0, 1);
   db_find_and_open_repository(0, 0);
+
+  /* We should be done with options.. */
+  verify_all_options();
+
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
   rid = name_to_typed_rid(g.argv[2], "ci");
   if( rid==0 ){
-    fossil_fatal("Checkin not found: %s", g.argv[2]);
+    fossil_fatal("Check-in not found: %s", g.argv[2]);
     return;
   }
 
@@ -570,17 +584,29 @@ void tarball_cmd(void){
 ** WEBPAGE: tarball
 ** URL: /tarball/RID.tar.gz
 **
-** Generate a compressed tarball for a checkin.
+** Generate a compressed tarball for a check-in.
 ** Return that tarball as the HTTP reply content.
+**
+** Optional URL Parameters:
+**
+** - name=NAME[.tar.gz] is base name of the output file. Defaults to
+** something project/version-specific. The prefix of the name, up to
+** the last '.', are used as the top-most directory name in the tar
+** output.
+**
+** - uuid=the version to tar (may be a tag/branch name).
+** Defaults to "trunk".
+**
 */
 void tarball_page(void){
   int rid;
-  char *zName, *zRid;
+  char *zName, *zRid, *zKey;
   int nName, nRid;
   Blob tarball;
 
   login_check_credentials();
-  if( !g.perm.Zip ){ login_needed(); return; }
+  if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
+  load_control();
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid","trunk"));
@@ -605,9 +631,35 @@ void tarball_page(void){
     return;
   }
   if( nRid==0 && nName>10 ) zName[10] = 0;
-  tarball_of_checkin(rid, &tarball, zName);
+  zKey = db_text(0, "SELECT '/tarball/'||uuid||'/%q'"
+                    "  FROM blob WHERE rid=%d",zName,rid);
+  if( P("debug")!=0 ){
+    style_header("Tarball Generator Debug Screen");
+    @ zName = "%h(zName)"<br>
+    @ rid = %d(rid)<br>
+    @ zKey = "%h(zKey)"
+    style_footer();
+    return;
+  }
+  if( referred_from_login() ){
+    style_header("Tarball Download");
+    @ <form action='%R/tarball'>
+    cgi_query_parameters_to_hidden();
+    @ <p>Tarball named <b>%h(zName).tar.gz</b> holding the content
+    @ of check-in <b>%h(zRid)</b>:
+    @ <input type="submit" value="Download" />
+    @ </form>
+    style_footer();
+    return;
+  }
+  blob_zero(&tarball);
+  if( cache_read(&tarball, zKey)==0 ){
+    tarball_of_checkin(rid, &tarball, zName);
+    cache_write(&tarball, zKey);
+  }
   free( zName );
   free( zRid );
+  free( zKey );
   cgi_set_content(&tarball);
   cgi_set_content_type("application/x-compressed");
 }

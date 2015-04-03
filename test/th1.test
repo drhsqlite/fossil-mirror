@@ -18,52 +18,835 @@
 # TH1 Commands
 #
 
-fossil test-th-eval --th-open-config "setting abc"
+fossil test-th-eval --open-config "setting th1-hooks"
+set th1Hooks [expr {$RESULT eq "1"}]
+
+###############################################################################
+
+fossil test-th-eval --open-config "setting abc"
 test th1-setting-1 {$RESULT eq ""}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -- abc"
+fossil test-th-eval --open-config "setting -- abc"
 test th1-setting-2 {$RESULT eq ""}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -strict abc"
+fossil test-th-eval --open-config "setting -strict abc"
 test th1-setting-3 {$RESULT eq {TH_ERROR: no value for setting "abc"}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -strict -- abc"
+fossil test-th-eval --open-config "setting -strict -- abc"
 test th1-setting-4 {$RESULT eq {TH_ERROR: no value for setting "abc"}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting autosync"
-test th1-setting-5 {$RESULT eq 1}
+fossil test-th-eval --open-config "setting autosync"
+test th1-setting-5 {$RESULT eq 0 || $RESULT eq 1}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -strict autosync"
-test th1-setting-6 {$RESULT eq 1}
+fossil test-th-eval --open-config "setting -strict autosync"
+test th1-setting-6 {$RESULT eq 0 || $RESULT eq 1}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting --"
+fossil test-th-eval --open-config "setting --"
 test th1-setting-7 {$RESULT eq \
 {TH_ERROR: wrong # args: should be "setting ?-strict? ?--? name"}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -strict --"
+fossil test-th-eval --open-config "setting -strict --"
 test th1-setting-8 {$RESULT eq \
 {TH_ERROR: wrong # args: should be "setting ?-strict? ?--? name"}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -- --"
+fossil test-th-eval --open-config "setting -- --"
 test th1-setting-9 {$RESULT eq {}}
 
 ###############################################################################
 
-fossil test-th-eval --th-open-config "setting -strict -- --"
+fossil test-th-eval --open-config "setting -strict -- --"
 test th1-setting-10 {$RESULT eq {TH_ERROR: no value for setting "--"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42/0"
+test th1-divide-by-zero-1 {$RESULT eq {TH_ERROR: Divide by 0: 42}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42/0.0"
+test th1-divide-by-zero-2 {$RESULT eq {TH_ERROR: Divide by 0: 42}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42.0/0"
+test th1-divide-by-zero-3 {$RESULT eq {TH_ERROR: Divide by 0: 42.0}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42.0/0.0"
+test th1-divide-by-zero-4 {$RESULT eq {TH_ERROR: Divide by 0: 42.0}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42%0"
+test th1-modulus-by-zero-1 {$RESULT eq {TH_ERROR: Modulo by 0: 42}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42%0.0"
+test th1-modulus-by-zero-2 {$RESULT eq {TH_ERROR: expected integer, got: "0.0"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42.0%0"
+test th1-modulus-by-zero-3 {$RESULT eq \
+{TH_ERROR: expected integer, got: "42.0"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 42.0%0.0"
+test th1-modulus-by-zero-4 {$RESULT eq \
+{TH_ERROR: expected integer, got: "42.0"}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; info exists var"
+test th1-info-exists-1 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var; info exists var"
+test th1-info-exists-2 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var; set var 2; info exists var"
+test th1-info-exists-3 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; expr {\$var+0}"
+test th1-info-exists-4 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var; expr {\$var+0}"
+test th1-info-exists-5 {$RESULT eq {TH_ERROR: no such variable: var}}
+
+###############################################################################
+
+fossil test-th-eval "catch {bad}; info exists var; set th_stack_trace"
+test th1-info-exists-6 {$RESULT eq {bad}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; info exists var"
+test th1-info-exists-7 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; unset var(1); info exists var"
+test th1-info-exists-8 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; unset var; info exists var"
+test th1-info-exists-9 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; info exists var(1)"
+test th1-info-exists-10 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; unset var(1); info exists var(1)"
+test th1-info-exists-11 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "set var(1) 1; unset var; info exists var(1)"
+test th1-info-exists-12 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var"
+test th1-unset-1 {$RESULT eq {var}}
+
+###############################################################################
+
+fossil test-th-eval "unset var"
+test th1-unset-2 {$RESULT eq {TH_ERROR: no such variable: var}}
+
+###############################################################################
+
+fossil test-th-eval "set var 1; unset var; unset var"
+test th1-unset-3 {$RESULT eq {TH_ERROR: no such variable: var}}
+
+###############################################################################
+
+fossil test-th-eval "set gv 1; proc p {} {upvar 1 gv lv; unset lv}; p; unset gv"
+test th1-unset-4 {$RESULT eq {TH_ERROR: no such variable: gv}}
+
+###############################################################################
+
+fossil test-th-eval "set gv 1; upvar 0 gv gv2; info exists gv2"
+test th1-unset-5 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "set gv 1; upvar 0 gv gv2; unset gv; unset gv2"
+test th1-unset-6 {$RESULT eq {TH_ERROR: no such variable: gv2}}
+
+###############################################################################
+
+fossil test-th-eval "set gv 1; upvar 0 gv gv2(1); unset gv; unset gv2(1)"
+test th1-unset-7 {$RESULT eq {TH_ERROR: no such variable: gv2(1)}}
+
+###############################################################################
+
+fossil test-th-eval "set gv(1) 1; upvar 0 gv(1) gv2; unset gv(1); unset gv2"
+test th1-unset-8 {$RESULT eq {TH_ERROR: no such variable: gv2}}
+
+###############################################################################
+
+fossil test-th-eval "string first {} {}"
+test th1-string-first-1 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {} {a}"
+test th1-string-first-2 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {a} {}"
+test th1-string-first-3 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {a} {a}"
+test th1-string-first-4 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string first {a} {aa}"
+test th1-string-first-5 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string first {aa} {a}"
+test th1-string-first-6 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {ab} {abc}"
+test th1-string-first-7 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string first {bc} {abc}"
+test th1-string-first-8 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "string first {AB} {abc}"
+test th1-string-first-9 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {} {}"
+test th1-string-last-1 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {} {a}"
+test th1-string-last-2 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {a} {}"
+test th1-string-last-3 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {a} {a}"
+test th1-string-last-4 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string last {a} {aa}"
+test th1-string-last-5 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {aa} {a}"
+test th1-string-last-6 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {ab} {abc}"
+test th1-string-last-7 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "string last {bc} {abc}"
+test th1-string-last-8 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "string last {AB} {abc}"
+test th1-string-last-9 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr -2147483649.0"
+test th1-expr-1 {$RESULT eq {-2147483649.0}}
+
+###############################################################################
+
+fossil test-th-eval "expr -2147483649"
+test th1-expr-2 {$RESULT eq {2147483647}}
+
+###############################################################################
+
+fossil test-th-eval "expr -2147483648"
+test th1-expr-3 {$RESULT eq {-2147483648}}
+
+###############################################################################
+
+fossil test-th-eval "expr -2147483647"
+test th1-expr-4 {$RESULT eq {-2147483647}}
+
+###############################################################################
+
+fossil test-th-eval "expr -1"
+test th1-expr-5 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0"
+test th1-expr-6 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0.0"
+test th1-expr-7 {$RESULT eq {0.0}}
+
+###############################################################################
+
+fossil test-th-eval "expr 1"
+test th1-expr-8 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "expr 2147483647"
+test th1-expr-9 {$RESULT eq {2147483647}}
+
+###############################################################################
+
+fossil test-th-eval "expr 2147483648"
+test th1-expr-10 {$RESULT eq {2147483648}}
+
+###############################################################################
+
+fossil test-th-eval "expr 2147483649"
+test th1-expr-11 {$RESULT eq {2147483649}}
+
+###############################################################################
+
+fossil test-th-eval "expr +2147483649"
+test th1-expr-12 {$RESULT eq {-2147483647}}
+
+###############################################################################
+
+fossil test-th-eval "expr +2147483649.0"
+test th1-expr-13 {$RESULT eq {2147483649.0}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~(-1)"
+test th1-expr-14 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~-1"
+test th1-expr-15 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~0"
+test th1-expr-16 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~+0"
+test th1-expr-17 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~-0"
+test th1-expr-18 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~(+0)"
+test th1-expr-19 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~(-0)"
+test th1-expr-20 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~1"
+test th1-expr-21 {$RESULT eq {-2}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~+1"
+test th1-expr-22 {$RESULT eq {-2}}
+
+###############################################################################
+
+fossil test-th-eval "expr ~(+1)"
+test th1-expr-23 {$RESULT eq {-2}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0b11"
+test th1-expr-24 {$RESULT eq 3}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0o15"
+test th1-expr-25 {$RESULT eq 13}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0x15"
+test th1-expr-26 {$RESULT eq 21}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0b2"
+test th1-expr-27 {$RESULT eq {TH_ERROR: expected number, got: "0b2"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0o8"
+test th1-expr-28 {$RESULT eq {TH_ERROR: expected number, got: "0o8"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0xg"
+test th1-expr-29 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0xg"}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0b1."
+test th1-expr-30 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0b1."}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0o1."
+test th1-expr-31 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0o1."}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0x1."
+test th1-expr-32 {$RESULT eq {TH_ERROR: syntax error in expression: "0+0x1."}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0ne5"
+test th1-expr-33 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0b1+5"
+test th1-expr-34 {$RESULT eq {6}}
+
+###############################################################################
+
+fossil test-th-eval "expr 0+0b"
+test th1-expr-35 {$RESULT eq {TH_ERROR: expected number, got: "0b"}}
+
+###############################################################################
+
+fossil test-th-eval "expr (-1)+1"
+test th1-expr-36 {$RESULT eq {0}}
+
+###############################################################################
+
+fossil test-th-eval "expr (((-1)))"
+test th1-expr-37 {$RESULT eq {-1}}
+
+###############################################################################
+
+fossil test-th-eval "expr (((1)))"
+test th1-expr-38 {$RESULT eq {1}}
+
+###############################################################################
+
+fossil test-th-eval "expr (((1))"
+test th1-expr-39 {$RESULT eq {TH_ERROR: syntax error in expression: "(((1))"}}
+
+###############################################################################
+
+fossil test-th-eval "expr ((1)))"
+test th1-expr-40 {$RESULT eq {TH_ERROR: syntax error in expression: "((1)))"}}
+
+###############################################################################
+
+fossil test-th-eval "expr (((1)*2)*2)"
+test th1-expr-41 {$RESULT eq {4}}
+
+###############################################################################
+
+fossil test-th-eval "expr +"
+test th1-expr-42 {$RESULT eq {TH_ERROR: syntax error in expression: "+"}}
+
+###############################################################################
+
+fossil test-th-eval "expr -"
+test th1-expr-43 {$RESULT eq {TH_ERROR: syntax error in expression: "-"}}
+
+###############################################################################
+
+fossil test-th-eval "expr ++"
+test th1-expr-44 {$RESULT eq {TH_ERROR: syntax error in expression: "++"}}
+
+###############################################################################
+
+fossil test-th-eval "expr --"
+test th1-expr-45 {$RESULT eq {TH_ERROR: syntax error in expression: "--"}}
+
+###############################################################################
+
+fossil test-th-eval "lindex list +"
+test th1-expr-46 {$RESULT eq {TH_ERROR: expected integer, got: "+"}}
+
+###############################################################################
+
+fossil test-th-eval "lindex list -"
+test th1-expr-47 {$RESULT eq {TH_ERROR: expected integer, got: "-"}}
+
+###############################################################################
+
+fossil test-th-eval "lindex list +0x"
+test th1-expr-48 {$RESULT eq {TH_ERROR: expected integer, got: "+0x"}}
+
+###############################################################################
+
+fossil test-th-eval "lindex list -0x"
+test th1-expr-49 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
+
+###############################################################################
+
+fossil test-th-eval "checkout 1"; # NOTE: Assumes running "in tree".
+test th1-checkout-1 {[string length $RESULT] > 0}
+
+###############################################################################
+
+fossil test-th-eval "checkout"; # NOTE: Assumes running "in tree".
+test th1-checkout-2 {[string length $RESULT] > 0}
+
+###############################################################################
+
+set savedPwd [pwd]; cd /
+fossil test-th-eval "checkout 1"
+cd $savedPwd; unset savedPwd
+test th1-checkout-3 {[string length $RESULT] == 0}
+
+###############################################################################
+
+set savedPwd [pwd]; cd /
+fossil test-th-eval "checkout"
+cd $savedPwd; unset savedPwd
+test th1-checkout-4 {[string length $RESULT] == 0}
+
+###############################################################################
+
+fossil test-th-eval "render {}"
+test th1-render-1 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval "render {$<x> before <th1>set x 123</th1> after $<x> }"
+test th1-render-2 {$RESULT eq {no such variable: x before  after 123 }}
+
+###############################################################################
+
+fossil test-th-eval "trace {}"
+test th1-trace-1 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval --th-trace "trace {}"
+if {$th1Hooks} {
+  test th1-trace-2 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+{------------------ BEGIN TRACE LOG ------------------
+th1-init 0x0 => 0x0<br />
+
+------------------- END TRACE LOG -------------------}}
+} else {
+  test th1-trace-2 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+      {------------------ BEGIN TRACE LOG ------------------
+th1-init 0x0 => 0x0<br />
+th1-setup {} => TH_OK<br />
+
+------------------- END TRACE LOG -------------------}}
+}
+
+###############################################################################
+
+fossil test-th-eval "trace {this is a trace message.}"
+test th1-trace-3 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval --th-trace "trace {this is a trace message.}"
+if {$th1Hooks} {
+  test th1-trace-4 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+      {------------------ BEGIN TRACE LOG ------------------
+th1-init 0x0 => 0x0<br />
+this is a trace message.
+------------------- END TRACE LOG -------------------}}
+} else {
+  test th1-trace-4 {[string map [list \r\n \n] [string trim $RESULT]] eq \
+      {------------------ BEGIN TRACE LOG ------------------
+th1-init 0x0 => 0x0<br />
+th1-setup {} => TH_OK<br />
+this is a trace message.
+------------------- END TRACE LOG -------------------}}
+}
+
+###############################################################################
+
+fossil test-th-eval "styleHeader {Page Title Here}"
+test th1-header-1 {$RESULT eq {TH_ERROR: repository unavailable}}
+
+###############################################################################
+
+fossil test-th-eval --open-config "styleHeader {Page Title Here}"
+test th1-header-2 {[regexp -- {<title>Fossil: Page Title Here</title>} $RESULT]}
+
+###############################################################################
+
+fossil test-th-eval "styleFooter"
+test th1-footer-1 {$RESULT eq {TH_ERROR: repository unavailable}}
+
+###############################################################################
+
+fossil test-th-eval --open-config "styleFooter"
+test th1-footer-2 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval --open-config --cgi "styleHeader {}; styleFooter"
+test th1-footer-3 {[regexp -- {</body></html>} $RESULT]}
+
+###############################################################################
+
+fossil test-th-eval "getParameter"
+test th1-get-parameter-1 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "getParameter NAME ?DEFAULT?"}}
+
+###############################################################################
+
+fossil test-th-eval "getParameter test1"
+test th1-get-parameter-2 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval "getParameter test1 defValue1"
+test th1-get-parameter-3 {$RESULT eq {defValue1}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter"
+test th1-set-parameter-1 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "setParameter NAME VALUE"}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test1 value1; getParameter test1"
+test th1-set-parameter-2 {$RESULT eq {value1}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test2 value2; getParameter test1"
+test th1-set-parameter-3 {$RESULT eq {}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test3 value3; getParameter test3"
+test th1-set-parameter-4 {$RESULT eq {value3}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test3 value3; getParameter test3 defValue3"
+test th1-set-parameter-5 {$RESULT eq {value3}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test4 value4; setParameter test4 value5; getParameter test4"
+test th1-set-parameter-6 {$RESULT eq {value5}}
+
+###############################################################################
+
+fossil test-th-eval "setParameter test4 value4; setParameter test4 value5; getParameter test4 defValue4"
+test th1-set-parameter-7 {$RESULT eq {value5}}
+
+###############################################################################
+
+fossil test-th-eval "artifact"
+test th1-artifact-1 {$RESULT eq \
+    {TH_ERROR: wrong # args: should be "artifact ID ?FILENAME?"}}
+
+###############################################################################
+
+fossil test-th-eval "artifact tip"
+test th1-artifact-2 {$RESULT eq {TH_ERROR: repository unavailable}}
+
+###############################################################################
+
+fossil test-th-eval --open-config "artifact tip"
+test th1-artifact-3 {[regexp -- {F test/th1\.test [0-9a-f]{40}} $RESULT]}
+
+###############################################################################
+
+fossil test-th-eval "artifact 0000000000"
+test th1-artifact-4 {$RESULT eq {TH_ERROR: repository unavailable}}
+
+###############################################################################
+
+fossil test-th-eval --open-config "artifact 0000000000"
+test th1-artifact-5 {$RESULT eq {TH_ERROR: name not found}}
+
+###############################################################################
+
+fossil test-th-eval "artifact tip test/th1.test"
+test th1-artifact-6 {$RESULT eq {TH_ERROR: repository unavailable}}
+
+###############################################################################
+
+fossil test-th-eval --open-config "artifact tip test/th1.test"
+test th1-artifact-7 {[regexp -- {th1-artifact-7} $RESULT]}
+
+###############################################################################
+
+fossil test-th-eval "artifact 0000000000 test/th1.test"
+test th1-artifact-8 {$RESULT eq {TH_ERROR: repository unavailable}}
+
+###############################################################################
+
+fossil test-th-eval --open-config "artifact 0000000000 test/th1.test"
+test th1-artifact-9 {$RESULT eq {TH_ERROR: manifest not found}}
+
+###############################################################################
+
+fossil test-th-eval "globalState checkout"
+test th1-globalState-1 {[string length $RESULT] > 0}
+
+###############################################################################
+
+fossil test-th-eval "globalState checkout"
+test th1-globalState-2 {$RESULT eq [fossil test-th-eval checkout]}
+
+###############################################################################
+
+fossil test-th-eval "globalState configuration"
+test th1-globalState-3 {[string length $RESULT] == 0}
+
+###############################################################################
+
+fossil test-th-eval --open-config "globalState configuration"
+test th1-globalState-4 {[string length $RESULT] > 0}
+
+###############################################################################
+
+fossil test-th-eval "globalState executable"
+test th1-globalState-5 {[file rootname [file tail $RESULT]] eq "fossil"}
+
+###############################################################################
+
+fossil test-th-eval "globalState log"
+test th1-globalState-6 {[string length $RESULT] == 0}
+
+###############################################################################
+
+fossil test-th-eval --errorlog foserrors.log "globalState log"
+test th1-globalState-7 {$RESULT eq "foserrors.log"}
+
+###############################################################################
+
+fossil test-th-eval "globalState repository"
+test th1-globalState-8 {[string length $RESULT] > 0}
+
+###############################################################################
+
+fossil test-th-eval "globalState repository"
+test th1-globalState-9 {$RESULT eq [fossil test-th-eval repository]}
+
+###############################################################################
+
+fossil test-th-eval "globalState top"
+test th1-globalState-10 {[string length $RESULT] == 0}
+
+###############################################################################
+
+fossil test-th-eval "globalState user"
+test th1-globalState-11 {[string length $RESULT] == 0}
+
+###############################################################################
+
+fossil test-th-eval --user fossil-th1-test "globalState user"
+test th1-globalState-12 {$RESULT eq "fossil-th1-test"}
+
+###############################################################################
+
+fossil test-th-eval "globalState vfs"
+test th1-globalState-13 {[string length $RESULT] == 0}
+
+###############################################################################
+
+fossil test-th-eval "globalState vfs"
+test th1-globalState-14 {[string length $RESULT] == 0}
+
+###############################################################################
+
+if {$tcl_platform(platform) eq "windows"} then {
+  set altVfs win32-longpath
+} else {
+  set altVfs unix-dotfile
+}
+
+###############################################################################
+
+fossil test-th-eval --vfs $altVfs "globalState vfs"
+test th1-globalState-15 {$RESULT eq $altVfs}
+
+###############################################################################
+
+fossil test-th-eval "globalState flags"
+test th1-globalState-16 {$RESULT eq "0"}
+
+###############################################################################
+
+fossil test-th-eval "reinitialize; globalState configuration"
+test th1-reinitialize-1 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval "reinitialize 1; globalState configuration"
+test th1-reinitialize-2 {$RESULT ne ""}

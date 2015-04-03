@@ -11,7 +11,8 @@
       [http://www.activestate.com/activetcl] to for a quick download of
       Tcl/Tk if you do not already have it on your system.)
 
-  3.  The "[/help?cmd=clean | fossil clean -f]" command makes a great 
+  3.  The "[/help/clean | fossil clean -f]" or
+      "[/help/clean | fossil clean --verily]" command is a great 
       alternative to "make clean".
   
   4.  Use "[/help?cmd=all | fossil all changes]" to look for any uncommitted 
@@ -22,14 +23,11 @@
       "[/help/all|fossil all push]" when you get back online to upload
       your changes.
   
-  5.  Sub-menu options on Timelines lets you select either 20 or 200
-      records.  But you can manual edit the "n=" query parameter in the
-      URL to get any number of records you desire.  To see a complete
-      timeline graph, set n to some ridiculously large value like 10000000.
+  5.  To see an entire timeline, type "all" into the "Max:" entry box.
   
   6.  You can manually add a "c=CHECKIN" query parameter to the timeline
       URL to get a snapshot of what was going on about the time of some
-      checkin.  The "CHECKIN" can be
+      check-in.  The "CHECKIN" can be
       [./checkin_names.wiki | any valid check-in or version name], including
       tags, branch names, and dates.  For example, to see what was going 
       on in the Fossil repository on 2008-01-01, visit
@@ -49,7 +47,7 @@
       add a query parameter of the form "ln=FROM,TO" to the URL that
       will cause the range of lines indicated to be highlighted.  This
       is useful in pointing out a few lines of code using a hyperlink
-      in a email or text message.  Example:
+      in an email or text message.  Example:
       [http://www.fossil-scm.org/fossil/artifact/c7dd1de9f?ln=28,30].
       Adding the "ln" query parameter without any argument simply turns
       on line numbers.   This feature only works right with files with

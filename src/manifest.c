@@ -45,9 +45,16 @@
 #define PERM_LNK          2     /*  symlink       */
 
 /*
+** Flags for use with manifest_crosslink().
+*/
+#define MC_NONE           0  /*  default handling           */
+#define MC_PERMIT_HOOKS   1  /*  permit hooks to execute    */
+#define MC_NO_ERRORS      2  /*  do not issue errors for a bad parse */
+
+/*
 ** A single F-card within a manifest
 */
-struct ManifestFile { 
+struct ManifestFile {
   char *zName;           /* Name of a file */
   char *zUuid;           /* UUID of the file */
   char *zPerm;           /* File permissions */
@@ -85,7 +92,7 @@ struct Manifest {
   int nParentAlloc;     /* Slots allocated in azParent[] */
   char **azParent;      /* UUIDs of parents.  One for each P card argument */
   int nCherrypick;      /* Number of entries in aCherrypick[] */
-  struct {            
+  struct {
     char *zCPTarget;    /* UUID of cherry-picked version w/ +|- prefix */
     char *zCPBase;      /* UUID of cherry-pick baseline. NULL for singletons */
   } *aCherrypick;
@@ -101,7 +108,7 @@ struct Manifest {
   } *aTag;              /* One for each T card */
   int nField;           /* Number of J cards */
   int nFieldAlloc;      /* Slots allocated in aField[] */
-  struct { 
+  struct {
     char *zName;           /* Key or field name */
     char *zValue;          /* Value of the field */
   } *aField;            /* One for each J card */
@@ -131,12 +138,12 @@ static int manifest_crosslink_busy = 0;
 void manifest_destroy(Manifest *p){
   if( p ){
     blob_reset(&p->content);
-    free(p->aFile);
-    free(p->azParent);
-    free(p->azCChild);
-    free(p->aTag);
-    free(p->aField);
-    free(p->aCherrypick);
+    fossil_free(p->aFile);
+    fossil_free(p->azParent);
+    fossil_free(p->azCChild);
+    fossil_free(p->aTag);
+    fossil_free(p->aField);
+    fossil_free(p->aCherrypick);
     if( p->pBaseline ) manifest_destroy(p->pBaseline);
     memset(p, 0, sizeof(*p));
     fossil_free(p);
@@ -225,14 +232,14 @@ static void remove_pgp_signature(char **pz, int *pn){
   char *z = *pz;
   int n = *pn;
   int i;
-  if( memcmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)!=0 ) return;
+  if( strncmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)!=0 ) return;
   for(i=34; i<n && !after_blank_line(z+i); i++){}
   if( i>=n ) return;
   z += i;
   n -= i;
   *pz = z;
   for(i=n-1; i>=0; i--){
-    if( z[i]=='\n' && memcmp(&z[i],"\n-----BEGIN PGP SIGNATURE-", 25)==0 ){
+    if( z[i]=='\n' && strncmp(&z[i],"\n-----BEGIN PGP SIGNATURE-", 25)==0 ){
       n = i+1;
       break;
     }
@@ -247,7 +254,7 @@ static void remove_pgp_signature(char **pz, int *pn){
 ** exists and is correct.  Return 2 if the Z-card exists and has the wrong
 ** value.
 **
-**   0123456789 123456789 123456789 123456789 
+**   0123456789 123456789 123456789 123456789
 **   Z aea84f4f863865a8d59d0384e4d2a41c
 */
 static int verify_z_card(const char *z, int n){
@@ -356,6 +363,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   char *zUuid;
   int sz = 0;
   int isRepeat, hasSelfRefTag = 0;
+  Blob bUuid = BLOB_INITIALIZER;
   static Bag seen;
   const char *zErr = 0;
 
@@ -374,9 +382,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   if( !isRepeat ) g.parseCnt[0]++;
   z = blob_materialize(pContent);
   n = blob_size(pContent);
-  if( n<=0 || z[n-1]!='\n' ){
+  if( pErr && (n<=0 || z[n-1]!='\n') ){
     blob_reset(pContent);
-    blob_appendf(pErr, n ? "not terminated with \\n" : "zero-length");
+    blob_append(pErr, n ? "not terminated with \\n" : "zero-length", -1);
     return 0;
   }
 
@@ -399,6 +407,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     blob_appendf(pErr, "incorrect Z-card cksum");
     return 0;
   }
+
+  /* Store the UUID (before modifying the blob) only for error
+  ** reporting purposes.
+  */
+  sha1sum_blob(pContent, &bUuid);
 
   /* Allocate a Manifest object to hold the parsed control artifact.
   */
@@ -431,7 +444,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         zName = next_token(&x, 0);
         zTarget = next_token(&x, &nTarget);
         zSrc = next_token(&x, &nSrc);
-        if( zName==0 || zTarget==0 ) goto manifest_syntax_error;      
+        if( zName==0 || zTarget==0 ) goto manifest_syntax_error;
         if( p->zAttachName!=0 ) goto manifest_syntax_error;
         defossilize(zName);
         if( !file_is_simple_pathname(zName, 0) ){
@@ -500,7 +513,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       /*
       **     E <timestamp> <uuid>
       **
-      ** An "event" card that contains the timestamp of the event in the 
+      ** An "event" card that contains the timestamp of the event in the
       ** format YYYY-MM-DDtHH:MM:SS and a unique identifier for the event.
       ** The event timestamp is distinct from the D timestamp.  The D
       ** timestamp is when the artifact was created whereas the E timestamp
@@ -547,7 +560,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         }
         if( p->nFile>=p->nFileAlloc ){
           p->nFileAlloc = p->nFileAlloc*2 + 10;
-          p->aFile = fossil_realloc(p->aFile, 
+          p->aFile = fossil_realloc(p->aFile,
                                     p->nFileAlloc*sizeof(p->aFile[0]) );
         }
         i = p->nFile++;
@@ -667,7 +680,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** Specify one or more other artifacts which are the parents of
       ** this artifact.  The first parent is the primary parent.  All
       ** others are parents by merge. Note that the initial empty
-      ** checkin historically has an empty P-card, so empty P-cards
+      ** check-in historically has an empty P-card, so empty P-cards
       ** must be accepted.
       */
       case 'P': {
@@ -688,8 +701,8 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       /*
       **     Q (+|-)<uuid> ?<uuid>?
       **
-      ** Specify one or a range of checkins that are cherrypicked into
-      ** this checkin ("+") or backed out of this checkin ("-").
+      ** Specify one or a range of check-ins that are cherrypicked into
+      ** this check-in ("+") or backed out of this check-in ("-").
       */
       case 'Q': {
         if( (zUuid=next_token(&x, &sz))==0 ) SYNTAX("missing UUID on Q-card");
@@ -739,7 +752,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** a "*".
       **
       ** The tag is applied to <uuid>.  If <uuid> is "*" then the tag is
-      ** applied to the current manifest.  If <value> is provided then 
+      ** applied to the current manifest.  If <value> is provided then
       ** the tag is really a property with the given value.
       **
       ** Tags are not allowed in clusters.  Multiple T lines are allowed.
@@ -886,46 +899,47 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     if( !seenZ ) SYNTAX("missing Z-card on cluster");
     p->type = CFTYPE_CLUSTER;
   }else if( p->zEventId ){
+    if( p->zAttachName ) SYNTAX("A-card in event");
+    if( p->zBaseline ) SYNTAX("B-card in event");
     if( p->rDate<=0.0 ) SYNTAX("missing date on event");
     if( p->nFile>0 ) SYNTAX("F-card in event");
-    if( p->zRepoCksum ) SYNTAX("R-card in event");
-    if( p->zBaseline ) SYNTAX("B-card in event");
     if( p->nField>0 ) SYNTAX("J-card in event");
     if( p->zTicketUuid ) SYNTAX("K-card in event");
     if( p->zWikiTitle!=0 ) SYNTAX("L-card in event");
+    if( p->zRepoCksum ) SYNTAX("R-card in event");
     if( p->zWiki==0 ) SYNTAX("missing W-card on event");
-    if( p->zAttachName ) SYNTAX("A-card in event");
     if( !seenZ ) SYNTAX("missing Z-card on event");
     p->type = CFTYPE_EVENT;
-  }else if( hasSelfRefTag || p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
+  }else if( p->zWiki!=0 || p->zWikiTitle!=0 ){
+    if( p->zAttachName ) SYNTAX("A-card in wiki");
+    if( p->zBaseline ) SYNTAX("B-card in wiki");
+    if( p->rDate<=0.0 ) SYNTAX("missing date on wiki");
+    if( p->nFile>0 ) SYNTAX("F-card in wiki");
+    if( p->nField>0 ) SYNTAX("J-card in wiki");
+    if( p->zTicketUuid ) SYNTAX("K-card in wiki");
+    if( p->zWikiTitle==0 ) SYNTAX("missing L-card on wiki");
+    if( p->zRepoCksum ) SYNTAX("R-card in wiki");
+    if( p->nTag>0 ) SYNTAX("T-card in wiki");
+    if( p->zWiki==0 ) SYNTAX("missing W-card on wiki");
+    if( !seenZ ) SYNTAX("missing Z-card on wiki");
+    p->type = CFTYPE_WIKI;
+  }else if( hasSelfRefTag || p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline
+      || p->nParent>0 ){
+    if( p->zAttachName ) SYNTAX("A-card in manifest");
     if( p->rDate<=0.0 ) SYNTAX("missing date on manifest");
     if( p->nField>0 ) SYNTAX("J-card in manifest");
     if( p->zTicketUuid ) SYNTAX("K-card in manifest");
-    if( p->zWiki ) SYNTAX("W-card in manifest");
-    if( p->zWikiTitle ) SYNTAX("L-card in manifest");
-    if( p->zTicketUuid ) SYNTAX("K-card in manifest");
-    if( p->zAttachName ) SYNTAX("A-card in manifest");
     p->type = CFTYPE_MANIFEST;
   }else if( p->nField>0 || p->zTicketUuid!=0 ){
-    if( p->rDate<=0.0 ) SYNTAX("missing date on ticket");
-    if( p->zWiki ) SYNTAX("W-card in ticket");
-    if( p->zWikiTitle ) SYNTAX("L-card in ticket");
-    if( p->nField==0 ) SYNTAX("missing J-card on ticket");
-    if( p->nTag>0 ) SYNTAX("T-card in ticket");
-    if( p->zTicketUuid==0 ) SYNTAX("missing K-card on ticket");
-    if( p->zUser==0 ) SYNTAX("missing U-card on ticket");
     if( p->zAttachName ) SYNTAX("A-card in ticket");
+    if( p->rDate<=0.0 ) SYNTAX("missing date on ticket");
+    if( p->nField==0 ) SYNTAX("missing J-card on ticket");
+    if( p->zTicketUuid==0 ) SYNTAX("missing K-card on ticket");
     if( p->zMimetype) SYNTAX("N-card in ticket");
+    if( p->nTag>0 ) SYNTAX("T-card in ticket");
+    if( p->zUser==0 ) SYNTAX("missing U-card on ticket");
     if( !seenZ ) SYNTAX("missing Z-card on ticket");
     p->type = CFTYPE_TICKET;
-  }else if( p->zWiki!=0 || p->zWikiTitle!=0 ){
-    if( p->rDate<=0.0 ) SYNTAX("missing date on wiki");
-    if( p->nTag>0 ) SYNTAX("T-card in wiki");
-    if( p->zWiki==0 ) SYNTAX("missing W-card on wiki");
-    if( p->zWikiTitle==0 ) SYNTAX("missing L-card on wiki");
-    if( p->zAttachName ) SYNTAX("A-card in wiki");
-    if( !seenZ ) SYNTAX("missing Z-card on wiki");
-    p->type = CFTYPE_WIKI;
   }else if( p->zAttachName ){
     if( p->rDate<=0.0 ) SYNTAX("missing date on attachment");
     if( p->nTag>0 ) SYNTAX("T-card in attachment");
@@ -933,16 +947,20 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     p->type = CFTYPE_ATTACHMENT;
   }else{
     if( p->rDate<=0.0 ) SYNTAX("missing date on control");
-    if( p->nParent>0 ) SYNTAX("P-card in control");
     if( p->zMimetype ) SYNTAX("N-card in control");
     if( !seenZ ) SYNTAX("missing Z-card on control");
     p->type = CFTYPE_CONTROL;
   }
   md5sum_init();
   if( !isRepeat ) g.parseCnt[p->type]++;
+  blob_reset(&bUuid);
   return p;
 
 manifest_syntax_error:
+  if(bUuid.nUsed){
+    blob_appendf(pErr, "manifest [%.40s] ", blob_str(&bUuid));
+    blob_reset(&bUuid);
+  }
   if( zErr ){
     blob_appendf(pErr, "line %d: %s", lineNo, zErr);
   }else{
@@ -979,7 +997,7 @@ Manifest *manifest_get(int rid, int cfType, Blob *pErr){
 }
 
 /*
-** Given a checkin name, load and parse the manifest for that checkin.
+** Given a check-in name, load and parse the manifest for that check-in.
 ** Throw a fatal error if anything goes wrong.
 */
 Manifest *manifest_get_by_name(const char *zName, int *pRid){
@@ -988,12 +1006,12 @@ Manifest *manifest_get_by_name(const char *zName, int *pRid){
 
   rid = name_to_typed_rid(zName, "ci");
   if( !is_a_version(rid) ){
-    fossil_fatal("no such checkin: %s", zName);
+    fossil_fatal("no such check-in: %s", zName);
   }
   if( pRid ) *pRid = rid;
   p = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( p==0 ){
-    fossil_fatal("cannot parse manifest for checkin: %s", zName);
+    fossil_fatal("cannot parse manifest for check-in: %s", zName);
   }
   return p;
 }
@@ -1046,7 +1064,7 @@ static int fetch_baseline(Manifest *p, int throwError){
            p->rid, rid
         );
         return 1;
-      }    
+      }
       fossil_fatal("cannot access baseline manifest %S", p->zBaseline);
     }
   }
@@ -1071,7 +1089,7 @@ void manifest_file_rewind(Manifest *p){
 ** occurs and pErr!=0 then store 1 in *pErr.
 */
 ManifestFile *manifest_file_next(
-  Manifest *p,   
+  Manifest *p,
   int *pErr
 ){
   ManifestFile *pOut = 0;
@@ -1157,10 +1175,11 @@ static int filename_to_fnid(const char *zFilename){
 int manifest_file_mperm(ManifestFile *pFile){
   int mperm = PERM_REG;
   if( pFile && pFile->zPerm){
-    if( strstr(pFile->zPerm,"x")!=0 )
+    if( strstr(pFile->zPerm,"x")!=0 ){
       mperm = PERM_EXE;
-    else if( strstr(pFile->zPerm,"l")!=0 )
+    }else if( strstr(pFile->zPerm,"l")!=0 ){
       mperm = PERM_LNK;
+    }
   }
   return mperm;
 }
@@ -1170,12 +1189,14 @@ int manifest_file_mperm(ManifestFile *pFile){
 ** the filename table if it is not there already.
 */
 static void add_one_mlink(
+  int pmid,                 /* The parent manifest */
+  const char *zFromUuid,    /* UUID for content in parent */
   int mid,                  /* The record ID of the manifest */
-  const char *zFromUuid,    /* UUID for the mlink.pid. "" to add file */
-  const char *zToUuid,      /* UUID for the mlink.fid. "" to delete */
+  const char *zToUuid,      /* UUID for content in child */
   const char *zFilename,    /* Filename */
   const char *zPrior,       /* Previous filename. NULL if unchanged */
   int isPublic,             /* True if mid is not a private manifest */
+  int isPrimary,            /* pmid is the primary parent of mid */
   int mperm                 /* 1: exec, 2: symlink */
 ){
   int fnid, pfnid, pid, fid;
@@ -1199,15 +1220,17 @@ static void add_one_mlink(
     if( isPublic ) content_make_public(fid);
   }
   db_static_prepare(&s1,
-    "INSERT INTO mlink(mid,pid,fid,fnid,pfnid,mperm)"
-    "VALUES(:m,:p,:f,:n,:pfn,:mp)"
+    "INSERT INTO mlink(mid,fid,pmid,pid,fnid,pfnid,mperm,isaux)"
+    "VALUES(:m,:f,:pm,:p,:n,:pfn,:mp,:isaux)"
   );
   db_bind_int(&s1, ":m", mid);
-  db_bind_int(&s1, ":p", pid);
   db_bind_int(&s1, ":f", fid);
+  db_bind_int(&s1, ":pm", pmid);
+  db_bind_int(&s1, ":p", pid);
   db_bind_int(&s1, ":n", fnid);
   db_bind_int(&s1, ":pfn", pfnid);
   db_bind_int(&s1, ":mp", mperm);
+  db_bind_int(&s1, ":isaux", isPrimary==0);
   db_exec(&s1);
   if( pid && fid ){
     content_deltify(pid, fid, 0);
@@ -1215,7 +1238,7 @@ static void add_one_mlink(
 }
 
 /*
-** Do a binary search to find a file in the p->aFile[] array.  
+** Do a binary search to find a file in the p->aFile[] array.
 **
 ** As an optimization, guess that the file we seek is at index p->iFile.
 ** That will usually be the case.  If it is not found there, then do the
@@ -1223,7 +1246,11 @@ static void add_one_mlink(
 **
 ** Update p->iFile to be the index of the file that is found.
 */
-static ManifestFile *manifest_file_seek_base(Manifest *p, const char *zName){
+static ManifestFile *manifest_file_seek_base(
+  Manifest *p,             /* Manifest to search */
+  const char *zName,       /* Name of the file we are looking for */
+  int bBest                /* 0: exact match only.  1: closest match */
+){
   int lwr, upr;
   int c;
   int i;
@@ -1251,6 +1278,11 @@ static ManifestFile *manifest_file_seek_base(Manifest *p, const char *zName){
       return &p->aFile[i];
     }
   }
+  if( bBest ){
+    if( lwr>=p->nFile ) lwr = p->nFile-1;
+    i = (int)strlen(zName);
+    if( strncmp(zName, p->aFile[lwr].zName, i)==0 ) return &p->aFile[lwr];
+  }
   return 0;
 }
 
@@ -1259,19 +1291,19 @@ static ManifestFile *manifest_file_seek_base(Manifest *p, const char *zName){
 ** Return a pointer to the appropriate ManifestFile object.  Return NULL
 ** if not found.
 **
-** This routine works even if p is a delta-manifest.  The pointer 
+** This routine works even if p is a delta-manifest.  The pointer
 ** returned might be to the baseline.
 **
 ** We assume that filenames are in sorted order and use a binary search.
 */
-ManifestFile *manifest_file_seek(Manifest *p, const char *zName){
+ManifestFile *manifest_file_seek(Manifest *p, const char *zName, int bBest){
   ManifestFile *pFile;
-  
-  pFile = manifest_file_seek_base(p, zName);
+
+  pFile = manifest_file_seek_base(p, zName, p->zBaseline ? 0 : bBest);
   if( pFile && pFile->zUuid==0 ) return 0;
   if( pFile==0 && p->zBaseline ){
     fetch_baseline(p, 1);
-    pFile = manifest_file_seek_base(p->pBaseline, zName);
+    pFile = manifest_file_seek_base(p->pBaseline, zName,bBest);
   }
   return pFile;
 }
@@ -1285,7 +1317,7 @@ ManifestFile *manifest_file_find(Manifest *p, const char *zName){
   int i;
   Manifest *pBase;
   if( filenames_are_case_sensitive() ){
-    return manifest_file_seek(p, zName);
+    return manifest_file_seek(p, zName, 0);
   }
   for(i=0; i<p->nFile; i++){
     if( fossil_stricmp(zName, p->aFile[i].zName)==0 ){
@@ -1316,7 +1348,11 @@ ManifestFile *manifest_file_find(Manifest *p, const char *zName){
 ** Added files have mlink.pid=0.
 ** Edited files have both mlink.pid!=0 and mlink.fid!=0
 */
-static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
+static void add_mlink(
+  int pmid, Manifest *pParent,    /* Parent check-in */
+  int mid,  Manifest *pChild,     /* The child check-in */
+  int isPrim                      /* TRUE if pmid is the primary parent of mid */
+){
   Blob otherContent;
   int otherRid;
   int i, rc;
@@ -1325,25 +1361,26 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   static Stmt eq;
   int isPublic;                /* True if pChild is non-private */
 
-  /* If mlink table entires are already set for cid, then abort early
-  ** doing no work.
+  /* If mlink table entires are already exist for the pmid-to-mid transition,
+  ** then abort early doing no work.
   */
-  db_static_prepare(&eq, "SELECT 1 FROM mlink WHERE mid=:mid");
-  db_bind_int(&eq, ":mid", cid);
+  db_static_prepare(&eq, "SELECT 1 FROM mlink WHERE mid=:mid AND pmid=:pmid");
+  db_bind_int(&eq, ":mid", mid);
+  db_bind_int(&eq, ":pmid", pmid);
   rc = db_step(&eq);
   db_reset(&eq);
   if( rc==SQLITE_ROW ) return;
 
   /* Compute the value of the missing pParent or pChild parameter.
-  ** Fetch the baseline checkins for both.
+  ** Fetch the baseline check-ins for both.
   */
   assert( pParent==0 || pChild==0 );
   if( pParent==0 ){
     ppOther = &pParent;
-    otherRid = pid;
+    otherRid = pmid;
   }else{
     ppOther = &pChild;
-    otherRid = cid;
+    otherRid = mid;
   }
   if( (*ppOther = manifest_cache_find(otherRid))==0 ){
     content_get(otherRid, &otherContent);
@@ -1355,16 +1392,16 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     manifest_destroy(*ppOther);
     return;
   }
-  isPublic = !content_is_private(cid);
+  isPublic = !content_is_private(mid);
 
   /* Try to make the parent manifest a delta from the child, if that
-  ** is an appropriate thing to do.  For a new baseline, make the 
+  ** is an appropriate thing to do.  For a new baseline, make the
   ** previous baseline a delta from the current baseline.
   */
   if( (pParent->zBaseline==0)==(pChild->zBaseline==0) ){
-    content_deltify(pid, cid, 0); 
+    content_deltify(pmid, mid, 0);
   }else if( pChild->zBaseline==0 && pParent->zBaseline!=0 ){
-    content_deltify(pParent->pBaseline->rid, cid, 0);
+    content_deltify(pParent->pBaseline->rid, mid, 0);
   }
 
   /* Remember all children less than a few seconds younger than their parent,
@@ -1381,34 +1418,35 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
 
   /* First look at all files in pChild, ignoring its baseline.  This
   ** is where most of the changes will be found.
-  */  
+  */
   for(i=0, pChildFile=pChild->aFile; i<pChild->nFile; i++, pChildFile++){
     int mperm = manifest_file_mperm(pChildFile);
     if( pChildFile->zPrior ){
-       pParentFile = manifest_file_seek(pParent, pChildFile->zPrior);
+       pParentFile = manifest_file_seek(pParent, pChildFile->zPrior, 0);
        if( pParentFile ){
          /* File with name change */
-         add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
-                       pChildFile->zName, pChildFile->zPrior, isPublic, mperm);
+         add_one_mlink(pmid, pParentFile->zUuid, mid, pChildFile->zUuid,
+                       pChildFile->zName, pChildFile->zPrior,
+                       isPublic, isPrim, mperm);
        }else{
          /* File name changed, but the old name is not found in the parent!
          ** Treat this like a new file. */
-         add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
-                       isPublic, mperm);
+         add_one_mlink(pmid, 0, mid, pChildFile->zUuid, pChildFile->zName, 0,
+                       isPublic, isPrim, mperm);
        }
     }else{
-       pParentFile = manifest_file_seek(pParent, pChildFile->zName);
+       pParentFile = manifest_file_seek(pParent, pChildFile->zName, 0);
        if( pParentFile==0 ){
          if( pChildFile->zUuid ){
            /* A new file */
-           add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
-                         isPublic, mperm);
+           add_one_mlink(pmid, 0, mid, pChildFile->zUuid, pChildFile->zName, 0,
+                         isPublic, isPrim, mperm);
          }
        }else if( fossil_strcmp(pChildFile->zUuid, pParentFile->zUuid)!=0
               || manifest_file_mperm(pParentFile)!=mperm ){
          /* Changes in file content or permissions */
-         add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
-                       pChildFile->zName, 0, isPublic, mperm);
+         add_one_mlink(pmid, pParentFile->zUuid, mid, pChildFile->zUuid,
+                       pChildFile->zName, 0, isPublic, isPrim, mperm);
        }
     }
   }
@@ -1419,23 +1457,23 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     ** in the child. */
     for(i=0, pParentFile=pParent->aFile; i<pParent->nFile; i++, pParentFile++){
       if( pParentFile->zUuid ){
-        pChildFile = manifest_file_seek_base(pChild, pParentFile->zName);
+        pChildFile = manifest_file_seek_base(pChild, pParentFile->zName, 0);
         if( pChildFile==0 ){
           /* The child file reverts to baseline.  Show this as a change */
-          pChildFile = manifest_file_seek(pChild, pParentFile->zName);
+          pChildFile = manifest_file_seek(pChild, pParentFile->zName, 0);
           if( pChildFile ){
-            add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
-                          pChildFile->zName, 0, isPublic,
+            add_one_mlink(pmid, pParentFile->zUuid, mid, pChildFile->zUuid,
+                          pChildFile->zName, 0, isPublic, isPrim,
                           manifest_file_mperm(pChildFile));
           }
         }
       }else{
-        pChildFile = manifest_file_seek(pChild, pParentFile->zName);
+        pChildFile = manifest_file_seek(pChild, pParentFile->zName, 0);
         if( pChildFile ){
           /* File resurrected in the child after having been deleted in
           ** the parent.  Show this as an added file. */
-          add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
-                        isPublic, manifest_file_mperm(pChildFile));
+          add_one_mlink(pmid, 0, mid, pChildFile->zUuid, pChildFile->zName, 0,
+                        isPublic, isPrim, manifest_file_mperm(pChildFile));
         }
       }
     }
@@ -1444,10 +1482,10 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     ** but are missing from pChild and mark them as having been deleted. */
     manifest_file_rewind(pParent);
     while( (pParentFile = manifest_file_next(pParent,0))!=0 ){
-      pChildFile = manifest_file_seek(pChild, pParentFile->zName);
+      pChildFile = manifest_file_seek(pChild, pParentFile->zName, 0);
       if( pChildFile==0 && pParentFile->zUuid!=0 ){
-        add_one_mlink(cid, pParentFile->zUuid, 0, pParentFile->zName, 0, 
-                      isPublic, 0);
+        add_one_mlink(pmid, pParentFile->zUuid, mid, 0, pParentFile->zName, 0,
+                      isPublic, isPrim, 0);
       }
     }
   }
@@ -1474,7 +1512,7 @@ void manifest_crosslink_begin(void){
 }
 
 #if INTERFACE
-/* Timestamps might be adjusted slightly to ensure that checkins appear
+/* Timestamps might be adjusted slightly to ensure that check-ins appear
 ** on the timeline in chronological order.  This is the maximum amount
 ** of the adjustment window, in days.
 */
@@ -1490,14 +1528,26 @@ void manifest_crosslink_begin(void){
 /*
 ** Finish up a sequence of manifest_crosslink calls.
 */
-void manifest_crosslink_end(void){
+int manifest_crosslink_end(int flags){
   Stmt q, u;
   int i;
+  int rc = TH_OK;
+  int permitHooks = (flags & MC_PERMIT_HOOKS);
+  const char *zScript = 0;
   assert( manifest_crosslink_busy==1 );
+  if( permitHooks ){
+    rc = xfer_run_common_script();
+    if( rc==TH_OK ){
+      zScript = xfer_ticket_code();
+    }
+  }
   db_prepare(&q, "SELECT uuid FROM pending_tkt");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     ticket_rebuild_entry(zUuid);
+    if( permitHooks && rc==TH_OK ){
+      rc = xfer_run_script(zScript, zUuid, 0);
+    }
   }
   db_finalize(&q);
   db_multi_exec("DROP TABLE pending_tkt");
@@ -1524,14 +1574,17 @@ void manifest_crosslink_end(void){
   }
   db_finalize(&q);
   db_finalize(&u);
-  db_multi_exec(
-    "UPDATE event SET mtime=(SELECT m1 FROM time_fudge WHERE mid=objid)"
-    " WHERE objid IN (SELECT mid FROM time_fudge);"
-    "DROP TABLE time_fudge;"
-  );
+  if( db_exists("SELECT 1 FROM time_fudge") ){
+    db_multi_exec(
+      "UPDATE event SET mtime=(SELECT m1 FROM time_fudge WHERE mid=objid)"
+      " WHERE objid IN (SELECT mid FROM time_fudge);"
+    );
+  }
+  db_multi_exec("DROP TABLE time_fudge;");
 
   db_end_transaction(0);
   manifest_crosslink_busy = 0;
+  return ( rc!=TH_ERROR );
 }
 
 /*
@@ -1559,8 +1612,8 @@ void manifest_ticket_event(
     zTitleExpr = db_get("ticket-title-expr", "title");
     zStatusColumn = db_get("ticket-status-column", "status");
   }
-  zTitle = db_text("unknown", 
-    "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
+  zTitle = db_text("unknown",
+    "SELECT \"%w\" FROM ticket WHERE tkt_uuid=%Q",
     zTitleExpr, pManifest->zTicketUuid
   );
   if( !isNew ){
@@ -1570,38 +1623,39 @@ void manifest_ticket_event(
       }
     }
     if( zNewStatus ){
-      blob_appendf(&comment, "%h ticket [%.10s]: <i>%h</i>",
-         zNewStatus, pManifest->zTicketUuid, zTitle
+      blob_appendf(&comment, "%h ticket [%!S|%S]: <i>%h</i>",
+         zNewStatus, pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle
       );
       if( pManifest->nField>1 ){
         blob_appendf(&comment, " plus %d other change%s",
           pManifest->nField-1, pManifest->nField==2 ? "" : "s");
       }
-      blob_appendf(&brief, "%h ticket [%.10s].",
-                   zNewStatus, pManifest->zTicketUuid);
+      blob_appendf(&brief, "%h ticket [%!S|%S].",
+                   zNewStatus, pManifest->zTicketUuid, pManifest->zTicketUuid);
     }else{
-      zNewStatus = db_text("unknown", 
-         "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
+      zNewStatus = db_text("unknown",
+         "SELECT \"%w\" FROM ticket WHERE tkt_uuid=%Q",
          zStatusColumn, pManifest->zTicketUuid
       );
-      blob_appendf(&comment, "Ticket [%.10s] <i>%h</i> status still %h with "
+      blob_appendf(&comment, "Ticket [%!S|%S] <i>%h</i> status still %h with "
            "%d other change%s",
-           pManifest->zTicketUuid, zTitle, zNewStatus, pManifest->nField,
-           pManifest->nField==1 ? "" : "s"
+           pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle, zNewStatus,
+           pManifest->nField, pManifest->nField==1 ? "" : "s"
       );
-      free(zNewStatus);
-      blob_appendf(&brief, "Ticket [%.10s]: %d change%s",
-           pManifest->zTicketUuid, pManifest->nField,
+      fossil_free(zNewStatus);
+      blob_appendf(&brief, "Ticket [%!S|%S]: %d change%s",
+           pManifest->zTicketUuid, pManifest->zTicketUuid, pManifest->nField,
            pManifest->nField==1 ? "" : "s"
       );
     }
   }else{
-    blob_appendf(&comment, "New ticket [%.10s] <i>%h</i>.",
-      pManifest->zTicketUuid, zTitle
+    blob_appendf(&comment, "New ticket [%!S|%S] <i>%h</i>.",
+      pManifest->zTicketUuid, pManifest->zTicketUuid, zTitle
     );
-    blob_appendf(&brief, "New ticket [%.10s].", pManifest->zTicketUuid);
+    blob_appendf(&brief, "New ticket [%!S|%S].", pManifest->zTicketUuid,
+        pManifest->zTicketUuid);
   }
-  free(zTitle);
+  fossil_free(zTitle);
   db_multi_exec(
     "REPLACE INTO event(type,tagid,mtime,objid,user,comment,brief)"
     "VALUES('t',%d,%.17g,%d,%Q,%Q,%Q)",
@@ -1610,6 +1664,44 @@ void manifest_ticket_event(
   );
   blob_reset(&comment);
   blob_reset(&brief);
+}
+
+/*
+** Add an extra line of text to the end of a manifest to prevent it being
+** recognized as a valid manifest.
+**
+** This routine is called prior to writing out the text of a manifest as
+** the "manifest" file in the root of a repository when
+** "fossil setting manifest on" is enabled.  That way, if the files of
+** the project are imported into a different Fossil project, the manifest
+** file will not be interpreted as a control artifact in that other project.
+**
+** Normally it is sufficient to simply append the extra line of text.
+** However, if the manifest is PGP signed then the extra line has to be
+** inserted before the PGP signature (thus invalidating the signature).
+*/
+void sterilize_manifest(Blob *p){
+  char *z, *zOrig;
+  int n, nOrig;
+  static const char zExtraLine[] =
+      "# Remove this line to create a well-formed manifest.\n";
+
+  z = zOrig = blob_materialize(p);
+  n = nOrig = blob_size(p);
+  remove_pgp_signature(&z, &n);
+  if( z==zOrig ){
+    blob_append(p, zExtraLine, -1);
+  }else{
+    int iEnd;
+    Blob copy;
+    memcpy(&copy, p, sizeof(copy));
+    blob_init(p, 0, 0);
+    iEnd = (int)(&z[n] - zOrig);
+    blob_append(p, zOrig, iEnd);
+    blob_append(p, zExtraLine, -1);
+    blob_append(p, &zOrig[iEnd], -1);
+    blob_zero(&copy);
+  }
 }
 
 /*
@@ -1642,7 +1734,7 @@ static int tag_compare(const void *a, const void *b){
 ** in the auxiliary tables of the database in order to crosslink the
 ** artifact.
 **
-** If global variable g.xlinkClusterOnly is true, then ignore all 
+** If global variable g.xlinkClusterOnly is true, then ignore all
 ** control artifacts other than clusters.
 **
 ** This routine always resets the pContent blob before returning.
@@ -1652,45 +1744,82 @@ static int tag_compare(const void *a, const void *b){
 ** of the routine, "manifest_crosslink", and the name of this source
 ** file, is a legacy of its original use.
 */
-int manifest_crosslink(int rid, Blob *pContent){
-  int i;
+int manifest_crosslink(int rid, Blob *pContent, int flags){
+  int i, rc = TH_OK;
   Manifest *p;
   Stmt q;
   int parentid = 0;
+  int permitHooks = (flags & MC_PERMIT_HOOKS);
+  const char *zScript = 0;
+  const char *zUuid = 0;
 
   if( (p = manifest_cache_find(rid))!=0 ){
     blob_reset(pContent);
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
     assert( blob_is_reset(pContent) || pContent==0 );
+    if( (flags & MC_NO_ERRORS)==0 ){
+      fossil_error(1, "syntax error in manifest [%S]",
+                   db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
+    }
     return 0;
   }
   if( g.xlinkClusterOnly && p->type!=CFTYPE_CLUSTER ){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
+    if( (flags & MC_NO_ERRORS)==0 ) fossil_error(1, "no manifest");
     return 0;
   }
   if( p->type==CFTYPE_MANIFEST && fetch_baseline(p, 0) ){
     manifest_destroy(p);
     assert( blob_is_reset(pContent) );
+    if( (flags & MC_NO_ERRORS)==0 ){
+      fossil_error(1, "cannot fetch baseline for manifest [%S]",
+                   db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
+    }
     return 0;
   }
   db_begin_transaction();
   if( p->type==CFTYPE_MANIFEST ){
+    if( permitHooks ){
+      zScript = xfer_commit_code();
+      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    }
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
+      char zBaseId[30];
+      if( p->zBaseline ){
+        sqlite3_snprintf(sizeof(zBaseId), zBaseId, "%d",
+                         uuid_to_rid(p->zBaseline,1));
+      }else{
+        sqlite3_snprintf(sizeof(zBaseId), zBaseId, "NULL");
+      }
       for(i=0; i<p->nParent; i++){
         int pid = uuid_to_rid(p->azParent[i], 1);
-        db_multi_exec("INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
-                      "VALUES(%d, %d, %d, %.17g)", pid, rid, i==0, p->rDate);
-        if( i==0 ){
-          add_mlink(pid, 0, rid, p);
-          parentid = pid;
-        }
+        db_multi_exec(
+           "INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime, baseid)"
+           "VALUES(%d, %d, %d, %.17g, %s)",
+           pid, rid, i==0, p->rDate, zBaseId/*safe-for-%s*/);
+        add_mlink(pid, 0, rid, p, i==0);
+        if( i==0 ) parentid = pid;
       }
-      db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d AND isprim", rid);
+      if( p->nParent>1 ){
+        /* Remove incorrect MLINK create-file entries that arise when a
+        ** file is added by merge. */
+        db_multi_exec(
+           "DELETE FROM mlink"
+           " WHERE mid=%d"
+           "   AND pid=0"
+           "   AND fnid IN "
+           "  (SELECT fnid FROM mlink WHERE mid=%d GROUP BY fnid"
+           "    HAVING count(*)<%d)",
+           rid, rid, p->nParent
+        );
+      }
+      db_prepare(&q, "SELECT cid, isprim FROM plink WHERE pid=%d", rid);
       while( db_step(&q)==SQLITE_ROW ){
         int cid = db_column_int(&q, 0);
-        add_mlink(rid, p, cid, 0);
+        int isprim = db_column_int(&q, 1);
+        add_mlink(rid, p, cid, 0, isprim);
       }
       db_finalize(&q);
       if( p->nParent==0 ){
@@ -1698,10 +1827,11 @@ int manifest_crosslink(int rid, Blob *pContent){
         ** showing all content as new. */
         int isPublic = !content_is_private(rid);
         for(i=0; i<p->nFile; i++){
-          add_one_mlink(rid, 0, p->aFile[i].zUuid, p->aFile[i].zName, 0,
-                        isPublic, manifest_file_mperm(&p->aFile[i]));
+          add_one_mlink(0, 0, rid, p->aFile[i].zUuid, p->aFile[i].zName, 0,
+                        isPublic, 1, manifest_file_mperm(&p->aFile[i]));
         }
       }
+      search_doc_touch('c', rid, 0);
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment,"
                            "bgcolor,euser,ecomment,omtime)"
@@ -1715,7 +1845,7 @@ int manifest_crosslink(int rid, Blob *pContent){
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),%.17g);",
         TAG_DATE, rid, p->rDate,
-        rid, p->zUser, p->zComment, 
+        rid, p->zUser, p->zComment,
         TAG_BGCOLOR, rid,
         TAG_USER, rid,
         TAG_COMMENT, rid, p->rDate
@@ -1723,7 +1853,7 @@ int manifest_crosslink(int rid, Blob *pContent){
       zCom = db_text(0, "SELECT coalesce(ecomment, comment) FROM event"
                         " WHERE rowid=last_insert_rowid()");
       wiki_extract_links(zCom, rid, 0, p->rDate, 1, WIKI_INLINE);
-      free(zCom);
+      fossil_free(zCom);
 
       /* If this is a delta-manifest, record the fact that this repository
       ** contains delta manifests, to free the "commit" logic to generate
@@ -1770,10 +1900,10 @@ int manifest_crosslink(int rid, Blob *pContent){
           case '+':  type = 1;  break;  /* Apply to target only */
           case '*':  type = 2;  break;  /* Propagate to descendants */
           default:
-            fossil_fatal("unknown tag type in manifest: %s", p->aTag);
+            fossil_error(1, "unknown tag type in manifest: %s", p->aTag);
             return 0;
         }
-        tag_insert(&p->aTag[i].zName[1], type, p->aTag[i].zValue, 
+        tag_insert(&p->aTag[i].zName[1], type, p->aTag[i].zValue,
                    rid, p->rDate, tid);
       }
     }
@@ -1792,7 +1922,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     nWiki = strlen(p->zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
-    free(zTag);
+    fossil_free(zTag);
     prior = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=%d AND mtime<%.17g"
@@ -1807,6 +1937,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     }else{
       zComment = mprintf("Deleted wiki page [%h]", p->zWikiTitle);
     }
+    search_doc_touch('w',rid,p->zWikiTitle);
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment,"
       "                  bgcolor,euser,ecomment)"
@@ -1814,13 +1945,12 @@ int manifest_crosslink(int rid, Blob *pContent){
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>1),"
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
-      p->rDate, rid, p->zUser, zComment, 
-      TAG_BGCOLOR, rid,
+      p->rDate, rid, p->zUser, zComment,
       TAG_BGCOLOR, rid,
       TAG_USER, rid,
       TAG_COMMENT, rid
     );
-    free(zComment);
+    fossil_free(zComment);
   }
   if( p->type==CFTYPE_EVENT ){
     char *zTag = mprintf("event-%s", p->zEventId);
@@ -1832,7 +1962,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     nWiki = strlen(p->zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
-    free(zTag);
+    fossil_free(zTag);
     prior = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=%d AND mtime<%.17g AND rid!=%d"
@@ -1860,29 +1990,34 @@ int manifest_crosslink(int rid, Blob *pContent){
     if( subsequent ){
       content_deltify(rid, subsequent, 0);
     }else{
+      search_doc_touch('e',rid,0);
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,tagid,user,comment,bgcolor)"
         "VALUES('e',%.17g,%d,%d,%Q,%Q,"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
-        p->rEventDate, rid, tagid, p->zUser, p->zComment, 
+        p->rEventDate, rid, tagid, p->zUser, p->zComment,
         TAG_BGCOLOR, rid
       );
     }
   }
   if( p->type==CFTYPE_TICKET ){
     char *zTag;
-
     assert( manifest_crosslink_busy==1 );
     zTag = mprintf("tkt-%s", p->zTicketUuid);
     tag_insert(zTag, 1, 0, rid, p->rDate, rid);
-    free(zTag);
+    fossil_free(zTag);
     db_multi_exec("INSERT OR IGNORE INTO pending_tkt VALUES(%Q)",
                   p->zTicketUuid);
   }
   if( p->type==CFTYPE_ATTACHMENT ){
+    char *zComment = 0;
+    const char isAdd = (p->zAttachSrc && p->zAttachSrc[0]) ? 1 : 0;
+    const char attachToType = fossil_is_uuid(p->zAttachTarget)
+      ? 't' /* attach to ticket */
+      : 'w' /* attach to wiki page */;
     db_multi_exec(
        "INSERT INTO attachment(attachid, mtime, src, target,"
-                                        "filename, comment, user)"
+                              "filename, comment, user)"
        "VALUES(%d,%.17g,%Q,%Q,%Q,%Q,%Q);",
        rid, p->rDate, p->zAttachSrc, p->zAttachTarget, p->zAttachName,
        (p->zComment ? p->zComment : ""), p->zUser
@@ -1895,48 +2030,38 @@ int manifest_crosslink(int rid, Blob *pContent){
        p->zAttachTarget, p->zAttachName,
        p->zAttachTarget, p->zAttachName
     );
-    if( strlen(p->zAttachTarget)!=UUID_SIZE
-     || !validate16(p->zAttachTarget, UUID_SIZE) 
-    ){
-      char *zComment;
-      if( p->zAttachSrc && p->zAttachSrc[0] ){
+    if( 'w' == attachToType ){
+      if( isAdd ){
         zComment = mprintf(
-             "Add attachment [%R/artifact/%S|%h] to wiki page [%h]",
+             "Add attachment [/artifact/%!S|%h] to wiki page [%h]",
              p->zAttachSrc, p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
              p->zAttachName, p->zAttachTarget);
       }
-      db_multi_exec(
-        "REPLACE INTO event(type,mtime,objid,user,comment)"
-        "VALUES('w',%.17g,%d,%Q,%Q)",
-        p->rDate, rid, p->zUser, zComment
-      );
-      free(zComment);
     }else{
-      char *zComment;
-      if( p->zAttachSrc && p->zAttachSrc[0] ){
+      if( isAdd ){
         zComment = mprintf(
-             "Add attachment [%R/artifact/%S|%h] to ticket [%S]",
-             p->zAttachSrc, p->zAttachName, p->zAttachTarget);
+             "Add attachment [/artifact/%!S|%h] to ticket [%!S|%S]",
+             p->zAttachSrc, p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }else{
-        zComment = mprintf("Delete attachment \"%h\" from ticket [%.10s]",
-             p->zAttachName, p->zAttachTarget);
+        zComment = mprintf("Delete attachment \"%h\" from ticket [%!S|%S]",
+             p->zAttachName, p->zAttachTarget, p->zAttachTarget);
       }
-      db_multi_exec(
-        "REPLACE INTO event(type,mtime,objid,user,comment)"
-        "VALUES('t',%.17g,%d,%Q,%Q)",
-        p->rDate, rid, p->zUser, zComment
-      );
-      free(zComment);
     }
+    db_multi_exec(
+        "REPLACE INTO event(type,mtime,objid,user,comment)"
+        "VALUES('%c',%.17g,%d,%Q,%Q)",
+        attachToType, p->rDate, rid, p->zUser, zComment
+    );
+    fossil_free(zComment);
   }
   if( p->type==CFTYPE_CONTROL ){
     Blob comment;
     int i;
     const char *zName;
     const char *zValue;
-    const char *zUuid;
+    const char *zTagUuid;
     int branchMove = 0;
     blob_zero(&comment);
     if( p->zComment ){
@@ -1945,20 +2070,26 @@ int manifest_crosslink(int rid, Blob *pContent){
     /* Next loop expects tags to be sorted on UUID, so sort it. */
     qsort(p->aTag, p->nTag, sizeof(p->aTag[0]), tag_compare);
     for(i=0; i<p->nTag; i++){
-      zUuid = p->aTag[i].zUuid;
-      if( !zUuid ) continue;
-      if( i==0 || fossil_strcmp(zUuid, p->aTag[i-1].zUuid)!=0 ){
+      zTagUuid = p->aTag[i].zUuid;
+      if( !zTagUuid ) continue;
+      if( i==0 || fossil_strcmp(zTagUuid, p->aTag[i-1].zUuid)!=0 ){
         blob_appendf(&comment,
-           " Edit [%S]:",
-           zUuid);
+           " Edit [%!S|%S]:",
+           zTagUuid, zTagUuid);
         branchMove = 0;
+        if( permitHooks && db_exists("SELECT 1 FROM event, blob"
+            " WHERE event.type='ci' AND event.objid=blob.rid"
+            " AND blob.uuid=%Q", zTagUuid) ){
+          zScript = xfer_commit_code();
+          zUuid = zTagUuid;
+        }
       }
       zName = p->aTag[i].zName;
       zValue = p->aTag[i].zValue;
       if( strcmp(zName, "*branch")==0 ){
         blob_appendf(&comment,
-           " Move to branch [/timeline?r=%h&nd&dp=%S | %h].",
-           zValue, zUuid, zValue);
+           " Move to branch [/timeline?r=%h&nd&dp=%!S&unhide | %h].",
+           zValue, zTagUuid, zValue);
         branchMove = 1;
         continue;
       }else if( strcmp(zName, "*bgcolor")==0 ){
@@ -2023,13 +2154,19 @@ int manifest_crosslink(int rid, Blob *pContent){
     blob_reset(&comment);
   }
   db_end_transaction(0);
+  if( permitHooks ){
+    rc = xfer_run_common_script();
+    if( rc==TH_OK ){
+      rc = xfer_run_script(zScript, zUuid, 0);
+    }
+  }
   if( p->type==CFTYPE_MANIFEST ){
     manifest_cache_insert(p);
   }else{
     manifest_destroy(p);
   }
   assert( blob_is_reset(pContent) );
-  return 1;
+  return ( rc!=TH_ERROR );
 }
 
 /*
@@ -2047,5 +2184,5 @@ void test_crosslink_cmd(void){
   if( g.argc!=3 ) usage("RECORDID");
   rid = name_to_rid(g.argv[2]);
   content_get(rid, &content);
-  manifest_crosslink(rid, &content);
+  manifest_crosslink(rid, &content, MC_NONE);
 }

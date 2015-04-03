@@ -22,13 +22,19 @@
 ** at a time.  State information is stored in static variables.  The identity
 ** of the server is held in global variables that are set by url_parse().
 **
-** Low-level sockets are abstracted out into this module because they 
+** Low-level sockets are abstracted out into this module because they
 ** are handled different on Unix and windows.
 */
 
+#ifndef __EXTENSIONS__
+# define __EXTENSIONS__ 1  /* IPv6 won't compile on Solaris without this */
+#endif
 #include "config.h"
 #include "http_socket.h"
 #if defined(_WIN32)
+#  if !defined(_WIN32_WINNT)
+#    define _WIN32_WINNT 0x0501
+#  endif
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
 #else
@@ -65,7 +71,7 @@ static void socket_clear_errmsg(void){
 /*
 ** Set the socket error message.
 */
-void socket_set_errmsg(char *zFormat, ...){
+void socket_set_errmsg(const char *zFormat, ...){
   va_list ap;
   socket_clear_errmsg();
   va_start(ap, zFormat);
@@ -126,57 +132,61 @@ void socket_close(void){
 
 /*
 ** Open a socket connection.  The identify of the server is determined
-** by global variables that are set using url_parse():
+** by pUrlData
 **
-**    g.urlName       Name of the server.  Ex: www.fossil-scm.org
-**    g.urlPort       TCP/IP port to use.  Ex: 80
+**    pUrlDAta->name       Name of the server.  Ex: www.fossil-scm.org
+**    pUrlDAta->port       TCP/IP port to use.  Ex: 80
 **
 ** Return the number of errors.
 */
-int socket_open(void){
-  static struct sockaddr_in addr;  /* The server address */
-  static int addrIsInit = 0;       /* True once addr is initialized */
+int socket_open(UrlData *pUrlData){
+  int rc = 0;
+  struct addrinfo *ai = 0;
+  struct addrinfo *p;
+  struct addrinfo hints;
+  char zPort[30];
+  char zRemote[NI_MAXHOST];
 
   socket_global_init();
-  if( !addrIsInit ){
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(g.urlPort);
-    *(int*)&addr.sin_addr = inet_addr(g.urlName);
-    if( -1 == *(int*)&addr.sin_addr ){
-#ifndef FOSSIL_STATIC_LINK
-      struct hostent *pHost;
-      pHost = gethostbyname(g.urlName);
-      if( pHost!=0 ){
-        memcpy(&addr.sin_addr,pHost->h_addr_list[0],pHost->h_length);
-      }else
-#endif
-      {
-        socket_set_errmsg("can't resolve host name: %s", g.urlName);
-        return 1;
-      }
+  memset(&hints, 0, sizeof(struct addrinfo));
+  assert( iSocket<0 );
+  hints.ai_family = g.fIPv4 ? AF_INET : AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+  sqlite3_snprintf(sizeof(zPort),zPort,"%d", pUrlData->port);
+  rc = getaddrinfo(pUrlData->name, zPort, &hints, &ai);
+  if( rc ){
+    socket_set_errmsg("getaddrinfo() fails: %s", gai_strerror(rc));
+    goto end_socket_open;
+  }
+  for(p=ai; p; p=p->ai_next){
+    iSocket = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+    if( iSocket<0 ) continue;
+    if( connect(iSocket,p->ai_addr,p->ai_addrlen)<0 ){
+      socket_close();
+      continue;
     }
-    addrIsInit = 1;
-
-    /* Set the Global.zIpAddr variable to the server we are talking to.
-    ** This is used to populate the ipaddr column of the rcvfrom table,
-    ** if any files are received from the server.
-    */
-    g.zIpAddr = mprintf("%s", inet_ntoa(addr.sin_addr));
+    rc = getnameinfo(p->ai_addr, p->ai_addrlen, zRemote, sizeof(zRemote),
+                     0, 0, NI_NUMERICHOST);
+    if( rc ){
+      socket_set_errmsg("getnameinfo() failed: %s", gai_strerror(rc));
+      goto end_socket_open;
+    }
+    g.zIpAddr = mprintf("%s", zRemote);
+    break;
   }
-  iSocket = socket(AF_INET,SOCK_STREAM,0);
-  if( iSocket<0 ){
-    socket_set_errmsg("cannot create a socket");
-    return 1;
-  }
-  if( connect(iSocket,(struct sockaddr*)&addr,sizeof(addr))<0 ){
-    socket_set_errmsg("cannot connect to host %s:%d", g.urlName, g.urlPort);
-    socket_close();
-    return 1;
+  if( p==0 ){
+    socket_set_errmsg("cannot connect to host %s:%d", pUrlData->name,
+                      pUrlData->port);
+    rc = 1;
   }
 #if !defined(_WIN32)
   signal(SIGPIPE, SIG_IGN);
 #endif
-  return 0;
+end_socket_open:
+  if( rc && iSocket>=0 ) socket_close();
+  if( ai ) freeaddrinfo(ai);
+  return rc;
 }
 
 /*
@@ -210,4 +220,29 @@ size_t socket_receive(void *NotUsed, void *pContent, size_t N){
     pContent = (void*)&((char*)pContent)[got];
   }
   return total;
+}
+
+/*
+** Attempt to resolve pUrlData->name to an IP address and setup g.zIpAddr
+** so rcvfrom gets populated. For hostnames with more than one IP (or
+** if overridden in ~/.ssh/config) the rcvfrom may not match the host
+** to which we connect.
+*/
+void socket_ssh_resolve_addr(UrlData *pUrlData){
+  struct addrinfo *ai = 0;
+  struct addrinfo hints;
+  char zRemote[NI_MAXHOST];
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+  if( getaddrinfo(pUrlData->name, NULL, &hints, &ai)==0
+   && ai!=0
+   && getnameinfo(ai->ai_addr, ai->ai_addrlen, zRemote,
+                  sizeof(zRemote), 0, 0, NI_NUMERICHOST)==0 ){
+    g.zIpAddr = mprintf("%s (%s)", zRemote, pUrlData->name);
+  }
+  if( ai ) freeaddrinfo(ai);
+  if( g.zIpAddr==0 ){
+    g.zIpAddr = mprintf("%s", pUrlData->name);
+  }
 }

@@ -18,6 +18,7 @@
  * needed on buffers full of bytes, and then call MD5Final, which
  * will fill a supplied 16-byte array with the digest.
  */
+#include "config.h"
 #include <string.h>
 #include <stdio.h>
 #include <sqlite3.h>
@@ -165,7 +166,7 @@ static void MD5Transform(uint32 buf[4], const uint32 in[16]){
  * initialization constants.
  */
 static void MD5Init(MD5Context *ctx){
-	ctx->isInit = 1;
+        ctx->isInit = 1;
         ctx->buf[0] = 0x67452301;
         ctx->buf[1] = 0xefcdab89;
         ctx->buf[2] = 0x98badcfe;
@@ -178,7 +179,7 @@ static void MD5Init(MD5Context *ctx){
  * Update context to reflect the concatenation of another buffer full
  * of bytes.
  */
-static 
+static
 void MD5Update(MD5Context *pCtx, const unsigned char *buf, unsigned int len){
         struct Context *ctx = (struct Context *)pCtx;
         uint32 t;
@@ -225,7 +226,7 @@ void MD5Update(MD5Context *pCtx, const unsigned char *buf, unsigned int len){
 }
 
 /*
- * Final wrapup - pad to 64-byte boundary with the bit pattern 
+ * Final wrapup - pad to 64-byte boundary with the bit pattern
  * 1 0* (64-bit count of bits processed, MSB-first)
  */
 static void MD5Final(unsigned char digest[16], MD5Context *pCtx){
@@ -275,7 +276,7 @@ static void MD5Final(unsigned char digest[16], MD5Context *pCtx){
 ** be "char zBuf[33]".
 */
 static void DigestToBase16(unsigned char *digest, char *zBuf){
-  static char const zEncode[] = "0123456789abcdef";
+  static const char zEncode[] = "0123456789abcdef";
   int i, j;
 
   for(j=i=0; i<16; i++){
@@ -344,7 +345,7 @@ const char *md5sum_current_state(void){
 
 /*
 ** Finish the incremental MD5 checksum.  Store the result in blob pOut
-** if pOut!=0.  Also return a pointer to the result.  
+** if pOut!=0.  Also return a pointer to the result.
 **
 ** This resets the incremental checksum preparing for the next round
 ** of computation.  The return pointer points to a static buffer that
@@ -432,7 +433,7 @@ void md5sum_test(void){
   int i;
   Blob in;
   Blob cksum;
-  
+
   for(i=2; i<g.argc; i++){
     blob_init(&cksum, "********** not found ***********", -1);
     if( g.argv[i][0]=='-' && g.argv[i][1]==0 ){

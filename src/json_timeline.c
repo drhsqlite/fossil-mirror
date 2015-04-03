@@ -68,7 +68,7 @@ cson_value * json_page_timeline(){
 */
 static void json_timeline_temp_table(void){
   /* Field order MUST match that from json_timeline_query()!!! */
-  static const char zSql[] = 
+  static const char zSql[] =
     @ CREATE TEMP TABLE IF NOT EXISTS json_timeline(
     @   sortId INTEGER PRIMARY KEY,
     @   rid INTEGER,
@@ -85,12 +85,13 @@ static void json_timeline_temp_table(void){
     @   brief TEXT
     @ )
   ;
-  db_multi_exec(zSql);
+  db_multi_exec("%s", zSql /*safe-for-%s*/);
 }
 
 /*
 ** Return a pointer to a constant string that forms the basis
-** for a timeline query for the JSON interface.
+** for a timeline query for the JSON interface. It MUST NOT
+** be used in a formatted string argument.
 */
 char const * json_timeline_query(void){
   /* Field order MUST match that from json_timeline_temp_table()!!! */
@@ -99,7 +100,7 @@ char const * json_timeline_query(void){
     @   NULL,
     @   blob.rid,
     @   uuid,
-    @   CAST(strftime('%%s',event.mtime) AS INTEGER),
+    @   CAST(strftime('%s',event.mtime) AS INTEGER),
     @   datetime(event.mtime),
     @   coalesce(ecomment, comment),
     @   coalesce(euser, user),
@@ -111,7 +112,7 @@ char const * json_timeline_query(void){
     @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0) as tags,
     @   tagid as tagId,
     @   brief as brief
-    @  FROM event JOIN blob 
+    @  FROM event JOIN blob
     @ WHERE blob.rid=event.objid
   ;
   return zBaseSql;
@@ -147,6 +148,7 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
   char const * zTag = NULL;
   char const * zBranch = NULL;
   char const * zMiOnly = NULL;
+  char const * zUnhide = NULL;
   int tagid = 0;
   if(! g.perm.Read ){
     return 0;
@@ -160,6 +162,7 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
     zTag = zBranch;
     zMiOnly = json_find_option_cstr("mionly",NULL,NULL);
   }
+  zUnhide = json_find_option_cstr("unhide",NULL,NULL);
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
                  zTag);
   if(tagid<=0){
@@ -173,17 +176,35 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
                " EXISTS(SELECT 1 FROM tagxref"
                "        WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
                tagid);
+  if(!zUnhide){
+    blob_appendf(pSql,
+               " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=blob.rid"
+               "    WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
+               TAG_HIDDEN);
+  }
   if(zBranch){
     /* from "r" flag code in page_timeline().*/
     blob_appendf(pSql,
                  " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
                  "    WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
                  tagid);
+    if( !zUnhide ){
+      blob_appendf(pSql,
+                 " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
+                 "    WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
+                 TAG_HIDDEN);
+    }
     if( zMiOnly==0 ){
       blob_appendf(pSql,
                  " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
                  "    WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
                  tagid);
+      if( !zUnhide ){
+        blob_appendf(pSql,
+                 " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+                 "    WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+                 TAG_HIDDEN);
+      }
     }
   }
   blob_append(pSql," ) ",3);
@@ -298,7 +319,7 @@ cson_value * json_get_changed_files(int rid, int flags){
   cson_value * rowsV = NULL;
   cson_array * rows = NULL;
   Stmt q = empty_Stmt;
-  db_prepare(&q, 
+  db_prepare(&q,
            "SELECT (pid==0) AS isnew,"
            "       (fid==0) AS isdel,"
            "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
@@ -366,7 +387,7 @@ static cson_value * json_timeline_branch(){
               " WHERE blob.rid=event.objid",
               -1);
 
-  blob_appendf(&sql,
+  blob_append_sql(&sql,
                " AND event.type='ci'"
                " AND blob.rid IN (SELECT rid FROM tagxref"
                "  WHERE tagtype>0 AND tagid=%d AND srcid!=0)"
@@ -374,9 +395,9 @@ static cson_value * json_timeline_branch(){
                TAG_BRANCH);
   limit = json_timeline_limit(20);
   if(limit>0){
-    blob_appendf(&sql," LIMIT %d ",limit);
+    blob_append_sql(&sql," LIMIT %d ",limit);
   }
-  db_prepare(&q,"%s", blob_str(&sql));
+  db_prepare(&q,"%s", blob_sql_text(&sql));
   blob_reset(&sql);
   pay = json_stmt_to_array_of_obj(&q, NULL);
   db_finalize(&q);
@@ -438,7 +459,7 @@ static cson_value * json_timeline_ci(){
     /* Reminder to self: HTML impl requires 'o' (Read)
        rights.
     */
-    json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'h' access." );
+    json_set_err( FSL_JSON_E_DENIED, "Check-in timeline requires 'h' access." );
     return NULL;
   }
   verboseFlag = json_find_option_bool("verbose",NULL,"v",0);
@@ -464,7 +485,7 @@ static cson_value * json_timeline_ci(){
   tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
   SET("timelineSql");
 #endif
-  db_multi_exec(blob_buffer(&sql));
+  db_multi_exec("%s", blob_buffer(&sql)/*safe-for-%s*/);
   blob_reset(&sql);
   db_prepare(&q, "SELECT "
              " rid AS rid"
@@ -526,10 +547,9 @@ cson_value * json_timeline_wiki(){
 
 #if 0
   /* only for testing! */
-  tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
-  SET("timelineSql");
+  cson_object_set(pay, "timelineSql", cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql))));
 #endif
-  db_multi_exec(blob_buffer(&sql));
+  db_multi_exec("%s", blob_buffer(&sql) /*safe-for-%s*/);
   blob_reset(&sql);
   db_prepare(&q, "SELECT"
              " uuid AS uuid,"
@@ -547,8 +567,7 @@ cson_value * json_timeline_wiki(){
              " tagId AS tagId,"
 #endif
              " FROM json_timeline"
-             " ORDER BY rowid",
-             -1);
+             " ORDER BY rowid");
   list = cson_new_array();
   json_stmt_to_array_of_obj(&q, list);
   cson_object_set(pay, "timeline", cson_array_value(list));
@@ -589,7 +608,7 @@ static cson_value * json_timeline_ticket(){
     goto error;
   }
 
-  db_multi_exec(blob_buffer(&sql));
+  db_multi_exec("%s", blob_buffer(&sql) /*safe-for-%s*/);
 #define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
     json_set_err((cson_rc.AllocError==check)        \
                  ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN,      \
@@ -620,8 +639,7 @@ static cson_value * json_timeline_ticket(){
              " comment AS comment,"
              " brief AS briefComment"
              " FROM json_timeline"
-             " ORDER BY rowid",
-             -1);
+             " ORDER BY rowid");
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   tmp = listV;

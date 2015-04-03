@@ -26,6 +26,44 @@
 #endif
 #include <time.h>
 
+/* Two custom conversions are used to show a prefix of SHA1 hashes:
+**
+**      %!S       Prefix of a length appropriate for URLs
+**      %S        Prefix of a length appropriate for human display
+**
+** The following macros help determine those lengths.  FOSSIL_HASH_DIGITS
+** is the default number of digits to display to humans.  This value can
+** be overridden using the hash-digits setting.  FOSSIL_HASH_DIGITS_URL
+** is the minimum number of digits to be used in URLs.  The number used
+** will always be at least 6 more than the number used for human output,
+** or 40 if the number of digits in human output is 34 or more.
+*/
+#ifndef FOSSIL_HASH_DIGITS
+# define FOSSIL_HASH_DIGITS 10       /* For %S (human display) */
+#endif
+#ifndef FOSSIL_HASH_DIGITS_URL
+# define FOSSIL_HASH_DIGITS_URL 16   /* For %!S (embedded in URLs) */
+#endif
+
+/*
+** Return the number of SHA1 hash digits to display.  The number is for
+** human output if the bForUrl is false and is destined for a URL if
+** bForUrl is false.
+*/
+static int hashDigits(int bForUrl){
+  static int nDigitHuman = 0;
+  static int nDigitUrl = 0;
+  if( nDigitHuman==0 ){
+    nDigitHuman = db_get_int("hash-digits", FOSSIL_HASH_DIGITS);
+    if( nDigitHuman < 6 ) nDigitHuman = 6;
+    if( nDigitHuman > 40 ) nDigitHuman = 40;
+    nDigitUrl = nDigitHuman + 6;
+    if( nDigitUrl < FOSSIL_HASH_DIGITS_URL ) nDigitUrl = FOSSIL_HASH_DIGITS_URL;
+    if( nDigitUrl > 40 ) nDigitUrl = 40;
+  }
+  return bForUrl ? nDigitUrl : nDigitHuman;
+}
+
 /*
 ** Conversion types fall into various categories as defined by the
 ** following enumeration.
@@ -46,15 +84,16 @@
 #define etSQLESCAPE  13 /* Strings with '\'' doubled.  %q */
 #define etSQLESCAPE2 14 /* Strings with '\'' doubled and enclosed in '',
                           NULL pointers replaced by SQL NULL.  %Q */
-#define etPOINTER    15 /* The %p conversion */
-#define etHTMLIZE    16 /* Make text safe for HTML */
-#define etHTTPIZE    17 /* Make text safe for HTTP.  "/" encoded as %2f */
-#define etURLIZE     18 /* Make text safe for HTTP.  "/" not encoded */
-#define etFOSSILIZE  19 /* The fossil header encoding format. */
-#define etPATH       20 /* Path type */
-#define etWIKISTR    21 /* Timeline comment text rendered from a char*: %w */
+#define etSQLESCAPE3 15 /* Double '"' characters within an indentifier.  %w */
+#define etPOINTER    16 /* The %p conversion */
+#define etHTMLIZE    17 /* Make text safe for HTML */
+#define etHTTPIZE    18 /* Make text safe for HTTP.  "/" encoded as %2f */
+#define etURLIZE     19 /* Make text safe for HTTP.  "/" not encoded */
+#define etFOSSILIZE  20 /* The fossil header encoding format. */
+#define etPATH       21 /* Path type */
+#define etWIKISTR    22 /* Timeline comment text rendered from a char*: %W */
 #define etSTRINGID   23 /* String with length limit for a UUID prefix: %S */
-#define etROOT       24 /* String value of g.zTop: % */
+#define etROOT       24 /* String value of g.zTop: %R */
 
 
 /*
@@ -98,11 +137,12 @@ static const et_info fmtinfo[] = {
   {  'Q',  0, 4, etSQLESCAPE2, 0,  0 },
   {  'b',  0, 2, etBLOB,       0,  0 },
   {  'B',  0, 2, etBLOBSQL,    0,  0 },
-  {  'w',  0, 2, etWIKISTR,    0,  0 },
+  {  'W',  0, 2, etWIKISTR,    0,  0 },
   {  'h',  0, 4, etHTMLIZE,    0,  0 },
   {  'R',  0, 0, etROOT,       0,  0 },
   {  't',  0, 4, etHTTPIZE,    0,  0 },  /* "/" -> "%2F" */
   {  'T',  0, 4, etURLIZE,     0,  0 },  /* "/" unchanged */
+  {  'w',  0, 4, etSQLESCAPE3, 0,  0 },
   {  'F',  0, 4, etFOSSILIZE,  0,  0 },
   {  'S',  0, 4, etSTRINGID,   0,  0 },
   {  'c',  0, 0, etCHARX,      0,  0 },
@@ -168,8 +208,8 @@ static int StrNLen32(const char *z, int N){
 ** comments on a timeline.  These flag settings are determined by
 ** configuration parameters.
 **
-** The altForm2 argument is true for "%!w" (with the "!" alternate-form-2
-** flags) and is false for plain "%w".  The ! indicates that the text is
+** The altForm2 argument is true for "%!W" (with the "!" alternate-form-2
+** flags) and is false for plain "%W".  The ! indicates that the text is
 ** to be rendered on a form rather than the timeline and that block markup
 ** is acceptable even if the "timeline-block-markup" setting is false.
 */
@@ -610,10 +650,7 @@ int vxprintf(
         length = (int)strlen(bufpt);
         break;
       }
-      case etSTRINGID: {
-        precision = 16;
-        /* Fall through */
-      }
+      case etSTRINGID:
       case etSTRING:
       case etDYNSTRING: {
         int limit = flag_alternateform ? va_arg(ap,int) : -1;
@@ -622,6 +659,8 @@ int vxprintf(
           bufpt = "";
         }else if( xtype==etDYNSTRING ){
           zExtra = bufpt;
+        }else if( xtype==etSTRINGID ){
+          precision = 	hashDigits(flag_altform2);
         }
         length = StrNLen32(bufpt, limit);
         if( precision>=0 && precision<length ) length = precision;
@@ -659,16 +698,18 @@ int vxprintf(
         break;
       }
       case etSQLESCAPE:
-      case etSQLESCAPE2: {
+      case etSQLESCAPE2:
+      case etSQLESCAPE3: {
         int i, j, n, ch, isnull;
         int needQuote;
         int limit = flag_alternateform ? va_arg(ap,int) : -1;
+        char q = ((xtype==etSQLESCAPE3)?'"':'\'');  /* Quote characters */
         char *escarg = va_arg(ap,char*);
         isnull = escarg==0;
         if( isnull ) escarg = (xtype==etSQLESCAPE2 ? "NULL" : "(NULL)");
         if( limit<0 ) limit = strlen(escarg);
         for(i=n=0; i<limit; i++){
-          if( escarg[i]=='\'' )  n++;
+          if( escarg[i]==q )  n++;
         }
         needQuote = !isnull && xtype==etSQLESCAPE2;
         n += i + 1 + needQuote*2;
@@ -678,12 +719,12 @@ int vxprintf(
           bufpt = buf;
         }
         j = 0;
-        if( needQuote ) bufpt[j++] = '\'';
+        if( needQuote ) bufpt[j++] = q;
         for(i=0; i<limit; i++){
           bufpt[j++] = ch = escarg[i];
-          if( ch=='\'' ) bufpt[j++] = ch;
+          if( ch==q ) bufpt[j++] = ch;
         }
-        if( needQuote ) bufpt[j++] = '\'';
+        if( needQuote ) bufpt[j++] = q;
         bufpt[j] = 0;
         length = j;
         if( precision>=0 && precision<length ) length = precision;
@@ -861,11 +902,15 @@ void fossil_puts(const char *z, int toStdErr){
 }
 
 /*
-** Force the standard output cursor to move to the beginning 
+** Force the standard output cursor to move to the beginning
 ** of a line, if it is not there already.
 */
-void fossil_force_newline(void){
-  if( g.cgiOutput==0 && stdoutAtBOL==0 ) fossil_puts("\n", 0);
+int fossil_force_newline(void){
+  if( g.cgiOutput==0 && stdoutAtBOL==0 ){
+    fossil_puts("\n", 0);
+    return 1;
+  }
+  return 0;
 }
 
 /*
@@ -920,11 +965,11 @@ static void fossil_errorlog(const char *zFormat, ...){
   const char *z;
   int i;
   va_list ap;
-  static const char *azEnv[] = { "HTTP_HOST", "HTTP_USER_AGENT",
+  static const char *const azEnv[] = { "HTTP_HOST", "HTTP_USER_AGENT",
       "PATH_INFO", "QUERY_STRING", "REMOTE_ADDR", "REQUEST_METHOD",
       "REQUEST_URI", "SCRIPT_NAME" };
   if( g.zErrlog==0 ) return;
-  out = fopen(g.zErrlog, "a");
+  out = fossil_fopen(g.zErrlog, "a");
   if( out==0 ) return;
   now = time(0);
   pNow = gmtime(&now);
@@ -936,7 +981,11 @@ static void fossil_errorlog(const char *zFormat, ...){
   fprintf(out, "\n");
   va_end(ap);
   for(i=0; i<sizeof(azEnv)/sizeof(azEnv[0]); i++){
-    if( (z = getenv(azEnv[i]))!=0 || (z = P(azEnv[i]))!=0 ){
+    char *p;
+    if( (p = fossil_getenv(azEnv[i]))!=0 ){
+      fprintf(out, "%s=%s\n", azEnv[i], p);
+      fossil_filename_free(p);
+    }else if( (z = P(azEnv[i]))!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], z);
     }
   }

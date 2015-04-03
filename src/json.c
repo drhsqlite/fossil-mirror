@@ -20,7 +20,7 @@
 **
 ** For notes regarding the public JSON interface, please see:
 **
-** https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/edit
+** https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/view
 **
 **
 ** Notes for hackers...
@@ -32,8 +32,8 @@
 **
 **
 */
-#include "config.h"
 #include "VERSION.h"
+#include "config.h"
 #include "json.h"
 #include <assert.h>
 #include <time.h>
@@ -59,7 +59,7 @@ const FossilJsonKeys_ FossilJsonKeys = {
 /*
 ** Returns true (non-0) if fossil appears to be running in JSON mode.
 */
-char fossil_has_json(){
+int fossil_has_json(){
   return g.json.isJsonMode && (g.isHTTP || g.json.post.o);
 }
 
@@ -386,7 +386,7 @@ int json_getenv_int(char const * pKey, int dflt ){
 ** whether or not this function found a match (it will return -1 in
 ** that case).
 */
-char json_getenv_bool(char const * pKey, char dflt ){
+int json_getenv_bool(char const * pKey, int dflt ){
   cson_value const * v = json_getenv(pKey);
   const cson_type_id type = v ? cson_value_type_id(v) : CSON_TYPE_UNDEF;
   switch(type){
@@ -477,11 +477,11 @@ char const * json_find_option_cstr(char const * zKey,
 ** The boolean equivalent of json_find_option_cstr().
 ** If the option is not found, dftl is returned.
 */
-char json_find_option_bool(char const * zKey,
-                           char const * zCLILong,
-                           char const * zCLIShort,
-                           char dflt ){
-  char rc = -1;
+int json_find_option_bool(char const * zKey,
+                          char const * zCLILong,
+                          char const * zCLIShort,
+                          char dflt ){
+  int rc = -1;
   if(!g.isHTTP){
     if(NULL != find_option(zCLILong ? zCLILong : zKey,
                            zCLIShort, 0)){
@@ -989,7 +989,7 @@ static void json_mode_bootstrap(){
     }
     inFile = (0==strcmp("-",jfile))
       ? stdin
-      : fopen(jfile,"rb");
+      : fossil_fopen(jfile,"rb");
     if(!inFile){
       g.json.resultCode = FSL_JSON_E_FILE_OPEN_FAILED;
       fossil_fatal("Could not open JSON file [%s].",jfile)
@@ -1277,11 +1277,11 @@ cson_value * json_g_to_json(){
   INT(g, markPrivate);
   INT(g, clockSkewSeen);
   INT(g, isHTTP);
-  INT(g, urlIsFile);
-  INT(g, urlIsHttps);
-  INT(g, urlIsSsh);
-  INT(g, urlPort);
-  INT(g, urlDfltPort);
+  INT(g.url, isFile);
+  INT(g.url, isHttps);
+  INT(g.url, isSsh);
+  INT(g.url, port);
+  INT(g.url, dfltPort);
   INT(g, useLocalauth);
   INT(g, noPswd);
   INT(g, userUid);
@@ -1301,15 +1301,15 @@ cson_value * json_g_to_json(){
   CSTR(g, zTop);
   CSTR(g, zContentType);
   CSTR(g, zErrMsg);
-  CSTR(g, urlName);
-  CSTR(g, urlHostname);
-  CSTR(g, urlProtocol);
-  CSTR(g, urlPath);
-  CSTR(g, urlUser);
-  CSTR(g, urlPasswd);
-  CSTR(g, urlCanonical);
-  CSTR(g, urlProxyAuth);
-  CSTR(g, urlFossil);
+  CSTR(g.url, name);
+  CSTR(g.url, hostname);
+  CSTR(g.url, protocol);
+  CSTR(g.url, path);
+  CSTR(g.url, user);
+  CSTR(g.url, passwd);
+  CSTR(g.url, canonical);
+  CSTR(g.url, proxyAuth);
+  CSTR(g.url, fossil);
   CSTR(g, zLogin);
   CSTR(g, zSSLIdentity);
   CSTR(g, zIpAddr);
@@ -1667,7 +1667,7 @@ cson_value * json_sql_to_array_of_obj(Blob * pSql, cson_array * pTgt,
   Stmt q = empty_Stmt;
   cson_value * pay = NULL;
   assert( blob_size(pSql) > 0 );
-  db_prepare(&q, "%s", blob_str(pSql));
+  db_prepare(&q, "%s", blob_str(pSql) /*safe-for-%s*/);
   if(resetBlob){
     blob_reset(pSql);
   }
@@ -1982,15 +1982,15 @@ cson_value * json_page_stat(){
   jo2 = cson_value_get_object(jv2);
   cson_object_set(jo, "sqlite", jv2);
   sqlite3_snprintf(BufLen, zBuf, "%.19s [%.10s] (%s)",
-                   SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20], SQLITE_VERSION);
+                   sqlite3_sourceid(), &sqlite3_sourceid()[20], sqlite3_libversion());
   SETBUF(jo2, "version");
   zDb = db_name("repository");
-  cson_object_set(jo2, "pageCount", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA %s.page_count", zDb)));
-  cson_object_set(jo2, "pageSize", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA %s.page_size", zDb)));
-  cson_object_set(jo2, "freeList", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA %s.freelist_count", zDb)));
-  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA %s.encoding", zDb));
+  cson_object_set(jo2, "pageCount", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA \"%w\".page_count", zDb)));
+  cson_object_set(jo2, "pageSize", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA \"%w\".page_size", zDb)));
+  cson_object_set(jo2, "freeList", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA \"%w\".freelist_count", zDb)));
+  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA \"%w\".encoding", zDb));
   SETBUF(jo2, "encoding");
-  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA %s.journal_mode", zDb));
+  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA \"%w\".journal_mode", zDb));
   cson_object_set(jo2, "journalMode", *zBuf ? cson_value_new_string(zBuf, strlen(zBuf)) : cson_value_null());
   return jv;
 #undef SETBUF
@@ -2018,7 +2018,7 @@ static int json_pagedefs_to_string(JsonPageDef const * zPages,
       if(g.isHTTP && zPages->runMode < 0) continue;
       else if(zPages->runMode > 0) continue;
     }
-    blob_appendf(pOut, zPages->name, -1);
+    blob_append(pOut, zPages->name, -1);
     if((zPages+1)->name){
       blob_append(pOut, ", ",2);
     }

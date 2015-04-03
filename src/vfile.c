@@ -47,14 +47,14 @@ int fast_uuid_to_rid(const char *zUuid){
 ** For this routine, the UUID must be exact.  For a match against
 ** user input with mixed case, use resolve_uuid().
 **
-** If the UUID is not found and phantomize is 1 or 2, then attempt to 
+** If the UUID is not found and phantomize is 1 or 2, then attempt to
 ** create a phantom record.  A private phantom is created for 2 and
 ** a public phantom is created for 1.
 */
 int uuid_to_rid(const char *zUuid, int phantomize){
   int rid, sz;
   char z[UUID_SIZE+1];
-  
+
   sz = strlen(zUuid);
   if( sz!=UUID_SIZE || !validate16(zUuid, sz) ){
     return 0;
@@ -70,23 +70,24 @@ int uuid_to_rid(const char *zUuid, int phantomize){
 
 
 /*
-** Load a vfile from a record ID.
+** Load a vfile from a record ID.  Return the number of files with
+** missing content.
 */
-void load_vfile_from_rid(int vid){
-  int rid, size;
+int load_vfile_from_rid(int vid){
+  int rid, size, nMissing;
   Stmt ins, ridq;
   Manifest *p;
   ManifestFile *pFile;
 
   if( db_exists("SELECT 1 FROM vfile WHERE vid=%d", vid) ){
-    return;
+    return 0;
   }
 
   db_begin_transaction();
   p = manifest_get(vid, CFTYPE_MANIFEST, 0);
   if( p==0 ) {
     db_end_transaction(1);
-    return;
+    return 0;
   }
   db_prepare(&ins,
     "INSERT INTO vfile(vid,isexe,islink,rid,mrid,pathname) "
@@ -94,6 +95,7 @@ void load_vfile_from_rid(int vid){
   db_prepare(&ridq, "SELECT rid,size FROM blob WHERE uuid=:uuid");
   db_bind_int(&ins, ":vid", vid);
   manifest_file_rewind(p);
+  nMissing = 0;
   while( (pFile = manifest_file_next(p,0))!=0 ){
     if( pFile->zUuid==0 || uuid_is_shunned(pFile->zUuid) ) continue;
     db_bind_text(&ridq, ":uuid", pFile->zUuid);
@@ -107,6 +109,7 @@ void load_vfile_from_rid(int vid){
     db_reset(&ridq);
     if( rid==0 || size<0 ){
       fossil_warning("content missing for %s", pFile->zName);
+      nMissing++;
       continue;
     }
     db_bind_int(&ins, ":isexe", ( manifest_file_mperm(pFile)==PERM_EXE ));
@@ -120,6 +123,7 @@ void load_vfile_from_rid(int vid){
   db_finalize(&ins);
   manifest_destroy(p);
   db_end_transaction(0);
+  return nMissing;
 }
 
 #if INTERFACE
@@ -142,7 +146,7 @@ void load_vfile_from_rid(int vid){
 **
 ** If VFILE.DELETED is true or if VFILE.RID is zero, then the file was either
 ** removed from configuration management via "fossil rm" or added via
-** "fossil add", respectively, and in both cases we always know that 
+** "fossil add", respectively, and in both cases we always know that
 ** the file has changed without having the check the size, mtime,
 ** or on-disk content.
 **
@@ -187,8 +191,8 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
     isDeleted = db_column_int(&q, 3);
     oldChnged = chnged = db_column_int(&q, 4);
     oldMtime = db_column_int64(&q, 7);
-    currentSize = file_wd_size(zName);
     origSize = db_column_int64(&q, 6);
+    currentSize = file_wd_size(zName);
     currentMtime = file_wd_mtime(0);
     if( chnged==0 && (isDeleted || rid==0) ){
       /* "fossil rm" or "fossil add" always change the file */
@@ -317,8 +321,8 @@ void vfile_to_disk(
     if( file_wd_isdir(zName) == 1 ){
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite\n", zName);
-    }    
-    if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(zName)) ){
+    }
+    if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(0)) ){
       file_delete(zName);
     }
     if( isLink ){
@@ -394,10 +398,10 @@ static int is_temporary_file(const char *zName){
      "output",
   };
   int i, j, n;
-  
-  if( strglob("ci-comment-????????????.txt", zName) ) return 1;
+
+  if( sqlite3_strglob("ci-comment-????????????.txt", zName)==0 ) return 1;
   for(; zName[0]!=0; zName++){
-    if( zName[0]=='/' && strglob("/ci-comment-????????????.txt", zName) ){
+    if( zName[0]=='/' && sqlite3_strglob("/ci-comment-????????????.txt", zName)==0 ){
       return 1;
     }
     if( zName[0]!='-' ) continue;
@@ -409,7 +413,7 @@ static int is_temporary_file(const char *zName){
         for(j=n+2; zName[j] && fossil_isdigit(zName[j]); j++){}
         if( zName[j]==0 ) return 1;
       }
-    }      
+    }
   }
   return 0;
 }
@@ -488,11 +492,21 @@ void vfile_scan(
       if( glob_match(pIgnore1, &zPath[nPrefix+1]) ||
           glob_match(pIgnore2, &zPath[nPrefix+1]) ){
         /* do nothing */
+#ifdef _DIRENT_HAVE_D_TYPE
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isdir(zPath)==1) : (pEntry->d_type==DT_DIR) ){
+#else
       }else if( file_wd_isdir(zPath)==1 ){
+#endif
         if( !vfile_top_of_checkout(zPath) ){
           vfile_scan(pPath, nPrefix, scanFlags, pIgnore1, pIgnore2);
         }
+#ifdef _DIRENT_HAVE_D_TYPE
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
+#else
       }else if( file_wd_isfile_or_link(zPath) ){
+#endif
         if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(zUtf8) ){
           db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
           db_step(&ins);
@@ -595,7 +609,12 @@ int vfile_dir_scan(
           glob_match(pIgnore2, &zPath[nPrefix+1]) ||
           glob_match(pIgnore3, &zPath[nPrefix+1]) ){
         /* do nothing */
+#ifdef _DIRENT_HAVE_D_TYPE
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isdir(zPath)==1) : (pEntry->d_type==DT_DIR) ){
+#else
       }else if( file_wd_isdir(zPath)==1 ){
+#endif
         if( (scanFlags & SCAN_NESTED) || !vfile_top_of_checkout(zPath) ){
           char *zSavePath = mprintf("%s", zPath);
           int count = vfile_dir_scan(pPath, nPrefix, scanFlags, pIgnore1,
@@ -607,7 +626,12 @@ int vfile_dir_scan(
           fossil_free(zSavePath);
           result += count; /* found X normal files? */
         }
+#ifdef _DIRENT_HAVE_D_TYPE
+      }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
+          ? (file_wd_isfile_or_link(zPath)) : (pEntry->d_type==DT_REG) ){
+#else
       }else if( file_wd_isfile_or_link(zPath) ){
+#endif
         db_bind_text(&upd, ":file", zOrigPath);
         db_step(&upd);
         db_reset(&upd);
@@ -656,7 +680,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
   char zBuf[4096];
 
   db_must_be_within_tree();
-  db_prepare(&q, 
+  db_prepare(&q,
       "SELECT %Q || pathname, pathname, origname, is_selected(id), rid"
       "  FROM vfile"
       " WHERE (NOT deleted OR NOT is_selected(id)) AND vid=%d"
@@ -675,7 +699,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
         /* Instead of file content, use link destination path */
         Blob pathBuf;
 
-        sqlite3_snprintf(sizeof(zBuf), zBuf, " %ld\n", 
+        sqlite3_snprintf(sizeof(zBuf), zBuf, " %ld\n",
                          blob_read_link(&pathBuf, zFullpath));
         md5sum_step_text(zBuf, -1);
         md5sum_step_text(blob_str(&pathBuf), -1);
@@ -745,9 +769,9 @@ void vfile_compare_repository_to_disk(int vid){
   Stmt q;
   Blob disk, repo;
   char *zOut;
-  
+
   db_must_be_within_tree();
-  db_prepare(&q, 
+  db_prepare(&q,
       "SELECT %Q || pathname, pathname, rid FROM vfile"
       " WHERE NOT deleted AND vid=%d AND is_selected(id)"
       " ORDER BY if_selected(id, pathname, origname) /*scan*/",
@@ -811,7 +835,7 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
   char zBuf[100];
 
   db_must_be_within_tree();
- 
+
   db_prepare(&q, "SELECT pathname, origname, rid, is_selected(id)"
                  " FROM vfile"
                  " WHERE (NOT deleted OR NOT is_selected(id))"
@@ -849,7 +873,7 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 ** "R" card near the end of the manifest.
 **
 ** In a well-formed manifest, the two checksums computed here, pOut and
-** pManOut, should be identical.  
+** pManOut, should be identical.
 */
 void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   int fid;

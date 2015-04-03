@@ -29,16 +29,64 @@
 void xfersetup_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
 
   style_header("Transfer Setup");
-  @ <table border="0" cellspacing="20">
+
+  @ <table class="xfersetup">
   setup_menu_entry("Common", "xfersetup_com",
     "Common TH1 code run before all transfer request processing.");
   setup_menu_entry("Push", "xfersetup_push",
     "Specific TH1 code to run after \"push\" transfer requests.");
+  setup_menu_entry("Commit", "xfersetup_commit",
+    "Specific TH1 code to run after processing a commit.");
+  setup_menu_entry("Ticket", "xfersetup_ticket",
+    "Specific TH1 code to run after processing a ticket change.");
   @ </table>
+
+  url_parse(0, 0);
+  if( g.url.protocol ){
+    unsigned syncFlags;
+    const char *zButton;
+    char *zWarning;
+
+    if( db_get_boolean("dont-push", 0) ){
+      syncFlags = SYNC_PULL;
+      zButton = "Pull";
+      zWarning = 0;
+    }else{
+      syncFlags = SYNC_PUSH | SYNC_PULL;
+      zButton = "Synchronize";
+      zWarning = mprintf("WARNING: Pushing to \"%s\" is enabled.",
+                         g.url.canonical);
+    }
+    @ <p>Press the <strong>%h(zButton)</strong> button below to
+    @ synchronize with the <em>%h(g.url.canonical)</em> repository now.<br/>
+    @ This may be useful when testing the various transfer scripts.</p>
+    @ <p>You can use the <code>http -async</code> command in your scripts, but
+    @ make sure the <code>th1-uri-regexp</code> setting is set first.</p>
+    if( zWarning ){
+      @
+      @ <big><b>%h(zWarning)</b></big>
+      free(zWarning);
+    }
+    @
+    @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
+    login_insert_csrf_secret();
+    @ <input type="submit" name="sync" value="%h(zButton)" />
+    @ </div></form>
+    @
+    if( P("sync") ){
+      user_select();
+      url_enable_proxy(0);
+      @ <pre class="xfersetup">
+      client_sync(syncFlags, 0, 0);
+      @ </pre>
+    }
+  }
+
   style_footer();
 }
 
@@ -59,7 +107,8 @@ static void xfersetup_generic(
 
   login_check_credentials();
   if( !g.perm.Setup ){
-    login_needed();
+    login_needed(0);
+    return;
   }
   if( P("setup") ){
     cgi_redirect("xfersetup");
@@ -90,14 +139,14 @@ static void xfersetup_generic(
   login_insert_csrf_secret();
   @ <p>%s(zDesc)</p>
   @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
-  @ <blockquote><p>
+  @ <p>
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
   @ <input type="submit" name="setup" value="Cancel" />
-  @ </p></blockquote>
+  @ </p>
   @ </div></form>
-  @ <hr />
   if ( zDfltValue ){
+    @ <hr />
     @ <h2>Default %s(zTitle)</h2>
     @ <blockquote><pre>
     @ %h(zDfltValue)
@@ -134,12 +183,53 @@ static const char *zDefaultXferPush = 0;
 */
 void xfersetup_push_page(void){
   static const char zDesc[] =
-  @ Enter TH1 script that runs after processing "push" transfer requests.
+  @ Enter TH1 script that runs after processing <strong>push</strong>
+  @ transfer requests.
   ;
   xfersetup_generic(
     "Transfer Push Script",
     "xfer-push-script",
     zDefaultXferPush,
+    zDesc,
+    0,
+    0,
+    30
+  );
+}
+
+static const char *zDefaultXferCommit = 0;
+
+/*
+** WEBPAGE: xfersetup_commit
+*/
+void xfersetup_commit_page(void){
+  static const char zDesc[] =
+  @ Enter TH1 script that runs when a commit is processed.
+  ;
+  xfersetup_generic(
+    "Transfer Commit Script",
+    "xfer-commit-script",
+    zDefaultXferCommit,
+    zDesc,
+    0,
+    0,
+    30
+  );
+}
+
+static const char *zDefaultXferTicket = 0;
+
+/*
+** WEBPAGE: xfersetup_ticket
+*/
+void xfersetup_ticket_page(void){
+  static const char zDesc[] =
+  @ Enter TH1 script that runs when a ticket change is processed.
+  ;
+  xfersetup_generic(
+    "Transfer Ticket Script",
+    "xfer-ticket-script",
+    zDefaultXferTicket,
     zDesc,
     0,
     0,

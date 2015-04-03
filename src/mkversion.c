@@ -9,6 +9,7 @@
 */
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 int main(int argc, char *argv[]){
     FILE *m,*u,*v;
@@ -19,7 +20,10 @@ int main(int argc, char *argv[]){
     memset(b,0,sizeof(b));
     memset(vx,0,sizeof(vx));
     u = fopen(argv[1],"r");
-    fgets(b, sizeof(b)-1,u);
+    if( fgets(b, sizeof(b)-1,u)==0 ){
+      fprintf(stderr, "malformed manifest.uuid file: %s\n", argv[1]);
+      exit(1);
+    }
     fclose(u);
     for(z=b; z[0] && z[0]!='\r' && z[0]!='\n'; z++){}
     *z = 0;
@@ -34,11 +38,14 @@ int main(int argc, char *argv[]){
     }
     fclose(m);
     v = fopen(argv[3],"r");
-    fgets(b, sizeof(b)-1,v);
+    if( fgets(b, sizeof(b)-1,v)==0 ){
+      fprintf(stderr, "malformed VERSION file: %s\n", argv[3]);
+      exit(1);
+    }
     fclose(v);
     for(z=b; z[0] && z[0]!='\r' && z[0]!='\n'; z++){}
     *z = 0;
-    printf("#define RELEASE_VERSION \"%s\"\n", b);   
+    printf("#define RELEASE_VERSION \"%s\"\n", b);
     x=0;
     i=0;
     z=b;
@@ -71,5 +78,19 @@ int main(int argc, char *argv[]){
     printf("#define RELEASE_RESOURCE_VERSION %s", vx);
     while( d<3 ){ printf(",0"); d++; }
     printf("\n");
+#if defined(__DMC__)            /* e.g. 0x857 */
+    d = (__DMC__ & 0xF00) >> 8; /* major */
+    x = (__DMC__ & 0x0F0) >> 4; /* minor */
+    i = (__DMC__ & 0x00F);      /* revision */
+    printf("#define COMPILER_VERSION \"%d.%d.%d\"\n", d, x, i);
+#elif defined(__POCC__)   /* e.g. 700 */
+    d = (__POCC__ / 100); /* major */
+    x = (__POCC__ % 100); /* minor */
+    printf("#define COMPILER_VERSION \"%d.%02d\"\n", d, x);
+#elif defined(_MSC_VER)   /* e.g. 1800 */
+    d = (_MSC_VER / 100); /* major */
+    x = (_MSC_VER % 100); /* minor */
+    printf("#define COMPILER_VERSION \"%d.%02d\"\n", d, x);
+#endif
     return 0;
 }

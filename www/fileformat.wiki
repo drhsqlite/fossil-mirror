@@ -30,8 +30,8 @@ This document is concerned with global state only.  Local state is only
 mentioned here in order to distinguish it from global state.
 
 Each artifact in the repository is named by its SHA1 hash.
-No prefixes or meta information is added to a artifact before
-its hash is computed.  The name of a artifact in the repository
+No prefixes or meta information is added to an artifact before
+its hash is computed.  The name of an artifact in the repository
 is exactly the same SHA1 hash that is computed by sha1sum 
 on the file as it exists in your source tree.</p>
 
@@ -45,13 +45,13 @@ meaning to fossil.  Fossil recognizes:
 <li> [#wikichng | Wiki Pages] </li>
 <li> [#tktchng | Ticket Changes] </li>
 <li> [#attachment | Attachments] </li>
-<li> [#event | Events] </li>
+<li> [#event | TechNotes] </li>
 </ul>
 
 These seven artifact types are described in the following sections.
 
 In the current implementation (as of 2009-01-25) the artifacts that
-make up a fossil repository are stored in in as delta- and zlib-compressed
+make up a fossil repository are stored as delta- and zlib-compressed
 blobs in an <a href="http://www.sqlite.org/">SQLite</a> database.  This
 is an implementation detail and might change in a future release.  For
 the purpose of this article "file format" means the format of the artifacts,
@@ -115,7 +115,7 @@ another manifest that serves as the "baseline" for this manifest.  A
 manifest that has a B-card is called a delta-manifest and a manifest
 that omits the B-card is a baseline-manifest.  The other manifest
 identified by the argument of the B-card must be a baseline-manifest.
-A baseline-manifest records the complete contents of a checkin.
+A baseline-manifest records the complete contents of a check-in.
 A delta-manifest records only changes from its baseline.  
 
 A manifest must have exactly one C-card.  The sole argument to
@@ -140,27 +140,27 @@ The format one of:
 </blockquote>
 
 A manifest has zero or more F-cards.  Each F-card identifies a file
-that is part of the check-in.  There are one, two, three, or four arguments.
-The first argument
-is the pathname of the file in the check-in relative to the root
-of the project file hierarchy.  No ".." or "." directories are allowed
-within the filename.  Space characters are escaped as in C-card
-comment text.  Backslash characters and newlines are not allowed
-within filenames.  The directory separator character is a forward
-slash (ASCII 0x2F).  The second argument to the F-card is the
-full 40-character lower-case hexadecimal SHA1 hash of the content
-artifact.  The second argument is required for baseline manifests
-but is optional for delta manifests.  When the second argument to the
-F-card is omitted, it means that the file has been deleted relative
-to the baseline.  The optional 3rd argument defines any special access 
-permissions associated with the file.  The only special code currently
-defined is "x" which means that the file is executable.  All files are
-always readable and writable.  This can be expressed by "w" permission
-if desired but is optional.  The file format might be extended with
-new permission letters in the future.
-The optional 4th argument is the name of the same file as it existed in
-the parent check-in.  If the name of the file is unchanged from its
-parent, then the 4th argument is omitted.
+that is part of the check-in.  There are one, two, three, or four
+arguments.  The first argument is the pathname of the file in the
+check-in relative to the root of the project file hierarchy.  No ".."
+or "." directories are allowed within the filename.  Space characters
+are escaped as in C-card comment text.  Backslash characters and
+newlines are not allowed within filenames.  The directory separator
+character is a forward slash (ASCII 0x2F).  The second argument to the
+F-card is the full 40-character lower-case hexadecimal SHA1 hash of
+the content artifact.  The second argument is required for baseline
+manifests but is optional for delta manifests.  When the second
+argument to the F-card is omitted, it means that the file has been
+deleted relative to the baseline (files removed in baseline manifests
+versions are <em>not</em> added as F-cards). The optional 3rd argument
+defines any special access permissions associated with the file.  This
+can be defined as "x" to mean that the file is executable or "l"
+(small letter ell) to mean a symlink.  All files are always readable
+and writable.  This can be expressed by "w" permission if desired but
+is optional.  The file format might be extended with new permission
+letters in the future.  The optional 4th argument is the name of the
+same file as it existed in the parent check-in.  If the name of the
+file is unchanged from its parent, then the 4th argument is omitted.
 
 A manifest has zero or one N-cards.  The N-card specifies the mimetype for the
 text in the comment of the C-card.  If the N-card is omitted, a default mimetype
@@ -186,7 +186,7 @@ range of check-ins which were cherry-picked for inclusion in or
 exclusion from the current manifest.  The first argument of
 the Q-card is the artifact ID of another manifest (the "target")
 which has had its changes included or excluded in the current manifest.  
-The target is preceeded by "+" or "-" to show inclusion or
+The target is preceded by "+" or "-" to show inclusion or
 exclusion, respectively.  The optional second argument to the
 Q-card is another manifest artifact ID which is the "baseline"
 for the cherry-pick.  If omitted, the baseline is the primary
@@ -240,7 +240,7 @@ A sample manifest from Fossil itself can be seen
 <a name="cluster"></a>
 <h2>2.0 Clusters</h2>
 
-A cluster is a artifact that declares the existence of other artifacts.
+A cluster is an artifact that declares the existence of other artifacts.
 Clusters are used during repository synchronization to help 
 reduce network traffic.  As such, clusters are an optimization and
 may be removed from a repository without loss or damage to the
@@ -315,11 +315,11 @@ first value is the tag name.  The first character of the tag
 is either "+", "-", or "*".  The "+" means the tag should be added
 to the artifact.  The "-" means the tag should be removed.
 The "*" character means the tag should be added to the artifact
-and all direct descendants (but not descendents through a merge) down
+and all direct descendants (but not descendants through a merge) down
 to but not including the first descendant that contains a 
-more recent "-" or "+" tag with the same name.
+more recent "-", "*", or "+" tag with the same name.
 The optional third argument is the value of the tag.  A tag
-without a value is a boolean.
+without a value is a Boolean.
 
 When two or more tags with the same name are applied to the
 same artifact, the tag with the latest (most recent) date is
@@ -361,10 +361,10 @@ The D card is the date and time when the wiki page was edited.
 The P card specifies the parent wiki pages, if any.  The L card
 gives the name of the wiki page.  The optional N card specifies
 the mimetype of the wiki text.  If the N card is omitted, the
-mimetype is assumed to be text/x-fossil.  
+mimetype is assumed to be text/x-fossil-wiki.  
 The U card specifies the login
 of the user who made this edit to the wiki page.  The Z card is
-the usual checksum over the either artifact and is required.
+the usual checksum over the entire artifact and is required.
 
 The W card is used to specify the text of the wiki page.  The
 argument to the W card is an integer which is the number of bytes
@@ -425,7 +425,8 @@ An example ticket-change artifact can be seen
 <h2>6.0 Attachments</h2>
 
 An attachment artifact associates some other artifact that is the
-attachment (the source artifact) with a ticket or wiki page or event to which
+attachment (the source artifact) with a ticket or wiki page or 
+technical note to which
 the attachment is connected (the target artifact).
 The following cards are allowed on an attachment artifact:
 
@@ -439,8 +440,8 @@ The following cards are allowed on an attachment artifact:
 </blockquote>
 
 The A card specifies a filename for the attachment in its first argument.
-The second argument to the A card is the name
-of the wiki page or ticket or event to which the attachment is connected.  The
+The second argument to the A card is the name of the wiki page or
+ticket or technical note to which the attachment is connected.  The
 third argument is either missing or else it is the 40-character artifact 
 ID of the attachment itself.  A missing third argument means that the
 attachment should be deleted.
@@ -455,7 +456,7 @@ There may be zero or one N cards.  The N card specifies the mimetype of the
 comment text provided in the C card.  If the N card is omitted, the C card
 mimetype is taken to be text/plain.
 
-A single U card gives the name of the user to added the attachment.
+A single U card gives the name of the user who added the attachment.
 If an attachment is added anonymously, then the U card may be omitted.
 
 The Z card is the usual checksum over the rest of the attachment artifact.
@@ -463,18 +464,19 @@ The Z card is required.
 
 
 <a name="event"></a>
-<h2>7.0 Events</h2>
+<h2>7.0 Technical Notes</h2>
 
-An event artifact associates a timeline comment and a page of text
-(similar to a wiki page) with a point in time.  Events can be used
+A technical note or "technote" artifact (formerly known as an "event" artifact)
+associates a timeline comment and a page of text
+(similar to a wiki page) with a point in time.  Technotes can be used
 to record project milestones, release notes, blog entries, process
 checkpoints, or news articles.
-The following cards are allowed on an event artifact:
+The following cards are allowed on an technote artifact:
 
 <blockquote>
 <b>C</b> <i>comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br />
-<b>E</b> <i>event-time</i> <i>event-id</i><br />
+<b>E</b> <i>technote-time</i> <i>technote-id</i><br />
 <b>N</b> <i>mimetype</i><br />
 <b>P</b> <i>parent-artifact-id</i>+<br />
 <b>T</b> <b>+</b><i>tag-name</i> <b>*</b> ?<i>value</i>?<br />
@@ -484,31 +486,31 @@ The following cards are allowed on an event artifact:
 </blockquote>
 
 The C card contains text that is displayed on the timeline for the
-event.  The C card is optional, but there can only be one.
+technote.  The C card is optional, but there can only be one.
 
 A single D card is required to give the date and time when the 
-event artifact was created.  This is different from the time at which
-the event occurs.
+technote artifact was created.  This is different from the time at which
+the technote appears on the timeline.
 
-A single E card gives the time of the event (the point on the timeline
-where the event is displayed) and a unique identifier for the event.
-When there are multiple artifacts with the same event-id, the one with
-the most recent D card is the only one used.  The event-id must be a
+A single E card gives the time of the technote (the point on the timeline
+where the technote is displayed) and a unique identifier for the technote.
+When there are multiple artifacts with the same technote-id, the one with
+the most recent D card is the only one used.  The technote-id must be a
 40-character lower-case hexadecimal string.
 
-The optional N card specifies the mimetype of the text of the event
+The optional N card specifies the mimetype of the text of the technote
 that is contained in the W card.  If the N card is omitted, then the
 W card text mimetype is assumed to be text/x-fossil, which is the
 Fossil wiki format.
 
-The optional P card specifies a prior event with the same event-id from
-which the current event is an edit.  The P card is a hint to the system
-that it might be space efficient to store one event as a delta of the
-other.
+The optional P card specifies a prior technote with the same technote-id
+from which the current technote is an edit.  The P card is a hint to the
+system that it might be space efficient to store one technote as a delta of
+the other.
 
-An event might contain one or more T-cards used to set
+A technote might contain one or more T-cards used to set
 [./branching.wiki#tags | tags or properties]
-on the event.  The format of the T-card is the same as
+on the technote.  The format of the T-card is the same as
 described in [#ctrl | Control Artifacts] section above, except that the
 second argument is the single character "<b>*</b>" instead of an
 artifact ID and the name is always prefaced by "<b>+</b>".
@@ -518,13 +520,13 @@ possible to encode the current artifact ID as part of an artifact,
 since the act of inserting the artifact ID would change the artifact ID,
 hence a <b>*</b> is used to represent "self".  The "<b>+</b>" on the
 name means that tags can only be add and they can only be non-propagating
-tags.  A an event, T cards are normally used to set the background
+tags.  In a technote, T cards are normally used to set the background
 display color for timelines.
 
-The optional U card gives name of the user who entered the event.
+The optional U card gives name of the user who entered the technote.
 
 A single W card provides wiki text for the document associated with the
-event.  The format of the W card is exactly the same as for a 
+technote.  The format of the W card is exactly the same as for a 
 [#wikichng | wiki artifact].
 
 The Z card is the required checksum over the rest of the artifact.
@@ -552,7 +554,7 @@ or more such cards are required.
 <th>Wiki</th>
 <th>Ticket</th>
 <th>Attachment</th>
-<th>Event</th>
+<th>Technote</th>
 </tr>
 <tr>
 <td><b>A</b> <i>filename</i> <i>target</i> ?<i>source</i>?</td>
@@ -596,7 +598,7 @@ or more such cards are required.
 <td align=center><b>1</b></td>
 </tr>
 <tr>
-<td><b>E</b> <i>event-time event-id</i></td>
+<td><b>E</b> <i>technote-time technote-id</i></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>

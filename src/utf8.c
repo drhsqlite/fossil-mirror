@@ -27,7 +27,7 @@
 #endif
 #include "cygsup.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
 /*
 ** Translate MBCS to UTF-8.  Return a pointer to the translated text.
 ** Call fossil_mbcs_free() to deallocate any memory used to store the
@@ -56,14 +56,18 @@ void fossil_mbcs_free(char *zOld){
 char *fossil_unicode_to_utf8(const void *zUnicode){
 #if defined(_WIN32) || defined(__CYGWIN__)
   int nByte = WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, 0, 0, 0, 0);
-  char *zUtf = sqlite3_malloc( nByte );
-  if( zUtf==0 ){
-    return 0;
-  }
+  char *zUtf = fossil_malloc( nByte );
   WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, zUtf, nByte, 0, 0);
   return zUtf;
 #else
-  return fossil_strdup(zUnicode);  /* TODO: implement for unix */
+  static Stmt q;
+  char *zUtf8;
+  db_static_prepare(&q, "SELECT :utf8");
+  db_bind_text16(&q, ":utf8", zUnicode);
+  db_step(&q);
+  zUtf8 = fossil_strdup(db_column_text(&q, 0));
+  db_reset(&q);
+  return zUtf8;
 #endif
 }
 
@@ -75,13 +79,11 @@ char *fossil_unicode_to_utf8(const void *zUnicode){
 void *fossil_utf8_to_unicode(const char *zUtf8){
 #if defined(_WIN32) || defined(__CYGWIN__)
   int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
-  wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
-  if( zUnicode==0 ){
-    return 0;
-  }
+  wchar_t *zUnicode = fossil_malloc( nByte * 2 );
   MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
   return zUnicode;
 #else
+  assert( 0 );  /* Never used in unix */
   return fossil_strdup(zUtf8);  /* TODO: implement for unix */
 #endif
 }
@@ -91,11 +93,7 @@ void *fossil_utf8_to_unicode(const char *zUtf8){
 ** fossil_unicode_to_utf8().
 */
 void fossil_unicode_free(void *pOld){
-#if defined(_WIN32) || defined(__CYGWIN__)
-  sqlite3_free(pOld);
-#else
   fossil_free(pOld);
-#endif
 }
 
 #if defined(__APPLE__) && !defined(WITHOUT_ICONV)
@@ -131,7 +129,7 @@ char *fossil_filename_to_utf8(const void *zFilename){
     if( *pUtf == (char)0xef ){
       wchar_t c = ((pUtf[1]&0x3f)<<6)|(pUtf[2]&0x3f);
       /* Only really convert it when the resulting char is in range. */
-      if ( c && ((c < ' ') || wcschr(L"\"*:<>?|", c)) ){
+      if( c && ((c < ' ') || wcschr(L"\"*:<>?|", c)) ){
         *qUtf++ = c; pUtf+=3; continue;
       }
     }
@@ -181,7 +179,8 @@ char *fossil_filename_to_utf8(const void *zFilename){
 **
 ** On Windows, characters in the range U+0001 to U+0031 and the
 ** characters '"', '*', ':', '<', '>', '?' and '|' are invalid
-** to be used. Therefore, translate those to characters in the
+** to be used, except in the 'extended path' prefix ('?') and
+** as drive specifier (':'). Therefore, translate those to characters
 ** in the range U+F001 - U+F07F (private use area), so those
 ** characters never arrive in any Windows API. The filenames might
 ** look strange in Windows explorer, but in the cygwin shell
@@ -193,20 +192,58 @@ char *fossil_filename_to_utf8(const void *zFilename){
 void *fossil_utf8_to_filename(const char *zUtf8){
 #ifdef _WIN32
   int nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
-  wchar_t *zUnicode = sqlite3_malloc( nChar * 2 );
+  /* Overallocate 6 chars, making some room for extended paths */
+  wchar_t *zUnicode = sqlite3_malloc( (nChar+6) * sizeof(wchar_t) );
   wchar_t *wUnicode = zUnicode;
   if( zUnicode==0 ){
     return 0;
   }
   MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nChar);
-  /* If path starts with "<drive>:/" or "<drive>:\", don't translate the ':' */
-  if( fossil_isalpha(zUtf8[0]) && zUtf8[1]==':'
-           && (zUtf8[2]=='\\' || zUtf8[2]=='/')) {
-    zUnicode[2] = '\\';
-    wUnicode += 3;
+  /*
+  ** If path starts with "//?/" or "\\?\" (extended path), translate
+  ** any slashes to backslashes but leave the '?' intact
+  */
+  if( (zUtf8[0]=='\\' || zUtf8[0]=='/') && (zUtf8[1]=='\\' || zUtf8[1]=='/')
+           && zUtf8[2]=='?' && (zUtf8[3]=='\\' || zUtf8[3]=='/')) {
+    wUnicode[0] = wUnicode[1] = wUnicode[3] = '\\';
+    zUtf8 += 4;
+    wUnicode += 4;
   }
+  /*
+  ** If there is no "\\?\" prefix but there is a drive or UNC
+  ** path prefix and the path is larger than MAX_PATH chars,
+  ** no Win32 API function can handle that unless it is
+  ** prefixed with the extended path prefix. See:
+  ** <http://msdn.microsoft.com/en-us/library/aa365247(VS.85).aspx#maxpath>
+  **/
+  if( fossil_isalpha(zUtf8[0]) && zUtf8[1]==':'
+           && (zUtf8[2]=='\\' || zUtf8[2]=='/') ){
+    if( wUnicode==zUnicode && nChar>MAX_PATH){
+      memmove(wUnicode+4, wUnicode, nChar*sizeof(wchar_t));
+      memcpy(wUnicode, L"\\\\?\\", 4*sizeof(wchar_t));
+      wUnicode += 4;
+    }
+    /*
+    ** If (remainder of) path starts with "<drive>:/" or "<drive>:\",
+    ** leave the ':' intact but translate the backslash to a slash.
+    */
+    wUnicode[2] = '\\';
+    wUnicode += 3;
+  }else if( wUnicode==zUnicode && nChar>MAX_PATH
+            && (zUtf8[0]=='\\' || zUtf8[0]=='/')
+            && (zUtf8[1]=='\\' || zUtf8[1]=='/') && zUtf8[2]!='?'){
+    memmove(wUnicode+6, wUnicode, nChar*sizeof(wchar_t));
+    memcpy(wUnicode, L"\\\\?\\UNC", 7*sizeof(wchar_t));
+    wUnicode += 7;
+  }
+  /*
+  ** In the remainder of the path, translate invalid characters to
+  ** characters in the Unicode private use area. This is what makes
+  ** Win32 fossil.exe work well in a Cygwin environment even when a
+  ** filename contains characters which are invalid for Win32.
+  */
   while( *wUnicode != '\0' ){
-    if ( (*wUnicode < ' ') || wcschr(L"\"*:<>?|", *wUnicode) ){
+    if( (*wUnicode < ' ') || wcschr(L"\"*:<>?|", *wUnicode) ){
       *wUnicode |= 0xF000;
     }else if( *wUnicode == '/' ){
       *wUnicode = '\\';
@@ -274,6 +311,7 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
   int nChar, written = 0;
   wchar_t *zUnicode; /* Unicode version of zUtf8 */
   DWORD dummy;
+  Blob blob;
 
   static int istty[2] = { -1, -1 };
   if( istty[toStdErr] == -1 ){
@@ -284,12 +322,20 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
     return -1;
   }
 
-  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, nByte, NULL, 0);
+  /* If blob to be written to the Windows console is not
+   * UTF-8, convert it to UTF-8 first.
+   */
+  blob_init(&blob, zUtf8, nByte); 
+  blob_to_utf8_no_bom(&blob, 1);
+  nChar = MultiByteToWideChar(CP_UTF8, 0, blob_buffer(&blob),
+      blob_size(&blob), NULL, 0);
   zUnicode = malloc( (nChar + 1) *sizeof(zUnicode[0]) );
   if( zUnicode==0 ){
     return 0;
   }
-  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, nByte, zUnicode, nChar);
+  nChar = MultiByteToWideChar(CP_UTF8, 0, blob_buffer(&blob),
+      blob_size(&blob), zUnicode, nChar);
+  blob_reset(&blob);
   /* Split WriteConsoleW call into multiple chunks, if necessary. See:
    * <https://connect.microsoft.com/VisualStudio/feedback/details/635230> */
   while( written < nChar ){

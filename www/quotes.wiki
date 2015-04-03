@@ -7,7 +7,7 @@ by the creator of Fossil, so of course there is selection bias...
 <h2>On The Usability Of Git:</h2>
 
 <ol>
-<li>Git approaches the useability of iptables, which is to say, utterly 
+<li>Git approaches the usability of iptables, which is to say, utterly 
 unusable unless you have the manpage tattooed on you arm.
 
 <blockquote>
@@ -59,18 +59,48 @@ Demented workflow complexity on acid?
 <i>teastain at [http://www.reddit.com/r/programming/comments/xpitj/10_things_i_hate_about_git/c5oj4fk]
 </blockquote>
 
+<li>&#91;G&#93;it is <i>designed</i> to forget things.
+
+<blockquote>
+<i>[http://www.cs.cmu.edu/~davide/howto/git_lose.html]
+</blockquote>
+
+<li>&#91;I&#93;n nearly 31 years of using a computer i have, in total, lost more data to git
+(while following the instructions!!!) than any other single piece of software.
+
+<blockquote>
+<i>Stephen Beal on the [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg17181.html|Fossil mailing list]
+   2014-09-01.</i>
+</blockquote>
+
+<li>If programmers _really_ wanted to help scientists, they'd build a version control
+system that was more usable than Git.
+
+<blockquote>
+<i>Tweet by Greg Wilson @gvwilson on 2015-02-22 17:47</i>
+</blockquote>
 
 </ol>
 
 <h2>On The Usability Of Fossil:</h2>
 
 <ol>
-<li value=7>
+<li value=10>
 Fossil mesmerizes me with simplicity especially after I struggled to
 get a bug-tracking system to work with mercurial.
 
 <blockquote>
 <i>rawjeev at [http://stackoverflow.com/questions/156322/what-do-people-think-of-the-fossil-dvcs]</i>
+</blockquote>
+
+<li>Fossil is the best thing to happen
+to my development workflow this year, as I am pretty sure that using
+Git has resulted in the premature death of too many of my brain cells.
+I'm glad to be able to replace Git in every place that I possibly can
+with Fossil.
+
+<blockquote>
+<i>Joe Prostko at [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg16716.html]
 </blockquote>
 
 <li>Fossil is awesome!!! I have never seen an app like that before, 
@@ -80,6 +110,14 @@ such simplicity and flexibility!!!
 <i>zengr at [http://stackoverflow.com/questions/138621/best-version-control-for-lone-developer]</i>
 </blockquote>
 
+<li>This is my favourite VCS. I can carry it on a USB. And it's a complete system, with it's own
+server, ticketing system, Wiki pages, and a very, very helpful timeline visualization. And 
+the entire program in a single file!
+
+<blockquote>
+<i>thunderbong commenting on hacker news: [https://news.ycombinator.com/item?id=9131619]</i>
+</blockquote>
+
 
 </ol>
 
@@ -87,7 +125,7 @@ such simplicity and flexibility!!!
 <h2>On Git Versus Fossil</h2>
 
 <ol>
-<li value=9>
+<li value=14>
 Just want to say thanks for fossil making my life easier.... 
 Also <nowiki>[for]</nowiki> not having a misanthropic command line interface.
 
@@ -117,5 +155,11 @@ than what you actually did.
 
 <blockquote>
 <i>Mike Meyer on the Fossil mailing list, 2011-10-04</i>
+</blockquote>
+
+<li>github is such a pale shadow of what fossil does.
+
+<blockquote>
+<i>dkf on the Tcl chatroom, 2013-12-06</i>
 </blockquote>
 </ol>
