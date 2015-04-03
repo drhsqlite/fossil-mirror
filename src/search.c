@@ -1105,6 +1105,7 @@ static void get_stext_by_mimetype(
     }
     html_to_plaintext(blob_str(pIn), pOut);
   }else{
+    blob_append(pOut, "\n", 1);
     blob_append(pOut, blob_buffer(pIn), blob_size(pIn));
   }
   blob_reset(&html);

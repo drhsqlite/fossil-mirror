@@ -1,5 +1,5 @@
-C Update\ssettings\scomment\sabout\s'dotfiles'.\s\sAlso,\supdate\sproject\sURLs\sin\sInno\sSetup\sfile.
-D 2015-04-03T00:17:37.125
+C Fix\ssearch\sresult\stitle\shandling\sfor\s'documents'\sthat\sare\snot\swiki,\smarkdown,\sor\sHTML.
+D 2015-04-03T01:44:21.582
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -471,7 +471,7 @@ F src/regexp.c bbd776d92790cee01990df6c25135b0d904cca5e
 F src/report.c 653c5affb28a4ae9624e65de1f596c4bf08fe8b3
 F src/rss.c bb314966b5fd2c4a779d4ac6afbabc4721fcf44f
 F src/schema.c c43e7d7f0872b2e4940d049fc1dbcac81bffa543
-F src/search.c edaaa322e4a9552288f7fe1d4b168b5eeac4b20e
+F src/search.c 3f47dd6d07fc176619d39dd7aa4dc315f22200ca
 F src/setup.c d1b18d9cf235cf1ebae5f7dbb0dd8f7bf72d9aa2
 F src/sha1.c 475f5dc5fd546d3ec5cd656f773f36bb2d03584f
 F src/shell.c 84a1593bd86aaa14f4da8a8f9b16fbc239d262aa
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P fc248d66aad2c2336e4fddc8a4cca7e9c26c422d
-R 7de7bb89984c37ac2b519f2984f01ac0
+P 5358523adbd0d8957eba7f337b7e25d54505ffc8
+R c8130cd39c84e442531af4ec26faa7b6
 U mistachkin
-Z f4ccfd576c1d18bb243bfa15f54ab6f4
+Z 0050f9195132fefa35ddcb4e62d35fed
