@@ -2347,7 +2347,7 @@ const Setting aSetting[] = {
   { "diff-binary",      0,              0, 0, 0, "on"                  },
   { "diff-command",     0,             40, 0, 0, ""                    },
   { "dont-push",        0,              0, 0, 0, "off"                 },
-  { "dotfiles",         0,              0, 0, 0, "off"                 },
+  { "dotfiles",         0,              0, 1, 0, "off"                 },
   { "editor",           0,             32, 0, 0, ""                    },
   { "empty-dirs",       0,             40, 1, 0, ""                    },
   { "encoding-glob",    0,             40, 1, 0, ""                    },
@@ -2391,7 +2391,6 @@ const Setting aSetting[] = {
   { "th1-setup",        0,             40, 1, 1, ""                    },
   { "th1-uri-regexp",   0,             40, 1, 0, ""                    },
   { "web-browser",      0,             32, 0, 0, ""                    },
-  { "white-foreground", 0,              0, 0, 0, "off"                 },
   { 0,0,0,0,0,0 }
 };
 
@@ -2516,6 +2515,7 @@ const Setting *db_find_setting(const char *zName, int allowPrefix){
 **                     server.  Useful when setting up a private branch.
 **
 **    dotfiles         Include --dotfiles option for all compatible commands.
+**     (versionable)
 **
 **    editor           Text editor command used for check-in comments.
 **

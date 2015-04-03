@@ -1527,6 +1527,12 @@ static void process_one_web_page(
       if( szFile==0 ){
         if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
         szFile = file_size(zRepo);
+        /* this should only be set from the --baseurl option, not CGI  */
+        if( g.zBaseURL && g.zBaseURL[0]!=0 && g.zTop && g.zTop[0]!=0 &&
+            file_isdir(g.zRepositoryName)==1 ){
+          g.zBaseURL = mprintf("%s%.*s", g.zBaseURL, i, zPathInfo);
+          g.zTop = mprintf("%s%.*s", g.zTop, i, zPathInfo);
+        }
       }
       if( szFile<0 && i>0 ){
         const char *zMimetype;

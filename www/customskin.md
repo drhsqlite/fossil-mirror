@@ -48,8 +48,10 @@ Built-in Skins
 Fossil comes with several built-in skins.  The sources to these built-ins can
 be found in the Fossil source tree under the skins/ folder.  The skins/
 folder contains a separate subfolder for each built-in skin, with each
-subfolders holding three files, "css.txt", "footer.txt", and "header.txt",
-that describe the CSS, footer, and header for that skin, respectively.
+subfolders holding four files, "css.txt", "details.txt",
+"footer.txt", and "header.txt",
+that describe the CSS, rendering options,
+footer, and header for that skin, respectively.
 
 The skin of a repository can be changed to any of the built-in skins using
 the web interface by going to the /setup_skin web page (requires Admin
@@ -208,6 +210,7 @@ can serve as a starting point for future work:
 
    1.  Select a built-in skin that is closest to the desired look.  Make
        copies of the css, footer, and header into files name "css.txt",
+       "details.txt",
        "footer.txt", and "header.txt" in some temporary directory.
 
        If the Fossil source code is available, then these three files can
@@ -223,10 +226,11 @@ can serve as a starting point for future work:
        in which the three txt files were stored in step 1.   This will bring
        up the Fossil website using the tree files in SKINDIR.
 
-   3.  Edit the three txt files in SKINDIR.  After making each small change,
+   3.  Edit the four txt files in SKINDIR.  After making each small change,
        press Reload on the web browser to see the effect of that change.
        Iterate until the desired look is achieved.
 
-   4.  Copy/paste the resulting css.txt, header.txt, and footer.txt files
-       into the CSS, header, and footer configuration screens under the
-       Admin menu.
+   4.  Copy/paste the resulting css.txt, details.txt,
+       header.txt, and footer.txt files
+       into the CSS, details, header, and footer configuration screens
+       under the Admin/Skins menu.

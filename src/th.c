@@ -2229,14 +2229,25 @@ static int exprParse(
           const char *zOp;
           for(j=0; (zOp=aOperator[j].zOp); j++){
             int nOp = aOperator[j].nOp;
+            int nRemain = nExpr - i;
             int isMatch = 0;
-            if( (nExpr-i)>=nOp && 0==memcmp(zOp, &zExpr[i], nOp) ){
+            if( nRemain>=nOp && 0==memcmp(zOp, &zExpr[i], nOp) ){
               isMatch = 1;
             }
-            if( isMatch && aOperator[j].eOp==OP_OPEN_BRACKET ){
-              nNest++;
-            }else if( isMatch && aOperator[j].eOp==OP_CLOSE_BRACKET ){
-              nNest--;
+            if( isMatch ){
+              if( aOperator[j].eOp==OP_CLOSE_BRACKET ){
+                nNest--;
+              }else if( nRemain>nOp ){
+                if( aOperator[j].eOp==OP_OPEN_BRACKET ){
+                  nNest++;
+                }
+              }else{
+                /*
+                ** This is not really a match because this operator cannot
+                ** legally appear at the end of the string.
+                */
+                isMatch = 0;
+              }
             }
             if( nToken>0 && aOperator[j].iPrecedence==1 ){
               Expr *pPrev = apToken[nToken-1];
@@ -2648,24 +2659,22 @@ int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
     n = th_strlen(z);
   }
 
-  if( n>0 && (z[0]=='-' || z[0]=='+') ){
+  if( n>1 && (z[0]=='-' || z[0]=='+') ){
     i = 1;
   }
-  if( n>2 ){
-    if( z[i]=='0' ){
-      if( z[i+1]=='x' || z[i+1]=='X' ){
-        i += 2;
-        base = 16;
-        isdigit = th_ishexdig;
-      }else if( z[i+1]=='o' || z[i+1]=='O' ){
-        i += 2;
-        base = 8;
-        isdigit = th_isoctdig;
-      }else if( z[i+1]=='b' || z[i+1]=='B' ){
-        i += 2;
-        base = 2;
-        isdigit = th_isbindig;
-      }
+  if( (n-i)>2 && z[i]=='0' ){
+    if( z[i+1]=='x' || z[i+1]=='X' ){
+      i += 2;
+      base = 16;
+      isdigit = th_ishexdig;
+    }else if( z[i+1]=='o' || z[i+1]=='O' ){
+      i += 2;
+      base = 8;
+      isdigit = th_isoctdig;
+    }else if( z[i+1]=='b' || z[i+1]=='B' ){
+      i += 2;
+      base = 2;
+      isdigit = th_isbindig;
     }
   }
   for(; i<n; i++){

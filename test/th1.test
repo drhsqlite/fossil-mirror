@@ -512,6 +512,46 @@ test th1-expr-41 {$RESULT eq {4}}
 
 ###############################################################################
 
+fossil test-th-eval "expr +"
+test th1-expr-42 {$RESULT eq {TH_ERROR: syntax error in expression: "+"}}
+
+###############################################################################
+
+fossil test-th-eval "expr -"
+test th1-expr-43 {$RESULT eq {TH_ERROR: syntax error in expression: "-"}}
+
+###############################################################################
+
+fossil test-th-eval "expr ++"
+test th1-expr-44 {$RESULT eq {TH_ERROR: syntax error in expression: "++"}}
+
+###############################################################################
+
+fossil test-th-eval "expr --"
+test th1-expr-45 {$RESULT eq {TH_ERROR: syntax error in expression: "--"}}
+
+###############################################################################
+
+fossil test-th-eval "lindex list +"
+test th1-expr-46 {$RESULT eq {TH_ERROR: expected integer, got: "+"}}
+
+###############################################################################
+
+fossil test-th-eval "lindex list -"
+test th1-expr-47 {$RESULT eq {TH_ERROR: expected integer, got: "-"}}
+
+###############################################################################
+
+fossil test-th-eval "lindex list +0x"
+test th1-expr-48 {$RESULT eq {TH_ERROR: expected integer, got: "+0x"}}
+
+###############################################################################
+
+fossil test-th-eval "lindex list -0x"
+test th1-expr-49 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
+
+###############################################################################
+
 fossil test-th-eval "checkout 1"; # NOTE: Assumes running "in tree".
 test th1-checkout-1 {[string length $RESULT] > 0}
 

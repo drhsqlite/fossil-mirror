@@ -116,17 +116,17 @@ menulink $index_page Home
 if {[anycap jor]} {
   menulink /timeline Timeline
 }
-if {[hascap oh]} {
+if {[anoncap oh]} {
   menulink /dir?ci=tip Files
 }
-if {[hascap o]} {
+if {[anoncap o]} {
   menulink  /brlist Branches
   menulink  /taglist Tags
 }
-if {[hascap r]} {
+if {[anoncap r]} {
   menulink /ticket Tickets
 }
-if {[hascap j]} {
+if {[anoncap j]} {
   menulink /wiki Wiki
 }
 if {[hascap s]} {
