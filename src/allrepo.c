@@ -288,6 +288,9 @@ void all_cmd(void){
       }
     }
     db_end_transaction(0);
+    blob_reset(&sql);
+    blob_reset(&fn);
+    blob_reset(&extra);
     return;
   }else if( strncmp(zCmd, "add", n)==0 ){
     int j;
@@ -317,6 +320,9 @@ void all_cmd(void){
       }
     }
     db_end_transaction(0);
+    blob_reset(&sql);
+    blob_reset(&fn);
+    blob_reset(&extra);
     return;
   }else if( strncmp(zCmd, "info", n)==0 ){
     zCmd = "info";
@@ -387,6 +393,8 @@ void all_cmd(void){
     }
   }
   db_finalize(&q);
+
+  blob_reset(&extra);
 
   /* If any repositories whose names appear in the ~/.fossil file could not
   ** be found, remove those names from the ~/.fossil file.
