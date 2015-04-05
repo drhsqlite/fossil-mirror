@@ -149,6 +149,9 @@ features of Fossil.  The following is a summary of the extended commands:
   *  setting
   *  styleHeader
   *  styleFooter
+  *  tclEval
+  *  tclExpr
+  *  tclInvoke
   *  tclReady
   *  trace
   *  stime
@@ -156,7 +159,12 @@ features of Fossil.  The following is a summary of the extended commands:
   *  wiki
 
 Each of the commands above is documented by a block comment above their
-implementation in the th_main.c source file.
+implementation in the th_main.c or th_tcl.c source files.
+
+All commands starting with "tcl", with the exception of "tclReady",
+require the Tcl integration subsystem be included at compile-time.
+Additionally, the "tcl" repository setting must be enabled at runtime
+in order to successfully make use of these commands.
 
 **To Do:** We would like to have a community volunteer go through and
 copy the documentation for each of these commands (with appropriate
