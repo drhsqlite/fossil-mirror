@@ -1,5 +1,5 @@
-C Formally\stranslate\sTH1\sto\sTcl\sreturn\scodes\sand\svice-versa,\swhere\snecessary,\sin\sthe\sTcl\sintegration\ssubsystem.
-D 2015-04-05T00:24:17.807
+C Initial\swork\son\sdocumenting\sall\sthe\sFossil\sspecific\sTH1\scommands.
+D 2015-04-05T04:28:43.513
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -491,7 +491,7 @@ F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
 F src/th.c cead0ace0497a881aac1f66374b996a02532d024
 F src/th.h 19979061d54b2c78c653df2d7cdd01d2eed7a5c7
 F src/th_lang.c e18896a178cba244910a2dbe13ea8b1e7e2ef5b3
-F src/th_main.c 7bec06525728eb0875beab0ba539009f7eff5512
+F src/th_main.c ef09789a524945ed42e49151148c7ffe65e51664
 F src/th_tcl.c 7b37123bd606f5b9999a1103807f822a77dfcdc5
 F src/timeline.c 62b10da0e1fe8ee5fa8b1af9aa35696079bb48ee
 F src/tkt.c 013c241a55904b6a3505583f9b234911cf3865df
@@ -727,14 +727,14 @@ F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md 621f29a1d5b2d0f772f7df55d2dc4de5d897040e
+F www/th1.md 6df0924ccd1b8f44a112cb7c92088ba189353801
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 7cba307895c05755fb5b0251df861c6314f310aa
-R 8749ce40005324f1910233a52d953306
+P 4aba7584f7568b817ce33703808972ef15b10e35
+R e555dfe173f192ed4668571a98cc664a
 U mistachkin
-Z 70bfa3a53bb6b8cbb17e03f8d868f764
+Z 16270062a611dac68f3a2ae0e13145af
