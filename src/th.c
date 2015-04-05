@@ -94,7 +94,7 @@ struct Th_Variable {
 /*
 ** This structure is used to pass complete context information to the
 ** hash iteration callback functions that need a Th_Interp and a list
-** to operate on, e.g. thListAppend().
+** to operate on, e.g. thListAppendHashKey().
 */
 struct Th_InterpAndList {
   Th_Interp *interp;          /* Associated interpreter context */
@@ -321,7 +321,7 @@ static int thFreeCommand(Th_HashEntry *pEntry, void *pContext){
 **
 ** Always returns non-zero.
 */
-static int thListAppend(Th_HashEntry *pEntry, void *pContext){
+static int thListAppendHashKey(Th_HashEntry *pEntry, void *pContext){
   Th_InterpAndList *pInterpAndList = (Th_InterpAndList *)pContext;
   Th_ListAppend(pInterpAndList->interp, pInterpAndList->pzList,
                 pInterpAndList->pnList, pEntry->zKey, pEntry->nKey);
@@ -2874,7 +2874,7 @@ int Th_ListAppendCommands(Th_Interp *interp, char **pzList, int *pnList){
   p->interp = interp;
   p->pzList = pzList;
   p->pnList = pnList;
-  Th_HashIterate(interp, interp->paCmd, thListAppend, p);
+  Th_HashIterate(interp, interp->paCmd, thListAppendHashKey, p);
   Th_Free(interp, p);
   return TH_OK;
 }
@@ -2893,7 +2893,7 @@ int Th_ListAppendVariables(Th_Interp *interp, char **pzList, int *pnList){
     p->interp = interp;
     p->pzList = pzList;
     p->pnList = pnList;
-    Th_HashIterate(interp, pFrame->paVar, thListAppend, p);
+    Th_HashIterate(interp, pFrame->paVar, thListAppendHashKey, p);
     Th_Free(interp, p);
     return TH_OK;
   }else{

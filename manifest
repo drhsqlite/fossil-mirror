@@ -1,5 +1,5 @@
-C Add\sthe\s'info\scommands'\sand\s'info\svars'\ssub-commands\sto\sthe\sTH1\score\slanguage,\swith\stests.
-D 2015-04-05T18:17:34.284
+C Change\sthe\sname\sof\sa\snew\sTH1\sfunction\sto\shelp\sclarify\sits\spurpose.
+D 2015-04-05T19:37:44.279
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -488,7 +488,7 @@ F src/style.c 04648413ce04acf03d58a6f3fd92c5eb93a978ca
 F src/sync.c a23d8d6dc35fe4a22f1bd9b0bb267c98952fe2ba
 F src/tag.c 807b4154d67dc0bf02089d61bda5cac84bf7d44b
 F src/tar.c 9d67347c9ec4c8b5ec09c9cbc1247cd4fb49bccc
-F src/th.c c9b9e604a59fce8db3abf837dff10f7fb0cb02e7
+F src/th.c e9840f21b1bb1bc03fdba17c818728e132e254b7
 F src/th.h 331b9aaf012117b22a3e8c4676c5b131cd8b7f9d
 F src/th_lang.c f6085bbe7c97a4d00c8fe8cd9328d402937111a8
 F src/th_main.c ef09789a524945ed42e49151148c7ffe65e51664
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 0c63df2422839672ae353a2b906993d66297fafb
-R bf47e1f7c9992eca221900d13c7c0b3d
+P 810e6c1e687c161fcd343e302e13e6f3e5d8f345
+R e2bc7fa4452863d9c14941641c85b5e1
 U mistachkin
-Z ecd7ee31431b031f76e799abdcfb8672
+Z e52af65567b78cc105e686ab60e529fd
