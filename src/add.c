@@ -35,7 +35,7 @@
 **
 **          To retain the Fossil version 1.x behavior when using Fossil 2.x,
 **          the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option must be used
-**          -AND- the "move-files" setting must be set to non-zero.
+**          -AND- the "move-files" setting must be set to zero.
 */
 #ifndef FOSSIL_MV_CHECKOUT_FILE_ON_MV
 #define FOSSIL_MV_CHECKOUT_FILE_ON_MV            (0)
@@ -52,7 +52,7 @@
 **
 **          To retain the Fossil version 1.x behavior when using Fossil 2.x,
 **          the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option must be used
-**          -AND- the "move-files" setting must be set to non-zero.
+**          -AND- the "remove-files" setting must be set to zero.
 */
 #ifndef FOSSIL_RM_CHECKOUT_FILE_ON_RM
 #define FOSSIL_RM_CHECKOUT_FILE_ON_RM            (0)
