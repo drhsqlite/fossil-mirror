@@ -589,7 +589,7 @@ void www_print_timeline(
       ** a technical div for the timeline graph
       */
       w = pGraph->mxRail*pGraph->iRailPitch + 28;
-      @ <tr><td></td><td>
+      @ <tr class="timelineBottom"><td></td><td>
       @ <div id="grbtm" style="width:%d(w)px;"></div>
       @ </td><td></td></tr>
     }

@@ -176,7 +176,7 @@ static int enableOutput = 1;
 /*
 ** TH1 command: enable_output BOOLEAN
 **
-** Enable or disable the puts and hputs commands.
+** Enable or disable the puts and wiki commands.
 */
 static int enableOutputCmd(
   Th_Interp *interp,
@@ -341,9 +341,11 @@ static int putsCmd(
 }
 
 /*
+** TH1 command: decorate STRING
 ** TH1 command: wiki STRING
 **
-** Render the input string as wiki.
+** Render the input string as wiki.  For the decorate command, only links
+** are handled.
 */
 static int wikiCmd(
   Th_Interp *interp,

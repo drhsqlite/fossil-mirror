@@ -9,9 +9,10 @@
 #include <string.h>
 #include <assert.h>
 
-typedef struct Th_Command   Th_Command;
-typedef struct Th_Frame     Th_Frame;
-typedef struct Th_Variable  Th_Variable;
+typedef struct Th_Command        Th_Command;
+typedef struct Th_Frame          Th_Frame;
+typedef struct Th_Variable       Th_Variable;
+typedef struct Th_InterpAndList  Th_InterpAndList;
 
 /*
 ** Interpreter structure.
@@ -88,6 +89,17 @@ struct Th_Variable {
   int nData;                  /* Number of bytes at Th_Variable.zData */
   char *zData;                /* Data for scalar variables */
   Th_Hash *pHash;             /* Data for array variables */
+};
+
+/*
+** This structure is used to pass complete context information to the
+** hash iteration callback functions that need a Th_Interp and a list
+** to operate on, e.g. thListAppendHashKey().
+*/
+struct Th_InterpAndList {
+  Th_Interp *interp;          /* Associated interpreter context */
+  char **pzList;              /* IN/OUT: Ptr to ptr to list */
+  int *pnList;                /* IN/OUT: Current length of *pzList */
 };
 
 /*
@@ -298,6 +310,21 @@ static int thFreeCommand(Th_HashEntry *pEntry, void *pContext){
   }
   Th_Free((Th_Interp *)pContext, pEntry->pData);
   pEntry->pData = 0;
+  return 1;
+}
+
+/*
+** Argument pEntry points to an entry in a hash table.  The key is
+** the list element to be added.
+**
+** Argument pContext is a pointer to the Th_InterpAndList structure.
+**
+** Always returns non-zero.
+*/
+static int thListAppendHashKey(Th_HashEntry *pEntry, void *pContext){
+  Th_InterpAndList *pInterpAndList = (Th_InterpAndList *)pContext;
+  Th_ListAppend(pInterpAndList->interp, pInterpAndList->pzList,
+                pInterpAndList->pnList, pEntry->zKey, pEntry->nKey);
   return 1;
 }
 
@@ -2833,4 +2860,43 @@ int Th_SetResultDouble(Th_Interp *interp, double fVal){
 
   *z = '\0';
   return Th_SetResult(interp, zBuf, -1);
+}
+
+/*
+** Appends all currently registered command names to the specified list
+** and returns TH_OK upon success.  Any other return value indicates an
+** error.
+*/
+int Th_ListAppendCommands(Th_Interp *interp, char **pzList, int *pnList){
+  Th_InterpAndList *p = (Th_InterpAndList *)Th_Malloc(
+    interp, sizeof(Th_InterpAndList)
+  );
+  p->interp = interp;
+  p->pzList = pzList;
+  p->pnList = pnList;
+  Th_HashIterate(interp, interp->paCmd, thListAppendHashKey, p);
+  Th_Free(interp, p);
+  return TH_OK;
+}
+
+/*
+** Appends all variable names for the current frame to the specified list
+** and returns TH_OK upon success.  Any other return value indicates an
+** error.  If the current frame cannot be obtained, TH_ERROR is returned.
+*/
+int Th_ListAppendVariables(Th_Interp *interp, char **pzList, int *pnList){
+  Th_Frame *pFrame = getFrame(interp, 0);
+  if( pFrame ){
+    Th_InterpAndList *p = (Th_InterpAndList *)Th_Malloc(
+      interp, sizeof(Th_InterpAndList)
+    );
+    p->interp = interp;
+    p->pzList = pzList;
+    p->pnList = pnList;
+    Th_HashIterate(interp, pFrame->paVar, thListAppendHashKey, p);
+    Th_Free(interp, p);
+    return TH_OK;
+  }else{
+    return TH_ERROR;
+  }
 }

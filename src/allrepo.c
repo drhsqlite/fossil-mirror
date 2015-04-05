@@ -89,59 +89,61 @@ static void collect_argv(Blob *pExtra, int iStart){
 **
 ** Available operations are:
 **
-**    changes    Shows all local checkouts that have uncommitted changes.
-**               This operation has no additional options.
+**    changes     Shows all local checkouts that have uncommitted changes.
+**                This operation has no additional options.
 **
-**    clean      Delete all "extra" files in all local checkouts.  Extreme
-**               caution should be exercised with this command because its
-**               effects cannot be undone.  Use of the --dry-run option to
-**               carefully review the local checkouts to be operated upon
-**               and the --whatif option to carefully review the files to
-**               be deleted beforehand is highly recommended.  The command
-**               line options supported by the clean command itself, if any
-**               are present, are passed along verbatim.
+**    clean       Delete all "extra" files in all local checkouts.  Extreme
+**                caution should be exercised with this command because its
+**                effects cannot be undone.  Use of the --dry-run option to
+**                carefully review the local checkouts to be operated upon
+**                and the --whatif option to carefully review the files to
+**                be deleted beforehand is highly recommended.  The command
+**                line options supported by the clean command itself, if any
+**                are present, are passed along verbatim.
 **
-**    dbstat     Run the "dbstat" command on all repositories.
+**    dbstat      Run the "dbstat" command on all repositories.
 **
-**    extras     Shows "extra" files from all local checkouts.  The command
-**               line options supported by the extra command itself, if any
-**               are present, are passed along verbatim.
+**    extras      Shows "extra" files from all local checkouts.  The command
+**                line options supported by the extra command itself, if any
+**                are present, are passed along verbatim.
 **
-**    info       Run the "info" command on all repositories.
+**    fts-config  Run the "fts-config" command on all repositories.
 **
-**    pull       Run a "pull" operation on all repositories.  Only the
-**               --verbose option is supported.
+**    info        Run the "info" command on all repositories.
 **
-**    push       Run a "push" on all repositories.  Only the --verbose
-**               option is supported.
+**    pull        Run a "pull" operation on all repositories.  Only the
+**                --verbose option is supported.
 **
-**    rebuild    Rebuild on all repositories.  The command line options
-**               supported by the rebuild command itself, if any are
-**               present, are passed along verbatim.  The --force and
-**               --randomize options are not supported.
+**    push        Run a "push" on all repositories.  Only the --verbose
+**                option is supported.
 **
-**    sync       Run a "sync" on all repositories.  Only the --verbose
-**               option is supported.
+**    rebuild     Rebuild on all repositories.  The command line options
+**                supported by the rebuild command itself, if any are
+**                present, are passed along verbatim.  The --force and
+**                --randomize options are not supported.
 **
-**    setting    Run the "setting", "set", or "unset" commands on all
-**    set        repositories.  These command are particularly useful in
-**    unset      conjunction with the "max-loadavg" setting which cannot
-**               otherwise be set globally.
+**    sync        Run a "sync" on all repositories.  Only the --verbose
+**                option is supported.
+**
+**    setting     Run the "setting", "set", or "unset" commands on all
+**    set         repositories.  These command are particularly useful in
+**    unset       conjunction with the "max-loadavg" setting which cannot
+**                otherwise be set globally.
 **
 ** In addition, the following maintenance operations are supported:
 **
-**    add        Add all the repositories named to the set of repositories
-**               tracked by Fossil.  Normally Fossil is able to keep up with
-**               this list by itself, but sometime it can benefit from this
-**               hint if you rename repositories.
+**    add         Add all the repositories named to the set of repositories
+**                tracked by Fossil.  Normally Fossil is able to keep up with
+**                this list by itself, but sometime it can benefit from this
+**                hint if you rename repositories.
 **
-**    ignore     Arguments are repositories that should be ignored by
-**               subsequent clean, extras, list, pull, push, rebuild, and
-**               sync operations.  The -c|--ckout option causes the listed
-**               local checkouts to be ignored instead.
+**    ignore      Arguments are repositories that should be ignored by
+**                subsequent clean, extras, list, pull, push, rebuild, and
+**                sync operations.  The -c|--ckout option causes the listed
+**                local checkouts to be ignored instead.
 **
-**    list | ls  Display the location of all repositories.  The -c|--ckout
-**               option causes all local checkouts to be listed instead.
+**    list | ls   Display the location of all repositories.  The -c|--ckout
+**                option causes all local checkouts to be listed instead.
 **
 ** Repositories are automatically added to the set of known repositories
 ** when one of the following commands are run against the repository:
@@ -176,7 +178,7 @@ void all_cmd(void){
   }
 
   if( g.argc<3 ){
-    usage("changes|clean|extras|ignore|list|ls|pull|push|rebuild|sync");
+    usage("SUBCOMMAND ...");
   }
   n = strlen(g.argv[2]);
   db_open_config(1);
@@ -286,6 +288,9 @@ void all_cmd(void){
       }
     }
     db_end_transaction(0);
+    blob_reset(&sql);
+    blob_reset(&fn);
+    blob_reset(&extra);
     return;
   }else if( strncmp(zCmd, "add", n)==0 ){
     int j;
@@ -315,6 +320,9 @@ void all_cmd(void){
       }
     }
     db_end_transaction(0);
+    blob_reset(&sql);
+    blob_reset(&fn);
+    blob_reset(&extra);
     return;
   }else if( strncmp(zCmd, "info", n)==0 ){
     zCmd = "info";
@@ -322,7 +330,8 @@ void all_cmd(void){
     quiet = 1;
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "changes clean extras ignore list ls push pull rebuild sync");
+                 "add changes clean dbstat extras fts-config ignore "
+                 "info list ls pull push rebuild setting sync unset");
   }
   verify_all_options();
   zFossil = quoteFilename(g.nameOfExe);
@@ -384,6 +393,8 @@ void all_cmd(void){
     }
   }
   db_finalize(&q);
+
+  blob_reset(&extra);
 
   /* If any repositories whose names appear in the ~/.fossil file could not
   ** be found, remove those names from the ~/.fossil file.

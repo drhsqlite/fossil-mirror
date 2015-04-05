@@ -3,6 +3,14 @@
 <h2>Changes for Version 1.33 (not released yet)</h2>
   *  Add [/help?cmd=import|fossil import --svn], for importing a subversion
      repository into fossil which was exported using "svnadmin dump".
+  *  Added <nowiki>[info commands] and [info vars]</nowiki> commands to TH1.
+     These commands perform the same function as their Tcl counterparts,
+     except they do not accept a pattern argument.
+  *  Fix some obscure issues with TH1 expression processing.
+  *  Fix titles in search results for documents that are not wiki, markdown,
+     or HTML.
+  *  Formally translate TH1 to Tcl return codes and vice-versa, where
+     necessary, in the Tcl integration subsystem.
 
 <h2>Changes for Version 1.32 (2015-03-14)</h2>
   *  When creating a new repository using [/help?cmd=init|fossil init], ensure
