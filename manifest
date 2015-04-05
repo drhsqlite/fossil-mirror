@@ -1,5 +1,5 @@
-C Fix\ssome\sinaccurate\scomments.
-D 2015-04-05T20:08:40.537
+C Update\sTH1\sdocs.
+D 2015-04-05T20:15:32.506
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -727,14 +727,14 @@ F www/stats.wiki 2d8317fe35d22877c86ed2332de02b653f50a498
 F www/style.wiki 4c9c67c0eddba030a73a55e468802fd09d59bc2f
 F www/sync.wiki ecd7e356270a40e81649970c1b606767db68d9e3
 F www/tech_overview.wiki 66d893fd0bca7f5dbc659ab0b4e9dde987e4fdb3
-F www/th1.md 26723f875ff1d31b0159623b0e62fc7de96d91f6
+F www/th1.md f4d9a0d7acdd163f22d83970aa519c8390c3a797
 F www/theory1.wiki ddd2a87bc0849a3da7c2187cb91219bf0941dae0
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 55f7ec6c5d0e338937b14b5b2bb0fb43bdeb9c8a
-R 1be8db5d2c5dbb22cc7329ff41782b87
+P af50114075d559d7f762437dc64bec539660a331
+R 1a9ccccedbb3dc23ef49bc6bb2e1edb3
 U mistachkin
-Z 4faa70072f3242045f74f4decebefedd
+Z 5e83ba0588acbc39420bf58cb100fc3c
