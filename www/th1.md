@@ -7,17 +7,17 @@ content in Fossil.
 Origins
 -------
 
-TH1 began as a minimalist re-implementation of the TCL scripting language.
+TH1 began as a minimalist re-implementation of the Tcl scripting language.
 There was a need to test the SQLite library on Symbian phones, but at that
 time all of the test cases for SQLite were written in Tcl and Tcl could not
 be easily compiled on the SymbianOS.  So TH1 was developed as a cut-down
-version of TCL that would facilitate running the SQLite test scripts on
+version of Tcl that would facilitate running the SQLite test scripts on
 SymbianOS.
 
 The testing of SQLite on SymbianOS was eventually accomplished by other
 means.  But Fossil was first being designed at about the same time.
-Early prototypes of Fossil were written in pure TCL.  But as the development
-shifted toward the use of C-code, the need arose to have a TCL-like
+Early prototypes of Fossil were written in pure Tcl.  But as the development
+shifted toward the use of C-code, the need arose to have a Tcl-like
 scripting language to help with code generation.  TH1 was small and
 light-weight and used minimal resources and seemed ideally suited for the
 task.
@@ -80,7 +80,7 @@ just a single command.
 Summary of Core TH1 Commands
 ----------------------------
 
-The original TCL language after when TH1 is modeled has a very rich
+The original Tcl language after when TH1 is modeled has a very rich
 repertoire of commands.  TH1, as it is designed to be minimalist and
 embedded has a greatly reduced command set.  The following bullets
 summarize the commands available in TH1:
@@ -111,8 +111,8 @@ summarize the commands available in TH1:
   *  uplevel ?LEVEL? SCRIPT
   *  upvar ?FRAME? OTHERVAR MYVAR ?OTHERVAR MYVAR?
 
-All of the above commands works as in the original TCL.  Refer to the
-TCL documentation for details.
+All of the above commands works as in the original Tcl.  Refer to the
+Tcl documentation for details.
 
 TH1 Extended Commands
 ---------------------
