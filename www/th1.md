@@ -92,7 +92,9 @@ summarize the commands available in TH1:
   *  expr EXPR
   *  for INIT-SCRIPT TEST-EXPR NEXT-SCRIPT BODY-SCRIPT
   *  if EXPR SCRIPT (elseif EXPR SCRIPT)* ?else SCRIPT?
+  *  info commands
   *  info exists VARNAME
+  *  info vars
   *  lindex LIST INDEX
   *  list ARG ...
   *  llength LIST
