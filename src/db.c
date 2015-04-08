@@ -1896,13 +1896,14 @@ void db_swap_connections(void){
 char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
   char *zVersionedSetting = 0;
   int noWarn = 0;
+  int found = 0;
   struct _cacheEntry {
     struct _cacheEntry *next;
     const char *zName, *zValue;
   } *cacheEntry = 0;
   static struct _cacheEntry *cache = 0;
 
-  if( !g.localOpen) return zNonVersionedSetting;
+  if( !g.localOpen && g.zOpenRevision==0 ) return zNonVersionedSetting;
   /* Look up name in cache */
   cacheEntry = cache;
   while( cacheEntry!=0 ){
@@ -1912,31 +1913,38 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
     }
     cacheEntry = cacheEntry->next;
   }
-  /* Attempt to read value from file in checkout if there wasn't a cache hit
-  ** and a checkout is open. */
+  /* Attempt to read value from file in checkout if there wasn't a cache hit. */
   if( cacheEntry==0 ){
+    Blob setting;
     Blob versionedPathname;
     char *zVersionedPathname;
     blob_zero(&versionedPathname);
     blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, zName);
     zVersionedPathname = blob_str(&versionedPathname);
-    if( file_size(zVersionedPathname)>=0 ){
+    blob_zero(&setting);
+    if( !g.localOpen ){
+      if( historical_version_of_file(g.zOpenRevision, zVersionedPathname,
+                                     &setting, 0, 0, 0, -1)!=-1 ){
+        found = 1;
+      }
+      noWarn = 1;
+    }else if( file_size(zVersionedPathname)>=0 ){
       /* File exists, and contains the value for this setting. Load from
       ** the file. */
-      Blob setting;
-      blob_zero(&setting);
       if( blob_read_from_file(&setting, zVersionedPathname) >= 0 ){
-        blob_trim(&setting); /* Avoid non-obvious problems with line endings
-                             ** on boolean properties */
-        zVersionedSetting = strdup(blob_str(&setting));
+        found = 1;
       }
-      blob_reset(&setting);
       /* See if there's a no-warn flag */
       blob_append(&versionedPathname, ".no-warn", -1);
       if( file_size(blob_str(&versionedPathname))>=0 ){
         noWarn = 1;
       }
+    }
+    if( found ){
+      blob_trim(&setting); /* Avoid non-obvious problems with line endings
+                           ** on boolean properties */
+      zVersionedSetting = strdup(blob_str(&setting));
     }
     blob_reset(&versionedPathname);
     /* Store result in cache, which can be the value or 0 if not found */
@@ -1945,6 +1953,7 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
     cacheEntry->zName = zName;
     cacheEntry->zValue = fossil_strdup(zVersionedSetting);
     cache = cacheEntry;
+    blob_reset(&setting);
   }
   /* Display a warning? */
   if( zVersionedSetting!=0 && zNonVersionedSetting!=0
@@ -2220,6 +2229,19 @@ void cmd_open(void){
     fossil_fatal("already within an open tree rooted at %s", g.zLocalRoot);
   }
   db_open_repository(g.argv[2]);
+
+  /* Figure out which revision to open. */
+  if( !emptyFlag ){
+    if( g.argc==4 ){
+      g.zOpenRevision = g.argv[3];
+    }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
+      g.zOpenRevision = db_get("main-branch", "trunk");
+    }
+  }
+
+  /* Update the allow-symlinks flag now that the revision is known. */
+  g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
 #else
@@ -2241,12 +2263,10 @@ void cmd_open(void){
   g.argv = azNewArgv;
   if( !emptyFlag ){
     g.argc = 3;
-    if( oldArgc==4 ){
-      azNewArgv[g.argc-1] = oldArgv[3];
-    }else if( !db_exists("SELECT 1 FROM event WHERE type='ci'") ){
-      azNewArgv[g.argc-1] = "--latest";
+    if( g.zOpenRevision!=0 ){
+      azNewArgv[g.argc-1] = g.zOpenRevision;
     }else{
-      azNewArgv[g.argc-1] = db_get("main-branch", "trunk");
+      azNewArgv[g.argc-1] = "--latest";
     }
     if( keepFlag ){
       azNewArgv[g.argc++] = "--keep";
