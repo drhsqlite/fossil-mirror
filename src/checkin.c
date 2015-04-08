@@ -1842,7 +1842,6 @@ void commit_cmd(void){
     fossil_fatal("cannot commit against a closed leaf");
   }
 
-  if( useCksum ) vfile_aggregate_checksum_disk(vid, &cksum1);
   if( zComment ){
     blob_zero(&comment);
     blob_append(&comment, zComment, -1);
@@ -1880,6 +1879,7 @@ void commit_cmd(void){
   ** table. If there were arguments passed to this command, only
   ** the identified files are inserted (if they have been modified).
   */
+  if( useCksum ) vfile_aggregate_checksum_disk(vid, &cksum1);
   db_prepare(&q,
     "SELECT id, %Q || pathname, mrid, %s, chnged, %s, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
