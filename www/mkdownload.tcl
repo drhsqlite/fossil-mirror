@@ -55,23 +55,17 @@ Cryptographic checksums for download files are
 # Find all all unique timestamps.
 #
 foreach file [glob -nocomplain download/fossil-*.zip] {
-  if {[regexp {(\d+).zip$} $file all datetime]
-       && [string length $datetime]>=14} {
-    set adate($datetime) 1
+  if {[regexp -- {-(\d\.\d+).zip$} $file all version]} {
+    set avers($version) 1
   }
 }
 
-# Do all dates from newest to oldest
+# Do all versions from newest to oldest
 #
-foreach datetime [lsort -decr [array names adate]] {
-  set dt [string range $datetime 0 3]-[string range $datetime 4 5]-
-  append dt "[string range $datetime 6 7] "
-  append dt "[string range $datetime 8 9]:[string range $datetime 10 11]:"
-  append dt "[string range $datetime 12 13]"
-  set link [string map {{ } +} $dt]
-  set hr "/fossil/timeline?c=$link&amp;y=ci"
+foreach vers [lsort -decr -real [array names avers]] {
+  set hr "/fossil/timeline?c=version-$vers;y=ci"
   puts $out "<tr><td colspan=6 align=left><hr>"
-  puts $out "<center><b><a href=\"$hr\">$dt</a></b></center>"
+  puts $out "<center><b><a href=\"$hr\">Version $vers</a></b></center>"
   puts $out "</td></tr>"
   puts $out "<tr>"
 
@@ -82,7 +76,7 @@ foreach datetime [lsort -decr [array names adate]] {
     fossil-w32 zip win32.gif {Windows}
     fossil-src tar.gz src.gif {Source Tarball}
   } {
-    set filename download/$prefix-$datetime.$suffix
+    set filename download/$prefix-$vers.$suffix
     if {[file exists $filename]} {
       set size [file size $filename]
       set units bytes
@@ -101,9 +95,9 @@ foreach datetime [lsort -decr [array names adate]] {
     }
   }
   puts $out "</tr>"
-  if {[file exists download/releasenotes-$datetime.html]} {
+  if {[file exists download/releasenotes-$vers.html]} {
     puts $out "<tr><td colspan=6 align=left>"
-    set rn [open download/releasenotes-$datetime.html]
+    set rn [open download/releasenotes-$vers.html]
     fconfigure $rn -encoding utf-8
     puts $out "[read $rn]"
     close $rn

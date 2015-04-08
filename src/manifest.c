@@ -680,7 +680,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       ** Specify one or more other artifacts which are the parents of
       ** this artifact.  The first parent is the primary parent.  All
       ** others are parents by merge. Note that the initial empty
-      ** checkin historically has an empty P-card, so empty P-cards
+      ** check-in historically has an empty P-card, so empty P-cards
       ** must be accepted.
       */
       case 'P': {
@@ -701,8 +701,8 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       /*
       **     Q (+|-)<uuid> ?<uuid>?
       **
-      ** Specify one or a range of checkins that are cherrypicked into
-      ** this checkin ("+") or backed out of this checkin ("-").
+      ** Specify one or a range of check-ins that are cherrypicked into
+      ** this check-in ("+") or backed out of this check-in ("-").
       */
       case 'Q': {
         if( (zUuid=next_token(&x, &sz))==0 ) SYNTAX("missing UUID on Q-card");
@@ -997,7 +997,7 @@ Manifest *manifest_get(int rid, int cfType, Blob *pErr){
 }
 
 /*
-** Given a checkin name, load and parse the manifest for that checkin.
+** Given a check-in name, load and parse the manifest for that check-in.
 ** Throw a fatal error if anything goes wrong.
 */
 Manifest *manifest_get_by_name(const char *zName, int *pRid){
@@ -1006,12 +1006,12 @@ Manifest *manifest_get_by_name(const char *zName, int *pRid){
 
   rid = name_to_typed_rid(zName, "ci");
   if( !is_a_version(rid) ){
-    fossil_fatal("no such checkin: %s", zName);
+    fossil_fatal("no such check-in: %s", zName);
   }
   if( pRid ) *pRid = rid;
   p = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( p==0 ){
-    fossil_fatal("cannot parse manifest for checkin: %s", zName);
+    fossil_fatal("cannot parse manifest for check-in: %s", zName);
   }
   return p;
 }
@@ -1372,7 +1372,7 @@ static void add_mlink(
   if( rc==SQLITE_ROW ) return;
 
   /* Compute the value of the missing pParent or pChild parameter.
-  ** Fetch the baseline checkins for both.
+  ** Fetch the baseline check-ins for both.
   */
   assert( pParent==0 || pChild==0 );
   if( pParent==0 ){
@@ -1512,7 +1512,7 @@ void manifest_crosslink_begin(void){
 }
 
 #if INTERFACE
-/* Timestamps might be adjusted slightly to ensure that checkins appear
+/* Timestamps might be adjusted slightly to ensure that check-ins appear
 ** on the timeline in chronological order.  This is the maximum amount
 ** of the adjustment window, in days.
 */

@@ -166,7 +166,7 @@ void clone_cmd(void){
     db_open_repository(g.argv[3]);
     db_begin_transaction();
     db_record_repository_filename(g.argv[3]);
-    db_initial_setup(0, 0, zDefaultUser, 0);
+    db_initial_setup(0, 0, zDefaultUser);
     user_select();
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA_MAX, 0);
@@ -184,6 +184,7 @@ void clone_cmd(void){
     db_multi_exec(
       "REPLACE INTO config(name,value,mtime)"
       " VALUES('server-code', lower(hex(randomblob(20))), now());"
+      "DELETE FROM config WHERE name='project-code';"
     );
     url_enable_proxy(0);
     clone_ssh_db_set_options();
@@ -203,11 +204,19 @@ void clone_cmd(void){
   db_begin_transaction();
   fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(0, 1, 0);
-  fossil_print("project-id: %s\n", db_get("project-code", 0));
+  fossil_print("Extra delta compression... "); fflush(stdout);
+  extra_deltification();
+  db_end_transaction(0);
+  fossil_print("\nVacuuming the database... "); fflush(stdout);
+  if( db_int(0, "PRAGMA page_count")>1000 
+   && db_int(0, "PRAGMA page_size")<8192 ){
+     db_multi_exec("PRAGMA page_size=8192;");
+  }
+  db_multi_exec("VACUUM");
+  fossil_print("\nproject-id: %s\n", db_get("project-code", 0));
   fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
-  db_end_transaction(0);
 }
 
 /*

@@ -274,6 +274,7 @@ void add_cmd(void){
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   vid = db_lget_int("checkout",0);
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
@@ -335,10 +336,10 @@ void add_cmd(void){
 
 /*
 ** COMMAND: rm
-** COMMAND: delete*
+** COMMAND: delete
+** COMMAND: forget*
 **
-** Usage: %fossil rm FILE1 ?FILE2 ...?
-**    or: %fossil delete FILE1 ?FILE2 ...?
+** Usage: %fossil rm|delete|forget FILE1 ?FILE2 ...?
 **
 ** Remove one or more files or directories from the repository.
 **
@@ -535,6 +536,7 @@ void addremove_cmd(void){
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   vid = db_lget_int("checkout",0);
   db_begin_transaction();
 
@@ -625,7 +627,7 @@ static void mv_one_file(
 **
 ** This command does NOT rename or move the files on disk.  This command merely
 ** records the fact that filenames have changed so that appropriate notations
-** can be made at the next commit/checkin.
+** can be made at the next commit/check-in.
 **
 ** Options:
 **   --case-sensitive <BOOL> Override the case-sensitive setting.

@@ -2296,7 +2296,7 @@ void annotation_page(void){
     style_submenu_element("20 Ancestors", "20 Ancestors",
        "%s", url_render(&url, "limit", "20", 0, 0));
   }
-  if( skin_white_foreground() ){
+  if( skin_detail_boolean("white-foreground") ){
     clr1 = 0xa04040;
     clr2 = 0x4059a0;
   }else{
@@ -2396,7 +2396,7 @@ void annotation_page(void){
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.  The "annotate" command shows line numbers
 ** and omits the username.  The "blame" and "praise" commands show the user
-** who made each checkin and omits the line number.
+** who made each check-in and omits the line number.
 **
 ** Options:
 **   --filevers                 Show file version numbers rather than check-in versions

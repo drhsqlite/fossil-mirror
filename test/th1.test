@@ -512,6 +512,46 @@ test th1-expr-41 {$RESULT eq {4}}
 
 ###############################################################################
 
+fossil test-th-eval "expr +"
+test th1-expr-42 {$RESULT eq {TH_ERROR: syntax error in expression: "+"}}
+
+###############################################################################
+
+fossil test-th-eval "expr -"
+test th1-expr-43 {$RESULT eq {TH_ERROR: syntax error in expression: "-"}}
+
+###############################################################################
+
+fossil test-th-eval "expr ++"
+test th1-expr-44 {$RESULT eq {TH_ERROR: syntax error in expression: "++"}}
+
+###############################################################################
+
+fossil test-th-eval "expr --"
+test th1-expr-45 {$RESULT eq {TH_ERROR: syntax error in expression: "--"}}
+
+###############################################################################
+
+fossil test-th-eval "lindex list +"
+test th1-expr-46 {$RESULT eq {TH_ERROR: expected integer, got: "+"}}
+
+###############################################################################
+
+fossil test-th-eval "lindex list -"
+test th1-expr-47 {$RESULT eq {TH_ERROR: expected integer, got: "-"}}
+
+###############################################################################
+
+fossil test-th-eval "lindex list +0x"
+test th1-expr-48 {$RESULT eq {TH_ERROR: expected integer, got: "+0x"}}
+
+###############################################################################
+
+fossil test-th-eval "lindex list -0x"
+test th1-expr-49 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
+
+###############################################################################
+
 fossil test-th-eval "checkout 1"; # NOTE: Assumes running "in tree".
 test th1-checkout-1 {[string length $RESULT] > 0}
 
@@ -810,3 +850,43 @@ test th1-reinitialize-1 {$RESULT eq ""}
 
 fossil test-th-eval "reinitialize 1; globalState configuration"
 test th1-reinitialize-2 {$RESULT ne ""}
+
+###############################################################################
+
+#
+# NOTE: This test may fail if the command names do not always come
+#       out in a deterministic order from TH1.
+#
+fossil test-th-eval "info commands"
+test th1-info-commands-1 {$RESULT eq {linecount htmlize date stime\
+enable_output uplevel http expr utime styleFooter catch if tclReady\
+searchable reinitialize combobox lindex query html anoncap randhex\
+llength for set break regexp styleHeader puts return checkout decorate\
+artifact trace wiki proc hascap globalState continue getParameter\
+hasfeature setting breakpoint upvar render repository string unset\
+setParameter list error info rename anycap httpize}}
+
+###############################################################################
+
+fossil test-th-eval "info vars"
+test th1-info-vars-1 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval "set x 1; info vars"
+test th1-info-vars-2 {$RESULT eq "x"}
+
+###############################################################################
+
+fossil test-th-eval "set x 1; unset x; info vars"
+test th1-info-vars-3 {$RESULT eq ""}
+
+###############################################################################
+
+fossil test-th-eval "proc foo {} {set x 1; info vars}; foo"
+test th1-info-vars-4 {$RESULT eq "x"}
+
+###############################################################################
+
+fossil test-th-eval "set y 1; proc foo {} {set x 1; uplevel 1 {info vars}}; foo"
+test th1-info-vars-5 {$RESULT eq "y"}

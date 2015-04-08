@@ -129,7 +129,7 @@ static const char *stats_report_label_for_type(){
   assert( statsReportType && "Must call stats_report_init_view() first." );
   switch( statsReportType ){
     case 'c':
-      return "checkins";
+      return "check-ins";
     case 'e':
       return "technotes";
     case 'w':
@@ -168,9 +168,9 @@ static void stats_report_event_types_menu(const char *zCurrentViewName,
     cgi_printf(" <a href='%s'>all</a>", zTop);
   }
   if('c' == statsReportType){
-    cgi_printf(" <strong>checkins</strong>", zTop);
+    cgi_printf(" <strong>check-ins</strong>", zTop);
   }else{
-    cgi_printf(" <a href='%s&type=ci'>checkins</a>", zTop);
+    cgi_printf(" <a href='%s&type=ci'>check-ins</a>", zTop);
   }
   if('e' == statsReportType){
     cgi_printf(" <strong>technotes</strong>", zTop);
@@ -476,12 +476,12 @@ static void stats_report_by_file(){
     "SELECT filename, cnt FROM statrep ORDER BY cnt DESC, filename /*sort*/"
   );
   mxEvent = db_int(1, "SELECT max(cnt) FROM statrep");
-  @ <h1>Checkins Per File</h1>
+  @ <h1>Check-ins Per File</h1>
   @ <table class='statistics-report-table-events' border='0'
   @ cellpadding='2' cellspacing='0' id='statsTable'>
   @ <thead><tr>
   @ <th>File</th>
-  @ <th>Checkins</th>
+  @ <th>Check-ins</th>
   @ <th width='90%%'><!-- relative commits graph --></th>
   @ </tr></thead><tbody>
   while( SQLITE_ROW == db_step(&query) ){
@@ -714,7 +714,7 @@ static void stats_report_year_weeks(const char *zUserName){
 **   view=REPORT_NAME  Valid values: bymonth, byyear, byuser
 **   user=NAME         Restricts statistics to the given user
 **   type=TYPE         Restricts the report to a specific event type:
-**                     ci (checkin), w (wiki), t (ticket), g (tag)
+**                     ci (check-in), w (wiki), t (ticket), g (tag)
 **                     Defaulting to all event types.
 **
 ** The view-specific query parameters include:

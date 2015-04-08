@@ -16,7 +16,7 @@
 <li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
 <li> Mailing list
      <ul>
-     <li> [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | sign-up]
+     <li> [http://mailinglists.sqlite.org/cgi-bin/mailman/listinfo/fossil-users | sign-up]
      <li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
      </ul>
 </ul>
@@ -24,7 +24,7 @@
 </div>
 
 <p>Fossil is a simple, high-reliability, distributed software configuration
-management with these advanced features:
+management system with these advanced features:
 
   1.  <b>Integrated Bug Tracking, Wiki, and Technotes</b> -
       In addition to doing [./concepts.wiki | distributed version control]
@@ -79,9 +79,7 @@ management with these advanced features:
       in an SQLite database so that transactions are
       atomic even if interrupted by a power loss or system crash.
       Automatic [./selfcheck.wiki | self-checks] verify that all aspects of
-      the repository are consistent prior to each commit.  In over seven years
-      of operation, no work has ever been lost after having been committed to
-      a Fossil repository.
+      the repository are consistent prior to each commit.
 
   8.  <b>Free and Open-Source</b> - Uses the [../COPYRIGHT-BSD2.txt|2-clause BSD license].
 

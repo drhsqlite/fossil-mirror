@@ -176,7 +176,7 @@ static int enableOutput = 1;
 /*
 ** TH1 command: enable_output BOOLEAN
 **
-** Enable or disable the puts and hputs commands.
+** Enable or disable the puts and wiki commands.
 */
 static int enableOutputCmd(
   Th_Interp *interp,
@@ -272,7 +272,7 @@ int th1_name_to_typed_rid(
 }
 
 /*
-** Attempt to lookup the specified checkin and file name into an rid.
+** Attempt to lookup the specified check-in and file name into an rid.
 ** This function was copied from artifact_from_ci_and_filename() in
 ** info.c; however, it has been modified to report TH1 script errors
 ** instead of "fatal errors".
@@ -341,9 +341,11 @@ static int putsCmd(
 }
 
 /*
+** TH1 command: decorate STRING
 ** TH1 command: wiki STRING
 **
-** Render the input string as wiki.
+** Render the input string as wiki.  For the decorate command, only links
+** are handled.
 */
 static int wikiCmd(
   Th_Interp *interp,
@@ -515,6 +517,7 @@ static int searchableCmd(
 ** "tclPrivateStubs" = FOSSIL_ENABLE_TCL_PRIVATE_STUBS
 ** "json"            = FOSSIL_ENABLE_JSON
 ** "markdown"        = FOSSIL_ENABLE_MARKDOWN
+** "unicodeCmdLine"  = !BROKEN_MINGW_CMDLINE
 **
 */
 static int hasfeatureCmd(
@@ -570,6 +573,11 @@ static int hasfeatureCmd(
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
   else if( 0 == fossil_strnicmp( zArg, "json\0", 5 ) ){
+    rc = 1;
+  }
+#endif
+#if !defined(BROKEN_MINGW_CMDLINE)
+  else if( 0 == fossil_strnicmp( zArg, "unicodeCmdLine\0", 15 ) ){
     rc = 1;
   }
 #endif
@@ -1829,6 +1837,12 @@ int Th_CommandHook(
     */
     if( memcmp(zResult, NO_COMMAND_HOOK_ERROR, nResult)!=0 ){
       sendError(zResult, nResult, 0);
+    }else{
+      /*
+      ** There is no command hook handler "installed".  This situation
+      ** is NOT actually an error.
+      */
+      rc = TH_OK;
     }
   }
   /*
@@ -1849,7 +1863,7 @@ int Th_CommandHook(
   ** open prior to their own code doing so.
   */
   if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
-  return (rc != TH_ERROR) ? rc : TH_OK;
+  return rc;
 }
 
 /*
@@ -1910,6 +1924,12 @@ int Th_WebpageHook(
     */
     if( memcmp(zResult, NO_WEBPAGE_HOOK_ERROR, nResult)!=0 ){
       sendError(zResult, nResult, 1);
+    }else{
+      /*
+      ** There is no webpage hook handler "installed".  This situation
+      ** is NOT actually an error.
+      */
+      rc = TH_OK;
     }
   }
   /*
@@ -1930,7 +1950,7 @@ int Th_WebpageHook(
   ** open prior to their own code doing so.
   */
   if( TH_INIT_HOOK & TH_INIT_NEED_CONFIG ) Th_CloseConfig(1);
-  return (rc != TH_ERROR) ? rc : TH_OK;
+  return rc;
 }
 
 /*
@@ -1965,6 +1985,20 @@ int Th_WebpageNotify(
   return rc;
 }
 #endif
+
+
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+/*
+** This function determines if TH1 docs are enabled for the repository.
+*/
+int Th_AreDocsEnabled(void){
+  if( fossil_getenv("TH1_ENABLE_DOCS")!=0 ){
+    return 1;
+  }
+  return db_get_boolean("th1-docs", 0);
+}
+#endif
+
 
 /*
 ** The z[] input contains text mixed with TH1 scripts.

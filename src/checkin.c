@@ -269,17 +269,95 @@ void status_cmd(void){
 }
 
 /*
+** Take care of -r version of ls command
+*/
+static void ls_cmd_rev(
+  const char *zRev,  /* Revision string given */
+  int verboseFlag,   /* Verbose flag given */
+  int showAge,       /* Age flag given */ 
+  int timeOrder      /* Order by time flag given */
+){
+  Stmt q;
+  char *zOrderBy = "pathname COLLATE nocase";
+  char *zName;
+  Blob where;
+  int rid;
+  int i;
+
+  /* Handle given file names */
+  blob_zero(&where);
+  for(i=2; i<g.argc; i++){
+    Blob fname;
+    file_tree_name(g.argv[i], &fname, 1);
+    zName = blob_str(&fname);
+    if( fossil_strcmp(zName, ".")==0 ) {
+      blob_reset(&where);
+      break;
+    }
+    blob_append_sql(&where,
+      " %s (pathname=%Q %s) "
+      "OR (pathname>'%q/' %s AND pathname<'%q0' %s)",
+      (blob_size(&where)>0) ? "OR" : "AND (", zName,
+      filename_collation(), zName, filename_collation(),
+      zName, filename_collation()
+    );
+  }
+  if( blob_size(&where)>0 ){
+    blob_append_sql(&where, ")");
+  }
+
+  rid = symbolic_name_to_rid(zRev, "ci");
+  if( rid==0 ){
+    fossil_fatal("not a valid check-in: %s", zRev);
+  }
+  
+  if( timeOrder ){
+    zOrderBy = "mtime DESC";
+  }
+
+  compute_fileage(rid,0);
+  db_prepare(&q,
+    "SELECT datetime(fileage.mtime, 'localtime'), fileage.pathname,\n"
+    "       blob.size\n"
+    "  FROM fileage, blob\n"
+    " WHERE blob.rid=fileage.fid %s\n"
+    " ORDER BY %s;", blob_sql_text(&where), zOrderBy /*safe-for-%s*/
+  );
+  blob_reset(&where);
+
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTime = db_column_text(&q,0);
+    const char *zFile = db_column_text(&q,1);
+    int size = db_column_int(&q,2);
+    if( verboseFlag ){
+      fossil_print("%s  %7d  %s\n", zTime, size, zFile);
+    }else if( showAge ){
+      fossil_print("%s  %s\n", zTime, zFile);
+    }else{
+      fossil_print("%s\n", zFile);
+    }        
+  }
+  db_finalize(&q);
+}
+
+/*
 ** COMMAND: ls
 **
-** Usage: %fossil ls ?OPTIONS? ?VERSION? ?FILENAMES?
+** Usage: %fossil ls ?OPTIONS? ?FILENAMES?
 **
 ** Show the names of all files in the current checkout.  The -v provides
 ** extra information about each file.  If FILENAMES are included, only
 ** the files listed (or their children if they are directories) are shown.
 **
+** If -r is given a specific check-in is listed. In this case -R can be
+** given to query another repository.
+**
 ** Options:
-**   --age           Show when each file was committed
-**   -v|--verbose    Provide extra information about each file.
+**   --age                 Show when each file was committed
+**   -v|--verbose          Provide extra information about each file.
+**   -t                    Sort output in time order.
+**   -r VERSION            The specific check-in to list
+**   -R|--repository FILE  Extract info from repository FILE
 **
 ** See also: changes, extras, status
 */
@@ -288,19 +366,31 @@ void ls_cmd(void){
   Stmt q;
   int verboseFlag;
   int showAge;
+  int timeOrder;
   char *zOrderBy = "pathname";
   Blob where;
   int i;
   const char *zName;
+  const char *zRev;
 
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag ){
     verboseFlag = find_option("l","l", 0)!=0; /* deprecated */
   }
   showAge = find_option("age",0,0)!=0;
+  zRev = find_option("r","r",1);
+  timeOrder = find_option("t","t",0)!=0;
+
+  if( zRev!=0 ){
+    db_find_and_open_repository(0, 0);
+    verify_all_options();
+    ls_cmd_rev(zRev,verboseFlag,showAge,timeOrder);
+    return;
+  }
+
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
-  if( find_option("t","t",0)!=0 ){
+  if( timeOrder ){
     if( showAge ){
       zOrderBy = mprintf("checkin_mtime(%d,rid) DESC", vid);
     }else{
@@ -483,6 +573,8 @@ void extras_cmd(void){
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
 
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
+
   /* We should be done with options.. */
   verify_all_options();
 
@@ -619,6 +711,7 @@ void clean_cmd(void){
   if( zCleanFlag==0 ){
     zCleanFlag = db_get("clean-glob", 0);
   }
+  if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   verify_all_options();
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
@@ -1497,7 +1590,7 @@ static int tagCmp(const void *a, const void *b){
 **    --private                  do not sync changes and their descendants
 **    --sha1sum                  verify file status using SHA1 hashing rather
 **                               than relying on file mtimes
-**    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
+**    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
 **
 ** See also: branch, changes, checkout, extras, sync
 */
@@ -1718,6 +1811,10 @@ void commit_cmd(void){
   */
   if( !vid ){
     if( sCiInfo.zBranch==0 ){
+      if( allowFork==0 && forceFlag==0 && g.markPrivate==0
+        && db_exists("SELECT 1 from event where type='ci'") ){
+        fossil_fatal("would fork.  \"update\" first or use --allow-fork.");
+      }
       sCiInfo.zBranch = db_get("main-branch", "trunk");
     }
   }else if( sCiInfo.zBranch==0 && allowFork==0 && forceFlag==0
@@ -1731,11 +1828,11 @@ void commit_cmd(void){
   ** ends up on a different branch.
   */
   if(
-      /* parent checkin has the "closed" tag... */
+      /* parent check-in has the "closed" tag... */
       db_exists("SELECT 1 FROM tagxref"
                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
                 TAG_CLOSED, vid)
-      /* ... and the new checkin has no --branch option or the --branch
+      /* ... and the new check-in has no --branch option or the --branch
       ** option does not actually change the branch */
    && (sCiInfo.zBranch==0
        || db_exists("SELECT 1 FROM tagxref"
@@ -1745,7 +1842,6 @@ void commit_cmd(void){
     fossil_fatal("cannot commit against a closed leaf");
   }
 
-  if( useCksum ) vfile_aggregate_checksum_disk(vid, &cksum1);
   if( zComment ){
     blob_zero(&comment);
     blob_append(&comment, zComment, -1);
@@ -1783,6 +1879,7 @@ void commit_cmd(void){
   ** table. If there were arguments passed to this command, only
   ** the identified files are inserted (if they have been modified).
   */
+  if( useCksum ) vfile_aggregate_checksum_disk(vid, &cksum1);
   db_prepare(&q,
     "SELECT id, %Q || pathname, mrid, %s, chnged, %s, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
@@ -1871,7 +1968,7 @@ void commit_cmd(void){
       create_manifest(&delta, zBaselineUuid, pBaseline, vid, &sCiInfo, &szD);
       /*
       ** At this point, two manifests have been constructed, either of
-      ** which would work for this checkin.  The first manifest (held
+      ** which would work for this check-in.  The first manifest (held
       ** in the "manifest" variable) is a baseline manifest and the second
       ** (held in variable named "delta") is a delta manifest.  The
       ** question now is: which manifest should we use?
@@ -1938,14 +2035,14 @@ void commit_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zIntegrateUuid = db_column_text(&q, 0);
     if( is_a_leaf(db_column_int(&q, 1)) ){
-      fossil_print("Closed: %S\n", zIntegrateUuid);
+      fossil_print("Closed: %s\n", zIntegrateUuid);
     }else{
-      fossil_print("Not_Closed: %S (not a leaf any more)\n", zIntegrateUuid);
+      fossil_print("Not_Closed: %s (not a leaf any more)\n", zIntegrateUuid);
     }
   }
   db_finalize(&q);
 
-  fossil_print("New_Version: %S\n", zUuid);
+  fossil_print("New_Version: %s\n", zUuid);
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
     blob_zero(&muuid);
@@ -1969,7 +2066,7 @@ void commit_cmd(void){
 
   if( useCksum ){
     /* Verify that the repository checksum matches the expected checksum
-    ** calculated before the checkin started (and stored as the R record
+    ** calculated before the check-in started (and stored as the R record
     ** of the manifest file).
     */
     vfile_aggregate_checksum_repository(nvid, &cksum2);

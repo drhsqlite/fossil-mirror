@@ -240,12 +240,19 @@ bind . <Return> {
 }
 foreach {key axis args} {
   Up    y {scroll -5 units}
+  k     y {scroll -5 units}
   Down  y {scroll 5 units}
+  j     y {scroll 5 units}
   Left  x {scroll -5 units}
+  h     x {scroll -5 units}
   Right x {scroll 5 units}
+  l     x {scroll 5 units}
   Prior y {scroll -1 page}
+  b     y {scroll -1 page}
   Next  y {scroll 1 page}
+  space y {scroll 1 page}
   Home  y {moveto 0}
+  g     y {moveto 0}
   End   y {moveto 1}
 } {
   bind . <$key> "scroll-$axis $args; break"
