@@ -2247,8 +2247,11 @@ void cmd_open(void){
     }
   }
 
-  /* Update the allow-symlinks flag now that the revision is known. */
-  g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  if( g.zOpenRevision ){
+    /* Since the repository is open and we know the revision now,
+    ** refresh the allow-symlinks flag. */
+    g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
+  }
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
@@ -2271,7 +2274,7 @@ void cmd_open(void){
   g.argv = azNewArgv;
   if( !emptyFlag ){
     g.argc = 3;
-    if( g.zOpenRevision!=0 ){
+    if( g.zOpenRevision ){
       azNewArgv[g.argc-1] = g.zOpenRevision;
     }else{
       azNewArgv[g.argc-1] = "--latest";
