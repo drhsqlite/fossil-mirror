@@ -1875,11 +1875,18 @@ void commit_cmd(void){
     db_begin_transaction();
   }
 
-  /* Step 1: Insert records for all modified files into the blob
+  /*
+  ** Step 1: Compute an aggregate MD5 checksum over the disk image
+  ** of every file in vid.  The file names are part of the checksum.
+  ** The resulting checksum is the same as is expected on the R-card
+  ** of a manifest.
+  */
+  if( useCksum ) vfile_aggregate_checksum_disk(vid, &cksum1);
+
+  /* Step 2: Insert records for all modified files into the blob
   ** table. If there were arguments passed to this command, only
   ** the identified files are inserted (if they have been modified).
   */
-  if( useCksum ) vfile_aggregate_checksum_disk(vid, &cksum1);
   db_prepare(&q,
     "SELECT id, %Q || pathname, mrid, %s, chnged, %s, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
