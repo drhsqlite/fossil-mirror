@@ -1915,24 +1915,32 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
   }
   /* Attempt to read value from file in checkout if there wasn't a cache hit. */
   if( cacheEntry==0 ){
-    Blob setting;
     Blob versionedPathname;
-    char *zVersionedPathname;
+    Blob setting;
     blob_zero(&versionedPathname);
+    blob_zero(&setting);
     blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, zName);
-    zVersionedPathname = blob_str(&versionedPathname);
-    blob_zero(&setting);
     if( !g.localOpen ){
-      if( historical_version_of_file(g.zOpenRevision, zVersionedPathname,
-                                     &setting, 0, 0, 0, -1)!=-1 ){
+      Blob noWarnFile;
+      if( historical_version_of_file(g.zOpenRevision,
+                                     blob_str(&versionedPathname),
+                                     &setting, 0, 0, 0, -1)>0 ){
         found = 1;
       }
-      noWarn = 1;
-    }else if( file_size(zVersionedPathname)>=0 ){
+      /* See if there's a no-warn flag */
+      blob_append(&versionedPathname, ".no-warn", -1);
+      blob_zero(&noWarnFile);
+      if( historical_version_of_file(g.zOpenRevision,
+                                     blob_str(&versionedPathname),
+                                     &noWarnFile, 0, 0, 0, -1)>0 ){
+        noWarn = 1;
+      }
+      blob_reset(&noWarnFile);
+    }else if( file_size(blob_str(&versionedPathname))>=0 ){
       /* File exists, and contains the value for this setting. Load from
       ** the file. */
-      if( blob_read_from_file(&setting, zVersionedPathname) >= 0 ){
+      if( blob_read_from_file(&setting, blob_str(&versionedPathname))>=0 ){
         found = 1;
       }
       /* See if there's a no-warn flag */
@@ -1941,19 +1949,19 @@ char *db_get_versioned(const char *zName, char *zNonVersionedSetting){
         noWarn = 1;
       }
     }
+    blob_reset(&versionedPathname);
     if( found ){
       blob_trim(&setting); /* Avoid non-obvious problems with line endings
                            ** on boolean properties */
       zVersionedSetting = strdup(blob_str(&setting));
     }
-    blob_reset(&versionedPathname);
+    blob_reset(&setting);
     /* Store result in cache, which can be the value or 0 if not found */
     cacheEntry = (struct _cacheEntry*)fossil_malloc(sizeof(struct _cacheEntry));
     cacheEntry->next = cache;
     cacheEntry->zName = zName;
     cacheEntry->zValue = fossil_strdup(zVersionedSetting);
     cache = cacheEntry;
-    blob_reset(&setting);
   }
   /* Display a warning? */
   if( zVersionedSetting!=0 && zNonVersionedSetting!=0
@@ -2309,7 +2317,7 @@ static void print_setting(const Setting *pSetting){
     /* Check to see if this is overridden by a versionable settings file */
     Blob versionedPathname;
     blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s",
+    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, pSetting->name);
     if( file_size(blob_str(&versionedPathname))>=0 ){
       fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
