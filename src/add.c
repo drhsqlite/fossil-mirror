@@ -465,7 +465,7 @@ void delete_cmd(void){
 
   db_must_be_within_tree();
   db_begin_transaction();
-  if(g.argv[1][0]=='f'){
+  if( g.argv[1][0]=='f' ){ /* i.e. "forget" */
     removeFiles = 0;
   }else if( zMetadataOnly ){
     removeFiles = is_false(zMetadataOnly);
@@ -842,7 +842,7 @@ void mv_cmd(void){
   }
   zDest = g.argv[g.argc-1];
   db_begin_transaction();
-  if(g.argv[1][0]=='r'){
+  if( g.argv[1][0]=='r' ){ /* i.e. "rename" */
     moveFiles = 0;
   }else if( zMetadataOnly ){
     moveFiles = is_false(zMetadataOnly);
