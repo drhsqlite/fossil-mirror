@@ -2418,7 +2418,7 @@ void cmd_webserver(void){
     if( zIpAddr ){
       zBrowserCmd = mprintf("%s http://%s:%%d/ &", zBrowser, zIpAddr);
     }else{
-      zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
+      zBrowserCmd = mprintf("%s http://[::1]:%%d/ &", zBrowser);
     }
     if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
     if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;

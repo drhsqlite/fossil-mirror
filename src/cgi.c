@@ -1720,32 +1720,45 @@ int cgi_http_server(
   int child;                   /* PID of the child process */
   int nchildren = 0;           /* Number of child processes */
   struct timeval delay;        /* How long to wait inside select() */
-  struct sockaddr_in inaddr;   /* The socket address */
-  int opt = 1;                 /* setsockopt flag */
+  struct sockaddr_in6 inaddr;   /* The socket address */
+  int optyes = 1;                 /* setsockopt flag */
+  int optno = 0;                 /* setsockopt flag */
   int iPort = mnPort;
+  char ip[INET6_ADDRSTRLEN];
+  
 
   while( iPort<=mxPort ){
     memset(&inaddr, 0, sizeof(inaddr));
-    inaddr.sin_family = AF_INET;
+    inaddr.sin6_family = AF_INET6;
     if( zIpAddr ){
-      inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
-      if( inaddr.sin_addr.s_addr == (-1) ){
-        fossil_fatal("not a valid IP address: %s", zIpAddr);
+        printf("zIpAddr: %s", zIpAddr);
+        printf("iPort: %d", iPort);
+        /* check valid ipv6 address */
+      if (inet_pton(AF_INET6, zIpAddr, &(inaddr.sin6_addr)) < 1) {
+          /* maybe ipv4 string so try mixed ipv4 notation*/
+          strcpy(ip, "::FFFF:");
+          strcat(ip, zIpAddr);
+          printf("zIpAddr: %s", ip);
+          if (inet_pton(AF_INET6, ip, &(inaddr.sin6_addr)) == -1){
+            fossil_fatal("not a valid IP address: %s", zIpAddr);
+          }
       }
     }else if( flags & HTTP_SERVER_LOCALHOST ){
-      inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+      inaddr.sin6_addr = in6addr_loopback;
     }else{
-      inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+      inaddr.sin6_addr = in6addr_any;
     }
-    inaddr.sin_port = htons(iPort);
-    listener = socket(AF_INET, SOCK_STREAM, 0);
+    inaddr.sin6_port = htons(iPort);
+    listener = socket(AF_INET6, SOCK_STREAM, 0);
     if( listener<0 ){
       iPort++;
       continue;
     }
 
     /* if we can't terminate nicely, at least allow the socket to be reused */
-    setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
+    setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &optyes, sizeof(optyes));
+    /* explicitly disable IPV6ONLY option for dualstack usage */
+    setsockopt(listener, IPPROTO_IPV6, IPV6_V6ONLY, &optno, sizeof(optno));
 
     if( bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr))<0 ){
       close(listener);
