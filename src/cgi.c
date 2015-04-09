@@ -1731,13 +1731,10 @@ int cgi_http_server(
     memset(&inaddr, 0, sizeof(inaddr));
     inaddr.sin6_family = AF_INET6;
     if( zIpAddr ){
-      printf("zIpAddr: %s", zIpAddr);
-      printf("iPort: %d", iPort);
       /* check valid ipv6 address */
       if (inet_pton(AF_INET6, zIpAddr, &(inaddr.sin6_addr)) < 1) {
         /* maybe ipv4 string so try mixed ipv4 notation*/
         sqlite3_snprintf(sizeof(ip), ip, "::FFFF:%s", zIpAddr);
-        printf("zIpAddr: %s", ip);
         if (inet_pton(AF_INET6, ip, &(inaddr.sin6_addr)) == -1){
           fossil_fatal("not a valid IP address: %s", zIpAddr);
         }
