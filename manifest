@@ -1,5 +1,5 @@
-C Enable\sthe\suse\sof\sIPv6\sfor\s"fossil\sui"\sand\s"fossil\sserver"\son\sunix.
-D 2015-04-09T21:36:47.726
+C Fix\sindentation\sand\sremove\sall\sstrcpy()\sand\sstrcat()\scalls\s(as\sOpenBSD\shates\nthose).
+D 2015-04-09T23:16:54.283
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -384,7 +384,7 @@ F src/builtin.c 31c17d18b565c7766021913c89be4180b3ee4a56
 F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c e609e5951a8e8ef4a4d0b13a7c5a77f4668294a0
 F src/captcha.c 9e3cf8ce57a60d503339cbbc98818fb84fa03f08
-F src/cgi.c c2584428dce608a32928e6be83ed8406405167f0
+F src/cgi.c 961ee0abf637a17019571405a3b84448f8a62c15
 F src/checkin.c ca4f1166ab9a28c8b4df66b8b98946d715d3705f
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -734,10 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P 5a12e8c3b68fc9073157c4c83d88f9dcde4083a8
-R d6c6e7684fcc16d024265d0f4f38fad1
-T *branch * ipv6-server
-T *sym-ipv6-server *
-T -sym-trunk *
+P dae37f0e358368017ebea223f604b379ab7055d3
+R 939acc093766d931848f096a5ed43de0
 U drh
-Z 38634e6b9ab54ec0f9400db0d75c79d7
+Z 7f4f59abfac9e66b81184c348de076a6

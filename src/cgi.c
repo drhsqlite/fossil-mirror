@@ -1720,9 +1720,9 @@ int cgi_http_server(
   int child;                   /* PID of the child process */
   int nchildren = 0;           /* Number of child processes */
   struct timeval delay;        /* How long to wait inside select() */
-  struct sockaddr_in6 inaddr;   /* The socket address */
-  int optyes = 1;                 /* setsockopt flag */
-  int optno = 0;                 /* setsockopt flag */
+  struct sockaddr_in6 inaddr;  /* The socket address */
+  int optyes = 1;              /* setsockopt flag */
+  int optno = 0;               /* setsockopt flag */
   int iPort = mnPort;
   char ip[INET6_ADDRSTRLEN];
   
@@ -1731,17 +1731,16 @@ int cgi_http_server(
     memset(&inaddr, 0, sizeof(inaddr));
     inaddr.sin6_family = AF_INET6;
     if( zIpAddr ){
-        printf("zIpAddr: %s", zIpAddr);
-        printf("iPort: %d", iPort);
-        /* check valid ipv6 address */
+      printf("zIpAddr: %s", zIpAddr);
+      printf("iPort: %d", iPort);
+      /* check valid ipv6 address */
       if (inet_pton(AF_INET6, zIpAddr, &(inaddr.sin6_addr)) < 1) {
-          /* maybe ipv4 string so try mixed ipv4 notation*/
-          strcpy(ip, "::FFFF:");
-          strcat(ip, zIpAddr);
-          printf("zIpAddr: %s", ip);
-          if (inet_pton(AF_INET6, ip, &(inaddr.sin6_addr)) == -1){
-            fossil_fatal("not a valid IP address: %s", zIpAddr);
-          }
+        /* maybe ipv4 string so try mixed ipv4 notation*/
+        sqlite3_snprintf(sizeof(ip), ip, "::FFFF:%s", zIpAddr);
+        printf("zIpAddr: %s", ip);
+        if (inet_pton(AF_INET6, ip, &(inaddr.sin6_addr)) == -1){
+          fossil_fatal("not a valid IP address: %s", zIpAddr);
+        }
       }
     }else if( flags & HTTP_SERVER_LOCALHOST ){
       inaddr.sin6_addr = in6addr_loopback;
