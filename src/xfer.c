@@ -49,6 +49,7 @@ struct Xfer {
   int nDanglingFile;  /* Number of dangling deltas received */
   int mxSend;         /* Stop sending "file" when pOut reaches this size */
   int resync;         /* Send igot cards for all holdings */
+  int fHasFork;       /* True if a fork has been seen */
   u8 syncPrivate;     /* True to enable syncing private content */
   u8 nextIsPrivate;   /* If true, next "file" received is a private */
   time_t maxTime;     /* Time when this transfer should be finished */
@@ -204,6 +205,9 @@ static void xfer_accept_file(
   }else{
     if( !isPriv ) content_make_public(rid);
     manifest_crosslink(rid, &content, MC_NO_ERRORS);
+    if( count_nonbranch_children(primary_parent_pid_from_rid(rid))>1 ){
+      pXfer->fHasFork = 1;
+    }
   }
   assert( blob_is_reset(&content) );
   remote_has(rid);
@@ -279,6 +283,9 @@ static void xfer_accept_compressed_file(
                        szC, isPriv);
   Th_AppendToList(pzUuidList, pnUuidList, blob_str(&pXfer->aToken[1]),
                   blob_size(&pXfer->aToken[1]));
+  if( count_nonbranch_children(primary_parent_pid_from_rid(rid))>1 ){
+    pXfer->fHasFork = 1;
+  }
   remote_has(rid);
   blob_reset(&content);
 }
@@ -979,6 +986,7 @@ void page_xfer(void){
     pnUuidList = &nUuidList;
   }
   while( blob_line(xfer.pIn, &xfer.line) ){
+    xfer.fHasFork = 0;
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
     if( blob_size(&xfer.line)==0 ) continue;
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
@@ -996,6 +1004,9 @@ void page_xfer(void){
         break;
       }
       xfer_accept_file(&xfer, 0, pzUuidList, pnUuidList);
+      if( xfer.fHasFork ){
+        @ message ******\sWARNING:\sa\sfork\shas\soccurred\s******
+      }
       if( blob_size(&xfer.err) ){
         cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
@@ -1017,6 +1028,9 @@ void page_xfer(void){
         break;
       }
       xfer_accept_compressed_file(&xfer, pzUuidList, pnUuidList);
+      if( xfer.fHasFork ){
+        @ message ******\sWARNING:\sa\sfork\shas\soccurred\s******
+      }
       if( blob_size(&xfer.err) ){
         cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
