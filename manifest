@@ -1,5 +1,5 @@
-C Update\sTH1\sdocs.
-D 2015-04-05T20:15:32.506
+C Merge\supdates\sfrom\strunk.
+D 2015-04-09T02:19:01.019
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/clean-glob c1679d70a381afc39909203441036a736fb4b596
 F .fossil-settings/encoding-glob f72f509f8101fb1f252c5719175a300aaabce8e0
@@ -385,7 +385,7 @@ F src/bundle.c 2aba06748d3bf43d66dc7c621138eb31b6b5b011
 F src/cache.c e609e5951a8e8ef4a4d0b13a7c5a77f4668294a0
 F src/captcha.c 9e3cf8ce57a60d503339cbbc98818fb84fa03f08
 F src/cgi.c 6657772f2447b54cfa4fe965d00b9605a04ada4d
-F src/checkin.c da007c500c7afa75510522dd4aaad6bf0814c6ba
+F src/checkin.c ca4f1166ab9a28c8b4df66b8b98946d715d3705f
 F src/checkout.c 11b0ff042a12a54021924eb20130dc35cd72be6f
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 169fbf8c653ae13186a0fb93901911268b6abe73
@@ -479,8 +479,8 @@ F src/shun.c 86226a085620c00a6a350a03279cee861be8a92f
 F src/sitemap.c 87a91b09ca9f595121d741c31ebd724d1e5df708
 F src/skins.c 1bb9b8b149475870969d6e77cea0610017b084fd
 F src/sqlcmd.c 1a2d0e1f6d236f186ef8e46618a9fb36cee2edaa
-F src/sqlite3.c 073db8106da9a6a76f15380a835f9a8170e6eb50
-F src/sqlite3.h a53c598ad7a8d722a2f307433380b18169360d21
+F src/sqlite3.c 49f1c3ae347e1327b5aaa6c7f76126bdf09c6f42
+F src/sqlite3.h cedaecc44add001ad3550b31b5a5d6484569ecfd
 F src/stash.c 18214fe82460ef5bbb4d9904620a96cd942aa937
 F src/stat.c 66e352596641f170a3513e19518a7690304a0b65
 F src/statrep.c b7bd715a0429375342af08151854d62b467c4792
@@ -734,7 +734,7 @@ F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webpage-ex.md 72a7965e3c53ea04beb0bbac5e11757b308b2059
 F www/webui.wiki 7fe551ac712f1036d3927f983e6469962fe4402d
 F www/wikitheory.wiki 06d46f731993c0d0ab1c9b202fea77a6dbd6a7a8
-P af50114075d559d7f762437dc64bec539660a331
-R 1a9ccccedbb3dc23ef49bc6bb2e1edb3
+P 095eb14c5bfee3a3fd821bd3788ea502a4562bf2 5a12e8c3b68fc9073157c4c83d88f9dcde4083a8
+R 3d5dcfd67d34dc7f2c2ab6ea4a3c4638
 U mistachkin
-Z 5e83ba0588acbc39420bf58cb100fc3c
+Z efd04c2d29947f8d0468b8e81c5ac58f
