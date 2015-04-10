@@ -1011,6 +1011,9 @@ void version_cmd(void){
 #if defined(FOSSIL_ENABLE_SSL)
     fossil_print("SSL (%s)\n", SSLeay_version(SSLEAY_VERSION));
 #endif
+#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
+    fossil_print("LEGACY_MV_RM\n");
+#endif
 #if defined(FOSSIL_ENABLE_TH1_DOCS)
     fossil_print("TH1_DOCS\n");
 #endif
